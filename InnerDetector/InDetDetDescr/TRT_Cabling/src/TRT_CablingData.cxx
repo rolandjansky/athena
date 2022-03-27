@@ -8,11 +8,11 @@
 //
 
 #include "TRT_CablingData.h"
-#include <iostream>
-#include <fstream>
-#include <sstream>
 #include <algorithm>
-#include <assert.h>
+#include <cassert>
+#include <fstream>
+#include <iostream>
+#include <sstream>
 
   //Constructor
 TRT_CablingData::TRT_CablingData()
@@ -32,14 +32,14 @@ TRT_CablingData::~TRT_CablingData()
 
   // Fill m_identifierForAllStraws with zeros (TB case)
 void TRT_CablingData::zero_identifierForAllStraws
-(int, std::vector<Identifier> )
+(int, const std::vector<Identifier>& )
 {  
   return;
 }
 
   // Fill m_identifierHashForAllStraws with zeros (TB case)
 void TRT_CablingData::zero_identifierHashForAllStraws
-(int, std::vector<IdentifierHash> )
+(int, const std::vector<IdentifierHash>& )
 {
   return;
 }
@@ -87,7 +87,7 @@ void TRT_CablingData::set_identifierForAllStraws(int rod,
   int bufferPosition, Identifier strawID)
 {    
   find_idandhash (rod, bufferPosition).first = strawID;
-  m_BufferOffsetForAllIdentifiers.push_back(idpair (strawID, bufferPosition));
+  m_BufferOffsetForAllIdentifiers.emplace_back(strawID, bufferPosition);
   m_bofai_sorted = false;
 
    //   cout << "set m_BufferOffsetForAllIdentifiers[" 

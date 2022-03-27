@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 def JepJemMonitoringConfig(inputFlags):
     '''Function to configure LVL1 JepJem algorithm in the monitoring system.'''
@@ -139,7 +139,7 @@ def JepJemMonitoringConfig(inputFlags):
     # Number of triggered slice
     myGroup.defineHistogram('jem_1d_TriggeredSlice_num;jem_1d_TriggeredSlice', 
                             title='Number of the Triggered Slice for JE;#Slice', type='TH1F',
-                            path=inputPath, cutmask='',
+                            path=inputPath, cutmask='', xlabels=[str(i) for i in range(maxSlices)],
                             xbins=maxSlices, xmin=0, xmax=maxSlices)
 
     # JEM E_t Sums
@@ -210,9 +210,9 @@ def JepJemMonitoringConfig(inputFlags):
     EventSamples=10
     myGroup.defineHistogram('GLinkParityError,jemLoc;jem_2d_ErrorEventNumbers',
                             title='JEM Error Event Numbers;Events with Error/Mismatch',type='TH2I',
-                            cutmask='',path=monHardPath, ylabels=err_summary_bin_labels,
-                            xbins=EventSamples,xmin=0,xmax=EventSamples,
-                            ybins=NumberOfSummaryBins,ymin=0,ymax=NumberOfSummaryBins)
+                            cutmask='',path=monHardPath,
+                            xbins=EventSamples, xmin=0, xmax=EventSamples, xlabels=[str(i + 1) for i in range(EventSamples)],
+                            ybins=NumberOfSummaryBins, ymin=0, ymax=NumberOfSummaryBins, ylabels=err_summary_bin_labels)
 
     # RoIs
     # ==========
@@ -250,9 +250,11 @@ def JepJemMonitoringConfig(inputFlags):
                             cutmask='', path=monRoIPath,
                             xbins=jebins, xmin=0., xmax=maxSmall)
     # JEM TOB RoI TOBs per JEM
+    tobsPerJEMLabels = [str(i + 1) for i in range(tobsPerJEM + 1)]
+    tobsPerJEMLabels[-1] = 'More'
     myGroup.defineHistogram('jemRoiTOBsPerJEM;jem_1d_roi_TOBsPerJEM',
                             title='JEM TOB RoI TOBs per JEM;Number of TOBs', type='TH1F',
-                            cutmask='', path=monRoIPath,
+                            cutmask='', path=monRoIPath, xlabels=tobsPerJEMLabels,
                             xbins=tobsPerJEM + 1, xmin=1, xmax=tobsPerJEM + 2)
     # RoI eta/phi maps
     myGroup.defineHistogram('jemRoiEta,jemRoiPhi;jem_2d_etaPhi_roi_Hitmap',

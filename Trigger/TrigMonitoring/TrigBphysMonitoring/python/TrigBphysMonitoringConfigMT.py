@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -20,9 +20,8 @@ class TrigBphysMonAlgBuilder:
   monitored_mumu_list = []
   monitored_mumux_list = []
 
-  # Add a flag to enable emulation
-  __acceptable_keys_list=['monitorL1Topo']
-  monitorL1Topo = False
+  __acceptable_keys_list=['useMonGroups']
+  useMonGroups = True
   
   basePath = 'HLT/BphysMon'
 
@@ -133,11 +132,12 @@ class TrigBphysMonAlgBuilder:
     ### monitorig groups
     from TrigConfigSvc.TriggerConfigAccess import getHLTMonitoringAccess
     moniAccess=getHLTMonitoringAccess(self.helper.inputFlags)
-    monitoring_bphys=moniAccess.monitoredChains(signatures="bphysMon",monLevels=["shifter"]) # other are ["shifter","t0","val"]
+    monitoring_bphys=moniAccess.monitoredChains(signatures="bphysMon",monLevels=["shifter","t0","val"]) # other are ["shifter","t0","val"]
   
     # if mon groups not found fall back to hard-coded trigger monitoring list
-    if len(monitoring_bphys) == 0:
+    if self.useMonGroups and len(monitoring_bphys) == 0 :
       self.__logger.warning('  No chains found in bphysMon groups')
+    if (not self.useMonGroups) or (len(monitoring_bphys) == 0) :
       monitoring_bphys = [
       # MuMu
       'HLT_2mu4_bDimu_L12MU3V',
@@ -178,6 +178,30 @@ class TrigBphysMonAlgBuilder:
     #from AthenaCommon.Constants import DEBUG,INFO
     #self.bphysMonAlg.OutputLevel = DEBUG
     
+    ## Vertexing tools
+    acc = self.helper.resobj
+    
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+    AtlasExtrapolator = acc.popToolsAndMerge( AtlasExtrapolatorCfg(self.helper.inputFlags) )
+    acc.addPublicTool(AtlasExtrapolator)
+    
+    VertexPointEstimator = CompFactory.InDet.VertexPointEstimator(
+                                                                  name = 'BphysMonVertexPointEstimator',
+                                                                  MinDeltaR = [-10000., -10000., -10000.],
+                                                                  MaxDeltaR = [ 10000.,  10000.,  10000.],
+                                                                  MaxPhi    = [ 10000.,  10000.,  10000.],
+                                                                  MaxChi2OfVtxEstimation = 2000.)
+    acc.addPublicTool(VertexPointEstimator)
+    self.bphysMonAlg.VertexPointEstimator = VertexPointEstimator
+    
+    VertexFitter = CompFactory.Trk.TrkVKalVrtFitter(
+                                                    name = 'BphysMonTrkVKalVrtFitter',
+                                                    FirstMeasuredPoint = True,
+                                                    MakeExtendedVertex = True,
+                                                    Extrapolator = AtlasExtrapolator)
+    acc.addPublicTool(VertexFitter)
+    self.bphysMonAlg.VertexFitter = VertexFitter    
+    
     self.bphysMonAlg.ContainerNames = self.monitored_containers
     self.bphysMonAlg.ChainNames_MuMu = self.monitored_mumu_list
     self.bphysMonAlg.ChainNames_MuMuX = self.monitored_mumux_list
@@ -188,6 +212,7 @@ class TrigBphysMonAlgBuilder:
     self.__logger.info("Booking histograms for alg: %s", self.bphysMonAlg.name)
     self.bookContainers()
     self.bookChains()
+    self.bookOfflineDimuons()
   
   
   def bookContainers(self):
@@ -227,14 +252,31 @@ class TrigBphysMonAlgBuilder:
         self.bookBphysObjectHists(chain, monGroup, "B")
         self.bookBphysObjectHists(chain, monGroup, "dimu")
         self.bookMuonHists(chain, monGroup)
+        self.bookTrkHists(chain, monGroup)
         
         
+  def bookOfflineDimuons(self):
+    fullOfflDimuList = self.monitored_mumu_list + self.monitored_mumux_list + ["Any"]
+    for chain in fullOfflDimuList :
+      monGroupName = 'OfflineDimu_'+chain
+      monGroupPath = 'OfflineDimu/'+chain
+      
+      monGroup = self.helper.addGroup( self.bphysMonAlg, monGroupName,
+                                       self.basePath+'/'+monGroupPath )
+      
+      self.bookChainGenericHists(chain, monGroup)
+      self.bookBphysObjectHists(chain, monGroup, "dimu", offline=True)
+      self.bookMuonHists(chain, monGroup)
+      
+      
   def bookChainGenericHists(self, chain, currentMonGroup) :
     currentMonGroup.defineHistogram('ncandidates',title='Number of Bphys candidates;number of candidates;Entries',
                                 xbins=10,xmin=-0.5,xmax=9.5)
       
-  def bookBphysObjectHists(self, chain, currentMonGroup, objStr):
+  def bookBphysObjectHists(self, chain, currentMonGroup, objStr, offline=False):
     currentMonGroup.defineHistogram(objStr+'_mass',title='Dimuon mass;m(#mu^{+}#mu^{-}) [GeV];Events / (0.1 GeV)',
+                                xbins=150,xmin=0.0,xmax=15.0)
+    currentMonGroup.defineHistogram(objStr+'_fitmass',title='Dimuon fitted mass;m(#mu^{+}#mu^{-}) [GeV];Events / (0.1 GeV)',
                                 xbins=150,xmin=0.0,xmax=15.0)
     currentMonGroup.defineHistogram(objStr+'_pt',title='Dimuon transverse momentum;p_{T}(#mu^{+}#mu^{-}) [GeV];Events / (1 GeV)',
                                 xbins=40,xmin=0.0,xmax=40.0)
@@ -242,6 +284,11 @@ class TrigBphysMonAlgBuilder:
                                 xbins=50,xmin=-2.5,xmax=2.5)
     currentMonGroup.defineHistogram(objStr+'_chi2',title='Dimuon #chi^{2};#chi^{2}(#mu^{+}#mu^{-});Events / (0.5)',
                                 xbins=80,xmin=0.0,xmax=40.0)
+    if offline :
+      currentMonGroup.defineHistogram(objStr+'_Lxy',title='Dimuon Lxy;L_{xy} [mm];Events / (0.1 mm)',
+                                  xbins=30,xmin=0.0,xmax=3.0)
+      currentMonGroup.defineHistogram(objStr+'_LxySig',title='Dimuon Lxy significance;L_{xy}/#sigma(L_{xy});Events / (0.2 mm)',
+                                  xbins=30,xmin=0.0,xmax=6.0)
     
   def bookMuonHists(self, chain, currentMonGroup):
     currentMonGroup.defineHistogram('mu1_pt',title='Mu1 transverse momentum;p_{T}(#mu) [GeV];Events / (1 GeV)',
@@ -255,5 +302,13 @@ class TrigBphysMonAlgBuilder:
     currentMonGroup.defineHistogram('mu2_eta',title='Mu2 pseudorapidity;#eta(#mu);Events / (0.1)',
                                 xbins=54,xmin=-2.7,xmax=2.7)
     currentMonGroup.defineHistogram('mu2_d0',title='Mu2 d0;d_{0}(#mu);Events / (0.2 mm)',
+                                xbins=100,xmin=-10.,xmax=10.)
+  
+  def bookTrkHists(self, chain, currentMonGroup):
+    currentMonGroup.defineHistogram('trk_pt',title='Track transverse momentum;p_{T}(#mu) [GeV];Events / (0.5 GeV)',
+                                xbins=40,xmin=0.0,xmax=20.0)
+    currentMonGroup.defineHistogram('trk_eta',title='Track pseudorapidity;#eta(#mu);Events / (0.1)',
+                                xbins=54,xmin=-2.7,xmax=2.7)
+    currentMonGroup.defineHistogram('trk_d0',title='Track d0;d_{0}(#mu);Events / (0.2 mm)',
                                 xbins=100,xmin=-10.,xmax=10.)
 

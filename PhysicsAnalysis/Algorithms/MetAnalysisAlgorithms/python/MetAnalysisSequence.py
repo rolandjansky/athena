@@ -50,7 +50,9 @@ def makeMetAnalysisSequence( dataType, metSuffix,
     # Set up the met maker algorithm:
     alg = createAlgorithm( 'CP::MetMakerAlg', 'MetMakerAlg' + postfix)
     addPrivateTool( alg, 'makerTool', 'met::METMaker' )
-    alg.makerTool.DoPFlow = 'PFlow' in metSuffix
+    
+    alg.makerTool.DoPFlow = 'PFlow' in metSuffix or metSuffix=="AnalysisMET"
+    
     if useFJVT:
         alg.makerTool.JetRejectionDec = 'passFJVT'
     if dataType != "data" :

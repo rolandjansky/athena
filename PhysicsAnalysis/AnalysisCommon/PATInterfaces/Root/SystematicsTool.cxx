@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -58,6 +58,8 @@ namespace CP {
          std::cerr << "SystematicsTool::appliedSystematics WARNING: "
                    << "no systematic configuration has been applied yet. "
                    << "Returning NULL" << std::endl;
+         static const SystematicSet dummy;
+         return dummy;
       }
       return *m_appliedSystematics;
    }

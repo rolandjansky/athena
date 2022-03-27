@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Identifier/Identifier.h"
@@ -122,7 +122,7 @@ HepGeom::Transform3D TRT_BarrelElement::calculateStrawTransform(int straw) const
     ////  * calculateLocalStrawTransform(straw);
  } else {
     std::cout << "calculateStrawTransform:  f is 0 !!!!" << std::endl;
-    return HepGeom::Transform3D();
+    return {};
   }
 }
 
@@ -174,7 +174,7 @@ HepGeom::Transform3D TRT_BarrelElement::defStrawTransform(int straw) const
       * HepGeom::RotateY3D(zAng)*HepGeom::TranslateZ3D(zPos);
   } else {
     std::cout << "calculateStrawTransform:  f is 0 !!!!" << std::endl;
-    return HepGeom::Transform3D();
+    return {};
   }
 
 }

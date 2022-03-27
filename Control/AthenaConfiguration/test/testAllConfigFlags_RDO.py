@@ -33,5 +33,5 @@ if haveOverlay:
     ConfigFlags._loadDynaFlags("Overlay")
 
 ConfigFlags.initAll()
+ConfigFlags.lock()
 ConfigFlags.dump()
-

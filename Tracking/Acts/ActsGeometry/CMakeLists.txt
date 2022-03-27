@@ -83,8 +83,6 @@ atlas_add_component( ActsGeometry
                      AthenaKernel
                      CaloDetDescrLib
                      EventInfo
-                     G4AtlasInterfaces 
-                     G4AtlasToolsLib 
                      GaudiKernel
                      StoreGateLib
                      TRT_ReadoutGeometry

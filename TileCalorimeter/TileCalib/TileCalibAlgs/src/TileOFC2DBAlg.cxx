@@ -16,7 +16,7 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 //=== Tile includes
-#include "TileCalibAlgs/TileOFC2DBAlg.h"
+#include "TileOFC2DBAlg.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileCalibBlobObjs/TileCalibDrawerOfc.h"
 #include "TileCalibBlobObjs/TileCalibDrawerCmt.h"

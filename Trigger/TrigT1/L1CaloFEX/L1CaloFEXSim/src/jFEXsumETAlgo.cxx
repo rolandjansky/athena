@@ -34,16 +34,16 @@ LVL1::jFEXsumETAlgo::~jFEXsumETAlgo() {
 }
 
 StatusCode LVL1::jFEXsumETAlgo::initialize() {
-    ATH_CHECK(m_jFEXsumETAlgo_jTowerContainerKey.initialize());
+    ATH_CHECK(m_jTowerContainerKey.initialize());
     return StatusCode::SUCCESS;
 }
 
 //calls container for TT
 StatusCode LVL1::jFEXsumETAlgo::safetyTest() {
 
-    SG::ReadHandle<jTowerContainer> jk_jFEXsumETAlgo_jTowerContainer(m_jFEXsumETAlgo_jTowerContainerKey);
-    if(! jk_jFEXsumETAlgo_jTowerContainer.isValid()) {
-        ATH_MSG_FATAL("Could not retrieve  jk_jFEXsumETAlgo_jTowerContainer " << m_jFEXsumETAlgo_jTowerContainerKey.key());
+    SG::ReadHandle<jTowerContainer> jTowerContainer(m_jTowerContainerKey);
+    if(! jTowerContainer.isValid()) {
+        ATH_MSG_FATAL("Could not retrieve  jTowerContainer " << m_jTowerContainerKey.key());
         return StatusCode::FAILURE;
     }
 

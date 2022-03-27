@@ -81,7 +81,7 @@ TrkToLeptonPVTool::TrkToLeptonPVTool(const std::string& type,
    std::unique_ptr<xAOD::Vertex>TrkToLeptonPVTool::npartVertex( const std::vector<const xAOD::TrackParticle*> & particles,
                                                                       const xAOD::EventInfo * eventINFO) const
    {
-     if(particles.size()<2) return std::unique_ptr<xAOD::Vertex>(nullptr);
+     if(particles.size()<1) return std::unique_ptr<xAOD::Vertex>(nullptr);
 
      std::vector<const xAOD::TrackParticle*> tmpp(particles);
      std::sort(tmpp.begin(),tmpp.end());
@@ -101,6 +101,7 @@ TrkToLeptonPVTool::TrkToLeptonPVTool(const std::string& type,
      float beamtiltX=0.;
      float beamtiltY=0.;
      AmgSymMatrix(3) beamcov;
+     beamcov.setIdentity();
      //-------------------------------
      if(eventINFO){
           BEAM.setX(eventINFO->beamPosX());

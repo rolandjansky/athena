@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuPatCandidateTool.h"
@@ -377,16 +377,16 @@ namespace Muon {
                 }
             }
 
-            const CompetingMuonClustersOnTrack* comprot = m_compClusterCreator->createBroadCluster(prds, 0);
+            std::unique_ptr<const CompetingMuonClustersOnTrack> comprot = m_compClusterCreator->createBroadCluster(prds, 0);
             if (!comprot) {
                 ATH_MSG_WARNING(" could not create CompetingMuonClustersOnTrack in chamber   " << m_idHelperSvc->toString(chit->first));
                 continue;
             }
-            hits.push_back(comprot);
-            allHits.push_back(comprot);
+            hits.push_back(comprot.get());
+            allHits.push_back(comprot.get());
 
             // add to garbage collection
-            trash_bin.push_back(comprot);
+            trash_bin.push_back(std::move(comprot));
         }
     }
 

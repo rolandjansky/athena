@@ -5,7 +5,7 @@ from AthenaCommon.CFElements import seqAND
 from AthenaConfiguration.ComponentFactory import CompFactory
 #from TrigHypothesis.TrigEgammaHypo import TrigEgammaTLAPhotonFex
 
-from TriggerMenuMT.HLT.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
+from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequence, RecoFragmentsPool
 
 
 def TLAPhotonSequence (flags, photonsIn):

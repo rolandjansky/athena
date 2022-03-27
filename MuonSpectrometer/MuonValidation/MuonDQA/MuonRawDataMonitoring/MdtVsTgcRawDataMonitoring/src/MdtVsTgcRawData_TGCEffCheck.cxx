@@ -11,7 +11,7 @@
 // Subject: TGC Efficiency     -->TGC Efficiency plots including EIFI by comparing with MDT Segments
 ///////////////////////////////////////////////////////////////////////////////////////////// 
 
-#include "MdtVsTgcRawDataMonitoring/MdtVsTgcRawDataValAlg.h"
+#include "MdtVsTgcRawDataValAlg.h"
 
 #include "TrkEventPrimitives/TrkEventPrimitivesDict.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
@@ -124,10 +124,9 @@ MdtVsTgcRawDataValAlg::prepareTREarray(const MuonGM::MuonDetectorManager* MuonDe
         } 
         
         // Get identifier of TRE at this set of indexes
-        bool *isValid = new bool(true);
-        Identifier tgc_testId = m_idHelperSvc->tgcIdHelper().elementID(stationName, stationEta, stationPhi, true, isValid);
-        if(!*isValid){delete isValid; continue;}
-        delete isValid;
+        bool isValid{false};
+        Identifier tgc_testId = m_idHelperSvc->tgcIdHelper().elementID(stationName, stationEta, stationPhi, isValid);
+        if(!isValid){continue;}
         
         // Get TRE and put into to array
         m_TREarray[stationNameIndex][tgcAC][absStationEta][stationPhi] = MuonDetMgrDS->getTgcReadoutElement(tgc_testId);

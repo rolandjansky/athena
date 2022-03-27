@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MDTSimHitVariables.h"
@@ -44,7 +44,7 @@ StatusCode MDTSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
     // the last 2 arguments are:
     // bool check -> set to true for validity check of identifier
     // &bool isValid -> reference to boolean, which will be false in case of invalid identifier
-    Identifier offid = m_MdtIdHelper->channelID(stname, steta, stphi,ml,tl,tube,true,&isValid);
+    Identifier offid = m_MdtIdHelper->channelID(stname, steta, stphi,ml,tl,tube, isValid);
     if (!isValid) {
        ATH_MSG_WARNING("Cannot build a valid Identifier for MDT stationName="<<stname<<", eta="<<steta<<", phi="<<stphi<<", multiLayer="<<ml<<", tubeLayer="<<tl<<", tube="<<tube<<"; skipping...");
        continue;
@@ -104,7 +104,7 @@ StatusCode MDTSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
     const HepMcParticleLink& pLink = hit.particleLink();
     barcode = pLink.barcode();
     if (pLink.isValid()) {
-      const HepMC::GenParticle* genP = pLink.cptr();
+      HepMC::ConstGenParticlePtr genP = pLink.cptr();
       if (genP) {
         pdgId=genP->pdg_id();
         barcode=HepMC::barcode(genP);

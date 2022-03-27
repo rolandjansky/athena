@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList, enableDetectors, disableDetectors
@@ -20,7 +20,7 @@ for tag in test_tags:
     flags = flags_runs[tag]
     flags.GeoModel.AtlasVersion = tag
 
-    print(f'{flags.GeoModel.AtlasVersion} - {flags.GeoModel.Run}')
+    print(f'{flags.GeoModel.AtlasVersion} - {flags.GeoModel.Run.value}')
     flags.dump('Detector.(Geometry|Enable)', True)
     print()
 

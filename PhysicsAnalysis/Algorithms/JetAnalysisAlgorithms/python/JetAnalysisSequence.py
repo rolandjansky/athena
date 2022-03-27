@@ -57,13 +57,17 @@ def makeJetAnalysisSequence( dataType, jetCollection, postfix = '',
     if btIndex != -1:
         jetCollection = jetCollection[:btIndex]
 
+    jetCollectionName=jetCollection
+    if(jetCollection=="AnalysisJets") :
+        jetCollectionName="AntiKt4EMPFlowJets"
+
     # interpret the jet collection
     collection_pattern = re.compile(
         r"AntiKt(\d+)(EMTopo|EMPFlow|LCTopo|TrackCaloCluster)(TrimmedPtFrac5SmallR20)?Jets")
-    match = collection_pattern.match(jetCollection)
+    match = collection_pattern.match(jetCollectionName)
     if not match:
         raise ValueError(
-            "Jet collection {0} does not match expected pattern!".format(jetCollection) )
+            "Jet collection {0} does not match expected pattern!".format(jetCollectionName) )
     radius = int(match.group(1) )
     if radius not in [2, 4, 6, 10]:
         raise ValueError("Jet collection has an unsupported radius '{0}'!".format(radius) )
@@ -157,6 +161,11 @@ def makeSmallRJetAnalysisSequence( seq, dataType, jetCollection,
         reduction -- Which NP reduction scheme should be used (All, Global, Category, Scenario)
         JEROption -- Which variant of the reduction should be used (All, Full, Simple). Note that not all combinations of reduction and JEROption are valid!
     """
+    
+    jetCollectionName=jetCollection
+    if(jetCollection=="AnalysisJets") :
+        jetCollectionName="AntiKt4EMPFlowJets"
+    
     if jetInput not in ["EMTopo", "EMPFlow"]:
         raise ValueError(
             "Unsupported input type '{0}' for R=0.4 jets!".format(jetInput) )
@@ -164,7 +173,7 @@ def makeSmallRJetAnalysisSequence( seq, dataType, jetCollection,
     # Prepare the jet calibration algorithm
     alg = createAlgorithm( 'CP::JetCalibrationAlg', 'JetCalibrationAlg'+postfix )
     addPrivateTool( alg, 'calibrationTool', 'JetCalibrationTool' )
-    alg.calibrationTool.JetCollection = jetCollection[:-4]
+    alg.calibrationTool.JetCollection = jetCollectionName[:-4]
     # Get the correct string to use in the config file name
     if dataType == 'afii':
         configFile = "JES_MC16Recommendation_AFII_{0}_Apr2019_Rel21.config"
@@ -201,7 +210,7 @@ def makeSmallRJetAnalysisSequence( seq, dataType, jetCollection,
 
     alg = createAlgorithm( 'CP::JetUncertaintiesAlg', 'JetUncertaintiesTool'+postfix )
     addPrivateTool( alg, 'uncertaintiesTool', 'JetUncertaintiesTool' )
-    alg.uncertaintiesTool.JetDefinition = jetCollection[:-4]
+    alg.uncertaintiesTool.JetDefinition = jetCollectionName[:-4]
     # Add the correct directory on the front
     alg.uncertaintiesTool.ConfigFile = "rel21/Fall2018/"+configFile
     alg.uncertaintiesTool.MCType = "AFII" if dataType == "afii" else "MC16"
@@ -294,13 +303,18 @@ def makeRScanJetAnalysisSequence( seq, dataType, jetCollection,
         radius -- The radius of the r-scan jets.
         postfix -- String to be added to the end of all public names.
     """
+    
+    jetCollectionName=jetCollection
+    if(jetCollection=="AnalysisJets") :
+        jetCollectionName="AntiKt4EMPFlowJets"
+    
     if jetInput != "LCTopo":
         raise ValueError(
             "Unsupported input type '{0}' for R-scan jets!".format(jetInput) )
     # Prepare the jet calibration algorithm
     alg = createAlgorithm( 'CP::JetCalibrationAlg', 'JetCalibrationAlg'+postfix )
     addPrivateTool( alg, 'calibrationTool', 'JetCalibrationTool' )
-    alg.calibrationTool.JetCollection = jetCollection[:-4]
+    alg.calibrationTool.JetCollection = jetCollectionName[:-4]
     alg.calibrationTool.ConfigFile = \
         "JES_MC16Recommendation_Rscan{0}LC_18Dec2018_R21.config".format(radius)
     if dataType == 'data':
@@ -324,6 +338,10 @@ def makeLargeRJetAnalysisSequence( seq, dataType, jetCollection,
         postfix -- String to be added to the end of all public names.
         largeRMass -- Which large-R mass definition to use. Ignored if not running on large-R jets ("Comb", "Calo", "TCC", "TA")
     """
+
+    jetCollectionName=jetCollection
+    if(jetCollection=="AnalysisJets") :
+        jetCollectionName="AntiKt4EMPFlowJets"
 
     if largeRMass not in ["Comb", "Calo", "TCC", "TA"]:
         raise ValueError ("Invalid large-R mass defintion {0}!".format(largeRMass) )
@@ -349,7 +367,7 @@ def makeLargeRJetAnalysisSequence( seq, dataType, jetCollection,
     # Prepare the jet calibration algorithm
     alg = createAlgorithm( 'CP::JetCalibrationAlg', 'JetCalibrationAlg'+postfix )
     addPrivateTool( alg, 'calibrationTool', 'JetCalibrationTool' )
-    alg.calibrationTool.JetCollection = jetCollection[:-4]
+    alg.calibrationTool.JetCollection = jetCollectionName[:-4]
     alg.calibrationTool.ConfigFile = configFile
     alg.calibrationTool.CalibSequence = "EtaJES_JMS"
     alg.calibrationTool.IsData = 0
@@ -361,7 +379,7 @@ def makeLargeRJetAnalysisSequence( seq, dataType, jetCollection,
     alg.outOfValidity = 2 # SILENT
     alg.outOfValidityDeco = 'outOfValidity'
     addPrivateTool( alg, 'uncertaintiesTool', 'JetUncertaintiesTool' )
-    alg.uncertaintiesTool.JetDefinition = jetCollection[:-4]
+    alg.uncertaintiesTool.JetDefinition = jetCollectionName[:-4]
     alg.uncertaintiesTool.ConfigFile = \
         "rel21/Moriond2018/R10_{0}Mass_all.config".format(largeRMass)
     alg.uncertaintiesTool.MCType = "MC16a"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRTNoise.h"
@@ -26,6 +26,7 @@
 
 #include <algorithm>
 #include <exception>
+#include <utility>
 
 struct TRTDigitSorter {
   bool operator() (TRTDigit digit1, TRTDigit digit2) { return (digit1.GetStrawID()<digit2.GetStrawID());}
@@ -55,7 +56,7 @@ TRTNoise::TRTNoise( const TRTDigSettings* digset,
   m_digitPoolLength_nextaccessindex(0),
   m_msg("TRTNoise"),
   m_UseGasMix(UseGasMix),
-  m_sumTool(sumTool)
+  m_sumTool(std::move(sumTool))
 {
   if (msgLevel(MSG::VERBOSE)) { msg(MSG::VERBOSE) << "TRTNoise::Constructor begin" << endmsg; }
   InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool(noiseRndmEngine,elecNoiseRndmEngine,elecProcRndmEngine);
@@ -359,7 +360,7 @@ void TRTNoise::appendPureNoiseToProperDigits( std::vector<TRTDigit>& digitVect, 
     // If this strawID does not have a sim_hit, add a pure noise digit
     if ( sim_hitids.find(hitid) == sim_hitids_end ) {
       const int ndigit(m_digitPool[CLHEP::RandFlat::shootInt(noiseRndmEngine,m_digitPoolLength)]);
-      digitVect.push_back(TRTDigit(hitid,ndigit));
+      digitVect.emplace_back(hitid,ndigit);
     }
   };
 
@@ -372,7 +373,7 @@ void TRTNoise::appendPureNoiseToProperDigits( std::vector<TRTDigit>& digitVect, 
 
 void TRTNoise::appendCrossTalkNoiseToProperDigits(std::vector<TRTDigit>& digitVect,
                                                   const std::set<Identifier>& simhitsIdentifiers,
-                                                  ServiceHandle<ITRT_StrawNeighbourSvc> TRTStrawNeighbourSvc,
+                                                  const ServiceHandle<ITRT_StrawNeighbourSvc>& TRTStrawNeighbourSvc,
                                                   CLHEP::HepRandomEngine* noiseRndmEngine) {
 
   //id helper:
@@ -422,7 +423,7 @@ void TRTNoise::appendCrossTalkNoiseToProperDigits(std::vector<TRTDigit>& digitVe
           //built hit id
           int hitid = hitid_helper->buildHitId( barrel_endcap, isneg, ringwheel, phisector,layer, straw);
           //add to digit vector
-          digitVect.push_back(TRTDigit(hitid,ndigit));
+          digitVect.emplace_back(hitid,ndigit);
         }
       }
     }
@@ -450,7 +451,7 @@ void TRTNoise::appendCrossTalkNoiseToProperDigits(std::vector<TRTDigit>& digitVe
           //built hit id
           int hitid = hitid_helper->buildHitId( barrel_endcap, isneg, ringwheel, phisector,layer, straw);
           //add to digit vector
-          digitVect.push_back(TRTDigit(hitid,ndigit));
+          digitVect.emplace_back(hitid,ndigit);
         }
       }
     }

@@ -52,6 +52,10 @@ def BasicTRTDigitizationTool(name, **kwargs):
     if digitizationFlags.doXingByXingPileUp():
         kwargs.setdefault("FirstXing", TRT_FirstXing())
         kwargs.setdefault("LastXing",  TRT_LastXing())
+    from AthenaCommon.DetFlags import DetFlags
+    if not DetFlags.pileup.any_on():
+        kwargs.setdefault("MergeSvc", '')
+        kwargs.setdefault("OnlyUseContainerName", False)
 
     ##else:
     ##    from AthenaCommon.DetFlags import DetFlags

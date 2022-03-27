@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -56,8 +56,7 @@ void Trk::PrimaryTruthClassifier::initClassification
  const std::vector<HepMC::ConstGenParticlePtr>* /*genSignal*/) const {
 
   // nothing to prepare as local data at start of collection analysis
-  return;
-}
+  }
 
 //////////////////////////////////////////
 // classification from InDetRecStatistics

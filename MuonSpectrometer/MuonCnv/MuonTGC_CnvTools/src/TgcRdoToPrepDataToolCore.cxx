@@ -13,12 +13,14 @@
 #include "MuonCnvToolInterfaces/IDC_Helper.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "GaudiKernel/ThreadLocalContext.h"
-
+#include <FourMomUtils/xAODP4Helpers.h>
 #include <cfloat>
 #include <algorithm>
 
 //================ Constructor =================================================
-
+namespace{
+    using namespace xAOD::P4Helpers;
+}
 Muon::TgcRdoToPrepDataToolCore::TgcRdoToPrepDataToolCore(const std::string& t, const std::string& n, const IInterface* p)
   : base_class(t, n, p), 
     m_nHitRDOs(0), 
@@ -1299,9 +1301,9 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeInner(getCoinCollection_func& g
   std::string stationName = "T3E"; 
   int stationEta = isAside ? 1 : -1;
   int stationPhi = phi;
-
-  Identifier elementId = m_idHelperSvc->tgcIdHelper().elementID(stationName, stationEta, stationPhi, true);
-  if(m_idHelperSvc->tgcIdHelper().get_hash(elementId, tgcHashId, &tgcContext)) {
+  bool isValid{false};
+  Identifier elementId = m_idHelperSvc->tgcIdHelper().elementID(stationName, stationEta, stationPhi, isValid);
+  if(!isValid || m_idHelperSvc->tgcIdHelper().get_hash(elementId, tgcHashId, &tgcContext)) {
     ATH_MSG_WARNING("Unable to get TGC hash id from TGC RDO collection "
 		    << "context begin_index = " << tgcContext.begin_index()
 		    << " context end_index  = " << tgcContext.end_index()
@@ -3206,13 +3208,9 @@ const Amg::Vector2D* Muon::TgcRdoToPrepDataToolCore::getSLLocalPosition(const Mu
     double glob_eta_c = glob_hitPos_c.eta();
     double glob_phi_c = glob_hitPos_c.phi();
 
-    Amg::MatrixX vector(2, 1);
-    vector(0,0) = eta - glob_eta_c;
-    vector(1,0) = phi - glob_phi_c;
-    while(vector(1,0)>+M_PI) vector(1,0) -= 2.*M_PI;
-    while(vector(1,0)<-M_PI) vector(1,0) += 2.*M_PI;
+    Amg::Vector2D vector{eta - glob_eta_c,  deltaPhi(phi, glob_phi_c)};
       
-    double dR = sqrt(vector(0,0)*vector(0,0) + vector(1,0)*vector(1,0));
+    double dR =  std::hypot(vector[0], vector[1]);
     if(dR<dRAccuracy) {
 	break;
     }
@@ -3226,21 +3224,16 @@ const Amg::Vector2D* Muon::TgcRdoToPrepDataToolCore::getSLLocalPosition(const Mu
     readout->surface(identify).localToGlobal(loc_hitPos_s,tmp_glob_hitPos_s,tmp_glob_hitPos_s);
     const Amg::Vector3D &glob_hitPos_s = tmp_glob_hitPos_s;
       
-    Amg::MatrixX matrix(2, 2);
+    AmgSymMatrix(2) matrix;
     matrix(0,0) = glob_hitPos_w.eta() - glob_eta_c;
-    matrix(1,0) = glob_hitPos_w.phi() - glob_phi_c;
-    while(matrix(1,0)>+M_PI) matrix(1,0) -= 2.*M_PI;
-    while(matrix(1,0)<-M_PI) matrix(1,0) += 2.*M_PI;
-	
+    matrix(1,0) = deltaPhi(glob_hitPos_w.phi(), glob_phi_c);   
     matrix(0,1) = glob_hitPos_s.eta() - glob_eta_c;
-    matrix(1,1) = glob_hitPos_s.phi() - glob_phi_c;
-    while(matrix(1,1)>+M_PI) matrix(1,1) -= 2.*M_PI;
-    while(matrix(1,1)<-M_PI) matrix(1,1) += 2.*M_PI;
-
+    matrix(1,1) = deltaPhi(glob_hitPos_s.phi(), glob_phi_c);
+   
     bool invertible = matrix.determinant();
     if(invertible) {
       Amg::MatrixX invertedMatrix = matrix.inverse();
-      Amg::MatrixX solution = invertedMatrix * vector;
+      Amg::Vector2D solution = invertedMatrix * vector;
       locX += length * solution(0,0);
       locY += length * solution(1,0);
 	  

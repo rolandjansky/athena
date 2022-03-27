@@ -107,6 +107,7 @@ class configureFromJSON(unittest.TestCase):
             argdict.write('''{"conditionsTag": {"all": "CONDBR2-BLKPA-2015-05"},
                               "geometryVersion": {"all": "ATLAS-R2-2015-03-01-00"},
                               "preExec": {"athena": ["print 'Python says hi!'"]},
+                              "perfmon": "fastmonmt",
                               "skipEvents": {"first": 10},
                               "testFloat": 4.67,
                               "testInt": 5}''')
@@ -133,6 +134,7 @@ class configureFromJSON(unittest.TestCase):
         expectedDictionary = {u'argJSON': u'argdict.json',
                               u"conditionsTag": {u"all": u"CONDBR2-BLKPA-2015-05"},
                               u"geometryVersion": {u"all": u"ATLAS-R2-2015-03-01-00"},
+                              u"perfmon": u"fastmonmt",
                               u"preExec": {u"athena": [u"print 'Python says hi!'"]},
                               u"skipEvents": {u"first": 10},
                               u"testFloat": 4.67,

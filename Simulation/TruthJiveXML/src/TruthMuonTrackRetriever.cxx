@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TruthJiveXML/TruthMuonTrackRetriever.h"
+#include "TruthMuonTrackRetriever.h"
 
 //#include "GaudiKernel/Bootstrap.h"
 //#include "GaudiKernel/ISvcLocator.h"

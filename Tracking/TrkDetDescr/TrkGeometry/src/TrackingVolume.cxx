@@ -43,6 +43,7 @@
 #include "TrkDetDescrUtils/NavBinnedArray1D.h"
 // CLHEP
 #include "GeoPrimitives/GeoPrimitives.h"
+#include <utility>
 
 Trk::TrackingVolume::TrackingVolume()
   : Volume()
@@ -886,11 +887,6 @@ Trk::TrackingVolume::addMaterial(const Trk::Material& mprop, float fact)
   dEdX += flin * mprop.dEdX;
 }
 
-void Trk::TrackingVolume::addMaterial
-ATLAS_NOT_THREAD_SAFE(const Material& mat, float fact) const
-{
-  const_cast<Trk::TrackingVolume*>(this)->addMaterial(mat, fact);
-}
 
 void Trk::TrackingVolume::sign
 ATLAS_NOT_THREAD_SAFE(Trk::GeometrySignature geosign,
@@ -934,7 +930,7 @@ Trk::TrackingVolume::boundarySurfaces() const
 const Trk::BoundarySurface<Trk::TrackingVolume>*
 Trk::TrackingVolume::boundarySurface(const ObjectAccessor::value_type& oa) const
 {
-  return (m_boundarySurfaces->operator[](oa)).get();
+  return (std::as_const(*m_boundarySurfaces)[oa]).get();
 }
 
 void

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TrkEventPrimitives/FitQuality.h"
@@ -442,7 +442,7 @@ namespace InDet {
       }
 
       // get local track parameters
-      const Trk::TrackParameters* trackPars = 0;
+      const Trk::TrackParameters* trackPars = nullptr;
       if (atsos->firstResidual()->residualType() == Trk::HitOnly) trackPars = atsos->trackParameters();
       else trackPars = atsos->unbiasedTrackPars();
 
@@ -455,7 +455,7 @@ namespace InDet {
         m_hit_eta[nhits] = 0.;
       } else {
         m_hit_cotth[nhits] = 1. / std::tan(pos.theta());
-        double etaval = -std::log(std::tan(std::atan(1. / std::fabs(m_hit_cotth[nhits])) / 2.));
+        double etaval = -std::log(std::tan(std::atan(1. / std::abs(m_hit_cotth[nhits])) / 2.));
         if (m_hit_cotth[nhits] < 0.) etaval *= -1.;
         m_hit_eta[nhits] = etaval;
       }

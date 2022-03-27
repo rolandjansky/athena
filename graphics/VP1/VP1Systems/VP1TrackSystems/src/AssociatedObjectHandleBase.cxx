@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -37,7 +37,7 @@ public:
   AssocObjAttachmentHandle * attachhandle;
 
   //SoTransform * transform;
-  void detach();
+  void detach() const;
   void attach(AssociatedObjectHandleBase * theclass );
   void ensureShapesBuild(AssociatedObjectHandleBase * theclass );
   void ensureShapesErased(AssociatedObjectHandleBase * theclass );
@@ -144,7 +144,7 @@ void AssociatedObjectHandleBase::setPickable( PICKSTYLE ps )
 }
 
 //____________________________________________________________________
-void AssociatedObjectHandleBase::Imp::detach()
+void AssociatedObjectHandleBase::Imp::detach() const
 {
   if (!attachhandle)
     return;//Can't have been attached.

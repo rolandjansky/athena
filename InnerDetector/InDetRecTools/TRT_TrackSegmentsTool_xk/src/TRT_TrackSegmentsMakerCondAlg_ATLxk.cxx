@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_TrackSegmentsMakerCondAlg_ATLxk.h"
@@ -29,8 +29,7 @@
 
 InDet::TRT_TrackSegmentsMakerCondAlg_ATLxk::TRT_TrackSegmentsMakerCondAlg_ATLxk(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthReentrantAlgorithm(name, pSvcLocator),
-    m_propTool("Trk::RungeKuttaPropagator"),
-    m_condSvc{"CondSvc", name}
+    m_propTool("Trk::RungeKuttaPropagator")
 
 {
   m_fieldmode   =      "MapSolenoid" ;
@@ -51,8 +50,6 @@ StatusCode InDet::TRT_TrackSegmentsMakerCondAlg_ATLxk::initialize()
 
   ATH_CHECK(m_trtDetEleContKey.initialize());
   ATH_CHECK(m_writeKey.initialize());
-  ATH_CHECK(m_condSvc.retrieve());
-  ATH_CHECK(m_condSvc->regHandle(this, m_writeKey));
 
   // Get propagator tool
   //
@@ -363,7 +360,7 @@ StatusCode InDet::TRT_TrackSegmentsMakerCondAlg_ATLxk::execute(const EventContex
     }
   }
 
-  if (writeHandle.record(rangeTrt, std::move(writeCdo)).isFailure()) {
+  if (writeHandle.record(rangeTrt, writeCdo).isFailure()) {
     ATH_MSG_FATAL("Could not record " << writeHandle.key()
                   << " with EventRange " << rangeTrt
                   << " into Conditions Store");

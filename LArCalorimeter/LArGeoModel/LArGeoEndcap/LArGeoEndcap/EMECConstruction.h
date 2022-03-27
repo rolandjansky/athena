@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -14,8 +14,8 @@
 #define LARGEOENDCAP_EMECCONSTRUCTION_H
 
 #include<vector>
+#include <string>
 class GeoFullPhysVol;
-class LArCustomShape;
 class GeoMaterial;
 
 namespace LArGeo {
@@ -51,8 +51,8 @@ namespace LArGeo {
 
     void place_custom_solids(
         GeoFullPhysVol *fullPV,
-        std::vector<LArCustomShape *> &absorbers,
-        std::vector<LArCustomShape *> &electrodes,
+        std::vector<std::string> &absorbers,
+        std::vector<std::string> &electrodes,
         int multilayered_absorbers,
         const GeoMaterial *Absorber, const GeoMaterial *Electrode,
         const GeoMaterial *Glue, const GeoMaterial *Lead

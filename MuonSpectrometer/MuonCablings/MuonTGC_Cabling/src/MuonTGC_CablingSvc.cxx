@@ -1268,9 +1268,9 @@ bool MuonTGC_CablingSvc::getSLIDfromReadoutID(int & phi,
   
   // sswID check removed
   if (sswID != 9 ){
-    ATH_MSG_WARNING(" Trigger info in SROD ");
+    ATH_MSG_VERBOSE(" Trigger info in SROD ");
   }else{
-    ATH_MSG_WARNING(" Trigger info in ROD ");
+    ATH_MSG_VERBOSE(" Trigger info in ROD ");
   }
 
   int offset, numOfSector, sector;

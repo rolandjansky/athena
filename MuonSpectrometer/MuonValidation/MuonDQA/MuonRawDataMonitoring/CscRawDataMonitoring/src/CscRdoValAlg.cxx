@@ -14,7 +14,7 @@
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 // Athena include(s)
-#include "CscRawDataMonitoring/CscRdoValAlg.h"
+#include "CscRdoValAlg.h"
 #include "MuonRDO/CscRawData.h"
 #include "MuonRDO/CscRawDataCollection.h"
 

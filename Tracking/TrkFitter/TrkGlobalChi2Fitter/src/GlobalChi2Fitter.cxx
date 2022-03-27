@@ -6746,7 +6746,11 @@ namespace Trk {
       }
     }
 
-    return std::make_unique<TrackStateOnSurface>(measurement.release(), trackpar.release(), fitQual.release(), mateff.release(), typePattern);
+    return std::make_unique<TrackStateOnSurface>(std::move(measurement),
+                                                 std::move(trackpar),
+                                                 std::move(fitQual),
+                                                 std::move(mateff),
+                                                 typePattern);
   }
 
   void GlobalChi2Fitter::makeTrackFillDerivativeMatrix(
@@ -6967,7 +6971,7 @@ namespace Trk {
   }
 
   void GlobalChi2Fitter::holeSearchHelper(
-    const std::vector<std::unique_ptr<const TrackParameters>> & hc,
+    const std::vector<std::unique_ptr<TrackParameters>> & hc,
     std::set<Identifier> & id_set,
     std::set<Identifier> & sct_set,
     TrackHoleCount & rv,
@@ -6979,7 +6983,7 @@ namespace Trk {
      * need to examine each one and update the values in our track hole count
      * accordingly.
      */
-    for (const std::unique_ptr<const TrackParameters> & tp : hc) {
+    for (const std::unique_ptr<TrackParameters> & tp : hc) {
       /*
        * It is possible, expected even, for some of these pointers to be null.
        * In those cases, it would be dangerous to continue, so we need to make
@@ -7215,8 +7219,8 @@ namespace Trk {
          * fitter to have deposited some hole information into the track state
          * earlier on in the fitting process.
          */
-        std::optional<std::vector<std::unique_ptr<const TrackParameters>>> & hc = beg.getHoles();
-        std::vector<std::unique_ptr<const TrackParameters>> states;
+        std::optional<std::vector<std::unique_ptr<TrackParameters>>> & hc = beg.getHoles();
+        std::vector<std::unique_ptr<TrackParameters>> states;
 
         /*
          * Gather the track states between the start and end of the
@@ -7263,7 +7267,7 @@ namespace Trk {
        * Simply conduct the blind extrapolation, and then use the helper tool
        * to ensure that the hole counts are updated.
        */
-      std::vector<std::unique_ptr<const Trk::TrackParameters>> bl = m_extrapolator->extrapolateBlindly(
+      std::vector<std::unique_ptr<Trk::TrackParameters>> bl = m_extrapolator->extrapolateBlindly(
         ctx,
         *last.trackParameters(),
         Trk::alongMomentum,
@@ -7408,7 +7412,7 @@ namespace Trk {
   GlobalChi2Fitter::~GlobalChi2Fitter() {
   }
 
-  std::vector<std::unique_ptr<const TrackParameters>> GlobalChi2Fitter::holesearchExtrapolation(
+  std::vector<std::unique_ptr<TrackParameters>> GlobalChi2Fitter::holesearchExtrapolation(
     const EventContext & ctx,
     const TrackParameters & src,
     const GXFTrackState & dst,
@@ -7418,7 +7422,7 @@ namespace Trk {
      * First, we conduct a bog standard stepwise extrapolation. This will
      * yield some unwanted results, but we will filter those later.
      */
-    std::vector<std::unique_ptr<const TrackParameters>> rv = m_extrapolator->extrapolateStepwise(
+    std::vector<std::unique_ptr<TrackParameters>> rv = m_extrapolator->extrapolateStepwise(
       ctx, src, *dst.surface(), propdir, false
     );
 
@@ -7485,7 +7489,7 @@ namespace Trk {
       }
     }
 
-    std::optional<std::vector<std::unique_ptr<const TrackParameters>>> extrapolation;
+    std::optional<std::vector<std::unique_ptr<TrackParameters>>> extrapolation;
 
     if (holesearch) {
       extrapolation = holesearchExtrapolation(ctx, prev, ts, propdir);

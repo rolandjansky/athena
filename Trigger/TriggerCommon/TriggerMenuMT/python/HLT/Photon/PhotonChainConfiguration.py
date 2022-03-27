@@ -5,7 +5,7 @@
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger(__name__)
-from ..Menu.ChainConfigurationBase import ChainConfigurationBase
+from ..Config.ChainConfigurationBase import ChainConfigurationBase
 from ..CommonSequences.CaloSequences import fastCaloMenuSequence
 from ..Photon.FastPhotonMenuSequences import fastPhotonMenuSequence
 from ..Photon.PrecisionPhotonMenuSequences import precisionPhotonMenuSequence
@@ -20,8 +20,8 @@ from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, 
 # fragments generating configuration will be functions in New JO,
 # so let's make them functions already now
 #----------------------------------------------------------------
-def fastPhotonCaloSequenceCfg( flags ):
-    return fastCaloMenuSequence(flags, 'Photon', doRinger=False)
+def fastPhotonCaloSequenceCfg( flags, doRinger = False ):
+    return fastCaloMenuSequence(flags, 'Photon', doRinger=doRinger)
     
 def fastPhotonSequenceCfg( flags ):    
     return fastPhotonMenuSequence( flags )
@@ -75,38 +75,56 @@ class PhotonChainConfiguration(ChainConfigurationBase):
     def __init__(self, chainDict):
         ChainConfigurationBase.__init__(self,chainDict)
         self.chainDict = chainDict
+
+    # ----------------------
+    # Prepare the sequence
+    # ----------------------
+    def prepareSequence(self):
+        # This function prepares the list of step names from which assembleChainImpl would make the chain assembly from.
+        
+        # --------------------
+        # define here the names of the steps and obtain the chainStep configuration
+        # --------------------
+
+        stepNames = [] # This will contain the name of the steps we will want to configure
+        # Put first fast Calo. Two possible variants now: 
+        stepNames += ['getFastCalo']
+
+        # OK now, unless its a HipTRT chain we need to do fastPhoton here:
+        if self.chainPart['extra'] == 'hiptrt':
+            stepNames += ['getHipTRT']
+            # for hiptrt chains, there is noprecision Calo nor precision Photon so returning sequence here:
+            return stepNames
+        else:
+            stepNames += ['getFastPhoton']
+
+
+        # After we need to place precisionCalo. There is no chain (except hiptrt) that does not require precision calo. Otherwise please insert logic here:
+
+        stepNames += ['getPrecisionCaloPhoton']
+
+        # And we will do precisionPhoton UNLESS its an etcut chain
+        if 'etcut' in self.chainPart['IDinfo']:
+            # if its an etcut chain we return the sequence up to here
+            return stepNames
+        else:
+            stepNames += ['getPrecisionPhoton']
+
+        return stepNames
+
+
+
     # ----------------------
     # Assemble the chain depending on information from chainName
     # ----------------------
     def assembleChainImpl(self):
         log.debug("Assembling chain for %s", self.chainName)
-
-        # --------------------
-        # define here the names of the steps and obtain the chainStep configuration
-        # --------------------
-        stepDictionary = {
-            "etcut"  : ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton'],
-            "hiptrt" : ['getFastCalo', 'getHipTRT'], # hipTRT sequence 
-            "nominal": ['getFastCalo', 'getFastPhoton', 'getPrecisionCaloPhoton', 'getPrecisionPhoton'],
-        }
-
-        ## This needs to be configured by the Egamma Developer!!
-        log.debug('photon chain part = %s', self.chainPart)
-        
-        key = "nominal"
-        if "etcut" in self.chainPart['IDinfo']:
-            key = "etcut"
-        if self.chainPart['extra']=="hiptrt":
-            key	= "hiptrt"
-
-        log.debug('photon key = %s', key)
-        if key in stepDictionary:
-            steps=stepDictionary[key]
-        else:
-            raise RuntimeError("Chain configuration unknown for photon chain with key: " + key )
+        # This will contain the name of the steps we will want to configure
+        steps = self.prepareSequence()
 
         chainSteps = []
 
+        log.debug("stepNames: %s", steps)
         for step in steps:
             log.debug('Adding photon trigger step %s', step)
             chainstep = getattr(self, step)()
@@ -121,7 +139,9 @@ class PhotonChainConfiguration(ChainConfigurationBase):
     # --------------------
     def getFastCalo(self):
         stepName = "PhotonFastCalo"
-        return self.getStep(1,stepName,[ fastPhotonCaloSequenceCfg])
+        if '_ringer' in self.chainDict['chainName']:
+            return self.getStep(1,stepName,[ fastPhotonCaloSequenceCfg], doRinger = True)
+        return self.getStep(1,stepName,[ fastPhotonCaloSequenceCfg], doRinger = False)
 
     def getFastPhoton(self):
         stepName = "FastPhoton"

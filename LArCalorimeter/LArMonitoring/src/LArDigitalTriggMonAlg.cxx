@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -164,7 +164,7 @@ StatusCode LArDigitalTriggMonAlg::fillHistograms(const EventContext& ctx) const
       pLArDigit = *itDig;
       unsigned int trueNSamples = pLArDigit->nsamples();
       MNsamples = trueNSamples;
-      
+
       fill(m_scMonGroupName, MNsamples);
       
       HWIdentifier id = pLArDigit->hardwareID(); //gives online ID
@@ -197,10 +197,6 @@ StatusCode LArDigitalTriggMonAlg::fillHistograms(const EventContext& ctx) const
       const int ThisPartition=WhatPartition(id,side);
       //    std::string spart = m_partitions[ThisPartition];
       Mpartition = ThisPartition;
-      
-      /** Check the gain -  SCs have only 1 gain*/
-      // will be used in next iteration
-      //int gain = pLArDigit->gain();
       
       const LArSCDigit* scdigi = dynamic_cast<const LArSCDigit*>(pLArDigit);
       if(!scdigi){ ATH_MSG_DEBUG(" CAN'T CAST ");
@@ -238,7 +234,13 @@ StatusCode LArDigitalTriggMonAlg::fillHistograms(const EventContext& ctx) const
 
       auto MlatomeSourceIdBIN_layer = Monitored::Scalar<float>("MlatomeSourceIdBIN_"+layer,MlatomeSourceIdBIN);
       auto Mmaxpos_layer = Monitored::Scalar<float>("Mmaxpos_"+layer,Mmaxpos);
+      auto eta_digi = Monitored::Scalar<float>("eta_digi_"+layerName,etaSC);
+      auto phi_digi = Monitored::Scalar<float>("phi_digi_"+layerName,phiSC);
+      auto badbit_eta_digi = Monitored::Scalar<float>("badQualBit_eta_"+layerName,etaSC);
+      auto badbit_phi_digi = Monitored::Scalar<float>("badQualBit_phi_"+layerName,phiSC);
       
+      bool isBadQualityBit=false;
+
       //samples
       for(unsigned i=0; i<trueNSamples;++i) {
 	Msampos=i+1;
@@ -249,7 +251,15 @@ StatusCode LArDigitalTriggMonAlg::fillHistograms(const EventContext& ctx) const
 	
 	fill(m_scMonGroupName, Msampos, MADC, MlatomeSourceIdBIN);
 
+	if(MADC==-1){
+	  isBadQualityBit=true;
+	  fill(m_scMonGroupName, Msampos, MlatomeSourceIdBIN);
+	}
       }
+
+      /** bad quality bit coverage plot*/
+      if(isBadQualityBit) 
+	fill(m_scMonGroupName, badbit_eta_digi, badbit_phi_digi);
 
       /** max sample vs latome per layer*/
       fill(m_scMonGroupName, Mmaxpos_layer, Mpartition, MlatomeSourceIdBIN_layer);
@@ -259,11 +269,10 @@ StatusCode LArDigitalTriggMonAlg::fillHistograms(const EventContext& ctx) const
 	auto MlatomeSourceIdBIN_layer_cut = Monitored::Scalar<float>("MlatomeSourceIdBIN_"+layer+"_cut",MlatomeSourceIdBIN);
 	auto Mmaxpos_layer_cut = Monitored::Scalar<float>("Mmaxpos_"+layer+"_cut",Mmaxpos);
 	fill(m_scMonGroupName, Mmaxpos_layer_cut, Mpartition, MlatomeSourceIdBIN_layer_cut);
-
-	auto eta_digi = Monitored::Scalar<float>("eta_digi_"+layerName,etaSC);
-	auto phi_digi = Monitored::Scalar<float>("phi_digi_"+layerName,phiSC);	
 	fill(m_scMonGroupName, eta_digi, phi_digi);
       }
+
+      
     }/** End of loop on LArDigit*/
     
     
@@ -274,7 +283,8 @@ StatusCode LArDigitalTriggMonAlg::fillHistograms(const EventContext& ctx) const
     LArRawSCContainer::const_iterator itSC = hSCetContainer->begin();
     LArRawSCContainer::const_iterator itSC_e = hSCetContainer->end();
     const LArRawSC* rawSC = 0;
-    
+
+        
     /** Loop over SCs*/
     for ( ; itSC!=itSC_e;++itSC) {
       rawSC = *itSC;
@@ -306,9 +316,10 @@ StatusCode LArDigitalTriggMonAlg::fillHistograms(const EventContext& ctx) const
 	ATH_MSG_DEBUG("    |______ --------- rawSC->SourceId() = "<< rawSC->SourceId());
       }
 
+
       ////////////////// make coverage plots
       HWIdentifier id = rawSC->hardwareID(); //gives online ID
-      //      /**skip disconnected channels:*/ ?
+      // TODO     /**skip disconnected channels:*/ ?
       //      if(!cabling->isOnlineConnected(id)) continue;
 
       const Identifier offlineID=cabling->cnvToIdentifier(id); //converts online to offline ID
@@ -316,8 +327,6 @@ StatusCode LArDigitalTriggMonAlg::fillHistograms(const EventContext& ctx) const
       Identifier32 Onl32 =id.get_identifier32();
 	
 
-      //        m_SCID_helper
-      //https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/LArCalorimeter/LArMonTools/src/LArCoverage.cxx
       // Get Physical Coordinates
       const CaloSuperCellDetDescrManager* ddman = nullptr;
       

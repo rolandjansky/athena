@@ -10,7 +10,7 @@
 # Use a random AOD on CVMFS as input - we do not really care about the results, 
 # the intention of the test is to ensure that the athena configuration
 # for our setup is not broken 
-TestFile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/22.0/v1/myAOD.pool.root"
+TestFile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/WorkflowReferences/master/q443/v1/myAOD.pool.root"
 
 # Run the standalone valdiation options, with additional plots enabled to ensure we also test the command line arg mechanism
 athena --filesInput ${TestFile} InDetPhysValMonitoring/InDetPhysValMonitoring_topOptions.py - --doExpertPlots

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
@@ -14,9 +14,9 @@
 
 namespace Trk {
 
-  VKalVrtControlBase::VKalVrtControlBase(const baseMagFld* baseFld,   const addrMagHandler addrFld, 
+  VKalVrtControlBase::VKalVrtControlBase(baseMagFld* baseFld,   const addrMagHandler addrFld, 
                                          const basePropagator* baseP, const addrPropagator addrP,
-                                         const IVKalState* istate): 
+                                         IVKalState* istate): 
        vk_objMagFld(baseFld),
        vk_funcMagFld(addrFld),
        vk_objProp(baseP), 

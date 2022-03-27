@@ -17,6 +17,7 @@
 #include "AsgTools/ToolHandle.h"
 #include "AsgDataHandles/ReadHandleKey.h"
 #include "AsgDataHandles/WriteHandleKey.h"
+#include "StoreGate/ShallowCopyDecorDeps.h"
 
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
@@ -40,8 +41,10 @@ private:
   ToolHandle<InDet::IInDetTrackSelectionTool> m_selector {this, "TrackSelector", "", "track selection tool"};
   
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_input = {this, "InputContainer", "", "The input tracks"};
-  SG::WriteHandleKey<ConstDataVector<xAOD::TrackParticleContainer>> m_output= {this, "OutputContainer", "JetSelectedTracks", "The output filtered tracks"};
+  SG::WriteHandleKey<xAOD::TrackParticleContainer> m_output= {this, "OutputContainer", "JetSelectedTracks", "The output filtered tracks"};
 
+  // this is to tell the scheduler to which decorations will be accessed from the ouput container : 
+  SG::ShallowCopyDecorDeps<xAOD::TrackParticleContainer> m_decorDeps { this, "DecorDeps", {}, "List of decorations to propagate through the view container" };
 };
 
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -25,11 +25,11 @@
 #include "TrkParticleBase/TrackParticleBaseCollection.h"
 
 #include <algorithm>
-#include <math.h>
-#include <map>
-#include <sstream>
+#include <cmath>
 #include <cstdlib>
 #include <ctime>
+#include <map>
+#include <sstream>
 
 //////////////////////////////////////////////////////////////////////////////////////
 /// Constructor

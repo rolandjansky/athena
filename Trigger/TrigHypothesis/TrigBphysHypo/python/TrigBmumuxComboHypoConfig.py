@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 from TrigBphysHypo.TrigBmumuxComboHypoMonitoringConfig import TrigBmumuxComboHypoMonitoring, TrigBmumuxComboHypoToolMonitoring
@@ -39,8 +39,8 @@ def BmumuxComboHypoCfg(name):
         TrackCollectionKey = 'HLT_IDTrack_Bmumux_IDTrig',
         DeltaR = 0.01,
         TrkZ0 = 50.,
-        MaxFitAttempts_DimuTrk1 = 200,
-        MaxFitAttempts_DimuTrk1Trk2 = 2000,
+        FitAttemptsWarningThreshold = 200,
+        FitAttemptsBreakThreshold = 1000,
         # dimuon properties
         Dimuon_rejectSameChargeTracks = True,
         Dimuon_massRange = (100., 5500.),
@@ -87,7 +87,7 @@ def BmumuxComboHypoCfg(name):
         BcToDsMuMu_massRange = (5500., 7300.),
         BcToDsMuMu_dimuonMassRange = (2500., 4300.),
         BcToDsMuMu_phiMassRange = (940., 1100.),
-        BcToDsMuMu_DsMassRange = (1850., 2100.),
+        BcToDsMuMu_DsMassRange = (1750., 2100.),
         BcToDsMuMu_chi2 = 60.,
         # B_c+ -> J/psi(-> mu+ mu-) D+(-> K- pi+ pi+)
         BcToDplusMuMu = True,
@@ -136,11 +136,18 @@ class TrigBmumuxComboHypoConfig(object):
             'BcmumuDploose' :    13,  # BCDPMUMU
             'BcmumuDsloose' :    11,  # BCDSMUMU
             'BcmumuD0Xloose' :   19,  # DZKPI
-            'BcmumuDstarloose' : 14   # BCDSTMUMU
+            'BcmumuDstarloose' : 14,  # BCDSTMUMU
+            'BpmuD0X' :          23,  # B2D0MUX
+            'BdmuDpX' :          24,  # BD2DMMUX
+            'BdmuDstarX' :       25,  # BD2DSTMUX
+            'BsmuDsX' :          26,  # BS2DSMUX
+            'LbmuLcX' :          27   # LB2LCMUX
         }
 
         tool.Decay = trigDecayDict[decay]
 
-        tool.MonTool = TrigBmumuxComboHypoToolMonitoring('MonTool')
+        monGroups = ['bphysMon:online']
+        if any(group in monGroups for group in chainDict['monGroups']):
+            tool.MonTool = TrigBmumuxComboHypoToolMonitoring('MonTool')
 
         return tool

@@ -180,21 +180,17 @@ TrigTraversal        INFO [Final passing feature] All chains features size:3
 
  ---------- Now Include Failing Features 
 TrigTraversal        INFO HLT_mufast_chain
-TrigTraversal        INFO |-> HLTNav_Summary_OnlineSlimmed #7 Name(H) Passing(0)
-TrigTraversal        INFO   |-> HLTNav_Summary_OnlineSlimmed #6 Name(IM) Passing(3)
-TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #4 Name(F) Passing(2)
-TrigTraversal        INFO       |-> HLTNav_Summary_OnlineSlimmed #0 Name(L1) Passing(3)
 TrigTraversal        INFO |-> HLTNav_Summary_OnlineSlimmed #3 Name(HLTPassRaw) Passing(4)
 TrigTraversal        INFO   |-> HLTNav_Summary_OnlineSlimmed #13 Name(SF) Passing(1)
 TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #12 Name(H) Passing(3)
 TrigTraversal        INFO       |-> HLTNav_Summary_OnlineSlimmed #11 Name(IM) Passing(3)
 TrigTraversal        INFO         |-> HLTNav_Summary_OnlineSlimmed #9 Name(F) Passing(2)
 TrigTraversal        INFO           |-> HLTNav_Summary_OnlineSlimmed #1 Name(L1) Passing(3)
-TrigTraversal        INFO HLT_mu_chain
 TrigTraversal        INFO |-> HLTNav_Summary_OnlineSlimmed #7 Name(H) Passing(0)
 TrigTraversal        INFO   |-> HLTNav_Summary_OnlineSlimmed #6 Name(IM) Passing(3)
 TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #4 Name(F) Passing(2)
 TrigTraversal        INFO       |-> HLTNav_Summary_OnlineSlimmed #0 Name(L1) Passing(3)
+TrigTraversal        INFO HLT_mu_chain
 TrigTraversal        INFO |-> HLTNav_Summary_OnlineSlimmed #3 Name(HLTPassRaw) Passing(4)
 TrigTraversal        INFO   |-> HLTNav_Summary_OnlineSlimmed #19 Name(SF) Passing(1)
 TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #18 Name(H) Passing(2)
@@ -204,11 +200,11 @@ TrigTraversal        INFO           |-> HLTNav_Summary_OnlineSlimmed #12 Name(H)
 TrigTraversal        INFO             |-> HLTNav_Summary_OnlineSlimmed #11 Name(IM) Passing(3)
 TrigTraversal        INFO               |-> HLTNav_Summary_OnlineSlimmed #9 Name(F) Passing(2)
 TrigTraversal        INFO                 |-> HLTNav_Summary_OnlineSlimmed #1 Name(L1) Passing(3)
-TrigTraversal        INFO HLT_mu_em_chain
 TrigTraversal        INFO |-> HLTNav_Summary_OnlineSlimmed #7 Name(H) Passing(0)
 TrigTraversal        INFO   |-> HLTNav_Summary_OnlineSlimmed #6 Name(IM) Passing(3)
-TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #5 Name(F) Passing(1)
+TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #4 Name(F) Passing(2)
 TrigTraversal        INFO       |-> HLTNav_Summary_OnlineSlimmed #0 Name(L1) Passing(3)
+TrigTraversal        INFO HLT_mu_em_chain
 TrigTraversal        INFO |-> HLTNav_Summary_OnlineSlimmed #3 Name(HLTPassRaw) Passing(4)
 TrigTraversal        INFO   |-> HLTNav_Summary_OnlineSlimmed #21 Name(SF) Passing(1)
 TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #20 Name(CH) Passing(1)
@@ -230,6 +226,10 @@ TrigTraversal        INFO               |-> HLTNav_Summary_OnlineSlimmed #25 Nam
 TrigTraversal        INFO                 |-> HLTNav_Summary_OnlineSlimmed #24 Name(IM) Passing(2)
 TrigTraversal        INFO                   |-> HLTNav_Summary_OnlineSlimmed #23 Name(F) Passing(1)
 TrigTraversal        INFO                     |-> HLTNav_Summary_OnlineSlimmed #2 Name(L1) Passing(2)
+TrigTraversal        INFO |-> HLTNav_Summary_OnlineSlimmed #7 Name(H) Passing(0)
+TrigTraversal        INFO   |-> HLTNav_Summary_OnlineSlimmed #6 Name(IM) Passing(3)
+TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #5 Name(F) Passing(1)
+TrigTraversal        INFO       |-> HLTNav_Summary_OnlineSlimmed #0 Name(L1) Passing(3)
 TrigTraversal        INFO HLT_em_chain
 TrigTraversal        INFO |-> HLTNav_Summary_OnlineSlimmed #3 Name(HLTPassRaw) Passing(4)
 TrigTraversal        INFO   |-> HLTNav_Summary_OnlineSlimmed #31 Name(SF) Passing(1)
@@ -241,12 +241,6 @@ TrigTraversal        INFO             |-> HLTNav_Summary_OnlineSlimmed #24 Name(
 TrigTraversal        INFO               |-> HLTNav_Summary_OnlineSlimmed #22 Name(F) Passing(1)
 TrigTraversal        INFO                 |-> HLTNav_Summary_OnlineSlimmed #2 Name(L1) Passing(2)
 TrigTraversal        INFO All
-TrigTraversal        INFO |-> HLTNav_Summary_OnlineSlimmed #7 Name(H) Passing(0)
-TrigTraversal        INFO   |-> HLTNav_Summary_OnlineSlimmed #6 Name(IM) Passing(3)
-TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #4 Name(F) Passing(2)
-TrigTraversal        INFO       |-> HLTNav_Summary_OnlineSlimmed #0 Name(L1) Passing(3)
-TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #5 Name(F) Passing(1)
-TrigTraversal        INFO       |-> HLTNav_Summary_OnlineSlimmed #0 Name(L1) Passing(3)
 TrigTraversal        INFO |-> HLTNav_Summary_OnlineSlimmed #3 Name(HLTPassRaw) Passing(4)
 TrigTraversal        INFO   |-> HLTNav_Summary_OnlineSlimmed #13 Name(SF) Passing(1)
 TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #12 Name(H) Passing(3)
@@ -329,6 +323,12 @@ TrigTraversal        INFO                   |-> HLTNav_Summary_OnlineSlimmed #22
 TrigTraversal        INFO                     |-> HLTNav_Summary_OnlineSlimmed #2 Name(L1) Passing(2)
 TrigTraversal        INFO                   |-> HLTNav_Summary_OnlineSlimmed #23 Name(F) Passing(1)
 TrigTraversal        INFO                     |-> HLTNav_Summary_OnlineSlimmed #2 Name(L1) Passing(2)
+TrigTraversal        INFO |-> HLTNav_Summary_OnlineSlimmed #7 Name(H) Passing(0)
+TrigTraversal        INFO   |-> HLTNav_Summary_OnlineSlimmed #6 Name(IM) Passing(3)
+TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #4 Name(F) Passing(2)
+TrigTraversal        INFO       |-> HLTNav_Summary_OnlineSlimmed #0 Name(L1) Passing(3)
+TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #5 Name(F) Passing(1)
+TrigTraversal        INFO       |-> HLTNav_Summary_OnlineSlimmed #0 Name(L1) Passing(3)
 TrigTraversal        INFO [All passing/failing features] HLT_mufast_chain features size:2
   Feature  pt:20, state:ACTIVE
   Feature  pt:5, state:INACTIVE
@@ -385,18 +385,15 @@ TrigTraversal        INFO [Final passing/failing feature] All chains features si
  ---------- Thinning out 'F' nodes.
 ----------
 TrigTraversal        INFO HLT_mufast_chain goes from 10 nodes, 11 edges, to 8 nodes, 6 edges.
-TrigTraversal        INFO |-> HLTNav_Summary_OnlineSlimmed #7 Name(H) Passing(0)
-TrigTraversal        INFO   |-> HLTNav_Summary_OnlineSlimmed #6 Name(IM) Passing(3)
-TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #0 Name(L1) Passing(3)
 TrigTraversal        INFO |-> HLTNav_Summary_OnlineSlimmed #3 Name(HLTPassRaw) Passing(4)
 TrigTraversal        INFO   |-> HLTNav_Summary_OnlineSlimmed #13 Name(SF) Passing(1)
 TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #12 Name(H) Passing(3)
 TrigTraversal        INFO       |-> HLTNav_Summary_OnlineSlimmed #11 Name(IM) Passing(3)
 TrigTraversal        INFO         |-> HLTNav_Summary_OnlineSlimmed #1 Name(L1) Passing(3)
-TrigTraversal        INFO HLT_mu_chain goes from 13 nodes, 11 edges, to 10 nodes, 8 edges.
 TrigTraversal        INFO |-> HLTNav_Summary_OnlineSlimmed #7 Name(H) Passing(0)
 TrigTraversal        INFO   |-> HLTNav_Summary_OnlineSlimmed #6 Name(IM) Passing(3)
 TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #0 Name(L1) Passing(3)
+TrigTraversal        INFO HLT_mu_chain goes from 13 nodes, 11 edges, to 10 nodes, 8 edges.
 TrigTraversal        INFO |-> HLTNav_Summary_OnlineSlimmed #3 Name(HLTPassRaw) Passing(4)
 TrigTraversal        INFO   |-> HLTNav_Summary_OnlineSlimmed #19 Name(SF) Passing(1)
 TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #18 Name(H) Passing(2)
@@ -404,10 +401,10 @@ TrigTraversal        INFO       |-> HLTNav_Summary_OnlineSlimmed #17 Name(IM) Pa
 TrigTraversal        INFO         |-> HLTNav_Summary_OnlineSlimmed #12 Name(H) Passing(3)
 TrigTraversal        INFO           |-> HLTNav_Summary_OnlineSlimmed #11 Name(IM) Passing(3)
 TrigTraversal        INFO             |-> HLTNav_Summary_OnlineSlimmed #1 Name(L1) Passing(3)
-TrigTraversal        INFO HLT_mu_em_chain goes from 25 nodes, 23 edges, to 20 nodes, 18 edges.
 TrigTraversal        INFO |-> HLTNav_Summary_OnlineSlimmed #7 Name(H) Passing(0)
 TrigTraversal        INFO   |-> HLTNav_Summary_OnlineSlimmed #6 Name(IM) Passing(3)
 TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #0 Name(L1) Passing(3)
+TrigTraversal        INFO HLT_mu_em_chain goes from 25 nodes, 23 edges, to 20 nodes, 18 edges.
 TrigTraversal        INFO |-> HLTNav_Summary_OnlineSlimmed #3 Name(HLTPassRaw) Passing(4)
 TrigTraversal        INFO   |-> HLTNav_Summary_OnlineSlimmed #21 Name(SF) Passing(1)
 TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #20 Name(CH) Passing(1)
@@ -425,6 +422,9 @@ TrigTraversal        INFO           |-> HLTNav_Summary_OnlineSlimmed #26 Name(CH
 TrigTraversal        INFO             |-> HLTNav_Summary_OnlineSlimmed #25 Name(H) Passing(2)
 TrigTraversal        INFO               |-> HLTNav_Summary_OnlineSlimmed #24 Name(IM) Passing(2)
 TrigTraversal        INFO                 |-> HLTNav_Summary_OnlineSlimmed #2 Name(L1) Passing(2)
+TrigTraversal        INFO |-> HLTNav_Summary_OnlineSlimmed #7 Name(H) Passing(0)
+TrigTraversal        INFO   |-> HLTNav_Summary_OnlineSlimmed #6 Name(IM) Passing(3)
+TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #0 Name(L1) Passing(3)
 TrigTraversal        INFO HLT_em_chain goes from 9 nodes, 8 edges, to 7 nodes, 6 edges.
 TrigTraversal        INFO |-> HLTNav_Summary_OnlineSlimmed #3 Name(HLTPassRaw) Passing(4)
 TrigTraversal        INFO   |-> HLTNav_Summary_OnlineSlimmed #31 Name(SF) Passing(1)
@@ -434,9 +434,6 @@ TrigTraversal        INFO         |-> HLTNav_Summary_OnlineSlimmed #25 Name(H) P
 TrigTraversal        INFO           |-> HLTNav_Summary_OnlineSlimmed #24 Name(IM) Passing(2)
 TrigTraversal        INFO             |-> HLTNav_Summary_OnlineSlimmed #2 Name(L1) Passing(2)
 TrigTraversal        INFO All goes from 33 nodes, 39 edges, to 23 nodes, 26 edges.
-TrigTraversal        INFO |-> HLTNav_Summary_OnlineSlimmed #7 Name(H) Passing(0)
-TrigTraversal        INFO   |-> HLTNav_Summary_OnlineSlimmed #6 Name(IM) Passing(3)
-TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #0 Name(L1) Passing(3)
 TrigTraversal        INFO |-> HLTNav_Summary_OnlineSlimmed #3 Name(HLTPassRaw) Passing(4)
 TrigTraversal        INFO   |-> HLTNav_Summary_OnlineSlimmed #13 Name(SF) Passing(1)
 TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #12 Name(H) Passing(3)
@@ -484,31 +481,31 @@ TrigTraversal        INFO           |-> HLTNav_Summary_OnlineSlimmed #26 Name(CH
 TrigTraversal        INFO             |-> HLTNav_Summary_OnlineSlimmed #25 Name(H) Passing(2)
 TrigTraversal        INFO               |-> HLTNav_Summary_OnlineSlimmed #24 Name(IM) Passing(2)
 TrigTraversal        INFO                 |-> HLTNav_Summary_OnlineSlimmed #2 Name(L1) Passing(2)
+TrigTraversal        INFO |-> HLTNav_Summary_OnlineSlimmed #7 Name(H) Passing(0)
+TrigTraversal        INFO   |-> HLTNav_Summary_OnlineSlimmed #6 Name(IM) Passing(3)
+TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #0 Name(L1) Passing(3)
  ----------
  ---------- Thinning with mode 'keepOnlyFinalFeatures'.
  ----------
 TrigTraversal        INFO HLT_mufast_chain goes from 8 nodes, 8 edges, to 8 nodes, 6 edges.
-TrigTraversal        INFO |-> HLTNav_Summary_OnlineSlimmed #7 Name(H) Passing(0)
-TrigTraversal        INFO   |-> HLTNav_Summary_OnlineSlimmed #6 Name(IM) Passing(3)
-TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #0 Name(L1) Passing(3)
 TrigTraversal        INFO |-> HLTNav_Summary_OnlineSlimmed #3 Name(HLTPassRaw) Passing(4)
 TrigTraversal        INFO   |-> HLTNav_Summary_OnlineSlimmed #13 Name(SF) Passing(1)
 TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #12 Name(H) Passing(3)
 TrigTraversal        INFO       |-> HLTNav_Summary_OnlineSlimmed #11 Name(IM) Passing(3)
 TrigTraversal        INFO         |-> HLTNav_Summary_OnlineSlimmed #1 Name(L1) Passing(3)
-TrigTraversal        INFO HLT_mu_chain goes from 10 nodes, 8 edges, to 8 nodes, 6 edges.
 TrigTraversal        INFO |-> HLTNav_Summary_OnlineSlimmed #7 Name(H) Passing(0)
 TrigTraversal        INFO   |-> HLTNav_Summary_OnlineSlimmed #6 Name(IM) Passing(3)
 TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #0 Name(L1) Passing(3)
+TrigTraversal        INFO HLT_mu_chain goes from 10 nodes, 8 edges, to 8 nodes, 6 edges.
 TrigTraversal        INFO |-> HLTNav_Summary_OnlineSlimmed #3 Name(HLTPassRaw) Passing(4)
 TrigTraversal        INFO   |-> HLTNav_Summary_OnlineSlimmed #19 Name(SF) Passing(1)
 TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #18 Name(H) Passing(2)
 TrigTraversal        INFO       |-> HLTNav_Summary_OnlineSlimmed #17 Name(IM) Passing(2)
 TrigTraversal        INFO         |-> HLTNav_Summary_OnlineSlimmed #1 Name(L1) Passing(3)
-TrigTraversal        INFO [HLT_mu_em_chain goes from 20 nodes, 18 edges, to 14 nodes, 12 edges.
 TrigTraversal        INFO |-> HLTNav_Summary_OnlineSlimmed #7 Name(H) Passing(0)
 TrigTraversal        INFO   |-> HLTNav_Summary_OnlineSlimmed #6 Name(IM) Passing(3)
 TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #0 Name(L1) Passing(3)
+TrigTraversal        INFO [HLT_mu_em_chain goes from 20 nodes, 18 edges, to 14 nodes, 12 edges.
 TrigTraversal        INFO |-> HLTNav_Summary_OnlineSlimmed #3 Name(HLTPassRaw) Passing(4)
 TrigTraversal        INFO   |-> HLTNav_Summary_OnlineSlimmed #21 Name(SF) Passing(1)
 TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #20 Name(CH) Passing(1)
@@ -520,6 +517,9 @@ TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #32 Name(CH) Pass
 TrigTraversal        INFO       |-> HLTNav_Summary_OnlineSlimmed #30 Name(H) Passing(2)
 TrigTraversal        INFO         |-> HLTNav_Summary_OnlineSlimmed #29 Name(IM) Passing(2)
 TrigTraversal        INFO           |-> HLTNav_Summary_OnlineSlimmed #2 Name(L1) Passing(2)
+TrigTraversal        INFO |-> HLTNav_Summary_OnlineSlimmed #7 Name(H) Passing(0)
+TrigTraversal        INFO   |-> HLTNav_Summary_OnlineSlimmed #6 Name(IM) Passing(3)
+TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #0 Name(L1) Passing(3)
 TrigTraversal        INFO HLT_em_chain goes from 9 nodes, 6 edges, to 5 nodes, 4 edges.
 TrigTraversal        INFO |-> HLTNav_Summary_OnlineSlimmed #3 Name(HLTPassRaw) Passing(4)
 TrigTraversal        INFO   |-> HLTNav_Summary_OnlineSlimmed #31 Name(SF) Passing(1)
@@ -527,9 +527,6 @@ TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #30 Name(H) Passi
 TrigTraversal        INFO       |-> HLTNav_Summary_OnlineSlimmed #29 Name(IM) Passing(2)
 TrigTraversal        INFO         |-> HLTNav_Summary_OnlineSlimmed #2 Name(L1) Passing(2)
 TrigTraversal        INFO All goes from 23 nodes, 26 edges, to 19 nodes, 20 edges.
-TrigTraversal        INFO |-> HLTNav_Summary_OnlineSlimmed #7 Name(H) Passing(0)
-TrigTraversal        INFO   |-> HLTNav_Summary_OnlineSlimmed #6 Name(IM) Passing(3)
-TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #0 Name(L1) Passing(3)
 TrigTraversal        INFO |-> HLTNav_Summary_OnlineSlimmed #3 Name(HLTPassRaw) Passing(4)
 TrigTraversal        INFO   |-> HLTNav_Summary_OnlineSlimmed #13 Name(SF) Passing(1)
 TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #12 Name(H) Passing(3)
@@ -557,6 +554,9 @@ TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #32 Name(CH) Pass
 TrigTraversal        INFO       |-> HLTNav_Summary_OnlineSlimmed #30 Name(H) Passing(2)
 TrigTraversal        INFO         |-> HLTNav_Summary_OnlineSlimmed #29 Name(IM) Passing(2)
 TrigTraversal        INFO           |-> HLTNav_Summary_OnlineSlimmed #2 Name(L1) Passing(2)
+TrigTraversal        INFO |-> HLTNav_Summary_OnlineSlimmed #7 Name(H) Passing(0)
+TrigTraversal        INFO   |-> HLTNav_Summary_OnlineSlimmed #6 Name(IM) Passing(3)
+TrigTraversal        INFO     |-> HLTNav_Summary_OnlineSlimmed #0 Name(L1) Passing(3)
  ----------
  ---------- Check Explicit Type 
  ----------

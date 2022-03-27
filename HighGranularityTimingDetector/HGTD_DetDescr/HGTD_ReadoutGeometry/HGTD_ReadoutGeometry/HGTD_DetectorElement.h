@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////
@@ -112,13 +112,6 @@ protected:
     //@{
     CxxUtils::CachedValue<std::vector<const Trk::Surface*> > m_surfaces;
     //@}
-
-    /**
-     * @name Variables set by constructor
-     */
-    //@{
-    const HGTD_ModuleDesign* m_design;
-
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -127,12 +120,12 @@ protected:
 
 inline const HGTD_ModuleDesign &HGTD_DetectorElement::design() const
 {
-  return *m_design;
+  return static_cast<const HGTD_ModuleDesign&> (SolidStateDetectorElementBase::design());
 }
 
 inline InDetDD::CarrierType HGTD_DetectorElement::carrierType() const
 {
-  return m_design->carrierType();
+  return design().carrierType();
 }
 
 } // namespace InDetDD

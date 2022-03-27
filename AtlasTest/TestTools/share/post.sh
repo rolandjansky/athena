@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 #/** @file post.sh
 # @brief sh script that checks the return code of an executable and compares
@@ -69,10 +69,8 @@ EOF
 # Patterns that cannot be ignored
 ERRORS="^ERROR | ERROR | FATAL "
 
-# ignore hex addresses
-PP="0x\w{4,}"
 # ignore package names e.g. Package-00-00-00
-PP="$PP"'|\w+-[[:digit:]]{2}-[[:digit:]]{2}-[[:digit:]]{2}'
+PP='\w+-[[:digit:]]{2}-[[:digit:]]{2}-[[:digit:]]{2}'
 # ignore trunk package names e.g. Package-r123456
 PP="$PP"'|\w+-r[[:digit:]]+'
 # ignore cpu usage printouts
@@ -306,6 +304,14 @@ else
            }
            process $joblog $jobdiff
            process $reflog $refdiff
+
+           # Protect against accidentally filtering the entire reference file. This
+           # is considered a bug in case the original reference file was non-empty:
+           if [ -s ${reflog} ] && [ ! -s ${refdiff} ]; then
+               echo "$RED post.sh> ERROR: The reference file became empty after filtering."\
+                    "Adjust your select/ignore patterns.$RESET"
+               exit 1
+           fi
 
            diff -a -b -E -B -u $refdiff $jobdiff
            diffStatus=$?

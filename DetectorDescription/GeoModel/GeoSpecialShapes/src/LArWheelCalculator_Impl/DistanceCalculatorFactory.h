@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef __LArWheelCalculator_Impl_DistanceCalculatorFactory_H__
@@ -10,13 +10,7 @@
 
 #include <string>
 #include "IDistanceCalculator.h"
-#ifndef BUILDVP1LIGHT
-    #include "RDBAccessSvc/IRDBAccessSvc.h"
-#endif
-#include "GeoModelUtilities/DecodeVersionKey.h"
-
 class LArWheelCalculator;
-
 namespace LArWheelCalculator_Impl
 {
   /// @todo Why is this a class???
@@ -24,9 +18,7 @@ namespace LArWheelCalculator_Impl
   {
     public:
       static IDistanceCalculator* Create(const std::string & sagging_opt,
-                                         LArWheelCalculator* lwc,
-                                         IRDBAccessSvc* rdbAccess,
-                                         const DecodeVersionKey & larVersionKey);
+                                         LArWheelCalculator* lwc);
   };
 
 }

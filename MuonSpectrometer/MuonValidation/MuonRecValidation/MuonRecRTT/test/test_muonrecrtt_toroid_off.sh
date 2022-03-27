@@ -32,7 +32,7 @@ case $ArtProcess in
      unset  ATHENA_NUM_PROC
 
      Reco_tf.py --maxEvents=-1 \
-                --conditionsTag RAWtoESD:CONDBR2-BLKPA-RUN2-06 \
+                --conditionsTag default:CONDBR2-BLKPA-RUN2-09 \
                 --geometryVersion ATLAS-R2-2016-01-00-01 \
                 --inputBSFile=${infile} \
                 --outputAODFile=MuonToroidOff_Reco.AOD.pool.root \

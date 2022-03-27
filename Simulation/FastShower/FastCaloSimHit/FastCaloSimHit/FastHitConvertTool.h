@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -18,6 +18,8 @@
 #include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "TileSimEvent/TileHitVector.h"
+#include "TileConditions/TileSamplingFraction.h"
+#include "TileConditions/TileCablingSvc.h"
 #include "EventInfo/PileUpEventInfo.h"
 
 #include "GaudiKernel/ServiceHandle.h"
@@ -32,6 +34,7 @@ class LArEM_ID;
 class LArFCAL_ID;
 class LArHEC_ID;
 class TileID;
+class TileHWID;
 
 /** @class FastHitConvertTool
 
@@ -68,14 +71,28 @@ private:
   SG::WriteHandleKey<TileHitVector>   m_tileHitVectorKey{this,"tileHitContainername","TileHitVec","Name of output FastSim Tile Hit Container"};
 
   ServiceHandle<StoreGateSvc> m_storeGateFastCalo;
-  PileUpMergeSvc *m_pMergeSvc;
+  PileUpMergeSvc *m_pMergeSvc{nullptr};
 
   SG::ReadCondHandleKey<ILArfSampl> m_fSamplKey{this,"fSamplKey","LArfSamplSym","SG Key of LArfSampl object"};
-  const TileInfo *m_tileInfo;
-  const LArEM_ID *m_larEmID;
-  const LArFCAL_ID *m_larFcalID;
-  const LArHEC_ID *m_larHecID;
-  const TileID* m_tileID;
+
+  /**
+   * @brief Name of TileSamplingFraction in condition store
+   */
+  SG::ReadCondHandleKey<TileSamplingFraction> m_tileSamplingFractionKey{this,
+      "TileSamplingFraction", "TileSamplingFraction", "Input Tile sampling fraction"};
+
+  /**
+   * @brief Name of Tile cabling service
+   */
+  ServiceHandle<TileCablingSvc> m_tileCablingSvc{ this,
+     "TileCablingSvc", "TileCablingSvc", "Tile cabling service"};
+
+  const LArEM_ID *m_larEmID{nullptr};
+  const LArFCAL_ID *m_larFcalID{nullptr};
+  const LArHEC_ID *m_larHecID{nullptr};
+  const TileID* m_tileID{nullptr};
+  const TileHWID*     m_tileHWID{nullptr};
+  const TileCablingService* m_tileCabling{nullptr};
 
   Gaudi::Property<bool> m_pileup{this,"doPileup",false,"Pileup mode (default=false)"};
   SG::ReadHandleKey<EventInfo> m_pileup_evt{this,"pileupEventInfo","MyEvent",""};

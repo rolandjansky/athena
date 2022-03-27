@@ -23,6 +23,8 @@
 #include "../LArAutoCorrNoiseCondAlg.h"
 #include "../LArFEBConfigCondAlg.h"
 #include "../LArRoIMapCondAlg.h"
+#include "../LArXTalkWeightCondAlg.h"
+#include "../LArXTalkWeightGlobalCondAlg.h"
 
 
 //DECLARE_COMPONENT( LArCellFakeProbHV )
@@ -80,3 +82,18 @@ DECLARE_COMPONENT( LArHVCondAlg )
 DECLARE_COMPONENT( LArAutoCorrNoiseCondAlg )
 DECLARE_COMPONENT( LArFEBConfigCondAlg )
 DECLARE_COMPONENT( LArRoIMapCondAlg )
+DECLARE_COMPONENT( LArXTalkWeightGlobalCondAlg )
+DECLARE_COMPONENT( LArXTalkWeightCondAlg )
+DECLARE_COMPONENT( LArXTalkWeightCondAlg_strip )
+DECLARE_COMPONENT( LArXTalkWeightCondAlg_strip_ec )
+DECLARE_COMPONENT( LArXTalkWeightCondAlg_middleback )
+DECLARE_COMPONENT( LArXTalkWeightCondAlg_middleback_ecow )
+DECLARE_COMPONENT( LArXTalkWeightCondAlg_middleback_eciw )
+DECLARE_COMPONENT( LArXTalkWeightCondAlg_stripmiddle )
+DECLARE_COMPONENT( LArXTalkWeightCondAlg_stripmiddle_ec )
+DECLARE_COMPONENT( LArXTalkWeightCondAlg_2strip )
+DECLARE_COMPONENT( LArXTalkWeightCondAlg_2strip_ec )
+DECLARE_COMPONENT( LArXTalkWeightCondAlg_middle1 )
+DECLARE_COMPONENT( LArXTalkWeightCondAlg_middle2 )
+DECLARE_COMPONENT( LArXTalkWeightCondAlg_middle1_ec )
+DECLARE_COMPONENT( LArXTalkWeightCondAlg_middle2_ec )

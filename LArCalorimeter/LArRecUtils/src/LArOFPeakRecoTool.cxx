@@ -45,10 +45,8 @@ StatusCode LArOFPeakRecoTool::initialize() {
   
   ATH_CHECK(  m_keyOFC.initialize() );
 
-  if (m_useShape) {
-    ATH_CHECK(  m_keyShape.initialize() );
-  }
-  else {
+  ATH_CHECK(  m_keyShape.initialize(m_useShape) );
+  if (!m_useShape) {
     ATH_MSG_WARNING( "jobOption 'UseShape' set to false. Will work without shape"  );
   }
 

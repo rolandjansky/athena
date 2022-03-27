@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ActsGeometry/GeomShiftCondAlg.h"
@@ -32,7 +32,6 @@
 GeomShiftCondAlg::GeomShiftCondAlg( const std::string& name,
             ISvcLocator* pSvcLocator ) :
   ::AthAlgorithm( name, pSvcLocator ),
-  m_cs("CondSvc",name),
   m_trackingGeometrySvc("ActsTrackingGeometrySvc", name)
 {
 }
@@ -44,33 +43,15 @@ StatusCode GeomShiftCondAlg::initialize() {
 
   ATH_CHECK( m_evt.initialize() );
 
-  if (m_cs.retrieve().isFailure()) {
-    ATH_MSG_ERROR("unable to retrieve CondSvc");
-  }
-
   ATH_CHECK ( detStore()->retrieve(p_pixelManager, "Pixel") );
   ATH_CHECK ( detStore()->retrieve(p_SCTManager, "SCT") );
   ATH_CHECK ( detStore()->retrieve(p_TRTManager, "TRT") );
 
-
-  if (m_wchk.initialize().isFailure()) {
-    ATH_MSG_ERROR("unable to initialize WriteCondHandle with key" << m_wchk.key() );
-    return StatusCode::FAILURE;
-  }
-
-  if (m_cs->regHandle(this, m_wchk).isFailure()) {
-    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_wchk.fullKey()
-                  << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK ( m_wchk.initialize() );
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode GeomShiftCondAlg::finalize() {
-  ATH_MSG_DEBUG("finalize " << name());
-  return StatusCode::SUCCESS;
-}
 
 StatusCode GeomShiftCondAlg::execute() {
   ATH_MSG_DEBUG("execute " << name());

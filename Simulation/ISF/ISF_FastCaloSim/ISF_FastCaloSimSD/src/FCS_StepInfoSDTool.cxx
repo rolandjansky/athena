@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FCS_StepInfoSDTool.h"
@@ -45,7 +45,8 @@ namespace FCS_Param
     , m_emepowcalc("EMECPosOuterWheelCalculator", name)
     , m_emenowcalc("EMECNegOuterWheelCalculator", name)
     , m_emepscalc("EMECPresamplerCalculator", name)
-    , m_emeobarcalc("EMECBackOuterBarretteCalculator", name)
+    , m_emepobarcalc("EMECPosBackOuterBarretteCalculator", name)
+    , m_emenobarcalc("EMECNegBackOuterBarretteCalculator", name)
     , m_heccalc("HECWheelCalculator", name)
     , m_fcal1calc("FCAL1Calculator", name)
     , m_fcal2calc("FCAL2Calculator", name)
@@ -67,7 +68,8 @@ namespace FCS_Param
     declareProperty("PosOWVolumes", m_posOWVolumes);
     declareProperty("NegOWVolumes", m_negOWVolumes);
     declareProperty("PresVolumes", m_presECVolumes);
-    declareProperty("BOBarretteVolumes", m_bobVolumes);
+    declareProperty("PosBOBarretteVolumes", m_pBOBVolumes);
+    declareProperty("NegBOBarretteVolumes", m_nBOBVolumes);
     declareProperty("FCAL1Volumes", m_fcal1Volumes);
     declareProperty("FCAL2Volumes", m_fcal2Volumes);
     declareProperty("FCAL3Volumes", m_fcal3Volumes);
@@ -75,19 +77,20 @@ namespace FCS_Param
     declareProperty("MiniVolumes", m_miniVolumes);
     declareProperty("TileVolumes", m_tileVolumes);
 
-    declareProperty("EMBPSCalibrationCalculator",m_bpsmodcalc);
-    declareProperty("EMBCalibrationCalculator",m_embcalc);
-    declareProperty("EMECPosIWCalibrationCalculator",m_emepiwcalc);
-    declareProperty("EMECNegIWCalibrationCalculator",m_emeniwcalc);
-    declareProperty("EMECPosOWCalibrationCalculator",m_emepowcalc);
-    declareProperty("EMECNegOWCalibrationCalculator",m_emenowcalc);
-    declareProperty("EMECPSCalibrationCalculator",m_emepscalc);
-    declareProperty("EMECBOBCalibrationCalculator",m_emeobarcalc);
+    declareProperty("EMBPSCalculator",m_bpsmodcalc);
+    declareProperty("EMBCalculator",m_embcalc);
+    declareProperty("EMECPosIWCalculator",m_emepiwcalc);
+    declareProperty("EMECNegIWCalculator",m_emeniwcalc);
+    declareProperty("EMECPosOWCalculator",m_emepowcalc);
+    declareProperty("EMECNegOWCalculator",m_emenowcalc);
+    declareProperty("EMECPSCalculator",m_emepscalc);
+    declareProperty("EMECPosBOBCalculator",m_emepobarcalc);
+    declareProperty("EMECNegBOBCalculator",m_emenobarcalc);
     declareProperty("HECWActiveCalculator",m_heccalc);
-    declareProperty("FCAL1CalibCalculator",m_fcal1calc);
-    declareProperty("FCAL2CalibCalculator",m_fcal2calc);
-    declareProperty("FCAL3CalibCalculator",m_fcal3calc);
-    declareProperty("MiniFCALActiveCalibrationCalculator",m_minfcalcalc);
+    declareProperty("FCAL1Calculator",m_fcal1calc);
+    declareProperty("FCAL2Calculator",m_fcal2calc);
+    declareProperty("FCAL3Calculator",m_fcal3calc);
+    declareProperty("MiniFCALActiveCalculator",m_minfcalcalc);
     declareProperty("TileCalculator", m_tileCalculator);
 
     declareProperty("shift_lar_subhit",m_config.shift_lar_subhit, "");
@@ -179,7 +182,8 @@ namespace FCS_Param
     ATH_CHECK(m_emepowcalc.retrieve());
     ATH_CHECK(m_emenowcalc.retrieve());
     ATH_CHECK(m_emepscalc.retrieve());
-    ATH_CHECK(m_emeobarcalc.retrieve());
+    ATH_CHECK(m_emepobarcalc.retrieve());
+    ATH_CHECK(m_emenobarcalc.retrieve());
     ATH_CHECK(m_heccalc.retrieve());
     ATH_CHECK(m_fcal1calc.retrieve());
     ATH_CHECK(m_fcal2calc.retrieve());
@@ -221,7 +225,8 @@ namespace FCS_Param
     sdWrapper->addSD( makeOneLArSD( "EMEC::Pos::OuterWheel::StepInfo", &*m_emepowcalc, m_posOWVolumes ) );
     sdWrapper->addSD( makeOneLArSD( "EMEC::Neg::OuterWheel::StepInfo", &*m_emenowcalc, m_negOWVolumes ) );
     sdWrapper->addSD( makeOneLArSD( "Endcap::Presampler::LiquidArgon::StepInfo", &*m_emepscalc, m_presECVolumes ) );
-    sdWrapper->addSD( makeOneLArSD( "EMEC::BackOuterBarrette::StepInfo", &*m_emeobarcalc, m_bobVolumes ) );
+    sdWrapper->addSD( makeOneLArSD( "EMEC::Pos::BackOuterBarrette::StepInfo", &*m_emepobarcalc, m_pBOBVolumes ) );
+    sdWrapper->addSD( makeOneLArSD( "EMEC::Neg::BackOuterBarrette::StepInfo", &*m_emenobarcalc, m_nBOBVolumes ) );
     sdWrapper->addSD( makeOneLArSD( "FCAL::Module1::Gap::StepInfo", &*m_fcal1calc, m_fcal1Volumes ) );
     sdWrapper->addSD( makeOneLArSD( "FCAL::Module2::Gap::StepInfo", &*m_fcal2calc, m_fcal2Volumes ) );
     sdWrapper->addSD( makeOneLArSD( "FCAL::Module3::Gap::StepInfo", &*m_fcal3calc, m_fcal3Volumes ) );

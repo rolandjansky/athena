@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -135,9 +135,9 @@ private:
                               PVPTrackStates& pvpTrackStates,
                               TrkTrackState*,
                               MagField::AtlasFieldCache& fieldCache) const;
-  void runSmoother(PVPTrackStates& pvpTrackStates) const;
-  int findOutliers(PVPNodes& pvpNodes, double) const;
-  void calculateLRsolution(PVPNodes& pvpNodes) const;
+  static void runSmoother(PVPTrackStates& pvpTrackStates) ;
+  static int findOutliers(PVPNodes& pvpNodes, double) ;
+  static void calculateLRsolution(PVPNodes& pvpNodes) ;
   TrackStateOnSurface* createTrackStateOnSurface(TrkBaseNode*) const;
   void report();
   void report(char fileName[]);

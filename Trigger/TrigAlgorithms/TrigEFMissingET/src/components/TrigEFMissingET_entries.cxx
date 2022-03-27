@@ -13,6 +13,7 @@
 #include "../ApproximateTrackToLayerTool.h"
 #include "../ExtendTrackToLayerTool.h"
 #include "../MHTPufitFex.h"
+#include "../NNHLTFex.h"
 
 DECLARE_COMPONENT(HLT::MET::TrkMHTFex)
 DECLARE_COMPONENT(HLT::MET::CellFex)
@@ -28,3 +29,4 @@ DECLARE_COMPONENT(HLT::MET::FlowElementPrepAlg)
 DECLARE_COMPONENT(ApproximateTrackToLayerTool)
 DECLARE_COMPONENT(ExtendTrackToLayerTool)
 DECLARE_COMPONENT(HLT::MET::MHTPufitFex)
+DECLARE_COMPONENT(HLT::MET::NNHLTFex)

@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file CxxUtils/aligned_vector.h
@@ -40,10 +40,10 @@ using aligned_vector = std::vector<T, boost::alignment::aligned_allocator<T, Ali
 
 
 /**
- * @brief A @c std::vector with alignment sufficienct for any vector
+ * @brief A @c std::vector with alignment sufficient for any vector
  *        instructions on this platform.
  *
- * For now, just hardcode 64, which is sufficient for a 512-bit vector,
+ * For now, just hard code 64, which is sufficient for a 512-bit vector,
  * the largest supported by any x86 processors.  We may want to make this
  * platform-dependent in the future.
  */

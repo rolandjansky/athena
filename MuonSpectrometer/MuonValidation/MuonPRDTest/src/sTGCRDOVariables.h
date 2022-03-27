@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STGCRDOVARIABLES_H
@@ -30,6 +30,7 @@ class sTGCRDOVariables final : public ValAlgVariables
     m_NSWsTGC_rdo_channel(0),
     m_NSWsTGC_rdo_channel_type(0),
     m_NSWsTGC_rdo_time(0),
+    m_NSWsTGC_rdo_tdo(0),
     m_NSWsTGC_rdo_charge(0),
     m_NSWsTGC_rdo_bcTag(0),
     m_NSWsTGC_rdo_isDead(0),
@@ -71,6 +72,7 @@ class sTGCRDOVariables final : public ValAlgVariables
   std::vector<int> *m_NSWsTGC_rdo_channel;
   std::vector<int> *m_NSWsTGC_rdo_channel_type;
   std::vector<double> *m_NSWsTGC_rdo_time;
+  std::vector<uint16_t> *m_NSWsTGC_rdo_tdo;
   std::vector<uint16_t> *m_NSWsTGC_rdo_charge;
   std::vector<uint16_t> *m_NSWsTGC_rdo_bcTag;
   std::vector<bool> *m_NSWsTGC_rdo_isDead;

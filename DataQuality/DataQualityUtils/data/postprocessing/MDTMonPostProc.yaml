@@ -1,6 +1,6 @@
 # Separate blocks with ---
 ---
-Input : ['Muon/MuonRawDataMonitoring/MDT/MDT(?P<id0>[^/]*)/Chambers/(?P<id>.......)/(?P=id)_MDT_Station_TUBE_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/NumberOfHitsInBarrelPerChamber_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/NumberOfHitsInEndCapPerChamber_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/TotalNumber_of_MDT_hits_per_event_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/NumberOfHitsInBarrelPerChamber_onSegms_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/NumberOfHitsInEndCapPerChamber_onSegms_ADCCut']
+Input : ['Muon/MuonRawDataMonitoring/MDT/MDT(?P<id0>[^/]*)/Chambers/(?P<id>.......)/(?P=id)_MDT_Station_TUBE_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/NumberOfHitsInBarrelPerChamber_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/NumberOfHitsInEndCapPerChamber_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/TotalNumber_of_MDT_hits_per_event_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/NumberOfHitsInBarrelPerChamber_onSegms_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/NumberOfHitsInEndCapPerChamber_onSegms_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/GeometryFlag']
 Output : ['Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RawHitsPerChamber/HitsPerEvtInBarrelPerChamber_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RawHitsPerChamber/HitsPerEvtInEndCapPerChamber_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/Expert/VolumeMapBarrel', 'Muon/MuonRawDataMonitoring/MDT/Overview/Expert/VolumeMapEndcap', 'Muon/MuonRawDataMonitoring/MDT/Overview/Expert/NormedHitsInBarrelPerChamber_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/Expert/NormedHitsInEndCapPerChamber_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/HitsPerEventInBarrelPerChamber_onSegm_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/HitsPerEventInEndCapPerChamber_onSegm_ADCCut']
 Function: MdtRawDataMonitoring.MDTPostProcessing.make_hits_per_evt
 Description: HitPerEvtPerChamber
@@ -47,23 +47,10 @@ Description: Eff
 
 ---
 Input : [
-      'Muon/MuonRawDataMonitoring/MDT/MDT([^/]*)/MDT/Chambers/(?P<id>.......)/(?P=id)_MDT_Station_EFFCOUNTS',
-      'Muon/MuonRawDataMonitoring/MDT/MDT([^/]*)/Chambers/(?P<id>.......)/(?P=id)_MDT_Station_EFFENTRIES',
-      'Muon/MuonRawDataMonitoring/MDT/Overview/NumberOfHitsInBarrelPerChamber_ADCCut',
-      'Muon/MuonRawDataMonitoring/MDT/Overview/NumberOfHitsInEndCapPerChamber_ADCCut'
-      ]
-Output : ['Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/effsInBarrelPerChamber_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/effsInEndCapPerChamber_ADCCut']
-Parameters: { ec : -1}
-Function: MdtRawDataMonitoring.MDTPostProcessing.make_eff_histo_perML
-Description: Eff_perChamber
-
----
-Input : [
       'Muon/MuonRawDataMonitoring/MDT/MDT(?P<side>..)/Chambers/(?P<ch>.......)/(?P=ch)_MDT_Station_EFFCOUNTS',
       'Muon/MuonRawDataMonitoring/MDT/MDT(?P<side>..)/Chambers/(?P<ch>.......)/(?P=ch)_MDT_Station_EFFENTRIES',
       'Muon/MuonRawDataMonitoring/MDT/Overview/NumberOfHitsInBarrelPerChamber_ADCCut',
-      'Muon/MuonRawDataMonitoring/MDT/Overview/NumberOfHitsInEndCapPerChamber_ADCCut'
-      ]
+      'Muon/MuonRawDataMonitoring/MDT/Overview/NumberOfHitsInEndCapPerChamber_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/GeometryFlag']
 Output : ['Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/effsInBarrelPerChamber_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/effsInEndCapPerChamber_ADCCut']
 Function: MdtRawDataMonitoring.MDTPostProcessing.make_eff_histo_perChamber
 Description: Eff_perChamber
@@ -75,7 +62,8 @@ Input : [
       'Muon/MuonRawDataMonitoring/MDT/MDTBA/Overview/NumberOfHitsInBAOuterPerMultiLayer_ADCCut',
       'Muon/MuonRawDataMonitoring/MDT/MDTBA/Overview/NumberOfHitsInBAMiddlePerMultiLayer_ADCCut',
       'Muon/MuonRawDataMonitoring/MDT/MDTBA/Overview/NumberOfHitsInBAInnerPerMultiLayer_ADCCut',
-      'Muon/MuonRawDataMonitoring/MDT/MDTBA/Overview/NumberOfHitsInBAExtraPerMultiLayer_ADCCut'
+      'Muon/MuonRawDataMonitoring/MDT/MDTBA/Overview/NumberOfHitsInBAExtraPerMultiLayer_ADCCut',
+      'Muon/MuonRawDataMonitoring/MDT/Overview/GeometryFlag'
       ]
 Output : [ 'Muon/MuonRawDataMonitoring/MDT/MDTBA/Overview/effsInBAOuterPerMultiLayer_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/MDTBA/Overview/effsInBAMiddlePerMultiLayer_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/MDTBA/Overview/effsInBAInnerPerMultiLayer_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/MDTBA/Overview/effsInBAExtraPerMultiLayer_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/MDTBA/Overview/mdtBA_ML_eff', 'Muon/MuonRawDataMonitoring/MDT/MDTBA/Overview/NumberOfHitsInBAOuterPerMultiLayer_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/MDTBA/Overview/NumberOfHitsInBAMiddlePerMultiLayer_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/MDTBA/Overview/NumberOfHitsInBAInnerPerMultiLayer_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/MDTBA/Overview/NumberOfHitsInBAExtraPerMultiLayer_ADCCut']
 Parameters: { ec : 0}
@@ -90,7 +78,8 @@ Input : [
       'Muon/MuonRawDataMonitoring/MDT/MDTBC/Overview/NumberOfHitsInBCOuterPerMultiLayer_ADCCut',
       'Muon/MuonRawDataMonitoring/MDT/MDTBC/Overview/NumberOfHitsInBCMiddlePerMultiLayer_ADCCut',
       'Muon/MuonRawDataMonitoring/MDT/MDTBC/Overview/NumberOfHitsInBCInnerPerMultiLayer_ADCCut',
-      'Muon/MuonRawDataMonitoring/MDT/MDTBC/Overview/NumberOfHitsInBCExtraPerMultiLayer_ADCCut'
+      'Muon/MuonRawDataMonitoring/MDT/MDTBC/Overview/NumberOfHitsInBCExtraPerMultiLayer_ADCCut', 
+      'Muon/MuonRawDataMonitoring/MDT/Overview/GeometryFlag'
       ] 
 Output : [ 'Muon/MuonRawDataMonitoring/MDT/MDTBC/Overview/effsInBCOuterPerMultiLayer_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/MDTBC/Overview/effsInBCMiddlePerMultiLayer_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/MDTBC/Overview/effsInBCInnerPerMultiLayer_ADCCut',  'Muon/MuonRawDataMonitoring/MDT/MDTBC/Overview/effsInBCExtraPerMultiLayer_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/MDTBC/Overview/mdtBC_ML_eff', 'Muon/MuonRawDataMonitoring/MDT/MDTBC/Overview/NumberOfHitsInBCOuterPerMultiLayer_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/MDTBC/Overview/NumberOfHitsInBCMiddlePerMultiLayer_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/MDTBC/Overview/NumberOfHitsInBCInnerPerMultiLayer_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/MDTBC/Overview/NumberOfHitsInBCExtraPerMultiLayer_ADCCut']
 Parameters: { ec : 1}
@@ -104,7 +93,8 @@ Input : [
       'Muon/MuonRawDataMonitoring/MDT/MDTEA/Overview/NumberOfHitsInEAOuterPerMultiLayer_ADCCut',
       'Muon/MuonRawDataMonitoring/MDT/MDTEA/Overview/NumberOfHitsInEAMiddlePerMultiLayer_ADCCut',
       'Muon/MuonRawDataMonitoring/MDT/MDTEA/Overview/NumberOfHitsInEAInnerPerMultiLayer_ADCCut',
-      'Muon/MuonRawDataMonitoring/MDT/MDTEA/Overview/NumberOfHitsInEAExtraPerMultiLayer_ADCCut'
+      'Muon/MuonRawDataMonitoring/MDT/MDTEA/Overview/NumberOfHitsInEAExtraPerMultiLayer_ADCCut', 
+      'Muon/MuonRawDataMonitoring/MDT/Overview/GeometryFlag'
       ]
 Output : [ 'Muon/MuonRawDataMonitoring/MDT/MDTEA/Overview/effsInEAOuterPerMultiLayer_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/MDTEA/Overview/effsInEAMiddlePerMultiLayer_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/MDTEA/Overview/effsInEAInnerPerMultiLayer_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/MDTEA/Overview/effsInEAExtraPerMultiLayer_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/MDTEA/Overview/mdtEA_ML_eff','Muon/MuonRawDataMonitoring/MDT/MDTEA/Overview/NumberOfHitsInEAOuterPerMultiLayer_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/MDTEA/Overview/NumberOfHitsInEAMiddlePerMultiLayer_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/MDTEA/Overview/NumberOfHitsInEAInnerPerMultiLayer_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/MDTEA/Overview/NumberOfHitsInEAExtraPerMultiLayer_ADCCut']
 Parameters: { ec : 2}
@@ -118,7 +108,8 @@ Input : [
       'Muon/MuonRawDataMonitoring/MDT/MDTEC/Overview/NumberOfHitsInECOuterPerMultiLayer_ADCCut',
       'Muon/MuonRawDataMonitoring/MDT/MDTEC/Overview/NumberOfHitsInECMiddlePerMultiLayer_ADCCut',
       'Muon/MuonRawDataMonitoring/MDT/MDTEC/Overview/NumberOfHitsInECInnerPerMultiLayer_ADCCut',
-      'Muon/MuonRawDataMonitoring/MDT/MDTEC/Overview/NumberOfHitsInECExtraPerMultiLayer_ADCCut'
+      'Muon/MuonRawDataMonitoring/MDT/MDTEC/Overview/NumberOfHitsInECExtraPerMultiLayer_ADCCut',
+      'Muon/MuonRawDataMonitoring/MDT/Overview/GeometryFlag'
       ]
 Output : [ 'Muon/MuonRawDataMonitoring/MDT/MDTEC/Overview/effsInECOuterPerMultiLayer_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/MDTEC/Overview/effsInECMiddlePerMultiLayer_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/MDTEC/Overview/effsInECInnerPerMultiLayer_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/MDTEC/Overview/effsInECExtraPerMultiLayer_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/MDTEC/Overview/mdtEC_ML_eff', 'Muon/MuonRawDataMonitoring/MDT/MDTEC/Overview/NumberOfHitsInECOuterPerMultiLayer_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/MDTEC/Overview/NumberOfHitsInECMiddlePerMultiLayer_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/MDTEC/Overview/NumberOfHitsInECInnerPerMultiLayer_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/MDTEC/Overview/NumberOfHitsInECExtraPerMultiLayer_ADCCut']
 Parameters: { ec : 3}
@@ -154,19 +145,13 @@ Parameters: { ec : 3}
 Description: MDT_drift_time_monitoring
 
 ---
-Input : ['Muon/MuonRawDataMonitoring/MDT/Overview/NumberOfHitsInBarrelPerChamber_ADCCut','Muon/MuonRawDataMonitoring/MDT/Overview/NumberOfHitsInEndCapPerChamber_ADCCut']
+Input : ['Muon/MuonRawDataMonitoring/MDT/Overview/NumberOfHitsInBarrelPerChamber_ADCCut','Muon/MuonRawDataMonitoring/MDT/Overview/NumberOfHitsInEndCapPerChamber_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/GeometryFlag']
 Output : ['Muon/MuonRawDataMonitoring/MDT/Overview/NumberOfHitsInBarrelPerChamber_ADCCut','Muon/MuonRawDataMonitoring/MDT/Overview/NumberOfHitsInEndCapPerChamber_ADCCut']
 Function: MdtRawDataMonitoring.MDTPostProcessing.MdtGlobalBox
 Description: BoxesAndLines
 
 ---
-Input : ['Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/effsInBarrelPerChamber_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/effsInEndCapPerChamber_ADCCut']
-Output : ['Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/effsInBarrelPerChamber_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/effsInEndCapPerChamber_ADCCut']
-Function: MdtRawDataMonitoring.MDTPostProcessing.MdtGlobalBox
-Description: BoxesAndLines
-
----
-Input : ['Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/NumberOfHitsInBarrelPerChamber_onSegms_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/NumberOfHitsInEndCapPerChamber_onSegms_ADCCut']
+Input : ['Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/NumberOfHitsInBarrelPerChamber_onSegms_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/NumberOfHitsInEndCapPerChamber_onSegms_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/GeometryFlag']
 Output : ['Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/NumberOfHitsInBarrelPerChamber_onSegms_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/NumberOfHitsInEndCapPerChamber_onSegms_ADCCut']
 Function: MdtRawDataMonitoring.MDTPostProcessing.MdtGlobalBox
 Description: BoxesAndLines

@@ -50,7 +50,7 @@ StatusCode AFPSiClusterTool::initialize()
 {
   ATH_MSG_DEBUG("Initializing " << name() << "...");
 
-  CHECK( m_AFPSiHitContainerKey.initialize() );
+  CHECK( m_AFPSiHitContainerKey.initialize( SG::AllowEmpty ) );
 
   // retrieve tools
   CHECK( m_clusterAlgToolHandle.retrieve() );
@@ -116,12 +116,17 @@ StatusCode AFPSiClusterTool::clearAllLayers(std::vector< std::vector<AFPSiCluste
 StatusCode AFPSiClusterTool::fillLayersWithHits(std::vector< std::vector<AFPSiClusterLayerBasicObj> > &my_layers, const EventContext &ctx) const
 {
   // retrieve hits
+  if (m_AFPSiHitContainerKey.empty()) {
+    ATH_MSG_DEBUG("AFPSiClusterTool, no input siHitContainer");
+    // this is allowed, there might be no AFP data in the input
+    return StatusCode::SUCCESS;
+  }
+
   SG::ReadHandle<xAOD::AFPSiHitContainer> siHitContainer( m_AFPSiHitContainerKey, ctx );
-  if(!siHitContainer.isValid())
-  {
-      ATH_MSG_INFO("AFPSiClusterTool, cannot get siHitContainer");
-      // this is allowed, there might be no AFP data in the input
-      return StatusCode::SUCCESS;
+  if(!siHitContainer.isValid()) {
+     ATH_MSG_WARNING("AFPSiClusterTool failed to retrieve siHitContainer, exiting gracefully");
+     // unexpected absence of Si hits ?
+     return StatusCode::SUCCESS;
   }
   else
   {
@@ -156,6 +161,12 @@ StatusCode AFPSiClusterTool::clusterEachLayer(std::vector< std::vector<AFPSiClus
 
 StatusCode AFPSiClusterTool::saveToXAOD(std::unique_ptr<xAOD::AFPSiHitsClusterContainer>& clusterContainer, std::vector< std::vector<AFPSiClusterLayerBasicObj> > &my_layers, const EventContext &ctx) const
 { 
+
+  if (m_AFPSiHitContainerKey.empty()) {
+   // this is allowed, there might be no AFP data in the input
+    return StatusCode::SUCCESS;
+  }
+
   SG::ReadHandle<xAOD::AFPSiHitContainer> siHitContainer( m_AFPSiHitContainerKey, ctx );
   if(!siHitContainer.isValid())
   {

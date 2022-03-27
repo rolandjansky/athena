@@ -4,7 +4,7 @@
  **     @author  mark sutton
  **     @date    Sun  9 Aug 2015 21:53:46 CEST 
  **
- **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  **/
 
 
@@ -165,46 +165,21 @@ void ConfVtxAnalysis::execute( const std::vector<TIDA::Vertex*>& vtx0,
     std::cout << "\ttest: " << vtx1 << std::endl;
 #endif
 
-  VertexMatcher m( "vtx_matcher", 3 );
-  execute_internal<TIDA::Vertex, VertexMatcher>(vtx0, vtx1, m, tevt);
-
-}
-
-
-void ConfVtxAnalysis::execute( const std::vector<TIDA::VertexNew*>& vtx0,
-			       const std::vector<TIDA::VertexNew*>& vtx1,
-			       const TIDA::Event* tevt ) { 
-
-  if ( !m_initialised ) return;
-
-#if 0
-    std::cout << "ConfVtxAnalysis::execute() " << name()
-	      << "\tvtx0.size() " << vtx0.size()
-	      << "\tvtx1.size() " << vtx1.size()
-	      << std::endl;
-
-    std::cout << "\tref:  " << vtx0 << std::endl;
-    std::cout << "\ttest: " << vtx1 << std::endl;
-#endif
-
   // use new matcher if tracks included
   if ( vtx0[0]->tracks().size() > 0 ) {
     VertexNewMatcher m( "vtx_matcher", 0.5 );
-    execute_internal<TIDA::VertexNew, VertexNewMatcher>(vtx0, vtx1, m, tevt);
-  } 
+    execute_internal<VertexNewMatcher>(vtx0, vtx1, m, tevt);
+  }
   else {
-    VertexMatcher m("vtx_matcher", 3 );
-    // m.match() requires std::vector<TIDA::Vertex*>
-    std::vector<TIDA::Vertex*> vtx0_(vtx0.begin(), vtx0.end());
-    std::vector<TIDA::Vertex*> vtx1_(vtx1.begin(), vtx1.end());
-    execute_internal<TIDA::Vertex, VertexMatcher>(vtx0_, vtx1_, m, tevt);
+    VertexMatcher m( "vtx_matcher", 3 );
+    execute_internal<VertexMatcher>(vtx0, vtx1, m, tevt);
   }
 }
 
 
-template<typename Vertex, typename Matcher>
-void ConfVtxAnalysis::execute_internal( const std::vector<Vertex*>& vtx0,
-			       const std::vector<Vertex*>& vtx1,
+template<typename Matcher>
+void ConfVtxAnalysis::execute_internal( const std::vector<TIDA::Vertex*>& vtx0,
+			       const std::vector<TIDA::Vertex*>& vtx1,
              Matcher& m, 
 			       const TIDA::Event* tevt ) {
   
@@ -237,7 +212,7 @@ void ConfVtxAnalysis::execute_internal( const std::vector<Vertex*>& vtx0,
     hlb->Fill( lb );
     hmu->Fill( mu );
     
-    const Vertex* mv = m.matched( vtx0[i] ); 
+    const TIDA::Vertex* mv = m.matched( vtx0[i] ); 
     
     //      std::cout << "\tvtx match: " << i << " " << mv << std::endl;
     if ( mv ) { 

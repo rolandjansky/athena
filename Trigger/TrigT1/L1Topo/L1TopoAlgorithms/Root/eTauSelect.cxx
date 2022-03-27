@@ -19,8 +19,8 @@ TCS::eTauSelect::eTauSelect(const std::string & name) : SortingAlg(name) {
    defineParameter( "InputWidth1stStage", 30 ); // for fw
    defineParameter( "OutputWidth", 6 );
    defineParameter( "MinET", 0 );
-   defineParameter( "RCore", 0);
-   defineParameter( "RHad", 0);
+   defineParameter( "RCoreMin", 0);
+   defineParameter( "RHadMin", 0);
    defineParameter( "MinEta", 0 );
    defineParameter( "MaxEta", 63);
 }
@@ -33,8 +33,8 @@ TCS::StatusCode
 TCS::eTauSelect::initialize() {
    m_numberOfeTaus = parameter("OutputWidth").value();
    m_et = parameter("MinET").value();
-   m_rCore = parameter("RCore").value();
-   m_rHad = parameter("RHad").value();
+   m_minRCore = parameter("RCoreMin").value();
+   m_minRHad = parameter("RHadMin").value();
    m_minEta = parameter("MinEta").value();
    m_maxEta = parameter("MaxEta").value();
    return TCS::StatusCode::SUCCESS;
@@ -50,7 +50,9 @@ TCS::eTauSelect::sort(const InputTOBArray & input, TOBArray & output) {
 
       if( parType_t((*etau)->Et()) <= m_et ) continue; // ET cut
 
-      // TODO: isolation cut
+      // Isolation cut
+      if ( !isocut(m_minRCore, (*etau)-> rCore()) ) {continue;}
+      if ( !isocut(m_minRHad, (*etau)-> rHad()) ) {continue;}
 
       // eta cut
       if (parType_t(std::abs((*etau)-> eta())) < m_minEta) continue; 

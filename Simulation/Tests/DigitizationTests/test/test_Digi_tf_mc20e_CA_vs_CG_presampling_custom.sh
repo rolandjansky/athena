@@ -57,7 +57,7 @@ Digi_tf.py \
 
 rc=$?
 status=$rc
-echo "art-result: $rc CGdigi"
+echo "art-result: $rc digiOLD"
 mv runargs.HITtoRDO.py runargs.legacy.HITtoRDO.py
 mv log.HITtoRDO legacy.HITtoRDO
 
@@ -85,7 +85,7 @@ then
     rc2=$?
     status=$rc2
 fi
-echo "art-result: $rc2 CAdigi"
+echo "art-result: $rc2 digiCA"
 
 rc3=-9999
 if [[ $rc2 -eq 0 ]]
@@ -96,6 +96,6 @@ then
     rc3=$?
     status=$rc3
 fi
-echo "art-result: $rc3 comparison"
+echo "art-result: $rc3 OLDvsCA"
 
 exit $status

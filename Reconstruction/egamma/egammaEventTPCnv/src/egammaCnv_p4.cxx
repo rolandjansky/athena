@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // egammaCnv_p4.cxx 
@@ -108,10 +108,6 @@ void egammaCnv_p4::persToTrans( const egamma_p4* pers,
   }
   //Clearing Rings ElementLink:
   trans->resetRings(); 
-
-//   msg << MSG::DEBUG << "Loaded egamma from persistent state [OK]"
-//       << endmsg;
-  return;
 }
 
 void egammaCnv_p4::transToPers( const egamma* trans, 
@@ -170,5 +166,4 @@ void egammaCnv_p4::transToPers( const egamma* trans,
 
 //   msg << MSG::DEBUG << "Created persistent state of egamma [OK]"
 //       << endmsg;
-  return;
-}
+  }

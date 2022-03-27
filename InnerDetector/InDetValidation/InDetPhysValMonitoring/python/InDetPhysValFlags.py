@@ -17,6 +17,7 @@ def createIDPVMConfigFlags():
     icf.addFlag("IDPVM.doValidateMuonMatchedTracks", False )
     icf.addFlag("IDPVM.doValidateElectronMatchedTracks", False )
     icf.addFlag("IDPVM.doValidateLargeD0Tracks", False )
+    icf.addFlag("IDPVM.doValidateMergedLargeD0Tracks", False )
     icf.addFlag("IDPVM.doPhysValOutput", False )
     icf.addFlag("IDPVM.doExpertOutput", False )
     icf.addFlag("IDPVM.doTruthOriginPlots", False )

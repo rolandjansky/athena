@@ -2,7 +2,7 @@
 #
 
 from enum import Enum
-from TriggerMenuMT.HLT.Menu.MenuComponents import RecoFragmentsPool, MenuSequence
+from TriggerMenuMT.HLT.Config.MenuComponents import RecoFragmentsPool, MenuSequence
 from AthenaCommon.CFElements import seqAND
 from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -11,6 +11,10 @@ from TrigEDMConfig.TriggerEDMRun3 import recordable
 from .JetRecoCommon import jetRecoDictToString
 from .JetRecoSequences import jetClusterSequence, jetCaloRecoSequences, jetTrackingRecoSequences, jetHICaloRecoSequences
 from .JetTrackingConfig import JetRoITrackingSequence
+
+# Hypo tool generators
+from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetHypoToolFromDict
+from .JetPresel import caloPreselJetHypoToolFromDict
 
 from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 
@@ -49,8 +53,8 @@ def getTrackingInputMaker(trkopt):
             RoITool = ViewCreatorJetSuperROITool(
                 'ViewCreatorJetSuperRoI',
                 RoisWriteHandleKey  = recordable( IDTrigConfig.roi ),
-                RoIEtaWidth = 0.5,
-                RoIPhiWidth = 0.5,
+                RoIEtaWidth = IDTrigConfig.etaHalfWidth,
+                RoIPhiWidth = IDTrigConfig.phiHalfWidth,
             ),
             Views = "JetSuperRoIViews",
             InViewRoIs = "InViewRoIs",
@@ -76,7 +80,6 @@ class JetHypoAlgType(Enum):
     PASSTHROUGH = 2
 
 def makeMenuSequence(jetSeq,IMAlg,jetsIn,jetDefString,hypoType=JetHypoAlgType.STANDARD):
-    from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetHypoToolFromDict
     def trigStreamerHypoTool(chain_dict):
         return conf2toConfigurable(CompFactory.TrigStreamerHypoTool(chain_dict["chainName"]))
 
@@ -89,6 +92,7 @@ def makeMenuSequence(jetSeq,IMAlg,jetsIn,jetDefString,hypoType=JetHypoAlgType.ST
     elif hypoType==JetHypoAlgType.PRESEL:
         hyponame += "_presel"
         hypo = conf2toConfigurable(CompFactory.TrigJetHypoAlg(hyponame, Jets=jetsIn, DoPresel=True))
+        trigHypoToolGen = caloPreselJetHypoToolFromDict
     else:
         hypo = conf2toConfigurable(CompFactory.TrigJetHypoAlg(hyponame, Jets=jetsIn))
 

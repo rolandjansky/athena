@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelClusterContainerCnv_p0.h"
@@ -78,7 +78,7 @@ InDet::PixelClusterContainer* PixelClusterContainerCnv_p0::createTransient(Pixel
 	 MSG_VERBOSE(log,"PixelClusterContainer successfully added to Container !");
       } else {
          log << MSG::ERROR << "Failed to add PixelClusterContainer to container" << endmsg;
-         return 0;
+         return nullptr;
       }
    }
   return trans.release();

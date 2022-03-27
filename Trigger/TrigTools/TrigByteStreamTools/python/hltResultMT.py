@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -8,8 +8,7 @@ Methods to deserialise HLTResultMT using Python bindings of C++ classes
 and reimplementing some logic from TriggerEDMDeserialiserAlg
 '''
 
-from ROOT import vector, StringSerializer
-from functools import lru_cache
+from ROOT import StringSerializer
 from AthenaCommon.Logging import logging
 log = logging.getLogger('hltResultMT')
 
@@ -83,27 +82,18 @@ class EDMCollection:
         return obj
 
 
-@lru_cache(maxsize=2048)
-def deserialise_name(name_words):
-    '''Use Python bindings of C++ StringSerialiser to deserialise collection type and name'''
-
-    name_raw_vec = vector['unsigned int'](name_words)
-    name_str_vec = vector['string']()
-    _string_serialiser.deserialize(name_raw_vec, name_str_vec)
-    return name_str_vec
-
-
-@lru_cache(maxsize=4096)
 def get_collection_name(raw_data_words):
     '''Extract type+name words from the full collection raw data and convert to string'''
 
+    # Use Python bindings of C++ StringSerialiser to deserialise collection type and name.
+    # Doing the tuple-conversion here has a big performance impact. Probably this could be
+    # further improved if the eformat had better support for u32slice iterators.
+
     nw = raw_data_words[NameLengthOffset]
-    name_words = raw_data_words[NameOffset:NameOffset+nw]
-    name_str_vec = deserialise_name(tuple(name_words))
-    return [str(s) for s in name_str_vec]
+    name_words = tuple(raw_data_words[NameOffset:NameOffset+nw])
+    return _string_serialiser.deserialize(name_words)
 
 
-@lru_cache(maxsize=4096)
 def get_collection_payload(raw_data_words):
     '''Extract the serialised collection payload from the full collection raw data'''
 
@@ -112,21 +102,21 @@ def get_collection_payload(raw_data_words):
     return raw_data_words[payload_start:]
 
 
-def get_collections(raw_data_words, skip_payload=False):
+def get_collections(rob, skip_payload=False):
     '''
-    Extract a list of EDMCollection objects from raw data
-    (ROD data from an HLT ROBFragment). If skip_payload=True,
-    only the information about type, name and size are kept
-    but the payload is discarded to improve performance.
+    Extract a list of EDMCollection objects from the HLT ROBFragment.
+    If skip_payload=True, only the information about type, name and size
+    are kept but the payload is discarded to improve performance.
     '''
 
     start = SizeWord
     collections = []
     last_aux_cont = None
-    while start < len(raw_data_words):
-        size = raw_data_words[start+SizeWord]
-        coll_name = get_collection_name(tuple(raw_data_words[start:start+size]))
-        words = None if skip_payload else get_collection_payload(tuple(raw_data_words[start:start+size]))
+    rod_size = len(rob.rod_data())
+    while start < rod_size:
+        size = rob.rod_data()[start+SizeWord]
+        coll_name = get_collection_name(rob.rod_data()[start:start+size])
+        words = None if skip_payload else get_collection_payload(rob.rod_data()[start:start+size])
         coll = EDMCollection(coll_name, size, words)
         if coll.is_xAOD_aux_container():
             last_aux_cont = coll

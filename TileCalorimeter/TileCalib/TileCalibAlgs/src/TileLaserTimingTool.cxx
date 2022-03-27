@@ -11,7 +11,7 @@
 #include "StoreGate/ReadHandle.h"
 
 // Tile includes
-#include "TileCalibAlgs/TileLaserTimingTool.h"
+#include "TileLaserTimingTool.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileIdentifier/TileHWID.h"

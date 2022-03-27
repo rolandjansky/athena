@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 ///////////////////////////////////////////////////////////////////
@@ -73,7 +73,7 @@ StatusCode InDet::TRT_TrackTimingTool::finalize() {
 std::vector<Trk::SpaceTimePoint*> InDet::TRT_TrackTimingTool::timeMeasurements(const Trk::Track& track,
                                                                                const Trk::SegmentCollection* sgmColl)
 const {
-  if (sgmColl != 0) {
+  if (sgmColl != nullptr) {
     ATH_MSG_INFO("TRT_TrackTimingTool::timeMeasurements called with SegmentCollection != 0");
   }
 
@@ -99,18 +99,18 @@ const {
 
   if (!nTRTdriftCircles) return timeMeasurementsVector; // no TRT hits for this track, can not do anything
 
-  Trk::Track* newtrack = 0;
+  Trk::Track* newtrack = nullptr;
   if (nMissingTrackParameters) { // need to re-fit the track to get the track parameters
     newtrack = (m_ITrackFitter->fit(Gaudi::Hive::currentContext(),track, 
                                     false, track.info().particleHypothesis())).release();
 
-    if (newtrack == 0) {
+    if (newtrack == nullptr) {
       ATH_MSG_INFO("fit to unslim track has failed, giving up.");
       return timeMeasurementsVector;
     }
   }
 
-  const Trk::Track* track_ptr = (newtrack != 0) ? newtrack : &track;
+  const Trk::Track* track_ptr = (newtrack != nullptr) ? newtrack : &track;
 
   // there are TRT hits, and track parameters, use the tool to calculate the time
   ATH_MSG_DEBUG("timeMeasurements(): diagnosed that track has all information already.");
@@ -156,7 +156,7 @@ const {
 // The same functions but for TrackParticles
 std::vector<Trk::SpaceTimePoint*> InDet::TRT_TrackTimingTool::timeMeasurements(const Trk::TrackParticleBase& tpb) const
 {
-  if (tpb.originalTrack() == 0) {
+  if (tpb.originalTrack() == nullptr) {
     std::vector<Trk::SpaceTimePoint*> v;
     return v;
   }
@@ -188,8 +188,8 @@ float InDet::TRT_TrackTimingTool::getTrackTimeFromDriftRadius(const Trk::Track* 
     if (!tparp) continue;
 
     float driftR = trtcirc->localParameters()[Trk::driftRadius];
-    if (fabs(driftR) < 0.000001) continue; // driftR == 0 => measurement not available, could be anything
-    if (fabs(driftR) > 2.) continue;
+    if (std::abs(driftR) < 0.000001) continue; // driftR == 0 => measurement not available, could be anything
+    if (std::abs(driftR) > 2.) continue;
 
     float trackR = tparp->parameters()[Trk::driftRadius];
 
@@ -199,8 +199,8 @@ float InDet::TRT_TrackTimingTool::getTrackTimeFromDriftRadius(const Trk::Track* 
       ATH_MSG_WARNING("Rt relation pointer is null!");
       continue;
     }
-    float driftT = rtRelation->drifttime(fabs(driftR));
-    float trackT = rtRelation->drifttime(fabs(trackR));
+    float driftT = rtRelation->drifttime(std::abs(driftR));
+    float trackT = rtRelation->drifttime(std::abs(trackR));
 
 
     time += driftT - trackT;
@@ -226,7 +226,7 @@ float InDet::TRT_TrackTimingTool::etaCorrection(const Trk::Track& track) const {
 
   double eta = trackPar->eta();
   float correction = (1.3 * eta * eta - 1.9) * eta * eta;
-  if (fabs(eta) > 1. && correction > correctionLargeEta) correction = correctionLargeEta;
+  if (std::abs(eta) > 1. && correction > correctionLargeEta) correction = correctionLargeEta;
 
   ATH_MSG_DEBUG("eta correction: " << correction << " ns at eta = " << eta);
 

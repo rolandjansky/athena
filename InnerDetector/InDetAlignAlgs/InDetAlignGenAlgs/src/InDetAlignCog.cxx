@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file InDetAlignCog.cxx
@@ -82,9 +82,9 @@ static const double onemrad  = 0.001;
 
 InDetAlignCog::InDetAlignCog(const std::string& name, ISvcLocator* pSvcLocator) 
   : AthAlgorithm(name, pSvcLocator), 
-    m_pixid(0),
-    m_sctid(0),
-    m_trtid(0),
+    m_pixid(nullptr),
+    m_sctid(nullptr),
+    m_trtid(nullptr),
     m_IDAlignDBTool("InDetAlignDBTool"),
     m_TRTAlignDbTool("TRT_AlignDbSvc",name),
     //m_TRTAlignDbTool("TRTAlignDbTool"),

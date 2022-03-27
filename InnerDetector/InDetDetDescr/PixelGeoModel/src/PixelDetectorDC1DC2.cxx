@@ -1275,9 +1275,7 @@ GeoPixelSiCrystal::GeoPixelSiCrystal(InDetDD::PixelDetectorManager* ddmgr,
   }
   
 
-  m_design = p_barrelDesign2.get();
-
-  m_DDmgr->addDesign(std::move(p_barrelDesign2));
+  m_design = m_DDmgr->addDesign(std::move(p_barrelDesign2));
 
 }
 GeoVPhysVol* GeoPixelSiCrystal::Build() {

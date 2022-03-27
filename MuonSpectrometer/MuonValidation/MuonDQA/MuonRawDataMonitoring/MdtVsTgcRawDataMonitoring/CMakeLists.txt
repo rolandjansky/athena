@@ -17,6 +17,5 @@ atlas_add_component( MdtVsTgcRawDataMonitoring
                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringLib StoreGateLib xAODMuon GaudiKernel MuonReadoutGeometry MuonPrepRawData MuonSegment MuonTrigCoinData MuonDQAUtilsLib muonEvent TrkSegment GeoPrimitives Identifier EventPrimitives MuonCalibIdentifier MuonRDO MuonCompetingRIOsOnTrack MuonRIO_OnTrack TrkSurfaces TrkEventPrimitives TrkRIO_OnTrack )
 
 # Install files from the package:
-atlas_install_headers( MdtVsTgcRawDataMonitoring )
 atlas_install_joboptions( share/*.py )
 

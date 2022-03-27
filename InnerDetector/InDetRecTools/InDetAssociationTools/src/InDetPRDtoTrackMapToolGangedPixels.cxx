@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetAssociationTools/InDetPRDtoTrackMapToolGangedPixels.h"
@@ -168,7 +168,7 @@ InDet::InDetPRDtoTrackMapToolGangedPixels::getPrdsOnTrack(Trk::PRDtoTrackMap &vi
 {
   ensureType(virt_prd_to_track_map);
   PRDtoTrackMap &prd_to_track_map = static_cast<PRDtoTrackMap&>(virt_prd_to_track_map);
-  typedef std::vector<const Trk::PrepRawData*> PRDs_t;
+  using PRDs_t = std::vector<const Trk::PrepRawData *>;
 
   // test caching
   Trk::PRDtoTrackMap::TrackPrepRawDataMap::const_iterator itvec = prd_to_track_map.m_trackPrepRawDataMap.find(&track);
@@ -180,7 +180,7 @@ InDet::InDetPRDtoTrackMapToolGangedPixels::getPrdsOnTrack(Trk::PRDtoTrackMap &vi
 
   if (track.measurementsOnTrack()==nullptr) {
     ATH_MSG_WARNING("Track has no RoTs");
-    return PRDs_t(); // return vector optimization
+    return {}; // return vector optimization
    }
 
   // FIXME can I do this without copying the vector?

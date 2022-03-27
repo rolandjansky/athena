@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetRawData/Pixel1RawData.h"
@@ -32,7 +32,7 @@ void Pixel1RawDataContainerCnv_p2::transToPers(const PixelRDO_Container* transCo
     // to the container's vector, saving the indexes in the
     // collection. 
 
-    typedef PixelRDO_Container TRANS;
+    using TRANS = PixelRDO_Container;
 
     Pixel1RawDataCnv_p2  chanCnv;
     TRANS::const_iterator it_Coll     = transCont->begin();
@@ -66,7 +66,7 @@ void Pixel1RawDataContainerCnv_p2::transToPers(const PixelRDO_Container* transCo
         for (unsigned int i = 0; i < collection.size(); ++i) {
             InDetRawData_p2* pchan = &(persCont->m_rawdata[i + chanBegin]);
             const Pixel1RawData* chan = dynamic_cast<const Pixel1RawData*>(collection[i]);
-            if (0 == chan) throw std::runtime_error("Pixel1RawDataContainerCnv_p2::transToPers: ***  UNABLE TO DYNAMIC CAST TO Pixel1RawData");
+            if (nullptr == chan) throw std::runtime_error("Pixel1RawDataContainerCnv_p2::transToPers: ***  UNABLE TO DYNAMIC CAST TO Pixel1RawData");
             chanCnv.transToPers(chan, pchan, log);
         }
     }
@@ -91,7 +91,7 @@ void  Pixel1RawDataContainerCnv_p2::persToTrans(const InDetRawDataContainer_p2* 
     // from the vector.
 
 
-    PixelRDO_Collection* coll = 0;
+    PixelRDO_Collection* coll = nullptr;
 
     Pixel1RawDataCnv_p2  chanCnv;
     MSG_DEBUG(log," Reading " << persCont->m_collections.size() << "Collections");

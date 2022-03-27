@@ -18,10 +18,10 @@ HLTSignature::HLTSignature() :
 {}
 
 HLTSignature::HLTSignature( unsigned int signature_counter, int logic,
-                            const vector<HLTTriggerElement*>& outputTEs) :
+                            vector<HLTTriggerElement*>&& outputTEs) :
    m_signature_counter(signature_counter),
    m_logic(logic),
-   m_outputTEs(outputTEs),
+   m_outputTEs(std::move(outputTEs)),
    m_label("")
 {}
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKALGS_ALSPAMAT_H
@@ -76,7 +76,7 @@ class AlSpaMat : public AlSymMatBase {
     virtual TMatrixDSparse* makeTMatrix() override final;
   protected:
 
-    indices elem(long int, long int) const;
+    static indices elem(long int, long int) ;
 
     void copy(const AlSpaMat&  m);
     void copy(const AlSymMat&  m);

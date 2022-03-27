@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file MakeEventStreamInfo.cxx
@@ -111,9 +111,8 @@ StatusCode MakeEventStreamInfo::postExecute() {
    pEventStream->insertProcessingTag(dataHeader->getProcessTag());
    pEventStream->insertLumiBlockNumber( lumiN );
    pEventStream->insertRunNumber( runN );
-   for (std::vector<DataHeaderElement>::const_iterator iter = dataHeader->begin(), iterEnd = dataHeader->end();
-		   iter != iterEnd; iter++) {
-      pEventStream->insertItemList(iter->getPrimaryClassID(), iter->getKey());
+   for (const DataHeaderElement& dhe : *dataHeader) {
+      pEventStream->insertItemList(dhe.getPrimaryClassID(), dhe.getKey());
    }
    pEventStream->insertEventType( evtype );
    return(StatusCode::SUCCESS);

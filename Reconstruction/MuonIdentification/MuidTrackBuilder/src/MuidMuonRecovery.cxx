@@ -11,7 +11,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#include "MuidTrackBuilder/MuidMuonRecovery.h"
+#include "MuidMuonRecovery.h"
 
 #include <cmath>
 #include <iomanip>

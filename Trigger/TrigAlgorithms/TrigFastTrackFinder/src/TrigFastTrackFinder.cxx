@@ -1486,12 +1486,14 @@ StatusCode TrigFastTrackFinder::createEmptyUTTEDMs(const EventContext& ctx) cons
    if( m_doHitDV ) {
       SG::WriteHandle<xAOD::TrigCompositeContainer> hitDVTrkHandle(m_hitDVTrkKey, ctx);
       ATH_CHECK( hitDVTrkHandle.record(std::make_unique<xAOD::TrigCompositeContainer>(), std::make_unique<xAOD::TrigCompositeAuxContainer>()) );
-   }
-   if( m_dodEdxTrk ) {
       SG::WriteHandle<xAOD::TrigCompositeContainer> hitDVSPHandle(m_hitDVSPKey, ctx);
       ATH_CHECK( hitDVSPHandle.record(std::make_unique<xAOD::TrigCompositeContainer>(), std::make_unique<xAOD::TrigCompositeAuxContainer>()) );
+   }
+   if( m_dodEdxTrk ) {
       SG::WriteHandle<xAOD::TrigCompositeContainer> dEdxTrkHandle(m_dEdxTrkKey, ctx);
       ATH_CHECK( dEdxTrkHandle.record(std::make_unique<xAOD::TrigCompositeContainer>(), std::make_unique<xAOD::TrigCompositeAuxContainer>()) );
+      SG::WriteHandle<xAOD::TrigCompositeContainer> dEdxHitHandle(m_dEdxHitKey, ctx);
+      ATH_CHECK( dEdxHitHandle.record(std::make_unique<xAOD::TrigCompositeContainer>(), std::make_unique<xAOD::TrigCompositeAuxContainer>()) );
    }
    if( m_doDisappearingTrk ) {
       SG::WriteHandle<xAOD::TrigCompositeContainer> disTrkCandHandle(m_disTrkCandKey, ctx);

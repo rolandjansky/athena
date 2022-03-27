@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetDetDescrExample/InDetUpdateCaches.h"
@@ -33,7 +33,7 @@ InDetUpdateCaches::initialize(){
   msg(MSG::INFO) << "initialize()" << endmsg;  
   StatusCode sc;
   // Retrieve GeoModel managers
-  const InDetDD::SCT_DetectorManager * sctManager = 0;
+  const InDetDD::SCT_DetectorManager * sctManager = nullptr;
   sc=detStore()->retrieve(sctManager, "SCT");
   if (sc.isFailure() || !sctManager) {
     msg(MSG::WARNING) << "Could not find the SCT_DetectorManager" << endmsg;
@@ -41,7 +41,7 @@ InDetUpdateCaches::initialize(){
     msg(MSG::DEBUG) << "SCT_DetectorManager found" << endmsg;
     m_detManagers.push_back(sctManager);
   }
-  const InDetDD::PixelDetectorManager * pixelManager = 0;
+  const InDetDD::PixelDetectorManager * pixelManager = nullptr;
   sc=detStore()->retrieve(pixelManager, "Pixel");
   if (sc.isFailure() || !pixelManager) {
     msg(MSG::WARNING) << "Could not find the PixelDetectorManager" << endmsg;
@@ -49,7 +49,7 @@ InDetUpdateCaches::initialize(){
     msg(MSG::DEBUG) << "PixelDetectorManager found" << endmsg;
     m_detManagers.push_back(pixelManager);
  }
-  const InDetDD::TRT_DetectorManager * trtManager = 0;
+  const InDetDD::TRT_DetectorManager * trtManager = nullptr;
   sc=detStore()->retrieve(trtManager, "TRT");
   if (sc.isFailure() || !trtManager) {
     msg(MSG::WARNING) << "Could not find the TRT_DetectorManager" << endmsg;

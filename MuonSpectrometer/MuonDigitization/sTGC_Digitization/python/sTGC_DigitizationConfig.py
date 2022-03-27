@@ -20,6 +20,10 @@ def sTgcDigitizationTool(name="sTgcDigitizationTool",**kwargs):
     if jobproperties.Digitization.doXingByXingPileUp():
         kwargs.setdefault("FirstXing", sTGC_FirstXing() )  # this should match the range for the sTGC in Digitization/share/MuonDigitization.py
         kwargs.setdefault("LastXing",  sTGC_LastXing() )  # this should match the range for the sTGC in Digitization/share/MuonDigitization.py   
+    from AthenaCommon.DetFlags import DetFlags
+    if not DetFlags.pileup.any_on():
+        kwargs.setdefault("MergeSvc", '')
+        kwargs.setdefault("OnlyUseContainerName", False)
     kwargs.setdefault("InputObjectName", "sTGCSensitiveDetector")
     kwargs.setdefault("OutputObjectName", "sTGC_DIGITS")
     if jobproperties.Digitization.PileUpPresampling and 'LegacyOverlay' not in jobproperties.Digitization.experimentalDigi():

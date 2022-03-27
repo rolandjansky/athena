@@ -145,8 +145,8 @@ namespace MuonCombined {
 
     private:
         /** handle a single candidate */
-        void handleCandidate(const EventContext& ctx, const InDetCandidate& inDetCandidate, InDetCandidateToTagMap* tagMap, TrackCollection* combTracks,
-                             Trk::SegmentCollection* segments) const;
+        void handleCandidate(const EventContext& ctx, const InDetCandidate& inDetCandidate, InDetCandidateToTagMap* tagMap,
+                             TrackCollection* combTracks, Trk::SegmentCollection* segments) const;
 
         /** associate Hough maxima to intersection */
         void associateHoughMaxima(LayerData& layerData) const;
@@ -166,7 +166,7 @@ namespace MuonCombined {
                           const ToolHandle<Muon::IMuonSegmentMaker>& segmentMaker) const;
 
         /** associate Hough maxima and associate time measurements */
-        bool extractTimeMeasurements(const Muon::MuonSystemExtension& muonSystemExtension, AssociatedData& associatedData) const;
+        bool extractTimeMeasurements(const EventContext& ctx, const Muon::MuonSystemExtension& muonSystemExtension, AssociatedData& associatedData) const;
 
         /** create candidates from the beta seeds */
         bool createCandidates(const AssociatedData& associatedData, CandidateVec& candidates) const;
@@ -182,7 +182,7 @@ namespace MuonCombined {
         bool extractTimeHits(const MaximumData& maximumData, Muon::TimePointBetaFitter::HitVec& hits, const BetaSeed* seed = 0) const;
 
         /** refine candidates: find segments for the given beta */
-        bool refineCandidates(CandidateVec& candidates) const;
+        bool refineCandidates(const EventContext& ctx, CandidateVec& candidates) const;
 
         /** combine reconstruction */
         bool combineCandidates(const EventContext& ctx, const xAOD::TrackParticle& indetTrackParticle, CandidateVec& candidates) const;

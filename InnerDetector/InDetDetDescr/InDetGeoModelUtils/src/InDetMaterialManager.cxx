@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "InDetGeoModelUtils/InDetMaterialManager.h"
@@ -793,7 +793,7 @@ InDetMaterialManager::addTextFileMaterials() {
 
   msg(MSG::INFO) << "Extra materials being read in from text file." << endmsg;
 
-  typedef std::map<std::string, MaterialDef> MatMap;
+  using MatMap = std::map<std::string, MaterialDef>;
   MatMap materials;
 
   // read in material table

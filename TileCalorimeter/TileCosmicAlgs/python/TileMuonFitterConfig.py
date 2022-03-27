@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 '''
 @file TileMuonFitterConfig.py
@@ -15,7 +15,7 @@ def TileMuonFitterCfg(flags, **kwargs):
 
     kwargs.setdefault('DoHoughTransform', True)
     kwargs.setdefault('EThreshold', 250.0)
-    kwargs.setdefault('BeamType', flags.Beam.Type)
+    kwargs.setdefault('BeamType', flags.Beam.Type.value)
     kwargs.setdefault('CaloCellContainer', 'AllCalo')
 
     if kwargs['DoHoughTransform']:

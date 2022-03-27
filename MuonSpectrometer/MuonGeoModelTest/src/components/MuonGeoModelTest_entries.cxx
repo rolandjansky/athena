@@ -2,7 +2,6 @@
 #include "MuonGeoModelTest/MuonGMTestOnPrd.h"
 #include "MuonGeoModelTest/MuonHitRelocation.h"
 
-DECLARE_COMPONENT( MuonGMCheck )
-DECLARE_COMPONENT( MuonGMTestOnPrd )
-DECLARE_COMPONENT( MuonHitRelocation )
-
+DECLARE_COMPONENT(MuonGMCheck)
+DECLARE_COMPONENT(MuonGMTestOnPrd)
+DECLARE_COMPONENT(MuonHitRelocation)

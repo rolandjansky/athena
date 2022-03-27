@@ -34,7 +34,7 @@ def TileMBTSMonitoringConfig(flags, **kwargs):
         from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
         result.merge( L1ConfigSvcCfg(flags) )
 
-    from AthenaConfiguration.Enums import Format
+    from AthenaConfiguration.Enums import BeamType, Format
     if flags.Input.Format is Format.POOL:
         kwargs.setdefault('TileDigitsContainer', 'TileDigitsFlt')
 
@@ -43,11 +43,11 @@ def TileMBTSMonitoringConfig(flags, **kwargs):
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(flags, 'TileMBTSMonAlgCfg')
 
-    runNumber = flags.Input.RunNumber[0]
-    isCosmics = flags.Beam.Type == 'cosmics'
     from AthenaConfiguration.ComponentFactory import CompFactory
     _TileMBTSMonitoringConfigCore(helper, CompFactory.TileMBTSMonitorAlgorithm,
-                                  runNumber, isCosmics, **kwargs)
+                                  flags.Input.RunNumber[0],
+                                  flags.Beam.Type is BeamType.Cosmics,
+                                  **kwargs)
 
     accumalator = helper.result()
     result.merge(accumalator)
@@ -92,7 +92,10 @@ def _TileMBTSMonitoringConfigCore(helper, algConfObj, runNumber, isCosmics, **kw
     tileMBTSMonAlg.TriggerChain = ''
 
     numberOfMBTS = 32
-    energyCuts = [60. / 222 for mbts in range(0, numberOfMBTS)]
+    if runNumber < 400000:
+        energyCuts = [60. / 222 for mbts in range(0, numberOfMBTS)]
+    else:
+        energyCuts = [0.1 for mbts in range(0, numberOfMBTS)]
     kwargs.setdefault("EnergyCuts", energyCuts)
 
     for k, v in kwargs.items():
@@ -363,7 +366,7 @@ def _TileMBTSMonitoringConfigCore(helper, algConfObj, runNumber, isCosmics, **kw
             title = f'Run {run}: Energy with TBP fired of {mbtsName};Energy [pC]'
             name = f'Energy;Energy_TBP_{mbtsName}'
             tool.defineHistogram(name, title = title, type = 'TH1F', path = 'Cell',
-                                 xbins = 550, xmin = -0.5, xmax = 5)
+                                 xbins = nEnergyBins, xmin = -0.5, xmax = maxEnergy)
 
         # 29) Configure histogram with MBTS counter energy vs luminosity block with TBP fired
         energyTrigLBArray = helper.addArray([numberOfMBTS], tileMBTSMonAlg, 'TileEnergyTrigLBMBTS', topPath = 'Tile/MBTS')

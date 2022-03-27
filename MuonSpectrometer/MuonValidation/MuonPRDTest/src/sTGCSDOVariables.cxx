@@ -80,7 +80,7 @@ StatusCode sTGCSDOVariables::fillVariables(const MuonGM::MuonDetectorManager* Mu
 
     // Retrive the detector element and local SDO coordinates
     bool isSmall = stName[2] == 'S';
-    const MuonGM::sTgcReadoutElement* rdoEl = MuonDetMgr->getsTgcRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet);
+    const MuonGM::sTgcReadoutElement* rdoEl = MuonDetMgr->getsTgcReadoutElement(Id);
     if (!rdoEl) throw std::runtime_error(Form("File: %s, Line: %d\nsTGCSDOVariables::fillVariables() - Failed to retrieve sTgcReadoutElement for isSmall=%d, stationEta=%d, stationPhi=%d, multiplet=%d", __FILE__, __LINE__, isSmall, stationEta, stationPhi, multiplet));
 
     Amg::Vector2D loc_pos(0., 0.);

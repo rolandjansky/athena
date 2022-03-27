@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -20,8 +20,7 @@ static const int maxDig =    5000;
 /////////////////////////////////////////////////////////////////////////////
 
 ReadMdtDigit::ReadMdtDigit(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator), m_ntuplePtr(nullptr),
-  m_activeStore("ActiveStoreSvc", name)
+  AthAlgorithm(name, pSvcLocator), m_ntuplePtr(nullptr)
 {
   declareProperty("NtupleLocID",m_NtupleLocID);
   declareProperty("WriteMdtNtuple", m_mdtNtuple = false);
@@ -32,7 +31,6 @@ ReadMdtDigit::ReadMdtDigit(const std::string& name, ISvcLocator* pSvcLocator) :
 StatusCode ReadMdtDigit::initialize()
 {
   ATH_MSG_DEBUG( " in initialize()"  );
-  ATH_CHECK( m_activeStore.retrieve() );
   ATH_CHECK( m_idHelperSvc.retrieve() );
  
 
@@ -57,10 +55,11 @@ StatusCode ReadMdtDigit::execute()
 {
   ATH_MSG_DEBUG( "in execute()"  );
 
-  std::string	key = "MDT_DIGITS";
-  const MdtDigitContainer* mdt_container = nullptr;
-  ATH_CHECK( (*m_activeStore)->retrieve(mdt_container, key) );
- 
+  std::string key = "MDT_DIGITS";
+  SG::ReadHandle<MdtDigitContainer> hndl(key);
+  const MdtDigitContainer* mdt_container = hndl.get();
+  ATH_CHECK( mdt_container != nullptr );
+
   ATH_MSG_DEBUG("****** mdt->size() : " << mdt_container->size() );
 
   if (!m_mdtNtuple) return StatusCode::SUCCESS;

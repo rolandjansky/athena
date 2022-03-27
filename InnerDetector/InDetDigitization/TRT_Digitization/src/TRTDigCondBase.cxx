@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRTDigCondBase.h"
@@ -8,6 +8,7 @@
 
 #include <cmath>
 #include <cstdlib>
+#include <utility>
 
 #include "TRT_ReadoutGeometry/TRT_DetElementCollection.h"
 #include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
@@ -38,7 +39,7 @@ TRTDigCondBase::TRTDigCondBase( const TRTDigSettings* digset,
     m_crosstalk_noiselevel_other_end(-1.0),
     m_msg ("TRTDigCondBase"),
     m_UseGasMix(UseGasMix),
-    m_sumTool(sumTool)
+    m_sumTool(std::move(sumTool))
 {
   m_crosstalk_noiselevel = m_settings->crossTalkNoiseLevel();
   m_crosstalk_noiselevel_other_end = m_settings->crossTalkNoiseLevelOtherEnd();

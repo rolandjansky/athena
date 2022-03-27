@@ -46,7 +46,7 @@ def RoIBResultByteStreamToolCfg(name, flags, writeBS=False):
 
 def ExampleL1TriggerByteStreamToolCfg(name, writeBS=False):
   tool = CompFactory.ExampleL1TriggerByteStreamTool(name)
-  muctpi_moduleid = 1
+  muctpi_moduleid = 0
   muctpi_robid = int(SourceIdentifier(SubDetector.TDAQ_MUON_CTP_INTERFACE, muctpi_moduleid))
   tool.MUCTPIModuleId = muctpi_moduleid
   tool.ROBIDs = [muctpi_robid]
@@ -60,23 +60,32 @@ def ExampleL1TriggerByteStreamToolCfg(name, writeBS=False):
     tool.MuonRoIContainerWriteKey="LVL1MuonRoIs"
   return tool
 
-def MuonRoIByteStreamToolCfg(name, flags, daq=False, writeBS=False):
-  tool_name = name+"DAQ" if daq else name
-  tool = CompFactory.MuonRoIByteStreamTool(tool_name)
-  muctpi_moduleid = 0 if daq else 1
-  muctpi_robid = int(SourceIdentifier(SubDetector.TDAQ_MUON_CTP_INTERFACE, muctpi_moduleid))
-  tool.MUCTPIModuleId = muctpi_moduleid
+def MuonRoIByteStreamToolCfg(name, flags, writeBS=False):
+  tool = CompFactory.MuonRoIByteStreamTool(name)
+  muctpi_moduleid = 0  # No RoIB in Run 3, we always read the DAQ ROB
+  muctpi_robid = int(SourceIdentifier(SubDetector.TDAQ_MUON_CTP_INTERFACE, muctpi_moduleid)) # 0x760000
   tool.ROBIDs = [muctpi_robid]
+
+  from TrigT1ResultByteStream.TrigT1ResultByteStreamMonitoring import L1MuonBSConverterMonitoring
+  tool.MonTool = L1MuonBSConverterMonitoring(name, writeBS)
+
+  # Build container names for each bunch crossing in the maximum readout window (size 5)
+  containerBaseName = "LVL1MuonRoIs"
+  containerNames = [
+    containerBaseName + "BCm2",
+    containerBaseName + "BCm1",
+    containerBaseName,
+    containerBaseName + "BCp1",
+    containerBaseName + "BCp2",
+  ]
+
   if writeBS:
     # write BS == read xAOD
-    tool.MuonRoIContainerReadKey="LVL1MuonRoIs"
-    tool.MuonRoIContainerWriteKey=""
+    tool.MuonRoIContainerReadKeys += containerNames
   else:
     # read BS == write xAOD
-    tool.MuonRoIContainerReadKey=""
-    tool.MuonRoIContainerWriteKey = "LVL1MuonRoIsDAQ" if daq else "LVL1MuonRoIs"
+    tool.MuonRoIContainerWriteKeys += containerNames
 
-  tool.UseRun3Config = flags.Trigger.enableL1MuonPhase1
   tool.RPCRecRoiTool = getRun3RPCRecRoiTool(name="RPCRecRoiTool",useRun3Config=flags.Trigger.enableL1MuonPhase1)
   tool.TGCRecRoiTool = getRun3TGCRecRoiTool(name="TGCRecRoiTool",useRun3Config=flags.Trigger.enableL1MuonPhase1)
   tool.TrigThresholdDecisionTool = getTrigThresholdDecisionTool(name="TrigThresholdDecisionTool")
@@ -133,11 +142,10 @@ def L1TriggerByteStreamDecoderCfg(flags):
         for module_id in roibResultTool.EMModuleIds:
           maybeMissingRobs.append(int(SourceIdentifier(SubDetector.TDAQ_CALO_CLUSTER_PROC_ROI, module_id)))
 
-  # Run-3 L1Muon decoding
-  if flags.Trigger.enableL1MuonPhase1:
+  # Run-3 L1Muon decoding (only when running HLT - offline we read it from HLT result)
+  if flags.Trigger.L1.doMuon and flags.Trigger.enableL1MuonPhase1 and flags.Trigger.doHLT:
     muonRoiTool = MuonRoIByteStreamToolCfg(name="L1MuonBSDecoderTool",
                                            flags=flags,
-                                           daq=(not flags.Trigger.doHLT),  # RoIB ROB for HLT, DAQ ROB for offline
                                            writeBS=False)
     decoderTools += [muonRoiTool]
 
@@ -175,13 +183,10 @@ def L1TriggerByteStreamEncoderCfg(flags):
 
   # Run-3 L1Muon encoding
   if flags.Trigger.L1.doMuon and flags.Trigger.enableL1MuonPhase1:
-    # Write to both RoIB and DAQ ROBs
-    for encode_daq in [False, True]:
-      muonRoiTool = MuonRoIByteStreamToolCfg(name="L1MuonBSEncoderTool",
-                                             flags=flags,
-                                             daq=encode_daq,
-                                             writeBS=True)
-      acc.addPublicTool(muonRoiTool)
+    muonRoiTool = MuonRoIByteStreamToolCfg(name="L1MuonBSEncoderTool",
+                                           flags=flags,
+                                           writeBS=True)
+    acc.addPublicTool(muonRoiTool)
 
   # TODO: Run-3 L1Calo, L1Topo, CTP
 

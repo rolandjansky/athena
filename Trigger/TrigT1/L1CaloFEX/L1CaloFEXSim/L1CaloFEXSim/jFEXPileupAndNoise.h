@@ -58,7 +58,7 @@ namespace LVL1 {
 protected:
 
   private:
-        SG::ReadHandleKey<LVL1::jTowerContainer> m_jFEXPileupAndNoise_jTowerContainerKey {this, "MyjTowers", "jTowerContainer", "Input container for jTowers"};
+        SG::ReadHandleKey<LVL1::jTowerContainer> m_jTowerContainerKey {this, "MyjTowers", "jTowerContainer", "Input container for jTowers"};
         SG::ReadHandle<jTowerContainer> m_jTowerContainer;
         
         int m_FPGA_central[FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width]={{0}};

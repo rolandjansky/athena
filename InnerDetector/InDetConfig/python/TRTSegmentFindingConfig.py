@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
 import InDetConfig.TrackingCommonConfig as TC
 
 def TRT_TrackSegmentsMaker_BarrelCosmicsCfg(flags, name='InDetTRTSegmentsMaker', **kwargs) :
@@ -91,7 +92,7 @@ def TRT_TrackSegmentsFinderCfg(flags, name = 'InDetTRT_TrackSegmentsFinder', ext
     # --- now the main steering of the TRT segments finding
     #
     # ---------------------------------------------------------------
-    if flags.Beam.Type == "cosmics":
+    if flags.Beam.Type is BeamType.Cosmics:
         #
         # --- cosmics barrel segments (use TRT track segements even for NewT) 
         #
@@ -180,7 +181,7 @@ def TRTSegmentFindingCfg(flags, extension = "", InputCollections = None, BarrelS
     # --- load TRT validation alg
     #
     
-    if flags.InDet.doTruth and not flags.Beam.Type == "cosmics":
+    if flags.InDet.doTruth and flags.Beam.Type is not BeamType.Cosmics:
         acc.merge(SegmentDriftCircleAssValidationCfg(flags,
                                                     name="InDetSegmentDriftCircleAssValidation"+extension,
                                                     BarrelSegments=BarrelSegments))

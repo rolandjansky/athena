@@ -33,6 +33,6 @@ CLASS_DEF( SCT_AllGoodStripInfo , 140934533 , 1 )
 
 // Condition container definition for CondInputLoader
 #include "AthenaKernel/CondCont.h"
-CONDCONT_DEF( SCT_AllGoodStripInfo, 7553175 );
+CONDCONT_MIXED_DEF( SCT_AllGoodStripInfo, 7553175 );
 
 #endif // SCT_ALLGOODSTRIPINFO_H

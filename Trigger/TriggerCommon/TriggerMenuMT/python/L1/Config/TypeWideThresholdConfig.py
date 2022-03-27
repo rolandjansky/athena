@@ -362,12 +362,12 @@ def getConfig_gLJ():
     confObj["seedThrA"] = 3 
     confObj["seedThrB"] = 3 
     confObj["seedThrC"] = 3 
-    confObj["rhoTowerMinA"] = 0.25 
-    confObj["rhoTowerMinB"] = 0.25 
-    confObj["rhoTowerMinC"] = 0.25 
-    confObj["rhoTowerMaxA"] = -9.6 
-    confObj["rhoTowerMaxB"] = -9.6 
-    confObj["rhoTowerMaxC"] = -9.6 
+    confObj["rhoTowerMinA"] = -9.6 
+    confObj["rhoTowerMinB"] = -9.6 
+    confObj["rhoTowerMinC"] = -9.6 
+    confObj["rhoTowerMaxA"] = 0.25 
+    confObj["rhoTowerMaxB"] = 0.25 
+    confObj["rhoTowerMaxC"] = 0.25 
     confObj["resolutionMeV"] = 200
 
     # Check that all values are integers in MeV

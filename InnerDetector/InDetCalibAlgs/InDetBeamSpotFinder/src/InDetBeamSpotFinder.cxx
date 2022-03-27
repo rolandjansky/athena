@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetBeamSpotFinder.h"
@@ -255,7 +255,7 @@ StatusCode InDet::InDetBeamSpotFinder::performFits(){
     }
 
     for( unsigned int j = 0; j < m_beamSpotToolList.size(); j++){
-      IInDetBeamSpotTool * bs(0);
+      IInDetBeamSpotTool * bs(nullptr);
       bs = cloneTool(j);
       if(!bs){ return StatusCode::FAILURE; }
       if(not verticesToFit.empty()) { bsFitStatus = bs->fit(verticesToFit); }

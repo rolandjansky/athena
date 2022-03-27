@@ -98,7 +98,8 @@ ExcHandleInitError::ExcHandleInitError (CLID clid,
 /// Helper: format exception error string.
 std::string excUninitKey_format (CLID clid,
                                  const std::string& sgkey,
-                                 const std::string& storename)
+                                 const std::string& storename,
+                                 const std::string& holdername)
                                        
 {
   std::ostringstream os;
@@ -106,6 +107,7 @@ std::string excUninitKey_format (CLID clid,
      << "Error initializing VarHandle from uninitialized VarHandleKey: "
      << storename << "+" << sgkey << "[" << clid << "]; "
      << "keys should be initialized in your initialize().";
+  if ( holdername.size() ) os << " Key held by " << holdername << ".";
   return os.str();
 }
 
@@ -118,8 +120,9 @@ std::string excUninitKey_format (CLID clid,
  */
 ExcUninitKey::ExcUninitKey (CLID clid,
                             const std::string& sgkey,
-                            const std::string& storename)
-  : std::runtime_error (excUninitKey_format (clid, sgkey, storename))
+                            const std::string& storename,
+                            const std::string& holdername)
+  : std::runtime_error (excUninitKey_format (clid, sgkey, storename, holdername))
 {
 }
 

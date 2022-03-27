@@ -63,6 +63,9 @@ def getStaticTrackVars(TrackCollection):
         'numberOfSCTHits',
         'numberOfSCTHoles',
         'numberOfSCTSharedHits',
+        'chiSquared',
+        'numberDoF',
+        'qOverP',
     ]
     return [f'{TrackCollection}.{x}' for x in static_track_vars]
 

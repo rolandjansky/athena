@@ -7,7 +7,7 @@
  *
  * @class LArGeo::LArDetectorFactoryLite
  *
- * @brief LArDetectorFactory is invoked by the LArDetectorTool when the GeoModel 
+ * @brief LArDetectorFactoryLite is invoked by the LArDetectorTool when the GeoModel 
  * description of LAr calorimeter is built from the SQLite database
  * relevant 'Construction' classes (Barrel, Endcap). It also builds readout geometry
  *

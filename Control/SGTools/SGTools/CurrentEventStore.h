@@ -16,7 +16,6 @@
 #ifndef SGTOOLS_CURRENTEVENTSTORE_H
 #define SGTOOLS_CURRENTEVENTSTORE_H
 
-
 class IProxyDict;
 
 

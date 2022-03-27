@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetDetDescrExample/ReadTRT_DetectorElements.h"
@@ -33,8 +33,8 @@ namespace{
 ReadTRT_DetectorElements::ReadTRT_DetectorElements(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_managerName("TRT"),
-  m_manager(0),
-  m_idHelper(0),
+  m_manager(nullptr),
+  m_idHelper(nullptr),
   m_maxdiff(0),
   m_first(true)
 {  
@@ -334,7 +334,7 @@ ReadTRT_DetectorElements::printStraw(const TRT_BaseElement * element, unsigned i
     return;
   }
 
-  Amg::Transform3D transform = element->strawTransform(strawNum);
+  const Amg::Transform3D& transform = element->strawTransform(strawNum);
   Amg::Vector3D strawCenter = transform * origin;
   cout << "strawNum = " << strawNum << ", "
        << "x = " << strawCenter.x() << ", "

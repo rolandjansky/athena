@@ -3,11 +3,12 @@
 from __future__ import print_function
 
 import ROOT
-import sys, os, operator
+import sys, os
 import argparse
 import zlib
 import json
 from PyUtils.fprint import _formatFloat
+from typing import List, Tuple, Callable
 
 def fixprecision(x, precision=15):
     import math
@@ -26,20 +27,27 @@ def jsonfixup(instr, fuzzyarray=False):
     for badkey in ('fTsumw', 'fTsumwx', 'fTsumw2', 'fTsumwx2', 'fTsumwy', 'fTsumwy2', 'fTsumwxy',
                    'fTsumwz', 'fTsumwz2', 'fTsumwxz', 'fTsumwyz' ):
         if badkey in j:
-            j[badkey] = fixprecision(j[badkey])
+            j[badkey] = fixprecision(float(j[badkey]))
             #print(type(j["fTsumwx"]))
     # member, digits of precision
-    arrkeys = [('fSumw2', 15)]
+    arrkeys: List[Tuple[str,int,Callable]] = [('fSumw2', 15, float)]
     if fuzzyarray:
-        arrkeys += [('fBinEntries',15), ('fBinSumw2',15)]
+        arrkeys += [('fBinEntries', 15, float), ('fBinSumw2', 15, float)]
         # apply different precision for fArray depending on object type
-        if '_typename' in j and j['_typename'] in ('TH1F', 'TH2F', 'TH3F'):
-            arrkeys.append(('fArray', 6))
+        if '_typename' in j:
+            if j['_typename'] in ('TH1F', 'TH2F', 'TH3F'):
+                arrkeys.append(('fArray', 6, float))
+            elif j['_typename'] in ('TH1C', 'TH1I', 'TH1S', 'TH2C', 'TH2I', 'TH2S',
+                                    'TH3C', 'TH3I', 'TH3S'):
+                # precision here isn't relevant, *should* be an integer
+                arrkeys.append(('fArray', 15, lambda x: x))
+            else:
+                arrkeys.append(('fArray', 15, float))
         else:
-            arrkeys.append(('fArray', 15))
-    for badkey, precision in arrkeys:
+            arrkeys.append(('fArray', 15, float))
+    for badkey, precision, func in arrkeys:
         if badkey in j:
-            j[badkey] = [fixprecision(_, precision) for _ in j[badkey]]
+            j[badkey] = [fixprecision(func(_), precision) for _ in j[badkey]]
     # the following ignores small layout fluctuations in TTrees
     if 'fBranches' in j:
         for branch in j['fBranches']['arr']:
@@ -82,9 +90,10 @@ ROOT.gSystem.Load('libDataQualityUtils')
 
 def fuzzytreehash(tkey):
     t = tkey.ReadObj()
-    rv = zlib.adler32((' '.join(_.GetName() for _ in t.GetListOfBranches()))
+    rv = zlib.adler32(((' '.join(_.GetName() for _ in t.GetListOfBranches()))
                         + (' '.join(_.GetName() + _.GetTypeName() for _ in t.GetListOfLeaves()))
-                        + ' ' + str(t.GetEntries()))
+                        + ' ' + str(t.GetEntries())).encode()
+                        )
     del t
     return rv
 
@@ -126,11 +135,11 @@ else:
 dumpdir(d)
 
 if ordering == 'onfile':
-    key=lambda x: (x[1][1], x[1][0], x[0])
+    def key(x): return (x[1][1], x[1][0], x[0])
 elif ordering == 'uncompressed':
-    key=lambda x: (x[1][0], x[1][1], x[0])
+    def key(x): return (x[1][0], x[1][1], x[0])
 else:
-    key=lambda x: (x[0], x[1][1], x[1][0])
+    def key(x): return (x[0], x[1][1], x[1][0])
 sortedl = sorted(accounting.items(), key=key, reverse=True)
 if args.hash:
     print('\n'.join(('%s %s: '

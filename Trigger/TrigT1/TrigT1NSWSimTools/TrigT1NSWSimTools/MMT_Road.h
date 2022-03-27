@@ -43,17 +43,17 @@ class MMT_Road : public AthMessaging {
     ~MMT_Road();
 
     void addHits(std::vector<std::shared_ptr<MMT_Hit> > &hits);
-    double avgSofX();
-    double avgSofUV(const int uv1, const int uv2);
-    double avgZofUV(const int uv1, const int uv2);
-    bool checkCoincidences(const int &bcwind);
-    bool containsNeighbors(const MMT_Hit &hit);
+    double avgSofX() const;
+    double avgSofUV(const int uv1, const int uv2) const;
+    double avgZofUV(const int uv1, const int uv2) const;
+    bool checkCoincidences(const int &bcwind) const;
+    bool containsNeighbors(const MMT_Hit &hit) const;
     unsigned int countHits() const { return m_road_hits.size(); }
-    unsigned int countRealHits();
-    unsigned int countUVHits(bool flag);
-    unsigned int countXHits(bool flag);
-    bool evaluateLowRes();
-    bool horizontalCheck();
+    unsigned int countRealHits() const;
+    unsigned int countUVHits(bool flag) const;
+    unsigned int countXHits(bool flag) const;
+    bool evaluateLowRes() const;
+    bool horizontalCheck() const;
     void incrementAge(const int &bcwind);
     double getB() const { return m_B; }
     int getRoadSize() const { return m_roadSize; }
@@ -69,10 +69,10 @@ class MMT_Road : public AthMessaging {
     int iRoadx() const { return m_iroadx; }
     int iRoadu() const { return m_iroadu; }
     int iRoadv() const { return m_iroadv; }
-    bool matureCheck(const int &bcwind);
-    double mxl();
+    bool matureCheck(const int &bcwind) const;
+    double mxl() const;
     void reset();
-    bool stereoCheck();
+    bool stereoCheck() const;
     micromegas_t getMM() const { return m_micromegas; }
 
   private:

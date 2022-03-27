@@ -62,8 +62,11 @@ class EvgenExecutor(athenaExecutor):
         # Adding cvmfs path to JOBOPTSEARCHPATH
         BaseCvmfsPath = "/cvmfs/atlas.cern.ch/repo/sw/Generators/MCJobOptions/"
 
-        if len(dsidparam)==6 and dsidparam.isdigit(): #only dsid is provided, add cvmfs folder like 123xxx to JOBOPTSEARCHPATH
+        if dsidparam.isdigit() and (len(dsidparam)==6 or len(dsidparam)==7): 
+            #only dsid is provided, add cvmfs folder like 123xxx to JOBOPTSEARCHPATH
             Jodir = dsidparam[:3]+'xxx'
+            if len(dsidparam)==7:
+               Jodir = dsidparam[0] + '/' + dsidparam[:4]+'xxx'
             cwdir = os.getcwd()
             cwd_ful = os.path.join(cwdir, dsidparam)
             if (os.path.isdir(cwd_ful)):

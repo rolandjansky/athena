@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TGCSimHitVariables.h"
@@ -44,7 +44,7 @@ StatusCode TGCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
 		// &bool isValid -> reference to boolean, which will be false in case of invalid identifier
 		// the channelID() function of the TgcIdHelper needs also a channelNumber and a stripNumber, but the TgcHitIdHelper 
 		// does not seem to return this, so we just give channelNumber=1 and stripNumber=1 for now
-		Identifier offid = m_TgcIdHelper->channelID(stname, steta, stphi, gasgap, 1, 1, true, &isValid);
+		Identifier offid = m_TgcIdHelper->channelID(stname, steta, stphi, gasgap, 1, 1, isValid);
 		if (!isValid) {
             ATH_MSG_WARNING("Cannot build a valid Identifier for TGC stationName="<<stname<<", eta="<<steta<<", phi="<<stphi<<", gasGap="<<gasgap<<"; skipping...");
 			continue;
@@ -103,7 +103,7 @@ StatusCode TGCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
 		const HepMcParticleLink& pLink = hit.particleLink();
 		barcode = pLink.barcode();
 		if (pLink.isValid()) {
-			const HepMC::GenParticle* genP = pLink.cptr();
+			HepMC::ConstGenParticlePtr genP = pLink.cptr();
 			if (genP) {
 				pdgId = genP->pdg_id();
 				barcode = HepMC::barcode(genP);

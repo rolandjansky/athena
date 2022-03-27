@@ -52,6 +52,8 @@ FastReducer::FastReducer(const HypoJetVector& jv,
     m_satisfiedBy.emplace(i, std::vector<std::size_t>{});
     m_testedBy.emplace(i, std::set<std::size_t>{});
     m_conditionMult.push_back(conditions[i]->multiplicity());
+    m_conditionCap.push_back(conditions[i]->capacity());
+    m_conditionClique.push_back(conditions[i]->clique());
   }
 
 
@@ -359,10 +361,19 @@ bool FastReducer::propagate_(std::size_t child,
   // sibling c2 is satisfied by jg21, the external jet groups are
   // jg11jg21, jg12jg21. Each of these  are flattened.
 
-   
+  std::vector<bool> leaves;
+  leaves.reserve(siblings.size());
+  std::transform(siblings.begin(),
+		 siblings.end(),
+		 leaves.begin(),
+		 [=](const auto& s) {return m_tree.is_leaf(s);});
+
   auto jg_product = makeJetGroupProduct(siblings,
+					leaves,
 					m_satisfiedBy,
 					m_conditionMult,
+					m_conditionCap,
+					m_conditionClique,
 					m_jg2elemjgs,
 					m_conditions[par]->capacity(),
 					collector);

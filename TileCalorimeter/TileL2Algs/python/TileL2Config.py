@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 """Define methods to construct configured Tile L2 builder tool and algorithm"""
 
@@ -87,7 +87,7 @@ def TileRawChannelToL2OutputCfg(flags, streamName = 'RDO', **kwargs):
 
     if flags.Output.doWriteRDO:
         from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-        acc.merge( OutputStreamCfg(flags, streamName, ['TileL2Container#' + tileL2Container]) )
+        acc.merge( OutputStreamCfg(flags, streamName, [f'TileL2Container#{tileL2Container}']) )
 
     return acc
 

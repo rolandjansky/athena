@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondAlg/MdtCondDbAlg.h"
@@ -9,7 +9,7 @@
 using readOutPair = CondAttrListCollection::ChanAttrListPair;
 // constructor
 MdtCondDbAlg::MdtCondDbAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-    AthReentrantAlgorithm(name, pSvcLocator), m_condSvc("CondSvc", name), m_condMapTool("MDT_MapConversion") {
+    AthReentrantAlgorithm(name, pSvcLocator), m_condMapTool("MDT_MapConversion") {
     declareProperty("MDT_MapConversion", m_condMapTool);
 
     declareProperty("isOnline", m_isOnline);
@@ -21,7 +21,7 @@ MdtCondDbAlg::MdtCondDbAlg(const std::string& name, ISvcLocator* pSvcLocator) :
 // Initialize
 StatusCode MdtCondDbAlg::initialize() {
     ATH_MSG_DEBUG("initializing " << name());
-    ATH_CHECK(m_condSvc.retrieve());
+
     ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_writeKey.initialize());
     ATH_CHECK(m_readKey_folder_da_pshv.initialize(!m_readKey_folder_da_pshv.empty() && m_isData && m_isRun1));
@@ -37,11 +37,6 @@ StatusCode MdtCondDbAlg::initialize() {
     // so don't declare a dependencies on them.
     ATH_CHECK(m_readKey_folder_mc_deadElements.initialize(false /*!m_readKey_folder_mc_deadElements.empty() && !m_isData*/));
     ATH_CHECK(m_readKey_folder_mc_deadTubes.initialize(false /*!m_readKey_folder_mc_deadTubes.empty() && !m_isData*/));
-
-    if (m_condSvc->regHandle(this, m_writeKey).isFailure()) {
-        ATH_MSG_FATAL("Unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
-        return StatusCode::FAILURE;
-    }
 
     return StatusCode::SUCCESS;
 }
@@ -398,14 +393,17 @@ StatusCode MdtCondDbAlg::loadDataLv(writeHandle_t& wh, MdtCondDbData* writeCdo, 
     for (const readOutPair& itr : *readCdo) {
         unsigned int chanNum = itr.first;
         const coral::AttributeList& atr = itr.second;
-        std::string hv_name;
         const std::string& hv_payload = readCdo->chanName(chanNum);
-
         if (!atr.size()) { continue; }
-        hv_name = *(static_cast<const std::string*>((atr["fsmCurrentState_LV"]).addressOfData()));
-        char delimiter = ' ';
+        std::string hv_name = *static_cast<const std::string*>((atr["fsmCurrentState_LV"]).addressOfData());
+        if (hv_name.empty() || hv_payload.empty()){
+            ATH_MSG_WARNING("The read data with chanNum "<<chanNum<<", hv_payload: "<<hv_payload<<", hv_name: "<<hv_name<<". Does not have any fsmCurrentState_LV attribute. "
+                            <<"May be this is related to ATLASRECTS-6920 / ATLASRECTS-6879. Skip it");
+            continue;
+        }
+        constexpr char delimiter = ' ';
         auto tokens = MuonCalib::MdtStringUtils::tokenize(hv_name, delimiter);
-        char delimiter2 = '_';
+        constexpr char delimiter2 = '_';
         auto tokens2 = MuonCalib::MdtStringUtils::tokenize(hv_payload, delimiter2);
 
         if (tokens[0] != "ON") {

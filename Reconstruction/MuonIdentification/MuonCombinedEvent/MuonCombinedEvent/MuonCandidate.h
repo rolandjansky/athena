@@ -31,7 +31,11 @@ namespace MuonCombined {
         /*Constructor taking two ElementLinks, and the index location of the extrapolated track in the container*/
         MuonCandidate(const ElementLink<xAOD::TrackParticleContainer>& msTrackLink, const ElementLink<TrackCollection>& saTrackLink, 
                       size_t container_idx);
-
+        
+        /* Update constructor to insert the element link to the extrapolated MSOE xAOD TrackParticle */
+        MuonCandidate(const MuonCandidate& oldCandidate,
+                      const ElementLink<xAOD::TrackParticleContainer>& msoeTrackLink);
+        
         /** destructor */
         ~MuonCandidate();
 
@@ -51,15 +55,17 @@ namespace MuonCombined {
         const ElementLink<TrackCollection>& extrapolatedTrackLink() const;
         /** returns the index of the container where the extrapolated track is located */
         size_t extrapolatedElementID() const;
-         
+        /** access extrapolated track particle element link*/
+        const ElementLink<xAOD::TrackParticleContainer>& extrapolatedParticleLink() const;
+
 
         /** print candidate to string */
         std::string toString() const;
        
         /** Sets ths comissioning flag */
-        void setComissioning(bool b);
+        void setCommissioning(bool b);
         /** Returns whether the muon belongs to the comissioning chain **/
-        bool isComissioning() const;
+        bool isCommissioning() const;
 
         /** set the vector of associated segments to the candidate **/
         void setSegments(std::vector<ElementLink<xAOD::MuonSegmentContainer>>&& segments);
@@ -69,15 +75,16 @@ namespace MuonCombined {
     private:
         /** element link to spectrometer track */
         const ElementLink<xAOD::TrackParticleContainer> m_muonSpectrometerTrackLink{};
-
+        /** element link to the extrapolated muon track particle */
+        const ElementLink<xAOD::TrackParticleContainer> m_extrapolatedParticleLink{};
         /** element link to extrapolated track */
         const ElementLink<TrackCollection> m_extrapolatedTrackLink{};
-
+     
         /** pointer to spectrometer track, not owned */
         const Trk::Track* m_muonSpectrometerTrack{nullptr};
 
         /** flag whether the track belongs to the comissioning stream **/
-        bool m_isComissioning{false};
+        bool m_isCommissioning{false};
 
         /** Segments associated with the candidate **/
         std::vector<ElementLink<xAOD::MuonSegmentContainer>> m_assoc_segments;

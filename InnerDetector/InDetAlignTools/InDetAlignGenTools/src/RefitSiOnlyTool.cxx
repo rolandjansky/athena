@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////
@@ -38,7 +38,7 @@ namespace InDetAlignment {
     AthAlgTool(type,name,parent),
     m_idHelper{},
     m_ITrkFitter("Trk::KalmanFitter"),
-    m_comPar(0),
+    m_comPar(nullptr),
     m_ParticleHypothesis(Trk::nonInteracting),
     m_trkindex{}
   {
@@ -112,12 +112,12 @@ namespace InDetAlignment {
       if (*t) {
   Trk::Track* refittedTrack = refit(*t);
    
-  if (refittedTrack==0)
+  if (refittedTrack==nullptr)
           ATH_MSG_DEBUG( " Refit of the track " << m_trkindex << " did not work. Track skipped." );
 
   newTrks->push_back(refittedTrack);
       } else {
-        newTrks->push_back(0);
+        newTrks->push_back(nullptr);
         ATH_MSG_DEBUG( " Track " << m_trkindex << " is empty." );
       }
       
@@ -144,7 +144,7 @@ namespace InDetAlignment {
     }
     else { ATH_MSG_WARNING( "Track # " << m_trkindex << " without perigee" ); }
 
-    Trk::Track* SiOnlyTrack = 0;
+    Trk::Track* SiOnlyTrack = nullptr;
     bool containsGangedPixels = false;
     std::vector<const Trk::MeasurementBase*> MeasurementBase_Collection;
 
@@ -153,7 +153,7 @@ namespace InDetAlignment {
       measBase !=tr->measurementsOnTrack()->end(); ++measBase) {
 
       const Trk::RIO_OnTrack* rio = dynamic_cast <const Trk::RIO_OnTrack*>(*measBase);
-      if (rio != 0) {
+      if (rio != nullptr) {
         const Identifier& surfaceID = (rio->identify());
         if(filterHit(surfaceID)==false) {
           MeasurementBase_Collection.push_back(*measBase);
@@ -207,7 +207,7 @@ namespace InDetAlignment {
     } //! containsGangedPixels
     else {
       ATH_MSG_DEBUG(" No refit was done for track # " << m_trkindex);
-      return 0;
+      return nullptr;
     }
 
     return SiOnlyTrack;
@@ -232,10 +232,10 @@ namespace InDetAlignment {
     for (DataVector<Trk::Track>::const_iterator it=tracks->begin(); 
    it!=tracks->end();++it) {
 
-      if(*it!=0){
+      if(*it!=nullptr){
   
         const Trk::Perigee* aMeasPer = (*it)->perigeeParameters();
-        if (aMeasPer==0){
+        if (aMeasPer==nullptr){
           ATH_MSG_ERROR( "Could not get Trk::MeasuredPerigee" );}
         else {
           double d0     = aMeasPer->parameters()[Trk::d0];

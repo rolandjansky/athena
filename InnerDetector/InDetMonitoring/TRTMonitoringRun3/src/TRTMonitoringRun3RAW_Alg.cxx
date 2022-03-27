@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #define FILLEVENTNORMALIZATION(NBINS, MIN, WIDTH, VALUE, VARPASSED, VAR, HISTGROUP) \
@@ -45,9 +45,9 @@ constexpr int TRTMonitoringRun3RAW_Alg::s_iChip_max[2] = {104, 240};
 
 TRTMonitoringRun3RAW_Alg::TRTMonitoringRun3RAW_Alg( const std::string& name, ISvcLocator* pSvcLocator )
 :AthMonitorAlgorithm(name,pSvcLocator)
-,m_idHelper(0)
-,m_pTRTHelper(0)
-,m_mgr(0)
+,m_idHelper(nullptr)
+,m_pTRTHelper(nullptr)
+,m_mgr(nullptr)
 ,m_sumTool("TRT_StrawStatusSummaryTool", this)
 ,m_TRTStrawNeighbourSvc("TRT_StrawNeighbourSvc", name)
 ,m_BSSvc("TRT_ByteStream_ConditionsSvc", name)
@@ -1794,7 +1794,7 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTEfficiency(const TrackCollection& co
         float p = 1.0e+08;
 
         if (perigee) {
-            p = (perigee->parameters()[Trk::qOverP] != 0.) ? fabs(1. / (perigee->parameters()[Trk::qOverP])) : 1.0e+08;
+            p = (perigee->parameters()[Trk::qOverP] != 0.) ? std::abs(1. / (perigee->parameters()[Trk::qOverP])) : 1.0e+08;
         }
 
         float min_pt_new = m_min_pT;
@@ -1804,11 +1804,11 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTEfficiency(const TrackCollection& co
         }
         // Preselect tracks
         const bool passed_track_preselection =
-            (fabs(perigee->parameters()[Trk::d0]) < m_max_abs_d0) &&
-            (fabs(perigee->parameters()[Trk::z0]) < m_max_abs_z0) &&
+            (std::abs(perigee->parameters()[Trk::d0]) < m_max_abs_d0) &&
+            (std::abs(perigee->parameters()[Trk::z0]) < m_max_abs_z0) &&
             (perigee->pT() > min_pt_new) &&
             (p > m_minP) &&
-            (fabs(perigee->eta()) < m_max_abs_eta) &&
+            (std::abs(perigee->eta()) < m_max_abs_eta) &&
             (n_pixel_hits >= m_min_pixel_hits) &&
             (n_sct_hits >= m_min_sct_hits) &&
             (n_trt_hits >= m_min_trt_hits);
@@ -1867,7 +1867,7 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTEfficiency(const TrackCollection& co
                 }
             }
 
-            if (fabs(locR) >= 1.3) continue;
+            if (std::abs(locR) >= 1.3) continue;
 
             int thisStrawNumber = 0;
             int chip = 0;
@@ -1979,7 +1979,7 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTEfficiency(const TrackCollection& co
                         }
                     }
 
-                    if (fabs(locR) >= 1.3) continue;
+                    if (std::abs(locR) >= 1.3) continue;
 
                     int thisStrawNumber = 0;
                     int chip = 0;
@@ -2117,7 +2117,7 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTHits(const TrackCollection& trackCol
     auto p_trk = trackCollection.begin();
 
     const Trk::Perigee *mPer = nullptr;
-    const DataVector<const Trk::TrackParameters> *AllTrkPar(0);
+    const DataVector<const Trk::TrackParameters> *AllTrkPar(nullptr);
     DataVector<const Trk::TrackParameters>::const_iterator p_trkpariter;
 
     int ntrackstack[2][64];
@@ -2146,7 +2146,7 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTHits(const TrackCollection& trackCol
         if (!mPer) continue;
 
         float theta   =  mPer->parameters()[Trk::theta];
-        float p       =  (mPer->parameters()[Trk::qOverP] != 0.) ? fabs(1. / (mPer->parameters()[Trk::qOverP])) : 10e7;
+        float p       =  (mPer->parameters()[Trk::qOverP] != 0.) ? std::abs(1. / (mPer->parameters()[Trk::qOverP])) : 10e7;
         float pT      =  (p * sin(theta));
         pT = pT * 1e-3;  // GeV
 
@@ -2154,7 +2154,7 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTHits(const TrackCollection& trackCol
 
         const DataVector<const Trk::TrackStateOnSurface> *trackStates = (**p_trk).trackStateOnSurfaces();
 
-        if (trackStates == 0) continue;
+        if (trackStates == nullptr) continue;
 
         DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItBegin0    = trackStates->begin();
         DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItBegin     = trackStates->begin();
@@ -2220,7 +2220,7 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTHits(const TrackCollection& trackCol
         float phi2D[2] = {-100, -100};
 
         for (TSOSItBeginTemp = TSOSItBegin0; TSOSItBeginTemp != TSOSItEnd; ++TSOSItBeginTemp) {
-            if ((*TSOSItBeginTemp) == 0) continue;
+            if ((*TSOSItBeginTemp) == nullptr) continue;
 
             if (! ((*TSOSItBeginTemp)->type(Trk::TrackStateOnSurface::Measurement)) ) continue;
             const InDet::TRT_DriftCircleOnTrack *trtCircle = dynamic_cast<const InDet::TRT_DriftCircleOnTrack *>((*TSOSItBeginTemp)->measurementOnTrack());
@@ -2274,7 +2274,7 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTHits(const TrackCollection& trackCol
 
         for (TSOSItBegin = TSOSItBegin0; TSOSItBegin != TSOSItEnd; ++TSOSItBegin) {
             // Select a TSOS which is non-empty, measurement type and contains both drift circle and track parameters informations
-            if ((*TSOSItBegin) == 0) continue;
+            if ((*TSOSItBegin) == nullptr) continue;
 
             if ( !((*TSOSItBegin)->type(Trk::TrackStateOnSurface::Measurement)) ) continue;
 

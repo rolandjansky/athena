@@ -62,7 +62,7 @@ else:
     topSequence += ParticleGenerator()
     topSequence.ParticleGenerator.orders = sorted(spgorders)
 """
-    from AthenaServices.AthenaServicesConf import AtRanluxGenSvc
+    from RngComps.RngCompsConf import AtRanluxGenSvc
     if not hasattr(ServiceMgr, 'AtRanluxGenSvc' ) :
         ServiceMgr += AtRanluxGenSvc()
     seed = "SINGLE "+str(randint(1,294967296))+" "+str(randint(1,294967296))

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //Author: Lianyou Shan <lianyou.shan@cern.ch>
 
@@ -141,7 +141,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
   beamposition.setPosition(beamSpotHandle->beamVtx().position());
   beamposition.setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
 
-  typedef DataVector<xAOD::TrackParticle>::const_iterator TrackParticleDataVecIter;
+  using TrackParticleDataVecIter = DataVector<xAOD::TrackParticle>::const_iterator;
 
   bool selectionPassed;
   m_trkdefiPars.clear() ;
@@ -1387,9 +1387,9 @@ bool InDetIterativeSecVtxFinderTool::V0kine( const std::vector< Amg::Vector3D >&
                  <<" "<< ( mGam >= 0 ? sqrt( mGam ) : sqrt( -mGam ) )
                  <<" "<< ( mLam >= 0 ? sqrt( mLam ) : sqrt( -mLam ) ) );
 
-  if (   ( fabs( mass - 497.614 ) < 100. )   // K short 
+  if (   ( std::abs( mass - 497.614 ) < 100. )   // K short 
       || ( mGam > 0 && sqrt( mGam ) < 40. )  // gamma conversion ;
-      || ( mLam > 0 && fabs( sqrt( mLam ) - 1115.683 ) < 200.  ) //  Lambda 
+      || ( mLam > 0 && std::abs( sqrt( mLam ) - 1115.683 ) < 200.  ) //  Lambda 
      )  return true ;
 
   return false ;
@@ -2074,7 +2074,7 @@ float InDetIterativeSecVtxFinderTool::removeTracksInBadSeed( xAOD::Vertex * myxA
     if ( measPerigee == nullptr ) continue ;
 
     tot ++ ;
-    bool hf = passHitsFilter( measPerigee, position.perp(), fabs( position.z() ) ) ;
+    bool hf = passHitsFilter( measPerigee, position.perp(), std::abs( position.z() ) ) ;
 
     float pt = 0. ;
     const Trk::TrackParameters * svperigee = (*tracksAtVertexIter).perigeeAtVertex() ;
@@ -2144,7 +2144,7 @@ const std::vector< Amg::Vector3D > InDetIterativeSecVtxFinderTool::getVertexMome
     {
       const Trk::TrackParameters* sv_perigee = (*tracksAtVertexIter).perigeeAtVertex() ;
 
-      double qp  = 1/fabs( sv_perigee->parameters()[Trk::qOverP] ) ;
+      double qp  = 1/std::abs( sv_perigee->parameters()[Trk::qOverP] ) ;
       double theta = sv_perigee->parameters()[Trk::theta];
       double phi = sv_perigee->parameters()[Trk::phi];
 

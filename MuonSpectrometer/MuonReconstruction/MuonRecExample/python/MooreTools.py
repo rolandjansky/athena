@@ -15,7 +15,6 @@ from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
 from AthenaCommon.BFieldFlags import jobproperties
 from AthenaCommon import CfgMgr
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
 from AthenaCommon.CfgGetter import getPublicTool, getPublicToolClone, getPrivateTool
 
@@ -342,7 +341,8 @@ def MuonSeededSegmentFinder(name="MuonSeededSegmentFinder",**kwargs):
         if not reco_cscs: kwargs.setdefault("CscPrepDataContainer","")
         if not reco_stgcs: kwargs.setdefault("sTgcPrepDataContainer","")
         if not reco_mm: kwargs.setdefault("MMPrepDataContainer","")
-    
+    kwargs.setdefault("TgcPrepDataContainer",
+                      'TGC_MeasurementsAllBCs' if not muonRecFlags.useTGCPriorNextBC else 'TGC_Measurements')
     return CfgMgr.Muon__MuonSeededSegmentFinder(name,**kwargs)
 
 # end of factory function MuonSeededSegmentFinder
@@ -414,27 +414,19 @@ def MuonChamberHoleRecoveryTool(name="MuonChamberHoleRecoveryTool",extraFlags=No
 
     if not reco_stgcs: kwargs.setdefault("sTgcPrepDataContainer","")
     if not reco_mm: kwargs.setdefault("MMPrepDataContainer","")
-
-    #MDT conditions information not available online
-    if(athenaCommonFlags.isOnline):
-        kwargs.setdefault("MdtCondKey","")
-
+    kwargs.setdefault("TgcPrepDataContainer",
+                      'TGC_MeasurementsAllBCs' if not muonRecFlags.useTGCPriorNextBC else 'TGC_Measurements')
+ 
     return CfgMgr.Muon__MuonChamberHoleRecoveryTool(name,**kwargs)
 # end of factory function MuonChamberHoleRecoveryTool
 
 def MuonTrackToSegmentTool(name="MuonTrackToSegmentTool",extraFlags=None,**kwargs):
-    #MDT conditions information not available online
-    if(athenaCommonFlags.isOnline):
-        kwargs.setdefault("MdtCondKey","")
     return CfgMgr.Muon__MuonTrackToSegmentTool(name,**kwargs)
 
 class MuonSegmentRegionRecoveryTool(CfgMgr.Muon__MuonSegmentRegionRecoveryTool,ConfiguredBase):
   __slots__ = ()
 
   def __init__(self,name="MuonSegmentRegionRecoveryTool",**kwargs):
-      #MDT conditions information not available online
-      if(athenaCommonFlags.isOnline):
-          kwargs.setdefault("MdtCondKey","")
       from RegionSelector.RegSelToolConfig import makeRegSelTool_MDT, makeRegSelTool_RPC, makeRegSelTool_TGC
       kwargs.setdefault("MDTRegionSelector", makeRegSelTool_MDT())
       kwargs.setdefault("RPCRegionSelector", makeRegSelTool_RPC())

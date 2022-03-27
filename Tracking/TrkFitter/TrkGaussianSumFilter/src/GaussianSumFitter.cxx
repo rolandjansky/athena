@@ -1088,7 +1088,6 @@ Trk::GaussianSumFitter::fit(
   /*
    * Generate prediction by scaling the covariance of all components in the
    * initial state
-   *
    * Generate a large prediction for extrapolation. This way there is no
    * dependance on error of prediction NB local Y and theta are not blown out
    * too much to help in the TRT

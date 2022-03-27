@@ -16,7 +16,7 @@
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 
-from AthenaServices.AthenaServicesConf import AtDSFMTGenSvc
+from RngComps.RngCompsConf import AtDSFMTGenSvc
 ServiceMgr += AtDSFMTGenSvc("AtDSFMTGenSvc")
 
 # Add top algorithms to be run

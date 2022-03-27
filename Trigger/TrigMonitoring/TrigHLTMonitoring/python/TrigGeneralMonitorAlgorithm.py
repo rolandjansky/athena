@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file TrigHLTMonitorAlgorithm.py
@@ -16,7 +16,11 @@ def TrigGeneralMonConfig(inputFlags):
     from AthenaCommon.Logging import logging
     log_trighlt = logging.getLogger( 'TrigGeneralMonitorAlgorithm' )
 
+    log_trighlt.debug('In TrigGeneralMonitorAlgorithm.py')
 
+    ###Read the menu from the database
+    from TrigConfigSvc.TriggerConfigAccess import getHLTMenuAccess
+    from TrigConfigSvc.TriggerConfigAccess import getL1MenuAccess
 
     ################################
     # HLT general monitoring
@@ -25,6 +29,7 @@ def TrigGeneralMonConfig(inputFlags):
     # them to GenericMonitoringTools
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'TrigHLTAthMonitorCfg')
+
 
 
     # Adding algorithms to the helper. 
@@ -37,59 +42,76 @@ def TrigGeneralMonConfig(inputFlags):
     trigHLTMonAlg.TrigConfigSvc = cfgsvc
 
 
-    ####### Signature names 
+    ####### Signature names and regexes
 
-    signature_names = []
-    signature_names.append("AllChains") #0
-    signature_names.append("Electrons") #1
-    signature_names.append("Gamma") #2
-    signature_names.append("Muons") #3
-    signature_names.append("MissingET") #4
-    signature_names.append("Taus") #5
-    signature_names.append("Jets") #6
-    signature_names.append("MinBias") #7
+    signature_names_regexes = [('HLT_AllChains','HLT_.*'), #0
+                               ('HLT_Electrons','HLT_[0-9]*e[0-9]+.*'), #1
+                               ('HLT_Gamma','HLT_[0-9]*g[0-9]+.*'), #2
+                               ('HLT_Muons','HLT_[0-9]*mu[0-9]+.*'), #3
+                               ('HLT_MissingET','HLT_(t|x)e[0-9]+.*'), #4
+                               ('HLT_Taus','HLT_(tau[0-9]*|trk.*Tau).*'), #5
+                               ('HLT_Jets','HLT_[0-9]*j[0-9]+.*'), #6
+                               ('HLT_MinBias','HLT_mb.*')] #7
   
 
+    #top level
     hltGroup = helper.addGroup(
         trigHLTMonAlg,
         'TrigHLTMonitor',
         'HLT/ResultMon/'
     )
+
+    #The signatures, including All as first item
+    listOfSignatureGroups =[]
     hltAllGroup = helper.addGroup(
         trigHLTMonAlg,
         'TrigHLTAllMonitor',
-        'HLT/ResultMon/AllChains'
+        'HLT/ResultMon/HLT_AllChains'
     )
+    listOfSignatureGroups.append(hltAllGroup)
+
     hltEleGroup = helper.addGroup(
         trigHLTMonAlg,
         'TrigHLTEleMonitor',
-        'HLT/ResultMon/Electrons'
+        'HLT/ResultMon/HLT_Electrons'
     )
+    listOfSignatureGroups.append(hltEleGroup)
+
     hltGamGroup = helper.addGroup(
         trigHLTMonAlg,
         'TrigHLTGamMonitor',
-        'HLT/ResultMon/Gamma'
+        'HLT/ResultMon/HLT_Gamma'
     )
+    listOfSignatureGroups.append(hltGamGroup)
+
     hltMuoGroup = helper.addGroup(
         trigHLTMonAlg,
         'TrigHLTMuoMonitor',
-        'HLT/ResultMon/Muons'
+        'HLT/ResultMon/HLT_Muons'
     )
+    listOfSignatureGroups.append(hltMuoGroup)
+
     hltMETGroup = helper.addGroup(
         trigHLTMonAlg,
         'TrigHLTMETMonitor',
-        'HLT/ResultMon/MissingET'
+        'HLT/ResultMon/HLT_MissingET'
     )
+    listOfSignatureGroups.append(hltMETGroup)
+
     hltTauGroup = helper.addGroup(
         trigHLTMonAlg,
         'TrigHLTTauMonitor',
-        'HLT/ResultMon/Taus'
+        'HLT/ResultMon/HLT_Taus'
     )
+    listOfSignatureGroups.append(hltTauGroup)
+
     hltJetGroup = helper.addGroup(
         trigHLTMonAlg,
         'TrigHLTJetMonitor',
-        'HLT/ResultMon/Jets'
+        'HLT/ResultMon/HLT_Jets'
     )
+    listOfSignatureGroups.append(hltJetGroup)
+
     #No RoI map for minbias
 
 
@@ -110,30 +132,48 @@ def TrigGeneralMonConfig(inputFlags):
     ############################################################
     #### Overall summary histograms ############################
 
-    from AthenaConfiguration.AutoConfigFlags import GetFileMD
-
 
     ########################
     ## The HLT chains
-    HLT_names_AllChains = []
-    log_trighlt.debug('HLT chains:')
-    for chain_name in GetFileMD(inputFlags.Input.Files)['TriggerMenu']['HLTChains']:
-        log_trighlt.debug('HLT chain_name = %s',chain_name)
-        HLT_names_AllChains.append(chain_name)
-    max_hlt_chains = len(HLT_names_AllChains)
-    log_trighlt.debug('max_hlt_chains = %i', max_hlt_chains) 
+    ListOf_HLT_names = []
+    HLT_names_signature = []
+
+    import re
+    for signame, m_this_regex in signature_names_regexes:
+        log_trighlt.debug('Signature: %s', signame)
+        this_regex = re.compile(m_this_regex)
+        HLT_names_signature.clear() #re-use the list
+        for chain_name in getHLTMenuAccess(inputFlags):
+            if this_regex.match(chain_name):
+                log_trighlt.debug('chain name %s matches regex %s',chain_name,m_this_regex)
+                HLT_names_signature.append(chain_name)
+        ListOf_HLT_names.append(list(HLT_names_signature))
 
 
     #Sort HLT names alphabetically, to make the HLT histograms have the same 
     #x axes for different runs and reprocessings
-    HLT_names_AllChains_sorted = sorted(HLT_names_AllChains)
+    log_trighlt.debug('Sortning the chain names alphabetically')
+    ListOf_HLT_names_sorted = []
+    HLT_names_signature_sorted = []
+    for i in range(len(ListOf_HLT_names)):
+        HLT_names_signature.clear()
+        HLT_names_signature=ListOf_HLT_names[i]
+        log_trighlt.debug('Signature %i before sorting:',i)
+        for thisname in HLT_names_signature:
+            log_trighlt.debug('chain: %s',thisname)
 
-
+        log_trighlt.debug('Signature %i after sorting:',i)
+        HLT_names_signature_sorted.clear()
+        HLT_names_signature_sorted = sorted(HLT_names_signature)
+        ListOf_HLT_names_sorted.append(list(HLT_names_signature_sorted))
+        for chain in HLT_names_signature_sorted:
+            log_trighlt.debug('sorted chain: %s',chain)
 
     #########################
     ## The L1 items
     L1_names =[]
-    for item_name in GetFileMD(inputFlags.Input.Files)['TriggerMenu']['L1Items']:
+    log_trighlt.debug('L1 items: ') 
+    for item_name in getL1MenuAccess(inputFlags):
         log_trighlt.debug('L1 item_name = %s',item_name) 
         L1_names.append(item_name)
     max_L1_items = len(L1_names)
@@ -142,6 +182,7 @@ def TrigGeneralMonConfig(inputFlags):
     #Sort L1 names alphabetically, to make the L1 histograms have the same 
     #x axes for different runs and reprocessings
     L1_names_sorted = sorted(L1_names)
+
 
     ##### L1 summary histogram ################################
 
@@ -153,62 +194,37 @@ def TrigGeneralMonConfig(inputFlags):
 
     triggerstatus = ['RAW','PS'] #all chains or prescaled chains
 
-    for sig in signature_names: #loop over signatures
-        log_trighlt.debug("Signature %s",sig)
+    for i, pair in enumerate(signature_names_regexes):
+        sig = pair[0]
+        m_this_regex = pair[1]
+        log_trighlt.debug("Signature %s, pattern %s:",sig, m_this_regex)
 
         ### Events
         titlename = sig+";;"+"Events" 
         for trigstatus in triggerstatus: #loop over RAW/PS
-            histname = "HLT_"+sig+trigstatus
+            histname = sig+trigstatus
             log_trighlt.debug('Histname = %s', histname)
+            HLT_names_signature_sorted.clear()
+            HLT_names_signature_sorted = ListOf_HLT_names_sorted[i]
+            log_trighlt.debug('Number of chains = %i', len(HLT_names_signature_sorted))
             hltGroup.defineHistogram(histname,title=titlename,
-                                     path=sig,xbins=len(HLT_names_AllChains_sorted),
-                                     xmin=0,xmax=len(HLT_names_AllChains_sorted), 
-                                     xlabels=HLT_names_AllChains_sorted)
+                                     path=sig,xbins=len(HLT_names_signature_sorted),
+                                     xmin=0,xmax=len(HLT_names_signature_sorted), 
+                                     xlabels=HLT_names_signature_sorted)
 
  
     ### RoIs, one per signature
-    histname = "eta,phi;HLT_"+signature_names[0]+"RoIs" #AllChains
-    titlename = signature_names[0]+";#eta;#phi"
-    hltAllGroup.defineHistogram(histname,type='TH2F',title=titlename,
-                             path='',xbins=64,xmin=-3.2,xmax=3.2,
-                             ybins=64,ymin=-3.2,ymax=3.2)
+    log_trighlt.debug('Creating RoI histograms...')
+    for i, thisGroup in enumerate(listOfSignatureGroups):
+        thispair = signature_names_regexes[i] 
+        thissigname = thispair[0] #first item in the pair is the signature name
+        log_trighlt.debug('Signature name %s',thissigname)
+        histname = "eta,phi;"+thissigname+"RoIs" 
+        titlename = thissigname+";#eta;#phi"
+        thisGroup.defineHistogram(histname,type='TH2F',title=titlename,
+                                  path='',xbins=64,xmin=-3.2,xmax=3.2,
+                                  ybins=64,ymin=-3.2,ymax=3.2)
 
-    histname = "eta,phi;HLT_"+signature_names[1]+"RoIs" #Electrons
-    titlename = signature_names[1]+";#eta;#phi"
-    hltEleGroup.defineHistogram(histname,type='TH2F',title=titlename,
-                                path='',xbins=64,xmin=-3.2,xmax=3.2,
-                                ybins=64,ymin=-3.2,ymax=3.2)
-
-    histname = "eta,phi;HLT_"+signature_names[2]+"RoIs" #Gamma
-    titlename = signature_names[2]+";#eta;#phi"
-    hltGamGroup.defineHistogram(histname,type='TH2F',title=titlename,
-                                path='',xbins=64,xmin=-3.2,xmax=3.2,
-                                ybins=64,ymin=-3.2,ymax=3.2)
-
-    histname = "eta,phi;HLT_"+signature_names[3]+"RoIs" #Muons
-    titlename = signature_names[3]+";#eta;#phi"
-    hltMuoGroup.defineHistogram(histname,type='TH2F',title=titlename,
-                                path='',xbins=64,xmin=-3.2,xmax=3.2,
-                                ybins=64,ymin=-3.2,ymax=3.2)
-
-    histname = "eta,phi;HLT_"+signature_names[4]+"RoIs" #MissingET
-    titlename = signature_names[4]+";#eta;#phi"
-    hltMETGroup.defineHistogram(histname,type='TH2F',title=titlename,
-                                path='',xbins=64,xmin=-3.2,xmax=3.2,
-                                ybins=64,ymin=-3.2,ymax=3.2)
-
-    histname = "eta,phi;HLT_"+signature_names[5]+"RoIs" #Taus
-    titlename = signature_names[5]+";#eta;#phi"
-    hltTauGroup.defineHistogram(histname,type='TH2F',title=titlename,
-                                path='',xbins=64,xmin=-3.2,xmax=3.2,
-                                ybins=64,ymin=-3.2,ymax=3.2)
-
-    histname = "eta,phi;HLT_"+signature_names[6]+"RoIs" #Jets
-    titlename = signature_names[6]+";#eta;#phi"
-    hltJetGroup.defineHistogram(histname,type='TH2F',title=titlename,
-                                path='',xbins=64,xmin=-3.2,xmax=3.2,
-                                ybins=64,ymin=-3.2,ymax=3.2)
 
 
     #####################################

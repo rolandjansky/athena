@@ -14,39 +14,24 @@
 
 #include <TEnv.h>
 #include <TAxis.h>
+#include <TH2.h>
 
-#include "JetCalibTools/IJetCalibrationTool.h"
-#include "JetCalibTools/JetCalibrationToolBase.h"
+#include "JetCalibTools/JetCalibrationStep.h"
 
 #include <memory>
 
-class BcidOffsetCorrection 
-: virtual public ::IJetCalibrationTool,
-  virtual public ::JetCalibrationToolBase
+class BcidOffsetCorrection
+  : virtual public ::JetCalibrationStep
 {
 
-  ASG_TOOL_CLASS( BcidOffsetCorrection, IJetCalibrationTool )
-
-    public:
+ public:
   BcidOffsetCorrection();
-  BcidOffsetCorrection(const std::string& name);
-  BcidOffsetCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool isData, bool dev);
+  BcidOffsetCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool isData);
   virtual ~BcidOffsetCorrection();
 
-  //virtual bool initializeTool(TEnv * config, TString jetAlgo, bool isData);
-  virtual StatusCode initializeTool(const std::string& name);
-
-  //double GetResidualOffset ( double abseta, double mu, double NPV, int nJet, bool MuOnly, bool NOnly) const;
-
- private:
-  //double GetResidualOffsetET(double abseta, double mu, double NPV, int nJet, bool MuOnly, bool NOnly,
-  //                           std::vector<double> OffsetMu, std::vector<double> OffsetNPV, std::vector<double> OffsetNjet,
-  //                           TAxis *OffsetBins) const;
-
-  //double GetNPVBeamspotCorrection(double NPV) const;
-
- protected:
-  virtual StatusCode calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const;
+  virtual StatusCode initialize() override;
+  virtual StatusCode calibrate(xAOD::Jet& jet, JetEventInfo&) const override;
+  
  
  private:
   TEnv * m_config;

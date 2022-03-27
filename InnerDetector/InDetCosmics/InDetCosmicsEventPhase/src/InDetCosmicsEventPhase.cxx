@@ -57,7 +57,7 @@ namespace InDet
 
     m_phase = 0;
 
-    const Trk::Track* selected = 0;
+    const Trk::Track* selected = nullptr;
     int maxTRT = -1;
 
 // Sasa Nov 30

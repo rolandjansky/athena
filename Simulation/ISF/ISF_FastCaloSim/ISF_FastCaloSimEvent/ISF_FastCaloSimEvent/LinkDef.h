@@ -44,6 +44,7 @@
 #include "ISF_FastCaloSimEvent/TFCSEnergyBinParametrization.h"
 #ifndef __FastCaloSimNoLWTNN__
 #include "ISF_FastCaloSimEvent/TFCSEnergyAndHitGAN.h"
+#include "ISF_FastCaloSimEvent/TFCSPredictExtrapWeights.h"
 #endif
 
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrization.h"
@@ -61,6 +62,7 @@
 #include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeWeight.h"
 #include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeWeightHitAndMiss.h"
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitNumberFromE.h"
+#include "ISF_FastCaloSimEvent/TFCSLateralShapeTuning.h"
 #include "ISF_FastCaloSimEvent/TFCSHitCellMapping.h"
 #include "ISF_FastCaloSimEvent/TFCSHitCellMappingFCal.h"
 #include "ISF_FastCaloSimEvent/TFCSHitCellMappingWiggle.h"
@@ -317,6 +319,7 @@
 #pragma link C++ class TFCSEnergyBinParametrization+;
 #ifndef __FastCaloSimNoLWTNN__
 #pragma link C++ class TFCSEnergyAndHitGAN-;
+#pragma link C++ class TFCSPredictExtrapWeights-;
 #endif
 
 #pragma link C++ class TFCSLateralShapeParametrization+;
@@ -333,6 +336,7 @@
 #pragma link C++ class TFCSHistoLateralShapeWeightHitAndMiss+;
 #pragma link C++ class TFCSHistoLateralShapeGausLogWeightHitAndMiss+;
 #pragma link C++ class TFCSLateralShapeParametrizationHitNumberFromE+;
+#pragma link C++ class TFCSLateralShapeTuning+;
 #pragma link C++ class TFCSHitCellMapping+;
 #pragma link C++ class TFCSHitCellMappingFCal+;
 #pragma link C++ class TFCSHitCellMappingWiggle+;

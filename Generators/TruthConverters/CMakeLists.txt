@@ -14,7 +14,7 @@ atlas_add_library( TruthConvertersLib
    PUBLIC_HEADERS TruthConverters
    LINK_LIBRARIES AsgTools  xAODEventInfo xAODTruth GenInterfacesLib )
 
-atlas_add_Component( TruthConverters
+atlas_add_component( TruthConverters
    src/components/*.cxx
    LINK_LIBRARIES TruthConvertersLib )
 

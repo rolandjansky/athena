@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -108,7 +108,7 @@ StatusCode FillAlignTRTHits::initialize(){
 		m_updator = &(*m_updatorHandle);
 	} else {
 		ATH_MSG_DEBUG ("No Updator for unbiased track states given, use normal states!");
-		m_updator = 0;
+		m_updator = nullptr;
 	}
 
 	// The tool to get the argon status:
@@ -150,8 +150,8 @@ bool FillAlignTRTHits::fill(const Trk::Track* aTrack, TRT::TrackInfo* output,
 	(*output)[TRT::Track::numberOfTRTHits] = 0;
 	// loop over the TrackStateonSurfaces
 
-	const Trk::TrackParameters *unbiasedTrkParameters(0);
-	const Trk::TrackStateOnSurface* HitOnTrackToRemove(0);
+	const Trk::TrackParameters *unbiasedTrkParameters(nullptr);
+	const Trk::TrackStateOnSurface* HitOnTrackToRemove(nullptr);
 
 	double timecor = 0.;
 	const Trk::Track* pTrack = aTrack ;
@@ -167,7 +167,7 @@ bool FillAlignTRTHits::fill(const Trk::Track* aTrack, TRT::TrackInfo* output,
 	if(mesp){
 		phi   = mesp->parameters()[Trk::phi0];
 		theta = mesp->parameters()[Trk::theta];
-		float ptinv = fabs(mesp->parameters()[Trk::qOverP]) / sin(theta);
+		float ptinv = std::abs(mesp->parameters()[Trk::qOverP]) / sin(theta);
 		qoverp = mesp->parameters()[Trk::qOverP];
 		if (ptinv != 0) {
 			pt = 1. / ptinv;
@@ -216,7 +216,7 @@ bool FillAlignTRTHits::fill(const Trk::Track* aTrack, TRT::TrackInfo* output,
 	for (; tsos != tsosEnd; ++tsos) {
 		mesb = (*tsos)->measurementOnTrack();
 		rotp = dynamic_cast<const Trk::RIO_OnTrack*>(mesb);
-		if(rotp != 0) {
+		if(rotp != nullptr) {
 			Identifier ident = rotp->identify();
 			if (m_DetID->is_sct(ident)) {
 				(*output)[TRT::Track::numberOfSCTHits]++;
@@ -224,15 +224,15 @@ bool FillAlignTRTHits::fill(const Trk::Track* aTrack, TRT::TrackInfo* output,
 				(*output)[TRT::Track::numberOfTRTHits]++;
 				++m_numOfHitsTotal;
 				trtcirc = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(rotp);
-				if (trtcirc != 0) {
+				if (trtcirc != nullptr) {
 					dcp = trtcirc->prepRawData();
 					tparp = ((*tsos)->trackParameters());
 					mparp = (tparp);
 
-					if (tparp == 0) {
+					if (tparp == nullptr) {
 						if (msgLvl(MSG::DEBUG)) msg() << "strange: trk parameters not available" << endmsg;
 					}
-					if (dcp == 0) {
+					if (dcp == nullptr) {
 						msg(MSG::ERROR)  << "strange: prepRawData not available" << endmsg;
 					}
 
@@ -286,7 +286,7 @@ bool FillAlignTRTHits::fill(const Trk::Track* aTrack, TRT::TrackInfo* output,
 						(*newhit)[TRT::Hit::errorTrackDriftRadius] = sqrt(Amg::error(*(mparp->covariance()),Trk::driftRadius));
 						// calculate the 'trktime' and the 'trkdriftvelocity'
 						if( rtrelation ) {
-							(*newhit)[TRT::Hit::trackDriftTime] = rtrelation->drifttime(fabs( (*newhit)[TRT::Hit::trackDriftRadius] )) ;
+							(*newhit)[TRT::Hit::trackDriftTime] = rtrelation->drifttime(std::abs( (*newhit)[TRT::Hit::trackDriftRadius] )) ;
 							(*newhit)[TRT::Hit::driftVelocity] = rtrelation->drdt( (*newhit)[TRT::Hit::trackDriftTime] ) ;
 						}
 
@@ -330,8 +330,8 @@ bool FillAlignTRTHits::fill(const Trk::Track* aTrack, TRT::TrackInfo* output,
 						float h_chiSquare = h_residual*h_residual/h_residualVariance ;
 
 						bool hitsel=false;
-						if( fabs( h_trkDistance )  < m_maxDistance &&
-						    fabs( h_timeResidual ) < m_maxTimeResidual &&
+						if( std::abs( h_trkDistance )  < m_maxDistance &&
+						    std::abs( h_timeResidual ) < m_maxTimeResidual &&
 						    h_trkVariance > 0 &&
 						    h_hasValidDriftTime &&
 						    h_timeOverThreshold/3.125 >= m_minTimebinsOverThreshold &&
@@ -364,7 +364,7 @@ bool FillAlignTRTHits::fill(const Trk::Track* aTrack, TRT::TrackInfo* output,
 								rtrackunbias  = unbiasedTrkParameters->parameters()[Trk::driftRadius];
 								drrtrackunbias = sqrt(Amg::error(*(unmparp->covariance()),Trk::driftRadius));
 								//drrtrackunbias = sqrt(unbiasedTrkParameters->localErrorMatrix().covValue(Trk::driftRadius));
-								if( rtrelation )  ttrackunbias = rtrelation->drifttime(fabs( rtrackunbias ));
+								if( rtrelation )  ttrackunbias = rtrelation->drifttime(std::abs( rtrackunbias ));
 								ATH_MSG_DEBUG("Unbiased TrackParameters 2: " << *unbiasedTrkParameters );
 								ATH_MSG_DEBUG("Radius : " << (*newhit)[TRT::Hit::trackDriftRadius] );
 								ATH_MSG_DEBUG("Radius 2: " << rtrackunbias );

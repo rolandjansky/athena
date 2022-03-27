@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -46,7 +46,7 @@ namespace InDet {
     double beamPipeRadius = 0.;
     PVConstLink beamPipeTopVolume =  beamPipeMgr->getTreeTop(0);
     const GeoLogVol* beamPipeLogVolume = beamPipeTopVolume->getLogVol();
-    const GeoTube* beamPipeTube = 0;
+    const GeoTube* beamPipeTube = nullptr;
     
     if (beamPipeLogVolume){
       beamPipeTube = dynamic_cast<const GeoTube*>(beamPipeLogVolume->getShape());
@@ -57,7 +57,7 @@ namespace InDet {
 	  if(beamPipeTopVolume->getNameOfChildVol(i)=="SectionC03"){
 	    PVConstLink childTopVolume =  beamPipeTopVolume->getChildVol(i);
 	    const GeoLogVol* childLogVolume = childTopVolume->getLogVol();
-	    const GeoTube* childTube = 0;
+	    const GeoTube* childTube = nullptr;
 	    
 	    if (childLogVolume){
 	      childTube = dynamic_cast<const GeoTube*>(childLogVolume->getShape());
@@ -91,7 +91,7 @@ namespace InDet {
       
       PVConstLink childTopVolume =  pixelTopVolume->getChildVol(i);
       const GeoLogVol* childLogVolume = childTopVolume->getLogVol();
-      const GeoTube* childTube = 0;
+      const GeoTube* childTube = nullptr;
       
       if (childLogVolume){
 	childTube = dynamic_cast<const GeoTube*>(childLogVolume->getShape());

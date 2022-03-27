@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -27,15 +27,15 @@
 InDetVertexMonitoring::InDetVertexMonitoring( const std::string & type, const std::string & name, const IInterface* parent ) 
   : ManagedMonitorToolBase( type, name, parent )
 {
-  m_h_vxdist = 0;
-  m_h_Ntracks = 0;
-  m_h_sumpt = 0;
-  m_h_pvChiSq = 0;
-  m_h_pvDof = 0;
-  m_h_pvChiSqovDof = 0;
-  m_h_pvChiSqProb = 0;
-  m_h_cumulVx = 0;
-  m_h_deltaZpairs = 0;
+  m_h_vxdist = nullptr;
+  m_h_Ntracks = nullptr;
+  m_h_sumpt = nullptr;
+  m_h_pvChiSq = nullptr;
+  m_h_pvDof = nullptr;
+  m_h_pvChiSqovDof = nullptr;
+  m_h_pvChiSqProb = nullptr;
+  m_h_cumulVx = nullptr;
+  m_h_deltaZpairs = nullptr;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

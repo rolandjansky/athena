@@ -122,3 +122,18 @@ def TrigMuonEFInvMassHypoMonitoring(histPath):
     montool.defineHistogram('Mass_sel', type='TH1F', path='EXPERT', title="Dimuon mass for selected events from #TrigMuonEFInvMHypo; Mass (GeV)",
                             xbins=200, xmin=0, xmax=200)
     return montool
+
+
+def TrigMuonTLAHypoMonitoring(histPath):
+    montool = GenericMonitoringTool(HistPath = histPath)
+    montool.defineHistogram('Pt', type='TH1F', path='EXPERT', title="P_{T} reconstruction from #TrigMuonTLAHypo; q*P_{T} (GeV)",
+                            xbins=200, xmin=-100, xmax=100)
+    montool.defineHistogram('Eta', type='TH1F', path='EXPERT', title="Eta reconstruction from #TrigMuonTLAHypo; Eta",
+                            xbins=100, xmin=-3.2, xmax=3.2)
+    montool.defineHistogram('Phi', type='TH1F', path='EXPERT', title="Phi reconstruction from #TrigMuonTLAHypo; Phi",
+                            xbins=100, xmin=-3.15, xmax=3.15)
+    montool.defineHistogram('Author', type='TH1F', path='EXPERT', title="Author reconstruction from #TrigMuonTLAHypo; Author",
+                            xbins=7, xmin=0, xmax=7) # MuidCo(1), MuidSA(5), MuGirl(6)
+    montool.defineHistogram('Nmuon', type='TH1F', path='EXPERT', title="Number of copied muons/event in #TrigMuonTLAHypo; N. muons/event",
+                            xbins=50, xmin=0, xmax=50)
+    return montool

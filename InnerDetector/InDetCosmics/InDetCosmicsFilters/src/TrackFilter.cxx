@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -91,7 +91,7 @@ StatusCode InDet::TrackFilter::execute()
   for(;it!=itE && !passed;++it){
 
   // input TrackSegment Collection
-    const TrackCollection *tracks   = 0;
+    const TrackCollection *tracks   = nullptr;
     
     StatusCode sc = evtStore()->retrieve(tracks, *it);
     if(sc.isFailure()){
@@ -114,7 +114,7 @@ StatusCode InDet::TrackFilter::execute()
           
           const Trk::RIO_OnTrack* hitOnTrack = dynamic_cast <const Trk::RIO_OnTrack*>(tsos->measurementOnTrack());
           
-          if (hitOnTrack != 0) {
+          if (hitOnTrack != nullptr) {
             const Identifier& surfaceID = hitOnTrack->identify();
             
             if(m_idHelper->is_sct(surfaceID)){

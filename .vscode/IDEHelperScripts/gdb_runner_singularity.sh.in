@@ -1,0 +1,7 @@
+#!/bin/bash
+
+echo "Using singularity 'singularity exec @ATLAS_SINGULARITY_ARGS@ \"@ATLAS_SINGULARITY_IMAGE@\"'"
+echo "Running GDB wrapper at '@ATLAS_IDE_PREFIX@gdb_wrapper'"
+echo
+
+singularity exec @ATLAS_SINGULARITY_ARGS@ "@ATLAS_SINGULARITY_IMAGE@" "/bin/bash" "@ATLAS_IDE_PREFIX@gdb_wrapper" "$@"

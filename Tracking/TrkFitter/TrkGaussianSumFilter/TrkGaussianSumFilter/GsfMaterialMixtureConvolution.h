@@ -25,7 +25,7 @@ namespace Trk {
 class Layer;
 class MaterialProperties;
 
-class GsfMaterialMixtureConvolution
+class GsfMaterialMixtureConvolution final
   : public AthAlgTool
   , virtual public IMaterialMixtureConvolution
 {
@@ -81,10 +81,6 @@ private:
                                   Trk::PropDirection direction,
                                   Trk::ParticleHypothesis particleHypothesis,
                                   MaterialUpdateType updateType) const;
-
-  std::pair<const Trk::MaterialProperties*, double> getMaterialProperties(
-    const Trk::TrackParameters* trackParameters,
-    const Trk::Layer& layer) const;
 
   GsfCombinedMaterialEffects m_materialEffects{};
 

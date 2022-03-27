@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef HGTD_GEOMODEL_HGTD_DETECTORFACTORY_H
@@ -73,10 +73,10 @@ public:
   virtual ~HGTD_DetectorFactory();
 
   // Creation of geometry:
-  virtual void create(GeoPhysVol* world);
+  virtual void create(GeoPhysVol* world) override;
 
   // Access to the results:
-  virtual HGTD_DetectorManager* getDetectorManager() const;
+  virtual const HGTD_DetectorManager* getDetectorManager() const override;
 
   void setPrintIdentifierDict( bool );
 
@@ -85,7 +85,7 @@ private:
   HGTD_DetectorFactory(HGTD_DetectorFactory &right);
   HGTD_DetectorFactory & operator=(HGTD_DetectorFactory &right);
 
-  void readDbParameters();
+  void initializeGeoParameters();
   GeoLogVol* buildEndcapLogicalVolume(bool isPositiveSide);
   GeoVPhysVol* build( const GeoLogVol* logicalEnvelope, bool bPos);
 

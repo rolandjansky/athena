@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DITAUREC_VERTEXFINDER_H
@@ -36,8 +36,6 @@ class VertexFinder : public DiTauToolBase {
 						const EventContext& ctx) const;
 
   float getJetVertexFraction(const xAOD::Vertex*, const std::vector<const xAOD::TrackParticle*>&, const jet::TrackVertexAssociation*) const;
-
-  virtual void cleanup(DiTauCandidateData *) override { }
 
 
  private:

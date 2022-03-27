@@ -53,15 +53,24 @@ Trk::MaterialEffectsOnTrack::MaterialEffectsOnTrack(
   const Trk::EnergyLoss* eloss,
   const Trk::Surface& sf,
   const std::bitset<Trk::MaterialEffectsBase::NumberOfMaterialEffectsTypes>&
-    typePattern)
-  : Trk::MaterialEffectsBase(
+    typePattern) :
+    MaterialEffectsOnTrack(tInX0, std::unique_ptr<const EnergyLoss>{eloss},
+                           sf,typePattern){}
+ 
+ Trk::MaterialEffectsOnTrack::MaterialEffectsOnTrack(
+    const double tInX0,
+    std::unique_ptr<const EnergyLoss> eloss,
+    const Surface& sf,
+    const std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes>&
+      typePattern ): 
+      Trk::MaterialEffectsBase(
       tInX0,
       sf,
       (typePattern == 0
          ? 1 << static_cast<int>(Trk::MaterialEffectsBase::EnergyLossEffects)
          : typePattern))
   , m_scatteringAngles(std::nullopt)
-  , m_energyLoss(eloss) // take ownership
+  , m_energyLoss(std::move(eloss)) // take ownership
 {
   //nop
 }

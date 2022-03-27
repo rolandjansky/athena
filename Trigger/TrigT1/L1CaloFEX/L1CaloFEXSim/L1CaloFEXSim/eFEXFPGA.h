@@ -73,7 +73,7 @@ namespace LVL1 {
       this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu",
       "Name of the L1Menu object to read configuration from"};
 
-    SG::ReadHandleKey<LVL1::eTowerContainer> m_eFEXFPGA_eTowerContainerKey {
+    SG::ReadHandleKey<LVL1::eTowerContainer> m_eTowerContainerKey {
       this, "MyETowers", "eTowerContainer", 
 	"Input container for eTowers"};
 

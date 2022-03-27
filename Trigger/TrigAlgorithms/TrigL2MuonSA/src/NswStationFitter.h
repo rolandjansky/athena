@@ -28,7 +28,9 @@ namespace TrigL2MuonSA {
 		     const IInterface*  parent);
 
     StatusCode superPointFitter(const TrigRoiDescriptor* p_roids,
-				TrigL2MuonSA::TrackPattern& trackPattern) const;
+				TrigL2MuonSA::TrackPattern& trackPattern,
+				TrigL2MuonSA::StgcHits& stgcHits,
+				TrigL2MuonSA::MmHits& mmHits) const;
 
     StatusCode selectStgcHits(const TrigRoiDescriptor* p_roids,
 			      TrigL2MuonSA::StgcHits& stgcHits) const;
@@ -50,12 +52,19 @@ namespace TrigL2MuonSA {
                            std::array<std::vector<int>,8> hitIdByLayer,
                            std::vector<std::array<int, 8>>& hitIdsCandidate) const;
 
+    StatusCode MakeSegment(TrigL2MuonSA::TrackPattern& trackPattern, 
+		                       TrigL2MuonSA::StgcHits& stgcHits) const;
+    StatusCode MakeSegment(TrigL2MuonSA::TrackPattern& trackPattern, 
+		                       TrigL2MuonSA::MmHits& mmHits) const;
+		
     StatusCode calcMergedHit(TrigL2MuonSA::TrackPattern& trackPattern) const;
 
     void LinearFit(std::vector<double>& x,std::vector<double>& y,
                    double* slope, double* intercept, double* mse) const;
-		void LinearFitWeight(std::vector<double>& x,std::vector<double>& y,std::vector<bool>& isStgc,
-                   double* slope, double* intercept, double* mse) const;
+    void LinearFitWeight(std::vector<double>& x,std::vector<double>& y,std::vector<bool>& isStgc,
+                   double* slope, double* intercept, double* mse, double eta) const;
+
+    void getNswResolution(double *stgcDeltaR, double *mmDeltaR, unsigned int size) const;
 
   private :
 

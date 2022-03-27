@@ -7,7 +7,7 @@
 #include "MuonReadoutGeometry/MMReadoutElement.h"
 #include <cmath>
 
-MMT_Hit::MMT_Hit(char wedge, hitData_entry entry, const MuonGM::MuonDetectorManager* detManager) : AthMessaging(Athena::getMessageSvc(), "MMT_Hit") {
+MMT_Hit::MMT_Hit(char wedge, hitData_entry entry, const MuonGM::MuonDetectorManager* detManager, const std::shared_ptr<MMT_Parameters> par) : AthMessaging(Athena::getMessageSvc(), "MMT_Hit") {
   m_sector = wedge;
 
   std::string module(1, wedge);
@@ -34,6 +34,29 @@ MMT_Hit::MMT_Hit(char wedge, hitData_entry entry, const MuonGM::MuonDetectorMana
   m_Ri = -1.;
   m_isNoise = false;
   m_detManager = detManager;
+
+  Identifier strip_id = m_detManager->mmIdHelper()->channelID(m_station_name, m_station_eta, m_station_phi, m_multiplet, m_gasgap, m_strip);
+  const MuonGM::MMReadoutElement* readout = m_detManager->getMMReadoutElement(strip_id);
+  Amg::Vector3D globalPos(0.0, 0.0, 0.0);
+  readout->stripGlobalPosition(strip_id, globalPos);
+
+  MMDetectorHelper aHelper;
+  char side = (globalPos.z() > 0.) ? 'A' : 'C';
+  MMDetectorDescription* mm = aHelper.Get_MMDetector(wedge, std::abs(m_station_eta), m_station_phi, m_multiplet, side);
+  MMReadoutParameters roP   = mm->GetReadoutParameters();
+
+  m_R = roP.distanceFromZAxis + m_strip*roP.stripPitch - roP.stripPitch/2.;
+  m_Z = globalPos.z();
+  m_Ri = m_strip*roP.stripPitch;
+  m_RZslope = m_R / m_Z;
+  ATH_MSG_DEBUG("Module: " << m_module <<
+                " HIT --> R_0: " << roP.distanceFromZAxis << " + Ri " << m_Ri << " corresponding to channel " << m_strip <<
+                " ----- Z: " << m_Z << ", Plane: " << m_plane << ", eta " << m_station_eta << " -- BC: " << m_BC_time << " RZslope: " << m_RZslope);
+
+  int eta = std::abs(m_station_eta)-1;
+  double base = par->ybases[m_plane][eta];
+  m_Y = base + m_strip*roP.stripPitch - roP.stripPitch/2.;
+  m_YZslope = m_Y / m_Z;
 }
 
 MMT_Hit::MMT_Hit(const MMT_Hit &hit) : AthMessaging(Athena::getMessageSvc(), "MMT_Hit") {
@@ -105,7 +128,7 @@ bool MMT_Hit::isV() const {
   return (id == 3 || id == 5) ? true : false;
 }
 
-void MMT_Hit::printHit() {
+void MMT_Hit::printHit() const {
   ATH_MSG_DEBUG("****************** HIT PROPERTIES ******************\n"<<
                 "\t\t\t\t      *** wedge:     " << this->getStationName()      << "\n"<<
                 "\t\t\t\t      *** VMM:       " << this->getVMM()              << "\n"<<
@@ -131,37 +154,7 @@ void MMT_Hit::setHitProperties(const Hit &hit) {
   m_Z = hit.info.z;
 }
 
-void MMT_Hit::updateHitProperties(std::shared_ptr<MMT_Parameters> par) {
-  Identifier strip_id = this->getDetManager()->mmIdHelper()->channelID(this->getStationName(), this->getStationEta(), this->getStationPhi(), this->getMultiplet(), this->getGasGap(), this->getChannel());
-  const MuonGM::MMReadoutElement* readout = this->getDetManager()->getMMReadoutElement(strip_id);
-  Amg::Vector3D globalPos(0.0, 0.0, 0.0);
-  readout->stripGlobalPosition(strip_id, globalPos);
-
-  MMDetectorHelper aHelper;
-  char side = (globalPos.z() > 0.) ? 'A' : 'C';
-  MMDetectorDescription* mm = aHelper.Get_MMDetector(this->getSector(), std::abs(this->getStationEta()), this->getStationPhi(), this->getMultiplet(), side);
-  MMReadoutParameters roP   = mm->GetReadoutParameters();
-
-  double R = roP.distanceFromZAxis + this->getChannel()*roP.stripPitch - roP.stripPitch/2.;
-  m_R = R;
-  m_Z = globalPos.z();
-  m_Ri = this->getChannel()*roP.stripPitch;
-  m_RZslope = R / this->getZ();
-  m_Z = this->getZ();
-  ATH_MSG_DEBUG("Module: " << this->getModule() <<
-                " HIT --> R_0: " << roP.distanceFromZAxis <<
-                " + Ri " << this->getChannel()*roP.stripPitch << " corresponding to channel " << this->getChannel() <<
-                " ----- Z: " << this->getZ() << ", Plane: " << this->getPlane() << ", eta " << this->getStationEta() << " -- BC: " << this->getBC() <<
-                " RZslope: " << this->getRZSlope());
-
-  int eta = std::abs(this->getStationEta())-1;
-  double base = par->ybases[this->getPlane()][eta];
-  double Y = base + this->getChannel()*roP.stripPitch - roP.stripPitch/2.;
-  m_Y = Y;
-  m_YZslope = Y / this->getZ();
-}
-
-bool MMT_Hit::verifyHit() {
+bool MMT_Hit::verifyHit() const {
   /*
    * Put here all Hit checks, probably redundant if digitization is ok
    */

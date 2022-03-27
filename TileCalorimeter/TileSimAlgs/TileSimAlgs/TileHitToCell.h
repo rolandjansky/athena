@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -14,6 +14,7 @@
 
 // Tile includes
 #include "TileEvent/TileHitContainer.h"
+#include "TileConditions/TileSamplingFraction.h"
 
 // Calo includes
 #include "CaloEvent/CaloCellContainer.h"
@@ -22,11 +23,11 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include <string>
 
 class TileID;
-class TileInfo;
 class TileDetDescrManager;
 
 
@@ -70,12 +71,15 @@ class TileHitToCell: public AthAlgorithm {
                                                              "TileCellContainer",
                                                              "Output Tile cell container key"};
 
+    /**
+     * @brief Name of TileSamplingFraction in condition store
+     */
+    SG::ReadCondHandleKey<TileSamplingFraction> m_samplingFractionKey{this,
+        "TileSamplingFraction", "TileSamplingFraction", "Input Tile sampling fraction"};
 
-    std::string m_infoName;      //!< Name for TileInfo
-
-    const TileID* m_tileID;    //!< Pointer to TileID helper
-    const TileInfo* m_tileInfo;  //!< Pointer to TileInfo
-    const TileDetDescrManager* m_tileMgr; //!< Pointer to TileDetDescrManager
+    const TileID* m_tileID{nullptr};    //!< Pointer to TileID helper
+    const TileHWID* m_tileHWID{nullptr}; //!< Pointer to TileHWID helper
+    const TileDetDescrManager* m_tileMgr{nullptr}; //!< Pointer to TileDetDescrManager
 };
 
 #endif // TILESIMALGS_TILEHITTOCELL_H

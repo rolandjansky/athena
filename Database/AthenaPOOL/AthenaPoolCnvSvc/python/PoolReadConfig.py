@@ -16,9 +16,9 @@ def EventSelectorAthenaPoolCfg(configFlags):
             FirstLB = 1
             InitialTimeStamp = 1
             OldRunNumber = -1
-            if configFlags.Digitization.DataRunNumber>0:
+            if configFlags.Input.ConditionsRunNumber>0:
                 # Behaviour for Digitization jobs using DataRunNumber
-                DataRunNumber = configFlags.Digitization.DataRunNumber
+                DataRunNumber = configFlags.Input.ConditionsRunNumber
                 FirstLB = 1
                 InitialTimeStamp = configFlags.IOVDb.RunToTimestampDict.get(DataRunNumber, 1) # TODO fix repeated configuration
                 if not configFlags.Sim.DoFullChain:

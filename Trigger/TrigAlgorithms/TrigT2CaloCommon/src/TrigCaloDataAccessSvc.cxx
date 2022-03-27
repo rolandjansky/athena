@@ -120,7 +120,7 @@ StatusCode TrigCaloDataAccessSvc::loadCollections ( const EventContext& context,
 
 StatusCode TrigCaloDataAccessSvc::loadCollections ( const EventContext& context,
                                                     const IRoiDescriptor& roi,
-                                                    TileCellCollection& loadedCells ) {
+                                                    std::vector<const TileCell*>& loadedCells ) {
   std::vector<IdentifierHash> requestHashIDs;
 
   ATH_MSG_DEBUG( "Tile requested for event " << context << " and RoI " << roi );
@@ -154,7 +154,7 @@ StatusCode TrigCaloDataAccessSvc::loadCollections ( const EventContext& context,
           TileCellCollection::const_iterator itt = (*it)->begin();
           TileCellCollection::const_iterator End = (*it)->end();
           for (;itt!=End;++itt){
-		TileCell* cell = (TileCell*)*itt;
+		const TileCell* cell = (const TileCell*)*itt;
 		loadedCells.push_back( cell );
           } // End of for printout cells
   }
@@ -743,7 +743,7 @@ unsigned int TrigCaloDataAccessSvc::prepareMBTSCollections( const EventContext& 
 
 
 StatusCode TrigCaloDataAccessSvc::loadMBTS ( const EventContext& context,
-                                                    TileCellCollection& loadedCells ) {
+                                                    std::vector<const TileCell*>& loadedCells ) {
 
   ATH_MSG_DEBUG( "MBTS requested for event " << context );
   unsigned int sc = prepareMBTSCollections(context);

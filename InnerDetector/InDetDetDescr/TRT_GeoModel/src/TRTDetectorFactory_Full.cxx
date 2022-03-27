@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -175,7 +175,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
   // Initialize the ID helper:
 //  bool idHelperInitialized=false;
 
-  const TRT_ID *idHelper = 0;
+  const TRT_ID *idHelper = nullptr;
 
   if (detStore()->retrieve(idHelper, "TRT_ID").isFailure()) {
     ATH_MSG_ERROR( "Could not retrieve TRT ID Helper");
@@ -390,11 +390,11 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 
   GeoNodePtr<GeoNameTag> topLevelNameTag(new GeoNameTag("TRT"));
   // The top level volumes
-  GeoFullPhysVol *pBarrelVol = 0;
-  GeoFullPhysVol *pEndCapABPlus = 0;
-  GeoFullPhysVol *pEndCapCPlus = 0;
-  GeoFullPhysVol *pEndCapABMinus = 0;
-  GeoFullPhysVol *pEndCapCMinus = 0;
+  GeoFullPhysVol *pBarrelVol = nullptr;
+  GeoFullPhysVol *pEndCapABPlus = nullptr;
+  GeoFullPhysVol *pEndCapCPlus = nullptr;
+  GeoFullPhysVol *pEndCapABMinus = nullptr;
+  GeoFullPhysVol *pEndCapCMinus = nullptr;
 
 
 
@@ -433,7 +433,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
   //
   // End-cap volume AB:
   //
-  GeoLogVol * lEndCapVolumeAB = 0;
+  GeoLogVol * lEndCapVolumeAB = nullptr;
   if (endcapABPlusPresent || endcapABMinusPresent) {
     GeoTube * sEndCapVolumeAB_unshifted = new GeoTube (m_data->innerRadiusOfEndCapVolumeAB,
 						       m_data->outerRadiusOfEndCapVolumeAB,
@@ -477,7 +477,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
   //
   // End-cap volume C:
   //
-  GeoLogVol * lEndCapVolumeC = 0;
+  GeoLogVol * lEndCapVolumeC = nullptr;
   if (endcapCPlusPresent || endcapCMinusPresent) {
     GeoTube * sEndCapVolumeC_unshifted = new GeoTube (m_data->innerRadiusOfEndCapVolumeC,
 						      m_data->outerRadiusOfEndCapVolumeC,
@@ -702,8 +702,8 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 
       // Create a shape for the modules of each layer (shell)
       // STS: Initialize raditator and shell LogVol
-      GeoLogVol  *lRad = 0;
-      GeoLogVol  *lShell = 0; 
+      GeoLogVol  *lRad = nullptr;
+      GeoLogVol  *lShell = nullptr; 
 
       // The shell volume:
       std::ostringstream shellstream;
@@ -1104,7 +1104,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
   double zdelta = 0.024; // try to make smaller gaps for Endcap Inner/OuterSupportGapper
   GeoTransform *xfRadiator, *xfPlane, *xfHeatExchanger, *xfFaradayFoilFront, *xfFaradayFoilBack;
   GeoTransform *xfInnerSupportGapperA,*xfOuterSupportGapperA, *xfInnerSupportGapperB, *xfOuterSupportGapperB; 
-  GeoFullPhysVol *childPlane = 0;
+  GeoFullPhysVol *childPlane = nullptr;
 
 
   double RotationsOfStrawPlanes[nStrawLayMaxEc]; //8 is hardcoded
@@ -1135,8 +1135,8 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
   // Create and initialize by 0 arrays of descriptors
   std::vector<InDetDD::TRT_EndcapDescriptor*> descriptorsAB[nSides][nStrawLayMaxEc];
   std::vector<InDetDD::TRT_EndcapDescriptor*> descriptorsC[nSides][nStrawLayMaxEc];
-  InDetDD::TRT_EndcapDescriptor* pDescriptor = 0;
-  InDetDD::TRT_EndcapElement* element = 0;
+  InDetDD::TRT_EndcapDescriptor* pDescriptor = nullptr;
+  InDetDD::TRT_EndcapElement* element = nullptr;
 
   for(iiSide = 0; iiSide<nSides; iiSide++) {
     for(iiPlane = 0; iiPlane < nStrawLayMaxEc; iiPlane++) {
@@ -1249,7 +1249,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 
 	    GeoFullPhysVol* pWheelA = new GeoFullPhysVol(lWheelA);
 
-	    GeoAlignableTransform * xfAlignableModule = 0;
+	    GeoAlignableTransform * xfAlignableModule = nullptr;
 
 	    // Place planes in the wheel
 	    for (iiPlane = 0; iiPlane < m_data->endCapNumberOfStrawLayersPerWheelA; iiPlane++)
@@ -1568,7 +1568,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 	    
 	    GeoFullPhysVol* pWheelB  = new GeoFullPhysVol(lWheelB);
 
-	    GeoAlignableTransform * xfAlignableModule = 0;	    
+	    GeoAlignableTransform * xfAlignableModule = nullptr;	    
 
 	    // Place planes in the wheel
 	    for (iiPlane = 0; iiPlane < m_data->endCapNumberOfStrawLayersPerWheelB; iiPlane++)
@@ -2006,7 +2006,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
   for (iiSide=0; iiSide<2; iiSide++)
     for(iiPhi=0; iiPhi<m_data->nEndcapPhi; iiPhi++)
       {
-	InDetDD::TRT_EndcapElement *prev = 0;
+	InDetDD::TRT_EndcapElement *prev = nullptr;
 	for (iiWheel=0; iiWheel<indexUpperBound; iiWheel++)
 	  for (iiPlane=0; iiPlane<m_detectorManager->getNumerology()->getNEndcapLayers(iiWheel); iiPlane++)
 	    {
@@ -2037,8 +2037,8 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 
 /////////////////////////////////// makeModule ///////////////////////////////////
 //
-const GeoShape * TRTDetectorFactory_Full::makeModule ( double length, GeoTrf::Vector2D corner1, GeoTrf::Vector2D corner2,
-						       GeoTrf::Vector2D corner3, GeoTrf::Vector2D corner4, GeoTrf::Transform3D & modulePosition, double shrinkDist/*=0*/) const {
+const GeoShape * TRTDetectorFactory_Full::makeModule ( double length, const GeoTrf::Vector2D& corner1, const GeoTrf::Vector2D& corner2,
+						       const GeoTrf::Vector2D& corner3, const GeoTrf::Vector2D& corner4, GeoTrf::Transform3D & modulePosition, double shrinkDist/*=0*/) const {
 
 
   // This method takes the absolute coordinates of the four corners,

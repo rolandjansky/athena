@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( IOVDbTestAlg )
@@ -73,7 +73,3 @@ iovdbtestalg_run_test( IOVDbTestAlgWriteCoolNoReg IOVDbTestAlgWriteCoolNoReg
 # Read back objects via IOVDB
 iovdbtestalg_run_test( IOVDbTestAlgReadCoolAfterTwoStep IOVDbTestAlgReadCoolAfterTwoStep
                        DEPENDS IOVDbTestAlgWriteCoolNoReg )
-
-# Check of online mode updates
-iovdbtestalg_run_test( HotSwapTEST dummy
-                       DEPENDS IOVDbTestAlgReadCoolAfterTwoStep )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@ StatusCode InDet::PRD_TruthTrajectorySelectorID::finalize() {
 }
 
 ThreePointCircle::ThreePointCircle(const std::vector<Amg::Vector3D>& posVec) :
-	m_translation(0), m_d0(0.), m_z0(0.), m_phi0(0.), m_eta(0.), m_pt(0.)
+	m_translation(nullptr), m_d0(0.), m_z0(0.), m_phi0(0.), m_eta(0.), m_pt(0.)
 {
 	if (posVec.size() <3)
 		std::cout << "[WARNING] not enough points" << std::endl;
@@ -73,7 +73,7 @@ void ThreePointCircle::constructCircle(	const Amg::Vector3D& p1,
   double bc = (bx*bx + by*by - temp)/2.0;
   double cd = (temp - dx*dx - dy*dy)/2.0;
   double det = (bx-cx)*(cy-dy)-(cx-dx)*(by-cy);
-  //if (fabs(det) < 1.0e-6) {
+  //if (std::abs(det) < 1.0e-6) {
   //std::cout << "[WARNING] Determinant is close to 0 " << std::endl;
   //}
 
@@ -123,7 +123,7 @@ void ThreePointCircle::constructCircle(	const Amg::Vector3D& p1,
 	Amg::Vector3D pocaDir(poca.x(),poca.y(),0.);
 	Amg::Vector3D momDir(cos(m_phi0),sin(m_phi0),0.);
   double signD0 = pocaDir.cross(momDir).z() > 0. ? 1. : -1.;    
-	m_d0 = signD0 * fabs(m_d0);
+	m_d0 = signD0 * std::abs(m_d0);
 	    
 	// update the center for the translation
 	m_center += Amg::Vector2D(translationX,translationY);

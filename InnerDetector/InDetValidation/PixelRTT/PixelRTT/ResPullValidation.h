@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ResPullValidation_h
@@ -18,7 +18,7 @@ class ResPullValidation{
 
 public:
 	ResPullValidation(std::string etaORphi = "phi", std::string pullORres = "res",
-			std::string cosmicORbeam = "beam");
+			const std::string& cosmicORbeam = "beam");
 	virtual ~ResPullValidation(){};
 	bool Fill(int Layer, double GeVTrkPt, double Angle,
 			double ClusterSize, double Residual);

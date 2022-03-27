@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file OutputStreamSequencerSvc.cxx
@@ -21,9 +21,8 @@ OutputStreamSequencerSvc::OutputStreamSequencerSvc(const std::string& name, ISvc
 	m_metaDataSvc("MetaDataSvc", name),
 	m_fileSequenceNumber(-1)
 {
-   // declare properties
-   declareProperty("SequenceIncidentName", m_incidentName = "");
 }
+
 //__________________________________________________________________________
 OutputStreamSequencerSvc::~OutputStreamSequencerSvc() {
 }
@@ -40,7 +39,10 @@ StatusCode OutputStreamSequencerSvc::initialize() {
    if( !incidentName().empty() ) {
       incsvc->addListener(this, incidentName(), 100);
       incsvc->addListener(this, IncidentType::BeginProcessing, 100);
+      ATH_MSG_DEBUG("Listening to " << incidentName() << " incidents" );
+      ATH_MSG_DEBUG("Reporting is " << (m_reportingOn.value()? "ON" : "OFF") );
    }
+
    if( inConcurrentEventsMode() ) {
       ATH_MSG_DEBUG("Concurrent events mode");
    } else {
@@ -98,21 +100,24 @@ void OutputStreamSequencerSvc::handle(const Incident& inc)
          rangeID = fileInc->fileName();
          ATH_MSG_DEBUG("Requested (through incident) Next Event Range filename extension: " << rangeID);
       }
-      if( rangeID=="dummy") {
-         // finish the previous range
-         if( not inConcurrentEventsMode() ) {
-            // SEQUENTIAL (threads<2) event processing
-            // Write metadata on the incident finishing a Range (filename=="dummy")
+      if( not inConcurrentEventsMode() ) {
+         // finish the previous Range here only in SEQUENTIAL (threads<2) event processing
+         if( rangeID=="dummy" or    // for EventService MP
+             ( rangeID=="" and  m_fileSequenceNumber>=0 ) ) {   // for Athena SP Event 1+
+            // Write metadata on the incident finishing a Range (filename=="dummy") in ES
+            // or on non-file incident (filename=="") in regular LoopMgr (skip first incident)
             ATH_MSG_DEBUG("MetaData transition");
             // Retrieve MetaDataSvc
             if( !m_metaDataSvc.isValid() and !m_metaDataSvc.retrieve().isSuccess() ) {
                throw GaudiException("Cannot get MetaDataSvc", name(), StatusCode::FAILURE);
             }
-            if( !m_metaDataSvc->transitionMetaDataFile().isSuccess() ) {
+            if( !m_metaDataSvc->transitionMetaDataFile(m_lastFileName).isSuccess() ) {
                throw GaudiException("Cannot transition MetaData", name(), StatusCode::FAILURE);
             }
          }
-         // exit now, wait for the next incident that will start the next range
+      }
+      if( rangeID=="dummy" ) {
+         // exit now, wait for the next (real) incident that will start the next range
          return;
       }
       // start a new range
@@ -163,9 +168,13 @@ std::string OutputStreamSequencerSvc::buildSequenceFileName(const std::string& o
    }
    std::ostringstream n;
    n << fileNameCore << "." << rangeID << fileNameExt;
-   m_fnToRangeId.insert( std::pair(n.str(), rangeID) );
+   m_lastFileName = n.str();
 
-   return n.str();
+   if( m_reportingOn.value() ) {
+      m_fnToRangeId.insert( std::pair(m_lastFileName, rangeID) );
+   }
+
+   return m_lastFileName;
 }
 
 
@@ -189,11 +198,15 @@ void OutputStreamSequencerSvc::publishRangeReport(const std::string& outputFile)
 OutputStreamSequencerSvc::RangeReport_ptr OutputStreamSequencerSvc::getRangeReport()
 {
   RangeReport_ptr report;
-  std::lock_guard lockg( m_mutex );
-  if(m_finishedRange!=m_fnToRangeId.end()) {
-    report = std::make_unique<RangeReport_t>(m_finishedRange->second,m_finishedRange->first);
-    m_fnToRangeId.erase(m_finishedRange);
-    m_finishedRange=m_fnToRangeId.end();
+  if( !m_reportingOn.value() ) {
+     ATH_MSG_WARNING("Reporting not turned on - set " << m_reportingOn.name() << " to True");
+  } else {
+     std::lock_guard lockg( m_mutex );
+     if(m_finishedRange!=m_fnToRangeId.end()) {
+        report = std::make_unique<RangeReport_t>(m_finishedRange->second,m_finishedRange->first);
+        m_fnToRangeId.erase(m_finishedRange);
+        m_finishedRange=m_fnToRangeId.end();
+     }
   }
   return report;
 }

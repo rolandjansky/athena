@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BCM_DIGITIZATION_BCM_DIGITIZATIONTOOL_H
@@ -56,7 +56,7 @@ class BCM_DigitizationTool : public PileUpToolBase {
   void createRDOsAndSDOs(const EventContext& ctx);
 
   /** Compute energy deposit depending on hit position */
-  float computeEnergy(float simEner, HepGeom::Point3D<double> startPos, HepGeom::Point3D<double> endPos);
+  float computeEnergy(float simEner, const HepGeom::Point3D<double>& startPos, const HepGeom::Point3D<double>& endPos);
 
   /** Fill in hit pulses on analog waveform */
   std::vector<float> createAnalog(int mod, std::vector<float> enerVect, std::vector<float> timeVect);

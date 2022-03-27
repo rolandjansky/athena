@@ -16,7 +16,6 @@ atlas_add_component( MdtRawDataMonitoring
                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaMonitoringLib EventInfo MuonIdHelpersLib MuonPrepRawData MuonDQAUtilsLib TrkSegment Identifier xAODEventInfo xAODTrigger GaudiKernel MdtCalibFitters MuonCalibIdentifier MuonReadoutGeometry MuonRIO_OnTrack MuonSegment AnalysisTriggerEvent LWHists TrkEventPrimitives GeoModelUtilities MuonAnalysisInterfacesLib )
 
 # Install files from the package:
-atlas_install_headers( MdtRawDataMonitoring )
 atlas_install_joboptions( share/*.py )
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 

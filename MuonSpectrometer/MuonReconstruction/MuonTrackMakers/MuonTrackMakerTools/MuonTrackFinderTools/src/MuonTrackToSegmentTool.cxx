@@ -24,16 +24,14 @@ namespace Muon {
     }
 
     StatusCode MuonTrackToSegmentTool::initialize() {
-        ATH_CHECK(m_DetectorManagerKey.initialize());
         ATH_CHECK(m_propagator.retrieve());
         ATH_CHECK(m_idHelperSvc.retrieve());
         ATH_CHECK(m_edmHelperSvc.retrieve());
-        ATH_CHECK(m_intersectSvc.retrieve());
         ATH_CHECK(m_printer.retrieve());
-        if (!m_condKey.empty()) ATH_CHECK(m_condKey.initialize());
+        ATH_CHECK(m_chamberGeoKey.initialize());
         return StatusCode::SUCCESS;
     }
-    
+
     MuonSegment* MuonTrackToSegmentTool::convert(const EventContext& ctx, const Trk::Track& track) const {
         /** convert track to segment, express the new segment parameters on the surface of the first segment */
 
@@ -162,8 +160,7 @@ namespace Muon {
         Trk::PlaneSurface* surf = new Trk::PlaneSurface(transform, surfDim, surfDim);
         delete surfaceTransformToBeDeleted;
         // lifetime of exPars is managed in this scope
-        auto exPars = m_propagator->propagate(ctx,
-                                              *closestPars, *surf, minDist > 0 ? Trk::oppositeMomentum : Trk::alongMomentum, false,
+        auto exPars = m_propagator->propagate(ctx, *closestPars, *surf, minDist > 0 ? Trk::oppositeMomentum : Trk::alongMomentum, false,
                                               Trk::MagneticFieldProperties(Trk::NoField));
         if (!exPars || !exPars->covariance()) {
             ATH_MSG_DEBUG(" propagation failed!!! ");
@@ -225,32 +222,21 @@ namespace Muon {
         return seg;
     }
 
-    std::vector<Identifier> MuonTrackToSegmentTool::calculateHoles(const EventContext& ctx, const Identifier& chid, const Trk::TrackParameters& pars,
+    std::vector<Identifier> MuonTrackToSegmentTool::calculateHoles(const EventContext& ctx, const Identifier& chid,
+                                                                   const Trk::TrackParameters& pars,
                                                                    const MuonTrackToSegmentTool::MeasVec& measurements) const {
-        // calculate crossed tubes
-        const MdtCondDbData* dbData;
-        if (!m_condKey.empty()) {
-            SG::ReadCondHandle<MdtCondDbData> readHandle{m_condKey, ctx};
-            dbData = readHandle.cptr();
-        } else
-            dbData = nullptr;  // for online running
-
-        SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey, ctx};
-        const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle};
-        if (MuonDetMgr == nullptr) {
-            ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
-            // return;
+        SG::ReadCondHandle<Muon::MuonIntersectGeoData> InterSectSvc{m_chamberGeoKey,ctx};
+        if (!InterSectSvc.isValid())   {
+            ATH_MSG_ERROR("Failed to retrieve chamber intersection service");                            
         }
 
-        const MuonStationIntersect intersect =
-            m_intersectSvc->tubesCrossedByTrack(chid, pars.position(), pars.momentum().unit(), dbData, MuonDetMgr);
+        const MuonStationIntersect intersect = InterSectSvc->tubesCrossedByTrack(chid, pars.position(), pars.momentum().unit());
+        const MuonGM::MuonDetectorManager* MuonDetMgr = InterSectSvc->detMgr();
 
         // set to identify the hit on the segment
         std::set<Identifier> hitsOnSegment;
-        MeasCit mit = measurements.begin();
-        MeasCit mit_end = measurements.end();
-        for (; mit != mit_end; ++mit) {
-            const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(*mit);
+        for (const Trk::MeasurementBase* mit : measurements) {
+            const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(mit);
             if (mdt) hitsOnSegment.insert(mdt->identify());
         }
 
@@ -263,7 +249,7 @@ namespace Muon {
             if (hitsOnSegment.count(tint.tubeId)) continue;
 
             // if track goes through a tube which did not have a hit count as hole
-            if (fabs(tint.rIntersect) < MuonDetMgr->getMdtReadoutElement(tint.tubeId)->innerTubeRadius() && tint.xIntersect < -200.) {
+            if (std::abs(tint.rIntersect) < MuonDetMgr->getMdtReadoutElement(tint.tubeId)->innerTubeRadius() && tint.xIntersect < -200.) {
                 holes.push_back(tint.tubeId);
             }
         }

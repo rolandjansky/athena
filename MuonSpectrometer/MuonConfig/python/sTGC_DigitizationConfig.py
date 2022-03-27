@@ -35,11 +35,17 @@ def sTGC_RangeCfg(flags, name="sTgcRange", **kwargs):
 def sTGC_DigitizationToolCfg(flags, name="sTgcDigitizationTool", **kwargs):
     """Return ComponentAccumulator with configured sTgcDigitizationTool"""
     acc = ComponentAccumulator()
-    rangetool = acc.popToolsAndMerge(sTGC_RangeCfg(flags))
-    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
-    if flags.Digitization.DoXingByXingPileUp:
-        kwargs.setdefault("FirstXing", sTGC_FirstXing())
-        kwargs.setdefault("LastXing", sTGC_LastXing())
+    if flags.Digitization.PileUp:
+        intervals = []
+        if flags.Digitization.DoXingByXingPileUp:
+            kwargs.setdefault("FirstXing", sTGC_FirstXing())
+            kwargs.setdefault("LastXing", sTGC_LastXing())
+        else:
+            intervals += [acc.popToolsAndMerge(sTGC_RangeCfg(flags))]
+        kwargs.setdefault("MergeSvc", acc.getPrimaryAndMerge(PileUpMergeSvcCfg(flags, Intervals=intervals)).name)
+    else:
+        kwargs.setdefault("MergeSvc", '')
+    kwargs.setdefault("OnlyUseContainerName", flags.Digitization.PileUp)
     kwargs.setdefault("doToFCorrection", True)
     kwargs.setdefault("doEfficiencyCorrection", False)
     kwargs.setdefault("InputObjectName", "sTGCSensitiveDetector")

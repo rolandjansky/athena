@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 # Script building all the externals necessary for AthSimulation.
 #
@@ -10,9 +10,8 @@ ATLAS_PROJECT_DIR=$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)
 ATLAS_EXT_PROJECT_NAME="AthSimulationExternals"
 ATLAS_BUILDTYPE="RelWithDebInfo"
 ATLAS_EXTRA_CMAKE_ARGS=(-DLCG_VERSION_NUMBER=101
-                        -DLCG_VERSION_POSTFIX="_ATLAS_10"
+                        -DLCG_VERSION_POSTFIX="_ATLAS_14"
                         -DATLAS_GAUDI_TAG="v36r4.000"
-                        -DATLAS_COOL_TAG="COOL_3_3_9"
                         -DATLAS_GEOMODEL_TAG="ad59da70")
 ATLAS_EXTRA_MAKE_ARGS=()
 

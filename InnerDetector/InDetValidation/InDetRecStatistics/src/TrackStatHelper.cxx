@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -17,24 +17,25 @@
 //
 
 #include "InDetRecStatistics/TrackStatHelper.h"
-#include "TrkTrack/Track.h"
-#include "TrkParameters/TrackParameters.h"
-#include "TrkRIO_OnTrack/RIO_OnTrack.h"
-#include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
+#include "AtlasDetDescr/AtlasDetectorID.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "CLHEP/Geometry/Point3D.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
+#include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
+#include "TrkParameters/TrackParameters.h"
+#include "TrkRIO_OnTrack/RIO_OnTrack.h"
+#include "TrkToolInterfaces/ITrackSummaryTool.h"
+#include "TrkTrack/Track.h"
 #include "TrkTruthData/TrackTruth.h"
 #include "TrkTruthData/TrackTruthCollection.h"
-#include "AtlasHepMC/GenVertex.h"
-#include <iostream>
-#include <sstream>
-#include <vector>
-#include <iomanip>
-#include <map>
 #include <cstring>
-#include "AtlasDetDescr/AtlasDetectorID.h"
-#include "TrkToolInterfaces/ITrackSummaryTool.h"
-#include "CLHEP/Geometry/Point3D.h"
+#include <iomanip>
+#include <iostream>
+#include <map>
+#include <sstream>
+#include <utility>
+#include <vector>
 
 namespace Trk {
 
@@ -113,8 +114,8 @@ static const std::string track_types_string[InDet::N_TRACKTYPES]= {"all",
 								   };//LT added 06.21
  
 InDet::TrackStatHelper::TrackStatHelper(std::string TrackCollectionKey, std::string TrackTruthCollectionKey, bool careAboutTruth):
-  m_TrackCollectionKey       (TrackCollectionKey),
-  m_TrackTruthCollectionKey  (TrackTruthCollectionKey),
+  m_TrackCollectionKey       (std::move(TrackCollectionKey)),
+  m_TrackTruthCollectionKey  (std::move(TrackTruthCollectionKey)),
   m_truthMissing             (false),
   m_careAboutTruth           (careAboutTruth)
 {
@@ -266,7 +267,7 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
       else{   // no link  
 	  
 	// ME : change logic, secondaries from G4 processes are truncated, so Barcode 0 is possible 
-	const HepMcParticleLink HMPL=trtruth.particleLink();
+	const HepMcParticleLink& HMPL=trtruth.particleLink();
 	if (! HMPL.isValid()) {
 	  tracks.m_counter[kTracks_rec][TRACK_NOHEPMCPARTICLELINK][Region]++;
 	  tracks.m_counter[kTracks_rec][TRACK_NOHEPMCPARTICLELINK][ETA_ALL]++;
@@ -863,7 +864,7 @@ void InDet::TrackStatHelper::printRegionSecondary(MsgStream &out,
 
 bool InDet::TrackStatHelper::PassTrackCuts(const Trk::TrackParameters *para) const {
   bool passed = false;
-  if(para->pT() >  m_cuts.minPt && fabs(para->eta()) < m_cuts.maxEtaDBM)passed = true;
+  if(para->pT() >  m_cuts.minPt && std::abs(para->eta()) < m_cuts.maxEtaDBM)passed = true;
 
 
   return passed;
@@ -888,9 +889,9 @@ int InDet::TrackStatHelper::ClassifyParticle( HepMC::ConstGenParticlePtr particl
     HepGeom::Point3D<double>	startVertex(particle->production_vertex()->position().x(),
 			    particle->production_vertex()->position().y(),
 			    particle->production_vertex()->position().z());
-    if ( fabs(startVertex.perp()) < m_cuts.maxRStartPrimary 
-	 && fabs(startVertex.z()) < m_cuts.maxZStartPrimary) { 
-      if (particle->end_vertex() == 0) {  
+    if ( std::abs(startVertex.perp()) < m_cuts.maxRStartPrimary 
+	 && std::abs(startVertex.z()) < m_cuts.maxZStartPrimary) { 
+      if (particle->end_vertex() == nullptr) {  
 	primary=true;
       }
       else {
@@ -898,7 +899,7 @@ int InDet::TrackStatHelper::ClassifyParticle( HepMC::ConstGenParticlePtr particl
 			     particle->end_vertex()->position().y(),
 			     particle->end_vertex()->position().z());
 	if (  endVertex.perp()         > m_cuts.minREndPrimary 
-	      || fabs(startVertex.z()) > m_cuts.minZEndPrimary){
+	      || std::abs(startVertex.z()) > m_cuts.minZEndPrimary){
 	  primary=true;
 	}
 	else { 
@@ -907,8 +908,8 @@ int InDet::TrackStatHelper::ClassifyParticle( HepMC::ConstGenParticlePtr particl
       }
     }
     
-    else if ( startVertex.perp() <  m_cuts.maxRStartSecondary && fabs(startVertex.z()) <  m_cuts.maxZStartSecondary) {
-      if (particle->end_vertex() == 0) {  
+    else if ( startVertex.perp() <  m_cuts.maxRStartSecondary && std::abs(startVertex.z()) <  m_cuts.maxZStartSecondary) {
+      if (particle->end_vertex() == nullptr) {  
 	secondary=true;
       }
       else {
@@ -917,7 +918,7 @@ int InDet::TrackStatHelper::ClassifyParticle( HepMC::ConstGenParticlePtr particl
 			     particle->end_vertex()->position().z());
 
 	if (endVertex.perp()       	> m_cuts.minREndSecondary
-	    || fabs(endVertex.z())	> m_cuts.minZEndSecondary) {
+	    || std::abs(endVertex.z())	> m_cuts.minZEndSecondary) {
 	  secondary=true;
 	}
       }

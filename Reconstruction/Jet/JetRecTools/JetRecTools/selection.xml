@@ -15,5 +15,6 @@
   <class name="SoftKillerWeightTool" />
   <class name="VoronoiWeightTool" />
   <class name="JetTrackSelectionAlg" />
+  <class name="JetPFlowSelectionAlg" />
   
 </lcgdict>

@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #ifndef L1TopoEvent_cTauTOB
 #define L1TopoEvent_cTauTOB
@@ -14,7 +14,6 @@ namespace TCS {
    public:
       
       static unsigned int nBitsEt() { return g_nBitsEt; }
-      static unsigned int nBitsIsolation() { return g_nBitsIsolation; }
       static unsigned int nBitsEta() { return g_nBitsEta; }
       static unsigned int nBitsPhi() { return g_nBitsPhi; }
 
@@ -22,17 +21,16 @@ namespace TCS {
       cTauTOB(uint32_t roiWord = 0, const std::string& tobName = "cTauTOB");
       
       // constructor with individual values
-      cTauTOB(unsigned int et, unsigned int isolation, int eta, unsigned int phi, inputTOBType_t tobType = NONE, uint32_t roiWord = 0, const std::string& tobName = "cTauTOB");
+      cTauTOB(unsigned int et, int eta, unsigned int phi, inputTOBType_t tobType = NONE, uint32_t roiWord = 0, const std::string& tobName = "cTauTOB");
 
       // constructor with initial values
-      cTauTOB(const cTauTOB & eem);
+      cTauTOB(const cTauTOB & ctau);
 
       // destructor
       virtual ~cTauTOB();
 
       // accessors
       unsigned int Et() const { return m_Et; }                  // Et in units of 100 MeV
-      unsigned int isolation() const { return m_isolation; }    
       int eta() const { return m_eta; }                         // eta in units of 0.025
       unsigned int phi() const { return m_phi; }                // phi in units of 0.05
 
@@ -40,13 +38,13 @@ namespace TCS {
       double etaDouble() const { return m_etaDouble; }          // float eta with granularity 0.025
       double phiDouble() const { return m_phiDouble; }          // float phi with granularity 0.05
       
-      unsigned int Reta() const { return m_reta; }
-      unsigned int Rhad() const { return m_rhad; }
-      unsigned int Wstot() const { return m_wstot; }
-     
+      unsigned int RCore() const { return m_rCore; }            // eTau isolation
+      unsigned int RHad() const { return m_rHad; }              // eTau isolation
+    
+      unsigned int EtIso() const { return m_EtIso; }            // jTau isolation energy 
+
       // setters
       void setEt(unsigned int et) { m_Et = sizeCheck(et, nBitsEt()); }
-      void setIsolation(unsigned int et) { m_isolation = sizeCheck(et, nBitsIsolation()); }
       void setEta(int eta) { m_eta = sizeCheck(eta, nBitsEta()); }
       void setPhi(unsigned int phi) { m_phi = sizeCheck(phi, nBitsPhi()); }
       
@@ -54,12 +52,13 @@ namespace TCS {
       void setEtaDouble(double eta) { m_etaDouble = eta; }
       void setPhiDouble(double phi) { m_phiDouble = phi; }
      
-      void setReta(unsigned int th) { m_reta = th; }
-      void setRhad(unsigned int th) { m_rhad = th; }
-      void setWstot(unsigned int th) { m_wstot = th; }
-      
+      void setRCore(unsigned int rCore) { m_rCore = rCore; }
+      void setRHad(unsigned int rHad) { m_rHad = rHad; }
+     
+      void setEtIso(unsigned int etIso) { m_EtIso = etIso; }
+
       // memory management
-      static cTauTOB* createOnHeap(const cTauTOB& eem);
+      static cTauTOB* createOnHeap(const cTauTOB& ctau);
       static void clearHeap();
       static const Heap<TCS::cTauTOB>& heap() { return fg_heap; }
 
@@ -76,7 +75,6 @@ namespace TCS {
       static const unsigned int g_nBitsPhi;
       
       unsigned int m_Et {0};
-      unsigned int m_isolation {0};
       int m_eta {0};
       unsigned int m_phi {0};
 
@@ -84,9 +82,10 @@ namespace TCS {
       double m_etaDouble {0};
       double m_phiDouble {0};
 
-      unsigned int m_reta {0};
-      unsigned int m_rhad {0};
-      unsigned int m_wstot {0};
+      unsigned int m_rCore {0};
+      unsigned int m_rHad {0};
+
+      unsigned int m_EtIso {0};
 
       inputTOBType_t  m_tobType { NONE };
 

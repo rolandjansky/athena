@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( SCT_ModuleDistortions )
@@ -26,6 +26,6 @@ atlas_install_runtime( share/*.txt )
 # Test(s) in the package:
 atlas_add_test( TestSCT_DistortionsTool
                 SCRIPT athena.py --threads=5 SCT_ModuleDistortions/TestSCT_DistortionsTool.py
-                POST_EXEC_SCRIPT nopost.sh
+                POST_EXEC_SCRIPT noerror.sh
                 PROPERTIES TIMEOUT 600
                 ENVIRONMENT THREADS=5 )

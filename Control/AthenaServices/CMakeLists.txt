@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthenaServices )
@@ -31,7 +31,7 @@ atlas_add_test( AthenaOutputStream_test
    src/OutputStreamSequencerSvc.cxx src/MetaDataSvc.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES TestTools AsgTools AthenaKernel SGTools StoreGateLib GaudiKernel AthenaBaseComps PersistentDataModel
-   LOG_IGNORE_PATTERN "^AthenaRootStrea... +(INFO|DEBUG)|^SGAudSvc +(INFO|DEBUG)|of type DataHistory|DEBUG Recorded object|object modifiable when retrieved|^ToolSvc +DEBUG Service base class initialized|^ServiceManager +DEBUG Initializing service|^IncidentSvc *DEBUG Adding .* listener|DecisionSvc +DEBUG|^IoComponentMgr +(INFO|DEBUG)|DBReplicaSvc|^HistogramPersis.*DEBUG|^ItemListSvc +(INFO|DEBUG)|Info File PoolFileCatalog.xml does not exist|DataModelCompatSvc::initialize|^ProxyProviderSvc +DEBUG|^DataModelCompatSvc +DEBUG|^AthenaOutputStreamVERBOSE|^AthenaOutputStream +DEBUG|^TimelineSvc +DEBUG|CLIDRegistry entries|FATAL uncheckedSetTypePackageForID" )  # the FATAL is temporary: ATEAM-731
+   LOG_IGNORE_PATTERN "^AthenaRootStrea... +(INFO|DEBUG)|^SGAudSvc +(INFO|DEBUG)|of type DataHistory|DEBUG Recorded object|object modifiable when retrieved|^ToolSvc +DEBUG Service base class initialized|^ServiceManager +DEBUG Initializing service|^IncidentSvc *DEBUG Adding .* listener|DecisionSvc +DEBUG|^IoComponentMgr +(INFO|DEBUG)|DBReplicaSvc|^HistogramPersis.*DEBUG|^ItemListSvc +(INFO|DEBUG)|Info File PoolFileCatalog.xml does not exist|DataModelCompatSvc::initialize|^ProxyProviderSvc +DEBUG|^DataModelCompatSvc +DEBUG|^AthenaOutputStreamVERBOSE|^AthenaOutputStream +DEBUG|^TimelineSvc +DEBUG|CLIDRegistry entries|in DataObject @0x" )
 # Avoid spurious ubsan warnings.
 set_target_properties( AthenaServices_AthenaOutputStream_test PROPERTIES ENABLE_EXPORTS True )
 
@@ -79,7 +79,6 @@ atlas_install_joboptions( share/AthTPCnvSvc_test.py
    share/MultiplePass_test.py
    share/MultiplePassWithAlgFilter_test.py
    share/OverrideEventNumber.py
-   share/TestSeedRunEvent.py
    share/AthDictLoaderSvc_test.py
    share/ReadAthenaPoolSeek_jobOptions.py
    share/test_tpcnvdb.py
@@ -91,7 +90,3 @@ atlas_install_joboptions( share/AthTPCnvSvc_test.py
    share/DelayedConditionsCleanerSvc_test.txt
    share/ThinningCacheTool_test.txt
    share/MTES_test.py )
-
-# Need to make sure that python file installation happens before genconf
-# in order for our custom __init__.py to be installed correctly.
-add_dependencies( AthenaServicesConfigurables AthenaServicesPythonInstall )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MM_FastDigitizer.h"
@@ -33,7 +33,6 @@ using namespace Muon;
 /*******************************************************************************/ 
 MM_FastDigitizer::MM_FastDigitizer(const std::string& name, ISvcLocator* pSvcLocator) :
     AthAlgorithm(name, pSvcLocator),
-    m_activeStore(nullptr),
     m_detManager(nullptr),
     m_file(nullptr),
     m_ntuple(nullptr),
@@ -105,7 +104,6 @@ MM_FastDigitizer::MM_FastDigitizer(const std::string& name, ISvcLocator* pSvcLoc
 StatusCode MM_FastDigitizer::initialize() {
   // initialize transient event store
   ATH_MSG_DEBUG ( "Retrieved StoreGateSvc." );
-  ATH_CHECK(service("ActiveStoreSvc", m_activeStore));
   ATH_CHECK(m_muonClusterCreator.retrieve());
   ATH_CHECK(m_sdoName.initialize());
   // initialize transient detector store and MuonGeoModel OR MuonDetDescrManager

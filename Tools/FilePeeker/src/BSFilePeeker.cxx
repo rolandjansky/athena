@@ -1,6 +1,6 @@
 //Dear emacs, this is -*-c++-*- 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -18,6 +18,7 @@
 # pragma GCC diagnostic pop
 #endif
 #include "FileMetaData.h"
+#include "CxxUtils/checker_macros.h"
 
 class BSFilePeeker {
 
@@ -109,7 +110,7 @@ BSFilePeeker::BSFilePeeker(const std::string& fName) {
 }
 
 
-int main(int argc, char** argv) {
+int main ATLAS_NOT_THREAD_SAFE (int argc, char** argv) {
 
   bool verbose=false;
   bool kvDump=false;

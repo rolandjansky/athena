@@ -120,7 +120,7 @@ class LArTTL1Maker : public AthAlgorithm,
   ServiceHandle<IAthRNGSvc> m_RandomSvc{this, "RndmSvc", "AthRNGSvc", ""};
   Gaudi::Property<std::string> m_randomStreamName{this, "RandomStreamName", "LArTTL1Maker", ""};
   Gaudi::Property<uint32_t> m_randomSeedOffset{this, "RandomSeedOffset", 2, ""};
-  Gaudi::Property<bool> m_useLegacyRandomSeeds{this, "UseLegacyRandomSeeds", true,
+  Gaudi::Property<bool> m_useLegacyRandomSeeds{this, "UseLegacyRandomSeeds", false,
       "Use MC16-style random number seeding"};
 
   /** Alorithm property: use trigger time or not*/

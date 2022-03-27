@@ -1,4 +1,3 @@
 #include "AmdcMGM/AmdcDumpGeoModel.h"
 
-DECLARE_COMPONENT( AmdcDumpGeoModel )
-
+DECLARE_COMPONENT(AmdcDumpGeoModel)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /* General track propagation implementation                */
 /* If external propagator is provided as                   */
@@ -40,7 +40,7 @@ class IVKalState;
      virtual void Propagate(long int TrkID, long int Charge, 
                             double *ParOld, double *CovOld, double *RefStart, 
                             double *RefEnd, double *ParNew, double *CovNew,
-                            const IVKalState& istate) const =0;
+                            IVKalState& istate) const =0;
      virtual bool checkTarget(double *RefEnd,
                               const IVKalState& istate) const =0;
 //
@@ -60,11 +60,11 @@ class IVKalState;
      void Propagate(long int TrkID, long int Charge, 
                     double *ParOld, double *CovOld, double *RefStart, 
                     double *RefEnd, double *ParNew, double *CovNew,
-                    const VKalVrtControlBase* FitControl = 0) const;
+                    VKalVrtControlBase* FitControl = 0) const;
      bool checkTarget(double *RefEnd) const;
      void Propagate(VKTrack *trk, double *RefStart, 
                     double *RefEnd, double *ParNew, double *CovNew,
-                    const VKalVrtControlBase* FitControl = 0) const;
+                    VKalVrtControlBase* FitControl = 0) const;
    };
 
 }

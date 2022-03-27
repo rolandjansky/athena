@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -166,7 +166,7 @@ StatusCode TRTFastDigitizationTool::processBunchXing( int bunchXing,
   if ( m_HardScatterSplittingMode == 1 && m_HardScatterSplittingSkipper )  { return StatusCode::SUCCESS; }
   if ( m_HardScatterSplittingMode == 1 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; }
 
-  typedef PileUpMergeSvc::TimedList<TRTUncompressedHitCollection>::type TimedHitCollList;
+  using TimedHitCollList = PileUpMergeSvc::TimedList<TRTUncompressedHitCollection>::type;
   TimedHitCollList hitCollList;
 
   if (!(m_mergeSvc->retrieveSubSetEvtData(m_trtHitCollectionKey, hitCollList, bunchXing,
@@ -355,7 +355,7 @@ StatusCode TRTFastDigitizationTool::produceDriftCircles(const EventContext& ctx)
 
       double sigmaTrt = m_trtSigmaDriftRadiusTail;
       if ( !isTail ) {
-        double driftTime = m_trtDriftFunctionTool->approxDriftTime( fabs( driftRadiusLoc ) );
+        double driftTime = m_trtDriftFunctionTool->approxDriftTime( std::abs( driftRadiusLoc ) );
         sigmaTrt = m_trtDriftFunctionTool->errorOfDriftRadius( driftTime, hit_id, m_NCollPerEvent );
       }
 
@@ -426,7 +426,7 @@ StatusCode TRTFastDigitizationTool::produceDriftCircles(const EventContext& ctx)
         new InDet::TRT_DriftCircle(straw_id,
                                    hitLocalPosition,
                                    rdoList,
-                                   std::move(hitErrorMatrix),
+                                   hitErrorMatrix,
                                    trtBaseElement,
                                    word);
       if (!trtDriftCircle)
@@ -458,7 +458,7 @@ StatusCode TRTFastDigitizationTool::processAllSubEvents(const EventContext& ctx)
 
   CHECK( this->createOutputContainers() );
 
-  typedef PileUpMergeSvc::TimedList< TRTUncompressedHitCollection >::type HitCollectionTimedList;
+  using HitCollectionTimedList = PileUpMergeSvc::TimedList<TRTUncompressedHitCollection>::type;
 
   HitCollectionTimedList hitCollectionTimedList;
   unsigned int numberOfSimHits = 0;
@@ -544,8 +544,8 @@ StatusCode TRTFastDigitizationTool::mergeEvent(const EventContext& ctx) {
 
 StatusCode TRTFastDigitizationTool::createAndStoreRIOs()
 {
-  typedef std::multimap< Identifier, InDet::TRT_DriftCircle * >::iterator DriftCircleMapItr;
-  typedef std::multimap< IdentifierHash, InDet::TRT_DriftCircle * >::iterator HashMapItr;
+  using DriftCircleMapItr = std::multimap<Identifier, InDet::TRT_DriftCircle *>::iterator;
+  using HashMapItr = std::multimap<IdentifierHash, InDet::TRT_DriftCircle *>::iterator;
 
   // empiric parameterization of the probability to merge to LT hits into a HT hit as a function of the number of collisions
   // TL - I first determined the value of highTRMergeProb which gives a good
@@ -637,7 +637,7 @@ double TRTFastDigitizationTool::getDriftRadiusFromXYZ( const TimedHitPtr< TRTUnc
   vecDir = vecDir.unit();
 
   double driftRadius = 0.;
-  if ( fabs( vecDir.x() ) < 1.0e-6 && fabs( vecDir.y() ) < 1.0e-6 ) {
+  if ( std::abs( vecDir.x() ) < 1.0e-6 && std::abs( vecDir.y() ) < 1.0e-6 ) {
     driftRadius = vecEnter.perp();
   }
   else {
@@ -753,7 +753,7 @@ HepGeom::Point3D< double > TRTFastDigitizationTool::getGlobalPosition( const Tim
   }
 
   ATH_MSG_WARNING( "Could not find global coordinate of a straw - drifttime calculation will be inaccurate" );
-  return HepGeom::Point3D< double >( 0., 0., 0. );
+  return { 0., 0., 0. };
 }
 
 
@@ -843,11 +843,11 @@ double TRTFastDigitizationTool::getProbHT( int particleEncoding, float kineticEn
   const double hitGlobalPositionMin[] = {   0.,  630.,  630. };
   const double hitGlobalPositionMax[] = { 720., 1030., 1030. };
 
-  if ( fabs(hitGlobalPosition) < hitGlobalPositionMin[ trtPart ] ) {
+  if ( std::abs(hitGlobalPosition) < hitGlobalPositionMin[ trtPart ] ) {
     ATH_MSG_WARNING( "hitGlobalPosition was below allowed range (will be adjusted): trtPart = " << trtPart << ", hitGlobalPosition = " << hitGlobalPosition );
     hitGlobalPosition = copysign(hitGlobalPositionMin[ trtPart ] + 0.001,hitGlobalPosition);
   }
-  if ( fabs(hitGlobalPosition) > hitGlobalPositionMax[ trtPart ] ) {
+  if ( std::abs(hitGlobalPosition) > hitGlobalPositionMax[ trtPart ] ) {
     ATH_MSG_WARNING( "hitGlobalPosition was above allowed range (will be adjusted): trtPart = " << trtPart << ", hitGlobalPosition = " << hitGlobalPosition );
     hitGlobalPosition = copysign(hitGlobalPositionMax[ trtPart ] - 0.001,hitGlobalPosition);
   }
@@ -884,7 +884,7 @@ double TRTFastDigitizationTool::HTProbabilityElectron_high_pt( double eta )
                                                      0.365              // > 1.82
                                                    };
 
-  return probability[ std::distance( bins.begin(), std::lower_bound( bins.begin(), bins.end(), fabs( eta ) ) ) ];
+  return probability[ std::distance( bins.begin(), std::lower_bound( bins.begin(), bins.end(), std::abs( eta ) ) ) ];
 }
 
 
@@ -908,7 +908,7 @@ double TRTFastDigitizationTool::HTProbabilityElectron_low_pt( double eta )
                                                      0.365              // > 1.82
                                                    };
 
-  return probability[ std::distance( bins.begin(), std::lower_bound( bins.begin(), bins.end(), fabs( eta ) ) ) ];
+  return probability[ std::distance( bins.begin(), std::lower_bound( bins.begin(), bins.end(), std::abs( eta ) ) ) ];
 }
 
 

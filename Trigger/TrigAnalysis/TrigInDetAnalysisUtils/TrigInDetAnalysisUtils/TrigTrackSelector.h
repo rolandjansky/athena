@@ -64,11 +64,27 @@ class TrigTrackSelector : public TrackSelector {
 
 public:
 
+  typedef std::vector< ElementLink< xAOD::TrackParticleContainer > > TrackParticleLinks_t;
+
+public:
+
   /// use a radius of 47 mm corresponding to the Run 1 pixel inner radius
   /// For the IBL it should be 32 mm, but this was kept as 47 mm for consistency 
   /// of the definition. this should be changed to 32 mm for Run 3
 
   TrigTrackSelector( TrackFilter* selector, double radius=47, int selectPdgId=0, int selectParentPdgId=0 );
+
+  template<typename T>
+  TrigTrackSelector( T& tm,  TrackFilter* selector, double radius=47, int selectPdgId=0, int selectParentPdgId=0 ) : 
+    TrigTrackSelector( tm.begin(), tm.end(), selector, radius, selectPdgId, selectParentPdgId ) { 
+  }
+
+  template<typename T>
+  TrigTrackSelector( T tbegin, T tend,  TrackFilter* selector, double radius=47, int selectPdgId=0, int selectParentPdgId=0 ) : 
+    TrigTrackSelector( selector, radius, selectPdgId, selectParentPdgId ) { 
+    selectTracks( tbegin, tend );
+  }
+
 
   ~TrigTrackSelector() { clear(); }
 
@@ -147,8 +163,7 @@ public:
 		     xAOD::TrackParticleContainer::const_iterator trackend, void* =0);
 
 
-  typedef std::vector< ElementLink< xAOD::TrackParticleContainer > > TrackParticleLinks_t;
-  void selectTracks( TrackParticleLinks_t tracks, void* =0 );
+  void selectTracks( const TrackParticleLinks_t& tracks );
 
   void correctToBeamline( double& z0,    double& dz0, 
 			  double& d0,    double& dd0, 
@@ -156,7 +171,7 @@ public:
 
   
   //private:
-  const xAOD::TruthParticle * fromParent( const int pdg_id,  const xAOD::TruthParticle *p) const;
+  const xAOD::TruthParticle* fromParent( const int pdg_id,  const xAOD::TruthParticle *p) const;
 
 private:
 

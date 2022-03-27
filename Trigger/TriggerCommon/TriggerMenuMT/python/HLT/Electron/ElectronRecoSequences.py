@@ -6,10 +6,9 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 def l2CaloRecoCfg( flags ):
-    from TriggerMenuMT.HLT.Menu.MenuComponents import InViewRecoCA
+    from TriggerMenuMT.HLT.Config.MenuComponents import InViewRecoCA
 
-    reco = InViewRecoCA('FastCaloEMReco', roisKey='EMCaloRoIs')
-    #    algAcc, alg = l2CaloAlgCfg( flags, roisKey = reco.name+'RoIs' )
+    reco = InViewRecoCA('FastCaloEMReco', InViewRoIs='EMCaloRoIs')
     from TrigT2CaloEgamma.TrigT2CaloEgammaMTConfig import fastL2EgammaClusteringAlg
     ca = ComponentAccumulator()
     ca.addEventAlgo( CompFactory.AthViews.ViewDataVerifier(name='VDVFastEgammaCalo',

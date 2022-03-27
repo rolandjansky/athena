@@ -1,0 +1,34 @@
+
+
+panels = { vtx_eff_panel, vtx_res_panel, vtx_kin_panel };
+
+vtx_eff_panel = { 
+            "vx_zed_eff",    "", "xaxis:lin:-200:200",        "offline vtx z [mm]",         "yxaxis:lin:0:1.2", "efficiency", 
+            "vx_ntrax_eff",  "", "xaxis:log:1:200",    "number of tracks",           "yxaxis:lin:0:1.2", "efficiency", 
+            "vx_nvtx_eff",   "", "xaxis:lin:0:90",            "number of offline vertices", "yxaxis:lin:0:1.2", "efficiency", 
+
+            "vx_mu_eff",     "", "xaxis:lin:20:70",  "mu_eff;<#mu>",     "yxaxis:lin:0:1.2", "efficiency", 
+            "vx_lb_eff",     "", "xaxis:lin:auto",   "lumi block",       "yxaxis:lin:0:1.2", "efficiency",        
+            "vx_zed_res",    "", "xaxis:lin:-2:2",   "Delta z [mm]",     "yaxis:log:0.1:10000:auto",   "Entries"
+};
+
+
+vtx_kin_panel = { 
+            "vx_nvtx",  "", "xaxis:lin:0:90",           "number of offline vertices",     "yaxis:log:auto", "Entries",
+            "vx_zed",   "", "xaxis:lin:-200:200",       "offline vtx z [mm]",             "yaxis:log:auto", "Entries",
+            "vx_ntrax", "", "xaxis:log:1:200:auto",   "number of offline vtx tracks",    "yaxis:log:auto", "Entries",
+            
+            "vx_nvtx_rec",  "", "xaxis:lin:0:90",          "number of trigger vertices",    "yaxis:log:auto", "Entries",
+            "vx_zed_rec",   "", "xaxis:lin:-200:200",      "trigger vtx z [mm]",            "yaxis:log:auto", "Entries",
+            "vx_ntrax_rec", "", "xaxis:log:10:200:auto",   "number of trigger vtx tracks",  "yaxis:log:auto", "Entries"
+};        
+
+vtx_res_panel = {     
+                        
+            "vx_rdz_vs_zed",   "", "xaxis:lin:-200:200",      "offline vtx z [mm]",            "yaxis:lin:auto", "z residual [mm]",
+            "vx_rdz_vs_ntrax", "", "xaxis:log:1:200:auto",  "number of offline vtx tracks",   "yaxis:lin:auto", "z residual [mm]",
+            "vx_rdz_vs_nvtx",  "", "xaxis:lin:0:90",          "number of offline vertices",    "yaxis:lin:auto", "z residual [mm]"
+            
+//            # "rdz_vs_mu",    30,     0,    30,    400, -20, 20 ); 
+       
+};     

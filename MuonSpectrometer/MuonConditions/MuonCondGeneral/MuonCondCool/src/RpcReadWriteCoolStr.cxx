@@ -8,7 +8,7 @@
 
 #include "GaudiKernel/ISvcLocator.h"
 #include "MuonCondInterface/RpcICoolStrSvc.h"
-#include "MuonCondCool/RpcReadWriteCoolStr.h"
+#include "RpcReadWriteCoolStr.h"
 
 #include "string.h"
 

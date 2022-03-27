@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -58,7 +58,7 @@ SCT_ForwardPolarPosition SCT_ForwardFrameTransformation::polarFromCartesian(cons
   const double deltaPhi = cartesian.xPhi()-m_phiCenter;
   const double deltaEta = cartesian.xEta()-m_etaCenter+m_radius;
   const double r = sqrt(deltaPhi*deltaPhi+deltaEta*deltaEta);
-  if (r<=0) return SCT_ForwardPolarPosition();
+  if (r<=0) return {};
   const double theta = asin((cartesian.xPhi()-m_phiCenter)/r);
   return SCT_ForwardPolarPosition(r,theta);
 }

@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 """Run tests for ITk
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
-from __future__ import print_function
 
 import sys
 from argparse import ArgumentParser
@@ -20,17 +19,18 @@ Configurable.configurableRun3Behavior = True
 def defaultTestFlags(configFlags, args):
     """Fill default ITk flags for testing"""
     if args.localgeo:
-        configFlags.GeoModel.useLocalGeometry = True
+        configFlags.ITk.Geometry.AllLocal = True
 
     configFlags.Input.Files = [args.inputevntfile]
     
     configFlags.Output.HITSFileName = args.outputhitsfile
 
-    configFlags.Sim.CalibrationRun = "Off"
+    from G4AtlasApps.SimEnums import BeamPipeSimMode, CalibrationRun, CavernBackground
+    configFlags.Sim.CalibrationRun = CalibrationRun.Off
     configFlags.Sim.RecordStepInfo = False
-    configFlags.Sim.CavernBG = "Signal"
+    configFlags.Sim.CavernBackground = CavernBackground.Signal
     configFlags.Sim.ISFRun = False
-    configFlags.Sim.BeamPipeSimMode = 'FastSim'
+    configFlags.Sim.BeamPipeSimMode = BeamPipeSimMode.FastSim
     configFlags.Sim.ReleaseGeoModel = False
 
     configFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-15"
@@ -161,6 +161,11 @@ if args.lengthintegrator:
 if args.simulate:
     from G4AtlasAlg.G4AtlasAlgConfigNew import G4AtlasAlgCfg
     acc.merge(G4AtlasAlgCfg(ConfigFlags, "ITkG4AtlasAlg", **kwargs))
+    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+    from SimuJobTransforms.SimOutputConfig import getStreamHITS_ItemList
+    acc.merge( OutputStreamCfg(ConfigFlags,"HITS", ItemList=getStreamHITS_ItemList(ConfigFlags), disableEventTag=True, AcceptAlgs=['ITkG4AtlasAlg']) )
+
+
 
 # dump pickle
 with open("ITkTest.pkl", "wb") as f:

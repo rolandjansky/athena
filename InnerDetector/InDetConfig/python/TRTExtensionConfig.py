@@ -1,7 +1,8 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.ComponentFactory     import CompFactory
-import InDetConfig.TrackingCommonConfig         as   TC
+from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
+import InDetConfig.TrackingCommonConfig as TC
 
 #///////////////////////////////////////////////////////////////////////////////////////////////
 def TRT_TrackExtensionAlgCfg(flags, name = 'InDetTRT_ExtensionPhase', SiTrackCollection=None, ExtendedTracksMap="ExtendedTracksMap", TrackExtensionTool=None, **kwargs):
@@ -80,7 +81,7 @@ def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackColle
     #
     # --- load scoring for extension
     #
-    if flags.Beam.Type == "cosmics":
+    if flags.Beam.Type is BeamType.Cosmics:
         InDetExtenScoringTool = acc.popToolsAndMerge(TC.InDetCosmicExtenScoringToolCfg(flags))
         acc.addPublicTool(InDetExtenScoringTool)
     else:
@@ -103,7 +104,7 @@ def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackColle
     kwargs.setdefault("pTminBrem", flags.InDet.Tracking.ActivePass.minPTBrem)
     kwargs.setdefault("RefitPrds", False)
     kwargs.setdefault("matEffects", flags.InDet.Tracking.materialInteractionsType if flags.InDet.Tracking.materialInteractions else 0)
-    kwargs.setdefault("Cosmics", flags.Beam.Type == "cosmics")
+    kwargs.setdefault("Cosmics", flags.Beam.Type is BeamType.Cosmics)
 
     acc.addEventAlgo(CompFactory.InDet.InDetExtensionProcessor("InDetExtensionProcessor" + flags.InDet.Tracking.ActivePass.extension, **kwargs))
 

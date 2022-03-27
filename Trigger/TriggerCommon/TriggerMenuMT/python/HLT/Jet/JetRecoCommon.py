@@ -15,6 +15,15 @@ from . import TriggerJetMods
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
+##########################################################################################
+### --- Extracting jet chain parts --- 
+
+def jetChainParts(chainParts):
+    jChainParts = []
+    for p in chainParts:
+        if p['trigType'] == 'j':
+            jChainParts.append(p)
+    return jChainParts
 
 ##########################################################################################
 ### --- General reco dict handling --- 
@@ -392,6 +401,13 @@ def defineGroomedJets(jetRecoDict,ungroomedDef):#,ungroomedJetsName):
         "t" :JetTrimming(ungroomedDef,RClus=0.2,PtFrac=0.04, suffix=suffix),
     }[groomAlg]
     return groomDef
+
+#Jet Definition for VR track jets
+def defineVRTrackJets(Rmax, Rmin, VRMassScale, Ptmin, prefix, suffix):
+    jetconstit = JetInputConstit("PV0Track", xAODType.TrackParticle, "PV0JetSelectedTracks_ftf")
+    VRTrackJetDef = JetDefinition("AntiKt", Rmax, jetconstit, ptmin=Ptmin, VRMinR=Rmin, VRMassSc=VRMassScale, prefix=prefix, suffix=suffix, lock=True)
+    return VRTrackJetDef
+
 
 def defineHIJets(jetRecoDict,clustersKey=None,prefix='',suffix=''):
     minpt = {

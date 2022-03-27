@@ -2,11 +2,17 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import Format
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 
 def TMDBConfig(flags):
     acc = ComponentAccumulator()
-    if not flags.Input.isMC:
+
+    # Read MuRcvRawChCnt from the input file (for POOL directly, for BS via converter)
+    if flags.Input.Format is Format.POOL:
+        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+        acc.merge(SGInputLoaderCfg(flags, Load=[('TileRawChannelContainer','MuRcvRawChCnt')]))
+    else:
         from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
         acc.merge(ByteStreamReadCfg(flags, ["TileRawChannelContainer/MuRcvRawChCnt"]))
 
@@ -40,22 +46,14 @@ def MuonBytestream2RdoConfig(flags):
     acc = ComponentAccumulator()
     if flags.Input.isMC:
         return acc
-    from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheNames
-    MuonCacheCreator=CompFactory.MuonCacheCreator
-    cacheCreator = MuonCacheCreator(MdtCsmCacheKey = MuonCacheNames.MdtCsmCache,
-                                    CscCacheKey    = MuonCacheNames.CscCache if flags.Detector.GeometryCSC else "",
-                                    RpcCacheKey    = MuonCacheNames.RpcCache,
-                                    TgcCacheKey    = MuonCacheNames.TgcCache)
-    acc.addEventAlgo(cacheCreator)
+
     postFix = "_L1MuonSim"
-    # for MDT
-    MDTRodDecoder = CompFactory.MdtROD_Decoder(name = "MdtROD_Decoder" + postFix)
-    MuonMdtRawDataProviderTool = CompFactory.Muon.MDT_RawDataProviderToolMT(name = "MDT_RawDataProviderToolMT" + postFix,
-                                                                             CsmContainerCacheKey = MuonCacheNames.MdtCsmCache,
-                                                                             Decoder = MDTRodDecoder )
-    MdtRawDataProvider = CompFactory.Muon.MdtRawDataProvider(name = "MdtRawDataProvider" + postFix,
-                                                              ProviderTool = MuonMdtRawDataProviderTool)
-    acc.addEventAlgo(MdtRawDataProvider)
+    from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheNames
+    cacheCreator = CompFactory.MuonCacheCreator(RpcCacheKey = MuonCacheNames.RpcCache,
+                                                TgcCacheKey = MuonCacheNames.TgcCache,
+                                                MdtCsmCacheKey = MuonCacheNames.MdtCsmCache,
+                                                CscCacheKey = (MuonCacheNames.CscCache if flags.Detector.GeometryCSC else ""))
+    acc.addEventAlgo(cacheCreator)
     # for RPC
     RPCRodDecoder = CompFactory.Muon.RpcROD_Decoder(name = "RpcROD_Decoder" + postFix)
     MuonRpcRawDataProviderTool = CompFactory.Muon.RPC_RawDataProviderToolMT(name = "RPC_RawDataProviderToolMT" + postFix,
@@ -73,27 +71,57 @@ def MuonBytestream2RdoConfig(flags):
     TgcRawDataProvider = CompFactory.Muon.TgcRawDataProvider(name = "TgcRawDataProvider" + postFix,
                                                               ProviderTool = MuonTgcRawDataProviderTool)
     acc.addEventAlgo(TgcRawDataProvider)
-    # for CSC
-    if flags.Detector.GeometryCSC:
-        CSCRodDecoder = CompFactory.Muon.CscROD_Decoder(name = "CscROD_Decoder" + postFix,
-                                                        IsCosmics = False,
-                                                        IsOldCosmics = False )
-        MuonCscRawDataProviderTool = CompFactory.Muon.CSC_RawDataProviderToolMT(name = "CSC_RawDataProviderToolMT" + postFix,
-                                                                                CscContainerCacheKey = MuonCacheNames.CscCache,
-                                                                                Decoder = CSCRodDecoder )
-        CscRawDataProvider = CompFactory.Muon.CscRawDataProvider(name = "CscRawDataProvider" + postFix,
-                                                                 ProviderTool = MuonCscRawDataProviderTool)
-        acc.addEventAlgo(CscRawDataProvider)
+    # for sTGC
+    if flags.Detector.GeometrysTGC:
+        Muon__STGC_ROD_Decoder=CompFactory.Muon.STGC_ROD_Decoder
+        STGCRodDecoder = Muon__STGC_ROD_Decoder(name = "sTgcROD_Decoder"+postFix)
+        Muon__STGC_RawDataProviderToolMT=CompFactory.Muon.STGC_RawDataProviderToolMT
+        MuonsTgcRawDataProviderTool = Muon__STGC_RawDataProviderToolMT(name    = "STGC_RawDataProviderToolMT"+postFix,
+                                                                       Decoder = STGCRodDecoder)
+        Muon__sTgcRawDataProvider=CompFactory.Muon.sTgcRawDataProvider
+        sTgcRawDataProvider = Muon__sTgcRawDataProvider(name       = "sTgcRawDataProvider"+postFix,
+                                                        ProviderTool = MuonsTgcRawDataProviderTool )
+        acc.addEventAlgo(sTgcRawDataProvider)
+
+    # for MM
+    if flags.Detector.GeometryMM:
+        Muon__MmROD_Decoder=CompFactory.Muon.MM_ROD_Decoder
+        MMRodDecoder = Muon__MmROD_Decoder(name="MmROD_Decoder"+postFix)
+        Muon_MM_RawDataProviderToolMT = CompFactory.Muon.MM_RawDataProviderToolMT
+        MuonMmRawDataProviderTool = Muon_MM_RawDataProviderToolMT(name  = "MM_RawDataProviderToolMT"+postFix,
+                                                                  Decoder = MMRodDecoder)
+        Muon__MmRawDataProvider = CompFactory.Muon.MM_RawDataProvider
+        MmRawDataProvider = Muon__MmRawDataProvider(name = "MmRawDataProvider"+postFix, ProviderTool = MuonMmRawDataProviderTool )
+        acc.addEventAlgo(MmRawDataProvider)
+
+    if flags.Trigger.L1MuonSim.EmulateNSW and flags.Trigger.L1MuonSim.NSWVetoMode:
+        # for MDT
+        MDTRodDecoder = CompFactory.MdtROD_Decoder(name = "MdtROD_Decoder" + postFix)
+        MuonMdtRawDataProviderTool = CompFactory.Muon.MDT_RawDataProviderToolMT(name = "MDT_RawDataProviderToolMT" + postFix,
+                                                                                CsmContainerCacheKey = MuonCacheNames.MdtCsmCache,
+                                                                                Decoder = MDTRodDecoder )
+        MdtRawDataProvider = CompFactory.Muon.MdtRawDataProvider(name = "MdtRawDataProvider" + postFix,
+                                                                 ProviderTool = MuonMdtRawDataProviderTool)
+        acc.addEventAlgo(MdtRawDataProvider)
+        # for CSC
+        if flags.Detector.GeometryCSC:
+            CSCRodDecoder = CompFactory.Muon.CscROD_Decoder(name = "CscROD_Decoder" + postFix,
+                                                            IsCosmics = False,
+                                                            IsOldCosmics = False )
+            MuonCscRawDataProviderTool = CompFactory.Muon.CSC_RawDataProviderToolMT(name = "CSC_RawDataProviderToolMT" + postFix,
+                                                                                    CscContainerCacheKey = MuonCacheNames.CscCache,
+                                                                                    Decoder = CSCRodDecoder )
+            CscRawDataProvider = CompFactory.Muon.CscRawDataProvider(name = "CscRawDataProvider" + postFix,
+                                                                     ProviderTool = MuonCscRawDataProviderTool)
+            acc.addEventAlgo(CscRawDataProvider)
 
     return acc
 
-
 def MuonRdo2PrdConfig(flags):
     acc = ComponentAccumulator()
-    if not flags.Trigger.L1MuonSim.EmulateNSW:
+    if not flags.Trigger.L1MuonSim.EmulateNSW or not flags.Trigger.L1MuonSim.NSWVetoMode:
         return acc
     postFix = "_L1MuonSim"
-
     ### CSC RDO data ###
     if flags.Detector.GeometryCSC:
         CscRdoToCscPrepDataTool = CompFactory.Muon.CscRdoToCscPrepDataToolMT(name = "CscRdoToCscPrepDataToolMT" + postFix)
@@ -119,12 +147,11 @@ def MuonRdo2PrdConfig(flags):
     TgcRdoToTgcPrepData = CompFactory.TgcRdoToTgcPrepData(name = "TgcRdoToTgcPrepData" + postFix,
                                                           DecodingTool = TgcRdoToTgcPrepDataTool)
     acc.addEventAlgo(TgcRdoToTgcPrepData)
-
     return acc
 
 def RecoMuonSegmentSequence(flags):
     acc = ComponentAccumulator()
-    if not flags.Trigger.L1MuonSim.EmulateNSW:
+    if not flags.Trigger.L1MuonSim.EmulateNSW or not flags.Trigger.L1MuonSim.NSWVetoMode:
         return acc
     postFix = "_L1MuonSim"
     theMuonLayerHough = CompFactory.MuonLayerHoughAlg("MuonLayerHoughAlg" + postFix,
@@ -147,21 +174,43 @@ def RecoMuonSegmentSequence(flags):
 
 def MuonRdo2DigitConfig(flags):
     acc = ComponentAccumulator()
+
+    # Read RPCPAD and TGCRDO from the input POOL file (for BS it comes from [Rpc|Tgc]RawDataProvider)
+    if flags.Input.Format is Format.POOL:
+        rdoInputs = [
+            ('RpcPadContainer','RPCPAD'),
+            ('TgcRdoContainer','TGCRDO')
+        ]
+        # Read MMRDO and sTGCRDO
+        if flags.Detector.GeometrysTGC or flags.Detector.GeometryMM:
+            rdoInputs += [
+                ('Muon::MM_RawDataContainer','MMRDO'),
+                ('Muon::STGC_RawDataContainer','sTGCRDO')
+            ]
+        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+        acc.merge(SGInputLoaderCfg(flags, Load=rdoInputs))
+
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
     acc.merge(MuonGeoModelCfg(flags))
     MuonRdoToMuonDigitTool = CompFactory.MuonRdoToMuonDigitTool (DecodeMdtRDO = False,
                                                                  DecodeRpcRDO = True,
                                                                  DecodeTgcRDO = True,
                                                                  DecodeCscRDO = False,
-                                                                 DecodeSTGC_RDO = False,
-                                                                 DecodeMM_RDO = False,
+                                                                 DecodeSTGC_RDO = flags.Detector.GeometrysTGC,
+                                                                 DecodeMM_RDO = flags.Detector.GeometryMM,
                                                                  mdtRdoDecoderTool="",
                                                                  cscRdoDecoderTool="",
                                                                  cscCalibTool = "",
-                                                                 stgcRdoDecoderTool="",
-                                                                 mmRdoDecoderTool="",
+                                                                 MmDigitContainer = "MM_DIGITS_L1",
+                                                                 sTgcDigitContainer = "sTGC_DIGITS_L1",
                                                                  RpcDigitContainer = "RPC_DIGITS_L1",
                                                                  TgcDigitContainer = "TGC_DIGITS_L1")
+
+    if not flags.Detector.GeometrysTGC:
+        MuonRdoToMuonDigitTool.stgcRdoDecoderTool=""
+    if not flags.Detector.GeometryMM:
+        MuonRdoToMuonDigitTool.mmRdoDecoderTool=""
+
     acc.addPublicTool(MuonRdoToMuonDigitTool)
     rdo2digit = CompFactory.MuonRdoToMuonDigit( "MuonRdoToMuonDigit",
                                                 MuonRdoToMuonDigitTool = MuonRdoToMuonDigitTool)
@@ -172,26 +221,37 @@ def NSWTriggerConfig(flags):
     acc = ComponentAccumulator()
     if not flags.Detector.GeometrysTGC and not flags.Detector.GeometryMM:
         return acc
+
+    if flags.Input.Format is Format.POOL and flags.Input.isMC:
+        rdoInputs = [
+            ('McEventCollection','TruthEvent'),
+            ('TrackRecordCollection','MuonEntryLayer')
+        ]
+        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+        acc.merge(SGInputLoaderCfg(flags, Load=rdoInputs))
+
     PadTdsTool = CompFactory.NSWL1.PadTdsOfflineTool("NSWL1__PadTdsOfflineTool",DoNtuple=False)
     PadTriggerLogicTool = CompFactory.NSWL1.PadTriggerLogicOfflineTool("NSWL1__PadTriggerLogicOfflineTool",DoNtuple=False)
     PadTriggerLookupTool = CompFactory.NSWL1.PadTriggerLookupTool("NSWL1__PadTriggerLookupTool")
     StripTdsTool = CompFactory.NSWL1.StripTdsOfflineTool("NSWL1__StripTdsOfflineTool",DoNtuple=False)
+    StripClusterTool = CompFactory.NSWL1.StripClusterTool("NSWL1__StripClusterTool",DoNtuple=False)
     MMStripTdsTool = CompFactory.NSWL1.MMStripTdsOfflineTool("NSWL1__MMStripTdsOfflineTool",DoNtuple=False)
-    MMTriggerTool = CompFactory.NSWL1.MMTriggerTool("NSWL1__MMTriggerTool",DoNtuple=False)
+    MMTriggerTool = CompFactory.NSWL1.MMTriggerTool("NSWL1__MMTriggerTool",DoNtuple=False, IsMC = flags.Input.isMC, MmDigitContainer="MM_DIGITS_L1")
     MMTriggerProcessorTool = CompFactory.NSWL1.TriggerProcessorTool("NSWL1__TriggerProcessorTool")
     nswAlg = CompFactory.NSWL1.NSWL1Simulation("NSWL1Simulation",
-                                               DoOffline = True, # so far only offline simulation is available
                                                UseLookup = False,
                                                DoNtuple = False,
                                                DoMM = flags.Trigger.L1MuonSim.doMMTrigger,
                                                DoMMDiamonds = flags.Trigger.L1MuonSim.doMMTrigger,
-                                               DosTGC = True, # sTGC pad-only trigger: default
-                                               PadTdsTool = PadTdsTool,
-                                               PadTriggerTool = PadTriggerLogicTool,
-                                               PadTriggerLookupTool = PadTriggerLookupTool,
-                                               StripTdsTool = StripTdsTool,
-                                               MMStripTdsTool = MMStripTdsTool,
-                                               MMTriggerTool = MMTriggerTool,
+                                               DosTGC = flags.Trigger.L1MuonSim.doPadTrigger,
+                                               DoStrip = flags.Trigger.L1MuonSim.doStripTrigger,
+                                               PadTdsTool = (PadTdsTool if flags.Trigger.L1MuonSim.doPadTrigger else ""),
+                                               PadTriggerTool = (PadTriggerLogicTool if flags.Trigger.L1MuonSim.doPadTrigger else ""),
+                                               PadTriggerLookupTool = (PadTriggerLookupTool if flags.Trigger.L1MuonSim.doPadTrigger else ""),
+                                               StripTdsTool = (StripTdsTool if flags.Trigger.L1MuonSim.doStripTrigger else ""),
+                                               StripClusterTool = (StripClusterTool if flags.Trigger.L1MuonSim.doStripTrigger else ""),
+                                               MMStripTdsTool = (MMStripTdsTool if flags.Trigger.L1MuonSim.doMMTrigger else ""),
+                                               MMTriggerTool = (MMTriggerTool if flags.Trigger.L1MuonSim.doMMTrigger else ""),
                                                MMTriggerProcessorTool = MMTriggerProcessorTool,
                                                NSWTrigRDOContainerName = "NSWTRGRDO" )
     acc.addEventAlgo(nswAlg)
@@ -218,12 +278,13 @@ def TGCTriggerConfig(flags):
                                                        useRun3Config = True,
                                                        TileMuRcv_Input = "rerunTileMuRcvCnt",
                                                        TILEMU = True)
-    if (flags.Detector.GeometrysTGC or flags.Detector.GeometryMM) and flags.Input.isMC:
+    if (flags.Detector.GeometrysTGC or flags.Detector.GeometryMM):
         tgcAlg.MaskFileName12 = "TrigT1TGCMaskedChannel.noFI._12.db"
         tgcAlg.USENSW = True
         tgcAlg.NSWSideInfo = "AC"
         tgcAlg.NSWTrigger_Input = "NSWTRGRDO"
         tgcAlg.FORCENSWCOIN = not flags.Trigger.L1MuonSim.NSWVetoMode
+        tgcAlg.USEBIS78 = flags.Trigger.L1MuonSim.doBIS78
     else:
         tgcAlg.MaskFileName12 = "TrigT1TGCMaskedChannel._12.db"
 

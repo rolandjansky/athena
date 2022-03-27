@@ -5,7 +5,7 @@
 from egammaAlgs import egammaAlgsConf
 from egammaRec.Factories import AlgFactory
 from AthenaCommon.CFElements import parOR
-from TriggerMenuMT.HLT.Menu.MenuComponents import RecoFragmentsPool
+from TriggerMenuMT.HLT.Config.MenuComponents import RecoFragmentsPool
 from TriggerMenuMT.HLT.Egamma.TrigEgammaFactories import TrigEgammaRec, TrigEgammaSuperClusterBuilder 
 from AthenaCommon.Logging import logging
 

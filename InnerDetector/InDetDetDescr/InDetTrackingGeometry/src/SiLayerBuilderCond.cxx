@@ -122,7 +122,6 @@ StatusCode InDet::SiLayerBuilderCond::initialize()
             if (detStore()->retrieve(m_pixIdHelper, "PixelID").isFailure())
                 ATH_MSG_ERROR("Could not get Pixel ID helper");
         }
-        ATH_CHECK(m_PixelReadKey.initialize());
     } else {
         const InDetDD::SCT_DetectorManager* sctMgr = nullptr;
         if ((detStore()->retrieve(sctMgr, m_siMgrLocation)).isFailure()) {
@@ -134,11 +133,9 @@ StatusCode InDet::SiLayerBuilderCond::initialize()
             if (detStore()->retrieve(m_sctIdHelper, "SCT_ID").isFailure())
                 ATH_MSG_ERROR("Could not get SCT ID helper");
         }
-        
-        ATH_CHECK(m_SCT_ReadKey.initialize());
-        ATH_CHECK(m_PixelReadKey.initialize());
-
     }
+    ATH_CHECK(m_SCT_ReadKey.initialize(!m_pixelCase));
+    ATH_CHECK(m_PixelReadKey.initialize());
     return StatusCode::SUCCESS;
 }
 

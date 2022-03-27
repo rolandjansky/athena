@@ -3,7 +3,7 @@
 #
 
 # menu components   
-from TriggerMenuMT.HLT.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
+from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaCommon.CFElements import seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import ViewCreatorPreviousROITool
@@ -35,7 +35,6 @@ def precisionCaloSequence(flags, ion=False, variant=''):
     precisionCaloViewsMaker.InViewRoIs = InViewRoIs
     precisionCaloViewsMaker.Views = tag(ion) + 'Views' + variant
     precisionCaloViewsMaker.RequireParentView = True
-    precisionCaloViewsMaker.CacheDisabled = True
 
     # reco sequence
     from TriggerMenuMT.HLT.Electron.PrecisionCaloRecoSequences import precisionCaloRecoSequence

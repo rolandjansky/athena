@@ -95,6 +95,8 @@ StatusCode IDAlignMonResidualsAlg::initialize()
   ATH_CHECK( m_trtcaldbTool.retrieve() );
   
   ATH_CHECK( m_tracksName.initialize() );
+  ATH_CHECK( m_tracksKey.initialize() );
+  ATH_CHECK( m_comTimeObjectName.initialize() );
   
   return AthMonitorAlgorithm::initialize();
 }

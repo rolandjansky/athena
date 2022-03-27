@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from TrigHLTJetHypo.RepeatedConditionParams import RepeatedConditionParams
 from TrigHLTJetHypo.FilterParams import FilterParams
@@ -19,7 +19,8 @@ from copy import deepcopy
 
 # make a list of all possible cut items for the simple scenario
 
-all_elemental_keys = ('etaRange', 'jvt', 'smc', 'threshold', 'momCuts')
+all_elemental_keys = ('etaRange', 'jvt', 'smc',
+                      'threshold', 'momCuts', 'bdips')
 
 # Extract moment cuts
 def _cuts_from_momCuts(momCuts):
@@ -70,6 +71,29 @@ def get_condition_args_from_chainpart(cp):
             values = v.split(key)
             assert values[1] == '','jvt condition takes only one argument, two were given' # protection when an upper (not supported) cut is requested
             lo   = values[0]
+            vals = defaults(key, lo=lo)
+            condargs.append((key, deepcopy(vals)))
+
+        if k == 'bdips':
+            key = 'bdips'
+            values = v.split(key)
+            assert values[1] == '','bdips condition takes only one argument, two were given' # protection when an upper (not supported) cut is requested
+            
+            #This dictionary maps the bdips efficiency into the WP cut to be applied to the DIPS output
+            dips_WPs = {
+                '':   float('-inf'),
+                '95': -1.6495,
+                '90': -0.8703,
+                '85': -0.0295,
+                '80': 0.7470,
+                '77': 1.1540,
+                '75': 1.4086,
+                '60': 3.0447,
+            }
+
+            assert (values[0] in dips_WPs.keys()),f"The efficiency of the specified dips cut \'{v}\' can not be found in the WP dictionary. Please add or remove the WP from the dips WP dictionary."
+
+            lo   = dips_WPs[values[0]]
             vals = defaults(key, lo=lo)
             condargs.append((key, deepcopy(vals)))
 
@@ -145,6 +169,14 @@ def scenario_simple(chain_parts):
     filterparams = []
     
     ncp = 0
+    
+    # keep track of identical cond_args, which are given the same
+    # clique number. 
+    # the C++ code will use the clique number for optimisation of
+    # the calculation of the combinations
+    #
+    # current implementation: condition filter not included.
+    clique_list = []
     for cp in chain_parts:
         ncp += 1
 
@@ -155,14 +187,27 @@ def scenario_simple(chain_parts):
         
         multiplicity = int(cp['multiplicity'])
         chainPartInd = cp['chainPartIndex']
+ 
+        # make an empty filter condition for the FR condition
+        filterparams.append(FilterParams(typename='PassThroughFilter'))
+
+        args = deepcopy(condargs)
+        args.append(filterparams)
+        clique = None
+        try:
+            clique = clique_list.index(condargs)
+        except ValueError:
+            # seen for the first time
+            clique_list.append(condargs)
+            clique = len(clique_list)-1
+
         repcondargs.append(RepeatedConditionParams(tree_id = ncp,
                                                    tree_pid=0,
+                                                   clique=clique,
                                                    chainPartInd=chainPartInd,
                                                    multiplicity=multiplicity,
                                                    condargs=condargs))
 
-        # make an empty filter condition for the FR condition
-        filterparams.append(FilterParams(typename='PassThroughFilter'))
 
     # treevec[i] gives the tree_id of the parent of the
     # node with tree_id = i

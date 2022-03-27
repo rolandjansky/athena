@@ -67,7 +67,7 @@ StatusCode MMDigitVariables::fillVariables(const MuonGM::MuonDetectorManager* Mu
 
       // get the readout element class where the digit is recorded
       int isSmall = (stName[2] == 'S');
-      const MuonGM::MMReadoutElement* rdoEl = MuonDetMgr->getMMRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet);
+      const MuonGM::MMReadoutElement* rdoEl = MuonDetMgr->getMMReadoutElement(Id);
       if (!rdoEl) throw std::runtime_error(Form("File: %s, Line: %d\nMMDigitVariables::fillVariables() - Failed to retrieve MMReadoutElement for isSmall=%d, stationEta=%d, stationPhi=%d, multiplet=%d", __FILE__, __LINE__, isSmall, stationEta, stationPhi, multiplet));
 
       // information from VMM chip
@@ -119,7 +119,7 @@ StatusCode MMDigitVariables::fillVariables(const MuonGM::MuonDetectorManager* Mu
         globalPosZ.push_back(0.);
 
         //retrieve the detailed identifier for the strip form the chip response
-        Identifier cr_id = m_MmIdHelper->channelID(stationName, stationEta, stationPhi, multiplet, gas_gap, cr_strip, true, &isValid);
+        Identifier cr_id = m_MmIdHelper->channelID(stationName, stationEta, stationPhi, multiplet, gas_gap, cr_strip, isValid);
         if (!isValid) {
           ATH_MSG_WARNING("MMDigitVariables: failed to create a valid ID for (chip response) strip n. " << cr_strip
                        << "; associated positions will be set to 0.0.");
@@ -168,7 +168,7 @@ StatusCode MMDigitVariables::fillVariables(const MuonGM::MuonDetectorManager* Mu
         sr_globalPosZ.push_back(0.);
 
         //retrieve the detailed identifier for the strip form the strip response
-        Identifier sr_id = m_MmIdHelper->channelID(stationName, stationEta, stationPhi, multiplet, gas_gap, sr_strip, true, &isValid);
+        Identifier sr_id = m_MmIdHelper->channelID(stationName, stationEta, stationPhi, multiplet, gas_gap, sr_strip, isValid);
         if (!isValid) {
           ATH_MSG_WARNING("MMDigitVariables: failed to create a valid ID for (chip response) strip n. " << sr_strip
                        << "; associated positions will be set to 0.0.");

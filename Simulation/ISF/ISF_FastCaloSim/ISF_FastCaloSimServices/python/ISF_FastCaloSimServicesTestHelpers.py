@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """FastCaloSimServices test helpers
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 
 from argparse import ArgumentParser
@@ -56,14 +56,15 @@ def defaultTestFlags(configFlags, args):
     configFlags.Common.ProductionStep = ProductionStep.Simulation
 
     # Sim configFlags
-    configFlags.Sim.TruthStrategy = "MC15aPlus"
+    from G4AtlasApps.SimEnums import BeamPipeSimMode, CalibrationRun, LArParameterization, SimulationFlavour, TruthStrategy
+    configFlags.Sim.TruthStrategy = TruthStrategy.MC15aPlus
     configFlags.Sim.PhysicsList = "FTFP_BERT_ATL"
-    configFlags.Sim.CalibrationRun = "Off" #"DeadLAr" 
+    configFlags.Sim.CalibrationRun = CalibrationRun.Off 
     configFlags.Sim.RecordStepInfo = False
-    configFlags.Sim.BeamPipeSimMode = 'FastSim'
+    configFlags.Sim.BeamPipeSimMode = BeamPipeSimMode.FastSim
     configFlags.Sim.ReleaseGeoModel = False
     configFlags.Sim.ISFRun = True
-    configFlags.Sim.ISF.Simulator = "ATLFAST3MT"
+    configFlags.Sim.ISF.Simulator = SimulationFlavour.ATLFAST3MT
     configFlags.Sim.FastCalo.ParamsInputFilename = "FastCaloSim/MC16/TFCSparam_run2_reprocessing.root"
     configFlags.Sim.FastCalo.CaloCellsName = "AllCalo"
 
@@ -77,7 +78,7 @@ def defaultTestFlags(configFlags, args):
     setupDetectorsFromList(configFlags, detectors, toggle_geometry=True)
 
     # Frozen showers OFF = 0
-    configFlags.Sim.LArParameterization = 0
+    configFlags.Sim.LArParameterization = LArParameterization.NoFrozenShowers
 
     if args.output:
         if args.output == 'None':

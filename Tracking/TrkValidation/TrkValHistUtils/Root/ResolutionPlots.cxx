@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkValHistUtils/ResolutionPlots.h"
@@ -20,7 +20,7 @@ namespace Trk {
   }
 
   void
-  ResolutionPlots::fill(const xAOD::TrackParticle &trkprt, const xAOD::TruthParticle &truthprt, float weight) {
+  ResolutionPlots::fill(const xAOD::TrackParticle &trkprt, const xAOD::TruthParticle &truthprt, float weight) const {
     Res_pT->Fill((trkprt.pt() - truthprt.pt()) / truthprt.pt(), weight);
     Res_eta->Fill(trkprt.eta() - truthprt.eta(),weight);
     Res_phi->Fill(trkprt.phi() - truthprt.phi(),weight);

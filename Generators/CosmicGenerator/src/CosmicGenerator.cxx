@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // -------------------------------------------------------------
@@ -92,7 +92,6 @@ CosmicGenerator::CosmicGenerator(const std::string& name,
   m_GeV = 1000;
   m_mm  = 10;
   m_readfile = false;
-  m_activeStore = 0;
 
   m_events = 0;
   m_rejected = 0;

@@ -226,7 +226,7 @@ public:
     ParticleHypothesis particle,
     std::vector<unsigned int>& solutions,
     std::vector<const Trk::TrackStateOnSurface*>*& matstates,
-    std::vector<std::pair<const Trk::TrackParameters*, int>>*& intersections,
+    std::vector<std::pair<std::unique_ptr<Trk::TrackParameters>, int>>* intersections,
     double& path,
     bool usePathLimit = false,
     bool returnCurv = false,
@@ -344,7 +344,7 @@ public:
     std::vector<const Trk::TrackStateOnSurface*>* m_matstates{
       nullptr
     }; //!< cache of TrackStateOnSurfaces
-    std::vector<std::pair<const Trk::TrackParameters*, int>>* m_identifiedParameters{
+    std::vector<std::pair<std::unique_ptr<Trk::TrackParameters>, int>>* m_identifiedParameters{
       nullptr
     };                                                 //!< cache of intersections
     std::vector<Trk::HitInfo>* m_hitVector{ nullptr }; //!< cache of intersections/hit info

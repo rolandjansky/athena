@@ -149,8 +149,3 @@ topSequence+=EFexEratioRateAlgo(name="EFexEratioRateAlgoCl95",InputClusterName="
 
 topSequence+=EFexEratioAlgo(name="EFexEratioAlgoCl95f",InputClusterName="SClusterCl",rEtaThreshold=0.825,f3Threshold=0.025,rEratioThreshold=0.68)
 topSequence+=EFexEratioRateAlgo(name="EFexEratioRateAlgoCl95f",InputClusterName="SClusterCl",rEtaThreshold=0.825,f3Threshold=0.025,rEratioThreshold=0.68)
-
-import GaudiSvc.GaudiSvcConf as GaudiSvcConf
-svcMgr += GaudiSvcConf.StatusCodeSvc()
-svcMgr.StatusCodeSvc.AbortOnError=False
-

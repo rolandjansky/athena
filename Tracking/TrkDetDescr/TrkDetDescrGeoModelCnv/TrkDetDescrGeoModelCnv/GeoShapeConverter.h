@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -50,16 +50,16 @@ namespace Trk {
         virtual ~GeoShapeConverter(){}
     
         /** Convert a tubs */
-        CylinderVolumeBounds* convert(const GeoTubs* gtub) const;
+        static CylinderVolumeBounds* convert(const GeoTubs* gtub) ;
 
         /** Convert a tube */
-        CylinderVolumeBounds* convert(const GeoTube* gtub) const;
+        static CylinderVolumeBounds* convert(const GeoTube* gtub) ;
 
         /** Convert a Polygon into a CylinderVolume -> smooth it*/
-        CylinderVolumeBounds* convert(const GeoPcon* gtub,  std::vector<double>& zbounds) const;
+        static CylinderVolumeBounds* convert(const GeoPcon* gtub,  std::vector<double>& zbounds) ;
 
         /** Convert a Box */
-        CuboidVolumeBounds* convert(const GeoBox* gbox) const;
+        static CuboidVolumeBounds* convert(const GeoBox* gbox) ;
 
         /** Convert an arbitrary GeoShape into Trk::Volume */
         Volume* translateGeoShape( const GeoShape*, Amg::Transform3D* ) const;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -235,7 +235,7 @@ SCT_IDDetDescrCnv::classID() {
 SCT_IDDetDescrCnv::SCT_IDDetDescrCnv(ISvcLocator* svcloc) 
     :
     DetDescrConverter(ClassID_traits<SCT_ID>::ID(), svcloc),
-    m_sctId(0),
+    m_sctId(nullptr),
     m_doChecks(false)
 
 {}

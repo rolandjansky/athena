@@ -253,10 +253,10 @@ namespace Muon {
         if (m_mdtIdHelper->stationNameString(stationName(id)).find("BI") != std::string::npos) {
             // now try to retrieve RPC identifier with the same station name/eta/phi and check if it is valid
             bool isValid = false;
-            m_rpcIdHelper->elementID(stationName(id), stationEta(id), stationPhi(id), 1, true, &isValid,
-                                     true);  // last 4 arguments are: doubletR, check, isValid, noPrint
-            if (isValid)
-                sMdt = true;  // there is a BI RPC in the same station, thus, this station was already upgraded and sMDTs are present
+            m_rpcIdHelper->elementID(stationName(id), stationEta(id), stationPhi(id), 1,  isValid);            
+                                      // last 4 arguments are: doubletR, check, isValid
+           sMdt = isValid;
+            // there is a BI RPC in the same station, thus, this station was already upgraded and sMDTs are present
         }
         return sMdt;
     }

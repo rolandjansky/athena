@@ -19,6 +19,7 @@
 #include "MonitoredRange.h"
 
 #include <unordered_map>
+#include <mutex>
 
 #include "TH1.h"
 #include "TTree.h"
@@ -139,7 +140,7 @@ class TrigCostAnalysis: public ::AthAlgorithm {
     SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_rosDataKey { this, "CostROSReadHandleKey", "HLT_TrigCostROSContainer",
       "Trigger ROS cost payload container for algorithms" };
 
-    SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_metadataDataKey { this, "CostMetadataWriteHandleKey", "",
+    SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_metadataDataKey { this, "CostMetadataWriteHandleKey", "HLT_RuntimeMetadata",
       "TrigComposite collections with additional cost metadata" };
 
     SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu",
@@ -214,6 +215,8 @@ class TrigCostAnalysis: public ::AthAlgorithm {
 
     mutable std::atomic<size_t> m_fullEventDumps; //!< Counter to keep track of how many events have been full-dumped
     mutable std::atomic<size_t> m_maxViewsNumber; //!< What is the maximum number of View instances we've so far cached string hashes to cover?
+    std::mutex m_addHostnameMutex; //!< Mutex to update set below
+    mutable std::set<std::string> m_hostnames ATLAS_THREAD_SAFE; //!< Save unique hostnames for the run
 
 }; 
 

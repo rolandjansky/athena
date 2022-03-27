@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "src/TRTSensitiveDetector.h"
@@ -73,7 +73,7 @@ TEST_F( TRTSensitiveDetectortest, Initialize)
 		    2,              -1,            -1,          
 		    0,               0,             0,             
 	      "gamma",               0,             0,          22,
-	      true,               -1.0,          NULL,
+	      true,               -1.0,          nullptr,
              false,           "photon",          22
 	      );
 
@@ -96,7 +96,7 @@ TEST_F( TRTSensitiveDetectortest, ProcessHits )
 		    2,              -1,            -1,          
 		    0,               0,             0,             
 	      "gamma1",               0,             0,          22,
-	      true,               -1.0,          NULL,
+	      true,               -1.0,          nullptr,
              false,           "photon1",          22
 	      );
 
@@ -163,7 +163,7 @@ TEST_F( TRTSensitiveDetectortest, AddHit )
                     2,              -1,            -1,
                     0,               0,             0,
               "gamma2",               0,             0,          22,
-              true,               -1.0,          NULL,
+              true,               -1.0,          nullptr,
              false,           "photon2",          22
               );
 

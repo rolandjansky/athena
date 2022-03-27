@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <utility>
@@ -37,7 +37,7 @@ namespace Trk {
   }
 
   void
-  ParamPlots::fill(const xAOD::IParticle &prt, float weight) {
+  ParamPlots::fill(const xAOD::IParticle &prt, float weight) const {
     pt->Fill(prt.pt() * 0.001, weight); 
     eta->Fill(prt.eta(),weight);
     phi->Fill(prt.phi(),weight);

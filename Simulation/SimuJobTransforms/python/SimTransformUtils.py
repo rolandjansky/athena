@@ -150,12 +150,14 @@ def addDigitizationArguments(parser):
     addPureDigitizationArguments(parser)
 
 def addHITSValidArguments(parser):
-    from SimuJobTransforms.simTrfArgs import addHITSValidArgs
+    from SimuJobTransforms.simTrfArgs import addHITSValidArgs, addCommonSimDigTrfArgs
     addHITSValidArgs(parser)
+    addCommonSimDigTrfArgs(parser)
 
 def addRDOValidArguments(parser):
-    from SimuJobTransforms.simTrfArgs import addRDOValidArgs
+    from SimuJobTransforms.simTrfArgs import addRDOValidArgs, addCommonSimDigTrfArgs
     addRDOValidArgs(parser)
+    addCommonSimDigTrfArgs(parser)
 
 ### Add Sub-step Methods
 ## @brief Add ISF transform substep

@@ -2,6 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
 
 
 def ITkPrdAssociationToolCfg(flags, name='ITkPrdAssociationTool',**kwargs) :
@@ -83,9 +84,7 @@ def ITkTrackHoleSearchToolCfg(flags, name='ITkHoleSearchTool', **kwargs):
   if 'BoundaryCheckTool' not in kwargs:
     kwargs.setdefault('BoundaryCheckTool', result.popToolsAndMerge(ITkBoundaryCheckToolCfg(flags)))
 
-  if flags.Beam.Type == "cosmics":
-    kwargs.setdefault("Cosmics", True)
-
+  kwargs.setdefault("Cosmics", flags.Beam.Type is BeamType.Cosmics)
   kwargs.setdefault("CountDeadModulesAfterLastHit", True)
 
   result.setPrivateTools(CompFactory.InDet.InDetTrackHoleSearchTool(name, **kwargs))

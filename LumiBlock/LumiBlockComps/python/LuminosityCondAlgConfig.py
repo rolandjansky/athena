@@ -1,14 +1,13 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 # File: LumiBlockComps/python/LuminosityCondAlgConfig.py
 # Created: May 2019, sss, from existing LuminosityToolDefault.
 # Purpose: Configure LuminosityCondAlg.
 #
 
-from __future__ import print_function
-
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.Enums import BeamType
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 from AthenaCommon.Logging import logging
 
@@ -96,7 +95,7 @@ def luminosityCondAlgRun2Cfg (configFlags, name, result):
     kwargs['FillParamsInputKey'] = ''
 
     # if cosmics, suppress warnings.
-    if configFlags.Beam.Type == 'cosmics':
+    if configFlags.Beam.Type is BeamType.Cosmics:
         kwargs['ExpectInvalid'] = True
 
     return kwargs

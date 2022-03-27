@@ -14,6 +14,7 @@ import json
 from TrigValTools.TrigValSteering.ExecStep import ExecStep
 from TrigValTools.TrigValSteering.Step import Step
 from TrigValTools.TrigValSteering.CheckSteps import RefComparisonStep
+from TrigValTools.TrigValSteering.Common import find_file
 from AthenaCommon.Utils.unixtools import FindFile
 
 ##################################################
@@ -92,25 +93,20 @@ class TrigInDetReco(ExecStep):
             if (i=='L2electronLRT') :
                 chains += "'HLT_e5_idperf_loose_lrtloose_L1EM3',"
                 chains += "'HLT_e26_idperf_loose_lrtloose_L1EM22VHI',"
+                chains += "'HLT_e26_lhtight_ivarloose_e5_lhvloose_nopix_lrtloose_idperf_probe_L1EM22VHI',"
+                chains += "'HLT_e5_lhvloose_nopix_lrtloose_idperf_probe_g25_medium_L1EM20VH',"
                 flags += 'doEgammaSlice=True;'
             if (i=='electron') :
                 # chains +=  "'HLT_e5_etcut_L1EM3',"  ## need an idperf chain once one is in the menu
                 # chains +=  "'HLT_e17_lhvloose_nod0_L1EM15VH',"
                 chains += "'HLT_e26_lhtight_gsf_ivarloose_L1EM22VHI',"
                 chains += "'HLT_e26_idperf_gsf_tight_L1EM22VHI',"
-                chains += "'HLT_e26_idperf_loose_L1EM24VHI',"
-                chains += "'HLT_e28_idperf_loose_L1EM24VHI',"
-                chains += "'HLT_e5_idperf_loose_L1EM3',"
+                chains += "'HLT_e26_idperf_loose_L1EM22VHI',"
                 chains += "'HLT_e5_idperf_tight_L1EM3',"
                 flags += 'doEgammaSlice=True;'
             if (i=='electron-tnp') :
-                chains += "'HLT_e26_lhtight_gsf_ivarloose_L1EM22VHI',"
-                chains += "'HLT_e26_idperf_gsf_tight_L1EM22VHI',"
-                chains += "'HLT_e26_idperf_loose_L1EM24VHI',"
-                chains += "'HLT_e28_idperf_loose_L1EM24VHI',"
-                chains += "'HLT_e5_idperf_loose_L1EM3',"
-                chains += "'HLT_e5_idperf_tight_L1EM3',"
-                chains += "'HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI',"
+                chains += "'HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI',"
+                chains += "'HLT_e26_lhtight_e14_etcut_idperf_gsf_probe_50invmAB130_L1EM22VHI',"
                 flags += 'doEgammaSlice=True;'
             if (i=='tau') :
                 chains +=  "'HLT_tau25_idperf_tracktwoMVA_L1TAU12IM',"
@@ -120,7 +116,7 @@ class TrigInDetReco(ExecStep):
                 chains += "'HLT_j45_0eta290_020jvt_pf_ftf_boffperf_L1J20',"
                 flags  += 'doBjetSlice=True;'
             if ( i=='fsjet' or i=='fs' or i=='jet' ) :
-                chains += "'HLT_j45_ftf_L1J15',"
+                chains += "'HLT_j45_pf_ftf_preselj20_L1J15',"
                 flags  += 'doJetSlice=True;'
             if (i=='beamspot') :
                 chains += "'HLT_beamspot_allTE_trkfast_BeamSpotPEB_L1J15','HLT_beamspot_trkFS_trkfast_BeamSpotPEB_L1J15',"
@@ -215,6 +211,69 @@ class TrigCostStep(Step):
         self.executable = 'RunTrigCostAnalysis.py'
 
 
+##################################################
+# Exec (athenaHLT) step running runHLT_Standalone.py on data
+##################################################
+class TrigInDetRecoData(ExecStep):
+    def __init__(self, name='TrigInDetRecoData'):
+#        super(TrigInDetRecoData, self).__init__(name)
+        ExecStep.__init__(self, name)
+        self.type = 'athenaHLT'
+        self.job_options = 'TriggerJobOpts/runHLT_standalone.py'
+        self.max_events=-1
+        self.required = True
+        self.threads = 1 # TODO: change to 4
+        self.concurrent_events = 1 # TODO: change to 4
+        self.perfmon = False
+        self.timeout = 18*3600
+        self.input = ''
+        self.perfmon=False
+        self.imf=False
+        self.args = '-c "setMenu=\'Cosmic_run3_v1\';doCosmics=True;doL1Sim=True;rewriteLVL1=True;"'
+        self.args += ' -o output'
+
+
+##################################################
+# Additional exec (athena) steps - extract Physics_Main when running on data
+##################################################
+
+class TrigBSExtr(ExecStep):
+    def __init__(self, name='TrigBSExtr'):
+        super(TrigBSExtr, self).__init__(name)
+        self.type = 'other'
+        self.executable = 'trigbs_extractStream.py'
+        self.input = ''
+        self.args = '-s Main ' + find_file('*_HLTMPPy_output.*.data')
+
+
+##################################################
+# Additional exec (athena) steps - Toer0 Reco (BS->ESD->AOD)
+##################################################
+
+class TrigTZReco(ExecStep):
+    def __init__(self, name='TrigTZReco'):
+        super(TrigTZReco, self).__init__(name)
+        self.type = 'Reco_tf'
+        tzrecoPreExec = ' '.join([
+            "from AthenaConfiguration.AllConfigFlags import ConfigFlags;",
+            "ConfigFlags.Trigger.triggerMenuSetup=\'Cosmic_run3_v1\';",
+            "ConfigFlags.Trigger.AODEDMSet=\'AODFULL\';",
+            "ConfigFlags.Trigger.enableL1MuonPhase1=True;",
+            "ConfigFlags.Trigger.enableL1CaloPhase1=True;",
+            ])
+        self.threads = 1
+        self.concurrent_events = 1
+        self.input = ''
+        self.explicit_input = True
+        self.max_events = -1
+        self.args = '--inputBSFile=' + find_file('*.physics_Main*._athenaHLT*.data')  # output of the previous step
+        self.args += ' --outputESDFile=ESD.pool.root --outputAODFile=AOD.pool.root'
+        self.args += ' --conditionsTag=\'CONDBR2-BLKPA-RUN2-06\' --geometryVersion=\'ATLAS-R2-2016-01-00-01\''
+        self.args += ' --preExec="{:s}"'.format(tzrecoPreExec)
+        self.args += ' --postInclude="TriggerTest/disableChronoStatSvcPrintout.py"'
+
+
+
 
 ##################################################
 # Additional post-processing steps
@@ -272,7 +331,11 @@ def json_chains( slice ) :
         return None
         
     with open(json_fullpath) as f:
-        data = json.load(f)
+        try:
+            data = json.load(f)
+        except json.decoder.JSONDecodeError as e:
+            print(f"Failed to load json file {json_fullpath}")
+            raise e
 
     chainmap = data[slice]
 
@@ -298,7 +361,8 @@ class TrigInDetCompStep(RefComparisonStep):
         os.system( 'get_files -data TIDAhistos-vtx.dat &> /dev/null' )
         os.system( 'get_files -data TIDAhisto-panel-TnP.dat &> /dev/null' )
         os.system( 'get_files -data TIDAhisto-tier0.dat &> /dev/null' )
-    
+        os.system( 'get_files -data TIDAhisto-tier0-vtx.dat &> /dev/null' )
+        os.system( 'get_files -data TIDAhisto-tier0-TnP.dat &> /dev/null' )    
 
     def configure(self, test):
         RefComparisonStep.configure(self, test)

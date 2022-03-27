@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */ 
 /**
  * @file PixelConditionsAlgorithms/PixelOfflineCalibCondAlg.h
@@ -19,7 +19,6 @@
 #include "StoreGate/WriteCondHandleKey.h"
 #include "PixelConditionsData/PixelOfflineCalibData.h"
 
-#include "GaudiKernel/ICondSvc.h"
 #include "Gaudi/Property.h"
 
 class PixelOfflineCalibCondAlg : public AthReentrantAlgorithm {
@@ -51,8 +50,6 @@ class PixelOfflineCalibCondAlg : public AthReentrantAlgorithm {
 
     SG::WriteCondHandleKey<PixelCalib::PixelOfflineCalibData> m_writeKey
     {this, "WriteKey", "PixelOfflineCalibData", "Output key of pixel module data"};
-
-    ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 };
 
 #endif

@@ -1,0 +1,322 @@
+/// emacs: this is -*- c++ -*- 
+
+panels = {  sum_panel, eff_panel, res_panel, diff_panel, spoff_panel, sp_panel, trt_panel, mult_panel, dist_panel, d0_panel, z0_panel, beam_panel };
+
+
+dist_panel = { 
+  "reftrk_pT",     "p_{T}",     "xaxis:log:auto:0.5:400",   "Offline p_{T} [GeV]",   "yaxis:log:autonw",   "(1/N)dN/dp_{T} [GeV^{-1}]"  ,
+  "reftrk_eta",     "eta",      "xaxis:lin:-3:3",         "Offline #eta",          "yaxis:lin:auton",    "Normalised entries"  ,
+  "reftrk_phi",     "phi",      "xaxis:lin:-3.14:3.14",   "Offline #phi",          "yaxis:lin:auton",    "Normalised entries"  ,
+
+  "testtrk_pT",    "p_{T} rec", "xaxis:log:auto:0.5:400",   "Trigger p_{T} [GeV]",   "yaxis:log:autonw",   "(1/N)dN/dp_{T} [GeV^{-1}]"  ,
+  "testtrk_eta",    "eta rec",  "xaxis:lin:-3:3",         "Trigger #eta",          "yaxis:lin:auton",    "Normalised entries"  ,
+  "testtrk_phi",    "phi rec",  "xaxis:lin:-3.14:3.14",   "Trigger #phi",          "yaxis:lin:auton",    "Normalised entries",
+  "invmass",      "Tracks M_{INV}^{tag+probe}",      "xaxis:lin:autow",        "Offline tracks M_{INV} [GeV]",     "yaxis:lin:autow",  "Entries"  , 
+  "invmass_obj",  "Electrons M_{INV}^{tag+probe}",       "xaxis:lin:autow",        "Offline dielectron M_{INV} [GeV]",     "yaxis:lin:autow",  "Entries" 
+};
+
+
+d0_panel = { 
+  "reftrk_d0",     "a0",        "xaxis:lin:-2:2",         "Offline a_{0} [mm]",                  "yaxis:log:auton",    "(1/N)dN"  ,
+  "reftrk_dd0",    "Delta a0",  "xaxis:lin:-0.1:2",       "Offline a_{0} error estimate [mm]",   "yaxis:log:auton",    "Normalised entries"  ,
+  "reftrk_d0sig",  "a0 significance",   "xaxis:lin:autosym",    "Offline a_{0} significance",    "yaxis:log:auton",    "Normalised entries"  ,
+
+  "testtrk_d0",    "a0 rec",         "xaxis:lin:-2:2",   "Trigger a_{0} [mm]",    "yaxis:log:auton",    "Normalised entries"  ,
+  "testtrk_dd0",   "Delta a0 rec",  "xaxis:lin:-0.1:2",  "Trigger a_{0} error estimate [mm]",    "yaxis:log:auton",    "Normalised entries"  ,
+  "testtrk_d0sig", "a0 rec significance",    "xaxis:lin:autosym",         "Trigger a_{0} significance",    "yaxis:log:auton",    "Normalised entries"  ,
+};
+
+
+eff_panel = { 
+  "Eff_pT",       "Efficiency p_{T}", "xaxis:log:0.5:200",       "Offline track p_{T} [GeV]",    "yaxis:lin:auto:0.9:1.02",     "Efficiency " ,   
+  "Eff_Eta",      "Efficiency #eta",  "xaxis:lin:-2.5:2.5",    "Offline track #eta",           "yaxis:lin:auto:0.9:1.02",     "Efficiency " ,   
+  "Eff_Phi",      "Efficiency #phi",  "xaxis:lin",             "Offline track #phi",           "yaxis:lin:auto:0.9:1.02",     "Efficiency " ,    
+
+  "Eff_nVtx",     "Efficiency nVtx", "xaxis:lin:auto",         "Offline vertex multiplicity",  "yaxis:lin:auto:0.9:1.02",   "Efficiency " ,       
+  "Eff_d0",       "Efficiency d0",   "xaxis:lin:autosym",      "Offline track d_{0} [mm]",     "yaxis:lin:auto:0.9:1.02",   "Efficiency " ,       
+  "Eff_z0",       "Efficiency z0",   "xaxis:lin:-250:250",     "Offline track z_{0} [mm]",     "yaxis:lin:auto:0.9:1.02",   "Efficiency " 
+};
+
+
+res_panel = { 
+  "residual_eta",   "Residual #eta",     "xaxis:lin:-0.05:0.05",    "#Delta#eta",                   "yaxis:log:auton",    "Normalised entries" ,       
+  "residual_z0",    "Residual z0",       "xaxis:lin:-10:10",        "#Delta z_{0} [mm]",            "yaxis:log:auton",    "Normalised entries" ,
+  "residual_dz0",   "Residual sig z0",    "xaxis:lin:-10:10",        "#Delta #sigma(z_{0}) [mm]",   "yaxis:log:auton",    "Normalised entries" ,
+  
+  "residual_phi",   "Residual #phi",     "xaxis:lin:-0.05:0.05",    "#Delta#phi",                   "yaxis:log:auton",    "Normalised entries" ,
+  "residual_d0",    "Residual a0",       "xaxis:lin:-1:1",          "#Delta d_{0} [mm]",            "yaxis:log:auton",    "Normalised entries" ,       
+  "residual_dd0",   "Residual sig a0",   "xaxis:lin:-1:1",          "#Delta #sigma(d_{0}) [mm]",     "yaxis:log:auton",   "Normalised entries"        
+};
+
+
+sum_panel = { 
+  "Chain",        "chain",           "xaxis:lin",        "Chain counts",          "yaxis:log:auto",   "counts"  , 
+  "reftrk_N",     "N tracks",        "xaxis:lin:auto",   "Offline multiplicity",  "yaxis:log:auton:0.01:0.5",    "Normalised entries"  ,
+  "Eff_lb",       "Efficiency lb",   "xaxis:lin:auto",   "Luminosity block",      "yaxis:lin:auto:0.8:1.02",   "Efficiency " ,
+
+  "Eff_overall",  "Efficiency overall",  "xaxis:lin:auto",   "",                    "yaxis:lin:auto:0.8:1.02",  "Efficiency " ,        
+  "testtrk_N",    "N tracks rec",        "xaxis:lin:auto",   "Online multiplicity", "yaxis:log:autown:0.01:0.5", "(1/Nev)dNev/dn(tracks)"  ,
+  "nsihits_lb",   "Si hits per lb",      "xaxis:lin:auto",   "Luminosity block",    "yaxis:lin:auto:14:18",     "Offline Si multiplicity"
+};
+
+
+spoff_panel = { 
+  "npix_vs_eta",          "mean number of offline pixel hits",  "xaxis:lin",         "Offline #eta",     "yaxis:lin:3:7:auto",    "Offline pixel hits"    ,
+  "npix_vs_phi",          "mean number of offline pixel hits",  "xaxis:lin:auto",    "Offline #phi",     "yaxis:lin:3:7:auto",    "Offline pixel hits"    ,
+  "npix_vs_d0",           "mean number of offline pixel hits",  "xaxis:lin:autosym", "Offline d0 [mm]",     "yaxis:lin:auto:0:5",    "Offline pixel hits"    ,
+
+  "nsct_vs_eta",          "mean number of offline SCT hits",    "xaxis:lin",          "Offline #eta",     "yaxis:lin:7:11",  "Offline SCT clusters"  ,
+  "nsct_vs_phi",          "mean number of offline SCT hits",    "xaxis:lin:auto",     "Offline #phi",     "yaxis:lin:7:11",  "Offline SCT clusters"  ,
+  "nsct_vs_d0",           "mean number of offline SCT hits",    "xaxis:lin:autosym",  "Offline d0 [mm]",     "yaxis:lin:auto:6:10",   "Offline SCT clusters" 
+};
+
+
+sp_panel = { 
+  "npix_vs_eta_rec",        "mean number of trigger pixel hits",  "xaxis:lin",         "Offline #eta",     "yaxis:lin:3:7:auto",    "Trigger pixel hits"    ,
+  "npix_vs_phi_rec",        "mean number of trigger pixel hits",  "xaxis:lin:auto",   "Offline #phi",      "yaxis:lin:3:7:auto",    "Trigger pixel hits"    ,
+  "npix_vs_d0_rec",         "mean number of trigger pixel hits",  "xaxis:lin:autosym",    "Offline d0 [mm]",     "yaxis:lin:auto:0:5",    "Trigger pixel hits"    ,
+
+  "nsct_vs_eta_rec",        "mean number of trigger SCT hits",    "xaxis:lin",          "Offline #eta",    "yaxis:lin:7:11",  "Trigger SCT clusters"  ,
+  "nsct_vs_phi_rec",        "mean number of trigger SCT hits",    "xaxis:lin:auto",    "Offline #phi",     "yaxis:lin:7:11",  "Trigger SCT clusters"  ,
+  "nsct_vs_d0_rec",         "mean number of trigger SCT hits",    "xaxis:lin:autosym",    "Offline d0 [mm]",     "yaxis:lin:auto:6:10",   "Trigger SCT clusters"
+};
+
+
+beam_panel = { 
+  "trkvtx_x_vs_lb",  "x beamline vs lb",    "xaxis:lin:auto",   "Luminosity block",    "yaxis:lin:-1500:1500:auto",  "Trigger beamspot x [mm]",
+  "trkvtx_y_vs_lb",  "y beamline vs lb",    "xaxis:lin:auto",   "Luminosity block",    "yaxis:lin:-1500:1500:auto",  "Trigger beamspot y [mm]",
+  "trkvtx_z_vs_lb",  "z beamline vs lb",    "xaxis:lin:auto",   "Luminosity block",    "yaxis:lin:-250:250:auto",  "Trigger beamspot z [mm]",
+  
+  "Eff_lb",       "Efficiency lb",   "xaxis:lin:auto",   "Luminosity block",      "yaxis:lin:auto:0.8:1.02",   "Efficiency " ,
+  "d0_vs_phi_prof",      "d0 vs #phi",        "xaxis:lin",   "Offline #phi",    "yaxis:-0.1:0.15",  "Offline d0 [mm]",
+  "d0_vs_phi_rec_prof",  "d0 vs #phi rec",    "xaxis:lin",   "Trigger #phi",    "yaxis:-0.1:0.15",  "Trigger d0 [mm]"
+};
+
+
+mult_panel = { 
+  "npix",          "Offline pixel multiplicity",  "xaxis:lin",   "Offline Pixel hit multiplicity",  "yaxis:lin:auton", "Tracks"    ,  
+  "nsct",          "Offline sct multiplicity",    "xaxis:lin",   "Offline SCT hit multiplicity",    "yaxis:lin:auton",  "Tracks"    ,
+  "ntrt",          "Offline TRT multiplicity",    "xaxis:lin",   "Offline TRT hit multiplicity",    "yaxis:log:auton",  "Tracks"    ,
+  
+  "npix_rec",      "Trigger pixel multiplicity",  "xaxis:lin",   "Trigger Pixel hit multiplicity",  "yaxis:lin:auton", "Tracks"    ,
+  "nsct_rec",      "Trigger sct multiplicity",    "xaxis:lin",   "Trigger SCT hit multiplicity",    "yaxis:lin:auton",  "Tracks"    ,
+  "ntrt_rec",      "Trigger TRT multiplicity",    "xaxis:lin",   "Trigger TRT hit multiplicity",    "yaxis:log:auton",  "Tracks"    ,
+};
+
+
+trt_panel = {
+  "ntrt",          "Offline TRT multiplicity",    "xaxis:lin",   "Offline TRT hit multiplicity",    "yaxis:log:auton",  "Tracks"    ,
+  "ntrt_vs_eta",            "mean number of offline TRT hits",    "xaxis:lin:auto",    "Offline #eta",     "yaxis:lin:auto:0:50",  "Offline TRT hit multiplicity"  ,
+  "ntrt_vs_phi",        "Offline TRT vs phi",    "xaxis:lin",  "Offline #phi",   "yaxis:lin:auto:0:50",   "Offline TRT hit multiplicity",
+
+  "ntrt_rec",      "Trigger TRT multiplicity",    "xaxis:lin",   "Trigger TRT hit multiplicity",    "yaxis:log:auton",  "Tracks"    ,
+  "ntrt_vs_eta_rec",        "mean number of trigger TRT hits",    "xaxis:lin:auto",    "Trigger #eta",     "yaxis:lin:auto:0:50",  "Trigger TRT hit multiplicity"  ,
+  "ntrt_vs_phi_rec",    "Trigger TRT vs phi",    "xaxis:lin",  "Offline #phi",   "yaxis:lin:auto:0:50",   "Trigger TRT hit multiplicity",
+};
+
+
+z0_panel = { 
+  "reftrk_z0",     "z0",        "xaxis:lin:-250:250",     "Offline z_{0} [mm]",    "yaxis:log:auton",    "Normalised entries"  ,
+  "reftrk_dz0",     "Delta z0",        "xaxis:lin:-0.5:2",         "Offline z_{0} error estimate [mm]",    "yaxis:log:auton",    "Normalised entries"  ,
+  "residual_z0",    "Residual z0",       "xaxis:lin:-10:10",        "#Delta z_{0} [mm]",            "yaxis:log:auton",    "Normalised entries" ,
+
+  "testtrk_z0",    "z0 rec",    "xaxis:lin:-250:250",     "Trigger z_{0} [mm]",    "yaxis:log:auton",    "Normalised entries"  ,
+  "testtrk_dz0",    "Delta z0 rec",    "xaxis:lin:-0.5:2",         "Trigger z_{0} error estimate [mm]",    "yaxis:log:auton",    "Normalised entries"  ,
+  "residual_dz0",   "Residual sig z0",    "xaxis:lin:-10:10",        "#Delta #sigma(z_{0}) [mm]",   "yaxis:log:auton",    "Normalised entries" 
+};
+
+
+
+diff_panel =  {
+  "Res_eta",        "Residual #eta vs #eta",        "xaxis:lin",           "Offline #eta",          "yaxis:lin:auto:-0.002:0.002",  "d#eta profile" ,            
+  "Res_phi",        "Residual #phi vs #eta",        "xaxis:lin",           "Offline #eta",          "yaxis:lin:auto:-0.002:0.002",  "d#phi profile" ,            
+  "Res_pT",         "Residual pT vs #eta",           "xaxis:lin",           "Offline #eta",          "yaxis:lin:auto",  "dpT profile [GeV]" ,
+
+  "Res_d0",         "Residual d0 vs #eta",          "xaxis:lin",           "Offline #eta",          "yaxis:lin:auto:-0.5:0.5",       "dd_{0} profile [mm]" ,
+  "Res_z0",         "Residual z vs #eta",           "xaxis:lin",           "Offline #eta",          "yaxis:lin:auto:-0.5:0.5",       "dz_{0} profile [mm]" ,
+  "Res_ipT",        "Residual 1/pT vs #eta",         "xaxis:lin",           "Offline #eta",          "yaxis:lin:auto",  "d(1/pT) profile [GeV^{-1}]"
+};
+
+
+
+
+
+mult2_panel = { 
+  "npix",          "Offline pixel multiplicity",  "xaxis:lin",   "Offline Pixel hit multiplicity",  "yaxis:lin:auton", "Tracks"    ,  
+  "nsct",          "Offline sct multiplicity",    "xaxis:lin",   "Offline SCT hit multiplicity",    "yaxis:lin:auton",  "Tracks"    ,
+  "nsiHits",          "Offline si multiplicity",    "xaxis:lin",   "Offline Si hit multiplicity",    "yaxis:lin:auton",  "Tracks"    ,
+  
+  "npix_rec",      "Trigger pixel multiplicity",  "xaxis:lin",   "Trigger Pixel hit multiplicity",  "yaxis:lin:auton", "Tracks"    ,
+  "nsct_rec",      "Trigger sct multiplicity",    "xaxis:lin",   "Trigger SCT hit multiplicity",    "yaxis:lin:auton",  "Tracks"    ,
+  "nsiHits_rec",      "Trigger si multiplicity",    "xaxis:lin",   "Trigger Si hit multiplicity",    "yaxis:lin:auton",  "Tracks"    ,
+};
+
+
+
+ang_panel = { 
+  "reftrk_eta",     "eta",      "xaxis:lin:-3:3",         "Offline #eta",          "yaxis:lin:auton",    "Normalised entries"  ,
+  "reftrk_phi",     "phi",      "xaxis:lin:-3.14:3.14",   "Offline #phi",          "yaxis:lin:auton",    "Normalised entries"  ,
+  "reftrk_z0",     "z0",        "xaxis:lin:-250:250",     "Offline z_{0} [mm]",    "yaxis:log:auton",    "Normalised entries"  ,
+  
+  "testtrk_eta",    "eta rec",  "xaxis:lin:-3:3",         "Trigger #eta",          "yaxis:lin:auton",    "Normalised entries"  ,
+  "testtrk_phi",    "phi rec",  "xaxis:lin:-3.14:3.14",   "Trigger #phi",          "yaxis:lin:auton",    "Normalised entries"  ,
+  "testtrk_z0",    "z0 rec",    "xaxis:lin:-250:250",     "Trigger z_{0} [mm]",    "yaxis:log:auton",    "Normalised entries"   
+};
+
+
+
+histos_duff = { 
+     
+  "Chain",     "chain",     "xaxis:lin",   "Chain counts",   "yaxis:log:auto",   "counts"  , 
+
+  /// distributions - 4
+  "reftrk_pT",     "p_{T}",     "xaxis:log:auto:0.5:400",   "Offline p_{T} [GeV]",   "yaxis:log:autonw",   "(1/N)dN/dp_{T} [GeV^{-1}]"  ,
+  "testtrk_pT",    "p_{T} rec", "xaxis:log:auto:0.5:400",   "Trigger p_{T} [GeV]",   "yaxis:log:autonw",   "(1/N)dN/dp_{T} [GeV^{-1}]"  ,
+
+  "reftrk_eta",     "eta",      "xaxis:lin:-3:3",         "Offline #eta",          "yaxis:lin:auton",    "Normalised entries"  ,
+  "testtrk_eta",    "eta rec",  "xaxis:lin:-3:3",         "Trigger #eta",          "yaxis:lin:auton",    "Normalised entries"  ,
+
+  "reftrk_phi",     "phi",      "xaxis:lin:-3.14:3.14",   "Offline #phi",          "yaxis:lin:auton",    "Normalised entries"  ,
+  "testtrk_phi",    "phi rec",  "xaxis:lin:-3.14:3.14",   "Trigger #phi",          "yaxis:lin:auton",    "Normalised entries"  ,
+
+
+
+
+  "reftrk_d0",     "a0",        "xaxis:lin:-2:2",         "Offline a_{0} [mm]",    "yaxis:log:auton",    "(1/N)dN"  ,
+  "testtrk_d0",    "a0 rec",    "xaxis:lin:-2:2",         "Trigger a_{0} [mm]",    "yaxis:log:auton",    "Normalised entries"  ,
+
+  "reftrk_dd0",     "Delta a0",        "xaxis:lin:-0.1:2",         "Offline a_{0} error estimate [mm]",    "yaxis:log:auton",    "Normalised entries"  ,
+  "testtrk_dd0",    "Delta a0 rec",    "xaxis:lin:-0.1:2",         "Trigger a_{0} error estimate [mm]",    "yaxis:log:auton",    "Normalised entries"  ,
+
+  "reftrk_d0sig",     "a0 significance",        "xaxis:lin:autosym",         "Offline a_{0} significance",    "yaxis:log:auton",    "Normalised entries"  ,
+  "testtrk_d0sig",    "a0 rec significance",    "xaxis:lin:autosym",         "Trigger a_{0} significance",    "yaxis:log:auton",    "Normalised entries"  ,
+
+
+
+  "reftrk_z0",     "z0",        "xaxis:lin:-250:250",     "Offline z_{0} [mm]",    "yaxis:log:auton",    "Normalised entries"  ,
+  "testtrk_z0",    "z0 rec",    "xaxis:lin:-250:250",     "Trigger z_{0} [mm]",    "yaxis:log:auton",    "Normalised entries"  ,
+
+  "reftrk_dz0",     "Delta z0",        "xaxis:lin:-0.5:2",         "Offline z_{0} error estimate [mm]",    "yaxis:log:auton",    "Normalised entries"  ,
+  "testtrk_dz0",    "Delta z0 rec",    "xaxis:lin:-0.5:2",         "Trigger z_{0} error estimate [mm]",    "yaxis:log:auton",    "Normalised entries"  ,
+
+  "reftrk_N",     "N tracks",      "xaxis:lin:auto",   "Offline multiplicity",          "yaxis:log:auton:0.01:0.5",    "Normalised entries"  ,
+  "testtrk_N",    "N tracks rec",  "xaxis:lin:auto",   "Online multiplicity",           "yaxis:log:auton:0.01:0.5",    "Normalised entries"  ,
+
+
+  /// efficiencies - 10 
+  "Eff_pT",       "Efficiency p_{T}", "xaxis:log:0.5:200",       "Offline track p_{T} [GeV]",    "yaxis:lin:auto:0.8:1.02",     "Efficiency " ,   
+  "Eff_Eta",      "Efficiency #eta",  "xaxis:lin:-2.5:2.5",    "Offline track #eta",           "yaxis:lin:auto:0.8:1.02",     "Efficiency " ,   
+  "Eff_Phi",      "Efficiency #phi",  "xaxis:lin",             "Offline track #phi",           "yaxis:lin:auto:0.8:1.02",     "Efficiency " ,    
+
+  "Eff_nVtx",     "Efficiency nVtx", "xaxis:lin:auto",         "Vertex multiplicity",  "yaxis:lin:auto:0.8:1.02",   "Efficiency " ,       
+  "Eff_d0",       "Efficiency d0",   "xaxis:lin:autosym",      "Offline track d_{0} [mm]",     "yaxis:lin:auto:0.8:1.02",   "Efficiency " ,       
+  "Eff_z0",       "Efficiency z0",   "xaxis:lin:-250:250",     "Offline track z_{0} [mm]",     "yaxis:lin:auto:0.8:1.02",   "Efficiency " , 
+
+  "Eff_lb",       "Efficiency lb",      "xaxis:lin:auto",         "Luminosity block",     "yaxis:lin:auto:0.8:1.02",   "Efficiency " ,
+        
+  "Eff_overall",  "Efficiency overall", "xaxis:lin:auto",         "",                      "yaxis:lin:auto:0.8:1.02",   "Efficiency " ,        
+
+
+
+  /// standard residuals - 5     
+  "residual_eta",   "Residual #eta",     "xaxis:lin:-0.05:0.05",    "#Delta#eta",                   "yaxis:log:auton",    "Normalised entries" ,       
+  "residual_phi",   "Residual #phi",     "xaxis:lin:-0.05:0.05",    "#Delta#phi",                   "yaxis:log:auton",    "Normalised entries" ,
+  "residual_z0",    "Residual z0",       "xaxis:lin:-10:10",        "#Delta z_{0} [mm]",            "yaxis:log:auton",    "Normalised entries" ,
+  "residual_dz0",   "Residual sig z0",    "xaxis:lin:-10:10",        "#Delta #sigma(z_{0}) [mm]",   "yaxis:log:auton",    "Normalised entries" ,
+  "residual_d0",    "Residual a0",       "xaxis:lin:-1:1",          "#Delta d_{0} [mm]",            "yaxis:log:auton",    "Normalised entries" ,       
+  "residual_dd0",   "Residual sig a0",   "xaxis:lin:-1:1",          "#Delta #sigma(d_{0}) [mm]",     "yaxis:log:auton",   "Normalised entries" ,       
+  "residual_pT",    "Residual pT",       "xaxis:lin:-100:100",      "#Delta p_{T} [GeV]",            "yaxis:log:auton",   "Normalised entries" ,       
+ 
+  /// residuals vs track parameters - 17
+  "Res_eta",        "Residual #eta vs #eta",        "xaxis:lin",           "Offline #eta",          "yaxis:lin:auto:-0.002:0.002",  "d#eta profile" ,            
+  "Res_phi",        "Residual #phi vs #eta",        "xaxis:lin",           "Offline #eta",          "yaxis:lin:auto:-0.002:0.002",  "d#phi profile" ,            
+  "Res_d0",         "Residual d0 vs #eta",          "xaxis:lin",           "Offline #eta",          "yaxis:lin:auto:-0.5:0.5",       "dd_{0} profile [mm]" ,
+  "Res_z0",         "Residual z vs #eta",           "xaxis:lin",           "Offline #eta",          "yaxis:lin:auto:-0.5:0.5",       "dz_{0} profile [mm]" ,
+
+  "Res_dz0",         "Residual sig(z0) vs #eta",     "xaxis:lin",           "Offline #eta",          "yaxis:lin:auto",  "dsig(z_{0}) profile [mm]" ,
+  "Res_dd0",         "Residual sig(d0) vs #eta",     "xaxis:lin",           "Offline #eta",          "yaxis:lin:auto",  "dsig(d_{0}) profile [mm]" ,
+
+  "Res_pT",         "Residual pT vs #eta",           "xaxis:lin",           "Offline #eta",          "yaxis:lin:auto",  "dpT profile [GeV]" ,
+  "Res_ipT",        "Residual 1/pT vs #eta",         "xaxis:lin",           "Offline #eta",          "yaxis:lin:auto",  "d(1/pT) profile [GeV^{-1}]" ,
+
+
+  /// hit multiplicity - 6
+  "npix_vs_eta",          "mean number of offline pixel hits",  "xaxis:lin",         "Offline #eta",     "yaxis:lin:2:7",    "Offline pixel hits"    ,
+  "nsct_vs_eta",          "mean number of offline SCT hits",    "xaxis:lin",          "Offline #eta",     "yaxis:lin:7:11",  "Offline SCT clusters"  ,
+  "npix_vs_phi",           "mean number of offline pixel hits",  "xaxis:lin:auto",   "Offline #phi",     "yaxis:lin:2:7",    "Offline pixel hits"    ,
+  "nsct_vs_phi",           "mean number of offline SCT hits",    "xaxis:lin:auto",    "Offline #phi",     "yaxis:lin:7:11",  "Offline SCT clusters"  ,
+  "npix_vs_pt",           "mean number of offline pixel hits",  "xaxis:lin:auto",   "Offline #phi",     "yaxis:lin:2:7",    "Offline pixel hits"    ,
+  "nsct_vs_pt",           "mean number of offline SCT hits",    "xaxis:lin:auto",    "Offline #phi",     "yaxis:lin:7:11",  "Offline SCT clusters"  ,
+
+  "npix_vs_d0",           "mean number of offline pixel hits",  "xaxis:lin:autosym",    "Offline d0 [mm]",     "yaxis:lin:auto:0:5",    "Offline pixel hits"    ,
+  "nsct_vs_d0",           "mean number of offline SCT hits",    "xaxis:lin:autosym",    "Offline d0 [mm]",     "yaxis:lin:auto:6:10",   "Offline SCT clusters"  ,
+
+
+  "npix_vs_eta_rec",        "mean number of trigger pixel hits",  "xaxis:lin",         "Offline #eta",     "yaxis:lin:2:7",    "Trigger pixel hits"    ,
+  "nsct_vs_eta_rec",        "mean number of trigger SCT hits",    "xaxis:lin",          "Offline #eta",    "yaxis:lin:7:11",  "Trigger SCT clusters"  ,
+  "npix_vs_phi_rec",        "mean number of trigger pixel hits",  "xaxis:lin:auto",   "Offline #phi",      "yaxis:lin:2:7",    "Trigger pixel hits"    ,
+  "nsct_vs_phi_rec",        "mean number of trigger SCT hits",    "xaxis:lin:auto",    "Offline #phi",     "yaxis:lin:7:11",  "Trigger SCT clusters"  ,
+
+  "npix_vs_d0_rec",         "mean number of trigger pixel hits",  "xaxis:lin:autosym",    "Offline d0 [mm]",     "yaxis:lin:auto:0:5",    "Trigger pixel hits"    ,
+  "nsct_vs_d0_rec",         "mean number of trigger SCT hits",    "xaxis:lin:autosym",    "Offline d0 [mm]",     "yaxis:lin:auto:6:10",   "Trigger SCT clusters"  ,
+
+
+  "npix",          "Offline pixel multiplicity",  "xaxis:lin",   "Offline Pixel hit multiplicity",  "yaxis:lin:auton", "Tracks"    ,
+  "npix_rec",      "Trigger pixel multiplicity",  "xaxis:lin",   "Trigger Pixel hit multiplicity",  "yaxis:lin:auton", "Tracks"    ,
+
+  "nsct",          "Offline sct multiplicity",    "xaxis:lin",   "Offline SCT hit multiplicity",    "yaxis:lin:auton",  "Tracks"    ,
+  "nsct_rec",      "Trigger sct multiplicity",    "xaxis:lin",   "Trigger SCT hit multiplicity",    "yaxis:lin:auton",  "Tracks"    ,
+
+  "nsiHits",          "Offline si multiplicity",    "xaxis:lin",   "Offline Si hit multiplicity",    "yaxis:lin:auton",  "Tracks"    ,
+  "nsiHits_rec",      "Trigger si multiplicity",    "xaxis:lin",   "Trigger Si hit multiplicity",    "yaxis:lin:auton",  "Tracks"    ,
+
+  "ntrt",          "Offline TRT multiplicity",    "xaxis:lin",   "Offline TRT hit multiplicity",    "yaxis:log:auton",  "Tracks"    ,
+  "ntrt_rec",      "Trigger TRT multiplicity",    "xaxis:lin",   "Trigger TRT hit multiplicity",    "yaxis:log:auton",  "Tracks"    ,
+
+  "ntrt_vs_eta",            "mean number of offline TRT hits",    "xaxis:lin:auto",    "Offline #eta",     "yaxis:lin:auto:0:50",  "Offline TRT hit multiplicity"  ,
+  "ntrt_vs_eta_rec",        "mean number of trigger TRT hits",    "xaxis:lin:auto",    "Trigger #eta",     "yaxis:lin:auto:0:50",  "Trigger TRT hit multiplicity"  ,
+
+
+  "ntrt_vs_phi",        "Offline TRT vs phi",    "xaxis:lin",  "Offline #phi",   "yaxis:lin:auto:0:50",   "Offline TRT hit multiplicity",
+  "ntrt_vs_phi_rec",    "Trigger TRT vs phi",    "xaxis:lin",  "Offline #phi",   "yaxis:lin:auto:0:50",   "Trigger TRT hit multiplicity",
+
+
+
+  // beamline and per lumi block related 
+
+  "d0_vs_phi_prof",      "d0 vs #phi",        "xaxis:lin",   "Offline #phi",    "yaxis:-0.1:0.15",  "Offline d0 [mm]",
+  "d0_vs_phi_rec_prof",  "d0 vs #phi rec",    "xaxis:lin",   "Trigger #phi",    "yaxis:-0.1:0.15",  "Trigger d0 [mm]",
+
+  "nsihits_lb",  "Si hits per lb",    "xaxis:lin:auto",   "Luminosity block",    "yaxis:lin:auto:14:18",  "Offline Si multiplicity",
+
+
+  "trkvtx_x_vs_lb",  "x beamline vs lb",    "xaxis:lin:auto",   "Luminosity block",    "yaxis:lin:auto",  "Trigger beamspot x [mm]",
+  "trkvtx_y_vs_lb",  "y beamline vs lb",    "xaxis:lin:auto",   "Luminosity block",    "yaxis:lin:auto",  "Trigger beamspot y [mm]",
+  "trkvtx_z_vs_lb",  "z beamline vs lb",    "xaxis:lin:auto",   "Luminosity block",    "yaxis:lin:auto",  "Trigger beamspot z [mm]"
+
+
+};
+ 
+
+
+
+
+
+ChainMap = { 
+
+  "Electron/HLT_e26_etcut_L1EM22VHI/HLT_IDTrack_Electron",           "Electron/HLT_e28_lhtight_idperf/InDetTrigTrackingxAODCnv_Electron",
+  "Electron/HLT_e3_etcut_L1EM3/HLT_IDTrack_Electron",                "Electron/HLT_e5_lhtight_idperf/InDetTrigTrackingxAODCnv_Electron",
+  "Electron/HLT_e5_etcut_L1EM3/HLT_IDTrack_Electron",                "Electron/HLT_e5_lhtight_idperf/InDetTrigTrackingxAODCnv_Electron",
+  "Electron/HLT_e7_etcut_L1EM3/HLT_IDTrack_Electron",                "Electron/HLT_e5_lhtight_idperf/InDetTrigTrackingxAODCnv_Electron",
+  "Electron_offline/HLT_e26_etcut_L1EM22VHI/HLT_IDTrack_Electron",  "Electron_offline/HLT_e28_lhtight_idperf/InDetTrigTrackingxAODCnv_Electron",
+  "Electron_offline/HLT_e3_etcut_L1EM3/HLT_IDTrack_Electron",        "Electron_offline/HLT_e5_lhtight_idperf/InDetTrigTrackingxAODCnv_Electron",
+  "Electron_offline/HLT_e5_etcut_L1EM3/HLT_IDTrack_Electron",        "Electron_offline/HLT_e5_lhtight_idperf/InDetTrigTrackingxAODCnv_Electron",
+  "Electron_offline/HLT_e7_etcut_L1EM3/HLT_IDTrack_Electron",        "Electron_offline/HLT_e5_lhtight_idperf/InDetTrigTrackingxAODCnv_Electron",
+  
+  "Muon/HLT_mu24_idperf_L1MU20/HLT_IDTrack_Muon",                   "Muon/HLT_mu24_idperf/InDetTrigTrackingxAODCnv_Muon",
+  "Muon/HLT_mu6_idperf_L1MU6/HLT_IDTrack_Muon",                     "Muon/HLT_mu6_idperf/InDetTrigTrackingxAODCnv_Muon",
+  "Muon_offline/HLT_mu24_idperf_L1MU20/HLT_IDTrack_Muon",           "Muon/HLT_mu24_idperf/InDetTrigTrackingxAODCnv_Muon",
+  "Muon_offline/HLT_mu6_idperf_L1MU6/HLT_IDTrack_Muon",             "Muon_offline/HLT_mu6_idperf/InDetTrigTrackingxAODCnv_Muon" 
+
+};
+

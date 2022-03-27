@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Athena
@@ -39,8 +39,8 @@ void InDet::PixelClusterContainerCnv_p1::transToPers(const InDet::PixelClusterCo
     // to the container's vector, saving the indexes in the
     // collection. 
 
-    typedef InDet::PixelClusterContainer TRANS;
-    typedef ITPConverterFor<Trk::PrepRawData> CONV;
+    using TRANS = InDet::PixelClusterContainer;
+    using CONV = ITPConverterFor<Trk::PrepRawData>;
 
     PixelClusterCnv_p1  chanCnv;
     TRANS::const_iterator it_Coll     = transCont->begin();
@@ -99,7 +99,7 @@ void  InDet::PixelClusterContainerCnv_p1::persToTrans(const InDet::InDetPRD_Cont
     InDet::PixelClusterCollection* coll = nullptr;
 
     PixelClusterCnv_p1  chanCnv;
-    typedef ITPConverterFor<Trk::PrepRawData> CONV;
+    using CONV = ITPConverterFor<Trk::PrepRawData>;
 
     for (unsigned int icoll = 0; icoll < persCont->m_collections.size(); ++icoll) {
 

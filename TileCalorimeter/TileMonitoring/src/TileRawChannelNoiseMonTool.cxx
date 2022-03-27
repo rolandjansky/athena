@@ -20,8 +20,8 @@
 
 
 // Tile includes
-#include "TileMonitoring/TileRawChannelNoiseMonTool.h"
-#include "TileMonitoring/PairBuilder.h"
+#include "TileRawChannelNoiseMonTool.h"
+#include "PairBuilder.h"
 
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileIdentifier/TileHWID.h"

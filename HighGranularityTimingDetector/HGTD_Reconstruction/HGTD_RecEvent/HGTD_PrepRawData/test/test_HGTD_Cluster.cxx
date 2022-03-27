@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  *
  * @file HGTD_PrepRawData/test/test_HGTD_Cluster.cxx
  * @author Alexander Leopold <alexander.leopold@cern.ch>
@@ -17,9 +17,9 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 
-float dummy_toa = 14.5;
-float dummy_toa_res = 0.35;
-std::vector<int> dummy_tot = {255};
+const float dummy_toa = 14.5;
+const float dummy_toa_res = 0.35;
+const std::vector<int> dummy_tot = {255};
 
 void compare(const InDet::SiWidth& p1, const InDet::SiWidth& p2) {
   std::cout << "compare SiWidth\n";

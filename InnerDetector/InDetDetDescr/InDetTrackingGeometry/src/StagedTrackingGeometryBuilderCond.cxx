@@ -34,6 +34,7 @@
 #include "AthenaKernel/IOVInfiniteRange.h"
 //Gaudi
 #include "GaudiKernel/SystemOfUnits.h"
+#include <iterator> //std::advance
 
 // constructor
 InDet::StagedTrackingGeometryBuilderCond::StagedTrackingGeometryBuilderCond(const std::string& t, const std::string& n, const IInterface* p) :
@@ -921,7 +922,8 @@ const Trk::Layer* InDet::StagedTrackingGeometryBuilderCond::mergeDiscLayers (std
   // on the input, disc layers overlapping in thickness : merge to a new DiscLayer
   std::pair<float,float> zb(1.e5,-1.e5);
   // order discs in radius
-  std::vector< std::pair<float,float> > rbounds; std::vector<size_t> discOrder;
+  std::vector< std::pair<float,float> > rbounds; 
+  std::vector<size_t> discOrder;
   size_t id=0;
   for ( const auto *  lay : inputDiscs ) {
     zb.first = fmin( zb.first, lay->surfaceRepresentation().center().z()-0.5*lay->thickness());
@@ -941,8 +943,12 @@ const Trk::Layer* InDet::StagedTrackingGeometryBuilderCond::mergeDiscLayers (std
         if ( r>rbounds[ir].first ) break; 
         ir--;
       }
-      rbounds.insert(rbounds.begin()+ir+1,std::pair<float,float> (r,db->rMax()));  
-      discOrder.insert(discOrder.begin()+ir+1,id);           
+      auto rboundsInsertionPt(rbounds.begin());
+      std::advance(rboundsInsertionPt, ir+1);
+      rbounds.insert(rboundsInsertionPt,std::pair<float,float> (r,db->rMax())); 
+      auto discOrderInsertionPt(discOrder.begin());
+      std::advance(discOrderInsertionPt, ir+1);
+      discOrder.insert(discOrderInsertionPt,id);           
     }
     id++;
   }

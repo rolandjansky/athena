@@ -19,7 +19,7 @@ Interface definition for gFEXSim
 */
 
   static const InterfaceID IID_IgFEXSim("LVL1::IgFEXSim", 1, 0);
-  typedef  std::array<std::array<int, 38>, 32> gTowersIDs;
+  typedef  std::array<std::array<int, 40>, 32> gTowersIDs;
 
   class IgFEXSim : virtual public IAlgTool {
   public:

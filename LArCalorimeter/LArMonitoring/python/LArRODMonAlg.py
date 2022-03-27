@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 def LArRODMonConfigOld(inputFlags,cellDebug=False, dspDebug=False):
@@ -150,7 +150,7 @@ def LArRODMonConfigCore(helper, algoinstance,inputFlags, cellDebug=False, dspDeb
 
     #DQMD histos
     dqmd_hist_path='/LAr/DSPMonitoring/DQMD/'
-    darray = helper.addArray([lArDQGlobals.Partitions],larRODMonAlg,"RODMon")
+    darray = helper.addArray([lArDQGlobals.Partitions],larRODMonAlg,"RODMon",topPath='/')
     darray.defineHistogram('Ediff,Erange;DE_ranges', title='E_offline - E_online for all ranges ; E_offline - E_online (MeV) ; Energy range',
                            type='TH2F', path=dqmd_hist_path,
                            xbins=lArDQGlobals.DSP1Energy_Bins, xmin=lArDQGlobals.DSP1Energy_Min, xmax=lArDQGlobals.DSP1Energy_Max,
@@ -238,7 +238,6 @@ if __name__=='__main__':
    ConfigFlags.Output.HISTFileName = 'LArRODMonOutput.root'
    ConfigFlags.DQ.enableLumiAccess = False
    ConfigFlags.DQ.useTrigger = False
-   ConfigFlags.Beam.Type = 'collisions'
    ConfigFlags.lock()
 
 

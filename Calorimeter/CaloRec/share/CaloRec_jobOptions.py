@@ -133,9 +133,9 @@ if rec.doLArg() and globalflags.DataSource()=='data' and globalflags.InputFormat
       else:
          lri=None
       if lri is not None and lri.runType()==0:
-        topSequence+=LArRawDataReadingAlg(FailOnCorruption=True,LArRawChannelKey="") 
+        topSequence+=LArRawDataReadingAlg(LArRawChannelKey="") 
       else:   
-        topSequence+=LArRawDataReadingAlg(FailOnCorruption=False) 
+        topSequence+=LArRawDataReadingAlg() 
 
     from LArROD.LArRODFlags import larRODFlags
     if larRODFlags.doLArFebErrorSummary() :

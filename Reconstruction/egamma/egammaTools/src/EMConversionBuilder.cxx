@@ -163,7 +163,7 @@ EMConversionBuilder::vertexExecute(
           cluster, vertex, etaAtCalo, phiAtCalo)) {
       continue;
     }
-    const ElementLink<xAOD::VertexContainer> vertexLink(*conversions, iVtx);
+    const ElementLink<xAOD::VertexContainer> vertexLink(*conversions, iVtx, ctx);
 
     // If this is the best (or the first) vertex, push front and keep deltaEta,
     // deltaPhi

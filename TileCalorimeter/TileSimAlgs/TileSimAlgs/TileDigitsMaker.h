@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -31,19 +31,20 @@
 #include "TileEvent/TileHitContainer.h"
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileEvent/TileDQstatus.h"
-#include "TileConditions/TileCalibData.h"
 #include "TileConditions/TilePulse.h"
 #include "TileConditions/TileSampleNoise.h"
 #include "TileConditions/TileEMScale.h"
 #include "TileConditions/TileBadChannels.h"
 #include "TileConditions/TileCablingSvc.h"
+#include "TileConditions/TileSamplingFraction.h"
 
 // Atlas includes
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
-// Gauid includes
+// Gaudi includes
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -100,7 +101,7 @@ class TileDigitsMaker: public AthReentrantAlgorithm {
                                    std::vector<std::vector<double>>& drawerBufferHi,
                                    std::vector<int>& igain, std::vector<int>& overgain, std::vector<double>& ech_int,
                                    std::vector<bool> &signal_in_channel, const TileEMScale* emScale,
-                                   const TilePulse& pulse) const;
+                                   const TileSamplingFraction* samplingFraction, const TilePulse& pulse) const;
 
     SG::ReadHandleKey<TileHitContainer> m_hitContainerKey{this,
          "TileHitContainer", "TileHitCnt", "input Tile hit container key"};
@@ -216,6 +217,12 @@ class TileDigitsMaker: public AthReentrantAlgorithm {
      */
     SG::ReadCondHandleKey<TileCalibDataFlt> m_pulseShapeKey{this,
         "TilePulseShape", "TilePulseShape", "Input Tile pulse shape"};
+
+    /**
+     * @brief Name of TileSamplingFraction in condition store
+     */
+    SG::ReadCondHandleKey<TileSamplingFraction> m_samplingFractionKey{this,
+        "TileSamplingFraction", "TileSamplingFraction", "Input Tile sampling fraction"};
 
     /**
      * @brief Name of TileBadChannels in condition store

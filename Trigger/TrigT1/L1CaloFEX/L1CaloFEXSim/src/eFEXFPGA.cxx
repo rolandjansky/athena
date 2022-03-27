@@ -55,7 +55,7 @@ eFEXFPGA::eFEXFPGA(const std::string& type,const std::string& name,const IInterf
 StatusCode eFEXFPGA::initialize()
 {
 
-  ATH_CHECK(m_eFEXFPGA_eTowerContainerKey.initialize());
+  ATH_CHECK(m_eTowerContainerKey.initialize());
   ATH_CHECK( m_eFEXegAlgoTool.retrieve() );
   ATH_CHECK( m_eFEXtauAlgoTool.retrieve() );
   
@@ -87,9 +87,9 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
   m_emTobwords.clear();
   m_tauTobwords.clear();
 
-  SG::ReadHandle<eTowerContainer> jk_eFEXFPGA_eTowerContainer(m_eFEXFPGA_eTowerContainerKey/*,ctx*/);
-  if(!jk_eFEXFPGA_eTowerContainer.isValid()){
-    ATH_MSG_FATAL("Could not retrieve jk_eFEXFPGA_eTowerContainer " << m_eFEXFPGA_eTowerContainerKey.key() );
+  SG::ReadHandle<eTowerContainer> eTowerContainer(m_eTowerContainerKey/*,ctx*/);
+  if(!eTowerContainer.isValid()){
+    ATH_MSG_FATAL("Could not retrieve container " << m_eTowerContainerKey.key() );
     return StatusCode::FAILURE;
   }
 
@@ -305,7 +305,7 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
         inputOutputCollection->addValue_tau("Et", m_eFEXtauAlgoTool->getEt());
         inputOutputCollection->addValue_tau("Eta", ieta);
         inputOutputCollection->addValue_tau("Phi", iphi);
-        const LVL1::eTower * centerTower = jk_eFEXFPGA_eTowerContainer->findTower(m_eTowersIDs[iphi][ieta]);
+        const LVL1::eTower * centerTower = eTowerContainer->findTower(m_eTowersIDs[iphi][ieta]);
         inputOutputCollection->addValue_tau("FloatEta", centerTower->eta() * centerTower->getPosNeg());
         inputOutputCollection->addValue_tau("FloatPhi", centerTower->phi());
         inputOutputCollection->addValue_tau("RCoreCore", rCoreVec[0]);
@@ -381,9 +381,9 @@ void eFEXFPGA::SetTowersAndCells_SG(int tmp_eTowersIDs_subset[][6]){
   //-----------------------------------------------------------
   // Set up a the second CSV file if necessary (should only need to be done if the mapping changes, which should never happen unless major changes to the simulation are required)
   if(false){ // CSV CODE TO BE RE-INTRODUCED VERY SOON
-    SG::ReadHandle<eTowerContainer> jk_eFEXFPGA_eTowerContainer(m_eFEXFPGA_eTowerContainerKey);
-    if(!jk_eFEXFPGA_eTowerContainer.isValid()){
-      ATH_MSG_FATAL("Could not retrieve jk_eFEXFPGA_eTowerContainer " << m_eFEXFPGA_eTowerContainerKey.key() );
+    SG::ReadHandle<eTowerContainer> eTowerContainer(m_eTowerContainerKey);
+    if(!eTowerContainer.isValid()){
+      ATH_MSG_FATAL("Could not retrieve container " << m_eTowerContainerKey.key() );
     }
     
     std::ofstream tower_fpga_efex_map;
@@ -392,7 +392,7 @@ void eFEXFPGA::SetTowersAndCells_SG(int tmp_eTowersIDs_subset[][6]){
     for (int thisRow=rows-1; thisRow>=0; thisRow--){
       for (int thisCol=0; thisCol<cols; thisCol++){
 	
-	const LVL1::eTower * tmpTower = jk_eFEXFPGA_eTowerContainer->findTower(m_eTowersIDs[thisRow][thisCol]);
+	const LVL1::eTower * tmpTower = eTowerContainer->findTower(m_eTowersIDs[thisRow][thisCol]);
 	
 	tower_fpga_efex_map << m_efexid << "," << m_id << "," << m_eTowersIDs[thisRow][thisCol] << "," << tmpTower->eta() << "," << tmpTower->phi() << "\n";
 	

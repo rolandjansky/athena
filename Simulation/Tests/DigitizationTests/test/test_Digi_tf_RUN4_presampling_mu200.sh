@@ -24,12 +24,12 @@ Digi_tf.py \
 --jobNumber 568 \
 --maxEvents ${Events} \
 --outputRDOFile ${DigiOutFileName} \
---preInclude 'HITtoRDO:Campaigns.PhaseIIPileUp' \
+--preInclude 'HITtoRDO:Campaigns.PhaseIIPileUp200' \
 --postInclude 'PyJobTransforms.UseFrontier' \
 --skipEvents 0
 
 rc=$?
 status=$rc
-echo "art-result: $rc Digi_tf.py"
+echo "art-result: $rc digiCA"
 
 exit $status

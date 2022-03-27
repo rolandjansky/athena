@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #ifndef GENERICTOB_H
 #define GENERICTOB_H
@@ -22,6 +22,7 @@
 #include "L1TopoEvent/LateMuonTOB.h"
 #include "L1TopoEvent/MuonNextBCTOB.h"
 #include "L1TopoEvent/MetTOB.h"
+#include "L1TopoEvent/jXETOB.h"
 
 
 // TODO implement sizecheck lile in ClusterTOB
@@ -85,6 +86,9 @@ namespace TCS {
       // constructor from met
       GenericTOB(const MetTOB & met);
 
+      // constructor from jxe
+      GenericTOB(const jXETOB & jxe);
+
       // destructor
       ~GenericTOB();
 
@@ -108,9 +112,9 @@ namespace TCS {
       unsigned int Reta() const { return m_reta; }
       unsigned int Rhad() const { return m_rhad; }
       unsigned int Wstot() const { return m_wstot; }
-
-      //eTau
-      unsigned int rcore() const { return m_rcore; }
+      
+      unsigned int rCore() const { return m_rCore; }
+      unsigned int rHad() const { return m_rHad; }
 
       // See definitions at TrigT1Interfaces/MuCTPIL1TopoCandidate.h 
       int bw2or3() const { return m_bw2or3; }
@@ -123,8 +127,7 @@ namespace TCS {
       double etaDouble() const { return m_etaDouble; }
       double phiDouble() const { return m_phiDouble; }
 
-      //jtau isolation 
-      unsigned int jtauiso() const { return m_jtauiso; }
+      double Et2() const { return m_Et2; }
 
       virtual void print(std::ostream &o) const;
 
@@ -139,6 +142,7 @@ namespace TCS {
 
       int m_Ex { 0 };
       int m_Ey { 0 };
+      unsigned int m_Et2 { 0 };
 
       int m_eta { 0 };
       int m_phi { 0 };
@@ -153,13 +157,16 @@ namespace TCS {
       double m_etaDouble { 0 };
       double m_phiDouble { 0 };
 
+      double m_ExDouble { 0 };
+      double m_EyDouble { 0 };
+
       unsigned int m_reta {0};
       unsigned int m_rhad {0};
       unsigned int m_wstot {0};
+     
+      unsigned int m_rCore {0};
+      unsigned int m_rHad {0};
 
-      unsigned int m_jtauiso {0};
-      unsigned int m_rcore {0};
-      
       inputTOBType_t   m_tobType { NONE };
 
       static thread_local  Heap<TCS::GenericTOB> fg_heap;

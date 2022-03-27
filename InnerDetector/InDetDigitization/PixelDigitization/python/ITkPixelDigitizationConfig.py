@@ -10,7 +10,7 @@ from Digitization.PileUpToolsConfig import PileUpToolsCfg
 from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from PixelConditionsAlgorithms.ITkPixelConditionsConfig import (
-    ITkPixelConfigCondAlgCfg, ITkPixelChargeCalibCondAlgCfg,
+    ITkPixelModuleConfigCondAlgCfg, ITkPixelChargeCalibCondAlgCfg,
     ITkPixelDistortionAlgCfg
 )
 from PixelConditionsTools.ITkPixelConditionsSummaryConfig import ITkPixelConditionsSummaryCfg
@@ -52,7 +52,7 @@ def ITkEnergyDepositionToolCfg(flags, name="ITkEnergyDepositionTool", **kwargs):
 def BarrelRD53SimToolCfg(flags, name="BarrelRD53SimTool", **kwargs):
     """Return a RD53SimTool configured for Barrel"""
     acc = ITkPixelReadoutManagerCfg(flags)
-    acc.merge(ITkPixelConfigCondAlgCfg(flags))
+    acc.merge(ITkPixelModuleConfigCondAlgCfg(flags))
     acc.merge(ITkPixelChargeCalibCondAlgCfg(flags))
     kwargs.setdefault("BarrelEC", 0)
     kwargs.setdefault("DoNoise", flags.Digitization.DoInnerDetectorNoise)
@@ -68,7 +68,7 @@ def BarrelRD53SimToolCfg(flags, name="BarrelRD53SimTool", **kwargs):
 def EndcapRD53SimToolCfg(flags, name="EndcapRD53SimTool", **kwargs):
     """Return a RD53SimTool configured for Endcap"""
     acc = ITkPixelReadoutManagerCfg(flags)
-    acc.merge(ITkPixelConfigCondAlgCfg(flags))
+    acc.merge(ITkPixelModuleConfigCondAlgCfg(flags))
     acc.merge(ITkPixelChargeCalibCondAlgCfg(flags))
     kwargs.setdefault("BarrelEC", 2)
     kwargs.setdefault("DoNoise", flags.Digitization.DoInnerDetectorNoise)
@@ -83,7 +83,7 @@ def EndcapRD53SimToolCfg(flags, name="EndcapRD53SimTool", **kwargs):
 
 def ITkSensorSimPlanarToolCfg(flags, name="ITkSensorSimPlanarTool", **kwargs):
     """Return ComponentAccumulator with configured SensorSimPlanarTool for ITk"""
-    acc = ITkPixelConfigCondAlgCfg(flags)
+    acc = ITkPixelModuleConfigCondAlgCfg(flags)
     SiTool = acc.popToolsAndMerge(ITkPixelSiPropertiesCfg(flags))
     LorentzTool = acc.popToolsAndMerge(ITkPixelLorentzAngleCfg(flags))
     kwargs.setdefault("SiPropertiesTool", SiTool)
@@ -101,7 +101,7 @@ def ITkSensorSimPlanarToolCfg(flags, name="ITkSensorSimPlanarTool", **kwargs):
 
 def ITkSensorSim3DToolCfg(flags, name="ITkSensorSim3DTool", **kwargs):
     """Return ComponentAccumulator with configured SensorSim3DTool for ITk"""
-    acc = ITkPixelConfigCondAlgCfg(flags)
+    acc = ITkPixelModuleConfigCondAlgCfg(flags)
     SiTool = acc.popToolsAndMerge(ITkPixelSiPropertiesCfg(flags))
     acc.popToolsAndMerge(ITkPixelLorentzAngleCfg(flags))
     kwargs.setdefault("SiPropertiesTool", SiTool)
@@ -145,8 +145,14 @@ def ITkPixelDigitizationBasicToolCfg(flags, name="ITkPixelDigitizationBasicTool"
 def ITkPixelDigitizationToolCfg(flags, name="ITkPixelDigitizationTool", **kwargs):
     """Return ComponentAccumulator with configured ITkPixelDigitizationBasicTool"""
     acc = ComponentAccumulator()
-    rangetool = acc.popToolsAndMerge(ITkPixelRangeCfg(flags))
-    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
+    if flags.Digitization.PileUp:
+        intervals = []
+        if not flags.Digitization.DoXingByXingPileUp:
+            intervals += [acc.popToolsAndMerge(ITkPixelRangeCfg(flags))]
+        kwargs.setdefault("PileUpMergeSvc", acc.getPrimaryAndMerge(PileUpMergeSvcCfg(flags, Intervals=intervals)).name)
+    else:
+        kwargs.setdefault("PileUpMergeSvc", '')
+    kwargs.setdefault("OnlyUseContainerName", flags.Digitization.PileUp)
     kwargs.setdefault("HardScatterSplittingMode", 0)
     if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("RDOCollName", flags.Overlay.BkgPrefix + "ITkPixelRDOs")
@@ -163,7 +169,7 @@ def ITkPixelDigitizationHSToolCfg(flags, name="ITkPixelDigitizationHSTool", **kw
     """Return ComponentAccumulator with PixelDigitizationTool configured for Hard Scatter ITk"""
     acc = ComponentAccumulator()
     rangetool = acc.popToolsAndMerge(ITkPixelRangeCfg(flags))
-    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
+    kwargs.setdefault("PileUpMergeSvc", acc.getPrimaryAndMerge(PileUpMergeSvcCfg(flags, Intervals=rangetool)).name)
     kwargs.setdefault("HardScatterSplittingMode", 1)
     tool = acc.popToolsAndMerge(ITkPixelDigitizationBasicToolCfg(flags, name, **kwargs))
     acc.setPrivateTools(tool)
@@ -174,7 +180,7 @@ def ITkPixelDigitizationPUToolCfg(flags, name="ITkPixelDigitizationPUTool", **kw
     """Return ComponentAccumulator with PixelDigitizationTool configured for PileUp ITk"""
     acc = ComponentAccumulator()
     rangetool = acc.popToolsAndMerge(ITkPixelRangeCfg(flags))
-    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
+    kwargs.setdefault("PileUpMergeSvc", acc.getPrimaryAndMerge(PileUpMergeSvcCfg(flags, Intervals=rangetool)).name)
     kwargs.setdefault("HardScatterSplittingMode", 2)
     kwargs.setdefault("RDOCollName", "ITkPixel_PU_RDOs")
     kwargs.setdefault("SDOCollName", "ITkPixel_PU_SDO_Map")
@@ -187,7 +193,7 @@ def ITkPixelDigitizationSplitNoMergePUToolCfg(flags, name="ITkPixelDigitizationS
     """Return ComponentAccumulator with PixelDigitizationTool configured for PileUpITkPixelHits"""
     acc = ComponentAccumulator()
     rangetool = acc.popToolsAndMerge(ITkPixelRangeCfg(flags))
-    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
+    kwargs.setdefault("PileUpMergeSvc", acc.getPrimaryAndMerge(PileUpMergeSvcCfg(flags, Intervals=rangetool)).name)
     kwargs.setdefault("HardScatterSplittingMode", 0)
     kwargs.setdefault("InputObjectName", "PileupITkPixelHits")
     kwargs.setdefault("RDOCollName", "ITkPixel_PU_RDOs")

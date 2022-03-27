@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // egDetailContainerCnv_p1.cxx 
@@ -167,5 +167,4 @@ void egDetailContainerCnv_p1::transToPers( const egDetailContainer* /*trans*/,
                                            MsgStream& /*msg*/)
 {
   throw GaudiException("Deprecated method, we have evolved to use egDetail_p2.Please migrate to use egDetailContainerCnv_p2::transToPers","egDetailContainerCnv_p1::transToPers", StatusCode::FAILURE);
-  return;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -376,7 +376,7 @@ IdDictDetDescrCnv::parseXMLDescription()
         }
 
         // Parse the dictionaries
-        m_parser->parse(m_idDictName.c_str(), tag);
+        m_parser->parse(m_idDictName, tag);
         
         if (tag == "") tag = "default";
         log << MSG::DEBUG << "Read dict:  " 
@@ -816,39 +816,64 @@ IdDictDetDescrCnv::getFileNamesFromTags()
     std::string detTag{""}, detNode{""};
     DecodeVersionKey detectorKey("ATLAS");
 
-    // Get InDet
-    if(useGeomDB) {
-      detectorKey = DecodeVersionKey(geoDbTagSvc, "InnerDetector");
-      log << MSG::DEBUG << "From Version Tag: " 
-	  << detectorKey.tag()  << " at Node: " << detectorKey.node() << endmsg;
-      detTag = detectorKey.tag();
-      detNode = detectorKey.node();
-    }
-    IRDBRecordset_ptr idDictSet   = rdbAccessSvc->getRecordsetPtr("InDetIdentifier",detTag,detNode);
+    IRDBRecordset_ptr idDictSet{};
+    std::string       dictName;
+    const IRDBRecord* idDictTable{};
 
-    std::string        dictName;
-    const IRDBRecord*  idDictTable = 0;
-    // Size == 0 if not found
-    if (idDictSet->size()) {
-      idDictTable       = (*idDictSet)[0];
-      dictName          = idDictTable->getString("DICT_NAME");
-      m_inDetIDFileName = idDictTable->getString("DICT_FILENAME");
-      // NOTE: the internal tag for IdDict is global, but is
-      // only used for InDet and thus is defined by InDet
-      if(!idDictTable->isFieldNull("DICT_TAG")) {
-	m_inDetIDTag      = idDictTable->getString("DICT_TAG");
-      }
-      m_inDetIdDictTag  = idDictSet->tagName();
-      log << MSG::DEBUG << " using dictionary:  " << dictName 
-	  << ", file: " <<  m_inDetIDFileName  
-	  << ", with internal tag: " << m_inDetIDTag
-	  << ", dictionary tag: " << m_inDetIdDictTag
-	  << endmsg;
+    // Get InDet
+    if (m_useGeomDB_InDet) {
+        // Get Innner Detector xml and write to the temporary file InDetIdDict.xml
+        detectorKey = DecodeVersionKey(geoDbTagSvc, "InnerDetector");
+        log << MSG::DEBUG << "From Version Tag: " << detectorKey.tag()
+            << " at Node: " << detectorKey.node() << endmsg;
+        detTag = detectorKey.tag();
+        detNode = detectorKey.node();
+        idDictSet = rdbAccessSvc->getRecordsetPtr("DICTXDD", detTag, detNode);
+
+        // Size == 0 if not found
+        if (idDictSet->size()) {
+            const IRDBRecord *recordInDet = (*idDictSet)[0];
+            std::string InDetString = recordInDet->getString("XMLCLOB");
+
+            //  write to the temporary file
+            std::ofstream blobFile;
+            blobFile.open("InDetIdDict.xml");
+            blobFile << InDetString << std::endl;
+            blobFile.close();
+        } else {
+            log << MSG::WARNING << " no record set found for InDetIdentifier - using default dictionary " << endmsg;
+        }
+    } else {
+        if(useGeomDB) {
+            detectorKey = DecodeVersionKey(geoDbTagSvc, "InnerDetector");
+            log << MSG::DEBUG << "From Version Tag: " 
+                << detectorKey.tag()  << " at Node: " << detectorKey.node() << endmsg;
+            detTag = detectorKey.tag();
+            detNode = detectorKey.node();
+        }
+        idDictSet = rdbAccessSvc->getRecordsetPtr("InDetIdentifier",detTag,detNode);
+
+        // Size == 0 if not found
+        if (idDictSet->size()) {
+            idDictTable       = (*idDictSet)[0];
+            dictName          = idDictTable->getString("DICT_NAME");
+            m_inDetIDFileName = idDictTable->getString("DICT_FILENAME");
+            // NOTE: the internal tag for IdDict is global, but is
+            // only used for InDet and thus is defined by InDet
+            if(!idDictTable->isFieldNull("DICT_TAG")) {
+                m_inDetIDTag  = idDictTable->getString("DICT_TAG");
+            }
+            m_inDetIdDictTag  = idDictSet->tagName();
+            log << MSG::DEBUG << " using dictionary:  " << dictName 
+                << ", file: " <<  m_inDetIDFileName  
+                << ", with internal tag: " << m_inDetIDTag
+                << ", dictionary tag: " << m_inDetIdDictTag
+                << endmsg;
+        } else {
+            log << MSG::WARNING << " no record set found for InDetIdentifier - using default dictionary " << endmsg;
+        }
     }
-    else {
-      log << MSG::WARNING << " no record set found - using default dictionary " << endmsg;
-    }
-    
+
     // Get LAr
     if(useGeomDB) {
       detectorKey = DecodeVersionKey(geoDbTagSvc, "LAr");
@@ -871,7 +896,7 @@ IdDictDetDescrCnv::getFileNamesFromTags()
 	  << endmsg;
     }
     else {
-      log << MSG::WARNING << " no record set found - using default dictionary " << endmsg;
+      log << MSG::WARNING << " no record set found for LArIdentifier - using default dictionary " << endmsg;
     }
     
     
@@ -897,7 +922,7 @@ IdDictDetDescrCnv::getFileNamesFromTags()
 	  << endmsg;
     }
     else {
-      log << MSG::WARNING << " no record set found - using default dictionary " << endmsg;
+      log << MSG::WARNING << " no record set found for TileIdentifier - using default dictionary " << endmsg;
     }
     
     // Get Calo
@@ -922,7 +947,7 @@ IdDictDetDescrCnv::getFileNamesFromTags()
 	  << endmsg;
     }
     else {
-      log << MSG::WARNING << " no record set found - using default dictionary " << endmsg;
+      log << MSG::WARNING << " no record set found for CaloIdentifier - using default dictionary " << endmsg;
     }
     
     // Calo neighbor files:
@@ -987,7 +1012,7 @@ IdDictDetDescrCnv::getFileNamesFromTags()
       
     }
     else {
-      log << MSG::WARNING << " no record set found - using default dictionary " << endmsg;
+      log << MSG::WARNING << " no record set found for MuonIdentifier - using default dictionary " << endmsg;
     }
     
     // Get Forward
@@ -1019,31 +1044,7 @@ IdDictDetDescrCnv::getFileNamesFromTags()
 	  << endmsg;
     }
     else {
-      log << MSG::WARNING << " no record set found - using default dictionary " << endmsg;
-    }
-
-    // Get Innner Detector xml and write to the temporary file InDetIdDict.xml
-    if (m_useGeomDB_InDet) {
-        detectorKey = DecodeVersionKey(geoDbTagSvc, "InnerDetector");
-        log << MSG::DEBUG << "From Version Tag: " << detectorKey.tag()
-            << " at Node: " << detectorKey.node() << endmsg;
-        detTag = detectorKey.tag();
-        detNode = detectorKey.node();
-        idDictSet = rdbAccessSvc->getRecordsetPtr("DICTXDD", detTag, detNode);
-
-        // Size == 0 if not found
-        if (idDictSet->size()) {
-            const IRDBRecord *recordInDet = (*idDictSet)[0];
-            std::string InDetString = recordInDet->getString("XMLCLOB");
-
-            //  write to the temporary file
-            std::ofstream blobFile;
-            blobFile.open("InDetIdDict.xml");
-            blobFile << InDetString << std::endl;
-            blobFile.close();
-        } else {
-            log << MSG::WARNING << " no record set found - not using dictionary from the database " << endmsg;
-        }
+      log << MSG::WARNING << " no record set found for ForDetIdentifier - using default dictionary " << endmsg;
     }
 
     log << MSG::DEBUG << "End access to RDB for id dictionary info " << endmsg;

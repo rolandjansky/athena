@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///
@@ -43,6 +43,7 @@
 // Gaudi includes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandle.h"
 
 //Remove in boost > 1.76 when the boost iterator issue
 //is solved see ATLASRECTS-6358
@@ -51,6 +52,7 @@
 //
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTruth/TruthEventContainer.h"
+#include "xAODEventInfo/EventInfo.h"
 //
 //
 #include "InDetRecToolInterfaces/IInDetEtaDependentCutsSvc.h"
@@ -63,6 +65,7 @@ class TH1F;
 class TProfile;
 class TTree;
 class IChronoStatSvc;
+class ITHistSvc;
 
 namespace Trk{
   class TrkVKalVrtFitter;
@@ -117,53 +120,59 @@ namespace InDet {
 
     private:
 
-      double m_w_1{};
-      TTree* m_tuple{};
-      TH1D* m_hb_massPiPi{};
-      TH1D* m_hb_massPiPi1{};
-      TH1D* m_hb_massPPi{};
-      TH1D* m_hb_massEE{};
-      TH1D* m_hb_totmassEE{};
-      TH1D* m_hb_totmass2T0{};
-      TH1D* m_hb_totmass2T1{};
-      TH1D* m_hb_totmass2T2{};
-      TH1D* m_hb_nvrt2{};
-      TH1D* m_hb_ratio{};
-      TH1D* m_hb_totmass{};
-      TH1D* m_hb_impact{};
-      TH1D* m_hb_impactR{};
-      TH2D* m_hb_impactRZ{};
-      TH1D* m_hb_trkD0{};
-      TH1D* m_hb_ntrkjet{};
-      TH1D* m_hb_impactZ{};
-      TH1D* m_hb_r2d{};
-      TH1D* m_hb_r1dc{};
-      TH1D* m_hb_r2dc{};
-      TH1D* m_hb_r3dc{};
-      TH1D* m_hb_rNdc{};
-      TH1D* m_hb_dstToMat{};
-      TH1D* m_hb_jmom{};
-      TH1D* m_hb_mom{};
-      TH1D* m_hb_signif3D{};
-      TH1D* m_hb_impV0{};
-      TH1D* m_hb_sig3DTot{};
-      TH1F* m_hb_goodvrtN{};
-      TH1D* m_hb_distVV{};
-      TH1D* m_hb_diffPS{};
-      TH1D* m_hb_sig3D1tr{};
-      TH1D* m_hb_sig3D2tr{};
-      TH1D* m_hb_sig3DNtr{};
-      TH1D* m_hb_trkPtMax{};
-      TH1F* m_hb_rawVrtN{};
-      TH1F* m_hb_lifetime{};
-      TH1F* m_hb_trkPErr{};
-      TH1F* m_hb_deltaRSVPV{};
+      struct DevTuple;
+      struct Hists {
+        StatusCode book (ITHistSvc& histSvc, const std::string& histDir);
+        TTree* m_tuple{};
+        DevTuple* m_curTup;
+        TH1D* m_hb_massPiPi{};
+        TH1D* m_hb_massPiPi1{};
+        TH1D* m_hb_massPPi{};
+        TH1D* m_hb_massEE{};
+        TH1D* m_hb_totmassEE{};
+        TH1D* m_hb_totmass2T0{};
+        TH1D* m_hb_totmass2T1{};
+        TH1D* m_hb_totmass2T2{};
+        TH1D* m_hb_nvrt2{};
+        TH1D* m_hb_ratio{};
+        TH1D* m_hb_totmass{};
+        TH1D* m_hb_impact{};
+        TH1D* m_hb_impactR{};
+        TH2D* m_hb_impactRZ{};
+        TH1D* m_hb_trkD0{};
+        TH1D* m_hb_ntrkjet{};
+        TH1D* m_hb_impactZ{};
+        TH1D* m_hb_r2d{};
+        TH1D* m_hb_r1dc{};
+        TH1D* m_hb_r2dc{};
+        TH1D* m_hb_r3dc{};
+        TH1D* m_hb_rNdc{};
+        TH1D* m_hb_dstToMat{};
+        TH1D* m_hb_jmom{};
+        TH1D* m_hb_mom{};
+        TH1D* m_hb_signif3D{};
+        TH1D* m_hb_impV0{};
+        TH1D* m_hb_sig3DTot{};
+        TH1F* m_hb_goodvrtN{};
+        TH1D* m_hb_distVV{};
+        TH1D* m_hb_diffPS{};
+        TH1D* m_hb_sig3D1tr{};
+        TH1D* m_hb_sig3D2tr{};
+        TH1D* m_hb_sig3DNtr{};
+        TH1D* m_hb_trkPtMax{};
+        TH1F* m_hb_rawVrtN{};
+        TH1F* m_hb_lifetime{};
+        TH1F* m_hb_trkPErr{};
+        TH1F* m_hb_deltaRSVPV{};
 //--
-      TProfile * m_pr_NSelTrkMean{};
-      TProfile * m_pr_effVrt2tr{};
-      TProfile * m_pr_effVrt2trEta{};
-      TProfile * m_pr_effVrt{};
-      TProfile * m_pr_effVrtEta{};
+        TProfile * m_pr_NSelTrkMean{};
+        TProfile * m_pr_effVrt2tr{};
+        TProfile * m_pr_effVrt2trEta{};
+        TProfile * m_pr_effVrt{};
+        TProfile * m_pr_effVrtEta{};
+      };
+      std::unique_ptr<Hists> m_h;
+      
       long int m_iflag{};
 
       SimpleProperty<int>    m_Robustness;
@@ -189,8 +198,9 @@ namespace InDet {
       double m_a0TrkErrorCut{};
       double m_zTrkErrorCut{};
       double m_cutBVrtScore{};
-      double m_Vrt2TrMassLimit{};
+      double m_vrt2TrMassLimit{};
 
+      bool m_useFrozenVersion{};
       bool m_fillHist{};
 
       bool m_existIBL{};
@@ -222,11 +232,13 @@ namespace InDet {
       double    m_vertexMergeCut{};
       double    m_trackDetachCut{};
 
+
       ToolHandle < Trk::IVertexFitter >       m_fitterSvc;
       Trk::TrkVKalVrtFitter*   m_fitSvc{};
       IChronoStatSvc * m_timingProfile{}; 
- 
+
       ToolHandle < IInDetTrkInJetType >       m_trackClassificator;
+      SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey {this,"EventInfoName", "EventInfo"};
 
       bool m_useEtaDependentCuts = false;
       /** service to get cut values depending on different variable */
@@ -259,6 +271,7 @@ namespace InDet {
        static const int maxNTrk=100;
        static const int maxNVrt=100;
        int nTrkInJet;
+       float ewgt;
        float ptjet;
        float etajet;
        float phijet;
@@ -284,6 +297,7 @@ namespace InDet {
        float VrtSig3D[maxNVrt];
        float VrtSig2D[maxNVrt];
        float VrtDR[maxNVrt];
+       float VrtdRtt[maxNVrt];
        float VrtErrR[maxNVrt];
        float mass[maxNVrt];
        float Chi2[maxNVrt];
@@ -298,6 +312,7 @@ namespace InDet {
        //---
        int   nNVrt;
        float NVrtDist2D[maxNVrt];
+       float NVrtSig3D[maxNVrt];
        int   NVrtNT[maxNVrt];
        int   NVrtTrkI[maxNVrt];
        float NVrtM[maxNVrt];
@@ -306,7 +321,6 @@ namespace InDet {
        float NVrtAveW[maxNVrt];
        float NVrtDR[maxNVrt];
      };
-     DevTuple*  m_curTup;
 
      struct Vrt2Tr 
      {   int i=0, j=0;
@@ -327,7 +341,7 @@ namespace InDet {
 
 // For multivertex version only
 
-      boost::adjacency_list<boost::listS, boost::vecS, boost::undirectedS> *m_compatibilityGraph{};
+      using compatibilityGraph_t = boost::adjacency_list<boost::listS, boost::vecS, boost::undirectedS>;
       float m_chiScale[11]{};
       struct WrkVrt 
      {   bool Good=true;
@@ -355,13 +369,15 @@ namespace InDet {
                                    std::vector<double>                           & results,
                                    std::vector<const xAOD::TrackParticle*>       & selSecTrk,
                                    std::vector<const xAOD::TrackParticle*>       & trkFromV0,
-				   int & nRefPVTrk) const;
+				   int & nRefPVTrk,
+                                   compatibilityGraph_t                          & compatibilityGraph) const;
 
       std::vector<xAOD::Vertex*> getVrtSecMulti(
         workVectorArrxAOD*,
         const xAOD::Vertex& primVrt,
         const TLorentzVector& jetDir,
-        std::vector<double>& results) const;
+        std::vector<double>& results,
+        compatibilityGraph_t& compatibilityGraph) const;
 
       void  trackClassification(std::vector<WrkVrt> *wrkVrtSet, 
                                 std::vector< std::deque<long int> > *trkInVrt) const;
@@ -381,7 +397,8 @@ namespace InDet {
 
 
       StatusCode cutTrk(std::unordered_map<std::string,double> TrkVarDouble,
-                        std::unordered_map<std::string,int> TrkVarInt) const;
+                        std::unordered_map<std::string,int> TrkVarInt,
+			float evtWgt=1.) const;
       double coneDist(const AmgVector(5) & , const TLorentzVector & ) const;
 //
 // Gives correct mass assignment in case of nonequal masses
@@ -412,14 +429,10 @@ namespace InDet {
       void clean1TrVertexSet(std::vector<WrkVrt> *WrkVrtSet) const;
       double jetProjDist(Amg::Vector3D &SecVrt, const xAOD::Vertex &primVrt, const TLorentzVector &JetDir) const;
 
-      double vrtVrtDist(const Trk::RecVertex & primVrt, const Amg::Vector3D & SecVrt, 
-                                  const std::vector<double>& VrtErr,double& Signif ) const;
       double vrtVrtDist(const xAOD::Vertex & primVrt, const Amg::Vector3D & SecVrt, 
                                   const std::vector<double>& VrtErr,double& Signif ) const;
       double vrtVrtDist2D(const xAOD::Vertex & primVrt, const Amg::Vector3D & SecVrt, 
                                   const std::vector<double>& VrtErr,double& Signif ) const;
-      double vrtVrtDist(const Trk::RecVertex & primVrt, const Amg::Vector3D & SecVrt, 
-                                  const std::vector<double>& SecVrtErr, const TLorentzVector & JetDir) const;
       double vrtVrtDist(const xAOD::Vertex & primVrt, const Amg::Vector3D & SecVrt, 
                                   const std::vector<double>& SecVrtErr, const TLorentzVector & JetDir) const;
       double vrtVrtDist(const Amg::Vector3D & Vrt1, const std::vector<double>& VrtErr1,
@@ -483,7 +496,8 @@ namespace InDet {
      int   selGoodTrkParticle( const std::vector<const xAOD::TrackParticle*>& inpPart,
                                 const xAOD::Vertex                           & primVrt,
                                 const TLorentzVector                         & jetDir,
-                                      std::vector<const xAOD::TrackParticle*>& selPart) const;
+                                      std::vector<const xAOD::TrackParticle*>& selPart,
+                                float evtWgt=1.) const;
 
 
       template <class Trk>
@@ -494,7 +508,9 @@ namespace InDet {
                         std::vector<double>      & InpMass, 
                         int                      & nRefPVTrk,
                         std::vector<const Trk*>  & TrkFromV0,
-                        std::vector<const Trk*>  & ListSecondTracks) const;
+                        std::vector<const Trk*>  & ListSecondTracks,
+                        compatibilityGraph_t     & compatibilityGraph,
+                        float evtWgt = 1) const;
 
      Amg::MatrixX  makeVrtCovMatrix( std::vector<double> & ErrorMatrix ) const;
 
@@ -529,6 +545,8 @@ namespace InDet {
 
      StatusCode GetTrkFitWeights(std::vector<double> & wgt,
                                  const Trk::IVKalState& istate) const;
+
+     Hists& getHists() const;
    };
 
 

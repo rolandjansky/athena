@@ -1,17 +1,16 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ACTSGEOMETRYINTERFACES_IACTSATLASCONVERTERTOOL_H
 #define ACTSGEOMETRYINTERFACES_IACTSATLASCONVERTERTOOL_H
 
 // ATHENA
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/IAlgTool.h"
-#include "GaudiKernel/EventContext.h"
-
+#include "TrkParameters/TrackParameters.h" //typedef, cannot fwd declare
 #include "Acts/EventData/TrackParameters.hpp"
+#include <memory>
 
 namespace Trk {
   class Surface;
@@ -52,7 +51,7 @@ class IActsATLASConverterTool : virtual public IAlgTool {
   ATLASTrackParameterToActs(const Trk::TrackParameters *atlasParameter) const = 0;
   
   virtual
-  const Trk::TrackParameters*
+  std::unique_ptr<const Trk::TrackParameters>
   ActsTrackParameterToATLAS(const Acts::BoundTrackParameters &actsParameter, const Acts::GeometryContext& gctx) const = 0;
 
   virtual

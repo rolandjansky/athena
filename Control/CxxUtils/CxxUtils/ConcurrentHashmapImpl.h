@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file CxxUtils/ConcurrentHashmapImpl.h
@@ -46,7 +46,7 @@ using ConcurrentHashmapVal_t = uintptr_t;
  * To search for an entry with hash code @c hash in the table pointed
  * at by @c entries:
  *@code
- *  CHMTableInterator<ENTRIES_PER_CACHELINE> it (hash, mask, maskBits, probleLimit);
+ *  CHMTableIterator<ENTRIES_PER_CACHELINE> it (hash, mask, maskBits, probeLimit);
  *  do {
  *    entry_t* ent = entries + it.offset();
  *    <<test if ent is the desired entry and handle if so>>
@@ -61,7 +61,7 @@ using ConcurrentHashmapVal_t = uintptr_t;
 template <unsigned ENTRIES_PER_CACHELINE>
 struct CHMTableIterator
 {
-  /// Mask for the within-cachline part of indices.
+  /// Mask for the within-cacheline part of indices.
   static  constexpr size_t ENTRIES_PER_CACHELINE_MASK = ENTRIES_PER_CACHELINE-1;
 
   /**
@@ -328,7 +328,7 @@ public:
                          const typename Updater_t::Context_t& ctx);
 
 
-  // Don't implment copying.
+  // Don't implement copying.
   // This should be done by derived classes, if desired.
   ConcurrentHashmapImpl (const ConcurrentHashmapImpl&) = delete;
   ConcurrentHashmapImpl& operator= (const ConcurrentHashmapImpl&) = delete;
@@ -336,7 +336,7 @@ public:
 
   /**
    * @brief Return the number of items currently stored.
-   *   (not necessarity synced)
+   *   (not necessarily synced)
    */
   size_t size() const;
 

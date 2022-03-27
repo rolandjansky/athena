@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -892,7 +892,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::callHelperTools(
     } //end if (detectorType!=TrackState::unidentified && !isOutlier)
 
     // call the general tools
-    if (m_GeneralHelperTools.size() > 0) {
+    if (!m_GeneralHelperTools.empty()) {
       std::vector< const Trk::IValidationNtupleHelperTool* >::const_iterator toolIter = m_GeneralHelperTools.begin();
       for (; toolIter!=m_GeneralHelperTools.end(); ++toolIter) {
         if (((*toolIter)->fillMeasurementData(measurement, trkPar, detectorType, isOutlier)).isFailure()) {
@@ -987,7 +987,7 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillHoleData (
     } //end if (detectorType!=TrackState::unidentified)
 
     // call the general tools
-    if (m_GeneralHelperTools.size() > 0) {
+    if (!m_GeneralHelperTools.empty()) {
         std::vector< const Trk::IValidationNtupleHelperTool* >::const_iterator toolIter = m_GeneralHelperTools.begin();
         for (; toolIter!=m_GeneralHelperTools.end(); ++toolIter) {
             if (((*toolIter)->fillHoleData(tsos, detectorType)).isFailure()) {

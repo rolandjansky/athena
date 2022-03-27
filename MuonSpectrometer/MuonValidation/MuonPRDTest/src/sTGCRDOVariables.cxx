@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "sTGCRDOVariables.h"
@@ -68,13 +68,14 @@ StatusCode sTGCRDOVariables::fillVariables(const MuonGM::MuonDetectorManager* Mu
       m_NSWsTGC_rdo_channel->push_back(channel);
       m_NSWsTGC_rdo_channel_type->push_back(channel_type);
       m_NSWsTGC_rdo_time->push_back(rdo->time());
+      m_NSWsTGC_rdo_tdo->push_back(rdo->tdo());
       m_NSWsTGC_rdo_charge->push_back(rdo->charge());
       m_NSWsTGC_rdo_bcTag->push_back(rdo->bcTag());
       m_NSWsTGC_rdo_isDead->push_back(rdo->isDead());
 
       // get the readout element class where the RDO is recorded
       int isSmall = stName[2] == 'S';
-      const MuonGM::sTgcReadoutElement* rdoEl = MuonDetMgr->getsTgcRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet);
+      const MuonGM::sTgcReadoutElement* rdoEl = MuonDetMgr->getsTgcReadoutElement(Id);
       if (!rdoEl) throw std::runtime_error(Form("File: %s, Line: %d\nsTGCRDOVariables::fillVariables() - Failed to retrieve sTgcReadoutElement for isSmall=%d, stationEta=%d, stationPhi=%d, multiplet=%d", __FILE__, __LINE__, isSmall, stationEta, stationPhi, multiplet));
 
       Amg::Vector2D localStripPos(0.,0.);
@@ -119,6 +120,7 @@ StatusCode sTGCRDOVariables::clearVariables()
   m_NSWsTGC_rdo_channel->clear();
   m_NSWsTGC_rdo_channel_type->clear();
   m_NSWsTGC_rdo_time->clear();
+  m_NSWsTGC_rdo_tdo->clear();
   m_NSWsTGC_rdo_charge->clear();
   m_NSWsTGC_rdo_bcTag->clear();
   m_NSWsTGC_rdo_isDead->clear();
@@ -148,6 +150,7 @@ StatusCode sTGCRDOVariables::initializeVariables()
   m_NSWsTGC_rdo_channel     = new std::vector<int>();
   m_NSWsTGC_rdo_channel_type= new std::vector<int>();
   m_NSWsTGC_rdo_time        = new std::vector<double>();
+  m_NSWsTGC_rdo_tdo         = new std::vector<uint16_t>();
   m_NSWsTGC_rdo_charge      = new std::vector<uint16_t>();
   m_NSWsTGC_rdo_bcTag       = new std::vector<uint16_t>();
   m_NSWsTGC_rdo_isDead      = new std::vector<bool>();
@@ -169,6 +172,7 @@ StatusCode sTGCRDOVariables::initializeVariables()
     m_tree->Branch("RDO_sTGC_channel",      &m_NSWsTGC_rdo_channel);
     m_tree->Branch("RDO_sTGC_channel_type", &m_NSWsTGC_rdo_channel_type);
     m_tree->Branch("RDO_sTGC_time",         &m_NSWsTGC_rdo_time);
+    m_tree->Branch("RDO_sTGC_tdo",          &m_NSWsTGC_rdo_tdo);
     m_tree->Branch("RDO_sTGC_charge",       &m_NSWsTGC_rdo_charge);
     m_tree->Branch("RDO_sTGC_bcTag",        &m_NSWsTGC_rdo_bcTag);
     m_tree->Branch("RDO_sTGC_isDead",       &m_NSWsTGC_rdo_isDead);
@@ -197,6 +201,7 @@ void sTGCRDOVariables::deleteVariables()
   delete m_NSWsTGC_rdo_channel;
   delete m_NSWsTGC_rdo_channel_type;
   delete m_NSWsTGC_rdo_time;
+  delete m_NSWsTGC_rdo_tdo;
   delete m_NSWsTGC_rdo_charge;
   delete m_NSWsTGC_rdo_bcTag;
   delete m_NSWsTGC_rdo_isDead;
@@ -215,6 +220,7 @@ void sTGCRDOVariables::deleteVariables()
   m_NSWsTGC_rdo_channel = nullptr;
   m_NSWsTGC_rdo_channel_type = nullptr;
   m_NSWsTGC_rdo_time = nullptr;
+  m_NSWsTGC_rdo_tdo = nullptr;
   m_NSWsTGC_rdo_charge = nullptr;
   m_NSWsTGC_rdo_bcTag = nullptr;
   m_NSWsTGC_rdo_isDead = nullptr;

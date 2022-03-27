@@ -6,7 +6,7 @@ logging.getLogger().info("Importing %s", __name__)
 log = logging.getLogger(__name__)
 
 
-from ..Menu.ChainConfigurationBase import ChainConfigurationBase
+from ..Config.ChainConfigurationBase import ChainConfigurationBase
 from .ConfigHelpers import recoKeys, AlgConfig
 from ..Menu.SignatureDicts import METChainParts_Default
 

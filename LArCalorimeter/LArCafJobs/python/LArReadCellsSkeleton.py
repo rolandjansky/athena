@@ -20,6 +20,7 @@ def fromRunArgs(runArgs):
     processPreExec(runArgs, ConfigFlags)
 
     ConfigFlags.LAr.ROD.forceIter=True
+    ConfigFlags.LAr.OFCShapeFolder="4samples3bins17phases"
     ConfigFlags.Input.Files=runArgs.inputBSFile
     ConfigFlags.LArShapeDump.outputNtup="SPLASH"
 

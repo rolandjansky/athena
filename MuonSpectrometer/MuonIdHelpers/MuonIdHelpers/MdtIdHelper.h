@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ******************************************************************************
@@ -78,34 +78,43 @@ public:
     ////////////// compact identifier stuff begins //////////////////////////////////////
 
     /// Initialization from the identifier dictionary
-    virtual int initialize_from_dictionary(const IdDictMgr& dict_mgr);
-    virtual int get_module_hash(const Identifier& id, IdentifierHash& hash_id) const;
-    virtual int get_detectorElement_hash(const Identifier& id, IdentifierHash& hash_id) const;
+    virtual int initialize_from_dictionary(const IdDictMgr& dict_mgr) override;
+    virtual int get_module_hash(const Identifier& id, IdentifierHash& hash_id) const override;
+    virtual int get_detectorElement_hash(const Identifier& id, IdentifierHash& hash_id) const override;
 
     ///////////// compact identifier stuff ends   //////////////////////////////////////
 
     // Atlas Identifier builders
 
-    Identifier elementID(int stationName, int stationEta, int stationPhi, bool check = false, bool* isValid = 0) const;
-    Identifier elementID(const std::string& stationNameStr, int stationEta, int stationPhi, bool check = false, bool* isValid = 0) const;
+    Identifier elementID(int stationName, int stationEta, int stationPhi) const;
+    Identifier elementID(int stationName, int stationEta, int stationPhi, bool& isValid) const;
+    
+    Identifier elementID(const std::string& stationNameStr, int stationEta, int stationPhi) const;
+    Identifier elementID(const std::string& stationNameStr, int stationEta, int stationPhi, bool& isValid) const;
+    
     Identifier elementID(const Identifier& channelID) const;
-    Identifier channelID(int stationName, int stationEta, int stationPhi, int multilayer, int tubeLayer, int tube, bool check = false,
-                         bool* isValid = 0) const;
-    Identifier channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int multilayer, int tubeLayer, int tube,
-                         bool check = false, bool* isValid = 0) const;
-    Identifier channelID(const Identifier& id, int multilayer, int tubeLayer, int tube, bool check = false, bool* isValid = 0) const;
+
+    Identifier channelID(int stationName, int stationEta, int stationPhi, int multilayer, int tubeLayer, int tube) const;
+    Identifier channelID(int stationName, int stationEta, int stationPhi, int multilayer, int tubeLayer, int tube, bool& isValid) const;
+
+    Identifier channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int multilayer, int tubeLayer, int tube) const;
+    Identifier channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int multilayer, int tubeLayer, int tube, bool& isValid) const;
+
+    Identifier channelID(const Identifier& id, int multilayer, int tubeLayer, int tube) const;
+    Identifier channelID(const Identifier& id, int multilayer, int tubeLayer, int tube, bool& isValid) const;
 
     Identifier parentID(const Identifier& id) const;
 
     Identifier multilayerID(const Identifier& channeldID) const;
-    Identifier multilayerID(const Identifier& moduleID, int multilayer, bool check = false, bool* isValid = 0) const;
+
+    Identifier multilayerID(const Identifier& moduleID, int multilayer) const;
+    Identifier multilayerID(const Identifier& moduleID, int multilayer, bool& isValid) const;
 
     // for an Identifier id, get the list of the daughter readout channel ids
     void idChannels(const Identifier& id, std::vector<Identifier>& vect) const;
 
     // Access to levels: missing field returns 0
-
-    int channel(const Identifier& id) const;
+    int channel(const Identifier& id) const override;
 
     int multilayer(const Identifier& id) const;
     int tubeLayer(const Identifier& id) const;
@@ -145,22 +154,22 @@ public:
     bool validElement(const Identifier& id) const;
 
     /// the gas-gap function for the MDT's returns the tube layer
-    int gasGap(const Identifier& id) const;
+    int gasGap(const Identifier& id) const override;
     /// always false for MDTs
-    bool measuresPhi(const Identifier& id) const;
+    bool measuresPhi(const Identifier& id) const override;
     /// is this a BMG chamber
     bool isBMG(const Identifier& id) const;
     /// is this a BME chamber
     bool isBME(const Identifier& id) const;
 
 private:
+    bool isStNameInTech(const std::string& stationName) const override;
     int init_id_to_hashes();
     unsigned int m_module_hashes[60][20][8]{};
     unsigned int m_detectorElement_hashes[60][20][8][3]{};
 
     // compact id indices
-    size_type m_TUBELAYER_INDEX;
-
+    size_type m_TUBELAYER_INDEX{0};
     IdDictFieldImplementation m_mla_impl;
     IdDictFieldImplementation m_lay_impl;
     IdDictFieldImplementation m_tub_impl;
@@ -173,8 +182,7 @@ private:
     // Utility method
 
     int mdtTechnology() const;
-    bool barrelChamber(int stationName) const;
-
+   
     // Level indices
 
     enum MdtIndices { MultilayerIndex = 5, TubeLayerIndex = 6, TubeIndex = 7 };
@@ -195,7 +203,7 @@ private:
         TubeMin = 1,
         TubeMax = 78
     };
-    unsigned int m_tubesMax;  // maximum number of tubes in any chamber
+    unsigned int m_tubesMax{UINT_MAX};  // maximum number of tubes in any chamber
 };
 
 // For backwards compatibility

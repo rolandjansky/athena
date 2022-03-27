@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 def LArFEBMonConfigOld(inputFlags, cellDebug=False, dspDebug=False):
     from AthenaMonitoring import AthMonitorCfgHelperOld
@@ -241,7 +241,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
        ft_up  = lArDQGlobals.FEB_Feedthrough[lArDQGlobals.Partitions[subdet*2]][1] + 0.5
        ft_n = int(ft_up - ft_low)
 
-       darray = helper.addArray([lArDQGlobals.Partitions[2*subdet:2*subdet+2]],larFEBMonAlg,lArDQGlobals.SubDet[subdet])
+       darray = helper.addArray([lArDQGlobals.Partitions[2*subdet:2*subdet+2]],larFEBMonAlg,lArDQGlobals.SubDet[subdet],topPath='/')
 
        darray.defineHistogram('slotPar,FTPar;RAW_Parity',
                               title='Parity error;Slot;FT',
@@ -431,7 +431,6 @@ if __name__=='__main__':
    ConfigFlags.Output.HISTFileName = 'LArFEBMonOutput.root'
    ConfigFlags.DQ.enableLumiAccess = True
    ConfigFlags.DQ.useTrigger = False
-   ConfigFlags.Beam.Type = 'collisions'
    ConfigFlags.lock()
 
 

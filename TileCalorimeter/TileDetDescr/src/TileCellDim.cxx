@@ -1,13 +1,23 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
+/*
+ * Updates: 
+ * - 2022 Jan, Riccardo Maria BIANCHI <riccardo.maria.bianchi@cern.ch>
+ *   Added MsgStream for logging
+ */
+
 #include "TileDetDescr/TileCellDim.h"
+
+#include "AthenaKernel/getMessageSvc.h" // needed for 'Athena::getMessageSvc()'
+
 #include <stdexcept>
 #include <iostream>
 #include <cmath>
 
-TileCellDim::TileCellDim(unsigned int nRows) : 
+TileCellDim::TileCellDim(unsigned int nRows) :
+  AthMessaging (Athena::getMessageSvc(), "TileDetDescrManager"),
   m_nRows(nRows),
   m_volume(0)
 {
@@ -46,6 +56,7 @@ double TileCellDim::getZMin(unsigned int index) const
  
 double TileCellDim::getZMax(unsigned int index) const
 {
+  ATH_MSG_DEBUG( "TileCellDim::getZMax - index: " << index << ", size: " << m_zMax.size() );
   if(index < m_zMax.size())
     return m_zMax[index];
   else
@@ -96,8 +107,8 @@ double TileCellDim::computeRowVolume(int iRow)
 {
   
   return  fabs ( m_Radius2HalfLength * (m_rMin[iRow] + m_rMax[iRow])
-		 * (m_rMax[iRow] - m_rMin[iRow])
-		 * (m_zMax[iRow] - m_zMin[iRow]) );
+         * (m_rMax[iRow] - m_rMin[iRow])
+         * (m_zMax[iRow] - m_zMin[iRow]) );
 }
 
 

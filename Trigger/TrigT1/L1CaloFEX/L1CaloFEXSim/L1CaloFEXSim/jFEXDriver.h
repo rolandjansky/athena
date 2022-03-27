@@ -50,8 +50,6 @@ class jFEXDriver : public AthAlgorithm
 
   SG::WriteHandleKey<jFEXOutputCollection> m_jFEXOutputCollectionSGKey {this, "MyOutputs", "jFEXOutputCollection", "MyOutputs"};
 
-  SG::ReadHandleKey<CaloCellContainer> m_scellsCollectionSGKey {this, "SCell", "SCell", "SCell"};
-
   SG::ReadHandleKey<xAOD::jFexSRJetRoIContainer> m_jFexSRJetEDMKey {this, "myEDMSR", "L1_jFexSRJetRoI", "Reading container of jFexSRRoIs"};
   SG::ReadHandleKey<xAOD::jFexLRJetRoIContainer> m_jFexLRJetEDMKey {this, "myEDMLR", "L1_jFexLRJetRoI", "Reading container of jFexLRRoIs"};
   SG::ReadHandleKey<xAOD::jFexTauRoIContainer> m_jFexTauEDMKey {this, "myEDMTau", "L1_jFexTauRoI", "Reading container of jFexTauRoIs"};

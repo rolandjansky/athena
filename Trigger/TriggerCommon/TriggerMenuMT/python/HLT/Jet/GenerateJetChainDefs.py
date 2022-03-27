@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from .JetChainConfiguration import JetChainConfiguration
-from ..Menu.ChainMerging import mergeChainDefs
+from TriggerMenuMT.HLT.Config.Utility.ChainMerging import mergeChainDefs
 
 import pprint
 from AthenaCommon.Logging import logging

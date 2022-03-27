@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -355,9 +355,9 @@ void TRTDigSettings::defineNewUIntVariable(const std::string &name,unsigned int 
   intboolparameter p;
 
   p.description = description;
-  p.directvaraddress_int = 0;
+  p.directvaraddress_int = nullptr;
   p.directvaraddress_uint = datamember;
-  p.directvaraddress_bool = 0;
+  p.directvaraddress_bool = nullptr;
   p.okrange_low = static_cast<int>(lowrange);
   p.okrange_high = static_cast<int>(highrange);
   p.valueSetByUser = m_propertyNotSetMagicNumber_int;
@@ -381,8 +381,8 @@ void TRTDigSettings::defineNewIntVariable(const std::string & name,int * datamem
 
   p.description = description;
   p.directvaraddress_int = datamember;
-  p.directvaraddress_uint = 0;
-  p.directvaraddress_bool = 0;
+  p.directvaraddress_uint = nullptr;
+  p.directvaraddress_bool = nullptr;
   p.okrange_low = lowrange;
   p.okrange_high = highrange;
   p.valueSetByUser = m_propertyNotSetMagicNumber_int;
@@ -401,8 +401,8 @@ void TRTDigSettings::defineNewBoolVariable(const std::string & name,bool * datam
   intboolparameter p;
 
   p.description = description;
-  p.directvaraddress_int = 0;
-  p.directvaraddress_uint = 0;
+  p.directvaraddress_int = nullptr;
+  p.directvaraddress_uint = nullptr;
   p.directvaraddress_bool = datamember;
   p.okrange_low = 0;
   p.okrange_high = 1;
@@ -526,7 +526,7 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
   // Delta-ray suppression tune with backward compatibility with non suppressed delta-ray simulation tagged as 01-01-07
   // Delta-ray suppression HT middle-bit fraction tune - 2015 data; 01-01-16
   m_trtRangeCutProperty = m_doubleparMap["TrtRangeCutProperty"].valueSetByUser;//To avoid overwritting warning message and to use python configured value
-  if(fabs(m_trtRangeCutProperty-0.05) >= std::numeric_limits<double>::epsilon()){
+  if(std::abs(m_trtRangeCutProperty-0.05) >= std::numeric_limits<double>::epsilon()){
     m_lowThresholdBar        = 0.260*CLHEP::keV;
     m_lowThresholdEC         = 0.275*CLHEP::keV;
     m_highThresholdBarShort  = 5.195*CLHEP::keV;

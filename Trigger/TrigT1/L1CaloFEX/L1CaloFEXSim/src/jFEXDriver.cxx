@@ -58,7 +58,7 @@ namespace LVL1 {
 
 jFEXDriver::jFEXDriver(const std::string& name, ISvcLocator* pSvcLocator):  AthAlgorithm(name, pSvcLocator){
     declareProperty("PileupWeigthFile", m_PileupWeigthFile = "Run3L1CaloSimulation/Noise/jTowerCorrection.20210308.r12406.root");
-    declareProperty("PileupHelperFile", m_PileupHelperFile = "Run3L1CaloSimulation/Calibrations/jFEX_MatchedMapping.2021Oct14.r12406.root");
+    declareProperty("PileupHelperFile", m_PileupHelperFile = "Run3L1CaloSimulation/Calibrations/jFEX_MatchedMapping.2022Mar10.r12406.root");
 }
 
 

@@ -110,8 +110,8 @@ def getAlgorithmTotalTime(inputFile, rootName):
     '''
 
     totalTime = 0
-    alg = inputFile.Get(rootName).Get("Global_HLT").Get("All")
-    hist = alg.Get(rootName + "_Global_HLT_All_AlgTime_perEvent")
+    alg = inputFile.Get(rootName).Get("Global_HLT").Get("Total")
+    hist = alg.Get(rootName + "_Global_HLT_Total_AlgTime_perEvent")
     for i in range(1, hist.GetXaxis().GetNbins()):
         totalTime += hist.GetBinContent(i) * hist.GetXaxis().GetBinCenterLog(i)
 

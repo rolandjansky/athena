@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -81,19 +81,19 @@ std::vector<InDet::PixelClusterParts> InDet::TruthPixelClusterSplitter::splitClu
     const InDetDD::SiDetectorElement* element=origCluster.detectorElement();
     if (element==nullptr) {
       ATH_MSG_WARNING("Could not get detector element");
-      return std::vector<InDet::PixelClusterParts>();
+      return {};
     }
     const AtlasDetectorID* aid = element->getIdHelper();
     if (aid==nullptr)
     {
       ATH_MSG_WARNING("Could not get ATLASDetectorID");
-      return std::vector<InDet::PixelClusterParts>();
+      return {};
     }
     const PixelID* pixelIDp=dynamic_cast<const PixelID*>(aid);
     if (!pixelIDp)
     {
       ATH_MSG_WARNING("Could not get PixelID pointer");
-      return std::vector<InDet::PixelClusterParts>();
+      return {};
     } 
     //check if original pixel is on b-layer and if yes continue, otherwise interrupt...
     Identifier pixelId = origCluster.identify();
@@ -101,7 +101,7 @@ std::vector<InDet::PixelClusterParts> InDet::TruthPixelClusterSplitter::splitClu
     {
       //return empty object...
       ATH_MSG_VERBOSE(" Cluster not on b-layer. Return empty object-->back to default clustering." );
-      return std::vector<InDet::PixelClusterParts>();
+      return {};
     }
   }
 
@@ -113,7 +113,7 @@ std::vector<InDet::PixelClusterParts> InDet::TruthPixelClusterSplitter::splitClu
   //fill lvl1group all with the same value... (not best way but ...)
   std::vector<int> lvl1group(rdos.size(),origCluster.LVL1A());
 
-  if (splitProb.getHighestSplitMultiplicityStored()<3) return std::vector<InDet::PixelClusterParts>();
+  if (splitProb.getHighestSplitMultiplicityStored()<3) return {};
 
   double splitProb2=splitProb.splitProbability(2);
   double splitProb3rel=splitProb.splitProbability(3);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetDetDescrExample/ReadSiDetectorElements.h"
@@ -35,10 +35,10 @@ ReadSiDetectorElements::ReadSiDetectorElements(const std::string& name, ISvcLoca
   AthAlgorithm(name, pSvcLocator),
   m_managerName("Pixel"),  // or SCT
   m_doLoop(true),
-  m_manager(0),
-  m_idHelper(0),
-  m_pixelIdHelper(0),
-  m_sctIdHelper(0),
+  m_manager(nullptr),
+  m_idHelper(nullptr),
+  m_pixelIdHelper(nullptr),
+  m_sctIdHelper(nullptr),
   m_first(true)
 {  
   // Get parameter values from jobOptions file
@@ -387,20 +387,20 @@ void ReadSiDetectorElements::printRandomAccess(const bool accessDuringInitializa
       ATH_MSG_ALWAYS(" A Pixel Barrel element (non B-layer) "        );
       ATH_MSG_ALWAYS("----------------------------------------------");
       id = idHelper->wafer_id(0,1,15,-3);
-      cellIds.push_back(SiCellId(32,8)); // phi,eta
+      cellIds.emplace_back(32,8); // phi,eta
       //add a range of cells from 151 to 175
       for (int i(151);i != 176; ++i){
-        cellIds.push_back(SiCellId(i,8)); // phi,eta
+        cellIds.emplace_back(i,8); // phi,eta
       }
-      cellIds.push_back(SiCellId(-1,1)); // phi,eta
-      cellIds.push_back(SiCellId(0,1)); // phi,eta
-      cellIds.push_back(SiCellId(1,-1)); // phi,eta
-      cellIds.push_back(SiCellId(1,0)); // phi,eta
-      cellIds.push_back(SiCellId(327,1)); // phi,eta
-      cellIds.push_back(SiCellId(328,1)); // phi,eta
-      cellIds.push_back(SiCellId(1,143)); // phi,eta
-      cellIds.push_back(SiCellId(1,144)); // phi,eta
-      positions.push_back(Amg::Vector2D(12.727*CLHEP::mm, 4.534*CLHEP::mm)); // eta,phi
+      cellIds.emplace_back(-1,1); // phi,eta
+      cellIds.emplace_back(0,1); // phi,eta
+      cellIds.emplace_back(1,-1); // phi,eta
+      cellIds.emplace_back(1,0); // phi,eta
+      cellIds.emplace_back(327,1); // phi,eta
+      cellIds.emplace_back(328,1); // phi,eta
+      cellIds.emplace_back(1,143); // phi,eta
+      cellIds.emplace_back(1,144); // phi,eta
+      positions.emplace_back(12.727*CLHEP::mm, 4.534*CLHEP::mm); // eta,phi
       testElement(id, cellIds, positions, elements);
 
       // A barrel element (B-Layer)
@@ -410,8 +410,8 @@ void ReadSiDetectorElements::printRandomAccess(const bool accessDuringInitializa
       id = idHelper->wafer_id(0,0,7,-3);
       cellIds.clear();
       positions.clear();
-      cellIds.push_back(SiCellId(32,8)); // phi,eta
-      positions.push_back(Amg::Vector2D(12.727*CLHEP::mm, 4.534*CLHEP::mm)); // eta,phi
+      cellIds.emplace_back(32,8); // phi,eta
+      positions.emplace_back(12.727*CLHEP::mm, 4.534*CLHEP::mm); // eta,phi
       testElement(id, cellIds, positions, elements);
 
       // An endcap element
@@ -419,12 +419,12 @@ void ReadSiDetectorElements::printRandomAccess(const bool accessDuringInitializa
       ATH_MSG_ALWAYS(" A Pixel Endcap element"                       );
       ATH_MSG_ALWAYS("----------------------------------------------");
       id = idHelper->wafer_id(2,2,13,0);
-      cellIds.push_back(SiCellId(182,75)); // phi,eta
-      positions.push_back(Amg::Vector2D(0*CLHEP::mm, 0*CLHEP::mm)); // eta,phi
-      positions.push_back(Amg::Vector2D(30.4*CLHEP::mm, 8.2*CLHEP::mm)); // eta,phi - on edge
-      positions.push_back(Amg::Vector2D(12*CLHEP::mm, -8.15*CLHEP::mm)); // eta,phi - near edge
-      positions.push_back(Amg::Vector2D(12*CLHEP::mm, -8.25*CLHEP::mm)); // eta,phi - near edge
-      positions.push_back(Amg::Vector2D(12*CLHEP::mm, -8.35*CLHEP::mm)); // eta,phi - outside
+      cellIds.emplace_back(182,75); // phi,eta
+      positions.emplace_back(0*CLHEP::mm, 0*CLHEP::mm); // eta,phi
+      positions.emplace_back(30.4*CLHEP::mm, 8.2*CLHEP::mm); // eta,phi - on edge
+      positions.emplace_back(12*CLHEP::mm, -8.15*CLHEP::mm); // eta,phi - near edge
+      positions.emplace_back(12*CLHEP::mm, -8.25*CLHEP::mm); // eta,phi - near edge
+      positions.emplace_back(12*CLHEP::mm, -8.35*CLHEP::mm); // eta,phi - outside
       testElement(id, cellIds, positions, elements);
 
     }
@@ -447,17 +447,17 @@ void ReadSiDetectorElements::printRandomAccess(const bool accessDuringInitializa
       id = idHelper->wafer_id(0,1,15,-3,0);
       cellIds.clear();
       positions.clear();
-      cellIds.push_back(SiCellId(32)); // phi,eta
-      cellIds.push_back(SiCellId(1)); // phi,eta
-      cellIds.push_back(SiCellId(0)); // phi,eta
+      cellIds.emplace_back(32); // phi,eta
+      cellIds.emplace_back(1); // phi,eta
+      cellIds.emplace_back(0); // phi,eta
       if (m_managerName == "SCT") {
-        cellIds.push_back(SiCellId(-1)); // phi,eta
-        cellIds.push_back(SiCellId(-2)); // phi,eta
-        cellIds.push_back(SiCellId(-3)); // phi,eta
+        cellIds.emplace_back(-1); // phi,eta
+        cellIds.emplace_back(-2); // phi,eta
+        cellIds.emplace_back(-3); // phi,eta
       }
-      cellIds.push_back(SiCellId(767)); // phi,eta
-      cellIds.push_back(SiCellId(768)); // phi,eta
-      positions.push_back(Amg::Vector2D(12.727*CLHEP::mm, 4.534*CLHEP::mm)); // eta,phi
+      cellIds.emplace_back(767); // phi,eta
+      cellIds.emplace_back(768); // phi,eta
+      positions.emplace_back(12.727*CLHEP::mm, 4.534*CLHEP::mm); // eta,phi
       testElement(id, cellIds, positions, elements);
 
       // A barrel element (other side of above)
@@ -467,8 +467,8 @@ void ReadSiDetectorElements::printRandomAccess(const bool accessDuringInitializa
       id = idHelper->wafer_id(0,1,15,-3,1);
       cellIds.clear();
       positions.clear();
-      cellIds.push_back(SiCellId(32)); // phi,eta
-      positions.push_back(Amg::Vector2D(12.727*CLHEP::mm, 4.534*CLHEP::mm)); // eta,phi
+      cellIds.emplace_back(32); // phi,eta
+      positions.emplace_back(12.727*CLHEP::mm, 4.534*CLHEP::mm); // eta,phi
       testElement(id, cellIds, positions, elements);
 
       // A outer fwd
@@ -478,14 +478,14 @@ void ReadSiDetectorElements::printRandomAccess(const bool accessDuringInitializa
       id = idHelper->wafer_id(2,3,15,0,0);
       cellIds.clear();
       positions.clear();
-      cellIds.push_back(SiCellId(532)); // phi,eta
-      cellIds.push_back(SiCellId(0)); // phi,eta
-      if (m_managerName == "SCT") cellIds.push_back(SiCellId(-1)); // phi,eta
-      cellIds.push_back(SiCellId(767)); // phi,eta
-      cellIds.push_back(SiCellId(768)); // phi,eta
-      positions.push_back(Amg::Vector2D(12.727*CLHEP::mm, 20.534*CLHEP::mm)); // eta,phi
-      positions.push_back(Amg::Vector2D(12.727*CLHEP::mm, -20.534*CLHEP::mm)); // eta,phi
-      positions.push_back(Amg::Vector2D(3*CLHEP::mm, -25*CLHEP::mm)); // eta,phi
+      cellIds.emplace_back(532); // phi,eta
+      cellIds.emplace_back(0); // phi,eta
+      if (m_managerName == "SCT") cellIds.emplace_back(-1); // phi,eta
+      cellIds.emplace_back(767); // phi,eta
+      cellIds.emplace_back(768); // phi,eta
+      positions.emplace_back(12.727*CLHEP::mm, 20.534*CLHEP::mm); // eta,phi
+      positions.emplace_back(12.727*CLHEP::mm, -20.534*CLHEP::mm); // eta,phi
+      positions.emplace_back(3*CLHEP::mm, -25*CLHEP::mm); // eta,phi
       testElement(id, cellIds, positions, elements);
 
       ATH_MSG_ALWAYS("----------------------------------------------");
@@ -494,10 +494,10 @@ void ReadSiDetectorElements::printRandomAccess(const bool accessDuringInitializa
       id = idHelper->wafer_id(2,3,15,0,1);
       cellIds.clear();
       positions.clear();
-      cellIds.push_back(SiCellId(532)); // phi,eta
-      positions.push_back(Amg::Vector2D(12.727*CLHEP::mm, 20.534*CLHEP::mm)); // eta,phi
-      positions.push_back(Amg::Vector2D(12.727*CLHEP::mm, -20.534*CLHEP::mm)); // eta,phi
-      positions.push_back(Amg::Vector2D(3*CLHEP::mm, -25*CLHEP::mm)); // eta,phi
+      cellIds.emplace_back(532); // phi,eta
+      positions.emplace_back(12.727*CLHEP::mm, 20.534*CLHEP::mm); // eta,phi
+      positions.emplace_back(12.727*CLHEP::mm, -20.534*CLHEP::mm); // eta,phi
+      positions.emplace_back(3*CLHEP::mm, -25*CLHEP::mm); // eta,phi
       testElement(id, cellIds, positions, elements);
 
       // A middle fwd
@@ -507,8 +507,8 @@ void ReadSiDetectorElements::printRandomAccess(const bool accessDuringInitializa
       id = idHelper->wafer_id(2,1,15,1,0);
       cellIds.clear();
       positions.clear();
-      cellIds.push_back(SiCellId(532)); // phi,eta
-      positions.push_back(Amg::Vector2D(12.727*CLHEP::mm, 4.534*CLHEP::mm)); // eta,phi
+      cellIds.emplace_back(532); // phi,eta
+      positions.emplace_back(12.727*CLHEP::mm, 4.534*CLHEP::mm); // eta,phi
       testElement(id, cellIds, positions, elements);
 
       // A truncated middle
@@ -518,8 +518,8 @@ void ReadSiDetectorElements::printRandomAccess(const bool accessDuringInitializa
       id = idHelper->wafer_id(2,7,15,1,0);
       cellIds.clear();
       positions.clear();
-      cellIds.push_back(SiCellId(532)); // phi,eta
-      positions.push_back(Amg::Vector2D(12.727*CLHEP::mm, 4.534*CLHEP::mm)); // eta,phi
+      cellIds.emplace_back(532); // phi,eta
+      positions.emplace_back(12.727*CLHEP::mm, 4.534*CLHEP::mm); // eta,phi
       testElement(id, cellIds, positions, elements);
 
       // A inner fwd
@@ -529,8 +529,8 @@ void ReadSiDetectorElements::printRandomAccess(const bool accessDuringInitializa
       id = idHelper->wafer_id(2,1,15,2,0);
       cellIds.clear();
       positions.clear();
-      cellIds.push_back(SiCellId(532)); // phi,eta
-      positions.push_back(Amg::Vector2D(12.727*CLHEP::mm, 4.534*CLHEP::mm)); // eta,phi
+      cellIds.emplace_back(532); // phi,eta
+      positions.emplace_back(12.727*CLHEP::mm, 4.534*CLHEP::mm); // eta,phi
       testElement(id, cellIds, positions, elements);
     }
   } // if manager = Pixel,SCT

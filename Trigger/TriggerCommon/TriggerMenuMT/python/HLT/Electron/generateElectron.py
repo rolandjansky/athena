@@ -1,13 +1,14 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from TriggerMenuMT.HLT.Electron.ElectronRecoSequences import l2CaloRecoCfg
-from TriggerMenuMT.HLT.Menu.MenuComponents import MenuSequenceCA, \
+from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequenceCA, \
     ChainStep, Chain, EmptyMenuSequence, InViewRecoCA, SelectionCA
 
 from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoToolFromDict
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from AthenaConfiguration.ComponentFactory import CompFactory
-from TriggerMenuMT.HLT.Menu.DictFromChainName import getChainMultFromDict
+from AthenaConfiguration.Enums import BeamType
+from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import getChainMultFromDict
 
 from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
@@ -38,25 +39,15 @@ def _fastCalo(flags, chainDict):
 def _ftfSeq(flags):
     selAcc=SelectionCA('ElectronFTF')
     # # # fast ID (need to be customised because require secialised configuration of the views maker - i.e. parent has to be linked)
-    name = 'IMFastElectron'
-    evtViewMaker = CompFactory.EventViewCreatorAlgorithm(name,
-                                                            ViewFallThrough = True,
-                                                            RoIsLink        = 'initialRoI',
-                                                            RoITool         = CompFactory.ViewCreatorInitialROITool(),
-                                                            InViewRoIs      = name+'RoIs',
-                                                            Views           = name+'Views',
-                                                            ViewNodeName    = 'FastElectronInView',
-                                                            RequireParentView = True)
-    del name
+    fastInDetReco = InViewRecoCA('FastElectron', RequireParentView = True)
     from TrigInDetConfig.TrigInDetConfig import trigInDetFastTrackingCfg
-    idTracking = trigInDetFastTrackingCfg(flags, roisKey=evtViewMaker.InViewRoIs, signatureName='Electron')
-    fastInDetReco = InViewRecoCA('FastElectron', viewMaker=evtViewMaker)
+    idTracking = trigInDetFastTrackingCfg(flags, roisKey=fastInDetReco.inputMaker().InViewRoIs, signatureName='Electron')
     fastInDetReco.mergeReco(idTracking)
     fastInDetReco.addRecoAlgo(CompFactory.AthViews.ViewDataVerifier(name='VDVElectronFastCalo',
                                 DataObjects=[('xAOD::TrigEMClusterContainer', 'StoreGateSvc+HLT_FastCaloEMClusters')]) )
 
     from TrigEgammaRec.TrigEgammaFastElectronConfig import fastElectronFexAlgCfg
-    fastInDetReco.mergeReco(fastElectronFexAlgCfg(flags, rois=evtViewMaker.InViewRoIs))
+    fastInDetReco.mergeReco(fastElectronFexAlgCfg(flags, rois=fastInDetReco.inputMaker().InViewRoIs))
     selAcc.mergeReco(fastInDetReco)
     fastElectronHypoAlg = CompFactory.TrigEgammaFastElectronHypoAlg()
     fastElectronHypoAlg.Electrons = 'HLT_FastElectrons'
@@ -75,7 +66,7 @@ def _ftf(flags, chainDict):
 def _precisonCaloSeq(flags):
     recoAcc = InViewRecoCA('ElectronRoITopoClusterReco', RequireParentView = True)
     recoAcc.addRecoAlgo(CompFactory.AthViews.ViewDataVerifier(name='VDV'+recoAcc.name,
-                                                              DataObjects=[('TrigRoiDescriptorCollection', recoAcc.inputMaker().InViewRoIs),
+                                                              DataObjects=[('TrigRoiDescriptorCollection', recoAcc.inputMaker().InViewRoIs.Path),
                                                                            ('CaloBCIDAverage', 'StoreGateSvc+CaloBCIDAverage')]))
 
     from TrigCaloRec.TrigCaloRecConfig import hltCaloTopoClusteringCfg
@@ -104,34 +95,29 @@ def _precisonCalo(flags, chainDict):
     return ChainStep(name=selAcc.name, Sequences=[menuSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
 
 @AccumulatorCache
-def _precisionTrackingSeq(flags):
+def _precisionTrackingSeq(flags,chainDict):
     name='ElectronPrecisionTracking'
     selAcc=SelectionCA('ElectronPrecisionTracking')
 
-    evtViewMaker = CompFactory.EventViewCreatorAlgorithm(f'IM{name}',
-                                                            ViewFallThrough = True,
-                                                            RoIsLink        = 'initialRoI',
-                                                            RoITool         = CompFactory.ViewCreatorPreviousROITool(),
-                                                            InViewRoIs      = flags.Trigger.InDetTracking.Electron.roi, #this will then be renamed to: flags.InDet.Tracking.roi
-                                                            Views           = f'IM{name}Views',
-                                                            ViewNodeName    = f'{name}InView',
-                                                            RequireParentView = True)
-    precisionInDetReco = InViewRecoCA(name, viewMaker=evtViewMaker)
+    precisionInDetReco = InViewRecoCA(name, 
+                                        RoITool=CompFactory.ViewCreatorPreviousROITool(), # view maker args
+                                        RequireParentView=True, 
+                                        InViewRoIs=flags.Trigger.InDetTracking.Electron.roi)
 
     from TrigInDetConfig.TrigInDetConfig import trigInDetPrecisionTrackingCfg
     idTracking = trigInDetPrecisionTrackingCfg(flags, signatureName='Electron')
     precisionInDetReco.mergeReco(idTracking)
-
     selAcc.mergeReco(precisionInDetReco)
-    from TrigEgammaHypo.TrigEgammaPrecisionTrackingHypoTool import TrigEgammaPrecisionTrackingHypoToolFromDict
-    hypoAlg = CompFactory.TrigEgammaPrecisionTrackingHypoAlg('ElectronprecisionTrackingHypo', CaloClusters='HLT_CaloEMClusters_Electron')
+    hypoAlg = CompFactory.TrigStreamerHypoAlg('ElectronprecisionTrackingHypo')
     selAcc.addHypoAlgo(hypoAlg)
+    def acceptAllHypoToolGen(chainDict):
+        return CompFactory.TrigStreamerHypoTool(chainDict["chainName"], Pass = True)
     menuSequence = MenuSequenceCA(selAcc,
-                                  HypoToolGen=TrigEgammaPrecisionTrackingHypoToolFromDict)
+                                  HypoToolGen=acceptAllHypoToolGen)
     return (selAcc , menuSequence)
 
 def _precisionTracking(flags, chainDict):
-    selAcc , menuSequence = _precisionTrackingSeq(flags)
+    selAcc , menuSequence = _precisionTrackingSeq(flags,chainDict)
     return ChainStep(name=selAcc.name, Sequences=[menuSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
 
 @AccumulatorCache
@@ -163,7 +149,7 @@ def _precisionElectronSeq(flags):
                                                         useScoring         = True,
                                                         SecondPassRescale  = True,
                                                         UseRescaleMetric   = True,
-                                                        isCosmics          = flags.Beam.Type=='cosmics')
+                                                        isCosmics          = flags.Beam.Type is BeamType.Cosmics)
         acc.setPrivateTools(builderTool)
         return acc
 
@@ -299,18 +285,3 @@ def generateChains(flags, chainDict):
 
     return chain
 
-if __name__ == '__main__':
-    # run with: python -m TriggerMenuMT.HLT.Electron.generateElectron
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.Input.Files = defaultTestFiles.RAW
-    ConfigFlags.lock()
-    from ..Menu.DictFromChainName import dictFromChainName
-    chain = generateChains(ConfigFlags, dictFromChainName('HLT_e26_L1EM15'))
-    for step in chain.steps:
-        for s in step.sequences:
-            if not isinstance(s, EmptyMenuSequence):
-                s.ca.printConfig(withDetails=True, summariseProps=False) # flip the last arg to see all settings
-                s.ca.wasMerged() # to silence check for orphanted CAs

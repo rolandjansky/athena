@@ -61,5 +61,5 @@ def inputsFromContext(inputKey):
     
     """
     def getPrereqs(jetdef):
-        return ["input:"+jetContextDic[jetdef.context][inputKey] ]
+        return "input:"+jetContextDic[jetdef.context][inputKey] 
     return getPrereqs

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETALIGNGENTOOLS_ALIGNDBTOOL_H
@@ -198,8 +198,8 @@ virtual public IInDetAlignDBTool, public AthAlgTool {
   std::string m_par_dbkey;
   bool m_par_oldTextFile;  // Input text file using old format
 
-  AlignableTransform* getTransPtr(const std::string key) const;
-  const AlignableTransform* cgetTransPtr(const std::string key) const;
+  AlignableTransform* getTransPtr(const std::string& key) const;
+  const AlignableTransform* cgetTransPtr(const std::string& key) const;
   void fakeGeom(const int nbpix, const int necpix, 
 		const int nbsct, const int necsct);
 

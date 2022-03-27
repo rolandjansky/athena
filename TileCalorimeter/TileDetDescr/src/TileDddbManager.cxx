@@ -1,6 +1,13 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
+
+/*
+ * Updates:
+ * - 2022 Jan, Riccardo Maria BIANCHI <riccardo.maria.bianchi@cern.ch>
+ *   Added support for SQLite input, for the new DD architecture for Run4 (DetectorFactoryLite)
+ */
+
 
 #include "TileDetDescr/TileDddbManager.h"
 
@@ -15,8 +22,9 @@
 #include <stdexcept>
 
 TileDddbManager::TileDddbManager(IRDBAccessSvc* access,
-		                 const std::string&    version_tag,
-				 const std::string&    version_node)
+                 const std::string&    version_tag,
+                 const std::string&    version_node,
+                 bool sqliteInput)
   : AthMessaging (Athena::getMessageSvc(), "TileDddbManager")
   , m_n_cuts(0)
   , m_n_saddle(0)
@@ -33,17 +41,22 @@ TileDddbManager::TileDddbManager(IRDBAccessSvc* access,
   , m_currentTiclInd(-1)
   , m_tag(version_tag)
   , m_node(version_node)
+  , m_sqliteInput(sqliteInput)
 {
   ATH_MSG_INFO( "m_tag = " << m_tag );
 
   m_tiglob = access->getRecordsetPtr("TileGlobals",m_tag,m_node);
   m_n_tiglob = m_tiglob->size();
   ATH_MSG_INFO( "n_tiglob = " << m_n_tiglob );
- 
-  if(access->getChildTag("TileModule",m_tag,m_node)!="") {
-   m_timod = access->getRecordsetPtr("TileModule",m_tag,m_node);
+
+  if (m_sqliteInput) {
+      m_timod = access->getRecordsetPtr("TileModule",m_tag,m_node);
   } else {
-   m_timod = access->getRecordsetPtr("TileModules",m_tag,m_node);
+      if(access->getChildTag("TileModule",m_tag,m_node)!="") {
+          m_timod = access->getRecordsetPtr("TileModule",m_tag,m_node);
+      } else {
+          m_timod = access->getRecordsetPtr("TileModules",m_tag,m_node);
+      }
   }
   m_n_timod = m_timod->size();
   ATH_MSG_INFO( "n_timod = " << m_n_timod );
@@ -57,6 +70,7 @@ TileDddbManager::TileDddbManager(IRDBAccessSvc* access,
    } else {
      m_buildCuts = false;
    }
+
 
   if (access->getChildTag("TileSaddleSup",m_tag,m_node)!="") 
    { m_buildSaddle = true;
@@ -1509,15 +1523,15 @@ int TileDddbManager::SetCurrentTicl(int detector, double sample, double tower)
 
       if(ind >= m_n_ticl)
       {
-	ATH_MSG_DEBUG( "TileDddbManager::SetCurrentTicl() - Unable to find any cell for tower = "
+    ATH_MSG_DEBUG( "TileDddbManager::SetCurrentTicl() - Unable to find any cell for tower = "
                        << tower << " in the detector = " << detector << " and sample = " << sample );
-	return 0;
+    return 0;
       }
       else
       {
-	m_currentTicl = (*m_ticl)[ind];
-	m_currentTiclInd = ind;
-	return 1;
+    m_currentTicl = (*m_ticl)[ind];
+    m_currentTiclInd = ind;
+    return 1;
       }
     }
   }

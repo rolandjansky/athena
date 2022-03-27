@@ -18,10 +18,11 @@ def RPCCablingConfigCfg(flags):
         # Relevant folder tags are set for now, until new global tag (RUN3-02) becomes avaialble
         rpcTrigEta="/RPC/TRIGGER/CM_THR_ETA <tag>RPCTriggerCMThrEta_RUN12_MC16_04</tag> <forceRunNumber>330000</forceRunNumber>"
         rpcTrigPhi="/RPC/TRIGGER/CM_THR_PHI <tag>RPCTriggerCMThrPhi_RUN12_MC16_04</tag> <forceRunNumber>330000</forceRunNumber>"
-        from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
-        if flags.Input.isMC and MuonGeometryFlags.hasSTGC(): # Run3-geometry
-            rpcCabMap="/RPC/CABLING/MAP_SCHEMA <tag>RPCCablingMapSchema_2015-2018Run3-4</tag> <forceRunNumber>330000</forceRunNumber>"
-            rpcCabMapCorr="/RPC/CABLING/MAP_SCHEMA_CORR <tag>RPCCablingMapSchemaCorr_2015-2018Run3-4</tag> <forceRunNumber>330000</forceRunNumber>"
+        from AthenaConfiguration.Enums  import LHCPeriod
+        if flags.Input.isMC and flags.GeoModel.Run >= LHCPeriod.Run3:        # from Run3 on geometry
+           rpcCabMap="/RPC/CABLING/MAP_SCHEMA <tag>RPCCablingMapSchema_2015-2018Run3-4</tag> <forceRunNumber>330000</forceRunNumber>"
+           rpcCabMapCorr="/RPC/CABLING/MAP_SCHEMA_CORR <tag>RPCCablingMapSchemaCorr_2015-2018Run3-4</tag> <forceRunNumber>330000</forceRunNumber>"
+
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders
     acc.merge(addFolders(flags, [rpcCabMap,rpcCabMapCorr], dbName, className='CondAttrListCollection' ))
@@ -92,6 +93,24 @@ def CSCCablingConfigCfg(flags):
 
     return acc
 
+#All the cabling configs together (convenience function)
+def MuonCablingConfigCfg(flags):
+    acc = ComponentAccumulator()
+
+    result = RPCCablingConfigCfg(flags)
+    acc.merge( result )
+
+    result = TGCCablingConfigCfg(flags)
+    acc.merge( result )
+
+    result = MDTCablingConfigCfg(flags)
+    acc.merge( result )
+
+    result = CSCCablingConfigCfg(flags)
+    acc.merge( result )
+
+    return acc
+
 if __name__ == '__main__':
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
@@ -104,15 +123,7 @@ if __name__ == '__main__':
 
     acc = ComponentAccumulator()
 
-    result = RPCCablingConfigCfg(ConfigFlags)
-    acc.merge( result )
-    result = TGCCablingConfigCfg(ConfigFlags)
-    acc.merge( result )
-
-    result = MDTCablingConfigCfg(ConfigFlags)
-    acc.merge( result )
-
-    result = CSCCablingConfigCfg(ConfigFlags)
+    result = MuonCablingConfigCfg(ConfigFlags)
     acc.merge( result )
 
     f=open('MuonCabling.pkl','wb')

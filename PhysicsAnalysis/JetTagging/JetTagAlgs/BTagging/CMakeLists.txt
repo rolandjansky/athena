@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( BTagging )
@@ -6,10 +6,8 @@ atlas_subdir( BTagging )
 # Component(s) in the package:
 atlas_add_library( BTaggingLib
                    src/BTagTool.cxx
-                   src/BTagSecVertexing.cxx
                    src/BTagLightSecVertexing.cxx
                    src/JetBTaggingAlg.cxx
-                   src/BTagJetPtScaling.cxx
                    src/JetSecVertexingAlg.cxx
                    src/JetSecVtxFindingAlg.cxx
                    src/BTagTrackAugmenterAlg.cxx

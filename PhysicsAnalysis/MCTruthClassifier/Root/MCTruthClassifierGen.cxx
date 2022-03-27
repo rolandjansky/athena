@@ -393,14 +393,18 @@ std::tuple<unsigned int, const xAOD::TruthParticle*> MCTruthClassifier::defOrigO
           if( partOriVert!=nullptr ) {
             const xAOD::TruthParticle* theMother=partOriVert->incomingParticle(0);
             if(!theMother) continue;
+            int motherStatus = theMother->status();
 
             if(std::abs(theMother->pdgId()) == 2212){
               mybeam = 1; break;
             }
-            if(MC::PID::isTau(theMother->pdgId()) && theMother->status() == 2 ){
+            // sometimes Athena replaces status 2 with 10902, see e.g.
+            // PhysicsAnalysis/TruthParticleID/McParticleTools/src/EtaPtFilterTool.cxx#L374
+            // not at all clear why and unfortunately there's no documentation in the code
+            if (MC::PID::isTau(theMother->pdgId()) && (motherStatus == 2 || motherStatus == 10902)) {
               fromTau = 1; isHadTau =0;
             }
-            if(isHadron(theMother) && theMother->status() == 2 ) {
+            if(isHadron(theMother) && (motherStatus == 2 || motherStatus == 10902)) {
               fromhad = 1;
               parent_hadron_pointer = theMother;
               if(fromTau == 1){

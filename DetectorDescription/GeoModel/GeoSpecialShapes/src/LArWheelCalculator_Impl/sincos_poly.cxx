@@ -6,14 +6,28 @@
 
 #include "CxxUtils/sincos.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#ifdef PORTABLE_LAR_SHAPE
+#define SINCOSPOLY_USE_EIGEN 1
+#endif
 
+#ifndef SINCOSPOLY_USE_EIGEN
 #include "TMath.h"
 #include "TMatrixD.h"
 #include "TVectorD.h"
 #include "TMatrixDLazy.h"
 #include "TDecompLU.h"
 #include "TDecompSVD.h"
+typedef TVectorD     VECTOR;
+typedef TMatrixD     MATRIX;
+typedef TMatrixDSym  SYMMATRIX;
+#else
+#include "Eigen/Dense"
+typedef Eigen::VectorXd  VECTOR;
+typedef Eigen::MatrixXd  MATRIX;
+typedef Eigen::MatrixXd  SYMMATRIX;
+#define Int_t    int
+#define Double_t double
+#endif
 
 #include <sys/time.h>
 #include <iostream>
@@ -22,8 +36,11 @@
 #include <mutex>
 
 #define DEBUGPRINT 0
+#include "GeoModelKernel/Units.h"
+using namespace GeoModelKernelUnits;
 
-template<typename T>
+#ifndef SINCOSPOLY_USE_EIGEN
+template<typename T, typename Q>
 std::ostream & operator << (std::ostream & ostr, const TVectorT<T> & v)
 {
   std::ios_base::fmtflags save_flags(ostr.flags());
@@ -37,16 +54,20 @@ std::ostream & operator << (std::ostream & ostr, const TVectorT<T> & v)
   ostr.flags(save_flags);
   return ostr;
 }
-
+#endif
 
 // find best approximation of y values using linear combination of basis functions in bf
-static TVectorD findLinearApproximation(
+static VECTOR findLinearApproximation(
     const Int_t dataLen, const Int_t nBasisFuntions,
-    const TVectorD &y, const TMatrixD & bf)
+    const VECTOR &y, const MATRIX & bf)
 {
-  TMatrixDSym A(nBasisFuntions);
-  TVectorD vY(nBasisFuntions);
-
+#ifndef SINCOSPOLY_USE_EIGEN
+  SYMMATRIX A(nBasisFuntions);
+  VECTOR    vY(nBasisFuntions);
+#else
+  SYMMATRIX A=SYMMATRIX::Zero(nBasisFuntions,nBasisFuntions);
+  VECTOR    vY=VECTOR::Zero(nBasisFuntions);
+#endif
   for(Int_t j = 0; j < nBasisFuntions; ++ j){
     for(Int_t k = 0; k < nBasisFuntions; ++ k){
       Double_t Ajk = 0.0;
@@ -64,10 +85,13 @@ static TVectorD findLinearApproximation(
     }
     vY[k] = vYk;
   }
-
-  TMatrixDSym Ainv(A);
+#ifndef SINCOSPOLY_USE_EIGEN 
+  SYMMATRIX Ainv(A);
   Ainv.Invert();
   return Ainv*vY;
+#else
+  return A.inverse()*vY;
+#endif
 }
 
 using namespace CLHEP;
@@ -128,12 +152,17 @@ void LArWheelCalculator::fill_sincos_parameterization()
   const Double_t Rstep = 1.*mm;
   const Int_t nrPoints = (Rmax - Rmin) * (1./Rstep);
   const Int_t dataLen = nrPoints + 1;
-
-  TVectorD x(dataLen);  // angle points
-  TVectorD ysin(dataLen);  // to be approximated function values at angle points - sin
-  TVectorD ycos(dataLen);  // to be approximated function values at angle points - cos
-  TMatrixD bf(nBasisFunctions, dataLen); // Matrix of values of basis functions at angle points
-
+#ifndef SINCOSPOLY_USE_EIGEN
+  VECTOR x(dataLen);  // angle points
+  VECTOR ysin(dataLen);  // to be approximated function values at angle points - sin
+  VECTOR ycos(dataLen);  // to be approximated function values at angle points - cos
+  MATRIX bf(nBasisFunctions, dataLen); // Matrix of values of basis functions at angle points
+#else
+  VECTOR x=VECTOR::Zero(dataLen);  // angle points
+  VECTOR ysin=VECTOR::Zero(dataLen);  // to be approximated function values at angle points - sin
+  VECTOR ycos=VECTOR::Zero(dataLen);  // to be approximated function values at angle points - cos
+  MATRIX bf=MATRIX::Zero(nBasisFunctions, dataLen); // Matrix of values of basis functions at angle points
+#endif
   for(Int_t i = 0; i < dataLen; ++ i){
     const Double_t a = Rmin + i * Rstep;
     x[i] = a;
@@ -145,9 +174,9 @@ void LArWheelCalculator::fill_sincos_parameterization()
     }
   }
 
-  TVectorD params_sin =
+  VECTOR params_sin =
     findLinearApproximation(dataLen, nBasisFunctions, ysin, bf);
-  TVectorD params_cos =
+  VECTOR params_cos =
     findLinearApproximation(dataLen, nBasisFunctions, ycos, bf);
 
   for(Int_t i = 0; i < nBasisFunctions; ++ i){

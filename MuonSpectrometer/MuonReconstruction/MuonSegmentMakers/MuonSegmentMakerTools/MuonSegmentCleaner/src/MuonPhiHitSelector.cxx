@@ -271,9 +271,9 @@ MuonPhiHitSelector::select_rio(const double pmom, const std::vector<const Trk::R
                     // More PrepData's: create Competing RIOs on Track
                     avError                                      = std::sqrt(1. / avError);
                     double                           scaleFactor = clusterError[ic] / avError;
-                    const Trk::CompetingRIOsOnTrack* rio =
+                    std::unique_ptr<const Trk::CompetingRIOsOnTrack> rio =
                         m_competingRIOsOnTrackTool->createBroadCluster(prdList, scaleFactor);
-                    if (rio) selectedClusters->push_back(rio);
+                    if (rio) selectedClusters->push_back(rio.release());
                     if (msgLvl(MSG::DEBUG))
                         ATH_MSG_DEBUG("Make competing rio/cluster "
                                       << " scale factor " << scaleFactor << " number of rios " << prdList.size());

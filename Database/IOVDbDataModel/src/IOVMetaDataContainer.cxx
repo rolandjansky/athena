@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "IOVDbDataModel/IOVMetaDataContainer.h"
@@ -19,7 +19,7 @@ IOVMetaDataContainer::merge(CondAttrListCollection* payload)
 void IOVMetaDataContainer::dump(std::ostringstream& stream) const
 {
   stream << "IOVMetaDataContainer ::" << std::endl;
-  stream << "Ppayload size : " << m_payload->size() << std::endl;
+  stream << "Payload size : " << m_payload->size() << std::endl;
   stream << "IOVs and attribute lists : " << std::endl;
 
   for(CondAttrListCollection* attListCol : *m_payload ) {

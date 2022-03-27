@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -302,7 +302,7 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
       errmat(0,0) = error*error;
       Amg::Vector2D loc(radius, 0.);
       InDet::TRT_DriftCircle* tdc =
-        new InDet::TRT_DriftCircle(id, loc, std::move(errmat), pE, word);
+        new InDet::TRT_DriftCircle(id, loc, errmat, pE, word);
       if (tdc) {
         tdc->setHashAndIndex(rio->identifyHash(), rio->size());
         rio->push_back(tdc);

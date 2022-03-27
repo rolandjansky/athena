@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -137,8 +137,7 @@ def dump_info(bsfile, args):
             print('- ROB SourceID: {:s}'.format(rob.source_id().human()))
 
             # Parse the raw data
-            raw_data = tuple(rob.rod_data())
-            collections = hltResultMT.get_collections(raw_data)
+            collections = hltResultMT.get_collections(rob)
             dump_nav(collections)
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////
@@ -238,7 +238,7 @@ StatusCode PixelFastDigitizationTool::processBunchXing(int bunchXing,
   if (m_HardScatterSplittingMode == 1 && m_HardScatterSplittingSkipper )  { return StatusCode::SUCCESS; }
   if (m_HardScatterSplittingMode == 1 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; }
 
-  typedef PileUpMergeSvc::TimedList<SiHitCollection>::type TimedHitCollList;
+  using TimedHitCollList = PileUpMergeSvc::TimedList<SiHitCollection>::type;
   TimedHitCollList hitCollList;
 
   if (!(m_mergeSvc->retrieveSubSetEvtData(m_inputObjectName, hitCollList, bunchXing,
@@ -279,7 +279,7 @@ StatusCode PixelFastDigitizationTool::processAllSubEvents(const EventContext& ct
     return StatusCode::FAILURE;
   }
 
-  InDet::SiClusterContainer* symSiContainer=0;
+  InDet::SiClusterContainer* symSiContainer=nullptr;
 
   // --------------------------------------
   // Pixel Cluster container registration
@@ -318,7 +318,7 @@ StatusCode PixelFastDigitizationTool::processAllSubEvents(const EventContext& ct
 
 
   //  get the container(s)
-  typedef PileUpMergeSvc::TimedList<SiHitCollection>::type TimedHitCollList;
+  using TimedHitCollList = PileUpMergeSvc::TimedList<SiHitCollection>::type;
 
   //this is a list<pair<time_t, DataLink<SCTUncompressedHitCollection> > >
   TimedHitCollList hitCollList;
@@ -397,7 +397,7 @@ StatusCode PixelFastDigitizationTool::mergeEvent(const EventContext& ctx)
     return StatusCode::FAILURE;
   }
 
-  InDet::SiClusterContainer* symSiContainer=0;
+  InDet::SiClusterContainer* symSiContainer=nullptr;
 
   // --------------------------------------
   // Pixel_Cluster container registration
@@ -432,7 +432,7 @@ StatusCode PixelFastDigitizationTool::mergeEvent(const EventContext& ctx)
 
   m_ambiguitiesMap =new PixelGangedClusterAmbiguities();
 
-  if (m_thpcsi != 0) {
+  if (m_thpcsi != nullptr) {
     if(digitize(ctx).isFailure()) {
       ATH_MSG_FATAL ( "Pixel digitize method failed!" );
       return StatusCode::FAILURE;
@@ -637,7 +637,7 @@ StatusCode PixelFastDigitizationTool::digitize(const EventContext& ctx)
 
 
       // the pixel positions and other needed stuff for the geometrical clustering
-      InDet::PixelCluster* pixelCluster = 0;
+      InDet::PixelCluster* pixelCluster = nullptr;
       Amg::Vector2D       clusterPosition(0.,0.);
 
       std::vector<Identifier>           rdoList;
@@ -851,7 +851,7 @@ StatusCode PixelFastDigitizationTool::digitize(const EventContext& ctx)
       }
 
       //Add all hit that was connected to the cluster
-      for(HepMcParticleLink p: hit_vector){
+      for(const HepMcParticleLink& p: hit_vector){
 
         m_pixPrdTruth->insert(std::make_pair(pixelCluster->identify(), p ));
       }
@@ -882,7 +882,7 @@ StatusCode PixelFastDigitizationTool::createAndStoreRIOs(const EventContext& ctx
   Pixel_detElement_RIO_map::iterator i = m_pixelClusterMap->begin();
   Pixel_detElement_RIO_map::iterator e = m_pixelClusterMap->end();
 
-  InDet::PixelClusterCollection* clusterCollection = 0;
+  InDet::PixelClusterCollection* clusterCollection = nullptr;
   IdentifierHash waferHash;
 
   for (; i != e; i = m_pixelClusterMap->upper_bound(i->first)){
@@ -1044,14 +1044,14 @@ Amg::Vector3D PixelFastDigitizationTool::CalculateIntersection(const Amg::Vector
   for(double parameter: parameters)
     {
       double z =  Point.z() + Direction.z() * parameter;
-      if( fabs(z) > halfthickness )
+      if( std::abs(z) > halfthickness )
         continue;
 
 
       double x = Point.x() + Direction.x() * parameter;
       double y = Point.y() + Direction.y() * parameter;
 
-      if(fabs(x) > PlaneBorder.x() || fabs(y) > PlaneBorder.y())
+      if(std::abs(x) > PlaneBorder.x() || std::abs(y) > PlaneBorder.y())
         continue;
 
 

@@ -6,9 +6,7 @@
 
 #include "GeoSpecialShapes/LArWheelCalculator.h"
 
-#include "GaudiKernel/PhysicalConstants.h"
 
-using namespace Gaudi::Units;
 
 #ifdef HARDDEBUG
 #undef HARDDEBUG
@@ -17,15 +15,14 @@ using namespace Gaudi::Units;
 namespace LArWheelCalculator_Impl
 {
 
-  ModuleFanCalculator::ModuleFanCalculator(LArWheelCalculator* lwc,
-                                           IRDBAccessSvc* /*rdbAccess*/,
-                                           const DecodeVersionKey & /*larVersionKey*/)
+  ModuleFanCalculator::ModuleFanCalculator(LArWheelCalculator* lwc)
     : m_lwc(lwc)
   {
   }
 
   double ModuleFanCalculator::DistanceToTheNearestFan(CLHEP::Hep3Vector &p, int & out_fan_number) const
   {
+    static const double halfpi=M_PI/2.0;
     int fan_number = int((p.phi() - halfpi - lwc()->m_ZeroFanPhi_ForDetNeaFan) / lwc()->m_FanStepOnPhi);
     double angle = lwc()->m_FanStepOnPhi * fan_number + lwc()->m_ZeroFanPhi_ForDetNeaFan;
 #ifdef HARDDEBUG
@@ -73,7 +70,7 @@ namespace LArWheelCalculator_Impl
     // Note: this object was changed from static to local for thread-safety.
     // If this is found to be too costly we can re-evaluate.
     CLHEP::Hep3Vector p1 = p;
-
+    static const double halfpi=M_PI/2.0;
     int fan_number = int((p.phi() - halfpi - lwc()->m_ZeroFanPhi) / lwc()->m_FanStepOnPhi);
 
     double angle = lwc()->m_FanStepOnPhi * fan_number + lwc()->m_ZeroFanPhi;

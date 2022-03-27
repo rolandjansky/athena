@@ -2,7 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "RPC_LinearSegmentMakerTool/RPC_LinearSegmentMakerTool.h"
+#include "RPC_LinearSegmentMakerTool.h"
 #include "MuonLinearSegmentMakerUtilities/Fit2D.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"

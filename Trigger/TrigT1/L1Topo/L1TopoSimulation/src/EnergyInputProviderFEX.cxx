@@ -39,13 +39,6 @@ EnergyInputProviderFEX::initialize() {
   incidentSvc->addListener(this,"BeginRun", 100);
   incidentSvc.release().ignore();
   
-  auto is_jMet_EDMvalid = m_jMet_EDMKey.initialize();
-  
-  //Temporarily check EDM status by hand to avoid the crash!                                                                                                 
-  if (is_jMet_EDMvalid != StatusCode::SUCCESS) {
-    ATH_MSG_WARNING("No EDM found for jFEX Met..");
-  }
-
   return StatusCode::SUCCESS;
 }
 
@@ -83,12 +76,14 @@ EnergyInputProviderFEX::handle(const Incident& incident) {
 StatusCode
 EnergyInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 
-  SG::ReadHandle<xAOD::jFexMETRoIContainer> jMet_EDM(m_jMet_EDMKey);
-  //Temporarily check EDM status by hand to avoid the crash!                                                                                                  
-  if(!jMet_EDM.isValid()){
-    ATH_MSG_WARNING("Could not retrieve EDM Container " << m_jMet_EDMKey.key() << ". No jFEX MET input for L1Topo");
-     return StatusCode::SUCCESS;
+  /*
+  //Work in progress
+  if (m_jMet_EDMKey.empty()) {
+    ATH_MSG_DEBUG("jFex MET input disabled, skip filling");
+    return StatusCode::SUCCESS;
   }
+  SG::ReadHandle<xAOD::jFexMETRoIContainer> jMet_EDM(m_jMet_EDMKey);
+  ATH_CHECK(jMet_EDM.isValid());
 
   // The jFEX MET container has 12 elements, 2 TOBs per jFEX module, so a total of 12. 
   // According to the documentation https://gitlab.cern.ch/l1calo-run3-simulation/documentation/Run3L1CaloOfflineSWReqs/-/blob/master/l1caloreqs.pdf
@@ -116,11 +111,18 @@ EnergyInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) cons
   ATH_MSG_DEBUG("Global MET candidate Ex = " << global_et_x << ", Ey = " <<global_et_y);
   unsigned int et =  std::sqrt( global_et_x*global_et_x + global_et_y*global_et_y );
   TCS::MetTOB met( -(global_et_x), -(global_et_y), et );
+
+  ATH_MSG_DEBUG( "Setting the EtDouble to : " << et/10.);
+  met.setExDouble( static_cast<double>(-global_et_x/10.) );
+  met.setEyDouble( static_cast<double>(-global_et_y/10.) );
+  met.setEtDouble( static_cast<double>(et/10.) );
+  ATH_MSG_DEBUG("MET EtDouble : " << met.EtDouble());
+
   inputEvent.setMET( met );
-  m_h_met_Pt->Fill(met.Et()/10.);
+  m_h_met_Pt->Fill(met.EtDouble());
   m_h_met_Phi->Fill( atan2(met.Ey(),met.Ex()) );
     
-  /* not checking overflow currently to be enabled in release 22. 
+  // not checking overflow currently to be enabled in release 22. 
      const bool has_overflow = (topoData->ExOverflow() or
      topoData->EyOverflow() or
      topoData->EtOverflow());
@@ -129,6 +131,8 @@ EnergyInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) cons
      ATH_MSG_DEBUG("setOverflowFromEnergyInput : true");
      }
   */
+  TCS::MetTOB met(0,0,0);
+  inputEvent.setMET(met); 
 
   return StatusCode::SUCCESS;
 }

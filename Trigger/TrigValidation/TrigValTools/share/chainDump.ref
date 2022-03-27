@@ -1,6 +1,6 @@
 
-Info in <test_chainDump>: Creating test file testChainDump1.root
-Info in <test_chainDump>: Creating test file testChainDump2.root
+Creating test file testChainDump1.root
+Creating test file testChainDump2.root
 INFO     Loaded count histograms: ['chains', 'decisions']
 INFO     Loaded total-events histogram total, number of events: 100
 INFO     Loaded reference count histograms: ['chains', 'decisions']

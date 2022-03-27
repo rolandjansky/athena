@@ -117,9 +117,10 @@ class TriggerConfigGetter(Configured):
         from AthenaCommon.Configurable import ConfigurableRun3Behavior
         with ConfigurableRun3Behavior():
             from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, appendCAtoAthena
-            from TrigConfigSvc.TrigConfigSvcCfg import L1PrescaleCondAlgCfg, HLTPrescaleCondAlgCfg
+            from TrigConfigSvc.TrigConfigSvcCfg import L1PrescaleCondAlgCfg, HLTPrescaleCondAlgCfg, BunchGroupCondAlgCfg
             acc = ComponentAccumulator()
             acc.merge( L1PrescaleCondAlgCfg( ConfigFlags ) )
+            acc.merge( BunchGroupCondAlgCfg( ConfigFlags ) )
             acc.merge( HLTPrescaleCondAlgCfg( ConfigFlags ) )
         appendCAtoAthena( acc )
 

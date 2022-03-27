@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONDIGITIZATION_MM_FASTDIGITIZER_H
@@ -25,7 +25,6 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class ActiveStoreSvc;
 class MuonSimDataCollection;
 class TTree;
 class TFile;
@@ -45,7 +44,6 @@ class MM_FastDigitizer : public AthAlgorithm {
  
  private:
   CLHEP::HepRandomEngine* getRandomEngine(const std::string& streamName, const EventContext& ctx) const;
-  ActiveStoreSvc* m_activeStore;
   const MuonGM::MuonDetectorManager* m_detManager;
   
   TFile* m_file;

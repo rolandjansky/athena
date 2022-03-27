@@ -422,7 +422,7 @@ printfunc (inputFiles)
 # and will set all options accordingly 
 
 #doReadBS = False
-include("RecJobTransforms/UseFrontier.py")
+include("PyJobTransforms/UseFrontier.py")
 include("InDetAlignExample/loadInDetRec_Run2Rel17.py")
 
 # Run Alignment

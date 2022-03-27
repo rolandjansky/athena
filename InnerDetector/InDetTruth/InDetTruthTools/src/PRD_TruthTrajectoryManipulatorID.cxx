@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@ StatusCode InDet::PRD_TruthTrajectoryManipulatorID::finalize() {
 bool InDet::PRD_TruthTrajectoryManipulatorID::manipulateTruthTrajectory( Trk::PRD_TruthTrajectory &prdvec) const {
 
   if( HepMC::barcode(*prdvec.genParticle) < 100000){
-      srand( static_cast< unsigned int >( time( 0 ) ) );
+      srand( static_cast< unsigned int >( time( nullptr ) ) );
       const int pdg_id = (*prdvec.genParticle).pdg_id();
       const double prob_pix = pdg_id == 2212 ? 4. : 0;
       const double prob_sct = 4.375;

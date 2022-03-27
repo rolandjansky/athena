@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PersistentDataModel/Guid.h"
@@ -28,8 +28,6 @@
 	
 using namespace std;
 
-static bool s_dbg = true;
-
 
 class MergingError   : public std::runtime_error
 {
@@ -39,12 +37,15 @@ public:
   MergingError( const MergingError& err ): runtime_error("") { m_stream << err.str(); }
   MergingError& operator= ( const MergingError& err ) = delete;
   virtual ~MergingError() throw() {}
-  virtual const char* what() const throw() { m_string = m_stream.str(); return m_string.c_str();  }
+  virtual const char* what() const throw() { return m_string.c_str();  }
   std::string str() const { return m_stream.str(); }
-  template<typename T> MergingError& operator << (const T& msg) { m_stream << msg;  return *this;  } 
+  template<typename T> MergingError& operator << (const T& msg) {
+    m_stream << msg;
+    m_string = m_stream.str();
+    return *this;  } 
 protected:
   std::ostringstream    m_stream;
-  mutable std::string   m_string;
+  std::string   m_string;
 };
 
 
@@ -126,22 +127,22 @@ void addBranch( ::TTree* otree, ::TBranch* ibranch )
 }
 
 
-void mergeTrees( TTree* itree, TTree* otree )
+void mergeTrees( TTree* itree, TTree* otree, bool dbg )
 {
    // Check if there are any branches in either tree that don't
    // exist in the other one:
    const std::vector< ::TBranch* > missingMerged =      getMissingBranches( otree, itree );
    const std::vector< ::TBranch* > missingIncoming =    getMissingBranches( itree, otree );
-   if( s_dbg && missingIncoming.size() )
+   if( dbg && missingIncoming.size() )
       cout << "+++ Input " << itree->GetName() << " tree has " << missingIncoming.size() << " extra branch(es)" << endl;
-   if( s_dbg && missingMerged.size() )
+   if( dbg && missingMerged.size() )
       cout << "+++ Output " << otree->GetName() << " tree has " << missingMerged.size() << " extra branch(es)" << endl;
 
    // Add branches with default values for the variables that
    // appeared in the input tree now, and were not in the output
    // tree yet.
    for( ::TBranch* br : missingIncoming ) {
-      if( s_dbg) cout << "+++ Copying new branch [" << br->GetName() << "] to the output tree" << endl;
+      if( dbg) cout << "+++ Copying new branch [" << br->GetName() << "] to the output tree" << endl;
       addBranch( otree, br );
    }
 
@@ -192,16 +193,17 @@ class DbDatabaseMerger {
   size_t             m_paramsMin;
   TTree*             m_paramTree;
   TBranch*           m_paramBranch;
+  bool               m_dbg;
 
 public:
   /// Standard constructor
-  DbDatabaseMerger();
+  DbDatabaseMerger(bool dbg);
   /// Default destructor
   virtual ~DbDatabaseMerger();
   /// Check if input needs adding
-  bool empty(const std::string& fid, const std::set<std::string>& exclTrees, bool dbg=true) const;
+  bool empty(const std::string& fid, const std::set<std::string>& exclTrees) const;
   /// Check if a database exists
-  bool exists(const std::string& fid, bool dbg=true) const;
+  bool exists(const std::string& fid) const;
   /// Create new output file
   DbStatus create(const std::string& fid);
   /// Attach to existing output file for further merging
@@ -242,7 +244,10 @@ namespace {
 }
 
 /// Standard constructor
-DbDatabaseMerger::DbDatabaseMerger() : m_output(0), m_sectionsMin(0), m_sectionsMax(0), m_sectionTree(0), m_sectionBranch(0), m_paramsMin(0), m_paramTree(0), m_paramBranch(0) {
+DbDatabaseMerger::DbDatabaseMerger(bool dbg) :
+  m_output(0), m_sectionsMin(0), m_sectionsMax(0), m_sectionTree(0), m_sectionBranch(0), m_paramsMin(0), m_paramTree(0), m_paramBranch(0),
+  m_dbg(dbg)
+{
 }
 
 /// Default destructor
@@ -251,7 +256,7 @@ DbDatabaseMerger::~DbDatabaseMerger() {
 }
 
 /// Check if input needs adding
-bool DbDatabaseMerger::empty(const std::string& fid, const std::set<std::string>& exclTrees, bool dbg) const {
+bool DbDatabaseMerger::empty(const std::string& fid, const std::set<std::string>& exclTrees) const {
    TFile* source = TFile::Open(fid.c_str());
    if ( source && !source->IsZombie() ) {
       TIter nextkey(source->GetListOfKeys());
@@ -266,7 +271,7 @@ bool DbDatabaseMerger::empty(const std::string& fid, const std::set<std::string>
             return false;
          }
       }
-      if ( dbg ) cout << "file " << fid << " HAS NO ENTRIES!" << endl;
+      if ( m_dbg ) cout << "file " << fid << " HAS NO ENTRIES!" << endl;
       delete source;
       return true;
    }
@@ -276,7 +281,7 @@ bool DbDatabaseMerger::empty(const std::string& fid, const std::set<std::string>
 }
 
 /// Check if a database exists
-bool DbDatabaseMerger::exists(const std::string& fid, bool /*dbg*/) const {
+bool DbDatabaseMerger::exists(const std::string& fid) const {
   Bool_t result = gSystem->AccessPathName(fid.c_str(), kFileExists);
   return result == kFALSE;
 }
@@ -289,7 +294,7 @@ DbStatus DbDatabaseMerger::attach(const string& fid) {
       cout << "+++ Failed to open new output file " << fid << "." << endl;
       return ERROR;
     }
-    if ( s_dbg ) cout << "+++ Opened new output file " << fid << "." << endl;
+    if ( m_dbg ) cout << "+++ Opened new output file " << fid << "." << endl;
     m_paramTree = (TTree*)m_output->Get("##Params");
     if ( 0 != m_paramTree ) m_paramBranch = m_paramTree->GetBranch("db_string");
     m_sectionTree = (TTree*)m_output->Get("##Sections");
@@ -345,7 +350,7 @@ DbStatus DbDatabaseMerger::create(const string& fid) {
     m_sectionBranch = m_sectionTree->Branch("db_string",0,"db_string/C");
     m_paramTree   = new TTree("##Params","##Params");
     m_paramBranch = m_paramTree->Branch("db_string",0,"db_string/C");
-    if ( s_dbg ) cout << "+++ Opened new output file " << fid << "." << endl;
+    if ( m_dbg ) cout << "+++ Opened new output file " << fid << "." << endl;
     return SUCCESS;
   }
   cout << "+++ Failed to open new output file " << fid << "." << endl;
@@ -359,9 +364,9 @@ DbStatus DbDatabaseMerger::createFID() {
       Guid uuid;
       Guid::create(uuid);
       std::string text = "[NAME=FID][VALUE=" + uuid.toString() + "]";
-      m_paramBranch->SetAddress((void*)text.c_str());
+      m_paramBranch->SetAddress((void*)text.data());
       m_paramTree->Fill();
-      if ( s_dbg ) cout << "+++ Added new GUID " << text << " to merge file." << endl;
+      if ( m_dbg ) cout << "+++ Added new GUID " << text << " to merge file." << endl;
       return SUCCESS;
     }
   }
@@ -374,7 +379,7 @@ DbStatus DbDatabaseMerger::close() {
   if ( m_output ) {
     m_output->Write();
     m_output->Purge();
-    if ( s_dbg ) m_output->ls();
+    if ( m_dbg ) m_output->ls();
     m_output->Close();
     delete m_output; m_output = 0;
   }
@@ -429,7 +434,7 @@ void DbDatabaseMerger::dumpSections() {
     for(DbContainerSections::const_iterator j=cntSects.begin(); j != cntSects.end();++j, ++cnt) {
       char text[32];
       ::sprintf(text,"'][%d]",cnt); 
-      if ( s_dbg ) {
+      if ( m_dbg ) {
 	cout << "+++ " << setw(60) << left << "section['"+prefix+text
 	     << "  Link offset:" << setw(5) << right << (*j).offset 
 	     << "  Start:" << setw(8) << right << (*j).start 
@@ -485,7 +490,7 @@ DbStatus DbDatabaseMerger::merge(const string& fid,
          redirect["##Shapes"] = "##Shapes";
          for(size_t i=0, n=(size_t)(src_links->GetEntries()); i<n; ++i) {
             src_links->GetEntry(i);
-            if ( s_dbg ) cout << text << endl;
+            if ( m_dbg ) cout << text << endl;
             const char* l = getLinkContainer(text);
             if ( l ) redirect[getRootContainer(l)] = l;
          }
@@ -520,7 +525,7 @@ DbStatus DbDatabaseMerger::merge(const string& fid,
                   if (!branchList.empty()) {
                      TObjArray* blist = src_tree->GetListOfBranches();
                      for (Int_t i=0; i<blist->GetEntriesFast(); i++) {
-                        if (s_dbg) cout << "Processing leaf " 
+                        if (m_dbg) cout << "Processing leaf " 
                                    << blist->At(i)->ClassName() << endl;
                         // search list from file
                         if (std::find( branchList.begin(), 
@@ -539,7 +544,7 @@ DbStatus DbDatabaseMerger::merge(const string& fid,
                TTree *out_tree = (TTree*)m_output->Get(key->GetName());
                if ( out_tree == 0 ) {
                   out_tree = src_tree->CloneTree(-1,"fast");
-                  if ( s_dbg ) cout << "+++ Created new Tree " 
+                  if ( m_dbg ) cout << "+++ Created new Tree " 
                                     << out_tree->GetName() << " with " 
                                     << out_tree->GetListOfBranches()->GetEntriesFast() 
                                     << " branches" << endl;
@@ -547,7 +552,7 @@ DbStatus DbDatabaseMerger::merge(const string& fid,
                   m_output->GetObject(key->GetName(),out_tree);
                   s.start = static_cast<int>(out_tree->GetEntries());
                   if (name == "##Params") {
-                     if ( s_dbg ) cout << "+++ Slow merge for " << name << endl;
+                     if ( m_dbg ) cout << "+++ Slow merge for " << name << endl;
                      out_tree->CopyAddresses(src_tree);
                      for (Long64_t i=0; i<src_entries; i++) {
                         src_tree->GetEntry(i);
@@ -556,8 +561,8 @@ DbStatus DbDatabaseMerger::merge(const string& fid,
                      src_tree->ResetBranchAddresses();
                   } else {
                      try{
-                        mergeTrees( src_tree, out_tree );
-                        if ( s_dbg ) cout << "+++ Merged tree: " << out_tree->GetName() << endl;
+                        mergeTrees( src_tree, out_tree, m_dbg );
+                        if ( m_dbg ) cout << "+++ Merged tree: " << out_tree->GetName() << endl;
                      } catch( MergingError& err ) {
                         cout << "+++ Got a tree where fast cloning is not possible -- operation failed." << endl
                              << " Merging Error: " << err.what() << endl;
@@ -678,17 +683,16 @@ int main(int argc, char** argv) {
       cout << "Problem reading list of branches from " << branchfile << endl;
     }
   }
-  s_dbg = dbg;
   gROOT->SetBatch(kTRUE);
-  DbDatabaseMerger m;
+  DbDatabaseMerger m (dbg);
   for (size_t i=0; i<input.size();++i)  {
     const string& in = input[i];
     bool fixup = ((i+1)==input.size());
-    if ( m.empty(in, exclTrees, s_dbg) ) {
+    if ( m.empty(in, exclTrees) ) {
       if ( fixup ) m.createFID();
       continue;
     }
-    DbStatus ret = m.exists(output.c_str(), s_dbg) ? m.attach(output) : m.create(output);
+    DbStatus ret = m.exists(output) ? m.attach(output) : m.create(output);
     if ( ret == SUCCESS ) {
       ret = m.merge(in, exclTrees, branchList);
       if ( ret == SUCCESS ) {

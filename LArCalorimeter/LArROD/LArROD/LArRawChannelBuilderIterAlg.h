@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARROD_LARRAWCHANNELBUILDERITERALG_H
@@ -77,10 +77,9 @@ class LArRawChannelBuilderIterAlg : public AthReentrantAlgorithm {
   Gaudi::Property<unsigned short> m_maxSample{this, "maxSample",31};
   Gaudi::Property<unsigned short> m_nIterProp{"nIterations", 10};
   Gaudi::Property<int>  m_defaultShiftTimeSamples{this, "DefaultShiftTimeSample", 0};
-  Gaudi::Property<bool> m_storeTiming{this, "StoreTiming", false, "Create container of LArOFIterResults in StoreGate"};
   Gaudi::Property<bool> m_forceHighGain{this, "forceHighGain", false, "Force use of high gain for all shapes and OFC (default=false)"};
 
-  SG::WriteHandleKey<LArOFIterResultsContainer> m_timingContKey{this, "TimingContainerKey", "LArOFIterResult", "Key of the LArOFIterResultsContainer in StoreGate"};
+  SG::WriteHandleKey<LArOFIterResultsContainer> m_timingContKey{this, "TimingContainerKey", "", "Key of the LArOFIterResultsContainer in StoreGate"};
 
   //Identifier helper
   const LArOnlineID* m_onlineId = nullptr;

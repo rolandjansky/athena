@@ -13,6 +13,7 @@
 #include "xAODBTagging/versions/BTagging_v1.h"
 #include "xAODBTagging/versions/BTaggingContainer_v1.h"
 #include "xAODBTagging/versions/BTaggingAuxContainer_v1.h"
+#include "xAODBTagging/versions/BTaggingAuxContainer_v2.h"
 #include "xAODBTagging/versions/BTaggingTrigAuxContainer_v1.h"
 
 #include "xAODBTagging/BTagVertex.h"

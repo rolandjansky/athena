@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SharedWriterTool.h"
@@ -34,21 +34,9 @@ StatusCode SharedWriterTool::initialize()
 {
   ATH_MSG_DEBUG("In initialize");
 
-  StatusCode sc = AthenaMPToolBase::initialize();
-  if(!sc.isSuccess()) return sc;
+  ATH_CHECK(AthenaMPToolBase::initialize());
+  ATH_CHECK(serviceLocator()->service("AthenaPoolCnvSvc", m_cnvSvc));
 
-//FIXME: AthenaPool dependent for now
-  sc = serviceLocator()->service("AthenaPoolCnvSvc", m_cnvSvc);
-  if(sc.isFailure() || m_cnvSvc==0) {
-    ATH_MSG_ERROR("Error retrieving AthenaPoolCnvSvc");
-    return StatusCode::FAILURE;
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode SharedWriterTool::finalize()
-{
   return StatusCode::SUCCESS;
 }
 
@@ -153,6 +141,27 @@ AthenaMP::AllWorkerOutputs_ptr SharedWriterTool::generateOutputReport()
 
 std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedWriterTool::bootstrap_func()
 {
+  // It's possible to debug SharedWriter just like any other AthenaMP worker.
+  // The following procedure provides a minimal explanation on how this can be achieved:
+  //
+  // Terminal #1:
+  // * Run athena w/ debugging enabled, e.g. athena.py --debugWorker --stdcmalloc --nprocs=8 [...]
+  // * In this mode, workers will be stopped after fork(), waiting for SIGUSR1 to be resumed
+  // * Find the PID of the worker to be debugged (printed by the job in stdout)
+  //
+  // Terminal #2:
+  // * Attach gdb to the relevant worker, i.e. gdb python PID
+  // * Once the symbols are loaded, one can perform any gdb action such as setting breakpoints etc.
+  // * Once ready, send SIGUSR1 to the worker to resume work, i.e. signal SIGUSR1 (in gdb)
+  //
+  // Terminal #3:
+  // * Send SIGUSR1 to the remaining workers (easiest to use htop)
+  //
+  // However, note that sometimes Shared I/O infrastructure struggles with timing problems,
+  // such as server/client(s) starting/stopping too early/later. Debugging can change this
+  // behavior so please keep this in mind.
+  if(m_debug) waitForSignal();
+
   std::unique_ptr<AthenaInterprocess::ScheduledWork> outwork(new AthenaInterprocess::ScheduledWork);
   outwork->data = malloc(sizeof(int));
   *(int*)(outwork->data) = 1; // Error code: for now use 0 success, 1 failure
@@ -181,11 +190,13 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedWriterTool::bootstrap_f
     return outwork;
   }
 
-  // Redirect logs
-  if(redirectLog(writer_rundir.string()))
-    return outwork;
+  // __________ Redirect logs unless we want to attach debugger ____________
+  if(!m_debug) {
+    if(redirectLog(writer_rundir.string()))
+      return outwork;
 
-  ATH_MSG_INFO("Logs redirected in the AthenaMP Shared Writer PID=" << getpid());
+    ATH_MSG_INFO("Logs redirected in the AthenaMP Shared Writer PID=" << getpid());
+  }
 
   // Update Io Registry
   if(updateIoReg(writer_rundir.string()))
@@ -266,7 +277,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedWriterTool::exec_func()
   }
   else {
     if(m_appMgr->finalize().isFailure()) {
-      ATH_MSG_ERROR("Unable to finalize AppMgr");
+      std::cerr << "Unable to finalize AppMgr" << std::endl;
       all_ok=false;
     }
   }

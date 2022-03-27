@@ -1,16 +1,5 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
-
-def setPerfmonFlagsFromRunArgs(ConfigFlags, runArgs):
-    """ A helper function to set perfmon flags from runArgs."""
-
-    if hasattr(runArgs, 'perfmon') and runArgs.perfmon != 'none':
-        if runArgs.perfmon == 'fastmonmt':
-            ConfigFlags.PerfMon.doFastMonMT = True
-        elif runArgs.perfmon == 'fullmonmt':
-            ConfigFlags.PerfMon.doFullMonMT = True
-        else:
-            raise RuntimeError(f"Unknown perfmon type: {runArgs.perfmon}")
-        ConfigFlags.PerfMon.OutputJSON = f"perfmonmt_{runArgs.trfSubstepName}.json"
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+from G4AtlasApps.SimEnums import BeamPipeSimMode, CalibrationRun, CavernBackground, LArParameterization
 
 
 def getDetectorsFromRunArgs(ConfigFlags, runArgs):
@@ -41,13 +30,13 @@ def getDetectorsFromRunArgs(ConfigFlags, runArgs):
 
 def enableFrozenShowersFCalOnly(ConfigFlags):
     """Turns on GFlash shower parametrization for FCAL"""
-    ConfigFlags.Sim.LArParameterization = 3
-    ConfigFlags.Sim.CalibrationRun = 'Off'
+    ConfigFlags.Sim.LArParameterization = LArParameterization.FrozenShowersFCalOnly
+    ConfigFlags.Sim.CalibrationRun = CalibrationRun.Off
 
 
 def enableBeamPipeKill(ConfigFlags):
     ConfigFlags.Sim.BeamPipeCut = 0.
-    ConfigFlags.Sim.BeamPipeSimMode = 'FastSim'
+    ConfigFlags.Sim.BeamPipeSimMode = BeamPipeSimMode.FastSim
 
 
 def enableTightMuonStepping(ConfigFlags):
@@ -56,12 +45,12 @@ def enableTightMuonStepping(ConfigFlags):
 
 def enableG4SignalCavern(ConfigFlags):
     """Set ConfigFlags to take care of Neutron BG"""
-    ConfigFlags.Sim.CavernBG = 'Signal'
+    ConfigFlags.Sim.CavernBackground = CavernBackground.Signal
 
 
 def enableCalHits(ConfigFlags):
     """Turns on calibration hits for LAr and Tile"""
-    ConfigFlags.Sim.CalibrationRun = 'LAr+Tile'
+    ConfigFlags.Sim.CalibrationRun = CalibrationRun.LArTile
 
 
 def enableParticleID(ConfigFlags):

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@ namespace Trk {
     
         /** Single conversion ,
         input type GeoMaterial - output type Trk::MaterialProperties */
-        Material convert(const GeoMaterial* gm) const;
+        static Material convert(const GeoMaterial* gm) ;
 
       private:
         static double s_densityCnvFactor; //!< the conversion factor from GeoUnits to Tracking

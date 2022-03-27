@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import  SystemOfUnits
 from JetMonitoring.JetMonitoringConfig import HistoSpec, VarSpec, ConfigDict, ToolSpec
@@ -265,7 +265,7 @@ _knownHistos = [
 def defineHistoForLeadingJets(conf, parentAlg, monhelper, path):                               
     
     # helpfor that generates the monitoring group#
-    group = monhelper.addGroup(parentAlg, conf.Group,  'Jets/'+parentAlg.JetContainerName)
+    group = monhelper.addGroup(parentAlg, conf.Group,  f'Jets/{parentAlg.JetContainerName}')
     path = 'standardHistos'
     group.defineHistogram('dEta;leadJetsDEta', path=path, xbins=100, xmin=-5, xmax=5)   
     group.defineHistogram('dPhi;leadJetsDPhi', path=path, xbins=100, xmin=-3, xmax=3)   
@@ -285,7 +285,7 @@ _knownHistos += [
 # The python helper defining the histograms using the monitoring framework :
 def defineHistoForRespAndEff(conf, parentAlg, monhelper , path):
     # create a monitoring group with the histo path starting from the parentAlg
-    group = monhelper.addGroup(parentAlg, conf.Group,  'Jets/'+parentAlg.JetContainerName)
+    group = monhelper.addGroup(parentAlg, conf.Group,  f'Jets/{parentAlg.JetContainerName}')
     path = 'standardHistos'
     # define the histogram
     group.defineHistogram('passDr1,refPt;efficiencyR1',title='Passing deltaR<0.1', type="TEfficiency", path=path, xbins=100 , xmin=0, xmax=4000. ,)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DiTauRec/ElMuFinder.h"
@@ -89,15 +89,17 @@ StatusCode ElMuFinder::execute(DiTauCandidateData * data,
   else {
     ATH_MSG_WARNING("Can not obtain ElectronContainer with key " << m_elContName);
   }
+
   // select muons
   data->muons.clear();
   if (pMuCont.isValid()) {
     for (const auto mu : *pMuCont) {
       ATH_MSG_DEBUG("muon pt:" << mu->pt() << " eta:" << mu->eta() << " ");
       xAOD::Muon::Quality muonQuality = mu->quality();
+      // FIXME: to be checked
       if (muonQuality >= m_muQual && std::abs(mu->eta()) >= m_muMaxEta) continue;
     
-      // electron inside seed jet area?
+      // muon inside seed jet area?
       dR = Tau1P3PKineUtils::deltaR(data->seed->eta(), data->seed->phi(), mu->eta(), mu->phi());
       if (dR > data->Rjet)
 	continue;

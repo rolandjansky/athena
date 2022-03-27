@@ -114,7 +114,8 @@ public:
    */
   ExcUninitKey (CLID clid,
                 const std::string& sgkey,
-                const std::string& storename);
+                const std::string& storename,
+                const std::string& holdername="");
 };
 
 

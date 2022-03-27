@@ -71,19 +71,17 @@ StatusCode DerivationFramework::TrackParticleThinning::initialize()
     if (m_thinHitsOnTrack) {
       ATH_MSG_INFO("Pixel states collection as source for thinning: " << m_statesPixSGKey.key());
       ATH_MSG_INFO("Pixel measurements collection as source for thinning: " << m_measurementsPixSGKey.key());
-      ATH_CHECK( m_statesPixSGKey.initialize (m_streamName, !m_statesPixSGKey.empty()) );
-      ATH_CHECK( m_measurementsPixSGKey.initialize (m_streamName, !m_measurementsPixSGKey.empty()) );
-
       ATH_MSG_INFO("SCT states collection as source for thinning: " << m_statesSctSGKey.key());
       ATH_MSG_INFO("SCT measurements collection as source for thinning: " << m_measurementsSctSGKey.key());
-      ATH_CHECK( m_statesSctSGKey.initialize (m_streamName, !m_statesSctSGKey.empty()) );
-      ATH_CHECK( m_measurementsSctSGKey.initialize (m_streamName, !m_measurementsSctSGKey.empty()) );
-
       ATH_MSG_INFO("TRT states collection as source for thinning: " << m_statesTrtSGKey.key());
       ATH_MSG_INFO("TRT measurements collection as source for thinning: " << m_measurementsTrtSGKey.key());
-      ATH_CHECK( m_statesTrtSGKey.initialize (m_streamName, !m_statesTrtSGKey.empty()) );
-      ATH_CHECK( m_measurementsTrtSGKey.initialize (m_streamName, !m_measurementsTrtSGKey.empty()) );
     }
+    ATH_CHECK( m_statesPixSGKey.initialize (m_streamName, m_thinHitsOnTrack && !m_statesPixSGKey.empty()) );
+    ATH_CHECK( m_measurementsPixSGKey.initialize (m_streamName, m_thinHitsOnTrack && !m_measurementsPixSGKey.empty()) );
+    ATH_CHECK( m_statesSctSGKey.initialize (m_streamName, m_thinHitsOnTrack && !m_statesSctSGKey.empty()) );
+    ATH_CHECK( m_measurementsSctSGKey.initialize (m_streamName, m_thinHitsOnTrack && !m_measurementsSctSGKey.empty()) );
+    ATH_CHECK( m_statesTrtSGKey.initialize (m_streamName, m_thinHitsOnTrack && !m_statesTrtSGKey.empty()) );
+    ATH_CHECK( m_measurementsTrtSGKey.initialize (m_streamName, m_thinHitsOnTrack && !m_measurementsTrtSGKey.empty()) );
 
     ATH_CHECK(m_SCTDetEleCollKey.initialize( !m_SCTDetEleCollKey.key().empty() ));
 

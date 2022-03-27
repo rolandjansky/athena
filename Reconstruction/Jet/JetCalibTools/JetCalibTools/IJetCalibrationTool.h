@@ -29,18 +29,11 @@ class IJetCalibrationTool : virtual public IJetModifier {
 
 public:
 
-  /// Initialize the tool.
-  virtual StatusCode initializeTool(const std::string& name) = 0;
-
   /// Apply calibration to a jet container (for `IJetModifier` interface).
   virtual StatusCode modify(xAOD::JetContainer& jets) const override final {return applyCalibration(jets);}
 
   /// Apply calibration to a jet container.
   virtual StatusCode applyCalibration(xAOD::JetContainer& jets) const = 0;
-
-  // Retrieve pTmax from in situ corrections
-  virtual VecD retrieveEtaIntercalPtMax(){VecD tmp; return tmp;}
-  virtual VecD retrieveAbsoluteInsituPtMax(){VecD tmp; return tmp;}
 
   // Get the nominal resolution
   virtual StatusCode getNominalResolutionData(const xAOD::Jet&, double&) const { return StatusCode::FAILURE; }

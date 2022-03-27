@@ -1,5 +1,5 @@
-/*                                                                                                                      
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration                                               
+/*
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // First the corresponding header.
@@ -56,17 +56,16 @@ namespace LVL1TGCTrigger {
     }
     const LVL1MUONIF::Lvl1MuCTPIInputPhase1* inTgc2Muctpi = rh_muctpiTgc.cptr();
 
-    SG::ReadHandle<xAOD::MuonSegmentContainer> rh_museg(m_musegKey, eventContext);
-    if(!rh_museg.isValid() && m_nswVetoMode.value()){
-      ATH_MSG_ERROR("Cannot retrieve xAOD::MuonSegmentContainer");
-      return StatusCode::FAILURE;
-    }
     std::vector<MuSegData> muSegDataColl;
-    if(m_nswVetoMode.value()){
+    if( m_nswVetoMode.value() ){
+      SG::ReadHandle<xAOD::MuonSegmentContainer> rh_museg(m_musegKey, eventContext);
+      if(!rh_museg.isValid()){
+	ATH_MSG_ERROR("Cannot retrieve xAOD::MuonSegmentContainer");
+	return StatusCode::FAILURE;
+      }
       const xAOD::MuonSegmentContainer* muSegContainer = rh_museg.cptr();
       for(auto seg : *muSegContainer){
-	if(
-	   seg->chamberIndex() != Muon::MuonStationIndex::EIS &&
+	if(seg->chamberIndex() != Muon::MuonStationIndex::EIS &&
 	   seg->chamberIndex() != Muon::MuonStationIndex::EIL &&
 	   seg->chamberIndex() != Muon::MuonStationIndex::CSS &&
 	   seg->chamberIndex() != Muon::MuonStationIndex::CSL   )continue;

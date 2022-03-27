@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -88,7 +88,7 @@ void TrackHandle_TrkTrack::ensureTouchedMuonChambersInitialised() const
   DataVector<const Trk::TrackStateOnSurface>::const_iterator tsos_iter = m_trk->trackStateOnSurfaces()->begin();
   DataVector<const Trk::TrackStateOnSurface>::const_iterator tsos_end = m_trk->trackStateOnSurfaces()->end();
   for (; tsos_iter != tsos_end; ++tsos_iter) {
-    if (!sanity->isSafe(*tsos_iter)) {
+    if (!VP1TrackSanity::isSafe(*tsos_iter)) {
       if (VP1Msg::verbose())
     VP1Msg::messageVerbose("TrackHandle_TrkTrack WARNING: Skipping unsafe TSOS for touched muon chamber determination.");
       continue;
@@ -105,8 +105,7 @@ void TrackHandle_TrkTrack::ensureTouchedMuonChambersInitialiasedFromMeas( const 
     // for competing ROTs, it is expected that these are in the same DE. If this turns out not to be the case, need to loop & recursively call this method. EJWM
     if (crot)
       meas=&(crot->rioOnTrack(0));
-    VP1TrackSanity * sanity = common()->trackSanityHelper();
-    if (!sanity->isSafe(meas)) {
+    if (!VP1TrackSanity::isSafe(meas)) {
       if (VP1Msg::verbose())
         VP1Msg::messageVerbose("TrackHandle_TrkTrack WARNING: Skipping unsafe TSOS for touched muon chamber determination.");
       return;
@@ -336,7 +335,7 @@ void TrackHandle_TrkTrack::updateObjectBrowser(){
   
   QList<AssociatedObjectHandleBase*> list = getAllAscObjHandles();
   
-  if (list.size()==0) {
+  if (list.empty()) {
     VP1Msg::message("No ASC objects associated with this track - no track components visible yet?");
     return;
   }
@@ -346,7 +345,7 @@ void TrackHandle_TrkTrack::updateObjectBrowser(){
   unsigned int numOfTSOS=0;
   for (;it!=itE;++it,++numOfTSOS){
     AscObj_TSOS* asc = dynamic_cast<AscObj_TSOS*>(list.at(numOfTSOS));
-    if (!(asc && asc->trackStateOnSurface()==*it && list.size()>0) ) {
+    if (!(asc && asc->trackStateOnSurface()==*it && !list.empty()) ) {
       // Fallback.
       VP1Msg::message("TSOS#"+QString::number(numOfTSOS)+" does not seem to match AscObj_TSOS in list, which has size="+QString::number(list.size())+" Will try fallback.");
       for (int i = 0; i < list.size(); ++i) {          

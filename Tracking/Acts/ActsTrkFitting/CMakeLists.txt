@@ -24,8 +24,6 @@ atlas_add_component( ActsTrkFitting
                      AthenaKernel
                      CaloDetDescrLib
                      EventInfo
-                     G4AtlasInterfaces 
-                     G4AtlasToolsLib 
                      GaudiKernel
                      StoreGateLib
                      TRT_ReadoutGeometry

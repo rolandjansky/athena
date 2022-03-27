@@ -127,8 +127,6 @@ protected:
 
   std::vector<T_AnalysisConfig<IHLTMonTool>*>   m_sequences;
 
-  std::vector<TagNProbe*> m_TnP_tools;
-
   std::vector<std::string> m_chainNames;
   std::vector<std::string> m_ntupleChainNames;
   std::string              m_releaseMetaData;
@@ -179,9 +177,6 @@ protected:
   bool         m_containTracks;
 
   bool         m_legacy;
-
-  //  Gaudi::Property<std::string> m_sliceTagArse{this, "SliceTag", "TIDAMonTool/"};
-
 
 };
 

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
  
  
@@ -17,7 +17,6 @@
 #define BOOST_TEST_MODULE TEST_TRKEXTOOLSOBJCONTAINER
 
 #include "CxxUtils/checker_macros.h"
-ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverloaded-virtual"
@@ -28,7 +27,6 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 #include <memory>
 #include <atomic>
 
-namespace utf = boost::unit_test;
 
 /* Can run with:
   ~/build/Tracking/TrkExtrapolation/TrkExTools/test-bin/ObjContainer_boost_test.exe -l all
@@ -62,7 +60,7 @@ std::atomic<int> TestObj::s_dtorCounter=0;
 template <> TestObj *cloneObj<TestObj>( const TestObj *a) { return (a) ? new TestObj(*a) : nullptr; }
 
 using Registry  = ObjContainer<const TestObj>;
-using IndexedObj = ObjRef<>;
+using IndexedObj = ObjRef;
 using Registrar = ObjPtr<const TestObj>;
 
 
@@ -73,7 +71,7 @@ public:
       return Registry::registerObj(&obj, s_externalObj);
    };
     IndexedObj registerObj(TestObj *obj) {
-      return Registry::registerObj(replaceManagedPtr(obj), 0);
+      return Registry::registerObj(obj, 0);
    }
    IndexedObj share(IndexedObj ref) {
      return Registry::share(ref);
@@ -166,7 +164,7 @@ BOOST_AUTO_TEST_SUITE(TrkExToolsObjContainerTest)
   BOOST_AUTO_TEST_CASE(ObjContainerMethods){
     Registry o(100);
     BOOST_CHECK(not(o.isValid(1)));
-    auto pTestObj = new TestObj();
+    auto *pTestObj = new TestObj();
     auto [count,validity] = o.search(pTestObj);
     BOOST_CHECK(count == 0);
     BOOST_CHECK(validity == false);
@@ -187,7 +185,7 @@ BOOST_AUTO_TEST_SUITE(TrkExToolsObjContainerTest)
       BOOST_CHECK(pOcs->isExtern(ref) == true);
       //this is what 'isExtern' really means
       BOOST_CHECK(pOcs->count(ref) == -2);
-      auto pObj = &o;
+      auto *pObj = &o;
       auto returnPair = pOcs->search(pObj);
       BOOST_CHECK(returnPair.first == -2); //it's external
       BOOST_CHECK(returnPair.second);
@@ -248,7 +246,7 @@ BOOST_AUTO_TEST_SUITE(TrkExToolsObjContainerTest)
     Registrar assignment; //already tested default c'tor
     BOOST_CHECK_NO_THROW(assignment = reg);
     BOOST_CHECK(assignment == reg); //compare the refs
-    auto pObj = reg.get();
+    const auto *pObj = reg.get();
     BOOST_CHECK(pObj == &externalObj);
     //make a new object to test !=
     Registrar tempRegistrar;
@@ -262,7 +260,7 @@ BOOST_AUTO_TEST_SUITE(TrkExToolsObjContainerTest)
     Registry objRegister;
     auto uniquePtrTestObj = std::make_unique<TestObj>();
     //use a newed pointer to be able to explicitly delete later
-    auto reg = new Registrar(objRegister,std::move(uniquePtrTestObj)); //previously tested
+    auto *reg = new Registrar(objRegister,std::move(uniquePtrTestObj)); //previously tested
     BOOST_CHECK(reg->isOwned());
     BOOST_CHECK(not reg->isShared());
     BOOST_CHECK(not reg->isExtern());
@@ -279,7 +277,7 @@ BOOST_AUTO_TEST_SUITE(TrkExToolsObjContainerTest)
     //Now do the same without releasing, just deleting the ObjPtr
     Registry objRegister2;
     auto uniquePtrTestObj2 = std::make_unique<TestObj>();
-    auto reg2 = new Registrar(objRegister2,std::move(uniquePtrTestObj2));
+    auto *reg2 = new Registrar(objRegister2,std::move(uniquePtrTestObj2));
     BOOST_CHECK_NO_THROW(delete reg2);
     //check all those objects went away anyway
     BOOST_CHECK(TestObj::isCleanedUp());

@@ -2,6 +2,21 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "RDBAccessSvc/IRDBAccessSvc.h"
+#include "RDBAccessSvc/IRDBRecord.h"
+#include "RDBAccessSvc/IRDBRecordset.h"
+
+#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
+#include "GeoModelUtilities/DecodeVersionKey.h"
+
+#include "GeoSpecialShapes/EMECData.h"
+#include "GeoSpecialShapes/toEMECData.h"
+
+#include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/ISvcLocator.h"
+
+
 #include "EndcapFastSimDedicatedSD.h"
 #include "LArSimEvent/LArHit.h"
 #include "LArSimEvent/LArHitContainer.h"
@@ -30,10 +45,43 @@ EndcapFastSimDedicatedSD::EndcapFastSimDedicatedSD(StoreGateSvc* detStore)
   if ( detStore->retrieve( m_emecManager ).isFailure()  ){
     throw std::runtime_error("Could not retrieve EMEC manager");
   }
-  m_innerWheelCalculatorPos = new LArWheelCalculator(LArG4::InnerAbsorberWheel,+1);
-  m_innerWheelCalculatorNeg = new LArWheelCalculator(LArG4::InnerAbsorberWheel,-1);
-  m_outerWheelCalculatorPos = new LArWheelCalculator(LArG4::OuterAbsorberWheel,+1);
-  m_outerWheelCalculatorNeg = new LArWheelCalculator(LArG4::OuterAbsorberWheel,-1);
+
+
+
+  ISvcLocator* svcLocator = Gaudi::svcLocator();
+
+  // Access the GeoModelSvc:                                                                                                                                                         
+  IGeoModelSvc *geoModel=0;
+  if (svcLocator->service ("GeoModelSvc",geoModel) !=StatusCode::SUCCESS) {
+    G4Exception(
+		"LArWheelSliceSolid", "AccessGeoModel", FatalException,
+		"createSolid cannot access GeoModelSvc");
+  }
+
+  IGeoDbTagSvc *geoDbTagSvc(nullptr);
+  if ( svcLocator->service ("GeoDbTagSvc",geoDbTagSvc)!=StatusCode::SUCCESS ) {
+    G4Exception(
+		"LArWheelSliceSolid", "AccessDbTagSvc", FatalException,
+		"createSolid cannot access DbTagSvc");
+  }
+
+  // Access the geometry database:                                                                                                                                                   
+  IRDBAccessSvc *pAccessSvc=0;
+  if ( svcLocator->service(geoDbTagSvc->getParamSvcName(),pAccessSvc)!=StatusCode::SUCCESS) {
+    G4Exception(
+		"LArWheelSliceSolid", "AccessAccessSvc", FatalException,
+		"createSolid cannot access AccessSvc");
+  }
+
+  DecodeVersionKey larVersionKey(geoModel, "LAr");
+  EMECData emecData=toEMECData(pAccessSvc,larVersionKey);
+
+
+
+  m_innerWheelCalculatorPos = new LArWheelCalculator(emecData,LArG4::InnerAbsorberWheel,+1);
+  m_innerWheelCalculatorNeg = new LArWheelCalculator(emecData,LArG4::InnerAbsorberWheel,-1);
+  m_outerWheelCalculatorPos = new LArWheelCalculator(emecData,LArG4::OuterAbsorberWheel,+1);
+  m_outerWheelCalculatorNeg = new LArWheelCalculator(emecData,LArG4::OuterAbsorberWheel,-1);
 }
 
 // ProcessHitsMethod

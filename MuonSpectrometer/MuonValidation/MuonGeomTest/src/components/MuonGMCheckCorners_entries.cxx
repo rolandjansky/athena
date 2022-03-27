@@ -1,6 +1,5 @@
 #include "../MuonGMCheckCorners.h"
 #include "../MuonGMNtupleWriter.h"
 
-DECLARE_COMPONENT( MuonGMCheckCorners )
-DECLARE_COMPONENT( MuonGMNtupleWriter )
-
+DECLARE_COMPONENT(MuonGMCheckCorners)
+DECLARE_COMPONENT(MuonGMNtupleWriter)

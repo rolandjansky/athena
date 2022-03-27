@@ -1,6 +1,6 @@
 // -*- C++ -*-
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -10,9 +10,6 @@
  */
 
 #include "Herwig7_i/Herwig7.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 #include "ThePEG/Repository/EventGenerator.h"
 #include "ThePEG/Repository/Repository.h"
@@ -66,6 +63,8 @@ Herwig7::Herwig7(const std::string& name, ISvcLocator* pSvcLocator) :
  */
 StatusCode Herwig7::genInitialize() {
   ATH_MSG_INFO("Herwig7 initialising...");
+
+  ATH_CHECK(m_evtInfoKey.initialize());
 
   // Get random number seeds from Atlas RNG service, and pass them as Hw7 RNG
   // default seeds (they can be overridden with an explicit Hw7 set command in the JO)
@@ -185,11 +184,8 @@ StatusCode Herwig7::fillEvt(HepMC::GenEvent* evt) {
   ATH_MSG_DEBUG("Converted ThePEG::Event to HepMC::GenEvent");
 
   // Fill the event number into HepMC event record
-  const EventInfo* evtinfo;
-  const StatusCode sc = evtStore()->retrieve(evtinfo);
-  if (sc.isSuccess()) {
-    evt->set_event_number(evtinfo->event_ID()->event_number());
-  }
+  SG::ReadHandle<xAOD::EventInfo> evtInfo(m_evtInfoKey);
+  evt->set_event_number(evtInfo->eventNumber());
 
   // Fill event with random seeds from Atlas RNG service
   const long* s = atRndmGenSvc().GetEngine("Herwig7")->getSeeds();

@@ -14,31 +14,29 @@
 
 #include <TROOT.h>
 #include <TEnv.h>
+#include <TFile.h>
 #include <TAxis.h>
 #include <TH1.h>
 #include <TH2.h>
 
-#include "JetCalibTools/JetCalibrationToolBase.h"
+#include "JetCalibTools/JetCalibrationStep.h"
 
 class InsituDataCorrection 
-  : virtual public ::JetCalibrationToolBase
+  : virtual public ::JetCalibrationStep
 {
-
-  ASG_TOOL_CLASS( InsituDataCorrection, IJetCalibrationTool )
 
  public:
   InsituDataCorrection();
-  InsituDataCorrection(const std::string& name);
-  InsituDataCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool dev);
+  // optional first and last run arguments are for time-dependent in situ calibration.
+  // If lastRun is 0, all runs are calibrated (i.e. not time-dependent).
+  InsituDataCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool dev, unsigned int firstRun = 0, unsigned int lastRun = 0);
   virtual ~InsituDataCorrection();
 
-  virtual StatusCode initializeTool(const std::string& name);
+  virtual StatusCode initialize() override;
+  virtual StatusCode calibrate(xAOD::Jet& jet, JetEventInfo& jetEventInfo) const override;
 
   inline double getRelHistoPtMax(){return m_relhistoPtMax;}
   inline double getAbsHistoPtMax(){return m_abshistoPtMax;}
-
- protected:
-  virtual StatusCode calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const;
 
  private:
   double getInsituCorr(double pt, double eta, std::string calibstep) const;
@@ -68,6 +66,8 @@ class InsituDataCorrection
   bool m_applyInsituCaloTAjets;
   bool m_applyInsituJMS;
 
+  unsigned int m_firstRun;
+  unsigned int m_lastRun;
 };
 
 #endif

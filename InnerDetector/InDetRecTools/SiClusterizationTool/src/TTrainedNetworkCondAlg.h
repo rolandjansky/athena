@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef _InDet_TTrainedNetworkCondAlg_H_
@@ -9,7 +9,6 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 
-#include "GaudiKernel/ICondSvc.h"
 #include "PoolSvc/IPoolSvc.h"
 
 #include "TrkNeuralNetworkUtils/NeuralNetworkToHistoTool.h"
@@ -41,8 +40,6 @@ class TTrainedNetworkCondAlg : public AthReentrantAlgorithm {
  private:
   TTrainedNetwork* retrieveNetwork(TFile &input_file, const std::string& folder) const;
 
-  ServiceHandle<ICondSvc> m_condSvc
-    {this, "CondSvc", "CondSvc", "The conditions service to register new conditions data."};
   ServiceHandle<IPoolSvc> m_poolsvc
     {this, "PoolSvc", "PoolSvc", "The service to retrieve files by GUID."};
   ToolHandle<Trk::NeuralNetworkToHistoTool> m_networkToHistoTool

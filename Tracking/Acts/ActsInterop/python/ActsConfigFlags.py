@@ -12,5 +12,6 @@ def createActsConfigFlags():
     actscf.addFlag('Acts.TrackingGeometry.buildAllAvailableSubDetectors', False) # Build SCT, TRT and Calo if they are available
 
     # Track Finding Flags - TO BE ADDED
+    actscf.addFlag('Acts.TrackFinding.useSiSpacePointSeedMaker', False)
 
     return actscf

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -212,7 +212,7 @@ SCTCalibWriteTool::createDefectString(const int defectBeginChannel, const int de
 ///////////////////////////////////////////////////////////////////////////////////////
 
 std::string
-SCTCalibWriteTool::addNumber(const string numStr, const unsigned long long number) const {
+SCTCalibWriteTool::addNumber(const string& numStr, const unsigned long long number) const {
    std::ostringstream num_string;
    // if it is empty then use createDefectString to make first entry.
    if (numStr.empty()) {

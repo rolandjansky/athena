@@ -10,6 +10,7 @@
 #include <unistd.h> // gethostname
 #include <limits.h> // HOST_NAME_MAX
 #include <sstream>
+#include <algorithm>
 
 // Local helpers
 namespace {
@@ -186,7 +187,11 @@ StatusCode HLTResultMTMaker::makeResult(const EventContext& eventContext) const 
 // Private method removing disabled ROBs/SubDets from StreamTags
 // =============================================================================
 void HLTResultMTMaker::validatePEBInfo(HLT::HLTResultMT& hltResult) const {
+  std::vector<eformat::helper::StreamTag> streamTagsToRemove;
   for (eformat::helper::StreamTag& st : hltResult.getStreamTagsNonConst()) {
+    // Skip full event building stream tags immediately
+    if (st.robs.empty() && st.dets.empty()) {continue;}
+
     std::set<uint32_t> removedROBs = removeDisabled(st.robs,m_enabledROBs);
     if (!removedROBs.empty())
       ATH_MSG_WARNING("StreamTag " << st.type << "_" << st.name << " requested disabled ROBs: " << format(removedROBs)
@@ -200,6 +205,22 @@ void HLTResultMTMaker::validatePEBInfo(HLT::HLTResultMT& hltResult) const {
                       << " - these SubDets were removed from the StreamTag by " << name());
     else
       ATH_MSG_VERBOSE("No disabled SubDets were requested by StreamTag " << st.type << "_" << st.name);
+
+    // If the PEB list now became empty, it would turn PEB into FEB - prevent this and drop the stream tag (ATR-24378)
+    if (st.robs.empty() && st.dets.empty()) {
+      bool printed{false};
+      if (m_emptyPEBInfoErrorPrinted.compare_exchange_strong(printed, true, std::memory_order_relaxed)) {
+        ATH_MSG_ERROR("Event accepted to stream " << st.type << "_" << st.name << " but the streaming to this stream "
+                      << "is forcibly prevented, because all requested ROBs/SubDets in the PEB list are disabled. "
+                      << "ROBs: " << format(removedROBs) << ", SubDets: " << format(removedSubDets));
+      }
+      streamTagsToRemove.push_back(st);
+    }
+  }
+  for (const eformat::helper::StreamTag& st : streamTagsToRemove) {
+    std::remove(hltResult.getStreamTagsNonConst().begin(),
+                hltResult.getStreamTagsNonConst().end(),
+                st);
   }
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOD3PDMAKER_CALOCELLDETAILSFILLERTOOL_H
@@ -43,9 +43,11 @@ public:
 			     const std::string& name,
 			     const IInterface* parent);
 
+  virtual StatusCode initialize() override;
+
 
   /// Book variables for this block.
-  virtual StatusCode book();
+  virtual StatusCode book() override;
 
 
   /**
@@ -56,7 +58,7 @@ public:
    * is responsible for arranging that all the pointers for booked variables
    * are set appropriately upon entry.
    */
-  virtual StatusCode fill (const CaloCell& p);
+  virtual StatusCode fill (const CaloCell& p) override;
 
 private: 
 

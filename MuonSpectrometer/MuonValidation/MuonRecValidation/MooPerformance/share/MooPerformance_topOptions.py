@@ -89,6 +89,9 @@ print (muonRecFlags)
 #--------------------------------------------------------------------------------
 # combined muon reco flags (non-default values)
 #--------------------------------------------------------------------------------
+from CaloRingerAlgs.CaloRingerFlags import caloRingerFlags
+caloRingerFlags.buildElectronCaloRings = False
+caloRingerFlags.buildPhotonCaloRings = False
 
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 muonCombinedRecFlags.doMuGirlLowBetaMuonCollection = False

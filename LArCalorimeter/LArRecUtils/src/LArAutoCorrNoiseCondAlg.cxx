@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArAutoCorrNoiseCondAlg.h"
@@ -17,7 +17,6 @@ LArAutoCorrNoiseCondAlg::LArAutoCorrNoiseCondAlg( const std::string& name, ISvcL
     , m_LArMCSymObjKey( "LArMCSym" )
     , m_LArAutoCorrObjKey( "LArAutoCorrSym" )
     , m_LArAutoCorrNoiseObjKey( "LArAutoCorrNoise" )
-    , m_condSvc( "CondSvc", name )
     , m_isSuperCell( false )
     , m_MCsym( true )
     , m_nSampl( 4 )
@@ -37,9 +36,6 @@ StatusCode LArAutoCorrNoiseCondAlg::initialize()
 {
   ATH_MSG_DEBUG( "initialize " << name() );
 
-  // CondSvc
-  ATH_CHECK( m_condSvc.retrieve() );
-
   // ReadCondHandle initialization
   ATH_CHECK( m_LArOnOffIdMappingObjKey.initialize() );
   ATH_CHECK( m_LArMCSymObjKey.initialize() );
@@ -47,16 +43,9 @@ StatusCode LArAutoCorrNoiseCondAlg::initialize()
 
   ATH_CHECK( m_LArAutoCorrNoiseObjKey.initialize() );
 
-  // WriteCondHandle initialization
-  if ( m_condSvc->regHandle( this, m_LArAutoCorrNoiseObjKey ).isFailure() ) {
-    ATH_MSG_ERROR( "Unable to register WriteCondHandle " << m_LArAutoCorrNoiseObjKey.fullKey() << " with CondSvc" );
-    return StatusCode::FAILURE;
-  }
-
   // Number of gains
   m_nGains = ( m_isSuperCell ) ? 1 : 3;
 
-  
   return StatusCode::SUCCESS;
 }
 

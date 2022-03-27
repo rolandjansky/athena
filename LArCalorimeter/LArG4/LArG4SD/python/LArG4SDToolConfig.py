@@ -1,7 +1,8 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from G4AtlasApps.SimEnums import CalibrationRun, LArParameterization
 from ISF_Algorithms.CollectionMergerConfig import CollectionMergerCfg
 
 LArG4__EMBSDTool=CompFactory.LArG4.EMBSDTool
@@ -166,10 +167,10 @@ def LArDeadSensitiveDetectorToolCfg(ConfigFlags, name="LArDeadSensitiveDetector"
                                              "LArMgr::LAr::HEC::Module::Depth::FirstAbsorber::TieRod"])
     # Running PID calibration hits?
     kwargs.setdefault("ParticleID", ConfigFlags.Sim.ParticleID)
-    kwargs.setdefault("doEscapedEnergy",ConfigFlags.Sim.CalibrationRun  !='DeadLAr')
+    kwargs.setdefault("doEscapedEnergy", ConfigFlags.Sim.CalibrationRun is not CalibrationRun.DeadLAr)
     # No effect currently
     outputCollectionName = "LArCalibrationHitDeadMaterial"
-    if ConfigFlags.Sim.CalibrationRun in ['LAr', 'LAr+Tile']:
+    if ConfigFlags.Sim.CalibrationRun in [CalibrationRun.LAr, CalibrationRun.LArTile]:
         outputCollectionName = "LArCalibrationHitDeadMaterial_DEAD"
     kwargs.setdefault("HitCollectionName", outputCollectionName)
 
@@ -216,7 +217,7 @@ def LArEMBSensitiveDetectorCfg(ConfigFlags,name="LArEMBSensitiveDetector", **kwa
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
 
     # Hook for fast simulation
-    kwargs.setdefault("UseFrozenShowers", ConfigFlags.Sim.LArParameterization > 0)
+    kwargs.setdefault("UseFrozenShowers", ConfigFlags.Sim.LArParameterization is not LArParameterization.NoFrozenShowers)
 
     from LArG4Barrel.LArG4BarrelConfigNew import EMBPresamplerCalculatorCfg, EMBCalculatorCfg
     kwargs.setdefault("EMBPSCalculator", result.getPrimaryAndMerge(EMBPresamplerCalculatorCfg(ConfigFlags)).name)
@@ -251,7 +252,7 @@ def LArEMECSensitiveDetectorCfg(ConfigFlags, name="LArEMECSensitiveDetector", **
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
 
     # Hook for fast simulation
-    kwargs.setdefault("UseFrozenShowers", ConfigFlags.Sim.LArParameterization > 0)
+    kwargs.setdefault("UseFrozenShowers", ConfigFlags.Sim.LArParameterization is not LArParameterization.NoFrozenShowers)
 
     from LArG4EC.LArG4ECConfigNew import EMECPosInnerWheelCalculatorCfg, EMECNegInnerWheelCalculatorCfg, EMECPosOuterWheelCalculatorCfg, EMECNegOuterWheelCalculatorCfg, EMECPresamplerCalculatorCfg, EMECPosBackOuterBarretteCalculatorCfg, EMECNegBackOuterBarretteCalculatorCfg
     kwargs.setdefault("EMECPosIWCalculator", result.getPrimaryAndMerge(EMECPosInnerWheelCalculatorCfg(ConfigFlags)).name)
@@ -286,7 +287,7 @@ def LArFCALSensitiveDetectorCfg(ConfigFlags, name="LArFCALSensitiveDetector", **
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
 
     # Hook for fast simulation
-    kwargs.setdefault("UseFrozenShowers", ConfigFlags.Sim.LArParameterization > 0)
+    kwargs.setdefault("UseFrozenShowers", ConfigFlags.Sim.LArParameterization is not LArParameterization.NoFrozenShowers)
 
     from LArG4FCAL.LArG4FCALConfigNew import FCAL1CalculatorCfg, FCAL2CalculatorCfg, FCAL3CalculatorCfg
     kwargs.setdefault("FCAL1Calculator", result.getPrimaryAndMerge(FCAL1CalculatorCfg(ConfigFlags)).name)

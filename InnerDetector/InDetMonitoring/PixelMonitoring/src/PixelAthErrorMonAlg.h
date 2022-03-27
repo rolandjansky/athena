@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef PIXELATHERRORMONTOOL_H
@@ -120,14 +120,14 @@ static constexpr std::array<const char*, ErrorCategory::COUNT> error_names_cat_n
 
 static const int numErrorStatesLayer[PixLayers::COUNT] = {
   kNumErrorStatesFEI3, kNumErrorStatesFEI3, kNumErrorStatesFEI3, kNumErrorStatesFEI3,
-  kNumErrorStatesFEI3, kNumErrorStatesFEI4
+  kNumErrorStatesFEI3, kNumErrorStatesFEI4, kNumErrorStatesFEI4
 };
 static const int kNumErrorCatRODMods {
   ErrorCategoryRODMOD::COUNT
 };
 static const int numErrorCatRODModsLayer[PixLayers::COUNT] = {
   kNumErrorCatRODMods, kNumErrorCatRODMods, kNumErrorCatRODMods, kNumErrorCatRODMods,
-  kNumErrorCatRODMods, kNumErrorCatRODMods
+  kNumErrorCatRODMods, kNumErrorCatRODMods, kNumErrorCatRODMods
 };
 
 static const int nFEIBL2D {

@@ -17,35 +17,21 @@
 #include <TEnv.h>
 
 #include "AsgTools/AsgTool.h"
+#include "AsgTools/AsgToolMacros.h"
 
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODEventShape/EventShape.h"
 #include "AsgDataHandles/ReadDecorHandleKey.h"
 
-// JetCalibTools includes
 #include "JetCalibTools/IJetCalibrationTool.h"
-#include "JetCalibTools/JetCalibrationToolBase.h"
-#include "JetCalibTools/CalibrationMethods/JetPileupCorrection.h"
-#include "JetCalibTools/CalibrationMethods/ResidualOffsetCorrection.h"
-#include "JetCalibTools/CalibrationMethods/BcidOffsetCorrection.h"
-#include "JetCalibTools/CalibrationMethods/EtaJESCorrection.h"
-#include "JetCalibTools/CalibrationMethods/GlobalSequentialCorrection.h"
-#include "JetCalibTools/CalibrationMethods/InsituDataCorrection.h"
-#include "JetCalibTools/CalibrationMethods/JMSCorrection.h"
-#include "JetCalibTools/CalibrationMethods/JetSmearingCorrection.h"
+#include "JetCalibTools/JetEventInfo.h"
+#include "JetCalibTools/JetCalibrationStep.h"
 
-class JetPileupCorrection;
-class ResidualOffsetCorrection;
-class BcidOffsetCorrection;
-class EtaJESCorrection;
-class GlobalSequentialCorrection;
-class InsituDataCorrection;
-class JMSCorrection;
-class JetSmearingCorrection;
 
 class JetCalibrationTool
-  : public ::JetCalibrationToolBase {
+  : public asg::AsgTool,
+    virtual public IJetCalibrationTool {
 
   ASG_TOOL_CLASS2(JetCalibrationTool, IJetCalibrationTool, IJetModifier)
 
@@ -54,52 +40,32 @@ public:
   JetCalibrationTool(const std::string& name = "JetCalibrationTool");
 
   /// Destructor: 
-  virtual ~JetCalibrationTool(); 
+  ~JetCalibrationTool(); 
 
   enum jetScale { EM, LC, PFLOW };
 
-  // Initialize the tool (default, assumes private members were set in the constructor)
-  virtual StatusCode initializeTool(const std::string& name);
+  StatusCode initialize() override;
 
-  // PATInterfaces inherited method
-  StatusCode initialize();
- 
-  //PATInterfaces inherited method
-  StatusCode finalize();
-
-  virtual StatusCode applyCalibration(xAOD::JetContainer&) const;
-
-  // Retrieve pTmax from in situ corrections
-  virtual VecD retrieveEtaIntercalPtMax(){return m_relInsituPtMax;}
-  virtual VecD retrieveAbsoluteInsituPtMax(){return m_absInsituPtMax;}
+  StatusCode applyCalibration(xAOD::JetContainer&) const override;
 
   // Get the nominal resolution
-  virtual StatusCode getNominalResolutionData(const xAOD::Jet& jet, double& resolution) const;
-  virtual StatusCode getNominalResolutionMC(  const xAOD::Jet& jet, double& resolution) const;
+  StatusCode getNominalResolutionData(const xAOD::Jet& jet, double& resolution) const override;
+  StatusCode getNominalResolutionMC(  const xAOD::Jet& jet, double& resolution) const override;
   
-protected:
-  /// This is where the actual calibration code goes.
-  virtual StatusCode calibrateImpl(xAOD::Jet& jet, JetEventInfo& jetEventInfo) const;
-
-//Private methods
 private:
+  StatusCode calibrate(xAOD::Jet& jet, JetEventInfo& jetEventInfo) const;
   //Set event by event info like rho, mu, NPV
-  virtual StatusCode initializeEvent(JetEventInfo& jetEventInfo) const;
-  //Create the vector of calibration classes
-  StatusCode getCalibClass(const std::string& name, TString calibration);
+  StatusCode initializeEvent(JetEventInfo& jetEventInfo) const;
+  //Add an item to the vector of calibration steps
+  StatusCode getCalibClass(TString calibration);
 
 //Private members
 private:
-  // ReadHandleKey(s)
-  SG::ReadHandleKey<xAOD::EventInfo>        m_rhkEvtInfo;
-  SG::ReadHandleKey<xAOD::EventShape>       m_rhkRhoKey;
-  SG::ReadHandleKey<xAOD::VertexContainer>  m_rhkPV {this,
-       "PrimaryVerticesContainerName",
-       "PrimaryVertices"};
-  SG::ReadDecorHandleKey<xAOD::EventInfo>        m_rdhkEvtInfo {this
-      ,"averageInteractionsPerCrossingKey"
-      ,"EventInfo.averageInteractionsPerCrossing"
-      ,"Decoration for Average Interaction Per Crossing"};
+  SG::ReadHandleKey<xAOD::EventInfo> m_evtInfoKey{this, "EventInfoKey", "EventInfo"};
+  SG::ReadHandleKey<xAOD::EventShape> m_rhoKey{this, "RhoKey", "auto"};
+  SG::ReadHandleKey<xAOD::VertexContainer> m_pvKey{this, "PrimaryVerticesContainerName", "PrimaryVertices"};
+  SG::ReadDecorHandleKey<xAOD::EventInfo> m_muKey {this, "averageInteractionsPerCrossingKey",
+          "EventInfo.averageInteractionsPerCrossing","Decoration for Average Interaction Per Crossing"};
 
   //Variables for configuration
   std::string m_jetAlgo;
@@ -111,7 +77,6 @@ private:
   bool m_isData;
   bool m_timeDependentCalib;
   bool m_originCorrectedClusters;
-  std::string m_rhoKey;
   bool m_useNjetInResidual;
   float m_nJetThreshold;
   std::string m_nJetContainerName;
@@ -123,7 +88,6 @@ private:
   std::string m_vertexContainerName;
   bool m_insituCombMassCalib;
   std::vector<TString> m_insituCombMassConfig;
-  std::string m_rhoKey_config;
 
   //TEnv to hold the global text config
   TEnv * m_globalConfig;
@@ -140,21 +104,8 @@ private:
 
   std::string m_gscDepth; // if not set then use the one defined in the config
 
-  // vector with pTmax of each in situ correction
-  VecD m_relInsituPtMax, m_absInsituPtMax;
-
-  //Class objects for each calibration step
-  std::vector<JetCalibrationToolBase*> m_calibClasses;
-  BcidOffsetCorrection * m_bcidCorr;
-  JetPileupCorrection * m_jetPileupCorr;
-  EtaJESCorrection * m_etaJESCorr;
-  GlobalSequentialCorrection * m_globalSequentialCorr;
-  InsituDataCorrection * m_insituDataCorr;
-  std::vector<JetCalibrationToolBase*> m_insituTimeDependentCorr;
-  JMSCorrection * m_jetMassCorr;
-  JetSmearingCorrection* m_jetSmearCorr;
-  JMSCorrection *m_insituCombMassCorr_tmp;
-  std::vector<JetCalibrationToolBase*> m_insituCombMassCorr;
+  std::vector<std::unique_ptr<JetCalibrationStep> > m_calibSteps;
+  int m_smearIndex;
 
 }; 
 

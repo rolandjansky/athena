@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -43,7 +43,7 @@ VP1TrackSanity::~VP1TrackSanity()
 }
 
 //____________________________________________________________________
-bool VP1TrackSanity::isSafe(const Trk::TrackStateOnSurface* tsos ) const
+bool VP1TrackSanity::isSafe(const Trk::TrackStateOnSurface* tsos ) 
 {
   if (!tsos)
     return false;
@@ -52,7 +52,7 @@ bool VP1TrackSanity::isSafe(const Trk::TrackStateOnSurface* tsos ) const
 }
 
 //____________________________________________________________________
-bool VP1TrackSanity::isSafe(const Trk::TrackParameters* pars ) const
+bool VP1TrackSanity::isSafe(const Trk::TrackParameters* pars ) 
 {
   if (!pars)
     return false;
@@ -61,7 +61,7 @@ bool VP1TrackSanity::isSafe(const Trk::TrackParameters* pars ) const
 }
 
 //____________________________________________________________________
-bool VP1TrackSanity::isSafe(const Trk::MeasurementBase* meas ) const
+bool VP1TrackSanity::isSafe(const Trk::MeasurementBase* meas ) 
 {
   if (!meas)
     return false;
@@ -81,7 +81,7 @@ bool VP1TrackSanity::isSafe(const Trk::MeasurementBase* meas ) const
 }
 
 //____________________________________________________________________
-bool VP1TrackSanity::isSafe(const Trk::RIO_OnTrack* rio ) const
+bool VP1TrackSanity::isSafe(const Trk::RIO_OnTrack* rio ) 
 {
   if (!rio)
     return false;
@@ -95,7 +95,7 @@ bool VP1TrackSanity::isSafe(const Trk::RIO_OnTrack* rio ) const
 }
 
 //____________________________________________________________________
-bool VP1TrackSanity::isSafe( const Trk::PrepRawData* prd ) const
+bool VP1TrackSanity::isSafe( const Trk::PrepRawData* prd ) 
 {
   if (!prd)
     return false;

@@ -116,3 +116,13 @@ To combine the .db files, one can use the [MergeDb.sh](https://twiki.cern.ch/twi
 ./MergeDb.sh file1.db file2.db ... output.db
 ```
 The script Db2Dir and Dir2Db should be in the same directory and be executable.
+
+## Sherpa-Pythia8 Hadronization interface
+
+Sherpa allows to switch between their in-house cluster hadronisation model (used by default) and a Lund string model taken from Pythia8 (and Pythia6) to allow for systematic studies of the hadronisation uncertainties without changing the underlying perturbative physics.
+How to enable and use the cluster model with standalone Sherpa can be seen in the ([Sherpa documentation](https://sherpa-team.gitlab.io/sherpa/master/manual/parameters/hadronization.html#id21)).
+For use within athena a base fragment has been prepared that can be included directly. (Pythia8_Hadronization.py)
+It is important to note that adjusting **ANY** other Pythia8 settings via the PYTHIA8 block overrides the settings in the base fragment.
+So they have to be included again in ones own settings even if one wishes not to explicitely change their values.
+Another caveat is that the interface does not work with every athena release. Instead the Pythia8 version that is in the release as to be the same version that Sherpa was compiled against.
+Currently the only working release that fulfills this criteria is 21.6.82 with Sherpa version 3.0.0alpha1.py245 and Pythia 8.245.

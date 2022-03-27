@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -114,9 +114,10 @@ class EMECSupportConstruction
     const GeoMaterial* m_Copper;
     const GeoMaterial* m_Lead;
 
-	IRDBRecordset_ptr m_DB_EmecGeometry, m_DB_EmecWheelParameters, m_DB_mn;
-	IRDBRecordset_ptr m_DB_boxes, m_DB_numbers, m_DB_tubes, m_DB_pcons;
+    IRDBRecordset_ptr m_DB_EmecGeometry, m_DB_EmecWheelParameters, m_DB_mn;
+    IRDBRecordset_ptr m_DB_boxes, m_DB_numbers, m_DB_tubes, m_DB_pcons;
     IRDBRecordset_ptr m_DB_emecExtraCyl;
+    IRDBRecordset_ptr m_DB_EmecFan,m_DB_ColdContraction;
 };
 
 } // namespace LArGeo

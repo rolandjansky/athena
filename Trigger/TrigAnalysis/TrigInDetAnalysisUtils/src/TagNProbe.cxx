@@ -50,12 +50,14 @@ double TagNProbe::computeZ_obj( TIDA::Track* t1, TIDA::Track* t2 ) {
   double invMass = (double)( v1 + v2 ).M();
   double z0diff = std::fabs( z0_1 - z0_2 );
 
-  if ( invMass > m_ZmassMin && invMass < m_ZmassMax && z0diff < 5 )
-    return invMass;
+  if ( invMass > m_ZmassMin && invMass < m_ZmassMax && z0diff < 5 )  return invMass;
   
   return -1.0;
 
 }
+
+
+
 
 // ------------------------------------------------------------------
 
@@ -85,6 +87,9 @@ double TagNProbe::computeZ( TIDA::Track* t1, TIDA::Track* t2 ) {
   return invMass;
   
 }
+
+
+
 
 // ------------------------------------------------------------------
 
@@ -120,9 +125,13 @@ std::pair<double,double> TagNProbe::selection( TIDA::Roi& troi, TIDA::Roi& proi 
   }
 
   std::pair<double,double> pNull = std::make_pair( 0., 0. );
+
   return pNull;
 
 }
+
+
+
 
 // ------------------------------------------------------------------
 
@@ -313,10 +322,10 @@ void TagNProbe::FillMinvHisto( std::string chain_name, unsigned int probe_index 
        hMinv_obj_itr != m_hMinv_obj_map.end() &&
        m_masses[probe_index].size() == m_masses_obj[probe_index].size() ) {
 
-    for ( size_t im=0 ; im<m_masses[probe_index].size() ; im++ ) { 
-      hMinv_itr->second->Fill( m_masses[probe_index].at(im) );
-      hMinv_obj_itr->second->Fill( m_masses_obj[probe_index].at(im) );
-    }
+    //    for ( size_t im=0 ; im<m_masses[probe_index].size() ; im++ ) { 
+    //      hMinv_itr->second->Fill( m_masses[probe_index].at(im) );
+    //      hMinv_obj_itr->second->Fill( m_masses_obj[probe_index].at(im) );
+    //    }
   }
 }
 
@@ -327,10 +336,10 @@ void TagNProbe::FillMinvHisto( unsigned int probe_index ) {
   if ( m_masses[probe_index].size() == m_masses_obj[probe_index].size() &&
        m_masses[probe_index].size() > 0 ) {
 
-    for ( size_t im=0 ; im<m_masses[probe_index].size() ; im++ ) { 
-      m_hMinv->Fill( m_masses[probe_index].at(im) );
-      m_hMinv_obj->Fill( m_masses_obj[probe_index].at(im) );
-    }
+    //  for ( size_t im=0 ; im<m_masses[probe_index].size() ; im++ ) { 
+    //    m_hMinv->Fill( m_masses[probe_index].at(im) );
+    //    m_hMinv_obj->Fill( m_masses_obj[probe_index].at(im) );
+    //  }
   }
 }
 
@@ -350,12 +359,14 @@ void TagNProbe::WriteMinvHisto( TDirectory* foutdir ) {
       std::string dirpath( foutdir->GetPath() );
       dirpath += dirname;
 
+#if 0
       /// renaming (title and object name) histos
       /// setting output TDirectory
       /// Write is called in rmain.cxx
       hMinv_itr->second->SetTitle( "Tag&Probe invariant mass" );
       hMinv_itr->second->SetName( "Minv_TnP" );
       hMinv_itr->second->SetDirectory( foutdir->GetDirectory( dirpath.c_str() ) );
+#endif
 
       foutdir->cd();
     }
@@ -370,12 +381,14 @@ void TagNProbe::WriteMinvHisto( TDirectory* foutdir ) {
       std::string dirpath( foutdir->GetPath() );
       dirpath += dirname;
 
+#if 0
       /// renaming (title and object name) histos and
       /// setting output TDirectory
       /// Write is called in rmain.cxx
       hMinv_obj_itr->second->SetTitle( "Tag&Probe invariant mass (object-based)" );
       hMinv_obj_itr->second->SetName( "Minv_obj_TnP" );
       hMinv_obj_itr->second->SetDirectory( foutdir->GetDirectory( dirpath.c_str() ) );
+#endif
 
       foutdir->cd();
     }

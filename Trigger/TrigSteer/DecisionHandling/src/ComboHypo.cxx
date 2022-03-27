@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DecisionHandling/ComboHypo.h"
@@ -25,11 +25,7 @@ StatusCode ComboHypo::initialize() {
   ATH_CHECK( m_outputs.initialize() );
   ATH_CHECK( m_inputs.initialize() );
   ATH_CHECK( m_inputs.size() == m_outputs.size() );
-  ATH_MSG_INFO( "with these inputs: ");
-  for (const auto& inp:m_inputs){
-    ATH_MSG_INFO("-- "<< inp.key());
-  }
-  
+
   if (m_hypoTools.size()>0) {
     ATH_CHECK(m_hypoTools.retrieve());
   }
@@ -46,10 +42,14 @@ StatusCode ComboHypo::initialize() {
   
   const size_t maxMult = maxMultEl->second.size();
 
-  if (msgLvl(MSG::INFO)){ 
-    ATH_MSG_INFO( "with this multiplicity map: ");
+  if (msgLvl(MSG::DEBUG)){
+    ATH_MSG_DEBUG( "with these inputs:");
+    for (const auto& inp : m_inputs) {
+      ATH_MSG_DEBUG("-- "<< inp.key());
+    }
+    ATH_MSG_DEBUG( "with this multiplicity map:");
     for ( const auto& m : m_multiplicitiesReqMap ) {
-      ATH_MSG_INFO("-- " << m.first 
+      ATH_MSG_DEBUG("-- " << m.first
         << " multiplicities: " << m.second 
         <<", input-collection-indicies: " << m_legToInputCollectionMap[m.first]);
     }

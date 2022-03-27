@@ -18,8 +18,10 @@ ConditionPtrs makeRepeatedConditions(const EtaPair& eta){
   auto rep_condition = std::unique_ptr<IRepeatedCondition>(nullptr);
   
   std::size_t multiplicity{1u};
+  int clique{0};
   rep_condition.reset(new RepeatedCondition(std::move(el_condition),
-					    multiplicity));
+					    multiplicity,
+					    clique));
   
   conditions.push_back(std::move(rep_condition));
 
@@ -38,8 +40,10 @@ ConditionPtrs makeRepeatedConditions(const EtaPairs& etas){
     auto rep_condition = std::unique_ptr<IRepeatedCondition>(nullptr);
 
     std::size_t multiplicity{1u};
+    int clique{0};
     rep_condition.reset(new RepeatedCondition(std::move(el_condition),
-					      multiplicity));
+					      multiplicity,
+					      clique));
     
     conditions.push_back(std::move(rep_condition));
   }

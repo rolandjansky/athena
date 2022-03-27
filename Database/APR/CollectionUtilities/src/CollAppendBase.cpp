@@ -546,7 +546,7 @@ CollAppendBase::copyData()
 	       m_committed = true;
 	    }
 
-	    if ( (m_numEventsPerPrint >= 0) && !(m_evtCounterTotal % m_numEventsPerPrint) ) {
+	    if ( (m_numEventsPerPrint > 0) && !(m_evtCounterTotal % m_numEventsPerPrint) ) {
 	       m_log << m_evtCounterTotal << " events appended" << corENDL;
 	    }
 	 }

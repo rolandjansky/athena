@@ -1,7 +1,7 @@
 #
 #  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
-from TriggerMenuMT.HLT.Menu.MenuComponents import MenuSequence
+from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequence
 from AthenaCommon.CFElements import parOR
 from AthenaCommon.CFElements import seqAND
 from TrigEDMConfig.TriggerEDMRun3 import recordable
@@ -39,12 +39,15 @@ def TrackCountHypoToolGen(chainDict):
     hypo = TrackCountHypoTool(chainDict["chainName"])
     if "hmt" in chainDict["chainName"]:
         hypo.minNtrks = int(chainDict["chainParts"][0]["hypoTrkInfo"].strip("trk"))
+        hypo.minPt = 200*Units.MeV
+        if "pusup" in chainDict["chainName"]:
+            hypo.maxVertexZ = 10*Units.mm
     if "mb_sptrk" in chainDict["chainName"]:
-        hypo.minPt = 200
-        hypo.maxZ0 = 401
+        hypo.minPt = 100*Units.MeV
+        hypo.maxZ0 = 401*Units.millimeter
     if "mb_sptrk_pt" in chainDict["chainName"]:
         hypo.minPt = int(chainDict["chainParts"][0]["hypoPtInfo"].strip("pt"))*Units.GeV
-        hypo.maxZ0 = 401
+        hypo.maxZ0 = 401*Units.millimeter
     if "mb_excl" in chainDict["chainName"]:
         hypo.exclusive = True
         hypo.minPt = int(chainDict["chainParts"][0]["hypoPtInfo"].strip("pt"))*Units.GeV
@@ -75,7 +78,8 @@ def TrigZVertexHypoToolGen(chainDict):
     if "pusup" in chainDict["chainName"]:
         hypo.minWeight = int(chainDict["chainParts"][0]["pileupInfo"].strip("pusup"))
     else:
-        raise RuntimeError("Chain {} w/o pileup suppression required to configure z vertex hypo".format(chainDict["chainName"]))
+        hypo.minWeight = -1 # pass always
+
     return hypo
 
 @AccumulatorCache
@@ -124,7 +128,7 @@ def MinBiasSPSequence():
     spAlgsList = idAlgs
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags# this will disappear once the flags are transported down here
-    from ..Menu.MenuComponents import algorithmCAToGlobalWrapper # this will disappear once whole sequence would be configured at once
+    from ..Config.MenuComponents import algorithmCAToGlobalWrapper # this will disappear once whole sequence would be configured at once
     spCount = algorithmCAToGlobalWrapper(SPCounterRecoAlgCfg, flags)[0]
 
     spRecoSeq = parOR("spRecoSeq", spAlgsList + [spCount])
@@ -142,8 +146,8 @@ def MinBiasSPSequence():
 
 @AccumulatorCache
 def MinBiasZVertexFinderSequenceCfg(flags):
-    from ..Menu.MenuComponents import InViewRecoCA, SelectionCA, MenuSequenceCA
-    recoAcc = InViewRecoCA(name="ZVertFinderReco", roisKey="InputRoI", RequireParentView=True)
+    from ..Config.MenuComponents import InViewRecoCA, SelectionCA, MenuSequenceCA
+    recoAcc = InViewRecoCA(name="ZVertFinderReco", InViewRoIs="InputRoI", RequireParentView=True)
     vdv = CompFactory.AthViews.ViewDataVerifier( "VDVZFinderInputs",
                                                   DataObjects = [( 'SpacePointContainer' , 'StoreGateSvc+PixelTrigSpacePoints'), 
                                                                  ( 'PixelID' , 'DetectorStore+PixelID' ) ])
@@ -173,6 +177,9 @@ def MinBiasTrkSequence():
 
         from TrigInDetConfig.EFIDTracking import makeInDetPatternRecognition
         algs,_ = makeInDetPatternRecognition(idTrigConfig, verifier='VDVMinBiasIDTracking')
+        vdv = algs[0]
+        assert vdv.DataObjects, "Likely not ViewDataVerifier, does not have DataObjects property"
+        vdv.DataObjects += [("xAOD::TrigCompositeContainer", "HLT_vtx_z")]
         trackCountHypo = TrackCountHypoAlg()
         trackCountHypo.trackCountKey = recordable("HLT_TrackCount")
         trackCountHypo.tracksKey = recordable("HLT_IDTrack_MinBias_IDTrig")
@@ -222,7 +229,7 @@ if __name__ == "__main__":
     ca = MinBiasZVertexFinderSequenceCfg(flags)    
     ca.ca.printConfig(withDetails=True)
 
-    from ..Menu.MenuComponents import menuSequenceCAToGlobalWrapper
+    from ..Config.MenuComponents import menuSequenceCAToGlobalWrapper
     ms = menuSequenceCAToGlobalWrapper(MinBiasZVertexFinderSequenceCfg, flags)
     spca = SPCounterRecoAlgCfg(flags)
     spca.printConfig(withDetails=True)

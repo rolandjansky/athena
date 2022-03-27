@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -114,7 +114,7 @@ TrackParametersCnv_p2::transSurface(const Trk ::TrackParameters_p2* persObj,
 {
   const Trk::Surface* surface = nullptr;
   // check if surface had transform.
-  if (persObj->m_transform.size()){
+  if (!persObj->m_transform.empty()){
     //if (debug) std::cout<<"Reading in parameters with FREE surface type ="<<type<<std::endl;
 
     auto transform = std::make_unique<Amg::Transform3D>();
@@ -201,7 +201,7 @@ void TrackParametersCnv_p2::transToPers( const Trk :: TrackParameters    *transO
   if (deleteAtEnd) delete transObj;
 }
 
-void TrackParametersCnv_p2::convertTransCurvilinearToPers(const Trk :: TrackParameters    *transObj, Trk :: TrackParameters_p2 *persObj) const {
+void TrackParametersCnv_p2::convertTransCurvilinearToPers(const Trk :: TrackParameters    *transObj, Trk :: TrackParameters_p2 *persObj) {
   // Curvilinear: here we store the 3 position + 3 momentum, rather than the 5 parameters (this avoids writing the surface)
   persObj->m_parameters.resize(7); 
   for (unsigned int i=0; i<3 ; ++i){
@@ -211,14 +211,11 @@ void TrackParametersCnv_p2::convertTransCurvilinearToPers(const Trk :: TrackPara
   persObj->m_parameters[6] = transObj->charge();
 }
 
-bool TrackParametersCnv_p2::isPersistifiableType(const Trk :: TrackParameters    *transObj) const {
+bool TrackParametersCnv_p2::isPersistifiableType(const Trk :: TrackParameters    *transObj) {
   const Trk::Surface* surf = transObj->associatedSurface ().baseSurface();
   assert (surf);
   Trk::SurfaceType type = surf->type();
-  if (type==Trk::SurfaceType::Perigee || type==Trk::SurfaceType::Plane || type==Trk::SurfaceType::Line){
-    return true;
-  } 
-  return false;
+  return type==Trk::SurfaceType::Perigee || type==Trk::SurfaceType::Plane || type==Trk::SurfaceType::Line;
 }
 
 void TrackParametersCnv_p2::fillPersSurface(const Trk :: TrackParameters    *transObj, Trk :: TrackParameters_p2 *persObj, MsgStream& /*log*/){

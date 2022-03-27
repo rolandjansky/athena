@@ -14,7 +14,7 @@ namespace MuonGM {
 
 class MMT_Hit : public AthMessaging {
   public:
-    MMT_Hit(char wedge, hitData_entry entry, const MuonGM::MuonDetectorManager* detManager);
+    MMT_Hit(char wedge, hitData_entry entry, const MuonGM::MuonDetectorManager* detManager, const std::shared_ptr<MMT_Parameters> par);
     MMT_Hit(const MMT_Hit &hit);
     MMT_Hit& operator=(const MMT_Hit&);
 
@@ -43,7 +43,7 @@ class MMT_Hit : public AthMessaging {
     bool isX() const;
     bool isU() const;
     bool isV() const;
-    void printHit();
+    void printHit() const;
     void setAge(int age) { m_age = age; }
     void setAsNoise() { m_isNoise = true; }
     void setBC(int bc) { m_BC_time = bc; }
@@ -52,8 +52,7 @@ class MMT_Hit : public AthMessaging {
     void setYZSlope(double slope) { m_YZslope = slope; }
     void setY(double y) { m_Y = y; }
     void setZ(double z) { m_Z = z; }
-    void updateHitProperties(std::shared_ptr<MMT_Parameters> par);
-    bool verifyHit();
+    bool verifyHit() const;
 
   private:
     char m_sector;

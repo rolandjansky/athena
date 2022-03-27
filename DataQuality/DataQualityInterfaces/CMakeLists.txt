@@ -1,11 +1,11 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( DataQualityInterfaces )
 
 # External dependencies:
 find_package( Boost )
-find_package( ROOT COMPONENTS Core Hist Tree RIO )
+find_package( ROOT COMPONENTS Core Hist Tree RIO ROOTTPython )
 find_package( tdaq-common COMPONENTS dqm_core_io dqm_core dqm_dummy_io dqm_dummy )
 find_package( COOL COMPONENTS CoolKernel CoolApplication )
 find_package( CORAL COMPONENTS CoralBase )
@@ -57,3 +57,16 @@ atlas_add_executable( han-config-print
    src/han_config_print.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} DataQualityInterfaces )
+
+atlas_install_python_modules( python/*.py
+POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-select E11,W1 --extend-ignore E731 )
+
+atlas_install_scripts( scripts/han_lark_tester.py )
+
+atlas_install_data( data/* )
+
+# Tests:
+atlas_add_test( han_functions
+    SCRIPT test/test_han_functions.sh ${CMAKE_CURRENT_SOURCE_DIR}/share
+    PROPERTIES TIMEOUT 300
+)

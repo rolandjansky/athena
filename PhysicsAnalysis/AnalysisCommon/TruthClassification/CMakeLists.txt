@@ -7,7 +7,7 @@ atlas_subdir(TruthClassification)
 atlas_add_library(TruthClassificationLib
   TruthClassification/*.h Root/*.cxx
   PUBLIC_HEADERS TruthClassification
-  LINK_LIBRARIES AsgTools AsgAnalysisInterfaces xAODBase xAODEgamma xAODMuon
+  LINK_LIBRARIES AsgTools AsgAnalysisInterfaces xAODBase xAODEgamma xAODMuon FourMomUtils
   PRIVATE_LINK_LIBRARIES MCTruthClassifierLib)
 
 atlas_add_dictionary(TruthClassificationDict

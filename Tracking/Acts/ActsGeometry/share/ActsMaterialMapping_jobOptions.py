@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 ###############################################################
 #
 # Map material from a Geantino scan onto the surfaces and 
@@ -59,7 +59,6 @@ if "__main__" == __name__:
 
   ## Just enable ID for the moment.
   ConfigFlags.Input.isMC             = True
-  ConfigFlags.Beam.Type = ''
   ConfigFlags.GeoModel.AtlasVersion  = "ATLAS-R2-2016-01-00-01"
   ConfigFlags.IOVDb.GlobalTag        = "OFLCOND-SIM-00-00-00"
   ConfigFlags.Detector.GeometryBpipe = True

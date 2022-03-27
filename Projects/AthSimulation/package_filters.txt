@@ -171,7 +171,9 @@
 + Generators/HepMCWeightSvc
 + Generators/McEventSelector
 + Generators/TruthUtils
++ HighGranularityTimingDetector/HGTD_Config
 + HighGranularityTimingDetector/HGTD_DetDescr/HGTD_GeoModel
++ HighGranularityTimingDetector/HGTD_DetDescr/HGTD_GeoModelXml
 + HighGranularityTimingDetector/HGTD_DetDescr/HGTD_Identifier
 + HighGranularityTimingDetector/HGTD_DetDescr/HGTD_ReadoutGeometry
 + HighGranularityTimingDetector/HGTD_DetDescrCnv/HGTD_IdCnv
@@ -187,7 +189,10 @@
 + InnerDetector/InDetConditions/TRT_ConditionsAlgs
 + InnerDetector/InDetConditions/TRT_ConditionsData
 + InnerDetector/InDetConditions/TRT_ConditionsServices
++ InnerDetector/InDetConfig
 + InnerDetector/InDetDetDescr/BCM_GeoModel
++ InnerDetector/InDetDetDescr/BCMPrimeGeoModelXml
++ InnerDetector/InDetDetDescr/BCMPrimeReadoutGeometry
 + InnerDetector/InDetDetDescr/BLM_GeoModel
 + InnerDetector/InDetDetDescr/InDetGeoModelUtils
 + InnerDetector/InDetDetDescr/InDetIdDictFiles
@@ -199,7 +204,10 @@
 + InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
 + InnerDetector/InDetDetDescr/InDetServMatGeoModel
 + InnerDetector/InDetDetDescr/PixelGeoModel
++ InnerDetector/InDetDetDescr/PixelGeoModelXml
++ InnerDetector/InDetDetDescr/PLRGeoModelXml
 + InnerDetector/InDetDetDescr/SCT_GeoModel
++ InnerDetector/InDetDetDescr/StripGeoModelXml
 + InnerDetector/InDetDetDescr/TRT_GeoModel
 + InnerDetector/InDetDetDescrCnv/InDetIdCnv
 + InnerDetector/InDetEventCnv/InDetSimEventAthenaPool

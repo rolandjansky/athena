@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GLOBALCHI2FITTER_H
@@ -156,7 +156,7 @@ namespace Trk {
     struct PropagationResult {
       std::unique_ptr<const TrackParameters> m_parameters;
       std::unique_ptr<TransportJacobian> m_jacobian;
-      std::optional<std::vector<std::unique_ptr<const TrackParameters>>> m_preholes;
+      std::optional<std::vector<std::unique_ptr<TrackParameters>>> m_preholes;
     };
 
     /*
@@ -558,7 +558,7 @@ namespace Trk {
      * @param[in] propdir The propagation direction.
      * @return A vector of track states, just like normal extrapolation.
      */
-    std::vector<std::unique_ptr<const TrackParameters>> holesearchExtrapolation(
+    std::vector<std::unique_ptr<TrackParameters>> holesearchExtrapolation(
       const EventContext & ctx,
       const TrackParameters & src,
       const GXFTrackState & dst,
@@ -810,7 +810,7 @@ namespace Trk {
      * @param[in] count_dead Dead modules are counted only if this is enabled.
      */
     void holeSearchHelper(
-      const std::vector<std::unique_ptr<const TrackParameters>> & hc,
+      const std::vector<std::unique_ptr<TrackParameters>> & hc,
       std::set<Identifier> & id_set,
       std::set<Identifier> & sct_set,
       TrackHoleCount & rv,

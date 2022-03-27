@@ -4,7 +4,7 @@ import threading
 from argparse import ArgumentParser, Namespace
 from os import environ
 from pathlib import Path
-from sys import exit
+from sys import exit, stdout
 from typing import List
 
 from .Checks import FailedOrPassedCheck, FPECheck, SimpleCheck, WarningsComparisonCheck
@@ -13,18 +13,50 @@ from .Test import TestSetup, WorkflowCheck, WorkflowTest, WorkflowType
 
 
 def setup_logger(name: str) -> logging.Logger:
+    # Add level for plain printing
+    printLevel = logging.INFO + 5
+    printName = 'PRINT'
+    printMethodName = 'print'
+
+    def logForLevel(self, message, *args, **kwargs):
+        if self.isEnabledFor(logging.PRINT):
+            self._log(logging.PRINT, message, args, **kwargs)
+    def logToRoot(message, *args, **kwargs):
+        logging.log(logging.PRINT, message, *args, **kwargs)
+
+    logging.addLevelName(printLevel, printName)
+    setattr(logging, printName, printLevel)
+    setattr(logging.getLoggerClass(), printMethodName, logForLevel)
+    setattr(logging, printMethodName, logToRoot)
+    logging.addLevelName(logging.INFO + 1, 'PRINT')
+
     # Setup global logging
-    logging.basicConfig(level=logging.INFO,
-                        format="%(asctime)s %(levelname)-8s %(message)s",
-                        datefmt="%m-%d %H:%M",
-                        filename=f"./{name}.log",
-                        filemode="w")
-    console = logging.StreamHandler()
-    console.setLevel(logging.INFO)
-    formatter = logging.Formatter("%(levelname)-8s %(message)s")
-    console.setFormatter(formatter)
-    logger = logging.getLogger("")
-    logger.addHandler(console)
+    class CustomFormatter(logging.Formatter):
+        """Custom formatter."""
+        def __init__(self, fmt):
+            self._default_fmt = fmt
+            super().__init__(fmt, datefmt="%m-%d %H:%M")
+
+        def format(self, record):
+            if record.levelno == logging.PRINT:
+                self._style._fmt = "%(message)s"
+            else:
+                self._style._fmt = self._default_fmt
+            return super().format(record)
+
+    fileFormatter = CustomFormatter("%(asctime)s %(levelname)-8s %(message)s")
+    fileHandler = logging.FileHandler(f"./{name}.log", mode="w")
+    fileHandler.setFormatter(fileFormatter)
+
+    streamFormatter = CustomFormatter("%(levelname)-8s %(message)s")
+    streamHandler = logging.StreamHandler(stdout)
+    streamHandler.setFormatter(streamFormatter)
+
+    logger = logging.getLogger()
+    logger.addHandler(fileHandler)
+    logger.addHandler(streamHandler)
+    logger.setLevel(logging.INFO)
+
     return logger
 
 

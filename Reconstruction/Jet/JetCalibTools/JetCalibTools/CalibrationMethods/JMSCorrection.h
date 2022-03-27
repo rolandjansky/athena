@@ -11,19 +11,18 @@
  */
 
 #include <TEnv.h>
+#include <TFile.h>
 #include <TAxis.h>
 #include <TH2.h>
 #include <TH3.h>
 
-#include "JetCalibTools/JetCalibrationToolBase.h"
+#include "JetCalibTools/JetCalibrationStep.h"
 
 #include <memory>
 
 class JMSCorrection 
-  : virtual public ::JetCalibrationToolBase
+  : virtual public ::JetCalibrationStep
 {
-
-  ASG_TOOL_CLASS( JMSCorrection, IJetCalibrationTool )
 
  public:
   //Some convenient typedefs
@@ -32,13 +31,10 @@ class JMSCorrection
   typedef unsigned int uint;
 
   JMSCorrection();
-  JMSCorrection(const std::string& name);
   JMSCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool dev);
 
-  virtual StatusCode initializeTool(const std::string& name);
-
- protected:
-  virtual StatusCode calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const;
+  virtual StatusCode initialize() override;
+  virtual StatusCode calibrate(xAOD::Jet& jet, JetEventInfo&) const override;
 
  private:
   float getMassCorr3D(double pT_uncorr, double mass_uncorr, double eta) const;

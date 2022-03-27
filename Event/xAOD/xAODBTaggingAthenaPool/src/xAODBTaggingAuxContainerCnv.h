@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODBTaggingAuxContainerCnv.h 566967 2013-10-24 13:24:31Z krasznaa $
@@ -13,10 +13,7 @@
 
 // EDM include(s):
 #include "xAODBTagging/BTaggingAuxContainer.h"
-
-/// Base class for the converter
-typedef T_AthenaPoolAuxContainerCnv< xAOD::BTaggingAuxContainer >
-   xAODBTaggingAuxContainerCnvBase;
+#include "xAODBTaggingAuxContainerCnv_v1.h"
 
 /**
  *  @short POOL converter for the xAOD::BTaggingAuxContainer class
@@ -32,18 +29,9 @@ typedef T_AthenaPoolAuxContainerCnv< xAOD::BTaggingAuxContainer >
  * $Revision: 566967 $
  * $Date: 2013-10-24 15:24:31 +0200 (Thu, 24 Oct 2013) $
  */
-class xAODBTaggingAuxContainerCnv :
-   public xAODBTaggingAuxContainerCnvBase
-{
-public:
-   using xAODBTaggingAuxContainerCnvBase::xAODBTaggingAuxContainerCnvBase;
-
-  
-   /// Function preparing the container to be written out
-   virtual xAOD::BTaggingAuxContainer*
-   createPersistentWithKey( xAOD::BTaggingAuxContainer* trans,
-                            const std::string& key ) override;
-}; // class xAODBTaggingAuxContainerCnv
-
+using xAODBTaggingAuxContainerCnv = T_AthenaPoolAuxContainerCnv<
+  xAOD::BTaggingAuxContainer,
+  xAODBTaggingAuxContainerCnv_v1
+  >;
 
 #endif // XAODBTAGGINGATHENAPOOL_XAODBTAGGINGAUXCONTAINERCNV_H

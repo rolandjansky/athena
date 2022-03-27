@@ -8,7 +8,7 @@
 //Author Justin Griffiths <griffith@cern.ch>
 ///////////////////////////////////////////////////////////////////////////
 
-#include "MdtRawDataMonitoring/MDTNoisyTubes.h"
+#include "MDTNoisyTubes.h"
 
 using std::map;
 using std::string;

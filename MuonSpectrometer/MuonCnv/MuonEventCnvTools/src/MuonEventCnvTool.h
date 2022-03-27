@@ -74,6 +74,7 @@ namespace Muon {
         SG::ReadHandleKey<MMPrepDataContainer> m_mmPrdKey{this, "MM_ClusterContainer", "MM_Measurements", "Location for MM PRDs"};
         SG::ReadHandleKey<sTgcPrepDataContainer> m_stgcPrdKey{this, "STGC_ClusterContainer", "STGC_Measurements", "Location for sTGC PRDs"};
 
+        const MuonGM::MuonDetectorManager* m_muonDetMgr{nullptr};
         SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey{this, "DetectorManagerKey", "MuonDetectorManager",
                                                                                 "Key of input MuonDetectorManager condition data"};
 
@@ -82,6 +83,8 @@ namespace Muon {
         Gaudi::Property<bool> m_manuallyFindPRDs{this, "FindPRDsManually", false,
                                                  "If true, search for PRDs manually - i.e. do not rely on ElementLink working"};
         Gaudi::Property<bool> m_fixTGCs{this, "FixTGCs", false, "If true, try to fix broken EL, e.g. ATLASRECTS-5151"};
+        
+        Gaudi::Property<bool> m_useAlignedGeo{this, "UseAlignedGeometry", true, "If true the DetectorManager is retrieved from the conditions store instead of the DetectorStore"};
     };
 
 }  // namespace Muon

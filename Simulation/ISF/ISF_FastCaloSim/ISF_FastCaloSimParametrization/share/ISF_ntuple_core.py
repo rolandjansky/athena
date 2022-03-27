@@ -79,10 +79,6 @@ ISF_HitAnalysis.Extrapolator=timedExtrapolator
 
 from AthenaCommon.CfgGetter import getPublicTool
 
-fcsgeohelper= getPublicTool('FastCaloSimGeometryHelper')
-ToolSvc+=fcsgeohelper
-ISF_HitAnalysis.CaloGeometryHelper=fcsgeohelper
-
 ISF_HitAnalysis.FastCaloSimCaloExtrapolation= getPublicTool('FastCaloSimCaloExtrapolation')
 ISF_HitAnalysis.FastCaloSimCaloExtrapolation.OutputLevel = ERROR
 ToolSvc.FastCaloSimCaloExtrapolation.OutputLevel = ERROR

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -556,7 +556,13 @@ namespace InDet {
       //
       if (passTiming) {
         unsigned int nBadStrips(0);
-        for (unsigned int sn=thisStrip; sn!=thisStrip+nStrips; ++sn) {
+        unsigned int max_strip = std::min( static_cast<unsigned int>(thisStrip+nStrips), static_cast<unsigned int>(idHelper.strip_max(waferId)+1) );
+
+        if (thisStrip+nStrips > max_strip) {
+           ATH_MSG_DEBUG("SCT strip range exceeds bounds: strip range " << thisStrip << " .. + " << nStrips << " = " << (thisStrip+nStrips)
+			   << " !<= " << max_strip );
+        }
+        for (unsigned int sn=thisStrip; sn < max_strip; ++sn) {
           Identifier stripId = m_useRowInformation ? idHelper.strip_id(waferId,thisRow,sn) : idHelper.strip_id(waferId,sn);
           if (m_conditionsTool->isGood(stripId, InDetConditions::SCT_STRIP)) {
             currentVector.push_back(stripId);
@@ -706,7 +712,7 @@ namespace InDet {
 
       SiWidth siWidth{Amg::Vector2D(dnStrips,1.), Amg::Vector2D(width,stripL)};
 
-      SCT_Cluster* cluster = new SCT_Cluster{clusterId, locpos, *pGroup , siWidth, element, std::move(errorMatrix)};
+      SCT_Cluster* cluster = new SCT_Cluster{clusterId, locpos, *pGroup , siWidth, element, errorMatrix};
 
       cluster->setHashAndIndex(idHash, clusterNumber);
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelRDO_ContainerCnv.h"
@@ -53,7 +53,7 @@ StatusCode PixelRDO_ContainerCnv::initialize() {
    }
    
    // get DetectorStore service
-   StoreGateSvc *detStore(0);
+   StoreGateSvc *detStore(nullptr);
    if (service("DetectorStore", detStore).isFailure()) {
      ATH_MSG_FATAL("DetectorStore service not found !");
      return StatusCode::FAILURE;
@@ -62,7 +62,7 @@ StatusCode PixelRDO_ContainerCnv::initialize() {
    }
    
    // Get the pixel helper from the detector store
-   const PixelID* idhelper(0);
+   const PixelID* idhelper(nullptr);
    if (detStore->retrieve(idhelper, "PixelID").isFailure()) {
      ATH_MSG_FATAL("Could not get PixelID helper !");
      return StatusCode::FAILURE;
@@ -95,7 +95,7 @@ PixelRDO_Container_PERS* PixelRDO_ContainerCnv::createPersistent(PixelRDO_Contai
     while (it_Coll != it_CollEnd && (*it_Coll)->size() == 0 ) ++it_Coll;
     if(it_Coll != it_CollEnd) {
       const PixelRDORawData *test((**it_Coll)[0]);
-      if(dynamic_cast<const Pixel1RawData*>(test) != 0 ) {
+      if(dynamic_cast<const Pixel1RawData*>(test) != nullptr ) {
 	 ATH_MSG_DEBUG("Found container with Pixel1RawData concrete type objects");
          converter_num=1;
       } else {
@@ -110,7 +110,7 @@ PixelRDO_Container_PERS* PixelRDO_ContainerCnv::createPersistent(PixelRDO_Contai
   }
   // Switch facility depending on the concrete data type of the contained objects
   // Should do by getting the type_info of one of the contained objects
-  PixelRDO_Container_PERS *persObj(0);
+  PixelRDO_Container_PERS *persObj(nullptr);
   if(converter_num == 1) { 
      persObj = m_converter_PERS.createPersistent( transCont, msg() );
   } else {

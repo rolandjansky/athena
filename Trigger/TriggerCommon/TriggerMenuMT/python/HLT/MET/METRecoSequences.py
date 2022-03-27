@@ -5,7 +5,7 @@
 from .AlgInputConfig import AlgInputConfig, InputConfigRegistry
 from AthenaCommon.Logging import logging
 
-from ..Menu.MenuComponents import RecoFragmentsPool
+from ..Config.MenuComponents import RecoFragmentsPool
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 import copy

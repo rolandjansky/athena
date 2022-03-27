@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetRawData/Pixel1RawData.h"
@@ -31,7 +31,7 @@ void Pixel1RawDataContainerCnv_p1::transToPers(const PixelRDO_Container* transCo
     // to the container's vector, saving the indexes in the
     // collection. 
 
-    typedef PixelRDO_Container TRANS;
+    using TRANS = PixelRDO_Container;
 
     Pixel1RawDataCnv_p1  chanCnv;
     TRANS::const_iterator it_Coll     = transCont->begin();
@@ -89,7 +89,7 @@ void  Pixel1RawDataContainerCnv_p1::persToTrans(const InDetRawDataContainer_p1* 
     // from the vector.
 
 
-    PixelRDO_Collection* coll = 0;
+    PixelRDO_Collection* coll = nullptr;
 
     Pixel1RawDataCnv_p1  chanCnv;
     MSG_DEBUG(log," Reading " << persCont->m_collections.size() << "Collections");

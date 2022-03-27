@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigBjetMonitorAlgorithm.h"
 
-#include "AthenaMonitoring/AthenaMonManager.h"
+/*#include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolTest.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"   //EN
 
@@ -27,20 +27,12 @@
 
 // Calculates the track errors
 #include "EventPrimitives/EventPrimitivesHelpers.h"
-
+*/
 
 
 TrigBjetMonitorAlgorithm::TrigBjetMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
   : AthMonitorAlgorithm(name,pSvcLocator)
-  ,m_doRandom(true)
-  ,m_allChains{}
-  ,m_muonContainerKey("Muons")
-  ,m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool")
-{
-  declareProperty ("AllChains", m_allChains);
-  declareProperty("MuonContainerName",m_muonContainerKey);
-}
-
+{}
 
 TrigBjetMonitorAlgorithm::~TrigBjetMonitorAlgorithm() {}
 
@@ -48,9 +40,10 @@ TrigBjetMonitorAlgorithm::~TrigBjetMonitorAlgorithm() {}
 StatusCode TrigBjetMonitorAlgorithm::initialize() {
   ATH_CHECK( m_muonContainerKey.initialize() );
 
-  ATH_CHECK( m_offlineVertexContainerKey.initialize() );
-  ATH_CHECK( m_onlineVertexContainerKey.initialize() );
+  ATH_CHECK( m_offlineVertexContainerKey.initialize(m_collisionRun) );
+  ATH_CHECK( m_onlineVertexContainerKey.initialize(m_collisionRun) );
   ATH_CHECK( m_onlineTrackContainerKey.initialize() );
+  ATH_CHECK( m_trigDecTool.retrieve() );
 
   return AthMonitorAlgorithm::initialize();
 }
@@ -74,28 +67,40 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
   using namespace Monitored;
 
 
-  // Read off-line PV's  and fill histograms 
+  // Read off-line PV's  and fill histograms
 
-  auto OffNVtx = Monitored::Scalar<int>("Off_NVtx",0);
-  auto OffxVtx = Monitored::Scalar<float>("Off_xVtx",0.0);
-  auto OffyVtx = Monitored::Scalar<float>("Off_yVtx",0.0);
-  auto OffzVtx = Monitored::Scalar<float>("Off_zVtx",0.0);
+  bool Eofflinepv(false);
+  float offlinepvz(-1.e6);
+  float offlinepvx(-1.e6);
+  float offlinepvy(-1.e6);
+ 
+  if (m_collisionRun) {
+    auto OffNVtx = Monitored::Scalar<int>("Off_NVtx",0);
+    auto OffxVtx = Monitored::Scalar<float>("Off_xVtx",0.0);
+    auto OffyVtx = Monitored::Scalar<float>("Off_yVtx",0.0);
+    auto OffzVtx = Monitored::Scalar<float>("Off_zVtx",0.0);
 
-  SG::ReadHandle<xAOD::VertexContainer> offlinepv = SG::makeHandle( m_offlineVertexContainerKey, ctx );
-  if (! offlinepv.isValid() ) {
-    ATH_MSG_ERROR("evtStore() does not contain VertexContainer Collection with name "<< m_offlineVertexContainerKey);
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_DEBUG(" Size of the Off-line PV container: " << offlinepv->size() );
-  OffNVtx = offlinepv->size() ;
-  for (unsigned int j = 0; j<offlinepv->size(); j++){
-    OffxVtx = (*(offlinepv))[j]->x();
-    OffyVtx = (*(offlinepv))[j]->y();
-    OffzVtx = (*(offlinepv))[j]->z();
-    fill("TrigBjetMonitor",OffxVtx,OffyVtx,OffzVtx);
-  }
-  fill("TrigBjetMonitor",OffNVtx);
-  
+    SG::ReadHandle<xAOD::VertexContainer> offlinepv = SG::makeHandle( m_offlineVertexContainerKey, ctx );
+    if (! offlinepv.isValid() ) {
+      ATH_MSG_ERROR("evtStore() does not contain VertexContainer Collection with name "<< m_offlineVertexContainerKey);
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_DEBUG(" Size of the Off-line PV container: " << offlinepv->size() );
+    if ( offlinepv->size() ) {
+      Eofflinepv = true;
+      offlinepvz = offlinepv->front()->z();
+      offlinepvx = offlinepv->front()->x();
+      offlinepvy = offlinepv->front()->y();
+      OffNVtx = offlinepv->size() ;
+      for (unsigned int j = 0; j<offlinepv->size(); j++){
+	OffxVtx = (*(offlinepv))[j]->x();
+	OffyVtx = (*(offlinepv))[j]->y();
+	OffzVtx = (*(offlinepv))[j]->z();
+	fill("TrigBjetMonitor",OffxVtx,OffyVtx,OffzVtx);
+      }
+      fill("TrigBjetMonitor",OffNVtx);
+    } // if size
+  } // if m_collisionRun
 
   // print the trigger chain names 
 
@@ -104,7 +109,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
   int size_AllChains = m_allChains.size();
   ATH_MSG_DEBUG(" Size of the AllChains trigger container: " << size_AllChains );
   for (int i =0; i<size_AllChains; i++){
-    chainName = m_allChains.at(i);
+    chainName = m_allChains[i];
     ATH_MSG_DEBUG("  Chain number: " << i << " AllChains Chain Name: " << chainName );
   }
   
@@ -140,37 +145,63 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 
       // bjet chains
       if (bjetChain) {
-	// online PV 
-	SG::ReadHandle<xAOD::VertexContainer> vtxContainer = SG::makeHandle( m_onlineVertexContainerKey, ctx );
-	int nPV = 0;
-	for (const xAOD::Vertex* vtx : *vtxContainer) {
-	  if (vtx->vertexType() == xAOD::VxType::PriVtx) {
-	    nPV++;
-	    std::string NameH = "PVz_tr_"+trigName;
-	    ATH_MSG_DEBUG( " NameH: " << NameH  );
-	    auto PVz_tr = Monitored::Scalar<float>(NameH,0.0);
-	    PVz_tr = vtx->z();
-	    ATH_MSG_DEBUG("        PVz_tr: " << PVz_tr);
-	    fill("TrigBjetMonitor",PVz_tr);
-	    NameH = "PVx_tr_"+trigName;
-	    ATH_MSG_DEBUG( " NameH: " << NameH  );
-	    auto PVx_tr = Monitored::Scalar<float>(NameH,0.0);
-	    PVx_tr = vtx->x();
-	    ATH_MSG_DEBUG("        PVx_tr: " << PVx_tr);
-	    fill("TrigBjetMonitor",PVx_tr);
-	    NameH = "PVy_tr_"+trigName;
-	    ATH_MSG_DEBUG( " NameH: " << NameH  );
-	    auto PVy_tr = Monitored::Scalar<float>(NameH,0.0);
-	    PVy_tr = vtx->y();
-	    ATH_MSG_DEBUG("        PVy_tr: " << PVy_tr);
-	    fill("TrigBjetMonitor",PVy_tr);
-	  } // if vtx type
-	} // loop on vtxContainer
-	std::string NpvH = "nPV_tr_"+trigName;
-	ATH_MSG_DEBUG( " NpvH: " << NpvH  );
-	auto nPV_tr = Monitored::Scalar<int>(NpvH,0.0);
-	nPV_tr = nPV;
-	fill("TrigBjetMonitor",nPV_tr);
+	// online PV
+	if (m_collisionRun) { 
+	  SG::ReadHandle<xAOD::VertexContainer> vtxContainer = SG::makeHandle( m_onlineVertexContainerKey, ctx );
+	  int nPV = 0;
+	  for (const xAOD::Vertex* vtx : *vtxContainer) {
+	    if (vtx->vertexType() == xAOD::VxType::PriVtx) {
+	      nPV++;
+	      std::string NameH = "PVz_tr_"+trigName;
+	      ATH_MSG_DEBUG( " NameH: " << NameH  );
+	      auto PVz_tr = Monitored::Scalar<float>(NameH,0.0);
+	      PVz_tr = vtx->z();
+	      ATH_MSG_DEBUG("        PVz_tr: " << PVz_tr);
+	      fill("TrigBjetMonitor",PVz_tr);
+	      if (Eofflinepv) {
+		NameH = "DiffOnOffPVz_tr_"+trigName;
+		ATH_MSG_DEBUG( " NameH: " << NameH  );
+		auto DiffOnOffPVz_tr = Monitored::Scalar<float>(NameH,0.0);
+		DiffOnOffPVz_tr = vtx->z()-offlinepvz;
+		ATH_MSG_DEBUG("        DiffOnOffPVz_tr: " << DiffOnOffPVz_tr);
+		fill("TrigBjetMonitor",DiffOnOffPVz_tr);
+	      } // if Eofflinepv
+	      NameH = "PVx_tr_"+trigName;
+	      ATH_MSG_DEBUG( " NameH: " << NameH  );
+	      auto PVx_tr = Monitored::Scalar<float>(NameH,0.0);
+	      PVx_tr = vtx->x();
+	      ATH_MSG_DEBUG("        PVx_tr: " << PVx_tr);
+	      fill("TrigBjetMonitor",PVx_tr);
+	      if (Eofflinepv) {
+		NameH = "DiffOnOffPVx_tr_"+trigName;
+		ATH_MSG_DEBUG( " NameH: " << NameH  );
+		auto DiffOnOffPVx_tr = Monitored::Scalar<float>(NameH,0.0);
+		DiffOnOffPVx_tr = vtx->x()-offlinepvx;
+		ATH_MSG_DEBUG("        DiffOnOffPVx_tr: " << DiffOnOffPVx_tr);
+		fill("TrigBjetMonitor",DiffOnOffPVx_tr);
+	      } // if Eofflinepv
+	      NameH = "PVy_tr_"+trigName;
+	      ATH_MSG_DEBUG( " NameH: " << NameH  );
+	      auto PVy_tr = Monitored::Scalar<float>(NameH,0.0);
+	      PVy_tr = vtx->y();
+	      ATH_MSG_DEBUG("        PVy_tr: " << PVy_tr);
+	      fill("TrigBjetMonitor",PVy_tr);
+	      if (Eofflinepv) {
+		NameH = "DiffOnOffPVy_tr_"+trigName;
+		ATH_MSG_DEBUG( " NameH: " << NameH  );
+		auto DiffOnOffPVy_tr = Monitored::Scalar<float>(NameH,0.0);
+		DiffOnOffPVy_tr = vtx->y()-offlinepvy;
+		ATH_MSG_DEBUG("        DiffOnOffPVy_tr: " << DiffOnOffPVy_tr);
+		fill("TrigBjetMonitor",DiffOnOffPVy_tr);
+	      } // if Eofflinepv
+	    } // if vtx type
+	  } // loop on vtxContainer
+	  std::string NpvH = "nPV_tr_"+trigName;
+	  ATH_MSG_DEBUG( " NpvH: " << NpvH  );
+	  auto nPV_tr = Monitored::Scalar<int>(NpvH,0.0);
+	  nPV_tr = nPV;
+	  fill("TrigBjetMonitor",nPV_tr);
+	} // if m_collisionRun
       } // if bjetChain
       
 	//bjet or mujet chains 
@@ -178,7 +209,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	
 	// Jets and PV and tracks through jet link
 
-	std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > onlinejets = m_trigDec->features<xAOD::JetContainer>(trigName, TrigDefs::Physics); // TM 2021-10-30
+	std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > onlinejets = m_trigDecTool->features<xAOD::JetContainer>(trigName, TrigDefs::Physics); // TM 2021-10-30
 	
 	int ijet = 0;
 	int itrack = 0;
@@ -270,14 +301,6 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	    ATH_MSG_DEBUG("        wIP3D: " << wIP3D);
 	    fill("TrigBjetMonitor",wIP3D);
 	    
-	    // Discriminants
-	    NameH = "wMV2c10_tr_"+trigName;
-	    ATH_MSG_DEBUG( " NameH: " << NameH  );
-	    auto wMV2c10 = Monitored::Scalar<double>(NameH,0.0);
-	    btag->MVx_discriminant("MV2c10",wMV2c10);
-	    ATH_MSG_DEBUG("        wMV2c10: " << wMV2c10);
-	    fill("TrigBjetMonitor",wMV2c10);
-	    
 	    // SV1 variables (credit LZ)
 	    NameH = "xNVtx_tr_"+trigName;
 	    ATH_MSG_DEBUG( " NameH: " << NameH  );
@@ -352,33 +375,33 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	    fill("TrigBjetMonitor",RNNIP_pb);
 	    
 
-	    NameH = "DL1_pu_tr_"+trigName;
+	    NameH = "DL1d_pu_tr_"+trigName;
 	    ATH_MSG_DEBUG( " NameH: " << NameH  );
-	    auto DL1_pu = Monitored::Scalar<double>(NameH,0.0);
-	    btag->pu("DL1",DL1_pu);
-	    ATH_MSG_DEBUG("        DL1_pu: " << DL1_pu);
-	    fill("TrigBjetMonitor",DL1_pu);
+	    auto DL1d_pu = Monitored::Scalar<double>(NameH,0.0);
+	    btag->pu("DL1d20211216",DL1d_pu);
+	    ATH_MSG_DEBUG("        DL1d_pu: " << DL1d_pu);
+	    fill("TrigBjetMonitor",DL1d_pu);
 
-	    NameH = "DL1_pc_tr_"+trigName;
+	    NameH = "DL1d_pc_tr_"+trigName;
 	    ATH_MSG_DEBUG( " NameH: " << NameH  );
-	    auto DL1_pc = Monitored::Scalar<double>(NameH,0.0);
-	    btag->pc("DL1",DL1_pc);
-	    ATH_MSG_DEBUG("        DL1_pc: " << DL1_pc);
-	    fill("TrigBjetMonitor",DL1_pc);
+	    auto DL1d_pc = Monitored::Scalar<double>(NameH,0.0);
+	    btag->pc("DL1d20211216",DL1d_pc);
+	    ATH_MSG_DEBUG("        DL1d_pc: " << DL1d_pc);
+	    fill("TrigBjetMonitor",DL1d_pc);
 
-	    NameH = "DL1_pb_tr_"+trigName;
+	    NameH = "DL1d_pb_tr_"+trigName;
 	    ATH_MSG_DEBUG( " NameH: " << NameH  );
-	    auto DL1_pb = Monitored::Scalar<double>(NameH,0.0);
-	    btag->pb("DL1",DL1_pb);
-	    ATH_MSG_DEBUG("        DL1_pb: " << DL1_pb);
-	    fill("TrigBjetMonitor",DL1_pb);
+	    auto DL1d_pb = Monitored::Scalar<double>(NameH,0.0);
+	    btag->pb("DL1d20211216",DL1d_pb);
+	    ATH_MSG_DEBUG("        DL1d_pb: " << DL1d_pb);
+	    fill("TrigBjetMonitor",DL1d_pb);
 
-	    NameH = "DL1_mv_tr_"+trigName;
+	    NameH = "DL1d_mv_tr_"+trigName;
 	    ATH_MSG_DEBUG( " NameH: " << NameH  );
-	    auto DL1_mv = Monitored::Scalar<double>(NameH,0.0);
-            bool theLLR = LLR (DL1_pu, DL1_pc, DL1_pb, DL1_mv);
-	    if ( theLLR ) fill("TrigBjetMonitor",DL1_mv);
-	    ATH_MSG_DEBUG("        DL1_mv: " << DL1_mv << " LLR: " << theLLR); 
+	    auto DL1d_mv = Monitored::Scalar<double>(NameH,0.0);
+            bool theLLR = LLR (DL1d_pu, DL1d_pc, DL1d_pb, DL1d_mv);
+	    if ( theLLR ) fill("TrigBjetMonitor",DL1d_mv);
+	    ATH_MSG_DEBUG("        DL1d_mv: " << DL1d_mv << " LLR: " << theLLR); 
 
 
 	    NameH = "DL1r_pu_tr_"+trigName;
@@ -410,6 +433,20 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	    ATH_MSG_DEBUG("        DL1r_mv: " << DL1r_mv << " LLR: " << theLLR); 
 
 
+	    NameH = "DIPSL_pu_tr_"+trigName;
+	    ATH_MSG_DEBUG( " NameH: " << NameH  );
+	    auto DIPSL_pu = Monitored::Scalar<double>(NameH,0.0);
+	    btag->pu("dipsLoose20210517",DIPSL_pu);
+	    ATH_MSG_DEBUG("        DIPSL_pu: " << DIPSL_pu);
+	    fill("TrigBjetMonitor",DIPSL_pu);
+	    
+	    NameH = "DIPSL_pc_tr_"+trigName;
+	    ATH_MSG_DEBUG( " NameH: " << NameH  );
+	    auto DIPSL_pc = Monitored::Scalar<double>(NameH,0.0);
+	    btag->pc("dipsLoose20210517",DIPSL_pc);
+	    ATH_MSG_DEBUG("        DIPSL_pc: " << DIPSL_pc);
+	    fill("TrigBjetMonitor",DIPSL_pc);
+	    
 	    NameH = "DIPSL_pb_tr_"+trigName;
 	    ATH_MSG_DEBUG( " NameH: " << NameH  );
 	    auto DIPSL_pb = Monitored::Scalar<double>(NameH,0.0);
@@ -417,12 +454,13 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	    ATH_MSG_DEBUG("        DIPSL_pb: " << DIPSL_pb);
 	    fill("TrigBjetMonitor",DIPSL_pb);
 	    
+
 	  } // if (ijet == 0)
 	  
 	  ijet++;
 	  
 	  // Tracks associated to triggered jets ( featurs = onlinejets ) courtesy of Tim Martin on 12/05/2020 
-	  const auto track_it_pair = m_trigDec->associateToEventView(theTracks, jetLinkInfo.source, "roi");
+	  const auto track_it_pair = m_trigDecTool->associateToEventView(theTracks, jetLinkInfo.source, "roi");
 	  const xAOD::TrackParticleContainer::const_iterator start_it = track_it_pair.first;
 	  const xAOD::TrackParticleContainer::const_iterator end_it = track_it_pair.second;
 	  

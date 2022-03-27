@@ -36,7 +36,7 @@
 
 // new configuration data
 #include "TrigConfData/L1Menu.h"
-
+#include "TrigConfData/L1BunchGroupSet.h"
 
 // internal
 #include "./ItemMap.h"
@@ -156,7 +156,7 @@ namespace LVL1CTP {
 
       Gaudi::Property<bool> m_muonRun2Format { this, "MuonMultiplicityRun2Format", false, "Interpret muon multiplicity in Run 2 format (bit 0 unused)" };
 
-
+      SG::ReadCondHandleKey<TrigConf::L1BunchGroupSet> m_bgKey{this, "L1BunchGroup", "L1BunchGroup", "L1BunchGroupSet key name"};
       // to decode the L1 Run-2 hardware ROIs from data
       LVL1::CPRoIDecoder * m_decoder { nullptr };
       LVL1::JEPRoIDecoder * m_jetDecoder { nullptr };

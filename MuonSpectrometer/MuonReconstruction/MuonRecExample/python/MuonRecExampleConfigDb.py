@@ -190,7 +190,8 @@ addToolClone("MuonSegmentRegionRecoveryTool","MuonEORecoveryTool",OnlyEO = True,
 
 addTool( "MuonRecExample.MooreTools.MuonPatternSegmentMaker","MuonPatternSegmentMaker")
 
-addTool("Muon::MuonPatternCalibration", "MuonPatternCalibration")
+addTool("Muon::MuonPatternCalibration", "MuonPatternCalibration",
+                                        TgcPrepDataContainer = 'TGC_MeasurementsAllBCs' if not muonRecFlags.useTGCPriorNextBC else 'TGC_Measurements')
 
 addTool( "MuonRecExample.MooreTools.MuonCurvedSegmentCombiner","MuonCurvedSegmentCombiner")
 
@@ -276,7 +277,8 @@ addTool("MuonRecExample.MuonRecTools.MuonLayerSegmentFinderTool", "MuonLayerSegm
 ################################################################################
 
 addTool("Muon::MSVertexTrackletTool","MSVertexTrackletTool")
-addTool("Muon::MSVertexRecoTool","MSVertexRecoTool")
+addTool("Muon::MSVertexRecoTool","MSVertexRecoTool",
+                                  TGCKey = 'TGC_MeasurementsAllBCs' if not muonRecFlags.useTGCPriorNextBC else 'TGC_Measurements' )
 
 ################################################################################
 # Alignment Error Tool

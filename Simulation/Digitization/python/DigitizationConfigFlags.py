@@ -60,8 +60,6 @@ def createDigitizationCfgFlags():
     flags.addFlag("Digitization.RandomSeedOffset", 0)
     # Digitization extra input dependencies
     flags.addFlag("Digitization.ExtraInputs", [("xAOD::EventInfo", "EventInfo")])
-    # Override the HIT file Run Number with one from a data run
-    flags.addFlag("Digitization.DataRunNumber", -1)
     # Job number
     flags.addFlag("Digitization.JobNumber", 1)
     # Beam spot reweighting (-1 disables it)
@@ -136,7 +134,7 @@ def digitizationRunArgsToFlags(runArgs, flags):
     """Fill digitization configuration flags from run arguments."""
     # from SimDigi
     if hasattr(runArgs, "DataRunNumber"):
-        flags.Digitization.DataRunNumber = runArgs.DataRunNumber
+        flags.Input.ConditionsRunNumber = runArgs.DataRunNumber
 
     # from SimDigi
     if hasattr(runArgs, "jobNumber"):
@@ -251,4 +249,4 @@ def setupDigitizationFlags(runArgs, flags):
         # keep this one True by default in CA-based config
         flags.Digitization.DoXingByXingPileUp = True
     else:
-        flags.Input.OverrideRunNumber = flags.Digitization.DataRunNumber > 0
+        flags.Input.OverrideRunNumber = flags.Input.ConditionsRunNumber > 0

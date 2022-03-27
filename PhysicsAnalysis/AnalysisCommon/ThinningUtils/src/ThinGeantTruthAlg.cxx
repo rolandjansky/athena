@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ThinGeantTruthAlg.cxx
@@ -45,6 +45,7 @@ ThinGeantTruthAlg::initialize()
   ATH_CHECK(m_truthParticlesKey.initialize(m_streamName));
   ATH_CHECK(m_truthVerticesKey.initialize(m_streamName));
   ATH_CHECK(m_electronsKey.initialize(m_keepEGamma));
+  ATH_CHECK(m_fwdElectronsKey.initialize(m_keepEGamma && !m_fwdElectronsKey.empty()));
   ATH_CHECK(m_photonsKey.initialize(m_keepEGamma));
   ATH_CHECK(m_muonsKey.initialize(m_keepMuons));
   ATH_CHECK(m_egammaTruthKey.initialize(m_keepEGamma));
@@ -76,13 +77,11 @@ ThinGeantTruthAlg::execute(const EventContext& ctx) const
   SG::ThinningHandle<xAOD::TruthVertexContainer> truthVertices(
     m_truthVerticesKey, ctx);
   if (!truthParticles.isValid()) {
-    ATH_MSG_FATAL("No TruthParticleContainer with key " +
-                  m_truthParticlesKey.key() + " found.");
+    ATH_MSG_FATAL("No TruthParticleContainer with key " << m_truthParticlesKey.key() << " found.");
     return StatusCode::FAILURE;
   }
   if (!truthVertices.isValid()) {
-    ATH_MSG_FATAL("No TruthVertexContainer with key " +
-                  m_truthVerticesKey.key() + " found.");
+    ATH_MSG_FATAL("No TruthVertexContainer with key " << m_truthVerticesKey.key() << " found.");
     return StatusCode::FAILURE;
   }
 
@@ -96,8 +95,7 @@ ThinGeantTruthAlg::execute(const EventContext& ctx) const
     SG::ReadHandle<xAOD::MuonContainer> muons(m_muonsKey, ctx);
     // Retrieve muons, electrons and photons
     if (!muons.isValid()) {
-      ATH_MSG_WARNING("No muon container with key " + m_muonsKey.key() +
-                      " found.");
+      ATH_MSG_WARNING("No muon container with key " << m_muonsKey.key() << " found.");
     }
     for (const xAOD::Muon* muon : *muons) {
       const xAOD::TruthParticle* truthMuon =
@@ -114,8 +112,7 @@ ThinGeantTruthAlg::execute(const EventContext& ctx) const
     // Electrons
     SG::ReadHandle<xAOD::ElectronContainer> electrons(m_electronsKey, ctx);
     if (!electrons.isValid()) {
-      ATH_MSG_WARNING("No electron container with key " + m_electronsKey.key() +
-                      " found.");
+      ATH_MSG_WARNING("No electron container with key " << m_electronsKey.key() << " found.");
     }
     for (const xAOD::Electron* electron : *electrons) {
       const xAOD::TruthParticle* truthElectron =
@@ -125,11 +122,25 @@ ThinGeantTruthAlg::execute(const EventContext& ctx) const
       }
     }
 
+    // Forward Electrons
+    if (!m_fwdElectronsKey.empty()){
+      SG::ReadHandle<xAOD::ElectronContainer> fwdElectrons(m_fwdElectronsKey, ctx);
+      if (!fwdElectrons.isValid()) {
+	ATH_MSG_WARNING("No forward electron container with key " << m_fwdElectronsKey.key() << " found.");
+      }
+      for (const xAOD::Electron* electron : *fwdElectrons) {
+	const xAOD::TruthParticle* truthElectron =
+	  xAOD::TruthHelpers::getTruthParticle(*electron);
+	if (truthElectron) {
+	  recoParticleTruthIndices.push_back(truthElectron->index());
+	}
+      }
+    }
+
     // Photons
     SG::ReadHandle<xAOD::PhotonContainer> photons(m_photonsKey, ctx);
     if (!photons.isValid()) {
-      ATH_MSG_WARNING("No photon container with key " + m_photonsKey.key() +
-                      " found.");
+      ATH_MSG_WARNING("No photon container with key " << m_photonsKey.key() << " found.");
     }
 
     for (const xAOD::Photon* photon : *photons) {
@@ -144,8 +155,7 @@ ThinGeantTruthAlg::execute(const EventContext& ctx) const
     SG::ReadHandle<xAOD::TruthParticleContainer> egammaTruthParticles(
       m_egammaTruthKey, ctx);
     if (!egammaTruthParticles.isValid()) {
-      ATH_MSG_WARNING("No e-gamma truth container with key " +
-                      m_egammaTruthKey.key() + " found.");
+      ATH_MSG_WARNING("No e-gamma truth container with key " << m_egammaTruthKey.key() << " found.");
     }
 
     for (const xAOD::TruthParticle* egTruthParticle : *egammaTruthParticles) {
@@ -154,10 +164,10 @@ ThinGeantTruthAlg::execute(const EventContext& ctx) const
 
       if (!accType.isAvailable(*egTruthParticle) ||
           accType(*egTruthParticle) != MCTruthPartClassifier::IsoElectron ||
-          std::abs(egTruthParticle->eta()) > 2.525) {
+          std::abs(egTruthParticle->eta()) > m_etaMaxEgTruth) {
         continue;
       }
-      // Only central isolated true electrons
+      // Only isolated true electrons
       using TruthLink_t = ElementLink<xAOD::TruthParticleContainer>;
       static const SG::AuxElement::ConstAccessor<TruthLink_t> linkToTruth(
         "truthParticleLink");

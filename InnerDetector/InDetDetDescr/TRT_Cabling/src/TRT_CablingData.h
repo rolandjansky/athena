@@ -25,10 +25,10 @@ public:
   virtual ~TRT_CablingData();
   
     // Initialize m_identifierForAllStraws with zeros (TB case)
-  void zero_identifierForAllStraws(int rod, std::vector<Identifier> tempbuff);  
+  void zero_identifierForAllStraws(int rod, const std::vector<Identifier>& tempbuff);  
   
     // Initialize m_identifierHashForAllStraws with zeros (TB case)
-  void zero_identifierHashForAllStraws(int rod, std::vector<IdentifierHash> tempbuff);
+  void zero_identifierHashForAllStraws(int rod, const std::vector<IdentifierHash>& tempbuff);
   
     // Set value of Identifier for each straw (TB case)
   void set_identifierForAllStraws(int rod, int bufferPosition, 

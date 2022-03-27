@@ -1,6 +1,6 @@
 """ComponentAccumulator configuration for PileUpMergeSvc
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -20,7 +20,7 @@ def PileUpMergeSvcCfg(flags, name="PileUpMergeSvc", Intervals=[], **kwargs):
             Intervals = [Intervals]
         kwargs["Intervals"] = Intervals
 
-    acc.addService(CompFactory.PileUpMergeSvc(name, **kwargs))
+    acc.addService(CompFactory.PileUpMergeSvc(name, **kwargs), primary = True)
     return acc
 
 

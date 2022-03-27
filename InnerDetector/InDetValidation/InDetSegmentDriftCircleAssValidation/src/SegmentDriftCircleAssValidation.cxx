@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -69,7 +69,7 @@ StatusCode InDet::SegmentDriftCircleAssValidation::initialize()
 
   // get the Particle Properties Service
   //
-  IPartPropSvc* partPropSvc = 0;
+  IPartPropSvc* partPropSvc = nullptr;
   sc =  service("PartPropSvc", partPropSvc, true);
   if (sc.isFailure()) {
     msg(MSG::FATAL) << " Could not initialize Particle Properties Service" << endmsg;
@@ -387,13 +387,10 @@ void InDet::SegmentDriftCircleAssValidation::tracksComparison( const Trk::Segmen
   if(!m_nqsegments) return;
 
   m_tracks.erase(m_tracks.begin(),m_tracks.end());
-  m_genPars.erase(m_genPars.begin(), m_genPars.end());
 
   int KINE[200],NKINE[200];
-  const HepMC::GenParticle*  GENPAR[200];
   for(int i=0;i<200;++i){
     KINE[i] =0; NKINE[i] = 0;
-    GENPAR[i] = 0;
   }
 
   Trk::SegmentCollection::const_iterator iseg = origColTracks->begin();
@@ -437,7 +434,6 @@ void InDet::SegmentDriftCircleAssValidation::tracksComparison( const Trk::Segmen
         if(m<0) {
           KINE[NK] = k;
           NKINE[NK] = 1;
-          GENPAR[NK]=(*ik)->second.cptr();
           if(NK < 200) ++NK;
         }
       }
@@ -450,7 +446,6 @@ void InDet::SegmentDriftCircleAssValidation::tracksComparison( const Trk::Segmen
       }
     }
     m_tracks.insert(std::make_pair(KINE[nm],m) );   //* if m=0, the KINE[nm] will be set to the previous one
-    m_genPars.insert(std::make_pair(GENPAR[nm],m));
   }
 }
 
@@ -503,14 +498,14 @@ std::list<int> InDet::SegmentDriftCircleAssValidation::kine
   for(imc=mc.begin();imc!=imce;++imc){ 
     int k = (*imc)->second.barcode(); if(k<=0) continue;
 
-    const HepMC::GenParticle* pa = (*imc)->second.cptr(); 	
+    HepMC::ConstGenParticlePtr pa = (*imc)->second.cptr(); 	
     if(!pa || !pa->production_vertex()) continue;
 
     // Charge != 0 test
     //
     int pdg = pa->pdg_id();  
     const HepPDT::ParticleData* pd  = m_particleDataTable->particle(abs(pdg));
-    if(!pd ||  fabs(pd->charge()) < .5) continue;
+    if(!pd ||  std::abs(pd->charge()) < .5) continue;
   
     // pT cut
     //
@@ -523,7 +518,7 @@ std::list<int> InDet::SegmentDriftCircleAssValidation::kine
     
     // Rapidity cut
     //
-    double           t  = fabs(m.pz())/pt;
+    double           t  = std::abs(m.pz())/pt;
     if( t  > m_tcut ) continue;
 
     // Radius cut
@@ -558,14 +553,14 @@ std::list<PRD_MultiTruthCollection::const_iterator> InDet::SegmentDriftCircleAss
 
     int k = (*imc)->second.barcode(); if(k<=0) continue;
    
-    const HepMC::GenParticle* pa = (*imc)->second.cptr(); 	
+    HepMC::ConstGenParticlePtr pa = (*imc)->second.cptr(); 	
     if(!pa || !pa->production_vertex()) continue;
 
     // Charge != 0 test
     //
     int pdg = pa->pdg_id();  
     const HepPDT::ParticleData* pd  = m_particleDataTable->particle(abs(pdg));
-    if(!pd ||  fabs(pd->charge()) < .5) continue;
+    if(!pd ||  std::abs(pd->charge()) < .5) continue;
   
     // pT cut
     //
@@ -580,7 +575,7 @@ std::list<PRD_MultiTruthCollection::const_iterator> InDet::SegmentDriftCircleAss
 
     // Rapidity cut
     //
-    double           t  = fabs(m.pz())/pt;
+    double           t  = std::abs(m.pz())/pt;
     if( t  > m_tcut ) continue;
 
     // Radius cut
@@ -624,7 +619,7 @@ InDet::SegmentDriftCircleAssValidation::findTruth (const InDet::TRT_DriftCircle*
   std::list<PRD_MultiTruthCollection::const_iterator> mc;
 
   if(d){
-    typedef PRD_MultiTruthCollection::const_iterator TruthIter;
+    using TruthIter = PRD_MultiTruthCollection::const_iterator;
 
     std::pair<TruthIter, TruthIter> r = prdCollection->equal_range(d->identify());
     for(TruthIter i=r.first; i!=r.second;++i){

@@ -331,7 +331,7 @@ ParticleCaloExtensionTool::caloExtension(const EventContext& ctx,
    * TrkDetDescrUtils/GeometrySignature.h
    * The extrapolation stop at the indicated subdetector exit
    */
-  const std::vector<std::pair<const Trk::TrackParameters*, int>>*
+  std::unique_ptr<std::vector<std::pair<std::unique_ptr<Trk::TrackParameters>, int>>>
     caloParameters = m_extrapolator->extrapolate(
       ctx, startPars, propDir, particleType, material, m_extrapolDetectorID);
 
@@ -370,20 +370,20 @@ ParticleCaloExtensionTool::caloExtension(const EventContext& ctx,
                                            << "  extrapolation exit ID="
                                            << m_extrapolDetectorID);
 
-  for (const auto& p : *caloParameters) {
+  for (auto& p : *caloParameters) {
     if (!p.first) {
       continue;
     }
     // assign parameters
     // calo aentry muon entry and the crossed calo layers
     if (p.second == 1 && propDir == Trk::alongMomentum) {
-      caloEntry = p.first;
+      caloEntry = p.first.release();
     } else if (p.second == 3 && propDir == Trk::oppositeMomentum) {
-      caloEntry = p.first;
+      caloEntry = p.first.release();
     } else if (p.second == 3 && propDir == Trk::alongMomentum) {
-      muonEntry = p.first;
+      muonEntry = p.first.release();
     } else if (p.second == 4 && propDir == Trk::oppositeMomentum) {
-      muonEntry = p.first;
+      muonEntry = p.first.release();
     } else {
       bool isEntry = p.second > 0;
       TrackParametersIdentifier id = parsIdHelper.encode(
@@ -404,7 +404,6 @@ ParticleCaloExtensionTool::caloExtension(const EventContext& ctx,
                                                       p.first->charge(),
                                                       std::nullopt,
                                                       id));
-        delete p.first;
       } else {
         std::optional<AmgSymMatrix(5)> covariance(std::nullopt);
         if (p.first->covariance()) {
@@ -415,7 +414,6 @@ ParticleCaloExtensionTool::caloExtension(const EventContext& ctx,
                                                       p.first->charge(),
                                                       std::move(covariance),
                                                       id));
-        delete p.first;
       }
     }
   }
@@ -425,7 +423,6 @@ ParticleCaloExtensionTool::caloExtension(const EventContext& ctx,
     // muonEntry is right at the startPars position
     muonEntry = startPars.clone();
   }
-  delete caloParameters;
 
   return std::make_unique<Trk::CaloExtension>(
     caloEntry, muonEntry, std::move(caloLayers));

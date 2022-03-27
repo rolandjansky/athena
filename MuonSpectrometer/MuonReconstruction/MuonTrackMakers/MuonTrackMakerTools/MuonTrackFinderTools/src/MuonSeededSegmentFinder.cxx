@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSeededSegmentFinder.h"
@@ -50,7 +50,7 @@ namespace Muon {
 
         if (mdtPrds.empty()) {
             ATH_MSG_DEBUG(" no MdtPrepData found ");
-            return std::unique_ptr<Trk::SegmentCollection>();
+            return {};
         }
 
         // find segments
@@ -64,7 +64,7 @@ namespace Muon {
 
         if (mdtPrds.empty()) {
             ATH_MSG_DEBUG(" no MdtPrepData found ");
-            return std::unique_ptr<Trk::SegmentCollection>();
+            return {};
         }
 
         // find segments
@@ -153,14 +153,15 @@ namespace Muon {
         return mdtPrds;
     }
 
-    std::vector<const MdtPrepData*> MuonSeededSegmentFinder::extractPrds(const EventContext& ctx, const std::set<IdentifierHash>& chIdHs) const {
+    std::vector<const MdtPrepData*> MuonSeededSegmentFinder::extractPrds(const EventContext& ctx,
+                                                                         const std::set<IdentifierHash>& chIdHs) const {
         SG::ReadHandle<Muon::MdtPrepDataContainer> h_mdtPrdCont(m_key_mdt, ctx);
         const Muon::MdtPrepDataContainer* mdtPrdContainer;
         if (h_mdtPrdCont.isValid()) {
             mdtPrdContainer = h_mdtPrdCont.cptr();
         } else {
             ATH_MSG_WARNING("Cannot retrieve mdtPrepDataContainer " << m_key_mdt.key());
-            return std::vector<const MdtPrepData*>();
+            return {};
         }
 
         // vector to store pointers to collections
@@ -355,7 +356,8 @@ namespace Muon {
         }
     }
 
-    void MuonSeededSegmentFinder::selectAndCalibrate(const EventContext& ctx, const Trk::TrackParameters& pars, const std::vector<const MdtPrepData*>& mdtPrdCols,
+    void MuonSeededSegmentFinder::selectAndCalibrate(const EventContext& ctx, const Trk::TrackParameters& pars,
+                                                     const std::vector<const MdtPrepData*>& mdtPrdCols,
                                                      std::vector<const MdtDriftCircleOnTrack*>& mdtROTs, bool& doHoleSearch) const {
         ATH_MSG_VERBOSE(" in selectAndCalibrate, get PRDs  " << mdtPrdCols.size());
 
@@ -375,8 +377,8 @@ namespace Muon {
         ATH_MSG_VERBOSE(" calibrated " << mdtROTs.size() << " prds out of " << mdtPrdCols.size());
     }
 
-    const MdtDriftCircleOnTrack* MuonSeededSegmentFinder::handleMdtPrd(const EventContext& ctx, const Trk::TrackParameters& pars, const MdtPrepData& mdtPrd,
-                                                                       bool& doHoleSearch) const {
+    const MdtDriftCircleOnTrack* MuonSeededSegmentFinder::handleMdtPrd(const EventContext& ctx, const Trk::TrackParameters& pars,
+                                                                       const MdtPrepData& mdtPrd, bool& doHoleSearch) const {
         // skip noise hits
         if (mdtPrd.adc() < m_adcCut) return nullptr;
 

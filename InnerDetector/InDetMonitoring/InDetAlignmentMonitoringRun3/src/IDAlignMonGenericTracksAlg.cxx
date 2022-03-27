@@ -119,6 +119,7 @@ StatusCode IDAlignMonGenericTracksAlg::initialize()
   
   ATH_CHECK(m_VxPrimContainerName.initialize(not m_VxPrimContainerName.key().empty()));
   ATH_CHECK(m_tracksName.initialize());
+  ATH_CHECK(m_tracksKey.initialize());
 
   return AthMonitorAlgorithm::initialize();
 }

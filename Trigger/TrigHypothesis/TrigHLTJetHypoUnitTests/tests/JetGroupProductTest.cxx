@@ -24,7 +24,7 @@ TEST(JetGroupProductTester, empty) {
 
 
 
-TEST(JetGroupProductTester, onecond) {
+TEST(JetGroupProductTester, onecondition) {
   std::vector<std::size_t> siblings{0};
 
   CondInd2JetGroupsInds satisfiedBy;

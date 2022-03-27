@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // EvtIdModifierSvc.h 
@@ -17,7 +17,6 @@
 
 // FrameWork includes
 #include "AthenaBaseComps/AthService.h"
-#include "StoreGate/ActiveStoreSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 // AthenaKernel
@@ -149,10 +148,7 @@ class EvtIdModifierSvc
   /// lumi block counter (per evt)
   unsigned int m_evtCounter;
 
-  /// handle to the active store: to know when to apply EventIDs mods
-  ServiceHandle<ActiveStoreSvc> m_activeStore;
-
-  /// (prop) list of n-plets 
+  /// (prop) list of n-plets
   /// (run-nbr, evt-nbr, time-stamp, lbk-nbr, nbr-of-events-per-lbk, mod-bit)
   std::vector<uint64_t> m_evtNpletsProp;
 

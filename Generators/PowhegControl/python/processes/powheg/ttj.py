@@ -2,9 +2,27 @@
 
 from AthenaCommon import Logging
 from ..powheg_V2 import PowhegV2
+from ..external import ExternalMadSpin
+import os
 
 ## Get handle to Athena logging
 logger = Logging.logging.getLogger("PowhegControl")
+
+
+# Dictionary to convert the PowhegControl decay mode names to the appropriate
+# decay mode numbers understood by Powheg
+#
+# The PowhegControl decay modes with MadSpin in their name use MadSpin to
+# generate the top decays, the others use Powheg
+_decay_mode_lookup = {
+    "t t~ > all": "22222",
+    "t t~ > b j j b~ j j": "00022",
+    "t t~ > b l+ vl b~ l- vl~": "22200",
+    "t t~ > b emu+ vemu b~ emu- vemu~": "22000",
+    "t t~ > semileptonic": "11111",
+    "t t~ > undecayed" : "00000",
+    "t t~ > all [MadSpin]" : "00000", # switch off decays in Powheg and let MadSpin handle them!
+}
 
 
 class ttj(PowhegV2):
@@ -23,11 +41,21 @@ class ttj(PowhegV2):
         """
         super(ttj, self).__init__(base_directory, "ttbarj", **kwargs)
 
+        # hack in place to help powheg executable find all dynamic libraries
+        logger.warning("Applying manual, hard-coded fixes for library paths")
+        OLPath = os.path.dirname(self.executable)+"/obj-gnu"
+        os.environ['OpenLoopsPath'] = OLPath
+        logger.info("OpenLoopsPath defined as = {0}".format(os.getenv('OpenLoopsPath')))
+
+        # Add algorithms to the sequence
+        self.add_algorithm(ExternalMadSpin(process="generate p p > t t~ j [QCD]"))
+
         # Add parameter validation functions
         self.validation_functions.append("validate_decays")
 
         ## List of allowed decay modes
-        self.allowed_decay_modes = ["t t~ > all", "t t~ > b j j b~ j j", "t t~ > b l+ vl b~ l- vl~", "t t~ > b emu+ vemu b~ emu- vemu~", "t t~ > semileptonic"]
+        # (The sorting of the list is just to increase readability when it's printed)
+        self.allowed_decay_modes = sorted(_decay_mode_lookup.keys())
 
         # Add all keywords for this process, overriding defaults if required
         self.add_keyword("alphaem")
@@ -88,7 +116,9 @@ class ttj(PowhegV2):
         self.add_keyword("masswindow_high")
         self.add_keyword("masswindow_low")
         self.add_keyword("ncall1", 51000)
+        self.add_keyword("ncall1rm")
         self.add_keyword("ncall2", 91000)
+        self.add_keyword("ncall2rm")
         self.add_keyword("nubound", 11000)
         self.add_keyword("par_2gsupp")
         self.add_keyword("par_diexp")
@@ -124,7 +154,7 @@ class ttj(PowhegV2):
         self.add_keyword("storeinfo_rwgt")
         self.add_keyword("testplots")
         self.add_keyword("testsuda")
-        self.add_keyword("topdecaymode", self.allowed_decay_modes[0], name="decay_mode")
+        self.add_keyword("topdecaymode", "t t~ > all", name="decay_mode")
         self.add_keyword("topmass")
         self.add_keyword("topwidth")
         self.add_keyword("ubsigmadetails")
@@ -145,10 +175,18 @@ class ttj(PowhegV2):
         """! Validate semileptonic and topdecaymode keywords."""
         self.expose()  # convenience call to simplify syntax
         if self.decay_mode not in self.allowed_decay_modes:
-            logger.warning("Decay mode {} not recognised!".format(self.decay_mode))
-            raise ValueError("Decay mode {} not recognised!".format(self.decay_mode))
-        # Calculate appropriate decay mode numbers
-        __decay_mode_lookup = {"t t~ > all": "22222", "t t~ > b j j b~ j j": "00022", "t t~ > b l+ vl b~ l- vl~": "22200", "t t~ > b emu+ vemu b~ emu- vemu~": "22000", "t t~ > semileptonic": "11111"}
-        list(self.parameters_by_keyword("topdecaymode"))[0].value = __decay_mode_lookup[self.decay_mode]
+            error_message = "Decay mode '{given}' not recognised, valid choices are: '{choices}'!".format(given=self.decay_mode, choices="', '".join(self.allowed_decay_modes))
+            logger.warning(error_message)
+            raise ValueError(error_message)
+
+        # Check if MadSpin decays are requested.
+        # Accordingly, MadSpin will run or not run.
+        if "MadSpin" in self.decay_mode:
+            self.externals["MadSpin"].parameters_by_keyword("powheg_top_decays_enabled")[0].value = False
+            self.externals["MadSpin"].parameters_by_keyword("MadSpin_model")[0].value = "loop_sm-no_b_mass"
+            self.externals["MadSpin"].parameters_by_keyword("MadSpin_nFlavours")[0].value = 5
+
+        self.parameters_by_keyword("topdecaymode")[0].value = _decay_mode_lookup[self.decay_mode]
         if self.decay_mode == "semileptonic":
-            list(self.parameters_by_keyword("semileptonic"))[0].value = 1
+            # Parameter semileptonic must be set to 1 to actually get semileptonic decays, because the topdecaymode=11111 also allows fully hadronic decays (with one up and one charm quark)
+            self.parameters_by_keyword("semileptonic")[0].value = 1

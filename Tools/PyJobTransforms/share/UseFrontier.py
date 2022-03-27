@@ -1,12 +1,15 @@
-## @brief Switch database to using FRONTIER, but with a fallback
-# to DBRelease if FRONTIER_SERVER is undefined (e.g., on HPC)
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+#
+# @brief Switch database to using FRONTIER, but with a fallback
+#        to DBRelease if FRONTIER_SERVER is undefined (e.g., on HPC)
 
-# Move from RecJobTransforms to PyJobTransforms to enable use
-# in simulation ATN and KV jobs
+import os
+from AthenaCommon.Logging import logging
+log = logging.getLogger('UseFrontier.py')
 
 if(os.environ.get('FRONTIER_SERVER')):
-    print('UseFrontier.py: Enabling FRONTIER DB access')
+    log.info('Enabling FRONTIER DB access')
     from DBReplicaSvc.DBReplicaSvcConf import DBReplicaSvc
     ServiceMgr+=DBReplicaSvc(COOLSQLiteVetoPattern="DBRelease")
 else:
-    print('UseFrontier.py: Using default DB access')
+    log.info('Using default DB access')

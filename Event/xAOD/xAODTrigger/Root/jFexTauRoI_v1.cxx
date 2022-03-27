@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -14,16 +14,10 @@
 
 namespace xAOD {
 
-  const float jFexTauRoI_v1::s_tobEtScale = 200.;
-  const float jFexTauRoI_v1::s_tobIsoScale = 200.;
-  const float jFexTauRoI_v1::s_towerEtaWidth = 0.1;
-  const float jFexTauRoI_v1::s_towerPhiWidth = 0.1;
-  const float jFexTauRoI_v1::s_minEta = -2.5;
-
    jFexTauRoI_v1::jFexTauRoI_v1()
      : SG::AuxElement() {
    }
-   void jFexTauRoI_v1::initialize( uint8_t jFexNumber,uint8_t fpgaNumber, uint32_t tobWord, float_t eta, float_t phi) {
+   void jFexTauRoI_v1::initialize( uint8_t jFexNumber,uint8_t fpgaNumber, uint32_t tobWord, int resolution, float_t eta, float_t phi) {
  
      setTobWord( tobWord );
      setjFexNumber( jFexNumber );
@@ -37,6 +31,7 @@ namespace xAOD {
      setGlobalPhi(unpackGlobalPhi());
      setEta( eta );
      setPhi( phi ); 
+     setResolution( resolution ); 
    //include in future when xTOB in jFEX has been implemented.
 
    // If the object is a TOB then the isTOB should be true.
@@ -71,6 +66,9 @@ namespace xAOD {
   ///global coordinates, stored for furture use but not sent to L1Topo    
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexTauRoI_v1, float, eta, setEta)
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexTauRoI_v1, float, phi, setPhi)
+   
+   ///Setting the jFEX ET resolution
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexTauRoI_v1, int  , tobEtScale, setResolution)
    
    
    //-----------------
@@ -116,13 +114,13 @@ namespace xAOD {
    /// ET on TOB scale
    unsigned int jFexTauRoI_v1::et() const {
      //return TOB Et in a 1 MeV scale
-     return tobEt()*s_tobEtScale;
+     return tobEt()*tobEtScale();
    }
    
    /// Iso on TOB scale
    unsigned int jFexTauRoI_v1::iso() const {
     //return TOB Isolation in a 1 MeV scale
-     return tobIso()*s_tobIsoScale;
+     return tobIso()*tobEtScale();
    }
 
   //global coords
@@ -132,10 +130,10 @@ namespace xAOD {
       
     int globalEta = 0;
     if(jFexNumber()==0){
-        globalEta = -25+tobLocalEta(); //-24 is the minimum eta for the most granular part of module 0 - needs to be modified for the EMEC/HEC and FCAL
+        globalEta = -25+tobLocalEta(); //-25 is the minimum eta for the most granular part of module 0 
     }
     else if(jFexNumber()==5){
-        globalEta = 16+tobLocalEta(); //16.5 is the minimum eta for the most granular part of module 5 - needs to be modified for the EMEC/HEC and FCAL
+        globalEta = 16+tobLocalEta(); //16 is the minimum eta for the most granular part of module 5
     }
     else{
         globalEta = tobLocalEta()+(8*(jFexNumber() - 3)) ;  // for module 1 to 4 

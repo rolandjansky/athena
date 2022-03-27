@@ -92,7 +92,6 @@ TCS::DeltaRSqrIncl1::processBitCorrect( const std::vector<TCS::TOBArray const *>
                              const std::vector<TCS::TOBArray *> & output,
                              Decision & decision )
 {
-
    if(input.size() == 1) {
       for( TOBArray::const_iterator tob1 = input[0]->begin(); 
            tob1 != input[0]->end() && distance( input[0]->begin(), tob1) < p_NumberLeading1;

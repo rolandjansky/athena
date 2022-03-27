@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 from ROOT import TMath
 
@@ -45,7 +45,9 @@ def LArDigitalTriggMonConfigCore(helper, algoinstance,inputFlags):
             iovDbSvc=helper.resobj.getService("IOVDbSvc")
             helper.resobj.addCondAlgo(CompFactory.LArOnOffMappingAlg("LArOnOffMappingAlgSC",ReadKey=folder, WriteKey="LArOnOffIdMapSC", isSuperCell=True)) 
     else:
-        from LArRecUtils.LArRecUtilsConf import LArOnOffMappingAlg#, LArFebRodMappingAlg, LArCalibLineMappingAlg
+        from LArCabling.LArCablingAccess import  LArLATOMEMappingSC
+        LArLATOMEMappingSC()
+        from LArRecUtils.LArRecUtilsConf import LArOnOffMappingAlg
         from AthenaCommon import CfgGetter
         iovDbSvc=CfgGetter.getService("IOVDbSvc")
         #from AthenaCommon.AlgSequence import AthSequencer
@@ -137,6 +139,14 @@ def LArDigitalTriggMonConfigCore(helper, algoinstance,inputFlags):
                                   xlabels=BinLabel,
                                   ylabels = [str(x) for x in range(1,33)])      
                             
+    SCGroup.defineHistogram('MlatomeSourceIdBIN,Msampos;BadQuality_SamplePosition_vs_LATOME',
+                                  title='Bad quality bit: Sample position vs. LATOME name',
+                                  type='TH2F',
+                                  path=sc_hist_path,
+                                  xbins=NLatomeBins,xmin=1,xmax=NLatomeBins+1,
+                                  ybins=32,ymin=0.5,ymax=32.5,
+                                  xlabels=BinLabel,
+                                  ylabels = [str(x) for x in range(1,33)])
 
     SCGroup.defineHistogram('MlatomeSourceIdBIN,MADC;ADC_LATOME', 
                                   title='ADC (zoom) vs LATOME name',
@@ -186,6 +196,13 @@ def LArDigitalTriggMonConfigCore(helper, algoinstance,inputFlags):
                                   title='SC coverage '+part+': #phi vs #eta with adc[max]-adc[0]>15;#eta;#phi',
                                   type='TH2F',
                                   path=sc_hist_path+'CoveragePerPartition/CutADC',
+                                  xbins=lArDQGlobals.Cell_Variables["etaRange"][Part][Side][Sampling],
+                                  ybins=lArDQGlobals.Cell_Variables["phiRange"][Part][Side][Sampling])
+
+        SCGroup.defineHistogram('badQualBit_eta_'+part+',badQualBit_phi_'+part+';CoverageEtaPhi_BadQualityBit_'+part,
+                                  title='SC coverage '+part+': #phi vs #eta for bad quality bits;#eta;#phi',
+                                  type='TH2F',
+                                  path=sc_hist_path+'CoveragePerPartition/BadQualityBit',
                                   xbins=lArDQGlobals.Cell_Variables["etaRange"][Part][Side][Sampling],
                                   ybins=lArDQGlobals.Cell_Variables["phiRange"][Part][Side][Sampling])
 
@@ -316,7 +333,8 @@ if __name__=='__main__':
    ConfigFlags.Output.HISTFileName = 'LArDigitalTriggMonOutput.root'
    ConfigFlags.DQ.enableLumiAccess = False
    ConfigFlags.DQ.useTrigger = False
-   ConfigFlags.Beam.Type = 'collisions'
+   from AthenaConfiguration.Enums import BeamType
+   ConfigFlags.Beam.Type = BeamType.Collisions
    ConfigFlags.lock()
 
    # in case of tier0 workflow:
@@ -327,7 +345,7 @@ if __name__=='__main__':
    from LArByteStream.LArRawSCDataReadingConfig import LArRawSCDataReadingCfg
    SCData_acc =  LArRawSCDataReadingCfg(ConfigFlags)
    SCData_acc.OutputLevel=DEBUG
-
+ 
    cfg.merge(SCData_acc)
 
 
@@ -341,5 +359,7 @@ if __name__=='__main__':
    f=open("LArDigitalTriggMon.pkl","wb")
    cfg.store(f)
    f.close()
+
+
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: MuonRoI_v1.cxx 579914 2014-01-24 10:15:15Z krasznaa $
@@ -12,6 +12,7 @@
 
 // get bitsmasks from common definition source:
 #include "TrigT1MuctpiBits/MuCTPI_Bits.h"
+using namespace LVL1::MuCTPIBits;
 
 namespace xAOD{
 

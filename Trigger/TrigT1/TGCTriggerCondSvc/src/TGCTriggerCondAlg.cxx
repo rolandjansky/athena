@@ -1,37 +1,23 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TGCTriggerCondSvc/TGCTriggerCondAlg.h"
+#include "TGCTriggerCondAlg.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/WriteCondHandle.h"
 
 
 TGCTriggerCondAlg::TGCTriggerCondAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
-  m_readKey_bw("/TGC/TRIGGER/CW_BW_RUN3"),
-  m_writeKey("TGCTriggerLUTs"),
-  m_condSvc("CondSvc", name),
-  m_bwCWReader(0)
+  AthAlgorithm(name, pSvcLocator)
 {
-  declareProperty("ReadKeyBw", m_readKey_bw);
-  declareProperty("WriteKey", m_writeKey);
 }
 
 StatusCode TGCTriggerCondAlg::initialize(){
 
   ATH_MSG_INFO( "initialize " << name() );                
 
-  ATH_CHECK(m_condSvc.retrieve());
-  
   ATH_CHECK(m_readKey_bw.initialize());
-
   ATH_CHECK(m_writeKey.initialize());
-
-  if(m_condSvc->regHandle(this, m_writeKey).isFailure()) {
-    ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
 
   return StatusCode::SUCCESS;
 }
@@ -84,9 +70,3 @@ StatusCode TGCTriggerCondAlg::execute(){
   return StatusCode::SUCCESS;
 }
 
-
-StatusCode TGCTriggerCondAlg::finalize(){
-  
-  ATH_MSG_INFO( "finalize " << name() );
-  return StatusCode::SUCCESS;
-}

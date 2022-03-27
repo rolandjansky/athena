@@ -106,7 +106,7 @@ if __name__=='__main__':
 
     # add FPE auditor
     from AthenaConfiguration.ComponentFactory import CompFactory
-    cfg.addService(CompFactory.AuditorSvc(Auditors=[CompFactory.FPEAuditor().getFullJobOptName()]))
+    cfg.addAuditor(CompFactory.FPEAuditor())
 
     # add perfmon
     if args.perfmon:

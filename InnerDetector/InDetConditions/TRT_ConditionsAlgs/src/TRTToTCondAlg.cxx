@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRTToTCondAlg.h"
@@ -22,28 +22,18 @@ const std::vector<std::string> TRTToTCondAlg::m_dictNamesNewDB = {"para_end_corr
 
 TRTToTCondAlg::TRTToTCondAlg(const std::string& name
 				 , ISvcLocator* pSvcLocator )
-  : ::AthAlgorithm(name,pSvcLocator),
-    m_condSvc("CondSvc",name)
+  : ::AthAlgorithm(name,pSvcLocator)
 {}
 TRTToTCondAlg::~TRTToTCondAlg(){}
 
 StatusCode TRTToTCondAlg::initialize()
 {
-
-  // CondSvc
-  ATH_CHECK( m_condSvc.retrieve() );
-
   // Read key
   ATH_CHECK( m_VecReadKey.initialize() );
   ATH_CHECK( m_ValReadKey.initialize() );
 
   // Register write handle
   ATH_CHECK( m_WriteKey.initialize() );
-
-  if (m_condSvc->regHandle(this, m_WriteKey).isFailure()) {
-    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_WriteKey.fullKey() << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
 
   return StatusCode::SUCCESS;
 }

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 acf=AthConfigFlags()
@@ -41,7 +41,5 @@ acfMod.dump()
 ff=acf.initAll()
 
 print("Frozen dict:")
+acf.lock()
 acf.dump()
-
-
-

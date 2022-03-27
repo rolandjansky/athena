@@ -27,8 +27,8 @@ FastChain_tf.py \
     --maxEvents ${maxevent} \
     --skipEvents 0 \
     --geometryVersion default:ATLAS-R2-2016-01-00-01 \
-    --conditionsTag default:OFLCOND-MC16-SDR-16 \
-    --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True;from ISF_Config.ISF_jobProperties import ISF_Flags;ISF_Flags.UseTrackingGeometryCond=False' \
+    --conditionsTag default:OFLCOND-MC16-SDR-RUN2-09 \
+    --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True;' \
     --preSimInclude 'Campaigns/MC16a.py' 'Campaigns/PileUpMC16a.py' \
     --postInclude='PyJobTransforms/UseFrontier.py' \
     --postExec 'ServiceMgr.MessageSvc.Format = "% F%32W%S%7W%R%T %0W%M"' \
@@ -63,8 +63,8 @@ FastChain_tf.py \
     --maxEvents ${maxevent} \
     --skipEvents 0 \
     --geometryVersion default:ATLAS-R2-2016-01-00-01 \
-    --conditionsTag default:OFLCOND-MC16-SDR-16 \
-    --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True;from ISF_Config.ISF_jobProperties import ISF_Flags;ISF_Flags.UseTrackingGeometryCond=False' \
+    --conditionsTag default:OFLCOND-MC16-SDR-RUN2-09 \
+    --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True;' \
     --preSimInclude 'Campaigns/MC16a.py' 'Campaigns/PileUpMC16a.py' \
     --postInclude='PyJobTransforms/UseFrontier.py' \
     --postExec 'ServiceMgr.MessageSvc.Format = "% F%32W%S%7W%R%T %0W%M"' \
@@ -95,8 +95,8 @@ FastChain_tf.py \
     --maxEvents ${maxevent} \
     --skipEvents 0 \
     --geometryVersion default:ATLAS-R2-2016-01-00-01 \
-    --conditionsTag default:OFLCOND-MC16-SDR-16 \
-    --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True;from ISF_Config.ISF_jobProperties import ISF_Flags;ISF_Flags.UseTrackingGeometryCond=False' \
+    --conditionsTag default:OFLCOND-MC16-SDR-RUN2-09 \
+    --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True;' \
     --preInclude 'Campaigns.MC16a' \
     --postInclude='PyJobTransforms.UseFrontier' \
     --inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles} \
@@ -116,7 +116,7 @@ pkldiff=999
 if [ $cg -eq 0 ] && [ $ca -eq 0 ]
 then
    confTool.py --diff --ignoreIrrelevant --shortenDefaultComponents --ignoreDefaults run_cg_pkl/ConfigCG.pkl run_ca/ConfigCA.pkl > pkldiff.log
-   pkldiff=$?
+   pkldiff=$(grep -o 'differ' pkldiff.log | wc -l)
 
    art.py compare ref run_ca/RDO_CA.pool.root run_cg/RDO_CG.pool.root --mode=semi-detailed --entries 10
    diff=$?

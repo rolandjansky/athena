@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 def PixelMonitoringConfig(flags):
@@ -70,6 +70,7 @@ def PixelMonitoringConfig(flags):
             pixelAthClusterMonAlg.TrackSelectionTool.maxZ0            = 150
             pixelAthClusterMonAlg.TrackSelectionTool.TrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
             pixelAthClusterMonAlg.TrackSelectionTool.Extrapolator     = acc.getPublicTool("InDetExtrapolator")
+
             PixelAthClusterMonAlgCfg(helper, pixelAthClusterMonAlg, **kwargsClusMonAlg)
 
         if doErrorMonAlg:
@@ -86,7 +87,6 @@ def PixelMonitoringConfig(flags):
                 setattr(pixelAthMVAMonAlg, k, v)
             pixelAthMVAMonAlg.TrackSelectionTool = CompFactory.InDet.InDetTrackSelectionTool('PixelAthMVAMonAlg_TrackSelectionTool')
             pixelAthMVAMonAlg.TrackSelectionTool.UseTrkTrackTools = True
-            #        pixelAthMVAMonAlg.TrackSelectionTool.CutLevel         = "Loose"
             pixelAthMVAMonAlg.TrackSelectionTool.CutLevel         = "TightPrimary"
             pixelAthMVAMonAlg.TrackSelectionTool.maxNPixelHoles   = 1
             pixelAthMVAMonAlg.TrackSelectionTool.maxD0            = 2
@@ -94,6 +94,7 @@ def PixelMonitoringConfig(flags):
 
             pixelAthMVAMonAlg.TrackSelectionTool.TrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
             pixelAthMVAMonAlg.TrackSelectionTool.Extrapolator     = acc.getPublicTool("InDetExtrapolator")
+            pixelAthMVAMonAlg.Extrapolator                        = acc.getPublicTool("InDetExtrapolator")
             PixelAthMVAMonAlgCfg(helper, pixelAthMVAMonAlg, **kwargsMVAMonAlg)
 
         acc.merge(helper.result())

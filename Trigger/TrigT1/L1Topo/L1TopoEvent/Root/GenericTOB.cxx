@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #include "L1TopoEvent/GenericTOB.h"
 
@@ -48,8 +48,7 @@ TCS::GenericTOB::GenericTOB(const jTauTOB & tau) :
    , m_EtDouble(tau.EtDouble())
    , m_etaDouble(tau.etaDouble())
    , m_phiDouble(tau.phiDouble())
-   , m_jtauiso(tau.isolation())
-   , m_tobType(JET)
+   , m_tobType(JTAU)
 {}
 
 // constructor from jEm
@@ -61,7 +60,7 @@ TCS::GenericTOB::GenericTOB(const jEmTOB & jem) :
    , m_EtDouble(jem.EtDouble())
    , m_etaDouble(jem.etaDouble())
    , m_phiDouble(jem.phiDouble())
-   , m_tobType(JET)
+   , m_tobType(JEM)
 {}
 
 // constructor from large R jet
@@ -73,7 +72,7 @@ TCS::GenericTOB::GenericTOB(const jLargeRJetTOB & jet) :
    , m_EtDouble(jet.EtDouble())
    , m_etaDouble(jet.etaDouble())
    , m_phiDouble(jet.phiDouble())
-   , m_tobType(JET)
+   , m_tobType(JLARGERJET)
 {}
 
 // constructor from large R gjet
@@ -85,7 +84,7 @@ TCS::GenericTOB::GenericTOB(const gLargeRJetTOB & jet) :
    , m_EtDouble(jet.EtDouble())
    , m_etaDouble(jet.etaDouble())
    , m_phiDouble(jet.phiDouble())
-   , m_tobType(JET)
+   , m_tobType(GLARGERJET)
 {}
 
 // constructor from small R jjet
@@ -97,7 +96,7 @@ TCS::GenericTOB::GenericTOB(const jJetTOB & jet) :
    , m_EtDouble(jet.EtDouble())
    , m_etaDouble(jet.etaDouble())
    , m_phiDouble(jet.phiDouble())
-   , m_tobType(JET)
+   , m_tobType(JJET)
 {}
 
 // constructor from small R gjet
@@ -109,7 +108,7 @@ TCS::GenericTOB::GenericTOB(const gJetTOB & jet) :
    , m_EtDouble(jet.EtDouble())
    , m_etaDouble(jet.etaDouble())
    , m_phiDouble(jet.phiDouble())
-   , m_tobType(JET)
+   , m_tobType(GJET)
 {}
 
 // constructor from cluster
@@ -136,7 +135,7 @@ TCS::GenericTOB::GenericTOB(const eEmTOB & eem) :
    , m_reta(eem.Reta())
    , m_rhad(eem.Rhad())
    , m_wstot(eem.Wstot())
-   , m_tobType(eem.tobType())
+   , m_tobType(EEM)
 {}
 
 // constructor from eTau
@@ -148,8 +147,9 @@ TCS::GenericTOB::GenericTOB(const eTauTOB & etau) :
    , m_EtDouble(etau.EtDouble())
    , m_etaDouble(etau.etaDouble())
    , m_phiDouble(etau.phiDouble())
-   , m_rcore(etau.isolation())
-   , m_tobType(etau.tobType())
+   , m_rCore(etau.rCore())
+   , m_rHad(etau.rHad())
+   , m_tobType(ETAU)
 {}
 
 // constructor from cTau
@@ -161,9 +161,6 @@ TCS::GenericTOB::GenericTOB(const cTauTOB & ctau) :
    , m_EtDouble(ctau.EtDouble())
    , m_etaDouble(ctau.etaDouble())
    , m_phiDouble(ctau.phiDouble())
-   , m_reta(ctau.Reta())
-   , m_rhad(ctau.Rhad())
-   , m_wstot(ctau.Wstot())
    , m_tobType(ctau.tobType())
 {}
 
@@ -217,6 +214,18 @@ TCS::GenericTOB::GenericTOB(const MetTOB & met) :
    , m_tobType(MET)
 {}
 
+// constr from jxe
+TCS::GenericTOB::GenericTOB(const jXETOB & jxe) :
+   BaseTOB(jxe.roiWord(), jxe.tobName())
+   , m_Et(jxe.Et())
+   , m_Ex(jxe.Ex())
+   , m_Ey(jxe.Ey())
+   , m_Et2(jxe.Et2())
+   , m_EtDouble(jxe.EtDouble())
+   , m_ExDouble(jxe.ExDouble())
+   , m_EyDouble(jxe.EyDouble())
+   , m_tobType(JXE)
+{}
 
 // destructor
 TCS::GenericTOB::~GenericTOB() = default;

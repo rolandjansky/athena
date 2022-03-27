@@ -165,7 +165,6 @@ StatusCode T2CaloEgammaReFastAlgo::execute(const EventContext& context) const
       ptrigEmCluster->setEnergy(0.0);
       ptrigEmCluster->setEt(0.0);
     }
-    /*
       if ( caloDDE != 0 ){
         if ( caloDDE->is_lar_em_barrel() ){
           for( ToolHandleArray<IEgammaCalibration>::const_iterator
@@ -179,7 +178,6 @@ StatusCode T2CaloEgammaReFastAlgo::execute(const EventContext& context) const
             (*ical)->makeCorrection(ptrigEmCluster,caloDDE);
         }
       }
-    */
     float calZ0 = 0;
 
     // Print out Cluster produced

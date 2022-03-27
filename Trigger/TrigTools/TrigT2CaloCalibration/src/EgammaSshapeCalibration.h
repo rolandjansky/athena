@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT2CALOCALIBRATION_EGAMMASSHAPECALIBRATION
@@ -36,14 +36,14 @@ class EgammaSshapeCalibration :
   virtual StatusCode finalize() override;
   
   /** Virtual function from IEgammaCalibration */
-  virtual void makeCorrection(xAOD::TrigEMCluster*, const void*) override;
+  virtual void makeCorrection(xAOD::TrigEMCluster*, const void*) const override;
 
  private:
   void docalc(int,
 	      const CaloClusterCorrectionCommon::TableBuilder&,
 	      const CxxUtils::Array<1>&, 
 	      CxxUtils::WritableArray<2>&,
-	      int&);
+	      int&) const;
   
  private:
   
@@ -77,8 +77,6 @@ class EgammaSshapeCalibration :
   friend class Builder;
 
  private:
-  MsgStream* m_log;
-  
   /// Calibration constant: tabulated arrays of function parameters.
   /// Index 0: energy
   /// Index 1: region

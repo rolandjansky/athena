@@ -5,7 +5,7 @@
 # art-include: master/Athena
 # art-output: RUN4_muons.RDO.pool.root
 
-Events=300
+Events=1000
 HSHitsFile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/PhaseIIUpgrade/HITS/single_muon.HITS.pool.root"
 DigiOutFileName="RUN4_muons.RDO.pool.root"
 
@@ -24,6 +24,6 @@ Digi_tf.py \
 
 rc=$?
 status=$rc
-echo "art-result: $rc Digi_tf.py"
+echo "art-result: $rc digiCA"
 
 exit $status

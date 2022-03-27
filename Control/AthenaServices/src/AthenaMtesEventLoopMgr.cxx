@@ -56,7 +56,6 @@ AthenaMtesEventLoopMgr::AthenaMtesEventLoopMgr(const std::string& nam
   , m_evtContext{nullptr}
   , m_histoDataMgrSvc( "HistogramDataSvc",         nam )
   , m_histoPersSvc   ( "HistogramPersistencySvc",  nam )
-  , m_activeStoreSvc ( "ActiveStoreSvc",           nam )
   , m_currentRun(0)
   , m_firstRun(true)
   , m_tools(this)
@@ -269,12 +268,6 @@ StatusCode AthenaMtesEventLoopMgr::initialize()
   } catch(...) {
     return StatusCode::FAILURE;
   }
-//-------------------------------------------------------------------------
-// Make sure the ActiveStoreSvc is initialized.
-// We don't use this, but want to be sure that it gets created
-// during initialization, to avoid heap fragmentation.
-//-------------------------------------------------------------------------
-  ATH_CHECK(m_activeStoreSvc.retrieve());
 
   // Listen to the BeforeFork incident
   m_incidentSvc->addListener(this,"BeforeFork",0);
@@ -380,7 +373,6 @@ StatusCode AthenaMtesEventLoopMgr::finalize()
   // Release all interfaces (ignore StatusCodes)
   m_histoDataMgrSvc.release().ignore();
   m_histoPersSvc.release().ignore();
-  m_activeStoreSvc.release().ignore();
 
   m_whiteboard = 0;
   m_algResourcePool = 0;

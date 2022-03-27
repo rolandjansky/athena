@@ -401,7 +401,7 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const EventContext& ctx,
 
         // extrapolate stepwise to this parameter (be careful, sorting might be wrong)
 
-        std::vector<std::unique_ptr<const Trk::TrackParameters> > paramList =
+        std::vector<std::unique_ptr<Trk::TrackParameters> > paramList =
           m_extrapolator->extrapolateStepwise(ctx,
                                               *startParameters,
                                               *surf,
@@ -416,7 +416,7 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const EventContext& ctx,
         ATH_MSG_VERBOSE("Number of parameters in this step: " << paramList.size());
 
         // loop over the predictons and analyze them
-        for (std::unique_ptr<const Trk::TrackParameters>& thisParameters : paramList) {
+        for (std::unique_ptr<Trk::TrackParameters>& thisParameters : paramList) {
           ATH_MSG_VERBOSE("extrapolated pos: " << thisParameters->position() << "   r: " <<
                           sqrt(pow(thisParameters->position().x(),2)+pow(thisParameters->position().y(),2)));
 
@@ -505,19 +505,19 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const EventContext& ctx,
     Trk::Volume* boundaryVol = new Trk::Volume(nullptr, cylinderBounds);
     // extrapolate this parameter blindly to search for more Si hits (not very fast, I know)
 
-    std::vector<std::unique_ptr<const Trk::TrackParameters> > paramList =
+    std::vector<std::unique_ptr<Trk::TrackParameters> > paramList =
       m_extrapolator->extrapolateBlindly(ctx,
                                          *startParameters,
                                          Trk::alongMomentum,
                                          false, partHyp,
                                          boundaryVol);
-if (paramList.empty()) {
+    if (paramList.empty()) {
       ATH_MSG_VERBOSE("--> Did not manage to extrapolate to another surface, break loop");
     } else {
       ATH_MSG_VERBOSE("Number of parameters in this step: " << paramList.size());
 
       // loop over the predictions and analyze them
-      for (std::unique_ptr<const Trk::TrackParameters>& thisParameter : paramList) {
+      for (std::unique_ptr<Trk::TrackParameters>& thisParameter : paramList) {
         // check if surface has identifer !
         Identifier id2;
         if (thisParameter->associatedSurface().associatedDetectorElement() != nullptr &&
@@ -530,9 +530,14 @@ if (paramList.empty()) {
             break;
           }
 
-          // JEF: bool parameter in trackparampair: flag weather this hit should be considered as hole; if not, just cound dead modules
-          std::pair<const Trk::TrackParameters*,const bool> trackparampair (thisParameter.release(),m_extendedListOfHoles || m_cosmic);
-          if (mapOfPredictions.insert(std::pair<const Identifier, std::pair<const Trk::TrackParameters*,const bool> >(id2,trackparampair)).second) {
+          // JEF: bool parameter in trackparampair: flag weather this hit should be considered as hole; if
+          // not, just cound dead modules
+          std::pair<Trk::TrackParameters*, const bool> trackparampair(
+            thisParameter.release(), m_extendedListOfHoles || m_cosmic);
+          if (mapOfPredictions
+                .insert(std::pair<const Identifier, std::pair<const Trk::TrackParameters*, const bool>>(
+                  id2, trackparampair))
+                .second) {
             thisParameter.reset(trackparampair.first->clone());
             ATH_MSG_VERBOSE("Added Si surface");
           } else {

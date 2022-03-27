@@ -369,8 +369,6 @@ public:
 
   /** add Material */
   void addMaterial(const Material& mat, float fact = 1.);
-  void addMaterial ATLAS_NOT_THREAD_SAFE(const Material& mat,
-                                         float fact = 1.) const;
 
   virtual bool isAlignable() const;
   /** remove content */

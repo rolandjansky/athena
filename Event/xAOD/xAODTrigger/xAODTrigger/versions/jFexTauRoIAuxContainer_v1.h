@@ -34,6 +34,8 @@ namespace xAOD{
     std::vector<uint>     globalPhi;
     std::vector<float>    eta;
     std::vector<float>    phi;
+    std::vector<int>      tobEtScale;
+    
 }; // class jFexTauRoIAuxContainer_v1
 
 }//end of namespace xAOD 

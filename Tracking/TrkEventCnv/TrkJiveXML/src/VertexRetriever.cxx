@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkJiveXML/VertexRetriever.h"
@@ -73,11 +73,7 @@ namespace JiveXML {
     double diff5 = ( per1->pT() -
                      per2->pT() );
 
-    if (diff1+diff2+diff3+diff4+diff5 == 0.){
-       matched = true;
-    }else{
-       matched = false;
-    }
+    matched = diff1+diff2+diff3+diff4+diff5 == 0.;
   }
  
   /**
@@ -320,7 +316,7 @@ namespace JiveXML {
     dataMap["vertexType"] = vertexType;
     
     //If there had been any tracks, add a tag
-    if ((numTracks.size()) != 0){
+    if (!numTracks.empty()){
       //Calculate average number of tracks per vertex
       double NTracksPerVertex = tracks.size()*1./numTracks.size();
       std::string tag = "tracks multiple=\"" +DataType(NTracksPerVertex).toString()+"\"";

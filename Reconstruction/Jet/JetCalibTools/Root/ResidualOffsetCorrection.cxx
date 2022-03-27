@@ -3,22 +3,17 @@
 */
 
 #include "JetCalibTools/CalibrationMethods/ResidualOffsetCorrection.h"
+#include "JetCalibTools/JetCalibUtils.h"
 #include "PathResolver/PathResolver.h"
 
 ResidualOffsetCorrection::ResidualOffsetCorrection()
-  : JetCalibrationToolBase( "ResidualOffsetCorrection::ResidualOffsetCorrection" ),
+  : asg::AsgMessaging("ResidualOffsetCorrection"),
     m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false), m_isData(false),
     m_npvBeamspotCorr(NULL), m_resOffsetBins(NULL)
 { }
 
-ResidualOffsetCorrection::ResidualOffsetCorrection(const std::string& name)
-  : JetCalibrationToolBase( name ),
-    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false), m_isData(false),
-    m_npvBeamspotCorr(NULL), m_resOffsetBins(NULL)
-{ }
-
-ResidualOffsetCorrection::ResidualOffsetCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool isData, bool dev)
-  : JetCalibrationToolBase( name ),
+ResidualOffsetCorrection::ResidualOffsetCorrection(const std::string& name, TEnv* config, TString jetAlgo, TString calibAreaTag, bool isData, bool dev)
+  : asg::AsgMessaging(name),
     m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag), m_dev(dev), m_isData(isData),
     m_npvBeamspotCorr(NULL), m_resOffsetBins(NULL)
 { }
@@ -30,10 +25,7 @@ ResidualOffsetCorrection::~ResidualOffsetCorrection() {
 
 }
 
-//bool ResidualOffsetCorrection::initializeTool(TEnv * config, TString jetAlgo, bool isData) {
-StatusCode ResidualOffsetCorrection::initializeTool(const std::string&) {
-
-  m_GeV=1000; //This will have to be fixed eventually
+StatusCode ResidualOffsetCorrection::initialize() {
 
   //Read mu scale factor from global config
   m_muSF = m_config->GetValue("MuScaleFactor",1.0);

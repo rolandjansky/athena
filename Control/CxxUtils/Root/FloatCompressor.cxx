@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: FloatCompressor.cxx 789425 2016-12-13 10:50:12Z krasznaa $
@@ -50,7 +50,7 @@ namespace CxxUtils {
       // Case 3: L = 0 and R = 1
       // In this case there'll be rounding up
       //
-      // Note: This scenario can be different than bfloat16 implementaion
+      // Note: This scenario can be different than bfloat16 implementation
       //       of TensorFlow, where they round down if all the Ts are zero.
       //       Otherwise, they also round up.
       //

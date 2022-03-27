@@ -15,7 +15,7 @@
 #include <TEnv.h>
 
 #include "JetCalibTools/IJetCalibrationTool.h"
-#include "JetCalibTools/JetCalibrationToolBase.h"
+#include "JetCalibTools/JetCalibrationStep.h"
 #include "JetCalibTools/CalibrationMethods/ResidualOffsetCorrection.h"
 
 namespace PUCorrection {
@@ -23,22 +23,16 @@ namespace PUCorrection {
 }
 
 class JetPileupCorrection
-  : virtual public ::JetCalibrationToolBase
+  : virtual public ::JetCalibrationStep
 {
-
-  ASG_TOOL_CLASS( JetPileupCorrection, IJetCalibrationTool )
 
  public:
   JetPileupCorrection();
-  JetPileupCorrection(const std::string& name);
-  JetPileupCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool doResidual, bool doJetArea, bool doOrigin, bool isData, bool dev);
+  JetPileupCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool doResidual, bool doJetArea, bool doOrigin, const std::string& originScale, bool isData, bool dev);
   virtual ~JetPileupCorrection();
 
-  //virtual bool initializeTool(const std::string& name, TEnv * config, TString jetAlgo, bool doResidual, bool isData);
-  virtual StatusCode initializeTool(const std::string& name);
-
- protected:
-  virtual StatusCode calibrateImpl(xAOD::Jet& jet, JetEventInfo& jetEventInfo) const;
+  virtual StatusCode initialize() override;
+  virtual StatusCode calibrate(xAOD::Jet& jet, JetEventInfo& jetEventInfo) const override;
  
  private:
   TEnv * m_config;

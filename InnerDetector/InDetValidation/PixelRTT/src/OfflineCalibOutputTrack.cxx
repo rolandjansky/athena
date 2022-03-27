@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef OfflineCalibOutputTrack_cxx
@@ -7,15 +7,16 @@
 #ifndef PixelNtupleTracks_cxx
 #define PixelNtupleTracks_cxx
 
-#include <iostream>
-#include <string>
-#include <TFile.h>
 #include "PixelRTT/OfflineCalibOutputTrack.h"
+#include "PathResolver/PathResolver.h"
 #include "PixelCalibAlgs/PixelChargeInterpolationCalibration.h"
 #include "PixelCalibAlgs/PixelChargeInterpolationValidation.h"
 #include "PixelConditionsData/PixelChargeInterpolationParameters.h"
 #include "PixelRTT/ResPullValidation.h"
-#include "PathResolver/PathResolver.h"
+#include <TFile.h>
+#include <iostream>
+#include <string>
+#include <utility>
 
 
 using namespace std;
@@ -24,9 +25,9 @@ using namespace std;
 namespace PixelValid{
 
 OfflineCalibOutputTrack::OfflineCalibOutputTrack(std::string input,
-				std::string output,
+				const std::string& output,
 				std::string collection):
-	PixelNtupleTracks(input,collection){
+	PixelNtupleTracks(std::move(input),std::move(collection)){
 
 	std::cout << "OfflineCalibOutputTrack()" << std::endl;
 	
@@ -51,7 +52,7 @@ OfflineCalibOutputTrack::OfflineCalibOutputTrack(std::string input,
 		new PixelCalib::PixelChargeInterpolationValidation("ChargeSharingConstants", *parametersModel);
 
 	delete parametersModel;
-	parametersModel = 0;
+	parametersModel = nullptr;
 	
 	m_ResPhiValid = new ResPullValidation("phi","res",datatype);
 	m_PullPhiValid = new ResPullValidation("phi","pull",datatype);
@@ -68,22 +69,22 @@ OfflineCalibOutputTrack::~OfflineCalibOutputTrack(){
 	
 	delete m_Calibration;
 	delete m_Validation;
-	m_Calibration = 0;
-	m_Validation  = 0;
+	m_Calibration = nullptr;
+	m_Validation  = nullptr;
 	
 	delete m_ResPhiValid;
 	delete m_PullPhiValid;
 	delete m_ResEtaValid;
 	delete m_PullEtaValid;
-	m_ResPhiValid = 0;
-	m_PullPhiValid = 0;
-	m_ResEtaValid = 0;
-	m_PullEtaValid = 0;
+	m_ResPhiValid = nullptr;
+	m_PullPhiValid = nullptr;
+	m_ResEtaValid = nullptr;
+	m_PullEtaValid = nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-void OfflineCalibOutputTrack::ReadHistoFile(std::string input){
+void OfflineCalibOutputTrack::ReadHistoFile(const std::string& input){
 	
 	std::cout << "ReadHistoFile()" << std::endl;
 	TDirectory *olddir = gDirectory;
@@ -111,7 +112,7 @@ void OfflineCalibOutputTrack::ReadHistoFile(std::string input){
 void OfflineCalibOutputTrack::Iterate(long maxentries){
 
 	std::cout << "Iterate()" << std::endl;
-   if (fChain == 0) return;
+   if (fChain == nullptr) return;
    Long64_t nentries = fChain->GetEntriesFast();
    if(maxentries > 0) nentries = ( nentries < maxentries ) ? nentries : maxentries;
    Long64_t jentry=0, pixentries = 0;
@@ -166,13 +167,13 @@ void OfflineCalibOutputTrack::Iterate(long maxentries){
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-void OfflineCalibOutputTrack::Analyse(std::string output, std::string reference){
+void OfflineCalibOutputTrack::Analyse(const std::string& output, const std::string& reference){
 
 	std::cout << "Analyse()" << std::endl;
 	std::string logfilename = output  + ".log";	
 
 	std::vector<std::string> references;
-	references.push_back("ChargeSharingConstants-Model");
+	references.emplace_back("ChargeSharingConstants-Model");
 	m_Calibration->Analyze("ChargeSharingConstants",references);
 
 
@@ -191,7 +192,7 @@ void OfflineCalibOutputTrack::Analyse(std::string output, std::string reference)
 
 	standard_htmlfile.close();
 	
-	TFile *ref_file = 0;
+	TFile *ref_file = nullptr;
 	if(reference != ""){
 		ref_file = TFile::Open(reference.c_str(),"READ");
 	}
@@ -200,14 +201,14 @@ void OfflineCalibOutputTrack::Analyse(std::string output, std::string reference)
 	m_ResEtaValid->Analyze(ref_file);
 	m_PullEtaValid->Analyze(ref_file);
 	m_Validation->Analyze(ref_file);
-	if(ref_file != 0 && ref_file->IsOpen()) ref_file->Close();
+	if(ref_file != nullptr && ref_file->IsOpen()) ref_file->Close();
 	delete ref_file;
 
 	myhtmlfile.close();
 	
 	std::string histofilename = output  + ".root";
 	TFile *histofile = TFile::Open(histofilename.c_str(),"RECREATE");
-	if(histofile !=0 ){
+	if(histofile !=nullptr ){
 		m_Calibration->Write();
 		m_Validation->Write();
 		TDirectory *old = gDirectory;

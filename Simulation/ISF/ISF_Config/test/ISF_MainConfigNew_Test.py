@@ -3,7 +3,7 @@
 
 This test inherits from Simulation/G4Atlas/G4AtlasAlg/test/G4AtlasAlgConfigNew_Test.py
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 if __name__ == '__main__':
 
@@ -38,13 +38,14 @@ if __name__ == '__main__':
     #Sim ConfigFlags
     #ConfigFlags.Sim.WorldRRange = 15000
     #ConfigFlags.Sim.WorldZRange = 27000 #change defaults?
-    ConfigFlags.Sim.CalibrationRun = "Off" #"DeadLAr" 
+    from G4AtlasApps.SimEnums import BeamPipeSimMode, CalibrationRun, CavernBackground, LArParameterization, SimulationFlavour, TruthStrategy
+    ConfigFlags.Sim.CalibrationRun = CalibrationRun.Off 
     ConfigFlags.Sim.RecordStepInfo = False
-    ConfigFlags.Sim.CavernBG = "Signal"
-    ConfigFlags.Sim.BeamPipeSimMode = 'FastSim'
+    ConfigFlags.Sim.CavernBackground = CavernBackground.Signal
+    ConfigFlags.Sim.BeamPipeSimMode = BeamPipeSimMode.FastSim
     ConfigFlags.Sim.ReleaseGeoModel = False
     ConfigFlags.Sim.ISFRun = True
-    ConfigFlags.Sim.ISF.Simulator = "FullG4MT"
+    ConfigFlags.Sim.ISF.Simulator = SimulationFlavour.FullG4MT
 
     ConfigFlags.Concurrency.NumThreads = 1
     ConfigFlags.Concurrency.NumConcurrentEvents = 1
@@ -58,9 +59,9 @@ if __name__ == '__main__':
     setupDetectorsFromList(ConfigFlags, detectors, toggle_geometry=True)
 
     #Frozen showers OFF = 0
-    ConfigFlags.Sim.LArParameterization = 2
+    ConfigFlags.Sim.LArParameterization = LArParameterization.DeadMaterialFrozenShowers
 
-    ConfigFlags.Sim.TruthStrategy = "MC15aPlus"
+    ConfigFlags.Sim.TruthStrategy = TruthStrategy.MC15aPlus
     # Finalize
     ConfigFlags.lock()
 

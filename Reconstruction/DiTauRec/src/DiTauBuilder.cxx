@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DiTauRec/DiTauBuilder.h"
@@ -132,7 +132,7 @@ StatusCode DiTauBuilder::execute(const EventContext& ctx) const {
 
     // handle di-tau candidate
     StatusCode sc = StatusCode::SUCCESS;
-    for (auto tool: m_tools) {
+    for (const auto& tool: m_tools) {
       sc = tool->execute(&rDiTauData, ctx);
       if (sc.isFailure()) break;
     }

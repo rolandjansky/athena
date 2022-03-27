@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -92,10 +92,10 @@ StatusCode InDetGlobalLRTMonAlg::initialize() {
   
   if (!m_holes_search_tool.empty())  ATH_CHECK( m_holes_search_tool.retrieve());
   
+  ATH_CHECK( m_tracksKey.initialize() );
   ATH_CHECK( m_CombinedTracksName.initialize() );
   ATH_CHECK( m_ForwardTracksName.initialize() );
   ATH_CHECK( m_tracksLarge.initialize() );   
-  ATH_CHECK( m_clustersKey.initialize() );  // maybe not needed
   
   return AthMonitorAlgorithm::initialize();
 }
@@ -141,7 +141,7 @@ StatusCode InDetGlobalLRTMonAlg::fillHistograms( const EventContext& ctx ) const
   
   for (const Trk::Track* track: *combined_tracks) {
     
-    if ( !track || track->perigeeParameters() == 0 )
+    if ( !track || track->perigeeParameters() == nullptr )
       {
 	ATH_MSG_DEBUG( "InDetGlobalMonitoringRun3Test: NULL track pointer in collection" );
 	continue;

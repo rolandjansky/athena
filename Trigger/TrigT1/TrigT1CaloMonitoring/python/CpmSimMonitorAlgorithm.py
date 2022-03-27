@@ -425,9 +425,9 @@ def CpmSimMonitoringConfig(inputFlags):
 
 
     # Summary
-
     NumberOfSummaryBins=10
-
+    summary_labels=["EM tt","Had tt","#color[2]{EM RoIs}","#color[2]{Tau RoIs}","#splitline{Left}{TOBs}",
+                    "#splitline{Right}{TOBs}","#color[2]{#splitline{Local}{Sums}}","#splitline{Remote}{Sums}","#splitline{Total}{Sums}","#splitline{Topo}{Info}"]
     #
     myGroup.defineHistogram('cpmErrorLoc,cpmError;cpm_2d_SimEqDataOverview',
                             title="CP Transmission/Comparison with Simulation Overview - Events with Matches;;",
@@ -447,50 +447,50 @@ def CpmSimMonitoringConfig(inputFlags):
     myGroup.defineHistogram('cpmErrorSummary;cpm_1d_SimNeDataSummary', 
                             title='CP Transmission/Comparison with Simulation Mismatch Summary;;Events',
                             cutmask='',path=monShiftPath,
-                            xbins=NumberOfSummaryBins,xmin=0,xmax=NumberOfSummaryBins)
+                            xbins=NumberOfSummaryBins,xmin=0,xmax=NumberOfSummaryBins,xlabels=summary_labels)
 
 
 
 
-    # Mismatch Event Number Samples
-    
-    EventSamples=10  # Number of Error Event Number Samples
-    myGroup.defineHistogram('em_tt_x,em_tt_y;cpm_em_2d_tt_MismatchEvents',
+    # Mismatch Event Number Samples        
+    myGroup.defineHistogram('em_tt_evtstr,em_tt_y;cpm_em_2d_tt_MismatchEvents',
                             title='CPM Towers EM Mismatch Event Numbers;Events with Error/Mismatch;',type='TH2I',
-                            cutmask='',path=monEvent1Path,merge='eventSample',weight='em_tt_w',
-                            xbins=EventSamples,xmin=0,xmax=EventSamples,ybins=56,ymin=0,ymax=56.0)
+                            path=monEvent1Path,merge='merge',
+                            xbins=1,ybins=56,ymin=0,ymax=56.0)
 
-    myGroup.defineHistogram('had_tt_x,had_tt_y;cpm_had_2d_tt_MismatchEvents',
+    myGroup.defineHistogram('had_tt_evtstr,had_tt_y;cpm_had_2d_tt_MismatchEvents',
                             title='CPM Towers Had Mismatch Event Numbers;Events with Error/Mismatch;',type='TH2I',
-                            cutmask='',path=monEvent1Path,merge='eventSample',weight='had_tt_w',
-                            xbins=EventSamples,xmin=0,xmax=EventSamples,ybins=56,ymin=0,ymax=56.0)
+                            path=monEvent1Path,merge='merge',
+                            xbins=1,ybins=56,ymin=0,ymax=56.0)
 
-    myGroup.defineHistogram('em_roi_x,em_roi_y;cpm_2d_roi_EmMismatchEvents',
+    myGroup.defineHistogram('em_roi_evtstr,em_roi_y;cpm_2d_roi_EmMismatchEvents',
                             title='CPM RoIs EM Mismatch Event Numbers;Events with Error/Mismatch;',type='TH2I',
-                            cutmask='',path=monEvent1Path,merge='eventSample',weight='em_roi_w',
-                            xbins=EventSamples,xmin=0,xmax=EventSamples,ybins=56,ymin=0,ymax=56.0)
+                            path=monEvent1Path,merge='merge',
+                            xbins=1,ybins=56,ymin=0,ymax=56.0)
 
-    myGroup.defineHistogram('tau_roi_x,tau_roi_y;cpm_2d_roi_TauMismatchEvents',
+    myGroup.defineHistogram('tau_roi_evtstr,tau_roi_y;cpm_2d_roi_TauMismatchEvents',
                             title='CPM RoIs Tau Mismatch Event Numbers;Events with Error/Mismatch;',type='TH2I',
-                            cutmask='',path=monEvent1Path,merge='eventSample',weight='tau_roi_w',
-                            xbins=EventSamples,xmin=0,xmax=EventSamples,ybins=56,ymin=0,ymax=56.0)
+                            path=monEvent1Path,merge='merge',
+                            xbins=1,ybins=56,ymin=0,ymax=56.0)
 
     # monEvent2Path
-    myGroup.defineHistogram('cmx_tob_left_x,cmx_tob_left_y;cmx_2d_tob_LeftMismatchEvents',
+    myGroup.defineHistogram('cmx_tob_left_evtstr,cmx_tob_left_y;cmx_2d_tob_LeftMismatchEvents',
                             title='CMX TOBs Left Mismatch Event Numbers;Events with Error/Mismatch;',type='TH2I',
-                            cutmask='',path=monEvent2Path,merge='eventSample',weight='cmx_tob_left_w',
-                            xbins=EventSamples,xmin=0,xmax=EventSamples,ybins=56,ymin=0,ymax=56.0)
+                            path=monEvent2Path,merge='merge',
+                            xbins=1,ybins=56,ymin=0,ymax=56.0)
 
-    myGroup.defineHistogram('cmx_tob_right_x,cmx_tob_right_y;cmx_2d_tob_RightMismatchEvents',
+    myGroup.defineHistogram('cmx_tob_right_evstr,cmx_tob_right_y;cmx_2d_tob_RightMismatchEvents',
                             title='CMX TOBs Right Mismatch Event Numbers;Events with Error/Mismatch;',type='TH2I',
-                            cutmask='',path=monEvent2Path,merge='eventSample',weight='cmx_tob_right_w',
-                            xbins=EventSamples,xmin=0,xmax=EventSamples,ybins=56,ymin=0,ymax=56.0)
+                            path=monEvent2Path,merge='merge',
+                            xbins=1,ybins=56,ymin=0,ymax=56.0)
 
-    myGroup.defineHistogram('cmx_thresh_x,cmx_thresh_y;cmx_2d_thresh_SumsMismatchEvents',
-                            title='CMX Hit Sums Mismatch Event Numbers;Events with Error/Mismatch;',type='TH2I',
-                            cutmask='',path=monEvent2Path,merge='eventSample',weight='cmx_thresh_w',
-                            xbins=EventSamples,xmin=0,xmax=EventSamples,ybins=24,ymin=0,ymax=24.0)
-
+    thresh_ylabels=["Local 0/0","","","","","","","",
+                    "Remote 0/0","","","","","","Total 3/0","",
+                    "Topo 0/0","","","","","","",""]
+    myGroup.defineHistogram('cmx_thresh_evtstr,cmx_thresh_y;cmx_2d_thresh_SumsMismatchEvents',
+                            title='CMX Hit Sums Mismatch Event Numbers;Events with Error/Mismatch;', type='TH2I',
+                            path=monEvent2Path,merge='merge',
+                            xbins=1,ybins=24,ymin=0,ymax=24.0,ylabels=thresh_ylabels)
 
     
     acc = helper.result()

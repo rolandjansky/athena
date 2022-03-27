@@ -40,8 +40,7 @@ StatusCode MdtDigitVariables::fillVariables(const MuonGM::MuonDetectorManager* M
       int multilayer       = m_MdtIdHelper->multilayer(Id);
       int channel          = m_MdtIdHelper->channel(Id);
       int NofMultilayers   = m_MdtIdHelper->numberOfMultilayers(Id);
-      bool measuresPhi     = m_MdtIdHelper->measuresPhi(Id);
-
+     
       ATH_MSG_DEBUG(     "MDT Digit Offline id:  Station Name [" << stName << " ]"
                          << " Station Eta ["  << stationEta      << "]"
                          << " Station Phi ["  << stationPhi      << "]"
@@ -60,7 +59,6 @@ StatusCode MdtDigitVariables::fillVariables(const MuonGM::MuonDetectorManager* M
       m_MDT_dig_localTubePosX.push_back( localTubePos.x() );
       m_MDT_dig_localTubePosY.push_back( localTubePos.y() );
       m_MDT_dig_localTubePosZ.push_back( localTubePos.z() );
-      m_MDT_dig_measuresPhi.push_back(measuresPhi);
       m_MDT_dig_time.push_back(digit->tdc());
       m_MDT_dig_charge.push_back(digit->adc());
       m_MDT_dig_stationName.push_back(stName);
@@ -89,7 +87,6 @@ StatusCode MdtDigitVariables::clearVariables()
   m_MDT_dig_stationName.clear();
   m_MDT_dig_stationEta.clear();
   m_MDT_dig_stationPhi.clear();
-  m_MDT_dig_measuresPhi.clear();
   m_MDT_dig_tube.clear();
   m_MDT_dig_tubeLayer.clear();
   m_MDT_dig_multilayer.clear();
@@ -120,7 +117,6 @@ StatusCode MdtDigitVariables::initializeVariables()
     m_tree->Branch("Digits_MDT_stationEta",  &m_MDT_dig_stationEta);
     m_tree->Branch("Digits_MDT_stationPhi",  &m_MDT_dig_stationPhi);
     m_tree->Branch("Digits_MDT_numberOfMultilayers",  &m_MDT_dig_numberOfMultilayers);
-    m_tree->Branch("Digits_MDT_measuresPhi",  &m_MDT_dig_measuresPhi);
     m_tree->Branch("Digits_MDT_tube",  &m_MDT_dig_tube);
     m_tree->Branch("Digits_MDT_tubeLayer",  &m_MDT_dig_tubeLayer);
     m_tree->Branch("Digits_MDT_multilayer",  &m_MDT_dig_multilayer);

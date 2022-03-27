@@ -78,11 +78,13 @@ def LArCellMonConfig(inputFlags):
     lArCellMonAlg=CompFactory.LArCellMonAlg
 
     algname='LArCellMonAlg'
-    if inputFlags.Beam.Type == 'cosmics':
+    from AthenaConfiguration.Enums import BeamType
+    if inputFlags.Beam.Type is BeamType.Cosmics:
         algname=algname+'Cosmics'
 
-    isCosmics = ( inputFlags.Beam.Type == 'cosmics' )
-    algo = LArCellMonConfigCore(helper, lArCellMonAlg,inputFlags, isCosmics, inputFlags.Input.isMC, algname)
+    algo = LArCellMonConfigCore(helper, lArCellMonAlg, inputFlags,
+                                inputFlags.Beam.Type is BeamType.Cosmics,
+                                inputFlags.Input.isMC, algname)
     algo.useTrigger = inputFlags.DQ.useTrigger
 
     #copied from LArCellMonTool
@@ -520,7 +522,6 @@ if __name__=='__main__':
     ConfigFlags.DQ.enableLumiAccess = True
     ConfigFlags.DQ.useTrigger = True
     ConfigFlags.DQ.Environment = 'tier0'
-#TMP    ConfigFlags.Beam.Type = 'collisions'
     ConfigFlags.lock()
 
 

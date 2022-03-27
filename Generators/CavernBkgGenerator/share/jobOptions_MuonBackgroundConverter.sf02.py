@@ -27,7 +27,7 @@ MuonCavern = topSequence.MuonBackgroundConverter
 
 # The following is needed to load the Athena Random
 # Number Generation Service.
-from AthenaServices.AthenaServicesConf import AtRndmGenSvc
+from RngComps.RngCompsConf import AtRndmGenSvc
 ServiceMgr += AtRndmGenSvc(
     "AtRndmGenSvc",
     Seeds = [ "SINGLE 2040160768 790101" ]

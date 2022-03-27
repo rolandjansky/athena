@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetPrepRawData/TRT_DriftCircle.h"
@@ -48,7 +48,7 @@ void TRT_DriftCircleContainerCnv_p2::transToPers(const InDet::TRT_DriftCircleCon
     // to the container's vector, saving the indexes in the
     // collection. 
 
-    typedef InDet::TRT_DriftCircleContainer TRANS;
+    using TRANS = InDet::TRT_DriftCircleContainer;
         
     // this is the id of the latest collection read in
     // Thisstarts from the base of the TRT identifiers

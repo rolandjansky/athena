@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGHLTJETHYPOUNITTESTS_SimpleHypoJetVectorGenerator_H
@@ -7,6 +7,7 @@
 
 #include "TrigHLTJetHypoUnitTests/IHypoJetVectorGenerator.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include <random>
 
 
 class SimpleHypoJetVectorGenerator: public extends<AthAlgTool,
@@ -46,6 +47,8 @@ class SimpleHypoJetVectorGenerator: public extends<AthAlgTool,
   Gaudi::Property<bool>
     m_useEtaEtNotEtaE{this, "useEtaEtNotEtaE", true, "e values or et values "};
 
+
+  std::default_random_engine m_shuffle_re;
 };
 
 #endif

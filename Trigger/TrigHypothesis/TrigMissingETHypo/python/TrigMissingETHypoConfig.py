@@ -16,7 +16,7 @@ def TrigMETCellHypoToolFromDict(chainDict):
             
 
 def TrigMETCellHypoToolFromName(name, conf):
-    from TriggerMenuMT.HLT.Menu.DictFromChainName import dictFromChainName
+    from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import dictFromChainName
     
     decodedDict = dictFromChainName(conf)
     decodedDict['chainName'] = name

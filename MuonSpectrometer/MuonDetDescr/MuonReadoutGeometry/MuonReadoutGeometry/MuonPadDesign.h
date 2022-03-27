@@ -155,7 +155,7 @@ namespace MuonGM {
     inline double MuonPadDesign::channelWidth(const Amg::Vector2D& pos, bool measPhi) const {
         // calculate the phi width
 
-        return (measPhi ? 2. * std::tan(0.5 * inputPhiPitch) * (radialDistance + pos.y()) : inputRowPitch);
+        return (measPhi ? 2. * std::tan(0.5 * inputPhiPitch * M_PI / 180.) * (radialDistance + pos.y()) : inputRowPitch);
     }
 
     inline double MuonPadDesign::gasGapThickness() const { return thickness; }

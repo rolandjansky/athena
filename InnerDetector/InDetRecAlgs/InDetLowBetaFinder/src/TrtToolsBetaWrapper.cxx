@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetLowBetaFinder/LowBetaAlg.h"
@@ -70,7 +70,7 @@ StatusCode InDet::LowBetaAlg::update(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
 	const bool doDebug = false;	// set to true to print to file below
 	const char* DEBUGFILE_C = "/afs/cern.ch/user/w/wmills/testarea/16.0.2/InnerDetector/InDetRecAlgs/InDetLowBetaFinder/run/debugPriors.out";
-	FILE* dFile = NULL;
+	FILE* dFile = nullptr;
 	
 	ATH_MSG_INFO("Updating priors for the LowBetaAlg likelihood beta estimator");
 	
@@ -81,7 +81,7 @@ StatusCode InDet::LowBetaAlg::update(IOVSVC_CALLBACK_ARGS_P(I,keys))
 	// Read the priors
 	const CondAttrListCollection* collection;
 	StatusCode SC = detStore()->retrieve(collection, "/TRT/Calib/MLbetaPriors");
-	if (SC.isFailure() || collection == 0)
+	if (SC.isFailure() || collection == nullptr)
 	{
 	  ATH_MSG_ERROR("A problem occurred while reading a conditions database object.");
 	  return StatusCode::FAILURE;
@@ -97,7 +97,7 @@ StatusCode InDet::LowBetaAlg::update(IOVSVC_CALLBACK_ARGS_P(I,keys))
 	    // If debugging, open the output file and print the header
 	    if (doDebug)
 	      dFile = fopen(DEBUGFILE_C,"w");
-	    if (dFile != NULL)
+	    if (dFile != nullptr)
 	      fprintf(dFile,"#####\n##### prior[etaIndex][barrelOrEndcap][radiusIndex]\n#####\n\n");
 	    
 	    int channel;
@@ -165,21 +165,21 @@ StatusCode InDet::LowBetaAlg::update(IOVSVC_CALLBACK_ARGS_P(I,keys))
 	          sprintf(name,"TRT_bit_%d",i);
 	          bitValues[i] = list[name].data<double>();
 	          // If debug, print to file
-	          if (dFile != NULL)
+	          if (dFile != nullptr)
 	            fprintf(dFile,"prior[%d][%d][%d][TRT_bit_%d] = %10f\n",etaIndex,barrelOrEndcap,radiusIndex,i,list[name].data<double>());
 	        }
 	        // If debug, print a new line to file
-	        if (dFile != NULL)
+	        if (dFile != nullptr)
 	          fprintf(dFile,"\n");
 	        
 	        m_TrtTool->TRT_UpdatePriorValues(radiusIndex,etaIndex,barrelOrEndcap,bitValues);
 	        free(bitValues);
 	      }
-	      else if (dFile != NULL) // If debug, print a warning line to file
+	      else if (dFile != nullptr) // If debug, print a warning line to file
 	        fprintf(dFile,"Unexpected result!  Got channel of %d (eta=%d,BoE=%d,rad=%d)\n\n",channel,etaIndex,barrelOrEndcap,radiusIndex);
 	      
 	      // If debug, close the file, as we're done now
-	      if (dFile != NULL)
+	      if (dFile != nullptr)
 	        fclose(dFile);
 	    }
 	  }
@@ -347,7 +347,7 @@ StatusCode InDet::LowBetaAlg::parseDataForTrtToolBetaLiklihood(const Trk::Track&
 	  ATH_MSG_DEBUG("TrtToolBetaLiklihood aborting due to momentum value (q/p == 0)");
 	  return StatusCode::FAILURE;
 	}
-	double pt  = fabs(1.0/qOverP)*sin(theta);
+	double pt  = std::abs(1.0/qOverP)*sin(theta);
 	
 	// Set pt and eta
 	*RecPt  = pt;
@@ -455,7 +455,7 @@ StatusCode InDet::LowBetaAlg::parseDataForTrtToolBetaLiklihood(const Trk::Track&
 		  //std::cout << "break point 7.0" << std::endl;
 		  double estDrift = -999;
                   //solve 3rd order poly for t using DC R (thank you http://www.1728.com/cubic2.htm :)
-                  double a = pcal[3]; double b = pcal[2]; double c = pcal[1]; double d = pcal[0] - fabs(driftCircleRadius);
+                  double a = pcal[3]; double b = pcal[2]; double c = pcal[1]; double d = pcal[0] - std::abs(driftCircleRadius);
                   //std::cout << "r(t) = " << pcal[3] << "t^3 + " << pcal[2] << "t^2 + " << pcal[1] << "t + " << pcal[0] << "; t0 = " << t0 << std::endl;
 		  //std::cout << "break point 7.1" << std::endl;
 		  double f  =0.0;
@@ -473,7 +473,7 @@ StatusCode InDet::LowBetaAlg::parseDataForTrtToolBetaLiklihood(const Trk::Track&
 		       I = sqrt(g*g/4. - h);
 		       double J = pow(I,1./3.);
 		       double K =0.0;
-		       if (fabs(-1.*g/2./I) < 1.0)K = acos(-1.*g/2./I);
+		       if (std::abs(-1.*g/2./I) < 1.0)K = acos(-1.*g/2./I);
 		       
 		       double L = -1.*J;
 		       double M = cos(K/3.);
@@ -488,10 +488,10 @@ StatusCode InDet::LowBetaAlg::parseDataForTrtToolBetaLiklihood(const Trk::Track&
 		     }
 		     else{
 		       double R = g/(-2.) + sqrt(h);
-		       double S = pow(fabs(R),1./3.);
+		       double S = pow(std::abs(R),1./3.);
 		       if(R<0) S = -1.*S;
 		       double T = g/(-2.) - sqrt(h);
-		       double U = pow(fabs(T),1./3.);
+		       double U = pow(std::abs(T),1./3.);
 		       if(T<0) U = -1.*U;
 		       t1r = S+U-b/3./a;
 		       t2r = -1.*(S+U)/2. - b/3./a;  //t2i = (S-U)*sqrt(3.)/2.;
@@ -582,7 +582,7 @@ int printTrtToolBetaLiklihoodDebugFile
 	else
 	  outFile = fopen(FILENAME_C,"a");
 	
-	if (outFile == NULL)
+	if (outFile == nullptr)
 	  return -1;
 	
 	fprintf(outFile,"#\n#Track Number %d\n#RecPt = %f, RecEta = %f\n#\n",tn,RecPt,RecEta);

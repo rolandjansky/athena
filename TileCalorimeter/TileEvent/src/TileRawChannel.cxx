@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -67,9 +67,10 @@ int TileRawChannel::add(float amplitude, float time, float quality) {
 }
 
 void TileRawChannel::scaleAmplitude(float scale) {
+    using std::placeholders::_1;
     std::transform(m_amplitude.begin(), m_amplitude.end(), 
                    m_amplitude.begin(),
-                   std::bind1st(std::multiplies<float>(),scale));
+                   std::bind(std::multiplies<float>(),scale,_1));
 }
 
 void TileRawChannel::insertTime(float time) {

@@ -56,6 +56,7 @@ _all_streams = [
     StreamInfo('IDMonitoring', 'monitoring', True, True),
     StreamInfo('CSC', 'monitoring', True, False),
     # CALIBRATION STREAMS
+    StreamInfo('Muon_Calibration','calibration',False,True),
     StreamInfo('BphysPEB','calibration',True,False),
     StreamInfo('BeamSpot', 'calibration', True, False),
     StreamInfo('LArCells', 'calibration', False, False),
@@ -72,6 +73,7 @@ _all_streams = [
     StreamInfo('L1TopoMismatches', 'calibration', False, True),
     StreamInfo('ZDCCalib', 'calibration', False, False),
     StreamInfo('IDCalib', 'calibration', False, False),
+    StreamInfo('AFPCalib', 'calibration', False, False),
     # HI STREAMS
     StreamInfo('HardProbes', 'physics', True, True),
     StreamInfo('MinBias', 'physics', True, True),

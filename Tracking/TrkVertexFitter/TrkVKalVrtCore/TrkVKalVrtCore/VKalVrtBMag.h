@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /* General magnetic field in any point access              */
 /* If external magnetic field handler is provided as       */
@@ -21,13 +21,13 @@ namespace Trk {
   typedef void (*addrMagHandler)(double,double,double, double& ,double& , double& );
 
 //
-//  Base class for concrete megnetic field implementations (e.g. Athena tool) to be called by vkalMagFld
+//  Base class for concrete magnetic field implementations (e.g. Athena tool) to be called by vkalMagFld
 //
   class baseMagFld {
   public:
      baseMagFld();
      virtual ~baseMagFld();
-     virtual void getMagFld(const double,const double,const double,double&,double&,double&) const =0;
+     virtual void getMagFld(const double,const double,const double,double&,double&,double&) =0;
   };
 
 //
@@ -40,7 +40,7 @@ namespace Trk {
      vkalMagFld();
     ~vkalMagFld() = default;
 
-     void getMagFld(const double,const double,const double,double&,double&,double&, const VKalVrtControlBase*)  const;
+     void getMagFld(const double,const double,const double,double&,double&,double&, VKalVrtControlBase*)  const;
      double getMagFld(const double xyz[3], const VKalVrtControlBase* FitControl)  const;
      double getCnvCst() const;
   

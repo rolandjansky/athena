@@ -1,11 +1,19 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
+
+/*
+ * Updates:
+ * - 2021, Riccardo Maria BIANCHI <riccardo.maria.bianchi@cern.ch>
+ *         * Added TileDetectorFactoryLite to load the Tile geomnetry from SQLite
+ */
 
 #include "TileGeoModel/TileDetectorTool.h"
 #include "TileDetectorFactory.h"
 #include "TileAtlasFactory.h"
 #include "TileTBFactory.h"
+#include "TileDetectorFactoryLite.h"
+
 #include "TileDetDescr/TileDetDescrManager.h" 
 #include "TileDetDescr/TileDddbManager.h"
 #include "TileConditions/TileCablingService.h"
@@ -24,12 +32,16 @@
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 
+#include "GeoModelRead/ReadGeoModel.h"
+
 #include "AthenaKernel/ClassID_traits.h"
 #include "SGTools/DataProxy.h"
 
+
+
 TileDetectorTool::TileDetectorTool(const std::string& type, 
-				   const std::string& name, 
-				   const IInterface* parent):
+                   const std::string& name, 
+                   const IInterface* parent):
   GeoModelTool(type, name, parent),
   m_switches(false,true),
   m_not_locked(true),
@@ -86,7 +98,7 @@ StatusCode TileDetectorTool::create()
   if(versionTag == "AUTO")
   {
     versionTag = "TileCal-00";
-    versionNode = "TileCal";	
+    versionNode = "TileCal";    
   }
   if (atlasVersion.compare(0,9,"ATLAS-CTB") == 0 || tileVersion.compare(0,6,"TileTB") == 0) {
     ATH_MSG_INFO("CTB geometry detected: " << atlasVersion  << " " << tileVersion);
@@ -99,12 +111,25 @@ StatusCode TileDetectorTool::create()
 
   if ( 0 == m_detector )
   {
-    IRDBAccessSvc* raccess = 0;
-    ATH_CHECK(service("RDBAccessSvc",raccess));
+    // Get the detector configuration.
+    ServiceHandle<IGeoDbTagSvc> geoDbTag("GeoDbTagSvc",name());
+    ATH_CHECK(geoDbTag.retrieve());
 
-    TileDddbManager_ptr  dbManager(new TileDddbManager(raccess,versionTag,versionNode));
+    // Get the 'new' accessSvc to get parameters / DB data from the DD SQLite input file.
+    ServiceHandle<IRDBAccessSvc> accessSvc(geoDbTag->getParamSvcName(),name());
+    ATH_CHECK(accessSvc.retrieve());
+    
+    // Get the SQLite reader, if specified in the jobOption
+    GeoModelIO::ReadGeoModel* sqliteReader = geoDbTag->getSqliteReader();
+
+    // Get the Tile 'DDDB' and 'DetDescr' managers
+    // Note: we need to pass the raw IRDBAccess* to the TildDddbManager constructor.
+    bool sqliteInput = false;
+    if (sqliteReader) sqliteInput = true;
+    TileDddbManager_ptr  dbManager(new TileDddbManager(&*accessSvc,versionTag,versionNode, sqliteInput));
     m_manager = new TileDetDescrManager(dbManager);
 
+    // check what factory can be used
     if (0==dbManager->GetNumberOfEnv() && m_useNewFactory) {
       ATH_MSG_WARNING("New TileAtlasFactory can not be used because TileGlobals do not exist in Database");
       ATH_MSG_WARNING("Use old TileDetectorFactory instead");
@@ -123,21 +148,37 @@ StatusCode TileDetectorTool::create()
     m_not_locked = false;
     
     GeoPhysVol *world=&*theExpt->getPhysVol();
-    if(m_switches.testBeam)
-    {
-      TileTBFactory theTileTBFactory(detStore().operator->(),m_manager,m_switches,&log);
-      theTileTBFactory.create(world);
-    }
-    else if (m_useNewFactory)
-    {
-      TileAtlasFactory theTileFactory(detStore().operator->(),m_manager,m_switches,&log,m_geometryConfig=="FULL");
-      theTileFactory.create(world);
-    }
-    else
-    {
-      TileDetectorFactory theTileFactory(detStore().operator->(),m_manager,m_switches,&log);
-      theTileFactory.create(world);
-    }
+    
+    // build the geometry from the standalone SQLite file
+    if (sqliteReader) {
+        TileDetectorFactoryLite theTileFactoryLite(detStore().operator->(), 
+                m_manager, 
+                sqliteReader,
+                accessSvc.operator->(),
+                m_switches,
+                &log,
+                true);
+        theTileFactoryLite.create(world);
+    } 
+    // build the geometry from the Oracle-based GeometryDB
+    else {
+        if(m_switches.testBeam)
+        {
+            TileTBFactory theTileTBFactory(detStore().operator->(),m_manager,m_switches,&log);
+            theTileTBFactory.create(world);
+        }
+        else if (m_useNewFactory)
+        {
+            TileAtlasFactory theTileFactory(detStore().operator->(),m_manager,m_switches,&log,m_geometryConfig=="FULL");
+            theTileFactory.create(world);
+        }
+        else
+        {
+            TileDetectorFactory theTileFactory(detStore().operator->(),m_manager,m_switches,&log);
+            theTileFactory.create(world);
+        }
+    } // end of building the geometry from the GeometryDB
+   ATH_MSG_DEBUG( "The Tile raw geometry has been built.");
 
     CHECK( createElements() );
 
@@ -151,6 +192,7 @@ StatusCode TileDetectorTool::create()
       m_manager->releaseDbManager();
 
     return StatusCode::SUCCESS;
+  
   }
 
   return StatusCode::FAILURE;

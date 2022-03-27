@@ -46,7 +46,7 @@ function( _add_test name )
       ENVIRONMENT "ROOT_INCLUDE_PATH=$ENV{ROOT_INCLUDE_PATH}:${CMAKE_CURRENT_SOURCE_DIR}/TestDictionary"
       PROPERTIES TIMEOUT 300
       PRE_EXEC_SCRIPT "rm -f pool*.root *xml"
-      LOG_IGNORE_PATTERN "POOL_CATALOG is not defined|using default|New file created|FID"
+      LOG_IGNORE_PATTERN "POOL_CATALOG is not defined|using default|New file created|FID|0x[0-9a-f]{4,}"
       ${properties} )
 endfunction( _add_test )
 

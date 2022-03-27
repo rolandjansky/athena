@@ -14,6 +14,7 @@
 
 #include "AthenaBaseComps/AthAlgStartVisitor.h"
 #include "StoreGate/VarHandleKey.h"
+#include "StoreGate/exceptions.h"
 #include "GaudiKernel/IAlgorithm.h"
 
 /**
@@ -44,14 +45,34 @@ void AthAlgStartVisitor::visit (const IDataHandleHolder* holder)
 
   // Make sure we process a component only once.
   if (m_seen.insert (holder).second) {
-    // Call start() on all read conditions handle keys.
+
+    // Check all input handles are initialised
     for (Gaudi::DataHandle* h : holder->inputHandles()) {
+
+      auto vhk = dynamic_cast<SG::VarHandleKey*> (h);
+      if (!vhk) throw SG::ExcNullHandleKey();
+
+      if (!vhk->storeHandle().get() && !vhk->key().empty()) {
+        throw SG::ExcUninitKey (vhk->clid(), vhk->key(), vhk->storeHandle().name(), holder->name());
+      }
+
+      // Call start() on all read conditions handle keys.
       if (h->isCondition()) {
-        if (SG::VarHandleKey* k = dynamic_cast<SG::VarHandleKey*> (h)) {
-          k->start().ignore();
-        }
+        vhk->start().ignore();
       }
     }
+
+    // Check all output handles are initialised
+    for (Gaudi::DataHandle* h : holder->outputHandles()) {
+
+      auto vhk = dynamic_cast< SG::VarHandleKey* > (h);
+      if (!vhk) throw SG::ExcNullHandleKey();
+
+      if (!vhk->storeHandle().get() && !vhk->key().empty()) {
+        throw SG::ExcUninitKey (vhk->clid(), vhk->key(), vhk->storeHandle().name(), holder->name());
+      }
+    }
+
     if (m_recursive) {
       holder->acceptDHVisitor (this);
     }

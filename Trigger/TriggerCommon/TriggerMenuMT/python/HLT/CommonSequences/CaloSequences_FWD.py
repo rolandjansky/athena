@@ -2,7 +2,7 @@
 #  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
-from TriggerMenuMT.HLT.Menu.MenuComponents import RecoFragmentsPool, MenuSequence
+from TriggerMenuMT.HLT.Config.MenuComponents import RecoFragmentsPool, MenuSequence
 from AthenaCommon.CFElements import seqAND
 
 class CaloMenuDefs_FWD(object):

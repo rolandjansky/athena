@@ -1,12 +1,14 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from G4AtlasApps.SimEnums import CavernBackground
+
 
 def TrackFastSimSDCfg(flags, name='TrackFastSimSD', **kwargs):
     kwargs.setdefault ('NoVolumes', True)
-    if flags.Sim.CavernBG not in ['Off', 'Read']:
-        if 'Write' in flags.Sim.CavernBG:
+    if flags.Sim.CavernBackground not in [CavernBackground.Off, CavernBackground.Read]:
+        if flags.Sim.CavernBackground in [CavernBackground.Write, CavernBackground.WriteWorld]:
             kwargs.setdefault ('OutputCollectionNames', ['NeutronBG'])
     elif len(flags.Sim.StoppedParticleFile)>0:
         kwargs.setdefault ('OutputCollectionNames', ['StoppingPositions'])
@@ -15,7 +17,7 @@ def TrackFastSimSDCfg(flags, name='TrackFastSimSD', **kwargs):
     return result
 
 def NeutronFastSimCfg(flags, name='NeutronFastSim', **kwargs):
-    if flags.Sim.CavernBG not in ['Off', 'Read']:
+    if flags.Sim.CavernBackground not in [CavernBackground.Off, CavernBackground.Read]:
         kwargs.setdefault('RegionNames', ['MuonSystemFastRegion'])
     # Cannot actually get these from the job options in a normal fashion;
     #  would need to know what they are for a "normal" job and configure

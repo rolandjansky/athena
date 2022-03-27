@@ -26,12 +26,16 @@ namespace top {
     m_recommendedSystematics(),
 
     m_calibrationPeriodTool("MuonCalibrationPeriodTool"),
-
-    m_muonSelectionToolVeryLooseVeto("MuonSelectionToolVeryLooseVeto") {
+    m_muonSelectionToolVeryLooseVeto("MuonSelectionToolVeryLooseVeto"),
+    m_muonSelectionTool("MuonSelectionTool"),
+    m_muonSelectionToolLoose("MuonSelectionToolLoose")     
+    {
     declareProperty("config", m_config);
 
     declareProperty("MuonCalibrationPeriodTool", m_calibrationPeriodTool);
     declareProperty("MuonSelectionToolVeryLooseVeto", m_muonSelectionToolVeryLooseVeto);
+    declareProperty("MuonSelectionTool", m_muonSelectionTool);
+    declareProperty("MuonSelectionToolLoose", m_muonSelectionToolLoose);
   }
 
   StatusCode MuonObjectCollectionMaker::initialize() {
@@ -43,6 +47,8 @@ namespace top {
     }
 
     top::check(m_muonSelectionToolVeryLooseVeto.retrieve(), "Failed to retrieve Selection Tool");
+    top::check(m_muonSelectionTool.retrieve(), "Failed to retrieve Selection Tool");
+    top::check(m_muonSelectionToolLoose.retrieve(), "Failed to retrieve Selection Tool");
 
     ///-- Set Systematics Information --///
     const std:: string& syststr = m_config->systematics();
@@ -65,7 +71,7 @@ namespace top {
 
     m_config->systematicsMuons(specifiedSystematics());
 
-    m_isFirstEvent = true;
+    m_isFirstCheckForLowPtMVA = true;
 
     ATH_MSG_INFO(" top::MuonObjectCollectionMaker completed initialize");
     return StatusCode::SUCCESS;
@@ -107,14 +113,26 @@ namespace top {
 
       ///-- Loop over the xAOD Container and apply corrections--///
       for (auto muon : *(shallow_xaod_copy.first)) {
-	
+        
+        ///-- Check if chamberIndex is Available if UseMVALowPt is On in order to print some useful message before the
+        if (m_isFirstCheckForLowPtMVA && (m_config->muonUseMVALowPt() || m_config->muonUseMVALowPtLoose() || m_config->softmuonUseMVALowPt()) && muon->nMuonSegments()>0 && muon->muonSegment(0) ) {
+          if (!chamberIndex.isAvailable(*(muon->muonSegment(0)))) {
+            ATH_MSG_ERROR("MuonSegmentsAuxDyn.chamberIndex is not available in your derivation, so UseMVALowPt cannot be performed.");
+            ATH_MSG_ERROR("Please turn OFF UseMVALowPt or use more recent p-tag");
+            ATH_MSG_ERROR("AnalysisTop will crash soon...");
+            throw std::runtime_error("Missing MuonSegmentsAux.chamberIndex variable");
+          }
+          else m_isFirstCheckForLowPtMVA = false;
+        }
+        
         ///-- Apply momentum correction --///
         if (muon->primaryTrackParticle()) {
           top::check(m_calibrationPeriodTool->applyCorrection(*muon), "Failed to applyCorrection");
 
           // don't do the decorations unless the muons are at least Loose
           // this is because it may fail if the muons are at just VeryLoose
-          if (m_muonSelectionToolVeryLooseVeto->accept(*muon)) {
+          if (m_muonSelectionToolVeryLooseVeto->accept(*muon) || (m_config->muonUseLowPt() && m_muonSelectionTool->accept(*muon))|| (m_config->muonUseLowPtLoose() && m_muonSelectionToolLoose->accept(*muon))) 
+          {
             double d0sig = xAOD::TrackingHelpers::d0significance(muon->primaryTrackParticle(),
                                                                  beam_pos_sigma_x,
                                                                  beam_pos_sigma_y,

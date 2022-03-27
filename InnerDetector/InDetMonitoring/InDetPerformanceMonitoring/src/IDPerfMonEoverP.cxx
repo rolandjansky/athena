@@ -1,5 +1,5 @@
  /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -69,7 +69,7 @@ IDPerfMonEoverP::IDPerfMonEoverP(const std::string& name,
   m_validationTreeName("EGrefitter"),
   m_validationTreeDescription("egamma track refitter caches"),
   m_validationTreeFolder("/eoverpValidation/efitterValidation"),
-  m_validationTree(0),
+  m_validationTree(nullptr),
   m_runNumber{},
   m_evtNumber{},
   m_lumi_block{},
@@ -81,23 +81,23 @@ IDPerfMonEoverP::IDPerfMonEoverP(const std::string& name,
   m_missingEt{},
   m_missingEtx{},
   m_missingEty{},
-  m_ZeeLooseMassOS_Cluster(0),
-  m_ZeeLooseMassSS_Cluster(0),
-  m_ZeeMediumMassOS_Cluster(0),
-  m_ZeeMediumMassSS_Cluster(0),
-  m_ZeeMediumOS_ClusterPtEta(0),
-  m_WenuLooseElectronET(0),
-  m_WenuTight_Met(0),
-  m_WenuTight_MT(0),
-  m_WenuTightMet_MT(0),
-  m_WenuTightElectronET(0),
-  m_WenuTightW_PT(0),
-  m_WenuTightElectron_PTEtaPos(0),
-  m_WenuTightElectron_PTEtaNeg(0),
+  m_ZeeLooseMassOS_Cluster(nullptr),
+  m_ZeeLooseMassSS_Cluster(nullptr),
+  m_ZeeMediumMassOS_Cluster(nullptr),
+  m_ZeeMediumMassSS_Cluster(nullptr),
+  m_ZeeMediumOS_ClusterPtEta(nullptr),
+  m_WenuLooseElectronET(nullptr),
+  m_WenuTight_Met(nullptr),
+  m_WenuTight_MT(nullptr),
+  m_WenuTightMet_MT(nullptr),
+  m_WenuTightElectronET(nullptr),
+  m_WenuTightW_PT(nullptr),
+  m_WenuTightElectron_PTEtaPos(nullptr),
+  m_WenuTightElectron_PTEtaNeg(nullptr),
   m_smallValidationTreeName("EGrefitterSmall"),
   m_smallValidationTreeDescription("Small Tree for E/p fits"),
   m_smallValidationTreeFolder("/eoverpValidation2/efitterValidation2"),
-  m_smallValidationTree(0),
+  m_smallValidationTree(nullptr),
   m_small_QoverP{},
   m_small1_QoverP{},
   m_small2_QoverP{},
@@ -246,7 +246,7 @@ StatusCode IDPerfMonEoverP::initialize()
   
   // If the validation nuptle has been requested Setup the ntuple
   if (m_validationMode){
-    if (m_validationTree == 0 ){
+    if (m_validationTree == nullptr ){
       // create the new Tree
       m_validationTree = new TTree(m_validationTreeName.c_str(), m_validationTreeDescription.c_str());
       std::string FitterNames[3] = {"GX2","Refitted1","Refitted2"};
@@ -337,7 +337,7 @@ StatusCode IDPerfMonEoverP::initialize()
     }
 
 
-    if(m_smallValidationTree == 0){
+    if(m_smallValidationTree == nullptr){
 
       m_smallValidationTree = new TTree(m_smallValidationTreeName.c_str(), m_smallValidationTreeDescription.c_str());
 
@@ -353,21 +353,21 @@ StatusCode IDPerfMonEoverP::initialize()
     }
 
       // now register the Tree
-    ITHistSvc* tHistSvc = 0;
+    ITHistSvc* tHistSvc = nullptr;
     if (service("THistSvc",tHistSvc).isFailure()){
       ATH_MSG_ERROR("initialize() Could not find Hist Service -> Switching ValidationMode Off !");
-      delete m_validationTree;      m_validationTree = 0;
-      delete m_smallValidationTree; m_smallValidationTree = 0;
+      delete m_validationTree;      m_validationTree = nullptr;
+      delete m_smallValidationTree; m_smallValidationTree = nullptr;
       m_validationMode = false;
     }
     if ((tHistSvc->regTree(m_validationTreeFolder, m_validationTree)).isFailure() ) {
       ATH_MSG_ERROR("initialize() Could not register the validation Tree -> Switching ValidationMode Off !");
-      delete m_validationTree; m_validationTree = 0;
+      delete m_validationTree; m_validationTree = nullptr;
       m_validationMode = false;
     }
     if ((tHistSvc->regTree(m_smallValidationTreeFolder, m_smallValidationTree)).isFailure() ) {
       ATH_MSG_ERROR("initialize() Could not register the validation Tree -> Switching ValidationMode Off !");
-      delete m_smallValidationTree; m_smallValidationTree = 0;
+      delete m_smallValidationTree; m_smallValidationTree = nullptr;
       m_validationMode = false;
     } else {
       m_ZeeLooseMassOS_Cluster = new TH1F("ZeeMassLooseOS","ZeeMassLooseOS", 120, 60000 ,120000);
@@ -512,7 +512,7 @@ StatusCode IDPerfMonEoverP::execute()
   m_refittedTracks_no2 = new TrackCollection;
 
 
-  typedef xAOD::ElectronContainer::const_iterator electron_iterator;
+  using electron_iterator = xAOD::ElectronContainer::const_iterator;
   electron_iterator iter    = ElectronInput_container->begin();
   electron_iterator iterEnd = ElectronInput_container->end();
 
@@ -818,7 +818,7 @@ void IDPerfMonEoverP::validationAction()
 bool IDPerfMonEoverP::storeMETinformation()
 {
   ATH_MSG_VERBOSE("In storeMETinformation()");
-  const xAOD::MissingETContainer *pMissingCont(0);
+  const xAOD::MissingETContainer *pMissingCont(nullptr);
   const xAOD::MissingET *MET;
   if (!evtStore()->contains<xAOD::MissingETContainer>(m_missingEtObjectName)){
     ATH_MSG_WARNING("No collection with name " << m_missingEtObjectName << " found in StoreGate");
@@ -862,7 +862,7 @@ bool IDPerfMonEoverP::fillVertexInformation(std::map<const xAOD::TrackParticle*,
                                             xAOD::Vertex const* & primaryVertexFirstCandidate)
 {
   ATH_MSG_DEBUG( "fillVertexInformation()" );
-  const xAOD::VertexContainer* vxContainer(0);
+  const xAOD::VertexContainer* vxContainer(nullptr);
   int npv = 0;
   StatusCode sc = evtStore()->retrieve(vxContainer, m_primaryVertexCollection);
   if (sc.isFailure()) {
@@ -988,27 +988,27 @@ bool IDPerfMonEoverP::fillLastMeasurement(const Trk::Track* track, const int fit
 {
   ATH_MSG_VERBOSE("In fillLastMeasurement()");
   if(!track) return false;
-  const Trk::TrackParameters* trkPara =0;
+  const Trk::TrackParameters* trkPara =nullptr;
 
   const DataVector<const Trk::TrackStateOnSurface>* oldTrackStates = track->trackStateOnSurfaces();
-  if (oldTrackStates == 0)
+  if (oldTrackStates == nullptr)
   {
     return false;
   }
 
   for ( DataVector<const Trk::TrackStateOnSurface>::const_reverse_iterator rItTSoS = oldTrackStates->rbegin(); rItTSoS != oldTrackStates->rend(); ++rItTSoS)
   {
-    if (trkPara!=0){
+    if (trkPara!=nullptr){
         break;
     }
 
-    if ( (*rItTSoS)->type(Trk::TrackStateOnSurface::Measurement) && (*rItTSoS)->trackParameters()!=0 && (*rItTSoS)->measurementOnTrack()!=0)
+    if ( (*rItTSoS)->type(Trk::TrackStateOnSurface::Measurement) && (*rItTSoS)->trackParameters()!=nullptr && (*rItTSoS)->measurementOnTrack()!=nullptr)
     {
        trkPara = (*rItTSoS)->trackParameters();
     }
   }
 
-  if (trkPara !=0 ){
+  if (trkPara !=nullptr ){
     m_electronLMQoverP[fitter][m_electronCounter] =  trkPara->parameters()[Trk::qOverP] ;
     return true;
   }
@@ -1049,7 +1049,7 @@ bool IDPerfMonEoverP::passZeeSelection(std::vector<int>& electrons)
     if (clusterEt <= 25000) continue;
 
     //Range
-    double absEta = std::fabs(m_ClusterEta[ele]);
+    double absEta = std::abs(m_ClusterEta[ele]);
     if (absEta >= 2.47 || ( absEta >= 1.37 && absEta <= 1.52 )) continue;
 
     //OTx ...
@@ -1144,7 +1144,7 @@ bool IDPerfMonEoverP::passWenuSelection(std::vector<int>& electrons)
     double clusterEt = cosh( m_ClusterEta[ele] ) != 0 ?  m_ClusterEnergy[ele] / std::cosh( m_ClusterEta[ele] ) : 0.;
     if (clusterEt <= 25000) continue;
     //Range
-    double absEta = std::fabs(m_ClusterEta[ele]);
+    double absEta = std::abs(m_ClusterEta[ele]);
     if (absEta >= 2.47 || ( absEta >= 1.37 && absEta <= 1.52 ) ) continue;
     //OTx ...
     if(!m_isGoodOQ[ele]) continue;

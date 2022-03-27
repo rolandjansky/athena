@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TrackParticleCnvAlg.h 297747 2013-10-28 15:14:24Z krasznaa $
@@ -25,7 +25,7 @@
 #include "xAODTracking/TrackParticle.h"
 #include "TrkValInterfaces/ITrkObserverTool.h"
 #include "AthenaKernel/SlotSpecificObj.h"
-
+#include "StoreGate/WriteDecorHandleKey.h"
 // Local include(s):
 #include "xAODTrackingCnv/ITrackParticleMonitoring.h"
 
@@ -99,6 +99,11 @@ namespace xAODMaker {
     SG::WriteHandleKey<xAOD::TrackParticleContainer> m_xaodout;
 
     SG::WriteHandleKey<xAOD::TrackParticleContainer> m_xaodTrackParticlesout;
+    SG::WriteDecorHandleKey<xAOD::TrackParticleContainer> m_xaodTruthOriginKey{this,"truthOriginKey", "" , "Key to declare that the alg will write truthOrigin. Will be overwritten during init"};
+    SG::WriteDecorHandleKey<xAOD::TrackParticleContainer> m_xaodTruthTypeKey{this, "truthTypeKey", "" , "Key to declare that the alg will write truthType. Will be overwritten during init" };
+    SG::WriteDecorHandleKey<xAOD::TrackParticleContainer> m_xaodTruthLinkKey{this, "truthLinkKey", "", "Key to declare that the alg will writhe the truthParticleLink. Will be overwritten during init."};
+    SG::WriteDecorHandleKey<xAOD::TrackParticleContainer> m_xaodTruthMatchProbKey{this, "truthMatchProbKey", "", "Key to declare that the alg will writhe the truthParticleLink. Will be overwritten during init."};
+
 
     SG::ReadHandleKey<xAODTruthParticleLinkVector> m_truthParticleLinkVec;
     SG::ReadHandleKey<TrackParticleTruthCollection> m_aodTruth;

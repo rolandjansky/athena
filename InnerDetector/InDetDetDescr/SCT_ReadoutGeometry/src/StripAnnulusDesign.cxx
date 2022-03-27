@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <stdexcept>
@@ -74,7 +74,7 @@ SiCellId StripAnnulusDesign::cellIdOfPosition(SiLocalPosition const &pos) const 
 //    Find the strip
 //
     int strip = std::floor(phi / m_pitch) + m_nStrips * 0.5;
-    return SiCellId(strip);
+    return {strip};
 }
 
 SiLocalPosition StripAnnulusDesign::localPositionOfCell(SiCellId const &cellId) const {
@@ -162,11 +162,11 @@ SiLocalPosition StripAnnulusDesign::positionFromStrip(const int strip) const {
 SiCellId StripAnnulusDesign::cellIdInRange(const SiCellId &cellId) const {
 
     if (!cellId.isValid()) {
-        return SiCellId(); // Invalid
+        return {}; // Invalid
     }
     int strip = cellId.strip();
     if (strip < 0 ||  strip >= m_nStrips) {
-        return SiCellId(); // Invalid
+        return {}; // Invalid
     }
     return cellId;
 }

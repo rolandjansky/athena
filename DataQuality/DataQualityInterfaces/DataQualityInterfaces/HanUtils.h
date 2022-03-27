@@ -14,6 +14,7 @@ namespace dqi {
   TSeqCollection* newTList( const char *name, TObject *obj = 0 );
   TSeqCollection* newTObjArray( const char *name, TObject *obj = 0, Int_t size = TCollection::kInitCapacity);
   TKey* getObjKey( TDirectory* dir, const std::string& path );
+  void dolsr(const TDirectory* dir, std::vector<std::string>& hists, const TDirectory* topdir = nullptr);
 
   extern boost::mutex root_mutex;
 

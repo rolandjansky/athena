@@ -71,7 +71,12 @@ class LArSCL1Getter ( Configured )  :
         theLArSCL1Maker=LArSCL1Maker()
         from LArROD.LArRODFlags import larRODFlags
         theLArSCL1Maker.NSamples = larRODFlags.nSamples() + 2  # For consistency with LArAutoCorrNoiseSC - see ATLASSIM-5483
-        theLArSCL1Maker.SCL1ContainerName = "LArDigitSCL2"
+        from Digitization.DigitizationFlags import digitizationFlags
+        if digitizationFlags.PileUpPresampling and 'LegacyOverlay' not in digitizationFlags.experimentalDigi():
+            from OverlayCommonAlgs.OverlayFlags import overlayFlags
+            theLArSCL1Maker.SCL1ContainerName = overlayFlags.bkgPrefix() + "LArDigitSCL2"
+        else:
+            theLArSCL1Maker.SCL1ContainerName = "LArDigitSCL2"
 
         self._LArSCL1Maker = theLArSCL1Maker
 
@@ -81,7 +86,7 @@ class LArSCL1Getter ( Configured )  :
         # check if LArdigitization is run before. If yes, uses hit map from detector store produces from lardigitization
         from AthenaCommon.DetFlags import DetFlags
         if DetFlags.digitize.LAr_on():
-            mlog.info("Using hit map from LArDigitMaker algoritm")
+            mlog.info("Using hit map from LArHitEMapMaker algoritm")
         else:
             mlog.info("digitmaker1 not found in topSequence, using own map in LArSCL1Maker")
             return False

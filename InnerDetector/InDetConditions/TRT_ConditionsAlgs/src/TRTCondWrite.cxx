@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <fstream>
@@ -672,9 +672,9 @@ const TRTCondWrite::StrawT0Container* TRTCondWrite::getT0Container() const {
 
 TRTCond::ExpandedIdentifier TRTCondWrite::trtcondid( const Identifier& id, int level) const
 {
-  return TRTCond::ExpandedIdentifier( m_trtid->barrel_ec(id),m_trtid->layer_or_wheel(id),
+  return { m_trtid->barrel_ec(id),m_trtid->layer_or_wheel(id),
 				      m_trtid->phi_module(id),m_trtid->straw_layer(id),
-				      m_trtid->straw(id),level ) ;
+				      m_trtid->straw(id),level } ;
 }
 
 

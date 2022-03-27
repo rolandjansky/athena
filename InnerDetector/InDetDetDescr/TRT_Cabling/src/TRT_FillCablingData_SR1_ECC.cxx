@@ -46,7 +46,7 @@ static const InterfaceID IID_ITRT_FillCablingData_SR1_ECC
   // Constructor
 TRT_FillCablingData_SR1_ECC::TRT_FillCablingData_SR1_ECC( const std::string& type, const std::string& 
 name,const IInterface* parent ):  AthAlgTool(type,name,parent),
-				  m_TRTHelper(0)
+				  m_TRTHelper(nullptr)
 {
   declareInterface< TRT_FillCablingData_SR1_ECC >( this );   
 }
@@ -215,7 +215,7 @@ void TRT_FillCablingData_SR1_ECC::defineTables()
       {
 	int rodgroup, rodline, dtmchannel, strawlayer, strawnumber;
 
-	string::size_type loc = thisLine.find( "#" );
+	string::size_type loc = thisLine.find( '#' );
 	if ( loc != string::npos )
 	  {
 	    thisLine.replace( loc, thisLine.length(), 1, ' ' );
@@ -272,7 +272,7 @@ void TRT_FillCablingData_SR1_ECC::defineTables()
       {
 	int rodgroup, rodline, dtmchannel, strawlayer, strawnumber;
 
-	string::size_type loc = thisLine.find( "#" );
+	string::size_type loc = thisLine.find( '#' );
 	if ( loc != string::npos )
 	  {
 	    thisLine.replace( loc, thisLine.length(), 1, ' ' );
@@ -329,7 +329,7 @@ void TRT_FillCablingData_SR1_ECC::defineTables()
       {
 	int rodgroup, rodline, dtmchannel, strawlayer, strawnumber;
 
-	string::size_type loc = thisLine.find( "#" );
+	string::size_type loc = thisLine.find( '#' );
 	if ( loc != string::npos )
 	  {
 	    thisLine.replace( loc, thisLine.length(), 1, ' ' );
@@ -386,7 +386,7 @@ void TRT_FillCablingData_SR1_ECC::defineTables()
       {
 	int rodgroup, rodline, dtmchannel, strawlayer, strawnumber;
 
-	string::size_type loc = thisLine.find( "#" );
+	string::size_type loc = thisLine.find( '#' );
 	if ( loc != string::npos )
 	  {
 	    thisLine.replace( loc, thisLine.length(), 1, ' ' );
@@ -443,7 +443,7 @@ void TRT_FillCablingData_SR1_ECC::defineTables()
       {
 	int rodgroup, rodline, dtmchannel, strawlayer, strawnumber;
 
-	string::size_type loc = thisLine.find( "#" );
+	string::size_type loc = thisLine.find( '#' );
 	if ( loc != string::npos )
 	  {
 	    thisLine.replace( loc, thisLine.length(), 1, ' ' );
@@ -500,7 +500,7 @@ void TRT_FillCablingData_SR1_ECC::defineTables()
       {
 	int rodgroup, rodline, dtmchannel, strawlayer, strawnumber;
 
-	string::size_type loc = thisLine.find( "#" );
+	string::size_type loc = thisLine.find( '#' );
 	if ( loc != string::npos )
 	  {
 	    thisLine.replace( loc, thisLine.length(), 1, ' ' );
@@ -563,7 +563,7 @@ void TRT_FillCablingData_SR1_ECC::defineTables()
     if ( thisLine.length() == 0 )
       continue;
 
-    string::size_type loc = thisLine.find( "#" );
+    string::size_type loc = thisLine.find( '#' );
     if ( loc != string::npos )
     {
       thisLine.replace( loc, thisLine.length(), 1, ' ' );

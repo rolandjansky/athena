@@ -243,8 +243,6 @@ StatusCode LArRawChannelBuilderAlg::execute(const EventContext& ctx) const {
 	}
       }
 
-      // FIXME: fix to get splash test running, should implement the iterations later
-      len=nSamples;
       if (ATH_UNLIKELY(fullShape.size()<nSamples+firstSample)) {
 	if (!connected) continue; //No conditions for disconnected channel, who cares?
 	ATH_MSG_DEBUG("No valid shape for channel " <<  m_onlineId->channel_name(id) 

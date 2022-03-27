@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 import eformat
 import argparse
@@ -110,7 +110,7 @@ def CTP_Info(event, module_id=1):
     folderUpdates = CTPfragment.getFolderUpdates(x)
     upd = ''.join(['[%d,%d]' % (f.second.folderIndex,f.second.lumiBlock) for f in folderUpdates])
     print("ROB 0x%0x, L1ID %10d, LB %4d, Version %d, Bunch %d, HLT counter: %3d, Payload #%d %s L1PSK %d BGK %d COOLUPD %s" % (
-      rob.source_id(),
+      rob.source_id().code(),
       event.lvl1_id(),
       event.lumi_block(),
       CTPfragment.ctpFormatVersion(rob),
@@ -124,7 +124,7 @@ def CTP_Info(event, module_id=1):
     ))
     for w in ['TBP','TAP','TAV']:
       items = CTPfragment.decodeTriggerBits(CTPfragment.getTriggerWords(rob,w))
-      print("ROB 0x%0x, %s: %s" % (rob.source_id(), w, printL1Items(items,smk)))
+      print("ROB 0x%0x, %s: %s" % (rob.source_id().code(), w, printL1Items(items,smk)))
 
 
 @cache
@@ -250,11 +250,11 @@ def my_dump(bsfile):
   event_count = max(l2_event_count, ef_event_count)   
   if args.sizeSummary:
     print('... '+20*'-'+'sizes by type')
-    for f,s in sorted(featureSizes.iteritems(),key=operator.itemgetter(1),reverse=True):
+    for f,s in sorted(featureSizes.items(),key=operator.itemgetter(1),reverse=True):
       if '#' not in f:
         print(".... %-70s %6d B %6d B/ev" %(f, s, (1.*s)/event_count))
     print('... '+20*'-'+'sizes by type#key')        
-    for f,s in sorted(featureSizes.iteritems(),key=operator.itemgetter(1),reverse=True):
+    for f,s in sorted(featureSizes.items(),key=operator.itemgetter(1),reverse=True):
       if '#' in f:
         print(".... %-70s %6d B %6d B/ev" %(f, s, (1.*s)/event_count))        
 

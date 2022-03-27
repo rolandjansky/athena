@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "POOLRootAccess/TEvent.h"
@@ -51,7 +51,6 @@ TEvent::TEvent(EReadMode mode, const std::string& name) :
    m_evtLoop("AthenaEventLoopMgr/"+name+"_EventLoopMgr","TEvent"+name),
    m_evtSelect("EventSelectorAthenaPool/"+name+"_EventSelector","TEvent"+name),
    m_evtStore("StoreGateSvc/"+name,"TEvent"+name),
-   m_activeStoreSvc("ActiveStoreSvc","TEvent"+name),
    m_inputMetaStore("InputMetaDataStore","TEvent"+name) /*fixme, when reading multiple files at once?*/ {
 
    Gaudi::Init();
@@ -100,7 +99,6 @@ TEvent::TEvent(EReadMode mode, const std::string& name) :
    AAH::setProperty( m_evtLoop, "OutputLevel", 4 ).ignore();
    AAH::setProperty( m_evtSelect, "OutputLevel", 4 ).ignore();
    //AAH::setProperty( m_evtStore, "OutputLevel", 4 ).ignore();
-   AAH::setProperty( m_activeStoreSvc, "OutputLevel", 4 ).ignore();
 
    //suppress messages below WARNING too
    //do this here to stop some pre initialize INFO messages from showing
@@ -110,7 +108,6 @@ TEvent::TEvent(EReadMode mode, const std::string& name) :
    p.push_back( m_evtLoop.name() );
    p.push_back( m_evtSelect.name() );
    p.push_back( m_evtStore.name() );
-   p.push_back( m_activeStoreSvc.name() );
    messageSvc->setProperty(  StringArrayProperty( "setWarning" , p ) ).ignore();
    
    //also push this into the joboptionsvc so that if a reinit happens then these settings are remembered 
@@ -120,7 +117,7 @@ TEvent::TEvent(EReadMode mode, const std::string& name) :
 
 
 void TEvent::setActive() {
-  m_activeStoreSvc->setStore(&*m_evtStore);
+    m_evtStore->makeCurrent();
 }
 
 long TEvent::getEntries() {

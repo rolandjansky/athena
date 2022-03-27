@@ -539,13 +539,13 @@ if newInDetAlignAlg_Options["runAccumulate"]:
             #                                                Extrapolator        = InDetExtrapolator)
             #ToolSvc += BStrackSelector
             #printfunc (BStrackSelector)
-
+        from InDetRecExample import TrackingCommon
         from TrkAlignGenTools.TrkAlignGenToolsConf import Trk__BeamspotVertexPreProcessor
         printfunc ("TYPE PtCutForBSConstraint", type(newInDetAlignAlg_Options["PtCutForBSConstraint"]))
         preProcessor = Trk__BeamspotVertexPreProcessor(
             name              = "BeamspotVertexPreProcessor",
             OutputLevel           = newInDetAlignAlg_Options["outputLevel"],
-            #OutputLevel           = DEBUG,
+            TrackToVertexIPEstimator = TrackingCommon.getTrackToVertexIPEstimator(),
             RefitTracks           = newInDetAlignAlg_Options["refitTracks"],
             TrackFitter           = trackFitter,
             AlignModuleTool           = alignModuleTool,

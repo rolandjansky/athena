@@ -48,4 +48,4 @@ alg = CaloD3PD(file = tuple_name, tuplename = 'caloD3PD')
 
 if readRaw :
   # put OF iteration results on SG 
-  ToolSvc.LArRawChannelBuilderToolOFCIter.StoreTiming=True
+  ToolSvc.LArRawChannelBuilderToolOFCIter.TimingContainerKey="LArOFIterResult"

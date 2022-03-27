@@ -11,7 +11,6 @@ DQTBackgroundMon::DQTBackgroundMon( const std::string& name, ISvcLocator* pSvcLo
 DQTBackgroundMon::~DQTBackgroundMon() {}
 
 StatusCode DQTBackgroundMon::initialize() {
-    ATH_CHECK( m_RawInfoSummaryForTagKey.initialize() );
     ATH_CHECK( m_LArCollisionTimeKey.initialize() );
     ATH_CHECK( m_MBTSCollisionTimeKey.initialize() );
     ATH_CHECK( m_TileCellContainerKey.initialize() );
@@ -19,7 +18,8 @@ StatusCode DQTBackgroundMon::initialize() {
     ATH_CHECK( m_BeamBackgroundDataKey.initialize() );
     ATH_CHECK( m_VertexContainerKey.initialize() );
     ATH_CHECK( m_eventInfoDecorKey.initialize() );
-
+    ATH_CHECK( m_sctSpacePointKey.initialize() );
+    ATH_CHECK( m_pixSpacePointKey.initialize() );
     return AthMonitorAlgorithm::initialize();
 }
 
@@ -35,7 +35,8 @@ StatusCode DQTBackgroundMon::fillHistograms( const EventContext& ctx ) const {
     auto unpairNonIso = Scalar<bool>("unpairNonIso",false);
 
     RH<xAOD::EventInfo> eventInfo{GetEventInfo(ctx)};
-    RH<RawInfoSummaryForTag> rawInfo(m_RawInfoSummaryForTagKey,ctx);
+    RH<SpacePointContainer> sctSP{m_sctSpacePointKey,ctx};
+    RH<SpacePointContainer> pixSP{m_pixSpacePointKey,ctx};
     RH<LArCollisionTime> tps(m_LArCollisionTimeKey,ctx);
     RH<MBTSCollisionTime> mbtsTime(m_MBTSCollisionTimeKey,ctx);
     RH<TileCellContainer> tileCellContainer(m_TileCellContainerKey,ctx);
@@ -87,16 +88,24 @@ StatusCode DQTBackgroundMon::fillHistograms( const EventContext& ctx ) const {
         ATH_MSG_WARNING("Event data invalid. Background word histograms are being skipped.");
     }
 
-    if ( rawInfo.isValid() ) {
-        auto nPixSPs = Scalar<float>("nPixSPs",rawInfo->getNpixSPs());
-        auto nSctSPs = Scalar<float>("nSctSPs",rawInfo->getNsctSPs());
-        fill(group,nPixSPs,nSctSPs,unpairIso,unpairNonIso);
-        if ( nPixSPs<m_upPixSP )
-            fill("lowMultiplicityPixGroup",nPixSPs,unpairIso,unpairNonIso);
-        if ( nSctSPs<m_upSctSP )
-            fill("lowMultiplicitySctGroup",nSctSPs,unpairIso,unpairNonIso);
+
+
+    if (sctSP.isValid() and pixSP.isValid()) {
+      auto nSctSPs = Scalar<float>("nSctSPs",0.0);
+      std::for_each(sctSP->begin(),sctSP->end(),[&nSctSPs](const auto coll){if (coll) nSctSPs+=coll->size();});
+
+      auto nPixSPs = Scalar<float>("nPixSPs",0.0);
+      std::for_each(pixSP->begin(),pixSP->end(),[&nPixSPs](const auto coll){if (coll) nPixSPs+=coll->size();});
+
+      fill(group,nPixSPs,nSctSPs,unpairIso,unpairNonIso);
+      if ( nPixSPs<m_upPixSP ){
+	fill("lowMultiplicityPixGroup",nPixSPs,unpairIso,unpairNonIso);
+      }
+      if ( nSctSPs<m_upSctSP ) {
+	fill("lowMultiplicitySctGroup",nSctSPs,unpairIso,unpairNonIso);
+      }
     } else {
-        ATH_MSG_WARNING("Raw data invalid. nPix/nSct is being skipped.");
+        ATH_MSG_WARNING("Pixe/SCT Spacepoint data invalid. nPix/nSct is being skipped.");
     }
 
     if ( tps.isValid() ) {

@@ -1,4 +1,4 @@
-#include "TruthTools/TruthSelector.h"
+#include "../TruthSelector.h"
 
 DECLARE_COMPONENT( TruthSelector )
 

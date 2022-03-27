@@ -1,16 +1,17 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
 #include <string>
+#include <utility>
 
 #include "CxxUtils/checker_macros.h"
 #include "PixelRTT/OfflineCalibOutputTrack.h"
 
 using namespace PixelValid;
 
-int doAll ATLAS_NOT_THREAD_SAFE (std::string input, std::string output, std::string reference, int maxentries);
+int doAll ATLAS_NOT_THREAD_SAFE (const std::string& input, const std::string& output, const std::string& reference, int maxentries);
 
 int main ATLAS_NOT_THREAD_SAFE (int argc, char *argv[]){ // Thread unsafe doAll function is used.
 
@@ -44,9 +45,9 @@ int main ATLAS_NOT_THREAD_SAFE (int argc, char *argv[]){ // Thread unsafe doAll 
 
 
 /// the function that actually implements things!!
-int doAll ATLAS_NOT_THREAD_SAFE (std::string input, std::string output, std::string reference, int maxentries){ // Thread unsafe OfflineCalibOutputTrack class is used.
+int doAll ATLAS_NOT_THREAD_SAFE (const std::string& input, const std::string& output, const std::string& reference, int maxentries){ // Thread unsafe OfflineCalibOutputTrack class is used.
 
-	OfflineCalibOutputTrack *s = 0;
+	OfflineCalibOutputTrack *s = nullptr;
 
 	std::cout <<  "Allocating classes for calibration" << std::endl;
 	if(maxentries < 0){

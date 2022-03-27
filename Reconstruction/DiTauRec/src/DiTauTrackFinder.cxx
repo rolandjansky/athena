@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DiTauRec/DiTauTrackFinder.h"
@@ -71,11 +71,10 @@ StatusCode DiTauTrackFinder::execute(DiTauCandidateData * data,
   // get associated primary vertex
   const xAOD::Vertex* pVertex = nullptr;
   if (pDiTau->vertexLink().isValid()) {
-    pVertex = (*pDiTau->vertexLink());
+    pVertex = *pDiTau->vertexLink();
   }
   else {
     ATH_MSG_WARNING("could not retieve VertexLink in ditau candidate");
-    pVertex = nullptr;
   }
 
   // get tracks
@@ -107,12 +106,12 @@ StatusCode DiTauTrackFinder::execute(DiTauCandidateData * data,
   }
     
   // check if ditau candidate has still at least 2 subjets or 1 subjet plus an electron or muon
-  if (vSubjets.size() < 2 ){
-    if (vSubjets.size() < 1) {
-      ATH_MSG_DEBUG("Found no subjet with track. Reject ditau candidate");
-      return StatusCode::FAILURE;
-    }
-    if (data->electrons.size() < 1 && data->muons.size() < 1) {
+  if (vSubjets.empty()) {
+    ATH_MSG_DEBUG("Found no subjet with track. Reject ditau candidate");
+    return StatusCode::FAILURE;
+  }
+  if (vSubjets.size()==1) {
+    if (data->electrons.empty() && data->muons.empty()) {
       ATH_MSG_DEBUG("Found 1 subjet with track, but no additional electron or muon. Reject ditau candidate");
       return StatusCode::FAILURE;
     }
@@ -141,7 +140,6 @@ StatusCode DiTauTrackFinder::execute(DiTauCandidateData * data,
     pDiTau->addOtherTrack(pTrackParticleCont.get(), track);
   }
 
-
   return StatusCode::SUCCESS;
 }
 
@@ -158,16 +156,15 @@ void DiTauTrackFinder::getTracksFromPV( const DiTauCandidateData* data,
 
     if (type == DiTauSubjetTrack)
       tauTracks.push_back(track);
-    if (type == DiTauIsoTrack)
+    else if (type == DiTauIsoTrack)
       isoTracks.push_back(track);
-    if (type == DiTauOtherTrack)
+    else if (type == DiTauOtherTrack)
       otherTracks.push_back(track);
   }
 
   std::sort(tauTracks.begin(), tauTracks.end(), TrackSort());
   std::sort(isoTracks.begin(), isoTracks.end(), TrackSort());
   std::sort(otherTracks.begin(), otherTracks.end(), TrackSort());
-
 }
 
 
@@ -183,8 +180,7 @@ DiTauTrackFinder::DiTauTrackType DiTauTrackFinder::diTauTrackType(const DiTauCan
   if (dRJet > m_MaxDrJet) return OutsideTrack;
     
   // check quality criteria
-  bool goodTrack = true;
-  goodTrack = m_TrackSelectorTool->decision(*track, pVertex);
+  bool goodTrack = m_TrackSelectorTool->decision(*track, pVertex);
   if (!goodTrack) return DiTauOtherTrack;
 
   // check if track is inside a subjet

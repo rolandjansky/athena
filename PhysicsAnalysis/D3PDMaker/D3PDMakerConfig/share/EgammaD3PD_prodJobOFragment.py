@@ -17,8 +17,9 @@ from PrimaryDPDMaker.PrimaryDPDHelpers import buildFileName
 from D3PDMakerCoreComps.resolveSGKey import testSGKey
 from D3PDMakerConfig.D3PDMakerFlags import D3PDMakerFlags
 if not testSGKey ('xAOD::JetContainer', D3PDMakerFlags.JetSGKey()):
-    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDAODJets
-    addDAODJets (['AntiKt4EMTopoJets','AntiKt4EMPFlowJets'], topSequence, 'PhysCommon')
+    from DerivationFrameworkJetEtMiss.JetCommon import addDAODJets
+    from JetRecConfig.StandardSmallRJets import AntiKt4EMTopo, AntiKt4EMPFlow
+    addDAODJets ([AntiKt4EMTopo, AntiKt4EMPFlow], topSequence)
     D3PDMakerFlags.JetSGKey = 'AntiKt4EMTopoJets'
     from DerivationFrameworkJetEtMiss.METCommon import scheduleStandardMETContent
     scheduleStandardMETContent (topSequence)

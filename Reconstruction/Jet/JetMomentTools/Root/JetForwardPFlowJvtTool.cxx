@@ -55,20 +55,19 @@
 
     //FlowElement jets instead of PFO jets
     if(!m_FEKey.empty()){
-      ATH_CHECK(m_FEKey.initialize());
-
       if(!m_orFEKey.key().empty()){
         m_orFEKey = m_jetContainerName + "." + m_orFEKey.key();
-        ATH_CHECK(m_orFEKey.initialize());
       }
     }
     else{ //PFO reconstruction
-      ATH_CHECK(m_PFOKey.initialize());
       if(!m_orKey.key().empty()){
         m_orKey = m_jetContainerName + "." + m_orKey.key();
-        ATH_CHECK(m_orKey.initialize());
       }
     }
+    ATH_CHECK(m_PFOKey.initialize( m_FEKey.empty() ));
+    ATH_CHECK(m_orKey.initialize( m_FEKey.empty() && !m_orKey.key().empty() ));
+    ATH_CHECK(m_FEKey.initialize( !m_FEKey.empty() ));
+    ATH_CHECK(m_orFEKey.initialize( !m_FEKey.empty() && !m_orFEKey.key().empty() ));
 
     m_fjvtKey = m_jetContainerName + "." + m_fjvtKey.key();
     m_fjvtRawKey = m_jetContainerName + "." + m_fjvtRawKey.key();

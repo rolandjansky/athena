@@ -7,7 +7,6 @@
 
 // Header include
 #include "NewVrtSecInclusiveTool/NewVrtSecInclusiveTool.h"
-#include  "AnalysisUtils/AnalysisMisc.h"
 #include  "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 
 #include "TH1.h"
@@ -83,8 +82,6 @@ namespace Rec{
           orderedTrk.emplace(signifBeam,*i_ntrk);
           selectedTracks.push_back(*i_ntrk);
       }
-//---- Order tracks according to pt
-//      AnalysisUtils::Sort::pT (selectedTracks)
 //---- Order tracks according to ranks
       std::map<double,const xAOD::TrackParticle*>::reverse_iterator rt=orderedTrk.rbegin();
       selectedTracks.resize(orderedTrk.size());

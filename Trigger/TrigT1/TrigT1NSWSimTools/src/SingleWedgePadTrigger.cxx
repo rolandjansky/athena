@@ -85,7 +85,7 @@ namespace NSWL1{
         float ROIx=centroid(ROI).x();
         float ROIy=centroid(ROI).y(); //YR 8-18 using the center local Y of the ROI for the decision if in the TR
         float ROIr=sqrt(ROIx*ROIx+ROIy*ROIy);
-        float ROIphi=ROIy/ROIx;
+        float ROIphi=atan2(ROIy,ROIx);
         float ROILocalPhi=abs(ROIphi-phi0);
         float ROILocalY=ROIr*cos(ROILocalPhi);
         bool isTr=false;

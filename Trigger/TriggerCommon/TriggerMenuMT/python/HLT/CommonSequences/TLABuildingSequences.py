@@ -1,7 +1,7 @@
 #
 #  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
-from TriggerMenuMT.HLT.Menu.MenuComponents import ChainStep, RecoFragmentsPool
+from TriggerMenuMT.HLT.Config.MenuComponents import ChainStep, RecoFragmentsPool
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.Logging import logging
 from ..Jet.JetChainConfiguration import JetChainConfiguration

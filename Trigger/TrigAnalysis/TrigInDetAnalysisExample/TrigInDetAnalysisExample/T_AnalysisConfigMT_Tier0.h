@@ -30,12 +30,17 @@
 #include "TrigInDetAnalysisUtils/TagNProbe.h"
 
 #include "TrigInDetAnalysisExample/Analysis_Tier0.h"
+#include "TrigInDetAnalysisExample/AnalysisR3_Tier0.h"
 #include "TrigInDetAnalysisExample/VtxAnalysis.h"
 #include "TrigInDetAnalysisExample/ChainString.h"
+#include "TrigInDetAnalysisExample/TIDATools.h"
 
 #include "TTree.h"
 #include "TFile.h"
 
+#include "GaudiKernel/ToolHandle.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
+ 
 
 // McParticleEvent includes
 #include "McParticleEvent/TruthParticleContainer.h"
@@ -83,52 +88,10 @@
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 
 
-#ifndef TrigInDetAnalysisExample_T_AnalysisConfig_Tier0_H
-
-template<typename T>
-void HighestPTOnly( std::vector<T*>& tracks ) { 
-
-  if ( tracks.size()>1 ) {
-    
-    std::vector<T*> tmp_tracks; 
-    
-    int ih = 0;
-    
-    for ( unsigned i=1 ; i<tracks.size() ; i++ ) { 
-      if ( std::fabs(tracks[i]->pT())>std::fabs(tracks[ih]->pT()) ) ih = i;
-    }
-    
-    tmp_tracks.push_back( tracks[ih] );
-    
-    tracks = tmp_tracks;
-  }
-}
 
 
 
-
-
-
-template<typename T>
-void FilterPT( std::vector<T*>& tracks, double pt ) { 
-
-  std::vector<T*> tmp_tracks; 
-  
-  tmp_tracks.reserve( tracks.size() );
-  
-  for ( unsigned i=0 ; i<tracks.size() ; i++ ) { 
-    if ( std::fabs(tracks[i]->pT())>=pt ) tmp_tracks.push_back( tracks[i] );
-  }
-
-  if ( tmp_tracks.size()<tracks.size() ) tracks = tmp_tracks;
-
-}
-
-#endif
-
-
-
-template<typename T>
+template<typename T, typename A=Analysis_Tier0>
 class T_AnalysisConfigMT_Tier0 : public T_AnalysisConfig<T> {
 
 public:
@@ -169,12 +132,15 @@ public:
     m_shifter(false),
     m_pTthreshold(0),
     m_first(true),
-    m_containTracks(false)
+    m_containTracks(false),
+    m_TnP_tool(TnP_tool),
+    m_invmass(0),
+    m_invmass_obj(0)
   {
+    /// FIXME: the m_event should not be needed, we need to make this a local variable
     m_event = new TIDA::Event();
     m_chainNames.push_back(testChainName);
-    m_TnP_tool = TnP_tool;
-    
+
 #if 0
     ChainString& chain = m_chainNames.back(); 
 
@@ -210,7 +176,7 @@ public:
 
 public:
 
-  Analysis_Tier0* _analysis;
+  A* _analysis;
 
 protected:
 
@@ -881,7 +847,7 @@ protected:
 	else {
 
 	  /// new Roi based feature access
-	
+	  
 	  //std::string roi_key = m_chainNames[ichain].roi();
 
 	  std::string roi_key = chainConfig.roi();
@@ -904,7 +870,7 @@ protected:
 	  
 	  std::vector< TrigCompositeUtils::LinkInfo<TrigRoiDescriptorCollection> > rois = 
 	    (*m_tdt)->template features<TrigRoiDescriptorCollection>( Trig::FeatureRequestDescriptor( chainName,  
-												      decisiontype, 
+												      decisiontype,
 												      roi_key, 
 												      feature_type,
 												      "roi", 
@@ -1032,7 +998,7 @@ protected:
 
 	// filling invariant mass histograms for tag and probe analysis
 	if ( TnP_flag ) {
-	  m_TnP_tool->FillMinvHisto( iroi ) ;
+	  m_TnP_tool->Fill( m_invmass, m_invmass_obj, iroi ) ;
 	}
 	
 	if ( this->filterOnRoi() ) { 
@@ -1356,11 +1322,12 @@ protected:
 								     ManagedMonitorToolBase::run ) );
 #   endif
       
+      _analysis = dynamic_cast<A*>(m_analysis);
+ 
+      if ( monTool() ) _analysis->set_monTool( monTool() );
 
       m_analysis->initialise();
       
-      _analysis = dynamic_cast<Analysis_Tier0*>(m_analysis);
-
       _analysis->setevent( m_event ); 
 
       
@@ -1371,9 +1338,15 @@ protected:
 
       // booking invariant mass histograms for tag and probe analysis
       if ( m_TnP_tool != 0 ) {
-	m_TnP_tool->BookMinvHisto() ;
-	m_provider->addHistogram( m_TnP_tool->GetMinvHisto(), mongroup ) ;
-	m_provider->addHistogram( m_TnP_tool->GetMinvObjHisto(), mongroup ) ;
+	m_invmass = new TH1F( "invmass", "invariant mass;mass [GeV]", 320, 0, 200 );                                                                                                      
+	m_provider->addHistogram( m_invmass );                            
+
+	m_invmass_obj = new TH1F( "invmass_obj", "invariant mass;mass [GeV]", 320, 0, 200 );                                                                                                      
+	m_provider->addHistogram( m_invmass_obj );                            
+	///}       
+	//	m_TnP_tool->BookMinvHisto() ;
+	//	m_provider->addHistogram( m_TnP_tool->GetMinvHisto(), mongroup ) ;
+	//	m_provider->addHistogram( m_TnP_tool->GetMinvObjHisto(), mongroup ) ;
       }
       
       while ( hitr!=hend ) {
@@ -1421,6 +1394,9 @@ protected:
     }
   }
 
+  void set_monTool( ToolHandle<GenericMonitoringTool>* m ) { m_monTool=m; }
+
+  ToolHandle<GenericMonitoringTool>* monTool() { return m_monTool; }
 
 protected:
 
@@ -1432,7 +1408,7 @@ protected:
   TTree*    mTree;
 
   std::vector<ChainString>     m_chainNames;
-  std::vector<Analysis_Tier0*> m_analyses;
+  std::vector<A*> m_analyses;
   std::string m_testType;
 
   bool m_doOffline;
@@ -1461,7 +1437,12 @@ protected:
   
   bool   m_containTracks;
 
-  TagNProbe* m_TnP_tool ; 
+  TagNProbe* m_TnP_tool; 
+
+  TH1F*      m_invmass;
+  TH1F*      m_invmass_obj;
+
+  ToolHandle<GenericMonitoringTool>* m_monTool;
 
 };
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file MetaDataSvc.cxx
@@ -190,13 +190,8 @@ StatusCode MetaDataSvc::queryInterface(const InterfaceID& riid, void** ppvInterf
    return(StatusCode::SUCCESS);
 }
 //________________________________________________________________________________
-StatusCode MetaDataSvc::preLoadAddresses(StoreID::type /*storeID*/,
-	IAddressProvider::tadList& /*tads*/) {
-   return(StatusCode::SUCCESS);
-}
-//________________________________________________________________________________
 StatusCode MetaDataSvc::loadAddresses(StoreID::type storeID, IAddressProvider::tadList& tads) {
-   if (storeID != StoreID::METADATA_STORE) {
+   if (storeID != StoreID::METADATA_STORE) { // should this (also) run in the INPUT_METADATA_STORE?
       return(StatusCode::SUCCESS);
    }
    // Put Additional MetaData objects into Input MetaData Store using VersionedKey
@@ -227,11 +222,6 @@ StatusCode MetaDataSvc::loadAddresses(StoreID::type storeID, IAddressProvider::t
    return(StatusCode::SUCCESS);
 }
 //________________________________________________________________________________
-StatusCode MetaDataSvc::updateAddress(StoreID::type, SG::TransientAddress*,
-                                      const EventContext&) {
-   return(StatusCode::FAILURE);
-}
-
 StatusCode MetaDataSvc::newMetadataSource(const Incident& inc)
 {
    const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
@@ -243,6 +233,7 @@ StatusCode MetaDataSvc::newMetadataSource(const Incident& inc)
    const std::string fileName = fileInc->fileName();
    m_allowMetaDataStop = false;
    if (!boost::starts_with (fileName, "BSF:")) {
+      // the input file is _not_ bytestream
       if (!m_clearedInputDataStore) {
          if (!m_inputDataStore->clearStore().isSuccess()) {
             ATH_MSG_WARNING("Unable to clear input MetaData Proxies");
@@ -380,10 +371,10 @@ void MetaDataSvc::handle(const Incident& inc) {
 }
 
 //__________________________________________________________________________
-// This method is currently called only from OutputStreamSequencerSvc for MP EventService
-StatusCode MetaDataSvc::transitionMetaDataFile()
+// This method is currently called only from OutputStreamSequencerSvc
+StatusCode MetaDataSvc::transitionMetaDataFile(const std::string& outputConn)
 {
-   ATH_MSG_DEBUG("transitionMetaDataFile()");
+   ATH_MSG_DEBUG("transitionMetaDataFile: " << outputConn );
 
    // this is normally called through EndInputFile inc, simulate it for EvSvc 
    FileIncident inc("transitionMetaDataFile", "EndInputFile", "dummyMetaInputFileName", "");
@@ -397,7 +388,7 @@ StatusCode MetaDataSvc::transitionMetaDataFile()
 
    AthCnvSvc* cnvSvc = dynamic_cast<AthCnvSvc*>(m_addrCrtr.operator->());
    if (cnvSvc) {
-      if (!cnvSvc->disconnectOutput("").isSuccess()) {
+      if (!cnvSvc->disconnectOutput(outputConn).isSuccess()) {
          ATH_MSG_WARNING("Cannot get disconnect Output Files");
       }
    }

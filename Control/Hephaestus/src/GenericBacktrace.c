@@ -10,7 +10,7 @@ extern void *__libc_stack_end;
 
 
 /* Definition of stack frame structure.  Generic version.
-   Copyright (C) 2000 Free Software Foundation, Inc.
+   Copyright (C) 2000, 2022 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -101,7 +101,14 @@ int hhh_GenericBacktrace( void **array, int size )
    top_frame = __builtin_frame_address( 0 );
 #endif
 
+#if __GNUC__ >= 12
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wdangling-pointer"
+#endif
    top_stack = CURRENT_STACK_FRAME;
+#if __GNUC__ >= 12
+# pragma GCC diagnostic pop
+#endif
 
 /* We skip the call to this function, it makes no sense to record it.  */
    current = BOUNDED_1( (struct layout*)top_frame );

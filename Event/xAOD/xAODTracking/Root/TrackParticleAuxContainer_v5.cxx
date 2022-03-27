@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrackParticleAuxContainer_v5.cxx  $
 
 // Local include(s):
 #include "xAODTracking/versions/TrackParticleAuxContainer_v5.h"
@@ -121,12 +120,12 @@ namespace xAOD {
      std::cout<<"qOverP:";
      std::copy(qOverP.begin(), qOverP.end(),
        std::ostream_iterator<float>(std::cout, ", "));
-     std::cout<<"definingParametersCovMatrixDiag: ["<<&definingParametersCovMatrixDiag<<"]";
+     std::cout<<"definingParametersCovMatrixDiag: ";
      for (unsigned int i=0; i<definingParametersCovMatrixDiag.size();++i){
      std::copy(definingParametersCovMatrixDiag[i].begin(), definingParametersCovMatrixDiag[i].end(),
        std::ostream_iterator<float>(std::cout, ", "));
      }
-     std::cout<<"definingParametersCovMatrixOffDiag: ["<<&definingParametersCovMatrixOffDiag<<"]";
+     std::cout<<"definingParametersCovMatrixOffDiag: ";
      for (unsigned int i=0; i<definingParametersCovMatrixOffDiag.size();++i){
      std::copy(definingParametersCovMatrixOffDiag[i].begin(), definingParametersCovMatrixOffDiag[i].end(),
        std::ostream_iterator<float>(std::cout, ", "));

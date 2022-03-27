@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CosmicTrackValidation_C
@@ -36,7 +36,7 @@ CosmicTrackValidation::CosmicTrackValidation(){
 	// first division (common to all!):
 	int nlayerBins = 6;
 	double *layerBins = IntegerBins(nlayerBins);
-	NameDiv.push_back("layer");
+	NameDiv.emplace_back("layer");
 	NDiv.push_back(nlayerBins);
 	BinsDiv.push_back(layerBins);
 	
@@ -143,7 +143,7 @@ bool CosmicTrackValidation::Fill(Int_t Layer, Double_t GeVTrkPt, Double_t Angle,
 	//float HighPtRes=0;
 	//if(anglename == "phi") HighPtRes=0.01;
 	//else HighPtRes=0.1;
-	//if( fabs(Residual) < sqrt((0.5/GeVTrkPt)*(0.5/GeVTrkPt) 
+	//if( std::abs(Residual) < sqrt((0.5/GeVTrkPt)*(0.5/GeVTrkPt) 
         //    + 5*HighPtRes*5*HighPtRes) ){
 		passed = kTRUE;
                 std::vector<Double_t> Pars(3);
@@ -168,15 +168,15 @@ int CosmicTrackValidation::Analyze(TDirectory *ref_file){
 	TCanvas **c1;	
 	int nplots = PlotAll(&c1,0,"*h",1);
 
-	CosmicTrackValidation *reference = 0;
-	if(ref_file != 0 ){
+	CosmicTrackValidation *reference = nullptr;
+	if(ref_file != nullptr ){
 		ref_file->cd();
 		reference = new CosmicTrackValidation();
 		reference->Read();
 		reference->PlotAll(&c1,nplots,"E1 same",2);
 	}
 
-	char *currpath = getcwd(NULL,0);
+	char *currpath = getcwd(nullptr,0);
         if (mkdir(m_globaldirname.c_str(),S_IRWXU | S_IRWXG | S_IRWXO)!=0) {
           std::stringstream message;
           message << "Failed to create directory: " << m_globaldirname;
@@ -197,7 +197,7 @@ int CosmicTrackValidation::Analyze(TDirectory *ref_file){
 	delete[] c1;
         delete reference;
 
-        if(currpath==NULL) {
+        if(currpath==nullptr) {
           std::stringstream message;
           message << "Invalid current directory! ";
           throw std::runtime_error(message.str());
@@ -225,7 +225,7 @@ int CosmicTrackValidation::PlotAll(TCanvas ***c1, int ncanvas, Option_t* option,
 	int npthistograms =  m_PtHistogram->GetNhistos();
 	int nhistos =  npthistos + nanglehistos + netahistos + nanglehistograms + netahistograms + npthistograms;
 
-	if(ncanvas == 0 || *c1 == 0){
+	if(ncanvas == 0 || *c1 == nullptr){
 		*c1 = new TCanvas*[nhistos];
 		ncanvas = nhistos;
 		for(int i = 0 ; i < ncanvas ; i++) (*c1)[i] = new TCanvas();

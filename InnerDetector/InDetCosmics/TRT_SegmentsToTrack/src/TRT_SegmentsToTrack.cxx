@@ -417,7 +417,7 @@ StatusCode InDet::TRT_SegmentsToTrack::execute()
 int InDet::TRT_SegmentsToTrack::getNumberReal(const InDet::TRT_DriftCircle* driftcircle,const EventContext& ctx) const
 {
   int numBarcodes = 0;
-  typedef PRD_MultiTruthCollection::const_iterator iter;
+  using iter = PRD_MultiTruthCollection::const_iterator;
 
   SG::ReadHandle<PRD_MultiTruthCollection> truthCollectionTRT(m_multiTruthCollectionTRTName,ctx);
 

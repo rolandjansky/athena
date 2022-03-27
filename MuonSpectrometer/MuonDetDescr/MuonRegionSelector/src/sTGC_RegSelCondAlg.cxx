@@ -8,7 +8,7 @@
  **   @date   Sun 22 Sep 2019 10:21:50 BST
  **
  **
- **   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ **   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  **/
 
 
@@ -22,7 +22,6 @@
 #include "RegSelLUT/RegSelModule.h" 
 #include "RegSelLUT/RegSelSiLUT.h" 
 
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MuonReadoutElement.h" 
 
 /// sTGC naming convention headers
@@ -46,7 +45,7 @@ sTGC_RegSelCondAlg::sTGC_RegSelCondAlg(const std::string& name, ISvcLocator* pSv
 
 StatusCode sTGC_RegSelCondAlg::initialize() {
   ATH_CHECK(MuonRegSelCondAlg::initialize());
-  ATH_CHECK(m_mdtCablingKey.initialize());
+  ATH_CHECK(m_DetectorManagerKey.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -54,17 +53,15 @@ StatusCode sTGC_RegSelCondAlg::initialize() {
 
 std::unique_ptr<RegSelSiLUT> sTGC_RegSelCondAlg::createTable( const EventContext& ctx, EventIDRange& id_range ) const { 
 
-  /// get the MDT cabling map as a proxy for the id_range
-  
-  SG::ReadCondHandle<MuonMDT_CablingMap> mdtCabling( m_mdtCablingKey, ctx );
- 
-  if( !mdtCabling.range( id_range ) ) {
-    ATH_MSG_ERROR("Failed to retrieve validity range for " << mdtCabling.key());
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> muonDetMan( m_DetectorManagerKey, ctx );
+  if( !muonDetMan.isValid() ) {
+    ATH_MSG_ERROR("Failed to retrieve " << muonDetMan.key());
     return std::unique_ptr<RegSelSiLUT>(nullptr);
-  }   
-  
-
-  /// no NSW cabling available at the moment ...
+  }
+  if( !muonDetMan.range( id_range ) ) {
+    ATH_MSG_ERROR("Failed to retrieve validity range for " << muonDetMan.key());
+    return std::unique_ptr<RegSelSiLUT>(nullptr);
+  }
 
   /// get the MM detector manager
 

@@ -30,7 +30,7 @@ def LArRampCfg(flags):
     from IOVDbSvc.IOVDbSvcConfig import addFolders
     result.merge(addFolders(flags,flags.LArCalib.Pedestal.Folder,detDb=flags.LArCalib.Input.Database, tag=pedestalTag,  modifiers=chanSelStr(flags), 
                             className="LArPedestalComplete"))
-    result.merge(addFolders(flags,flags.LArCalib.OFCCali.Folder,detDb=flags.LArCalib.Input.Database, tag=caliOFCTag, modifiers=chanSelStr(flags)))
+    result.merge(addFolders(flags,flags.LArCalib.OFCCali.Folder,detDb=flags.LArCalib.Input.Database2, tag=caliOFCTag, modifiers=chanSelStr(flags)))
     
 
     result.addEventAlgo(CompFactory.LArRawCalibDataReadingAlg(LArAccCalibDigitKey=digKey,

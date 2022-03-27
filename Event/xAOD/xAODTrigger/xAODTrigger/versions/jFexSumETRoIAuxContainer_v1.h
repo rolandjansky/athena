@@ -29,6 +29,8 @@ namespace xAOD{
     std::vector<uint8_t>  tobSat_lower;
     std::vector<uint16_t> tobEt_upper;
     std::vector<uint8_t>  tobSat_upper; 
+    std::vector<int>      tobEtScale;
+    
 }; // class jFexSumETRoIAuxContainer_v1
 
 }//end of namespace xAOD 

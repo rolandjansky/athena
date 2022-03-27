@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # @brief: This is the dbgEventInfo class for the Debug Stream event analysis
 
@@ -117,8 +117,7 @@ class dbgEventInfo:
             for rob in event.children():
                 if rob.source_id().subdetector_id() != eformat.helper.SubDetector.TDAQ_HLT:
                     continue
-                raw_data = tuple(rob.rod_data())
-                collections = get_collections(raw_data, skip_payload=False)
+                collections = get_collections(rob, skip_payload=False)
                 configList = [c for c in collections if 'xAOD::TrigConfKeys_v' in c.name_persistent]
 
                 for conf in configList:

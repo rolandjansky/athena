@@ -41,9 +41,9 @@ if DetFlags.readRDOBS.LAr_on():
     else:   
        lri=None
     if lri is not None and lri.runType() is not None and lri.runType()==0:
-       topSequence+=LArRawDataReadingAlg(FailOnCorruption=True,LArRawChannelKey="",OutputLevel=DEBUG) 
+       topSequence+=LArRawDataReadingAlg(LArRawChannelKey="",OutputLevel=DEBUG) 
     else:   
-       topSequence+=LArRawDataReadingAlg(FailOnCorruption=False) 
+       topSequence+=LArRawDataReadingAlg() 
         
 if DetFlags.readRDOBS.Tile_on():
     svcMgr.ByteStreamAddressProviderSvc.TypeNames += [

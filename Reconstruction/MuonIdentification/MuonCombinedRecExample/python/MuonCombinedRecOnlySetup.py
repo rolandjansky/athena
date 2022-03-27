@@ -66,3 +66,8 @@ try:
     AODFlags.SpclMC = True
 except ImportError:
     pass
+
+from CaloRingerAlgs.CaloRingerFlags import caloRingerFlags
+caloRingerFlags.buildElectronCaloRings = False
+caloRingerFlags.buildPhotonCaloRings = False
+

@@ -35,7 +35,7 @@ namespace {
         std::unique_ptr<const Trk::TrackParameters> pars;
         std::unique_ptr<const Muon::MuonClusterOnTrack> clus;
     };
-    typedef std::map<Identifier, PullCluster> ClusterLayerMap;
+    using ClusterLayerMap = std::map<Identifier, PullCluster>;
 
 }  // namespace
 namespace Muon {
@@ -55,9 +55,8 @@ namespace Muon {
 
         if (!m_cscRotCreator.empty()) {
             if (!m_idHelperSvc->recoCSC())
-                ATH_MSG_WARNING(
-                    "The current layout does not have any CSC chamber but you gave a CscRotCreator, ignoring it,"<<
-                    "  but double-check configuration");
+                ATH_MSG_WARNING("The current layout does not have any CSC chamber but you gave a CscRotCreator, ignoring it,"
+                                << "  but double-check configuration");
             else
                 ATH_CHECK(m_cscRotCreator.retrieve());
         } else {
@@ -67,19 +66,17 @@ namespace Muon {
         ATH_CHECK(m_clusRotCreator.retrieve());
         ATH_CHECK(m_mmClusRotCreator.retrieve());
         ATH_CHECK(m_pullCalculator.retrieve());
-        ATH_CHECK(m_intersectSvc.retrieve());
-
+      
         ATH_CHECK(m_key_mdt.initialize());
         /// Check that the layout has CSCs and that the key is actually set
-        if (!m_key_csc.empty() && m_idHelperSvc->recoCSC()){ ATH_CHECK(m_key_csc.initialize());}  
+        ATH_CHECK(m_key_csc.initialize(!m_key_csc.empty() && m_idHelperSvc->recoCSC()));
         ATH_CHECK(m_key_tgc.initialize());
         ATH_CHECK(m_key_rpc.initialize());
         /// Check that the layout has stgcs and that the key is set
-        if (!m_key_stgc.empty() && m_idHelperSvc->recosTgc()) {ATH_CHECK(m_key_stgc.initialize());}
+        ATH_CHECK(m_key_stgc.initialize(!m_key_stgc.empty() && m_idHelperSvc->recosTgc()));
         /// Check that the layout has micromegas and that the key is set
-        if (!m_key_mm.empty() && m_idHelperSvc->recoMM()){ATH_CHECK(m_key_mm.initialize());}
-        ATH_CHECK(m_condKey.initialize(!m_condKey.empty()));
-
+        ATH_CHECK(m_key_mm.initialize(!m_key_mm.empty() && m_idHelperSvc->recoMM()));
+        ATH_CHECK(m_chamberGeoKey.initialize());
         return StatusCode::SUCCESS;
     }
     std::unique_ptr<Trk::Track> MuonChamberHoleRecoveryTool::recover(const Trk::Track& track, const EventContext& ctx) const {
@@ -179,10 +176,8 @@ namespace Muon {
         trackStateOnSurfaces.reserve(newStates.size());
 
         for (std::unique_ptr<const Trk::TrackStateOnSurface>& nit : newStates) { trackStateOnSurfaces.push_back(nit.release()); }
-        std::unique_ptr<Trk::Track> newTrack = std::make_unique<Trk::Track>(
-          track.info(),
-          std::move(trackStateOnSurfaces),
-          track.fitQuality() ? track.fitQuality()->clone() : nullptr);
+        std::unique_ptr<Trk::Track> newTrack = std::make_unique<Trk::Track>(track.info(), std::move(trackStateOnSurfaces),
+                                                                            track.fitQuality() ? track.fitQuality()->clone() : nullptr);
         return newTrack;
     }
 
@@ -474,9 +469,7 @@ namespace Muon {
         }
 
         createHoleTSOSsForClusterChamber(detElId, ctx, pars, layIds, chHoles, prds, states);
-
-        return;
-    }
+   }
 
     void MuonChamberHoleRecoveryTool::createHoleTSOSsForMmChamber(
         const Identifier& detElId, const EventContext& ctx, const Trk::TrackParameters& pars, std::set<Identifier>& layIds,
@@ -522,9 +515,7 @@ namespace Muon {
         }
 
         createHoleTSOSsForClusterChamber(detElId, ctx, pars, layIds, chHoles, prds, states);
-
-        return;
-    }
+   }
 
     void MuonChamberHoleRecoveryTool::createHoleTSOSsForCscChamber(
         const Identifier& detElId, const EventContext& ctx, const Trk::TrackParameters& pars, std::set<Identifier>& layIds,
@@ -749,9 +740,9 @@ namespace Muon {
 
             bool inbounds(false);
             if (m_idHelperSvc->isMM(id)) {
-              inbounds = ((MuonGM::MMReadoutElement*)clus->detectorElement())->insideActiveBounds(id, locExPos, 10., 10.);
+                inbounds = ((MuonGM::MMReadoutElement*)clus->detectorElement())->insideActiveBounds(id, locExPos, 10., 10.);
             } else {
-              inbounds = surf.insideBounds(locExPos, 10., 10.);
+                inbounds = surf.insideBounds(locExPos, 10., 10.);
             }
 
             ATH_MSG_VERBOSE(" found prd: " << m_idHelperSvc->toString(id) << " res " << resPull->residual().front() << " pull " << pull
@@ -780,9 +771,9 @@ namespace Muon {
         // loop over cluster layer map and add the clusters to the state vector
         for (auto& cl_it : cluster_layer_map) {
             ATH_MSG_VERBOSE(" added hit " << m_idHelperSvc->toString(cl_it.second.clus->identify()));
-            Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createMeasTSOS(cl_it.second.clus.release(), cl_it.second.pars.release(),
+            std::unique_ptr<Trk::TrackStateOnSurface> tsos = MuonTSOSHelper::createMeasTSOS(std::move(cl_it.second.clus), std::move(cl_it.second.pars),
                                                                             Trk::TrackStateOnSurface::Measurement);
-            states.emplace_back(tsos);
+            states.emplace_back(std::move(tsos));
             ++nNewHits;
         }
 
@@ -814,12 +805,12 @@ namespace Muon {
             bool inBounds = false;
             Amg::Vector2D locPos;
 
-            if (surf.globalToLocal(exPars->position(), exPars->momentum(), locPos)) { 
-              if (m_idHelperSvc->isMM(detElId)) {
-                inBounds = ((const MuonGM::MMReadoutElement*)detEl)->insideActiveBounds(id, locPos, -100., 100.);   
-              } else {
-                inBounds = surf.insideBounds(locPos, -100., -100.);
-              }                                                      
+            if (surf.globalToLocal(exPars->position(), exPars->momentum(), locPos)) {
+                if (m_idHelperSvc->isMM(detElId)) {
+                    inBounds = ((const MuonGM::MMReadoutElement*)detEl)->insideActiveBounds(id, locPos, -100., 100.);
+                } else {
+                    inBounds = surf.insideBounds(locPos, -100., -100.);
+                }
             }
 
             ATH_MSG_VERBOSE(" new hole " << m_idHelperSvc->toString(id) << " position " << exPars->parameters()[Trk::locR]
@@ -828,8 +819,8 @@ namespace Muon {
             if (!inBounds) { continue; }
 
             if (m_idHelperSvc->issTgc(id)) ATH_MSG_VERBOSE(" new hole sTgc measuresPhi " << (int)m_idHelperSvc->measuresPhi(id));
-            Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createHoleTSOS(exPars.release());
-            states.emplace_back(tsos);
+            std::unique_ptr<Trk::TrackStateOnSurface> tsos = MuonTSOSHelper::createHoleTSOS(std::move(exPars));
+            states.emplace_back(std::move(tsos));
             ++nholes;
             // break; // only add one hole per det el
         }
@@ -851,7 +842,7 @@ namespace Muon {
 
         // check whether we need to average the parameters
         if (parsLast) direction = (parsLast->position() - pars.position()).unit();
-        std::set<Identifier> chHoles = holesInMdtChamber(pars.position(), direction, chId, ctx, ids);
+        std::set<Identifier> chHoles = holesInMdtChamber(ctx, pars.position(), direction, chId, ids);
         ATH_MSG_VERBOSE(" chamber " << m_idHelperSvc->toStringChamber(chId) << " has holes " << chHoles.size());
         if (chHoles.empty()) return;
 
@@ -981,10 +972,10 @@ namespace Muon {
 
                 if (!inBounds) { continue; }
 
-                Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createMeasTSOS(
-                    mdtROT.release(), exPars.release(),
+                std::unique_ptr<Trk::TrackStateOnSurface> tsos = MuonTSOSHelper::createMeasTSOS(
+                    std::move(mdtROT), std::move(exPars),
                     (hitFlag != 0 || !m_addMeasurements) ? Trk::TrackStateOnSurface::Outlier : Trk::TrackStateOnSurface::Measurement);
-                states.emplace_back(tsos);
+                states.emplace_back(std::move(tsos));
                 ++nstates;
                 if (nstates == chHoles.size()) {
                     ATH_MSG_DEBUG(" recovered Mdts " << nstates << " all holes recovered " << nholes);
@@ -1028,8 +1019,8 @@ namespace Muon {
                     continue;
                 }
                 ATH_MSG_VERBOSE(" new hole " << m_idHelperSvc->toString(hit) << " dist wire " << exPars->parameters()[Trk::locR]);
-                Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createHoleTSOS(exPars.release());
-                states.emplace_back(tsos);
+                std::unique_ptr<Trk::TrackStateOnSurface> tsos = MuonTSOSHelper::createHoleTSOS(std::move(exPars));
+                states.emplace_back(std::move(tsos));
                 ++nholes;
                 ++nstates;
             }
@@ -1083,24 +1074,14 @@ namespace Muon {
         return holes;
     }
 
-    std::set<Identifier> MuonChamberHoleRecoveryTool::holesInMdtChamber(const Amg::Vector3D& position, const Amg::Vector3D& direction,
-                                                                        const Identifier& chId, const EventContext& ctx,
-                                                                        const std::set<Identifier>& tubeIds) const {
-        // calculate crossed tubes
-        const MdtCondDbData* dbData = nullptr;
-        if (!m_condKey.empty()) {
-            SG::ReadCondHandle<MdtCondDbData> readHandle{m_condKey, ctx};
-            dbData = readHandle.cptr();
+    std::set<Identifier> MuonChamberHoleRecoveryTool::holesInMdtChamber(const EventContext& ctx, const Amg::Vector3D& position, const Amg::Vector3D& direction,
+                                                                        const Identifier& chId, const std::set<Identifier>& tubeIds) const {
+        
+        SG::ReadCondHandle<Muon::MuonIntersectGeoData> interSectSvc{m_chamberGeoKey,ctx};
+        if (!interSectSvc.isValid())   {
+            ATH_MSG_ERROR("Failed to retrieve chamber intersection service");            
         }
-
-        SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey, ctx};
-        const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle};
-        if (!MuonDetMgr) {
-            ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
-            // return;
-        }
-
-        const MuonStationIntersect intersect = m_intersectSvc->tubesCrossedByTrack(chId, position, direction, dbData, MuonDetMgr);
+        MuonStationIntersect intersect = interSectSvc->tubesCrossedByTrack(chId, position, direction);
 
         // clear hole vector
         std::set<Identifier> holes;

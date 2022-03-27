@@ -51,10 +51,6 @@ struct Cache
   bool assemblyDone;
 };
 
-/** @brief resets the cache */
-void
-reset(MultiComponentStateAssembler::Cache& cache);
-
 /** Method to add a single set of Trk::ComponentParameters to the cached
  * Trk::MultiComponentState object under construction */
 bool

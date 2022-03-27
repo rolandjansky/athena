@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+
 #==============================================================
 #
 # Job options file for Geant4 Simulation
@@ -183,15 +185,7 @@ pg.sampler.mom = PG.EEtaMPhiSampler(energy=E, eta=0, phi=0)
 
 topSeq += pg
 
-try:
-    include("G4AtlasApps/fragment.SimCopyWeights.py")
-except:
-    try:
-        from GeneratorModules.GeneratorModulesConf import CopyEventWeight
-        topSeq += CopyEventWeight(TruthCollKey="GEN_EVENT")
-    except:
-        from EvgenProdTools.EvgenProdToolsConf import CopyEventWeight
-        topSeq += CopyEventWeight()
+include("G4AtlasApps/fragment.SimCopyWeights.py")
 
 try:
     from AthenaCommon.CfgGetter import getAlgorithm

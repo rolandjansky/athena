@@ -95,7 +95,8 @@ namespace NswAsBuilt {
 
      /* Getters and setters for the tree structure */
       void addDaughter(std::unique_ptr<Element> daughter);
-      Element* mother() const { return m_mother; }
+      const Element* mother() const { return m_mother; }
+            Element* mother()       { return m_mother; }
 
      /* Applies the callback function to this Element and to all its daughters
       * down to the leaves*/

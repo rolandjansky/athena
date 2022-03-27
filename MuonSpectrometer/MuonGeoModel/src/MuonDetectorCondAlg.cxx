@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModel/MuonDetectorCondAlg.h"
@@ -14,13 +14,11 @@
 
 #include <fstream>
 
-MuonDetectorCondAlg::MuonDetectorCondAlg(const std::string &name, ISvcLocator *pSvcLocator) : AthAlgorithm(name, pSvcLocator), m_condSvc{"CondSvc", name} 
+MuonDetectorCondAlg::MuonDetectorCondAlg(const std::string &name, ISvcLocator *pSvcLocator) : AthAlgorithm(name, pSvcLocator)
 { }
 
 StatusCode MuonDetectorCondAlg::initialize() {
     ATH_MSG_DEBUG("Initializing ...");
-
-    ATH_CHECK(m_condSvc.retrieve());
 
     // Retrieve the MuonDetectorManager from the detector store to get
     // the applyCscIntAlignment() and applyMdtAsBuiltParams() flags
@@ -46,10 +44,6 @@ StatusCode MuonDetectorCondAlg::initialize() {
     // std::size_t pos = name().find("MuonDetectorCondAlg");
     // m_writeDetectorManagerKey = ThisKey + name().substr (pos);
     ATH_CHECK(m_writeDetectorManagerKey.initialize());
-    if (m_condSvc->regHandle(this, m_writeDetectorManagerKey).isFailure()) {
-        ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeDetectorManagerKey.fullKey() << " with CondSvc");
-        return StatusCode::FAILURE;
-    }
 
     return StatusCode::SUCCESS;
 }

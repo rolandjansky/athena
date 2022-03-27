@@ -11,12 +11,6 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODForward/AFPStationID.h"
 
-namespace {
-bool isInListVectorToF(const int bcid, const std::vector<int>&arr)
-{
-	return std::find(arr.begin(),arr.end(),bcid)!= arr.end();
-}
-}
 
 AFPToFAlgorithm::AFPToFAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
 :AthMonitorAlgorithm(name,pSvcLocator)
@@ -53,14 +47,14 @@ StatusCode AFPToFAlgorithm::initialize() {
 StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
 	using namespace Monitored;
 
-        const unsigned NTRAINS = 4;
-        enum { FRONT, MIDDLE, END, NPOS } position = NPOS;
+	const unsigned NTRAINS = 4;
+	enum { FRONT, MIDDLE, END, NPOS } position = NPOS;
 		
 	auto bcidAllToF     = Monitored::Scalar<int>("bcidAllToF", 0);
-        Monitored::Scalar<int> bcidToF[NPOS] =
-          { Monitored::Scalar<int>("bcidFrontToF", 0),
-            Monitored::Scalar<int>("bcidMiddleToF", 0),
-            Monitored::Scalar<int>("bcidEndToF", 0) };
+	Monitored::Scalar<int> bcidToF[NPOS] =
+	  { Monitored::Scalar<int>("bcidFrontToF", 0),
+	    Monitored::Scalar<int>("bcidMiddleToF", 0),
+	    Monitored::Scalar<int>("bcidEndToF", 0) };
 
 	// Declare the quantities which should be monitored
 	auto lb             = Monitored::Scalar<int>("lb", 0);
@@ -84,68 +78,67 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
 	auto lbAToF_Weight    = Monitored::Scalar<float>("lbAToF_Weight", 0.0);
 	auto lbCToF_Weight    = Monitored::Scalar<float>("lbCToF_Weight", 0.0);
 	
-	std::vector<int>stationValues;
 	auto lbAToFEvents     = Monitored::Scalar<int>("lbAToFEvents", 0);
 	auto lbCToFEvents     = Monitored::Scalar<int>("lbCToFEvents", 0);
 	auto lbAandCToFEvents = Monitored::Scalar<int>("lbAandCToFEvents", 0);
 	
 	// FME histograms quantites (side A)
 
-        Monitored::Scalar<int> lbAToF_T[NTRAINS] =
-          { Monitored::Scalar<int>("lbAToF_T0", 0),
-            Monitored::Scalar<int>("lbAToF_T1", 0),
-            Monitored::Scalar<int>("lbAToF_T2", 0),
-            Monitored::Scalar<int>("lbAToF_T3", 0) };
+	Monitored::Scalar<int> lbAToF_T[NTRAINS] =
+	  { Monitored::Scalar<int>("lbAToF_T0", 0),
+	    Monitored::Scalar<int>("lbAToF_T1", 0),
+	    Monitored::Scalar<int>("lbAToF_T2", 0),
+	    Monitored::Scalar<int>("lbAToF_T3", 0) };
 	
 	auto lbAToF_TAll_Weight = Monitored::Scalar<float>("lbAToF_TAll_Weight", 1);
 	
-        Monitored::Scalar<int> lbAToF_TP[NTRAINS][NPOS] =
-          { { Monitored::Scalar<int>("lbAToF_T0_Front", 0),
-              Monitored::Scalar<int>("lbAToF_T0_Middle", 0),
-              Monitored::Scalar<int>("lbAToF_T0_End", 0) },
-            { Monitored::Scalar<int>("lbAToF_T1_Front", 0),
-              Monitored::Scalar<int>("lbAToF_T1_Middle", 0),
-              Monitored::Scalar<int>("lbAToF_T1_End", 0) },
-            { Monitored::Scalar<int>("lbAToF_T2_Front", 0),
-              Monitored::Scalar<int>("lbAToF_T2_Middle", 0),
-              Monitored::Scalar<int>("lbAToF_T2_End", 0) },
-            { Monitored::Scalar<int>("lbAToF_T3_Front", 0),
-              Monitored::Scalar<int>("lbAToF_T3_Middle", 0),
-              Monitored::Scalar<int>("lbAToF_T3_End", 0) } };
+	Monitored::Scalar<int> lbAToF_TP[NTRAINS][NPOS] =
+	  { { Monitored::Scalar<int>("lbAToF_T0_Front", 0),
+	      Monitored::Scalar<int>("lbAToF_T0_Middle", 0),
+	      Monitored::Scalar<int>("lbAToF_T0_End", 0) },
+	    { Monitored::Scalar<int>("lbAToF_T1_Front", 0),
+	      Monitored::Scalar<int>("lbAToF_T1_Middle", 0),
+	      Monitored::Scalar<int>("lbAToF_T1_End", 0) },
+	    { Monitored::Scalar<int>("lbAToF_T2_Front", 0),
+	      Monitored::Scalar<int>("lbAToF_T2_Middle", 0),
+	      Monitored::Scalar<int>("lbAToF_T2_End", 0) },
+	    { Monitored::Scalar<int>("lbAToF_T3_Front", 0),
+	      Monitored::Scalar<int>("lbAToF_T3_Middle", 0),
+	      Monitored::Scalar<int>("lbAToF_T3_End", 0) } };
 
-        Monitored::Scalar<float> lbAToF_TWeight[NPOS] =
-          { Monitored::Scalar<float>("lbAToF_TFront_Weight", 1),
-            Monitored::Scalar<float>("lbAToF_TMiddle_Weight", 1),
-            Monitored::Scalar<float>("lbAToF_TEnd_Weight", 1) };
+	Monitored::Scalar<float> lbAToF_TWeight[NPOS] =
+	  { Monitored::Scalar<float>("lbAToF_TFront_Weight", 1),
+	    Monitored::Scalar<float>("lbAToF_TMiddle_Weight", 1),
+	    Monitored::Scalar<float>("lbAToF_TEnd_Weight", 1) };
 	 
 	// FME histograms quantites (side C)
 	
-        Monitored::Scalar<int> lbCToF_T[NTRAINS] =
-          { Monitored::Scalar<int>("lbCToF_T0", 0),
-            Monitored::Scalar<int>("lbCToF_T1", 0),
-            Monitored::Scalar<int>("lbCToF_T2", 0),
-            Monitored::Scalar<int>("lbCToF_T3", 0) };
+	Monitored::Scalar<int> lbCToF_T[NTRAINS] =
+	  { Monitored::Scalar<int>("lbCToF_T0", 0),
+	    Monitored::Scalar<int>("lbCToF_T1", 0),
+	    Monitored::Scalar<int>("lbCToF_T2", 0),
+	    Monitored::Scalar<int>("lbCToF_T3", 0) };
 	
 	auto lbCToF_TAll_Weight = Monitored::Scalar<float>("lbCToF_TAll_Weight", 1);
 	
-        Monitored::Scalar<int> lbCToF_TP[NTRAINS][NPOS] =
-          { { Monitored::Scalar<int>("lbCToF_T0_Front", 0),
-              Monitored::Scalar<int>("lbCToF_T0_Middle", 0),
-              Monitored::Scalar<int>("lbCToF_T0_End", 0) },
-            { Monitored::Scalar<int>("lbCToF_T1_Front", 0),
-              Monitored::Scalar<int>("lbCToF_T1_Middle", 0),
-              Monitored::Scalar<int>("lbCToF_T1_End", 0) },
-            { Monitored::Scalar<int>("lbCToF_T2_Front", 0),
-              Monitored::Scalar<int>("lbCToF_T2_Middle", 0),
-              Monitored::Scalar<int>("lbCToF_T2_End", 0) },
-            { Monitored::Scalar<int>("lbCToF_T3_Front", 0),
-              Monitored::Scalar<int>("lbCToF_T3_Middle", 0),
-              Monitored::Scalar<int>("lbCToF_T3_End", 0) } };
+	Monitored::Scalar<int> lbCToF_TP[NTRAINS][NPOS] =
+	  { { Monitored::Scalar<int>("lbCToF_T0_Front", 0),
+	      Monitored::Scalar<int>("lbCToF_T0_Middle", 0),
+	      Monitored::Scalar<int>("lbCToF_T0_End", 0) },
+	    { Monitored::Scalar<int>("lbCToF_T1_Front", 0),
+	      Monitored::Scalar<int>("lbCToF_T1_Middle", 0),
+	      Monitored::Scalar<int>("lbCToF_T1_End", 0) },
+	    { Monitored::Scalar<int>("lbCToF_T2_Front", 0),
+	      Monitored::Scalar<int>("lbCToF_T2_Middle", 0),
+	      Monitored::Scalar<int>("lbCToF_T2_End", 0) },
+	    { Monitored::Scalar<int>("lbCToF_T3_Front", 0),
+	      Monitored::Scalar<int>("lbCToF_T3_Middle", 0),
+	      Monitored::Scalar<int>("lbCToF_T3_End", 0) } };
 
-        Monitored::Scalar<float> lbCToF_TWeight[NPOS] =
-          { Monitored::Scalar<float>("lbCToF_TFront_Weight", 1),
-            Monitored::Scalar<float>("lbCToF_TMiddle_Weight", 1),
-            Monitored::Scalar<float>("lbCToF_TEnd_Weight", 1) };
+	Monitored::Scalar<float> lbCToF_TWeight[NPOS] =
+	  { Monitored::Scalar<float>("lbCToF_TFront_Weight", 1),
+	    Monitored::Scalar<float>("lbCToF_TMiddle_Weight", 1),
+	    Monitored::Scalar<float>("lbCToF_TEnd_Weight", 1) };
 
 	SG::ReadHandle<xAOD::EventInfo> eventInfo = GetEventInfo(ctx);
 	lb                = eventInfo->lumiBlock();
@@ -185,15 +178,15 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
 		fill("AFPToFTool", bcidAllToF);
 		if(!bcDataToF->isFilled(tempBCID-1))
 		{
-                        position = FRONT;
+			position = FRONT;
 		}
 		else if(bcDataToF->isFilled(tempBCID+1))
 		{
-                        position = MIDDLE;
+			position = MIDDLE;
 		}
 		else
 		{
-                        position = END;
+			position = END;
 		}
 		bcidToF[position] = tempBCID;
 		fill("AFPToFTool", bcidToF[position]);
@@ -212,11 +205,12 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
 	nTofHits = afpToFHitContainer->size();
 	fill("AFPToFTool", lb, nTofHits);
 
-	for(const xAOD::AFPToFHit *hitsItr: *afpToFHitContainer)
+    int eventsInStations[4] = {};
+
+    for(const xAOD::AFPToFHit *hitsItr: *afpToFHitContainer)
 	{
 		trainID = hitsItr->trainID();
 		barInTrainID = hitsItr->barInTrainID();
-		stationValues.push_back(hitsItr->stationID());
 
 		if(hitsItr->isSideA())
 		{
@@ -246,25 +240,25 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
 		}
 
 		if(hitsItr->isSideA() || hitsItr->isSideC())
-                {
-                        auto& lbToF_T = hitsItr->isSideA() ? lbAToF_T : lbCToF_T;
-                        auto& lbToF_TP = hitsItr->isSideA() ? lbAToF_TP : lbCToF_TP;
-                        auto& lbToF_TAll_Weight = hitsItr->isSideA() ? lbAToF_TAll_Weight : lbAToF_TAll_Weight;
-                        auto& lbToF_TWeight = hitsItr->isSideA() ? lbAToF_TWeight : lbAToF_TWeight;
+		{
+			auto& lbToF_T = hitsItr->isSideA() ? lbAToF_T : lbCToF_T;
+			auto& lbToF_TP = hitsItr->isSideA() ? lbAToF_TP : lbCToF_TP;
+			auto& lbToF_TAll_Weight = hitsItr->isSideA() ? lbAToF_TAll_Weight : lbAToF_TAll_Weight;
+			auto& lbToF_TWeight = hitsItr->isSideA() ? lbAToF_TWeight : lbAToF_TWeight;
 
-                        unsigned int train = hitsItr->trainID();
-                        if(train < NTRAINS)
-                        {
+			unsigned int train = hitsItr->trainID();
+			if(train < NTRAINS)
+			{
 				lbToF_T[train] = eventInfo->lumiBlock();
 				fill("AFPToFTool", lbToF_T[train], lbToF_TAll_Weight);
 
-                                if(position != NPOS)
-                                {
+				if(position != NPOS)
+				{
 					lbToF_TP[train][position] = eventInfo->lumiBlock();
 					fill("AFPToFTool", lbToF_TP[train][position], lbToF_TWeight[position]);
-                                }
-                        }
-                }
+				}
+			}
+		}
 
 		if (hitsItr->stationID() == 0 || hitsItr->stationID() == 3)
 		{
@@ -280,25 +274,21 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
 			}
 		}
 	}
-	ToFHits_MU_Weight 	= 1;
-	lbAToF_Weight 			= 1;
-	lbCToF_Weight 			= 1;
 	
 	// Events histograms
-	if(!stationValues.empty())
+	if(eventsInStations[0] > 0 && eventsInStations[3] > 0)
 	{
 		fill("AFPToFTool", lbAandCToFEvents);
 		
-		if(isInListVectorToF (0, stationValues))
+		if(eventsInStations[0] > 0)
 		{
 			fill("AFPToFTool", lbAToFEvents);
 		}
-		if(isInListVectorToF (3, stationValues))
+		if(eventsInStations[3] > 0)
 		{
 			fill("AFPToFTool", lbCToFEvents);
 		}
 	}
-	stationValues.clear();
 
 	return StatusCode::SUCCESS;
 }

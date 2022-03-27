@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -48,6 +48,18 @@ SCT_ForwardModuleSideDesign::SCT_ForwardModuleSideDesign(const double thickness,
     m_frame=SCT_ForwardFrameTransformation(etaCenter,phiCenter,radius);
   }
   m_bounds = Trk::TrapezoidBounds(0.5*minWidth(), 0.5*maxWidth(), 0.5*length());
+}
+
+double SCT_ForwardModuleSideDesign::sinStripAngleReco(double x, double y) const {
+    // If theta is angle between the edges of a sensor, then tan(theta/2) = (maxW - minW) / 2 / length
+    // and tan(theta/2) = width/2 / radius
+    // So 1/r = (maxW - minW) / (width * length)
+    double oneOverRadius = (maxWidth() - minWidth()) / (width() * length());
+    // We measure the angle from the y (eta) axis towards the x (phi) axis, hence the -ve sign.
+    double sinAngle = -x * oneOverRadius / sqrt(
+        (1 + y * oneOverRadius) * (1 + y * oneOverRadius) + x * oneOverRadius * x * oneOverRadius);
+
+    return sinAngle;
 }
 
 void
@@ -247,18 +259,18 @@ SCT_ForwardModuleSideDesign::cellIdOfPosition(const SiLocalPosition & localPosit
 {
   // NB We do not distinguish between the two crystals anymore.
   // Check if we are in the active region. No bondgap check.
-  if (!inActiveArea(localPosition, false)) return SiCellId(); // return an invalid id
+  if (!inActiveArea(localPosition, false)) return {}; // return an invalid id
 
   const SCT_ForwardPolarPosition polar = m_frame.polarFromCartesian(localPosition);
   double theta = polar.theta();
 
   double dstrip = theta/angularPitch() + 0.5*diodes();
 
-  if (dstrip < 0) return SiCellId(); // return an invalid id
+  if (dstrip < 0) return {}; // return an invalid id
   int strip = static_cast<int>(dstrip);
-  if (strip > diodes())  return SiCellId();// return an invalid id if strip # greater 
+  if (strip > diodes())  return {};// return an invalid id if strip # greater 
                                            // than number of diodes.
-  return SiCellId(strip-shift()); // strip numbering starts from first readout strip. 
+  return {strip-shift()}; // strip numbering starts from first readout strip. 
                                    // Those to the left will have negative numbers.
 }
 

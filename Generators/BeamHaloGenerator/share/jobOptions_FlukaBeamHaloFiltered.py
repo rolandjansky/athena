@@ -17,7 +17,7 @@ theApp.EvtMax = 1000
 
 ServiceMgr.MessageSvc.OutputLevel = INFO
 
-from AthenaServices.AthenaServicesConf import AtRndmGenSvc
+from RngComps.RngCompsConf import AtRndmGenSvc
 ServiceMgr += AtRndmGenSvc()
 ServiceMgr.AtRndmGenSvc.Seeds = ["BeamHalo 4894721 4639635"]
 

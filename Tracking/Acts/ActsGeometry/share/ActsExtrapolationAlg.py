@@ -3,15 +3,13 @@
 This job options file will run an example extrapolation using the
 Acts tracking geometry and the Acts extrapolation toolchain.
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 
 # start from scratch with component accumulator
-
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-from ActsGeometry.ActsGeometryConfig import ActsPropStepRootWriterSvcCfg, ActsExtrapolationAlgCfg, ActsExtrapolationToolCfg
+from ActsGeometry.ActsGeometryConfig import ActsExtrapolationAlgCfg
 
 if "__main__" == __name__:
   from AthenaCommon.Configurable import Configurable
@@ -24,7 +22,7 @@ if "__main__" == __name__:
 
   ## Just enable ID for the moment.
   ConfigFlags.Input.isMC             = True
-  ConfigFlags.Beam.Type = ''
+  ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1']
   ConfigFlags.GeoModel.AtlasVersion  = "ATLAS-R2-2016-01-00-01"
   ConfigFlags.IOVDb.GlobalTag        = "OFLCOND-SIM-00-00-00"
   ConfigFlags.Detector.GeometryBpipe = True

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_FrontEnd.h"
@@ -134,15 +134,15 @@ StatusCode SCT_FrontEnd::prepareGainAndOffset(SiChargedDiodeCollection& collecti
   // for generation of partially correlated random numbers
   float W = m_OGcorr * m_GainRMS * m_Ospread / (m_GainRMS * m_GainRMS - m_Ospread * m_Ospread);
   float A = 4.0f * W * W + 1.0f;
-  float x1 = (A - sqrt(A)) / (2.0f * A);
-  float sinfi = sqrt(x1);
+  float x1 = (A - std::sqrt(A)) / (2.0f * A);
+  float sinfi = std::sqrt(x1);
   float cosfi = sqrt(1.0 - x1);
 
   sinfi = sinfi * m_OGcorr / std::abs(m_OGcorr);
   float S = m_GainRMS * m_GainRMS + m_Ospread * m_Ospread;
   float D = (m_GainRMS * m_GainRMS - m_Ospread * m_Ospread) / (cosfi * cosfi - sinfi * sinfi);
-  float S1 = sqrt((S + D) * 0.5f);
-  float S2 = sqrt((S - D) * 0.5f);
+  float S1 = std::sqrt((S + D) * 0.5f);
+  float S2 = std::sqrt((S - D) * 0.5f);
   float Noise = 0;
   int mode = 1;
 
@@ -290,14 +290,14 @@ StatusCode SCT_FrontEnd::prepareGainAndOffset(SiChargedDiodeCollection& collecti
 
     float W = m_OGcorr * gainRMS * offsetRMS / (gainRMS * gainRMS - offsetRMS * offsetRMS);
     float A = 4.0f * W * W + 1.0f;
-    float x1 = (A - sqrt(A)) / (2.0f * A);
-    sinfi[i] = sqrt(x1);
-    cosfi[i] = sqrt(1.0f - x1);
+    float x1 = (A - std::sqrt(A)) / (2.0f * A);
+    sinfi[i] = std::sqrt(x1);
+    cosfi[i] = std::sqrt(1.0f - x1);
     sinfi[i] = sinfi[i] * m_OGcorr / std::abs(m_OGcorr);
     float S = gainRMS * gainRMS + offsetRMS * offsetRMS;
     float D = (gainRMS * gainRMS - offsetRMS * offsetRMS) / (cosfi[i] * cosfi[i] - sinfi[i] * sinfi[i]);
-    S1[i] = sqrt((S + D) / 2.0f);
-    S2[i] = sqrt((S - D) / 2.0f);
+    S1[i] = std::sqrt((S + D) / 2.0f);
+    S2[i] = std::sqrt((S - D) / 2.0f);
   }
 
   // Loop over collection and setup gain/offset/noise for the hit and neighbouring strips
@@ -658,7 +658,7 @@ void SCT_FrontEnd::process(SiChargedDiodeCollection& collection, CLHEP::HepRando
 }
 
 StatusCode SCT_FrontEnd::doSignalChargeForHits(SiChargedDiodeCollection& collection, SCT_FrontEndData& data, const int& strip_max) const {
-  typedef SiTotalCharge::list_t list_t;
+  using list_t = SiTotalCharge::list_t;
 
   // *****************************************************************************
   // Loop over the diodes (strips ) and for each of them define the total signal

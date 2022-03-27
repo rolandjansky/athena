@@ -13,7 +13,7 @@
 
 #include "TrigConfL1Data/TrigConfData.h"
 
-#include <boost/unordered_map.hpp>
+#include <unordered_map>
 
 namespace TrigConf {
    class HLTPrescale;
@@ -28,16 +28,18 @@ namespace TrigConf {
 
       // constructor
       HLTPrescale(float prescale=1, float pass_through=-1);
-      HLTPrescale(const HLTPrescale& o);
+      HLTPrescale(const HLTPrescale& o) = default;
+      HLTPrescale(HLTPrescale&& o) noexcept = default;
 
       // destructor
       ~HLTPrescale();
 
       // assignment
-      HLTPrescale& operator=(const HLTPrescale&);
+      HLTPrescale& operator=(const HLTPrescale&) = default;
+      HLTPrescale& operator=(HLTPrescale&&) noexcept = default;
 
       // maps for rerun and stream prescales
-      typedef boost::unordered_map<std::string, float> PrescaleMap_t;
+      typedef std::unordered_map<std::string, float> PrescaleMap_t;
       typedef PrescaleMap_t::value_type value_type;
 
       // setters

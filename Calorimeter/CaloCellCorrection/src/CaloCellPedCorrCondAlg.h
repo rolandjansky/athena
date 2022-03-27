@@ -1,6 +1,6 @@
 //Dear emacs, this is -*-c++-*-
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef CALOCELLCORRECTION_CALOCELLPEDCORRCONDALG_H
 #define CALOCELLCORRECTION_CALOCELLPEDCORRCONDALG_H
@@ -9,7 +9,6 @@
 
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
-#include "GaudiKernel/ICondSvc.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "CaloCondBlobObjs/ICaloCoolIdTool.h"
 #include "CaloConditions/CaloCellPedShift.h"
@@ -32,7 +31,6 @@ class CaloCellPedCorrCondAlg: public AthReentrantAlgorithm {
   SG::ReadCondHandleKey<CondAttrListCollection> m_lumiFolderName{this,"LumiFolderName","/TRIGGER/LUMI/LBLESTONL","SG Key of Attr list for Luminosity estimate"};
   SG::WriteCondHandleKey<CaloCellPedShift> m_pedShiftKey{this,"CaloPedShiftKey","CaloPedShift"};
 
-  ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
   ToolHandle<ICaloCoolIdTool> m_caloCoolIdTool{this,"CaloCoolIdTool","CaloCoolIdTool"};
 
   Gaudi::Property<float> m_lumi0{this,"Luminosity",0.0,"Luminosity in 10**33 units"};

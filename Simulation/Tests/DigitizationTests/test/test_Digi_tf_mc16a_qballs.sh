@@ -33,7 +33,7 @@ Digi_tf.py \
 
 rc=$?
 status=$rc
-echo  "art-result: $rc Digi_tf.py"
+echo  "art-result: $rc digiOLD"
 rc1=-9999
 rc2=-9999
 rc3=-9999
@@ -46,19 +46,11 @@ echo "Reference set being used: ${DigitizationTestsVersion}"
 if [[ $rc -eq 0 ]]
 then
     # Do reference comparisons
-    art.py compare ref --diff-pool "$DigiOutFileName" "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/ReferenceFiles/$DigitizationTestsVersion/$CMTCONFIG/$DigiOutFileName"
+    art.py compare ref --mode=semi-detailed --no-diff-meta "$DigiOutFileName" "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/ReferenceFiles/$DigitizationTestsVersion/$CMTCONFIG/$DigiOutFileName"
     rc1=$?
     status=$rc1
 fi
-echo "art-result: $rc1 diff-pool"
-
-if [[ $rc -eq 0 ]]
-then
-    art.py compare ref --mode=semi-detailed --diff-root "$DigiOutFileName" "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/ReferenceFiles/$DigitizationTestsVersion/$CMTCONFIG/$DigiOutFileName"
-    rc2=$?
-    status=$rc2
-fi
-echo "art-result: $rc2 diff-root"
+echo "art-result: $rc1 OLDvsFixedRef"
 
 if [[ $rc -eq 0 ]]
 then

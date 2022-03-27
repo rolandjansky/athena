@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -81,10 +81,10 @@ IDPerfMonZee::IDPerfMonZee( const std::string & type, const std::string & name, 
   declareProperty("triggerChainName",m_triggerChainName);
   declareProperty("electronIDLevel",m_electronIDLevel = "Tight");
 
-  m_region_strings.push_back("incl");
-  m_region_strings.push_back("barrel");
-  m_region_strings.push_back("eca");
-  m_region_strings.push_back("ecc");
+  m_region_strings.emplace_back("incl");
+  m_region_strings.emplace_back("barrel");
+  m_region_strings.emplace_back("eca");
+  m_region_strings.emplace_back("ecc");
 
 }
 
@@ -593,7 +593,7 @@ const xAOD::CaloCluster* IDPerfMonZee::getLeadingEMcluster(const xAOD::CaloClust
   float max_pt = 0.;
   for (const auto cl: *clusters) {
     if (cl == omitCluster) continue;
-    double deltaR = std::sqrt(std::pow(std::fabs(cl->phi() - omitCluster->phi()),2) + std::pow(std::fabs(cl->eta() - omitCluster->eta()),2));
+    double deltaR = std::sqrt(std::pow(std::abs(cl->phi() - omitCluster->phi()),2) + std::pow(std::abs(cl->eta() - omitCluster->eta()),2));
     if(deltaR < 0.005) continue;
     if (cl->pt()/Gaudi::Units::GeV < 10.) continue;
     if (cl->pt() > max_pt) {
@@ -619,7 +619,7 @@ const xAOD::CaloCluster* IDPerfMonZee::getLeadingEMcluster(const xAOD::PhotonCon
     }
     const xAOD::CaloCluster* cl = em->caloCluster();
     if (cl == omitCluster) continue;
-    double deltaR = !omitCluster ? 1.0 : std::sqrt(std::pow(std::fabs(cl->phi() - omitCluster->phi()),2) + std::pow(std::fabs(cl->eta() - omitCluster->eta()),2));
+    double deltaR = !omitCluster ? 1.0 : std::sqrt(std::pow(std::abs(cl->phi() - omitCluster->phi()),2) + std::pow(std::abs(cl->eta() - omitCluster->eta()),2));
     if(deltaR < 0.005) continue;
     if (cl->pt()/Gaudi::Units::GeV < 20.) continue;
     if (cl->pt() > max_pt) {
@@ -639,7 +639,7 @@ const xAOD::TrackParticle* IDPerfMonZee::electronTrackMatch(const xAOD::TrackPar
     double deta = cluster->etaBE(2)-track->eta();
     double dphi = cluster->phi()-track->phi();
     double dr = std::sqrt(deta*deta + dphi*dphi);
-    if (dr < min_dR && std::fabs(deta) < dEta && std::fabs(dphi) < dPhi) {
+    if (dr < min_dR && std::abs(deta) < dEta && std::abs(dphi) < dPhi) {
       min_dR = dr;
       matched_track = track;
     }
@@ -651,14 +651,14 @@ double IDPerfMonZee::electronTrackMatchEta(const xAOD::TrackParticleContainer* t
   const xAOD::TrackParticle* matched_track{};
   double min_dEta = 1.0e+20;
   for (const auto track : *tracks){
-    double deta = std::fabs(cluster->etaBE(2)-track->eta());
+    double deta = std::abs(cluster->etaBE(2)-track->eta());
     if (deta < min_dEta && deta < dEta) {
       min_dEta = deta;
       matched_track = track;
     }
   }
   double dPhi = 1.0e+20;
-  if (matched_track != 0) dPhi = signedDeltaPhi(cluster->phi(),matched_track->phi());
+  if (matched_track != nullptr) dPhi = signedDeltaPhi(cluster->phi(),matched_track->phi());
   return dPhi;
 }
 
@@ -666,7 +666,7 @@ double IDPerfMonZee::electronTrackMatchPhi(const xAOD::TrackParticleContainer* t
   const xAOD::TrackParticle* matched_track{};
   double min_dPhi = 1.0e+20;
   for (const auto track : *tracks){
-    double dphi = std::fabs(signedDeltaPhi(cluster->phi(),track->phi()));
+    double dphi = std::abs(signedDeltaPhi(cluster->phi(),track->phi()));
     if (dphi < min_dPhi && dphi < dPhi) {
       min_dPhi = dphi;
       matched_track = track;
@@ -678,7 +678,7 @@ double IDPerfMonZee::electronTrackMatchPhi(const xAOD::TrackParticleContainer* t
 }
 
 double IDPerfMonZee::InvMass(const xAOD::CaloCluster* EM1, const xAOD::CaloCluster* EM2) const {
-  if (EM1 == 0 || EM2 == 0) return -99.;
+  if (EM1 == nullptr || EM2 == nullptr) return -99.;
   double invmass = 0.;
   if (EM1->pt() != 0 && EM2->pt() != 0.) {
     TLorentzVector particle1;
@@ -691,7 +691,7 @@ double IDPerfMonZee::InvMass(const xAOD::CaloCluster* EM1, const xAOD::CaloClust
 }
 
 double IDPerfMonZee::InvMass(const xAOD::TrackParticle* trk1, const xAOD::TrackParticle* trk2) const {
-  if (trk1 == 0 || trk2 == 0) return -99.;
+  if (trk1 == nullptr || trk2 == nullptr) return -99.;
   double invmass = 0.;
   if (trk1->pt() != 0 && trk2->pt() != 0.) {
     TLorentzVector particle1;
@@ -704,7 +704,7 @@ double IDPerfMonZee::InvMass(const xAOD::TrackParticle* trk1, const xAOD::TrackP
 }
 
 double IDPerfMonZee::TransMass(const xAOD::CaloCluster* EM, const xAOD::MissingET* met) const {
-  if (EM == 0 || met == 0) return -99.;
+  if (EM == nullptr || met == nullptr) return -99.;
   double transmass = 0.;
   float dphi = signedDeltaPhi(EM->phi(),met->phi());
   transmass = std::sqrt(2.*EM->et()*met->met()*(1.-std::cos(dphi)));
@@ -713,7 +713,7 @@ double IDPerfMonZee::TransMass(const xAOD::CaloCluster* EM, const xAOD::MissingE
 
 double IDPerfMonZee::deltaR(const xAOD::CaloCluster* cluster, const xAOD::TrackParticle* track) const {
   double dr =-999.;
-  if (cluster == 0 || track == 0) return dr;
+  if (cluster == nullptr || track == nullptr) return dr;
   double deta = cluster->etaBE(2)-track->eta();
   double dphi = cluster->phi()-track->phi();
   dr = std::sqrt(deta*deta + dphi*dphi);
@@ -752,7 +752,7 @@ double IDPerfMonZee::signedDeltaPhi(double phi1, double phi2) const {
 
 int IDPerfMonZee::etaRegion(double eta) {
   int region = -99;
-  if (std::fabs(eta) <= 1.) region = barrel;
+  if (std::abs(eta) <= 1.) region = barrel;
   else if (eta > 1.) region = eca; // eca
   else if (eta < -1.) region = ecc; // ecc
   return region;
@@ -760,7 +760,7 @@ int IDPerfMonZee::etaRegion(double eta) {
 }
 
 void IDPerfMonZee::FillHistosPerCluster(const xAOD::CaloCluster* cluster, const xAOD::TrackParticle* track, int region, float dEta, float dPhi) {
-  if (cluster == 0) return;
+  if (cluster == nullptr) return;
   if (region<0){
     throw(std::out_of_range("Region index has negative value in IDPerfMonZee::FillHistosPerCluster"));
   }
@@ -771,24 +771,24 @@ void IDPerfMonZee::FillHistosPerCluster(const xAOD::CaloCluster* cluster, const 
     // match in eta and phi separately and make dEta and dPhi plots
     if (dEta < 1.0e+20) {
       m_Zee_deta[region]->Fill(dEta);
-      if (std::fabs(dEta) < 0.05) { // calculate mean only for those in matching window
+      if (std::abs(dEta) < 0.05) { // calculate mean only for those in matching window
         m_Zee_deta_vs_eta[region]->Fill(cluster->etaBE(2),dEta);
         m_Zee_deta_vs_phi[region]->Fill(cluster->phi(),dEta);
         m_Zee_deta_vs_eta_2d[region]->Fill(cluster->etaBE(2),dEta);
         m_Zee_deta_vs_phi_2d[region]->Fill(cluster->phi(),dEta);
-        m_Zee_absdeta_vs_eta[region]->Fill(cluster->etaBE(2),std::fabs(dEta));
-        m_Zee_absdeta_vs_phi[region]->Fill(cluster->phi(),std::fabs(dEta));
+        m_Zee_absdeta_vs_eta[region]->Fill(cluster->etaBE(2),std::abs(dEta));
+        m_Zee_absdeta_vs_phi[region]->Fill(cluster->phi(),std::abs(dEta));
       }
     }
     if (dPhi < 1.0e+20) {
       m_Zee_dphi[region]->Fill(dPhi);
-      if (std::fabs(dPhi) < 0.1) { // calculate mean only for those in matching window
+      if (std::abs(dPhi) < 0.1) { // calculate mean only for those in matching window
         m_Zee_dphi_vs_eta[region]->Fill(cluster->etaBE(2),dPhi);
         m_Zee_dphi_vs_phi[region]->Fill(cluster->phi(),dPhi);
         m_Zee_dphi_vs_eta_2d[region]->Fill(cluster->etaBE(2),dPhi);
         m_Zee_dphi_vs_phi_2d[region]->Fill(cluster->phi(),dPhi);
-        m_Zee_absdphi_vs_eta[region]->Fill(cluster->etaBE(2),std::fabs(dPhi));
-        m_Zee_absdphi_vs_phi[region]->Fill(cluster->phi(),std::fabs(dPhi));
+        m_Zee_absdphi_vs_eta[region]->Fill(cluster->etaBE(2),std::abs(dPhi));
+        m_Zee_absdphi_vs_phi[region]->Fill(cluster->phi(),std::abs(dPhi));
       }
     }
 

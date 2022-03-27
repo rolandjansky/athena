@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( RngComps )
@@ -51,6 +51,15 @@ atlas_add_test( RNGWrapper_test
    SOURCES test/RNGWrapper_test.cxx
    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
    LINK_LIBRARIES ${CLHEP_LIBRARIES} ${TBB_LIBRARIES} AthenaKernel AtlasCLHEP_RandomGenerators TestTools )
+
+# This test takes way too long to run in the dbg build.
+if ( NOT "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
+  atlas_add_test( RNGSeeding_test
+     SOURCES test/RNGSeeding_test.cxx
+     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
+     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${TBB_LIBRARIES} AthenaKernel AtlasCLHEP_RandomGenerators TestTools )
+ endif()
+
 
 atlas_add_test( RandomServices_test
                 SCRIPT test/RandomServices_test.py )

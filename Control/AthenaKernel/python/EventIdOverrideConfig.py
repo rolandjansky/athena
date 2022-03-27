@@ -43,7 +43,7 @@ def buildListOfModifiers(ConfigFlags):
     # migrated from RunDMCFlags.py
     Modifiers = []
     pDicts = ConfigFlags.Input.RunAndLumiOverrideList
-    DataRunNumber = ConfigFlags.Digitization.DataRunNumber
+    DataRunNumber = ConfigFlags.Input.ConditionsRunNumber
 
     if pDicts:
         for el in pDicts:
@@ -51,7 +51,7 @@ def buildListOfModifiers(ConfigFlags):
             Modifiers += add_modifier(run_nbr=el["run"], evt_nbr=evt_nbr, time_stamp=el["starttstamp"], lbk_nbr=el["lb"], nevts=el["evts"])
     elif DataRunNumber>0:
         assert DataRunNumber >= 0, (
-            "ConfigFlags.Digitization.DataRunNumber %d is negative. "
+            "ConfigFlags.Input.ConditionsRunNumber %d is negative. "
             "Use a real run number from data." % DataRunNumber)
 
         # Using event numbers to avoid "some very large number" setting
@@ -95,11 +95,11 @@ def getMinMaxRunNumbers(ConfigFlags):
         allruns = [element['run'] for element in pDicts]
         mini = min(allruns) + 0
         maxi = max(allruns) + 1
-    elif ConfigFlags.Digitization.DataRunNumber>0:
+    elif ConfigFlags.Input.ConditionsRunNumber>0:
         # Behaviour for Digitization jobs using DataRunNumber
-        DataRunNumber = ConfigFlags.Digitization.DataRunNumber
+        DataRunNumber = ConfigFlags.Input.ConditionsRunNumber
         assert DataRunNumber >= 0, (
-            "ConfigFlags.Digitization.DataRunNumber %d is negative. "
+            "ConfigFlags.Input.ConditionsRunNumber %d is negative. "
             "Use a real run number from data." % DataRunNumber)
         mini = DataRunNumber
         maxi = DataRunNumber+1
@@ -116,7 +116,7 @@ def getMinMaxRunNumbers(ConfigFlags):
 
 def EvtIdModifierSvcCfg(ConfigFlags, name="EvtIdModifierSvc", **kwargs):
     acc = ComponentAccumulator()
-    if ConfigFlags.Digitization.PileUp or ConfigFlags.Sim.DoFullChain:
+    if ConfigFlags.Common.Project != "AthSimulation" and (ConfigFlags.Digitization.PileUp or ConfigFlags.Sim.DoFullChain):
         kwargs.setdefault("EvtStoreName", "OriginalEvent_SG")
     else:
         kwargs.setdefault("EvtStoreName", "StoreGateSvc")

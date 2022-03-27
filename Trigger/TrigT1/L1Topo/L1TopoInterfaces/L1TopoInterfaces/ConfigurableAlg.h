@@ -96,8 +96,10 @@ namespace TCS {
        */
       void setL1TopoHistSvc(std::shared_ptr<IL1TopoHistSvc>);
 
-      void bookHist(std::vector<std::string> &regName, const std::string& name,const std::string& title, const int binx, const int xmin, const int xmax, const bool isMult = false);
-      void bookHist(std::vector<std::string> &regName, const std::string& name,const std::string& title, const int binx, const int xmin, const int xmax, const int biny, const int ymin, const int ymax, const bool isMult = false);
+      void bookHistMult(std::vector<std::string> &regName, const std::string& name, const std::string& title, const std::string& xtitle, const int binx, const int xmin, const int xmax);
+      void bookHist(std::vector<std::string> &regName, const std::string& name, const std::string& title, const int binx, const int xmin, const int xmax);
+      void bookHistMult(std::vector<std::string> &regName, const std::string& name, const std::string& title, const std::string& xtitle, const std::string& ytitle, const int binx, const int xmin, const int xmax, const int biny, const int ymin, const int ymax);
+      void bookHist(std::vector<std::string> &regName, const std::string& name, const std::string& title, const int binx, const int xmin, const int xmax, const int biny, const int ymin, const int ymax);
 
 
    protected:

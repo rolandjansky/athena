@@ -1,6 +1,7 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
+from AthenaConfiguration.Enums import LHCPeriod
 
 Run1Grades = [ "Good", "BlaShared", "PixShared", "SctShared", "0HitBLayer" ]
 Run2Grades = [ "0HitIn0HitNInExp2","0HitIn0HitNInExpIn","0HitIn0HitNInExpNIn","0HitIn0HitNIn",
@@ -12,20 +13,41 @@ Run2Grades = [ "0HitIn0HitNInExp2","0HitIn0HitNInExpIn","0HitIn0HitNInExpNIn","0
 Run4Grades = [ "A01","A02","A03","A04","A05","A06","A07","A08","A14_1","A14_2","A14_3","A14_4",
                "B01","B02","B03","B04","B05","B06","B07","B08","B14_1","B14_2","B14_3","B14_4",
                "C01","C02030405","C06","C07","C08","C14_1","C14_2","C14_3","C14_4" ]
+calibrationChannelAliases = [
+    "AntiKt4EMTopo->AntiKt4EMTopo,AntiKt4EMPFlow",
+    "AntiKt4EMPFlow->AntiKt4EMPFlow,AntiKt4EMTopo",
+    "AntiKt4HI->AntiKt4HI,AntiKt4EMPFlow,AntiKt4EMTopo,AntiKt4LCTopo",
+    "AntiKtVR30Rmax4Rmin02PV0Track->AntiKtVR30Rmax4Rmin02PV0Track,AntiKt4EMPFlow,AntiKt4EMTopo",
+    "AntiKt4PFlowCustomVtx->AntiKt4EMTopo",
+]
 
 def getGrades(flags):
-    if flags.GeoModel.Run=='RUN1':
+    if flags.GeoModel.Run is LHCPeriod.Run1:
         return Run1Grades
-    elif flags.GeoModel.Run in ['RUN2','RUN3']:
+    elif flags.GeoModel.Run in [LHCPeriod.Run2, LHCPeriod.Run3]:
         return Run2Grades
     else:
         return Run4Grades
 
+
+def getTaggerList(flags):
+    # NOTE: MV2c10 is deprecated but something in trigger is asking
+    # for it... maybe online monitoring?
+    base = ['IP2D','IP3D','SV1','JetFitterNN']
+    flip = ['IP2DNeg', 'IP3DNeg','IP2DFlip', 'IP3DFlip']
+    if flags.BTagging.RunFlipTaggers:
+        return base + flip
+    return base
+
+
 def createBTaggingConfigFlags():
     btagcf = AthConfigFlags()
 
-    btagcf.addFlag("BTagging.run2TaggersList", ['IP2D','IP3D','SV1','SoftMu','JetFitterNN','MV2c10'])
-    btagcf.addFlag("BTagging.Run2TrigTaggers", ['IP2D','IP3D','SV1','JetFitterNN','MV2c10'])
+    btagcf.addFlag("BTagging.taggerList", getTaggerList)
+    btagcf.addFlag("BTagging.databaseScheme", "")
+    btagcf.addFlag("BTagging.calibrationChannelAliases",
+                   calibrationChannelAliases)
+    btagcf.addFlag("BTagging.forcedCalibrationChannel", "")
     # Disable JetVertexCharge ATLASRECTS-4506
     btagcf.addFlag("BTagging.RunModus", "analysis") # reference mode used in FlavourTagPerformanceFramework (RetagFragment.py)
     btagcf.addFlag("BTagging.ReferenceType", "ALL") # reference type for IP and SV taggers (B, UDSG, ALL)
@@ -42,5 +64,9 @@ def createBTaggingConfigFlags():
     btagcf.addFlag("BTagging.GeneralToolSuffix",'') #Not sure it will stay like that later on. Was '', 'Trig, or 'AODFix'
     # Run the flip taggers
     btagcf.addFlag("BTagging.RunFlipTaggers", False)
+
+    # experimental flags
+    btagcf.addFlag("BTagging.Trackless", False)
+    btagcf.addFlag("BTagging.Pseudotrack", False)
 
     return btagcf

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -19,7 +19,6 @@
 #include "CLHEP/Random/RandomEngine.h"
 #include "CoralBase/Blob.h"
 #include "CoralUtilities/blobaccess.h"
-#include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MdtCalibData/MdtCorFuncSetCollection.h"
@@ -49,7 +48,6 @@ public:
     virtual StatusCode execute() override;
 
 private:
-    ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
     MuonCalib::MdtTubeCalibContainer* buildMdtTubeCalibContainer(const Identifier& id);
 
     StatusCode loadRt();

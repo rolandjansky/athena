@@ -34,10 +34,6 @@ namespace CP
 
   // Default constructor
   SystematicSet::SystematicSet()
-        : m_joinedName(""),
-          m_nameIsCached(false),
-          m_hash(0),
-          m_hashIsCached(false)
   {
   }
 
@@ -92,7 +88,8 @@ namespace CP
   {
     // If insert doesn't change the set, don't change cache flag
     if(m_sysVariations.insert(systematic).second) {
-      m_nameIsCached = m_hashIsCached = false;
+      m_joinedName.reset();
+      m_hash.reset();
     }
   }
 
@@ -110,9 +107,10 @@ namespace CP
   void SystematicSet::swap(SystematicSet& otherSet)
   {
     m_sysVariations.swap(otherSet.m_sysVariations);
-    m_nameIsCached = m_hashIsCached = false;
-    otherSet.m_nameIsCached = false;
-    otherSet.m_hashIsCached = false;
+    m_joinedName.reset();
+    otherSet.m_joinedName.reset();
+    m_hash.reset();
+    otherSet.m_hash.reset();
   }
 
 
@@ -120,9 +118,8 @@ namespace CP
   void SystematicSet::clear()
   {
     m_sysVariations.clear();
-    m_joinedName.clear();
-    m_hash = 0;
-    m_nameIsCached = m_hashIsCached = false;
+    m_joinedName.reset();
+    m_hash.reset();
   }
 
 
@@ -279,23 +276,21 @@ namespace CP
   // Return the cached joined systematic name
   std::string SystematicSet::name() const
   {
-    if(!m_nameIsCached)
+    if(!m_joinedName.isValid())
     {
-      m_joinedName = joinNames();
-      m_nameIsCached = true;
+      m_joinedName.set (joinNames());
     }
-    return m_joinedName;
+    return *m_joinedName.ptr();
   }
 
 
   // Return the cached hash value
   std::size_t SystematicSet::hash() const
   {
-    if(!m_hashIsCached) {
-      m_hash = computeHash();
-      m_hashIsCached = true;
+    if(!m_hash.isValid()) {
+      m_hash.set (computeHash());
     }
-    return m_hash;
+    return *m_hash.ptr();
   }
 
 
@@ -316,7 +311,7 @@ namespace CP
   // Compute the hash value for this SystematicSet
   std::size_t SystematicSet::computeHash() const
   {
-    static std::hash<std::string> hashFunction;
+    static const std::hash<std::string> hashFunction;
     //static boost::hash<std::string> hashFunction;
     return hashFunction(name());
   }

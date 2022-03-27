@@ -132,17 +132,6 @@ prepareStateForAssembly(Cache& cache)
 
 } // end anonymous namespace
 
-void
-Trk::MultiComponentStateAssembler::reset(Cache& cache)
-{
-  cache.assemblyDone = false;
-  if (!cache.multiComponentState.empty()) {
-    cache.multiComponentState.clear();
-  }
-  cache.validWeightSum = 0.;
-  cache.invalidWeightSum = 0.;
-}
-
 bool
 Trk::MultiComponentStateAssembler::addComponent(
   Cache& cache,

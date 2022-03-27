@@ -15,15 +15,13 @@
 #include <TH2.h>
 
 #include "JetCalibTools/IJetCalibrationTool.h"
-#include "JetCalibTools/JetCalibrationToolBase.h"
+#include "JetCalibTools/JetCalibrationStep.h"
 
 #include <memory>
 
 class GlobalSequentialCorrection 
-  : virtual public ::JetCalibrationToolBase
+  : virtual public ::JetCalibrationStep
 {
-
-  ASG_TOOL_CLASS( GlobalSequentialCorrection, IJetCalibrationTool )
 
  public:
   //Some convenient typedefs
@@ -33,13 +31,10 @@ class GlobalSequentialCorrection
   typedef unsigned int uint;
 
   GlobalSequentialCorrection();
-  GlobalSequentialCorrection(const std::string& name);
   GlobalSequentialCorrection(const std::string& name, TEnv * config, TString jetAlgo, std::string depth, TString calibAreaTag, bool dev); //Apply the full GS calibration by default
 
-  virtual StatusCode initializeTool(const std::string& name);
-
- protected:
-  virtual StatusCode calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const;
+  virtual StatusCode initialize() override;
+  virtual StatusCode calibrate(xAOD::Jet& jet, JetEventInfo&) const override;
 
  private:
   double getTrackWIDTHResponse(double pT, uint etabin, double trackWIDTH) const;

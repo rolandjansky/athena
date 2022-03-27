@@ -44,9 +44,6 @@ class gFEXDriver : public AthAlgorithm
   SG::WriteHandleKey<LVL1::gTowerContainer> m_gTowerContainerSGKey {this, "MyGTowers", "gTowerContainer", "MyGTowers"};
   SG::WriteHandleKey<gFEXOutputCollection> m_gFEXOutputCollectionSGKey {this, "MyOutputs", "gFEXOutputCollection", "MyOutputs"};
 
-  //Declare that gFEXDriver class will read an object of type CaloCellContainer, xAOD::gFexJetRoIContainer, xAOD::gFexGlobalRoIContainer
-  SG::ReadHandleKey<CaloCellContainer> m_scellsCollectionSGKey {this, "SCell", "SCell", "SCell"};
-
   ToolHandle<IgTowerBuilder> m_gTowerBuilderTool {this, "gTowerBuilderTool", "LVL1::gTowerBuilder", "Tool that builds gTowers for simulation"};
   ToolHandle<IgSuperCellTowerMapper> m_gSuperCellTowerMapperTool {this, "gSuperCellTowerMapperTool", "LVL1::gSuperCellTowerMapper", "Tool that maps supercells to gTowers"};
   ToolHandle<IgFEXSysSim> m_gFEXSysSimTool {this, "gFEXSysSimTool", "LVL1::gFEXSysSim", "Tool that creates the gFEX System Simulation"};

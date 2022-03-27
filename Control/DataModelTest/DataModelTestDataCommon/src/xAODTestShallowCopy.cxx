@@ -36,45 +36,37 @@ StatusCode xAODTestShallowCopy::initialize()
     m_cvecWriteKey = "";
     m_cvecAnInt10Key = "";
   }
-  else {
-    ATH_CHECK( m_cvecReadKey.initialize() );
-    ATH_CHECK( m_cvecWriteKey.initialize() );
-    ATH_CHECK( m_cvecAnInt10Key.initialize() );
-    ATH_CHECK( m_cvecDecorDeps.initialize (m_cvecReadKey, m_cvecWriteKey) );
-  }
+  ATH_CHECK( m_cvecReadKey.initialize( !m_cvecReadKey.empty() ) );
+  ATH_CHECK( m_cvecWriteKey.initialize( !m_cvecReadKey.empty() ) );
+  ATH_CHECK( m_cvecAnInt10Key.initialize( !m_cvecReadKey.empty() ) );
+  ATH_CHECK( m_cvecDecorDeps.initialize( m_cvecReadKey, m_cvecWriteKey, !m_cvecReadKey.empty() ) );
 
   if (m_cvecWDReadKey.empty()) {
     m_cvecWDWriteKey = "";
     m_cvecWDAnInt10Key = "";
   }
-  else {
-    ATH_CHECK( m_cvecWDReadKey.initialize() );
-    ATH_CHECK( m_cvecWDWriteKey.initialize() );
-    ATH_CHECK( m_cvecWDAnInt10Key.initialize() );
-    ATH_CHECK( m_cvecWDDecorDeps.initialize (m_cvecWDReadKey, m_cvecWDWriteKey) );
-  }
+  ATH_CHECK( m_cvecWDReadKey.initialize( !m_cvecWDReadKey.empty() ) );
+  ATH_CHECK( m_cvecWDWriteKey.initialize( !m_cvecWDReadKey.empty() ) );
+  ATH_CHECK( m_cvecWDAnInt10Key.initialize( !m_cvecWDReadKey.empty() ) );
+  ATH_CHECK( m_cvecWDDecorDeps.initialize( m_cvecWDReadKey, m_cvecWDWriteKey, !m_cvecWDReadKey.empty() ) );
 
   if (m_cinfoReadKey.empty()) {
     m_cinfoWriteKey = "";
     m_cinfoAnInt10Key = "";
   }
-  else {
-    ATH_CHECK( m_cinfoReadKey.initialize() );
-    ATH_CHECK( m_cinfoWriteKey.initialize() );
-    ATH_CHECK( m_cinfoAnInt10Key.initialize() );
-    ATH_CHECK( m_cinfoDecorDeps.initialize (m_cinfoReadKey, m_cinfoWriteKey) );
-  }
+  ATH_CHECK( m_cinfoReadKey.initialize( !m_cinfoReadKey.empty() ) );
+  ATH_CHECK( m_cinfoWriteKey.initialize( !m_cinfoReadKey.empty() ) );
+  ATH_CHECK( m_cinfoAnInt10Key.initialize( !m_cinfoReadKey.empty() ) );
+  ATH_CHECK( m_cinfoDecorDeps.initialize( m_cinfoReadKey, m_cinfoWriteKey, !m_cinfoReadKey.empty() ) );
 
   if (m_ctrigReadKey.empty()) {
     m_ctrigWriteKey = "";
     m_ctrigAnInt10Key = "";
   }
-  else {
-    ATH_CHECK( m_ctrigReadKey.initialize() );
-    ATH_CHECK( m_ctrigWriteKey.initialize() );
-    ATH_CHECK( m_ctrigAnInt10Key.initialize() );
-    ATH_CHECK( m_ctrigDecorDeps.initialize (m_ctrigReadKey, m_ctrigWriteKey) );
-  }
+  ATH_CHECK( m_ctrigReadKey.initialize( !m_ctrigReadKey.empty() ) );
+  ATH_CHECK( m_ctrigWriteKey.initialize( !m_ctrigReadKey.empty() ) );
+  ATH_CHECK( m_ctrigAnInt10Key.initialize( !m_ctrigReadKey.empty() ) );
+  ATH_CHECK( m_ctrigDecorDeps.initialize( m_ctrigReadKey, m_ctrigWriteKey, !m_ctrigReadKey.empty() ) );
 
   return StatusCode::SUCCESS;
 }

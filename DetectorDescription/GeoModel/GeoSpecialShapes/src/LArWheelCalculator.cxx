@@ -8,36 +8,25 @@
 #include <cmath>
 #include <climits>
 #include <cassert>
-
-#ifndef BUILDVP1LIGHT
-    #include "GaudiKernel/ISvcLocator.h"
-    #include "GaudiKernel/Bootstrap.h"
-    #include "GaudiKernel/MsgStream.h"
-    #include "GaudiKernel/PhysicalConstants.h"
-    #include "GeoModelInterfaces/IGeoModelSvc.h"
-    #include "RDBAccessSvc/IRDBRecord.h"
-    #include "RDBAccessSvc/IRDBRecordset.h"
-    #include "RDBAccessSvc/IRDBAccessSvc.h"
-    #include "./LArWheelCalculator_Impl/RDBParamReader.h"
-    #include "./LArWheelCalculator_Impl/RDBParamRecords.h"
+#ifndef PORTABLE_LAR_SHAPE
+#include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/MsgStream.h"
+#else
+#include "PortableMsgStream/PortableMsgStream.h"
 #endif
 
-#include "GeoModelUtilities/DecodeVersionKey.h"
-
 #include "GeoSpecialShapes/LArWheelCalculator.h"
+#include "GeoSpecialShapes/EMECData.h"
 
 #include "./LArWheelCalculator_Impl/DistanceCalculatorFactory.h"
 #include "./LArWheelCalculator_Impl/FanCalculatorFactory.h"
 
-#include "AthenaKernel/Units.h"
 
-using namespace Athena::Units;
-using Gaudi::Units::twopi;
+#include "GeoModelKernel/Units.h"
 
+using namespace GeoModelKernelUnits;
 
-// The radial boundaries of the inner and outer wheels are defined
-// by values of eta, the distance from z=0 to the front face of the
-// wheel, and the thickness of the wheel.
 
 // these numbers are taken from DB in constructor,
 // hardcoded values here are just for reference
@@ -107,12 +96,14 @@ LArWheelCalculator::~LArWheelCalculator() {
   m_fanCalcImpl = 0;
 }
 
-LArWheelCalculator::LArWheelCalculator(LArG4::LArWheelCalculator_t a_wheelType, int zside) :
+LArWheelCalculator::LArWheelCalculator(const EMECData & emecData, LArG4::LArWheelCalculator_t a_wheelType, int zside) :
   m_type(a_wheelType),
   m_AtlasZside(zside),
   m_distanceCalcImpl(0),
   m_fanCalcImpl(0)
 {
+
+#ifndef PORTABLE_LAR_SHAPE
   // Get pointer to the message service
   ISvcLocator* svcLocator = Gaudi::svcLocator();
   IMessageSvc* msgSvc;
@@ -121,6 +112,14 @@ LArWheelCalculator::LArWheelCalculator(LArG4::LArWheelCalculator_t a_wheelType, 
     throw std::runtime_error("LArWheelCalculator constructor: cannot initialze message service");
   }
   MsgStream msg(msgSvc, "LArWheelCalculator");
+#else
+  PortableMsgStream msg("LArWheelCalculator");
+#endif
+  msg << MSG::VERBOSE << "LArWheelCalculator constructor at " << this
+      << " (type " << LArWheelCalculatorTypeString(m_type)
+      << "):" << endmsg;
+
+
   msg << MSG::VERBOSE << "LArWheelCalculator constructor at " << this
       << " (type " << LArWheelCalculatorTypeString(m_type)
       << "):" << endmsg;
@@ -132,106 +131,63 @@ LArWheelCalculator::LArWheelCalculator(LArG4::LArWheelCalculator_t a_wheelType, 
   // Access source of detector parameters.
   msg << MSG::VERBOSE
       << "initializing data members from DB..." << endmsg;
-#ifndef BUILDVP1LIGHT
-  IGeoModelSvc *geoModel;
-  IRDBAccessSvc* rdbAccess;
 
-  if(svcLocator->service("GeoModelSvc", geoModel) == StatusCode::FAILURE)
-    throw std::runtime_error("Error cannot access GeoModelSvc");
-  if(svcLocator->service ("RDBAccessSvc",rdbAccess) == StatusCode::FAILURE)
-    throw std::runtime_error("Error cannot access RDBAccessSvc");
+  m_zWheelRefPoint       =emecData.emecgeometry[0].Z0*cm;
+  m_dMechFocaltoWRP      =emecData.emecgeometry[0].Z1*cm;
+  m_dElecFocaltoWRP      =emecData.emecgeometry[0].DCF*cm;
+  m_HalfGapBetweenWheels =emecData.emecgeometry[0].DCRACK*cm;
+  m_rOuterCutoff         =emecData.emecgeometry[0].RLIMIT*cm;
+  m_zShift               =emecData.emecgeometry[0].ZSHIFT*cm;
+  
+  
+  m_eta_hi  =emecData.emecwheelparameters[0].ETAINT;  
+  m_eta_mid =emecData.emecwheelparameters[0].ETAEXT;  
+  m_eta_low =emecData.emecwheelparameters[1].ETAEXT;  
 
-  DecodeVersionKey larVersionKey(geoModel, "LAr");
 
-  RDBParamReader rdbr(rdbAccess);
-  rdbr.
-    data( "EmecGeometry", larVersionKey.tag(), larVersionKey.node() ).
-    fallback_to( "EmecGeometry", "EmecGeometry-00" ).
-    //     store to,                  name,   units
-    param(m_zWheelRefPoint,            "Z0",  cm).
-    param(m_dMechFocaltoWRP,           "Z1",  cm).
-    param(m_dElecFocaltoWRP,          "DCF",  cm).
-    param(m_HalfGapBetweenWheels,  "DCRACK",  cm).
-    param(m_rOuterCutoff,          "RLIMIT",  cm).
-    param(m_zShift,                "ZSHIFT",  cm)
-    ;
 
-  RDBParamRecords EmecWheelParameters_recs = rdbr.
-    data( "EmecWheelParameters", larVersionKey.tag(), larVersionKey.node() ).
-    fallback_to( "EmecWheelParameters", "EmecWheelParameters-00" );
-  //        store to,     name,   units,   index(default=0)
-  EmecWheelParameters_recs.
-    param(m_eta_hi,    "ETAINT",  1.0).
-    param(m_eta_mid,   "ETAEXT",  1.0).
-    param(m_eta_low,   "ETAEXT",  1.0, 1)
-    ;
+  m_leadThicknessInner=emecData.emecfan[0].LEADTHICKNESSINNER*mm; 
+  m_leadThicknessOuter=emecData.emecfan[0].LEADTHICKNESSOUTER*mm;
+  m_steelThickness=emecData.emecfan[0].STEELTHICKNESS*mm;
+  m_glueThickness=emecData.emecfan[0].GLUETHICKNESS*mm;
+  m_electrodeTotalThickness=emecData.emecfan[0].ELECTRODETOTALTHICKNESS*mm;
+  m_coldContraction=emecData.coldcontraction[0].ABSORBERCONTRACTION;
+  m_electrodeInvContraction=emecData.coldcontraction[0].ELECTRODEINVCONTRACTION;
 
-  rdbr.
-    data( "EmecMagicNumbers", larVersionKey.tag(), larVersionKey.node() ).
-    fallback_to( "EmecMagicNumbers","EMECMagicNumbers-00" ).
-    //          store to,                         name,     units
-    param(m_ActiveLength,                   "ACTIVELENGTH",  mm).
-    param(m_StraightStartSection,   "STRAIGHTSTARTSECTION",  mm).
-    param(m_dWRPtoFrontFace,                 "REFTOACTIVE",  mm)
-    ;
+
+    
+  m_ActiveLength         =emecData.emecmagicnumbers[0].ACTIVELENGTH*mm;
+  m_StraightStartSection =emecData.emecmagicnumbers[0].STRAIGHTSTARTSECTION*mm;
+  m_dWRPtoFrontFace      =emecData.emecmagicnumbers[0].REFTOACTIVE*mm;
+
 
   m_WheelThickness = m_ActiveLength + 2.*m_StraightStartSection;
   m_HalfWheelThickness = m_WheelThickness * 0.5;
 
-  std::string pr_opt_value;
-  std::string sagging_opt_value;
-
-  RDBParamRecords EMECParams_recs = rdbr.
-    data( "EMECParams", larVersionKey.tag(), larVersionKey.node() ).
-    fallback_to( "EMECParams", "EMECParams-00" );
-
-  //          store to,                                             name
-  EMECParams_recs.
-    param(pr_opt_value,       "PHIROTATION").
-    param(sagging_opt_value,      "SAGGING")
-    ;
+  std::string pr_opt_value=emecData.emecparams[0].PHIROTATION;
+  std::string sagging_opt_value=emecData.emecparams[0].SAGGING;
 
   m_phiRotation =  pr_opt_value == "g3"? true: false;
 
   m_zWheelFrontFace = m_dMechFocaltoWRP + m_dWRPtoFrontFace;
   m_zWheelBackFace = m_zWheelFrontFace + m_WheelThickness;
 
-  msg << MSG::DEBUG << "... got these values:" << std::endl
-      << "m_zWheelRefPoint       : " << m_zWheelRefPoint / cm << " [cm]" << std::endl
-      << "m_dMechFocaltoWRP      : " << m_dMechFocaltoWRP / cm << " [cm]" << std::endl
-      << "m_dElecFocaltoWRP      : " << m_dElecFocaltoWRP / cm << " [cm]" << std::endl
-      << "m_HalfGapBetweenWheels : " << m_HalfGapBetweenWheels / cm << " [cm]" << std::endl
-      << "m_rOuterCutoff         : " << m_rOuterCutoff / cm << " [cm]" << std::endl
-      << "m_zWheelFrontFace      : " << m_zWheelFrontFace / cm << " [cm]" << std::endl
-      << "m_zWheelBackFace       : " << m_zWheelBackFace / cm << " [cm]" << std::endl
-      << "m_zShift               : " << m_zShift / cm << " [cm]" << std::endl
-      << "Phi rotation           : " << (m_phiRotation? "true": "false") << std::endl
+  msg << MSG::DEBUG << "... got these values:" << endmsg 
+      << "m_zWheelRefPoint       : " << m_zWheelRefPoint / cm << " [cm]" << endmsg 
+      << "m_dMechFocaltoWRP      : " << m_dMechFocaltoWRP / cm << " [cm]" << endmsg 
+      << "m_dElecFocaltoWRP      : " << m_dElecFocaltoWRP / cm << " [cm]" << endmsg 
+      << "m_HalfGapBetweenWheels : " << m_HalfGapBetweenWheels / cm << " [cm]" << endmsg
+      << "m_rOuterCutoff         : " << m_rOuterCutoff / cm << " [cm]" << endmsg
+      << "m_zWheelFrontFace      : " << m_zWheelFrontFace / cm << " [cm]" << endmsg
+      << "m_zWheelBackFace       : " << m_zWheelBackFace / cm << " [cm]" << endmsg
+      << "m_zShift               : " << m_zShift / cm << " [cm]" << endmsg
+      << "Phi rotation           : " << (m_phiRotation? "true": "false") << "" << endmsg
       << "eta wheels limits      : " << m_eta_low << ", " << m_eta_mid << ", " << m_eta_hi
       << endmsg;
-  msg << MSG::VERBOSE << "hardcoded constants: " << std::endl
-      << "m_WheelThickness       : " << m_WheelThickness / cm << " [cm]" << std::endl
+  msg << MSG::VERBOSE << "hardcoded constants: " << endmsg 
+      << "m_WheelThickness       : " << m_WheelThickness / cm << " [cm]" << endmsg 
       << "m_dWRPtoFrontFace      : " << m_dWRPtoFrontFace / cm << " [cm]"
       << endmsg;
-#endif
-#ifdef BUILDVP1LIGHT //FIXME: check all this!!!
-  double m_zWheelRefPoint = 999;// / cm
-  double m_dMechFocaltoWRP = 999;// / cm << " [cm]" << std::endl
-  double m_dElecFocaltoWRP = 999;//      : " << m_dElecFocaltoWRP / cm << " [cm]" << std::endl
-  double m_HalfGapBetweenWheels = 999;// : " << m_HalfGapBetweenWheels / cm << " [cm]" << std::endl
-  double m_rOuterCutoff = 999;//         : " << m_rOuterCutoff / cm << " [cm]" << std::endl
-  double m_zWheelFrontFace = 999;//      : " << m_zWheelFrontFace / cm << " [cm]" << std::endl
-  double m_zWheelBackFace = 999;//       : " << m_zWheelBackFace / cm << " [cm]" << std::endl
-  double m_zShift = 999;//               : " << m_zShift / cm << " [cm]" << std::endl
-  double m_phiRotation = true;//? "true": "false") << std::endl
-  double m_eta_low = 999;//
-  double m_eta_mid = 999;//
-  double m_eta_hi = 999;//
-
-  double m_WheelThickness = 999;//       : " << m_WheelThickness / cm << " [cm]" << std::endl
-  double m_dWRPtoFrontFace = 999;//      : " << m_dWRPtoFrontFace / cm << " [cm]"
-#endif
-
-
 
 
   // Constructor initializes the geometry.
@@ -255,7 +211,7 @@ LArWheelCalculator::LArWheelCalculator(LArG4::LArWheelCalculator_t a_wheelType, 
     case LArG4::InnerAbsorberWheel:
     case LArG4::InnerGlueWheel:
     case LArG4::InnerLeadWheel:
-      inner_wheel_init(EmecWheelParameters_recs);
+      inner_wheel_init(emecData);
       m_ZeroFanPhi = m_FanStepOnPhi * 0.5;
       if(m_phiRotation) m_ZeroFanPhi += m_FanStepOnPhi * 0.5;
       break;
@@ -269,18 +225,18 @@ LArWheelCalculator::LArWheelCalculator(LArG4::LArWheelCalculator_t a_wheelType, 
     case LArG4::OuterAbsorberWheel:
     case LArG4::OuterGlueWheel:
     case LArG4::OuterLeadWheel:
-      outer_wheel_init(EmecWheelParameters_recs);
+      outer_wheel_init(emecData);
       m_ZeroFanPhi = m_FanStepOnPhi * 0.5;
       if(m_phiRotation) m_ZeroFanPhi += m_FanStepOnPhi * 0.5;
       break;
     case LArG4::InnerElectrodWheel:
-      inner_wheel_init(EmecWheelParameters_recs);
+      inner_wheel_init(emecData);
       m_ZeroFanPhi = 0;
       if(m_phiRotation) m_ZeroFanPhi += m_FanStepOnPhi * 0.5;
       m_isElectrode = true;
       break;
     case LArG4::OuterElectrodWheel:
-      outer_wheel_init(EmecWheelParameters_recs);
+      outer_wheel_init(emecData);
       m_ZeroFanPhi = 0;
       if(m_phiRotation) m_ZeroFanPhi += m_FanStepOnPhi * 0.5;
       m_isElectrode = true;
@@ -293,7 +249,7 @@ LArWheelCalculator::LArWheelCalculator(LArG4::LArWheelCalculator_t a_wheelType, 
       m_type = LArG4::InnerAbsorberModule;
       /* FALLTHROUGH */
     case LArG4::InnerAbsorberModule:
-      inner_wheel_init(EmecWheelParameters_recs);
+      inner_wheel_init(emecData);
       module_init();
       m_ZeroFanPhi += m_FanStepOnPhi * 0.5;
       // later for all? m_ZeroFanPhi_ForDetNeaFan = m_ZeroFanPhi - m_FanStepOnPhi * 0.5;
@@ -306,19 +262,19 @@ LArWheelCalculator::LArWheelCalculator(LArG4::LArWheelCalculator_t a_wheelType, 
       m_type = LArG4::OuterAbsorberModule;
       /* FALLTHROUGH */
     case LArG4::OuterAbsorberModule:
-      outer_wheel_init(EmecWheelParameters_recs);
+      outer_wheel_init(emecData);
       module_init();
       m_ZeroFanPhi += m_FanStepOnPhi * 0.5;
       // later for all? m_ZeroFanPhi_ForDetNeaFan = m_ZeroFanPhi - m_FanStepOnPhi * 0.5;
       break;
     case LArG4::InnerElectrodModule:
-      inner_wheel_init(EmecWheelParameters_recs);
+      inner_wheel_init(emecData);
       module_init();
       m_FirstFan ++;
       m_isElectrode = true;
       break;
     case LArG4::OuterElectrodModule:
-      outer_wheel_init(EmecWheelParameters_recs);
+      outer_wheel_init(emecData);
       module_init();
       m_FirstFan ++;
       m_isElectrode = true;
@@ -343,7 +299,7 @@ LArWheelCalculator::LArWheelCalculator(LArG4::LArWheelCalculator_t a_wheelType, 
   m_SaggingOn = (sagging_opt_value != "" && sagging_opt_value != "off")? true: false;
 
   m_distanceCalcImpl = LArWheelCalculator_Impl::DistanceCalculatorFactory::Create(
-      sagging_opt_value, this, rdbAccess, larVersionKey);
+										  sagging_opt_value, this);
   if (m_SaggingOn) {
     msg << MSG::VERBOSE << "Creating DistanceCalculatorSaggingOn = "  << this
         << ',' << m_distanceCalcImpl << endmsg;
@@ -353,7 +309,7 @@ LArWheelCalculator::LArWheelCalculator(LArG4::LArWheelCalculator_t a_wheelType, 
   }
 
   m_fanCalcImpl = LArWheelCalculator_Impl::FanCalculatorFactory::Create(
-      m_SaggingOn, m_isModule, this, rdbAccess, larVersionKey);
+      m_SaggingOn, m_isModule, this);
 
   //--------------------------
   // At this place there was the loading of sagging parameters
@@ -365,9 +321,9 @@ LArWheelCalculator::LArWheelCalculator(LArG4::LArWheelCalculator_t a_wheelType, 
   std::string slant_params;
 
   if (m_isInner) {
-    EMECParams_recs.param(slant_params,  "INNERSLANTPARAM");
+    slant_params=emecData.emecparams[0].INNERSLANTPARAM;
   } else {
-    EMECParams_recs.param(slant_params,  "OUTERSLANTPARAM");
+    slant_params=emecData.emecparams[0].OUTERSLANTPARAM;
   }
 
   msg << (m_isInner?" InnerWheel ":" OuterWheel ") << slant_params << endmsg;
@@ -394,18 +350,18 @@ LArWheelCalculator::LArWheelCalculator(LArG4::LArWheelCalculator_t a_wheelType, 
 
   msg << MSG::VERBOSE << "All params initialized. Print some internal variables" << endmsg;
 
-  msg << MSG::VERBOSE << "Data members:" << std::endl
-      << "m_AtlasZside              = " << m_AtlasZside << std::endl
-      << "m_NumberOfFans            = " << m_NumberOfFans << std::endl
-      << "m_ZeroFanPhi              = " << m_ZeroFanPhi << std::endl
-      << "m_ZeroFanPhi_ForDetNeaFan = " << m_ZeroFanPhi_ForDetNeaFan << std::endl
-      << "m_FanStepOnPhi            = " << m_FanStepOnPhi << std::endl
-      << "m_FanHalfThickness        = " << m_FanHalfThickness << std::endl
-      //<< "Sagging parameters        : " << m_sagging_parameter[0][0] << " " << m_sagging_parameter[0][1] << std::endl
-      //<< "Sagging parameters        : " << m_sagging_parameter[1][0] << " " << m_sagging_parameter[1][1] << std::endl
-      << "slant_params              = " << slant_params << std::endl
-      << "Sagging option            = " << sagging_opt_value << std::endl
-      << "SaggingOn                 = " << (m_SaggingOn? "true": "false") << std::endl
+  msg << MSG::VERBOSE << "Data members:" << endmsg 
+      << "m_AtlasZside              = " << m_AtlasZside << "" << endmsg
+      << "m_NumberOfFans            = " << m_NumberOfFans << "" << endmsg
+      << "m_ZeroFanPhi              = " << m_ZeroFanPhi << "" << endmsg
+      << "m_ZeroFanPhi_ForDetNeaFan = " << m_ZeroFanPhi_ForDetNeaFan << "" << endmsg
+      << "m_FanStepOnPhi            = " << m_FanStepOnPhi << "" << endmsg
+      << "m_FanHalfThickness        = " << m_FanHalfThickness << "" << endmsg
+      //<< "Sagging parameters        : " << m_sagging_parameter[0][0] << " " << m_sagging_parameter[0][1] << "" << endmsg
+      //<< "Sagging parameters        : " << m_sagging_parameter[1][0] << " " << m_sagging_parameter[1][1] << "" << endmsg
+      << "slant_params              = " << slant_params << "" << endmsg
+      << "Sagging option            = " << sagging_opt_value << "" << endmsg
+      << "SaggingOn                 = " << (m_SaggingOn? "true": "false") << "" << endmsg
       << "Slant parameters          : ";
   for(int i = 0; i < 5; i ++) msg << " " << m_slant_parametrization[i];
   msg << endmsg;
@@ -434,7 +390,7 @@ LArWheelCalculator::LArWheelCalculator(LArG4::LArWheelCalculator_t a_wheelType, 
      }
      gettimeofday(&t2, &tz);
 
-     fprintf(O, "%d.%06d %d.%06d\n", t1.tv_sec, t1.tv_usec, t2.tv_sec, t2.tv_usec);
+     fprintf(O, "%d.%06d %d.%06d" << endmsg, t1.tv_sec, t1.tv_usec, t2.tv_sec, t2.tv_usec);
      int i = 0;
      for(double r = 600.; r < 2100.; r += .01, i ++){
      fprintf(O, "%f %f\n", r, alpha[i]);
@@ -451,41 +407,42 @@ int LArWheelCalculator::PhiGapNumberForWheel(int i) const
   return m_fanCalcImpl->PhiGapNumberForWheel(i);
 }
 
-void LArWheelCalculator::inner_wheel_init(const RDBParamRecords & EmecWheelParameters_recs)
+void LArWheelCalculator::inner_wheel_init(const EMECData & emecData)
 {
   for(int i = 0; i < 5; ++ i) {
     m_slant_parametrization[i] = default_slant_parametrization[0][i];
   }
   m_slant_use_default = true;
 
-  EmecWheelParameters_recs.
-    param(m_NumberOfFans,  "NABS", 0).
-    param(m_NumberOfWaves, "NACC", 0);
+  m_NumberOfFans=emecData.emecwheelparameters[0].NABS;
+  m_NumberOfWaves=emecData.emecwheelparameters[0].NACC;
 
   m_FanFoldRadius = 3.25*mm;
   m_ZeroGapNumber = 64; // internal constant, should not be taken from DB
-  m_FanStepOnPhi = twopi / m_NumberOfFans;
+  m_FanStepOnPhi = 2*M_PI / m_NumberOfFans;
   m_isInner = true;
 }
 
-void LArWheelCalculator::outer_wheel_init(const RDBParamRecords & EmecWheelParameters_recs)
+void LArWheelCalculator::outer_wheel_init(const EMECData & emecData)
 {
   for(int i = 0; i < 5; ++ i) {
     m_slant_parametrization[i] = default_slant_parametrization[1][i];
   }
   m_slant_use_default = true;
-  EmecWheelParameters_recs.
-    param(m_NumberOfFans,  "NABS", 1).
-    param(m_NumberOfWaves, "NACC", 1);
+
+  m_NumberOfFans=emecData.emecwheelparameters[1].NABS;
+  m_NumberOfWaves=emecData.emecwheelparameters[1].NACC;
+
 
   m_FanFoldRadius = 3.0*mm;
   m_ZeroGapNumber = 192; // internal constant, should not be taken from DB
-  m_FanStepOnPhi = twopi / m_NumberOfFans;
+  m_FanStepOnPhi = 2*M_PI / m_NumberOfFans;
   m_isInner = false;
 }
 
-double LArWheelCalculator::GetFanHalfThickness(LArG4::LArWheelCalculator_t t)
+double LArWheelCalculator::GetFanHalfThickness(LArG4::LArWheelCalculator_t t) const
 {
+
   switch(t){
     case LArG4::BackInnerBarretteWheelCalib:
     case LArG4::BackInnerBarretteModuleCalib:
@@ -493,13 +450,12 @@ double LArWheelCalculator::GetFanHalfThickness(LArG4::LArWheelCalculator_t t)
     case LArG4::BackInnerBarretteModule:
     case LArG4::InnerAbsorberWheel:
     case LArG4::InnerAbsorberModule:
-      //return (2.2 / 2 + 0.2 + 0.15) * mm;
-      return (2.2 / 2 + 0.2 + 0.1)*0.997 * mm; // new values, 02.11.06 J.T. with contraction in cold
+       return (m_leadThicknessInner / 2 + m_steelThickness + m_glueThickness)*m_coldContraction; // new values, 02.11.06 J.T. with contraction in cold
       // lead / 2 + steel + glue
     case LArG4::InnerGlueWheel:
-      return (2.2 / 2 + 0.1)*0.997 * mm;
+      return (m_leadThicknessInner / 2 + m_glueThickness)*m_coldContraction;
     case LArG4::InnerLeadWheel:
-      return 2.2 / 2 * 0.997 * mm;
+      return m_leadThicknessInner / 2 * m_coldContraction;
 
     case LArG4::BackOuterBarretteWheelCalib:
     case LArG4::BackOuterBarretteModuleCalib:
@@ -507,18 +463,17 @@ double LArWheelCalculator::GetFanHalfThickness(LArG4::LArWheelCalculator_t t)
     case LArG4::BackOuterBarretteModule:
     case LArG4::OuterAbsorberWheel:
     case LArG4::OuterAbsorberModule:
-      //return (1.7 / 2 + 0.2 + 0.15) * mm;
-      return (1.69 / 2 + 0.2 + 0.1)*0.997 * mm;  // new values, 02.11.06 J.T.
+       return (m_leadThicknessOuter / 2 + m_steelThickness + m_glueThickness)*m_coldContraction;  // new values, 02.11.06 J.T.
     case LArG4::OuterGlueWheel:
-      return (1.69 / 2 + 0.1)*0.997 * mm;
+      return (m_leadThicknessOuter / 2 + m_glueThickness)*m_coldContraction;
     case LArG4::OuterLeadWheel:
-      return 1.69 / 2 * 0.997 * mm;
+      return m_leadThicknessOuter / 2 * m_coldContraction;
 
     case LArG4::InnerElectrodWheel:
     case LArG4::OuterElectrodWheel:
     case LArG4::InnerElectrodModule:
     case LArG4::OuterElectrodModule:
-      return 0.275/1.0036256 *mm * 0.5;  //new values, 02.11.06 J.T
+      return m_electrodeTotalThickness/m_electrodeInvContraction * 0.5;  //new values, 02.11.06 J.T
   }
   throw std::runtime_error("LArWheelCalculator::GetFanHalfThickness: wrong wheel type");
 }

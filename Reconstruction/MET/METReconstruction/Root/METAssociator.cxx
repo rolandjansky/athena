@@ -114,20 +114,18 @@ namespace met {
     }
 
     //initialise read handle keys
-    if(m_useTracks){
-      ATH_CHECK( m_pvcollKey.assign(m_pvcoll));
-      ATH_CHECK( m_pvcollKey.initialize());
-      ATH_CHECK( m_trkcollKey.assign(m_trkcoll));
-      ATH_CHECK( m_trkcollKey.initialize());
-    }
+    ATH_CHECK( m_pvcollKey.assign(m_pvcoll));
+    ATH_CHECK( m_pvcollKey.initialize(m_useTracks));
+    ATH_CHECK( m_trkcollKey.assign(m_trkcoll));
+    ATH_CHECK( m_trkcollKey.initialize(m_useTracks));
     
+    ATH_CHECK(m_fecollKey.initialize(m_pflow && !m_fecollKey.key().empty()));
+    ATH_CHECK( m_pfcollKey.initialize(m_pflow && m_fecollKey.key().empty()));
     if(m_pflow){
       if(!m_fecollKey.key().empty()){
-        ATH_CHECK(m_fecollKey.initialize());
         ATH_MSG_INFO("Configured to use FlowElement collection \"" << m_fecollKey.key() << "\".");
       }
       else{
-        ATH_CHECK( m_pfcollKey.initialize());
         ATH_MSG_INFO("Configured to use PFlow collection \"" << m_pfcollKey.key() << "\".");
         if(m_pfcollKey.key() == "JetETMissParticleFlowObjects") {
           ATH_MSG_ERROR("Configured to use standard pflow collection \"" << m_pfcollKey.key() << "\".");
@@ -136,18 +134,17 @@ namespace met {
         }
       }
     }
-    if(!m_skipconst || m_forcoll.empty()){
-      ATH_CHECK( m_clcollKey.assign(m_clcoll));
-      ATH_CHECK( m_clcollKey.initialize());
-    }
-    else{
-      std::string hybridname = "Etmiss";
-      hybridname += m_clcoll;
-      hybridname += m_foreta;
-      hybridname += m_forcoll;
-      ATH_CHECK( m_hybridContKey.assign(hybridname));
-      ATH_CHECK( m_hybridContKey.initialize());
-    }
+
+    ATH_CHECK( m_clcollKey.assign(m_clcoll));
+    ATH_CHECK( m_clcollKey.initialize(!m_skipconst || m_forcoll.empty()));
+
+    std::string hybridname = "Etmiss";
+    hybridname += m_clcoll;
+    hybridname += m_foreta;
+    hybridname += m_forcoll;
+    ATH_CHECK( m_hybridContKey.assign(hybridname));
+    ATH_CHECK( m_hybridContKey.initialize(m_skipconst && !m_forcoll.empty()));
+
     return StatusCode::SUCCESS;
   }
 

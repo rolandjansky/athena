@@ -1,5 +1,5 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
-from TriggerMenuMT.HLT.Menu.ChainDefInMenu import ChainProp
+from TriggerMenuMT.HLT.Config.Utility.ChainDefInMenu import ChainProp
 
 def setupMenu():
     """
@@ -30,6 +30,7 @@ def setupMenu():
         ChainProp(name='HLT_mu20_L1MU14FCH', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu10_L1MU8F', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu8_L1MU5VF',   groups=SingleMuonGroup),
+        ChainProp(name='HLT_2mu4_L12MU3V', groups=MultiMuonGroup),
 
         ChainProp(name='HLT_mu20_msonly_L1MU14FCH', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu10_msonly_L1MU8F', groups=SingleMuonGroup),
@@ -120,7 +121,7 @@ if __name__ == "__main__":
     ConfigFlags.lock()
     ConfigFlags.dump()
 
-    from TriggerMenuMT.HLT.Menu.GenerateMenuMT_newJO import generateMenu
+    from TriggerMenuMT.HLT.Config.GenerateMenuMT_newJO import generateMenu
     menu = generateMenu( ConfigFlags)
 
     acc.merge(menu)

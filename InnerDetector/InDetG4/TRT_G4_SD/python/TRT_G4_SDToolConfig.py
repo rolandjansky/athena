@@ -1,7 +1,8 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import LHCPeriod
 from ISF_Algorithms.CollectionMergerConfig import CollectionMergerCfg
 
 
@@ -19,7 +20,7 @@ def TRTSensitiveDetectorCfg(ConfigFlags, name="TRTSensitiveDetector", **kwargs):
     
 
     logicalVolumeNames = ["TRT::Gas", "TRT::GasMA"]
-    if ConfigFlags.GeoModel.Run in ["RUN2", "RUN3"]:  # RUN2 configuration
+    if ConfigFlags.GeoModel.Run in [LHCPeriod.Run2, LHCPeriod.Run3]:  # RUN2 configuration
         logicalVolumeNames += ["TRT::Gas_Ar","TRT::GasMA_Ar",
                                "TRT::Gas_Kr","TRT::GasMA_Kr"]
     kwargs.setdefault("LogicalVolumeNames", logicalVolumeNames)

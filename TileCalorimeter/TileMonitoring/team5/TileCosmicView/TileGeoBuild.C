@@ -137,9 +137,9 @@ class grTileBase
 
 private:
 
-	TGeoVolume   *m_GeoVolume;
-	TGeoMaterial *m_GeoMaterial;
-	TGeoMedium   *m_GeoMedium;
+	TGeoVolume   *m_GeoVolume{};
+	TGeoMaterial *m_GeoMaterial{};
+	TGeoMedium   *m_GeoMedium{};
 
 public:
 

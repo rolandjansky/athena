@@ -168,11 +168,14 @@ namespace MuonGM {
         double ylFrame  = mm->ylFrame();
         double ysFrame  = mm->ysFrame();
         double pitch    = roParam.stripPitch;
-        m_halfX    = roParam.activeH / 2;             // 0.5*radial length (active area)
-        m_minHalfY = roParam.activeBottomLength / 2;  // 0.5*bottom length (active area)
-        m_maxHalfY = roParam.activeTopLength / 2;     // 0.5*top length (active area)
-              
-        m_offset = -0.5*(ylFrame - ysFrame);
+        m_sWidthChamber = mm->sWidth();                   // bottom base length (full chamber)
+        m_lWidthChamber = mm->lWidth();                   // top base length (full chamber)
+        m_lengthChamber = mm->Length();                   // height of the trapezoid (full chamber)
+        m_tckChamber    = mm->Tck();                      // thickness (full chamber)
+        m_halfX         = roParam.activeH / 2;            // 0.5*radial_size (active area)
+        m_minHalfY      = roParam.activeBottomLength / 2; // 0.5*bottom length (active area)
+        m_maxHalfY      = roParam.activeTopLength / 2;    // 0.5*top length (active area)
+        m_offset        = -0.5*(ylFrame - ysFrame);       // radial dist. of active area center w.r.t. chamber center
 
         for (int il = 0; il < m_nlayers; il++) {
             // identifier of the first channel to retrieve max number of strips
@@ -284,7 +287,7 @@ namespace MuonGM {
 
             m_surfaceData->m_layerTransforms.push_back(
                 absTransform()                         // transformation from chamber to ATLAS frame
-                * m_delta                              // transformations from the alignment group
+                * m_delta                              // rotations (a-lines) from the alignment group
                 * m_Xlg[layer]                         // x-shift of the gas-gap center w.r.t. quadruplet center
                 * Amg::Translation3D(0., 0., m_offset) // z-shift to volume center
                 * Amg::AngleAxis3D(-90. * CLHEP::deg, Amg::Vector3D(0., 1., 0.))); // x<->z because of GeoTrd definition
@@ -328,8 +331,8 @@ namespace MuonGM {
 #ifndef NDEBUG
         MsgStream log(Athena::getMessageSvc(), "MMReadoutElement");
         if (log.level() <= MSG::DEBUG) {
-            log << MSG::DEBUG << "locPos in the gg      r.f. "  << locPos << endmsg;
-            log << MSG::DEBUG << "locP in the multilayer r.f. " << locPos_ML << endmsg;
+            log << MSG::DEBUG << "position coordinates in the gas-gap r.f.:    "  << locPos << endmsg;
+            log << MSG::DEBUG << "position coordinates in the multilayer r.f.: " << locPos_ML << endmsg;
         }
 #endif
         Amg::Vector3D gVec = absTransform() * m_delta * locPos_ML;
@@ -338,10 +341,11 @@ namespace MuonGM {
 
 
     //============================================================================
-    void MMReadoutElement::setDelta(double tras, double traz, double trat, double rots, double rotz, double rott) {
-        m_rots  = rots;
-        m_rotz  = rotz;
-        m_rott  = rott;
+    void MMReadoutElement::setDelta(const ALinePar& aline) {
+
+        // amdb frame (s, z, t) = chamber frame (y, z, x)
+        float tras{0.}, traz{0.}, trat{0.}, rots{0.}, rotz{0.}, rott{0.};
+        aline.getParameters(tras, traz, trat, rots, rotz, rott);
         if (std::abs(tras) + std::abs(traz) + std::abs(trat) + std::abs(rots) + std::abs(rotz) + std::abs(rott) > 1e-5) {
             m_delta = Amg::Translation3D(0., tras, 0.) // translations (applied after rotations)
                     * Amg::Translation3D(0., 0., traz)  
@@ -350,45 +354,199 @@ namespace MuonGM {
                     * Amg::AngleAxis3D(rotz, Amg::Vector3D(0., 0., 1.))  // rotation about Z (applied 2nd)
                     * Amg::AngleAxis3D(rott, Amg::Vector3D(1., 0., 0.)); // rotation about X (applied 1st)
 
-            // m_delta is w.r.t. the ML reference frame, except for a shift in the z (radial) coordinate. 
-            // We account for this shift here so that it can be applied on ML frame coordinates.
+            // The origin of the rotation axes is at the center of the active area 
+            // in the z (radial) direction. Account for this shift in the definition 
+            // of m_delta so that it can be applied on chamber frame coordinates.
             Amg::Translation3D t(0., 0., m_offset);
-            m_delta = t*m_delta*t.inverse();
-
-            m_hasALines = true;
-        } else {
-            m_delta = Amg::Transform3D::Identity();
+            m_ALinePar  = &aline;
+            m_delta     = t*m_delta*t.inverse();
+            refreshCache();
+        } else {  
+            clearALinePar();
         }
-        refreshCache();
     }
 
 
     //============================================================================
     void MMReadoutElement::setDelta(MuonDetectorManager* mgr) {
+
         const ALineMapContainer* alineMap = mgr->ALineContainer();
         Identifier id = mgr->mmIdHelper()->elementID(getStationName(), getStationEta(), getStationPhi());
         Identifier idMult = mgr->mmIdHelper()->multilayerID(id, m_ml);
-        if (alineMap->find(idMult) == alineMap->cend()) {
+        auto it = alineMap->find(idMult);
+
+        if (it == alineMap->cend()) {
+            clearALinePar();
             MsgStream log(Athena::getMessageSvc(), "MMReadoutElement");
-            if (log.level() <= MSG::DEBUG) { log << MSG::DEBUG << "m_aLineMapContainer does not contain any ALine for MM" << endmsg; }
+            if (log.level() <= MSG::DEBUG) { log << MSG::DEBUG << "m_aLineMapContainer does not contain ALine for MM" << endmsg; }
         } else {
-            ALinePar aline = alineMap->find(idMult)->second;
-            float s, z, t, rots, rotz, rott;
-            aline.getParameters(s, z, t, rots, rotz, rott);
-            setDelta(s, z, t, rots, rotz, rott);
+            setDelta(it->second);
+        }
+    }
+
+ 
+    //============================================================================
+    void MMReadoutElement::setBLinePar(const BLinePar& bLine) {
+#ifndef NDEBUG
+        MsgStream log(Athena::getMessageSvc(), "MMReadoutElement");
+        if (log.level() <= MSG::DEBUG)
+            log << MSG::DEBUG << "Setting B-line for " << getStationName().substr(0, 3) << " at eta/phi " << getStationEta() << "/" << getStationPhi() << endmsg;
+#endif
+        m_BLinePar = &bLine;
+    }
+
+
+    //============================================================================
+    void MMReadoutElement::setBLinePar(MuonDetectorManager* mgr) {
+        const BLineMapContainer* blineMap = mgr->BLineContainer();
+        Identifier id     = mgr->mmIdHelper()->elementID(getStationName(), getStationEta(), getStationPhi());
+        Identifier idMult = mgr->mmIdHelper()->multilayerID(id, m_ml);
+        auto it = blineMap->find(idMult);
+
+        if (it == blineMap->cend()) {
+            clearBLinePar();
+            MsgStream log(Athena::getMessageSvc(), "MMReadoutElement");
+            if (log.level() <= MSG::DEBUG) { log << MSG::DEBUG << "m_bLineMapContainer does not contain BLine for MM" << endmsg; }
+        } else {
+            setBLinePar(it->second);
         }
     }
 
 
     //============================================================================
-    void MMReadoutElement::setBLinePar(BLinePar* bLine) {
-#ifndef NDEBUG
-        MsgStream log(Athena::getMessageSvc(), "MMReadoutElement");
-        if (log.level() <= MSG::DEBUG)
-            log << MSG::DEBUG << "Setting B-line for " << getStationName().substr(0, 3) << " at eta/phi " << getStationEta() << "/"
-                << getStationPhi() << endmsg;
-#endif
-        m_BLinePar = bLine;
+    void MMReadoutElement::posOnDefChamber(Amg::Vector3D& locPosML) const {
+
+        // note: amdb frame (s, z, t) = chamber frame (y, z, x)
+        if (!has_BLines()) return;
+
+        double t0    = locPosML.x();
+        double s0    = locPosML.y();
+        double z0    = locPosML.z();
+        double width = m_sWidthChamber + (m_lWidthChamber - m_sWidthChamber)*(z0/m_lengthChamber + 0.5); // because z0 is in [-length/2, length/2]
+
+        double s_rel = s0/(width/2.);           // in [-1, 1]
+        double z_rel = z0/(m_lengthChamber/2.); // in [-1, 1]
+        double t_rel = t0/(m_tckChamber/2.);    // in [-1, 1]
+
+        // b-line parameters
+        double bp    = m_BLinePar->bp();
+        double bn    = m_BLinePar->bn();
+        double sp    = m_BLinePar->sp();
+        double sn    = m_BLinePar->sn();
+        double tw    = m_BLinePar->tw();
+        double eg    = m_BLinePar->eg()*1.e-3;
+        double ep    = m_BLinePar->ep()*1.e-3;
+        double en    = m_BLinePar->en()*1.e-3;
+
+        double ds{0.}, dz{0.}, dt{0.};
+
+        if (bp != 0 || bn != 0)
+            dt += 0.5*(s_rel*s_rel - 1)*((bp + bn) + (bp - bn)*z_rel);
+
+        if (sp != 0 || sn != 0)
+            dt += 0.5*(z_rel*z_rel - 1)*((sp + sn) + (sp - sn)*s_rel);
+
+        if (tw != 0) {
+            dt -= tw*s_rel*z_rel;
+            dz += tw*s_rel*t_rel*m_tckChamber/m_lengthChamber;
+        }
+
+        if (eg != 0) {
+            dt += t0*eg;
+            ds += s0*eg;
+            dz += z0*eg;
+        }
+
+        if (ep != 0 || en != 0) {
+            // the formulas below differ from those in Christoph's talk
+            // because are origin for NSW is at the center of the chamber, 
+            // whereas in the talk (i.e. MDTs), it is at the bottom!
+            double delta = s_rel*s_rel * ((ep + en)*s_rel/6 + (ep - en)/4);
+            double phi   = s_rel * ((ep + en)*s_rel + (ep - en)) / 2;
+            dt += phi*t0;
+            ds += delta*width/2;
+            dz += phi*z0;
+        }
+
+        locPosML[0] += dt;
+        locPosML[1] += ds;
+        locPosML[2] += dz;
     }
 
+
+    //============================================================================
+    void MMReadoutElement::spacePointPosition(const Identifier& layerId, double locXpos, double locYseed, Amg::Vector3D& pos) const {
+
+        const MuonChannelDesign* design = getDesign(layerId);
+        if (!design) {
+            MsgStream log(Athena::getMessageSvc(), "MMReadoutElement");
+            log << MSG::WARNING << "Unable to get MuonChannelDesign, therefore cannot provide position corrections. Returning." << endmsg;
+            return;
+        }
+        
+        bool conditionsApplied{false};
+        Amg::Transform3D trfToML{Amg::Transform3D::Identity()};
+
+#ifndef SIMULATIONBASE
+        //*********************
+        // As-Built (MuonNswAsBuilt is not included in AthSimulation)
+        //*********************
+        const NswAsBuilt::StripCalculator* sc = manager()->getMMAsBuiltCalculator();
+        if (sc) {
+            // nearest strip to locXpos
+            Amg::Vector2D lpos(locXpos, 0.);
+            int istrip = stripNumber(lpos, layerId);          
+
+            // setup strip calculator
+            NswAsBuilt::stripIdentifier_t strip_id;
+            strip_id.quadruplet = { (largeSector() ? NswAsBuilt::quadrupletIdentifier_t::MML : NswAsBuilt::quadrupletIdentifier_t::MMS), getStationEta(), getStationPhi(), m_ml };
+            strip_id.ilayer     = manager()->mmIdHelper()->gasGap(layerId);
+            strip_id.istrip     = istrip;
+
+            // length of the ETA STRIP with index "istrip", even for the case of stereo strips, 
+            // since NswAsBuilt handles the conversion to stereo as an internal transformation 
+            // (formula copied from MuonChannelDesign.h)
+            double ylength = design->inputLength + ((design->maxYSize - design->minYSize)*(istrip - design->nMissedBottomEta + 0.5)*design->inputPitch / design->xSize);
+            double sx      = design->distanceToChannel(lpos, istrip)/design->inputPitch; // in [-0.5, 0.5]
+            double sy      = 2*locYseed/ylength; // in [-1, 1]
+
+            // get the position coordinates, in the multilayer frame, from NswAsBuilt.
+            // Applying a 2.75mm correction along the layer normal, since NswAsBuilt considers the layer 
+            // on the readout strips, whereas Athena wants it at the middle of the drift gap.
+            NswAsBuilt::StripCalculator::position_t calcPos = sc->getPositionAlongStrip(NswAsBuilt::Element::ParameterClass::CORRECTION, strip_id, sy, sx);
+            pos     = calcPos.pos;
+            pos[0] += strip_id.ilayer%2 ? -2.75 : 2.75;
+
+            // signal that we are in the multilayer reference frame
+            conditionsApplied = true;
+            trfToML = m_delta.inverse()*absTransform().inverse()*transform(layerId);               
+        }
+#endif 
+
+        //*********************
+        // Case as-built is not applied: correct x for the stereo angle (manually)
+        // we are still at the layer reference frame
+        //*********************
+        if (!conditionsApplied) {
+            pos[0] = locXpos + locYseed*tan(design->sAngle);
+            pos[1] = locYseed;
+            pos[2] = 0.;
+        }
+
+        //*********************
+        // B-Lines
+        //*********************
+        if (has_BLines()) {
+          // go to the multilayer reference frame if we are not already there
+          if (!conditionsApplied) {
+             conditionsApplied = true; 
+             trfToML = m_delta.inverse()*absTransform().inverse()*transform(layerId);
+             pos = trfToML*pos;
+          }
+          posOnDefChamber(pos);
+        }
+
+        // back to nominal layer frame from where we started
+        if (conditionsApplied) pos = trfToML.inverse()*pos;
+    }
 }  // namespace MuonGM

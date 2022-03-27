@@ -69,12 +69,12 @@ class IPropagator;
 class AlignableTrackingVolume;
 class ExtrapolationCache;
 
-typedef std::vector<const Trk::TrackParameters*> TrackParametersVector;
-typedef std::vector<std::unique_ptr<const Trk::TrackParameters>> TrackParametersUVector;
+typedef std::vector<Trk::TrackParameters*> TrackParametersPtrVector;
+typedef std::vector<std::unique_ptr<Trk::TrackParameters>> TrackParametersUVector;
 typedef std::pair<const Surface*, BoundaryCheck> DestSurf;
 
 using TrackParmContainer = ObjContainer<Trk::TrackParameters>;
-using TrackParmPtr = ObjRef<>;
+using TrackParmPtr = ObjRef;
 using ManagedTrackParmPtr = ObjPtr<Trk::TrackParameters>;
 
 /** @struct ParametersAtBoundarySurface
@@ -164,14 +164,14 @@ public:
   /** [xAOD] interface ------------------------------------------------------------------ */
 
   /** xAOD 0) neutral xAOD particle */
-  virtual std::unique_ptr<const NeutralParameters> extrapolate(
+  virtual std::unique_ptr<NeutralParameters> extrapolate(
     const xAOD::NeutralParticle& xnParticle,
     const Surface& sf,
     PropDirection dir = anyDirection,
     const BoundaryCheck& bcheck = true) const override final;
 
   /** xAOD 0) neutral xAOD particle */
-  virtual std::unique_ptr<const TrackParameters> extrapolate(
+  virtual std::unique_ptr<TrackParameters> extrapolate(
     const EventContext& ctx,
     const xAOD::TrackParticle& particleBase,
     const Surface& sf,
@@ -186,14 +186,14 @@ public:
     - returns a ParametersBase object as well, 0 if the extrapolation did not succeed
     */
 
-  virtual std::unique_ptr<const NeutralParameters> extrapolate(
+  virtual std::unique_ptr<NeutralParameters> extrapolate(
     const NeutralParameters& parameters,
     const Surface& sf,
     PropDirection dir = anyDirection,
     const BoundaryCheck& bcheck = true) const override final;
 
   /**  1) <b>Configured AlgTool extrapolation method</b>):*/
-  virtual std::unique_ptr<const TrackParameters> extrapolate(
+  virtual std::unique_ptr<TrackParameters> extrapolate(
     const EventContext& ctx,
     const TrackParameters& parm,
     const Surface& sf,
@@ -213,7 +213,7 @@ public:
     ParticleHypothesis particle = pion) const override final;
 
   /** 3) <b>Configured AlgTool extrapolation method</b>):*/
-  virtual std::unique_ptr<const TrackParameters> extrapolate(
+  virtual std::unique_ptr<TrackParameters> extrapolate(
     const EventContext& ctx,
     const Track& trk,
     const Surface& sf,
@@ -252,7 +252,7 @@ public:
     const Volume* boundaryVol = nullptr) const override final;
 
   /** 6) <b>Configured AlgTool extrapolation method</b> ):*/
-  virtual std::pair<const TrackParameters*, const Layer*> extrapolateToNextActiveLayer(
+  virtual std::pair<std::unique_ptr<TrackParameters>, const Layer*> extrapolateToNextActiveLayer(
     const EventContext& ctx,
     const TrackParameters& parm,
     PropDirection dir = anyDirection,
@@ -261,7 +261,7 @@ public:
     MaterialUpdateMode matupmode = addNoise) const override final;
 
   /** 7) <b>Configured AlgTool extrapolation method</b> ):*/
-  virtual std::pair<const TrackParameters*, const Layer*> extrapolateToNextActiveLayerM(
+  virtual std::pair<std::unique_ptr<TrackParameters>, const Layer*> extrapolateToNextActiveLayerM(
     const EventContext& ctx,
     const TrackParameters& parm,
     PropDirection dir,
@@ -271,7 +271,7 @@ public:
     MaterialUpdateMode matupmode = addNoise) const override final;
 
   /** 8) <b>Configured AlgTool extrapolation method</b> ):*/
-  virtual std::unique_ptr<const TrackParameters> extrapolateToVolume(
+  virtual std::unique_ptr<TrackParameters> extrapolateToVolume(
     const EventContext& ctx,
     const TrackParameters& parm,
     const Trk::TrackingVolume& vol,
@@ -291,28 +291,13 @@ public:
     ParticleHypothesis particle = pion,
     Trk::ExtrapolationCache* cache = nullptr) const override final;
 
-  /** 10) <b>Configured AlgTool extrapolation method</b>:
-    - Extrapolate to a destination surface, while collecting all the material layers and transport
-    jacobians in between.
-    */
-  virtual std::vector<const TrackParameters*>* extrapolateM(
-    const EventContext& ctx,
-    const TrackParameters& parameters,
-    const Surface& sf,
-    PropDirection dir,
-    const BoundaryCheck& bcheck,
-    std::vector<MaterialEffectsOnTrack>& material,
-    std::vector<Trk::TransportJacobian*>& jacs,
-    ParticleHypothesis particle = pion,
-    Trk::ExtrapolationCache* cache = nullptr) const override final;
-
-  virtual std::unique_ptr<const Trk::TrackParameters> extrapolateWithPathLimit(
+  virtual std::unique_ptr<Trk::TrackParameters> extrapolateWithPathLimit(
     const EventContext& ctx,
     const Trk::TrackParameters& parm,
     double& pathLim,
     Trk::PropDirection dir,
     Trk::ParticleHypothesis particle,
-    std::vector<const Trk::TrackParameters*>*& parmOnSf,
+    std::vector<Trk::TrackParameters*>*& parmOnSf,
     std::vector<const Trk::TrackStateOnSurface*>*& material,
     const Trk::TrackingVolume* boundaryVol = nullptr,
     MaterialUpdateMode matupmod = Trk::addNoise) const override final;
@@ -323,7 +308,8 @@ public:
     with TrackParameters. Material collection in option. Destination
     (subdetector boundary) : geoID (+ entry, -exit) ( default MS exit )
     */
-  virtual const std::vector<std::pair<const Trk::TrackParameters*, int>>*
+  virtual std::unique_ptr<
+    std::vector<std::pair<std::unique_ptr<Trk::TrackParameters>, int>>>
   extrapolate(const EventContext& ctx,
               const Trk::TrackParameters& parm,
               Trk::PropDirection dir,
@@ -342,7 +328,7 @@ private:
   /**
    * Cache to be passed to and between the private methods
    */
-  typedef std::vector<std::pair<const Trk::TrackParameters*, int>> identifiedParameters_t;
+  typedef std::vector<std::pair<std::unique_ptr<Trk::TrackParameters>, int>> identifiedParameters_t;
   struct Cache
   {
 
@@ -374,7 +360,7 @@ private:
     const Trk::TrackingVolume* m_currentDense = nullptr;
     const Trk::TrackingVolume* m_highestVolume = nullptr;
     //!< return helper for parameters on detector elements
-    TrackParametersVector* m_parametersOnDetElements = nullptr;
+    TrackParametersPtrVector* m_parametersOnDetElements = nullptr;
     //!< cache layer with last material update
     const Layer* m_lastMaterialLayer = nullptr;
     //!< cache for collecting the total X0 ans Eloss
@@ -558,7 +544,7 @@ private:
 
   /** Actual heavy lifting implementation for
    * 6) <b>Configured AlgTool extrapolation method</b>):*/
-  std::pair<std::unique_ptr<const TrackParameters>, const Layer*>
+  std::pair<std::unique_ptr<TrackParameters>, const Layer*>
   extrapolateToNextActiveLayerImpl(
     const EventContext& ctx,
     const IPropagator& prop,
@@ -571,7 +557,7 @@ private:
   /** Actual heavy lifting implementation for
    * 7) <b>Configured AlgTool extrapolation method</b>
    */
-  std::pair<std::unique_ptr<const TrackParameters>, const Layer*>
+  std::pair<std::unique_ptr<TrackParameters>, const Layer*>
   extrapolateToNextActiveLayerMImpl(
     const EventContext& ctx,
     const IPropagator& prop,
@@ -585,7 +571,7 @@ private:
   /** Actual heavy lifting implementation for
    * 8) <b>Configured AlgTool extrapolation method</b>
    */
-  std::unique_ptr<const TrackParameters> extrapolateToVolumeImpl(
+  std::unique_ptr<TrackParameters> extrapolateToVolumeImpl(
     const EventContext& ctx,
     const IPropagator& prop,
     const TrackParameters& parm,

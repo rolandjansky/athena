@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_IMETADATATOOL_H
@@ -13,6 +13,7 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "AthenaKernel/SourceID.h"
+#include "AthenaKernel/ILockableTool.h"
 
 /** @class IMetaDataTool
  *  @brief This class provides the interface for MetaDataTools.
@@ -34,17 +35,6 @@ public: // Non-static members
   /// Gaudi boilerplate
   static const InterfaceID& interfaceID();
 };
-
-/** @class ILockableTool
- *  @brief This class provides the locking interface that MetaData tools can implement.
-           MetaDataSvc will use these methods when writing out MetaData
- **/
-class ILockableTool {
-public:
-   virtual void lock_shared() const = 0;
-   virtual void unlock_shared() const = 0;
-};
-
 
 inline const InterfaceID& IMetaDataTool::interfaceID() {
    static const InterfaceID IID("IMetaDataTool", 1, 0);

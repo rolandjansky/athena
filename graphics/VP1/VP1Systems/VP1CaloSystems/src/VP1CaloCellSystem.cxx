@@ -490,7 +490,7 @@ void VP1CaloCellSystem::systemcreate(StoreGateSvc* detstore)
 
 	status = detstore->retrieve(m_clockwork->tile_hw_id);
 	if(status.isFailure() || m_clockwork->tile_hw_id==nullptr) {
-		messageDebug("Unable to retireve Tile HWID");
+		messageDebug("Unable to retrieve Tile HWID");
 		m_clockwork->tile_hw_id = nullptr;
 		m_clockwork->noTileDigitsGlobal = true;
 	}

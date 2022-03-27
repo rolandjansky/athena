@@ -34,7 +34,7 @@ InDetServMatManager::getTreeTop(unsigned int i) const
 }
 
 void 
-InDetServMatManager::addTreeTop(PVConstLink vol){
+InDetServMatManager::addTreeTop(const PVConstLink& vol){
   m_volume.push_back(vol);
 }
 

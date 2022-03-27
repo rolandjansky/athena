@@ -6,6 +6,7 @@ builders with default configuration"""
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import LHCPeriod
 
 from egammaTools.EMTrackMatchBuilderConfig import EMTrackMatchBuilderCfg
 from egammaTools.EMConversionBuilderConfig import EMConversionBuilderCfg
@@ -46,6 +47,7 @@ def electronSuperClusterBuilderCfg(flags,
         "egammaCheckEnergyDepositTool",
         CompFactory.egammaCheckEnergyDepositTool())
     kwargs.setdefault("EtThresholdCut", 1000)
+    kwargs.setdefault("UseExtendedTG3",flags.GeoModel.Run is LHCPeriod.Run3)
     elscAlg = CompFactory.electronSuperClusterBuilder(name, **kwargs)
 
     acc.addEventAlgo(elscAlg)
@@ -85,7 +87,7 @@ def photonSuperClusterBuilderCfg(
     kwargs.setdefault(
         "egammaCheckEnergyDepositTool",
         egammaCheckEnergyDepositTool())
-
+    kwargs.setdefault("UseExtendedTG3",flags.GeoModel.Run is LHCPeriod.Run3)
     phscAlg = photonSuperClusterBuilder(name, **kwargs)
 
     acc.addEventAlgo(phscAlg)

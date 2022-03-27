@@ -134,6 +134,6 @@ def TrigEgammaForwardPrecisionElectronHypoToolFromDict( d ):
                    
     
 def TrigEgammaForwardPrecisionElectronHypoToolFromName(name, conf):
-    from TriggerMenuMT.HLT.Menu.DictFromChainName import dictFromChainName
+    from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import dictFromChainName
     decodedDict = dictFromChainName(conf)
     return  TrigEgammaForwardPrecisionElectronHypoToolFromDict( decodedDict )

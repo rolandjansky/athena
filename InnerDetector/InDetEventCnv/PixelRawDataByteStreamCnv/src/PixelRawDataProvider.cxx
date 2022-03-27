@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelRawDataProvider.h"
@@ -69,7 +69,7 @@ StatusCode PixelRawDataProvider::initialize() {
 // --------------------------------------------------------------------
 // Execute
 
-typedef EventContainers::IdentifiableContTemp<InDetRawDataCollection<PixelRDORawData>> DummyPixelRDO;
+using DummyPixelRDO = EventContainers::IdentifiableContTemp<InDetRawDataCollection<PixelRDORawData>>;
 
 StatusCode PixelRawDataProvider::execute(const EventContext& ctx) const {
 

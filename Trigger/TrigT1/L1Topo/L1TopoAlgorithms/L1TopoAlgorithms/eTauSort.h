@@ -31,8 +31,8 @@ namespace TCS {
       parType_t      m_numberOfeTaus = { 0 };
       parType_t      m_minEta = { 0 };
       parType_t      m_maxEta = { 0 };
-      parType_t      m_rCore = { 0 };   
-      parType_t      m_rHad = { 0 };   
+      parType_t      m_minRCore = { 0 };   
+      parType_t      m_minRHad = { 0 };   
    };
 
 } // end of namespace TCS

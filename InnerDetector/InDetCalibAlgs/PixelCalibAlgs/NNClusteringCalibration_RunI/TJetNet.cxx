@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TJetNet.h"
@@ -7,7 +7,7 @@
 #include "TRandom3.h"
 #include "TTimeStamp.h"
 #include <unistd.h>
-#include <stdio.h>
+#include <cstdio>
 #include <cmath>
 #include "TTrainedNetwork.h"
 #include "TFile.h"

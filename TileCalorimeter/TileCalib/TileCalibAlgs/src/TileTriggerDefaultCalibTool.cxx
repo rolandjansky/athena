@@ -3,7 +3,7 @@
 */
 
 
-#include "TileCalibAlgs/TileTriggerDefaultCalibTool.h"
+#include "TileTriggerDefaultCalibTool.h"
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Service.h"

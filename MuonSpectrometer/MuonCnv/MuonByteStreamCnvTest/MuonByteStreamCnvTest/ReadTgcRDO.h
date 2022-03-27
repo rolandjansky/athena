@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef READTGCRDO_H
@@ -21,7 +21,6 @@ public:
 
 protected:
   NTuple::Tuple* m_ntuplePtr;
-  ServiceHandle<ActiveStoreSvc> m_activeStore;
   TgcRdoIdHash* m_hashFunc;
 
 private:

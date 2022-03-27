@@ -2,6 +2,7 @@
 # 
 # art-description: MC16-style simulation of decaying Neutralinos using FullG4 (tests sim response to many displaced “primary” particles)
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-include: master/Athena
 # art-include: master/AthSimulation
 # art-output: *.root

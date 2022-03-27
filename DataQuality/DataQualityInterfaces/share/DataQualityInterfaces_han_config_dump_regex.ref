@@ -1,0 +1,100 @@
+Metadata:
+
+HanConfigGroup: top_level
+  Algorithm Name = "SimpleSummary"
+  Algorithm Library = "libdqm_summaries.so"
+  Algorithm Reference = ""
+  Weight = 1
+
+>>  BEGIN SUB REGIONS of "top_level"
+
+HanConfigGroup: evens
+  Algorithm Name = "SimpleSummary"
+  Algorithm Library = "libdqm_summaries.so"
+  Algorithm Reference = ""
+  Weight = 1
+
+>>  BEGIN ASSESSMENTS of "evens"
+
+HanConfigAssessor: eb1/Stats/(?P<dirgroup>G.*)/gaus_.*[02468]@1
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000101"
+  Weight = 1
+  Is a regular expression
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/(?P<dirgroup>G.*)/gaus_.*[02468]
+  }
+
+<<  END ASSESSMENTS of "evens"
+
+HanConfigGroup: odds
+  Algorithm Name = "SimpleSummary"
+  Algorithm Library = "libdqm_summaries.so"
+  Algorithm Reference = ""
+  Weight = 1
+
+>>  BEGIN ASSESSMENTS of "odds"
+
+HanConfigAssessor: eb1/Stats/(?P<dirgroup>G.*)/gaus_.*[13579]@1
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000102"
+  Weight = 1
+  Is a regular expression
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/(?P<dirgroup>G.*)/gaus_.*[13579]
+  }
+
+<<  END ASSESSMENTS of "odds"
+
+HanConfigGroup: splitByDigit
+  Algorithm Name = "SimpleSummary"
+  Algorithm Library = "libdqm_summaries.so"
+  Algorithm Reference = ""
+  Weight = 1
+
+>>  BEGIN SUB REGIONS of "splitByDigit"
+
+HanConfigGroup: ${dirgroup}
+  Algorithm Name = "SimpleSummary"
+  Algorithm Library = "libdqm_summaries.so"
+  Algorithm Reference = ""
+  Weight = 1
+
+>>  BEGIN SUB REGIONS of "${dirgroup}"
+
+HanConfigGroup: digit_${firstdigit}
+  Algorithm Name = "SimpleSummary"
+  Algorithm Library = "libdqm_summaries.so"
+  Algorithm Reference = ""
+  Weight = 1
+
+>>  BEGIN ASSESSMENTS of "digit_${firstdigit}"
+
+HanConfigAssessor: eb1/Stats/(?P<dirgroup>G.*)/gaus_(?P<firstdigit>\d).*@2
+  Algorithm Name = "AlgCheckMean"
+  Algorithm Library = "libDataQualityInterfacesAlgs.so"
+  Algorithm Reference = "reference-000000100"
+  Weight = 1
+  Is a regular expression
+  Algorithm Limits = {
+    chi2 = { green = 5, red = 10 }
+  }
+  Annotations = {
+    inputname = eb1/Stats/(?P<dirgroup>G.*)/gaus_(?P<firstdigit>\d).*
+  }
+
+<<  END ASSESSMENTS of "digit_${firstdigit}"
+
+<<  END SUB REGIONS of "${dirgroup}"
+
+<<  END SUB REGIONS of "splitByDigit"
+
+<<  END SUB REGIONS of "top_level"

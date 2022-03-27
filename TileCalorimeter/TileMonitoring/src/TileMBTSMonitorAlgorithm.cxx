@@ -69,6 +69,7 @@ StatusCode TileMBTSMonitorAlgorithm::initialize() {
     m_pulseGroups = Monitored::buildToolMap<int>(m_tools, "TileAveragePulseMBTS", MAX_MBTS_COUNTER);
   }
 
+  bool doMenuInit = false;
   if (m_useTrigger && (m_ctpID.size() != MAX_MBTS_COUNTER)) {
     if (m_l1Triggers.size() != MAX_MBTS_COUNTER) {
       int numberOfCounters{MAX_MBTS_COUNTER};
@@ -79,9 +80,10 @@ StatusCode TileMBTSMonitorAlgorithm::initialize() {
       ATH_MSG_WARNING("Autoconfiguration of CTP ID to L1 MBTS mapping is not possible: force useTrigger=false");
       m_useTrigger = false;
     } else {
-      ATH_CHECK( m_L1MenuKey.initialize() );
+      doMenuInit = true;
     }
   }
+  ATH_CHECK( m_L1MenuKey.initialize( doMenuInit ) );
 
   ATH_CHECK( m_ctpRdoKey.initialize(m_useTrigger) );
   if (m_useTrigger) {

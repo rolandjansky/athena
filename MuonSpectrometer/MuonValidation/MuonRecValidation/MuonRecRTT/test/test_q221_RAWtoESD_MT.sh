@@ -22,6 +22,7 @@
 Reco_tf.py --inputRDO_TRIGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/Run2/q221_RDO/rel22_0_34/tmp.RDO_TRIG \
            --AMI q221 \
            --imf False \
+           --conditionsTag 'default:OFLCOND-MC16-SDR-RUN2-09' \
            --outputESDFile OUT_ESD.root
 exit_code=$?
 echo  "art-result: ${exit_code} Reco_tf.py"
@@ -39,6 +40,7 @@ Reco_tf.py --inputRDO_TRIGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art
            --AMI q221 \
            --imf False \
            --athenaopts="--threads=1" \
+           --conditionsTag 'default:OFLCOND-MC16-SDR-RUN2-09' \
            --outputESDFile OUT_ESD_1thread.root
 exit_code=$?
 echo  "art-result: ${exit_code} Reco_tf_1thread.py"
@@ -56,6 +58,7 @@ Reco_tf.py --inputRDO_TRIGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art
            --AMI q221 \
            --imf False \
            --athenaopts="--threads=5" \
+           --conditionsTag 'default:OFLCOND-MC16-SDR-RUN2-09' \
            --outputESDFile OUT_ESD_5thread.root
 exit_code=$?
 echo  "art-result: ${exit_code} Reco_tf_5thread.py"
@@ -73,6 +76,7 @@ Reco_tf.py --inputRDO_TRIGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art
            --AMI q221 \
            --imf False \
            --athenaopts="--threads=8" \
+           --conditionsTag 'default:OFLCOND-MC16-SDR-RUN2-09' \
            --outputESDFile OUT_ESD_8thread.root
 exit_code=$?
 echo  "art-result: ${exit_code} Reco_tf_8thread.py"

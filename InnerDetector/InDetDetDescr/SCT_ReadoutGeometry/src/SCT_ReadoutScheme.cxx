@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -57,11 +57,11 @@ SCT_ReadoutScheme::readoutIdOfCell(const SiCellId & cellId) const
 {
   // readout cell and diode numbering are the same.
   // The range can be different due to the unconnected edge strips (if m_shift != 0).
-  if (!cellId.isValid()) return SiReadoutCellId(); // return an invalid id. 
+  if (!cellId.isValid()) return {}; // return an invalid id. 
   int strip = cellId.strip();
   // I think this should be >= m_cells. But need to check if this has any implications.
-  if (strip < 0 || strip > m_cells) return SiReadoutCellId(); // return an invalid id.
-  return SiReadoutCellId(strip);
+  if (strip < 0 || strip > m_cells) return {}; // return an invalid id.
+  return {strip};
 }
 
 } // namespace InDetDD

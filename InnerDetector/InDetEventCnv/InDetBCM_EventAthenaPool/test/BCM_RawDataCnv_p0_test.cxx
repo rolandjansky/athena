@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -26,7 +26,7 @@ void compare (const BCM_RawData& p1,
 
 void testit (const BCM_RawData& trans1)
 {
-  MsgStream log (0, "test");
+  MsgStream log (nullptr, "test");
   BCM_RawDataCnv_p0 cnv;
   BCM_RawData_p0 pers;
   cnv.transToPers (&trans1, &pers, log);

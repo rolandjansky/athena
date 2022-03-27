@@ -12,7 +12,9 @@ from PyCool import cool
 from CoolConvUtilities import AtlCoolLib
 
 # For resolving tags
-sys.path.append('/afs/cern.ch/user/a/atlcond/utils/python/')
+sys.path.append('/afs/cern.ch/user/a/atlcond/utils22/CondUtilsLib/')
+sys.path.append('/afs/cern.ch/user/a/atlcond/utils22/')
+
 
 #
 # Utility function to open a COOL SQLite beam spot file.
@@ -263,7 +265,6 @@ def resolveCurrentBeamSpotFolder(db = 'COOLOFL_INDET/CONDBR2', folder = '/Indet/
     """
     Resolve the beamspot folder tag for the current BLK tag alisa
     """
-
     tag = resolveCurrentAlias()
     return resolveBLKTag(tag)
 

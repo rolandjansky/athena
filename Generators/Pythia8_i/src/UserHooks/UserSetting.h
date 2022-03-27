@@ -19,7 +19,7 @@ namespace Pythia8_UserHooks{
     
     public:
     
-  UserSetting(std::string name, T defaultValue):
+  UserSetting(const std::string & name, T defaultValue):
     m_paramName(name),
     m_param(defaultValue),
     m_settingsPtr(0),

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -16,13 +16,13 @@ class TRTParameters
 public:
   static const TRTParameters* GetPointer();
   
-  int GetInteger(std::string) const;
-  double GetDouble(std::string) const;
-  void GetIntegerArray(std::string, int, int*) const;
-  void GetDoubleArray(std::string, int, double*) const;
-  void GetPartOfIntegerArray(std::string, int, int*) const;
-  void GetPartOfDoubleArray(std::string, int, double*) const;
-  int GetElementOfIntegerArray(std::string, int) const;
+  int GetInteger(const std::string&) const;
+  double GetDouble(const std::string&) const;
+  void GetIntegerArray(const std::string&, int, int*) const;
+  void GetDoubleArray(const std::string&, int, double*) const;
+  void GetPartOfIntegerArray(const std::string&, int, int*) const;
+  void GetPartOfDoubleArray(const std::string&, int, double*) const;
+  int GetElementOfIntegerArray(const std::string&, int) const;
 
   MsgStream& msg (MSG::Level lvl) { return m_msg << lvl; }
   bool msgLevel (MSG::Level lvl) { return m_msg.get().level() <= lvl; }
@@ -31,7 +31,7 @@ private:
   TRTParameters();
   ~TRTParameters();
   
-  void ReadInputFile(std::string);
+  void ReadInputFile(const std::string&);
   void PrintListOfParameters() const;
   
   std::multimap<std::string, double, std::less<std::string> >

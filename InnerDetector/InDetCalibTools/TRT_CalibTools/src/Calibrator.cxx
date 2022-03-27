@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -160,7 +160,7 @@ RtGraph::RtGraph(TH2F* rtHist, int binvar, const char* binlabel, bool pflag, TDi
                              rtHist->ProjectionX(m_chname.data(),i+1,i+1);
     hslizes[i]->SetTitle(m_chtit.data());
     if (!pflag){
-      hslizes[i]->SetDirectory(0);
+      hslizes[i]->SetDirectory(nullptr);
     }
     
     m_maxbin[i]=1; m_maxval[i]=0;
@@ -503,7 +503,7 @@ std::string Calibrator::GetSelString(){
   return selstr;
 }
 
-std::string Calibrator::GetBinnedRt(std::string key){
+std::string Calibrator::GetBinnedRt(const std::string& key){
 
   int nbins=data[key].rtgraph->tval.size();
   double maxt=data[key].rtgraph->tval[nbins-1];
@@ -544,7 +544,7 @@ int Calibrator::UpdateOldConstants(){
   } 
 }
 
-float Calibrator::FitRt ATLAS_NOT_THREAD_SAFE (std::string key, std::string opt, TH2F* rtHist, TDirectory* dir){ // Global gStyle is used.
+float Calibrator::FitRt ATLAS_NOT_THREAD_SAFE (const std::string& key, const std::string& opt, TH2F* rtHist, TDirectory* dir){ // Global gStyle is used.
 
   float rtpars[4];
 
@@ -630,8 +630,8 @@ float Calibrator::FitRt ATLAS_NOT_THREAD_SAFE (std::string key, std::string opt,
     int maxtries = 500;
     float drdt;
     float driftradius = rtpars[0]+tdrift*(rtpars[1]+tdrift*(rtpars[2]));
-    float residual = fabs(rdrift) - driftradius;
-    while (fabs(residual) > precision) {
+    float residual = std::abs(rdrift) - driftradius;
+    while (std::abs(residual) > precision) {
       
       drdt = rtpars[1]+tdrift*(2*rtpars[2]);
       tdrift = tdrift + residual/drdt;
@@ -676,7 +676,7 @@ float Calibrator::FitRt ATLAS_NOT_THREAD_SAFE (std::string key, std::string opt,
 }
 
 
-float Calibrator::FitTimeResidual ATLAS_NOT_THREAD_SAFE (std::string key, TH1F* tresHist){ // Global gStyle is used.
+float Calibrator::FitTimeResidual ATLAS_NOT_THREAD_SAFE (const std::string& key, TH1F* tresHist){ // Global gStyle is used.
 
   float mean = tresHist->GetMean();
   float rms = tresHist->GetRMS();
@@ -693,7 +693,7 @@ float Calibrator::FitTimeResidual ATLAS_NOT_THREAD_SAFE (std::string key, TH1F* 
 
   data[key].tresMean =  0;
   float fitmean=tresHist->GetBinCenter(maxbin);  
-  if (fabs(fitmean)>5.0){ 
+  if (std::abs(fitmean)>5.0){ 
     data[key].tresMean =  mean;
     data[key].t0err = rms;
     data[key].t0fittype = 1;
@@ -747,7 +747,7 @@ float Calibrator::FitTimeResidual ATLAS_NOT_THREAD_SAFE (std::string key, TH1F* 
   data[key].t0fittype = 2;
  
   // protection against wrong fits:
-  if ( fabs(tresHist->GetFunction("gaus")->GetParameter(2))>10 || fabs(tresHist->GetFunction("gaus")->GetParameter(1))>10   ) {
+  if ( std::abs(tresHist->GetFunction("gaus")->GetParameter(2))>10 || std::abs(tresHist->GetFunction("gaus")->GetParameter(1))>10   ) {
     
     data[key].tres = tresHist->GetRMS();
     data[key].tresMean =  tresHist->GetMean();
@@ -763,7 +763,7 @@ float Calibrator::FitTimeResidual ATLAS_NOT_THREAD_SAFE (std::string key, TH1F* 
   }
 
 
-float Calibrator::FitResidual ATLAS_NOT_THREAD_SAFE (std::string key, TH1F* resHist){ // Global gStyle is used.
+float Calibrator::FitResidual ATLAS_NOT_THREAD_SAFE (const std::string& key, TH1F* resHist){ // Global gStyle is used.
 
   float mean = resHist->GetMean();
   //float rms = resHist->GetRMS();
@@ -783,7 +783,7 @@ float Calibrator::FitResidual ATLAS_NOT_THREAD_SAFE (std::string key, TH1F* resH
 
 }
 
-TDirectory* Calibrator::Calibrate ATLAS_NOT_THREAD_SAFE (TDirectory* dir, std::string key, std::string opt, caldata * caldata_above){ // Thread unsafe FitResidual, FitRt, FitTimeResidual are used.
+TDirectory* Calibrator::Calibrate ATLAS_NOT_THREAD_SAFE (TDirectory* dir, std::string key, const std::string& opt, caldata * caldata_above){ // Thread unsafe FitResidual, FitRt, FitTimeResidual are used.
 
   //set some bool flags
   bool calrt=opt.find('R')!=std::string::npos;
@@ -816,7 +816,7 @@ TDirectory* Calibrator::Calibrate ATLAS_NOT_THREAD_SAFE (TDirectory* dir, std::s
       m_resHists[key]->SetBinContent(i+1,data[key].reshist[i]);
     }
     m_resHists[key]->SetEntries((int)data[key].nres);
-    if (bequiet) m_resHists[key]->SetDirectory(0);                                 
+    if (bequiet) m_resHists[key]->SetDirectory(nullptr);                                 
     
     FitResidual(key,m_resHists[key]);
 
@@ -846,7 +846,7 @@ TDirectory* Calibrator::Calibrate ATLAS_NOT_THREAD_SAFE (TDirectory* dir, std::s
       }
       m_rtHists[key]->SetEntries(data[key].nrt);
       if (bequiet) {
-        m_rtHists[key]->SetDirectory(0);
+        m_rtHists[key]->SetDirectory(nullptr);
       }
       data[key].rtt0=FitRt(key,opt,m_rtHists[key],m_hdirs[key]); //do the fit
       if (prnt) printf("RT    %7i (%8.1e) %8.1e %8.1e %8.1e, %3.2f  : ", data[key].nrt, data[key].rtpar[0], data[key].rtpar[1], data[key].rtpar[2], data[key]. rtpar[3], data[key].rtt0);     
@@ -892,7 +892,7 @@ TDirectory* Calibrator::Calibrate ATLAS_NOT_THREAD_SAFE (TDirectory* dir, std::s
         }
         m_tresHists[key]->SetEntries(data[key].ntres);
         if (bequiet) {
-          m_tresHists[key]->SetDirectory(0);
+          m_tresHists[key]->SetDirectory(nullptr);
         }      
 
         data[key].t0=data[key].oldt02 + FitTimeResidual(key,m_tresHists[key]) + data[key].rtt0 + m_t0shift; //do the fit and modify t0
@@ -910,7 +910,7 @@ TDirectory* Calibrator::Calibrate ATLAS_NOT_THREAD_SAFE (TDirectory* dir, std::s
         //TEMP FIX to dont destroy right T0s
        
       //add the short straw correction here. In this way, the shift is only done when contants at STRAW level come from level above.
-        if ((level == 6 && useshortstw) && fabs(data[key].det)<2  && (data[key].lay==0 && data[key].stl<9) )         data[key].t0=caldata_above->t0-0.75; 
+        if ((level == 6 && useshortstw) && std::abs(data[key].det)<2  && (data[key].lay==0 && data[key].stl<9) )         data[key].t0=caldata_above->t0-0.75; 
         data[key].t0err=caldata_above->t0err;
         data[key].t0off=data[key].t0-caldata_above->t0 + data[key].rtt0;
         data[key].t0fittype = 4;
@@ -931,7 +931,7 @@ TDirectory* Calibrator::Calibrate ATLAS_NOT_THREAD_SAFE (TDirectory* dir, std::s
 }
 
 
-int Calibrator::AddHit(std::string key, databundle d, int* binhist, bool makehist){
+int Calibrator::AddHit(const std::string& key, databundle d, int* binhist, bool makehist){
   
   int tresbin=Simple1dHist(m_mintres,m_maxtres,m_nbinstres,d.tres);
   int resbin=Simple1dHist(m_minres,m_maxres,m_nbinsres,d.res);

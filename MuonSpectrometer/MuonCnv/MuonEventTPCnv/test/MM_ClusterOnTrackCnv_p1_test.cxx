@@ -130,7 +130,7 @@ void test1 (const MuonGM::MuonDetectorManager& muo_dd)
   ElementLinkToIDC_MM_Container rio (333, 222);
 
   // 55 == MMS
-  Identifier clusId = muo_dd.mmIdHelper()->channelID (55, 1, 2, 1, 1, 1, 1);
+  Identifier clusId = muo_dd.mmIdHelper()->channelID (55, 1, 2, 1, 1, 1);
 
   Muon::MMClusterOnTrack trans1 (rio,
                                  locpos,

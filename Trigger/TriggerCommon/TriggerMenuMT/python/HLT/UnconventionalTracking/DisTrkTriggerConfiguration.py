@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaCommon.CFElements import seqAND
-from TriggerMenuMT.HLT.Menu.MenuComponents import MenuSequence
+from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequence
 from AthenaCommon.Logging import logging
 
 logging.getLogger().info("Importing %s",__name__)

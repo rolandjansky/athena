@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_Amp.h"
@@ -77,7 +77,7 @@ float SCT_Amp::response(const list_t& Charges, const float timeOfThreshold) cons
     float tC{static_cast<float>(timeOfThreshold - charge.time())};
     if (tC > 0.0) {
       tC/=tp; //to avoid doing it four times
-      resp += ch*tC*tC*tC*exp(-tC); //faster than pow
+      resp += ch*tC*tC*tC*std::exp(-tC); //faster than pow
     }
   }
   return resp*m_NormConstCentral;
@@ -96,7 +96,7 @@ void SCT_Amp::response(const list_t& Charges, const float timeOfThreshold, std::
       float tC{bin_timeOfThreshold - ch_time};
       if (tC > 0.0) {
         tC/=tp; //to avoid doing it four times
-        response[bin+1] += ch*tC*tC*tC*exp(-tC); //faster than pow
+        response[bin+1] += ch*tC*tC*tC*std::exp(-tC); //faster than pow
       }
     }
   }
@@ -115,7 +115,7 @@ float SCT_Amp::crosstalk(const list_t& Charges, const float timeOfThreshold) con
     float tC{static_cast<float>(timeOfThreshold - charge.time())};
     if (tC > 0.0) {
       tC/=tp; //to avoid doing it four times
-      resp += ch*tC*tC*exp(-tC)*(3.0-tC); //faster than pow
+      resp += ch*tC*tC*std::exp(-tC)*(3.0-tC); //faster than pow
     }
   }
   return resp*m_NormConstNeigh;
@@ -134,7 +134,7 @@ void SCT_Amp::crosstalk(const list_t& Charges, const float timeOfThreshold, std:
       float tC{bin_timeOfThreshold - ch_time};
       if (tC > 0.0) {
         tC/=tp; //to avoid doing it four times
-        response[bin+1] += ch*tC*tC*exp(-tC)*(3.0-tC); //faster than pow
+        response[bin+1] += ch*tC*tC*std::exp(-tC)*(3.0-tC); //faster than pow
       }
     }
   }

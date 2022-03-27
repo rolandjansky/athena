@@ -7,7 +7,6 @@
 #include "./CTPTriggerItem.h"
 #include "./CTPUtil.h"
 
-#include "TrigConfData/L1BunchGroupSet.h"
 #include "TrigT1Result/CTP_RDO.h"
 #include "TrigT1Interfaces/CTPSLink.h"
 #include "TrigT1Result/RoIBResult.h"
@@ -65,6 +64,7 @@ LVL1CTP::CTPSimulation::initialize() {
       CHECK( m_oKeyRDO.assign(LVL1CTP::DEFAULT_RDOOutputLocation_Rerun) );
       CHECK( m_oKeySLink.assign(LVL1CTP::DEFAULT_CTPSLinkLocation_Rerun) );
    }
+   ATH_CHECK( m_bgKey.initialize( !m_forceBunchGroupPattern ) );
 
    // data links
    ATH_CHECK( m_iKeyTopo.initialize( !m_iKeyTopo.empty() ) );
@@ -698,8 +698,9 @@ LVL1CTP::CTPSimulation::extractMultiplicities(std::map<std::string, unsigned int
       }
    } else {
       // use bunchgroup definition from configuration and pick according to the BCID
-      const TrigConf::L1BunchGroupSet *l1bgs = nullptr;
-      detStore()->retrieve(l1bgs).ignore();
+      SG::ReadCondHandle<TrigConf::L1BunchGroupSet> bgkey(m_bgKey, context);
+      ATH_CHECK(bgkey.isValid());
+      const TrigConf::L1BunchGroupSet *l1bgs = *bgkey;
       if (l1bgs)
       {
          for (size_t i = 0; i < l1bgs->maxNBunchGroups(); ++i)

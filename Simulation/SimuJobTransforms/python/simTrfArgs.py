@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 import logging
 msg = logging.getLogger(__name__)
@@ -191,9 +191,6 @@ def addCommonSimTrfArgs(parser):
     parser.add_argument('--truthStrategy',
                         type=argFactory(argString), metavar='CONFIGNAME',
                         help='Specify the named group of Truth strategies that the simulation should use.  E.g. MC12, MC15aPlus, MC16', group='CommonSim')
-    parser.add_argument('--perfmon', default=argString('fastmonmt'),
-                        type=argFactory(argString),
-                        help='Enable PerfMon (fastmonmt [default], fullmonmt, or none)', group='CommonSim')
 
 ## Add common Simulation/Digitization transform arguments to an argparse ArgumentParser
 def addCommonSimDigTrfArgs(parser):

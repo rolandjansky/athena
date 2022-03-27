@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <memory>
@@ -10,18 +10,17 @@
 #include "TrkToolInterfaces/IDetailedTrackTruthSimilarity.h"
 
 TrackTruthSimilaritySelector::TrackTruthSimilaritySelector(const std::string &name,ISvcLocator *pSvcLocator)
-  : AthAlgorithm(name,pSvcLocator),
-  m_detailed("DetailedTrackTruth"), m_out("TrackTruthNew")
+  : AthAlgorithm(name,pSvcLocator)
 {
-  declareProperty("DetailedTrackTruthName",  m_detailed);
-  declareProperty("OutputName",  m_out);
 }
 
 // -----------------------------------------------------------------------------------------------------
 StatusCode TrackTruthSimilaritySelector::initialize()
 {
-  ATH_MSG_INFO ("TrackTruthSimilaritySelector::initialize(), output " << m_out.name());
+  ATH_MSG_INFO ("TrackTruthSimilaritySelector::initialize(), output " << m_out.key());
   ATH_CHECK( m_matchTool.retrieve() );
+  ATH_CHECK( m_detailed.initialize() );
+  ATH_CHECK( m_out.initialize() );
   return StatusCode::SUCCESS;
 }
 
@@ -39,22 +38,24 @@ StatusCode TrackTruthSimilaritySelector::execute() {
   //----------------------------------------------------------------
   // Retrieve the input
 
-  if (!m_detailed.isValid()){
-    ATH_MSG_ERROR ("DetailedTrackTruthCollection "<<m_detailed.name()<<" NOT found");
+  auto detailedHandle = SG::makeHandle( m_detailed );
+  if (!detailedHandle.isValid()){
+    ATH_MSG_ERROR ("DetailedTrackTruthCollection "<<m_detailed.key()<<" NOT found");
     return StatusCode::FAILURE;
   } else {
-    ATH_MSG_DEBUG ("Got DetailedTrackTruthCollection "<<m_detailed.name());
+    ATH_MSG_DEBUG ("Got DetailedTrackTruthCollection "<<m_detailed.key());
   }
 
   //----------------------------------------------------------------
   // Produce and store the output.
 
-  m_out = std::make_unique<TrackTruthCollection>
-               (m_detailed->trackCollectionLink());
+  auto outHandle = SG::makeHandle( m_out );
+  outHandle = std::make_unique<TrackTruthCollection>
+               (detailedHandle->trackCollectionLink());
 
-  fillOutput(m_out.ptr(), m_detailed.cptr());
+  fillOutput(outHandle.ptr(), detailedHandle.cptr());
   
-  ATH_MSG_DEBUG ("TrackTruthCollection '"<<m_out.name()<<"' is registered in StoreGate, size="<<m_out->size());
+  ATH_MSG_DEBUG ("TrackTruthCollection '"<<m_out.key()<<"' is registered in StoreGate, size="<<outHandle->size());
   
   
   return StatusCode::SUCCESS;
@@ -65,7 +66,7 @@ void TrackTruthSimilaritySelector::fillOutput(TrackTruthCollection *out,
 					      const DetailedTrackTruthCollection *in)
 {
 
-  typedef DetailedTrackTruthCollection::const_iterator Iter;
+  using Iter = DetailedTrackTruthCollection::const_iterator;
   Iter itrackData=in->begin();
   while(itrackData!=in->end()) {
     std::pair<Iter,Iter> range = in->equal_range(itrackData->first);

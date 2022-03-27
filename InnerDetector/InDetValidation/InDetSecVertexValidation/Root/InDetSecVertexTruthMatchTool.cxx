@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "AthenaKernel/Units.h"
 
@@ -325,7 +325,7 @@ size_t indexOfMatchInfo( std::vector<VertexTruthMatchInfo> & matches, const Elem
       return i;
   }
   // This is the first time we've seen this truth vertex, so make a new entry
-  matches.push_back(  std::make_tuple( link, 0., 0. ) );
+  matches.emplace_back( link, 0., 0. );
   return matches.size() - 1;
 }
 
@@ -522,12 +522,12 @@ StatusCode InDetSecVertexTruthMatchTool::matchVertices( const xAOD::VertexContai
         if (matchTypeDecor( *vtxContainer[j] ) == FAKE) continue;
         if (info2.size() > 0 && std::get<0>(info2[0]).isValid() && std::get<0>(info[0]).key() == std::get<0>(info2[0]).key() && std::get<0>(info[0]).index() == std::get<0>(info2[0]).index() ) {
           //add split links; first between first one found and newest one
-          splitPartnerDecor( *vtxContainer[i] ).push_back( ElementLink<xAOD::VertexContainer>( vtxContainer, j ) );
-          splitPartnerDecor( *vtxContainer[j] ).push_back( ElementLink<xAOD::VertexContainer>( vtxContainer, i ) );
+          splitPartnerDecor( *vtxContainer[i] ).emplace_back( vtxContainer, j );
+          splitPartnerDecor( *vtxContainer[j] ).emplace_back( vtxContainer, i );
           //then between any others we found along the way
           for ( auto k : foundSplits ) { //k is a size_t in the vector of splits
-            splitPartnerDecor( *vtxContainer[k] ).push_back( ElementLink<xAOD::VertexContainer>( vtxContainer, j ) );
-            splitPartnerDecor( *vtxContainer[j] ).push_back( ElementLink<xAOD::VertexContainer>( vtxContainer, k ) );
+            splitPartnerDecor( *vtxContainer[k] ).emplace_back( vtxContainer, j );
+            splitPartnerDecor( *vtxContainer[j] ).emplace_back( vtxContainer, k );
           }
           //then keep track that we found this one
           foundSplits.push_back(j);

@@ -101,9 +101,9 @@ def __save_output(data,outfile,prefix,infile=None):
     if infile is not None and outfile==infile:
         print("%s.parse WARNING: output file %s equals input file. Won't dump."%(_appname,outfile))
     else:
-        import cPickle
+        import pickle
         force_share(data)#make sure we register shared strings
-        cPickle.dump(data,fh)
+        pickle.dump(data,fh)
         print("%s.parse INFO: Placed info in %s"%(_appname,outfile))
 
 def __smart_parse(infile):
@@ -340,7 +340,7 @@ def __deparse_single(d):
         snapshot='snapshot_'+snapshot
         ds=d['special']['snapshots'][snapshot]
         out+=[ '%s[---] %4i %8i %8i %8i %8i %s'%(_prefix,ds['n'],ds['cpu'],ds['wall'],ds['vmem'],ds['malloc'],snapshot)]
-    leaks=d['special']['leaks'].keys()
+    leaks=list(d['special']['leaks'])
     leaks.sort()
     for leak in leaks:
         dl=d['special']['leaks'][leak]
@@ -516,7 +516,7 @@ def __fs_list(z):
             __fs_dict(z[i])
 
 def __fs_dict(d):
-    keys=d.keys()
+    keys=list(d)
     for k in keys:
         o=d[k]
         del d[k]

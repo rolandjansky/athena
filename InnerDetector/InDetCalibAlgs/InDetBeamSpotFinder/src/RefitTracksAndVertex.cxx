@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // @file RefitTracksAndVertex.cxx
@@ -127,7 +127,7 @@ StatusCode RefitTracksAndVertex::execute() {
   //---------------------------
   // Primary Vertex
   //---------------------------
-  const xAOD::VertexContainer* vertices = 0;
+  const xAOD::VertexContainer* vertices = nullptr;
   if ( !evtStore()->retrieve( vertices, m_vertexListInput ).isSuccess() ){ // retrieve arguments: container type, container key
     ATH_MSG_WARNING("execute() Failed to retrieve Reconstructed vertex container. " << m_vertexListInput );
     //ATH_MSG_ERROR(evtStore()->dump());
@@ -146,7 +146,7 @@ StatusCode RefitTracksAndVertex::execute() {
   CHECK( evtStore()->record(theVertexContainer,  m_outputVertexContainerName) );
   CHECK( evtStore()->record(theVertexAuxContainer, m_outputVertexContainerName + "Aux.") );
 
-  const xAOD::Vertex* primaryVertex = 0;  
+  const xAOD::Vertex* primaryVertex = nullptr;  
   for( const xAOD::Vertex* vertex: *vertices ) {
     if( vertex->vertexType() == xAOD::VxType::PriVtx ) {
       primaryVertex = vertex;
@@ -216,7 +216,7 @@ const Trk::PseudoMeasurementOnTrack* RefitTracksAndVertex::createPMfromSi ( cons
   std::vector<Trk::DefinedParameter> defPar ;
   defPar.push_back( z0    ) ;
   defPar.push_back( theta ) ;
-  if( !mp->covariance() )  return 0;
+  if( !mp->covariance() )  return nullptr;
   Trk::LocalParameters  parFromSi( defPar ) ;
   AmgSymMatrix(2) covFromSi;
   
@@ -251,14 +251,14 @@ Trk::Track* RefitTracksAndVertex::fitSCTOnlyTrack(const Trk::Track* track) {
   const Trk::Perigee* perTrk = track->perigeeParameters();
   if( !perTrk ) {
     ATH_MSG_WARNING("RefitTracksAndVertex() : No Perigee parameter on track!");
-    return NULL ;
+    return nullptr ;
   }
  
   if( perTrk->eta() < m_selEtaMin || perTrk->eta() > m_selEtaMax)
-    return NULL ;
+    return nullptr ;
 
   if( perTrk->pT() < m_selPtMin)
-    return NULL ;
+    return nullptr ;
     
   
   //store all silicon measurements into the measurementset
@@ -270,7 +270,7 @@ Trk::Track* RefitTracksAndVertex::fitSCTOnlyTrack(const Trk::Track* track) {
       //    << "  member! Skip it.." << endmsg;
     } else {
       const Trk::RIO_OnTrack* rio = dynamic_cast <const Trk::RIO_OnTrack*>(*it);
-      if (rio != 0) {
+      if (rio != nullptr) {
         const Identifier& surfaceID = (rio->identify()) ;
         if( m_idHelper->is_sct(surfaceID) ) {
           setSCT.push_back ( *it ) ;
@@ -284,7 +284,7 @@ Trk::Track* RefitTracksAndVertex::fitSCTOnlyTrack(const Trk::Track* track) {
   }
   
   if( (int)setSCT.size() <  m_selNHitSCTMin ) 
-    return NULL; 
+    return nullptr; 
 
   ATH_MSG_DEBUG("RefitTracksAndVertex() : Found " << setSCT.size()  << " SCT measurm's!" ) ;
   ATH_MSG_DEBUG("RefitTracksAndVertex() : Found " << setPix.size()  << " Pix measurm's!" ) ;
@@ -301,7 +301,7 @@ Trk::Track* RefitTracksAndVertex::fitSCTOnlyTrack(const Trk::Track* track) {
     const Trk::PseudoMeasurementOnTrack *pmFromSi = createPMfromSi( perTrk ) ;
     if( !pmFromSi ) {
       ATH_MSG_ERROR("RefitTracksAndVertex() : PseudoMeasurementOnTrack creation failed! " );
-      return NULL ;
+      return nullptr ;
     }
     ATH_MSG_DEBUG( "RefitTracksAndVertex() : pmFromSi " << *pmFromSi) ;
     Trk::MeasurementSet setSCT = addPM( setSCT, pmFromSi ) ;
@@ -330,7 +330,7 @@ Trk::Track* RefitTracksAndVertex::fitSCTOnlyTrack(const Trk::Track* track) {
                                        )).release() ;
   if( !trkSCT ) {
     ATH_MSG_DEBUG( "RefitTracksAndVertex() : Fit of SCT part of the track failed! " ) ;
-    return NULL ;
+    return nullptr ;
   }
   const Trk::Perigee* perSCT = trkSCT->perigeeParameters();
   ATH_MSG_VERBOSE( "RefitTracksAndVertex() : perSCT " << *perSCT) ;

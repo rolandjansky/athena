@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Run tests on G4AtlasToolsConfigNew
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 
 if __name__ == '__main__':
@@ -25,10 +25,10 @@ if __name__ == '__main__':
   from AthenaConfiguration.TestDefaults import defaultTestFiles
   inputDir = defaultTestFiles.d
   ConfigFlags.Input.Files = defaultTestFiles.EVNT
-  
-  ConfigFlags.GeoModel.Run = "RUN2" 
 
-  #ConfigFlags.Beam.Type = "cosmics"
+  from AthenaConfiguration.Enums import LHCPeriod
+  ConfigFlags.GeoModel.Run = LHCPeriod.Run2
+
   detectors =['BCM', 'Pixel', 'SCT', 'TRT', 'LAr']
   # Setup detector flags
   from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
@@ -37,12 +37,12 @@ if __name__ == '__main__':
   #ConfigFlags.GeoModel.AtlasVersion = "tb_Tile2000_2003"
   #ConfigFlags.GeoModel.AtlasVersion = "ctbh8"
   ConfigFlags.GeoModel.AtlasVersion = 'ATLAS-R2-2015-03-01-00'
-  # Finalize 
+  # Finalize
   ConfigFlags.lock()
 
 
   ## Initialize a new component accumulator
-  cfg = MainServicesCfg(ConfigFlags) 
+  cfg = MainServicesCfg(ConfigFlags)
 
 
   from G4AtlasTools.G4AtlasToolsConfigNew import SensitiveDetectorMasterToolCfg

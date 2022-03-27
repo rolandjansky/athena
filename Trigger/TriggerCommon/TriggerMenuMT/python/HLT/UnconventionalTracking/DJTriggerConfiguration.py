@@ -1,10 +1,10 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.CFElements import (seqAND, parOR)
-from TriggerMenuMT.HLT.Menu.MenuComponents import MenuSequence
+from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequence
 from AthenaCommon.Logging import logging
 
-from ..Menu.MenuComponents import RecoFragmentsPool
+from ..Config.MenuComponents import RecoFragmentsPool
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
@@ -23,11 +23,12 @@ def DJPromptStep():
     #get the jet tracking config to get the track collection name
     fscfg = getInDetTrigConfig("jet")
 
-    hypo_alg.min_trk_pt = 2
+    hypo_alg.min_trk_pt = 1.0
     hypo_alg.min_evt_jet_pt = 200
     hypo_alg.stdTracksKey = fscfg.tracks_FTF()
     hypo_alg.jetContainerKey = recordable("HLT_AntiKt4EMTopoJets_subjesIS")
     hypo_alg.vtxKey = fscfg.vertex_jet
+    hypo_alg.countsKey = "DispJetTrigger_Counts"
     hypo_alg.MonTool = TrigDJPromptHypoAlgMonTool()
 
     #run at the event level
@@ -90,6 +91,7 @@ def DJDispStep():
 
     hypo_alg.lrtTracksKey = lrtcfg.tracks_FTF()
     hypo_alg.vtxKey = fscfg.vertex_jet
+    hypo_alg.infoKey = "DispJetTrigger_Info"
 
     ( alg_seq ,im_alg) = RecoFragmentsPool.retrieve(DJDispFragment,ConfigFlags)
 

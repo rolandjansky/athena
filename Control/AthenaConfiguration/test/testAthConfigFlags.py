@@ -104,10 +104,11 @@ class BasicTests(FlagsSetup):
         with self.assertRaises(Exception) as _:
             self.flags.FormatWrong = "POOL"
 
-    def test_enums_incorrect_lock(self):
+    def test_enums_incorrect_lambda(self):
         """Test that enums are properly validated (incorrect flags)"""
         self.flags.addFlag("FormatWrong", lambda flags : "ABC", enum=Format)
-        self.assertRaises(RuntimeError, self.flags.lock)
+        with self.assertRaises(RuntimeError) as _:
+            x=self.flags.FormatWrong 
 
 
 class TestFlagsSetupDynamic(FlagsSetup):

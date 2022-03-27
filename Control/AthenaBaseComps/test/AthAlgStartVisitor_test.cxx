@@ -43,7 +43,7 @@ public:
   TestHandleKey (const std::string& key)
     : SG::VarHandleKey (1234, key,
                         Gaudi::DataHandle::Reader,
-                        "EventStore", true),
+                        "StoreGateSvc", true),
       m_started (0)
   {
   }
@@ -91,8 +91,26 @@ void test1 (ISvcLocator* svcLoc)
   assert (h4.m_started == 0);
   assert (h5.m_started == 0);
 
+  // Check that uninitialised handles throw errors
+  bool errorCaught = false;
   AthAlgStartVisitor v( &alg );
-  alg.acceptDHVisitor (&v);
+  try {
+    alg.acceptDHVisitor (&v);
+  }
+    catch( SG::ExcUninitKey const& ) {
+    errorCaught = true;
+  } 
+  assert (errorCaught == true);
+
+  assert (h1.initialize().isSuccess());
+  assert (h2.initialize().isSuccess());
+  assert (h3.initialize().isSuccess());
+  assert (h4.initialize().isSuccess());
+  assert (h5.initialize().isSuccess());
+
+  // Need a new visitor since v has "seen" TestAlg already
+  AthAlgStartVisitor v2( &alg );
+  alg.acceptDHVisitor (&v2);
 
   assert (h1.m_started == 1);
   assert (h2.m_started == 1);

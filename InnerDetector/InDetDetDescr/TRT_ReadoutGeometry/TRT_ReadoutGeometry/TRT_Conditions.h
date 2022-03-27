@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,7 +13,7 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "CLHEP/Geometry/Transform3D.h"
 
-#include <mutex>
+#include <atomic>
 
 namespace TRTCond {
   class StrawDxContainer;
@@ -35,10 +35,12 @@ namespace InDetDD {
       ~TRT_Conditions() = default;
   
       const TRTCond::StrawDxContainer* dxContainer() const;
-      void setDxContainer(const TRTCond::StrawDxContainer* container);
+
+    protected:
+      void setDxContainer(const TRTCond::StrawDxContainer* container) const;
     
     private:
-      const TRTCond::StrawDxContainer* m_dxContainer;
+      mutable std::atomic<const TRTCond::StrawDxContainer*> m_dxContainer;
 
   };
 

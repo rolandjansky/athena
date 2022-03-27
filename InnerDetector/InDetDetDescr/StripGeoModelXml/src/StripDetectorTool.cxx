@@ -6,12 +6,11 @@
 
 #include <SCT_ReadoutGeometry/SCT_DetectorManager.h>
 #include <SCT_ReadoutGeometry/SCT_ModuleSideDesign.h>
-#include <GeoModelKernel/GeoPhysVol.h>
+
 #include <DetDescrConditions/AlignableTransformContainer.h>
-#include <GeoModelUtilities/DecodeVersionKey.h>
+#include <GeoModelKernel/GeoPhysVol.h>
 #include <GeoModelUtilities/GeoModelExperiment.h>
 #include <SGTools/DataProxy.h>
-#include <StoreGate/StoreGateSvc.h>
 
 
 namespace ITk
@@ -27,10 +26,8 @@ StripDetectorTool::StripDetectorTool(const std::string &type,
 
 StatusCode StripDetectorTool::create()
 {
-  //retrieve the common stuff
+  // retrieve the common stuff
   ATH_CHECK(createBaseTool());
-  // Get the detector configuration.
-  ATH_CHECK(m_geoModelSvc.retrieve());
 
   GeoModelExperiment *theExpt = nullptr;
   ATH_CHECK(detStore()->retrieve(theExpt, "ATLAS"));
@@ -38,39 +35,49 @@ StatusCode StripDetectorTool::create()
   ATH_CHECK(detStore()->retrieve(idHelper, "SCT_ID"));
 
   m_commonItems = std::make_unique<InDetDD::SiCommonItems>(idHelper);
- 
+
   //
-  // Get the version
+  // Check the availability
   //
-  DecodeVersionKey versionKey(&*m_geoModelSvc, "SCT");
-  if (versionKey.tag() == "AUTO"){
-    ATH_MSG_ERROR("Atlas version tag is AUTO. You must set a version-tag like ATLAS_P2_ITK-00-00-00.");
-    return StatusCode::FAILURE;
+  std::string node{"SCT"};
+  std::string table{"ITKXDD"};
+  if (!isAvailable(node, table)) {
+    ATH_MSG_INFO("Trying new " << m_detectorName.value() << " database location.");
+    node = "InnerDetector";
+    table = "StripXDD";
+    if (!isAvailable(node, table)) {
+      ATH_MSG_ERROR("No ITk Strip geometry found. ITk Strip can not be built.");
+      return StatusCode::FAILURE;
+    }
   }
-  ATH_MSG_INFO((versionKey.custom() ? "Building custom " : "Building ")
-               << "ITk Strip with Version Tag: "<< versionKey.tag() << " at Node: " << versionKey.node());
   //
-  // Get the Database Access Service and from there the SCT version tag
-  //(Do we need this?)
-  //
-  std::string sctVersionTag = m_rdbAccessSvc->getChildTag("SCT", versionKey.tag(), versionKey.node());
-  ATH_MSG_INFO("ITk Strip Version: " << sctVersionTag);
-  //
-  // Check if SCT version tag is empty. If so, then the SCT cannot be built.
-  // This may or may not be intentional. We just issue an INFO message.
-  //
-  if (sctVersionTag.empty()) {
-    ATH_MSG_INFO("No ITk Strip Version. ITk Strip will not be built.");
-    return StatusCode::SUCCESS;
-  }
+  // Create the detector manager
   //
   // The * converts a ConstPVLink to a ref to a GeoVPhysVol
   // The & takes the address of the GeoVPhysVol
-  ATH_MSG_INFO("C R E A T E   W O R L D");
   GeoPhysVol *world = &*theExpt->getPhysVol();
-  m_detManager  = createManager(world);
+  auto *manager = new InDetDD::SCT_DetectorManager(&*detStore(), m_detectorName);
+  manager->addFolder(m_alignmentFolderName);
 
- //getName here will return whatever is passed as name to DetectorFactory - make this more explicit?
+  InDetDD::ITk::StripGmxInterface gmxInterface(manager, m_commonItems.get(), &m_waferTree);
+
+  // Load the geometry, create the volume,
+  // and then find the volume index within the world to allow it to be added
+  // last two arguments are the location in the DB to look for the clob
+  // (may want to make those configurables)
+  int childIndex = createTopVolume(world, gmxInterface, node, table);
+  if (childIndex != -1) { //-1 represents an error state from the above method
+    manager->addTreeTop(&*world->getChildVol(childIndex));
+    doNumerology(manager);
+    manager->initNeighbours();
+  } else {
+    ATH_MSG_FATAL("Could not find the Top Volume!!!");
+    return StatusCode::FAILURE;
+  }
+
+  // set the manager
+  m_detManager = manager;
+
   ATH_CHECK(detStore()->record(m_detManager, m_detManager->getName()));
   theExpt->addManager(m_detManager);
 
@@ -137,31 +144,6 @@ StatusCode StripDetectorTool::align(IOVSVC_CALLBACK_ARGS_P(I, keys)){
   }
 }
 
-InDetDD::SCT_DetectorManager * StripDetectorTool::createManager(GeoPhysVol * theWorld){
-
-  InDetDD::SCT_DetectorManager * theManager = new InDetDD::SCT_DetectorManager(&*detStore(), m_detectorName);
-  //in the factory we would set the version here and write it to the mgr... is it really necessary???
-  //Leave it out for now until we find we need it...
-
-  theManager->addFolder(m_alignmentFolderName);
-
-  InDetDD::ITk::StripGmxInterface gmxInterface(theManager, m_commonItems.get(), &m_waferTree);
-
-  //Load the geometry, create the volume, 
-  //and then find the volume index within the world to allow it to be added
-  //last two arguments are the location in the DB to look for the clob
-  //(may want to make those configurables)
-  int childIndex = createTopVolume(theWorld,gmxInterface, "SCT", "ITKXDD");
-  if(childIndex != -1){ //-1 represents an error state from the above method
-   theManager->addTreeTop(&*theWorld->getChildVol(childIndex));
-   doNumerology(theManager);
-   theManager->initNeighbours();
-  }
-  else ATH_MSG_FATAL("Could not find the Top Volume!!!");
- 
-  return theManager;
-
-}
 
 void StripDetectorTool::doNumerology(InDetDD::SCT_DetectorManager * manager)
 {

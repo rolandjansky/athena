@@ -85,9 +85,6 @@ phi_module    4
 eta_module    5
 phi_index     6
 eta_index     7
-GEOPIXELSERVICES pixel : 28.995 245 //  3460
-GEOPIXELSERVICES barrel : 28.997 143 //  -460 460
-GEOPIXELSERVICES endcap : 82 175 //  484 670
 Warning in <TClass::Init>: no dictionary for class DataHeader_p1 is available
 Warning in <TClass::Init>: no dictionary for class DataHeaderElement_p1 is available
 Warning in <TClass::Init>: no dictionary for class DataHeader_p2 is available

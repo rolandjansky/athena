@@ -92,7 +92,7 @@ rungeKuttaStep(Cache& cache, bool Jac, double S, double* ATH_RESTRICT P, bool& I
   }
 
   bool Helix = false;
-  if (std::fabs(S) < cache.m_helixStep)
+  if (std::abs(S) < cache.m_helixStep)
     Helix = true;
   while (S != 0.) {
 
@@ -153,9 +153,9 @@ rungeKuttaStep(Cache& cache, bool Jac, double S, double* ATH_RESTRICT P, bool& I
 
     // Test approximation quality on give step and possible step reduction
     //
-    const double EST = std::fabs((A1 + A6) - (A3 + A4)) +
-                       std::fabs((B1 + B6) - (B3 + B4)) +
-                       std::fabs((C1 + C6) - (C3 + C4));
+    const double EST = std::abs((A1 + A6) - (A3 + A4)) +
+                       std::abs((B1 + B6) - (B3 + B4)) +
+                       std::abs((C1 + C6) - (C3 + C4));
     if (EST > cache.m_dlt) {
       S *= .5;
       dltm = 0.;
@@ -325,8 +325,8 @@ rungeKuttaStepWithGradient(Cache& cache, double S, double* ATH_RESTRICT P, bool&
 
     // Test approximation quality on give step and possible step reduction
     //
-    double EST = std::fabs((A1 + A6) - (A3 + A4)) + std::fabs((B1 + B6) - (B3 + B4)) +
-                 std::fabs((C1 + C6) - (C3 + C4));
+    double EST = std::abs((A1 + A6) - (A3 + A4)) + std::abs((B1 + B6) - (B3 + B4)) +
+                 std::abs((C1 + C6) - (C3 + C4));
     if (EST > cache.m_dlt) {
       S *= .5;
       dltm = 0.;
@@ -497,7 +497,7 @@ newCrossPoint(const Trk::CylinderSurface& Su,
   z = P[2] - T(2, 3);
   RC = x * Ax[0] + y * Ax[1] + z * Ax[2];
   RS = x * Ay[0] + y * Ay[1] + z * Ay[2];
-  double dF = std::fabs(std::atan2(RS, RC) - Su.bounds().averagePhi());
+  double dF = std::abs(std::atan2(RS, RC) - Su.bounds().averagePhi());
   if (dF > pi)
     dF = pi2 - pi;
   return dF > Su.bounds().halfPhiSector();
@@ -621,7 +621,7 @@ stepEstimatorWithCurvature(Cache& cache,
   double Step = Trk::RungeKuttaUtils::stepEstimator(kind, Su, P, Q);
   if (!Q)
     return 0.;
-  const double AStep = std::fabs(Step);
+  const double AStep = std::abs(Step);
   if (kind || AStep < cache.m_straightStep || !cache.m_mcondition)
     return Step;
 
@@ -639,7 +639,7 @@ stepEstimatorWithCurvature(Cache& cache,
     Q = true;
     return Step;
   }
-  if (std::fabs(StepN) < AStep)
+  if (std::abs(StepN) < AStep)
     return StepN;
   return Step;
 }
@@ -664,7 +664,7 @@ propagateWithJacobian(Cache& cache,
   SA[0] = SA[1] = SA[2] = 0.;
   cache.m_maxPathLimit = false;
 
-  if (cache.m_mcondition && std::fabs(P[6]) > .1)
+  if (cache.m_mcondition && std::abs(P[6]) > .1)
     return false;
 
   // Step estimation until surface
@@ -682,7 +682,7 @@ propagateWithJacobian(Cache& cache,
   }
 
   Step > Smax ? S = Smax : Step < -Smax ? S = -Smax : S = Step;
-  double So = std::fabs(S);
+  double So = std::abs(S);
   int iS = 0;
 
   bool InS = false;
@@ -691,7 +691,7 @@ propagateWithJacobian(Cache& cache,
   //
   int niter = 0;
   cache.m_newfield = true;
-  while (std::fabs(Step) > cache.m_straightStep) {
+  while (std::abs(Step) > cache.m_straightStep) {
 
     if (++niter > 10000)
       return false;
@@ -722,34 +722,34 @@ propagateWithJacobian(Cache& cache,
       ++iS;
     }
 
-    const double aS = std::fabs(S);
-    const double aStep = std::fabs(Step);
+    const double aS = std::abs(S);
+    const double aStep = std::abs(Step);
     if (aS > aStep)
       S = Step;
     else if (!iS && InS && aS * 2. < aStep)
       S *= 2.;
-    if (!dir && std::fabs(W) > Wwrong)
+    if (!dir && std::abs(W) > Wwrong)
       return false;
 
-    if (iS > 10 || (iS > 3 && std::fabs(S) >= So)) {
+    if (iS > 10 || (iS > 3 && std::abs(S) >= So)) {
       if (!kind)
         break;
       return false;
     }
-    const double dW = Wmax - std::fabs(W);
-    if (std::fabs(S) > dW) {
+    const double dW = Wmax - std::abs(W);
+    if (std::abs(S) > dW) {
       S > 0. ? S = dW : S = -dW;
       Step = S;
       cache.m_maxPathLimit = true;
     }
-    So = std::fabs(S);
+    So = std::abs(S);
   }
 
   // Output track parameteres
   //
   W += Step;
 
-  if (std::fabs(Step) < .001)
+  if (std::abs(Step) < .001)
     return true;
 
   A[0] += (SA[0] * Step);
@@ -971,19 +971,19 @@ globalOneSidePositions(Cache& cache,
   double S = mS;                          // max step allowed
   double R2m = R2;
 
-  if (cache.m_mcondition && std::fabs(P[6]) > .1)
+  if (cache.m_mcondition && std::abs(P[6]) > .1)
     return;
 
   // Test position of the track
   //
-  if (std::fabs(P[2]) > Zmax || R2 > R2max)
+  if (std::abs(P[2]) > Zmax || R2 > R2max)
     return;
 
   Amg::Vector3D g0(P[0], P[1], P[2]);
   GP.push_back(g0);
 
   bool per = false;
-  if (std::fabs(Dir) < .00001)
+  if (std::abs(Dir) < .00001)
     per = true;
   bool InS = false;
 
@@ -1010,7 +1010,7 @@ globalOneSidePositions(Cache& cache,
       } else {
         W += (S = straightLineStep(0, S, p));
       }
-      if (InS && std::fabs(2. * S) < mS)
+      if (InS && std::abs(2. * S) < mS)
         S *= 2.;
 
       Amg::Vector3D g(p[0], p[1], p[2]);
@@ -1033,7 +1033,7 @@ globalOneSidePositions(Cache& cache,
         R2m = R2;
         sm = s;
       }
-      if (std::fabs(p[2]) > Zmax || R2 > R2max)
+      if (std::abs(p[2]) > Zmax || R2 > R2max)
         break;
       if (!s && P[3] * p[3] + P[4] * p[4] < 0.)
         break;
@@ -1064,7 +1064,7 @@ globalOneSidePositions(Cache& cache,
     if (A == 0.)
       break;
     S = -(Pm[0] * Pm[3] + Pm[1] * Pm[4]) / A;
-    if (std::fabs(S) < 1. || ++niter > 1000)
+    if (std::abs(S) < 1. || ++niter > 1000)
       break;
 
     if (cache.m_mcondition) {
@@ -1118,12 +1118,12 @@ globalTwoSidePositions(Cache& cache,
   double R2 = P[0] * P[0] + P[1] * P[1]; // Start radius**2
   double S = mS;                         // max step allowed
 
-  if (cache.m_mcondition && std::fabs(P[6]) > .1)
+  if (cache.m_mcondition && std::abs(P[6]) > .1)
     return;
 
   // Test position of the track
   //
-  if (std::fabs(P[2]) > Zmax || R2 > R2max)
+  if (std::abs(P[2]) > Zmax || R2 > R2max)
     return;
 
   Amg::Vector3D g0(P[0], P[1], P[2]);
@@ -1151,7 +1151,7 @@ globalTwoSidePositions(Cache& cache,
       } else {
         W += (S = straightLineStep(0, S, p));
       }
-      if (InS && std::fabs(2. * S) < mS)
+      if (InS && std::abs(2. * S) < mS)
         S *= 2.;
 
       Amg::Vector3D g(p[0], p[1], p[2]);
@@ -1163,7 +1163,7 @@ globalTwoSidePositions(Cache& cache,
       // Test position of the track
       //
       R2 = p[0] * p[0] + p[1] * p[1];
-      if (std::fabs(p[2]) > Zmax || R2 > R2max)
+      if (std::abs(p[2]) > Zmax || R2 > R2max)
         break;
     }
   }
@@ -1354,7 +1354,7 @@ Trk::RungeKuttaPropagator::propagate(const ::EventContext& ctx,
   if (D < 0)
     Smax = -Smax;
   if (usePathLim)
-    Wmax = std::fabs(Path);
+    Wmax = std::abs(Path);
 
   std::multimap<double, int> DN;
   double Scut[3];
@@ -1365,7 +1365,7 @@ Trk::RungeKuttaPropagator::propagate(const ::EventContext& ctx,
   if (DN.empty())
     return nullptr;
 
-  if (D == 0 && std::fabs(Scut[0]) < std::fabs(Scut[1]))
+  if (D == 0 && std::abs(Scut[0]) < std::abs(Scut[1]))
     Smax = -Smax;
 
   if (Smax < 0. && Scut[0] > Smax)
@@ -1390,8 +1390,17 @@ Trk::RungeKuttaPropagator::propagate(const ::EventContext& ctx,
   //----------------------------------
 
   cache.m_newfield = true;
+  /// If the extrapolation surpassed the last boundary it can super duper rarely happen that the propgator is trapped. 
+  /// The propagator then goes the same step back and forth. The flip number limit is kind of a hack to release 
+  /// the propagator from the limbo. The conditions are that the last_st & the current step have to be of the same size
+  /// but different sign. If tis happens a few times the loop is aborted. The chosen number here is at the same level
+  /// of arbitrariness as the rarity that this branch of the code will be chosen
+  constexpr unsigned int max_back_forth_flips {100};
+  unsigned int flips{0};
+  int last_surface{-1};
 
-  while (std::fabs(W) < Wmax) {
+
+  while (std::abs(W) < Wmax) {
 
     std::pair<double, int> SN;
     double S = 0;
@@ -1443,16 +1452,22 @@ Trk::RungeKuttaPropagator::propagate(const ::EventContext& ctx,
       cache.m_newfield = true;
     }
 
-    if (std::fabs(S) + 1. < std::fabs(St))
+    if (std::abs(S) + 1. < std::abs(St))
       Sl = S;
     InS ? St = 2. * S : St = S;
 
     if (SN.second >= 0) {
 
-      double Sa = std::fabs(SN.first);
+      double Sa = std::abs(SN.first);
+      
+      /// Update the number of flips. Reset the counter if the last surface is not the same as the current one 
+      /// and then check that the step size & the last step size are the same but of different sign
+      flips +=  last_surface == SN.second? std::abs(last_St + SN.first) < 1.e-6 : -flips;
+      last_surface = SN.second;
+
 
       if (Sa > cache.m_straightStep) {
-        if (std::fabs(St) > Sa)
+        if (std::abs(St) > Sa)
           St = SN.first;
       } else {
         Path = W + SN.first;
@@ -1463,6 +1478,8 @@ Trk::RungeKuttaPropagator::propagate(const ::EventContext& ctx,
       }
     } else if (std::abs(S) < DBL_EPSILON)
       return nullptr;
+  
+    if (flips > max_back_forth_flips) return nullptr;  
   }
   return nullptr;
 }
@@ -1730,7 +1747,7 @@ Trk::RungeKuttaPropagator::globalPositions(const ::EventContext& ctx,
   // Get field cache object
   getFieldCacheObject(cache, ctx);
 
-  cache.m_direction = std::fabs(mS);
+  cache.m_direction = std::abs(mS);
   if (mS > 0.)
     globalOneSidePositions(cache, GP, P, M, CB, mS);
   else
@@ -1993,7 +2010,7 @@ Trk::RungeKuttaPropagator::globalPositions(const ::EventContext& ctx,
   // Get field cache object
   getFieldCacheObject(cache, ctx);
 
-  cache.m_direction = std::fabs(mS);
+  cache.m_direction = std::abs(mS);
   if (mS > 0.)
     globalOneSidePositions(cache, GP, P, M, CB, mS);
   else

@@ -93,7 +93,7 @@ namespace TrigDec {
     Gaudi::Property<bool> m_doEF{this, "doEF", true, "flag whether or not to consider L3 (EF) trigger information"};
     Gaudi::Property<bool> m_doHLT{this, "doHLT", true, "flag whether or not to consider merged L2EF=HLT trigger information"};
 
-    SG::ReadHandleKey<TrigConf::L1BunchGroupSet> m_bgKey{this, "L1BunchGroup", "DetectorStore+L1BunchGroup", "L1BunchGroupSet key name"};
+    SG::ReadCondHandleKey<TrigConf::L1BunchGroupSet> m_bgKey{this, "L1BunchGroup", "L1BunchGroup", "L1BunchGroupSet key name"};
     SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu", "HLT Menu key"};
     SG::WriteHandleKey<TrigDecision> m_trigDecisionKey{this, "TrigDecisionKey", "TrigDecision", "SG key to save the TrigDecision object" };
     SG::ReadHandleKey<ROIB::RoIBResult> m_l1roibResultKey{this, "L1ROIBResultKey", "RoIBResult", "SK key to retrieve the L1 ROIB result from SG" };

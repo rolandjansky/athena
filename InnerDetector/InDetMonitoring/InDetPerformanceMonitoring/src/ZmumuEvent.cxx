@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //==================================================================================
@@ -88,8 +88,8 @@ void ZmumuEvent::Init()
 //==================================================================================
 const std::string ZmumuEvent::getRegion() const{
 
-  const double eta1 = fabs(m_pxRecMuon[m_muon1]->eta());
-  const double eta2 = fabs(m_pxRecMuon[m_muon2]->eta());
+  const double eta1 = std::abs(m_pxRecMuon[m_muon1]->eta());
+  const double eta2 = std::abs(m_pxRecMuon[m_muon2]->eta());
 
   if ( eta1 < m_etaCut && eta2 < m_etaCut )
     return "BB";
@@ -116,8 +116,8 @@ bool ZmumuEvent::Reco()
   // WARNING thus is necessary for data16 !!
   if (false) {
     for( auto muon :  *pxMuonContainer ){
-      const xAOD::TrackParticle* idtrk(0);
-      const xAOD::TrackParticle* metrk(0);
+      const xAOD::TrackParticle* idtrk(nullptr);
+      const xAOD::TrackParticle* metrk(nullptr);
       idtrk = muon->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
       metrk = muon->trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle);
       if (idtrk && metrk) {
@@ -321,7 +321,7 @@ bool ZmumuEvent::EventSelection(ZTYPE eType)
     if(m_doDebug) {
       std::cout << " * ZmumuEvent *  z0_muon1= " << z0_muon1 << "  z0_muon2= " << z0_muon2 << "  delta= " << z0_muon1-z0_muon2 << std::endl;
     }
-    if ( fabs(z0_muon1 - z0_muon2) > m_Z0GapCut) {
+    if ( std::abs(z0_muon1 - z0_muon2) > m_Z0GapCut) {
       if(m_doDebug) {
 	std::cout << " * ZmumuEvent * Failing common vertex cut. z.vtx1= " << m_pxIDTrack[m_muon1]->vz() << "  z.vtx2= " << m_pxIDTrack[m_muon2]->vz() << std::endl;
 	std::cout << " * ZmumuEvent * Failing common vertex cut. IDTrk.z0_1= " << m_pxIDTrack[m_muon1]->z0() << "  IDTrk.z0_2= " << m_pxIDTrack[m_muon2]->z0() << std::endl;
@@ -350,10 +350,10 @@ void ZmumuEvent::Clear()
   m_muon2 = MUON2;
 
   for ( unsigned int u = 0; u < NUM_MUONS; ++u ) {
-      m_pxRecMuon[u] = NULL;
-      m_pxMSTrack[u] = NULL;
-      m_pxMETrack[u] = NULL;
-      m_pxIDTrack[u] = NULL;
+      m_pxRecMuon[u] = nullptr;
+      m_pxMSTrack[u] = nullptr;
+      m_pxMETrack[u] = nullptr;
+      m_pxIDTrack[u] = nullptr;
   }
   for ( unsigned int v = 0; v < NUM_TYPES; ++v ) {
     m_fZPt[v]            = -999.9f;
@@ -563,8 +563,8 @@ const xAOD::TrackParticle*  ZmumuEvent::getLooseIDTk( unsigned int /*uPart*/ )
 	  const float fTrkPhi   = pxPerigee->parameters()[Trk::phi];
 	  const float fTrkEta   = pxPerigee->eta();
 
-	  float fDPhi = fabs( fTrkPhi -  m_pxMETrack[m_muon1]->phi() );
-	  float fDEta = fabs( fTrkEta -  m_pxMETrack[m_muon2]->eta() );
+	  float fDPhi = std::abs( fTrkPhi -  m_pxMETrack[m_muon1]->phi() );
+	  float fDEta = std::abs( fTrkEta -  m_pxMETrack[m_muon2]->eta() );
 	  float fDR = sqrt( fDPhi*fDPhi + fDEta*fDEta );
 
 	  if ( fDR < 0.3f )
@@ -576,7 +576,7 @@ const xAOD::TrackParticle*  ZmumuEvent::getLooseIDTk( unsigned int /*uPart*/ )
 	}
     }
   // if ()
-  return NULL;
+  return nullptr;
 }
 
 //==================================================================================
@@ -624,7 +624,7 @@ void ZmumuEvent::OrderMuonList()
 
   if (m_numberOfFullPassMuons >= 2) {
     for (int imuon=0; imuon < (int) m_numberOfFullPassMuons; imuon++) {
-      if (m_pxRecMuon[imuon] != NULL) {
+      if (m_pxRecMuon[imuon] != nullptr) {
 	
 	if (m_pxRecMuon[imuon]->charge()== 1 && m_pxRecMuon[imuon]->pt()> muPlusPt) {
 	  muPlusPt = m_pxRecMuon[imuon]->pt();

@@ -113,7 +113,10 @@ StatusCode ConstituentSubtractorTool::process_impl(xAOD::IParticleContainer* con
  
   // free parameter for the density of ghosts. The smaller, the better - but also the computation is slower.
   subtractor.set_ghost_area(m_ghostArea);
- 
+
+  // This is added to fix ATR-23552. It has no effect on the performance. Once the bug is fixed in fastjet-contrib, it can be removed.
+  subtractor.set_use_nearby_hard(-1,-1);
+
   // prepare PseudoJet input
   std::vector<PseudoJet> inputs_to_correct, inputs_to_not_correct;
   inputs_to_correct.reserve(cont->size());

@@ -116,7 +116,7 @@ class WorkflowTest:
 
         cmd = (f"cd {self.reference_path};"
                f"source $AtlasSetup/scripts/asetup.sh {self.setup.release_reference} >& /dev/null;")
-        cmd += f"{self.command} > {self.ID}.log 2>&1"
+        cmd += f"TRF_NOECHO=1 {self.command} > {self.ID}.log 2>&1"
 
         subprocess.call(cmd, shell=True)
 
@@ -139,7 +139,7 @@ class WorkflowTest:
         else:
             cmd += f"source $AtlasSetup/scripts/asetup.sh {self.setup.release_validation} >& /dev/null;"
         cmd += f"cd run_{self.ID};"
-        cmd += f"{self.command} > {self.ID}.log 2>&1"
+        cmd += f"TRF_NOECHO=1 {self.command} > {self.ID}.log 2>&1"
 
         subprocess.call(cmd, shell=True)
 

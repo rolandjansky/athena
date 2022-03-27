@@ -106,8 +106,8 @@ namespace xAOD {
       	ATH_MSG_DEBUG("Select calorimeter " << m_HadCaloNums[index]);
     }
 
-    if (!m_caloExtensionKey.empty())
-      ATH_CHECK(m_caloExtensionKey.initialize());
+    ATH_CHECK(m_caloExtensionKey.initialize(SG::AllowEmpty));
+    ATH_CHECK(m_caloMgrKey.initialize());
 #endif // XAOD_ANALYSIS
 
     if (!m_IsoLeakCorrectionTool.empty())
@@ -117,7 +117,6 @@ namespace xAOD {
     
     ATH_CHECK(m_tpEDCentral.initialize(m_InitializeReadHandles));
     ATH_CHECK(m_tpEDForward.initialize(m_InitializeReadHandles));
-    ATH_CHECK(m_tpEDveryForward.initialize(m_InitializeReadHandles));
     ATH_CHECK(m_efEDCentral.initialize(m_InitializeReadHandles));
     ATH_CHECK(m_efEDForward.initialize(m_InitializeReadHandles));
 
@@ -1132,12 +1131,12 @@ for( auto isoType : isoTypes ){
 
       if(cleg && cleg->getCellLinks()){
 	double seedEta = cleg->eta0(), seedPhi = cleg->phi0();
-	CaloCluster* egcCloneFor57 = CaloClusterStoreHelper::makeCluster(cleg->getCellLinks()->getCellContainer(),
-									 seedEta,seedPhi,
-									 cleg->clusterSize());
+        std::unique_ptr<CaloCluster> egcCloneFor57 = CaloClusterStoreHelper::makeCluster(cleg->getCellLinks()->getCellContainer(),
+											 seedEta,seedPhi,
+											 cleg->clusterSize());
 
 	if (!m_caloFillRectangularTool->execute (Gaudi::Hive::currentContext(),
-                                                 egcCloneFor57).isSuccess())
+                                                 egcCloneFor57.get()).isSuccess())
         {
           return false;
 	}
@@ -1153,7 +1152,6 @@ for( auto isoType : isoTypes ){
 		      << " seed eta,phi " << cleg->eta0() << " " << cleg->phi0()
 		      << " eraw = " << eraw57 << " etraw = " << coreV
 		      );
-	delete egcCloneFor57;
      }
 #else
      return false;
@@ -1441,12 +1439,17 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
                                        const CaloCluster* fwdClus) const
 
   {
+    std::vector<float> corrvec;
+    corrvec.resize(isoTypes.size(),0.);
+
     // assume two densities for the time being
     const SG::ReadHandleKey<EventShape>* esKey = (fabs(eta) < 1.5 || m_useEtaDepPU) ? &m_tpEDCentral : &m_tpEDForward;
     if (type == "PFlow") {
       esKey = (fabs(eta) < 1.5) ? &m_efEDCentral : &m_efEDForward;
     } else if (fwdClus != nullptr) {
-      esKey = &m_tpEDveryForward;
+      ATH_MSG_DEBUG("No pileup correction for forward electron isolation yet");
+      result.noncoreCorrections[Iso::pileupCorrection] = corrvec;
+      return true;
     }
 
     SG::ReadHandle<EventShape> edShape(*esKey);
@@ -1478,8 +1481,6 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
     if (iter != ecore.end())
       areacore = ecore.find(xAOD::Iso::coreArea)->second;
 
-    std::vector<float> corrvec;
-    corrvec.resize(isoTypes.size(),0.);
     for (unsigned int i = 0; i < isoTypes.size(); i++) {
       float dR    = Iso::coneSize(isoTypes.at(i));
       float toSub = rho*(dR*dR*M_PI - areacore);

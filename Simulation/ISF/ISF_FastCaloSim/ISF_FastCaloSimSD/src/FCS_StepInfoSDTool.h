@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMSD_FCS_STEPINFOSDTOOL_H
@@ -84,7 +84,8 @@ namespace FCS_Param
     std::vector<std::string> m_posOWVolumes;
     std::vector<std::string> m_negOWVolumes;
     std::vector<std::string> m_presECVolumes;
-    std::vector<std::string> m_bobVolumes;
+    std::vector<std::string> m_pBOBVolumes;
+    std::vector<std::string> m_nBOBVolumes;
     std::vector<std::string> m_fcal1Volumes;
     std::vector<std::string> m_fcal2Volumes;
     std::vector<std::string> m_fcal3Volumes;
@@ -100,7 +101,8 @@ namespace FCS_Param
     ServiceHandle<ILArCalculatorSvc> m_emepowcalc; //LArG4::EC::CalibrationCalculator(LArWheelCalculator::OuterAbsorberWheel, 1)
     ServiceHandle<ILArCalculatorSvc> m_emenowcalc; //LArG4::EC::CalibrationCalculator(LArWheelCalculator::OuterAbsorberWheel, -1)
     ServiceHandle<ILArCalculatorSvc> m_emepscalc; //LArG4::EC::PresamplerCalibrationCalculator
-    ServiceHandle<ILArCalculatorSvc> m_emeobarcalc; //LArG4::EC::CalibrationCalculator(LArWheelCalculator::BackOuterBarretteWheelCalib, 1)
+    ServiceHandle<ILArCalculatorSvc> m_emepobarcalc; //LArG4::EC::CalibrationCalculator(LArWheelCalculator::BackOuterBarretteWheelCalib, 1)
+    ServiceHandle<ILArCalculatorSvc> m_emenobarcalc; //LArG4::EC::CalibrationCalculator(LArWheelCalculator::BackOuterBarretteWheelCalib, 1)
     ServiceHandle<ILArCalculatorSvc> m_heccalc;   //LArG4::HEC::LArHECCalibrationWheelCalculator(LArG4::HEC::kWheelActive)
     ServiceHandle<ILArCalculatorSvc> m_fcal1calc;
     ServiceHandle<ILArCalculatorSvc> m_fcal2calc;

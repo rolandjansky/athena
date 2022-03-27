@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetEventTPCnv/PixelClusterContainerCnv_p3.h"
@@ -41,7 +41,7 @@ void PixelClusterContainerCnv_p3::transToPers(const InDet::PixelClusterContainer
     // to the container's vector, saving the indexes in the
     // collection. 
 
-    typedef InDet::PixelClusterContainer TRANS;
+    using TRANS = InDet::PixelClusterContainer;
         
     // this is the id of the latest collection read in
     // This starts from the base of the TRT identifiers

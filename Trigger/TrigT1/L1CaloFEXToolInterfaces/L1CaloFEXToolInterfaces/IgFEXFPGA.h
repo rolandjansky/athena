@@ -19,7 +19,7 @@ Interface definition for gFEXFPGA
   static const InterfaceID IID_IgFEXFPGA("LVL1::IgFEXFPGA", 1, 0);
 
   typedef  std::array<std::array<int, 12>, 32> gTowersCentral;
-  typedef  std::array<std::array<int, 7>, 32> gTowersForward;
+  typedef  std::array<std::array<int, 8>, 32> gTowersForward;
 
   class IgFEXFPGA : virtual public IAlgTool {
   public:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkTrack/TrackStateOnSurface.h"
@@ -71,58 +71,58 @@ StatusCode InDetAlignHitQualSelTool::finalize() {
 const Trk::RIO_OnTrack* InDetAlignHitQualSelTool::getGoodHit( const Trk::TrackStateOnSurface* tsos ) const {
   ATH_MSG_DEBUG( "** getGoodHit ** Dealing with a new tsos ** START ** " ) ;
 
-  if( tsos == NULL ) {
+  if( tsos == nullptr ) {
     ATH_MSG_ERROR( "0 pointer passed for TSOS!" ) ;
-    return 0 ;
+    return nullptr ;
   }
   if( !tsos->type(Trk::TrackStateOnSurface::Measurement) ) {
     ATH_MSG_DEBUG( "not a hit, cast to MeasurementBase will fail, so reject" ) ;
-    return 0 ;
+    return nullptr ;
   }
   if( m_rejectOutliers && tsos->type(Trk::TrackStateOnSurface::Outlier) ) {
     ATH_MSG_DEBUG( "outlier, reject" ) ;
-    return 0 ;
+    return nullptr ;
   }
   const Trk::MeasurementBase* measBase = tsos->measurementOnTrack() ;
-  if( measBase == NULL) {
+  if( measBase == nullptr) {
     ATH_MSG_DEBUG( "tsos->measurementOnTrack() returned 0 pointer" ) ;
-    return 0 ;
+    return nullptr ;
   }
   
   const Trk::RIO_OnTrack* hit = dynamic_cast <const Trk::RIO_OnTrack*>( measBase ) ;
-  if( hit == NULL ) {
+  if( hit == nullptr ) {
     ATH_MSG_DEBUG( "dynamic_cast <const Trk::RIO_OnTrack*>( measBase ) returned 0 pointer" ) ;
-    return 0 ;
+    return nullptr ;
   }
 
   const Trk::PrepRawData* prd = hit->prepRawData() ;
-  if( prd == NULL ) {
+  if( prd == nullptr ) {
     ATH_MSG_WARNING( "hit->prepRawData() method failed" ) ;
-    return 0 ;
+    return nullptr ;
   }
   
   
-  if( m_rejectGangedPixels && isGangedPixel( prd ) ) return 0 ;
+  if( m_rejectGangedPixels && isGangedPixel( prd ) ) return nullptr ;
   const vector<Identifier> &idVec = prd->rdoList() ;
 
   // cut on the cluster size
-  if( m_maxClusterSize > 0 && !isGoodClusterSize( idVec ) ) return 0 ;
+  if( m_maxClusterSize > 0 && !isGoodClusterSize( idVec ) ) return nullptr ;
 
   // cut on edge channels
-  if( m_rejectEdgeChannels && isEdgeChannel( idVec ) ) return 0 ;
+  if( m_rejectEdgeChannels && isEdgeChannel( idVec ) ) return nullptr ;
   // cut on the track incidence angle alpha
   const Trk::TrackParameters* trkPar = tsos->trackParameters() ;
-  if( trkPar == NULL ) {
+  if( trkPar == nullptr ) {
     ATH_MSG_WARNING( "tsos->trackParameters() returned 0 pointer" ) ;
-    return 0 ;
+    return nullptr ;
   }
   const InDetDD::SiDetectorElement *detEle
     = dynamic_cast<const InDetDD::SiDetectorElement*>( hit->detectorElement() ) ;
-  if( detEle == NULL ) {
+  if( detEle == nullptr ) {
     ATH_MSG_WARNING( "hit cast to SiDetectorElement returned 0 pointer" ) ;
-    return 0 ;
+    return nullptr ;
   }
-  if( !isGoodAngle( trkPar, detEle ) ) return 0 ;  
+  if( !isGoodAngle( trkPar, detEle ) ) return nullptr ;  
   return hit ;
 }
 
@@ -131,7 +131,7 @@ bool InDetAlignHitQualSelTool::isGoodSiHit( const Trk::TrackStateOnSurface* tsos
   bool isPixelHit = false;
   bool isIBLHit = false;
 
-  if( tsos == NULL ) {
+  if( tsos == nullptr ) {
     ATH_MSG_ERROR( "0 pointer passed for TSOS!" ) ;
     return false ;
   }
@@ -145,19 +145,19 @@ bool InDetAlignHitQualSelTool::isGoodSiHit( const Trk::TrackStateOnSurface* tsos
     return false ;
   }
   const Trk::MeasurementBase* measBase = tsos->measurementOnTrack() ;
-  if( measBase == NULL) {
+  if( measBase == nullptr) {
     ATH_MSG_DEBUG( "tsos->measurementOnTrack() returned 0 pointer" ) ;
     return false ;
   }
   
   const Trk::RIO_OnTrack* hit = dynamic_cast <const Trk::RIO_OnTrack*>( measBase ) ;
-  if( hit == NULL ) {
+  if( hit == nullptr ) {
     ATH_MSG_DEBUG( "dynamic_cast <const Trk::RIO_OnTrack*>( measBase ) returned 0 pointer" ) ;
     return false ;
   }
 
   const Trk::PrepRawData* prd = hit->prepRawData() ;
-  if( prd == NULL ) {
+  if( prd == nullptr ) {
     ATH_MSG_WARNING( "hit->prepRawData() method failed" ) ;
     return false ;
   }
@@ -212,14 +212,14 @@ bool InDetAlignHitQualSelTool::isGoodSiHit( const Trk::TrackStateOnSurface* tsos
 
   // cut on the track incidence angle alpha
   const Trk::TrackParameters* trkPar = tsos->trackParameters() ;
-  if( trkPar == NULL ) {
+  if( trkPar == nullptr ) {
     ATH_MSG_WARNING( "tsos->trackParameters() returned 0 pointer" ) ;
     return false ;
   }
   // incidence angle
   const InDetDD::SiDetectorElement *detEle
     = dynamic_cast<const InDetDD::SiDetectorElement*>( hit->detectorElement() ) ;
-  if( detEle == NULL ) {
+  if( detEle == nullptr ) {
     ATH_MSG_WARNING( "hit cast to SiDetectorElement returned 0 pointer" ) ;
     return false ;
   }
@@ -231,7 +231,7 @@ bool InDetAlignHitQualSelTool::isGoodSiHit( const Trk::TrackStateOnSurface* tsos
 
 
 bool InDetAlignHitQualSelTool::getGoodHole( const Trk::TrackStateOnSurface* tsos ) const {
-  if( tsos == NULL ) {
+  if( tsos == nullptr ) {
     ATH_MSG_ERROR( "0 pointer passed for TSOS!" ) ;
     return false ;
   }
@@ -241,13 +241,13 @@ bool InDetAlignHitQualSelTool::getGoodHole( const Trk::TrackStateOnSurface* tsos
   }
   // for holes only cut on the track incidence angle alpha
   const Trk::TrackParameters* trkPar = tsos->trackParameters() ;
-  if( trkPar == NULL ) {
+  if( trkPar == nullptr ) {
     ATH_MSG_WARNING( "tsos->trackParameters() returned 0 pointer" ) ;
     return false ;
   }
   const InDetDD::SiDetectorElement *detEle = dynamic_cast<const InDetDD::SiDetectorElement*>( 
     tsos->trackParameters()->associatedSurface().associatedDetectorElement() ) ;
-  if( detEle == NULL ) {
+  if( detEle == nullptr ) {
     ATH_MSG_WARNING( "hole cast to SiDetectorElement returned 0 pointer" ) ;
     return false ;
   }
@@ -258,7 +258,7 @@ bool InDetAlignHitQualSelTool::getGoodHole( const Trk::TrackStateOnSurface* tsos
 
 bool InDetAlignHitQualSelTool::isGangedPixel( const Trk::PrepRawData* prd ) const {
   const InDet::SiCluster* cluster = dynamic_cast<const InDet::SiCluster*>( prd ) ;
-  if( cluster == NULL ) {
+  if( cluster == nullptr ) {
     ATH_MSG_WARNING( "dynamic_cast<const InDet::SiCluster*>( prd ) failed!" ) ;
     return false ;
   }
@@ -312,7 +312,7 @@ bool InDetAlignHitQualSelTool::isGoodAngle( const Trk::TrackParameters* trkPar
                                                 , const InDetDD::SiDetectorElement* detEle
                                                 ) const {
   const double trkIncidAngle = incidAngle( trkPar, detEle ) ;
-  if( fabs(trkIncidAngle) > m_maxIncidAngle ) {
+  if( std::abs(trkIncidAngle) > m_maxIncidAngle ) {
     ATH_MSG_DEBUG( "trkIncidAngle = |" << trkIncidAngle << "| > " << m_maxIncidAngle << ", reject" ) ;
     return false ;
   }
@@ -324,8 +324,8 @@ double InDetAlignHitQualSelTool::incidAngle( const Trk::TrackParameters* trkPar
                                                  , const InDetDD::SiDetectorElement* detEle
                                                  ) const {
   Amg::Vector3D trkDir       = trkPar->momentum() ;
-  Amg::Vector3D detElePhi    = detEle->phiAxis() ; //!< local x axis in global frame
-  Amg::Vector3D detEleNormal = detEle->normal() ; //!< local z axis in global frame
+  const Amg::Vector3D& detElePhi    = detEle->phiAxis() ; //!< local x axis in global frame
+  const Amg::Vector3D& detEleNormal = detEle->normal() ; //!< local z axis in global frame
   double trkDotPhi = trkDir.dot( detElePhi ) ; //!< scalar product
   double trkDotNormal = trkDir.dot( detEleNormal ) ;
   double trkIncidAngle = atan( trkDotPhi/trkDotNormal ) ;

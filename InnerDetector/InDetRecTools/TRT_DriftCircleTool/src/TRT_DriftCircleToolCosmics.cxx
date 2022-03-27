@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -292,7 +292,7 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleToolCosmics::convert(int
       // if(Mode<1) dvi.push_back(id);  we dont need this
 
       InDet::TRT_DriftCircle* tdc =
-        new InDet::TRT_DriftCircle(id, loc, std::move(errmat), pE, word);
+        new InDet::TRT_DriftCircle(id, loc, errmat, pE, word);
 
       if (tdc) {
 	     

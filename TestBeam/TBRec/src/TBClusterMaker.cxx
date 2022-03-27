@@ -147,7 +147,7 @@ StatusCode TBClusterMaker::execute(const EventContext& ctx,
   log << MSG::DEBUG << "CaloCellContainer container size = " <<  
     cellContainer->size() << endmsg;
 
-  xAOD::CaloCluster *Cluster=0;
+  std::unique_ptr<xAOD::CaloCluster> Cluster;
   double cluEta=0,cluPhi=0,cluNorm = 0;
   double cluEta0=0,cluPhi0=0,cluNorm0 = 0;
   bool clusterPositionFound = false;
@@ -259,8 +259,7 @@ StatusCode TBClusterMaker::execute(const EventContext& ctx,
 
   if (Cluster) {
     // ** Calclulate Kine **
-    CaloClusterKineHelper::calculateKine(Cluster,false,true); //No weight at this point! 
-    clusCont->push_back(Cluster);
+    CaloClusterKineHelper::calculateKine(Cluster.get(),false,true); //No weight at this point! 
     log<<MSG::DEBUG<<"Cluster eta0, phi0= "<<Cluster->eta0()<<" "<<
       Cluster->phi0();
     log<<MSG::DEBUG<<" Cluster #cells, E, eta, phi= "<<
@@ -280,6 +279,7 @@ StatusCode TBClusterMaker::execute(const EventContext& ctx,
       //	Cluster->phiSample(smp)<<"("<<Cluster->phisize(smp)<<") ";
     //}
     //log<<MSG::DEBUG<<endmsg;
+    clusCont->push_back(std::move(Cluster));
     return StatusCode::SUCCESS;
   } else {
     log << MSG::ERROR << "Cluster not found: should never be here!" << endmsg;

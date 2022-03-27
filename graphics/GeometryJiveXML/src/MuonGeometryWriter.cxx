@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeometryJiveXML/MuonGeometryWriter.h"
@@ -154,7 +154,7 @@ namespace JiveXML {
       }
 
       // Loop over all eta values.
-      for (int eta=0; eta<=16; eta++) {
+      for (int eta=-16; eta<=16; eta++) {
 	std::vector<const MuonGM::MuonStation *> *stations = new std::vector<const MuonGM::MuonStation *>;
 
 	// And loop over all possible phi values.
@@ -181,8 +181,10 @@ namespace JiveXML {
 	  double alpha1 = getAlpha(station1->getTransform());
 
 	  // Now determine the dimensions of a station of this station.
-	  double zi1 = pos1.z() - station1->Zsize()/2.;    // inner z
-	  double zo1 = pos1.z() + station1->Zsize()/2.;    // outer z
+	  double signed_dz = station1->Zsize()/2.;
+	  if (pos1.z()<0) signed_dz *= -1;
+	  double zi1 = pos1.z() - signed_dz;    // inner z
+	  double zo1 = pos1.z() + signed_dz;    // outer z
 	  double ri1 = pos1.perp() - station1->Rsize()/2.; // inner r
 	  double ro1 = pos1.perp() + station1->Rsize()/2.; // outer r
 	  double wi1 = station1->Ssize();                  // width at inner r
@@ -204,8 +206,10 @@ namespace JiveXML {
 	    double shift2 = getShift(pos2, dphi2);
 	    double alpha2 = getAlpha((*it)->getTransform());
 
-	    double zi2 = pos2.z() - (*it)->Zsize()/2.;    // inner z
-	    double zo2 = pos2.z() + (*it)->Zsize()/2.;    // outer z
+	    double signed_dz2 = (*it)->Zsize()/2.;
+	    if (pos2.z()<0) signed_dz2 *= -1;
+	    double zi2 = pos2.z() - signed_dz2;    // inner z
+	    double zo2 = pos2.z() + signed_dz2;    // outer z
 	    double ri2 = pos2.perp() - (*it)->Rsize()/2.; // inner r
 	    double ro2 = pos2.perp() + (*it)->Rsize()/2.; // outer r
 	    double wi2 = (*it)->Ssize();                  // width at inner r
@@ -360,7 +364,7 @@ namespace JiveXML {
         int eta, std::string phiString,
         double dphi, double shift, double alpha) const {
 
-     out << "<ATrd n=\"" << stationTech << "_" << stationName << eta << "\""
+     out << "<ATrd n=\"" << stationTech << "_" << stationName << std::abs(eta) << "\""
         << " zi=\"" << zi/10. << "\"" << " zo=\"" << zo/10. << "\""
         << " ri=\"" << ri/10. << "\"" << " ro=\"" << ro/10. << "\""
         << " wi=\"" << wi/10. << "\"" << " wo=\"" << wo/10. << "\""
@@ -415,6 +419,7 @@ namespace JiveXML {
                        GeoVolumeCursor pvnswsub(pvnsw.getVolume());
                        bool newChamber = true;
                        std::string phiString = "";
+                       std::string phiString_mirrorEta = "";
                        double dphi=0, shift=0, zi=0, zo=0, ri=0, ro=0, wi=0, wo=0;
                        std::string chamberName="";
                        HepGeom::Point3D<double> pos_rot;
@@ -422,51 +427,60 @@ namespace JiveXML {
                        while (!pvnswsub.atEnd()){
                           if (((pvnswsub.getVolume()->getLogVol())->getShape())->typeID() == GeoTrd::getClassTypeID() ) { // MicroMega
 
-                             if (pvnswsub.getTransform().translation().z()>=0) { // only process the chambers in the positive eta region
-                                if (newChamber){
+                             if (newChamber){
 
-                                   int phiIndex;
-                                   readNSWMMPars(&pvnswsub, maxPhi, chamberName, pos_rot, zi, zo, ri, ro, wi, wo, dphi, shift, phiIndex);
-                                   phiString = DataType(phiIndex).toString();
+                                int phiIndex;
+                                readNSWMMPars(&pvnswsub, maxPhi, chamberName, pos_rot, zi, zo, ri, ro, wi, wo, dphi, shift, phiIndex);
+                                phiString = DataType(phiIndex).toString();
 
-                                   newChamber = false;
-                                   pvnswsub.next();
-                                } // end of processing the first chamber
-
-                                else{
-                                   std::string chamberName2;
-                                   HepGeom::Point3D<double> pos_rot2;
-                                   double zi2, zo2, ri2, ro2, wi2, wo2, dphi2, shift2;
-                                   int phiIndex2;
-                                   readNSWMMPars(&pvnswsub, maxPhi, chamberName2, pos_rot2, zi2, zo2, ri2, ro2, wi2, wo2, dphi2, shift2, phiIndex2);
-
-                                   if (chamberName == chamberName2
-                                         && pos_rot.distance(pos_rot2) < m_smallDistance
-                                         && equalAngle(dphi, dphi2)
-                                         && equalLength(shift, shift2)
-                                         && equalLength(zi, zi2)
-                                         && equalLength(zo, zo2)
-                                         && equalLength(ri, ri2)
-                                         && equalLength(ro, ro2)
-                                         && equalLength(wi, wi2)
-                                         && equalLength(wo, wo2)) {
-                                      // same chamber in different phi sector, add it to the existing phi index list
-                                      std::string stationPhi = DataType(phiIndex2).toString();
-                                      if (phiString.find(stationPhi) == std::string::npos) phiString += " " + stationPhi;
-
-                                      pvnswsub.next();
-                                   }
-                                   else {
-                                      // This is a different chamber.
-                                      // Reset the new chamber flag so that it can be processed as a new chamber in the next loop
-                                      newChamber = true;
-                                   }
-                                } // end of processing another chamber and comparing it to the first chamber
-
-                             }
-                             else{ // skip negative eta chambers
+                                newChamber = false;
                                 pvnswsub.next();
-                             }
+                             } // end of processing the first chamber
+
+                             else{
+                                std::string chamberName2;
+                                HepGeom::Point3D<double> pos_rot2;
+                                double zi2, zo2, ri2, ro2, wi2, wo2, dphi2, shift2;
+                                int phiIndex2;
+                                readNSWMMPars(&pvnswsub, maxPhi, chamberName2, pos_rot2, zi2, zo2, ri2, ro2, wi2, wo2, dphi2, shift2, phiIndex2);
+
+                                if (chamberName != chamberName2
+                                      || !equalAngle(dphi, dphi2)
+                                      || !equalLength(shift, shift2)
+                                      || !equalLength(ri, ri2)
+                                      || !equalLength(ro, ro2)
+                                      || !equalLength(wi, wi2)
+                                      || !equalLength(wo, wo2)) {
+                                   // This is a different chamber.
+                                   // Reset the new chamber flag so that it can be processed as a new chamber in the next loop
+                                   newChamber = true;
+                                }
+                                else if (pos_rot.distance(pos_rot2) < m_smallDistance
+                                      && equalLength(zi, zi2)
+                                      && equalLength(zo, zo2)
+                                      ) {
+                                   // same chamber in different phi sector, add it to the existing phi index list
+                                   std::string stationPhi = DataType(phiIndex2).toString();
+                                   if (phiString.find(stationPhi) == std::string::npos) phiString += " " + stationPhi;
+                                   pvnswsub.next();
+                                }
+                                else if (pos_rot.distance(HepGeom::Point3D<double>(pos_rot2.x(), pos_rot2.y(), -pos_rot2.z())) < m_smallDistance
+                                      && equalLength(zi, -zi2)
+                                      && equalLength(zo, -zo2)
+                                      ) {
+                                   // same chamber in oppposite eta region, add it to a separate phi index list
+                                   std::string stationPhi = DataType(phiIndex2).toString();
+                                   if (phiString_mirrorEta.find(stationPhi) == std::string::npos) phiString_mirrorEta += " " + stationPhi;
+                                   pvnswsub.next();
+                                }
+                                else {
+                                   // This is a different chamber.
+                                   // Reset the new chamber flag so that it can be processed as a new chamber in the next loop
+                                   newChamber = true;
+                                }
+
+                             } // end of processing another chamber and comparing it to the first chamber
+
 
                              if (phiString!="" && (newChamber || pvnswsub.atEnd())){
                                 // if the next chamber is a different chamber, or this is the last chamber, write the geometry to output
@@ -476,8 +490,12 @@ namespace JiveXML {
                                 std::string stationName = "MM"+chamberName.substr(7,1); // MMS: small sector. MML: large sector
                                 int eta = std::stoi(chamberName.substr(8,1));
                                 writeATrd(out, stationTech, stationName, zi, zo, ri, ro, wi, wo, eta, phiString, dphi, shift, 0);
+                                if (phiString_mirrorEta!="") {
+                                   writeATrd(out, stationTech, stationName, zi, zo, ri, ro, wi, wo, -eta, phiString_mirrorEta, dphi, shift, 0);
+                                }
 
                                 phiString = ""; // reset for new chambers
+                                phiString_mirrorEta = ""; // reset for new chambers
                              }
                           }
                           else { // not MicroMegas; Move to the next chamber
@@ -495,6 +513,7 @@ namespace JiveXML {
                        GeoVolumeCursor pvnswsub(pvnsw.getVolume());
                        bool newChamber = true;
                        std::string phiString = "";
+                       std::string phiString_mirrorEta = "";
                        int nvtx=0;
                        double dz=0, dphi=0, shift=0;
                        std::string chamberName="";
@@ -504,66 +523,70 @@ namespace JiveXML {
                        while (!pvnswsub.atEnd()){
                           if (((pvnswsub.getVolume()->getLogVol())->getShape())->typeID() == GeoShapeShift::getClassTypeID() ) {// sTGC
 
-                             if (pvnswsub.getTransform().translation().z()>=0) { // only process the chambers in the positive eta region
 
-                                if (newChamber){
+                             if (newChamber){
 
-                                   int phiIndex;
-                                   readNSWSTGCPars(&pvnswsub, maxPhi, chamberName, pos_rot, theBrep, nvtx, dz, dphi, shift, phiIndex);
-                                   phiString = DataType(phiIndex).toString();
+                                int phiIndex;
+                                readNSWSTGCPars(&pvnswsub, maxPhi, chamberName, pos_rot, theBrep, nvtx, dz, dphi, shift, phiIndex);
+                                phiString = DataType(phiIndex).toString();
 
-                                   newChamber = false;
-                                   pvnswsub.next();
-                                } // end of processing the first chamber
+                                newChamber = false;
+                                pvnswsub.next();
+                             } // end of processing the first chamber
 
-                                else{
+                             else{
 
-                                   std::string chamberName2;
-                                   HepGeom::Point3D<double> pos_rot2;
-                                   const GeoSimplePolygonBrep* theBrep2;
-                                   int nvtx2, phiIndex2;
-                                   double dz2, dphi2, shift2;
-                                   readNSWSTGCPars(&pvnswsub, maxPhi, chamberName2, pos_rot2, theBrep2, nvtx2, dz2, dphi2, shift2, phiIndex2);
+                                std::string chamberName2;
+                                HepGeom::Point3D<double> pos_rot2;
+                                const GeoSimplePolygonBrep* theBrep2;
+                                int nvtx2, phiIndex2;
+                                double dz2, dphi2, shift2;
+                                readNSWSTGCPars(&pvnswsub, maxPhi, chamberName2, pos_rot2, theBrep2, nvtx2, dz2, dphi2, shift2, phiIndex2);
 
-                                   // Check if it is the same shape as the first chamber
-                                   bool isSameShape = true;
-                                   if (nvtx == nvtx2 && equalLength(dz, dz2) ) { // Same Nvtx and thickness. Check vertices coordinates.
-                                      for (int i=0; i<nvtx; ++i){
-                                         if ( !equalLength(theBrep->getXVertex(i), theBrep2->getXVertex(i))
-                                               || !equalLength(theBrep->getYVertex(i), theBrep2->getYVertex(i)) )
-                                         {
-                                            isSameShape = false;
-                                         }
+                                // Check if it is the same shape as the first chamber
+                                bool isSameShape = true;
+                                if (nvtx == nvtx2 && equalLength(dz, dz2) ) { // Same Nvtx and thickness. Check vertices coordinates.
+                                   for (int i=0; i<nvtx; ++i){
+                                      if ( !equalLength(theBrep->getXVertex(i), theBrep2->getXVertex(i))
+                                            || !equalLength(theBrep->getYVertex(i), theBrep2->getYVertex(i)) )
+                                      {
+                                         isSameShape = false;
                                       }
                                    }
-                                   else { // Different Nvtx or thickness
-                                      isSameShape = false;
-                                   }
+                                }
+                                else { // Different Nvtx or thickness
+                                   isSameShape = false;
+                                }
 
-                                   // Check if it has the same name, offset and shape as the first chamber
-                                   if (chamberName == chamberName2
-                                         && pos_rot.distance(pos_rot2) < m_smallDistance
-                                         && equalAngle(dphi, dphi2)
-                                         && equalLength(shift, shift2)
-                                         && isSameShape)
-                                   {
-                                      // same chamber in different phi sector, add it to the existing phi index list
-                                      std::string stationPhi = DataType(phiIndex2).toString();
-                                      if (phiString.find(stationPhi) == std::string::npos) phiString += " " + stationPhi;
-
-                                      pvnswsub.next();
-                                   }
-                                   else {
-                                      // This is a different chamber.
-                                      // Reset the new chamber flag so that it can be processed as a new chamber in the next loop
-                                      newChamber = true;
-                                   }
-                                } // end of processing another chamber and comparing it to the first chamber
-
-                             }
-                             else{ // skip negative eta chambers
-                                pvnswsub.next();
-                             }
+                                // Check if it has the same name, offset and shape as the first chamber
+                                if (chamberName != chamberName2
+                                      || !equalAngle(dphi, dphi2)
+                                      || !equalLength(shift, shift2)
+                                      || !isSameShape)
+                                {
+                                   // This is a different chamber.
+                                   // Reset the new chamber flag so that it can be processed as a new chamber in the next loop
+                                   newChamber = true;
+                                }
+                                // check chamber position
+                                else if (pos_rot.distance(pos_rot2) < m_smallDistance) {
+                                   // same chamber in different phi sector, add it to the existing phi index list
+                                   std::string stationPhi = DataType(phiIndex2).toString();
+                                   if (phiString.find(stationPhi) == std::string::npos) phiString += " " + stationPhi;
+                                   pvnswsub.next();
+                                }
+                                else if (pos_rot.distance(HepGeom::Point3D<double>(pos_rot2.x(), pos_rot2.y(), -pos_rot2.z())) < m_smallDistance) {
+                                   // same chamber in oppposite eta region, add it to a separate phi index list
+                                   std::string stationPhi = DataType(phiIndex2).toString();
+                                   if (phiString_mirrorEta.find(stationPhi) == std::string::npos) phiString_mirrorEta += " " + stationPhi;
+                                   pvnswsub.next();
+                                }
+                                else {
+                                   // This is a different chamber.
+                                   // Reset the new chamber flag so that it can be processed as a new chamber in the next loop
+                                   newChamber = true;
+                                }
+                             } // end of processing another chamber and comparing it to the first chamber
 
 
                              if (phiString!="" && (newChamber || pvnswsub.atEnd())){
@@ -573,8 +596,10 @@ namespace JiveXML {
                                 std::string stationTech = "STGC";
                                 std::string stationName = "ST"+chamberName.substr(8,1); // STS: small sector. STL: large sector
                                 int eta = std::stoi(chamberName.substr(9,1));
-                                double zi = pos_rot.z() - dz;
-                                double zo = pos_rot.z() + dz;
+                                double signed_dz = dz;
+                                if (pos_rot.z()<0) dz *= -1;
+                                double zi = pos_rot.z() - signed_dz;
+                                double zo = pos_rot.z() + signed_dz;
                                 double rho = pos_rot.perp();
                                 double ri, ro, wi, wo;
 
@@ -585,6 +610,9 @@ namespace JiveXML {
                                    const int vtxList[] = {0, 1, 2, 3};
                                    readBrepAsATrd(theBrep, rho, vtxList, ri, ro, wi, wo);
                                    writeATrd(out, stationTech, stationName, zi, zo, ri, ro, wi, wo, eta, phiString, dphi, shift, 0);
+                                   if (phiString_mirrorEta!="") {
+                                      writeATrd(out, stationTech, stationName, zi, zo, ri, ro, wi, wo, -eta, phiString_mirrorEta, dphi, shift, 0);
+                                   }
                                 }
 
                                 else if (nvtx==6){ // print as two ATrds
@@ -598,11 +626,17 @@ namespace JiveXML {
                                    const int vtxList1[] = {5, 2, 3, 4};
                                    readBrepAsATrd(theBrep, rho, vtxList1, ri, ro, wi, wo);
                                    writeATrd(out, stationTech, stationName, zi, zo, ri, ro, wi, wo, eta, phiString, dphi, shift, 0);
+                                   if (phiString_mirrorEta!="") {
+                                      writeATrd(out, stationTech, stationName, zi, zo, ri, ro, wi, wo, -eta, phiString_mirrorEta, dphi, shift, 0);
+                                   }
 
                                    // Second ATrd (outter part): vertex 0, 1, 2, 5
                                    const int vtxList2[] = {0, 1, 2, 5};
                                    readBrepAsATrd(theBrep, rho, vtxList2, ri, ro, wi, wo);
                                    writeATrd(out, stationTech, stationName, zi, zo, ri, ro, wi, wo, eta, phiString, dphi, shift, 0);
+                                   if (phiString_mirrorEta!="") {
+                                      writeATrd(out, stationTech, stationName, zi, zo, ri, ro, wi, wo, -eta, phiString_mirrorEta, dphi, shift, 0);
+                                   }
 
                                 }
 
@@ -610,6 +644,7 @@ namespace JiveXML {
                                    ATH_MSG_ERROR( "Shape not supported by GeometryJiveXML: polygon shape with "<<nvtx <<" verticies in NSW sTGC." );
                                 }
                                 phiString = ""; // reset for new chambers
+                                phiString_mirrorEta = ""; // reset for new chambers
                              }
 
                           }
@@ -658,9 +693,11 @@ namespace JiveXML {
      pos_rot = getPositionNSW(pos, maxPhi);
      dphi = getDeltaPhi(pos_rot, maxPhi);
      shift = getShift(pos_rot, dphi);
+     double signed_dz = theTrd->getXHalfLength1();
+     if (pos_rot.z()<0) signed_dz *= -1;
 
-     zi = pos_rot.z() - theTrd->getXHalfLength1();
-     zo = pos_rot.z() + theTrd->getXHalfLength1();
+     zi = pos_rot.z() - signed_dz;
+     zo = pos_rot.z() + signed_dz;
      ri = pos_rot.perp() - theTrd->getZHalfLength();
      ro = pos_rot.perp() + theTrd->getZHalfLength();
      wi = 2.0 * theTrd->getYHalfLength1();

@@ -133,6 +133,8 @@ class _ConfigSettings_jetSuper( _ConfigSettingsBase ):
       self._adaptiveVertex = True
       self._addSingleTrackVertices = True
       self._roi      = "HLT_Roi_JetSuper"
+      self._etaHalfWidth = 0.3
+      self._phiHalfWidth = 0.3
       self._doFullScan = True
       self._pTmin      = 1*GeV
       #-----
@@ -153,7 +155,7 @@ class _ConfigSettings_minBias( _ConfigSettingsBase ):
       self._suffix   = "MinBias"
       self._roi      = "HLT_Roi_MinBias"
       self._doFullScan      = True
-      self._pTmin           = 0.2*GeV # TODO: double check
+      self._pTmin           = 0.1*GeV # TODO: double check
       self._etaHalfWidth    = 3
       self._phiHalfWidth    = math.pi
       self._doZFinder       = True

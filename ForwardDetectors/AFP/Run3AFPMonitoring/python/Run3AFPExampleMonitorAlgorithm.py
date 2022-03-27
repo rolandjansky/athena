@@ -1,5 +1,5 @@
 # 
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -33,10 +33,14 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     afpToFAlgorithmFac = CompFactory.AFPToFAlgorithm
     afpToFAlgorithm = helper.addAlgorithm(afpToFAlgorithmFac,'AFPToFAlg')
 
+    afpToFSiTAlgorithmFac = CompFactory.AFPToFSiTAlgorithm
+    afpToFSiTAlgorithm = helper.addAlgorithm(afpToFSiTAlgorithmFac,'AFPToFSiTAlg')
+
     # Add a generic monitoring tool (a "group" in old language). The returned 
     # object here is the standard GenericMonitoringTool.
     AFPSiGroup = helper.addGroup(afpSiLayerAlgorithm, 'AFPSiLayerTool', 'AFP/') 
     AFPToFGroup = helper.addGroup(afpToFAlgorithm, 'AFPToFTool', 'AFP/')
+    AFPToFSiTGroup = helper.addGroup(afpToFSiTAlgorithm, 'AFPToFSiTTool', 'AFP/')
     
     xLabelsStations = ['farAside', 'nearAside', 'nearCside', 'farCside']
     xLabelsStationsPlanes = ['fA3','fA2','fA1','fA0','nA3','nA2','nA1','nA0','nC0','nC1','nC2','nC3','fC0','fC1','fC2','fC3']
@@ -136,6 +140,24 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     AFPToFGroup.defineHistogram('lbCToF_T2_End', title='(End) Number of hits per train (side C, train2) divided by <mu>; lb; hits/<mu>', type='TH1F', path='ToF/ToFHitsVsLb/sideC/End/', xbins=2000, xmin=-0.5, xmax=1999.5, weight='lbCToF_TEnd_Weight')
     AFPToFGroup.defineHistogram('lbCToF_T3_End', title='(End) Number of hits per train (side C, train3) divided by <mu>; lb; hits/<mu>', type='TH1F', path='ToF/ToFHitsVsLb/sideC/End/', xbins=2000, xmin=-0.5, xmax=1999.5, weight='lbCToF_TEnd_Weight')
 
+    AFPToFSiTGroup.defineHistogram('lqBar_A,fsp0_rows_A;ToFSiTCorrXA', title='LQBar vs FSP0 rows Side A;Train;FSP0 x-pix [50 um]', type='TH2F', path='ToFSiTCorr/', xbins=20, xmin=-1, xmax=4, ybins=346, ymin=-10.5, ymax=335.5)
+    AFPToFSiTGroup.defineHistogram('lqBar_C,fsp0_rows_C;ToFSiTCorrXC', title='LQBar vs FSP0 rows Side C;Train;FSP0 x-pix [50 um]', type='TH2F', path='ToFSiTCorr/', xbins=20, xmin=-1, xmax=4, ybins=346, ymin=-10.5, ymax=335.5)
+    AFPToFSiTGroup.defineHistogram('lqBar_A,fsp0_columns_A;ToFSiTCorrYA', title='LQBar vs FSP0 columns Side A;Train;FSP0 y-pix [250 um]', type='TH2F', path='ToFSiTCorr/', xbins=20, xmin=-1, xmax=4, ybins=85, ymin=-5.5, ymax=79.5)
+    AFPToFSiTGroup.defineHistogram('lqBar_C,fsp0_columns_C;ToFSiTCorrYC', title='LQBar vs FSP0 columns Side C;Train;FSP0 y-pix [250 um]', type='TH2F', path='ToFSiTCorr/', xbins=20, xmin=-1, xmax=4, ybins=85, ymin=-5.5, ymax=79.5)
+
+    AFPToFSiTGroup.defineHistogram('lqBar_tight_A,fsp0_rows_tight_A;ToFSiTCorrTightXA', title='LQBar vs FSP0 X dim with FSP2 Side A;Train;FSP0 x-pix [50 um]', type='TH2I', path='ToFSiTCorr/', xbins=20, xmin=-1, xmax=4, ybins=34, ymin=-0.05, ymax=335.5)
+    AFPToFSiTGroup.defineHistogram('lqBar_tight_C,fsp0_rows_tight_C;ToFSiTCorrTightXC', title='LQBar vs FSP0 X dim with FSP2 Side C;Train;FSP0 x-pix [50 um]', type='TH2I', path='ToFSiTCorr/', xbins=20, xmin=-1, xmax=4, ybins=34, ymin=-0.05, ymax=335.5)
+    AFPToFSiTGroup.defineHistogram('lqBar_tight_A,fsp0_columns_tight_A;ToFSiTCorrTightYA', title='LQBar vs FSP0 columns with FSP2 hit Side A;Train;FSP0 y-pix [250 um]', type='TH2I', path='ToFSiTCorr/', xbins=20, xmin=-1, xmax=4, ybins=80, ymin=-0.5, ymax=79.5)
+    AFPToFSiTGroup.defineHistogram('lqBar_tight_C,fsp0_columns_tight_C;ToFSiTCorrTightYC', title='LQBar vs FSP0 columns with FSP2 hit Side C;Train;FSP0 y-pix [250 um]', type='TH2I', path='ToFSiTCorr/', xbins=20, xmin=-1, xmax=4, ybins=80, ymin=-0.5, ymax=79.5)
+
+    AFPToFSiTGroup.defineHistogram('trainHits_A,fsp0_rows_tight_A;ToFSiTCorrTrainHitsXA', title='# hits in train vs FSP0 X dim with FSP2 Side A;Train hits (train+numHits/5);FSP0 x-pix [50 um]', type='TH2I', path='ToFSiTCorr/', xbins=25, xmin=-1, xmax=4, ybins=34, ymin=-0.05, ymax=335.5)
+    AFPToFSiTGroup.defineHistogram('trainHits_C,fsp0_rows_tight_C;ToFSiTCorrTrainHitsXC', title='# hits in train vs FSP0 X dim with FSP2 Side C;Train hits (train+numHits/5);FSP0 x-pix [50 um]', type='TH2I', path='ToFSiTCorr/', xbins=25, xmin=-1, xmax=4, ybins=34, ymin=-0.05, ymax=335.5)
+    AFPToFSiTGroup.defineHistogram('trainHits_A,fsp0_columns_tight_A;ToFSiTCorrTrainHitsYA', title='# hits in train vs FSP0 columns with FSP2 hit Side A;Train hits (train+numHits/5);FSP0 y-pix [250 um]', type='TH2I', path='ToFSiTCorr/', xbins=25, xmin=-1, xmax=4, ybins=80, ymin=-0.5, ymax=79.5)
+    AFPToFSiTGroup.defineHistogram('trainHits_C,fsp0_columns_tight_C;ToFSiTCorrTrainHitsYC', title='# hits in train vs FSP0 columns with FSP2 hit Side C;Train hits (train+numHits/5);FSP0 y-pix [250 um]', type='TH2I', path='ToFSiTCorr/', xbins=25, xmin=-1, xmax=4, ybins=80, ymin=-0.5, ymax=79.5)
+
+    AFPToFSiTGroup.defineHistogram('tofHits_A,fsp0Hits_A;ToFSiTNumHitsA', title='TOF vs FSP0 num. hits Side A;#Hit bars;FSP0 multiplicity', type='TH2F', path='ToFSiTCorr/', xbins=17, xmin=0, xmax=16, ybins=150, ymin=-0.5, ymax=149.5)
+    AFPToFSiTGroup.defineHistogram('tofHits_C,fsp0Hits_C;ToFSiTNumHitsC', title='TOF vs FSP0 num. hits Side C;#Hit bars;FSP0 multiplicity', type='TH2F', path='ToFSiTCorr/', xbins=17, xmin=0, xmax=16, ybins=150, ymin=-0.5, ymax=149.5)
+
     # Using a map of groups
     layerList = ['P0','P1', 'P2', 'P3'] ## TODO XXX adapt to the enum/xAOD namespace names
     stationList = ['farAside', 'nearAside', 'nearCside', 'farCside']
@@ -227,7 +249,9 @@ if __name__=='__main__':
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     #ConfigFlags.Input.Files = ['/dsk1/AFPFiles/datasets/355754/user.ladamczy.23432842.EXT0._000001.xAOD.root']
-    ConfigFlags.Input.Files = ['/afs/cern.ch/work/n/ndikic/backup_raw_337176/user.ladamczy.21473705.EXT0._000002.xAOD.root','/afs/cern.ch/work/n/ndikic/backup_raw_337176/user.ladamczy.21473705.EXT0._000003.xAOD.root','/afs/cern.ch/work/n/ndikic/backup_raw_337176/user.ladamczy.21473705.EXT0._000004.xAOD.root']
+    ConfigFlags.Input.Files = ['/eos/atlas/atlascerngroupdisk/det-afp/nikola/afs/public/backup_raw_337176/user.ladamczy.21473705.EXT0._000002.xAOD.root',
+                               '/eos/atlas/atlascerngroupdisk/det-afp/nikola/afs/public/backup_raw_337176/user.ladamczy.21473705.EXT0._000003.xAOD.root',
+                               '/eos/atlas/atlascerngroupdisk/det-afp/nikola/afs/public/backup_raw_337176/user.ladamczy.21473705.EXT0._000004.xAOD.root']
     #ConfigFlags.Input.Files = ['/afs/cern.ch/user/p/pbalek/public/AFP/testxAOD.root']
     ConfigFlags.Input.isMC = False
     ConfigFlags.Output.HISTFileName = 'AFPTest-337176-10k-FMETrains-MU.root'

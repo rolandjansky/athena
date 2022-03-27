@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PILEUPTOOLS_BKGSTREAMSCACHE_H
@@ -21,7 +21,6 @@
 #include "PileUpTools/PileUpStream.h"
 #include "PileUpTools/IBkgStreamsCache.h"
 
-class ActiveStoreSvc;
 class IEvtSelector;
 class IAtRndmGenSvc;
 class IBeamIntensity;
@@ -98,7 +97,6 @@ private:
 
   typedef std::vector<PileUpStream> StreamVector;
   bool alreadyInUse(StreamVector::size_type iStream);
-  ActiveStoreSvc* p_activeStore;
   StreamVector::iterator m_cursor;
   StreamVector m_streams;
   std::vector<bool> m_usedStreams;

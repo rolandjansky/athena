@@ -8,8 +8,9 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFramewor
 
 from DerivationFrameworkPhys import PhysCommon
 
-from DerivationFrameworkJetEtMiss.JetCommon import addJetOutputs
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDAODJets, addJetPtAssociation, addAntiKt4NoPtCutJets
+from JetRecConfig.StandardSmallRJets import AntiKt4PV0Track, AntiKt4EMPFlow, AntiKt4EMPFlowNoPtCut, AntiKt4EMTopoNoPtCut, AntiKt4EMPFlowCSSK
+
+from DerivationFrameworkJetEtMiss.JetCommon import addJetOutputs, addDAODJets, OutputJets
 
 #====================================================================
 # SKIMMING TOOL
@@ -124,43 +125,26 @@ jetm1Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM1Kernel" ,
                                                          SkimmingTools = JETM1SkimmingTools,
                                                          ThinningTools = thinningTools)
 
+
 #=======================================
-# Add. small-R jet stuff in derivations
+# R = 0.4 track-jets (needed for Rtrk)
 #=======================================
+jetList = [AntiKt4PV0Track]
 
-#Needed for small-R JMS Rtrk uncertainties
-jetList = ["AntiKt4PV0TrackJets"]
-
-addDAODJets(jetList,DerivationFrameworkJob,"JETM1")
-
-#Truth jet association
+#=======================================
+# SCHEDULE SMALL-R JETS WITH NO PT CUT
+#=======================================
 if DerivationFrameworkIsMonteCarlo:
-    addJetPtAssociation(jetalg="AntiKt4EMTopo",  truthjetalg="AntiKt4TruthJets", sequence=DerivationFrameworkJob)
-    addJetPtAssociation(jetalg="AntiKt4EMPFlow", truthjetalg="AntiKt4TruthJets", sequence=DerivationFrameworkJob)
+    jetList += [AntiKt4EMPFlowNoPtCut, AntiKt4EMTopoNoPtCut]
 
 #=======================================
-# Special small-R jet collections
+# CSSK R = 0.4 EMPFlow jets
 #=======================================
+jetList += [AntiKt4EMPFlowCSSK]
 
-# This functionality still has to be migrated to new jet config
-# Add jets with constituent-level pileup suppression
-#addConstModJets("AntiKt",0.4,"EMTopo",["CS","SK"],jetm1Seq,"JETM1",ptmin=2000,ptminFilter=2000)
-#addConstModJets("AntiKt",0.4,"EMPFlow",["CS","SK"],jetm1Seq,"JETM1",ptmin=2000,ptminFilter=2000)
+addDAODJets(jetList,DerivationFrameworkJob)
 
-#if DerivationFrameworkIsMonteCarlo:
-#    addJetPtAssociation(jetalg="AntiKt4EMTopoCSSK",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlgCSSK")
-#    addJetPtAssociation(jetalg="AntiKt4EMPFlowCSSK", truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlgCSSK")
-
-#=======================================
-# SCHEDULE SMALL-R JETS WITH LOW PT CUT
-#=======================================
-
-if DerivationFrameworkIsMonteCarlo:
-    jetList_noCut = ["AntiKt4EMTopoJets",
-                     "AntiKt4EMPFlowJets"]
-    addAntiKt4NoPtCutJets(jetList_noCut, DerivationFrameworkJob,"JETM1")
-    addJetPtAssociation(jetalg="AntiKt4EMTopoNoPtCut",  truthjetalg="AntiKt4TruthJets", sequence=DerivationFrameworkJob)
-    addJetPtAssociation(jetalg="AntiKt4EMPFlowNoPtCut", truthjetalg="AntiKt4TruthJets", sequence=DerivationFrameworkJob)
+OutputJets["JETM1"] = ["AntiKt4PV0TrackJets","AntiKt4EMPFlowCSSKJets","AntiKt4EMPFlowNoPtCutJets","AntiKt4EMTopoNoPtCutJets"]
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -169,24 +153,24 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM1SlimmingHelper = SlimmingHelper("JETM1SlimmingHelper")
 
 JETM1SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "PrimaryVertices",
-                                        "AntiKt4EMTopoJets","AntiKt4EMPFlowJets",
+                                        "InDetTrackParticles",
+                                        "AntiKt4EMTopoJets","AntiKt4EMPFlowJets","AntiKt4TruthWZJets",
                                         "AntiKt10UFOCSSKJets",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                         "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
-                                        "BTagging_AntiKt4EMPFlow",
-                                        "BTagging_AntiKt4EMTopo",
-                                        ]
+                                        "BTagging_AntiKt4EMPFlow"]
 
-# Add QG tagger variables
 JETM1SlimmingHelper.ExtraVariables  = ["AntiKt4EMTopoJets.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1",
                                        "AntiKt4EMPFlowJets.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1",
                                        "AntiKt4EMPFlowJets.GhostTower",
                                        "InDetTrackParticles.truthMatchProbability", 
                                        "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets.zg.rg.NumTrkPt1000.TrackWidthPt1000.GhostMuonSegmentCount.EnergyPerSampling.GhostTrack",
                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.zg.rg",
-                                       "AntiKt10UFOCSSKJets.NumTrkPt1000.TrackWidthPt1000.GhostMuonSegmentCount.EnergyPerSampling.GhostTrack"]
+                                       "AntiKt10UFOCSSKJets.NumTrkPt1000.TrackWidthPt1000.GhostMuonSegmentCount.EnergyPerSampling.GhostTrack",
+                                       "TruthVertices.z"]
 
-JETM1SlimmingHelper.AllVariables = [ "MuonSegments", "EventInfo", "TruthVertices", "TruthParticles"
+JETM1SlimmingHelper.AllVariables = [ "MuonSegments", "EventInfo", "TruthParticles",
+                                     "AntiKt4TruthJets", "InTimeAntiKt4TruthJets", "OutOfTimeAntiKt4TruthJets",
                                      "Kt4EMTopoOriginEventShape","Kt4EMPFlowEventShape","Kt4EMPFlowPUSBEventShape",
                                      "CaloCalFwdTopoTowers"]
 

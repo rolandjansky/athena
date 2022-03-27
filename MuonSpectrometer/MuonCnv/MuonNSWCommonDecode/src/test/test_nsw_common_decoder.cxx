@@ -19,6 +19,12 @@
 #include "MuonNSWCommonDecode/VMMChannel.h"
 #include "MuonNSWCommonDecode/NSWResourceId.h"
 
+// Local issue definition
+
+ERS_DECLARE_ISSUE_BASE (eformat, InconsistentChannelNumber, eformat::Issue, 
+                        "Inconsistent channel number: " << nlink << " from link tree " << nflat << " from flat list",
+                        ERS_EMPTY, ((size_t) nlink) ((size_t) nflat))
+
 // Error parameters
 
 #define ERR_NOERR      0
@@ -105,6 +111,9 @@ int test_nsw_common_decoder_event (eformat::read::FullEventFragment &f)
   int errcode = ERR_NOERR;
   std::vector <eformat::read::ROBFragment> robs;
 
+  if (g_printout_level > 2)
+    std::cout << "Entering fragment analysis" << std::endl;
+
   f.robs (robs);
 
   for (auto r = robs.begin (); r != robs.end (); ++r)
@@ -137,6 +146,9 @@ int test_nsw_common_decoder_event (eformat::read::FullEventFragment &f)
 
     if (is_nsw)
     {
+      if (g_printout_level > 2)
+        std::cout << "NSW fragment found: detector ID = 0x" << std::hex << s << std::dec << " length " << r->rod_ndata () << std::endl;
+
       // Decode the ROB fragment (including sanity check)
 
       Muon::nsw::NSWCommonDecoder nsw_decoder (*r);
@@ -151,7 +163,7 @@ int test_nsw_common_decoder_event (eformat::read::FullEventFragment &f)
 	nchan += (*i)->get_channels ().size ();
 
       if (nchan != nsw_decoder.get_channels ().size ())
-	std::cerr << "Inconsistent channel number" << std::endl;
+        ers::error (eformat::InconsistentChannelNumber (ERS_HERE, nchan, nsw_decoder.get_channels ().size ()));
 
       // How to access information about detector elements and channels using the tree view
 

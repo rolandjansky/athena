@@ -8,8 +8,8 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 logging.getLogger().info("Importing %s",__name__)
 
-from ..Menu.ChainDictTools import splitChainDict
-from ..Menu.ChainMerging import mergeChainDefs
+from TriggerMenuMT.HLT.Config.Utility.ChainDictTools import splitChainDict
+from TriggerMenuMT.HLT.Config.Utility.ChainMerging import mergeChainDefs
 from .TauChainConfiguration import TauChainConfiguration
 
 

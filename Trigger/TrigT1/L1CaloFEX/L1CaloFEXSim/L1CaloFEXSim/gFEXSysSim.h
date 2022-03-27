@@ -23,6 +23,8 @@
 #include "xAODTrigger/gFexGlobalRoI.h"
 #include "xAODTrigger/gFexGlobalRoIContainer.h"
 #include "xAODTrigger/gFexGlobalRoIAuxContainer.h"
+#include "L1CaloFEXSim/FEXAlgoSpaceDefs.h"
+#include "TrigConfData/L1Menu.h"
 
 namespace LVL1 {
 
@@ -54,19 +56,19 @@ namespace LVL1 {
     virtual int calcTowerID(int eta, int phi, int nphi, int mod) override ;
 
     /**Create and fill a new gFexJetRoI object, and return a pointer to it*/
-    virtual StatusCode fillgRhoEDM(uint32_t tobWord) override ;
+    virtual StatusCode fillgRhoEDM(uint32_t tobWord, int scale) override ;
 
-    virtual StatusCode fillgBlockEDM(uint32_t tobWord) override ;
+    virtual StatusCode fillgBlockEDM(uint32_t tobWord, int scale) override ;
 
-    virtual StatusCode fillgJetEDM(uint32_t tobWord) override ;
+    virtual StatusCode fillgJetEDM(uint32_t tobWord, int scale) override ;
 
-    virtual StatusCode fillgScalarEJwojEDM(uint32_t tobWord) override ;
+    virtual StatusCode fillgScalarEJwojEDM(uint32_t tobWord, int scale) override ;
 
-    virtual StatusCode fillgMETComponentsJwojEDM(uint32_t tobWord) override ;
+    virtual StatusCode fillgMETComponentsJwojEDM(uint32_t tobWord, int scale) override ;
 
-    virtual StatusCode fillgMHTComponentsJwojEDM(uint32_t tobWord) override ;
+    virtual StatusCode fillgMHTComponentsJwojEDM(uint32_t tobWord, int scale) override ;
 
-    virtual StatusCode fillgMSTComponentsJwojEDM(uint32_t tobWord) override ;
+    virtual StatusCode fillgMSTComponentsJwojEDM(uint32_t tobWord, int scale) override ;
 
 
     /** Internal data */
@@ -98,7 +100,6 @@ namespace LVL1 {
     ToolHandle<IgFEXSim> m_gFEXSimTool       {this, "gFEXSimTool",    "LVL1::gFEXSim",    "Tool that creates the gFEX Simulation"};
 
     SG::ReadHandleKey<LVL1::gTowerContainer> m_gTowerContainerSGKey {this, "MyGTowers", "gTowerContainer", "Input container for gTowers"};
-    SG::ReadHandleKey<CaloCellContainer> m_scellsCollectionSGKey {this, "SCell", "SCell", "SCell"};
 
     SG::WriteHandleKey< xAOD::gFexJetRoIContainer > m_gFexRhoOutKey {this,"Key_gFexRhoOutputContainer","L1_gFexRhoRoI","Output gFexRho (energy density) container"};
     SG::WriteHandleKey< xAOD::gFexJetRoIContainer > m_gFexBlockOutKey {this,"Key_gFexSRJetOutputContainer","L1_gFexSRJetRoI","Output gFexBlock (small-R jet) container"};
@@ -109,7 +110,7 @@ namespace LVL1 {
     SG::WriteHandleKey< xAOD::gFexGlobalRoIContainer > m_gMHTComponentsJwojOutKey {this,"Key_gMHTComponentsJwojOutputContainer","L1_gMHTComponentsJwoj","Output hard MET components (from Jets without Jets algo) container"};
     SG::WriteHandleKey< xAOD::gFexGlobalRoIContainer > m_gMSTComponentsJwojOutKey {this,"Key_gMSTComponentsJwojOutputContainer","L1_gMSTComponentsJwoj","Output soft MET components (from Jets without Jets algo) container"};
 
-
+    SG::ReadHandleKey<TrigConf::L1Menu> m_l1MenuKey{this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu","Name of the L1Menu object to read configuration from"}; 
 
     std::vector<uint32_t>  m_allgRhoTobs;
     std::vector<uint32_t>  m_allgBlockTobs;

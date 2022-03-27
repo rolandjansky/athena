@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ACTSGEOMETRY_ACTSALIGNMENTCONDALG_H
@@ -31,11 +31,8 @@ public:
   ActsAlignmentCondAlg(const std::string &name, ISvcLocator *pSvcLocator);
   virtual ~ActsAlignmentCondAlg();
 
-  virtual bool isClonable() const override { return true; }
-
   virtual StatusCode initialize() override;
   virtual StatusCode execute() override;
-  virtual StatusCode finalize() override;
 
 private:
 
@@ -48,7 +45,6 @@ private:
   SG::WriteCondHandleKey<ActsGeometryContext> m_wchk{
       this, "ActsAlignmentKey", "ActsAlignment", "cond handle key"};
 
-  ServiceHandle<ICondSvc> m_cs;
   ServiceHandle<IActsTrackingGeometrySvc> m_trackingGeometrySvc;
 };
 

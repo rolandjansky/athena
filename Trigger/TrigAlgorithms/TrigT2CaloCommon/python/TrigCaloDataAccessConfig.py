@@ -5,10 +5,10 @@ from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
 CaloDataAccessSvcDependencies = [('TileEMScale'        , 'ConditionStore+TileEMScale'),
                                  ('TileBadChannels'    , 'ConditionStore+TileBadChannels'),
-                                 ('IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM'), 
-                                 ('IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC'), 
-                                 ('IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE'), 
-                                 ('IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM'), 
+                                 ('IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM'),
+                                 ('IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC'),
+                                 ('IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE'),
+                                 ('IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM'),
                                  ('IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD'),
                                  ('LArOnOffIdMapping'  , 'ConditionStore+LArOnOffIdMap' ),
                                  ('LArFebRodMapping'   , 'ConditionStore+LArFebRodMap' ),
@@ -22,11 +22,11 @@ def CaloOffsetCorrectionCfg(flags):
     acc = ComponentAccumulator()
     if not flags.Input.isMC and flags.Common.isOnline:
         from IOVDbSvc.IOVDbSvcConfig import addFolders
-        acc.merge(addFolders(flags, "/LAR/ElecCalibFlat/OFC",'LAR_ONL', className = 'CondAttrListCollection'))  
+        acc.merge(addFolders(flags, "/LAR/ElecCalibFlat/OFC",'LAR_ONL', className = 'CondAttrListCollection'))
         larCondSvc = CompFactory.LArFlatConditionSvc()
         larCondSvc.OFCInput="/LAR/ElecCalibFlat/OFC"
         acc.addService(larCondSvc)
-        acc.addService(CompFactory.ProxyProviderSvc(ProviderNames=[larCondSvc.name]))  
+        acc.addService(CompFactory.ProxyProviderSvc(ProviderNames=[larCondSvc.name]))
         acc.addCondAlgo(CompFactory.getComp('LArFlatConditionsAlg<LArOFCFlat>')(ReadKey="/LAR/ElecCalibFlat/OFC", WriteKey='LArOFC'))
         from LumiBlockComps.LuminosityCondAlgConfig import LuminosityCondAlgCfg
         acc.merge(LuminosityCondAlgCfg(flags))
@@ -42,7 +42,7 @@ def CaloOffsetCorrectionCfg(flags):
     return acc
 
 @AccumulatorCache
-def trigCaloDataAccessSvcCfg( flags ):    
+def trigCaloDataAccessSvcCfg( flags ):
 
     acc = ComponentAccumulator()
     svc = CompFactory.TrigCaloDataAccessSvc()
@@ -84,10 +84,35 @@ def trigCaloDataAccessSvcCfg( flags ):
     acc.merge( TileBadChannelsCondAlgCfg(flags) )
 
     if flags.Trigger.calo.doOffsetCorrection:
-        from AthenaCommon.CFElements import parOR
-        eventAcc = ComponentAccumulator(parOR("HLTBeginSeq"))
-        eventAcc.merge(CaloOffsetCorrectionCfg(flags), sequenceName="HLTBeginSeq")
-        acc.merge(eventAcc)
+        if flags.Trigger.doHLT:
+            from AthenaCommon.CFElements import parOR
+            eventAcc = ComponentAccumulator(parOR("HLTBeginSeq"))
+            eventAcc.merge(CaloOffsetCorrectionCfg(flags), sequenceName="HLTBeginSeq")
+            acc.merge(eventAcc)
+        else:
+            acc.merge(CaloOffsetCorrectionCfg(flags))
+
+    acc.addService( svc )
+    return acc
+
+
+if __name__ == "__main__":
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior = 1
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ConfigFlags.Input.Files = defaultTestFiles.RAW
+    ConfigFlags.Input.isMC=False
+    ConfigFlags.lock()
+    acc = ComponentAccumulator()
+    from AthenaCommon.CFElements import parOR
+
+    acc.addSequence(parOR("HLTBeginSeq"))
+
+    from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+    acc.merge( ByteStreamReadCfg( ConfigFlags ) )
+
+    acc.merge( trigCaloDataAccessSvcCfg( ConfigFlags ) )
 
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
     import math
@@ -109,35 +134,15 @@ def trigCaloDataAccessSvcCfg( flags ):
                         path="EXPERT",
                         title="Geometric usage",
                         xbins=50, xmin=-5, xmax=5,
-                        ybins=64, ymin=-math.pi, ymax=math.pi )    
-    svc.MonTool = mon
-    acc.addService( svc )
-    return acc
+                        ybins=64, ymin=-math.pi, ymax=math.pi )
+
+    acc.getService("TrigCaloDataAccessSvc").MonTool = mon
 
 
-if __name__ == "__main__":
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior = 1
-    from AthenaConfiguration.TestDefaults import defaultTestFiles
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    ConfigFlags.Input.Files = defaultTestFiles.RAW
-    ConfigFlags.Input.isMC=False
-    ConfigFlags.lock()
-    acc = ComponentAccumulator()
-    from AthenaCommon.CFElements import parOR
-
-    acc.addSequence(parOR("HLTBeginSeq"))
-    
-    from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
-    acc.merge( ByteStreamReadCfg( ConfigFlags ) )
-
-    acc.merge( trigCaloDataAccessSvcCfg( ConfigFlags ) )
-
-    
     TestCaloDataAccess=CompFactory.TestCaloDataAccess
     testAlg = TestCaloDataAccess()
-    acc.addEventAlgo(testAlg)    
-    
+    acc.addEventAlgo(testAlg)
+
     acc.printConfig(True)
 
     print("running this configuration")  # noqa: ATL901
@@ -146,5 +151,5 @@ if __name__ == "__main__":
     of.close()
 
 
-    
-    
+
+

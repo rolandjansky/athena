@@ -1,4 +1,4 @@
-#include "MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator.h"
+#include "../MdtDriftCircleOnTrackCreator.h"
 
 DECLARE_COMPONENT( Muon::MdtDriftCircleOnTrackCreator )
 

@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
-from __future__ import print_function
-
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
+from G4AtlasApps.SimEnums import BeamPipeSimMode, CalibrationRun, CavernBackground, LArParameterization
 
 
 def FastSimulationToolListCfg(ConfigFlags):
@@ -11,11 +11,11 @@ def FastSimulationToolListCfg(ConfigFlags):
     if ConfigFlags.Detector.GeometryBpipe:
         #if hasattr(simFlags, 'ForwardDetectors') and simFlags.ForwardDetectors.statusOn and simFlags.ForwardDetectors() == 2:
         #    FastSimulationList += ['ForwardTransportModel']
-        if ConfigFlags.Sim.BeamPipeSimMode != "Normal":
+        if ConfigFlags.Sim.BeamPipeSimMode is not BeamPipeSimMode.Normal:
             from G4FastSimulation.G4FastSimulationConfigNew import SimpleFastKillerCfg
             tools += [ result.popToolsAndMerge(SimpleFastKillerCfg(ConfigFlags)) ]
     if ConfigFlags.Detector.GeometryLAr:
-        if ConfigFlags.Sim.LArParameterization > 0:
+        if ConfigFlags.Sim.LArParameterization is not LArParameterization.NoFrozenShowers:
             # FIXME If we're only using Frozen Showers in the FCAL do
             # we really need to set up the EMB and EMEC as well?
             from LArG4FastSimulation.LArG4FastSimulationConfigNew import EMBFastShowerCfg, EMECFastShowerCfg, FCALFastShowerCfg, FCAL2FastShowerCfg
@@ -23,13 +23,13 @@ def FastSimulationToolListCfg(ConfigFlags):
             tools += [ result.popToolsAndMerge(EMECFastShowerCfg(ConfigFlags)) ]
             tools += [ result.popToolsAndMerge(FCALFastShowerCfg(ConfigFlags)) ]
             tools += [ result.popToolsAndMerge(FCAL2FastShowerCfg(ConfigFlags)) ]
-            if ConfigFlags.Sim.LArParameterization > 1:
+            if ConfigFlags.Sim.LArParameterization in [LArParameterization.DeadMaterialFrozenShowers, LArParameterization.FrozenShowersFCalOnly]:
                 from G4FastSimulation.G4FastSimulationConfigNew import DeadMaterialShowerCfg
                 tools += [ result.popToolsAndMerge(DeadMaterialShowerCfg(ConfigFlags)) ]
-        elif ConfigFlags.Sim.LArParameterization == 0:
+        else:
             print( "getFastSimulationMasterTool INFO No Frozen Showers" )
     if ConfigFlags.Detector.GeometryMuon:
-        if ConfigFlags.Sim.CavernBG not in ['Off', 'Read']:
+        if ConfigFlags.Sim.CavernBackground not in [CavernBackground.Off, CavernBackground.Read]:
             # and not (hasattr(simFlags, 'RecordFlux') and simFlags.RecordFlux.statusOn and simFlags.RecordFlux()):
             from TrackWriteFastSim.TrackWriteFastSimConfigNew import NeutronFastSimCfg
             tools += [ result.popToolsAndMerge(NeutronFastSimCfg(ConfigFlags)) ]
@@ -76,7 +76,7 @@ def FwdSensitiveDetectorListCfg(ConfigFlags):
 def TrackFastSimSensitiveDetectorListCfg(ConfigFlags):
     result = ComponentAccumulator()
     tools = []
-    if (ConfigFlags.Detector.EnableMuon and ConfigFlags.Sim.CavernBG in ['Write', 'WriteWorld']) or ConfigFlags.Sim.StoppedParticleFile:
+    if (ConfigFlags.Detector.EnableMuon and ConfigFlags.Sim.CavernBackground in [CavernBackground.Write, CavernBackground.WriteWorld]) or ConfigFlags.Sim.StoppedParticleFile:
         from TrackWriteFastSim.TrackWriteFastSimConfigNew import TrackFastSimSDCfg
         tools += [ result.popToolsAndMerge(TrackFastSimSDCfg(ConfigFlags)) ]
     result.setPrivateTools(tools)
@@ -156,17 +156,17 @@ def CaloSensitiveDetectorListCfg(ConfigFlags):
             from MinBiasScintillator.MinBiasScintillatorToolConfig import MinBiasScintillatorSDCfg
             tools += [ result.popToolsAndMerge(MinBiasScintillatorSDCfg(ConfigFlags)) ]
 
-        if ConfigFlags.Sim.CalibrationRun in ['LAr', 'LAr+Tile']:
+        if ConfigFlags.Sim.CalibrationRun in [CalibrationRun.LAr, CalibrationRun.LArTile]:
             from LArG4SD.LArG4SDToolConfig import LArDeadSensitiveDetectorToolCfg, LArActiveSensitiveDetectorToolCfg, LArInactiveSensitiveDetectorToolCfg
             tools += [ result.popToolsAndMerge(LArDeadSensitiveDetectorToolCfg(ConfigFlags)) ]
             tools += [ result.popToolsAndMerge(LArInactiveSensitiveDetectorToolCfg(ConfigFlags)) ]
             tools += [ result.popToolsAndMerge(LArActiveSensitiveDetectorToolCfg(ConfigFlags)) ]
-        elif ConfigFlags.Sim.CalibrationRun == 'DeadLAr':
+        elif ConfigFlags.Sim.CalibrationRun is CalibrationRun.DeadLAr:
             from LArG4SD.LArG4SDToolConfig import LArDeadSensitiveDetectorToolCfg
             tools += [ result.popToolsAndMerge(LArDeadSensitiveDetectorToolCfg(ConfigFlags)) ]
 
     if ConfigFlags.Detector.EnableTile:
-        if ConfigFlags.Sim.CalibrationRun in ['Tile', 'LAr+Tile']:
+        if ConfigFlags.Sim.CalibrationRun in [CalibrationRun.Tile, CalibrationRun.LArTile]:
             from TileGeoG4Calib.TileGeoG4CalibConfigNew import TileGeoG4CalibSDCfg
             tools += [ result.popToolsAndMerge(TileGeoG4CalibSDCfg(ConfigFlags)) ]  # mode 1 : With CaloCalibrationHits
         else:
@@ -184,7 +184,7 @@ def MuonSensitiveDetectorListCfg(ConfigFlags):
     result = ComponentAccumulator()
     tools = []
 
-    if ConfigFlags.Beam.Type == 'cosmics':
+    if ConfigFlags.Beam.Type is BeamType.Cosmics:
         if ConfigFlags.Detector.EnableMDT:
             from MuonG4SD.MuonG4SDToolConfig import MDTSensitiveDetectorCosmicsCfg
             tools += [ result.popToolsAndMerge(MDTSensitiveDetectorCosmicsCfg(ConfigFlags)) ]
@@ -225,7 +225,7 @@ def MuonSensitiveDetectorListCfg(ConfigFlags):
 def EnvelopeSensitiveDetectorListCfg(ConfigFlags):
     result = ComponentAccumulator()
     tools = []
-    if ConfigFlags.Beam.Type == 'cosmics' and not ConfigFlags.Sim.ReadTR:
+    if ConfigFlags.Beam.Type is BeamType.Cosmics and not ConfigFlags.Sim.ReadTR:
         from TrackWriteFastSim.TrackWriteFastSimConfigNew import CosmicTRSDCfg
         tools += [ result.popToolsAndMerge(CosmicTRSDCfg(ConfigFlags)) ]
     result.setPrivateTools(tools)
@@ -255,7 +255,7 @@ def TestBeamSensitiveDetectorListCfg(ConfigFlags):
 
     if "tb_Tile2000_2003" in ConfigFlags.GeoModel.AtlasVersion:
         if ConfigFlags.Detector.EnableTile:
-            if ConfigFlags.Sim.CalibrationRun in ['Tile', 'LAr+Tile']:
+            if ConfigFlags.Sim.CalibrationRun in [CalibrationRun.Tile, CalibrationRun.LArTile]:
                 from TileGeoG4Calib.TileGeoG4CalibConfigNew import TileCTBGeoG4CalibSDCfg
                 tools += [ result.popToolsAndMerge(TileCTBGeoG4CalibSDCfg(ConfigFlags)) ] # mode 1 : With CaloCalibrationHits
             else:
@@ -277,10 +277,10 @@ def TestBeamSensitiveDetectorListCfg(ConfigFlags):
     if ConfigFlags.Detector.EnableLAr:
         from LArG4SD.LArG4SDToolConfig import LArEMBSensitiveDetectorCfg
         tools += [ result.popToolsAndMerge(LArEMBSensitiveDetectorCfg(ConfigFlags)) ]
-        if 'LAr' in ConfigFlags.Sim.CalibrationRun:
+        if ConfigFlags.Sim.CalibrationRun in [CalibrationRun.LAr, CalibrationRun.LArTile, CalibrationRun.DeadLAr]:
             tools += [ 'LArH8CalibSensitiveDetector' ] # mode 1 : With CaloCalibrationHits
     if ConfigFlags.Detector.EnableTile:
-        if ConfigFlags.Sim.CalibrationRun in ['Tile', 'LAr+Tile']:
+        if ConfigFlags.Sim.CalibrationRun in [CalibrationRun.Tile, CalibrationRun.LArTile]:
             from TileGeoG4Calib.TileGeoG4CalibConfigNew import TileCTBGeoG4CalibSDCfg
             tools += [ result.popToolsAndMerge(TileCTBGeoG4CalibSDCfg(ConfigFlags)) ] # mode 1 : With CaloCalibrationHits
         else:

@@ -3,10 +3,10 @@
 */
 #include "../MuonPerformanceAlg.h"
 #include "../MuonSegmentPerformanceAlg.h"
-#include "MuonTrackPerformance/MuonRecoValidationTool.h"
-#include "MuonTrackPerformance/MuonTrackPerformanceAlg.h"
-#include "MuonTrackPerformance/MuonTrackStatisticsAlg.h"
-#include "MuonTrackPerformance/MuonTrackStatisticsTool.h"
+#include "../MuonRecoValidationTool.h"
+#include "../MuonTrackPerformanceAlg.h"
+#include "../MuonTrackStatisticsAlg.h"
+#include "../MuonTrackStatisticsTool.h"
 
 using namespace Muon;
 

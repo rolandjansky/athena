@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.transform
 #
@@ -811,10 +811,13 @@ class transform(object):
             msg.info('Standard output file validation turned off for transform %s.', self.name)
         else:
             msg.info('Validating output files')
+            parparallelMode = False
+            parmultithreadedMode = False
             if 'parallelFileValidation' in self._argdict:
-                trfValidation.performStandardFileValidation(dictionary=self._dataDictionary, io='output', parallelMode=self._argdict['parallelFileValidation'].value )
-            else:
-                trfValidation.performStandardFileValidation(dictionary=self._dataDictionary, io='output')
+                parparallelMode = self._argdict['parallelFileValidation'].value
+            if 'multithreadedFileValidation' in self._argdict:
+                parmultithreadedMode = self._argdict['multithreadedFileValidation'].value
+            trfValidation.performStandardFileValidation(dictionary=self._dataDictionary, io='output', parallelMode=parparallelMode, multithreadedMode=parmultithreadedMode)
 
         self._outFileValidationStop = os.times()
         msg.debug('outFileValidationStop time is {0}'.format(self._outFileValidationStop))

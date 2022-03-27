@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -27,6 +27,8 @@ def get_parser():
     parser.add_argument('-s', '--skip',
                         metavar='N', action='store', type=int,
                         help='Skip N events')
+    parser.add_argument('--ctp', nargs="?", metavar="MODULE_ID", default=False, const=1,
+                        help="CTP ROB details of ROB with MODULE_ID [default=%(const)s]")
     parser.add_argument('--l1',
                         action='store_true', default=False,
                         help='L1 trigger bits (from event header)')
@@ -74,6 +76,37 @@ def header_info(event):
     info_str += 'LVL1_ID: {:10d}, '.format(event.lvl1_id())
     info_str += 'BC_ID: {:4d}, '.format(event.bc_id())
     info_str += 'TT: x{:2x}'.format(event.lvl1_trigger_type())
+    return info_str
+
+
+def ctp_rob(event, module_id=1):
+    '''Return a string with information from the CTP ROB'''
+
+    ctp_robs = [rob for rob in event \
+                if rob.source_id().subdetector_id() == eformat.helper.SubDetector.TDAQ_CTP \
+                and rob.source_id().module_id()==module_id]
+
+    if len(ctp_robs)==0:
+        log.warning('No CTP ROB found')
+        return ''
+
+    assert len(ctp_robs)==1
+    rob = ctp_robs[0]
+
+    from TrigByteStreamTools import CTPfragment
+    x = CTPfragment.getExtraPayloadObject(rob)
+    info_str = (f'ROB 0x{rob.source_id().code():x}, '
+                f'L1ID {event.lvl1_id():10d}, '
+                f'LB {event.lumi_block():4d}, '
+                f'Version {CTPfragment.ctpFormatVersion(rob)}, '
+                f'Bunch {CTPfragment.lvl1AcceptBunch(rob)}, '
+                f'HLT counter: {CTPfragment.hltCounter(rob):3d}, '
+                f'Payload #{CTPfragment.numberHltExtraPayloadWords(rob)} '
+                f'{CTPfragment.hltExtraPayloadWords(rob)} '
+                f'L1PSK {x.getL1PSK()} BGK {x.getBGK()}')
+    folderUpdates = CTPfragment.getFolderUpdates(x)
+    if len(folderUpdates)>0:
+        info_str += ' COOLUPD '+''.join([f'[{f.second.folderIndex}, {f.second.lumiBlock}]' for f in folderUpdates])
     return info_str
 
 
@@ -149,9 +182,8 @@ def hlt_result(event, print_sizes=False, conf_keys=False):
         if print_sizes or conf_keys:
             if version[0] < 1:
                 raise RuntimeError('Cannot decode data from before Run 3, HLT ROD minor version needs to be >= 1.0')
-            raw_data = tuple(rob.rod_data())
             skip_payload = not conf_keys
-            collections = hltResultMT.get_collections(raw_data, skip_payload=skip_payload)
+            collections = hltResultMT.get_collections(rob, skip_payload=skip_payload)
             if conf_keys:
                 conf_list = [c for c in collections if 'xAOD::TrigConfKeys_v' in c.name_persistent]
                 conf_available = False
@@ -199,8 +231,7 @@ def size_summary(events):
             data[module]['total'] += rob.fragment_size_word()*4
             if 'collections' not in data[module].keys():
                 data[module]['collections'] = {}
-            raw_data = tuple(rob.rod_data())
-            for coll in hltResultMT.get_collections(raw_data, skip_payload=True):
+            for coll in hltResultMT.get_collections(rob, skip_payload=True):
                 coll_name = coll.name()
                 if coll_name in data[module]['collections'].keys():
                     data[module]['collections'][coll_name] += coll.size_bytes
@@ -222,7 +253,6 @@ def size_summary(events):
             info_str += '\n---- {:{width}} {:12d} B {:12.3f} B/ev'.format(
                 coll_name, coll_size, coll_size_per_evt, width=max_name_len)
     return info_str
-
 
 def dump_info(bsfile, args):
     log.info('Opening %s', bsfile)
@@ -249,6 +279,10 @@ def dump_info(bsfile, args):
         print('{sep:s} Event: {:{width}d}, {:s} {sep:s}'.format(
               event_count, header_info(event),
               sep='='*20, width=len(str(max_events))))
+
+        # Print CTP ROB
+        if args.ctp is not False:
+            print(ctp_rob(event, 1))
 
         # Print L1/L2/HLT bits
         if args.l1:

@@ -1101,7 +1101,7 @@ namespace VKalVrtAthena {
     
     auto* pattern = new ExtrapolatedPattern;
     const EventContext& ctx = Gaudi::Hive::currentContext();
-    std::vector<std::unique_ptr<const Trk::TrackParameters>> paramsVector =
+    std::vector<std::unique_ptr<Trk::TrackParameters>> paramsVector =
       m_extrapolator->extrapolateBlindly(ctx, trk->perigeeParameters(), direction);
 
     TVector3 prevPos( AlgConsts::invalidFloat, AlgConsts::invalidFloat, AlgConsts::invalidFloat );

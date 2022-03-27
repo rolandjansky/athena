@@ -3,7 +3,6 @@
 */
 
 #include "eflowRec/eflowTrackCaloExtensionTool.h"
-#include "eflowRec/eflowTrackCaloDummyExtensionTool.h"
 #include "eflowRec/PFTrackClusterMatchingTool.h"
 #include "eflowRec/eflowCellEOverPTool_Run2_mc20_JetETMiss.h"
 #include "eflowRec/eflowCellEOverPTool_mc12_JetETMiss.h"
@@ -22,7 +21,6 @@
 #include "eflowRec/PFLCCalibTool.h"
 #include "eflowRec/PFOChargedCreatorAlgorithm.h"
 #include "eflowRec/PFONeutralCreatorAlgorithm.h"
-#include "eflowRec/PFEGammaPFOAssoc.h"
 #include "eflowRec/PFMuonFlowElementAssoc.h"
 #include "eflowRec/PFEGamFlowElementAssoc.h"
 #include "eflowRec/PFTauFlowElementAssoc.h"
@@ -31,7 +29,6 @@
 #include "../PFTrackMuonIsoTaggingAlg.h"
 
 DECLARE_COMPONENT( PFLeptonSelector )
-DECLARE_COMPONENT( PFEGammaPFOAssoc )
 DECLARE_COMPONENT( PFClusterSelectorTool )
 DECLARE_COMPONENT( PFTrackSelector )
 DECLARE_COMPONENT( PFAlgorithm )
@@ -45,7 +42,6 @@ DECLARE_COMPONENT( PFMomentCalculatorTool )
 DECLARE_COMPONENT( PFClusterCollectionTool )
 DECLARE_COMPONENT( PFLCCalibTool )
 DECLARE_COMPONENT( eflowTrackCaloExtensionTool )
-DECLARE_COMPONENT( eflowTrackCaloDummyExtensionTool )
 DECLARE_COMPONENT( PFTrackClusterMatchingTool )
 DECLARE_COMPONENT( eflowCellEOverPTool_Run2_mc20_JetETMiss)
 DECLARE_COMPONENT( eflowCellEOverPTool_mc12_JetETMiss)

@@ -104,7 +104,7 @@ class L1MenuConfig(object):
                 log.error("No topo output %s is registered. Make sure it is defined in L1/Config/TopoAlgoDef.py", name)
             else:
                 isLegacy = any(filter(lambda x: name.startswith(x), ["EM", "TAU", "J", "XE", "TE", "XS"]))
-                log.error("No threshold %s is registered. Make sure it is defined in L1/Config/ThresholdDef%s.py", (name,"Legacy" if isLegacy else ""))
+                log.error("No threshold %s is registered. Make sure it is defined in L1/Config/ThresholdDef%s.py", name,"Legacy" if isLegacy else "")
             raise ex
 
     def getDefinedThresholds(self):
@@ -614,7 +614,7 @@ class L1MenuConfig(object):
                 if thrName not in self.l1menu.thresholds:
                     isLegacyThr = any(filter(lambda x: thrName.startswith(x), ["R2TOPO_", "EM", "HA", "J", "XE", "TE", "XS"]))
 
-                    msg = "L1 item {item} has been added to the menu L1/Menu/Menu_{menu}.py, but the required threshold {thr} is not listed as input in L1/Menu/Menu_{menu}.py".format(item=itemName, thr=thrName, menu=self.menuFilesToLoad[2] if isLegacyThr else self.menuFilesToLoad[1])
+                    msg = "L1 item {item} has been added to the menu L1/Menu/Menu_{menu}.py, but the required threshold {thr} is not listed as input in L1/Menu/Menu_{menu_inputs}.py".format(item=itemName, thr=thrName, menu=self.menuFilesToLoad[0], menu_inputs=self.menuFilesToLoad[2] if isLegacyThr else self.menuFilesToLoad[1])
                     log.error(msg)
                     raise RuntimeError(msg)
 
@@ -633,6 +633,8 @@ class L1MenuConfig(object):
                 item.setTriggerType( item.trigger_type | TT.phys )
             # assign ctp IDs to items that don't have one
             if item.ctpid == -1:
+                if len(available_ctpids)==0:
+                    raise RuntimeError("No more CTP IDs available at L1!!")
                 item.setCtpid( available_ctpids.pop() )
             # add the items into the menu
             self.l1menu.addItem( item )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -235,7 +235,7 @@ PixelIDDetDescrCnv::classID() {
 PixelIDDetDescrCnv::PixelIDDetDescrCnv(ISvcLocator* svcloc) 
     :
     DetDescrConverter(ClassID_traits<PixelID>::ID(), svcloc),
-    m_pixelId(0),
+    m_pixelId(nullptr),
     m_doChecks(false)
 
 {}

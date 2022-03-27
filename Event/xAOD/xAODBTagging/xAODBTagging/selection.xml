@@ -11,6 +11,8 @@
    <!-- xAOD::BTagging auxiliary type(s). -->
    <class name="xAOD::BTaggingAuxContainer_v1"
           id="5E1973D2-D860-4BB1-B8EF-C9AD8E6C66A2" />
+   <class name="xAOD::BTaggingAuxContainer_v2"
+          id="8f6980e6-89c3-11ec-8c7c-0242ac110002" />
    <class name="xAOD::BTaggingTrigAuxContainer_v1"
           id="1B738105-2F3E-4DCB-9DAE-DA3A4964486E" />
    <typedef name="xAOD::BTaggingAuxContainer" />

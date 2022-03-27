@@ -34,15 +34,15 @@ LVL1::jFEXLargeRJetAlgo::~jFEXLargeRJetAlgo()
 }
 StatusCode LVL1::jFEXLargeRJetAlgo::initialize()
 {
-   ATH_CHECK(m_jFEXLargeRJetAlgo_jTowerContainerKey.initialize());
+   ATH_CHECK(m_jTowerContainerKey.initialize());
 
    return StatusCode::SUCCESS;
 
 }
 StatusCode LVL1::jFEXLargeRJetAlgo::safetyTest(){
-  SG::ReadHandle<jTowerContainer> jk_jFEXLargeRJetAlgo_jTowerContainer(m_jFEXLargeRJetAlgo_jTowerContainerKey);
-  if(! jk_jFEXLargeRJetAlgo_jTowerContainer.isValid()){
-    ATH_MSG_FATAL("Could not retrieve  jk_jFEXLargeRJetAlgo_jTowerContainer " << m_jFEXLargeRJetAlgo_jTowerContainerKey.key());
+  SG::ReadHandle<jTowerContainer> jTowerContainer(m_jTowerContainerKey);
+  if(! jTowerContainer.isValid()){
+    ATH_MSG_FATAL("Could not retrieve container " << m_jTowerContainerKey.key());
     return StatusCode::FAILURE;
   }  
   return StatusCode::SUCCESS;

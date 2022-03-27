@@ -5,6 +5,10 @@ import json
 import six
 import xml.etree.ElementTree as ET
 from collections import OrderedDict as odict
+import coral
+
+from AthenaCommon.Logging import logging
+log = logging.getLogger('TriggerConfigAccessBase.py')
 
 def getFileType(filename):
     filetype = "unknown"
@@ -87,12 +91,14 @@ class ConfigDBLoader(ConfigLoader):
         self.dbkey = dbkey
         self.query = None
         self.schema = None
+
     def setQuery(self, query):
         """
-        query template can be a single query or a list of queries (to deal with different schemata)
-        (internally stored as list of queries, which are tried in order)
+        query template is a dictionary of queries, identified by schema version, 
+        similar to TrigConf::TrigDBMenuLoader::m_hltQueries and TrigConf::TrigDBMenuLoader::m_l1Queries
         """
-        self.query = [ query ] if isinstance(query,six.string_types) else query
+        self.query = query
+
     @staticmethod
     def getResolvedFileName(filename, pathenv=""):
         """ looks for file, first absolute, then by resolving envvar pathenv"""
@@ -104,6 +110,7 @@ class ConfigDBLoader(ConfigLoader):
             if os.access( f, os.R_OK ):
                 return f
         raise RuntimeError("Can't read file %s, neither locally nor in %s" % (filename, pathenv) )
+
     @staticmethod
     def getConnectionParameters(dbalias):
         dblookupFile = ConfigDBLoader.getResolvedFileName("dblookup.xml", "CORAL_DBLOOKUP_PATH")
@@ -138,58 +145,159 @@ class ConfigDBLoader(ConfigLoader):
             if count>1:
                 raise RuntimeError("More than 1 connection found in %s for service %s" % (authFile, svc))
         return credentials
+
     @staticmethod
-    def getConnection(credentials):
-        for connSvc, userpw in credentials.items():
-            try:
-                if connSvc.startswith("oracle:"):
-                    from cx_Oracle import connect
-                    [tns,schema] = connSvc.split("/")[-2:]
-                    cursor = connect(userpw["user"], userpw["password"], tns, threaded=False).cursor()
-                    return cursor, schema
-                if connSvc.startswith("frontier:"):
-                    import re, os
-                    pattern = r"frontier://ATLF/\(\)/(.*)"
-                    m = re.match(pattern,connSvc)
-                    if not m:
-                        raise RuntimeError("connection string '%s' doesn't match the pattern '%s'?" % (connSvc, pattern))
-                    (schema, ) = m.groups()
+    def getSchema(connStr):
+        ''' Read schema from connection string '''
+        if connStr.startswith("oracle:"):
+            [_, schema] = connStr.split("/")[-2:]
+            return schema
 
-                    from TrigConfigSvc.TrigConfFrontier import getFrontierCursor
-                    cursor = getFrontierCursor(urls = os.getenv('FRONTIER_SERVER', None), schema = schema, loglevel=2)
-                    cursor.encoding = "latin-1"
-                    return cursor, schema
-                if connSvc.startswith("sqlite_file:"):
-                    raise NotImplementedError("Python-loading of trigger configuration from sqlite has not yet been implemented")
-            except Exception as e:
-                raise RuntimeError(e)
+        if connStr.startswith("frontier:"):
+            import re
+            pattern = r"frontier://ATLF/\(\)/(.*)"
+            m = re.match(pattern, connStr)
+            if not m:
+                raise RuntimeError("connection string '%s' doesn't match the pattern '%s'?" % (connStr, pattern))
+            (schema, ) = m.groups()
+            return schema
 
+        if connStr.startswith("sqlite_file:"):
+            raise NotImplementedError("Python-loading of trigger configuration from sqlite has not yet been implemented")
+
+    @staticmethod
+    def readSchemaVersion(qdict, session):
+        ''' Read schema version form database, based on TrigConf::TrigDBLoader::schemaVersion '''
+        try:
+            q = "SELECT TS_TAG FROM {schema}.TRIGGER_SCHEMA TS"
+            query = ConfigDBLoader.getCoralQuery(session, q.format(**qdict))
+            cursor = query.execute()
+            cursor.next()
+
+            versionTag = cursor.currentRow()[0].data()
+
+            versionTagPrefix = "Trigger-Run3-Schema-v"
+            if not versionTag.startswith(versionTagPrefix):
+                raise RuntimeError( "Tag format error: Trigger schema version tag {0} does not start with {1}".format(versionTag, versionTagPrefix))   
+
+            vstr = versionTag[len(versionTagPrefix)]
+
+            if not vstr.isdigit():
+                raise RuntimeError( "Invalid argument when interpreting the version part {0} of schema tag {1} is {2}".format(vstr, versionTag, type(vstr))) 
+
+            log.info("Found schema version {0}".format(vstr))
+            return int(vstr)
+
+        except Exception as e:
+            log.warning("Failed to read schema version: {0}".format(e))
+
+    @staticmethod
+    def getCoralQuery(session, queryStr):
+        ''' Parse output, tables and contidion from the query string into coral query object'''
+        query = session.nominalSchema().newQuery()
+
+        output = queryStr.split("SELECT")[1].split("FROM")[0]
+        query.addToOutputList(output)
+
+        for table in queryStr.split("FROM")[1].split("WHERE")[0].split(","):
+            tableSplit = list(filter(None, table.split(" ")))
+            query.addToTableList(tableSplit[0].split(".")[1], tableSplit[1])
+
+        if "WHERE" in queryStr:
+            query.setCondition(queryStr.split("WHERE")[1], coral.AttributeList())
+
+        return query
+
+    def getQueryDefinition(self, schemaVersion):
+        '''Choose query based on schema version, based on TrigConf::TrigDBLoader::getQueryDefinition '''
+        maxDefVersion = 0
+        for vkey in self.query.keys():
+            if vkey>maxDefVersion and vkey<=schemaVersion:
+                maxDefVersion = vkey
+
+        if maxDefVersion == 0:
+            raise RuntimeError("No query available for schema version {0}".format(schemaVersion))
+
+        return self.query[maxDefVersion]
 
     def load(self):
-        from cx_Oracle import DatabaseError
         credentials = ConfigDBLoader.getConnectionParameters(self.dbalias)
-        cursor, self.schema = ConfigDBLoader.getConnection(credentials)
-        qdict = { "schema" : self.schema, "dbkey" : self.dbkey }
-        failures = []
-        config = None
-        for q in self.query:
+
+        svc = coral.ConnectionService() 
+        svcconfig = svc.configuration()
+        svcconfig.disablePoolAutomaticCleanUp()
+        svcconfig.setConnectionTimeOut(0)
+
+        for credential in credentials:
+            log.info("Trying credentials {0}".format(credential))
+
+            try: 
+                session = svc.connect(credential, coral.access_ReadOnly)
+            except Exception as e:
+                log.warning("Failed to establish connection: {0}".format(e))
+                continue
+
             try:
-                cursor.execute( q.format(**qdict) )
-            except DatabaseError as e:
-                failures += [ (q.format(**qdict), str(e)) ]
-            else:
-                configblob = cursor.fetchall()[0][0]
-                # Decode oracle result
+                # Check that the FRONTIER_SERVER is set properly, if not reduce the retrial period and time out values
+                if not ('FRONTIER_SERVER' in os.environ and os.environ['FRONTIER_SERVER']):
+                    svcconfig.setConnectionRetrialPeriod(1)
+                    svcconfig.setConnectionRetrialTimeOut(1)
+                else:
+                    svcconfig.setConnectionRetrialPeriod(300)
+                    svcconfig.setConnectionRetrialTimeOut(3600)
+
+                session.transaction().start(True) # readOnly
+                schema = ConfigDBLoader.getSchema(credential)
+                qdict = { "schema" : schema, "dbkey" : self.dbkey }
+                
+                # Choose query basen on schema
+                schemaVersion = ConfigDBLoader.readSchemaVersion(qdict, session)
+                qstr = self.getQueryDefinition(schemaVersion)
+
+                query = ConfigDBLoader.getCoralQuery(session, qstr.format(**qdict))
+
+                cursor = query.execute()
+
+                # Read query result
+                cursor.next()
+                configblob = cursor.currentRow()[0].data()
                 if type(configblob) != str:
-                    configblob = configblob.read().decode("utf-8")
+                    configblob = configblob.readline()
                 config = json.loads(configblob, object_pairs_hook = odict)
-                break
-        if not config:
-            for q,f in failures:
-                print("Failed query: %s\nFailure: %s" % (q,f))
-            raise RuntimeError("Query failed")
-        self.confirmConfigType(config)
-        return config
+                session.transaction().commit()
+                
+                self.confirmConfigType(config)
+                return config       
+            except Exception as e:
+                log.warning("Failed to execute query: {0}".format(e))
+                ConfigDBLoader.readMaxTableKey(qstr, qdict, session)
+                session.transaction().commit()
+
+        raise RuntimeError("Query failed")
+
+
+    @staticmethod
+    def readMaxTableKey(q, qdict, session):
+        ''' Read highest available key in table, based on the query'''
+        try:
+            # Create query - remove last condition for the key value and add it in begining as "SELECT MAX"
+            id_str = q.split("WHERE")[1].split("AND")[-1].split("=")[0]
+
+            q_formatted = "SELECT MAX(" + id_str + ") FROM " + q.split("FROM")[1].split("WHERE")[0]
+
+            # If there are multiple "where" conditions add them back to the query
+            if "AND" in q.split("WHERE")[1]:
+                q_formatted += " WHERE " + q.split("WHERE")[1].rsplit('AND', 1)[0]
+
+            query = ConfigDBLoader.getCoralQuery(session, q_formatted.format(**qdict))
+            cursor = query.execute()
+            cursor.next()
+
+            log.info("Highest available key is {0}".format(int(cursor.currentRow()[0].data())))
+        except Exception as e:
+            log.warning("Failed to read maximum available key: {0}".format(e))
+
+
     # proposed filename when writing config to file
     def getWriteFilename(self):
         return "{basename}_{schema}_{dbkey}.json".format(basename = self.configType.basename, schema = self.schema, dbkey = self.dbkey)
@@ -247,12 +355,11 @@ class TriggerConfigAccess(object):
 
     def printSummary(self):
         """ print summary info, should be overwritten by derived classes """
-        print("Configuration name: %s" % self.name())
-        print("Configuration size: %s" % len(self))
-
+        log.info("Configuration name: {0}".format(self.name()))
+        log.info("Configuration size: {0}".format(len(self)))
     def writeFile(self, filename = None):
         if filename is None:
             filename = self.loader.getWriteFilename()
         with open(filename, 'w') as fh:
             json.dump(self.config(), fh, indent = 4, separators=(',', ': '))
-            print("Wrote file %s" % filename)
+            log.info("Wrote file {0}".format(filename))

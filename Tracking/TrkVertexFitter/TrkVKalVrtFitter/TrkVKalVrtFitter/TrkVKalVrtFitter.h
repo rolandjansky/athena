@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // TrkVKalVrtFitter.h
@@ -234,7 +234,7 @@ namespace Trk{
         virtual
         Trk::Track* CreateTrkTrack(const std::vector<double>& VKPerigee,
                                    const std::vector<double>& VKCov,
-                                   const IVKalState& istate) const override final;
+                                   IVKalState& istate) const override final;
 
         virtual StatusCode VKalGetTrkWeights(
           dvect& Weights,
@@ -242,7 +242,7 @@ namespace Trk{
 
         virtual StatusCode VKalGetFullCov(long int,
                                           dvect& CovMtx,
-                                          const IVKalState& istate,
+                                          IVKalState& istate,
                                           bool = false) const override final;
 
         virtual StatusCode VKalGetMassError(
@@ -506,7 +506,7 @@ namespace Trk{
                                      const dvect&,
                                      const std::vector<dvect>&,
                                      double,
-                                     const State& state) const;
+                                     State& state) const;
 
         StatusCode CvtTrkTrack(const std::vector<const Track*>& list,
                                int& ntrk,
@@ -558,7 +558,7 @@ namespace Trk{
                                double Vz,
                                const std::vector<double>& VKPerigee,
                                const std::vector<double>& VKCov,
-                               const State& state) const;
+                               State& state) const;
 
         //
         //

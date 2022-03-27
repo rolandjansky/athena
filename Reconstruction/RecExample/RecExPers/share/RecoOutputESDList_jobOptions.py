@@ -46,15 +46,6 @@ fullESDList += CfgItemList( "EventAthenaPool",
 # DetectorStatus
 #obsolete fullESDList += [ "DetStatusMap#DetectorStatus" ]
 
-# RawInfoSummaryForTag
-try:
-    fullItemList = []
-    protectedInclude ( "EventTagAthenaPOOL/EventTagAthenaPOOLItemList_joboptions.py")
-    fullESDList += CfgItemList( "EventTagAthenaPOOL",
-                                items = fullItemList,
-                                allowWildCard = True )
-except Exception:
-    treatException("Could not include EventTagAthenaPOOL/EventTagAthenaPOOLItemList_joboptions.py")
     
 # MC Event Collection. Should be moved to a separate jobO
 if rec.doTruth():
@@ -237,7 +228,9 @@ if rec.doHeavyIon():
 # remove decorations that might be created by monitoring
 if rec.doMonitoring():
     fullESDList += CfgItemList( "MonitoringEsd", 
-                                items = ["xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.-jetClean_LooseBad"]
+                                items = ["xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.-jetClean_LooseBad",
+                                         "xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.-passJvt",
+                                         "xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.-passOR"]
                               )
 
 ## StreamESD_Augmented.AddItem( "RecoTimingObj#RAWtoESD_timings" )

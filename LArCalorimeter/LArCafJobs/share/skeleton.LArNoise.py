@@ -133,8 +133,8 @@ ConfigFlags = getNewConfigFlags()
 ConfigFlags.Trigger.readBS = False
 ConfigFlags.Trigger.doID = False
 
-from TriggerJobOpts.TriggerRecoGetter import TriggerRecoGetter
-triggerGetter = TriggerRecoGetter()
+from TriggerJobOpts.T0TriggerGetter import T0TriggerGetter
+triggerGetter = T0TriggerGetter()
 
 #from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
 #cfg =  TriggerConfigGetter("ReadPool")

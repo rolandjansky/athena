@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DiTauRec/IDVarCalculator.h"
@@ -69,7 +69,7 @@ StatusCode IDVarCalculator::execute(DiTauCandidateData * data,
 
   // write subjets
   for (unsigned int i = 0; i < vSubjets.size(); i++) {
-    fastjet::PseudoJet subjet = vSubjets.at(i);
+    const fastjet::PseudoJet& subjet = vSubjets.at(i);
     pDiTau->setSubjetPtEtaPhiE(i, subjet.pt(), subjet.eta(), subjet.phi_std(), subjet.e());
     ATH_MSG_DEBUG("subjet " << i << " pt: " << subjet.pt() << " eta: " << subjet.eta() << " phi: " << subjet.phi_std() << " e: " << subjet.e());
   }
@@ -85,7 +85,7 @@ StatusCode IDVarCalculator::execute(DiTauCandidateData * data,
   float f_core;
   float dR;
   for (unsigned int i = 0; i < vSubjets.size(); i++) {
-    fastjet::PseudoJet subjet = vSubjets.at(i);
+    const fastjet::PseudoJet& subjet = vSubjets.at(i);
     float ptAll = 0.;
     float ptCore = 0.;
 
@@ -100,6 +100,7 @@ StatusCode IDVarCalculator::execute(DiTauCandidateData * data,
       }
     }
 
+    // FIXME: why require ptCore != 0
     if (ptAll != 0. && ptCore != 0.)
       f_core = ptCore/ptAll;
     else 

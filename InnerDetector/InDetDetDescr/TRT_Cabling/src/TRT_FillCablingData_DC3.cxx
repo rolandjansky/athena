@@ -35,7 +35,7 @@
 
 #undef ENDCAP_DEFINED
 
-#include <stdio.h>
+#include <cstdio>
 
 #include <iostream>
 #include "TRT_FillCablingData_DC3.h"
@@ -58,7 +58,7 @@ static const InterfaceID IID_ITRT_FillCablingData_DC3
   // Constructor
 TRT_FillCablingData_DC3::TRT_FillCablingData_DC3( const std::string& type, const std::string& 
 name,const IInterface* parent ):  AthAlgTool(type,name,parent),
-    m_TRTHelper(0), 
+    m_TRTHelper(nullptr), 
     m_PartialDetector(false)
 {
   declareInterface< TRT_FillCablingData_DC3 >( this );  
@@ -216,7 +216,7 @@ void TRT_FillCablingData_DC3::defineTables()
      int RodChannel, DtmChannel, strawnumber, HWaddr, GolNumber;
      string Board;
 
-     string::size_type loc = thisLine.find( "#" );
+     string::size_type loc = thisLine.find( '#' );
      if ( loc != string::npos )
      {
 	thisLine.replace( loc, thisLine.length(), 1, ' ' );
@@ -265,7 +265,7 @@ void TRT_FillCablingData_DC3::defineTables()
      int RodChannel, DtmChannel, strawnumber, HWaddr, GolNumber;
      string Board;
 
-     string::size_type loc = thisLine.find( "#" );
+     string::size_type loc = thisLine.find( '#' );
      if ( loc != string::npos )
      {
 	thisLine.replace( loc, thisLine.length(), 1, ' ' );
@@ -325,7 +325,7 @@ void TRT_FillCablingData_DC3::defineTables()
     int wheel, dtmaddr, dtmchannel, zlayer, phistraw, rodhalf, strawNumber;
 
 
-    string::size_type loc = thisLine.find( "#" );
+    string::size_type loc = thisLine.find( '#' );
     if ( loc != string::npos )
     {
       thisLine.replace( loc, thisLine.length(), 1, ' ' );
@@ -393,7 +393,7 @@ void TRT_FillCablingData_DC3::defineTables()
     int wheel, dtmaddr, dtmchannel, zlayer, phistraw, rodhalf, strawNumber;
 
 
-    string::size_type loc = thisLine.find( "#" );
+    string::size_type loc = thisLine.find( '#' );
     if ( loc != string::npos )
     {
       thisLine.replace( loc, thisLine.length(), 1, ' ' );
@@ -457,7 +457,7 @@ void TRT_FillCablingData_DC3::defineTables()
     int wheel, dtmaddr, dtmchannel, zlayer, phistraw, rodhalf, strawNumber;
 
 
-    string::size_type loc = thisLine.find( "#" );
+    string::size_type loc = thisLine.find( '#' );
     if ( loc != string::npos )
     {
       thisLine.replace( loc, thisLine.length(), 1, ' ' );
@@ -525,7 +525,7 @@ void TRT_FillCablingData_DC3::defineTables()
     int wheel, dtmaddr, dtmchannel, zlayer, phistraw, rodhalf, strawNumber;
 
 
-    string::size_type loc = thisLine.find( "#" );
+    string::size_type loc = thisLine.find( '#' );
     if ( loc != string::npos )
     {
       thisLine.replace( loc, thisLine.length(), 1, ' ' );
@@ -595,7 +595,7 @@ void TRT_FillCablingData_DC3::defineTables()
         {
 	   uint32_t SourceId;
 
-	   string::size_type loc = thisLine.find( "#" );
+	   string::size_type loc = thisLine.find( '#' );
 	   if ( loc != string::npos )
            {
 	      thisLine.replace( loc, thisLine.length(), 1, ' ' );
@@ -1183,7 +1183,7 @@ void TRT_FillCablingData_DC3::defineTables_broken_FDR()
      int RodChannel, DtmChannel, strawnumber, HWaddr, GolNumber;
      string Board;
 
-     string::size_type loc = thisLine.find( "#" );
+     string::size_type loc = thisLine.find( '#' );
      if ( loc != string::npos )
      {
 	thisLine.replace( loc, thisLine.length(), 1, ' ' );
@@ -1229,7 +1229,7 @@ void TRT_FillCablingData_DC3::defineTables_broken_FDR()
      int RodChannel, DtmChannel, strawnumber, HWaddr, GolNumber;
      string Board;
 
-     string::size_type loc = thisLine.find( "#" );
+     string::size_type loc = thisLine.find( '#' );
      if ( loc != string::npos )
      {
 	thisLine.replace( loc, thisLine.length(), 1, ' ' );
@@ -1489,7 +1489,7 @@ void TRT_FillCablingData_DC3::defineTables_broken_FDR()
         {
 	   uint32_t SourceId;
 
-	   string::size_type loc = thisLine.find( "#" );
+	   string::size_type loc = thisLine.find( '#' );
 	   if ( loc != string::npos )
            {
 	      thisLine.replace( loc, thisLine.length(), 1, ' ' );

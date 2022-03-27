@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT2CALOCALIBRATION_EGAMMATRANSITIONREGIONS
@@ -40,10 +40,9 @@ class EgammaTransitionRegions  :
 		this interface. In some cases, the tool needs
 		more than the cluster to perform the calibration.
 		This can be passed via the void pointer */
-	virtual void makeCorrection(xAOD::TrigEMCluster*, const void* v=nullptr) override;
+	virtual void makeCorrection(xAOD::TrigEMCluster*, const void* v=nullptr) const override;
 
 	private:
-	MsgStream* m_log;
 	// Correction Variables
         Constant<CxxUtils::Array<2> >  m_correction  { this, "correction" };
         Constant<float>                m_etamin_TR00 { this, "etamin_TR00" };

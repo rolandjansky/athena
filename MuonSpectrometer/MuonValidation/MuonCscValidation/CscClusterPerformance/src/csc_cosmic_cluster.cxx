@@ -22,8 +22,8 @@
 #include <vector>
 #include "TTree.h"
 #include "TTreeIndex.h"
-#include "CscClusterPerformance/SimposAccessor.h"
-#include "CscClusterPerformance/ClusterAccessor.h"
+#include "SimposAccessor.h"
+#include "ClusterAccessor.h"
 #include <cmath>
 
 // To build a exe that only generates the ROOTT interface classes.
@@ -326,5 +326,5 @@ int main(int narg, char* argv[]) {
 
 // Build the skeleton functions.
 #define ClusterAccessor_cxx
-#include "CscClusterPerformance/ClusterAccessor.h"
+#include "ClusterAccessor.h"
 void ClusterAccessor::Loop() { }

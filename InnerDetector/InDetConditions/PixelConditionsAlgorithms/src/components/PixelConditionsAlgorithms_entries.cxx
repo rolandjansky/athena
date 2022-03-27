@@ -3,6 +3,7 @@
 #include "../PixelDCSCondStatusAlg.h"
 #include "../PixelDCSCondStateAlg.h"
 #include "../PixelConfigCondAlg.h"
+#include "../PixelModuleConfigCondAlg.h"
 #include "../PixelDeadMapCondAlg.h"
 #include "../PixelChargeCalibCondAlg.h"
 #include "../PixelChargeLUTCalibCondAlg.h"
@@ -24,6 +25,7 @@ DECLARE_COMPONENT( PixelDCSCondTempAlg )
 DECLARE_COMPONENT( PixelDCSCondStatusAlg )
 DECLARE_COMPONENT( PixelDCSCondStateAlg )
 DECLARE_COMPONENT( PixelConfigCondAlg )
+DECLARE_COMPONENT( PixelModuleConfigCondAlg )
 DECLARE_COMPONENT( PixelDeadMapCondAlg )
 DECLARE_COMPONENT( PixelChargeCalibCondAlg )
 DECLARE_COMPONENT( PixelChargeLUTCalibCondAlg )

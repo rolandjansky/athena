@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -195,7 +195,7 @@ SiliconIDDetDescrCnv::classID() {
 SiliconIDDetDescrCnv::SiliconIDDetDescrCnv(ISvcLocator* svcloc) 
     :
     DetDescrConverter(ClassID_traits<SiliconID>::ID(), svcloc),
-    m_siliconId(0)
+    m_siliconId(nullptr)
 
 {}
 

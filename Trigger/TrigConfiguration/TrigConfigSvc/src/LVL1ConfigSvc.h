@@ -31,8 +31,6 @@ namespace TrigConf {
     Gaudi::Property<std::string> m_l1FileName{this, "JsonFileName", "",
       "file name of L1 json file, needed if InputType is FILE"};
 
-    Gaudi::Property<std::string> m_bgsFileName{this, "JsonFileNameBGS", "",
-      "file name of Bunchgroupset json file, needed if InputType is FILE"};
 
     Gaudi::Property<std::string> m_dbConnection{this, "TriggerDB", "TRIGGERDB",
       "DB connection alias, needed if InputType is DB"};
@@ -40,8 +38,6 @@ namespace TrigConf {
     Gaudi::Property<unsigned int> m_smk{this, "SMK", 0,
       "DB smk, needed if InputType is DB"};
 
-    Gaudi::Property<unsigned int> m_bgsk{this, "BGSK", 0,
-      "DB bunchgroup key if InputType is DB"};
   };
 
 } // namespace TrigConf

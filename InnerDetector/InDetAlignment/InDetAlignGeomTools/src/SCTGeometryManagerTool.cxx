@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthContainers/DataVector.h"
@@ -31,12 +31,12 @@ namespace InDet {
                                      const std::string& name,
                                      const IInterface * parent)
     : AthAlgTool(type,name,parent)
-    , m_detManager(0)
+    , m_detManager(nullptr)
     , m_idHelper()
     , m_alignModuleTool("Trk::AlignModuleTool/AlignModuleTool")
-    , m_idHashToAlignModuleMaps(Trk::AlignModule::NDetectorTypes,(Trk::AlignModuleList*)0)
-    , m_alignParList(0)
-    , m_fullAlignParList(0)
+    , m_idHashToAlignModuleMaps(Trk::AlignModule::NDetectorTypes,(Trk::AlignModuleList*)nullptr)
+    , m_alignParList(nullptr)
+    , m_fullAlignParList(nullptr)
   {
     declareInterface<IGeometryManagerTool>(this);
     declareProperty("AlignModuleTool",    m_alignModuleTool);
@@ -99,7 +99,7 @@ namespace InDet {
     declareProperty("DumpGeometry",       m_dumpGeometry = true);
 
     m_hashCounter = 0;
-    m_logStream = 0;
+    m_logStream = nullptr;
   }
 
   //________________________________________________________________________
@@ -358,7 +358,7 @@ namespace InDet {
     ATH_MSG_DEBUG("maxHash for the SCT: "<<sctmaxHash);
 
     if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT) = new Trk::AlignModuleList((size_t)(sctmaxHash),0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT) = new Trk::AlignModuleList((size_t)(sctmaxHash),nullptr);
     Trk::AlignModuleList * sctIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT);
 
     // ================================================================
@@ -416,7 +416,7 @@ namespace InDet {
     ATH_MSG_DEBUG("maxHash for the SCT "<<maxHash);
 
     if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT) = new Trk::AlignModuleList((size_t)(maxHash),0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT) = new Trk::AlignModuleList((size_t)(maxHash),nullptr);
     Trk::AlignModuleList * sctIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT);
 
     // use the 'real' identifier of the Pixel
@@ -493,7 +493,7 @@ namespace InDet {
     ATH_MSG_DEBUG("maxHash for the SCT "<<maxHash);
 
     if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT) = new Trk::AlignModuleList((size_t)(maxHash),0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT) = new Trk::AlignModuleList((size_t)(maxHash),nullptr);
     Trk::AlignModuleList * sctIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT);
 
     for (int iEndcapIndex = 0; iEndcapIndex < m_detManager->numerology().numEndcaps(); iEndcapIndex++) {
@@ -575,7 +575,7 @@ namespace InDet {
     ATH_MSG_DEBUG("maxHash for the SCT "<<maxHash);
 
     if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT) = new Trk::AlignModuleList((size_t)(maxHash),0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT) = new Trk::AlignModuleList((size_t)(maxHash),nullptr);
     Trk::AlignModuleList * sctIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT);
 
     for (int iLayer = 0; iLayer < m_detManager->numerology().numLayers(); iLayer++) {
@@ -652,7 +652,7 @@ namespace InDet {
     ATH_MSG_DEBUG("maxHash for the SCT "<<maxHash);
 
     if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT) = new Trk::AlignModuleList((size_t)(maxHash),0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT) = new Trk::AlignModuleList((size_t)(maxHash),nullptr);
     Trk::AlignModuleList * sctIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT);
 
     for (int iLayer = 0; iLayer < m_detManager->numerology().numLayers(); iLayer++) {
@@ -750,7 +750,7 @@ namespace InDet {
     ATH_MSG_DEBUG("maxHash for the SCT "<<maxHash);
 
     if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT) = new Trk::AlignModuleList((size_t)(maxHash),0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT) = new Trk::AlignModuleList((size_t)(maxHash),nullptr);
     Trk::AlignModuleList * sctIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT);
 
     for (int iEndcapIndex = 0; iEndcapIndex < m_detManager->numerology().numEndcaps(); iEndcapIndex++) {
@@ -834,7 +834,7 @@ namespace InDet {
     ATH_MSG_DEBUG("maxHash for the SCT "<<maxHash);
 
     if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT) = new Trk::AlignModuleList((size_t)(maxHash),0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT) = new Trk::AlignModuleList((size_t)(maxHash),nullptr);
     Trk::AlignModuleList * sctIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT);
 
     for (int iEndcapIndex = 0; iEndcapIndex < m_detManager->numerology().numEndcaps(); iEndcapIndex++) {
@@ -910,7 +910,7 @@ namespace InDet {
     ATH_MSG_DEBUG("maxHash for the SCT "<<maxHash);
 
     if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT) = new Trk::AlignModuleList((size_t)(maxHash),0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT) = new Trk::AlignModuleList((size_t)(maxHash),nullptr);
     Trk::AlignModuleList * sctIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT);
 
     // first endcaap C
@@ -1091,7 +1091,7 @@ namespace InDet {
     ATH_MSG_DEBUG("maxHash for the SCT "<<maxHash);
 
     if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT) = new Trk::AlignModuleList((size_t)(maxHash),0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT) = new Trk::AlignModuleList((size_t)(maxHash),nullptr);
     Trk::AlignModuleList * sctIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT);
 
     for (int iLayer = 0; iLayer < m_detManager->numerology().numLayers(); iLayer++) {
@@ -1176,7 +1176,7 @@ namespace InDet {
     ATH_MSG_DEBUG("maxHash for the SCT "<<maxHash);
 
     if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT) = new Trk::AlignModuleList((size_t)(maxHash),0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT) = new Trk::AlignModuleList((size_t)(maxHash),nullptr);
     Trk::AlignModuleList * sctIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::SCT);
 
     for (int iEndcapIndex = 0; iEndcapIndex < m_detManager->numerology().numEndcaps(); iEndcapIndex++) {

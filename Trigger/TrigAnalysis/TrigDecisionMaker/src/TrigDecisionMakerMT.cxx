@@ -166,7 +166,9 @@ TrigDec::TrigDecisionMakerMT::execute(const EventContext &context) const
 
   // get the bunch crossing id
   const xAOD::EventInfo* eventInfo = SG::get(m_EventInfoKeyIn, context);
-  const TrigConf::L1BunchGroupSet* l1bgs = SG::get(m_bgKey, context);
+  SG::ReadCondHandle<TrigConf::L1BunchGroupSet> bgkey(m_bgKey, context);
+  ATH_CHECK(bgkey.isValid());
+  const TrigConf::L1BunchGroupSet* l1bgs = *bgkey;
   if (l1bgs) {
     // We currently only support 8 bits/bunchgroups (ATR-24030)
     trigDec->setBGCode( static_cast<char>(l1bgs->bgPattern(eventInfo->bcid())) );

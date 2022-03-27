@@ -108,6 +108,9 @@ private:
   Gaudi::Property<bool> m_callOldHandler{this, "CallOldHandler", true,
       "Call previous signal handler"};
 
+  Gaudi::Property<bool> m_dumpCoreFile{this, "DumpCoreFile", false,
+      "Produce a core dump file if resource limits (ulimit -c) allow"};
+
   Gaudi::Property<bool> m_stackTrace{this, "StackTrace", false,
       "Produce (gdb) stack trace on crash. Useful if no other signal handler is used"};
 

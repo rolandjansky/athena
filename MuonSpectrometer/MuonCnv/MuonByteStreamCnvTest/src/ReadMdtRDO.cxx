@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -24,8 +24,7 @@ static const int maxAmt =   5000;//?????
 /////////////////////////////////////////////////////////////////////////////
 
 ReadMdtRDO::ReadMdtRDO(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator), m_ntuplePtr(nullptr),
-  m_activeStore("ActiveStoreSvc", name)
+  AthAlgorithm(name, pSvcLocator), m_ntuplePtr(nullptr)
 {
   declareProperty("NtupleLocID",m_NtupleLocID);
   declareProperty("WriteMdtNtuple",m_mdtNtuple = false);
@@ -36,7 +35,6 @@ ReadMdtRDO::ReadMdtRDO(const std::string& name, ISvcLocator* pSvcLocator) :
 StatusCode ReadMdtRDO::initialize()
 {
   ATH_MSG_DEBUG( " in initialize()"  );
-  ATH_CHECK( m_activeStore.retrieve() );
 
   if (!m_mdtNtuple) return StatusCode::SUCCESS;
 
@@ -62,8 +60,9 @@ StatusCode ReadMdtRDO::execute()
 {
   ATH_MSG_DEBUG( "in execute()"  );
 
-  const MdtCsmContainer* MdtRDO = nullptr; 
-  ATH_CHECK( (*m_activeStore)->retrieve( MdtRDO, "MDTCSM" ) );
+  SG::ReadHandle<MdtCsmContainer> hndl("MDTCSM");
+  const MdtCsmContainer* MdtRDO = hndl.get();
+  ATH_CHECK( MdtRDO != nullptr );
 
  // Access by Collection 
 

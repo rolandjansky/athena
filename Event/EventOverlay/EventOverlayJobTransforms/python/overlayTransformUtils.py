@@ -1,12 +1,6 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-
-## @brief Specialist reconstruction and bytestream transforms
-#  @author atlas-comp-jt-dev@cern.ch
-
-from __future__ import print_function
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 import tarfile
-
 import logging
 # Logging needs to be in the PyJobTransforms "namespace"
 msg = logging.getLogger('PyJobTransforms.'+__name__.split('.')[-1])
@@ -155,27 +149,12 @@ def addUniqueOverlayBSFilterArguments(parser):
 def addOverlayBSFilterArguments(parser):
     addUniqueOverlayBSFilterArguments(parser)
 
-def addUniqueOverlay_PoolArguments(parser):
-    from SimuJobTransforms.simTrfArgs import addBasicDigiArgs
-    from EventOverlayJobTransforms.overlayTrfArgs import addOverlayTrfArgs, addOverlayPoolTrfArgs
-    addBasicDigiArgs(parser)
-    addOverlayTrfArgs(parser)
-    addOverlayPoolTrfArgs(parser)
-
-def addOverlay_PoolArguments(parser):
-    addUniqueOverlay_PoolArguments(parser)
-    addCommonOverlayArguments(parser)
-
 def addUniqueOverlay_BSArguments(parser):
     from SimuJobTransforms.simTrfArgs import addBasicDigiArgs
     from EventOverlayJobTransforms.overlayTrfArgs import addOverlayTrfArgs, addOverlayBSTrfArgs
     addBasicDigiArgs(parser)
     addOverlayTrfArgs(parser)
     addOverlayBSTrfArgs(parser)
-
-def addOverlay_BSArguments(parser):
-    addUniqueOverlay_BSArguments(parser)
-    addCommonOverlayArguments(parser)
 
 ### Add Sub-step Methods
 def addOverlayBSTrigFilterSubstep(executorSet):
@@ -190,65 +169,7 @@ def addOverlayHITARMakerSubstep(executorSet):
     executorSet.add(BSJobSplitterExecutor(name = 'HITARMaker', skeletonFile = 'EventOverlayJobTransforms/skeleton.HITARMaker_tf.py', substep='HITARMaker',
                                           inData = ['TXT_EVENTID'], outData = ['TAR_CONFIG']))
 
-def addOverlay_PoolSubstep(executorSet, inRecoChain = False):
-    executor = athenaExecutor(name = 'OverlayPool', skeletonFile = 'EventOverlayJobTransforms/skeleton.OverlayPool_tf.py',
-                              substep = 'overlayPOOL', tryDropAndReload = False, perfMonFile = 'ntuple.pmon.gz',
-                              inData = [('HITS', 'RDO_BKG')], outData = ['RDO', 'RDO_SGNL'])
-
-    if inRecoChain:
-        executor.inData = []
-        executor.outData = []
- 
-    executorSet.add(executor)
-
 def addOverlay_BSSubstep(executorSet):
-    executorSet.add(athenaExecutor(name = 'OverlayBS', skeletonFile = 'EventOverlayJobTransforms/skeleton.OverlayBS_tf.py',
+    executorSet.add(athenaExecutor(name = 'OverlayBS', skeletonFile = 'OverlayConfiguration/skeleton_LegacyOverlay.py',
                                    substep = 'overlayBS', tryDropAndReload = False, perfMonFile = 'ntuple.pmon.gz',
                                    inData = [('HITS', 'BS_SKIM')], outData = ['RDO', 'RDO_SGNL']))
-
-# New common overlay skeleton
-def addOverlaySubstep(executorSet, inRecoChain = False):
-    executor = athenaExecutor(name = 'Overlay', skeletonFile = 'EventOverlayJobTransforms/skeleton.Overlay_tf.py',
-                              substep = 'overlay', tryDropAndReload = False, perfMonFile = 'ntuple.pmon.gz',
-                              inData = [('HITS', 'RDO_BKG')], outData = ['RDO', 'RDO_SGNL'])
-
-    if inRecoChain:
-        executor.inData = []
-        executor.outData = []
- 
-    executorSet.add(executor)
-
-
-### Append Sub-step Methods
-def appendOverlayBSTrigFilterSubstep(trf):
-    executor = set()
-    addOverlayBSTrigFilterSubstep(executor)
-    trf.appendToExecutorSet(executor)
-def appendOverlayBSFilterSubstep(trf):
-    executor = set()
-    addOverlayBSFilterSubstep(executor)
-    trf.appendToExecutorSet(executor)
-
-def appendOverlay_PoolSubstep(trf, inRecoChain = False):
-    executor = set()
-    addOverlay_PoolSubstep(executor, inRecoChain)
-    trf.appendToExecutorSet(executor)
-
-def appendOverlay_BSSubstep(trf):
-    executor = set()
-    addOverlay_BSSubstep(executor)
-    trf.appendToExecutorSet(executor)
-
-# New common overlay skeleton
-def addOverlayArguments(parser):
-    from SimuJobTransforms.simTrfArgs import addBasicDigiArgs, addForwardDetTrfArgs
-    from EventOverlayJobTransforms.overlayTrfArgs import addOverlayTrfArgs, addOverlayPoolTrfArgs
-    addBasicDigiArgs(parser)
-    addForwardDetTrfArgs(parser)
-    addOverlayTrfArgs(parser)
-    addOverlayPoolTrfArgs(parser)
-
-def appendOverlaySubstep(trf, inRecoChain = False):
-    executor = set()
-    addOverlaySubstep(executor, inRecoChain)
-    trf.appendToExecutorSet(executor)

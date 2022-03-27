@@ -18,7 +18,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArRawEvent/LArAccumulatedDigitContainer.h"
-#include "LArIdentifier/LArOnlineID.h"
+#include "LArIdentifier/LArOnlineID_Base.h"
 #include "LArRecConditions/LArCalibLineMapping.h"
 #include "StoreGate/StoreGateSvc.h"
 
@@ -47,7 +47,7 @@ public:
 
 private:
 
-  const LArOnlineID* m_onlineHelper;
+  const LArOnlineID_Base* m_onlineHelper;
 
   typedef std::vector<LArAccumulatedDigit*> ACCUMDIGIT_VEC;
   ACCUMDIGIT_VEC m_my_vec;
@@ -74,6 +74,14 @@ private:
    * */
   unsigned int m_nStepTrigger;
 
+
+
+ /** 
+   * @brief Percentage of the used triggers that we will skip over at the end, in order ot ensure that the accumulation is done, even if there are lots of missing events from SC
+   * */
+  double m_DropPercentTrig;
+
+
  /** 
    * @brief Vector (index=hash ID) of accumulation quantities
    * */
@@ -83,6 +91,11 @@ private:
    * @brief Event counter
    * */
   unsigned int m_event_counter;
+
+ /** 
+   * @brief Tells you wether you run on SuperCells or Cells
+   * */
+  bool m_isSC;
 
 };
 

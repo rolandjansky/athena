@@ -16,7 +16,7 @@ atlas_add_library( MuonCondAlgLib
                    PUBLIC_HEADERS MuonCondAlg
                    INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities Identifier GaudiKernel MuonCondData MuonCondInterface MuonCondSvcLib CoralUtilitiesLib StoreGateLib MuonIdHelpersLib MuonReadoutGeometry MdtCalibSvcLib MdtCalibData MuonCalibITools MdtCalibUtils MuonCalibToolsLib PathResolver MuonNSWCommonDecode nlohmann_json::nlohmann_json 
+                   LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities Identifier GaudiKernel MuonCondData MuonCondInterface MuonCondSvcLib CoralUtilitiesLib StoreGateLib MuonIdHelpersLib MuonReadoutGeometry MdtCalibSvcLib MdtCalibData MuonCalibITools MdtCalibUtils MuonCalibToolsLib PathResolver MuonNSWCommonDecode MdtCalibInterfacesLib nlohmann_json::nlohmann_json 
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} EventInfo )
 
 atlas_add_component( MuonCondAlg

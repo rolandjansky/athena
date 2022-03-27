@@ -256,7 +256,7 @@ int TRTTrackHoleSearchTool::extrapolateBetweenHits(const Trk::TrackParameters* s
 	const Identifier end_id = end_surf.associatedDetectorElementIdentifier();
 
 	// look for holes
-	std::vector<std::unique_ptr<const Trk::TrackParameters> > steps =
+	std::vector<std::unique_ptr<Trk::TrackParameters> > steps =
           m_extrapolator->extrapolateStepwise(Gaudi::Hive::currentContext(),
                                               *start_parameters, 
                                               end_surf, 
@@ -267,7 +267,7 @@ int TRTTrackHoleSearchTool::extrapolateBetweenHits(const Trk::TrackParameters* s
 	} else {
 		// loop over parameters from extrapolation
 		// note: the last element in the vector is always the track parameters at the destination surface
-                for(std::vector<std::unique_ptr<const Trk::TrackParameters> >::const_iterator step = steps.begin(); step != steps.end()-1; ++step) {
+                for(std::vector<std::unique_ptr<Trk::TrackParameters> >::const_iterator step = steps.begin(); step != steps.end()-1; ++step) {
 			// check for surface
 			const Trk::Surface& surf = (*step)->associatedSurface();
 			

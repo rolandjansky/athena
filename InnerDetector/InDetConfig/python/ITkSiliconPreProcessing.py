@@ -2,6 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import BeamType
 
 def ITkSiElementPropertiesTableCondAlgCfg(flags, name="ITkSiElementPropertiesTableCondAlg", **kwargs):
     # For strip DetectorElementCollection used
@@ -37,6 +38,7 @@ def ITkSiTrackerSpacePointFinderCfg(flags, name = "ITkSiTrackerSpacePointFinder"
 
     ITkSiSpacePointMakerTool = acc.popToolsAndMerge(ITkSiSpacePointMakerToolCfg(flags))
 
+    kwargs.setdefault("IsITk", True)
     kwargs.setdefault("SiSpacePointMakerTool", ITkSiSpacePointMakerTool)
     kwargs.setdefault("PixelsClustersName", 'ITkPixelClusters')
     kwargs.setdefault("SCT_ClustersName", 'ITkStripClusters')
@@ -49,7 +51,7 @@ def ITkSiTrackerSpacePointFinderCfg(flags, name = "ITkSiTrackerSpacePointFinder"
     kwargs.setdefault("ProcessSCTs", flags.Detector.EnableITkStrip and (not flags.ITk.Tracking.doFastTracking or flags.ITk.Tracking.doLargeD0))
     kwargs.setdefault("ProcessOverlaps", flags.Detector.EnableITkStrip and (not flags.ITk.Tracking.doFastTracking or flags.ITk.Tracking.doLargeD0))
 
-    if flags.Beam.Type == "cosmics":
+    if flags.Beam.Type is BeamType.Cosmics:
         kwargs.setdefault("ProcessOverlaps", False)
         kwargs.setdefault("OverrideBeamSpot", True)
         kwargs.setdefault("VertexZ", 0)
@@ -208,6 +210,14 @@ def ITkRecPreProcessingSiliconCfg(flags, **kwargs):
         #
         from InDetConfig.ITkTrackRecoConfig import ITkStripClusterizationCfg
         acc.merge(ITkStripClusterizationCfg(flags))
+
+    if flags.ITk.Tracking.convertInDetClusters and flags.Detector.EnableITkPixel and flags.Detector.EnableITkStrip:
+        #
+        # --- Conversion algorithm for InDet clusters to xAOD clusters
+        #
+        from InDetConfig.ITkTrackRecoConfig import ITkInDetToXAODClusterConversionCfg
+        acc.merge(ITkInDetToXAODClusterConversionCfg(flags))
+
 
     #
     # ----------- form SpacePoints from clusters in SCT and Pixels

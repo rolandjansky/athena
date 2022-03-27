@@ -72,8 +72,8 @@ namespace Analysis {
     ATH_CHECK( m_TrackCollectionName.initialize() );
     ATH_CHECK( m_VxSecVertexInfoName.initialize() );
     ATH_CHECK( m_VertexCollectionName.initialize() );
-    if ((m_secVertexFinderBaseName == "SV1") || (m_secVertexFinderBaseName == "MSV")) ATH_CHECK( m_BTagSVCollectionName.initialize() );
-    if ((m_secVertexFinderBaseName == "JetFitter") || (m_secVertexFinderBaseName == "JetFitterFlip")) ATH_CHECK( m_BTagJFVtxCollectionName.initialize() );
+    ATH_CHECK( m_BTagSVCollectionName.initialize( (m_secVertexFinderBaseName == "SV1") || (m_secVertexFinderBaseName == "MSV") || (m_secVertexFinderBaseName == "SV1Flip") ) );
+    ATH_CHECK( m_BTagJFVtxCollectionName.initialize( (m_secVertexFinderBaseName == "JetFitter") || (m_secVertexFinderBaseName == "JetFitterFlip") ) );
     ATH_CHECK( m_jetSVLinkName.initialize() );
 
     /* ----------------------------------------------------------------------------------- */
@@ -111,7 +111,7 @@ namespace Analysis {
     }
 
     /* Record the BTagging Secondary Vertex output container */
-    if ((basename == "SV1") || (basename == "MSV")) {
+    if ((basename == "SV1") ||(basename == "SV1Flip")  || (basename == "MSV")) {
       ATH_MSG_DEBUG("#BTAG# Record the BTagging Secondary Vertex output container");
       h_BTagSVCollectionName = SG::WriteHandle<xAOD::VertexContainer>(m_BTagSVCollectionName);
       ATH_CHECK( h_BTagSVCollectionName.record(std::make_unique<xAOD::VertexContainer>(),
@@ -136,15 +136,15 @@ namespace Analysis {
     //retrieve primary vertex
     SG::ReadHandle<xAOD::VertexContainer> h_VertexCollectionName (m_VertexCollectionName);
     if (!h_VertexCollectionName.isValid()) {
-        ATH_MSG_ERROR( " cannot retrieve primary vertex container with key " << m_VertexCollectionName.key()  );
-        return StatusCode::FAILURE;
+      ATH_MSG_ERROR( " cannot retrieve primary vertex container with key " << m_VertexCollectionName.key()  );
+      return StatusCode::FAILURE;
     }
 
     //retrieve VxSecVertexInfo
     SG::ReadHandle<Trk::VxSecVertexInfoContainer> h_VxSecVertexInfoName (m_VxSecVertexInfoName);
     if (!h_VxSecVertexInfoName.isValid()) {
-        ATH_MSG_ERROR( " cannot retrieve primary vertex container with key " << m_VxSecVertexInfoName.key()  );
-        return StatusCode::FAILURE;
+      ATH_MSG_ERROR( " cannot retrieve primary vertex container with key " << m_VxSecVertexInfoName.key()  );
+      return StatusCode::FAILURE;
     }
     ATH_MSG_DEBUG("Size of VxSecVertexInfo: " << h_VxSecVertexInfoName->size());
 
@@ -160,8 +160,8 @@ namespace Analysis {
     }
     for (xAOD::VertexContainer::const_iterator fz = h_VertexCollectionName->begin(); fz != h_VertexCollectionName->end(); ++fz) {
       if ((*fz)->vertexType() == xAOD::VxType::PriVtx) {
-	      primaryVertex = *fz;
-	      break;
+        primaryVertex = *fz;
+        break;
       }
     }
 
@@ -169,9 +169,9 @@ namespace Analysis {
       ATH_MSG_DEBUG("#BTAG#  No vertex labeled as VxType::PriVtx!");
       xAOD::VertexContainer::const_iterator fz = h_VertexCollectionName->begin();
       primaryVertex = *fz;
-        if (primaryVertex->nTrackParticles() == 0) {
-	      ATH_MSG_DEBUG("#BTAG#  PV==BeamSpot: probably poor tagging");
-        }
+      if (primaryVertex->nTrackParticles() == 0) {
+        ATH_MSG_DEBUG("#BTAG#  PV==BeamSpot: probably poor tagging");
+      }
     }
 
     const xAOD::Vertex& PrimaryVtx = *primaryVertex;
@@ -181,38 +181,59 @@ namespace Analysis {
       const xAOD::Jet& jetToTag = **jetIter;
       const Trk::VxSecVertexInfo* myVertexInfo = *infoSVIter;
 
-
-      if (const Trk::VxSecVKalVertexInfo* myVertexInfoVKal = dynamic_cast<const Trk::VxSecVKalVertexInfo*>(myVertexInfo)) {
-	      ATH_MSG_DEBUG("#BTAG# Found VKalVertexInfo information");
-        if(basename.find("MSV") == 0){
-          StatusCode sc = m_MSVvarFactory->createMSVContainer(jetToTag, myVertexInfoVKal, &(*h_BTagSVCollectionName), PrimaryVtx);
-          if(sc.isFailure()){
-            ATH_MSG_ERROR("#BTAG# error filling variables in MSVVariablesFactory" );
-            return sc;
+      if(basename == "MSV") {
+        if(myVertexInfo != nullptr) {
+          if(const Trk::VxSecVKalVertexInfo* myVertexInfoVKal = dynamic_cast<const Trk::VxSecVKalVertexInfo*>(myVertexInfo)) {
+            ATH_MSG_DEBUG("#BTAG# Found VKalVertexInfo information");
+            StatusCode sc = m_MSVvarFactory->createMSVContainer(jetToTag, myVertexInfoVKal, &(*h_BTagSVCollectionName), PrimaryVtx);
+            if(sc.isFailure()){
+               ATH_MSG_ERROR("#BTAG# error filling variables in MSVVariablesFactory" );
+              return sc;
+            }
+          }
+          else {
+            ATH_MSG_DEBUG("#BTAG# dynamic_cast failed for a non-nullptr myVertexInfo!");
+          }  
+        }
+      } 
+      else if(basename == "SV1" || basename == "SV1Flip")  { //SV1
+        SG::WriteDecorHandle<xAOD::JetContainer,std::vector<ElementLink< xAOD::VertexContainer> > > h_jetSVLinkName(m_jetSVLinkName);
+        std::vector< ElementLink< xAOD::VertexContainer > > SVertexLinks;
+        if(myVertexInfo != nullptr) {
+          if(const Trk::VxSecVKalVertexInfo* myVertexInfoVKal = dynamic_cast<const Trk::VxSecVKalVertexInfo*>(myVertexInfo)) {
+            ATH_MSG_DEBUG("#BTAG# Found VKalVertexInfo information");
+            StatusCode sc = createSecVkalContainer(&(*h_BTagSVCollectionName), &SVertexLinks, myVertexInfoVKal);
+            if(sc.isFailure()){
+              ATH_MSG_ERROR("#BTAG# error filling variables from VxSecVKalVertexInfo " << m_VxSecVertexInfoName.key());
+              return sc;
+            }
+          }
+          else {
+            ATH_MSG_DEBUG("#BTAG# dynamic_cast failed for a non-nullptr myVertexInfo!");
           }
         }
-        else { //SV1
-          SG::WriteDecorHandle<xAOD::JetContainer,std::vector<ElementLink< xAOD::VertexContainer> > > h_jetSVLinkName(m_jetSVLinkName);
-          std::vector< ElementLink< xAOD::VertexContainer > > SVertexLinks;
-	        StatusCode sc = createSecVkalContainer(&(*h_BTagSVCollectionName), &SVertexLinks, myVertexInfoVKal);
-          h_jetSVLinkName(jetToTag) = SVertexLinks;
-	        if(sc.isFailure()){
-	          ATH_MSG_ERROR("#BTAG# error filling variables from VxSecVKalVertexInfo " << m_VxSecVertexInfoName.key());
-	          return sc;
-	        }
-        }
-      } else if (const Trk::VxJetFitterVertexInfo* myVertexInfoJetFitter = dynamic_cast<const Trk::VxJetFitterVertexInfo*>(myVertexInfo)) {
-        ATH_MSG_DEBUG("#BTAG# Found VxJetFitterVertexInfo information");
+        h_jetSVLinkName(jetToTag) = SVertexLinks;
+      }
+      else if(basename == "JetFitter" || basename == "JetFitterFlip") {
         SG::WriteDecorHandle<xAOD::JetContainer,std::vector<ElementLink< xAOD::BTagVertexContainer> > > h_jetSVLinkName(m_jetSVLinkName);
         std::vector< ElementLink< xAOD::BTagVertexContainer > > JFVtxLinks;
-        StatusCode sc = createJFContainer(&(*h_BTagJFVtxCollectionName), &JFVtxLinks, myVertexInfoJetFitter, theTrackParticleContainer);
-        h_jetSVLinkName(jetToTag) = JFVtxLinks;
-        if(sc.isFailure()){
-          ATH_MSG_ERROR("#BTAG# error filling variables from VxJetFitterVertexInfo " << m_VxSecVertexInfoName.key());
-          return sc;
+        if(myVertexInfo != nullptr) {
+          if(const Trk::VxJetFitterVertexInfo* myVertexInfoJetFitter = dynamic_cast<const Trk::VxJetFitterVertexInfo*>(myVertexInfo)) {
+            ATH_MSG_DEBUG("#BTAG# Found VxJetFitterVertexInfo information");
+            StatusCode sc = createJFContainer(&(*h_BTagJFVtxCollectionName), &JFVtxLinks, myVertexInfoJetFitter, theTrackParticleContainer);
+            if(sc.isFailure()){
+              ATH_MSG_ERROR("#BTAG# error filling variables from VxJetFitterVertexInfo " << m_VxSecVertexInfoName.key());
+              return sc;
+            }
+          }
+          else {
+            ATH_MSG_DEBUG("#BTAG# dynamic_cast failed for a non-nullptr myVertexInfo!");
+          }
         }
-      } else {
-	        ATH_MSG_DEBUG("#BTAG# JetSecVertexingAlg VxSecVertexInfo pointer cannot be interpreted for " << m_VxSecVertexInfoName.key());
+        h_jetSVLinkName(jetToTag) = JFVtxLinks;
+      } 
+      else {
+        ATH_MSG_ERROR("#BTAG# JetSecVertexingAlg encounters an unknown basename: " << basename);
       }
     }// for loop on jets
 
@@ -220,7 +241,7 @@ namespace Analysis {
   } 
 
   StatusCode JetSecVertexingAlg::createSecVkalContainer(xAOD::VertexContainer* bTagVertexContainer,std::vector< ElementLink< xAOD::VertexContainer > > * SVertexLinks,
-							 const Trk::VxSecVKalVertexInfo* myVertexInfoVKal) const {
+                                                        const Trk::VxSecVKalVertexInfo* myVertexInfoVKal) const {
     
     std::vector<xAOD::Vertex*>::const_iterator verticesBegin = myVertexInfoVKal->vertices().begin();
     std::vector<xAOD::Vertex*>::const_iterator verticesEnd   = myVertexInfoVKal->vertices().end();
@@ -240,9 +261,9 @@ namespace Analysis {
 
 
   StatusCode JetSecVertexingAlg::createJFContainer(xAOD::BTagVertexContainer* bTagJFVertexContainer,
-                 std::vector< ElementLink< xAOD::BTagVertexContainer > > * JFVerticesLinks,
-					       const Trk::VxJetFitterVertexInfo* myVertexInfoJetFitter,
-					       const xAOD::TrackParticleContainer* theTrackParticleContainer) const { 
+                                                   std::vector< ElementLink< xAOD::BTagVertexContainer > > * JFVerticesLinks,
+                                                   const Trk::VxJetFitterVertexInfo* myVertexInfoJetFitter,
+                                                   const xAOD::TrackParticleContainer* theTrackParticleContainer) const { 
 
     //list of JFvertices
     const std::vector<Trk::VxJetCandidate*> JFvertices =  myVertexInfoJetFitter->verticesJF();
@@ -351,41 +372,39 @@ namespace Analysis {
         ElementLink< xAOD::BTagVertexContainer> linkBTagVertex;
         linkBTagVertex.toContainedElement(*bTagJFVertexContainer, newbtagVtx);
         JFVerticesLinks->push_back(linkBTagVertex);
-	      oldnewmap.insert(std::make_pair(*it,linkBTagVertex));
+        oldnewmap.insert(std::make_pair(*it,linkBTagVertex));
       }
   
       if(ClusteringTable !=0){
-	      for (std::vector<Trk::VxVertexOnJetAxis*>::const_iterator it=iterBegin; it!=iterEnd; ++it) {
-	        std::vector< ElementLink< xAOD::BTagVertexContainer > > JFCompLinks;
-	        std::vector<float> JFCompValues;
+        for (std::vector<Trk::VxVertexOnJetAxis*>::const_iterator it=iterBegin; it!=iterEnd; ++it) {
+          std::vector< ElementLink< xAOD::BTagVertexContainer > > JFCompLinks;
+          std::vector<float> JFCompValues;
+      
+          bool foundmap=true;
+          map2vtx::iterator itmap = inverseCompMap.find(*it);  
+          if(itmap == inverseCompMap.end()){
+            ATH_MSG_DEBUG("#BTAG# JF compatibility value in map2vtx map not found ");
+            foundmap=false;
+          }
 
-	        bool foundmap=true;
-	        map2vtx::iterator itmap = inverseCompMap.find(*it);  
-	        if(itmap == inverseCompMap.end()){
-	          ATH_MSG_DEBUG("#BTAG# JF compatibility value in map2vtx map not found ");
-	          foundmap=false;
-	        }
+          if(foundmap){
 
-	        if(foundmap){
+            std::vector<std::pair<Trk::VxVertexOnJetAxis*,float> > tmpvectpair = itmap->second;
 
-	          std::vector<std::pair<Trk::VxVertexOnJetAxis*,float> > tmpvectpair = itmap->second;
+            for(unsigned int icomppair=0; icomppair<tmpvectpair.size(); ++icomppair){
+              std::map<Trk::VxVertexOnJetAxis*, ElementLink< xAOD::BTagVertexContainer> >::iterator JFOlNewIter = oldnewmap.find(tmpvectpair[icomppair].first);
+ 
+              if(JFOlNewIter == oldnewmap.end()){
+                ATH_MSG_DEBUG("#BTAG# JF compatibility vector not found ");
+                continue;
+              }
 
-	          for(unsigned int icomppair=0; icomppair<tmpvectpair.size(); ++icomppair){
-	            std::map<Trk::VxVertexOnJetAxis*, ElementLink< xAOD::BTagVertexContainer> >::iterator JFOlNewIter = oldnewmap.find(tmpvectpair[icomppair].first);
-	 
-	            if(JFOlNewIter == oldnewmap.end()){
-		            ATH_MSG_DEBUG("#BTAG# JF compatibility vector not found ");
-		            continue;
-	            }
-
-	            JFCompLinks.push_back(JFOlNewIter->second);
-	            JFCompValues.push_back(tmpvectpair[icomppair].second);
-	          }
-
-	        } /// found map
-	 
-	   }
-     }
+              JFCompLinks.push_back(JFOlNewIter->second);
+              JFCompValues.push_back(tmpvectpair[icomppair].second);
+            }
+          } /// found map
+        }
+      }
 
       const Trk::RecVertexPositions& recVtxposition = vxjetcand->getRecVertexPositions();
       const Amg::VectorX& vtxPositions = recVtxposition.position();

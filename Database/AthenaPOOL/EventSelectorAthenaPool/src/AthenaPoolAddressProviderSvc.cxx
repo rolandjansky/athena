@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file AthenaPoolAddressProviderSvc.cxx
@@ -8,6 +8,7 @@
  **/
 
 #include "AthenaPoolAddressProviderSvc.h"
+#include "SGTools/CurrentEventStore.h"
 #include "registerKeys.h"
 
 #include "PersistentDataModel/AthenaAttributeList.h"
@@ -19,7 +20,6 @@
 #include "GaudiKernel/GenericAddress.h"
 #include "GaudiKernel/StatusCode.h"
 
-#include "StoreGate/ActiveStoreSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
@@ -29,7 +29,6 @@
 //________________________________________________________________________________
 AthenaPoolAddressProviderSvc::AthenaPoolAddressProviderSvc(const std::string& name, ISvcLocator* pSvcLocator) :
 	::AthService(name, pSvcLocator),
-	m_activeStoreSvc("ActiveStoreSvc", name),
 	m_metaDataStore("MetaDataStore", name),
 	m_clidSvc("ClassIDSvc", name),
 	m_guid() {
@@ -41,13 +40,7 @@ AthenaPoolAddressProviderSvc::~AthenaPoolAddressProviderSvc() {
 }
 //________________________________________________________________________________
 StoreGateSvc* AthenaPoolAddressProviderSvc::eventStore() const {
-   if (m_activeStoreSvc == 0) {
-      if (!m_activeStoreSvc.retrieve().isSuccess()) {
-         ATH_MSG_ERROR("Cannot get ActiveStoreSvc");
-         throw GaudiException("Cannot get ActiveStoreSvc", name(), StatusCode::FAILURE);
-      }
-   }
-   return(m_activeStoreSvc->operator->());
+   return StoreGateSvc::currentStoreGate();
 }
 //________________________________________________________________________________
 StatusCode AthenaPoolAddressProviderSvc::initialize() {

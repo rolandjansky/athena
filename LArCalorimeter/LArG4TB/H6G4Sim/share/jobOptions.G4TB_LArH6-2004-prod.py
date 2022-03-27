@@ -115,7 +115,7 @@ simFlags.CalibrationRun='LAr'
 simFlags.EventFilter.set_Off()
 
 #--- Generator flags ------------------------------------------
-from AthenaServices.AthenaServicesConf import AtRanluxGenSvc
+from RngComps.RngCompsConf import AtRanluxGenSvc
 ServiceMgr += AtRanluxGenSvc()
 ServiceMgr.AtRanluxGenSvc.Seeds = ["SINGLE "+ GSeed1 + " " + GSeed2]
 simFlags.RandomSeedOffset.set_Value_and_Lock(G4seed)

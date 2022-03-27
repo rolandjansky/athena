@@ -12,10 +12,43 @@
 #include "BTaggingAccessors_v1.h"
 #include "xAODBTagging/BTaggingEnums.h"
 
+// This macro is a hack to deal with clients that are accessing unset
+// values in the EDM.
+//
+// This had to be added when we moved some aux variables from static
+// to dynamic: as static variables _something_ was defined when a
+// BTagging object was initialized; with dynamic variables access to
+// an unset varaible throws an exception.
+//
+// Properly cleaning this up will take removing calls to any accessor
+// that uses this macro.
+//
+namespace {
+  // we might want different defaults for different types
+  template <typename T>
+  struct default_value {
+    static constexpr T value = T();
+    // build a (probably) impossible assertion if this template is called
+    static_assert(sizeof(T) == -1, "No default value defined for this type");
+  };
+  template <>
+  struct default_value<float> { static constexpr float value = 0.0; };
+}
+#define SETTER_AND_DEFAULT_GETTER( CL, TYPE, NAME, SETTER)  \
+  TYPE CL::NAME() const {                                   \
+    static const Accessor<TYPE> acc(#NAME);                 \
+    if (acc.isAvailable(*this)) return acc(*this);          \
+    return default_value<TYPE>::value;                      \
+  }                                                         \
+  void CL::SETTER(TYPE value) {                             \
+    static const Accessor<TYPE> acc(#NAME);                 \
+    acc(*this) = value;                                     \
+  }
+
 namespace xAOD {
 
    BTagging_v1::BTagging_v1(){
-      
+
 
    }
 
@@ -93,13 +126,9 @@ namespace xAOD {
    //
    //              Implementation of the SV1 accessor functions
    //
-
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( BTagging_v1, float, SV1_pb,
-                                         setSV1_pb )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( BTagging_v1, float, SV1_pu,
-                                         setSV1_pu )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( BTagging_v1, float, SV1_pc,
-                                         setSV1_pc )
+   SETTER_AND_DEFAULT_GETTER(BTagging_v1, float, SV1_pb, setSV1_pb)
+   SETTER_AND_DEFAULT_GETTER(BTagging_v1, float, SV1_pu, setSV1_pu)
+   SETTER_AND_DEFAULT_GETTER(BTagging_v1, float, SV1_pc, setSV1_pc)
 
    // The accessor object(s):
    static const SG::AuxElement::Accessor< BTagging_v1::TPELVec_t >
@@ -241,12 +270,9 @@ namespace xAOD {
    //              Implementation of the IP3D accessor functions
    //
 
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( BTagging_v1, float, IP3D_pb,
-                                         setIP3D_pb )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( BTagging_v1, float, IP3D_pu,
-                                         setIP3D_pu )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( BTagging_v1, float, IP3D_pc,
-                                         setIP3D_pc )
+   SETTER_AND_DEFAULT_GETTER(BTagging_v1, float, IP3D_pb, setIP3D_pb)
+   SETTER_AND_DEFAULT_GETTER(BTagging_v1, float, IP3D_pu, setIP3D_pu)
+   SETTER_AND_DEFAULT_GETTER(BTagging_v1, float, IP3D_pc, setIP3D_pc)
 
    // The accessor object(s):
    static const SG::AuxElement::Accessor< BTagging_v1::TPELVec_t >
@@ -315,12 +341,9 @@ namespace xAOD {
    //              Implementation of the JetFitter accessor functions
    //
 
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( BTagging_v1, float, JetFitter_pb,
-                                         setJetFitter_pb )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( BTagging_v1, float, JetFitter_pu,
-                                         setJetFitter_pu )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( BTagging_v1, float, JetFitter_pc,
-                                         setJetFitter_pc )
+   SETTER_AND_DEFAULT_GETTER(BTagging_v1, float, JetFitter_pb, setJetFitter_pb)
+   SETTER_AND_DEFAULT_GETTER(BTagging_v1, float, JetFitter_pu, setJetFitter_pu)
+   SETTER_AND_DEFAULT_GETTER(BTagging_v1, float, JetFitter_pc, setJetFitter_pc)
 
    /////////////////////////////////////////////////////////////////////////////
    //

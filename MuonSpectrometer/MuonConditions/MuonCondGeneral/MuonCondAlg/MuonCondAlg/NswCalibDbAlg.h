@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDALG_NSWCALIBDBALG_H
@@ -10,7 +10,6 @@
 #include <vector>
 
 // Gaudi includes
-#include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -51,12 +50,11 @@ private:
 	StatusCode loadTimeChargeData(const EventContext&, const readKey_t&, const std::string&) const;
 	StatusCode loadThresholdData (const EventContext&, const readKey_t&                   ) const;
 
-	bool buildChannelId(Identifier*& channelId, unsigned int elinkId, unsigned int vmm, unsigned int channel) const;
+	bool buildChannelId(Identifier& channelId, unsigned int elinkId, unsigned int vmm, unsigned int channel) const;
     
     Gaudi::Property<bool> m_isOnline{this, "isOnline", false, "This algo is being used online"};
     Gaudi::Property<bool> m_isData  {this, "isData"  , true , "Processing data"};
 
-    ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
  
     writeKeyTdoPdo_t m_writeKey_tdopdo{this, "WriteKey_TdoPdo", "NswCalibDbTimeChargeData", "Key of output calibration data (TDOs and PDOs)" };

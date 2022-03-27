@@ -38,7 +38,7 @@ else:
 
 # ----------------------------------------------------------------------
 from AthenaCommon.AppMgr import ServiceMgr
-from AthenaServices.AthenaServicesConf import AtRndmGenSvc
+from RngComps.RngCompsConf import AtRndmGenSvc
 
 ServiceMgr += AtRndmGenSvc()
 ServiceMgr.AtRndmGenSvc.Seeds = ["EPOS 174947321 159267993", "EPOS_INIT 820021 2347532"]

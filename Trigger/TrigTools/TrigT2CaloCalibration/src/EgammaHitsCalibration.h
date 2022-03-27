@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT2CALOCALIBRATION_EGAMMAHITSCALIBRATION
@@ -40,10 +40,9 @@ class EgammaHitsCalibration  :
 		this interface. In some cases, the tool needs
 		more than the cluster to perform the calibration.
 		This can be passed via the void pointer */
-	virtual void makeCorrection(xAOD::TrigEMCluster*, const void* v=nullptr) override;
+	virtual void makeCorrection(xAOD::TrigEMCluster*, const void* v=nullptr) const override;
 
 	private:
-	MsgStream* m_log;
 	// Correction Variables
         Constant<CxxUtils::Array<3> >  m_correction { this, "correction" };
         Constant<CxxUtils::Array<2> >  m_sampling_depth { this, "sampling_depth" };
@@ -54,7 +53,7 @@ class EgammaHitsCalibration  :
         Constant<bool> m_preserve_offset    { this, "preserve_offset" };
         Constant<bool> m_fix_v6_pathologies { this, "fix_v6_pathologies" };
 
-        EgammaHitsShowerDepth m_showerDepth;
+        //EgammaHitsShowerDepth m_showerDepth;
 };
 
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //#define ARTRU          // Choice of TR generator
@@ -41,10 +41,10 @@
 // Constructor, destructor
 
 TRTTransitionRadiation::TRTTransitionRadiation( const G4String& processName, const std::string & xmlfilename) :
-  G4VDiscreteProcess(processName,fElectromagnetic),m_XMLhandler(NULL),m_xmlfilename(xmlfilename),
+  G4VDiscreteProcess(processName,fElectromagnetic),m_XMLhandler(nullptr),m_xmlfilename(xmlfilename),
   m_MinEnergyTR(0.0),m_MaxEnergyTR(0.0),m_NumBins(0),m_WplasmaGas(0.0),
-  m_WplasmaFoil(0.0),m_GammaMin(0.0),m_EkinMin(0.0),m_Ey(NULL),m_Sr(NULL),
-  m_om(NULL),m_Omg(NULL),m_sigmaGas(NULL),m_sigmaFoil(NULL),
+  m_WplasmaFoil(0.0),m_GammaMin(0.0),m_EkinMin(0.0),m_Ey(nullptr),m_Sr(nullptr),
+  m_om(nullptr),m_Omg(nullptr),m_sigmaGas(nullptr),m_sigmaFoil(nullptr),
   m_msg("TRTTransitionRadiation")
 {
   m_radiators.clear();
@@ -106,7 +106,7 @@ void TRTTransitionRadiation::Initialize() {
 
   // Get material information from storegate.
   ISvcLocator *svcLocator = Gaudi::svcLocator(); // from Bootstrap
-  StoreGateSvc *detStore(NULL);
+  StoreGateSvc *detStore(nullptr);
   if( StatusCode::SUCCESS != svcLocator->service( "DetectorStore", detStore ) ) {
     ATH_MSG_FATAL ( "Can not access Detector Store " );
     return;
@@ -183,7 +183,7 @@ void TRTTransitionRadiation::Initialize() {
 
 G4bool TRTTransitionRadiation::IsApplicable(const G4ParticleDefinition& particle) {
   //return true if PDG Charge and PDG Mass are non-zero.
-  return  ( fabs(particle.GetPDGCharge())>std::numeric_limits<double>::epsilon() && fabs(particle.GetPDGMass())>std::numeric_limits<double>::epsilon() ) ;
+  return  ( std::abs(particle.GetPDGCharge())>std::numeric_limits<double>::epsilon() && std::abs(particle.GetPDGMass())>std::numeric_limits<double>::epsilon() ) ;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -195,8 +195,8 @@ G4double TRTTransitionRadiation::GetMeanFreePath(const G4Track& aTrack,
                                                  G4double,
                                                  G4ForceCondition* condition) {
   const G4DynamicParticle *aParticle(aTrack.GetDynamicParticle());
-  if(fabs(aParticle->GetDefinition()->GetPDGCharge())< std::numeric_limits<double>::epsilon() ||
-     fabs(aParticle->GetDefinition()->GetPDGMass())<std::numeric_limits<double>::epsilon()  ) {
+  if(std::abs(aParticle->GetDefinition()->GetPDGCharge())< std::numeric_limits<double>::epsilon() ||
+     std::abs(aParticle->GetDefinition()->GetPDGMass())<std::numeric_limits<double>::epsilon()  ) {
     *condition = NotForced;
   } else {
     *condition = Forced;
@@ -256,7 +256,7 @@ G4VParticleChange* TRTTransitionRadiation::PostStepDoIt( const G4Track& aTrack,
   G4ThreeVector ParticleDirection(aParticle->GetMomentumDirection());
 
   if ( BEflag == ENDCAP ) {
-    G4double costh(fabs(ParticleDirection[2]));
+    G4double costh(std::abs(ParticleDirection[2]));
     FoilThickness /= costh;
     GasThickness  /= costh;
   }
@@ -367,7 +367,7 @@ G4VParticleChange* TRTTransitionRadiation::PostStepDoIt( const G4Track& aTrack,
                       << pos.y()/CLHEP::cm << " cm, " << pos.z()/CLHEP::cm << " cm )" );
 
     // Angle w.r.t. electron direction (this is not correct but anyway...)
-    Theta = fabs( CLHEP::RandGaussZiggurat::shoot( 0.0, M_PI/Gamma ) );
+    Theta = std::abs( CLHEP::RandGaussZiggurat::shoot( 0.0, M_PI/Gamma ) );
     if( Theta >= 0.1 ) Theta = 0.1;
 
     Phi = (2.*M_PI)*CLHEP::RandFlat::shoot();

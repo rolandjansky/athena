@@ -15,7 +15,7 @@
 #include "MuonIdHelpers/RpcIdHelper.h"
 
 #include "MuonCondInterface/IRpcDetectorStatusDbTool.h"
-#include "MuonCondTool/RpcDetectorStatusDbTool.h"
+#include "RpcDetectorStatusDbTool.h"
 #include "PathResolver/PathResolver.h"
 #include <cstdio>
 #include <fstream>

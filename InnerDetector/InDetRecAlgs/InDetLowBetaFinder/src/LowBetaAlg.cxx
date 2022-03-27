@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////
@@ -32,8 +32,8 @@ namespace InDet
 
   LowBetaAlg::LowBetaAlg(const std::string& name, ISvcLocator* pSvcLocator) :
     AthAlgorithm(name, pSvcLocator),
-    m_trtId(0),
-    m_TRTdetMgr(0),
+    m_trtId(nullptr),
+    m_TRTdetMgr(nullptr),
     m_minTRThits(5),
     m_RcorrZero(11.0),
     m_RcorrOne(-3.0),
@@ -43,7 +43,7 @@ namespace InDet
     m_trackParticleCollection("InDetTrackParticles"),
     m_InDetLowBetaOutputName("InDetLowBetaCandidates"),
     m_trtconddbTool("TRT_CalDbTool",this),
-    m_TrtTool(0),
+    m_TrtTool(nullptr),
     m_TRTdEdxTool(),
     m_TrtToolsSuccess{},
     m_TrtToolInitSuccess{}
@@ -87,7 +87,7 @@ namespace InDet
       return StatusCode::FAILURE;
     }
 
-    EventContext ctx = Gaudi::Hive::currentContext();
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
     const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
     if (fieldCondObj == nullptr) {
@@ -244,7 +244,7 @@ namespace InDet
     }
 
     // output vector for the algorithms
-    typedef std::vector<float> CSMP_ind;
+    using CSMP_ind = std::vector<float>;
     CSMP_ind Discriminators;
 
     double pTrk = 0.0;
@@ -270,7 +270,7 @@ namespace InDet
       ATH_MSG_DEBUG( " Track momentum infinite! (i.e. q/p = 0) " );
       return Discriminators; // to allow RVO
     }
-    else pTrk = fabs(1.0 / qOverP);
+    else pTrk = std::abs(1.0 / qOverP);
     double trk_pt = pTrk*sin(theta);
     
 
@@ -349,7 +349,7 @@ namespace InDet
 	    double trackR = sqrt(trackx*trackx + tracky*tracky);
 
 	    double chordlength=sqrt(trackx*trackx+tracky*tracky+(trackz-trk_z0)*(trackz-trk_z0));
-	    double Rmom=fabs(trk_pt)*510.0/340;  // ( mm and MeV)
+	    double Rmom=std::abs(trk_pt)*510.0/340;  // ( mm and MeV)
 	    //double trackfullhalfangle=asin(1050.0/(2.0*Rmom));
 	    //double maxtrack=2*trackfullhalfangle*Rmom;
 	    //if(Rmom < 1050.0/2.0)maxtrack=3.1425*Rmom;
@@ -434,7 +434,7 @@ namespace InDet
 	      TOT = (TE_bit - LE_bit)+1;
 	      if(NHTbits > 0) HighThresholdHits++;
 	      HighTbits += NHTbits;
-	      double f_TrkAnodeDist = fabs(TrkAnodeDist);
+	      double f_TrkAnodeDist = std::abs(TrkAnodeDist);
 
 	      trailingbittime = double(TE_bit)*3.125-t0+m_TimingOffset;
 
@@ -480,8 +480,8 @@ namespace InDet
 	      //float sinth =  1./cosh(eta);
 	      //float costh = tanh(eta);
 	      //if (costh ==0) costh = 0.0001;
-	      if((bec!=1 && bec!=-1)&&fabs(eta)<0.7) Valid = false; //0.7
-	      if((bec==1 || bec ==-1)&&fabs(eta)>1.1) Valid = false;  //0.7
+	      if((bec!=1 && bec!=-1)&&std::abs(eta)<0.7) Valid = false; //0.7
+	      if((bec==1 || bec ==-1)&&std::abs(eta)>1.1) Valid = false;  //0.7
 	      
 	      float Rdrift =  TrkAnodeDist;
 	      float Rtrack = Rdrift;
@@ -491,14 +491,14 @@ namespace InDet
 	      // Add the cut on holes (from HO)
 	      if( Ttbit-Ltbit+1 != NLTbits)Valid = false;
 
-	      if ( (fabs(Rdrift)>0) && Valid && (trtdistance > 0.0)) {//rdrift condition
+	      if ( (std::abs(Rdrift)>0) && Valid && (trtdistance > 0.0)) {//rdrift condition
 		
 		//float length, projlength;
 		//float projlength;
 		//projlength = sqrt(4.- Rtrack*Rtrack);
 		
 		//if (bec == 1 || bec == -1) length = projlength/sinth; // track path length in a straw
-		//if (bec == 2 || bec == -2) length = fabs( projlength/costh); // track path length in a straw
+		//if (bec == 2 || bec == -2) length = std::abs( projlength/costh); // track path length in a straw
 		
 		hont += 1;  // #hits on track
 		
@@ -527,63 +527,63 @@ namespace InDet
 				
 		//  ========Barrel DATA ToTal=================================================
 		if (m_mcswitch ==0 &&(bec==1 || bec==-1)) {
-		  if (fabs(eta)<.1 && fabs(eta)>0.0) TGap = gap/((.00488801*pow(fabs(Rtrack),7.96055)-2.34833*pow(fabs(Rtrack),1.72825)+7.54480));
-		  if (fabs(eta)<.2 && fabs(eta)>0.1) TGap = gap/((.00670660*pow(fabs(Rtrack),7.50896)-2.34480*pow(fabs(Rtrack),1.73470)+7.52650));
-		  if (fabs(eta)<.3 && fabs(eta)>0.2) TGap = gap/((.00881969*pow(fabs(Rtrack),7.09242)-2.36686*pow(fabs(Rtrack),1.72337)+7.52207));
-		  if (fabs(eta)<.4 && fabs(eta)>0.3) TGap = gap/((.0131694*pow(fabs(Rtrack),6.59031)-2.39547*pow(fabs(Rtrack),1.72373)+7.52161));
-		  if (fabs(eta)<.5 && fabs(eta)>0.4) TGap = gap/((.0236602*pow(fabs(Rtrack),5.87639)-2.43456*pow(fabs(Rtrack),1.72005)+7.48029));
-		  if (fabs(eta)<.6 && fabs(eta)>0.5) TGap = gap/((.0547144*pow(fabs(Rtrack),4.99237)-2.47208*pow(fabs(Rtrack),1.74454)+7.36295));
-		  if (fabs(eta)<.7 && fabs(eta)>0.6) TGap = gap/((.0723406*pow(fabs(Rtrack),4.76311)-2.47704*pow(fabs(Rtrack),1.74222)+7.14952));
-		  if (fabs(eta)<.8 && fabs(eta)>0.7) TGap = gap/((.137036*pow(fabs(Rtrack),4.23644)-2.48428*pow(fabs(Rtrack),1.79610)+6.85699));
-		  if (fabs(eta)<.9 && fabs(eta)>0.8) TGap = gap/((.285357*pow(fabs(Rtrack),3.71480)-2.56711*pow(fabs(Rtrack),1.87888)+6.50990));
-		  if (fabs(eta)<1. && fabs(eta)>0.9) TGap = gap/((.241327*pow(fabs(Rtrack),3.91980)-2.43298*pow(fabs(Rtrack),1.87156)+6.08410));
-		  if (fabs(eta)<1.1 && fabs(eta)>1.) TGap = gap/((.442936*pow(fabs(Rtrack),3.59687)-2.60530*pow(fabs(Rtrack),1.98021)+5.78001));
+		  if (std::abs(eta)<.1 && std::abs(eta)>0.0) TGap = gap/((.00488801*pow(std::abs(Rtrack),7.96055)-2.34833*pow(std::abs(Rtrack),1.72825)+7.54480));
+		  if (std::abs(eta)<.2 && std::abs(eta)>0.1) TGap = gap/((.00670660*pow(std::abs(Rtrack),7.50896)-2.34480*pow(std::abs(Rtrack),1.73470)+7.52650));
+		  if (std::abs(eta)<.3 && std::abs(eta)>0.2) TGap = gap/((.00881969*pow(std::abs(Rtrack),7.09242)-2.36686*pow(std::abs(Rtrack),1.72337)+7.52207));
+		  if (std::abs(eta)<.4 && std::abs(eta)>0.3) TGap = gap/((.0131694*pow(std::abs(Rtrack),6.59031)-2.39547*pow(std::abs(Rtrack),1.72373)+7.52161));
+		  if (std::abs(eta)<.5 && std::abs(eta)>0.4) TGap = gap/((.0236602*pow(std::abs(Rtrack),5.87639)-2.43456*pow(std::abs(Rtrack),1.72005)+7.48029));
+		  if (std::abs(eta)<.6 && std::abs(eta)>0.5) TGap = gap/((.0547144*pow(std::abs(Rtrack),4.99237)-2.47208*pow(std::abs(Rtrack),1.74454)+7.36295));
+		  if (std::abs(eta)<.7 && std::abs(eta)>0.6) TGap = gap/((.0723406*pow(std::abs(Rtrack),4.76311)-2.47704*pow(std::abs(Rtrack),1.74222)+7.14952));
+		  if (std::abs(eta)<.8 && std::abs(eta)>0.7) TGap = gap/((.137036*pow(std::abs(Rtrack),4.23644)-2.48428*pow(std::abs(Rtrack),1.79610)+6.85699));
+		  if (std::abs(eta)<.9 && std::abs(eta)>0.8) TGap = gap/((.285357*pow(std::abs(Rtrack),3.71480)-2.56711*pow(std::abs(Rtrack),1.87888)+6.50990));
+		  if (std::abs(eta)<1. && std::abs(eta)>0.9) TGap = gap/((.241327*pow(std::abs(Rtrack),3.91980)-2.43298*pow(std::abs(Rtrack),1.87156)+6.08410));
+		  if (std::abs(eta)<1.1 && std::abs(eta)>1.) TGap = gap/((.442936*pow(std::abs(Rtrack),3.59687)-2.60530*pow(std::abs(Rtrack),1.98021)+5.78001));
 		}
 		//=========Barrel MC Total===============================
 		if (m_mcswitch ==1 && (bec==1 || bec==-1)) {
-		  if(fabs(eta)<.1 && fabs(eta)>0.0) TGap = gap/((.00000123128*pow(fabs(Rtrack),19.3147)-1.06782*pow(fabs(Rtrack),2.29312)+5.62686));
-		  if (fabs(eta)<.2 && fabs(eta)>0.1) TGap = gap/((.00000170888*pow(fabs(Rtrack),18.8841)-1.07002*pow(fabs(Rtrack),2.29326)+5.60175));
-		  if (fabs(eta)<.3 && fabs(eta)>0.2) TGap = gap/((.000000918115*pow(fabs(Rtrack),19.7785)-1.09601*pow(fabs(Rtrack),2.25662)+5.68679));
-		  if (fabs(eta)<.4 && fabs(eta)>0.3) TGap = gap/((.00000142286*pow(fabs(Rtrack),19.1558)-1.09694*pow(fabs(Rtrack),2.24469)+5.50375));
-		  if (fabs(eta)<.5 && fabs(eta)>0.4) TGap = gap/((.00000483637*pow(fabs(Rtrack),17.5425)-1.09179*pow(fabs(Rtrack),2.25701)+5.39363));
-		  if (fabs(eta)<.6 && fabs(eta)>0.5) TGap = gap/((.0000114224*pow(fabs(Rtrack),16.3431)-1.09874*pow(fabs(Rtrack),2.23981)+5.28368));
-		  if (fabs(eta)<.7 && fabs(eta)>0.6) TGap = gap/((.0000101658*pow(fabs(Rtrack),16.5468)-1.07799*pow(fabs(Rtrack),2.24312)+5.13952));
-		  if (fabs(eta)<.8 && fabs(eta)>0.7) TGap = gap/((.0000109867*pow(fabs(Rtrack),16.4814)-1.00968*pow(fabs(Rtrack),2.29445)+4.95406));
-		  if (fabs(eta)<.9 && fabs(eta)>0.8) TGap = gap/((.00000887578*pow(fabs(Rtrack),16.8073)-.945814*pow(fabs(Rtrack),2.32505)+4.76174));
-		  if (fabs(eta)<1. && fabs(eta)>0.9) TGap = gap/((.0000721159*pow(fabs(Rtrack),13.8838)-.794514*pow(fabs(Rtrack),2.52852)+4.48742));
-		  if (fabs(eta)<1.1 && fabs(eta)>1.) TGap = gap/((-.00147754*pow(fabs(Rtrack),2.05287)-.949485*pow(fabs(Rtrack),2.05281)+4.40570));
+		  if(std::abs(eta)<.1 && std::abs(eta)>0.0) TGap = gap/((.00000123128*pow(std::abs(Rtrack),19.3147)-1.06782*pow(std::abs(Rtrack),2.29312)+5.62686));
+		  if (std::abs(eta)<.2 && std::abs(eta)>0.1) TGap = gap/((.00000170888*pow(std::abs(Rtrack),18.8841)-1.07002*pow(std::abs(Rtrack),2.29326)+5.60175));
+		  if (std::abs(eta)<.3 && std::abs(eta)>0.2) TGap = gap/((.000000918115*pow(std::abs(Rtrack),19.7785)-1.09601*pow(std::abs(Rtrack),2.25662)+5.68679));
+		  if (std::abs(eta)<.4 && std::abs(eta)>0.3) TGap = gap/((.00000142286*pow(std::abs(Rtrack),19.1558)-1.09694*pow(std::abs(Rtrack),2.24469)+5.50375));
+		  if (std::abs(eta)<.5 && std::abs(eta)>0.4) TGap = gap/((.00000483637*pow(std::abs(Rtrack),17.5425)-1.09179*pow(std::abs(Rtrack),2.25701)+5.39363));
+		  if (std::abs(eta)<.6 && std::abs(eta)>0.5) TGap = gap/((.0000114224*pow(std::abs(Rtrack),16.3431)-1.09874*pow(std::abs(Rtrack),2.23981)+5.28368));
+		  if (std::abs(eta)<.7 && std::abs(eta)>0.6) TGap = gap/((.0000101658*pow(std::abs(Rtrack),16.5468)-1.07799*pow(std::abs(Rtrack),2.24312)+5.13952));
+		  if (std::abs(eta)<.8 && std::abs(eta)>0.7) TGap = gap/((.0000109867*pow(std::abs(Rtrack),16.4814)-1.00968*pow(std::abs(Rtrack),2.29445)+4.95406));
+		  if (std::abs(eta)<.9 && std::abs(eta)>0.8) TGap = gap/((.00000887578*pow(std::abs(Rtrack),16.8073)-.945814*pow(std::abs(Rtrack),2.32505)+4.76174));
+		  if (std::abs(eta)<1. && std::abs(eta)>0.9) TGap = gap/((.0000721159*pow(std::abs(Rtrack),13.8838)-.794514*pow(std::abs(Rtrack),2.52852)+4.48742));
+		  if (std::abs(eta)<1.1 && std::abs(eta)>1.) TGap = gap/((-.00147754*pow(std::abs(Rtrack),2.05287)-.949485*pow(std::abs(Rtrack),2.05281)+4.40570));
 		}
 		//============ENDCAP DATA===========================================
 		if (m_mcswitch==0 &&(bec!=1 && bec!=-1)){
-		  if (fabs(eta)<0.9 && fabs(eta)>0.8) TGap = gap/((.280989*pow(fabs(Rtrack),3.78618)-2.52785*pow(fabs(Rtrack),1.98014)+8.22240));
-		  if (fabs(eta)<1.0 && fabs(eta)>0.9) TGap = gap/((.0848913*pow(fabs(Rtrack),4.73693)-2.38324*pow(fabs(Rtrack),1.83445)+8.41772));
-		  if (fabs(eta)<1.1 && fabs(eta)>1.0) TGap = gap/((.0709059*pow(fabs(Rtrack),4.86962)-2.41818*pow(fabs(Rtrack),1.80467)+8.58839));
-		  if (fabs(eta)<1.2 && fabs(eta)>1.1) TGap = gap/((.0543339*pow(fabs(Rtrack),5.10085)-2.41581*pow(fabs(Rtrack),1.78433)+8.69492));
-		  if (fabs(eta)<1.3 && fabs(eta)>1.2) TGap = gap/((.0304298*pow(fabs(Rtrack),5.72427)-2.41395*pow(fabs(Rtrack),1.74796)+8.79894));
-		  if (fabs(eta)<1.4 && fabs(eta)>1.3) TGap = gap/((.0427503*pow(fabs(Rtrack),5.35505)-2.42229*pow(fabs(Rtrack),1.77298)+8.85050));
-		  if (fabs(eta)<1.5 && fabs(eta)>1.4) TGap = gap/((.0281426*pow(fabs(Rtrack),5.80661)-2.40467*pow(fabs(Rtrack),1.74990)+8.88722));
-		  if (fabs(eta)<1.6 && fabs(eta)>1.5) TGap = gap/((.0300813*pow(fabs(Rtrack),5.72420)-2.39001*pow(fabs(Rtrack),1.75507)+8.89574));
-		  if (fabs(eta)<1.7 && fabs(eta)>1.6) TGap = gap/((.0217449*pow(fabs(Rtrack),5.96287)-2.38264*pow(fabs(Rtrack),1.70580)+8.89384));
-		  if (fabs(eta)<1.8 && fabs(eta)>1.7) TGap = gap/((.0153687*pow(fabs(Rtrack),6.24080)-2.36323*pow(fabs(Rtrack),1.67239)+8.91872));
-		  if (fabs(eta)<1.9 && fabs(eta)>1.8) TGap = gap/((.0111157*pow(fabs(Rtrack),6.57710)-2.32227*pow(fabs(Rtrack),1.65943)+8.94240));
-		  if (fabs(eta)<2.0 && fabs(eta)>1.9) TGap = gap/((.00890940*pow(fabs(Rtrack),6.86340)-2.26815*pow(fabs(Rtrack),1.65027)+8.90461));
+		  if (std::abs(eta)<0.9 && std::abs(eta)>0.8) TGap = gap/((.280989*pow(std::abs(Rtrack),3.78618)-2.52785*pow(std::abs(Rtrack),1.98014)+8.22240));
+		  if (std::abs(eta)<1.0 && std::abs(eta)>0.9) TGap = gap/((.0848913*pow(std::abs(Rtrack),4.73693)-2.38324*pow(std::abs(Rtrack),1.83445)+8.41772));
+		  if (std::abs(eta)<1.1 && std::abs(eta)>1.0) TGap = gap/((.0709059*pow(std::abs(Rtrack),4.86962)-2.41818*pow(std::abs(Rtrack),1.80467)+8.58839));
+		  if (std::abs(eta)<1.2 && std::abs(eta)>1.1) TGap = gap/((.0543339*pow(std::abs(Rtrack),5.10085)-2.41581*pow(std::abs(Rtrack),1.78433)+8.69492));
+		  if (std::abs(eta)<1.3 && std::abs(eta)>1.2) TGap = gap/((.0304298*pow(std::abs(Rtrack),5.72427)-2.41395*pow(std::abs(Rtrack),1.74796)+8.79894));
+		  if (std::abs(eta)<1.4 && std::abs(eta)>1.3) TGap = gap/((.0427503*pow(std::abs(Rtrack),5.35505)-2.42229*pow(std::abs(Rtrack),1.77298)+8.85050));
+		  if (std::abs(eta)<1.5 && std::abs(eta)>1.4) TGap = gap/((.0281426*pow(std::abs(Rtrack),5.80661)-2.40467*pow(std::abs(Rtrack),1.74990)+8.88722));
+		  if (std::abs(eta)<1.6 && std::abs(eta)>1.5) TGap = gap/((.0300813*pow(std::abs(Rtrack),5.72420)-2.39001*pow(std::abs(Rtrack),1.75507)+8.89574));
+		  if (std::abs(eta)<1.7 && std::abs(eta)>1.6) TGap = gap/((.0217449*pow(std::abs(Rtrack),5.96287)-2.38264*pow(std::abs(Rtrack),1.70580)+8.89384));
+		  if (std::abs(eta)<1.8 && std::abs(eta)>1.7) TGap = gap/((.0153687*pow(std::abs(Rtrack),6.24080)-2.36323*pow(std::abs(Rtrack),1.67239)+8.91872));
+		  if (std::abs(eta)<1.9 && std::abs(eta)>1.8) TGap = gap/((.0111157*pow(std::abs(Rtrack),6.57710)-2.32227*pow(std::abs(Rtrack),1.65943)+8.94240));
+		  if (std::abs(eta)<2.0 && std::abs(eta)>1.9) TGap = gap/((.00890940*pow(std::abs(Rtrack),6.86340)-2.26815*pow(std::abs(Rtrack),1.65027)+8.90461));
 		}
 		//========ENDCAP MC===============================
 		if (m_mcswitch ==1 && (bec!=1 && bec!=-1)) {
-		  if (fabs(eta)<0.9 && fabs(eta)>0.8) TGap = gap/((.00000282950*pow(fabs(Rtrack),18.3737)-1.05569*pow(fabs(Rtrack),2.27545)+5.97535));
-		  if (fabs(eta)<1.0 && fabs(eta)>0.9) TGap = gap/((.00000719904*pow(fabs(Rtrack),16.9277)-1.13237*pow(fabs(Rtrack),2.25351)+6.25901));
-		  if (fabs(eta)<1.1 && fabs(eta)>1.0) TGap = gap/((.00000180076*pow(fabs(Rtrack),18.7808)-1.23004*pow(fabs(Rtrack),2.17603)+6.51411));
-		  if (fabs(eta)<1.2 && fabs(eta)>1.1) TGap = gap/((.000000652098*pow(fabs(Rtrack),20.1089)-1.32235*pow(fabs(Rtrack),2.11510)+6.74394));
-		  if (fabs(eta)<1.3 && fabs(eta)>1.2) TGap = gap/((.000000158218*pow(fabs(Rtrack),22.0124)-1.41428*pow(fabs(Rtrack),2.04860)+6.95308));
-		  if (fabs(eta)<1.4 && fabs(eta)>1.3) TGap = gap/((.0000000495484*pow(fabs(Rtrack),23.5834)-1.47129*pow(fabs(Rtrack),2.01003)+7.11830));
-		  if (fabs(eta)<1.5 && fabs(eta)>1.4) TGap = gap/((.000000393189*pow(fabs(Rtrack),20.5908)-1.51725*pow(fabs(Rtrack),1.98343)+7.25927));
-		  if (fabs(eta)<1.6 && fabs(eta)>1.5) TGap = gap/((.000000345984*pow(fabs(Rtrack),20.9028)-1.53850*pow(fabs(Rtrack),1.96704)+7.34837));
-		  if (fabs(eta)<1.7 && fabs(eta)>1.6) TGap = gap/((.000000777268*pow(fabs(Rtrack),19.7132)-1.54808*pow(fabs(Rtrack),1.93878)+7.37986));
-		  if (fabs(eta)<1.8 && fabs(eta)>1.7) TGap = gap/((.000000314758*pow(fabs(Rtrack),20.9848)-1.54640*pow(fabs(Rtrack),1.91034)+7.40800));
-		  if (fabs(eta)<1.9 && fabs(eta)>1.8) TGap = gap/((.000000850534*pow(fabs(Rtrack),19.6195)-1.52880*pow(fabs(Rtrack),1.90915)+7.43214));
-		  if (fabs(eta)<2.0 && fabs(eta)>1.9) TGap = gap/((.00000245275*pow(fabs(Rtrack),18.1615)-1.49520*pow(fabs(Rtrack),1.92057)+7.42649));
-		  if (fabs(eta)<2.1 && fabs(eta)>2.0) TGap = gap/((.0000271320*pow(fabs(Rtrack),14.8130)-1.50875*pow(fabs(Rtrack),1.90915)+7.38428));
-		  if (fabs(eta)<2.2 && fabs(eta)>2.1) TGap = gap/((.0000687527*pow(fabs(Rtrack),17.5651)-.0315462*pow(fabs(Rtrack),8.53188)+4.39271));
+		  if (std::abs(eta)<0.9 && std::abs(eta)>0.8) TGap = gap/((.00000282950*pow(std::abs(Rtrack),18.3737)-1.05569*pow(std::abs(Rtrack),2.27545)+5.97535));
+		  if (std::abs(eta)<1.0 && std::abs(eta)>0.9) TGap = gap/((.00000719904*pow(std::abs(Rtrack),16.9277)-1.13237*pow(std::abs(Rtrack),2.25351)+6.25901));
+		  if (std::abs(eta)<1.1 && std::abs(eta)>1.0) TGap = gap/((.00000180076*pow(std::abs(Rtrack),18.7808)-1.23004*pow(std::abs(Rtrack),2.17603)+6.51411));
+		  if (std::abs(eta)<1.2 && std::abs(eta)>1.1) TGap = gap/((.000000652098*pow(std::abs(Rtrack),20.1089)-1.32235*pow(std::abs(Rtrack),2.11510)+6.74394));
+		  if (std::abs(eta)<1.3 && std::abs(eta)>1.2) TGap = gap/((.000000158218*pow(std::abs(Rtrack),22.0124)-1.41428*pow(std::abs(Rtrack),2.04860)+6.95308));
+		  if (std::abs(eta)<1.4 && std::abs(eta)>1.3) TGap = gap/((.0000000495484*pow(std::abs(Rtrack),23.5834)-1.47129*pow(std::abs(Rtrack),2.01003)+7.11830));
+		  if (std::abs(eta)<1.5 && std::abs(eta)>1.4) TGap = gap/((.000000393189*pow(std::abs(Rtrack),20.5908)-1.51725*pow(std::abs(Rtrack),1.98343)+7.25927));
+		  if (std::abs(eta)<1.6 && std::abs(eta)>1.5) TGap = gap/((.000000345984*pow(std::abs(Rtrack),20.9028)-1.53850*pow(std::abs(Rtrack),1.96704)+7.34837));
+		  if (std::abs(eta)<1.7 && std::abs(eta)>1.6) TGap = gap/((.000000777268*pow(std::abs(Rtrack),19.7132)-1.54808*pow(std::abs(Rtrack),1.93878)+7.37986));
+		  if (std::abs(eta)<1.8 && std::abs(eta)>1.7) TGap = gap/((.000000314758*pow(std::abs(Rtrack),20.9848)-1.54640*pow(std::abs(Rtrack),1.91034)+7.40800));
+		  if (std::abs(eta)<1.9 && std::abs(eta)>1.8) TGap = gap/((.000000850534*pow(std::abs(Rtrack),19.6195)-1.52880*pow(std::abs(Rtrack),1.90915)+7.43214));
+		  if (std::abs(eta)<2.0 && std::abs(eta)>1.9) TGap = gap/((.00000245275*pow(std::abs(Rtrack),18.1615)-1.49520*pow(std::abs(Rtrack),1.92057)+7.42649));
+		  if (std::abs(eta)<2.1 && std::abs(eta)>2.0) TGap = gap/((.0000271320*pow(std::abs(Rtrack),14.8130)-1.50875*pow(std::abs(Rtrack),1.90915)+7.38428));
+		  if (std::abs(eta)<2.2 && std::abs(eta)>2.1) TGap = gap/((.0000687527*pow(std::abs(Rtrack),17.5651)-.0315462*pow(std::abs(Rtrack),8.53188)+4.39271));
 		  //=============================================================================================
 		}
 		

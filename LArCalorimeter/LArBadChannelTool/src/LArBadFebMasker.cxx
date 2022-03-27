@@ -27,9 +27,9 @@ StatusCode LArBadFebMasker::initialize()
 {
    ATH_MSG_DEBUG ( "in initialize()" );
 
-   if(!m_doMasking) return StatusCode::SUCCESS; //Do nothing
+   ATH_CHECK(m_bfContKey.initialize(m_doMasking));
 
-   ATH_CHECK(m_bfContKey.initialize());
+   if(!m_doMasking) return StatusCode::SUCCESS; //Do nothing
      
    buildBitMask();
 

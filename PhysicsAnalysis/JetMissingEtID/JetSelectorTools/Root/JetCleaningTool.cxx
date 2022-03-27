@@ -191,7 +191,7 @@ StatusCode JetCleaningTool::initialize()
   if(m_jetContainerName.empty()) {
       ATH_MSG_WARNING("Impossible to initialize JetCleaningTool decorators with empty container name. Please fix that if you are trying to decorate jets with jet cleaning variables.");
   }
-  else ATH_CHECK(m_jetCleanKey.initialize());
+  ATH_CHECK(m_jetCleanKey.initialize(!m_jetContainerName.empty()));
 
   return StatusCode::SUCCESS;
 }

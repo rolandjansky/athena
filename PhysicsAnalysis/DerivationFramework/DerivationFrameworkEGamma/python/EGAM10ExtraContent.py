@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #Content included in addition to the Smart Slimming Content
 ExtraContentElectrons=["Electrons.topoetcone20.topoetcone30.topoetcone40.ptcone20.ptcone30.ptcone40.maxEcell_time.maxEcell_energy.maxEcell_gain.maxEcell_onlId.maxEcell_x.maxEcell_y.maxEcell_z"] + ["egammaClusters.PHI2CALOFRAME.ETA2CALOFRAME.phi_sampl"]
@@ -7,7 +7,7 @@ ExtraContentPhotons=["Photons.topoetcone20.topoetcone30.topoetcone40.ptcone20.pt
 
 ExtraContentVtx=["PrimaryVertices.x.y.z.covariance.trackWeights.vertexType.sumPt2.EGAM10_sumPt.EGAM10_sumPt2.EGAM10_pt.EGAM10_eta.EGAM10_phi"]
 
-ExtraContentTrk=["InDetTrackParticles.definingParametersCovMatrixVec.theta.z0.d0.qOverP"]
+ExtraContentTrk=["InDetTrackParticles.definingParametersCovMatrixVec.theta.z0.d0.qOverP.TTVA_AMVFVertices.TTVA_AMVFWeights"]
 
 ExtraContentJets=[]
 #ExtraContentJets=["AntiKt4EMPFlowJets.EMFrac.Width.TrackWidthPt500.SumPtTrkPt1000.EnergyPerSampling.GhostTrack.DFCommonJets_jetClean_LooseBad.DFCommonJets_jetClean_TightBad.Timing.FracSamplingMax.FracSamplingMaxIndex.HECFrac.LArQuality.HECQuality.NegativeE.AverageLArQF"]

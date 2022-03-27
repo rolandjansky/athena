@@ -1,0 +1,5 @@
+AthenaKernel/ILockableTool_test
+test1
+lock
+unlock
+test1 exiting

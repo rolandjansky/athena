@@ -26,7 +26,7 @@ namespace xAOD {
       jFexSumETRoI_v1();
 
       /// In future initialze the xTOB as well, word1
-      void initialize( uint8_t jFexNumber,uint8_t fpgaNumber, uint32_t tobWord) ;
+      void initialize( uint8_t jFexNumber,uint8_t fpgaNumber, uint32_t tobWord, int resolution) ;
 
       /// The "raw" 32-bit word describing the object candidate
       uint32_t  tobWord()      const;
@@ -36,6 +36,7 @@ namespace xAOD {
       uint8_t   tobSat_lower() const;
       uint16_t  tobEt_upper()  const;
       uint8_t   tobSat_upper() const;
+      int       tobEtScale()    const;
 
       /// Set the "raw" 32-bit words describing the object candidate
       void setTobWord   ( uint32_t tobWord   ) ;
@@ -59,22 +60,24 @@ namespace xAOD {
       //Unpack saturation for upper from the SumEt TOB word     
       uint8_t unpackSat_upper() const;
       void setTobSat_upper( uint8_t value) ; 
+            
+      //Et resolution
+      void setResolution(int value);
     
    private:
-      //Constants used in converting to ATLAS units
-      static const float s_tobEtScale;
 
       // Data locations within word
-      static const int s_Et_lowerBit  = 17; 
-      static const int s_Sat_lowerBit = 16; 
-      static const int s_Et_upperBit  = 1; 
-      static const int s_Sat_upperBit = 0;
-
+      static const int s_Sat_upperBit = 31;
+      static const int s_Et_upperBit  = 16;
+      static const int s_Et_lowerBit  = 1; 
+      static const int s_Sat_lowerBit = 0; 
+      
       //Data masks
+      static const int s_Sat_upperMask  = 0x1;
+      static const int s_Et_upperMask   = 0x7fff;
       static const int s_Et_lowerMask   = 0x7fff;
       static const int s_Sat_lowerMask  = 0x1;
-      static const int s_Et_upperMask   = 0x7fff;
-      static const int s_Sat_upperMask  = 0x1; 
+      
 
    }; // class jFexSumETRoI_v1
 

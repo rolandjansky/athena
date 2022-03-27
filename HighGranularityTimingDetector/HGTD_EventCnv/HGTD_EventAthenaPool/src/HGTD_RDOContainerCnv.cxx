@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  *
  * @file HGTD_EventAthenaPool/src/HGTD_RDOContainerCnv.cxx
  * @author Alexander Leopold <alexander.leopold@cern.ch>
@@ -24,7 +24,7 @@ HGTD_RDOContainer* HGTD_RDOContainerCnv::createTransient() {
   HGTD_RDOContainer* trans_cont(0);
   if (compareClassGuid(p1_guid)) {
     ATH_MSG_DEBUG("createTransient(): T/P version 1 detected");
-    std::auto_ptr<HGTD_RDOContainer_PERS_t> pers_cont(
+    std::unique_ptr<HGTD_RDOContainer_PERS_t> pers_cont(
         poolReadObject<HGTD_RDOContainer_PERS_t>());
 
     trans_cont = m_converter.createTransient(pers_cont.get(), msg());

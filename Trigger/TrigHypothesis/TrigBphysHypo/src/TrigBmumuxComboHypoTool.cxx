@@ -68,17 +68,20 @@ StatusCode TrigBmumuxComboHypoTool::decideOnSingleObject(Decision* decision, con
   auto trigBphysEL = decision->objectLink<xAOD::TrigBphysContainer>(TrigCompositeUtils::featureString());
   ATH_CHECK( trigBphysEL.isValid() );
 
-  ATH_CHECK( previousDecisionIDs.size() == 2 );
-
   const std::vector<HLT::Identifier>& legDecisionIDs = legDecisionIds();
-  if (legDecisionIDs.size() == 1 && legMultiplicity().at(0) >= 2) {  // trigger with symmetric legs
+  if (legDecisionIDs.size() == 1) {  // bBmumux chain with symmetric legs or bBmux chain with single leg
+    auto n = static_cast<size_t>(legMultiplicity().at(0));
+    ATH_CHECK( previousDecisionIDs.size() == n );
     const DecisionID id = legDecisionIDs[0].numeric();
-    if (!TrigCompositeUtils::passed(id, *previousDecisionIDs[0]) || !TrigCompositeUtils::passed(id, *previousDecisionIDs[1])) {
-      ATH_MSG_DEBUG( "Trigger with symmetric legs did not match to the previous decisions" );
-      return StatusCode::SUCCESS;
+    for (size_t i = 0; i < n; ++i) {
+      if (!TrigCompositeUtils::passed(id, *previousDecisionIDs[i])) {
+        ATH_MSG_DEBUG( "Trigger with symmetric legs did not match to the previous decisions" );
+        return StatusCode::SUCCESS;
+      }
     }
   }
-  else if (legDecisionIDs.size() == 2) {  // trigger with asymmetric legs
+  else if (legDecisionIDs.size() == 2) {  // bBmumux chain with asymmetric legs
+    ATH_CHECK( previousDecisionIDs.size() == 2 );
     bool direct = true;
     bool inverse = true;
     for (size_t i = 0; i < 2; ++i) {

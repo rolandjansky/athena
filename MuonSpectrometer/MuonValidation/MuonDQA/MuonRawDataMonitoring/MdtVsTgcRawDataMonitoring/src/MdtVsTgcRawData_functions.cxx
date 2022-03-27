@@ -18,7 +18,7 @@
 //mdt stuff
 #include "MuonCalibIdentifier/MuonFixedId.h"
  
-#include "MdtVsTgcRawDataMonitoring/MdtVsTgcRawDataValAlg.h"
+#include "MdtVsTgcRawDataValAlg.h"
 
 #include <TList.h>
 #include <TBox.h>

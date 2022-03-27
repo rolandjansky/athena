@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STGCSIMHITVARIABLES_H
@@ -33,6 +33,11 @@ class sTGCSimHitVariables : public ValAlgVariables
     m_NSWsTGC_hitGlobalDirectionX(), 
     m_NSWsTGC_hitGlobalDirectionY(), 
     m_NSWsTGC_hitGlobalDirectionZ(), 
+    m_NSWsTGC_hitGlobalPrePositionX(), 
+    m_NSWsTGC_hitGlobalPrePositionY(), 
+    m_NSWsTGC_hitGlobalPrePositionZ(), 
+    m_NSWsTGC_hitGlobalPrePositionR(),
+    m_NSWsTGC_hitGlobalPrePositionP(),
     m_NSWsTGC_detector_globalPositionX(),
     m_NSWsTGC_detector_globalPositionY(),
     m_NSWsTGC_detector_globalPositionZ(),
@@ -48,6 +53,7 @@ class sTGCSimHitVariables : public ValAlgVariables
     m_NSWsTGC_FastDigitRsurfacePositionY(),
     m_NSWsTGC_particleEncoding(), 
     m_NSWsTGC_depositEnergy(), 
+    m_NSWsTGC_kineticEnergy(), 
     m_NSWsTGC_sim_stationName(),
     m_NSWsTGC_wedgeId(),
     m_NSWsTGC_wedgeType(),
@@ -108,6 +114,11 @@ class sTGCSimHitVariables : public ValAlgVariables
   std::vector<double> m_NSWsTGC_hitGlobalDirectionX;
   std::vector<double> m_NSWsTGC_hitGlobalDirectionY;
   std::vector<double> m_NSWsTGC_hitGlobalDirectionZ;
+  std::vector<double> m_NSWsTGC_hitGlobalPrePositionX;
+  std::vector<double> m_NSWsTGC_hitGlobalPrePositionY;
+  std::vector<double> m_NSWsTGC_hitGlobalPrePositionZ;
+  std::vector<double> m_NSWsTGC_hitGlobalPrePositionR;
+  std::vector<double> m_NSWsTGC_hitGlobalPrePositionP;
 
   std::vector<double> m_NSWsTGC_detector_globalPositionX;
   std::vector<double> m_NSWsTGC_detector_globalPositionY;
@@ -128,16 +139,17 @@ class sTGCSimHitVariables : public ValAlgVariables
 
   std::vector<int> m_NSWsTGC_particleEncoding;
   std::vector<double> m_NSWsTGC_depositEnergy;
+  std::vector<double> m_NSWsTGC_kineticEnergy;
 
   std::vector<std::string> m_NSWsTGC_sim_stationName;
   std::vector<int> m_NSWsTGC_wedgeId;        // large=0, small=1
   std::vector<int> m_NSWsTGC_wedgeType;      // pivot 0, confirmation 1
-  std::vector<int> m_NSWsTGC_detectorNumber; // [0-3]
+  std::vector<int> m_NSWsTGC_detectorNumber; // quad [1-3]
   std::vector<int> m_NSWsTGC_sim_stationEta;
   std::vector<int> m_NSWsTGC_sim_stationPhi; // [1-16]
   std::vector<int> m_NSWsTGC_sim_multilayer; // [1-2]
   std::vector<int> m_NSWsTGC_sim_layer;      // [1-4]
-  std::vector<int> m_NSWsTGC_sim_side;       // [1-4]
+  std::vector<int> m_NSWsTGC_sim_side;       // -1 or 1
   std::vector<int> m_NSWsTGC_stripNumber;
   std::vector<int> m_NSWsTGC_wireNumber;     // wire groups 0-31 in increasing phi
 

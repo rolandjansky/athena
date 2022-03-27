@@ -1,3 +1,4 @@
+/// emacs: this is -*- c++ -*-
 /**
  **     @file    TagNProbe.h
  **
@@ -89,6 +90,26 @@ public:
     m_chain = chain;
     m_chain_tnp = chain_tnp;
   }
+
+  template<typename T> 
+  void Fill( T* h, T* h1, int i ) { 
+    /// don't need to check both these, we can just call this as many times as we like, 
+    /// could pass in the vector even so that  
+    // we leave the old code in, but commented, since we are still developing, so once 
+    // we know everything is working we can delete all the older code
+    //    if ( m_masses[i].size() == m_masses_obj[i].size() && m_masses[i].size() > 0 ) {
+
+    /// don't understand this - why is this method filling lots of masses 
+    /// from an vector of masses from 0 up to the input index ?
+    /// isn't this index just the index of the roi ? Why the loop ?
+    for ( size_t im=0 ; im<m_masses[i].size() ; im++ ) { 
+      h->Fill( m_masses[i].at(im) );
+    }
+    for ( size_t im=0 ; im<m_masses_obj[i].size() ; im++ ) { 
+      h1->Fill( m_masses_obj[i].at(im) );
+    }
+  } 
+
 
   /// probe searching method
 
@@ -184,7 +205,6 @@ private:
   double m_ZmassMin, m_ZmassMax;
 
   TrigObjectMatcher* m_tom;
-
 
   /// supporting variables for utility methods
 

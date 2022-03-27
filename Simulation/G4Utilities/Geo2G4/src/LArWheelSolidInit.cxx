@@ -1,13 +1,15 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cassert>
 #include <stdexcept>
 #include <iostream>
 
+
+#include "GeoSpecialShapes/EMECData.h"
+
 #include "CLHEP/Units/PhysicalConstants.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "G4GeometryTolerance.hh"
 #include "G4Polycone.hh"
 
@@ -15,6 +17,10 @@
 #include "LArWheelSolid.h"
 #include "LArFanSection.h"
 #include "G4ShiftedCone.h"
+
+#ifndef PORTABLE_LAR_SHAPE
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#endif
 
 #ifdef DEBUG_LARWHEELSOLID
 G4int LArWheelSolid::Verbose = 0;
@@ -29,16 +35,20 @@ const G4double LArWheelSolid::s_IterationPrecision2 = s_IterationPrecision * s_I
 
 LArWheelSolid::LArWheelSolid(const G4String& name, LArWheelSolid_t type,
                              G4int zside,
-                             LArWheelCalculator *calc
+                             LArWheelCalculator *calc,
+			     const EMECData *emecData
                              )
-  : G4VSolid(name), m_Type(type), m_Calculator(calc), m_PhiPosition(CLHEP::halfpi), m_fs(0),
-    m_msg("LArWheelSolid"),
-    m_f_area(0), m_f_vol(0), m_f_area_on_pc(0), m_f_length(0), m_f_side_area(0)
+  : G4VSolid(name), m_Type(type), m_Calculator(calc), m_PhiPosition(CLHEP::halfpi), m_fs(0)
+#ifndef PORTABLE_LAR_SHAPE
+  , m_msg("LArWheelSolid")
+#endif
 {
+#ifndef PORTABLE_LAR_SHAPE
 #ifdef LARWHEELSOLID_USE_FANBOUND
   ATH_MSG_INFO ( "compiled with G4 FanBound" );
 #else
   ATH_MSG_INFO ( "compiled with private find_exit_point" );
+#endif
 #endif
 
   LArG4::LArWheelCalculator_t calc_type = LArG4::LArWheelCalculator_t(0);
@@ -120,7 +130,7 @@ LArWheelSolid::LArWheelSolid(const G4String& name, LArWheelSolid_t type,
                 "Constructor: unknown LArWheelSolid_t");
   }
 
-  if(m_Calculator == 0) m_Calculator = new LArWheelCalculator(calc_type, zside);
+  if(m_Calculator == 0) m_Calculator = new LArWheelCalculator(*emecData,calc_type, zside);
 
   const G4String bs_name = name + "-Bounding";
 #ifdef DEBUG_LARWHEELSOLID
@@ -170,11 +180,12 @@ LArWheelSolid::LArWheelSolid(const G4String& name, LArWheelSolid_t type,
   }
 
   m_Zsect_start_search = (m_Zsect.size() - 1) - 1;
-
+#ifndef PORTABLE_LAR_SHAPE
   init_tests();
   test(); // activated by env. variable
   clean_tests();
-
+#endif
+  
 #ifdef DEBUG_LARWHEELSOLID
   m_fs->print();
   std::cout << "Limits: (" << m_Zsect.size() << ")" << std::endl;
@@ -182,9 +193,11 @@ LArWheelSolid::LArWheelSolid(const G4String& name, LArWheelSolid_t type,
     std::cout << i << " " << m_Zsect[i] << std::endl;
   }
 #endif
+#ifndef PORTABLE_LAR_SHAPE
   ATH_MSG_DEBUG ( "solid of type "
                   << LArWheelCalculator::LArWheelCalculatorTypeString(calc_type)
                   << " initialized" );
+#endif
 }
 
 LArWheelSolid::~LArWheelSolid()
@@ -234,8 +247,10 @@ void LArWheelSolid::inner_solid_init(const G4String &bs_name)
     FanBound = new G4Polycone(bs_name + "ofFan", phi_min, phi_size,
                               2, zPlane, rInner, rOuter);
 #endif
+#ifndef PORTABLE_LAR_SHAPE
     ATH_MSG_INFO(m_BoundingShape->GetName() + " is the m_BoundingShape");
-
+#endif
+    
     const G4double half_wave_length = GetCalculator()->GetHalfWaveLength();
     const G4double sss = GetCalculator()->GetStraightStartSection();
     m_Zsect.push_back(0.);
@@ -323,8 +338,9 @@ void LArWheelSolid::outer_solid_init(const G4String &bs_name)
   FanBound = new G4Polycone(bs_name + "ofFan", phi_min, phi_size,
                             3, zPlane, rInner, rOuter);
 #endif
+#ifndef PORTABLE_LAR_SHAPE
     ATH_MSG_INFO(m_BoundingShape->GetName() + " is the m_BoundingShape");
-
+#endif
     const G4double half_wave_length = GetCalculator()->GetHalfWaveLength();
     const G4double sss = GetCalculator()->GetStraightStartSection();
 

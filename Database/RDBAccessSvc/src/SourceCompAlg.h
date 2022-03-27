@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RDBACCESSSVC_SOURCECOMPALG_H
@@ -17,11 +17,10 @@ class SourceCompAlg : public AthAlgorithm
 {
  public:
   SourceCompAlg(const std::string& name, ISvcLocator* pSvcLocator);
-  ~SourceCompAlg();
 
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
 
  private:
   Gaudi::Property<std::string> m_globalTag {this
@@ -34,9 +33,9 @@ class SourceCompAlg : public AthAlgorithm
   std::vector<std::string> getGlobalTags(RDBAccessSvc* rdbAccessSvc
 					 , std::ofstream& log);
 
-  void compareGlobalTags(const std::vector<std::string>& globalTags
-			 , RDBAccessSvc* rdbAccessSvc
-			 , std::ofstream& log);
+  StatusCode compareGlobalTags(const std::vector<std::string>& globalTags
+			       , RDBAccessSvc* rdbAccessSvc
+			       , std::ofstream& log);
 };
 
 #endif

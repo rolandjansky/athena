@@ -536,7 +536,7 @@ Trk::STEP_Propagator::propagateM (const EventContext&                           
                                   ParticleHypothesis                                         particle,
                                   std::vector<unsigned int>&                                 solutions,
                                   std::vector<const Trk::TrackStateOnSurface*>*&             matstates,
-                                  std::vector<std::pair<const Trk::TrackParameters*,int> >*& intersections,
+                                  std::vector<std::pair<std::unique_ptr<Trk::TrackParameters>,int>>* intersections,
                                   double&                                                    path,
                                   bool                                                       usePathLimit,
                                   bool                                                       returnCurv,
@@ -1775,11 +1775,11 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
             Amg::Vector3D(P[0], P[1], P[2]), localp[2], localp[3], localp[4]);
           if (cache.m_identifiedParameters) {
             if (binIDMat && binIDMat->second>0 && !iMat ) {  // exit from active layer
-              cache.m_identifiedParameters->push_back(std::pair<const Trk::TrackParameters*,int> (cPar->clone(),-binIDMat->second));
+              cache.m_identifiedParameters->push_back(std::pair<std::unique_ptr<Trk::TrackParameters>,int> (cPar->clone(),-binIDMat->second));
             } else if (binIDMat && binIDMat->second>0 && (iMat->second==0 || iMat->second==binIDMat->second) ) {  // exit from active layer
-              cache.m_identifiedParameters->push_back(std::pair<const Trk::TrackParameters*,int> (cPar->clone(),-binIDMat->second));
+              cache.m_identifiedParameters->push_back(std::pair<std::unique_ptr<Trk::TrackParameters>,int> (cPar->clone(),-binIDMat->second));
             } else if (iMat && iMat->second>0) {       // entry active layer
-              cache.m_identifiedParameters->push_back(std::pair<const Trk::TrackParameters*,int> (cPar->clone(),iMat->second));
+              cache.m_identifiedParameters->push_back(std::pair<std::unique_ptr<Trk::TrackParameters>,int> (cPar->clone(),iMat->second));
             }
           }
           if (cache.m_hitVector) {
@@ -1831,12 +1831,12 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
           //}
           if (cache.m_identifiedParameters ) {
             if (binIDMat && binIDMat->second>0 && !nextMat ) {  // exit from active layer
-              cache.m_identifiedParameters->push_back(std::pair<const Trk::TrackParameters*,int> (cPar->clone(),-binIDMat->second));
+              cache.m_identifiedParameters->push_back(std::pair<std::unique_ptr<Trk::TrackParameters>,int> (cPar->clone(),-binIDMat->second));
             } else if (binIDMat && binIDMat->second>0 && (nextMat->second==0 || nextMat->second==binIDMat->second) ) {
               // exit from active layer
-              cache.m_identifiedParameters->push_back(std::pair<const Trk::TrackParameters*,int> (cPar->clone(),-binIDMat->second));
+              cache.m_identifiedParameters->push_back(std::pair<std::unique_ptr<Trk::TrackParameters>,int> (cPar->clone(),-binIDMat->second));
             } else if (nextMat && nextMat->second>0) {       // entry active layer
-              cache.m_identifiedParameters->push_back(std::pair<const Trk::TrackParameters*,int> (cPar->clone(),nextMat->second));
+              cache.m_identifiedParameters->push_back(std::pair<std::unique_ptr<Trk::TrackParameters>,int> (cPar->clone(),nextMat->second));
             }
           }
           if (cache.m_hitVector) {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -20,17 +20,31 @@
 //_________________________________________________________
 VP1MCChannel::VP1MCChannel()
   : IVP1ChannelWidget(VP1CHANNELNAMEINPLUGIN(VP1MCChannel,"MC"),
-		      "This channel simply shows the MC Tree, provided by the VP1MCSystem.",
-		      "Joseph.Boudreau@cern.ch"),
-    treeWidget(0)
+              "This channel simply shows the MC Tree, provided by the VP1MCSystem.",
+              "Joseph.Boudreau@cern.ch, Riccardo.Maria.Bianchi@cern.ch"),
+    m_treeWidget(0)
 {
 }
+
+
+//_________________________________________________________
+// Empty destructor
+// Note: we need to have this in the .cpp,
+// instead of having it in the header file,
+// to let the destroyer of the unique_ptr know about the 
+// size of the object to be deleted, so we can keep using
+// the forward declaration in the header and the Pimpl idiom.
+// 
+// Nice source about this: 
+// - https://ortogonal.github.io/cpp/forward-declaration-and-smart-pointers/
+VP1MCChannel::~VP1MCChannel() {}
+
 
 //_________________________________________________________
 void VP1MCChannel::init()
 {
-  mcsystem.reset (new VP1MCSystem());
-  registerSystem(mcsystem.get());
+  m_mcsystem.reset (new VP1MCSystem());
+  registerSystem(m_mcsystem.get());
  
 }
 
@@ -40,10 +54,10 @@ void VP1MCChannel::create() {
   //Setup this widget
   Ui::MCChannelWidgetForm ui;
   ui.setupUi(this);
-  treeWidget = ui.treeWidget;
-  registerController(mcsystem->controllerWidget());
+  m_treeWidget = ui.treeWidget;
+  registerController(m_mcsystem->controllerWidget());
 
-  mcsystem->setTree(treeWidget);
+  m_mcsystem->setTree(m_treeWidget);
 
 }
 

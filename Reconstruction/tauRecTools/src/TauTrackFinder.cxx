@@ -48,9 +48,7 @@ StatusCode TauTrackFinder::initialize() {
     ATH_CHECK( m_jetContainer.initialize(SG::AllowEmpty) );
   }
 
-  if (inTrigger()) {
-    ATH_CHECK(m_beamSpotKey.initialize());
-  }
+  ATH_CHECK( m_beamSpotKey.initialize(inTrigger()) );
 
   return StatusCode::SUCCESS;
 }

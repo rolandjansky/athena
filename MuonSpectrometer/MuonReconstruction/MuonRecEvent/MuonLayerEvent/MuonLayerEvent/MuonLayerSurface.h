@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONLAYERSURFACE_H
@@ -13,22 +13,21 @@ namespace Muon {
 
     /** types */
     struct MuonLayerSurface {
-        typedef std::shared_ptr<const Trk::Surface> SurfacePtr;
+        using SurfacePtr = std::shared_ptr<const Trk::Surface>;
 
-        MuonLayerSurface() :
-            surfacePtr(nullptr),
-            sector(-1),
-            regionIndex(MuonStationIndex::DetectorRegionUnknown),
-            layerIndex(MuonStationIndex::LayerUnknown) {}
+        MuonLayerSurface() = default;
 
         MuonLayerSurface(SurfacePtr surfacePtr_, int sector_, MuonStationIndex::DetectorRegionIndex regionIndex_,
                          MuonStationIndex::LayerIndex layerIndex_) :
-            surfacePtr(surfacePtr_), sector(sector_), regionIndex(regionIndex_), layerIndex(layerIndex_) {}
+            surfacePtr{surfacePtr_}, sector{sector_}, regionIndex{regionIndex_}, layerIndex{layerIndex_} {}
 
-        SurfacePtr surfacePtr;
-        int sector;
-        MuonStationIndex::DetectorRegionIndex regionIndex;
-        MuonStationIndex::LayerIndex layerIndex;
+        inline MuonStationIndex::StIndex stIndex() const {
+            return Muon::MuonStationIndex::toStationIndex(regionIndex, layerIndex);
+        }
+        SurfacePtr surfacePtr{nullptr};
+        int sector{-1};
+        MuonStationIndex::DetectorRegionIndex regionIndex{MuonStationIndex::DetectorRegionUnknown};
+        MuonStationIndex::LayerIndex layerIndex{MuonStationIndex::LayerUnknown};
     };
 
 }  // namespace Muon

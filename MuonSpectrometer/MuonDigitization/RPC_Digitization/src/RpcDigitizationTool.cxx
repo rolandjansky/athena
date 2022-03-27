@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -274,7 +274,7 @@ StatusCode RpcDigitizationTool::initialize() {
     // fill the taginfo information
     ATH_CHECK(fillTagInfo());
 
-    if (m_RPCInfoFromDb) { ATH_CHECK(m_readKey.initialize()); }
+    ATH_CHECK(m_readKey.initialize(m_RPCInfoFromDb));
 
     if (m_PrintCalibrationVector) { ATH_CHECK(PrintCalibrationVector()); }
 
@@ -1813,7 +1813,7 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const EventContext& ctx, con
 
     // Efficiency correction factor for fractional-charged particles(added by Quanyin Li: quli@cern.ch)
     // link to truth particles and calculate the charge and betagamma
-    const HepMC::GenParticle* genparticle = trkParticle.cptr();
+    HepMC::ConstGenParticlePtr genparticle = trkParticle.cptr();
     if (genparticle) {
         const int particlePdgId = genparticle->pdg_id();
         // only apply efficiency correction to fractional-charged particles based on pdgId betagamma
@@ -2323,8 +2323,8 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB(const EventContext& ctx) 
                                 bool isValid = false;
                                 Identifier rpcId =
                                     m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi, 1, 1, 1,
-                                                          true, &isValid);  // last 5 arguments are: int doubletPhi, int gasGap, int
-                                                                            // measuresPhi, int strip, bool check, bool* isValid
+                                                                 isValid);  // last 5 arguments are: int doubletPhi, int gasGap, int
+                                                                            // measuresPhi, int strip, bool& isValid
                                 if (!isValid) continue;
                                 const RpcReadoutElement* rpc = m_GMmgr->getRpcReadoutElement(rpcId);
 
@@ -2634,8 +2634,8 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB(const EventContext& ctx) 
                                     bool isValid = false;
                                     Identifier rpcId =
                                         m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi, 1, 1, 1,
-                                                              true, &isValid);  // last 5 arguments are: int doubletPhi, int gasGap, int
-                                                                                // measuresPhi, int strip, bool check, bool* isValid
+                                                                    isValid);  // last 5 arguments are: int doubletPhi, int gasGap, int
+                                                                                // measuresPhi, int strip, bool& isValid
                                     if (!isValid) continue;
                                     const RpcReadoutElement* rpc = m_GMmgr->getRpcReadoutElement(rpcId);
                                     if (!rpc) continue;
@@ -2711,8 +2711,8 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB(const EventContext& ctx) 
                                     bool isValid = false;
                                     Identifier rpcId =
                                         m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi, 1, 1, 1,
-                                                              true, &isValid);  // last 5 arguments are: int doubletPhi, int gasGap, int
-                                                                                // measuresPhi, int strip, bool check, bool* isValid
+                                                              isValid);  // last 5 arguments are: int doubletPhi, int gasGap, int
+                                                                                // measuresPhi, int strip, bool& isValid
                                     if (!isValid) continue;
                                     const RpcReadoutElement* rpc = m_GMmgr->getRpcReadoutElement(rpcId);
                                     if (!rpc) continue;
@@ -2818,9 +2818,9 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB(const EventContext& ctx) 
                                     for (int strip = 1; strip != 81; strip++) {
                                         bool isValid = false;
                                         Identifier rpcId = m_idHelper->channelID(
-                                            stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi, 1, 1, 1, true,
-                                            &isValid);  // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip,
-                                                        // bool check, bool* isValid
+                                            stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi, 1, 1, 1, 
+                                            isValid);  // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip,
+                                                        // bool& isValid
                                         if (!isValid) continue;
                                         const RpcReadoutElement* rpc = m_GMmgr->getRpcReadoutElement(rpcId);
                                         if (!rpc) continue;
@@ -2850,7 +2850,7 @@ double time_correction(double x, double y, double z) {
     double speed_of_light = 299.792458;                   // mm/ns
     return sqrt(x * x + y * y + z * z) / speed_of_light;  // FIXME use CLHEP::c_light
 }
-double RpcDigitizationTool::FCPEfficiency(const HepMC::GenParticle* genParticle) {
+double RpcDigitizationTool::FCPEfficiency(HepMC::ConstGenParticlePtr genParticle) {
     double qcharge = 1.;
     double qbetagamma = -1.;
     const int particlePdgId = genParticle->pdg_id();

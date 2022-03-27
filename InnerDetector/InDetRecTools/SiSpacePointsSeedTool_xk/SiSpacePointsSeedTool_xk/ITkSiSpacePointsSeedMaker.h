@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -212,7 +212,7 @@ namespace ITk
     FloatProperty m_rmaxSSS{this, "radMaxSSS", 1000.};
     BooleanProperty m_isLRT{this, "isLRT", false};
     FloatProperty m_drminPPP{this, "mindRadiusPPP", 6.};
-    FloatProperty m_drmaxPPP{this, "maxdRadiusPPP", 140.};
+    FloatProperty m_drmaxPPP{this, "maxdRadiusPPP", 120.};
     FloatProperty m_zmaxPPP{this, "maxZPPP", 2700.};
     FloatProperty m_drminSSS{this, "mindRadiusSSS", 20.};
     FloatProperty m_drmaxSSS{this, "maxdRadiusSSS", 3000.};
@@ -403,6 +403,11 @@ namespace ITk
      SiSpacePointForSeed*&,SiSpacePointForSeed*&,
      SiSpacePointForSeed*&,float,float) const;
 
+    void newOneSeedQ
+    (EventData& data, 
+     SiSpacePointForSeed*&,SiSpacePointForSeed*&,
+     SiSpacePointForSeed*&,float,float) const;
+
     void newOneSeedWithCurvaturesComparison
     (EventData& data,
      SiSpacePointForSeed*&,SiSpacePointForSeed*&,float) const;
@@ -443,27 +448,27 @@ namespace ITk
        **/ 
       void production3SpSSS
       (EventData& data,
-      std::array<std::list<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & iter_bottomCands,
-      std::array<std::list<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & iter_endBottomCands,
-      std::array<std::list<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & iter_topCands,
-      std::array<std::list<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & iter_endTopCands,
+      std::array<std::vector<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & iter_bottomCands,
+      std::array<std::vector<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & iter_endBottomCands,
+      std::array<std::vector<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & iter_topCands,
+      std::array<std::vector<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & iter_endTopCands,
       const int numberBottomCells, const int numberTopCells, int& nseed) const;
 
       void production3SpPPP
       (EventData& data,
-      std::array<std::list<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & iter_bottomCands,
-      std::array<std::list<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & iter_endBottomCands,
-      std::array<std::list<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & iter_topCands,
-      std::array<std::list<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & iter_endTopCands,
+      std::array<std::vector<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & iter_bottomCands,
+      std::array<std::vector<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & iter_endBottomCands,
+      std::array<std::vector<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & iter_topCands,
+      std::array<std::vector<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & iter_endTopCands,
       const int numberBottomCells, const int numberTopCells, int& nseed) const;
 
       /// as above, but for the trigger 
       void production3SpTrigger
       (EventData& /*data*/,
-       std::array<std::list<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & /*rb*/,
-       std::array<std::list<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & /*rbe*/,
-       std::array<std::list<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & /*rt*/,
-       std::array<std::list<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & /*rte*/,
+       std::array<std::vector<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & /*rb*/,
+       std::array<std::vector<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & /*rbe*/,
+       std::array<std::vector<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & /*rt*/,
+       std::array<std::vector<SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & /*rte*/,
        const int /*numberBottomCells*/, const int /*numberTopCells*/, int& /*nseed*/) const;
 
     /** This creates all possible seeds with the passed central and bottom SP, using all top SP 

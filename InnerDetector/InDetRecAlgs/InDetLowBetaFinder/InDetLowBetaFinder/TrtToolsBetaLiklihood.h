@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRTCHAMP_H
@@ -79,7 +79,7 @@ public:
                    std::vector<float> TrackZ, float RecPt, float RecEta, std::vector<int> TRT_isTube);
   float TRT_CorrectFEbeta(float beta, float eta);                                                                 //applies bias correction to extracted FE beta.  
 
-  void TRT_LoadPriors(std::string priorFileName);                                                                 //loads priors, LBitTemplates.root in the run dir
+  void TRT_LoadPriors(const std::string& priorFileName);                                                                 //loads priors, LBitTemplates.root in the run dir
   
   // Load the default prior values
   int TRT_LoadDefaultPriors();

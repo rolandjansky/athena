@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ALFA_GloRec_h
@@ -66,7 +66,6 @@
 #include "ALFA_GloRec/AlfaLocalHits.h"
 
 class StoreGateSvc;
-class ActiveStoreSvc;
 
 
 /////////////////////////////////////////////////////////

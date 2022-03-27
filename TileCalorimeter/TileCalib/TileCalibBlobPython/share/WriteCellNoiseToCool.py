@@ -226,11 +226,22 @@ else:
 
 rb = max(run,beg)
 if run<0:
-    cabling = 'RUN2a'
+    if run<=-30:
+       cabling = 'RUN3'
+    elif run<=-21:
+        cabling = 'RUN2a'
+    elif run<=-20:
+        cabling = 'RUN2'
+    elif run<=-10:
+        cabling = 'RUN1'
+    else:
+        cabling = 'RUN2a'
 elif run<222222 or 'COMP200' in ischema:
     cabling = 'RUN1'
 else:
-    if ('OFLP200' in ischema and rb>=310000) or rb>=343000:
+    if   ('OFLP200' in ischema and rb>=330000) or rb>=400000:
+        cabling = 'RUN3'
+    elif ('OFLP200' in ischema and rb>=310000) or rb>=342550:
         cabling = 'RUN2a'
     else:
         cabling = 'RUN2'

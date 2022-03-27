@@ -11,7 +11,6 @@
 // CLHEP include for Hep3Vector
 #include "CLHEP/Vector/ThreeVector.h"
 
-class MsgStream;
 
 /// Namespace for the ShowerLib related classes
 namespace ShowerLib
@@ -91,6 +90,49 @@ namespace ShowerLib
     bool m_valid;        //!< flag, if hit is valid
 
   };
+
+
+  // INLINE DEFINITIONS
+  inline StepInfo::StepInfo(const StepInfo& first, const StepInfo& second)
+  {
+    double esum = first.m_dep + second.m_dep;
+    double w1 = 0;
+    double w2 = 0;
+
+    if (esum > 0) {
+      w1 =  first.m_dep/esum;
+      w2 =  second.m_dep/esum;
+    }
+
+    m_pos = w1*first.m_pos + w2*second.m_pos;
+    m_time = w1*first.m_time + w2*second.m_time;
+    m_dep = esum;
+    m_valid = true;
+  }
+
+  inline double StepInfo::diff2(const StepInfo& other) const
+  {
+    return (this->position().diff2(other.position()));
+  }
+
+  inline StepInfo& StepInfo::operator+=(const StepInfo& other )
+  {
+    double esum = m_dep + other.m_dep;
+    double w1 = 0;
+    double w2 = 0;
+
+    if (esum > 0) {
+      w1 =  m_dep/esum;
+      w2 =  other.m_dep/esum;
+    } else {
+      std::cout << "Error: hit combination: sum of deposited energy is zero!" << std::endl;
+    }
+
+    m_pos = w1*m_pos + w2*other.m_pos;
+    m_dep += other.m_dep;
+
+    return *this;
+  }
 
 } // namespace ShowerLib
 

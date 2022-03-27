@@ -283,5 +283,7 @@ class TrigMultiTrkComboHypoConfig(object):
         tool.isCombinedChain = (signatures.count(signatures[0]) != len(signatures))
         tool.legMultiplicities = chainDict['chainMultiplicities']
 
-        tool.MonTool = TrigMultiTrkComboHypoToolMonitoring('MonTool')
+        monGroups = ['bphysMon:online']
+        if any(group in monGroups for group in chainDict['monGroups']):
+            tool.MonTool = TrigMultiTrkComboHypoToolMonitoring('MonTool')
         return tool

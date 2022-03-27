@@ -121,6 +121,8 @@ EvtInclusiveDecay::~EvtInclusiveDecay() {
 
 StatusCode EvtInclusiveDecay::initialize() {
 
+  ATH_CHECK( GenBase::initialize() );
+
   msg(MSG::INFO) << "EvtInclusiveDecay initialize" << endmsg;
   msg(MSG::INFO) << "Particle properties definition file = " << m_pdtFile << endmsg;
   msg(MSG::INFO) << "Main decay file                     = " << m_decayFile << endmsg;

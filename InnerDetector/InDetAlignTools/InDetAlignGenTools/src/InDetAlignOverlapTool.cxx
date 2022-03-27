@@ -1,12 +1,12 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
-#include <iostream>
-#include <iomanip>
+#include <cmath>
 #include <fstream>
+#include <iomanip>
+#include <iostream>
 #include <string>
-#include <math.h>
 #include <vector>
 
 #include "AthContainers/DataVector.h"
@@ -108,8 +108,8 @@ int InDetAlignOverlapTool::getNumberOverlapPIX(const AlignTrk& trk) const {
         if ((p_modlist->vec[index]).bec() == 0 && (p_modlist->vec[Allindex]).bec() == 0) { // BARREL
           if ((p_modlist->vec[Allindex]).layer() == (p_modlist->vec[index]).layer() &&
               (p_modlist->vec[Allindex]).ring() == (p_modlist->vec[index]).ring() &&
-              (fabs((p_modlist->vec[Allindex]).sector() - (p_modlist->vec[index]).sector()) == 1. ||
-               fabs((p_modlist->vec[Allindex]).sector() -
+              (std::abs((p_modlist->vec[Allindex]).sector() - (p_modlist->vec[index]).sector()) == 1. ||
+               std::abs((p_modlist->vec[Allindex]).sector() -
                     ((p_modlist->vec[index]).sector() + PixelSector[(p_modlist->vec[index]).layer()])) == 1.)) {
             // msg()
             if (msgLvl(MSG::DEBUG)) {
@@ -132,7 +132,7 @@ int InDetAlignOverlapTool::getNumberOverlapPIX(const AlignTrk& trk) const {
           }
 
           if ((p_modlist->vec[Allindex]).layer() == (p_modlist->vec[index]).layer() &&
-              fabs((p_modlist->vec[Allindex]).ring() - (p_modlist->vec[index]).ring()) == 1 &&
+              std::abs((p_modlist->vec[Allindex]).ring() - (p_modlist->vec[index]).ring()) == 1 &&
               (p_modlist->vec[Allindex]).sector() == (p_modlist->vec[index]).sector()) {
             //msg()
             if (msgLvl(MSG::DEBUG)) {
@@ -158,8 +158,8 @@ int InDetAlignOverlapTool::getNumberOverlapPIX(const AlignTrk& trk) const {
         if ((p_modlist->vec[index]).bec() != 0 && (p_modlist->vec[index]).bec() == (p_modlist->vec[Allindex]).bec()) { // ENDCAP
           if ((p_modlist->vec[Allindex]).layer() == (p_modlist->vec[index]).layer() &&
               (p_modlist->vec[Allindex]).ring() == (p_modlist->vec[index]).ring() &&
-              (fabs((p_modlist->vec[Allindex]).sector() - (p_modlist->vec[index]).sector()) == 1. ||
-               fabs((p_modlist->vec[Allindex]).sector() - ((p_modlist->vec[index]).sector() + ECPixelSector)) == 1.)) {
+              (std::abs((p_modlist->vec[Allindex]).sector() - (p_modlist->vec[index]).sector()) == 1. ||
+               std::abs((p_modlist->vec[Allindex]).sector() - ((p_modlist->vec[index]).sector() + ECPixelSector)) == 1.)) {
             //msg()
             if (msgLvl(MSG::DEBUG)) {
               msg().setColor(MSG::RED);
@@ -252,8 +252,8 @@ int InDetAlignOverlapTool::getNumberOverlapSCT(const AlignTrk& trk) const {
         if ((p_modlist->vec[index]).bec() == 0 && (p_modlist->vec[Allindex]).bec() == 0) { // BARREL
           if ((p_modlist->vec[Allindex]).layer() == (p_modlist->vec[index]).layer() &&
               (p_modlist->vec[Allindex]).ring() == (p_modlist->vec[index]).ring() &&
-              (fabs((p_modlist->vec[Allindex]).sector() - (p_modlist->vec[index]).sector()) == 1. ||
-               fabs((p_modlist->vec[Allindex]).sector() -
+              (std::abs((p_modlist->vec[Allindex]).sector() - (p_modlist->vec[index]).sector()) == 1. ||
+               std::abs((p_modlist->vec[Allindex]).sector() -
                     ((p_modlist->vec[index]).sector() + SCTSector[(p_modlist->vec[index]).layer()])) == 1.)) {
             if (msgLvl(MSG::DEBUG)) {
               msg().setColor(MSG::RED);
@@ -271,7 +271,7 @@ int InDetAlignOverlapTool::getNumberOverlapSCT(const AlignTrk& trk) const {
           }
 
           if ((p_modlist->vec[Allindex]).layer() == (p_modlist->vec[index]).layer() &&
-              fabs((p_modlist->vec[Allindex]).ring() - (p_modlist->vec[index]).ring()) == 1 &&
+              std::abs((p_modlist->vec[Allindex]).ring() - (p_modlist->vec[index]).ring()) == 1 &&
               (p_modlist->vec[Allindex]).sector() == (p_modlist->vec[index]).sector()) {
             if (msgLvl(MSG::DEBUG)) {
               msg().setColor(MSG::RED);
@@ -298,8 +298,8 @@ int InDetAlignOverlapTool::getNumberOverlapSCT(const AlignTrk& trk) const {
                                                                                                                          // -2)
           if ((p_modlist->vec[Allindex]).layer() == (p_modlist->vec[index]).layer() &&
               (p_modlist->vec[Allindex]).ring() == (p_modlist->vec[index]).ring() &&
-              (fabs((p_modlist->vec[Allindex]).sector() - (p_modlist->vec[index]).sector()) == 1. ||
-               fabs((p_modlist->vec[Allindex]).sector() - ((p_modlist->vec[index]).sector() + ECSCTSector)) == 1.)) {
+              (std::abs((p_modlist->vec[Allindex]).sector() - (p_modlist->vec[index]).sector()) == 1. ||
+               std::abs((p_modlist->vec[Allindex]).sector() - ((p_modlist->vec[index]).sector() + ECSCTSector)) == 1.)) {
             if (msgLvl(MSG::DEBUG)) {
               msg().setColor(MSG::RED);
               msg(MSG::DEBUG) << " Index:" << index << " layer " << (p_modlist->vec[index]).layer() << " ring " <<
@@ -316,7 +316,7 @@ int InDetAlignOverlapTool::getNumberOverlapSCT(const AlignTrk& trk) const {
           }
 
           if ((p_modlist->vec[Allindex]).layer() == (p_modlist->vec[index]).layer() &&
-              fabs((p_modlist->vec[Allindex]).ring() - (p_modlist->vec[index]).ring()) == 1 &&
+              std::abs((p_modlist->vec[Allindex]).ring() - (p_modlist->vec[index]).ring()) == 1 &&
               (p_modlist->vec[Allindex]).sector() == (p_modlist->vec[index]).sector()) {
             if (msgLvl(MSG::DEBUG)) {
               msg().setColor(MSG::GREEN);
@@ -391,14 +391,14 @@ std::vector<AlignSiHit> InDetAlignOverlapTool::getOverlapHit(const AlignTrk& trk
         if ((p_modlist->vec[index]).bec() == 0 && (p_modlist->vec[newindex]).bec() == 0) {               // BARREL
           if ((p_modlist->vec[newindex]).layer() == (p_modlist->vec[index]).layer() &&
               (p_modlist->vec[newindex]).ring() == (p_modlist->vec[index]).ring() &&
-              (fabs((p_modlist->vec[newindex]).sector() - (p_modlist->vec[index]).sector()) == 1. ||
-               fabs((p_modlist->vec[newindex]).sector() -
+              (std::abs((p_modlist->vec[newindex]).sector() - (p_modlist->vec[index]).sector()) == 1. ||
+               std::abs((p_modlist->vec[newindex]).sector() -
                     ((p_modlist->vec[index]).sector() + PixelSector[(p_modlist->vec[index]).layer()])) == 1.)) {
             isPIXOverlap = true;
           }
 
           if ((p_modlist->vec[newindex]).layer() == (p_modlist->vec[index]).layer() &&
-              fabs((p_modlist->vec[newindex]).ring() - (p_modlist->vec[index]).ring()) == 1 &&
+              std::abs((p_modlist->vec[newindex]).ring() - (p_modlist->vec[index]).ring()) == 1 &&
               (p_modlist->vec[newindex]).sector() == (p_modlist->vec[index]).sector()) {
             isPIXOverlap = true;
           }
@@ -407,8 +407,8 @@ std::vector<AlignSiHit> InDetAlignOverlapTool::getOverlapHit(const AlignTrk& trk
         if ((p_modlist->vec[index]).bec() != 0 && (p_modlist->vec[index]).bec() == (p_modlist->vec[newindex]).bec()) { // ENDCAP
           if ((p_modlist->vec[newindex]).layer() == (p_modlist->vec[index]).layer() &&
               (p_modlist->vec[newindex]).ring() == (p_modlist->vec[index]).ring() &&
-              (fabs((p_modlist->vec[newindex]).sector() - (p_modlist->vec[index]).sector()) == 1. ||
-               fabs((p_modlist->vec[newindex]).sector() - ((p_modlist->vec[index]).sector() + ECPixelSector)) == 1.)) {
+              (std::abs((p_modlist->vec[newindex]).sector() - (p_modlist->vec[index]).sector()) == 1. ||
+               std::abs((p_modlist->vec[newindex]).sector() - ((p_modlist->vec[index]).sector() + ECPixelSector)) == 1.)) {
             isPIXOverlap = true;
           }
         }
@@ -423,14 +423,14 @@ std::vector<AlignSiHit> InDetAlignOverlapTool::getOverlapHit(const AlignTrk& trk
         if ((p_modlist->vec[index]).bec() == 0 && (p_modlist->vec[newindex]).bec() == 0) { // BARREL
           if ((p_modlist->vec[newindex]).layer() == (p_modlist->vec[index]).layer() &&
               (p_modlist->vec[newindex]).ring() == (p_modlist->vec[index]).ring() &&
-              (fabs((p_modlist->vec[newindex]).sector() - (p_modlist->vec[index]).sector()) == 1. ||
-               fabs((p_modlist->vec[newindex]).sector() -
+              (std::abs((p_modlist->vec[newindex]).sector() - (p_modlist->vec[index]).sector()) == 1. ||
+               std::abs((p_modlist->vec[newindex]).sector() -
                     ((p_modlist->vec[index]).sector() + SCTSector[(p_modlist->vec[index]).layer()])) == 1.)) {
             isSCTOverlap = true;
           }
 
           if ((p_modlist->vec[newindex]).layer() == (p_modlist->vec[index]).layer() &&
-              fabs((p_modlist->vec[newindex]).ring() - (p_modlist->vec[index]).ring()) == 1 &&
+              std::abs((p_modlist->vec[newindex]).ring() - (p_modlist->vec[index]).ring()) == 1 &&
               (p_modlist->vec[newindex]).sector() == (p_modlist->vec[index]).sector()) {
             isSCTOverlap = true;
           }
@@ -446,13 +446,13 @@ std::vector<AlignSiHit> InDetAlignOverlapTool::getOverlapHit(const AlignTrk& trk
                                                                                                                          // -2)
           if ((p_modlist->vec[newindex]).layer() == (p_modlist->vec[index]).layer() &&
               (p_modlist->vec[newindex]).ring() == (p_modlist->vec[index]).ring() &&
-              (fabs((p_modlist->vec[newindex]).sector() - (p_modlist->vec[index]).sector()) == 1. ||
-               fabs((p_modlist->vec[newindex]).sector() - ((p_modlist->vec[index]).sector() + ECSCTSector)) == 1.)) {
+              (std::abs((p_modlist->vec[newindex]).sector() - (p_modlist->vec[index]).sector()) == 1. ||
+               std::abs((p_modlist->vec[newindex]).sector() - ((p_modlist->vec[index]).sector() + ECSCTSector)) == 1.)) {
             isSCTOverlap = true;
           }
 
           if ((p_modlist->vec[newindex]).layer() == (p_modlist->vec[index]).layer() &&
-              fabs((p_modlist->vec[newindex]).ring() - (p_modlist->vec[index]).ring()) == 1 &&
+              std::abs((p_modlist->vec[newindex]).ring() - (p_modlist->vec[index]).ring()) == 1 &&
               (p_modlist->vec[newindex]).sector() == (p_modlist->vec[index]).sector()) {
             isSCTOverlap = true;
           }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetEventCnvTools/InDetEventCnvTool.h"
@@ -85,9 +85,9 @@ StatusCode InDet::InDetEventCnvTool::initialize() {
 void 
 InDet::InDetEventCnvTool::checkRoT( const Trk::RIO_OnTrack& rioOnTrack ) const {
   InDetConcreteType type=Unknown;
-  if (0!=dynamic_cast<const SCT_ClusterOnTrack*>(&rioOnTrack) )     type = SCT;
-  if (0!=dynamic_cast<const PixelClusterOnTrack*>(&rioOnTrack) )    type = Pixel;
-  if (0!=dynamic_cast<const TRT_DriftCircleOnTrack*>(&rioOnTrack) ) type = TRT;
+  if (nullptr!=dynamic_cast<const SCT_ClusterOnTrack*>(&rioOnTrack) )     type = SCT;
+  if (nullptr!=dynamic_cast<const PixelClusterOnTrack*>(&rioOnTrack) )    type = Pixel;
+  if (nullptr!=dynamic_cast<const TRT_DriftCircleOnTrack*>(&rioOnTrack) ) type = TRT;
   if (type==Unknown) {
     ATH_MSG_ERROR("Type does not match known concrete type of InDet! Dumping RoT:"<<rioOnTrack);
   } else {
@@ -101,8 +101,8 @@ std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*>
 InDet::InDetEventCnvTool::getLinks( Trk::RIO_OnTrack& rioOnTrack ) const
 {
   using namespace Trk;
-  const TrkDetElementBase* detEl = 0;
-  const PrepRawData*       prd   = 0;
+  const TrkDetElementBase* detEl = nullptr;
+  const PrepRawData*       prd   = nullptr;
   const Identifier& id           = rioOnTrack.identify();
    
   if (m_IDHelper->is_pixel(id) ) {
@@ -132,17 +132,17 @@ InDet::InDetEventCnvTool::getLinks( Trk::RIO_OnTrack& rioOnTrack ) const
 void InDet::InDetEventCnvTool::prepareRIO_OnTrack( Trk::RIO_OnTrack *RoT ) const {
     
   InDet::PixelClusterOnTrack* pixel = dynamic_cast<InDet::PixelClusterOnTrack*>(RoT);
-  if (pixel!=0) {
+  if (pixel!=nullptr) {
     prepareRIO_OnTrackElementLink<const InDet::PixelClusterContainer, InDet::PixelClusterOnTrack>(pixel);
     return;
   }
   InDet::SCT_ClusterOnTrack* sct = dynamic_cast<InDet::SCT_ClusterOnTrack*>(RoT);
-  if (sct!=0) {
+  if (sct!=nullptr) {
     prepareRIO_OnTrackElementLink<const InDet::SCT_ClusterContainer, InDet::SCT_ClusterOnTrack>(sct);
     return;
   }
   InDet::TRT_DriftCircleOnTrack* trt = dynamic_cast<InDet::TRT_DriftCircleOnTrack*>(RoT);
-  if (trt!=0) {
+  if (trt!=nullptr) {
     prepareRIO_OnTrackElementLink<const InDet::TRT_DriftCircleContainer, InDet::TRT_DriftCircleOnTrack>(trt);
     return;
   }
@@ -155,17 +155,17 @@ InDet::InDetEventCnvTool::prepareRIO_OnTrackLink( const Trk::RIO_OnTrack *RoT,
                                                   ELIndex_t& index) const
 {
   const InDet::PixelClusterOnTrack* pixel = dynamic_cast<const InDet::PixelClusterOnTrack*>(RoT);
-  if (pixel!=0) {
+  if (pixel!=nullptr) {
     prepareRIO_OnTrackElementLink<const InDet::PixelClusterContainer, InDet::PixelClusterOnTrack>(pixel, key, index);
     return;
   }
   const InDet::SCT_ClusterOnTrack* sct = dynamic_cast<const InDet::SCT_ClusterOnTrack*>(RoT);
-  if (sct!=0) {
+  if (sct!=nullptr) {
     prepareRIO_OnTrackElementLink<const InDet::SCT_ClusterContainer, InDet::SCT_ClusterOnTrack>(sct, key, index);
     return;
   }
   const InDet::TRT_DriftCircleOnTrack* trt = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(RoT);
-  if (trt!=0) {
+  if (trt!=nullptr) {
     prepareRIO_OnTrackElementLink<const InDet::TRT_DriftCircleContainer, InDet::TRT_DriftCircleOnTrack>(trt, key, index);
     return;
   }
@@ -181,7 +181,7 @@ void InDet::InDetEventCnvTool::recreateRIO_OnTrack( Trk::RIO_OnTrack *RoT ) cons
 const Trk::TrkDetElementBase* 
 InDet::InDetEventCnvTool::getDetectorElement(const Identifier& id, const IdentifierHash& idHash) const {
 
-  const Trk::TrkDetElementBase* detEl=0;
+  const Trk::TrkDetElementBase* detEl=nullptr;
 
   if (m_IDHelper->is_pixel(id)) {
 
@@ -210,7 +210,7 @@ InDet::InDetEventCnvTool::getDetectorElement(const Identifier& id, const Identif
 const Trk::TrkDetElementBase* 
 InDet::InDetEventCnvTool::getDetectorElement(const Identifier& id) const {
  
-  const Trk::TrkDetElementBase* detEl=0;
+  const Trk::TrkDetElementBase* detEl=nullptr;
  
   if (m_IDHelper->is_pixel(id) ) {
   
@@ -247,7 +247,7 @@ InDet::InDetEventCnvTool::pixelClusterLink( const Identifier& id,  const Identif
   SG::ReadHandle<PixelClusterContainer> h_pixClusCont (m_pixClusContName);
   if (!h_pixClusCont.isValid()) {
     ATH_MSG_ERROR("Pixel Cluster container not found at "<<m_pixClusContName);
-    return 0;
+    return nullptr;
   } else {
     ATH_MSG_DEBUG("Pixel Cluster Container found" );
   }
@@ -263,7 +263,7 @@ InDet::InDetEventCnvTool::pixelClusterLink( const Identifier& id,  const Identif
     }
   }
   ATH_MSG_DEBUG("No matching PRD found" );
-  return 0;
+  return nullptr;
 }
 
 const Trk::PrepRawData* 
@@ -276,7 +276,7 @@ InDet::InDetEventCnvTool::sctClusterLink( const Identifier& id,  const Identifie
   SG::ReadHandle<SCT_ClusterContainer> h_sctClusCont(m_sctClusContName);
   if (!h_sctClusCont.isValid()) {
     ATH_MSG_ERROR("SCT Cluster container not found at "<<m_sctClusContName);
-    return 0;
+    return nullptr;
   } else {
     ATH_MSG_DEBUG("SCT Cluster Container found" );
   }
@@ -292,7 +292,7 @@ InDet::InDetEventCnvTool::sctClusterLink( const Identifier& id,  const Identifie
     }
   }
   ATH_MSG_DEBUG("No matching PRD found" );
-  return 0;
+  return nullptr;
 }
 
 const Trk::PrepRawData* 
@@ -305,7 +305,7 @@ InDet::InDetEventCnvTool::trtDriftCircleLink( const Identifier& id,  const Ident
   SG::ReadHandle<TRT_DriftCircleContainer> h_trtDriftCircleCont (m_trtDriftCircleContName);
   if (!h_trtDriftCircleCont.isValid()) {
     ATH_MSG_ERROR("TRT Drift Circles container not found at "<<m_trtDriftCircleContName);
-    return 0;
+    return nullptr;
   } else {
     ATH_MSG_DEBUG("TRT Drift Circles Container found" );
   }
@@ -321,7 +321,7 @@ InDet::InDetEventCnvTool::trtDriftCircleLink( const Identifier& id,  const Ident
     }
   }
   ATH_MSG_DEBUG("No matching PRD found" );
-  return 0;
+  return nullptr;
 }
 
 const InDetDD::SiDetectorElement* InDet::InDetEventCnvTool::getPixelDetectorElement(const IdentifierHash& waferHash) const {

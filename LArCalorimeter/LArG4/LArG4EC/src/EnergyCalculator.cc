@@ -47,6 +47,9 @@
 #include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 
+#include "GeoSpecialShapes/EMECData.h"
+#include "GeoSpecialShapes/toEMECData.h"
+
 #include "GaudiKernel/ISvcLocator.h"
 #include "StoreGate/StoreGateSvc.h"
 
@@ -165,6 +168,7 @@ G4bool EnergyCalculator::Process_Default(const G4Step* step, std::vector<LArHitD
   return true;
 }
 
+
 // ****************************************************************************
 EnergyCalculator::EnergyCalculator(const std::string& name, ISvcLocator *pSvcLocator)
   : LArCalculatorSvcImp(name, pSvcLocator)
@@ -274,24 +278,11 @@ void EnergyCalculator::SolidTypeHandler(Gaudi::Details::PropertyBase&)
 
 StatusCode EnergyCalculator::initialize()
 {
-  m_lwc = new LArWheelCalculator(m_solidtype, m_zside);
-  if(lwc()->GetisElectrode())
-    {
-      ATH_MSG_FATAL("energy caclculator must be of 'absorber' type,"
-                    << " while 'electrode' type is requested.");
-      return StatusCode::FAILURE;
-    }
-  s_RefzDist = lwc()->GetElecFocaltoWRP() +
-    lwc()->GetdWRPtoFrontFace() + lwc()->GetWheelThickness() +
-    lwc()->GetdWRPtoFrontFace() + s_LongBarThickness - s_DistOfEndofCuFromBack;
 
-  ISvcLocator* svcLocator = Gaudi::svcLocator();
 
-  if(m_BirksLaw)
-    {
-      const double Birks_LAr_density = 1.396;
-      m_birksLaw = new LArG4BirksLaw(Birks_LAr_density,m_Birksk);
-    }
+
+
+  ISvcLocator *svcLocator=Gaudi::svcLocator();
 
   // Access the GeoModelSvc:
   IGeoModelSvc *geoModel=0;
@@ -304,12 +295,32 @@ StatusCode EnergyCalculator::initialize()
   IRDBAccessSvc *pAccessSvc=0;
   ATH_CHECK(svcLocator->service(geoDbTagSvc->getParamSvcName(),pAccessSvc));
 
+  DecodeVersionKey larVersionKey(geoModel, "LAr");
   std::string larKey, larNode;
   if(geoDbTagSvc->getSqliteReader()==nullptr) {
-    DecodeVersionKey larVersionKey(geoModel, "LAr");
     larKey = larVersionKey.tag();
     larNode = larVersionKey.node();
   }
+  EMECData emecData=toEMECData(pAccessSvc,larVersionKey);
+
+
+  m_lwc = new LArWheelCalculator(emecData, m_solidtype, m_zside);
+  if(lwc()->GetisElectrode())
+    {
+      ATH_MSG_FATAL("energy caclculator must be of 'absorber' type,"
+                    << " while 'electrode' type is requested.");
+      return StatusCode::FAILURE;
+    }
+  s_RefzDist = lwc()->GetElecFocaltoWRP() +
+    lwc()->GetdWRPtoFrontFace() + lwc()->GetWheelThickness() +
+    lwc()->GetdWRPtoFrontFace() + s_LongBarThickness - s_DistOfEndofCuFromBack;
+
+
+  if(m_BirksLaw)
+    {
+      const double Birks_LAr_density = 1.396;
+      m_birksLaw = new LArG4BirksLaw(Birks_LAr_density,m_Birksk);
+    }
 
   IRDBRecordset_ptr emecSamplingSep = pAccessSvc->getRecordsetPtr("EmecSamplingSep", larKey, larNode);
   if (emecSamplingSep->size()==0) {
@@ -343,7 +354,7 @@ StatusCode EnergyCalculator::initialize()
     zsep23[i] = (*emecSamplingSep)[0]->getDouble(colName)*CLHEP::cm;
   }
 
-  m_ElectrodeFanHalfThickness = LArWheelCalculator::GetFanHalfThickness(LArG4::InnerElectrodWheel);
+  m_ElectrodeFanHalfThickness = lwc()->GetFanHalfThickness(LArG4::InnerElectrodWheel);
   m_FanEleThickness = ElectrodeFanHalfThickness() * 2.;
   m_FanEleThicknessOld = 0.300*CLHEP::mm;
   m_FanEleFoldRadiusOld = 3.*CLHEP::mm;
@@ -507,7 +518,7 @@ StatusCode EnergyCalculator::initialize()
 
     } else if(lwc()->GetisInner()) t = LArG4::InnerElectrodWheel;
 
-    m_electrode_calculator = new LArWheelCalculator(t, lwc()->GetAtlasZside());
+    m_electrode_calculator = new LArWheelCalculator(emecData, t, lwc()->GetAtlasZside());
     if(m_electrode_calculator == 0){
       ATH_MSG_FATAL("cannot create helper electrode calculator");
       G4Exception("EnergyCalculator", "NoElectrodeCalculator", FatalException,

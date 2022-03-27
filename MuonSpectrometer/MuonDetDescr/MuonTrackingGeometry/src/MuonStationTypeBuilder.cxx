@@ -2495,9 +2495,8 @@ Trk::Layer* Muon::MuonStationTypeBuilder::createLayer(const MuonGM::MuonDetector
             // 1,2,3 so stName would always be STS for stId, vName[2] was used, always
             // giving a 0 value
             std::string stName = (vName[1] == 'L') ? "STL" : "STS";
-            int stId = (vName[1] == 'L') ? 0 : 1;
             Identifier id = muonDetMgr->stgcIdHelper()->channelID(stName, iEta, iPhi, iMult, iLay, 1, 1);
-            const MuonGM::sTgcReadoutElement* stgc = muonDetMgr->getsTgcRElement_fromIdFields(stId, iEta, iPhi, iMult);
+            const MuonGM::sTgcReadoutElement* stgc = muonDetMgr->getsTgcReadoutElement(id);
             layType = id.get_identifier32().get_compact();
             if (stgc) {
                 rtrd = dynamic_cast<const Trk::RotatedTrapezoidBounds*>(&stgc->bounds(id));
@@ -2506,9 +2505,8 @@ Trk::Layer* Muon::MuonStationTypeBuilder::createLayer(const MuonGM::MuonDetector
             }
         } else {
             std::string stName = (vName[2] == 'L') ? "MML" : "MMS";
-            int stId = (vName[2] == 'L') ? 0 : 1;
             Identifier id = muonDetMgr->mmIdHelper()->channelID(stName, iEta, iPhi, iMult, iLay, 1);
-            const MuonGM::MMReadoutElement* mm = muonDetMgr->getMMRElement_fromIdFields(stId, iEta, iPhi, iMult);
+            const MuonGM::MMReadoutElement* mm = muonDetMgr->getMMReadoutElement(id);
             layType = id.get_identifier32().get_compact();
             if (mm) {
                 rtrd = dynamic_cast<const Trk::RotatedTrapezoidBounds*>(&mm->bounds(id));

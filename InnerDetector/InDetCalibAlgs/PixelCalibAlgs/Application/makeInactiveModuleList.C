@@ -15,19 +15,41 @@
 #include "TKey.h"
 #include "Riostream.h"
 
-
-std::vector< std::pair< std::string, std::vector<int> > > pixelMapping;
-std::vector< std::pair< int, std::vector<int> > > hashMapping;
-std::vector< std::pair< std::string, std::vector<int> > > channelMapping;
-void setPixelMapping(bool isIBL);
-std::string getDCSIDFromPosition (int barrel_ec, int layer, int module_phi, int module_eta);
-int getHashFromPosition (int barrel_ec, int layer, int module_phi, int module_eta);
-std::vector<int> getPositionFromDCSID (std::string module_name);
-std::vector<int> getChannelFromHashID (int hashid);
-void checkInactiveModule(bool isIBL, TFile* hitMapFile, int &npush_back, std::vector<std::string> &vsmodule, std::vector<int> &vLB_start, std::vector<int> &vLB_end);
-void checkInactiveFEs(bool isIBL, TFile* hitMapFile, int &npush_backFE, std::vector<std::string> &vsFE, std::vector<std::string> &FEcode);
-void make_txt(std::string srun, int npush_back, int npush_backFE, std::vector<std::string> vsFE, std::vector<std::string> vsmodule, std::vector<int> vLB_start, std::vector<int> vLB_end, std::vector<std::string> FEcode);
-
+std::vector<std::pair<std::string, std::vector<int>>> pixelMapping;
+std::vector<std::pair<int, std::vector<int>>> hashMapping;
+std::vector<std::pair<std::string, std::vector<int>>> channelMapping;
+void
+setPixelMapping(bool isIBL);
+std::string
+getDCSIDFromPosition(int barrel_ec, int layer, int module_phi, int module_eta);
+int
+getHashFromPosition(int barrel_ec, int layer, int module_phi, int module_eta);
+std::vector<int>
+getPositionFromDCSID(std::string module_name);
+std::vector<int>
+getChannelFromHashID(int hashid);
+void
+checkInactiveModule(bool isIBL,
+                    TFile* hitMapFile,
+                    int& npush_back,
+                    std::vector<std::string>& vsmodule,
+                    std::vector<int>& vLB_start,
+                    std::vector<int>& vLB_end);
+void
+checkInactiveFEs(bool isIBL,
+                 TFile* hitMapFile,
+                 int& npush_backFE,
+                 std::vector<std::string>& vsFE,
+                 std::vector<std::string>& FEcode);
+void
+make_txt(const std::string& srun,
+         int npush_back,
+         int npush_backFE,
+         const std::vector<std::string>& vsFE,
+         const std::vector<std::string>& vsmodule,
+         const std::vector<int>& vLB_start,
+         const std::vector<int>& vLB_end,
+         const std::vector<std::string>& FEcode);
 
 std::vector<std::string> &splitter(const std::string &s, char delim, std::vector<std::string> &elems) {
   std::stringstream ss(s);
@@ -122,7 +144,8 @@ int main(int argc, char* argv[]){
 //-----------------------------
 // Function to read infos from Lumi-block information (IBL for each FE, rest for each module)
 //-----------------------------
-void checkInactiveModule(bool isIBL, TFile* hitMapFile, int &npush_back, std::vector<std::string> &vsmodule, std::vector<int> &vLB_start, std::vector<int> &vLB_end){
+void checkInactiveModule(bool isIBL, TFile* hitMapFile, int &npush_back, std::vector<std::string> &vsmodule, 
+                         std::vector<int> &vLB_start, std::vector<int> &vLB_end){
   //-----------------------------
   // Everything adopted to new noise maps
   //-----------------------------
@@ -253,7 +276,8 @@ void checkInactiveModule(bool isIBL, TFile* hitMapFile, int &npush_back, std::ve
   }//for(std::map<std::string, TH1D*>::const_iterator module = lbdep.begin(); module != lbdep.end(); ++module)
 }
 
-void checkInactiveFEs(bool isIBL, TFile* hitMapFile, int &npush_backFE, std::vector<std::string> &vsFE, std::vector<std::string> &FEcode){ //Function for FE masking
+void checkInactiveFEs(bool isIBL, TFile* hitMapFile, int &npush_backFE, 
+                      std::vector<std::string> &vsFE, std::vector<std::string> &FEcode){ //Function for FE masking
   //
   //-------------------------------
   // Everything adopted to new noise maps
@@ -729,10 +753,10 @@ void setPixelMapping(bool isIBL){
 	  int pos = 0;
 	  pos = str.find("INFO") + 6;
 	  if(str.find("INFO") != std::string::npos) {tmp_channel = atoi( (str.substr(pos, 4)).c_str() );}
-	  pos = str.find("[") - 10;
-	  if(str.find("[") != std::string::npos) {tmp_hashid = atoi( (str.substr(pos, 8)).c_str() );}
-	  pos = str.find("[") + 19;
-	  if(str.find("[") != std::string::npos) {tmp_module_name = str.substr(pos, 19);}
+	  pos = str.find('[') - 10;
+	  if(str.find('[') != std::string::npos) {tmp_hashid = atoi( (str.substr(pos, 8)).c_str() );}
+	  pos = str.find('[') + 19;
+	  if(str.find('[') != std::string::npos) {tmp_module_name = str.substr(pos, 19);}
 	  tmp_position[0] = tmp_channel;
 	  tmp_position[1] = tmp_hashid;
 	  channelMapping.push_back(std::make_pair(tmp_module_name, tmp_position));
@@ -802,7 +826,16 @@ std::vector<int> getChannelFromHashID (int hashid){
 //---------------------------------------
 // Make a txt file out of masked modules/FEs
 //---------------------------------------
-void make_txt(std::string srun, int npush_back, int npush_backFE, std::vector<std::string> vsFE, std::vector<std::string> vsmodule, std::vector<int> vLB_start, std::vector<int> vLB_end, std::vector<std::string> FEcode){
+void
+make_txt(const std::string& srun,
+         int npush_back,
+         int npush_backFE,
+         const std::vector<std::string>& vsFE,
+         const std::vector<std::string>& vsmodule,
+         const std::vector<int>& vLB_start,
+         const std::vector<int>& vLB_end,
+         const std::vector<std::string>& FEcode)
+{
   std::string spyfilename = "./PixelModuleFeMask_run" + srun;
   spyfilename += ".txt";
   std::ofstream txtFile;
@@ -847,9 +880,9 @@ void make_txt(std::string srun, int npush_back, int npush_backFE, std::vector<st
     }
   }
   
-  std::vector <std::string>::iterator it_smodule = vsmodule.begin();
-  std::vector <int>::iterator it_LBstart = vLB_start.begin();
-  std::vector <int>::iterator it_LBend = vLB_end.begin();
+  std::vector <std::string>::const_iterator it_smodule = vsmodule.begin();
+  std::vector <int>::const_iterator it_LBstart = vLB_start.begin();
+  std::vector <int>::const_iterator it_LBend = vLB_end.begin();
   std::cout<<npush_back<<std::endl;
   
   //---------------------------------------

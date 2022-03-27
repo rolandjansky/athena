@@ -41,7 +41,7 @@ static const InterfaceID IID_ITRT_FillCablingData_SR1
   // Constructor
 TRT_FillCablingData_SR1::TRT_FillCablingData_SR1( const std::string& type, const std::string& 
 name,const IInterface* parent ):  AthAlgTool(type,name,parent),
-				  m_TRTHelper(0)
+				  m_TRTHelper(nullptr)
 {
   declareInterface< TRT_FillCablingData_SR1 >( this );   
 }
@@ -457,7 +457,7 @@ void TRT_FillCablingData_SR1::defineTables()
     if ( thisLine.length() == 0 )
       continue;
 
-    string::size_type loc = thisLine.find( "#" );
+    string::size_type loc = thisLine.find( '#' );
     if ( loc != string::npos )
     {
       thisLine.replace( loc, thisLine.length(), 1, ' ' );

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCONDUTILS_LARFEBTEMPALG_H
@@ -7,7 +7,6 @@
 
 #include "LArRecConditions/LArFEBTempData.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "GaudiKernel/ICondSvc.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"

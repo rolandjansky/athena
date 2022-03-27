@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from ..Menu.MenuComponents import MenuSequence, RecoFragmentsPool
+from ..Config.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.CFElements import seqAND
 from TrigEDMConfig.TriggerEDMRun3 import recordable
@@ -97,7 +97,7 @@ def dimuEFSequence():
 
 
 def getNoL2CombChainNames():
-    from ..Menu.GenerateMenuMT import GenerateMenuMT
+    from ..Config.GenerateMenuMT import GenerateMenuMT
     menu = GenerateMenuMT()
     chains = [chain.name for chain in menu.chainsInMenu['Bphysics'] if 'noL2Comb' in chain.name]
     return chains

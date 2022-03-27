@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloNoiseCondAlg.h" 
@@ -57,14 +57,6 @@ StatusCode CaloNoiseCondAlg::initialize() {
 
   ATH_CHECK(m_outputKey.initialize());
 
-  ATH_CHECK(m_condSvc.retrieve());
-
-  // Register write handle
-  if (m_condSvc->regHandle(this, m_outputKey).isFailure()) {
-    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_outputKey.fullKey() << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
-  
   ATH_CHECK(detStore()->retrieve(m_caloCellID,"CaloCell_ID"));
 
   m_hashRange=std::make_unique<CaloNoiseHashRanges>(m_caloCellID);

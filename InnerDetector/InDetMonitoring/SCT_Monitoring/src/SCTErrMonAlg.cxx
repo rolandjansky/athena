@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCTErrMonAlg.h"
@@ -12,12 +12,9 @@
 using namespace SCT_Monitoring;
 
 SCTErrMonAlg::SCTErrMonAlg(const std::string& name, ISvcLocator* pSvcLocator)
-  :AthMonitorAlgorithm(name,pSvcLocator) {
+  :AthMonitorAlgorithm(name,pSvcLocator){
   for (int reg{0}; reg<N_REGIONS_INC_GENERAL; reg++) {
     m_nMaskedLinks[reg] = 0;
-  }
-  for (int lb{0}; lb<=NBINS_LBs; lb++) {
-    m_firstEventOfLB[lb].store(true, std::memory_order_relaxed);
   }
 }
 
@@ -29,7 +26,6 @@ StatusCode SCTErrMonAlg::initialize() {
   else m_dcsTool.disable();
   ATH_CHECK(m_pSummaryTool.retrieve());
   ATH_CHECK(m_flaggedTool.retrieve());
-
   // Retrieve geometrical information
   const InDetDD::SCT_DetectorManager* sctManager{nullptr};
   ATH_CHECK(detStore()->retrieve(sctManager, "SCT"));
@@ -79,7 +75,7 @@ StatusCode SCTErrMonAlg::fillHistograms(const EventContext& ctx) const {
     const IdentifierHash hash{iHash};
     if (not m_flaggedTool->isGood(hash)) {
       const Identifier wafer_id{m_pSCTHelper->wafer_id(hash)};
-      const int barrel_ec{m_pSCTHelper->barrel_ec(wafer_id)};
+      const unsigned barrel_ec{bec2Index(m_pSCTHelper->barrel_ec(wafer_id))};
       nFlaggedWafers[barrel_ec]++;
       nFlaggedWafers[GENERAL_INDEX]++;
     }
@@ -279,10 +275,18 @@ SCTErrMonAlg::fillByteStreamErrors(const EventContext& ctx) const {
     }
   }
   
+
+   bool doCoverage = false;
+  {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    if (not (m_procLB.find(pEvent->lumiBlock()) != m_procLB.end() and  m_coverageCheckOnlyFirtsEventOfLB) ) {
+      m_procLB.insert(pEvent->lumiBlock());
+      doCoverage = m_coverageCheck;
+    }
+  }
+ 
   // Coverage check is time consuming and run at the first event of each lumi block.
-  if (m_coverageCheck and
-      (not m_coverageCheckOnlyFirtsEventOfLB or m_firstEventOfLB[pEvent->lumiBlock()])) {
-    m_firstEventOfLB[pEvent->lumiBlock()] = false;
+  if (doCoverage) {
     ATH_MSG_DEBUG("Detector Coverage calculation starts" );
 
     static const std::string names[numberOfProblemForCoverage] = {
@@ -309,8 +313,8 @@ SCTErrMonAlg::fillByteStreamErrors(const EventContext& ctx) const {
     if (ent->m_evt!=ctx.evt()) { // New event in this slot
       if (ent->m_mapSCT.empty()) { // First event
         for (int iProblem{0}; iProblem<numberOfProblemForCoverage; iProblem++) {
-          ent->m_mapSCT.push_back(TH2F(names[iProblem].c_str(), titles[iProblem].c_str(),
-                                       s_nBinsEta, -s_rangeEta, s_rangeEta, s_nBinsPhi, -M_PI, M_PI));
+          ent->m_mapSCT.emplace_back(names[iProblem].c_str(), titles[iProblem].c_str(),
+                                       s_nBinsEta, -s_rangeEta, s_rangeEta, s_nBinsPhi, -M_PI, M_PI);
           ent->m_mapSCT[iProblem].GetXaxis()->SetTitle("#eta");
           ent->m_mapSCT[iProblem].GetYaxis()->SetTitle("#phi");
         }

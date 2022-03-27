@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRPCRAWDATAPROVIDERTOOLMT_H
@@ -12,7 +12,6 @@
 
 #include "RPC_RawDataProviderToolCore.h"
 
-class ActiveStoreSvc;
 
 namespace Muon
 {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -218,7 +218,7 @@ namespace InDetDD {
   SiDetectorElement::localToModuleTransform() const
   {
     if (isModuleFrame()) {
-      return Amg::Transform3D(); // Identity
+      return {}; // Identity
     } else {
       return m_otherSide->transform().inverse() * transform();
     }
@@ -303,13 +303,7 @@ namespace InDetDD {
   double
   SiDetectorElement::sinStereoLocal(const Amg::Vector2D& localPos) const
   {
-    // The equation below will work for rectangle detectors as well in which 
-    // case it will return 0. But we return zero immediately as there is no point doing the calculation.
-    if (m_siDesign->shape() == InDetDD::Box) return 0.;
-    double oneOverRadius = (maxWidth() - minWidth()) / (width() * length());
-    double x = localPos[distPhi];
-    double y = localPos[distEta];
-    return -x*oneOverRadius / sqrt( (1.+y*oneOverRadius)*(1.+y*oneOverRadius) + x*oneOverRadius*x*oneOverRadius );
+    return static_cast<const SiDetectorDesign *>(m_design)->sinStripAngleReco(localPos[0], localPos[1]);
   }
 
   double

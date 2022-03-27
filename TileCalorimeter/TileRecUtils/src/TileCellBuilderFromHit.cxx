@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -11,7 +11,6 @@
 #include "TileIdentifier/TileHWID.h"
 #include "CaloDetDescr/MbtsDetDescrManager.h"
 #include "TileDetDescr/TileDetDescrManager.h"
-#include "TileConditions/TileInfo.h"
 #include "TileSimEvent/TileHit.h"
 #include "TileSimEvent/TileHitVector.h"
 #include "TileEvent/TileHitContainer.h"
@@ -30,6 +29,7 @@
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/ReadCondHandle.h"
+
 #include "AthenaKernel/ClassName.h"
 #include "AthenaKernel/RNGWrapper.h"
 
@@ -71,7 +71,6 @@ const InterfaceID& TileCellBuilderFromHit::interfaceID( ) {
 TileCellBuilderFromHit::TileCellBuilderFromHit(const std::string& type, const std::string& name,
     const IInterface* parent)
   : base_class(type, name, parent)
-  , m_infoName("TileInfo")
   , m_eneForTimeCut(35. * MeV) // keep time only for cells above 70 MeV (more than 35 MeV in at least one PMT to be precise)
   , m_eneForTimeCutMBTS(0.03675) // the same cut for MBTS, but in pC, corresponds to 3 ADC counts or 35 MeV
   , m_qualityCut(254) // cut on overflow in quality (if quality is 255 - assume that channel is bad)
@@ -79,12 +78,6 @@ TileCellBuilderFromHit::TileCellBuilderFromHit(const std::string& type, const st
   , m_minTime(-25.)
   , m_maskBadChannels(false)
   , m_noiseSigma(20.*MeV)
-  , m_tileID(0)
-  , m_tileTBID(0)
-  , m_tileHWID(0)
-  , m_tileInfo(0)
-  , m_tileMgr(0)
-  , m_mbtsMgr(0)
   , m_RChType(TileFragHash::Default)
   , m_RUN2(false)
   , m_RUN2plus(false)
@@ -98,8 +91,6 @@ TileCellBuilderFromHit::TileCellBuilderFromHit(const std::string& type, const st
   // never set energy to zero, but set it to some small number
   // this will help TopoCluster to assign proper weight to the cell if needed
   m_zeroEnergy = 0.5 * MeV; // half a MeV in both PMTs i.e. one MeV in a cell
-
-  declareProperty("TileInfoName"                ,m_infoName);        // Name of TileInfo store (default=TileInfo);
 
   // Noise Sigma
   declareProperty("NoiseSigma",m_noiseSigma);
@@ -148,12 +139,12 @@ StatusCode TileCellBuilderFromHit::initialize() {
 
   ATH_CHECK( m_eventInfoKey.initialize() );
   ATH_CHECK( m_hitContainerKey.initialize() );
+  ATH_CHECK( m_samplingFractionKey.initialize() );
 
   ATH_CHECK( detStore()->retrieve(m_tileMgr) );
   ATH_CHECK( detStore()->retrieve(m_tileID) );
   ATH_CHECK( detStore()->retrieve(m_tileTBID) );
   ATH_CHECK( detStore()->retrieve(m_tileHWID) );
-  ATH_CHECK( detStore()->retrieve(m_tileInfo, m_infoName) );
 
   //=== get TileBadChanTool
   ATH_CHECK( m_tileBadChanTool.retrieve() );
@@ -214,6 +205,9 @@ StatusCode TileCellBuilderFromHit::process (CaloCellContainer * theCellContainer
 
   TileDrawerEvtStatusArray drawerEvtStatus;
 
+  SG::ReadCondHandle<TileSamplingFraction> samplingFraction(m_samplingFractionKey, ctx);
+  ATH_CHECK( samplingFraction.isValid() );
+
   SG::ReadHandle<TileHitContainer> hitContainer(m_hitContainerKey, ctx);
 
   if (!hitContainer.isValid()) {
@@ -248,7 +242,7 @@ StatusCode TileCellBuilderFromHit::process (CaloCellContainer * theCellContainer
     if (begin != end) {
       ATH_MSG_DEBUG( " Calling build() method for hits from " << m_hitContainerKey.key() );
       build (caloNoise, drawerEvtStatus, begin, end, theCellContainer,
-             MBTSCells.get(), E4prCells.get());
+             MBTSCells.get(), E4prCells.get(), *samplingFraction);
     }
     
     if (!m_MBTSContainerKey.empty()) {
@@ -742,7 +736,8 @@ void TileCellBuilderFromHit::build(const CaloNoise* caloNoise,
                                    TileDrawerEvtStatusArray& drawerEvtStatus,
                                    const ITERATOR & begin, const ITERATOR & end, COLLECTION * coll,
                                    TileCellContainer* MBTSCells,
-                                   TileCellContainer* E4prCells) const
+                                   TileCellContainer* E4prCells,
+                                   const TileSamplingFraction* samplingFraction) const
 {
   static const std::string rngname = name() + "-" + ClassName<COLLECTION>::name();
   const EventContext& ctx = Gaudi::Hive::currentContext();
@@ -813,10 +808,16 @@ void TileCellBuilderFromHit::build(const CaloNoise* caloNoise,
     bool good_time = false;
     bool non_zero_time = (ehit!=0.0);
 
+    HWIdentifier channel_id = m_cabling->s2h_channel_id(cell_id);
+    int ros = m_tileHWID->ros(channel_id);
+    int drawer = m_tileHWID->drawer(channel_id);
+    int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
+    int channel = m_tileHWID->channel(channel_id);
+
     if (non_zero_time) {
       time = thit / ehit;
       // Convert hit energy deposit to cell energy
-      ener = ehit * m_tileInfo->HitCalib(cell_id);
+      ener = ehit * samplingFraction->getSamplingFraction(drawerIdx, channel);
       if (ener > 10000. * MeV) { // very simple check - if above 10 GeV assume low gain
         gain = TileID::LOWGAIN;
       }
@@ -824,7 +825,7 @@ void TileCellBuilderFromHit::build(const CaloNoise* caloNoise,
     }
     
     bool MBTS = false, E4pr = false, E1_CELL = false;
-    int section,side,tower,sample,pmt,index,ros,drawer,channel;
+    int section,side,tower,sample,pmt,index;
 
     // Get logical ID of cell
     if (m_tileTBID->is_tiletb(cell_id)) {
@@ -840,11 +841,6 @@ void TileCellBuilderFromHit::build(const CaloNoise* caloNoise,
         E4pr = true;
         index = e4pr_index(phi);
       }
-
-      HWIdentifier channel_id = m_cabling->s2h_channel_id(cell_id);
-      ros = m_tileHWID->ros(channel_id);
-      drawer = m_tileHWID->drawer(channel_id);
-      channel = m_tileHWID->channel(channel_id);
 
     } else {
 
@@ -923,7 +919,7 @@ void TileCellBuilderFromHit::build(const CaloNoise* caloNoise,
         ++nMBTS;
 
         // convert energy to pCb
-        ener /= m_tileToolEmscale->channelCalib(TileCalibUtils::getDrawerIdx(ros, drawer), channel, gain, 1., 
+        ener /= m_tileToolEmscale->channelCalib(drawerIdx, channel, gain, 1.,
                                                 TileRawChannelUnit::PicoCoulombs,
                                                 TileRawChannelUnit::MegaElectronVolts);
         gain = (ener>12.) ? TileID::LOWGAIN : TileID::HIGHGAIN; // assume low gain above 12 pC
@@ -970,9 +966,8 @@ void TileCellBuilderFromHit::build(const CaloNoise* caloNoise,
 
       unsigned char iqual = iquality(qual);
       // for normal cell qbit use only non_zero_time flag and check that energy is above standard energy threshold in MeV
-     unsigned char qbit = qbits(drawerEvtStatus,
-                                ros, drawer, true, non_zero_time, (fabs(ener) > m_eneForTimeCut)
-          , overflow, underflow, overfit);
+     unsigned char qbit = qbits(drawerEvtStatus, ros, drawer, true, non_zero_time,
+                                (fabs(ener) > m_eneForTimeCut), overflow, underflow, overfit);
 
       if (E1_CELL && m_RUN2plus) {
 

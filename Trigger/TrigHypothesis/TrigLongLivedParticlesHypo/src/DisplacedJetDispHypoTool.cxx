@@ -8,7 +8,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #include "AthenaMonitoringKernel/Monitored.h"
 
 #include "DisplacedJetDispHypoTool.h"
-
+#include "xAODTracking/TrackParticlexAODHelpers.h"
 using namespace TrigCompositeUtils;
 
 DisplacedJetDispHypoTool::DisplacedJetDispHypoTool( const std::string& type,const std::string& name,const IInterface* parent )
@@ -26,13 +26,6 @@ StatusCode DisplacedJetDispHypoTool::decide(  Info& info )  const {
 		return StatusCode::SUCCESS;
 	}
 
-	static const xAOD::Jet::ConstAccessor<int> ca_nprompt("djtrig_jet_nprompt_"+m_cutname);
-
-	if(!ca_nprompt.isAvailable(*(info.jet))){
-		//unranked jet
-		return StatusCode::SUCCESS;
-	}
-
 	auto mon_jet_class = Monitored::Scalar<int>("jet_class", 0);
 	auto mon_ndisp = Monitored::Scalar<int>("ndisp", 0);
 	auto mon_nprompt = Monitored::Scalar<int>("nprompt", 0);
@@ -41,9 +34,9 @@ StatusCode DisplacedJetDispHypoTool::decide(  Info& info )  const {
   	Monitored::Group mon_group(m_monTool, mon_jet_class, mon_ndisp, mon_nprompt, mon_frac_other, mon_pass_jet_pt);
 
 	//apply the track counting for the displaced tracks
-	int ndisp = info.jet->auxdecor<int>("djtrig_jet_ndisp_"+m_cutname);
-	int nother = info.jet->auxdecor<int>("djtrig_jet_nother_prompt_"+m_cutname);
-	int nprompt = ca_nprompt(*(info.jet));
+	int ndisp = info.counts->getDetail<int>("ndisp_"+m_cutname);
+	int nother = info.counts->getDetail<int>("nother_"+m_cutname);
+	int nprompt = info.counts->getDetail<int>("nprompt_"+m_cutname);
 
 
 	for(auto trk: *(info.lrt_tracks)){
@@ -59,7 +52,7 @@ StatusCode DisplacedJetDispHypoTool::decide(  Info& info )  const {
 		  	}
 		}else{
 			//candidate displaced
-			double d0sig = std::fabs(trk->d0())/std::sqrt(trk->definingParametersCovMatrixDiagVec().at(0)); //need to look into beamspot information in the trigger
+			double d0sig = xAOD::TrackingHelpers::d0significance(trk); //need to look into beamspot information in the trigger
 
 			if(d0sig >= m_d0sigcut){
 				track_class = 2; //displaced
@@ -88,11 +81,17 @@ StatusCode DisplacedJetDispHypoTool::decide(  Info& info )  const {
 	mon_nprompt = nprompt;
 	mon_frac_other = nother_frac;
 
+	if(ndisp >= m_mindisp_c3 && nprompt <= m_maxprompt_c3 && nother_frac <= m_nother_frac_c3 && info.jet->pt()/Gaudi::Units::GeV >= m_c3_min_jet_pt){
+		info.info->setDetail<int>("c3_pass_"+m_cutname, 1);
+	}else{
+		info.info->setDetail<int>("c3_pass_"+m_cutname, 0);
+	}
 
-	if(ndisp >= m_mindisp_h && nprompt <= m_maxprompt_h && nother_frac <= m_nother_frac_h){
+
+	if(ndisp >= m_mindisp_c2 && nprompt <= m_maxprompt_c2 && nother_frac <= m_nother_frac_c2){
 		jet_class = 2;
 	}else{
-		if(ndisp >= m_mindisp_l && nprompt <= m_maxprompt_l && nother_frac <= m_nother_frac_l){
+		if(ndisp >= m_mindisp_c1 && nprompt <= m_maxprompt_c1 && nother_frac <= m_nother_frac_c1){
 			jet_class = 1;
 		}
 	}
@@ -102,9 +101,10 @@ StatusCode DisplacedJetDispHypoTool::decide(  Info& info )  const {
 		mon_pass_jet_pt = info.jet->pt()/Gaudi::Units::GeV;
 	}
 
+	info.info->setDetail<int>("djtrig_jet_class_"+m_cutname, jet_class);
+
 	mon_jet_class = jet_class;
 
-	info.jet->auxdecor<int>("djtrig_jet_accept_type_"+m_cutname) = jet_class;
 	ANA_MSG_DEBUG("jet pT = "<<info.jet->pt()/Gaudi::Units::GeV<<" assigned class "<<jet_class);
 
 	return StatusCode::SUCCESS;

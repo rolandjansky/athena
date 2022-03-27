@@ -957,8 +957,11 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       // This block is purely validation
       for(size_t i = 0; i<tmpStripOutput.NumberOfStripsPos().size(); ++i){
         int tmpStripID = tmpStripOutput.NumberOfStripsPos().at(i);
-        bool isValid;
-        Identifier cr_id = m_idHelperSvc->mmIdHelper().channelID(stName, m_idHelperSvc->mmIdHelper().stationEta(layerID), m_idHelperSvc->mmIdHelper().stationPhi(layerID), m_idHelperSvc->mmIdHelper().multilayer(layerID), m_idHelperSvc->mmIdHelper().gasGap(layerID), tmpStripID, true, &isValid);
+        bool isValid{false};
+        Identifier cr_id = m_idHelperSvc->mmIdHelper().channelID(stName, m_idHelperSvc->mmIdHelper().stationEta(layerID), 
+                                                        m_idHelperSvc->mmIdHelper().stationPhi(layerID), 
+                                                        m_idHelperSvc->mmIdHelper().multilayer(layerID), 
+                                                        m_idHelperSvc->mmIdHelper().gasGap(layerID), tmpStripID, isValid);
         if (!isValid) {
           ATH_MSG_WARNING( "MicroMegas digitization: failed to create a valid ID for (chip response) strip n. " << tmpStripID << "; associated positions will be set to 0.0." );
         } else {

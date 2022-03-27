@@ -22,7 +22,7 @@
 #include "StoreGate/ReadHandle.h"
 
 // Tile includes
-#include "TileCalibAlgs/TileRawChNoiseCalibAlg.h"
+#include "TileRawChNoiseCalibAlg.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "CaloIdentifier/TileID.h"
 #include "TileIdentifier/TileHWID.h"

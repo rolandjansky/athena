@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -534,7 +534,7 @@ StatusCode SCTCalib::getNoisyStrip ATLAS_NOT_THREAD_SAFE () { // Thread unsafe w
 
    //--- Choice of threshold
    //three module lists: all, new, ref
-   typedef std::map< Identifier, std::set<Identifier> > ModuleList_t;
+   using ModuleList_t = std::map<Identifier, std::set<Identifier>>;
    ModuleList_t moduleLists[N_CATEGORIES];
    //Reading data from COOL
    // original code switched on this :if (m_noisyUpdate)
@@ -545,7 +545,7 @@ StatusCode SCTCalib::getNoisyStrip ATLAS_NOT_THREAD_SAFE () { // Thread unsafe w
    }
 
    //two bad strip lists: all, new
-   typedef std::set<Identifier> StripList_t;
+   using StripList_t = std::set<Identifier>;
    StripList_t stripIdLists[2];
 
    //--- Loop over wafers
@@ -1812,7 +1812,7 @@ StatusCode SCTCalib::getBSErrors ATLAS_NOT_THREAD_SAFE () { // Thread unsafe SCT
    unsigned long long nErrs_ECC_module[n_disks][2][n_etaBinsEC][n_phiBinsECOuter][15] = {{{{{0}}}}};
 
    //--- ErrorList
-   typedef std::map<int, std::string> IntStringMap;
+   using IntStringMap = std::map<int, std::string>;
    IntStringMap ErrMap_C, ErrMap;
    const int numberOfErrorTypes{12};
    std::array<std::string, numberOfErrorTypes> errorNames = {{
@@ -2390,8 +2390,8 @@ StatusCode SCTCalib::getLorentzAngle ATLAS_NOT_THREAD_SAFE () { // Thread unsafe
    }
 
    std::ofstream& file{m_outLASummary};
-   typedef std::pair<std::string, std::string> TwoStrings;
-   typedef std::map<std::string, TwoStrings > Names;
+   using TwoStrings = std::pair<std::string, std::string>;
+   using Names = std::map<std::string, TwoStrings>;
    Names nameAssociation;
    nameAssociation["LorentzAngle"]=TwoStrings(m_LorentzAngleSummaryFile, "LorentzAngleInfo.xsl");
    Names::iterator found{nameAssociation.find("LorentzAngle")};
@@ -2543,8 +2543,8 @@ StatusCode SCTCalib::openXML4DeadSummary(std::ofstream& file, const char* type, 
 
 
 StatusCode SCTCalib::openXML4MonSummary(std::ofstream& file, const char* type) const {
-   typedef std::pair<std::string, std::string> TwoStrings;
-   typedef std::map<std::string, TwoStrings> Names;
+   using TwoStrings = std::pair<std::string, std::string>;
+   using Names = std::map<std::string, TwoStrings>;
    Names nameAssociation;
    nameAssociation["NoiseOccupancy"] = TwoStrings(m_noiseOccupancySummaryFile, "NoiseOccupancyInfo.xsl");
    nameAssociation["RawOccupancy"] = TwoStrings(m_rawOccupancySummaryFile, "RawOccupancyInfo.xsl");

@@ -1,5 +1,5 @@
 
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 This module defines the standard JetModifier tools used in jet reco
 
@@ -25,6 +25,7 @@ The JetModifier config class is defined in JetDefinition.py
 from .JetDefinition import JetModifier
 from .Utilities import ldict
 from AthenaConfiguration.ComponentFactory import CompFactory
+from JetRecConfig.JetConfigFlags import jetInternalFlags
 
 
 stdJetModifiers = ldict()
@@ -34,8 +35,13 @@ stdJetModifiers = ldict()
 stdJetModifiers.update( 
     Sort   = JetModifier("JetSorter","jetsort"),
     Filter = JetModifier("JetFilterTool","jetptfilter_{modspec}",
-                         # we give a function as PtMin : it will be evaluated when instantiating the tool (modspec will come alias usage like "Filter:10000" --> PtMin=100000) 
-                         PtMin = lambda _,modspec: int(modspec) ) #
+                         # we give a function as PtMin : it will be evaluated when instantiating the tool (modspec is specified with this tool
+                         # alias like "Filter:10000" --> PtMin=100000).
+                         PtMin = lambda jdef,modspec: int(modspec) 
+                         ),
+    Filter_ifnotESD = JetModifier("JetFilterTool","jetptfilter_{modspec}",
+                                 PtMin = lambda _,modspec: 1 if jetInternalFlags.isRecoJob else int(modspec),
+                                 )
 )
 
 ########################################################################
@@ -49,7 +55,7 @@ from JetCalibTools import JetCalibToolsConfig
 stdJetModifiers.update(
     Calib = JetModifier("JetCalibrationTool","jetcalib_jetcoll_calibseq",
                         createfn=JetCalibToolsConfig.getJetCalibToolFromString,
-                        prereqs=JetCalibToolsConfig.getJetCalibToolPrereqs)
+                        prereqs=lambda mod,jetdef : JetCalibToolsConfig.getJetCalibToolPrereqs(mod,jetdef)+["input:PrimaryVertices"])
 )
 
 # TBD:
@@ -96,14 +102,14 @@ stdJetModifiers.update(
 
     JVF =             JetModifier("JetVertexFractionTool", "jvf",
                                    createfn=JetMomentToolsConfig.getJVFTool,
-                                   prereqs = ["mod:TrackMoments"] ,JetContainer = _jetname),
+                                   prereqs = ["mod:TrackMoments", "input:PrimaryVertices"] ,JetContainer = _jetname),
     JVT =             JetModifier("JetVertexTaggerTool", "jvt",
                                    createfn=JetMomentToolsConfig.getJVTTool,
                                    prereqs = [ "mod:JVF" ],JetContainer = _jetname),
     LArHVCorr =       JetModifier("JetLArHVTool", "larhvcorr",
                                    prereqs = ["mod:EMScaleMom"],JetContainer = _jetname),
     OriginSetPV =     JetModifier("JetOriginCorrectionTool", "origin_setpv",
-                                   prereqs = [ "mod:JVF" ],JetContainer = _jetname),
+                                   prereqs = [ "mod:JVF" ],JetContainer = _jetname, OnlyAssignPV=True),
     TrackMoments =    JetModifier("JetTrackMomentsTool", "trkmoms",
                                   createfn=JetMomentToolsConfig.getTrackMomentsTool,
                                   prereqs = [ "input:JetTrackVtxAssoc","ghost:Track" ],JetContainer = _jetname),
@@ -113,6 +119,16 @@ stdJetModifiers.update(
                                   prereqs = [ "input:JetTrackVtxAssoc","ghost:Track" ],JetContainer = _jetname),
     Charge =          JetModifier("JetChargeTool", "jetcharge", 
                                   prereqs = [ "ghost:Track" ]),
+
+    QGTagging =       JetModifier("JetQGTaggerVariableTool", "qgtagging",
+                                  createfn=JetMomentToolsConfig.getQGTaggingTool,
+                                  prereqs = lambda _,jetdef : ["mod:JetPtAssociation", "mod:TrackMoments"] if not isMC(jetdef._cflags) else ["mod:TrackMoments"],
+                                  JetContainer = _jetname),
+
+    fJVT =           JetModifier("JetForwardPFlowJvtTool", "fJVT",
+                                 createfn=JetMomentToolsConfig.getPFlowfJVTTool,
+                                 prereqs = ["input:EventDensity","input:PrimaryVertices"],
+                                 JetContainer = _jetname),
 )
 
 # Truth labelling moments
@@ -142,7 +158,19 @@ stdJetModifiers.update(
                                    prereqs=["ghost:BHadronsFinal",
                                             "ghost:CHadronsFinal",
                                             "ghost:TausFinal"]
-                                   )
+                                   ),
+
+    JetPtAssociation = JetModifier("JetPtAssociationTool", "jetPtAssociation",
+                                   filterfn=isMC,
+                                   createfn=JetMomentToolsConfig.getJetPtAssociationTool,
+                                   prereqs=["ghost:Truth"],
+                                   JetContainer = _jetname
+                                  ),
+
+    JetTaggingTruthLabel = JetModifier("JetTaggingTruthLabel", "truthlabeler_{mods}",
+                                       filterfn=isMC,
+                                       createfn=ParticleJetToolsConfig.getJetTruthLabelTool,
+                                      ),
 )
 
 
@@ -179,5 +207,10 @@ stdJetModifiers.update(
     charge    = JetModifier( "JetChargeTool", "charge", K=1.0),
 
     qw = JetModifier( "QwTool", "qw"),
-    #showerdec = JetModifier( "  ShowerDeconstructionTool"),
+
+)
+
+# VR track-jet decorations
+stdJetModifiers.update(
+    vr = JetModifier( "FlavorTagDiscriminants::VRJetOverlapDecoratorTool", "vr")
 )

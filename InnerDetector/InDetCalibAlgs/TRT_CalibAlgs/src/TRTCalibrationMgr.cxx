@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /* *******************************************************************
@@ -193,7 +193,7 @@ StatusCode TRTCalibrationMgr::execute() {
 
 			for (t=trks->begin();t!=trks->end();++t) {
 
-				if ( m_trackSelector->decision(*(*t), 0)) {
+				if ( m_trackSelector->decision(*(*t), nullptr)) {
 
 					m_ntrk++;
 					aTrack=*t;

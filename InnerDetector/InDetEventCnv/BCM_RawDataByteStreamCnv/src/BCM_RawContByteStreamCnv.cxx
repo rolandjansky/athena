@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -69,7 +69,7 @@ long BCM_RawContByteStreamCnv::storageType() {
 StatusCode
 BCM_RawContByteStreamCnv::createRepConst(DataObject* pObj, IOpaqueAddress*& pAddr) const
 {
-  BCM_RDO_Container* cont = 0;
+  BCM_RDO_Container* cont = nullptr;
   SG::fromStorable(pObj,cont);
   if(!cont) {
     ATH_MSG_ERROR( "Can not cast to BCM_RDO_Container" );

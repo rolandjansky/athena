@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -49,7 +49,7 @@ namespace {
 /////////////////////////////////////////////////////////////////////
 PixelPrepDataToxAOD::PixelPrepDataToxAOD(const std::string &name, ISvcLocator *pSvcLocator) :
   AthAlgorithm(name,pSvcLocator),
-  m_PixelHelper(0),
+  m_PixelHelper(nullptr),
   m_useSiHitsGeometryMatching(true),
   m_firstEventWarnings(true),
   m_need_sihits{false}
@@ -436,7 +436,7 @@ std::vector< std::vector< int > > PixelPrepDataToxAOD::addSDOInformation( xAOD::
       
       std::vector< int > sdoDepBC;
       std::vector< float > sdoDepEnergy;
-      for( auto deposit : pos->second.getdeposits() ){
+      for( const auto& deposit : pos->second.getdeposits() ){
         if(deposit.first){
           sdoDepBC.push_back( HepMC::barcode(deposit.first));
         } else {
@@ -481,7 +481,7 @@ void  PixelPrepDataToxAOD::addSiHitInformation( xAOD::TrackMeasurementValidation
   int hitNumber(0);
   const InDetDD::SiDetectorElement* de = prd->detectorElement();
   if(de){
-    for ( auto sihit : matchingHits ) {          
+    for ( const auto& sihit : matchingHits ) {          
       sihit_energyDeposit[hitNumber] =  sihit.energyLoss() ;
       sihit_meanTime[hitNumber] =  sihit.meanTime() ;
       sihit_barcode[hitNumber] =  sihit.particleLink().barcode() ;
@@ -606,18 +606,18 @@ std::vector<SiHit> PixelPrepDataToxAOD::findAllHitsCompatibleWithCluster( const 
       }
       
       // Check to see if the SiHits are compatible with each other.
-      if (fabs((highestXPos->localEndPosition().x()-(*siHitIter2)->localStartPosition().x()))<0.00005 &&
-          fabs((highestXPos->localEndPosition().y()-(*siHitIter2)->localStartPosition().y()))<0.00005 &&
-          fabs((highestXPos->localEndPosition().z()-(*siHitIter2)->localStartPosition().z()))<0.00005 )
+      if (std::abs((highestXPos->localEndPosition().x()-(*siHitIter2)->localStartPosition().x()))<0.00005 &&
+          std::abs((highestXPos->localEndPosition().y()-(*siHitIter2)->localStartPosition().y()))<0.00005 &&
+          std::abs((highestXPos->localEndPosition().z()-(*siHitIter2)->localStartPosition().z()))<0.00005 )
       {
         highestXPos = *siHitIter2;
         ajoiningHits.push_back( *siHitIter2 );
         // Dont use hit  more than once
         // @TODO could invalidate siHitIter
         siHitIter2 = multiMatchingHits.erase( siHitIter2 );
-      }else if (fabs((lowestXPos->localStartPosition().x()-(*siHitIter2)->localEndPosition().x()))<0.00005 &&
-                fabs((lowestXPos->localStartPosition().y()-(*siHitIter2)->localEndPosition().y()))<0.00005 &&
-                fabs((lowestXPos->localStartPosition().z()-(*siHitIter2)->localEndPosition().z()))<0.00005)
+      }else if (std::abs((lowestXPos->localStartPosition().x()-(*siHitIter2)->localEndPosition().x()))<0.00005 &&
+                std::abs((lowestXPos->localStartPosition().y()-(*siHitIter2)->localEndPosition().y()))<0.00005 &&
+                std::abs((lowestXPos->localStartPosition().z()-(*siHitIter2)->localEndPosition().z()))<0.00005)
       {
         lowestXPos = *siHitIter2;
         ajoiningHits.push_back( *siHitIter2 );
@@ -649,7 +649,7 @@ std::vector<SiHit> PixelPrepDataToxAOD::findAllHitsCompatibleWithCluster( const 
       }
       time /= (float)ajoiningHits.size();
        
-      matchingHits.push_back(  SiHit(lowestXPos->localStartPosition(), 
+      matchingHits.emplace_back(lowestXPos->localStartPosition(), 
                                      highestXPos->localEndPosition(),
                                      energyDep,
                                      time,
@@ -659,7 +659,7 @@ std::vector<SiHit> PixelPrepDataToxAOD::findAllHitsCompatibleWithCluster( const 
                                      (*siHitIter)->getLayerDisk(),
                                      (*siHitIter)->getEtaModule(),
                                      (*siHitIter)->getPhiModule(),
-                                     (*siHitIter)->getSide() ) );
+                                     (*siHitIter)->getSide() );
      ATH_MSG_DEBUG("Finished Merging " << ajoiningHits.size() << " SiHits together." );
 
     }
@@ -741,7 +741,7 @@ void PixelPrepDataToxAOD::addNNInformation(xAOD::TrackMeasurementValidation* xpr
   ATH_MSG_VERBOSE( " Starting creating input from cluster "   );
 
   const InDetDD::SiDetectorElement* de = pixelCluster->detectorElement();
-  if (de==0) {
+  if (de==nullptr) {
     ATH_MSG_ERROR("Could not get detector element");
     return;
   }
@@ -1002,8 +1002,8 @@ void  PixelPrepDataToxAOD::addNNTruthInfo(  xAOD::TrackMeasurementValidation* xp
     // position lorentz shift corrected
     float YposC = averagePosition.y()-shift;
 
-    if (fabs(YposC)>design->width()/2 && 
-        fabs(averagePosition.y())<design->width()/2)
+    if (std::abs(YposC)>design->width()/2 && 
+        std::abs(averagePosition.y())<design->width()/2)
    { 
       if (YposC>design->width()/2)
       {
@@ -1146,15 +1146,15 @@ InDetDD::SiCellId PixelPrepDataToxAOD::getCellIdWeightedPosition(  const InDet::
 {
 
   const InDetDD::SiDetectorElement* de = pixelCluster->detectorElement();
-  if (de==0) {
+  if (de==nullptr) {
     ATH_MSG_ERROR("Could not get detector element");
-    return InDetDD::SiCellId();
+    return {};
   }
 
   const InDetDD::PixelModuleDesign* design(dynamic_cast<const InDetDD::PixelModuleDesign*>(&de->design()));
   if (not design) {
     ATH_MSG_WARNING("PixelModuleDesign was not retrieved in function 'getCellIdWeightedPosition'");
-    return InDetDD::SiCellId();
+    return {};
   }
   const std::vector<Identifier>& rdos  = pixelCluster->rdoList();  
 

@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef POOLROOTACCESS_TEVENT_H
 #define POOLROOTACCESS_TEVENT_H
 
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/ActiveStoreSvc.h"
 
 #include "GaudiKernel/Bootstrap.h"
 
@@ -119,7 +118,6 @@ namespace POOL {
          ServiceHandle<IEventSeek> m_evtLoop; //the AthenaEventLoopMgr
          ServiceHandle<IEvtSelectorSeek> m_evtSelect; //the EventSelectorAthenaPool
          ServiceHandle<StoreGateSvc> m_evtStore; //the storegate
-         ServiceHandle<ActiveStoreSvc> m_activeStoreSvc; //the active store svc for switching to our store before reading next event
 
          ServiceHandle<StoreGateSvc> m_inputMetaStore; //input metadata storegate
 

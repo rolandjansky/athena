@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file CxxUtils/ConcurrentStrMap.icc
@@ -226,7 +226,7 @@ auto CONCURRENTSTRMAP::const_iterator::equal (const const_iterator& other) const
 
 
 /**
- * @brief Return an interator range covering the entire map.
+ * @brief Return an iterator range covering the entire map.
  */
 T_CONCURRENTSTRMAP
 auto CONCURRENTSTRMAP::range() const -> const_iterator_range
@@ -527,7 +527,7 @@ auto CONCURRENTSTRMAP::mappedAsMapped (val_t val) -> mapped_type
 
 /**
  * @brief Convert this type's mapped value to an underlying mapped value.
- * @param val THe mapped value.
+ * @param val The mapped value.
  */
 T_CONCURRENTSTRMAP
 inline

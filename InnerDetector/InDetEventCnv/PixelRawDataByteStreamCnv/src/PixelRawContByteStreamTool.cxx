@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -87,7 +87,7 @@ StatusCode PixelRawContByteStreamTool::convert(PixelRDO_Container* cont) const {
     const InDetRawDataCollection<PixelRDORawData>* coll = (*it_coll) ;
 
     // get OfflineId and RODID
-    if (coll != NULL){
+    if (coll != nullptr){
       Identifier offlineId = coll->identify();
       uint32_t rodId = pixCabling->find_entry_offrob(offlineId);
       if (rodId<1) {

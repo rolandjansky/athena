@@ -18,7 +18,7 @@
 
 #include "CaloEvent/CaloCellContainer.h"
 
-#include "TileMonitoring/TileTBMonTool.h"
+#include "TileTBMonTool.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileEvent/TileRawChannelContainer.h"

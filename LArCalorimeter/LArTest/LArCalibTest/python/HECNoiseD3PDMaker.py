@@ -23,6 +23,7 @@ class HECNoiseD3PDMaker(PyAthena.Alg):
         self.MinDigitADC      = kw.get('MinDigitADC',     20)
         self.MaxDeltaT        = kw.get('MaxDeltaT',        5)
         self.NtupleFileName   = kw.get('NtupleFileName', 'HECNoiseD3PD.root')
+        self.RequireTrigger   = kw.get('RequireTrigger', False)
         self.TriggerLines     = kw.get('TriggerLines',   ['HLT_noalg_L1EM20A',
                                                           'HLT_noalg_L1EM20C',
                                                           'L1_J12',
@@ -47,6 +48,7 @@ class HECNoiseD3PDMaker(PyAthena.Alg):
         print ("MinDigitADC:     ", self.MinDigitADC)
         print ("MaxDeltaT:       ", self.MaxDeltaT)
         print ("NtupleFileName:  ", self.NtupleFileName)
+        print ("RequireTrigger:  ", self.RequireTrigger)
         print ("TriggerLines:    ", self.TriggerLines)
         #
         self.sg = PyAthena.py_svc("StoreGateSvc")
@@ -147,7 +149,7 @@ class HECNoiseD3PDMaker(PyAthena.Alg):
                 self.iTrigger[tl][0] = 0
                 pass
             pass
-        if passedTrigger or not passedTrigger: # take all events with LG Cells
+        if passedTrigger or not self.RequireTrigger: # take only triggered events or all if RequireTrigger is False (default)
             self.iEventCount[0] = 0
             ldc = self.sg.retrieve("LArDigitContainer","LArDigitContainer_Thinned")
             for ld in ldc:

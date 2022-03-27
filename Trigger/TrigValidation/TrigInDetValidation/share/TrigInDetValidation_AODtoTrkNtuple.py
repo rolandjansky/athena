@@ -3,7 +3,6 @@
 
 FilesInput = [ "AOD.pool.root" ]
 
-
 theApp.EvtMax=-1                                       #says how many events to run over. Set to -1 for all events
 
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -14,21 +13,8 @@ import AthenaPoolCnvSvc.ReadAthenaPool                   #sets up reading of POO
 svcMgr.EventSelector.InputCollections=FilesInput
 
 algseq = CfgMgr.AthSequencer("AthAlgSeq")                #gets the main AthSequencer
-# algseq += CfgMgr.WillAlg()                                 #adds an instance of your alg to it
 
 #only specifying here so that has the standard 'TrigDecisionTool' name
-
-### old TDT configuration - LEAVE THIS HERE FOR TH TIME BEING
-### this will be removed once we kow that the nightly tests are 
-### all working again...
-### from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
-### ToolSvc += CfgMgr.Trig__TrigDecisionTool("TrigDecisionTool")
-
-### from TrigEDMConfig.TriggerEDM import EDMLibraries
-### ToolSvc.TrigDecisionTool.Navigation.Dlls = EDMLibraries
-
-### from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
-### myAlg.TrigDecisionTool = conf2toConfigurable(tdtAcc.getPrimary())
 
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -40,21 +26,12 @@ Configurable.configurableRun3Behavior-=1
 appendCAtoAthena( tdtAcc )
 
 
-
-
 from AthenaCommon.AppMgr import topSequence
-
 
 from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigTool
 
 cfgtool = TrigConf__xAODConfigTool('xAODConfigTool')
 ToolSvc += cfgtool
-
-## tdt = Trig__TrigDecisionTool('TrigDecisionTool')
-## tdt.ConfigTool = cfgtool
-## tdt.NavigationFormat = "TrigComposite"
-
-## tdt.Navigation.Dlls = [e for e in  EDMLibraries if 'TPCnv' not in e]
 
 
 jps.AthenaCommonFlags.FilesInput = FilesInput
@@ -72,6 +49,10 @@ doTier0Mon = False
 if 'doTIDATier0' in locals():
   doTier0Mon = doTIDATier0
 
+doNewTier0Mon = False
+
+if 'doNewTIDATier0' in locals():
+  doNewTier0Mon = doNewTIDATier0
 
 
 ############ TrigIDtrkMonitoring part ################################
@@ -82,23 +63,30 @@ from AthenaCommon.AppMgr import ToolSvc
 from TrigInDetAnalysisExample.TrigInDetAnalysisExampleConf import TrigTestBase
 
 
-if doTier0Mon :
+if doTier0Mon and not doNewTier0Mon:
 
   from TrigIDtrkMonitoring.TrigIDtrkMonitoringConfig import TrigIDtrkMonitoringTool
 
   montools = TrigIDtrkMonitoringTool()
 
-  #  print "\n\nMonTools\n"
-  #  print montools
-
   HLTMonManager.AthenaMonTools += montools
 
   from GaudiSvc.GaudiSvcConf import THistSvc
   ServiceMgr += THistSvc()
-  ServiceMgr.THistSvc.Output = ["AANT DATAFILE='TIDA_T0.root' OPT='RECREATE'"]
+  ServiceMgr.THistSvc.Output = ["AANT DATAFILE='data-hists-tier0.root' OPT='RECREATE'"]
   HLTMonManager.FileKey = "AANT"
 
 
+if doNewTier0Mon :   
+
+  # this is the new location ...
+  from TrigIDtrkMonitoring.TIDAMonitoring import TIDAMonitoring
+  for git in TIDAMonitoring( None, "idtrigger" ):
+    algseq += git
+
+  from GaudiSvc.GaudiSvcConf import THistSvc
+  ServiceMgr += THistSvc()
+  ServiceMgr.THistSvc.Output = ["EXPERT DATAFILE='data-hists-tier0.root' OPT='RECREATE'"]
 
 
 
@@ -183,8 +171,8 @@ if ( True ) :
     "HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20:key=HLT_IDTrack_Bjet_IDTrig",
     "HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
     "HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FSJet",
-    "HLT_j45_ftf_L1J15:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
-    "HLT_j45_ftf_L1J15:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FSJet",
+    "HLT_j45_pf_ftf_preselj20_L1J15:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
+    "HLT_j45_pf_ftf_preselj20_L1J15:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FSJet",
 
     "HLT_unconvtrk.*_fslrt.*:HLT_IDTrack_FSLRT_FTF;DTE",
     "HLT_unconvtrk.*_fslrt.*:HLT_IDTrack_FS_FTF;DTE",
@@ -217,14 +205,25 @@ if ( True ) :
     "HLT_e5_idperf_loose_lrtloose_L1EM3:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT",
     "HLT_e26_idperf_loose_lrtloose_L1EM22VHI:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT",
 
-    # double electron chains for tag and probe analysis
-    "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:te=0",
-    "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:te=1",
-    "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:te=-1",
+    # electron lrt e tag
+    "HLT_e26_lhtight_ivarloose_e5_lhvloose_nopix_lrtloose_idperf_probe_L1EM22VHI:HLT_IDTrack_ElecLRT_FTF:roi=HLT_Roi_FastElectron_LRT:te=1",
+    "HLT_e26_lhtight_ivarloose_e5_lhvloose_nopix_lrtloose_idperf_probe_L1EM22VHI:HLT_IDTrack_ElecLRT_IDTrig:roi=HLT_Roi_FastElectron_LRT:te=1",
 
-    "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_IDTrig:roi=HLT_Roi_FastElectron:te=0",
-    "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_IDTrig:roi=HLT_Roi_FastElectron:te=1",
-    "HLT_e26_lhtight_ivarloose_e5_lhvloose_idperf_probe_L1EM22VHI:HLT_IDTrack_Electron_IDTrig:roi=HLT_Roi_FastElectron:te=-1",
+    "HLT_e26_lhtight_ivarloose_e26_lhloose_nopix_lrttight_probe_L1EM22VHI:HLT_IDTrack_ElecLRT_FTF:roi=HLT_Roi_FastElectron_LRT:te=1",
+    "HLT_e26_lhtight_ivarloose_e26_lhloose_nopix_lrttight_probe_L1EM22VHI:HLT_IDTrack_ElecLRT_IDTrig:roi=HLT_Roi_FastElectron_LRT:te=1",
+    # electron lrt photon tag
+    "HLT_e5_lhvloose_nopix_lrtloose_idperf_probe_g25_medium_L1EM20VH:HLT_IDTrack_ElecLRT_FTF:roi=HLT_Roi_FastElectron_LRT:te=0",
+    "HLT_e5_lhvloose_nopix_lrtloose_idperf_probe_g25_medium_L1EM20VH:HLT_IDTrack_ElecLRT_IDTrig:roi=HLT_Roi_FastElectron_LRT:te=0",
+
+    "HLT_e26_lhloose_nopix_lrttight_probe_g25_medium_L1EM20VH:HLT_IDTrack_ElecLRT_FTF:roi=HLT_Roi_FastElectron_LRT:te=0",
+    "HLT_e26_lhloose_nopix_lrttight_probe_g25_medium_L1EM20VH:HLT_IDTrack_ElecLRT_IDTrig:roi=HLT_Roi_FastElectron_LRT:te=0",
+
+    # double electron chains for tag and probe analysis
+    "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:te=0",
+    "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:te=1",
+
+    "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_IDTrig:te=0",
+    "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_IDTrig:te=1",
 
     # two stage tau FTF
     "HLT_tau.*_idperf.*tracktwo.*:HLT_IDTrack_TauCore_FTF:roi=HLT_Roi_TauCore",
@@ -250,9 +249,9 @@ if ( True ) :
     # should work for a two stage tau ??
     # "HLT_tau.*_idperf.*:HLT_IDTrack_TauIso_FTF",
 
-    "HLT_mu4_cosmic_L1MU3V:HLT_IDTrack_Cosmic_FTF",
-    "HLT_mu4_cosmic_L1MU3V:HLT_IDTrack_Cosmic_IDTrig",
-    "HLT_mu4_cosmic_L1MU3V:HLT_IDTrack_Cosmic_EFID",
+    "HLT_mu4.*_cosmic.*:HLT_IDTrack_Cosmic_FTF",
+    "HLT_mu4.*_cosmic.*:HLT_IDTrack_Cosmic_IDTrig",
+    "HLT_mu4.*_cosmic.*:HLT_IDTrack_Cosmic_EFID",
 
     #"HLT_mb.*:HLT_IDTrack_Cosmic_EFID",
     #"HLT_mb.*:HLT_IDTrack_MinBias_FTF",  #There are no tracks here

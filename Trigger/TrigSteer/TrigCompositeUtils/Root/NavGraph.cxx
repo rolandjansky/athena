@@ -13,15 +13,25 @@ namespace TrigCompositeUtils {
   }
 
 
+  bool NavGraphNode::addIfNotDuplicate(std::vector<NavGraphNode*>& container, NavGraphNode* toAdd) {
+    std::vector<NavGraphNode*>::iterator it = std::find(container.begin(), container.end(), toAdd);
+    if (it == container.end()) {
+      container.push_back(toAdd);
+      return true;
+    }
+    return false;
+  }
+
+
   bool NavGraphNode::linksTo(NavGraphNode* to) {
-    to->m_filteredChildren.insert(this);
-    return (m_filteredSeeds.insert(to)).second; // Return TRUE if a new edge is added
+    addIfNotDuplicate(to->m_filteredChildren, this);
+    return addIfNotDuplicate(m_filteredSeeds, to); // Return TRUE if a new edge is added
   }
 
 
   void NavGraphNode::dropLinks(NavGraphNode* node) {
-    m_filteredChildren.erase(node);
-    m_filteredSeeds.erase(node);
+    m_filteredChildren.erase(std::remove(m_filteredChildren.begin(), m_filteredChildren.end(), node), m_filteredChildren.end());
+    m_filteredSeeds.erase(std::remove(m_filteredSeeds.begin(), m_filteredSeeds.end(), node), m_filteredSeeds.end());
   }
 
 
@@ -30,11 +40,11 @@ namespace TrigCompositeUtils {
   }
 
 
-  const std::set<NavGraphNode*>& NavGraphNode::seeds() const {
+  const std::vector<NavGraphNode*>& NavGraphNode::seeds() const {
     return m_filteredSeeds;
   }
 
-  const std::set<NavGraphNode*>& NavGraphNode::children() const {
+  const std::vector<NavGraphNode*>& NavGraphNode::children() const {
     return m_filteredChildren;
   }
 
@@ -66,7 +76,7 @@ namespace TrigCompositeUtils {
     NavGraphNode& nodeObj = nodePairIt.first->second;
     
     if (comingFrom == nullptr) { // Not coming from anywhere - hence a final node.
-      m_finalNodes.insert( &nodeObj );
+      m_finalNodes.push_back( &nodeObj );
     } else {
       auto comingFromPairIt = m_nodes.insert( std::make_pair(comingFrom, NavGraphNode(comingFrom)) );
       NavGraphNode& comingFromNodeObj = comingFromPairIt.first->second;
@@ -78,17 +88,18 @@ namespace TrigCompositeUtils {
   }
 
 
-  std::set<NavGraphNode*> NavGraph::finalNodes() const {
+  std::vector<NavGraphNode*> NavGraph::finalNodes() const {
     return m_finalNodes;
   }
 
-  std::set<NavGraphNode*> NavGraph::allNodes() {
-    std::set<NavGraphNode*> returnSet;
+  std::vector<NavGraphNode*> NavGraph::allNodes() {
+    std::vector<NavGraphNode*> returnVec;
+    returnVec.reserve(m_nodes.size());
     for (auto& entry : m_nodes) {
       NavGraphNode& n = entry.second;
-      returnSet.insert( &n );
+      returnVec.push_back( &n );
     }
-    return returnSet;
+    return returnVec;
   }
 
 
@@ -101,25 +112,25 @@ namespace TrigCompositeUtils {
     return m_edges;
   }
 
-  std::set<const Decision*> NavGraph::thin() {
-    std::set<const Decision*> returnSet;
+  std::vector<const Decision*> NavGraph::thin() {
+    std::vector<const Decision*> returnVec;
     std::map<const Decision*, NavGraphNode>::iterator it;
     for (it = m_nodes.begin(); it != m_nodes.end(); /*noop*/) {
       if (it->second.getKeep()) {
         it->second.resetKeep();
         ++it;
       } else {
-        returnSet.insert(it->first);
+        returnVec.push_back(it->first);
         rewireNodeForRemoval(it->second);
         it = m_nodes.erase(it);
       }
     }
-    return returnSet;
+    return returnVec;
   }
 
   void NavGraph::rewireNodeForRemoval(NavGraphNode& toBeDeleted) {
-    const std::set<NavGraphNode*> myParents = toBeDeleted.seeds();
-    const std::set<NavGraphNode*> myChildren = toBeDeleted.children();
+    const std::vector<NavGraphNode*> myParents = toBeDeleted.seeds();
+    const std::vector<NavGraphNode*> myChildren = toBeDeleted.children();
 
     // Perform the (potentially) many-to-many re-linking required to remove toBeDeleted from the graph
     for (NavGraphNode* child : myChildren) {
@@ -144,18 +155,7 @@ namespace TrigCompositeUtils {
 
 
   void NavGraph::printAllPaths(MsgStream& log, MSG::Level msgLevel) const {
-    // finalNodes() is a set<NavGraphNode*>, so iteration over it
-    // will not be in any well-defined order.  Sort the set of pointers
-    // by name so that the output is predictable.
-    std::vector<const NavGraphNode*> nodes (m_finalNodes.begin(),
-                                            m_finalNodes.end());
-    std::sort (nodes.begin(), nodes.end(),
-               [] (const NavGraphNode* a, const NavGraphNode* b)
-               {
-                 return a->node()->name() < b->node()->name();
-               });
-
-    for (const NavGraphNode* finalNode : nodes) {
+    for (const NavGraphNode* finalNode : m_finalNodes) {
       recursivePrintNavPath(*finalNode, 0, log, msgLevel);
     }
   }

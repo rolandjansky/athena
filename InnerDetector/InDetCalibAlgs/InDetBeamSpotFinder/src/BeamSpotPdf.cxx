@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************** 
@@ -13,10 +13,10 @@
 #include <Riostream.h> 
 
 #include "BeamSpotPdf.h" 
-#include <RooAbsReal.h> 
 #include <RooAbsCategory.h> 
-#include <math.h> 
+#include <RooAbsReal.h> 
 #include <TMath.h> 
+#include <cmath> 
 
 
 

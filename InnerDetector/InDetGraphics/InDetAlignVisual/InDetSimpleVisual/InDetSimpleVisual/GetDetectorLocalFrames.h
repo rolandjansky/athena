@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -48,7 +48,7 @@ class GetDetectorLocalFrames:public AthAlgorithm {
     void writeSCTFrames();
     void writeTRTFrames();
     void writeTransForm(const HepGeom::Transform3D& transform);
-    void writeVector(std::string name, const Amg::Vector3D& vector);
+    void writeVector(const std::string& name, const Amg::Vector3D& vector);
 
     /** Name of the Output file */
     std::string m_outputFileName;

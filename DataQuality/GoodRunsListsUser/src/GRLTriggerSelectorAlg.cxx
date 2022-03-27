@@ -3,7 +3,7 @@
 */
 
 
-#include "GoodRunsListsUser/GRLTriggerSelectorAlg.h"
+#include "GRLTriggerSelectorAlg.h"
 #include "GoodRunsLists/IGoodRunsListSelectorTool.h"
 #include "GoodRunsLists/ITriggerRegistryTool.h"
 

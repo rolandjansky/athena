@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PYTHIA8_USERHOOKS_USERHOOKSUTILS_H
@@ -48,7 +48,7 @@ namespace Pythia8_UserHooks{
    * \return the pT of \param leg relative to \param comparison
    */
   inline double pTLeg(const Pythia8::Particle &leg, const Pythia8::Particle &comparison){
-    return sqrt(pT2Leg(leg, comparison));
+    return std::sqrt(pT2Leg(leg, comparison));
   }
   
   /**
@@ -56,7 +56,7 @@ namespace Pythia8_UserHooks{
    * \param comparedIndex in Event \param evt
    */
   inline double pTLeg(size_t legIndex, size_t comparedIndex, const Pythia8::Event &evt){
-    return sqrt(pT2Leg(legIndex, comparedIndex, evt));
+    return std::sqrt(pT2Leg(legIndex, comparedIndex, evt));
   }
   
   /**

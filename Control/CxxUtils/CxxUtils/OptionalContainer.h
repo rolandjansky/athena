@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
  * @file CxxUtils/OptionalContainer.h
  * @author Stephen Nicholas Swatman <stephen.nicholas.swatman@cern.ch>
@@ -63,7 +63,7 @@ namespace {
      * to be possible the type of our OptionalBase has to be (where C is our
      * underlying container type):
      *
-     * typname OptionalBase(typename (*C)(typename), ...);
+     * typename OptionalBase(typename (*C)(typename), ...);
      * OptionalBase :: (* -> *) -> ... -> *
      *
      * So, for example, we could pass the std::vector type constructor as a
@@ -99,7 +99,7 @@ namespace {
      *
      * In our following definitions, we want to know whether a type A is
      * castable to a type B. For this, we need to use some helper structs which
-     * we can use in static assertsions. This is relatively standard procedure
+     * we can use in static assertions. This is relatively standard procedure
      * for C++ template metaprogramming, and recipes and explanations of this
      * kind of code can be found all across the internet.
      *
@@ -384,7 +384,7 @@ namespace CxxUtils {
     /**
      * @brief An alias to a specialization of an optional array.
      *
-     * This is the only pecialization we provide so far, and it's for the array
+     * This is the only specialization we provide so far, and it's for the array
      * backend. The template arguments are compatible with those of std::array,
      * with the exception that it can optionally take an indexing type as well.
      *

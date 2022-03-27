@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonByteStreamCnvTest/ReadRpcDigit.h"
@@ -13,7 +13,6 @@ static const int maxDig  = 2000;
 // Algorithm constructor
 ReadRpcDigit::ReadRpcDigit(const std::string &name, ISvcLocator *pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
-    m_activeStore("ActiveStoreSvc", name),
     m_ntuplePtr(nullptr)
 {
   declareProperty("NtupleLocID", m_NtupleLocID);  
@@ -23,7 +22,6 @@ ReadRpcDigit::ReadRpcDigit(const std::string &name, ISvcLocator *pSvcLocator)
 StatusCode ReadRpcDigit::initialize()
 {
   ATH_MSG_DEBUG( " in initialize()"  );
-  ATH_CHECK( m_activeStore.retrieve() );
   ATH_CHECK( m_idHelperSvc.retrieve() );
 
   if (!m_rpcNtuple) return StatusCode::SUCCESS;  
@@ -57,10 +55,10 @@ StatusCode ReadRpcDigit::execute()
   ATH_MSG_DEBUG( "in execute()"  );
 
   std::string key = "RPC_DIGITS";
+  SG::ReadHandle<RpcDigitContainer> hndl(key);
+  const RpcDigitContainer* rpc_container = hndl.get();
+  ATH_CHECK( rpc_container != nullptr );
 
-  const RpcDigitContainer* rpc_container = nullptr;
-  ATH_CHECK( (*m_activeStore)->retrieve(rpc_container, key) );
-  
   ATH_MSG_DEBUG("****** rpc->size() : " << rpc_container->size() );
 
   if (!m_rpcNtuple) return StatusCode::SUCCESS;

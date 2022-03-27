@@ -32,6 +32,7 @@
 #include "xAODTrigger/jFexMETRoIAuxContainer.h"
 #include "xAODTrigger/jFexSumETRoIContainer.h"
 #include "xAODTrigger/jFexSumETRoIAuxContainer.h"
+#include "TrigConfData/L1Menu.h"
 
 namespace LVL1 {
   
@@ -67,11 +68,11 @@ namespace LVL1 {
     virtual int calcTowerID(int eta, int phi, int mod) override ;
 
     /**Create and fill a new eFexEMRoI object (corresponding to this window), and return a pointer to it*/
-    virtual StatusCode fillSRJetEDM(uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, float_t eta, float_t phi, std::unique_ptr< xAOD::jFexSRJetRoIContainer > &jContainer) override ;
-    virtual StatusCode fillLRJetEDM(uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, float_t eta, float_t phi, std::unique_ptr< xAOD::jFexLRJetRoIContainer > &jContainer) override ;
-    virtual StatusCode fillTauEDM  (uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, float_t eta, float_t phi, std::unique_ptr< xAOD::jFexTauRoIContainer   > &jContainer) override ;  
-    virtual StatusCode fillSumEtEDM(uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, std::unique_ptr< xAOD::jFexSumETRoIContainer > &jContainer) override ;  
-    virtual StatusCode fillMetEDM(uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, std::unique_ptr< xAOD::jFexMETRoIContainer > &jContainer) override ;  
+    virtual StatusCode fillSRJetEDM(uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, int resolution, float_t eta, float_t phi, std::unique_ptr< xAOD::jFexSRJetRoIContainer > &jContainer) override ;
+    virtual StatusCode fillLRJetEDM(uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, int resolution, float_t eta, float_t phi, std::unique_ptr< xAOD::jFexLRJetRoIContainer > &jContainer) override ;
+    virtual StatusCode fillTauEDM  (uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, int resolution, float_t eta, float_t phi, std::unique_ptr< xAOD::jFexTauRoIContainer   > &jContainer) override ;  
+    virtual StatusCode fillSumEtEDM(uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, int resolution, std::unique_ptr< xAOD::jFexSumETRoIContainer > &jContainer) override ;  
+    virtual StatusCode fillMetEDM  (uint8_t jFexNum, uint8_t fpgaNumber, uint32_t tobWord, int resolution, std::unique_ptr< xAOD::jFexMETRoIContainer > &jContainer) override ;  
       
   /** Internal data */
   private:
@@ -80,7 +81,8 @@ namespace LVL1 {
     ToolHandle<IjFEXSim> m_jFEXSimTool       {this, "jFEXSimTool",    "LVL1::jFEXSim",    "Tool that creates the jFEX Simulation"};
 
     SG::ReadHandleKey<LVL1::jTowerContainer> m_jTowerContainerSGKey {this, "MyETowers", "jTowerContainer", "Input container for jTowers"};
-    SG::ReadHandleKey<CaloCellContainer> m_scellsCollectionSGKey {this, "SCell", "SCell", "SCell"};
+    
+    SG::ReadHandleKey<TrigConf::L1Menu> m_l1MenuKey{this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu","Name of the L1Menu object to read configuration from"};
 
     SG::WriteHandleKey< xAOD::jFexSRJetRoIContainer> m_jFexSRJetOutKey {this,"Key_jFexSRJetOutputContainer","L1_jFexSRJetRoI","Output jFexEM container"};
     SG::WriteHandleKey< xAOD::jFexLRJetRoIContainer> m_jFexLRJetOutKey {this,"Key_jFexLRJetOutputContainer","L1_jFexLRJetRoI","Output jFexEM container"};

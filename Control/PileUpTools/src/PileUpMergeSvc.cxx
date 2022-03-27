@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PileUpTools/PileUpMergeSvc.h"
@@ -32,15 +32,12 @@
 #include <string>
 
 using std::make_pair;
-using std::bind1st;
-using std::mem_fun;
 using std::string;
 
 /// Standard Constructor
 PileUpMergeSvc::PileUpMergeSvc(const std::string& name,ISvcLocator* svc)
   : AthService(name,svc), 
     p_overStore("StoreGateSvc", "StoreGateSvc"),
-    p_activeStore("ActiveStoreSvc", "ActiveStoreSvc"),
     m_intervals(this),
     m_pITriggerTime(""),
     m_returnTimedData(true),
@@ -102,15 +99,7 @@ PileUpMergeSvc::initialize()    {
           << endmsg;
       return StatusCode::FAILURE;
   }
-  // set up the active store service:
-  if ( !(p_activeStore.retrieve()).isSuccess() ) 
-  {
-      msg() << MSG::FATAL 
-	  << "Could not locate ActiveStoreSvc"
-          << endmsg;
-      return StatusCode::FAILURE;
-  }
-  if (!m_pITriggerTime.empty() && !(m_pITriggerTime.retrieve()).isSuccess() ) 
+  if (!m_pITriggerTime.empty() && !(m_pITriggerTime.retrieve()).isSuccess() )
   {
       msg() << MSG::FATAL 
 	  << "Could not locate ITriggerTime tool"

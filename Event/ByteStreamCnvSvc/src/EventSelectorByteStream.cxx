@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EventSelectorByteStream.h"
@@ -29,11 +29,9 @@
 
 
 // Constructor.
-EventSelectorByteStream::EventSelectorByteStream(
-    const std::string& name,
-    ISvcLocator* svcloc)
-  : base_class(name, svcloc)
-  , m_activeStoreSvc("ActiveStoreSvc", name) {
+EventSelectorByteStream::EventSelectorByteStream(const std::string &name,
+                                                 ISvcLocator *svcloc)
+    : base_class(name, svcloc) {
   declareProperty("HelperTools", m_helperTools);
 
   // RunNumber, OldRunNumber and OverrideRunNumberFromInput are used
@@ -49,10 +47,8 @@ EventSelectorByteStream::EventSelectorByteStream(
   m_initTimeStamp.verifier().setLower(0);
 
   m_inputCollectionsProp.declareUpdateHandler(
-      &EventSelectorByteStream::inputCollectionsHandler,
-      this);
+      &EventSelectorByteStream::inputCollectionsHandler, this);
 }
-
 
 /******************************************************************************/
 void EventSelectorByteStream::inputCollectionsHandler(Gaudi::Details::PropertyBase&) {
@@ -71,15 +67,7 @@ EventSelectorByteStream::~EventSelectorByteStream() {
 /******************************************************************************/
 StoreGateSvc*
 EventSelectorByteStream::eventStore() const {
-  if (m_activeStoreSvc == 0) {
-    if (!m_activeStoreSvc.retrieve().isSuccess()) {
-      ATH_MSG_ERROR("Cannot get ActiveStoreSvc");
-      throw GaudiException(
-          "Cannot get ActiveStoreSvc", name(), StatusCode::FAILURE);
-    }
-  }
-
-  return(m_activeStoreSvc->activeStore());
+   return StoreGateSvc::currentStoreGate();
 }
 
 

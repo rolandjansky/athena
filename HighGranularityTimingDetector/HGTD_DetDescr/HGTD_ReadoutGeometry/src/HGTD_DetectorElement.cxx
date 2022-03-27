@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HGTD_ReadoutGeometry/HGTD_DetectorElement.h"
@@ -19,8 +19,7 @@ HGTD_DetectorElement::HGTD_DetectorElement(const Identifier &id,
                                            const GeoVFullPhysVol *geophysvol,
                                            const SiCommonItems * commonItems,
                                            const GeoAlignmentStore* geoAlignStore) :
-  SolidStateDetectorElementBase(id, design, geophysvol, commonItems, geoAlignStore),
-  m_design(design)
+  SolidStateDetectorElementBase(id, design, geophysvol, commonItems, geoAlignStore)
 {
     const HGTD_ID* hgtdId = dynamic_cast<const HGTD_ID *>(getIdHelper());
     m_idHash = hgtdId->wafer_hash(m_id);

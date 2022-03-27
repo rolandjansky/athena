@@ -1,11 +1,11 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef THINNINGUTILS_ThinGeantTruthAlg_H
-#define THINNINGUTILS_ThinGeantTruthAlg_H 1
+#define THINNINGUTILS_ThinGeantTruthAlg_H
 
 /**
  @class ThinGeantTruthAlg
@@ -53,6 +53,12 @@ private:
                                       "GeantBarcodeOffset",
                                       200000,
                                       "Barcode offset for Geant particles" };
+
+  Gaudi::Property<float> m_etaMaxEgTruth{ this,
+                                          "EtaMaxEGammaTruth",
+                                          2.525,
+                                          "Max eta value for e-gamma truth particles" };
+
   Gaudi::Property<bool> m_keepMuons{ this, "keepMuons", true };
   Gaudi::Property<bool> m_keepEGamma{ this, "keepEGamma", true };
 
@@ -83,6 +89,13 @@ private:
     "ElectronsKey",
     "Electrons",
     "Name of the input electron container"
+  };
+
+  SG::ReadHandleKey<xAOD::ElectronContainer> m_fwdElectronsKey{
+    this,
+    "FwdElectronsKey",
+    "",
+    "Name of the input forward electron container"
   };
 
   SG::ReadHandleKey<xAOD::PhotonContainer> m_photonsKey{

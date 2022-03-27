@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CSCDIGITTOCSCRDOTOOL_H
@@ -20,7 +20,6 @@
 #include "MuonRDO/CscRawDataCollection.h"
 #include "MuonRDO/CscRawDataContainer.h"
 
-class ActiveStoreSvc;
 
 /////////////////////////////////////////////////////////////////////////////
 

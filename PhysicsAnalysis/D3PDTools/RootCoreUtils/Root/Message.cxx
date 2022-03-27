@@ -61,7 +61,7 @@ namespace RCU
 
     if (mytype != MESSAGE_UNSPECIFIED)
     {
-      static const char *type_names[MESSAGE_UNSPECIFIED] =
+      static const char * const type_names[MESSAGE_UNSPECIFIED] =
 	{"message", "warning", "error", "exception", "abort"};
       str << type_names[mytype] << ":";
     }

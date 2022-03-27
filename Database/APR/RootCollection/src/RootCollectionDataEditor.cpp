@@ -35,7 +35,7 @@ pool::RootCollection::RootCollectionDataEditor::RootCollectionDataEditor(
       m_tree( tree ),
       m_poolOut( &log )
 {
-   clearRowBuffers();
+   RootCollectionDataEditor::clearRowBuffers();
 }
 
 

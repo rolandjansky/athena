@@ -1,4 +1,4 @@
-#include "InDetTrackClusterAssValidation/TrackClusterAssValidation.h"
+#include "../TrackClusterAssValidation.h"
 
 DECLARE_COMPONENT( InDet::TrackClusterAssValidation )
 

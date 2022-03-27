@@ -167,6 +167,8 @@ RootExCellWriter<T>::RootExCellWriter(
     throw std::ios_base::failure("Could not open '" + m_cfg.filePath);
   }
   m_outputFile->cd();
+  //not sure why I need this:
+  //cppcheck-suppress noCopyConstructor
   m_outputTree
       = new TTree(m_cfg.treeName.c_str(), "TTree from RootPlanarClusterWriter");
   if (!m_outputTree) throw std::bad_alloc();

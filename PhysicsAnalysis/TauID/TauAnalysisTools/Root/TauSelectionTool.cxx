@@ -256,9 +256,7 @@ StatusCode TauSelectionTool::initialize()
   m_sEleIDWP = convertEleIDWPToStr(m_iEleIDWP);
 
   // initialise the ReadHandleKey of the muon container when the muon veto is applied
-  if (m_iSelectionCuts & CutMuonOLR) {
-    ATH_CHECK( m_muonContainerKey.initialize() );
-  }
+  ATH_CHECK( m_muonContainerKey.initialize( m_iSelectionCuts & CutMuonOLR ) );
 
   // specify all available cut descriptions
   using map_type  = std::map<SelectionCuts, std::unique_ptr<TauAnalysisTools::SelectionCut>>;

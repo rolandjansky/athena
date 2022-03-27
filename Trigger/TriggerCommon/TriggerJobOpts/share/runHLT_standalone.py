@@ -37,15 +37,18 @@ class opt:
     doEmptyMenu      = False          # Disable all chains, except those re-enabled by specific slices
     createHLTMenuExternally = False   # Set to True if the menu is build manually outside runHLT_standalone.py
     endJobAfterGenerate = False       # Finish job after menu generation
-    strictDependencies = False        # Sets SGInputLoader.FailIfNoProxy=True and AlgScheduler.DataLoaderAlg=""
+    strictDependencies = True         # Sets SGInputLoader.FailIfNoProxy=True and AlgScheduler.DataLoaderAlg=""
     forceEnableAllChains = False      # if True, all HLT chains will run even if the L1 item is false
     enableL1MuonPhase1   = False          # Enable Run-3 LVL1 muon simulation and/or decoding
     enableL1CaloPhase1   = False          # Enable Run-3 LVL1 calo simulation and/or decoding
     enableL1CaloLegacy = True         # Enable Run-2 L1Calo simulation and/or decoding (possible even if enablePhase1 is True)
     enableL1TopoDump = False          # Enable L1Topo simulation to write inputs to txt
     enableL1NSWEmulation = False      # Enable TGC-NSW coincidence emulator : ConfigFlags.Trigger.L1MuonSim.EmulateNSW
-    enableL1NSWVetoMode = False       # Enable TGC-NSW coincidence veto mode: ConfigFlags.Trigger.L1MuonSim.NSWVetoMode
-    enableL1NSWMMTrigger = False      # Enable MM trigger for TGC-NSW coincidence : ConfigFlags.Trigger.L1MuonSim.doMMTrigger
+    enableL1NSWVetoMode = True        # Enable TGC-NSW coincidence veto mode: ConfigFlags.Trigger.L1MuonSim.NSWVetoMode
+    enableL1NSWMMTrigger = True       # Enable MM trigger for TGC-NSW coincidence : ConfigFlags.Trigger.L1MuonSim.doMMTrigger
+    enableL1NSWPadTrigger = False     # Enable sTGC Pad trigger for TGC-NSW coincidence : ConfigFlags.Trigger.L1MuonSim.doPadTrigger
+    enableL1NSWStripTrigger = False   # Enable sTGC Strip trigger for TGC-NSW coincidence : ConfigFlags.Trigger.L1MuonSim.doStripTrigger
+    enableL1RPCBIS78    = False       # Enable TGC-RPC BIS78 coincidence : ConfigFlags.Trigger.L1MuonSim.doBIS78
 #Individual slice flags
     doCalibSlice        = True
     doTestSlice         = True
@@ -163,7 +166,7 @@ else:   # athenaHLT
     if '_lb_number' in globals():
         del _lb_number  # noqa, set by athenaHLT
 
-from AthenaConfiguration.Enums import Format
+from AthenaConfiguration.Enums import BeamType, Format
 ConfigFlags.Input.Format = Format.BS if globalflags.InputFormat == 'bytestream' else Format.POOL
 
 # Load input collection list from POOL metadata
@@ -175,6 +178,14 @@ if ConfigFlags.Input.Format is Format.POOL:
 # Run-3 Trigger produces Run-3 EDM
 ConfigFlags.Trigger.EDMVersion = 3
 
+# Some legacy b-tagging configuration is trigger specific
+ConfigFlags.BTagging.databaseScheme = 'Trig'
+ConfigFlags.BTagging.forcedCalibrationChannel = 'AntiKt4EMTopo'
+# something is asking for MV2 :'(
+# TODO: remove whatever it is, see ATR-25239
+# Note: for some reason append(...) doesn't work here, but += [...] does
+ConfigFlags.BTagging.taggerList += ['MV2c10']
+
 # Set final Cond/Geo tag based on input file, command line or default
 globalflags.DetDescrVersion = opt.setDetDescr or ConfigFlags.Trigger.OnlineGeoTag
 ConfigFlags.GeoModel.AtlasVersion = globalflags.DetDescrVersion()
@@ -182,8 +193,8 @@ globalflags.ConditionsTag = opt.setGlobalTag or ConfigFlags.Trigger.OnlineCondTa
 ConfigFlags.IOVDb.GlobalTag = globalflags.ConditionsTag()
 
 # Other defaults
-ConfigFlags.Beam.Type = jobproperties.Beam.beamType = 'collisions'
-jobproperties.Beam.bunchSpacing = 25
+jobproperties.Beam.beamType = 'collisions'
+ConfigFlags.Beam.Type = BeamType(jobproperties.Beam.beamType)
 if not ConfigFlags.Input.isMC:
     globalflags.DatabaseInstance='CONDBR2' if opt.useCONDBR2 else 'COMP200'
     ConfigFlags.IOVDb.DatabaseInstance=globalflags.DatabaseInstance()
@@ -192,10 +203,6 @@ ConfigFlags.Common.isOnline = athenaCommonFlags.isOnline()
 
 log.info('Configured the following global flags:')
 globalflags.print_JobProperties()
-
-# Enable strict dependency checking for data by default
-if 'strictDependencies' not in globals():
-    opt.strictDependencies = not ConfigFlags.Input.isMC
 
 # Set default doL1Sim option depending on input type (if not set explicitly)
 if 'doL1Sim' not in globals():
@@ -233,6 +240,9 @@ ConfigFlags.Trigger.enableL1TopoDump = opt.enableL1TopoDump
 ConfigFlags.Trigger.L1MuonSim.EmulateNSW  = opt.enableL1NSWEmulation
 ConfigFlags.Trigger.L1MuonSim.NSWVetoMode = opt.enableL1NSWVetoMode
 ConfigFlags.Trigger.L1MuonSim.doMMTrigger = opt.enableL1NSWMMTrigger
+ConfigFlags.Trigger.L1MuonSim.doPadTrigger = opt.enableL1NSWPadTrigger
+ConfigFlags.Trigger.L1MuonSim.doStripTrigger = opt.enableL1NSWStripTrigger
+ConfigFlags.Trigger.L1MuonSim.doBIS78 = opt.enableL1RPCBIS78
 
 ConfigFlags.Trigger.doHLT = bool(opt.doHLT)
 ConfigFlags.Trigger.doID = opt.doID
@@ -249,6 +259,7 @@ setModifiers = ['noLArCalibFolders',
                 'useNewRPCCabling',
                 'enableCostMonitoring',
                 'useOracle',
+                'BunchSpacing25ns',
 ]
 
 if ConfigFlags.Input.isMC:  # MC modifiers
@@ -256,7 +267,6 @@ if ConfigFlags.Input.isMC:  # MC modifiers
 else:           # More data modifiers
     setModifiers += ['BFieldAutoConfig',
                      'useDynamicAlignFolders',
-                     'useHLTMuonAlign',
                      #Check for beamspot quality flag
                      'useOnlineLumi',
                      #for running with real data
@@ -264,7 +274,6 @@ else:           # More data modifiers
                      #Set muComb/muIso Backextrapolator tuned for real data
                      #Monitoring for L1 muon group
                      #Monitoring L1Topo at ROB level
-                     'forceTileRODMap',
                      'enableSchedulerMon'
     ]
 
@@ -351,8 +360,6 @@ if ConfigFlags.Trigger.doCalo:
     DetFlags.detdescr.Calo_setOn()
     from LArConditionsCommon.LArCondFlags import larCondFlags
     larCondFlags.LoadElecCalib.set_Value_and_Lock(False)
-    from TrigT2CaloCommon.CaloDef import setMinimalCaloSetup
-    setMinimalCaloSetup()
 else:
     DetFlags.Calo_setOff()
 
@@ -371,7 +378,7 @@ rec.doTruth = False
 # Apply modifiers
 #-------------------------------------------------------------
 for mod in modifierList:
-    mod.preSetup()
+    mod.preSetup(ConfigFlags)
 
 #--------------------------------------------------------------
 # Increase scheduler checks and verbosity
@@ -398,6 +405,11 @@ if opt.strictDependencies:
 # Always enable magnetic field
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.BField_setOn()
+# But don't make the job think it is doing any sim+digi
+DetFlags.simulate.all_setOff()
+DetFlags.pileup.all_setOff()
+DetFlags.overlay.all_setOff()
+
 include ("RecExCond/AllDet_detDescr.py")
 
 if ConfigFlags.Trigger.doID:
@@ -423,12 +435,16 @@ from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg
 CAtoGlobalWrapper(IOVDbSvcCfg, ConfigFlags)
 
 if ConfigFlags.Trigger.doCalo:
+    from TrigT2CaloCommon.TrigCaloDataAccessConfig import trigCaloDataAccessSvcCfg
+    CAtoGlobalWrapper(trigCaloDataAccessSvcCfg, ConfigFlags)
     if ConfigFlags.Trigger.doTransientByteStream:
         from TriggerJobOpts.TriggerTransBSConfig import triggerTransBSCfg_Calo
         CAtoGlobalWrapper(triggerTransBSCfg_Calo, ConfigFlags, seqName="HLTBeginSeq")
 
+
 if ConfigFlags.Trigger.doMuon:
-    import MuonCnvExample.MuonCablingConfig  # noqa: F401
+    from MuonConfig.MuonCablingConfig import MuonCablingConfigCfg
+    CAtoGlobalWrapper(MuonCablingConfigCfg, ConfigFlags)
     import MuonRecExample.MuonReadCalib      # noqa: F401
 
     include ("MuonRecExample/MuonRecLoadTools.py")
@@ -509,13 +525,21 @@ if opt.doL1Unpacking:
 # ---------------------------------------------------------------
 if not opt.createHLTMenuExternally:
 
-    from TriggerMenuMT.HLT.Menu.GenerateMenuMT import GenerateMenuMT
+    from TriggerMenuMT.HLT.Config.GenerateMenuMT import GenerateMenuMT
     menu = GenerateMenuMT()
 
-    def chainsToGenerate(signame, chain):
-        return ((signame in opt.enabledSignatures and signame not in opt.disabledSignatures) and
-                (not opt.selectChains or chain in opt.selectChains) and chain not in opt.disableChains)
+    # Define as functor, to retain knowledge of the select/disableChains lists
+    class ChainsToGenerate(object):
+        def __init__(self,opt):
+            self.enabledSignatures  = opt.enabledSignatures
+            self.disabledSignatures = opt.disabledSignatures
+            self.selectChains       = opt.selectChains
+            self.disableChains      = opt.disableChains
+        def __call__(self, signame, chain):
+            return ((signame in self.enabledSignatures and signame not in self.disabledSignatures) and
+                (not self.selectChains or chain in self.selectChains) and chain not in self.disableChains)
 
+    chainsToGenerate = ChainsToGenerate(opt)
     menu.setChainFilter(chainsToGenerate)
 
     # generating the HLT structure requires
@@ -528,6 +552,8 @@ if not opt.createHLTMenuExternally:
 
 
     if opt.endJobAfterGenerate:
+        from AthenaCommon.AlgSequence import dumpSequence
+        dumpSequence( topSequence )
         import sys
         sys.exit(0)
 
@@ -541,7 +567,6 @@ CAtoGlobalWrapper(HLTConfigSvcCfg,ConfigFlags)
 # ---------------------------------------------------------------
 if hasattr(topSequence,"SGInputLoader"):
     topSequence.SGInputLoader.Load += [
-        ('TrigConf::L1BunchGroupSet','DetectorStore+L1BunchGroup'),
         ('TrigConf::L1Menu','DetectorStore+L1TriggerMenu'),
         ('TrigConf::HLTMenu','DetectorStore+HLTTriggerMenu')]
 
@@ -650,7 +675,7 @@ if ConfigFlags.Input.isMC:
 # Apply modifiers
 #-------------------------------------------------------------
 for mod in modifierList:
-    mod.postSetup()
+    mod.postSetup(ConfigFlags)
 
 #-------------------------------------------------------------
 # Print top sequence

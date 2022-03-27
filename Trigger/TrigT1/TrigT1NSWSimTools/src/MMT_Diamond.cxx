@@ -88,8 +88,7 @@ void MMT_Diamond::createRoads_fillHits(const unsigned int iterator, std::vector<
   this->setUVfactor(uvfactor);
 
   for (int ihds = 0; ihds < (int)hitDatas.size(); ihds++) {
-    auto myhit = std::make_shared<MMT_Hit>(par->getSector(), hitDatas[ihds], detManager);
-    myhit->updateHitProperties(par);
+    auto myhit = std::make_shared<MMT_Hit>(par->getSector(), hitDatas[ihds], detManager, par);
     if (myhit->verifyHit()) {
       m_hitslopes.push_back(myhit->getRZSlope());
       entry.ev_hits.push_back(myhit);
@@ -216,7 +215,6 @@ void MMT_Diamond::findDiamonds(const unsigned int iterator, const double &sm_bc,
         }
 
         if (addc_same.size() <= 8) continue;
-        else std::cout << "Going further in ADDC loop" << std::endl;
 
         // priority encode the hits by channel number; remember hits 8+
         to_erase.clear();

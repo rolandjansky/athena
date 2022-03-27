@@ -1,6 +1,6 @@
-#include "MuidCaloScatteringTools/MuidCaloMaterialParam.h"
-#include "MuidCaloScatteringTools/MuidCaloTrackStateOnSurface.h"
-#include "MuidCaloScatteringTools/MuidMaterialEffectsOnTrackProvider.h"
+#include "../MuidCaloMaterialParam.h"
+#include "../MuidCaloTrackStateOnSurface.h"
+#include "../MuidMaterialEffectsOnTrackProvider.h"
 
 DECLARE_COMPONENT(Rec::MuidCaloMaterialParam)
 DECLARE_COMPONENT(Rec::MuidCaloTrackStateOnSurface)

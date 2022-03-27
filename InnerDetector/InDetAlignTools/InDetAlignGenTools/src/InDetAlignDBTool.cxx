@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // InDetAlignDBTool.cxx
@@ -12,6 +12,7 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
+#include <cmath>
 #include <fstream>
 #include <iostream>
 
@@ -118,12 +119,12 @@ StatusCode InDetAlignDBTool::initialize()
   ndet[0]=0;
   ndet[1]=0;
 
-  if (StatusCode::SUCCESS!=detStore()->retrieve(m_pixman,"Pixel") || m_pixman==0) {
+  if (StatusCode::SUCCESS!=detStore()->retrieve(m_pixman,"Pixel") || m_pixman==nullptr) {
     ATH_MSG_WARNING( "Could not find pixel manager ");
     return StatusCode::FAILURE;
   }
 
-  if (StatusCode::SUCCESS!=detStore()->retrieve(m_sctman,"SCT") || m_sctman==0) {
+  if (StatusCode::SUCCESS!=detStore()->retrieve(m_sctman,"SCT") || m_sctman==nullptr) {
     ATH_MSG_FATAL("Could not find SCT manager ");
     return StatusCode::FAILURE;
   }
@@ -166,7 +167,7 @@ StatusCode InDetAlignDBTool::initialize()
     std::string man_name;
     for (int idet=1;idet<3;++idet) {
       for (const InDetDD::SiDetectorElement* element: *(idet==1 ? m_pixman->getDetectorElementCollection() : m_sctman->getDetectorElementCollection())) {
-        if (element!=0) {
+        if (element!=nullptr) {
           const Identifier ident=element->identify();
           int det,bec,layer,ring,sector,side;
           if (idToDetSet(ident,det,bec,layer,ring,sector,side)) {
@@ -254,7 +255,7 @@ void InDetAlignDBTool::createDB() const
     ATH_MSG_FATAL("Cannot create new database when geometry is faked");
   }
   AlignableTransform* pat;
-  AlignableTransformContainer* patc=0;
+  AlignableTransformContainer* patc=nullptr;
   // loop over all SiDetectorElements (pixel and SCT) and fill corresponding
   // AlignableTransform objects with default values
 
@@ -308,7 +309,7 @@ void InDetAlignDBTool::createDB() const
   std::vector<std::string> level2;
   for (int idet=1;idet<3;++idet) {
     for (const InDetDD::SiDetectorElement* element: *(idet==1 ? m_pixman->getDetectorElementCollection() : m_sctman->getDetectorElementCollection())) {
-      if (element!=0) {
+      if (element!=nullptr) {
         const Identifier ident=element->identify();
         std::string key=dirkey(ident,3);
         // do not produce AlignableTrasnforms for SCT side 1 if option set
@@ -527,7 +528,7 @@ void InDetAlignDBTool::dispGroup(const int dettype, const int bec,
   AlignableTransform* pat;
   for (int idet=1;idet<3;++idet) {
     for (const InDetDD::SiDetectorElement* element: *(idet==1 ? m_pixman->getDetectorElementCollection() : m_sctman->getDetectorElementCollection())) {
-      if (element!=0) {
+      if (element!=nullptr) {
         const Identifier ident=element->identify();
         int mdet,mbec,mlayer,mring,msector,mside;
         idToDetSet(ident,mdet,mbec,mlayer,mring,msector,mside);
@@ -561,7 +562,7 @@ void InDetAlignDBTool::dispGroup(const int dettype, const int bec,
             const Amg::Vector3D modcent=element->center();
             float dx=modcent.x();
             float dy=modcent.y();
-            float dr=sqrt(dx*dx+dy*dy);
+            float dr=std::sqrt(dx*dx+dy*dy);
                   xd=(rd*dx-rpd*dy)/dr;
             yd=(rd*dy+rpd*dx)/dr;
           } else {
@@ -636,7 +637,7 @@ void InDetAlignDBTool::dispGroup(const int dettype, const int bec,
 
 void InDetAlignDBTool::writeFile(const bool ntuple, const std::string file) 
   const {
-  std::ofstream* outfile=0;
+  std::ofstream* outfile=nullptr;
   INTupleSvc* ntsvc;
   if (StatusCode::SUCCESS!=service("NTupleSvc",ntsvc,true))
     ATH_MSG_ERROR("Cannot find NTupleSvc" );
@@ -760,13 +761,13 @@ void InDetAlignDBTool::writeFile(const bool ntuple, const std::string file)
 // write extra txt file for new IBLDist
 void InDetAlignDBTool::writeIBLDistFile( const std::string file) 
   const {
-  std::ofstream* outfile=0;
+  std::ofstream* outfile=nullptr;
  
   ATH_MSG_DEBUG( "writeFile: Write IBLDist DB in text file: " << file );
   outfile=new std::ofstream(file.c_str());
   *outfile << "/Indet/IBLDist" << std::endl;
 
-  const CondAttrListCollection* atrlistcol=0;
+  const CondAttrListCollection* atrlistcol=nullptr;
   if (StatusCode::SUCCESS==detStore()->retrieve(atrlistcol,"/Indet/IBLDist")) {
     // loop over objects in collection                                                                                                             
     for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr) {
@@ -792,7 +793,7 @@ void InDetAlignDBTool::writeIBLDistFile( const std::string file)
 // write extra txt file for new IBLDist                                                                                                                                        
 void InDetAlignDBTool::writeGlobalFolderFile( const std::string file)
   const {
-  std::ofstream* outfile=0;
+  std::ofstream* outfile=nullptr;
 
   if (m_dynamicDB){
     ATH_MSG_DEBUG( "writeFile: Write GlobalFolder DB in text file: " << file );
@@ -803,7 +804,7 @@ void InDetAlignDBTool::writeGlobalFolderFile( const std::string file)
 
       *outfile << *it << std::endl;
     
-      const CondAttrListCollection* atrlistcol=0;
+      const CondAttrListCollection* atrlistcol=nullptr;
       if (StatusCode::SUCCESS==detStore()->retrieve(atrlistcol,*it)) {
 	// loop over objects in collection
 	for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr) {
@@ -855,7 +856,7 @@ void InDetAlignDBTool::readTextFile(const std::string file) const {
   int ntrans=0;
 
   std::string channelName; // Channel name
-  const AlignableTransform* pat = 0;
+  const AlignableTransform* pat = nullptr;
 
   while (infile) {
     std::string tmpline; 
@@ -877,7 +878,7 @@ void InDetAlignDBTool::readTextFile(const std::string file) const {
       channelName = tmpstr;
       ATH_MSG_DEBUG("Read in AlignableTransform data, key " << channelName );
       // find the AlignableTransform with this key
-      pat = 0;
+      pat = nullptr;
       if (!(pat=cgetTransPtr(channelName))) {
   ATH_MSG_ERROR("Cannot find AlignableTransform object for key" 
               << channelName );
@@ -1108,7 +1109,7 @@ bool InDetAlignDBTool::setTrans(const Identifier& ident, const int level,
     bool result=false;
     if ((pat=cgetTransPtr(key))) {
       pat2=const_cast<AlignableTransform*>(pat);
-      if (pat2!=0) {
+      if (pat2!=nullptr) {
 	result=pat2->update(ident, Amg::EigenTransformToCLHEP(trans) );
 	if (!result) ATH_MSG_ERROR( "Attempt to set non-existant transform" );
       } 
@@ -1152,7 +1153,7 @@ bool InDetAlignDBTool::tweakTrans(const Identifier& ident, const int level,
     AlignableTransform* pat2;
     if ((pat=cgetTransPtr(key))) {
       pat2=const_cast<AlignableTransform*>(pat);
-      if (pat2!=0) {
+      if (pat2!=nullptr) {
 	result=pat2->tweak(ident,Amg::EigenTransformToCLHEP(trans));
       if (!result) ATH_MSG_ERROR(
 				 "Attempt to tweak non-existant transform" );
@@ -1395,12 +1396,12 @@ void InDetAlignDBTool::printDB(const int level) const {
 
 // ==========================================
 
-AlignableTransform* InDetAlignDBTool::getTransPtr(const std::string key) 
+AlignableTransform* InDetAlignDBTool::getTransPtr(const std::string& key) 
   const {
   // look in collection to retrieve pointer to AlignableTransform object of 
   // given key and return it, return 0 if not collection or key value not found
   AlignableTransformContainer* patc;
-  AlignableTransform* pat=0;
+  AlignableTransform* pat=nullptr;
   if (m_par_newdb) {
     if (StatusCode::SUCCESS==detStore()->retrieve(patc,m_par_dbroot )) {
       for (DataVector<AlignableTransform>::iterator dva=patc->begin();
@@ -1412,18 +1413,18 @@ AlignableTransform* InDetAlignDBTool::getTransPtr(const std::string key)
       }
     }
   } else {
-    if (StatusCode::SUCCESS!=detStore()->retrieve(pat,key)) pat=0;
+    if (StatusCode::SUCCESS!=detStore()->retrieve(pat,key)) pat=nullptr;
   }
   return pat;
 }
 
-const AlignableTransform* InDetAlignDBTool::cgetTransPtr(const std::string key)
+const AlignableTransform* InDetAlignDBTool::cgetTransPtr(const std::string& key)
   const {
   // look in collection to retrieve pointer to AlignableTransform object of 
   // given key and return it, return 0 if not collection or key value not found
   // const version
   const AlignableTransformContainer* patc;
-  const AlignableTransform* pat=0;
+  const AlignableTransform* pat=nullptr;
   if (m_par_newdb) {
     if (StatusCode::SUCCESS==detStore()->retrieve(patc,m_par_dbroot )) {
       for (DataVector<AlignableTransform>::const_iterator dva=patc->begin();
@@ -1435,7 +1436,7 @@ const AlignableTransform* InDetAlignDBTool::cgetTransPtr(const std::string key)
       }
     }
   } else {
-    if (StatusCode::SUCCESS!=detStore()->retrieve(pat,key)) pat=0;
+    if (StatusCode::SUCCESS!=detStore()->retrieve(pat,key)) pat=nullptr;
   }
   return pat;
 }
@@ -1536,13 +1537,13 @@ void InDetAlignDBTool::extractAlphaBetaGamma(const Amg::Transform3D & trans,
 bool InDetAlignDBTool::tweakIBLDist(const int stave, const float bowx) const {
 
   // find transform key, then set appropriate transform           
-  const CondAttrListCollection* atrlistcol1=0;
-  CondAttrListCollection* atrlistcol2=0;
+  const CondAttrListCollection* atrlistcol1=nullptr;
+  CondAttrListCollection* atrlistcol2=nullptr;
   bool result=false;
   if (StatusCode::SUCCESS==detStore()->retrieve(atrlistcol1,"/Indet/IBLDist")) {
     // loop over objects in collection                                    
     atrlistcol2 = const_cast<CondAttrListCollection*>(atrlistcol1);
-    if (atrlistcol2!=0){
+    if (atrlistcol2!=nullptr){
       for (CondAttrListCollection::const_iterator citr=atrlistcol2->begin(); citr!=atrlistcol2->end();++citr) {
 	
 	const coral::AttributeList& atrlist=citr->second;
@@ -1584,8 +1585,8 @@ bool InDetAlignDBTool::tweakGlobalFolder(const Identifier& ident, const int leve
 					 const Amg::Transform3D& trans ) const {
 
   // find transform key, then set appropriate transform           
-  const CondAttrListCollection* atrlistcol1=0;
-  CondAttrListCollection* atrlistcol2=0;
+  const CondAttrListCollection* atrlistcol1=nullptr;
+  CondAttrListCollection* atrlistcol2=nullptr;
   bool result=false;
   std::string key=dirkey(ident,level);
   int det,bec,layer,ring,sector,side;
@@ -1597,7 +1598,7 @@ bool InDetAlignDBTool::tweakGlobalFolder(const Identifier& ident, const int leve
     // loop over objects in collection                                    
     //atrlistcol1->dump();
     atrlistcol2 = const_cast<CondAttrListCollection*>(atrlistcol1);
-    if (atrlistcol2!=0){
+    if (atrlistcol2!=nullptr){
       for (CondAttrListCollection::const_iterator citr=atrlistcol2->begin(); citr!=atrlistcol2->end();++citr) {
 	
 	const coral::AttributeList& atrlist=citr->second;

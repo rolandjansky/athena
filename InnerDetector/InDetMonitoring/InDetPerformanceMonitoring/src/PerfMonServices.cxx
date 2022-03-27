@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "InDetPerformanceMonitoring/PerfMonServices.h"
@@ -7,11 +7,11 @@
 #include "GaudiKernel/StatusCode.h"
 
 // NULL the static pointers
-ISvcLocator*    PerfMonServices::s_pxSvcLocator   = NULL;
-ITHistSvc*      PerfMonServices::s_pxTHistSvc     = NULL;
-IMessageSvc*    PerfMonServices::s_pxMessageSvc   = NULL;
-StoreGateSvc*   PerfMonServices::s_pxStoreGateSvc = NULL;
-INTupleSvc*     PerfMonServices::s_pxNtupleSvc    = NULL;
+ISvcLocator*    PerfMonServices::s_pxSvcLocator   = nullptr;
+ITHistSvc*      PerfMonServices::s_pxTHistSvc     = nullptr;
+IMessageSvc*    PerfMonServices::s_pxMessageSvc   = nullptr;
+StoreGateSvc*   PerfMonServices::s_pxStoreGateSvc = nullptr;
+INTupleSvc*     PerfMonServices::s_pxNtupleSvc    = nullptr;
 
 // Names of the various containers.
 const std::string PerfMonServices::s_sContainerNames[NUM_CONTAINERS] = { "MuidMuonCollection",

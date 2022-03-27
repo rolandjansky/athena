@@ -117,8 +117,8 @@ class SiNumerology;
                                            const Amg::Transform3D & delta,
                                            GeoVAlignmentStore* alignStore=nullptr) const;
     
-      /** Access to module design */
-      void addDesign(std::unique_ptr<const SiDetectorDesign>&&);
+      /** Access to module design; returns an _observer_ pointer */
+      const SiDetectorDesign * addDesign(std::unique_ptr<const SiDetectorDesign>&&);
       int numDesigns() const;
       const SiDetectorDesign * getDesign(int i) const;
     

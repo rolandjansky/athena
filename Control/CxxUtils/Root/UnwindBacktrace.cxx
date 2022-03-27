@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file UnwindBacktrace.cc
@@ -174,7 +174,7 @@ struct SynthObject
 
 /// All the synthetic data we inject.
 /// The FDE vector should be allocated with malloc, in case libgcc
-/// ever tries to deregister what we give it.  Do that during intialization,
+/// ever tries to deregister what we give it.  Do that during initialization,
 /// so that we're not trying to allocate memory after a crash.
 struct SynthData
 {
@@ -231,7 +231,7 @@ bool tryUnwindFixup (_Unwind_Ptr addr)
   // memory for the sorted FDE vector.  But we want to avoid allocating memory
   // here.  We can do this by diddling the internal libgcc structure to point
   // to a pre-allocated vector object.  But this is inherently racy: we
-  // should be holding the libgcc lock when doing this, but exported
+  // should be holding the libgcc lock when doing this, but that's not exported
   // from the library.  We make do by initializing the fields in an order
   // that should be safe (enforced by memory fences) and hope for the best.
   std::atomic_thread_fence (std::memory_order_seq_cst);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthContainers/DataVector.h"
@@ -36,12 +36,12 @@ namespace InDet {
                                      const IInterface * parent)
     : AthAlgTool(type,name,parent)
     , m_etaCorrection{}
-    , m_detManager(0)
+    , m_detManager(nullptr)
     , m_idHelper()
     , m_alignModuleTool("Trk::AlignModuleTool/AlignModuleTool")
-    , m_idHashToAlignModuleMaps(Trk::AlignModule::NDetectorTypes,(Trk::AlignModuleList*)0)
-    , m_alignParList(0)
-    , m_fullAlignParList(0)
+    , m_idHashToAlignModuleMaps(Trk::AlignModule::NDetectorTypes,(Trk::AlignModuleList*)nullptr)
+    , m_alignParList(nullptr)
+    , m_fullAlignParList(nullptr)
     , m_rdbAccessSvc("RDBAccessSvc",name)
     , m_geoModelSvc("GeoModelSvc",name)
   {
@@ -109,7 +109,7 @@ namespace InDet {
     declareProperty("DumpGeometry",       m_dumpGeometry = true);
 
     m_hashCounter = 0;
-    m_logStream = 0;
+    m_logStream = nullptr;
     
   }
 
@@ -406,7 +406,7 @@ namespace InDet {
     ATH_MSG_DEBUG("maxHash for the Pixel "<<pixelmaxHash);
 
     if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(pixelmaxHash),0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(pixelmaxHash),nullptr);
     Trk::AlignModuleList * pixelIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel);
 
     // use the 'real' identifier of the Pixel
@@ -487,7 +487,7 @@ namespace InDet {
     ATH_MSG_DEBUG("maxHash for the Pixel "<<maxHash);
     
     if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(maxHash),0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(maxHash),nullptr);
     Trk::AlignModuleList * pixelIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel);
          
     // create two AlignModules: IBL and rest of pixel
@@ -522,7 +522,7 @@ namespace InDet {
       }
       
       // check what we're filling
-      Trk::AlignModule * mod = 0;
+      Trk::AlignModule * mod = nullptr;
       if( m_idHelper->is_barrel(id) && m_idHelper->is_blayer(id) && m_idHelper->layer_disk(id)==0) {
         ATH_MSG_DEBUG("pixel element "<<id<<" at index "<<index<<" is in IBL-layer");
         mod = ibl;
@@ -587,7 +587,7 @@ namespace InDet {
     ATH_MSG_DEBUG("maxHash for the Pixel "<<maxHash);
 
     if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(maxHash),0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(maxHash),nullptr);
     Trk::AlignModuleList * pixelIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel);
 
     // create two AlignModules: top half and bottom half
@@ -664,7 +664,7 @@ namespace InDet {
     ATH_MSG_DEBUG("maxHash for the Pixel "<<maxHash);
 
     if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(maxHash),0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(maxHash),nullptr);
     Trk::AlignModuleList * pixelIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel);
 
     // create two AlignModules: top half and bottom half
@@ -695,7 +695,7 @@ namespace InDet {
         ATH_MSG_DEBUG("iPhi "<<iPhi);
 
         // check which half we're filling
-        Trk::AlignModule * mod = 0;
+        Trk::AlignModule * mod = nullptr;
         if(isTopHalf(iPhi,iLayer)) {
           ATH_MSG_DEBUG("iPhi "<<iPhi<<" is in top half of layer "<<iLayer);
           mod = top;
@@ -753,7 +753,7 @@ namespace InDet {
     ATH_MSG_DEBUG("maxHash for the Pixel "<<maxHash);
 
     if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(maxHash),0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(maxHash),nullptr);
     Trk::AlignModuleList * pixelIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel);
 
     for (int iEndcapIndex = 0; iEndcapIndex < m_detManager->numerology().numEndcaps(); iEndcapIndex++) {
@@ -835,7 +835,7 @@ namespace InDet {
     ATH_MSG_DEBUG("maxHash for the Pixel "<<maxHash);
 
     if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(maxHash),0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(maxHash),nullptr);
     Trk::AlignModuleList * pixelIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel);
 
          
@@ -978,7 +978,7 @@ namespace InDet {
     ATH_MSG_DEBUG("maxHash for the Pixel "<<maxHash);
 
     if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(maxHash),0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(maxHash),nullptr);
     Trk::AlignModuleList * pixelIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel);
 
     for (int iLayer = 0; iLayer < m_detManager->numerology().numLayers(); iLayer++) {
@@ -1053,7 +1053,7 @@ namespace InDet {
     ATH_MSG_DEBUG("maxHash for the Pixel "<<maxHash);
 
     if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(maxHash),0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(maxHash),nullptr);
     Trk::AlignModuleList * pixelIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel);
 
     for (int iLayer = 0; iLayer < m_detManager->numerology().numLayers(); iLayer++) {
@@ -1093,7 +1093,7 @@ namespace InDet {
         ATH_MSG_DEBUG("iPhi "<<iPhi);
 
         // check which half we're filling
-        Trk::AlignModule * mod = 0;
+        Trk::AlignModule * mod = nullptr;
         if(isTopHalf(iPhi,iLayer)) {
           ATH_MSG_DEBUG("iPhi "<<iPhi<<" is in top half of layer "<<iLayer);
           mod = top;
@@ -1158,7 +1158,7 @@ namespace InDet {
     ATH_MSG_DEBUG("maxHash for the Pixel "<<maxHash);
 
     if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(maxHash),0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(maxHash),nullptr);
     Trk::AlignModuleList * pixelIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel);
 
     for (int iLayer = 0; iLayer < m_detManager->numerology().numLayers(); iLayer++) {
@@ -1289,7 +1289,7 @@ namespace InDet {
     ATH_MSG_DEBUG("maxHash for the Pixel "<<maxHash);
 
     if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(maxHash),0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(maxHash),nullptr);
     Trk::AlignModuleList * pixelIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel);
 
     for (int iLayer = 0; iLayer < m_detManager->numerology().numLayers(); iLayer++) {
@@ -1375,7 +1375,7 @@ namespace InDet {
     ATH_MSG_DEBUG("maxHash for the Pixel "<<maxHash);
 
     if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(maxHash),0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(maxHash),nullptr);
     Trk::AlignModuleList * pixelIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel);
 
     for (int iEndcapIndex = 0; iEndcapIndex < m_detManager->numerology().numEndcaps(); iEndcapIndex++) {
@@ -1451,7 +1451,7 @@ namespace InDet {
     ATH_MSG_DEBUG("maxHash for the Pixel "<<maxHash);
 
     if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(maxHash),0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(maxHash),nullptr);
     Trk::AlignModuleList * pixelIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel);
 
     for (int iLayer = 0; iLayer < m_detManager->numerology().numLayers(); iLayer++) {
@@ -1539,7 +1539,7 @@ namespace InDet {
     ATH_MSG_DEBUG("maxHash for the Pixel "<<maxHash);
 
     if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(maxHash),0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(maxHash),nullptr);
     Trk::AlignModuleList * pixelIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel);
 
     for (int iEndcapIndex = 0; iEndcapIndex < m_detManager->numerology().numEndcaps(); iEndcapIndex++) {
@@ -1624,7 +1624,7 @@ namespace InDet {
     ATH_MSG_DEBUG("maxHash for the Pixel "<<maxHash);
  
     if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel))
-    m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(maxHash),0);
+    m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(maxHash),nullptr);
     Trk::AlignModuleList * pixelIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel);
     
     // create two AlignModules:
@@ -1659,7 +1659,7 @@ namespace InDet {
 //      ATH_MSG_DEBUG("DBM sector (phi module) "<< m_idHelper->phi_module(id));
       
       // check what we're filling
-      Trk::AlignModule * mod = 0;
+      Trk::AlignModule * mod = nullptr;
       if( m_idHelper->is_dbm(id) && m_idHelper->barrel_ec(id)==-4) {
         ATH_MSG_DEBUG("pixel element "<<id<<" at index "<<index<<" is in ECDBM");
         mod = dbm1;
@@ -1731,7 +1731,7 @@ namespace InDet {
     ATH_MSG_DEBUG("maxHash for the Pixel "<<maxHash);
     
     if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel))
-    m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(maxHash),0);
+    m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(maxHash),nullptr);
     Trk::AlignModuleList * pixelIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel);
     
     std::vector<Trk::AlignModule*> mod_list;
@@ -1771,7 +1771,7 @@ namespace InDet {
       
       // check what we're filling
       unsigned int telescope = -1; // set to non existing telescope
-      Trk::AlignModule * mod = 0;
+      Trk::AlignModule * mod = nullptr;
       if( m_idHelper->is_dbm(id) && m_idHelper->barrel_ec(id)==-4) {
         ATH_MSG_DEBUG("pixel element "<<id<<" at index "<<index<<" with sector "<<m_idHelper->phi_module(id)<<" is in ECDBM");
         telescope = int(m_idHelper->phi_module(id));
@@ -1829,7 +1829,7 @@ namespace InDet {
     ATH_MSG_DEBUG("maxHash for the Pixel "<<maxHash);
     
     if(!m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel))
-      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(maxHash),0);
+      m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel) = new Trk::AlignModuleList((size_t)(maxHash),nullptr);
     Trk::AlignModuleList * pixelIdHashMap = m_idHashToAlignModuleMapsPtr->at(Trk::AlignModule::Pixel);
     
     // ==================================================================
@@ -2124,8 +2124,8 @@ namespace InDet {
     ATH_MSG_INFO("Decode geometry version key");
     DecodeVersionKey versionKey(&*m_geoModelSvc, "Pixel");
     
-    std::string detectorKey  = versionKey.tag();
-    std::string detectorNode = versionKey.node();
+    const std::string& detectorKey  = versionKey.tag();
+    const std::string& detectorNode = versionKey.node();
 
     ATH_MSG_INFO("--------------------- decode version key " << detectorKey<<"  "<<detectorNode);
 

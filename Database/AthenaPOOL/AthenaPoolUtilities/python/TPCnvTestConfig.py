@@ -1,13 +1,14 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 import os
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import LHCPeriod
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg
 from AthenaPoolUtilities.DumperConfig import Dumper, find_file
+from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg
 #from AtlasGeoModel.ForDetGeoModelConfig import ForDetGeometryCfg
 Configurable.configurableRun3Behavior = True
 
@@ -38,6 +39,7 @@ def TPCnvTest(infile, keys, useGeoModelSvc=False, useIOVDbSvc=False, doPixel=Fal
     ConfigFlags.Input.Files = [infile]
     ConfigFlags.GeoModel.AtlasVersion = 'ATLAS-R1-2012-03-01-00'
     ConfigFlags.GeoModel.Align.Dynamic = False
+    ConfigFlags.GeoModel.Run = LHCPeriod.Run1
     ConfigFlags.Detector.GeometryPixel = doPixel
     ConfigFlags.Detector.GeometrySCT = doSCT
     ConfigFlags.Detector.GeometryTRT = doTRT

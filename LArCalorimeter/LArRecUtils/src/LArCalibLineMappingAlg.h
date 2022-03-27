@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- C++ -*- 
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRECUTILS_LARCALIBLINEMAPPINGALG_H
@@ -10,7 +10,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
-#include "GaudiKernel/ICondSvc.h"
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "LArRecConditions/LArCalibLineMapping.h"
@@ -29,7 +28,6 @@ public:
  private:
   SG::ReadCondHandleKey<AthenaAttributeList>   m_readKey{this,"ReadKey","/LAR/Identifier/CalibIdMap"};
   SG::WriteCondHandleKey<LArCalibLineMapping>  m_writeKey{this,"WriteKey","LArCalibLineMap"};
-  ServiceHandle<ICondSvc> m_condSvc{this,"CondSvc","CondSvc"};
   Gaudi::Property<bool> m_isSuperCell{this,"isSuperCell",false};
   Gaudi::Property<unsigned> m_maxCalibLines{this,"MaxCL",4,"in case of SuperCell should be set to higher value then default 4"};
 

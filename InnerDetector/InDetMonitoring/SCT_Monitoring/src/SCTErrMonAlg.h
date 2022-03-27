@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCTERRMONALG_H
@@ -88,7 +88,7 @@ class SCTErrMonAlg : public AthMonitorAlgorithm {
   mutable SG::SlotSpecificObj<CacheEntry> m_cache ATLAS_THREAD_SAFE; // Guarded by m_mutex
   mutable std::array<std::atomic_int, SCT_Monitoring::N_REGIONS_INC_GENERAL> m_nMaskedLinks ATLAS_THREAD_SAFE {};
   // For coverage check because it is time consuming and run at the first event of each lumi block.
-  mutable std::array<std::atomic_bool, SCT_Monitoring::NBINS_LBs+1> m_firstEventOfLB ATLAS_THREAD_SAFE {};
+  mutable std::set<uint32_t>  m_procLB ATLAS_THREAD_SAFE;//Used to find new LB, and fill only once per LB 
 
   BooleanProperty m_makeConfHisto{this, "MakeConfHisto", true};
   BooleanProperty m_coverageCheck{this, "CoverageCheck", true};

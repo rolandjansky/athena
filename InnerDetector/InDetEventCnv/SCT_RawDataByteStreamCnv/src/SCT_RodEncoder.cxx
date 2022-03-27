@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_RodEncoder.h" 
@@ -384,7 +384,7 @@ int SCT_RodEncoder::getTimeBin(const SCT_RDORawData* rdo) const
 {
   int timeBin{0};
   const SCT3_RawData* rdoCosmic{dynamic_cast<const SCT3_RawData*>(rdo)};
-  if (rdoCosmic != 0) timeBin = rdoCosmic->getTimeBin();
+  if (rdoCosmic != nullptr) timeBin = rdoCosmic->getTimeBin();
   return timeBin;
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -248,11 +248,11 @@ namespace Trk {
     return m_tsType.test(t);
   }
 
-  std::optional<std::vector<std::unique_ptr<const TrackParameters>>> & GXFTrackState::getHoles(void) {
+  std::optional<std::vector<std::unique_ptr<TrackParameters>>> & GXFTrackState::getHoles(void) {
     return m_holes;
   }
 
-  void GXFTrackState::setHoles(std::vector<std::unique_ptr<const TrackParameters>> && v) {
+  void GXFTrackState::setHoles(std::vector<std::unique_ptr<TrackParameters>> && v) {
     m_holes = std::move(v);
   }
 }

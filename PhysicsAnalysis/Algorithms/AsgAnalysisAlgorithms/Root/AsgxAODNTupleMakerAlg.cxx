@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 // Local include(s):
 #include "AsgAnalysisAlgorithms/AsgxAODNTupleMakerAlg.h"
@@ -117,7 +117,7 @@ namespace {
       // Find all proxies with this key:
       auto proxies = evtStore.proxies();
       proxies.erase( std::remove_if( proxies.begin(), proxies.end(),
-                                     std::not1( ProxyWithName( key ) ) ),
+                                     std::not_fn( ProxyWithName( key ) ) ),
                      proxies.end() );
       // Now iterate over them:
       for( const SG::DataProxy* proxy : proxies ) {
@@ -182,7 +182,7 @@ namespace {
       // Find all proxies with this key:
       auto proxies = evtStore.proxies();
       proxies.erase( std::remove_if( proxies.begin(), proxies.end(),
-                                     std::not1( ProxyWithName( key ) ) ),
+                                     std::not_fn( ProxyWithName( key ) ) ),
                      proxies.end() );
       // Now iterate over them:
       for( const SG::DataProxy* proxy : proxies ) {

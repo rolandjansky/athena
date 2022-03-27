@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 /***************************************************************************
@@ -148,7 +148,7 @@ InDetIterativePriVxFinderTool::findVertex(const EventContext& ctx,
 
   std::vector<Trk::ITrackLink*> selectedTracks;
 
-  typedef DataVector<Trk::Track>::const_iterator TrackDataVecIter;
+  using TrackDataVecIter = DataVector<Trk::Track>::const_iterator;
 
   bool selectionPassed;
   for (TrackDataVecIter itr = (*trackTES).begin(); itr != (*trackTES).end();

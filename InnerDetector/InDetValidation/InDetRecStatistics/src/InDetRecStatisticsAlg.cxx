@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //  file:   InDetRecStatisticsAlg.cxx
@@ -146,9 +146,9 @@ InDet::InDetRecStatisticsAlg::InDetRecStatisticsAlg(const std::string& name, ISv
   declareProperty("minREndSecondary",		m_minREndSecondary);
   declareProperty("minZEndPrimary",		m_minZEndPrimary);
   declareProperty("minZEndSecondary",	        m_minZEndSecondary);
-  m_idHelper  = NULL;
-  m_pixelID   = NULL;
-  m_sctID     = NULL;
+  m_idHelper  = nullptr;
+  m_pixelID   = nullptr;
+  m_sctID     = nullptr;
   m_UpdatorWarning = false;
   m_pullWarning = false;
 }
@@ -196,7 +196,7 @@ StatusCode InDet::InDetRecStatisticsAlg::initialize(){
   } else {
     ATH_MSG_DEBUG(
       "No Updator for unbiased track states given, use normal states!");
-    m_updator = 0;
+    m_updator = nullptr;
   }
 
 
@@ -329,7 +329,7 @@ StatusCode InDet::InDetRecStatisticsAlg::execute(const EventContext &ctx)  const
 
       ATH_MSG_DEBUG("Acessing TrackCollection " <<  m_RecTrackCollection_keys.at(rec_track_collections_iter - rec_track_collections.begin()).key());
       const TrackCollection       * RecCollection = &(**rec_track_collections_iter);
-      const TrackTruthCollection  * TruthMap  = NULL;
+      const TrackTruthCollection  * TruthMap  = nullptr;
 
       if (RecCollection)  ATH_MSG_DEBUG("Retrieved " << RecCollection->size() << " reconstructed tracks from storegate");
 
@@ -420,7 +420,7 @@ StatusCode InDet :: InDetRecStatisticsAlg :: finalize() {
 StatusCode InDet :: InDetRecStatisticsAlg :: getServices ()
 {
     // get the Particle Properties Service
-    IPartPropSvc* partPropSvc = 0;
+    IPartPropSvc* partPropSvc = nullptr;
     StatusCode sc = evtStore()->service("PartPropSvc", partPropSvc, true);
 
     if (sc.isFailure()) {
@@ -433,7 +433,7 @@ StatusCode InDet :: InDetRecStatisticsAlg :: getServices ()
     //Set up ATLAS ID helper to be able to identify the RIO's det-subsystem.
 
     // Get the dictionary manager from the detector store
-    const IdDictManager*  idDictMgr = 0;
+    const IdDictManager*  idDictMgr = nullptr;
     sc = detStore()->retrieve(idDictMgr, "IdDict");
     if (sc.isFailure()) {
       ATH_MSG_FATAL("Could not get IdDictManager !");
@@ -862,7 +862,7 @@ float InDet :: InDetRecStatisticsAlg :: calculatePull(const float residual,
 const Trk::TrackParameters *  InDet::InDetRecStatisticsAlg::getUnbiasedTrackParameters(const Trk::TrackParameters* trkParameters, const Trk::MeasurementBase* measurement ){
 
 
-  const Trk::TrackParameters *unbiasedTrkParameters = 0;
+  const Trk::TrackParameters *unbiasedTrkParameters = nullptr;
 
  // -----------------------------------------
   // use unbiased track states or normal ones?
@@ -902,7 +902,7 @@ const Trk::TrackParameters *  InDet::InDetRecStatisticsAlg::getUnbiasedTrackPara
 
 Identifier  InDet::InDetRecStatisticsAlg::getIdentifier(const Trk::MeasurementBase* measurement ){
   Identifier id;
-  const Trk::CompetingRIOsOnTrack *comprot = 0;
+  const Trk::CompetingRIOsOnTrack *comprot = nullptr;
   // identify by ROT:
   const Trk::RIO_OnTrack *rot =
     dynamic_cast<const Trk::RIO_OnTrack*>(measurement);

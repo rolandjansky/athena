@@ -25,11 +25,8 @@ HLTCaloCellMaker::HLTCaloCellMaker(const std::string & name, ISvcLocator* pSvcLo
 StatusCode HLTCaloCellMaker::initialize() {
 
   ATH_CHECK( m_roiCollectionKey.initialize(SG::AllowEmpty) );
-
-  if ( m_roiMode )
-    ATH_CHECK( m_cellContainerKey.initialize() );
-  else
-    ATH_CHECK( m_cellContainerVKey.initialize() );
+  ATH_CHECK( m_cellContainerKey.initialize(m_roiMode) );
+  ATH_CHECK( m_cellContainerVKey.initialize(!m_roiMode) );
   ATH_CHECK( m_tileEMScaleKey.initialize() );
   ATH_CHECK( m_bcidAvgKey.initialize() );
   CHECK( m_dataAccessSvc.retrieve() );
@@ -103,7 +100,7 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
 	cdv->setHasCalo(CaloCell_ID::LARHEC);
 	// TILE PART
 	{
-	TileCellCollection sel;
+	std::vector<const TileCell*> sel;
 	ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, sel ));
 	for( const auto cell : sel ) { 
 	  if(m_tileCellsInROI && !tileCellEtaInRoi(cell, roiDescriptor)) continue;
@@ -182,7 +179,7 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
         c->setHasCalo(CaloCell_ID::LARHEC);
         // TILE PART
         {
-        TileCellCollection sel;
+        std::vector<const TileCell*>  sel;
         ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, sel ));
         for( const auto cell : sel ) {
 	  if(m_tileCellsInROI && !tileCellEtaInRoi(cell, roiDescriptor)) continue;

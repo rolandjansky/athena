@@ -35,7 +35,6 @@
 #include "GaudiKernel/ThreadLocalContext.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/ActiveStoreSvc.h"
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -62,7 +61,6 @@ AthenaHiveEventLoopMgr::AthenaHiveEventLoopMgr(const std::string& nam,
     m_evtSelector(0), m_evtContext(0),
     m_histoDataMgrSvc( "HistogramDataSvc",         nam ), 
     m_histoPersSvc   ( "HistogramPersistencySvc",  nam ), 
-    m_activeStoreSvc ( "ActiveStoreSvc",           nam ),
     m_currentRun(0), m_firstRun(true), m_tools(this), m_nevt(0), m_writeHists(false),
     m_nev(0), m_proc(0), m_useTools(false),m_doEvtHeartbeat(false),
     m_conditionsCleaner( "Athena::ConditionsCleanerSvc", nam )
@@ -296,18 +294,6 @@ StatusCode AthenaHiveEventLoopMgr::initialize()
     }
   }  
 
-//-------------------------------------------------------------------------
-// Make sure the ActiveStoreSvc is initialized.
-// We don't use this, but want to be sure that it gets created
-// during initialization, to avoid heap fragmentation.
-//-------------------------------------------------------------------------
-  sc = m_activeStoreSvc.retrieve();
-  if( !sc.isSuccess() )  
-  {
-    fatal() << "Error retrieving ActiveStoreSvc." << endmsg;
-    return sc;
-  }
-
   // Listen to the BeforeFork and EndAlgorithms incidents
   m_incidentSvc->addListener(this,"BeforeFork",0);
   m_incidentSvc->addListener(this, "EndAlgorithms",0);
@@ -386,7 +372,6 @@ StatusCode AthenaHiveEventLoopMgr::finalize()
   // Release all interfaces (ignore StatusCodes)
   m_histoDataMgrSvc.release().ignore();
   m_histoPersSvc.release().ignore();
-  m_activeStoreSvc.release().ignore();
 
   m_whiteboard = 0;
   m_algResourcePool = 0;

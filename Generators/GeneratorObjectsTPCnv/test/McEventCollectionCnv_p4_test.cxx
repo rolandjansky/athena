@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file GeneratorObjectsTPCnv/test/McEventCollectionCnv_p4_test.cxx
@@ -14,6 +14,9 @@
 #include "AtlasHepMC/GenEvent.h"
 #include "AtlasHepMC/GenVertex.h"
 #include "AtlasHepMC/GenParticle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
+#include "AthenaKernel/ExtendedEventContext.h"
+#include "SGTools/TestStore.h"
 #include "TestTools/initGaudi.h"
 
 // CLHEP includes
@@ -223,9 +226,15 @@ void testit (const McEventCollection& trans1)
 #endif
 }
 
-void test1()
+void test1 (SGTest::TestStore& store)
 {
   std::cout << "test1\n";
+
+  // create a dummy EventContext
+  EventContext ctx;
+  ctx.setEventID (EventIDBase (12345, 1));
+  ctx.setExtension( Atlas::ExtendedEventContext( &store ) );
+  Gaudi::Hive::setCurrentContext( ctx );
 
 #ifdef HEPMC3
   auto runInfo = std::make_shared<HepMC3::GenRunInfo>();
@@ -268,6 +277,7 @@ int main()
     return 0;
   }
 
-  test1();
+  std::unique_ptr<SGTest::TestStore> store = SGTest::getTestStore();
+  test1 (*store);
   return 0;
 }

@@ -41,8 +41,22 @@ StatusCode TrigStreamerHypoAlg::execute( const EventContext& context ) const {
 
     // Obligatory link to feature. Re-using the initial ROI.
     // If this happens to be a FullScan ROI, then the following ComboHypo will also pass this leg through without cuts
-    LinkInfo<TrigRoiDescriptorCollection> featureLinkInfo = findLink<TrigRoiDescriptorCollection>(previousDecision, initialRoIString());
-    newDecision->setObjectLink(featureString(), featureLinkInfo.link);
+    //LinkInfo<TrigRoiDescriptorCollection> featureLinkInfo = findLink<TrigRoiDescriptorCollection>(previousDecision, initialRoIString());
+    //newDecision->setObjectLink(featureString(), featureLinkInfo.link);
+    if (m_featureIsROI) {
+       // Obligatory link to feature. Re-using the initial ROI.
+       // If this happens to be a FullScan ROI, then the following ComboHypo will also pass this leg through without cuts
+       LinkInfo<TrigRoiDescriptorCollection> featureLinkInfo = findLink<TrigRoiDescriptorCollection>(previousDecision, initialRoIString());
+       newDecision->setObjectLink(featureString(), featureLinkInfo.link);
+     } else {
+       // Obligatory link to feature. Re-use previous Step's feature.
+       uint32_t key = 0;
+       uint32_t clid = 0;
+       uint16_t index = 0;
+       const Decision* source = nullptr; // Unused
+       ATH_CHECK( typelessFindLink(previousDecision, featureString(), key, clid, index, source) );
+       newDecision->typelessSetObjectLink(featureString(), key, clid, index);
+     }
 
     hypoInfo.emplace_back(newDecision, previousDecision);
   }
@@ -57,4 +71,3 @@ StatusCode TrigStreamerHypoAlg::execute( const EventContext& context ) const {
 
   return StatusCode::SUCCESS;
 }
-

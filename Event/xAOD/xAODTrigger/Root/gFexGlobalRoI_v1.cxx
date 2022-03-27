@@ -16,20 +16,19 @@
 namespace xAOD {
 
   /// Constants used in converting to ATLAS units
-  const float gFexGlobalRoI_v1::s_globaltobEtScale = 800.; //800 MeV is the energy resolution for global TOBs
  
-
    gFexGlobalRoI_v1::gFexGlobalRoI_v1()
       : SG::AuxElement() {
 
    }
 
-   void gFexGlobalRoI_v1::initialize( uint32_t word ) {
+   void gFexGlobalRoI_v1::initialize( uint32_t word, int tobEtScale) {
 
       setWord( word );
+      setScale( tobEtScale );
       setGlobalType(unpackType());
-      setQuantityOne( unpackQuantityOneIndex() );
-      setQuantityTwo( unpackQuantityTwoIndex() );
+      setQuantityOne( unpackQuantityOne() );
+      setQuantityTwo( unpackQuantityTwo() );
       setStatusOne( unpackStatusOne());
       setStatusTwo( unpackStatusTwo());
       setSaturated(unpackSaturated());
@@ -40,6 +39,8 @@ namespace xAOD {
    /// Raw data words
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexGlobalRoI_v1, uint32_t, word,
                                          setWord )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexGlobalRoI_v1, int, tobEtScale,
+                                         setScale )
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexGlobalRoI_v1, uint8_t, statusOne,
                                          setStatusOne )
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexGlobalRoI_v1, uint8_t, statusTwo,
@@ -48,9 +49,9 @@ namespace xAOD {
                                          setSaturated )
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexGlobalRoI_v1, int, globalType,
                                          setGlobalType )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexGlobalRoI_v1, uint16_t, quantityOne,
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexGlobalRoI_v1, int16_t, quantityOne,
                                          setQuantityOne )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexGlobalRoI_v1, uint16_t, quantityTwo,
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexGlobalRoI_v1, int16_t, quantityTwo,
                                          setQuantityTwo )
 
 
@@ -99,16 +100,29 @@ namespace xAOD {
    }
     
 
-   /// Raw quantity on TOB scale (3200 MeV/count)
-   unsigned int gFexGlobalRoI_v1::unpackQuantityOneIndex() const {
-    // Data content = TOB
-    return (word() >> s_quantityOneBit) & s_quantityOneMask;
-   
+   /// Raw quantity on TOB scale 
+   int16_t gFexGlobalRoI_v1::unpackQuantityOne() const {
+    int16_t quantity = (word() >> s_quantityOneBit) & s_quantityOneMask; 
+    int SIGNMASK = 0x0800;
+    int EXTENDS =  0xF000;
+    if ((globalType() != gNull) && (globalType() != gScalar)){
+      if( (SIGNMASK & quantity ) ) {
+        quantity = ( EXTENDS  | quantity); 
+      }
+    }
+    return quantity; 
    }
 
-   unsigned int gFexGlobalRoI_v1::unpackQuantityTwoIndex() const {
-    // Data content = TOB
-    return (word() >> s_quantityTwoBit) & s_quantityTwoMask;
+   int16_t gFexGlobalRoI_v1::unpackQuantityTwo() const {
+    int16_t quantity = (word() >> s_quantityTwoBit) & s_quantityTwoMask; 
+    int SIGNMASK = 0x0800;
+    int EXTENDS =  0xF000;
+    if ((globalType() != gNull) && (globalType() != gScalar)){
+      if( (SIGNMASK & quantity ) ) {
+        quantity = ( EXTENDS  | quantity); 
+      }
+    }
+    return quantity; 
    
    }
 
@@ -118,21 +132,21 @@ namespace xAOD {
    /// MET/SumEt on TOB scale
    float gFexGlobalRoI_v1::METquantityOne() const {
     if (globalType() != gNull){
-        return quantityOne()*s_globaltobEtScale;
+        return quantityOne()*tobEtScale();
     }
     return -999;
    }
 
    float gFexGlobalRoI_v1::METquantityTwo() const {
     if (globalType() != gNull){
-        return quantityTwo()*s_globaltobEtScale;
+        return quantityTwo()*tobEtScale();
     }
     return -999;
    }
 
    float gFexGlobalRoI_v1::SumEt() const {
     if (globalType() == gScalar ){
-        return quantityTwo()*s_globaltobEtScale;
+        return quantityTwo()*tobEtScale();
     }
     return -999;
    }

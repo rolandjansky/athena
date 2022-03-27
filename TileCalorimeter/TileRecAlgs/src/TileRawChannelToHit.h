@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -16,7 +16,6 @@
 //
 //    TileRawChannelContainer   string   Name of container with TileRawChannel to read
 //    TileHitContainer          string   Name of TileHitContainer to write
-//    TileInfoName              string   Name of object in TDS with all parameters
 //
 // BUGS:
 //  
@@ -31,11 +30,13 @@
 // Tile includes
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileSimEvent/TileHitVector.h"
+#include "TileConditions/TileSamplingFraction.h"
 
 // Atlas includes
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 // Gaudi includes
 #include "GaudiKernel/ToolHandle.h"
@@ -48,7 +49,6 @@
 class TileID;
 class TileHWID;
 class TileHit;
-class TileInfo;
 class TileCablingService;
 class TileCondToolEmscale;
 
@@ -76,12 +76,17 @@ class TileRawChannelToHit: public AthAlgorithm {
                                                       "TileHitVec","Output Tile hit container key"};
 
 
+    /**
+     * @brief Name of TileSamplingFraction in condition store
+     */
+    SG::ReadCondHandleKey<TileSamplingFraction> m_samplingFractionKey{this,
+        "TileSamplingFraction", "TileSamplingFraction", "Input Tile sampling fraction"};
+
     std::string m_infoName;
     bool m_useSamplFract;
 
-    const TileID* m_tileID;
-    const TileHWID* m_tileHWID;
-    const TileInfo* m_tileInfo;
+    const TileID* m_tileID{nullptr};
+    const TileHWID* m_tileHWID{nullptr};
 
     ToolHandle<TileCondToolEmscale> m_tileToolEmscale; //!< main Tile Calibration tool
 };

@@ -230,8 +230,8 @@ void TRTParametersOfModulesC::DefineParameters()
       m_zOfCoolingTubesC[i] -= m_zOfRadiatorC;
     }
 
-    m_xOfHolesForCoolingTubesC = NULL;
-    m_zOfHolesForCoolingTubesC = NULL;
+    m_xOfHolesForCoolingTubesC = nullptr;
+    m_zOfHolesForCoolingTubesC = nullptr;
   }
   else
   {

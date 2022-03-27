@@ -1,0 +1,35 @@
+ApplicationMgr       INFO Application Manager Configured successfully
+ApplicationMgr                                               0    INFO Application Manager Initialized successfully
+ApplicationMgr                                               0 SUCCESS ****************************** Algorithm Sequence ****************************
+ApplicationMgr                                               0 SUCCESS AthSequencer/AthMasterSeq
+ApplicationMgr                                               0 SUCCESS      AthSequencer/AthAlgEvtSeq
+ApplicationMgr                                               0 SUCCESS           AthSequencer/AthBeginSeq
+ApplicationMgr                                               0 SUCCESS                AthIncFirerAlg/BeginIncFiringAlg
+ApplicationMgr                                               0 SUCCESS                IncidentProcAlg/IncidentProcAlg1
+ApplicationMgr                                               0 SUCCESS           AthSequencer/AthAllAlgSeq
+ApplicationMgr                                               0 SUCCESS                AthSequencer/AthAlgSeq
+ApplicationMgr                                               0 SUCCESS                     SGInputLoader/SGInputLoader
+ApplicationMgr                                               0 SUCCESS                     LArRawSCDataReadingAlg/LArRawSCDataReadingAlg
+ApplicationMgr                                               0 SUCCESS                     LArRAWtoSuperCell/LArRAWtoSuperCell
+ApplicationMgr                                               0 SUCCESS                     LVL1::eFEXDriver/eFEXDriver
+ApplicationMgr                                               0 SUCCESS                     LVL1::jFEXDriver/jFEXDriver
+ApplicationMgr                                               0 SUCCESS                     LVL1::gFEXDriver/gFEXDriver
+ApplicationMgr                                               0 SUCCESS                AthSequencer/AthCondSeq
+ApplicationMgr                                               0 SUCCESS                     CondInputLoader/CondInputLoader
+ApplicationMgr                                               0 SUCCESS                     LArAlignCondAlg/LArAlignCondAlg
+ApplicationMgr                                               0 SUCCESS                     CaloAlignCondAlg/CaloAlignCondAlg
+ApplicationMgr                                               0 SUCCESS                     CaloSuperCellAlignCondAlg/CaloSuperCellAlignCondAlg
+ApplicationMgr                                               0 SUCCESS                     LArLATOMEMappingAlg/LArLATOMEMappingAlg
+ApplicationMgr                                               0 SUCCESS           AthSequencer/AthEndSeq
+ApplicationMgr                                               0 SUCCESS                AthIncFirerAlg/EndIncFiringAlg
+ApplicationMgr                                               0 SUCCESS                IncidentProcAlg/IncidentProcAlg2
+ApplicationMgr                                               0 SUCCESS      AthSequencer/AthOutSeq
+ApplicationMgr                                               0 SUCCESS           EventInfoTagBuilder/EventInfoTagBuilder
+ApplicationMgr                                               0 SUCCESS           AthenaOutputStream/OutputStreamAOD
+ApplicationMgr                                               0 SUCCESS      AthIncFirerAlg/EndAlgorithmsFiringAlg
+ApplicationMgr                                               0 SUCCESS      IncidentProcAlg/IncidentProcAlg3
+ApplicationMgr                                               0 SUCCESS ******************************************************************************
+ApplicationMgr                                               0    INFO Application Manager Started successfully
+ApplicationMgr                                                    INFO Application Manager Stopped successfully
+ApplicationMgr                                                    INFO Application Manager Finalized successfully
+ApplicationMgr                                                    INFO Application Manager Terminated successfully

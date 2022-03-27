@@ -35,9 +35,9 @@ def RpcMonitoringConfig(inputFlags):
     rpcTrackAnaAlg.plotMuonEff = True
     rpcTrackAnaAlg.plotPRD     = True
 
-    rpcTrackAnaAlg.TagTrigList = 'HLT_mu26_ivarmedium'
+    # rpcTrackAnaAlg.TagTrigList = 'HLT_mu26_ivarmedium'
     rpcTrackAnaAlg.TagAndProbe         = False
-    rpcTrackAnaAlg.TagAndProbeZmumu    = False
+    # rpcTrackAnaAlg.TagAndProbeZmumu    = False
 
     if not inputFlags.DQ.triggerDataAvailable:
         rpcTrackAnaAlg.MuonRoIContainerName = ''
@@ -227,12 +227,6 @@ def RpcMonitoringConfig(inputFlags):
     myGroup_track.defineHistogram('dR_TrackGasGap_allPanel,panelInd_detpar;DR_TrackGasGap_allPanel', 
                             type='TH2F', 
                             title='DR between track and gasgap on panel;#Delta R_trackAndgasgap;panelID;N matched Gasgap',
-                            path=trackPath,
-                            xbins=50,xmin=0., xmax=1., ybins=8592, ymin=-0.5, ymax=8591.5)
-
-    myGroup_track.defineHistogram('dR_TrackRE_allPanel,panelInd_detpar;DR_TrackRE_allPanel', 
-                            type='TH2F',
-                            title='DR between track and center of ReadoutElement panel;#Delta R_trackAndRE;panelID;N matched Gasgap',
                             path=trackPath,
                             xbins=50,xmin=0., xmax=1., ybins=8592, ymin=-0.5, ymax=8591.5)
 

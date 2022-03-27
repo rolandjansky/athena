@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from PyJobTransforms.CommonRunArgsToFlags import commonRunArgsToFlags
 from PyJobTransforms.TransformUtils import processPreExec, processPreInclude, processPostExec, processPostInclude
@@ -67,6 +67,10 @@ def fromRunArgs(runArgs):
     # outputTXT_FTKIPFile
     # outputNTUP_MUONCALIBFile
     # outputTXT_JIVEXMLTGZFile
+
+    # Setup perfmon flags from runargs
+    from PerfMonComps.PerfMonConfigHelpers import setPerfmonFlagsFromRunArgs
+    setPerfmonFlagsFromRunArgs(ConfigFlags, runArgs)
 
     # Pre-include
     processPreInclude(runArgs, ConfigFlags)

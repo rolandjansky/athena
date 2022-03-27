@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETALIGNGENTOOLS_INDETALIGNFILLTRACK_H
@@ -66,8 +66,8 @@ class InDetAlignFillTrack: virtual public IInDetAlignFillTrack, public AthAlgToo
   void bookLowNtuple();
   void bookMatchingNtuple();
   int dumpTrackCol(const TrackCollection*);
-  int dumpTrackCol(const TrackCollection*, const std::string);
-  void dumpTrack(int, const Trk::Track*, const std::string);  
+  int dumpTrackCol(const TrackCollection*, const std::string&);
+  void dumpTrack(int, const Trk::Track*, const std::string&);  
   void dumpPerigee(const Trk::TrackParameters*, int);
   StatusCode dumpMatching(const TrackCollection*,const TrackCollection*);
 

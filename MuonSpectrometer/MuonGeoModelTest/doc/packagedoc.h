@@ -13,13 +13,13 @@ This package is a colection of algorithms used for stand-alone tests of the geom
 
 MuonGMCheck       - can be run in several modes, depending on the setting of internal flags (job-options);
                     most relevant are:
-                    
-                    check_mdt: loops over all MdtReadoutElements, dump the position of the center of first and last tube of each multilayer (in addition to a few other control quantities)
-                    check_csc: loops over all CscReadoutElements, dump the position of the center of first and last strip of each strip plane (in addition to a few other control quantities)
-                    check_rpc: loops over all RpcReadoutElements, dump the position of the center of first and last strip of each strip plane (in addition to a few other control quantities)
-                    check_tgc: loops over all TgcReadoutElements, dump the position of the center of first and last strip or wire gang of each gas gap (in addition to a few other control quantities)
-                    build_MdtRegionSelectorMap: produces MdtRegionSelectorMap
-                    build_CscRegionSelectorMap: produces CscRegionSelectorMap
+
+                    check_mdt: loops over all MdtReadoutElements, dump the position of the center of first and last tube of each multilayer
+(in addition to a few other control quantities) check_csc: loops over all CscReadoutElements, dump the position of the center of first and
+last strip of each strip plane (in addition to a few other control quantities) check_rpc: loops over all RpcReadoutElements, dump the
+position of the center of first and last strip of each strip plane (in addition to a few other control quantities) check_tgc: loops over all
+TgcReadoutElements, dump the position of the center of first and last strip or wire gang of each gas gap (in addition to a few other control
+quantities) build_MdtRegionSelectorMap: produces MdtRegionSelectorMap build_CscRegionSelectorMap: produces CscRegionSelectorMap
                     build_RpcRegionSelectorMap: produces RpcRegionSelectorMap
                     build_TgcRegionSelectorMap: produces TgcRegionSelectorMap
 

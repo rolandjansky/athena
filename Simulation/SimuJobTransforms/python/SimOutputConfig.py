@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 def getStreamEVNT_TR_ItemList(ConfigFlags):
     #Add to item list
@@ -6,7 +6,8 @@ def getStreamEVNT_TR_ItemList(ConfigFlags):
         "IOVMetaDataContainer#*",
         "EventInfo#*"
     ]
-    if ConfigFlags.Sim.CavernBG in ['Write', 'WriteWorld']:
+    from G4AtlasApps.SimEnums import CavernBackground
+    if ConfigFlags.Sim.CavernBackground in [CavernBackground.Write, CavernBackground.WriteWorld]:
         ItemList += ["TrackRecordCollection#NeutronBG"]
     else:
         ItemList += ["TrackRecordCollection#CosmicRecord"]
@@ -110,7 +111,8 @@ def getStreamHITS_ItemList(ConfigFlags):
         ItemList += ["AFP_TDSimHitCollection#*",
                      "AFP_SIDSimHitCollection#*"]
 
-    if ConfigFlags.Beam.Type == 'cosmics':
+    from AthenaConfiguration.Enums import BeamType
+    if ConfigFlags.Beam.Type is BeamType.Cosmics:
         ItemList += ["TrackRecordCollection#CosmicRecord",
                      "TrackRecordCollection#CosmicPerigee"]
 

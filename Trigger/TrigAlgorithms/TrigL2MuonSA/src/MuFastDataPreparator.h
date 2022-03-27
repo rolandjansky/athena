@@ -122,6 +122,9 @@ class MuFastDataPreparator: public AthAlgTool {
 
   StatusCode setGeometry(bool use_new_geometry);
   void setRpcGeometry(bool use_rpc);
+  
+  void setStgcGeometry(bool use_stgc){ m_use_stgc = use_stgc; };
+  void setMmGeometry(bool use_mm){ m_use_mm = use_mm; };
 
   StatusCode setMCFlag(BooleanProperty  use_mcLUT);
   void setRoIBasedDataAccess(bool use_RoIBasedDataAccess_MDT,
@@ -156,6 +159,8 @@ class MuFastDataPreparator: public AthAlgTool {
   ToolHandle<ITrigMuonBackExtrapolator>* m_backExtrapolatorTool{nullptr};
 
   bool m_use_rpc{false};
+  bool m_use_stgc{false};
+  bool m_use_mm{false};
   bool m_use_mcLUT{false};
 
 };

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file EventSelectorAthenaPool.cxx
@@ -18,7 +18,6 @@
 #include "PersistentDataModel/DataHeader.h"
 #include "PoolSvc/IPoolSvc.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/ActiveStoreSvc.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 
@@ -72,13 +71,7 @@ EventSelectorAthenaPool::~EventSelectorAthenaPool() {
 }
 //________________________________________________________________________________
 StoreGateSvc* EventSelectorAthenaPool::eventStore() const {
-   if (m_activeStoreSvc == 0) {
-      if (!m_activeStoreSvc.retrieve().isSuccess()) {
-         ATH_MSG_ERROR("Cannot get ActiveStoreSvc");
-         throw GaudiException("Cannot get ActiveStoreSvc", name(), StatusCode::FAILURE);
-      }
-   }
-   return(m_activeStoreSvc->operator->());
+   return StoreGateSvc::currentStoreGate();
 }
 //________________________________________________________________________________
 StatusCode EventSelectorAthenaPool::initialize() {

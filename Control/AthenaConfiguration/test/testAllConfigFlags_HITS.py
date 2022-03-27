@@ -15,5 +15,5 @@ if havesim:
     ConfigFlags._loadDynaFlags("Sim")
 
 ConfigFlags.initAll()
+ConfigFlags.lock()
 ConfigFlags.dump()
-

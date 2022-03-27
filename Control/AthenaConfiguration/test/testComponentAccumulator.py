@@ -58,6 +58,7 @@ class TestComponentAccumulator( unittest.TestCase ):
         acc.addPublicTool(CompFactory.HelloTool("TestPublicTool", MyMessage="The first"))
         acc.addCondAlgo(TestAlgo("Cond1", MyInt=7))
         acc.addService(CompFactory.CoreDumpSvc("CD", Signals=[15]))
+        acc.addAuditor(CompFactory.NameAuditor(EventTypes=["all"]))
 
         def AlgsConf3(flags):
             acc = ComponentAccumulator()
@@ -105,6 +106,10 @@ class TestComponentAccumulator( unittest.TestCase ):
         def _failingAdd():
             self.acc.addService(CompFactory.CoreDumpSvc("CD", Signals=[17])) # different setting [17] vs [15]
         self.assertRaises(ValueError, _failingAdd)
+
+    def test_conflict_in_auditors(self):
+        with self.assertRaises(ValueError):
+            self.acc.addAuditor(CompFactory.NameAuditor(EventTypes=["none"]))
 
     def test_conflict_in_merge(self):
         def _failingAdd():

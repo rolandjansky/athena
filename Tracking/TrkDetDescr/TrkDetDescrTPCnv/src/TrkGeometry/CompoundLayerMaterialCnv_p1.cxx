@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -61,6 +61,8 @@ void CompoundLayerMaterialCnv_p1::persToTrans( const Trk::CompoundLayerMaterial_
             }
         }                 
     }
+
+    transObj->resizeMaterialProperties();
 }
 
 void CompoundLayerMaterialCnv_p1::transToPers( const Trk::CompoundLayerMaterial    *transObj,
@@ -95,7 +97,7 @@ void CompoundLayerMaterialCnv_p1::transToPers( const Trk::CompoundLayerMaterial 
     persObj->valueMatrices.push_back(transObj->m_zBins.valueBinMatrix);         
     persObj->valueMatrices.push_back(transObj->m_rhoBins.valueBinMatrix);
     
-    typedef std::vector< std::pair< unsigned char, unsigned char> > CVector;
+    using CVector = std::vector<std::pair<unsigned char, unsigned char>>;
     // composition matrix
     size_t ocBins = transObj->m_composition.size();
     if (ocBins){

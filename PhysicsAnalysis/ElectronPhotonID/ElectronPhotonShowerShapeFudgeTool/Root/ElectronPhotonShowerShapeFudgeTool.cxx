@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -176,8 +176,7 @@ const CP::CorrectionCode ElectronPhotonShowerShapeFudgeTool::applyCorrection( xA
                                w1,
                                DeltaE,
                                Eratio,
-                               xAOD::EgammaHelpers::isConvertedPhoton(&ph),
-                               m_preselection);
+                               xAOD::EgammaHelpers::isConvertedPhoton(&ph));
 
 
 

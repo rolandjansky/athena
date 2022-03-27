@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_HLTPrescaleSet
@@ -7,16 +7,16 @@
 
 #include <iosfwd>
 #include <string>
-#include <map>
 #include <vector>
 #include <utility>
+#include <array>
 #include <stdint.h>
 
 #include "TrigConfHLTData/HLTPrescale.h"
 #include "TrigConfHLTData/HLTLevel.h"
 #include "TrigConfL1Data/TrigConfData.h"
 
-#include <boost/unordered_map.hpp>
+#include <unordered_map>
 
 
 namespace TrigConf {
@@ -31,7 +31,7 @@ namespace TrigConf {
    class HLTPrescaleSet : public TrigConfData {
    public:
 
-      typedef boost::unordered_map<unsigned int, HLTPrescale> ScalingMap_t;
+      typedef std::unordered_map<unsigned int, HLTPrescale> ScalingMap_t;
 
       /**@brief default constructor*/
       HLTPrescaleSet();
@@ -69,7 +69,7 @@ namespace TrigConf {
       std::string __str__() const;
 
    private:
-      std::vector<ScalingMap_t>   m_scalers;
+      std::array<ScalingMap_t, 3>   m_scalers;
 
       uint64_t  m_iovstart;
       uint64_t  m_iovend;

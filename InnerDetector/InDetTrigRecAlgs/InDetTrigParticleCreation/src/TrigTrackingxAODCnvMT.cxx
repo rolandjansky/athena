@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigTrackingxAODCnvMT.h"
@@ -72,7 +72,7 @@ namespace InDet
 
       xAOD::TrackParticle* tp = m_particleCreatorTool->createParticle( trackLink, tpCont);
 
-      if(msgLvl(MSG::DEBUG) && (tp != 0)){
+      if(msgLvl(MSG::DEBUG) && (tp != nullptr)){
         int npix, nsct, ntrt, npixh, nscth;
         npix = nsct = ntrt = npixh = nscth = -1;
         const Trk::Track *tr = tp->track();

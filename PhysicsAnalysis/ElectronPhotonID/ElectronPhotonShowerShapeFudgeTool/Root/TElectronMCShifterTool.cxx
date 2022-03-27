@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ElectronPhotonShowerShapeFudgeTool/TElectronMCShifterTool.h"
@@ -57,7 +57,7 @@ double TElectronMCShifterTool::shiftVar(double eT,double eta,ElePIDNames::Var va
   if (var == ElePIDNames::fside                 && val == 0.) {return val;}
 
   int ibin_combined = getShifterEtBin(eT)*9+getShifterEtaBin(eta); //Convert the 2d
-  if(Shifts.empty()) return val;
+  if(Shifts[var].empty()) return val;
   return val + Shifts[var].at(ibin_combined);
 }
 
@@ -72,7 +72,7 @@ double TElectronMCShifterTool::shiftVarByBin(int eTBin,int etaBin,ElePIDNames::V
   if (var == ElePIDNames::fside                 && val == 0.) {return val;}
 
   int ibin_combined = eTBin*9+etaBin; //Convert the 2d
-  if(Shifts.empty()) return val;
+  if(Shifts[var].empty()) return val;
   return val + Shifts[var].at(ibin_combined);
 }
 
@@ -96,7 +96,7 @@ void TElectronMCShifterTool::shiftAll( float eT,
                                        float& DeltaE ,
                                        float& deltaeta1,
                                        float& deltaphiRescaled
-                                     ) {
+                                     ) const {
   int ibin_combined = getShifterEtBin(eT)*9+getShifterEtaBin(eta); //Convert the 2d
 
   if(!Widths[ElePIDNames::Var::deltaeta1].empty()){

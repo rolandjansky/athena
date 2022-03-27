@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 def ITkPixelGeoModelCfg(flags):
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
@@ -10,9 +10,11 @@ def ITkPixelGeoModelCfg(flags):
     # ITkPixelDetectorTool.useDynamicAlignFolders = flags.GeoModel.Align.Dynamic
     ITkPixelDetectorTool.Alignable = False # make this a flag? Set true as soon as decided on folder structure
     ITkPixelDetectorTool.DetectorName = "ITkPixel"
-    if flags.GeoModel.useLocalGeometry:
+    if flags.ITk.Geometry.PixelLocal:
         # Setting this filename triggers reading from local file rather than DB
-        ITkPixelDetectorTool.GmxFilename = flags.ITk.pixelGeometryFilename
+        ITkPixelDetectorTool.GmxFilename = flags.ITk.Geometry.PixelFilename
+    if flags.ITk.Geometry.PixelClobOutputName:
+        ITkPixelDetectorTool.ClobOutputName = flags.ITk.Geometry.PixelClobOutputName
     geoModelSvc.DetectorTools += [ ITkPixelDetectorTool ]
     return acc
 

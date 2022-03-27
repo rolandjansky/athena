@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from ..Menu.ChainDictTools import splitChainDict
-from ..Menu.ChainMerging import mergeChainDefs
+from TriggerMenuMT.HLT.Config.Utility.ChainDictTools import splitChainDict
+from TriggerMenuMT.HLT.Config.Utility.ChainMerging import mergeChainDefs
 from .BeamspotChainConfiguration import BeamspotChainConfiguration
 
 import pprint

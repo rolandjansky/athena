@@ -41,7 +41,7 @@ print()
 ConfigFlags.Input.isMC             = True
 
 if args.localgeo:
-  ConfigFlags.GeoModel.useLocalGeometry = True
+  ConfigFlags.ITk.Geometry.AllLocal = True
   
 from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
 detectors = args.detectors if 'detectors' in args and args.detectors else ['ITkPixel', 'ITkStrip', 'HGTD']
@@ -52,7 +52,6 @@ ConfigFlags.GeoModel.AtlasVersion = args.geometrytag
 ConfigFlags.IOVDb.GlobalTag = "OFLCOND-SIM-00-00-00"
 ConfigFlags.GeoModel.Align.Dynamic = False
 ConfigFlags.TrackingGeometry.MaterialSource = "COOL"
-ConfigFlags.Beam.Type =''
 
 ConfigFlags.Detector.GeometryCalo  = False
 ConfigFlags.Detector.GeometryMuon  = False

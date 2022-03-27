@@ -1,7 +1,8 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
-import shutil, re
+import shutil, re, sys, os
+from typing import List, Tuple, Callable
 
 from .dqu_subprocess import apply as _local_apply
 
@@ -56,7 +57,7 @@ def _dolsr(dir):
 
 def _ProtectPostProcessing( funcinfo, outFileName, isIncremental ):
     import os
-    isProduction = 'DQPRODUCTION' in os.environ and bool(os.environ['DQPRODUCTION'])
+    isProduction = bool(os.environ.get('DQPRODUCTION', False))
     func, mail_to = funcinfo
     tmpfilename = outFileName + "-safe-" + str(os.getpid())
     shutil.copy2(outFileName, tmpfilename)
@@ -150,23 +151,31 @@ def DQPostProcess( outFileName, isIncremental=False ):
             from DataQualityUtils.doZLumi import go
             go(fname)
 
-    def newstyle(fname, isIncremental):
-        if not isIncremental:
-            print("New style postprocessing")
-            # do we have DataQualityUtils in the DATAPATH?
-            from ._resolve_data_path import resolve_data_path
-            dpath = resolve_data_path("DataQualityUtils")
-            if dpath is None:
-                print("Unable to resolve DataQualityUtils data path, not running new-style postprocessing")
-                return
-            import subprocess, glob, os.path
-            inputs = glob.glob(os.path.join(dpath,'postprocessing/*.yaml'))
-            print(f'Input configurations: {" ".join(inputs)}')
-            cmdline = (['histgrinder', '--prefix', f'/{rundir(fname)}/', fname, fname, '-c']
-                       + inputs
-                       )
-            subprocess.run(cmdline, check=True)
+    def newstyle(yamlfile: str) -> Callable[[str, bool], None]:
+        import os.path
+        def newstyle_core(fname, isIncremental):
+            if not isIncremental:
+                import subprocess
+                print(f'New style postprocessing running for: {yamlfile}')
+                cmdline = ['histgrinder', '--prefix', f'/{rundir(fname)}/', fname, fname, '-c', yamlfile]
+                subprocess.run(cmdline, check=True)
+        newstyle_core.__name__ = os.path.splitext(os.path.basename(yamlfile))[0]
+        return newstyle_core
  
+    def make_newstyle_funcs() -> List[Tuple[Callable[[str, bool], None], List[str]]]:
+        rv = []
+        # do we have DataQualityUtils in the DATAPATH?
+        from ._resolve_data_path import resolve_data_path
+        dpath = resolve_data_path("DataQualityUtils")
+        if dpath is None:
+            print("Unable to resolve DataQualityUtils data path, not running new-style postprocessing")
+            return rv
+        import glob, os.path
+        inputs = glob.glob(os.path.join(dpath,'postprocessing/*.yaml'))
+        for input in inputs:
+            rv.append((newstyle(input), ['ponyisi@utexas.edu']))
+        return rv
+
     funclist = [ 
                  (mf.fitMergedFile_IDPerfMonManager,
                   ['weina.ji@cern.ch', 'ana.ovcharova@cern.ch']),
@@ -214,9 +223,12 @@ def DQPostProcess( outFileName, isIncremental=False ):
                   ['baojia.tong@cern.ch', 'alexander.tuna@cern.ch']),
                  (zlumi,
                   ['ponyisi@utexas.edu']),
-                 (newstyle,
-                  ['ponyisi@utexas.edu']),
                ]
+
+    funclist += make_newstyle_funcs()
+
+    # determine how we react to a failure
+    isTesting = bool(os.environ.get('DQ_POSTPROCESS_ERROR_ON_FAILURE', False))
 
     # first try all at once
     def go_all(fname, isIncremental):
@@ -226,6 +238,8 @@ def DQPostProcess( outFileName, isIncremental=False ):
     success = _ProtectPostProcessing( (go_all, []), outFileName, isIncremental )
 
     if not success:
-        #if True:
-        for funcinfo in funclist:
-            _ProtectPostProcessing( funcinfo, outFileName, isIncremental )
+        if isTesting:
+            sys.exit(1)
+        else:
+            for funcinfo in funclist:
+                _ProtectPostProcessing( funcinfo, outFileName, isIncremental )

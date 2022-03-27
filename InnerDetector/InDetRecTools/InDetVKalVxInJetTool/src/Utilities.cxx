@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 // Author: Vadim Kostyukhin (vadim.kostyukhin@cern.ch)
 
@@ -8,8 +8,8 @@
 #include "TrkNeutralParameters/NeutralParameters.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
-#include "VxVertex/RecVertex.h"
 #include "CxxUtils/sincos.h"
+#include "GeoPrimitives/GeoPrimitivesHelpers.h"
 //-------------------------------------------------
 // Other stuff
 #include <cmath>
@@ -125,52 +125,13 @@ namespace InDet{
         }
         return false; 
   }
-
-  double InDetVKalVxInJetTool::vrtVrtDist(const Trk::RecVertex & PrimVrt, const Amg::Vector3D & SecVrt, 
-                                          const std::vector<double>& SecVrtErr, double& Signif)
-  const
-  {
-    double distx =  PrimVrt.position().x()- SecVrt.x();
-    double disty =  PrimVrt.position().y()- SecVrt.y();
-    double distz =  PrimVrt.position().z()- SecVrt.z();
-
-    Amg::MatrixX  PrimCovMtx=PrimVrt.covariancePosition();  //Create
-    PrimCovMtx(0,0) += SecVrtErr[0];
-    PrimCovMtx(0,1) += SecVrtErr[1];
-    PrimCovMtx(1,0) += SecVrtErr[1];
-    PrimCovMtx(1,1) += SecVrtErr[2];
-    PrimCovMtx(0,2) += SecVrtErr[3];
-    PrimCovMtx(2,0) += SecVrtErr[3];
-    PrimCovMtx(1,2) += SecVrtErr[4];
-    PrimCovMtx(2,1) += SecVrtErr[4];
-    PrimCovMtx(2,2) += SecVrtErr[5];
-
-    Amg::MatrixX  WgtMtx = PrimCovMtx.inverse();
-    if( WgtMtx(0,0)<=0. || WgtMtx(1,1)<=0. || WgtMtx(2,2)<=0. ){
-       ATH_MSG_DEBUG(" Cov.matrix inversion failure in vertex distance significane");
-       return 1.e10;
-    }
-
-    Signif = distx*WgtMtx(0,0)*distx
-            +disty*WgtMtx(1,1)*disty
-            +distz*WgtMtx(2,2)*distz
-         +2.*distx*WgtMtx(0,1)*disty
-         +2.*distx*WgtMtx(0,2)*distz
-         +2.*disty*WgtMtx(1,2)*distz;
-    if(Signif<=0.)return 1.e10;        //Something is wrong in distance significance. 
-    Signif=std::sqrt(Signif);
-    if( Signif!=Signif ) Signif = 0.;
-    return std::sqrt(distx*distx+disty*disty+distz*distz);
-  }
   
   double InDetVKalVxInJetTool::vrtVrtDist(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
                                           const std::vector<double>& SecVrtErr, double& Signif)
   const
   {
-    double distx =  PrimVrt.x()- SecVrt.x();
-    double disty =  PrimVrt.y()- SecVrt.y();
-    double distz =  PrimVrt.z()- SecVrt.z();
 
+    Amg::Vector3D SVPV(PrimVrt.x()- SecVrt.x(),PrimVrt.y()- SecVrt.y(),PrimVrt.z()- SecVrt.z());
 
     AmgSymMatrix(3)  PrimCovMtx=PrimVrt.covariancePosition();  //Create
     PrimCovMtx(0,0) += SecVrtErr[0];
@@ -183,31 +144,27 @@ namespace InDet{
     PrimCovMtx(2,1) += SecVrtErr[4];
     PrimCovMtx(2,2) += SecVrtErr[5];
 
-    AmgSymMatrix(3)  WgtMtx = PrimCovMtx.inverse();
-    if( WgtMtx(0,0)<=0. || WgtMtx(1,1)<=0. || WgtMtx(2,2)<=0. ){
+    bool success=true;
+    AmgSymMatrix(3)  WgtMtx;
+    PrimCovMtx.computeInverseWithCheck(WgtMtx, success);
+    if( !success || WgtMtx(0,0)<=0. || WgtMtx(1,1)<=0. || WgtMtx(2,2)<=0. ){
        ATH_MSG_DEBUG(" Cov.matrix inversion failure in vertex distance significane");
        return 1.e10;
     }
 
-    Signif = distx*WgtMtx(0,0)*distx
-            +disty*WgtMtx(1,1)*disty
-            +distz*WgtMtx(2,2)*distz
-         +2.*distx*WgtMtx(0,1)*disty
-         +2.*distx*WgtMtx(0,2)*distz
-         +2.*disty*WgtMtx(1,2)*distz;
+    Signif=SVPV.transpose()*WgtMtx*SVPV;
+
     if(Signif<=0.)return 1.e10;        //Something is wrong in distance significance. 
     Signif=std::sqrt(Signif);
     if( Signif!=Signif ) Signif = 0.;
-    return std::sqrt(distx*distx+disty*disty+distz*distz);
+    return SVPV.norm();
   }
 
   double InDetVKalVxInJetTool::vrtVrtDist2D(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
                                           const std::vector<double>& SecVrtErr, double& Signif)
   const
   {
-    double distx =  PrimVrt.x()- SecVrt.x();
-    double disty =  PrimVrt.y()- SecVrt.y();
-
+    Amg::Vector2D SVPV(PrimVrt.x()- SecVrt.x(),PrimVrt.y()- SecVrt.y());
 
     AmgSymMatrix(3)  PrimCovMtx=PrimVrt.covariancePosition();  //Create
     AmgSymMatrix(2)  CovMtx;
@@ -216,63 +173,20 @@ namespace InDet{
     CovMtx(1,0) = PrimCovMtx(1,0) + SecVrtErr[1];
     CovMtx(1,1) = PrimCovMtx(1,1) + SecVrtErr[2];
 
-    AmgSymMatrix(2)  WgtMtx = CovMtx.inverse();
-    if( WgtMtx(0,0)<=0. || WgtMtx(1,1)<=0. ){
+    bool success=true;
+    AmgSymMatrix(2)  WgtMtx;
+    CovMtx.computeInverseWithCheck(WgtMtx, success);
+    if( !success || WgtMtx(0,0)<=0. || WgtMtx(1,1)<=0. ){
        ATH_MSG_DEBUG(" Cov.matrix inversion failure in vertex distance significane");
        return 1.e10;
     }
 
-    Signif = distx*WgtMtx(0,0)*distx
-            +disty*WgtMtx(1,1)*disty
-         +2.*distx*WgtMtx(0,1)*disty;
+    Signif=SVPV.transpose()*WgtMtx*SVPV;
+
     if(Signif<=0.)return 1.e10;        //Something is wrong in distance significance. 
     Signif=std::sqrt(Signif);
     if( Signif!=Signif ) Signif = 0.;
-    return std::sqrt(distx*distx+disty*disty);
-  }
-
-//--------------------------------------------------
-// Significance along jet direction
-//--------------------------------------------------
-  double InDetVKalVxInJetTool::vrtVrtDist(const Trk::RecVertex & PrimVrt, const Amg::Vector3D & SecVrt, 
-                                          const std::vector<double>& SecVrtErr, const TLorentzVector & JetDir)
-  const
-  {
-    Amg::Vector3D jetDir(JetDir.Vect().Unit().X(), JetDir.Vect().Unit().Y(), JetDir.Vect().Unit().Z());
-    double projDist=(SecVrt-PrimVrt.position()).dot(jetDir);
-    double distx =  jetDir.x()*projDist;
-    double disty =  jetDir.y()*projDist;
-    double distz =  jetDir.z()*projDist;
-
-    AmgSymMatrix(3)  PrimCovMtx=PrimVrt.covariancePosition();  //Create
-    PrimCovMtx(0,0) += SecVrtErr[0];
-    PrimCovMtx(0,1) += SecVrtErr[1];
-    PrimCovMtx(1,0) += SecVrtErr[1];
-    PrimCovMtx(1,1) += SecVrtErr[2];
-    PrimCovMtx(0,2) += SecVrtErr[3];
-    PrimCovMtx(2,0) += SecVrtErr[3];
-    PrimCovMtx(1,2) += SecVrtErr[4];
-    PrimCovMtx(2,1) += SecVrtErr[4];
-    PrimCovMtx(2,2) += SecVrtErr[5];
-
-    AmgSymMatrix(3)  WgtMtx = PrimCovMtx.inverse();
-    if( WgtMtx(0,0)<=0. || WgtMtx(1,1)<=0. || WgtMtx(2,2)<=0. ){
-       ATH_MSG_DEBUG(" Cov.matrix inversion failure in vertex distance significane");
-       return 1.e10;
-    }
-
-
-    double Signif = distx*WgtMtx(0,0)*distx
-                   +disty*WgtMtx(1,1)*disty
-                   +distz*WgtMtx(2,2)*distz
-                +2.*distx*WgtMtx(0,1)*disty
-                +2.*distx*WgtMtx(0,2)*distz
-                +2.*disty*WgtMtx(1,2)*distz;
-    if(Signif<=0.)return 1.e10;        //Something is wrong in distance significance. 
-    Signif=std::sqrt(Signif);
-    if( Signif!=Signif ) Signif = 0.;
-    if(projDist<0)Signif=-Signif;
-    return Signif;
+    return SVPV.norm();
   }
 
 //--------------------------------------------------
@@ -284,9 +198,7 @@ namespace InDet{
   {
     Amg::Vector3D jetDir(JetDir.Vect().Unit().X(), JetDir.Vect().Unit().Y(), JetDir.Vect().Unit().Z());
     double projDist=(SecVrt-PrimVrt.position()).dot(jetDir);
-    double distx =  jetDir.x()*projDist;
-    double disty =  jetDir.y()*projDist;
-    double distz =  jetDir.z()*projDist;
+    Amg::Vector3D SVPV=jetDir*projDist;
 
     AmgSymMatrix(3)  PrimCovMtx=PrimVrt.covariancePosition();  //Create
     PrimCovMtx(0,0) += SecVrtErr[0];
@@ -299,18 +211,15 @@ namespace InDet{
     PrimCovMtx(2,1) += SecVrtErr[4];
     PrimCovMtx(2,2) += SecVrtErr[5];
 
-    AmgSymMatrix(3)  WgtMtx = PrimCovMtx.inverse();
-    if( WgtMtx(0,0)<=0. || WgtMtx(1,1)<=0. || WgtMtx(2,2)<=0. ){
+    bool success=true;
+    AmgSymMatrix(3)  WgtMtx;
+    PrimCovMtx.computeInverseWithCheck(WgtMtx, success);
+    if( !success || WgtMtx(0,0)<=0. || WgtMtx(1,1)<=0. || WgtMtx(2,2)<=0. ){
        ATH_MSG_DEBUG(" Cov.matrix inversion failure in vertex distance significane");
        return 1.e10;
     }
 
-    double Signif = distx*WgtMtx(0,0)*distx
-                   +disty*WgtMtx(1,1)*disty
-                   +distz*WgtMtx(2,2)*distz
-                +2.*distx*WgtMtx(0,1)*disty
-                +2.*distx*WgtMtx(0,2)*distz
-                +2.*disty*WgtMtx(1,2)*distz;
+    double Signif=SVPV.transpose()*WgtMtx*SVPV;
     if(Signif<=0.)return 1.e10;        //Something is wrong in distance significance. 
     Signif=std::sqrt(Signif);
     if( Signif!=Signif ) Signif = 0.;
@@ -323,9 +232,7 @@ namespace InDet{
   const
   {
     double Signif;
-    double distx =  Vrt1.x()- Vrt2.x();
-    double disty =  Vrt1.y()- Vrt2.y();
-    double distz =  Vrt1.z()- Vrt2.z();
+    Amg::Vector3D SVPV(Vrt1.x()- Vrt2.x(),Vrt1.y()- Vrt2.y(),Vrt1.z()- Vrt2.z());
 
     AmgSymMatrix(3)  PrimCovMtx;  //Create
     PrimCovMtx(0,0) =                   VrtErr1[0]+VrtErr2[0];
@@ -335,19 +242,15 @@ namespace InDet{
     PrimCovMtx(1,2) = PrimCovMtx(2,1) = VrtErr1[4]+VrtErr2[4];
     PrimCovMtx(2,2) =                   VrtErr1[5]+VrtErr2[5];
 
-    AmgSymMatrix(3)  WgtMtx = PrimCovMtx.inverse();
-    if( WgtMtx(0,0)<=0. || WgtMtx(1,1)<=0. || WgtMtx(2,2)<=0. ){
+    bool success=true;
+    AmgSymMatrix(3)  WgtMtx;
+    PrimCovMtx.computeInverseWithCheck(WgtMtx, success);
+    if( !success || WgtMtx(0,0)<=0. || WgtMtx(1,1)<=0. || WgtMtx(2,2)<=0. ){
        ATH_MSG_DEBUG(" Cov.matrix inversion failure in vertex distance significane");
        return 1.e10;
     }
 
-
-    Signif =   distx*WgtMtx(0,0)*distx
-              +disty*WgtMtx(1,1)*disty
-              +distz*WgtMtx(2,2)*distz
-           +2.*distx*WgtMtx(0,1)*disty
-           +2.*distx*WgtMtx(0,2)*distz
-           +2.*disty*WgtMtx(1,2)*distz;
+    Signif=SVPV.transpose()*WgtMtx*SVPV;
     if(Signif<=0.)return 1.e10;        //Something is wrong in distance significance. 
     Signif=std::sqrt(Signif);
     if(Signif != Signif)  Signif = 0.;
@@ -467,7 +370,7 @@ namespace InDet{
        pz +=          theta.cs*api;
        ee += std::sqrt( api*api + m_massPi*m_massPi);
      }
-     return TLorentzVector(px,py,pz,ee); 
+     return {px,py,pz,ee}; 
    }
 
   TLorentzVector InDetVKalVxInJetTool::totalMom(const std::vector<const xAOD::TrackParticle*>& InpTrk) 
@@ -492,7 +395,7 @@ namespace InDet{
      double py = phi.sn * theta.sn*api;
      double pz =          theta.cs*api;
      double ee = std::sqrt( api*api + m_massPi*m_massPi);
-     return TLorentzVector(px,py,pz,ee); 
+     return {px,py,pz,ee}; 
    }
 //
 //-- Perigee in xAOD::TrackParticle
@@ -623,47 +526,55 @@ namespace InDet{
 
   void InDetVKalVxInJetTool::fillVrtNTup( std::vector<Vrt2Tr>  & all2TrVrt)
   const
-  {	 if(!m_curTup)return;
+  {
+         if (!m_h) return;
+         Hists& h = getHists();
          int ipnt=0;
+         Amg::Vector3D pf1,pf2; 
          for(auto & vrt : all2TrVrt) {
-	   if(ipnt==DevTuple::maxNTrk)break;
-	   m_curTup->VrtDist2D[ipnt]=vrt.fitVertex.perp();
-	   m_curTup->VrtSig3D[ipnt]=vrt.signif3D;
-	   m_curTup->VrtSig2D[ipnt]=vrt.signif2D;
-	   m_curTup->itrk[ipnt]=vrt.i;
-	   m_curTup->jtrk[ipnt]=vrt.j;
-	   m_curTup->mass[ipnt]=vrt.momentum.M();
-	   m_curTup->Chi2[ipnt]=vrt.chi2;
-	   m_curTup->badVrt[ipnt]=vrt.badVrt;
-	   m_curTup->VrtDR[ipnt]=vrt.dRSVPV;
-	   m_curTup->VrtErrR[ipnt]= vrtRadiusError(vrt.fitVertex, vrt.errorMatrix);
-           ipnt++; m_curTup->nVrt=ipnt;
+           if(ipnt==DevTuple::maxNTrk)break;
+           h.m_curTup->VrtDist2D[ipnt]=vrt.fitVertex.perp();
+           h.m_curTup->VrtSig3D[ipnt]=vrt.signif3D;
+	   h.m_curTup->VrtSig2D[ipnt]=vrt.signif2D;
+	   h.m_curTup->itrk[ipnt]=vrt.i;
+	   h.m_curTup->jtrk[ipnt]=vrt.j;
+	   h.m_curTup->mass[ipnt]=vrt.momentum.M();
+	   h.m_curTup->Chi2[ipnt]=vrt.chi2;
+	   h.m_curTup->badVrt[ipnt]=vrt.badVrt;
+	   h.m_curTup->VrtDR[ipnt]=vrt.dRSVPV;
+	   h.m_curTup->VrtErrR[ipnt]= vrtRadiusError(vrt.fitVertex, vrt.errorMatrix);
+           Amg::setRThetaPhi(pf1, 1., vrt.trkAtVrt[0][1], vrt.trkAtVrt[0][0]);
+           Amg::setRThetaPhi(pf2, 1., vrt.trkAtVrt[1][1], vrt.trkAtVrt[1][0]);
+           h.m_curTup->VrtdRtt[ipnt]=Amg::deltaR(pf1,pf2);
+           ipnt++; h.m_curTup->nVrt=ipnt;
         }
   } 
 
   void InDetVKalVxInJetTool::fillNVrtNTup(std::vector<WrkVrt> & VrtSet, std::vector< std::vector<float> > & trkScore,
                                           const xAOD::Vertex  & PV, const TLorentzVector & JetDir)
   const
-  {	 if(!m_curTup)return;
+  {
+         if (!m_h) return;
+         Hists& h = getHists();
          int ipnt=0;
          TLorentzVector VertexMom;
          for(auto & vrt : VrtSet) {
 	   if(ipnt==DevTuple::maxNVrt)break;
-	   m_curTup->NVrtDist2D[ipnt]=vrt.vertex.perp();
-	   m_curTup->NVrtNT[ipnt]=vrt.selTrk.size();
-           m_curTup->NVrtTrkI[ipnt]=vrt.selTrk[0];
-	   m_curTup->NVrtM[ipnt]=vrt.vertexMom.M();
-	   m_curTup->NVrtChi2[ipnt]=vrt.chi2;
+	   h.m_curTup->NVrtDist2D[ipnt]=vrt.vertex.perp();
+	   h.m_curTup->NVrtNT[ipnt]=vrt.selTrk.size();
+           h.m_curTup->NVrtTrkI[ipnt]=vrt.selTrk[0];
+	   h.m_curTup->NVrtM[ipnt]=vrt.vertexMom.M();
+	   h.m_curTup->NVrtChi2[ipnt]=vrt.chi2;
            float maxW=0., sumW=0.;
            for(auto trk : vrt.selTrk){ sumW+=trkScore[trk][0]; maxW=std::max(trkScore[trk][0], maxW);}
-	   m_curTup->NVrtMaxW[ipnt]=maxW;
-	   m_curTup->NVrtAveW[ipnt]=sumW/vrt.selTrk.size();
+	   h.m_curTup->NVrtMaxW[ipnt]=maxW;
+	   h.m_curTup->NVrtAveW[ipnt]=sumW/vrt.selTrk.size();
            TLorentzVector SVPV(vrt.vertex.x()-PV.x(),vrt.vertex.y()-PV.y(),vrt.vertex.z()-PV.z(),1.);
-           m_curTup->NVrtDR[ipnt]=JetDir.DeltaR(SVPV);
+           h.m_curTup->NVrtDR[ipnt]=JetDir.DeltaR(SVPV);
            VertexMom += vrt.vertexMom;
-           ipnt++; m_curTup->nNVrt=ipnt;
+           ipnt++; h.m_curTup->nNVrt=ipnt;
         }
-        m_curTup->TotM=VertexMom.M();
+        h.m_curTup->TotM=VertexMom.M();
   } 
 
 
@@ -672,19 +583,22 @@ namespace InDet{
         const ElementLink<xAOD::TruthParticleContainer>& tplink = 
                                TP->auxdata< ElementLink< xAOD::TruthParticleContainer > >("truthParticleLink");
         if( !tplink.isValid() ) return 0;
-        if( TP->auxdata< float >( "truthMatchProbability" ) < 0.75 ) return 0;
+        if( TP->auxdata< float >( "truthMatchProbability" ) < 0.5 ) return 0;
         if( (*tplink)->barcode() > 200000) return 0;
         if( (*tplink)->hasProdVtx()){
           if( (*tplink)->prodVtx()->nIncomingParticles()==1){
-             int PDGID1=0, PDGID2=0, PDGID3=0;
+             int PDGID1=0, PDGID2=0, PDGID3=0, PDGID4=0;
 	     const xAOD::TruthParticle * parTP1=getPreviousParent(*tplink, PDGID1);
-	     const xAOD::TruthParticle * parTP2=nullptr;
+	     const xAOD::TruthParticle * parTP2=nullptr ;
+	     const xAOD::TruthParticle * parTP3=nullptr ;
 	     int noBC1=notFromBC(PDGID1);
              if(noBC1)  parTP2 = getPreviousParent(parTP1, PDGID2);
 	     int noBC2=notFromBC(PDGID2);
-             if(noBC2 && parTP2) getPreviousParent(parTP2, PDGID3);
+             if(noBC2 && parTP2) parTP3 = getPreviousParent(parTP2, PDGID3);
 	     int noBC3=notFromBC(PDGID3);
-             if(noBC1 && noBC2 && noBC3)return 0;
+             if(noBC3 && parTP3) getPreviousParent(parTP3, PDGID4);
+	     int noBC4=notFromBC(PDGID4);
+             if(noBC1 && noBC2 && noBC3 && noBC4)return 0;
              return 1;  //This is a reconstructed track from B/C decays
       } } }
       return 0;

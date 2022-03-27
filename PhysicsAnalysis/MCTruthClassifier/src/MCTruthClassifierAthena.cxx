@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 // File Including the Athena only methods of the MCTruthClassifier Class
@@ -124,8 +124,10 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus,
       continue;
     }
     // excluding G4 particle
-    if (thePart->barcode() >= m_barcodeG4Shift) {
-      continue;
+    if(!isFwrdEle || (isFwrdEle && m_FwdElectronUseG4Sel)){
+      if (thePart->barcode() >= m_barcodeG4Shift) {
+	continue;
+      }
     }
     long iParticlePDG = thePart->pdgId();
     // excluding neutrino

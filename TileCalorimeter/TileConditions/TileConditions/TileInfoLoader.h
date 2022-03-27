@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_TILEINFOLOADER_H
@@ -111,11 +111,6 @@ private:
     double m_mbtsL1Max;
     double m_ttL1CosmicsGain;
     double m_ttL1CosmicsThresh;
-    double m_emscaleA;     //!< 1/sampling fraction for all normal cells
-    double m_emscaleE[16]; //!< 1/sampling fraction for special C10 and E1-E4 cells [9]=C10, [10]=E1, [11]=E2, [13]=E3, [15]=E4
-    double m_emscaleMBTS[3]; //!< 1/sampling fraction for inner/outer MBTS and also for E4'
-    int    m_nPhElec;
-    int    m_nPhElecVec[7];
     int    m_ADCmax;
     int    m_ADCmaskValue;
     

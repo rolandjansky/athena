@@ -111,7 +111,6 @@ theJetRecJetRetriever.OtherJetCollections = []
 #theMissingETRetriever.OtherMissingETCollections = []
 
 ## ================== Edit: 25-02-2015 by sjiggins - Do not limit additional Track Collection ========================                  
-include ( "JiveXML/DataTypes_Trig.py" ) # 25-02-2015 Change made by sjiggins to allow doTriggers to float
 #include ("xAODJiveXML/xAODJiveXML_DataTypes.py") # 04-04/15 by sjiggins
 #### jpthomas 4Jun15: Added correct muon track collection, but still also retrieve MS-only too:
 ToolSvc.TrackRetriever.OtherTrackCollections = ["CombinedMuonTracks","MuonSpectrometerTracks"] 

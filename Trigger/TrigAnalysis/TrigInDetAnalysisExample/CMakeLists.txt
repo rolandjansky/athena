@@ -6,6 +6,8 @@ atlas_subdir( TrigInDetAnalysisExample )
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree Hist RIO )
 
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
+
 # Component(s) in the package:
 atlas_add_library( TrigInDetAnalysisExampleLib
                    src/*.cxx

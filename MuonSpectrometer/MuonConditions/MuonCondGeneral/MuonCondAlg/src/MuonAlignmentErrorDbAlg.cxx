@@ -1,21 +1,16 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondAlg/MuonAlignmentErrorDbAlg.h"
 
 MuonAlignmentErrorDbAlg::MuonAlignmentErrorDbAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-    AthAlgorithm(name, pSvcLocator), m_condSvc{"CondSvc", name} {}
+    AthAlgorithm(name, pSvcLocator) {}
 
 StatusCode MuonAlignmentErrorDbAlg::initialize() {
     ATH_MSG_DEBUG("initialize " << name());
-    ATH_CHECK(m_condSvc.retrieve());
     ATH_CHECK(m_readKey.initialize());
     ATH_CHECK(m_writeKey.initialize());
-    if (m_condSvc->regHandle(this, m_writeKey).isFailure()) {
-        ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
-        return StatusCode::FAILURE;
-    }
 
     return StatusCode::SUCCESS;
 }

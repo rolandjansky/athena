@@ -143,6 +143,11 @@ def DigitizationMainContentCfg(flags):
     if flags.Detector.EnablesTGC:
         acc.merge(sTGC_DigitizationDigitToRDOCfg(flags))
 
+    # Add MT-safe PerfMon
+    if flags.PerfMon.doFastMonMT or flags.PerfMon.doFullMonMT:
+        from PerfMonComps.PerfMonCompsConfig import PerfMonMTSvcCfg
+        acc.merge(PerfMonMTSvcCfg(flags))
+
     # Timing
     acc.merge(MergeRecoTimingObjCfg(flags))
 

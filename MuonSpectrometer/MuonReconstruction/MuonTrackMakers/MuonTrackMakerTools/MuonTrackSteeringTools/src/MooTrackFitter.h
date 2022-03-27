@@ -177,7 +177,7 @@ namespace Muon {
         double restrictedMomentum(double momentum) const;
 
         /** create perigee parameter to initialize fit */
-        Trk::Perigee* createPerigee(const EventContext& ctx, const Trk::TrackParameters& firstPars, const Trk::MeasurementBase& firstMeas) const;
+        std::unique_ptr<Trk::Perigee> createPerigee(const EventContext& ctx, const Trk::TrackParameters& firstPars, const Trk::MeasurementBase& firstMeas) const;
 
         /** fit track */
         std::unique_ptr<Trk::Track> fit(const EventContext& ctx, const Trk::Perigee& startPars, MeasVec& hits, GarbageContainer& garbage,
@@ -261,6 +261,8 @@ namespace Muon {
         void cleanSegment(const MuonSegment& seg, std::set<Identifier>& removedIdentifiers) const;
         void copyHitList(const MuPatHitList& hitList, MuPatHitList& copy, GarbageContainer& garbage) const;
 
+        std::pair<double, double> getElementHalfLengths(const Identifier& id, const Trk::TrkDetElementBase* ele) const;
+
         ToolHandle<Trk::IPropagator> m_propagator{this, "Propagator",
                                                   "Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"};  //!< propagator
         ToolHandle<Trk::ITrackFitter> m_trackFitter{this, "Fitter", "Trk::GlobalChi2Fitter/MCTBFitter"};   //!< fitter
@@ -331,9 +333,9 @@ namespace Muon {
         mutable std::atomic_uint m_nsuccess{0};
 
         struct StationPhiData {
-            unsigned int nphiHits;
-            unsigned int nSmallChambers;
-            unsigned int nLargeChambers;
+            unsigned int nphiHits{0};
+            unsigned int nSmallChambers{0};
+            unsigned int nLargeChambers{0};
         };
     };
 

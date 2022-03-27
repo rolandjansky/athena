@@ -59,6 +59,9 @@ namespace Analysis {
     ATH_CHECK( m_BTaggingCollectionName.initialize() );
     ATH_CHECK( m_jetBTaggingLinkName.initialize() );
     ATH_CHECK( m_bTagJetDecorLinkName.initialize() );
+    
+    ATH_CHECK( m_BTagSVFlipCollectionName.initialize(!m_BTagSVFlipCollectionName.empty()));
+    ATH_CHECK( m_BTagJFVtxFlipCollectionName.initialize(!m_BTagJFVtxFlipCollectionName.empty()));
 
 
     // this is a terrible, awful hack

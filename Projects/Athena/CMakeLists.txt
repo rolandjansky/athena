@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Set up the project.
 cmake_minimum_required( VERSION 3.10 )
@@ -53,9 +53,8 @@ mark_as_advanced( TDAQ-COMMON_ATROOT TDAQ_PROJECT_NAME
    TDAQ_ATROOT )
 
 # Configure flake8:
-set( ATLAS_FLAKE8 flake8_atlas --select ATL,F,E101,E7,E9,W6
-                               --ignore ATL238,ATL9,E701,E702,E704,E741
-                               --enable-extensions ATL902
+set( ATLAS_FLAKE8 flake8_atlas --select ATL,ATL902,F,E101,E7,E9,W6
+                               --ignore ATL9,E701,E702,E704,E741
    CACHE STRING "Default flake8 command" )
 set( ATLAS_PYTHON_CHECKER ${ATLAS_FLAKE8}
    CACHE STRING "Python checker command to run during Python module compilation" )

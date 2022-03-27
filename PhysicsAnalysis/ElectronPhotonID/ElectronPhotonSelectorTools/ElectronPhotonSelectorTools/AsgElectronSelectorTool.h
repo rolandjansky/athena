@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
@@ -55,7 +55,7 @@ public:
   }
 
   /** The main accept method: the actual cuts are applied here */
-  asg::AcceptData accept(const EventContext& ctx, const xAOD::Egamma* eg ) const override {
+  asg::AcceptData accept( const EventContext& ctx, const xAOD::Egamma* eg ) const override {
     return accept (ctx, eg, -99); // mu = -99 as input will force accept to grab the pileup variable from the xAOD object
   }
 
@@ -87,6 +87,10 @@ public:
   /** The main result method: the actual mva score is calculated here */
   double calculate( const EventContext &ctx, const xAOD::Egamma* eg, double mu ) const override;
 
+
+  /** The result method for multiple outputs: can return multiple outputs of the MVA */
+  std::vector<float> calculateMultipleOutputs( const EventContext &ctx, const xAOD::Electron *eg, double mu = -99) const override;
+
   virtual std::string getOperatingPointName() const override;
 
   // Private methods
@@ -98,21 +102,21 @@ private:
   bool isForwardElectron( const xAOD::Egamma* eg, const float eta ) const;
 
   /** Applies a logit transformation to the score returned by the underlying MVA tool*/
-  double transformMLOutput( double score ) const;
+  double transformMLOutput( float score ) const;
 
   /** Combines the six output nodes of a multiclass model into one discriminant. */
-  double combineOutputs(const Eigen::Matrix<float, -1, 1>& mvaScores, double eta) const;
+  double combineOutputs(const std::vector<float>& mvaScores, double eta) const;
 
   /** Gets the Discriminant Eta bin [0,s_fnDiscEtaBins-1] given the eta*/
-  unsigned int getDiscEtaBin( double eta ) const;
+  static unsigned int getDiscEtaBin( double eta ) ;
 
   /** Gets the Descriminant Et bin the et (MeV) [0,s_fnDiscEtBins-1]*/
-  unsigned int getDiscEtBin( double et ) const;
+  static unsigned int getDiscEtBin( double et ) ;
 
   // NOTE that this will only perform the cut interpolation up to ~45 GeV, so
   // no smoothing is done above this for the high ET MVA binning yet
   /** Interpolates cut values along pt*/
-  double interpolateCuts( const std::vector<double>& cuts, double et, double eta ) const;
+  static double interpolateCuts( const std::vector<double>& cuts, double et, double eta ) ;
 
 
 
@@ -174,6 +178,8 @@ private:
   /// The position of the MVA cut bit in the AcceptInfo return object
   int m_cutPosition_MVA{};
 
+  /// Default vector to return if calculation fails
+  std::vector<float> m_defaultVector;
 
   /// number of discrimintants vs Et
   static const unsigned int s_fnDiscEtBins = 10;

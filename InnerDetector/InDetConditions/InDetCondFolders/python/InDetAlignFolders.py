@@ -80,24 +80,71 @@ if DetFlags.TRT_on() and ((not DetFlags.simulate.TRT_on()) or DetFlags.overlay.T
         if "AthSimulation_DIR" not in os.environ: # Protection for AthSimulation builds
             condSeq += TRTAlignCondAlg
 
-if DetFlags.SCT_on() and ((not DetFlags.simulate.SCT_on()) or DetFlags.overlay.SCT_on()):
-    if not hasattr(condSeq, "SCT_AlignCondAlg"):
-        import os
-        if "AthSimulation_DIR" not in os.environ: # Protection for AthSimulation builds
-            from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_AlignCondAlg
-            condSeq += SCT_AlignCondAlg(name = "SCT_AlignCondAlg",
-                                        UseDynamicAlignFolders =  InDetGeometryFlags.useDynamicAlignFolders())
-            if not hasattr(condSeq, "SCT_DetectorElementCondAlg"):
-                from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DetectorElementCondAlg
-                condSeq += SCT_DetectorElementCondAlg(name = "SCT_DetectorElementCondAlg")
+AthSimBuild = False
+import os
+if "AthSimulation_DIR" in os.environ: # Protection for AthSimulation builds
+    AthSimBuild = True
 
-if DetFlags.pixel_on() and ((not DetFlags.simulate.pixel_on()) or DetFlags.overlay.pixel_on()):
+useMuonAlign = DetFlags.Muon_on() and not (DetFlags.simulate.Muon_on() or DetFlags.digitize.Muon_on() or DetFlags.overlay.Muon_on())
+#artificial dependencies of conditions in sync with PixelDetectorElementCondAlgCfg
+if useMuonAlign and not AthSimBuild:
+    #schedule MuonCondAlg needed for DetectorElementCondAlgs
+    from MuonRecExample import MuonAlignConfig  # noqa: F401
+
+SCTAlignmentStore=""
+PixelAlignmentStore = ""
+
+MuonManagerKey = "MuonDetectorManager" if useMuonAlign else ""
+TRT_DetEltContKey = "TRT_DetElementContainer" if DetFlags.TRT_on() else ""
+if DetFlags.SCT_on() and (not DetFlags.simulate.SCT_on()):
+    SCTAlignmentStore="SCTAlignmentStore"
+if DetFlags.pixel_on() and (not DetFlags.simulate.pixel_on()):
+    PixelAlignmentStore = "PixelAlignmentStore" 
+
+#schedule*Align booleans are used twice to add  AlignCondAlg and DetectorElementCondAlg
+#DetectorElementCondAlg depend on both Pixel and SCT AlignAlgs and have to be scheduled after
+schedulePixelAlign = False
+if DetFlags.pixel_on() and \
+   ((not DetFlags.simulate.pixel_on()) or DetFlags.overlay.pixel_on()) and \
+   not AthSimBuild:
+    schedulePixelAlign = True
+
+scheduleSCTAlign = False
+if DetFlags.SCT_on() and \
+   ((not DetFlags.simulate.SCT_on()) or DetFlags.overlay.SCT_on()) and \
+   not AthSimBuild:
+    scheduleSCTAlign = True
+    
+
+if schedulePixelAlign:
     if not hasattr(condSeq, "PixelAlignCondAlg"):
-        import os
-        if "AthSimulation_DIR" not in os.environ: # Protection for AthSimulation builds
-            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelAlignCondAlg
-            condSeq += PixelAlignCondAlg(name = "PixelAlignCondAlg",
-                                         UseDynamicAlignFolders =  InDetGeometryFlags.useDynamicAlignFolders())
-            if not hasattr(condSeq, "PixelDetectorElementCondAlg"):
-                from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDetectorElementCondAlg
-                condSeq += PixelDetectorElementCondAlg(name = "PixelDetectorElementCondAlg")
+            
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelAlignCondAlg
+        condSeq += PixelAlignCondAlg(name = "PixelAlignCondAlg",
+                                     UseDynamicAlignFolders =  InDetGeometryFlags.useDynamicAlignFolders())
+
+if scheduleSCTAlign:
+    if not hasattr(condSeq, "SCT_AlignCondAlg"):
+        from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_AlignCondAlg
+        condSeq += SCT_AlignCondAlg(name = "SCT_AlignCondAlg",
+                                    UseDynamicAlignFolders =  InDetGeometryFlags.useDynamicAlignFolders())
+
+if schedulePixelAlign:
+    if not hasattr(condSeq, "PixelDetectorElementCondAlg"):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDetectorElementCondAlg
+        condSeq += PixelDetectorElementCondAlg(name = "PixelDetectorElementCondAlg",
+                                               MuonManagerKey = MuonManagerKey,
+                                               TRT_DetEltContKey = TRT_DetEltContKey,
+                                               SCTAlignmentStore = SCTAlignmentStore)
+
+if scheduleSCTAlign:
+    if not hasattr(condSeq, "SCT_DetectorElementCondAlg"):
+        from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DetectorElementCondAlg
+        condSeq += SCT_DetectorElementCondAlg(name = "SCT_DetectorElementCondAlg",
+                                              MuonManagerKey = MuonManagerKey,
+                                              TRT_DetEltContKey = TRT_DetEltContKey,
+                                              PixelAlignmentStore = PixelAlignmentStore)
+
+
+
+

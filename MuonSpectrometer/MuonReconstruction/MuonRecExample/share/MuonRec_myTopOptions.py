@@ -51,17 +51,12 @@ rec.doTruth=True
 rec.doTrigger = False
 
 muonRecFlags.doStandalone.set_Value_and_Lock(True)
-muonRecFlags.doTrackPerformance    = True
+muonRecFlags.doTrackPerformance    = False
 muonRecFlags.TrackPerfSummaryLevel = 2
 muonRecFlags.TrackPerfDebugLevel   = 5
 muonRecFlags.doCSCs                = True
 muonRecFlags.doCalibNtuple = False # do not write calibration ntuples
 
-# flags to tweak standalone muon reconstruction
-if doMig5:
-    muonStandaloneFlags.doSegmentsOnly       = False
-    muonStandaloneFlags.patternsOnly         = False
-    muonStandaloneFlags.createTrackParticles = False
 
 muonStandaloneFlags.printSummary         = True
 muonCombinedRecFlags.doTrackPerformance  = True

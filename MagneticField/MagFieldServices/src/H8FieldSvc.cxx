@@ -12,7 +12,7 @@
 #include <fstream>
 
 // ISF_Services include
-#include "MagFieldServices/H8FieldSvc.h"
+#include "H8FieldSvc.h"
 
 // PathResolver
 #include "PathResolver/PathResolver.h"

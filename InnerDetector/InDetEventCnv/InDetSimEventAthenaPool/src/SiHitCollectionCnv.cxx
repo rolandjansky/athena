@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetSimEventTPCnv/InDetHits/SiHitCollectionCnv_p1.h"
@@ -29,7 +29,7 @@ SiHitCollection* SiHitCollectionCnv::createTransient() {
     static const pool::Guid   p3_guid("59E13FDA-2799-4362-8423-44D57F08734D");
     static const pool::Guid   old_guid("1EC39DA3-14F9-4901-88C7-F6909B064574");
 
-    SiHitCollection       *trans_cont(0);
+    SiHitCollection       *trans_cont(nullptr);
     if( this->compareClassGuid(p3_guid)) {
       std::unique_ptr< SiHitCollection_p3 >   col_vect( this->poolReadObject< SiHitCollection_p3 >() );
       trans_cont = converter_p3.createTransient( col_vect.get(), mlog );

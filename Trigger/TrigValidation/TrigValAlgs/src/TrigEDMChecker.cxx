@@ -18,6 +18,7 @@
 #include "TrigConfHLTUtils/HLTUtils.h"
 
 #include "AthContainers/debug.h"
+#include "CxxUtils/checker_macros.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetConstituentVector.h"
 #include "xAODTrigMissingET/TrigMissingETAuxContainer.h"
@@ -106,9 +107,7 @@
 #include <fstream>
 #include <queue>
 
-static  int trackWarningNum;
-static  int vertexWarningNum;
-static  int  maxRepWarnings;
+static const int maxRepWarnings = 5;
 
 
 TrigEDMChecker::TrigEDMChecker(const std::string& name, ISvcLocator* pSvcLocator)
@@ -222,13 +221,7 @@ StatusCode TrigEDMChecker::initialize() {
   ATH_MSG_INFO("REGTEST m_doDumpTrigCompsiteNavigation   = " << m_doDumpTrigCompsiteNavigation );
   ATH_MSG_INFO("REGTEST m_doTDTCheck                     = " << m_doTDTCheck );
 
-	
-//      puts this here for the moment
-    maxRepWarnings = 5;
 	ATH_MSG_INFO("maxRepWarning      = " <<  maxRepWarnings );
-
-	vertexWarningNum = 0;
-    trackWarningNum = 0;
 
 	if(m_doDumpxAODMuonContainer || m_doDumpAll) {
 	  StatusCode sc = m_muonPrinter.retrieve();
@@ -253,6 +246,22 @@ StatusCode TrigEDMChecker::initialize() {
 
 
 StatusCode TrigEDMChecker::execute() {
+
+  /* fwinkl, Mar 20222:
+     Some attempt was made to make the code pass the thread-checker. Methods that
+     are clearly not thread-safe (e.g. use of DataHandle) are marked as such. Calling
+     these methods from within execute would still trigger a thread-checker warning.
+     Since this algorithm is only ever used for validation and in single-threaded athena,
+     we suppress these warnings by the following assignment. This has the advantage
+     (as opposed to disabling the checking for the entire file) that new code is still
+     being checked and will hopefully be written in a thread-safe manner, i.e. using
+     ReadHandleKeys. If someone is very eager they could migrate all uses of DataHandles...
+  */
+  StatusCode sc ATLAS_THREAD_SAFE = do_execute();
+  return sc;
+}
+
+StatusCode TrigEDMChecker::do_execute ATLAS_NOT_THREAD_SAFE() {
 
   ATH_MSG_INFO( " ==========START of event===========" );
 
@@ -900,7 +909,7 @@ StatusCode TrigEDMChecker::dumpxAODTrigMissingET() {
 
 
 
-StatusCode TrigEDMChecker::dumpTrigMissingET() {
+StatusCode TrigEDMChecker::dumpTrigMissingET ATLAS_NOT_THREAD_SAFE() {
 
   ATH_MSG_DEBUG("in dumpTrigMissingET()");
 
@@ -1109,12 +1118,12 @@ StatusCode TrigEDMChecker::dumpTrackParticleContainer() {
 				}
 
 			} else {
-			  if(   trackWarningNum <= maxRepWarnings ) {
+			  if(   m_trackWarningNum <= maxRepWarnings ) {
 			    ATH_MSG_DEBUG(" No attached track");
-			    if(  trackWarningNum == maxRepWarnings) {
+			    if(  m_trackWarningNum == maxRepWarnings) {
 			      ATH_MSG_WARNING(" Max attached track warning reached, no further warnings given");
 			    }
-			    trackWarningNum++;
+			    m_trackWarningNum++;
 			  }
 			}
 
@@ -1126,12 +1135,12 @@ StatusCode TrigEDMChecker::dumpTrackParticleContainer() {
 				ATH_MSG_INFO(" vertex position (" << position[0] << ", " <<
                              position[1] << ", " << position[2] << ") ");
 			} else {
-			  if(   vertexWarningNum <= maxRepWarnings ) {
+			  if(   m_vertexWarningNum <= maxRepWarnings ) {
 			    ATH_MSG_DEBUG(" No attached vertex");
-			    if(  vertexWarningNum == maxRepWarnings) {
+			    if(  m_vertexWarningNum == maxRepWarnings) {
 			      ATH_MSG_WARNING(" Max attached vertex warning reached, no further warnings given");
 			    }
-			    vertexWarningNum++;
+			    m_vertexWarningNum++;
 			  }
 			}
 
@@ -1205,7 +1214,7 @@ StatusCode TrigEDMChecker::dumpLVL1_ROI() {
 
 //////////////////////////////////////////////////////////////////////////////////
 
-StatusCode TrigEDMChecker::dumpTrigPhotonContainer() {
+StatusCode TrigEDMChecker::dumpTrigPhotonContainer ATLAS_NOT_THREAD_SAFE() {
 
   ATH_MSG_DEBUG("in dumpTrigPhotonContainer()");
 
@@ -1292,7 +1301,7 @@ StatusCode TrigEDMChecker::dumpTrigPhotonContainer() {
 
 //////////////////////////////////////////////////////////////////////////////////
 
-StatusCode TrigEDMChecker::dumpTrigMuonEFContainer() {
+StatusCode TrigEDMChecker::dumpTrigMuonEFContainer ATLAS_NOT_THREAD_SAFE() {
 
   ATH_MSG_DEBUG("in dumpTrigMuonEFContainer()");
 
@@ -1362,7 +1371,7 @@ StatusCode TrigEDMChecker::dumpxAODMuonContainer() {
 
 //////////////////////////////////////////////////////////////////////////////////
 
-StatusCode TrigEDMChecker::dumpTrigMuonEFInfoContainer() {
+StatusCode TrigEDMChecker::dumpTrigMuonEFInfoContainer ATLAS_NOT_THREAD_SAFE() {
 
   ATH_MSG_DEBUG("in dumpTrigMuonEFInfoContainer()");
 
@@ -1455,7 +1464,7 @@ StatusCode TrigEDMChecker::dumpTrigMuonEFInfoContainer() {
 
 //////////////////////////////////////////////////////////////////////////////////
 
-StatusCode TrigEDMChecker::dumpTrigMuonEFIsolationContainer() {
+StatusCode TrigEDMChecker::dumpTrigMuonEFIsolationContainer ATLAS_NOT_THREAD_SAFE() {
 
   ATH_MSG_DEBUG("in dumpTrigMuonEFIsolationContainer()");
 
@@ -1573,7 +1582,7 @@ void TrigEDMChecker::printMuonTrk(const TrigMuonEFCbTrack* muonTrack) {
 
 //////////////////////////////////////////////////////////////////////////////////
 
-StatusCode TrigEDMChecker::dumpTrigElectronContainer() {
+StatusCode TrigEDMChecker::dumpTrigElectronContainer ATLAS_NOT_THREAD_SAFE() {
 
   ATH_MSG_DEBUG("in dumpTrigElectronContainer()");
 
@@ -1856,7 +1865,7 @@ StatusCode TrigEDMChecker::dumpxAODElectronContainer() {
           ATH_MSG_INFO(" REGTEST: problems with egamma cluster pointer" );
       }
       ATH_MSG_INFO("REGTEST: Check the original (uncalibrated)");
-      static SG::AuxElement::Accessor<ElementLink<xAOD::CaloClusterContainer> > orig ("originalCaloCluster");
+      static const SG::AuxElement::Accessor<ElementLink<xAOD::CaloClusterContainer> > orig ("originalCaloCluster");
       if (!orig.isAvailable(*eg->caloCluster()) || !orig(*eg->caloCluster()).isValid()){
           ATH_MSG_INFO("Problem with original cluster link");
       }
@@ -1967,7 +1976,7 @@ StatusCode TrigEDMChecker::dumpxAODPhotonContainer() {
           ATH_MSG_INFO(" REGTEST: problems with egamma cluster pointer" );
       }
       ATH_MSG_INFO("REGTEST: Check the original (uncalibrated)");
-      static SG::AuxElement::Accessor<ElementLink<xAOD::CaloClusterContainer> > orig ("originalCaloCluster");
+      static const SG::AuxElement::Accessor<ElementLink<xAOD::CaloClusterContainer> > orig ("originalCaloCluster");
       if (!orig.isAvailable(*eg->caloCluster()) || !orig(*eg->caloCluster()).isValid()){
           ATH_MSG_INFO("Problem with original cluster link");
       }
@@ -2010,7 +2019,7 @@ StatusCode TrigEDMChecker::dumpxAODPhotonContainer() {
 }
 //////////////////////////////////////////////////////////////////////////////////
 
-StatusCode TrigEDMChecker::dumpTrigTauContainer() {
+StatusCode TrigEDMChecker::dumpTrigTauContainer ATLAS_NOT_THREAD_SAFE() {
 
   ATH_MSG_DEBUG("in dumpTrigTauContainer()");
   ATH_MSG_INFO("REGTEST ==========START of TrigTauContainer DUMP===========");
@@ -2053,7 +2062,7 @@ StatusCode TrigEDMChecker::dumpTrigTauContainer() {
 }
 
 //////////////////////////////////////////////////////////////////////////////////
-StatusCode TrigEDMChecker::dumpTrigTauTracksInfo() {
+StatusCode TrigEDMChecker::dumpTrigTauTracksInfo ATLAS_NOT_THREAD_SAFE() {
 
   ATH_MSG_DEBUG("in dumpTrigTauTracksInfo()");
   ATH_MSG_INFO("REGTEST ==========START of TrigTauTracksInfo DUMP===========");
@@ -2275,7 +2284,7 @@ StatusCode TrigEDMChecker::dumpTrigInDetTrackCollection() {
 
 /////////////////////////////////////////////////////////////////////
 
-StatusCode TrigEDMChecker::dumpTrigVertexCollection() {
+StatusCode TrigEDMChecker::dumpTrigVertexCollection ATLAS_NOT_THREAD_SAFE() {
 
   ATH_MSG_DEBUG("in dumpTrigVertexCollection()");
   ATH_MSG_INFO("REGTEST ==========START of TrigVertexCollection DUMP===========");
@@ -2879,7 +2888,7 @@ StatusCode TrigEDMChecker::dumpxAODJetContainer() {
 
 //////////////////////////////////////////////////////////////////////////////////
 
-StatusCode TrigEDMChecker::dumpTrigEFBjetContainer() {
+StatusCode TrigEDMChecker::dumpTrigEFBjetContainer ATLAS_NOT_THREAD_SAFE() {
 
   ATH_MSG_DEBUG("in dumpTrigEFBjetContainer()");
   ATH_MSG_INFO("REGTEST ==========START of TrigEFBjetContainer DUMP===========");
@@ -2935,7 +2944,7 @@ StatusCode TrigEDMChecker::dumpTrigEFBjetContainer() {
 
 //////////////////////////////////////////////////////////////////////////////////
 
-StatusCode TrigEDMChecker::dumpTrigL2BjetContainer() {
+StatusCode TrigEDMChecker::dumpTrigL2BjetContainer ATLAS_NOT_THREAD_SAFE() {
 
   ATH_MSG_DEBUG("in dumpTrigL2BjetContainer()");
   ATH_MSG_INFO("REGTEST ==========START of TrigL2BjetContainer DUMP===========");
@@ -2988,7 +2997,7 @@ StatusCode TrigEDMChecker::dumpTrigL2BjetContainer() {
 
 //////////////////////////////////////////////////////////////////////////////////
 
-StatusCode TrigEDMChecker::dumpMuonFeature() {
+StatusCode TrigEDMChecker::dumpMuonFeature ATLAS_NOT_THREAD_SAFE() {
 
   ATH_MSG_DEBUG("in dumpMuonFeature()");
 
@@ -3030,7 +3039,7 @@ StatusCode TrigEDMChecker::dumpMuonFeature() {
 
 //////////////////////////////////////////////////////////////////////////////////
 
-StatusCode TrigEDMChecker::dumpCombinedMuonFeature() {
+StatusCode TrigEDMChecker::dumpCombinedMuonFeature ATLAS_NOT_THREAD_SAFE() {
 
   ATH_MSG_DEBUG("in dumpCombinedMuonFeature()");
 
@@ -3085,7 +3094,7 @@ StatusCode TrigEDMChecker::dumpCombinedMuonFeature() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigEDMChecker::dumpCombinedMuonFeatureContainer() {
+StatusCode TrigEDMChecker::dumpCombinedMuonFeatureContainer ATLAS_NOT_THREAD_SAFE() {
 
   ATH_MSG_DEBUG("in dumpCombinedMuonFeatureContainer()");
   ATH_MSG_INFO("REGTEST ==========START of CombinedMuonFeatureContainer DUMP===========");
@@ -3144,7 +3153,7 @@ StatusCode TrigEDMChecker::dumpCombinedMuonFeatureContainer() {
 
 //////////////////////////////////////////////////////////////////////////////////
 
-StatusCode TrigEDMChecker::dumpTrigEMCluster() {
+StatusCode TrigEDMChecker::dumpTrigEMCluster ATLAS_NOT_THREAD_SAFE() {
 
   ATH_MSG_DEBUG("in dumpTrigEMCluster()");
   ATH_MSG_INFO("REGTEST ==========START of TrigEMCluster DUMP===========");
@@ -3184,7 +3193,7 @@ StatusCode TrigEDMChecker::dumpTrigEMCluster() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigEDMChecker::dumpxAODTrigEMCluster() {
+StatusCode TrigEDMChecker::dumpxAODTrigEMCluster ATLAS_NOT_THREAD_SAFE() {
 
   ATH_MSG_DEBUG("in dumpxAODTrigEMCluster()");
 
@@ -3228,7 +3237,7 @@ StatusCode TrigEDMChecker::dumpxAODTrigEMCluster() {
 
 //////////////////////////////////////////////////////////////////////////////////
 
-StatusCode TrigEDMChecker::dumpTrigTauClusterContainer() {
+StatusCode TrigEDMChecker::dumpTrigTauClusterContainer ATLAS_NOT_THREAD_SAFE() {
 
   ATH_MSG_DEBUG("in dumpTrigTauClusterContainer()");
 
@@ -3336,7 +3345,7 @@ StatusCode TrigEDMChecker::dumpTrigTauClusterContainer() {
 
 //////////////////////////////////////////////////////////////////////////////////
 
-StatusCode TrigEDMChecker::dumpTrigEMClusterContainer() {
+StatusCode TrigEDMChecker::dumpTrigEMClusterContainer ATLAS_NOT_THREAD_SAFE() {
 
   ATH_MSG_DEBUG("in dumpTrigEMClusterContainer()");
 
@@ -3383,7 +3392,7 @@ StatusCode TrigEDMChecker::dumpTrigEMClusterContainer() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigEDMChecker::dumpxAODTrigEMClusterContainer() {
+StatusCode TrigEDMChecker::dumpxAODTrigEMClusterContainer ATLAS_NOT_THREAD_SAFE() {
 
   ATH_MSG_DEBUG("in dumpxAODTrigEMClusterContainer()");
 
@@ -3431,7 +3440,7 @@ StatusCode TrigEDMChecker::dumpxAODTrigEMClusterContainer() {
 
 //////////////////////////////////////////////////////////////////////////////////
 
-StatusCode TrigEDMChecker::dumpTileMuFeatureContainer() {
+StatusCode TrigEDMChecker::dumpTileMuFeatureContainer ATLAS_NOT_THREAD_SAFE() {
 
   ATH_MSG_DEBUG("in dumpTileMuFeatureContainer()");
   ATH_MSG_INFO("REGTEST ==========START of TileMuFeatureContainer DUMP===========");
@@ -3472,7 +3481,7 @@ StatusCode TrigEDMChecker::dumpTileMuFeatureContainer() {
 
 //////////////////////////////////////////////////////////////////////////////////
 
-StatusCode TrigEDMChecker::dumpTileTrackMuFeatureContainer() {  
+StatusCode TrigEDMChecker::dumpTileTrackMuFeatureContainer ATLAS_NOT_THREAD_SAFE() {
 
   ATH_MSG_DEBUG("in dumpTileTrackMuFeatureContainer()");
   ATH_MSG_INFO("REGTEST ==========START of TileTrackMuFeatureContainer DUMP===========");
@@ -3550,7 +3559,7 @@ StatusCode TrigEDMChecker::dumpTileTrackMuFeatureContainer() {
 }
 
 /////////////////////////////////////////////////
-StatusCode TrigEDMChecker::dumpxAODTauJetContainer() {
+StatusCode TrigEDMChecker::dumpxAODTauJetContainer ATLAS_NOT_THREAD_SAFE() {
 
   ATH_MSG_DEBUG("In dumpxAODTauJetContainer");
   ATH_MSG_INFO( "REGTEST ==========START of xAOD::TauJetContainer DUMP===========" );
@@ -3703,7 +3712,7 @@ StatusCode TrigEDMChecker::dumpxAODTauJetContainer() {
 
 /////////////////////////////////////////////////////////////////////////////////
 
-StatusCode TrigEDMChecker::dumpTauJetContainer() {
+StatusCode TrigEDMChecker::dumpTauJetContainer ATLAS_NOT_THREAD_SAFE() {
 
   ATH_MSG_INFO("REGTEST ==========START of TauJetContainer DUMP===========");
 

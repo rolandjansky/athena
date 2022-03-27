@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file CxxUtils/FPControl.h
@@ -34,7 +34,7 @@ namespace CxxUtils {
  *      ... division by zero exception is now disabled.
  *  }
  *  // Previous exception setting is restored.
- *  // The flag saying whether a div-by-zero exception occured
+ *  // The flag saying whether a div-by-zero exception occurred
  *  // will be left cleared.
  */
 class FPControl

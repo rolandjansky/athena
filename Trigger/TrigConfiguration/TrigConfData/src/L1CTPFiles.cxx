@@ -29,6 +29,7 @@ TrigConf::L1CTPFiles::print() const
    std::cout << "CTP Files (" << (m_hasCompleteCtpData? "complete" : "incomplete") << ")" << std::endl;
    std::cout << "   LUT: " << m_Ctpcore_LUT.size() << std::endl;
    std::cout << "   CAM: " << m_Ctpcore_CAM.size() << std::endl;
+   std::cout << "   SMX: " << m_Ctpcore_SMX.size() << std::endl;
    std::cout << "   CTPIN Mon Sel 7: " << m_Ctpin_MonSelector_Slot7.size() << std::endl;
    std::cout << "   CTPIN Mon Sel 8: " << m_Ctpin_MonSelector_Slot8.size() << std::endl;
    std::cout << "   CTPIN Mon Sel 9: " << m_Ctpin_MonSelector_Slot9.size() << std::endl;
@@ -94,6 +95,11 @@ TrigConf::L1CTPFiles::ctpcore_LUT() const {
 const std::vector<uint32_t> &
 TrigConf::L1CTPFiles::ctpcore_CAM() const {
    return m_Ctpcore_CAM;
+}
+
+const std::vector<uint32_t> &
+TrigConf::L1CTPFiles::ctpcore_SMX() const {
+   return m_Ctpcore_SMX;
 }
 
 const std::vector<uint32_t> &
@@ -242,6 +248,11 @@ TrigConf::L1CTPFiles::set_Ctpcore_CAM(std::vector<uint32_t> data) {
 }
 
 void
+TrigConf::L1CTPFiles::set_Ctpcore_SMX(std::vector<uint32_t> data) {
+   m_Ctpcore_SMX = std::move(data);
+}
+
+void
 TrigConf::L1CTPFiles::set_Ctpin_MonSelector_Slot7(std::vector<uint32_t> data) {
    m_Ctpin_MonSelector_Slot7 = std::move(data);
 }
@@ -349,4 +360,9 @@ TrigConf::L1CTPFiles::set_Tmc_CtpinCounters(std::map<std::string, size_t> data) 
 void
 TrigConf::L1CTPFiles::set_Tmc_CtpmonCounters(std::map<std::string, size_t> data) {
    m_Tmc_CtpmonCounters = std::move(data);
+}
+
+void
+TrigConf::L1CTPFiles::set_Tmc_Data(DataStructure data) {
+   m_Tmc = std::move(data);
 }

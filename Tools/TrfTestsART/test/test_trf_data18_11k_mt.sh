@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# art-description: Reco_tf.py q431 RAWtoALL in MT mode with 11k data18 input
+# art-description: Reco_tf.py RAWtoALL in MT mode with 11k data18 input
 # art-type: grid
 # art-include: master/Athena
 # art-include: 22.0-mc20/Athena

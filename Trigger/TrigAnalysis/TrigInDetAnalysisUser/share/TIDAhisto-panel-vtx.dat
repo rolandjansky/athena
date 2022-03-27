@@ -14,7 +14,7 @@ vtx_eff_panel = {
 
   "ntrax",        "Number of tracks",    "xaxis:lin:auto",              "Offline track multiplcicty",    "yaxis:log:autow",          "Entries"  ,
   "zed",          "Vertex z position",   "xaxis:lin:auto:-175:175",     "Offline vertex z [mm]",         "yaxis:log:auto",           "Entries"  ,
-  "mu",            "mu",                 "xaxis:lin:auto",              "pileup <#mu>",                  "yaxis:log:auto",           "Entries"	
+  "mu",            "mu",                 "xaxis:lin:auto",              "pileup <#mu>",                  "yaxis:lin:auto",           "Entries"	
 
 };
 

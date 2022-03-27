@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_DetDescrDB_ParameterInterface.h"
@@ -15,7 +15,7 @@
 
 //_________________________________________________________________________________________
 TRT_DetDescrDB_ParameterInterface::TRT_DetDescrDB_ParameterInterface(InDetDD::AthenaComps * athenaComps) :
-  TRTParameterInterface(),  m_athenaComps(athenaComps), m_distortedMatManager(0), m_placements(0)
+  TRTParameterInterface(),  m_athenaComps(athenaComps), m_distortedMatManager(nullptr), m_placements(nullptr)
 { SetValues(); }
 
 //_________________________________________________________________________________________
@@ -66,8 +66,8 @@ void TRT_DetDescrDB_ParameterInterface::SetValues() {
  
   // Get tag key and corresponding node 
   DecodeVersionKey versionKey(m_athenaComps->geoDbTagSvc(),"TRT");
-  std::string detectorKey  = versionKey.tag();
-  std::string detectorNode = versionKey.node();
+  const std::string& detectorKey  = versionKey.tag();
+  const std::string& detectorNode = versionKey.node();
 
   // Get version tag and node for InnerDetector.
   DecodeVersionKey indetVersionKey(m_athenaComps->geoDbTagSvc(),"InnerDetector");

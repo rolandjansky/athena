@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "JetRecTools/ChargedHadronSubtractionTool.h"
 #include "AsgDataHandles/ReadHandle.h"
@@ -7,22 +7,8 @@
 using namespace std;
 
 ChargedHadronSubtractionTool::ChargedHadronSubtractionTool(const std::string& name) : JetConstituentModifierBase(name)
-{
+{}
 
-  declareProperty("UseTrackToVertexTool", m_useTrackToVertexTool=false, "True if we will use the track to vertex tool");
-
-  declareProperty("TrackVertexAssociation", 
-                  m_trkVtxAssoc_key="JetTrackVtxAssoc",
-                  "Datahandle key for the TrackVertexAssociation object");
-  declareProperty("VertexContainerKey", 
-                  m_vertexContainer_key="PrimaryVertices",
-                  "Datahandle key for the primary vertex container");
-
-  declareProperty("IgnoreVertex", m_ignoreVertex=false, "Dummy option for cosmics - accept everything");
-
-  declareProperty("Z0sinThetaCutValue", m_z0sinThetaCutValue=2.0, "True if we will use the track to vertex tool");
-
-}
 
 StatusCode ChargedHadronSubtractionTool::initialize() {
   if(m_inputType!=xAOD::Type::ParticleFlow && m_inputType!=xAOD::Type::FlowElement) {
@@ -30,15 +16,13 @@ StatusCode ChargedHadronSubtractionTool::initialize() {
                   << m_inputType);
     return StatusCode::FAILURE;
   }
-  // Only initialise the DataHandle we will use, to avoid superfluous dependencies
-  if(m_useTrackToVertexTool && !m_ignoreVertex) {
-    ATH_CHECK( m_trkVtxAssoc_key.initialize() );
-  } else {
-    ATH_CHECK( m_vertexContainer_key.initialize() );
-  }
+
+  ATH_CHECK( m_trkVtxAssoc_key.initialize(m_useTrackToVertexTool && !m_ignoreVertex) );
+  ATH_CHECK( m_vertexContainer_key.initialize(!(m_useTrackToVertexTool && !m_ignoreVertex)) );
 
   return StatusCode::SUCCESS;
 }
+
 
 StatusCode ChargedHadronSubtractionTool::process_impl(xAOD::IParticleContainer* cont) const {
   

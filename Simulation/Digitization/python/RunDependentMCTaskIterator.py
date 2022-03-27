@@ -63,11 +63,12 @@ def getRandomlySampledRunLumiInfoFragment(jobnumber,task,maxEvents,totalEvents,s
             'run': t['run'],
             'lb': t['lb'],
             'starttstamp': t['starttstamp'],
-            'dt': t['dt'],
             'evts': 1,
             'mu': t['mu'],
-            'force_new': t['force_new']
         }
+
+        if 'force_new' in t:
+            item['force_new'] = t['force_new']
 
         if sequentialEventNumbers:
             item['evt_nbr'] = evt_nbr
@@ -172,10 +173,8 @@ def defineSequentialEventNumbers(jobnumber,fragment,totalEvents,skipEvents):
                 'run': t['run'],
                 'lb': t['lb'],
                 'starttstamp': t['starttstamp'],
-                'dt': t['dt'],
                 'evts': 1,
                 'evt_nbr': evt_nbr,
                 'mu': t['mu'],
-                'force_new': t['force_new']
             })
     return new_frag

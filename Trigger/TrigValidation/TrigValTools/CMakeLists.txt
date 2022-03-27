@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigValTools )
@@ -32,10 +32,8 @@ atlas_add_test( TrigValSteering_unit_test
                 POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( rootcomp
-                SCRIPT test/test_rootcomp.sh ${CMAKE_CURRENT_SOURCE_DIR}/test/test_rootcomp.C
-                PROPERTIES TIMEOUT 450
+                SCRIPT test/test_rootcomp.sh ${CMAKE_CURRENT_SOURCE_DIR}/test/test_rootcomp.py
                 POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( chainDump
-                SCRIPT test/test_chainDump.sh ${CMAKE_CURRENT_SOURCE_DIR}/test/test_chainDump.C
-                LOG_IGNORE_PATTERN "Processing.*test_chainDump" )
+                SCRIPT test/test_chainDump.sh ${CMAKE_CURRENT_SOURCE_DIR}/test/test_chainDump.py )

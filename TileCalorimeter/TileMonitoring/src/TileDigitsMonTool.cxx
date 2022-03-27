@@ -12,7 +12,7 @@
 //
 // ********************************************************************
 
-#include "TileMonitoring/TileDigitsMonTool.h"
+#include "TileDigitsMonTool.h"
 
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileEvent/TileRawChannelContainer.h"

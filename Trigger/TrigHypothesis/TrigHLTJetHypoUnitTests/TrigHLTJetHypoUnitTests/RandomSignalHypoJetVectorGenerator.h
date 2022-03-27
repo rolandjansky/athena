@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGHLTJETHYPOUNITTESTS_RandomSignalHypoJetVectorGenerator_H
@@ -9,6 +9,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "./RandUint.h"
 #include "./RandDouble.h"
+#include <random>
 
 
 class RandomSignalHypoJetVectorGenerator: public extends<AthAlgTool,
@@ -61,6 +62,7 @@ class RandomSignalHypoJetVectorGenerator: public extends<AthAlgTool,
     m_useEtaEtNotEtaE{this, "useEtaEtNotEtaE", true, "e values or et values "};
 
 
+  std::default_random_engine m_shuffle_re;
   RandUint m_randNSig;
   RandDouble m_randEtaSig;
   RandDouble m_randEnSig;
