@@ -1,9 +1,9 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-def BTagHighLevelAugmenterAlgCfg(ConfigFlags, JetCollection, BTagCollection, Associator,  TrackCollection, doFlipTagger=False):
+def BTagJetAugmenterAlgCfg(ConfigFlags, BTagCollection, Associator,  TrackCollection, doFlipTagger=False):
 
     name = (BTagCollection + 'augment').lower()
     flip_config = 'FLIP_SIGN' if doFlipTagger else 'STANDARD'
