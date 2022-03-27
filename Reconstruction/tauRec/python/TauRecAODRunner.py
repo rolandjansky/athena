@@ -15,7 +15,7 @@ from .TauRecAODRunConfigured import TauRecAODRunConfigured
 
 ################################################################################
 # @class TauRecAODRunner
-# Build proper tau candidates and associate tracks, vertex and cells
+# Build proper tau candidates and associate tracks and vertex
 ################################################################################
 
 

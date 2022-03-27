@@ -24,10 +24,10 @@
 
 /**
  * 	@brief	The implementation of the TauAODRunnerAlg, which is meant to run at AOD level.
- *	This algorithm read in the AOD tauJets and TauTracks containers, as well as other tau 
+ *	This algorithm reads in the AOD TauJets and TauTracks containers, as well as other tau 
  *	related containers, and make deep copies. The tools scheduled for this algorithm were 
  *	divided into two categories, modification tools and official tools after the 
- *	modification. The algorithm do not proceed to the official tools if the tau object was 
+ *	modification. The algorithm does not proceed to the official tools if the tau object was 
  *	not modified by the modification tools. The example python scheduling scripts can be 
  *	found in the TauRec package.
  */
@@ -43,9 +43,9 @@ class TauAODRunnerAlg: public AthAlgorithm {
 		ToolHandleArray<ITauToolBase>  m_modificationTools{this, "modificationTools", {}, "Tools for modifying the taus"};
 		ToolHandleArray<ITauToolBase>  m_officialTools	  {this, "officialTools",     {}, "Official Reconstruction tools for taus after the modifications"};
 		//Read and write keys
-		SG::ReadHandleKey<xAOD::TauJetContainer>        m_tauContainer              {this,"Key_tauContainer",                   "TauJets",                      "input tau key"};
-		SG::ReadHandleKey<xAOD::CaloClusterContainer>   m_pi0ClusterInputContainer  {this,"Key_Pi0ClusterInputContainer",       "TauPi0Clusters",               "input pi0 cluster"};
-		SG::ReadHandleKey<xAOD::TauTrackContainer>      m_tauTrackInputContainer    {this,"Key_TauTrackInputContainer",         "TauTracks",                    "input tau track cluster"};
+		SG::ReadHandleKey<xAOD::TauJetContainer>        m_tauContainer              {this, "Key_tauContainer",                  "TauJets",                      "input tau key"};
+		SG::ReadHandleKey<xAOD::CaloClusterContainer>   m_pi0ClusterInputContainer  {this, "Key_pi0ClusterInputContainer",      "TauPi0Clusters",               "input pi0 cluster"};
+		SG::ReadHandleKey<xAOD::TauTrackContainer>      m_tauTrackInputContainer    {this, "Key_tauTrackInputContainer",        "TauTracks",                    "input tau track cluster"};
 		SG::WriteHandleKey<xAOD::TauJetContainer>       m_tauOutContainer           {this, "Key_tauOutputContainer",            "TauJets_AODReco",              "output tau key"};
 		SG::WriteHandleKey<xAOD::ParticleContainer>     m_pi0Container              {this, "Key_pi0OutputContainer",            "TauFinalPi0s_AODReco",         "output tau final pi0 key"};
 		SG::WriteHandleKey<xAOD::PFOContainer>          m_neutralPFOOutputContainer {this, "Key_neutralPFOOutputContainer",     "TauNeutralPFOs_AODReco",       "output tau neutral pfo key"};

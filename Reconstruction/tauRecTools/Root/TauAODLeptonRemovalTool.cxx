@@ -7,9 +7,9 @@
 TauAODLeptonRemovalTool::TauAODLeptonRemovalTool(const std::string& name):
 	TauRecToolBase(name) {
 	declareProperty("doMuonTrkRm",          m_doMuonTrkRm        = false,                 "Whether to remove the muon tracks from the tau candidate");
-	declareProperty("doElecTrkRm",          m_doElecTrkRm        = false,                 "Whether to remove the muon clusters from the tau candidate");
-	declareProperty("doMuonClsRm",          m_doMuonClsRm        = false,                 "Whether to remove the electrons tracks from the tau candidate");
-	declareProperty("doElecClsRm",          m_doElecClsRm        = false,                 "Whether to remove the electrons clusters from the tau candidate");
+	declareProperty("doElecTrkRm",          m_doElecTrkRm        = false,                 "Whether to remove the electron tracks from the tau candidate");
+	declareProperty("doMuonClsRm",          m_doMuonClsRm        = false,                 "Whether to remove the muon clusters from the tau candidate");
+	declareProperty("doElecClsRm",          m_doElecClsRm        = false,                 "Whether to remove the electron clusters from the tau candidate");
 	declareProperty("elecIDWP",             m_strMinElecIdWp     = "Medium",              "minimum electron identification WP, [VeryLoose, Loose, Medium, Tight]");
 	declareProperty("muonIDWP",             m_strMinMuonIdWp     = "Medium",              "minimum muon identification WP, [VeryLoose, Loose, Medium, Tight]");
 	declareProperty("eleIDWPPrefix",        m_strElecIdWpPrefix  = "DFCommonElectronsLH", "The prefix of the electron ID WP, leave to default if in confusion");
@@ -84,19 +84,19 @@ StatusCode TauAODLeptonRemovalTool::execute(xAOD::TauJet& tau) const {
 	//notify the runner alg that the tau was modified
 	if (!acc_removed_elecs(tau).empty() || !acc_removed_muons(tau).empty())
 	{
-		const SG::AuxElement::Accessor<bool> acc_modified("ModifiedInAOD");
-		acc_modified(tau) = true;
+		const SG::AuxElement::Accessor<char> acc_modified("ModifiedInAOD");
+		acc_modified(tau) = static_cast<char>(true);
 	}
 	return StatusCode::SUCCESS;
 }
 
 //helpers
 std::vector<const xAOD::CaloCluster*> TauAODLeptonRemovalTool::getOrignalTopoClusters(const xAOD::CaloCluster *cluster) const {
-	static const SG::AuxElement::Accessor<std::vector<ElementLink<xAOD::CaloClusterContainer>>> orig("constituentClusterLinks");
+	static const SG::AuxElement::Accessor<std::vector<ElementLink<xAOD::CaloClusterContainer>>> acc_origClusterLinks("constituentClusterLinks");
 	std::vector< const xAOD::CaloCluster* > orig_cls;
-	if(orig.isAvailable(*cluster)) {
-		auto links = orig(*cluster);
-		for (auto link : links) {
+	if(acc_origClusterLinks.isAvailable(*cluster)) {
+		auto links = acc_origClusterLinks(*cluster);
+		for (const auto &link : links) {
 			if (link.dataID() != "CaloCalTopoClusters")
 				ATH_MSG_WARNING("the clusters in the lepton cannot be converted to CaloCalTopoClusters, the ID is " << link.dataID());
 			if (link.isValid())
@@ -107,10 +107,10 @@ std::vector<const xAOD::CaloCluster*> TauAODLeptonRemovalTool::getOrignalTopoClu
 }
 
 const xAOD::TrackParticle* TauAODLeptonRemovalTool::getOrignalTrackParticle(const xAOD::TrackParticle* trk) const {
-	static const SG::AuxElement::Accessor<ElementLink<xAOD::TrackParticleContainer>> orig ("originalTrackParticle");
+	static const SG::AuxElement::Accessor<ElementLink<xAOD::TrackParticleContainer>> acc_origTracks ("originalTrackParticle");
 	const xAOD::TrackParticle* orig_trk = nullptr;
-	if(orig.isAvailable(*trk)) {
-		if (auto orig_link = orig(*trk); orig_link.isValid()) {
+	if(acc_origTracks.isAvailable(*trk)) {
+		if (const auto & orig_link = acc_origTracks(*trk); orig_link.isValid()) {
 			if (orig_link.dataID() != "InDetTrackParticles")
 				ATH_MSG_WARNING("the tracks in the lepton cannot be converted to InDetTrackParticles, the ID is " << orig_link.dataID());
 			orig_trk = *orig_link;
@@ -125,7 +125,7 @@ std::vector<std::pair<const xAOD::TrackParticle*, const xAOD::Electron*>> TauAOD
 		[&](auto elec) -> void {
 			if(tau.p4().DeltaR(elec->p4()) < m_lepRemovalConeSize && elec->passSelection(m_elecWpStr)) {
 				auto elec_ID_tracks_links = elec->trackParticleLinks();
-				for (auto elec_ID_tracks_link : elec_ID_tracks_links) {
+				for (const auto &elec_ID_tracks_link : elec_ID_tracks_links) {
 					if (elec_ID_tracks_link.isValid()) {
 						if(auto orig_ele_trk = getOrignalTrackParticle(*elec_ID_tracks_link); orig_ele_trk)
 							ret.push_back(std::make_pair(orig_ele_trk, elec));
@@ -143,7 +143,7 @@ std::vector<std::pair<const xAOD::CaloCluster*, const xAOD::Electron*>> TauAODLe
 		[&](auto elec) -> void {
 			if(tau.p4().DeltaR(elec->p4()) < m_lepRemovalConeSize && elec->passSelection(m_elecWpStr)) {
 				auto elec_cluster_links = elec->caloClusterLinks();
-				for (auto elec_cluster_link : elec_cluster_links) {
+				for (const auto & elec_cluster_link : elec_cluster_links) {
 					if (elec_cluster_link.isValid()) {
 						auto orig_elec_clusters = std::move(getOrignalTopoClusters(*elec_cluster_link));
 						for (auto cluster : orig_elec_clusters){
@@ -162,7 +162,7 @@ std::vector<std::pair<const xAOD::TrackParticle*, const xAOD::Muon*>> TauAODLept
 	std::for_each(muon_container.cbegin(), muon_container.cend(),
 		[&](auto muon) -> void {
 			if(tau.p4().DeltaR(muon->p4()) < m_lepRemovalConeSize && muon->quality() <= m_muonWpUi) {
-				if(auto muon_ID_tracks_link = muon->inDetTrackParticleLink();  muon_ID_tracks_link.isValid())
+				if(const auto & muon_ID_tracks_link = muon->inDetTrackParticleLink();  muon_ID_tracks_link.isValid())
 					ret.push_back(std::make_pair(std::move(*muon_ID_tracks_link), muon));
 			}
 		}
@@ -175,10 +175,10 @@ std::vector<std::pair<const xAOD::CaloCluster*, const xAOD::Muon*>> TauAODLepton
 	std::for_each(muon_container.cbegin(), muon_container.cend(),
 		[&](auto muon) -> void {
 			if(tau.p4().DeltaR(muon->p4()) < m_lepRemovalConeSize && muon->quality() <= m_muonWpUi) {
-				if(auto muon_cluster_link = muon->clusterLink();  muon_cluster_link.isValid()) {
+				if(const auto & muon_cluster_link = muon->clusterLink();  muon_cluster_link.isValid()) {
 					auto muon_cluster = std::move(*muon_cluster_link);
 					auto muon_e = muon->e();
-					auto loss_e = muon->floatParameter(xAOD::Muon::EnergyLoss);
+					auto loss_e = muon->floatParameter(xAOD::Muon::ParamEnergyLoss);
 					auto cls_e = muon_cluster->e();
 					auto loss_diff = ((cls_e - loss_e) / (cls_e + loss_e));
 					if (muon_e > cls_e && loss_diff < 0.1 && loss_diff > -0.3) {

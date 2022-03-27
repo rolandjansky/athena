@@ -705,8 +705,8 @@ def getTauAODMuonRemovalTool():
     from tauRecTools.tauRecToolsConf import TauAODLeptonRemovalTool
     myMuonRemoval = TauAODLeptonRemovalTool(    name                   = _name,
                                                 Key_MuonInputContainer = 'Muons',
-                                                doMuonTrkRm            = True,
-                                                doMuonClsRm            = True,
+                                                doMuonTrkRm            = tauFlags.doAODMuonRemoval(),
+                                                doMuonClsRm            = tauFlags.doAODMuonRemoval(),
                                                 muonIDWP               = 'Medium'
     )
     return myMuonRemoval
@@ -719,8 +719,8 @@ def getTauAODElecRemovalTool():
     from tauRecTools.tauRecToolsConf import TauAODLeptonRemovalTool
     myElecRemoval = TauAODLeptonRemovalTool(    name                   = _name,
                                                 Key_ElecInputContainer = 'Electrons',
-                                                doElecTrkRm            = True,
-                                                doElecClsRm            = True,
+                                                doElecTrkRm            = tauFlags.doAODElecRemoval(),
+                                                doElecClsRm            = tauFlags.doAODElecRemoval(),
                                                 elecIDWP               = 'Medium'
     )
     return myElecRemoval

@@ -25,7 +25,6 @@ StatusCode MvaTESVariableDecorator::initialize() {
   ATH_CHECK(m_aveIntPerXKey.initialize());
   ATH_CHECK(m_vertexContainerKey.initialize(SG::AllowEmpty));
   ATH_CHECK(m_eventShapeKey.initialize(SG::AllowEmpty));
-  
   return StatusCode::SUCCESS;
 }
 
@@ -61,19 +60,17 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) const {
     static const SG::AuxElement::Accessor<int> acc_nVtxPU("nVtxPU");
     acc_nVtxPU(xTau) = nVtxPU;
   }
-  if (!inAOD()){
-    if(!m_eventShapeKey.empty()) {
-      double rho = 0.;
-      SG::ReadHandle<xAOD::EventShape> eventShape(m_eventShapeKey);
-      if(!eventShape.isValid()) {    
-        ATH_MSG_WARNING ("Could not retrieve EventShape with key " << m_eventShapeKey );
-      }
-      else if (!eventShape->getDensity(xAOD::EventShape::Density, rho)) {
-        ATH_MSG_WARNING ("Could not retrieve rho.");
-      }
-      static const SG::AuxElement::Accessor<float> acc_rho("rho");
-      acc_rho(xTau) = (float)rho;
+  if(!m_eventShapeKey.empty()) {
+    double rho = 0.;
+    SG::ReadHandle<xAOD::EventShape> eventShape(m_eventShapeKey);
+    if(!eventShape.isValid()) {    
+      ATH_MSG_WARNING ("Could not retrieve EventShape with key " << m_eventShapeKey );
     }
+    else if (!eventShape->getDensity(xAOD::EventShape::Density, rho)) {
+      ATH_MSG_WARNING ("Could not retrieve rho.");
+    }
+    static const SG::AuxElement::Accessor<float> acc_rho("rho");
+    acc_rho(xTau) = (float)rho;
   }
 
   double center_lambda=0.       , first_eng_dens=0.      , em_probability=0.      , second_lambda=0.      ;

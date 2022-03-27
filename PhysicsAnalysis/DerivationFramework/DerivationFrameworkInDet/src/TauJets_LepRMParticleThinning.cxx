@@ -102,10 +102,11 @@ StatusCode DerivationFramework::TauJets_LepRMParticleThinning::doThinning() cons
 
     //Thin tauJets_LepRM
     std::vector<int> tau_kine_mask =  m_parser->evaluateAsVector();
-    std::vector<bool> tau_lep_remove_mask(OriTaus->size(),false);
-    std::transform(OriTaus->cbegin(), OriTaus->cend(), LepRMTaus->cbegin(), tau_lep_remove_mask.begin(), 
-        [](auto oritau, auto lep_removetau) -> bool {
-            return oritau->nAllTracks() != lep_removetau->nAllTracks() || oritau->nClusters() != lep_removetau->nClusters();
+    std::vector<bool> tau_lep_remove_mask(OriTaus->size(), false);
+    static const SG::AuxElement::Accessor<char> acc_modified("ModifiedInAOD");
+    std::transform(LepRMTaus->cbegin(), LepRMTaus->cend(), tau_lep_remove_mask.begin(), 
+        [&](auto lep_remove_tau) -> bool {
+            return static_cast<bool>(acc_modified(*lep_remove_tau));
         }
     );
     std::vector<bool> tau_mask(OriTaus->size(),false);

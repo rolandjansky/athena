@@ -38,14 +38,14 @@ StatusCode TauAODRunnerAlg::initialize() {
 
 	ATH_MSG_INFO("List of modification tools in execution sequence:");
 	ATH_MSG_INFO("------------------------------------");
-	unsigned int tool_count = 0;
-	for (ToolHandle<ITauToolBase> &tool : m_modificationTools) {
+	uint tool_count = 0;
+	for (const auto &tool : m_modificationTools) {
 		++tool_count;
 		ATH_MSG_INFO(tool->type() << " - " << tool->name());
 	}
 	ATH_MSG_INFO("List of official tools in execution sequence:");
 	ATH_MSG_INFO("------------------------------------");
-	for (ToolHandle<ITauToolBase> &tool : m_officialTools) {
+	for (const auto &tool : m_officialTools) {
 		++tool_count;
 		ATH_MSG_INFO(tool->type() << " - " << tool->name());
 	}
@@ -65,16 +65,7 @@ StatusCode TauAODRunnerAlg::execute() {
 		return StatusCode::FAILURE;
 	}
 	const xAOD::TauJetContainer *pTauContainer = tauInputHandle.cptr();
-	// Write the output tau jets, which is a deep copy of the input ones
-	SG::WriteHandle<xAOD::TauJetContainer> outputTauHandle(m_tauOutContainer);
-	ATH_CHECK(outputTauHandle.record(std::make_unique<xAOD::TauJetContainer>(), std::make_unique<xAOD::TauJetAuxContainer>()));
-	xAOD::TauJetContainer *newTauCon = outputTauHandle.ptr();
-	for (const xAOD::TauJet *tau : *pTauContainer) {
-		xAOD::TauJet *newTau = new xAOD::TauJet();
-		newTauCon->push_back(newTau);
-		*newTau = *tau;
-	}
-	// READ IN THE official TauTrack container
+	// read in the TauTrack container
 	SG::ReadHandle<xAOD::TauTrackContainer> tauTrackInputHandle(m_tauTrackInputContainer);
 	if (!tauTrackInputHandle.isValid()) {
 		ATH_MSG_ERROR("Could not retrieve HiveDataObj with key " << tauTrackInputHandle.key());
@@ -90,18 +81,25 @@ StatusCode TauAODRunnerAlg::execute() {
 		newTauTrkCon->push_back(newTauTrk);
 		*newTauTrk = *tauTrk;
 	}
-	//relink the tautrack to the taujet
-	for (xAOD::TauJet *newTau : *newTauCon) {
+	// Write the output tau jets, which is a deep copy of the input ones
+	// And do the TauTrack relinking at the same time.
+	SG::WriteHandle<xAOD::TauJetContainer> outputTauHandle(m_tauOutContainer);
+	ATH_CHECK(outputTauHandle.record(std::make_unique<xAOD::TauJetContainer>(), std::make_unique<xAOD::TauJetAuxContainer>()));
+	xAOD::TauJetContainer *newTauCon = outputTauHandle.ptr();
+	for (const xAOD::TauJet *tau : *pTauContainer) {
+		xAOD::TauJet *newTau = new xAOD::TauJet();
+		newTauCon->push_back(newTau);
+		*newTau = *tau;
 		auto oldlinks =  newTau->allTauTrackLinksNonConst();
 		newTau->clearTauTrackLinks();
 		for (auto oldlink : oldlinks) {
 			const xAOD::TauTrack* oldLinkedTrk = *oldlink;
 			for (const xAOD::TauTrack * newTrk : *newTauTrkCon) {
 				if (newTrk->track() == oldLinkedTrk->track()) {
-				ElementLink<xAOD::TauTrackContainer> linkToTauTrack;
-				linkToTauTrack.toContainedElement(*newTauTrkCon, newTrk);
-				newTau->addTauTrackLink(linkToTauTrack);
-				break;
+					ElementLink<xAOD::TauTrackContainer> linkToTauTrack;
+					linkToTauTrack.toContainedElement(*newTauTrkCon, newTrk);
+					newTau->addTauTrackLink(linkToTauTrack);
+					break;
 				}
 			}
 		}
@@ -134,35 +132,21 @@ StatusCode TauAODRunnerAlg::execute() {
 	ATH_CHECK(vertOutHandle.record(std::make_unique<xAOD::VertexContainer>(), std::make_unique<xAOD::VertexAuxContainer>()));
 	xAOD::VertexContainer* pSecVtxContainer = vertOutHandle.ptr();
 	int n_tau_modified = 0;
+	static const SG::AuxElement::Accessor<char> acc_modified("ModifiedInAOD");
 	for (xAOD::TauJet *pTau : *newTauCon) {
 		// Loop stops when Failure indicated by one of the tools
 		StatusCode sc;
 		//add a identifier of if the tau is modifed by the mod tools
-		const SG::AuxElement::Accessor<bool> acc_modified("ModifiedInAOD"); acc_modified(*pTau) = false;
+		acc_modified(*pTau) = static_cast<char>(false);
 		// iterate over the copy
 		for (ToolHandle<ITauToolBase> &tool : m_modificationTools) {
 			ATH_MSG_DEBUG("RunnerAlg Invoking tool " << tool->name());
-			if (tool->type() == "TauPi0ClusterCreator")
-				sc = tool->executePi0ClusterCreator(*pTau, *neutralPFOContainer, *hadronicClusterPFOContainer, *pi0ClusterContainer);
-			else if (tool->type() == "TauVertexVariables")
-				sc = tool->executeVertexVariables(*pTau, *pSecVtxContainer);
-			else if (tool->type() == "TauPi0ClusterScaler") 
-				sc = tool->executePi0ClusterScaler(*pTau, *neutralPFOContainer, *chargedPFOContainer);
-			else if (tool->type() == "TauPi0ScoreCalculator") 
-				sc = tool->executePi0nPFO(*pTau, *neutralPFOContainer);
-			else if (tool->type() == "TauPi0Selector") 
-				sc = tool->executePi0nPFO(*pTau, *neutralPFOContainer);
-			else if (tool->type() == "PanTau::PanTauProcessor") 
-				sc = tool->executePanTau(*pTau, *pi0Container);
-			else if (tool->type() == "tauRecTools::TauTrackRNNClassifier") 
-				sc = tool->executeTrackClassifier(*pTau, *newTauTrkCon);
-			else 
-				sc = tool->execute(*pTau);
+			sc = tool->execute(*pTau);
 			if (sc.isFailure()) break;
 		}
 		if (sc.isSuccess()) ATH_MSG_VERBOSE("The tau candidate has been modified successfully by the invoked modification tools.");
 		// if tau is not modified by the above tools, never mind running the tools afterward
-		if (isTauModified(pTau)) {
+		if (static_cast<bool>(isTauModified(pTau))) {
 			n_tau_modified++;
 			for (ToolHandle<ITauToolBase> &tool : m_officialTools) {
 				ATH_MSG_DEBUG("RunnerAlg Invoking tool " << tool->name());
@@ -194,6 +178,6 @@ StatusCode TauAODRunnerAlg::execute() {
 
 //helper 
 bool TauAODRunnerAlg::isTauModified(const xAOD::TauJet* newtau) {
-	const SG::AuxElement::Accessor<bool> acc_modified("ModifiedInAOD");
+	static const SG::AuxElement::Accessor<char> acc_modified("ModifiedInAOD");
 	return acc_modified(*newtau);
 }

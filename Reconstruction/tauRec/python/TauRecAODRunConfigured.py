@@ -21,7 +21,7 @@ from RecExConfig.Configured import Configured
 ################################################################################
 class TauRecAODRunConfigured ( Configured ) :
     """Re-Reconstruct TauJets on AOD level. 
-    IMPORTANT: the results may deviate from official Tau reconstruction
+    IMPORTANT: the results may deviate from the TauJet reconstruction from RAW
     """
     def __init__(self, name = "TauRecAODRunConfigured", msglevel=3, ignoreExistingDataObject=True) :
         self.name = name
