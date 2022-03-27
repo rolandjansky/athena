@@ -225,6 +225,7 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False, extraLo
   else:
     ViewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs )]
   ViewVerify.DataObjects += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
+  ViewVerify.DataObjects += [( 'RpcPadContainer' , 'StoreGateSvc+RPCPAD' )]
   if ConfigFlags.Trigger.enableL1MuonPhase1:
     ViewVerify.DataObjects += [( 'xAOD::MuonRoIContainer' , 'StoreGateSvc+LVL1MuonRoIs' )]
   else:

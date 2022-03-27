@@ -10,7 +10,6 @@
 #include "TrigT1Interfaces/RecMuonRoI.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
-#include "MuonRDO/RpcPadContainer.h"
 #include "Identifier/IdentifierHash.h"
 
 #include "MuCalDecode/CalibEvent.h"
@@ -47,6 +46,7 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::initialize ()
    ATH_CHECK(m_tgcRdoKey.initialize());
    ATH_CHECK(m_readKey.initialize());
    ATH_CHECK(m_eventInfoKey.initialize());
+   ATH_CHECK(m_rpcPadKey.initialize());
 
    return StatusCode::SUCCESS;
 
@@ -306,8 +306,8 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(const xAOD::MuonRo
   unsigned int roiNumber =  sectorRoIOvl & 0x0000001F;
 
   // retrieve the pad container
-  const RpcPadContainer* rpcPadContainer=nullptr;
-  ATH_CHECK(evtStore()->retrieve(rpcPadContainer,"RPCPAD"));
+  SG::ReadHandle<RpcPadContainer> rh_rpcPad{m_rpcPadKey, ctx};
+  const RpcPadContainer* rpcPadContainer=rh_rpcPad.cptr();
 
   SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey,ctx};
   const RpcCablingCondData* readCdo{*readHandle};
