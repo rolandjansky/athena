@@ -13,6 +13,13 @@ Run2Grades = [ "0HitIn0HitNInExp2","0HitIn0HitNInExpIn","0HitIn0HitNInExpNIn","0
 Run4Grades = [ "A01","A02","A03","A04","A05","A06","A07","A08","A14_1","A14_2","A14_3","A14_4",
                "B01","B02","B03","B04","B05","B06","B07","B08","B14_1","B14_2","B14_3","B14_4",
                "C01","C02030405","C06","C07","C08","C14_1","C14_2","C14_3","C14_4" ]
+calibrationChannelAliases = [
+    "AntiKt4EMTopo->AntiKt4EMTopo,AntiKt4EMPFlow",
+    "AntiKt4EMPFlow->AntiKt4EMPFlow,AntiKt4EMTopo",
+    "AntiKt4HI->AntiKt4HI,AntiKt4EMPFlow,AntiKt4EMTopo,AntiKt4LCTopo",
+    "AntiKtVR30Rmax4Rmin02PV0Track->AntiKtVR30Rmax4Rmin02PV0Track,AntiKt4EMPFlow,AntiKt4EMTopo",
+    "AntiKt4PFlowCustomVtx->AntiKt4EMTopo",
+]
 
 def getGrades(flags):
     if flags.GeoModel.Run is LHCPeriod.Run1:
@@ -22,11 +29,25 @@ def getGrades(flags):
     else:
         return Run4Grades
 
+
+def getTaggerList(flags):
+    # NOTE: MV2c10 is deprecated but something in trigger is asking
+    # for it... maybe online monitoring?
+    base = ['IP2D','IP3D','SV1','JetFitterNN']
+    flip = ['IP2DNeg', 'IP3DNeg','IP2DFlip', 'IP3DFlip']
+    if flags.BTagging.RunFlipTaggers:
+        return base + flip
+    return base
+
+
 def createBTaggingConfigFlags():
     btagcf = AthConfigFlags()
 
-    btagcf.addFlag("BTagging.run2TaggersList", ['IP2D','IP3D','SV1','SoftMu','JetFitterNN','MV2c10'])
-    btagcf.addFlag("BTagging.Run2TrigTaggers", ['IP2D','IP3D','SV1','JetFitterNN','MV2c10'])
+    btagcf.addFlag("BTagging.taggerList", getTaggerList)
+    btagcf.addFlag("BTagging.databaseScheme", "")
+    btagcf.addFlag("BTagging.calibrationChannelAliases",
+                   calibrationChannelAliases)
+    btagcf.addFlag("BTagging.forcedCalibrationChannel", "")
     # Disable JetVertexCharge ATLASRECTS-4506
     btagcf.addFlag("BTagging.RunModus", "analysis") # reference mode used in FlavourTagPerformanceFramework (RetagFragment.py)
     btagcf.addFlag("BTagging.ReferenceType", "ALL") # reference type for IP and SV taggers (B, UDSG, ALL)
