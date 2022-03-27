@@ -238,6 +238,10 @@ def __construct_inputs(input_LHE_events, process):
     with open("madspin_runcard.txt", "w") as f_madspin_runcard:
         f_madspin_runcard.write("import {}\n".format(input_LHE_events))
         f_madspin_runcard.write("set spinmode {}\n".format(process.MadSpin_mode))
+        if process.MadSpin_max_weight_ps_point>0:
+            f_madspin_runcard.write("set max_weight_ps_point {}\n".format(int(process.MadSpin_max_weight_ps_point)))
+        if process.MadSpin_Nevents_for_max_weight>0:
+            f_madspin_runcard.write("set Nevents_for_max_weight {}\n".format(int(process.MadSpin_Nevents_for_max_weight)))
         for decay in process.MadSpin_decays:
             f_madspin_runcard.write("{0}\n".format(decay))
         f_madspin_runcard.write("launch\n")
@@ -258,6 +262,7 @@ def __run_executable(executable):
                                          error_output=["Command \"launch\" interrupted with error:","MadSpinError"],
                                          info_output=["generating the production square matrix element"],
                                          warning_output=["stty: standard input: Invalid argument",
+                                                         "stty: standard input: Inappropriate ioctl for device",
                                                          "no version information available",
                                                          "CRITICAL: Branching ratio larger than one for"])]
         manager = ProcessManager(processes)
