@@ -22,7 +22,7 @@ StatusCode AFP_VertexRecoTool::initialize()
   // vertex reconstruction tools
   if(m_recoToolsList.empty())
   {
-    ATH_MSG_ERROR("No vertex reconstruction tools set, check settings in AFP_VertexReco/AFP_VertexReco_joboption.py. Aborting.");
+    ATH_MSG_ERROR("No vertex reconstruction tools set, check settings in AFP_VertexReco/AFP_VertexReco.py. Aborting.");
     return StatusCode::FAILURE;
   }
   else
@@ -34,7 +34,7 @@ StatusCode AFP_VertexRecoTool::initialize()
   // output containers for the vertex reconstruction tools
   if(m_arrayOfWriteHandleKeys.empty())
   {
-    ATH_MSG_ERROR("No output vertex containers provided, check settings in AFP_VertexReco/AFP_VertexReco_joboption.py. Aborting.");
+    ATH_MSG_ERROR("No output vertex containers provided, check settings in AFP_VertexReco/AFP_VertexReco.py. Aborting.");
     return StatusCode::FAILURE;
   }
   else
@@ -59,7 +59,7 @@ StatusCode AFP_VertexRecoTool::initialize()
   listOfWHKeys.erase(std::unique(listOfWHKeys.begin(),listOfWHKeys.end()), listOfWHKeys.end());
   if(listOfWHKeys.size() != all_WHkeys)
   {
-    ATH_MSG_ERROR("It seems write handle keys do not have unique values, check settings in AFP_VertexReco/AFP_VertexReco_joboption.py. Aborting.");
+    ATH_MSG_ERROR("It seems write handle keys do not have unique values, check settings in AFP_VertexReco/AFP_VertexReco.py. Aborting.");
     return StatusCode::FAILURE;
   }
   // get names from proton reco tools

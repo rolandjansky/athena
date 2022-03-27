@@ -49,7 +49,7 @@ private:
 
   /// @brief Array of *unique* write handle keys for track output containers
   ///
-  /// Each write handle key has to be unique and in sync with m_recoToolsList. It's possible for several track reco algorithms contributing to the common container. Ideally, one should setup track reco containers (in AFP_LocReco/AFP_LocReco_joboption.py) and let the python script pick unique names.
+  /// Each write handle key has to be unique and in sync with m_recoToolsList. It's possible for several track reco algorithms contributing to the common container. Ideally, one should setup track reco containers (in AFP_LocReco/AFP_LocReco.py) and let the python script pick unique names.
   SG::WriteHandleKeyArray<xAOD::AFPToFTrackContainer> m_arrayOfWriteHandleKeys{this, "AFPToFTrackContainerList", {"AFPToFTrackContainer"}, "List of output containers"};
 };
 
