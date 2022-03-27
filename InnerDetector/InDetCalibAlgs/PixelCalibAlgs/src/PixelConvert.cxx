@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelCalibAlgs/PixelConvert.h"
@@ -8,11 +8,11 @@
 
 namespace PixelConvert {
 
-  const int NLayer=3;
-  const int BSMax[]={11,19,26};
-  const int EtaMax=6;
-  const int NinSector=6;
-  const int NinDisk=48;
+  constexpr int NLayer=3;
+  constexpr int BSMax[]={11,19,26};
+  constexpr int EtaMax=6;
+  constexpr int NinSector=6;
+  constexpr int NinDisk=48;
   const std::string Error="InvalidChannel";
   
   std::string PackOfflineID(int system,
@@ -312,10 +312,12 @@ namespace PixelConvert {
   }
 
   std::string DCSID(const std::string& OnlineID) {
-    std::string ID=OnlineID, newID(Error);
+    std::string ID=OnlineID;
+    std::string newID(Error);
     size_t pos=0;
     char ch;
-    while ( (pos=ID.find('-',pos))!=std::string::npos ) ID.replace(pos,1,"_");
+    std::replace(ID.begin(), ID.end(), '-', '_');
+
     if ( ID.at(0)=='L' ) {
       pos = ID.find('S');                // stave in DCS is S1/S2, not S01/S02
       if ( pos!=std::string::npos ) { 
@@ -360,9 +362,9 @@ namespace PixelConvert {
   }
 
   std::string OnlineIDfromDCSID(const std::string& DCSID) {
-    std::string ID=DCSID, newID(Error);
-    size_t pos=0;
-    while ( (pos=ID.find('_',pos))!=std::string::npos ) ID.replace(pos,1,"-");
+    std::string ID=DCSID;
+    const std::string &newID(Error);
+    std::replace(ID.begin(), ID.end(), '_', '-');
     if ( ID.at(0)=='L' ) return ID;
     std::istringstream in(DCSID);
     int b,s,dum;
@@ -382,7 +384,6 @@ namespace PixelConvert {
     return ID;
   }
 
-  const std::string datafile("NamingConversions.txt");
 
   /*
    * This function provides the module hashID if it is given as input
@@ -392,8 +393,6 @@ namespace PixelConvert {
    * and gives back the corresponding module SN.
    * In case of failure the return value is 0.
    *
-   * The table in which the correspondance is given is contained in the
-   * file named as in the string datafile initialized above.
    */
 
   int ReadMap (const std::string& filename,

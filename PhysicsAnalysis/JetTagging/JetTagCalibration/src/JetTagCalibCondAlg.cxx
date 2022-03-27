@@ -558,9 +558,9 @@ namespace Analysis {
                       commaSepVars=tos->GetString().Data();
                     }
                   }
-                  while (commaSepVars.find(",")!=std::string::npos) {
-                    inputVars.push_back(commaSepVars.substr(0,commaSepVars.find(",")));
-                    commaSepVars.erase(0,commaSepVars.find(",")+1);
+                  while (commaSepVars.find(',')!=std::string::npos) {
+                    inputVars.push_back(commaSepVars.substr(0,commaSepVars.find(',')));
+                    commaSepVars.erase(0,commaSepVars.find(',')+1);
                   }
                   inputVars.push_back(commaSepVars.substr(0,-1));
                   ATH_MSG_DEBUG("#BTAG# inputVars.size()= "<< inputVars.size() <<" toa->GetEntries()= "<< toa->GetEntries() <<"commaSepVars= "<< commaSepVars);
