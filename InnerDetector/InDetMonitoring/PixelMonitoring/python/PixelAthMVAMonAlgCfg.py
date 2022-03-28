@@ -38,6 +38,10 @@ vartree', path=path, treedef='pixmvamontool_lb/i:status_vec/vector<float>\
 :clscosalpha_vec/vector<float>\
 :clsontrktot_vec/vector<float>:clsofftrktot_vec/vector<float>:mva_vec/vector<float>')
 
-    histoGroupName = 'BDTWeights' 
-    title = 'BDT weight'
+    histoGroupName = 'BDTWeights'
+    title = 'BDT score'
     define2DProfHist(helper, alg, histoGroupName, title, path, type='TProfile2D')
+
+    histoGroupName = 'BDTWeightsReset'
+    title = 'BDT score reset every 10 LB'
+    define2DProfHist(helper, alg, 'BDTWeights', title, path, type='TProfile2D', opt='kLBNHistoryDepth=10', histname=histoGroupName)
