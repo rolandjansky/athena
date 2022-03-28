@@ -48,7 +48,7 @@ TCS::GenericTOB::GenericTOB(const jTauTOB & tau) :
    , m_EtDouble(tau.EtDouble())
    , m_etaDouble(tau.etaDouble())
    , m_phiDouble(tau.phiDouble())
-   , m_tobType(JET)
+   , m_tobType(JTAU)
 {}
 
 // constructor from jEm
@@ -60,7 +60,7 @@ TCS::GenericTOB::GenericTOB(const jEmTOB & jem) :
    , m_EtDouble(jem.EtDouble())
    , m_etaDouble(jem.etaDouble())
    , m_phiDouble(jem.phiDouble())
-   , m_tobType(JET)
+   , m_tobType(JEM)
 {}
 
 // constructor from large R jet
@@ -72,7 +72,7 @@ TCS::GenericTOB::GenericTOB(const jLargeRJetTOB & jet) :
    , m_EtDouble(jet.EtDouble())
    , m_etaDouble(jet.etaDouble())
    , m_phiDouble(jet.phiDouble())
-   , m_tobType(JET)
+   , m_tobType(JLARGERJET)
 {}
 
 // constructor from large R gjet
@@ -84,7 +84,7 @@ TCS::GenericTOB::GenericTOB(const gLargeRJetTOB & jet) :
    , m_EtDouble(jet.EtDouble())
    , m_etaDouble(jet.etaDouble())
    , m_phiDouble(jet.phiDouble())
-   , m_tobType(JET)
+   , m_tobType(GLARGERJET)
 {}
 
 // constructor from small R jjet
@@ -96,7 +96,7 @@ TCS::GenericTOB::GenericTOB(const jJetTOB & jet) :
    , m_EtDouble(jet.EtDouble())
    , m_etaDouble(jet.etaDouble())
    , m_phiDouble(jet.phiDouble())
-   , m_tobType(JET)
+   , m_tobType(JJET)
 {}
 
 // constructor from small R gjet
@@ -108,7 +108,7 @@ TCS::GenericTOB::GenericTOB(const gJetTOB & jet) :
    , m_EtDouble(jet.EtDouble())
    , m_etaDouble(jet.etaDouble())
    , m_phiDouble(jet.phiDouble())
-   , m_tobType(JET)
+   , m_tobType(GJET)
 {}
 
 // constructor from cluster
@@ -135,7 +135,7 @@ TCS::GenericTOB::GenericTOB(const eEmTOB & eem) :
    , m_reta(eem.Reta())
    , m_rhad(eem.Rhad())
    , m_wstot(eem.Wstot())
-   , m_tobType(eem.tobType())
+   , m_tobType(EEM)
 {}
 
 // constructor from eTau
@@ -149,7 +149,7 @@ TCS::GenericTOB::GenericTOB(const eTauTOB & etau) :
    , m_phiDouble(etau.phiDouble())
    , m_rCore(etau.rCore())
    , m_rHad(etau.rHad())
-   , m_tobType(etau.tobType())
+   , m_tobType(ETAU)
 {}
 
 // constructor from cTau
@@ -221,6 +221,9 @@ TCS::GenericTOB::GenericTOB(const jXETOB & jxe) :
    , m_Ex(jxe.Ex())
    , m_Ey(jxe.Ey())
    , m_Et2(jxe.Et2())
+   , m_EtDouble(jxe.EtDouble())
+   , m_ExDouble(jxe.ExDouble())
+   , m_EyDouble(jxe.EyDouble())
    , m_tobType(JXE)
 {}
 

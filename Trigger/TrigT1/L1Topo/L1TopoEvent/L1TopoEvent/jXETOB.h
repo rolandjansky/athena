@@ -53,7 +53,7 @@ namespace TCS {
       inputTOBType_t tobType() const { return JXE; }    
 
       // memory management
-      static jXETOB* createOnHeap(const jXETOB& cl);
+      static jXETOB* createOnHeap(const jXETOB& jxe);
       static void clearHeap();
       static const Heap<TCS::jXETOB>& heap() { return fg_heap; }
 

@@ -229,7 +229,7 @@ StatusCode TileTMDBMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
     if (!peakPositions[partition].empty()) {
       auto monModule = Monitored::Collection("module", peakPositionDrawers[partition]);
       auto monChannel = Monitored::Collection("channel", peakPositionChannels[partition]);
-      auto monPeakPosition = Monitored::Collection("peakPositionTest", peakPositions[partition]);
+      auto monPeakPosition = Monitored::Collection("peakPosition", peakPositions[partition]);
       fill(m_tools[m_peakGroups[partition]], monModule, monChannel, monPeakPosition);
     }
   }

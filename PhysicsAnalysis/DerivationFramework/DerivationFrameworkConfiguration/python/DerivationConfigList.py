@@ -1,0 +1,24 @@
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+# All derivation framework formats must be listed here
+
+# Example formats
+# Skimming example
+from DerivationFrameworkExamples.TEST1 import TEST1Cfg
+# Skimming with strings example
+from DerivationFrameworkExamples.TEST2 import TEST2Cfg
+# Thinning example
+from DerivationFrameworkExamples.TEST3 import TEST3Cfg
+# Slimming example
+from DerivationFrameworkExamples.TEST4 import TEST4Cfg
+# Decoration example
+from DerivationFrameworkExamples.TEST5 import TEST5Cfg
+# Pre-selection example
+from DerivationFrameworkExamples.TEST6 import TEST6Cfg
+
+# Truth (EVNT->xAOD) formats
+# TRUTH0 - complete copy of HepMC to xAOD truth
+from DerivationFrameworkMCTruth.TRUTH0 import TRUTH0Cfg
+
+# Avoids compilation warnings from Flake8
+__all__ = ['TEST1Cfg','TEST2Cfg','TEST3Cfg','TEST4Cfg','TEST5Cfg','TEST6Cfg',
+           'TRUTH0Cfg']

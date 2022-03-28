@@ -7,8 +7,8 @@
 
 #include "MuCTPI_Bits.h"
 #include <vector>
-#include <cstdint>
-#include <exception>
+#include <array>
+#include <string_view>
 
 namespace LVL1::MuCTPIBits {
   // Helper types
@@ -120,53 +120,16 @@ namespace LVL1::MuCTPIBits {
     return words;
   }
 
-  /// Decode the subsys ID from RoI candidate word (online or offline format, see discussion in ATR-25069)
-  inline constexpr SubsysID getSubsysID(uint32_t word, bool onlineFormat) {
-    if (onlineFormat) {
-      if (wordEquals(word, RUN3_SUBSYS_ADDRESS_EC_SHIFT, RUN3_SUBSYS_ADDRESS_EC_MASK, RUN3_SUBSYS_ADDRESS_EC_VAL)) {
-        return SubsysID::Endcap;
-      } else if (wordEquals(word, RUN3_SUBSYS_ADDRESS_BAFW_SHIFT, RUN3_SUBSYS_ADDRESS_BAFW_MASK, RUN3_SUBSYS_ADDRESS_FW_VAL)) {
-        return SubsysID::Forward;
-      } else if (wordEquals(word, RUN3_SUBSYS_ADDRESS_BAFW_SHIFT, RUN3_SUBSYS_ADDRESS_BAFW_MASK, RUN3_SUBSYS_ADDRESS_BA_VAL)) {
-        return SubsysID::Barrel;
-      }
-      return SubsysID::Undefined;
-    }
-    // offline format
-    if (wordEquals(word, RUN3OFFLINE_SUBSYS_ADDRESS_EC_SHIFT, RUN3OFFLINE_SUBSYS_ADDRESS_EC_MASK, RUN3OFFLINE_SUBSYS_ADDRESS_EC_VAL)) {
+  /// Decode the subsys ID from RoI candidate word
+  inline constexpr SubsysID getSubsysID(uint32_t word) {
+    if (wordEquals(word, RUN3_SUBSYS_ADDRESS_EC_SHIFT, RUN3_SUBSYS_ADDRESS_EC_MASK, RUN3_SUBSYS_ADDRESS_EC_VAL)) {
       return SubsysID::Endcap;
-    } else if (wordEquals(word, RUN3OFFLINE_SUBSYS_ADDRESS_BAFW_SHIFT, RUN3OFFLINE_SUBSYS_ADDRESS_BAFW_MASK, RUN3OFFLINE_SUBSYS_ADDRESS_FW_VAL)) {
+    } else if (wordEquals(word, RUN3_SUBSYS_ADDRESS_BAFW_SHIFT, RUN3_SUBSYS_ADDRESS_BAFW_MASK, RUN3_SUBSYS_ADDRESS_FW_VAL)) {
       return SubsysID::Forward;
-    } else if (wordEquals(word, RUN3OFFLINE_SUBSYS_ADDRESS_BAFW_SHIFT, RUN3OFFLINE_SUBSYS_ADDRESS_BAFW_MASK, RUN3OFFLINE_SUBSYS_ADDRESS_BA_VAL)) {
+    } else if (wordEquals(word, RUN3_SUBSYS_ADDRESS_BAFW_SHIFT, RUN3_SUBSYS_ADDRESS_BAFW_MASK, RUN3_SUBSYS_ADDRESS_BA_VAL)) {
       return SubsysID::Barrel;
     }
     return SubsysID::Undefined;
-  }
-
-  /// Shift the candidate word sector ID subsystem/hemisphere bits from the online to the offline format (see ATR-25069)
-  inline constexpr uint32_t convertSectorIDOnlineToOffline(uint32_t word) {
-    uint32_t sectorID = maskedWord(word, RUN3_CAND_SECTORID_SHIFT, RUN3_CAND_SECTORID_MASK);
-    uint32_t hemisphere = maskedWord(word, RUN3_SUBSYS_HEMISPHERE_SHIFT, RUN3_SUBSYS_HEMISPHERE_MASK);
-    // Hemisphere is one bit, online 0 means side A, 1 means side C, offline it's the opposite
-    hemisphere = hemisphere==0 ? 1 : 0;
-    uint32_t theRestMask = ~buildWord(std::numeric_limits<uint32_t>::max(), RUN3_CAND_SECTOR_ADDRESS_SHIFT, RUN3_CAND_SECTOR_ADDRESS_MASK);
-    uint32_t theRest = maskedWord(word, 0u, theRestMask);
-    return theRest |
-           buildWord(sectorID, RUN3OFFLINE_CAND_SECTORID_SHIFT, RUN3OFFLINE_CAND_SECTORID_MASK) |
-           buildWord(hemisphere, RUN3OFFLINE_SUBSYS_HEMISPHERE_SHIFT, RUN3OFFLINE_SUBSYS_HEMISPHERE_MASK);
-  }
-
-  /// Shift the candidate word sector ID subsystem/hemisphere bits from the offline to the online format (see ATR-25069)
-  inline constexpr uint32_t convertSectorIDOfflineToOnline(uint32_t word) {
-    uint32_t sectorID = maskedWord(word, RUN3OFFLINE_CAND_SECTORID_SHIFT, RUN3OFFLINE_CAND_SECTORID_MASK);
-    uint32_t hemisphere = maskedWord(word, RUN3OFFLINE_SUBSYS_HEMISPHERE_SHIFT, RUN3OFFLINE_SUBSYS_HEMISPHERE_MASK);
-    // Hemisphere is one bit, online 0 means side A, 1 means side C, offline it's the opposite
-    hemisphere = hemisphere==0 ? 1 : 0;
-    uint32_t theRestMask = ~buildWord(std::numeric_limits<uint32_t>::max(), RUN3_CAND_SECTOR_ADDRESS_SHIFT, RUN3_CAND_SECTOR_ADDRESS_MASK);
-    uint32_t theRest = maskedWord(word, 0u, theRestMask);
-    return theRest |
-           buildWord(sectorID, RUN3_CAND_SECTORID_SHIFT, RUN3_CAND_SECTORID_MASK) |
-           buildWord(hemisphere, RUN3_SUBSYS_HEMISPHERE_SHIFT, RUN3_SUBSYS_HEMISPHERE_MASK);
   }
 
   /// Decode the data status word (returns a vector of bit indices for the errors set - empty if no errors)

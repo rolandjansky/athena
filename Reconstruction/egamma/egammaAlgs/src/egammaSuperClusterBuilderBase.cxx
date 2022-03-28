@@ -420,10 +420,6 @@ egammaSuperClusterBuilderBase::createNewCluster(
     newCluster->setPhi0(cp0.phiEC);
   }
 
-  ATH_MSG_VERBOSE("Cluster, seed eta = " << newCluster->eta0()
-		  << " phi = " << newCluster->phi0()
-		  << " size of vec = " << acSize);
-
   // Actually fill the cluster here
   if (fillClusterConstrained(*newCluster, clusters, cp0).isFailure()) {
     newClusters->pop_back();
@@ -438,19 +434,14 @@ egammaSuperClusterBuilderBase::createNewCluster(
   if (!m_useExtendedTG3 ||
       (eta0 > s_ClEtaMinForTG3cell && eta0 < s_ClEtaMaxForTG3cell)) {
     if (addTileGap3CellsinWindow(*newCluster, mgr).isFailure()) {
-      ATH_MSG_ERROR(
-		    "Problem with the input cluster when running AddTileGap3CellsinWindow?");
+      ATH_MSG_ERROR("Problem with the input cluster when running "
+                    "AddTileGap3CellsinWindow?");
       newClusters->pop_back();
       return false;
     }
   }
   /// Calculate the kinematics of the new cluster, after all cells are added
   CaloClusterKineHelper::calculateKine(newCluster, true, true);
-
-  ATH_MSG_VERBOSE("energy in TG3 " << newCluster->eSample(CaloSampling::TileGap3)
-		  << " uncal E = " << newCluster->e()
-		  << " raw " << newCluster->rawE()
-		  << " alt " << newCluster->altE());
 
   // If adding all EM cells we are somehow below the seed threshold then remove
   if (newCluster->et() < m_EtThresholdCut) {
@@ -476,19 +467,15 @@ egammaSuperClusterBuilderBase::createNewCluster(
 
   // Avoid negative energy clusters
   if (newCluster->et() < 0) {
-    ATH_MSG_DEBUG("Negative et after calibration/corrections");
     newClusters->pop_back();
     return false;
   }
 
-  ATH_MSG_VERBOSE("Good supercluster, cal E = " << newCluster->e()
-		  << " raw " << newCluster->rawE()
-		  << " alt " << newCluster->altE());
-
   if (m_linkToConstituents) {
     // EDM vector to constituent clusters
     std::vector<ElementLink<xAOD::CaloClusterContainer>> constituentLinks;
-    static const SG::AuxElement::Accessor<ElementLink<xAOD::CaloClusterContainer>>
+    static const SG::AuxElement::Accessor<
+      ElementLink<xAOD::CaloClusterContainer>>
       sisterCluster("SisterCluster");
     for (size_t i = 0; i < acSize; i++) {
       // Set the element Link to the constitents
@@ -733,20 +720,13 @@ egammaSuperClusterBuilderBase::addTileGap3CellsinWindow(
       // if |eta2| < 1.56, keep only E3, else keep E3+E4.
       // |eta2| uses as the eta of the highest energy cell in layer 2 as proxy
       if (std::abs(tofill.eta0()) > 1.56) {
-	maxEta = s_TG3Run3E4cellEtaMax;
+        maxEta = s_TG3Run3E4cellEtaMax;
       }
     }
     float cellaEtaRaw = std::abs(dde->eta_raw());
     if (cellaEtaRaw >= minEta && cellaEtaRaw <= maxEta) {
       int index = inputcells->findIndex(dde->calo_hash());
       tofill.addCell(index, 1.);
-      ATH_MSG_VERBOSE("Adding a TG3 cell " << cell
-		      << " sampling (check) " << dde->getSampling()
-		      << " raw eta = " << dde->eta_raw()
-		      << " raw phi = " << dde->phi_raw()
-		      << " energy = " << cell->e()
-		      << " to cluster with seed eta = " << tofill.eta0()
-		      << " phi = " << tofill.phi0());
     }
   }
   return StatusCode::SUCCESS;

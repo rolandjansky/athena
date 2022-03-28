@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_RAWDATABYTESTREAM_TRT_RODDECODER_H
@@ -153,7 +153,7 @@ private:
 				     const t_CompressTable& Ctable,
 				     const std::vector<IdentifierHash>* vecHash = 0) const;
 
-   StatusCode ReadCompressTableFile( std::string TableFilename );
+   StatusCode ReadCompressTableFile( const std::string& TableFilename );
    StatusCode ReadCompressTableDB( std::string Tag );
 
    mutable SG::SlotSpecificObj<std::atomic<EventContext::ContextEvt_t> > m_lastPrint ATLAS_THREAD_SAFE;

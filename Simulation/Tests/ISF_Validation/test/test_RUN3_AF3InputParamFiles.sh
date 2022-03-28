@@ -13,7 +13,7 @@ Sim_tf.py --simulator 'FullG4MT'  \
 --postInclude "all:PyJobTransforms/UseFrontier.py" "EVNTtoHITS:ISF_FastCaloSimParametrization/ISF_FastCaloSimParametrization_SimPostInclude_1mm.py" \
 --preExec 'EVNTtoHITS:from G4AtlasApps.SimFlags import simFlags;simFlags.VertexFromCondDB.set_Value_and_Lock(False)' \
 --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,ISF_FastCaloSimParametrization/ISF_FastCaloSimParametrization_SimPreInclude.py' \
---postExec "from AthenaCommon.AppMgr import ToolSvc;ToolSvc.ISF_EntryLayerToolMT.ParticleFilters=[]" \
+--postExec "topSeq.BeamEffectsAlg.GenEventManipulators = [getPublicTool(\"GenEventValidityChecker\")];from AthenaCommon.CfgGetter import getPublicTool;validTruthStrat=getPublicTool(\"ISF_ValidationTruthStrategy\");validTruthStrat.Regions=[3];validTruthStrat.ParentMinP=150;ServiceMgr.ISF_MC15aPlusTruthService.TruthStrategies = [ validTruthStrat ];from AthenaCommon.AppMgr import ToolSvc;ToolSvc.ISF_EntryLayerToolMT.ParticleFilters=[]" \
 --DataRunNumber '410000' \
 --geometryVersion 'default:ATLAS-R3S-2021-02-00-00_VALIDATION' \
 --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ISF_Validation/mc15_13TeV.431004.ParticleGun_pid22_E65536_disj_eta_m25_m20_20_25_zv_0.evgen.EVNT.e6556.EVNT.13283012._000001.pool.root.1" \

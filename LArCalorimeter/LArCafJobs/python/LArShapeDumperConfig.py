@@ -76,7 +76,8 @@ def LArShapeDumperCfg(flags):
     dumperAlg.LArShapeDumperTool=CompFactory.LArShapeDumperTool(DoShape=True)
     dumperAlg.FileName=flags.LArShapeDump.outputNtup
     dumperAlg.TriggerNames = flags.LArShapeDump.triggerNames
-    if flags.LAr.RawChannelSource == "calculated":
+    from LArConfiguration.LArConfigFlags import RawChannelSource 
+    if flags.LAr.RawChannelSource == RawChannelSource.Calculated:
        dumperAlg.ChannelsKey = "LArRawChannels_FromDigits"
 
     result.addEventAlgo(dumperAlg)

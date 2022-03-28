@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 # Package filtering rules for the Athena project build.
 #
@@ -17,10 +17,12 @@
 #- HLT/.*
 #- Trigger/TrigValidation/TrigP1Test
 
-# Temporary VP1 compilation issues
+# Temporary compilation issues for some VP1 packages
 - graphics/VP1/VP1Systems/VP1TriggerSystems
-- graphics/VP1/VP1Systems/VP1MCSystems
 - graphics/VP1/VP1Systems/VP1TriggerDecisionSystems
+- graphics/VP1/VP1Plugins/VP1TriggerDecisionPlugin
+- graphics/VP1/VP1Systems/VP1MCSystems
+- graphics/VP1/VP1Plugins/VP1MCPlugin
 + graphics/VP1/.*
 
 # Disable MCTester until we are sure we can remove it completely

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -62,9 +62,9 @@ namespace Rec {
         // private methods
         std::unique_ptr<CaloEnergy> measurement(const EventContext& ctx, double trackMomentum, double eta, double phi,
                                                 const CaloMeas& caloMeas) const;
-        double muSpecResolParam(double trackMomentum, double eta) const;
-        double paramCorrection(double trackMomentum, double eta, double MopLoss, double MopSigma) const;
-        double landau(double x, double mpv, double sigma, bool norm) const;
+        static double muSpecResolParam(double trackMomentum, double eta) ;
+        static double paramCorrection(double trackMomentum, double eta, double MopLoss, double MopSigma) ;
+        static double landau(double x, double mpv, double sigma, bool norm) ;
 
         // helpers, managers, tools
         ToolHandle<IMuidCaloEnergyMeas> m_caloMeasTool{

@@ -12,7 +12,7 @@ from TriggerMenuMT.HLT.Config.ControlFlow.HLTCFTools import (isComboHypoAlg,
                                                              isInputMakerBase)
 from TriggerMenuMT.HLT.Config.ControlFlow.MenuComponentsNaming import CFNaming
 from TriggerMenuMT.HLT.Config.MenuComponents import EmptyMenuSequence
-from TriggerMenuMT.HLT.Config.Utility.HLTMenuConfig import HLTMenuConfig
+
 
 log = logging.getLogger( __name__ )
 
@@ -445,11 +445,12 @@ def generateDecisionTree(flags, chains):
         """Configures hypo tools (the actual selection) for all configured chains"""
         for chain in chains:
             for stepCounter, step in enumerate(chain.steps, 1):
-                comboHypoAlg = findComboHypoAlg( stepCounter, step.name )
-                if comboHypoAlg:
-                    # if the chain requires special combo tools
-                    for comboToolConf in step.comboToolConfs:
-                        comboHypoAlg.ComboHypoTools.append( comboToolConf.confAndCreate( HLTMenuConfig.getChainDictFromChainName( chain.name ) ) )
+                #from TriggerMenuMT.HLT.Config.Utility.HLTMenuConfig import HLTMenuConfig
+                #comboHypoAlg = findComboHypoAlg( stepCounter, step.name )
+                #if comboHypoAlg:
+                #    # if the chain requires special combo tools
+                #    for comboToolConf in step.comboToolConfs:
+                #        comboHypoAlg.ComboHypoTools.append( comboToolConf.confAndCreate( HLTMenuConfig.getChainDictFromChainName( chain.name ) ) )
 
                 for sequence, chainLegDict in chainDictForSequence(chain.name, step.sequences):
                     if not isinstance(sequence, EmptyMenuSequence):
@@ -469,14 +470,18 @@ def generateDecisionTree(flags, chains):
                     continue
 
                 prevComboOut, prevComboName = prevStepComboHypoOutput(stepCounter, chain)
+                import itertools
+                uniqueSequenceList = [k for k, g in itertools.groupby(step.sequences)]
                 def __constructDataFlowForLeg(sequence, chainDict):
                     """
                     Local function to setup filter/input makers/hypo algs IO
                     For combined chains when the there is more than one sequence per step this function is called as many times as many combinations of sequence, chainDict for a leg there is
                     """
                     sequenceCounter = step.sequences.index(sequence)
+                    
+                    usequenceCounter = uniqueSequenceList.index(sequence)
                     filterAlg = getFilterAlg(stepCounter, step.name, isEmpty(step))
-                    comboOut = prevComboOut[sequenceCounter]
+                    comboOut = prevComboOut[usequenceCounter]
                     if comboOut not in filterAlg.Input: # input is not yet connected to filter
                         commonWithOutput = commonWithOtherOutput(acc, comboOut, filterAlg )
                         if commonWithOutput: # this input has commonalities with other input, appropriate output is returned
@@ -501,21 +506,18 @@ def generateDecisionTree(flags, chains):
                                                             "{} filtered chains".format(filterAlg.name))
                     
                     log.debug("Set Filter input: %s for sequence %d while setting the chain: %s", filterAlg.Input.index(comboOut), sequenceCounter, chain.name)
-                    imAlg = findAllInputMakers( stepCounter, step.name )[sequenceCounter]
+                    imAlg = findAllInputMakers( stepCounter, step.name )[usequenceCounter]
                     if imAlg: log.debug("Found maker %s",imAlg.name)
                     if imAlg:
                         imAlg.InputMakerInputDecisions = addAndAssureUniqueness( imAlg.InputMakerInputDecisions, filterOut, "{} input".format( imAlg.name ) )
                     pass
 
+
                 for sequence, chainLegDict in chainDictForSequence(chain.name, step.sequences):
-                    __constructDataFlowForLeg( sequence, chainLegDict )
+                    __constructDataFlowForLeg( sequence, chainLegDict)                
 
                 comboHypo = findComboHypoAlg( stepCounter, step.name )
                 if comboHypo:
-                    #FP this must be changes, since the number of legs does not dpends on the number of Hypos
-                    # for example asymmetric chians have one Hypo and more than one leg
-                    # one has to loop over the number of seuqences
-                    
                     
                     elementaryHyposOutputs = stepHypoOutput( stepCounter, chain )
                     rawInputsToCombo = []                    
@@ -524,22 +526,26 @@ def generateDecisionTree(flags, chains):
                         comboHypo.HypoInputDecisions = addAndAssureUniqueness( comboHypo.HypoInputDecisions, hypoOutput, "{} comboHypo input".format( comboHypo.name ) )
                         comboOut = CFNaming.comboHypoOutputName( comboHypo.name, hypoName )
                         comboHypo.HypoOutputDecisions = addAndAssureUniqueness( comboHypo.HypoOutputDecisions, comboOut, "{} comboHypo output".format( comboHypo.name ) )
+                                        
                     ###
                     # Here we map each leg-index to the input DecisionContainer (after the input ReadHandleKeyArray is de-duplicated)
                     # Please note that this has not been extensively tested in newJO as we do not have any jet triggers, or asymmetric leg triggers such as
                     # HLT_e5_etcut_e3_etcut_L12EM3. These are the ones which are most likely to need some more work here. 
                     # See mapRawInputsToInputsIndex in MenuComponents for more context around this outside of the newJO setup.
-                    legToInputCollectionMapping = []
-                    for rawInput in rawInputsToCombo:
+                    
+                    legToInputCollectionMapping = []                    
+                    for sequence, chainLegDict in chainDictForSequence(chain.name, step.sequences):                        
+                        usequenceCounter = uniqueSequenceList.index(sequence)
+                        rawInput=rawInputsToCombo[usequenceCounter]
                         try:
                             legToInputCollectionMapping.append( comboHypo.HypoInputDecisions.index(rawInput) )
                         except Exception:
                             raise Exception("[generateDecisionTree] Cannot find {} in {}. See HLTCFConfig_newJO for more details.".format(rawInput, tuple(comboHypo.HypoInputDecisions)))
-                    assert len(chainLegDict['chainMultiplicities']) == len(legToInputCollectionMapping), "[generateDecisionTree] Can not get the input index for each leg. See HLTCFConfig_newJO for more details."            
-                    #
-                    ###
+
+                    assert len(chainLegDict['chainMultiplicities']) == len(legToInputCollectionMapping), "[generateDecisionTree] Can not get the input index for each leg. See HLTCFConfig_newJO for more details."                                                     
                     comboHypo.MultiplicitiesMap[chain.name] = chainLegDict['chainMultiplicities']
                     comboHypo.LegToInputCollectionMap[chain.name] = legToInputCollectionMapping
+
                 # connect dumper
                 if flags.Trigger.doRuntimeNaviVal:
                     dumper = getDecisionDumper(stepCounter)

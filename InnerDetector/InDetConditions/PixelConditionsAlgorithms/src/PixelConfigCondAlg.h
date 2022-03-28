@@ -66,10 +66,6 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     Gaudi::Property<std::vector<double>> m_DBMTimeJitter
     {this, "DBMTimeJitter", {0.0,0.0,0.0}, "Time jitter of DBM layer"};
 
-    // Dead map key. This will be replaced once new deadmap format is validated.
-    SG::ReadCondHandleKey<CondAttrListCollection> m_readDeadMapKey
-    {this, "ReadDeadMapKey", "", "Input key of deadmap conditions folder"};
-
     //====================================================================================
     // Run-dependent SIMULATION(digitization) parameters:
     //
@@ -212,13 +208,13 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
 
     // This is ad-hoc solution.
     Gaudi::Property<std::vector<float>> m_IBLNoiseShape2016
-    {this, "IBLNoiseShape2016", {0.0,1.0}, "Noise shape for IBL in 2015/2016"};
+    {this, "IBLNoiseShape2016", {0.0, 0.0330, 0.0, 0.3026, 0.5019, 0.6760, 0.8412, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 1.0}, "Noise shape for IBL in 2015/2016"};
 
     Gaudi::Property<std::vector<float>> m_BLayerNoiseShape2016
-    {this, "BLayerNoiseShape2016", {0.0,1.0}, "Noise shape for b-layer in 2015/2016"};
+    {this, "BLayerNoiseShape2016", {0.0, 0.0, 0.0, 0.0, 0.2204, 0.5311, 0.7493, 0.8954, 0.9980, 1.0}, "Noise shape for b-layer in 2015/2016"};
 
     Gaudi::Property<std::vector<float>> m_PixelNoiseShape2016
-    {this, "PixelNoiseShape2016", {0.0,1.0}, "Noise shape for PIXEL in 2015/2016"};
+    {this, "PixelNoiseShape2016", {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2418, 0.4397, 0.5858, 0.6949, 0.7737, 0.8414, 0.8959, 0.9414, 0.9828, 1.0}, "Noise shape for PIXEL in 2015/2016"};
 
     // Endcap RUN2 2015/2016
     Gaudi::Property<std::vector<int>> m_EndcapToTThreshold2016
@@ -319,13 +315,13 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
 
     // This is ad-hoc solution.
     Gaudi::Property<std::vector<float>> m_IBLNoiseShape2017
-    {this, "IBLNoiseShape2017", {0.0,1.0}, "Noise shape for IBL in 2017"};
+    {this, "IBLNoiseShape2017", {0.0, 0.0330, 0.0, 0.3026, 0.5019, 0.6760, 0.8412, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 1.0}, "Noise shape for IBL in 2017"};
 
     Gaudi::Property<std::vector<float>> m_BLayerNoiseShape2017
-    {this, "BLayerNoiseShape2017", {0.0,1.0}, "Noise shape for b-layer in 2017"};
+    {this, "BLayerNoiseShape2017", {0.0, 0.0, 0.0, 0.0, 0.2204, 0.5311, 0.7493, 0.8954, 0.9980, 1.0}, "Noise shape for b-layer in 2017"};
 
     Gaudi::Property<std::vector<float>> m_PixelNoiseShape2017
-    {this, "PixelNoiseShape2017", {0.0,1.0}, "Noise shape for PIXEL in 2017"};
+    {this, "PixelNoiseShape2017", {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2418, 0.4397, 0.5858, 0.6949, 0.7737, 0.8414, 0.8959, 0.9414, 0.9828, 1.0}, "Noise shape for PIXEL in 2017"};
 
     // Endcap RUN2 2017
     Gaudi::Property<std::vector<int>> m_EndcapToTThreshold2017
@@ -426,13 +422,13 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
 
     // This is ad-hoc solution.
     Gaudi::Property<std::vector<float>> m_IBLNoiseShape2018
-    {this, "IBLNoiseShape2018", {0.0,1.0}, "Noise shape for IBL in 2018"};
+    {this, "IBLNoiseShape2018", {0.0, 0.0330, 0.0, 0.3026, 0.5019, 0.6760, 0.8412, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 0.9918, 1.0}, "Noise shape for IBL in 2018"};
 
     Gaudi::Property<std::vector<float>> m_BLayerNoiseShape2018
-    {this, "BLayerNoiseShape2018", {0.0,1.0}, "Noise shape for b-layer in 2018"};
+    {this, "BLayerNoiseShape2018", {0.0, 0.0, 0.0, 0.0, 0.2204, 0.5311, 0.7493, 0.8954, 0.9980, 1.0}, "Noise shape for b-layer in 2018"};
 
     Gaudi::Property<std::vector<float>> m_PixelNoiseShape2018
-    {this, "PixelNoiseShape2018", {0.0,1.0}, "Noise shape for PIXEL in 2018"};
+    {this, "PixelNoiseShape2018", {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2418, 0.4397, 0.5858, 0.6949, 0.7737, 0.8414, 0.8959, 0.9414, 0.9828, 1.0}, "Noise shape for PIXEL in 2018"};
 
     // Endcap RUN2 2018
     Gaudi::Property<std::vector<int>> m_EndcapToTThreshold2018
@@ -495,10 +491,10 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     {this, "BarrelToTThreshold2022", {-1, 3, 5, 5}, "ToT thresholds for barrel pixel layers in 2022"};
 
     Gaudi::Property<std::vector<float>> m_BarrelBiasVoltage2022
-    {this, "DefaultBarrelBiasVoltage2022", {450.0,450.0,300.0,300.0}, "Default barrel bias voltage in 2022"};
+    {this, "DefaultBarrelBiasVoltage2022", {400.0,  400.0,  250.0,  250.0}, "Default barrel bias voltage in 2022"};
 
     Gaudi::Property<std::vector<double>> m_BarrelFluence2022
-    {this, "BarrelFluence2022", {7.2e14, 6.8e14, 3.0e14, 2.0e14}, "Barrel fluence for radiation damage in 2022"};
+    {this, "BarrelFluence2022", {5.50e14, 5.19e14, 2.28e14, 1.53e14}, "Barrel fluence for radiation damage in 2022"};
 
     Gaudi::Property<std::vector<std::string>> m_BarrelFluenceMap2022
     {this, "BarrelFluenceMap2022", {"PixelDigitization/maps_IBL_PL_450V_fl7_2e14.root",
@@ -639,10 +635,10 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
 
     // This is ad-hoc solution.
     Gaudi::Property<std::vector<float>> m_BLayerNoiseShapeRUN1
-    {this, "BLayerNoiseShapeRUN1", {0.0,1.0}, "Noise shape for b-layer in RUN1"};
+  {this, "BLayerNoiseShapeRUN1", {0.0, 0.0, 0.0, 0.0, 0.2204, 0.5311, 0.7493, 0.8954, 0.9980, 1.0}, "Noise shape for b-layer in RUN1"};
 
     Gaudi::Property<std::vector<float>> m_PixelNoiseShapeRUN1
-    {this, "PixelNoiseShapeRUN1", {0.0,1.0}, "Noise shape for PIXEL in RUN1"};
+  {this, "PixelNoiseShapeRUN1", {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2418, 0.4397, 0.5858, 0.6949, 0.7737, 0.8414, 0.8959, 0.9414, 0.9828, 1.0}, "Noise shape for PIXEL in RUN1"};
 
     // Endcap RUN1
     Gaudi::Property<std::vector<int>> m_EndcapToTThresholdRUN1
@@ -736,6 +732,9 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
 
     Gaudi::Property<bool> m_UseFEI4SpecialScalingFunction
     {this, "UseFEI4SpecialScalingFunction", true, "Use FEI4 special scaling function"};
+
+    Gaudi::Property<std::vector<double>> m_FEI4ToTSigma
+    {this, "FEI4ToTSigma", {0.0,0.50,0.50,0.50,0.50,0.50,0.60,0.60,0.60,0.60,0.65,0.70,0.75,0.80,0.80,0.80,0.80}, "Set ToT sigma for FEI4"};
 
     // Charge calibration parameters
     Gaudi::Property<float> m_CalibrationParameterA

@@ -40,7 +40,7 @@ if( Protobuf_FOUND )
       SOURCES "${_eiPythonFile}" )
    add_dependencies( Package_EventIndexProducer EventIndexProducerProtobufGen )
    install( FILES "${_eiPythonFile}"
-      DESTINATION "${CMAKE_INSTALL_PYTHONDIR}/EventIndexProducer" )
+      DESTINATION "${CMAKE_INSTALL_PYTHONDIR}/EventIndexProducer" OPTIONAL )
 endif()
 
 

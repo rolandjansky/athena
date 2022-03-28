@@ -9,7 +9,8 @@ find_package( Qt5 COMPONENTS Core Gui Widgets )
 # Generate MOC files automatically:
 set( CMAKE_AUTOMOC TRUE )
 
-atlas_add_library( VP1TrackPlugin VP1TrackPlugin/*.h src/*.cxx src/*.qrc 
+
+atlas_add_library( VP1TrackPlugin VP1TrackPlugin/*.h src/*.cxx
    PUBLIC_HEADERS VP1TrackPlugin
    INCLUDE_DIRS ${QT5_INCLUDE_DIRS} 
    PRIVATE_INCLUDE_DIRS tmpqt_extraheaders/ 

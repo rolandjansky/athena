@@ -67,7 +67,7 @@ HGTD::ClusterTruthInfo HGTD::ClusterTruthTool::classifyCluster(
         // FIXME: shouldn't I "continue" here?
       }
       // check for identity with original particle
-      const HepMC::GenParticle* gen_part = particle_link.cptr();
+      HepMC::ConstGenParticlePtr gen_part = particle_link.cptr();
       if (gen_part) {
         TLorentzVector l4(gen_part->momentum().px(), gen_part->momentum().py(),
                           gen_part->momentum().pz(), gen_part->momentum().e());

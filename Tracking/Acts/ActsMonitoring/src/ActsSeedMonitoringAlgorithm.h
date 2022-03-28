@@ -9,8 +9,8 @@
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "StoreGate/ReadHandleKey.h"
 
-#include "ActsEDM/ActsSpacePoint.h" 
-#include "ActsEDM/ActsSeed.h"
+#include "ActsTrkEvent/SpacePoint.h"
+#include "ActsTrkEvent/Seed.h"
 
 namespace ActsTrk {
 

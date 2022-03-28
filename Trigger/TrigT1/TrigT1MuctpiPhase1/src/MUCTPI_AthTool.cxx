@@ -437,7 +437,7 @@ namespace LVL1MUCTPIPHASE1 {
       xAODRoIs->push_back(std::make_unique<xAOD::MuonRoI>());
 
       LVL1::TrigT1MuonRecRoiData roiData;
-      switch (LVL1::MuCTPIBits::getSubsysID(data.dataWord, /*onlineFormat=*/ false)) {
+      switch (LVL1::MuCTPIBits::getSubsysID(data.dataWord)) {
         case LVL1::MuCTPIBits::SubsysID::Endcap: // same for Endcap and Forward
         case LVL1::MuCTPIBits::SubsysID::Forward: {
           roiData = m_tgcTool->roiData(data.dataWord);

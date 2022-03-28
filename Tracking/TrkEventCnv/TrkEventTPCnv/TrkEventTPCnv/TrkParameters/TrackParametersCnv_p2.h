@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -57,9 +57,9 @@ public:
 private:
   AmgSymMatrix(5)*    transErrorMatrix(const Trk :: TrackParameters_p2 *persObj,  MsgStream& log);
   const Trk::Surface* transSurface(    const Trk :: TrackParameters_p2 *persObj,  Trk::SurfaceType type,     MsgStream& log);
-  void                fillPersSurface( const Trk :: TrackParameters    *transObj, Trk :: TrackParameters_p2 *persObj, MsgStream& log);
-  void                convertTransCurvilinearToPers(const Trk :: TrackParameters    *transObj, Trk :: TrackParameters_p2 *persObj) const;
-  bool                isPersistifiableType(const Trk :: TrackParameters    *transObj) const;
+  static void                fillPersSurface( const Trk :: TrackParameters    *transObj, Trk :: TrackParameters_p2 *persObj, MsgStream& log);
+  static void                convertTransCurvilinearToPers(const Trk :: TrackParameters    *transObj, Trk :: TrackParameters_p2 *persObj) ;
+  static bool                isPersistifiableType(const Trk :: TrackParameters    *transObj) ;
   
   ErrorMatrixCnv_p1 *                        m_emConverter;
   ToolHandle<Trk::IEventCnvSuperTool>        m_eventCnvTool;  

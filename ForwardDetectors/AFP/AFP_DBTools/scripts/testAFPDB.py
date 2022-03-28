@@ -16,7 +16,7 @@
 #               $ python testAFPDB.py --filesInput=/afs/cern.ch/user/p/pbalek/workspace/public/data17_13TeV.00333380.physics_Main.daq.RAW/data17_13TeV.00333380.physics_Main.daq.RAW._lb0163._SFO-7._0001.data
 #           3. the script will read the files and print out alignment variables for the events in the input file (based on run number and LB)
 
-#           footnote: for the python setup with TopLocRecSeq, see AFP_LocReco/AFP_LocReco_joboptions.py
+#           footnote: for the python setup with TopLocRecSeq, see AFP_LocReco/AFP_LocReco.py
 
 from AthenaConfiguration.ComponentAccumulator import CompFactory, ComponentAccumulator
 

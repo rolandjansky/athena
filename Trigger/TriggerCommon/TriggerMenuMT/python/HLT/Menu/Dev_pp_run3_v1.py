@@ -79,6 +79,10 @@ def setupMenu():
         #ATR-21566, di-muon TLA       
         ChainProp(name='HLT_mu10_PhysicsTLA_L1MU8F',   stream=['TLA'], groups=SingleMuonGroup+DevGroup), 
         ChainProp(name='HLT_mu10_mu6_probe_PhysicsTLA_L1MU8F', stream=['TLA'],l1SeedThresholds=['MU8F','PROBEMU3V'], groups=MultiMuonGroup+DevGroup),
+
+        #ATR-24932, 4mu L1 with DR, for optimization
+        ChainProp(name='HLT_2mu4_L1BPH-7M14-0DR25-MU5VFMU3VF', l1SeedThresholds=['MU3VF'], stream=["BphysDelayed"], groups=DevGroup+MultiMuonGroup),
+
     ]
 
     chains['Egamma'] += [
@@ -192,10 +196,14 @@ def setupMenu():
 
         # Emerging Jets test chains ATR-21593
 
-        # primary emerging jets chain
-        ChainProp(name='HLT_j175_a10sd_cssk_pf_jes_ftf_0eta180_emergingPTF0p08dR1p2_L1J100', groups=SingleJetGroup+PrimaryLegGroup, l1SeedThresholds=['FSNOSEED']),
+        # primary emerging jets single-jet chain
+        ChainProp(name='HLT_j175_a10sd_cssk_pf_jes_ftf_0eta180_preselj225_emergingPTF0p08dR1p2_L1J100', groups=SingleJetGroup+DevGroup, l1SeedThresholds=['FSNOSEED']),
+        # alternate emerging jet single-jet chain
+        ChainProp(name='HLT_j175_a10sd_cssk_pf_jes_ftf_0eta160_preselj225_emergingPTF0p08dR1p2_L1J100', groups=SingleJetGroup+DevGroup, l1SeedThresholds=['FSNOSEED']),
+
 
         # backup emerging jets chains to be used for rate refinement in enhanced bias reprocessing
+        ChainProp(name='HLT_j175_a10sd_cssk_pf_jes_ftf_0eta180_emergingPTF0p08dR1p2_L1J100', groups=SingleJetGroup+PrimaryLegGroup, l1SeedThresholds=['FSNOSEED']),
         ChainProp(name='HLT_j175_a10sd_cssk_pf_jes_ftf_0eta180_emergingPTF0p075dR1p2_L1J100', groups=SingleJetGroup+DevGroup, l1SeedThresholds=['FSNOSEED']),
         ChainProp(name='HLT_j175_a10sd_cssk_pf_jes_ftf_0eta160_emergingPTF0p075dR1p2_L1J100', groups=SingleJetGroup+DevGroup, l1SeedThresholds=['FSNOSEED']),
         ChainProp(name='HLT_j175_a10sd_cssk_pf_jes_ftf_0eta180_emergingPTF0p07dR1p2_L1J100', groups=SingleJetGroup+DevGroup, l1SeedThresholds=['FSNOSEED']),
@@ -208,9 +216,9 @@ def setupMenu():
 
 
         # primary dijet emerging jets chain
-        ChainProp(name='HLT_2j110_a10sd_cssk_pf_jes_ftf_0eta200_emergingPTF0p1dR1p2_L1J100', groups=SingleJetGroup+PrimaryLegGroup, l1SeedThresholds=['FSNOSEED']),
+        ChainProp(name='HLT_2j110_a10sd_cssk_pf_jes_ftf_0eta200_preselj225_emergingPTF0p1dR1p2_L1J100', groups=SingleJetGroup+PrimaryLegGroup, l1SeedThresholds=['FSNOSEED']),
         # backup dijet emerging jets chain
-        ChainProp(name='HLT_2j110_a10sd_cssk_pf_jes_ftf_0eta180_emergingPTF0p09dR1p2_L1J100', groups=SingleJetGroup+PrimaryLegGroup, l1SeedThresholds=['FSNOSEED']),
+        ChainProp(name='HLT_2j110_a10sd_cssk_pf_jes_ftf_0eta180_preselj225_emergingPTF0p09dR1p2_L1J100', groups=SingleJetGroup+PrimaryLegGroup, l1SeedThresholds=['FSNOSEED']),
 
         # primary Trackless jet chain
         ChainProp(name='HLT_j175_a10r_subjesIS_ftf_0eta200_tracklessdR1p2_L1J100',    groups=SingleJetGroup+PrimaryLegGroup, l1SeedThresholds=['FSNOSEED']),
@@ -451,6 +459,7 @@ def setupMenu():
         ChainProp(name='HLT_2mu4_noL2Comb_bBmumux_BsmumuPhi_L12MU3V', stream=["BphysDelayed"], groups=BphysicsGroup+DevGroup),
         ChainProp(name='HLT_2mu4_noL2Comb_bBmumux_LbPqKm_L12MU3V', stream=["BphysDelayed"], groups=BphysicsGroup+DevGroup),
 
+        
         #ATR-20603; B-trigger monitoring, ART tests; should not be moved to Physics
         ChainProp(name='HLT_2mu4_bJpsimumu_L12MU3V', stream=["BphysDelayed"], groups=BphysicsGroup+DevGroup, monGroups=['bphysMon:online','bphysMon:val']),
         ChainProp(name='HLT_2mu4_bUpsimumu_L12MU3V', stream=["BphysDelayed"], groups=BphysicsGroup+DevGroup),
@@ -467,6 +476,7 @@ def setupMenu():
         ChainProp(name='HLT_2mu4_bBmumux_BcmumuDploose_L12MU3V', stream=["BphysDelayed"], groups=BphysicsGroup+DevGroup),
         ChainProp(name='HLT_2mu4_bBmumux_BcmumuD0Xloose_L12MU3V', stream=["BphysDelayed"], groups=BphysicsGroup+DevGroup),
         ChainProp(name='HLT_2mu4_bBmumux_BcmumuDstarloose_L12MU3V', stream=["BphysDelayed"], groups=BphysicsGroup+DevGroup),
+
     ]
 
     chains['Combined'] += [

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeneratorFilters/DirectPhotonFilter.h"
@@ -57,8 +57,7 @@ StatusCode DirectPhotonFilter::filterEvent() {
   std::vector<HepMC::ConstGenParticlePtr> promptPhotonsInEta;
 
   int phot = 0;
-  for (McEventCollection::const_iterator itr = events_const()->begin(); itr!=events_const()->end(); ++itr) {
-    const HepMC::GenEvent* genEvt = (*itr);
+  for(const HepMC::GenEvent* genEvt : *events_const()) {
     ATH_MSG_DEBUG("----->>> Process : " << HepMC::signal_process_id(genEvt));
     // Find all prompt photons with within given eta range
     for (auto pitr: *genEvt) {

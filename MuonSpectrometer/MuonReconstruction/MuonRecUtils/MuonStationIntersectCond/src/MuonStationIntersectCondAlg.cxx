@@ -5,7 +5,7 @@
 #include "MuonStationIntersectCondAlg.h"
 
 MuonStationIntersectCondAlg::MuonStationIntersectCondAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-    AthAlgorithm(name, pSvcLocator) {}
+    AthReentrantAlgorithm(name, pSvcLocator) {}
 StatusCode MuonStationIntersectCondAlg::initialize() {
     ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_writeKey.initialize());
@@ -13,8 +13,7 @@ StatusCode MuonStationIntersectCondAlg::initialize() {
     ATH_CHECK(m_DetectorManagerKey.initialize());
     return StatusCode::SUCCESS;
 }
-StatusCode MuonStationIntersectCondAlg::execute() {
-    const EventContext& ctx = Gaudi::Hive::currentContext();
+StatusCode MuonStationIntersectCondAlg::execute(const EventContext& ctx) const {
     SG::ReadCondHandle<MuonGM::MuonDetectorManager> det_mgr{m_DetectorManagerKey, ctx};
     if (!det_mgr.isValid()) {
         ATH_MSG_FATAL("Failed to retrieve Muon detector manager " << m_DetectorManagerKey.fullKey());

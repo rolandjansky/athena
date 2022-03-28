@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -8,68 +8,45 @@ from BTagging.JetBTaggingAlgConfig import JetBTaggingAlgCfg
 from BTagging.JetSecVertexingAlgConfig import JetSecVertexingAlgCfg
 from BTagging.JetSecVtxFindingAlgConfig import JetSecVtxFindingAlgCfg
 from BTagging.BTagTrackAugmenterAlgConfig import BTagTrackAugmenterAlgCfg
-from BTagging.BTagHighLevelAugmenterAlgConfig import BTagHighLevelAugmenterAlgCfg
+from FlavorTagDiscriminants.BTagJetAugmenterAlgConfig import (
+    BTagJetAugmenterAlgCfg)
+from FlavorTagDiscriminants.BTagMuonAugmenterAlgConfig import (
+    BTagMuonAugmenterAlgCfg)
 from BTagging.HighLevelBTagAlgConfig import HighLevelBTagAlgCfg
 from JetTagCalibration.JetTagCalibConfig import JetTagCalibCfg
 
 
-def RenameInputContainerCfg(suffix):
+def RetagRenameInputContainerCfg(suffix, JetCollectionShort, tracksKey = 'InDetTrackParticles'):
     acc=ComponentAccumulator()
-
-    #Delete BTagging container read from input ESD
+    # Delete BTagging container read from input ESD
     AddressRemappingSvc, ProxyProviderSvc=CompFactory.getComps("AddressRemappingSvc","ProxyProviderSvc",)
     AddressRemappingSvc = AddressRemappingSvc("AddressRemappingSvc")
-    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::JetAuxContainer#AntiKt4EMTopoJets.btaggingLink->AntiKt4EMTopoJets.btaggingLink_' + suffix]
-    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::BTaggingContainer#BTagging_AntiKt4EMTopo->BTagging_AntiKt4EMTopo_' + suffix]
-    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::BTaggingAuxContainer#BTagging_AntiKt4EMTopoAux.->BTagging_AntiKt4EMTopo_' + suffix+"Aux."]
-    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::VertexContainer#BTagging_AntiKt4EMTopoSecVtx->BTagging_AntiKt4EMTopoSecVtx_' + suffix]
-    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::VertexAuxContainer#BTagging_AntiKt4EMTopoSecVtxAux.->BTagging_AntiKt4EMTopoSecVtx_' + suffix+"Aux."]
-    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::BTagVertexContainer#BTagging_AntiKt4EMTopoJFVtx->BTagging_AntiKt4EMTopoJFVtx_' + suffix]
-    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::BTagVertexAuxContainer#BTagging_AntiKt4EMTopoJFVtxAux.->BTagging_AntiKt4EMTopoJFVtx_' + suffix+"Aux."]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::JetAuxContainer#' + JetCollectionShort + 'Jets.BTagTrackToJetAssociator->' + JetCollectionShort + 'Jets.BTagTrackToJetAssociator_' + suffix]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::JetAuxContainer#' + JetCollectionShort + 'Jets.JFVtx->' + JetCollectionShort + 'Jets.JFVtx_' + suffix]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::JetAuxContainer#' + JetCollectionShort + 'Jets.SecVtx->' + JetCollectionShort + 'Jets.SecVtx_' + suffix]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::JetAuxContainer#' + JetCollectionShort + 'Jets.btaggingLink->' + JetCollectionShort + 'Jets.btaggingLink_' + suffix]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::BTaggingContainer#BTagging_' + JetCollectionShort + '->BTagging_' + JetCollectionShort + '_' + suffix]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::BTaggingAuxContainer#BTagging_' + JetCollectionShort + 'Aux.->BTagging_' + JetCollectionShort + '_' + suffix+"Aux."]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::VertexContainer#BTagging_' + JetCollectionShort + 'SecVtx->BTagging_' + JetCollectionShort + 'SecVtx_' + suffix]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::VertexAuxContainer#BTagging_' + JetCollectionShort + 'SecVtxAux.->BTagging_' + JetCollectionShort + 'SecVtx_' + suffix+"Aux."]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::BTagVertexContainer#BTagging_' + JetCollectionShort + 'JFVtx->BTagging_' + JetCollectionShort + 'JFVtx_' + suffix]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::BTagVertexAuxContainer#BTagging_' + JetCollectionShort + 'JFVtxAux.->BTagging_' + JetCollectionShort + 'JFVtx_' + suffix+"Aux."]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::TrackParticleAuxContainer#' + tracksKey + '.TrackCompatibility->' + tracksKey + '.TrackCompatibility_' + suffix]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::TrackParticleAuxContainer#' + tracksKey + '.btagIp_d0->' + tracksKey + '.btagIp_d0_' + suffix]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::TrackParticleAuxContainer#' + tracksKey + '.btagIp_z0SinTheta->' + tracksKey + '.btagIp_z0SinTheta_' + suffix]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::TrackParticleAuxContainer#' + tracksKey + '.btagIp_d0Uncertainty->' + tracksKey + '.btagIp_d0Uncertainty_' + suffix]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::TrackParticleAuxContainer#' + tracksKey + '.btagIp_z0SinThetaUncertainty->' + tracksKey + '.btagIp_z0SinThetaUncertainty_' + suffix]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::TrackParticleAuxContainer#' + tracksKey + '.btagIp_trackMomentum->' + tracksKey + '.btagIp_trackMomentum_' + suffix]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::TrackParticleAuxContainer#' + tracksKey + '.btagIp_trackDisplacement->' + tracksKey + '.btagIp_trackDisplacement_' + suffix]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::TrackParticleAuxContainer#' + tracksKey + '.JetFitter_TrackCompatibility_antikt4empflow->' + tracksKey + '.JetFitter_TrackCompatibility_antikt4empflow_' + suffix]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::JetAuxContainer#' + JetCollectionShort + 'Jets.TracksForBTagging->' + JetCollectionShort + 'Jets.TracksForBTagging' + suffix]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::JetAuxContainer#' + JetCollectionShort + 'Jets.MuonsForBTagging->' + JetCollectionShort + 'Jets.MuonsForBTagging' + suffix]
     acc.addService(AddressRemappingSvc)
     acc.addService(ProxyProviderSvc(ProviderNames = [ "AddressRemappingSvc" ]))
-
-    return acc
-
-def RenameHLTaggerCfg(JetCollection, Tagger, suffix):
-    acc=ComponentAccumulator()
-    AddressRemappingSvc, ProxyProviderSvc=CompFactory.getComps("AddressRemappingSvc","ProxyProviderSvc",)
-    AddressRemappingSvc = AddressRemappingSvc("AddressRemappingSvc")
-    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::BTaggingAuxContainer#BTagging_' + JetCollection + '.' + Tagger + '_pu->BTagging_' + JetCollection + '.'+ Tagger + '_pu' + suffix]
-    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::BTaggingAuxContainer#BTagging_' + JetCollection + '.' + Tagger + '_pc->BTagging_' + JetCollection + '.'+ Tagger + '_pc' + suffix]
-    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::BTaggingAuxContainer#BTagging_' + JetCollection + '.' + Tagger + '_pb->BTagging_' + JetCollection + '.'+ Tagger + '_pb' + suffix]
-    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::BTaggingAuxContainer#BTagging_' + JetCollection + '.' + Tagger + '_ptau->BTagging_' + JetCollection + '.'+ Tagger + '_ptau' + suffix]
-    acc.addService(AddressRemappingSvc)
-    acc.addService(ProxyProviderSvc(ProviderNames = [ "AddressRemappingSvc" ]))
-
     return acc
 
 
-def PrepareStandAloneBTagCfg(inputFlags):
-    result=ComponentAccumulator()
-
-    from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    result.merge(PoolReadCfg(inputFlags))
-
-    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-    acc = TrackingGeometrySvcCfg(inputFlags)
-    result.merge(acc)
-
-    # get standard config for magnetic field - map and cache
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    result.merge(MagneticFieldSvcCfg( inputFlags ))
-
-    #Beamspot conditions
-    from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
-    result.merge(BeamSpotCondAlgCfg(inputFlags))
-    
-    #load folders needed for Run2 ID alignment
-    from IOVDbSvc.IOVDbSvcConfig import addFolders
-    result.merge(addFolders(inputFlags,['/TRT/Align'],'TRT_OFL'))
-
-    return result
-
-def BTagRecoSplitCfg(inputFlags, JetCollection = ['AntiKt4EMTopo','AntiKt4EMPFlow'], **kwargs):
+def BTagRecoSplitCfg(inputFlags, JetCollection=['AntiKt4EMTopo','AntiKt4EMPFlow']):
 
     result=ComponentAccumulator()
 
@@ -77,37 +54,9 @@ def BTagRecoSplitCfg(inputFlags, JetCollection = ['AntiKt4EMTopo','AntiKt4EMPFlo
     if inputFlags.Beam.Type is not BeamType.Collisions:
         return result
 
-    taggerList = inputFlags.BTagging.run2TaggersList
+    result.merge(JetTagCalibCfg(inputFlags))
 
-    result.merge(JetTagCalibCfg(inputFlags, TaggerList = taggerList, **kwargs))
-
-    SecVertexers = [ "JetFitter" , "SV1" ]
-    for jc in JetCollection:
-        result.merge(JetBTaggerSplitAlgsCfg(inputFlags, JetCollection = jc, TaggerList = taggerList, SecVertexers = SecVertexers, **kwargs))
-
-    # the following is needed to reliably determine whether we're really being steered from an old-style job option
-    # assume we're running CPython
-    import inspect
-    stack = inspect.stack()
-    if len(stack) >= 2 and stack[1].function == 'CAtoGlobalWrapper':
-        for el in result._allSequences:
-            el.name = "TopAlg"
-
-    return result
-
-
-def JetBTaggerSplitAlgsCfg(inputFlags, JetCollection="", TaggerList=[], SecVertexers = [], SetupScheme="", **kwargs):
-
-    result=ComponentAccumulator()
-    jet = JetCollection
-
-    timestamp = kwargs.get('TimeStamp', None)
-    if not timestamp:
-        timestamp = ['']
-    else:
-        del kwargs['TimeStamp']
-
-    postTagDL2JetToTrainingMap={
+    recoTaggerList={
         'AntiKt4EMPFlow': [
            'BTagging/201903/rnnip/antikt4empflow/network.json',
            'BTagging/201903/dl1r/antikt4empflow/network.json',
@@ -128,60 +77,166 @@ def JetBTaggerSplitAlgsCfg(inputFlags, JetCollection="", TaggerList=[], SecVerte
         ]
     }
 
-    #Track Association
-    result.merge(JetParticleAssociationAlgCfg(inputFlags, jet+'Jets', "InDetTrackParticles", "TracksForBTagging", **kwargs))
-    result.merge(JetParticleAssociationAlgCfg(inputFlags, jet+'Jets', "Muons", "MuonsForBTagging", **kwargs))
+    #Track Augmenter
+    result.merge(BTagTrackAugmenterAlgCfg(inputFlags))
 
-    for sv in SecVertexers:
-        result.merge(JetSecVtxFindingAlgCfg(inputFlags, jet, "PrimaryVertices", sv, "TracksForBTagging"))
-        result.merge(JetSecVertexingAlgCfg(inputFlags, inputFlags.BTagging.OutputFiles.Prefix + jet, jet, "InDetTrackParticles",  "PrimaryVertices", sv))
-
-    #BTagging
-    for ts in timestamp:
-        result.merge(JetBTaggingAlgCfg( \
-            inputFlags
-          , BTaggingCollection = inputFlags.BTagging.OutputFiles.Prefix + jet
-          , JetCollection = jet
-          , PrimaryVertexCollectionName="PrimaryVertices"
-          , TaggerList = TaggerList
-          , SecVertexers = SecVertexers
-          , Tracks = "TracksForBTagging"
-          , Muons = "MuonsForBTagging"
-          , TimeStamp = ts
-          , **kwargs
-          )
+    for jc in JetCollection:
+        result.merge(
+            BTagAlgsCfg(
+                inputFlags,
+                JetCollection=jc,
+                nnList=recoTaggerList[jc],
+                muons='', # muon augmentation isn't thread safe, disable
+            )
         )
 
-    if jet in postTagDL2JetToTrainingMap:
-        #Track Augmenter
-        result.merge(BTagTrackAugmenterAlgCfg(inputFlags))
-
-        for ts in timestamp:
-            #HighLevel taggers can not be run with time stamped containers
-            if ts == "":
-                result.merge(RunHighLevelTaggersCfg(inputFlags, jet, 'BTagTrackToJetAssociator', postTagDL2JetToTrainingMap[jet], ts))
+    # the following is needed to reliably determine whether we're really being steered from an old-style job option
+    # assume we're running CPython
+    import inspect
+    stack = inspect.stack()
+    if len(stack) >= 2 and stack[1].function == 'CAtoGlobalWrapper':
+        for el in result._allSequences:
+            el.name = "TopAlg"
 
     return result
 
 
-def RunHighLevelTaggersCfg(inputFlags, JetCollection, Associator, TrainingMaps, TimeStamp):
+def BTagAlgsCfg(inputFlags,
+                JetCollection,
+                nnList=[],
+                TaggerList=None,
+                SecVertexers=None,
+                trackCollection='InDetTrackParticles',
+                muons='Muons',
+                primaryVertices='PrimaryVertices',
+                BTagCollection=None):
+
+    # If things aren't specified in the arguments, we'll read them
+    # from the config flags
+    if TaggerList is None:
+        TaggerList = inputFlags.BTagging.taggerList
+    if SecVertexers is None:
+        SecVertexers = ['JetFitter', 'SV1']
+        if inputFlags.BTagging.RunFlipTaggers:
+            SecVertexers += ['JetFitterFlip','SV1Flip']
+    jet = JetCollection
+    if BTagCollection is None:
+        BTagCollection = inputFlags.BTagging.OutputFiles.Prefix + jet
+
+    # Names of element link vectors that are stored on the jet and
+    # BTagging object. These are added and read out by the packages
+    # that are configured below: in principal you should be able to
+    # change these without changing the final b-tagging output.
+    JetTrackAssociator = 'TracksForBTagging'
+    BTagTrackAssociator = 'BTagTrackToJetAssociator'
+    JetMuonAssociator = 'MuonsForBTagging'
+    BTagMuonAssociator = 'Muons'
+
     result = ComponentAccumulator()
 
-    AthSequencer=CompFactory.AthSequencer
+    # Associate tracks to the jet
+    result.merge(JetParticleAssociationAlgCfg(
+        inputFlags,
+        jet+'Jets',
+        trackCollection,
+        JetTrackAssociator,
+    ))
+    if muons:
+        result.merge(JetParticleAssociationAlgCfg(
+            inputFlags, jet+'Jets', muons, JetMuonAssociator))
 
-    BTagCollection = inputFlags.BTagging.OutputFiles.Prefix+JetCollection
-    sequenceName = BTagCollection + "_HLTaggers"
-    if TimeStamp:
-            BTagCollection += '_' + TimeStamp
-            sequenceName += '_' + TimeStamp
+    # Build secondary vertices
+    for sv in SecVertexers:
+        result.merge(JetSecVtxFindingAlgCfg(
+            inputFlags,
+            jet,
+            primaryVertices,
+            sv,
+            JetTrackAssociator,
+        ))
+        result.merge(JetSecVertexingAlgCfg(
+            inputFlags,
+            BTagCollection,
+            jet,
+            trackCollection,
+            primaryVertices,
+            sv
+        ))
 
-    HLBTagSeq = AthSequencer(sequenceName, Sequential = True)
-    result.addSequence(HLBTagSeq)
+    # Create the b-tagging object, and run the older b-tagging algorithms
+    result.merge(
+        JetBTaggingAlgCfg(
+            inputFlags,
+            BTaggingCollection=BTagCollection,
+            JetCollection=jet,
+            PrimaryVertexCollectionName=primaryVertices,
+            TaggerList=TaggerList,
+            SecVertexers=SecVertexers,
+            Tracks=JetTrackAssociator,
+            Muons=JetMuonAssociator if muons else '',
+            OutgoingTracks=BTagTrackAssociator,
+            OutgoingMuons=BTagMuonAssociator,
+        )
+    )
 
-    tracks = 'InDetTrackParticles'
-    result.merge(BTagHighLevelAugmenterAlgCfg(inputFlags, JetCollection=JetCollection, BTagCollection=BTagCollection, Associator=Associator, TrackCollection=tracks), sequenceName=sequenceName )
-    for dl2 in TrainingMaps:
-        result.merge(HighLevelBTagAlgCfg(inputFlags, BTagCollection, TrackCollection=tracks, NNFile=dl2), sequenceName=sequenceName )
+    # Add some high level information to the b-tagging object we
+    # created above
+    result.merge(
+        BTagJetAugmenterAlgCfg(
+            inputFlags,
+            BTagCollection=BTagCollection,
+            Associator=BTagTrackAssociator,
+            TrackCollection=trackCollection,
+        )
+    )
+    if muons:
+        result.merge(
+            BTagMuonAugmenterAlgCfg(
+                inputFlags,
+                BTagCollection=BTagCollection,
+                Associator=BTagMuonAssociator,
+                MuonCollection=muons,
+            )
+        )
+
+    # Add the final taggers based on neural networks
+    for dl2 in nnList:
+        result.merge(
+            HighLevelBTagAlgCfg(
+                inputFlags,
+                BTagCollection,
+                TrackCollection=trackCollection,
+                NNFile=dl2)
+        )
+        # add flip taggers, sometimes
+        if inputFlags.BTagging.RunFlipTaggers:
+            for flip_config in _get_flip_config(dl2):
+                result.merge(
+                    HighLevelBTagAlgCfg(
+                        inputFlags,
+                        BTaggingCollection=BTagCollection,
+                        TrackCollection=trackCollection,
+                        NNFile=dl2,
+                        FlipConfig=flip_config,
+                    )
+                )
 
     return result
 
+
+def _get_flip_config(nn_path):
+    """
+    Schedule NN-based IP 'flip' taggers (rnnipflip and dipsflip) -
+    this should for the moment only run on the low-level taggers and
+    not on 'dl1x'.
+
+    FlipConfig is "STANDARD" by default - for flip tagger set up with
+    option "NEGATIVE_IP_ONLY" (flip sign of d0 and use only (flipped)
+    positive d0 values).
+
+    Returns a list of flip configurations, or [] for things we don't flip.
+    """
+    if 'dl1' in nn_path:
+        return []
+    if 'rnnip' in nn_path or 'dips' in nn_path:
+        return ['NEGATIVE_IP_ONLY']

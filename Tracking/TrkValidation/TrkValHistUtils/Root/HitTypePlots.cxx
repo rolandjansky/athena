@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <utility>
@@ -29,7 +29,7 @@ namespace Trk {
   }
 
   void
-  HitTypePlots::fill(int iHits, float fEta, float fPhi, float weight) {
+  HitTypePlots::fill(int iHits, float fEta, float fPhi, float weight) const {
     Hits->Fill(iHits, weight);
     HitsVsEta->Fill(iHits, fEta, weight);
     HitsVsPhi->Fill(iHits, fPhi, weight);

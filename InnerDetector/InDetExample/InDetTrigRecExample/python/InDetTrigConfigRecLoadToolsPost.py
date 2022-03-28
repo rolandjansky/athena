@@ -76,7 +76,6 @@ InDetTrigParticleCreatorToolFTF = \
                                    TrackSummaryTool = InDetTrigFastTrackSummaryTool,
                                    KeepParameters = True,
                                    ComputeAdditionalInfo = True,
-                                   ExtraSummaryTypes     = ['eProbabilityComb', 'eProbabilityHT', 'eProbabilityNN','TRTTrackOccupancy', 'TRTdEdx', 'TRTdEdxUsedHits'],
                                    #ForceTrackSummaryUpdate = False,
                                    )
 

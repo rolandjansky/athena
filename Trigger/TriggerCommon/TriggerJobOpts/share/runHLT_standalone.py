@@ -44,8 +44,8 @@ class opt:
     enableL1CaloLegacy = True         # Enable Run-2 L1Calo simulation and/or decoding (possible even if enablePhase1 is True)
     enableL1TopoDump = False          # Enable L1Topo simulation to write inputs to txt
     enableL1NSWEmulation = False      # Enable TGC-NSW coincidence emulator : ConfigFlags.Trigger.L1MuonSim.EmulateNSW
-    enableL1NSWVetoMode = False       # Enable TGC-NSW coincidence veto mode: ConfigFlags.Trigger.L1MuonSim.NSWVetoMode
-    enableL1NSWMMTrigger = False      # Enable MM trigger for TGC-NSW coincidence : ConfigFlags.Trigger.L1MuonSim.doMMTrigger
+    enableL1NSWVetoMode = True        # Enable TGC-NSW coincidence veto mode: ConfigFlags.Trigger.L1MuonSim.NSWVetoMode
+    enableL1NSWMMTrigger = True       # Enable MM trigger for TGC-NSW coincidence : ConfigFlags.Trigger.L1MuonSim.doMMTrigger
     enableL1NSWPadTrigger = False     # Enable sTGC Pad trigger for TGC-NSW coincidence : ConfigFlags.Trigger.L1MuonSim.doPadTrigger
     enableL1NSWStripTrigger = False   # Enable sTGC Strip trigger for TGC-NSW coincidence : ConfigFlags.Trigger.L1MuonSim.doStripTrigger
     enableL1RPCBIS78    = False       # Enable TGC-RPC BIS78 coincidence : ConfigFlags.Trigger.L1MuonSim.doBIS78
@@ -178,6 +178,14 @@ if ConfigFlags.Input.Format is Format.POOL:
 # Run-3 Trigger produces Run-3 EDM
 ConfigFlags.Trigger.EDMVersion = 3
 
+# Some legacy b-tagging configuration is trigger specific
+ConfigFlags.BTagging.databaseScheme = 'Trig'
+ConfigFlags.BTagging.forcedCalibrationChannel = 'AntiKt4EMTopo'
+# something is asking for MV2 :'(
+# TODO: remove whatever it is, see ATR-25239
+# Note: for some reason append(...) doesn't work here, but += [...] does
+ConfigFlags.BTagging.taggerList += ['MV2c10']
+
 # Set final Cond/Geo tag based on input file, command line or default
 globalflags.DetDescrVersion = opt.setDetDescr or ConfigFlags.Trigger.OnlineGeoTag
 ConfigFlags.GeoModel.AtlasVersion = globalflags.DetDescrVersion()
@@ -266,7 +274,6 @@ else:           # More data modifiers
                      #Set muComb/muIso Backextrapolator tuned for real data
                      #Monitoring for L1 muon group
                      #Monitoring L1Topo at ROB level
-                     'forceTileRODMap',
                      'enableSchedulerMon'
     ]
 

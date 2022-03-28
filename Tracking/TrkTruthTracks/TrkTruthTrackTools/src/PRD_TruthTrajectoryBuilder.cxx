@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////
@@ -54,7 +54,7 @@ StatusCode  Trk::PRD_TruthTrajectoryBuilder::initialize()
         return StatusCode::FAILURE;
     }     
     // get the manipulators
-    if ( m_prdTruthTrajectoryManipulators.size()  && m_prdTruthTrajectoryManipulators.retrieve().isFailure()){
+    if ( !m_prdTruthTrajectoryManipulators.empty()  && m_prdTruthTrajectoryManipulators.retrieve().isFailure()){
         ATH_MSG_ERROR ("Could not get configured " << m_prdTruthTrajectoryManipulators << ". Arborting ..." );
         return StatusCode::FAILURE;
     }
@@ -154,7 +154,7 @@ const std::map<HepMC::ConstGenParticlePtr, Trk::PRD_TruthTrajectory >& Trk::PRD_
     auto prdTruthTrajIter  = m_gpPrdTruthTrajectories.begin();
     auto prdTruthTrajIterE = m_gpPrdTruthTrajectories.end();
     for ( ; prdTruthTrajIter != prdTruthTrajIterE; ++prdTruthTrajIter ){
-        if ( m_prdTruthTrajectoryManipulators.size() ){
+        if ( !m_prdTruthTrajectoryManipulators.empty() ){
             ToolHandleArray<IPRD_TruthTrajectoryManipulator>::const_iterator prdTTMIter  = m_prdTruthTrajectoryManipulators.begin();
             ToolHandleArray<IPRD_TruthTrajectoryManipulator>::const_iterator prdTTMIterE = m_prdTruthTrajectoryManipulators.end();
             for ( ; prdTTMIter != prdTTMIterE; ++prdTTMIter ){

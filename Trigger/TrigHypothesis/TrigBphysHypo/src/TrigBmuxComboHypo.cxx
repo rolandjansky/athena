@@ -55,6 +55,7 @@ StatusCode TrigBmuxComboHypo::initialize() {
   ATH_CHECK( m_trackParticleContainerKey.initialize() );
   renounce(m_trackParticleContainerKey);
   ATH_CHECK( m_trigBphysContainerKey.initialize() );
+  ATH_CHECK( m_beamSpotKey.initialize() );
 
   ATH_CHECK( m_vertexFitter.retrieve() );
   ATH_CHECK( m_vertexPointEstimator.retrieve() );
@@ -104,7 +105,10 @@ StatusCode TrigBmuxComboHypo::execute(const EventContext& context) const {
   ATH_CHECK( trigBphysHandle.record(std::make_unique<xAOD::TrigBphysContainer>(),
                                     std::make_unique<xAOD::TrigBphysAuxContainer>()) );
 
-  auto state = std::make_unique<TrigBmuxState>(context, *previousDecisionsHandle, *outputDecisionsHandle, trigBphysHandle.ptr());
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle {m_beamSpotKey, context};
+  ATH_CHECK( beamSpotHandle.isValid() );
+
+  auto state = std::make_unique<TrigBmuxState>(context, *previousDecisionsHandle, *outputDecisionsHandle, trigBphysHandle.ptr(), *beamSpotHandle);
 
   ATH_CHECK( findBmuxCandidates(*state) );
   ATH_CHECK( createDecisionObjects(*state) );
@@ -140,6 +144,7 @@ StatusCode TrigBmuxComboHypo::findBmuxCandidates(TrigBmuxState& state) const {
     const auto muonInDetTrack = muon->trackParticle(xAOD::Muon::TrackParticleType::InnerDetectorTrackParticle);
     auto p_mu = muonInDetTrack->genvecP4();
     p_mu.SetM(PDG::mMuon);
+    double z0_mu = (m_trkZ0 > 0. ? getTrkImpactParameterZ0(*muonInDetTrack, state.beamSpotPosition()) : -1.);
     mon_nMuon++;
 
     // add muon from decision to state.leptons
@@ -161,7 +166,7 @@ StatusCode TrigBmuxComboHypo::findBmuxCandidates(TrigBmuxState& state) const {
     tracks.reserve(tracksHandle->size());
     for (size_t idx = 0; idx < tracksHandle->size(); ++idx) {
       const auto track = tracksHandle->get(idx);
-      if (track->definingParametersCovMatrixVec().empty() || isIdenticalTracks(track, muonInDetTrack)) continue;
+      if (track->definingParametersCovMatrixVec().empty() || isIdenticalTracks(track, muonInDetTrack) || (m_trkZ0 > 0. && std::abs(getTrkImpactParameterZ0(*track, state.beamSpotPosition()) - z0_mu) > m_trkZ0)) continue;
       tracks.emplace_back(ViewHelper::makeLink<xAOD::TrackParticleContainer>(view, tracksHandle, idx));
     }
     nTrk.push_back(tracks.size());
@@ -197,6 +202,7 @@ StatusCode TrigBmuxComboHypo::findBmuxCandidates(TrigBmuxState& state) const {
             charge1 * charge2 < 0. &&
             p_trk1.Pt() > m_BToD0_minD0KaonPt &&
             p_trk2.Pt() > m_BToD0_minD0PionPt &&
+            (p_trk1 + p_trk2).Pt() > m_BToD0_minD0Pt &&
             isInMassRange((p_trk1.SetM(PDG::mKaon) + p_trk2.SetM(PDG::mPion)).M(), m_BToD0_D0MassRange) &&
             isInMassRange((p_mu + p_trk1.SetM(PDG::mKaon) + p_trk2.SetM(PDG::mPion)).M(), m_BToD0_massRange)) {
           vtx_D0 = fit(state.context(), {muon->inDetTrackParticleLink(), tracks[itrk1], tracks[itrk2]}, kD0);
@@ -222,12 +228,13 @@ StatusCode TrigBmuxComboHypo::findBmuxCandidates(TrigBmuxState& state) const {
           // D*-(-> anti-D0(-> K+ pi-) pi-)
           if (m_BToD0_makeDstar && D0.isValid() &&
               p_trk3.Pt() > m_BToD0_minDstarPionPt &&
+              (p_trk1 + p_trk2 + p_trk3).Pt() > m_BToD0_minDstarPt &&
               isInMassRange((p_D0 + p_trk3.SetM(PDG::mPion)).M() - p_D0.M() + PDG::mD0, m_BToD0_DstarMassRange)) {
 
             bool makeDstar = true;
             if (m_BToD0_maxDstarPionZ0 > 0.) {
               std::unique_ptr<const Trk::Perigee> perigee(m_trackToVertexTool->perigeeAtVertex(*trk3, vtx_D0->position()));
-              if (fabs(perigee->parameters()[Trk::z0]) > m_BToD0_maxDstarPionZ0) makeDstar = false;
+              if (std::abs(perigee->parameters()[Trk::z0]) > m_BToD0_maxDstarPionZ0) makeDstar = false;
             }
 
             if (makeDstar) {
@@ -263,6 +270,7 @@ StatusCode TrigBmuxComboHypo::findBmuxCandidates(TrigBmuxState& state) const {
               p_trk1.Pt() > m_BdToD_minKaonPt &&
               p_trk2.Pt() > m_BdToD_minPionPt &&
               p_trk3.Pt() > m_BdToD_minPionPt &&
+              (p_trk1 + p_trk2 + p_trk3).Pt() > m_BdToD_minDPt &&
               isInMassRange((p_trk1.SetM(PDG::mKaon) + p_trk2.SetM(PDG::mPion) + p_trk3.SetM(PDG::mPion)).M(), m_BdToD_DMassRange) &&
               isInMassRange((p_mu + p_trk1.SetM(PDG::mKaon) + p_trk2.SetM(PDG::mPion) + p_trk3.SetM(PDG::mPion)).M(), m_BdToD_massRange)) {
             auto vtx_D = fit(state.context(), {muon->inDetTrackParticleLink(), tracks[itrk1], tracks[itrk2], tracks[itrk3]}, kDplus);
@@ -285,6 +293,7 @@ StatusCode TrigBmuxComboHypo::findBmuxCandidates(TrigBmuxState& state) const {
               p_trk1.Pt() > m_BsToDs_minKaonPt &&
               p_trk2.Pt() > m_BsToDs_minKaonPt &&
               p_trk3.Pt() > m_BsToDs_minPionPt &&
+              (p_trk1 + p_trk2 + p_trk3).Pt() > m_BsToDs_minDsPt &&
               isInMassRange((p_trk1.SetM(PDG::mKaon) + p_trk2.SetM(PDG::mKaon)).M(), m_BsToDs_phiMassRange) &&
               isInMassRange((p_trk1.SetM(PDG::mKaon) + p_trk2.SetM(PDG::mKaon) + p_trk3.SetM(PDG::mPion)).M(), m_BsToDs_DsMassRange) &&
               isInMassRange((p_mu + p_trk1.SetM(PDG::mKaon) + p_trk2.SetM(PDG::mKaon) + p_trk3.SetM(PDG::mPion)).M(), m_BsToDs_massRange)) {
@@ -307,6 +316,7 @@ StatusCode TrigBmuxComboHypo::findBmuxCandidates(TrigBmuxState& state) const {
               p_trk1.Pt() > m_LambdaBToLambdaC_minProtonPt &&
               p_trk2.Pt() > m_LambdaBToLambdaC_minKaonPt &&
               p_trk3.Pt() > m_LambdaBToLambdaC_minPionPt &&
+              (p_trk1 + p_trk2 + p_trk3).Pt() > m_LambdaBToLambdaC_minLambdaCPt &&
               isInMassRange((p_trk1.SetM(PDG::mProton) + p_trk2.SetM(PDG::mKaon) + p_trk3.SetM(PDG::mPion)).M(), m_LambdaBToLambdaC_LambdaCMassRange) &&
               isInMassRange((p_mu + p_trk1.SetM(PDG::mProton) + p_trk2.SetM(PDG::mKaon) + p_trk3.SetM(PDG::mPion)).M(), m_LambdaBToLambdaC_massRange)) {
             auto vtx_LambdaC = fit(state.context(), {muon->inDetTrackParticleLink(), tracks[itrk1], tracks[itrk2], tracks[itrk3]}, kLambdaC);
@@ -473,4 +483,12 @@ bool TrigBmuxComboHypo::isIdenticalTracks(const xAOD::TrackParticle* lhs, const 
 
   if (lhs->charge() * rhs->charge() < 0.) return false;
   return (ROOT::Math::VectorUtil::DeltaR(lhs->genvecP4(), rhs->genvecP4()) < m_deltaR);
+}
+
+
+double TrigBmuxComboHypo::getTrkImpactParameterZ0(const xAOD::TrackParticle& track, const Amg::Vector3D& vertex) const {
+
+  std::unique_ptr<const Trk::Perigee> perigee(m_trackToVertexTool->perigeeAtVertex(track, vertex));
+  double z0 = perigee->parameters()[Trk::z0];
+  return z0;
 }

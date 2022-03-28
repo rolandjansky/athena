@@ -22,10 +22,11 @@ def makeSequence (dataType) :
     # Add the sequence to the job:
     algSeq += tauSequence
 
-    # Include, and then set up the tau analysis algorithm sequence:
-    from TauAnalysisAlgorithms.DiTauAnalysisSequence import makeDiTauAnalysisSequence
-    diTauSequence = makeDiTauAnalysisSequence( dataType, 'Tight', postfix = 'tight' )
-    diTauSequence.configure( inputName = 'DiTauJets', outputName = 'AnalysisDiTauJets_%SYS%' )
+    # temporarily disabled until di-taus are supported in R22
+    # # Include, and then set up the tau analysis algorithm sequence:
+    # from TauAnalysisAlgorithms.DiTauAnalysisSequence import makeDiTauAnalysisSequence
+    # diTauSequence = makeDiTauAnalysisSequence( dataType, 'Tight', postfix = 'tight' )
+    # diTauSequence.configure( inputName = 'DiTauJets', outputName = 'AnalysisDiTauJets_%SYS%' )
 
     # Add the sequence to the job:
     # disabling this, the standard test files don't have DiTauJets

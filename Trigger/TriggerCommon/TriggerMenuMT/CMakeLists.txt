@@ -80,6 +80,13 @@ function( atlas_test_hlt_trigger_menu menu )
                    POST_EXEC_SCRIPT "check_log.py --errors --config checklogTriggerTest.conf ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/unitTestRun_HLT_${menu}/HLT_${menu}.log" )
 endfunction()
 
+# For other menus, fast check that HLT does not include non-existent L1
+function( atlas_test_l1defined_menu menu )
+   atlas_add_test( "L1Defined_${menu}"
+                   SCRIPT test_menu_dump.py -l -m ${menu}
+                   POST_EXEC_SCRIPT noerror.sh )
+endfunction()
+
 # Test all L1 menus (as this is fast):
 atlas_test_lvl1_trigger_menu( Dev_pp_run3_v1 )
 atlas_test_lvl1_trigger_menu( Physics_pp_run3_v1 )
@@ -94,6 +101,10 @@ atlas_test_lvl1_trigger_menu( Dev_HI_run3_v1 )
 atlas_test_hlt_trigger_menu( Dev_pp_run3_v1 )
 atlas_test_hlt_trigger_menu( Cosmic_run3_v1 )
 atlas_test_hlt_trigger_menu( Dev_HI_run3_v1 )
+
+# Test other HLT menus not included above
+atlas_test_l1defined_menu( PhysicsP1_pp_run3_v1 )
+atlas_test_l1defined_menu( PhysicsP1_pp_lowMu_run3_v1 )
 
 # New job options test:
 atlas_add_test( generateMenuMT_newJO

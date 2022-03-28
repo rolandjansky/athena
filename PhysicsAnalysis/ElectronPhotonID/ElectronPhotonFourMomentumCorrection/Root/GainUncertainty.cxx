@@ -1,32 +1,35 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <ElectronPhotonFourMomentumCorrection/GainUncertainty.h>
 #include <TH1.h>
 #include <TFile.h>
 
-
 namespace egGain {
-
 
 //--------------------------------------
 
   GainUncertainty::GainUncertainty(const std::string& filename) : asg::AsgMessaging("GainUncertainty") {
 
     ATH_MSG_INFO("opening file " << filename);
-    m_gainFile.reset( TFile::Open( filename.c_str(), "READ" ) );
+    std::unique_ptr<TFile> gainFile(TFile::Open( filename.c_str(), "READ"));
 
-    if (not (m_alpha_specialGainRun = (TH1*)(m_gainFile->Get("alpha_specialGainRun")))) ATH_MSG_FATAL("cannot open histogram1");
-    if (not (m_gain_impact_Zee = (TH1*)(m_gainFile->Get("gain_impact_Zee")))) ATH_MSG_FATAL("cannot open histogram2");
-    for (int i=0;i<m_NUM_ETA_BINS;i++) {
+    if (not (m_alpha_specialGainRun = (TH1*)(gainFile->Get("alpha_specialGainRun")))) ATH_MSG_FATAL("cannot open alpha_specialGainRun");
+    m_alpha_specialGainRun->SetDirectory(nullptr);
+    if (not (m_gain_impact_Zee = (TH1*)(gainFile->Get("gain_impact_Zee")))) ATH_MSG_FATAL("cannot open gain_impact_Zee");
+    m_gain_impact_Zee->SetDirectory(nullptr);
+    for (int i=0;i<s_nEtaBins;i++) {
      char name[60];
      sprintf(name,"gain_Impact_elec_%d",i);
-     if (not (m_gain_Impact_elec[i] = (TH1*)(m_gainFile->Get(name)))) ATH_MSG_FATAL("cannot open histogram3");
+     if (not (m_gain_Impact_elec[i] = (TH1*)(gainFile->Get(name)))) ATH_MSG_FATAL("cannot open " << name);
+     m_gain_Impact_elec[i]->SetDirectory(nullptr);
      sprintf(name,"gain_Impact_conv_%d",i);
-     if (not (m_gain_Impact_conv[i] = (TH1*)(m_gainFile->Get(name)))) ATH_MSG_FATAL("cannot open histogram4");
+     if (not (m_gain_Impact_conv[i] = (TH1*)(gainFile->Get(name)))) ATH_MSG_FATAL("cannot open " << name);
+     m_gain_Impact_conv[i]->SetDirectory(nullptr);
      sprintf(name,"gain_Impact_unco_%d",i);
-     if (not (m_gain_Impact_unco[i]= (TH1*)(m_gainFile->Get(name)))) ATH_MSG_FATAL("cannot open histogram5");
+     if (not (m_gain_Impact_unco[i] = (TH1*)(gainFile->Get(name)))) ATH_MSG_FATAL("cannot open " << name);
+     m_gain_Impact_unco[i]->SetDirectory(nullptr);
     }
 
   }
@@ -36,7 +39,7 @@ namespace egGain {
   GainUncertainty::~GainUncertainty() {
       delete m_alpha_specialGainRun;
       delete m_gain_impact_Zee;
-      for (int i=0;i<m_NUM_ETA_BINS;i++) {
+      for (int i=0;i<s_nEtaBins;i++) {
         delete m_gain_Impact_elec[i];
         delete m_gain_Impact_conv[i];
         delete m_gain_Impact_unco[i];
@@ -76,7 +79,6 @@ namespace egGain {
 //  << " " << m_gain_impact_Zee->GetBinContent(m_gain_impact_Zee->FindBin(aeta)) << " " << impact << " " << sigmaE << std::endl;
 
        return sigmaE;
-
   }
 
 

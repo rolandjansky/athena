@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -82,7 +82,7 @@ public:
   Ui::VP1TrackControllerForm ui{};
   TrackCollWidget * trackcollwidget = nullptr;
   void initMaterials();
-  SoMaterial * createMaterial(const int& r,const int& g,const int& b) const;
+  static SoMaterial * createMaterial(const int& r,const int& g,const int& b) ;
   SoMaterial * getMat(VP1MaterialButton*) const;
   SoMaterial * materialFallback = nullptr;
   // SoDrawStyle * trackDrawStyle;
@@ -94,7 +94,7 @@ public:
   QString restoredLastFitter;
   QStringList lastUpdatedAvailableExtrapolators;
   QStringList lastUpdatedAvailableFitters;
-  bool updateComboBoxContents(QComboBox*cb,QStringList l,QString& restoredSelection);
+  static bool updateComboBoxContents(QComboBox*cb,const QStringList& l,QString& restoredSelection);
   static const QString noneAvailString;
   unsigned numberOfSelectedPRDs = 0U;
   unsigned numberOfSelectedTracks = 0U;
@@ -607,7 +607,7 @@ void TrackSystemController::initTools()
 }
 
 //____________________________________________________________________
-SoMaterial * TrackSystemController::Imp::createMaterial(const int& r,const int& g,const int& b) const
+SoMaterial * TrackSystemController::Imp::createMaterial(const int& r,const int& g,const int& b) 
 {
   return VP1MaterialButton::createMaterial(r/255.0,g/255.0,b/255.0,0.2/*brightness*/);
 }
@@ -1786,7 +1786,7 @@ bool TrackSystemController::cutOnlyVertexAssocTracks() const {
 VP1Interval TrackSystemController::cutAllowedPt() const
 {
   if (!m_d->ui_cuts.checkBox_cut_minpt)
-    return VP1Interval();
+    return {};
 
   // will set range to negative if we have momcut=P
   // if minCut unset then min=-inf
@@ -1811,7 +1811,7 @@ VP1Interval TrackSystemController::cutAllowedPt() const
   //message("cutAllowedPt: min,max="+QString::number(min)+","+QString::number(max));
   
   if (max<min)
-    return VP1Interval();
+    return {};
     
   return VP1Interval( min, max );//fixme: closed interval??
 }
@@ -1870,7 +1870,7 @@ bool TrackSystemController::cutTruthExcludeNeutrals() const
 
 //____________________________________________________________________
 //Returns false if "none available"
-bool TrackSystemController::Imp::updateComboBoxContents(QComboBox*cb,QStringList l,QString& restoredSelection)
+bool TrackSystemController::Imp::updateComboBoxContents(QComboBox*cb,const QStringList& l,QString& restoredSelection)
 {
   //current selection:
   QString ct = cb->currentText();

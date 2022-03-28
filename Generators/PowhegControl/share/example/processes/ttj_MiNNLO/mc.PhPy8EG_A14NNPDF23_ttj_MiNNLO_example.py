@@ -22,16 +22,19 @@ include("PowhegControl/PowhegControl_ttj_MiNNLO_Common.py")
 # Settings
 # --------------------------------------------------------------
 # define the decay mode
-PowhegConfig.decay_mode = "t t~ > all" # inclusive is the default
-#PowhegConfig.decay_mode = "t t~ > all b j j b~ j j"
-#PowhegConfig.decay_mode = "t t~ > all b l+ vl b~ l- vl~"
+#PowhegConfig.decay_mode = "t t~ > all" # inclusive is the default
+#PowhegConfig.decay_mode = "t t~ > b j j b~ j j"
+#PowhegConfig.decay_mode = "t t~ > b l+ vl b~ l- vl~"
 #PowhegConfig.decay_mode = "t t~ > b emu+ vemu b~ emu- vemu~"
 #PowhegConfig.decay_mode = "t t~ > semileptonic"
 #PowhegConfig.decay_mode = "t t~ > undecayed"
 ## for handling decays with MadSpin
-#PowhegConfig.decay_mode = "t t~ > all [MadSpin]"
-#PowhegConfig.MadSpin_decays= ["decay t > w+ b, w+ > l+ vl", "decay t~ > w- b~, w- > l- vl~"]
+PowhegConfig.decay_mode = "t t~ > all [MadSpin]"
+PowhegConfig.MadSpin_decays= ["decay t > w+ b, w+ > l+ vl", "decay t~ > w- b~, w- > l- vl~"]
 #PowhegConfig.MadSpin_process= "generate p p > t t~ j [QCD]" # this process is default - can be changed (for studies)
+## additional MadSpin parameters to improve the integration
+#PowhegConfig.MadSpin_max_weight_ps_point= 1000
+#PowhegConfig.MadSpin_Nevents_for_max_weight= 250
 
 # --------------------------------------------------------------
 # Generate events

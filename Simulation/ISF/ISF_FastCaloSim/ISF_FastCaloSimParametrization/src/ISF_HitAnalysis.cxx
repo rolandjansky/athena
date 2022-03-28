@@ -9,8 +9,6 @@
 // Section of includes for LAr calo tests
 #include "LArSimEvent/LArHitContainer.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
 // Section of includes for tile calo tests
@@ -37,7 +35,6 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/ITHistSvc.h"
 
 #include "ISF_FastCaloSimEvent/FCS_StepInfoCollection.h"
 
@@ -77,108 +74,8 @@
 
 ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocator)
    : AthAlgorithm(name, pSvcLocator)
-   , m_hit_x(0)
-   , m_hit_y(0)
-   , m_hit_z(0)
-   , m_hit_energy(0)
-   , m_hit_time(0)
-   , m_hit_identifier(0)
-   , m_hit_cellidentifier(0)
-   , m_islarbarrel(0)
-   , m_islarendcap(0)
-   , m_islarhec(0)
-   , m_islarfcal(0)
-   , m_istile(0)
-   , m_hit_sampling(0)
-   , m_hit_samplingfraction(0)
-   , m_truth_energy(0)
-   , m_truth_px(0)
-   , m_truth_py(0)
-   , m_truth_pz(0)
-   , m_truth_pdg(0)
-   , m_truth_barcode(0)
-   , m_truth_vtxbarcode(0)
-   , m_cluster_energy(0)
-   , m_cluster_eta(0)
-   , m_cluster_phi(0)
-   , m_cluster_size(0)
-   , m_cluster_cellID(0)
-   , m_cell_identifier(0)
-   , m_cell_energy(0)
-   , m_cell_sampling(0)
-   , m_g4hit_energy(0)
-   , m_g4hit_time(0)
-   , m_g4hit_identifier(0)
-   , m_g4hit_cellidentifier(0)
-   , m_g4hit_samplingfraction(0)
-   , m_g4hit_sampling(0)
-   , m_total_cell_e(0)
-   , m_total_hit_e(0)
-   , m_total_g4hit_e(0)
-   , m_final_cell_energy(0)
-   , m_final_hit_energy(0)
-   , m_final_g4hit_energy(0)
-   , m_tree(0)
-   , m_ntupleFileName("ISF_HitAnalysis")
-   , m_ntupleTreeName("CaloHitAna")
-   , m_metadataTreeName("MetaData")
-   , m_geoFileName("ISF_Geometry")
-   , m_thistSvc(0)
-   , m_calo_dd_man(0)
-   //#####################
-   , m_eta_calo_surf(0)
-   , m_phi_calo_surf(0)
-   , m_d_calo_surf(0)
-   , m_ptruth_eta(0)
-   , m_ptruth_phi(0)
-   , m_ptruth_e(0)
-   , m_ptruth_et(0)
-   , m_ptruth_pt(0)
-   , m_ptruth_p(0)
-   , m_pdgid(0)
-   , m_newTTC_entrance_eta(0)
-   , m_newTTC_entrance_phi(0)
-   , m_newTTC_entrance_r(0)
-   , m_newTTC_entrance_z(0)
-   , m_newTTC_entrance_detaBorder(0)
-   , m_newTTC_entrance_OK(0)
-   , m_newTTC_back_eta(0)
-   , m_newTTC_back_phi(0)
-   , m_newTTC_back_r(0)
-   , m_newTTC_back_z(0)
-   , m_newTTC_back_detaBorder(0)
-   , m_newTTC_back_OK(0)
-   , m_newTTC_mid_eta(0)
-   , m_newTTC_mid_phi(0)
-   , m_newTTC_mid_r(0)
-   , m_newTTC_mid_z(0)
-   , m_newTTC_mid_detaBorder(0)
-   , m_newTTC_mid_OK(0)
-   , m_newTTC_IDCaloBoundary_eta(0)
-   , m_newTTC_IDCaloBoundary_phi(0)
-   , m_newTTC_IDCaloBoundary_r(0)
-   , m_newTTC_IDCaloBoundary_z(0)
-   , m_newTTC_Angle3D(0)
-   , m_newTTC_AngleEta(0)
 
-   , m_MuonEntryLayer_E(0)
-   , m_MuonEntryLayer_px(0)
-   , m_MuonEntryLayer_py(0)
-   , m_MuonEntryLayer_pz(0)
-   , m_MuonEntryLayer_x(0)
-   , m_MuonEntryLayer_y(0)
-   , m_MuonEntryLayer_z(0)
-   , m_MuonEntryLayer_pdg(0)
 
-   , m_caloEntrance(0)
-   , m_calo_tb_coord(0)
-   , m_sample_calo_surf(CaloCell_ID_FCS::noSample)
-   , m_particleDataTable(0)
-   , m_CaloBoundaryR(1148)
-   , m_CaloBoundaryZ(3550)
-
-   ,m_MC_DIGI_PARAM("/Digitization/Parameters")
-   ,m_MC_SIM_PARAM("/Simulation/Parameters")
 
    //######################
 
@@ -200,8 +97,6 @@ ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocat
 
   declareProperty("Extrapolator",                   m_extrapolator );
   declareProperty("CaloEntrance",                   m_caloEntranceName );
-
-  declareProperty("CaloGeometryHelper",             m_CaloGeometryHelper );
 
   declareProperty("MetaDataSim", m_MC_SIM_PARAM );
   declareProperty("MetaDataDigi", m_MC_DIGI_PARAM );
@@ -274,33 +169,12 @@ StatusCode ISF_HitAnalysis::initialize()
   //
   // Register the callback(s):
   //
-  StatusCode sc = service("GeoModelSvc", m_geoModel);
-  if(sc.isFailure())
-    {
-      ATH_MSG_ERROR( "Could not locate GeoModelSvc" );
-      return StatusCode::FAILURE;
-    }
+  ATH_CHECK(m_geoModel.retrieve());
+  ATH_CHECK(detStore()->retrieve(m_tileMgr));
+  ATH_CHECK(detStore()->retrieve(m_tileID));
 
-  sc = detStore()->retrieve(m_tileMgr);
-  if (sc.isFailure())
-    {
-      ATH_MSG_ERROR( "Unable to retrieve TileDetDescrManager from DetectorStore" );
-      m_tileMgr=0;
-    }
-
-  sc = detStore()->retrieve(m_tileID);
-  if (sc.isFailure())
-    {
-      ATH_MSG_ERROR( "Unable to retrieve TileID helper from DetectorStore" );
-      m_tileID=0;
-    }
-
-  const DataHandle<CaloIdManager> caloIdManager;
-  sc=detStore()->retrieve(caloIdManager);
-  if(sc.isSuccess())
-    ATH_MSG_DEBUG("CaloIDManager retrieved.");
-  else
-    throw std::runtime_error("ISF_HitAnalysis: Unable to retrieve CaloIDManeger");
+  const CaloIdManager* caloIdManager{nullptr};
+  ATH_CHECK(detStore()->retrieve(caloIdManager));
   m_larEmID=caloIdManager->getEM_ID();
   if(m_larEmID==0)
     throw std::runtime_error("ISF_HitAnalysis: Invalid LAr EM ID helper");
@@ -322,41 +196,32 @@ StatusCode ISF_HitAnalysis::initialize()
   ATH_CHECK( m_tileCablingSvc.retrieve() );
   m_tileCabling = m_tileCablingSvc->cablingService();
 
-  m_calo_dd_man  = CaloDetDescrManager::instance();
+  ATH_CHECK(m_caloMgrKey.initialize());
 
   // Retrieve Tools
-  IToolSvc* p_toolSvc = 0;
-  if ( service("ToolSvc",p_toolSvc).isFailure() )
-    {
-      ATH_MSG_ERROR("Cannot find ToolSvc! ");
-      return StatusCode::FAILURE;
-    }
-  else
-    {
-      IAlgTool* algTool;
+  IToolSvc* p_toolSvc = nullptr;
+  ATH_CHECK(service("ToolSvc",p_toolSvc));
+  IAlgTool* algTool = nullptr;
 
-      // Get TimedExtrapolator  ***************************************************************************************************
-      if (!m_extrapolator.empty() && m_extrapolator.retrieve().isFailure())
-        return StatusCode::FAILURE;
+  // Get TimedExtrapolator  ***************************************************************************************************
+  if (!m_extrapolator.empty() && m_extrapolator.retrieve().isFailure()) {
+    return StatusCode::FAILURE;
+  }
+  else { 
+    ATH_MSG_DEBUG("Extrapolator retrieved "<< m_extrapolator);
+  }
 
-      else ATH_MSG_DEBUG("Extrapolator retrieved "<< m_extrapolator);
-
-      std::string CaloCoordinateTool_name="TBCaloCoordinate";
-      ListItem CaloCoordinateTool(CaloCoordinateTool_name);
-      if(p_toolSvc->retrieveTool(CaloCoordinateTool.type(),CaloCoordinateTool.name(), algTool, this).isFailure() )
-        {
-          ATH_MSG_ERROR("Cannot retrieve " << CaloCoordinateTool_name);
-          return StatusCode::FAILURE;
-        }
-      m_calo_tb_coord = dynamic_cast<ICaloCoordinateTool*>(algTool);
-      if(!m_calo_tb_coord )
-        {
-          ATH_MSG_ERROR("Cannot retrieve " << CaloCoordinateTool_name);
-          return StatusCode::FAILURE;
-        }
-      else
-        ATH_MSG_INFO("retrieved " << CaloCoordinateTool_name);
-    } //tools
+  std::string CaloCoordinateTool_name="TBCaloCoordinate";
+  ListItem CaloCoordinateTool(CaloCoordinateTool_name);
+  ATH_CHECK(p_toolSvc->retrieveTool(CaloCoordinateTool.type(),CaloCoordinateTool.name(), algTool, this));
+  m_calo_tb_coord = dynamic_cast<ICaloCoordinateTool*>(algTool);
+  if(!m_calo_tb_coord ) {
+    ATH_MSG_ERROR("Cannot retrieve " << CaloCoordinateTool_name);
+    return StatusCode::FAILURE;
+  }
+  else {
+    ATH_MSG_INFO("retrieved " << CaloCoordinateTool_name);
+  } //tools
 
   if( detStore()->contains< AthenaAttributeList >( m_MC_DIGI_PARAM ) )
     {
@@ -381,38 +246,19 @@ StatusCode ISF_HitAnalysis::initialize()
           return StatusCode::FAILURE;
         }
     }
-  else
+  else {
     ATH_MSG_WARNING( "MetaData not found for "<< m_MC_SIM_PARAM );
-
-  // Get CaloGeometryHelper
-  if (m_CaloGeometryHelper.retrieve().isFailure())
-    {
-      ATH_MSG_ERROR("CaloGeometryHelper not found ");
-      return StatusCode::FAILURE;
-    }
+  }
 
   // Get FastCaloSimCaloExtrapolation
-  if (m_FastCaloSimCaloExtrapolation.retrieve().isFailure())
-    {
-      ATH_MSG_ERROR("FastCaloSimCaloExtrapolation not found ");
-      return StatusCode::FAILURE;
-    }
+  ATH_CHECK (m_FastCaloSimCaloExtrapolation.retrieve());
 
   // Grab the Ntuple and histogramming service for the tree
-  sc = service("THistSvc",m_thistSvc);
-  if (sc.isFailure())
-    {
-      ATH_MSG_ERROR( "Unable to retrieve pointer to THistSvc" );
-      return StatusCode::FAILURE;
-    }
+  ATH_CHECK(m_thistSvc.retrieve());
 
   //#########################
-  IPartPropSvc* p_PartPropSvc=0;
-  if (service("PartPropSvc",p_PartPropSvc).isFailure() || p_PartPropSvc == 0)
-    {
-      ATH_MSG_ERROR("could not find PartPropService");
-      return StatusCode::FAILURE;
-    }
+  IPartPropSvc* p_PartPropSvc = nullptr;
+  ATH_CHECK(service("PartPropSvc",p_PartPropSvc));
 
   m_particleDataTable = (HepPDT::ParticleDataTable*) p_PartPropSvc->PDT();
   if(m_particleDataTable == 0)
@@ -424,7 +270,7 @@ StatusCode ISF_HitAnalysis::initialize()
   std::unique_ptr<TFile> dummyFile = std::unique_ptr<TFile>(TFile::Open("dummyFile.root", "RECREATE")); //This is added to suppress the error messages about memory-resident trees
   m_tree = new TTree("FCS_ParametrizationInput", "FCS_ParametrizationInput");
   std::string fullNtupleName =  "/"+m_ntupleFileName+"/"+m_ntupleTreeName;
-  sc = m_thistSvc->regTree(fullNtupleName, m_tree);
+  StatusCode sc = m_thistSvc->regTree(fullNtupleName, m_tree);
   if (sc.isFailure() || !m_tree )
     {
       ATH_MSG_ERROR("Unable to register TTree: " << fullNtupleName);
@@ -686,12 +532,13 @@ StatusCode ISF_HitAnalysis::finalize()
   geo->Branch("dz", &geocell.dz,"dz/F");
  }
 
- if(m_calo_dd_man)
+ SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,Gaudi::Hive::currentContext()};
+ ATH_CHECK(caloMgrHandle.isValid());
+ const CaloDetDescrManager* calo_dd_man = *caloMgrHandle;
+
+ int ncells=0;
+ for (const CaloDetDescrElement* theDDE : calo_dd_man->element_range())
  {
-  int ncells=0;
-  for(CaloDetDescrManager::calo_element_const_iterator calo_iter=m_calo_dd_man->element_begin();calo_iter<m_calo_dd_man->element_end();++calo_iter)
-  {
-   const CaloDetDescrElement* theDDE=*calo_iter;
    if(theDDE)
    {
     CaloCell_ID::CaloSample sample=theDDE->getSampling();
@@ -723,10 +570,10 @@ StatusCode ISF_HitAnalysis::finalize()
      geo->Fill();
     }
    }
-  }
-
-  ATH_MSG_INFO( ncells<<" cells found" );
  }
+
+ ATH_MSG_INFO( ncells<<" cells found" );
+
  dummyGeoFile->Close();
  return StatusCode::SUCCESS;
 } //finalize
@@ -743,10 +590,10 @@ StatusCode ISF_HitAnalysis::execute()
   return StatusCode::FAILURE;
  }
 
- SG::ReadCondHandle<ILArfSampl> fSamplHdl(m_fSamplKey);
+ SG::ReadCondHandle<ILArfSampl> fSamplHdl(m_fSamplKey,Gaudi::Hive::currentContext());
  const ILArfSampl* fSampl=*fSamplHdl;
 
- SG::ReadCondHandle<TileSamplingFraction> tileSamplingFraction(m_tileSamplingFractionKey);
+ SG::ReadCondHandle<TileSamplingFraction> tileSamplingFraction(m_tileSamplingFractionKey,Gaudi::Hive::currentContext());
  ATH_CHECK( tileSamplingFraction.isValid() );
 
 
@@ -844,6 +691,10 @@ StatusCode ISF_HitAnalysis::execute()
 
  //##########################
 
+ SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,Gaudi::Hive::currentContext()};
+ ATH_CHECK(caloMgrHandle.isValid());
+ const CaloDetDescrManager* calo_dd_man = *caloMgrHandle;
+
  //Get the FastCaloSim step info collection from store
  const ISF_FCS_Parametrization::FCS_StepInfoCollection* eventStepsES;
  StatusCode sc = evtStore()->retrieve(eventStepsES, "MergedEventSteps");
@@ -871,8 +722,8 @@ StatusCode ISF_HitAnalysis::execute()
      Identifier id = (*it)->identify();
      Identifier cell_id = (*it)->identify(); //to be replaced by cell_id in tile
 
-     if(m_calo_dd_man->get_element(id)) {
-       CaloCell_ID::CaloSample layer = m_calo_dd_man->get_element(id)->getSampling();
+     if(calo_dd_man->get_element(id)) {
+       CaloCell_ID::CaloSample layer = calo_dd_man->get_element(id)->getSampling();
        sampling = layer; //use CaloCell layer immediately
      } else {
        ATH_MSG_WARNING( "Warning no sampling info for "<<id.getString());
@@ -905,10 +756,10 @@ StatusCode ISF_HitAnalysis::execute()
        tile = true;
        cell_id = m_tileID->cell_id(id);
        Int_t tile_sampling = -1;
-       if(m_calo_dd_man->get_element(cell_id)) {
-         tile_sampling = m_calo_dd_man->get_element(cell_id)->getSampling();
+       if(calo_dd_man->get_element(cell_id)) {
+         tile_sampling = calo_dd_man->get_element(cell_id)->getSampling();
        }
-       if(tile_sampling!= -1) sampling = tile_sampling; //m_calo_dd_man needs to be called with cell_id not pmt_id!!
+       if(tile_sampling!= -1) sampling = tile_sampling; //calo_dd_man needs to be called with cell_id not pmt_id!!
      } else {
        ATH_MSG_WARNING( "This hit is somewhere. Please check!");
      }
@@ -1169,10 +1020,10 @@ StatusCode ISF_HitAnalysis::execute()
       // special case for E4'
       m_cell_sampling->push_back(CaloCell_ID::TileGap3);
     }
-    else if (m_calo_dd_man->get_element((*itrCell)->ID()))
+    else if (calo_dd_man->get_element((*itrCell)->ID()))
     {
     // all other Tile cells
-    CaloCell_ID::CaloSample layer = m_calo_dd_man->get_element((*itrCell)->ID())->getSampling();
+    CaloCell_ID::CaloSample layer = calo_dd_man->get_element((*itrCell)->ID())->getSampling();
     m_cell_sampling->push_back(layer);
     }
     else
@@ -1193,12 +1044,12 @@ StatusCode ISF_HitAnalysis::execute()
     for (hi=(*iter).begin();hi!=(*iter).end();++hi) {
       hitnumber++;
       const LArHit* larHit = *hi;
-      const CaloDetDescrElement *hitElement = m_calo_dd_man->get_element(larHit->cellID());
+      const CaloDetDescrElement *hitElement = calo_dd_man->get_element(larHit->cellID());
       if(!hitElement)
         continue;
       Identifier larhitid = hitElement->identify();
-      if(m_calo_dd_man->get_element(larhitid)) {
-      CaloCell_ID::CaloSample larlayer = m_calo_dd_man->get_element(larhitid)->getSampling();
+      if(calo_dd_man->get_element(larhitid)) {
+      CaloCell_ID::CaloSample larlayer = calo_dd_man->get_element(larhitid)->getSampling();
 
       float larsampfrac=fSampl->FSAMPL(larhitid);
       m_g4hit_energy->push_back( larHit->energy() );
@@ -1228,8 +1079,8 @@ StatusCode ISF_HitAnalysis::execute()
    Identifier pmt_id = (*i_hit).identify();
    Identifier cell_id = m_tileID->cell_id(pmt_id);
 
-   if (m_calo_dd_man->get_element(cell_id)){
-      CaloCell_ID::CaloSample layer = m_calo_dd_man->get_element(cell_id)->getSampling();
+   if (calo_dd_man->get_element(cell_id)){
+      CaloCell_ID::CaloSample layer = calo_dd_man->get_element(cell_id)->getSampling();
 
       HWIdentifier channel_id = m_tileCabling->s2h_channel_id(pmt_id);
       int channel = m_tileHWID->channel(channel_id);
@@ -1715,79 +1566,3 @@ std::vector<Trk::HitInfo>* ISF_HitAnalysis::caloHits(const HepMC::GenParticle& p
 
  return hitVector;
 } //caloHits
-
-
-bool ISF_HitAnalysis::isCaloBarrel(int sample) const
-{
-  return GetCaloGeometry()->isCaloBarrel(sample);
-}
-
-double ISF_HitAnalysis::deta(int sample,double eta) const
-{
-  return GetCaloGeometry()->deta(sample,eta);
-}
-
-void ISF_HitAnalysis::minmaxeta(int sample,double eta,double& mineta,double& maxeta) const
-{
-  GetCaloGeometry()->minmaxeta(sample,eta,mineta,maxeta);
-}
-
-double ISF_HitAnalysis::rmid(int sample,double eta) const
-{
-  return GetCaloGeometry()->rmid(sample,eta);
-}
-
-double ISF_HitAnalysis::zmid(int sample,double eta) const
-{
-  return GetCaloGeometry()->zmid(sample,eta);
-}
-
-double ISF_HitAnalysis::rzmid(int sample,double eta) const
-{
-  return GetCaloGeometry()->rzmid(sample,eta);
-}
-
-double ISF_HitAnalysis::rent(int sample,double eta) const
-{
-  return GetCaloGeometry()->rent(sample,eta);
-}
-
-double ISF_HitAnalysis::zent(int sample,double eta) const
-{
-  return GetCaloGeometry()->zent(sample,eta);
-}
-
-double ISF_HitAnalysis::rzent(int sample,double eta) const
-{
-  return GetCaloGeometry()->rzent(sample,eta);
-}
-
-double ISF_HitAnalysis::rext(int sample,double eta) const
-{
-  return GetCaloGeometry()->rext(sample,eta);
-}
-
-double ISF_HitAnalysis::zext(int sample,double eta) const
-{
-  return GetCaloGeometry()->zext(sample,eta);
-}
-
-double ISF_HitAnalysis::rzext(int sample,double eta) const
-{
-  return GetCaloGeometry()->rzext(sample,eta);
-}
-
-double ISF_HitAnalysis::rpos(int sample,double eta,int subpos) const
-{
-  return GetCaloGeometry()->rpos(sample,eta,subpos);
-}
-
-double ISF_HitAnalysis::zpos(int sample,double eta,int subpos) const
-{
-  return GetCaloGeometry()->zpos(sample,eta,subpos);
-}
-
-double ISF_HitAnalysis::rzpos(int sample,double eta,int subpos) const
-{
-  return GetCaloGeometry()->rzpos(sample,eta,subpos);
-}

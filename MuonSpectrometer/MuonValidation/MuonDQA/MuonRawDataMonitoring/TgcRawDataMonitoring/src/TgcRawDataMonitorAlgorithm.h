@@ -31,7 +31,11 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
   virtual ~TgcRawDataMonitorAlgorithm()=default;
   virtual StatusCode initialize() override;
   virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
-  
+
+  enum TgcCoinPtBitShifts{
+    CoinFlagQ=4,CoinFlagF,CoinFlagC,CoinFlagH,CoinFlagEI,CoinFlagTile,CoinFlagRPC,CoinFlagNSW,
+    CoinFlags = CoinFlagF, InnerCoinFlags = CoinFlagEI
+  };
   struct MyMuon{
     const xAOD::Muon* muon{};
     std::vector<double> extPosZ;
@@ -62,6 +66,19 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
     const xAOD::Muon* muon{};
     std::set<std::string> passedChambers;
     std::set<std::string> chambersHasHit;
+  };
+  struct ExtTrigInfo{
+    double eta{};
+    double phi{};
+    double matched{};
+    double matchedQ{};
+    double matchedF{};
+    double matchedC{};
+    double matchedH{};
+    double matchedEI{};
+    double matchedTile{};
+    double matchedRPC{};
+    double matchedNSW{};
   };
   struct TgcTrig{
     int lb{};
@@ -190,8 +207,8 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
   void fillTgcCoinEff(const std::string&,
 		      const std::vector<TgcTrig>&, 
 		      const std::vector<ExtPos>&,
-		      std::vector<double>&,std::vector<double>&,std::vector<double>&,
-		      std::vector<Monitored::ObjectsCollection<std::vector<double>, double>>&,
+		      std::vector<ExtTrigInfo>&,
+		      std::vector<Monitored::ObjectsCollection<std::vector<ExtTrigInfo>, double>>&,
 		      MonVariables&) const;
   
   ToolHandle<Trk::IExtrapolator> m_extrapolator{this,"TrackExtrapolator","Trk::Extrapolator/AtlasExtrapolator","Track extrapolator"};

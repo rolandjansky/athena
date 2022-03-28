@@ -5,7 +5,7 @@ import ROOT
 import re
 import os
 import string
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple, Optional, Iterable
 import logging
 log = logging.getLogger('DataQualityInterfaces')
 
@@ -30,6 +30,14 @@ def copyMetadata(newgroup: dqi.HanConfigAssessor, oldgroup: dqi.HanConfigAssesso
     newgroup.SetWeight(oldgroup.GetWeight())
 
 
+def count_slashes(itr: Iterable[Tuple[str, dqi.HanConfigGroup]]) -> Dict[int, List[Tuple[str, dqi.HanConfigGroup]]]:
+    from collections import defaultdict
+    rv = defaultdict(list)
+    for s, g in itr:
+        rv[s.count('/')].append((s,g))
+    return rv
+
+
 def Initialize( configName: str, inputFileName: str, prefix: str ) -> Optional[dqi.HanConfigGroup]:
     """ Handle everything in Python, testing only """
 
@@ -50,7 +58,7 @@ def Initialize( configName: str, inputFileName: str, prefix: str ) -> Optional[d
 
     inputFile = ROOT.TFile.Open(inputFileName, 'READ')
 
-    return FixRegion(top_level, inputFile.Get(prefix))
+    return FixRegion(m_config, top_level, inputFile.Get(prefix))
 
 
 def FixRegion(config: ROOT.TDirectory, top_level: dqi.HanConfigGroup, td: ROOT.TDirectory) -> dqi.HanConfigGroup:
@@ -62,7 +70,7 @@ def FixRegion(config: ROOT.TDirectory, top_level: dqi.HanConfigGroup, td: ROOT.T
     mapping_regex = {}
     mapping_groups = {'top_level': top_level}
     mapping_assessors_final = {}
-    mapping_groups_final = {}
+    mapping_groups_final: Dict[str, dqi.HanConfigGroup] = {}
     iterate_hcfg(top_level, mapping, mapping_regex, mapping_groups)
     mapping_assessors_final.update(mapping)
     for path, g in mapping_groups.items():
@@ -123,9 +131,8 @@ def FixRegion(config: ROOT.TDirectory, top_level: dqi.HanConfigGroup, td: ROOT.T
                         log.error('Unable to find references for', orig)
                     else:
                         if isinstance(ref, ROOT.TMap):
-                            algrefname = ref.GetValue(h)
-                            if algrefname:
-                                algrefname = algrefname.GetString().Data()
+                            algrefnameptr = ref.GetValue(h)
+                            algrefname = algrefnameptr.GetString().Data() if algrefnameptr else ""
                 if algrefname and isinstance(config.Get(algrefname), ROOT.TMap):
                     log.error(f'Reference for {newass} is somehow still a TMap')
                 copyMetadata(newass, mapping_regex[orig][0], input=h, algrefname=algrefname)
@@ -139,10 +146,13 @@ def FixRegion(config: ROOT.TDirectory, top_level: dqi.HanConfigGroup, td: ROOT.T
             mapping_groups_final[os.path.dirname(p)].AddAssessor(a)
         except Exception as e:
             log.error(f'{e}: {p}, {a}, {a.GetName()}')
-    for p, g in reversed(list(mapping_groups_final.items())):
-        log.debug(f'Final additions for {p}, {g}, {g.GetPathName()} into {os.path.dirname(p)}')
-        if p != 'top_level':
-            mapping_groups_final[os.path.dirname(p)].AddGroup(g)
+    # need to in reverse order of depth. First count number of slashes:
+    keydepths = count_slashes(mapping_groups_final.items())
+    for _, l in sorted(keydepths.items(), reverse=True):
+        for p, g in l:
+            log.debug(f'Final additions for {p}, {g}, {g.GetPathName()} into {os.path.dirname(p)}')
+            if p != 'top_level':
+                mapping_groups_final[os.path.dirname(p)].AddGroup(g)
 
     return mapping_groups_final['top_level']
 

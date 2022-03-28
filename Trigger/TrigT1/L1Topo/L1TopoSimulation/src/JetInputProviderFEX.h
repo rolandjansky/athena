@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -11,10 +11,10 @@
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/LockedHandle.h"
 
-#include "xAODTrigger/jFexSRJetRoIContainer.h" //small R jets from jFEX
-#include "xAODTrigger/jFexLRJetRoIContainer.h" //large R jets from jFEX
-#include "xAODTrigger/jFexTauRoIContainer.h" //taus from jFEX
-#include "xAODTrigger/jFexMETRoIContainer.h"
+#include "xAODTrigger/jFexSRJetRoIContainer.h" // small R jets from jFEX
+#include "xAODTrigger/jFexLRJetRoIContainer.h" // large R jets from jFEX
+#include "xAODTrigger/jFexTauRoIContainer.h" // taus from jFEX
+#include "xAODTrigger/jFexMETRoIContainer.h" // XE from jFEX
 
 #include "TH1.h"
 #include "TH2.h"
@@ -56,6 +56,9 @@ namespace LVL1 {
       mutable LockedHandle<TH2> m_hjTauPhiEta ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH2> m_hjTauIsolationEta ATLAS_THREAD_SAFE;
 
+      mutable LockedHandle<TH1> m_hjEmPt ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hjEmPhiEta ATLAS_THREAD_SAFE;
+
       mutable LockedHandle<TH1> m_h_jxe_Pt ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH1> m_h_jxe_Phi ATLAS_THREAD_SAFE;
 
@@ -64,6 +67,15 @@ namespace LVL1 {
       SG::ReadHandleKey<xAOD::jFexTauRoIContainer> m_jTauEDMKey {this, "jFexTauRoIKey", "L1_jFexTauRoI", "JFEX EDM"};
       SG::ReadHandleKey<xAOD::jFexMETRoIContainer> m_jMet_EDMKey {this, "jFexMETRoIKey", "L1_jFexMETRoI", "jFEX Met EDM"};
      
+      // jFex to L1Topo conversion factors
+      static const int m_Et_conversion;
+      static const int m_phi_conversion;
+      static const int m_eta_conversion;
+
+      static const float m_EtDouble_conversion;
+      static const float m_phiDouble_conversion;
+      static const float m_etaDouble_conversion;
+
   };
 }
 

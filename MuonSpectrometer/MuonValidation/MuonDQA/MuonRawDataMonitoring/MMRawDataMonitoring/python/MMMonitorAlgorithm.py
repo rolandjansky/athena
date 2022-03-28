@@ -39,7 +39,7 @@ def MMMonitoringConfig(inputFlags):
     mmGroup.defineHistogram('residual; Residuals',  type='TH1F',  title='Residuals; res[mm]; Number of Entries', path='Overview', xbins=200, xmin=-10, xmax=10.)
     mmGroup.defineHistogram('residual, eta_trk; Res_vs_eta', type='TH2F', title="Residuals vs Eta; Residuals [mm]; Eta;", path='Overview',xbins=100, xmin=-10, xmax=10., ybins=100, ymin=-3.,ymax=3.)
     mmGroup.defineHistogram('residual, phi_trk; Res_vs_phi', type='TH2F', title="Residuals vs Eta; Residuals [mm]; Phi;", path='Overview',xbins=100, xmin=-10, xmax=10., ybins=16, ymin=-3.14,ymax=3.14)
-    mmGroup.defineHistogram('residual, stPhi_mon; Res_vs_stPhi', type='TH2F', title="Residuals vs station Phi; Res; stPhi;", path='Overview', xbins=100, xmin=-10, xmax=10., ybins=16, ymin=0,ymax=16) 
+    mmGroup.defineHistogram('residual, stPhi_mon; Res_vs_stPhi', type='TH2F', title="Residuals vs station Phi; Res; stPhi;", path='Overview', xbins=100, xmin=-10, xmax=10., ybins=16, ymin=1,ymax=17) 
     mmGroup.defineHistogram('charge_all; Charge', type='TH1F', title='Charge; Charge[fC]; Number of Entries', path='Overview', xbins=120, xmin=0., xmax=1200.)
     mmGroup.defineHistogram('x_mon, y_mon; Posy_vs_Posx', type='TH2F', title="Posy vs Posx; MM-GlobalX [mm]; MM-GlobalY [mm];", path='Overview', xbins=500, xmin=-5000, xmax=5000., ybins=500, ymin=-5000., ymax=5000.) 
     mmGroup.defineHistogram('R_mon, z_mon; Posz_vs_R', type='TH2F', title="Posz vs R; MM-GlobalR [mm]; MM-GlobalZ [mm];", path='Overview', xbins=500, xmin=0, xmax=5000., ybins=1000, ymin=-8000 ,ymax=8000) 
@@ -114,6 +114,10 @@ def MMMonitoringConfig(inputFlags):
                         var_residual="residuals_"+iside+"_phi"+str(phi)+"_stationEta"+str(eta)+"_multiplet"+str(multi)+"_gas_gap"+str(gas_gap)
                         title_residual = "residuals "+iside+" stPhi"+str(phi)+" stEta"+str(eta)+" multiplet"+str(multi)+" gap"+str(gas_gap)
                         mmSideGroup.defineHistogram(var_residual, type='TH1F', title=title_residual+"; res [mm]; Number of Entries", path='Residuals', xbins=200, xmin=-10, xmax=10)
+
+                        var_clus_size="pcb_mon_" + iside + "_phi" + str(phi) + "_eta" + str(eta) + "_ml" + str(multi) + "_gap" + str(gas_gap) + ",cluster_size_" + iside + "_phi" + str(phi) + "_eta" + str(eta) + "_ml" + str(multi) + "_gap" + str(gas_gap) +";Cluster_size_vs_PCB_" + iside + "_eta" + str(eta) + "_phi" + str(phi) + "_ml" + str(multi) + "_gap" + str(gas_gap)
+                        title_cl_size="Cluster size " + iside + " eta" + str(eta) + " phi" + str(phi) + " mult" + str(multi) + " gasgap" + str(gas_gap)
+                        mmSideGroup.defineHistogram(var_clus_size, type='TH2F', title=title_cl_size + "; PCB; cluster size;", path="Cluster_size_perPCB", xbins=maxpcb, xmin=1, xmax=maxpcb+1, ybins=20, ymin=0, ymax=20)
 
         for gas1 in range(1, 5):
             for multi1 in range(1, 3):

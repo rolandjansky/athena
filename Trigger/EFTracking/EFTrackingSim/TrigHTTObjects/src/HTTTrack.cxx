@@ -268,8 +268,7 @@ void HTTTrack::Print(Option_t*) const
 
 void HTTTrack::calculateTruth()
 {
-  static vector<HTTMultiTruth> mtv;
-  mtv.clear();
+  vector<HTTMultiTruth> mtv;
   mtv.reserve(m_hits.size());
 
   // don't loop over coordinates, since we only calculate truth *per hit* and not per coordinate, though hitmap is saved for coordinates, so be careful

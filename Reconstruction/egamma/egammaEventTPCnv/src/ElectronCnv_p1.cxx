@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ElectronCnv_p1.cxx 
@@ -42,11 +42,6 @@ void ElectronCnv_p1::persToTrans( const Electron_p1* pers,
 
   // base class
   m_egammaCnv.persToTrans( &pers->m_egamma, trans, msg );
-
-//   msg << MSG::DEBUG << "Loaded Electron from persistent state [OK]"
-//       << endmsg;
-
-  return;
 }
 
 void ElectronCnv_p1::transToPers( const Analysis::Electron* trans, 
@@ -58,8 +53,4 @@ void ElectronCnv_p1::transToPers( const Analysis::Electron* trans,
 
   // base class
   m_egammaCnv.transToPers( trans, &pers->m_egamma, msg );
-
-//   msg << MSG::DEBUG << "Created persistent state of Electron [OK]"
-//       << endmsg;
-  return;
 }

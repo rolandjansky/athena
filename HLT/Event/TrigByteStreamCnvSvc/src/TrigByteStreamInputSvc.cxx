@@ -153,9 +153,30 @@ const RawEvent* TrigByteStreamInputSvc::nextEvent() {
   auto subdets = Monitored::Collection<std::vector<std::string>>("L1Result_SubDets", subdetNameVec);
   auto mon = Monitored::Group(m_monTool, numROBs, fragSize, subdets, monLBN, monNoEvent);
 
-  // Give the FullEventFragment pointer to ROBDataProviderSvc and also return it
+  // Give the FullEventFragment pointer to ROBDataProviderSvc
   m_robDataProviderSvc->setNextEvent(*eventContext, cache->fullEventFragment.get());
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
+
+  // Check the CTP fragment (request from readout if not part of the cache), ATR-25217
+  if (m_checkCTPFragmentModuleID.value() >= 0) {
+    const eformat::helper::SourceIdentifier sid{eformat::SubDetector::TDAQ_CTP,
+                                                static_cast<uint16_t>(m_checkCTPFragmentModuleID.value())};
+    std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> vrobf;
+    m_robDataProviderSvc->getROBData(*eventContext, {sid.code()}, vrobf, name());
+    if (vrobf.empty()) {
+      ATH_MSG_ERROR("The CTP ROB fragment 0x" << std::hex << sid.code() << std::dec << " is missing. "
+                    << "Throwing hltonl::Exception::EventSourceCorrupted");
+      throw hltonl::Exception::EventSourceCorrupted();
+    }
+    uint32_t robStatus = vrobf.at(0)->nstatus()>0 ? *(vrobf.at(0)->status()) : 0;
+    if (robStatus!=0) {
+      ATH_MSG_ERROR("The CTP ROB fragment 0x" << std::hex << sid.code() << std::dec << " has non-zero status word: 0x"
+                    << std::hex << robStatus << std::dec << "Throwing hltonl::Exception::EventSourceCorrupted");
+      throw hltonl::Exception::EventSourceCorrupted();
+    }
+  }
+
+  // Return the FullEventFragment pointer (do not transfer ownership)
   return cache->fullEventFragment.get();
 }
 

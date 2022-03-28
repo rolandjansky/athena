@@ -735,13 +735,6 @@ void HltROBDataProviderSvc::eventCache_addRobData(EventCache* cache, std::vector
       }
     }
 
-    // check for ROBs with no data 
-    if ((rob.rod_ndata() == 0) && (m_filterEmptyROB)) {
-      ATH_MSG_VERBOSE(__FUNCTION__ << " Empty ROB Id = 0x" << MSG::hex << id << MSG::dec
-		      << " removed for (global Id, L1 Id) = (" << cache->globalEventNumber << "," << cache->currentLvl1ID <<")" );
-      continue;
-    } 
-
     // filter ROBs with external criteria 
     if (robmap_filterRobWithStatus(&rob)) {
       if (rob.nstatus() > 0) {
@@ -758,6 +751,13 @@ void HltROBDataProviderSvc::eventCache_addRobData(EventCache* cache, std::vector
       }
       continue;
     }
+
+    // check for ROBs with no data 
+    if ((rob.rod_ndata() == 0) && (m_filterEmptyROB)) {
+      ATH_MSG_VERBOSE(__FUNCTION__ << " Empty ROB Id = 0x" << MSG::hex << id << MSG::dec
+		      << " removed for (global Id, L1 Id) = (" << cache->globalEventNumber << "," << cache->currentLvl1ID <<")" );
+      continue;
+    } 
 
     // add ROB to map
     { cache->robmap.insert(std::make_pair(id,std::move(rob))); }

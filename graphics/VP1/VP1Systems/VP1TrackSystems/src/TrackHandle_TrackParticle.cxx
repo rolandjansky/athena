@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -24,13 +24,13 @@
 class TrackHandle_TrackParticle::Imp {
 public:
 
-  const Trk::Track * createTrack(DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces)
+  const Trk::Track * createTrack(DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces) const
   {
     if (!trackStateOnSurfaces) {
       VP1Msg::messageDebug("TrackHandle_TrackParticle WARNING: Could not create track due to null TSOS vector");
       return nullptr;
     }
-    if (trackStateOnSurfaces->size()==0) {
+    if (trackStateOnSurfaces->empty()) {
       VP1Msg::messageDebug("TrackHandle_TrackParticle WARNING: Could not create track due to empty TSOS vector");
       delete trackStateOnSurfaces;
       return nullptr;

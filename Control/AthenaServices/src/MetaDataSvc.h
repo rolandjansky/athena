@@ -233,7 +233,7 @@ class MetaDataSvc : public ::AthService,
 
   /// Transition output metadata file - fire MeteDataStop incident to transition
   /// OutputStream
-  StatusCode transitionMetaDataFile();
+  StatusCode transitionMetaDataFile(const std::string& outputConn);
 
   /** Implements IIoComponent interface
    * sets m_outputPreprared to false and prints some information.

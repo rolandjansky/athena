@@ -72,7 +72,7 @@ def getConstitFourMomTool(jetdef, modspec=""):
             cfourmom.AltJetScales = [""]
     # Drop the LC-calibrated four-mom for EMTopo jets as we only wanted it as a possibility
     # in MET CST calculations but never used it
-    elif "EMPFlow" in jetdef.basename:
+    elif "PFlow" in jetdef.basename:
         cfourmom.JetScaleNames = ["DetectorEtaPhi"]
         cfourmom.AltConstitColls = [""]
         cfourmom.AltConstitScales = [0]

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AtlasGeoModel.GeoModelConfig import GeoModelCfg
@@ -457,14 +457,13 @@ def SCT_TdaqEnabledToolCfg(flags, name="InDetSCT_TdaqEnabledTool", **kwargs):
     acc = GeoModelCfg(flags)
 
     # Folder
-    # FIXME - is there a better way to do this? What about run3?
-    folder = "/TDAQ/Resources/ATLAS/SCT/Robins" if (flags.IOVDb.DatabaseInstance == "CONDBR2") else "/TDAQ/EnabledResources/ATLAS/SCT/Robins"
+    folder = "/TDAQ/Resources/ATLAS/SCT/Robins" if (flags.IOVDb.DatabaseInstance != "COMP200") else "/TDAQ/EnabledResources/ATLAS/SCT/Robins"
     acc.merge( addFolders(flags, [folder], detDb="TDAQ", className="CondAttrListCollection") )
 
     # Algorithm
     from SCT_Cabling.SCT_CablingConfig import SCT_CablingToolCfg
     kwargs.setdefault("SCT_CablingTool", acc.popToolsAndMerge(SCT_CablingToolCfg(flags)))
-    acc.addCondAlgo(CompFactory.SCT_TdaqEnabledCondAlg(**kwargs))
+    acc.addCondAlgo(CompFactory.SCT_TdaqEnabledCondAlg(ReadKey = folder, **kwargs))
 
     # Tool
     acc.setPrivateTools(CompFactory.SCT_TdaqEnabledTool(name))

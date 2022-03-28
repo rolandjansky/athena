@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkEventCnvTools/EventCnvSuperTool.h"
@@ -162,8 +162,7 @@ Trk::EventCnvSuperTool::recreateRIO_OnTrack( Trk::RIO_OnTrack *RoT ) const
         if ( (m_errCount++)<m_maxErrCount) 
             msg(MSG::WARNING)<< "recreateRIO_OnTrack: could not get cnv tool. Returning without correctly filling ROT of type: "<< info.name()<< endmsg;
     }
-    return;
-}
+    }
 
 void
 Trk::EventCnvSuperTool::prepareRIO_OnTrack( Trk::RIO_OnTrack *RoT ) const
@@ -174,8 +173,7 @@ Trk::EventCnvSuperTool::prepareRIO_OnTrack( Trk::RIO_OnTrack *RoT ) const
     } else {
         if ( (m_errCount++)<m_maxErrCount) msg()<< "prepareRIO_OnTrack could not find appropriate tool to prepare: "<<*RoT<<std::endl; 
     }
-    return;
-}
+    }
 
 void
 Trk::EventCnvSuperTool::prepareRIO_OnTrackLink ( const Trk::RIO_OnTrack *RoT,
@@ -188,5 +186,4 @@ Trk::EventCnvSuperTool::prepareRIO_OnTrackLink ( const Trk::RIO_OnTrack *RoT,
     } else {
         if ( (m_errCount++)<m_maxErrCount) msg()<< "prepareRIO_OnTrack could not find appropriate tool to prepare: "<<*RoT<<std::endl; 
     }
-    return;
-}
+    }

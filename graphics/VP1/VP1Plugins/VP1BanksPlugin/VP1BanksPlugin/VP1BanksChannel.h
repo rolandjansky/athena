@@ -36,8 +36,8 @@ protected slots:
   void entriesChanged(const QStringList& entry_key,const QStringList& entry_type,const QStringList& entry_id);
 
 private:
-  QTableWidget * tableWidget;
-  VP1BanksSystem * bankssystem;
+  QTableWidget * m_tableWidget;
+  VP1BanksSystem * m_bankssystem;
 };
 
 #endif

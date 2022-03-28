@@ -117,12 +117,10 @@ StatusCode xAODTauFilter::filterEvent() {
   const xAOD::TruthParticleContainer* vtruth = nullptr;
   ATH_CHECK( evtStore()->retrieve( vtruth, "TruthTaus" ) );
 
-//get the weight of the event from McEventCollection
-
-setFilterPassed(false);
-McEventCollection::const_iterator itr;
-for (itr = events_const()->begin(); itr!=events_const()->end(); ++itr) {
-    int eventNumber = (*itr)->event_number();
+  //get the weight of the event from McEventCollection
+  setFilterPassed(false);
+  for(const HepMC::GenEvent* genEvt : *events_const()) {
+    int eventNumber = genEvt->event_number();
     if(m_filterEventNumber==1 && (eventNumber%2)==0) {
       setFilterPassed(false);
       return StatusCode::SUCCESS;
@@ -132,10 +130,9 @@ for (itr = events_const()->begin(); itr!=events_const()->end(); ++itr) {
       return StatusCode::SUCCESS;
     }
     
-    const HepMC::GenEvent* genEvt = (*itr);
     auto wgtsC = genEvt->weights();
     weight = wgtsC.size() > 0 ? wgtsC[0] : 1;
-}
+  }
 
   
   for (const auto * truthtau : *vtruth) {

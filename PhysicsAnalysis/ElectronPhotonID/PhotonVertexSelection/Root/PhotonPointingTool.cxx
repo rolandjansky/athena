@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local includes
@@ -203,8 +203,8 @@ StatusCode PhotonPointingTool::updatePointingAuxdata(const xAOD::EgammaContainer
     float cl_theta = 2.0*atan(exp(-1.0*cluster->eta()));
 
     // Shower depths
-    std::pair<float, float> RZ1 = m_showerTool->getRZ(etas1, 1);
-    std::pair<float, float> RZ2 = m_showerTool->getRZ(etas2, 2);
+    std::pair<float, float> RZ1 = CP::ShowerDepthTool::getRZ(etas1, 1);
+    std::pair<float, float> RZ2 = CP::ShowerDepthTool::getRZ(etas2, 2);
 
     // Calo cluster pointing calculation
     double r0_with_beamSpot = d_beamSpot*cos(phis2 - phi_beamSpot);
@@ -260,7 +260,7 @@ StatusCode PhotonPointingTool::updatePointingAuxdata(const xAOD::EgammaContainer
     float conv_z = conv->z();
 
     // Shower depths
-    std::pair<float, float> RZ1 = m_showerTool->getRZ(etas1, 1);
+    std::pair<float, float> RZ1 = CP::ShowerDepthTool::getRZ(etas1, 1);
 
     // Photon conversion
     double conv_r = hypot(conv_x, conv_y);
@@ -295,7 +295,7 @@ StatusCode PhotonPointingTool::updatePointingAuxdata(const xAOD::EgammaContainer
   float PhotonPointingTool::getCorrectedEta(const xAOD::CaloCluster &cluster, float PVz) const
   {
     // Get R/Z positions from sampling layer one eta
-    std::pair<float, float> RZ1 = m_showerTool->getRZ(cluster.etaBE(1), 1);
+    std::pair<float, float> RZ1 = CP::ShowerDepthTool::getRZ(cluster.etaBE(1), 1);
 
     // Return corrected eta from new vertex
     return asinh((RZ1.second - PVz)/RZ1.first);

@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "xAODCore/AuxContainerBase.h"
+#include "Identifier/IdentifierHash.h"
 #include "Identifier/Identifier.h"
 
 namespace xAOD {
@@ -21,7 +22,7 @@ namespace xAOD {
     private:
         /// @name Defining uncalibrated measurement parameters
         /// @{
-        std::vector < Identifier::value_type > identifier;
+        std::vector < IdentifierHash::value_type > identifierHash;
         std::vector < std::array < float, 3 > > localPosition;
         std::vector < std::array < float, 9 > > localCovariance;
         /// @}

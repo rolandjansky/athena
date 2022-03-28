@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file LArCondTPCnv/test/LArPedestalSubsetCnv_p1_test.cxx
@@ -12,6 +12,7 @@
 #undef NDEBUG
 #include "LArCondTPCnv/LArPedestalSubsetCnv_p1.h"
 #include "TestTools/leakcheck.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -124,7 +125,7 @@ LArPedestalP1 makePayload (int x)
 }
 
 
-void test1()
+void test1 ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test1\n";
   Athena_test::Leakcheck check;
@@ -156,7 +157,7 @@ void test1()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "LArCondTPCnv/LArPedestalSubsetCnv_p1_test\n";
   test1();

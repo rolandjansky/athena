@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -39,7 +39,7 @@
 #define MAX_ET_Iso_SF 999999.99
 #define MAX_ET_Trig_SF 99999.99
 
-typedef Root::TPhotonEfficiencyCorrectionTool::Result Result;
+using Result = Root::TPhotonEfficiencyCorrectionTool::Result;
 
 
 // =============================================================================

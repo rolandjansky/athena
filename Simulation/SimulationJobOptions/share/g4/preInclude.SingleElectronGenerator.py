@@ -13,8 +13,4 @@ pg.sampler.pid = PG.CyclicSeqSampler([-11,11])
 pg.sampler.mom = PG.PtEtaMPhiSampler(pt=10000, eta=[-3,3])
 topSeq += pg
 
-try:
-    from GeneratorModules.GeneratorModulesConf import CopyEventWeight
-    topSeq += CopyEventWeight(TruthCollKey="GEN_EVENT")
-except:
-    include("G4AtlasApps/fragment.SimCopyWeights.py")
+include("G4AtlasApps/fragment.SimCopyWeights.py")

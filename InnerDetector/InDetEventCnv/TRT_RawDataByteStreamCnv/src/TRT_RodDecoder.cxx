@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -1189,7 +1189,7 @@ TRT_RodDecoder::int_fillFullCompress( const ROBFragment *robFrag,
  * Read Compression Table from file
  */
 StatusCode
-TRT_RodDecoder::ReadCompressTableFile(  std::string 
+TRT_RodDecoder::ReadCompressTableFile(  const std::string& 
 #ifdef TRT_READCOMPTABLE_FILE
 TableFilename
 #endif

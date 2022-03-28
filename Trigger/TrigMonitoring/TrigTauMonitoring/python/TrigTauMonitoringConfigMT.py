@@ -447,6 +447,7 @@ class TrigTauMonAlgBuilder:
     monGroup.defineHistogram('ptDetectorAxis', title='ptDetectorAxis log ('+nProng+'); ptDetectorAxis_log; Events',xbins=50,xmin=0.,xmax=5.)
     if nProng=='MP' or nProng=='3P':  
       monGroup.defineHistogram('massTrkSys', title='massTrkSys log ('+nProng+'); massTrkSys_log; Events',xbins=50,xmin=0.,xmax=3.)
+      monGroup.defineHistogram('trFlightPathSig', title='trFlightPathSig ('+nProng+'); trFlightPathSig; Events', xbins=100, xmin=-20., xmax=40)
 
   def bookRNNTrack( self, monAlg, trigger, online ):
 

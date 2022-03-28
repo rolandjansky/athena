@@ -23,7 +23,7 @@ def OverviewMonitoringConfig(inputFlags):
     OverviewMonAlg.PackageName = groupName
 
     mainDir = 'L1Calo'
-    trigPath = 'Overview/'
+    trigPath = 'Overview/Errors/'
 
     # add monitoring algorithm to group, with group name and main directory 
     myGroup = helper.addGroup(OverviewMonAlg, groupName , mainDir)
@@ -56,14 +56,14 @@ def OverviewMonitoringConfig(inputFlags):
                             xbins=NumberOfGlobalErrors,xmin=0.,xmax=NumberOfGlobalErrors,
                             ybins=14,ymin=0.,ymax=14, xlabels=globalStatus_labels,
                             duration='' if isOnline else 'lb',
-                            opt='kLBNHistoryDepth=10' if isOnline else '')
+                            opt='kLBNHistoryDepth=10,kAlwaysCreate' if isOnline else 'kAlwaysCreate')
 
 
     myGroup.defineHistogram('lb_errors;l1calo_1d_ErrorsByLumiblock',
                             title='Events with Errors by Lumiblock;Lumi Block;Number of Events;',
                             path=trigPath,
                             duration='' if isOnline else 'lb',
-                            opt='kLive=10' if isOnline else '')
+                            opt='kLive=10,kAlwaysCreate' if isOnline else 'kAlwaysCreate')
 
     
     acc = helper.result()

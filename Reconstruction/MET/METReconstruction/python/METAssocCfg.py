@@ -21,7 +21,7 @@ defaultInputKey = {
    'Soft'      :'',
    'Clusters'  :'CaloCalTopoClusters',
    'Tracks'    :'InDetTrackParticles',
-   'PFlowObj'  :'CHSParticleFlowObjects',
+   'PFlowObj'  :'CHSGParticleFlowObjects',
    'PrimVxColl':'PrimaryVertices',
    'Truth'     :'TruthEvents',
    }
@@ -43,7 +43,6 @@ def getAssociator(config,suffix,doPFlow=False,
                   modConstKey="",
                   modClusColls={}):
     tool = None
-
     doModClus = (modConstKey!="" and not doPFlow)
     if doModClus:
         modLCClus = modClusColls['LC{0}Clusters'.format(modConstKey)]
@@ -150,7 +149,9 @@ class METAssocConfig:
         modConstKey_tmp = modConstKey
         modClusColls_tmp = modClusColls
         if doPFlow:
-            if modConstKey_tmp == "": modConstKey_tmp = "CHSParticleFlowObjects"
+            # Ideally this should not be hardcoded but linked to the JetDefinition with which this MET is built
+            # TODO : in new config, if possible use something like: jetdef.inputdef.containername             
+            if modConstKey_tmp == "": modConstKey_tmp = "CHSGParticleFlowObjects"
         else:
             if modConstKey_tmp == "": modConstKey_tmp = "OriginCorr"
             if modClusColls_tmp == {}: modClusColls_tmp = {'LCOriginCorrClusters':'LCOriginTopoClusters',

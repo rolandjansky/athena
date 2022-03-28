@@ -11,6 +11,8 @@
 #include "TileConditions/ITileBadChanTool.h"
 
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteDecorHandleKey.h"
+#include "StoreGate/WriteDecorHandle.h"
 #include "xAODJet/JetContainer.h"
 #include "CaloEvent/CaloCellContainer.h"
 
@@ -62,12 +64,13 @@ class TileJetMonitorAlgorithm : public AthMonitorAlgorithm {
     Gaudi::Property<bool> m_doJetCleaning{this, "DoJetCleaning", false, ""};
     Gaudi::Property<float> m_jetTrackingEtaLimit{this, "JetTrackingEtaLimit", 2.4, ""};
     Gaudi::Property<float> m_jvtThreshold{this, "JvtThreshold", 0.59, ""};
-    Gaudi::Property<std::string> m_jvtDecorator{this, "JvtDecorator", "passJvt", ""};
-    Gaudi::Property<std::string> m_orDecorator{this, "OrDecorator", "passOR", ""};
     Gaudi::Property<std::vector<float>> m_cellEnergyUpperLimitsHG{this, 
         "CellEnergyUpperLimitsHG", {}, "Energy upper limits of the HG cell-time histograms"};
     Gaudi::Property<std::vector<float>> m_cellEnergyUpperLimitsLG{this,
         "CellEnergyUpperLimitsLG", {}, "Energy upper limits of the LG cell-time histograms"};
+
+    SG::WriteDecorHandleKey<xAOD::JetContainer> m_passORKey{this, "OrDecorator", "passOR", ""};
+    SG::WriteDecorHandleKey<xAOD::JetContainer> m_passJVTKey{this, "JvtDecorator", "passJvt", ""};
 
     ToolHandle<ITileBadChanTool> m_tileBadChanTool{this, 
         "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};

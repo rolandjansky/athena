@@ -228,7 +228,9 @@ if rec.doHeavyIon():
 # remove decorations that might be created by monitoring
 if rec.doMonitoring():
     fullESDList += CfgItemList( "MonitoringEsd", 
-                                items = ["xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.-jetClean_LooseBad"]
+                                items = ["xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.-jetClean_LooseBad",
+                                         "xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.-passJvt",
+                                         "xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.-passOR"]
                               )
 
 ## StreamESD_Augmented.AddItem( "RecoTimingObj#RAWtoESD_timings" )

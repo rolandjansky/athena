@@ -4,7 +4,6 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #include "MbtsFex.h"
 
 #include "AthenaMonitoringKernel/Monitored.h"
-#include "TileEvent/TileCellCollection.h"
 #include "TileEvent/TileCell.h"
 
 MbtsFex::MbtsFex(const std::string& name, ISvcLocator* pSvcLocator):
@@ -28,7 +27,7 @@ StatusCode MbtsFex::initialize()
 StatusCode MbtsFex::execute(const EventContext& context) const
 {
 
-  TileCellCollection mbtsContainer (SG::VIEW_ELEMENTS);
+  std::vector<const TileCell*> mbtsContainer;
   ATH_CHECK(m_dataAccessSvc->loadMBTS( context, mbtsContainer));
   ATH_MSG_DEBUG ("Successfully retrieved mbtsContainer collection of size " << mbtsContainer.size());
 

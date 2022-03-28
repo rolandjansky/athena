@@ -244,8 +244,8 @@ private:
     void clearTracks(std::vector<TrackData*> tracks);
     void clearEvent(EventData& event);
 
-    const HepMC::GenParticle* getMother(const TruthTrajectory& traj) const;
-    const HepMC::GenParticle* getInitialState(const TruthTrajectory& traj) const;
+    HepMC::ConstGenParticlePtr getMother(const TruthTrajectory& traj) const;
+    HepMC::ConstGenParticlePtr getInitialState(const TruthTrajectory& traj) const;
 
     bool goodTruthTrack(const Muon::IMuonTrackTruthTool::TruthTreeEntry& entry) const;
     bool isSecondary(const Muon::MuonTrackTruth& truthTrack) const;

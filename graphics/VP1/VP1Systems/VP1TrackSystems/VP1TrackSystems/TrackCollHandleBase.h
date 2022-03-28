@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -184,7 +184,7 @@ public slots:
   void setShownTSOSParts(TrackCommonFlags::TSOSPartsFlags);
   void setLabels(TrackSystemController::TrackLabelModes);
   void setLabelTrkOffset(float);
-  void setLabelPosOffsets(QList<int>);
+  void setLabelPosOffsets(const QList<int>&);
   void setCustomColouredTSOSParts(TrackCommonFlags::TSOSPartsFlags);
   void setUseShortTRTMeasurements(bool);
   void setUseShortMDTMeasurements(bool);

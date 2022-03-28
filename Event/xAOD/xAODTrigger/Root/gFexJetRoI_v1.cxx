@@ -189,13 +189,14 @@ namespace xAOD {
 
 
   // Floating point coordinates using gFex convention [0, 2pi].
+  // Returns the centre phi coordinate.
   float gFexJetRoI_v1::phi_gFex() const {
     float phi_out = -999;
     if (gFexType() != gRho){
-      if (( iEta() <= 6 ) || ( (iEta() >= 33) )){
+      if (( iEta() <= 3 ) || ( (iEta() >= 36) )){
         phi_out = (iPhi() * s_forwardPhiWidth) + (s_forwardPhiWidth/2);
       }
-      else if ( iEta() >6  && iEta() < 33 ){
+      else if ( iEta() > 3  && iEta() < 36 ){
         phi_out = (iPhi() * s_centralPhiWidth) + s_centralPhiWidth/2;
       } 
       else return -999; 
@@ -205,13 +206,14 @@ namespace xAOD {
 
 
   // Floating point coordinates using gFex convention [0, 2pi]. 
+  // Returns the low edge of the phi bin.
   float gFexJetRoI_v1::phiMin_gFex() const {
     float phi_out = -999;
     if (gFexType() != gRho){
-      if (( iEta() <= 6 ) || ( (iEta() >= 33) )){
+      if (( iEta() <= 3 ) || ( (iEta() >= 36) )){
         phi_out = iPhi() * s_forwardPhiWidth;
       }
-      else if ( iEta() > 6 && iEta() < 33 ){
+      else if ( iEta() > 3 && iEta() < 36 ){
         phi_out = iPhi() * s_centralPhiWidth;
       } 
       else return -999; 
@@ -220,13 +222,14 @@ namespace xAOD {
   }
 
   // Floating point coordinates using gFex convention [0, 2pi].
+  // Returns the high edge of the phi bin.
   float gFexJetRoI_v1::phiMax_gFex() const {
     float phi_out = -999;
     if (gFexType() != gRho){
-      if (( iEta() <= 6 ) || ( iEta() >= 33  )){//&& iEta() <= 37
+      if (( iEta() <= 3 ) || ( iEta() >= 36  )){//&& iEta() <= 37
         phi_out = iPhi() * s_forwardPhiWidth + s_forwardPhiWidth;
       }
-      else if ( iEta() > 6 && iEta() < 33 ){
+      else if ( iEta() > 3 && iEta() < 36 ){
         phi_out = iPhi() * s_centralPhiWidth + s_centralPhiWidth;
       } 
       else return -999; 
@@ -235,6 +238,7 @@ namespace xAOD {
   }
 
   // Floating point coordinates using ATLAS convention [-pi, pi]. 
+  // Returns the centre phi coordinate.
   float gFexJetRoI_v1::phi() const {
     float phi_out = -999;
     if (gFexType() != gRho){
@@ -244,7 +248,8 @@ namespace xAOD {
     return phi_out; 
   }
 
-  // Floating point coordinates using ATLAS convention [-pi, pi]. 
+  // Floating point coordinates using ATLAS convention [-pi, pi].
+  // Returns the high edge of the phi bin. 
   float gFexJetRoI_v1::phiMax() const {
     float phi_out = -999;
     if (gFexType() != gRho){
@@ -255,12 +260,28 @@ namespace xAOD {
   }
 
   // Floating point coordinates using ATLAS convention [-pi, pi]. 
+  // Returns the low edge of the phi bin.
   float gFexJetRoI_v1::phiMin() const {
     float phi_out = -999;
     if (gFexType() != gRho){
       if (phiMin_gFex() < M_PI) phi_out = phiMin_gFex();
       else phi_out = (phiMin_gFex() - 2*M_PI);
     }
+    return phi_out; 
+  }
+
+  // Returns phi index in the range used by L1Topo (0->127).
+  int gFexJetRoI_v1::iPhiTopo() const {
+    int phi_out = -999;
+    if (gFexType() != gRho){
+      if (( iEta() <= 3 ) || ( (iEta() >= 36) )){
+        phi_out = ( 8 * iPhi() ) + 4;
+      }
+      else if ( iEta() >3  && iEta() < 36 ){
+        phi_out = ( 4 * iPhi() ) + 2;
+      } 
+      else return -999; 
+    } 
     return phi_out; 
   }
 

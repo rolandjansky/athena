@@ -1144,7 +1144,7 @@ namespace Muon {
 
             const MuonGM::TgcReadoutElement* detEl = dynamic_cast<const MuonGM::TgcReadoutElement*>(etaHit->detectorElement());
             if (!detEl) {
-                ATH_MSG_WARNING("dynamic cast error returning");
+                ATH_MSG_WARNING("dynamic cast error for "<<m_idHelperSvc->toString(etaHit->identify())<<". Expected TGCs. Returning");
                 return Cluster2D(detElId, gasGapId, Amg::Vector2D(lpx, lpy), error, etaHit, phiHit);
             }
             // calculate local position of endpoint of strip

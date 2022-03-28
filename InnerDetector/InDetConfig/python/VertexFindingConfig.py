@@ -253,7 +253,7 @@ def ActsGaussAdaptiveMultiFindingBaseCfg(flags, **kwargs):
     else:
         vtxFlags = flags.InDet.PriVertex
     kwargs.setdefault("tracksMaxZinterval", vtxFlags.maxZinterval)
-    finderTool = CompFactory.ActsAdaptiveMultiPriVtxFinderTool(
+    finderTool = CompFactory.ActsTrk.AdaptiveMultiPriVtxFinderTool(
         "ActsAdaptiveMultiPriVtxFinderTool",
         **kwargs,
         ExtrapolationTool=trackExtrapolator,

@@ -22,6 +22,17 @@
 using namespace std;
 using namespace LVL1;
 
+
+// jFex to L1Topo conversion factors
+const int JetInputProviderFEX::m_Et_conversion = 2;              // 200 MeV to 100 MeV
+const int JetInputProviderFEX::m_phi_conversion = 2;             // 10 x phi to 20 x phi
+const int JetInputProviderFEX::m_eta_conversion = 4;             // 10 x eta to 40 x eta
+
+const float JetInputProviderFEX::m_EtDouble_conversion = 10.;    // 100 MeV to GeV
+const float JetInputProviderFEX::m_phiDouble_conversion = 20.;   // 20 x phi to phi
+const float JetInputProviderFEX::m_etaDouble_conversion = 40.;   // 40 x eta to eta
+
+
 JetInputProviderFEX::JetInputProviderFEX(const std::string& type, const std::string& name, 
                                    const IInterface* parent) :
    base_class(type, name, parent),
@@ -60,11 +71,11 @@ JetInputProviderFEX::handle(const Incident& incident) {
    string histPath = "/EXPERT/" + name() + "/";
    replace( histPath.begin(), histPath.end(), '.', '/'); 
 
-   //jJet
+   // jJet
    auto hjJetPt = std::make_unique<TH1I>( "jJetTOBPt", "jJet TOB Pt", 200, 0, 400);
    hjJetPt->SetXTitle("p_{T} [GeV]");
 
-   auto hjJetPhiEta = std::make_unique<TH2I>( "jJetTOBPhiEta", "jJet TOB Location", 240, -240, 240, 64, 0, 128);
+   auto hjJetPhiEta = std::make_unique<TH2I>( "jJetTOBPhiEta", "jJet TOB Location", 200, -200, 200, 128, 0, 128);
    hjJetPhiEta->SetXTitle("#eta#times40");
    hjJetPhiEta->SetYTitle("#phi#times20");
 
@@ -83,11 +94,11 @@ JetInputProviderFEX::handle(const Incident& incident) {
      ATH_MSG_WARNING("Could not register jJetTOB PhiEta histogram from JetProviderFEX");
    }
 
-   //jLargeRJet
-   auto hjLargeRJetPt = std::make_unique<TH1I>( "jLargeRJetTOBPt", "jLargeRJet TOB Pt", 200, 0, 2000);
+   // jLargeRJet
+   auto hjLargeRJetPt = std::make_unique<TH1I>( "jLargeRJetTOBPt", "jLargeRJet TOB Pt", 200, 0, 1000);
    hjLargeRJetPt->SetXTitle("p_{T} [GeV]");
 
-   auto hjLargeRJetPhiEta = std::make_unique<TH2I>( "jLargeRJetTOBPhiEta", "jLargeRJet TOB Location", 240, -240, 240, 64, 0, 128);
+   auto hjLargeRJetPhiEta = std::make_unique<TH2I>( "jLargeRJetTOBPhiEta", "jLargeRJet TOB Location", 200, -200, 200, 128, 0, 128);
    hjLargeRJetPhiEta->SetXTitle("#eta#times40");
    hjLargeRJetPhiEta->SetYTitle("#phi#times20");
 
@@ -106,26 +117,20 @@ JetInputProviderFEX::handle(const Incident& incident) {
      ATH_MSG_WARNING("Could not register jLargeRJetTOB PhiEta histogram from JetProviderFEX");
    }
 
-   //jTau
-   auto hjTauPt = std::make_unique<TH1I>( "jTauTOBPt", "jTau TOB Pt", 200, 0, 200);
+   // jTau
+   auto hjTauPt = std::make_unique<TH1I>( "jTauTOBPt", "jTau TOB Pt", 200, 0, 400);
    hjTauPt->SetXTitle("p_{T} [GeV]");
 
-   auto hjTauIsolation = std::make_unique<TH1I>( "jTauTOBIsolation", "jTau TOB Isolation", 200, 0, 200);
+   auto hjTauIsolation = std::make_unique<TH1I>( "jTauTOBIsolation", "jTau TOB Isolation", 200, 0, 400);
    hjTauIsolation->SetXTitle("Isolation [GeV]");
 
    auto hjTauPhiEta = std::make_unique<TH2I>( "jTauTOBPhiEta", "jTau TOB Location", 200, -200, 200, 128, 0, 128);
    hjTauPhiEta->SetXTitle("#eta#times40");
    hjTauPhiEta->SetYTitle("#phi#times20");
 
-   auto hjTauIsolationEta = std::make_unique<TH2I>( "jTauTOBIsolationEta", "jTau TOB Isolation vs eta", 200, -200, 200, 200, 0, 200);
+   auto hjTauIsolationEta = std::make_unique<TH2I>( "jTauTOBIsolationEta", "jTau TOB Isolation vs eta", 200, -200, 200, 200, 0, 400);
    hjTauIsolationEta->SetXTitle("#eta#times40");
    hjTauIsolationEta->SetYTitle("Isolation [GeV]");
-
-   auto h_jxe_Pt = std::make_unique<TH1I>( "jXEPt", "jXE TOB Pt", 100, 0, 2000);
-   h_jxe_Pt->SetXTitle("p_{T} [GeV]");
-
-   auto h_jxe_Phi = std::make_unique<TH1I>( "jXEPhi", "jXE TOB Phi", 32, -3.2, 3.2);
-   h_jxe_Phi->SetXTitle("#phi");
 
    if (m_histSvc->regShared( histPath + "jTauTOBPt", std::move(hjTauPt), m_hjTauPt ).isSuccess()){
      ATH_MSG_DEBUG("jTauTOB Pt histogram has been registered successfully from JetProviderFEX.");
@@ -133,7 +138,6 @@ JetInputProviderFEX::handle(const Incident& incident) {
    else{
      ATH_MSG_WARNING("Could not register jTauTOB Pt histogram from JetProviderFEX");
    }
-
    if (m_histSvc->regShared( histPath + "jTauTOBIsolation", std::move(hjTauIsolation), m_hjTauIsolation ).isSuccess()){
      ATH_MSG_DEBUG("jTauTOB Isolation histogram has been registered successfully from JetProviderFEX.");
    }
@@ -152,6 +156,34 @@ JetInputProviderFEX::handle(const Incident& incident) {
    else{
      ATH_MSG_WARNING("Could not register jTauTOB Eta/Isolation histogram from JetProviderFEX");
    }
+
+   // jEm
+   auto hjEmPt = std::make_unique<TH1I>( "jEmTOBPt", "jEm TOB Pt", 200, 0, 400);
+   hjEmPt->SetXTitle("p_{T} [GeV]");
+
+   auto hjEmPhiEta = std::make_unique<TH2I>( "jEmTOBPhiEta", "jEm TOB Location", 200, -200, 200, 128, 0, 128);
+   hjEmPhiEta->SetXTitle("#eta#times40");
+   hjEmPhiEta->SetYTitle("#phi#times20");
+
+   if (m_histSvc->regShared( histPath + "jEmTOBPt", std::move(hjEmPt), m_hjEmPt ).isSuccess()){
+     ATH_MSG_DEBUG("jEmTOB Pt histogram has been registered successfully from JetProviderFEX.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register jEmTOB Pt histogram from JetProviderFEX");
+   }
+   if (m_histSvc->regShared( histPath + "jEmTOBPhiEta", std::move(hjEmPhiEta), m_hjEmPhiEta ).isSuccess()){
+     ATH_MSG_DEBUG("jEmTOB PhiEta histogram has been registered successfully from JetProviderFEX.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register jEmTOB PhiEta histogram from JetProviderFEX");
+   }
+
+   // jXE
+   auto h_jxe_Pt = std::make_unique<TH1I>( "jXEPt", "jXE TOB Pt", 200, 0, 2000);
+   h_jxe_Pt->SetXTitle("p_{T} [GeV]");
+
+   auto h_jxe_Phi = std::make_unique<TH1I>( "jXEPhi", "jXE TOB Phi", 64, -3.2, 3.2);
+   h_jxe_Phi->SetXTitle("#phi");
 
    if (m_histSvc->regShared( histPath + "jXEPt", std::move(h_jxe_Pt), m_h_jxe_Pt ).isSuccess()){
      ATH_MSG_DEBUG("jXEPt histogram has been registered successfully for JetProviderFEX.");
@@ -194,27 +226,27 @@ JetInputProviderFEX::fillTau(TCS::TopoInputEvent& inputEvent) const {
 		   << jFexRoI->globalPhi() // returns global phi in units of 0.1
 		   );
        
-    unsigned int EtTopo = jFexRoI->tobEt()*2; // Convert Et to 100 MeV unit
-    unsigned int phiTopo = jFexRoI->globalPhi()*2; // Convert to 0.05 granularity
-    int etaTopo = jFexRoI->globalEta()*4; // Convert to 0.025 granularity
-    unsigned int isolation = jFexRoI->tobIso()*2;  // Convert isolation to 100 MeV unit
+    unsigned int EtTopo = jFexRoI->tobEt()*m_Et_conversion;
+    unsigned int phiTopo = jFexRoI->globalPhi()*m_phi_conversion;
+    int etaTopo = jFexRoI->globalEta()*m_eta_conversion;
+    unsigned int isolation = jFexRoI->tobIso()*m_Et_conversion;
    
     // Avoid the events with 0 Et (events below threshold)
     if (EtTopo==0) continue;
 
     TCS::jTauTOB jtau( EtTopo, etaTopo, phiTopo );
-    jtau.setEtDouble( static_cast<double>(EtTopo/10.) );
-    jtau.setEtaDouble( static_cast<double>(etaTopo/40.) );
-    jtau.setPhiDouble( static_cast<double>(phiTopo/20.) );
+    jtau.setEtDouble( static_cast<double>(EtTopo/m_EtDouble_conversion) );
+    jtau.setEtaDouble( static_cast<double>(etaTopo/m_etaDouble_conversion) );
+    jtau.setPhiDouble( static_cast<double>(phiTopo/m_phiDouble_conversion) );
     jtau.setEtIso( isolation );
 
     inputEvent.addjTau( jtau );
     inputEvent.addcTau( jtau );
 
     m_hjTauPt->Fill(jtau.EtDouble());
-    m_hjTauIsolation->Fill(jtau.EtIso()/10.);
+    m_hjTauIsolation->Fill(jtau.EtIso()/m_EtDouble_conversion);
     m_hjTauPhiEta->Fill(jtau.eta(),jtau.phi()); 
-    m_hjTauIsolationEta->Fill(jtau.eta(),jtau.EtIso()/10.); 
+    m_hjTauIsolationEta->Fill(jtau.eta(),jtau.EtIso()/m_EtDouble_conversion); 
   }
 
   return StatusCode::SUCCESS;
@@ -243,17 +275,17 @@ JetInputProviderFEX::fillLRJet(TCS::TopoInputEvent& inputEvent) const {
 		   << jFexRoI->globalPhi() // returns global phi in units of 0.1
 		   );
     
-    unsigned int EtTopo = jFexRoI->tobEt()*2; // Convert Et to 100 MeV unit
-    unsigned int phiTopo = jFexRoI->globalPhi()*2; // Convert to 0.05 granularity
-    int etaTopo = jFexRoI->globalEta()*4; // Convert to 0.025 granularity
+    unsigned int EtTopo = jFexRoI->tobEt()*m_Et_conversion;
+    unsigned int phiTopo = jFexRoI->globalPhi()*m_phi_conversion;
+    int etaTopo = jFexRoI->globalEta()*m_eta_conversion;
 
     // Avoid the events with 0 Et (events below threshold)
     if (EtTopo==0) continue;
 
     TCS::jLargeRJetTOB jet( EtTopo, etaTopo, phiTopo );
-    jet.setEtDouble( static_cast<double>(EtTopo/10.) );
-    jet.setEtaDouble( static_cast<double>(etaTopo/40.) );
-    jet.setPhiDouble( static_cast<double>(phiTopo/20.) );
+    jet.setEtDouble( static_cast<double>(EtTopo/m_EtDouble_conversion) );
+    jet.setEtaDouble( static_cast<double>(etaTopo/m_etaDouble_conversion) );
+    jet.setPhiDouble( static_cast<double>(phiTopo/m_phiDouble_conversion) );
 
     inputEvent.addjLargeRJet( jet );
 
@@ -288,17 +320,17 @@ JetInputProviderFEX::fillSRJet(TCS::TopoInputEvent& inputEvent) const {
 		   << jFexRoI->globalPhi() // returns global phi in units of 0.1
 		   );
 
-    unsigned int EtTopo = jFexRoI->tobEt()*2; // Convert Et to 100 MeV unit
-    unsigned int phiTopo = jFexRoI->globalPhi()*2; // Convert to 0.05 granularity
-    int etaTopo = jFexRoI->globalEta()*4; // Convert to 0.025 granularity
+    unsigned int EtTopo = jFexRoI->tobEt()*m_Et_conversion;
+    unsigned int phiTopo = jFexRoI->globalPhi()*m_phi_conversion;
+    int etaTopo = jFexRoI->globalEta()*m_eta_conversion;
 
     // Avoid the events with 0 Et (events below threshold)
     if (EtTopo==0) continue;
 
     TCS::jJetTOB jet( EtTopo, etaTopo, phiTopo );
-    jet.setEtDouble( static_cast<double>(EtTopo/10.) );
-    jet.setEtaDouble( static_cast<double>(etaTopo/40.) );
-    jet.setPhiDouble( static_cast<double>(phiTopo/20.) );
+    jet.setEtDouble( static_cast<double>(EtTopo/m_EtDouble_conversion) );
+    jet.setEtaDouble( static_cast<double>(etaTopo/m_etaDouble_conversion) );
+    jet.setPhiDouble( static_cast<double>(phiTopo/m_phiDouble_conversion) );
  
     inputEvent.addjJet( jet );
 
@@ -330,8 +362,8 @@ JetInputProviderFEX::filljXE(TCS::TopoInputEvent& inputEvent) const {
   for(const auto it : *jMet_EDM){
     const xAOD::jFexMETRoI *jFEXMet = it;
     // Get the MET components and convert to 100 MeV units
-    int et_x = jFEXMet->tobEx()*2;
-    int et_y = jFEXMet->tobEy()*2;
+    int et_x = jFEXMet->tobEx()*m_Et_conversion;
+    int et_y = jFEXMet->tobEy()*m_Et_conversion;
     int jFexNumber = jFEXMet->jFexNumber();
     int fpgaNumber = jFEXMet->fpgaNumber();  
 
@@ -350,9 +382,9 @@ JetInputProviderFEX::filljXE(TCS::TopoInputEvent& inputEvent) const {
 
   TCS::jXETOB jxe( -(global_et_x), -(global_et_y), et );
 
-  jxe.setExDouble( static_cast<double>(-global_et_x/10.) );
-  jxe.setEyDouble( static_cast<double>(-global_et_y/10.) );
-  jxe.setEtDouble( static_cast<double>(et/10.) );
+  jxe.setExDouble( static_cast<double>(-global_et_x/m_EtDouble_conversion) );
+  jxe.setEyDouble( static_cast<double>(-global_et_y/m_EtDouble_conversion) );
+  jxe.setEtDouble( static_cast<double>(et/m_EtDouble_conversion) );
   jxe.setEt2( et2 );
 
   inputEvent.setjXE( jxe );

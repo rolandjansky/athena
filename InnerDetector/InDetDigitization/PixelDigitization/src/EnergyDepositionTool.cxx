@@ -153,7 +153,7 @@ StatusCode EnergyDepositionTool::depositEnergy(const TimedHitPtr<SiHit>& phit, c
   const HepMcParticleLink McLink {
     HepMcParticleLink(phit->trackNumber(), phit.eventId(), evColl, idxFlag, ctx)
   };
-  const HepMC::GenParticle* genPart = McLink.cptr();
+  HepMC::ConstGenParticlePtr genPart = McLink.cptr();
   bool delta_hit = true;
   if (genPart) delta_hit = false;
   double sensorThickness = Module.design().thickness();

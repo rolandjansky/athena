@@ -36,6 +36,8 @@ def AsgElectronLikelihoodToolCfg(
     # Create an instance of the tool
     tool = AsgElectronLikelihoodTool(name)
 
+    tool.usePVContainer = flag.InDet.PriVertex.doVertexFinding
+
     # Call the function and configure it with the standard configuration
     ntuple[1](tool)
 

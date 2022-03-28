@@ -24,7 +24,7 @@ SURFACE* SurfaceCnv_p2<SURFACE>::createTransient( const Trk::Surface_p2 * persOb
   //Trk::Surface::SurfaceType type = static_cast<Trk::Surface::SurfaceType>(persObj->m_surfaceType);
   // std::cout<<"SurfaceCnv_p2<SURFACE>::createTransient for type="<<type<<", persId= "<<persObj->m_associatedDetElementId<<std::endl;
   SURFACE* surface=nullptr;
-  if (!persObj->m_transform.size()) {
+  if (persObj->m_transform.empty()) {
     // det element surface
     Identifier id =  Identifier32(persObj->m_associatedDetElementId);
     const SURFACE* detSurf =  static_cast<const SURFACE*>(m_eventCnvTool->getSurface(id));

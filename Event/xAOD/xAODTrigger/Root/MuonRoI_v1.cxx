@@ -134,11 +134,11 @@ namespace xAOD{
 
      if (isRun3()) {
        if( this->getSource() == Forward ) {
-	 return ( ( roiWord() >> RUN3OFFLINE_CAND_SECTORID_SHIFT ) & FORWARD_SECTORID_MASK );
+	 return ( ( roiWord() >> RUN3_CAND_SECTORID_SHIFT ) & FORWARD_SECTORID_MASK );
        } else if( this->getSource() == Endcap ) {
-	 return ( ( roiWord() >> RUN3OFFLINE_CAND_SECTORID_SHIFT ) & ENDCAP_SECTORID_MASK );
+	 return ( ( roiWord() >> RUN3_CAND_SECTORID_SHIFT ) & ENDCAP_SECTORID_MASK );
        } else if( this->getSource() == Barrel ) {
-	 return ( ( roiWord() >> RUN3OFFLINE_CAND_SECTORID_SHIFT ) & BARREL_SECTORID_MASK );
+	 return ( ( roiWord() >> RUN3_CAND_SECTORID_SHIFT ) & BARREL_SECTORID_MASK );
        }
      } else {
        if( this->getSource() == Forward ) {

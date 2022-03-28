@@ -20,6 +20,9 @@
 // Gaudi includes
 #include "Gaudi/Interfaces/IOptionsSvc.h"
 
+// System includes
+#include <atomic>
+
 /** @class HLTResultMTMaker
  *  @brief Tool to create the HLTResultMT at the end of each event
  **/
@@ -111,6 +114,8 @@ private:
   std::set<eformat::SubDetector> m_enabledSubDets;
   /// If true, don't call validatePEBInfo
   bool m_skipValidatePEBInfo {false};
+  /// Flag if empty PEB list error was already printed
+  mutable std::atomic_bool m_emptyPEBInfoErrorPrinted{false};
 };
 
 #endif // TRIGOUTPUTHANDLING_HLTRESULTMTMAKER_H

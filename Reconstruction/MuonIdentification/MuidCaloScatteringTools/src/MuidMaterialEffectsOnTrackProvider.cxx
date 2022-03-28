@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -81,10 +81,10 @@ std::vector<Trk::MaterialEffectsOnTrack> Rec::MuidMaterialEffectsOnTrackProvider
         Trk::ScatteringAngles newsa {0, 0, sigmascat / std::sin(parm.parameters()[Trk::theta]), sigmascat};
         Trk::ScatteringAngles newsa2 {0, 0, sigmascat / std::sin(parm.parameters()[Trk::theta]), sigmascat};
 
-        meots.emplace_back(X0inner, std::move(newsa), innersurf);
+        meots.emplace_back(X0inner, newsa, innersurf);
         meots.emplace_back(0, new Trk::EnergyLoss(energy.first, energy.second), middlesurf,
                                                     Trk::MaterialEffectsBase::EnergyLossEffects);
-        meots.emplace_back(X0outer, std::move(newsa2), outersurf);
+        meots.emplace_back(X0outer, newsa2, outersurf);
 
     } else {
         std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>> tsosvec = m_calotsos->caloTSOS(ctx, parm);
@@ -105,7 +105,7 @@ std::vector<Trk::MaterialEffectsOnTrack> Rec::MuidMaterialEffectsOnTrackProvider
                 double sigmascat = std::sqrt(m_scattool->sigmaSquare(matprop, std::abs(1. / qoverp), 1., Trk::muon));
                 newsa = Trk::ScatteringAngles(0, 0, sigmascat / sintheta, sigmascat);
             }
-            meots.emplace_back(meot->thicknessInX0(), std::move(newsa), neweloss, c_tsos->trackParameters()->associatedSurface());
+            meots.emplace_back(meot->thicknessInX0(), newsa, neweloss, c_tsos->trackParameters()->associatedSurface());
         }
     }
     if (meots.size() < 3) meots.clear();

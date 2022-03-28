@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArDetectorFactoryH62004.h"
@@ -119,9 +119,7 @@ void LArGeo::LArDetectorFactoryH62004::getSimulationParameters()
 
   std::cout << " Use cryo X : " <<  m_cryoXpos << " Gaudi::Units::mm" << std::endl;
   std::cout << " Use table Y : " <<  m_tableYpos << " Gaudi::Units::mm" << std::endl;
-  const_cast<LArGeoTB2004Options*>(largeoTB2004Options)->printMe();
-
-
+  largeoTB2004Options->printMe();
 }
 
 //## Other Operations (implementation)
@@ -212,7 +210,7 @@ void LArGeo::LArDetectorFactoryH62004::create(GeoPhysVol *world)
   {                                             // (with 350=1/2 length of FrontBeam volume)
     GeoVPhysVol* front = 0;
     front = FrontBeamConstruction.GetEnvelope();
-    if(front !=0 && expHallPhys !=0){
+    if(front !=0){
       expHallPhys->add( new GeoNameTag("H62004::Front"));
       expHallPhys->add( new GeoTransform( GeoTrf::TranslateZ3D(z_bard) ) );  
       expHallPhys->add(front);    

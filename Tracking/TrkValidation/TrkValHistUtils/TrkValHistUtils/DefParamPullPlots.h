@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVALHISTUTILS_DEFPARAMPULLPLOTS_H
@@ -14,7 +14,7 @@ namespace Trk{
 class DefParamPullPlots: public PlotBase {
   public:
     DefParamPullPlots(PlotBase *pParent, std::string sDir, std::string sType=""):PlotBase(pParent, sDir),m_sType(sType){ init();}
-  void fill(const xAOD::TrackParticle& trkprt, const xAOD::TruthParticle& truthprt, float weight=1.0);
+  void fill(const xAOD::TrackParticle& trkprt, const xAOD::TruthParticle& truthprt, float weight=1.0) const;
 
     TH1* Pull_d0;
     TH1* Pull_z0;

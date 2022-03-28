@@ -1,8 +1,7 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-Analysis__BTagTool=CompFactory.Analysis.BTagTool
 
 def BTagToolCfg(ConfigFlags, TaggerList, PrimaryVertexCollectionName="", scheme = '', useBTagFlagsDefaults = True):
       """Adds a new myBTagTool instance and registers it.
@@ -102,7 +101,7 @@ def BTagToolCfg(ConfigFlags, TaggerList, PrimaryVertexCollectionName="", scheme 
         for option in defaults:
             options.setdefault(option, defaults[option])
       options['name'] = 'btag'
-      btagtool = Analysis__BTagTool(**options)
+      btagtool = CompFactory.Analysis.BTagTool(**options)
       acc.setPrivateTools(btagtool)
 
       return acc

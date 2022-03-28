@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@ void MaterialPropertiesCnv_p1::persToTrans( const Trk::MaterialProperties_p1 *pe
         transObj->m_material.dEdX = persObj->materialData[6];
     
     // recreate the composition vector if possible
-    if ( persObj->elements.size() && persObj->fractions.size() ) {
+    if ( !persObj->elements.empty() && !persObj->fractions.empty() ) {
         transObj->m_material.composition = new Trk::MaterialComposition(persObj->elements, persObj->fractions);
     }
     

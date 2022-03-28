@@ -189,18 +189,18 @@ def addSidebandEventShape(sequence=DerivationFrameworkJob):
     from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-    constit_algs = getInputAlgs(cst.EMPFlow, configFlags=ConfigFlags)
+    constit_algs = getInputAlgs(cst.GPFlow, configFlags=ConfigFlags)
     constit_algs = reOrderAlgs( [a for a in constit_algs if a is not None])
 
     for a in constit_algs:
         if not hasattr(sequence,a.getName()):
             sequence += conf2toConfigurable(a)
 
-    constitPJAlg = getConstitPJGAlg(cst.EMPFlow, suffix='EMPFlowPUSB')
+    constitPJAlg = getConstitPJGAlg(cst.GPFlow, suffix='EMPFlowPUSB')
     if not hasattr(sequence,constitPJAlg.getName()):
         sequence += conf2toConfigurable(constitPJAlg)
 
-    eventshapealg = buildEventShapeAlg(cst.EMPFlow, '', suffix = 'EMPFlowPUSB' )
+    eventshapealg = buildEventShapeAlg(cst.GPFlow, '', suffix = 'EMPFlowPUSB' )
     if not hasattr(sequence, eventshapealg.getName()):
         sequence += conf2toConfigurable(eventshapealg)
 

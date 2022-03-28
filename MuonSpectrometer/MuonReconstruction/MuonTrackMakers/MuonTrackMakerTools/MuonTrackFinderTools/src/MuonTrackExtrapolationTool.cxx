@@ -214,7 +214,7 @@ namespace Muon {
     }
 
     const Trk::TrackParameters *MuonTrackExtrapolationTool::checkForSecondCrossing(const Trk::TrackParameters &firstCrossing,
-                                                                                   const Trk::Track &track) const {
+                                                                                   const Trk::Track &track) {
         double dirPosProduct = firstCrossing.position().dot(firstCrossing.momentum());
         double sign = dirPosProduct < 0. ? 1. : -1.;
         // create new TSOS DataVector and reserve enough space to fit all old TSOS + one new TSOS
@@ -319,7 +319,7 @@ namespace Muon {
         ATH_MSG_DEBUG(" first pars:       " << m_printer->print(*firstPars) << endmsg << " extrapolated pars " << m_printer->print(*exPars)
                                             << endmsg);
         // create new perigee
-        auto perigee = dynamic_cast<const Trk::Perigee *>(exPars.get());
+        const auto *perigee = dynamic_cast<const Trk::Perigee *>(exPars.get());
         
         if (!perigee) {
             perigee = createPerigee(*exPars);

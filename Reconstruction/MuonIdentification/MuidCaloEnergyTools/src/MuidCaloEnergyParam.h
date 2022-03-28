@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -75,11 +75,11 @@ namespace Rec {
         double mopEnergyLossError(double, double) const;
         double symmetricMopEnergyLoss(double, double) const;
         // returns the approx. material percentage of the ith compartment
-        double caloCompartmentDepthTile(int) const;
+        static double caloCompartmentDepthTile(int) ;
         // returns the approx. material percentage of the ith compartment
-        double caloCompartmentDepthLArHEC(int) const;
+        static double caloCompartmentDepthLArHEC(int) ;
         // returns the approx. material percentage of the ith compartment
-        double caloCompartmentDepthLArEM(int) const;
+        static double caloCompartmentDepthLArEM(int) ;
 
         // configuration
         bool m_cosmics;

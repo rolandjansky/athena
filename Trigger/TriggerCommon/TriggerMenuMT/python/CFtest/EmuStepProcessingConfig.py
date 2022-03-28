@@ -241,7 +241,7 @@ def generateChainsManually(maskbit=0x7):
         
         if not doElectron:
             from DecisionHandling.HLTSignatureConfig import elMenuSequence        
-            el11 = elMenuSequence(step="1",reconame="v1", hyponame="v1")    
+            el11 = elMenuSequence(step="1",reconame="v1", hyponame="v1") 
             el21 = elMenuSequence(step="2",reconame="v1", hyponame="v1")
             el41 = elMenuSequence(step="4",reconame="v1", hyponame="v1")
             
@@ -265,7 +265,8 @@ def generateChainsManually(maskbit=0x7):
         # multiplicity here indicates the number of objects to be combined:
         # for the chain dictionary, get the sum of the multiplicity in the multiplicy array
         # in symmetric chains, multiplicity=2 but only one sequence is used
-     
+        
+
         CombChains =[
             # This is an example of a chain running in "serial"
             makeChain(name='HLT_TestChain6_muv1_TestChain10_ev1_L1EM7_MU8F',  L1Thresholds=["MU5VF","EM3"], ChainSteps=[

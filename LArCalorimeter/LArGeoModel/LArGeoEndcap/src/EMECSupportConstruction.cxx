@@ -86,6 +86,7 @@
 
 #include "LArGeoEndcap/EMECConstruction.h"
 #include "LArGeoEndcap/EMECSupportConstruction.h"
+#include <boost/algorithm/string/predicate.hpp>
 
 using namespace LArGeo;
 
@@ -317,8 +318,8 @@ GeoPcon* EMECSupportConstruction::getPcon(const std::string& id) const
 	std::vector<double> zplane, rmin, rmax;
 
 	std::string id1 = id;
-	if(id.find("FrontSupportMother") == 0) id1 = "FrontSupportMother";
-	else if(id.find("BackSupportMother") == 0) id1 = "BackSupportMother";
+	if(boost::starts_with(id, "FrontSupportMother")) id1 = "FrontSupportMother";
+	else if(boost::starts_with(id, "BackSupportMother")) id1 = "BackSupportMother";
 	else if(id.find("Stretchers") != std::string::npos) id1 = "Stretchers";
 	else if(id == "FrontMiddleRing::LowerHole") id1 = "FrontMiddleRing::LH";
 	else if(id == "FrontMiddleRing::LowerGTen") id1 = "FrontMiddleRing::LGT";
@@ -400,7 +401,7 @@ for(int i = 0; i < nzplanes; ++ i){
 }
 #endif
 	} else {
-	if(id.find("FrontSupportMother") == 0){
+          if(boost::starts_with(id, "FrontSupportMother")){
 		zplane.resize(6);  rmin.resize(6);    rmax.resize(6);
 		zplane[0] =   0. *Gaudi::Units::mm; rmin[0] =  292.*Gaudi::Units::mm-1.*Gaudi::Units::mm; rmax[0] = 2077.*Gaudi::Units::mm-7.*Gaudi::Units::mm;
 		zplane[1] =  61. *Gaudi::Units::mm; rmin[1] =  292.*Gaudi::Units::mm-1.*Gaudi::Units::mm; rmax[1] = 2077.*Gaudi::Units::mm-7.*Gaudi::Units::mm;
@@ -417,7 +418,7 @@ for(int i = 0; i < nzplanes; ++ i){
 			rmax[0] = 614.*Gaudi::Units::mm;
 			rmax[1] = 614.*Gaudi::Units::mm;
 		}
-	} else if(id.find("BackSupportMother") == 0){
+	} else if(boost::starts_with(id, "BackSupportMother")){
 		zplane.resize(4);  rmin.resize(4);    rmax.resize(4);
 		zplane[0] =   0.001*Gaudi::Units::mm; rmin[0] =  333.*Gaudi::Units::mm-1.*Gaudi::Units::mm; rmax[0] = 2077.*Gaudi::Units::mm-7.*Gaudi::Units::mm;
 		zplane[1] =  55.   *Gaudi::Units::mm; rmin[1] =  333.*Gaudi::Units::mm-1.*Gaudi::Units::mm; rmax[1] = 2077.*Gaudi::Units::mm-7.*Gaudi::Units::mm;

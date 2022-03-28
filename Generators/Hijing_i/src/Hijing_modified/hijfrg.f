@@ -211,13 +211,14 @@ C                     ********sort jets in order of y
               IEX=0
               IF((ABS(KF1).GT.1000.AND.KF1.LT.0)
      &                     .OR.(ABS(KF1).LT.1000.AND.KF1.GT.0)) IEX=1
-              DO 520 I=N,2,-1
+              DO 521 I=N,2,-1
               DO 520 J=1,5
                      II=NPJ(JTP)+I
                      K(II,J)=K(I,J)
                      P(II,J)=P(I,J)
                      V(II,J)=V(I,J)
 520              CONTINUE
+521           CONTINUE
               DO 540 I=1,NPJ(JTP)
                      DO 542 J=1,5
                             K(I+1,J)=0
@@ -245,13 +246,14 @@ C                     ********sort jets in order of y
               IEX=1
               IF((ABS(KF2).GT.1000.AND.KF2.LT.0)
      &                     .OR.(ABS(KF2).LT.1000.AND.KF2.GT.0)) IEX=0
-              DO 560 I=N,2,-1
+              DO 561 I=N,2,-1
               DO 560 J=1,5
                      II=NTJ(JTP)+I
                      K(II,J)=K(I,J)
                      P(II,J)=P(I,J)
                      V(II,J)=V(I,J)
 560              CONTINUE
+561           CONTINUE
               DO 580 I=1,NTJ(JTP)
                      DO 582 J=1,5
                             K(I+1,J)=0

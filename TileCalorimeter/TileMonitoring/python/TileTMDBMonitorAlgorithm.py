@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 '''
 @file TileTMDBMonitorAlgorithm.py
@@ -48,7 +48,9 @@ def TileTMDBMonitoringConfig(flags, **kwargs):
     result.merge( TileTMDBCondAlgCfg(flags) )
 
     kwargs.setdefault('fillDetailedHistograms', False)
-    #fillDetailedHistograms = kwargs['fillDetailedHistograms']
+
+    if flags.Tile.RunType == 'PHY':
+        kwargs.setdefault('PulseEnergyRange', [1000., 5000.])
 
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools
@@ -66,7 +68,7 @@ def TileTMDBMonitoringConfig(flags, **kwargs):
 
     # Configure histogram with TileTMDBMonAlg algorithm execution time
     executeTimeGroup = helper.addGroup(tileTMDBMonAlg, 'TileTMDBMonExecuteTime', 'Tile/')
-    executeTimeGroup.defineHistogram('TIME_execute', path = f'TMDB/{flags.Tile.RunType}', type='TH1F',
+    executeTimeGroup.defineHistogram('TIME_execute', path = 'TMDB', type='TH1F',
                                      title = 'Time for execute TileTMDBMonAlg algorithm;time [#ms]',
                                      xbins = 100, xmin = 0, xmax = 100000)
 
@@ -140,7 +142,6 @@ if __name__=='__main__':
     ConfigFlags.DQ.enableLumiAccess = False
     ConfigFlags.Exec.MaxEvents = 3
     ConfigFlags.fillFromArgs()
-    ConfigFlags.Tile.RunType = "CIS"
     ConfigFlags.lock()
 
 
