@@ -393,7 +393,7 @@ void BTagJetAugmenter::augment(const xAOD::BTagging &btag) const {
     m_secondaryVtx_E(btag) = E;
     m_secondaryVtx_EFrac(btag) = EFrac;
     m_secondaryVtx_DmesonMass(btag) = m;
-    m_secondaryVtx_isDmesonRecon(btag) = false;
+    m_secondaryVtx_isDmesonRecon(btag) = 0;
     double tempM_forDmeson = getDmesonMass(secondaryVtx_track_number, secondaryVtx_charge, secondaryVtx_4momentum_vector,secondaryVtx_charge_vector);
 
     if(tempM_forDmeson>-98){
@@ -443,6 +443,9 @@ double BTagJetAugmenter::getDmesonMass(int secondaryVtx_track_number, float seco
   double DmesonMass = -99.0;
   const float track_mass = 139.57; // assume pion mass for all tracks
   const float track_kaon = 493.677; // kaon mass
+  const float Dmeson_reference = 1864.83;
+  const float Dmeson_upper = 2200.0;
+  const float Dmeson_lower = 1000.0;
   TLorentzVector secondaryVtx_4momentum_Dmeson;
 
   // now reconstruct D mesons
@@ -460,7 +463,7 @@ double BTagJetAugmenter::getDmesonMass(int secondaryVtx_track_number, float seco
         secondaryVtx_4momentum_Dmeson += track_fourVector_new;
         ++secondaryVtx_4momentum_Iter;
       }
-      if(secondaryVtx_4momentum_Dmeson.M()>1000 && secondaryVtx_4momentum_Dmeson.M()<2200){
+      if(secondaryVtx_4momentum_Dmeson.M()>Dmeson_lower && secondaryVtx_4momentum_Dmeson.M()<Dmeson_upper){
         DmesonMass = secondaryVtx_4momentum_Dmeson.M();
       }
     } else if(secondaryVtx_track_number == 2 && secondaryVtx_charge == 0){ // D0 -> K- pi+
@@ -477,7 +480,7 @@ double BTagJetAugmenter::getDmesonMass(int secondaryVtx_track_number, float seco
         secondaryVtx_4momentum_Dmeson += track_fourVector_new;
         ++secondaryVtx_4momentum_Iter;
       }
-      if(secondaryVtx_4momentum_Dmeson.M()>1000 && secondaryVtx_4momentum_Dmeson.M()<2200){
+      if(secondaryVtx_4momentum_Dmeson.M()>Dmeson_lower && secondaryVtx_4momentum_Dmeson.M()<Dmeson_upper){
         DmesonMass = secondaryVtx_4momentum_Dmeson.M();
       }
     } else if(secondaryVtx_track_number == 4 && secondaryVtx_charge == 0){ // D0 -> K- pi+ pi- pi+
@@ -515,10 +518,10 @@ double BTagJetAugmenter::getDmesonMass(int secondaryVtx_track_number, float seco
         ++secondaryVtx_4momentum_Iter;
       } 
       double mDmeson_2 = secondaryVtx_4momentum_Dmeson_new.M();
-      if (abs(mDmeson_1 - 1864.83)<=abs(mDmeson_2 - 1864.83) && mDmeson_1>1000 && mDmeson_1<2200){
+      if (std::abs(mDmeson_1 - Dmeson_reference)<=std::abs(mDmeson_2 - Dmeson_reference) && mDmeson_1>Dmeson_lower && mDmeson_1<Dmeson_upper){
           DmesonMass=mDmeson_1;
       }
-      else if(abs(mDmeson_2 - 1864.83)<=abs(mDmeson_1 - 1864.83) && mDmeson_2>1000 && mDmeson_2<2200){
+      else if(std::abs(mDmeson_2 - Dmeson_reference)<=std::abs(mDmeson_1 - Dmeson_reference) && mDmeson_2>Dmeson_lower && mDmeson_2<Dmeson_upper){
           DmesonMass=mDmeson_2;
       }
     }
