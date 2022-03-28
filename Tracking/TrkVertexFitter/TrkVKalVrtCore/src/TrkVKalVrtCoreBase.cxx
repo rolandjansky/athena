@@ -24,18 +24,21 @@ namespace Trk {
        vk_istate(istate)
   {}
 
-  VKalVrtControl::VKalVrtControl(const VKalVrtControlBase & base): VKalVrtControlBase(base), vk_forcft() { 
-    m_fullCovariance=nullptr;
-    m_vrtMassTot=-1.;
-    m_vrtMassError=-1.;
-    m_cascadeEvent=nullptr;
+  VKalVrtControl::VKalVrtControl(const VKalVrtControlBase & base)
+    : VKalVrtControlBase(base),
+      m_vrtMassTot(-1),
+      m_vrtMassError(-1),
+      m_cascadeEvent(nullptr),
+      vk_forcft()
+  { 
   }
-  VKalVrtControl::VKalVrtControl(const VKalVrtControl & src) : VKalVrtControlBase(src) { 
-    m_fullCovariance=nullptr; 
-    vk_forcft=src.vk_forcft;
-    m_vrtMassTot=src.m_vrtMassTot;
-    m_vrtMassError=src.m_vrtMassError;
-    m_cascadeEvent=src.m_cascadeEvent;
+  VKalVrtControl::VKalVrtControl(const VKalVrtControl & src)
+    : VKalVrtControlBase(src),
+      m_vrtMassTot(src.m_vrtMassTot),
+      m_vrtMassError(src.m_vrtMassError),
+      m_cascadeEvent(src.m_cascadeEvent),
+      vk_forcft(src.vk_forcft)
+  { 
   }
 
   VKTrack::VKTrack(long int iniId, double Perigee[], double Covariance[], VKVertex * vk, double m):

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVKalVrtCore/CommonPars.h"
@@ -144,19 +144,20 @@ int getFullVrtCov(VKVertex * vk, double *ader, double *dcv, double verr[6][6])
 //}
 //-------------------------------------------------------------------------
 // Weight matrix ready. Invert.  Beware - DSINV destroys initial matrix!  
-        double **ta = new double*[NVar+1]; std::unique_ptr<double[]> tab(new double[(NVar+1)*(NVar+1)]);
-        if( !ta || !tab ){ delete[] ta; return -1; }
-        for(i=0; i<NVar+1; i++){  ta[i] = &tab[i*(NVar+1)];}
+        noinit_vector<double*> ta (NVar+1);
+        noinit_vector<double> tab ((NVar+1)*(NVar+1));
+        for(i=0; i<NVar+1; i++){  ta[i] = tab.data() + i*(NVar+1);}
         for (i=1; i<=NVar; ++i) for (j = i; j<=NVar; ++j) ta[i][j] = ta[j][i] = ader_ref(i,j);  //Make copy for failure treatment
         dsinv(NVar, ader, vkalNTrkM*3+3, &IERR);
         if ( IERR != 0) {
-          double **tv   = new double*[NVar+1]; std::unique_ptr<double[]> tvb(new double[(NVar+1)*(NVar+1)]);
-          double **tr   = new double*[NVar+1]; std::unique_ptr<double[]> trb(new double[(NVar+1)*(NVar+1)]);
-          std::unique_ptr<double[]> tw(new double[NVar+1]);
-          if( !tr || !tv || !trb || !tvb || !tw){ delete[] tv; delete[] tr; delete[] ta; return -1; }
-          for(i=0; i<NVar+1; i++){  tv[i] = &tvb[i*(NVar+1)]; tr[i] = &trb[i*(NVar+1)];}
+          noinit_vector<double*> tv (NVar+1);
+          noinit_vector<double> tvb ((NVar+1)*(NVar+1));
+          noinit_vector<double*> tr (NVar+1);
+          noinit_vector<double> trb ((NVar+1)*(NVar+1));
+          noinit_vector<double> tw (NVar+1);
+          for(i=0; i<NVar+1; i++){  tv[i] = tvb.data() + i*(NVar+1); tr[i] = trb.data() + i*(NVar+1);}
 
-          vkSVDCmp( ta, NVar, NVar, tw.get(), tv);
+          vkSVDCmp( ta.data(), NVar, NVar, tw.data(), tv.data());
 
           double tmax=0; 
           for(i=1; i<NVar+1; i++) if(fabs(tw[i])>tmax)tmax=fabs(tw[i]); 
@@ -167,7 +168,6 @@ int getFullVrtCov(VKVertex * vk, double *ader, double *dcv, double verr[6][6])
 
           for (i=1; i<=NVar; ++i) for (j=1; j<=NVar; ++j) ader_ref(i,j)=tr[i][j];
 
-          delete[] tv; delete[] tr; 
           IERR=0; //return IERR;
         }
         //------ Check matrix inversion quality
@@ -178,7 +178,6 @@ int getFullVrtCov(VKVertex * vk, double *ader, double *dcv, double verr[6][6])
            if(i==j) maxDiff = (maxDiff > std::abs(1.-mcheck)) ? maxDiff : std::abs(1.-mcheck);
         } }
         //---------------------------------------------------------------------------------------
-        delete[] ta;                 //Clean memory
         if(maxDiff>0.1)return -1;
 /* ---------------------------------------- */
     } else {
