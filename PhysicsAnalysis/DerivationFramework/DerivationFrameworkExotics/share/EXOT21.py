@@ -12,9 +12,6 @@ from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 import DerivationFrameworkJetEtMiss.ExtendedJetCommon
 
-if DerivationFrameworkHasTruth:
-    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
-    addStandardTruthContents()
 
 #====================================================================
 # SET UP STREAM   
@@ -26,12 +23,14 @@ EXOT21Stream.AcceptAlgs(["EXOT21Kernel"])
 
 exot21Seq = CfgMgr.AthSequencer("EXOT21Sequence")
 
-triggerNavChains  = "HLT_mu50 | HLT_mu24_ivarloose_L1MU15 | HLT_mu26_ivarmedium |"
-triggerNavChains += "HLT_2mu14 | HLT_2mu10 | HLT_3mu6 | HLT_3mu6_msonly | HLT_3mu4 |"
+triggerNavChains  = "HLT_mu50 | HLT_mu24_ivarloose_L1MU15 | HLT_mu26_ivarmedium | HLT_mu20_iloose_L1MU15 | HLT_mu60_0eta105_msonly | HLT_mu40 |"
+triggerNavChains += "HLT_2mu14 | HLT_2mu10 | HLT_3mu6 | HLT_3mu6_msonly | HLT_3mu4 | HLT_mu22_mu8noL1 | HLT_mu18_mu8noL1 | HLT_2mu14_nomucomb | HLT_mu20_2mu4noL1 | HLT_mu18_2mu4noL1 | HLT_mu6_2mu4 | HLT_mu11_nomucomb_mu6noL1_nscan03_L1MU11_2MU6_bTau | HLT_mu20_nomucomb_mu6noL1_nscan03 | HLT_2mu10_nomucomb | HLT_mu20_mu8noL1 |"
+triggerNavChains += "HLT_mu20_msonly_mu6noL1_msonly_nscan05 | HLT_mu20_msonly_mu10noL1_msonly_nscan05_noComb  | HLT_mu20_msonly_mu15noL1_msonly_nscan05_noComb  | HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan05_L1MU20_J40  | HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan05_L1MU20_XE30  | HLT_mu6_dRl1_mu20_msonly_iloosems_mu6noL1_dRl1_msonly |"
 triggerNavChains += "HLT_g15_loose_2mu10_msonly |"
-triggerNavChains += "HLT_e60_lhmedium_nod0 | HLT_e24_lhtight_nod0_ivarloose | HLT_e26_lhtight_nod0_ivarloose |"
-triggerNavChains += "HLT_2e15_lhvloose_nod0_L12EM13VH | HLT_2e17_lhvloose_nod0 |"
-triggerNavChains += "HLT_e17_lhloose_nod0_2e9_lhloose_nod0 | HLT_g35_loose_g25_loose"
+triggerNavChains += "HLT_e60_lhmedium_nod0 | HLT_e24_lhtight_nod0_ivarloose | HLT_e26_lhtight_nod0_ivarloose | HLT_e120_lhloose | HLT_e140_lhloose_nod0 | HLT_e24_lhmedium_L1EM20VH | HLT_e26_lhtight_nod0 | HLT_e300_etcut | HLT_e60_lhmedium | HLT_e60_medium |"
+triggerNavChains += "HLT_2e15_lhvloose_nod0_L12EM13VH | HLT_2e17_lhvloose_nod0 | HLT_2e12_lhvloose_L12EM10VH | HLT_2e17_lhvloose_nod0_L12EM15VHI | HLT_2e24_lhvloose_nod0 | HLT_2e24_lhvloose_nod0_L12EM20VH |"
+triggerNavChains += "HLT_e17_lhloose_nod0_2e9_lhloose_nod0 | HLT_g35_loose_g25_loose | HLT_e17_lhloose_2e9_lhloose | HLT_e17_lhloose_nod0_2e10_lhloose_nod0_L1EM15VH_3EM8VH | HLT_e24_lhvloose_nod0_2e12_lhvloose_nod0_L1EM20VH_3EM10VH"
+
 
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 EXOT21ThinningHelper = ThinningHelper("EXOT21ThinningHelper")
@@ -46,10 +45,7 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
 
 #default triggers
-triggers = ['HLT_mu50','HLT_mu24_ivarloose_L1MU15','HLT_mu26_ivarmedium','HLT_2mu14','HLT_2mu10','HLT_3mu6',
-               'HLT_3mu6_msonly','HLT_3mu4','HLT_g15_loose_2mu10_msonly','HLT_e60_lhmedium_nod0','HLT_e24_lhtight_nod0_ivarloose',
-               'HLT_e26_lhtight_nod0_ivarloose','HLT_2e15_lhvloose_nod0_L12EM13VH','HLT_2e17_lhvloose_nod0',
-               'HLT_e17_lhloose_nod0_2e9_lhloose_nod0','HLT_g35_loose_g25_loose']
+triggers = ['HLT_mu50','HLT_mu24_ivarloose_L1MU15','HLT_mu26_ivarmedium','HLT_mu20_iloose_L1MU15','HLT_mu60_0eta105_msonly','HLT_2mu14','HLT_2mu10','HLT_3mu6','HLT_3mu6_msonly','HLT_3mu4','HLT_mu22_mu8noL1','HLT_mu18_mu8noL1','HLT_2mu14_nomucomb','HLT_mu20_2mu4noL1','HLT_mu18_2mu4noL1','HLT_g15_loose_2mu10_msonly','HLT_e60_lhmedium_nod0','HLT_e24_lhtight_nod0_ivarloose','HLT_e26_lhtight_nod0_ivarloose','HLT_e120_lhloose','HLT_e140_lhloose_nod0','HLT_e24_lhmedium_L1EM20VH','HLT_e26_lhtight_nod0','HLT_e300_etcut','HLT_e60_lhmedium','HLT_e60_medium','HLT_2e15_lhvloose_nod0_L12EM13VH','HLT_2e17_lhvloose_nod0','HLT_2e12_lhvloose_L12EM10VH','HLT_2e17_lhvloose_nod0_L12EM15VHI','HLT_2e24_lhvloose_nod0','HLT_2e24_lhvloose_nod0_L12EM20VH','HLT_e17_lhloose_nod0_2e9_lhloose_nod0','HLT_g35_loose_g25_loose','HLT_e17_lhloose_2e9_lhloose','HLT_e17_lhloose_nod0_2e10_lhloose_nod0_L1EM15VH_3EM8VH','HLT_e24_lhvloose_nod0_2e12_lhvloose_nod0_L1EM20VH_3EM10VH','HLT_mu20_msonly_mu6noL1_msonly_nscan05','HLT_mu20_msonly_mu10noL1_msonly_nscan05_noComb','HLT_mu20_msonly_mu15noL1_msonly_nscan05_noComb','HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan05_L1MU20_J40','HLT_mu20_msonly_iloosems_mu6noL1_msonly_nscan05_L1MU20_XE30','HLT_mu6_dRl1_mu20_msonly_iloosems_mu6noL1_dRl1_msonly','HLT_mu40','HLT_mu6_2mu4','HLT_mu11_nomucomb_mu6noL1_nscan03_L1MU11_2MU6_bTau','HLT_mu20_nomucomb_mu6noL1_nscan03','HLT_2mu10_nomucomb','HLT_mu20_mu8noL1']
 
 #QCD triggers to be used with the 10% GRL
 extraTriggers = ['HLT_j25','HLT_j35','HLT_j45','HLT_j55','HLT_j60','HLT_j85','HLT_j150','HLT_j175','HLT_j340','HLT_j380','HLT_3j175','HLT_3j200']
@@ -86,21 +82,6 @@ ToolSvc += EXOT21TPThinningTool
 thinningTools.append(EXOT21TPThinningTool)
 
 
-#Truth thinning
-truth_expression = "(abs(TruthParticles.pdgId) == 11 || abs(TruthParticles.pdgId) == 13 || abs(TruthParticles.pdgId) == 3000005 || abs(TruthParticles.pdgId) == 3000005 || abs(TruthParticles.pdgId) == 700021 || abs(TruthParticles.pdgId) == 700022)"
-
-
-from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
-EXOT21MCGenThinningTool = DerivationFramework__GenericTruthThinning(name                    = "EXOT21MCGenThinningTool",
-                                                                   ThinningService         = EXOT21ThinningHelper.ThinningSvc(),
-                                                                   ParticleSelectionString = truth_expression,
-                                                                   PreserveDescendants     = True,
-                                                                   #PreserveGeneratorDescendants     = True,
-                                                                   PreserveAncestors      = True)
-if DerivationFrameworkHasTruth:
-	ToolSvc += EXOT21MCGenThinningTool
-	thinningTools.append(EXOT21MCGenThinningTool)
-
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #=======================================
@@ -122,8 +103,6 @@ EXOT21SlimmingHelper.AllVariables = EXOT21AllVariablesContent
 EXOT21SlimmingHelper.StaticContent = EXOT21UnslimmedContent 
 EXOT21SlimmingHelper.ExtraVariables = EXOT21ExtraVariables
 EXOT21SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
-if DerivationFrameworkHasTruth:
-    EXOT21SlimmingHelper.ExtraVariables += EXOT21ExtraTruth
 EXOT21SlimmingHelper.IncludeEGammaTriggerContent = True
 EXOT21SlimmingHelper.IncludeMuonTriggerContent = True
 EXOT21SlimmingHelper.IncludeJetTriggerContent = True
