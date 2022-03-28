@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRecUtils/LArParabolaPeakRecoTool.h"
@@ -9,6 +9,7 @@
 #include "CLHEP/Matrix/Matrix.h"
 #include "CLHEP/Matrix/Vector.h"
 #include <algorithm>
+#include <cmath>
 #include <stdio.h>
 
 using CLHEP::HepMatrix;
@@ -265,7 +266,7 @@ float LArParabolaPeakRecoTool::ParabolaRawToTrueADC(float& QT_true_time, double&
   
   if ( QT_true_time < 0. )
     {
-      QT_true_time += ( ( (int) fabs(QT_true_time / 25)) + 1)*25;
+      QT_true_time += ( ( (int) std::abs(QT_true_time / 25)) + 1)*25;
     }
   
   /*

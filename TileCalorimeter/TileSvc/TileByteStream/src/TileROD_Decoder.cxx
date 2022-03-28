@@ -28,7 +28,7 @@
 static const InterfaceID IID_ITileROD_Decoder("TileROD_Decoder", 1, 0);
 
 bool chan_order (TileRawData * a, TileRawData * b) { return (a->adc_HWID() < b->adc_HWID()); }
-bool chan_order1 (TileFastRawChannel a, TileFastRawChannel b) { return (a.channel() < b.channel()); }
+bool chan_order1 (const TileFastRawChannel& a, const TileFastRawChannel& b) { return (a.channel() < b.channel()); }
 
 /** constructor
  */
@@ -2755,17 +2755,16 @@ void TileROD_Decoder::unpack_brod(uint32_t /* version */,
       /* ************************************************************************************* */
       /*                                      ADDERS FRAG					 */
     case ADD_FADC_FRAG: {
-      
+
       uint32_t val, channel[16][16];
       int nmodule = 4, nchan, nsamp, ch;
-      
+
       nchan = nmodule * 4;
       nsamp = datasize / nmodule;
-      
-      ATH_MSG_VERBOSE( " Adders: nmod=" << nmodule
-                      << ", nchan=" << nchan
-                      << ", nsamp=" << nsamp );
-      
+
+      ATH_MSG_VERBOSE(" Adders: nmod=" << nmodule << ", nchan=" << nchan
+                                       << ", nsamp=" << nsamp);
+
       if (nmodule * nsamp == datasize) {
         /* Unpack DATA */
         for (int m = 0; m < nmodule; ++m) {
@@ -2774,7 +2773,8 @@ void TileROD_Decoder::unpack_brod(uint32_t /* version */,
             val = *p;
             for (int c = 0; c < 4; ++c) {
               ch = m * 4 + c;
-              if (ch < nchan) channel[ch][s] = val & 0xFF;
+              if (ch < nchan)
+                channel[ch][s] = val & 0xFF;
               val >>= 8;
             }
             ++p;
@@ -2784,6 +2784,7 @@ void TileROD_Decoder::unpack_brod(uint32_t /* version */,
         for (ch = 0; ch < nchan; ++ch) {
           HWIdentifier adcID = m_tileHWID->adc_id(drawerID, ch, 0);
           std::vector<uint32_t> adc;
+          adc.reserve(nsamp);
           for (int s = 0; s < nsamp; ++s) {
             adc.push_back(channel[ch][s]);
           }
@@ -2791,12 +2792,12 @@ void TileROD_Decoder::unpack_brod(uint32_t /* version */,
           pBeam.push_back(rc);
         }
       } else {
-        ATH_MSG_WARNING("unpack_brod => Unexpected Adders size: " << MSG::dec << datasize );
+        ATH_MSG_WARNING("unpack_brod => Unexpected Adders size: " << MSG::dec
+                                                                  << datasize);
         return;
       }
-    }
-      break;
-      
+    } break;
+
 #ifndef LASER_OBJ_FRAG
 #define LASER_OBJ_FRAG   0x016
 #endif
