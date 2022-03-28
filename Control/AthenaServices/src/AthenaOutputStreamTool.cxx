@@ -409,9 +409,9 @@ StatusCode AthenaOutputStreamTool::streamObjects(const DataObjectVec& dataObject
    }
    // Connect the output file to the service
    std::string outputConnectionString = outputName;
-   for (std::string::size_type pos = m_outputAttributes.find("["); pos != std::string::npos; pos = m_outputAttributes.find("[", ++pos)) {
-      if (outputConnectionString.find(m_outputAttributes.substr(pos, m_outputAttributes.find("=", pos) + 1 - pos)) == std::string::npos) {
-         outputConnectionString += m_outputAttributes.substr(pos, m_outputAttributes.find("]", pos) + 1 - pos);
+   for (std::string::size_type pos = m_outputAttributes.find('['); pos != std::string::npos; pos = m_outputAttributes.find('[', ++pos)) {
+      if (outputConnectionString.find(m_outputAttributes.substr(pos, m_outputAttributes.find('=', pos) + 1 - pos)) == std::string::npos) {
+         outputConnectionString += m_outputAttributes.substr(pos, m_outputAttributes.find(']', pos) + 1 - pos);
       }
    }
 

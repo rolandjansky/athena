@@ -1328,7 +1328,7 @@ void TRT_FillCablingData_DC3::defineTables_broken_FDR()
   {
     int rodgroup, rodline, dtmchannel, strawlayer, strawnumber;
 
-    string::size_type loc = thisLine.find( "#" );
+    string::size_type loc = thisLine.find( '#' );
     if ( loc != string::npos )
     {
       thisLine.replace( loc, thisLine.length(), 1, ' ' );
@@ -1376,7 +1376,7 @@ void TRT_FillCablingData_DC3::defineTables_broken_FDR()
   {
     int rodgroup, rodline, dtmchannel, strawlayer, strawnumber;
 
-    string::size_type loc = thisLine.find( "#" );
+    string::size_type loc = thisLine.find( '#' );
     if ( loc != string::npos )
     {
       thisLine.replace( loc, thisLine.length(), 1, ' ' );
@@ -1425,7 +1425,7 @@ void TRT_FillCablingData_DC3::defineTables_broken_FDR()
   {
     int rodgroup, rodline, dtmchannel, strawlayer, strawnumber;
 
-    string::size_type loc = thisLine.find( "#" );
+    string::size_type loc = thisLine.find( '#' );
     if ( loc != string::npos )
     {
       thisLine.replace( loc, thisLine.length(), 1, ' ' );

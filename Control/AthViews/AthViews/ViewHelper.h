@@ -26,7 +26,7 @@ namespace ViewHelper
                                      std::vector< T > const& inputData, bool const allowFallThrough = true )
   {
     //Check for spaces in the name
-    if ( viewNameRoot.find( " " ) != std::string::npos )
+    if ( viewNameRoot.find( ' ' ) != std::string::npos )
     {
       return StatusCode::FAILURE;
     }
@@ -244,7 +244,7 @@ namespace ViewHelper
   inline SG::View* makeView( const std::string& common_name, int const unique_index = -1, bool const allowFallThrough = true )
   {
     //Check for spaces in the name
-    if ( common_name.find( " " ) != std::string::npos )
+    if ( common_name.find( ' ' ) != std::string::npos )
     {
       return nullptr;
     }
