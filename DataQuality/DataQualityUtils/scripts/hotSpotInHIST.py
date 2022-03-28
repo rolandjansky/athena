@@ -4,7 +4,29 @@
 # at a position found to be noisy
 # Uses the pathExtract library to extract the EOS path
 # See the twiki: https://twiki.cern.ch/twiki/bin/viewauth/Atlas/UsingDQInframerge
-# Author : Benjamin Trocme (LPSC Grenoble) / 2015-2016
+# Author: Benjamin Trocme (LPSC Grenoble) / 2015-2016
+# Update for Run 3 by Benjamin Trocme (LPSC Grenoble): March 2022
+#     * Adding a protection for the missing histograms in HIST file
+#     * Commenting the getStruct method (added by who???)
+#     * Adding the LoosePhotons object
+
+# Syntax : 
+#   -r, --run          :Run number
+#  -ll, --upperlb      :Upper lb
+#  -s, --stream        : Stream without prefix: express/CosmicCalo/Main/ZeroBias/MinBias
+#  -t, --tag           : DAQ tag: data16_13TeV, data16_cos... By default retrieve it via atlasdqm
+#  -a, --amiTag        : First letter of AMI tag: x->express / f->bulk
+#  -e, --eta           : Eta of hot spot
+#  -p, --phi           : Phi of hot spot
+#  -x, --x             : X of hot spot
+#  -y, --y             : Y of hot spot
+#  -ia, --integralAbove: Lower bound of integral
+#  -d, --delta         : Distance to look around hot spot
+#  -o, --object        : 2D OCCUPANCY: TopoClusters,EMTopoClusters, EMTopoJets,TightFwdElectrons,LoosePhotons,Tau
+#                        1D OCCUPANCY: EMTopoJets_eta,Tau_eta,Tau_phi
+#                        INTEGRAL: NumberTau,NumberTightFwdElectrons,NumberHLTJet
+#  -m, --min           :Min number of occurences in a LB
+#  -g, --grl           :Look for Calo/LAr/Tile defects set in suspicious LBs
 
 import os, sys
 import argparse
@@ -18,39 +40,42 @@ def lbStr(lb):
   """Return formatted lumiblock string"""
   return "_lb"+lb.zfill(5)  # is this still the case?
 
-def getStruct(r_in):
-  """Produce a list containing the paths of all histograms in the file"""
-  # r_in = R.TFile(infile, "READ")
-  t_in = r_in.Get(r_in.GetListOfKeys()[0].GetName())
-  keys = [k for k in t_in.GetListOfKeys()]
-  keynames = [ k.GetName() for k in keys ]
-
-  def itdir(thisdir, histPathList):
-    keys = thisdir.GetListOfKeys()
-    keynames = [ k.GetName() for k in keys ]
-    if any([ k.GetClassName() == "TDirectoryFile" for k in keys ]):
-      return [ k.ReadObj() for k in keys if k.GetClassName() == "TDirectoryFile" ]
-    else:
-      hists = []
-      for k in keys:
-        if isinstance(k.ReadObj(), R.TH1):
-          hists.append(thisdir.GetPathStatic().split(":/")[1]+"/"+k.GetName())
-      histPathList.extend(hists)
-      return ""
-  
-  histPathList = []
-  for key in keys:
-    if "lb_" in key.GetName() or "_LB" in key.GetName(): continue                                                                                                       
-    #if "Calo" not in key.GetName() and "Jet" not in key.GetName(): continue
-    if key.GetClassName() == "TDirectoryFile":
-      d = key.ReadObj()
-      while not isinstance(d, str): #d != None:                                                                                                                        
-        if isinstance(d, list):
-          for di in d:
-            d = itdir(di, histPathList)
-        else:
-          d = itdir(d, histPathList)
-  return histPathList
+### The method below was added by someone unknown in 2016-2022 period but never really used
+### It was commented by B.Trocme on March 2022
+### 
+###def getStruct(r_in):
+###  """Produce a list containing the paths of all histograms in the file"""
+###  # r_in = R.TFile(infile, "READ")
+###  t_in = r_in.Get(r_in.GetListOfKeys()[0].GetName())
+###  keys = [k for k in t_in.GetListOfKeys()]
+###  keynames = [ k.GetName() for k in keys ]
+###
+###  def itdir(thisdir, histPathList):
+###    keys = thisdir.GetListOfKeys()
+###    keynames = [ k.GetName() for k in keys ]
+###    if any([ k.GetClassName() == "TDirectoryFile" for k in keys ]):
+###      return [ k.ReadObj() for k in keys if k.GetClassName() == "TDirectoryFile" ]
+###    else:
+###      hists = []
+###      for k in keys:
+###        if isinstance(k.ReadObj(), R.TH1):
+###          hists.append(thisdir.GetPathStatic().split(":/")[1]+"/"+k.GetName())
+###      histPathList.extend(hists)
+###      return ""
+###  
+###  histPathList = []
+###  for key in keys:
+###    if "lb_" in key.GetName() or "_LB" in key.GetName(): continue                                                                                                       
+###    #if "Calo" not in key.GetName() and "Jet" not in key.GetName(): continue
+###    if key.GetClassName() == "TDirectoryFile":
+###      d = key.ReadObj()
+###      while not isinstance(d, str): #d != None:                                                                                                                        
+###        if isinstance(d, list):
+###          for di in d:
+###            d = itdir(di, histPathList)
+###        else:
+###          d = itdir(d, histPathList)
+###  return histPathList
   
 
 def getHistoInfo(objectType, runNumber):
@@ -101,6 +126,7 @@ def getHistoInfo(objectType, runNumber):
                    "BAR_thr3":"BAR thr3"}
     histoType = "2d_etaPhiHotSpot"
     histoName = "TopoClusters"
+
   elif "EMTopoCluster" in objectType:
     histoPath  = {"Et4GeV":runstr+"/CaloMonitoring/ClusterMon/LArClusterEMNoTrigSel/2d_Rates/m_clus_etaphi_Et_thresh1",
                   "Et10GeV":runstr+"/CaloMonitoring/ClusterMon/LArClusterEMNoTrigSel/2d_Rates/m_clus_etaphi_Et_thresh2",
@@ -124,6 +150,7 @@ def getHistoInfo(objectType, runNumber):
                    "cut4":"2TeV-8TeV"}
     histoType = "2d_etaPhiHotSpot"
     histoName = "EMTopoJets"
+
   elif (objectType == "EMTopoJets_eta"):
     histoPath  = {"cut1":runstr+"/Jets/AntiKt4EMTopoJets/etasel_20000_inf_pt_inf_500000",
                   "cut2":runstr+"/Jets/AntiKt4EMTopoJets/etasel_500000_inf_pt_inf_1000000",
@@ -145,16 +172,19 @@ def getHistoInfo(objectType, runNumber):
                    "Et15GeVBdtLoose":"Et > 15GeV-BDT loose"}
     histoType = "2d_etaPhiHotSpot"
     histoName = "Tau"
+
   elif objectType == "Tau_phi":
     histoPath  = {"single":runstr+"/Tau/tauPhi"}
     histoLegend = {"single":"All candidates"}
     histoType = "1d_phiHotSpot"
     histoName = "Tau"
+
   elif objectType == "Tau_eta":
     histoPath  = {"single":runstr+"/Tau/tauEta"}
     histoLegend = {"single":"All candidates"}
     histoType = "1d_etaHotSpot"
     histoName = "Tau"
+
   elif objectType == "NumberTau":
     histoPath  = {"allTau":runstr+"/Tau/nTauCandidates",
                   "highPt":runstr+"/Tau/nHighPtTauCandidates"}
@@ -168,11 +198,19 @@ def getHistoInfo(objectType, runNumber):
     histoLegend = {"single":"10GeV"}
     histoType = "2d_etaPhiHotSpot"
     histoName = "Tight electrons"
+
+  elif objectType == "LoosePhotons":
+    histoPath  = {"single":runstr+"/egamma/CBLoosePhotons/Eta_Phi_distribution_with_Pt.gt.4GeV"}
+    histoLegend = {"single":"4GeV"}
+    histoType = "2d_etaPhiHotSpot"
+    histoName = "Loose photons"
+
   elif objectType == "NumberTightFwdElectrons":
     histoPath  = {"single":runstr+"/egamma/forwardElectrons/forwardElectronTightN"}
     histoLegend = {"single":"All candidates"}
     histoType = "1d_integralAbove"
     histoName = "Number of tight forward electrons"
+
   elif objectType == "forwardElectronEtaPhi":
     histoPath  = {"single":runstr+"/egamma/forwardElectrons/forwardElectronEtaPhi"}
     histoLegend = {"single":"All candidates"}
@@ -420,8 +458,9 @@ def main(args):
     histoLB = {}
     for iHisto in histoPath.keys():
       histoLB[iHisto] = fLB[lbFile].Get(histoPath[iHisto])
-      for iBin in regionBins[iHisto]:
-        nbHitInHot[iHisto][ilb] = nbHitInHot[iHisto][ilb] + histoLB[iHisto].GetBinContent(iBin)
+      if (histoLB[iHisto] != None):
+        for iBin in regionBins[iHisto]:
+          nbHitInHot[iHisto][ilb] = nbHitInHot[iHisto][ilb] + histoLB[iHisto].GetBinContent(iBin)
   #  sys.stdout.write("->%d "%(nbHitInHot[ilb]))
 
     fLB[lbFile].Close()
