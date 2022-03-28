@@ -451,12 +451,15 @@ namespace Trk {
           auto meot=dynamic_cast<const Trk::MaterialEffectsOnTrack*>(meb.get());
           if (meot) {
             double tinX0=meot->thicknessInX0();
-            const Trk::EnergyLoss* eLoss=meot->energyLoss() ? meot->energyLoss()->clone() : nullptr;
-            const Trk::Surface& surf=meot->associatedSurface();
+            std::unique_ptr<Trk::EnergyLoss> eLoss =
+              meot->energyLoss()
+                ? std::unique_ptr<Trk::EnergyLoss>(meot->energyLoss()->clone())
+                : nullptr;
+            const Trk::Surface& surf = meot->associatedSurface();
             std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes> typeMaterial;
             if (eLoss) typeMaterial.set(MaterialEffectsBase::EnergyLossEffects);
             const Trk::MaterialEffectsOnTrack* newmeot=
-                new Trk::MaterialEffectsOnTrack(tinX0,std::nullopt,eLoss,surf,typeMaterial);
+                new Trk::MaterialEffectsOnTrack(tinX0,std::nullopt,std::move(eLoss),surf,typeMaterial);
             meb.reset(newmeot);
           }
         }

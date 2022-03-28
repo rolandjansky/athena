@@ -248,14 +248,14 @@ FitProcedure::constructTrack(
           dynamic_cast<const MaterialEffectsOnTrack*>(m->materialEffects());
         if (meot && meot->energyLoss()) // standard scatterer
         {
-          const EnergyLoss* energyLoss = meot->energyLoss()->clone();
+          auto energyLoss = std::unique_ptr<EnergyLoss> (meot->energyLoss()->clone());
           typeMaterial.set(Trk::MaterialEffectsBase::EnergyLossEffects);
           if (m->numberDoF()) // fitted scatterer
           {
             materialEffects = std::make_unique<MaterialEffectsOnTrack>(
               m->materialEffects()->thicknessInX0(),
               parameters.scatteringAngles(*m, scatter),
-              energyLoss,
+              std::move(energyLoss),
               m->materialEffects()->associatedSurface(),
               typeMaterial);
             ++scatter;
@@ -264,7 +264,7 @@ FitProcedure::constructTrack(
             materialEffects = std::make_unique<MaterialEffectsOnTrack>(
               m->materialEffects()->thicknessInX0(),
               parameters.scatteringAngles(*m),
-              energyLoss,
+              std::move(energyLoss),
               m->materialEffects()->associatedSurface(),
               typeMaterial);
           }
