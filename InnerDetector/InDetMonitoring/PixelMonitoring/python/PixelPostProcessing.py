@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 import ROOT
@@ -151,4 +151,47 @@ def badEtaPhi_forAllMaskPatterns(inputs):
     LB_deg.SetBinError(binNum, 0) 
     return [rv_IBL, rv_BLayer, rv_Layer1, rv_Layer2, rv1[0], rv1[1], rv1[2], rv1[3], rv1[4], rv1[5], rv1[6], rv1[7], rv1[8], rv1[9], rv1[10], rv1[11], rv1[12], rv1[13], rv1[14], LB_deg] 
 
+####################################################################
 
+def createFixMeHistograms(inputs, minBinStat=5, mvaThr=0.5, excludeOutOfAcc=True):
+    assert len(inputs) == 1 , len(inputs)
+    layer = inputs[0][0]['layer']
+    ohisto = inputs[0][1][0].Clone()
+
+    for i in range(1,ohisto.GetNbinsX()+1):
+        if (i<5 or i>ohisto.GetNbinsX()-4) and layer=='IBL' and excludeOutOfAcc :
+            for j in range(1,ohisto.GetNbinsY()+1):
+                stat = ohisto.GetBinEntries(ohisto.GetBin(i,j))
+                ohisto.SetBinContent(i,j,0)
+                ohisto.SetBinEntries(ohisto.GetBin(i,j),1) #OK
+        elif (i==1 or i==ohisto.GetNbinsX()) and layer=='BLayer' and excludeOutOfAcc :
+            for j in range(1,ohisto.GetNbinsY()+1):
+                stat = ohisto.GetBinEntries(ohisto.GetBin(i,j))
+                ohisto.SetBinContent(i,j,0)
+                ohisto.SetBinEntries(ohisto.GetBin(i,j),1) #OK
+        else:
+            for j in range(1,ohisto.GetNbinsY()+1):
+                stat = ohisto.GetBinEntries(ohisto.GetBin(i,j))
+                val = ohisto.GetBinContent(i,j)
+                if stat>minBinStat:
+                    if val>mvaThr:
+                        ohisto.SetBinContent(i,j,1.0*stat) #not OK
+                    else:
+                        ohisto.SetBinContent(i,j,0)
+                        ohisto.SetBinEntries(ohisto.GetBin(i,j),1) #OK
+                else: #not enough info - empty
+                    ohisto.SetBinContent(i,j,0)
+                    ohisto.SetBinEntries(ohisto.GetBin(i,j),0)
+    ## exceptions
+    if layer=='IBL':
+        ohisto.SetBinContent(11,13,0) # FE S13-C3-M0 - OK
+        ohisto.SetBinEntries(ohisto.GetBin(11,13),1)
+    ##
+    ohisto.SetName('FixMe_'+str(layer))
+    if 'IBL' in layer:
+        ohisto.SetTitle('Front-Ends to fix, '+str(layer))
+    else:
+        ohisto.SetTitle('Modules to fix, '+str(layer))
+    ohisto.SetOption("colztext")
+    return [ohisto]
+####################################################################

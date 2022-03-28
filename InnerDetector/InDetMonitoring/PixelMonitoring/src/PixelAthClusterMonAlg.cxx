@@ -1,7 +1,11 @@
 /*
    Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
-
+/**
+ * @file PixelAthClusterMonAlg.cxx
+ * @brief Reads Pixel reconstructed information (custers and tracks) and fills it into histograms 
+ * @author Iskander Ibragimov
+ **/
 #include "PixelAthClusterMonAlg.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 //for Amg::error helper function:
@@ -11,9 +15,6 @@
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
-
-
-
 
 
 PixelAthClusterMonAlg::PixelAthClusterMonAlg(const std::string& name, ISvcLocator* pSvcLocator) :
@@ -104,15 +105,15 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
         clusPerEventArray.DC[phiMod][etaMod] = -1;
         break;
 
-      case PixLayers::kB0:
+      case PixLayers::kBLayer:
         clusPerEventArray.B0[phiMod][etaMod] = -1;
         break;
 
-      case PixLayers::kB1:
+      case PixLayers::kLayer1:
         clusPerEventArray.B1[phiMod][etaMod] = -1;
         break;
 
-      case PixLayers::kB2:
+      case PixLayers::kLayer2:
         clusPerEventArray.B2[phiMod][etaMod] = -1;
         break;
 
@@ -207,31 +208,28 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
 
   auto lbval = Monitored::Scalar<int>("pixclusmontool_lb", lb);
 
-  TrackCollection::const_iterator itrack = tracks->begin();
-  TrackCollection::const_iterator itrack_end = tracks->end();
-  for (; itrack != itrack_end; ++itrack) {
-    if ((*itrack) == nullptr || (*itrack)->perigeeParameters() == nullptr || (*itrack)->trackSummary() == nullptr ||
-        (*itrack)->trackSummary()->get(Trk::numberOfPixelHits) == 0) {
+  for (auto track: *tracks) {
+    if (track == nullptr || track->perigeeParameters() == nullptr || track->trackSummary() == nullptr ||
+        track->trackSummary()->get(Trk::numberOfPixelHits) == 0) {
       ATH_MSG_DEBUG("PixelMonitoring: Track either invalid or it does not contain pixel hits, continuing...");
       continue;
     }
 
     int nPixelHits = 0;
-    const Trk::Perigee* measPerigee = static_cast<const Trk::Perigee*>((*itrack)->perigeeParameters());
-    bool passJOTrkTightCut = static_cast<bool>(m_trackSelTool->accept(**itrack));
+    const Trk::Perigee* measPerigee = static_cast<const Trk::Perigee*>(track->perigeeParameters());
+    bool passJOTrkTightCut = static_cast<bool>(m_trackSelTool->accept(*track));
     bool pass1hole1GeVptTightCut = (passJOTrkTightCut && (measPerigee->pT() / 1000.0 > 1.0));  // misshit ratios
     bool pass1hole5GeVptTightCut = (passJOTrkTightCut && (measPerigee->pT() / 1000.0 > 5.0));  // eff vs lumi
 
-    const Trk::Track* trackWithHoles((*itrack));
+    const Trk::Track* trackWithHoles(track);
     std::unique_ptr<const Trk::Track> trackWithHolesUnique = nullptr;
-    if ((*itrack)->trackSummary()->get(Trk::numberOfPixelHoles) > 0) {
-      trackWithHolesUnique.reset(m_holeSearchTool->getTrackWithHoles(**itrack));
+    if (track->trackSummary()->get(Trk::numberOfPixelHoles) > 0) {
+      trackWithHolesUnique.reset(m_holeSearchTool->getTrackWithHoles(*track));
       trackWithHoles = trackWithHolesUnique.get();
     }
     const DataVector<const Trk::TrackStateOnSurface>* trackStates = trackWithHoles->trackStateOnSurfaces();
-    for (DataVector<const Trk::TrackStateOnSurface>::const_iterator trackStateOnSurfaceIterator = trackStates->begin();
-         trackStateOnSurfaceIterator != trackStates->end(); ++trackStateOnSurfaceIterator) {
-      const Trk::MeasurementBase* mesBase = (*trackStateOnSurfaceIterator)->measurementOnTrack();
+    for (auto trackStateOnSurface: *trackStates) {
+      const Trk::MeasurementBase* mesBase = trackStateOnSurface->measurementOnTrack();
 
       const Trk::RIO_OnTrack* RIOOnTrack = nullptr;
       if (mesBase && mesBase->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
@@ -242,7 +240,7 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
                                                                                            // but not hits, holes,
                                                                                            // outliers
 
-      const Trk::TrackParameters* trkParameters = (*trackStateOnSurfaceIterator)->trackParameters();
+      const Trk::TrackParameters* trkParameters = trackStateOnSurface->trackParameters();
       Identifier surfaceID;
       if (mesBase && mesBase->associatedSurface().associatedDetectorElement()) {
         surfaceID = mesBase->associatedSurface().associatedDetectorElement()->identify();
@@ -266,7 +264,7 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
       const InDetDD::SiLocalPosition trkLocalPos = trkParameters->localPosition();
       Identifier locPosID;
 
-      if ((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Outlier)) 
+      if (trackStateOnSurface->type(Trk::TrackStateOnSurface::Outlier)) 
 	{
 	  nOutlier = 1.0;
 	  const InDet::SiClusterOnTrack *siclus = dynamic_cast<const InDet::SiClusterOnTrack *>(mesBase);
@@ -282,7 +280,7 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
 	    }
 	  }
 	} 
-      else if ((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Hole)) 
+      else if (trackStateOnSurface->type(Trk::TrackStateOnSurface::Hole)) 
 	{
 	  nHole = 1.0;
 	  locPosID = sde->identifierOfPosition(trkLocalPos);
@@ -295,7 +293,7 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
 	    TSOS_Hole_FE.add(pixlayer, locPosID, m_pixelid, m_pixelReadout->getFE(locPosID, locPosID), 1.0);
 	  }
 	} 
-      else if ((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement)) 
+      else if (trackStateOnSurface->type(Trk::TrackStateOnSurface::Measurement)) 
 	{
 	  if (not mesBase) continue;
 	  const InDetDD::SiDetectorElement* side =
@@ -375,8 +373,8 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
     auto nphwgt = Monitored::Scalar<float>("npixhits_per_track_wgt", 1.0);
     fill(trackGroup, lbval, nph, nphwgt);
 
-    int trkfitndf = (*itrack)->fitQuality()->numberDoF();
-    double trkfitchi2 = (*itrack)->fitQuality()->chiSquared();
+    int trkfitndf = track->fitQuality()->numberDoF();
+    double trkfitchi2 = track->fitQuality()->chiSquared();
     if (trkfitndf != 0) {
       auto trkChiN = Monitored::Scalar<float>("fit_chi2byndf", trkfitchi2 / trkfitndf);
       fill(trackGroup, trkChiN);
@@ -523,15 +521,15 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
           clusPerEventArray.DC[phiMod][etaMod]++;
           break;
 
-        case PixLayers::kB0:
+        case PixLayers::kBLayer:
           clusPerEventArray.B0[phiMod][etaMod]++;
           break;
 
-        case PixLayers::kB1:
+        case PixLayers::kLayer1:
           clusPerEventArray.B1[phiMod][etaMod]++;
           break;
 
-        case PixLayers::kB2:
+        case PixLayers::kLayer2:
           clusPerEventArray.B2[phiMod][etaMod]++;
           break;
 

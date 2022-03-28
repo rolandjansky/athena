@@ -1,7 +1,11 @@
 /*
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
+/**
+ * @file PixelAthMVAMonAlg.cxx
+ * @brief Collects reconstructed event information to evaluate per-module(FE) MVA and fill it into histograms for later assessment
+ * @author Iskander Ibragimov
+ **/
 #include "PixelAthMVAMonAlg.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "TrkTrackSummary/TrackSummary.h"
@@ -44,10 +48,10 @@ StatusCode PixelAthMVAMonAlg::initialize() {
   ATH_CHECK( m_tracksKey.initialize() );
   ATH_CHECK( m_clustersKey.initialize() );
   
-  for (int ii = 0; ii < PixLayers::COUNT; ++ii) {
+  for (int ii = 0; ii < PixLayers::NBASELAYERS; ++ii) {
 
     std::string partitionLabel("Disks");
-    if (ii>1) partitionLabel = pixLayersLabel[ii];
+    if (ii>=PixLayers::kBLayer) partitionLabel = pixBaseLayersLabel[ii];
 
     //    std::string fullPathToTrainingFile = partitionLabel + "_training.root"; //TEST
     std::string fullPathToTrainingFile = PathResolverFindCalibFile("PixelDQMonitoring/" + m_calibFolder + "/" + partitionLabel + "_training.root");
@@ -139,10 +143,8 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
   std::vector<float> outliers(MAXHASH*2);
   std::vector<float> measurements(MAXHASH*2);
 
-  TrackCollection::const_iterator itrack = tracks->begin();
-  TrackCollection::const_iterator itrack_end = tracks->end();
-  for (; itrack != itrack_end; ++itrack) {
-    if ((*itrack) == nullptr || (*itrack)->perigeeParameters() == nullptr || (*itrack)->trackSummary() == nullptr || (*itrack)->trackSummary()->get(Trk::numberOfPixelHits) == 0) {
+  for (auto track: *tracks) {
+    if (track == nullptr || track->perigeeParameters() == nullptr || track->trackSummary() == nullptr || track->trackSummary()->get(Trk::numberOfPixelHits) == 0) {
       ATH_MSG_DEBUG("Pixel MVAMon: Track either invalid or it does not contain pixel hits, continuing...");
       continue;
     }
@@ -150,13 +152,13 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
     int nPixelHits = 0;
     bool hasIBLTSOS(false);
 
-    bool passJOTrkCut = static_cast<bool>( m_trackSelTool->accept(**itrack) );
+    bool passJOTrkCut = static_cast<bool>( m_trackSelTool->accept(*track) );
     if (!passJOTrkCut) continue;
 
-    const Trk::Track* trackWithHoles( (*itrack) );
+    const Trk::Track* trackWithHoles( track );
     std::unique_ptr<const Trk::Track> trackWithHolesUnique = nullptr;
-    if ( (*itrack)->trackSummary()->get(Trk::numberOfPixelHoles) > 0 ) {
-      trackWithHolesUnique.reset( m_holeSearchTool->getTrackWithHoles(**itrack) );
+    if ( track->trackSummary()->get(Trk::numberOfPixelHoles) > 0 ) {
+      trackWithHolesUnique.reset( m_holeSearchTool->getTrackWithHoles(*track) );
       trackWithHoles = trackWithHolesUnique.get();
     }
     const DataVector<const Trk::TrackStateOnSurface> *trackStates = trackWithHoles->trackStateOnSurfaces();
@@ -278,9 +280,9 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
     } // end of TSOS loop
     eventHasPixHits = eventHasPixHits || (nPixelHits > 0);
 
-    if (!hasIBLTSOS && 	(*itrack)->trackSummary()->get(Trk::expectInnermostPixelLayerHit) && (*itrack)->trackSummary()->get(Trk::numberOfPixelHoles)==0 )
+    if (!hasIBLTSOS && 	track->trackSummary()->get(Trk::expectInnermostPixelLayerHit) && track->trackSummary()->get(Trk::numberOfPixelHoles)==0 )
       {
-	const Trk::Perigee *perigee = (*itrack)->perigeeParameters();
+	const Trk::Perigee *perigee = track->perigeeParameters();
 	Amg::Transform3D transSurf;
 	transSurf.setIdentity();
 	const Trk::CylinderSurface BiggerThanIBLSurface(transSurf, 40.0, 400.0);
@@ -519,7 +521,7 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
       int pixlayer = getPixLayersID(m_pixelid->barrel_ec(waferID), m_pixelid->layer_disk(waferID) );
       if (pixlayer == 99) continue;
       std::string partitionLabel("Disks");
-      if (pixlayer>=PixLayers::kB0) partitionLabel = pixLayersLabel[pixlayer];
+      if (pixlayer>=PixLayers::kBLayer) partitionLabel = pixBaseLayersLabel[pixlayer];
       
       for (int iFE=0; iFE<nFE; iFE++) {
 	Identifier pixID = waferID;
@@ -538,7 +540,7 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
 	}
 	
 	int idx = ih+MAXHASH*iFE;
-	
+	if ( status[idx]==2 ) BDT_Weights.add(pixlayer, pixID, m_pixelid, 0);
 	if ( status[idx]!=0 || clsall[idx]==0 || (measurements[idx]+holes[idx]+outliers[idx]==0) ) continue;
 	
 	std::vector<float> bdtVars = { el_eta, holesf[idx], clsontrkf[idx], clsontrkrowsize[idx],

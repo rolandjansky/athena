@@ -9,7 +9,7 @@ def PixelMonitoringConfig(flags):
     doHitMonAlg       = True
     doClusterMonAlg   = True
     doErrorMonAlg     = True
-    doMVAMonAlg       = False
+    doMVAMonAlg       = True #allowed only if online, see below
 
     from InDetRecExample.InDetKeys          import InDetKeys
     from InDetRecExample.InDetJobProperties import InDetFlags
@@ -19,6 +19,7 @@ def PixelMonitoringConfig(flags):
             isOnline = True
         else:
             isOnline = flags.Common.isOnline
+        if not isOnline: doMVAMonAlg=False
         kwargsHitMonAlg = { 'doOnline'        : isOnline,      #Histograms for online (GlobalMonitoring) running
                             'doLumiBlock'     : not isOnline,  #Turn on/off histograms stored every 1(20) lumi block(s)
                             'doFEPlots'       : True,                       #Turn on/off per FE-I3 histograms
@@ -38,7 +39,7 @@ def PixelMonitoringConfig(flags):
                             'doLumiBlock'     : not isOnline     #Turn on/off histograms stored every 1(20) lumi block(s)
         }
 
-        kwargsMVAMonAlg = { 'calibFolder'     : 'mva01022022',
+        kwargsMVAMonAlg = { 'calibFolder'     : '20220314',
                             'RDOName'         : InDetKeys.PixelRDOs(),      #'PixelRDOs'
                             'ClusterName'     : InDetKeys.PixelClusters(),  #'PixelClusters'
                             'TrackName'       : InDetKeys.Tracks()          #'Tracks'
@@ -66,8 +67,9 @@ def PixelMonitoringConfig(flags):
             pixelAthClusterMonAlg.TrackSelectionTool.UseTrkTrackTools = True
             pixelAthClusterMonAlg.TrackSelectionTool.CutLevel         = "TightPrimary"
             pixelAthClusterMonAlg.TrackSelectionTool.maxNPixelHoles   = 1
-            pixelAthClusterMonAlg.TrackSelectionTool.maxD0            = 2
-            pixelAthClusterMonAlg.TrackSelectionTool.maxZ0            = 150
+            if not InDetFlags.doCosmics():
+                pixelAthClusterMonAlg.TrackSelectionTool.maxD0            = 2
+                pixelAthClusterMonAlg.TrackSelectionTool.maxZ0            = 150
             pixelAthClusterMonAlg.TrackSelectionTool.TrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
             pixelAthClusterMonAlg.TrackSelectionTool.Extrapolator     = acc.getPublicTool("InDetExtrapolator")
 
@@ -89,8 +91,9 @@ def PixelMonitoringConfig(flags):
             pixelAthMVAMonAlg.TrackSelectionTool.UseTrkTrackTools = True
             pixelAthMVAMonAlg.TrackSelectionTool.CutLevel         = "TightPrimary"
             pixelAthMVAMonAlg.TrackSelectionTool.maxNPixelHoles   = 1
-            pixelAthMVAMonAlg.TrackSelectionTool.maxD0            = 2
-            pixelAthMVAMonAlg.TrackSelectionTool.maxZ0            = 150
+            if not InDetFlags.doCosmics():
+                pixelAthMVAMonAlg.TrackSelectionTool.maxD0            = 2
+                pixelAthMVAMonAlg.TrackSelectionTool.maxZ0            = 150
 
             pixelAthMVAMonAlg.TrackSelectionTool.TrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
             pixelAthMVAMonAlg.TrackSelectionTool.Extrapolator     = acc.getPublicTool("InDetExtrapolator")
