@@ -23,7 +23,8 @@ def createHLTDQConfigFlags():
     acf.addFlag('DQ.Steering.HLT.doBjet', lambda flags: flags.Input.Format is Format.POOL and flags.Beam.Type is BeamType.Collisions)
 
 
-    acf.addFlag('DQ.Steering.HLT.doInDet', lambda flags: flags.Input.Format is Format.POOL)
+    #acf.addFlag('DQ.Steering.HLT.doInDet', lambda flags: flags.Input.Format is Format.POOL)
+    acf.addFlag('DQ.Steering.HLT.doInDet', False) #Quick fix to disable InDet monitoring in the meanwhile ATR-25260 is fixed 
     acf.addFlag('DQ.Steering.HLT.doBphys', lambda flags: flags.Input.Format is Format.POOL)
     acf.addFlag('DQ.Steering.HLT.doCalo', lambda flags: flags.Input.Format is Format.POOL)
     acf.addFlag('DQ.Steering.HLT.doEgamma', lambda flags: flags.Input.Format is Format.POOL)
