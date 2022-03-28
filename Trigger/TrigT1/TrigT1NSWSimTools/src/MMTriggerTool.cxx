@@ -131,14 +131,14 @@ namespace NSWL1 {
     if(m_isMC){
       SG::ReadHandle<McEventCollection> readMcEventCollection( m_keyMcEventCollection );
       if( !readMcEventCollection.isValid() ){
-	ATH_MSG_ERROR("Cannot retrieve McEventCollection");
-	return StatusCode::FAILURE;
+        ATH_MSG_ERROR("Cannot retrieve McEventCollection");
+        return StatusCode::FAILURE;
       }
       ptrMcEventCollection = readMcEventCollection.cptr();
       SG::ReadHandle<TrackRecordCollection> readMuonEntryLayer( m_keyMuonEntryLayer );
       if( !readMuonEntryLayer.isValid() ){
-	ATH_MSG_ERROR("Cannot retrieve MuonEntryLayer");
-	return StatusCode::FAILURE;
+        ATH_MSG_ERROR("Cannot retrieve MuonEntryLayer");
+        return StatusCode::FAILURE;
       }
       ptrMuonEntryLayer = readMuonEntryLayer.cptr();
     }
@@ -148,10 +148,7 @@ namespace NSWL1 {
       ATH_MSG_ERROR("Cannot retrieve MmDigitContainer");
       return StatusCode::FAILURE;
     }
-    ATH_CHECK( load.getMMDigitsInfo( ptrMcEventCollection,
-				     ptrMuonEntryLayer,
-				     readMmDigitContainer.cptr(),
-				     entries, Hits_Data_Set_Time, Event_Info, pars) );
+    ATH_CHECK( load.getMMDigitsInfo( ptrMcEventCollection, ptrMuonEntryLayer, readMmDigitContainer.cptr(), entries, Hits_Data_Set_Time, Event_Info, pars) );
     if (m_doNtuple) this->fillNtuple(load);
 
     if (entries.empty()) {
