@@ -23,7 +23,6 @@ StatusCode TauAODRunnerAlg::initialize() {
 		return StatusCode::FAILURE;
 	}
 	ATH_CHECK(m_tauContainer.initialize());
-	ATH_CHECK(m_tauTrackInputContainer.initialize());
 	ATH_CHECK(m_pi0ClusterInputContainer.initialize());
 	ATH_CHECK(m_tauOutContainer.initialize());
 	ATH_CHECK(m_pi0Container.initialize());
@@ -65,43 +64,27 @@ StatusCode TauAODRunnerAlg::execute() {
 		return StatusCode::FAILURE;
 	}
 	const xAOD::TauJetContainer *pTauContainer = tauInputHandle.cptr();
-	// read in the TauTrack container
-	SG::ReadHandle<xAOD::TauTrackContainer> tauTrackInputHandle(m_tauTrackInputContainer);
-	if (!tauTrackInputHandle.isValid()) {
-		ATH_MSG_ERROR("Could not retrieve HiveDataObj with key " << tauTrackInputHandle.key());
-		return StatusCode::FAILURE;
-	}
-	const xAOD::TauTrackContainer *pTauTrackContainer = tauTrackInputHandle.cptr();
-	//Write the output tau track container, which is a deep copy of the original
 	SG::WriteHandle<xAOD::TauTrackContainer> outputTauTrackHandle(m_tauTrackOutputContainer);
 	ATH_CHECK(outputTauTrackHandle.record(std::make_unique<xAOD::TauTrackContainer>(), std::make_unique<xAOD::TauTrackAuxContainer>()));
 	xAOD::TauTrackContainer *newTauTrkCon = outputTauTrackHandle.ptr();
-	for (const xAOD::TauTrack *tauTrk : *pTauTrackContainer) {
-		xAOD::TauTrack *newTauTrk = new xAOD::TauTrack();
-		newTauTrkCon->push_back(newTauTrk);
-		*newTauTrk = *tauTrk;
-	}
-	// Write the output tau jets, which is a deep copy of the input ones
-	// And do the TauTrack relinking at the same time.
 	SG::WriteHandle<xAOD::TauJetContainer> outputTauHandle(m_tauOutContainer);
 	ATH_CHECK(outputTauHandle.record(std::make_unique<xAOD::TauJetContainer>(), std::make_unique<xAOD::TauJetAuxContainer>()));
 	xAOD::TauJetContainer *newTauCon = outputTauHandle.ptr();
 	for (const xAOD::TauJet *tau : *pTauContainer) {
+		// deep copy the tau container
 		xAOD::TauJet *newTau = new xAOD::TauJet();
 		newTauCon->push_back(newTau);
 		*newTau = *tau;
-		auto oldlinks =  newTau->allTauTrackLinksNonConst();
 		newTau->clearTauTrackLinks();
-		for (auto oldlink : oldlinks) {
-			const xAOD::TauTrack* oldLinkedTrk = *oldlink;
-			for (const xAOD::TauTrack * newTrk : *newTauTrkCon) {
-				if (newTrk->track() == oldLinkedTrk->track()) {
-					ElementLink<xAOD::TauTrackContainer> linkToTauTrack;
-					linkToTauTrack.toContainedElement(*newTauTrkCon, newTrk);
-					newTau->addTauTrackLink(linkToTauTrack);
-					break;
-				}
-			}
+		for (auto tauTrk : tau->allTracks()) {
+			xAOD::TauTrack *newTauTrk = new xAOD::TauTrack();
+			// deep copy the tau track
+			newTauTrkCon->push_back(newTauTrk);
+			*newTauTrk = *tauTrk;
+			ElementLink<xAOD::TauTrackContainer> linkToTauTrack;
+			// relink the tautrack
+			linkToTauTrack.toContainedElement(*newTauTrkCon, newTauTrk);
+			newTau->addTauTrackLink(linkToTauTrack);
 		}
 	}
 	// Read the CaloClusterContainer

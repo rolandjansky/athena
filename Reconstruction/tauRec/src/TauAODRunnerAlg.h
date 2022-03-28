@@ -45,7 +45,6 @@ class TauAODRunnerAlg: public AthAlgorithm {
 		//Read and write keys
 		SG::ReadHandleKey<xAOD::TauJetContainer>        m_tauContainer              {this, "Key_tauContainer",                  "TauJets",                      "input tau key"};
 		SG::ReadHandleKey<xAOD::CaloClusterContainer>   m_pi0ClusterInputContainer  {this, "Key_pi0ClusterInputContainer",      "TauPi0Clusters",               "input pi0 cluster"};
-		SG::ReadHandleKey<xAOD::TauTrackContainer>      m_tauTrackInputContainer    {this, "Key_tauTrackInputContainer",        "TauTracks",                    "input tau track cluster"};
 		SG::WriteHandleKey<xAOD::TauJetContainer>       m_tauOutContainer           {this, "Key_tauOutputContainer",            "TauJets_AODReco",              "output tau key"};
 		SG::WriteHandleKey<xAOD::ParticleContainer>     m_pi0Container              {this, "Key_pi0OutputContainer",            "TauFinalPi0s_AODReco",         "output tau final pi0 key"};
 		SG::WriteHandleKey<xAOD::PFOContainer>          m_neutralPFOOutputContainer {this, "Key_neutralPFOOutputContainer",     "TauNeutralPFOs_AODReco",       "output tau neutral pfo key"};
