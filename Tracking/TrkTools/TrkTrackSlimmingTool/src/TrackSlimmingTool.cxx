@@ -243,7 +243,7 @@ Trk::TrackSlimmingTool::slimTrack(Trk::Track& track) const
           nullptr,
           std::make_unique<const MaterialEffectsOnTrack>(meot->thicknessInX0(),
                                      std::nullopt,
-                                     new EnergyLoss(*meot->energyLoss()),
+                                     std::make_unique<EnergyLoss>(*meot->energyLoss()),
                                      meot->associatedSurface()),
           (**itTSoS).types()));
       }

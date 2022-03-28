@@ -359,25 +359,24 @@ FitMeasurement::FitMeasurement (double				radiationThickness,
       m_weight2			(0.)
 {
     // plane surface with normal along input direction
-    if (m_surface
-	&& (dynamic_cast<const CylinderSurface*>(m_surface)
-	    || std::abs(m_surface->normal()(2)) < 0.5))	m_type = barrelScatterer;
-    else if (std::abs(direction(2)) < 0.5)		m_type = barrelScatterer;
-    if (! m_surface)
-    {	
-	CurvilinearUVT uvt(direction);
-	m_surface = new PlaneSurface(position,uvt);
+    if (m_surface && (dynamic_cast<const CylinderSurface*>(m_surface) ||
+                      std::abs(m_surface->normal()(2)) < 0.5))
+      m_type = barrelScatterer;
+    else if (std::abs(direction(2)) < 0.5)
+      m_type = barrelScatterer;
+    if (!m_surface) {
+      CurvilinearUVT uvt(direction);
+      m_surface = new PlaneSurface(position, uvt);
     }
-    
+
     // create MaterialEffects
     std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes> typeMaterial;
     if (deltaE != 0.) typeMaterial.set(MaterialEffectsBase::EnergyLossEffects);
-    const EnergyLoss* energyLoss	= new EnergyLoss(deltaE,0.,0.,0.);
-    m_materialEffects			= new MaterialEffectsOnTrack(radiationThickness,
-								     energyLoss,
-								     *m_surface,
-								     typeMaterial);
-    if (! surface) delete m_surface;
+    auto energyLoss	= std::make_unique<EnergyLoss>(deltaE,0.,0.,0.);
+    m_materialEffects = new MaterialEffectsOnTrack(
+      radiationThickness, std::move(energyLoss), *m_surface, typeMaterial);
+    if (!surface)
+      delete m_surface;
     m_surface = &m_materialEffects->associatedSurface();
 
     m_intersection[FittedTrajectory] = std::make_unique<TrackSurfaceIntersection>(position,direction,0.);

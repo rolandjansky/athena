@@ -1,0 +1,103 @@
+/*
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+*/
+
+inline Trk::MaterialEffectsOnTrack::MaterialEffectsOnTrack(
+  const double tInX0,
+  std::optional<Trk::ScatteringAngles> scat,
+  std::unique_ptr<const Trk::EnergyLoss> eloss,
+  const Trk::Surface& sf,
+  const std::bitset<Trk::MaterialEffectsBase::NumberOfMaterialEffectsTypes>&
+    typePattern)
+  : Trk::MaterialEffectsBase(tInX0, sf, (typePattern == 0 ? 3 : typePattern))
+  , m_scatteringAngles(scat)
+  , m_energyLoss(std::move(eloss))
+{}
+
+inline Trk::MaterialEffectsOnTrack::MaterialEffectsOnTrack(
+  const double tInX0,
+  std::optional<Trk::ScatteringAngles> scat,
+  const Trk::Surface& sf,
+  const std::bitset<Trk::MaterialEffectsBase::NumberOfMaterialEffectsTypes>&
+    typePattern)
+  : Trk::MaterialEffectsBase(
+      tInX0,
+      sf,
+      (typePattern == 0
+         ? 1 << static_cast<int>(Trk::MaterialEffectsBase::ScatteringEffects)
+         : typePattern))
+  , m_scatteringAngles(scat)
+  , m_energyLoss(nullptr)
+{}
+
+inline Trk::MaterialEffectsOnTrack::MaterialEffectsOnTrack(
+  const double tInX0,
+  std::unique_ptr<const EnergyLoss> eloss,
+  const Surface& sf,
+  const std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes>& typePattern)
+  : Trk::MaterialEffectsBase(
+      tInX0,
+      sf,
+      (typePattern == 0
+         ? 1 << static_cast<int>(Trk::MaterialEffectsBase::EnergyLossEffects)
+         : typePattern))
+  , m_scatteringAngles(std::nullopt)
+  , m_energyLoss(std::move(eloss))
+{}
+
+inline Trk::MaterialEffectsOnTrack::MaterialEffectsOnTrack(const double tInX0,
+                                                           const Trk::Surface& sf)
+  : Trk::MaterialEffectsBase(
+      tInX0,
+      sf,
+      1 << static_cast<int>(Trk::MaterialEffectsBase::MaterialThickness))
+  , m_scatteringAngles(std::nullopt)
+  , m_energyLoss(nullptr)
+{}
+
+inline Trk::MaterialEffectsOnTrack::MaterialEffectsOnTrack(
+  const Trk::MaterialEffectsOnTrack& emef)
+  : Trk::MaterialEffectsBase(emef)
+  , m_scatteringAngles(emef.m_scatteringAngles)
+  , m_energyLoss(emef.m_energyLoss ? emef.m_energyLoss->clone() : nullptr)
+{}
+
+inline Trk::MaterialEffectsOnTrack&
+Trk::MaterialEffectsOnTrack::operator=(const Trk::MaterialEffectsOnTrack& rhs)
+{
+  if (this != &rhs) {
+    Trk::MaterialEffectsBase::operator=(rhs);
+    m_scatteringAngles = rhs.m_scatteringAngles;
+    m_energyLoss.reset(rhs.m_energyLoss ? rhs.m_energyLoss->clone() : nullptr);
+  }
+  return *this;
+}
+
+//! NVI uniqueClone
+inline std::unique_ptr<Trk::MaterialEffectsOnTrack>
+Trk::MaterialEffectsOnTrack::uniqueClone() const
+{
+  return std::unique_ptr<MaterialEffectsOnTrack>(clone());
+}
+
+inline const Trk::ScatteringAngles*
+Trk::MaterialEffectsOnTrack::scatteringAngles() const
+{
+  if (m_scatteringAngles == std::nullopt) {
+    return nullptr;
+  }
+  return &(*m_scatteringAngles);
+}
+
+inline const Trk::EnergyLoss*
+Trk::MaterialEffectsOnTrack::energyLoss() const
+{
+  return m_energyLoss.get();
+}
+
+inline Trk::MaterialEffectsOnTrack*
+Trk::MaterialEffectsOnTrack::clone() const
+{
+  return new MaterialEffectsOnTrack(*this);
+}
+
