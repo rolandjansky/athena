@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cstdio>
@@ -266,11 +266,11 @@ bool ConvertOFC( vector<vector<vector<vector<double> > > > w_off, vector<vector<
  * \return bool true on success
  **/
 
-bool Format6( std::vector<double> a, 
-	      std::vector<double> b, 
-	      std::vector<double> c, 
-	      std::vector<double> g, 
-	      std::vector<double> h, 
+bool Format6( const std::vector<double>& a, 
+	      const std::vector<double>& b, 
+	      const std::vector<double>& c, 
+	      const std::vector<double>& g, 
+	      const std::vector<double>& h, 
 	      unsigned int channel_index, 
 	      int phase, 
 	      double calibration, 
@@ -355,11 +355,11 @@ bool Format6( std::vector<double> a,
  * \return bool true on success
  **/
 
-bool Format5( vector<double> a, 
-	      vector<double> b , 
-	      vector<double> c, 
-	      vector<double> g, 
-	      vector<double> h, 
+bool Format5( const vector<double>& a, 
+	      const vector<double>& b , 
+	      const vector<double>& c, 
+	      const vector<double>& g, 
+	      const vector<double>& h, 
 	      vector<unsigned int> &OFC , 
 	      bool verbose)
 {
