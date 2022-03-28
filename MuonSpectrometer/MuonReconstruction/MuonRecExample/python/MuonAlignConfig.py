@@ -43,7 +43,6 @@ condSequence = AthSequencer("AthCondSeq")
 from MuonCondAlg.MuonCondAlgConf import MuonAlignmentCondAlg
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 MuonAlignAlg = MuonAlignmentCondAlg()
-MuonAlignAlg.DoCSCs = MuonGeometryFlags.hasCSC()
 MuonAlignAlg.ParlineFolders = ["/MUONALIGN/MDT/BARREL",
                                "/MUONALIGN/MDT/ENDCAP/SIDEA",
                                "/MUONALIGN/MDT/ENDCAP/SIDEC",
