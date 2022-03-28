@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 
 # ********************* All Tools/Functions for the TriggerEDM **********************
@@ -383,7 +383,8 @@ def getPreregistrationList(version=2):
     if version==2:
         l = getHLTPreregistrationList()
     elif version==1:
-        l=list(set(getL2PreregistrationList()+getEFPreregistrationList()+getHLTPreregistrationList()))
+        # remove duplicates while preserving order
+        l=list(dict.fromkeys(getL2PreregistrationList()+getEFPreregistrationList()+getHLTPreregistrationList()))
     else:
         raise RuntimeError("Invalid version=%s supplied to getPreregistrationList" % version)
     return l
