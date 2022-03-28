@@ -15,7 +15,7 @@ class PixelID;
 class PixLayers {
 public:
   enum PixLayersID {
-    kECA = 0, kECC, kB0, kB1, kB2, kIBL2D, NFEI3LAYERS=kIBL2D, kIBL=kIBL2D, kIBL3D, NBASELAYERS=kIBL3D, COUNT
+    kECA = 0, kECC, kBLayer, kLayer1, kLayer2, kIBL2D, NFEI3LAYERS=kIBL2D, kIBL=kIBL2D, kIBL3D, NBASELAYERS=kIBL3D, COUNT
   };
 };
 class DataReadErrors {
@@ -90,7 +90,6 @@ public:
   bool isClusterOnTrack(Identifier id, std::vector<std::pair<Identifier, double> > const& ClusterIDs) const;
   bool isClusterOnTrack(Identifier id, std::vector<std::pair<Identifier, double> > const& ClusterIDs,
                         double& cosalpha) const;
-  std::pair<int, int> getIBLFEIdxsfromTrackEtaPhi(float eta, float phi) const;
   /// helper class to accumulate points to fill a 2D plot with
   struct VecAccumulator2DMap {
     std::unordered_map<int, std::vector<int> > m_pm;
