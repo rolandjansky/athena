@@ -25,7 +25,7 @@ def IsolationSteeringCfg(flags, name = 'IsolationSteering'):
             acc.merge(NFlowInputAlgCfg(flags))
             acc.merge(DensityForIsoAlgCfg(flags,name='CentralDensityForNFlowIso'))
             acc.merge(DensityForIsoAlgCfg(flags,name='ForwardDensityForNFlowIso'))
-
+            
     from IsolationAlgs.IsolationBuilderConfig import egIsolationCfg, muIsolationCfg
     if flags.Reco.EnableEgamma:
         acc.merge(egIsolationCfg(flags,name = 'photonIsolation'))
