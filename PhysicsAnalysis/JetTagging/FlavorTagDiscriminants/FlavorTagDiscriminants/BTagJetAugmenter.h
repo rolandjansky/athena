@@ -94,8 +94,8 @@ private:
   AE::Decorator<float> m_avg_trk_flightDirRelEta;
 
   // Add new variable
-  AE::Decorator<float> m_secondaryVtx_DmesonMass;
-  AE::Decorator<char> m_secondaryVtx_isDmesonRecon;
+  AE::Decorator<float> m_DMeson_m;
+  AE::Decorator<char> m_DMeson_isDefaults;
 
   AE::ConstAccessor<char> m_rnnip_pbIsValid;
   AE::Decorator<char> m_rnnip_isDefaults;

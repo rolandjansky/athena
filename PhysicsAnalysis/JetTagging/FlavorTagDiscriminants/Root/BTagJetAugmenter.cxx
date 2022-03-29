@@ -59,6 +59,9 @@ namespace {
   std::string jfSvNew(FlavorTagDiscriminants::FlipTagConfig f) {
     return "JetFitterSecondaryVertex" + flipString(f);
   }
+  std::string jfDMeson(FlavorTagDiscriminants::FlipTagConfig f){
+    return "JetFitterDMeson" + flipString(f);
+  }
 
 }
 
@@ -107,8 +110,8 @@ BTagJetAugmenter::BTagJetAugmenter(std::string associator, FlavorTagDiscriminant
   m_secondaryVtx_min_trk_flightDirRelEta(jfSvNew(f) + "_minimumTrackRelativeEta"),
   m_secondaryVtx_max_trk_flightDirRelEta(jfSvNew(f) + "_maximumTrackRelativeEta"),
   m_secondaryVtx_avg_trk_flightDirRelEta(jfSvNew(f) + "_averageTrackRelativeEta"),
-  m_secondaryVtx_DmesonMass(jfSvNew(f) + "_DmesonMass"),
-  m_secondaryVtx_isDmesonRecon(jfSvNew(f) + "_isDmesonRecon"),
+  m_DMeson_m(jfDMeson(f) + "_mass"),
+  m_DMeson_isDefaults(jfDMeson(f) + "_isDefaults"),
   m_min_trk_flightDirRelEta(jfSvNew(f) + "_minimumAllJetTrackRelativeEta"),
   m_max_trk_flightDirRelEta(jfSvNew(f) + "_maximumAllJetTrackRelativeEta"),
   m_avg_trk_flightDirRelEta(jfSvNew(f) + "_averageAllJetTrackRelativeEta"),
@@ -150,8 +153,8 @@ std::set<std::string> BTagJetAugmenter::getDecoratorKeys() const {
         m_secondaryVtx_min_trk_flightDirRelEta.auxid(),
         m_secondaryVtx_max_trk_flightDirRelEta.auxid(),
         m_secondaryVtx_avg_trk_flightDirRelEta.auxid(),
-        m_secondaryVtx_DmesonMass.auxid(),
-        m_secondaryVtx_isDmesonRecon.auxid(),
+        m_DMeson_m.auxid(),
+        m_DMeson_isDefaults.auxid(),
         m_min_trk_flightDirRelEta.auxid(),
         m_max_trk_flightDirRelEta.auxid(),
         m_avg_trk_flightDirRelEta.auxid(),
@@ -392,15 +395,16 @@ void BTagJetAugmenter::augment(const xAOD::BTagging &btag) const {
     m_secondaryVtx_m(btag) = m;
     m_secondaryVtx_E(btag) = E;
     m_secondaryVtx_EFrac(btag) = EFrac;
-    m_secondaryVtx_DmesonMass(btag) = m;
-    m_secondaryVtx_isDmesonRecon(btag) = 0;
+    // D meson reconstruction
+    m_DMeson_m(btag) = m;
+    m_DMeson_isDefaults(btag) = 1; // 1 for failing reconstruction; 0 for passing reconstruction
     double tempM_forDmeson = getDmesonMass(secondaryVtx_track_number, secondaryVtx_charge, secondaryVtx_4momentum_vector,secondaryVtx_charge_vector);
 
     if(tempM_forDmeson>-98){
-      m_secondaryVtx_DmesonMass(btag) = tempM_forDmeson;
-      m_secondaryVtx_isDmesonRecon(btag) = 1;
+      m_DMeson_m(btag) = tempM_forDmeson;
+      m_DMeson_isDefaults(btag) = 0;
     }else{
-      m_secondaryVtx_isDmesonRecon(btag) = 0;
+      m_DMeson_isDefaults(btag) = 1;
     }
 
   }
