@@ -20,5 +20,5 @@ echo "----------------------------------------------------------"
 
 # Clean private working directory:
 if [ -n "@CI_WORKDIR@" ]; then
-    rm -rf "@CI_WORKDIR@/*"
+    rm -rf "@CI_WORKDIR@"/*
 fi
