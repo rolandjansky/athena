@@ -187,6 +187,7 @@ StatusCode LArHitEMapToDigitAlg::MakeDigit(const EventContext& ctx, const Identi
   bool createDigit_DigiHSTruth = true;
 
   int sampleGainChoice{2};
+  if (m_firstSample<0) sampleGainChoice-=m_firstSample;
 
   int i;
   short Adc;
@@ -369,7 +370,6 @@ StatusCode LArHitEMapToDigitAlg::MakeDigit(const EventContext& ctx, const Identi
     return StatusCode::SUCCESS;
   }
   pseudoADC3 = Samples[sampleGainChoice-ihecshift]/(polynom_adc2mev[1])/SF + Pedestal ;
-
   //
   // ......... try a gain
   //
@@ -388,7 +388,6 @@ StatusCode LArHitEMapToDigitAlg::MakeDigit(const EventContext& ctx, const Identi
 // recompute Samples if igain != HIGHGAIN
 //
    if (igain != initialGain ){
-
      for (i=0;i<m_NSamples;i++) {
        if(m_doDigiTruth) Samples_DigiHSTruth[i] = 0.;
        if (m_RndmEvtOverlay) Samples[i]= rndm_energy_samples[i] ;
@@ -407,7 +406,7 @@ StatusCode LArHitEMapToDigitAlg::MakeDigit(const EventContext& ctx, const Identi
 //
 // ........ add the noise ................................
 //
-
+  
   double Rndm[32]{};
   int BvsEC=0;
   if(iCalo==EM || iCalo==EMIW) BvsEC=std::abs(m_larem_id->barrel_ec(cellId));
@@ -431,7 +430,13 @@ StatusCode LArHitEMapToDigitAlg::MakeDigit(const EventContext& ctx, const Identi
           else SigmaNoise=0.;
         }
         // Sqrt of noise covariance matrix
-    const std::vector<float>& CorGen=autoCorrNoise->autoCorrSqrt(cellId,igain);
+	const std::vector<float>& CorGen=autoCorrNoise->autoCorrSqrt(cellId,igain);
+	if (CorGen.size() < (unsigned)m_NSamples*m_NSamples) {
+	  ATH_MSG_ERROR("Noise AutoCorr too small, need " << m_NSamples*m_NSamples << " points for " 
+			<<  m_NSamples << " samples.");
+	  return StatusCode::FAILURE;
+	}
+
 
         RandGaussZiggurat::shootArray(engine,m_NSamples,Rndm,0.,1.);
 
@@ -656,7 +661,6 @@ StatusCode LArHitEMapToDigitAlg::ConvertHits2Samples(const EventContext& ctx,
 // shift between reference shape and this time
       int ishift=(int)(rint(time*(1./25.)));
       double dtime=time-25.*((double)(ishift));
-
       for (i=0;i<m_NSamples.value();i++)
       {
        j = i - ishift + m_firstSample + ihecshift;
@@ -670,7 +674,6 @@ StatusCode LArHitEMapToDigitAlg::ConvertHits2Samples(const EventContext& ctx,
        }
       }
    }
-
 // Mode to use phase (tbin) to get pulse shape ( pulse shape with fine time binning should be available)
 
    else {

@@ -113,10 +113,6 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
     if isOverlay() and globalflags.DataSource() == 'geant4':
           kwargs.setdefault('isMcOverlay',True)
 
-    from LArROD.LArRODFlags import larRODFlags
-    kwargs.setdefault('Nsamples', larRODFlags.nSamples() )
-    kwargs.setdefault('firstSample', larRODFlags.firstSample() )
-
     if isOverlay() :
         if overlayFlags.isOverlayMT():
             kwargs.setdefault("OnlyUseContainerName", False)
