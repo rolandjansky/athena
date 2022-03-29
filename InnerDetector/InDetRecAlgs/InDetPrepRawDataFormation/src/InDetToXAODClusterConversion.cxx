@@ -168,16 +168,17 @@ StatusCode InDetToXAODClusterConversion::execute(const EventContext& ctx) const 
             localCovariance.setZero();
 
             if (element->isBarrel()) {
-                localPosition(0, 0) = localPos.y();
+                localPosition(0, 0) = localPos.x();
                 localCovariance(0, 0) = element->phiPitch()*element->phiPitch()/12.;
             } else {
-
+                InDetDD::SiCellId cellId = element->cellIdFromIdentifier(clusterId);
                 const InDetDD::StripStereoAnnulusDesign *design = dynamic_cast<const InDetDD::StripStereoAnnulusDesign *>(&element->design());
                 if ( design==nullptr ) {
                     ATH_MSG_FATAL( "Invalid strip annulus design for module with identifier/identifierHash " << element->identify() << "/" << idHash);
                     return StatusCode::FAILURE;
                 }
-                localPosition(0, 0) = std::atan2(localPos.y(), localPos.x());
+                InDetDD::SiLocalPosition localInPolar = design->localPositionOfCellPC(cellId);
+                localPosition(0, 0) = localInPolar.xPhi();
                 localCovariance(0, 0) = design->phiPitchPhi()*design->phiPitchPhi()/12.;
             }
 
