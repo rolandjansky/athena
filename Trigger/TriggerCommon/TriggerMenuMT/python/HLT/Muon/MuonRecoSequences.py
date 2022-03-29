@@ -214,7 +214,8 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False, extraLo
     ViewVerify.DataObjects = [('Muon::TgcPrepDataContainer','StoreGateSvc+TGC_Measurements'),
                               ('TgcRdoContainer' , 'StoreGateSvc+TGCRDO'),
                               ('Muon::RpcPrepDataContainer','StoreGateSvc+RPC_Measurements'),
-                              ('Muon::MdtPrepDataContainer','StoreGateSvc+MDT_DriftCircles')]
+                              ('Muon::MdtPrepDataContainer','StoreGateSvc+MDT_DriftCircles'),
+                              ( 'RpcPadContainer' , 'StoreGateSvc+RPCPAD' )]
     if MuonGeometryFlags.hasCSC():
       ViewVerify.DataObjects += [('Muon::CscPrepDataContainer','StoreGateSvc+CSC_Clusters')]
     if MuonGeometryFlags.hasSTGC():
@@ -225,7 +226,6 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False, extraLo
   else:
     ViewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs )]
   ViewVerify.DataObjects += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
-  ViewVerify.DataObjects += [( 'RpcPadContainer' , 'StoreGateSvc+RPCPAD' )]
   if ConfigFlags.Trigger.enableL1MuonPhase1:
     ViewVerify.DataObjects += [( 'xAOD::MuonRoIContainer' , 'StoreGateSvc+LVL1MuonRoIs' )]
   else:
