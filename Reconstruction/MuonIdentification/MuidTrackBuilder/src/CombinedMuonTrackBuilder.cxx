@@ -1615,7 +1615,7 @@ namespace Rec {
                 const int itsosMiddle = scatter_tsos.size() / 2;
                 const Trk::TrackStateOnSurface* mid_scatter = scatter_tsos[itsosMiddle];
 
-                auto energyLossNew = std::make_unique<Trk::EnergyLoss>(Eloss, sigmaEloss, sigmaEloss, sigmaEloss);
+                std::unique_ptr<Trk::EnergyLoss> energyLossNew = std::make_unique<Trk::EnergyLoss>(Eloss, sigmaEloss, sigmaEloss, sigmaEloss);
 
                 const Trk::Surface& surfNew = mid_scatter->trackParameters()->associatedSurface();
                 Trk::ScatteringAngles scatNew{0., 0., std::sqrt(sigmaDeltaPhitot2), std::sqrt(sigmaDeltaThetatot2)};
@@ -1626,7 +1626,7 @@ namespace Rec {
 
                 ATH_MSG_DEBUG(" itsosMiddle " << itsosMiddle << " tsosnr size " << scatter_tsos.size());
 
-                std::unique_ptr<Trk::MaterialEffectsOnTrack> meotNew = std::make_unique<Trk::MaterialEffectsOnTrack>(X0tot, std::move(scatNew), energyLossNew, surfNew, meotPattern);
+                std::unique_ptr<Trk::MaterialEffectsOnTrack> meotNew = std::make_unique<Trk::MaterialEffectsOnTrack>(X0tot, std::move(scatNew), std::move(energyLossNew), surfNew, meotPattern);
 
                 std::unique_ptr<Trk::TrackParameters> parsNew = mid_scatter->trackParameters()->uniqueClone();
                 std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePatternScat(0);
