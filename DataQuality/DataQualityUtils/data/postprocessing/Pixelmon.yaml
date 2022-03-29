@@ -27,4 +27,9 @@ Output: [ '{LB}/Pixel/LumiBlock/DefectMap_IBL',
         ]
 Function: PixelMonitoring.PixelPostProcessing.badEtaPhi_forAllMaskPatterns
 Description: MakeAllEtaPhiPlots_perLB
-
+---
+Input: [ 'Pixel/MVA/BDTWeightsReset_(?P<layer>IBL|BLayer|Layer1|Layer2|ECA|ECC)' ]
+Output: [ 'Pixel/MVA/FixMe_{layer}']
+Function: PixelMonitoring.PixelPostProcessing.createFixMeHistograms
+Parameters: { minBinStat : 5, mvaThr : 0.5, excludeOutOfAcc : True }
+Description: EvaluateMVAHistograms

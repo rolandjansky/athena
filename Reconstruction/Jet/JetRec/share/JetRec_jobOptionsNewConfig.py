@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # jobOption fragment to schedule jetbuilding in a runII config style standard reconstruction,
 # BUT using the new runIII jet config
@@ -10,7 +10,10 @@ from JetRecConfig.StandardLargeRJets import AntiKt10LCTopo_noVR
 from JetRecConfig.JetRecConfig import getJetDefAlgs, reOrderAlgs
 
 from JetRecConfig.StandardJetConstits import stdConstitDic
+from JetRecConfig.JetConfigFlags import jetInternalFlags
 
+# We're in Reco job : propagate this info to the runIII jet config
+jetInternalFlags.isRecoJob = True
 
 ##
 # Temporary hack : JetConstituentModSequence for EMPFlow seems to be scheduled

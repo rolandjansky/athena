@@ -25,6 +25,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from JetRecConfig.JetDefinition import JetDefinition, JetInputConstitSeq, JetInputConstit, JetInputExternal
 from JetRecConfig.JetGrooming import GroomingDefinition
 from JetRecConfig.DependencyHelper import solveDependencies, solveGroomingDependencies, aliasToModDef
+from JetRecConfig.JetConfigFlags import jetInternalFlags
 
 
 __all__ = ["JetRecCfg", "JetInputCfg"]
@@ -142,9 +143,9 @@ def getJetDefAlgs(configFlags, jetdef ,  returnConfiguredDef=False, monTool=None
 
 
     # check if the conditions are compatible with the inputs & modifiers of this jetdef_i.
-    # if in standardRecoMode we will remove whatever is incompatible and still try to run
+    # if in reco job we will remove whatever is incompatible and still try to run
     # if not, we raise an exception
-    canrun = removeComponentFailingConditions(jetdef_i, raiseOnFailure= not jetdef_i.standardRecoMode)
+    canrun = removeComponentFailingConditions(jetdef_i, raiseOnFailure= not jetInternalFlags.isRecoJob)
     if not canrun :
         if returnConfiguredDef:
             return [], jetdef_i
@@ -205,7 +206,7 @@ def getJetGroomAlgs(configFlags, groomdef, returnConfiguredDef=False, monTool=No
     groomdef_i._ungroomeddef = ungroomeddef_i # set directly the internal members to avoid complication. This is fine, since we've been cloning definitions.
 
     #Filter the modifiers based on the configFlags
-    removeGroomModifFailingConditions(groomdef_i, configFlags, raiseOnFailure = not groomdef_i.ungroomeddef.standardRecoMode)
+    removeGroomModifFailingConditions(groomdef_i, configFlags, raiseOnFailure = not jetInternalFlags.isRecoJob)
 
     algs += [ getJetRecGroomAlg(groomdef_i, monTool=monTool) ]
 
@@ -300,7 +301,7 @@ def getInputAlgs(jetOrConstitdef, configFlags=None, context="default", monTool=N
         jetlog.info("Setting up jet inputs from JetInputConstit : "+jetOrConstitdef.name)
         jetdef = solveDependencies( JetDefinition('Kt', 0., jetOrConstitdef, context=context) )
         jetdef._cflags = configFlags
-        canrun = removeComponentFailingConditions(jetdef, raiseOnFailure= not jetdef.standardRecoMode)
+        canrun = removeComponentFailingConditions(jetdef, raiseOnFailure = not jetInternalFlags.isRecoJob)
         if not canrun:
             return []
     else:
@@ -346,7 +347,15 @@ def getInputAlgs(jetOrConstitdef, configFlags=None, context="default", monTool=N
 ########################################################################
 
 
-
+def getPJContName( jetOrConstitdef, suffix=None):
+    """Construct the name of the PseudoJetContainer defined by the given JetDef or JetInputConstit.
+    This name has to be constructed from various places, so we factorize the definition here.
+    """
+    
+    cdef = jetOrConstitdef if isinstance(jetOrConstitdef, JetInputConstit) else jetOrConstitdef.inputdef
+    end = '' if suffix is None else f'_{suffix}'
+    return f'PseudoJet{cdef.containername}{end}'
+    
 def getConstitPJGAlg(constitdef,suffix=None, flags=None):
     """returns a configured PseudoJetAlgorithm which converts the inputs defined by constitdef into fastjet::PseudoJet
 
@@ -357,12 +366,13 @@ def getConstitPJGAlg(constitdef,suffix=None, flags=None):
 
     jetlog.debug("Getting PseudoJetAlg for label {0} from {1}".format(constitdef.name,constitdef.inputname))
 
-    full_label = constitdef.label + '' if suffix is None else f'_{suffix}'
+    end = '' if suffix is None else f'_{suffix}'
+    full_label = constitdef.label + end
 
     pjgalg = CompFactory.PseudoJetAlgorithm(
-        "pjgalg_"+full_label,
+        "pjgalg_"+constitdef.containername+end,
         InputContainer = constitdef.containername,
-        OutputContainer = "PseudoJet"+full_label,
+        OutputContainer =getPJContName(constitdef,suffix),
         Label = full_label,
         SkipNegativeEnergy=True
         )
@@ -394,10 +404,9 @@ def getGhostPJGAlg(ghostdef):
 
     kwargs = dict( 
         InputContainer = ghostdef.containername,
-        OutputContainer=    "PseudoJet"+label,
+        OutputContainer= "PseudoJetGhost"+ghostdef.containername,
         Label=              label,
         SkipNegativeEnergy= True,
-        #OutputLevel = 3,
     )
 
     pjaclass = CompFactory.PseudoJetAlgorithm

@@ -22,7 +22,7 @@ class LArXTalkWeightCondAlg: public AthReentrantAlgorithm {
     SG::WriteCondHandleKey<LArXTalkWeight> m_xtalkKey{this, "OutputKey", "XTalk_Value", "SG key for output"};
     std::vector<float> m_xtalk_to_inject;
     std::vector<int> m_endcap_case_table;
-    float    m_xtalk_factor;
+    float    m_xtalk_factor = 0.0F;
 };
 
 class LArXTalkWeightCondAlg_strip: public LArXTalkWeightCondAlg{

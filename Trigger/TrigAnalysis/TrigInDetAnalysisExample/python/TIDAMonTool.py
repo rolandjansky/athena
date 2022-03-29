@@ -6,26 +6,37 @@
 # code 
         
 
-
-
-# actuall create the monTool to go along with a specifi chain
+# actually create the monTool to go along with a specific chain
 # stores the histogram, binning, creates all the histograms etc
 
-def createMonTool( slicetag, chain ) :
+def createMonTool( flags, slicetag, chain ) :
 
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
-
     monTool = GenericMonitoringTool( chain )
 
-    mypath = "EXPERT"
+    histpath = slicetag + monGroup(chain)
 
-    # monTool.HistPath would this be better set in the c++ code ?
- 
     from TrigInDetAnalysisExample.chainString import chainString
-
     cs = chainString( chain )
+    
+    # monTool.HistPath would this be better set in the c++ code ?
+    
+    if  flags is None:
+        mypath = "EXPERT"
+        monTool.HistPath = histpath
+    else:
+        #       mypath = flags.DQ.FileKey
+        # can't set the "path" in the histograms as that gets apended 
+        # to the histogram name when using the official monitoring 
+        # framework and we absolutely don't want that
+        mypath = ""
+        monTool.HistPath = "/" + flags.DQ.FileKey + "/" + histpath
+
+#   do we need this ? 
+#   monTool.UseCache = True 
         
-    monTool.HistPath = slicetag + monGroup(chain)
+    monTool.convention      = 'OFFLINE'
+    monTool.defaultDuration = 'run'
     
 #   print( "TIDAMonTool.py CreateMonTool ", chain, "  path:", monTool.HistPath )
 
@@ -297,7 +308,7 @@ def monGroup( analysis_chain ) :
 
 # wrapper around montool.defineHistogram to simplify the required histogram names
 # eg for a TProfile, automatically add the second variable, and create the histogram
-# alias to avoid having to write pages of tedious boier plate functions
+# alias to avoid having to write pages of tedious boiler plate functions
 
 def defineHisto( montool, name, **args ) : 
 

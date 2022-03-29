@@ -2,6 +2,15 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
+def GEN_EVNT2xAODCfg(flags, name="GEN_EVNT2xAOD", **kwargs):
+    """Configure the EVNT->xAOD converter alg"""
+    # Note that since this is usually used by the derivation framework
+    # which handles the output stream itself (to allow the expansion to AuxDyn and slimming)
+    # nothing is done with the stream here - this is done in the DF job options
+    acc = ComponentAccumulator()
+    xAODTruthCnvAlg = CompFactory.xAODMaker.xAODTruthCnvAlg
+    acc.addEventAlgo(xAODTruthCnvAlg(name,**kwargs))
+    return acc
 
 def GEN_AOD2xAODCfg(flags, name="GEN_AOD2xAOD", **kwargs):
     acc = ComponentAccumulator()

@@ -7,6 +7,8 @@
 #ifndef TRIGT1MUCTPIBITS_MUCTPI_BITS_H
 #define TRIGT1MUCTPIBITS_MUCTPI_BITS_H
 
+#include <cstdint>
+
 namespace LVL1::MuCTPIBits {
   /// Binary 111 representing the maximal multiplicity value for a given threshold
    static constexpr uint32_t MULT_VAL = 7;
@@ -92,26 +94,16 @@ namespace LVL1::MuCTPIBits {
 /// Position in the data word of the subsystem bits
    static constexpr uint32_t RUN3_SUBSYS_ADDRESS_SHIFT = 27;
    static constexpr uint32_t SUBSYS_ADDRESS_SHIFT = 20;
-   /// Run-3 subsystem identifier bits location and values (online firmware format)
-   static constexpr uint32_t RUN3_SUBSYS_ADDRESS_BAFW_SHIFT = 26;
+   /// Run-3 subsystem identifier bits location and values
+   static constexpr uint32_t RUN3_SUBSYS_ADDRESS_BAFW_SHIFT = 27;
    static constexpr uint32_t RUN3_SUBSYS_ADDRESS_BAFW_MASK = 0b11;
    static constexpr uint32_t RUN3_SUBSYS_ADDRESS_BA_VAL = 0b00;
    static constexpr uint32_t RUN3_SUBSYS_ADDRESS_FW_VAL = 0b01;
-   static constexpr uint32_t RUN3_SUBSYS_ADDRESS_EC_SHIFT = 27;
+   static constexpr uint32_t RUN3_SUBSYS_ADDRESS_EC_SHIFT = 28;
    static constexpr uint32_t RUN3_SUBSYS_ADDRESS_EC_MASK = 0b1;
    static constexpr uint32_t RUN3_SUBSYS_ADDRESS_EC_VAL = 0b1;
-   static constexpr uint32_t RUN3_SUBSYS_HEMISPHERE_SHIFT = 28;
+   static constexpr uint32_t RUN3_SUBSYS_HEMISPHERE_SHIFT = 21;
    static constexpr uint32_t RUN3_SUBSYS_HEMISPHERE_MASK = 0b1;
-   /// Run-3 subsystem identifier bits location and values (offline software format)
-   static constexpr uint32_t RUN3OFFLINE_SUBSYS_ADDRESS_BAFW_SHIFT = 27;
-   static constexpr uint32_t RUN3OFFLINE_SUBSYS_ADDRESS_BAFW_MASK = 0b11;
-   static constexpr uint32_t RUN3OFFLINE_SUBSYS_ADDRESS_BA_VAL = 0b00;
-   static constexpr uint32_t RUN3OFFLINE_SUBSYS_ADDRESS_FW_VAL = 0b01;
-   static constexpr uint32_t RUN3OFFLINE_SUBSYS_ADDRESS_EC_SHIFT = 28;
-   static constexpr uint32_t RUN3OFFLINE_SUBSYS_ADDRESS_EC_MASK = 0b1;
-   static constexpr uint32_t RUN3OFFLINE_SUBSYS_ADDRESS_EC_VAL = 0b1;
-   static constexpr uint32_t RUN3OFFLINE_SUBSYS_HEMISPHERE_SHIFT = 21;
-   static constexpr uint32_t RUN3OFFLINE_SUBSYS_HEMISPHERE_MASK = 0b1;
 
   /// Mask for extracting the sector ID for endcap candidates from the data word
    static constexpr uint32_t ENDCAP_SECTORID_MASK = 0x3f;
@@ -121,9 +113,7 @@ namespace LVL1::MuCTPIBits {
    static constexpr uint32_t BARREL_SECTORID_MASK = 0x1f;
   /// Position of the sector ID itself
    static constexpr uint32_t RUN3_CAND_SECTORID_MASK = 0x7f;
-   static constexpr uint32_t RUN3_CAND_SECTORID_SHIFT = 21;
-   static constexpr uint32_t RUN3OFFLINE_CAND_SECTORID_MASK = 0x7f;
-   static constexpr uint32_t RUN3OFFLINE_CAND_SECTORID_SHIFT = 22;
+   static constexpr uint32_t RUN3_CAND_SECTORID_SHIFT = 22;
    static constexpr uint32_t CAND_SECTORID_SHIFT = 15;
 
 /// gone in v2

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BTaggingValidationPlots.h"
@@ -7,13 +7,14 @@
 #include "xAODBTagging/BTaggingUtilities.h" 
 using CLHEP::GeV;
 #include <stdexcept>
+#include <utility>
 
 namespace JetTagDQA{
   BTaggingValidationPlots::BTaggingValidationPlots(PlotBase* pParent, 
-                                                   std::string sDir, 
+                                                   const std::string& sDir, 
                                                    std::string sParticleType) :
                                                    PlotBase(pParent, sDir),
-                                                   m_sParticleType(sParticleType),
+                                                   m_sParticleType(std::move(sParticleType)),
                                                    m_JVT_defined(false),
                                                    m_JVTLargerEta_defined(false)
   {
@@ -26,7 +27,7 @@ namespace JetTagDQA{
 
   // implement the setter function for the histogram definitions
   void BTaggingValidationPlots::setHistogramDefinitions( std::map< std::string, std::vector< std::string > > HistogramDefinitions){
-    m_HistogramDefinitions = HistogramDefinitions;
+    m_HistogramDefinitions = std::move(HistogramDefinitions);
   }
   
   // implement the setter function for the cuts that can be set in the config
@@ -46,7 +47,7 @@ namespace JetTagDQA{
   }
   
   // implement the bookHistogram function using the histogram definitions
-  TH1* BTaggingValidationPlots::bookHistogram(std::string histo_name, std::string var_name, std::string part, std::string prefix){
+  TH1* BTaggingValidationPlots::bookHistogram(std::string histo_name, const std::string& var_name, const std::string& part, const std::string& prefix){
     // check if the var is in the histogram definitions
     if(m_HistogramDefinitions.find(var_name) == m_HistogramDefinitions.end()) {
       throw std::invalid_argument("var_name " + var_name + " not in HistogramDefinitions.");
@@ -1014,7 +1015,7 @@ namespace JetTagDQA{
       std::vector<ElementLink<DataVector<xAOD::TrackParticle> > > tpLinks = vtx->trackParticleLinks();
 
       // loop over the tracks
-      for (ElementLink<DataVector<xAOD::TrackParticle> > link : tpLinks) {
+      for (const ElementLink<DataVector<xAOD::TrackParticle> >& link : tpLinks) {
         const xAOD::TrackParticle* track = (*link);
 
         // get the track origin
@@ -1126,7 +1127,7 @@ namespace JetTagDQA{
       std::vector<ElementLink<DataVector<xAOD::TrackParticle> > > tpLinks = vtx->track_links();
 
       // loop over the tracks
-      for (ElementLink<DataVector<xAOD::TrackParticle> > link : tpLinks) {
+      for (const ElementLink<DataVector<xAOD::TrackParticle> >& link : tpLinks) {
         const xAOD::TrackParticle* track = (*link);
       
         // get the track origin

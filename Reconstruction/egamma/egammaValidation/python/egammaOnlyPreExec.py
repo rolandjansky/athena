@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from RecExConfig.RecFlags import rec
 from RecExConfig.RecAlgsFlags import recAlgs
@@ -10,6 +10,8 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 def setRunEgammaOnlyRecoFlags():
 
     ConfigFlags.Detector.GeometryMuon = False
+    ConfigFlags.Reco.EnablePFlow = False
+
     rec.doTrigger.set_Value_and_Lock(False)
     rec.doTau.set_Value_and_Lock(False)
     rec.doMuon.set_Value_and_Lock(False)
@@ -32,7 +34,6 @@ def setRunEgammaOnlyRecoFlags():
     AODFlags.ThinNegativeEnergyNeutralPFOs.set_Value_and_Lock(False)
 
     jetFlags.Enabled = False
-
 
 def setRunEgammaOnlyMergeFlags():
     rec.doTrigger.set_Value_and_Lock(False)

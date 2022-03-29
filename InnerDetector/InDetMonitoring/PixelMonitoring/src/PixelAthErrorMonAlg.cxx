@@ -1,7 +1,11 @@
 /*
    Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
-
+/**
+ * @file PixelAthErrorMonAlg.cxx
+ * @brief Reads Pixel Bytestream error information and fills it into various histograms 
+ * @author Iskander Ibragimov
+ **/
 #include "PixelAthErrorMonAlg.h"
 
 PixelAthErrorMonAlg::PixelAthErrorMonAlg(const std::string& name, ISvcLocator* pSvcLocator) :

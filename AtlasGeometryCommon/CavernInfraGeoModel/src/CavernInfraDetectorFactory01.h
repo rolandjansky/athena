@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CavernInfraDetectorFactory01_h
@@ -31,7 +31,7 @@ class CavernInfraDetectorFactory01 : public GeoVDetectorFactory
   virtual const CavernInfraDetectorManager * getDetectorManager() const;
   
   // Set version Tag and Node
-  void setTagNode(std::string tag, std::string node);
+  void setTagNode(const std::string& tag, const std::string& node);
 
  
  private:  

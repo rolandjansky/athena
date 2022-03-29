@@ -127,11 +127,11 @@ def MuonAlignmentCondAlgCfg(flags):
                                 "/MUONALIGN/TGC/SIDEC"]
 
     # here define if I-lines (CSC internal alignment) are enabled
-    if flags.Muon.Align.UseILines:
+    if flags.Muon.Align.UseILines and flags.Detector.GeometryCSC:
         if 'HLT' in flags.IOVDb.GlobalTag:
             #logMuon.info("Reading CSC I-Lines from layout - special configuration for COMP200 in HLT setup.")
             MuonAlign.ILinesFromCondDB = False
-        else :
+        else:
             #logMuon.info("Reading CSC I-Lines from conditions database.")
             if (flags.Common.isOnline and not flags.Input.isMC):
                 acc.merge(addFolders( flags, ['/MUONALIGN/Onl/CSC/ILINES'], 'MUONALIGN', className='CondAttrListCollection'))
@@ -152,7 +152,6 @@ def MuonAlignmentCondAlgCfg(flags):
             MuonAlign.ParlineFolders += ["/MUONALIGN/MDT/ASBUILTPARAMS"]
             pass
 
-    MuonAlign.DoCSCs = flags.Detector.GeometryCSC
     acc.addCondAlgo(MuonAlign)
 
     if flags.IOVDb.DatabaseInstance != 'COMP200' and \

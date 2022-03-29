@@ -19,6 +19,13 @@
 using namespace std;
 using namespace LVL1;
 
+
+// eFex to L1Topo conversion factors
+const float EMTauInputProviderFEX::m_EtDouble_conversion = 10.;    // 100 MeV to GeV
+const float EMTauInputProviderFEX::m_phiDouble_conversion = 20.;   // 20 x phi to phi
+const float EMTauInputProviderFEX::m_etaDouble_conversion = 40.;   // 40 x eta to eta
+
+
 EMTauInputProviderFEX::EMTauInputProviderFEX(const std::string& type, const std::string& name, 
                                        const IInterface* parent) :
    base_class(type, name, parent),
@@ -238,6 +245,10 @@ EMTauInputProviderFEX::fillEM(TCS::TopoInputEvent& inputEvent) const {
 		   << eFexRoI->eta() // returns a floating point global eta
 		   << " phi: "
 		   << eFexRoI->phi() // returns a floating point global phi
+		   << " iEtaTopo: "
+		   << eFexRoI->iEtaTopo() // returns 40 x eta (custom function for L1Topo)
+		   << " iPhiTopo: "
+		   << eFexRoI->iPhiTopo() // returns 20 x phi (custom function for L1Topo)
 		   << " reta: "
 		   << eFexRoI->RetaThresholds() // jet disc 1
 		   << " rhad: "
@@ -256,9 +267,9 @@ EMTauInputProviderFEX::fillEM(TCS::TopoInputEvent& inputEvent) const {
 
     //Em TOB
     TCS::eEmTOB eem( EtTopo, etaTopo, static_cast<unsigned int>(phiTopo), TCS::EEM , static_cast<long int>(eFexRoI->word0()) );
-    eem.setEtDouble( static_cast<double>(EtTopo/10.) );
-    eem.setEtaDouble( static_cast<double>(etaTopo/40.) );
-    eem.setPhiDouble( static_cast<double>(phiTopo/20.) );
+    eem.setEtDouble( static_cast<double>(EtTopo/m_EtDouble_conversion) );
+    eem.setEtaDouble( static_cast<double>(etaTopo/m_etaDouble_conversion) );
+    eem.setPhiDouble( static_cast<double>(phiTopo/m_phiDouble_conversion) );
     eem.setReta( reta );
     eem.setRhad( rhad );
     eem.setWstot( wstot );
@@ -304,6 +315,10 @@ EMTauInputProviderFEX::fillTau(TCS::TopoInputEvent& inputEvent) const {
 		   << eFexTauRoI->eta() // returns a floating point global eta 
 		   << " phi: "
 		   << eFexTauRoI->phi() // returns a floating point global phi
+		   << " iEtaTopo: "
+		   << eFexTauRoI->iEtaTopo() // returns 40 x eta (custom function for L1Topo)
+		   << " iPhiTopo: "
+		   << eFexTauRoI->iPhiTopo() // returns 20 x phi (custom function for L1Topo)
 		   << " rCore: "
 		   << eFexTauRoI->rCoreThresholds() 
 		   << " rHad: "
@@ -319,9 +334,9 @@ EMTauInputProviderFEX::fillTau(TCS::TopoInputEvent& inputEvent) const {
 
     //Tau TOB
     TCS::eTauTOB etau( EtTopo, etaTopo, static_cast<unsigned int>(phiTopo), TCS::ETAU );
-    etau.setEtDouble(  static_cast<double>(EtTopo/10.) );
-    etau.setEtaDouble( static_cast<double>(etaTopo/40.) );
-    etau.setPhiDouble( static_cast<double>(phiTopo/20.) );
+    etau.setEtDouble(  static_cast<double>(EtTopo/m_EtDouble_conversion) );
+    etau.setEtaDouble( static_cast<double>(etaTopo/m_etaDouble_conversion) );
+    etau.setPhiDouble( static_cast<double>(phiTopo/m_phiDouble_conversion) );
 
     etau.setRCore( rCore );
     etau.setRHad( rHad );

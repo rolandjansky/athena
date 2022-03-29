@@ -491,7 +491,7 @@ class TileROD_Decoder: public AthAlgTool {
     TileRawChannel2Bytes m_rc2bytes;
     TileDigits2Bytes m_d2Bytes;
 
-    const TileHWID* m_tileHWID;
+    const TileHWID* m_tileHWID = nullptr;
 
     Gaudi::Property<bool> m_useFrag0{this, "useFrag0", true, "Use frag0"};
     Gaudi::Property<bool> m_useFrag1{this, "useFrag1", true, "Use frag1"};
@@ -568,7 +568,7 @@ class TileROD_Decoder: public AthAlgTool {
     // Map from frag id to MBTS idx
     std::map<unsigned int, unsigned int> m_mapMBTS;
     // index of the MBTS channel
-    int m_MBTS_channel;
+    int m_MBTS_channel = 0;
 
     mutable std::atomic<int> m_WarningCounter;
     mutable std::atomic<int> m_ErrorCounter;

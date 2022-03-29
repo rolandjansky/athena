@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDT_DIGITIZATION_PARTICLEGAMMA_H
@@ -38,7 +38,7 @@ double particleGamma(const MDTSimHit& hit, unsigned short eventId = 0) {
     const EBC_EVCOLL evColl = EBC_MAINEVCOLL;
     const HepMcParticleLink::PositionFlag idxFlag = (eventId == 0) ? HepMcParticleLink::IS_POSITION : HepMcParticleLink::IS_INDEX;
     const HepMcParticleLink trkParticle(hit.trackNumber(), eventId, evColl, idxFlag);
-    const HepMC::GenParticle* genParticle = trkParticle.cptr();
+    HepMC::ConstGenParticlePtr genParticle = trkParticle.cptr();
     if (genParticle) {
         int particleEncoding = genParticle->pdg_id();
         //      std::cout << "SB: pdgId=" << particleEncoding <<std::endl;

@@ -384,17 +384,17 @@ def adaptiveMultiVertexFinderTool_builder( signature, config ) :
         actsExtrapolationTool = CfgMgr.ActsExtrapolationTool("ActsExtrapolationTool")
         actsExtrapolationTool.TrackingGeometryTool = actsTrackingGeometryTool
         
-        from ActsPriVtxFinder.ActsPriVtxFinderConf import ActsAdaptiveMultiPriVtxFinderTool
+        from ActsTrkPriVtxFinderTool.ActsTrkPriVtxFinderToolConf import ActsTrk__AdaptiveMultiPriVtxFinderTool
 
-        vertexFinderTool = ActsAdaptiveMultiPriVtxFinderTool(name  = "ActsAdaptiveMultiPriVtxFinderTool" + signature,
-                                                             TrackSelector      = trackSelectorTool,
-                                                             useBeamConstraint  = True,
-                                                             useSeedConstraint  = False, # use explicit ACTS default parameter
-                                                             tracksMaxZinterval = tracksMaxZinterval,
-                                                             do3dSplitting      = doVtx3DFinding, 
-                                                             addSingleTrackVertices = singleTrackVertices,
-                                                             TrackingGeometryTool = actsTrackingGeometryTool,
-                                                             ExtrapolationTool  = actsExtrapolationTool )
+        vertexFinderTool = ActsTrk__AdaptiveMultiPriVtxFinderTool(name  = "ActsAdaptiveMultiPriVtxFinderTool" + signature,
+                                                                  TrackSelector      = trackSelectorTool,
+                                                                  useBeamConstraint  = True,
+                                                                  useSeedConstraint  = False, # use explicit ACTS default parameter
+                                                                  tracksMaxZinterval = tracksMaxZinterval,
+                                                                  do3dSplitting      = doVtx3DFinding,
+                                                                  addSingleTrackVertices = singleTrackVertices,
+                                                                  TrackingGeometryTool = actsTrackingGeometryTool,
+                                                                  ExtrapolationTool  = actsExtrapolationTool )
                 
     ToolSvc += vertexFinderTool
    

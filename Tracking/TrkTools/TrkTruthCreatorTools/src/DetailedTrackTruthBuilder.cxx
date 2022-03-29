@@ -278,7 +278,7 @@ void DetailedTrackTruthBuilder::addTrack(DetailedTrackTruthCollection *output,
 	    for(iprdt i = range.first; i!= range.second; ++i) {
 	      
 	      
-	      const HepMC::GenParticle* pa = (*i).second.cptr(); if(!pa) { continue; }
+	      HepMC::ConstGenParticlePtr pa = (*i).second.cptr(); if(!pa) { continue; }
 	      
 	      if(!i->second.isValid()) {
 		ATH_MSG_WARNING("Unexpected invalid HepMcParticleLink in PRD_MultiTruthCollection");
@@ -351,11 +351,7 @@ void DetailedTrackTruthBuilder::addTrack(DetailedTrackTruthCollection *output,
     Sprout current_sprout;
     std::queue<HepMC::ConstGenParticlePtr> tmp;
     ExtendedEventIndex eventIndex(link, proxy);
-#ifdef HEPMC3
-    HepMC::ConstGenParticlePtr current = link.scptr();
-#else    
-    const HepMC::GenParticle *current = link.cptr();
-#endif
+    HepMC::ConstGenParticlePtr current = link.cptr();
 
     do {
       HepMcParticleLink curlink( eventIndex.makeLink(HepMC::barcode(current), proxy));

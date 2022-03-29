@@ -362,14 +362,14 @@ def _muEFCBStepSeq(flags, name='RoI'):
     recoCB.mergeReco(EFMuonCBViewDataVerifierCfg(flags, name))
     
     indetCandCfg = MuonCombinedInDetCandidateAlgCfg(flags, name="TrigMuonCombinedInDetCandidateAlg_"+name, TrackParticleLocation=[trackName], 
-                                                 InDetCandidateLocation="IndetCandidates_"+name, DoSiliconAssocForwardMuons=False, InDetForwardTrackSelector="")
+                                                 InDetCandidateLocation="InDetCandidates_"+name, DoSiliconAssocForwardMuons=False, InDetForwardTrackSelector="")
     recoCB.mergeReco(indetCandCfg)
     muonCombCfg = MuonCombinedAlgCfg(flags, name="TrigMuonCombinedAlg_"+name, MuonCandidateLocation=muonCandName, 
-                                     InDetCandidateLocation="IndetCandidates_"+name)
+                                     InDetCandidateLocation="InDetCandidates_"+name)
     recoCB.mergeReco(muonCombCfg)
 
     muonCreatorCBCfg = MuonCreatorAlgCfg(flags, name="TrigMuonCreatorAlgCB_"+name, MuonCandidateLocation=[muonCandName], TagMaps=["muidcoTagMap"], 
-                                         InDetCandidateLocation="IndetCandidates_"+name, MuonContainerLocation = "MuonsCB_"+name, SegmentContainerName = "xaodCBSegments", TrackSegmentContainerName = "TrkCBSegments",
+                                         InDetCandidateLocation="InDetCandidates_"+name, MuonContainerLocation = "MuonsCB_"+name, SegmentContainerName = "xaodCBSegments", TrackSegmentContainerName = "TrkCBSegments",
                                          ExtrapolatedLocation = "CBExtrapolatedMuons", MSOnlyExtrapolatedLocation = "CBMSonlyExtrapolatedMuons", CombinedLocation = "HLT_CBCombinedMuon_"+name)
     recoCB.mergeReco(muonCreatorCBCfg)
 
@@ -391,7 +391,7 @@ def _muEFCBStepSeq(flags, name='RoI'):
         acc.merge(inDetExtensionCfg, sequenceName=seqIOreco.name)
         muonInsideOutCfg = MuonInsideOutRecoAlgCfg(flags, name="TrigMuonInsideOutRecoAlg", InDetCandidateLocation = "InDetCandidatesSystemExtended_"+name)
         acc.merge(muonInsideOutCfg, sequenceName=seqIOreco.name)
-        insideOutCreatorAlgCfg = MuonCreatorAlgCfg(flags, name="TrigMuonCreatorAlgInsideOut", TagMaps=["muGirlTagMap"], InDetCandidateLocation="IndetCandidates_"+name,
+        insideOutCreatorAlgCfg = MuonCreatorAlgCfg(flags, name="TrigMuonCreatorAlgInsideOut", TagMaps=["muGirlTagMap"], InDetCandidateLocation="InDetCandidates_"+name,
                                                    MuonContainerLocation = "MuonsInsideOut_"+name, SegmentContainerName = "xaodInsideOutCBSegments", 
                                                    TrackSegmentContainerName = "TrkInsideOutCBSegments", ExtrapolatedLocation = "InsideOutCBExtrapolatedMuons",
                                                    MSOnlyExtrapolatedLocation = "InsideOutCBMSOnlyExtrapolatedMuons", CombinedLocation = "InsideOutCBCombinedMuon")

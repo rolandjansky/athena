@@ -25,6 +25,7 @@ The JetModifier config class is defined in JetDefinition.py
 from .JetDefinition import JetModifier
 from .Utilities import ldict
 from AthenaConfiguration.ComponentFactory import CompFactory
+from JetRecConfig.JetConfigFlags import jetInternalFlags
 
 
 stdJetModifiers = ldict()
@@ -34,8 +35,13 @@ stdJetModifiers = ldict()
 stdJetModifiers.update( 
     Sort   = JetModifier("JetSorter","jetsort"),
     Filter = JetModifier("JetFilterTool","jetptfilter_{modspec}",
-                         # we give a function as PtMin : it will be evaluated when instantiating the tool (modspec will come alias usage like "Filter:10000" --> PtMin=100000) 
-                         PtMin = lambda _,modspec: int(modspec) ) #
+                         # we give a function as PtMin : it will be evaluated when instantiating the tool (modspec is specified with this tool
+                         # alias like "Filter:10000" --> PtMin=100000).
+                         PtMin = lambda jdef,modspec: int(modspec) 
+                         ),
+    Filter_ifnotESD = JetModifier("JetFilterTool","jetptfilter_{modspec}",
+                                 PtMin = lambda _,modspec: 1 if jetInternalFlags.isRecoJob else int(modspec),
+                                 )
 )
 
 ########################################################################
@@ -103,7 +109,7 @@ stdJetModifiers.update(
     LArHVCorr =       JetModifier("JetLArHVTool", "larhvcorr",
                                    prereqs = ["mod:EMScaleMom"],JetContainer = _jetname),
     OriginSetPV =     JetModifier("JetOriginCorrectionTool", "origin_setpv",
-                                   prereqs = [ "mod:JVF" ],JetContainer = _jetname),
+                                   prereqs = [ "mod:JVF" ],JetContainer = _jetname, OnlyAssignPV=True),
     TrackMoments =    JetModifier("JetTrackMomentsTool", "trkmoms",
                                   createfn=JetMomentToolsConfig.getTrackMomentsTool,
                                   prereqs = [ "input:JetTrackVtxAssoc","ghost:Track" ],JetContainer = _jetname),

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_RDOAnalysis.h"
@@ -365,7 +365,7 @@ StatusCode SCT_RDOAnalysis::execute() {
               for( ; nextdeposit!=lastdeposit; ++nextdeposit) {
 	              const HepMcParticleLink& particleLink = nextdeposit->first;
                 if(particleLink.isValid() && !findMatch){
-                  const HepMC::GenParticle *genPart(particleLink.cptr());
+                  HepMC::ConstGenParticlePtr genPart(particleLink.cptr());
                   if(genPart->parent_event() == hardScatterEvent) m_h_TruthMatchedRDOs->Fill(3.5);
                   m_h_TruthMatchedRDOs->Fill(2.5);
                   findMatch = true;

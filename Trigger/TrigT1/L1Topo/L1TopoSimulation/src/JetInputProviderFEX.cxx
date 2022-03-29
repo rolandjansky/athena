@@ -22,6 +22,17 @@
 using namespace std;
 using namespace LVL1;
 
+
+// jFex to L1Topo conversion factors
+const int JetInputProviderFEX::m_Et_conversion = 2;              // 200 MeV to 100 MeV
+const int JetInputProviderFEX::m_phi_conversion = 2;             // 10 x phi to 20 x phi
+const int JetInputProviderFEX::m_eta_conversion = 4;             // 10 x eta to 40 x eta
+
+const float JetInputProviderFEX::m_EtDouble_conversion = 10.;    // 100 MeV to GeV
+const float JetInputProviderFEX::m_phiDouble_conversion = 20.;   // 20 x phi to phi
+const float JetInputProviderFEX::m_etaDouble_conversion = 40.;   // 40 x eta to eta
+
+
 JetInputProviderFEX::JetInputProviderFEX(const std::string& type, const std::string& name, 
                                    const IInterface* parent) :
    base_class(type, name, parent),
@@ -215,27 +226,27 @@ JetInputProviderFEX::fillTau(TCS::TopoInputEvent& inputEvent) const {
 		   << jFexRoI->globalPhi() // returns global phi in units of 0.1
 		   );
        
-    unsigned int EtTopo = jFexRoI->tobEt()*2; // Convert Et to 100 MeV unit
-    unsigned int phiTopo = jFexRoI->globalPhi()*2; // Convert to 0.05 granularity
-    int etaTopo = jFexRoI->globalEta()*4; // Convert to 0.025 granularity
-    unsigned int isolation = jFexRoI->tobIso()*2;  // Convert isolation to 100 MeV unit
+    unsigned int EtTopo = jFexRoI->tobEt()*m_Et_conversion;
+    unsigned int phiTopo = jFexRoI->globalPhi()*m_phi_conversion;
+    int etaTopo = jFexRoI->globalEta()*m_eta_conversion;
+    unsigned int isolation = jFexRoI->tobIso()*m_Et_conversion;
    
     // Avoid the events with 0 Et (events below threshold)
     if (EtTopo==0) continue;
 
     TCS::jTauTOB jtau( EtTopo, etaTopo, phiTopo );
-    jtau.setEtDouble( static_cast<double>(EtTopo/10.) );
-    jtau.setEtaDouble( static_cast<double>(etaTopo/40.) );
-    jtau.setPhiDouble( static_cast<double>(phiTopo/20.) );
+    jtau.setEtDouble( static_cast<double>(EtTopo/m_EtDouble_conversion) );
+    jtau.setEtaDouble( static_cast<double>(etaTopo/m_etaDouble_conversion) );
+    jtau.setPhiDouble( static_cast<double>(phiTopo/m_phiDouble_conversion) );
     jtau.setEtIso( isolation );
 
     inputEvent.addjTau( jtau );
     inputEvent.addcTau( jtau );
 
     m_hjTauPt->Fill(jtau.EtDouble());
-    m_hjTauIsolation->Fill(jtau.EtIso()/10.);
+    m_hjTauIsolation->Fill(jtau.EtIso()/m_EtDouble_conversion);
     m_hjTauPhiEta->Fill(jtau.eta(),jtau.phi()); 
-    m_hjTauIsolationEta->Fill(jtau.eta(),jtau.EtIso()/10.); 
+    m_hjTauIsolationEta->Fill(jtau.eta(),jtau.EtIso()/m_EtDouble_conversion); 
   }
 
   return StatusCode::SUCCESS;
@@ -264,17 +275,17 @@ JetInputProviderFEX::fillLRJet(TCS::TopoInputEvent& inputEvent) const {
 		   << jFexRoI->globalPhi() // returns global phi in units of 0.1
 		   );
     
-    unsigned int EtTopo = jFexRoI->tobEt()*2; // Convert Et to 100 MeV unit
-    unsigned int phiTopo = jFexRoI->globalPhi()*2; // Convert to 0.05 granularity
-    int etaTopo = jFexRoI->globalEta()*4; // Convert to 0.025 granularity
+    unsigned int EtTopo = jFexRoI->tobEt()*m_Et_conversion;
+    unsigned int phiTopo = jFexRoI->globalPhi()*m_phi_conversion;
+    int etaTopo = jFexRoI->globalEta()*m_eta_conversion;
 
     // Avoid the events with 0 Et (events below threshold)
     if (EtTopo==0) continue;
 
     TCS::jLargeRJetTOB jet( EtTopo, etaTopo, phiTopo );
-    jet.setEtDouble( static_cast<double>(EtTopo/10.) );
-    jet.setEtaDouble( static_cast<double>(etaTopo/40.) );
-    jet.setPhiDouble( static_cast<double>(phiTopo/20.) );
+    jet.setEtDouble( static_cast<double>(EtTopo/m_EtDouble_conversion) );
+    jet.setEtaDouble( static_cast<double>(etaTopo/m_etaDouble_conversion) );
+    jet.setPhiDouble( static_cast<double>(phiTopo/m_phiDouble_conversion) );
 
     inputEvent.addjLargeRJet( jet );
 
@@ -309,17 +320,17 @@ JetInputProviderFEX::fillSRJet(TCS::TopoInputEvent& inputEvent) const {
 		   << jFexRoI->globalPhi() // returns global phi in units of 0.1
 		   );
 
-    unsigned int EtTopo = jFexRoI->tobEt()*2; // Convert Et to 100 MeV unit
-    unsigned int phiTopo = jFexRoI->globalPhi()*2; // Convert to 0.05 granularity
-    int etaTopo = jFexRoI->globalEta()*4; // Convert to 0.025 granularity
+    unsigned int EtTopo = jFexRoI->tobEt()*m_Et_conversion;
+    unsigned int phiTopo = jFexRoI->globalPhi()*m_phi_conversion;
+    int etaTopo = jFexRoI->globalEta()*m_eta_conversion;
 
     // Avoid the events with 0 Et (events below threshold)
     if (EtTopo==0) continue;
 
     TCS::jJetTOB jet( EtTopo, etaTopo, phiTopo );
-    jet.setEtDouble( static_cast<double>(EtTopo/10.) );
-    jet.setEtaDouble( static_cast<double>(etaTopo/40.) );
-    jet.setPhiDouble( static_cast<double>(phiTopo/20.) );
+    jet.setEtDouble( static_cast<double>(EtTopo/m_EtDouble_conversion) );
+    jet.setEtaDouble( static_cast<double>(etaTopo/m_etaDouble_conversion) );
+    jet.setPhiDouble( static_cast<double>(phiTopo/m_phiDouble_conversion) );
  
     inputEvent.addjJet( jet );
 
@@ -351,8 +362,8 @@ JetInputProviderFEX::filljXE(TCS::TopoInputEvent& inputEvent) const {
   for(const auto it : *jMet_EDM){
     const xAOD::jFexMETRoI *jFEXMet = it;
     // Get the MET components and convert to 100 MeV units
-    int et_x = jFEXMet->tobEx()*2;
-    int et_y = jFEXMet->tobEy()*2;
+    int et_x = jFEXMet->tobEx()*m_Et_conversion;
+    int et_y = jFEXMet->tobEy()*m_Et_conversion;
     int jFexNumber = jFEXMet->jFexNumber();
     int fpgaNumber = jFEXMet->fpgaNumber();  
 
@@ -371,9 +382,9 @@ JetInputProviderFEX::filljXE(TCS::TopoInputEvent& inputEvent) const {
 
   TCS::jXETOB jxe( -(global_et_x), -(global_et_y), et );
 
-  jxe.setExDouble( static_cast<double>(-global_et_x/10.) );
-  jxe.setEyDouble( static_cast<double>(-global_et_y/10.) );
-  jxe.setEtDouble( static_cast<double>(et/10.) );
+  jxe.setExDouble( static_cast<double>(-global_et_x/m_EtDouble_conversion) );
+  jxe.setEyDouble( static_cast<double>(-global_et_y/m_EtDouble_conversion) );
+  jxe.setEtDouble( static_cast<double>(et/m_EtDouble_conversion) );
   jxe.setEt2( et2 );
 
   inputEvent.setjXE( jxe );

@@ -1615,7 +1615,7 @@ namespace Rec {
                 const int itsosMiddle = scatter_tsos.size() / 2;
                 const Trk::TrackStateOnSurface* mid_scatter = scatter_tsos[itsosMiddle];
 
-                const Trk::EnergyLoss* energyLossNew = new Trk::EnergyLoss(Eloss, sigmaEloss, sigmaEloss, sigmaEloss);
+                auto energyLossNew = std::make_unique<Trk::EnergyLoss>(Eloss, sigmaEloss, sigmaEloss, sigmaEloss);
 
                 const Trk::Surface& surfNew = mid_scatter->trackParameters()->associatedSurface();
                 Trk::ScatteringAngles scatNew{0., 0., std::sqrt(sigmaDeltaPhitot2), std::sqrt(sigmaDeltaThetatot2)};
@@ -2213,7 +2213,7 @@ namespace Rec {
                 float sigmaDeltaTheta = std::hypot(scat->sigmaDeltaTheta(), m_alignUncertTool_theta->get_uncertainty(track));
                 float X0 = trk_srf->materialEffectsOnTrack()->thicknessInX0();
                 //
-                const Trk::EnergyLoss* energyLossNew = new Trk::EnergyLoss(0., 0., 0., 0.);
+                auto energyLossNew = std::make_unique<Trk::EnergyLoss>(0., 0., 0., 0.);
                 auto scatNew = Trk::ScatteringAngles(0., 0., sigmaDeltaPhi, sigmaDeltaTheta);
 
                 const Trk::Surface& surfNew = trk_srf->trackParameters()->associatedSurface();
@@ -2222,7 +2222,12 @@ namespace Rec {
                 meotPattern.set(Trk::MaterialEffectsBase::EnergyLossEffects);
                 meotPattern.set(Trk::MaterialEffectsBase::ScatteringEffects);
 
-                auto meotNew = std::make_unique<Trk::MaterialEffectsOnTrack>(X0, std::move(scatNew), energyLossNew, surfNew, meotPattern);
+                auto meotNew = std::make_unique<Trk::MaterialEffectsOnTrack>(
+                  X0,
+                  std::move(scatNew),
+                  std::move(energyLossNew),
+                  surfNew,
+                  meotPattern);
                 auto parsNew = trk_srf->trackParameters()->uniqueClone();
 
                 std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePatternScat(0);

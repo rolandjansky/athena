@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -170,11 +170,16 @@ HepMC::GenParticlePtr ISF::ISFTruthIncident::getHepMCTruthParticle( const ISF::I
   if (!hepTruthParticle) {
     const HepMcParticleLink* oldHMPL = particle.getParticleLink();
     if (oldHMPL && oldHMPL->cptr())
+    {
+      // FIXME: const_cast!
 #ifdef HEPMC3
-      hepTruthParticle = std::shared_ptr<HepMC3::GenParticle>(const_cast<HepMC3::GenParticle*>(oldHMPL->cptr()));
+      HepMC::ConstGenParticlePtr pp = oldHMPL->cptr();
+      hepTruthParticle = std::shared_ptr<HepMC3::GenParticle>(pp, 
+                                                              const_cast<HepMC3::GenParticle*>(pp.get()));
 #else
       hepTruthParticle = const_cast<HepMC::GenParticlePtr>(oldHMPL->cptr());
 #endif
+    }
   }
 
   return hepTruthParticle;

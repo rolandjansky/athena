@@ -1,18 +1,14 @@
 #
-# $Id$
-#
 # File: share/xAODRootTestRead_t.py
 # Author: snyder@bnl.gov
 # Date: Jun 2014
 # Purpose: Test reading xAOD objects directly from root.
 #
 
-from __future__ import print_function
 import ROOT
 import cppyy
 
 ROOT.xAOD.TEvent
-ROOT.StatusCode.enableChecking()
 
 
 from AthenaCommon.Include import Include

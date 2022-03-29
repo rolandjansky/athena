@@ -55,6 +55,7 @@ fatjetcontexts = {
 # List AFII config files separately, to avoid needing to specify a different context
 af2configs = {
     "AntiKt4EMPFlow": "JES_MC16Recommendation_AFII_PFlow_April2018_rel21.config",
+    "AntiKt4GPFlow": "JES_MC16Recommendation_AFII_PFlow_April2018_rel21.config",
     "AntiKt4EMTopo":  "JES_MC16Recommendation_AFII_EMTopo_April2018_rel21.config",
     "AntiKt4LCTopo":  "JES_MC16Recommendation_AFII_EMTopo_April2018_rel21.config",
 }
@@ -62,6 +63,7 @@ af2configs = {
 calibcontexts = {
     # Standard AntiKt4
     "AntiKt4EMPFlow":pflowcontexts,
+    "AntiKt4GPFlow":pflowcontexts,
     "AntiKt4EMTopo":topocontexts,
     "AntiKt4LCTopo":topocontexts,
     "AntiKt10LCTopo":fatjetcontexts,

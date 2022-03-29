@@ -27,20 +27,20 @@ def AFPTrkRecoBaseSequence(ConfigFlags):
         AFP_R2D=CompFactory.AFP_Raw2Digi("AFP_Raw2Digi")
   
     #cluster reconstruction
-    from AFP_SiClusterTools.AFP_SiClusterTools_joboption import AFP_SiClusterTools_HLT
+    from AFP_SiClusterTools.AFP_SiClusterTools import AFP_SiClusterTools_HLT
     AFP_SiCl=AFP_SiClusterTools_HLT()
   
     # tracks reconstruction
-    from AFP_LocReco.AFP_LocReco_joboption import AFP_LocReco_SiD_HLT, AFP_LocReco_TD_HLT
+    from AFP_LocReco.AFP_LocReco import AFP_LocReco_SiD_HLT, AFP_LocReco_TD_HLT
     AFP_SID=AFP_LocReco_SiD_HLT()
     AFP_TD=AFP_LocReco_TD_HLT()
    
     # protons reconstruction
-    from AFP_GlobReco.AFP_GlobReco_joboption import AFP_GlobReco_HLT
+    from AFP_GlobReco.AFP_GlobReco import AFP_GlobReco_HLT
     AFP_Pr=AFP_GlobReco_HLT()
   
     # vertex reconstruction
-    from AFP_VertexReco.AFP_VertexReco_joboption import AFP_VertexReco_HLT
+    from AFP_VertexReco.AFP_VertexReco import AFP_VertexReco_HLT
     AFP_Vtx=AFP_VertexReco_HLT()
   
     if globalflags.InputFormat.is_bytestream():

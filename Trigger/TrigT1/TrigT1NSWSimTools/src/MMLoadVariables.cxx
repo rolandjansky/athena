@@ -28,12 +28,12 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
 }
 
 StatusCode MMLoadVariables::getMMDigitsInfo(const McEventCollection *truthContainer,
-					    const TrackRecordCollection* trackRecordCollection,
-					    const MmDigitContainer *nsw_MmDigitContainer,
-					    std::map<std::pair<int,unsigned int>,std::vector<digitWrapper> >& entries,
-					    std::map<std::pair<int,unsigned int>,map<hitData_key,hitData_entry> >& Hits_Data_Set_Time,
-					    std::map<std::pair<int,unsigned int>,evInf_entry>& Event_Info,
-					    std::map<std::string, std::shared_ptr<MMT_Parameters> > &pars) {
+                                            const TrackRecordCollection* trackRecordCollection,
+                                            const MmDigitContainer *nsw_MmDigitContainer,
+                                            std::map<std::pair<int,unsigned int>,std::vector<digitWrapper> >& entries,
+                                            std::map<std::pair<int,unsigned int>,map<hitData_key,hitData_entry> >& Hits_Data_Set_Time,
+                                            std::map<std::pair<int,unsigned int>,evInf_entry>& Event_Info,
+                                            std::map<std::string, std::shared_ptr<MMT_Parameters> > &pars) {
       //*******Following MuonPRD code to access all the variables**********
       histogramVariables fillVars;
 

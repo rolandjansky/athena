@@ -93,6 +93,8 @@ class TrigInDetReco(ExecStep):
             if (i=='L2electronLRT') :
                 chains += "'HLT_e5_idperf_loose_lrtloose_L1EM3',"
                 chains += "'HLT_e26_idperf_loose_lrtloose_L1EM22VHI',"
+                chains += "'HLT_e26_lhtight_ivarloose_e5_lhvloose_nopix_lrtloose_idperf_probe_L1EM22VHI',"
+                chains += "'HLT_e5_lhvloose_nopix_lrtloose_idperf_probe_g25_medium_L1EM20VH',"
                 flags += 'doEgammaSlice=True;'
             if (i=='electron') :
                 # chains +=  "'HLT_e5_etcut_L1EM3',"  ## need an idperf chain once one is in the menu
@@ -329,7 +331,11 @@ def json_chains( slice ) :
         return None
         
     with open(json_fullpath) as f:
-        data = json.load(f)
+        try:
+            data = json.load(f)
+        except json.decoder.JSONDecodeError as e:
+            print(f"Failed to load json file {json_fullpath}")
+            raise e
 
     chainmap = data[slice]
 

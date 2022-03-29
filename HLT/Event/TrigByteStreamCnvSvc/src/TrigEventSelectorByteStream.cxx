@@ -78,7 +78,7 @@ StatusCode TrigEventSelectorByteStream::next(IEvtSelector::Context& /*c*/) const
     throw; // rethrow NoMoreEvents
   }
   catch (const hltonl::Exception::NoEventsTemporarily& e) {
-    ATH_MSG_INFO(e.what());
+    ATH_MSG_DEBUG(e.what());
     throw; // rethrow NoEventsTemporarily
   }
   catch (const hltonl::Exception::EventSourceCorrupted& e) {

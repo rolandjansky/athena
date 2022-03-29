@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVGENPRODTOOLS_IHEPMCWEIGHTSVC_H
 #define EVGENPRODTOOLS_IHEPMCWEIGHTSVC_H
 
 #include "GaudiKernel/IInterface.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include <string>
 #include <map>
 
@@ -13,22 +14,23 @@
 ///  author: will buttinger , NLAA
 /// 
 ///
-
-static const InterfaceID IID_IHepMCWeightSvc("IHepMCWeightSvc", 1 , 0);
-
-class IHepMCWeightSvc : virtual public IInterface {
+class IHepMCWeightSvc : virtual public IInterface
+{
 public:
+  DeclareInterfaceID (IHepMCWeightSvc, 1, 0);
 
+  using WeightMap = std::map<std::string, std::size_t>;
 
-   ///checks for any changes to weightnames ... none are allowed. Then records to metadata
-   virtual StatusCode setWeightNames(const std::map<std::string, std::size_t>& weightNames)= 0;
+  
+  /// If no weight names have been set yet, record them to metadata.
+  virtual StatusCode setWeightNames (const WeightMap& weightNames,
+                                     const EventContext& ctx = Gaudi::Hive::currentContext())= 0;
 
-   ///returns the current weight names ... will only change at file boudaries, it is assumed all events in a given file will have same weights in SAME ORDER
-   virtual const std::map<std::string, std::size_t>& weightNames() = 0;
+  /// Return the current weight names.
+  virtual WeightMap weightNames (const EventContext& ctx = Gaudi::Hive::currentContext()) = 0;
 
-  static const InterfaceID& interfaceID() { return IID_IHepMCWeightSvc; }
-
-
+  /// Return the current weight names.
+  virtual std::vector<std::string> weightNameVec (const EventContext& ctx = Gaudi::Hive::currentContext()) = 0;
 };
 
 #endif

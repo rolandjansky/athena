@@ -220,7 +220,7 @@ namespace Rec {
                             double sigmaDeltaPhi = scat->sigmaDeltaPhi();
                             double sigmaDeltaTheta = scat->sigmaDeltaTheta();
 
-                            const Trk::EnergyLoss* energyLossNew = new Trk::EnergyLoss(
+                            auto energyLossNew = std::make_unique<Trk::EnergyLoss>(
                                 energyLoss->deltaE(), energyLoss->sigmaDeltaE(), energyLoss->sigmaDeltaE(), energyLoss->sigmaDeltaE());
 
                             auto scatNew = Trk::ScatteringAngles(0., 0., sigmaDeltaPhi, sigmaDeltaTheta);
@@ -234,7 +234,7 @@ namespace Rec {
                             auto meotNew =
                               std::make_unique<Trk::MaterialEffectsOnTrack>(X0,
                                                               std::move(scatNew),
-                                                              energyLossNew,
+                                                              std::move(energyLossNew),
                                                               surfNew,
                                                               meotPattern);
 
@@ -561,7 +561,7 @@ namespace Rec {
                             double sigmaDeltaTheta =
                                 std::sqrt((scat->sigmaDeltaTheta()) * (scat->sigmaDeltaTheta()) + sigmaDeltaThetaIDMS2);
 
-                            const Trk::EnergyLoss* energyLossNew = new Trk::EnergyLoss(0., 0., 0., 0.);
+                            auto energyLossNew = std::make_unique<Trk::EnergyLoss>(0., 0., 0., 0.);
 
                             auto scatNew = Trk::ScatteringAngles(0., 0., sigmaDeltaPhi, sigmaDeltaTheta);
 
@@ -574,7 +574,7 @@ namespace Rec {
                             auto meotNew =
                               std::make_unique<Trk::MaterialEffectsOnTrack>(X0,
                                                               std::move(scatNew),
-                                                              energyLossNew,
+                                                              std::move(energyLossNew),
                                                               surfNew,
                                                               meotPattern);
 

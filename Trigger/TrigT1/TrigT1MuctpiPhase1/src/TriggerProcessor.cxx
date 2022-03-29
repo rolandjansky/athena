@@ -126,7 +126,7 @@ namespace LVL1MUCTPIPHASE1 {
 
             //SECTOR ADDRESS
             daq_word |= (isub      & LVL1::MuCTPIBits::SECTOR_HEMISPHERE_MASK)   << LVL1::MuCTPIBits::RUN3_CAND_SECTOR_ADDRESS_SHIFT;
-            daq_word |= (isec      & SECTOR_MASK)                          << LVL1::MuCTPIBits::RUN3OFFLINE_CAND_SECTORID_SHIFT;
+            daq_word |= (isec      & SECTOR_MASK)                          << LVL1::MuCTPIBits::RUN3_CAND_SECTORID_SHIFT;
             daq_word |= (SUBSYS_ID & SUBSYS_MASK)                          << LVL1::MuCTPIBits::RUN3_SUBSYS_ADDRESS_SHIFT;
 
 

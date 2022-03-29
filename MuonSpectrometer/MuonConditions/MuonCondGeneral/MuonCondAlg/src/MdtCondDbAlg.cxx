@@ -393,14 +393,17 @@ StatusCode MdtCondDbAlg::loadDataLv(writeHandle_t& wh, MdtCondDbData* writeCdo, 
     for (const readOutPair& itr : *readCdo) {
         unsigned int chanNum = itr.first;
         const coral::AttributeList& atr = itr.second;
-        std::string hv_name;
         const std::string& hv_payload = readCdo->chanName(chanNum);
-
         if (!atr.size()) { continue; }
-        hv_name = *(static_cast<const std::string*>((atr["fsmCurrentState_LV"]).addressOfData()));
-        char delimiter = ' ';
+        std::string hv_name = *static_cast<const std::string*>((atr["fsmCurrentState_LV"]).addressOfData());
+        if (hv_name.empty() || hv_payload.empty()){
+            ATH_MSG_WARNING("The read data with chanNum "<<chanNum<<", hv_payload: "<<hv_payload<<", hv_name: "<<hv_name<<". Does not have any fsmCurrentState_LV attribute. "
+                            <<"May be this is related to ATLASRECTS-6920 / ATLASRECTS-6879. Skip it");
+            continue;
+        }
+        constexpr char delimiter = ' ';
         auto tokens = MuonCalib::MdtStringUtils::tokenize(hv_name, delimiter);
-        char delimiter2 = '_';
+        constexpr char delimiter2 = '_';
         auto tokens2 = MuonCalib::MdtStringUtils::tokenize(hv_payload, delimiter2);
 
         if (tokens[0] != "ON") {

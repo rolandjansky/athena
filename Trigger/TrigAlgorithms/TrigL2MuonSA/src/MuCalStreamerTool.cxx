@@ -7,13 +7,9 @@
 
 #include <cmath>
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/TriggerInfo.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
-#include "MuonRDO/RpcPadContainer.h"
 #include "Identifier/IdentifierHash.h"
 
 #include "MuCalDecode/CalibEvent.h"
@@ -49,6 +45,8 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::initialize ()
 
    ATH_CHECK(m_tgcRdoKey.initialize());
    ATH_CHECK(m_readKey.initialize());
+   ATH_CHECK(m_eventInfoKey.initialize());
+   ATH_CHECK(m_rpcPadKey.initialize());
 
    return StatusCode::SUCCESS;
 
@@ -143,23 +141,10 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::closeStream()
     
 
    // retrieve the event and trigger info
-   const EventInfo* eventInfo(0);
-   ATH_CHECK( evtStore()->retrieve(eventInfo) );
+   SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey, ctx);
+   uint32_t runId  = ctx.eventID().run_number();
+   uint32_t lvl1Id = eventInfo->extendedLevel1ID();
 
-   const EventID* eventId = eventInfo->event_ID();
-   if(eventId==0) {
-     ATH_MSG_ERROR("Could not find EventID object");
-     return StatusCode::FAILURE;
-   }
-
-   const TriggerInfo* triggerInfo = eventInfo->trigger_info();
-   if(triggerInfo==0) {
-     ATH_MSG_ERROR("Could not find TriggerInfo object");
-     return StatusCode::FAILURE;
-   }
-
-   uint32_t runId  = eventId->run_number();
-   uint32_t lvl1Id = triggerInfo->extendedLevel1ID();
 
    // get track parameters
    float eta = (float) track.etaVtx;
@@ -321,8 +306,8 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(const xAOD::MuonRo
   unsigned int roiNumber =  sectorRoIOvl & 0x0000001F;
 
   // retrieve the pad container
-  const RpcPadContainer* rpcPadContainer=nullptr;
-  ATH_CHECK(evtStore()->retrieve(rpcPadContainer,"RPCPAD"));
+  SG::ReadHandle<RpcPadContainer> rh_rpcPad{m_rpcPadKey, ctx};
+  const RpcPadContainer* rpcPadContainer=rh_rpcPad.cptr();
 
   SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey,ctx};
   const RpcCablingCondData* readCdo{*readHandle};

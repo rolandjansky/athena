@@ -1,3 +1,4 @@
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 if __name__ == "__main__":

@@ -8,6 +8,8 @@ Configurable.configurableRun3Behavior = True
 ## Just enable ID for the moment.
 ConfigFlags.Input.isMC             = True
 
+ConfigFlags.Input.Files = []
+
 ConfigFlags.IOVDb.GlobalTag        = "OFLCOND-SIM-00-00-00"    
 ConfigFlags.GeoModel.AtlasVersion  = "ATLAS-R2-2016-01-00-01"
 ConfigFlags.Detector.GeometryBpipe = True

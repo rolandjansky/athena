@@ -1,7 +1,11 @@
 /*
    Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
-
+/**
+ * @file PixelAthHitMonAlg.cxx
+ * @brief Reads Pixel RDO information and fills it into histograms 
+ * @author Iskander Ibragimov
+ **/
 #include "PixelAthHitMonAlg.h"
 #include <stdexcept>
 
@@ -72,15 +76,15 @@ StatusCode PixelAthHitMonAlg::fillHistograms(const EventContext& ctx) const {
         hitsPerEventArray.DC[phiMod][etaMod] = -1;
         break;
 
-      case PixLayers::kB0:
+      case PixLayers::kBLayer:
         hitsPerEventArray.B0[phiMod][etaMod] = -1;
         break;
 
-      case PixLayers::kB1:
+      case PixLayers::kLayer1:
         hitsPerEventArray.B1[phiMod][etaMod] = -1;
         break;
 
-      case PixLayers::kB2:
+      case PixLayers::kLayer2:
         hitsPerEventArray.B2[phiMod][etaMod] = -1;
         break;
 
@@ -186,15 +190,15 @@ StatusCode PixelAthHitMonAlg::fillHistograms(const EventContext& ctx) const {
         hitsPerEventArray.DC[phiMod][etaMod]++;
         break;
 
-      case PixLayers::kB0:
+      case PixLayers::kBLayer:
         hitsPerEventArray.B0[phiMod][etaMod]++;
         break;
 
-      case PixLayers::kB1:
+      case PixLayers::kLayer1:
         hitsPerEventArray.B1[phiMod][etaMod]++;
         break;
 
-      case PixLayers::kB2:
+      case PixLayers::kLayer2:
         hitsPerEventArray.B2[phiMod][etaMod]++;
         break;
 

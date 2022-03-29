@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelChargeInterpolationCalibration_cxx
@@ -19,7 +19,7 @@
 
 namespace PixelCalib{
 
-PixelChargeInterpolationCalibration::PixelChargeInterpolationCalibration(std::string tag,
+PixelChargeInterpolationCalibration::PixelChargeInterpolationCalibration(const std::string& tag,
 		PixelChargeInterpolationParameters &model):
 	m_DigitalCalibration(0),
 	m_AnalogCalibration(0),
@@ -101,7 +101,7 @@ void PixelChargeInterpolationCalibration::Fill(Int_t DetType, Double_t GeVTrkPt,
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-int PixelChargeInterpolationCalibration::Analyze( std::string output,
+int PixelChargeInterpolationCalibration::Analyze( const std::string& output,
 					std::vector<std::string> &reference_names){
 
 	PixelChargeInterpolationParameters *DigitalParameters = 0;

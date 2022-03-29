@@ -16,10 +16,8 @@
 #include "GaudiKernel/IAlgTool.h"
 
 #include "xAODTruth/TruthParticle.h"
+#include "AtlasHepMC/GenEvent.h"
 
-namespace HepMC {
-class GenEvent;
-}
 
 class InDetSimDataCollection;
 

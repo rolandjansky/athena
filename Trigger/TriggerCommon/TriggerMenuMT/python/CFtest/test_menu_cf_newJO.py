@@ -92,13 +92,14 @@ def generateEmuMenu(ConfigFlags):
     log.info("generateEmuMenu")
     # make menu manually here:
     from TriggerMenuMT.CFtest.EmuStepProcessingConfig import generateChainsManually       
-    generateChainsManually(0x3)
+    generateChainsManually(0x7)
 
     from TriggerMenuMT.HLT.Config.ControlFlow.HLTCFConfig_newJO import generateDecisionTree
     import TriggerMenuMT.HLT.Config.ControlFlow.HLTCFConfig_newJO
     # set DEBUG flag on the control-flow builder (before building)
     TriggerMenuMT.HLT.Config.ControlFlow.HLTCFConfig_newJO.log.setLevel(DEBUG)
-    menuAcc = generateDecisionTree(ConfigFlags, HLTMenuConfig.configsList())
+    menuAcc = generateDecisionTree(ConfigFlags, HLTMenuConfig.configsList()) 
+    
     menuAcc.wasMerged()   
     menuAcc.printConfig()
     log.info('CF is built')

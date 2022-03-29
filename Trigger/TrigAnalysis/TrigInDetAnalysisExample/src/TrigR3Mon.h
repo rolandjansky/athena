@@ -13,10 +13,8 @@
 #define TIDAEXAMPLE_TRIGR3MON_H
 
 #include "GaudiKernel/ToolHandle.h"
-#include "Gaudi/Property.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
-
+#include "AthenaMonitoring/AthMonitorAlgorithm.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 
 #include <string>
@@ -41,7 +39,7 @@
 #include "TrigInDetAnalysisExample/AnalysisConfig_Tier0.h"
 
 
-class TrigR3Mon : public AthAlgorithm {
+class TrigR3Mon : public AthMonitorAlgorithm {
 
 
 public:
@@ -51,7 +49,8 @@ public:
   virtual ~TrigR3Mon();
 
   virtual StatusCode initialize();
-  virtual StatusCode execute();
+//  virtual StatusCode execute();
+  virtual StatusCode fillHistograms(const EventContext &context) const override;
   virtual StatusCode finalize();
 
   virtual StatusCode bookHistograms();
@@ -113,7 +112,7 @@ protected:
   std::vector<TrackAssociator*>                 m_associators;
 
   /// dpo we need this ??? why not the base class ???
-  std::vector<T_AnalysisConfig<AthAlgorithm>*>   m_sequences;
+  std::vector<T_AnalysisConfig<AthReentrantAlgorithm>*>   m_sequences;
 
   std::vector<std::string> m_chainNames;
   std::vector<std::string> m_ntupleChainNames;

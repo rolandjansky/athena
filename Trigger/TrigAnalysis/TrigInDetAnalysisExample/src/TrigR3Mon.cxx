@@ -25,7 +25,7 @@
 
 
 TrigR3Mon::TrigR3Mon( const std::string & name, ISvcLocator* pSvcLocator) 
-  :  AthAlgorithm(name, pSvcLocator), 
+  :  AthMonitorAlgorithm(name, pSvcLocator), 
      m_tdt("Trig::TrigDecisionTool/TrigDecisionTool"),
      m_roiInfo(false),
      m_buildNtuple(false),
@@ -146,7 +146,8 @@ StatusCode TrigR3Mon::initialize() {
 
   msg(MSG::DEBUG) << " -----  exit init() ----- " << endmsg;
 
-  return bookHistograms();
+  ATH_CHECK(bookHistograms());
+  return AthMonitorAlgorithm::initialize();
 
 }
 
@@ -495,7 +496,8 @@ StatusCode TrigR3Mon::bookHistograms() {
 
 
 
-StatusCode TrigR3Mon::execute() {
+//StatusCode TrigR3Mon::execute() {
+StatusCode TrigR3Mon::fillHistograms(const EventContext &/*context*/) const {
 
   if(msg().level() <= MSG::DEBUG) {
     msg(MSG::DEBUG) << " ----- enter fill() ----- " << endmsg;

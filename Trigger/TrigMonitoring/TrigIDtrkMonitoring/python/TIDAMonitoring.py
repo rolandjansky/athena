@@ -6,20 +6,21 @@
 # code 
 
 
-def TIDAMonitoring( name ) :  
+# actual code to configure al;l the different algorithm instances for 
+# the different slices 
+
+def TIDAMonitoring( flags=None, name=None ) :  
 
 #       print( "SUTT creating monitoring: ", name )
 
         tools = []
 
-        from TrigInDetAnalysisExample.TrigInDetAnalysisExampleConf import TrigR3Mon
         from TrigIDtrkMonitoring.TIDAChains import getchains
         
 
-
         #### electron #### 
 
-        tidaegamma = TrigR3Mon(name = "IDEgammaTool" )
+        tidaegamma = TrigR3Mon_builder( flags, name = "IDEgammaTool" )
         tidaegamma.AnalysisConfig = "Tier0"
         tidaegamma.SliceTag       = "HLT/TRIDT/Egamma/Expert"
         tidaegamma.UseHighestPT   = True
@@ -37,7 +38,7 @@ def TIDAMonitoring( name ) :
 
         tidaegamma.ntupleChainNames = chains
         
-        tidaegamma.MonTools = createMonTools(  tidaegamma.SliceTag, chains )
+        tidaegamma.MonTools = createMonTools( flags, tidaegamma.SliceTag, chains )
 
         tools += [ tidaegamma ]
 
@@ -45,7 +46,7 @@ def TIDAMonitoring( name ) :
 
         #### LRT Egamma ####
         
-        tidaegammalrt = TrigR3Mon(name = "IDEgammaLRTTool" ) 
+        tidaegammalrt = TrigR3Mon_builder( flags, name = "IDEgammaLRTTool" ) 
                                   
         tidaegammalrt.AnalysisConfig = "Tier0"
         tidaegammalrt.SliceTag = "HLT/TRIDT/Egamma/Expert"
@@ -55,7 +56,7 @@ def TIDAMonitoring( name ) :
         
         tidaegammalrt.ntupleChainNames = chains
 
-        tidaegammalrt.MonTools = createMonTools( tidaegammalrt.SliceTag, chains )
+        tidaegammalrt.MonTools = createMonTools( flags, tidaegammalrt.SliceTag, chains )
         
         tools += [ tidaegammalrt ]
                 
@@ -64,7 +65,7 @@ def TIDAMonitoring( name ) :
 
         #### muon ####
 
-        tidamuon = TrigR3Mon(name = "IDMuonTool" )
+        tidamuon = TrigR3Mon_builder( flags, name = "IDMuonTool" )
         tidamuon.AnalysisConfig = "Tier0"
         tidamuon.SliceTag = "HLT/TRIDT/Muon/Expert"
         tidamuon.UseHighestPT = True
@@ -77,7 +78,7 @@ def TIDAMonitoring( name ) :
 
         tidamuon.ntupleChainNames += chains
         
-        tidamuon.MonTools = createMonTools(  tidamuon.SliceTag, chains )
+        tidamuon.MonTools = createMonTools( flags,  tidamuon.SliceTag, chains )
         
 
         tools += [ tidamuon ]
@@ -87,7 +88,7 @@ def TIDAMonitoring( name ) :
 
         #### tau ####
 
-        tidatau = TrigR3Mon(name = "IDTauTool" )
+        tidatau = TrigR3Mon_builder( flags, name = "IDTauTool" )
         tidatau.AnalysisConfig = "Tier0"
         tidatau.SliceTag = "HLT/TRIDT/Tau/Expert"
         tidatau.UseHighestPT = True
@@ -100,7 +101,7 @@ def TIDAMonitoring( name ) :
 
         tidatau.ntupleChainNames += chains
         
-        tidatau.MonTools = createMonTools(  tidatau.SliceTag, chains )
+        tidatau.MonTools = createMonTools( flags,  tidatau.SliceTag, chains )
 
         tools += [ tidatau ]
 
@@ -109,7 +110,7 @@ def TIDAMonitoring( name ) :
 
         #### bjets ####
 
-        tidabjet = TrigR3Mon(name = "IDBjetTool" )
+        tidabjet = TrigR3Mon_builder( flags, name = "IDBjetTool" )
         tidabjet.AnalysisConfig = "Tier0"
         tidabjet.SliceTag = "HLT/TRIDT/Bjet/Expert"
         
@@ -120,7 +121,7 @@ def TIDAMonitoring( name ) :
                         
         tidabjet.ntupleChainNames += chains
 
-        tidabjet.MonTools = createMonTools(  tidabjet.SliceTag, chains )
+        tidabjet.MonTools = createMonTools( flags,  tidabjet.SliceTag, chains )
 
         tools += [ tidabjet ]
 
@@ -130,20 +131,123 @@ def TIDAMonitoring( name ) :
 
 
 
-
-
 # create a separate specific monTool for each analysis chain
 # - simplifies the overall analysis configuration
 
-def createMonTools( label, chains, excludeTagChains=True ):
+def createMonTools( flags, label, chains, excludeTagChains=True ):
         tools = []
         from TrigInDetAnalysisExample.chainString import chainString
         from TrigInDetAnalysisExample.TIDAMonTool import createMonTool
         for mt in chains :
                 if excludeTagChains and "tag" in chainString(mt).extra:
                         continue
-                tool = createMonTool( label, mt )
+                tool = createMonTool( flags, label, mt )
                 tools += [ tool ]
         return tools
         
+
+# create the actual algorithm - calling with this wrapper lets us use the same 
+# code for the old, or new configuration 
+def TrigR3Mon_builder( flags=None, name="NoName" ):
+
+        if flags is None:
+                from TrigInDetAnalysisExample.TrigInDetAnalysisExampleConf import TrigR3Mon
+                alg = TrigR3Mon( name = name )
+        else:
+                from AthenaConfiguration.ComponentFactory import CompFactory
+                alg =  CompFactory.TrigR3Mon( name = name )
+
+        return alg
+
+
+#wrapper function for the central moniotring configuration 
+
+def TrigInDetMonConfig( flags ):
+        return TIDAMonitoringCA( flags )
+
+
+
+# component accumulator wrapper around the overall monitoring functiom                
+
+def TIDAMonitoringCA( flags ):
+
+        from AthenaMonitoring import AthMonitorCfgHelper
+        monConfig = AthMonitorCfgHelper(flags, "TrigIDMon")
+
+        algs = TIDAMonitoring(flags, "SeeminglyIrrelevant")
+        for a in algs:
+                monConfig.addAlgorithm(a)
+
+        from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+        ca = ComponentAccumulator()
+        ca.merge(monConfig.result())
+        return ca
+
+
+
+
+
+
+def histsvc( flags ):
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    ca = ComponentAccumulator()
+    
+    print( "histsvc: ", flags.Output.HISTFileName )
+    
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    THistSvc = CompFactory.THistSvc
+        
+    histsvc = THistSvc()
+    if flags.Output.HISTFileName:
+        histsvc.Output += ["%s DATAFILE='%s' OPT='RECREATE'" % (flags.DQ.FileKey, flags.Output.HISTFileName)]
+            
+    ca.addService(histsvc)
+       
+    return ca
+            
+
+
+if __name__=='__main__':
+
+    # Setup the Run III behavior
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior = 1
+
+    # Setup logs
+    from AthenaCommon.Logging import log
+    from AthenaCommon.Constants import DEBUG
+    log.setLevel(DEBUG)
+    # from AthenaCommon.Constants import INFO
+    # log.setLevel(INFO)
+
+    # Set the Athena configuration flags
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
+    # Input files
+    # AOD file to be run w/ MT access and Mon Groups implemented
+    file = '/afs/cern.ch/work/e/enagy/public/ARTfiles/MonGroupTest_030222.pool.root'
+
+    ConfigFlags.Input.Files = [file]
+    ConfigFlags.Input.isMC = True
+
+    ConfigFlags.Output.HISTFileName = 'duff.root'
+
+    ConfigFlags.lock()
+
+    # Initialize configuration object, add accumulator, merge, and run.
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
+    from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
+    cfg = MainServicesCfg(ConfigFlags)
+    cfg.merge( PoolReadCfg(ConfigFlags) )
+    cfg.merge( histsvc(ConfigFlags) )
+
+    cfg.merge( TrigInDetMonConfig( ConfigFlags ) ) 
+
+    # If you want to turn on more detailed messages ...
+    cfg.printConfig(withDetails=False) # set True for exhaustive info
+
+    Nevents = 10
+    cfg.run(Nevents)
+
+
 

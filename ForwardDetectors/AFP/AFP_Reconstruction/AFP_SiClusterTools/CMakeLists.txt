@@ -20,4 +20,4 @@ atlas_add_component( AFP_SiClusterTools
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} AFP_SiClusterToolsLib )
 
 # Install files from the package:
-atlas_install_python_modules( share/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
