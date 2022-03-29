@@ -87,7 +87,7 @@ L1CALO4Stream.AddItem("xAOD::EventShapeAuxInfo#Kt4EMTopoOriginEventShapeAux.")
 
 #Physics Objects
 L1CALO4Stream.AddItem("xAOD::JetContainer#AntiKt4EMTopoJets")
-L1CALO4Stream.AddItem("xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.")
+L1CALO4Stream.AddItem("xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.-PseudoJet")
 L1CALO4Stream.AddItem("xAOD::MuonContainer#Muons")
 L1CALO4Stream.AddItem("xAOD::MuonAuxContainer#MuonsAux.")
 L1CALO4Stream.AddItem("xAOD::ElectronContainer#Electrons")
