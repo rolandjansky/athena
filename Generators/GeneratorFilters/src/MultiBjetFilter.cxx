@@ -18,6 +18,8 @@
 #include "McParticleEvent/TruthParticle.h"
 #include "CxxUtils/BasicTypes.h"
 #include "TLorentzVector.h"
+#include "CLHEP/Random/RandomEngine.h"
+#include "AthenaKernel/IAtRndmGenSvc.h" // For random numbers...
 
 #include <fstream>
 
@@ -25,7 +27,8 @@ using HepMC::GenVertex;
 using HepMC::GenParticle;
 
 MultiBjetFilter::MultiBjetFilter(const std::string& name, ISvcLocator* pSvcLocator)
-  : GenFilter(name,pSvcLocator){
+  : GenFilter(name,pSvcLocator),  
+    m_rand("AtRndmGenSvc",name) {
 
   // Local Member Data:-
   declareProperty("NJetsMin", m_nJetsMin = 0);
@@ -40,6 +43,7 @@ MultiBjetFilter::MultiBjetFilter(const std::string& name, ISvcLocator* pSvcLocat
   declareProperty("JetEtaMax", m_jetEtaMax = 2.7);
   declareProperty("DeltaRFromTruth", m_deltaRFromTruth = 0.3);
   declareProperty("TruthContainerName", m_TruthJetContainerName = "AntiKt4TruthJets");
+  declareProperty("InclusiveEfficiency", m_inclusiveEff = 0.);
 
   m_NPass = 0;
   m_Nevt = 0;
@@ -142,9 +146,36 @@ StatusCode MultiBjetFilter::filterEvent() {
   // Bookkeeping
   m_SumOfWeights_Evt += weight;
   if(pass){
+
     m_NPass++;
     m_SumOfWeights_Pass += weight;
-  }
+
+  } else if (m_inclusiveEff > 0.) { 
+
+    CLHEP::HepRandomEngine* rndm = m_rand->GetEngine("MultiBjetFilter");   
+    if (rndm) {
+      double rnd = rndm->flat();
+      if (m_inclusiveEff > rnd) {
+
+	pass = true;
+	m_NPass++;
+	m_SumOfWeights_Pass += weight/m_inclusiveEff;
+
+	const DataHandle<McEventCollection> mecc = 0;   
+	CHECK(evtStore()->retrieve(mecc));   
+	ATH_MSG_DEBUG("Adding prescaled inclusive event.  Will mod event weights by " << 1./m_inclusiveEff << " rnd " << rnd);   
+	double orig = 1.;   
+	McEventCollection* mec = const_cast<McEventCollection*> (&(*mecc));   
+	for (unsigned int i=0;i<mec->size();++i) {     
+	  if ( !(*mec)[i] ) continue;     
+	  orig = (*mec)[i]->weights().size()>0?(*mec)[i]->weights()[0]:1.;     
+	  if ((*mec)[i]->weights().size()>0) (*mec)[i]->weights()[0] = orig/m_inclusiveEff;     
+	  else (*mec)[i]->weights().push_back( orig/m_inclusiveEff );   
+	}
+      }      
+    } // random number generator
+
+  } // pass vs inclusive
 
   setFilterPassed(pass);
   return StatusCode::SUCCESS;
