@@ -5,6 +5,7 @@
 #ifndef TILECONDITIONS_TILECONDALG_H
 #define TILECONDITIONS_TILECONDALG_H
 
+#include "TileConditions/TileCalibData.h"
 #include "TileConditions/TileSamplingFraction.h"
 #include "TileConditions/ITileCondProxy.h"
 
@@ -20,11 +21,14 @@ template<class CONDDATA, class CALIBDATA>
 class TileCondAlg: public AthReentrantAlgorithm {
   public:
 
-    TileCondAlg(const std::string& name, ISvcLocator* svcLocator)
-      : AthReentrantAlgorithm(name, svcLocator) {};
+    using AthReentrantAlgorithm::AthReentrantAlgorithm;
 
     virtual StatusCode initialize() override;
     virtual StatusCode execute(const EventContext& ctx) const override;
+
+  protected:
+
+    virtual StatusCode checkData(const TileCalibData<CALIBDATA>& /*calibData*/) const { return StatusCode::SUCCESS; };
 
   private:
 
@@ -39,11 +43,9 @@ class TileCondAlg: public AthReentrantAlgorithm {
    */
     SG::WriteCondHandleKey<CONDDATA> m_condDataKey{this,
         "TileCondData", "", "Output Tile conditions object"};
+
 };
 
 #include "TileCondAlg.icc"
-
-#include "TileCalibBlobObjs/TileCalibDrawerFlt.h"
-typedef TileCondAlg<TileSamplingFraction, TileCalibDrawerFlt> TileSamplingFractionCondAlg;
 
 #endif // TILECONDITIONS_TILECONDALG_H
