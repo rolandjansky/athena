@@ -27,12 +27,12 @@ class IAFP_TimeRecoTool : virtual public ::IAlgTool
     public:
     DeclareInterfaceID(IAFP_TimeRecoTool, 1, 0);
   
-    /// @brief run protons reconstruction
+    /// @brief run vertex reconstruction
     /// 
-    /// The method calls tools that reconstruct protons.
+    /// The method calls tools that reconstruct vertices.
     virtual StatusCode doVertexReco(std::unique_ptr<xAOD::AFPVertexContainer>& outputContainer, const EventContext& ctx) const = 0;
     
-    /// @brief StoreGate name of the container where the reconstructed will be saved 
+    /// @brief StoreGate name of the container where the reconstructed vertices will be saved 
     virtual const std::string& outputContainerName () const = 0;
 };
 

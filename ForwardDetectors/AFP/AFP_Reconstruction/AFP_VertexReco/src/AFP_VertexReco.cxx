@@ -35,7 +35,7 @@ StatusCode AFP_VertexReco::initialize()
 StatusCode AFP_VertexReco::execute(const EventContext& ctx) const
 {
   if (m_recoToolHandle->execute(ctx).isFailure()) {
-    ATH_MSG_WARNING ("Failed to reconstruct tracks.");
+    ATH_MSG_WARNING ("Failed to reconstruct vertices.");
     return StatusCode::SUCCESS;
   }
 

@@ -73,8 +73,8 @@ def AFP_LocReco_TD_Cfg(kwargs={}):
 
         if ConfigFlags.Input.Format is Format.POOL:
                 if "AFPToFHitContainer" not in ConfigFlags.Input.Collections:
-                        basicTool0.AFPToFHitClusterContainerKey=""
-                        basicTool3.AFPToFHitClusterContainerKey=""
+                        basicTool0.AFPToFHitContainerKey=""
+                        basicTool3.AFPToFHitContainerKey=""
                 else:
                         from AthenaCommon.AlgSequence import AlgSequence
                         topSequence = AlgSequence()
