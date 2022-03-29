@@ -2,6 +2,7 @@
 
 # art-description: MC+data Overlay with MT support, config test
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-include: master/Athena
 
 # art-output: legacyDataOverlayRDO.pool.root
