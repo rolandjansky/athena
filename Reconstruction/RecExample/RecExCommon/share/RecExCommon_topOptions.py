@@ -432,7 +432,9 @@ if recAlgs.doEFlow():
     if False == jobproperties.eflowRecFlags.usePFFlowElementAssoc:
         ConfigFlags.PF.useElPhotLinks = False
         ConfigFlags.PF.useMuLinks = False
-
+else:
+    ConfigFlags.Reco.EnablePFlow = False
+        
 HIDict = {}
 if rec.doHeavyIon():
     # This is copy from the old style to the new
