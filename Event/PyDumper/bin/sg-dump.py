@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 # @file: PyDumper/bin/sg-dump.py
 # @purpose: a simple python script to run pyathena and use PySgDumper to dump
 #           a (set of) event(s) from a POOL (esd/aod) file into an ASCII file
@@ -113,7 +113,12 @@ if __name__ == "__main__":
          dest = "file_type",
          default = "any",
          help = "(optional) input file type (RDO,BS,ESD,AOD,DPD, or ANY)")
-         
+
+    _add("--include",
+         dest = "include",
+         default = "*",
+         help = "comma-separated list of type#key containers to dump (default: all)")
+
     _add("--exclude",
          dest = "exclude",
          default = "",
@@ -153,6 +158,7 @@ if __name__ == "__main__":
             dump_jobo=options.dump_jobo,
             use_recex_links=options.use_recex_links,
             pyalg_cls=options.pyalg_cls,
+            include=options.include,
             exclude=options.exclude,
             file_type=options.file_type,
             do_clean_up=options.do_clean_up,

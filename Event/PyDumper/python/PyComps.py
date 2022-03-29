@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # @file:    PyDumper/python/PyComps.py
 # @purpose: A set of PyAthena components to test reading/writing EDM classes
@@ -24,11 +24,15 @@ def _decode_item_list(lst, msg):
     if (lst is None or lst == '*'):
         items = None
     else:
+        if isinstance(lst, str):
+            lst = lst.split(',')
         if isinstance (lst, (list,set,tuple)):
             if any (map (lambda x: not isinstance(x, str), lst)):
                 msg.error ('you have to provide a list of sg-keys !')
                 msg.error ('got: %s', lst)
                 raise ValueError()
+            elif len(lst)==1 and lst[0] is None or lst[0] == '*':
+                return None
         items = []
         for i in lst:
             if isinstance(i, str) and i.count('#')==1:
