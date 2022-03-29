@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration 
 */
 // This is a general-purpose multi-b-jet filter. It can cut on:
 //    - Multiplicity of b-jets (both min and max can be specified)
@@ -18,12 +18,14 @@
 #include "McParticleEvent/TruthParticle.h"
 #include "CxxUtils/BasicTypes.h"
 #include "TLorentzVector.h"
+#include "CLHEP/Random/RandomEngine.h"
+#include "AthenaKernel/IAtRndmGenSvc.h" // For random numbers...
 
 #include <fstream>
 
-
 MultiBjetFilter::MultiBjetFilter(const std::string& name, ISvcLocator* pSvcLocator)
-  : GenFilter(name,pSvcLocator){
+  : GenFilter(name,pSvcLocator),  
+    m_rand("AtRndmGenSvc",name) {
 
   // Local Member Data:-
   declareProperty("NJetsMin", m_nJetsMin = 0);
@@ -38,6 +40,7 @@ MultiBjetFilter::MultiBjetFilter(const std::string& name, ISvcLocator* pSvcLocat
   declareProperty("JetEtaMax", m_jetEtaMax = 2.7);
   declareProperty("DeltaRFromTruth", m_deltaRFromTruth = 0.3);
   declareProperty("TruthContainerName", m_TruthJetContainerName = "AntiKt4TruthJets");
+  declareProperty("InclusiveEfficiency", m_inclusiveEff = 0.);
 
   m_NPass = 0;
   m_Nevt = 0;
@@ -75,9 +78,8 @@ StatusCode MultiBjetFilter::filterEvent() {
   const xAOD::JetContainer* truthjetTES = 0;
   StatusCode sc = evtStore()->retrieve(truthjetTES, m_TruthJetContainerName);
   if(sc.isFailure() || !truthjetTES) {
-    ATH_MSG_WARNING(
-       "No xAOD::JetContainer found in TDS " << m_TruthJetContainerName \
-      << sc.isFailure() << " "<<   !truthjetTES);
+    ATH_MSG_WARNING("No xAOD::JetContainer found in TDS " << m_TruthJetContainerName \
+		    << sc.isFailure() << " "<<   !truthjetTES);
     return StatusCode::SUCCESS;
   }
 
@@ -103,9 +105,9 @@ StatusCode MultiBjetFilter::filterEvent() {
 
   int bJetCounter = 0;
   double weight = 1;
-  McEventCollection::const_iterator itr;
   for(const HepMC::GenEvent* genEvt : *events_const()) {
     weight = genEvt->weights().front();
+
     // Make a vector containing all the event's b-hadrons
     std::vector< HepMC::ConstGenParticlePtr > bHadrons;
     for(auto pitr: *genEvt) {
@@ -117,7 +119,7 @@ StatusCode MultiBjetFilter::filterEvent() {
     // Count how many truth jets contain b-hadrons
     for(uint i = 0; i < jets.size(); i++){
       for(uint j = 0; j < bHadrons.size(); j++){
-        HepMC::FourVector tmp = bHadrons.at(j)->momentum();
+	HepMC::FourVector tmp = bHadrons.at(j)->momentum();
         TLorentzVector genpart(tmp.x(), tmp.y(), tmp.z(), tmp.t());
         double dR = (*jets[i])->p4().DeltaR(genpart);
         if(dR<m_deltaRFromTruth){
@@ -136,9 +138,36 @@ StatusCode MultiBjetFilter::filterEvent() {
   // Bookkeeping
   m_SumOfWeights_Evt += weight;
   if(pass){
+
     m_NPass++;
     m_SumOfWeights_Pass += weight;
-  }
+
+  } else if (m_inclusiveEff > 0.) { 
+
+    CLHEP::HepRandomEngine* rndm = m_rand->GetEngine("MultiBjetFilter");   
+    if (rndm) {
+      double rnd = rndm->flat();
+      if (m_inclusiveEff > rnd) {
+
+	pass = true;
+	m_NPass++;
+	m_SumOfWeights_Pass += weight/m_inclusiveEff;
+
+	const DataHandle<McEventCollection> mecc = 0;   
+	CHECK(evtStore()->retrieve(mecc));   
+	ATH_MSG_DEBUG("Adding prescaled inclusive event.  Will mod event weights by " << 1./m_inclusiveEff << " rnd " << rnd);   
+	double orig = 1.;   
+	McEventCollection* mec = const_cast<McEventCollection*> (&(*mecc));   
+	for (unsigned int i=0;i<mec->size();++i) {     
+	  if ( !(*mec)[i] ) continue;     
+	  orig = (*mec)[i]->weights().size()>0?(*mec)[i]->weights()[0]:1.;     
+	  if ((*mec)[i]->weights().size()>0) (*mec)[i]->weights()[0] = orig/m_inclusiveEff;     
+	  else (*mec)[i]->weights().push_back( orig/m_inclusiveEff );   
+	}
+      }      
+    } // random number generator
+
+  } // pass vs inclusive
 
   setFilterPassed(pass);
   return StatusCode::SUCCESS;
