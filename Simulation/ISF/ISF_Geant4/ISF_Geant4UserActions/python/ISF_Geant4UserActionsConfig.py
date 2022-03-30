@@ -1,15 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
-
-def getFastCaloSimParamActionTool(name='G4UA::FastCaloSimParamActionTool', **kwargs):
-    from G4AtlasApps.SimFlags import simFlags
-    # example custom configuration
-    if name in simFlags.UserActionConfig.get_Value().keys():
-        for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
-            kwargs.setdefault(prop,value)
-    return CfgMgr.G4UA__FastCaloSimParamActionTool(name,**kwargs)
-
 
 def getTestBoundariesUserActionTool(name='G4UA::iGeant4::TestBoundariesUserActionTool', **kwargs):
     from AthenaCommon import Logging
