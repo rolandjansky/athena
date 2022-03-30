@@ -1094,7 +1094,7 @@ def InDetTrackSummaryToolNoHoleSearchCfg(flags, name='InDetTrackSummaryToolNoHol
 
 def ROIInfoVecAlgCfg(flags, name='InDetROIInfoVecCondAlg', **kwargs) :
     acc = ComponentAccumulator()
-    from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
+    from InDetConfig.InDetCaloClusterROISelectorConfig import CaloClusterROI_SelectorCfg
     acc.merge(CaloClusterROI_SelectorCfg(flags))
     kwargs.setdefault("InputEmClusterContainerName", "InDetCaloClusterROIs")
     kwargs.setdefault("WriteKey", kwargs.get("namePrefix","") +"ROIInfoVec"+ kwargs.get("nameSuffix","") )

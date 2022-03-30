@@ -142,11 +142,11 @@ def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None,
                       and (flags.InDet.Tracking.ActivePass.extension=="" or flags.InDet.Tracking.ActivePass.extension=="BLS") )
     kwargs.setdefault("doCaloSeededBrem", flags.InDet.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo)
     if kwargs["useBremModel"] and kwargs["doCaloSeededBrem"]:
-        from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
+        from InDetConfig.InDetCaloClusterROISelectorConfig import CaloClusterROI_SelectorCfg
         acc.merge(CaloClusterROI_SelectorCfg(flags))
     kwargs.setdefault("doHadCaloSeedSSS", flags.InDet.Tracking.doHadCaloSeededSSS and flags.Detector.EnableCalo)
     if kwargs["doHadCaloSeedSSS"]:
-        from InDetConfig.InDetRecCaloSeededROISelectionConfig import HadCaloClusterROI_SelectorCfg
+        from InDetConfig.InDetCaloClusterROISelectorConfig import HadCaloClusterROI_SelectorCfg
         acc.merge(HadCaloClusterROI_SelectorCfg(flags))
     kwargs.setdefault("phiWidth", flags.InDet.Tracking.ActivePass.phiWidthBrem)
     kwargs.setdefault("etaWidth", flags.InDet.Tracking.ActivePass.etaWidthBrem)
