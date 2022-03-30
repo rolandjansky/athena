@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DETDESCRCONDTOOLS_ALIGNTRANSTOOL_H
@@ -40,7 +40,7 @@ class AlignTransTool: public AthAlgTool {
   StatusCode reset(const std::string& key);
 
  private:
-  const AlignableTransform* getptr(const std::string) const;
+  const AlignableTransform* getptr(const std::string&) const;
   typedef std::vector<AlignTransKey>::iterator key_itr;
   mutable std::vector<AlignTransKey> m_keyvec;
   mutable std::string m_lastkey;
