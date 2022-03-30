@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawConditions/LArConditionsSubset.h"
@@ -8,7 +8,7 @@
 void
 LArPedestalSubsetCnv_p1::persToTrans(const LArPedestalPersType* persObj, 
                                   LArPedestalTransType* transObj, 
-                                  MsgStream & log)
+                                  MsgStream & log) const
 {
     transObj->initialize (persObj->m_subset.m_febIds, persObj->m_subset.m_gain);
 
@@ -130,7 +130,7 @@ LArPedestalSubsetCnv_p1::persToTrans(const LArPedestalPersType* persObj,
 void
 LArPedestalSubsetCnv_p1::transToPers(const LArPedestalTransType* /*transObj*/, 
 				     LArPedestalPersType* /*persObj*/, 
-				     MsgStream &log) 
+				     MsgStream &log) const
 {
     
   log << MSG::ERROR << "LArPedestalSubset_p1 is obsolete and can't be written out any more." << endmsg;
