@@ -325,12 +325,6 @@ def InDetTRTDriftCircleCutForPatternRecoCfg(flags, name='InDetTRTDriftCircleCutF
     result.setPrivateTools(CompFactory.InDet.InDetTrtDriftCircleCutTool(name, **kwargs))
     return result
 
-def InDetSummaryHelperNoHoleSearchCfg(flags, name='InDetSummaryHelperNoHoleSearch', **kwargs):
-    if 'HoleSearch' not in kwargs :
-        kwargs.setdefault("HoleSearch", None)
-    from  InDetConfig.InDetRecToolConfig import InDetTrackSummaryHelperToolCfg
-    return InDetTrackSummaryHelperToolCfg(flags, name = name, **kwargs)
-
 def InDetTrackSummaryToolCfg(flags, name='InDetTrackSummaryTool', **kwargs):
     if flags.Detector.GeometryITk:
         name = name.replace("InDet", "ITk")
@@ -342,9 +336,10 @@ def InDetTrackSummaryToolCfg(flags, name='InDetTrackSummaryTool', **kwargs):
 
     if 'InDetSummaryHelperTool' not in kwargs :
         if do_holes:
-            from InDetConfig.InDetRecToolConfig import InDetTrackSummaryHelperToolCfg
+            from InDetConfig.InDetTrackSummaryHelperToolConfig import InDetTrackSummaryHelperToolCfg
             InDetSummaryHelperTool = acc.popToolsAndMerge(InDetTrackSummaryHelperToolCfg(flags))
         else:
+            from InDetConfig.InDetTrackSummaryHelperToolConfig import InDetSummaryHelperNoHoleSearchCfg
             InDetSummaryHelperTool = acc.popToolsAndMerge(InDetSummaryHelperNoHoleSearchCfg(flags))
         kwargs.setdefault("InDetSummaryHelperTool", InDetSummaryHelperTool)
 
@@ -363,10 +358,10 @@ def InDetTrackSummaryToolAmbiCfg(flags, name='InDetTrackSummaryToolAmbi', **kwar
     acc = ComponentAccumulator()
 
     if 'InDetSummaryHelperTool' not in kwargs :
-        from InDetConfig.InDetRecToolConfig import InDetTrackSummaryHelperToolCfg
+        from InDetConfig.InDetTrackSummaryHelperToolConfig import InDetTrackSummaryHelperToolCfg
         InDetSummaryHelperTool = acc.popToolsAndMerge(InDetTrackSummaryHelperToolCfg(flags,
-                                                                                         name = "InDetAmbiguityProcessorSplitProbSummaryHelper" + flags.InDet.Tracking.ActivePass.extension,
-                                                                                         ClusterSplitProbabilityName = "InDetAmbiguityProcessorSplitProb" + flags.InDet.Tracking.ActivePass.extension))
+                                                                                     name = "InDetAmbiguityProcessorSplitProbSummaryHelper" + flags.InDet.Tracking.ActivePass.extension,
+                                                                                     ClusterSplitProbabilityName = "InDetAmbiguityProcessorSplitProb" + flags.InDet.Tracking.ActivePass.extension))
         kwargs.setdefault("InDetSummaryHelperTool", InDetSummaryHelperTool)
 
     InDetTrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags, name, **kwargs))
@@ -405,35 +400,10 @@ def InDetRecTestBLayerToolCfg(flags, name='InDetRecTestBLayerTool', **kwargs):
     acc.setPrivateTools(InDetTestBLayerTool)
     return acc
 
-def InDetSummaryHelperSharedHitsCfg(flags, name='InDetSummaryHelperSharedHits', **kwargs):
-    acc = ComponentAccumulator()
-    if 'PixelToTPIDTool' not in kwargs :
-        InDetPixelToTPIDTool = acc.popToolsAndMerge(InDetPixelToTPIDToolCfg(flags))
-        kwargs.setdefault("PixelToTPIDTool", InDetPixelToTPIDTool)
-
-    if 'TestBLayerTool' not in kwargs :
-        testBLayerToolAcc = InDetRecTestBLayerToolCfg(flags)
-        if testBLayerToolAcc is not None:
-            InDetRecTestBLayerTool = acc.popToolsAndMerge(testBLayerToolAcc)
-        else:
-            InDetRecTestBLayerTool = None
-        kwargs.setdefault("TestBLayerTool", InDetRecTestBLayerTool)
-
-    kwargs.setdefault("DoSharedHits", flags.InDet.Tracking.doSharedHits)
-
-    if flags.Detector.EnableTRT:
-        kwargs.setdefault("DoSharedHitsTRT", flags.InDet.Tracking.doSharedHits)
-
-    from  InDetConfig.InDetRecToolConfig import InDetTrackSummaryHelperToolCfg    
-    InDetSummaryHelper = acc.popToolsAndMerge(InDetTrackSummaryHelperToolCfg(flags, name = name, **kwargs))
-
-    acc.setPrivateTools(InDetSummaryHelper)
-    return acc
-
-
 def InDetTrackSummaryToolSharedHitsCfg(flags, name='InDetTrackSummaryToolSharedHits',**kwargs):
     acc = ComponentAccumulator()
     if 'InDetSummaryHelperTool' not in kwargs :
+        from InDetConfig.InDetTrackSummaryHelperToolConfig import InDetSummaryHelperSharedHitsCfg
         InDetSummaryHelperSharedHits = acc.popToolsAndMerge(InDetSummaryHelperSharedHitsCfg(flags))
         kwargs.setdefault("InDetSummaryHelperTool", InDetSummaryHelperSharedHits)
 

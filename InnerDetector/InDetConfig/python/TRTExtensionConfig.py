@@ -68,7 +68,7 @@ def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackColle
         fitter_args = {}
         if flags.InDet.Tracking.holeSearchInGX2Fit:
             fitter_args.setdefault("DoHoleSearch", True)
-            from  InDetConfig.InDetRecToolConfig import InDetBoundaryCheckToolCfg
+            from InDetConfig.InDetBoundaryCheckToolConfig import InDetBoundaryCheckToolCfg
             InDetBoundaryCheckTool = acc.popToolsAndMerge(InDetBoundaryCheckToolCfg(flags))
             fitter_args.setdefault("BoundaryCheckTool", InDetBoundaryCheckTool)
 

@@ -158,37 +158,11 @@ def TestBlayerToolCfg(flags):
 
   return acc
 
-def InDetTrackSummaryHelperToolCfg(flags, name="InDetTrigSummaryHelper"):
-  """
-  based on: InnerDetector/InDetExample/InDetTrigRecExample/python/InDetTrigConfigRecLoadTools.py
-  """
-  acc = ComponentAccumulator()
-  holeSearchTool = acc.getPrimaryAndMerge( InDetHoleSearchToolCfg(flags, name = "InDetTrigHoleSearchTool" ) )
-  associationTool = acc.getPrimaryAndMerge( InDetPrdAssociationToolGangedPixelsCfg(flags) )
-
-  from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTStrawCondAlgCfg
-  acc.merge( TRTStrawCondAlgCfg(flags) )
-
-  from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_StrawStatusSummaryToolCfg
-  tool = CompFactory.InDet.InDetTrackSummaryHelperTool(name,
-                                                       HoleSearch    = holeSearchTool,
-                                                       AssoTool      = associationTool,
-                                                       TestBLayerTool = acc.popToolsAndMerge(TestBlayerToolCfg(flags)),
-                                                       PixelToTPIDTool= None,
-                                                       DoSharedHits  = True,
-                                                       TRTStrawSummarySvc = acc.popToolsAndMerge( TRT_StrawStatusSummaryToolCfg(flags) ),
-                                                       usePixel      = flags.Detector.EnablePixel,
-                                                       useSCT        = flags.Detector.EnableSCT,
-                                                       useTRT        = flags.Detector.EnableTRT                                                      
-                                                      )
-
-  acc.setPrivateTools( tool )
-  return acc
-
 def TrackSummaryToolCfg(flags, name="InDetTrigTrackSummaryTool", summaryHelperTool=None, makePublic=True, useTRT=False):
   acc = ComponentAccumulator()
   if not summaryHelperTool:
-    summaryHelperTool = acc.popToolsAndMerge( InDetTrackSummaryHelperToolCfg( flags, "InDetTrigSummaryHelper") )
+    from InDetConfig.InDetTrackSummaryHelperToolConfig import TrigTrackSummaryHelperToolCfg
+    summaryHelperTool = acc.popToolsAndMerge( TrigTrackSummaryHelperToolCfg( flags, "InDetTrigSummaryHelper") )
 
   tool = CompFactory.Trk.TrackSummaryTool(name = name,
                                           InDetSummaryHelperTool = summaryHelperTool,
