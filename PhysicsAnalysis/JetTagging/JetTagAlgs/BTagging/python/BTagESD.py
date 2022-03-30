@@ -4,7 +4,9 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 from BTagging.BTagTrackAugmenterAlgConfig import BTagTrackAugmenterAlgCfg
-from BTagging.BTagHighLevelAugmenterAlgConfig import BTagHighLevelAugmenterAlgCfg
+from FlavorTagDiscriminants.BTagJetAugmenterAlgConfig import (
+    BTagJetAugmenterAlgCfg)
+
 from BTagging.HighLevelBTagAlgConfig import HighLevelBTagAlgCfg
 
 def RenameInputContainerCfg(suffix):
@@ -73,7 +75,7 @@ def RunHighLevelTaggersCfg(inputFlags, jet, tracks, Associator, taggers):
     result = ComponentAccumulator()
 
     BTagCollection = inputFlags.BTagging.OutputFiles.Prefix+JetCollection
-    result.merge(BTagHighLevelAugmenterAlgCfg(inputFlags, JetCollection=jet, BTagCollection=BTagCollection, Associator=Associator, TrackCollection=tracks) )
+    result.merge(BTagJetAugmenterAlgCfg(inputFlags, JetCollection=jet, BTagCollection=BTagCollection, Associator=Associator, TrackCollection=tracks) )
     for dl2 in taggers:
         result.merge(HighLevelBTagAlgCfg(inputFlags, BTagCollection, TrackCollection=tracks, NNFile=dl2) )
 

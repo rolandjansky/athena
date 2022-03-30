@@ -67,8 +67,6 @@ def TrigBjetOnlineMonitoring(name="TrigBjetOnlineMonitoring"):
     # B-Tagging Histograms
     for tagger in ['IP2D', 'IP3D', 'DL1r', 'rnnip']: make_flavor_hists(montool, tagger)
 
-    montool.defineHistogram('MV2c10_discriminant', title="MV2c10 Score", xbins = default_bin_count, xmin=-1, xmax=1, path='EXPERT', type='TH1F')
-
 
     montool.defineHistogram('JetFitter_N2Tpair',
         title='JetFitter: Number of 2-Track Pairs',
