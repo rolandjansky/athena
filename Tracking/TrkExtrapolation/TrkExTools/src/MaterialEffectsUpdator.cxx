@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -503,14 +503,13 @@ Trk::MaterialEffectsUpdator::updateImpl(
   // no material update below/above a certain cut value
   if (p > m_momentumCut && p < m_momentumMax) {
     // get the delta of the Energy
-    EnergyLoss* energyLoss =
+    std::unique_ptr<EnergyLoss> energyLoss =
       (m_doEloss)
         ? m_eLossUpdator->energyLoss(matprop, updateMomentum, pathcorrection, dir, particle, m_useMostProbableEloss)
         : nullptr;
     // update for mean energy loss
     double deltaE = energyLoss ? energyLoss->deltaE() : 0;
     double sigmaDeltaE = energyLoss ? energyLoss->sigmaDeltaE() : 0;
-    delete energyLoss;
 
     if (m_landauMode && cache.accumulatedElossSigma != 0 && sigmaDeltaE != 0) {
       if (dir == Trk::oppositeMomentum) {
@@ -683,14 +682,13 @@ Trk::MaterialEffectsUpdator::updateImpl(
     AmgVector(5) updatedParameters(parm.parameters());
 
     // get the delta of the Energy
-    EnergyLoss* energyLoss =
+    std::unique_ptr<EnergyLoss> energyLoss =
       (m_doEloss)
         ? m_eLossUpdator->energyLoss(matprop, updateMomentum, pathcorrection, dir, particle, m_useMostProbableEloss)
         : nullptr;
     // update for mean energy loss
     double deltaE = energyLoss ? energyLoss->deltaE() : 0;
     double sigmaDeltaE = energyLoss ? energyLoss->sigmaDeltaE() : 0;
-    delete energyLoss;
     if (m_landauMode && cache.accumulatedElossSigma != 0 && sigmaDeltaE != 0) {
       if (dir == Trk::oppositeMomentum) {
         deltaE += sigmaDeltaE * std::log(1 + cache.accumulatedElossSigma / sigmaDeltaE) +

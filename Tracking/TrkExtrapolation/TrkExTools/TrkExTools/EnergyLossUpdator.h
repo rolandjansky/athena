@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -22,7 +22,6 @@
 namespace Trk {
 
 class MaterialProperties;
-class EnergyLoss;
 
 /**@class EnergyLossUpdator
 
@@ -140,7 +139,7 @@ public:
 
     mpv steers the most probable energy loss
     */
-  virtual EnergyLoss* energyLoss(
+  virtual std::unique_ptr<EnergyLoss> energyLoss(
     const MaterialProperties& mat,
     double p,
     double pathcorrection,
@@ -152,12 +151,13 @@ public:
   /** Method to recalculate Eloss values for the fit setting an elossFlag using
      as an input the detailed Eloss information Calorimeter energy, error
      momentum and momentum error */
-  virtual EnergyLoss* updateEnergyLoss(EnergyLoss* eLoss,
-                                       double caloEnergy,
-                                       double caloEnergyError,
-                                       double pCaloEntry,
-                                       double momentumError,
-                                       int& elossFlag) const override final;
+  virtual std::unique_ptr<EnergyLoss> updateEnergyLoss(
+    EnergyLoss* eLoss,
+    double caloEnergy,
+    double caloEnergyError,
+    double pCaloEntry,
+    double momentumError,
+    int& elossFlag) const override final;
 
   /** Routine to calculate X0 and Eloss scale factors for the Calorimeter and
    * Muon System */
@@ -177,7 +177,7 @@ private:
     PropDirection direction = alongMomentum,
     ParticleHypothesis particleHypothesis = electron) const;
 
-  Trk::EnergyLoss* ionizationEnergyLoss(
+  std::unique_ptr<Trk::EnergyLoss> ionizationEnergyLoss(
     const MaterialProperties& mat,
     double p,
     double pathcorrection,
