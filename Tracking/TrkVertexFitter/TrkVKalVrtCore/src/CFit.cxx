@@ -8,6 +8,7 @@
 #include "TrkVKalVrtCore/TrkVKalVrtCore.h"
 #include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
 #include "TrkVKalVrtCore/VKalVrtBMag.h"
+#include <array>
 #include <cmath>
 #include <iostream>
 
