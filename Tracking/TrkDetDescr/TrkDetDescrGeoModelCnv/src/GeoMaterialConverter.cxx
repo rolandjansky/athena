@@ -14,7 +14,7 @@
 #include "GeoModelKernel/Units.h"
 
 
-double Trk::GeoMaterialConverter::s_densityCnvFactor = 1./GeoModelKernelUnits::gram;
+const double Trk::GeoMaterialConverter::s_densityCnvFactor = 1./GeoModelKernelUnits::gram;
 
 Trk::Material Trk::GeoMaterialConverter::convert(const GeoMaterial* gm) {
   // get the obvious things 
