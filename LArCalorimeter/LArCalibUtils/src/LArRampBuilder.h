@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -123,7 +123,7 @@ private:
   UnsignedIntegerProperty m_DAC0{this,"DAC0",0,"DAC value considered DAC0"};
   BooleanProperty m_saveRawRamp{this,"StoreRawRamp",false,"Save raw ramp obj in SG"};
   BooleanProperty m_saveRecRamp{this,"StoreRecRamp",true,"Save reconstructed ramp obj in SG"};
-  BooleanProperty m_satSlope{this,"doSatSlope","Ignore points subject to saturation"};
+  BooleanProperty m_satSlope{this,"doSatSlope",false,"Ignore points subject to saturation"};
   UnsignedIntegerProperty m_minDAC{this,"minDAC",0,"Ignore DAC values smaller that this"};
   StringProperty m_recoTypeProp{this,"RecoType","OF","One of 'Parabola', 'Shape' or 'OF'"}; 
   IntegerProperty m_deadChannelCut{this,"DeadChannelCut",1300,"Complain about channels with max-ADC below this value"};
