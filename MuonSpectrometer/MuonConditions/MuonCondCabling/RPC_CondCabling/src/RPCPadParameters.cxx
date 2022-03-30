@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -43,7 +43,7 @@ unsigned short int RPCPadParameters::feet_threshold(unsigned short int it) const
 }
 
 bool RPCPadParameters::set_feet_threshold(unsigned short int it, unsigned short int th) {
-    static short int mask[3] = {0x1F8, 0x1c7, 0x3F};
+    static const short int mask[3] = {0x1F8, 0x1c7, 0x3F};
 
     if (it >= 3 || th >= 6) return false;
 

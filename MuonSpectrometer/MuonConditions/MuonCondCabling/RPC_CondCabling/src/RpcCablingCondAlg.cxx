@@ -18,7 +18,6 @@ StatusCode RpcCablingCondAlg::initialize() {
     ATH_CHECK(m_readKey_cm_thr_phi.initialize());
     ATH_CHECK(m_writeKey.initialize());
     ATH_CHECK(m_idHelperSvc.retrieve());
-    RDOindex::setRpcIdHelper(&m_idHelperSvc->rpcIdHelper());
     return StatusCode::SUCCESS;
 }
 
@@ -275,7 +274,7 @@ StatusCode RpcCablingCondAlg::setup(const CondAttrListCollection* readCdoMap, co
                     RPCdecoder decode(Eta, lvl1_sector, RPC_station, RPC_layer, RPC_chamber, RPC_strip);
 
                     // instanciate the corresponding RDO index
-                    RDOindex rdo(PADid, decode.code(), name, sEta, sPhi, dR, dZ, dP);
+                    RDOindex rdo(PADid, decode.code(), name, sEta, sPhi, dR, dZ, dP, m_idHelperSvc->rpcIdHelper());
 
                     // compute the key for retrieving RDO into the map
                     int key = side * 10000 + logic_sector * 100 + PADid;
@@ -328,7 +327,7 @@ StatusCode RpcCablingCondAlg::setup(const CondAttrListCollection* readCdoMap, co
                     RPCdecoder decode(Eta, lvl1_sector, RPC_station, RPC_layer, RPC_chamber, RPC_strip);
 
                     // instanciate the corresponding RDO index
-                    RDOindex rdo(PADid, decode.code(), name, sEta, sPhi, dR, dZ, dP);
+                    RDOindex rdo(PADid, decode.code(), name, sEta, sPhi, dR, dZ, dP, m_idHelperSvc->rpcIdHelper());
 
                     // compute the key for retrieving RDO into the map
                     int key = side * 10000 + logic_sector * 100 + PADid;
