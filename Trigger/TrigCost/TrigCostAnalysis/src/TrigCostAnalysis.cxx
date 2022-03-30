@@ -517,5 +517,23 @@ void TrigCostAnalysis::writeMetadata() {
   m_metadataTree->Branch("AtlasProject", &atlasProject);
   m_metadataTree->Branch("AtlasVersion", &atlasVersion);
 
+
+  std::string processedRanges;
+  if (m_singleTimeRange){
+    processedRanges = m_singleTimeRangeName;
+  }
+  else {
+    std::stringstream ss;
+    for(const auto& rangePair : m_monitoredRanges){
+      ss << rangePair.first << ": ";
+      std::string lbrange = rangePair.first.substr(strlen("LumiBlock_"));
+      ss << " Lumiblocks " <<  std::stoi(lbrange) << " to " << std::stoi(lbrange) + m_TimeRangeLengthLB << ", ";
+    }
+    processedRanges = ss.str();
+    ATH_MSG_INFO("Processed ranges: " << processedRanges);
+  }
+
+  m_metadataTree->Branch("ProcessedRanges", &processedRanges);
+
   m_metadataTree->Fill();
 }
