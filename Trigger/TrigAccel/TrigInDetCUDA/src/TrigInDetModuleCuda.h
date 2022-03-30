@@ -45,6 +45,7 @@ class TrigInDetModuleCuda : public TrigAccel::WorkFactory {
     };
     
     void getNumberOfGPUs();
+    int  getNumberOfCores(int, int) const;
     
     //data structures
 

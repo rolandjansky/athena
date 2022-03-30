@@ -106,6 +106,22 @@ bool TrigInDetModuleCuda::configure() {
   return true;
 }
 
+int TrigInDetModuleCuda::getNumberOfCores(int major, int minor) const {
+    
+    int ncores = 0;
+    
+    if ((major == 7) && (minor == 5)) {
+       ncores = 64;//Turing
+    }
+    if ((minor == 1) || (minor == 2)) ncores = 128;
+       else if (minor == 0) ncores = 64;
+
+    if(ncores == 0) {
+       printf("Cannot determine the number of cores: unknown device type, major=%d minor=%d\n", major, minor);
+    }
+    return ncores;
+}
+
 SeedMakingDeviceContext* TrigInDetModuleCuda::createSeedMakingContext(int id) const {
 
   cudaSetDevice(id);
@@ -125,12 +141,8 @@ SeedMakingDeviceContext* TrigInDetModuleCuda::createSeedMakingContext(int id) co
 
   p->m_gpuParams.m_nSMX = deviceProp.multiProcessorCount;
 
-  int ncores = 0;
-
-  if ((deviceProp.minor == 1) || (deviceProp.minor == 2)) ncores = 128;
-  else if (deviceProp.minor == 0) ncores = 64;	   
-       else printf("Cannot determine the number of cores: unknown device type\n"); 
-
+  int ncores = getNumberOfCores(deviceProp.major, deviceProp.minor);
+  
   p->m_gpuParams.m_nNUM_SMX_CORES = ncores;//_ConvertSMVer2Cores_local(deviceProp.major, deviceProp.minor);
   p->m_gpuParams.m_nNUM_TRIPLET_BLOCKS = NUM_TRIPLET_BLOCKS;
   if(deviceProp.maxThreadsPerBlock < p->m_gpuParams.m_nNUM_TRIPLET_BLOCKS) 
@@ -180,11 +192,7 @@ SeedMakingManagedDeviceContext* TrigInDetModuleCuda::createManagedSeedMakingCont
 
   p->m_gpuParams.m_nSMX = deviceProp.multiProcessorCount;
 
-  int ncores = 0;
-
-  if ((deviceProp.minor == 1) || (deviceProp.minor == 2)) ncores = 128;
-  else if (deviceProp.minor == 0) ncores = 64;	   
-       else printf("Cannot determine the number of cores: unknown device type\n"); 
+  int ncores = getNumberOfCores(deviceProp.major, deviceProp.minor);
 
   p->m_gpuParams.m_nNUM_SMX_CORES = ncores;//_ConvertSMVer2Cores_local(deviceProp.major, deviceProp.minor);
   p->m_gpuParams.m_nNUM_TRIPLET_BLOCKS = NUM_TRIPLET_BLOCKS;
