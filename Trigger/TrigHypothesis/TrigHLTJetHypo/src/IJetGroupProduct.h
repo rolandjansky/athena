@@ -18,6 +18,7 @@ class IJetGroupProduct{
  public:
   virtual ~IJetGroupProduct() = default;
   virtual std::vector<std::size_t> next(const Collector&) = 0;
+  virtual bool valid() const  = 0;
 };
 
 #endif

@@ -21,7 +21,13 @@ TrigJetHypoToolHelperNoGrouper::TrigJetHypoToolHelperNoGrouper(const std::string
 StatusCode TrigJetHypoToolHelperNoGrouper::initialize() {
 
   for (const auto& config : m_configs) {
-    m_matchers.push_back(config->getMatcher());
+    auto matcher = config->getMatcher();
+    if (!matcher->valid()) {
+      ATH_MSG_ERROR(matcher->msg());
+      return StatusCode::FAILURE;
+    }
+		    
+    m_matchers.push_back(std::move(matcher));
   }
 		  
   return StatusCode::SUCCESS;

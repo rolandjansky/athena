@@ -30,6 +30,25 @@ TEST(TreeTester, simple) {
   EXPECT_FALSE(tree.is_leaf(0u));
   EXPECT_TRUE(tree.is_leaf(1u));
   EXPECT_TRUE(tree.is_leaf(1u));
+
+  EXPECT_TRUE(tree.is_simple());
+  
+}
+
+
+TEST(TreeTester, notsimple) {
+  std::vector<std::size_t> parents {0u, 0u, 1u};
+  
+  Tree tree(parents);
+
+  vec leaves {2u};
+  EXPECT_EQ(tree.size(), 3u);
+  EXPECT_EQ(tree.leaves(), leaves);
+  EXPECT_FALSE(tree.is_leaf(0u));
+  EXPECT_FALSE(tree.is_leaf(1u));
+  EXPECT_TRUE(tree.is_leaf(2u));
+
+  EXPECT_FALSE(tree.is_simple());
   
 }
 
