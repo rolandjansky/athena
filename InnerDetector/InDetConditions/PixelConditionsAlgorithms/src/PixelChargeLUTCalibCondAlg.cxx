@@ -43,7 +43,8 @@ StatusCode PixelChargeLUTCalibCondAlg::execute(const EventContext& ctx) const {
     return StatusCode::FAILURE;
   }
 
-  SG::ReadCondHandle<PixelModuleData> configData(m_configKey, ctx);
+  SG::ReadCondHandle<PixelModuleData> configDataHandle(m_configKey, ctx);
+  const PixelModuleData *configData = *configDataHandle;
 
   // Construct the output Cond Object and fill it in
   std::unique_ptr<PixelChargeCalibCondData> writeCdo(std::make_unique<PixelChargeCalibCondData>());

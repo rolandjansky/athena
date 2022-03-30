@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef PIXELDIGITIZATION_FrontEndSimTool_H
@@ -27,8 +27,6 @@
 
 #include "PixelConditionsData/PixelModuleData.h"
 #include "PixelConditionsData/PixelChargeCalibCondData.h"
-#include "StoreGate/ReadHandle.h"
-#include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 static const InterfaceID IID_IFrontEndSimTool("FrontEndSimTool", 1, 0);
@@ -55,7 +53,8 @@ public:
   virtual void process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Collection& rdoCollection,
                        CLHEP::HepRandomEngine* rndmEngine) = 0;
 
-  void CrossTalk(double crossTalk, SiChargedDiodeCollection& chargedDiodes) const {
+  void CrossTalk(double crossTalk, SiChargedDiodeCollection& chargedDiodes) const
+  {
     const InDetDD::PixelModuleDesign* p_design =
       static_cast<const InDetDD::PixelModuleDesign*>(&(chargedDiodes.element())->design());
     SiChargedDiodeMap oldChargedDiodes = chargedDiodes.chargedDiodes();
@@ -91,7 +90,8 @@ public:
   }
 
   void ThermalNoise(double thermalNoise, SiChargedDiodeCollection& chargedDiodes,
-                    CLHEP::HepRandomEngine* rndmEngine) const {
+                    CLHEP::HepRandomEngine* rndmEngine) const
+  {
     for (SiChargedDiodeOrderedIterator i_chargedDiode = chargedDiodes.orderedBegin();
          i_chargedDiode != chargedDiodes.orderedEnd(); ++i_chargedDiode) {
       SiCharge charge(thermalNoise * CLHEP::RandGaussZiggurat::shoot(rndmEngine), 0, SiCharge::noise);
@@ -100,9 +100,11 @@ public:
     return;
   }
 
-  void RandomNoise(SiChargedDiodeCollection& chargedDiodes, CLHEP::HepRandomEngine* rndmEngine) const {
-    SG::ReadCondHandle<PixelModuleData> moduleData(m_moduleDataKey);
-    SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey);
+  void RandomNoise(SiChargedDiodeCollection& chargedDiodes,
+                   const PixelModuleData *moduleData,
+                   const PixelChargeCalibCondData *chargeCalibData,
+                   CLHEP::HepRandomEngine* rndmEngine) const
+  {
     const InDetDD::PixelModuleDesign* p_design =
       static_cast<const InDetDD::PixelModuleDesign*>(&(chargedDiodes.element())->design());
 
@@ -132,7 +134,7 @@ public:
 
         double x = CLHEP::RandFlat::shoot(rndmEngine, 0., 1.);
         int bin = 0;
-        std::vector<float> noiseShape = moduleData->getNoiseShape(barrel_ec, layerIndex);
+        const std::vector<float> &noiseShape = moduleData->getNoiseShape(barrel_ec, layerIndex);
         for (size_t j = 1; j < noiseShape.size(); j++) {
           if (x > noiseShape[j - 1] && x <= noiseShape[j]) {
             bin = j - 1;
@@ -143,7 +145,7 @@ public:
         double noiseToT = CLHEP::RandGaussZiggurat::shoot(rndmEngine, noiseToTm, 1.);
 
         InDetDD::PixelDiodeType type = m_pixelReadout->getDiodeType(noisyID);
-        double chargeShape = calibData->getCharge((int) moduleHash, circuit, type, noiseToT);
+        double chargeShape = chargeCalibData->getCharge((int) moduleHash, circuit, type, noiseToT);
 
         chargedDiodes.add(diodeNoise, SiCharge(chargeShape, 0, SiCharge::noise));
       }
@@ -151,8 +153,10 @@ public:
     return;
   }
 
-  void RandomDisable(SiChargedDiodeCollection& chargedDiodes, CLHEP::HepRandomEngine* rndmEngine) const {
-    SG::ReadCondHandle<PixelModuleData> moduleData(m_moduleDataKey);
+  void RandomDisable(SiChargedDiodeCollection& chargedDiodes,
+                     const PixelModuleData *moduleData,
+                     CLHEP::HepRandomEngine* rndmEngine) const
+  {
     const PixelID* pixelId = static_cast<const PixelID*>(chargedDiodes.element()->getIdHelper());
     int barrel_ec = pixelId->barrel_ec(chargedDiodes.element()->identify());
     int layerIndex = pixelId->layer_disk(chargedDiodes.element()->identify());

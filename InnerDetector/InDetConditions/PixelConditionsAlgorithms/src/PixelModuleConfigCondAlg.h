@@ -35,28 +35,28 @@ class PixelModuleConfigCondAlg : public AthReentrantAlgorithm {
     {this, "BunchSpace", 25.0, "Bunch space [ns]"};
 
     Gaudi::Property<std::vector<int>> m_BarrelNumberOfBCID
-    {this, "BarrelNumberOfBCID", {1,1,1,1}, "BCID numbers for barrel pixel layers"};
+    {this, "BarrelNumberOfBCID", {1,1,1,1,1}, "BCID numbers for barrel pixel layers"};
 
     Gaudi::Property<std::vector<int>> m_EndcapNumberOfBCID
-    {this, "EndcapNumberOfBCID", {1,1,1}, "BCID numbers for endcap pixel layers"};
+    {this, "EndcapNumberOfBCID", {1,1,1,1,1,1,1,1,1}, "BCID numbers for endcap pixel layers"};
 
     Gaudi::Property<std::vector<int>> m_DBMNumberOfBCID
     {this, "DBMNumberOfBCID", {1,1,1}, "BCID numbers for DBM layers"};
 
     Gaudi::Property<std::vector<double>> m_BarrelTimeOffset
-    {this, "BarrelTimeOffset", {5.0,5.0,5.0,5.0}, "Offset time of barrel pixel layer"};
+    {this, "BarrelTimeOffset", {5.0,5.0,5.0,5.0,5.0}, "Offset time of barrel pixel layer"};
 
     Gaudi::Property<std::vector<double>> m_EndcapTimeOffset
-    {this, "EndcapTimeOffset", {5.0,5.0,5.0}, "Offset time of endcap pixel layer"};
+    {this, "EndcapTimeOffset", {5.0,5.0,5.0,5.0,5.0,5.0,5.0,5.0,5.0}, "Offset time of endcap pixel layer"};
 
     Gaudi::Property<std::vector<double>> m_DBMTimeOffset
     {this, "DBMTimeOffset", {5.0,5.0,5.0}, "Offset time of DBM layer"};
 
     Gaudi::Property<std::vector<double>> m_BarrelTimeJitter
-    {this, "BarrelTimeJitter", {0.0,0.0,0.0,0.0}, "Time jitter of barrel pixel layer"};
+    {this, "BarrelTimeJitter", {0.0,0.0,0.0,0.0,0.0}, "Time jitter of barrel pixel layer"};
 
     Gaudi::Property<std::vector<double>> m_EndcapTimeJitter
-    {this, "EndcapTimeJitter", {0.0,0.0,0.0}, "Time jitter of endcap pixel layer"};
+    {this, "EndcapTimeJitter", {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0}, "Time jitter of endcap pixel layer"};
 
     Gaudi::Property<std::vector<double>> m_DBMTimeJitter
     {this, "DBMTimeJitter", {0.0,0.0,0.0}, "Time jitter of DBM layer"};
@@ -129,43 +129,43 @@ class PixelModuleConfigCondAlg : public AthReentrantAlgorithm {
     // values are used.
     //====================================================================================
     Gaudi::Property<std::vector<int>> m_BarrelAnalogThreshold
-    {this, "DefaultBarrelAnalogThreshold", {-1,-1,-1,-1}, "Default analog thresholds of barrel pixel layers"};
+    {this, "DefaultBarrelAnalogThreshold", {-1,-1,-1,-1,-1}, "Default analog thresholds of barrel pixel layers"};
 
     Gaudi::Property<std::vector<int>> m_EndcapAnalogThreshold
-    {this, "DefaultEndcapAnalogThreshold", {-1,-1,-1}, "Default analog thresholds of endcap pixel layers"};
+    {this, "DefaultEndcapAnalogThreshold", {-1,-1,-1,-1,-1,-1,-1,-1,-1}, "Default analog thresholds of endcap pixel layers"};
 
     Gaudi::Property<std::vector<int>> m_DBMAnalogThreshold
     {this, "DefaultDBMAnalogThreshold", {-1,-1,-1}, "Default analog thresholds of DBMlayers"};
 
     Gaudi::Property<std::vector<int>> m_BarrelAnalogThresholdSigma
-    {this, "DefaultBarrelAnalogThresholdSigma", {45,35,30,30}, "Default analog threshold sigma of barrel pixel layers"};
+    {this, "DefaultBarrelAnalogThresholdSigma", {45,35,30,30,30}, "Default analog threshold sigma of barrel pixel layers"};
 
     Gaudi::Property<std::vector<int>> m_EndcapAnalogThresholdSigma
-    {this, "DefaultEndcapAnalogThresholdSigma", {30,30,30}, "Default analog threshold sigma of endcap pixel layers"};
+    {this, "DefaultEndcapAnalogThresholdSigma", {30,30,30,30,30,30,30,30,30}, "Default analog threshold sigma of endcap pixel layers"};
 
     Gaudi::Property<std::vector<int>> m_DBMAnalogThresholdSigma
     {this, "DefaultDBMAnalogThresholdSigma", {70,70,70}, "Default analog threshold sigma of DBM pixel layers"};
 
     Gaudi::Property<std::vector<int>> m_BarrelAnalogThresholdNoise
-    {this, "DefaultBarrelAnalogThresholdNoise", {130,150,160,160}, "Default threshold noise of barrel pixel layers"};
+    {this, "DefaultBarrelAnalogThresholdNoise", {130,150,160,160,160}, "Default threshold noise of barrel pixel layers"};
 
     Gaudi::Property<std::vector<int>> m_EndcapAnalogThresholdNoise
-    {this, "DefaultEndcapAnalogThresholdNoise", {150,150,150}, "Default threshold noise of endcap pixel layers"};
+    {this, "DefaultEndcapAnalogThresholdNoise", {150,150,150,150,150,150,150,150,150}, "Default threshold noise of endcap pixel layers"};
 
     Gaudi::Property<std::vector<int>> m_DBMAnalogThresholdNoise
     {this, "DefaultDBMAnalogThresholdNoise", {190,190,190}, "Default threshold noise of DBM pixel layers"};
 
     Gaudi::Property<std::vector<int>> m_BarrelInTimeThreshold
-    {this, "DefaultBarrelInTimeThreshold", {2000,5000,5000,5000}, "Default in-time thresholds of barrel pixel layers"};
+    {this, "DefaultBarrelInTimeThreshold", {2000,5000,5000,5000,5000}, "Default in-time thresholds of barrel pixel layers"};
 
     Gaudi::Property<std::vector<int>> m_EndcapInTimeThreshold
-    {this, "DefaultEndcapInTimeThreshold", {5000,5000,5000}, "Default in-time thresholds of endcap pixel layers"};
+    {this, "DefaultEndcapInTimeThreshold", {5000,5000,5000,5000,5000,5000,5000,5000,5000}, "Default in-time thresholds of endcap pixel layers"};
 
     Gaudi::Property<std::vector<int>> m_FEI4BarrelHitDiscConfig
-    {this, "FEI4BarrelHitDiscConfig", {2}, "Set HitDiscConfig parameter for barrel pixel layers"};
+    {this, "FEI4BarrelHitDiscConfig", {2,2,2,2,2}, "Set HitDiscConfig parameter for barrel pixel layers"};
 
     Gaudi::Property<std::vector<int>> m_FEI4EndcapHitDiscConfig
-    {this, "FEI4EndcapHitDiscConfig", {2}, "Set HitDiscConfig parameter for endcap pixel layers"};
+    {this, "FEI4EndcapHitDiscConfig", {2,2,2,2,2,2,2,2,2}, "Set HitDiscConfig parameter for endcap pixel layers"};
 
     Gaudi::Property<float> m_chargeScaleFEI4
     {this, "ChargeScaleFEI4", 1.0, "Scaling of the FEI4 charge"};
