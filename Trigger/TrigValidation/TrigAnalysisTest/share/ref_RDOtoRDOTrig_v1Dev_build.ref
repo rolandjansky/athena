@@ -3380,6 +3380,20 @@ HLT_e26_lhloose_nopix_lrttight_L1eEM26M:
     1: 1
     2: 1
     3: 1
+HLT_e26_lhloose_nopix_lrttight_gsf_L1EM22VHI:
+  eventCount: 0
+  stepCounts:
+    0: 6
+    1: 2
+    2: 2
+    3: 2
+    4: 2
+  stepFeatures:
+    0: 6
+    1: 2
+    2: 2
+    3: 2
+    4: 2
 HLT_e26_lhloose_nopix_lrttight_probe_g25_medium_L1EM20VH:
   eventCount: 0
   stepCounts:
