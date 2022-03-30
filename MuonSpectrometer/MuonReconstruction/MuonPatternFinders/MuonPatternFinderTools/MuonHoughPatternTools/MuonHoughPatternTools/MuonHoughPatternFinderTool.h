@@ -116,7 +116,7 @@ namespace Muon {
                                     std::map<int, std::vector<std::pair<int, int>>>& tgcmdtstationmap) const;
 
         /** calculates an unique stationcode integer (own convention)*/
-        int stationCode(Identifier id) const;
+        int stationCode(const Identifier& id) const;
 
         /** calculates an unique stationcode integer (own convention)*/
         static int stationCode(int stationname, int phi, int eta);
@@ -174,20 +174,20 @@ namespace Muon {
         // const MuonSegmentCombinationCollection* m_csc_segments;
 
         struct Hists {
-          /** histogram file for studies on weighting (only in use, when m_use_histos is
-           * true) */
-          std::unique_ptr<TFile> m_file{};
-          /** all hits histograms for studies on weighting (only in use, when
-           * m_use_histos is true) */
-          std::unique_ptr<TH1> m_weighthistogram{};
-          /** mdt histogram */
-          std::unique_ptr<TH1> m_weighthistogrammdt{};
-          /** rpc histogram */
-          std::unique_ptr<TH1> m_weighthistogramrpc{};
-          /** tgc histogram */
-          std::unique_ptr<TH1> m_weighthistogramtgc{};
-          /** csc histogram */
-          std::unique_ptr<TH1> m_weighthistogramcsc{};
+            /** histogram file for studies on weighting (only in use, when m_use_histos is
+             * true) */
+            std::unique_ptr<TFile> m_file{};
+            /** all hits histograms for studies on weighting (only in use, when
+             * m_use_histos is true) */
+            std::unique_ptr<TH1> m_weighthistogram{};
+            /** mdt histogram */
+            std::unique_ptr<TH1> m_weighthistogrammdt{};
+            /** rpc histogram */
+            std::unique_ptr<TH1> m_weighthistogramrpc{};
+            /** tgc histogram */
+            std::unique_ptr<TH1> m_weighthistogramtgc{};
+            /** csc histogram */
+            std::unique_ptr<TH1> m_weighthistogramcsc{};
         };
         std::unique_ptr<Hists> m_h;
         Hists& getHists() const;
@@ -195,6 +195,10 @@ namespace Muon {
         SG::WriteHandleKey<MuonPrdPatternCollection> m_CosmicPhiPatternsKey{this, "CosmicPhiKey", "CosmicPhiPatterns"};
         SG::WriteHandleKey<MuonPrdPatternCollection> m_CosmicEtaPatternsKey{this, "CosmicEtaPatterns", "CosmicEtaPatterns"};
         SG::WriteHandleKey<MuonPrdPatternCollection> m_COMBINED_PATTERNSKey{this, "PATTERNS", "COMBINED_PATTERNS"};
+
+        /// Dictionary to translate from the RPC to the MDT station names
+        std::map<int, int> m_RpcToMdtOuterStDict{};
+        std::map<int, int> m_RpcToMdtInnerStDict{};
     };
 
 }  // namespace Muon
