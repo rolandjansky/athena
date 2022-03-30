@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -80,11 +80,11 @@ namespace iFatras {
       static double	    s_genMixScale;	    //!< General mixture model: Scaling factor
       
       //!< General mixture model: get parameters for single gaussian simulation
-      std::vector<double> getGaussian(double beta, double p,double dOverX0, double scale) const;
+      static std::vector<double> getGaussian(double beta, double p,double dOverX0, double scale) ;
       //!< General mixture model: get parameters for gaussian mixture
-      std::vector<double> 	getGaussmix(double beta, double p,double dOverX0,double Z, double scale) const;
+      static std::vector<double> 	getGaussmix(double beta, double p,double dOverX0,double Z, double scale) ;
       //!< General mixture model: get parameters for semi-gaussian mixture
-      std::vector<double> 	getSemigauss(double beta,double p,double dOverX0,double Z, double scale) const;
+      static std::vector<double> 	getSemigauss(double beta,double p,double dOverX0,double Z, double scale) ;
       //!< General mixture model: simulate semi-gaussian mixture
       double 	simGaussmix(std::vector<double> scattering_params) const;
       //!< General mixture model: simulate gaussian mixture

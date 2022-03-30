@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -99,7 +99,7 @@ double iFatras::MultipleScatteringSamplerHighland::simTheta(const Trk::MaterialP
   
   double sigma2(0.);
   
-  double sigma = matInt.sigmaMS(t, p, beta);
+  double sigma = Trk::MaterialInteraction::sigmaMS(t, p, beta);
   sigma2 = sigma*sigma;
   
   // Code below will not be used if the parameterization of TrkUtils is used 

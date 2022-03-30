@@ -2075,7 +2075,7 @@ namespace Trk {
           double sigmascat = 0;
           
           if (matprop != nullptr) {
-            eloss.reset(m_elosstool->energyLoss(*matprop, p, 1. / costracksurf, Trk::alongMomentum, matEffects));
+            eloss = m_elosstool->energyLoss(*matprop, p, 1. / costracksurf, Trk::alongMomentum, matEffects);
             sigmascat = std::sqrt(m_scattool->sigmaSquare(*matprop, p, 1. / costracksurf, matEffects));
             
             if (eloss != nullptr) {
@@ -3279,13 +3279,13 @@ namespace Trk {
         std::unique_ptr<EnergyLoss> eloss;
         
         if (cache.m_fiteloss || (matEffects == electron && cache.m_asymeloss)) {
-          eloss.reset(m_elosstool->energyLoss(
+          eloss = m_elosstool->energyLoss(
             *matprop,
             (m_p != 0.0 ? std::abs(m_p) : std::abs(1. / currentqoverp)),
             1. / costracksurf, 
             alongMomentum,
             matEffects
-          ));
+          );
           if (eloss != nullptr) {
             meff->setSigmaDeltaE(eloss->sigmaDeltaE());
           }
