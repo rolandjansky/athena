@@ -101,7 +101,10 @@ def Run1Run2DecisionMakerCfg(flags):
     cnvTool = CompFactory.xAODMaker.TrigDecisionCnvTool('TrigDecisionCnvTool', 
                                                         TrigConfigSvc = acc.getPrimaryAndMerge( getxAODConfigSvc( flags )) )
 
+
     decCnv = CompFactory.xAODMaker.TrigDecisionCnvAlg(CnvTool = cnvTool)    
+    if "EventInfo#EventInfo" not in flags.Input.TypedCollections:
+        decCnv.EventInfoKey=""
 
     acc.addEventAlgo(decCnv)
 
