@@ -21,7 +21,7 @@ DRAW_TOPSLMU_Seq = CfgMgr.AthSequencer("DRAW_TOPSLMU_Seq")
 # FixedCutBEff_77 for btag
 sel_muon = 'Muons.pt > 30.0*GeV && abs(Muons.eta) < 2.5 && (Muons.quality == 0)'
 sel_jet  = 'AntiKt4EMTopoJets.pt > 25*GeV && abs(AntiKt4EMTopoJets.eta) < 2.5'
-sel_bjet  = 'AntiKt4EMTopoJets.pt > 25*GeV && abs(AntiKt4EMTopoJets.eta) < 2.5 && BTagging_AntiKt4EMTopo.MV2c10_discriminant>0.645925'
+sel_bjet  = 'AntiKt4EMTopoJets.pt > 25*GeV && abs(AntiKt4EMTopoJets.eta) < 2.5'
 sel_el  = 'Electrons.pt > 20*GeV && ( Electrons.Loose || Electrons.LHLoose ) && abs( Electrons.eta) < 2.47'
 
 #met = 'MET_Reference_AntiKt4EMTopo["FinalClus"].met > 55*GeV'
