@@ -212,7 +212,7 @@ def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name="InDetAmbiguityProces
 
     if flags.InDet.Tracking.holeSearchInGX2Fit:
         fitter_args.setdefault("DoHoleSearch", True)
-        from InDetConfig.InDetRecToolConfig import InDetBoundaryCheckToolCfg
+        from InDetConfig.InDetBoundaryCheckToolConfig import InDetBoundaryCheckToolCfg
         InDetBoundaryCheckTool = acc.popToolsAndMerge(InDetBoundaryCheckToolCfg(flags))
         fitter_args.setdefault("BoundaryCheckTool", InDetBoundaryCheckTool)
 
@@ -280,7 +280,7 @@ def ITkDenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "ITkAmbiguityPro
     fitter_args = {}
     fitter_args.setdefault("DoHoleSearch", True)
 
-    from InDetConfig.ITkRecToolConfig import ITkBoundaryCheckToolCfg
+    from InDetConfig.InDetBoundaryCheckToolConfig import ITkBoundaryCheckToolCfg
     ITkBoundaryCheckTool = acc.popToolsAndMerge(ITkBoundaryCheckToolCfg(flags))
     fitter_args.setdefault("BoundaryCheckTool", ITkBoundaryCheckTool)
 

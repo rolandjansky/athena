@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCONDTPCNV_LARAUTOCORRSUBSETCNV_P1_H
@@ -16,13 +16,15 @@ typedef LArConditionsSubset<LArAutoCorrP1> LArAutoCorrTransType;
 typedef LArAutoCorrSubset_p1               LArAutoCorrPersType;
 
 class LArAutoCorrSubsetCnv_p1  
-    : public T_AthenaPoolTPCnvBase<LArAutoCorrTransType, LArAutoCorrPersType >
+    : public T_AthenaPoolTPCnvConstBase<LArAutoCorrTransType, LArAutoCorrPersType >
 {
 public:
+    using base_class::transToPers;
+    using base_class::persToTrans;
 
     LArAutoCorrSubsetCnv_p1() {}
-    virtual void   persToTrans(const LArAutoCorrPersType* persObj, LArAutoCorrTransType* transObj, MsgStream &log) ;
-    virtual void   transToPers(const LArAutoCorrTransType* transObj, LArAutoCorrPersType* persObj, MsgStream &log) ;
+    virtual void   persToTrans(const LArAutoCorrPersType* persObj, LArAutoCorrTransType* transObj, MsgStream &log) const override;
+    virtual void   transToPers(const LArAutoCorrTransType* transObj, LArAutoCorrPersType* persObj, MsgStream &log) const override;
 
 };
 

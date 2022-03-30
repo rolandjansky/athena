@@ -3,6 +3,7 @@
 # art-description: MC21-style simulation using FullG4MT_QS (13 TeV ttbar input - needs updating)
 # art-include: master/Athena
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-output: *.pool.root
 # art-output: log.*
 # art-output: Config*.pkl

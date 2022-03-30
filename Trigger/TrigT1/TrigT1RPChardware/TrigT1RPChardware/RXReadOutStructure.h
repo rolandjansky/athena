@@ -20,12 +20,12 @@ public:
     ~RXReadOutStructure() = default;
     void setInit();
     //
-    virtual ubit16 makeHeader(ubit16 *inputData);
-    virtual ubit16 makeSubHeader() { return 0; };
+    virtual ubit16 makeHeader(ubit16 *inputData) override;
+    virtual ubit16 makeSubHeader() override { return 0; };
     // virtual ubit16 makeBody(ubit16 *inputData) {return (*inputData)&0x0;};
-    virtual ubit16 makeBody(ubit16 *inputData) { return *inputData; };
-    virtual ubit16 makeFooter(ubit16 errorCode);
-    virtual ubit16 makeFooter(ubit16 *errorCode);
+    virtual ubit16 makeBody(ubit16 *inputData) override { return *inputData; };
+    virtual ubit16 makeFooter(ubit16 errorCode) override;
+    virtual ubit16 makeFooter(ubit16 *errorCode) override;
 
     //**************************************************//
     // general user methods to decode ReadOut stream    //

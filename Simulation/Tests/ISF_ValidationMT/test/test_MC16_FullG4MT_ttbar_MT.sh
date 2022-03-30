@@ -3,6 +3,7 @@
 # art-description: Run FullG4MT simulation in AthenaMT with old and new style configuration, reading ttbar events, writing HITS, using MC16 geometry and conditions
 # art-include: master/Athena
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-output: log.*
 # art-output: test.*.HITS.pool.root
 # art-output: log.*

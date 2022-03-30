@@ -144,6 +144,13 @@ VrtSecInclusive_InDet.TrackToVertexTool            = ToolSvc.IDTR2T2VTool
 VrtSecInclusive_InDet.FillIntermediateVertices     = False
 VrtSecInclusive_InDet.TrackLocation                = "InDetWithLRTTrackParticles"
 
+from InDetRecExample.TrackingCommon import getInDetPixelConditionsSummaryTool
+InDetPixelConditionsSummaryTool = getInDetPixelConditionsSummaryTool()
+InDetPixelConditionsSummaryTool.UseByteStreamFEI4 = False
+InDetPixelConditionsSummaryTool.UseByteStreamFEI3 = False
+
+VrtSecInclusive_InDet.PixelConditionsSummaryTool   = InDetPixelConditionsSummaryTool
+
 VrtSecInclusive_InDet.doAugmentDVimpactParametersToMuons     = False
 VrtSecInclusive_InDet.doAugmentDVimpactParametersToElectrons = False
 

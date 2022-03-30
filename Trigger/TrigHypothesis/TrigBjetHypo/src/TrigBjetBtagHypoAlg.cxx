@@ -486,16 +486,12 @@ StatusCode TrigBjetBtagHypoAlg::monitor_btagging( const ElementLinkVector< xAOD:
     monitor_for_JetFitterSecondaryVertex_averageAllJetTrackRelativeEta
   );
 
-  // Monitor MV2c10
-  MONITOR_BTAG_AUX_VAR(MV2c10_discriminant, float, bTaggingEL);
-
   auto monitor_group_for_btagging = Monitored::Group( m_monTool, 
     monitor_for_JetFitter_isDefaults,
     monitor_for_SV1_isDefaults,
     monitor_for_IP2D_isDefaults,
     monitor_for_IP3D_isDefaults,
-    monitor_for_JetFitterSecondaryVertex_isDefaults,
-    monitor_for_MV2c10_discriminant
+    monitor_for_JetFitterSecondaryVertex_isDefaults
   );
 
   return StatusCode::SUCCESS;

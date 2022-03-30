@@ -41,7 +41,7 @@ def TRT_SeededTrackFinder_ATLCfg(flags, name='InDetTRT_SeededTrackMaker', InputC
     kwargs.setdefault("Xi2maxNoAdd", flags.InDet.Tracking.ActivePass.SecondaryXi2maxNoAdd)
     kwargs.setdefault("SearchInCaloROI", False)
     if kwargs["SearchInCaloROI"]:
-        from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
+        from InDetConfig.InDetCaloClusterROISelectorConfig import CaloClusterROI_SelectorCfg
         acc.merge(CaloClusterROI_SelectorCfg(flags))
         kwargs.setdefault("InputClusterContainerName", "InDetCaloClusterROIs") # InDetKeys.CaloClusterROIContainer()
     else:

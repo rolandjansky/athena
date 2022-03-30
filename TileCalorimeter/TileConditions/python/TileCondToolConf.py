@@ -775,7 +775,7 @@ def getTileCondToolDspThreshold(source = 'FILE', name = 'TileCondToolDspThreshol
 #____________________________________________________________________________
 def bookTileSamplingFractionCondAlg(source = 'FILE'):
 
-    from TileConditions.TileConditionsConf import TileCondAlg_TileSamplingFraction_TileCalibDrawerFlt_ as TileSamplingFractionCondAlg
+    from TileConditions.TileConditionsConf import TileSamplingFractionCondAlg
     sampFraction = 'TileSamplingFraction'
     sampFractionCondAlg = sampFraction + 'CondAlg'
 
@@ -798,7 +798,15 @@ def bookTileSamplingFractionCondAlg(source = 'FILE'):
             else:
                 raise(Exception("Invalid source: %s" %source ))
 
-        condSequence += TileSamplingFractionCondAlg( name = sampFractionCondAlg,
+        try:
+            from Digitization.DigitizationFlags import jobproperties
+            G4Version = jobproperties.Digitization.SimG4VersionUsed()
+            G4VersionMajor, G4VersionMinor = G4Version.split(".")[1:3]
+            G4V = int(G4VersionMajor) * 100 + int(G4VersionMinor)
+        except Exception:
+            G4V = -1
+
+        condSequence += TileSamplingFractionCondAlg( name = sampFractionCondAlg, G4Version = G4V,
                                                      ConditionsProxy = sampFractionProxy,
                                                      TileCondData = sampFraction)
 

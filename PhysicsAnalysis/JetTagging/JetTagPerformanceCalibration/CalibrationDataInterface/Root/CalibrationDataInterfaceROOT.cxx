@@ -2391,7 +2391,7 @@ Analysis::CalibrationDataInterfaceROOT::initialize(const string& jetauthor, cons
   BTagVars.jetEta = 1.5; //Irrelevant, just has to be valid to retrieve objects 
  		 
   std::vector<string>::iterator flav = label.begin(); 
-  for(; flav!=label.end(); flav++) { 
+  for(; flav!=label.end(); ++flav) { 
     std::pair<double, double> BTagCalibResult; 
     BTagCalibResult = getScaleFactor(BTagVars,(*flav), OP, unc); 
  		 

@@ -112,10 +112,10 @@ TFile* AthAnalysisHelper::getOutputFile(const std::string& streamName) {
   //extract the DATAFILE part of the string
   std::string fileName="";
   for(std::string& output : outputs) {
-    if( output.substr(0,output.find(" "))!=streamName ) continue;
+    if( output.substr(0,output.find(' '))!=streamName ) continue;
 
     //got here .. means we found the stream ...
-    for(auto attrib : Gaudi::Utils::AttribStringParser(output.substr(output.find(" ")+1))) {
+    for(auto attrib : Gaudi::Utils::AttribStringParser(output.substr(output.find(' ')+1))) {
       auto TAG = boost::algorithm::to_upper_copy(attrib.tag);
 
       if(TAG=="FILE" || TAG=="DATAFILE") {

@@ -88,7 +88,7 @@ private:
   Gaudi::Property<bool> m_undoOnlineHVCorr{this,"UndoOnlineHVCorr",true,"Undo the HVCorr done online"};
   Gaudi::Property<bool> m_useCurrentEMB{this,"UseCurrentsInHVEM",false,"Use currents in EMB as well"};
   Gaudi::Property<bool> m_useCurrentFCAL1{this,"UseCurrentsInHVFCAL1",false,"Use currents in FCAL1 as well"};
-  Gaudi::Property<bool> m_useCurrentOthers{this,"UseCurrentsInHVOthers", "Use currents in other partitions as well"};
+  Gaudi::Property<bool> m_useCurrentOthers{this,"UseCurrentsInHVOthers", false, "Use currents in other partitions as well"};
   bool m_doR = true; //will be set depending on the above properties
 
   Gaudi::Property<bool> m_doAffected{this,"doAffected",true,"create affected region info"};

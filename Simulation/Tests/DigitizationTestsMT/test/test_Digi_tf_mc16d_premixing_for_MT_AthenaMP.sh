@@ -3,6 +3,7 @@
 # art-description: Run MC16 pile-up pre-mixing with 2016d geometry and conditions, 25ns pile-up, MT output containers in AthenaMP
 # art-include: master/Athena
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-athena-mt: 8
 # art-output: mc16d_premixing_MT.MP.RDO.pool.root
 

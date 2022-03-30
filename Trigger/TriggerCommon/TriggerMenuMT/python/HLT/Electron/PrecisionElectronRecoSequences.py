@@ -66,7 +66,7 @@ def precisionElectronRecoSequence(RoIs, ion=False, variant=''):
     TrigSuperElectronAlgo = TrigElectronSuperClusterBuilder("TrigElectronSuperClusterBuilder_noGSF" + tag)
     TrigSuperElectronAlgo.TrackMatchBuilderTool          = TrigEMTrackMatchBuilder
     TrigSuperElectronAlgo.InputEgammaRecContainerName    = TrigEgammaRecAlgo.egammaRecContainer # input
-    TrigSuperElectronAlgo.SuperElectronRecCollectionName = TrigEgammaKeys.precisionElectronSuperClusterCollection # output
+    TrigSuperElectronAlgo.SuperElectronRecCollectionName = TrigEgammaKeys.precisionElectronSuperClusterRecCollection # output
     thesequence += TrigSuperElectronAlgo
 
     ## TrigTopoEgammaElectronCfg_noGSF ##

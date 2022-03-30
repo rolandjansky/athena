@@ -47,6 +47,8 @@ def createLArConfigFlags():
     lcf.addFlag("LAr.ROD.nSamples", 5)
     # Index of first sample in LAr digitization + ROD emulation
     lcf.addFlag("LAr.ROD.FirstSample", 0)
+    # Number of preceeding samples (necessary for phase 2 simulation)
+    lcf.addFlag("LAr.ROD.nPreceedingSamples", 0)
     # Force using the highest gain autocorrelation function
     # when doing OFC optimization
     lcf.addFlag("LAr.ROD.UseHighestGainAutoCorr", False)

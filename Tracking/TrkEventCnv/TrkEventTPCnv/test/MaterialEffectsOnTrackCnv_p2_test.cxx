@@ -120,7 +120,7 @@ void test1 ATLAS_NOT_THREAD_SAFE ()
   testit (me1);
 
   Trk::MaterialEffectsOnTrack me2 (12.5,
-                                   new Trk::EnergyLoss (el),
+                                   std::make_unique<Trk::EnergyLoss>(el),
                                    psurf);
   testit (me2);
 
@@ -131,7 +131,7 @@ void test1 ATLAS_NOT_THREAD_SAFE ()
 
   Trk::MaterialEffectsOnTrack me4 (12.5,
                                    Trk::ScatteringAngles (sa),
-                                   new Trk::EnergyLoss (el),
+                                   std::make_unique<Trk::EnergyLoss>(el),
                                    psurf);
   testit (me4);
 }

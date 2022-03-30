@@ -53,6 +53,7 @@ TFCSLateralShapeTuning::TFCSLateralShapeTuning(const char* name, const char* tit
 TFCSLateralShapeTuning::~TFCSLateralShapeTuning()
 {
   //clear parameter intpolation map and free memory
+  for(std::map<std::string, TFCSEnergyInterpolationPiecewiseLinear*>::iterator itr = m_parameterInterpol.begin(); itr != m_parameterInterpol.end(); itr++) delete (itr->second);  
   m_parameterInterpol.clear();
 }
 

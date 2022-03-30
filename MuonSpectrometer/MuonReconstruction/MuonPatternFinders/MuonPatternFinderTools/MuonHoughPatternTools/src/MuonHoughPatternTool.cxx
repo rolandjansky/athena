@@ -816,7 +816,6 @@ std::unique_ptr<MuonPrdPatternCollection> MuonHoughPatternTool::getPhiMuonPatter
                     ATH_MSG_DEBUG(" Lift MuonPhiPattern size " << muonpattern->numberOfContainedPrds());
                     if (msgLvl(MSG::VERBOSE)) { printPattern(muonpattern.get()); }
                     phipatterncollection->push_back(std::move(muonpattern));
-
                 }
             }
         }

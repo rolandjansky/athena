@@ -2,7 +2,6 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TileConditions/TileCalibData.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 
 #include "StoreGate/ReadCondHandle.h"
@@ -33,6 +32,8 @@ StatusCode TileCondAlg<CONDDATA, CALIBDATA>::execute(const EventContext& ctx) co
   auto calibData = std::make_unique<TileCalibData<CALIBDATA>>();
 
   ATH_CHECK( m_conditionsProxy->fillCalibData(*calibData, eventRange) );
+
+  ATH_CHECK( checkData(*calibData) );
 
   auto data = std::make_unique<CONDDATA>(std::move(calibData));
 

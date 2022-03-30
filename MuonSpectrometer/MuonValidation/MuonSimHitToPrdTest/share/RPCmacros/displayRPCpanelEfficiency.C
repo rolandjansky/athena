@@ -205,7 +205,7 @@ void showEffMapsEtaPhi(int view, RPCpanelList* myPanList, std::map<unsigned long
         tpl->SetLineColor(kBlack);
         if (stName == "BML" && layerRPC < 3) {
             if (stringId.substr(0, 7) == "[7.2.-7" || stringId.substr(0, 7) == "[7.2.7." || stringId.substr(0, 9) == "[7.2.-6.7" ||
-                stringId.substr(0, 9) == "[7.2.6.7") {
+                stringId.substr(0, 8) == "[7.2.6.7") {
                 layerRPC = layerRPC + 2;
             }
         }

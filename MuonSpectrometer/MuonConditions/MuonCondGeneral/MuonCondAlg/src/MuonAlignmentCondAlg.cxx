@@ -20,21 +20,8 @@
 #include "SGTools/TransientAddress.h"
 
 MuonAlignmentCondAlg::MuonAlignmentCondAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-    AthAlgorithm(name, pSvcLocator), m_newFormat2020(false) {
-    m_geometryVersion = "";
-    m_AsBuiltRequested = false;
-    m_ILineRequested = false;
-
-    m_parlineFolder.clear();
-    declareProperty("DumpALines", m_dumpALines = false);
-    declareProperty("DumpBLines", m_dumpBLines = false);
-    declareProperty("DumpILines", m_dumpILines = false);
-    declareProperty("ILinesFromCondDB", m_ILinesFromDb = false);
-    declareProperty("ALinesFile", m_aLinesFile = "");
-    declareProperty("AsBuiltFile", m_asBuiltFile = "");
-
-    // new folder format 2020
-    declareProperty("NewFormat2020", m_newFormat2020);
+    AthAlgorithm(name, pSvcLocator) {
+   
 }
 
 StatusCode MuonAlignmentCondAlg::initialize() {
@@ -55,13 +42,13 @@ StatusCode MuonAlignmentCondAlg::initialize() {
     ATH_CHECK(m_readMdtEndcapSideCKey.initialize());
     ATH_CHECK(m_readTgcSideAKey.initialize());
     ATH_CHECK(m_readTgcSideCKey.initialize());
-    ATH_CHECK(m_readCscILinesKey.initialize(m_ILinesFromDb and m_ILineRequested));
+    ATH_CHECK(m_readCscILinesKey.initialize(m_idHelperSvc->hasCSC() && m_ILinesFromDb and m_ILineRequested));
     ATH_CHECK(m_readMdtAsBuiltParamsKey.initialize(m_AsBuiltRequested));
 
     // Write Handles
     ATH_CHECK(m_writeALineKey.initialize());
     ATH_CHECK(m_writeBLineKey.initialize());
-    ATH_CHECK(m_writeILineKey.initialize());
+    ATH_CHECK(m_writeILineKey.initialize(m_idHelperSvc->hasCSC()));
     ATH_CHECK(m_writeAsBuiltKey.initialize());
 
     ATH_CHECK(detStore()->retrieve(m_muonDetMgrDS));
@@ -85,7 +72,7 @@ StatusCode MuonAlignmentCondAlg::loadParameters() {
     // =======================
     // Load ILine parameters if requested in the joboptions and /MUONALIGN/CSC/ILINES folder given in the joboptions
     // =======================
-    if (m_ILinesFromDb and m_ILineRequested) {
+    if (m_idHelperSvc->hasCSC() && m_ILinesFromDb and m_ILineRequested) {
         sc = loadAlignILines("/MUONALIGN/CSC/ILINES");
     } else if (m_ILineRequested and not m_ILinesFromDb) {
         ATH_MSG_INFO("DB folder for I-Lines given in job options however loading disabled ");
@@ -201,7 +188,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLinesData(const std::string& folderN
             // Corr: EMS  4   1  0     2.260     3.461    28.639 -0.002402 -0.002013  0.000482    -0.006    -0.013 -0.006000  0.000000
             // 0.000000     0.026    -0.353  0.000000  0.070000  0.012000    -0.012    EMS1A08
 
-            char delimiter = ' ';
+            constexpr char delimiter = ' ';
             auto tokens = MdtStringUtils::tokenize(blobline, delimiter);
 
             // Check if tokens has the right length
@@ -227,9 +214,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLinesData(const std::string& folderN
             int ival = 1;
 
             // Station Component identification
-            int jff;
-            int jzz;
-            int job;
+            int jff{0}, jzz{0}, job{0};
             std::string stationType = std::string(tokens[ival++]);
             line["typ"] = std::move(stationType);
             jff = MdtStringUtils::atoi(tokens[ival++]);
@@ -240,12 +225,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLinesData(const std::string& folderN
             line["job"] = job;
 
             // A-line
-            float s;
-            float z;
-            float t;
-            float ths;
-            float thz;
-            float tht;
+            float s{0.f}, z{0.f}, t{0.f}, ths{0.f}, thz{0.f}, tht{0.f};
             s = MdtStringUtils::stof(tokens[ival++]);
             line["svalue"] = s;
             z = MdtStringUtils::stof(tokens[ival++]);
@@ -260,8 +240,8 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLinesData(const std::string& folderN
             line["ttv"] = tht;
 
             // B-line
-            float bz, bp, bn, sp, sn, tw, pg, tr, eg, ep, en;
-            float xAtlas, yAtlas;
+            float bz{0.f}, bp{0.f}, bn{0.f}, sp{0.f}, sn{0.f}, tw{0.f}, pg{0.f}, tr{0.f}, eg{0.f}, ep{0.f}, en{0.f};
+            float xAtlas{0.f}, yAtlas{0.f};
 
             if (hasBLine && thisRowHasBLine) {
                 bz = MdtStringUtils::stof(tokens[ival++]);
@@ -553,7 +533,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines(const std::string& folderName,
                 ATH_MSG_VERBOSE("identifier being assigned is " << m_idHelperSvc->tgcIdHelper().show_to_string(id));
             } else if (stationType.substr(0, 1) == "C") {
                 // csc case
-  	        if(!m_doCSC) continue; //skip if geometry doesn't include CSCs
+  	             if(!m_idHelperSvc->hasCSC()) continue; //skip if geometry doesn't include CSCs
                 id = m_idHelperSvc->cscIdHelper().elementID(stationName, jzz, jff);
                 ATH_MSG_VERBOSE("identifier being assigned is " << m_idHelperSvc->cscIdHelper().show_to_string(id));
             } else if (stationType.substr(0, 3) == "BML" && abs(jzz) == 7) {
@@ -633,7 +613,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignILines(const std::string& folderName) 
     // =======================
     SG::ReadCondHandle<CondAttrListCollection> readCscILinesHandle{m_readCscILinesKey};
     const CondAttrListCollection* readCscILinesCdo{*readCscILinesHandle};
-    if (readCscILinesCdo == nullptr) {
+    if (!readCscILinesCdo) {
         ATH_MSG_ERROR("Null pointer to the read CSC/ILINES conditions object");
         return StatusCode::FAILURE;
     }
@@ -680,9 +660,8 @@ StatusCode MuonAlignmentCondAlg::loadAlignILines(const std::string& folderName) 
         }
 
         // old format -----------------------------------
-        else {
-            if (loadAlignILinesData(folderName, data, lines).isFailure()) return StatusCode::FAILURE;
-        }
+        else if (m_idHelperSvc->hasCSC() && loadAlignILinesData(folderName, data, lines).isFailure()) return StatusCode::FAILURE;
+        
 
         // loop over corrections ------------------------
         for (auto& corr : lines.items()) {
@@ -800,10 +779,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignILinesData(const std::string& folderNa
             int ival = 1;
 
             // Station Component identification
-            int jff;
-            int jzz;
-            int job;
-            int jlay;
+            int jff{0}, job{0}, jlay{0}, jzz{0};
             std::string stationType = std::string(tokens[ival++]);
             line["typ"] = std::move(stationType);
             jff = MdtStringUtils::atoi(tokens[ival++]);
@@ -816,12 +792,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignILinesData(const std::string& folderNa
             line["jlay"] = jlay;
 
             // I-line
-            float tras;
-            float traz;
-            float trat;
-            float rots;
-            float rotz;
-            float rott;
+            float tras{0.f}, traz{0.f}, trat{0.f}, rots{0.f}, rotz{0.f}, rott{0.f};
             tras = MdtStringUtils::stof(tokens[ival++]);
             line["tras"] = tras;
             traz = MdtStringUtils::stof(tokens[ival++]);
@@ -922,9 +893,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignAsBuilt(const std::string& folderName)
                 }
 
                 std::string stationType = "XXX";
-                int jff = 0;
-                int jzz = 0;
-                int job = 0;
+                int jff {0},  jzz{0}, job{0};
                 xPar.getAmdbId(stationType, jff, jzz, job);
                 Identifier id = m_idHelperSvc->mdtIdHelper().elementID(stationType, jzz, jff);
 
@@ -1027,7 +996,7 @@ void MuonAlignmentCondAlg::setALinesFromAscii(ALineMapContainer* writeALineCdo) 
     ATH_MSG_INFO(" Set alignment constants from text file " << m_aLinesFile);
 
     std::ifstream infile;
-    infile.open(m_aLinesFile.c_str());
+    infile.open(m_aLinesFile);
 
     char line[512];
     ATH_MSG_DEBUG("reading file");
@@ -1067,7 +1036,7 @@ void MuonAlignmentCondAlg::setALinesFromAscii(ALineMapContainer* writeALineCdo) 
 void MuonAlignmentCondAlg::setAsBuiltFromAscii(MdtAsBuiltMapContainer* writeCdo) const {
     ATH_MSG_INFO(" Set alignment constants from text file " << m_asBuiltFile);
 
-    std::ifstream fin(m_asBuiltFile.c_str());
+    std::ifstream fin(m_asBuiltFile);
     std::string line;
     MdtAsBuiltPar xPar;
     xPar.isNew(true);

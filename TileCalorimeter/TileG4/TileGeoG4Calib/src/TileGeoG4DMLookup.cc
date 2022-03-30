@@ -15,6 +15,7 @@
 #include "TileGeoG4SD/TileGeoG4Lookup.hh"
 
 #include "G4ios.hh"
+#include <vector>
 
 TileGeoG4CalibCell::TileGeoG4CalibCell()
   : detector(0),
@@ -57,8 +58,8 @@ void TileGeoG4CalibSection::DMToCell(bool gap_crack, TileGeoG4Section* tile_sect
   int l_nSample = nrOfSamples;                    //Number of samples in the module
   int l_nPeriod = nrOfPeriods;                    //Number of periods in the module 
 
-  int* l_indCurrentCell = new int[l_nSample];    //Index of current cell for each sample
-  int* l_currentBoundary = new int[l_nSample];    //Current boundary for each sample
+  std::vector<int> l_indCurrentCell(l_nSample,0); //Index of current cell for each sample
+  std::vector<int> l_currentBoundary(l_nSample,0); //Current boundary for each sample
   int samp, per;
   bool passed = false;
 
@@ -154,8 +155,7 @@ void TileGeoG4CalibSection::DMToCell(bool gap_crack, TileGeoG4Section* tile_sect
     }
   }
 
-  delete[] l_indCurrentCell;
-  delete[] l_currentBoundary;
+ 
 }
 
 TileGeoG4Cell* TileGeoG4CalibSection::GetCell(int nPeriod, int nSample) {

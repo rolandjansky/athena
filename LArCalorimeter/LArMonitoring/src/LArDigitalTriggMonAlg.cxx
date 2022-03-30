@@ -219,13 +219,13 @@ StatusCode LArDigitalTriggMonAlg::fillHistograms(const EventContext& ctx) const
       fill(m_scMonGroupName, Mmaxpos, Mpartition, MlatomeSourceIdBIN);
       
       /** max sample per layer*/
-      if(layerName.find("P")!= std::string::npos || layerName.find("0")!= std::string::npos){  
+      if(layerName.find('P')!= std::string::npos || layerName.find('0')!= std::string::npos){  
         layer = "0";
       }
-      else if(layerName.find("1")!= std::string::npos){ 
+      else if(layerName.find('1')!= std::string::npos){ 
 	layer = "1";
       }
-      else if(layerName.find("2")!= std::string::npos){ 
+      else if(layerName.find('2')!= std::string::npos){ 
 	layer = "2";
       }
       else{  

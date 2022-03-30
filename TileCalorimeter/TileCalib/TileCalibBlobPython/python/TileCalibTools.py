@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 # TileCalibTools.py
 # Nils Gollub <nils.gollub@cern.ch>, 2007-11-23
 #
@@ -1214,6 +1214,8 @@ class TileASCIIParser2(TileCalibLogger):
                 pref = fields[0]
                 frag = fields[1]
                 chan = fields[2]
+                if str(chan)[0:2].lower() == "pm":
+                    chan = self.PMT2channel(frag,fields.pop(2))
                 if readGain:
                     gain = fields[3]
                     data = fields[4:]
@@ -1230,6 +1232,8 @@ class TileASCIIParser2(TileCalibLogger):
             else:
                 frag = fields[0]
                 chan = fields[1]
+                if str(chan)[0:2].lower() == "pm":
+                    chan = self.PMT2channel(frag,fields.pop(2))
                 if readGain:
                     gain  = fields[2]
                     data = fields[3:]
@@ -1360,6 +1364,32 @@ class TileASCIIParser2(TileCalibLogger):
             pmt = chan2PMT_EB[chan]
 
         return pmt
+
+    #____________________________________________________________________
+    def PMT2channel(self,partition,pmt):
+        "Convert PMT number to channel numbet"
+        "This takes partition (LBA,LBC,EBA,EBC) and pmt [1-48]"
+
+        chan2PMT_LB=[  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12,
+                      13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+                      27, 26, 25, 30, 29, 28, 33, 32, 31, 36, 35, 34,
+                      39, 38, 37, 42, 41, 40, 45, 44, 43, 48, 47, 46 ]
+
+        chan2PMT_EB=[  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12,
+                      13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+                      27, 26, 25, 31, 32, 28, 33, 29, 30, 36, 35, 34,
+                      44, 38, 37, 43, 42, 41, 45, 39, 40, 48, 47, 46 ]
+
+        chan = -1
+        pm=abs(int(pmt))
+
+        if pm>0 and pm<=48:
+            if str(partition)[0].upper() == "E":
+                chan = chan2PMT_EB.index(pm)
+            else:
+                chan = chan2PMT_LB.index(pm)
+
+        return chan
 
 #======================================================================
 #===

@@ -10,7 +10,9 @@
 
 class EmptyJetGroupProduct: public IJetGroupProduct{
   /*
-   * Return an empty vector if jet indices
+   * Return an empty vector of jet indices.
+   * The need for such a vector may arise for a number of reasons
+   * for when example no jet group satisfies a Condition.
    */
 public:
   EmptyJetGroupProduct(){}

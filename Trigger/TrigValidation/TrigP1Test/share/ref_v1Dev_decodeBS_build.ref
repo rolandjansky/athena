@@ -1194,8 +1194,6 @@ HLT_e25_mergedtight_g35_medium_90invmAB_02dRAB_L12EM20VH:
   eventCount: 0
 HLT_e25_mergedtight_g35_medium_90invmAB_02dRAB_L12eEM24L:
   eventCount: 0
-HLT_e25_mergedtight_g35_medium_Heg_L12EM20VH:
-  eventCount: 0
 HLT_e26_dnnloose_L1EM22VHI:
   eventCount: 0
 HLT_e26_dnnmedium_L1EM22VHI:
@@ -1235,6 +1233,8 @@ HLT_e26_idperf_tight_L1eEM26M:
 HLT_e26_lhloose_nopix_lrttight_L1EM22VHI:
   eventCount: 0
 HLT_e26_lhloose_nopix_lrttight_L1eEM26M:
+  eventCount: 0
+HLT_e26_lhloose_nopix_lrttight_gsf_L1EM22VHI:
   eventCount: 0
 HLT_e26_lhloose_nopix_lrttight_probe_g25_medium_L1EM20VH:
   eventCount: 0
@@ -3767,12 +3767,6 @@ HLT_j85_pf_ftf_preselj50_L1jJ50:
     1: 7
 HLT_l1topodebug_legacy_L1All:
   eventCount: 0
-HLT_larpsall_L1J15:
-  eventCount: 19
-  stepCounts:
-    0: 19
-  stepFeatures:
-    0: 23
 HLT_larpsallem_L1EM3:
   eventCount: 36
   stepCounts:

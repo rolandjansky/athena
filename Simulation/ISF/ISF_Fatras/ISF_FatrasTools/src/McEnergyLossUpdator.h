@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -61,7 +61,7 @@ namespace iFatras{
 
     /** IEnergyLossUpdator public method to compute the mean and variance of the energy loss */
     virtual
-    Trk::EnergyLoss* energyLoss( const Trk::MaterialProperties& materialProperties,
+    std::unique_ptr<Trk::EnergyLoss> energyLoss( const Trk::MaterialProperties& materialProperties,
                                  double momentum,
                                  double pathCorrection,
                                  Trk::PropDirection direction = Trk::alongMomentum,
@@ -72,7 +72,7 @@ namespace iFatras{
     /** Method to recalculate Eloss values for the fit setting an elossFlag using as an input
         the detailed Eloss information Calorimeter energy, error momentum and momentum error */
     virtual
-    Trk::EnergyLoss* updateEnergyLoss( Trk::EnergyLoss*, double, double, double, double, int&) const override { return 0; }
+    std::unique_ptr<Trk::EnergyLoss> updateEnergyLoss( Trk::EnergyLoss*, double, double, double, double, int&) const override { return 0; }
   
     /** Routine to calculate X0 and Eloss scale factors for the Calorimeter and Muon System */
     virtual

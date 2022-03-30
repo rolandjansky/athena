@@ -277,9 +277,9 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___LArPileUpTool_properties(self):
         tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.LArPileUpTool'
-        expected_property_list = ['CablingKey', 'DetStore', 'CaloDetDescrManager', 'DoDigiTruthReconstruction', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'InputDigitContainer', 'LArHitContainers', 'LArHitEMapKey', 'LArHitEMap_DigiHSTruthKey', 'LArHitFloatContainers', 'LArXTalkWeightGlobal', 'LastXing', 'NoiseOnOff', 'Nsamples', 'PileUp', 'PileUpMergeSvc', 'RandomSeedOffset', 'RndmEvtOverlay', 'RndmSvc', 'TriggerTimeToolName', 'firstSample', 'useLArFloat']
+        expected_property_list = ['CablingKey', 'DetStore', 'CaloDetDescrManager', 'DoDigiTruthReconstruction', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'InputDigitContainer', 'LArHitContainers', 'LArHitEMapKey', 'LArHitEMap_DigiHSTruthKey', 'LArHitFloatContainers', 'LArXTalkWeightGlobal', 'LastXing', 'NoiseOnOff', 'PileUp', 'PileUpMergeSvc', 'RandomSeedOffset', 'RndmEvtOverlay', 'RndmSvc', 'TriggerTimeToolName', 'useLArFloat']
         expected_string_properties = {}
-        expected_nonstring_properties = {'LastXing': '101', 'FirstXing': '-751', 'Nsamples': '4',
+        expected_nonstring_properties = {'LastXing': '101', 'FirstXing': '-751',
                                          'LArHitContainers': '["StoreGateSvc+LArHitEMB","StoreGateSvc+LArHitEMEC","StoreGateSvc+LArHitHEC","StoreGateSvc+LArHitFCAL"]', 'LArHitFloatContainers':'[]'}
         self._detailed_ConfigurablePropertiesCheck(
             tested_configurable_name,

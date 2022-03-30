@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from JetMonitoring.JetHistoTools import jhm, selectionAndHistos
 from JetMonitoring.JetMonitoringConf import JetMonitoringTool, JetKinematicHistos, JetContainerHistoFiller
@@ -94,10 +94,15 @@ def commonMonitoringTool(container, refcontainer="", pathSuffix=''):
             selectionAndHistos( "500000<pt<1000000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "SumPtTrkPt500[0]",  "FracSamplingMax"], "highpt_500_1000" ),
             selectionAndHistos( "1000000<pt<2000000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "SumPtTrkPt500[0]",  "FracSamplingMax"], "highpt_1000_2000" ),
             selectionAndHistos( "2000000<pt<8000000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "SumPtTrkPt500[0]",  "FracSamplingMax"], "highpt_2000_8000" ),
-            selectionAndHistos( "LooseBadJets" ,  [  "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", JetKinematicHistos("kinematics",PlotOccupancy=True, PlotAveragePt=True, PlotAverageE=True, PlotNJet=True)]),
             selectionAndHistos( "1.0<eta<1.4" , [  "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", JetKinematicHistos("kinematicsTileGap",PlotOccupancy=True, PlotAveragePt=True, PlotAverageE=True, PlotNJet=True)], "eta_1_14" ),
             
             ]
+        
+        if "Topo" in container and container != "AntiKt10LCTopoJets":
+            filler.HistoTools += [
+                selectionAndHistos( "LooseBadJets" ,  [  "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", JetKinematicHistos("kinematics",PlotOccupancy=True, PlotAveragePt=True, PlotAverageE=True, PlotNJet=True)])]
+
+
         if jetFlags.useTracks:
             filler.HistoTools += [
                 # track variables

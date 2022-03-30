@@ -2,6 +2,7 @@
 #
 # art-description: Run multistep pile-up presampling
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-athena-mt: 8
 # art-include: master/Athena
 # art-output: multistep_presampling_SP.RDO.pool.root

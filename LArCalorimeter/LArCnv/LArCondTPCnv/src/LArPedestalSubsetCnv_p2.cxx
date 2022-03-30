@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawConditions/LArConditionsSubset.h"
@@ -9,7 +9,7 @@
 void
 LArPedestalSubsetCnv_p2::persToTrans(const LArPedestalSubset_p2* persObj, 
 				     LArPedestalTransType* transObj, 
-				     MsgStream & log)
+				     MsgStream & log) const
 {
     // Copy basic metadata
     transObj->setChannel       (persObj->m_subset.m_channel);
@@ -68,7 +68,7 @@ LArPedestalSubsetCnv_p2::persToTrans(const LArPedestalSubset_p2* persObj,
 void
 LArPedestalSubsetCnv_p2::transToPers(const LArPedestalTransType* transObj, 
 				     LArPedestalSubset_p2* persObj, 
-				     MsgStream &log) 
+				     MsgStream &log) const
 {
     // Copy conditions
     // Get the number of channels, corrections and the size of pedestal and pedestalrms

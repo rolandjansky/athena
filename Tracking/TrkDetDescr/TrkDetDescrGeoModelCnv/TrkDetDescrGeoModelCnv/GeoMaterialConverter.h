@@ -42,7 +42,7 @@ namespace Trk {
         static Material convert(const GeoMaterial* gm) ;
 
       private:
-        static double s_densityCnvFactor; //!< the conversion factor from GeoUnits to Tracking
+        static const double s_densityCnvFactor; //!< the conversion factor from GeoUnits to Tracking
     };
  
 

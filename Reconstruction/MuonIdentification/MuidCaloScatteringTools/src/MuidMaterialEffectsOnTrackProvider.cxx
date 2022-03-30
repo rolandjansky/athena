@@ -82,8 +82,11 @@ std::vector<Trk::MaterialEffectsOnTrack> Rec::MuidMaterialEffectsOnTrackProvider
         Trk::ScatteringAngles newsa2 {0, 0, sigmascat / std::sin(parm.parameters()[Trk::theta]), sigmascat};
 
         meots.emplace_back(X0inner, newsa, innersurf);
-        meots.emplace_back(0, new Trk::EnergyLoss(energy.first, energy.second), middlesurf,
-                                                    Trk::MaterialEffectsBase::EnergyLossEffects);
+        meots.emplace_back(
+          0,
+          std::make_unique<Trk::EnergyLoss>(energy.first, energy.second),
+          middlesurf,
+          Trk::MaterialEffectsBase::EnergyLossEffects);
         meots.emplace_back(X0outer, newsa2, outersurf);
 
     } else {
@@ -96,16 +99,16 @@ std::vector<Trk::MaterialEffectsOnTrack> Rec::MuidMaterialEffectsOnTrackProvider
             double qoverp = c_tsos->trackParameters()->parameters()[Trk::qOverP];
             const CaloEnergy* eloss = meot ? dynamic_cast<const CaloEnergy*>(meot->energyLoss()) : nullptr;
 
-            Trk::EnergyLoss* neweloss = nullptr;
+            std::unique_ptr<Trk::EnergyLoss> neweloss = nullptr;
             std::optional<Trk::ScatteringAngles> newsa = std::nullopt;
             if (eloss)
-                neweloss = new CaloEnergy(*eloss);
+                neweloss = std::make_unique<CaloEnergy>(*eloss);
             else {
                 Trk::MaterialProperties matprop(meot->thicknessInX0(), 1., 0., 0., 0., 0.);
                 double sigmascat = std::sqrt(m_scattool->sigmaSquare(matprop, std::abs(1. / qoverp), 1., Trk::muon));
                 newsa = Trk::ScatteringAngles(0, 0, sigmascat / sintheta, sigmascat);
             }
-            meots.emplace_back(meot->thicknessInX0(), newsa, neweloss, c_tsos->trackParameters()->associatedSurface());
+            meots.emplace_back(meot->thicknessInX0(), newsa, std::move(neweloss), c_tsos->trackParameters()->associatedSurface());
         }
     }
     if (meots.size() < 3) meots.clear();

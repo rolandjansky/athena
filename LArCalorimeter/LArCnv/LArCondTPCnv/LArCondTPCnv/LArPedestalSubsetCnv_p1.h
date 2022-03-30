@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCONDTPCNV_LARPEDESTALSUBSETCNV_P1_H
@@ -16,13 +16,15 @@ typedef LArConditionsSubset<LArPedestalP1> LArPedestalTransType;
 typedef LArPedestalSubset_p1               LArPedestalPersType;
 
 class LArPedestalSubsetCnv_p1  
-    : public T_AthenaPoolTPCnvBase<LArPedestalTransType, LArPedestalPersType >
+    : public T_AthenaPoolTPCnvConstBase<LArPedestalTransType, LArPedestalPersType >
 {
 public:
+    using base_class::transToPers;
+    using base_class::persToTrans;
 
     LArPedestalSubsetCnv_p1() {}
-    virtual void   persToTrans(const LArPedestalPersType* persObj, LArPedestalTransType* transObj, MsgStream &log) ;
-    virtual void   transToPers(const LArPedestalTransType* transObj, LArPedestalPersType* persObj, MsgStream &log) ;
+    virtual void   persToTrans(const LArPedestalPersType* persObj, LArPedestalTransType* transObj, MsgStream &log) const override;
+    virtual void   transToPers(const LArPedestalTransType* transObj, LArPedestalPersType* persObj, MsgStream &log) const override;
 
 };
 

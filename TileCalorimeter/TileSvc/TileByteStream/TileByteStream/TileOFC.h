@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILE_OFC_H
@@ -32,22 +32,22 @@ bool ConvertOFC( std::vector<std::vector<std::vector<std::vector<double> > > > w
 		 std::vector<unsigned int> &OFC, 
 		 bool verbose = false);
 
-bool Format6( std::vector<double> a,
-	      std::vector<double> b,
-	      std::vector<double> c,
-	      std::vector<double> g,
-	      std::vector<double> h,
+bool Format6( const std::vector<double>& a,
+	      const std::vector<double>& b,
+	      const std::vector<double>& c,
+	      const std::vector<double>& g,
+	      const std::vector<double>& h,
 	      unsigned int index_channel,
 	      int phase,
 	      double calibration,
 	      std::vector<unsigned int> &OFC,
 	      bool verbose = false);
 
-bool Format5( std::vector<double> a, 
-	      std::vector<double> b , 
-	      std::vector<double> c, 
-	      std::vector<double> g, 
-	      std::vector<double> h, 
+bool Format5( const std::vector<double>& a, 
+	      const std::vector<double>& b , 
+	      const std::vector<double>& c, 
+	      const std::vector<double>& g, 
+	      const std::vector<double>& h, 
 	      std::vector<unsigned int> &OFC, 
 	      bool verbose = false);
 

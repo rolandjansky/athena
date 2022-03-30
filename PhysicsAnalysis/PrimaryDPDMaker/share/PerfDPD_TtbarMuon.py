@@ -26,7 +26,7 @@ sel_muon  = 'Muons.pt > 24*GeV && Muons.ptcone20/Muons.pt < 0.2'
 from AthenaCommon.BFieldFlags import jobproperties
 if jobproperties.BField.solenoidOn():
     PerfDPD_TtbarMuon_log.info( "Configuring b-tagging selection with solenoid on" )
-    sel_bjet  = 'AntiKt4EMTopoJets.pt > 25*GeV && abs(AntiKt4EMTopoJets.eta) < 2.5 && BTagging_AntiKt4EMTopo.MV2c10_discriminant>0.0314'
+    sel_bjet  = 'AntiKt4EMTopoJets.pt > 25*GeV && abs(AntiKt4EMTopoJets.eta) < 2.5'
 else:
     PerfDPD_TtbarMuon_log.info( "Configuring b-tagging selection with solenoid off" )
     sel_bjet  = 'AntiKt4EMTopoJets.pt > 25*GeV && abs(AntiKt4EMTopoJets.eta) < 2.5'
@@ -696,14 +696,14 @@ outList = CfgItemList( 'SLTTMU',
     'xAOD::MuonRoIAuxContainer#HLT_xAOD__MuonRoIContainer_L1TopoMuonAux.',
     'xAOD::MuonRoIAuxContainer#LVL1MuonRoIsAux.',
     'TileTrackMuFeatureContainer#HLT_TileTrackMuFeatureContainer',
-    'xAOD::JetAuxContainer#AntiKt10LCTopoJetsAux.',
-    'xAOD::JetAuxContainer#AntiKt2PV0TrackJetsAux.',
-    'xAOD::JetAuxContainer#AntiKt3PV0TrackJetsAux.',
-    'xAOD::JetAuxContainer#AntiKt4EMPFlowJetsAux.',
-    'xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.',
-    'xAOD::JetAuxContainer#AntiKt4LCTopoJetsAux.',
-    'xAOD::JetAuxContainer#AntiKt4PV0TrackJetsAux.',
-    'xAOD::JetAuxContainer#CamKt12LCTopoJetsAux.',
+    'xAOD::JetAuxContainer#AntiKt10LCTopoJetsAux.-PseudoJet',
+    'xAOD::JetAuxContainer#AntiKt2PV0TrackJetsAux.-PseudoJet',
+    'xAOD::JetAuxContainer#AntiKt3PV0TrackJetsAux.-PseudoJet',
+    'xAOD::JetAuxContainer#AntiKt4EMPFlowJetsAux.-PseudoJet',
+    'xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.-PseudoJet',
+    'xAOD::JetAuxContainer#AntiKt4LCTopoJetsAux.-PseudoJet',
+    'xAOD::JetAuxContainer#AntiKt4PV0TrackJetsAux.-PseudoJet',
+    'xAOD::JetAuxContainer#CamKt12LCTopoJetsAux.-PseudoJet',
     'TileMuFeatureContainer#HLT_TileMuFeatureContainer',
     'RpcSectorLogicContainer#RPC_SECTORLOGIC',
     'TrigVertexCollection#HLT_TrigVertexCollection_TrigBeamSpotVertex',

@@ -112,7 +112,7 @@ _stdInputList = [
 
     JetInputExternal("PrimaryVertices",   xAODType.Vertex,
                      prereqs = ["input:InDetTrackParticles"],
-                     filterfn = lambda flags : (flags.Beam.Type == BeamType.Collisions, f"No vertexing with {BeamType.Collisions}"), # should be changed when a reliable "EnableVertexing" flag exists
+                     filterfn = lambda flags : (flags.Beam.Type == BeamType.Collisions, f"No vertexing with {flags.Beam.Type}"), # should be changed when a reliable "EnableVertexing" flag exists
                      ),
     # No quality criteria are applied to the tracks, used for ghosts for example
     JetInputExternal("JetSelectedTracks",     xAODType.TrackParticle,

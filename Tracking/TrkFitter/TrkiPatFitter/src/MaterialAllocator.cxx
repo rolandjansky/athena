@@ -1365,10 +1365,12 @@ namespace Trk
 
       // insert material at measurement surface
       const std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes> typePattern;
-      const Trk::EnergyLoss* energyLoss = nullptr;
-      if (materialEffects->energyLoss()) energyLoss = materialEffects->energyLoss()->clone();
+      std::unique_ptr<Trk::EnergyLoss> energyLoss = nullptr;
+      if (materialEffects->energyLoss()) {
+        energyLoss = std::unique_ptr<Trk::EnergyLoss>(materialEffects->energyLoss()->clone());
+      }
       MaterialEffectsOnTrack* meot = new MaterialEffectsOnTrack(materialEffects->thicknessInX0(),
-                                                                energyLoss,
+                                                                std::move(energyLoss),
                                                                 *(**m).surface(),
                                                                 typePattern);
       const TrackSurfaceIntersection* intersection =

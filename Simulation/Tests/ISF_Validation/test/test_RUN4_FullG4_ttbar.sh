@@ -3,6 +3,7 @@
 # art-description: MC21-style simulation using FullG4 and RUN4 geometry, ttbar
 # art-include: master/Athena
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-output: test.HITS.pool.root
 # art-output: truth.root
 

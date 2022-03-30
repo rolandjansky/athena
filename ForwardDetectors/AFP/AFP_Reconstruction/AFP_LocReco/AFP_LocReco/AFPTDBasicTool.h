@@ -69,11 +69,11 @@ private:
   /// AFP station ID for which tracks will be reconstructed
   Gaudi::Property<int> m_stationID{this, "stationID", 0, "ID number of station for which tracks should be reconstructed"};
 
-  /// Name of the xAOD container with clusters to be used in track reconstruction
-  SG::ReadHandleKey<xAOD::AFPToFHitContainer> m_hitContainerKey{this, "AFPToFHitClusterContainerKey", "AFPToFHitContainer", "Name of the container with ToF hits from which ToF tracks are to be reconstructed"};
+  /// Name of the xAOD container with ToF hits to be used in track reconstruction
+  SG::ReadHandleKey<xAOD::AFPToFHitContainer> m_hitContainerKey{this, "AFPToFHitContainerKey", "AFPToFHitContainer", "Name of the container with ToF hits from which ToF tracks are to be reconstructed"};
 
-  /// Minimal number of clusters in track. If there are less clusters track is rejected (Default = 3)
-  Gaudi::Property<unsigned int> m_minHitsNumber{this, "minHitsNumber", 3, "Minimal number of bars in track. If there are less bars track is rejected"};
+  /// Minimal number of bars in track. If there are less bars, track is rejected (Default = 3)
+  Gaudi::Property<unsigned int> m_minHitsNumber{this, "minHitsNumber", 3, "Minimal number of bars in track. If there are less bars, track is rejected"};
 
   Gaudi::Property<double> m_maxAllowedLength{this, "maxAllowedLength", 100, "Maximal length of the bar signal at which bar can be joined to the track"};
 

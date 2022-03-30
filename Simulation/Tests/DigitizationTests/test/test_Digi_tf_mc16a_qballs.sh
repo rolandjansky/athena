@@ -2,6 +2,7 @@
 #
 # art-description: Run digitization of an MC16a qball sample with 2016a geometry and conditions, 25ns pile-up
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
 # art-include: 21.9/Athena

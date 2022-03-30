@@ -189,19 +189,24 @@ def TrackCollectionCnvToolCfg(flags, name="TrackCollectionCnvTool", TrackParticl
     ))
     return result
 
-def TrackCollectionMergerAlgCfg(flags, name="InDetTrackCollectionMerger", InputCombinedTracks=None, CombinedInDetClusterSplitProbContainer=None, **kwargs):
+def TrackCollectionMergerAlgCfg(flags, name="InDetTrackCollectionMerger",
+                                InputCombinedTracks=None,
+                                OutputCombinedTracks="",
+                                AssociationMapName="",
+                                CombinedInDetClusterSplitProbContainer="",
+                                **kwargs):
     result = ComponentAccumulator()
 
     kwargs.setdefault("TracksLocation", InputCombinedTracks)
-    kwargs.setdefault("OutputTracksLocation", "CombinedInDetTracks")
+    kwargs.setdefault("OutputTracksLocation", OutputCombinedTracks)
     from InDetConfig.TrackingCommonConfig import InDetPRDtoTrackMapToolGangedPixelsCfg
     InDetPRDtoTrackMapToolGangedPixels = result.popToolsAndMerge(InDetPRDtoTrackMapToolGangedPixelsCfg(flags))
     kwargs.setdefault("AssociationTool", InDetPRDtoTrackMapToolGangedPixels)
-    kwargs.setdefault("AssociationMapName", "PRDtoTrackMapCombinedInDetTracks")
+    kwargs.setdefault("AssociationMapName", AssociationMapName)
     kwargs.setdefault("UpdateSharedHits", True)
     kwargs.setdefault("UpdateAdditionalInfo", True)
     from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolSharedHitsCfg
-    TrackSummaryTool = result.getPrimaryAndMerge(InDetTrackSummaryToolSharedHitsCfg(flags, name="CombinedInDetSplitProbTrackSummaryToolSharedHits"))
+    TrackSummaryTool = result.getPrimaryAndMerge(InDetTrackSummaryToolSharedHitsCfg(flags, name=OutputCombinedTracks+"SummaryToolSharedHits"))
     TrackSummaryTool.InDetSummaryHelperTool.ClusterSplitProbabilityName = CombinedInDetClusterSplitProbContainer
     kwargs.setdefault("SummaryTool", TrackSummaryTool)
 
@@ -249,7 +254,7 @@ def ReFitTrackAlgCfg(flags, name="InDetRefitTrack", InputTrackCollection="Combin
     from InDetConfig.TrackingCommonConfig import InDetTrackFitterCfg, InDetTrackFitterTRTCfg, InDetTrackSummaryToolSharedHitsCfg, InDetPRDtoTrackMapToolGangedPixelsCfg
     InDetTrackFitter = result.popToolsAndMerge(InDetTrackFitterCfg(flags))
     InDetTrackFitterTRT = result.popToolsAndMerge(InDetTrackFitterTRTCfg(flags))
-    TrackSummaryTool = result.getPrimaryAndMerge(InDetTrackSummaryToolSharedHitsCfg(flags))
+    TrackSummaryTool = result.popToolsAndMerge(InDetTrackSummaryToolSharedHitsCfg(flags))
     InDetPRDtoTrackMapToolGangedPixels = result.popToolsAndMerge(InDetPRDtoTrackMapToolGangedPixelsCfg(flags))
     kwargs.setdefault("FitterTool", InDetTrackFitter)
     kwargs.setdefault("FitterToolTRT", InDetTrackFitterTRT)
@@ -410,6 +415,8 @@ def InDetTrackRecoCfg(flags):
                                       InputCollections = [],
                                       BarrelSegments = "TRTSegmentsTRT"))
 
+    # @TODO add TRTPhase computation somewhere (needed for cosmics)
+
     # ------------------------------------------------------------
     #
     # ----------- Main passes for standard reconstruction
@@ -468,6 +475,17 @@ def InDetTrackRecoCfg(flags):
             TrackContainer = ExtendedTracks
 
         if current_flags.InDet.Tracking.ActivePass.storeSeparateContainer:
+
+            # Dummy Merger to fill additional info for PRD-associated pixel tracklets
+            # Can also run on all separate collections like R3LargeD0 but kept consistent with legacy config
+            if extension=="Disappearing":
+                InputTracks = TrackContainer
+                TrackContainer = extension+"Tracks"
+                result.merge(TrackCollectionMergerAlgCfg(current_flags, name = "InDetTrackCollectionMerger"+extension,
+                                                         InputCombinedTracks = [InputTracks],
+                                                         OutputCombinedTracks = TrackContainer,
+                                                         CombinedInDetClusterSplitProbContainer = "InDetAmbiguityProcessorSplitProb" + extension))
+
             if flags.InDet.doTruth:
                 result.merge(InDetTrackTruthCfg(current_flags,
                                                 Tracks = TrackContainer,
@@ -479,6 +497,7 @@ def InDetTrackRecoCfg(flags):
                                                 TrackContainerName = TrackContainer,
                                                 OutputTrackParticleContainer = "InDetLargeD0TrackParticles" if "LargeD0" in extension
                                                 else "InDet" + extension + "TrackParticles")) # Need specific handling for R3LargeD0 not to break downstream configs
+
         else:
             ClusterSplitProbContainer = "InDetAmbiguityProcessorSplitProb" + extension
             InputCombinedInDetTracks += [TrackContainer]
@@ -510,6 +529,8 @@ def InDetTrackRecoCfg(flags):
 
     result.merge(TrackCollectionMergerAlgCfg(flags,
                                              InputCombinedTracks = InputCombinedInDetTracks,
+                                             OutputCombinedTracks = "CombinedInDetTracks",
+                                             AssociationMapName = "PRDtoTrackMapCombinedInDetTracks",
                                              CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer))
 
     if flags.InDet.doTruth:
@@ -583,7 +604,7 @@ def InDetTrackRecoOutputCfg(flags):
         ]
 
     # write phase calculation into ESD
-    if flags.Beam.Type is BeamType.Cosmics:
+    if flags.InDet.doTRTPhase:
         toESD += ["ComTime#TRT_Phase"]
 
     # Save PRD

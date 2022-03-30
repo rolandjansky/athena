@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
  
 //////////////////////////////////////////////////////////////////
@@ -101,7 +101,7 @@ namespace ISF {
 
       const CaloDetDescrManager* m_caloDetDescrManager;
       std::unique_ptr<CaloGeometryFromCaloDDM> m_caloGeo;
-      const LArEM_ID* m_emID;
+      const LArEM_ID* m_emID = nullptr;
       std::vector<CaloCell*> m_windowCells;
 
       // specific to architecture

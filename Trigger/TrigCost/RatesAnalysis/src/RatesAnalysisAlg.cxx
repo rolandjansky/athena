@@ -151,7 +151,7 @@ StatusCode RatesAnalysisAlg::newTrigger(const std::string& name,
   if (m_doTriggerGroups) {
     for (const std::string& group : groups) {
       // Ignore BW and PS groups
-      if (group.find("BW") == 0 || group.find("PS") == 0) continue;
+      if (group.find("BW") == 0 || group.find("PS") == 0 || group.find("STREAM:express") == 0) continue;
       if (m_groups.count(group) == 0) {
         m_groups.emplace(group, std::make_unique<RatesGroup>(group, msgSvc(), m_doHistograms, m_enableLumiExtrapolation));
         // As the group is formed from at least one active trigger - it must be active itself (counter example - CPS group of a PS=-1 trigger)

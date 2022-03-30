@@ -513,7 +513,7 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
   std::set<std::string>::const_iterator algAttEnd = algAtt.end();
   for( std::set<std::string>::const_iterator i = algAtt.begin(); i != algAttEnd; ++i ) {
     std::string trail("");
-    std::string::size_type pos = (*i).find("|");
+    std::string::size_type pos = (*i).find('|');
     if (pos != std::string::npos) {
       trail = (*i).substr(pos + 1, std::string::npos);
     }

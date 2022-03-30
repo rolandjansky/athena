@@ -307,14 +307,14 @@ class TileTBAANtuple: public AthAlgorithm {
     int m_cispar[16];
 
     // TDC/BEAM Items
-    int m_s1cou;
-    int m_s2cou;
-    int m_s3cou;
-    int m_cher1;
-    int m_cher2;
-    int m_muTag;
-    int m_muHalo;
-    int m_muVeto;
+    uint32_t m_s1cou;
+    uint32_t m_s2cou;
+    uint32_t m_s3cou;
+    uint32_t m_cher1;
+    uint32_t m_cher2;
+    uint32_t m_muTag;
+    uint32_t m_muHalo;
+    uint32_t m_muVeto;
 
     int m_s2extra;
     int m_s3extra;
@@ -420,14 +420,14 @@ class TileTBAANtuple: public AthAlgorithm {
     float* m_ExtEne;
     float* m_GapEne;
 
-    int* m_coincTrig1;
-    int* m_coincTrig2;
-    int* m_coincTrig3;
-    int* m_coincTrig4;
-    int* m_coincTrig5;
-    int* m_coincTrig6;
-    int* m_coincTrig7;
-    int* m_coincTrig8;
+    unsigned int* m_coincTrig1;
+    unsigned int* m_coincTrig2;
+    unsigned int* m_coincTrig3;
+    unsigned int* m_coincTrig4;
+    unsigned int* m_coincTrig5;
+    unsigned int* m_coincTrig6;
+    unsigned int* m_coincTrig7;
+    unsigned int* m_coincTrig8;
 
     int m_coincFlag1;
     int m_coincFlag2;

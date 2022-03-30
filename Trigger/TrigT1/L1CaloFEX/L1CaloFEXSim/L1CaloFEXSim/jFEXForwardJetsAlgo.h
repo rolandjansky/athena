@@ -63,6 +63,10 @@ namespace LVL1 {
         static constexpr float m_TT_Size_phi = M_PI/32;
         static constexpr float m_2PI = 2*M_PI;
         
+        const int m_Edge_dR2 = std::round( (std::pow(2*M_PI/32,2)) * 1e5  );
+        const int m_Edge_dR3 = std::round( (std::pow(3*M_PI/32,2)) * 1e5  );
+        const int m_Edge_dR4 = std::round( (std::pow(4*M_PI/32,2)) * 1e5  );
+        const int m_Edge_dR8 = std::round( (std::pow(8*M_PI/32,2)) * 1e5  );
         
         //This flag determines if the TT ID which are in the first and second energy rings are stored
         //in the jFEXForwardJetsInfo class. It is set to false to reduce quantity data stored in class

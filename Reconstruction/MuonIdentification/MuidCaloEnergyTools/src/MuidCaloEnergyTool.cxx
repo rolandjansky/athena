@@ -200,7 +200,7 @@ namespace Rec {
         auto materialEffects =
           std::make_unique<const Trk::MaterialEffectsOnTrack>(
             0.,
-            caloEnergy.release(),
+            std::move(caloEnergy),
             middle_clone->associatedSurface(),
             typePattern);
 

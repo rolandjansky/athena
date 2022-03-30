@@ -31,9 +31,6 @@ public:
     virtual StatusCode initialize() override;
     virtual StatusCode execute() override;
 
-    Gaudi::Property<std::vector<std::string>> m_parlineFolder{this, "ParlineFolders", std::vector<std::string>(), "Database folders",
-                                                              "OrderedSet<std::string>"};
-    Gaudi::Property<bool> m_isData{this, "IsData", true};
 
 private:
     // Read Handles
@@ -63,23 +60,26 @@ private:
                                                                      "Key of output muon alignment MDT/AsBuilt condition data"};
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-    const MuonGM::MuonDetectorManager* m_muonDetMgrDS{};
-    std::string m_geometryVersion;
+    const MuonGM::MuonDetectorManager* m_muonDetMgrDS{nullptr};
+    std::string m_geometryVersion{""};
+   
+    Gaudi::Property<std::vector<std::string>> m_parlineFolder{this, "ParlineFolders", {}, "Database folders"};
+                                                              
+    Gaudi::Property<bool> m_isData{this, "IsData", true};
 
-    Gaudi::Property<bool> m_doCSC{this, "DoCSCs", true};
+  
+    Gaudi::Property<bool> m_dumpALines{this, "DumpALines", false};
+    Gaudi::Property<bool> m_dumpBLines{this, "DumpBLines", false};
+    Gaudi::Property<bool> m_dumpILines{this, "DumpILines", false};
+    Gaudi::Property<bool> m_ILinesFromDb{this, "ILinesFromCondDB", false};
 
-    // std::vector<std::string>       m_parlineFolder;
-    bool m_dumpALines;
-    bool m_dumpBLines;
-    bool m_dumpILines;
-    bool m_ILinesFromDb;
+    bool m_AsBuiltRequested {false};
+    bool m_ILineRequested {false};
+    Gaudi::Property<std::string> m_aLinesFile{this, "ALinesFile", "" };
+    Gaudi::Property<std::string> m_asBuiltFile{this, "AsBuiltFile", ""};
 
-    bool m_AsBuiltRequested = false;
-    bool m_ILineRequested = false;
-    std::string m_aLinesFile;
-    std::string m_asBuiltFile;
-
-    bool m_newFormat2020 = false;
+    // new folder format 2020
+    Gaudi::Property<bool> m_newFormat2020 {this, "NewFormat2020", false};
 
     StatusCode loadParameters();
     StatusCode loadAlignABLines();

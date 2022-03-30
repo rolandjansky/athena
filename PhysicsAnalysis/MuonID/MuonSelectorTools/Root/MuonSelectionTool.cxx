@@ -1143,7 +1143,7 @@ namespace CP {
         retrieveSummaryValue(track, value2, xAOD::SummaryType::numberOfSCTHoles);
         if ((value1 + value2 >= 3) && !m_SiHolesCutOff) return false;
 
-        if (m_TrtCutOff) {
+        if (!m_TrtCutOff) {
             const float abseta = std::abs(track.eta());
             retrieveSummaryValue(track, value1, xAOD::SummaryType::numberOfTRTHits);
             retrieveSummaryValue(track, value2, xAOD::SummaryType::numberOfTRTOutliers);

@@ -357,7 +357,7 @@ IDNCBStream.AddItem("xAOD::EventAuxInfo#*")
 
 #SKC Add jets!
 IDNCBStream.AddItem("xAOD::JetContainer#AntiKt4EMTopoJets")
-IDNCBStream.AddItem("xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.")
+IDNCBStream.AddItem("xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.-PseudoJet")
 IDNCBStream.AddItem("xAOD::JetElementContainer#JetElements")
 IDNCBStream.AddItem("xAOD::JetElementContainer#JetElementsOverlap")
 IDNCBStream.AddItem("xAOD::EventShape#Kt4EMTopoOriginEventShape")

@@ -138,5 +138,4 @@ const xAOD::Muon* MuonMatchingTool :: matchOff(const EventContext& ctx, const T*
   }  
 
   return muon;
-} 
-
+}

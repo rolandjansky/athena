@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCondTPCnv/LArSingleFloatSubsetCnv_p1.h"
@@ -10,7 +10,7 @@
 void
 LArSingleFloatSubsetCnv_p1::persToTrans(const SingleFloatPersType* persObj, 
 					SingleFloatTransType* transObj, 
-					MsgStream & /*log*/)
+					MsgStream & /*log*/) const
 {
 
   // Copy basic metadata
@@ -61,7 +61,7 @@ LArSingleFloatSubsetCnv_p1::persToTrans(const SingleFloatPersType* persObj,
 void 
 LArSingleFloatSubsetCnv_p1::transToPers(const SingleFloatTransType* transObj, 
 					SingleFloatPersType* persObj, 
-					MsgStream &log) 
+					MsgStream &log) const
 {
   // Get the number of channels, corrections and the size of pedestal and pedestalrms
   unsigned int ncorrs           = transObj->correctionVecSize();
