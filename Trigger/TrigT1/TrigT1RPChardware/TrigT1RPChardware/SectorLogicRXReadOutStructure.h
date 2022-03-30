@@ -18,11 +18,11 @@ public:
 
     void setInit();
     //
-    ubit16 makeHeader(ubit16 *inputData) override final;
-    ubit16 makeSubHeader() { return 0; };
-    ubit16 makeBody(ubit16 *inputData) override final { return *inputData; };
-    ubit16 makeFooter(ubit16 errorCode) override final { return errorCode; };
-    ubit16 makeFooter(ubit16 *errorCode) override final;
+    virtual ubit16 makeHeader(ubit16 *inputData) override final;
+    virtual ubit16 makeSubHeader() override { return 0; };
+    virtual ubit16 makeBody(ubit16 *inputData) override final { return *inputData; };
+    virtual ubit16 makeFooter(ubit16 errorCode) override final { return errorCode; };
+    virtual ubit16 makeFooter(ubit16 *errorCode) override final;
 
     //**************************************************//
     // general user methods to decode ReadOut stream    //
