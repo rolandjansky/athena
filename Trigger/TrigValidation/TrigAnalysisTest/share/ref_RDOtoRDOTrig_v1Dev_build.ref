@@ -3165,19 +3165,6 @@ HLT_e25_mergedtight_g35_medium_90invmAB_02dRAB_L12eEM24L:
     2: 16
     3: 12
     4: 3
-HLT_e25_mergedtight_g35_medium_Heg_L12EM20VH:
-  eventCount: 0
-  stepCounts:
-    0: 4
-    1: 4
-    2: 4
-    3: 3
-  stepFeatures:
-    0: 22
-    1: 70
-    2: 19
-    3: 15
-    4: 3
 HLT_e26_dnnloose_L1EM22VHI:
   eventCount: 5
   stepCounts:
@@ -10916,12 +10903,6 @@ HLT_j85_pf_ftf_preselj50_L1jJ50:
     1: 23
 HLT_l1topodebug_legacy_L1All:
   eventCount: 0
-HLT_larpsall_L1J15:
-  eventCount: 19
-  stepCounts:
-    0: 19
-  stepFeatures:
-    0: 57
 HLT_larpsallem_L1EM3:
   eventCount: 20
   stepCounts:
