@@ -15,7 +15,7 @@ art.py createpoolfile
 
 BSOverlayFilter_tf.py \
 --jobNumber 23 \
---inputBSCONFIGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/test23.tar \
+--inputBSCONFIGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayTests/BSConfig/test23.tar \
 --inputFileValidation False \
 --outputBS_TRIGSKIMFile trigskim.RAW \
 --triggerBit L1_ZB \

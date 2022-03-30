@@ -330,7 +330,7 @@ if __name__=='__main__':
     ConfigFlags.Input.Files = ['/tmp/damazio/SCMon/ESD.24607649._000024.pool.root.1']
     #ConfigFlags.Input.Files = ['/eos/atlas/user/b/bcarlson/Run3Tmp/data18_13TeV.00360026.physics_EnhancedBias.recon.ESD.r10978_r11179_r11185/ESD.16781883._001043.pool.root.1']
     # to test tier0 workflow:
-    #ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/data15_13TeV.00278748.physics_ZeroBias.merge.RAW._lb0384._SFO-ALL._0001.1']
+    #ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayTests/data15_13TeV.00278748.physics_ZeroBias.merge.RAW._lb0384._SFO-ALL._0001.1']
 
     #ConfigFlags.Calo.Cell.doPileupOffsetBCIDCorr=True
     ConfigFlags.Output.HISTFileName = 'LArSuperCellMonOutput.root'

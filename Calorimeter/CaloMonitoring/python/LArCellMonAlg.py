@@ -516,7 +516,7 @@ if __name__=='__main__':
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.Input.Files = ['/eos/atlas/atlastier0/rucio//data18_13TeV/physics_Main/00357750/data18_13TeV.00357750.physics_Main.daq.RAW/data18_13TeV.00357750.physics_Main.daq.RAW._lb0123._SFO-3._0004.data']
     # to test tier0 workflow:
-    #ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/data15_13TeV.00278748.physics_ZeroBias.merge.RAW._lb0384._SFO-ALL._0001.1']
+    #ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayTests/data15_13TeV.00278748.physics_ZeroBias.merge.RAW._lb0384._SFO-ALL._0001.1']
     #ConfigFlags.Calo.Cell.doPileupOffsetBCIDCorr=True
     ConfigFlags.Output.HISTFileName = 'LArCellMonOutput.root'
     ConfigFlags.DQ.enableLumiAccess = True
