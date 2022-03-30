@@ -22,6 +22,7 @@
 #include <sstream>
 #include <functional>
 #include <iostream>
+#include <stdexcept>
 
 #include "TopParticleLevel/MsgCategory.h"
 
@@ -85,7 +86,7 @@ namespace top {
       if(!m_origin->isAvailable<top::LepParticleOriginFlag>("LepParticleOriginFlag"))
       {
         ATH_MSG_ERROR(" top::truth::copyCommonMuonHistoryInfo called with an origin muon which has no truth info!");
-        throw;
+        throw std::runtime_error("Muon has no truth info in copyCommonMuonHistoryInfo");
       }
       m_target->auxdecor<top::LepParticleOriginFlag>("LepParticleOriginFlag") = m_origin->auxdecor<top::LepParticleOriginFlag>("LepParticleOriginFlag");
       m_target->auxdecor<const xAOD::TruthParticle*>("truthMotherLink") = m_origin->auxdecor<const xAOD::TruthParticle*>("truthMotherLink");
@@ -614,7 +615,7 @@ namespace top {
       if(!tau->isTau())
       {
         ATH_MSG_ERROR("getTruthMuonFromTauHistory called on non-tau, pdgId"<<(tau->pdgId()));
-        throw;
+        throw std::runtime_error("getTruthMuonFromTauHistory called with a non-tau particle ID");
       }
       const xAOD::TruthParticle* initialTau = top::truth::getInitialStateParticle(tau);
       if(!initialTau)
