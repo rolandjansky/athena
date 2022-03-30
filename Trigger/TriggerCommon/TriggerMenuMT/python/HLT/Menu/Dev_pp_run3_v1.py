@@ -131,7 +131,9 @@ def setupMenu():
         ChainProp(name='HLT_e35_lhloose_nopix_lrtmedium_L1eEM26M', groups=PrimaryPhIGroup+SingleElectronGroup),
         ChainProp(name='HLT_e40_lhloose_nopix_lrtmedium_L1eEM26M', groups=PrimaryPhIGroup+SingleElectronGroup),
         ChainProp(name='HLT_e45_lhloose_nopix_lrtmedium_L1eEM26M', groups=PrimaryPhIGroup+SingleElectronGroup),
-
+        
+        #LRTGSF
+        ChainProp(name='HLT_e26_lhloose_nopix_lrttight_gsf_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup),
     ]
 
     chains['MET'] += [
