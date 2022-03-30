@@ -1,13 +1,15 @@
-#include <iostream>
+
 #include <map>
 
-#define arraySize 10000
+
 typedef std::map<unsigned long, unsigned int>::const_iterator cRPCpanelListIterator;
 
 class RPCpanelList {
 public:
     RPCpanelList();
     ~RPCpanelList();
+    RPCpanelList(const RPCpanelList &) = delete;
+    RPCpanelList & operator=(const RPCpanelList &) = delete;
     void init(int inputLayer);
     void init();
     cRPCpanelListIterator end();
@@ -31,19 +33,20 @@ public:
     bool getAcceptProximityID() { return m_acceptProximityID; }
 
 private:
-    bool m_acceptProximityID;
-    std::map<unsigned long, unsigned int>* m_entryInListMap;
-    std::string m_stringIdArray[arraySize];
-    std::string m_stNameArray[arraySize];
-    double m_boundArrayEtaMin[arraySize];
-    double m_boundArrayEtaMax[arraySize];
-    double m_boundArrayPhiMin[arraySize];
-    double m_boundArrayPhiMax[arraySize];
-    double m_boundArrayZMin[arraySize];
-    double m_boundArrayZMax[arraySize];
-    short int m_viewArray[arraySize];
-    short int m_layerArray[arraySize];
+    static constexpr size_t arraySize{10000};
+    bool m_acceptProximityID{};
+    std::map<unsigned long, unsigned int>* m_entryInListMap{};
+    std::string m_stringIdArray[arraySize] ={};
+    std::string m_stNameArray[arraySize] ={};
+    double m_boundArrayEtaMin[arraySize]={};
+    double m_boundArrayEtaMax[arraySize]={};
+    double m_boundArrayPhiMin[arraySize]={};
+    double m_boundArrayPhiMax[arraySize]={};
+    double m_boundArrayZMin[arraySize]={};
+    double m_boundArrayZMax[arraySize]={};
+    short int m_viewArray[arraySize]={};
+    short int m_layerArray[arraySize]={};
 
-    unsigned int indexInCache;
-    unsigned int panelIDinCache;
+    unsigned int indexInCache{};
+    unsigned int panelIDinCache{};
 };
