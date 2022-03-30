@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCONDTPCNV_LAROFCSUBSETCNV_P1_H
@@ -16,13 +16,15 @@ typedef LArConditionsSubset<LArOFCP1> LArOFCTransType;
 typedef LArOFCSubset_p1               LArOFCPersType;
 
 class LArOFCSubsetCnv_p1  
-    : public T_AthenaPoolTPCnvBase<LArOFCTransType, LArOFCPersType >
+    : public T_AthenaPoolTPCnvConstBase<LArOFCTransType, LArOFCPersType >
 {
 public:
+    using base_class::transToPers;
+    using base_class::persToTrans;
 
     LArOFCSubsetCnv_p1() {}
-    virtual void   persToTrans(const LArOFCPersType* persObj, LArOFCTransType* transObj, MsgStream &log) ;
-    virtual void   transToPers(const LArOFCTransType* transObj, LArOFCPersType* persObj, MsgStream &log) ;
+    virtual void   persToTrans(const LArOFCPersType* persObj, LArOFCTransType* transObj, MsgStream &log) const override;
+    virtual void   transToPers(const LArOFCTransType* transObj, LArOFCPersType* persObj, MsgStream &log) const override;
 
 };
 

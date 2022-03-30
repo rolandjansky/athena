@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -17,13 +17,15 @@ typedef LArConditionsSubset<LArOFCBinP> OFCBinTransType;
 typedef LArSingleIntSubset_p1           OFCBinPersType;
 
 class LArOFCBinSubsetCnv_p1
-    : public T_AthenaPoolTPCnvBase<OFCBinTransType,OFCBinPersType>
+    : public T_AthenaPoolTPCnvConstBase<OFCBinTransType,OFCBinPersType>
 {
 public:
+    using base_class::transToPers;
+    using base_class::persToTrans;
 
     LArOFCBinSubsetCnv_p1() {}
-    virtual void   persToTrans(const OFCBinPersType* persObj, OFCBinTransType* transObj, MsgStream &log) ;
-    virtual void   transToPers(const OFCBinTransType* transObj, OFCBinPersType* persObj, MsgStream &log) ;
+    virtual void   persToTrans(const OFCBinPersType* persObj, OFCBinTransType* transObj, MsgStream &log) const override;
+    virtual void   transToPers(const OFCBinTransType* transObj, OFCBinPersType* persObj, MsgStream &log) const override;
 };
     
   

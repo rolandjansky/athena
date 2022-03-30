@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -10,7 +10,7 @@
 void
 LArCaliWaveSubsetCnv_p1::persToTrans(const LArCWPersType* persObj,
                                      LArCWTransType* transObj,
-                                     MsgStream & log)
+                                     MsgStream & log) const
 {
   log<<MSG::DEBUG<<"  LArCaliWaveSubsetCNV_p1  begin persToTrans"<<endmsg;
 
@@ -146,7 +146,7 @@ LArCaliWaveSubsetCnv_p1::persToTrans(const LArCWPersType* persObj,
 
 
 void
-LArCaliWaveSubsetCnv_p1::transToPers(const LArCWTransType* transObj,  LArCWPersType* persObj, MsgStream & log)
+LArCaliWaveSubsetCnv_p1::transToPers(const LArCWTransType* transObj,  LArCWPersType* persObj, MsgStream & log) const
 {
 	log<<MSG::DEBUG<<"LArCaliWaveSubsetCNV_p1  begin transToPers"<<endmsg;
 

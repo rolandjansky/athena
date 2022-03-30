@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCondTPCnv/LArOFCBinSubsetCnv_p1.h"
@@ -7,7 +7,7 @@
 void
 LArOFCBinSubsetCnv_p1::persToTrans(const OFCBinPersType* persObj, 
 				   OFCBinTransType* transObj, 
-				   MsgStream & /*log*/)
+				   MsgStream & /*log*/) const
 {
   // Copy basic metadata
   transObj->setChannel       (persObj->m_subset.m_channel);
@@ -51,7 +51,7 @@ LArOFCBinSubsetCnv_p1::persToTrans(const OFCBinPersType* persObj,
 void 
 LArOFCBinSubsetCnv_p1::transToPers(const OFCBinTransType* transObj, 
 				   OFCBinPersType* persObj, 
-				   MsgStream &log) 
+				   MsgStream &log) const
 {
   // Get the number of channels, corrections and the size of pedestal and pedestalrms
   unsigned int ncorrs           = transObj->correctionVecSize();
