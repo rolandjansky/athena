@@ -308,6 +308,7 @@ const xAOD::Muon* MuonMatchingTool :: matchL2CBtoOff( const EventContext& ctx, c
 }
 
 
+
 bool MuonMatchingTool :: isMatchedL2SA(const xAOD::L2StandAloneMuon* samu, const xAOD::Muon* mu) const{
   float offlEta = mu->eta();
   float offlPhi = mu->phi();
@@ -323,6 +324,11 @@ bool MuonMatchingTool :: isMatchedL2SA(const xAOD::L2StandAloneMuon* samu, const
 bool MuonMatchingTool :: isMatchedL2CB(const xAOD::L2CombinedMuon* cbmu, const xAOD::Muon* mu) const{
   float dR = xAOD::P4Helpers::deltaR(cbmu, mu, false);
   return dR < m_L2CBreqdR;
+}
+
+bool MuonMatchingTool :: isMatchedL2InsideOut(const xAOD::L2CombinedMuon* cbiomu, const xAOD::Muon* mu) const{
+  float dR = xAOD::P4Helpers::deltaR(cbiomu, mu, false);
+  return dR < m_L2InsideOutreqdR;
 }
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMUONMONITORINGMT_MUONMATCHINGTOOL_H
@@ -230,6 +230,7 @@ class MuonMatchingTool : public AthAlgTool {
 
   bool isMatchedL2SA(const xAOD::L2StandAloneMuon*, const xAOD::Muon*) const;
   bool isMatchedL2CB(const xAOD::L2CombinedMuon*, const xAOD::Muon*) const;
+  bool isMatchedL2InsideOut(const xAOD::L2CombinedMuon*, const xAOD::Muon*) const;
 
   /**
    * @brief Function to extrapolate a Inner Detector track to the pivot plane i.e. the middle layers of the Muon Spectrometer where the level 1 RoI is defined.
@@ -270,6 +271,7 @@ class MuonMatchingTool : public AthAlgTool {
 
   const float m_L2SAreqdR = 0.25;
   const float m_L2CBreqdR = 0.03;
+  const float m_L2InsideOutreqdR = 0.01;
   const float m_EFreqdR = 0.03;
 
   // private methods
