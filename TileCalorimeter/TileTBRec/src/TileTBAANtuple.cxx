@@ -1014,7 +1014,7 @@ StatusCode TileTBAANtuple::storeBeamElements() {
 
         } else {
 
-          int amplitude = digits[0];
+          uint32_t amplitude = digits[0];
           SIGNAL_FOUND(frag, cha, amplitude);
 
           switch (frag) {
@@ -1701,7 +1701,7 @@ StatusCode TileTBAANtuple::storeDigits() {
   uint32_t rod_crc;
 
   // Go through all TileDigitsCollections
-  for(; itColl != itCollEnd; itColl++) {
+  for(; itColl != itCollEnd; ++itColl) {
     // determine type of frag
     int fragId = (*itColl)->identify();
     drawerMap_iterator itr = m_drawerMap.find(fragId);
@@ -1813,7 +1813,7 @@ StatusCode TileTBAANtuple::storeDigits() {
           (m_dmuMaskVec.at(type + m_nDrawers))[1] = (*itColl)->getFragDMUMask() & 0xffff;
 
           // go through all TileDigits in collection
-          for (; it != itEnd; it++) {
+          for (; it != itEnd; ++it) {
             emptyColl = false;
 
             HWIdentifier hwid = (*it)->adc_HWID();
@@ -1926,7 +1926,7 @@ StatusCode TileTBAANtuple::storeDigits() {
         itEnd = (*itColl)->end();
 
         int dcnt = 0;
-        for (; it != itEnd; it++) {
+        for (; it != itEnd; ++it) {
           emptyColl = false;
 
           HWIdentifier hwid = (*it)->adc_HWID();
@@ -2052,7 +2052,7 @@ StatusCode TileTBAANtuple::storeHitContainer() {
   bool emptyColl = true;
 
   // Go through all TileHitCollections
-  for(; itColl != itCollEnd; itColl++) {
+  for(; itColl != itCollEnd; ++itColl) {
 
     // determine type of frag
     int fragId = (*itColl)->identify();
@@ -2075,7 +2075,7 @@ StatusCode TileTBAANtuple::storeHitContainer() {
       TileHitCollection::const_iterator itEnd = (*itColl)->end();
       if (emptyColl) emptyColl = (it==itEnd);
 
-      for (; it != itEnd; it++) {
+      for (; it != itEnd; ++it) {
         // get hits
         const TileHit * cinp = (*it);
         storeHit(cinp,fragType,fragId,m_ehitCnt.at(type),m_thitCnt.at(type),*samplingFraction);
@@ -2385,7 +2385,7 @@ StatusCode TileTBAANtuple::initList() {
 
       std::vector<unsigned int> frags;
       // Go through all TileDigitsCollections
-      for (; itColl != itCollEnd; itColl++) {
+      for (; itColl != itCollEnd; ++itColl) {
         // determine type of frag
         if ((*itColl)->begin() != (*itColl)->end()) frags.push_back((*itColl)->identify());
       }
@@ -2467,7 +2467,7 @@ StatusCode TileTBAANtuple::initList() {
       TileDigitsContainer::const_iterator itCollEnd = (*digitsCnt).end();
 
       // Go through all TileDigitsCollections
-      for (; itColl != itCollEnd; itColl++) {
+      for (; itColl != itCollEnd; ++itColl) {
         if ((*itColl)->begin() != (*itColl)->end()) {
           int siz = (*(*itColl)->begin())->samples().size();
 	  m_nSamplesInDrawerMap[(*itColl)->identify()] = siz;
@@ -3168,48 +3168,48 @@ void TileTBAANtuple::ENETOTAL_clearBranch(void)
 */
 void TileTBAANtuple::COINCBOARD_addBranch(void) {
   if (m_beamIdList[COIN_TRIG1_FRAG]) {
-    m_coincTrig1 = new int[96];
+    m_coincTrig1 = new uint32_t[96];
     m_ntuplePtr->Branch("CoincTrig1", m_coincTrig1, "m_coincTrig1[96]/I");
     m_ntuplePtr->Branch("CoincFlag1", &m_coincFlag1, "CoincFlag1/I");
   }
 
   if (m_beamIdList[COIN_TRIG2_FRAG]) {
-    m_coincTrig2 = new int[96];
+    m_coincTrig2 = new uint32_t[96];
     m_ntuplePtr->Branch("CoincTrig2", m_coincTrig2, "m_coincTrig2[96]/I");
     m_ntuplePtr->Branch("CoincFlag2", &m_coincFlag2, "CoincFlag2/I");
   }
 
   if (m_beamIdList[COIN_TRIG3_FRAG]) {
-    m_coincTrig3 = new int[96];
+    m_coincTrig3 = new uint32_t[96];
     m_ntuplePtr->Branch("CoincTrig3", m_coincTrig3, "m_coincTrig3[96]/I");
     m_ntuplePtr->Branch("CoincFlag3", &m_coincFlag3, "CoincFlag3/I");
   }
 
   if (m_beamIdList[COIN_TRIG4_FRAG]) {
-    m_coincTrig4 = new int[96];
+    m_coincTrig4 = new uint32_t[96];
     m_ntuplePtr->Branch("CoincTrig4", m_coincTrig4, "m_coincTrig4[96]/I");
     m_ntuplePtr->Branch("CoincFlag4", &m_coincFlag4, "CoincFlag4/I");
   }
   if (m_beamIdList[COIN_TRIG5_FRAG]) {
-    m_coincTrig5 = new int[96];
+    m_coincTrig5 = new uint32_t[96];
     m_ntuplePtr->Branch("CoincTrig5", m_coincTrig5, "m_coincTrig5[96]/I");
     m_ntuplePtr->Branch("CoincFlag5", &m_coincFlag5, "CoincFlag5/I");
   }
 
   if (m_beamIdList[COIN_TRIG6_FRAG]) {
-    m_coincTrig6 = new int[96];
+    m_coincTrig6 = new uint32_t[96];
     m_ntuplePtr->Branch("CoincTrig6", m_coincTrig6, "m_coincTrig6[96]/I");
     m_ntuplePtr->Branch("CoincFlag6", &m_coincFlag6, "CoincFlag6/I");
   }
 
   if (m_beamIdList[COIN_TRIG7_FRAG]) {
-    m_coincTrig7 = new int[96];
+    m_coincTrig7 = new uint32_t[96];
     m_ntuplePtr->Branch("CoincTrig7", m_coincTrig7, "m_coincTrig7[96]/I");
     m_ntuplePtr->Branch("CoincFlag7", &m_coincFlag7, "CoincFlag7/I");
   }
 
   if (m_beamIdList[COIN_TRIG8_FRAG]) {
-    m_coincTrig8 = new int[96];
+    m_coincTrig8 = new uint32_t[96];
     m_ntuplePtr->Branch("CoincTrig8", m_coincTrig8, "m_coincTrig8[96]/I");
     m_ntuplePtr->Branch("CoincFlag8", &m_coincFlag8, "CoincFlag8/I");
   }
