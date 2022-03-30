@@ -118,7 +118,7 @@ def TRT_TrackSegmentsFinderCfg(flags, name = 'InDetTRT_TrackSegmentsFinder', ext
     kwargs.setdefault("SegmentsLocation", BarrelSegments)
 
     if flags.InDet.Tracking.ActivePass.RoISeededBackTracking:
-        from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
+        from InDetConfig.InDetCaloClusterROISelectorConfig import CaloClusterROI_SelectorCfg
         acc.merge(CaloClusterROI_SelectorCfg(flags))
         kwargs.setdefault("useCaloSeeds", True)
 
