@@ -48,6 +48,16 @@ namespace CP{
     if( m_hData == nullptr || m_hMC == nullptr ){
       return false;
     }
+
+    m_xMin[0] = m_hData->GetXaxis()->GetXmin();
+    m_xMax[0] = m_hData->GetXaxis()->GetXmax();
+    m_yMin[0] = m_hData->GetYaxis()->GetXmin();
+    m_yMax[0] = m_hData->GetYaxis()->GetXmax();
+    m_xMin[1] = m_hMC->GetXaxis()->GetXmin();
+    m_xMax[1] = m_hMC->GetXaxis()->GetXmax();
+    m_yMin[1] = m_hMC->GetYaxis()->GetXmin();
+    m_yMax[1] = m_hMC->GetYaxis()->GetXmax();
+
     return true;
   }      
    
@@ -152,10 +162,27 @@ namespace CP{
   /** Return the calorimeter displacement in R(Z) for barrel (endcap) **/
   float ShowerDepthTool::getRZCorrection(const float& eta,const float& phi,const bool& isData) const
   {
-    TH1* histo = (isData ? m_hData : m_hMC);
+    TH1* histo(nullptr);
+    unsigned short id = 0;
+    if (isData)
+      histo = m_hData;
+    else {
+      histo = m_hMC;
+      id = 1;
+    }
     if (!histo)
       return 0;
-    return histo->Interpolate(eta, phi);
+    float feta = eta;
+    float fphi = phi;
+    if (feta <= m_xMin[id])
+      feta += s_eps;
+    else if (feta >= m_xMax[id])
+      feta -= s_eps;
+    if (fphi <= m_yMin[id])
+      fphi += s_eps;
+    else if (fphi >= m_yMax[id])
+      fphi -= s_eps;
+    return histo->Interpolate(feta,fphi);
   }
   
   float ShowerDepthTool::getEtaDirection(const float& zvertex,const float& R,const float& z) const

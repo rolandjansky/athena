@@ -41,8 +41,6 @@ class IsolationCorrection : public asg::AsgMessaging{
     
     float GetDDCorrection(const xAOD::Egamma&, const xAOD::Iso::IsolationType, std::string year);
 
-    float GetEtaPointing(const xAOD::Egamma*);
-
     void SetDataMC(bool is_mc);
     void SetDataMC(const xAOD::EventInfo*);
     void SetAFII(bool AFII_corr);
