@@ -40,6 +40,9 @@ private:
     int m_nBJetsMin;
     int m_nBJetsMax;
 
+    // inclusive filter efficiency
+    double m_inclusiveEff;
+    ServiceHandle<IAtRndmGenSvc> m_rand;  //!< Random number generator                                                                   
     std::string m_TruthJetContainerName;
 
     // Internal bookkeeping variables
