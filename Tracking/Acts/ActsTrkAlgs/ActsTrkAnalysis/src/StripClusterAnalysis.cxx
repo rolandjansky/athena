@@ -89,7 +89,7 @@ StatusCode ActsTrk::StripClusterAnalysis::execute() {
         auto localCov = cluster->localCovariance<1>();
         auto globalPos = cluster->globalPosition();
 
-        Amg::Vector3D globalPosition(globalPos(0, 0), globalPos(0, 1), globalPos(0, 2));
+        Amg::Vector3D globalPosition(globalPos(0, 0), globalPos(1, 0), globalPos(2, 0));
 
         m_eta->push_back(globalPosition.eta());
         m_globalX->push_back(globalPosition.x());

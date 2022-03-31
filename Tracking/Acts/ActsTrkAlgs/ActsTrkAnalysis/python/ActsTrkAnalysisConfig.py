@@ -57,13 +57,21 @@ def ActsTrkStripSpacePointAnalysisCfg(flags, name="ActsTrkStripSpacePointAnalysi
     kwargs.setdefault("UseOverlap", False)
     result.addEventAlgo(CompFactory.ActsTrk.SpacePointAnalysis(name, **kwargs))
 
+    result.merge(ActsTrkAnalisysOutputCfg(flags))
+    return result
+
+
+def ActsTrkStripOverlapSpacePointAnalysisCfg(flags, name="ActsTrkStripOverlapSpacePointAnalysis", **kwargs):
+    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
+    result = ITkStripReadoutGeometryCfg(flags)
+
     kwargs.setdefault("HistName", "StripOverlapSpacePoints")
     kwargs.setdefault("NtupleName", "StripOverlapSpacePoints")
     kwargs.setdefault("SpacePointContainerKey", "ITkStripOverlapSpacePoints")
     kwargs.setdefault("StripClusterContainerKey", "ITkStripClusters")
     kwargs.setdefault("UsePixel", False)
     kwargs.setdefault("UseOverlap", True)
-    result.addEventAlgo(CompFactory.ActsTrk.SpacePointAnalysis(name+"ForOverlaps", **kwargs))
+    result.addEventAlgo(CompFactory.ActsTrk.SpacePointAnalysis(name, **kwargs))
 
     result.merge(ActsTrkAnalisysOutputCfg(flags))
     return result
@@ -84,4 +92,5 @@ def ActsTrkSpacePointAnalysisCfg(flags):
         acc.merge(ActsTrkPixelSpacePointAnalysisCfg(flags))
     if flags.Detector.EnableITkStrip:
         acc.merge(ActsTrkStripSpacePointAnalysisCfg(flags))
+        acc.merge(ActsTrkStripOverlapSpacePointAnalysisCfg(flags))
     return acc

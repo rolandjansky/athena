@@ -100,7 +100,7 @@ StatusCode ActsTrk::PixelClusterAnalysis::execute() {
         auto localCov = cluster->localCovariance<2>();
         auto globalPos = cluster->globalPosition();
 
-        Amg::Vector3D globalPosition(globalPos(0, 0), globalPos(0, 1), globalPos(0, 2));
+        Amg::Vector3D globalPosition(globalPos(0, 0), globalPos(1, 0), globalPos(2, 0));
 
         m_eta->push_back(globalPosition.eta());
         m_globalX->push_back(globalPosition.x());
@@ -108,7 +108,7 @@ StatusCode ActsTrk::PixelClusterAnalysis::execute() {
         m_globalZ->push_back(globalPosition.z());
 
         m_localX->push_back(localPos(0, 0));
-        m_localY->push_back(localPos(0, 1));
+        m_localY->push_back(localPos(1, 0));
 
         m_localCovXX->push_back(localCov(0, 0));
         m_localCovYY->push_back(localCov(1, 1));
@@ -116,8 +116,8 @@ StatusCode ActsTrk::PixelClusterAnalysis::execute() {
         m_sizeX->push_back(cluster->channelsInPhi());
         m_sizeY->push_back(cluster->channelsInEta());
 
-        m_h_globalZR->Fill(globalPos.z(), globalPos.perp());
-        m_h_etaCluster->Fill(globalPos.eta());
+        m_h_globalZR->Fill(globalPosition.z(), globalPosition.perp());
+        m_h_etaCluster->Fill(globalPosition.eta());
     }
 
     if (m_tree) {
