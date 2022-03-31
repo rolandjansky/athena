@@ -10,7 +10,7 @@
  * @brief Structs that store the data flow information per event
  */
 
- //#include "TrigHTTUtils/HTTTypes.h"
+ //#include "TrigHTTObjects/HTTTypes.h"
 #include <iostream>
 #include <vector>
 
