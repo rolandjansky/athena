@@ -160,7 +160,6 @@ __global__ static void doubletCountingKernel(TrigAccel::SEED_FINDER_SETTINGS* dS
     }
     __syncthreads();
   }
-  __syncthreads();
 
 }
 
