@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -44,13 +44,11 @@ RPC_DCSConditionsTool::RPC_DCSConditionsTool (const std::string& type,
 	    m_log( msgSvc(), name ),
 	    m_debug(false),
 	    m_verbose(false),
+            m_DataLocation("keyRPCDCS"),
             m_chronoSvc(nullptr)
 {
   
   declareInterface< IRPC_DCSConditionsTool >(this);
-  
-  
-  m_DataLocation="keyRPCDCS";
   
   declareProperty("OffPanelFolder",     m_offPanelFolder ="/RPC/DCS/OffRopanels" );
   declareProperty("DeadPanel"     ,     m_deadPanelFolder="/RPC/DCS/DeadRopanels");
