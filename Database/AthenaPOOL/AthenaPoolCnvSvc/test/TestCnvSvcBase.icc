@@ -107,6 +107,8 @@ public:
   { std::abort(); }
   virtual StatusCode readData() override
   { std::abort(); }
+  virtual StatusCode commitCatalog() override
+  { std::abort(); }
   virtual const std::string& name() const override
   { return m_name; }
   virtual StatusCode addConverter(IConverter* /*pConverter*/) override
