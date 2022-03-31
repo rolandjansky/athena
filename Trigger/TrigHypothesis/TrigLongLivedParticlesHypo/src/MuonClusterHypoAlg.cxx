@@ -21,8 +21,6 @@
 #include "xAODTrigger/TrigComposite.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
-
 class ISvcLocator;
 
 using TrigCompositeUtils::createAndStore;

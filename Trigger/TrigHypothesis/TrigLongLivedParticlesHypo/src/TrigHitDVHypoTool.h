@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGLONGLIVEDPARTICLESHYPO_TRIGHITDVHYPOTOOL_H
 #define TRIGLONGLIVEDPARTICLESHYPO_TRIGHITDVHYPOTOOL_H
@@ -14,7 +14,7 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODJet/JetContainer.h"
 
-#include "TMVA/Reader.h"
+
 
 /**
  * @class TrigHitDVHypoTool
@@ -33,10 +33,10 @@ public:
    virtual StatusCode initialize() override;
    
    struct HitDVHypoInfo {
-      TrigCompositeUtils::Decision*       decision;
-      bool                                isSPOverflow;
-      float                               averageMu;
-      const xAOD::TrigComposite*          hitDV;
+      TrigCompositeUtils::Decision*       decision{nullptr};
+      bool                                isSPOverflow{false};
+      float                               averageMu{0};
+      const xAOD::TrigComposite*          hitDV{nullptr};
       const TrigCompositeUtils::DecisionIDContainer previousDecisionsIDs;
    };
    
@@ -48,8 +48,8 @@ public:
 private:
 
    HLT::Identifier m_decisionId;
-   Gaudi::Property< std::vector<float> >  m_cutJetPtGeV { this, "cutJetPtGeV", { float(20.0) }, "Jet pT requirement in GeV" };
-   Gaudi::Property< std::vector<float> >  m_cutJetEta   { this, "cutJetEta",   { float(2.5) },  "Jet Eta requirement" };
+   Gaudi::Property< std::vector<float> >  m_cutJetPtGeV { this, "cutJetPtGeV", { 20.0 }, "Jet pT requirement in GeV" };
+   Gaudi::Property< std::vector<float> >  m_cutJetEta   { this, "cutJetEta",   { 2.5 },  "Jet Eta requirement" };
    Gaudi::Property< std::vector<bool>  >  m_doSPseed    { this, "doSPseed",    { true },  "Switch to do SP seeding" };
 
    //
@@ -65,18 +65,6 @@ private:
    StatusCode calculateBDT(const xAOD::TrigCompositeContainer*, const xAOD::TrigCompositeContainer*,
 			   const std::vector<float>&, const std::vector<float>&, const float, const int, xAOD::TrigCompositeContainer*, int&) const;
    float      getBDTthreshold(float) const;
-
-   //
-   TMVA::Reader* m_tmva_reader;
-   mutable float m_tmva_n_track_qual ATLAS_THREAD_SAFE;
-   mutable float m_tmva_ly0_sp_frac  ATLAS_THREAD_SAFE;
-   mutable float m_tmva_ly1_sp_frac  ATLAS_THREAD_SAFE;
-   mutable float m_tmva_ly2_sp_frac  ATLAS_THREAD_SAFE;
-   mutable float m_tmva_ly3_sp_frac  ATLAS_THREAD_SAFE;
-   mutable float m_tmva_ly4_sp_frac  ATLAS_THREAD_SAFE;
-   mutable float m_tmva_ly5_sp_frac  ATLAS_THREAD_SAFE;
-   mutable float m_tmva_ly6_sp_frac  ATLAS_THREAD_SAFE;
-   mutable float m_tmva_ly7_sp_frac  ATLAS_THREAD_SAFE;
 }; 
 
 #endif //> !TRIGLONGLIVEDPARTICLESHYPO_TRIGHITDVHYPOTOOL_H
