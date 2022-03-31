@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigNavigationThinningSvc.h"
@@ -190,15 +190,15 @@ StatusCode TrigNavigationThinningSvc::dropFeatures(State& state) const
   std::set<std::pair<CLID, uint16_t> > toDelete;
   std::set<std::pair<CLID, uint16_t> > toRetain;
 
-
-  //HLT::NavigationCore::FeaturesStructure::const_iterator types_iterator;
-  //typedef  std::map<uint16_t, HLTNavDetails::IHolder*> HoldersBySubType;
-  //std::map<uint16_t, HLTNavDetails::IHolder*>::const_iterator holders_iterator;
-
   std::lock_guard<std::recursive_mutex> lock(state.navigation.getMutex());
-  const TrigHolderStructure& holderstorage = state.navigation.getHolderStorage();
 
-  for( auto h : holderstorage.getAllHolders<HLTNavDetails::IHolder>() ) {
+  const auto& holders = state.navigation.getHolderStorage().getAllHolders<HLTNavDetails::IHolder>();
+  if ( holders.empty() ) {  // to prevent issues as in ATR-25282
+    ATH_MSG_ERROR("The navigation does not contain any features. This is likely a configuration problem.");
+    return StatusCode::FAILURE;
+  }
+
+  for( auto h : holders ) {
     if(!h) { // check if h is null
       ATH_MSG_WARNING("holder.second is null pointer; skipping...");
       continue;
@@ -741,9 +741,13 @@ StatusCode TrigNavigationThinningSvc::syncThinning(State& state) const {
   ATH_MSG_DEBUG ( "Running the syncThinning" );
 
   std::lock_guard<std::recursive_mutex> lock(state.navigation.getMutex());
-  const TrigHolderStructure& holderstorage = state.navigation.getHolderStorage();
 
-  auto holders = holderstorage.getAllHolders<HLTNavDetails::IHolder>();
+  const auto& holders = state.navigation.getHolderStorage().getAllHolders<HLTNavDetails::IHolder>();
+  if ( holders.empty() ) {  // to prevent issues as in ATR-25282
+    ATH_MSG_ERROR("The navigation does not contain any features. This is likely a configuration problem.");
+    return StatusCode::FAILURE;
+  }
+
   for(auto holder : holders) {
     const IProxyDict* ipd = Atlas::getExtendedEventContext(ctx).proxy();
     if ( not ipd->proxy(holder->containerClid(), holder->label() ) ) {
