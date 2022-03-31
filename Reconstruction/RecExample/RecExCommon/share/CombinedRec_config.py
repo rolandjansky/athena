@@ -96,7 +96,7 @@ if recAlgs.doEFlow() and (rec.readESD() or (DetFlags.haveRIO.ID_on() and DetFlag
     try:        
         from eflowRec.PFRun3Config import PFCfg
         CAtoGlobalWrapper(PFCfg, ConfigFlags)
-        from eflowRec import ScheduleCHSPFlowMods
+        #from eflowRec import ScheduleCHSPFlowMods
     except Exception:
         treatException("Could not set up EFlow. Switched off !")
         recAlgs.doEFlow=False
