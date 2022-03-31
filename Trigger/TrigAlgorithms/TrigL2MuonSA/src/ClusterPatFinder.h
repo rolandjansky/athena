@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_CLUSTERPATFINDER_H
@@ -85,7 +85,7 @@ class ClusterPatFinder: public AthAlgTool
 
  public:
 
-  void addCluster(std::string stationName,
+  void addCluster(const std::string& stationName,
 	          int stationEta,
                   bool  measuresPhi,
                   unsigned int  gasGap,
@@ -110,7 +110,7 @@ class ClusterPatFinder: public AthAlgTool
 
   bool deltaOK(int l1, int l2, double x1, double x2, int isphi, double &delta) const;  
     
-  double calibR(std::string stationName, double R, double Phi) const;  
+  double calibR(const std::string& stationName, double R, double Phi) const;  
   
   void abcal(unsigned int result_pat, size_t index[], double aw[], double bw[], TrigL2MuonSA::RpcLayerClusters& rpcLayerClusters) const;
   

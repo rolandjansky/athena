@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUFASTSTATIONFITTER_H
@@ -60,7 +60,7 @@ class MuFastStationFitter: public AthAlgTool
       StatusCode superPointFitter(TrigL2MuonSA::TrackPattern& trackPattern,
                                   const TrigL2MuonSA::MuonRoad&  muonRoad) const;
 
-      StatusCode setMCFlag(BooleanProperty use_mcLUT);
+      StatusCode setMCFlag(const BooleanProperty& use_mcLUT);
 
    private:
 

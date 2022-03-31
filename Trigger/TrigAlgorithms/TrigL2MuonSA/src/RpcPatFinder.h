@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_RPAPATFINDER_H
@@ -49,15 +49,15 @@ class RpcPatFinder: public AthAlgTool
 
  public:
 
-  void addHit(std::string stationName,
+  void addHit(const std::string& stationName,
 	      int stationEta,
 	      bool  measuresPhi,
 	      unsigned int  gasGap,
 	      unsigned int doubletR,
 	      double gPosX, double gPosY, double gPosZ,
               TrigL2MuonSA::RpcLayerHits& rpcLayerHits) const;
-  bool findPatternEta(double aw[], double bw[], unsigned int &pattern, const TrigL2MuonSA::RpcLayerHits rpcLayerHits) const;
-  bool findPatternPhi(double &phi_middle, double &phi_outer, unsigned int &pattern, const TrigL2MuonSA::RpcLayerHits rpcLayerHits) const;
+  bool findPatternEta(double aw[], double bw[], unsigned int &pattern, const TrigL2MuonSA::RpcLayerHits& rpcLayerHits) const;
+  bool findPatternPhi(double &phi_middle, double &phi_outer, unsigned int &pattern, const TrigL2MuonSA::RpcLayerHits& rpcLayerHits) const;
   
  private:
   int patfinder(bool iphi,
@@ -75,7 +75,7 @@ class RpcPatFinder: public AthAlgTool
                     const TrigL2MuonSA::RpcLayerHits rpcLayerHits) const;
 
   bool deltaOK(int l1, int l2, double x1, double x2, int isphi, double &delta) const;  
-  double calibR(std::string stationName, double R, double Phi) const;  
+  double calibR(const std::string& stationName, double R, double Phi) const;  
   void abcal(unsigned int result_pat, 
              size_t index[], 
              double aw[], 

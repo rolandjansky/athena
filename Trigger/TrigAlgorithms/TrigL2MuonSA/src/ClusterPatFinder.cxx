@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ClusterPatFinder.h"
@@ -23,7 +23,7 @@ TrigL2MuonSA::ClusterPatFinder::ClusterPatFinder(const std::string& type,
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-void TrigL2MuonSA::ClusterPatFinder::addCluster(std::string stationName,
+void TrigL2MuonSA::ClusterPatFinder::addCluster(const std::string& stationName,
 					        int stationEta,
                                                 bool  measuresPhi,
                                                 unsigned  int gasGap,
@@ -475,7 +475,7 @@ bool  TrigL2MuonSA::ClusterPatFinder::deltaOK(int l1, int l2, double x1, double 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-double TrigL2MuonSA::ClusterPatFinder::calibR(std::string stationName, double R, double Phi) const
+double TrigL2MuonSA::ClusterPatFinder::calibR(const std::string& stationName, double R, double Phi) const
 {
   double DeltaPhi, temp_phi;
   double calibPhi = std::acos(std::cos(Phi)); // 0 < Phi < 2PI

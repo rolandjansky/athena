@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUFASTTRACKFITTER_H
@@ -46,7 +46,7 @@ namespace TrigL2MuonSA {
 			  std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns,
                           const TrigL2MuonSA::MuonRoad& muonRoad) const;
     
-    StatusCode setMCFlag(BooleanProperty  use_mcLUT);
+    StatusCode setMCFlag(const BooleanProperty&  use_mcLUT);
 
     void setUseEIFromBarrel( BooleanProperty use_endcapInnerFromBarrel ) {
       m_use_endcapInnerFromBarrel = use_endcapInnerFromBarrel;

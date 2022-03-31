@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PtBarrelLUT.h"
@@ -21,8 +21,8 @@ TrigL2MuonSA::PtBarrelLUT::PtBarrelLUT(const std::string& type,
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigL2MuonSA::PtBarrelLUT::readLUT(std::string lut_fileName,
-					      std::string lutSP_fileName)
+StatusCode TrigL2MuonSA::PtBarrelLUT::readLUT(const std::string& lut_fileName,
+					      const std::string& lutSP_fileName)
 {
   int charge,chamber;
   float A0,A1,etamin,etamax,phimin,phimax;

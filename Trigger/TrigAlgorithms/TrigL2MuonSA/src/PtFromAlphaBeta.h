@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_PTFROMALPHABETA_H
@@ -26,7 +26,7 @@ class PtFromAlphaBeta: public AthAlgTool
     
   virtual StatusCode initialize() override;
 
-  void setMCFlag(BooleanProperty use_mcLUT,
+  void setMCFlag(const BooleanProperty& use_mcLUT,
 		 const TrigL2MuonSA::PtEndcapLUTSvc* ptEndcapLUTSvc);
 
  public:

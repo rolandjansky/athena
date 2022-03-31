@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuFastStationFitter.h"
@@ -50,7 +50,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::initialize()
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
-StatusCode TrigL2MuonSA::MuFastStationFitter::setMCFlag(BooleanProperty use_mcLUT)
+StatusCode TrigL2MuonSA::MuFastStationFitter::setMCFlag(const BooleanProperty& use_mcLUT)
 {
   m_use_mcLUT = use_mcLUT;
 
@@ -1330,9 +1330,7 @@ void TrigL2MuonSA::MuFastStationFitter::findLayerCombination(std::vector<unsigne
                                                              std::vector<std::vector<unsigned int> > &c,
                                                              int &nr) const
 {
-  std::vector<unsigned int> b;
-
-  for (int i=0;i<r;i++) b.push_back(0);
+  std::vector<unsigned int> b(r,0);
 
   findSubLayerCombination(a,n,r,b,0,r,c,nr);
 
