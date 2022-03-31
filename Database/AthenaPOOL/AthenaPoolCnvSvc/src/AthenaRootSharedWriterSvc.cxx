@@ -232,12 +232,16 @@ StatusCode AthenaRootSharedWriterSvc::share(int/* numClients*/, bool motherClien
                   socket->Close();
                   --m_rootClientCount;
                   if (m_rootMonitor->GetActive() == 0 || m_rootClientCount == 0) {
-                     if(!motherClient) {
-                       anyActiveClients = false;
-                       ATH_MSG_INFO("ROOT Monitor: No more active clients...");
+                     if (!motherClient) {
+                        anyActiveClients = false;
+                        ATH_MSG_INFO("ROOT Monitor: No more active clients...");
                      } else {
-                       motherClient = false;
-                       ATH_MSG_INFO("ROOT Monitor: Mother process is done...");
+                        motherClient = false;
+                        ATH_MSG_INFO("ROOT Monitor: Mother process is done...");
+                        if (!m_cnvSvc->commitCatalog().isSuccess()) {
+                           ATH_MSG_FATAL("Failed to commit file catalog.");
+                           return StatusCode::FAILURE;
+                        }
                      }
                   }
                } else if (message->What() == kMESS_ANY) {

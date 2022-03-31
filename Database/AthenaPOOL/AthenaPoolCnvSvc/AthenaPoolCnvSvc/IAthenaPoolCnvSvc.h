@@ -90,12 +90,6 @@ public:
    /// string/file specification
    virtual StatusCode decodeOutputSpec(std::string& connectionSpec, int& outputTech) const = 0;
 
-   /// Make this a server.
-   virtual StatusCode makeServer(int num) = 0;
-
-   /// Make this a client.
-   virtual StatusCode makeClient(int num) = 0;
-
    /// Implement registerCleanUp to register a IAthenaPoolCleanUp to be called during cleanUp.
    virtual StatusCode registerCleanUp(IAthenaPoolCleanUp* cnv) = 0;
 
