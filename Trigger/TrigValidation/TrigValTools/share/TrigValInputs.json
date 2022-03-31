@@ -39,8 +39,13 @@
         "source": "data",
         "format": "BS",
         "paths": [
-            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data16_cos.00306147.physics_Main.daq.RAW._lb0494._SFO-4._0001.data"
-        ]
+	    "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data16_cos.00306147.physics_Main.daq.RAW._lb0652._SFO-1._0001.data",
+	    "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data16_cos.00306147.physics_Main.daq.RAW._lb0652._SFO-2._0001.data",
+	    "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data16_cos.00306147.physics_Main.daq.RAW._lb0652._SFO-3._0001.data",
+	    "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data16_cos.00306147.physics_Main.daq.RAW._lb0652._SFO-4._0001.data",
+	    "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data16_cos.00306147.physics_Main.daq.RAW._lb0652._SFO-5._0001.data",
+	    "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data16_cos.00306147.physics_Main.daq.RAW._lb0652._SFO-6._0001.data"
+	]            
     },
     "data_cos_CosmicMuons": {
         "source": "data",
