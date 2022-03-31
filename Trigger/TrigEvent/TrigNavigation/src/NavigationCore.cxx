@@ -20,7 +20,7 @@
 
 #include "TrigSerializeResult/StringSerializer.h"
 #include "TrigSerializeCnvSvc/TrigStreamAddress.h"
-#include <unordered_set>
+#include <unordered_map>
 
 
 using namespace HLT;
@@ -235,7 +235,7 @@ bool NavigationCore::deserialize( const std::vector<uint32_t>& input ) {
   {
     std::mutex m_mutex;
     EventContext::ContextEvt_t m_evt;
-    std::unordered_set<uint64_t> m_hashes;
+    std::unordered_map<uint64_t, std::shared_ptr<HLT::BaseHolder>> m_holders;
   };
   static SG::SlotSpecificObj<DeserializedMemo> memos;
 
@@ -243,7 +243,7 @@ bool NavigationCore::deserialize( const std::vector<uint32_t>& input ) {
   DeserializedMemo& memo = *memos.get (ctx);
   std::scoped_lock memolock (memo.m_mutex);
   if (memo.m_evt != ctx.evt()) {
-    memo.m_hashes.clear();
+    memo.m_holders.clear();
     memo.m_evt = ctx.evt();
   }
   
@@ -253,18 +253,19 @@ bool NavigationCore::deserialize( const std::vector<uint32_t>& input ) {
   std::vector<uint32_t> blob;
   while ( extractBlob(input, it, blob) ) {
     // Skip this blob if we've already deserialized it.
-    // See ATLASRECTS-6278 and ATEAM-734.
+    // See ATLASRECTS-6278, ATEAM-734 and ATR-25282
     uint64_t hash = CxxUtils::crc64 ((const char*)blob.data(),
                                      blob.size()*sizeof(*blob.data()));
-    if (!memo.m_hashes.insert (hash).second) {
+
+    auto& holder = memo.m_holders[hash]; // ref(!) to empty or existing holder pointer
+    if (! holder ) {
+      ATH_MSG_DEBUG("deserializing holder blob with size/hash " << blob.size() << "/" << hash);
+      holder = std::shared_ptr<HLT::BaseHolder>(m_holderfactory->fromSerialized(version,blob.begin(),blob.end()));
+      if (! holder ) continue;   // error during deserialization
+    } else {
       ATH_MSG_DEBUG("blob with size/hash " << blob.size() << "/" << hash
-                  << " already deserialized; skipping");
-      continue;
+                  << " already deserialized; re-using holder");
     }
-                                     
-    ATH_MSG_DEBUG("deserializing holder blob of size: " << blob.size());
-    auto holder = std::shared_ptr<HLT::BaseHolder>(m_holderfactory->fromSerialized(version,blob.begin(),blob.end()));
-    if (! holder ) continue;   // either error or class was skipped during deserialization
 
     if(!holderstorage.registerHolder(holder)){
       ATH_MSG_WARNING("deserialize: holder registration for holder with clid: " << holder->typeClid() << " and label: " << holder->label() << " failed.");
