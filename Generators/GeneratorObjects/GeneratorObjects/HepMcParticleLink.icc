@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file GeneratorObjects/HepMcParticleLink.icc
@@ -307,7 +307,7 @@ HepMcParticleLink::ExtendedBarCode::setIndex (index_type idx,
  */
 inline
 HepMcParticleLink::HepMcParticleLink (IProxyDict* sg /*= nullptr*/)
-  : m_ptrs (sg)
+  : m_store (sg)
 {
 }
 
@@ -341,7 +341,7 @@ HepMcParticleLink::HepMcParticleLink (barcode_type barCode,
                                       EBC_EVCOLL evColl /*= EBC_MAINEVCOLL*/,
                                       PositionFlag positionFlag /*= IS_INDEX*/,
                                       IProxyDict* sg /*= SG::CurrentEventStore::store()*/)
-  : m_ptrs (sg),
+  : m_store (sg),
     m_extBarcode (barCode, eventIndex, evColl, positionFlag)
 {
 }
@@ -409,7 +409,7 @@ HepMcParticleLink::HepMcParticleLink (barcode_type barCode,
  * @param sg Optional specification of a specific store to reference.
  */
 inline
-HepMcParticleLink::HepMcParticleLink (const HepMC::GenParticle* part,
+HepMcParticleLink::HepMcParticleLink (HepMC::ConstGenParticlePtr part,
                                       uint32_t eventIndex,
                                       const std::string& evCollName,
                                       PositionFlag positionFlag /*= IS_INDEX*/,
@@ -434,7 +434,7 @@ HepMcParticleLink::HepMcParticleLink (const HepMC::GenParticle* part,
  * @param ctx Context of the store to reference.
  */
 inline
-HepMcParticleLink::HepMcParticleLink (const HepMC::GenParticle* part,
+HepMcParticleLink::HepMcParticleLink (HepMC::ConstGenParticlePtr part,
                                       uint32_t eventIndex,
                                       EBC_EVCOLL evColl,
                                       PositionFlag positionFlag,
@@ -450,7 +450,8 @@ HepMcParticleLink::HepMcParticleLink (const HepMC::GenParticle* part,
  */
 inline
 HepMcParticleLink::HepMcParticleLink (const HepMcParticleLink& rhs)
-  : m_ptrs(rhs.m_ptrs),
+  : m_store(rhs.m_store),
+    m_ptr(rhs.m_ptr),
     m_extBarcode(rhs.m_extBarcode)
 {
 }
@@ -463,7 +464,8 @@ inline
 HepMcParticleLink& HepMcParticleLink::operator= (const HepMcParticleLink& rhs)
 {
   if (this != &rhs) {
-    m_ptrs = rhs.m_ptrs;
+    m_store = rhs.m_store;
+    m_ptr = rhs.m_ptr;
     m_extBarcode = rhs.m_extBarcode;
   }
   return *this;
@@ -484,7 +486,7 @@ const HepMC::GenParticle& HepMcParticleLink::operator* () const
  * @brief Dereference.
  */
 inline
-const HepMC::GenParticle* HepMcParticleLink::operator->() const
+HepMC::ConstGenParticlePtr HepMcParticleLink::operator->() const
 {
   return cptr();
 }
@@ -494,7 +496,7 @@ const HepMC::GenParticle* HepMcParticleLink::operator->() const
  * @brief Dereference.
  */
 inline
-HepMcParticleLink::operator const HepMC::GenParticle* () const
+HepMcParticleLink::operator HepMC::ConstGenParticlePtr() const
 {
   return cptr();
 }
@@ -517,6 +519,16 @@ inline
 bool HepMcParticleLink::operator!() const
 {
   return !isValid();
+}
+
+
+/** 
+ * @brief Validity check.  Dereference and check for null.
+ */
+inline
+HepMcParticleLink::operator bool() const
+{
+  return isValid();
 }
 
 
@@ -603,13 +615,11 @@ HepMcParticleLink::barcode_type HepMcParticleLink::compress() const
 
 
 /**
- * @brief Comparison with GenParticle*.
- * Needed with c++20 to break an ambiguity between the built-in GenParticle*
- * equality and operator== defined above, arising due to the conversions
- * back and forth between HepMcParticleLink and GenParticle*.
+ * @brief Comparison with ConstGenParticlePtr.
+ * Needed with c++20 to break an ambiguity.
  */
 inline
-bool operator== (const HepMC::GenParticle* a,
+bool operator== (HepMC::ConstGenParticlePtr a,
                  const HepMcParticleLink& b)
 {
   return a == b.cptr();

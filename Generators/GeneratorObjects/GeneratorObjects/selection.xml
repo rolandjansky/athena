@@ -21,8 +21,8 @@
   </class>
   <class name="HepMC::Polarization" />
   <class name="HepMcParticleLink" >
-   <field name="m_ptrs" transient="true" />
-   <field name="m_have_particle" transient="true" />
+   <field name="m_store" transient="true" />
+   <field name="m_ptr" transient="true" />
   </class>
   <class name="HepMcParticleLink::ExtendedBarCode" />
   <class name="std::vector<HepMcParticleLink>" />
