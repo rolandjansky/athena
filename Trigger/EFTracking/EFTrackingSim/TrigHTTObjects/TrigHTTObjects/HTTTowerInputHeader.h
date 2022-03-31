@@ -2,8 +2,8 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef HTTTOWERINPUTHEADER_H
-#define HTTTOWERINPUTHEADER_H
+#ifndef HTTOBJECT_HTTTOWERINPUTHEADER_H
+#define HTTOBJECT_HTTTOWERINPUTHEADER_H
 
 #include <TObject.h>
 
@@ -66,4 +66,4 @@ private:
 
 std::ostream& operator<<(std::ostream&, const HTTTowerInputHeader&);
 
-#endif  /* __HTTTOWERINOUTHEADER_H */
+#endif  // HTTOBJECT_HTTTOWERINPUTHEADER_H
