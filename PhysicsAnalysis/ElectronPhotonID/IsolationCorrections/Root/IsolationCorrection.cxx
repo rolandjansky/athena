@@ -113,25 +113,30 @@ namespace CP {
       ATH_MSG_WARNING("The associated cluster of the object does not exist ! Maybe the thinning was too agressive... No leakage correction computed.");
       return 0.;
     }
-    if (m_tool_ver == REL21 || m_tool_ver == REL20_2)
-      energy = input.caloCluster()->energyBE(1) + input.caloCluster()->energyBE(2) + input.caloCluster()->energyBE(3);
-    else
-      energy = input.caloCluster()->e();
 
+    float etaS2       = input.caloCluster()->etaBE(2);
+    float etaS1       = input.caloCluster()->etaBE(1);
+    float etaCluster  = input.caloCluster()->eta();
+    float etaPointing = etaCluster;
+    float phiCluster  = input.caloCluster()->phi();
     bool is_mc = m_is_mc;
     ParticleType part_type = ( (input.type() == xAOD::Type::Electron) ? IsolationCorrection::ELECTRON : IsolationCorrection::PHOTON);
     bool convFlag = false;
-
-    float etaS2 = input.caloCluster()->etaBE(2);
-    float etaS1 = input.caloCluster()->etaBE(1);
-    float etaCluster = input.caloCluster()->eta();
-    float phiCluster = input.caloCluster()->phi();
     
     if(part_type == IsolationCorrection::PHOTON && fabs(etaS2) > 2.37) return 0.;
     if(part_type == IsolationCorrection::ELECTRON && fabs(etaS2) > 2.47) return 0.;
     
     if(fabs(etaS1) > 2.5) return 0.;
-    if(fabs(phiCluster) > 3.2) return 0.;
+    if(fabs(phiCluster) > M_PI) return 0.;
+
+    if (m_tool_ver == REL21 || m_tool_ver == REL20_2)
+      energy = input.caloCluster()->energyBE(1) + input.caloCluster()->energyBE(2) + input.caloCluster()->energyBE(3);
+    else
+      energy = input.caloCluster()->e();
+
+    bool is_topo = xAOD::Iso::isolationFlavour(isol) == xAOD::Iso::topoetcone ? true : false;
+    if (!is_topo || m_tool_ver == REL17 || m_tool_ver == REL17_2)
+      etaPointing = m_shower->getCaloPointingEta(etaS1, etaS2, phiCluster, is_mc);
 
     if (part_type == IsolationCorrection::ELECTRON && energy > 15e3)
       ATH_MSG_VERBOSE("Electron ? " << (part_type == IsolationCorrection::ELECTRON) << " Input E = " << input.caloCluster()->e() << " E used " << energy << " author = " << input.author() << " pT = " << input.pt() << " phi = " << input.phi());
@@ -180,17 +185,14 @@ namespace CP {
       else
 	author = 16;
     }
-    
-    float etaPointing = m_shower->getCaloPointingEta(etaS1, etaS2, phiCluster, is_mc);
 
     float radius = xAOD::Iso::coneSize(isol);
-    bool is_topo = xAOD::Iso::isolationFlavour(isol) == xAOD::Iso::topoetcone ? true : false;
 
     if(is_topo){
     
       isolation_ptcorrection = GetPtCorrectionTopo(  energy,
 						     etaS2,
-						     etaPointing,
+						     etaPointing, //Only used for REL17_2 param
 						     etaCluster,
 						     radius,
 						     is_mc,
@@ -201,7 +203,7 @@ namespace CP {
 						     author,
 						     conv_radius,
 						     conv_ratio);
-    }else{
+    }else{ // very old parameterization (mc11)
       isolation_ptcorrection = GetPtCorrection(  energy,
 						 etaS2,
 						 etaPointing,
@@ -367,25 +369,6 @@ StatusCode IsolationCorrection::setupDD(std::string year) {
     }
 
     return isolation_ddcorrection;
-  }
-
-  float IsolationCorrection::GetEtaPointing(const xAOD::Egamma* input){
-    if (input->caloCluster() == nullptr) {
-      ATH_MSG_WARNING("The associated cluster of the object does not exist ! Maybe the thinning was too agressive... use object eta for eta (instead of etaS2 or pointing).");
-      return input->eta();
-    }
-    float etaS1 = input->caloCluster()->etaBE(1);
-    float etaS2 = input->caloCluster()->etaBE(2);
-    float phiCluster = input->caloCluster()->phi();
-    ParticleType part_type = ( (input->type() == xAOD::Type::Electron) ? IsolationCorrection::ELECTRON : IsolationCorrection::PHOTON);
-
-    if(part_type == IsolationCorrection::PHOTON && fabs(etaS2) > 2.37) return 0.;
-    if(part_type == IsolationCorrection::ELECTRON && fabs(etaS2) > 2.47) return 0.;
-    if(fabs(etaS1) > 2.5) return 0.;
-    if(fabs(phiCluster) > 3.2) return 0.;
-
-    float etaPointing = m_shower->getCaloPointingEta(etaS1, etaS2, phiCluster);
-    return etaPointing;
   }
 
   void IsolationCorrection::SetDataMC(bool is_mc){
@@ -1012,7 +995,7 @@ StatusCode IsolationCorrection::setupDD(std::string year) {
 
   //-----------------------------------------------------------------------
   // User function
-  // Returns the pt leakage corrected isolation
+  // Returns the pt leakage corrected isolation : etcone
   //
   float IsolationCorrection::GetPtCorrectedIsolation(float energy,
 						     float etaS2,
@@ -1216,7 +1199,7 @@ StatusCode IsolationCorrection::setupDD(std::string year) {
 
   //-----------------------------------------------------------------------
   // Internal function
-  // Returns the appropriate corrections value
+  // Returns the appropriate corrections value : for etcone
   //
   float IsolationCorrection::GetPtCorrectionFactor(float eta,
 						   std::vector<float> mc_leakage_corrections_ptr,
@@ -1237,7 +1220,7 @@ StatusCode IsolationCorrection::setupDD(std::string year) {
 
   //-----------------------------------------------------------------------
   // Internal function
-  // Does the final pt scaling
+  // Does the final pt scaling : for etcone
   float IsolationCorrection::GetPtCorrectionValue(float energy, float etaPointing, float etaCluster, float scale_factor) const {
     // apply the correction to et
     double etaForPt = ((fabs(etaPointing - etaCluster) < 0.15) ? etaPointing : etaCluster);
@@ -1316,8 +1299,8 @@ StatusCode IsolationCorrection::setupDD(std::string year) {
 
   float IsolationCorrection::GetPtCorrection_FromGraph_2015(float energy, float etaS2, float radius, int conversion_flag, int author, float conv_radius, float conv_ratio, ParticleType parttype) const {
     int newrad = GetRadius(radius);
-    double etaForPt = etaS2; //((fabs(etaPointing - etaCluster) < 0.15) ? etaPointing : etaCluster);
-    double et = energy/cosh(etaForPt); //(fabs(etaForPt)<99.) ? energy/cosh(etaForPt) : 0.;
+    double etaForPt = etaS2;
+    double et = energy/cosh(etaForPt);
     int etabin = GetEtaBinFine(etaS2);
 
     int conversion_type = 0;

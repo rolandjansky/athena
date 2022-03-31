@@ -61,6 +61,8 @@ namespace CP {
     std::string m_configFileName;
     TString m_dataHistoName;
     TString m_mcHistoName;
+    static constexpr float s_eps = 1e-6;
+    float m_xMin[2], m_xMax[2], m_yMin[2], m_yMax[2];
   };
 
 } // namespace CP

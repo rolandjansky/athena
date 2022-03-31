@@ -62,7 +62,6 @@ class IsolationCorrectionTool  : virtual public IIsolationCorrectionTool,
 
     private:
 	StatusCode get_simflavour_from_metadata(PATCore::ParticleDataType::DataType& result) ;
-        float GetEtaPointing(const xAOD::Egamma* input) {return m_isol_corr->GetEtaPointing(input);};
 
         std::string m_corr_file;
         std::string m_corr_ddshift_file;
