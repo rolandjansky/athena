@@ -101,40 +101,9 @@ def SiTrackMaker_xkCfg(flags, name="SiTrackMaker_xk"):
   acc.addPublicTool( tool, primary=True )
   return acc
 
-
-
 def ExtrapolatorCfg(flags):
   from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
   return InDetExtrapolatorCfg(flags, name="InDetTrigExtrapolator")
-
-def InDetTestPixelLayerToolCfg(flags):
-  acc = ComponentAccumulator()
-  from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
-
-  tool = CompFactory.InDet.InDetTestPixelLayerTool(PixelSummaryTool = acc.popToolsAndMerge( PixelConditionsSummaryCfg(flags) ),
-                                                   Extrapolator     = acc.getPrimaryAndMerge(ExtrapolatorCfg( flags)), 
-                                                   CheckActiveAreas = True,
-                                                   CheckDeadRegions = True)
-  acc.setPrivateTools( tool )
-  return acc
-
-
-def InDetHoleSearchToolCfg(flags, name="InDetTrigHoleSearchTool"):
-  acc = ComponentAccumulator()
-
-# a possible change in HoleSearchTool impl? - This two tools do not seem to be needed now, leaving them commented out  TODO - decide if can be removed ( also func above creting the config )
-#  from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_ConditionsSummaryToolCfg
-#  sctCondSummaryTool = acc.popToolsAndMerge( SCT_ConditionsSummaryToolCfg( flags,withFlaggedCondTool=False, withTdaqTool=False ) )
-
-#  acc.merge( InDetTestPixelLayerToolCfg( flags, **kwargs ) )
-
-  extrapolatorTool = acc.popToolsAndMerge( ExtrapolatorCfg( flags ) )
-  acc.addPublicTool(extrapolatorTool)
-
-  tool = CompFactory.InDet.InDetTrackHoleSearchTool(name,
-                                                    Extrapolator =  extrapolatorTool)
-  acc.addPublicTool( tool, primary=True )
-  return acc
 
 def InDetPrdAssociationToolGangedPixelsCfg(flags):
   acc = ComponentAccumulator()

@@ -17,7 +17,7 @@ def InDetTrackSummaryHelperToolCfg(flags, name='InDetSummaryHelper', **kwargs):
     kwargs.setdefault("AssoTool", InDetPrdAssociationTool_setup)
 
   if "HoleSearch" not in kwargs:
-    from InDetConfig.InDetRecToolConfig import InDetTrackHoleSearchToolCfg
+    from InDetConfig.InDetTrackHoleSearchConfig import InDetTrackHoleSearchToolCfg
     InDetTrackHoleSearchTool = result.popToolsAndMerge(InDetTrackHoleSearchToolCfg(flags))
     result.addPublicTool(InDetTrackHoleSearchTool)
     kwargs.setdefault("HoleSearch", InDetTrackHoleSearchTool)
@@ -74,8 +74,9 @@ def TrigTrackSummaryHelperToolCfg(flags, name="InDetTrigSummaryHelper", **kwargs
     kwargs.setdefault("AssoTool", associationTool)
 
   if "HoleSearch" not in kwargs:
-    from TrigInDetConfig.TrigInDetConfig import InDetHoleSearchToolCfg
-    holeSearchTool = result.getPrimaryAndMerge( InDetHoleSearchToolCfg(flags, name = "InDetTrigHoleSearchTool" ) )
+    from InDetConfig.InDetTrackHoleSearchConfig import TrigHoleSearchToolCfg
+    holeSearchTool = result.popToolsAndMerge( TrigHoleSearchToolCfg(flags) )
+    result.addPublicTool(holeSearchTool)
     kwargs.setdefault("HoleSearch", holeSearchTool)
 
   # Kept for consistency with previous config but unclear if different from default TRT_StrawStatusSummaryTool loaded in C++
@@ -108,7 +109,7 @@ def ITkTrackSummaryHelperToolCfg(flags, name='ITkSummaryHelper', **kwargs):
     kwargs.setdefault("AssoTool", assoTool)
 
   if "HoleSearch" not in kwargs:
-    from InDetConfig.ITkRecToolConfig import ITkTrackHoleSearchToolCfg
+    from InDetConfig.InDetTrackHoleSearchConfig import ITkTrackHoleSearchToolCfg
     ITkTrackHoleSearchTool = result.popToolsAndMerge(ITkTrackHoleSearchToolCfg(flags))
     result.addPublicTool(ITkTrackHoleSearchTool)
     kwargs.setdefault("HoleSearch", ITkTrackHoleSearchTool)
