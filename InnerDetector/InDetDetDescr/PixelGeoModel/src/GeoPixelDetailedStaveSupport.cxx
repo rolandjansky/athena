@@ -1364,13 +1364,9 @@ void GeoPixelDetailedStaveSupport::GetSurroundingConvexShape(std::vector<double>
 
   if(m_bVerbose)m_gmt_mgr->msg(MSG::DEBUG)<<"Convex shape "<<iException.size()<<endmsg;
 
-  if(iException.empty())
-    for(int i=0; i<(int)xVertices.size(); i++)iException.push_back(0);
+  if(iException.empty()) iException.assign(xVertices.size(), 0);
 
-  std::vector<int>iRemoved;
-  iRemoved.reserve((int)xVertices.size());
-
-for(int i=0; i<(int)xVertices.size(); i++)iRemoved.push_back(0);
+  std::vector<int>iRemoved( xVertices.size(), 0);
 
   // removing process is based on the sign of Z component of vector product (Pi-1,Pi)x(Pi,Pi+1)
   //     for each set of successive points Pi-1, Pi, Pi+1 
@@ -1421,11 +1417,8 @@ for(int i=0; i<(int)xVertices.size(); i++)iRemoved.push_back(0);
       //      bEndPointReached=true;
     }  
   
-  xVertices.clear(); yVertices.clear();
-  for(int i=0; i<(int)xTmp.size(); i++){
-    xVertices.push_back(xTmp[i]);
-    yVertices.push_back(yTmp[i]);
-  }
+  xVertices = std::move(xTmp);
+  yVertices = std::move(yTmp);
 
 }
 
