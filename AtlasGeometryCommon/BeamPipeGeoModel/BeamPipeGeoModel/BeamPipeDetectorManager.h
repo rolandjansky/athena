@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BeamPipeDetectorManager_h
@@ -27,14 +27,14 @@ class BeamPipeDetectorManager : public GeoVDetectorManager
   virtual PVConstLink getTreeTop(unsigned int i) const;
 
   // Add a Tree top:
-  void addTreeTop(PVLink);
+  void addTreeTop(PVConstLink);
 
  private:  
 
   const BeamPipeDetectorManager & operator=(const BeamPipeDetectorManager &right);
   BeamPipeDetectorManager(const BeamPipeDetectorManager &right);
   
-  std::vector<PVLink> m_volume;  
+  std::vector<PVConstLink> m_volume;  
 
 };
 
