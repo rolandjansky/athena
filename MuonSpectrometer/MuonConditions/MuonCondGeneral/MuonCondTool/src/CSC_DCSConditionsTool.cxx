@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CSC_DCSConditionsTool.h"
@@ -28,9 +28,9 @@
 CSC_DCSConditionsTool::CSC_DCSConditionsTool (const std::string& type, const std::string& name, const IInterface* parent) :
     AthAlgTool(type, name, parent), 
     m_IOVSvc(nullptr),
+    m_DataLocation("keyCSCDCS"),
     m_chronoSvc(nullptr) {
   declareInterface< ICSC_DCSConditionsTool >(this);
-  m_DataLocation="keyCSCDCS";
   declareProperty("HVFolder",     m_hvFolder="/CSC/DCS/LAYERSTATE");
   declareProperty("ChamberFolder",     m_chamberFolder="/CSC/DCS/ENABLEDCHAMBERS");
 }

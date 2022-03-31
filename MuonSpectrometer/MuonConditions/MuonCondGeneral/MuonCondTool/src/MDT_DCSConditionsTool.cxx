@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -44,6 +44,7 @@ MDT_DCSConditionsTool::MDT_DCSConditionsTool (const std::string& type,
 	  : AthAlgTool(type, name, parent),
             m_IOVSvc(nullptr),
             m_mdtIdHelper(nullptr),
+            m_DataLocation("keyMDTDCS"),
             m_chronoSvc(nullptr),
 	    m_condMapTool("MDT_MapConversion"), 
 	    m_log( msgSvc(), name ),
@@ -52,9 +53,6 @@ MDT_DCSConditionsTool::MDT_DCSConditionsTool (const std::string& type,
 {
   
   declareInterface< IMDT_DCSConditionsTool >(this);
-  
-  
-  m_DataLocation="keyMDTDCS";
   
   declareProperty("DropChamberFolder",     m_dropchamberFolder="/MDT/DCS/DROPPEDCH");
   declareProperty("LVFolder",     m_lvFolder="/MDT/DCS/PSLVCHSTATE");
