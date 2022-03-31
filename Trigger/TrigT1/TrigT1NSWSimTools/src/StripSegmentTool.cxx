@@ -3,6 +3,7 @@
 */
 
 #include "TrigT1NSWSimTools/StripSegmentTool.h"
+#include <TVector3.h>
 
 namespace NSWL1 {
 
@@ -98,7 +99,7 @@ namespace NSWL1 {
   }
 
   uint8_t StripSegmentTool::findRIdx(const float& val) const {
-    unsigned int nSlices=1<<m_rIndexBits;
+    unsigned int nSlices=(1<<m_rIndexBits); //256
     std::pair<float,float> range;
     switch(m_ridxScheme){
       case 0:
@@ -111,14 +112,12 @@ namespace NSWL1 {
         break;
     }
     float step=(range.second-range.first)/nSlices;
-    if(val<=range.first) return 0;
-    if(val>=range.second) return nSlices-1;
 
-    //the loop gets stuck if the value is between the last and second-to-last step (255-256)
-    if(val>=range.first+(nSlices-1)*step) return nSlices-1;
+  // the cases with val<=range.first or val>=range.second have been abandoned before
     for(uint8_t i=0;i<nSlices;i++) {
-      if(range.first+i*step>=val) return i;
+      if(range.first+i*step <= val && val < range.first+(i+1)*step) return i;
     }
+    ATH_MSG_ERROR( "StripSegmentTool: findRIdx failed!");
     return 0;
   }
 
@@ -190,17 +189,19 @@ namespace NSWL1 {
       float gly2=0;
       float glx=0;
       float gly=0;
-      float phi=0;
-      float eta_inf=0;
-      float eta=0;
       float charge1=0;
       float charge2=0;
 
+      float eta=0;
+      float phi=0;
+      float theta=0;
+      float theta_inf=0;
+      float dtheta=0;
+      float eta_inf=0;
+
       //first measuement
-      float r1=0;
       float z1=0;
       for( const auto& cl : band.second[0] ){//inner
-        r1+=std::hypot(cl->globX(), cl->globY())*cl->charge();
         z1+=cl->globZ()*cl->charge();
         glx1+=cl->globX()*cl->charge();
         gly1+=cl->globY()*cl->charge();
@@ -209,67 +210,54 @@ namespace NSWL1 {
 
       //first measurement
       //S.I : This is SECOND measurement, not the 1st. Please be careful while copy/pasting
-      float r2=0;
       float z2=0;
       for( const auto& cl : band.second[1] ){//outer
-        r2+=std::hypot(cl->globX(), cl->globY())*cl->charge();
         z2+=cl->globZ()*cl->charge();
         glx2+=cl->globX()*cl->charge();
         gly2+=cl->globY()*cl->charge();
         charge2+=cl->charge();
       }
       if(charge1!=0){
-        r1=r1/charge1;
         z1=z1/charge1;
         glx1=glx1/charge1;
         gly1=gly1/charge1;
       }
       if(charge2!=0){
-        r2=r2/charge2;
         z2=z2/charge2;
         glx2=glx2/charge2;
         gly2=gly2/charge2;
       }
 
-      //centroid calc
+      // //centroid calc
       glx=(glx1+glx2)/2.;
       gly=(gly1+gly2)/2.;
-      float slope=(r2-r1)/(z2-z1);
-      float avg_r=(r1+r2)/2.;
       float avg_z=(z1+z2)/2.;
-      float inf_slope=(avg_r/avg_z);
-      //float dR=slope-inf_slope;
-      float theta_inf=std::atan(inf_slope);
-      float theta=std::atan(slope);
-      float dtheta=(theta_inf-theta)*1000;//In Milliradian
-      if(avg_z>0){
-        eta_inf=-std::log(std::tan(theta_inf/2));
-        eta=-std::log(std::tan(theta/2));
-      }
-      else if(avg_z<0){
-        eta_inf=std::log(std::tan(-theta_inf/2));
-        eta=std::log(std::tan(theta/2));
-      }
-      else{
-        ATH_MSG_WARNING("Segment Global Z at IP");// somehow zero might come from simulation effects so throw a warning and continue to avoid nan
-        continue;
-      }
 
-      phi=std::atan2(gly,glx);
+      //segment calc
+      TVector3 v3_centr1(glx1,gly1,z1);
+      TVector3 v3_centr2(glx2,gly2,z2);
+      TVector3 v3_segment = v3_centr2 - v3_centr1;
+      phi=v3_segment.Phi();
+      theta=v3_segment.Theta();
+      eta=v3_segment.Eta();
 
+      //inf momentum track 
+      theta_inf=v3_centr1.Theta();
+      eta_inf=v3_centr1.Eta();
+      dtheta=(theta_inf-theta)*1000;//In Milliradian
+
+      ATH_MSG_DEBUG("StripSegmentTool: phi:" << phi << " theta:" << theta << " eta: " << eta << " theta_inf: " << theta_inf << " eta_inf: " << eta_inf << " dtheta: " << dtheta);
+      
       //However it needs to be kept an eye on... will be something in between 7 and 15 mrad needs to be decided
       //if(std::abs(dtheta)>15) return StatusCode::SUCCESS;
 
       //do not get confused. this one is trigger phiId
       int phiId=band.second[0].at(0)->phiId();
-      float delta_z=std::abs(m_zbounds.second-std::abs(avg_z) );
-      int sign=-99999;
-      sign= (std::abs(theta_inf)<std::abs(theta)) ? 1: -1;
-      float delta_r=delta_z*std::tan(theta_inf);
-      float rfar=avg_r+sign*delta_r;
 
-      if( rfar > m_rbounds.second || rfar < m_rbounds.first ){
-        ATH_MSG_WARNING("measured r is out of detector envelope! rfar="<<rfar<<" rmax="<<m_rbounds.second);
+      float rfar=m_zbounds.second*std::tan(theta_inf);
+
+      if( rfar >= m_rbounds.second || rfar < m_rbounds.first || eta_inf >= m_etabounds.second || eta_inf < m_etabounds.first){
+        ATH_MSG_WARNING("measured r/eta is out of detector envelope!");
         return StatusCode::SUCCESS;
       }
 
@@ -303,13 +291,10 @@ namespace NSWL1 {
         m_seg_eta->push_back(eta);
         m_seg_eta_inf->push_back(eta_inf);
         m_seg_phi->push_back(phi);
-        m_seg_global_r->push_back(avg_r);
         m_seg_global_x->push_back(glx);
         m_seg_global_y->push_back(gly);
         m_seg_global_z->push_back(avg_z);
-        m_seg_dir_r->push_back(slope);
-        m_seg_dir_y->push_back(-99);
-        m_seg_dir_z->push_back(-99);
+
       }
     }//end of clmap loop
     trgContainer->push_back(std::move(trgRawData));
@@ -324,13 +309,9 @@ namespace NSWL1 {
     m_seg_eta = new std::vector< float >();
     m_seg_eta_inf=new std::vector< float >();
     m_seg_phi = new std::vector< float >();
-    m_seg_global_r = new std::vector< float >();
     m_seg_global_x = new std::vector< float >();
     m_seg_global_y = new std::vector< float >();
     m_seg_global_z = new std::vector< float >();
-    m_seg_dir_r = new std::vector< float >();
-    m_seg_dir_y = new std::vector< float >();
-    m_seg_dir_z = new std::vector< float >();
     m_seg_bandId = new std::vector< int >();
     m_seg_phiId = new std::vector< int >();
     m_seg_rIdx=new std::vector< int >();
@@ -346,13 +327,9 @@ namespace NSWL1 {
       m_tree->Branch(TString::Format("%s_seg_eta",n).Data(),&m_seg_eta);
       m_tree->Branch(TString::Format("%s_seg_eta_inf",n).Data(),&m_seg_eta_inf);
       m_tree->Branch(TString::Format("%s_seg_phi",n).Data(),&m_seg_phi);
-      m_tree->Branch(TString::Format("%s_seg_global_r",n).Data(),&m_seg_global_r);
       m_tree->Branch(TString::Format("%s_seg_global_x",n).Data(),&m_seg_global_x);
       m_tree->Branch(TString::Format("%s_seg_global_y",n).Data(),&m_seg_global_y);
       m_tree->Branch(TString::Format("%s_seg_global_z",n).Data(),&m_seg_global_z);
-      m_tree->Branch(TString::Format("%s_seg_dir_r",n).Data(),&m_seg_dir_r);
-      m_tree->Branch(TString::Format("%s_seg_dir_y",n).Data(),&m_seg_dir_y);
-      m_tree->Branch(TString::Format("%s_seg_dir_z",n).Data(),&m_seg_dir_z);
       m_tree->Branch(TString::Format("%s_seg_bandId",n).Data(),&m_seg_bandId);
       m_tree->Branch(TString::Format("%s_seg_phiId",n).Data(),&m_seg_phiId);
       m_tree->Branch(TString::Format("%s_seg_rIdx",n).Data(),&m_seg_rIdx);
@@ -375,13 +352,9 @@ namespace NSWL1 {
     m_seg_eta->clear();
     m_seg_eta_inf->clear();
     m_seg_phi->clear();
-    m_seg_global_r->clear();
     m_seg_global_x->clear();
     m_seg_global_y->clear();
     m_seg_global_z->clear();
-    m_seg_dir_r->clear();
-    m_seg_dir_y->clear();
-    m_seg_dir_z->clear();
     m_seg_bandId->clear();
     m_seg_phiId->clear();
     m_seg_rIdx->clear();
