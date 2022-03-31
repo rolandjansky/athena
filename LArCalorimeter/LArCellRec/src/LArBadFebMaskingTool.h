@@ -26,6 +26,7 @@
 #include "LArRecConditions/LArBadChannelCont.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "LArRawEvent/LArFebErrorSummary.h" 
 #include <atomic>
 
 class CaloCell_ID;
@@ -36,10 +37,11 @@ class LArBadFebMaskingTool
   : public extends<AthAlgTool, ICaloCellMakerTool>
 {
 public:    
+
+  /**Delegate constructor
+   */
   
-  LArBadFebMaskingTool(const std::string& type, 
-		const std::string& name, 
-				 const IInterface* parent) ;
+  using base_class::base_class;
 
 
   /** initialize the tool
@@ -66,46 +68,45 @@ public:
 
   /** flags to select which errors to mask
   */
-  bool m_maskParity;
-  bool m_maskSampleHeader;
-  bool m_maskEVTID;
-  bool m_maskScacStatus;
-  bool m_maskScaOutOfRange;
-  bool m_maskGainMismatch;
-  bool m_maskTypeMismatch;
-  bool m_maskNumOfSamples;
-  bool m_maskEmptyDataBlock;
-  bool m_maskDspBlockSize;
-  bool m_maskCheckSum;
-  bool m_maskMissingHeader;
-  bool m_maskBadGain;
+  Gaudi::Property<bool> m_maskParity{this,"maskParity",true};
+  Gaudi::Property<bool> m_maskSampleHeader{this,"maskSampleHeader",true};
+  Gaudi::Property<bool> m_maskEVTID{this,"maskEVTID",true};
+  Gaudi::Property<bool> m_maskScacStatus{this,"maskScacStatus",true};
+  Gaudi::Property<bool> m_maskScaOutOfRange{this,"maskScaOutOfRange",true};
+  Gaudi::Property<bool> m_maskGainMismatch{this,"maskGainMismatch",true};
+  Gaudi::Property<bool> m_maskTypeMismatch{this,"maskTypeMismatch",true};
+  Gaudi::Property<bool> m_maskNumOfSamples{this,"maskNumOfSamples",true};
+  Gaudi::Property<bool> m_maskEmptyDataBlock{this,"maskEmptyDataBlock",true};
+  Gaudi::Property<bool> m_maskDspBlockSize{this,"maskDspBlockSize",true};
+  Gaudi::Property<bool> m_maskCheckSum{this,"maskCheckSum",true};
+  Gaudi::Property<bool> m_maskMissingHeader{this,"maskMissingHeader",true};
+  Gaudi::Property<bool> m_maskBadGain{this,"maskBadGain",true};
 
   /**  Minimum number of FEBs in error to trigger EventInfo::LArError 
        Defined as 1 by default/bulk, 4 in online/express in CaloCellGetter (CaloRec package)
   */
-  int m_minFebsInError; 
-  /** key of larFebErrorSummary in storegate
-  */
-  //std::string m_larFebErrorSummaryKey;
-  SG::ReadHandleKey<LArFebErrorSummary> m_larFebErrorSummaryKey;
-  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey;
+  Gaudi::Property<int> m_minFebsInError{this,"minFebInError",1,
+        "Minimum number of FEBs in error to trigger EventInfo::LArError (1 by default/bulk, 4 in online/express"}; 
+  
+  SG::ReadHandleKey<LArFebErrorSummary> m_larFebErrorSummaryKey{this,"FebErrorSummaryKey","LArFebErrorSummary"};
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,"EventInfoKey","EventInfo"};
 
   /** compute bit mask of errors to mask
   */
-  uint16_t m_errorToMask;
+  uint16_t m_errorToMask=0;
 
   /** pointers to identifier helpers
   */
-  const CaloCell_ID* m_calo_id;
-  const LArOnlineID* m_onlineID;
+  const CaloCell_ID* m_calo_id=nullptr;
+  const LArOnlineID* m_onlineID=nullptr;
 
   /** Number of events processed
   */
-  mutable std::atomic<int> m_evt;
+  mutable std::atomic<int> m_evt{0};
 
   /** Number of Feb masked
   */
-  mutable std::atomic<int> m_mask;
+  mutable std::atomic<int> m_mask{0};
 };
 
 #endif
