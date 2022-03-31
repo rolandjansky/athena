@@ -11,7 +11,7 @@
 # art-html: dcube
 
 
-Gen_tf.py --ecmEnergy=13000. --maxEvents=10000 --firstEvent=-1 --randomSeed=123456 --outputEVNTFile=EVNT.root --outputYODAFile=MyOutput.yoda.gz --postInclude=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Pythia8i/JO_MC/JO_MC_Zprime.py --jobConfig=950072
+Gen_tf.py --ecmEnergy=13000. --maxEvents=10000 --randomSeed=123456 --outputEVNTFile=EVNT.root --outputYODAFile=MyOutput.yoda.gz --postInclude=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Pythia8i/JO_MC/JO_MC_Zprime.py --jobConfig=950072
 
 asetup 22.6.1,AthGeneration
 source setupRivet
