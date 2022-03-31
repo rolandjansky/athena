@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -82,7 +82,7 @@ TileDQstatusTool::makeStatus (const EventContext& ctx,
       bool incomplete = false;
       for (const TileDigitsCollection* coll : *tileDigitsContainer) {
         incomplete |= (coll->size() < 48);
-        
+
         if (coll->size() > 0) {
           int dsize = (*(coll->begin()))->NtimeSamples();
           if (4 < dsize && dsize < 15) { // don't use strange fragments
@@ -165,6 +165,22 @@ TileDQstatusTool::makeStatus (const EventContext& ctx,
         ATH_MSG_DEBUG("BiGain mode: " << ((dqstatus.isBiGain()) ? "true" : "false"));
       }
     }
+  } else if (tileDigitsContainer != nullptr) {
+    bool isCalib = false;
+    bool incomplete = false;
+    for (const TileDigitsCollection* coll : *tileDigitsContainer) {
+      incomplete |= (coll->size() < 48);
+
+      if (coll->size() > 0) {
+	int dsize = (*(coll->begin()))->NtimeSamples();
+	if (4 < dsize && dsize < 15) { // don't use strange fragments
+	  isCalib |= coll->isCalibMode();
+	}
+      }
+    }
+    dqstatus.setIncompleteDigits (incomplete);
+    dqstatus.setCalibMode (isCalib);
+    dqstatus.setBiGain (isCalib);
   }
 
   if (m_simulateTrips) {

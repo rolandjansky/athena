@@ -374,6 +374,8 @@ TileCablingService::cell2tt_id ( const Identifier & id ) const
 Identifier
 TileCablingService::pmt2tt_id ( const Identifier & id ) const
 {
+  if (!id.is_valid()) return m_invalid_id;
+
   int mineta[4] = { 0, 0,  9,  9 };
   int maxeta[4] = { 0, 8, 14, 14 };
   

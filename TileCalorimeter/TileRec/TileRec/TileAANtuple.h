@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -62,6 +62,7 @@
 // Gauid includes
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/IFileMgr.h"
 
 #include <string>
 #include <stdint.h>
@@ -343,6 +344,8 @@ class TileAANtuple : public AthAlgorithm {
     int m_nBadTotal;
     
     int m_nSamples=0; //!<number of samples
+    bool m_reduced;
+    int m_compressSettings;
 
     // jobOptions parameters - container names
     SG::ReadHandleKey<TileDigitsContainer> m_digitsContainerKey;
@@ -389,6 +392,8 @@ class TileAANtuple : public AthAlgorithm {
 
     // handle to THistSvc
     ServiceHandle<ITHistSvc> m_thistSvc;
+    ServiceHandle<IFileMgr>  m_fileMgr{this,
+	"FileMgr", "FileMgr", "The File manager service" };
 
     // Identifiers
     const TileID* m_tileID;
