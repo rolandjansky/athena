@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -215,9 +215,9 @@ protected:
   // Internal bookkeeping
 
 
-  ATLAS_THREAD_SAFE mutable unsigned int m_countTotalRoI;
-  ATLAS_THREAD_SAFE mutable unsigned int m_countRoIwithEnoughHits;
-  ATLAS_THREAD_SAFE mutable unsigned int m_countRoIwithTracks;
+  mutable std::atomic<unsigned int> m_countTotalRoI;
+  mutable std::atomic<unsigned int> m_countRoIwithEnoughHits;
+  mutable std::atomic<unsigned int> m_countRoIwithTracks;
 
   const PixelID* m_pixelId;
   const SCT_ID* m_sctId;
