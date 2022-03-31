@@ -16,7 +16,7 @@
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 
-#include "TrigLongLivedParticlesHypo/MuonClusterHypoAlg.h"
+#include "MuonClusterHypoAlg.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "xAODTrigger/TrigComposite.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
