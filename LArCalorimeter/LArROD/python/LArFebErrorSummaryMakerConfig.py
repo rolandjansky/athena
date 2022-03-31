@@ -22,7 +22,12 @@ def LArFebErrorSummaryMakerCfg(configFlags):
         yearNumber=date.today().year-2000
         log.info("Found project name data_test, assume year number to be %d",yearNumber)
     else:
-        yearNumber=int(projectName[4:6])
+        try:
+            yearNumber=int(projectName[4:6])
+        except ValueError:
+            from datetime import date
+            yearNumber=date.today().year-2000
+            log.warning("Failed to extract year from project tag "+ projectName+". Guessing %d",yearNumber)
 
     if yearNumber > 20:
        febSummaryMaker.MaskFebScacStatus = [0x38680000,0x38720000]
