@@ -17,4 +17,7 @@ atlas_add_library( ActsTrkToolInterfacesLib
                    BeamSpotConditionsData
                    ActsCore
                    ActsTrkEvent
+                   SiSpacePointFormationLib
+                   InDetReadoutGeometry
+                   xAODInDetMeasurement
                    )

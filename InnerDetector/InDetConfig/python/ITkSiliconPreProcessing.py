@@ -225,6 +225,13 @@ def ITkRecPreProcessingSiliconCfg(flags, **kwargs):
     #
     acc.merge(ITkSiElementPropertiesTableCondAlgCfg(flags))
     acc.merge(ITkSiTrackerSpacePointFinderCfg(flags))
+    if flags.ITk.Tracking.produceNewSpacePointContainer:
+        if flags.Detector.EnableITkPixel:
+            from InDetConfig.ActsTrkSpacePointFormationConfig import ActsTrkPixelSpacePointFormationCfg
+            acc.merge(ActsTrkPixelSpacePointFormationCfg(flags))
+        if flags.Detector.EnableITkStrip:
+            from InDetConfig.ActsTrkSpacePointFormationConfig import ActsTrkStripSpacePointFormationCfg
+            acc.merge(ActsTrkStripSpacePointFormationCfg(flags))
 
     # this truth must only be done if you do PRD and SpacePointformation
     # If you only do the latter (== running on ESD) then the needed input (simdata)
