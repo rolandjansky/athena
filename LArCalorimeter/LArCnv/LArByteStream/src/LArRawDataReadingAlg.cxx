@@ -84,7 +84,7 @@ StatusCode LArRawDataReadingAlg::execute(const EventContext& ctx) const {
 
   for (const uint32_t* robPtr : larRobs->second) {
     OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment rob(robPtr);
-    ATH_MSG_VERBOSE("Decoding ROB fragment 0x" << std::hex << rob.rob_source_id () << " with " << std::dec << rob.rod_fragment_size_word() << "ROB words");
+    ATH_MSG_VERBOSE("Decoding ROB fragment 0x" << std::hex << rob.rob_source_id () << " with " << std::dec << rob.rod_fragment_size_word() << " ROB words");
 
     if (rob.rod_fragment_size_word() <3) {
       if (m_failOnCorruption) {
@@ -148,7 +148,14 @@ StatusCode LArRawDataReadingAlg::execute(const EventContext& ctx) const {
 			<< " of ROD block type " << rodBlockType);
 	     return m_failOnCorruption ? StatusCode::FAILURE : StatusCode::SUCCESS;
         }
-      } 
+
+   
+      }
+      else {
+	ATH_MSG_WARNING("Found unsupported ROD Block version " << rodMinorVersion 
+			<< " of ROD block type " << rodBlockType);
+	return m_failOnCorruption ? StatusCode::FAILURE : StatusCode::SUCCESS;
+      }
     }//End if need to re-init RodBlock
 
     const uint32_t* pData=rob.rod_data();
