@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ## AODMerge_tf.py - AOD merger with optional TAG and DPD outputs
 #  N.B. Do need clarification as to if AODtoDPD is ever run in parallel with AOD merging 
@@ -42,7 +42,7 @@ def main():
 def getTransform():
     executorSet = set()
     executorSet.add(hybridPOOLMergeExecutor(name = 'AODMerge', skeletonFile = 'RecJobTransforms/skeleton.MergePool_tf.py',
-                                   inData = ['AOD'], outData = ['AOD_MRG']))
+                                   skeletonCA = 'RecJobTransforms.AODMerge_Skeleton', inData = ['AOD'], outData = ['AOD_MRG']))
     executorSet.add(athenaExecutor(name = 'AODtoTAG', skeletonFile = 'RecJobTransforms/skeleton.AODtoTAG_tf.py',
                                    inData = ['AOD_MRG'], outData = ['TAG'],))
 
