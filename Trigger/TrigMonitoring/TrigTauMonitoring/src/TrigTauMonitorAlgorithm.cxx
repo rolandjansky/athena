@@ -1037,12 +1037,26 @@ void TrigTauMonitorAlgorithm::fillTagAndProbeVars(const std::string& trigger, co
   auto Phi = Monitored::Scalar<float>("Phi",0.0); 
   auto M = Monitored::Scalar<float>("M",0.0);
 
-  dR = tau_vec[0].DeltaR(lep_vec[0]);
-  dEta = std::abs(tau_vec[0].Eta() - lep_vec[0].Eta());
-  dPhi = tau_vec[0].DeltaPhi(lep_vec[0]);
-  dPt = std::abs((tau_vec[0].Pt() - lep_vec[0].Pt())/1000);
+  // choose a tau lepton pair with dR > 0.3 to fill the plot
+  // note : there must be always at least one  pair with dR > 0.3 if the trigger fires
+  uint index_tau = 0;
+  uint index_lep = 0;
+  
+  for(uint i=0; i < tau_vec.size(); i++) {
+      for(uint j=0; j< lep_vec.size(); j++){
+          if( tau_vec[i].DeltaR(lep_vec[j]) >= 0.3){
+              index_tau = i;
+              index_lep = j;
+          }  
+      }
+  }
 
-  TLorentzVector diTau4V = tau_vec[0] + lep_vec[0];
+  dR = tau_vec[index_tau].DeltaR(lep_vec[index_lep]);
+  dEta = std::abs(tau_vec[index_tau].Eta() - lep_vec[index_lep].Eta());
+  dPhi = tau_vec[index_tau].DeltaPhi(lep_vec[index_lep]);
+  dPt = std::abs((tau_vec[index_tau].Pt() - lep_vec[index_lep].Pt())/1000);
+
+  TLorentzVector diTau4V = tau_vec[index_tau] + lep_vec[index_lep];
 
   Pt = diTau4V.Pt()/1000;
   Eta = diTau4V.Eta();
