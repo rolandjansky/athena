@@ -32,9 +32,9 @@ namespace TrigConf {
       /**@brief destructor*/       
       virtual ~MenuLoader(){};
     
-      virtual bool load( Menu& data);
+      virtual bool load( Menu& data) override;
     
-      virtual void setEnv(ENV env) { m_env = env;  }
+      virtual void setEnv(ENV env) override { m_env = env;  }
    private:
       ENV m_env{CTP};
 

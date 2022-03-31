@@ -54,7 +54,7 @@ namespace TrigConf {
       void reset();
 
       /**@brief print the prescale set*/
-      void print(const std::string& indent="", unsigned int detail=1) const;
+      void print(const std::string& indent="", unsigned int detail=1) const override;
 
       /**@brief sets the IOV of the prescale set*/
       void setIOV(uint32_t start_run, uint32_t start_lb, uint32_t end_run, uint32_t end_lb );
@@ -66,7 +66,7 @@ namespace TrigConf {
       /**@brief checks if run/lb are in the current IOV*/
       bool isValid(uint32_t run, uint32_t lb ) const;
 
-      std::string __str__() const;
+      std::string __str__() const override;
 
    private:
       std::array<ScalingMap_t, 3>   m_scalers;

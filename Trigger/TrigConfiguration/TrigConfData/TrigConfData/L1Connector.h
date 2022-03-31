@@ -62,7 +62,7 @@ namespace TrigConf {
       /** Destructor */
       virtual ~L1Connector();
 
-      virtual std::string className() const;
+      virtual std::string className() const override;
 
       /** Accessor to the number of trigger lines */
       std::size_t size() const;
@@ -102,7 +102,7 @@ namespace TrigConf {
    private:
 
       /** Update the internal members */
-      virtual void update();
+      virtual void update() override;
 
       ConnectorType m_type;
       std::vector<TrigConf::TriggerLine> m_triggerLines[2][2];

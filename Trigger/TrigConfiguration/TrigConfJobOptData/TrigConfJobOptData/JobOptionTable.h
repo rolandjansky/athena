@@ -44,7 +44,7 @@ namespace TrigConf {
       const std::vector<JobOption> & jobOptionVector() const { return m_JobOptionVector; } ///< const accessor to the vector of job options
 
       /**@brief print method*/
-      void print(const std::string& indent="", unsigned int detail=1) const; ///< print method
+      void print(const std::string& indent="", unsigned int detail=1) const override; ///< print method
       
       /**@brief writing to file as text*/
       void writeToFile(const std::string& filename) const; ///< write to file method

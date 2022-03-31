@@ -66,7 +66,7 @@ namespace TrigConf {
 
       bool addTriggerThreshold(TriggerThreshold* value); // add according to type
 
-      virtual void print(const std::string& indent="", unsigned int detail=1) const;
+      virtual void print(const std::string& indent="", unsigned int detail=1) const override;
 
       void printTriggerThresholdVector(const std::string& indent="") const;
 

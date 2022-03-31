@@ -60,7 +60,7 @@ namespace TrigConf {
 
 
       /**@brief print method*/
-      void print(const std::string& indent="", unsigned int detail=1) const;
+      void print(const std::string& indent="", unsigned int detail=1) const override;
   
       void writeXML(const std::string& filename) const;
       void writeXML(std::ofstream & xmlfile) const;

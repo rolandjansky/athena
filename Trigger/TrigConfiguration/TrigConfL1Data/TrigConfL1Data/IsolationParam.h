@@ -51,7 +51,7 @@ namespace TrigConf {
       void setPriority(int p)   { m_priority   = p;}
     
 
-      virtual void print(const std::string& indent="", unsigned int detail=1) const;
+      virtual void print(const std::string& indent="", unsigned int detail=1) const override;
 
       virtual void writeXML(std::ostream & xmlfile, int indentLevel, int indentWidth) const;
 

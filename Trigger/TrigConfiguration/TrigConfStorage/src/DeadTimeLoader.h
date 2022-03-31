@@ -39,7 +39,7 @@ namespace TrigConf {
       /**@brief destructor*/       
       virtual ~DeadTimeLoader(){};
 
-      virtual bool load( DeadTime& data);
+      virtual bool load( DeadTime& data) override;
    };
 }
 

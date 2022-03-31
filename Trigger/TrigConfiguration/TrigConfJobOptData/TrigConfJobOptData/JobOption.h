@@ -57,7 +57,7 @@ namespace TrigConf {
       const std::string& value() const { return m_Value; } ///< accessor to parameter value
 
       /**@brief print method*/
-      virtual void print(const std::string& indent="", unsigned int detail=1) const;
+      virtual void print(const std::string& indent="", unsigned int detail=1) const override;
 
       friend std::ostream& ::operator<< (std::ostream &o, const JobOption& jo);
       

@@ -15,7 +15,7 @@ namespace TrigConf {
      CTPConfigLoader( StorageMgr& sm,  coral::ISessionProxy& session ) : DBLoader("CTPConfigLoader", sm, session) {}
      virtual ~CTPConfigLoader(){};
 
-     virtual bool load( CTPConfig& data);
+     virtual bool load( CTPConfig& data) override;
   };
 
 }

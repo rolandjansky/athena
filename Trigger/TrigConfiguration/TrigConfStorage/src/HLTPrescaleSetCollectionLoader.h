@@ -34,7 +34,7 @@ namespace TrigConf {
 
       virtual bool load( HLTPrescaleSetCollection& psc );
 
-      virtual bool load( HLTPrescaleSetCollection& hltPS, unsigned int requestcounter, const std::string& partition);
+      virtual bool load( HLTPrescaleSetCollection& hltPS, unsigned int requestcounter, const std::string& partition) override;
    };
 }
 

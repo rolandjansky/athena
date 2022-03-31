@@ -28,7 +28,7 @@ namespace TrigConf {
       /**@brief destructor*/       
       virtual ~HLTFrameLoader(){};
 
-      virtual bool load( HLTFrame& data );
+      virtual bool load( HLTFrame& data ) override;
 
    private:
 

@@ -209,7 +209,7 @@ namespace TrigConf {
        * @param eta the eta value should be given for potentially eta-dependent thresholds
        * @returns threshold in GeV
        */
-      virtual float thrValue(int eta = 0) const;
+      virtual float thrValue(int eta = 0) const override;
 
       /* @brief Accessor to the threshold value in energy units
        * @param eta the eta value should be given for potentially eta-dependent thresholds
@@ -241,7 +241,7 @@ namespace TrigConf {
    protected:
 
       /** Update the internal data after modification of the data object */
-      virtual void update();
+      virtual void update() override;
 
       std::string m_input{""};
 

@@ -29,7 +29,7 @@ namespace TrigConf {
       ThresholdMonitorLoader( StorageMgr& sm,  coral::ISessionProxy& session) : DBLoader(sm, session), m_MenuId(0) {}
       virtual ~ThresholdMonitorLoader(){};
 
-      virtual bool load( ThresholdMonitor& data);
+      virtual bool load( ThresholdMonitor& data) override;
 
       void setMenuId(const long& id);
       long menuId();

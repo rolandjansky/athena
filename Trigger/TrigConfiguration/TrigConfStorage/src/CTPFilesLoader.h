@@ -45,7 +45,7 @@ namespace TrigConf {
       /**@brief destructor*/       
       virtual ~CTPFilesLoader(){};
 
-      virtual bool load( CTPFiles& data);
+      virtual bool load( CTPFiles& data) override;
 
    private:
     

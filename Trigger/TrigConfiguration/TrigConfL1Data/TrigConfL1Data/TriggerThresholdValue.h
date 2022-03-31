@@ -69,7 +69,7 @@ namespace TrigConf {
       // access to global Calo configuration
       const CaloInfo & caloInfo() const;
 
-      virtual void print(const std::string& indent="", unsigned int detail=1) const = 0;
+      virtual void print(const std::string& indent="", unsigned int detail=1) const override = 0;
       virtual void writeXML(std::ostream & xmlfile, int indentLevel=0, int indentWidth=2) const;
     
    protected:
