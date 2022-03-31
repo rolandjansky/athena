@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // DefaultParams.cpp: implementation of the ALFA_ConfigParams class.
@@ -16,15 +16,13 @@
 //////////////////////////////////////////////////////////////////////
 
 ALFA_ConfigParams::ALFA_ConfigParams()
+  : m_bIsValid (false),
+    m_strSection ("invalid")
 {
-	m_bIsValid=false;
-	m_strSection="invalid";
 }
 
 ALFA_ConfigParams::~ALFA_ConfigParams()
 {
-	m_bIsValid=false;
-	m_mapParams.clear();
 }
 
 void ALFA_ConfigParams::UnInitialize()
