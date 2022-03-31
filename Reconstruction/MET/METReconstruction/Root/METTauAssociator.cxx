@@ -66,7 +66,7 @@ namespace met {
     ATH_CHECK( m_tauContKey.assign(m_input_data_key));
     ATH_CHECK( m_tauContKey.initialize());
 
-    if (m_useFETauLinks || m_useFELinks) {
+    if (m_useFETauLinks) {
       if (m_neutralFEReadDecorKey.key()=="") {ATH_CHECK( m_neutralFEReadDecorKey.assign(m_input_data_key+"."+m_neutralFELinksKey));}
       if (m_chargedFEReadDecorKey.key()=="") {ATH_CHECK( m_chargedFEReadDecorKey.assign(m_input_data_key+"."+m_chargedFELinksKey));}
       ATH_CHECK( m_neutralFEReadDecorKey.initialize());
