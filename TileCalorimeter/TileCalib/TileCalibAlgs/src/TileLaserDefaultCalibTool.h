@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECALIBALG_TILELASERDEFAULTCALIBTOOL_H
@@ -205,7 +205,7 @@ class TileLaserDefaultCalibTool : public AthAlgTool, virtual public ITileCalibTo
   RunningStat* (*m_rs_reducedKappa)[NDRAWERS][NCOUPLES-1][NCOUPLES][NGAINS][NFIBERS];
 
   // Functions
-  std::pair<unsigned int, unsigned int> getCoupleOfPMT(int ros, int couple);
+  static std::pair<unsigned int, unsigned int> getCoupleOfPMT(int ros, int couple);
   short isCellBad(int ros, int drawer, int channel, int gain);
   
   inline int chanIsConnected(int ros, int chan) {

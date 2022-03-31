@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -140,7 +140,7 @@ class TileInfoDump: public AthAlgorithm {
     //=== TileInfo
     std::string m_infoName;
     const TileInfo* m_tileInfo;
-    int m_i_ADCmax;
+    int m_i_ADCmax = 0;
 };
 
 #endif 
