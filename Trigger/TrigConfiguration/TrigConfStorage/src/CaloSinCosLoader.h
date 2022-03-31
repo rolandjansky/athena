@@ -41,7 +41,7 @@ namespace TrigConf {
     /**@brief destructor*/       
     virtual ~CaloSinCosLoader(){};
 
-    virtual bool load( CaloSinCos& data);
+    virtual bool load( CaloSinCos& data) override;
   };
 }
 

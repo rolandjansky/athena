@@ -18,7 +18,7 @@ namespace TrigConf {
       virtual int thresholdValueCount() const override;
       
       virtual void print(const std::string& indent="", unsigned int detail=1) const override;
-      void writeXML(std::ostream & xmlfile, int indentLevel=0, int indentWidth=2) const override;
+      virtual void writeXML(std::ostream & xmlfile, int indentLevel=0, int indentWidth=2) const override;
    };
 }
 

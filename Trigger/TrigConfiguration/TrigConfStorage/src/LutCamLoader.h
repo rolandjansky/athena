@@ -20,7 +20,7 @@ namespace TrigConf {
       LutCamLoader( StorageMgr& sm,  coral::ISessionProxy& session) : DBLoader(sm, session) {}
       virtual ~LutCamLoader(){};
 
-      virtual bool load( LutCam& data);
+      virtual bool load( LutCam& data) override;
 
    private:
     

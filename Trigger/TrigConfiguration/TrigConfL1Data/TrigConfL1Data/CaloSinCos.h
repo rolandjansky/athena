@@ -50,7 +50,7 @@ namespace TrigConf {
       void setPhiMin( int val) { m_PhiMin = val; }
       void setPhiMax( int val) { m_PhiMax = val; }
 	
-      virtual void print(const std::string& indent="", unsigned int detail=1) const;
+      virtual void print(const std::string& indent="", unsigned int detail=1) const override;
 
    protected:
       int m_Val[8];

@@ -15,7 +15,7 @@ namespace TrigConf {
       BunchGroupLoader( StorageMgr& sm,  coral::ISessionProxy& session) : DBLoader("BunchGroupLoader", sm, session) {}
       virtual ~BunchGroupLoader(){};
 
-      virtual bool load( BunchGroup& data);
+      virtual bool load( BunchGroup& data) override;
    };
 }
 

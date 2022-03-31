@@ -91,7 +91,7 @@ namespace TrigConf {
       const std::vector<std::unique_ptr<Logic>> & subLogics() const;
       std::vector<std::unique_ptr<Logic>> takeSubLogics();
    private:
-      void print(std::ostream &, size_t indSize, size_t indLevel) const;
+      virtual void print(std::ostream &, size_t indSize, size_t indLevel) const override;
       std::vector<std::unique_ptr<Logic>> m_subs;
    };
 

@@ -80,7 +80,7 @@ namespace TrigConf {
       };
 
 
-      bool load( JobOptionTable& jot );
+      bool load( JobOptionTable& jot ) override;
 
       bool loadHLTMasterTable(int SuperMasterKey,
                               int& masterTableID,

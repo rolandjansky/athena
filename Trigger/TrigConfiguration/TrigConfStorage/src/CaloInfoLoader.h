@@ -41,7 +41,7 @@ namespace TrigConf {
       /**@brief destructor*/       
       virtual ~CaloInfoLoader(){};
 
-      virtual bool load( CaloInfo& data);
+      virtual bool load( CaloInfo& data) override;
 
    private:
 

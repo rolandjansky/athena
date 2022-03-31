@@ -39,7 +39,7 @@ namespace TrigConf {
     /**@brief destructor*/       
     virtual ~TriggerThresholdLoader(){};
 
-    virtual bool load( TriggerThreshold& data);
+    virtual bool load( TriggerThreshold& data) override;
 
     void setLoadCableInfo(bool b) { m_LoadCableInfo = b; }
     bool loadCableInfo() { return m_LoadCableInfo; }

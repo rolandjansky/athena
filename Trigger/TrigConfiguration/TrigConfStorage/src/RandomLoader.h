@@ -30,7 +30,7 @@ namespace TrigConf {
       RandomLoader( StorageMgr& sm, coral::ISessionProxy& session) : DBLoader("RandomLoader", sm, session) {}
       virtual ~RandomLoader(){};
 
-      virtual bool load( Random& data);
+      virtual bool load( Random& data) override;
    };
 }
 

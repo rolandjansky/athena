@@ -29,10 +29,10 @@ namespace TrigConf {
       virtual ~MasterTableLoader(){}
 
 
-      bool load(ThresholdConfig& thrcfg);
-      bool load(CTPConfig& ctpc);
-      bool load(Muctpi& muctpi);
-      bool load(TXC::L1TopoMenu& l1topo);
+      bool load(ThresholdConfig& thrcfg) override;
+      bool load(CTPConfig& ctpc) override;
+      bool load(Muctpi& muctpi) override;
+      bool load(TXC::L1TopoMenu& l1topo) override;
    private:
       bool loadMasterKeys(int SuperMasterKey, int& Lvl1MasterKey, std::string & menuName); 
 
