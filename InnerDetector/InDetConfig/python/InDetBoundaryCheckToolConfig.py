@@ -9,14 +9,12 @@ def InDetBoundaryCheckToolCfg(flags, name='InDetBoundarySearchTool', **kwargs):
   if 'SctSummaryTool' not in kwargs:
     if flags.Detector.EnableSCT:
       from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_ConditionsSummaryToolCfg
-      tmpAcc = SCT_ConditionsSummaryToolCfg(flags)
-      kwargs.setdefault("SctSummaryTool", tmpAcc.popPrivateTools())
-      result.merge(tmpAcc)
+      kwargs.setdefault("SctSummaryTool", result.popToolsAndMerge(SCT_ConditionsSummaryToolCfg(flags)))
     else:
       kwargs.setdefault("SctSummaryTool", None)
 
   if 'PixelLayerTool' not in kwargs :
-    from InDetConfig.InDetRecToolConfig import InDetTestPixelLayerToolCfg
+    from InDetConfig.InDetTestPixelLayerConfig import InDetTestPixelLayerToolCfg
     kwargs.setdefault("PixelLayerTool", result.popToolsAndMerge(InDetTestPixelLayerToolCfg(flags)))
 
   kwargs.setdefault("UsePixel", flags.Detector.EnablePixel)
@@ -32,14 +30,12 @@ def ITkBoundaryCheckToolCfg(flags, name='ITkBoundaryCheckTool', **kwargs):
   if 'SctSummaryTool' not in kwargs:
     if flags.Detector.EnableITkStrip:
       from SCT_ConditionsTools.ITkStripConditionsToolsConfig import ITkStripConditionsSummaryToolCfg
-      tmpAcc = ITkStripConditionsSummaryToolCfg(flags)
-      kwargs.setdefault("SctSummaryTool", tmpAcc.popPrivateTools())
-      result.merge(tmpAcc)
+      kwargs.setdefault("SctSummaryTool", result.popToolsAndMerge(ITkStripConditionsSummaryToolCfg(flags)))
     else:
       kwargs.setdefault("SctSummaryTool", None)
 
   if 'PixelLayerTool' not in kwargs :
-    from InDetConfig.ITkRecToolConfig import ITkTestPixelLayerToolCfg
+    from InDetConfig.InDetTestPixelLayerConfig import ITkTestPixelLayerToolCfg
     kwargs.setdefault("PixelLayerTool", result.popToolsAndMerge(ITkTestPixelLayerToolCfg(flags)))
 
   kwargs.setdefault("UsePixel", flags.Detector.EnableITkPixel)
