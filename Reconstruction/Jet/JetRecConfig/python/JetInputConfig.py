@@ -19,11 +19,11 @@ def _buildJetAlgForInput(suffix, tools ):
     return jetalg
 
 def buildJetTrackUsedInFitDeco( parentjetdef, inputspec ):
-    from JetRecTools import JetRecToolsConfig
-    # Jet track used-in-fit decoration
-    return _buildJetAlgForInput("JetUsedInFitDeco",
-                                tools = [ JetRecToolsConfig.getTrackUsedInFitTool(parentjetdef.context) ]
-    )
+    from InDetUsedInVertexFitTrackDecorator.UsedInVertexFitTrackDecoratorCfg import getUsedInVertexFitTrackDecoratorAlg
+    from JetRecConfig.StandardJetContext import jetContextDic
+    trkProperties = jetContextDic[parentjetdef.context]
+
+    return getUsedInVertexFitTrackDecoratorAlg(trackCont=trkProperties["Tracks"] , vtxCont= trkProperties["Vertices"])
 
     
 def buildJetInputTruth(parentjetdef, truthmod):

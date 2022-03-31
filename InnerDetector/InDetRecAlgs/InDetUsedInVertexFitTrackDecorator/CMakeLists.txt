@@ -9,6 +9,8 @@ atlas_add_library( InDetUsedInVertexFitTrackDecoratorLib
     PUBLIC_HEADERS InDetUsedInVertexFitTrackDecorator
     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetRecToolInterfaces )
 
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
+
 if( NOT XAOD_STANDALONE )
     atlas_add_component( InDetUsedInVertexFitTrackDecorator
         src/components/*.cxx

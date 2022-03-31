@@ -12,6 +12,7 @@ from TrackVertexAssociationTool.getTTVAToolForReco import (
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from InDetUsedInVertexFitTrackDecorator.UsedInVertexFitTrackDecoratorCfg import getUsedInVertexFitTrackDecoratorAlg
 
 
 def _assertPropertyValue(kwargs, key, force_value):
@@ -19,22 +20,6 @@ def _assertPropertyValue(kwargs, key, force_value):
         raise ValueError(
             f"{key} property must be set to {force_value} (provided value is '{kwargs[key]}')"
         )
-
-
-def usedInFitDecoratorCfg(
-    flags, prefix, tracks=_DEFAULT_TRACK_CONT, vertices=_DEFAULT_VERTEX_CONT
-):
-    """ Create the alg to decorate the used-in-fit information for AMVF """
-    return CompFactory.InDet.InDetUsedInVertexFitTrackDecorator(
-        f"{prefix}_{_DECO_ALG_NAME}",
-        UsedInFitDecoratorTool=CompFactory.InDet.InDetUsedInFitTrackDecoratorTool(
-            f"{prefix}_{_DECO_TOOL_NAME}",
-            AMVFVerticesDecoName=_VERTEX_DECO,
-            AMVFWeightsDecoName=_WEIGHT_DECO,
-            TrackContainer=tracks,
-            VertexContainer=vertices,
-        ),
-    )
 
 
 def TTVAToolCfg(flags, name, addDecoAlg=True, **kwargs):
@@ -60,5 +45,5 @@ def TTVAToolCfg(flags, name, addDecoAlg=True, **kwargs):
     )
 
     if addDecoAlg:
-        acc.addEventAlgo(usedInFitDecoratorCfg(flags, name, tracks, vertices))
+        acc.addEventAlgo( getUsedInVertexFitTrackDecoratorAlg(tracks, vertices) )
     return acc
