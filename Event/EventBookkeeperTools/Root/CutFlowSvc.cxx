@@ -17,8 +17,8 @@
 #include <GaudiKernel/IIncidentSvc.h>
 
 // EDM includes
+#include <EventInfo/EventStreamInfo.h>
 #include <xAODMetaData/FileMetaData.h>
-
 
 CutFlowSvc::CutFlowSvc(const std::string& name,
                        ISvcLocator* pSvcLocator ) :
@@ -232,31 +232,55 @@ void CutFlowSvc::handle( const Incident& inc )
 {
   ATH_MSG_VERBOSE( "Start incident " << inc.type() );
 
-  if ( inc.type() == IncidentType::BeginInputFile ) {
-    // Check the stream name
-    const xAOD::FileMetaData* fmd;
-    if (m_inMetaDataStore->retrieve(fmd).isFailure()) {
-      ATH_MSG_WARNING("No FileMetaData taking stream from property InputStream");
-    }
-    else {
-      // ignore event-less files
-      std::string inputstream = m_inputStream;
-      if (fmd->value(xAOD::FileMetaData::dataType, inputstream)) {
-        ATH_MSG_DEBUG("Input stream name: " << inputstream);
-        if (m_inputStream.empty()) {
-          m_inputStream=inputstream;
-        } else if (m_inputStream!=inputstream) {
-          const FileIncident* finc = dynamic_cast<const FileIncident*>(&inc);
-          if (m_inputStream != "N/A" && m_inputStream != "unknownStream") {
-            ATH_MSG_FATAL("File " << finc->fileName() 
-                                  << " stream " << inputstream 
-                                  << " does not match previous file " 
-                                  << m_inputStream);
-            return;
-          }
+  if (inc.type() == IncidentType::BeginInputFile) {
+    // Look up input stream name from FileMetaData
+    std::string inputstream = "";
+    if (m_inMetaDataStore->contains<xAOD::FileMetaData>("FileMetaData")) {
+      const xAOD::FileMetaData* fmd;
+      if (m_inMetaDataStore->retrieve(fmd).isFailure()) {
+        ATH_MSG_ERROR("Failed to retrieve input FileMetaData");
+      } else if (fmd &&
+                 !fmd->value(xAOD::FileMetaData::dataType, inputstream)) {
+        ATH_MSG_WARNING("Failed to get input stream name from FileMetaData");
+      }
+    } else {
+      ATH_MSG_DEBUG("No FileMetaData in input, trying EventStreamInfo");
+      // determine key for EventStreamInfo
+      std::vector<std::string> vKeys;
+      m_inMetaDataStore->keys<EventStreamInfo>(vKeys);
+      // eliminate duplicate keys
+      std::set<std::string> keys(vKeys.begin(), vKeys.end());
+      if (keys.size() == 1) {
+        std::string key = *keys.begin();  // get the one key
+        auto esi = m_inMetaDataStore->tryConstRetrieve<EventStreamInfo>(key);
+        if (esi && !esi->getProcessingTags().empty()) {
+          // use the first tag
+          inputstream = *esi->getProcessingTags().begin();
         }
-      } else {
-        ATH_MSG_WARNING("No dataType in FileMetaData taking stream from property InputStream");
+      }
+    }
+
+    if (inputstream.empty()) {
+      if (m_inputStream.empty()) {
+        ATH_MSG_FATAL("Cannot determine input stream name");
+        return;
+      }
+      ATH_MSG_DEBUG(
+          "Failed to parse stream name from metadata, using "
+          "property \"InputStream\"");
+      inputstream = m_inputStream;
+    }
+
+    // Check that input stream is consistent with previous file
+    ATH_MSG_DEBUG("Input stream name: \"" << inputstream << '"');
+    if (m_inputStream.empty()) {
+      m_inputStream = inputstream;
+    } else if (m_inputStream != inputstream) {
+      const FileIncident* finc = dynamic_cast<const FileIncident*>(&inc);
+      if (m_inputStream != "N/A" && m_inputStream != "unknownStream") {
+        ATH_MSG_FATAL("File " << finc->fileName() << " stream " << inputstream
+                              << " does not match previous file "
+                              << m_inputStream);
         return;
       }
     }
