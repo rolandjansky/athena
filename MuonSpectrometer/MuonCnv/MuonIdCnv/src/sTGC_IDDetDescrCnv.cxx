@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -18,16 +18,6 @@
 #include "IdDictDetDescr/IdDictManager.h"
 #include "MuonIdHelpers/sTgcIdHelper.h"
 
-
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
 //--------------------------------------------------------------------
 long int sTGC_IDDetDescrCnv::repSvcType() const {
@@ -103,7 +93,7 @@ StatusCode sTGC_IDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
   } // else {}  //pointless else from TGC code - Diehl
  
   // Get the dictionary manager from the detector store
-  const DataHandle<IdDictManager> idDictMgr;
+  const IdDictManager* idDictMgr = nullptr;
   status = detStore->retrieve(idDictMgr, "IdDict");
   if (status.isFailure()) {
     log << MSG::FATAL << "Could not get IdDictManager !" << endmsg;
