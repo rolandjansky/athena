@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECALIBALG_TILECISDEFAULTCALIBTOOL_H
@@ -156,8 +156,8 @@ class TileCisDefaultCalibTool: public AthAlgTool
     TMap* m_scanMap;
     TMap* m_scanMapRMS;
     
-    double m_dac2ChargeSmall;
-    double m_dac2ChargeLarge;
+    double m_dac2ChargeSmall = 0.0;
+    double m_dac2ChargeLarge = 0.0;
 
     // TileInfo
     std::string m_infoName;

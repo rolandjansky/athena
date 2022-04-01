@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileTopCalibAlg.h"
@@ -18,7 +18,7 @@ TileTopCalibAlg::TileTopCalibAlg(const std::string& name, ISvcLocator* pSvcLocat
   , m_runNumber(0)
   , m_runType(0)
   , m_fileName("TileCalibNtuple.root")
-  , m_rootFile(0)
+  , m_rootFile(nullptr)
 {
   declareProperty("RunNumber", m_runNumber=0);
   declareProperty("RunType", m_runType=0);
