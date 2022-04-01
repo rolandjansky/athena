@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TgcRdoToPrepDataToolCore.h"
@@ -316,10 +316,11 @@ void Muon::TgcRdoToPrepDataToolCore::printPrepDataImpl
   }
 }
 
-void Muon::TgcRdoToPrepDataToolCore::selectDecoder(getHitCollection_func& getHitCollection,
+void Muon::TgcRdoToPrepDataToolCore::selectDecoder(State& state,
                                                    getCoinCollection_func& getCoinCollection,
                                                    const TgcRawData& rd,
-                                                   const TgcRdo* rdoColl) const
+                                                   const TgcRdo* rdoColl,
+                                                   std::vector<std::unordered_map<IdentifierHash, std::unique_ptr<TgcPrepDataCollection> > >& collectionMap) const
 {
   StatusCode status = StatusCode::SUCCESS;
   if(!status.isSuccess()) return;
@@ -330,7 +331,7 @@ void Muon::TgcRdoToPrepDataToolCore::selectDecoder(getHitCollection_func& getHit
   }
 
   if(!rd.isCoincidence()) {
-    status = decodeHits(getHitCollection, rd);
+    status = decodeHits(state, rd, collectionMap);
     if(!status.isSuccess()) {
       ATH_MSG_WARNING("Cannot decode TGC Hits");
     }
@@ -359,8 +360,8 @@ void Muon::TgcRdoToPrepDataToolCore::selectDecoder(getHitCollection_func& getHit
   }
 }
 
-StatusCode Muon::TgcRdoToPrepDataToolCore::decodeHits(getHitCollection_func& getHitCollection,
-                                                      const TgcRawData& rd) const
+StatusCode Muon::TgcRdoToPrepDataToolCore::decodeHits(State& state,
+                                                      const TgcRawData& rd, std::vector<std::unordered_map<IdentifierHash, std::unique_ptr<TgcPrepDataCollection> > >& collectionMap) const
 {
   m_nHitRDOs++; // Count the number of input Hit RDOs.
   bool isConverted = false;
@@ -383,8 +384,6 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeHits(getHitCollection_func& get
   SG::ReadCondHandle<MuonGM::MuonDetectorManager> muDetMgrHandle{m_muDetMgrKey};
   const MuonGM::MuonDetectorManager* muDetMgr = muDetMgrHandle.cptr();
 
-  TgcPrepDataCollection* collection = nullptr;
-  TgcPrepDataCollection* collectionAllBcs = nullptr;
   IdentifierHash tgcHashId;
   IdContext tgcContext = m_idHelperSvc->tgcIdHelper().module_context();
   
@@ -467,9 +466,6 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeHits(getHitCollection_func& get
       elementId.show();
     }
 
-    collection = getHitCollection (elementId, locId);
-
-    // convert RawData to PrepRawData
     Identifier channelId;    
     bool c_found = tgcCabling->getOfflineIDfromReadoutID(channelId,
                                                          rd.subDetectorId(),
@@ -480,22 +476,46 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeHits(getHitCollection_func& get
                                                          orFlag);
     if(!c_found) {
       if(!orFlag) {
-	ATH_MSG_WARNING("OfflineID not found for "
-			<< " sub=" << rd.subDetectorId()<< " rod=" << rd.rodId()
-			<< " ssw=" << rd.sswId()<< " slb=" << rd.slbId()
-			<< " bitpos=" << rd.bitpos()<< " orFlag=" << orFlag);
+        ATH_MSG_WARNING("OfflineID not found for "
+                        << " sub=" << rd.subDetectorId()<< " rod=" << rd.rodId()
+                        << " ssw=" << rd.sswId()<< " slb=" << rd.slbId()
+                        << " bitpos=" << rd.bitpos()<< " orFlag=" << orFlag);
       }
       continue;
     }
+    
 
+    TgcPrepDataCollection* collection = nullptr;
+    // first check if the collection we need exists in the temporary collections
+    if( collectionMap[locId].count(tgcHashId) > 0 ) {
+      ATH_MSG_DEBUG("Collection is already in map, will use it " << tgcHashId);
+    } else {
+      // not in our tempory collections, so we need to create it or get from cache
+      if(!state.m_tgcPrepDataContainer[locId]->tryAddFromCache(tgcHashId)) {
+        // Collection does not exist in cache, so create it in our map
+        auto itPair = collectionMap[locId].emplace(std::make_pair(tgcHashId, std::make_unique<TgcPrepDataCollection>(tgcHashId)));
+        if(!itPair.second) {
+          ATH_MSG_ERROR("Did not insert TGC PRD collection, this is not expected");
+        } else ATH_MSG_DEBUG("Inserted TgcPrepDataCollection into map with hash ID " << tgcHashId);
+        itPair.first->second->setIdentifier(elementId);
+        // note we don't write the collection yet, do this only after it is fully filled
+      } else {
+        ATH_MSG_DEBUG("Collection is in cache, do not need to decode " << tgcHashId);
+        continue;
+      }
+    }
+    // get the collection from our map
+    collection = collectionMap[locId][tgcHashId].get();
+    // convert RawData to PrepRawData
+      
     // Check the hit is duplicated or not 
     bool duplicate = false;
     for (const TgcPrepData* tgcPrepData : *collection) {
       if(channelId==tgcPrepData->identify()) {
-	duplicate = true;
-	ATH_MSG_DEBUG("Duplicated TgcPrepData(removed) = "
-		      << m_idHelperSvc->tgcIdHelper().show_to_string(channelId));
-	break;
+        duplicate = true;
+        ATH_MSG_DEBUG("Duplicated TgcPrepData(removed) = "
+                      << m_idHelperSvc->tgcIdHelper().show_to_string(channelId));
+        break;
       }
     }
     if(duplicate) {
@@ -540,52 +560,19 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeHits(getHitCollection_func& get
     mat.setIdentity();
     mat *= errPos*errPos;
     auto errHitPos = Amg::MatrixX(mat);
-
+    
     // add the digit to the collection
     // new TgcPrepRawData
     TgcPrepData* newPrepData = new TgcPrepData(channelId, // Readout ID -> Offline ID
-					       tgcHashId, // Readout ID -> Element ID -> Hash 
-					       hitPos, // determined from channelId
-					       identifierList, // holds channelId only
-					       errHitPos, // determined from channelId
-					       descriptor); // determined from channelId
+                                               tgcHashId, // Readout ID -> Element ID -> Hash 
+                                               hitPos, // determined from channelId
+                                               identifierList, // holds channelId only
+                                               errHitPos, // determined from channelId
+                                               descriptor); // determined from channelId
     newPrepData->setHashAndIndex(collection->identifyHash(), collection->size());
     collection->push_back(newPrepData);
     isConverted = true; // This RDO is converted to at least one PRD.  
-
-    // for All Bcs
-    collectionAllBcs = getHitCollection (elementId, NBC);
-
-    uint16_t bcBitMap = 0;
-    if (locId == 0)      bcBitMap = TgcPrepData::BCBIT_PREVIOUS;
-    else if (locId == 1) bcBitMap = TgcPrepData::BCBIT_CURRENT;
-    else if (locId == 2) bcBitMap = TgcPrepData::BCBIT_NEXT;
-
-    bool duplicateInAllBCs = false;
-    TgcPrepDataCollection::iterator it_tgcPrepData   = collectionAllBcs->begin();
-    TgcPrepDataCollection::iterator it_tgcPrepData_e = collectionAllBcs->end();
-    for(; it_tgcPrepData!=it_tgcPrepData_e; ++it_tgcPrepData) {
-      if(channelId==(*it_tgcPrepData)->identify()) {
-        duplicateInAllBCs = true;
-        break;
-      }
-    }
-    if(duplicateInAllBCs) {
-      TgcPrepData *prd = *it_tgcPrepData;
-      uint16_t bcBitMap_tmp = prd->getBcBitMap();
-      prd->setBcBitMap(bcBitMap_tmp | bcBitMap);
-    } else {
-      auto errHitPosAllBcs = Amg::MatrixX(errHitPos);
-      TgcPrepData* newPrepDataAllBcs = new TgcPrepData(channelId, // Readout ID -> Offline ID
-						       tgcHashId, // Readout ID -> Element ID -> Hash 
-						       hitPos, // determined from channelId
-						       identifierList, // holds channelId only
-						       errHitPosAllBcs, // determined from channelId
-						       descriptor,
-						       bcBitMap);
-      newPrepDataAllBcs->setHashAndIndex(collectionAllBcs->identifyHash(), collectionAllBcs->size());
-      collectionAllBcs->push_back(newPrepDataAllBcs);
-    }
+   
   }
 
   if(isConverted) m_nHitPRDs++; // Count the number of output Hit PRDs.

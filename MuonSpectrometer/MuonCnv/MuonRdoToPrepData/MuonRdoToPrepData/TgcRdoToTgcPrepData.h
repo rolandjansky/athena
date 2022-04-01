@@ -33,7 +33,7 @@ class TgcRdoToTgcPrepData : public AthAlgorithm {
 
   void printTgcPrepRawData(); //!< Prints information about the resultant PRDs.
 
-  ToolHandle<Muon::IMuonRdoToPrepDataTool> m_tool{this,"DecodingTool","Muon::TgcRdoToPrepDataTool/TgcPrepDataProviderTool","tgc rdo to prep data conversion tool"};
+  ToolHandle<Muon::IMuonRdoToPrepDataTool> m_tool{this,"DecodingTool","Muon::TgcRdoToPrepDataToolMT/TgcPrepDataProviderTool","tgc rdo to prep data conversion tool"};
   ToolHandle<IRegSelTool> m_regsel_tgc{this,"RegSel_TGC","RegSelTool/RegSelTool_TGC"};
 
   bool                                    m_print_inputRdo; //!<< If true, will dump information about the input RDOs.
