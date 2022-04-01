@@ -16,12 +16,10 @@
 #include <string>
 
 // Constructor
-DerivationFramework::TauJets_LepRMParticleThinning::TauJets_LepRMParticleThinning(const std::string& t,
-                                                                        const std::string& n,
-                                                                        const IInterface* p ) :
-base_class(t,n,p)
-{
-}
+DerivationFramework::TauJets_LepRMParticleThinning::TauJets_LepRMParticleThinning(  const std::string& t,
+                                                                                    const std::string& n,
+                                                                                    const IInterface* p ) :
+base_class(t,n,p) {}
 
 // Athena initialize and finalize
 StatusCode DerivationFramework::TauJets_LepRMParticleThinning::initialize()
