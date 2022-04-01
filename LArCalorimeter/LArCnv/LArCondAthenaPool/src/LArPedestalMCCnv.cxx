@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -12,14 +12,14 @@
 #include "LArPedestalMCCnv.h"
 #include "LArCondTPCnv/LArPedestalMCCnv_p1.h"
 
-static LArPedestalMCCnv_p1   TPconverter;
+static const LArPedestalMCCnv_p1   TPconverter;
 
 LArPedestalMC_p1*
 LArPedestalMCCnv::createPersistent (LArPedestalMCTransType* transObj)
 {
     MsgStream log(msgSvc(), "LArPedestalMCCnv" ); 
     //log << MSG::DEBUG << "LArPedestalMC write" << endmsg;
-    LArPedestalMCPersType* persObj = TPconverter.createPersistent( transObj, log );
+    LArPedestalMCPersType* persObj = TPconverter.createPersistentConst( transObj, log );
     //log << MSG::DEBUG << "Success" << endmsg;
     return persObj; 
 }
@@ -27,14 +27,14 @@ LArPedestalMCCnv::createPersistent (LArPedestalMCTransType* transObj)
 LArPedestalMC*
 LArPedestalMCCnv::createTransient ()
 {
-    static pool::Guid   p1_guid("3891D5E0-82D1-45AB-97B1-CE4CF25D6E16");
-    static pool::Guid   p0_guid("C147EFC8-5283-4DAE-AD20-0E2CB79E54B6");
+    static const pool::Guid   p1_guid("3891D5E0-82D1-45AB-97B1-CE4CF25D6E16");
+    static const pool::Guid   p0_guid("C147EFC8-5283-4DAE-AD20-0E2CB79E54B6");
     if( compareClassGuid(p1_guid) ) {
         // using unique_ptr ensures deletion of the persistent object
         std::unique_ptr< LArPedestalMC_p1 > col_vect( poolReadObject< LArPedestalMC_p1 >() );
         MsgStream log(msgSvc(), "LArPedestalMCCnv" ); 
         //log << MSG::INFO << "Reading LArPedestalMC_p1" << endmsg; 
-        return TPconverter.createTransient( col_vect.get(), log );
+        return TPconverter.createTransientConst( col_vect.get(), log );
     }
     else if( compareClassGuid(p0_guid) ) {
         // subset from before TP separation

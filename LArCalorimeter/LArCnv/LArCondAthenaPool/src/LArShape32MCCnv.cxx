@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -14,7 +14,7 @@
 #include <cmath>
 #include <limits>
 
-static LArShapeSubsetCnv_p1   TPconverter;
+static const LArShapeSubsetCnv_p1   TPconverter;
 
 #if 0
 namespace {
@@ -40,7 +40,7 @@ LArShape32MCCnv::createPersistent (LArShapeTransType* transObj)
 {
   MsgStream log(msgSvc(), "LArShape32MCCnv" ); 
     //log << MSG::DEBUG << "LArShape32MC write" << endmsg;
-    LArShapePersType* persObj = TPconverter.createPersistent( transObj, log );
+    LArShapePersType* persObj = TPconverter.createPersistentConst( transObj, log );
     //log << MSG::DEBUG << "Success" << endmsg;
     return persObj; 
 }
@@ -48,15 +48,15 @@ LArShape32MCCnv::createPersistent (LArShapeTransType* transObj)
 LArConditionsSubset<LArShapeP1>*
 LArShape32MCCnv::createTransient ()
 {
-    static pool::Guid   p1_guid("95B61750-4C45-412D-B4D4-9758E9DB40D1");
-    static pool::Guid   p0_guid("055CF2F5-08D0-4EAA-B154-8CE5B1A599E7");
+    static const pool::Guid   p1_guid("95B61750-4C45-412D-B4D4-9758E9DB40D1");
+    static const pool::Guid   p0_guid("055CF2F5-08D0-4EAA-B154-8CE5B1A599E7");
     MsgStream log(msgSvc(), "LArShape32MCCnv" ); 
     if( compareClassGuid(p1_guid) ) {  
         // using unique_ptr ensures deletion of the persistent object
         std::unique_ptr< LArShapeSubset_p1 > col_vect( poolReadObject< LArShapeSubset_p1 >() );
         //
         log << MSG::DEBUG << "Reading LArShapeSubset_p1" << endmsg; 
-        return TPconverter.createTransient( col_vect.get(), log );
+        return TPconverter.createTransientConst( col_vect.get(), log );
     }
     else if( compareClassGuid(p0_guid) ) {
         // subset from before TP separation
