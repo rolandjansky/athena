@@ -39,13 +39,16 @@ TFCSLateralShapeTuning::TFCSLateralShapeTuning(const char* name, const char* tit
                                                                                                      intMaxEta, intMinEta, 
                                                                                                      intMinEta, intMaxEta, 
                                                                                                      parameterName.c_str()));
-
-    linModelInterpol -> InitFromArrayInEkin(modelParameterGraph->GetN(), modelParameterGraph->GetX(), modelParameterGraph->GetY());
-
-    m_parameterInterpol.insert(std::make_pair(parameterName, linModelInterpol));
+    if(modelParameterGraph){
+      linModelInterpol -> InitFromArrayInEkin(modelParameterGraph->GetN(), modelParameterGraph->GetX(), modelParameterGraph->GetY());
+      m_parameterInterpol.insert(std::make_pair(parameterName, linModelInterpol));
+    }
+    else{
+      ATH_MSG_DEBUG("[TFCSLateralShapeTuning] Could not find model parameter graph for layer="<<m_layer<<" minEta="<<intMinEta<<" maxEta="<<intMaxEta);
+      return;
+    }
   
   }
-
   modelParametersFile -> Close();
 
 }
@@ -60,6 +63,10 @@ TFCSLateralShapeTuning::~TFCSLateralShapeTuning()
 FCSReturnCode TFCSLateralShapeTuning::simulate_hit(Hit &hit, TFCSSimulationState &, const TFCSTruthState* truth, const TFCSExtrapolationState*)
 {
   
+    // do not do anything if the parameter interpolation map is empty
+    // this means we are in an pseudorapidity region, where no tuning to data is available
+    if(m_parameterInterpol.size() == 0) return FCSSuccess;
+
     //set maximum scaling factor
     float maxScaling = 500;
 
