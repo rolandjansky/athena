@@ -122,9 +122,9 @@ void LUCID_DigiSettings::SetDigiParDouble(const std::string& parname, double par
   
   if (!m_doubleMap.count(parname))
     if (!m_intMap.count(parname)) {
-      
-      std::cout << " LUCID_DigiSettings: parameter does not exist: "  << parname << std::endl; 
-      exit(1);
+      MsgStream log(m_msgSvc, "LUCID_DigiSettings::SetDigiParDouble");
+      log << MSG::FATAL << " LUCID_DigiSettings: parameter does not exist: "  << parname << endmsg; 
+      std::abort();
     }
   
   m_doubleMap[parname].par = &parval;
@@ -134,9 +134,9 @@ void LUCID_DigiSettings::SetDigiParInt(const std::string& parname, int parval) {
   
   if (!m_doubleMap.count(parname))
     if (!m_intMap.count(parname)) {
-      
-      std::cout << " LUCID_DigiSettings: parameter does not exist: "  << parname << std::endl; 
-      exit(1);
+      MsgStream log(m_msgSvc, "LUCID_DigiSettings::SetDigiParInt");
+      log << MSG::FATAL << " LUCID_DigiSettings: parameter does not exist: "  << parname << endmsg;
+      std::abort();
     }
   
   m_intMap[parname].par = &parval;
@@ -146,9 +146,9 @@ double LUCID_DigiSettings::GetDigiParDouble(const std::string& parname) {
   
   if (!m_doubleMap.count(parname))
     if (!m_intMap.count(parname)) {
-      
-      std::cout << " LUCID_DigiSettings: parameter does not exist: "  << parname << std::endl; 
-      exit(1);
+      MsgStream log(m_msgSvc, "LUCID_DigiSettings::GetDigiParDouble");
+      log << MSG::FATAL << " LUCID_DigiSettings: parameter does not exist: "  << parname << endmsg;
+      std::abort();
     }
   
   return *m_doubleMap[parname].par;
@@ -158,9 +158,9 @@ int LUCID_DigiSettings::GetDigiParInt(const std::string& parname) {
   
   if (!m_doubleMap.count(parname))
     if (!m_intMap.count(parname)) {
-      
-      std::cout << " LUCID_DigiSettings: parameter does not exist: "  << parname << std::endl; 
-      exit(1);
+      MsgStream log(m_msgSvc, "LUCID_DigiSettings::GetDigiParInt");
+      log << MSG::FATAL << " LUCID_DigiSettings: parameter does not exist: "  << parname << endmsg;
+      std::abort();
     }
   
   return *m_intMap[parname].par;
@@ -172,9 +172,21 @@ void LUCID_DigiSettings::DefNewParameterDouble(std::string parDescription,
 					       double  low,
 					       double  high) { 
   
-  if (low > high)                 { std::cout << " Swap the boundaries on the range "       << parname << std::endl; exit(1); }
-  if (m_doubleMap.count(parname)) { std::cout << " More than one parameter with that name " << parname << std::endl; exit(1); }
-  if (m_intMap.count   (parname)) { std::cout << " More than one parameter with that name " << parname << std::endl; exit(1); }
+  if (low > high)                 {
+    MsgStream log(m_msgSvc, "LUCID_DigiSettings::DefNewParameterDouble");
+    log << MSG::FATAL << " Swap the boundaries on the range "       << parname << endmsg;
+    std::abort();
+  }
+  if (m_doubleMap.count(parname)) {
+    MsgStream log(m_msgSvc, "LUCID_DigiSettings::DefNewParameterDouble");
+    log << MSG::FATAL << " More than one parameter with that name " << parname << endmsg;
+    std::abort();
+  }
+  if (m_intMap.count   (parname)) {
+    MsgStream log(m_msgSvc, "LUCID_DigiSettings::DefNewParameterDouble");
+    log << MSG::FATAL << " More than one parameter with that name " << parname << endmsg;
+    std::abort();
+  }
   
   parDouble parD;
   
@@ -193,9 +205,21 @@ void LUCID_DigiSettings::DefNewParameterInt(std::string parDescription,
 					    int  low,
 					    int  high) {
   
-  if (low > high)                 { std::cout << " Swap the boundaries on the range "       << parname << std::endl; exit(1); }
-  if (m_doubleMap.count(parname)) { std::cout << " More than one parameter with that name " << parname << std::endl; exit(1); }
-  if (m_intMap.count   (parname)) { std::cout << " More than one parameter with that name " << parname << std::endl; exit(1); }
+  if (low > high)                 {
+    MsgStream log(m_msgSvc, "LUCID_DigiSettings::DefNewParameterInt");
+    log << MSG::FATAL << " Swap the boundaries on the range "       << parname << endmsg;
+    std::abort();
+  }
+  if (m_doubleMap.count(parname)) {
+    MsgStream log(m_msgSvc, "LUCID_DigiSettings::DefNewParameterInt");
+    log << MSG::FATAL << " More than one parameter with that name " << parname << endmsg;
+    std::abort();
+  }
+  if (m_intMap.count   (parname)) {
+    MsgStream log(m_msgSvc, "LUCID_DigiSettings::DefNewParameterInt");
+    log << MSG::FATAL << " More than one parameter with that name " << parname << endmsg;
+    std::abort();
+  }
   
   parInt parI;
   
