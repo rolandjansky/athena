@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # These are *constants* (OK, the user actually has the ability to change the track/vertex containers in the function calls,
 # but the default container names are constants)
