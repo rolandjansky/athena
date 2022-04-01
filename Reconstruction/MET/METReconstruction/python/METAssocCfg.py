@@ -58,7 +58,7 @@ def getAssociator(config,suffix,doPFlow=False,
         tool.UseFEPhotonLinks = metFlags.UseFEPhotonLinks()
     if config.objType == 'Tau':
         tool = CompFactory.getComp("met::METTauAssociator")('MET_TauAssociator_'+suffix)
-        tool.UseFETauLinks = metFlags.UseFETauLinks()
+        tool.UseFETauLinks = False #metFlags.UseFETauLinks()
     if config.objType == 'LCJet':
         tool = CompFactory.getComp("met::METJetAssocTool")('MET_LCJetAssocTool_'+suffix)
     if config.objType == 'EMJet':

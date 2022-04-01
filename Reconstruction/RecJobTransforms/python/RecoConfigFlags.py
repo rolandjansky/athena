@@ -24,6 +24,7 @@ def createRecoConfigFlags():
                   lambda prevFlags: prevFlags.Reco.EnableTracking and
                   prevFlags.Detector.EnableCalo and prevFlags.InDet.PriVertex.doVertexFinding)
     flags.addFlag("Reco.EnableTau", lambda prevFlags: prevFlags.Reco.EnableJet)
+    flags.addFlag("Reco.EnableMet", lambda prevFlags: prevFlags.Reco.EnableJet)
     flags.addFlag("Reco.EnableTracking",
                   lambda prevFlags: prevFlags.Detector.EnableID or
                   prevFlags.Detector.EnableITk)

@@ -115,6 +115,12 @@ def RecoSteering(flags):
         from tauRec.TauConfig import TauReconstructionCfg
         acc.merge(TauReconstructionCfg(flags))
         log.info("---------- Configured tau reconstruction")
+        
+    # MET
+    if flags.Reco.EnableMet:
+        from METReconstruction.METRecCfg import METCfg
+        acc.merge(METCfg(flags))
+        log.info("---------- Configured MET")
 
     if flags.Reco.EnablePFlow:
         from eflowRec.PFRun3Config import PFTauFELinkCfg

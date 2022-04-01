@@ -210,8 +210,9 @@ namespace met {
                                             std::map<const IParticle*,MissingETBase::Types::constvec_t> &/*momenta*/) const
   {
     const TauJet* tau = static_cast<const TauJet*>(obj);
-
+    ATH_MSG_INFO ("Extracting flow elements"); //debuggings
     if (m_useFETauLinks) { 
+      ATH_MSG_INFO ("Extracting flow elements from links"); //debuggings
       ATH_CHECK( extractFEsFromLinks(tau, felist,constits) );
     } 
     else {
@@ -227,7 +228,7 @@ namespace met {
 				    const met::METAssociator::ConstitHolder& constits) const 
   {
 
-    ATH_MSG_DEBUG("Extract FEs From Links for " << tau->type()  << " with pT " << tau->pt());
+    ATH_MSG_INFO("Extract FEs From Links for " << tau->type()  << " with pT " << tau->pt());
 
     std::vector<FELink_t> nFELinks;
     std::vector<FELink_t> cFELinks;
@@ -278,6 +279,7 @@ namespace met {
                                          std::vector<const xAOD::IParticle*>& felist,
                                          const met::METAssociator::ConstitHolder& constits) const
   {
+    ATH_MSG_INFO("Extract FEs without using links for " << tau->type()  << " with pT " << tau->pt());
     //const TauJet* tau = static_cast<const TauJet*>(obj);
     if(!tau->jetLink().isValid()){
       ATH_MSG_ERROR("Tau seed jet link is invalid. Cannot extract FlowElements.");
@@ -289,7 +291,7 @@ namespace met {
       bool match = false;
       if (!pfo->isCharged()) {
         if(xAOD::P4Helpers::isInDeltaR(*seedjet,*pfo,0.2,m_useRapidity) && pfo->e()>0) {
-          ATH_MSG_VERBOSE("Found nPFO with dR " << seedjet->p4().DeltaR(pfo->p4()));
+          ATH_MSG_INFO("Found nPFO with dR " << seedjet->p4().DeltaR(pfo->p4()));  //switched from verbose for debugging
           match = true;
         }
       }
@@ -298,7 +300,7 @@ namespace met {
         for( const xAOD::TauTrack* ttrk : tau->tracks(xAOD::TauJetParameters::coreTrack) ){//all tracks <0.2, no quality
           const TrackParticle* tautrk = ttrk->track();
           if(tautrk==pfotrk) {
-            ATH_MSG_VERBOSE("Found cPFO with dR " << seedjet->p4().DeltaR(ttrk->p4()));
+            ATH_MSG_INFO("Found cPFO with dR " << seedjet->p4().DeltaR(ttrk->p4())); //switched from verbose for debugging
             // We set a small -ve pt for cPFOs that were rejected
             // by the ChargedHadronSubtractionTool
             const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");        
