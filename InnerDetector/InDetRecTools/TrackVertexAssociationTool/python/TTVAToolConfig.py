@@ -4,8 +4,6 @@
 from TrackVertexAssociationTool.getTTVAToolForReco import (
     _DEFAULT_TRACK_CONT,
     _DEFAULT_VERTEX_CONT,
-    _DECO_TOOL_NAME,
-    _DECO_ALG_NAME,
     _VERTEX_DECO,
     _WEIGHT_DECO,
 )
