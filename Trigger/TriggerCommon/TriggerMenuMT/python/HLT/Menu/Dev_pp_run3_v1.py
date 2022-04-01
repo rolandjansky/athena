@@ -25,6 +25,7 @@ from TriggerMenuMT.HLT.Menu.Physics_pp_run3_v1 import (PhysicsStream,
                                                                  SingleBjetGroup,
                                                                  MultiBjetGroup,
                                                                  SingleTauGroup,
+                                                                 MultiTauGroup,
                                                                  BphysicsGroup,
                                                                  BphysElectronGroup,
                                                                  EgammaMETGroup,
@@ -461,6 +462,8 @@ def setupMenu():
         ChainProp(name="HLT_tau35_tightRNN_tracktwoMVA_L1TAU20IM", groups=SingleTauGroup),
         ChainProp(name="HLT_tau35_tightRNN_tracktwoMVABDT_L1TAU20IM", groups=SingleTauGroup),
         ChainProp(name="HLT_tau160_ptonly_L1TAU100", groups=SingleTauGroup),
+        ChainProp(name="HLT_tau0_mediumRNN_tracktwoMVABDT_tau0_mediumRNN_tracktwoMVABDT_03dRAB30_L1DR-TAU20ITAU12I-J25",l1SeedThresholds=['TAU20IM','TAU12IM'], groups=MultiTauGroup+DevGroup),
+        ChainProp(name="HLT_tau0_mediumRNN_tracktwoMVABDT_tau0_mediumRNN_tracktwoMVABDT_03dRAB_L1TAU20IM_2TAU12IM_4J12p0ETA25",l1SeedThresholds=['TAU20IM','TAU12IM'], groups=MultiTauGroup+DevGroup),
     ]
 
     chains['Bphysics'] += [
