@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -14,7 +14,7 @@
 LArConditionsSubset<LArSingleFloatP>*
 LAruA2MeVMCCnv::createTransient ()
 {
-  static pool::Guid   p0_guid("CBF815A2-F18C-4C18-9E93-A8EE67CEE59F");
+  static const pool::Guid   p0_guid("CBF815A2-F18C-4C18-9E93-A8EE67CEE59F");
   // first try the single-float converter
   LArConditionsSubset<LArSingleFloatP>* p=createTransientSingleFloat();
   if (p) 
