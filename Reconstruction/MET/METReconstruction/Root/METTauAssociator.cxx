@@ -244,7 +244,7 @@ namespace met {
 	  if (fe->index() == fe_init->index() && fe->isCharged()){ //index-based match between JetETmiss and CHSFlowElements collections
 	    const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");
 	    if(  fe->isCharged() && PVMatchedAcc(*fe)&& ( !m_cleanChargedPFO || isGoodEoverP(static_cast<const xAOD::TrackParticle*>(fe->chargedObject(0))) ) ) {
-	      ATH_MSG_DEBUG("Accept cFE with pt " << fe->pt() << ", e " << fe->e() << ", eta " << fe->eta() << ", phi " << fe->phi() );
+	      ATH_MSG_VERBOSE("Accept cFE with pt " << fe->pt() << ", e " << fe->e() << ", eta " << fe->eta() << ", phi " << fe->phi() );
 	      felist.push_back(fe); 
 	    } 
 	  }
@@ -259,7 +259,7 @@ namespace met {
 	for (const auto fe : *constits.feCont){
 	  if (fe->index() == fe_init->index() && !fe->isCharged()){ //index-based match between JetETmiss and CHSFlowElements collections
 	    if( ( !fe->isCharged()&& fe->e() > FLT_MIN ) ){ 
-	      ATH_MSG_DEBUG("Accept nFE with pt " << fe->pt() << ", e " << fe->e() << ", eta " << fe->eta() << ", phi " << fe->phi() << " in sum.");
+	      ATH_MSG_VERBOSE("Accept nFE with pt " << fe->pt() << ", e " << fe->e() << ", eta " << fe->eta() << ", phi " << fe->phi() << " in sum.");
 	      felist.push_back(fe);
 	    }   
 	  }
@@ -289,7 +289,7 @@ namespace met {
       bool match = false;
       if (!pfo->isCharged()) {
         if(xAOD::P4Helpers::isInDeltaR(*seedjet,*pfo,0.2,m_useRapidity) && pfo->e()>0) {
-          ATH_MSG_INFO("Found nPFO with dR " << seedjet->p4().DeltaR(pfo->p4()));  //switched from verbose for debugging
+          ATH_MSG_VERBOSE("Found nPFO with dR " << seedjet->p4().DeltaR(pfo->p4()));  //switched from verbose for debugging
           match = true;
         }
       }
