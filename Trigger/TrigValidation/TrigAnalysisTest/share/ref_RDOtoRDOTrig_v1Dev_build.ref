@@ -14319,6 +14319,34 @@ HLT_noalg_L1jXE100:
   eventCount: 11
 HLT_noalg_L1jXEPerf100:
   eventCount: 0
+HLT_tau0_mediumRNN_tracktwoMVABDT_tau0_mediumRNN_tracktwoMVABDT_03dRAB30_L1DR-TAU20ITAU12I-J25:
+  eventCount: 1
+  stepCounts:
+    0: 8
+    1: 8
+    2: 8
+    3: 8
+    4: 1
+  stepFeatures:
+    0: 48
+    1: 48
+    2: 48
+    3: 48
+    4: 14
+HLT_tau0_mediumRNN_tracktwoMVABDT_tau0_mediumRNN_tracktwoMVABDT_03dRAB_L1TAU20IM_2TAU12IM_4J12p0ETA25:
+  eventCount: 2
+  stepCounts:
+    0: 8
+    1: 8
+    2: 8
+    3: 8
+    4: 2
+  stepFeatures:
+    0: 48
+    1: 48
+    2: 48
+    3: 48
+    4: 14
 HLT_tau0_ptonly_L1TAU60:
   eventCount: 7
   stepCounts:
