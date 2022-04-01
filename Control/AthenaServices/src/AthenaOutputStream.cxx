@@ -1178,6 +1178,7 @@ StatusCode AthenaOutputStream::io_reinit() {
       ATH_MSG_FATAL("Cannot get the IncidentSvc");
       return StatusCode::FAILURE;
    }
+   incSvc->removeListener(this, "MetaDataStop"); // Remove any existing listener to avoid handling the incident multiple times
    incSvc->addListener(this, "MetaDataStop", 50);
    for (ToolHandle<IAthenaOutputTool>& tool : m_helperTools) {
       if (!tool->postInitialize().isSuccess()) {
@@ -1202,10 +1203,10 @@ StatusCode AthenaOutputStream::io_finalize() {
       ATH_MSG_FATAL("Cannot get the IncidentSvc");
       return StatusCode::FAILURE;
    }
+   incSvc->removeListener(this, "MetaDataStop");
    if (m_dataStore->clearStore().isFailure()) {
       ATH_MSG_WARNING("Cannot clear the DataStore");
    }
-   incSvc->removeListener(this, "MetaDataStop");
    return StatusCode::SUCCESS;
 }
 

@@ -33,7 +33,7 @@ namespace TrigConf {
 
       virtual ~BunchGroupSetLoader(){};
 
-      virtual bool load( BunchGroupSet& data);
+      virtual bool load( BunchGroupSet& data) override;
    };
 }
 

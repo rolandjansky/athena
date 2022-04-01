@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "NswStationFitter.h"
@@ -1344,7 +1344,7 @@ void TrigL2MuonSA::NswStationFitter::findSetOfMmHitIds(TrigL2MuonSA::MmHits& mmH
       if(std::abs(spR[1] - spR[0]) > 50. ||
          std::abs((intercept[1] + intercept[0]) / 2) > 200.) continue;
 
-      std::array<int, 4> setOfHitIds;
+      std::array<int, 4> setOfHitIds{};
       setOfHitIds[0] = (ihitIds>>16 & 0xffff);
       setOfHitIds[1] = (ihitIds & 0xffff);
       setOfHitIds[2] = (jhitIds>>16 & 0xffff);
@@ -1401,7 +1401,7 @@ void TrigL2MuonSA::NswStationFitter::findSetOfMmHitIds(TrigL2MuonSA::MmHits& mmH
 
     double slopeX = slopeInFourX.at(iQuadX);
     double interceptX = interceptInFourX.at(iQuadX);
-    std::array<int,4> hitIdsX;
+    std::array<int,4> hitIdsX{};
     hitIdsX = hitIdsInFourX.at(iQuadX);
 
     for (unsigned int iPairU = 0; iPairU < hitIdsInTwo[2].size(); ++iPairU) {

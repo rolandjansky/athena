@@ -106,7 +106,7 @@ namespace TrigConf {
       bool loadCtpmonFiles() const {return m_LoadCtpmonFiles;}
       void setLoadCtpmonFiles (bool flag = true) { m_LoadCtpmonFiles=flag; }
 
-      virtual void print(const std::string& indent="", unsigned int detail=1) const;
+      virtual void print(const std::string& indent="", unsigned int detail=1) const override;
       
    private:
       int                   m_Lvl1MasterTableId;

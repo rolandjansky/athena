@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETTAGDQA_BTagPLOTS_H
@@ -29,7 +29,7 @@ namespace JetTagDQA{
   class BTaggingValidationPlots:public PlotBase {
     public:
       // constructor
-      BTaggingValidationPlots(PlotBase* pParent, std::string sDir, std::string sParticleType);
+      BTaggingValidationPlots(PlotBase* pParent, const std::string& sDir, std::string sParticleType);
 
       // fill methods
       void fillJetKinVars(const xAOD::Jet* jet, const int& truth_label, const bool& onZprime, const xAOD::EventInfo* event);
@@ -535,10 +535,10 @@ namespace JetTagDQA{
       std::map<std::string, double> m_DL1_workingPoints;
       std::map<std::string, double> m_DL1d_workingPoints;
       std::map<std::string, double> m_DL1r_workingPoints;
-      double m_RNNIP_fc;
-      double m_DL1_fc;
-      double m_DL1d_fc;
-      double m_DL1r_fc;
+      double m_RNNIP_fc = 0.0;
+      double m_DL1_fc = 0.0;
+      double m_DL1d_fc = 0.0;
+      double m_DL1r_fc = 0.0;
       std::map<std::string, TH1*> m_weight_histos; 
 
       std::map<std::string, TH1*> m_nJetsThatPassedWPCutsHistos; 
@@ -552,24 +552,24 @@ namespace JetTagDQA{
 
       // jvt variables 
       bool m_JVT_defined;
-      float m_JVT_cut;
+      float m_JVT_cut = 0.0F;
       bool m_JVTLargerEta_defined;
-      float m_JVTLargerEta_cut;
+      float m_JVTLargerEta_cut = 0.0F;
 
     private:
       virtual void initializePlots();     
       virtual void finalizePlots(); 
 
       // detail level
-      unsigned int m_detailLevel;
+      unsigned int m_detailLevel = 0U;
 
       // map with histogram definitions and the corresponding enum
       std::map< std::string, std::vector< std::string > > m_HistogramDefinitions;
       enum position{histo_name, histo_title, histo_path, histo_xbins, histo_xmin, histo_xmax, histo_type, histo_ymin, histo_ymax};
-      float m_truthMatchProbabilityCut;
-      bool m_isData;
+      float m_truthMatchProbabilityCut = 0.0F;
+      bool m_isData = false;
       // some helper functions
-      TH1* bookHistogram(std::string histo_name, std::string var_name, std::string part = "", std::string prefix = "");
+      TH1* bookHistogram(std::string histo_name, const std::string& var_name, const std::string& part = "", const std::string& prefix = "");
       int getTrackHits(const xAOD::TrackParticle& part, xAOD::SummaryType info);
       void fillDiscriminantHistograms(const std::string& tagger_name, const double& discriminant_value, const std::map<std::string, double>& working_points, const int& truth_label, std::map<std::string, TH1*>::const_iterator hist_iter, std::map<std::string, int>::const_iterator label_iter, const bool& pass_nTracksCut, const double& jet_pT, const double& jet_Lxy, const bool& onZprime, const xAOD::EventInfo* event);
       void bookDiscriminantVsPTAndLxyHistograms(const std::string& tagger_name, const std::map<std::string, double>& workingPoints, const bool& isOldTagger, std::map<std::string, int>::const_iterator label_iter, const std::string& m_sParticleType);

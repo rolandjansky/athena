@@ -116,6 +116,15 @@ def PFCfg(inputFlags,**kwargs):
 
     return result
 
+#Configure tau-FE link algorithm - this cannot be in PFCfg because
+#pflow runs before taus in standard serial reco. Thus the links
+#between taus and FE must happen after tau reco.
+def PFTauFELinkCfg(inputFlags,**kwargs):
+  result=ComponentAccumulator()
+  from eflowRec.PFCfg import getTauFlowElementAssocAlgorithm
+  result.addEventAlgo(getTauFlowElementAssocAlgorithm(inputFlags))
+  return result
+
 if __name__=="__main__":
 
     from AthenaCommon.Configurable import Configurable

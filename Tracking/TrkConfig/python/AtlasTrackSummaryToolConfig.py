@@ -16,14 +16,13 @@ def AtlasTrackSummaryToolCfg(flags, name="AtlasTrackSummaryTool", **kwargs):
     result.addPublicTool(extrapolator)
 
     # Setup Association Tool
-    from InDetConfig.InDetRecToolConfig import InDetPrdAssociationToolCfg
-    atlasPrdAssociationTool = result.popToolsAndMerge(InDetPrdAssociationToolCfg(flags,
-                                                                                 name='AtlasPrdAssociationTool'))
-    atlasPrdAssociationTool.addTRToutliers = False
+    from InDetConfig.InDetAssociationToolsConfig import InDetPrdAssociationTool_noTRTCfg
+    atlasPrdAssociationTool = result.popToolsAndMerge(InDetPrdAssociationTool_noTRTCfg(flags,
+                                                                                       name='AtlasPrdAssociationTool'))
     result.addPublicTool(atlasPrdAssociationTool)
 
     # Loading Configurable HoleSearchTool
-    from InDetConfig.InDetRecToolConfig import InDetTrackHoleSearchToolCfg
+    from InDetConfig.InDetTrackHoleSearchConfig import InDetTrackHoleSearchToolCfg
     atlasHoleSearchTool = result.popToolsAndMerge(InDetTrackHoleSearchToolCfg(flags,
                                                                               name="AtlasHoleSearchTool",
                                                                               Extrapolator=extrapolator))
@@ -31,7 +30,7 @@ def AtlasTrackSummaryToolCfg(flags, name="AtlasTrackSummaryTool", **kwargs):
 
     # FIXME - need InDet to provide configuration for PixelConditionsSummaryTool
     # Also assuming we don't use DetailedPixelHoleSearch (since it seems to be off in standard workflows)
-    from InDetConfig.InDetRecToolConfig import InDetTrackSummaryHelperToolCfg
+    from InDetConfig.InDetTrackSummaryHelperToolConfig import InDetTrackSummaryHelperToolCfg
     indet_track_summary_helper_tool = result.popToolsAndMerge(InDetTrackSummaryHelperToolCfg(flags,
                                                                                              name="AtlasTrackSummaryHelperTool",
                                                                                              AssoTool=atlasPrdAssociationTool,

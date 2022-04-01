@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCondTPCnv/LArMphysOverMcalSubsetCnv_p1.h"
@@ -7,7 +7,7 @@
 void
 LArMphysOverMcalSubsetCnv_p1::persToTrans(const LArMpMcPersType* persObj, 
 					  LArMpMcTransType* transObj, 
-					  MsgStream & /*log*/)
+					  MsgStream & /*log*/) const
 {
   transObj->initialize (persObj->m_subset.m_febIds, persObj->m_subset.m_gain);
 
@@ -46,8 +46,8 @@ LArMphysOverMcalSubsetCnv_p1::persToTrans(const LArMpMcPersType* persObj,
 void 
 LArMphysOverMcalSubsetCnv_p1::transToPers(const LArMpMcTransType*, 
 				    LArMpMcPersType*, 
-				    MsgStream &log) {
-
+				    MsgStream &log) const
+{
   log << MSG::ERROR << "LArMphysOverMcalSubsetCnv_p1::transToPers is obsolete" << endmsg;
   return;
 }

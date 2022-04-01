@@ -36,6 +36,11 @@ def CaloRecoCfg(configFlags, clustersname=None):
         from LArCellRec.LArTimeVetoAlgConfig import LArTimeVetoAlgCfg
         result.merge(LArTimeVetoAlgCfg(configFlags))
 
+    if not configFlags.Input.isMC and not configFlags.Overlay.DataOverlay:
+        from LArROD.LArFebErrorSummaryMakerConfig import LArFebErrorSummaryMakerCfg
+        result.merge(LArFebErrorSummaryMakerCfg(configFlags))
+
+
     #Configure cell-building
     from CaloRec.CaloCellMakerConfig import CaloCellMakerCfg
     result.merge(CaloCellMakerCfg(configFlags))
@@ -51,10 +56,6 @@ def CaloRecoCfg(configFlags, clustersname=None):
     #Configure NoisyROSummary
     from LArCellRec.LArNoisyROSummaryConfig import LArNoisyROSummaryCfg
     result.merge(LArNoisyROSummaryCfg(configFlags))
-
-    if not configFlags.Input.isMC and not configFlags.Overlay.DataOverlay:
-        from LArROD.LArFebErrorSummaryMakerConfig import LArFebErrorSummaryMakerCfg
-        result.merge(LArFebErrorSummaryMakerCfg(configFlags))
 
     #Configure TileLookForMuAlg
     from TileMuId.TileMuIdConfig import TileLookForMuAlgCfg

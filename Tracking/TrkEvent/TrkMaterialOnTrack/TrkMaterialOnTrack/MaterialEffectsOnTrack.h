@@ -8,6 +8,7 @@
 #include "TrkMaterialOnTrack/EnergyLoss.h"
 #include "TrkMaterialOnTrack/MaterialEffectsBase.h"
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
+#include "TrkSurfaces/Surface.h"
 #include <iosfwd>
 #include <memory>
 #include <optional>
@@ -35,12 +36,12 @@ class Surface;
     @author Wolfgang Liebig <http://consult.cern.ch/xwho/people/>
   */
 
-class MaterialEffectsOnTrack : public MaterialEffectsBase
+class MaterialEffectsOnTrack final : public MaterialEffectsBase
 {
 
 public:
   //! default constructor for POOL - do not use in reconstruction!
-  MaterialEffectsOnTrack();
+  MaterialEffectsOnTrack() = default;
   /** @brief full constructor passing (with ownership) both scattering
       angle and energy loss
 
@@ -53,7 +54,7 @@ public:
   MaterialEffectsOnTrack(
     const double tInX0,
     std::optional<ScatteringAngles> scat,
-    const Trk::EnergyLoss* eloss,
+    std::unique_ptr<const Trk::EnergyLoss> eloss,
     const Surface& assocSurf,
     const std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes>&
       typePattern =
@@ -69,20 +70,6 @@ public:
   MaterialEffectsOnTrack(
     const double tInX0,
     std::optional<ScatteringAngles> scat,
-    const Surface& assocSurf,
-    const std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes>&
-      typePattern =
-        std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes>());
-
-  /** @brief partial constructor passing (with ownership) an energy loss object
-   @param[in] tInX0 layer thickness in terms of rad length
-   @param[in] eloss pointer to EnergyLoss object (passing ownership)
-   @param[in] assocSurf surface on which material effects are expressed
-   @param[in] typePattern bitset scheme to characterise type of MEOT.
-  */
-  MaterialEffectsOnTrack(
-    const double tInX0,
-    const EnergyLoss* eloss,
     const Surface& assocSurf,
     const std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes>&
       typePattern =
@@ -119,11 +106,10 @@ public:
   MaterialEffectsOnTrack(MaterialEffectsOnTrack&& meot) noexcept = default;
 
   //! Assignment operator
-  MaterialEffectsOnTrack& operator=(MaterialEffectsOnTrack&& rhs) noexcept =
-    default;
+  MaterialEffectsOnTrack& operator=(MaterialEffectsOnTrack&& rhs) noexcept = default;
 
   //! virtual destructor
-  virtual ~MaterialEffectsOnTrack();
+  virtual ~MaterialEffectsOnTrack() = default;
 
   /** @brief returns the MCS-angles object. Careful: DO NOT DELETE!
              Pointer may be NULL if no MCS but only energy loss is contained. */
@@ -135,18 +121,15 @@ public:
   const EnergyLoss* energyLoss() const;
 
   //! Virtual constructor
-  virtual MaterialEffectsOnTrack* clone() const;
+  virtual MaterialEffectsOnTrack* clone() const override final;
 
   //! NVI uniqueClone
-  std::unique_ptr<MaterialEffectsOnTrack> uniqueClone() const
-  {
-    return std::unique_ptr<MaterialEffectsOnTrack>(clone());
-  }
+  std::unique_ptr<MaterialEffectsOnTrack> uniqueClone() const;
 
-  //! Interface method for output, implemented in child class
-  virtual MsgStream& dump(MsgStream& sl) const;
-  //! Interface method for output, implemented in child class
-  virtual std::ostream& dump(std::ostream& sl) const;
+  //! Interface method for output
+  virtual MsgStream& dump(MsgStream& sl) const override final;
+  //! Interface method for output
+  virtual std::ostream& dump(std::ostream& sl) const override final;
 
 protected:
 private:
@@ -160,27 +143,6 @@ private:
 };
 
 } // end of Trk ns
-
-inline const Trk::ScatteringAngles*
-Trk::MaterialEffectsOnTrack::scatteringAngles() const
-{
-  if (m_scatteringAngles == std::nullopt) {
-    return nullptr;
-  }
-  return &(*m_scatteringAngles);
-}
-
-inline const Trk::EnergyLoss*
-Trk::MaterialEffectsOnTrack::energyLoss() const
-{
-  return m_energyLoss.get();
-}
-
-inline Trk::MaterialEffectsOnTrack*
-Trk::MaterialEffectsOnTrack::clone() const
-{
-  return new MaterialEffectsOnTrack(*this);
-}
-
+#include "TrkMaterialOnTrack/MaterialEffectsOnTrack.icc"
 #endif
 

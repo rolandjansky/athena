@@ -38,12 +38,14 @@ from TriggerMenuMT.HLT.Menu.Physics_pp_run3_v1 import (PhysicsStream,
                                                                  MinBiasGroup,
                                                                  PrimaryLegGroup,
                                                                  PrimaryPhIGroup,
+                                                                 SupportGroup,
                                                                  SupportLegGroup,
                                                                  SupportPhIGroup,
                                                                  TagAndProbeLegGroup,
                                                                  UnconvTrkGroup,
                                                                  METPhaseIStreamersGroup,
                                                                  EOFTLALegGroup,
+                                                                 EOFL1MuGroup,
                                                                  )
 
 DevGroup = ['Development']
@@ -61,7 +63,6 @@ def setupMenu():
         ChainProp(name='HLT_mu6_ivarmedium_L1MU5VF', groups=DevGroup+SingleMuonGroup),
 
         # LRT
-        ChainProp(name='HLT_mu6_LRT_idperf_L1MU5VF', groups=DevGroup+SingleMuonGroup),
         ChainProp(name='HLT_mu24_LRT_d0medium_L1MU14FCH', groups=DevGroup+SingleMuonGroup),
       
         # ATR-19452
@@ -79,6 +80,21 @@ def setupMenu():
         #ATR-21566, di-muon TLA       
         ChainProp(name='HLT_mu10_PhysicsTLA_L1MU8F',   stream=['TLA'], groups=SingleMuonGroup+DevGroup), 
         ChainProp(name='HLT_mu10_mu6_probe_PhysicsTLA_L1MU8F', stream=['TLA'],l1SeedThresholds=['MU8F','PROBEMU3V'], groups=MultiMuonGroup+DevGroup),
+        ChainProp(name='HLT_2mu4_PhysicsTLA_L12MU3V',  stream=['TLA'], groups=MultiMuonGroup+SupportGroup),
+        ChainProp(name='HLT_2mu6_PhysicsTLA_L12MU5VF', stream=['TLA'], groups=MultiMuonGroup+SupportGroup),
+        ChainProp(name='HLT_2mu10_PhysicsTLA_L12MU8F', stream=['TLA'], groups=MultiMuonGroup+SupportGroup),
+        # di-muon TLA with L1TOPO
+        ChainProp(name='HLT_2mu4_PhysicsTLA_L1BPH-7M22-2MU3VF', l1SeedThresholds=['MU3VF'],stream=['TLA'], groups=MultiMuonGroup+EOFL1MuGroup),
+        ChainProp(name='HLT_mu6_mu4_PhysicsTLA_L1BPH-7M22-MU5VFMU3VF', l1SeedThresholds=['MU5VF','MU3VF'],stream=['TLA'], groups=MultiMuonGroup+EOFL1MuGroup),
+        ChainProp(name='HLT_2mu4_PhysicsTLA_L1BPH-7M22-0DR20-2MU3V', l1SeedThresholds=['MU3V'],stream=['TLA'], groups=MultiMuonGroup+EOFL1MuGroup),
+        ChainProp(name='HLT_2mu4_PhysicsTLA_L1BPH-7M22-0DR20-2MU3VF', l1SeedThresholds=['MU3VF'],stream=['TLA'], groups=MultiMuonGroup+EOFL1MuGroup),
+        ChainProp(name='HLT_2mu4_PhysicsTLA_L1BPH-7M22-0DR12-2MU3V', l1SeedThresholds=['MU3V'],stream=['TLA'], groups=MultiMuonGroup+EOFL1MuGroup),
+        
+        # ATR-22782, 4mu
+        ChainProp(name='HLT_2mu4_L1BPH-7M11-25DR99-2MU3VF', l1SeedThresholds=['MU3VF'], stream=["BphysDelayed"], groups=BphysicsGroup+EOFL1MuGroup),
+        ChainProp(name='HLT_mu6_mu4_L1BPH-7M14-MU5VFMU3VF', l1SeedThresholds=['MU5VF','MU3VF'], stream=["BphysDelayed"], groups=BphysicsGroup+EOFL1MuGroup),
+        ChainProp(name='HLT_2mu4_L1BPH-7M14-2MU3V', l1SeedThresholds=['MU3V'], stream=["BphysDelayed"], groups=BphysicsGroup+EOFL1MuGroup),
+        ChainProp(name='HLT_2mu4_L1BPH-7M14-2MU3VF', l1SeedThresholds=['MU3VF'], stream=["BphysDelayed"], groups=BphysicsGroup+EOFL1MuGroup),
 
         #ATR-24932, 4mu L1 with DR, for optimization
         ChainProp(name='HLT_2mu4_L1BPH-7M14-0DR25-MU5VFMU3VF', l1SeedThresholds=['MU3VF'], stream=["BphysDelayed"], groups=DevGroup+MultiMuonGroup),
@@ -100,10 +116,6 @@ def setupMenu():
         # Photon chains for TLA
         ChainProp(name='HLT_g35_loose_PhysicsTLA_L1EM22VHI',stream=['TLA'], groups=SinglePhotonGroup+DevGroup),
             
-        #------------ hipTRT trigger, ATR-22603
-        ChainProp(name='HLT_g0_hiptrt_L1EM22VHI', groups=SinglePhotonGroup), 
-        ChainProp(name='HLT_g0_hiptrt_L1eEM26M', groups=SinglePhotonGroup), 
-
         # Alternative formulation of T&P chains with generic mass cut combohypotool
         # With & without 'probe' expression to check count consistency
         # ATR-24117
@@ -122,8 +134,6 @@ def setupMenu():
 
         # Further optimisation of LRT, higher threshold looser WP
         # Primary candidates pending rate assessment ATR-24851
-        ChainProp(name='HLT_e30_lhloose_nopix_lrtmedium_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e35_lhloose_nopix_lrtmedium_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup),
         ChainProp(name='HLT_e40_lhloose_nopix_lrtmedium_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup),
         ChainProp(name='HLT_e45_lhloose_nopix_lrtmedium_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup),
 
@@ -131,7 +141,9 @@ def setupMenu():
         ChainProp(name='HLT_e35_lhloose_nopix_lrtmedium_L1eEM26M', groups=PrimaryPhIGroup+SingleElectronGroup),
         ChainProp(name='HLT_e40_lhloose_nopix_lrtmedium_L1eEM26M', groups=PrimaryPhIGroup+SingleElectronGroup),
         ChainProp(name='HLT_e45_lhloose_nopix_lrtmedium_L1eEM26M', groups=PrimaryPhIGroup+SingleElectronGroup),
-
+        
+        #LRTGSF
+        ChainProp(name='HLT_e26_lhloose_nopix_lrttight_gsf_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup),
     ]
 
     chains['MET'] += [
@@ -360,6 +372,13 @@ def setupMenu():
         ChainProp(name="HLT_j300_0eta290_020jvt_pf_ftf_bdl1d70_L1J100", l1SeedThresholds=['FSNOSEED'], groups=DevGroup+SingleBjetGroup),
         ChainProp(name="HLT_j360_0eta290_020jvt_pf_ftf_bdl1d77_L1J100", l1SeedThresholds=['FSNOSEED'], groups=DevGroup+SingleBjetGroup),
 
+        # HH4b test chains
+        ChainProp(name='HLT_j80_pf_ftf_0eta240_j55_pf_ftf_0eta240_j28_pf_ftf_0eta240_j20_pf_ftf_0eta240_SHARED_2j20_pf_ftf_0eta240_bdl1d77_presel4c20_L1J45p0ETA21_3J15p0ETA25', l1SeedThresholds=['FSNOSEED']*5, stream=['VBFDelayed'], groups=PrimaryLegGroup+MultiBjetGroup),
+        ChainProp(name='HLT_j80_pf_ftf_0eta240_j55_pf_ftf_0eta240_j28_pf_ftf_0eta240_j20_pf_ftf_0eta240_SHARED_2j20_pf_ftf_0eta240_bdl1d70_presel4c20_L1J45p0ETA21_3J15p0ETA25', l1SeedThresholds=['FSNOSEED']*5, stream=['VBFDelayed'], groups=PrimaryLegGroup+MultiBjetGroup),
+        ChainProp(name='HLT_j80_pf_ftf_0eta240_j55_pf_ftf_0eta240_j28_pf_ftf_0eta240_j20_pf_ftf_0eta240_SHARED_2j20_pf_ftf_0eta240_bdl1d65_presel4c20_L1J45p0ETA21_3J15p0ETA25', l1SeedThresholds=['FSNOSEED']*5, stream=['VBFDelayed'], groups=PrimaryLegGroup+MultiBjetGroup),
+        ChainProp(name='HLT_j80_pf_ftf_0eta240_j55_pf_ftf_0eta240_j28_pf_ftf_0eta240_j20_pf_ftf_0eta240_SHARED_2j20_pf_ftf_0eta240_bdl1d60_presel4c20_L1J45p0ETA21_3J15p0ETA25', l1SeedThresholds=['FSNOSEED']*5, stream=['VBFDelayed'], groups=PrimaryLegGroup+MultiBjetGroup),
+
+
         # Various multi-b
         ChainProp(name="HLT_j150_0eta320_pf_ftf_2j55_0eta290_020jvt_pf_ftf_bdl1r70_L1J85_3J30", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=DevGroup+MultiBjetGroup),
         ChainProp(name="HLT_3j35_0eta290_020jvt_pf_ftf_bdl1r70_j35_pf_ftf_0eta320_L14J15p0ETA25", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=DevGroup+MultiBjetGroup),
@@ -476,7 +495,6 @@ def setupMenu():
         ChainProp(name='HLT_2mu4_bBmumux_BcmumuDploose_L12MU3V', stream=["BphysDelayed"], groups=BphysicsGroup+DevGroup),
         ChainProp(name='HLT_2mu4_bBmumux_BcmumuD0Xloose_L12MU3V', stream=["BphysDelayed"], groups=BphysicsGroup+DevGroup),
         ChainProp(name='HLT_2mu4_bBmumux_BcmumuDstarloose_L12MU3V', stream=["BphysDelayed"], groups=BphysicsGroup+DevGroup),
-
     ]
 
     chains['Combined'] += [
@@ -584,7 +602,7 @@ def setupMenu():
     chains['Calib'] += [
         #ChainProp(name='HLT_noalg_AlfaPEB_L1ALFA_ANY', l1SeedThresholds=['FSNOSEED'], stream=['ALFACalib'], groups=['RATE:ALFACalibration','BW:Detector']+LowMuGroup),
         # Calib Chains
-        ChainProp(name='HLT_larpsallem_L1EM3', groups=SingleElectronGroup),
+        ChainProp(name='HLT_larpsallem_L1EM3', groups=SingleElectronGroup+SupportLegGroup),
     ]
 
     chains['Streaming'] += [

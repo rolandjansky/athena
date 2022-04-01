@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@ namespace DerivationFramework {
       SG::ReadHandleKey<xAOD::TauJetContainer> m_tauKey
          { this, "TauKey", "", ""};
       Gaudi::Property<bool> m_doTauTracksThinning
-         { this, "DoTauTracksThinning", "", "Apply thinning to tau tracks in addition to ID tracks"};
+         { this, "DoTauTracksThinning", false, "Apply thinning to tau tracks in addition to ID tracks"};
       SG::ThinningHandleKey<xAOD::TauTrackContainer> m_tauTracksSGKey
         { this, "TauTracksKey", "TauTracks", "StoreGate key of the tau track container" }; 
       Gaudi::Property<std::string> m_selectionString

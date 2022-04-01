@@ -4,6 +4,7 @@
 # art-include: master/Athena
 # art-include: master/AthSimulation
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-output: test.HITS.pool.root
 #/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ISF_Validation/EVNT.04607198._000001.pool.root.1
 Sim_tf.py \

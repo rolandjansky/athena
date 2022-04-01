@@ -616,6 +616,7 @@ int main(int argc, char** argv)
 
   if ( inputdata.isTagDefined("eta") )      eta      = inputdata.GetValue("eta");
   if ( inputdata.isTagDefined("zed") )      zed      = inputdata.GetValue("zed");
+  else if ( inputdata.isTagDefined("z0") )  zed      = inputdata.GetValue("z0");
   if ( inputdata.isTagDefined("npix") )     npix     = inputdata.GetValue("npix");
   if ( inputdata.isTagDefined("nsiholes") ) nsiholes = inputdata.GetValue("nsiholes");
   if ( inputdata.isTagDefined("npixholes") ) npixholes = inputdata.GetValue("npixholes");

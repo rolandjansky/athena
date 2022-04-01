@@ -283,7 +283,7 @@ MaterialEffectsBase *ProtoMaterialEffects::makeMEOT() const {
     }
     else neweloss=new Trk::EnergyLoss(m_deltae,m_sigmadeltae,m_sigmadeltaeneg,m_sigmadeltaepos);
   }
-  MaterialEffectsOnTrack *meot=new MaterialEffectsOnTrack(m_x0,scatangles,neweloss,*m_surf,typePattern);
+  MaterialEffectsOnTrack *meot=new MaterialEffectsOnTrack(m_x0,scatangles,std::unique_ptr<const EnergyLoss>(neweloss),*m_surf,typePattern);
   const_cast<bool&>(m_owneloss)=false; //Non MT safe function
   //m_eloss=0;
   return meot;  
@@ -306,7 +306,7 @@ ProtoMaterialEffects::makeUniqueMEOT() const {
     else neweloss=new Trk::EnergyLoss(m_deltae,m_sigmadeltae,m_sigmadeltaeneg,m_sigmadeltaepos);
   }
   const_cast<bool&>(m_owneloss)=false; //Non MT safe function
-  return std::make_unique< MaterialEffectsOnTrack>(m_x0,scatangles,neweloss,*m_surf,typePattern); 
+  return std::make_unique< MaterialEffectsOnTrack>(m_x0,scatangles,std::unique_ptr<const EnergyLoss>(neweloss),*m_surf,typePattern); 
 }
 
 const Trk::MaterialProperties *ProtoMaterialEffects::materialProperties() const{

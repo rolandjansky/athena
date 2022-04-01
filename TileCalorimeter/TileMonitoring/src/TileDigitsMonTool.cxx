@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -53,7 +53,6 @@ TileDigitsMonTool::TileDigitsMonTool(const std::string & type, const std::string
   , m_tileToolNoiseSample("TileCondToolNoiseSample")
   , m_cispar(0)
   , m_nEventsTileMon(0)
-  , m_nSamples(0)
   , m_allHistsFilled(false)
   //, hp(-1)
   //, hb(-1)
@@ -71,6 +70,7 @@ TileDigitsMonTool::TileDigitsMonTool(const std::string & type, const std::string
   // run type 1 - phys, 2 - las, 4 - ped, 8 - cis, 9- mono
   declareProperty("runType", m_runType = 8);
   declareProperty("bigain", m_bigain = true);
+  declareProperty("NSamples", m_nSamples = 7);
   declareProperty("TileRawChannelContainerDSP", m_contNameDSP = "TileRawChannelCnt");
   declareProperty("TileDigitsContainer", m_digitsContainerName = "TileDigitsCnt");
   declareProperty("FillPedestalDifference", m_fillPedestalDifference = true);
@@ -455,7 +455,7 @@ StatusCode TileDigitsMonTool::fillHists()
       int chan = m_tileHWID->channel(adc_id);
       int gain = (m_bigain) ? m_tileHWID->adc(adc_id) : 0; // ignore gain in monogain run
 
-      m_data->m_histC[ros][drawer][chan][gain][0]->Fill(m_nEvents % 32, 1.0);
+      m_data->m_histC[ros][drawer][chan][gain][0]->Fill(m_nEventsTileMon % 32, 1.0);
       
       std::vector<float> vdigits = tileDigits->samples();
       

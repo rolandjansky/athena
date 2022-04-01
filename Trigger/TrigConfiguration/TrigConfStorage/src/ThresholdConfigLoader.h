@@ -37,7 +37,7 @@ namespace TrigConf {
 
     virtual ~ThresholdConfigLoader(){};
 
-    virtual bool load( ThresholdConfig& data);
+    virtual bool load( ThresholdConfig& data) override;
 
   private:
 

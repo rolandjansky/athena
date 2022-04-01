@@ -20,8 +20,7 @@ void BeamPipeDetectorFactory_Lite::create(GeoPhysVol *world)
   m_manager=new BeamPipeDetectorManager();
   GeoVolumeCursor cursor(world);
   while (!cursor.atEnd()) {
-    GeoVPhysVol *physVol=const_cast<GeoVPhysVol *> (cursor.getVolume().operator->());
-    if (cursor.getName()=="BeamPipe") m_manager->addTreeTop(physVol);
+    if (cursor.getName()=="BeamPipe") m_manager->addTreeTop(cursor.getVolume());
     cursor.next();
   }
 }

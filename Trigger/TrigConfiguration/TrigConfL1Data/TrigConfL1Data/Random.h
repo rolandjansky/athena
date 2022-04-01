@@ -30,7 +30,7 @@ namespace TrigConf {
       void setRate1( int rate ) { m_rate1 = rate; }
       void setRate2( int rate ) { m_rate2 = rate; }   
 
-      virtual void print(const std::string& indent="", unsigned int detail=1) const;
+      virtual void print(const std::string& indent="", unsigned int detail=1) const override;
       virtual void writeXML(std::ostream & xmlfile, int indentLevel=0, int indentWidth=2) const;
 
    private:

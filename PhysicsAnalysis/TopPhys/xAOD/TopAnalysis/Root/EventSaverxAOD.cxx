@@ -73,11 +73,12 @@ namespace top {
     top::check(evtStore()->retrieve(allSystematics,
                                     m_config->sgKeyTopSystematicEvents()),
                "Failed to retrieve xAOD::SystematicEventContainer");
-
+    //cppcheck-suppress uninitvar
     xAOD::SystematicEventContainer* allSystematics_output = new xAOD::SystematicEventContainer {};
     SG::IAuxStore* allSystematics_aux = evtStore()->event()->recordAux(m_config->sgKeyTopSystematicEvents() + "Aux.");
     allSystematics_output->setStore(allSystematics_aux);
     for (auto currentSystematic : *allSystematics) {
+      //cppcheck-suppress uninitvar
       xAOD::SystematicEvent* out = new xAOD::SystematicEvent {};
       out->makePrivateStore(*currentSystematic);
       allSystematics_output->push_back(out);
@@ -93,11 +94,12 @@ namespace top {
         const xAOD::PartonHistoryContainer* partonHistory(nullptr);
         top::check(evtStore()->retrieve(partonHistory,
                                         m_config->sgKeyTopPartonHistory()), "Failed to retrieve Top Parton History");
-
+        //cppcheck-suppress uninitvar
         xAOD::PartonHistoryContainer* partonHistory_output = new xAOD::PartonHistoryContainer {};
         SG::IAuxStore* partonHistory_aux = evtStore()->event()->recordAux(m_config->sgKeyTopPartonHistory() + "Aux.");
         partonHistory_output->setStore(partonHistory_aux);
         for (auto x : *partonHistory) {
+          //cppcheck-suppress uninitvar
           xAOD::PartonHistory* out = new xAOD::PartonHistory {};
           out->makePrivateStore(*x);
           partonHistory_output->push_back(out);

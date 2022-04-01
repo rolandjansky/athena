@@ -5,6 +5,7 @@
 # art-include: 21.9/Athena
 # art-include: master/Athena
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-output: test.HITS.pool.root
 # art-output: truth.root
 

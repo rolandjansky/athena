@@ -356,10 +356,13 @@ TriggerHLTListRun3 = [
     ('xAOD::TrackParticleContainer#HLT_IDTrack_Electron_IDTrig',        'BS ESD AODFULL', 'Egamma', 'inViews:precisionTrackingViews'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Electron_IDTrigAux.eProbabilityNN',        'BS ESD AODFULL', 'Egamma'),
 
-    ('xAOD::TrackParticleContainer#HLT_IDTrack_ElecLRT_IDTrig',        'BS ESD AODFULL', 'Egamma', 'inViews:precisionTrackViews_LRT'),
+    ('xAOD::TrackParticleContainer#HLT_IDTrack_ElecLRT_IDTrig',        'BS ESD AODFULL', 'Egamma', 'inViews:precisionTrackingViews_LRT'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_ElecLRT_IDTrigAux.', 'BS ESD AODFULL', 'Egamma'),
 
-    ('xAOD::TrackParticleContainer#HLT_IDTrack_Electron_GSF',               'BS ESD AODFULL', 'Egamma', 'inViews:precisionElectronViews_GSF'),
+    ('xAOD::TrackParticleContainer#HLT_IDTrack_Electron_LRTGSF',               'BS ESD AODFULL', 'Egamma', 'inViews:precisionTracking_GSFRefittedViews_LRTGSF'),
+    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Electron_LRTGSFAux.',           'BS ESD AODFULL', 'Egamma'),
+
+    ('xAOD::TrackParticleContainer#HLT_IDTrack_Electron_GSF',               'BS ESD AODFULL', 'Egamma', 'inViews:precisionTracking_GSFRefittedViews_GSF'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Electron_GSFAux.eProbabilityNN',           'BS ESD AODFULL', 'Egamma'),
 
     # these two corresponds to the output of the precisionCalo step
@@ -407,6 +410,9 @@ TriggerHLTListRun3 = [
     ('xAOD::ElectronAuxContainer#HLT_egamma_Electrons_GSFAux.'+ElVars,     'BS ESD AODFULL', 'Egamma'),
     ('xAOD::ElectronContainer#HLT_egamma_Electrons_LRT',                'BS ESD AODFULL', 'Egamma', 'inViews:precisionElectronViews_LRT'),
     ('xAOD::ElectronAuxContainer#HLT_egamma_Electrons_LRTAux.'+ElVars,     'BS ESD AODFULL', 'Egamma'),
+    ('xAOD::ElectronContainer#HLT_egamma_Electrons_LRTGSF',                'BS ESD AODFULL', 'Egamma', 'inViews:precisionElectronViews_LRTGSF'),
+    ('xAOD::ElectronAuxContainer#HLT_egamma_Electrons_LRTGSFAux.'+ElVars,     'BS ESD AODFULL', 'Egamma'),
+
 
     ('xAOD::PhotonContainer#HLT_egamma_Photons',                    'BS ESD AODFULL', 'Egamma', 'inViews:precisionPhotonViews,precisionHIPhotonViews'),
     ('xAOD::PhotonAuxContainer#HLT_egamma_PhotonsAux.'+PhVars,         'BS ESD AODFULL', 'Egamma'),

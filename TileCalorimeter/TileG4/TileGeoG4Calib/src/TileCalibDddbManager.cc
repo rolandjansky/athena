@@ -21,8 +21,8 @@
 
 #include <sstream>
 
-TileCalibDddbManager::TileCalibDddbManager(ServiceHandle<IRDBAccessSvc> &access, std::string version_tag,
-                                           std::string version_node, const int verboseLevel)
+TileCalibDddbManager::TileCalibDddbManager(ServiceHandle<IRDBAccessSvc> &access, const std::string & version_tag,
+                                           const std::string & version_node, const int verboseLevel)
   : m_currentTile(0),
     m_currentSection(0),
     m_currentCell(0),

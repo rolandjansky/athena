@@ -69,7 +69,7 @@ def SiCombinatorialTrackFinder_xkCfg(flags, name="InDetSiComTrackFinder", **kwar
     kwargs.setdefault("PropagatorTool", acc.getPrimaryAndMerge(InDetPatternPropagatorCfg()))
     kwargs.setdefault("UpdatorTool", acc.getPrimaryAndMerge(InDetPatternUpdatorCfg()))
 
-    from  InDetConfig.InDetRecToolConfig import InDetBoundaryCheckToolCfg
+    from InDetConfig.InDetBoundaryCheckToolConfig import InDetBoundaryCheckToolCfg
     kwargs.setdefault("BoundaryCheckTool", acc.popToolsAndMerge(InDetBoundaryCheckToolCfg(flags)))
     
     kwargs.setdefault("usePixel", flags.Detector.EnablePixel)
@@ -130,9 +130,10 @@ def ITkSiCombinatorialTrackFinder_xkCfg(flags, name="ITkSiComTrackFinder", **kwa
     #
     from InDetConfig.ITkTrackingCommonConfig import ITkRotCreatorDigitalCfg
     ITkRotCreatorDigital = acc.getPrimaryAndMerge(ITkRotCreatorDigitalCfg(flags))
-    from InDetConfig.ITkRecToolConfig import ITkPatternPropagatorCfg, ITkPatternUpdatorCfg, ITkBoundaryCheckToolCfg
+    from InDetConfig.ITkRecToolConfig import ITkPatternPropagatorCfg, ITkPatternUpdatorCfg
     ITkPatternPropagator = acc.getPrimaryAndMerge(ITkPatternPropagatorCfg(flags))
     ITkPatternUpdator = acc.popToolsAndMerge(ITkPatternUpdatorCfg(flags))
+    from InDetConfig.InDetBoundaryCheckToolConfig import ITkBoundaryCheckToolCfg
     ITkBoundaryCheckTool = acc.popToolsAndMerge(ITkBoundaryCheckToolCfg(flags))
 
     kwargs.setdefault("PropagatorTool", ITkPatternPropagator)

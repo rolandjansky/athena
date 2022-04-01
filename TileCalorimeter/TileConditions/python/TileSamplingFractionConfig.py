@@ -4,6 +4,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import LHCPeriod
 
 def TileSamplingFractionCondAlgCfg(flags, **kwargs):
     """Return component accumulator with configured Tile sampling fraction conditions algorithm
@@ -30,9 +31,13 @@ def TileSamplingFractionCondAlgCfg(flags, **kwargs):
         TileCondProxyCoolFlt = CompFactory.getComp("TileCondProxyCool<TileCalibDrawerFlt>")
         samplingFractionProxy = TileCondProxyCoolFlt('TileCondProxyCool_SamplingFraction', Source = samplingFractionFolder)
 
+        samplingFractionTag = 'TileOfl02CalibSfr-SIM-02'
+        if flags.GeoModel.Run >= LHCPeriod.Run4 or flags.Overlay.DataOverlay:
+            samplingFractionTag = 'TileOfl02CalibSfr-SIM-05'
+
         from IOVDbSvc.IOVDbSvcConfig import addFolders
         acc.merge( addFolders(flags, samplingFractionFolder + f'<key>{samplingFractionFolder}</key>',
-                              detDb='TILE_OFL', className='CondAttrListCollection', tag='TileOfl02CalibSfr-SIM-02', db='OFLP200') )
+                              detDb='TILE_OFL', className='CondAttrListCollection', tag=samplingFractionTag, db='OFLP200') )
 
     elif source == 'FILE':
         # Connect FILE Tile conditions proxies to the algorithm
@@ -41,8 +46,12 @@ def TileSamplingFractionCondAlgCfg(flags, **kwargs):
     else:
         raise(Exception("Invalid source: %s" % source))
 
-    TileSamplingFractionCondAlg = CompFactory.getComp("TileCondAlg<TileSamplingFraction,TileCalibDrawerFlt>")
-    samplingFractionCondAlg = TileSamplingFractionCondAlg( name = name,
+    G4Version = flags.Sim.G4Version
+    G4VersionMajor, G4VersionMinor = G4Version.split(".")[1:3]
+    G4V = int(G4VersionMajor) * 100 + int(G4VersionMinor)
+
+    TileSamplingFractionCondAlg = CompFactory.getComp("TileSamplingFractionCondAlg")
+    samplingFractionCondAlg = TileSamplingFractionCondAlg( name = name, G4Version = G4V,
                                                            ConditionsProxy = samplingFractionProxy,
                                                            TileCondData = samplingFraction)
 

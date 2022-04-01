@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGHLTJETHYPO_TREE_H
@@ -24,6 +24,10 @@ class Tree{
   std::size_t size() const;
   const std::vector<std::size_t>& leaves() const;
   bool is_leaf(size_t) const;
+
+  // does the tree have a root node and
+  // and all other nodes are children of this node?
+  bool is_simple() const;
   const std::vector<std::size_t>& firstGeneration() const;
 
   std::vector<std::size_t>::const_iterator cbegin() const {

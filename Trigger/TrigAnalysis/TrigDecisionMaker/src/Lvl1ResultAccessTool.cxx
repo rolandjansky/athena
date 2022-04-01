@@ -159,9 +159,9 @@ HLT::Lvl1ResultAccessTool::createL1Items( const std::vector< std::unique_ptr<LVL
          
       }
       // make sure TBP, TAP, TAV all have 8 entries !
-      while (lvl1Result->itemsBeforePrescale().size() < 8) lvl1Result->itemsBeforePrescale().push_back(0);
-      while (lvl1Result->itemsAfterPrescale().size() < 8) lvl1Result->itemsAfterPrescale().push_back(0);
-      while (lvl1Result->itemsAfterVeto().size() < 8) lvl1Result->itemsAfterVeto().push_back(0);
+      if (lvl1Result->itemsBeforePrescale().size() < 8) lvl1Result->itemsBeforePrescale().resize(8, 0);
+      if (lvl1Result->itemsAfterPrescale().size() < 8) lvl1Result->itemsAfterPrescale().resize(8, 0);
+      if (lvl1Result->itemsAfterVeto().size() < 8) lvl1Result->itemsAfterVeto().resize(8, 0);
       *lvl1ResultOut = lvl1Result.get();
       ATH_CHECK(SG::makeHandle(m_l1ResultKey).record( std::move(lvl1Result)), {});
    } // if (lvl1ResultOut)

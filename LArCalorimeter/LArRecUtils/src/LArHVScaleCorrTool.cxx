@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHVScaleCorrTool.h"
@@ -78,7 +78,7 @@ float LArHVScaleCorrTool::getHVScale(const CaloDetDescrElement* calodde,  const 
       //EMEC      
       else {
 	T = 88.65;
-	float aeta_raw = std::fabs(eta_raw);
+	float aeta_raw = std::abs(eta_raw);
 	double Zsamp;
 	if ( m_larem_id->sampling(offid)==1 && m_larem_id->region(offid)>=0 )  Zsamp = 3760.; //mm
 	else if ( m_larem_id->sampling(offid)==2 && m_larem_id->region(offid)<=1 )  Zsamp = 3880.; //mm
@@ -136,8 +136,8 @@ float LArHVScaleCorrTool::getHVScale(const CaloDetDescrElement* calodde,  const 
     double E = champ_e(hvlist[i].hv,d);
     
     // dont correct if E is very close to E nominal to avoid small glitches
-    if (std::fabs(E_nominal)>1e-3) {
-      const double deviation = std::fabs((E-E_nominal)/E_nominal);
+    if (std::abs(E_nominal)>1e-3) {
+      const double deviation = std::abs((E-E_nominal)/E_nominal);
       if (deviation<1e-3) E = E_nominal;
     }
 
@@ -189,7 +189,7 @@ float LArHVScaleCorrTool::champ_e(float hv, float d) const
     return -1000.;
   }
   else
-    e1 = fabs(hv)/(d*1e3);
+    e1 = std::abs(hv)/(d*1e3);
   if ( e1 < 0.01 ) e1 = 0.01;
   return e1;
 }
@@ -199,7 +199,7 @@ float LArHVScaleCorrTool::vdrift(float e, float tempe) const
   const float T = tempe;                
   static const float P[6] = {-0.01481,-0.0075,0.141,12.4,1.627,0.317};
   if ( e < -999.) return 0.;
-  float vd = (P[0]*T+1)*( P[2]*e*log(1+ (P[3]/e)) + P[4]*pow(e,P[5])) + P[1]*T; // vdrift formula walcowialk mm/micro_s
+  float vd = (P[0]*T+1)*( P[2]*e*std::log(1+ (P[3]/e)) + P[4]*std::pow(e,P[5])) + P[1]*T; // vdrift formula walcowialk mm/micro_s
   return vd;
 }
 
@@ -244,8 +244,8 @@ float LArHVScaleCorrTool::EMEC_nominal(const float aeta) const
 float LArHVScaleCorrTool::EMEC_gap(const float aeta, float Zeta) const
 {
   float EMECg;
-  if (aeta<=2.5 ) EMECg = 0.9 +1.9*(  ( Zeta - 40. )/(10*sinh(aeta)) - 60.)/140.;
-  else EMECg = 1.8 + 1.3*(  ( Zeta - 40. )/(10*sinh(aeta)) - 30.)/40.;
+  if (aeta<=2.5 ) EMECg = 0.9 +1.9*(  ( Zeta - 40. )/(10*std::sinh(aeta)) - 60.)/140.;
+  else EMECg = 1.8 + 1.3*(  ( Zeta - 40. )/(10*std::sinh(aeta)) - 30.)/40.;
   return EMECg;
 }
 
@@ -255,7 +255,7 @@ float LArHVScaleCorrTool::Scale_FCAL1(const float hv) const
   const float R0=-2.612;
   const float alpha=2.336;
   const float beta=0.079;
-  const float scale=R0+alpha*pow(hv,beta);
+  const float scale=R0+alpha*std::pow(hv,beta);
   return scale;
 }
   
@@ -296,9 +296,9 @@ float LArHVScaleCorrTool::Scale_barrel(const float hv) const
 
 // if lowHV>=50 V, logarithmic extrapolation
    if (i1>0) {
-     const float b=(log(facteur[i2])-log(facteur[i1]))/(log(hvref[i2])-log(hvref[i1]));
-     const float a=log(facteur[i2])-b*log(hvref[i2]);
-     resp = exp(a+b*log(hv));
+     const float b=(std::log(facteur[i2])-std::log(facteur[i1]))/(std::log(hvref[i2])-std::log(hvref[i1]));
+     const float a=std::log(facteur[i2])-b*std::log(hvref[i2]);
+     resp = std::exp(a+b*std::log(hv));
    } 
 // if between 0 and 50 V, scales linearly
    else {

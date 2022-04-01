@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_TAUPROCESSORALG_H
@@ -65,7 +65,7 @@ class TauProcessorAlg: public AthReentrantAlgorithm
   SG::WriteHandleKey<xAOD::PFOContainer> m_tauShotPFOOutputContainer{this,"Key_tauShotPFOOutputContainer", "TauShotParticleFlowObjects", "tau pfo out key"};
   SG::WriteHandleKey<CaloCellContainer> m_tauPi0CellOutputContainer{this,"Key_tauPi0CellOutputContainer","TauCommonPi0Cells","output calo cell key"};
     
-  const CaloCell_ID* m_cellID;
+  const CaloCell_ID* m_cellID = nullptr;
     
   // These are needed to read ESD and AOD in AthenaMT for P->T conversion of ID tracks.
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};

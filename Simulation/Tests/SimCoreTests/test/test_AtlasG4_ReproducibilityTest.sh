@@ -8,6 +8,7 @@
 # art-include: master/Athena
 # art-include: master/AthSimulation
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-output: hitsFull.ttbar.pool.root
 # art-output: hitsHalf1.ttbar.pool.root
 # art-output: hitsHalf2.ttbar.pool.root

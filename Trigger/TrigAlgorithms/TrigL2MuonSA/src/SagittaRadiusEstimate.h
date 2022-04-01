@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_SAGITTARADIUSESTIMATE_H
@@ -27,7 +27,7 @@ namespace TrigL2MuonSA {
 			const std::string& name,
 			const IInterface*  parent);
   
-  void setMCFlag(BooleanProperty use_mcLUT,
+  void setMCFlag(const BooleanProperty& use_mcLUT,
 		 const AlignmentBarrelLUTSvc* alignmentBarrelLUTSvc);
 
   void setUseEndcapInner( BooleanProperty use_endcapInner ){ m_use_endcapInner = use_endcapInner; };
@@ -44,7 +44,7 @@ namespace TrigL2MuonSA {
 
   BooleanProperty  m_use_endcapInner{0};
 
-  const ToolHandle<AlignmentBarrelLUT>*    m_alignmentBarrelLUT;
+  const ToolHandle<AlignmentBarrelLUT>*    m_alignmentBarrelLUT = nullptr;
 
   float f(float x, float c0, float c1, float c2, float c3) const;
   float fp(float x, float c33, float c22, float c1) const;

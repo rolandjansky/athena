@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUCALSTREAMERTOOL_H
@@ -122,7 +122,7 @@ namespace TrigL2MuonSA {
     int m_cid {-1};
 
     // local buffer for the TrigComposite object
-    int m_localBufferSize;
+    int m_localBufferSize = 0;
     std::vector<int> m_localBuffer;
 
     //
@@ -145,7 +145,7 @@ namespace TrigL2MuonSA {
     				 LVL2_MUON_CALIBRATION::CscCalibFragment& cscFragment) const;
 
 
-    TrigL2MuonSA::MuCalCircClient *m_circ;
+    TrigL2MuonSA::MuCalCircClient *m_circ = nullptr;
 
   };
   

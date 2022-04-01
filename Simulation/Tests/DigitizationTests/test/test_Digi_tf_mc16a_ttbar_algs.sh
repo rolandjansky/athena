@@ -2,6 +2,7 @@
 #
 # art-description: Run digitization of an MC16a ttbar sample with 2016a geometry and conditions, 25ns pile-up and using digitizationFlags.doXingByXingPileUp=False
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-include: master/Athena
 # art-output: mc16a_ttbar_algs.RDO.pool.root
 

@@ -889,7 +889,6 @@ void iFatras::McMaterialEffectsUpdator::radiate(const ISF::ISFParticle* parent, 
   (parm)[Trk::qOverP] = (parm)[Trk::qOverP] > 0 ? 1/p : -1./p;
   (parm)[Trk::theta]  = dir.theta();
   (parm)[Trk::phi]    = dir.phi();
-  return;
 }
 
 

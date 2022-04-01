@@ -42,12 +42,6 @@ namespace NSWL1{
     {
     }
     //------------------------------------------------------------------------------
-    std::string PadTdsValidationTree::treename_from_algoname(const std::string &algoname)
-    {
-        std::string treename = algoname+"Tree";
-        return treename;    
-    }
-    //------------------------------------------------------------------------------
     bool PadTdsValidationTree::init_tree(TTree *tree)
     {
         bool success=false;

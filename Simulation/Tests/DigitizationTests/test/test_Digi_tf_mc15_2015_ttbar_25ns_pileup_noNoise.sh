@@ -6,6 +6,7 @@
 # art-include: 21.9/Athena
 # art-include: master/Athena
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-output: mc15_2015_ttbar_25ns_pileup_noNoise.RDO.pool.root
 
 DigiOutFileName="mc15_2015_ttbar_25ns_pileup_noNoise.RDO.pool.root"

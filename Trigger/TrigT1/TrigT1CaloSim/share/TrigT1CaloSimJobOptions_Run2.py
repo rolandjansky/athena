@@ -34,14 +34,8 @@ from PyUtils.MetaReaderPeeker import metadata
 
 from AthenaCommon.GlobalFlags import globalflags
 if globalflags.isOverlay() is True:
-    _doPC = False
-    from AthenaCommon import CfgMgr
-    from AthenaCommon.AppMgr import ToolSvc
-    from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__OverlayRun2TriggerTowerMaker
-    job += LVL1__OverlayRun2TriggerTowerMaker('Run2TriggerTowerMaker', 
-                                      CellType = 3, 
-                                      ZeroSuppress = True, 
-                                      DoOverlay = True )
+    log.error("L1Calo overlay simulation is currently not supported")
+
 else:
     try:
         if not 'metadata' in dir():

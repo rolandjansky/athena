@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawConditions/LArConditionsSubset.h"
@@ -9,7 +9,7 @@
 void
 LArRampSubsetCnv_p1::persToTrans(const LArRampPersType* persObj, 
                                   LArRampTransType* transObj, 
-                                  MsgStream & log)
+                                  MsgStream & log) const
 {
     // Copy basic metadata
     transObj->setChannel       (persObj->m_subset.m_channel);
@@ -134,7 +134,7 @@ LArRampSubsetCnv_p1::persToTrans(const LArRampPersType* persObj,
 void
 LArRampSubsetCnv_p1::transToPers(const LArRampTransType* transObj, 
                                   LArRampPersType* persObj, 
-                                  MsgStream &log) 
+                                  MsgStream &log) const
 {
     // Copy conditions
 

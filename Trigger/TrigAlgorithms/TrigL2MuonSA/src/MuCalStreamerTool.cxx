@@ -296,14 +296,11 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(const xAOD::MuonRo
   if ( roi->getSource() != 0 ) return StatusCode::SUCCESS;
  
   // retrieve the padId from the RecMuonRoi
-  unsigned int    roIWord=roi->roiWord();
 
   //  decode  roIWord
-  unsigned int sectorAddress = (roIWord & 0x003FC000) >> 14;
-  unsigned int sectorRoIOvl  = (roIWord & 0x000007FC) >> 2;
-  unsigned int side =  sectorAddress & 0x00000001;
-  unsigned int sector = (sectorAddress & 0x0000003e) >> 1;
-  unsigned int roiNumber =  sectorRoIOvl & 0x0000001F;
+  unsigned int side = roi->getHemisphere()==xAOD::MuonRoI::Hemisphere::Positive ? 1 : 0;
+  unsigned int sector = roi->getSectorID();
+  unsigned int roiNumber =  roi->getRoI();
 
   // retrieve the pad container
   SG::ReadHandle<RpcPadContainer> rh_rpcPad{m_rpcPadKey, ctx};
@@ -330,7 +327,6 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(const xAOD::MuonRo
       
       LVL2_MUON_CALIBRATION::RpcCalibFragment frag(sysId,secId,padId,status,error);
       rpcFragment = frag;
-
       RpcPad::const_iterator it3 = rpcPad->begin();
       for (; it3!=rpcPad->end() ; ++it3) {
 	const RpcCoinMatrix * cma = (*it3);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkGlobalChi2Fitter/GXFMaterialEffects.h"
@@ -253,7 +253,7 @@ namespace Trk {
     }
 
     return std::make_unique<MaterialEffectsOnTrack>(
-      m_x0, scatangles, neweloss.release(), *m_surf, typePattern);
+      m_x0, scatangles, std::move(neweloss), *m_surf, typePattern);
   }
 
   const Trk::MaterialProperties * GXFMaterialEffects::materialProperties() const {

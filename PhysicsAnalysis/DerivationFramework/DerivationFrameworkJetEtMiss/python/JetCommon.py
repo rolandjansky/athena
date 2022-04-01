@@ -153,6 +153,10 @@ def addDAODJets(jetlist,sequence):
     from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
+    from JetRecConfig.JetConfigFlags import jetInternalFlags
+    # This setting implies that jet components failing job condition (ex: truth-related calculation in data job) are automatically removed
+    jetInternalFlags.isRecoJob = True 
+
     for jd in jetlist:
         algs, jetdef_i = getJetAlgs(ConfigFlags, jd, True)
         algs = reOrderAlgs( [a for a in algs if a is not None])

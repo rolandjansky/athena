@@ -187,11 +187,18 @@ def mkIntegrateJob(options, ecm, prevJob):
     if not options.sherpaInstallPath:
         options.sherpaInstallPath = sftlayer+"/MCGenerators/sherpa/${SHERPAVER}.openmpi3/${LCG_PLATFORM}"
 
+
+    LCG_PLATFORM = str(os.environ['LCG_PLATFORM'])
+
+    openmpi_path    = ":".join(glob.glob(sftbase+"/openmpi/*/"+LCG_PLATFORM+"/bin"))
+    opal_prefix     =  ":".join(glob.glob(sftbase+"/openmpi/*/"+LCG_PLATFORM))
+    ld_library_path = ":".join(glob.glob(sftbase+"/openmpi/*/"+LCG_PLATFORM+"/lib"))
+
     job.cmds += ["source /cvmfs/sft.cern.ch/lcg/releases/gcc/"+gccver+"/x86_64-centos7/setup.sh" ]
-    job.cmds += ["export PATH="+sftbase+"/openmpi/*/${LCG_PLATFORM}/bin:$PATH"]
+    job.cmds += ["export PATH="+openmpi_path+":$PATH"]
     job.cmds += ["export LHAPATH=/cvmfs/sft.cern.ch/lcg/external/lhapdfsets/current:/cvmfs/atlas.cern.ch/repo/sw/Generators/lhapdfsets/current/"]
-    job.cmds += ["export OPAL_PREFIX="+sftbase+"/openmpi/*/${LCG_PLATFORM}"]
-    job.cmds += ["export LD_LIBRARY_PATH="+sftbase+"/openmpi/*/${LCG_PLATFORM}/lib:"+sftbase+"/sqlite/*/${LCG_PLATFORM}/lib:"+sftbase+"/HepMC/*/${LCG_PLATFORM}/lib:"+sftlayer+"/MCGenerators/lhapdf/*/${LCG_PLATFORM}/lib:"+sftlayer+"/fastjet/*/${LCG_PLATFORM}/lib:"+olpath+"/lib:"+olpath+"/proclib:"+options.sherpaInstallPath+"/lib/SHERPA-MC:$LD_LIBRARY_PATH"]
+    job.cmds += ["export OPAL_PREFIX="+opal_prefix]
+    job.cmds += ["export LD_LIBRARY_PATH="+ld_library_path+":"+sftbase+"/sqlite/*/${LCG_PLATFORM}/lib:"+sftbase+"/HepMC/*/${LCG_PLATFORM}/lib:"+sftlayer+"/MCGenerators/lhapdf/*/${LCG_PLATFORM}/lib:"+sftlayer+"/fastjet/*/${LCG_PLATFORM}/lib:"+olpath+"/lib:"+olpath+"/proclib:"+options.sherpaInstallPath+"/lib/SHERPA-MC:$LD_LIBRARY_PATH"]
 
     job.cmds += ["mpirun -n {0} ".format(str(targetCores))+options.sherpaInstallPath+"/bin/Sherpa EVENTS=0 FRAGMENTATION=Off MI_HANDLER=None BEAM_ENERGY_1="+str(ecm/2.*1000)+" BEAM_ENERGY_2="+str(ecm/2.*1000)]
 

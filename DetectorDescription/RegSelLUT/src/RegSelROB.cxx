@@ -61,7 +61,7 @@ RegSelROBList::RegSelROBList(const std::vector<RegSelModule>& modules) {
 
   std::cout << "RegSelSiLUT::fillROBMap()" << std::endl;
 
-  for ( std::vector<RegSelModule>::const_iterator mptr = modules.begin() ; mptr!=modules.end() ; mptr++ ) { 
+  for ( std::vector<RegSelModule>::const_iterator mptr = modules.begin() ; mptr!=modules.end() ; ++mptr ) { 
 
     //    std::cout << *mptr << std::endl; 
 
@@ -83,7 +83,7 @@ RegSelROBList::RegSelROBList(const std::vector<RegSelModule>& modules) {
 
   std::map<uint32_t, RegSelROB>::iterator  robitr = robs.begin();
 
-  for ( ; robitr!=robs.end() ; robitr++ ) { 
+  for ( ; robitr!=robs.end() ; ++robitr ) { 
     std::cout << "RegSelLUT::fillROBMap() " << robitr->second << std::endl; 
   }
 }

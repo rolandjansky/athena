@@ -1,0 +1,36 @@
+# Slice file for test development, created 1/7/21
+
+region 0
+phi 0.3     0.5
+eta 0.1     0.3
+qpt -0.001  0.001
+d0  -2.0    2.0
+z0  -150    150
+
+region 1
+phi 0.3     0.5
+eta 0.7     0.9
+qpt -0.001  0.001
+d0  -2.0    2.0
+z0  -150    150
+
+region 2
+phi 0.3     0.5
+eta 1.2     1.4
+qpt -0.001  0.001
+d0  -2.0    2.0
+z0  -150    150
+
+region 3
+phi 0.3     0.5
+eta 2.0     2.2
+qpt -0.001  0.001
+d0  -2.0    2.0
+z0  -150    150
+
+region 4
+phi 0.3     0.5
+eta 3.2     3.4
+qpt -0.001  0.001
+d0  -2.0    2.0
+z0  -150    150

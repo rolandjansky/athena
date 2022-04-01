@@ -6,6 +6,7 @@
 # art-include: 22.0-mc20/Athena
 # art-output: myHIST.root
 # art-output: log*
+# art-athena-mt: 2
 
 Reco_tf.py --athenaopts='--threads=1' --AMI=q442 --steering doRAWtoALL --imf False > log.HIST_Creation 2>&1
 

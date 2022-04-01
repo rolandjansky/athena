@@ -41,7 +41,7 @@ namespace TrigConf {
       /**@brief destructor*/           
       virtual ~MuonThresholdSetLoader(){};
 
-      virtual bool load( MuonThresholdSet& data);
+      virtual bool load( MuonThresholdSet& data) override;
 
       // retrieve all muon theshold sets for the current entries in the
       // trigger_alias table

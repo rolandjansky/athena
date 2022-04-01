@@ -36,8 +36,8 @@ namespace TrigConf {
       /**@brief access to output stream*/
       //std::ostream & msg() { return m_storageMgr.msg(); }
 
-      virtual void setLevel(MSGTC::Level lvl);
-      virtual MSGTC::Level outputLevel() const { return msg().level(); }
+      virtual void setLevel(MSGTC::Level lvl) override;
+      virtual MSGTC::Level outputLevel() const override { return msg().level(); }
 
 
       /** @brief start session if not already active */
@@ -54,8 +54,8 @@ namespace TrigConf {
 
       unsigned int triggerDBSchemaVersion();
 
-      virtual int verbose() const { return m_verbose; }
-      virtual void setVerbose(int v) { m_verbose=v; }
+      virtual int verbose() const override { return m_verbose; }
+      virtual void setVerbose(int v) override { m_verbose=v; }
 
       bool isRun1() { return ! isRun2(); }
       bool isRun2();

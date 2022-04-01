@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CscDataPreparator.h"
@@ -74,7 +74,7 @@ StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(TrigL2MuonSA::MuonRoad& 
 
 
 	// Create new digit
-	TrigL2MuonSA::CscHitData cscHit;
+	TrigL2MuonSA::CscHitData cscHit{};
 	cscHit.StationName  = m_idHelperSvc->cscIdHelper().stationName( prepData->identify() );
 	cscHit.StationEta   = m_idHelperSvc->cscIdHelper().stationEta( prepData->identify() );
 	cscHit.StationPhi   = m_idHelperSvc->cscIdHelper().stationPhi( prepData->identify() );

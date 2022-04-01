@@ -35,15 +35,15 @@ StatusCode PixelModuleConfigCondAlg::execute(const EventContext& ctx) const {
   SG::WriteCondHandle<PixelModuleData> writeHandle(m_writeKey, ctx);
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid.. In theory this should not be called, but may happen if multiple concurrent events are being processed out of order.");
-    return StatusCode::SUCCESS; 
+    return StatusCode::SUCCESS;
   }
 
   // Construct the output Cond Object and fill it in
   std::unique_ptr<PixelModuleData> writeCdo(std::make_unique<PixelModuleData>());
 
-  const EventIDBase start{EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT,                     0,                       
+  const EventIDBase start{EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT,                     0,
                                               0, EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
-  const EventIDBase stop {EventIDBase::UNDEFNUM,   EventIDBase::UNDEFEVT, EventIDBase::UNDEFNUM-1, 
+  const EventIDBase stop {EventIDBase::UNDEFNUM,   EventIDBase::UNDEFEVT, EventIDBase::UNDEFNUM-1,
                           EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
 
   // Digitization parameters
@@ -69,33 +69,30 @@ StatusCode PixelModuleConfigCondAlg::execute(const EventContext& ctx) const {
   writeCdo -> setFEI4ChargScaling(m_chargeScaleFEI4);
   writeCdo -> setUseFEI4SpecialScalingFunction(m_UseFEI4SpecialScalingFunction);
 
-  //FEI3-specific parameters... only write if they are set
-  if(m_FEI3BarrelLatency.size()!=0){
-    //Use the above as the check... worth adding checks to see that all FEI3 vectors are non-zero?
+  // FEI3-specific parameters... only write if they are set
+  if (!m_FEI3BarrelLatency.empty()) {
+    // Use the above as the check... worth adding checks to see that all FEI3 vectors are non-zero?
     writeCdo -> setFEI3BarrelLatency(m_FEI3BarrelLatency);
     writeCdo -> setFEI3BarrelHitDuplication(m_FEI3BarrelHitDuplication);
     writeCdo -> setFEI3BarrelSmallHitToT(m_FEI3BarrelSmallHitToT);
     writeCdo -> setFEI3BarrelTimingSimTune(m_FEI3BarrelTimingSimTune);
 
-    writeCdo -> setEndcapToTThreshold(m_EndcapToTThreshold);
     writeCdo -> setFEI3EndcapLatency(m_FEI3EndcapLatency);
     writeCdo -> setFEI3EndcapHitDuplication(m_FEI3EndcapHitDuplication);
     writeCdo -> setFEI3EndcapSmallHitToT(m_FEI3EndcapSmallHitToT);
     writeCdo -> setFEI3EndcapTimingSimTune(m_FEI3EndcapTimingSimTune);
-
   }
 
-    //DBM-specific parameters... only write if they are set
-  if(m_DBMToTThreshold.size()!=0){
-       writeCdo -> setDBMNumberOfBCID(m_DBMNumberOfBCID);
-       writeCdo -> setDBMTimeOffset(m_DBMTimeOffset);
-       writeCdo -> setDBMTimeJitter(m_DBMTimeJitter);
-       writeCdo -> setDefaultDBMAnalogThreshold(m_DBMAnalogThreshold);
-       writeCdo -> setDefaultDBMAnalogThresholdSigma(m_DBMAnalogThresholdSigma);
-       writeCdo -> setDefaultDBMAnalogThresholdNoise(m_DBMAnalogThresholdNoise);
-       writeCdo -> setDefaultDBMInTimeThreshold(m_DBMInTimeThreshold);
-       writeCdo -> setDBMThermalNoise(m_DBMThermalNoise);
-
+  // DBM-specific parameters... only write if they are set
+  if (!m_DBMToTThreshold.empty()) {
+    writeCdo -> setDBMNumberOfBCID(m_DBMNumberOfBCID);
+    writeCdo -> setDBMTimeOffset(m_DBMTimeOffset);
+    writeCdo -> setDBMTimeJitter(m_DBMTimeJitter);
+    writeCdo -> setDefaultDBMAnalogThreshold(m_DBMAnalogThreshold);
+    writeCdo -> setDefaultDBMAnalogThresholdSigma(m_DBMAnalogThresholdSigma);
+    writeCdo -> setDefaultDBMAnalogThresholdNoise(m_DBMAnalogThresholdNoise);
+    writeCdo -> setDefaultDBMInTimeThreshold(m_DBMInTimeThreshold);
+    writeCdo -> setDBMThermalNoise(m_DBMThermalNoise);
   }
 
   // Charge calibration parameters
@@ -128,43 +125,34 @@ StatusCode PixelModuleConfigCondAlg::execute(const EventContext& ctx) const {
   std::vector<std::string> mapsPath_list;
   std::vector<std::string> mapsPath_list3D;
 
- 
-    writeCdo -> setBarrelToTThreshold(m_BarrelToTThreshold);
-    writeCdo -> setBarrelCrossTalk(m_BarrelCrossTalk);
-    writeCdo -> setBarrelNoiseOccupancy(m_BarrelNoiseOccupancy);
-    writeCdo -> setBarrelDisableProbability(m_BarrelDisableProbability);
-    writeCdo -> setBarrelLorentzAngleCorr(m_BarrelLorentzAngleCorr);
-    writeCdo -> setDefaultBarrelBiasVoltage(m_BarrelBiasVoltage);
+  writeCdo -> setBarrelToTThreshold(m_BarrelToTThreshold);
+  writeCdo -> setBarrelCrossTalk(m_BarrelCrossTalk);
+  writeCdo -> setBarrelNoiseOccupancy(m_BarrelNoiseOccupancy);
+  writeCdo -> setBarrelDisableProbability(m_BarrelDisableProbability);
+  writeCdo -> setBarrelLorentzAngleCorr(m_BarrelLorentzAngleCorr);
+  writeCdo -> setDefaultBarrelBiasVoltage(m_BarrelBiasVoltage);
 
-    writeCdo -> setEndcapToTThreshold(m_EndcapToTThreshold);
-    writeCdo -> setEndcapCrossTalk(m_EndcapCrossTalk);
-    writeCdo -> setEndcapNoiseOccupancy(m_EndcapNoiseOccupancy);
-    writeCdo -> setEndcapDisableProbability(m_EndcapDisableProbability);
-    writeCdo -> setEndcapLorentzAngleCorr(m_EndcapLorentzAngleCorr);
-    writeCdo -> setDefaultEndcapBiasVoltage(m_EndcapBiasVoltage);
+  writeCdo -> setEndcapToTThreshold(m_EndcapToTThreshold);
+  writeCdo -> setEndcapCrossTalk(m_EndcapCrossTalk);
+  writeCdo -> setEndcapNoiseOccupancy(m_EndcapNoiseOccupancy);
+  writeCdo -> setEndcapDisableProbability(m_EndcapDisableProbability);
+  writeCdo -> setEndcapLorentzAngleCorr(m_EndcapLorentzAngleCorr);
+  writeCdo -> setDefaultEndcapBiasVoltage(m_EndcapBiasVoltage);
 
-    // This is ad-hoc solution.
-    for (size_t i=0; i<m_InnermostNoiseShape.size(); i++)     { writeCdo->setBarrelNoiseShape(0,m_InnermostNoiseShape[i]); }
-    for (size_t i=0; i<m_NextInnermostNoiseShape.size(); i++) { writeCdo->setBarrelNoiseShape(1,m_NextInnermostNoiseShape[i]); }
-    for (size_t i=0; i<m_PixelNoiseShape.size(); i++)  {
-      for (size_t layer:{2,3,4}) { writeCdo->setBarrelNoiseShape(layer,m_PixelNoiseShape[i]); }
-    }
+  writeCdo -> setBarrelNoiseShape({m_InnermostNoiseShape, m_NextInnermostNoiseShape, m_PixelNoiseShape, m_PixelNoiseShape, m_PixelNoiseShape});
+  writeCdo -> setEndcapNoiseShape(std::vector<std::vector<float>>(m_EndcapToTThreshold.size(), m_PixelNoiseShape));
 
-    for (size_t i=0; i<m_EndcapToTThreshold.size(); i++) {
-      for (size_t j=0; j<m_PixelNoiseShape.size(); j++)  { writeCdo->setEndcapNoiseShape(i,m_PixelNoiseShape[j]); }
-    }
+  // Radiation damage simulation
+  writeCdo -> setFluenceLayer(m_BarrelFluence);
+  for (size_t i=0; i<m_BarrelFluenceMap.size(); i++) {
+    mapsPath_list.push_back(PathResolverFindCalibFile(m_BarrelFluenceMap[i]));
+  }
 
-    // Radiation damage simulation
-    writeCdo -> setFluenceLayer(m_BarrelFluence);
-    for (size_t i=0; i<m_BarrelFluenceMap.size(); i++) {
-      mapsPath_list.push_back(PathResolverFindCalibFile(m_BarrelFluenceMap[i]));
-    }
-
-    // Radiation damage simulation for 3D sensor
-    writeCdo -> setFluenceLayer3D(m_3DFluence);
-    for (size_t i=0; i<m_3DFluenceMap.size(); i++) {
-      mapsPath_list3D.push_back(PathResolverFindCalibFile(m_3DFluenceMap[i]));
-    }
+  // Radiation damage simulation for 3D sensor
+  writeCdo -> setFluenceLayer3D(m_3DFluence);
+  for (size_t i=0; i<m_3DFluenceMap.size(); i++) {
+    mapsPath_list3D.push_back(PathResolverFindCalibFile(m_3DFluenceMap[i]));
+  }
 
   //=======================
   // Combine time interval
@@ -183,5 +171,3 @@ StatusCode PixelModuleConfigCondAlg::execute(const EventContext& ctx) const {
 
   return StatusCode::SUCCESS;
 }
-
-

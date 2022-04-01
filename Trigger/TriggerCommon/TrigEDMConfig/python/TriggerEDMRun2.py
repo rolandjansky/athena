@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # ********************* WARNING **********************
 #
@@ -35,8 +35,6 @@
 #	Tracking   
 #	Combined   
 #	Unknown    <-- should be temporary until you figure out what to classify it as
-
-from __future__ import print_function
 
 #####################
 #####################

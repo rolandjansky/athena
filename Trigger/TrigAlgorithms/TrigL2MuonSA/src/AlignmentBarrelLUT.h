@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGL2MUONSA_ALIGNMENTBARRELLUT_H
@@ -24,7 +24,7 @@ class AlignmentBarrelLUT: public AthAlgTool
                        const std::string& name,
                        const IInterface*  parent);
 
-    StatusCode readLUT(std::string lut_fileName);
+    StatusCode readLUT(const std::string& lut_fileName);
 
     double GetDeltaZ(int& saddress, double& etaMap, double& phiMap, double& MFphi, float& sp1R ) const;
 

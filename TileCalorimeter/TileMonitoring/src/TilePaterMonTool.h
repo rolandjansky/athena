@@ -230,6 +230,7 @@ protected:
   bool m_saveSvg;
 
   std::vector<int> m_fragIDsToIgnoreDMUerrors;
+  std::vector<int> m_fragIDsDemonstrators;
 
   std::string m_EBcellName[48] = { "E3", "E4", "D4", "D4", "C10", "C10", "A12", "A12", "B11", "B11", "A13", "A13"
                                  , "E1", "E2", "B12", "B12", "D5", "D5", "E3*", "E4*", "A14", "A14", "B13", "B13"

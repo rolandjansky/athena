@@ -24,7 +24,7 @@ class IRDBRecord;
 class TileCalibDddbManager {
 public:
 
-  TileCalibDddbManager(ServiceHandle<IRDBAccessSvc> &access, std::string version_tag, std::string version_node,
+  TileCalibDddbManager(ServiceHandle<IRDBAccessSvc> &access, const std::string & version_tag, const std::string & version_node,
                        const int verboseLevel);
   // Default destructor is fine
 

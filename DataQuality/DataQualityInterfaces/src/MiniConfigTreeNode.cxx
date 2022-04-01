@@ -187,19 +187,16 @@ void
 MiniConfigTreeNode::
 GetAttributeNames( std::set<std::string>& attSet, bool calledFromDaughter ) const
 {
-  if (calledFromDaughter && ! m_propagateDown) {
-      return;
+  if( m_parent !=0 ) {
+    m_parent->GetAttributeNames( attSet, true );
   }
   AttIter_t attEnd = m_attributes.end();
   for( AttIter_t i = m_attributes.begin(); i != attEnd; ++i ) {
     if (calledFromDaughter && ! m_propagateDown && i->second.second) {
     } else {
-	std::set<std::string>::value_type setVal( i->first );
-	attSet.insert( setVal );
+      std::set<std::string>::value_type setVal( i->first );
+      attSet.insert( setVal );
     }
-  }
-  if( m_parent !=0 ) {
-    m_parent->GetAttributeNames( attSet, true );
   }
 }
 

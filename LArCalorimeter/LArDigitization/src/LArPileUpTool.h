@@ -161,13 +161,7 @@ class LArPileUpTool : public PileUpToolBase
   //
   Gaudi::Property<double> m_EnergyThresh{this, "EnergyThresh", -99.,
       "Hit energy threshold (default=-99)"};           // Zero suppression energy threshold
-  //double m_AdcPerGeV;              // adc = UnCalibretedEnergy*Gain/m_AdcPerGeV + Pedestal
-  Gaudi::Property<int>    m_NSamples{this, "Nsamples", 5,
-      "Number of ADC samples (default=5)"};               // number of samples in Digit
-  Gaudi::Property<unsigned int> m_firstSample{this, "firstSample", 0,
-      "First sample to use for the shape for in-time signal"};      // first sample to use for pulse shape for in time energy deposit
-  Gaudi::Property<bool> m_usePhase{this, "UsePhase", false,
-      "use 1ns binned pulse shape (default=false)"};               // use tbin phase to get shape (default = false for Atlas)
+
   Gaudi::Property<bool> m_rndmEvtRun{this, "UseRndmEvtRun", false,
       "Use Run and Event number to seed rndm number (default=false)"};               // use run,event number for random number seeding
   Gaudi::Property<bool> m_useTriggerTime{this, "UseTriggerTime", false,
@@ -193,7 +187,6 @@ class LArPileUpTool : public PileUpToolBase
       "Maximum time to add (default=25)"};
   Gaudi::Property<bool> m_ignoreTime{this, "IgnoreTime", false,
       "Set all hit time to 0, for debugging (default = false)"};
-  int m_sampleGainChoice{2};
   Gaudi::Property<bool> m_roundingNoNoise{this, "RoundingNoNoise", true,
       "if true add random number [0:1[ in no noise case before rounding ADC to integer, if false add only 0.5 average"};  // flag used in NoNoise case: if true add random number [0;1[ in ADC count, if false add only average of 0.5
  

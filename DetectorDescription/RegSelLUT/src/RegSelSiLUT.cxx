@@ -114,7 +114,7 @@ void RegSelSiLUT::initialise() {
   std::vector<int> subdetid;
   
   for ( std::vector<RegSelModule>::iterator mptr = m_modules.begin() ; 
-	mptr!=m_modules.end() ; mptr++ ) { 
+	mptr!=m_modules.end() ; ++mptr ) { 
     int detid = mptr->detector();
     
     bool found = false;
@@ -151,7 +151,7 @@ void RegSelSiLUT::initialise() {
 
   // and save pointers to all the modules in a map by hashid
   for ( std::vector<RegSelModule>::iterator mptr = m_modules.begin() ; 
-	mptr!=m_modules.end() ; mptr++ ) { 
+	mptr!=m_modules.end() ; ++mptr ) { 
     m_map[(*mptr).hashID()] = &(*mptr);
   }
 
@@ -179,7 +179,7 @@ void RegSelSiLUT::initialiseFullScan() {
 
   std::vector<RegSelModule>::const_iterator mptr(m_modules.begin()); 
   std::vector<RegSelModule>::const_iterator eptr(m_modules.end());
-  for ( ; mptr!=eptr ; mptr++ ) { 
+  for ( ; mptr!=eptr ; ++mptr ) { 
     if ( (*mptr).enabled() ) { 
       m_allHashes.push_back((*mptr).hashID());
       robids.insert((*mptr).robID());
@@ -200,7 +200,7 @@ void RegSelSiLUT::initialiseFullScan() {
 
 void RegSelSiLUT::initialiseDisabledModules() {  
   for ( std::vector<RegSelSubDetector>::iterator sptr(m_SubDet.begin()) ; 
-	sptr!=m_SubDet.end() ; sptr++ ) { 
+	sptr!=m_SubDet.end() ; ++sptr ) { 
     (*sptr).setupDisabledModules();
   }
 }
@@ -253,7 +253,7 @@ bool RegSelSiLUT::getRoIData(const RegSelRoI& roi, std::vector<const RegSelModul
   }
 
   //  std::cout << "RegSelSiLUT::getRoIData() Nmodules=" << modules.size() << std::endl;  
-  //  for ( int i=0 ; i<modules.size() ; i++ ) modules[i]->paw(); 
+  //  for ( int i=0 ; i<modules.size() ; i++  ) modules[i]->paw(); 
 
   return inDet;
 }
@@ -307,7 +307,7 @@ bool RegSelSiLUT::getRoIData(const RegSelRoI& roi, unsigned layer, std::vector<c
 
 
   //  std::cout << "RegSelSiLUT::getRoIData() Nmodules=" << modules.size() << std::endl;  
-  //  for ( int i=0 ; i<modules.size() ; i++ ) modules[i]->paw(); 
+  //  for ( int i=0 ; i<modules.size() ; i++  ) modules[i]->paw(); 
 
   return inDet;
 }
@@ -327,7 +327,7 @@ bool RegSelSiLUT::getRoIData(const RegSelRoI& roi, unsigned subdetector, unsigne
     if ( inDet ) m_SubDet[subdetector].getModules(roi, layer, modules);
   }
   //  std::cout << "RegSelSiLUT::getRoIData() Nmodules=" << modules.size() << std::endl;  
-  //  for ( int i=0 ; i<modules.size() ; i++ ) modules[i]->paw(); 
+  //  for ( int i=0 ; i<modules.size() ; i++  ) modules[i]->paw(); 
 
   return inDet;
 }
@@ -383,7 +383,7 @@ bool philimits( double x, double y,  double rmin, double rmax, double& phimin, d
   phi[2] = phiprime(x, y, phimax, rmin, status);
   phi[3] = phiprime(x, y, phimax, rmax, status);
 
-  //  for ( int i=0 ; i<4 ; i++ ) std::cout << "phi[" << i << "]=" << phi[i] << std::endl;
+  //  for ( int i=0 ; i<4 ; i++  ) std::cout << "phi[" << i << "]=" << phi[i] << std::endl;
 
   if ( status ) { 
 
@@ -528,7 +528,7 @@ bool RegSelSiLUT::getRoIData(const RegSelRoI& roi, unsigned subdetector, unsigne
   //  std::cout << "getRoIData() time=" << _time << " ms (shifted)" << std::endl;
 
   //  std::cout << "RegSelSiLUT::getRoIData() Nmodules=" << modules.size() << std::endl;  
-  //  for ( int i=0 ; i<modules.size() ; i++ ) modules[i]->paw(); 
+  //  for ( int i=0 ; i<modules.size() ; i++  ) modules[i]->paw(); 
 
   return inDet;
 }
@@ -734,7 +734,7 @@ void RegSelSiLUT::disableRobList(const std::vector<uint32_t>& roblist) {
   for ( unsigned i=0 ; i<roblist.size() ; i++ ) robset.insert(roblist[i]);
  
   std::vector<RegSelModule>::iterator itr(m_modules.begin()); 
-  for ( ; itr!=m_modules.end() ; itr++ ) { 
+  for ( ; itr!=m_modules.end() ; ++itr ) { 
     // this module's rob is on the list, so disable it 
     if ( robset.find((*itr).robID())!=robset.end() )  (*itr).disable();                                              
   }
@@ -751,7 +751,7 @@ void RegSelSiLUT::enableRobList(const std::vector<uint32_t>& roblist) {
   for ( unsigned i=0 ; i<roblist.size() ; i++ ) robset.insert(roblist[i]);
  
   std::vector<RegSelModule>::iterator itr(m_modules.begin()); 
-  for ( ; itr!=m_modules.end() ; itr++ ) { 
+  for ( ; itr!=m_modules.end() ; ++itr ) { 
     // this module's rob is on the list, so enable it 
     if ( robset.find((*itr).robID())!=robset.end() )  (*itr).enable();
   }
@@ -771,7 +771,7 @@ void RegSelSiLUT::disableModuleList(const std::vector<IdentifierHash>& hashlist)
   for ( unsigned i=0 ; i<hashlist.size() ; i++ ) hashset.insert(hashlist[i]);
   
   std::vector<RegSelModule>::iterator itr(m_modules.begin()); 
-  for ( ; itr!=m_modules.end() ; itr++ ) { 
+  for ( ; itr!=m_modules.end() ; ++itr ) { 
     // this module is on the list, so disable it 
     if ( hashset.find((*itr).hashID())!=hashset.end() )  (*itr).disable();                                        
   }
@@ -788,7 +788,7 @@ void RegSelSiLUT::enableModuleList(const std::vector<IdentifierHash>& hashlist) 
   for ( unsigned i=0 ; i<hashlist.size() ; i++ ) hashset.insert(hashlist[i]);
   
   std::vector<RegSelModule>::iterator itr(m_modules.begin()); 
-  for ( ; itr!=m_modules.end() ; itr++ ) { 
+  for ( ; itr!=m_modules.end() ; ++itr ) { 
     // this module is on the list, so enable it 
     if ( hashset.find((*itr).hashID())!=hashset.end() )  (*itr).enable();                                        
   }
@@ -818,7 +818,7 @@ void RegSelSiLUT::getHashList(const RegSelRoI& roi, std::vector<IdentifierHash>&
   std::vector<const RegSelModule*>::iterator mptr(modules.begin()); 
 
   hashlist.reserve(modules.size());
-  for ( ; mptr!=modules.end() ; mptr++ ) { 
+  for ( ; mptr!=modules.end() ; ++mptr ) { 
     hashlist.push_back((*mptr)->hashID());
   } 
 
@@ -848,7 +848,7 @@ void RegSelSiLUT::getHashList(const RegSelRoI& roi, std::vector<IdentifierHash>&
   std::vector<const RegSelModule*>::iterator mptr(modules.begin()); 
 
   hashlist.reserve(modules.size());
-  for ( ; mptr!=modules.end() ; mptr++ ) { 
+  for ( ; mptr!=modules.end() ; ++mptr ) { 
     hashlist.push_back((*mptr)->hashID());
   } 
 
@@ -874,7 +874,7 @@ void RegSelSiLUT::getHashList(std::vector<IdentifierHash>& hashlist) const {
 
   std::vector<RegSelModule>::const_iterator mptr(m_modules.begin()); 
   std::vector<RegSelModule>::const_iterator eptr(m_modules.end());
-  for ( ; mptr!=eptr ; mptr++ ) { 
+  for ( ; mptr!=eptr ; ++mptr ) { 
     if ( (*mptr).enabled() ) hashlist.push_back((*mptr).hashID());
   }
 #endif
@@ -920,7 +920,7 @@ void RegSelSiLUT::getRobList(std::vector<uint32_t>& roblist) const {
 
   std::set<uint32_t> uroblist;
   std::vector<RegSelModule>::const_iterator mptr(m_modules.begin()); 
-  for ( ; mptr!=m_modules.end() ; mptr++ ) { 
+  for ( ; mptr!=m_modules.end() ; ++mptr ) { 
     if ( (*mptr).enabled() ) uroblist.insert((*mptr).robID());
   }
 
@@ -947,7 +947,7 @@ void RegSelSiLUT::getRobHashList(std::vector<uint32_t>& roblist, std::vector<Ide
 
   std::set<uint32_t> uroblist;
   std::vector<RegSelModule>::const_iterator mptr(m_modules.begin()); 
-  for ( ; mptr!=m_modules.end() ; mptr++ ) { 
+  for ( ; mptr!=m_modules.end() ; ++mptr ) { 
     if ( (*mptr).enabled() ) { 
       uroblist.insert((*mptr).robID());
       hashlist.push_back((*mptr).hashID());
@@ -1061,7 +1061,7 @@ void RegSelSiLUT::getRobList( unsigned layer, std::vector<uint32_t>& roblist) co
   
   std::set<uint32_t> uroblist;
   std::vector<const RegSelModule*>::const_iterator mptr(modules.begin()); 
-  for ( ; mptr!=modules.end() ; mptr++ ) { 
+  for ( ; mptr!=modules.end() ; ++mptr ) { 
     if ( (*mptr)->enabled() ) roblist.push_back((*mptr)->robID());
   }
   removeDuplicates( roblist );
@@ -1088,7 +1088,7 @@ void RegSelSiLUT::getDisabledHashList(const RegSelRoI& roi, unsigned layer, std:
 
   //  for ( std::vector<RegSelSubDetector>::const_iterator sptr(getSubDet().begin()) ; 
   for ( std::vector<RegSelSubDetector>::const_iterator sptr(m_SubDet.begin()) ; 
-	sptr!=m_SubDet.end() ; sptr++ ) { 
+	sptr!=m_SubDet.end() ; ++sptr ) { 
     
     if ( (*sptr).inRoI(roi) ) { 
       
@@ -1119,7 +1119,7 @@ void RegSelSiLUT::getDisabledLayers(const RegSelRoI& roi, int subdetector, std::
   std::set<int> disabled_layers;
 
   for ( std::vector<RegSelSubDetector>::const_iterator sptr(m_SubDet.begin()) ; 
-	sptr!=m_SubDet.end() ; sptr++ ) { 
+	sptr!=m_SubDet.end() ; ++sptr ) { 
     
     //    std::cout << "subdet id = " << sptr->ID() << std::endl;
 

@@ -312,7 +312,6 @@ class MetaDataSvc : public ::AthService,
   bool m_outputPreprared;
   std::map<std::string, CLID> m_persToClid;
   std::map<CLID, std::string> m_toolForClid;
-  std::map<std::string, std::string> m_streamForKey;
 
   std::set<CLID> m_handledClasses;
 

@@ -3,6 +3,7 @@
 # art-description: Tests ATLAS + ALFA simulation in ST and MT, generating events on-the-fly
 
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-athena-mt: 8
 # art-output: log.*
 # art-output: test.MT.HITS.pool.root

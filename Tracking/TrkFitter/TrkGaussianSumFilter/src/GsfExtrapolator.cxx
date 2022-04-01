@@ -1394,14 +1394,14 @@ Trk::GsfExtrapolator::addMaterialtoVector(Cache& cache,
     auto newsa = Trk::ScatteringAngles(
       0, 0, scatsigma / sin(nextPar->parameters()[Trk::theta]), scatsigma);
     // energy loss
-    Trk::EnergyLoss* eloss = m_elossupdators->energyLoss(
-      *materialProperties, absP, pathcorr, dir, particle, Trk::addNoise);
+    auto eloss = std::unique_ptr<Trk::EnergyLoss>(m_elossupdators->energyLoss(
+      *materialProperties, absP, pathcorr, dir, particle, Trk::addNoise));
 
     // use curvilinear TPs to simplify retrieval by fitters
     auto cvlTP = std::make_unique<const Trk::CurvilinearParameters>(
       nextPar->position(), nextPar->momentum(), nextPar->charge());
     auto mefot = std::make_unique<const Trk::MaterialEffectsOnTrack>(
-      dInX0, newsa, eloss, cvlTP->associatedSurface());
+      dInX0, newsa, std::move(eloss), cvlTP->associatedSurface());
     cache.m_matstates->push_back(new TrackStateOnSurface(
       nullptr, std::move(cvlTP), nullptr, std::move(mefot)));
   }

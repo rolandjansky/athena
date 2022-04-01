@@ -33,7 +33,7 @@ namespace TrigConf {
       const std::vector<uint32_t> & cam() const;
       void setCam( const u_int c[], const int size );
 
-      virtual void print(const std::string& indent="", unsigned int detail=1) const;
+      virtual void print(const std::string& indent="", unsigned int detail=1) const override;
       
    private:
       std::vector<uint32_t> m_lut;

@@ -709,6 +709,37 @@ namespace top {
       }
     }
 
+    inline virtual void electronEfficiencySystematicModelNToys(const int& s) {
+      if (!m_configFixed) {
+        m_electronEfficiencySystematicModelNToys = s;
+      }
+    }
+
+
+    inline virtual void electronEfficiencySystematicModelToySeed(const int& s) {
+      if (!m_configFixed) {
+        m_electronEfficiencySystematicModelToySeed = s;
+      }
+    }
+
+
+    inline virtual void electronEfficiencySystematicModelRecoSize(const int& s) {
+        m_electronEfficiencySystematicModelRecoSize = s;
+    }
+
+
+    inline virtual void electronEfficiencySystematicModelIdSize(const int& s) {
+        m_electronEfficiencySystematicModelIdSize = s;
+    }
+
+
+
+    inline virtual void electronEfficiencySystematicModelIsoSize(const int& s) {
+        m_electronEfficiencySystematicModelIsoSize = s;
+    }
+
+
+
     inline virtual void electronID(const std::string& s) {
       if (!m_configFixed) {
         m_electronID = s;
@@ -801,6 +832,28 @@ namespace top {
     inline virtual const std::string& electronEfficiencySystematicModelEtBinning() {
       return m_electronEfficiencySystematicModelEtBinning;
     }
+    inline virtual const int& electronEfficiencySystematicModelNToys() {
+      return m_electronEfficiencySystematicModelNToys;
+    }
+
+    inline virtual const int& electronEfficiencySystematicModelToySeed() {
+      return m_electronEfficiencySystematicModelToySeed;
+    }
+
+
+    inline virtual const int& electronEfficiencySystematicModelRecoSize() {
+      return m_electronEfficiencySystematicModelRecoSize;
+    }
+
+    inline virtual const int& electronEfficiencySystematicModelIdSize() {
+      return m_electronEfficiencySystematicModelIdSize;
+    }
+
+
+    inline virtual const int& electronEfficiencySystematicModelIsoSize() {
+      return m_electronEfficiencySystematicModelIsoSize;
+    }
+
     inline virtual const std::string& electronID()     const {return m_electronID;}
     inline virtual const std::string& electronIDLoose()  const {return m_electronIDLoose;}
     inline virtual bool electronVetoLArCrack() const {return m_electronVetoLArCrack;}
@@ -868,6 +921,13 @@ namespace top {
     inline virtual float fwdElectronMaxEtacut()       const {return m_fwdElectronMaxEtacut;}
     inline virtual int fwdElectronBCIDCleaningMinRun() const {return m_fwdElectronBCIDCleaningMinRun;}
     inline virtual int fwdElectronBCIDCleaningMaxRun() const {return m_fwdElectronBCIDCleaningMaxRun;}
+
+    const std::string electronIDSFFilePath() const
+    {return m_electronIDSFFile_path;}
+    bool printEIDFileWarning() const
+    {return m_eid_path_warning;}
+    void setPrintEIDFileWarning(bool flag)
+    {m_eid_path_warning = flag;}
 
     // Photon configuration
     inline virtual void photonPtcut(const float pt) {
@@ -1034,6 +1094,16 @@ namespace top {
     std::string const& muonIsolationSFLoose() const {return m_muonIsolationSFLoose;}
     inline virtual bool muonMuonDoSmearing2stationHighPt() const {return m_muonMuonDoSmearing2stationHighPt;}
     inline virtual bool muonMuonDoExtraSmearingHighPt() const {return m_muonMuonDoExtraSmearingHighPt;}
+
+    inline virtual void muonBreakDownSystematics(const bool flag) {m_muonBreakDownSystematics = flag;}
+    inline virtual bool muonBreakDownSystematics() {return m_muonBreakDownSystematics;}
+
+    std::string const& muonSFCustomInputFolder() const {return m_muonSFCustomInputFolder;}
+    void muonSFCustomInputFolder(const std::string& s) {
+      if (!m_configFixed) {
+        m_muonSFCustomInputFolder = s;
+      }
+    } 
 
     // Soft Muon configuration
     inline virtual void softmuonPtcut(const float pt) {
@@ -2264,6 +2334,11 @@ namespace top {
     // Electron configuration
     std::string m_egammaSystematicModel;
     std::string m_electronEfficiencySystematicModel;
+    int m_electronEfficiencySystematicModelNToys;
+    int m_electronEfficiencySystematicModelToySeed;
+    int m_electronEfficiencySystematicModelRecoSize;
+    int m_electronEfficiencySystematicModelIdSize;
+    int m_electronEfficiencySystematicModelIsoSize;
     std::string m_electronEfficiencySystematicModelEtaBinning;
     std::string m_electronEfficiencySystematicModelEtBinning;
     std::string m_electronID;
@@ -2284,6 +2359,10 @@ namespace top {
     bool m_useElectronChargeIDSelection;
     bool m_useEgammaLeakageCorrection;
     bool m_enablePromptLeptonImprovedVetoStudies;
+
+    // experimental electronID map path
+    std::string m_electronIDSFFile_path = "Default";
+    bool m_eid_path_warning = false;
 
     //Fwd electron configuration
     float m_fwdElectronPtcut;
@@ -2315,6 +2394,8 @@ namespace top {
     float m_muon_delta_z0;
     bool m_muonMuonDoSmearing2stationHighPt; //to turn on/off special correction for the reco with 2-station muons with missing inner MS station allowed for abs(eta)<1.3, only HighPt WP
     bool m_muonMuonDoExtraSmearingHighPt; //to turn on/off a special correction for the muon with high momenta.
+    bool m_muonBreakDownSystematics; //to turn on/off a more complex systematic model
+    std::string m_muonSFCustomInputFolder;
 
     //Soft muon configuration
     float m_softmuonPtcut; // soft muon object selection pT cut

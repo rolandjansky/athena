@@ -3,6 +3,7 @@
 # art-description: Run simulation using ISF with the FullG4MT_QS simulator, reading ttbar events, writing HITS, using RUN2 Best Knowledge geometry and MC21 conditions, 13 TeV input (unvalidated)
 # art-include: master/Athena
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-output: *.pool.root
 # art-output: log.*
 # art-output: Config*.pkl

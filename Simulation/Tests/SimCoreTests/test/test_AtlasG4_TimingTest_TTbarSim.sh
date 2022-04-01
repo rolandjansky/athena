@@ -8,6 +8,7 @@
 # art-include: master/Athena
 # art-include: master/AthSimulation
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-output: timing_histos.root
 # art-output: test.HITS.pool.root
 

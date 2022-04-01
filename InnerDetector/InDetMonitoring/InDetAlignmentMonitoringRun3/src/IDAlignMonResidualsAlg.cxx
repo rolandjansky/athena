@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ***************************************************************************************
@@ -96,7 +96,6 @@ StatusCode IDAlignMonResidualsAlg::initialize()
   
   ATH_CHECK( m_tracksName.initialize() );
   ATH_CHECK( m_tracksKey.initialize() );
-  ATH_CHECK( m_comTimeObjectName.initialize() );
   
   return AthMonitorAlgorithm::initialize();
 }

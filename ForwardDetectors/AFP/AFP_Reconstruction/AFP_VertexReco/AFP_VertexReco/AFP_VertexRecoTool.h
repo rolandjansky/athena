@@ -26,7 +26,7 @@
 #include <algorithm>
 
 
-/// Algorithm reconstructing protons from tracks
+/// Algorithm reconstructing vertices from protons
 class AFP_VertexRecoTool : public extends<AthAlgTool, IAFP_VertexRecoTool>
 {
 public:

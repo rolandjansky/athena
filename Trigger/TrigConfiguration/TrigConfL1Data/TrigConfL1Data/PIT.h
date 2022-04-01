@@ -47,7 +47,7 @@ namespace TrigConf {
       bool thresholdActive() const {return m_ThresholdActive;}
       void setThresholdActive(const bool& a){m_ThresholdActive = a;}
 
-      virtual void print(const std::string& indent="", unsigned int detail=1) const;
+      virtual void print(const std::string& indent="", unsigned int detail=1) const override;
 
    protected:
       std::string m_ThresholdName;

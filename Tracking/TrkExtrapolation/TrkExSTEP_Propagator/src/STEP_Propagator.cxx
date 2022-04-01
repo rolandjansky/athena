@@ -2597,9 +2597,9 @@ void Trk::STEP_Propagator::dumpMaterialEffects( Cache& cache,
   }
   // output
   if(cache.m_matstates) {
-    Trk::EnergyLoss* eloss = !m_detailedEloss ? new Trk::EnergyLoss(cache.m_combinedEloss.deltaE(),
+    auto eloss = !m_detailedEloss ? std::make_unique<Trk::EnergyLoss>(cache.m_combinedEloss.deltaE(),
                                                                     cache.m_combinedEloss.sigmaDeltaE() ) :
-      new Trk::EnergyLoss(cache.m_combinedEloss.deltaE(), cache.m_combinedEloss.sigmaDeltaE(),
+      std::make_unique<Trk::EnergyLoss>(cache.m_combinedEloss.deltaE(), cache.m_combinedEloss.sigmaDeltaE(),
                           cache.m_combinedEloss.sigmaDeltaE(),cache.m_combinedEloss.sigmaDeltaE(),
                           cache.m_combinedEloss.meanIoni(), cache.m_combinedEloss.sigmaIoni(),
                           cache.m_combinedEloss.meanRad(), cache.m_combinedEloss.sigmaRad(), path ) ;
@@ -2611,7 +2611,7 @@ void Trk::STEP_Propagator::dumpMaterialEffects( Cache& cache,
 
     auto cvlTP = parms->uniqueClone();
     auto mefot = std::make_unique<Trk::MaterialEffectsOnTrack>(
-      cache.m_combinedThickness, sa, eloss, cvlTP->associatedSurface());
+      cache.m_combinedThickness, sa, std::move(eloss), cvlTP->associatedSurface());
 
     cache.m_matstates->push_back(new TrackStateOnSurface(nullptr,std::move(cvlTP),nullptr,std::move(mefot)));
   }

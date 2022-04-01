@@ -22,7 +22,7 @@ def createRecoConfigFlags():
         and prevFlags.Reco.EnablePFlow))
     flags.addFlag("Reco.EnablePFlow",
                   lambda prevFlags: prevFlags.Reco.EnableTracking and
-                  prevFlags.Detector.EnableCalo)
+                  prevFlags.Detector.EnableCalo and prevFlags.InDet.PriVertex.doVertexFinding)
     flags.addFlag("Reco.EnableTau", lambda prevFlags: prevFlags.Reco.EnableJet)
     flags.addFlag("Reco.EnableTracking",
                   lambda prevFlags: prevFlags.Detector.EnableID or

@@ -15,12 +15,6 @@ from JetRecConfig.JetConfigFlags import jetInternalFlags
 # We're in Reco job : propagate this info to the runIII jet config
 jetInternalFlags.isRecoJob = True
 
-##
-# Temporary hack : JetConstituentModSequence for EMPFlow seems to be scheduled
-# somewhere else in the standard reco chain with a different alg name as the alg created by JetRecConfig helpers.
-# The trick below will make so the new helpers do NOT schedule a JetConstituentModSequence and thus avoid conflicts.
-stdConstitDic.EMPFlow._locked = False
-stdConstitDic.EMPFlow.inputname = stdConstitDic.EMPFlow.containername
 
 
 # the Standard list of jets to run :

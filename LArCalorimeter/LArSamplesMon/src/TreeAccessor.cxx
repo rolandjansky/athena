@@ -426,10 +426,8 @@ TreeAccessor* TreeAccessor::makeTemplate(const Accessor& accessor, const TString
 {
   TreeAccessor* newAccessor = new TreeAccessor(fileName);
   
-  std::vector<short> samples;
-  for (unsigned int k = 0; k < 5; k++) samples.push_back(0);
-  std::vector<float> autoCorrs;
-  for (unsigned int k = 0; k < 4; k++) autoCorrs.push_back(0);
+  std::vector<short> samples(5, 0);
+  std::vector<float> autoCorrs(4, 0);
   
   RunData* dummyRun = new RunData(0);
   newAccessor->addRun(dummyRun);

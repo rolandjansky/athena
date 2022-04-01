@@ -128,15 +128,8 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setEndcapLorentzAngleCorr(m_EndcapLorentzAngleCorrRUN1);
     writeCdo -> setDefaultEndcapBiasVoltage(m_EndcapBiasVoltageRUN1);
 
-    // This is ad-hoc solution.
-    for (size_t i=0; i<m_BLayerNoiseShapeRUN1.size(); i++) { writeCdo->setBarrelNoiseShape(0,m_BLayerNoiseShapeRUN1[i]); }
-    for (size_t i=0; i<m_PixelNoiseShapeRUN1.size(); i++)  {
-      for (size_t layer:{1,2}) { writeCdo->setBarrelNoiseShape(layer,m_PixelNoiseShapeRUN1[i]); }
-    }
-
-    for (size_t i=0; i<m_PixelNoiseShapeRUN1.size(); i++)  {
-      for (size_t layer:{0,1,2}) { writeCdo->setEndcapNoiseShape(layer,m_PixelNoiseShapeRUN1[i]); }
-    }
+    writeCdo -> setBarrelNoiseShape({m_BLayerNoiseShapeRUN1, m_PixelNoiseShapeRUN1, m_PixelNoiseShapeRUN1});
+    writeCdo -> setEndcapNoiseShape({m_PixelNoiseShapeRUN1, m_PixelNoiseShapeRUN1, m_PixelNoiseShapeRUN1});
 
     // Radiation damage simulation
     writeCdo -> setFluenceLayer(m_BarrelFluenceRUN1);
@@ -183,20 +176,9 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
        }
      */
 
-    // This is ad-hoc solution.
-    for (size_t i=0; i<m_IBLNoiseShape2016.size(); i++)    { writeCdo->setBarrelNoiseShape(0,m_IBLNoiseShape2016[i]); }
-    for (size_t i=0; i<m_BLayerNoiseShape2016.size(); i++) { writeCdo->setBarrelNoiseShape(1,m_BLayerNoiseShape2016[i]); }
-    for (size_t i=0; i<m_PixelNoiseShape2016.size(); i++)  {
-      for (size_t layer:{2,3}) { writeCdo->setBarrelNoiseShape(layer,m_PixelNoiseShape2016[i]); }
-    }
-
-    for (size_t i=0; i<m_PixelNoiseShape2016.size(); i++)  {
-      for (size_t layer:{0,1,2}) { writeCdo->setEndcapNoiseShape(layer,m_PixelNoiseShape2016[i]); }
-    }
-
-    for (size_t i=0; i<m_IBLNoiseShape2016.size(); i++)    {
-      for (size_t layer:{0,1,2}) { writeCdo->setDBMNoiseShape(layer,m_IBLNoiseShape2016[i]); }
-    }
+    writeCdo -> setBarrelNoiseShape({m_IBLNoiseShape2016, m_BLayerNoiseShape2016, m_PixelNoiseShape2016, m_PixelNoiseShape2016});
+    writeCdo -> setEndcapNoiseShape({m_PixelNoiseShape2016, m_PixelNoiseShape2016, m_PixelNoiseShape2016});
+    writeCdo -> setDBMNoiseShape({m_IBLNoiseShape2016, m_IBLNoiseShape2016, m_IBLNoiseShape2016});
 
     // Radiation damage simulation
     writeCdo -> setFluenceLayer(m_BarrelFluence2016);
@@ -240,20 +222,9 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setDBMDisableProbability(m_DBMDisableProbability2016);
     writeCdo -> setDefaultDBMBiasVoltage(m_DBMBiasVoltage2016);
 
-    // This is ad-hoc solution.
-    for (size_t i=0; i<m_IBLNoiseShape2016.size(); i++)    { writeCdo->setBarrelNoiseShape(0,m_IBLNoiseShape2016[i]); }
-    for (size_t i=0; i<m_BLayerNoiseShape2016.size(); i++) { writeCdo->setBarrelNoiseShape(1,m_BLayerNoiseShape2016[i]); }
-    for (size_t i=0; i<m_PixelNoiseShape2016.size(); i++)  {
-      for (size_t layer:{2,3}) { writeCdo->setBarrelNoiseShape(layer,m_PixelNoiseShape2016[i]); }
-    }
-
-    for (size_t i=0; i<m_PixelNoiseShape2016.size(); i++)  {
-      for (size_t layer:{0,1,2}) { writeCdo->setEndcapNoiseShape(layer,m_PixelNoiseShape2016[i]); }
-    }
-
-    for (size_t i=0; i<m_IBLNoiseShape2016.size(); i++)    {
-      for (size_t layer:{0,1,2}) { writeCdo->setDBMNoiseShape(layer,m_IBLNoiseShape2016[i]); }
-    }
+    writeCdo -> setBarrelNoiseShape({m_IBLNoiseShape2016, m_BLayerNoiseShape2016, m_PixelNoiseShape2016, m_PixelNoiseShape2016});
+    writeCdo -> setEndcapNoiseShape({m_PixelNoiseShape2016, m_PixelNoiseShape2016, m_PixelNoiseShape2016});
+    writeCdo -> setDBMNoiseShape({m_IBLNoiseShape2016, m_IBLNoiseShape2016, m_IBLNoiseShape2016});
 
     // Radiation damage simulation
     writeCdo -> setFluenceLayer(m_BarrelFluence2016);
@@ -297,20 +268,9 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setDBMDisableProbability(m_DBMDisableProbability2017);
     writeCdo -> setDefaultDBMBiasVoltage(m_DBMBiasVoltage2017);
 
-    // This is ad-hoc solution.
-    for (size_t i=0; i<m_IBLNoiseShape2017.size(); i++)    { writeCdo->setBarrelNoiseShape(0,m_IBLNoiseShape2017[i]); }
-    for (size_t i=0; i<m_BLayerNoiseShape2017.size(); i++) { writeCdo->setBarrelNoiseShape(1,m_BLayerNoiseShape2017[i]); }
-    for (size_t i=0; i<m_PixelNoiseShape2017.size(); i++)  {
-      for (size_t layer:{2,3}) { writeCdo->setBarrelNoiseShape(layer,m_PixelNoiseShape2017[i]); }
-    }
-
-    for (size_t i=0; i<m_PixelNoiseShape2017.size(); i++)  {
-      for (size_t layer:{0,1,2}) { writeCdo->setEndcapNoiseShape(layer,m_PixelNoiseShape2017[i]); }
-    }
-
-    for (size_t i=0; i<m_IBLNoiseShape2017.size(); i++)    {
-      for (size_t layer:{0,1,2}) { writeCdo->setDBMNoiseShape(layer,m_IBLNoiseShape2017[i]); }
-    }
+    writeCdo -> setBarrelNoiseShape({m_IBLNoiseShape2017, m_BLayerNoiseShape2017, m_PixelNoiseShape2017, m_PixelNoiseShape2017});
+    writeCdo -> setEndcapNoiseShape({m_PixelNoiseShape2017, m_PixelNoiseShape2017, m_PixelNoiseShape2017});
+    writeCdo -> setDBMNoiseShape({m_IBLNoiseShape2017, m_IBLNoiseShape2017, m_IBLNoiseShape2017});
 
     // Radiation damage simulation
     writeCdo -> setFluenceLayer(m_BarrelFluence2017);
@@ -354,20 +314,9 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setDBMDisableProbability(m_DBMDisableProbability2018);
     writeCdo -> setDefaultDBMBiasVoltage(m_DBMBiasVoltage2018);
 
-    // This is ad-hoc solution.
-    for (size_t i=0; i<m_IBLNoiseShape2018.size(); i++)    { writeCdo->setBarrelNoiseShape(0,m_IBLNoiseShape2018[i]); }
-    for (size_t i=0; i<m_BLayerNoiseShape2018.size(); i++) { writeCdo->setBarrelNoiseShape(1,m_BLayerNoiseShape2018[i]); }
-    for (size_t i=0; i<m_PixelNoiseShape2018.size(); i++)  {
-      for (size_t layer:{2,3}) { writeCdo->setBarrelNoiseShape(layer,m_PixelNoiseShape2018[i]); }
-    }
-
-    for (size_t i=0; i<m_PixelNoiseShape2018.size(); i++)  {
-      for (size_t layer:{0,1,2}) { writeCdo->setEndcapNoiseShape(layer,m_PixelNoiseShape2018[i]); }
-    }
-
-    for (size_t i=0; i<m_IBLNoiseShape2018.size(); i++)    {
-      for (size_t layer:{0,1,2}) { writeCdo->setDBMNoiseShape(layer,m_IBLNoiseShape2018[i]); }
-    }
+    writeCdo -> setBarrelNoiseShape({m_IBLNoiseShape2018, m_BLayerNoiseShape2018, m_PixelNoiseShape2018, m_PixelNoiseShape2018});
+    writeCdo -> setEndcapNoiseShape({m_PixelNoiseShape2018, m_PixelNoiseShape2018, m_PixelNoiseShape2018});
+    writeCdo -> setDBMNoiseShape({m_IBLNoiseShape2018, m_IBLNoiseShape2018, m_IBLNoiseShape2018});
 
     // Radiation damage simulation
     writeCdo -> setFluenceLayer(m_BarrelFluence2018);
@@ -410,20 +359,9 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setDBMDisableProbability(m_DBMDisableProbability2022);
     writeCdo -> setDefaultDBMBiasVoltage(m_DBMBiasVoltage2022);
 
-    // This is ad-hoc solution.
-    for (size_t i=0; i<m_IBLNoiseShape2022.size(); i++)    { writeCdo->setBarrelNoiseShape(0,m_IBLNoiseShape2022[i]); }
-    for (size_t i=0; i<m_BLayerNoiseShape2022.size(); i++) { writeCdo->setBarrelNoiseShape(1,m_BLayerNoiseShape2022[i]); }
-    for (size_t i=0; i<m_PixelNoiseShape2022.size(); i++)  {
-      for (size_t layer:{2,3}) { writeCdo->setBarrelNoiseShape(layer,m_PixelNoiseShape2022[i]); }
-    }
-
-    for (size_t i=0; i<m_PixelNoiseShape2022.size(); i++)  {
-      for (size_t layer:{0,1,2}) { writeCdo->setEndcapNoiseShape(layer,m_PixelNoiseShape2022[i]); }
-    }
-
-    for (size_t i=0; i<m_IBLNoiseShape2022.size(); i++)    {
-      for (size_t layer:{0,1,2}) { writeCdo->setDBMNoiseShape(layer,m_IBLNoiseShape2022[i]); }
-    }
+    writeCdo -> setBarrelNoiseShape({m_IBLNoiseShape2022, m_BLayerNoiseShape2022, m_PixelNoiseShape2022, m_PixelNoiseShape2022});
+    writeCdo -> setEndcapNoiseShape({m_PixelNoiseShape2022, m_PixelNoiseShape2022, m_PixelNoiseShape2022});
+    writeCdo -> setDBMNoiseShape({m_IBLNoiseShape2022, m_IBLNoiseShape2022, m_IBLNoiseShape2022});
 
     // Radiation damage simulation
     writeCdo -> setFluenceLayer(m_BarrelFluence2022);

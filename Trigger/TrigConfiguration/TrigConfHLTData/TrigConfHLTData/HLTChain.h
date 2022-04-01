@@ -154,14 +154,14 @@ namespace TrigConf {
       void createSignatureLabels();
 
       /**@brief print the chain*/
-      void print(const std::string& indent="", unsigned int detail=1) const;
+      void print(const std::string& indent="", unsigned int detail=1) const override;
 
       void writeXML(std::ofstream & xmlfile);
 
       DiffStruct* compareTo(const HLTChain* o) const;
 
       // for python
-      std::string __str__() const;
+      std::string __str__() const override;
 
 
    private:

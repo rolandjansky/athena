@@ -48,10 +48,10 @@ public:
 
   virtual ~TrigR3Mon();
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 //  virtual StatusCode execute();
   virtual StatusCode fillHistograms(const EventContext &context) const override;
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override;
 
   virtual StatusCode bookHistograms();
 

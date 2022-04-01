@@ -13,7 +13,7 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger('CostAnalysisPostProcessing')
 
 
-def saveMetadata(inputFile, userDetails, processingWarnings=[], readOKSDetails=False, partition="ATLAS"):
+def saveMetadata(inputFile, userDetails, jira="", processingWarnings=[], readOKSDetails=False, partition="ATLAS"):
     ''' @brief Save metadata from ntuple to json file
     '''
     import json
@@ -26,8 +26,9 @@ def saveMetadata(inputFile, userDetails, processingWarnings=[], readOKSDetails=F
     metadata = []
 
     metadata.append({'runNumber' : metatree.runNumber})
-
     metadata.append({'Details' : userDetails})
+    metadata.append({'JIRA' : jira})
+    metadata.append({'ProcessedRanges' : str(metatree.ProcessedRanges)})
 
     metadata += readHLTConfigKeys(metatree.runNumber)
 

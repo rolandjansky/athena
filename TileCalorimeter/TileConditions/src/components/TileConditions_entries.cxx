@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileConditions/TileInfoLoader.h"
@@ -27,6 +27,7 @@
 #include "../TileEMScaleCondAlg.h"
 #include "../TileDCSCondAlg.h"
 #include "../TileCondAlg.h"
+#include "../TileSamplingFractionCondAlg.h"
 
 DECLARE_COMPONENT( TileInfoLoader )
 DECLARE_COMPONENT( TileCablingSvc )

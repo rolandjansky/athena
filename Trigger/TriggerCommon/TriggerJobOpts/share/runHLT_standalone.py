@@ -181,10 +181,6 @@ ConfigFlags.Trigger.EDMVersion = 3
 # Some legacy b-tagging configuration is trigger specific
 ConfigFlags.BTagging.databaseScheme = 'Trig'
 ConfigFlags.BTagging.forcedCalibrationChannel = 'AntiKt4EMTopo'
-# something is asking for MV2 :'(
-# TODO: remove whatever it is, see ATR-25239
-# Note: for some reason append(...) doesn't work here, but += [...] does
-ConfigFlags.BTagging.taggerList += ['MV2c10']
 
 # Set final Cond/Geo tag based on input file, command line or default
 globalflags.DetDescrVersion = opt.setDetDescr or ConfigFlags.Trigger.OnlineGeoTag

@@ -54,7 +54,14 @@ Rmatch = 0.05;
 #else
 /// only 10.5 mm with respect to the primary vertex
 	a0v = 10.5;
+#ifdef MINBIAS
+	z0v = 150.5;
+	z0  = 150;
+#else
 	z0v = 300.5;
+#endif
+
+
 #endif
 #endif
 

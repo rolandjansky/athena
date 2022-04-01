@@ -15,10 +15,6 @@ from egammaTools.egammaExtrapolators import egammaExtrapolator
 from InDetRecExample.InDetJobProperties import InDetFlags
 from RecExConfig.RecFlags import rec
 
-from TriggerMenuMT.HLT.Egamma.TrigEgammaKeys import getTrigEgammaKeys
-TrigEgammaKeys = getTrigEgammaKeys('_GSF')
-
-
 
 log = logging.getLogger(__name__)
 
@@ -154,14 +150,18 @@ class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
 
 
 """ This is an instance of GSF fitter tool will be used on track particles """
-TrigEMBremCollectionBuilder = AlgFactory(TrigEgammaBremCollectionBuilder,
-    doAdd = False,
-    name='TrigEMBremCollectionBuilder',
-    TrackParticleContainerName          = TrigEgammaKeys.precisionTrackingContainer,
-    SelectedTrackParticleContainerName  = TrigEgammaKeys.precisionTrackingContainer,
-    OutputTrkPartContainerName          = TrigEgammaKeys.precisionElectronTrackParticleContainerGSF,
-    OutputTrackContainerName            = TrigEgammaKeys.precisionElectronTrkCollectionGSF,
-    DoTruth=rec.doTruth(),
-    usePixel=DetFlags.haveRIO.pixel_on(),
-    useSCT=DetFlags.haveRIO.SCT_on()
-    )
+
+def TrigEMBremCollectionBuilderCfg(variant, TrigEgammaKeys):
+    TrigEMBremCollectionBuilder = AlgFactory(TrigEgammaBremCollectionBuilder,
+        doAdd = False,
+        name='TrigEMBremCollectionBuilder'+variant,
+        TrackParticleContainerName          = TrigEgammaKeys.precisionTrackingContainer,
+        SelectedTrackParticleContainerName  = TrigEgammaKeys.precisionTrackingContainer,
+        OutputTrkPartContainerName          = TrigEgammaKeys.precisionElectronTrackParticleContainerGSF,
+        OutputTrackContainerName            = TrigEgammaKeys.precisionElectronTrkCollectionGSF,
+        DoTruth=rec.doTruth(),
+        usePixel=DetFlags.haveRIO.pixel_on(),
+        useSCT=DetFlags.haveRIO.SCT_on()
+     )
+    
+    return TrigEMBremCollectionBuilder()

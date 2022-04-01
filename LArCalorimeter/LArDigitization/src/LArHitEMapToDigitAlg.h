@@ -128,8 +128,8 @@ protected:
        "Number of ADC samples (default=5)"};               // number of samples in Digit
   Gaudi::Property<bool> m_NoiseOnOff{this, "NoiseOnOff", true,
       "put electronic noise (default=true)"};            // noise (in all sub-detectors) is on if true
-  Gaudi::Property<unsigned int> m_firstSample{this, "firstSample", 0,
-       "First sample to use for the shape for in-time signal"};      // first sample to use for pulse shape for in time energy deposit
+  Gaudi::Property<int> m_firstSample{this, "firstSample", 0,
+      "First sample to use for the shape for in-time signal"};      // first sample to use for pulse shape for in time energy deposit (use a negative value to include preceeding digits)
   Gaudi::Property<bool> m_usePhase{this, "UsePhase", false,
        "use 1ns binned pulse shape (default=false)"};               // use tbin phase to get shape (default = false for Atlas)
   Gaudi::Property<bool> m_RndmEvtOverlay{this, "RndmEvtOverlay", false,

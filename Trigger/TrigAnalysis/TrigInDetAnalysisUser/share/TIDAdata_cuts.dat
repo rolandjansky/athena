@@ -1,6 +1,7 @@
 
 #ifdef MINBIAS
 pT     = 400;
+z0     = 150;
 #else
 pT     = 1000;
 #endif

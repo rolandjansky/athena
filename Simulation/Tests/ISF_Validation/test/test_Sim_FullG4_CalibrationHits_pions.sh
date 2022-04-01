@@ -3,6 +3,7 @@
 # art-description: Run simulation using ISF with the FullG4 simulator, reading single pion events, writing HITS including full CaloCalibrationHit information, using 2015 geometry and conditions
 # art-include: master/Athena
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-output: *.HITS.pool.root
 # art-output: log.*
 # art-output: Config*.pkl

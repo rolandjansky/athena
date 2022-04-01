@@ -6,7 +6,6 @@
 @date 2019-10-30
 @brief Based on AthenaMonitoring/ExampleMonitorAlgorithm.py
 '''
-from InDetConfig import InDetRecToolConfig
 
 def dedicatedTitle(i, isub):
     m_element = i
@@ -39,9 +38,8 @@ def SCTHitEffMonAlgConfig(inputFlags):
     # is the algorithm.
     from AthenaConfiguration.ComponentFactory import CompFactory
 
-    InDetTrackHoleSearchTool_acc = InDetRecToolConfig.InDetTrackHoleSearchToolCfg(inputFlags)
-    InDetTrackHoleSearchTool = InDetTrackHoleSearchTool_acc.getPrimary()
-    result.merge( InDetTrackHoleSearchTool_acc )
+    from InDetConfig.InDetTrackHoleSearchConfig import InDetTrackHoleSearchToolCfg
+    InDetTrackHoleSearchTool = result.popToolsAndMerge(InDetTrackHoleSearchToolCfg(inputFlags))
     myMonAlg = helper.addAlgorithm(CompFactory.SCTHitEffMonAlg, 'SCTHitEffMonAlg', HoleSearch=InDetTrackHoleSearchTool)
     # # If for some really obscure reason you need to instantiate an algorithm
     # # yourself, the AddAlgorithm method will still configure the base 

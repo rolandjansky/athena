@@ -50,7 +50,8 @@ StatusCode PixelDistortionAlg::execute() {
   // Construct the output Cond Object and fill it in
   std::unique_ptr<PixelDistortionData> writeCdo(std::make_unique<PixelDistortionData>());
 
-  SG::ReadCondHandle<PixelModuleData> moduleData(m_moduleDataKey);
+  SG::ReadCondHandle<PixelModuleData> moduleDataHandle(m_moduleDataKey);
+  const PixelModuleData *moduleData = *moduleDataHandle;
 
   constexpr int nmodule_max = 2048;
   std::unordered_map<uint32_t,std::vector<float>> distortionMap;
@@ -74,16 +75,17 @@ StatusCode PixelDistortionAlg::execute() {
     }
   }
   else if (moduleData->getDistortionInputSource()==2) { // read from file
-    ATH_MSG_DEBUG("Reading pixel distortions from file: " << moduleData->getDistortionFileName());
+    const std::string &file_name = moduleData->getDistortionFileName();
+    if (file_name.empty()) {
+      ATH_MSG_ERROR("Distortion filename is empty  not found! No pixel distortion will be applied.");
+      return StatusCode::FAILURE;
+    }
+
+    ATH_MSG_DEBUG("Reading pixel distortions from file: " << file_name);
     writeCdo -> setVersion(moduleData->getDistortionVersion());
 
-    std::string file_name = moduleData->getDistortionFileName();
-    if (file_name.empty()) {
-        ATH_MSG_ERROR("Distortion filename is empty  not found! No pixel distortion will be applied.");
-        return StatusCode::FAILURE;
-    }
     if (file_name[0] != '/') {
-      PathResolver::find_file(moduleData->getDistortionFileName(), "DATAPATH");
+      PathResolver::find_file(file_name, "DATAPATH");
     }
     std::ifstream input(file_name);
     if (!input.good()) {

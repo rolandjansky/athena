@@ -28,7 +28,7 @@ namespace xAODMaker {
       ATH_MSG_DEBUG( " AOD Key: " << m_aodKey );
       ATH_MSG_DEBUG( "xAOD Key: " << m_xaodKey );
 
-      CHECK( m_eventInfoKey.initialize() );
+      CHECK( m_eventInfoKey.initialize(SG::AllowEmpty) );
       CHECK( m_aodKey.initialize() );
       CHECK( m_xaodKey.initialize() );
 
@@ -47,8 +47,11 @@ namespace xAODMaker {
       const TrigDec::TrigDecision* aod = aodRH.cptr();
 
       // trigger Info
-      SG::ReadHandle<EventInfo> eiRH{m_eventInfoKey, ctx};
-      const TriggerInfo* trigInfo = eiRH.isValid() ? eiRH.cptr()->trigger_info() : nullptr;
+      const TriggerInfo* trigInfo = nullptr;
+      if (not m_eventInfoKey.empty()) {
+	  SG::ReadHandle<EventInfo> eiRH{m_eventInfoKey, ctx};
+	  trigInfo = eiRH.isValid() ? eiRH.cptr()->trigger_info() : nullptr;
+      }
 
       // Create the xAOD object and its auxiliary store:
       std::unique_ptr<xAOD::TrigDecisionAuxInfo> aux = std::make_unique<xAOD::TrigDecisionAuxInfo>();

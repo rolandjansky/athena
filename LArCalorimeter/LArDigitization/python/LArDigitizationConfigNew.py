@@ -109,8 +109,7 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
     # if doing MC+MC overlay
     if flags.Common.ProductionStep == ProductionStep.Overlay and flags.Input.isMC:
         kwargs.setdefault("isMcOverlay", True)
-    kwargs.setdefault("Nsamples", flags.LAr.ROD.nSamples)
-    kwargs.setdefault("firstSample", flags.LAr.ROD.FirstSample)
+
     # cosmics digitization
     if flags.Beam.Type is BeamType.Cosmics:
         kwargs.setdefault("UseTriggerTime", True)
@@ -185,7 +184,8 @@ def LArHitEMapToDigitAlgCfg(flags, name="LArHitEMapToDigitAlgCfg", **kwargs):
     if flags.Common.ProductionStep == ProductionStep.Overlay and flags.Input.isMC:
           kwargs.setdefault("isMcOverlay", True)
     kwargs.setdefault("Nsamples", flags.LAr.ROD.nSamples)
-    kwargs.setdefault("firstSample", flags.LAr.ROD.FirstSample)
+    kwargs.setdefault("firstSample", #Need to set a negative value to include preceeding samples
+                      -flags.LAr.ROD.nPreceedingSamples if flags.LAr.ROD.nPreceedingSamples!=0 else flags.LAr.ROD.FirstSample)
     LArHitEMapToDigitAlg = CompFactory.LArHitEMapToDigitAlg
     acc.addEventAlgo(LArHitEMapToDigitAlg(name, **kwargs))
     return acc

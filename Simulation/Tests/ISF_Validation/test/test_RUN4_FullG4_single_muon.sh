@@ -3,6 +3,7 @@
 # art-description: MC21-style simulation using FullG4 and RUN4 geometry, single muon
 # art-include: master/Athena
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-output: test_muons.HITS.pool.root
 
 Input=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/PhaseIIUpgrade/EVNT/mc15_14TeV.422036.ParticleGun_single_mu_Pt100.evgen.EVNT.e5286/EVNT.09244578._000001.pool.root.1
