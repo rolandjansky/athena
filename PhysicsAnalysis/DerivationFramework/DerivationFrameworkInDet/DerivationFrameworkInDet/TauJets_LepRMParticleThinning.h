@@ -28,7 +28,6 @@ namespace DerivationFramework {
     class TauJets_LepRMParticleThinning : public extends<ExpressionParserUser<AthAlgTool>, IThinningTool> {
     public: 
 		TauJets_LepRMParticleThinning(const std::string& t, const std::string& n, const IInterface* p);
-		virtual ~TauJets_LepRMParticleThinning();
 		virtual StatusCode initialize() override;
 		virtual StatusCode finalize() override;
 		virtual StatusCode doThinning() const override;

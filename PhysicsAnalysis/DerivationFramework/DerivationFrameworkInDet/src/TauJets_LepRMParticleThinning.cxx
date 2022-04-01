@@ -23,10 +23,6 @@ base_class(t,n,p)
 {
 }
 
-// Destructor
-DerivationFramework::TauJets_LepRMParticleThinning::~TauJets_LepRMParticleThinning() {
-}
-
 // Athena initialize and finalize
 StatusCode DerivationFramework::TauJets_LepRMParticleThinning::initialize()
 {

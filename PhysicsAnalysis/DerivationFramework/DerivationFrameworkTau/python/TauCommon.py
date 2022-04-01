@@ -8,6 +8,7 @@
 
 from __future__ import print_function
 from AthenaCommon import CfgMgr 
+import logging
 
 # will likely be replaced with generic tau decorator tool
 #from tauRec.TauRecAODBuilder import TauRecAODProcessor_FTau
@@ -247,9 +248,13 @@ def addTauWPDecoration(Seq=None, evetoFixTag=None):
 #=======================================
 def addMuonRemovalTauReReco(Seq=None):
     if not Seq or hasattr(Seq,"MuonRemovalTauReReco_"+Seq.name()):
-        print("Muon removal TauJets re-reconstruction will not be scheduled")
+        logging.error("Muon removal TauJets re-reconstruction will not be scheduled")
         return
-    print ("Adding Muon removal TauJets re-reconstruction")
+    if not tauFlags.inAOD():
+        logging.warn('Please set the inAOD flag to true before schedule the AOD re-reco.')
+        tauFlags.inAOD.set_Value(True)
+    
+    logging.info("Adding Muon removal TauJets re-reconstruction")
     import tauRec.TauAlgorithmsHolder as taualgs
     tools_mod = []
     tools_mod.append(taualgs.getTauAODMuonRemovalTool())

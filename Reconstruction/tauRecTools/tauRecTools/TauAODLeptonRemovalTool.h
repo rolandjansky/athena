@@ -21,7 +21,6 @@ class TauAODLeptonRemovalTool : public TauRecToolBase
 	public:
 		ASG_TOOL_CLASS2( TauAODLeptonRemovalTool, TauRecToolBase, ITauToolBase )
 		TauAODLeptonRemovalTool(const std::string& type);
-		~TauAODLeptonRemovalTool() {};
 		virtual StatusCode initialize() override;
 		virtual StatusCode execute(xAOD::TauJet&) const override;
 	private:
@@ -34,8 +33,8 @@ class TauAODLeptonRemovalTool : public TauRecToolBase
 		std::string 					m_strElecIdWpPrefix 	= "DFCommonElectronsLH";
 		double 						m_lepRemovalConeSize 	= 0.6;
 		const std::map<std::string, uint> 		m_mapMuonIdWp 		= {{"Tight", 0}, {"Medium", 1}, {"Loose", 2}, {"VeryLoose",3}};
-		std::string 					m_elecWpStr;
-		uint 						m_muonWpUi;
+		std::string 					m_elecWpStr             = "DFCommonElectronsLHMedium";
+		uint 						m_muonWpUi              = 1;
 		SG::ReadHandleKey<xAOD::MuonContainer>     	m_muonInputContainer{this, "Key_MuonInputContainer", "Muons",	  "input xAOD muons"};
 		SG::ReadHandleKey<xAOD::ElectronContainer> 	m_elecInputContainer{this, "Key_ElecInputContainer", "Electrons", "input xAOD electrons"};
 		//helpers
