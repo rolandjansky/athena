@@ -23,7 +23,7 @@ atlas_add_library( xAODEventFormatCnvTestLib
 atlas_add_component( xAODEventFormatCnvTest
   src/test/*.h src/test/ACreatorAlg.cxx src/test/EventFormatPrinterAlg.cxx
   LINK_LIBRARIES GaudiKernel AthenaKernel AthenaBaseComps StoreGateLib
-  xAODEventFormat xAODEventFormatCnvTestLib )
+  xAODEventFormat xAODEventFormatCnvTestLib xAODMetaData )
 
 atlas_add_poolcnv_library( xAODEventFormatCnvTestAthenaPoolCnv
   src/test/cnv/*.h src/test/cnv/*.cxx
