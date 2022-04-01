@@ -13,6 +13,7 @@
 #include <vector>
 
 using CondInd2JetGroupsInds = std::map<int, std::vector<std::size_t>>;
+using JetGroupInd2ElemInds = std::map<int, std::vector<std::size_t>>;
 
 typedef std::unique_ptr<ITrigJetHypoInfoCollector> Collector;
 
@@ -33,14 +34,15 @@ class JetGroupProduct: public IJetGroupProduct{
  public:
   JetGroupProduct(const std::vector<std::size_t>& siblings,
 		  const CondInd2JetGroupsInds& satisfiedBy,
-		  const std::vector<std::size_t>& condMult
-		  );
+		  const std::vector<std::size_t>& condMult,
+		  const JetGroupInd2ElemInds&);
 
-  virtual
-  std::vector<std::size_t> next(const Collector&) override;
+  virtual std::vector<std::size_t> next(const Collector&) override;
   virtual bool valid() const override;
   
  private:
+
+  JetGroupInd2ElemInds m_jg2elemjgs;
 
   std::vector<bool>  m_jetMask;
   std::size_t  m_jetEnd{0};
