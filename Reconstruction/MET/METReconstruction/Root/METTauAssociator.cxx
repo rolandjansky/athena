@@ -66,7 +66,7 @@ namespace met {
     ATH_CHECK( m_tauContKey.assign(m_input_data_key));
     ATH_CHECK( m_tauContKey.initialize());
 
-    if (m_useFETauLinks) {
+    if (m_useFETauLinks || m_useFELinks) {
       if (m_neutralFEReadDecorKey.key()=="") {ATH_CHECK( m_neutralFEReadDecorKey.assign(m_input_data_key+"."+m_neutralFELinksKey));}
       if (m_chargedFEReadDecorKey.key()=="") {ATH_CHECK( m_chargedFEReadDecorKey.assign(m_input_data_key+"."+m_chargedFELinksKey));}
       ATH_CHECK( m_neutralFEReadDecorKey.initialize());
@@ -210,9 +210,7 @@ namespace met {
                                             std::map<const IParticle*,MissingETBase::Types::constvec_t> &/*momenta*/) const
   {
     const TauJet* tau = static_cast<const TauJet*>(obj);
-    ATH_MSG_INFO ("Extracting flow elements"); //debuggings
     if (m_useFETauLinks) { 
-      ATH_MSG_INFO ("Extracting flow elements from links"); //debuggings
       ATH_CHECK( extractFEsFromLinks(tau, felist,constits) );
     } 
     else {
@@ -228,7 +226,7 @@ namespace met {
 				    const met::METAssociator::ConstitHolder& constits) const 
   {
 
-    ATH_MSG_INFO("Extract FEs From Links for " << tau->type()  << " with pT " << tau->pt());
+    ATH_MSG_DEBUG("Extract FEs From Links for " << tau->type()  << " with pT " << tau->pt());
 
     std::vector<FELink_t> nFELinks;
     std::vector<FELink_t> cFELinks;
@@ -279,7 +277,7 @@ namespace met {
                                          std::vector<const xAOD::IParticle*>& felist,
                                          const met::METAssociator::ConstitHolder& constits) const
   {
-    ATH_MSG_INFO("Extract FEs without using links for " << tau->type()  << " with pT " << tau->pt());
+    ATH_MSG_DEBUG("Extract FEs without using links for " << tau->type()  << " with pT " << tau->pt());
     //const TauJet* tau = static_cast<const TauJet*>(obj);
     if(!tau->jetLink().isValid()){
       ATH_MSG_ERROR("Tau seed jet link is invalid. Cannot extract FlowElements.");
@@ -300,7 +298,7 @@ namespace met {
         for( const xAOD::TauTrack* ttrk : tau->tracks(xAOD::TauJetParameters::coreTrack) ){//all tracks <0.2, no quality
           const TrackParticle* tautrk = ttrk->track();
           if(tautrk==pfotrk) {
-            ATH_MSG_INFO("Found cPFO with dR " << seedjet->p4().DeltaR(ttrk->p4())); //switched from verbose for debugging
+            ATH_MSG_DEBUG("Found cPFO with dR " << seedjet->p4().DeltaR(ttrk->p4())); //switched from verbose for debugging
             // We set a small -ve pt for cPFOs that were rejected
             // by the ChargedHadronSubtractionTool
             const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");        

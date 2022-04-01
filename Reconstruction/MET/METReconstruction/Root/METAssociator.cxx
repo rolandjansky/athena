@@ -147,7 +147,7 @@ namespace met {
 
   StatusCode METAssociator::execute(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap) const
   {
-    ATH_MSG_INFO ("In execute: " << name() << "...");
+    ATH_MSG_DEBUG ("In execute: " << name() << "...");
     if(!metCont) {
       ATH_MSG_WARNING("Invalid pointer to MissingETContainer supplied! Abort.");
       return StatusCode::FAILURE;
