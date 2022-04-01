@@ -110,6 +110,18 @@ namespace LVL1 {
       static const int jTE_Et_upperBit  = 16;
       static const int jTE_Et_lowerBit  = 1; 
       static const int jTE_Sat_lowerBit = 0; 
+      
+    // jFEX SRJet Et Calibration (Calculated by performancy group, Elena Michelle Villhauer's QT)
+    constexpr static int SRJ_Calib_params[6][9] =
+    {   //<20  <30  <40  <50  <65  <80 <110 <150 <inf  GeV
+        { 320, 278, 250, 237, 220, 209, 200, 185, 170 },// jFEX 0  FCal  
+        { 376, 328, 297, 278, 261, 250, 232, 220, 200 },// jFEX 1  Central  
+        { 320, 284, 261, 250, 237, 224, 213, 200, 185 },// jFEX 2  Central   
+        { 320, 284, 266, 246, 237, 220, 213, 200, 182 },// jFEX 3  Central  
+        { 376, 328, 297, 278, 261, 246, 237, 224, 200 },// jFEX 4  Central  
+        { 320, 278, 250, 237, 220, 209, 200, 185, 170 } // jFEX 5  FCal 
+    }; 
+
   
 
    //define constants needed by gFEX Jet algorithm
