@@ -771,8 +771,10 @@ SGImplSvc::transientContains(const CLID id, const std::string& key) const
 
 DataProxy* 
 SGImplSvc::proxy(const void* const pTransient) const
-{ 
-  lock_t lock (m_mutex);
+{
+  // No lock needed here --- the T2pmap held by DataStore has its own locking
+  // (and we were seeing contention here).
+  //lock_t lock (m_mutex);
   return m_pStore->locatePersistent(pTransient); 
 }
 
