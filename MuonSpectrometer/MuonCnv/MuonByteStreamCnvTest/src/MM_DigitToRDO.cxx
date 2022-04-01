@@ -88,13 +88,19 @@ StatusCode MM_DigitToRDO::execute(const EventContext& ctx) const
           // at some point the time measurement should be converted to tdc counts and relBcid
           // but for now we set relBcid to zero for the simulation
           // Patrick Scholer 6. September 2021
+          //
           uint16_t relBcid = 0;   
+          //Now that the MM_RawData has a bolean that indicates if the conversion to counts has been applied
+          //let's set it to false for now until the calibration is in place. pscholer March 2022 
+	  bool timeAndChargeInCounts = false;         
 
+ 
           MM_RawData* rdo = new MM_RawData(newId,
                                            digit->stripResponsePosition().at(i),
                                            digit->stripResponseTime().at(i),
                                            digit->stripResponseCharge().at(i),
-                                           relBcid);
+                                           relBcid,
+					   timeAndChargeInCounts);
 
           coll->push_back(rdo);
 
