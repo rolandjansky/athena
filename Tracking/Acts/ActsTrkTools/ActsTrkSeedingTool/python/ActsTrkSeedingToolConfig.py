@@ -150,4 +150,3 @@ def  ActsTrkSiSpacePointsSeedMakerCfg(ConfigFlags,
 
     acc.setPrivateTools(CompFactory.ActsTrk.SiSpacePointsSeedMaker(**options))
     return acc
-
