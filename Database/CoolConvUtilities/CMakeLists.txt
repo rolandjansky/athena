@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( CoolConvUtilities )
@@ -14,7 +14,7 @@ atlas_add_executable( AtlCoolCopy
                       src/ReplicaSorter.cxx
                       src/CoolTagInfo.cxx
                       INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} FileCatalog PersistencySvc CoraCool )
+                      LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} FileCatalog PersistencySvc CoraCool CxxUtils )
 set_target_properties( AtlCoolCopy PROPERTIES ENABLE_EXPORTS True )
 
 # Install files from the package:
