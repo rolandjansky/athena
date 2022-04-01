@@ -102,20 +102,20 @@ void FEI3SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
     Identifier diodeID = chargedDiodes.getId(diode.diode());
     double charge = diode.charge();
 
-    int circ = m_pixelReadout->getFE(diodeID, moduleID);
+    unsigned int FE = m_pixelReadout->getFE(diodeID, moduleID);
     InDetDD::PixelDiodeType type = m_pixelReadout->getDiodeType(diodeID);
 
     // Apply analog threshold, timing simulation
-    double th0 = calibData->getAnalogThreshold((int) moduleHash, circ, type);
-    double ith0 = calibData->getInTimeThreshold((int) moduleHash, circ, type);
+    double th0 = calibData->getAnalogThreshold(type, moduleHash, FE);
+    double ith0 = calibData->getInTimeThreshold(type, moduleHash, FE);
 
     double thrand1 = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
     double thrand2 = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
-    double threshold = th0 +
-                       calibData->getAnalogThresholdSigma((int) moduleHash, circ,
-                                                          type) * thrand1 + calibData->getAnalogThresholdNoise(
-      (int) moduleHash, circ, type) * thrand2; // This noise check is unaffected by digitizationFlags.doInDetNoise in
-                                               // 21.0 - see PixelCellDiscriminator.cxx in that branch
+    double threshold = th0
+                       + calibData->getAnalogThresholdSigma(type, moduleHash, FE) * thrand1
+                       + calibData->getAnalogThresholdNoise(type, moduleHash, FE) * thrand2;
+                       // This noise check is unaffected by digitizationFlags.doInDetNoise in
+                       // 21.0 - see PixelCellDiscriminator.cxx in that branch
     double intimethreshold = (ith0 / th0) * threshold;
 
     if (charge > threshold) {
@@ -144,8 +144,8 @@ void FEI3SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
     }
 
     // charge to ToT conversion
-    double tot = calibData->getToT((int) moduleHash, circ, type, charge);
-    double totsig = calibData->getTotRes((int) moduleHash, circ, tot);
+    double tot = calibData->getToT(type, moduleHash, FE, charge);
+    double totsig = calibData->getTotRes(moduleHash, FE, tot);
     int nToT = static_cast<int>(CLHEP::RandGaussZiggurat::shoot(rndmEngine, tot, totsig));
 
     if (nToT < 1) {

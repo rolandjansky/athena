@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -777,7 +777,8 @@ namespace InDet {
       ATH_MSG_ERROR("Dynamic cast failed at line "<<__LINE__<<" of NnClusterizationFactory.cxx.");
       return input;
     }
-    SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey);
+    SG::ReadCondHandle<PixelChargeCalibCondData> calibDataHandle(m_chargeDataKey);
+    const PixelChargeCalibCondData *calibData = *calibDataHandle;
     const std::vector<Identifier>& rdos  = pCluster.rdoList();
     ATH_MSG_VERBOSE(" Number of RDOs: " << rdos.size() );
     const std::vector<float>& chList     = pCluster.chargeList();
@@ -798,10 +799,10 @@ namespace InDet {
       Identifier pixid = *rdosBegin;
       Identifier moduleID = pixelID.wafer_id(pixid);
       IdentifierHash moduleHash = pixelID.wafer_hash(moduleID); // wafer hash
-      int circ = m_pixelReadout->getFE(pixid, moduleID);
+      unsigned int FE = m_pixelReadout->getFE(pixid, moduleID);
       InDetDD::PixelDiodeType type = m_pixelReadout->getDiodeType(pixid);
-      float ch = calibData->getCharge((int)moduleHash, circ, type, 1.0*tot0);
-      chListRecreated.push_back(ch);
+      float charge = calibData->getCharge(type, moduleHash, FE, tot0);
+      chListRecreated.push_back(charge);
       totListRecreated.push_back(tot0);
     }
     // reset the rdo iterator

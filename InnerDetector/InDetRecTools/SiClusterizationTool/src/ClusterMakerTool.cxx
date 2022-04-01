@@ -135,7 +135,8 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   // Fill vector of charges
   std::vector<float> chargeList;
   if (!m_chargeDataKey.empty()) {
-    SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey);
+    SG::ReadCondHandle<PixelChargeCalibCondData> calibDataHandle(m_chargeDataKey);
+    const PixelChargeCalibCondData *calibData = *calibDataHandle;
     int nRDO=rdoList.size();
     chargeList.reserve(nRDO);
     for (int i=0; i<nRDO; i++) {
@@ -144,9 +145,9 @@ PixelCluster* ClusterMakerTool::pixelCluster(
 
       Identifier moduleID = pid->wafer_id(pixid);
       IdentifierHash moduleHash = pid->wafer_hash(moduleID);
-      int circ = m_pixelReadout->getFE(pixid, moduleID);
+      unsigned int FE = m_pixelReadout->getFE(pixid, moduleID);
       InDetDD::PixelDiodeType type = m_pixelReadout->getDiodeType(pixid);
-      float charge = calibData->getCharge((int)moduleHash, circ, type, 1.0*ToT);
+      float charge = calibData->getCharge(type, moduleHash, FE, ToT);
 
       chargeList.push_back(charge);
     }
@@ -296,7 +297,8 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   int nRDO=rdoList.size();
   if (!m_chargeDataKey.empty()) { 
     chargeList.reserve(nRDO); 
-    SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey);
+    SG::ReadCondHandle<PixelChargeCalibCondData> calibDataHandle(m_chargeDataKey);
+    const PixelChargeCalibCondData *calibData = *calibDataHandle;
     for (int i=0; i<nRDO; i++) {
       Identifier pixid=rdoList[i];
       int ToT=totList[i];
@@ -304,9 +306,9 @@ PixelCluster* ClusterMakerTool::pixelCluster(
       float charge = ToT;
       Identifier moduleID = pixelID.wafer_id(pixid);
       IdentifierHash moduleHash = pixelID.wafer_hash(moduleID); // wafer hash
-      int circ = m_pixelReadout->getFE(pixid, moduleID);
+      unsigned int FE = m_pixelReadout->getFE(pixid, moduleID);
       InDetDD::PixelDiodeType type = m_pixelReadout->getDiodeType(pixid);
-      charge = calibData->getCharge((int)moduleHash, circ, type, 1.0*ToT);
+      charge = calibData->getCharge(type, moduleHash, FE, ToT);
       if (moduleHash<12 || moduleHash>2035) {
         charge = ToT/8.0*(8000.0-1200.0)+1200.0;
       }

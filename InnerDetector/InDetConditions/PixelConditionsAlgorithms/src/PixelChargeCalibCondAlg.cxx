@@ -14,6 +14,15 @@
 #include <fstream>
 #include <iomanip>
 
+namespace
+{
+
+constexpr int halfModuleThreshold{8};
+constexpr size_t FEStringSize{21};
+
+} // namespace
+
+
 PixelChargeCalibCondAlg::PixelChargeCalibCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
   ::AthReentrantAlgorithm(name, pSvcLocator)
 {
@@ -37,7 +46,7 @@ StatusCode PixelChargeCalibCondAlg::execute(const EventContext& ctx) const {
   SG::WriteCondHandle<PixelChargeCalibCondData> writeHandle(m_writeKey, ctx);
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid.. In theory this should not be called, but may happen if multiple concurrent events are being processed out of order.");
-    return StatusCode::SUCCESS; 
+    return StatusCode::SUCCESS;
   }
 
   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey, ctx);
@@ -46,6 +55,9 @@ StatusCode PixelChargeCalibCondAlg::execute(const EventContext& ctx) const {
     ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
     return StatusCode::FAILURE;
   }
+
+  const std::array<InDetDD::PixelDiodeType, 4> diodeTypes
+    = {InDetDD::PixelDiodeType::NORMAL, InDetDD::PixelDiodeType::LONG, InDetDD::PixelDiodeType::GANGED, InDetDD::PixelDiodeType::LARGE};
 
   SG::ReadCondHandle<PixelModuleData> configDataHandle(m_configKey, ctx);
   const PixelModuleData *configData = *configDataHandle;
@@ -59,7 +71,7 @@ StatusCode PixelChargeCalibCondAlg::execute(const EventContext& ctx) const {
   EventIDRange rangeW{start, stop};
   if (!m_readKey.empty()) {
     SG::ReadCondHandle<CondAttrListCollection> readHandle(m_readKey, ctx);
-    const CondAttrListCollection* readCdo = *readHandle; 
+    const CondAttrListCollection* readCdo = *readHandle;
     if (readCdo==nullptr) {
       ATH_MSG_FATAL("Null pointer to the read conditions object");
       return StatusCode::FAILURE;
@@ -83,142 +95,180 @@ StatusCode PixelChargeCalibCondAlg::execute(const EventContext& ctx) const {
         std::stringstream ss(stringStatus);
         std::vector<std::string> component;
         std::string buffer;
-        while (std::getline(ss,buffer,'\n')) { component.push_back(buffer); }
+        std::getline(ss, buffer, '\n'); // skip first line
+        while (std::getline(ss, buffer, '\n')) { component.push_back(buffer); }
 
-        for (int i=1; i<(int)component.size(); i++) {
+        std::vector<int> analogThreshold;
+        std::vector<int> analogThresholdSigma;
+        std::vector<int> analogThresholdNoise;
+        std::vector<int> inTimeThreshold;
+
+        std::vector<int> analogThresholdLong;
+        std::vector<int> analogThresholdSigmaLong;
+        std::vector<int> analogThresholdNoiseLong;
+        std::vector<int> inTimeThresholdLong;
+
+        std::vector<int> analogThresholdGanged;
+        std::vector<int> analogThresholdSigmaGanged;
+        std::vector<int> analogThresholdNoiseGanged;
+        std::vector<int> inTimeThresholdGanged;
+
+        std::vector<float> totA;
+        std::vector<float> totE;
+        std::vector<float> totC;
+
+        std::vector<float> totAGanged;
+        std::vector<float> totEGanged;
+        std::vector<float> totCGanged;
+
+        std::vector<float> totRes1;
+        std::vector<float> totRes2;
+
+        analogThreshold.reserve(component.size());
+        analogThresholdSigma.reserve(component.size());
+        analogThresholdNoise.reserve(component.size());
+        inTimeThreshold.reserve(component.size());
+
+        analogThresholdLong.reserve(component.size());
+        analogThresholdSigmaLong.reserve(component.size());
+        analogThresholdNoiseLong.reserve(component.size());
+        inTimeThresholdLong.reserve(component.size());
+
+        analogThresholdGanged.reserve(component.size());
+        analogThresholdSigmaGanged.reserve(component.size());
+        analogThresholdNoiseGanged.reserve(component.size());
+        inTimeThresholdGanged.reserve(component.size());
+
+        totA.reserve(component.size());
+        totE.reserve(component.size());
+        totC.reserve(component.size());
+
+        totAGanged.reserve(component.size());
+        totEGanged.reserve(component.size());
+        totCGanged.reserve(component.size());
+
+        totRes1.reserve(component.size());
+        totRes2.reserve(component.size());
+
+        // loop over FEs
+        for (size_t i{}; i < component.size(); i++) {
           std::stringstream checkFE(component[i]);
           std::vector<std::string> FEString;
-          while (std::getline(checkFE,buffer,' ')) { FEString.push_back(buffer); }
+          while (std::getline(checkFE, buffer, ' ')) { FEString.push_back(buffer); }
 
-          if (FEString.size()<21) {
-            ATH_MSG_INFO("size of FEString is " << FEString.size() << " and is less than expected, 21.");
-            ATH_MSG_INFO("This is the problem in the contents in conditions DB. This should rather be fixed in DB-side.");
-            continue;
+          if (FEString.size() < FEStringSize) {
+            ATH_MSG_ERROR("size of FEString is " << FEString.size() << " and is less than expected, " << FEStringSize << ".");
+            ATH_MSG_ERROR("This is the problem in the contents in conditions DB. This should rather be fixed in DB-side.");
+            return StatusCode::FAILURE;
           }
 
-          // Normal pixel
-          writeCdo -> setAnalogThreshold((int)channelNumber, std::atoi(FEString[1].c_str()));
-          writeCdo -> setAnalogThresholdSigma((int)channelNumber, std::atoi(FEString[2].c_str()));
-          writeCdo -> setAnalogThresholdNoise((int)channelNumber, std::atoi(FEString[3].c_str()));
-          writeCdo -> setInTimeThreshold((int)channelNumber, std::atoi(FEString[4].c_str()));
+          analogThreshold.push_back(std::stoi(FEString[1]));
+          analogThresholdSigma.push_back(std::stoi(FEString[2]));
+          analogThresholdNoise.push_back(std::stoi(FEString[3]));
+          inTimeThreshold.push_back(std::stoi(FEString[4]));
 
-          writeCdo -> setQ2TotA((int)channelNumber, std::atof(FEString[13].c_str()));
-          writeCdo -> setQ2TotE((int)channelNumber, std::atof(FEString[14].c_str()));
-          writeCdo -> setQ2TotC((int)channelNumber, std::atof(FEString[15].c_str()));
+          analogThresholdLong.push_back(std::stoi(FEString[5]));
+          analogThresholdSigmaLong.push_back(std::stoi(FEString[6]));
+          analogThresholdNoiseLong.push_back(std::stoi(FEString[7]));
+          inTimeThresholdLong.push_back(std::stoi(FEString[8]));
 
-          writeCdo -> setTotRes1((int)channelNumber, std::atof(FEString[19].c_str()));
-          writeCdo -> setTotRes2((int)channelNumber, std::atof(FEString[20].c_str()));
+          analogThresholdGanged.push_back(std::stoi(FEString[9]));
+          analogThresholdSigmaGanged.push_back(std::stoi(FEString[10]));
+          analogThresholdNoiseGanged.push_back(std::stoi(FEString[11]));
+          inTimeThresholdGanged.push_back(std::stoi(FEString[12]));
 
-          // Long pixel
-          writeCdo -> setAnalogThresholdLong((int)channelNumber, std::atoi(FEString[5].c_str()));
-          writeCdo -> setAnalogThresholdSigmaLong((int)channelNumber, std::atoi(FEString[6].c_str()));
-          writeCdo -> setAnalogThresholdNoiseLong((int)channelNumber, std::atoi(FEString[7].c_str()));
-          writeCdo -> setInTimeThresholdLong((int)channelNumber, std::atoi(FEString[8].c_str()));
+          totA.push_back(std::stof(FEString[13]));
+          totE.push_back(std::stof(FEString[14]));
+          totC.push_back(std::stof(FEString[15]));
 
-          writeCdo -> setQ2TotALong((int)channelNumber, std::atof(FEString[16].c_str()));
-          writeCdo -> setQ2TotELong((int)channelNumber, std::atof(FEString[17].c_str()));
-          writeCdo -> setQ2TotCLong((int)channelNumber, std::atof(FEString[18].c_str()));
+          totAGanged.push_back(std::stof(FEString[16]));
+          totEGanged.push_back(std::stof(FEString[17]));
+          totCGanged.push_back(std::stof(FEString[18]));
 
-          // Ganged pixel
-          writeCdo -> setAnalogThresholdGanged((int)channelNumber, std::atoi(FEString[9].c_str()));
-          writeCdo -> setAnalogThresholdSigmaGanged((int)channelNumber, std::atoi(FEString[10].c_str()));
-          writeCdo -> setAnalogThresholdNoiseGanged((int)channelNumber, std::atoi(FEString[11].c_str()));
-          writeCdo -> setInTimeThresholdGanged((int)channelNumber, std::atoi(FEString[12].c_str()));
+          totRes1.push_back(std::stof(FEString[19]));
+          totRes2.push_back(std::stof(FEString[20]));
         }
-      }
-      else {
-        ATH_MSG_WARNING("payload[\"data\"] does not exist for ChanNum " << channelNumber);
-        IdentifierHash wafer_hash = IdentifierHash(channelNumber);
-        Identifier wafer_id = m_pixelID->wafer_id(wafer_hash);
-        int bec   = m_pixelID->barrel_ec(wafer_id);
-        int layer = m_pixelID->layer_disk(wafer_id);
-        const InDetDD::SiDetectorElement *element = elements->getDetectorElement(wafer_hash);
-        const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
-        int numFE = p_design->numberOfCircuits() < 8 ? p_design->numberOfCircuits() : 16;
-        for (int j=0; j<numFE; j++) {
-          writeCdo -> setAnalogThreshold((int)channelNumber,     configData->getDefaultAnalogThreshold(bec,layer));
-          writeCdo -> setAnalogThresholdSigma((int)channelNumber,configData->getDefaultAnalogThresholdSigma(bec,layer));
-          writeCdo -> setAnalogThresholdNoise((int)channelNumber,configData->getDefaultAnalogThresholdNoise(bec,layer));
-          writeCdo -> setInTimeThreshold((int)channelNumber,     configData->getDefaultInTimeThreshold(bec,layer));
-          writeCdo -> setQ2TotA((int)channelNumber, configData->getDefaultQ2TotA());
-          writeCdo -> setQ2TotE((int)channelNumber, configData->getDefaultQ2TotE());
-          writeCdo -> setQ2TotC((int)channelNumber, configData->getDefaultQ2TotC());
-          writeCdo -> setTotRes1((int)channelNumber, 0.0);
-          writeCdo -> setTotRes2((int)channelNumber, 0.0);
 
-          // Long pixel
-          writeCdo -> setAnalogThresholdLong((int)channelNumber,     configData->getDefaultAnalogThreshold(bec,layer));
-          writeCdo -> setAnalogThresholdSigmaLong((int)channelNumber,configData->getDefaultAnalogThresholdSigma(bec,layer));
-          writeCdo -> setAnalogThresholdNoiseLong((int)channelNumber,configData->getDefaultAnalogThresholdNoise(bec,layer));
-          writeCdo -> setInTimeThresholdLong((int)channelNumber,     configData->getDefaultInTimeThreshold(bec,layer));
+        // Normal pixel
+        writeCdo -> setAnalogThreshold(InDetDD::PixelDiodeType::NORMAL, channelNumber, std::move(analogThreshold));
+        writeCdo -> setAnalogThresholdSigma(InDetDD::PixelDiodeType::NORMAL, channelNumber, std::move(analogThresholdSigma));
+        writeCdo -> setAnalogThresholdNoise(InDetDD::PixelDiodeType::NORMAL, channelNumber, std::move(analogThresholdNoise));
+        writeCdo -> setInTimeThreshold(InDetDD::PixelDiodeType::NORMAL, channelNumber, std::move(inTimeThreshold));
 
-          writeCdo -> setQ2TotALong((int)channelNumber, configData->getDefaultQ2TotA());
-          writeCdo -> setQ2TotELong((int)channelNumber, configData->getDefaultQ2TotE());
-          writeCdo -> setQ2TotCLong((int)channelNumber, configData->getDefaultQ2TotC());
+        writeCdo -> setQ2TotA(InDetDD::PixelDiodeType::NORMAL, channelNumber, totA); // can not move as shared
+        writeCdo -> setQ2TotE(InDetDD::PixelDiodeType::NORMAL, channelNumber, totE); // can not move as shared
+        writeCdo -> setQ2TotC(InDetDD::PixelDiodeType::NORMAL, channelNumber, totC); // can not move as shared
 
-          // Ganged pixel
-          writeCdo -> setAnalogThresholdGanged((int)channelNumber,     configData->getDefaultAnalogThreshold(bec,layer));
-          writeCdo -> setAnalogThresholdSigmaGanged((int)channelNumber,configData->getDefaultAnalogThresholdSigma(bec,layer));
-          writeCdo -> setAnalogThresholdNoiseGanged((int)channelNumber,configData->getDefaultAnalogThresholdNoise(bec,layer));
-          writeCdo -> setInTimeThresholdGanged((int)channelNumber,     configData->getDefaultInTimeThreshold(bec,layer));
-        }
+        writeCdo -> setTotRes1(channelNumber, std::move(totRes1));
+        writeCdo -> setTotRes2(channelNumber, std::move(totRes2));
+
+        // Long pixel
+        writeCdo -> setAnalogThreshold(InDetDD::PixelDiodeType::LONG, channelNumber, std::move(analogThresholdLong));
+        writeCdo -> setAnalogThresholdSigma(InDetDD::PixelDiodeType::LONG, channelNumber, std::move(analogThresholdSigmaLong));
+        writeCdo -> setAnalogThresholdNoise(InDetDD::PixelDiodeType::LONG, channelNumber, std::move(analogThresholdNoiseLong));
+        writeCdo -> setInTimeThreshold(InDetDD::PixelDiodeType::LONG, channelNumber, std::move(inTimeThresholdLong));
+
+        writeCdo -> setQ2TotA(InDetDD::PixelDiodeType::LONG, channelNumber, totA); // can not move as shared
+        writeCdo -> setQ2TotE(InDetDD::PixelDiodeType::LONG, channelNumber, totE); // can not move as shared
+        writeCdo -> setQ2TotC(InDetDD::PixelDiodeType::LONG, channelNumber, totC); // can not move as shared
+
+        // Ganged pixel
+        writeCdo -> setAnalogThreshold(InDetDD::PixelDiodeType::GANGED, channelNumber, std::move(analogThresholdGanged));
+        writeCdo -> setAnalogThresholdSigma(InDetDD::PixelDiodeType::GANGED, channelNumber, std::move(analogThresholdSigmaGanged));
+        writeCdo -> setAnalogThresholdNoise(InDetDD::PixelDiodeType::GANGED, channelNumber, std::move(analogThresholdNoiseGanged));
+        writeCdo -> setInTimeThreshold(InDetDD::PixelDiodeType::GANGED, channelNumber, std::move(inTimeThresholdGanged));
+
+        writeCdo -> setQ2TotA(InDetDD::PixelDiodeType::GANGED, channelNumber, std::move(totAGanged));
+        writeCdo -> setQ2TotE(InDetDD::PixelDiodeType::GANGED, channelNumber, std::move(totEGanged));
+        writeCdo -> setQ2TotC(InDetDD::PixelDiodeType::GANGED, channelNumber, std::move(totCGanged));
+      } else {
+        ATH_MSG_ERROR("payload[\"data\"] does not exist for ChanNum " << channelNumber);
+        return StatusCode::FAILURE;
       }
     }
   }
   else {
-    for (int i=0; i<(int)m_pixelID->wafer_hash_max(); i++) {
-      IdentifierHash wafer_hash = IdentifierHash(i);
+    for (unsigned int moduleHash{}; moduleHash < m_pixelID->wafer_hash_max(); moduleHash++) {
+      IdentifierHash wafer_hash = IdentifierHash(moduleHash);
       Identifier wafer_id = m_pixelID->wafer_id(wafer_hash);
-      int bec   = m_pixelID->barrel_ec(wafer_id);
-      int layer = m_pixelID->layer_disk(wafer_id);
+      int barrel_ec = m_pixelID->barrel_ec(wafer_id);
+      int layer     = m_pixelID->layer_disk(wafer_id);
       const InDetDD::SiDetectorElement *element = elements->getDetectorElement(wafer_hash);
       const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
-      int numFE = p_design->numberOfCircuits() < 8 ? p_design->numberOfCircuits() : 16;
-      for (int j=0; j<numFE; j++) {
-        writeCdo -> setAnalogThreshold(i,     configData->getDefaultAnalogThreshold(bec,layer));
-        writeCdo -> setAnalogThresholdSigma(i,configData->getDefaultAnalogThresholdSigma(bec,layer));
-        writeCdo -> setAnalogThresholdNoise(i,configData->getDefaultAnalogThresholdNoise(bec,layer));
-        writeCdo -> setInTimeThreshold(i,     configData->getDefaultInTimeThreshold(bec,layer));
-        writeCdo -> setQ2TotA(i, configData->getDefaultQ2TotA());
-        writeCdo -> setQ2TotE(i, configData->getDefaultQ2TotE());
-        writeCdo -> setQ2TotC(i, configData->getDefaultQ2TotC());
-        writeCdo -> setTotRes1(i, 0.0);
-        writeCdo -> setTotRes2(i, 0.0);
+      // in some cases numberOfCircuits returns FEs per half-module
+      unsigned int numFE = p_design->numberOfCircuits() < halfModuleThreshold ? p_design->numberOfCircuits() : 2 * p_design->numberOfCircuits();
 
-        // Long pixel
-        writeCdo -> setAnalogThresholdLong(i,     configData->getDefaultAnalogThreshold(bec,layer));
-        writeCdo -> setAnalogThresholdSigmaLong(i,configData->getDefaultAnalogThresholdSigma(bec,layer));
-        writeCdo -> setAnalogThresholdNoiseLong(i,configData->getDefaultAnalogThresholdNoise(bec,layer));
-        writeCdo -> setInTimeThresholdLong(i,     configData->getDefaultInTimeThreshold(bec,layer));
+      for (InDetDD::PixelDiodeType type : diodeTypes) {
+        writeCdo -> setAnalogThreshold(type, moduleHash, std::vector<int>(numFE, configData->getDefaultAnalogThreshold(barrel_ec, layer)));
+        writeCdo -> setAnalogThresholdSigma(type, moduleHash, std::vector<int>(numFE, configData->getDefaultAnalogThresholdSigma(barrel_ec, layer)));
+        writeCdo -> setAnalogThresholdNoise(type, moduleHash, std::vector<int>(numFE, configData->getDefaultAnalogThresholdNoise(barrel_ec, layer)));
+        writeCdo -> setInTimeThreshold(type, moduleHash, std::vector<int>(numFE, configData->getDefaultInTimeThreshold(barrel_ec, layer)));
 
-        writeCdo -> setQ2TotALong(i, configData->getDefaultQ2TotA());
-        writeCdo -> setQ2TotELong(i, configData->getDefaultQ2TotE());
-        writeCdo -> setQ2TotCLong(i, configData->getDefaultQ2TotC());
-
-        // Ganged pixel
-        writeCdo -> setAnalogThresholdGanged(i,     configData->getDefaultAnalogThreshold(bec,layer));
-        writeCdo -> setAnalogThresholdSigmaGanged(i,configData->getDefaultAnalogThresholdSigma(bec,layer));
-        writeCdo -> setAnalogThresholdNoiseGanged(i,configData->getDefaultAnalogThresholdNoise(bec,layer));
-        writeCdo -> setInTimeThresholdGanged(i,     configData->getDefaultInTimeThreshold(bec,layer));
+        writeCdo -> setQ2TotA(type, moduleHash, std::vector<float>(numFE, configData->getDefaultQ2TotA()));
+        writeCdo -> setQ2TotE(type, moduleHash, std::vector<float>(numFE, configData->getDefaultQ2TotE()));
+        writeCdo -> setQ2TotC(type, moduleHash, std::vector<float>(numFE, configData->getDefaultQ2TotC()));
       }
+
+      writeCdo -> setTotRes1(moduleHash, std::vector<float>(numFE, 0.0));
+      writeCdo -> setTotRes2(moduleHash, std::vector<float>(numFE, 0.0));
     }
   }
 
   // Scan over if the DB contents need to be overwritten.
   // This is useful for threshold study. So far only threshold value.
-  for (int i=0; i<(int)m_pixelID->wafer_hash_max(); i++) {
-    IdentifierHash wafer_hash = IdentifierHash(i);
+  for (unsigned int moduleHash{}; moduleHash < m_pixelID->wafer_hash_max(); moduleHash++) {
+    IdentifierHash wafer_hash = IdentifierHash(moduleHash);
     Identifier wafer_id = m_pixelID->wafer_id(wafer_hash);
-    int bec   = m_pixelID->barrel_ec(wafer_id);
-    int layer = m_pixelID->layer_disk(wafer_id);
+    int barrel_ec = m_pixelID->barrel_ec(wafer_id);
+    int layer     = m_pixelID->layer_disk(wafer_id);
     const InDetDD::SiDetectorElement *element = elements->getDetectorElement(wafer_hash);
     const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
-    int numFE = p_design->numberOfCircuits() < 8 ? p_design->numberOfCircuits() : 16;
-    for (int j=0; j<numFE; j++) {
-      if (configData->getDefaultAnalogThreshold(bec,layer)>-0.1) {
-        writeCdo -> setAnalogThreshold(i,       configData->getDefaultAnalogThreshold(bec,layer));
-        writeCdo -> setAnalogThresholdLong(i,   configData->getDefaultAnalogThreshold(bec,layer));
-        writeCdo -> setAnalogThresholdGanged(i, configData->getDefaultAnalogThreshold(bec,layer));
+    // in some cases numberOfCircuits returns FEs per half-module
+    unsigned int numFE = p_design->numberOfCircuits() < halfModuleThreshold ? p_design->numberOfCircuits() : 2 * p_design->numberOfCircuits();
+
+    if (configData->getDefaultAnalogThreshold(barrel_ec, layer) > -0.1) {
+      for (InDetDD::PixelDiodeType type : diodeTypes) {
+        writeCdo -> setAnalogThreshold(type, moduleHash, std::vector<int>(numFE, configData->getDefaultAnalogThreshold(barrel_ec, layer)));
       }
     }
   }
@@ -231,4 +281,3 @@ StatusCode PixelChargeCalibCondAlg::execute(const EventContext& ctx) const {
 
   return StatusCode::SUCCESS;
 }
-
