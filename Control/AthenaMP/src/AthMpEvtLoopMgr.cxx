@@ -251,7 +251,6 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
   const bool sharedWriterWithFAFE = (m_nEventsBeforeFork!=0 && sharedWriterTool);
 
   if(sharedWriterWithFAFE) {
-    incSvc->fireIncident(Incident(name(),"PreFork"));
     (*sharedWriterTool)->useFdsRegistry(registry);
     (*sharedWriterTool)->setRandString(randStream.str());
 
@@ -319,7 +318,7 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
     if(sharedWriterWithFAFE && (*it)->name() == "AthMpEvtLoopMgr.SharedWriterTool") continue;
     (*it)->useFdsRegistry(registry);
     (*it)->setRandString(randStream.str());
-    if(!sharedWriterWithFAFE && it==m_tools.begin()) {
+    if(it==m_tools.begin()) {
       incSvc->fireIncident(Incident(name(),"PreFork")); // Do it only once
     }
     int nChildren = (*it)->makePool(maxEvents,m_nWorkers,m_workerTopDir);
