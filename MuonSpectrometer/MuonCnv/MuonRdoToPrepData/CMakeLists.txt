@@ -7,4 +7,5 @@ atlas_subdir( MuonRdoToPrepData )
 atlas_add_component( MuonRdoToPrepData
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel StoreGateLib Identifier TrigSteeringEvent IRegionSelector MuonPrepRawData MuonTrigCoinData AthViews MuonCnvToolInterfacesLib MuonIdHelpersLib ViewAlgsLib )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel StoreGateLib Identifier TrigSteeringEvent IRegionSelector MuonPrepRawData MuonTrigCoinData AthViews MuonCnvToolInterfacesLib MuonIdHelpersLib ViewAlgsLib MuonDigitContainer)
+

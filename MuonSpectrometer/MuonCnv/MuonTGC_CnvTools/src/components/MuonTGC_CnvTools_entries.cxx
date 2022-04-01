@@ -1,4 +1,3 @@
-#include "../TgcRdoToPrepDataTool.h"
 #include "../TgcRdoToPrepDataToolCore.h"
 #include "../TgcRdoToPrepDataToolMT.h"
 #include "../TgcRdoContByteStreamTool.h"
@@ -12,7 +11,6 @@
 #include "../TgcPrepDataReplicationToolAllBCto3BC.h"
 
 
-DECLARE_COMPONENT( Muon::TgcRdoToPrepDataTool )
 DECLARE_COMPONENT( Muon::TgcRdoToPrepDataToolMT )
 DECLARE_COMPONENT( Muon::TgcRdoContByteStreamTool )
 DECLARE_COMPONENT( Muon::TgcPrepDataReplicationTool3BCtoAllBC )

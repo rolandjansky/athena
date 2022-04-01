@@ -47,8 +47,8 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
 # MuonTGC_CnvTools
-from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcRdoToPrepDataTool
-TgcRdoToPrepDataTool = Muon__TgcRdoToPrepDataTool("TgcPrepDataProviderTool")
+from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcRdoToPrepDataToolMT
+TgcRdoToPrepDataTool = Muon__TgcRdoToPrepDataToolMT("TgcPrepDataProviderTool")
 TgcRdoToPrepDataTool.OutputLevel = INFO
 ToolSvc += TgcRdoToPrepDataTool
 print TgcRdoToPrepDataTool
