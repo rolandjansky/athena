@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -17,6 +17,7 @@
 #include "CoraCool/CoraCoolObjectIter.h"
 #include "CoraCool/CoraCoolObject.h"
 #include "CoralBase/Blob.h"
+#include "CxxUtils/checker_macros.h"
 
 // declarations for CoraCoolExample class
 
@@ -25,7 +26,7 @@ class CoraCoolExample {
   CoraCoolExample(const std::string& dbstring, const std::string& options,
 		  const std::string& folder,const int nfolder,
 		  const int nobj, const int nchan, const int niov,
-		  const int iov1,const int iovinc);
+		  const int iov1,const int iovinc) ATLAS_CTORDTOR_NOT_THREAD_SAFE;
   int execute();
   bool write();
   bool read();
@@ -416,7 +417,7 @@ bool CoraCoolExample::checkAPI() {
   return true;
 }
 
-int main (int argc, const char* argv[]) {
+int main ATLAS_NOT_THREAD_SAFE (int argc, const char* argv[]) {
   if (argc<2) {
     std::cout << "Syntax: CoraCoolExample.exe <dbConnection> { <options> ...}"
 	      << std::endl;
