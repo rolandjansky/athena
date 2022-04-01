@@ -45,8 +45,7 @@ HLTMuonMonTool::HLTMuonMonTool(const std::string & type,
                                const IInterface* parent)
   //initialization of common parameters
   :IHLTMonTool(type, name, parent),
-   m_nullstr("null"),  // yy added
-   m_bunchTool("Trig::TrigConfBunchCrossingTool/BunchCrossingTool")
+   m_nullstr("null")  // yy added
    //   m_muonSelectorTool("Rec::MuonSelectorTool") // YY added -> removed
    
   //initialization of L2MuonSA parameters
@@ -108,7 +107,6 @@ HLTMuonMonTool::HLTMuonMonTool(const std::string & type,
   //declareProperty("ChainsForZTP", m_ztp_isomap);
   declareProperty("ZTPPtCone30RelCut",m_ztp_ptcone30rel_cut=0.06);
   declareProperty("ZTP_EFPtCone30RelCut",m_ztp_EF_ptcone30rel_cut=0.12);
-  declareProperty("BCTool", m_bunchTool);
   m_lumiblock = 0;
   m_event = 0;
   m_maxindep = 0;
@@ -163,7 +161,6 @@ StatusCode HLTMuonMonTool::init()
   // some switches and flags
   m_requestESchains = true;
   //initialization for common tools
-  CHECK(m_bunchTool.retrieve());
 
   /*  not to use
   if ( m_muonSelectorTool.empty() ) {
