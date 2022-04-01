@@ -22,7 +22,7 @@ Digi_tf.py \
 --numberOfCavernBkg 1 \
 --preExec 'all:rec.doHIP.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(0.0);jobproperties.Beam.bunchSpacing.set_Value_and_Lock(25);' 'HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.overrideMetadata+=["PhysicsList"];digitizationFlags.TRTRangeCut.set_Value_and_Lock(0.05);' \
 --preInclude 'all:LArConfiguration/LArConfigRun2Old_NoPileup.py' 'HITtoRDO:Digitization/ForceUseOfPileUpTools.py' \
---postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' 'HITtoRDO:from AthenaCommon import CfgGetter;mergeMcEventCollTool=CfgGetter.getPublicTool("MergeMcEventCollTool").DoSlimming=False' \
+--postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' 'HITtoRDO:from AthenaCommon import CfgGetter;mergeMcEventCollTool=CfgGetter.getPublicTool("MergeMcEventCollTool").DoSlimming=False' 'HITtoRDO:condSeq.TileSamplingFractionCondAlg.G4Version = -1;' \
 --postInclude 'all:PyJobTransforms/UseFrontier.py,SimulationJobOptions/postInclude.HijingPars.py,PixelConditionsAlgorithms/postInclude.UsePixelModuleLevelMask.py' \
 --geometryVersion ATLAS-R2-2015-03-01-00 \
 --conditionsTag all:OFLCOND-MC15c-SDR-15 \
