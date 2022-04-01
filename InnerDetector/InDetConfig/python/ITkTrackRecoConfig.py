@@ -43,8 +43,8 @@ def ITkStripClusterizationCfg(flags, name="ITkStripClusterization", **kwargs) :
     from SCT_ConditionsTools.ITkStripConditionsToolsConfig import ITkStripConditionsSummaryToolCfg
     ITkStripConditionsSummaryTool = acc.popToolsAndMerge(ITkStripConditionsSummaryToolCfg(flags))
 
-    from SiLorentzAngleTool.ITkStripLorentzAngleConfig import ITkStripLorentzAngleCfg
-    ITkStripLorentzAngleTool = acc.popToolsAndMerge( ITkStripLorentzAngleCfg(flags) )
+    from SiLorentzAngleTool.ITkStripLorentzAngleConfig import ITkStripLorentzAngleToolCfg
+    ITkStripLorentzAngleTool = acc.popToolsAndMerge( ITkStripLorentzAngleToolCfg(flags) )
 
     #### Clustering tool ######
     ITkClusterMakerTool = acc.popToolsAndMerge(ITkClusterMakerToolCfg(flags))
@@ -119,17 +119,16 @@ def ITkClusterMakerToolCfg(flags, name="ITkClusterMakerTool", **kwargs) :
 
     from PixelConditionsAlgorithms.ITkPixelConditionsConfig import ITkPixelChargeCalibCondAlgCfg
     from PixelReadoutGeometry.PixelReadoutGeometryConfig import ITkPixelReadoutManagerCfg
-    #ITkPixelCablingCondAlgCfg + ITkPixelReadoutSpeedAlgCfg needed?
 
     # This directly needs the following Conditions data:
     # PixelModuleData & PixelChargeCalibCondData
     acc.merge(ITkPixelChargeCalibCondAlgCfg(flags))
     acc.merge(ITkPixelReadoutManagerCfg(flags))
 
-    from SiLorentzAngleTool.ITkPixelLorentzAngleConfig import ITkPixelLorentzAngleCfg
-    ITkPixelLorentzAngleTool = acc.popToolsAndMerge(ITkPixelLorentzAngleCfg(flags))
-    from SiLorentzAngleTool.ITkStripLorentzAngleConfig import ITkStripLorentzAngleCfg
-    ITkStripLorentzAngleTool = acc.popToolsAndMerge(ITkStripLorentzAngleCfg(flags))
+    from SiLorentzAngleTool.ITkPixelLorentzAngleConfig import ITkPixelLorentzAngleToolCfg
+    ITkPixelLorentzAngleTool = acc.popToolsAndMerge(ITkPixelLorentzAngleToolCfg(flags))
+    from SiLorentzAngleTool.ITkStripLorentzAngleConfig import ITkStripLorentzAngleToolCfg
+    ITkStripLorentzAngleTool = acc.popToolsAndMerge(ITkStripLorentzAngleToolCfg(flags))
 
     kwargs.setdefault("PixelChargeCalibCondData", "ITkPixelChargeCalibCondData")
     kwargs.setdefault("PixelReadoutManager",acc.getService("ITkPixelReadoutManager"))

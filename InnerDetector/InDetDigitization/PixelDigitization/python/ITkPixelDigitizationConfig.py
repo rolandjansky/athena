@@ -16,7 +16,7 @@ from PixelConditionsAlgorithms.ITkPixelConditionsConfig import (
 from PixelConditionsTools.ITkPixelConditionsSummaryConfig import ITkPixelConditionsSummaryCfg
 from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg
 from PixelReadoutGeometry.PixelReadoutGeometryConfig import ITkPixelReadoutManagerCfg
-from SiLorentzAngleTool.ITkPixelLorentzAngleConfig import ITkPixelLorentzAngleCfg
+from SiLorentzAngleTool.ITkPixelLorentzAngleConfig import ITkPixelLorentzAngleToolCfg
 from SiPropertiesTool.ITkPixelSiPropertiesConfig import ITkPixelSiPropertiesCfg
 
 
@@ -85,7 +85,7 @@ def ITkSensorSimPlanarToolCfg(flags, name="ITkSensorSimPlanarTool", **kwargs):
     """Return ComponentAccumulator with configured SensorSimPlanarTool for ITk"""
     acc = ITkPixelModuleConfigCondAlgCfg(flags)
     SiTool = acc.popToolsAndMerge(ITkPixelSiPropertiesCfg(flags))
-    LorentzTool = acc.popToolsAndMerge(ITkPixelLorentzAngleCfg(flags))
+    LorentzTool = acc.popToolsAndMerge(ITkPixelLorentzAngleToolCfg(flags))
     kwargs.setdefault("SiPropertiesTool", SiTool)
     kwargs.setdefault("LorentzAngleTool", LorentzTool)
     kwargs.setdefault("PixelModuleData", "ITkPixelModuleData")
@@ -103,7 +103,6 @@ def ITkSensorSim3DToolCfg(flags, name="ITkSensorSim3DTool", **kwargs):
     """Return ComponentAccumulator with configured SensorSim3DTool for ITk"""
     acc = ITkPixelModuleConfigCondAlgCfg(flags)
     SiTool = acc.popToolsAndMerge(ITkPixelSiPropertiesCfg(flags))
-    acc.popToolsAndMerge(ITkPixelLorentzAngleCfg(flags))
     kwargs.setdefault("SiPropertiesTool", SiTool)
     kwargs.setdefault("PixelModuleData", "ITkPixelModuleData")
     SensorSim3DTool = CompFactory.SensorSim3DTool

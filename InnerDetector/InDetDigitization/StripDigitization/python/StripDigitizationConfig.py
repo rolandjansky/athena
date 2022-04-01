@@ -1,6 +1,6 @@
 """Define methods to construct configured SCT Digitization tools and algorithms
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -12,7 +12,7 @@ from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCf
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from SCT_ConditionsTools.ITkStripConditionsToolsConfig import ITkStripSiliconConditionsCfg
 #from SCT_ConditionsTools.ITkStripConditionsToolsConfig import ItkStripReadCalibChipDataCfg
-from SiLorentzAngleTool.ITkStripLorentzAngleConfig import ITkStripLorentzAngleCfg
+from SiLorentzAngleTool.ITkStripLorentzAngleConfig import ITkStripLorentzAngleToolCfg
 from SiPropertiesTool.ITkStripSiPropertiesConfig import ITkStripSiPropertiesCfg
 from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
 
@@ -174,7 +174,7 @@ def ITkStripSurfaceChargesGeneratorCfg(flags, name="ITkStripSurfaceChargesGenera
     tool.RadDamageSummaryTool = CompFactory.SCT_RadDamageSummaryTool(name="ITkStripRadDamageSummaryTool")
     tool.SiConditionsTool = acc.popToolsAndMerge(ITkStripSiliconConditionsCfg(flags))
     tool.SiPropertiesTool = acc.popToolsAndMerge(ITkStripSiPropertiesCfg(flags, SiConditionsTool=tool.SiConditionsTool))
-    tool.LorentzAngleTool = acc.popToolsAndMerge(ITkStripLorentzAngleCfg(flags, SiConditionsTool=tool.SiConditionsTool))
+    tool.LorentzAngleTool = acc.popToolsAndMerge(ITkStripLorentzAngleToolCfg(flags))
     acc.setPrivateTools(tool)
     return acc
 

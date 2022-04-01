@@ -15,7 +15,8 @@ def TRT_TrackSegmentsMaker_BarrelCosmicsCfg(flags, name='InDetTRTSegmentsMaker',
     return acc
 
 def TRT_TrackSegmentsMaker_ATLxkCfg(flags, name = 'InDetTRT_SeedsMaker', extension = '', InputCollections = None, **kwargs):
-    acc = ComponentAccumulator()
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTAlignCondAlgCfg
+    acc = TRTAlignCondAlgCfg(flags)
     #
     # --- decide if use the association tool
     #
@@ -62,7 +63,9 @@ def TRT_TrackSegmentsMaker_ATLxkCfg(flags, name = 'InDetTRT_SeedsMaker', extensi
     return acc
 
 def TRT_TrackSegmentsMakerCondAlg_ATLxkCfg(flags, name = 'InDetTRT_SeedsMakerCondAlg', extension = '', **kwargs):
-    acc = ComponentAccumulator()
+    from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
+    acc = TRT_ReadoutGeometryCfg(flags) # To produce TRT_DetElementContainer
+
     #
     # --- cut values
     #
@@ -110,9 +113,9 @@ def TRT_TrackSegmentsFinderCfg(flags, name = 'InDetTRT_TrackSegmentsFinder', ext
                                                                                             InputCollections = InputCollections))
         acc.addPublicTool(InDetTRT_TrackSegmentsMaker)
 
-        acc.merge(TRT_TrackSegmentsMakerCondAlg_ATLxkCfg(flags, 
-                                                         name = 'InDetTRT_SeedsMakerCondAlg'+ extension, 
-                                                         extension = extension))
+    acc.merge(TRT_TrackSegmentsMakerCondAlg_ATLxkCfg(flags,
+                                                     name = 'InDetTRT_SeedsMakerCondAlg'+ extension,
+                                                     extension = extension))
 
     kwargs.setdefault("SegmentsMakerTool", InDetTRT_TrackSegmentsMaker)
     kwargs.setdefault("SegmentsLocation", BarrelSegments)

@@ -1,19 +1,23 @@
 """Define methods to configure SCTLorentzAngleTool
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentFactory import CompFactory
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_SiliconConditionsCfg
 from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
 
+def SCT_LorentzAngleToolCfg(flags, name="SCTLorentzAngleTool", **kwargs):
+    """Return a SiLorentzAngleTool configured for SCT"""
+    acc = SCT_LorentzAngleCondAlgCfg(flags)
+    kwargs.setdefault("DetectorName", "SCT")
+    kwargs.setdefault("SiLorentzAngleCondData", "SCTSiLorentzAngleCondData")
+    kwargs.setdefault("DetEleCollKey", "SCT_DetectorElementCollection")
+    acc.setPrivateTools(CompFactory.SiLorentzAngleTool(name, **kwargs))
+    return acc
 
-def SCT_LorentzAngleCfg(flags, name="SCTSiLorentzAngleCondAlg",
-                        forceUseGeoModel=False, **kwargs):
-    """Return configured ComponentAccumulator and tool for SCT_LorentzAngle
-
-    SiConditionsTool and/or DCSConditionsTool may be provided in kwargs
-    """
+def SCT_LorentzAngleCondAlgCfg(flags, name="SCTSiLorentzAngleCondAlg",
+                               forceUseGeoModel=False, **kwargs):
     # Condition algorithm
     # construct with field services
     acc = MagneticFieldSvcCfg(flags)
@@ -36,11 +40,4 @@ def SCT_LorentzAngleCfg(flags, name="SCTSiLorentzAngleCondAlg",
             sikwargs["ForceUseGeoModel"] = forceUseGeoModel
             algkwargs["SiConditionsTool"] = acc.popToolsAndMerge(SCT_SiliconConditionsCfg(flags, **sikwargs))
     acc.addCondAlgo(CompFactory.SCTSiLorentzAngleCondAlg(name, **algkwargs))
-
-    # Condition tool
-    toolkwargs = {}
-    toolkwargs["DetectorName"] = "SCT"
-    toolkwargs["DetEleCollKey"] = "SCT_DetectorElementCollection"
-    toolkwargs["SiLorentzAngleCondData"] = "SCTSiLorentzAngleCondData"
-    acc.setPrivateTools(CompFactory.SiLorentzAngleTool(name="SCTLorentzAngleTool", **toolkwargs))
     return acc
