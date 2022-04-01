@@ -247,12 +247,14 @@ def addTauWPDecoration(Seq=None, evetoFixTag=None):
 # tauJet Muon RM Re-Reconstruction 
 #=======================================
 def addMuonRemovalTauReReco(Seq=None):
+    from tauRec.tauRecFlags import tauFlags
     if not Seq or hasattr(Seq,"MuonRemovalTauReReco_"+Seq.name()):
         logging.error("Muon removal TauJets re-reconstruction will not be scheduled")
         return
     if not tauFlags.inAOD():
-        logging.warn('Please set the inAOD flag to true before schedule the AOD re-reco.')
-        tauFlags.inAOD.set_Value(True)
+        logging.error("Muon removal TauJets re-reconstruction will not be scheduled.")
+        logging.error('Please set the inAOD flag to true before schedule the AOD re-reco.')
+        return
     
     logging.info("Adding Muon removal TauJets re-reconstruction")
     import tauRec.TauAlgorithmsHolder as taualgs
@@ -280,13 +282,13 @@ def addMuonRemovalTauReReco(Seq=None):
     tools_after.append(taualgs.getTauEleRNNEvaluator())         
     tools_after.append(taualgs.getTauWPDecoratorEleRNN())       
     tools_after.append(taualgs.getTauDecayModeNNClassifier())
-    from tauRec.tauRecFlags import tauFlags
+    
     for atool in tools_mod:
         atool.calibFolder = tauFlags.tauRecToolsCVMFSPath()
-        atool.inAOD = True
+        atool.inAOD = tauFlags.inAOD()
     for atool in tools_after:
         atool.calibFolder = tauFlags.tauRecToolsCVMFSPath()
-        atool.inAOD = True
+        atool.inAOD = tauFlags.inAOD()
     from tauRec.tauRecConf import TauAODRunnerAlg
     MuonRemovalAODReRecoAlg = TauAODRunnerAlg(  name                            = "MuonRemovalTauReReco_"+Seq.name(), 
                                                 Key_tauOutputContainer          = "TauJets_MuonRM",
