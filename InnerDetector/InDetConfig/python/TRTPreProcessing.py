@@ -114,7 +114,8 @@ def TRTDriftTimes(flags):
 
 
 def TRT_DriftCircleToolCfg(flags, prefix, name = "InDetTRT_DriftCircleTool", **kwargs):
-    acc = ComponentAccumulator()
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTAlignCondAlgCfg
+    acc = TRTAlignCondAlgCfg(flags)
     #
     # --- TRT_DriftCircleTool
     #
@@ -220,14 +221,6 @@ def InDetTRT_RIO_MakerPUCfg(flags, prefix, collectionPU, name = "InDetTRT_RIO_Ma
 ########################################################################################################
 def TRTPreProcessingCfg(flags, **kwargs):
     acc = ComponentAccumulator()
-
-    from PixelConditionsAlgorithms.PixelConditionsConfig import (PixelChargeCalibCondAlgCfg, PixelConfigCondAlgCfg, PixelDeadMapCondAlgCfg, PixelCablingCondAlgCfg, PixelReadoutSpeedAlgCfg)
-
-    acc.merge(PixelConfigCondAlgCfg(flags))
-    acc.merge(PixelDeadMapCondAlgCfg(flags))
-    acc.merge(PixelChargeCalibCondAlgCfg(flags))
-    acc.merge(PixelCablingCondAlgCfg(flags))
-    acc.merge(PixelReadoutSpeedAlgCfg(flags))
 
     #
     # --- setup naming of tools and algs

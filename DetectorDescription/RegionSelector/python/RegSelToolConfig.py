@@ -236,11 +236,8 @@ def regSelTool_SCT_Cfg(flags):
 
 def regSelTool_TRT_Cfg(flags):
     from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
-    # temporary
-    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelCablingCondAlgCfg
     return regSelToolCfg(flags, "TRT", CompFactory.TRT_RegSelCondAlg,
-                         readout_geometry=TRT_ReadoutGeometryCfg(flags),
-                         conditions=PixelCablingCondAlgCfg(flags))  # FIXME: TRT should not depend on Pixel
+                         readout_geometry=TRT_ReadoutGeometryCfg(flags))
 
 # ITk
 def regSelTool_ITkPixel_Cfg(flags):

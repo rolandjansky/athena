@@ -107,14 +107,6 @@ def SiZvertexMaker_xkCfg(flags, name="InDetZvertexMaker", InputCollections = Non
 def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None, **kwargs) :
     acc = ComponentAccumulator()
 
-    if flags.InDet.Tracking.ActivePass.usePixel:
-        from InDetConfig.SiCombinatorialTrackFinderToolConfig import SiDetElementBoundaryLinksCondAlg_xk_Pixel_Cfg
-        acc.merge(SiDetElementBoundaryLinksCondAlg_xk_Pixel_Cfg(flags))
-
-    if flags.InDet.Tracking.ActivePass.useSCT:
-        from InDetConfig.SiCombinatorialTrackFinderToolConfig import SiDetElementBoundaryLinksCondAlg_xk_SCT_Cfg
-        acc.merge(SiDetElementBoundaryLinksCondAlg_xk_SCT_Cfg(flags))
-
     kwargs.setdefault("useSCT", flags.InDet.Tracking.ActivePass.useSCT)
     kwargs.setdefault("usePixel", flags.InDet.Tracking.ActivePass.usePixel)
 
