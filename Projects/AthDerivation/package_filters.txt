@@ -324,6 +324,7 @@
 + Reconstruction/VKalVrt/VrtSecInclusive
 + Reconstruction/VKalVrt/VrtSecDecay
 + Reconstruction/VKalVrt/TrkToLeptonPVTool
++ Reconstruction/VKalVrt/VrtSecFuzzy
 
 # Simulation package(s):
 + Simulation/G4Sim/TrackRecord
