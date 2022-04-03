@@ -6,7 +6,7 @@
 #ifndef TrigHTTSGInput_TRIGHTTINPUTUTILS_H
 #define TrigHTTSGInput_TRIGHTTINPUTUTILS_H
 
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle_fwd.h"
 #include <bitset>
 
 
@@ -14,7 +14,7 @@ namespace TrigHTTInputUtils {
   
   typedef enum { TAU_PARENT_BIT , B_PARENT_BIT , PION_PARENT_BIT , PION_IMMEDIATE_PARENT_BIT , NBITS } Bits;
   typedef std::bitset<NBITS> ParentBitmask;
-  const ParentBitmask construct_truth_bitmap( const HepMC::GenParticle* p ) ;
+  const ParentBitmask construct_truth_bitmap( HepMC::ConstGenParticlePtr p ) ;
 }
 
 #endif
