@@ -727,7 +727,7 @@
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
 <h id="efficiency_vs_pt_low" type="TEfficiency" title="Fraction of reco-matched truth track">
-  <x title="p_{T} [GeV]" n="52" lo="0.4" hi="3"/>
+  <x title="p_{T} [GeV]" n="60" lo="0" hi="3"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
 <h id="efficiency_vs_phi" type="TEfficiency" title="Fraction of reco-matched truth track">
