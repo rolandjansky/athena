@@ -57,6 +57,9 @@ atlas_add_dictionary( xAODEventFormatCnvTestDict
 # Install files from the package.
 atlas_install_joboptions( share/*.py )
 
+# Install python modules for CA
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
+
 # Test(s) in the package.
 atlas_add_test( Write
   SCRIPT athena.py --threads=8 xAODEventFormatCnv/EventFormatWriteTestJobOptions.py

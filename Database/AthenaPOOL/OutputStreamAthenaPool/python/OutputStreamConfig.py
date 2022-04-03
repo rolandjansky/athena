@@ -53,18 +53,11 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], MetadataItemList=[],
    outputStream.HelperTools.append(streamInfoTool)
 
    # Make EventFormat object
-   eventFormatKey = f"EventFormatStream{streamName}"
-   eventFormatTool = CompFactory.xAODMaker.EventFormatStreamHelperTool(
-      f"Stream{streamName}_MakeEventFormat",
-      Key=eventFormatKey,
-      DataHeaderKey=outputStreamName,
-   )
-   outputStream.HelperTools.append(eventFormatTool)
-   msg.debug("Creating event format for this stream")
-
-   # Simplifies naming
-   outputStream.MetadataItemList.append(
-      f"xAOD::EventFormat#{eventFormatKey}"
+   from xAODEventFormatCnv.EventFormatConfig import EventFormatCfg
+   result.merge(
+      EventFormatCfg(
+         flags=configFlags, stream=outputStream, streamName=outputStreamName
+      )
    )
 
    # Setup FileMetaData
