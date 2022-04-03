@@ -242,7 +242,7 @@ class METConfig:
                                                               maxD0=2,
                                                               minPt=500)
         from TrackVertexAssociationTool.getTTVAToolForReco import getTTVAToolForReco
-        self.trkvxtool=getTTVAToolForReco("TrackVertexAssociationTool_MET", WorkingPoint="Nominal")
+        self.trkvxtool=getTTVAToolForReco("TrackVertexAssociationTool_MET", WorkingPoint="Nonprompt_All_MaxWeight")
         self.trkisotool = CfgMgr.xAOD__TrackIsolationTool("TrackIsolationTool_MET")
         self.trkisotool.TrackSelectionTool = self.trkseltool # As configured above
         from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool, Rec__ParticleCaloCellAssociationTool            
