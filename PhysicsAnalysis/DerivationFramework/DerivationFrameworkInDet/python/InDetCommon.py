@@ -36,6 +36,23 @@ def makeInDetDFCommon():
                                                                                      DecorationName = "DFCommonTightPrimary" )
         DFCommonTrackSelection.TrackSelectionTool.CutLevel = "TightPrimary"
         ToolSvc += DFCommonTrackSelection
+        if InDetDxAODFlags.AddPseudoTracks():
+            from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__PseudoTrackSelector
+            PseudoTrackSelectorTool = DerivationFramework__PseudoTrackSelector(name = "PseudoTrackSelectorTool",
+                                                                               RecoTrackParticleLocation            = "InDetTrackParticles",
+                                                                               PseudoTrackParticleLocation          = "InDetPseudoTrackParticles",
+                                                                               OutputRecoReplacedWithPseudo         = "InDetReplacedWithPseudoTrackParticles",
+                                                                               OutputRecoReplacedWithPseudoFromB    = "InDetReplacedWithPseudoFromBTrackParticles",
+                                                                               OutputRecoReplacedWithPseudoNotFromB = "InDetReplacedWithPseudoNotFromBTrackParticles",
+                                                                               OutputRecoPlusPseudo                 = "InDetPlusPseudoTrackParticles",
+                                                                               OutputRecoPlusPseudoFromB            = "InDetPlusPseudoFromBTrackParticles",
+                                                                               OutputRecoPlusPseudoNotFromB         = "InDetPlusPseudoNotFromBTrackParticles",
+                                                                               OutputRecoNoFakes                    = "InDetNoFakesTrackParticles",
+                                                                               OutputRecoNoFakesFromB               = "InDetNoFakesFromBTrackParticles",
+                                                                               OutputRecoNoFakesNotFromB            = "InDetNoFakesNotFromBTrackParticles")
+
+            ToolSvc += PseudoTrackSelectorTool
+            DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("InDetSelectedPseudo", AugmentationTools = [PseudoTrackSelectorTool])
     
     #====================================================================
     # EXPRESSION OF Z0 AT THE PRIMARY VERTEX
@@ -76,7 +93,33 @@ def makeInDetDFCommon():
         DFCommonUsedInFitDecorator = DerivationFramework__UsedInVertexFitTrackDecorator(name                   = "DFCommonUsedInFitDecorator",
                                                                                         UsedInFitDecoratorTool = ToolSvc.DFCommonUsedInFitDecoratorTool )
         ToolSvc += DFCommonUsedInFitDecorator
-    
+
+        if InDetDxAODFlags.AddPseudoTracks():
+            PseudoTrackContainers = [
+                "InDetPseudoTrackParticles",
+                "InDetReplacedWithPseudoTrackParticles",
+                "InDetReplacedWithPseudoFromBTrackParticles",
+                "InDetReplacedWithPseudoNotFromBTrackParticles",
+                "InDetPlusPseudoTrackParticles",
+                "InDetPlusPseudoFromBTrackParticles",
+                "InDetPlusPseudoNotFromBTrackParticles",
+                "InDetNoFakesTrackParticles",
+                "InDetNoFakesFromBTrackParticles",
+                "InDetNoFakesNotFromBTrackParticles"
+            ]
+            PseudoTrackDecorators = []
+            for t in PseudoTrackContainers:
+                InDetDecorator = InDet__InDetUsedInFitTrackDecoratorTool(name = "DFCommonUsedInFitDecoratorTool"+t.replace('InDetPseudo','Pseudo').replace('InDet','Reco').replace('TrackParticles',''),
+                                                                         AMVFVerticesDecoName = "TTVA_AMVFVertices",
+                                                                         AMVFWeightsDecoName  = "TTVA_AMVFWeights",
+                                                                         TrackContainer       = t,
+                                                                         VertexContainer      = "PrimaryVertices" )
+                ToolSvc += InDetDecorator
+                DerivDecorator = DerivationFramework__UsedInVertexFitTrackDecorator(name = "DFCommonUsedInFitDecorator"+t.replace('InDetPseudo','Pseudo').replace('InDet','Reco').replace('TrackParticles',''),
+                                                                                    UsedInFitDecoratorTool = InDetDecorator )
+                ToolSvc += DerivDecorator
+                PseudoTrackDecorators.append(DerivDecorator)
+
         # Turned off by defult for the LRT tracks as they are not used. Added this option to turn it on for future studies.
         if InDetDxAODFlags.DecoLRTTTVA() and InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
 
@@ -101,8 +144,10 @@ def makeInDetDFCommon():
           DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("InDetCommonKernel",
                                                                              AugmentationTools = [DFCommonTrackSelection, DFCommonZ0AtPV, DFCommonHSDecorator, DFCommonUsedInFitDecorator, DFCommonUsedInFitDecoratorLRT] )
         else:
-          DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("InDetCommonKernel",
-                                                                             AugmentationTools = [DFCommonTrackSelection, DFCommonZ0AtPV, DFCommonHSDecorator, DFCommonUsedInFitDecorator])
+          AugTools = [DFCommonTrackSelection, DFCommonZ0AtPV, DFCommonHSDecorator, DFCommonUsedInFitDecorator]
+          if InDetDxAODFlags.AddPseudoTracks():
+              AugTools += PseudoTrackDecorators
+          DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("InDetCommonKernel", AugmentationTools = AugTools)
 
     # Add LRT merger job to the sequence when the LRT track particle is supposed to be made already 
 
