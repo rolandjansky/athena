@@ -14,7 +14,7 @@ Reco_tf.py \
   --reductionConf PHYS PHYSLITE \
   --athenaopts "HITtoRDO:--threads=${ATHENA_CORE_NUMBER} --nprocs=0" "RDOtoRDOTrigger:--threads=0 --nprocs=${ATHENA_CORE_NUMBER}" "RAWtoALL:--threads=${ATHENA_CORE_NUMBER} --nprocs=0" "AODtoDAOD:--threads=0 --nprocs=${ATHENA_CORE_NUMBER}" \
   --postExec "from AthenaAuditors.AthenaAuditorsConf import FPEAuditor;FPEAuditor.NStacktracesOnFPE=10" \
-  --maxEvents -1
+  --maxEvents 2000
 
 rc1=$?
 echo "art-result: ${rc1} Reco_tf_q443_phys_physlite_mt_mp" 
@@ -25,6 +25,8 @@ fpeStat=$?
 
 echo "art-result: ${fpeStat} FPEs in logfiles"
 
+echo "============ checkxAOD tmp.AOD"
+checkxAOD tmp.AOD
 echo "============ checkxAOD DAOD_PHYS.art.pool.root"
 checkxAOD DAOD_PHYS.art.pool.root
 echo "============ checkxAOD DAOD_PHYSLITE.art.pool.root"
