@@ -5,6 +5,7 @@ bf.Beam.numberOfCollisions.set_Value_and_Lock(0)
 
 from Digitization.DigitizationFlags import digitizationFlags
 digitizationFlags.doPixelPlanarRadiationDamage.set_Value_and_Lock(True)
+digitizationFlags.dataRunNumber.set_Value_and_Lock(410000)
 
 from AthenaCommon.Resilience import protectedInclude
 protectedInclude('LArConfiguration/LArConfigRun3Old_NoPileup.py')

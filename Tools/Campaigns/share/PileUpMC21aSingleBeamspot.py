@@ -7,7 +7,7 @@ protectedInclude('SimulationJobOptions/preInlcude.PileUpBunchTrainsMC16c_2017_Co
 if 'userRunLumiOverride' in dir():
     protectedInclude('RunDependentSimData/configLumi_muRange.py')
 else:
-    protectedInclude('RunDependentSimData/configLumi_run330000_mc21a_SingleBeamspot.py')
+    protectedInclude('RunDependentSimData/configLumi_run410000_mc21a_SingleBeamspot.py')
 
 from Digitization.DigitizationFlags import digitizationFlags
 digitizationFlags.numberOfLowPtMinBias = 51.898
