@@ -13,7 +13,7 @@ namespace TrigConf {
    class TIP : public L1DataBaseclass {
    public:
       TIP();
-      ~TIP();
+      virtual ~TIP() override = default;
 		
       // Accessors
 		

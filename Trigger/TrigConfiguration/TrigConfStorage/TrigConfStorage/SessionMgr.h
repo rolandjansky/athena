@@ -34,7 +34,7 @@ namespace TrigConf {
       SessionMgr();
 
       /**@brief destructor*/
-      ~SessionMgr();
+      virtual ~SessionMgr() override;
 
       /**@brief close open sessions*/
       void closeSession();

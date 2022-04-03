@@ -51,7 +51,7 @@ namespace TrigConf {
                   const std::string& password , std::ostream & o = std::cout);
       
       /**destructor*/
-      virtual ~StorageMgr();
+      virtual ~StorageMgr() override;
 
       // setting log level of all loaders
       void setLevel(MSGTC::Level lvl) override;

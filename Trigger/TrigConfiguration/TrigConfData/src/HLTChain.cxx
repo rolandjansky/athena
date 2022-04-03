@@ -34,9 +34,6 @@ TrigConf::Chain::load()
    m_name = getAttribute("name", true, m_name);
 }
 
-TrigConf::Chain::~Chain()
-{}
-
 std::string
 TrigConf::Chain::className() const {
    return "Chain";

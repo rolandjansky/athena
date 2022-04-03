@@ -26,9 +26,6 @@ TrigConf::TIP::TIP() :
    m_Clock(0)
 {}
 	
-TrigConf::TIP::~TIP()
-{}
-	
 void
 TrigConf::TIP::print(const std::string& indent, unsigned int /*detail*/) const {
    cout << indent << "TIP " << setw(3) << m_TipNumber;

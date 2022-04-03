@@ -11,7 +11,7 @@ namespace TrigConf {
    class XsThresholdValue : public TriggerThresholdValue {
    public:
       XsThresholdValue();
-      ~XsThresholdValue() = default;
+      virtual ~XsThresholdValue() override = default;
       
       virtual TriggerThresholdValue* createCopy() const override;
 

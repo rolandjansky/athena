@@ -39,7 +39,7 @@ namespace TrigConf {
          : ILoader(), DBLoader("CaloInfoLoader", sm, session) {}    
 
       /**@brief destructor*/       
-      virtual ~CaloInfoLoader(){};
+      virtual ~CaloInfoLoader() override = default;
 
       virtual bool load( CaloInfo& data) override;
 

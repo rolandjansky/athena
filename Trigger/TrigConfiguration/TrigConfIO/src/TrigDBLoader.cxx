@@ -23,9 +23,8 @@ TrigConf::TrigDBLoader::TrigDBLoader(const std::string & loaderName, const std::
    m_connection(connection)
 {}
 
-
-TrigConf::TrigDBLoader::~TrigDBLoader()
-{}
+// Destructor defined here because QueryDefinition is an incomplete type in the header
+TrigConf::TrigDBLoader::~TrigDBLoader() = default;
 
 namespace {
    bool startswith(const std::string& str, const std::string& sub) {

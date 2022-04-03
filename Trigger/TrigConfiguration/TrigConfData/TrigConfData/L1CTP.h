@@ -31,7 +31,7 @@ namespace TrigConf {
       L1CTP& operator=(const L1CTP&) = delete;
       L1CTP(L1CTP&&) = delete;
 
-      ~L1CTP() = default;
+      virtual ~L1CTP() override = default;
 
       /** @brief name of ctpin connector
        * @param slot CTPIN board 7..9 

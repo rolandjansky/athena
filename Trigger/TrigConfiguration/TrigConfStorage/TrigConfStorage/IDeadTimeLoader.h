@@ -27,7 +27,7 @@ namespace TrigConf {
    class IDeadTimeLoader : virtual public ILoader {
    public:
 
-      virtual ~IDeadTimeLoader() {};
+      virtual ~IDeadTimeLoader() override = default;
 
       virtual bool load( DeadTime& data ) = 0;
    };

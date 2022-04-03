@@ -25,7 +25,7 @@ namespace TrigConf {
          TrigConfData(),
          m_Lvl1MasterId(0)
       {}
-      virtual ~L1DataBaseclass() = default;
+      virtual ~L1DataBaseclass() override = default;
 
       unsigned int lvl1MasterTableId() const { return m_Lvl1MasterId; }
       void setLvl1MasterTableId ( unsigned int id) { m_Lvl1MasterId = id; }

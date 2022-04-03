@@ -11,7 +11,7 @@ namespace TrigConf {
    class MuonThresholdValue : public TriggerThresholdValue {
    public:
       MuonThresholdValue();
-      ~MuonThresholdValue() = default;
+      virtual ~MuonThresholdValue() override = default;
 
       virtual TriggerThresholdValue* createCopy() const override;
 

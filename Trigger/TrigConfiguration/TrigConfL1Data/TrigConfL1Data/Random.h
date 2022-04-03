@@ -15,7 +15,7 @@ namespace TrigConf {
    class Random : public L1DataBaseclass {
    public:
       Random();
-      ~Random() = default;
+      virtual ~Random() override = default;
     
       // getters
       uint32_t              cuts(unsigned int idx) const { return m_cuts[idx]; }

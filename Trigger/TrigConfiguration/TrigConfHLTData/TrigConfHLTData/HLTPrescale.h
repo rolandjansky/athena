@@ -32,7 +32,7 @@ namespace TrigConf {
       HLTPrescale(HLTPrescale&& o) noexcept = default;
 
       // destructor
-      ~HLTPrescale();
+      ~HLTPrescale() = default;
 
       // assignment
       HLTPrescale& operator=(const HLTPrescale&) = default;

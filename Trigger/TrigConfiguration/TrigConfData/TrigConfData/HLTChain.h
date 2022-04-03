@@ -28,7 +28,7 @@ namespace TrigConf {
       Chain(const std::string & name, const boost::property_tree::ptree & data);
 
       /** Destructor */
-      virtual ~Chain();
+      virtual ~Chain() override = default;
 
       virtual std::string className() const override;
 

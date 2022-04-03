@@ -28,11 +28,6 @@ HLTFrame::HLTFrame() :
 {}
 
 
-// destructor
-HLTFrame::~HLTFrame()
-{}
-
-
 void
 HLTFrame::clear() {
    m_HLTChainList.clear();

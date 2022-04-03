@@ -33,8 +33,8 @@ namespace TrigConf {
       /** Constructor */
       TrigDBMenuLoader(const std::string & connection);
 
-      /** Destructor */
-      virtual ~TrigDBMenuLoader();
+      /** Destructor - cannot be defined here because QueryDefinition is an incomplete type */
+      virtual ~TrigDBMenuLoader() override;
 
       /**
        * @brief Load L1 menu content from the Trigger DB into a ptree for a given SuperMasterKey (SMK)

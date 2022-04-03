@@ -57,7 +57,6 @@ namespace TrigConf {
 
    public:
       L1PSNumber();
-      virtual ~L1PSNumber() = default;
       L1PSNumber(const float ps);
       L1PSNumber(const int64_t ps);
       L1PSNumber(const int ps);

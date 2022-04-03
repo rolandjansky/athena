@@ -15,6 +15,7 @@ namespace TrigConf {
 
    class IL1TopoMenuLoader : virtual public ILoader {
    public:
+      virtual ~IL1TopoMenuLoader() override = default;
       virtual bool load( TXC::L1TopoMenu& data ) = 0;
    };
 

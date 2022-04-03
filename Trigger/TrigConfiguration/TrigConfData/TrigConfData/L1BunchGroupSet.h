@@ -33,7 +33,7 @@ namespace TrigConf {
       L1BunchGroup(const ptree & data);
 
       /** Destructor */
-      virtual ~L1BunchGroup();
+      virtual ~L1BunchGroup() override = default;
 
       virtual std::string className() const override { return "L1BunchGroup"; }
 

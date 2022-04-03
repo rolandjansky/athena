@@ -60,7 +60,7 @@ namespace TrigConf {
       L1Connector(const std::string & connName, const ptree & data);
 
       /** Destructor */
-      virtual ~L1Connector();
+      virtual ~L1Connector() override = default;
 
       virtual std::string className() const override;
 

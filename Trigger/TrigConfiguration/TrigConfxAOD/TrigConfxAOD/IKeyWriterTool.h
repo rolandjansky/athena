@@ -18,6 +18,7 @@ namespace TrigConf {
   class IKeyWriterTool : virtual public IAlgTool { 
   public: 
     DeclareInterfaceID( IKeyWriterTool, 1, 0 );
+    virtual ~IKeyWriterTool() override = default;
 
     /**
      * @brief Write the event's keys to StoreGate. Return the keys to the caller.

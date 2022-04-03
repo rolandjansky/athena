@@ -31,7 +31,7 @@ namespace TrigConf {
       explicit DBLoader( const std::string& name, StorageMgr& sm, coral::ISessionProxy& session );
 
       /**@brief destructor*/
-      virtual ~DBLoader(){};
+      virtual ~DBLoader() override = default;
 
       /**@brief access to output stream*/
       //std::ostream & msg() { return m_storageMgr.msg(); }

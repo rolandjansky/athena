@@ -26,8 +26,8 @@ namespace TrigConf {
        */
       L1Item(const ptree & data);
 
-      /** Destrutor */
-      ~L1Item();
+      /** Destructor */
+      virtual ~L1Item() override = default;
 
       virtual std::string className() const override;
 

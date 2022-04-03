@@ -26,7 +26,7 @@ namespace TrigConf {
       L1TopoOutput(const boost::property_tree::ptree & data);
 
       /** Destructor */
-      ~L1TopoOutput();
+      virtual ~L1TopoOutput() override = default;
 
       // class name
       virtual std::string className() const override {

@@ -31,7 +31,7 @@ namespace TrigConf {
    {
    public:
       /**@brief destructor*/
-      virtual ~ILVL1ConfigSvc(){}
+      virtual ~ILVL1ConfigSvc() override = default;
 
       /// Specify the interface declared by this class
       DeclareInterfaceID( ILVL1ConfigSvc, 0, 1 );

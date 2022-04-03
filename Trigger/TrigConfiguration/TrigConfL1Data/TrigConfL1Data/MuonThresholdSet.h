@@ -13,7 +13,7 @@ namespace TrigConf {
    class MuonThresholdSet : public L1DataBaseclass {
    public:
       MuonThresholdSet();
-      ~MuonThresholdSet() = default;
+      virtual ~MuonThresholdSet() override = default;
     
       bool rpcAvailable() const {return m_rpc_avail;}
       bool rpcAvailableOnline() const {return m_rpc_avail_online;}

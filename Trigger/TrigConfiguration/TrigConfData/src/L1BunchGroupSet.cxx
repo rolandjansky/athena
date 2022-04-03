@@ -18,9 +18,6 @@ TrigConf::L1BunchGroup::L1BunchGroup( const boost::property_tree::ptree & data )
    load();
 }
 
-TrigConf::L1BunchGroup::~L1BunchGroup()
-{}
-
 void
 TrigConf::L1BunchGroup::load()
 {
