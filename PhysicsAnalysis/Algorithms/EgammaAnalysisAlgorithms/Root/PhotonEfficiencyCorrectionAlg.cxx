@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -24,8 +24,7 @@ namespace CP
     : AnaAlgorithm (name, pSvcLocator)
     , m_efficiencyCorrectionTool ("AsgPhotonEfficiencyCorrectionTool", this)
   {
-    declareProperty ("efficiencyCorrectionTool", m_efficiencyCorrectionTool, "the calibration and smearing tool we apply");
-    declareProperty ("scaleFactorDecoration", m_scaleFactorDecoration, "the decoration for the photon scale factor");
+    declareProperty ("efficiencyCorrectionTool", m_efficiencyCorrectionTool, "the efficiency correction tool we apply");
   }
 
 
@@ -38,14 +37,15 @@ namespace CP
       ANA_MSG_ERROR ("no scale factor decoration name set");
       return StatusCode::FAILURE;
     }
-    m_scaleFactorAccessor = std::make_unique<SG::AuxElement::Accessor<float> > (m_scaleFactorDecoration);
 
     ANA_CHECK (m_efficiencyCorrectionTool.retrieve());
     ANA_CHECK (m_photonHandle.initialize (m_systematicsList));
+    ANA_CHECK (m_scaleFactorDecoration.initialize(m_systematicsList, m_photonHandle));
     ANA_CHECK (m_systematicsList.addSystematics (*m_efficiencyCorrectionTool));
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
     ANA_CHECK (m_outOfValidity.initialize());
+
     return StatusCode::SUCCESS;
   }
 
@@ -57,15 +57,17 @@ namespace CP
     for (const auto& sys : m_systematicsList.systematicsVector())
     {
       ANA_CHECK (m_efficiencyCorrectionTool->applySystematicVariation (sys));
-      xAOD::PhotonContainer *photons = nullptr;
-      ANA_CHECK (m_photonHandle.getCopy (photons, sys));
-      for (xAOD::Photon *photon : *photons)
+      const xAOD::PhotonContainer *photons = nullptr;
+      ANA_CHECK (m_photonHandle.retrieve (photons, sys));
+      for (const xAOD::Photon *photon : *photons)
       {
         if (m_preselection.getBool (*photon))
         {
           double sf = 0;
           ANA_CHECK_CORRECTION (m_outOfValidity, *photon, m_efficiencyCorrectionTool->getEfficiencyScaleFactor (*photon, sf));
-          (*m_scaleFactorAccessor) (*photon) = sf;
+          m_scaleFactorDecoration.set (*photon, sf, sys);
+        } else {
+          m_scaleFactorDecoration.set (*photon, invalidScaleFactor(), sys);
         }
       }
     }
