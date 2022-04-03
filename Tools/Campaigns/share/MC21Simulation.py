@@ -1,10 +1,10 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from G4AtlasApps.SimFlags import simFlags
 simFlags.PhysicsList = "FTFP_BERT_ATL"
 simFlags.TruthStrategy = "MC15aPlus"
 
-simFlags.RunNumber = 330000
+simFlags.RunNumber = 410000
 
 simFlags.TRTRangeCut = 30.0
 simFlags.TightMuonStepping = True
