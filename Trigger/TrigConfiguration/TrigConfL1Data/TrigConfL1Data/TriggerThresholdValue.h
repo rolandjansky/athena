@@ -36,7 +36,7 @@ namespace TrigConf {
       
    public:
       TriggerThresholdValue();
-      virtual ~TriggerThresholdValue() = default;
+      virtual ~TriggerThresholdValue() override = default;
 
       virtual TriggerThresholdValue* createCopy() const = 0;
 

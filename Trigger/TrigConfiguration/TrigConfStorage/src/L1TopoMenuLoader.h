@@ -26,7 +26,7 @@ namespace TrigConf {
          IL1TopoMenuLoader(), DBLoader("L1TopoMenuLoader", sm, session) {}
       
       /**@brief destructor*/       
-      virtual ~L1TopoMenuLoader(){};
+      virtual ~L1TopoMenuLoader() override = default;
 
       virtual bool load( TXC::L1TopoMenu& ) override;
 

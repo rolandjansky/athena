@@ -23,9 +23,6 @@ TrigConf::PIT::PIT() :
    m_ThresholdMapping(0)
 {}
 	
-TrigConf::PIT::~PIT()
-{}
-	
 void
 TrigConf::PIT::print(const std::string& indent, unsigned int /*detail*/) const{
    cout << indent << "PIT " << m_PitNumber;

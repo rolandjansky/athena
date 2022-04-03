@@ -36,9 +36,6 @@ TrigConf::CaloJetInput::CaloJetInput() :
   m_EtaMin(0),
   m_EtaMax(0)
 {}
-
-TrigConf::CaloJetInput::~CaloJetInput()
-{}  
  
 
 void

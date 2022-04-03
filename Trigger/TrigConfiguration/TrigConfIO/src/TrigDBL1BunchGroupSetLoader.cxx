@@ -21,6 +21,7 @@ TrigConf::TrigDBL1BunchGroupSetLoader::TrigDBL1BunchGroupSetLoader(const std::st
    }
 }
 
+// Destructor defined here because QueryDefinition is an incomplete type in the header
 TrigConf::TrigDBL1BunchGroupSetLoader::~TrigDBL1BunchGroupSetLoader() = default;
 
 bool

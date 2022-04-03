@@ -53,7 +53,7 @@ namespace TrigConf {
       HLTTriggerElement( const std::pair<unsigned int, std::string>& p);
 
       /**@brief destructor*/
-      virtual ~HLTTriggerElement();
+      virtual ~HLTTriggerElement() override = default;
 
       // getters
       unsigned int hashId() const { return m_hashId; }

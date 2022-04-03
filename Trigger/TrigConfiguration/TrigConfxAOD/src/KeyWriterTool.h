@@ -35,7 +35,7 @@ namespace TrigConf {
 
     KeyWriterTool( const std::string& type, const std::string& name, const IInterface* parent );
 
-    virtual ~KeyWriterTool();
+    virtual ~KeyWriterTool() override = default;
 
     virtual StatusCode initialize() final;
 

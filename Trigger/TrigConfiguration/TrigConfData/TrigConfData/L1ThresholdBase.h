@@ -80,7 +80,7 @@ namespace TrigConf {
       L1ThrExtraInfoBase& operator=(const L1ThrExtraInfoBase&) = delete;
       L1ThrExtraInfoBase(L1ThrExtraInfoBase&&) = default;
       L1ThrExtraInfoBase& operator=(L1ThrExtraInfoBase&&) = default;
-      virtual ~L1ThrExtraInfoBase() = default;
+      virtual ~L1ThrExtraInfoBase() override = default;
 
       // Constructor initialized with configuration data 
       // @param data The data containing the L1 menu 
@@ -148,7 +148,7 @@ namespace TrigConf {
                    std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data);
 
       /** Destructor */
-      virtual ~L1Threshold() = default;
+      virtual ~L1Threshold() override = default;
 
       virtual std::string className() const override
       { return "L1Threshold"; }
@@ -201,7 +201,7 @@ namespace TrigConf {
                         std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data);
 
       /** Destructor */
-      virtual ~L1Threshold_Calo() = default;
+      virtual ~L1Threshold_Calo() override = default;
 
       // Accessors to the threshold value for eta-dependent threholds
 

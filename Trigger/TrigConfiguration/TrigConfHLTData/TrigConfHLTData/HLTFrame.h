@@ -36,7 +36,7 @@ namespace TrigConf {
       HLTFrame();
 
       /**@brief destructor*/
-      ~HLTFrame();
+      virtual ~HLTFrame() override = default;
 
       /**@brief clear chains, sequences and prescales*/
       void clear();

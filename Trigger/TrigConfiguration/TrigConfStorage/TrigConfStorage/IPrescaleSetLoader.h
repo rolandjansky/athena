@@ -12,7 +12,7 @@ namespace TrigConf {
 
    class IPrescaleSetLoader : virtual public ILoader {
    public:
-      virtual ~IPrescaleSetLoader() {};
+      virtual ~IPrescaleSetLoader() override = default;
       virtual bool load( unsigned int ctpVersion, PrescaleSet& data ) = 0;
    };
 

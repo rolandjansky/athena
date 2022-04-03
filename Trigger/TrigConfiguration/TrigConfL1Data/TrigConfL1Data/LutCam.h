@@ -21,7 +21,7 @@ namespace TrigConf {
       static const u_int ALL_CAM_SIZE =  8192;
       
       LutCam();
-      ~LutCam();
+      virtual ~LutCam() override = default;
 
       // Accessors
 

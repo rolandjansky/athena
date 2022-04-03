@@ -26,7 +26,7 @@ namespace TrigConf {
          IMasterTableLoader(), DBLoader(sm, session) {}
 
       /**@brief destructor*/       
-      virtual ~MasterTableLoader(){}
+      virtual ~MasterTableLoader() override = default;
 
 
       bool load(ThresholdConfig& thrcfg) override;

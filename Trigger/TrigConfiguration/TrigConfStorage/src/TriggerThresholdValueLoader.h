@@ -14,7 +14,7 @@ namespace TrigConf {
    public:
 
       TriggerThresholdValueLoader( StorageMgr& sm,  coral::ISessionProxy& session) : DBLoader("TriggerThresholdValueLoader", sm, session) {}
-      virtual ~TriggerThresholdValueLoader(){};
+      virtual ~TriggerThresholdValueLoader() override = default;
 
       virtual bool load( TriggerThresholdValue& data) override;
    };

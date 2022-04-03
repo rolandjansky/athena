@@ -26,7 +26,7 @@ namespace TrigConf {
    class IMuctpiLoader : virtual public ILoader {
    public:
 
-      virtual ~IMuctpiLoader() {};
+      virtual ~IMuctpiLoader() override = default;
 
       virtual bool load( Muctpi& data ) = 0;
    };

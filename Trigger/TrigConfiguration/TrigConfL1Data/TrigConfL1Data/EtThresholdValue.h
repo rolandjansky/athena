@@ -11,7 +11,7 @@ namespace TrigConf {
    class EtThresholdValue : public TriggerThresholdValue {
    public:
       EtThresholdValue();
-      ~EtThresholdValue() = default;
+      virtual ~EtThresholdValue() override = default;
       
       virtual TriggerThresholdValue* createCopy() const override;
 

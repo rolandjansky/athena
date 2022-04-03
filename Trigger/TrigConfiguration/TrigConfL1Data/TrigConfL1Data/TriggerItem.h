@@ -25,7 +25,7 @@ namespace TrigConf {
    class TriggerItem : public TrigConfData {
    public:
       TriggerItem();
-      virtual ~TriggerItem();
+      virtual ~TriggerItem() override;
 
       // getters
       unsigned int       complex_deadtime() const { return m_ComplexDeadtime; }

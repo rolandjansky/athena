@@ -13,7 +13,7 @@ namespace TrigConf {
    class PrescaledClock : public L1DataBaseclass  {
    public:
       PrescaledClock();
-      ~PrescaledClock() = default;
+      virtual ~PrescaledClock() override = default;
     
       // setters
       int clock1() const { return m_clock1; }

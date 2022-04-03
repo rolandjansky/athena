@@ -26,7 +26,7 @@ namespace TrigConf {
          DBLoader("HLTChainLoader", sm, session) {}
 
       /**@brief destructor*/       
-      virtual ~HLTChainLoader(){};
+      virtual ~HLTChainLoader() override = default;
 
       void loadChains( HLTChainList& chainlist );
       void loadGroups( HLTChainList& chainlist );

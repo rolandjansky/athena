@@ -13,7 +13,7 @@ namespace TrigConf {
    class PIT : public L1DataBaseclass {
    public:
       PIT();
-      ~PIT();
+      virtual ~PIT() override = default;
 
       // Accessors
       

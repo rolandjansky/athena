@@ -35,7 +35,7 @@ namespace TrigConf {
 
    public:
       /**@brief destructor*/
-      virtual ~IHLTConfigSvc(){}
+      virtual ~IHLTConfigSvc() override = default;
 
       /// Specify the interface declared by this class
       DeclareInterfaceID( IHLTConfigSvc, 0, 1 );

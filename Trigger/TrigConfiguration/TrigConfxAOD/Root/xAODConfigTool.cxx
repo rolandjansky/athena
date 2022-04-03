@@ -72,9 +72,8 @@ namespace TrigConf {
       declareProperty( "JSONMetaObjectNameBunchgroup", m_metaNameJSON_bg = "TriggerMenuJson_BG" );
    }
 
-   xAODConfigTool::~xAODConfigTool()
-   {
-   }
+   // Defined here rather than in the header because it requires the knowledge of Impl defined above
+   xAODConfigTool::~xAODConfigTool() = default;
 
    StatusCode xAODConfigTool::initialize() {
 

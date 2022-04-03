@@ -17,7 +17,7 @@ namespace TrigConf {
    class BunchGroup : public L1DataBaseclass {
    public:
       BunchGroup();
-      ~BunchGroup() = default;
+      virtual ~BunchGroup() override = default;
 
       // Accessors
       unsigned int            internalNumber() const { return m_InternalNumber; }

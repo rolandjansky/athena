@@ -34,7 +34,7 @@ namespace TrigConf {
 
    public:
       /**@brief destructor*/
-      virtual ~IIHLTConfigSvc(){}
+      virtual ~IIHLTConfigSvc() = default;
 
       /**@brief accessor to HLT chains*/
       virtual const HLTChainList& chains() const = 0;

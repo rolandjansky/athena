@@ -37,7 +37,7 @@ namespace TrigConf {
          : ILoader(), DBLoader(sm, session) {}
 
       /**@brief destructor*/       
-      virtual ~DeadTimeLoader(){};
+      virtual ~DeadTimeLoader() override = default;
 
       virtual bool load( DeadTime& data) override;
    };

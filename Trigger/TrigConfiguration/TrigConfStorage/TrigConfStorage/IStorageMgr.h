@@ -48,7 +48,7 @@ namespace TrigConf {
    public:
 
       /**@brief destructor*/       
-      virtual ~IStorageMgr(){};
+      virtual ~IStorageMgr() = default;
 
       // setting log level of all loaders
       virtual void setLevel(MSGTC::Level) = 0;

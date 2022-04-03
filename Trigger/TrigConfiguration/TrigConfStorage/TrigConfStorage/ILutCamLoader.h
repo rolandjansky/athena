@@ -12,7 +12,7 @@ namespace TrigConf {
 
    class ILutCamLoader : virtual public ILoader {
    public:
-      virtual ~ILutCamLoader() {};
+      virtual ~ILutCamLoader() override = default;
       virtual bool load( LutCam& data ) = 0;
    };
 

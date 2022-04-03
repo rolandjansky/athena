@@ -28,7 +28,7 @@ namespace TrigConf {
   public:
 
     PrescaledClockLoader( StorageMgr& sm,  coral::ISessionProxy& session) : DBLoader(sm, session) {}
-    virtual ~PrescaledClockLoader(){};
+    virtual ~PrescaledClockLoader() override = default;
 
     virtual bool load( PrescaledClock& data) override;
   };

@@ -20,7 +20,7 @@ namespace TrigConf {
 
       CaloSinCos();
 
-      virtual ~CaloSinCos();
+      virtual ~CaloSinCos() override = default;
 
       // getters
       int val1() const { return m_Val1; }

@@ -32,7 +32,7 @@ namespace TrigConf {
       HLTMenu(HLTMenu&&) = default;
 
       /** Destructor */
-      ~HLTMenu();
+      virtual ~HLTMenu() override = default;
 
       // class name
       virtual std::string className() const override {

@@ -31,9 +31,6 @@ MuctpiXMLParser::MuctpiXMLParser() :
   TrigConf::TrigConfMessaging("MuctpiXMLParser")
 {}
 
-MuctpiXMLParser::~MuctpiXMLParser()
-{}
-
 
 void
 MuctpiXMLParser::printConfiguration() const {
