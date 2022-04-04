@@ -105,13 +105,9 @@ namespace NSWL1 {
     std::vector<int> *m_seg_bandId;
     std::vector<int> *m_seg_phiId;
     std::vector<int> *m_seg_rIdx;
-    std::vector<float> *m_seg_global_r;
     std::vector<float> *m_seg_global_x;
     std::vector<float> *m_seg_global_y;
     std::vector<float> *m_seg_global_z;
-    std::vector<float> *m_seg_dir_r;
-    std::vector<float> *m_seg_dir_y;
-    std::vector<float> *m_seg_dir_z;
 
     StatusCode FetchDetectorEnvelope();
     uint8_t findRIdx(const float&) const;
