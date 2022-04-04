@@ -80,8 +80,9 @@ void testgFexGlobalRoI() {
 
    std::cout << "Initializing test object: global TOB" << std::endl;
    uint32_t word = 192035055;
-   int scale = 200.;
-   obj->initialize(word, scale);
+   int scale1 = 200.;
+   int scale2 = 800.;
+   obj->initialize(word, scale1, scale2);
    
    
    SIMPLE_ASSERT( obj->isgScalar() == 0 );
@@ -89,9 +90,9 @@ void testgFexGlobalRoI() {
    SIMPLE_ASSERT( obj->isgMHT() == 0 );
    SIMPLE_ASSERT( obj->isgMST() == 0 );
    SIMPLE_ASSERT( obj->globalType() == 2 );
-
+   
    SIMPLE_ASSERT( obj->METquantityOne() == 365400 );
-   SIMPLE_ASSERT( obj->METquantityTwo() == -361800 );
+   SIMPLE_ASSERT( obj->METquantityTwo() == -1447200 );
    SIMPLE_ASSERT( obj->SumEt() == -999 );
 
    std::cout << "Test global TOB completed!" << std::endl;
