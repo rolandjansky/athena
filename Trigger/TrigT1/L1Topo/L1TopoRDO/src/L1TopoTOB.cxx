@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -49,7 +49,7 @@ namespace L1Topo {
   }
 
   void L1TopoTOB::encode(){
-    m_word = static_cast<int>(L1Topo::BlockTypes::L1TOPO_TOB) << 28;
+    m_word = static_cast<uint32_t>(L1Topo::BlockTypes::L1TOPO_TOB) << 28;
     m_word |= (m_trigger_bits & 0xff);
     m_word |= (m_overflow_bits & 0xff) << 8;
     m_word |= (m_error_bits & 0x1f) << 16;

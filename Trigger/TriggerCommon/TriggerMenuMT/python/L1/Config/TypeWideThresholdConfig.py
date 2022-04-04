@@ -435,7 +435,7 @@ def getConfig_gXE():
 
 def getConfig_gTE():
     confObj = odict()
-    confObj["resolutionMeV"] = 200
+    confObj["resolutionMeV"] = 800
     return confObj
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArBadChannelTool/LArBadChannelTimingAlg.h"
@@ -51,11 +51,8 @@ StatusCode LArBadChannelTimingAlg::initialize() {
 
 StatusCode LArBadChannelTimingAlg::execute() 
 {
-  // FIXME: execute the writing to the store only on first call
-  static bool firstCall = true;
-  if (firstCall) {
+  if (m_hwarray.empty()) {
     fillChannelArray();
-    firstCall = false;
   }
   timeOnlineAccess();
   timeOfflineAccess();

@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
-# art-description: test job ttFC_fullSim_fullDigi + ttFC_reco_newTracking_PseudoT_fullSim_fullDigi
-# art-type: grid
-# art-include: master/Athena
+# art-description: test job ttFC_fullSim_fullDigi + ttFC_reco_newTracking_PseudoT_fullSim_fullDigi (was for grid, master/Athena)
 # art-output: config.txt
 # art-output: *.root
 # art-output: dcube-rdo-truth

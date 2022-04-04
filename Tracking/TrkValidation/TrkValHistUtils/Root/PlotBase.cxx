@@ -260,6 +260,17 @@ PlotBase::BookTEfficiency(const std::string &name, const std::string & labels, c
   return hist;
 }
 
+TEfficiency *
+PlotBase::BookTEfficiency(const std::string &name, const std::string & labels, const int nBinsX, const float xlo, const float xhi, const int nBinsY, const float ylo, const float yhi, const bool prependDir){
+  std::string prefix = constructPrefix(m_sDirectory, prependDir);
+
+  TEfficiency *hist = new TEfficiency((prefix + name).c_str(), labels.c_str(), nBinsX, xlo, xhi, nBinsY, ylo, yhi);
+  hist->SetDirectory(nullptr);
+  m_vBookedEfficiencies.emplace_back(hist, m_sDirectory);
+
+  return hist;
+}
+
 TTree *
 PlotBase::BookTree(const std::string &name, bool prependDir) {
   std::string prefix = constructPrefix(m_sDirectory, prependDir);

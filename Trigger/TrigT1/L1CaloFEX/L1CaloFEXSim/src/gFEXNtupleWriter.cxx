@@ -102,7 +102,8 @@ StatusCode LVL1::gFEXNtupleWriter::initialize () {
   m_valiTree->Branch ("gGlobal_MHTy", &m_gGlobal_MHTy);  
   m_valiTree->Branch ("gGlobal_MSTx", &m_gGlobal_MSTx);  
   m_valiTree->Branch ("gGlobal_MSTy", &m_gGlobal_MSTy); 
-  m_valiTree->Branch ("gGlobal_scaleMeV", &m_gGlobal_etScale); 
+  m_valiTree->Branch ("gGlobal_scaleMeV1", &m_gGlobal_etScale1); 
+  m_valiTree->Branch ("gGlobal_scaleMeV2", &m_gGlobal_etScale2); 
 
   
   m_load_truth_jet = true;
@@ -240,7 +241,8 @@ StatusCode LVL1::gFEXNtupleWriter::execute () {
   m_gGlobal_MHTy.clear();
   m_gGlobal_MSTx.clear();
   m_gGlobal_MSTy.clear();
-  m_gGlobal_etScale.clear();  
+  m_gGlobal_etScale1.clear();  
+  m_gGlobal_etScale2.clear();  
   
 
 
@@ -298,7 +300,8 @@ StatusCode LVL1::gFEXNtupleWriter::execute () {
   for (auto const gScalarE : *gScalarEHandle) {
     m_gGlobal_MET.push_back(gScalarE->METquantityOne());
     m_gGlobal_SumET.push_back(gScalarE->METquantityTwo());
-    m_gGlobal_etScale.push_back(gScalarE->tobEtScale());
+    m_gGlobal_etScale1.push_back(gScalarE->tobEtScaleOne());
+    m_gGlobal_etScale2.push_back(gScalarE->tobEtScaleTwo());
   }
 
   for (auto const gMET : *gMETHandle) {

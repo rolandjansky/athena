@@ -74,6 +74,7 @@ public:
   static void fillHisto(TH3* pTh3, const float xval, const float yval, const float zval);
   //
   static void fillHisto(TEfficiency* pTeff,  const float value, const bool accepted, float weight);
+  static void fillHisto(TEfficiency* eff2d,  const float xvalue, const float yvalue, const bool accepted, const float weight);
   //
 protected:
   /// book, for use by macro

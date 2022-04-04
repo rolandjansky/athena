@@ -22,10 +22,11 @@ namespace xAOD {
 
    }
 
-   void gFexGlobalRoI_v1::initialize( uint32_t word, int tobEtScale) {
+   void gFexGlobalRoI_v1::initialize( uint32_t word, int tobEtScaleOne, int tobEtScaleTwo) {
 
       setWord( word );
-      setScale( tobEtScale );
+      setScaleOne( tobEtScaleOne );
+      setScaleTwo( tobEtScaleTwo );
       setGlobalType(unpackType());
       setQuantityOne( unpackQuantityOne() );
       setQuantityTwo( unpackQuantityTwo() );
@@ -39,8 +40,10 @@ namespace xAOD {
    /// Raw data words
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexGlobalRoI_v1, uint32_t, word,
                                          setWord )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexGlobalRoI_v1, int, tobEtScale,
-                                         setScale )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexGlobalRoI_v1, int, tobEtScaleOne,
+                                         setScaleOne )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexGlobalRoI_v1, int, tobEtScaleTwo,
+                                         setScaleTwo )
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexGlobalRoI_v1, uint8_t, statusOne,
                                          setStatusOne )
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexGlobalRoI_v1, uint8_t, statusTwo,
@@ -132,21 +135,22 @@ namespace xAOD {
    /// MET/SumEt on TOB scale
    float gFexGlobalRoI_v1::METquantityOne() const {
     if (globalType() != gNull){
-        return quantityOne()*tobEtScale();
+        return quantityOne()*tobEtScaleOne();
     }
     return -999;
    }
 
    float gFexGlobalRoI_v1::METquantityTwo() const {
     if (globalType() != gNull){
-        return quantityTwo()*tobEtScale();
+      return quantityTwo()*tobEtScaleTwo();
     }
+
     return -999;
    }
 
    float gFexGlobalRoI_v1::SumEt() const {
     if (globalType() == gScalar ){
-        return quantityTwo()*tobEtScale();
+        return quantityTwo()*tobEtScaleTwo();
     }
     return -999;
    }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOFEXPERF_JGTOWERHELPER_H
@@ -27,7 +27,7 @@ namespace LVL1
 
   public:
     // constructors
-    JGTowerHelper();
+    JGTowerHelper() = delete;
     JGTowerHelper(float eta, float deta, float phi, float dphi);
 
     // destructor
@@ -91,11 +91,11 @@ namespace LVL1
     void setIndexBehind(std::size_t value) { m_indexBehind = value; }
 
   private:
-    float m_eta;
-    float m_deta;
-    float m_phi;
-    float m_dphi;
-    int m_sampling;
+    float m_eta{-999};
+    float m_deta{-999};
+    float m_phi{-999};
+    float m_dphi{-999};
+    int m_sampling{-999};
     std::vector<int> m_scellIndices;
     std::vector<int> m_tileIndices;
     float m_area{-1};

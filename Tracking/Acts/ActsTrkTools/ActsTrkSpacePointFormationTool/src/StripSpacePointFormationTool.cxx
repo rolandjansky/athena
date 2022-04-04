@@ -278,7 +278,6 @@ namespace ActsTrk {
 
         // trigger element and clusters
         const InDetDD::SiDetectorElement* element = elements[0];
-        IdentifierHash Id = element->identifyHash();
         bool isEndcap = element->isEndcap();
 
         std::vector<StripInformationHelper> stripInfos;

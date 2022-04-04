@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -20,7 +20,7 @@ namespace L1Topo {
   }
   
   void Status::encode(){
-    m_word = static_cast<int>(L1Topo::BlockTypes::STATUS) << 28;
+    m_word = static_cast<uint32_t>(L1Topo::BlockTypes::STATUS) << 28;
     m_word |= (m_overflow & 0x1) << 27;
     m_word |= (m_crc & 0x1) << 26;
   }
