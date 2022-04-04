@@ -136,14 +136,25 @@ StatusCode TileROD_Decoder::initialize() {
   const TileCablingService *cablingService = TileCablingService::getInstance();
   m_maxChannels    = cablingService->getMaxChannels();
   m_runPeriod      = cablingService->runPeriod();
+  std::ostringstream os;
   if (m_runPeriod==3) {
     if ( m_demoFragIDs.empty() ) {
       std::vector<int> v = { 0x10d }; // LBA14 is demonstrator in RUN3
       m_demoFragIDs = v;
-    } else {
-      std::sort(m_demoFragIDs.begin(),m_demoFragIDs.end());
     }
-    ATH_MSG_INFO("Enable channel remapping for demonstrator in RUN3," << m_demoFragIDs);
+    os << " in RUN3";
+  }
+
+  if ( !m_demoFragIDs.empty() ) {
+    std::sort(m_demoFragIDs.begin(),m_demoFragIDs.end());
+    os << " (frag IDs):";
+    for (int fragID : m_demoFragIDs) {
+      if (fragID>0)
+        os << " 0x" << std::hex << fragID << std::dec;
+      else
+        os << " " << fragID;
+    }
+    ATH_MSG_INFO("Enable channel remapping for demonstrator modules" << os.str());
   }
 
   m_Rw2Cell[0].reserve(m_maxChannels);
