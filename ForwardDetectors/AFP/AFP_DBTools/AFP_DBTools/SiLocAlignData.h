@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -22,9 +22,12 @@ namespace AFP
   /// Class storing information about alignment.
   class SiLocAlignData 
   {
-    /// allow only builder to change object values
-    friend class SiLocAlignDataBuilder;
   public:
+  
+    SiLocAlignData(int st, int la): m_stationID(st), m_layerID(la), m_xShift(0.), m_yShift(0.), m_zShift(0.), m_alpha(0.), m_beta(0.), m_gamma(0.) {}
+    SiLocAlignData(int st, int la, double x, double y, double z, double a, double b, double g) : m_stationID(st), m_layerID(la), m_xShift(x), m_yShift(y), m_zShift(z), m_alpha(a), m_beta(b), m_gamma(g) {}
+    
+  
     /// ID of the station to which aligment applies (see xAOD::AFPStationID)
     int stationID () const {return m_stationID;}
 
