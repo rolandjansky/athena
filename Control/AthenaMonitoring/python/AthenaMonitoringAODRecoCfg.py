@@ -23,6 +23,10 @@ def AthenaMonitoringAODRecoCfg(flags):
         if jets_to_schedule:
             info(f'Ensuring presence of jet collections for monitoring: {jets_to_schedule}')
             from JetRecConfig.JetRecConfig import JetRecCfg
+            from JetRecConfig.JetConfigFlags import jetInternalFlags            
+            # We're in Reco-like job : this flag implies the jet config will automatically switch off component incompatible with conditions (cosmics, truth,...)
+            jetInternalFlags.isRecoJob = True
+            
             for container in jets_to_schedule:
                 result.merge(JetRecCfg(flags, container))
 
