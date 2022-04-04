@@ -11,6 +11,9 @@ def ActsTrkPixelSpacePointToolCfg(flags, name = "ActsTrkPixelSpacePointTool", **
 def ActsTrkStripSpacePointToolCfg(flags, name = "ActsTrkStripSpacePointTool", **kwargs):
     acc = ComponentAccumulator()
 
+    from SiLorentzAngleTool.ITkStripLorentzAngleConfig import ITkStripLorentzAngleToolCfg
+    kwargs.setdefault("LorentzAngleTool", acc.popToolsAndMerge(ITkStripLorentzAngleToolCfg(flags)) )
+
     kwargs.setdefault("AllClusters", False)
 
     acc.setPrivateTools(CompFactory.ActsTrk.StripSpacePointFormationTool(name, **kwargs))
