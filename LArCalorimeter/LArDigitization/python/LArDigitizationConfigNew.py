@@ -321,7 +321,7 @@ def LArSCL1MakerCfg(flags, **kwargs):
     if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("SCL1ContainerName",flags.Overlay.BkgPrefix + "LArDigitSCL2") # Output - why L2??
     if flags.Common.ProductionStep == ProductionStep.Overlay:
-        kwargs.setdefault("BkgDigitKey","Bkg_LArDigitSCL2")
+        kwargs.setdefault("BkgDigitKey", flags.Overlay.BkgPrefix + "LArDigitSCL2")
     kwargs.setdefault("SCL1ContainerName","LArDigitSCL2") # Output - why L2??
     acc.addEventAlgo(CompFactory.LArSCL1Maker(**kwargs))
     return acc
@@ -338,12 +338,11 @@ def LArTriggerDigitizationBasicCfg(flags, **kwargs):
     if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("EmTTL1ContainerName", flags.Overlay.BkgPrefix + "LArTTL1EM")
         kwargs.setdefault("HadTTL1ContainerName", flags.Overlay.BkgPrefix + "LArTTL1HAD")
-    LArTTL1Maker = CompFactory.LArTTL1Maker
-    acc.addEventAlgo(LArTTL1Maker(**kwargs))
+    acc.addEventAlgo(CompFactory.LArTTL1Maker(**kwargs))
     if flags.GeoModel.Run in [LHCPeriod.Run3]:
         acc.merge(LArSCL1MakerCfg(flags))
         if flags.Common.ProductionStep is not ProductionStep.PileUpPresampling:
-            from LArROD.LArSuperCellBuilderConfig import LArSuperCellBuilderAlgCfg,LArSuperCellBCIDAlgCfg
+            from LArROD.LArSuperCellBuilderConfig import LArSuperCellBuilderAlgCfg, LArSuperCellBCIDAlgCfg
             acc.merge(LArSuperCellBuilderAlgCfg(flags))
             acc.merge(LArSuperCellBCIDAlgCfg(flags))
     return acc
@@ -368,6 +367,7 @@ def LArOverlayTriggerDigitizationBasicCfg(flags, **kwargs):
     acc.merge(CaloTriggerTowerCfg(flags))
 
     kwargs.setdefault("NoiseOnOff", flags.Digitization.DoCaloNoise)
+    kwargs.setdefault("RandomSeedOffset", flags.Digitization.RandomSeedOffset)
     kwargs.setdefault("PileUp", True)
     kwargs.setdefault("EmTTL1ContainerName", flags.Overlay.SigPrefix + "LArTTL1EM")
     kwargs.setdefault("HadTTL1ContainerName", flags.Overlay.SigPrefix + "LArTTL1HAD")
@@ -375,14 +375,13 @@ def LArOverlayTriggerDigitizationBasicCfg(flags, **kwargs):
     if flags.Concurrency.NumThreads > 0:
         kwargs.setdefault('Cardinality', flags.Concurrency.NumThreads)
 
-    LArTTL1Maker = CompFactory.LArTTL1Maker
-    acc.addEventAlgo(LArTTL1Maker(**kwargs))
+    acc.addEventAlgo(CompFactory.LArTTL1Maker(**kwargs))
     return acc
 
 
 def LArSuperCellOverlayCfg(flags, **kwargs):
     acc = LArSCL1MakerCfg(flags)
-    from LArROD.LArSuperCellBuilderConfig import LArSuperCellBuilderAlgCfg,LArSuperCellBCIDAlgCfg
+    from LArROD.LArSuperCellBuilderConfig import LArSuperCellBuilderAlgCfg, LArSuperCellBCIDAlgCfg
     acc.merge(LArSuperCellBuilderAlgCfg(flags))
     acc.merge(LArSuperCellBCIDAlgCfg(flags))
     acc.merge(OutputStreamCfg(flags, "RDO", ["CaloCellContainer#SCell"]))
