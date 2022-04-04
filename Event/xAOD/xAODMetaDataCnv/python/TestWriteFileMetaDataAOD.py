@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """Test multi-threaded xAOD::FileMetaData writing
 
 Read default test AOD and configure to write output stream with
@@ -6,7 +6,7 @@ xAOD::FileMetaData object. Set up to process 4 concurrent events. Inspect the
 produced file for xAOD::FileMetaData metadata items.
 
     Typical usage example
-        python -m xAODMetaDataCnv.TestWriteFileMetaData |tee log
+        python -m xAODMetaDataCnv.TestWriteFileMetaDataAOD |tee log
 """
 from AthenaConfiguration import AllConfigFlags, TestDefaults, MainServicesConfig
 from AthenaCommon import Configurable, Constants, Logging
