@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -8,20 +8,6 @@
 #include <assert.h>
 
 namespace LVL1TGCTrigger {
-
-TGCRPhiCoincidenceOut::TGCRPhiCoincidenceOut():
-  m_idSSC(-1),
-  m_pT(0),
-  m_phi(-1),
-  m_r(-1),
-  m_dR(0),
-  m_dPhi(0),
-  m_innerVeto(false),
-  m_charge(0),
-  m_coincidenceTypeFlag(false),
-  m_goodMFFlag(false),
-  m_innerCoincidenceFlag(false)
-{}
 
 void TGCRPhiCoincidenceOut::clear()
 {
