@@ -365,8 +365,15 @@ Trk::Navigator::atVolumeBoundary(const Trk::TrackParameters* parms,
         }
         // double good solution indicate tangential intersection : revert the attached volumes
         if (distSol.numberOfSolutions() > 1 && fabs(distSol.first()) < tol && fabs(distSol.second()) < tol) {
-          ATH_MSG_WARNING("navigator detects tangential intersection: switch of volumes reverted ");
-          if (nextVol) {
+          //surfing the beampipe seems to happen particularly often in a Trigger test, see https://its.cern.ch/jira/browse/ATR-24234
+          //in this case, I downgrade the 'warning' to 'verbose'
+          const bool surfingTheBeamPipe = (vol->geometrySignature() == Trk::BeamPipe) or (nextVol->geometrySignature() == Trk::BeamPipe);
+          if (not surfingTheBeamPipe) {
+            ATH_MSG_WARNING("navigator detects tangential intersection: switch of volumes reverted ");
+          } else {
+            ATH_MSG_VERBOSE("navigator detects particle entering and re-entering the beampipe");
+          }
+          if (nextVol and (not surfingTheBeamPipe)) {
             ATH_MSG_WARNING(vol->volumeName() << "->" << nextVol->volumeName() << "->" << vol->volumeName());
           }
           isAtBoundary = false;
