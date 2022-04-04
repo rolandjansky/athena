@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************
@@ -309,7 +309,7 @@ void TrigEgammaNavTPBaseTool::clearPairList(){
 }
 
 void TrigEgammaNavTPBaseTool::clearDecorations(){
-    if(m_pairObj.size()!=0) m_offElectrons->clearDecorations();
+    if(!m_pairObj.empty()) m_offElectrons->clearDecorations();
 }
 
 bool TrigEgammaNavTPBaseTool::isTagElectron(const xAOD::Electron *el){
@@ -408,7 +408,7 @@ bool TrigEgammaNavTPBaseTool::isTagElectron(const xAOD::Electron *el){
 
 
 void TrigEgammaNavTPBaseTool::DressPid(const xAOD::Electron *eg){
-    auto ctx = Gaudi::Hive::currentContext() ;
+    const auto& ctx = Gaudi::Hive::currentContext() ;
     for(int ipid=0;ipid<3;ipid++){
         bool accept = (bool) this->m_electronIsEMTool[ipid]->accept(ctx,eg);
         const std::string pidname="is"+m_isemname[ipid];
@@ -423,7 +423,7 @@ void TrigEgammaNavTPBaseTool::DressPid(const xAOD::Electron *eg){
 }
 
 bool TrigEgammaNavTPBaseTool::ApplyElectronPid(const xAOD::Electron *eg, const std::string pidname){
-    auto ctx = Gaudi::Hive::currentContext() ;
+    const auto& ctx = Gaudi::Hive::currentContext() ;
     if (pidname == "Tight"){
         return (bool) this->m_electronIsEMTool[0]->accept(ctx,eg);
     }
