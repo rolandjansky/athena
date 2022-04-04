@@ -96,20 +96,20 @@ def FixRegion(config: ROOT.TDirectory, top_level: dqi.HanConfigGroup, td: ROOT.T
                     formatted_tok = string.Template(tok).substitute(m.groupdict())
                     orig_fullpath.append(tok)
                     new_fullpath.append(formatted_tok)
-                    if formatted_tok != tok:
-                        orig = '/'.join(orig_fullpath)
-                        target = '/'.join(new_fullpath)
-                        log.debug(f'Need to adapt {mapping_groups[orig]} to {target}')
+                    orig = '/'.join(orig_fullpath)
+                    target = '/'.join(new_fullpath)
+                    if target not in mapping_groups_final:  # need to clone
+                        log.debug(f'Need to adapt {orig} to {target}')
                         if orig in mapping_groups_final:
                             log.debug(f'Deleting {orig}')
-                            del mapping_groups_final[orig]
-                        if target not in mapping_groups_final:
-                            newgroup = dqi.HanConfigGroup()
-                            newgroup.SetName(formatted_tok)
-                            newgroup.SetPathName(target)
-                            oldgroup = mapping_groups[orig]
-                            copyMetadata(newgroup, oldgroup)
-                            mapping_groups_final[target] = newgroup
+                            del mapping_groups_final[orig]                           
+                        newgroup = dqi.HanConfigGroup()
+                        newgroup.SetName(formatted_tok)
+                        newgroup.SetPathName(target)
+                        oldgroup = mapping_groups[orig]
+                        copyMetadata(newgroup, oldgroup)
+                        mapping_groups_final[target] = newgroup
+                       
                 tok = tokenized_path[-1]
                 orig_fullpath.append(tok)
                 hname = h.split('/')[-1]
@@ -145,14 +145,17 @@ def FixRegion(config: ROOT.TDirectory, top_level: dqi.HanConfigGroup, td: ROOT.T
         try:
             mapping_groups_final[os.path.dirname(p)].AddAssessor(a)
         except Exception as e:
-            log.error(f'{e}: {p}, {a}, {a.GetName()}')
+            log.error(f'Unable to look up assessor parent directory. Full error follows\n{e}: path {p}, assessor {a}, assessor name {a.GetName()}')
     # need to in reverse order of depth. First count number of slashes:
     keydepths = count_slashes(mapping_groups_final.items())
     for _, l in sorted(keydepths.items(), reverse=True):
         for p, g in l:
             log.debug(f'Final additions for {p}, {g}, {g.GetPathName()} into {os.path.dirname(p)}')
             if p != 'top_level':
-                mapping_groups_final[os.path.dirname(p)].AddGroup(g)
+                try:
+                    mapping_groups_final[os.path.dirname(p)].AddGroup(g)
+                except KeyError:
+                    log.error(f'Unable to attach group to parent. Details: group path {g.GetPathName()}, attempted parent is {os.path.dirname(p)}')
 
     return mapping_groups_final['top_level']
 
