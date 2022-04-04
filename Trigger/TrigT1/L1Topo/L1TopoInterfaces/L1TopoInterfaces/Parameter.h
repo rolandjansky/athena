@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /*  Parameter.h
  *  L1TopoInterfaces
@@ -70,7 +70,7 @@ namespace TCS {
       
       // new private vars
       std::string  m_val;
-      unsigned int m_pos;
+      unsigned int m_pos{0};
       std::string  m_sel;
       std::string  m_defaultVal;
    };

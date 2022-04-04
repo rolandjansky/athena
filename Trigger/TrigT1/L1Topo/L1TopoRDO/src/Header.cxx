@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "L1TopoRDO/Header.h"
@@ -37,7 +37,7 @@ namespace L1Topo {
   }
 
   void Header::encode(){
-    m_word = static_cast<int>(L1Topo::BlockTypes::HEADER) << 28;
+    m_word = static_cast<uint32_t>(L1Topo::BlockTypes::HEADER) << 28;
     m_word |= (m_bcn_offset & 0x7);
     m_word |= (m_bcn_sign & 0x1) << 3;
     m_word |= (m_last_block & 0x1) << 4;
@@ -77,7 +77,7 @@ namespace L1Topo {
   }
   
   int signedBCN(const uint32_t sign, uint32_t offset){
-    return offset * (sign?-1:1); // sign=0 is false
+    return static_cast<int>(offset) * (sign>0 ? -1 : 1); // sign=0 is false
   }
 
   std::pair<uint32_t,uint32_t> signAndOffsetBCN(const int bcn){
