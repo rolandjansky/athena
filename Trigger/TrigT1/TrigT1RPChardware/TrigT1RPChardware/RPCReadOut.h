@@ -13,20 +13,10 @@
 class RPCReadOut {
 public:
     RPCReadOut() = default;
-    virtual ~RPCReadOut() = default;
+    ~RPCReadOut() = default;
 
     ubit16 getWord() const { return m_word; };
     char field() const { return m_field; };
-
-    virtual ubit16 makeHeader(ubit16 *inputData) = 0;
-    virtual ubit16 makeSubHeader() = 0;
-    virtual ubit16 makeBody(ubit16 *inputData) = 0;
-    virtual ubit16 makeFooter(ubit16 inputData) = 0;
-    virtual ubit16 makeFooter(ubit16 *inputData) = 0;
-
-    virtual bool isHeader() = 0;
-    virtual bool isBody() = 0;
-    virtual bool isFooter() = 0;
 
 protected:
     // create a 16 bits word of the CMA frame structure , starting from the fields:

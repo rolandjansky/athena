@@ -17,11 +17,11 @@ public:
     ~MatrixReadOutStructure() = default;
     void setInit();
     //
-    virtual ubit16 makeHeader(ubit16 *inputData);
-    virtual ubit16 makeSubHeader();
-    virtual ubit16 makeBody(ubit16 *inputData);
-    virtual ubit16 makeFooter(ubit16 inputData);
-    virtual ubit16 makeFooter(ubit16 *inputData);
+    ubit16 makeHeader(ubit16 *inputData);
+    ubit16 makeSubHeader();
+    ubit16 makeBody(ubit16 *inputData);
+    ubit16 makeFooter(ubit16 inputData);
+    ubit16 makeFooter(ubit16 *inputData);
     //
     //**************************************************//
     // general user methods to decode ReadOut stream    //
@@ -49,10 +49,10 @@ public:
     ubit16 getFooterVal() { return s_footerVal; };
     ubit16 getFooterPos() { return s_footerPos[0]; };
 
-    virtual bool isHeader();
+    bool isHeader();
     bool isSubHeader();
-    virtual bool isBody();
-    virtual bool isFooter();
+    bool isBody();
+    bool isFooter();
 
     // create a 16 bits word of the CMA frame structure , starting from the fields:
     //  ubit16 set16Bits(const ubit16 num, const ubit16 *pos, const ubit16 *val);

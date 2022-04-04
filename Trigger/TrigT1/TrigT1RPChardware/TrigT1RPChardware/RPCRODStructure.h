@@ -24,21 +24,21 @@ public:
     ubit16 getSourceIDSubdetectorID() { return m_subDetectorID; };
     ubit16 getSourceIDRODID() { return m_RODID; };
     //
-    // virtual ubit16 makeHeader(ubit16 *inputData){return (*inputData)&0x0;};
-    virtual ubit16 makeHeader(ubit16 *inputData) { return *inputData; };
-    virtual ubit16 makeSubHeader() { return 0; };
-    // virtual ubit16 makeBody(ubit16 *inputData) {return (*inputData)&0x0;};
-    virtual ubit16 makeBody(ubit16 *inputData) { return *inputData; };
-    // virtual ubit16 makeFooter(ubit16 errorCode){return errorCode&0x0;};
-    virtual ubit16 makeFooter(ubit16 errorCode) { return errorCode; };
-    virtual ubit16 makeFooter(ubit16 *errorCode) { return (*errorCode) & 0x0; };
+    // ubit16 makeHeader(ubit16 *inputData){return (*inputData)&0x0;};
+    ubit16 makeHeader(ubit16 *inputData) { return *inputData; };
+    ubit16 makeSubHeader() { return 0; };
+    // ubit16 makeBody(ubit16 *inputData) {return (*inputData)&0x0;};
+    ubit16 makeBody(ubit16 *inputData) { return *inputData; };
+    // ubit16 makeFooter(ubit16 errorCode){return errorCode&0x0;};
+    ubit16 makeFooter(ubit16 errorCode) { return errorCode; };
+    ubit16 makeFooter(ubit16 *errorCode) { return (*errorCode) & 0x0; };
     //**************************************************//
     // general user methods to decode ReadOut stream    //
     //**************************************************//
     // ubit16 decodeFragment(ubit16 inputWord, char &field);
-    virtual bool isHeader() { return false; };
-    virtual bool isBody() { return false; };
-    virtual bool isFooter() { return false; };
+    bool isHeader() { return false; };
+    bool isBody() { return false; };
+    bool isFooter() { return false; };
     //
     RODword getHeaderMarker() { return s_headerMarker; };
     RODword getHeaderSize() { return s_headerSize; };
