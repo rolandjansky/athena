@@ -13,8 +13,8 @@ class PEtaSampler(PG.MomSampler):
     def __init__(self, momentum, eta, pid=211, phi=[0, math.pi*2.]):
         self.momentum = momentum
         self.eta = eta
-        pdg_table = ROOT.TDatabasePDG.Instance()
-        mass = pdg_table.GetParticle(pid).Mass()
+        pdg_table = ROOT.TDatabasePDG.Instance() #Gives values in GeV
+        mass = pdg_table.GetParticle(pid).Mass()*1000.
         self.mass = mass
         self.phi = phi
 

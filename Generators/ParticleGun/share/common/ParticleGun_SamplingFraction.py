@@ -17,8 +17,8 @@ class MyParticleSampler(PG.ParticleSampler):
         self.momentum = momentum
         self.eta1 = eta1
         self.eta2 = eta2
-        pdg_table = ROOT.TDatabasePDG.Instance()
-        self.mass = pdg_table.GetParticle(self.pid()).Mass()
+        pdg_table = ROOT.TDatabasePDG.Instance() #Gives values in GeV
+        self.mass = pdg_table.GetParticle(self.pid()).Mass()*1000.
         self.bec=bec
         self.radius=radius
         self.z=z
