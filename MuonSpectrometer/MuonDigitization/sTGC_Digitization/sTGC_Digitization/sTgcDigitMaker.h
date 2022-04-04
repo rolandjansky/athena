@@ -218,7 +218,8 @@ class sTgcDigitMaker : public AthMessaging {
   double m_CrossTalk;
   double m_StripResolution;
   double m_ChargeSpreadFactor;
-
+  double m_posResIncident;
+  double m_posResAngular;
 };
 
 #endif
