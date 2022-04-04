@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -36,7 +36,7 @@ m_trackInCalo("TrackInCaloTools/extrapolMuonInCaloTool"){
     declareProperty("TrackType",             m_trackType = 0);
     declareProperty("MuonContainerName",     m_muonContainerName="Muons");
 
-    book().ignore(); // AVOID COVERITY WARNINGS
+    TileCellFillerTool::book().ignore(); // AVOID COVERITY WARNINGS
 
 } // TileCellFillerTool::TileCellFillerTool
 
