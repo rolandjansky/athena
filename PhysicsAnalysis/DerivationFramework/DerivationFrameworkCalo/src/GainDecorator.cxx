@@ -61,7 +61,7 @@ DerivationFramework::GainDecorator::GainDecorator(const std::string& t,
 }
 
 // Destructor
-DerivationFramework::GainDecorator::~GainDecorator() {}
+DerivationFramework::GainDecorator::~GainDecorator() = default;
 
 // Athena initialize and finalize
 StatusCode

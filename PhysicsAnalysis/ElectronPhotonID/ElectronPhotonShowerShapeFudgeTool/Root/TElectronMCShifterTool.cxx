@@ -15,7 +15,7 @@ TElectronMCShifterTool::TElectronMCShifterTool():
   }
 
 //Default Destructor
-TElectronMCShifterTool::~TElectronMCShifterTool(){}
+TElectronMCShifterTool::~TElectronMCShifterTool()= default;
 //---------------------------------------------------------------------------------------
 // Gets the Et bin given the et (MeV)
 unsigned int TElectronMCShifterTool::getShifterEtBin(double eT) {

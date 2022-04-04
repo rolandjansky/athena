@@ -11,8 +11,7 @@ AsgDeadHVCellRemovalTool::AsgDeadHVCellRemovalTool(const std::string& myname) :
   asg::AsgTool(myname){
 }
 
-AsgDeadHVCellRemovalTool::~AsgDeadHVCellRemovalTool(){
-}
+AsgDeadHVCellRemovalTool::~AsgDeadHVCellRemovalTool()= default;
 
 StatusCode AsgDeadHVCellRemovalTool::initialize(){
   return StatusCode::SUCCESS ;

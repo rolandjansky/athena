@@ -65,9 +65,7 @@ namespace CP {
 
   //____________________________________________________________________________
   PhotonVertexSelectionTool::~PhotonVertexSelectionTool()
-  {
-
-  }
+  = default;
 
   //____________________________________________________________________________
   StatusCode PhotonVertexSelectionTool::initialize()

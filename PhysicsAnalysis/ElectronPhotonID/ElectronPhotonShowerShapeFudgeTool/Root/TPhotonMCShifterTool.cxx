@@ -167,7 +167,7 @@ void TPhotonMCShifterTool::LoadFFs(int preselection, const std::string& file)
   }
   m_corr_file = filename;
   std::unique_ptr< TFile > f( TFile::Open( m_corr_file.c_str(), "READ" ) );
-  if( ( ! f.get() ) || f->IsZombie() ) {
+  if( ( ! f ) || f->IsZombie() ) {
      throw std::runtime_error( "Couldn't open file: " + m_corr_file );
   }
   if (!f->FindKey(Form("TUNE%d",preselection))) {
