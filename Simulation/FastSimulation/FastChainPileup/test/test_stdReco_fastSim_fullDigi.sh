@@ -1,14 +1,13 @@
 #!/usr/bin/env bash
 
-# art-description: test for job configuration ttFC_fastSim_fulldigi (Sim/Digi job) + stdReco_fastSim_fullDigi
-# art-type: grid
-# art-include: master/Athena
+# art-description: test for job configuration ttFC_fastSim_fulldigi (Sim/Digi job) + stdReco_fastSim_fullDigi (was for grid, master/Athena)
 # art-output: config.txt
 # art-output: RAWtoESD_config.txt
 # art-output: *.root
 # art-output: dcube-rdo-truth
 # art-output: dcube-id
 # art-html: dcube-id
+# art-architecture: '#x86_64-intel'
 
 inputRefDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-refs/${AtlasBuildBranch}/test_stdReco_fastSim_fullDigi"
 inputXmlDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-configs/${AtlasBuildBranch}"
@@ -35,7 +34,7 @@ FastChain_tf.py --simulator ATLFASTIIF_PileUp \
     --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True' \
     --preSimInclude FastChainPileup/FastPileup.py \
     --postInclude='PyJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.DCubeTest_FCpileup.py,DigitizationTests/postInclude.RDO_Plots.py' \
-    --postExec 'from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("config.txt")' \
+    --postExec 'from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("config.txt");from IOVDbSvc.CondDB import conddb;conddb.addOverride("/TILE/OFL02/CALIB/SFR","TileOfl02CalibSfr-SIM-05")' \
     --DataRunNumber '284500' \
     --postSimExec='genSeq.Pythia8.NCollPerEvent=10;' \
     --imf False

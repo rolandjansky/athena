@@ -3,6 +3,7 @@
 # art-description: ATLFAST3F_G4MS test with pile-up profile
 # art-type: grid
 # art-include: master/Athena
+# art-architecture: '#x86_64-intel'
 
 maxevent=25
 inputfile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ISF_Validation/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1"
@@ -31,7 +32,8 @@ FastChain_tf.py \
     --conditionsTag default:OFLCOND-MC16-SDR-RUN2-09 \
     --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True;' \
     --preInclude 'Campaigns.MC16a' \
-    --postInclude='PyJobTransforms.UseFrontier' \
+    --postInclude 'PyJobTransforms.UseFrontier' \
+    --postExec 'from IOVDbSvc.IOVDbSvcConfig import addOverride;cfg.merge(addOverride(ConfigFlags,"/TILE/OFL02/CALIB/SFR","TileOfl02CalibSfr-SIM-05"))' \
     --inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles} \
     --inputLowPtMinbiasHitsFile ${LowPtMinbiasHitsFiles} \
     --pileupFinalBunch '6' \
