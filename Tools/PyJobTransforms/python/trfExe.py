@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfExe
 #
@@ -1681,6 +1681,7 @@ class hybridPOOLMergeExecutor(athenaExecutor):
     #  @param name Executor name
     #  @param trf Parent transform
     #  @param skeletonFile athena skeleton job options file
+    #  @param skeletonCA ComponentAccumulator-compliant skeleton file (used with the --CA option)
     #  @param exe Athena execution script
     #  @param exeArgs Transform argument names whose value is passed to athena
     #  @param substep The athena substep this executor represents
@@ -1690,16 +1691,16 @@ class hybridPOOLMergeExecutor(athenaExecutor):
     #  @param hybridMerge Boolean activating hybrid merger (if set to 'None' then the hybridMerge will
     #  be used if n_inputs <= 16, otherwise a classic merge will happen for better downstream i/o 
     #  performance) 
-    def __init__(self, name = 'hybridPOOLMerge', trf = None, conf = None, skeletonFile = 'RecJobTransforms/skeleton.MergePool_tf.py', inData = set(), 
-                 outData = set(), exe = 'athena.py', exeArgs = ['athenaopts'], substep = None, inputEventTest = True,
+    def __init__(self, name = 'hybridPOOLMerge', trf = None, conf = None, skeletonFile = 'RecJobTransforms/skeleton.MergePool_tf.py', skeletonCA=None,
+                 inData = set(), outData = set(), exe = 'athena.py', exeArgs = ['athenaopts'], substep = None, inputEventTest = True,
                  perfMonFile = None, tryDropAndReload = True, hybridMerge = None, extraRunargs = {},
                  manualDataDictionary = None, memMonitor = True):
         
         # By default we will do a hybridMerge
         self._hybridMerge = hybridMerge
         self._hybridMergeTmpFile = 'events.pool.root'
-        super(hybridPOOLMergeExecutor, self).__init__(name, trf=trf, conf=conf, skeletonFile=skeletonFile, inData=inData, 
-                                                      outData=outData, exe=exe, exeArgs=exeArgs, substep=substep,
+        super(hybridPOOLMergeExecutor, self).__init__(name, trf=trf, conf=conf, skeletonFile=skeletonFile, skeletonCA=skeletonCA,
+                                                      inData=inData, outData=outData, exe=exe, exeArgs=exeArgs, substep=substep,
                                                       inputEventTest=inputEventTest, perfMonFile=perfMonFile, 
                                                       tryDropAndReload=tryDropAndReload, extraRunargs=extraRunargs,
                                                       manualDataDictionary=manualDataDictionary, memMonitor=memMonitor)

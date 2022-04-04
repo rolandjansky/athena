@@ -50,7 +50,7 @@ namespace TrigConf {
       {}
 
       /**@brief destructor*/       
-      virtual ~JobOptionTableLoader(){};
+      virtual ~JobOptionTableLoader() override = default;
 
       virtual bool load( TrigConfData& data);
 
@@ -80,7 +80,7 @@ namespace TrigConf {
       };
 
 
-      bool load( JobOptionTable& jot );
+      bool load( JobOptionTable& jot ) override;
 
       bool loadHLTMasterTable(int SuperMasterKey,
                               int& masterTableID,

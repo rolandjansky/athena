@@ -35,10 +35,6 @@ TrigConf::DataStructure::DataStructure(const std::string & name, ptree && data) 
 {}
 
 
-TrigConf::DataStructure::~DataStructure()
-{}
-
-
 void
 TrigConf::DataStructure::setData(const ptree & data)
 {

@@ -32,7 +32,7 @@ namespace TrigConf {
    public:
       enum NodeType { LEAF, AND, OR };
       Logic() = delete;
-      virtual ~Logic();
+      virtual ~Logic() = default;
 
       NodeType nodeType() const { return m_nodeType; }
 
@@ -66,6 +66,7 @@ namespace TrigConf {
    public:
       LogicLeaf() = delete;
       LogicLeaf(const std::string & content);
+      virtual ~LogicLeaf() override = default;
 
       void setContent(const std::string & content);
 
@@ -87,11 +88,12 @@ namespace TrigConf {
    public:
       LogicOPS(NodeType nodeType);
       LogicOPS(NodeType nodeType, std::unique_ptr<Logic>&& left);
+      virtual ~LogicOPS() override = default;
       void addSubLogic(std::unique_ptr<Logic>&& right);
       const std::vector<std::unique_ptr<Logic>> & subLogics() const;
       std::vector<std::unique_ptr<Logic>> takeSubLogics();
    private:
-      void print(std::ostream &, size_t indSize, size_t indLevel) const;
+      virtual void print(std::ostream &, size_t indSize, size_t indLevel) const override;
       std::vector<std::unique_ptr<Logic>> m_subs;
    };
 
@@ -100,6 +102,7 @@ namespace TrigConf {
    public:
       LogicAND();
       LogicAND(std::unique_ptr<Logic>&& left);
+      virtual ~LogicAND() override = default;
       bool evaluate(const std::map<std::string, bool> & elementsState) const override;
       bool evaluate(const std::map<std::string, unsigned int> & elementsCount) const override;
       std::map<std::string, bool> elements() const override;
@@ -111,6 +114,7 @@ namespace TrigConf {
    public:
       LogicOR();
       LogicOR(std::unique_ptr<Logic>&& left);
+      virtual ~LogicOR() override = default;
       bool evaluate(const std::map<std::string,bool> & elementsState) const override;
       bool evaluate(const std::map<std::string,unsigned int> & elementsCount) const override;
       std::map<std::string, bool> elements() const override;

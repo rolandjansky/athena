@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////
@@ -426,7 +426,7 @@ void TileOFCorrelation::PrintCorrelation(int dignum)
 
 ////////////////////////////////////////
 void TileOFCorrelation::SaveCorrelationSumm(bool deltaCorrelation, 
-					  string OptFilterFile_CorrelationSumm,
+					  const string& OptFilterFile_CorrelationSumm,
 					  const TileHWID *tileHWID,
 					  MsgStream & log,
 					  int dignum)
@@ -522,7 +522,7 @@ float * TileOFCorrelation::getCorrelationSumm(bool deltaCorrelation,
 
 ////////////////////////////////////////
 void TileOFCorrelation::SaveCorrelationMatrix(bool deltaCorrelation, 
-					      string OptFilterFile_CorrelationMatrix,
+					      const string& OptFilterFile_CorrelationMatrix,
 					      const TileHWID *tileHWID,
 					      MsgStream & log,
 					      int dignum)
@@ -1008,10 +1008,10 @@ void TileOFCorrelation::BuildPulseShape(vector<double> &pulseShape,
  ////////////////////////////////////////
 void TileOFCorrelation::WriteWeightsToFile(bool deltaCorrelation,
 					   int dignum,
-					   string OptFilterFile_ai_lo,
-					   string OptFilterFile_bi_lo,
-					   string OptFilterFile_ai_hi,
-					   string OptFilterFile_bi_hi, 
+					   const string& OptFilterFile_ai_lo,
+					   const string& OptFilterFile_bi_lo,
+					   const string& OptFilterFile_ai_hi,
+					   const string& OptFilterFile_bi_hi, 
 					   int ros,
 					   int drawer,
 					   int channel,
@@ -1102,10 +1102,10 @@ void TileOFCorrelation::WriteWeightsToFile(bool deltaCorrelation,
 
   
  ////////////////////////////////////////
-void TileOFCorrelation::OpenWeightsFile(string OptFilterFile_ai_lo,
-					 string OptFilterFile_bi_lo,
-					 string OptFilterFile_ai_hi,
-					 string OptFilterFile_bi_hi, 
+void TileOFCorrelation::OpenWeightsFile(const string& OptFilterFile_ai_lo,
+					 const string& OptFilterFile_bi_lo,
+					 const string& OptFilterFile_ai_hi,
+					 const string& OptFilterFile_bi_hi, 
 					 MsgStream & log)
 {
   log<<MSG::DEBUG<<" TileOFCorrelation::OpenWeightsFile"<<endmsg;

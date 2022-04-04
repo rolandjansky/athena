@@ -7,9 +7,15 @@ from AthenaConfiguration.Enums import BeamType
 
 def SiDetElementsRoadMaker_xkCfg(flags, name="InDetSiRoadMaker", **kwargs) :
     acc = ComponentAccumulator()
+
     #
     # --- SCT and Pixel detector elements road builder
     #
+
+    from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
+    acc.merge(PixelReadoutGeometryCfg(flags)) # To produce PixelDetectorElementCollection
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+    acc.merge(SCT_ReadoutGeometryCfg(flags)) # To produce SCT_DetectorElementCollection
 
     # Create ReadCondHandle SiDetElementsLayerVectors_xk
     acc.addCondAlgo(CompFactory.InDet.SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk"))
@@ -51,6 +57,11 @@ def ITkSiDetElementsRoadMaker_xkCfg(flags, name="ITkSiRoadMaker", **kwargs) :
     #
     # --- ITk Strip and Pixel detector elements road builder
     #
+
+    from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg
+    acc.merge(ITkPixelReadoutGeometryCfg(flags)) # To produce ITkPixelDetectorElementCollection
+    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
+    acc.merge(ITkStripReadoutGeometryCfg(flags)) # To produce ITkStripDetectorElementCollection
 
     # Create ReadCondHandle SiDetElementsLayerVectors_xk
     acc.addCondAlgo(CompFactory.InDet.SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk",

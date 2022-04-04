@@ -21,8 +21,9 @@
 
 #include <boost/container/static_vector.hpp>
 
+#include "SiSPSeededTrackFinderData/ITkSiSpacePointForSeed.h"
+
 namespace ActsTrk {
-  
   SeedingFromAthenaAlgorithm::SeedingFromAthenaAlgorithm( const std::string &name,
 								  ISvcLocator *pSvcLocator )
     : AthReentrantAlgorithm( name,pSvcLocator ) 
@@ -33,7 +34,10 @@ namespace ActsTrk {
     
     // Retrieve seed tool
     ATH_CHECK( m_seedsTool.retrieve() );
-    
+    ATH_CHECK( m_paramEstimationTool.retrieve() );
+    ATH_CHECK( m_trackingGeometryTool.retrieve() );
+    ATH_CHECK( m_ATLASConverterTool.retrieve() );
+
     // Cond
     ATH_CHECK( m_beamSpotKey.initialize() );
     ATH_CHECK( m_fieldCondObjInputKey.initialize() );
@@ -43,7 +47,7 @@ namespace ActsTrk {
     ATH_CHECK( m_seedKey.initialize() );
     ATH_CHECK( m_actsSpacePointKey.initialize() );
     ATH_CHECK( m_actsSpacePointDataKey.initialize() );
-    
+
     return StatusCode::SUCCESS;
   }
   
@@ -104,28 +108,40 @@ namespace ActsTrk {
     std::size_t counter = 0;
     ATH_MSG_DEBUG("Retrieved " << spContainer->size() << " space point collections from the container");
 
+
+    // this is use for a fast retrieval of the space points later
+    std::vector<ITk::SiSpacePointForSeed> sp_storage;
+
+    std::size_t el_index = 0;
     for ( const SpacePointCollection* sp_collection: *spContainer) {
       for ( const Trk::SpacePoint* sp: *sp_collection ) {
-	
+	// get inputs
 	const Acts::Vector3 globalPos = sp->globalPosition();
-	
-	InDet::SiSpacePointForSeed point;
 	float r[3] = { 
 	  static_cast<float>(globalPos[0]),
 	  static_cast<float>(globalPos[1]),
 	  static_cast<float>(globalPos[2])
 	};
-	point.set( sp, r );
-	Acts::Vector2 variance(point.covr(), point.covz());
-
-	boost::container::static_vector<std::size_t, 2> indexes({counter++});
-	std::unique_ptr<ActsTrk::SpacePoint> toAdd = 
-	  std::make_unique<ActsTrk::SpacePoint>( globalPos, 
-						 variance, 
-						 *actsSpData.get(),
-						 indexes );
 	
-	actsSpContainer->push_back( std::move(toAdd) );    
+	// add to storage
+	sp_storage.emplace_back(sp, r);
+	auto& point = sp_storage.back();
+
+	// Get position and covariance    
+	Acts::Vector3 position { point.x(), point.y(), point.z() };
+	Acts::Vector2 covariance { point.covr(), point.covz() };
+
+	// This index correspond to the space point in     
+	// the input_space_points collection 
+	// (used later for storing the seed into data)  
+	boost::container::static_vector<std::size_t, 2> indexes( {el_index++} );
+
+	std::unique_ptr<ActsTrk::SpacePoint> toAdd =
+	  std::make_unique<ActsTrk::SpacePoint>( position,
+						 covariance,
+						 *actsSpData.get(),
+						 indexes);
+	actsSpContainer->push_back( std::move(toAdd) );
       }
     }
 
@@ -156,7 +172,28 @@ namespace ActsTrk {
 					 magFieldContext,
 					 *seedPtrs.get() ) );
     ATH_MSG_DEBUG("    \\__ Created " << seedPtrs->size() << " seeds");
-    
+
+
+    // Estimate Track Parameters
+    auto retrieveSurfaceFunction = 
+      [this, &sp_storage] (const Acts::Seed<ActsTrk::SpacePoint>& seed) -> const Acts::Surface& 
+      { 
+	std::size_t bottom_idx = seed.sp().front()->measurementIndexes()[0];
+	ITk::SiSpacePointForSeed& bottom_sp = sp_storage.at(bottom_idx);
+	const Trk::Surface* atlas_surface = bottom_sp.sur();
+	return this->m_ATLASConverterTool->ATLASSurfaceToActs(*atlas_surface);
+      };
+    auto geo_context = m_trackingGeometryTool->getNominalGeometryContext();
+
+    for (const ActsTrk::Seed* seed : *seedPtrs) {
+      std::optional<Acts::BoundTrackParameters> optTrackParams =
+        m_paramEstimationTool->estimateTrackParameters(ctx,
+						       *seed,
+						       geo_context.context(),
+						       magFieldContext,
+						       retrieveSurfaceFunction);
+    }
+
     // ================================================== //   
     // ===================== STORE OUTPUT =============== //
     // ================================================== //   

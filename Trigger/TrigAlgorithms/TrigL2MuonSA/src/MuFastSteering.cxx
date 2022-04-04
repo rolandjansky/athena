@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuFastSteering.h"
@@ -1179,8 +1179,8 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
 // findMuonSignature of L2 inside-out version
 // try to find MS tracks seeded by FTF tracks
 StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContainer&         idtracks,
-					       const std::vector<const TrigRoiDescriptor*> roids,
-					       const std::vector<const LVL1::RecMuonRoI*>  muonRoIs,
+					       const std::vector<const TrigRoiDescriptor*>& roids,
+					       const std::vector<const LVL1::RecMuonRoI*>&  muonRoIs,
 					       DataVector<xAOD::L2CombinedMuon>&           outputCBs,
 					       DataVector<xAOD::L2StandAloneMuon>&         outputSAs,
 					       const bool                                  dynamicDeltaRpc,
@@ -1518,8 +1518,8 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
 // findMuonSignature of L2 inside-out version
 // try to find MS tracks seeded by FTF tracks
 StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContainer&         idtracks,
-					       const std::vector<const TrigRoiDescriptor*> roids,
-					       const std::vector<const xAOD::MuonRoI*>     muonRoIs,
+					       const std::vector<const TrigRoiDescriptor*>& roids,
+					       const std::vector<const xAOD::MuonRoI*>&     muonRoIs,
 					       DataVector<xAOD::L2CombinedMuon>&           outputCBs,
 					       DataVector<xAOD::L2StandAloneMuon>&         outputSAs,
 					       const bool                                  dynamicDeltaRpc,

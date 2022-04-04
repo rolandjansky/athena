@@ -24,7 +24,7 @@ namespace TrigConf {
       JobOptionTable();
 
       /**@brief destructor*/
-      ~JobOptionTable();
+      virtual ~JobOptionTable() override = default;
 
       int hltMasterTableId()   const { return m_HltMasterTableId; }       ///< accessor to the HLT master table configuration key  
       int superMasterTableId() const { return m_SuperMasterTableId; }     ///< accessor to the super master table configuration key
@@ -44,7 +44,7 @@ namespace TrigConf {
       const std::vector<JobOption> & jobOptionVector() const { return m_JobOptionVector; } ///< const accessor to the vector of job options
 
       /**@brief print method*/
-      void print(const std::string& indent="", unsigned int detail=1) const; ///< print method
+      void print(const std::string& indent="", unsigned int detail=1) const override; ///< print method
       
       /**@brief writing to file as text*/
       void writeToFile(const std::string& filename) const; ///< write to file method

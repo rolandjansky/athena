@@ -38,7 +38,7 @@ namespace TrigConf {
       L1PrescalesSet(const ptree & data);
 
       /** Destructor */
-      virtual ~L1PrescalesSet();
+      virtual ~L1PrescalesSet() override = default;
 
       // class name
       virtual std::string className() const override {

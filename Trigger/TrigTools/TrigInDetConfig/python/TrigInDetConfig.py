@@ -17,11 +17,14 @@ def PixelClusterOnTrackCfg( flags, **kwargs ):
   """
   based on: InnerDetector/InDetExample/InDetTrigRecExample/python/InDetTrigConfigRecLoadTools.py
   """
-  acc = ComponentAccumulator()
-  name =  kwargs.pop("pixelOnTrackName", "InDetTrigPixelClusterOnTrackTool")
-  from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleCfg
+  from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDistortionAlgCfg, PixelOfflineCalibCondAlgCfg
+  acc = PixelDistortionAlgCfg(flags)
+  acc.merge(PixelOfflineCalibCondAlgCfg(flags))
 
-  pixelLATool = acc.popToolsAndMerge( PixelLorentzAngleCfg( flags) )
+  name =  kwargs.pop("pixelOnTrackName", "InDetTrigPixelClusterOnTrackTool")
+  from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleToolCfg
+
+  pixelLATool = acc.popToolsAndMerge( PixelLorentzAngleToolCfg( flags) )
 
   nnTool = CompFactory.InDet.NnClusterizationFactory( name                         = "TrigNnClusterizationFactory",
                                                       PixelLorentzAngleTool        = pixelLATool,
@@ -40,8 +43,8 @@ def PixelClusterOnTrackCfg( flags, **kwargs ):
 
 def SCT_ClusterOnTrackToolCfg( flags ):
   acc = ComponentAccumulator()
-  from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
-  sctLATool =  acc.popToolsAndMerge( SCT_LorentzAngleCfg( flags ) )
+  from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleToolCfg
+  sctLATool =  acc.popToolsAndMerge( SCT_LorentzAngleToolCfg( flags ) )
   tool = CompFactory.InDet.SCT_ClusterOnTrackTool("SCT_ClusterOnTrackTool",
                                                     CorrectionStrategy = 0,  # do correct position bias
                                                     ErrorStrategy      = 2,  # do use phi dependent errors
@@ -101,50 +104,9 @@ def SiTrackMaker_xkCfg(flags, name="SiTrackMaker_xk"):
   acc.addPublicTool( tool, primary=True )
   return acc
 
-
-
 def ExtrapolatorCfg(flags):
   from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
   return InDetExtrapolatorCfg(flags, name="InDetTrigExtrapolator")
-
-def InDetTestPixelLayerToolCfg(flags):
-  acc = ComponentAccumulator()
-  from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
-
-  tool = CompFactory.InDet.InDetTestPixelLayerTool(PixelSummaryTool = acc.popToolsAndMerge( PixelConditionsSummaryCfg(flags) ),
-                                                   Extrapolator     = acc.getPrimaryAndMerge(ExtrapolatorCfg( flags)), 
-                                                   CheckActiveAreas = True,
-                                                   CheckDeadRegions = True)
-  acc.setPrivateTools( tool )
-  return acc
-
-
-def InDetHoleSearchToolCfg(flags, name="InDetTrigHoleSearchTool"):
-  acc = ComponentAccumulator()
-
-# a possible change in HoleSearchTool impl? - This two tools do not seem to be needed now, leaving them commented out  TODO - decide if can be removed ( also func above creting the config )
-#  from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_ConditionsSummaryToolCfg
-#  sctCondSummaryTool = acc.popToolsAndMerge( SCT_ConditionsSummaryToolCfg( flags,withFlaggedCondTool=False, withTdaqTool=False ) )
-
-#  acc.merge( InDetTestPixelLayerToolCfg( flags, **kwargs ) )
-
-  extrapolatorTool = acc.popToolsAndMerge( ExtrapolatorCfg( flags ) )
-  acc.addPublicTool(extrapolatorTool)
-
-  tool = CompFactory.InDet.InDetTrackHoleSearchTool(name,
-                                                    Extrapolator =  extrapolatorTool)
-  acc.addPublicTool( tool, primary=True )
-  return acc
-
-def InDetPrdAssociationToolGangedPixelsCfg(flags):
-  acc = ComponentAccumulator()
-  from .InDetTrigCollectionKeys import TrigPixelKeys
-  tool = CompFactory.InDet.InDetPRD_AssociationToolGangedPixels(
-    name = "InDetTrigPrdAssociationTool",
-    PixelClusterAmbiguitiesMapName = TrigPixelKeys.PixelClusterAmbiguitiesMap,
-    )
-  acc.addPublicTool(tool, primary=True)
-  return acc
 
 def TestBlayerToolCfg(flags):
   acc = ComponentAccumulator()
@@ -221,58 +183,6 @@ def geoModelCfg(flags):
 
   return acc
 
-
-def pixelCondCfg(flags):
-  acc = ComponentAccumulator()
-  ###############
-  # Pixel setup #
-  ###############
-  from PixelConditionsAlgorithms.PixelConditionsConfig import (
-      PixelConfigCondAlgCfg, PixelChargeCalibCondAlgCfg, PixelDCSCondHVAlgCfg,
-      PixelDCSCondTempAlgCfg, PixelAlignCondAlgCfg, PixelDetectorElementCondAlgCfg,
-      PixelHitDiscCnfgAlgCfg, PixelReadoutSpeedAlgCfg, PixelCablingCondAlgCfg,
-      PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg,
-      PixelDistortionAlgCfg, PixelOfflineCalibCondAlgCfg,
-      PixelDeadMapCondAlgCfg
-# NEW FOR RUN3    PixelChargeLUTCalibCondAlgCfg/
-  )
-
-  from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
-  from PixelReadoutGeometry.PixelReadoutGeometryConfig import PixelReadoutManagerCfg
-  from SiPropertiesTool.PixelSiPropertiesConfig import PixelSiPropertiesCfg
-  from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleCfg
-
-  # module parameters
-  acc.merge(PixelConfigCondAlgCfg(flags))
-  # charge calibration
-  acc.merge(PixelChargeCalibCondAlgCfg(flags))
-# NEW FOR RUN3  acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
-  # DCS setup
-  acc.merge(PixelDCSCondHVAlgCfg(flags))
-  acc.merge(PixelDCSCondTempAlgCfg(flags))
-  # alignment setup
-  acc.merge(PixelAlignCondAlgCfg(flags, UseDynamicAlignFolders=flags.GeoModel.Align.Dynamic))
-  acc.merge(PixelDetectorElementCondAlgCfg(flags))
-  # cabling setup
-  acc.merge(PixelHitDiscCnfgAlgCfg(flags))
-  acc.merge(PixelReadoutSpeedAlgCfg(flags))
-  acc.merge(PixelCablingCondAlgCfg(flags))
-  # deadmap
-  acc.merge(PixelDCSCondStateAlgCfg(flags))
-  acc.merge(PixelDCSCondStatusAlgCfg(flags))
-  acc.merge(PixelDeadMapCondAlgCfg(flags))
-  # offline calibration
-  acc.merge(PixelDistortionAlgCfg(flags))
-  acc.merge(PixelOfflineCalibCondAlgCfg(flags))
-
-
-  acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags))
-  acc.popToolsAndMerge(PixelSiPropertiesCfg(flags))
-  acc.popToolsAndMerge(PixelLorentzAngleCfg(flags))
-  acc.merge(PixelReadoutManagerCfg(flags))
-
-  return acc
-
 def trtCondCfg(flags):
   acc = ComponentAccumulator()
   from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline, addFolders
@@ -305,12 +215,18 @@ def magFieldCfgCfg(flags):
 
 
 def pixelDataPrepCfg(flags, roisKey, signature):
-  acc = ComponentAccumulator()
-  acc.merge(pixelCondCfg(flags))
+  from PixelReadoutGeometry.PixelReadoutGeometryConfig import PixelReadoutManagerCfg
+  acc = PixelReadoutManagerCfg(flags)
+
   from RegionSelector.RegSelToolConfig import regSelTool_Pixel_Cfg
   RegSelTool_Pixel = acc.popToolsAndMerge(regSelTool_Pixel_Cfg(flags))
 
+  from PixelConditionsAlgorithms.PixelConditionsConfig import PixelCablingCondAlgCfg
+  acc.merge(PixelCablingCondAlgCfg(flags)) # To produce PixelCablingCondData for PixelRodDecoder + PixelRawDataProvider
+
   if flags.Input.Format is Format.BS:
+    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelHitDiscCnfgAlgCfg
+    acc.merge(PixelHitDiscCnfgAlgCfg(flags)) # To produce PixelHitDiscCnfgData for PixelRodDecoder
     PixelRodDecoder=CompFactory.PixelRodDecoder
     InDetPixelRodDecoder = PixelRodDecoder(name = "InDetPixelRodDecoder"+ signature)
     # Disable duplcated pixel check for data15 because duplication mechanism was used.
@@ -323,7 +239,7 @@ def pixelDataPrepCfg(flags, roisKey, signature):
                                                              Decoder = InDetPixelRodDecoder)
     acc.addPublicTool(InDetPixelRawDataProviderTool)
 
-     # load the PixelRawDataProvider
+    # load the PixelRawDataProvider
     PixelRawDataProvider=CompFactory.PixelRawDataProvider
     InDetPixelRawDataProvider = PixelRawDataProvider(name         = "InDetPixelRawDataProvider"+ signature,
                                                      RDOKey       = InDetKeys.PixelRDOs(),
@@ -405,9 +321,11 @@ def pixelClusterizationCfg(flags, roisKey, signature):
   RegSelTool_Pixel = acc.popToolsAndMerge(regSelTool_Pixel_Cfg(flags))
 
   #Pixel clusterisation
+  from PixelConditionsAlgorithms.PixelConditionsConfig import PixelChargeCalibCondAlgCfg, PixelOfflineCalibCondAlgCfg
+  acc.merge(PixelChargeCalibCondAlgCfg(flags))
+  acc.merge(PixelOfflineCalibCondAlgCfg(flags))
   InDet__ClusterMakerTool=CompFactory.InDet.ClusterMakerTool
   InDetClusterMakerTool = InDet__ClusterMakerTool(name = "InDetClusterMakerTool"+ signature)
-
   acc.addPublicTool(InDetClusterMakerTool)
 
 
@@ -451,6 +369,9 @@ def sctClusterizationCfg(flags, roisKey, signature):
   from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_ConditionsSummaryToolCfg
   InDetSCT_ConditionsSummaryToolWithoutFlagged = acc.popToolsAndMerge(SCT_ConditionsSummaryToolCfg(flags, withFlaggedCondTool = False, withTdaqTool = False))
 
+  from PixelConditionsAlgorithms.PixelConditionsConfig import PixelChargeCalibCondAlgCfg, PixelOfflineCalibCondAlgCfg
+  acc.merge(PixelChargeCalibCondAlgCfg(flags))
+  acc.merge(PixelOfflineCalibCondAlgCfg(flags))
   InDet__ClusterMakerTool=CompFactory.InDet.ClusterMakerTool
   InDetClusterMakerTool = InDet__ClusterMakerTool(name = "InDetClusterMakerTool"+ signature)
   acc.addPublicTool(InDetClusterMakerTool)

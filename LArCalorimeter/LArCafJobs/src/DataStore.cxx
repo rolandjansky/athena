@@ -23,9 +23,8 @@ using std::endl;
 using namespace LArSamples;
 
 
-DataStore::DataStore()
+DataStore::DataStore() : m_cellHistories(nChannels(), nullptr)
 {
-  for (unsigned int i = 0; i < nChannels(); i++) m_cellHistories.push_back(0);
 }
   
   

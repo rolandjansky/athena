@@ -39,7 +39,7 @@ public:
   MuctpiXMLParser();
   
   //Destructor
-  ~MuctpiXMLParser();
+  virtual ~MuctpiXMLParser() override = default;
   
   // print the parsed configuration
   void printConfiguration() const;

@@ -8,8 +8,8 @@ from AthenaConfiguration.TestDefaults import defaultTestFiles
 from AthenaCommon.Logging import log
 from AthenaCommon.Constants import DEBUG
 from AthenaCommon.Configurable import Configurable
-from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
-from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleCfg
+from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleToolCfg
+from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleToolCfg
 
 # test setup
 log.setLevel(DEBUG)
@@ -19,16 +19,16 @@ ConfigFlags.Input.Files = defaultTestFiles.HITS_RUN2
 # case online
 ConfigFlags.Common.isOnline = True
 ConfigFlags.lock()
-tacc = SCT_LorentzAngleCfg(ConfigFlags, name="SCT_LorentzAngleTestOnline")
+tacc = SCT_LorentzAngleToolCfg(ConfigFlags, name="SCT_LorentzAngleTestOnline")
 tacc.__init__()
-tacc = PixelLorentzAngleCfg(ConfigFlags, name="PixelLorentzAngleTestOnline")
+tacc = PixelLorentzAngleToolCfg(ConfigFlags, name="PixelLorentzAngleTestOnline")
 tacc.__init__()
 # case offline
 flagsOffline = ConfigFlags.clone()
 flagsOffline.Common.isOnline=False
 flagsOffline.lock()
-tacc = SCT_LorentzAngleCfg(flagsOffline, name="SCT_LorentzAngleTestOffline")
+tacc = SCT_LorentzAngleToolCfg(flagsOffline, name="SCT_LorentzAngleTestOffline")
 tacc.__init__()
-tacc = PixelLorentzAngleCfg(flagsOffline, name="PixelLorentzAngleTestOffline")
+tacc = PixelLorentzAngleToolCfg(flagsOffline, name="PixelLorentzAngleTestOffline")
 tacc.__init__()
 

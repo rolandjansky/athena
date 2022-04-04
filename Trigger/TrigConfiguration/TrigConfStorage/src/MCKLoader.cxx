@@ -15,9 +15,6 @@ TrigConf::MCKLoader::MCKLoader(StorageMgr& sm) :
     DBLoader("MCKLoader", sm, sm.sessionMgr().createSession())
 {}
 
-TrigConf::MCKLoader::~MCKLoader()
-{}
-
 bool
 TrigConf::MCKLoader::loadMCKlinkedToSMK(unsigned int smk, unsigned int & mck)
 {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // AtlCoolCopy.cxx
@@ -49,6 +49,8 @@
 #include "CoraCool/CoraCoolObjectIter.h"
 #include "CoraCool/CoraCoolObject.h"
 
+#include "CxxUtils/checker_macros.h"
+
 #include "PoolMapElement.h"
 #include "ReplicaSorter.h"
 #include "CoolTagInfo.h"
@@ -65,8 +67,9 @@ class AtlCoolCopy {
   bool isOpen() const;
   bool addFolder(const std::string& folder,const bool onlyTags);
   bool addExclude(const std::string& folder);
-  int copyFolder(const std::string& folder,const std::vector<std::string>& taglist);
-  int doCopy();
+  int copyFolder ATLAS_NOT_THREAD_SAFE
+    (const std::string& folder,const std::vector<std::string>& taglist);
+  int doCopy ATLAS_NOT_THREAD_SAFE ();
   int setOpts(int argc, const char* argv[]);
 
  private:
@@ -81,7 +84,8 @@ class AtlCoolCopy {
   void setChannelRange(const cool::IFolderPtr& sourcefl);
   static cool::ChannelId channelID(const cool::IFolderPtr& folder,
 			    const std::string& chanstring);
-  int copyIOVs(const std::string& folder,const std::string& destfolder,
+  int copyIOVs ATLAS_NOT_THREAD_SAFE
+              (const std::string& folder,const std::string& destfolder,
 	       const cool::IFolderPtr& sourcefl,const CoraCoolFolderPtr& sourceflc,
 	       const cool::IFolderPtr& destfl,const CoraCoolFolderPtr& destflc,
       const std::string& sourcetag,const std::string& desttag,
@@ -256,6 +260,18 @@ class AtlCoolCopy {
   CoolTagMap m_cooltagmap;
   // output root file for ROOT file export and IOV analysis
   TFile* p_rootfile;
+
+  // ROOT ntuple variables.
+  ULong64_t m_nt_since = 0;
+  ULong64_t m_nt_until = 0;
+  UInt_t m_nt_runsince = 0;
+  UInt_t m_nt_rununtil = 0;
+  UInt_t m_nt_lbsince = 0;
+  UInt_t m_nt_lbuntil = 0;
+  UInt_t m_nt_channel = 0;
+  char m_nt_tagid[256] = {0};
+  std::string m_nt_treename;
+  std::vector<void*> m_nt_bufferptr;
 };
 
 inline bool AtlCoolCopy::isOpen() const { return m_open; }
@@ -495,7 +511,8 @@ bool AtlCoolCopy::addExclude(const std::string& folder) {
   return true;
 }
 
-int AtlCoolCopy::copyFolder(const std::string& folder,const std::vector<std::string>& taglist) {
+int AtlCoolCopy::copyFolder ATLAS_NOT_THREAD_SAFE
+  (const std::string& folder,const std::vector<std::string>& taglist) {
   // get source folder
   cool::IFolderPtr sourcefl,destfl;
   CoraCoolFolderPtr sourceflc,destflc;
@@ -837,7 +854,9 @@ cool::ChannelId AtlCoolCopy::channelID(const cool::IFolderPtr& folder,
   }
 }
 
-int AtlCoolCopy::copyIOVs(const std::string& folder,
+// Calls non-thread-safe functions of CoraCoolFolder.
+int AtlCoolCopy::copyIOVs ATLAS_NOT_THREAD_SAFE
+     (const std::string& folder,
       const std::string& destfolder,
       const cool::IFolderPtr& sourcefl,const CoraCoolFolderPtr& sourceflc,
       const cool::IFolderPtr& destfl,const CoraCoolFolderPtr& destflc,
@@ -1507,17 +1526,6 @@ int AtlCoolCopy::verifyIOVs(const std::string& folder,
   return 0;
 }
 
-// structures for copying data to ROOT ntuple
-ULong64_t nt_since;
-ULong64_t nt_until;
-UInt_t nt_runsince;
-UInt_t nt_rununtil;
-UInt_t nt_lbsince;
-UInt_t nt_lbuntil;
-UInt_t nt_channel;
-char nt_tagid[256];
-std::string nt_treename;
-std::vector<void*> nt_bufferptr;
 
 
 int AtlCoolCopy::rootIOVs(const std::string& folder,
@@ -1540,17 +1548,17 @@ int AtlCoolCopy::rootIOVs(const std::string& folder,
     std::cout << "Book TTree " << treename << std::endl;
     tree=new TTree(treename.c_str(),"COOL datadump");
     if (timestamp2) {
-      tree->Branch("IOVSince",&nt_since,"IOVSince/l");
-      tree->Branch("IOVUntil",&nt_until,"IOVUntil/l");
+      tree->Branch("IOVSince",&m_nt_since,"IOVSince/l");
+      tree->Branch("IOVUntil",&m_nt_until,"IOVUntil/l");
     } else {
-      tree->Branch("RunSince",&nt_runsince,"RunSince/i");
-      tree->Branch("RunUntil",&nt_rununtil,"RunUntil/i");
-      tree->Branch("LBSince",&nt_lbsince,"LBSince/i");
-      tree->Branch("LBUntil",&nt_lbuntil,"LBUntil/i");
+      tree->Branch("RunSince",&m_nt_runsince,"RunSince/i");
+      tree->Branch("RunUntil",&m_nt_rununtil,"RunUntil/i");
+      tree->Branch("LBSince",&m_nt_lbsince,"LBSince/i");
+      tree->Branch("LBUntil",&m_nt_lbuntil,"LBUntil/i");
     }
-    tree->Branch("ChannelID",&nt_channel,"ChannelID/i");
+    tree->Branch("ChannelID",&m_nt_channel,"ChannelID/i");
     if (vermode==cool::FolderVersioning::MULTI_VERSION)
-      tree->Branch("TagID",nt_tagid,"TagID/C");
+      tree->Branch("TagID",m_nt_tagid,"TagID/C");
     // now loop through specification, creating payload buffer and tree
     const cool::IRecordSpecification& spec=
     (sourcefl->folderSpecification()).payloadSpecification();
@@ -1558,8 +1566,8 @@ int AtlCoolCopy::rootIOVs(const std::string& folder,
     // clear the buffer of pointers - note this leaks the memory of the
     // previous buffers, but to do this properly would have to remember
     // the type of each object and delete appropriately
-    nt_treename=treename;
-    nt_bufferptr.clear();
+    m_nt_treename=treename;
+    m_nt_bufferptr.clear();
     for (unsigned int icol=0;icol<ncolumns;++icol) {
       const cool::IFieldSpecification& fieldspec=spec[icol];
       void* ptr=nullptr;
@@ -1573,17 +1581,17 @@ int AtlCoolCopy::rootIOVs(const std::string& folder,
         std::cout << "Attribute " << spec[icol].name() << " of type " << 
 	  spec[icol].storageType().name() << " will be skipped" << std::endl;
       }
-      nt_bufferptr.push_back(ptr);
+      m_nt_bufferptr.push_back(ptr);
     }
   } else {
     std::cout << "TTree " << treename << " already exists" << std::endl;
     // check we have seen and defined this tree
     unsigned int size=
       (sourcefl->folderSpecification()).payloadSpecification().size();
-    if (treename!=nt_treename || size!=nt_bufferptr.size()) {
+    if (treename!=m_nt_treename || size!=m_nt_bufferptr.size()) {
       std::cout << "ERROR in tree buffer definition: expect " << treename <<
-	" size " << size << " but buffer has " << nt_treename << " size " 
-		<< nt_bufferptr.size() << std::endl;
+	" size " << size << " but buffer has " << m_nt_treename << " size " 
+		<< m_nt_bufferptr.size() << std::endl;
       return 123;
     }
   }
@@ -1608,27 +1616,27 @@ int AtlCoolCopy::rootIOVs(const std::string& folder,
     while (sourceitr->goToNext()) {
       const cool::IObject& sobj=sourceitr->currentRef();
       if (timestamp2) {
-        nt_since=sobj.since();
-        nt_until=sobj.until();
+        m_nt_since=sobj.since();
+        m_nt_until=sobj.until();
       } else {
-        nt_runsince=(sobj.since() >> 32);
-        nt_rununtil=(sobj.until() >> 32);
-        nt_lbsince=(sobj.since() & 0xFFFFFFFF);
-        nt_lbuntil=(sobj.until() & 0xFFFFFFFF);
+        m_nt_runsince=(sobj.since() >> 32);
+        m_nt_rununtil=(sobj.until() >> 32);
+        m_nt_lbsince=(sobj.since() & 0xFFFFFFFF);
+        m_nt_lbuntil=(sobj.until() & 0xFFFFFFFF);
       }
-      nt_channel=sobj.channelId();
+      m_nt_channel=sobj.channelId();
       if (vermode==cool::FolderVersioning::MULTI_VERSION) {
 	// truncate the string first to avoid coverity complaining about
 	// potential buffer overruns
 	std::string sourcetag2=sourcetag.substr(0,255);
-	strncpy(nt_tagid,sourcetag2.c_str(),sizeof(nt_tagid)-1);
+	strncpy(m_nt_tagid,sourcetag2.c_str(),sizeof(m_nt_tagid)-1);
       }
       // loop over the payload elements and fill the ones for which buffers
       // are defined
       try {
         const cool::IRecord& record=sobj.payload();
         for (unsigned int icol=0;icol<record.size();++icol) {
-	  if (nt_bufferptr[icol]!=nullptr) rootWrite(nt_bufferptr[icol],record[icol]);
+	  if (m_nt_bufferptr[icol]!=nullptr) rootWrite(m_nt_bufferptr[icol],record[icol]);
         }
         tree->Fill();
         ++nobj;
@@ -2051,7 +2059,7 @@ TH1F* AtlCoolCopy::bookOrFindTH1F(const std::string& hID,
 }
 
 
-int AtlCoolCopy::doCopy() {
+int AtlCoolCopy::doCopy ATLAS_NOT_THREAD_SAFE () {
   if (isOpen()) {
     int retcode=0;
     // execute copy for all defined folders
@@ -2535,7 +2543,9 @@ std::string AtlCoolCopy::timeString(const cool::ValidityKey iovtime) {
     return "ValidityKeyMax ";
   } else {
     time_t time=static_cast<time_t>(iovtime/1E9);
-    return "UTC "+std::string(asctime(gmtime(&time)));
+    struct tm result;
+    char buf[32];
+    return "UTC "+std::string(asctime_r(gmtime_r(&time, &result), buf));
   }
 }
 
@@ -3365,7 +3375,7 @@ void printHelp() {
   std::cout << "See http://twiki.cern.ch/twiki/bin/view/Atlas/AtlCoolCopy for more details" << std::endl;
 }
 
-int main(int argc, const char* argv[]) {
+int main ATLAS_NOT_THREAD_SAFE (int argc, const char* argv[]) {
   int retcode=0;
   if (argc<3) {
     printHelp();

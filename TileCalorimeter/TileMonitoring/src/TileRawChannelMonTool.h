@@ -172,6 +172,7 @@ class TileRawChannelMonTool: public TilePaterMonTool {
     bool m_is12bit{};
     SG::ReadHandleKey<TileDQstatus> m_DQstatusKey;
     int m_intCalibUnit{};
+    double m_dac2Charge[3];
 };
 
 #endif

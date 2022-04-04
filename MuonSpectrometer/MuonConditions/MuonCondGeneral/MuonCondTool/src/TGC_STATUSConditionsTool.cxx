@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TGC_STATUSConditionsTool.h"
@@ -20,9 +20,9 @@
 TGC_STATUSConditionsTool::TGC_STATUSConditionsTool (const std::string& type, const std::string& name, const IInterface* parent) :
     AthAlgTool(type, name, parent),
     m_IOVSvc(nullptr),
+    m_tgcDqStatusDataLocation("TgcDqStatusKey"),
     m_chronoSvc(nullptr) {
   declareInterface< ITGC_STATUSConditionsTool >(this);
-  m_tgcDqStatusDataLocation="TgcDqStatusKey";
   declareProperty("TgcDqFolder",m_FolderName="TGC/1/DetectorStatus");
 }
 

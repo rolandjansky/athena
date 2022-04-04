@@ -43,8 +43,8 @@ def ITkStripClusterizationCfg(flags, name="ITkStripClusterization", **kwargs) :
     from SCT_ConditionsTools.ITkStripConditionsToolsConfig import ITkStripConditionsSummaryToolCfg
     ITkStripConditionsSummaryTool = acc.popToolsAndMerge(ITkStripConditionsSummaryToolCfg(flags))
 
-    from SiLorentzAngleTool.ITkStripLorentzAngleConfig import ITkStripLorentzAngleCfg
-    ITkStripLorentzAngleTool = acc.popToolsAndMerge( ITkStripLorentzAngleCfg(flags) )
+    from SiLorentzAngleTool.ITkStripLorentzAngleConfig import ITkStripLorentzAngleToolCfg
+    ITkStripLorentzAngleTool = acc.popToolsAndMerge( ITkStripLorentzAngleToolCfg(flags) )
 
     #### Clustering tool ######
     ITkClusterMakerTool = acc.popToolsAndMerge(ITkClusterMakerToolCfg(flags))
@@ -78,18 +78,6 @@ def ITkStripClusterizationPUCfg(flags, name="ITkStripClusterizationPU", **kwargs
 
 def ITkInDetToXAODClusterConversionCfg(flags, name="ITkInDetToXAODClusterConversion", **kwargs):
     acc = ComponentAccumulator()
-
-    histsvc = CompFactory.THistSvc(name="THistSvc",
-                                   Output=[ f"EXPERT DATAFILE='{name}.root' OPT='RECREATE'" ])
-    acc.addService(histsvc)
-
-    from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
-    monTool = GenericMonitoringTool('MonTool', HistPath=name)
-    monTool.defineHistogram('TIME_Total'            , path='EXPERT',type='TH1F',title="Total time; Time [#mus]; Events"                     , xbins = 100, xmin=0.0, xmax=10000.0)
-    monTool.defineHistogram('TIME_PixelConversion'  , path='EXPERT',type='TH1F',title="Pixel Cluster Conversion time; Time [#mus]; Events"  , xbins = 100, xmin=0.0, xmax=10000.0)
-    monTool.defineHistogram('TIME_StripConversion'  , path='EXPERT',type='TH1F',title="Strip Cluster Conversion time; Time [#mus]; Events"  , xbins = 100, xmin=0.0, xmax=10000.0)
-
-    kwargs.setdefault("MonTool", monTool)
 
     conversionAlg=CompFactory.InDetToXAODClusterConversion(name=name, **kwargs)
     acc.addEventAlgo(conversionAlg)
@@ -131,17 +119,16 @@ def ITkClusterMakerToolCfg(flags, name="ITkClusterMakerTool", **kwargs) :
 
     from PixelConditionsAlgorithms.ITkPixelConditionsConfig import ITkPixelChargeCalibCondAlgCfg
     from PixelReadoutGeometry.PixelReadoutGeometryConfig import ITkPixelReadoutManagerCfg
-    #ITkPixelCablingCondAlgCfg + ITkPixelReadoutSpeedAlgCfg needed?
 
     # This directly needs the following Conditions data:
     # PixelModuleData & PixelChargeCalibCondData
     acc.merge(ITkPixelChargeCalibCondAlgCfg(flags))
     acc.merge(ITkPixelReadoutManagerCfg(flags))
 
-    from SiLorentzAngleTool.ITkPixelLorentzAngleConfig import ITkPixelLorentzAngleCfg
-    ITkPixelLorentzAngleTool = acc.popToolsAndMerge(ITkPixelLorentzAngleCfg(flags))
-    from SiLorentzAngleTool.ITkStripLorentzAngleConfig import ITkStripLorentzAngleCfg
-    ITkStripLorentzAngleTool = acc.popToolsAndMerge(ITkStripLorentzAngleCfg(flags))
+    from SiLorentzAngleTool.ITkPixelLorentzAngleConfig import ITkPixelLorentzAngleToolCfg
+    ITkPixelLorentzAngleTool = acc.popToolsAndMerge(ITkPixelLorentzAngleToolCfg(flags))
+    from SiLorentzAngleTool.ITkStripLorentzAngleConfig import ITkStripLorentzAngleToolCfg
+    ITkStripLorentzAngleTool = acc.popToolsAndMerge(ITkStripLorentzAngleToolCfg(flags))
 
     kwargs.setdefault("PixelChargeCalibCondData", "ITkPixelChargeCalibCondData")
     kwargs.setdefault("PixelReadoutManager",acc.getService("ITkPixelReadoutManager"))

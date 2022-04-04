@@ -27,7 +27,7 @@ namespace TrigConf {
    class ICaloInfoLoader : virtual public ILoader {
    public:
 
-      virtual ~ICaloInfoLoader() {};
+      virtual ~ICaloInfoLoader() override = default;
 
       virtual bool load( CaloInfo& data ) = 0;
    };

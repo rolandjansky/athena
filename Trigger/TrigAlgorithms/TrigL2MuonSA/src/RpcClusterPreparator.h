@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_RPCCLUSTERPREPARATOR_H
@@ -38,7 +38,7 @@ class RpcClusterPreparator: public AthAlgTool
     virtual StatusCode initialize() override;
 
     StatusCode clusteringRPCs(const bool doMultiMuon,
-                              std::vector<const Muon::RpcPrepDataCollection*> rpcCols,
+                              const std::vector<const Muon::RpcPrepDataCollection*>& rpcCols,
                               const TrigRoiDescriptor*          p_roids,
                               const ToolHandle<ClusterPatFinder>*     clusterPatFinder,
                               TrigL2MuonSA::RpcLayerClusters&   rpcLayerClusters) const;

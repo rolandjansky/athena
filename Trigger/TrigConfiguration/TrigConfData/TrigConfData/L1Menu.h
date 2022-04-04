@@ -37,7 +37,7 @@ namespace TrigConf {
       L1Menu(const ptree & data);
 
       /** Destructor */
-      virtual ~L1Menu();
+      virtual ~L1Menu() override = default;
 
       // class name
       virtual std::string className() const override {

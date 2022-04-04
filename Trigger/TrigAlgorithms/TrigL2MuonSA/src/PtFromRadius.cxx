@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PtFromRadius.h"
@@ -21,7 +21,7 @@ TrigL2MuonSA::PtFromRadius::PtFromRadius(const std::string& type,
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-void TrigL2MuonSA::PtFromRadius::setMCFlag(BooleanProperty use_mcLUT,
+void TrigL2MuonSA::PtFromRadius::setMCFlag(const BooleanProperty& use_mcLUT,
                                            const TrigL2MuonSA::PtBarrelLUTSvc* ptBarrelLUTSvc)
 {
   m_use_mcLUT = use_mcLUT;

@@ -25,6 +25,9 @@ namespace TrigConf {
       /** Constructor */
       JsonFileWriterHLT();
 
+      /** Destructor */
+      virtual ~JsonFileWriterHLT() override = default;
+
       bool writeJsonFile(const std::string & filename, const HLTMenu & menu) const;
       bool writeJsonFile(const std::string & filename, const HLTMenu & menu, const HLTPrescalesSet & ps) const;
    };

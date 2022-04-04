@@ -36,7 +36,7 @@ namespace TrigConf {
     {}
 
     /// Destructor
-    virtual ~TrigConfMessaging() {}
+    virtual ~TrigConfMessaging() = default;
     
     /** @brief Test the output level
      *  @param lvl The message level to test against

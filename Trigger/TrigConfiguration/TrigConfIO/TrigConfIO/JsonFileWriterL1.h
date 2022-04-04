@@ -26,6 +26,9 @@ namespace TrigConf {
       /** Constructor */
       JsonFileWriterL1();
 
+      /** Destructor */
+      virtual ~JsonFileWriterL1() override = default;
+
       bool writeJsonFile(const std::string & filename, const L1Menu & l1menu) const;
       bool writeJsonFile(const std::string & filename, const L1BunchGroupSet & l1bgs) const;
       bool writeJsonFile(const std::string & filename, const L1PrescalesSet & l1bgs) const;

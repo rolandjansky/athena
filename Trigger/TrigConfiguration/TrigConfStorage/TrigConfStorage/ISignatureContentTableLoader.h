@@ -17,7 +17,7 @@ namespace TrigConf {
    public:
 
       /**@brief destructor*/       
-      virtual ~ISignatureContentTableLoader(){};
+      virtual ~ISignatureContentTableLoader() override = default;
 
       /**
        * @brief Load the HLT signature definitions from the

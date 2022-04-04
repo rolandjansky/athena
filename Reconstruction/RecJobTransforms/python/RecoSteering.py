@@ -116,6 +116,11 @@ def RecoSteering(flags):
         acc.merge(TauReconstructionCfg(flags))
         log.info("---------- Configured tau reconstruction")
 
+    if flags.Reco.EnablePFlow:
+        from eflowRec.PFRun3Config import PFTauFELinkCfg
+        acc.merge(PFTauFELinkCfg(flags))
+        log.info("---------- Configured particle flow tau FE linking")
+    
     # HI
     if flags.Reco.EnableHI:
         from HIRecConfig.HIRecConfig import HIRecCfg

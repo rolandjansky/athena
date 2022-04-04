@@ -15,7 +15,7 @@ class MioctGeometry;
 class MuCTPiGeometry{
    public:
       MuCTPiGeometry();
-      ~MuCTPiGeometry();
+      virtual ~MuCTPiGeometry() = default;
     
    // getters
    const  std::vector<MioctGeometry>& octants() {return m_Octants; };

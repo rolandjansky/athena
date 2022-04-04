@@ -40,8 +40,6 @@ HLTTriggerElement::HLTTriggerElement( const std::pair<unsigned int,string>& p ) 
 {
 }
 
-HLTTriggerElement::~HLTTriggerElement() {}
-
 
 void
 HLTTriggerElement::writeXML(std::ofstream & xmlfile) {

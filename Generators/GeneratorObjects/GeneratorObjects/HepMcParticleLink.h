@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GENERATOROBJECTS_HEPMCPARTICLELINK_H
@@ -14,6 +14,7 @@
 
 #include "GeneratorObjects/CachedParticlePtr.h"
 #include "SGTools/DataProxy.h"
+#include "SGTools/CurrentEventStore.h"
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/EventContext.h"
@@ -44,7 +45,7 @@ enum EBC_EVCOLL{
  * 
  * A link is defined by three items:
  *  - A target McEventCollection;
- *  - A particlular GenEvent within this collection; and
+ *  - A particular GenEvent within this collection; and
  *  - A particular particle within the GenEvent.
  *
  * The target McEventCollection is identified by an enum of type EBC_EVCOLL.
@@ -64,7 +65,7 @@ enum EBC_EVCOLL{
  * the store pointer once the link has been dereferenced.  Therefore,
  * when a position-based link is dereferenced, it is automatically changed
  * to be event-number-based.  This also happens when a link is constructed
- * with an explicit GenParticle* and a position-based GenEvent.
+ * with an explicit ConstGenParticlePtr and a position-based GenEvent.
  *
  * As a special case, a GenEvent number of 0 is interpreted as the first
  * GenEvent in the collection.
@@ -76,9 +77,6 @@ enum EBC_EVCOLL{
  * event store.  By default, the current store (as defined by
  * SG::CurrentEventStore::store()) is stored when the link is constructed;
  * however, an explicit IProxyDict* or EventContext may also be specified.
- * We don't need the store once the link has been dereferenced; therefore,
- * to keep the size of the links small, the same pointer field is overloaded
- * to store either an IProxyDict* or a GenParticle* (see CachedParticlePtr).
  */
 class HepMcParticleLink {
 public:
@@ -384,18 +382,11 @@ public:
    * @param positionFlag: See @c eventIndex.
    * @param sg Optional specification of a specific store to reference.
    */
-  HepMcParticleLink (const HepMC::GenParticle* p,
-                     uint32_t eventIndex = 0,
-                     EBC_EVCOLL evColl=EBC_MAINEVCOLL,
-                     PositionFlag positionFlag = IS_INDEX,
-                     IProxyDict* sg = SG::CurrentEventStore::store());
-#ifdef HEPMC3
   HepMcParticleLink (HepMC::ConstGenParticlePtr p,
                      uint32_t eventIndex = 0,
                      EBC_EVCOLL evColl=EBC_MAINEVCOLL,
                      PositionFlag positionFlag = IS_INDEX,
-                     IProxyDict* sg = SG::CurrentEventStore::store()): HepMcParticleLink(p.get(), eventIndex, evColl, positionFlag, sg) {};
-#endif
+                     IProxyDict* sg = SG::CurrentEventStore::store());
 
 
  /**
@@ -410,18 +401,11 @@ public:
    * @param positionFlag: See @c eventIndex.
    * @param sg Optional specification of a specific store to reference.
    */
-  HepMcParticleLink (const HepMC::GenParticle* part,
-                     uint32_t eventIndex,
-                     const std::string& evCollName,
-                     PositionFlag positionFlag = IS_INDEX,
-                     IProxyDict* sg = SG::CurrentEventStore::store());
-#ifdef HEPMC3
   HepMcParticleLink (HepMC::ConstGenParticlePtr part,
                      uint32_t eventIndex,
                      const std::string& evCollName,
                      PositionFlag positionFlag = IS_INDEX,
-                     IProxyDict* sg = SG::CurrentEventStore::store()): HepMcParticleLink(part.get(), eventIndex, evCollName, positionFlag, sg) {};
-#endif
+                     IProxyDict* sg = SG::CurrentEventStore::store());
 
 
  /**
@@ -436,18 +420,11 @@ public:
    * @param positionFlag: See @c eventIndex.
    * @param ctx Context of the store to reference.
    */
-  HepMcParticleLink (const HepMC::GenParticle* part,
-                     uint32_t eventIndex,
-                     EBC_EVCOLL evColl,
-                     PositionFlag positionFlag,
-                     const EventContext& ctx);
-#ifdef HEPMC3
   HepMcParticleLink (HepMC::ConstGenParticlePtr part,
                      uint32_t eventIndex,
                      EBC_EVCOLL evColl,
                      PositionFlag positionFlag,
-                     const EventContext& ctx): HepMcParticleLink(part.get(),eventIndex, evColl, positionFlag, ctx) {};
-#endif
+                     const EventContext& ctx);
 
 
   /**
@@ -475,26 +452,25 @@ public:
   /**
    * @brief Dereference.
    */
-  const HepMC::GenParticle* operator->() const;
+  HepMC::ConstGenParticlePtr operator->() const;
 
 
   /**
    * @brief Dereference.
    */
-  operator const HepMC::GenParticle* () const;
+  operator HepMC::ConstGenParticlePtr() const;
 
 
   /**
    * @brief Dereference.
    */
-  const HepMC::GenParticle* cptr() const;
+  HepMC::ConstGenParticlePtr cptr() const;
 
-#ifdef HEPMC3
+
   /**
    * @brief Dereference/smart pointer.
    */
-  HepMC3::ConstGenParticlePtr scptr() const;
-#endif
+  HepMC::ConstGenParticlePtr scptr() const { return cptr(); }
 
 
   /** 
@@ -507,6 +483,11 @@ public:
    * @brief Validity check.  Dereference and check for null.
    */
   bool operator!() const;
+
+  /** 
+   * @brief Validity check.  Dereference and check for null.
+   */
+  operator bool() const;
 
   //@}
 
@@ -656,8 +637,12 @@ public:
   static std::string getLastEventCollectionName (EBC_EVCOLL evColl);
 
 
+  /// Pointer to the store containing the event.
+  IProxyDict* m_store;
+
+
   /// Transient part.  Either a GenParticle* or an IProxyDict*.
-  GeneratorObjects::CachedParticlePtr m_ptrs;
+  GeneratorObjects::CachedParticlePtr m_ptr;
 
 
   /// Persistent part: barcode and location of target GenEvent.
@@ -666,12 +651,10 @@ public:
 
 
 /**
- * @brief Comparison with GenParticle*.
- * Needed with c++20 to break an ambiguity between the built-in GenParticle*
- * equality and operator== defined above, arising due to the conversions
- * back and forth between HepMcParticleLink and GenParticle*.
+ * @brief Comparison with ConstGenParticlePtr.
+ * Needed with c++20 to break an ambiguity.
  */
-bool operator== (const HepMC::GenParticle* a,
+bool operator== (HepMC::ConstGenParticlePtr a,
                  const HepMcParticleLink& b);
 
 

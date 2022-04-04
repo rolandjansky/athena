@@ -187,6 +187,11 @@ namespace top {
     // Electron configuration
     m_egammaSystematicModel("1NP_v1"),
     m_electronEfficiencySystematicModel("TOTAL"),
+    m_electronEfficiencySystematicModelNToys(40),
+    m_electronEfficiencySystematicModelToySeed(12345),
+    m_electronEfficiencySystematicModelRecoSize(400),
+    m_electronEfficiencySystematicModelIdSize(400),
+    m_electronEfficiencySystematicModelIsoSize(400),
     m_electronEfficiencySystematicModelEtaBinning(""),
     m_electronEfficiencySystematicModelEtBinning(""),
     m_electronID("SetMe"),
@@ -231,6 +236,8 @@ namespace top {
     m_muonIsolationSFLoose("SetMe"),
     m_muonMuonDoSmearing2stationHighPt(true),
     m_muonMuonDoExtraSmearingHighPt(false),
+    m_muonBreakDownSystematics(false),
+    m_muonSFCustomInputFolder(" "),
 
     // Soft Muon configuration
     m_softmuonPtcut(4000.),
@@ -1073,6 +1080,8 @@ namespace top {
     this->electronEfficiencySystematicModel(settings->value("ElectronEfficiencySystematicModel"));
     this->electronEfficiencySystematicModelEtaBinning(settings->value("ElectronEfficiencySystematicModelEtaBinning"));
     this->electronEfficiencySystematicModelEtBinning(settings->value("ElectronEfficiencySystematicModelEtBinning"));
+    this->electronEfficiencySystematicModelNToys(std::stof(settings->value("ElectronEfficiencySystematicModelNToys")));
+    this->electronEfficiencySystematicModelToySeed(std::stof(settings->value("ElectronEfficiencySystematicModelToySeed")));
     this->electronID(settings->value("ElectronID"));
     this->electronIDLoose(settings->value("ElectronIDLoose"));
     {
@@ -1161,6 +1170,8 @@ namespace top {
     this->fwdElectronBCIDCleaningMinRun(fwdElectronBCIDCleaningMinRun);
     this->fwdElectronBCIDCleaningMaxRun(fwdElectronBCIDCleaningMaxRun);
 
+    m_electronIDSFFile_path = settings->value("ElectronIDSFFilePath");
+
     // Photon configuration
     this->photonPtcut(std::stof(settings->value("PhotonPt")));
     this->photonEtacut(std::stof(settings->value("PhotonEta")));
@@ -1245,6 +1256,14 @@ namespace top {
       muonDoExtraSmearingHighPt = false;
     }
     this->muonMuonDoExtraSmearingHighPt( muonDoExtraSmearingHighPt );
+
+    bool muonBreakDownSystematics(false);
+    settings->retrieve("MuonBreakDownSystematics", muonBreakDownSystematics);
+    this->muonBreakDownSystematics(muonBreakDownSystematics);
+    {
+      std::string const& customMuonSF = settings->value("MuonSFCustomInputFolder");
+      this->muonSFCustomInputFolder(customMuonSF);
+    }
 
     if (settings->value("UseAntiMuons") == "True") this->m_useAntiMuons = true;
 

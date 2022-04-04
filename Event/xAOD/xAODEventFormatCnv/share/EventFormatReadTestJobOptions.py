@@ -20,10 +20,6 @@ import AthenaPoolCnvSvc.ReadAthenaPool
 # grab input files
 svcMgr.EventSelector.InputCollections = [
     "testStream0.pool.root",
-    "testStream1.pool.root",
-    "testStream2.pool.root",
-    "testStream3.pool.root",
-    "testStream4.pool.root",
 ]
 
 # propogate xAOD::EventFormat from InputMetaDataStore to MetaDataStore
@@ -31,7 +27,13 @@ ToolSvc += CfgMgr.xAODMaker__EventFormatMetaDataTool(
     "EventFormatMetaDataTool",
     OutputLevel=1,
 )
-svcMgr.MetaDataSvc.MetaDataTools += [ToolSvc.EventFormatMetaDataTool]
+ToolSvc += CfgMgr.xAODMaker__FileMetaDataTool(
+    "FileMetaDataTool",
+    OutputLevel=3,
+)
+svcMgr.MetaDataSvc.MetaDataTools += [
+    ToolSvc.EventFormatMetaDataTool, ToolSvc.FileMetaDataTool
+]
 
 
 # Add the xAOD::EventFormat printer algorithm to main algorithm sequence
@@ -40,4 +42,4 @@ algSeq += CfgMgr.xAODMakerTest__EventFormatPrinterAlg()
 
 # read the last event of the first file and the first event of the second file
 # to test metadata access across file boundary
-theApp.EvtMax = -1
+theApp.EvtMax = 1

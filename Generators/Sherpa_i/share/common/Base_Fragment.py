@@ -238,7 +238,7 @@ else:
       "STRANGE_FRACTION=0.535",
       "BARYON_FRACTION=1.48",
       "DECAY_OFFSET=1.29",
-      "DECAY_EXPONENT=3.03"
+      "DECAY_EXPONENT=3.03",
       "P_qs_by_P_qq=0.26",
       "P_ss_by_P_qq=0.012",
       "P_di_1_by_P_di_0=0.93",

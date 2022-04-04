@@ -31,8 +31,8 @@ namespace TrigConf {
       /** Constructor */
       TrigDBJobOptionsLoader(const std::string & connection);
 
-      /** Destructor */
-      virtual ~TrigDBJobOptionsLoader();
+      /** Destructor - cannot be defined here because QueryDefinition is an incomplete type */
+      virtual ~TrigDBJobOptionsLoader() override;
 
       /**
        * @brief Load content from the Trigger DB into two ptrees for a given SuperMasterKey (SMK)

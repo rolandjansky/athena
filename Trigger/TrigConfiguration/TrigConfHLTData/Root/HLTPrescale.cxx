@@ -19,10 +19,6 @@ TrigConf::HLTPrescale::HLTPrescale(float prescale, float pass_through) :
 {}
 
 
-TrigConf::HLTPrescale::~HLTPrescale()
-{}
-
-
 TrigConf::HLTPrescale&
 TrigConf::HLTPrescale::setStreamPrescale(const std::string& streamName, float ps) {
    m_stream_prescale[streamName] = ps;

@@ -13,7 +13,7 @@ namespace TrigConf {
    class DeadTime : public L1DataBaseclass {
    public:
       DeadTime();
-      ~DeadTime() = default;
+      virtual ~DeadTime() override = default;
     
       // getters
       int simple()        const { return m_simple; }
@@ -29,7 +29,7 @@ namespace TrigConf {
       void setComplex2Level( int i ) { m_complex2Level = i; }
       void setComplex2Rate ( int i ) { m_complex2Rate = i; }
 
-      virtual void print(const std::string& indent="", unsigned int detail=1) const;
+      virtual void print(const std::string& indent="", unsigned int detail=1) const override;
       virtual void writeXML(std::ostream & xmlfile, int indentLevel=0, int indentWidth=2) const;
 
    private:

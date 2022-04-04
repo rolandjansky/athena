@@ -29,8 +29,6 @@ MioctROIGeometry::MioctROIGeometry() :
    m_roiid(0)
 {}
   
-MioctROIGeometry::~MioctROIGeometry() {}
-  
 void
 MioctROIGeometry::print(const std::string& indent, unsigned int /*detail*/) const {
    cout << indent << "MioctROIGeometry: " << endl; 

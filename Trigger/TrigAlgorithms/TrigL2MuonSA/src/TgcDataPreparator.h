@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_TGCDATAPREPARATOR_H
@@ -68,7 +68,7 @@ class TgcDataPreparator: public AthAlgTool
       SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_tgcContainerKey{
 	this, "TGCPrepDataContainer", "TGC_Measurements", "Name of the TGCContainer to read in"};
 
-      bool m_use_RoIBasedDataAccess;
+      bool m_use_RoIBasedDataAccess = false;
 
 };
 

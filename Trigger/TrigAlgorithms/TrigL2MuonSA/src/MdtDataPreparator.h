@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MDTDATAPREPARATOR_H
@@ -99,7 +99,7 @@ namespace TrigL2MuonSA {
 	this, "MDTPrepDataContainer","MDT_DriftCircles", "Name of the MDTContainer to read in"};
     SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_muDetMgrKey {this, "DetectorManagerKey", "MuonDetectorManager", "Key of input MuonDetectorManager condition data"};
 
-    bool m_use_RoIBasedDataAccess;
+    bool m_use_RoIBasedDataAccess = false;
     bool m_BMGpresent;
     int  m_BMGid;
     std::map<Identifier, std::vector<Identifier> > m_DeadChannels;

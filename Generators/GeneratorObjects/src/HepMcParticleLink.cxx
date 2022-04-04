@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -138,12 +138,13 @@ void HepMcParticleLink::ExtendedBarCode::print (MsgStream& os) const
  * @param positionFlag: See @c eventIndex.
  * @param sg Optional specification of a specific store to reference.
  */
-HepMcParticleLink::HepMcParticleLink (const HepMC::GenParticle* part,
+HepMcParticleLink::HepMcParticleLink (HepMC::ConstGenParticlePtr part,
                                       uint32_t eventIndex,
                                       EBC_EVCOLL evColl,
                                       PositionFlag positionFlag /*= IS_INDEX*/,
                                       IProxyDict* sg /*= SG::CurrentEventStore::store()*/)
-  : m_ptrs (part),
+  : m_store (sg),
+    m_ptr (part),
     m_extBarcode((0 != part) ? HepMC::barcode(part) : 0, eventIndex, evColl, positionFlag)
 {
   assert(part);
@@ -164,15 +165,14 @@ HepMcParticleLink::HepMcParticleLink (const HepMC::GenParticle* part,
 /**
  * @brief Dereference.
  */
-const HepMC::GenParticle* HepMcParticleLink::cptr() const
+HepMC::ConstGenParticlePtr HepMcParticleLink::cptr() const
 {
   // dummy link
-  if (!m_ptrs.isValid()) {
+  if (!m_ptr.isValid() && !m_store) {
     return nullptr;
   }
 
-  const IProxyDict* sg = nullptr;
-  auto p = m_ptrs.get (sg);
+  HepMC::ConstGenParticlePtr p = m_ptr.get();
   if (!p) {
     if (0 == barcode()) {
 #if 0
@@ -183,6 +183,7 @@ const HepMC::GenParticle* HepMcParticleLink::cptr() const
 #endif
       return nullptr;
     }
+    IProxyDict* sg = m_store;
     if (!sg) {
       sg = SG::CurrentEventStore::store();
     }
@@ -210,20 +211,14 @@ const HepMC::GenParticle* HepMcParticleLink::cptr() const
       }
 
       if (0 != pEvt) {
-        auto pp = HepMC::barcode_to_particle(pEvt,barcode());
+        p = HepMC::barcode_to_particle(pEvt,barcode());
         // Be sure to update m_extBarcode before m_ptrs;
         // otherwise, the logic in eventIndex() won't work correctly.
         if (position != ExtendedBarCode::UNDEFINED) {
           m_extBarcode.makeIndex (pEvt->event_number(), position);
         }
-        if (pp) {
-#ifdef HEPMC3
-          m_ptrs.set (sg, pp.get());
-          p=pp.get();
-#else
-          m_ptrs.set (sg, pp);
-          p=pp;
-#endif
+        if (p) {
+          m_ptr.set (p);
         }
       } else {
         MsgStream log (Athena::getMessageSvc(), "HepMcParticleLink");
@@ -244,81 +239,6 @@ const HepMC::GenParticle* HepMcParticleLink::cptr() const
   }
   return p;
 }
-#ifdef HEPMC3
-/**
- * @brief Dereference/smart pointer.
- */
-HepMC3::ConstGenParticlePtr HepMcParticleLink::scptr() const
-{
-  // dummy link
-  if (!m_ptrs.isValid()) {
-    return nullptr;
-  }
-
-  HepMC3::ConstGenParticlePtr pp{nullptr};
-  const IProxyDict* sg = nullptr;
-  auto p = m_ptrs.get (sg);
-  if (!p) {
-    if (0 == barcode()) {
-#if 0
-      MsgStream log (Athena::getMessageSvc(), "HepMcParticleLink");
-      log << MSG::DEBUG
-             << "scptr: no truth particle associated with this hit (barcode==0)."
-             << " Probably this is a noise hit" << endmsg;
-#endif
-      return nullptr;
-    }
-    if (!sg) {
-      sg = SG::CurrentEventStore::store();
-    }
-    if (const McEventCollection* pEvtColl = retrieveMcEventCollection(sg)) {
-      const HepMC::GenEvent *pEvt = nullptr;
-      index_type index, position;
-      m_extBarcode.eventIndex (index, position);
-      if (index == 0) {
-        pEvt = pEvtColl->at(0);
-      }
-      else if (position != ExtendedBarCode::UNDEFINED) {
-        if (position < pEvtColl->size()) {
-          pEvt = pEvtColl->at (position);
-        }
-        else {
-#if 0
-          MsgStream log (Athena::getMessageSvc(), "HepMcParticleLink");
-          log << MSG::WARNING << "scptr: position = " << position << ", McEventCollection size = "<< pEvtColl->size() << endmsg;
-#endif
-          return nullptr;
-        }
-      }
-      else {
-        pEvt = pEvtColl->find (index);
-      }
-      if (0 != pEvt) {
-        pp = HepMC::barcode_to_particle(pEvt,barcode());
-        if (position != ExtendedBarCode::UNDEFINED) {
-          m_extBarcode.makeIndex (pEvt->event_number(), position);
-        }
-      } else {
-        MsgStream log (Athena::getMessageSvc(), "HepMcParticleLink");
-        if (position != ExtendedBarCode::UNDEFINED) {
-          log << MSG::WARNING
-            << "scptr: Mc Truth not stored for event at " << position
-            << endmsg;
-        } else {
-          log << MSG::WARNING
-            << "scptr: Mc Truth not stored for event with event number " << index
-            << endmsg;
-        }
-      }
-    } else {
-      MsgStream log (Athena::getMessageSvc(), "HepMcParticleLink");
-      log << MSG::WARNING << "scptr: McEventCollection not found" << endmsg;
-    }
-  }
-  return pp;
-}
-
-#endif
 
 
 /**
@@ -328,7 +248,7 @@ HepMC3::ConstGenParticlePtr HepMcParticleLink::scptr() const
 HepMcParticleLink::index_type HepMcParticleLink::eventIndex() const
 {
   // dummy link
-  if (!m_ptrs.isValid()) {
+  if (!m_ptr.isValid() && !m_store) {
     return ExtendedBarCode::UNDEFINED;
   }
 
@@ -336,15 +256,13 @@ HepMcParticleLink::index_type HepMcParticleLink::eventIndex() const
   m_extBarcode.eventIndex (index, position);
   if (index == ExtendedBarCode::UNDEFINED) {
     const HepMC::GenEvent* pEvt{};
-    const IProxyDict* sg{};
-    auto p __attribute__ ((unused)) = m_ptrs.get (sg);
-    if (const McEventCollection* coll = retrieveMcEventCollection (getEventCollection(),sg)) {
+    if (const McEventCollection* coll = retrieveMcEventCollection (getEventCollection(),m_store)) {
       if (position < coll->size()) {
         pEvt = coll->at (position);
       }
       if (pEvt) {
         const int event_number = pEvt->event_number();
-        auto pp = HepMC::barcode_to_particle(pEvt,barcode());
+        HepMC::ConstGenParticlePtr pp = HepMC::barcode_to_particle(pEvt,barcode());
         // Be sure to update m_extBarcode before m_ptrs.
         // Otherwise, if two threads run this method simultaneously,
         // one thread could see index == UNDEFINED, but where m_ptr
@@ -355,11 +273,7 @@ HepMcParticleLink::index_type HepMcParticleLink::eventIndex() const
           return index;
         }
         if (pp) {
-#ifdef HEPMC3
-          m_ptrs.set (sg, pp.get());
-#else
-          m_ptrs.set (sg, pp);
-#endif
+          m_ptr.set (pp);
         }
       }
     }
@@ -467,7 +381,8 @@ EBC_EVCOLL HepMcParticleLink::find_enumFromKey (const std::string& evCollName)
 void HepMcParticleLink::setExtendedBarCode (const ExtendedBarCode& extBarcode)
 {
   m_extBarcode = extBarcode;
-  m_ptrs.store (SG::CurrentEventStore::store());
+  m_store = SG::CurrentEventStore::store();
+  m_ptr.reset();
 }
 
 

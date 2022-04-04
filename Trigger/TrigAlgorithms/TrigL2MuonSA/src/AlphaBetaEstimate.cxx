@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AlphaBetaEstimate.h"
@@ -24,7 +24,7 @@ TrigL2MuonSA::AlphaBetaEstimate::AlphaBetaEstimate(const std::string& type,
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-void TrigL2MuonSA::AlphaBetaEstimate::setMCFlag(BooleanProperty use_mcLUT,
+void TrigL2MuonSA::AlphaBetaEstimate::setMCFlag(const BooleanProperty& use_mcLUT,
                                                 const TrigL2MuonSA::PtEndcapLUTSvc* ptEndcapLUTSvc)
 {
   m_use_mcLUT = use_mcLUT;

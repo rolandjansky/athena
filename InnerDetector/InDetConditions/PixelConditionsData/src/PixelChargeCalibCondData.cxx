@@ -3,6 +3,7 @@
 */
 
 #include "PixelConditionsData/PixelChargeCalibCondData.h"
+#include <cfloat>
 
 PixelChargeCalibCondData::PixelChargeCalibCondData():
   m_analogThreshold(),
@@ -389,7 +390,7 @@ float PixelChargeCalibCondData::getChargeLUTFEI4(const int chanNum, const int FE
 
 float PixelChargeCalibCondData::getToTLUTFEI4(const int chanNum, const int FE, float Q) const {
   float tot = -1;
-  float minDif = 9999999.9;
+  float minDif = FLT_MAX;
   for (unsigned int t=0; t<16; t++) {
     float chrg = getChargeLUTFEI4(chanNum,FE,1.0*(t+1));
     float dif = std::fabs(chrg-Q);

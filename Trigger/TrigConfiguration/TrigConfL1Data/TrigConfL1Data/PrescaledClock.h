@@ -13,7 +13,7 @@ namespace TrigConf {
    class PrescaledClock : public L1DataBaseclass  {
    public:
       PrescaledClock();
-      ~PrescaledClock() = default;
+      virtual ~PrescaledClock() override = default;
     
       // setters
       int clock1() const { return m_clock1; }
@@ -23,7 +23,7 @@ namespace TrigConf {
       void setClock1( int clock1 ) { m_clock1 = clock1; }
       void setClock2( int clock2 ) { m_clock2 = clock2; }
       
-      virtual void print(const std::string& indent="", unsigned int detail=1) const;
+      virtual void print(const std::string& indent="", unsigned int detail=1) const override;
       virtual void writeXML(std::ostream & xmlfile, int indentLevel=0, int indentWidth=2) const;
 
    private:

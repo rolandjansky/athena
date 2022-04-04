@@ -30,6 +30,7 @@ from DerivationFrameworkTrigger.TrigSlimmingHelper import addTrigEDMSetToOutput
 from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 #add to check whether flip tagger is run
 from AthenaConfiguration.AllConfigFlags import ConfigFlags as cfgFlags
+from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags
 
 #====================================================================
 # SET UP STREAM   
@@ -224,6 +225,22 @@ PHYSVALSlimmingHelper.AllVariables =  ["EventInfo",
                                        "CaloCalTopoClusters", "EMOriginTopoClusters","LCOriginTopoClusters",
                                        "JetETMissChargedParticleFlowObjects", "JetETMissNeutralParticleFlowObjects"
                                      ]
+
+if InDetDxAODFlags.AddPseudoTracks():
+   PseudoTrackContainers = [
+      "InDetPseudoTrackParticles",
+      "InDetReplacedWithPseudoTrackParticles",
+      "InDetReplacedWithPseudoFromBTrackParticles",
+      "InDetReplacedWithPseudoNotFromBTrackParticles",
+      "InDetPlusPseudoTrackParticles",
+      "InDetPlusPseudoFromBTrackParticles",
+      "InDetPlusPseudoNotFromBTrackParticles",
+      "InDetNoFakesTrackParticles",
+      "InDetNoFakesFromBTrackParticles",
+      "InDetNoFakesNotFromBTrackParticles"
+   ]
+   PHYSVALSlimmingHelper.SmartCollections += PseudoTrackContainers
+   PHYSVALSlimmingHelper.AllVariables += PseudoTrackContainers
 
 excludedVertexAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
 StaticContent = []

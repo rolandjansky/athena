@@ -13,9 +13,6 @@ TrigConf::L1Item::L1Item(const boost::property_tree::ptree & data)
    load();
 }
 
-TrigConf::L1Item::~L1Item()
-{}
-
 std::string
 TrigConf::L1Item::className() const {
    return "L1Item";

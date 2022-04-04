@@ -170,8 +170,7 @@ __global__ static void doubletMakingKernel(TrigAccel::SEED_FINDER_SETTINGS* dSet
       }
     }
   }
-  __syncthreads();
-
+  
   if(threadIdx.x == 0 && threadIdx.y == 0) {
     atomicAdd(&d_Out->m_nMiddleSps, nMiddleSPs);
   }

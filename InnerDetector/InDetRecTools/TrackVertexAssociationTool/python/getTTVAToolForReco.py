@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # These are *constants* (OK, the user actually has the ability to change the track/vertex containers in the function calls,
 # but the default container names are constants)
@@ -16,30 +16,31 @@ def _assertDecoValue(kwargs, key, default):
     else:
         kwargs[key] = default
 
-def _mangleName(theName, theSequence): 
-    return theSequence.name()+"_"+theName
 
 def addUsedInFitDecoratorForReco(TrackContName = _DEFAULT_TRACK_CONT, VertexContName = _DEFAULT_VERTEX_CONT, add2Seq = None):
     '''Function for adding a used-in-fit decorator alg to a sequence'''
     from AthenaCommon.AlgSequence import AlgSequence
+    from InDetUsedInVertexFitTrackDecorator.UsedInVertexFitTrackDecoratorCfg import idForTrackVtxContainers
+
     topSequence = AlgSequence()
     # If not sequence is provided, add the decoration alg to the top sequence
     if add2Seq is None:
         add2Seq = topSequence
-    # Name mangling to ensure we do not duplicate names in configs
-    # with a genuine need for multiple instances in multiple sequences (i.e. trigger) 
-    theToolName = _mangleName(_DECO_TOOL_NAME, add2Seq) 
-    theAlgName = _mangleName(_DECO_ALG_NAME, add2Seq) 
-    if not hasattr(add2Seq, theAlgName):
+
+    # the alg name must be unique for a given trk,vtx and deco combination. Otherwise multiple algs
+    # decorating identically may be scheduled (this function is called from many places) and results in errors (ATLASRECTS-6925)
+    # the function idForTrackVtxContainers( ) returns a unique name for such a combination.
+    basename = idForTrackVtxContainers(TrackContName, VertexContName, _VERTEX_DECO, _WEIGHT_DECO)
+    if not hasattr(add2Seq, basename+"Alg"):
         import AthenaCommon.CfgMgr as CfgMgr
         from AthenaCommon.AppMgr import ToolSvc
-        ToolSvc += CfgMgr.InDet__InDetUsedInFitTrackDecoratorTool(  name                    = theToolName,
+        ToolSvc += CfgMgr.InDet__InDetUsedInFitTrackDecoratorTool(  name                    = basename+"Tool",
                                                                     AMVFVerticesDecoName    = _VERTEX_DECO,
                                                                     AMVFWeightsDecoName     = _WEIGHT_DECO,
                                                                     TrackContainer          = TrackContName,
                                                                     VertexContainer         = VertexContName )
-        add2Seq += CfgMgr.InDet__InDetUsedInVertexFitTrackDecorator(name                    = theAlgName,
-                                                                    UsedInFitDecoratorTool  = getattr(ToolSvc, theToolName) )
+        add2Seq += CfgMgr.InDet__InDetUsedInVertexFitTrackDecorator(name                    = basename+"Alg",
+                                                                    UsedInFitDecoratorTool  = getattr(ToolSvc, basename+"Tool") )
     return
 
 def getTTVAToolForReco(name = None, returnCompFactory = False, addDecoAlg = True, add2Seq = None, **kwargs):

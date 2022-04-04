@@ -23,7 +23,7 @@ args = parser.parse_args()
 
 # Configure
 ConfigFlags.Input.Files = defaultTestFiles.RDO_BKG_RUN2
-ConfigFlags.Input.SecondaryFiles = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/TestCase_xAODEventInfo.root"]
+ConfigFlags.Input.SecondaryFiles = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayTests/Special/TestCase_xAODEventInfo.root"]
 ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
 ConfigFlags.Overlay.DataOverlay = False
 ConfigFlags.Output.RDOFileName = "myRDO.pool.root"

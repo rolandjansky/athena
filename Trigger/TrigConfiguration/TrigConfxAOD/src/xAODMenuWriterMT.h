@@ -57,7 +57,7 @@ namespace TrigConf {
       /// Regular Algorithm constructor
       xAODMenuWriterMT( const std::string& name, ISvcLocator* svcLoc );
 
-      virtual ~xAODMenuWriterMT();
+      virtual ~xAODMenuWriterMT() override = default;
 
       /// Function initialising the algorithm
       virtual StatusCode initialize() override;

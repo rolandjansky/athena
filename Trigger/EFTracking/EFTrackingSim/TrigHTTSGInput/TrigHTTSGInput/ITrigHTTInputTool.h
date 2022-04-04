@@ -25,7 +25,7 @@ class ITrigHTTInputTool : virtual public ::IAlgTool
    * @param header object to update
    * @return StatusCode 
    */
-  virtual StatusCode readData(HTTEventInputHeader* header) = 0;
+  virtual StatusCode readData(HTTEventInputHeader* header, const EventContext& eventContext) = 0;
    
 };
 

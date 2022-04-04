@@ -46,8 +46,7 @@ MetaDataSvc::MetaDataSvc(const std::string& name, ISvcLocator* pSvcLocator) : ::
 	m_allowMetaDataStop(false),
         m_outputPreprared(false),
 	m_persToClid(),
-	m_toolForClid(),
-	m_streamForKey() {
+	m_toolForClid() {
    // declare properties
    declareProperty("MetaDataContainer", m_metaDataCont = "");
    declareProperty("MetaDataTools", m_metaDataTools);
@@ -467,9 +466,6 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
       } else {
          toolInstName = toolName;
       }
-      if (clid == 243004407) { // Some MetaData have multiple objects needing seperate tools for propagation
-         toolInstName += "_" + keyName;
-      }
       bool foundTool = false;
       for (auto iter = m_metaDataTools.begin(), iterEnd = m_metaDataTools.end(); iter != iterEnd; iter++) {
          if ((*iter)->name() == "ToolSvc." + toolInstName) foundTool = true;
@@ -485,32 +481,15 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
             ATH_MSG_FATAL("Cannot get " << toolInstName);
             return(StatusCode::FAILURE);
          }
-         if (clid == 243004407) { // Set keys for FileMetaDataTool and EventFormatMetaDataTool
-            IProperty* property = dynamic_cast<IProperty*>(metadataTool.get());
-            if (property == nullptr) {
-               ATH_MSG_FATAL("addProxyToInputMetaDataStore: Cannot set input key " << tokenStr);
-               return(StatusCode::FAILURE);
-            }
-            if (!property->setProperty("InputKey", keyName).isSuccess()) {
-               ATH_MSG_FATAL("addProxyToInputMetaDataStore: Cannot set input key " << tokenStr);
-               return(StatusCode::FAILURE);
-            }
-            if (!property->setProperty("OutputKey", keyName).isSuccess()) {
-               ATH_MSG_FATAL("addProxyToInputMetaDataStore: Cannot set output key " << tokenStr);
-               return(StatusCode::FAILURE);
-            }
-         }
       }
    }
    const std::string par[3] = { "SHM" , keyName , className };
    const unsigned long ipar[2] = { num , 0 };
    IOpaqueAddress* opqAddr = nullptr;
-   std::map<std::string, std::string>::const_iterator iter = m_streamForKey.find(keyName);
-   if (iter == m_streamForKey.end()) {
-      m_streamForKey.insert(std::pair<std::string, std::string>(keyName, fileName));
-   } else if (fileName != iter->second) { // Remove duplicated objects
+   SG::DataProxy* dp = m_inputDataStore->proxy(clid, keyName);
+   if (dp != nullptr) {
       ATH_MSG_DEBUG("Resetting duplicate proxy for: " << clid << "#" << keyName << " from file: " << fileName);
-      m_inputDataStore->proxy(clid, keyName)->reset();
+      dp->reset();
    }
    if (!m_addrCrtr->createAddress(m_storageType, clid, par, ipar, opqAddr).isSuccess()) {
       ATH_MSG_FATAL("addProxyToInputMetaDataStore: Cannot create address for " << tokenStr);
@@ -525,7 +504,7 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
       ATH_MSG_FATAL("addProxyToInputMetaDataStore: Cannot access data for " << tokenStr);
       return(StatusCode::FAILURE);
    }
-   if (keyName.find("Aux.") != std::string::npos && m_inputDataStore->symLink (clid, keyName, 187169987).isFailure()) {
+   if (keyName.find("Aux.") != std::string::npos && m_inputDataStore->symLink(clid, keyName, 187169987).isFailure()) {
       ATH_MSG_WARNING("addProxyToInputMetaDataStore: Cannot symlink to AuxStore for " << tokenStr);
    }
    return(StatusCode::SUCCESS);

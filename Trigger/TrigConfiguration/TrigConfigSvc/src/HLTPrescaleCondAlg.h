@@ -33,7 +33,7 @@ namespace TrigConf {
    class HLTPrescaleCondAlg : public AthReentrantAlgorithm {
    public:
       HLTPrescaleCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
-      virtual ~HLTPrescaleCondAlg() = default;
+      virtual ~HLTPrescaleCondAlg() override = default;
 
       virtual StatusCode initialize() override;
       virtual StatusCode execute(const EventContext& ctx) const override;

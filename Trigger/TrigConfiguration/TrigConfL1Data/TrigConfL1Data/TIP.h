@@ -13,7 +13,7 @@ namespace TrigConf {
    class TIP : public L1DataBaseclass {
    public:
       TIP();
-      ~TIP();
+      virtual ~TIP() override = default;
 		
       // Accessors
 		
@@ -53,7 +53,7 @@ namespace TrigConf {
       int clock() const {return m_Clock;}
       void setClock(const int& clock) {m_Clock = clock;}
 		
-      virtual void print(const std::string& indent="", unsigned int detail=1) const;
+      virtual void print(const std::string& indent="", unsigned int detail=1) const override;
 		
    protected:
       std::string m_ThresholdName; // the name of the corresponding threshold (can appear multiple times but with different thresholdBits)

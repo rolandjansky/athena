@@ -9,8 +9,8 @@
 #include "../TrigDisappearingTrackHypoAlg.h"
 #include "../TrigDisappearingTrackHypoTool.h"
 
-#include "../../TrigLongLivedParticlesHypo/MuonClusterHypoAlg.h"
-#include "../../TrigLongLivedParticlesHypo/MuonClusterHypoTool.h"
+#include "../MuonClusterHypoAlg.h"
+#include "../MuonClusterHypoTool.h"
 
 #include "../DisplacedJetPromptHypoTool.h"
 #include "../DisplacedJetPromptHypoAlg.h"

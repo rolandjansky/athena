@@ -26,9 +26,9 @@ namespace TrigConf {
          IHLTFrameLoader(), DBLoader("HLTFrameLoader", sm, session) {}
 
       /**@brief destructor*/       
-      virtual ~HLTFrameLoader(){};
+      virtual ~HLTFrameLoader() override = default;
 
-      virtual bool load( HLTFrame& data );
+      virtual bool load( HLTFrame& data ) override;
 
    private:
 

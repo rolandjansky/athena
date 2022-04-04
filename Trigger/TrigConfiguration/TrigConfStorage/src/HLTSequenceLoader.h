@@ -26,7 +26,7 @@ namespace TrigConf {
          DBLoader("HLTSequenceLoader", sm, session) {}
 
       /**@brief destructor*/       
-      virtual ~HLTSequenceLoader(){};
+      virtual ~HLTSequenceLoader() override = default;
 
       void loadSequences( HLTSequenceList& seqlist );
 

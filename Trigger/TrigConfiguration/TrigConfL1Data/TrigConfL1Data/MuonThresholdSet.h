@@ -13,7 +13,7 @@ namespace TrigConf {
    class MuonThresholdSet : public L1DataBaseclass {
    public:
       MuonThresholdSet();
-      ~MuonThresholdSet() = default;
+      virtual ~MuonThresholdSet() override = default;
     
       bool rpcAvailable() const {return m_rpc_avail;}
       bool rpcAvailableOnline() const {return m_rpc_avail_online;}
@@ -51,7 +51,7 @@ namespace TrigConf {
       void setRpcPt6Id( const int& i ){m_rpc_pt6_ext_id = i;}
 
 
-      virtual void print(const std::string& indent="", unsigned int detail=1) const;
+      virtual void print(const std::string& indent="", unsigned int detail=1) const override;
 
    private:
       bool m_rpc_avail;

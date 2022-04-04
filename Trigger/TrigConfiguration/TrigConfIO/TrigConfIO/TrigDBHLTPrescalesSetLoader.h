@@ -26,8 +26,8 @@ namespace TrigConf {
       /** Constructor */
       TrigDBHLTPrescalesSetLoader(const std::string & connection);
 
-      /** Destructor */
-      virtual ~TrigDBHLTPrescalesSetLoader();
+      /** Destructor - cannot be defined here because QueryDefinition is an incomplete type */
+      virtual ~TrigDBHLTPrescalesSetLoader() override;
 
       /**
        * @brief Load content from the Trigger DB into an HLTPrescalesSet for a given HLTPrescaleKey (HLTPSK)

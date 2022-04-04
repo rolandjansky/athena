@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <vector>
@@ -8,8 +8,8 @@
 
 
 #ifdef __CINT__
-#ifndef HTT_STANDALONE
-#define HTT_STANDALONE
+#ifndef HTTOBJECTS_HTT_STANDALONE
+#define HTTOBJECTS_HTT_STANDALONE
 #endif
 // unimplemented in rel 22
 // #pragma link off globals;

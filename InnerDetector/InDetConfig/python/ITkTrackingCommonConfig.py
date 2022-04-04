@@ -69,8 +69,8 @@ def ITkPixelClusterOnTrackToolDigitalCfg(flags, name='ITkPixelClusterOnTrackTool
     acc = ComponentAccumulator()
 
     if 'LorentzAngleTool' not in kwargs :
-        from SiLorentzAngleTool.ITkPixelLorentzAngleConfig import ITkPixelLorentzAngleCfg
-        ITkPixelLorentzAngleTool = acc.popToolsAndMerge(ITkPixelLorentzAngleCfg(flags))
+        from SiLorentzAngleTool.ITkPixelLorentzAngleConfig import ITkPixelLorentzAngleToolCfg
+        ITkPixelLorentzAngleTool = acc.popToolsAndMerge(ITkPixelLorentzAngleToolCfg(flags))
         kwargs.setdefault("LorentzAngleTool", ITkPixelLorentzAngleTool )
 
     if flags.ITk.Tracking.doDigitalROTCreation:
@@ -101,8 +101,8 @@ def ITkPixelClusterOnTrackToolCfg(flags, name='ITkPixelClusterOnTrackTool', **kw
     acc = ComponentAccumulator()
 
     if 'LorentzAngleTool' not in kwargs :
-        from SiLorentzAngleTool.ITkPixelLorentzAngleConfig import ITkPixelLorentzAngleCfg
-        ITkPixelLorentzAngleTool = acc.popToolsAndMerge(ITkPixelLorentzAngleCfg(flags))
+        from SiLorentzAngleTool.ITkPixelLorentzAngleConfig import ITkPixelLorentzAngleToolCfg
+        ITkPixelLorentzAngleTool = acc.popToolsAndMerge(ITkPixelLorentzAngleToolCfg(flags))
         kwargs.setdefault("LorentzAngleTool", ITkPixelLorentzAngleTool )
 
     ITkPixelClusterOnTrackTool = None
@@ -118,8 +118,8 @@ def ITkStripClusterOnTrackToolCfg(flags, name='ITkStrip_ClusterOnTrackTool', **k
     acc = ComponentAccumulator()
 
     if 'LorentzAngleTool' not in kwargs :
-        from SiLorentzAngleTool.ITkStripLorentzAngleConfig import ITkStripLorentzAngleCfg
-        ITkStripLorentzAngleTool = acc.popToolsAndMerge( ITkStripLorentzAngleCfg(flags) )
+        from SiLorentzAngleTool.ITkStripLorentzAngleConfig import ITkStripLorentzAngleToolCfg
+        ITkStripLorentzAngleTool = acc.popToolsAndMerge( ITkStripLorentzAngleToolCfg(flags) )
         kwargs.setdefault("LorentzAngleTool", ITkStripLorentzAngleTool )
 
     kwargs.setdefault("CorrectionStrategy", 0 ) # do correct position bias

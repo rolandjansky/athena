@@ -77,7 +77,7 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
 	auto lbCToF           = Monitored::Scalar<int>("lbCToF", 0);
 	auto lbAToF_Weight    = Monitored::Scalar<float>("lbAToF_Weight", 0.0);
 	auto lbCToF_Weight    = Monitored::Scalar<float>("lbCToF_Weight", 0.0);
-	
+
 	auto lbAToFEvents     = Monitored::Scalar<int>("lbAToFEvents", 0);
 	auto lbCToFEvents     = Monitored::Scalar<int>("lbCToFEvents", 0);
 	auto lbAandCToFEvents = Monitored::Scalar<int>("lbAandCToFEvents", 0);
@@ -148,7 +148,13 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
 	lbCToFEvents      = eventInfo->lumiBlock();
 	lbAandCToFEvents  = eventInfo->lumiBlock();
 	muPerBXToF        = lbAverageInteractionsPerCrossing(ctx);
+
+	if (muPerBXToF == 0.0) {
+	  ATH_MSG_DEBUG("AverageInteractionsPerCrossing is 0, forcing to 1.0");
+	  muPerBXToF=1.0;
+	}
 	
+
 	ToFHits_MU_Weight       = 1/muPerBXToF;
 	lbAToF_Weight           = 1/muPerBXToF;
 	lbCToF_Weight           = 1/muPerBXToF;
@@ -243,8 +249,8 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
 		{
 			auto& lbToF_T = hitsItr->isSideA() ? lbAToF_T : lbCToF_T;
 			auto& lbToF_TP = hitsItr->isSideA() ? lbAToF_TP : lbCToF_TP;
-			auto& lbToF_TAll_Weight = hitsItr->isSideA() ? lbAToF_TAll_Weight : lbAToF_TAll_Weight;
-			auto& lbToF_TWeight = hitsItr->isSideA() ? lbAToF_TWeight : lbAToF_TWeight;
+			auto& lbToF_TAll_Weight = hitsItr->isSideA() ? lbAToF_TAll_Weight : lbCToF_TAll_Weight;
+			auto& lbToF_TWeight = hitsItr->isSideA() ? lbAToF_TWeight : lbCToF_TWeight;
 
 			unsigned int train = hitsItr->trainID();
 			if(train < NTRAINS)

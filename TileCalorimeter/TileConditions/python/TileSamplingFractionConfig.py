@@ -32,7 +32,7 @@ def TileSamplingFractionCondAlgCfg(flags, **kwargs):
         samplingFractionProxy = TileCondProxyCoolFlt('TileCondProxyCool_SamplingFraction', Source = samplingFractionFolder)
 
         samplingFractionTag = 'TileOfl02CalibSfr-SIM-02'
-        if flags.GeoModel.Run >= LHCPeriod.Run4 :
+        if flags.GeoModel.Run >= LHCPeriod.Run4 or flags.Overlay.DataOverlay:
             samplingFractionTag = 'TileOfl02CalibSfr-SIM-05'
 
         from IOVDbSvc.IOVDbSvcConfig import addFolders

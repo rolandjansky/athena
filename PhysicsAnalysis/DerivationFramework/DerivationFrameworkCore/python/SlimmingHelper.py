@@ -630,6 +630,36 @@ class SlimmingHelper:
                 elif collectionName=="InDetTrackParticles":
                         from DerivationFrameworkInDet.InDetTrackParticlesCPContent import InDetTrackParticlesCPContent
                         items.extend(InDetTrackParticlesCPContent)
+                elif collectionName=="InDetPseudoTrackParticles":
+                        from DerivationFrameworkInDet.InDetPseudoTrackParticlesCPContent import InDetPseudoTrackParticlesCPContent
+                        items.extend(InDetPseudoTrackParticlesCPContent)
+                elif collectionName=="InDetReplacedWithPseudoTrackParticles":
+                        from DerivationFrameworkInDet.InDetReplacedWithPseudoTrackParticlesCPContent import InDetReplacedWithPseudoTrackParticlesCPContent
+                        items.extend(InDetReplacedWithPseudoTrackParticlesCPContent)
+                elif collectionName=="InDetReplacedWithPseudoFromBTrackParticles":
+                        from DerivationFrameworkInDet.InDetReplacedWithPseudoFromBTrackParticlesCPContent import InDetReplacedWithPseudoFromBTrackParticlesCPContent
+                        items.extend(InDetReplacedWithPseudoFromBTrackParticlesCPContent)
+                elif collectionName=="InDetReplacedWithPseudoNotFromBTrackParticles":
+                        from DerivationFrameworkInDet.InDetReplacedWithPseudoNotFromBTrackParticlesCPContent import InDetReplacedWithPseudoNotFromBTrackParticlesCPContent
+                        items.extend(InDetReplacedWithPseudoNotFromBTrackParticlesCPContent)
+                elif collectionName=="InDetPlusPseudoTrackParticles":
+                        from DerivationFrameworkInDet.InDetPlusPseudoTrackParticlesCPContent import InDetPlusPseudoTrackParticlesCPContent
+                        items.extend(InDetPlusPseudoTrackParticlesCPContent)
+                elif collectionName=="InDetPlusPseudoFromBTrackParticles":
+                        from DerivationFrameworkInDet.InDetPlusPseudoFromBTrackParticlesCPContent import InDetPlusPseudoFromBTrackParticlesCPContent
+                        items.extend(InDetPlusPseudoFromBTrackParticlesCPContent)
+                elif collectionName=="InDetPlusPseudoNotFromBTrackParticles":
+                        from DerivationFrameworkInDet.InDetPlusPseudoNotFromBTrackParticlesCPContent import InDetPlusPseudoNotFromBTrackParticlesCPContent
+                        items.extend(InDetPlusPseudoNotFromBTrackParticlesCPContent)
+                elif collectionName=="InDetNoFakesTrackParticles":
+                        from DerivationFrameworkInDet.InDetNoFakesTrackParticlesCPContent import InDetNoFakesTrackParticlesCPContent
+                        items.extend(InDetNoFakesTrackParticlesCPContent)
+                elif collectionName=="InDetNoFakesFromBTrackParticles":
+                        from DerivationFrameworkInDet.InDetNoFakesFromBTrackParticlesCPContent import InDetNoFakesFromBTrackParticlesCPContent
+                        items.extend(InDetNoFakesFromBTrackParticlesCPContent)
+                elif collectionName=="InDetNoFakesNotFromBTrackParticles":
+                        from DerivationFrameworkInDet.InDetNoFakesNotFromBTrackParticlesCPContent import InDetNoFakesNotFromBTrackParticlesCPContent
+                        items.extend(InDetNoFakesNotFromBTrackParticlesCPContent)
                 elif collectionName=="InDetLargeD0TrackParticles":
                         from DerivationFrameworkInDet.InDetLargeD0TrackParticlesCPContent import InDetLargeD0TrackParticlesCPContent
                         items.extend(InDetLargeD0TrackParticlesCPContent)

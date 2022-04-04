@@ -169,6 +169,8 @@ class METAssocConfig:
         if trksel:
             self.trkseltool = trksel
         else:
+            # TODO: These Z0 and D0 cuts are left over from R21. The track vertex association can now use looser ones.
+            #       To be investigated and possibly updated by the MET group.
             self.trkseltool=CompFactory.getComp("InDet::InDetTrackSelectionTool")("IDTrkSel_METAssoc",
                                                                   CutLevel="TightPrimary",
                                                                   maxZ0SinTheta=3,

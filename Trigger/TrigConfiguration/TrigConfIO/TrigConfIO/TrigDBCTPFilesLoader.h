@@ -33,8 +33,8 @@ namespace TrigConf {
       /** Constructor */
       TrigDBCTPFilesLoader(const std::string & connection);
 
-      /** Destructor */
-      virtual ~TrigDBCTPFilesLoader();
+      /** Destructor - cannot be defined here because QueryDefinition is an incomplete type */
+      virtual ~TrigDBCTPFilesLoader() override;
 
       /**
        * @brief Load content from the Trigger DB into an L1CTPFiles object for a given super master key (SMK)

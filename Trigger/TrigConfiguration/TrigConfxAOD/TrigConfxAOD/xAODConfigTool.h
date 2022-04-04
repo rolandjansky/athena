@@ -62,7 +62,7 @@ namespace TrigConf {
       xAODConfigTool( const std::string& name = "TrigConf::xAODConfigTool" );
 
       /// Out-of-line dtor so that we don't need to define Impl in the header.
-      ~xAODConfigTool();
+      virtual ~xAODConfigTool() override;
 
       /// @name Function(s) implementing the asg::IAsgTool interface
       /// @{

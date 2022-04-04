@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthContainers/Root/AuxElement.h
@@ -300,11 +300,11 @@ SG::IAuxStore* AuxElement::getStore() const
 {
   if (havePrivateData()) {
 #ifdef ATHCONTAINERS_R21_COMPAT
-    return m_container->getStore();
+    SG::AuxVectorData* container_nc ATLAS_THREAD_SAFE = m_container;
 #else
     SG::AuxVectorData* container_nc ATLAS_THREAD_SAFE = const_cast<SG::AuxVectorData*>(container());
-    return container_nc->getStore();
 #endif
+    return container_nc->getStore();
   }
   return 0;
 }

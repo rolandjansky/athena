@@ -2,10 +2,13 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from LArCellRec.LArCollisionTimeConfig import LArCollisionTimeCfg
 
 def BackgroundAlgsCfg(flags):
 
   result=ComponentAccumulator()
+
+  result.merge(LArCollisionTimeCfg(flags))
 
   haveCSC=flags.Detector.GeometryCSC 
 

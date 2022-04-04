@@ -13,9 +13,6 @@ TrigConf::L1PrescalesSet::L1PrescalesSet(const boost::property_tree::ptree & dat
    load();
 }
 
-TrigConf::L1PrescalesSet::~L1PrescalesSet()
-{}
-
 void
 TrigConf::L1PrescalesSet::load()
 {

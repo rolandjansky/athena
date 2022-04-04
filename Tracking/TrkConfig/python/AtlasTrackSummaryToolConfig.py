@@ -22,7 +22,7 @@ def AtlasTrackSummaryToolCfg(flags, name="AtlasTrackSummaryTool", **kwargs):
     result.addPublicTool(atlasPrdAssociationTool)
 
     # Loading Configurable HoleSearchTool
-    from InDetConfig.InDetRecToolConfig import InDetTrackHoleSearchToolCfg
+    from InDetConfig.InDetTrackHoleSearchConfig import InDetTrackHoleSearchToolCfg
     atlasHoleSearchTool = result.popToolsAndMerge(InDetTrackHoleSearchToolCfg(flags,
                                                                               name="AtlasHoleSearchTool",
                                                                               Extrapolator=extrapolator))

@@ -1,6 +1,7 @@
 #
 #  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
+from AthenaConfiguration.Enums import BeamType
 
 def PixelMonitoringConfig(flags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -12,7 +13,6 @@ def PixelMonitoringConfig(flags):
     doMVAMonAlg       = True #allowed only if online, see below
 
     from InDetRecExample.InDetKeys          import InDetKeys
-    from InDetRecExample.InDetJobProperties import InDetFlags
     # run on RAW only
     if flags.DQ.Environment in ('online', 'tier0', 'tier0Raw'):
         if forceOnline: 
@@ -28,8 +28,8 @@ def PixelMonitoringConfig(flags):
 
         kwargsClusMonAlg = { 'doOnline'        : isOnline,      #Histograms for online (GlobalMonitoring) running
                              'doLumiBlock'     : not isOnline,  #Turn on/off histograms stored every 1(20) lumi block(s)
-                             'doLowOccupancy'  : InDetFlags.doCosmics(), #Setting up 1D histogram ranges and binnings, if False, high occupancy i.e. collisions settings will be used
-                             'doHeavyIonMon'   : InDetFlags.doHeavyIon(),     #Setting up 1D histogram ranges and binnings for heavy ions
+                             'doLowOccupancy'  : flags.Beam.Type is BeamType.Cosmics, #Setting up 1D histogram ranges and binnings, if False, high occupancy i.e. collisions settings will be used
+                             'doHeavyIonMon'   : flags.Reco.EnableHI,     #Setting up 1D histogram ranges and binnings for heavy ions
                              'doFEPlots'       : True,                       #Turn on/off per FE-I3 histograms
                              'ClusterName'     : InDetKeys.PixelClusters(),  #'PixelClusters'
                              'TrackName'       : InDetKeys.Tracks()          #'Tracks'
@@ -67,7 +67,7 @@ def PixelMonitoringConfig(flags):
             pixelAthClusterMonAlg.TrackSelectionTool.UseTrkTrackTools = True
             pixelAthClusterMonAlg.TrackSelectionTool.CutLevel         = "TightPrimary"
             pixelAthClusterMonAlg.TrackSelectionTool.maxNPixelHoles   = 1
-            if not InDetFlags.doCosmics():
+            if flags.Beam.Type is not BeamType.Cosmics:
                 pixelAthClusterMonAlg.TrackSelectionTool.maxD0            = 2
                 pixelAthClusterMonAlg.TrackSelectionTool.maxZ0            = 150
             pixelAthClusterMonAlg.TrackSelectionTool.TrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
@@ -91,7 +91,7 @@ def PixelMonitoringConfig(flags):
             pixelAthMVAMonAlg.TrackSelectionTool.UseTrkTrackTools = True
             pixelAthMVAMonAlg.TrackSelectionTool.CutLevel         = "TightPrimary"
             pixelAthMVAMonAlg.TrackSelectionTool.maxNPixelHoles   = 1
-            if not InDetFlags.doCosmics():
+            if flags.Beam.Type is not BeamType.Cosmics:
                 pixelAthMVAMonAlg.TrackSelectionTool.maxD0            = 2
                 pixelAthMVAMonAlg.TrackSelectionTool.maxZ0            = 150
 

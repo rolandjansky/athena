@@ -9,7 +9,7 @@
 # art-output: dcube
 # art-html: dcube
 
-Gen_tf.py --ecmEnergy=13000. --maxEvents=10000 --firstEvent=-1 --randomSeed=123456 --jobConfig=421360 --outputTXTFile=test_powheg_W.TXT.tar.gz 
+Gen_tf.py --ecmEnergy=13000. --maxEvents=10000 --randomSeed=123456 --jobConfig=421360 --outputTXTFile=test_powheg_W.TXT.tar.gz 
 
 echo "art-result: $? Gen_tf"
 

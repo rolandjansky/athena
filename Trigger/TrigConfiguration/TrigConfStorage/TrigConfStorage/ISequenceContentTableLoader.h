@@ -18,7 +18,7 @@ namespace TrigConf
   public:
 
     /**@brief destructor*/       
-    virtual ~ISequenceContentTableLoader(){};
+    virtual ~ISequenceContentTableLoader() override = default;
 
     /**
      * @brief Load the HLT sequence definitions from the configuration

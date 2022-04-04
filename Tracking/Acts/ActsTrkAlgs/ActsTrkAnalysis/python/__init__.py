@@ -2,5 +2,5 @@
 
 from .ActsTrkAnalysisConfig import ActsTrkClusterAnalysisCfg, ActsTrkPixelClusterAnalysisCfg, ActsTrkStripClusterAnalysisCfg
 __all__ = ['ActsTrkClusterAnalysisCfg','ActsTrkPixelClusterAnalysisCfg','ActsTrkStripClusterAnalysisCfg']
-from .ActsTrkAnalysisConfig import ActsTrkSpacePointAnalysisCfg, ActsTrkPixelSpacePointAnalysisCfg, ActsTrkStripSpacePointAnalysisCfg
-__all__ += ['ActsTrkSpacePointAnalysisCfg','ActsTrkPixelSpacePointAnalysisCfg','ActsTrkStripSpacePointAnalysisCfg']
+from .ActsTrkAnalysisConfig import ActsTrkSpacePointAnalysisCfg, ActsTrkPixelSpacePointAnalysisCfg, ActsTrkStripSpacePointAnalysisCfg, ActsTrkStripOverlapSpacePointAnalysisCfg
+__all__ += ['ActsTrkSpacePointAnalysisCfg','ActsTrkPixelSpacePointAnalysisCfg','ActsTrkStripSpacePointAnalysisCfg', 'ActsTrkStripOverlapSpacePointAnalysisCfg']

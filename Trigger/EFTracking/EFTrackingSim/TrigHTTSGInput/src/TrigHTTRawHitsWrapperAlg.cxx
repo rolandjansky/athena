@@ -4,6 +4,7 @@
 
 #include "TrigHTTObjects/HTTEventInputHeader.h"
 #include "TrigHTTObjects/HTTTowerInputHeader.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -48,7 +49,7 @@ StatusCode TrigHTTRawHitsWrapperAlg::execute() {
   ATH_MSG_DEBUG("Running on event ");
 
   ATH_CHECK(m_eventHeader != nullptr);
-  ATH_CHECK(m_hitInputTool->readData(m_eventHeader));
+  ATH_CHECK(m_hitInputTool->readData(m_eventHeader, Gaudi::Hive::currentContext()));
   m_EventTree->Fill();
   return StatusCode::SUCCESS;
 

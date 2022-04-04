@@ -21,8 +21,6 @@ TrigConf::L1CTPFiles::L1CTPFiles() {
    m_muctpi[s_keyMap.at(PtLutEndcap)];
 }
 
-TrigConf::L1CTPFiles::~L1CTPFiles() = default;
-
 void
 TrigConf::L1CTPFiles::print() const
 {
