@@ -12,8 +12,11 @@
 #include "TrigTimeAlgs/TrigTimer.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
+#include "AthenaInterprocess/Incidents.h"
 
+#include "GaudiKernel/IIncidentSvc.h"
 #include "AthenaMonitoringKernel/Monitored.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -122,28 +125,42 @@ StatusCode MuFastSteering::initialize()
   }
 
 
+  
+
   //
   // Initialize the calibration streamer  
   // 
-
+  
   if (m_doCalStream) {
+    ATH_CHECK(m_jobOptionsSvc.retrieve());
+
+    if (m_jobOptionsSvc->has("MuonHltCalibrationConfig.MuonCalBufferName")) {
+      if (m_calBufferName.fromString(m_jobOptionsSvc->get("MuonHltCalibrationConfig.MuonCalBufferName","")).isSuccess()) {
+	ATH_MSG_DEBUG("Set property " << m_calBufferName << " from MuonHltCalibrationConfig.MuonCalBufferName");
+      }
+    } else {
+      ATH_MSG_DEBUG("Could not parse MuonHltCalibrationConfig.MuonCalBufferName from JobOptionsSvc");
+    }
+    if (m_jobOptionsSvc->has("MuonHltCalibrationConfig.MuonCalBufferSize")) {
+      if (m_calBufferSize.fromString(m_jobOptionsSvc->get("MuonHltCalibrationConfig.MuonCalBufferSize","")).isSuccess()) {
+	ATH_MSG_DEBUG("Set property " << m_calBufferSize << " from MuonHltCalibrationConfig.MuonCalBufferSize");
+      }
+    }
+    else {
+      ATH_MSG_DEBUG("Could not parse MuonHltCalibrationConfig.MuonCalBufferSize from JobOptionsSvc");
+    }
+    
     // retrieve the calibration streamer
     ATH_CHECK(m_calStreamer.retrieve());
     // set properties
     m_calStreamer->setBufferName(m_calBufferName);
-    m_calStreamer->setInstanceName( "0");
     ATH_MSG_DEBUG("Initialized the Muon Calibration Streamer. Buffer name: " << m_calBufferName 
 		  << ", buffer size: " << m_calBufferSize 
 		  << " doDataScouting: "  << m_calDataScouting);
-
-    //open the stream
-    StatusCode sc = StatusCode::SUCCESS;
-    sc = m_calStreamer->openStream(m_calBufferSize);
-    if ( sc != StatusCode::SUCCESS ) {  
-      ATH_MSG_ERROR("Failed to open the connection to the circular buffer");       }
-    else {
-      ATH_MSG_INFO("Opened the connection to the circular buffer");
-    }
+    
+    
+    ATH_CHECK(m_incidentSvc.retrieve());
+    m_incidentSvc->addListener(this, AthenaInterprocess::UpdateAfterFork::type());
   }
     
 
@@ -164,6 +181,40 @@ StatusCode MuFastSteering::finalize()
 
   return StatusCode::SUCCESS;
 }
+
+
+
+void MuFastSteering::handle(const Incident& incident) {
+  
+  
+  if (incident.type() == AthenaInterprocess::UpdateAfterFork::type() && m_doCalStream) {
+    ATH_MSG_DEBUG("+-----------------------------------+");
+    ATH_MSG_DEBUG("| handle for UpdateAfterFork called |");
+    ATH_MSG_DEBUG("+-----------------------------------+");
+    const AthenaInterprocess::UpdateAfterFork& updinc = dynamic_cast<const AthenaInterprocess::UpdateAfterFork&>(incident);
+    
+    ATH_MSG_DEBUG(" MuonCalBufferName     = " << m_calBufferName);
+    ATH_MSG_DEBUG(" MuonCalBufferSize     = " << m_calBufferSize);
+    ATH_MSG_DEBUG(" MuonCalBufferWId     = " << updinc.workerID());
+    ATH_MSG_DEBUG("=================================================");
+    
+    
+    std::string worker_name=std::to_string(updinc.workerID());
+    //
+    // Create the calibration stream
+    
+    m_calStreamer->setInstanceName(worker_name);
+    
+    //open the stream
+    if ( m_calStreamer->openStream(m_calBufferSize).isSuccess() ) {
+      ATH_MSG_INFO("Opened the connection to the circular buffer " << m_calBufferName.value());
+    } else {
+      ATH_MSG_ERROR("Failed to open the connection to the circular buffer " << m_calBufferName.value());
+    }
+  }   
+}
+
+
 
 
 // --------------------------------------------------------------------------------

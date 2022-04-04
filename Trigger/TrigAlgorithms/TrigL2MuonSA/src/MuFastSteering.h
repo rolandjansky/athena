@@ -36,9 +36,13 @@
 #include "xAODTrigger/MuonRoIContainer.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
+#include "GaudiKernel/IIncidentListener.h"
+
+class IIncidentSvc;
+
 enum ECRegions{ Bulk, WeakBFieldA, WeakBFieldB };
 
-class MuFastSteering : public AthReentrantAlgorithm
+class MuFastSteering : public AthReentrantAlgorithm , public IIncidentListener
 {
  public:
   enum {
@@ -50,6 +54,7 @@ class MuFastSteering : public AthReentrantAlgorithm
     ITIMER_CALIBRATION_STREAMER,
     ITIMER_TOTAL_PROCESSING
   };
+
 
  public:
 
@@ -111,6 +116,8 @@ class MuFastSteering : public AthReentrantAlgorithm
                                      const EventContext&                                ctx) const;
 
   int L2MuonAlgoMap(const std::string& name) const;
+
+  virtual void handle(const Incident& incident) override;
 
  protected:
 
@@ -214,7 +221,6 @@ class MuFastSteering : public AthReentrantAlgorithm
   // Services
 
 
-
   /** Timers */
   ServiceHandle<ITrigTimerSvc> m_timerSvc;
   std::vector<TrigTimer*> m_timingTimers;
@@ -251,7 +257,8 @@ class MuFastSteering : public AthReentrantAlgorithm
 
  private:
 
-
+  ServiceHandle< IIncidentSvc > m_incidentSvc{this, "IncidentSvc", "IncidentSvc"};      
+  ServiceHandle<Gaudi::Interfaces::IOptionsSvc> m_jobOptionsSvc {this, "JobOptionsSvc", "JobOptionsSvc",    "Job options service to retrieve DataFlowConfig"   };
   // Property
   Gaudi::Property< float > m_scaleRoadBarrelInner { this, "Scale_Road_BarrelInner", 1 };
   Gaudi::Property< float > m_scaleRoadBarrelMiddle { this, "Scale_Road_BarrelMiddle", 1 };
@@ -347,6 +354,9 @@ class MuFastSteering : public AthReentrantAlgorithm
 
   // Monitor system
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
+
+
+
 };
 
 #endif // MUFASTSTEERING_H
