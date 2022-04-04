@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ActsGeometry/ActsPropStepRootWriterSvc.h"
@@ -25,7 +25,6 @@ ActsPropStepRootWriterSvc::ActsPropStepRootWriterSvc( const std::string& name, I
 StatusCode
 ActsPropStepRootWriterSvc::initialize()
 {
-
 
   std::string filePath = m_filePath;
   m_outputFile = TFile::Open(filePath.c_str(), "RECREATE");
@@ -69,7 +68,7 @@ void
 ActsPropStepRootWriterSvc::write(const StepVector& steps)
 {
   
-  auto ctx = Gaudi::Hive::currentContext();
+  const auto& ctx = Gaudi::Hive::currentContext();
 
   std::lock_guard<std::mutex> lock(m_writeMutex);
 
@@ -84,7 +83,7 @@ ActsPropStepRootWriterSvc::writeThread()
 {
   using namespace std::chrono_literals;
   // wait until we have events
-  while(m_queue.size() == 0) {
+  while(m_queue.empty()) {
     std::this_thread::sleep_for(2s);
     if (m_doEnd) return;
   }

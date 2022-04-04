@@ -40,7 +40,7 @@ namespace NSWL1 {
       ITHistSvc* tHistSvc;
       ATH_CHECK(service("THistSvc", tHistSvc));
       std::string ntuple_name = algo_name+"Tree";
-      m_tree = 0;
+      m_tree = nullptr;
       ATH_CHECK(tHistSvc->getTree(ntuple_name,m_tree));
       ATH_CHECK(this->book_branches());
     } else this->clear_ntuple_variables();
@@ -132,7 +132,7 @@ namespace NSWL1 {
 
   StatusCode StripSegmentTool::find_segments(std::vector< std::unique_ptr<StripClusterData> >& clusters,
                                              const std::unique_ptr<Muon::NSW_TrigRawDataContainer>& trgContainer){
-    auto ctx = Gaudi::Hive::currentContext();
+    const auto& ctx = Gaudi::Hive::currentContext();
     int event = ctx.eventID().event_number();
     if (event == 0) ATH_CHECK(FetchDetectorEnvelope());
 
@@ -344,7 +344,7 @@ namespace NSWL1 {
   }
 
   void StripSegmentTool::clear_ntuple_variables() {
-    if(m_tree==0) return;
+    if(m_tree==nullptr) return;
 
     m_seg_theta->clear();
     m_seg_dtheta->clear();
