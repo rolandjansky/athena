@@ -10,7 +10,7 @@ find_package( ROOT COMPONENTS Core Hist )
 atlas_add_component( TrigMinBiasMonitoring
                      src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringKernelLib AthenaMonitoringLib CaloEvent CaloGeoHelpers CaloIdentifier GaudiKernel InDetBCM_RawData InDetTrackSelectionToolLib LUCID_RawEvent TileEvent TrigCaloEvent TrigDecisionToolLib TrigHLTMonitoringLib TrigInDetEvent ZdcEvent ZdcIdentifier xAODEventInfo xAODTracking xAODTrigMinBias xAODTrigger )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringKernelLib AthenaMonitoringLib CaloEvent CaloGeoHelpers CaloIdentifier GaudiKernel InDetBCM_RawData InDetTrackSelectionToolLib LUCID_RawEvent TileEvent TrigCaloEvent TrigDecisionToolLib TrigHLTMonitoringLib TrigInDetEvent ZdcEvent ZdcIdentifier xAODEventInfo xAODTracking xAODTrigMinBias xAODTrigger xAODForward)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
