@@ -135,16 +135,16 @@ def setupMenu():
 
         # Further optimisation of LRT, higher threshold looser WP
         # Primary candidates pending rate assessment ATR-24851
-        ChainProp(name='HLT_e40_lhloose_nopix_lrtmedium_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e45_lhloose_nopix_lrtmedium_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e40_lhloose_nopix_lrtmedium_nogsf_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e45_lhloose_nopix_lrtmedium_nogsf_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup),
 
-        ChainProp(name='HLT_e30_lhloose_nopix_lrtmedium_L1eEM26M', groups=PrimaryPhIGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e35_lhloose_nopix_lrtmedium_L1eEM26M', groups=PrimaryPhIGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e40_lhloose_nopix_lrtmedium_L1eEM26M', groups=PrimaryPhIGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e45_lhloose_nopix_lrtmedium_L1eEM26M', groups=PrimaryPhIGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e30_lhloose_nopix_lrtmedium_nogsf_L1eEM26M', groups=PrimaryPhIGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e35_lhloose_nopix_lrtmedium_nogsf_L1eEM26M', groups=PrimaryPhIGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e40_lhloose_nopix_lrtmedium_nogsf_L1eEM26M', groups=PrimaryPhIGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e45_lhloose_nopix_lrtmedium_nogsf_L1eEM26M', groups=PrimaryPhIGroup+SingleElectronGroup),
         
         #LRTGSF
-        ChainProp(name='HLT_e26_lhloose_nopix_lrttight_gsf_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e26_lhloose_nopix_lrttight_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup),
     ]
 
     chains['MET'] += [
