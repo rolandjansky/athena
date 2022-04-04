@@ -9,12 +9,11 @@
 // interact with COOL conditions database for simple
 // string data
 
-#include "GaudiKernel/Service.h"
-
 #include <string>
-#include "GaudiKernel/IInterface.h"
-#include "CxxUtils/checker_macros.h"
 
+#include "CxxUtils/checker_macros.h"
+#include "GaudiKernel/IInterface.h"
+#include "GaudiKernel/Service.h"
 
 namespace MuonCalib {
 
@@ -22,28 +21,24 @@ namespace MuonCalib {
     class RpcCondParType;
 
     class ATLAS_NOT_THREAD_SAFE RpcICoolStrSvc : virtual public IInterface {
+    public:
+        static const InterfaceID& interfaceID();
 
-        public:
-            static const InterfaceID& interfaceID();
+        // put data in file into COOL
+        virtual StatusCode putFile(const std::string& filename) const = 0;
+        virtual StatusCode putOnlineFile(const std::string& filename) const = 0;
 
-            // put data in file into COOL 
-            virtual StatusCode putFile(const std::string& filename) const=0;
-            virtual StatusCode putOnlineFile(const std::string& filename) const=0;
+        // put data back into datafile
+        virtual StatusCode makeFile(const std::string& fileName) const = 0;
+        virtual StatusCode makeOnlineFile(const std::string& fileName) const = 0;
 
-            //put data back into datafile
-            virtual StatusCode makeFile(const std::string& fileName) const = 0;
-            virtual StatusCode makeOnlineFile(const std::string& fileName) const = 0;
-
-            virtual StatusCode writeToDB() const=0;
-            virtual StatusCode writeToOnlineDB() const=0;
-
-            
+        virtual StatusCode writeToDB() const = 0;
+        virtual StatusCode writeToOnlineDB() const = 0;
     };
 
-
     inline const InterfaceID& RpcICoolStrSvc::interfaceID() {
-        static const InterfaceID IID_RpcICoolStrSvc("RpcICoolStrSvc",1,0);
+        static const InterfaceID IID_RpcICoolStrSvc("RpcICoolStrSvc", 1, 0);
         return IID_RpcICoolStrSvc;
     }
-}
-#endif // MUONCONDSVC_RPCICOOLSTRSVC_H
+}  // namespace MuonCalib
+#endif  // MUONCONDSVC_RPCICOOLSTRSVC_H
