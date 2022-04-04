@@ -17,7 +17,7 @@ from PixelConditionsAlgorithms.PixelConditionsConfig import (
 from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
 from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
 from PixelReadoutGeometry.PixelReadoutGeometryConfig import PixelReadoutManagerCfg
-from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleCfg
+from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleToolCfg
 from SiPropertiesTool.PixelSiPropertiesConfig import PixelSiPropertiesCfg
 
 
@@ -78,7 +78,7 @@ def SensorSimPlanarToolCfg(flags, name="SensorSimPlanarTool", **kwargs):
     """Return ComponentAccumulator with configured SensorSimPlanarTool"""
     acc = PixelConfigCondAlgCfg(flags)
     SiTool = acc.popToolsAndMerge(PixelSiPropertiesCfg(flags))
-    LorentzTool = acc.popToolsAndMerge(PixelLorentzAngleCfg(flags))
+    LorentzTool = acc.popToolsAndMerge(PixelLorentzAngleToolCfg(flags))
     kwargs.setdefault("SiPropertiesTool", SiTool)
     kwargs.setdefault("LorentzAngleTool", LorentzTool)
     SensorSimPlanarTool = CompFactory.SensorSimPlanarTool
@@ -94,7 +94,6 @@ def SensorSim3DToolCfg(flags, name="SensorSim3DTool", **kwargs):
     """Return ComponentAccumulator with configured SensorSim3DTool"""
     acc = PixelConfigCondAlgCfg(flags)
     SiTool = acc.popToolsAndMerge(PixelSiPropertiesCfg(flags))
-    acc.popToolsAndMerge(PixelLorentzAngleCfg(flags))
     kwargs.setdefault("SiPropertiesTool", SiTool)
     SensorSim3DTool = CompFactory.SensorSim3DTool
     kwargs.setdefault("doRadDamage", flags.Digitization.DoPixel3DRadiationDamage)

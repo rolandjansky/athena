@@ -22,7 +22,7 @@ namespace TrigConf {
    public:
       TriggerThreshold();
       TriggerThreshold( const TriggerThreshold& thr);
-      virtual ~TriggerThreshold();
+      virtual ~TriggerThreshold() override;
 
       static TriggerThresholdValue* createThresholdValue(const std::string& type);
 

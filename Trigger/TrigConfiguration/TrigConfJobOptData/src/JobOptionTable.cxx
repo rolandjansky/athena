@@ -14,8 +14,6 @@ TrigConf::JobOptionTable::JobOptionTable() :
    m_HltMasterTableId(0),
    m_TriggerLevel(0)
 {}
-  
-TrigConf::JobOptionTable::~JobOptionTable() {}
 
 void 
 TrigConf::JobOptionTable::addJobOption(const JobOption & jo) {

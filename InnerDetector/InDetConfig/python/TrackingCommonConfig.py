@@ -63,11 +63,12 @@ def LWTNNCondAlgCfg(flags, **kwargs):
 
 
 def NnClusterizationFactoryCfg(flags, name="NnClusterizationFactory", **kwargs):
-    acc = ComponentAccumulator()
+    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelChargeCalibCondAlgCfg
+    acc = PixelChargeCalibCondAlgCfg(flags) # To produce PixelChargeCalibCondData CondHandle
 
     if "PixelLorentzAngleTool" not in kwargs:
-        from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleTool
-        PixelLorentzAngleTool = PixelLorentzAngleTool(flags, name="PixelLorentzAngleTool", **kwargs)
+        from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleToolCfg
+        PixelLorentzAngleTool = acc.popToolsAndMerge(PixelLorentzAngleToolCfg(flags))
         kwargs.setdefault("PixelLorentzAngleTool", PixelLorentzAngleTool)
 
     if flags.GeoModel.Run is LHCPeriod.Run1:
@@ -120,8 +121,8 @@ def InDetPixelClusterOnTrackToolDigitalCfg(flags, name="InDetPixelClusterOnTrack
     kwargs.setdefault("SplitClusterAmbiguityMap", "")
 
     if "LorentzAngleTool" not in kwargs:
-        from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleCfg
-        PixelLorentzAngleTool = acc.popToolsAndMerge(PixelLorentzAngleCfg(flags))
+        from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleToolCfg
+        PixelLorentzAngleTool = acc.popToolsAndMerge(PixelLorentzAngleToolCfg(flags))
         kwargs.setdefault("LorentzAngleTool", PixelLorentzAngleTool)
 
     if flags.InDet.Tracking.doDigitalROTCreation:
@@ -151,8 +152,8 @@ def InDetPixelClusterOnTrackToolCfg(flags, name="InDetPixelClusterOnTrackTool", 
     acc = ComponentAccumulator()
 
     if "LorentzAngleTool" not in kwargs:
-        from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleCfg
-        kwargs.setdefault("LorentzAngleTool", acc.popToolsAndMerge(PixelLorentzAngleCfg(flags)))
+        from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleToolCfg
+        kwargs.setdefault("LorentzAngleTool", acc.popToolsAndMerge(PixelLorentzAngleToolCfg(flags)))
 
     if flags.InDet.Tracking.doDigitalROTCreation:
         PixelClusterOnTrackTool = acc.popToolsAndMerge(InDetPixelClusterOnTrackToolDigitalCfg(flags, name, **kwargs))
@@ -166,8 +167,8 @@ def InDetSCT_ClusterOnTrackToolCfg(flags, name='InDetSCT_ClusterOnTrackTool', **
     acc = ComponentAccumulator()
 
     if 'LorentzAngleTool' not in kwargs :
-        from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
-        SCT_LorentzAngle = acc.popToolsAndMerge(SCT_LorentzAngleCfg(flags))
+        from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleToolCfg
+        SCT_LorentzAngle = acc.popToolsAndMerge(SCT_LorentzAngleToolCfg(flags))
         kwargs.setdefault("LorentzAngleTool", SCT_LorentzAngle )
         
     kwargs.setdefault("CorrectionStrategy", 0 ) # do correct position bias
@@ -318,7 +319,8 @@ def InDetTrackPRD_AssociationCfg(flags, name='InDetTrackPRD_Association', **kwar
     return acc
 
 def InDetTRTDriftCircleCutForPatternRecoCfg(flags, name='InDetTRTDriftCircleCutForPatternReco', **kwargs):
-    result = ComponentAccumulator()
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTActiveCondAlgCfg
+    result = TRTActiveCondAlgCfg(flags) # To produce the input TRTCond::ActiveFraction CondHandle
     kwargs.setdefault("MinOffsetDCs", 5)
     kwargs.setdefault("UseNewParameterization", flags.InDet.Tracking.ActivePass.useNewParameterizationTRT)
     kwargs.setdefault("UseActiveFractionSvc", flags.Detector.EnableTRT)
@@ -377,6 +379,8 @@ def PixeldEdxAlg(flags, name = "PixeldEdxAlg", **kwargs):
 
 def InDetPixelToTPIDToolCfg(flags, name = "InDetPixelToTPIDTool", **kwargs):
     acc = PixeldEdxAlg(flags)
+    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelConfigCondAlgCfg
+    acc.merge(PixelConfigCondAlgCfg(flags)) # To produce PixelModuleData CondHandle
     InDetPixelToTPIDTool = CompFactory.InDet.PixelToTPIDTool(name, **kwargs)
     acc.setPrivateTools(InDetPixelToTPIDTool)
     return acc
@@ -970,9 +974,6 @@ def InDetTRT_TrackExtensionTool_xkCfg(flags, name='InDetTRT_ExtensionTool', **kw
     if flags.InDet.Tracking.ActivePass.RoISeededBackTracking:
         kwargs.setdefault("minTRTSegmentpT", flags.InDet.Tracking.ActivePass.minSecondaryPt)
 
-    acc.merge(TRT_DetElementsRoadCondAlgCfg(flags))
-    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTActiveCondAlgCfg
-    acc.merge(TRTActiveCondAlgCfg(flags))
     acc.setPrivateTools(CompFactory.InDet.TRT_TrackExtensionTool_xk(name, **kwargs))
     return acc
 
@@ -1001,7 +1002,8 @@ def InDetCompetingTRT_DC_ToolCfg(flags, name='InDetCompetingTRT_DC_Tool', **kwar
 def InDetTRT_RoadMakerCfg(flags, name='InDetTRT_RoadMaker', **kwargs):
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     acc = MagneticFieldSvcCfg(flags)
-    
+    acc.merge(TRT_DetElementsRoadCondAlgCfg(flags)) # To produce the input TRT_DetElementsRoadData_xk CondHandle
+
     InDetPatternPropagator = acc.getPrimaryAndMerge(InDetPatternPropagatorCfg())
     kwargs.setdefault("RoadWidth", 20.)
     kwargs.setdefault("PropagatorTool", InDetPatternPropagator)

@@ -47,7 +47,7 @@ namespace TrigConf {
                 const std::string& value);
 
       /**@brief destructor*/
-      ~JobOption();
+      virtual ~JobOption() override = default;
     
       // Accessors
       const std::string& component_alias() const  { return  m_Component_Alias; };  ///< accessor to component alias  

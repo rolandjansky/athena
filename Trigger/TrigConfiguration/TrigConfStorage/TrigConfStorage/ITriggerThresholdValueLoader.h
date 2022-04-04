@@ -27,7 +27,7 @@ namespace TrigConf {
    class ITriggerThresholdValueLoader : virtual public ILoader {
    public:
 
-      virtual ~ITriggerThresholdValueLoader() {};
+      virtual ~ITriggerThresholdValueLoader() override = default;
 
       virtual bool load( TriggerThresholdValue& data ) = 0;
    };

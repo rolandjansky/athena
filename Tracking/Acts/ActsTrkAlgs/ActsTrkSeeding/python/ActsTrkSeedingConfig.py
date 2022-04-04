@@ -2,8 +2,9 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaCommon.Configurable import ConfigurableRun3Behavior
 from ActsTrkSeedingTool.ActsTrkSeedingToolConfig import ActsTrkSeedingToolCfg
+from ActsTrkTrackParamsEstimationTool.ActsTrkTrackParamsEstimationToolConfig import TrackParamsEstimationToolCfg
+from ActsGeometry.ActsGeometryConfig import ActsTrackingGeometryToolCfg
 
 def ActsTrkSeedingAlgorithmCfg(ConfigFlags,
                                name: str = 'SeedingAlgorithm',
@@ -23,7 +24,6 @@ def ActsTrkSeedingAlgorithmCfg(ConfigFlags,
     if options.get("SeedTool", None) is None:
         configuration = 'Pixel' if 'Pixel' in inputCollection else 'Strip'
         seedTool = acc.popToolsAndMerge(ActsTrkSeedingToolCfg(ConfigFlags,
-                                                              name = 'SeedingTool',
                                                               configuration = configuration))
 
     options['name'] = f"{name}_{inputCollection}"
@@ -40,40 +40,52 @@ def ActsTrkSeedingAlgorithmCfg(ConfigFlags,
 def ActsTrackingSequenceCfg(ConfigFlags,
                             inputCollections: list = []):
     # prepare entire sequence
-    with ConfigurableRun3Behavior():
-        acc = ComponentAccumulator()
-        for i_collection in inputCollections:
-            o_collection = f"ActsSeeds_{i_collection}"
-            acc.merge(ActsTrkSeedingAlgorithmCfg(ConfigFlags,
-                                                 name = 'SeedingAlgorithm',
-                                                 inputCollection = i_collection,
-                                                 outputCollection = o_collection))
-
+    acc = ComponentAccumulator()
+    for i_collection in inputCollections:
+        o_collection = f"ActsSeeds_{i_collection}"
+        acc.merge(ActsTrkSeedingAlgorithmCfg(ConfigFlags,
+                                             inputCollection = i_collection,
+                                             outputCollection = o_collection))
+        
     return acc
-
+        
 def ActsTrackingSequenceFromAthenaCfg(ConfigFlags,
                                       inputCollections: list = [],
-                                      **kwargs):
+                                      **options):
     # prepare entire sequence
-    with ConfigurableRun3Behavior():
-        acc = ComponentAccumulator()
-        for i_collection in inputCollections:
-            o_collection = f"ActsSeeds_{i_collection}"
+    acc = ComponentAccumulator()
 
-            # Additional write handle keys used by the Algorithm. This stores Acts space points and data
-            # for later use (i.e. performance-check algorithm)
-            seedingOptions = { 'OutputSpacePoints' : f'ActsSpacePoint_{i_collection}',
-                               'OutputSpacePointData' : f'ActsSpacePointData_{i_collection}' }
-            seedingOptions.update(kwargs)
+    # Need To add additional tool(s)
+    # Tracking Geometry Tool
+    acc_geo, geoTool = ActsTrackingGeometryToolCfg(ConfigFlags)
+    acc.merge(acc_geo)
 
-            acc.merge(ActsTrkSeedingAlgorithmCfg(ConfigFlags,
-                                                 name = 'SeedingFromAthenaAlgorithm',
-                                                 inputCollection = i_collection,
-                                                 outputCollection = o_collection,
-                                                 **seedingOptions))
+    # ATLAS Converter Tool
+    converterTool = CompFactory.ActsATLASConverterTool(TrackingGeometryTool=geoTool)
+    
+    # Track Param Estimation Tool
+    trackEstimationTool = acc.popToolsAndMerge(TrackParamsEstimationToolCfg(ConfigFlags))
 
+    for i_collection in inputCollections:
+        o_collection = f"ActsSeeds_{i_collection}"
+        
+        # Additional write handle keys used by the Algorithm. This stores Acts space points and data
+        # for later use (i.e. performance-check algorithm)
+        seedingOptions = { 'OutputSpacePoints' : f'ActsSpacePoint_{i_collection}',
+                           'OutputSpacePointData' : f'ActsSpacePointData_{i_collection}',
+                           'TrackingGeometryTool' : geoTool,
+                           'ATLASConverterTool' : converterTool,
+                           'TrackParamsEstimationTool' : trackEstimationTool }
+        seedingOptions.update(options)
+        
+        acc.merge(ActsTrkSeedingAlgorithmCfg(ConfigFlags,
+                                             name = 'SeedingFromAthenaAlgorithm',
+                                             inputCollection = i_collection,
+                                             outputCollection = o_collection,
+                                             **seedingOptions))
+        
     return acc
-
+        
 def ActsTrackingSequenceITkPostInclude(flags):
     acc = ComponentAccumulator()
     acc.merge(ActsTrackingSequenceFromAthenaCfg(flags,

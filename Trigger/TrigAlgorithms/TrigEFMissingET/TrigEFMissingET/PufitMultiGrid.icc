@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef TRIGEFMISSINGET_PUFITMULTIGRID_ICC
@@ -30,7 +30,7 @@ namespace HLT
     template <std::size_t N>
     typename PufitMultiGrid<N>::Tower &PufitMultiGrid<N>::Tower::operator=(const Tower &other)
     {
-      applyToAll(&PufitGrid::Tower::operator=, other);
+      applyToAll(&PufitGrid::Tower::operator=, other); // cppcheck-suppress [syntaxError] (bug: https://trac.cppcheck.net/ticket/10080)
       return *this;
     }
 

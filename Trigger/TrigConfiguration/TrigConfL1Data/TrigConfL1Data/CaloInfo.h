@@ -36,7 +36,7 @@ namespace TrigConf {
       
    public:
       CaloInfo();
-      virtual ~CaloInfo() = default;
+      virtual ~CaloInfo() override = default;
 
       // getters
       double                             globalScale() const { return m_GlobalScale; }

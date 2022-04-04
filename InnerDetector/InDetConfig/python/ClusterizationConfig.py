@@ -40,12 +40,6 @@ def InDetClusterizationAlgorithmsCfg(flags, **kwargs) :
         if flags.InDet.doSplitReco :
             top_acc.merge( SCTClusterizationPUCfg(flags, **kwargs) )
 
-    # from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
-    # top_acc.merge( PixelConditionsSummaryCfg(flags))
-    # FIXME - the above returns a tool. Need to do something with it!
-    
-    from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
-    top_acc.popToolsAndMerge(SCT_LorentzAngleCfg(flags))
     return top_acc
 
 if __name__ == "__main__":

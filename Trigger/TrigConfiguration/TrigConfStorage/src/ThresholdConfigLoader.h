@@ -35,7 +35,7 @@ namespace TrigConf {
     ThresholdConfigLoader( StorageMgr& sm,  coral::ISessionProxy& session)
        : DBLoader("ThresholdConfigLoader", sm, session) {}
 
-    virtual ~ThresholdConfigLoader(){};
+    virtual ~ThresholdConfigLoader() override = default;
 
     virtual bool load( ThresholdConfig& data) override;
 

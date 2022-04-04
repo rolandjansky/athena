@@ -22,7 +22,7 @@ namespace TrigConf {
                        int etamin, int etamax, int priority  );
 
       IsolationParam() {};
-      virtual ~IsolationParam() = default;
+      virtual ~IsolationParam() override = default;
 
 
       // getters

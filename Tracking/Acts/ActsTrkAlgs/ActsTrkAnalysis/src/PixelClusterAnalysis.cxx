@@ -19,7 +19,7 @@ StatusCode ActsTrk::PixelClusterAnalysis::initialize() {
     ATH_CHECK(m_thistSvc.retrieve());
 
     m_tree = new TTree(m_ntupleName.value().c_str(), "PixelClustersAnalysis");
-    ATH_CHECK(m_thistSvc->regTree(m_ntuplePath + m_ntupleName, m_tree));
+    ATH_CHECK(m_thistSvc->regTree(m_ntuplePath.value() + m_ntupleName, m_tree));
 
     if (m_tree) {
         m_tree->Branch("barrelEndcap", &m_barrelEndcap);

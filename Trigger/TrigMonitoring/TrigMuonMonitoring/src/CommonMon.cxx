@@ -1519,12 +1519,6 @@ StatusCode HLTMuonMonTool::fillCommonDQA()
   //measure trigger overlap
   fillTriggerOverlap();
 
-  //new check L1 flag
-  if ( fillL1MuRoI().isFailure() ) {
-    ATH_MSG_ERROR(" Cannot retrieve MuonRoIInfo ");
-    return StatusCode::FAILURE;
-  }
-
   return StatusCode::SUCCESS;
 }
 
@@ -4466,103 +4460,4 @@ float CalculateDeltaR(float off_eta, float off_phi,float on_eta, float on_phi) {
   dR = sqrt( deta*deta + dphi*dphi ) ;
 
   return dR;
-}
-
-StatusCode HLTMuonMonTool::fillL1MuRoI()
-{
-  StatusCode sc;
-
-  const xAOD::MuonRoIContainer* lvl1Roi;
-
-  std::string muonKey = "LVL1MuonRoIs"; // MuidMuonCollection
-
-  sc = evtStore()->retrieve(lvl1Roi, muonKey); //MT: Scheduler informed of data dependency in TrigHLTMonitoring/addMonTools.py
-  if ( sc.isFailure() ) {
-    ATH_MSG_DEBUG(" Cannot retrieve LVL1 Muon container");
-    return StatusCode::FAILURE;
-  }
-
-  EventIDBase::number_type bcid = Gaudi::Hive::currentContext().eventID().bunch_crossing_id();
-
-  bool filled = m_bunchTool->isFilled(bcid);
-  bool unpaired = m_bunchTool->isUnpaired(bcid);
-
-  xAOD::MuonRoIContainer::const_iterator muItr = lvl1Roi->begin(); 
-  xAOD::MuonRoIContainer::const_iterator muEnd = lvl1Roi->end(); 
-
-
-  //  if (m_bunchTool->isFilled(bcid) && !(m_bunchTool->isUnpaired(bcid))) {
-
-  if (m_bunchTool->isFilled(bcid)) {
-    std::string name = "L1RoI_etaphi";
-
-    int nBarrelRoi = 0;
-    int nEndcapRoi = 0;
-    int nForwardRoi = 0;
-    for ( ; muItr != muEnd; ++muItr) {
-      hist2(name, m_histdirdist2d)->Fill((*muItr)->eta(), (*muItr)->phi());
-
-      if (!(*muItr)->isVetoed()) { // YY for removing MuCTPI overlap-removed RoIs
-	if (xAOD::MuonRoI::Barrel == (*muItr)->getSource()) {
-	  nBarrelRoi++;
-	} else if (xAOD::MuonRoI::Endcap == (*muItr)->getSource()) {
-	  nEndcapRoi++;
-	} else if (xAOD::MuonRoI::Forward == (*muItr)->getSource()) {
-	  nForwardRoi++;
-	}
-      }
-    }
-
-    bool mub = false;
-    bool mue = false;
-    if (getTDT()->isPassedBits("L1_MUB") & TrigDefs::L1_isPassedBeforePrescale) {
-      mub = true;
-    }
-    if (getTDT()->isPassedBits("L1_MUE") & TrigDefs::L1_isPassedBeforePrescale) {
-      mue = true;
-    }
-
-    ATH_MSG_DEBUG("mu Roi Barrel: " << nBarrelRoi << " Endcap: " << nEndcapRoi << " Forward: " << nForwardRoi);
-    ATH_MSG_DEBUG("mub:           " << mub <<        " mue:    " << mue);
-
-    int nEC_F_Roi = nEndcapRoi + nForwardRoi;
-
-    name     = "L1_MUB_L1_MUE_match_muon_RoIs";
-
-    if (mub && nBarrelRoi > 0) {
-      hist(name, m_histdirrate)->Fill(3.);
-    }
-    if (mue && nEC_F_Roi > 0) {
-      hist(name, m_histdirrate)->Fill(4.);
-    }
-    if (!mub && nBarrelRoi == 0) {
-      hist(name, m_histdirrate)->Fill(1.);
-    }
-    if (!mue && nEC_F_Roi == 0) {
-      hist(name, m_histdirrate)->Fill(2.);
-    }
-    if (!mub && nBarrelRoi > 0) { // no L1_MUB hit
-      hist(name, m_histdirrate)->Fill(5.);
-      ATH_MSG_DEBUG("L1_MUB: 5");
-      ATH_MSG_DEBUG("BCID " << bcid << " isFilled " << filled << " isUnpaired " << unpaired);
-    }
-    if (!mue && nEC_F_Roi > 0) { // no L1_MUE hit
-      hist(name, m_histdirrate)->Fill(6.);
-      ATH_MSG_DEBUG("L1_MUE: 6");
-      ATH_MSG_DEBUG("BCID " << bcid << " isFilled " << filled << " isUnpaired " << unpaired);
-    }
-    if (mub && nBarrelRoi == 0) { // L1_MUB fired while no RoI
-      hist(name, m_histdirrate)->Fill(7.);
-      ATH_MSG_DEBUG("L1_MUB: 7");
-      ATH_MSG_DEBUG("BCID " << bcid << " isFilled " << filled << " isUnpaired " << unpaired);
-    }
-    if (mue && nEC_F_Roi == 0) { // L1_MUE fired while no RoI
-      hist(name, m_histdirrate)->Fill(8.);
-      ATH_MSG_DEBUG("L1_MUE: 8");
-      ATH_MSG_DEBUG("BCID " << bcid << " isFilled " << filled << " isUnpaired " << unpaired);
-    }
-  }
-
-
-  return StatusCode::SUCCESS;
 }

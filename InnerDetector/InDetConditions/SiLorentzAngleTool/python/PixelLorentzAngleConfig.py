@@ -1,40 +1,33 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 """Define methods to configure SCTLorentzAngleTool
 """
 from SiPropertiesTool.PixelSiPropertiesConfig import PixelSiPropertiesCfg
 from AthenaConfiguration.ComponentFactory import CompFactory
-SiLorentzAngleTool=CompFactory.SiLorentzAngleTool
-PixelSiLorentzAngleCondAlg=CompFactory.PixelSiLorentzAngleCondAlg
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-
 from PixelConditionsAlgorithms.PixelConditionsConfig import (
     PixelDCSCondHVAlgCfg, PixelDCSCondTempAlgCfg
 )
+from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
 
-def PixelLorentzAngleTool(flags, name="PixelLorentzAngleTool", **kwargs):
+def PixelLorentzAngleToolCfg(flags, name="PixelLorentzAngleTool", **kwargs):
     """Return a SiLorentzAngleTool configured for Pixel"""
+    acc = PixelLorentzAngleCondAlgCfg(flags)
     kwargs.setdefault("DetectorName", "Pixel")
     kwargs.setdefault("SiLorentzAngleCondData", "PixelSiLorentzAngleCondData")
     kwargs.setdefault("DetEleCollKey", "PixelDetectorElementCollection")
     kwargs.setdefault("UseMagFieldCache", True)
-    return SiLorentzAngleTool(name, **kwargs)
+    acc.setPrivateTools(CompFactory.SiLorentzAngleTool(name, **kwargs))
+    return acc
 
-def PixelLorentzAngleCfg(flags, name="PixelSiLorentzAngleCondAlg", **kwargs):
-    """Return configured ComponentAccumulator and tool for PixelLorentzAngle
-
-    SiLorentzAngleTool may be provided in kwargs
-    """
+def PixelLorentzAngleCondAlgCfg(flags, name="PixelSiLorentzAngleCondAlg", **kwargs):
     acc  = MagneticFieldSvcCfg(flags)
-    tool = kwargs.get("SiLorentzAngleTool", PixelLorentzAngleTool(flags))
+    acc.merge(PixelReadoutGeometryCfg(flags)) # To produce PixelDetectorElementCollection
     acc.merge(PixelDCSCondHVAlgCfg(flags))
     acc.merge(PixelDCSCondTempAlgCfg(flags))
-    SiPropAcc = PixelSiPropertiesCfg(flags)
-    kwargs.setdefault("SiPropertiesTool", SiPropAcc.popPrivateTools())
-    acc.merge(SiPropAcc)
-    kwargs.setdefault("UseMagFieldCache", tool.UseMagFieldCache)
+    kwargs.setdefault("SiPropertiesTool", acc.popToolsAndMerge(PixelSiPropertiesCfg(flags)))
+    kwargs.setdefault("UseMagFieldCache", True)
     kwargs.setdefault("UseMagFieldDcs", not flags.Common.isOnline)
-    acc.addCondAlgo(PixelSiLorentzAngleCondAlg(name, **kwargs))
-    acc.setPrivateTools(tool)
+    acc.addCondAlgo(CompFactory.PixelSiLorentzAngleCondAlg(name, **kwargs))
     return acc
 

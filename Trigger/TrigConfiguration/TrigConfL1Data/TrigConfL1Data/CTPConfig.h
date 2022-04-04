@@ -27,7 +27,7 @@ namespace TrigConf {
    class CTPConfig : public L1DataBaseclass {
    public:
       CTPConfig();
-      ~CTPConfig();
+      virtual ~CTPConfig() override;
     
       // getters
       unsigned int ctpVersion() const { return m_ctpVersion; }

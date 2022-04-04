@@ -29,7 +29,7 @@ namespace TrigConf {
 
    public:
       /**@brief destructor*/
-      virtual ~ITrigConfigSvc(){}
+      virtual ~ITrigConfigSvc() override = default;
 
       /// Specify the interface declared by this class
       DeclareInterfaceID( ITrigConfigSvc, 0, 1 );

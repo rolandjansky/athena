@@ -20,7 +20,7 @@ namespace TrigConf {
    public:
       BunchGroupSet();
       BunchGroupSet(const std::vector<BunchGroup>&);
-      ~BunchGroupSet() = default;
+      virtual ~BunchGroupSet() override = default;
 
       // getters
       uint16_t menuPartition() const { return m_MenuPartition; }

@@ -5,7 +5,8 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 def SiDetElementBoundaryLinksCondAlg_xk_Pixel_Cfg(flags, name = "InDetSiDetElementBoundaryLinksPixelCondAlg", **kwargs):
-    acc = ComponentAccumulator()
+    from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
+    acc = PixelReadoutGeometryCfg(flags) # To produce PixelDetectorElementCollection
 
     kwargs.setdefault("ReadKey", "PixelDetectorElementCollection")
     kwargs.setdefault("WriteKey", "PixelDetElementBoundaryLinks_xk")
@@ -15,7 +16,8 @@ def SiDetElementBoundaryLinksCondAlg_xk_Pixel_Cfg(flags, name = "InDetSiDetEleme
     return acc
 
 def SiDetElementBoundaryLinksCondAlg_xk_SCT_Cfg(flags, name = "InDetSiDetElementBoundaryLinksSCTCondAlg", **kwargs):
-    acc = ComponentAccumulator()
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+    acc = SCT_ReadoutGeometryCfg(flags) # To produce SCT_DetectorElementCollection
 
     kwargs.setdefault("ReadKey", "SCT_DetectorElementCollection")
     kwargs.setdefault("WriteKey", "SCT_DetElementBoundaryLinks_xk")
@@ -25,7 +27,8 @@ def SiDetElementBoundaryLinksCondAlg_xk_SCT_Cfg(flags, name = "InDetSiDetElement
     return acc
 
 def SiDetElementBoundaryLinksCondAlg_xk_ITkPixel_Cfg(flags, name = "ITkSiDetElementBoundaryLinksPixelCondAlg", **kwargs):
-    acc = ComponentAccumulator()
+    from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg
+    acc = ITkPixelReadoutGeometryCfg(flags) # To produce ITkPixelDetectorElementCollection
 
     kwargs.setdefault("ReadKey", "ITkPixelDetectorElementCollection")
     kwargs.setdefault("WriteKey", "ITkPixelDetElementBoundaryLinks_xk")
@@ -36,7 +39,8 @@ def SiDetElementBoundaryLinksCondAlg_xk_ITkPixel_Cfg(flags, name = "ITkSiDetElem
     return acc
 
 def SiDetElementBoundaryLinksCondAlg_xk_ITkStrip_Cfg(flags, name = "ITkSiDetElementBoundaryLinksStripCondAlg", **kwargs):
-    acc = ComponentAccumulator()
+    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
+    acc = ITkStripReadoutGeometryCfg(flags) # To produce ITkStripDetectorElementCollection
 
     kwargs.setdefault("ReadKey", "ITkStripDetectorElementCollection")
     kwargs.setdefault("WriteKey", "ITkStripDetElementBoundaryLinks_xk")
@@ -48,6 +52,14 @@ def SiDetElementBoundaryLinksCondAlg_xk_ITkStrip_Cfg(flags, name = "ITkSiDetElem
 
 def SiCombinatorialTrackFinder_xkCfg(flags, name="InDetSiComTrackFinder", **kwargs) :
     acc = ComponentAccumulator()
+
+    # For SiDetElementBoundaryLinks_xk ReadCondHandle
+    if flags.InDet.Tracking.ActivePass.usePixel:
+        acc.merge(SiDetElementBoundaryLinksCondAlg_xk_Pixel_Cfg(flags))
+
+    if flags.InDet.Tracking.ActivePass.useSCT:
+        acc.merge(SiDetElementBoundaryLinksCondAlg_xk_SCT_Cfg(flags))
+
     #
     # --- Local track finding using sdCaloSeededSSSpace point seed
     #
@@ -97,6 +109,14 @@ def SiCombinatorialTrackFinder_xk_Trig_Cfg( flags, name="InDetTrigSiComTrackFind
   based  on: InnerDetector/InDetExample/InDetTrigRecExample/python/InDetTrigConfigRecLoadTools.py
   """
   acc = ComponentAccumulator()
+
+  # For SiDetElementBoundaryLinks_xk ReadCondHandle
+  if flags.InDet.Tracking.ActivePass.usePixel:
+      acc.merge(SiDetElementBoundaryLinksCondAlg_xk_Pixel_Cfg(flags))
+
+  if flags.InDet.Tracking.ActivePass.useSCT:
+      acc.merge(SiDetElementBoundaryLinksCondAlg_xk_SCT_Cfg(flags))
+
   from TrigInDetConfig.TrigInDetConfig import RungeKuttaPropagatorCfg, KalmanxkUpdatorCfg, RIO_OnTrackCreatorCfg
   propagatorTool = acc.getPrimaryAndMerge( RungeKuttaPropagatorCfg( flags ) )  
   patternUpdatorTool = acc.getPrimaryAndMerge( KalmanxkUpdatorCfg( flags ) )
@@ -124,6 +144,13 @@ def SiCombinatorialTrackFinder_xk_Trig_Cfg( flags, name="InDetTrigSiComTrackFind
 
 def ITkSiCombinatorialTrackFinder_xkCfg(flags, name="ITkSiComTrackFinder", **kwargs) :
     acc = ComponentAccumulator()
+
+    # For SiDetElementBoundaryLinks_xk ReadCondHandle
+    if flags.ITk.Tracking.ActivePass.useITkPixel:
+        acc.merge(SiDetElementBoundaryLinksCondAlg_xk_ITkPixel_Cfg(flags))
+
+    if flags.ITk.Tracking.ActivePass.useITkStrip:
+        acc.merge(SiDetElementBoundaryLinksCondAlg_xk_ITkStrip_Cfg(flags))
 
     #
     # --- Local track finding using sdCaloSeededSSSpace point seed

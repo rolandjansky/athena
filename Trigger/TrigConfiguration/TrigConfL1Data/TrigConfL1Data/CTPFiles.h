@@ -31,7 +31,7 @@ namespace TrigConf {
 
      
       CTPFiles();
-      ~CTPFiles();
+      virtual ~CTPFiles() override = default;
 
       // Accessors
       void setFileSizes(unsigned int run);

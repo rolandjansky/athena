@@ -38,7 +38,7 @@ namespace TrigConf {
       L1Board(const std::string & boardName, const ptree & data);
 
       /** Destructor */
-      virtual ~L1Board();
+      virtual ~L1Board() override = default;
 
       virtual std::string className() const override;
 

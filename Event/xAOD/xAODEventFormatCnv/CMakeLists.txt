@@ -23,7 +23,7 @@ atlas_add_library( xAODEventFormatCnvTestLib
 atlas_add_component( xAODEventFormatCnvTest
   src/test/*.h src/test/ACreatorAlg.cxx src/test/EventFormatPrinterAlg.cxx
   LINK_LIBRARIES GaudiKernel AthenaKernel AthenaBaseComps StoreGateLib
-  xAODEventFormat xAODEventFormatCnvTestLib )
+  xAODEventFormat xAODEventFormatCnvTestLib xAODMetaData )
 
 atlas_add_poolcnv_library( xAODEventFormatCnvTestAthenaPoolCnv
   src/test/cnv/*.h src/test/cnv/*.cxx
@@ -56,6 +56,9 @@ atlas_add_dictionary( xAODEventFormatCnvTestDict
 
 # Install files from the package.
 atlas_install_joboptions( share/*.py )
+
+# Install python modules for CA
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 # Test(s) in the package.
 atlas_add_test( Write

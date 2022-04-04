@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -42,12 +42,12 @@
 
 TileDigiNoiseCalibAlg::TileDigiNoiseCalibAlg(const std::string& name, ISvcLocator* pSvcLocator)
     : AthAlgorithm(name, pSvcLocator)
-  , m_beamCnv(0)
-  , m_cabling(0)
-  , m_tileOFCorrelation(0)
-  , m_tileID(0)
-  , m_tileHWID(0)
-  , m_cispar(0)
+  , m_beamCnv(nullptr)
+  , m_cabling(nullptr)
+  , m_tileOFCorrelation(nullptr)
+  , m_tileID(nullptr)
+  , m_tileHWID(nullptr)
+  , m_cispar(nullptr)
 //  , m_nDrawers(0)
   , m_time(0)
   , m_year(0)
@@ -174,16 +174,16 @@ StatusCode TileDigiNoiseCalibAlg::FirstEvt_initialize() {
       ServiceHandle<IConversionSvc> cnvSvc("ByteStreamCnvSvc", "");
       if (cnvSvc.retrieve().isFailure()) {
         ATH_MSG_ERROR( " Can't get ByteStreamCnvSvc " );
-        m_beamCnv = NULL;
+        m_beamCnv = nullptr;
       } else {
         m_beamCnv = dynamic_cast<TileBeamElemContByteStreamCnv *>(cnvSvc->converter(ClassID_traits<TileBeamElemContainer>::ID()));
-        if (m_beamCnv == NULL) {
+        if (m_beamCnv == nullptr) {
           ATH_MSG_ERROR( " Can't get TileBeamElemContByteStreamCnv " );
         }
       }
 
     } else {
-      m_beamCnv = NULL;
+      m_beamCnv = nullptr;
     }
   }
 

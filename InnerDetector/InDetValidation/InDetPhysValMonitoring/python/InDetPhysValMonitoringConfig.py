@@ -33,7 +33,7 @@ def InDetRttTruthSelectionToolCfg(flags, name="InDetRttTruthSelectionTool", **kw
         kwargs.setdefault("maxEta", 4.)
     else:
         kwargs.setdefault("maxEta", 2.5)
-    kwargs.setdefault("minPt", 500.)
+    kwargs.setdefault("minPt", flags.IDPVM.truthMinPt)
 
     if "radiusCylinder" in kwargs or "zDisc" in kwargs:
         from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg

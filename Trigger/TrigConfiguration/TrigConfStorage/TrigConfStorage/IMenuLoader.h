@@ -15,7 +15,7 @@ namespace TrigConf {
    public:
       typedef enum  {ALL, CTP, CTPOnl, HLT, COOLL1, COOLHLT, L1Simu} ENV;
 
-      virtual ~IMenuLoader() {};
+      virtual ~IMenuLoader() override = default;
 
       virtual void setEnv(ENV env) = 0;
       virtual bool load( Menu& data ) = 0;

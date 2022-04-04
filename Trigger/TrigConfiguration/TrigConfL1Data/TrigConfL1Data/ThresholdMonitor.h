@@ -20,7 +20,7 @@ namespace TrigConf
    public:
       ThresholdMonitor();
       ThresholdMonitor( const ThresholdMonitor& thr);
-      virtual ~ThresholdMonitor();
+      virtual ~ThresholdMonitor() override = default;
 
       // Accessors
    

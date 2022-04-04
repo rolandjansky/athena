@@ -25,11 +25,6 @@ LogicExpression::LogicExpression(const std::string& name, std::ostream & o)
 {}
 
 
-LogicExpression::~LogicExpression()
-{
-}
-
-
 bool
 LogicExpression::isValidElementChar(char c) {
    std::string valid_sym = "_";

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Gaudi includes
@@ -38,12 +38,12 @@ static const double c_defaultLoCalib(1.29);
 TileCisDefaultCalibTool::TileCisDefaultCalibTool(const std::string& type, const std::string& name,
     const IInterface* pParent)
     : AthAlgTool(type, name, pParent)
-  , m_tileHWID(0)
-  , m_cabling(0)
+  , m_tileHWID(nullptr)
+  , m_cabling(nullptr)
   , m_cablingSvc("TileCablingSvc", name)
-  , m_scanMap(0)
-  , m_scanMapRMS(0)
-  , m_tileInfo(0)
+  , m_scanMap(nullptr)
+  , m_scanMapRMS(nullptr)
+  , m_tileInfo(nullptr)
 {
   declareInterface<ITileCalibTool>(this);
 
@@ -196,7 +196,7 @@ StatusCode TileCisDefaultCalibTool::execute() {
         TDACDoubleMap *MeanSqDacMap = (m_MeanSqMap)[hwid];
 
         // create new dac maps if they don't exist
-        if (NEvtDacMap == 0) {
+        if (NEvtDacMap == nullptr) {
           NEvtDacMap = (m_NEvtMap)[hwid] = new TDACIntMap;
           NDigitalErrorsDacMap = (m_NDigitalErrorsMap)[hwid] = new TDACIntMap;
           MeanDacMap = (m_MeanMap)[hwid] = new TDACDoubleMap;

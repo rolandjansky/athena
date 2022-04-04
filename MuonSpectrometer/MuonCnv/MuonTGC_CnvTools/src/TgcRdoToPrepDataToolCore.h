@@ -186,14 +186,16 @@ namespace Muon
       using getCoinCollection_func = std::function<TgcCoinDataCollection* (Identifier, int locId)>;
       
       /** Select decoder based on RDO type (Hit or Coincidence (Tracklet, HiPt and SL)) */
-      void selectDecoder(getHitCollection_func& getHitCollection,
+      void selectDecoder(State& state,
                          getCoinCollection_func& getCoinCollection,
                          const TgcRawData& rd,
-                         const TgcRdo* rdoColl) const;
+                         const TgcRdo* rdoColl,
+                         std::vector< std::unordered_map<IdentifierHash, std::unique_ptr<TgcPrepDataCollection> > >& collectionMap) const;
 
       /** Decode RDO's of Hit */
-      StatusCode decodeHits(getHitCollection_func& getHitCollection,
-                            const TgcRawData& rd) const;
+      StatusCode decodeHits(State& state,
+                            const TgcRawData& rd,
+                            std::vector<std::unordered_map<IdentifierHash, std::unique_ptr<TgcPrepDataCollection> > >& collectionMap) const;
       /** Decode RDO's of Tracklet */
       StatusCode decodeTracklet(getCoinCollection_func& getCoinCollection,
                                 const TgcRawData& rd) const;

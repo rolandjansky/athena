@@ -19,11 +19,14 @@ void Muon::MM_RawDataCnv_p2::transToPers( const Muon::MM_RawData *transObj, Muon
 
 Muon::MM_RawData* Muon::MM_RawDataCnv_p2::createTransient(const Muon::MM_RawData_p2* persObj, MsgStream& /**log*/)
 {
-  Muon::MM_RawData*  trans = new MM_RawData( Identifier (persObj->m_id),
-					     persObj->m_channel,
-					     persObj->m_time, 
-					     persObj->m_charge,
-               persObj->m_relBcid );
+// since the persistent class used uint for the member variables and the transient one uses int,
+// the static cast is added here explicitly  
+Muon::MM_RawData*  trans = new MM_RawData( Identifier (persObj->m_id),
+					    static_cast<int>(persObj->m_channel),
+					     static_cast<int>(persObj->m_time), 
+					     static_cast<int>(persObj->m_charge),
+               persObj->m_relBcid,
+	       false	 ); // any RDOs produced with this persistent version have the time and the charge in physical units. pscholer March 2022 
   
   return trans;
 }

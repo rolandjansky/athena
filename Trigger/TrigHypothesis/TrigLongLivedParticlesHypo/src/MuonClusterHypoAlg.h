@@ -44,7 +44,7 @@
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 
-#include "TrigLongLivedParticlesHypo/MuonClusterHypoTool.h"
+#include "MuonClusterHypoTool.h"
 
 class StoreGateSvc;
 

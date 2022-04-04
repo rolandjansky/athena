@@ -27,8 +27,8 @@
 
 #include "AthenaMonitoringKernel/Monitored.h"
 
-#include "TrigLongLivedParticlesHypo/MuonClusterHypoAlg.h"
-#include "TrigLongLivedParticlesHypo/MuonClusterHypoTool.h"
+#include "MuonClusterHypoAlg.h"
+#include "MuonClusterHypoTool.h"
 
 using namespace TrigCompositeUtils;
 

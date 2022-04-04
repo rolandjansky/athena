@@ -25,6 +25,8 @@ fpeStat=$?
 
 echo "art-result: ${fpeStat} FPEs in logfiles"
 
+echo "============ checkxAOD tmp.AOD"
+checkxAOD tmp.AOD
 echo "============ checkxAOD DAOD_PHYS.art.pool.root"
 checkxAOD DAOD_PHYS.art.pool.root
 echo "============ checkxAOD DAOD_PHYSLITE.art.pool.root"

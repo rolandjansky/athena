@@ -27,7 +27,7 @@ namespace TrigConf {
    class ICaloSinCosLoader : virtual public ILoader {
    public:
 
-      virtual ~ICaloSinCosLoader() {};
+      virtual ~ICaloSinCosLoader() override = default;
 
       virtual bool load( CaloSinCos& data ) = 0;
    };

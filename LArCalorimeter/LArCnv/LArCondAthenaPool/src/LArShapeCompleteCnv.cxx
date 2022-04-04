@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -12,8 +12,8 @@
 #include <cmath>
 #include <limits>
 
-static LArShapeSubsetCnv_p1   TPconverter1;
-static LArShapeSubsetCnv_p2   TPconverter2;
+static const LArShapeSubsetCnv_p1   TPconverter1;
+static const LArShapeSubsetCnv_p2   TPconverter2;
 
 namespace {
 
@@ -37,7 +37,7 @@ LArShapeCompleteCnv::createPersistent (LArShapeTransType2* transObj)
 {
   MsgStream log(msgSvc(), "LArShapeCompleteCnv" ); 
     //log << MSG::DEBUG << "LArShapeComplete write" << endmsg;
-    LArShapePersType2* persObj = TPconverter2.createPersistent( transObj, log );
+    LArShapePersType2* persObj = TPconverter2.createPersistentConst( transObj, log );
     //log << MSG::DEBUG << "Success" << endmsg;
     return persObj; 
 }
@@ -45,15 +45,15 @@ LArShapeCompleteCnv::createPersistent (LArShapeTransType2* transObj)
 LArConditionsSubset<LArShapeP2>*
 LArShapeCompleteCnv::createTransient () 
 {
-  static pool::Guid   p2_guid("5139AF4A-5947-421A-A775-B2D1134145C7");
-  static pool::Guid   p1_guid("95B61750-4C45-412D-B4D4-9758E9DB40D1");
-  static pool::Guid   p0_guid("055CF2F5-08D0-4EAA-B154-8CE5B1A599E7");
+  static const pool::Guid   p2_guid("5139AF4A-5947-421A-A775-B2D1134145C7");
+  static const pool::Guid   p1_guid("95B61750-4C45-412D-B4D4-9758E9DB40D1");
+  static const pool::Guid   p0_guid("055CF2F5-08D0-4EAA-B154-8CE5B1A599E7");
 
   MsgStream log(msgSvc(), "LArShapeCompleteCnv" ); 
   if( compareClassGuid(p2_guid) ) {  
     std::unique_ptr< LArShapeSubset_p2 > col_vect( poolReadObject< LArShapeSubset_p2 >() );  
     log << MSG::DEBUG << "Reading LArShapeSubset_p1" << endmsg; 
-    return TPconverter2.createTransient( col_vect.get(), log );
+    return TPconverter2.createTransientConst( col_vect.get(), log );
   } 
   else if( compareClassGuid(p1_guid) ) {  
     log << MSG::ERROR << "Sorry if you really want to read LArShapeSubset_p1 you will need to provide a legacy converter" << endmsg;

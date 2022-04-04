@@ -18,8 +18,6 @@ TrigConf::HLTPrescaleSet::HLTPrescaleSet() :
    m_iovend(0)
 {}
 
-TrigConf::HLTPrescaleSet::~HLTPrescaleSet() {}
-
 TrigConf::HLTPrescale&
 TrigConf::HLTPrescaleSet::setPrescale(const HLTPrescale& sc, unsigned int chain_counter, HLTLevel level) {
    ScalingMap_t& map = m_scalers[static_cast<unsigned int>(level)];

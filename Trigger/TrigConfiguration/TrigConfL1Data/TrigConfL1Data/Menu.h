@@ -49,7 +49,7 @@ namespace TrigConf {
    class Menu  : public L1DataBaseclass {
    public:
       Menu();
-      ~Menu();
+      virtual ~Menu() override;
 
       item_by_ctpid_t&           item_by_ctpid();
       const item_by_ctpid_t&     item_by_ctpid() const;

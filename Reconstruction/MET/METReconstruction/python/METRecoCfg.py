@@ -208,6 +208,8 @@ class METConfig:
             self.setupRegions(buildconfigs)
         #
         from AthenaConfiguration.ComponentFactory import CompFactory
+        # TODO: These Z0 and D0 cuts are left over from R21. The track vertex association can now use looser ones.
+        #       To be investigated and possibly updated by the MET group.
         self.trkseltool=CompFactory.getComp("InDet::InDetTrackSelectionTool")("IDTrkSel_MET",
                                                               CutLevel="TightPrimary",
                                                               maxZ0SinTheta=3,
@@ -217,7 +219,7 @@ class METConfig:
         from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
         components = ComponentAccumulator()
         from TrackVertexAssociationTool.TTVAToolConfig import TTVAToolCfg
-        self.trkvxtool=components.popToolsAndMerge(TTVAToolCfg(inputFlags, "TrackVertexAssociationTool_MET",addDecoAlg=True, WorkingPoint="Nominal"))
+        self.trkvxtool=components.popToolsAndMerge(TTVAToolCfg(inputFlags, "TrackVertexAssociationTool_MET",addDecoAlg=True, WorkingPoint="Nonprompt_All_MaxWeight"))
         #
         self.trkisotool = CompFactory.getComp("xAOD::TrackIsolationTool")("TrackIsolationTool_MET")
         self.trkisotool.TrackSelectionTool = self.trkseltool # As configured above

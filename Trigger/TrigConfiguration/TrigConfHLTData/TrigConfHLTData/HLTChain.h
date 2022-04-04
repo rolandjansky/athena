@@ -65,7 +65,7 @@ namespace TrigConf {
       HLTChain( const HLTChain& ch );
 
       /**@brief destructor*/
-      ~HLTChain();
+      virtual ~HLTChain() override;
 
 
       // getters

@@ -68,9 +68,6 @@ namespace TrigConf {
       /** Constructor */
       L1CTPFiles();
 
-      /** Destructor */
-      virtual ~L1CTPFiles();
-
       /** 
        * Accessors to the various CTP data
        **/

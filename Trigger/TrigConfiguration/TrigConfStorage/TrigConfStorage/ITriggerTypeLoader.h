@@ -27,7 +27,7 @@ namespace TrigConf {
    class ITriggerTypeLoader : virtual public ILoader {
    public:
 
-      virtual ~ITriggerTypeLoader() {};
+      virtual ~ITriggerTypeLoader() override = default;
 
       virtual bool load( TriggerType& data ) = 0;
    };

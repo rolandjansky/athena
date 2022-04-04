@@ -1,7 +1,8 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from .AthenaMonitoringAODRecoCfg import AthenaMonitoringAODRecoCfg
+from AthenaConfiguration.Enums import LHCPeriod
 
 def AthenaMonitoringCfg(flags):
     import logging
@@ -13,7 +14,8 @@ def AthenaMonitoringCfg(flags):
 
     result.merge(AthenaMonitoringAODRecoCfg(flags))
 
-    if flags.DQ.Steering.doPixelMon:
+    if flags.DQ.Steering.doPixelMon and flags.GeoModel.Run is not LHCPeriod.Run1:
+        # Not run for Run-1 (see ATR-25274)
         info('Set up Pixel monitoring')
         from PixelMonitoring.PixelMonitoringConfig import PixelMonitoringConfig
         result.merge(PixelMonitoringConfig(flags))

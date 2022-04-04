@@ -13,7 +13,7 @@ namespace TrigConf {
    class DeadTime : public L1DataBaseclass {
    public:
       DeadTime();
-      ~DeadTime() = default;
+      virtual ~DeadTime() override = default;
     
       // getters
       int simple()        const { return m_simple; }

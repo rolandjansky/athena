@@ -37,7 +37,7 @@ namespace TrigConf {
       HLTPrescaleSet();
 
       /**@brief destructor*/
-      ~HLTPrescaleSet();
+      virtual ~HLTPrescaleSet() override = default;
 
       HLTPrescale& setPrescale(const HLTPrescale& sc, unsigned int chain_counter, HLTLevel level = HLT);
 

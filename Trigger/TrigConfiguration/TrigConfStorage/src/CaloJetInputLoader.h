@@ -28,7 +28,7 @@ namespace TrigConf {
   public:
 
     CaloJetInputLoader( StorageMgr& sm,  coral::ISessionProxy& session) : DBLoader(sm, session) {}
-    virtual ~CaloJetInputLoader(){};
+    virtual ~CaloJetInputLoader() override = default;
 
     virtual bool load( CaloJetInput& data) override;
   };

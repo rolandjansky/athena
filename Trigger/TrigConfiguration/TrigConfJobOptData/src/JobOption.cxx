@@ -32,8 +32,6 @@ TrigConf::JobOption::JobOption(const string& cp_alias,
      m_Value(value)
 {}
 
-TrigConf::JobOption::~JobOption() {}
-
 void
 TrigConf::JobOption::print(const std::string& indent, unsigned int /*detail*/) const {
    cout << indent << "JobOption: " << m_Component_Alias << "." << m_Name << " = " << m_Value 

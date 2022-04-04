@@ -21,6 +21,7 @@ TrigConf::TrigDBL1PrescalesSetLoader::TrigDBL1PrescalesSetLoader(const std::stri
    }
 }
 
+// Destructor defined here because QueryDefinition is an incomplete type in the header
 TrigConf::TrigDBL1PrescalesSetLoader::~TrigDBL1PrescalesSetLoader() = default;
 
 bool

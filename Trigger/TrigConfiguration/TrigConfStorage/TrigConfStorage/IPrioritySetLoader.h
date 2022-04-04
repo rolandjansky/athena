@@ -12,7 +12,7 @@ namespace TrigConf {
 
    class IPrioritySetLoader : virtual public ILoader {
    public:
-      virtual ~IPrioritySetLoader() {};
+      virtual ~IPrioritySetLoader() override = default;
       virtual bool load( PrioritySet& data ) = 0;
    };
 

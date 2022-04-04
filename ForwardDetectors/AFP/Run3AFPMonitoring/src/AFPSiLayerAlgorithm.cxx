@@ -175,6 +175,10 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	lb        = eventInfo->lumiBlock();
 	lbEvents  = eventInfo->lumiBlock();
 	muPerBX   = lbAverageInteractionsPerCrossing(ctx);
+	if (muPerBX == 0.0) {
+	  ATH_MSG_DEBUG("AverageInteractionsPerCrossing is 0, forcing to 1.0");
+	  muPerBX=1.0;
+	}
 	fill("AFPSiLayerTool", lb, muPerBX);
 	fill("AFPSiLayerTool", lbEvents);
 	

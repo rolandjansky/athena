@@ -11,7 +11,7 @@ namespace TrigConf {
    class NimThresholdValue : public TriggerThresholdValue {
    public:
       NimThresholdValue();
-      ~NimThresholdValue() = default;
+      virtual ~NimThresholdValue() override = default;
 
       virtual TriggerThresholdValue* createCopy() const override;
 

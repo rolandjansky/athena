@@ -18,10 +18,16 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetReadoutGeometry/SiDetectorManager.h"
+#include "xAODTracking/TrackParticleContainer.h"
+
 #include "TrigHTTSGInput/ITrigHTTInputTool.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "TrigHTTSGInput/TrigHTTInputUtils.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "GeneratorObjects/McEventCollection.h"
+
+#include "InDetRawData/PixelRDO_Container.h"
+#include "InDetRawData/SCT_RDO_Container.h"
 
 
 class HTTEventInputHeader;
@@ -43,7 +49,7 @@ public:
 
   virtual StatusCode initialize() override;
   virtual StatusCode finalize()   override;
-  virtual StatusCode readData(HTTEventInputHeader* header)  override;
+  virtual StatusCode readData(HTTEventInputHeader* header, const EventContext& eventContext)  override;
 
 
 private:
@@ -52,11 +58,21 @@ private:
   /////  ServiceHandle<IBeamCondSvc>    m_beamSpotSvc;
   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey { this, "EventInfo", "EventInfo" };
-  SG::ReadHandleKey<InDet::SiClusterContainer> m_pixelClusterContainerKey { this, "pixelClustersName", "PixelClusters" };
+  SG::ReadHandleKey<InDet::SiClusterContainer> m_pixelClusterContainerKey { this, "pixelClustersName", "ITkPixelClusters" };
   SG::ReadHandleKey<InDet::SiClusterContainer> m_sctClusterContainerKey { this, "SCT_ClustersName", "SCT_Clusters" };
 
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_offlineTracksKey  { this, "OfflineTracks", "InDetTrackParticles"};
+  SG::ReadHandleKey<McEventCollection> m_mcCollectionKey  { this, "McTruth", "TruthEvent" };
+  SG::ReadHandleKey<InDetSimDataCollection> m_pixelSDOKey  { this, "PixelSDO", "ITkPixelSDO_Map" };
+  SG::ReadHandleKey<InDetSimDataCollection> m_stripSDOKey  { this, "StripSDO", "ITkStripSDO_Map" };
+  SG::ReadHandleKey<PixelRDO_Container> m_pixelRDOKey  { this, "PixelRDO", "ITkPixelRDOs" };
+  SG::ReadHandleKey<SCT_RDO_Container> m_stripRDOKey  { this, "StripRDO", "ITkStripRDOs" };
+
+  
+  
+
+
   Gaudi::Property<std::string>         m_tracksTruthName { this, "OfflineName", "InDetTrackParticles", "name of offline tracks collection" };
-  Gaudi::Property<std::string>         m_offlineName { this, "OfflineName", "InDetTrackParticles", "name of offline tracks collection" };
 
   Gaudi::Property<bool>        m_dumpHitsOnTracks { this, "dumpHitsOnTracks", false };
   Gaudi::Property<bool>        m_dumpTruthIntersections { this, "dumpTruthIntersections", false };
@@ -78,16 +94,16 @@ private:
   const HepPDT::ParticleDataTable* m_particleDataTable;
 
   typedef std::map<Identifier, int> HitIndexMap;
-  StatusCode read_raw_silicon(HitIndexMap& hitIndexMap, HitIndexMap& pixelClusterIndexMap); // dump raw silicon data to text file and populate hitIndexMap for rec. track processing
-  StatusCode read_truth_tracks(std::vector<HTTTruthTrack>& truth);
-  StatusCode read_offline_tracks(std::vector<HTTOfflineTrack>& Track);
-  StatusCode read_offline_clusters(std::vector<HTTCluster>& Clusters);
-  StatusCode ReadPixelSimulation(HitIndexMap& hitIndexMap, unsigned int& hitIndex);
-  StatusCode ReadStripSimulation(HitIndexMap& hitIndexMap, unsigned int& hitIndex);
-  StatusCode DumpPixelClusters(HitIndexMap& pixelClusterIndexMap);
+  StatusCode readRawSilicon(HitIndexMap& hitIndexMap, HitIndexMap& pixelClusterIndexMap, const EventContext& eventContext); // dump raw silicon data to text file and populate hitIndexMap for rec. track processing
+  StatusCode readTruthTracks(std::vector<HTTTruthTrack>& truth, const EventContext& eventContext);
+  StatusCode readOfflineTracks(std::vector<HTTOfflineTrack>& Track, const EventContext& eventContext);
+  StatusCode readOfflineClusters(std::vector<HTTCluster>& Clusters, const EventContext& eventContext);
+  StatusCode readPixelSimulation(HitIndexMap& hitIndexMap, unsigned int& hitIndex, const EventContext& eventContext);
+  StatusCode readStripSimulation(HitIndexMap& hitIndexMap, unsigned int& hitIndex, const EventContext& eventContext);
+  StatusCode dumpPixelClusters(HitIndexMap& pixelClusterIndexMap, const EventContext& eventContext);
 
   // To get truth information from simulation
-  void GetTruthInformation(InDetSimDataCollection::const_iterator& iter, TrigHTTInputUtils::ParentBitmask& parentMask, HepMcParticleLink::ExtendedBarCode& bestExtcode, const HepMC::GenParticle* bestParent);
+  void getTruthInformation(InDetSimDataCollection::const_iterator& iter, TrigHTTInputUtils::ParentBitmask& parentMask, HepMcParticleLink::ExtendedBarCode& bestExtcode, const HepMC::GenParticle* bestParent);
   HTTEventInputHeader*        m_eventHeader = nullptr;
 };
 

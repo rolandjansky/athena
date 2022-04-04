@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Athena includes
@@ -121,10 +121,10 @@ float TileLaserTimingTool::s_fiberLength[2][48] = {{167.1,167.1,178.7,178.7,190.
 
 TileLaserTimingTool::TileLaserTimingTool(const std::string& type, const std::string& name, const IInterface* pParent)
   : AthAlgTool(type, name, pParent)
-  , m_tileHWID(0)
-  , m_cabling(0)
+  , m_tileHWID(nullptr)
+  , m_cabling(nullptr)
   , m_nevts(0)
-  , m_gaussf(0)
+  , m_gaussf(nullptr)
 {
 
   declareInterface<ITileCalibTool>( this );
@@ -341,9 +341,9 @@ StatusCode TileLaserTimingTool::execute() {
   TileRawChannelCollection::const_iterator it, itEnd;
 
   // tmp vars
-  const TileDigitsCollection *digiColl = 0;
+  const TileDigitsCollection *digiColl = nullptr;
   const TileDigits* digits;
-  const TileRawChannel *rawch = 0;
+  const TileRawChannel *rawch = nullptr;
   float dtime, dtimeNoCFCorr;
 
 #ifdef TileLaserTimingMonPulse	
@@ -354,7 +354,7 @@ StatusCode TileLaserTimingTool::execute() {
   int Nconnected;
   float ChannelOffset;
 
-  DrawerData *ddata = 0;
+  DrawerData *ddata = nullptr;
 
   unsigned frag;
   if (pass) {
@@ -364,7 +364,7 @@ StatusCode TileLaserTimingTool::execute() {
     for (; itColl != itCollEnd; ++itColl) {
       // Get the digits collection for the drawer corresponding to the raw channel
       frag = (*itColl)->identify();
-      auto digiCollIt = digitsCnt->indexFindPtr(digitsCnt->hashFunc()(frag));
+      const auto *digiCollIt = digitsCnt->indexFindPtr(digitsCnt->hashFunc()(frag));
       if (digiCollIt == nullptr) {
         ATH_MSG_ERROR( " unable to get TileDigitsCollection for drawer:" << drawerIdStr(frag) );
 

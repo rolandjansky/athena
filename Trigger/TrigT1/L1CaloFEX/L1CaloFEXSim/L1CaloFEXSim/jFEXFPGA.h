@@ -100,6 +100,9 @@ namespace LVL1 {
     
    /** Internal data */
   private:
+  
+    int Get_calibrated_SRj_ET(int Energy, int jfex);
+    
     static bool etSRJetSort(std::vector<uint32_t> i, std::vector<uint32_t> j){ return (((i.at(0) >> FEXAlgoSpaceDefs::jJ_etBit   ) & 0x7ff  )> ((j.at(0) >> FEXAlgoSpaceDefs::jJ_etBit  ) & 0x7ff ));}
     static bool etLRJetSort(std::vector<uint32_t> i, std::vector<uint32_t> j){ return (((i.at(0) >> FEXAlgoSpaceDefs::jLJ_etBit  ) & 0x1fff )> ((j.at(0) >> FEXAlgoSpaceDefs::jLJ_etBit ) & 0x1fff));}
     static bool etTauSort  (std::vector<uint32_t> i, std::vector<uint32_t> j){ return (((i.at(0) >> FEXAlgoSpaceDefs::jTau_etBit ) & 0x7ff  )> ((j.at(0) >> FEXAlgoSpaceDefs::jTau_etBit) & 0x7ff ));}

@@ -99,6 +99,7 @@ TrigConf::TrigDBCTPFilesLoader::TrigDBCTPFilesLoader(const std::string & connect
    }
 }
 
+// Destructor defined here because QueryDefinition is an incomplete type in the header
 TrigConf::TrigDBCTPFilesLoader::~TrigDBCTPFilesLoader() = default;
 
 bool

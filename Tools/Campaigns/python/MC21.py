@@ -25,7 +25,7 @@ def MC21a(flags):
     flags.Digitization.PU.NumberOfLowPtMinBias = 51.898
     flags.Digitization.PU.NumberOfHighPtMinBias = 0.102
     flags.Digitization.PU.BunchStructureConfig = 'RunDependentSimData.BunchStructure_2017'
-    flags.Digitization.PU.ProfileConfig = 'RunDependentSimData.PileUpProfile_run330000_MC21a_SingleBeamspot'
+    flags.Digitization.PU.ProfileConfig = 'RunDependentSimData.PileUpProfile_run410000_MC21a_SingleBeamspot'
 
     if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         # ensure better randomisation of high-pt minbias events
@@ -37,12 +37,13 @@ def MC21aSingleBeamspot(flags):
     MC21a(flags)
 
     # override only pile-up profile
-    flags.Digitization.PU.ProfileConfig = 'RunDependentSimData.PileUpProfile_run330000_MC21a_SingleBeamspot'
+    flags.Digitization.PU.ProfileConfig = 'RunDependentSimData.PileUpProfile_run410000_MC21a_SingleBeamspot'
 
 
 def MC21NoPileUp(flags):
     """MC21a flags for MC to match initial Run 3 data"""
     flags.Beam.NumberOfCollisions = 0.
+    flags.Input.ConditionsRunNumber = 410000
 
     LArConfigRun3NoPileUp(flags)
 
@@ -66,7 +67,7 @@ def MC21Simulation(flags):
     flags.Sim.PhysicsList = 'FTFP_BERT_ATL'
     flags.Sim.TruthStrategy = TruthStrategy.MC15aPlus
 
-    flags.Input.RunNumber = [330000]
+    flags.Input.RunNumber = [410000]
     flags.Input.OverrideRunNumber = True
     flags.Input.LumiBlockNumber = [1] # dummy value
 
