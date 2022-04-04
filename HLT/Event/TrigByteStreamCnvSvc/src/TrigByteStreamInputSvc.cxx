@@ -13,6 +13,9 @@
 // TDAQ includes
 #include "hltinterface/DataCollector.h"
 
+// System includes
+#include <charconv>
+
 namespace {
   constexpr float wordsToKiloBytes = 0.001*sizeof(uint32_t);
 }
@@ -164,15 +167,25 @@ const RawEvent* TrigByteStreamInputSvc::nextEvent() {
     std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> vrobf;
     m_robDataProviderSvc->getROBData(*eventContext, {sid.code()}, vrobf, name());
     if (vrobf.empty()) {
-      ATH_MSG_ERROR("The CTP ROB fragment 0x" << std::hex << sid.code() << std::dec << " is missing. "
-                    << "Throwing hltonl::Exception::EventSourceCorrupted");
-      throw hltonl::Exception::EventSourceCorrupted();
+      ATH_MSG_INFO("The CTP ROB fragment 0x" << std::hex << sid.code() << std::dec << " is missing. "
+                    << "Throwing hltonl::Exception::MissingCTPFragment");
+      throw hltonl::Exception::MissingCTPFragment();
     }
     uint32_t robStatus = vrobf.at(0)->nstatus()>0 ? *(vrobf.at(0)->status()) : 0;
     if (robStatus!=0) {
-      ATH_MSG_ERROR("The CTP ROB fragment 0x" << std::hex << sid.code() << std::dec << " has non-zero status word: 0x"
-                    << std::hex << robStatus << std::dec << "Throwing hltonl::Exception::EventSourceCorrupted");
-      throw hltonl::Exception::EventSourceCorrupted();
+      std::string hexStatus(8, char{0});
+      std::to_chars(hexStatus.data(), hexStatus.data()+hexStatus.size(), robStatus, 16);
+      ATH_MSG_INFO("The CTP ROB fragment 0x" << std::hex << sid.code() << std::dec << " has non-zero status word: 0x"
+                    << hexStatus << ". Throwing hltonl::Exception::BadCTPFragment");
+      throw hltonl::Exception::BadCTPFragment("Non-zero ROB status 0x"+hexStatus);
+    }
+    try {
+      vrobf.at(0)->check();
+    }
+    catch (const std::exception& ex) {
+      ATH_MSG_INFO("The CTP ROB fragment 0x" << std::hex << sid.code() << std::dec << " is corrupted: "
+                    << ex.what() << ". Throwing hltonl::Exception::BadCTPFragment");
+      throw hltonl::Exception::BadCTPFragment(ex.what());
     }
   }
 

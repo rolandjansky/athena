@@ -25,7 +25,9 @@ namespace HLT {
     AFTER_RESULT_SENT     = 10,
     COOL_UPDATE           = 11,
     TIMEOUT               = 12,
-    RESULT_TRUNCATION     = 13
+    RESULT_TRUNCATION     = 13,
+    MISSING_CTP_FRAGMENT  = 14,
+    BAD_CTP_FRAGMENT      = 15,
   };
 
   // There's no cleaner way to map enum to string, but watch out for C++ Reflection TS, it may come one day
@@ -48,7 +50,9 @@ namespace HLT {
       OnlineErrorCodeSwitchCase(COOL_UPDATE);
       OnlineErrorCodeSwitchCase(TIMEOUT);
       OnlineErrorCodeSwitchCase(RESULT_TRUNCATION);
-      default: return "UNDEFINED OnlineErrorCode"; break;
+      OnlineErrorCodeSwitchCase(MISSING_CTP_FRAGMENT);
+      OnlineErrorCodeSwitchCase(BAD_CTP_FRAGMENT);
+      default: return "UNDEFINED_OnlineErrorCode"; break;
     }
   }
 
