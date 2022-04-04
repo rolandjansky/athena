@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./CTPSimulation.h"
@@ -18,6 +18,7 @@
 
 #include "AthenaKernel/SlotSpecificObj.h"
 #include "AthenaMonitoringKernel/HistogramDef.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/Ranlux64Engine.h"
@@ -131,7 +132,7 @@ LVL1CTP::CTPSimulation::execute( const EventContext& context ) const {
 }
 
 StatusCode
-LVL1CTP::CTPSimulation::createMultiplicityHist(const std::string & type, unsigned int maxMult ) const {
+LVL1CTP::CTPSimulation::createMultiplicityHist(const std::string & type, unsigned int maxMult ) {
 
    StatusCode sc;
    std::map<std::string,std::vector<std::string>> typeMapping = {
@@ -155,7 +156,7 @@ LVL1CTP::CTPSimulation::createMultiplicityHist(const std::string & type, unsigne
 }
 
 StatusCode
-LVL1CTP::CTPSimulation::setMultiplicityHistLabels(const TrigConf::L1Menu& l1menu, const std::string & type) const {
+LVL1CTP::CTPSimulation::setMultiplicityHistLabels(const TrigConf::L1Menu& l1menu, const std::string & type) {
    StatusCode sc;
    std::map<std::string,std::vector<std::string>> typeMapping = {
       { "muon", {"MU"} },
@@ -195,7 +196,7 @@ LVL1CTP::CTPSimulation::getBaseHistPath() const {
 }
 
 StatusCode
-LVL1CTP::CTPSimulation::hbook(const std::string & path, std::unique_ptr<TH1> hist) const {
+LVL1CTP::CTPSimulation::hbook(const std::string & path, std::unique_ptr<TH1> hist) {
    const std::string & hname(hist->GetName());
 
    std::string key(path);
@@ -219,7 +220,7 @@ LVL1CTP::CTPSimulation::hbook(const std::string & path, std::unique_ptr<TH1> his
 }
 
 StatusCode
-LVL1CTP::CTPSimulation::hbook(const std::string & path, std::unique_ptr<TH2> hist) const {
+LVL1CTP::CTPSimulation::hbook(const std::string & path, std::unique_ptr<TH2> hist) {
    const std::string & hname(hist->GetName());
 
    std::string key(path);
@@ -244,22 +245,28 @@ LVL1CTP::CTPSimulation::hbook(const std::string & path, std::unique_ptr<TH2> his
 
 LockedHandle<TH1> &
 LVL1CTP::CTPSimulation::get1DHist(const std::string & histName) const {
-   if(m_hist1D.find(histName) == m_hist1D.end()) {
-      ATH_MSG_ERROR("1D-hist with registration key " << histName << " does not exist");
+   auto itr = m_hist1D.find(histName);
+   if (itr == m_hist1D.end()) {
+      throw GaudiException("1D-hist "+histName +" does not exist", name(), StatusCode::FAILURE);
    }
-   return  m_hist1D[histName];
+   // returning non-const LockHandle from const function is OK:
+   LockedHandle<TH1>& h ATLAS_THREAD_SAFE = const_cast<LockedHandle<TH1>&>(itr->second);
+   return h;
 }
 
 LockedHandle<TH2> &
 LVL1CTP::CTPSimulation::get2DHist(const std::string & histName) const {
-   if(m_hist2D.find(histName) == m_hist2D.end()) {
-      ATH_MSG_ERROR("2D-hist " << histName << " does not exist");
+   auto itr = m_hist2D.find(histName);
+   if (itr == m_hist2D.end()) {
+      throw GaudiException("2D-hist "+histName +" does not exist", name(), StatusCode::FAILURE);
    }
-   return  m_hist2D[histName];
+   // returning non-const LockHandle from const function is OK:
+   LockedHandle<TH2>& h ATLAS_THREAD_SAFE = const_cast<LockedHandle<TH2>&>(itr->second);
+   return h;
 }
 
 StatusCode
-LVL1CTP::CTPSimulation::setHistLabels(const TrigConf::L1Menu& l1menu) const {
+LVL1CTP::CTPSimulation::setHistLabels(const TrigConf::L1Menu& l1menu) {
 
    ATH_MSG_DEBUG("setHistLabels(). L1 menu " << l1menu.size() << " items" );
    // threshold multiplicities
@@ -319,7 +326,7 @@ LVL1CTP::CTPSimulation::setHistLabels(const TrigConf::L1Menu& l1menu) const {
 }
 
 StatusCode
-LVL1CTP::CTPSimulation::bookHists() const {
+LVL1CTP::CTPSimulation::bookHists() {
 
    // jets
    ATH_CHECK ( hbook( "/input/jets/", std::make_unique<TH1I>("jJetPt","Jet p_{T} - jJ", 40, 0, 80) ));
@@ -1149,7 +1156,7 @@ LVL1CTP::CTPSimulation::finalize() {
   adapted from @c HistogramFiller/OfflineHistogramProvider.h
 */
 StatusCode
-LVL1CTP::CTPSimulation::storeMetadata() const {
+LVL1CTP::CTPSimulation::storeMetadata() {
    std::vector<std::string> storedPaths;
    for( auto & entry : m_hist1D ) {
       storedPaths.push_back( getBaseHistPath() + entry.first);
