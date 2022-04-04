@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGACCELEVENT_OFFLOADBUFFER_H
@@ -12,7 +12,7 @@ namespace TrigAccel {
   
   class OffloadBuffer {
   public:
-  OffloadBuffer(size_t size) : m_bufferSize(size) {
+    OffloadBuffer(size_t size) : m_bufferSize(size) {
       m_rawBuffer = new unsigned char[m_bufferSize];
     }
 
@@ -26,6 +26,10 @@ namespace TrigAccel {
     virtual ~OffloadBuffer() {
       delete[] m_rawBuffer;
     }
+
+    // no copy/assign
+    OffloadBuffer(const OffloadBuffer&) = delete;
+    OffloadBuffer& operator=(const OffloadBuffer&) = delete;
 
     unsigned char* get() {
       return m_rawBuffer;
