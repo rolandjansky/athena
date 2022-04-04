@@ -460,91 +460,6 @@ def InDetMultipleScatteringUpdatorCfg(name = "InDetMultipleScatteringUpdator", *
     acc.setPrivateTools(MultipleScatteringUpdator)
     return acc
 
-def InDetMeasRecalibSTCfg(flags, name='InDetMeasRecalibST', **kwargs) :
-    acc = ComponentAccumulator()
-
-    if 'BroadPixelClusterOnTrackTool' not in kwargs :
-        InDetBroadPixelClusterOnTrackTool = acc.popToolsAndMerge(InDetBroadPixelClusterOnTrackToolCfg(flags))
-        kwargs.setdefault('BroadPixelClusterOnTrackTool', InDetBroadPixelClusterOnTrackTool)
-    if 'BroadSCT_ClusterOnTrackTool' not in kwargs :
-        InDetBroadSCT_ClusterOnTrackTool = acc.popToolsAndMerge(InDetBroadSCT_ClusterOnTrackToolCfg(flags))
-        kwargs.setdefault('BroadSCT_ClusterOnTrackTool', InDetBroadSCT_ClusterOnTrackTool)
-    if 'CommonRotCreator' not in kwargs :
-        InDetRefitRotCreator = acc.popToolsAndMerge(InDetRefitRotCreatorCfg(flags))
-        kwargs.setdefault('CommonRotCreator', InDetRefitRotCreator)
-
-    MeasRecalibSteeringTool = CompFactory.Trk.MeasRecalibSteeringTool(name, **kwargs)
-    acc.setPrivateTools(MeasRecalibSteeringTool)
-    return acc
-
-def InDetKalmanTrackFitterBaseCfg(flags, name='InDetKalmanTrackFitterBase', **kwargs) :
-    acc = ComponentAccumulator()
-
-    from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
-    kwargs.setdefault("ExtrapolatorHandle", acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags)))
-
-    if 'RIO_OnTrackCreatorHandle' not in kwargs :
-        InDetRefitRotCreator = acc.popToolsAndMerge(InDetRefitRotCreatorCfg(flags))
-        kwargs.setdefault("RIO_OnTrackCreatorHandle", InDetRefitRotCreator)
-
-    InDetUpdator = acc.popToolsAndMerge(InDetUpdatorCfg(flags))
-    kwargs.setdefault('MeasurementUpdatorHandle', InDetUpdator)
-    kwargs.setdefault('KalmanSmootherHandle', InDetBKS())
-    kwargs.setdefault('KalmanOutlierLogicHandle', InDetKOL())
-    kwargs.setdefault('DynamicNoiseAdjustorHandle', None)
-    kwargs.setdefault('BrempointAnalyserHandle', None)
-    kwargs.setdefault('AlignableSurfaceProviderHandle',None)
-
-    if 'RecalibratorHandle' not in kwargs :
-        InDetMeasRecalibST = acc.popToolsAndMerge(InDetMeasRecalibSTCfg(flags))
-        kwargs.setdefault('RecalibratorHandle', InDetMeasRecalibST)
-
-    KalmanFitter = CompFactory.Trk.KalmanFitter(name=name, **kwargs)
-    acc.setPrivateTools(KalmanFitter)
-    return acc
-
-def InDetDNAdjustor(name='InDetDNAdjustor', **kwargs) :
-    return CompFactory.Trk.InDetDynamicNoiseAdjustment(name=name,**kwargs)
-
-def InDetDNASeparator(name='InDetDNASeparator',**kwargs) :
-    return CompFactory.InDet.InDetDNASeparator(name=name,**kwargs)
-
-def InDetAnnealBKS(name='InDetAnnealBKS',**kwargs) :
-    kwargs.setdefault('InitialCovarianceSeedFactor',200.)
-    return CompFactory.Trk.KalmanSmoother(name=name,**kwargs)
-
-def KalmanCompetingPixelClustersTool(name='KalmanCompetingPixelClustersTool',**kwargs):
-    kwargs.setdefault('WeightCutValueBarrel',5.5)
-    kwargs.setdefault('WeightCutValueEndCap',5.5)
-    return CompFactory.InDet.CompetingPixelClustersOnTrackTool(name=name, **kwargs)
-
-def KalmanCompetingSCT_ClustersTool(name='KalmanCompetingSCT_ClustersTool',**kwargs) :
-    kwargs.setdefault('WeightCutValueBarrel',5.5)
-    kwargs.setdefault('WeightCutValueEndCap',5.5)
-    return CompFactory.InDet.CompetingSCT_ClustersOnTrackTool(name=name,**kwargs)
-
-def KalmanCompetingRIOsTool(name='KalmanCompetingRIOsTool',**kwargs) :
-    kwargs.setdefault('ToolForCompPixelClusters',KalmanCompetingPixelClustersTool())
-    kwargs.setdefault('ToolForCompSCT_Clusters',KalmanCompetingSCT_ClustersTool())
-    return CompFactory.Trk.CompetingRIOsOnTrackTool(name=name,**kwargs)
-
-def KalmanInternalDAF(name='KalmanInternalDAF',**kwargs) :
-    kwargs.setdefault('CompetingRIOsOnTrackCreator',KalmanCompetingRIOsTool())
-    kwargs.setdefault('BackwardSmoother',InDetAnnealBKS())
-    return CompFactory.Trk.KalmanPiecewiseAnnealingFilter(name=name,**kwargs)
-
-def InDetAnnealFKF(name='InDetAnnealFKF',**kwargs) :
-    return CompFactory.Trk.ForwardKalmanFitter(name=name,**kwargs)
-
-def InDetFKFRef(name='InDetFKFRef',**kwargs) :
-    kwargs.setdefault('StateChi2PerNDFPreCut',30.0)
-    return InDetAnnealFKF(name=name,**kwargs)
-
-def KalmanInternalDAFRef(name='KalmanInternalDAFRef',**kwargs) :
-    kwargs.setdefault('ForwardFitter', InDetAnnealFKF())
-    kwargs.setdefault('BackwardSmoother', InDetBKS())
-    return KalmanInternalDAF(name=name,**kwargs)
-
 def InDetBroadRotCreatorCfg(flags, name='InDetBroadInDetRotCreator', **kwargs) :
     acc = ComponentAccumulator()
 
@@ -563,46 +478,6 @@ def InDetBroadRotCreatorCfg(flags, name='InDetBroadInDetRotCreator', **kwargs) :
 
     InDetRotCreator = acc.popToolsAndMerge(InDetRotCreatorCfg(flags, name = name, **kwargs))
     acc.setPrivateTools(InDetRotCreator)
-    return acc
-
-def KalmanFitterCfg(flags, name='KalmanFitter', **kwargs) :
-    acc = ComponentAccumulator()
-
-    kwargs.setdefault('ForwardKalmanFitterHandle', InDetFKF())
-    if flags.InDet.Tracking.doBremRecovery:
-        kwargs.setdefault('DynamicNoiseAdjustorHandle', InDetDNAdjustor())
-        kwargs.setdefault('BrempointAnalyserHandle', InDetDNASeparator())
-        kwargs.setdefault('DoDNAForElectronsOnly', True)
-    else:
-        kwargs.setdefault('DynamicNoiseAdjustorHandle', None)
-        kwargs.setdefault('BrempointAnalyserHandle', None)
-
-    kwargs.setdefault('InternalDAFHandle', KalmanInternalDAF())
-
-    InDetKalmanTrackFitterBase = acc.popToolsAndMerge(InDetKalmanTrackFitterBaseCfg(flags, name, **kwargs))
-    acc.setPrivateTools(InDetKalmanTrackFitterBase)
-    return acc
-
-def KalmanDNAFitterCfg(flags, name='KalmanDNAFitter', **kwargs) :
-    acc = ComponentAccumulator()
-
-    kwargs.setdefault('ForwardKalmanFitterHandle', InDetFKF())
-    kwargs.setdefault('DynamicNoiseAdjustorHandle', InDetDNAdjustor())
-    kwargs.setdefault('BrempointAnalyserHandle', InDetDNASeparator())
-    kwargs.setdefault('InternalDAFHandle', KalmanInternalDAF())
-
-    InDetKalmanTrackFitterBase = acc.popToolsAndMerge(InDetKalmanTrackFitterBaseCfg(flags, name, **kwargs))
-    acc.setPrivateTools(InDetKalmanTrackFitterBase)
-    return acc
-
-def ReferenceKalmanFitterCfg(flags, name='ReferenceKalmanFitter', **kwargs) :
-    acc = ComponentAccumulator()
-    
-    kwargs.setdefault('ForwardKalmanFitterHandle', InDetFKFRef())
-    kwargs.setdefault('InternalDAFHandle', KalmanInternalDAFRef())
-
-    InDetKalmanTrackFitterBase = acc.popToolsAndMerge(InDetKalmanTrackFitterBaseCfg(flags, name, **kwargs))
-    acc.setPrivateTools(InDetKalmanTrackFitterBase)
     return acc
 
 def DistributedKalmanFilterCfg(flags, name="DistributedKalmanFilter", **kwargs) :
@@ -682,9 +557,6 @@ def GaussianSumFitterCfg(flags, name="GaussianSumFitter", **kwargs):
 
 def InDetTrackFitterCfg(flags, name='InDetTrackFitter', **kwargs) :
     return {
-            'KalmanFitter'            : KalmanFitterCfg,
-            'KalmanDNAFitter'         : KalmanDNAFitterCfg,
-            'ReferenceKalmanFitter'   : ReferenceKalmanFitterCfg,
             'DistributedKalmanFilter' : DistributedKalmanFilterCfg,
             'GlobalChi2Fitter'        : InDetGlobalChi2FitterCfg,
             'GaussianSumFilter'       : GaussianSumFitterCfg
@@ -696,7 +568,7 @@ def InDetTrackFitterAmbiCfg(flags, name='InDetTrackFitterAmbi', **kwargs) :
     InDetTrackFitter = acc.popToolsAndMerge(InDetTrackFitterCfg(flags, name, **kwargs))
     ClusterSplitProbabilityName = "InDetAmbiguityProcessorSplitProb" + flags.InDet.Tracking.ActivePass.extension
 
-    if flags.InDet.Tracking.trackFitterType in ['KalmanFitter', 'KalmanDNAFitter', 'ReferenceKalmanFitter', 'DistributedKalmanFilter']:
+    if flags.InDet.Tracking.trackFitterType in ['DistributedKalmanFilter']:
         InDetTrackFitter.RecalibratorHandle.BroadPixelClusterOnTrackTool.ClusterSplitProbabilityName = ClusterSplitProbabilityName
 
     elif flags.InDet.Tracking.trackFitterType=='GlobalChi2Fitter':
