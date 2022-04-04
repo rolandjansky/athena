@@ -8,6 +8,8 @@
 from TrigMinBiasMonitoring.TrigMBTSMonitoringMT import TrigMBTS
 from TrigMinBiasMonitoring.TrigSPTRKMonitoringMT import TrigSPTRK
 from TrigMinBiasMonitoring.TrigMinBiasEffMonitoring import TrigMinBiasEff
+from TrigMinBiasMonitoring.TrigAFPSidHypoMonitoring import TrigAFPSidHypoMonitoring
+
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 
@@ -16,6 +18,7 @@ def TrigMinBias(configFlags):
     acc.merge(TrigSPTRK(configFlags))
     acc.merge(TrigMBTS(configFlags))
     acc.merge(TrigMinBiasEff(configFlags))
+    acc.merge(TrigAFPSidHypoMonitoring(configFlags))
     return acc
 
 
