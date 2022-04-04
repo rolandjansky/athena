@@ -26,10 +26,19 @@ def getProfile2D_RMS(inputs, title, name):
 
     fullTitle = str(inputProfile.GetTitle()).split(':')[0] + ': ' + title
 
-    outputHistogram = inputProfile.ProjectionXY(fullName,"C=E")
+    nBinsX = inputProfile.GetNbinsX()
+    nBinsY = inputProfile.GetNbinsY()
+
+    outputHistogram = inputProfile.Clone()
+    outputHistogram.Reset()
     outputHistogram.SetTitle(fullTitle)
-    inputProfile.GetXaxis().Copy(outputHistogram.GetXaxis())
-    inputProfile.GetYaxis().Copy(outputHistogram.GetYaxis())
+    outputHistogram.SetName(fullName)
+    for binX in range(0, nBinsX + 1):
+         for binY in range(0, nBinsY + 1):
+             rms = inputProfile.GetBinError(binX, binY)
+             if rms != 0:
+                 outputHistogram.SetBinContent(binX, binY, rms)
+                 outputHistogram.SetBinEntries(inputProfile.GetBin(binX, binY), 1)
 
     return [outputHistogram]
 
