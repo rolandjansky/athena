@@ -7,12 +7,6 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import Format
 from InDetRecExample.InDetKeys import InDetKeys
 
-
-def RungeKuttaPropagatorCfg(flags, name="InDetTrigPatternPropagator"):
-  acc = ComponentAccumulator()
-  acc.addPublicTool( CompFactory.Trk.RungeKuttaPropagator( name ), primary=True )
-  return acc
-
 def PixelClusterOnTrackCfg( flags, **kwargs ):
   """
   based on: InnerDetector/InDetExample/InDetTrigRecExample/python/InDetTrigConfigRecLoadTools.py
@@ -75,8 +69,8 @@ def SiTrackMaker_xkCfg(flags, name="SiTrackMaker_xk"):
   """
   acc = ComponentAccumulator()
 
-  from InDetConfig.SiDetElementsRoadToolConfig import SiDetElementsRoadMaker_xk_Trig_Cfg
-  roadTool = acc.popToolsAndMerge( SiDetElementsRoadMaker_xk_Trig_Cfg( flags ) )
+  from InDetConfig.SiDetElementsRoadToolConfig import SiDetElementsRoadMaker_xkCfg
+  roadTool = acc.popToolsAndMerge( SiDetElementsRoadMaker_xkCfg( flags, name="InDetTrigSiDetElementsRoadMaker" ) )
   from InDetConfig.SiCombinatorialTrackFinderToolConfig import SiCombinatorialTrackFinder_xk_Trig_Cfg
   combTrackFinderTool = acc.popToolsAndMerge( SiCombinatorialTrackFinder_xk_Trig_Cfg( flags ) )
 
@@ -648,7 +642,8 @@ def TRTExtensionToolCfg(flags):
   detElementCond = CompFactory.InDet.TRT_DetElementsRoadCondAlg_xk(f"{prefix}TRT_DetElementsRoadCondAlg_xk")
   acc.addCondAlgo(detElementCond)
 
-  patternPropagator = acc.getPrimaryAndMerge( RungeKuttaPropagatorCfg(flags))
+  from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
+  patternPropagator = acc.popToolsAndMerge(RungeKuttaPropagatorCfg(flags, name="InDetTrigPatternPropagator"))
   roadMaker = CompFactory.InDet.TRT_DetElementsRoadMaker_xk( name   = f'{prefix}TRTRoadMaker{flags.InDet.Tracking.ActivePass.name}',
                                                              MagneticFieldMode     = 'MapSolenoid',
                                                              PropagatorTool        =  patternPropagator )
@@ -759,6 +754,7 @@ def FitterToolCfg(flags):
   from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
   from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import (
       TrackingGeometryCondAlgCfg)
+  from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
   cond_alg = TrackingGeometryCondAlgCfg(flags)
   geom_cond_key = cond_alg.getPrimary().TrackingGeometryWriteKey
   acc.merge(cond_alg)
@@ -766,7 +762,7 @@ def FitterToolCfg(flags):
   fitter = CompFactory.Trk.GlobalChi2Fitter(name                  = 'InDetTrigTrackFitter',
                                             ExtrapolationTool     = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags, name="InDetTrigExtrapolator")),
                                             NavigatorTool         = acc.popToolsAndMerge(AtlasNavigatorCfg(flags, name="InDetTrigNavigator")),
-                                            PropagatorTool        = acc.getPrimaryAndMerge( RungeKuttaPropagatorCfg( flags, "InDetTrigRKPropagator" ) ),
+                                            PropagatorTool        = acc.popToolsAndMerge( RungeKuttaPropagatorCfg( flags, name="InDetTrigRKPropagator" ) ),
                                             RotCreatorTool        = acc.getPrimaryAndMerge(RIO_OnTrackCreatorCfg(flags, "InDetTrigRefitRotCreator")),
                                             BroadRotCreatorTool   = None, #InDetTrigBroadInDetRotCreator, #TODO, we have function to configure it
                                             EnergyLossTool        = acc.popToolsAndMerge(AtlasEnergyLossUpdatorCfg(flags)),

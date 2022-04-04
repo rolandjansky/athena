@@ -77,8 +77,12 @@ def SiCombinatorialTrackFinder_xkCfg(flags, name="InDetSiComTrackFinder", **kwar
     acc.addPublicTool(RotCreator)
     kwargs.setdefault("RIOonTrackTool", RotCreator)
 
-    from InDetConfig.TrackingCommonConfig import InDetPatternPropagatorCfg, InDetPatternUpdatorCfg
-    kwargs.setdefault("PropagatorTool", acc.getPrimaryAndMerge(InDetPatternPropagatorCfg()))
+    from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
+    InDetPatternPropagator = acc.popToolsAndMerge(RungeKuttaPropagatorCfg(flags, name="InDetPatternPropagator"))
+    acc.addPublicTool(InDetPatternPropagator)
+    kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
+
+    from InDetConfig.TrackingCommonConfig import InDetPatternUpdatorCfg
     kwargs.setdefault("UpdatorTool", acc.getPrimaryAndMerge(InDetPatternUpdatorCfg()))
 
     from InDetConfig.InDetBoundaryCheckToolConfig import InDetBoundaryCheckToolCfg
@@ -117,8 +121,11 @@ def SiCombinatorialTrackFinder_xk_Trig_Cfg( flags, name="InDetTrigSiComTrackFind
   if flags.InDet.Tracking.ActivePass.useSCT:
       acc.merge(SiDetElementBoundaryLinksCondAlg_xk_SCT_Cfg(flags))
 
-  from TrigInDetConfig.TrigInDetConfig import RungeKuttaPropagatorCfg, KalmanxkUpdatorCfg, RIO_OnTrackCreatorCfg
-  propagatorTool = acc.getPrimaryAndMerge( RungeKuttaPropagatorCfg( flags ) )  
+  from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
+  propagatorTool = acc.popToolsAndMerge( RungeKuttaPropagatorCfg( flags, name="InDetTrigPatternPropagator" ) )
+  acc.addPublicTool(propagatorTool)
+
+  from TrigInDetConfig.TrigInDetConfig import KalmanxkUpdatorCfg, RIO_OnTrackCreatorCfg
   patternUpdatorTool = acc.getPrimaryAndMerge( KalmanxkUpdatorCfg( flags ) )
   rioOnTrackTool = acc.getPrimaryAndMerge( RIO_OnTrackCreatorCfg( flags ) )
 
@@ -157,16 +164,20 @@ def ITkSiCombinatorialTrackFinder_xkCfg(flags, name="ITkSiComTrackFinder", **kwa
     #
     from InDetConfig.ITkTrackingCommonConfig import ITkRotCreatorDigitalCfg
     ITkRotCreatorDigital = acc.getPrimaryAndMerge(ITkRotCreatorDigitalCfg(flags))
-    from InDetConfig.ITkRecToolConfig import ITkPatternPropagatorCfg, ITkPatternUpdatorCfg
-    ITkPatternPropagator = acc.getPrimaryAndMerge(ITkPatternPropagatorCfg(flags))
+    kwargs.setdefault("RIOonTrackTool", ITkRotCreatorDigital)
+
+    from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
+    ITkPatternPropagator = acc.popToolsAndMerge(RungeKuttaPropagatorCfg(flags, name="ITkPatternPropagator"))
+    acc.addPublicTool(ITkPatternPropagator)
+    kwargs.setdefault("PropagatorTool", ITkPatternPropagator)
+
+    from InDetConfig.ITkRecToolConfig import ITkPatternUpdatorCfg
     ITkPatternUpdator = acc.popToolsAndMerge(ITkPatternUpdatorCfg(flags))
     from InDetConfig.InDetBoundaryCheckToolConfig import ITkBoundaryCheckToolCfg
     ITkBoundaryCheckTool = acc.popToolsAndMerge(ITkBoundaryCheckToolCfg(flags))
 
-    kwargs.setdefault("PropagatorTool", ITkPatternPropagator)
     kwargs.setdefault("UpdatorTool", ITkPatternUpdator)
     kwargs.setdefault("BoundaryCheckTool", ITkBoundaryCheckTool)
-    kwargs.setdefault("RIOonTrackTool", ITkRotCreatorDigital)
     kwargs.setdefault("usePixel", flags.Detector.EnableITkPixel)
     kwargs.setdefault("useSCT", flags.Detector.EnableITkStrip)
     kwargs.setdefault("PixelClusterContainer", 'ITkPixelClusters')

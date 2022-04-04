@@ -4,7 +4,6 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MuonTrackCleanerCfg, MuonSegmentMomentumFromFieldCfg, MuonSeededSegmentFinderCfg, MuonEDMPrinterToolCfg
 from AthenaConfiguration.Enums import BeamType
-from TrkConfig.AtlasExtrapolatorToolsConfig import MuonSTEP_PropagatorCfg
 from MuonConfig.MuonSegmentFindingConfig import MuonSegmentFittingToolCfg 
 
 def MooTrackFitterCfg(flags, name = 'MooTrackFitter', **kwargs):
@@ -23,7 +22,8 @@ def MooTrackFitterCfg(flags, name = 'MooTrackFitter', **kwargs):
     result.addPublicTool(mu_pat_hit_tool)
     kwargs.setdefault("HitTool", mu_pat_hit_tool)
     
-    muon_prop = result.getPrimaryAndMerge(MuonSTEP_PropagatorCfg(flags))
+    from TrkConfig.TrkExSTEP_PropagatorConfig import AtlasSTEP_PropagatorCfg
+    muon_prop =  result.popToolsAndMerge(AtlasSTEP_PropagatorCfg(flags, name="MuonSTEP_Propagator"))
     
     kwargs.setdefault("Propagator",      muon_prop)
     # kwargs.setdefault("SLFit" ,          ) # Was "not jobproperties.BField.allToroidOn()" but do not have access to Field here.
@@ -86,9 +86,8 @@ def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", **kwargs):
     mctbslfitter = result.popToolsAndMerge(MCTBFitterCfg(flags, name='MCTBSLFitter', StraightLine=True))
     
     # Just take the default configuration, as per https://gitlab.cern.ch/atlas/athena/blob/release/22.0.3/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonRecExampleConfigDb.py#L56
-    from TrkConfig.AtlasExtrapolatorToolsConfig import MuonSTEP_PropagatorCfg
-    prop = result.getPrimaryAndMerge(MuonSTEP_PropagatorCfg(flags,name = 'MuonStraightLinePropagator'))
-    
+    from TrkConfig.TrkExSTEP_PropagatorConfig import AtlasSTEP_PropagatorCfg
+    prop = result.popToolsAndMerge(AtlasSTEP_PropagatorCfg(flags,name = 'MuonStraightLinePropagator'))
     
     moo_sl_track_fitter = result.popToolsAndMerge(MooTrackFitterCfg( flags, name="MooSLTrackFitter", Fitter = mctbslfitter, Propagator=prop, ReducedChi2Cut=10.0,  SLFit=True))
     
@@ -104,10 +103,9 @@ def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", **kwargs):
     muon_comp_cluster_creator =  result.popToolsAndMerge(TriggerChamberClusterOnTrackCreatorCfg(flags))
     kwargs.setdefault("CompetingClustersCreator", muon_comp_cluster_creator)    
     
-    acc = MuonSTEP_PropagatorCfg(flags)
-    muon_prop = acc.getPrimary()
+    from TrkConfig.TrkExSTEP_PropagatorConfig import AtlasSTEP_PropagatorCfg
+    muon_prop = result.popToolsAndMerge(AtlasSTEP_PropagatorCfg(flags, name="MuonSTEP_Propagator"))
     kwargs.setdefault("Propagator", muon_prop)    
-    result.merge(acc)
     
     acc = MuonChamberHoleRecoveryToolCfg(flags)
     hole_recovery_tool =  acc.getPrimary()

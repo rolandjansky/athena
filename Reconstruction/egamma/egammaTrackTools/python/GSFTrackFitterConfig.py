@@ -12,9 +12,8 @@ def EMGSFExtrapolatorToolCfg(flags, **kwargs):
     acc = ComponentAccumulator()
 
     if "Propagators" not in kwargs:
-        egTrkPropagator = CompFactory.Trk.RungeKuttaPropagator(
-            name="egTrkPropagator", AccuracyParameter=0.0001
-        )
+        from TrkConfig.TrkExRungeKuttaPropagatorConfig import egRungeKuttaPropagatorCfg
+        egTrkPropagator = acc.popToolsAndMerge(egRungeKuttaPropagatorCfg(flags))
         kwargs["Propagator"] = egTrkPropagator
 
     if "Navigator" not in kwargs:

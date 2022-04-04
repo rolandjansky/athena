@@ -11,8 +11,9 @@ def TRT_SeededTrackFinder_ATLCfg(flags, name='InDetTRT_SeededTrackMaker', InputC
     #
     # --- TRT seeded back tracking tool
     #
-    from InDetConfig.TrackingCommonConfig import InDetPatternPropagatorCfg, InDetPatternUpdatorCfg
-    InDetPatternPropagator = acc.getPrimaryAndMerge(InDetPatternPropagatorCfg())
+    from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
+    InDetPatternPropagator = acc.popToolsAndMerge(RungeKuttaPropagatorCfg(flags, name="InDetPatternPropagator"))
+    from InDetConfig.TrackingCommonConfig import InDetPatternUpdatorCfg
     InDetPatternUpdator = acc.getPrimaryAndMerge(InDetPatternUpdatorCfg())
     from InDetConfig.SiCombinatorialTrackFinderToolConfig import SiCombinatorialTrackFinder_xkCfg
     InDetSiComTrackFinder = acc.popToolsAndMerge(SiCombinatorialTrackFinder_xkCfg(flags))

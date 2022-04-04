@@ -458,36 +458,6 @@ def fatrasMaterialUpdatorCfg(flags, name="ISF_FatrasMaterialUpdator", **kwargs):
     result.setPrivateTools(iFatras__McMaterialEffectsUpdator(name=name, **kwargs))
     return result
 
-
-def fatrasChargedPropagatorCfg(flags, name="ISF_FatrasChargedPropagator", **kwargs):
-    mlog = logging.getLogger(name)
-    mlog.debug('Start configuration')
-
-    result = ComponentAccumulator()
-    # the charged particle propagator
-    ChargedPropagator = CompFactory.Trk.RungeKuttaPropagator
-    result.setPrivateTools(ChargedPropagator(name=name, **kwargs))
-    return result
-
-
-def fatrasSTEP_PropagatorCfg(flags, name="ISF_FatrasSTEP_Propagator", **kwargs):
-    mlog = logging.getLogger(name)
-    mlog.debug('Start configuration')
-
-    result = ComponentAccumulator()
-    kwargs.setdefault("MomentumCutOff", flags.Sim.Fatras.MomCutOffSec)
-    kwargs.setdefault("SimulationMode", True)
-
-    material_updator = result.popToolsAndMerge(fatrasMaterialUpdatorCfg(flags))
-    result.addPublicTool(material_updator)
-    kwargs.setdefault("SimMatEffUpdator", result.getPublicTool(material_updator.name))
-
-    # the step propagaor
-    StepPropagator = CompFactory.Trk.STEP_Propagator
-    result.setPrivateTools(StepPropagator(name=name, **kwargs))
-    return result
-
-
 def fatrasExtrapolatorCfg(flags, name="ISF_FatrasExtrapolator", **kwargs):
     mlog = logging.getLogger(name)
     mlog.debug('Start configuration')
@@ -504,13 +474,13 @@ def fatrasExtrapolatorCfg(flags, name="ISF_FatrasExtrapolator", **kwargs):
     result.addPublicTool(material_updator)
     kwargs.setdefault("MaterialEffectsUpdators", [result.getPublicTool(material_updator.name)])
 
-    charged_propagator = result.popToolsAndMerge(fatrasChargedPropagatorCfg(flags))
-    result.addPublicTool(charged_propagator)
-    kwargs.setdefault("Propagators", [result.getPublicTool(charged_propagator.name)])
+    from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
+    charged_propagator = result.popToolsAndMerge(RungeKuttaPropagatorCfg(flags, name="ISF_FatrasChargedPropagator"))
+    kwargs.setdefault("Propagators", [charged_propagator])
 
+    from TrkConfig.TrkExSTEP_PropagatorConfig import fatrasSTEP_PropagatorCfg
     step_propagator = result.popToolsAndMerge(fatrasSTEP_PropagatorCfg(flags))
-    result.addPublicTool(step_propagator)
-    kwargs.setdefault("STEP_Propagator", result.getPublicTool(step_propagator.name))
+    kwargs.setdefault("STEP_Propagator", step_propagator)
 
     # Fatras specific: stop the trajectory
     kwargs.setdefault("StopWithNavigationBreak", True)

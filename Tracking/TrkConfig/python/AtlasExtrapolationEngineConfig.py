@@ -30,10 +30,9 @@ def AtlasExtrapolationEngineCfg( flags, name = 'Extrapolation', nameprefix='Atla
       from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
       result.merge( TrackingGeometryCondAlgCfg(flags) )
       geom_cond_key = 'AtlasTrackingGeometry'
-       
-    RkPropagator=CompFactory.Trk.RungeKuttaPropagator
-    AtlasRungeKuttaPropagator = RkPropagator(name = 'AtlasRungeKuttaPropagator')
-    result.addPublicTool(AtlasRungeKuttaPropagator) #TODO remove one day
+
+    from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
+    AtlasRungeKuttaPropagator = acc.popToolsAndMerge(RungeKuttaPropagatorCfg(flags, name='AtlasRungeKuttaPropagator'))
        
     # from the Propagator create a Propagation engine to handle path length
     Trk__PropagationEngine=CompFactory.Trk.PropagationEngine
