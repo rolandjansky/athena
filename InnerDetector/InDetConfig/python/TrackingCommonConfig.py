@@ -897,11 +897,6 @@ def InDetKOL(name = 'InDetKOL', **kwargs):
 #############################################################################################
 #TRTSegmentFinder
 #############################################################################################
-def InDetPatternPropagatorCfg(name='InDetPatternPropagator', **kwargs):
-    result = ComponentAccumulator()
-    tool = CompFactory.Trk.RungeKuttaPropagator(name, **kwargs)
-    result.addPublicTool( tool, primary=True )
-    return result
 
 def InDetTRT_DriftCircleOnTrackUniversalToolCosmicsCfg(name='TRT_DriftCircleOnTrackUniversalTool', **kwargs):
     kwargs.setdefault("ScaleHitUncertainty", 2.)
@@ -944,7 +939,9 @@ def InDetTRT_TrackExtensionTool_xkCfg(flags, name='InDetTRT_ExtensionTool', **kw
     acc = MagneticFieldSvcCfg(flags)
 
     if 'PropagatorTool' not in kwargs :
-        InDetPatternPropagator = acc.getPrimaryAndMerge(InDetPatternPropagatorCfg())
+        from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
+        InDetPatternPropagator = acc.popToolsAndMerge(RungeKuttaPropagatorCfg(flags, name="InDetPatternPropagator"))
+        acc.addPublicTool(InDetPatternPropagator)
         kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
 
     if 'UpdatorTool' not in kwargs :
@@ -1003,8 +1000,9 @@ def InDetTRT_RoadMakerCfg(flags, name='InDetTRT_RoadMaker', **kwargs):
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     acc = MagneticFieldSvcCfg(flags)
     acc.merge(TRT_DetElementsRoadCondAlgCfg(flags)) # To produce the input TRT_DetElementsRoadData_xk CondHandle
-
-    InDetPatternPropagator = acc.getPrimaryAndMerge(InDetPatternPropagatorCfg())
+    
+    from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
+    InDetPatternPropagator = acc.popToolsAndMerge(RungeKuttaPropagatorCfg(flags, name="InDetPatternPropagator"))
     kwargs.setdefault("RoadWidth", 20.)
     kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
     acc.setPrivateTools(CompFactory.InDet.TRT_DetElementsRoadMaker_xk(name, **kwargs))
@@ -1018,7 +1016,9 @@ def InDetTRT_TrackExtensionTool_DAFCfg(flags, name='TRT_TrackExtensionTool_DAF',
         kwargs.setdefault("CompetingDriftCircleTool", InDetCompetingTRT_DC_Tool)
 
     if 'PropagatorTool' not in kwargs :
-        InDetPatternPropagator = acc.getPrimaryAndMerge(InDetPatternPropagatorCfg())
+        from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
+        InDetPatternPropagator = acc.popToolsAndMerge(RungeKuttaPropagatorCfg(flags, name="InDetPatternPropagator"))
+        acc.addPublicTool(InDetPatternPropagator)
         kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
 
     if 'RoadTool' not in kwargs :

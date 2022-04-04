@@ -20,10 +20,8 @@ def MuonTrackToSegmentToolCfg(flags,name="MuonTrackToSegmentTool", **kwargs):
     result = ComponentAccumulator()
     result.merge(MuonStationIntersectCondAlgCfg(flags))
 
-    # FIXME - this should have a CA
-    RkPropagator=CompFactory.Trk.RungeKuttaPropagator
-    
-    atlasRungeKuttaPropagator = RkPropagator(name = 'AtlasRungeKuttaPropagator')
+    from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
+    atlasRungeKuttaPropagator = result.popToolsAndMerge(RungeKuttaPropagatorCfg(flags))
     result.addPublicTool(atlasRungeKuttaPropagator)
     kwargs.setdefault("Propagator",atlasRungeKuttaPropagator)
     
@@ -77,8 +75,8 @@ def MuonSegmentMomentumFromFieldCfg(flags, name="MuonSegmentMomentumFromField", 
     result.addPublicTool(navigator)
     kwargs.setdefault("NavigatorTool", navigator)
     
-    from TrkConfig.AtlasExtrapolatorToolsConfig import MuonSTEP_PropagatorCfg
-    muon_prop =  result.getPrimaryAndMerge(MuonSTEP_PropagatorCfg(flags))
+    from TrkConfig.TrkExSTEP_PropagatorConfig import AtlasSTEP_PropagatorCfg
+    muon_prop =  result.popToolsAndMerge(AtlasSTEP_PropagatorCfg(flags, name="MuonSTEP_Propagator"))
     kwargs.setdefault("PropagatorTool", muon_prop)
         
     muon_seg_mom_from_field = MuonSegmentMomentumFromField(name=name, **kwargs)
@@ -235,7 +233,8 @@ def MCTBSLFitterMaterialFromTrackCfg(flags, name='MCTBSLFitterMaterialFromTrack'
     result.addPublicTool(extrapolator)
     kwargs.setdefault("ExtrapolationTool", extrapolator)
 
-    propagator = CompFactory.Trk.RungeKuttaPropagator(name="MuonRK_Propagator",AccuracyParameter=0.0002)
+    from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
+    propagator = result.popToolsAndMerge(RungeKuttaPropagatorCfg(flags, name="MuonRK_Propagator"))
     kwargs["PropagatorTool"]=propagator
 
     result.setPrivateTools(result.popToolsAndMerge(MCTBFitterCfg(flags, name, **kwargs)))

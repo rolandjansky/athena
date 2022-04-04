@@ -3,12 +3,6 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-def ITkPatternPropagatorCfg(flags, name='ITkPatternPropagator', **kwargs):
-    result = ComponentAccumulator()
-    tool = CompFactory.Trk.RungeKuttaPropagator(name, **kwargs)
-    result.addPublicTool( tool, primary=True )
-    return result
-
 def ITkPatternUpdatorCfg(flags, name='ITkPatternUpdator', **kwargs):
     result = ComponentAccumulator()
     tool = CompFactory.Trk.KalmanUpdator_xk(name, **kwargs)
