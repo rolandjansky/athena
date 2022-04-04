@@ -840,6 +840,10 @@ if(!m_onlyCombination){
         ATH_MSG_FATAL("The calibration histogram may have a bad filling bin that is causing mTAFactor to be zero. This value should be different from zero in order to take the ratio. Please contact the tool developer to fix this since the calibration histogram may be corrupted. ");
         return StatusCode::FAILURE;
       }
+      
+      if(jetStartP4.e()<mass_corr){ 
+            mass_corr=0; //mass calibrated to unphyiscal values. Set to default value.
+      }
 
       if(!m_pTfixed) pT_corr = sqrt(jetStartP4.e()*jetStartP4.e()-mass_corr*mass_corr)/cosh( jetStartP4.eta() );
       else{E_corr  = sqrt(jetStartP4.P()*jetStartP4.P()+mass_corr*mass_corr);}
