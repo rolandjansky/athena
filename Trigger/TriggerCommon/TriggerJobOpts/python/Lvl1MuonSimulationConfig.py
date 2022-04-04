@@ -240,13 +240,14 @@ def NSWTriggerConfig(flags):
 
     if flags.Input.Format is Format.POOL and flags.Input.isMC:
         rdoInputs = [
-            ('McEventCollection','TruthEvent'),
-            ('TrackRecordCollection','MuonEntryLayer')
+            ('McEventCollection','TruthEvent'), # for MM trigger
+            ('TrackRecordCollection','MuonEntryLayer'), # for MM trigger
+            ('MuonSimDataCollection','sTGC_SDO') # for sTGC Pad trigger
         ]
         from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
         acc.merge(SGInputLoaderCfg(flags, Load=rdoInputs))
 
-    PadTdsTool = CompFactory.NSWL1.PadTdsOfflineTool("NSWL1__PadTdsOfflineTool",DoNtuple=False)
+    PadTdsTool = CompFactory.NSWL1.PadTdsOfflineTool("NSWL1__PadTdsOfflineTool",DoNtuple=False,sTGC_DigitContainerName="sTGC_DIGITS_L1")
     PadTriggerLogicTool = CompFactory.NSWL1.PadTriggerLogicOfflineTool("NSWL1__PadTriggerLogicOfflineTool",DoNtuple=False)
     PadTriggerLookupTool = CompFactory.NSWL1.PadTriggerLookupTool("NSWL1__PadTriggerLookupTool")
     StripTdsTool = CompFactory.NSWL1.StripTdsOfflineTool("NSWL1__StripTdsOfflineTool",DoNtuple=False)
