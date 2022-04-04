@@ -432,6 +432,16 @@ def TrigBjetMonConfig(inputFlags):
                 BjetMonGroup.defineHistogram(HistName, title='JF E-fraction distribution;JF E-fraction;Events',
                                              path='Shifter/'+chain[2:],xbins=50,xmin=0.0,xmax=1.0)
 
+
+            HistName = 'JFxSig_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='JF 3d significance distribution;JF 3d significance;Events',
+                                             path='Expert/'+chain[2:],xbins=50,xmin=0.0,xmax=5.0)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='JF 3d significance distribution;JF 3d significance;Events',
+                                             path='Shifter/'+chain[2:],xbins=50,xmin=0.0,xmax=5.0)
+
+
             HistName = 'JFxNVtx_tr_' + chain[2:]
             if chain[0:1] == "E" :
                 BjetMonGroup.defineHistogram(HistName, title='Distribution of number of 2-track JFVtx;Number of 2-track JFVtx;Events',
