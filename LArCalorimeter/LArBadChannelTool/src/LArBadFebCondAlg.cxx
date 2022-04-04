@@ -63,8 +63,8 @@ StatusCode LArBadFebCondAlg::execute() {
      
      const LArOnlineID* onlineID;
      ATH_CHECK(detStore()->retrieve(onlineID,"LArOnlineID"));	       
-     LArBadChannelDecoder decoder(&(*onlineID), msg());
-     std::vector<std::pair<HWIdentifier,LArBadFeb> > bcVec = decoder.readFebASCII(m_inputFileName);
+     LArBadChannelDecoder decoder(&(*onlineID));
+     std::vector<std::pair<HWIdentifier,LArBadFeb> > bcVec = decoder.readFebASCII(m_inputFileName, msg());
      for (auto& idBC : bcVec) {
        badFebCont->add(idBC.first,idBC.second);
      }

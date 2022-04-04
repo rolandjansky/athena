@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArBadChannelTool/LArBadChannelDecoder.h"
@@ -10,14 +10,15 @@
 
 std::vector<LArBadChannelDecoder::BadChanEntry>
 LArBadChannelDecoder::readASCII( const std::string& fname, 
-				 State::CoolChannelEnum coolChan) const
+				 State::CoolChannelEnum coolChan,
+                                 MsgStream& log) const
 {
   std::vector<BadChanEntry> result;
 
   // set up parsing with exactly 6 ints and >= 1 string, for reading channels
-  LArBadChannelParser parser(fname, &m_log, 6, -1);
+  LArBadChannelParser parser(fname, &log, 6, -1);
   if (!parser.fileStatusGood()) {
-    m_log << MSG::ERROR << "Failed to open file " << fname
+    log << MSG::ERROR << "Failed to open file " << fname
 	<< " for COOL channel " << State::coolChannelName( coolChan) << endmsg;
     return result;
   }
@@ -25,13 +26,13 @@ LArBadChannelDecoder::readASCII( const std::string& fname,
   typedef std::string ParseType;
   typedef std::pair<std::vector<int>, std::vector<ParseType> > ParsedLine;
   std::vector<ParsedLine> parsed = parser.parseFile<ParseType>();
-  m_log << MSG::INFO << "Parsed " << parsed.size() << " lines from file " << fname << endmsg;
+  log << MSG::INFO << "Parsed " << parsed.size() << " lines from file " << fname << endmsg;
 
   for (std::vector<ParsedLine>::const_iterator i=parsed.begin();
        i != parsed.end(); ++i) {
-    HWIdentifier hwid = constructChannelId( i->first, coolChan, m_log);
+    HWIdentifier hwid = constructChannelId( i->first, coolChan, log);
     if (hwid.is_valid()) {
-      std::pair<bool,LArBadChannel> badCh = constructStatus( i->second, m_log);
+      std::pair<bool,LArBadChannel> badCh = constructStatus( i->second, log);
       if (badCh.first) {
 	result.push_back( BadChanEntry( hwid, badCh.second));
       }
@@ -41,14 +42,15 @@ LArBadChannelDecoder::readASCII( const std::string& fname,
 }
 
 std::vector<LArBadChannelDecoder::BadFebEntry>
-LArBadChannelDecoder::readFebASCII( const std::string& fname) const
+LArBadChannelDecoder::readFebASCII( const std::string& fname,
+                                    MsgStream& log) const
 {
   std::vector<BadFebEntry> result;
 
  // set up a parser to read 4 ints (the 4th of which can be a wildcard) and >=1 strings
-  LArBadChannelParser parser(fname, &m_log, 4, -1, 4);
+  LArBadChannelParser parser(fname, &log, 4, -1, 4);
   if (!parser.fileStatusGood()) {
-    m_log << MSG::ERROR << "Failed to open missing FEBs file " << fname << endmsg;
+    log << MSG::ERROR << "Failed to open missing FEBs file " << fname << endmsg;
     return result;
   }
   
@@ -57,10 +59,10 @@ LArBadChannelDecoder::readFebASCII( const std::string& fname) const
   std::vector<ParsedLine> parsed = parser.parseFile<ParseType>();
   for (std::vector<ParsedLine>::const_iterator i=parsed.begin();
        i != parsed.end(); ++i) {
-    std::vector<HWIdentifier> hwid = constructFebId( i->first, m_log);
+    std::vector<HWIdentifier> hwid = constructFebId( i->first, log);
     if (!hwid.empty()) {
       // BEFORE: result.insert( result.end(), hwid.begin(), hwid.end());
-      std::pair<bool,LArBadFeb> badFeb = constructFebStatus( i->second, m_log);
+      std::pair<bool,LArBadFeb> badFeb = constructFebStatus( i->second, log);
       if (badFeb.first) {
 	for (std::vector<HWIdentifier>::const_iterator i=hwid.begin(); i!=hwid.end(); ++i) {
 	  result.push_back( BadFebEntry( *i, badFeb.second));
