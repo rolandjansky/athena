@@ -13,7 +13,7 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger('CostAnalysisPostProcessing')
 
 
-def saveMetadata(inputFile, userDetails, jira="", processingWarnings=[], readOKSDetails=False, partition="ATLAS"):
+def saveMetadata(inputFile, argsMetadata={}, processingWarnings=[]):
     ''' @brief Save metadata from ntuple to json file
     '''
     import json
@@ -26,15 +26,19 @@ def saveMetadata(inputFile, userDetails, jira="", processingWarnings=[], readOKS
     metadata = []
 
     metadata.append({'runNumber' : metatree.runNumber})
-    metadata.append({'Details' : userDetails})
-    metadata.append({'JIRA' : jira})
+    metadata.append({'Details' : argsMetadata["userDetails"]})
+    metadata.append({'JIRA' : argsMetadata["jira"]})
+    metadata.append({'AMITag' : argsMetadata["amiTag"]})
     metadata.append({'ProcessedRanges' : str(metatree.ProcessedRanges)})
 
-    metadata += readHLTConfigKeys(metatree.runNumber)
+    if argsMetadata["amiTag"]:
+        metadata += readHLTConfigKeysFromAMI(argsMetadata["amiTag"])
+    else:
+        metadata += readHLTConfigKeysFromCOOL(metatree.runNumber)
 
-    if metatree.hostname and readOKSDetails:
-        metadata.append({'OKS configuration' : addOKSDetails(str(metatree.hostname), metatree.runNumber, partition)})
-    elif metadata.hostname:
+    if metatree.hostname and argsMetadata["readOKSDetails"]:
+        metadata.append({'OKS configuration' : addOKSDetails(str(metatree.hostname), metatree.runNumber, argsMetadata["partition"])})
+    elif metatree.hostname:
         metadata.append({'Hostnames' : str(metatree.hostname)})
 
     metadata.append({'AtlasCostProcessingProject' : str(metatree.AtlasProject)})
@@ -201,11 +205,11 @@ def findRackForComputer(computerName):
     return ""
 
 
-def readHLTConfigKeys(runNumber):
+def readHLTConfigKeysFromCOOL(runNumber):
     ''' 
-    Returns list of config keys:
+    Returns list of config keys read from COOL:
         DB - database alias
-        REL - release
+        Release - release
         SMK - Super Master Key
         HLTPSK - HLT Prescale keys
         LVL1PSK - L1 Prescale keys
@@ -238,5 +242,40 @@ def readHLTConfigKeys(runNumber):
 
     else:
         log.warning("Config keys not found in COOL")
+
+    return configMetadata
+
+
+
+def readHLTConfigKeysFromAMI(amiTag):
+    ''' 
+    Returns list of config keys read from AMI Tag:
+        DB - database alias
+        Release - release
+        SMK - Super Master Key
+        HLTPSK - HLT Prescale keys
+        LVL1PSK - L1 Prescale keys
+    '''
+
+    configMetadata = []
+
+    try:
+        import pyAMI.client
+        import pyAMI.atlas.api as AtlasAPI
+    except ModuleNotFoundError:
+        log.warning("Unable to import AMIClient from pyAMI. Maybe you didn't do localSetupPyAMI?")
+        return configMetadata
+
+    amiclient = pyAMI.client.Client('atlas')
+    AtlasAPI.init()
+
+    command = [ 'AMIGetAMITagInfo', '-amiTag="%s"' % amiTag,]
+    amiTagInfo = amiclient.execute(command, format = 'dict_object').get_rows('amiTagInfo')[0]
+
+    configMetadata.append({'Release' : amiTagInfo['SWReleaseCache']})
+    configMetadata.append({'SMK' : amiTagInfo['DBsmkey'] if "DBsmkey" in amiTagInfo else None}) 
+    configMetadata.append({'DB' : amiTagInfo['DBserver'] if "DBserver" in amiTagInfo else None})
+    configMetadata.append({'HLTPSK' : amiTagInfo['DBhltpskey'] if "DBhltpskey" in amiTagInfo else None})
+    configMetadata.append({'LVL1PSK' : amiTagInfo['DBl1pskey'] if "DBl1pskey" in amiTagInfo else None})
 
     return configMetadata
