@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AFP_SICLUSTERTOOLS_AFPSICLUSTERBASICOBJ_H
@@ -29,7 +29,6 @@ class AFPSiClusterBasicObj
 public:
   /// Constructs object from the hit. Horizontal and vertical errors are set to \f$1/\sqrt{12} \approx 0.289\f$ i.e. standard deviation of uniform distribution.
   AFPSiClusterBasicObj (const xAOD::AFPSiHit* hit, const int clusterAlgID) :
-    //    m_row(hit->pixelRowIDChip()), m_rowErr(0.289), m_column(hit->pixelColIDChip()), m_columnErr(0.289), m_charge(hit->depositedCharge()), m_clusterAlgID (clusterAlgID) {m_hits.push_back(hit);}
     m_horizID(hit->pixelHorizID()), m_horizIDErr(0.289), m_vertID(hit->pixelVertID()), m_vertIDErr(0.289), m_charge(hit->depositedCharge()), m_clusterAlgID (clusterAlgID) {m_hits.push_back(hit);}
 
   /// Constructs object with given horizontal and vertical positions (ID numbers) and charge. VertID and horizID errors are set to \f$1/\sqrt{12} \approx 0.289\f$ i.e. standard deviation of uniform distribution.

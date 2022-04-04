@@ -19,6 +19,7 @@ atlas_add_xaod_smart_pointer_dicts(
               "xAOD::AFPSiHitContainer_v2" "xAOD::AFPSiHitsClusterContainer_v1"
               "xAOD::AFPTrackContainer_v1" "xAOD::AFPTrackContainer_v2"
               "xAOD::AFPToFHitContainer_v1" "xAOD::AFPProtonContainer_v1"
+              "xAOD::AFPVertexContainer_v1"
               "xAOD::ALFADataContainer_v1" "xAOD::ZdcModuleContainer_v1"
               "xAOD::MBTSModuleContainer_v1"
               "xAOD::ForwardEventInfoContainer_v1" )

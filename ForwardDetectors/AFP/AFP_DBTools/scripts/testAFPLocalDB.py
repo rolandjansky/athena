@@ -30,15 +30,21 @@ def testAFPLocalDBCfg(flags):
     acc.merge(addFolders(flags, '/CALO/HadCalibration2/CaloEMFrac', 'CALO_ONL', className='CaloLocalHadCoeff', db='CONDBR2'))
     acc.merge(addFoldersSplitOnline(flags, "INDET", "/Indet/Onl/Beampos", "/Indet/Beampos", className="AthenaAttributeList"))
 
-    # set from where to read the local information
-    schema = "<db>sqlite://;schema=Example.db;dbname=CONDBR2</db>"
+    # set from where to read the local information - from local file
+#     schema = "<db>sqlite://;schema=Example.db;dbname=CONDBR2</db>"
+#     locFolder = "/FWD/Onl/AFP/Align/Local"
+#     locTag = "<tag>AFPAlignLoc-01</tag>"
+#     globFolder = "/FWD/Onl/AFP/Align/Global"
+#     globTag = "<tag>AFPAlignGlob-01</tag>"
+#     acc.merge(addFolders(flags, schema+locFolder+locTag, className='CondAttrListCollection', db='CONDBR2' ))
+#     acc.merge(addFolders(flags, schema+globFolder+globTag, className='CondAttrListCollection', db='CONDBR2' ))
+    
+    # set from where to read the local information - from DB
     locFolder = "/FWD/Onl/AFP/Align/Local"
-    locTag = "<tag>AFPAlignLoc-01</tag>"
     globFolder = "/FWD/Onl/AFP/Align/Global"
-    globTag = "<tag>AFPAlignGlob-01</tag>"
-    acc.merge(addFolders(flags, schema+locFolder+locTag, className='CondAttrListCollection', db='CONDBR2' ))
-    acc.merge(addFolders(flags, schema+globFolder+globTag, className='CondAttrListCollection', db='CONDBR2' ))
-
+    acc.merge(addFolders(flags, locFolder, 'FWD_ONL', className='CondAttrListCollection', tag='AFPAlignLoc-02', db="CONDBR2"))
+    acc.merge(addFolders(flags, globFolder, 'FWD_ONL', className='CondAttrListCollection', tag='AFPAlignGlob-01', db="CONDBR2"))
+ 
     acc.addCondAlgo(CompFactory.SiAlignDBTester())
 
     return acc

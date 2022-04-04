@@ -16,65 +16,39 @@
 
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "StoreGate/ReadCondHandle.h"
 
 // database access
-#include "AthenaKernel/IOVSvcDefs.h"
+#include "GaudiKernel/EventContext.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
-// general includes
-#include <cassert>
+
+#include "nlohmann/json.hpp"
 #include <string>
-#include <vector>
-#include <memory>
 
 namespace AFP
 {
   /// Tool providing local alignment of silicon detectors from the conditions database.
-  class SiGlobAlignDBTool : virtual public AFP::ISiGlobAlignDBTool, 
-			   public AthAlgTool
+  class SiGlobAlignDBTool : public extends<AthAlgTool, ISiGlobAlignDBTool>
   {
   public:
-    SiGlobAlignDBTool(const std::string& type,
-		     const std::string& name,
-		     const IInterface* parent);
+    SiGlobAlignDBTool(const std::string& type, const std::string& name, const IInterface* parent);
 
     /// Does nothing
     virtual ~SiGlobAlignDBTool() override {}
 
-    /// Register method SiGlobAlignDBTool::update() to be called when conditions change
+    /// Does nothing
     virtual StatusCode initialize() override;
 
     /// Does nothing
-    virtual StatusCode finalize() override {return StatusCode::SUCCESS;}
+    virtual StatusCode finalize() override;
 
     /// Provide alignment parameters for a given station. Returns nullptr if no data available.
-    const SiGlobAlignData* alignment (const int stationID) const override;
+    const SiGlobAlignData alignment (const EventContext& ctx, const int stationID) const override;
     
-
   private:
-    /// @brief Method called when new conditions are loaded
-    ///
-    /// The method copies information from #m_conditionsData to 
-    StatusCode update (IOVSVC_CALLBACK_ARGS) override;
-
-    /// Attributes list storing bare information from the database
-    const DataHandle<AthenaAttributeList> m_conditionsData;
-
-    /// @brief Information about alignments represented with SiGlobAlignData objects
-    ///
-    /// Main variable storing information about alignment. The index
-    /// of the first vector represents stationID number. The index of
-    /// the second vector represents plane number in the station. If
-    /// there is no information about plane a nullptr is stored.
-    std::vector<std::unique_ptr<const SiGlobAlignData> > m_alignments;
-
-    /// Name of the database folder with alignment information
-    std::string m_folderName;
-
-    /// Number of AFP stations for which the tool should work
-    static const int s_numberOfStations;
+    SG::ReadCondHandleKey<CondAttrListCollection> m_rch_glob {this, "glob_align_key", "/FWD/Onl/AFP/Align/Global", "read condition handle for global alignement"};
   };
-
 
 }      // namespace AFP
 

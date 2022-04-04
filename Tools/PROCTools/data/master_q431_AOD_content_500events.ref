@@ -1,7 +1,17 @@
+AFPProtonContainer
+AFPProtonContainerAux.
 AFPSiHitContainer
 AFPSiHitContainerAux.
+AFPSiHitsClusterContainer
+AFPSiHitsClusterContainerAux.
 AFPToFHitContainer
 AFPToFHitContainerAux.
+AFPToFTrackContainer
+AFPToFTrackContainerAux.
+AFPTrackContainer
+AFPTrackContainerAux.
+AFPVertexContainer
+AFPVertexContainerAux.
 AllCalo
 BunchId
 ByteStreamMetadata

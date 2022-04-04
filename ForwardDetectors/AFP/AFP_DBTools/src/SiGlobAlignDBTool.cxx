@@ -11,96 +11,155 @@
  */
 
 #include "AFP_DBTools/SiGlobAlignDBTool.h"
-#include "AFP_DBTools/SiGlobAlignDataBuilder.h"
-#include "AFP_DBTools/SiGlobAlignData.h"
 
-#define BOOST_BIND_GLOBAL_PLACEHOLDERS // Needed to silence Boost pragma message
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
-
-#include <sstream>
-#include <string>
-#include <list>
-#include <map>
 
 namespace AFP
 {
-  const int SiGlobAlignDBTool::s_numberOfStations = 4;
-
-  SiGlobAlignDBTool::SiGlobAlignDBTool(const std::string& type,
-                                       const std::string& name,
-                                       const IInterface* parent) :
-    AthAlgTool  (type, name, parent),
-    m_alignments (s_numberOfStations)
+  SiGlobAlignDBTool::SiGlobAlignDBTool(const std::string& type, const std::string& name, const IInterface* parent) :
+    base_class(type, name, parent)
   {
-    declareInterface<AFP::ISiGlobAlignDBTool>(this);
-    declareProperty( "folderName", m_folderName = "/FWD/AFP/GlobalAlignment/", "Name of the folder in database");
   }
 
   StatusCode SiGlobAlignDBTool::initialize()
   {
-    StatusCode regSC = detStore()->regFcn(&SiGlobAlignDBTool::update, this, m_conditionsData , m_folderName.data(), true);
-    if (regSC.isFailure())
-      ATH_MSG_WARNING ("Failed to register SiGlobAlignDBTool::update in detStore().");
-
+    ATH_CHECK( m_rch_glob.initialize() ); 
+    ATH_MSG_DEBUG( "using DB with key " << m_rch_glob.fullKey() );
     return StatusCode::SUCCESS;
   }
-
-  const SiGlobAlignData* SiGlobAlignDBTool::alignment (const int stationID) const
+  
+  StatusCode SiGlobAlignDBTool::finalize()
   {
-    assert (stationID < s_numberOfStations);
-
-    try {
-      return m_alignments[stationID].get();
-    }
-    catch (const std::out_of_range& excpetion) {
-      ATH_MSG_WARNING ("Access to SiGlobAlignDBTool::m_alignments["<<stationID<<"] is out of range.");
-      return nullptr;
-    }
-
-    return nullptr;
+    ATH_MSG_DEBUG("in the finalize of SiGlobAlignDBTool, bye bye");
+    return StatusCode::SUCCESS;
   }
-
-
-  StatusCode SiGlobAlignDBTool::update (IOVSVC_CALLBACK_ARGS)
+  
+  
+  const SiGlobAlignData SiGlobAlignDBTool::alignment (const EventContext& ctx, const int stationID) const
   {
-    // read database content
-    boost::property_tree::ptree inputData;
-    const coral::AttributeList& attrList = m_conditionsData->coralList();
-    std::stringstream inputJSON (attrList["data"].data<std::string>());
-    boost::property_tree::read_json(inputJSON, inputData);
-    boost::property_tree::ptree& payload = inputData.get_child("data_array");
+    ATH_MSG_DEBUG("will get global alignment for run "<<ctx.eventID().run_number()<<", lb "<<ctx.eventID().lumi_block()<<", event "<<ctx.eventID().event_number()<<", station "<<stationID);
 
-    SiGlobAlignDataBuilder builder;
-    // configure builder and check for warning messages
-    std::string builderWarning = builder.setSpecification(inputData.get<std::string>("folder_payloadspec"));
-    if (!builderWarning.empty())
-      ATH_MSG_WARNING(builderWarning);
+    SG::ReadCondHandle<CondAttrListCollection> ch_glob( m_rch_glob, ctx );
+    const CondAttrListCollection* attrGlobList { *ch_glob};
+    if ( attrGlobList == nullptr )
+    {
+        ATH_MSG_WARNING("global alignment data for key " << m_rch_glob.fullKey() << " not found, returning zeros");
+        return SiGlobAlignData(stationID);
+    }
+    
+    if(attrGlobList->size()>1) ATH_MSG_INFO("there should be only one real channel in "<< m_rch_glob.fullKey() <<", there are "<<attrGlobList->size()<<" real channels, only the first one will be used ");
+    
+    CondAttrListCollection::const_iterator itr = attrGlobList->begin();  
+    const coral::AttributeList &atr = itr->second;
+    std::string data = *(static_cast<const std::string *>((atr["data"]).addressOfData()));
 
-    // Create alignment objects based on parsed information from database. Also find number of stations
-    std::list<std::unique_ptr<const SiGlobAlignData> > alignmentsList;
-    int maxStationID = 0;
-    for (boost::property_tree::ptree::value_type node : payload)
-      for (boost::property_tree::ptree::value_type nodeData : node.second) {
+    nlohmann::json jsondata = nlohmann::json::parse(data);
+    nlohmann::json channeldata=jsondata["data"];
 
-        // create new alignment object and read station ID
-        std::unique_ptr<const SiGlobAlignData> newAlignment = std::make_unique<const SiGlobAlignData> (builder.build(nodeData));
-        const int stationID = newAlignment->stationID();
-
-        // find highest stationID for a given station
-        if (maxStationID < stationID) {
-          maxStationID = stationID;
+    // first, try to guess the channel nr.
+    SiGlobAlignData GA_guess(stationID);
+    std::vector<int> guess_ch_vec{stationID*4, stationID*4+1, stationID*4+2, stationID*4+3};
+    int guess_ch_correct=0;
+    for(auto guess_ch : guess_ch_vec)
+    {
+      nlohmann::json aligndata=channeldata.at(std::to_string(guess_ch)); // because using int would be too simple
+      int st=aligndata["stationID"];
+      std::string alignType=aligndata["alignType"];
+      if(stationID==st)
+      {   
+        if(alignType=="tracker" && !(guess_ch_correct&1))
+        {
+          ATH_MSG_DEBUG("channel guessed correctly, stationID "<<st<<", alignType "<<alignType<<", channel guess "<<guess_ch);
+          GA_guess.setTracker(aligndata["shiftX"], aligndata["shiftY"], aligndata["shiftZ"], aligndata["alpha"], aligndata["beta"], aligndata["gamma"]);
+          guess_ch_correct+=1;
         }
+        else if(alignType=="beam" && !(guess_ch_correct&2))
+        {
+          ATH_MSG_DEBUG("channel guessed correctly, stationID "<<st<<", alignType "<<alignType<<", channel guess "<<guess_ch);
+          GA_guess.setBeam(aligndata["shiftX"], aligndata["shiftY"], aligndata["shiftZ"], aligndata["alpha"], aligndata["beta"], aligndata["gamma"]);
+          guess_ch_correct+=2;
+        }
+        else if(alignType=="RP" && !(guess_ch_correct&4))
+        {
+          ATH_MSG_DEBUG("channel guessed correctly, stationID "<<st<<", alignType "<<alignType<<", channel guess "<<guess_ch);
+          GA_guess.setRP(aligndata["shiftX"], aligndata["shiftY"], aligndata["shiftZ"], aligndata["alpha"], aligndata["beta"], aligndata["gamma"]);
+          guess_ch_correct+=4;
+        }
+        else if(alignType=="correction" && !(guess_ch_correct&8))
+        {
+          ATH_MSG_DEBUG("channel guessed correctly, stationID "<<st<<", alignType "<<alignType<<", channel guess "<<guess_ch);
+          GA_guess.setCorr(aligndata["shiftX"], aligndata["shiftY"], aligndata["shiftZ"], aligndata["alpha"], aligndata["beta"], aligndata["gamma"]);
+          guess_ch_correct+=8;
+        }
+        else ATH_MSG_DEBUG("alignType or channel is probably incorrect, stationID "<<stationID<<", alignType "<<alignType<<", channel guess "<<guess_ch<<", guess_ch_correct "<<guess_ch_correct);
+      }
+    }
+      
+    if(guess_ch_correct==15)
+    {
+      ATH_MSG_DEBUG("channels guessed correctly, stationID "<<stationID);
+      return GA_guess;
+    }
+    else
+    {
+      ATH_MSG_DEBUG("channels were not guessed correctly, stationID "<<stationID);
+    }
+      
+    // if guess is not correct, loop over all channels
+    SiGlobAlignData GA_loop(stationID);
+    int loop_ch_correct=0;
+    for(auto& chan : channeldata.items())
+    {
+      // channels are ordered alphabetically: 0,1,10,...,15,2,3,...,9
+      nlohmann::json aligndata=chan.value();
+      
+      int st=aligndata["stationID"];
+      std::string alignType=aligndata["alignType"];
 
-        // add alignment object to output list
-        alignmentsList.push_back(std::move(newAlignment));
+      if(stationID==st)
+      {  
+        if(alignType=="tracker" && !(loop_ch_correct&1))
+        {
+          ATH_MSG_DEBUG("channel found for stationID "<<st<<", alignType "<<alignType<<", channel nr. "<<chan.key());
+          GA_loop.setTracker(aligndata["shiftX"], aligndata["shiftY"], aligndata["shiftZ"], aligndata["alpha"], aligndata["beta"], aligndata["gamma"]);
+          loop_ch_correct+=1;
+        }
+        else if(alignType=="beam" && !(loop_ch_correct&2))
+        {
+          ATH_MSG_DEBUG("channel found for stationID "<<st<<", alignType "<<alignType<<", channel nr. "<<chan.key());
+          GA_loop.setBeam(aligndata["shiftX"], aligndata["shiftY"], aligndata["shiftZ"], aligndata["alpha"], aligndata["beta"], aligndata["gamma"]);
+          loop_ch_correct+=2;
+        }
+        else if(alignType=="RP" && !(loop_ch_correct&4))
+        {
+          ATH_MSG_DEBUG("channel found for stationID "<<st<<", alignType "<<alignType<<", channel nr. "<<chan.key());
+          GA_loop.setRP(aligndata["shiftX"], aligndata["shiftY"], aligndata["shiftZ"], aligndata["alpha"], aligndata["beta"], aligndata["gamma"]);
+          loop_ch_correct+=4;
+        }
+        else if(alignType=="correction" && !(loop_ch_correct&8))
+        {
+          ATH_MSG_DEBUG("channel found for stationID "<<st<<", alignType "<<alignType<<", channel nr. "<<chan.key());
+          GA_loop.setCorr(aligndata["shiftX"], aligndata["shiftY"], aligndata["shiftZ"], aligndata["alpha"], aligndata["beta"], aligndata["gamma"]);
+          loop_ch_correct+=8;
+        }
+        else ATH_MSG_DEBUG("alignType is probably incorrect, stationID "<<stationID<<", alignType "<<alignType<<", channel nr. "<<chan.key()<<", loop_ch_correct "<<loop_ch_correct);
       }
 
-    // rewrite new alignments to the output vector
-    for (std::unique_ptr<const SiGlobAlignData>& globAlign : alignmentsList)
-      m_alignments[globAlign->stationID()] = std::move(globAlign);
+      if(loop_ch_correct==15)
+      {
+        ATH_MSG_DEBUG("channels found correctly, stationID "<<stationID);
+        return GA_loop;
+      }
+      else
+      {
+        ATH_MSG_DEBUG("channels were not found correctly, stationID "<<stationID);
+      }
+    }
 
-    return StatusCode::SUCCESS;
+    ATH_MSG_WARNING("global alignment data stationID "<<stationID<<" not found in any channels, returning zeros");
+    return SiGlobAlignData(stationID);
   }
-}
+  
+  
+
+} // AFP namespace
 
