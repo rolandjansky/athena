@@ -30,7 +30,7 @@ namespace TrigConf {
    public:
 
       HLTPrescaleSetCollectionLoader( StorageMgr& sm,  coral::ISessionProxy& session) : DBLoader("HLTPrescaleSetCollectionLoader", sm, session) {}
-      virtual ~HLTPrescaleSetCollectionLoader(){};
+      virtual ~HLTPrescaleSetCollectionLoader() override = default;
 
       virtual bool load( HLTPrescaleSetCollection& psc );
 

@@ -13,9 +13,6 @@ namespace TrigConf {
       base_class(type, name, parent)
    {}
 
-   KeyWriterTool::~KeyWriterTool()
-   {}
-
    StatusCode KeyWriterTool::initialize() {
       ATH_CHECK( m_l1PrescaleSetInputKey.initialize( m_includeL1PrescaleKey ) );
       ATH_CHECK( m_hltPrescaleSetInputKey.initialize() );

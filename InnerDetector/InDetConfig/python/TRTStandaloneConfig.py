@@ -185,6 +185,9 @@ if __name__ == "__main__":
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files=defaultTestFiles.RDO_RUN2
 
+    # disable calo for this test
+    ConfigFlags.Detector.EnableCalo = False
+
     # TODO: TRT only?
 
     numThreads=1
@@ -211,10 +214,6 @@ if __name__ == "__main__":
 
     from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
     top_acc.merge(SCT_ReadoutGeometryCfg(ConfigFlags))
-
-    from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg, MuonIdHelperSvcCfg
-    top_acc.merge(MuonGeoModelCfg(ConfigFlags))
-    top_acc.merge(MuonIdHelperSvcCfg(ConfigFlags))
 
     ############################# TRTPreProcessing configuration ############################
     if not ConfigFlags.InDet.Tracking.doDBMstandalone:

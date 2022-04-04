@@ -57,7 +57,8 @@ StatusCode STGC_DigitToRDO::execute(const EventContext& ctx) const
         // 10bit charge conversion to PDO is done in sTGC_digitization as a quick fix for now, it will be corrected once the calibration is in place
 	      unsigned int charge = static_cast<unsigned int>(digit->charge()); //place holder for charge->pdo from calibration
         bool isDead = digit->isDead();
-        STGC_RawData* rdo = new STGC_RawData(id, bcTag, time, tdo, charge, isDead);
+        bool timeAndChargeInCounts = false; // will be false until conversion is in place
+        STGC_RawData* rdo = new STGC_RawData(id, bcTag, time, tdo, charge, isDead,timeAndChargeInCounts);
         coll->push_back(rdo);
       }
     }

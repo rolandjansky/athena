@@ -29,9 +29,6 @@ namespace TrigConf {
        */
       HLTTriggerType(int bit = 0);
 
-      /**@brief destructor*/
-      ~HLTTriggerType();
-
       // accessors
       int  bit() const { return m_bit; } ///< accessor to the trigger type bit
       void set_bit(int bit) { m_bit = bit; }   ///< setter of the trigger type bit

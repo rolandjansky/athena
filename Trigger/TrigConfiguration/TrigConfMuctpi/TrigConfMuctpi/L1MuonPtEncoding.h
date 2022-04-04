@@ -11,8 +11,6 @@ class L1MuonPtEncoding {
 public:
    // constructor
    L1MuonPtEncoding();
-   // destructor
-   ~L1MuonPtEncoding(){}
 
    void setCodingInfo(unsigned int idx, unsigned int ptCode, unsigned int thresholdValue );
 

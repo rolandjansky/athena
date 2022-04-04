@@ -12,7 +12,7 @@ namespace TrigConf {
    class Muctpi : public L1DataBaseclass {
    public:
       Muctpi();
-      ~Muctpi() = default;
+      virtual ~Muctpi() override = default;
     
       // getters
       int lowptThreshold()    const { return m_LowptThreshold; }

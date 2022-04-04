@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILERAWCHNOISECALIBALG_H
@@ -82,7 +82,7 @@ class TileRawChNoiseCalibAlg: public AthAlgorithm {
     void fillCell(TileRawChannelUnit::UNIT RChUnit, const TileRawChannel * rch);
     void fillCellHist(); //fill HGHG and LGLG histograms
     void finalCell(); //fills the cell variables of the ntuple
-    void doFit(TH1F* h, float* gp, bool invert = true); //double gaussian fit
+    static void doFit(TH1F* h, float* gp, bool invert = true); //double gaussian fit
 
     void deleteHist(); // delete all histograms
 

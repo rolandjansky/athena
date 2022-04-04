@@ -37,7 +37,7 @@ namespace TrigConf {
       HLTStreamTag(const std::string& stream, const std::string& type, bool obeyLB, float prescale);
 
       /**@brief destructor*/
-      ~HLTStreamTag( void ){};
+      virtual ~HLTStreamTag() override = default;
 
       bool operator==(const HLTStreamTag &);
 

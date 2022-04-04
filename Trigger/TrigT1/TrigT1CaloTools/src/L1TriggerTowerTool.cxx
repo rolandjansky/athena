@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //////////////////////////////////////////////////////////////////////
 //  L1TriggerTowerTool.cxx 
@@ -8,6 +8,7 @@
 
 #include "GaudiKernel/Incident.h"
 #include "GaudiKernel/IIncidentSvc.h"
+#include "GaudiKernel/GaudiException.h"
 
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloLVL1_ID.h"
@@ -63,7 +64,7 @@ L1TriggerTowerTool::L1TriggerTowerTool(const std::string& t,
   m_lvl1Helper(0),
   m_l1CaloTTIdTools("LVL1::L1CaloTTIdTools/L1CaloTTIdTools", this),
   m_ttSvc("CaloTriggerTowerService/CaloTriggerTowerService", this),
-  m_mappingTool("LVL1::PpmCoolOrBuiltinMappingTool/PpmCoolOrBuiltinMappingTool", this),
+  m_mappingTool("", this),
   m_l1CondSvc("L1CaloCondSvc", n),
   m_dbFineTimeRefsTowers(0),
   m_correctFir(false),
@@ -88,8 +89,8 @@ StatusCode L1TriggerTowerTool::initialize()
   m_debug = msgLvl(MSG::VERBOSE); // May want to make this VERBOSE!
 
 
-  CHECK(m_l1CondSvc.retrieve());
-  CHECK(m_l1CaloTTIdTools.retrieve());
+  ATH_CHECK(m_l1CondSvc.retrieve());
+  ATH_CHECK(m_l1CaloTTIdTools.retrieve());
 
   if(!m_ttSvc.retrieve().isSuccess()) {
     ATH_MSG_WARNING( "Could not retrieve CaloTriggerTowerService Tool" );
@@ -103,30 +104,25 @@ StatusCode L1TriggerTowerTool::initialize()
   } else {
     m_lvl1Helper = m_caloMgr->getLVL1_ID();
   }
- 
-  StatusCode sc = m_mappingTool.retrieve(); 
-  if (sc.isFailure()) { 
-    ATH_MSG_WARNING( "Failed to retrieve tool " << m_mappingTool ); 
-  } else {
-    ATH_MSG_INFO( "Retrieved tool " << m_mappingTool ); 
+
+  if (!m_mappingTool.empty()) {
+    ATH_CHECK( m_mappingTool.retrieve() );
   }
 
   // Incident Service:
   IIncidentSvc* incSvc = 0;
-  sc = service("IncidentSvc", incSvc);
-  if (sc.isFailure()) {
+  if (service("IncidentSvc", incSvc).isFailure()) {
     ATH_MSG_WARNING( "Unable to retrieve pointer to IncidentSvc " );
-    //return StatusCode::FAILURE;
+  }
+  else {
+    incSvc->addListener(this, "BeginRun");
   }
 
   // Pedestal Correction
   if (m_correctFir) {
-    CHECK(m_dynamicPedestalProvider.retrieve());
+    ATH_CHECK(m_dynamicPedestalProvider.retrieve());
     ATH_MSG_INFO( "Retrieved L1DynamicPedestalProvider: " << m_dynamicPedestalProvider ); 
   }
-
-  //start listening to "BeginRun"
-  if (incSvc) incSvc->addListener(this, "BeginRun");
 
   ATH_CHECK( m_eventInfoKey.initialize() );
 
@@ -1655,6 +1651,11 @@ double L1TriggerTowerTool::FCalTTeta(double nominalEta, double /*phi*/, int laye
 
 double L1TriggerTowerTool::FCalTTeta(const L1CaloCoolChannelId& channelId)
 {
+  if ( !m_mappingTool.isValid() ) {
+    throw GaudiException("No mapping tool configured",
+                         "L1TriggerTowerTool::FCalTTeta", StatusCode::FAILURE);
+  }
+
   /// Get crate/module/submodule/channel from the CoolId
   unsigned int crate   = channelId.crate();
   unsigned int module  = channelId.module();

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -13,13 +13,13 @@
 #include "LArCondTPCnv/LArMphysOverMcalSubsetCnv_p1.h"
 #include "LArSingleFloatUpdater.h"
 
-static LArMphysOverMcalSubsetCnv_p1 TPconverter;
+static const LArMphysOverMcalSubsetCnv_p1 TPconverter;
 
 LArConditionsSubset<LArSingleFloatP>*
 LArMphysOverMcalMCCnv::createTransient ()
 {
-  static pool::Guid   p0_guid("9C53AC43-3FD6-470F-A6FF-1DF80E85ACBF");
-  static pool::Guid   p1_guid("60FB956A-0B7F-450E-BF6A-2A0B8ED55204");
+  static const pool::Guid   p0_guid("9C53AC43-3FD6-470F-A6FF-1DF80E85ACBF");
+  static const pool::Guid   p1_guid("60FB956A-0B7F-450E-BF6A-2A0B8ED55204");
   // first try the single-float converter
   LArConditionsSubset<LArSingleFloatP>* p=createTransientSingleFloat();
   if (p) 
@@ -29,7 +29,7 @@ LArMphysOverMcalMCCnv::createTransient ()
     std::unique_ptr< LArMphysOverMcalSubset_p1 > col_vect( poolReadObject< LArMphysOverMcalSubset_p1 >() );
     MsgStream log(msgSvc(), "LArMphysOverMcalMCCnv" ); 
     //log << MSG::INFO << "Reading LArMphysOverMcalSubset_p1" << endmsg; 
-    return TPconverter.createTransient( col_vect.get(), log );
+    return TPconverter.createTransientConst( col_vect.get(), log );
   }
   else if( compareClassGuid(p0_guid) ) {
     // subset from before TP separation    

@@ -44,7 +44,7 @@ namespace TrigConf {
       LogicExpression(std::ostream & o = std::cout);
 
       /**@brief destructor*/
-      virtual ~LogicExpression();
+      virtual ~LogicExpression() = default;
 
       LogicExpression(const std::string& name, std::ostream & o = std::cout);
 

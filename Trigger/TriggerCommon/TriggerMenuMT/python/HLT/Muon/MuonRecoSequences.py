@@ -12,6 +12,7 @@ log = logging.getLogger(__name__)
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from MuonConfig.MuonBytestreamDecodeConfig import RpcBytestreamDecodeCfg, TgcBytestreamDecodeCfg, MdtBytestreamDecodeCfg, CscBytestreamDecodeCfg, sTgcBytestreamDecodeCfg, MmBytestreamDecodeCfg
 from MuonConfig.MuonRdoDecodeConfig import RpcRDODecodeCfg, TgcRDODecodeCfg, MdtRDODecodeCfg, CscRDODecodeCfg, CscClusterBuildCfg, StgcRDODecodeCfg, MMRDODecodeCfg
+from MuonConfig.MuonRdoDecodeConfig import MuonPrdCacheNames
 from RegionSelector.RegSelToolConfig import regSelTool_RPC_Cfg, regSelTool_TGC_Cfg, regSelTool_MDT_Cfg, regSelTool_CSC_Cfg, regSelTool_STGC_Cfg, regSelTool_MM_Cfg
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.AccumulatorCache import AccumulatorCache
@@ -87,7 +88,12 @@ def MuDataPrepViewDataVerifierCfg(flags):
                  ( 'TgcRdo_Cache' , 'StoreGateSvc+TgcRdoCache' ),
                  ( 'MdtCsm_Cache' , 'StoreGateSvc+MdtCsmRdoCache' ),
                  ( 'RpcPad_Cache' , 'StoreGateSvc+RpcRdoCache' ),
-                 ( 'RpcCoinDataCollection_Cache' , 'StoreGateSvc+RpcCoinCache' )]
+                 ( 'RpcCoinDataCollection_Cache' , 'StoreGateSvc+RpcCoinCache' ),
+                 ( 'TgcPrepDataCollection_Cache' , 'StoreGateSvc+' + MuonPrdCacheNames.TgcCache + 'PriorBC' ),
+                 ( 'TgcPrepDataCollection_Cache' , 'StoreGateSvc+' + MuonPrdCacheNames.TgcCache + 'NextBC' ),
+                 ( 'TgcPrepDataCollection_Cache' , 'StoreGateSvc+' + MuonPrdCacheNames.TgcCache + 'AllBCs' ),
+                 ( 'TgcPrepDataCollection_Cache' , 'StoreGateSvc+' + MuonPrdCacheNames.TgcCache )
+               ]
     if flags.Input.isMC:
       dataobjects += [( 'MdtCsmContainer' , 'StoreGateSvc+MDTCSM' ),
                       ( 'RpcPadContainer' , 'StoreGateSvc+RPCPAD' ),

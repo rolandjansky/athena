@@ -127,7 +127,8 @@ std::vector<std::unique_ptr<gFEXJwoJTOB>> gFEXJwoJAlgo::jwojAlgo(gTowersCentral 
   sumEtFPGA(Ctwr, C_sumEt);
 
   sumEt(A_sumEt, B_sumEt, C_sumEt, total_sumEt);
-
+  // Truncate two bits of SumEt to allow for a larger energy range with 800 MeV resolution
+  total_sumEt = total_sumEt/4;  
   sumEt(A_MHT_x, B_MHT_x, C_MHT_x, MHT_x);
   sumEt(A_MHT_y, B_MHT_y, C_MHT_y, MHT_y);
   sumEt(A_MST_x, B_MST_x, C_MST_x, MST_x);

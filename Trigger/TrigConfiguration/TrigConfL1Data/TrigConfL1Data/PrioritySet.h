@@ -18,7 +18,7 @@ namespace TrigConf {
       static const unsigned int N_PRIORITIES = 256;
 
       PrioritySet();
-      ~PrioritySet() = default;
+      virtual ~PrioritySet() override = default;
 
       // Accessors
       const std::vector<std::string>& priorities() const { return m_Priorities; }

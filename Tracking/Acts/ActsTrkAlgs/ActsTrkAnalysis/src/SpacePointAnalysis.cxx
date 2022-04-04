@@ -27,7 +27,7 @@ StatusCode ActsTrk::SpacePointAnalysis::initialize() {
     ATH_CHECK(m_thistSvc.retrieve());
 
     m_tree = new TTree(m_ntupleName.value().c_str(), "SpacePointAnalysis");
-    ATH_CHECK(m_thistSvc->regTree(m_ntuplePath + m_ntupleName, m_tree));
+    ATH_CHECK(m_thistSvc->regTree(m_ntuplePath.value() + m_ntupleName, m_tree));
 
     if (m_tree) {
         m_tree->Branch("barrelEndcap", &m_barrelEndcap);
@@ -48,10 +48,10 @@ StatusCode ActsTrk::SpacePointAnalysis::initialize() {
     }
 
     m_h_globalZR = new TH2F("h_globalZR","h_globalZR; z [mm]; r [mm]",1500,-3000.,3000,1500,0.,1500);
-    ATH_CHECK(m_thistSvc->regHist(m_histPath + m_histName + "/" + m_h_globalZR->GetName(), m_h_globalZR));
+    ATH_CHECK(m_thistSvc->regHist(m_histPath.value() + m_histName + "/" + m_h_globalZR->GetName(), m_h_globalZR));
 
     m_h_etaSpacePoint = new TH1F("m_h_etaSpacePoint","m_h_etaSpacePoint; space point #eta",100, -5, 5);
-    ATH_CHECK(m_thistSvc->regHist(m_histPath + m_histName + "/" + m_h_etaSpacePoint->GetName(), m_h_etaSpacePoint));
+    ATH_CHECK(m_thistSvc->regHist(m_histPath.value() + m_histName + "/" + m_h_etaSpacePoint->GetName(), m_h_etaSpacePoint));
 
     if (m_usePixel and m_useOverlap)
         ATH_MSG_INFO("No overlap collection when enabled for pixel space points! Check your configuration if needed.");
@@ -102,7 +102,7 @@ StatusCode ActsTrk::SpacePointAnalysis::execute() {
     }
 
     std::function<IdentifierHash(const ActsTrk::SpacePoint&)> mapper =
-        [inputContainer, this](const ActsTrk::SpacePoint& sp) {
+        [inputContainer](const ActsTrk::SpacePoint& sp) {
             auto& cluster_indices = sp.measurementIndexes();
             IdentifierHash idHash =
                 std::visit([cluster_indices](auto container) -> IdentifierHash {

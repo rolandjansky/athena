@@ -15,7 +15,7 @@ namespace TrigConf {
   
    class IHLTPrescaleSetCollectionLoader : virtual public ILoader {
    public:
-      virtual ~IHLTPrescaleSetCollectionLoader() {};
+      virtual ~IHLTPrescaleSetCollectionLoader() override = default;
       virtual bool load( HLTPrescaleSetCollection& hltPS, uint requestcounter, const std::string& partition) = 0;
    };
 

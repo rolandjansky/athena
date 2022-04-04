@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Athena includes
@@ -26,8 +26,8 @@
 TileExpertDump::TileExpertDump(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
   , m_emExpertOptions(0)
-  , m_tileHWID(0)
-  , m_tileInfo(0)
+  , m_tileHWID(nullptr)
+  , m_tileInfo(nullptr)
 {
   declareProperty("PrintExpertEmscale"     , m_printExpertEmscale=false      ,"Switch on expert calibration chain printout");
   declareProperty("PrintExpertEmscaleOnl"  , m_printExpertEmscaleOnl=false   ,"Switch on expert onl calibration chain printout");

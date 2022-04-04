@@ -109,21 +109,21 @@ def AFP_LocReco_SiD_HLT():
         from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
         monTool_AFP_SIDLocRecoTool = GenericMonitoringTool("MonTool_AFP_SIDLocRecoTool")
-        monTool_AFP_SIDLocRecoTool.defineHistogram( 'TrkSize', path='EXPERT', type='TH1F', title='AFP tracks size',xbins=50, xmin=0, xmax=100 )
+        monTool_AFP_SIDLocRecoTool.defineHistogram( 'TrkSize', path='EXPERT', type='TH1F', title='AFP tracks size',xbins=50, xmin=0, xmax=50 )
         AFP_SID.recoTool.MonTool = monTool_AFP_SIDLocRecoTool
 
         for i, kalmanTool in enumerate(AFP_SID.recoTool.RecoToolsList):
                monTool_AFP_BasicKalman = GenericMonitoringTool("MonTool_AFP_"+kalmanTool.name())
 
-               monTool_AFP_BasicKalman.defineHistogram( 'TrkStationID', path='EXPERT', type='TH1F', title='Track station ID',xbins=4, xmin=0, xmax=4 )
-               monTool_AFP_BasicKalman.defineHistogram( 'TrkXLocal', path='EXPERT', type='TH1F', title='Track xLocal',xbins=100, xmin=-200, xmax=200 )
-               monTool_AFP_BasicKalman.defineHistogram( 'TrkYLocal', path='EXPERT', type='TH1F', title='Track yLocal',xbins=100, xmin=-30, xmax=30 )
-               monTool_AFP_BasicKalman.defineHistogram( 'TrkZLocal', path='EXPERT', type='TH1F', title='Track zLocal',xbins=100, xmin=-500000, xmax=500000 )
-               monTool_AFP_BasicKalman.defineHistogram( 'TrkXSlope', path='EXPERT', type='TH1F', title='Track x slope',xbins=100, xmin=-0.5, xmax=0.5 )
-               monTool_AFP_BasicKalman.defineHistogram( 'TrkYSlope', path='EXPERT', type='TH1F', title='Track y slope',xbins=100, xmin=-0.5, xmax=0.5 )
-               monTool_AFP_BasicKalman.defineHistogram( 'TrkNClusters', path='EXPERT', type='TH1F', title='Track number of clusters',xbins=100, xmin=0, xmax=100 )
-               monTool_AFP_BasicKalman.defineHistogram( 'TrkNHoles', path='EXPERT', type='TH1F', title='Track number of holes',xbins=100, xmin=0, xmax=100 )
-               monTool_AFP_BasicKalman.defineHistogram( 'TrkChi2', path='EXPERT', type='TH1F', title='Track chi2',xbins=50, xmin=0, xmax=10 )
+               monTool_AFP_BasicKalman.defineHistogram( 'TrkStationID', path='EXPERT', type='TH1F', title='Track station ID',xbins=4, xmin=0, xmax=4, cutmask='TrkMask' )
+               monTool_AFP_BasicKalman.defineHistogram( 'TrkXLocal', path='EXPERT', type='TH1F', title='Track xLocal',xbins=100, xmin=-200, xmax=200, cutmask='TrkMask' )
+               monTool_AFP_BasicKalman.defineHistogram( 'TrkYLocal', path='EXPERT', type='TH1F', title='Track yLocal',xbins=100, xmin=-30, xmax=30, cutmask='TrkMask' )
+               monTool_AFP_BasicKalman.defineHistogram( 'TrkZLocal', path='EXPERT', type='TH1F', title='Track zLocal',xbins=100, xmin=-500000, xmax=500000, cutmask='TrkMask' )
+               monTool_AFP_BasicKalman.defineHistogram( 'TrkXSlope', path='EXPERT', type='TH1F', title='Track x slope',xbins=100, xmin=-0.5, xmax=0.5, cutmask='TrkMask' )
+               monTool_AFP_BasicKalman.defineHistogram( 'TrkYSlope', path='EXPERT', type='TH1F', title='Track y slope',xbins=100, xmin=-0.5, xmax=0.5, cutmask='TrkMask' )
+               monTool_AFP_BasicKalman.defineHistogram( 'TrkNClusters', path='EXPERT', type='TH1F', title='Track number of clusters',xbins=100, xmin=0, xmax=100, cutmask='TrkMask' )
+               monTool_AFP_BasicKalman.defineHistogram( 'TrkNHoles', path='EXPERT', type='TH1F', title='Track number of holes',xbins=100, xmin=0, xmax=100, cutmask='TrkMask' )
+               monTool_AFP_BasicKalman.defineHistogram( 'TrkChi2', path='EXPERT', type='TH1F', title='Track chi2',xbins=50, xmin=0, xmax=10, cutmask='TrkMask' )
 
                AFP_SID.recoTool.RecoToolsList[i].MonTool = monTool_AFP_BasicKalman	
 

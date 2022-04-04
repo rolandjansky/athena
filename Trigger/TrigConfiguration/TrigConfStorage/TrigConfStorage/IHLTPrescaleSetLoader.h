@@ -13,7 +13,7 @@ namespace TrigConf {
 
   class IHLTPrescaleSetLoader : virtual public ILoader  {
   public:
-    virtual ~IHLTPrescaleSetLoader(){};
+    virtual ~IHLTPrescaleSetLoader() override = default;
     virtual bool load(HLTPrescaleSet& hltpss) = 0;
   };
 

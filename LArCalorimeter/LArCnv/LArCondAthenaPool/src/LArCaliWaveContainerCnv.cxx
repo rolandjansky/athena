@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -13,15 +13,15 @@
 #include "LArCondTPCnv/LArCaliWaveSubsetCnv_p1.h"
 #include "LArCondTPCnv/LArCaliWaveSubsetCnv_p2.h"
 
-static LArCaliWaveSubsetCnv_p1   TPconverter1;
-static LArCaliWaveSubsetCnv_p2   TPconverter2;
+static const LArCaliWaveSubsetCnv_p1   TPconverter1;
+static const LArCaliWaveSubsetCnv_p2   TPconverter2;
 
 LArCaliWavePersType*
 LArCaliWaveContainerCnv::createPersistent (LArCaliWaveTransType* transObj)
 {
     MsgStream log(msgSvc(), "LArCaliWaveContainerCnv" ); 
     log << MSG::DEBUG << "WRITING LArCaliWaveContainer" << endmsg;
-    LArCaliWavePersType* persObj = TPconverter2.createPersistent( transObj, log );
+    LArCaliWavePersType* persObj = TPconverter2.createPersistentConst( transObj, log );
     log << MSG::DEBUG << "WRITING LArCaliWaveContainer Success !" << endmsg;
     return persObj; 
 }
@@ -31,15 +31,15 @@ LArCaliWaveContainerCnv::createTransient ()
 {   
     MsgStream log(msgSvc(), "LArCaliWaveContainerCnv" ); 
 
-    static pool::Guid   p2_guid("6CF01BBF-85A9-45FA-B321-6A98B0D719FB");
-    static pool::Guid   p1_guid("9E61BE2D-3274-4459-A5C2-3BBFB7056EBA");
-	static pool::Guid   p0_guid("ECB4AD6C-FF3A-4255-A0E3-7BD566B96A77");
+    static const pool::Guid   p2_guid("6CF01BBF-85A9-45FA-B321-6A98B0D719FB");
+    static const pool::Guid   p1_guid("9E61BE2D-3274-4459-A5C2-3BBFB7056EBA");
+    static const pool::Guid   p0_guid("ECB4AD6C-FF3A-4255-A0E3-7BD566B96A77");
 	
     if( compareClassGuid(p2_guid) ) {
         // using unique_ptr ensures deletion of the persistent object
         std::unique_ptr< LArCaliWaveSubset_p2 > col_vect( poolReadObject< LArCaliWaveSubset_p2 >() );
         log << MSG::DEBUG << "READING LArCaliWaveSubset_p2" << endmsg; 
-		LArCaliWaveTransType* transObj = TPconverter2.createTransient( col_vect.get(), log );
+		LArCaliWaveTransType* transObj = TPconverter2.createTransientConst( col_vect.get(), log );
         log << MSG::DEBUG << "READING LArCaliWaveSubset_p2 Success !" << endmsg;
         return transObj;
     }    
@@ -47,7 +47,7 @@ LArCaliWaveContainerCnv::createTransient ()
         // using unique_ptr ensures deletion of the persistent object
         std::unique_ptr< LArCaliWaveSubset_p1 > col_vect( poolReadObject< LArCaliWaveSubset_p1 >() );
         log << MSG::DEBUG << "READING LArCaliWaveSubset_p1" << endmsg; 
-		LArCaliWaveTransType* transObj = TPconverter1.createTransient( col_vect.get(), log );
+		LArCaliWaveTransType* transObj = TPconverter1.createTransientConst( col_vect.get(), log );
         log << MSG::DEBUG << "READING LArCaliWaveSubset_p1 Success !" << endmsg;
         return transObj;
     }

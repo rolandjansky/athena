@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGLONGLIVEDPARTICLESHYPO_TRIGHITDVHYPOALG_H
 #define TRIGLONGLIVEDPARTICLESHYPO_TRIGHITDVHYPOALG_H
@@ -8,12 +8,15 @@
 
 #include "Gaudi/Property.h"
 #include "AthenaKernel/SlotSpecificObj.h"
+#include "CxxUtils/checker_macros.h"
 #include "DecisionHandling/HypoBase.h"
 #include "TrigHitDVHypoTool.h"
 
 #include "xAODJet/JetContainer.h"
 #include "LumiBlockData/LuminosityCondData.h"
 #include "LumiBlockComps/ILumiBlockMuTool.h"
+
+#include "TMVA/Reader.h"
 
 /**
  * @class TrigHitDVHypoAlg

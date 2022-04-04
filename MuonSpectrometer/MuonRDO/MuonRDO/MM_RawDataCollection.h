@@ -15,6 +15,7 @@ class MM_RawDataCollection : public DataVector<Muon::MM_RawData>
 {
   friend class MM_RawDataContainerCnv_p1;
   friend class MM_RawDataContainerCnv_p2;
+  friend class MM_RawDataContainerCnv_p3;
   
 public:
   MM_RawDataCollection(IdentifierHash hash) : m_idHash(hash) {}

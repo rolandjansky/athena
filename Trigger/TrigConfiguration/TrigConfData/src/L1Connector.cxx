@@ -17,9 +17,6 @@ TrigConf::L1Connector::L1Connector(const std::string & connName, const boost::pr
    L1Connector::update();
 }
 
-TrigConf::L1Connector::~L1Connector()
-{}
-
 std::string
 TrigConf::L1Connector::className() const {
    return "L1Connector";

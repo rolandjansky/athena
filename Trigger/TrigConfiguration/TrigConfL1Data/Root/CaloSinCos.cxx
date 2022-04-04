@@ -34,9 +34,6 @@ TrigConf::CaloSinCos::CaloSinCos( const std::string& n, const int v,
 TrigConf::CaloSinCos::CaloSinCos()
 {}
 
-TrigConf::CaloSinCos::~CaloSinCos()
-{}  
- 
 void
 TrigConf::CaloSinCos::print(const std::string& indent, unsigned int /*detail*/) const {
    cout << indent << " \t-----------------------" << endl; 

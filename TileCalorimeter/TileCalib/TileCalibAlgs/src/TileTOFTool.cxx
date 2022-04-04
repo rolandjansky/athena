@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -95,7 +95,7 @@ StatusCode TileTOFTool::execute()
         {
           const TileCell* tile_cell = dynamic_cast<const TileCell*> (cell_ptr);
 	  
-          if ((tile_cell!=0)&&((tile_cell->ene1())>150.)&&((tile_cell->ene2())>150.)&&((tile_cell->energy())<5000.)&&(fabs(tile_cell->timeDiff())<3.5)&&(fabs(tile_cell->time())>0.00000001)) // cut to select TileCal cells crossed by muons
+          if ((tile_cell!=nullptr)&&((tile_cell->ene1())>150.)&&((tile_cell->ene2())>150.)&&((tile_cell->energy())<5000.)&&(fabs(tile_cell->timeDiff())<3.5)&&(fabs(tile_cell->time())>0.00000001)) // cut to select TileCal cells crossed by muons
             {
               Identifier id = tile_cell->ID();
 

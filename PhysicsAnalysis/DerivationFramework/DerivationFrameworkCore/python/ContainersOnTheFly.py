@@ -111,3 +111,26 @@ ContainersOnTheFly = [
                         ["METAssoc_AntiKt4EMPFlow",'xAOD::MissingETAssociationMap'],
                         ["METAssoc_AntiKt4EMPFlowAux",'xAOD::MissingETAuxAssociationMap'],
 ]
+
+from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags
+if InDetDxAODFlags.AddPseudoTracks():
+    ContainersOnTheFly += [
+        ["InDetReplacedWithPseudoTrackParticles","xAOD::TrackParticleContainer"],
+        ["InDetReplacedWithPseudoTrackParticlesAux","xAOD::TrackParticleAuxContainer"],
+        ["InDetReplacedWithPseudoFromBTrackParticles","xAOD::TrackParticleContainer"],
+        ["InDetReplacedWithPseudoFromBTrackParticlesAux","xAOD::TrackParticleAuxContainer"],
+        ["InDetReplacedWithPseudoNotFromBTrackParticles","xAOD::TrackParticleContainer"],
+        ["InDetReplacedWithPseudoNotFromBTrackParticlesAux","xAOD::TrackParticleAuxContainer"],
+        ["InDetPlusPseudoTrackParticles","xAOD::TrackParticleContainer"],
+        ["InDetPlusPseudoTrackParticlesAux","xAOD::TrackParticleAuxContainer"],
+        ["InDetPlusPseudoFromBTrackParticles","xAOD::TrackParticleContainer"],
+        ["InDetPlusPseudoFromBTrackParticlesAux","xAOD::TrackParticleAuxContainer"],
+        ["InDetPlusPseudoNotFromBTrackParticles","xAOD::TrackParticleContainer"],
+        ["InDetPlusPseudoNotFromBTrackParticlesAux","xAOD::TrackParticleAuxContainer"],
+        ["InDetNoFakesTrackParticles","xAOD::TrackParticleContainer"],
+        ["InDetNoFakesTrackParticlesAux","xAOD::TrackParticleAuxContainer"],
+        ["InDetNoFakesFromBTrackParticles","xAOD::TrackParticleContainer"],
+        ["InDetNoFakesFromBTrackParticlesAux","xAOD::TrackParticleAuxContainer"],
+        ["InDetNoFakesNotFromBTrackParticles","xAOD::TrackParticleContainer"],
+        ["InDetNoFakesNotFromBTrackParticlesAux","xAOD::TrackParticleAuxContainer"]
+    ]

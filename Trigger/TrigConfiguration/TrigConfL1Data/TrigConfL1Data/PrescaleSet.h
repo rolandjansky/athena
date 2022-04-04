@@ -31,7 +31,7 @@ namespace TrigConf {
       static double getPrescaleFromCut(int32_t cut);
 
       PrescaleSet();
-      ~PrescaleSet() = default;
+      virtual ~PrescaleSet() override = default;
 
       // Accessors
       bool                         isNull() const { return m_null; }

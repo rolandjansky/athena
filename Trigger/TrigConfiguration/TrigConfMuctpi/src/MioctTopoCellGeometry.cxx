@@ -19,8 +19,6 @@ MioctTopoCellGeometry::MioctTopoCellGeometry() :
   m_phimax(0)
 {}
   
-MioctTopoCellGeometry::~MioctTopoCellGeometry() {}
-  
 void
 MioctTopoCellGeometry::print(const std::string& indent, unsigned int /*detail*/) const {
    cout << indent << "MioctTopoCellGeometry: " << endl; 

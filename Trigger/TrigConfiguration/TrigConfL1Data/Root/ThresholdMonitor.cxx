@@ -37,9 +37,6 @@ TrigConf::ThresholdMonitor::ThresholdMonitor(const ThresholdMonitor& mon) :
    setName(mon.name());
    setVersion(mon.version());
 }
- 
-TrigConf::ThresholdMonitor::~ThresholdMonitor()
-{}
    
 void
 TrigConf::ThresholdMonitor::print(const std::string& indent, unsigned int detail) const {

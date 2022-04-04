@@ -50,7 +50,7 @@ namespace TrigConf {
       {}
 
       /**@brief destructor*/       
-      virtual ~JobOptionTableLoader(){};
+      virtual ~JobOptionTableLoader() override = default;
 
       virtual bool load( TrigConfData& data);
 

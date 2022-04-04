@@ -15,8 +15,6 @@ MuCTPiGeometry::MuCTPiGeometry() :
   m_Octants()
 {}
   
-MuCTPiGeometry::~MuCTPiGeometry() {}
-  
 void
 MuCTPiGeometry::print(const std::string& indent, unsigned int /*detail*/) const {
    cout << indent << "MuCTPiGeometry: " << endl; 

@@ -10,8 +10,8 @@ def SCTSiLorentzAngleTestAlgCfg(flags, name="SCTSiLorentzAngleTestAlg", **kwargs
     """Return a configured SCTSiLorentzAngleTestAlg"""
     acc = ComponentAccumulator()
     acc.merge(GeoModelCfg(flags)) # For SCT_ID used in SCTSiLorentzAngleTestAlg
-    from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
-    kwargs.setdefault("SCTLorentzAngleTool", acc.popToolsAndMerge(SCT_LorentzAngleCfg(flags)))
+    from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleToolCfg
+    kwargs.setdefault("SCTLorentzAngleTool", acc.popToolsAndMerge(SCT_LorentzAngleToolCfg(flags)))
     acc.addEventAlgo(CompFactory.SCTSiLorentzAngleTestAlg(**kwargs))
     return acc
 

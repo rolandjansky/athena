@@ -109,6 +109,7 @@ StatusCode TgcRdoToTgcPrepData::execute() {
       std::vector<IdentifierHash> hash_ids_withData;
       for(auto roi : *muonRoI){
 	m_regsel_tgc->HashIDList(*roi,tgchashids);
+        ATH_MSG_DEBUG("Processing next RoI, n(tgchashids)=" << tgchashids.size());
 	if(tgchashids.size()!=0){
 	  ATH_CHECK(m_tool->decode(tgchashids, hash_ids_withData));
 	  tgchashids.clear();

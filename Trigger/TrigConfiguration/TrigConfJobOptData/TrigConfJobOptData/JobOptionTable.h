@@ -24,7 +24,7 @@ namespace TrigConf {
       JobOptionTable();
 
       /**@brief destructor*/
-      ~JobOptionTable();
+      virtual ~JobOptionTable() override = default;
 
       int hltMasterTableId()   const { return m_HltMasterTableId; }       ///< accessor to the HLT master table configuration key  
       int superMasterTableId() const { return m_SuperMasterTableId; }     ///< accessor to the super master table configuration key

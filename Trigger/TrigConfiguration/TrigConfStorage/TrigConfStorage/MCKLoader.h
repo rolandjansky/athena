@@ -15,7 +15,7 @@ namespace TrigConf {
     {
     public:
         MCKLoader(StorageMgr& sm);
-        virtual ~MCKLoader();
+        virtual ~MCKLoader() override = default;
 
         bool loadMCKlinkedToSMK(unsigned int smk, unsigned int & mck);        
         bool loadReleaseLinkedToMCK(unsigned int mck, std::string & mck_release);

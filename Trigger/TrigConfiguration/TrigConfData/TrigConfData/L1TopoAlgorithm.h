@@ -49,7 +49,7 @@ namespace TrigConf {
       L1TopoAlgorithm(const std::string & algoName, AlgorithmType algoType, const std::string & algoCategory, const ptree & data);
 
       /** Destructor */
-      ~L1TopoAlgorithm();
+      virtual ~L1TopoAlgorithm() override = default;
 
       virtual std::string className() const override;
 

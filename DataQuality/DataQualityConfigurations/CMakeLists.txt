@@ -68,6 +68,14 @@ foreach( hanfile collisions_run collisions_minutes10
    # atlas_add_test( ${hanfile}_syntax SCRIPT scripts/han-config-check.sh ${configOutputFile} PROPERTIES TIMEOUT 300 POST_EXEC_SCRIPT nopost.sh )
    atlas_add_test( ${hanfile}_topempty SCRIPT test/check_no_top_level_assessments.sh ${outputFile} POST_EXEC_SCRIPT nopost.sh )
    atlas_add_test( ${hanfile}_lark SCRIPT han_lark_tester.py ${configOutputFile} PROPERTIES TIMEOUT 300 POST_EXEC_SCRIPT nopost.sh )
+   atlas_add_test( ${hanfile}_nocrash
+      SOURCES test/check_valid_config.cxx
+      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
+      LINK_LIBRARIES DataQualityInterfaces
+      ENVIRONMENT "HANCONFIGFILE=${outputFile};HISTFILE=${CMAKE_CURRENT_SOURCE_DIR}/../DataQualityInterfaces/share/Data.root;HISTFILEPATH=;OUTFILE=/dev/null"
+      POST_EXEC_SCRIPT nopost.sh
+      PROPERTIES TIMEOUT 300
+   )
 
    # Clean up:
    unset( outputFile )

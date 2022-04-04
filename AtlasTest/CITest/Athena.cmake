@@ -99,6 +99,7 @@ atlas_add_citest( DataQuality_r21ESD_Postprocessing
    PROPERTIES REQUIRED_FILES ../DataQuality_r21ESD/DataQuality_r21ESD_HIST.root
    DEPENDS DataQuality_r21ESD )
 
+
 #################################################################################
 # Special reconstruction
 #################################################################################
@@ -135,18 +136,6 @@ atlas_add_citest( Trigger_athenaHLT_v1Cosmic
 # TODO: We stop here for now (migration ongoing...)
 return()
 
-
-#################################################################################
-# DQ
-#################################################################################
-atlas_add_citest( Run3DQr21ESD
-   SCRIPT Run3DQTestingDriver.py 'Input.Files=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q431/21.0/myESD.pool.root"]' DQ.Steering.doHLTMon=False --threads=1 )
-
-atlas_add_citest( q221_Run3DQ
-   PRE_EXEC_SCRIPT "cp ../q221/HLTMonitoring*.json ."
-   SCRIPT Run3DQTestingDriver.py 'Input.Files=["../q221/myAOD.pool.root"]' DQ.Environment=AOD --threads=1
-   PROPERTIES REQUIRED_FILES ../q221/myAOD.pool.root
-   DEPENDS q221 )
 
 #################################################################################
 # Digitization/Simulation

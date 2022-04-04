@@ -30,7 +30,7 @@ namespace TrigConf {
          IMenuLoader(), DBLoader("MenuLoader", sm, session) {}
 
       /**@brief destructor*/       
-      virtual ~MenuLoader(){};
+      virtual ~MenuLoader() override = default;
     
       virtual bool load( Menu& data) override;
     

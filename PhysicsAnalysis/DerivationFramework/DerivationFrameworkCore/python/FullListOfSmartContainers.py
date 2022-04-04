@@ -109,3 +109,18 @@ FullListOfSmartContainers = [
    "HLT_xAOD__TrigVertexCountsContainer_vertexcounts",
    "HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf"
 ]
+
+from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags
+if InDetDxAODFlags.AddPseudoTracks():
+   FullListOfSmartContainers += [
+      "InDetPseudoTrackParticles",
+      "InDetReplacedWithPseudoTrackParticles",
+      "InDetReplacedWithPseudoFromBTrackParticles",
+      "InDetReplacedWithPseudoNotFromBTrackParticles",
+      "InDetPlusPseudoTrackParticles",
+      "InDetPlusPseudoFromBTrackParticles",
+      "InDetPlusPseudoNotFromBTrackParticles",
+      "InDetNoFakesTrackParticles",
+      "InDetNoFakesFromBTrackParticles",
+      "InDetNoFakesNotFromBTrackParticles"
+   ]

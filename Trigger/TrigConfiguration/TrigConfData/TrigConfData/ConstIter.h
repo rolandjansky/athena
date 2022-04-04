@@ -59,10 +59,6 @@ namespace TrigConf {
          m_bufIt(buf.begin())
       {}
 
-      /** Destructor */
-      ~ConstIter()
-      {}
-
       /** @brief Comparison operator */
       bool operator==(const ConstIter &i) const {
          return &i.m_buf == &m_buf && i.m_offset == m_offset;

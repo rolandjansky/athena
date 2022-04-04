@@ -76,7 +76,7 @@ namespace TrigConf {
    public:
       L1ThrExtraInfo_EMTAULegacy(const std::string & thrTypeName, const ptree & data) :
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
-      virtual ~L1ThrExtraInfo_EMTAULegacy() = default;
+      virtual ~L1ThrExtraInfo_EMTAULegacy() override = default;
       virtual std::string className() const override { return "L1ThrExtraInfo_EMTAULegacy"; }
       unsigned int emScale() const { return 1000 / resolutionMeV(); }
       float ptMinToTopo() const { return m_ptMinToTopoMeV/1000.0f; }
@@ -96,7 +96,7 @@ namespace TrigConf {
    public:
       L1ThrExtraInfo_JETLegacy(const std::string & thrTypeName, const ptree & data) :
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
-      virtual ~L1ThrExtraInfo_JETLegacy() = default;
+      virtual ~L1ThrExtraInfo_JETLegacy() override = default;
       virtual std::string className() const override { return "L1ThrExtraInfo_JETLegacy"; }
       unsigned int jetScale() const { return 1000 / resolutionMeV(); }
       double ptMinToTopoLargeWindow() const { return m_ptMinToTopoLargeWindowMeV / 1000.0; }
@@ -118,7 +118,7 @@ namespace TrigConf {
    public:
       L1ThrExtraInfo_XSLegacy(const std::string & thrTypeName, const ptree & data) :
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
-      virtual ~L1ThrExtraInfo_XSLegacy() = default;
+      virtual ~L1ThrExtraInfo_XSLegacy() override = default;
       virtual std::string className() const override { return "L1ThrExtraInfo_XSLegacy"; }
       unsigned int xeMin() const { return m_xeMin; };
       unsigned int xeMax() const { return m_xeMax; };
@@ -166,7 +166,7 @@ namespace TrigConf {
       };
       L1ThrExtraInfo_eEM(const std::string & thrTypeName, const ptree & data) :
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
-      virtual ~L1ThrExtraInfo_eEM() = default;
+      virtual ~L1ThrExtraInfo_eEM() override = default;
       virtual std::string className() const override { return "L1ThrExtraInfo_eEM"; }
       unsigned int maxEtMeV()  const { return m_maxEt; }
       unsigned int maxEtCounts(const unsigned int resolutionMeV)  const { return TrigConf::energyInCounts( m_maxEt, resolutionMeV ); }
@@ -210,7 +210,7 @@ namespace TrigConf {
       };
       L1ThrExtraInfo_jEM(const std::string & thrTypeName, const ptree & data) :
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
-      virtual ~L1ThrExtraInfo_jEM() = default;
+      virtual ~L1ThrExtraInfo_jEM() override = default;
       virtual std::string className() const override { return "L1ThrExtraInfo_jEM"; }
       const WorkingPoints_jEM & isolation(TrigConf::Selection::WP wp, int eta) const { return m_isolation.at(wp).at(eta); }
       const ValueWithEtaDependence<WorkingPoints_jEM> & isolation(TrigConf::Selection::WP wp) const { return m_isolation.at(wp); }
@@ -267,7 +267,7 @@ namespace TrigConf {
       };
       L1ThrExtraInfo_eTAU(const std::string & thrTypeName, const ptree & data) :
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
-      virtual ~L1ThrExtraInfo_eTAU() = default;
+      virtual ~L1ThrExtraInfo_eTAU() override = default;
       virtual std::string className() const override { return "L1ThrExtraInfo_eTAU"; }
       unsigned int maxEtMeV()  const { return m_maxEt; }
       unsigned int maxEtCounts(const unsigned int resolutionMeV)  const { return TrigConf::energyInCounts( m_maxEt, resolutionMeV ); }
@@ -302,7 +302,7 @@ namespace TrigConf {
       };
       L1ThrExtraInfo_jTAU(const std::string & thrTypeName, const ptree & data) :
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
-      virtual ~L1ThrExtraInfo_jTAU() = default;
+      virtual ~L1ThrExtraInfo_jTAU() override = default;
       virtual std::string className() const override { return "L1ThrExtraInfo_jTAU"; }
       const WorkingPoints_jTAU & isolation(TrigConf::Selection::WP wp, int eta) const { return m_isolation.at(wp).at(eta); }
       const ValueWithEtaDependence<WorkingPoints_jTAU> & isolation(TrigConf::Selection::WP wp) const  { return m_isolation.at(wp); }
@@ -355,7 +355,7 @@ namespace TrigConf {
       };
       L1ThrExtraInfo_cTAU(const std::string & thrTypeName, const ptree & data) :
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
-      virtual ~L1ThrExtraInfo_cTAU() = default;
+      virtual ~L1ThrExtraInfo_cTAU() override = default;
       virtual std::string className() const override { return "L1ThrExtraInfo_cTAU"; }
       const WorkingPoints_cTAU & isolation(TrigConf::Selection::WP wp, int eta) const { return m_isolation.at(wp).at(eta); }
       const ValueWithEtaDependence<WorkingPoints_cTAU> & isolation(TrigConf::Selection::WP wp) const  { return m_isolation.at(wp); }
@@ -371,7 +371,7 @@ namespace TrigConf {
    public:
       L1ThrExtraInfo_jJ(const std::string & thrTypeName, const ptree & data) :
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
-      virtual ~L1ThrExtraInfo_jJ() = default;
+      virtual ~L1ThrExtraInfo_jJ() override = default;
       virtual std::string className() const override { return "L1ThrExtraInfo_jJ"; }
       float ptMinToTopo(const std::string& module) const { return ptMinToTopoMeV(module)/ 1000.0; }
       unsigned int ptMinToTopoCounts(const std::string& module) const { return energyInCounts(ptMinToTopoMeV(module), resolutionMeV()); }
@@ -405,7 +405,7 @@ namespace TrigConf {
    public:
       L1ThrExtraInfo_jLJ(const std::string & thrTypeName, const ptree & data) :
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
-      virtual ~L1ThrExtraInfo_jLJ() = default;
+      virtual ~L1ThrExtraInfo_jLJ() override = default;
       virtual std::string className() const override { return "L1ThrExtraInfo_jLJ"; }
       float ptMinToTopo(const std::string& module) const { return ptMinToTopoMeV(module)/ 1000.0; }
       unsigned int ptMinToTopoCounts(const std::string& module) const { return energyInCounts(ptMinToTopoMeV(module), resolutionMeV()); }
@@ -439,7 +439,7 @@ namespace TrigConf {
    public:
       L1ThrExtraInfo_gJ(const std::string & thrTypeName, const ptree & data) :
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
-      virtual ~L1ThrExtraInfo_gJ() = default;
+      virtual ~L1ThrExtraInfo_gJ() override = default;
       virtual std::string className() const override { return "L1ThrExtraInfo_gJ"; }
       float ptMinToTopo(const unsigned int eta_range) const { return ptMinToTopoMeV(eta_range)/ 1000.0; }
       unsigned int ptMinToTopoCounts(const unsigned int eta_range) const { return energyInCounts(ptMinToTopoMeV(eta_range), resolutionMeV()); }
@@ -460,7 +460,7 @@ namespace TrigConf {
    public:
       L1ThrExtraInfo_gLJ(const std::string & thrTypeName, const ptree & data) :
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
-      virtual ~L1ThrExtraInfo_gLJ() = default;
+      virtual ~L1ThrExtraInfo_gLJ() override = default;
       virtual std::string className() const override { return "L1ThrExtraInfo_gLJ"; }
       float ptMinToTopo(const unsigned int eta_range) const { return ptMinToTopoMeV(eta_range)/ 1000.0; }
       unsigned int ptMinToTopoCounts(const unsigned int eta_range) const { return energyInCounts(ptMinToTopoMeV(eta_range), resolutionMeV()); }
@@ -512,7 +512,7 @@ namespace TrigConf {
    public:
       L1ThrExtraInfo_jXE(const std::string & thrTypeName, const ptree & data) :
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
-      virtual ~L1ThrExtraInfo_jXE() = default;
+      virtual ~L1ThrExtraInfo_jXE() override = default;
       virtual std::string className() const override { return "L1ThrExtraInfo_jXE"; }
    private:
       /** Update the internal members */
@@ -524,7 +524,7 @@ namespace TrigConf {
    public:
       L1ThrExtraInfo_jTE(const std::string & thrTypeName, const ptree & data) :
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
-      virtual ~L1ThrExtraInfo_jTE() = default;
+      virtual ~L1ThrExtraInfo_jTE() override = default;
       virtual std::string className() const override { return "L1ThrExtraInfo_jTE"; }
       unsigned int etaBoundary_fw(const std::string& module) const {
           if(module=="1C" || module=="1A") return m_etaBoundary1_fw;
@@ -554,7 +554,7 @@ namespace TrigConf {
    public:
       L1ThrExtraInfo_gXE(const std::string & thrTypeName, const ptree & data) :
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
-      virtual ~L1ThrExtraInfo_gXE() = default;
+      virtual ~L1ThrExtraInfo_gXE() override = default;
       virtual std::string className() const override { return "L1ThrExtraInfo_gXE"; }
       float seedThr(const char fpga) const { return seedThrMeV(fpga)/ 1000.0; }
       unsigned int seedThrCounts(const char fpga) const { return energyInCounts(seedThrMeV(fpga), resolutionMeV()); }
@@ -613,7 +613,7 @@ namespace TrigConf {
    public:
       L1ThrExtraInfo_gTE(const std::string & thrTypeName, const ptree & data) :
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
-      virtual ~L1ThrExtraInfo_gTE() = default;
+      virtual ~L1ThrExtraInfo_gTE() override = default;
       virtual std::string className() const override { return "L1ThrExtraInfo_gTE"; }
    private:
       /** Update the internal members */
@@ -625,7 +625,7 @@ namespace TrigConf {
    public:
       L1ThrExtraInfo_MU(const std::string & thrTypeName, const ptree & data) :
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
-      virtual ~L1ThrExtraInfo_MU() = default;
+      virtual ~L1ThrExtraInfo_MU() override = default;
       virtual std::string className() const override { return "L1ThrExtraInfo_MU"; }
       unsigned int rpcIdxForPt(unsigned int pt) const;
       unsigned int tgcIdxForPt(unsigned int pt) const;

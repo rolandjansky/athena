@@ -20,9 +20,6 @@ TrigConf::L1Board::L1Board(const std::string & boardName, const boost::property_
    L1Board::update();
 }
 
-TrigConf::L1Board::~L1Board()
-{}
-
 std::string
 TrigConf::L1Board::className() const {
    return "L1Board";

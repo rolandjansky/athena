@@ -16,7 +16,6 @@ namespace TrigConf {
   class LVL1Config {
   public:
     LVL1Config();
-    ~LVL1Config();
 
     inline Menu& menu();
     inline ThresholdConfig& thresholdConfig();

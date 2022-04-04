@@ -137,6 +137,12 @@
     <class name="Muon::STGC_RawDataCollection_p2" />
     <class name="std::vector<Muon::STGC_RawDataCollection_p2>" />
     <class name="Muon::STGC_RawDataContainer_p2" id="F66FDF31-1BFD-43DE-B793-93635D98597E" />
+    
+    <class name="Muon::STGC_RawData_p3" />
+    <class name="std::vector<Muon::STGC_RawData_p3>" />
+    <class name="Muon::STGC_RawDataCollection_p3" />
+    <class name="std::vector<Muon::STGC_RawDataCollection_p3>" />
+    <class name="Muon::STGC_RawDataContainer_p3" id="693ACD72-6796-4251-A932-9ABAF679A2B3" />
 
     <class name="Muon::MM_RawData_p1" />
     <class name="std::vector<Muon::MM_RawData_p1>" />
@@ -149,6 +155,12 @@
     <class name="Muon::MM_RawDataCollection_p2" />
     <class name="std::vector<Muon::MM_RawDataCollection_p2>" />
     <class name="Muon::MM_RawDataContainer_p2" id="A49EBDAC-A190-4198-95DF-BF75FBBB487F" />
+    
+    <class name="Muon::MM_RawData_p3" />
+    <class name="std::vector<Muon::MM_RawData_p3>" />
+    <class name="Muon::MM_RawDataCollection_p3" />
+    <class name="std::vector<Muon::MM_RawDataCollection_p3>" />
+    <class name="Muon::MM_RawDataContainer_p3" id="229DDB7E-59D3-4BE5-B3D5-B873EBC5C9AA" />
 
     <class name="Muon::CscSimData_p2" />
     <class pattern="std::*pair*<unsigned int, Muon::CscSimData_p2>" />

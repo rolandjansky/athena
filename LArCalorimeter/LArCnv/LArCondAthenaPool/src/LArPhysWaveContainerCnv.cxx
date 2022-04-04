@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -12,14 +12,14 @@
 #include "LArPhysWaveContainerCnv.h"
 #include "LArCondTPCnv/LArPhysWaveSubsetCnv_p1.h"
 
-static LArPhysWaveSubsetCnv_p1   TPconverter1;
+static const LArPhysWaveSubsetCnv_p1   TPconverter1;
 
 LArPhysWavePersType*
 LArPhysWaveContainerCnv::createPersistent (LArPhysWaveTransType* transObj)
 {
     MsgStream log(msgSvc(), "LArPhysWaveContainerCnv" ); 
     log << MSG::DEBUG << "WRITING LArPhysWaveContainer" << endmsg;
-    LArPhysWavePersType* persObj = TPconverter1.createPersistent( transObj, log );
+    LArPhysWavePersType* persObj = TPconverter1.createPersistentConst( transObj, log );
     log << MSG::DEBUG << "WRITING LArPhysWaveContainer Success !" << endmsg;
     return persObj; 
 }
@@ -29,13 +29,13 @@ LArPhysWaveContainerCnv::createTransient ()
 {   
     MsgStream log(msgSvc(), "LArPhysWaveContainerCnv" ); 
 	log<<MSG::DEBUG<<"READING PHYS WAVE"<<endmsg;
-    static pool::Guid   p1_guid("87E436E2-6FF4-42D3-BC70-6650C076E589");
-	static pool::Guid   p0_guid("C1108D27-6D30-41E8-892D-2AB127B868C9");
+    static const pool::Guid   p1_guid("87E436E2-6FF4-42D3-BC70-6650C076E589");
+    static const pool::Guid   p0_guid("C1108D27-6D30-41E8-892D-2AB127B868C9");
 	if( compareClassGuid(p1_guid) ) {
         // using unique_ptr ensures deletion of the persistent object
         std::unique_ptr< LArPhysWaveSubset_p1 > col_vect( poolReadObject< LArPhysWaveSubset_p1 >() );
         log << MSG::DEBUG << "READING LArPhysWaveSubset_p1" << endmsg; 
-		LArPhysWaveTransType* transObj = TPconverter1.createTransient( col_vect.get(), log );
+		LArPhysWaveTransType* transObj = TPconverter1.createTransientConst( col_vect.get(), log );
         log << MSG::DEBUG << "READING LArPhysWaveSubset_p1 Success !" << endmsg;
         return transObj;
     }

@@ -25,7 +25,7 @@ MuonTGC_CnvTools package contains classes for conversions among BS, ROD (ROB fra
  - TgcROD_Encoder converts from RDO to ROB fragment written in readout format using TgcByteStream. 
  - TgcRdoContByteStreamTool writes out ROB fragment written in readout format as BS.  
 - Conversion from RDO to PRD 
- - TgcRdoToPrepDataTool converts from RDO to PRD. 
+ - TgcRdoToPrepDataToolMT converts from RDO to PRD. 
 - Conversion from RDO to Digit 
  - TgcRDO_Decoder converts from RDO to Digit which can be compared with simulated Digit. 
 - TGC_Hid2RESrcID is used in TGC_RawDataProviderTool and TgcRdoContByteStreamTool. 

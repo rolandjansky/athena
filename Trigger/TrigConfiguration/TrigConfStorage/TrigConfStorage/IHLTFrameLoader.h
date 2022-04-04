@@ -27,7 +27,7 @@ namespace TrigConf {
    class IHLTFrameLoader : virtual public ILoader {
    public:
 
-      virtual ~IHLTFrameLoader() {};
+      virtual ~IHLTFrameLoader() override = default;
 
       virtual bool load( HLTFrame& data ) = 0;
    };

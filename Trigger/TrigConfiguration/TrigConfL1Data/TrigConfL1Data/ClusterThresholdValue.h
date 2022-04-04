@@ -12,7 +12,7 @@ namespace TrigConf {
    class ClusterThresholdValue : public TriggerThresholdValue {
    public:
       ClusterThresholdValue();
-      ~ClusterThresholdValue() = default;
+      virtual ~ClusterThresholdValue() override = default;
 
       virtual TriggerThresholdValue* createCopy() const override;
       

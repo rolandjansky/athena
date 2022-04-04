@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -29,8 +29,8 @@ namespace Trk
          names()
         {}
         
-        mutable std::vector<Material_p1>    table;
-        mutable std::vector<std::string>    names;
+        std::vector<Material_p1>    table;
+        std::vector<std::string>    names;
     };
 }
 

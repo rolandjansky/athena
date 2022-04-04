@@ -25,7 +25,7 @@ namespace TrigConf {
                     int etamax);
       CaloJetInput();
       
-      virtual ~CaloJetInput();
+      virtual ~CaloJetInput() override = default;
       
       // getters
       const std::string& type() const { return m_Type; }      

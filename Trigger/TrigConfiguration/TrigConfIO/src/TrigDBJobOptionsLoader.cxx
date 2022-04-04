@@ -44,6 +44,7 @@ TrigConf::TrigDBJobOptionsLoader::TrigDBJobOptionsLoader(const std::string & con
    }
 }
 
+// Destructor defined here because QueryDefinition is an incomplete type in the header
 TrigConf::TrigDBJobOptionsLoader::~TrigDBJobOptionsLoader() = default;
 
 bool

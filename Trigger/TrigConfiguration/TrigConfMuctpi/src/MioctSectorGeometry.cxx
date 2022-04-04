@@ -14,8 +14,6 @@ MioctSectorGeometry::MioctSectorGeometry() :
   m_ROIs()
 {}
   
-MioctSectorGeometry::~MioctSectorGeometry() {}
-  
 void
 MioctSectorGeometry::print(const std::string& indent, unsigned int /*detail*/) const {
    cout << indent << "MioctSectorGeometry: " << endl; 

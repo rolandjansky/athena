@@ -32,7 +32,8 @@ namespace xAOD {
 
    private:
       std::vector< uint32_t > word;
-      std::vector< int > tobEtScale;
+      std::vector< int > tobEtScaleOne;
+      std::vector< int > tobEtScaleTwo;
       std::vector< uint8_t >  saturated;
       std::vector< int > globalType;
       std::vector< uint8_t >  statusOne;
