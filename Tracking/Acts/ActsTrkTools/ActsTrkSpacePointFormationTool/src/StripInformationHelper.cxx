@@ -10,16 +10,18 @@ namespace ActsTrk {
                                                     const Amg::Vector3D& stripEnd,
                                                     const Amg::Vector3D& beamSpotVertex,
                                                     const float& locx,
-                                                    const size_t& clusterIndex)
+                                                    const size_t& clusterIndex,
+                                                    const size_t& stripIndex)
     {
-        this->set(stripStart, stripEnd, beamSpotVertex, locx, clusterIndex);
+        this->set(stripStart, stripEnd, beamSpotVertex, locx, clusterIndex, stripIndex);
     }
 
     void StripInformationHelper::set(const Amg::Vector3D& stripStart,
                                      const Amg::Vector3D& stripEnd,
                                      const Amg::Vector3D& beamSpotVertex,
                                      const float& locx,
-                                     const size_t& clusterIndex)
+                                     const size_t& clusterIndex,
+                                     const size_t& stripIndex)
     {
         m_stripCenter  = 0.5*(stripStart+stripEnd);
         m_stripDir     = stripStart-stripEnd;
@@ -28,6 +30,7 @@ namespace ActsTrk {
         m_oneOverStrip = 1./m_stripDir.mag();
         m_locX         = locx;
         m_clusterIndex = clusterIndex;
+        m_stripIndex   = stripIndex;
     }
 
     Amg::Vector3D StripInformationHelper::position(const double& shift) const

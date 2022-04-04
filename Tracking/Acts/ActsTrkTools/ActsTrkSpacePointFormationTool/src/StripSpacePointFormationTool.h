@@ -86,15 +86,24 @@ namespace ActsTrk {
                       const InDetDD::SiDetectorElement* element2,
                       double& stripLengthGapTolerance) const;
 
-        void correctPolarRange(const InDetDD::SiDetectorElement* element, double& min, double& max) const;
+        void correctPolarRange(const InDetDD::SiDetectorElement* element,
+                               double& min, double& max,
+                               size_t& minStrip, size_t& maxStrip) const;
 
         std::pair<Amg::Vector3D, Amg::Vector3D > getStripEnds(const xAOD::StripCluster* cluster,
-                                                              const InDetDD::SiDetectorElement* element) const;
+                                                              const InDetDD::SiDetectorElement* element,
+                                                              size_t& stripIndex) const;
         //@}
 
         /// @name Id helpers
         //@{
         const SCT_ID* m_stripId{};
+        //@}
+
+        /// @name tool handles
+        //@{
+        /// @brief Using Lorentz angle tool
+        ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool/SCTLorentzAngleTool", "Tool to retreive Lorentz angle of SCT"};
         //@}
 
         /// @name Configuration flags
