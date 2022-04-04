@@ -298,7 +298,7 @@ namespace met {
         for( const xAOD::TauTrack* ttrk : tau->tracks(xAOD::TauJetParameters::coreTrack) ){//all tracks <0.2, no quality
           const TrackParticle* tautrk = ttrk->track();
           if(tautrk==pfotrk) {
-            ATH_MSG_DEBUG("Found cPFO with dR " << seedjet->p4().DeltaR(ttrk->p4())); //switched from verbose for debugging
+            ATH_MSG_VERBOSE("Found cPFO with dR " << seedjet->p4().DeltaR(ttrk->p4())); //switched from verbose for debugging
             // We set a small -ve pt for cPFOs that were rejected
             // by the ChargedHadronSubtractionTool
             const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");        
