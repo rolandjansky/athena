@@ -626,8 +626,8 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
   bool PIX = true;
   bool SCT = true;
 
-  if( m_doDisappearingTrk ) trackEventData.combinatorialData().setFlagToReturnFailedTrack(true);
   m_trackMaker->newTrigEvent(ctx, trackEventData, PIX, SCT);
+  if( m_doDisappearingTrk ) trackEventData.combinatorialData().setFlagToReturnFailedTrack(true);
 
   std::vector<Trk::Track*> disFailTrks;
   std::vector<Trk::Track*> disCombTrks;
