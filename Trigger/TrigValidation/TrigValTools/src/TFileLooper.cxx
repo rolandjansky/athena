@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -7,7 +7,6 @@
  * @brief  TFileLooper implementation
  * @author Frank Winklmeier
  *
- * $Id: TFileLooper.cxx,v 1.2 2008-09-08 13:49:16 fwinkl Exp $
  */
 
 #include "TrigValTools/TFileLooper.h"
@@ -23,44 +22,6 @@
 #include "TPRegexp.h"
 
 using namespace std;
-
-TFileLooper::TFileLooper() :
-  m_file(0),
-  m_rootDir(""),
-  m_verbose(kFALSE),
-  m_passBeforeFail(kFALSE),
-  m_errorCode(0)
-{
-}
-
-TFileLooper::TFileLooper (const TFileLooper& other)
-  : m_file (other.m_file),
-    m_rootDir (other.m_rootDir),
-    m_skipDirs (other.m_skipDirs),
-    m_verbose (other.m_verbose),
-    m_passBeforeFail (other.m_passBeforeFail),
-    m_errorCode (other.m_errorCode),
-    m_skippedObjects (other.m_skippedObjects)
-{
-  for (TPRegexp* r : m_failRE) {
-    m_failRE.push_back (new TPRegexp (*r));
-  }
-  for (TPRegexp* r : m_passRE) {
-    m_passRE.push_back (new TPRegexp (*r));
-  }
-}
-
-
-TFileLooper::~TFileLooper()
-{
-  vector<TPRegexp*>::iterator iter;
-  for (iter=m_failRE.begin(); iter!=m_failRE.end(); iter++) {
-    delete (*iter);
-  }
-  for (iter=m_passRE.begin(); iter!=m_passRE.end(); iter++) {
-    delete (*iter);
-  }
-}
 
 Int_t TFileLooper::run(const char* filename, const char* rootDir)
 {
@@ -170,17 +131,16 @@ Bool_t TFileLooper::skipObject(const char* name)
   Bool_t failMatch(kFALSE);
   Bool_t passMatch(kFALSE);
   
-  vector<TPRegexp*>::iterator iter;
-  for (iter=m_failRE.begin(); iter!=m_failRE.end(); iter++) {
-    if ((*iter)->Match(name)>0) {
+  for (auto& re : m_failRE) {
+    if (re.Match(name)>0) {
       failMatch = kTRUE;
       break;
     }
   }
 
   // give object another chance to match any of the m_passRE
-  for (iter=m_passRE.begin(); iter!=m_passRE.end(); iter++) {
-    if ((*iter)->Match(name)>0) {
+  for (auto& re : m_passRE) {
+    if (re.Match(name)>0) {
       passMatch = kTRUE;
       break;
     }
@@ -200,8 +160,7 @@ Bool_t TFileLooper::skipObject(const char* name)
 void TFileLooper::addFailRegexp(const char* regexp)
 {
   if (regexp) {
-    TPRegexp* re = new TPRegexp(regexp);    
-    if (re) m_failRE.push_back(re);
+    m_failRE.emplace_back(regexp);
   }
 }
 
@@ -210,8 +169,7 @@ void TFileLooper::addFailRegexp(const char* regexp)
 void TFileLooper::addPassRegexp(const char* regexp)
 {
   if (regexp) {
-    TPRegexp* re = new TPRegexp(regexp);    
-    if (re) m_passRE.push_back(re);
+    m_passRE.emplace_back(regexp);
   }
 }
 
