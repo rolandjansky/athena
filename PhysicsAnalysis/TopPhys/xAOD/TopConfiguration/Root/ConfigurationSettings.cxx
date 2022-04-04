@@ -628,6 +628,8 @@ namespace top {
                       " By default, no WP is used.",
                       " ");
 
+    registerParameter("UseXbbTagger", "Save LargeRjet Xbb Tagger probabilities as branches.", "False");
+
     registerParameter("BTaggingSystExcludedFromEV",
                       "User-defined list of b-tagging systematics to be dextracted from eigenvector decomposition, separated by semi-colons (none by default)",
                       "none");

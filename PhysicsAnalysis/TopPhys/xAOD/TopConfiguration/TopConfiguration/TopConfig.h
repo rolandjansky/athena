@@ -105,6 +105,7 @@ namespace top {
     inline bool useTruthMET()  const {return m_useTruthMET;}
 
     inline bool applyTTVACut() const {return m_applyTTVACut;}
+    inline bool useXbbTagger() const {return m_useXbbTagger;}
 
     inline bool useAntiMuons() const {return m_useAntiMuons;};
     inline bool useJetElectrons() const {return m_useJetElectrons;};
@@ -2345,6 +2346,9 @@ namespace top {
 
     // define if d0/z0 cut should be used at all
     bool m_applyTTVACut;
+
+    // define if LargeRJet Xbb score is saved
+    bool m_useXbbTagger;
 
     bool m_demandPriVtx; // whether at leas one primary vertex is required for each event
 
