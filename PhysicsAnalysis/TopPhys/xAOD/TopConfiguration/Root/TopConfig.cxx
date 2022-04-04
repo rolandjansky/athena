@@ -52,6 +52,8 @@ namespace top {
     m_useTruthMET(false),
 
     m_applyTTVACut(true),
+    
+    m_useXbbTagger(false),
 
     m_demandPriVtx(true),
 
@@ -1716,6 +1718,7 @@ namespace top {
     parse_bTagWPs(settings->value("BTaggingWP"), m_chosen_btaggingWP, m_sgKeyJets + ", " + m_sgKeyTrackJets);
     parse_bTagWPs(settings->value("BTaggingCaloJetWP"), m_chosen_btaggingWP_caloJet, m_sgKeyJets);
     parse_bTagWPs(settings->value("BTaggingTrackJetWP"), m_chosen_btaggingWP_trkJet, m_sgKeyTrackJets);
+    if (settings->value("UseXbbTagger") == "True") this->m_useXbbTagger = true;
 
     // check whether user is using the deprecated BTaggingWP option
     if (m_chosen_btaggingWP.size() > 0) {

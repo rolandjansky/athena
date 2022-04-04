@@ -15,6 +15,9 @@
 #include "AthContainers/DataVector.h"
 #include <unordered_map>
 
+namespace FlavorTagDiscriminants {
+  class HbbTag;
+}
 
 namespace top {
 // fwd declare upgrade class
@@ -25,6 +28,8 @@ namespace top {
  * extended if the user wants to inherit from this and implement the functions
  * themselves.
  */
+
+  
   class EventSaverFlatNtuple: public top::EventSaverBase, public asg::AsgTool  {
   public:
     /**
@@ -280,6 +285,8 @@ namespace top {
     // Store boosted jet tagger names
     std::vector<std::string> m_boostedJetTaggersNames;
     std::vector<std::string> m_boostedJetTaggersNamesCalibrated;
+    //Xbb Tagger
+    std::unique_ptr<FlavorTagDiscriminants::HbbTag> m_hbbTag; //!
 
     //some event weights
     float m_weight_mc;
@@ -793,6 +800,10 @@ namespace top {
     std::vector<float> m_ljet_e;
     std::vector<float> m_ljet_m;
     std::vector<int> m_ljet_truthLabel;
+    std::vector<float> m_ljet_Xbb2020v3Top;
+    std::vector<float> m_ljet_Xbb2020v3QCD;
+    std::vector<float> m_ljet_Xbb2020v3Higgs;
+    std::vector<float> m_ljet_Xbb2020v3;
 
     std::unordered_map<std::string, std::vector<float> > m_ljet_substructure;
     std::unordered_map<std::string, std::vector<char> > m_ljet_isTagged;
@@ -1684,5 +1695,6 @@ namespace top {
     ClassDefOverride(top::EventSaverFlatNtuple, 0);
   };
 }
+
 
 #endif

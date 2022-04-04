@@ -25,6 +25,9 @@
 
 #include "xAODTracking/TrackParticlexAODHelpers.h"
 
+//Xbb Tagger
+#include "FlavorTagDiscriminants/HbbTag.h"
+
 namespace top {
   EventSaverFlatNtuple::EventSaverFlatNtuple() :
     asg::AsgTool("top::EventSaverFlatNtuple"),
@@ -1298,6 +1301,15 @@ namespace top {
 	  
 	  
 	  
+        }
+
+        if(m_config->useXbbTagger()){
+          struct FlavorTagDiscriminants::HbbTagConfig hbbConfig_Xbb2020v3("dev/BTagging/2020v3/Xbb/GhostVR30Rmax4Rmin02TrackJet_BTagging201903/network.json");
+          m_hbbTag = std::make_unique<FlavorTagDiscriminants::HbbTag>(hbbConfig_Xbb2020v3);
+          systematicTree->makeOutputVariable(m_ljet_Xbb2020v3Top, "ljet_Xbb2020v3_pTop");
+          systematicTree->makeOutputVariable(m_ljet_Xbb2020v3QCD, "ljet_Xbb2020v3_pQCD");
+          systematicTree->makeOutputVariable(m_ljet_Xbb2020v3Higgs, "ljet_Xbb2020v3_pHiggs");
+          systematicTree->makeOutputVariable(m_ljet_Xbb2020v3, "ljet_Xbb2020v3");
         }
       }
 
@@ -3451,6 +3463,13 @@ namespace top {
 	}
       } // end isMC()
 
+      if(m_config->useXbbTagger()){
+        m_ljet_Xbb2020v3Top.resize(nLargeRJets);
+        m_ljet_Xbb2020v3QCD.resize(nLargeRJets);
+        m_ljet_Xbb2020v3Higgs.resize(nLargeRJets);
+        m_ljet_Xbb2020v3.resize(nLargeRJets);
+      }
+
       for (const auto* const jetPtr : event.m_largeJets) {
         m_ljet_pt[i] = jetPtr->pt();
         m_ljet_eta[i] = jetPtr->eta();
@@ -3490,8 +3509,21 @@ namespace top {
 
         }
 
+        if(m_config->useXbbTagger()){
+         //Xbb Tagger
+         m_hbbTag->decorate(*jetPtr);
+         const static SG::AuxElement::ConstAccessor<float> accHbbm_Xbb2020v3Higgs("Xbb2020v3_Higgs");
+         const static SG::AuxElement::ConstAccessor<float> accHbbm_Xbb2020v3QCD("Xbb2020v3_QCD");
+         const static SG::AuxElement::ConstAccessor<float> accHbbm_Xbb2020v3Top("Xbb2020v3_Top");
+         m_ljet_Xbb2020v3Top[i] = accHbbm_Xbb2020v3Top(*jetPtr);
+         m_ljet_Xbb2020v3QCD[i] = accHbbm_Xbb2020v3QCD(*jetPtr);
+         m_ljet_Xbb2020v3Higgs[i] = accHbbm_Xbb2020v3Higgs(*jetPtr);
+         float ftop = 0.25; 
+         m_ljet_Xbb2020v3[i] = log(m_ljet_Xbb2020v3Higgs[i]/(ftop*m_ljet_Xbb2020v3Top[i]+(1-ftop)*m_ljet_Xbb2020v3QCD[i]));
+        }
         ++i;
       }
+
     }
 
     //track jets
