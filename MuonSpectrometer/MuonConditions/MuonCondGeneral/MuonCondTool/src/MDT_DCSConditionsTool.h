@@ -121,11 +121,8 @@ public:
   std::string m_chrono2;
   std::string m_chrono3;
   std::string m_chrono4;
-  ToolHandle<IMDT_MapConversion> m_condMapTool;
+  ToolHandle<IMDT_MapConversion> m_condMapTool; 
  
-  MsgStream m_log;
-  bool      m_debug;
-  bool      m_verbose;
 };
  
 

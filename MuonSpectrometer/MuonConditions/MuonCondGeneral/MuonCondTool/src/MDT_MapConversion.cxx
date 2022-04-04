@@ -31,7 +31,6 @@
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 
 //**********************************************************
-//* Author Monica Verducci monica.verducci@cern.ch
 //*
 //* Tool to retrieve the MDT Map Info from ORACLE DB
 //* retrieving mapping conversion tables from DB
@@ -43,8 +42,7 @@ MDT_MapConversion::MDT_MapConversion (const std::string& type,
 				    const std::string& name,
 				    const IInterface* parent)
   : AthAlgTool(type, name, parent),
-    m_mdtIdHelper(nullptr),
-    m_chronoSvc(nullptr)
+    m_mdtIdHelper(nullptr)
 {
   
   declareInterface< IMDT_MapConversion >(this);
@@ -54,33 +52,10 @@ MDT_MapConversion::MDT_MapConversion (const std::string& type,
 
 StatusCode MDT_MapConversion::initialize()
 {
-  MsgStream log(msgSvc(), name());
 
-  StatusCode sc = detStore()->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
-  if (sc.isFailure())
-    {
-      log << MSG::FATAL << " Cannot retrieve MdtIdHelper " << endmsg;
-      return sc;
-    }
-  
-    
-  if(sc.isFailure()) return StatusCode::FAILURE;
-  
-  
-  
-  // initialize the chrono service
-  sc = service("ChronoStatSvc",m_chronoSvc);
-  if (sc != StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Could not find the ChronoSvc" << endmsg;
-    return sc;
-  }
-	
+ATH_CHECK(detStore()->retrieve(m_mdtIdHelper, "MDTIDHELPER" ));
  
-  
-  if(sc.isFailure()) return StatusCode::FAILURE;
-
-  
-  IGeoModelSvc *geoModel;
+  IGeoModelSvc *geoModel{nullptr};
   ATH_CHECK(service ("GeoModelSvc",geoModel));
   
   std::string AtlasVersion = geoModel->atlasVersion();
@@ -89,24 +64,13 @@ StatusCode MDT_MapConversion::initialize()
   std::string detectorNode = MuonVersion.empty() ? "ATLAS" : "MuonSpectrometer";
 
  
-  IRDBAccessSvc *accessSvc;
+  IRDBAccessSvc *accessSvc{nullptr};
   ATH_CHECK(service("RDBAccessSvc",accessSvc));
-  
-  
-
-//   const IRDBRecordset *switchSet = accessSvc->getRecordset("HwSwIdMapping", detectorKey, detectorNode);
- 
-//   if ((*switchSet).size()==0) {
-//     log<< MSG::WARNING <<"Old Atlas Version :  "<< AtlasVersion << " Only Online Identifier"<<endmsg;
-//     return StatusCode::SUCCESS;
-    
-//   }
- 
 
   IRDBRecordset_ptr switchSet = accessSvc->getRecordsetPtr("HwSwIdMapping", detectorKey, detectorNode);
 
   if ((*switchSet).size()==0) {
-    log<< MSG::WARNING <<"Old Atlas Version : "<< AtlasVersion << " Only Online Identifier. Falling back to HwSwIdMapping-00 tag"<<endmsg;
+   ATH_MSG_WARNING("Old Atlas Version : "<< AtlasVersion << " Only Online Identifier. Falling back to HwSwIdMapping-00 tag");
     switchSet = accessSvc->getRecordsetPtr("HwSwIdMapping","HwSwIdMapping-00");
   } 
   
@@ -117,21 +81,16 @@ StatusCode MDT_MapConversion::initialize()
     const IRDBRecord *switches = (*switchSet)[irow];
     std::string hardwareName = switches->getString("HARDNAME");
     std::string stName = switches->getString("SOFTNAME");
+    if (stName == "BIX" || stName == "BIY") std::exit(1);
     int stPhi = switches->getInt("SOFTOCTANT");
     int stEta = switches->getInt("SOFTIZ");
-    // log << MSG::INFO << "*********************" <<hardwareName<< endmsg; 
-    //log << MSG::INFO << "*********************" <<stName<< endmsg;
-    //log << MSG::INFO << "*********************" <<stPhi<< endmsg;
-    // log << MSG::INFO << "*********************" <<stEta<< endmsg;
     Identifier ChamberId = m_mdtIdHelper->elementID(stName,stEta,stPhi);
-    //log << MSG::INFO << "#### Chamber Name Offline" << ChamberId<< endmsg;
     
-    //m_Chamber_Map.insert(std::make_pair(hardwareName,ChamberId));
     m_Chamber_Map[hardwareName]=ChamberId;
     
   }
 	
-    log << MSG::INFO << "#### Chamber Map SIZE" << m_Chamber_Map.size()<< endmsg;
+  ATH_MSG_INFO( "#### Chamber Map SIZE" << m_Chamber_Map.size());
   return StatusCode::SUCCESS;
  
   
