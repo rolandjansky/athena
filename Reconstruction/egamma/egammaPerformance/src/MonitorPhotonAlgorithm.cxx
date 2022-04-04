@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
   Author : B. Laforge (laforge@lpnhe.in2p3.fr)
   4 May 2020
@@ -12,7 +12,7 @@ MonitorPhotonAlgorithm::MonitorPhotonAlgorithm( const std::string& name, ISvcLoc
 {
 }
 
-MonitorPhotonAlgorithm::~MonitorPhotonAlgorithm() {}
+MonitorPhotonAlgorithm::~MonitorPhotonAlgorithm() = default;
 
 
 StatusCode MonitorPhotonAlgorithm::initialize() {

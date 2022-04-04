@@ -25,16 +25,11 @@ UPDATED:
 // ----------------------------
 //  Constructor
 // ----------------------------
-egPID::egPID()
-{}
+egPID::egPID() = default;
 
 // =========================================================
 // copy constructor
-egPID::egPID(const egPID& original)
-  : m_egammaIDint (original.m_egammaIDint),  // value as unsigned integer
-    m_egammaID (original.m_egammaID)         // value as double
-{
-}
+egPID::egPID(const egPID& original) = default;
 
 // =========================================================
 // assignment
@@ -51,8 +46,7 @@ egPID& egPID::operator=(const egPID& original)
 
 // =========================================================
 egPID::~egPID()
-{ 
-}
+= default;
 
 // =========================================================
 double egPID::egammaID(egammaPIDObs::PID key, bool *found) const 

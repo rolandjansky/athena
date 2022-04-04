@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -8,7 +8,7 @@
 namespace Analysis
 {
   PhotonAssociation::PhotonAssociation()
-  {  } 
+  = default; 
   
   PhotonAssociation::PhotonAssociation(const NameType& name)
   {

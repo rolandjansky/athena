@@ -49,7 +49,7 @@ EMConvert::EMConvert()
 
 // destructor
 EMConvert::~EMConvert()
-{ }
+= default;
 
 bool EMConvert::hasBoolParameter(egammaParameters::ParamDef key) const {
   if (key == egammaParameters::convTrackMatch)          return true;

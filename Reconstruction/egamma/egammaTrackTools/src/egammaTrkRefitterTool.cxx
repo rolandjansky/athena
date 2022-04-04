@@ -40,7 +40,7 @@ egammaTrkRefitterTool::egammaTrkRefitterTool(const std::string& type,
   declareInterface<IegammaTrkRefitterTool>(this);
 }
 
-egammaTrkRefitterTool::~egammaTrkRefitterTool() {}
+egammaTrkRefitterTool::~egammaTrkRefitterTool() = default;
 
 StatusCode
 egammaTrkRefitterTool::initialize()

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Electron_p4.cxx 
@@ -17,4 +17,4 @@
 /////////////////////////////////////////////////////////////////// 
 
 Electron_p4::~Electron_p4()
-{}
+= default;
