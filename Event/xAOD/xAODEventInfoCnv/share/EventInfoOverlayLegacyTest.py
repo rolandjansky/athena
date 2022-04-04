@@ -54,8 +54,8 @@ conddb.setGlobalTag("OFLCOND-SDR-BS7T-04-00")
 #--------------------------------------------------------------
 # Input options
 #--------------------------------------------------------------
-svcMgr.EventSelector.InputCollections = [ "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/22.0/v4/RDO.merged-pileup-MT.100events.pool.root" ]
-svcMgr.SecondaryEventSelector.InputCollections = [ "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000765.pool.root.1" ]
+svcMgr.EventSelector.InputCollections = [ "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayTests/PresampledPileUp/22.0/Run2/large/mc20_13TeV.900149.PG_single_nu_Pt50.digit.RDO.e8307_s3482_s3136_d1715/RDO.26811908._031801.pool.root.1" ]
+svcMgr.SecondaryEventSelector.InputCollections = [ "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000425.pool.root.1" ]
 
 #--------------------------------------------------------------
 # Remapping Service

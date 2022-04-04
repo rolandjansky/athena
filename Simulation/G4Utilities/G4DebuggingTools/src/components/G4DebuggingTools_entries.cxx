@@ -7,6 +7,7 @@
 #include "../VolumeDebuggerTool.h"
 #include "../Geant4SetupCheckerTool.h"
 #include "../StepHistogramTool.h"
+#include "../TestBoundariesUserActionTool.h"
 
 DECLARE_COMPONENT( G4UA::EnergyConservationTestTool )
 DECLARE_COMPONENT( G4UA::HyperspaceCatcherTool )
@@ -17,4 +18,4 @@ DECLARE_COMPONENT( G4UA::StepNtupleTool )
 DECLARE_COMPONENT( G4UA::VolumeDebuggerTool )
 DECLARE_COMPONENT( G4UA::Geant4SetupCheckerTool )
 DECLARE_COMPONENT( G4UA::StepHistogramTool )
-
+DECLARE_COMPONENT( G4UA::TestBoundariesUserActionTool )

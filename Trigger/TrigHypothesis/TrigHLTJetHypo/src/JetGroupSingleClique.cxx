@@ -3,29 +3,30 @@
 */
 
 #include "./JetGroupSingleClique.h"
-#include "./JetStreamer.h"
-
 #include <set>
 #include <string>
+#include <sstream>
 
-JetGroupSingleClique::JetGroupSingleClique(const std::vector<std::size_t>& satisfyingJetGroups,
-					   const JetGroupInd2ElemInds& jg2elemjgs
-					   ) {
 
-  // make a vector of the jet indices that satisfy a sibling Condition
-  // All siblings are of the same clique, only one passed here.
+JetGroupSingleClique::JetGroupSingleClique(const std::vector<std::size_t>& satisfyingJets,
+					   std::size_t n_required){
   
-  std::set<std::size_t> j_elem_indices;
-  for (const auto& i : satisfyingJetGroups){
-    j_elem_indices.insert(jg2elemjgs.at(i).begin(),
-			  jg2elemjgs.at(i).end());
+  // Make a jet group for the special case of a simple mono-clique tree.
+  // Only check needed is that there are enough jets. As the three is mono-clique
+  // all Conditions pass the same jets. Only the first condition need be checked.
+  // No unions need be made.
+  
+  if (satisfyingJets.empty()) {
+    m_done = true;
+  } else  if (satisfyingJets.size() < n_required) {
+    m_done = true;
+  } else {
+    m_jetIndices = satisfyingJets;
+    m_done = false;
   }
 
-  m_jetIndices.assign(j_elem_indices.cbegin(), j_elem_indices.cend());
-  
-  if (m_jetIndices.empty()) {m_done = true;}
 }
-  
+
 
 std::vector<std::size_t> JetGroupSingleClique::next(const Collector& collector){
   if(collector){
@@ -42,3 +43,5 @@ std::vector<std::size_t> JetGroupSingleClique::next(const Collector& collector){
   m_done = true;
   return m_jetIndices;
 }
+
+bool  JetGroupSingleClique::valid() const {return true;}

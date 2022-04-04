@@ -12,9 +12,9 @@ from ..CommonSequences.CaloSequences_FWD import fastCaloMenuSequence_FWD
 from ..Electron.FastElectronMenuSequences import fastElectronMenuSequence, fastElectronMenuSequence_LRT
 from ..Electron.PrecisionCaloMenuSequences import precisionCaloMenuSequence, precisionCaloMenuSequence_LRT
 from ..Electron.PrecisionElectronMenuSequences import precisionElectronMenuSequence, precisionElectronMenuSequence_LRT
-from ..Electron.PrecisionElectronMenuSequences_GSF import precisionElectronMenuSequence_GSF
+from ..Electron.PrecisionElectronMenuSequences_GSF import precisionElectronMenuSequence_GSF, precisionElectronMenuSequence_LRTGSF
 from ..Electron.PrecisionTrackingMenuSequences     import precisionTrackingMenuSequence, precisionTrackingMenuSequence_LRT
-from ..Electron.PrecisionTracks_GSFRefittedMenuSequences   import precisionTracks_GSFRefittedMenuSequence
+from ..Electron.PrecisionTracks_GSFRefittedMenuSequences   import precisionTracks_GSFRefittedMenuSequence, precisionTracks_GSFRefittedMenuSequence_LRT
 
 from TrigBphysHypo.TrigMultiTrkComboHypoConfig import StreamerNoMuonDiElecFastComboHypoCfg, NoMuonDiElecPrecisionComboHypoCfg, StreamerDiElecFastComboHypoCfg, DiElecPrecisionComboHypoCfg, TrigMultiTrkComboHypoToolFromDict
 
@@ -60,6 +60,9 @@ def precisionTrackingSequenceCfg_lrt( flags, is_probe_leg=False ):
 def precisionTrack_GSFRefittedSequenceCfg( flags, is_probe_leg=False ):
     return precisionTracks_GSFRefittedMenuSequence('Electron', is_probe_leg=is_probe_leg)
 
+def precisionTrack_GSFRefittedSequenceCfg_lrt( flags, is_probe_leg=False ):
+    return precisionTracks_GSFRefittedMenuSequence_LRT('Electron', is_probe_leg=is_probe_leg)
+
 def precisionElectronSequenceCfg( flags, is_probe_leg=False ):
     return precisionElectronMenuSequence(is_probe_leg=is_probe_leg)
 
@@ -68,6 +71,9 @@ def precisionElectronSequenceCfg_ion( flags, is_probe_leg=False ):
 
 def precisionGSFElectronSequenceCfg( flags, is_probe_leg=False):
     return precisionElectronMenuSequence_GSF(is_probe_leg=is_probe_leg)
+
+def precisionGSFElectronSequenceCfg_lrt( flags, is_probe_leg=False):
+    return precisionElectronMenuSequence_LRTGSF(is_probe_leg=is_probe_leg)
 
 def precisionElectronSequenceCfg_lrt( flags, is_probe_leg=False):
     return precisionElectronMenuSequence_LRT(is_probe_leg=is_probe_leg)
@@ -188,8 +194,10 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         # Now if a chain is configured to do gsf refitting we need to add another tracking step for the GSF refitting:
         # getPrecisionTrack_GSFRefitted
         if "gsf" in self.chainPart['gsfInfo']:
-            stepNames += ['getPrecisionTrack_GSFRefitted']
-
+            if self.chainPart['lrtInfo']:
+                stepNames += ['getPrecisionTrack_GSFRefitted_lrt']
+            else:
+                stepNames += ['getPrecisionTrack_GSFRefitted']
            
         # If its an idperf chain, we will not run precision Electron. Just precision Calo and Precision Tracking so returning here if its an etcut chain
         if 'idperf' in self.chainPart['idperfInfo']:
@@ -202,10 +210,16 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         # getPrecisionGSFElectron
         # getPrecisionElectron_lrt
 
-        if self.chainPart['lrtInfo']:
-            stepNames += ['getPrecisionElectron_lrt']
-        elif "gsf" in self.chainPart['gsfInfo']:
-            stepNames += ['getPrecisionGSFElectron']
+        if "gsf" in self.chainPart['gsfInfo']:
+            if self.chainPart['lrtInfo']:
+                stepNames += ['getPrecisionGSFElectron_lrt']
+            else:
+                stepNames += ['getPrecisionGSFElectron']
+        elif self.chainPart['lrtInfo']:
+            if "gsf" in self.chainPart['gsfInfo']:
+               stepNames += ['getPrecisionGSFElectron_lrt']
+            else:
+               stepNames += ['getPrecisionElectron_lrt']
         else:
             stepNames += ['getPrecisionElectron']
 
@@ -296,6 +310,10 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         stepName = "PrecisionTrack_GSFRefitted_electron"
         return self.getStep(5,stepName,[precisionTrack_GSFRefittedSequenceCfg], is_probe_leg=is_probe_leg)
  
+    def getPrecisionTrack_GSFRefitted_lrt(self,is_probe_leg=False):
+        stepName = "PrecisionTrack_GSFRefitted_electron_lrt"
+        return self.getStep(5,stepName,[precisionTrack_GSFRefittedSequenceCfg_lrt], is_probe_leg=is_probe_leg)
+
     def getPrecisionElectron(self,is_probe_leg=False):
 
         isocut = self.chainPart['isoInfo']
@@ -339,6 +357,13 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         else:
             stepName = "precision_electron_GSF"+str(isocut)
             return self.getStep(6,stepName,[ precisionGSFElectronSequenceCfg], is_probe_leg=is_probe_leg)
+
+    def getPrecisionGSFElectron_lrt(self,is_probe_leg=False):
+
+        isocut = self.chainPart['isoInfo']
+        log.debug(' isolation cut = ' + str(isocut))
+        stepName = "precision_electron_LRTGSF"+str(isocut)
+        return self.getStep(6,stepName,[ precisionGSFElectronSequenceCfg_lrt], is_probe_leg=is_probe_leg)
 
     def getPrecisionElectron_lrt(self,is_probe_leg=False):
 

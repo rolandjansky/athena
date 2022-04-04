@@ -9,7 +9,7 @@ from AthenaConfiguration.Enums import BeamType
 from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 from MuonConfig.MuonRecToolsConfig import MuonEDMPrinterToolCfg
-from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasRKPropagatorCfg, MuonCombinedPropagatorCfg, AtlasNavigatorCfg, AtlasEnergyLossUpdatorCfg
+from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasNavigatorCfg, AtlasEnergyLossUpdatorCfg
 
 #FIXME
 GeV = 1000
@@ -230,7 +230,8 @@ def MuonCreatorToolCfg(flags, name="MuonCreatorTool", **kwargs):
     kwargs.setdefault("AmbiguityProcessor", acc.popPrivateTools())
     result.merge(acc)
 
-    kwargs.setdefault("Propagator", result.popToolsAndMerge( AtlasRKPropagatorCfg(flags) ) )
+    from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
+    kwargs.setdefault("Propagator", result.popToolsAndMerge( RungeKuttaPropagatorCfg(flags) ) )
     # Not explicitly setting up MuonDressingTool (but probably should FIXME)
     # Not explicitly setting up MomentumBalanceTool nor ScatteringAngleTool
     # Not explicitly setting up MuonSegmentConverterTool (but probably should FIXME)
@@ -491,8 +492,9 @@ def MuidCaloEnergyToolCfg(flags, name='MuidCaloEnergyTool', **kwargs ):
     return result
 
 def MuidCaloTrackStateOnSurfaceCfg(flags, name='MuidCaloTrackStateOnSurface', **kwargs ):
-    result = ComponentAccumulator()    
-    kwargs.setdefault("Propagator", result.popToolsAndMerge( AtlasRKPropagatorCfg(flags) ) )
+    result = ComponentAccumulator()
+    from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
+    kwargs.setdefault("Propagator", result.popToolsAndMerge( RungeKuttaPropagatorCfg(flags) ) )
     kwargs.setdefault("MinRemainingEnergy" , 0.2*GeV )
     kwargs.setdefault("ParamPtCut"         , 3.0*GeV )
     acc = MuidCaloEnergyToolCfg(flags)
@@ -509,7 +511,8 @@ def MuidCaloTrackStateOnSurfaceCfg(flags, name='MuidCaloTrackStateOnSurface', **
 
 def MuidCaloTrackStateOnSurfaceParamCfg(flags, name='MuidCaloTrackStateOnSurfaceParam', **kwargs ):
     result=ComponentAccumulator()
-    kwargs.setdefault("Propagator", result.popToolsAndMerge( AtlasRKPropagatorCfg(flags) ) )
+    from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
+    kwargs.setdefault("Propagator", result.popToolsAndMerge( RungeKuttaPropagatorCfg(flags) ) )
     kwargs.setdefault("MinRemainingEnergy" , 0.2*GeV )
     kwargs.setdefault("ParamPtCut"         , 3.0*GeV )
     kwargs.setdefault("CaloEnergyDeposit"  , MuidCaloEnergyParam(flags) )
@@ -700,6 +703,7 @@ def CombinedMuonTrackBuilderCfg(flags, name='CombinedMuonTrackBuilder', **kwargs
         kwargs.setdefault("TrackSummaryTool"              , acc.popPrivateTools() )
         result.merge(acc)
 
+    from TrkConfig.TrkExRungeKuttaPropagatorConfig import MuonCombinedPropagatorCfg
     acc = MuonCombinedPropagatorCfg(flags)
     propagator = acc.popPrivateTools()
     kwargs.setdefault("Propagator"                    , propagator )
@@ -795,6 +799,7 @@ def MuidMuonRecoveryCfg(flags, name='MuidMuonRecovery',**kwargs):
 
 def MuonCombinedTrackFitterCfg(flags, name="MuonCombinedTrackFitter", **kwargs ):
     from MuonConfig.MuonRIO_OnTrackCreatorConfig import MuonRotCreatorCfg
+    from TrkConfig.TrkExRungeKuttaPropagatorConfig import MuonCombinedPropagatorCfg
 
     result = AtlasExtrapolatorCfg(flags)
     kwargs.setdefault("ExtrapolationTool", result.popPrivateTools() )
@@ -1129,7 +1134,6 @@ def MuonSystemExtensionToolCfg(flags, **kwargs):
     result.setPrivateTools(muon_ext_tool)
     return result
 def MuTagMatchingToolCfg(flags, name='MuTagMatchingTool', **kwargs ):
-    from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasRKPropagatorCfg
     from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
 
     #TODO: defaults in cxx
@@ -1145,7 +1149,8 @@ def MuTagMatchingToolCfg(flags, name='MuTagMatchingTool', **kwargs ):
     result = AtlasExtrapolatorCfg(flags)
     kwargs.setdefault("IExtrapolator", result.popPrivateTools())
 
-    kwargs.setdefault("Propagator", result.popToolsAndMerge( AtlasRKPropagatorCfg(flags) ))
+    from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
+    kwargs.setdefault("Propagator", result.popToolsAndMerge( RungeKuttaPropagatorCfg(flags) ))
 
     from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import (
         TrackingGeometryCondAlgCfg)

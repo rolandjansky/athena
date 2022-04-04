@@ -25,7 +25,7 @@ namespace TrigConf {
                     int etamax);
       CaloJetInput();
       
-      virtual ~CaloJetInput();
+      virtual ~CaloJetInput() override = default;
       
       // getters
       const std::string& type() const { return m_Type; }      
@@ -43,7 +43,7 @@ namespace TrigConf {
       void setEtaMin( int etamin ) { m_EtaMin = etamin; }
       void setEtaMax( int etamax ) { m_EtaMax = etamax; }
 	
-      virtual void print(const std::string& indent="", unsigned int detail=1) const;
+      virtual void print(const std::string& indent="", unsigned int detail=1) const override;
 
    private:
 

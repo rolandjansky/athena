@@ -13,6 +13,9 @@
 
 // Tools
 #include "ActsTrkToolInterfaces/ISeedingTool.h"
+#include "ActsTrkToolInterfaces/ITrackParamsEstimationTool.h"
+#include "ActsGeometryInterfaces/IActsTrackingGeometryTool.h"
+#include "ActsGeometryInterfaces/IActsATLASConverterTool.h"
 
 // Athena
 #include "BeamSpotConditionsData/BeamSpotData.h"
@@ -42,6 +45,9 @@ namespace ActsTrk {
   private:
     // Tool Handles
     ToolHandle< ActsTrk::ISeedingTool > m_seedsTool {this, "SeedTool", "","Seed Tool"};
+    ToolHandle< ActsTrk::ITrackParamsEstimationTool > m_paramEstimationTool {this, "TrackParamEstimationTool", "", "Track Param Estimation from Seeds"};
+    PublicToolHandle< IActsTrackingGeometryTool > m_trackingGeometryTool {this, "TrackingGeometryTool", "ActsTrackingGeometryTool"};
+    ToolHandle< IActsATLASConverterTool > m_ATLASConverterTool{this, "ATLASConverterTool", "ActsATLASConverterTool"};
 
     // Handle Keys
     SG::ReadCondHandleKey< InDet::BeamSpotData > m_beamSpotKey{this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot"};

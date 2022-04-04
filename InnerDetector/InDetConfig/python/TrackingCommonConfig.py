@@ -63,11 +63,12 @@ def LWTNNCondAlgCfg(flags, **kwargs):
 
 
 def NnClusterizationFactoryCfg(flags, name="NnClusterizationFactory", **kwargs):
-    acc = ComponentAccumulator()
+    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelChargeCalibCondAlgCfg
+    acc = PixelChargeCalibCondAlgCfg(flags) # To produce PixelChargeCalibCondData CondHandle
 
     if "PixelLorentzAngleTool" not in kwargs:
-        from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleTool
-        PixelLorentzAngleTool = PixelLorentzAngleTool(flags, name="PixelLorentzAngleTool", **kwargs)
+        from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleToolCfg
+        PixelLorentzAngleTool = acc.popToolsAndMerge(PixelLorentzAngleToolCfg(flags))
         kwargs.setdefault("PixelLorentzAngleTool", PixelLorentzAngleTool)
 
     if flags.GeoModel.Run is LHCPeriod.Run1:
@@ -120,8 +121,8 @@ def InDetPixelClusterOnTrackToolDigitalCfg(flags, name="InDetPixelClusterOnTrack
     kwargs.setdefault("SplitClusterAmbiguityMap", "")
 
     if "LorentzAngleTool" not in kwargs:
-        from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleCfg
-        PixelLorentzAngleTool = acc.popToolsAndMerge(PixelLorentzAngleCfg(flags))
+        from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleToolCfg
+        PixelLorentzAngleTool = acc.popToolsAndMerge(PixelLorentzAngleToolCfg(flags))
         kwargs.setdefault("LorentzAngleTool", PixelLorentzAngleTool)
 
     if flags.InDet.Tracking.doDigitalROTCreation:
@@ -151,8 +152,8 @@ def InDetPixelClusterOnTrackToolCfg(flags, name="InDetPixelClusterOnTrackTool", 
     acc = ComponentAccumulator()
 
     if "LorentzAngleTool" not in kwargs:
-        from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleCfg
-        kwargs.setdefault("LorentzAngleTool", acc.popToolsAndMerge(PixelLorentzAngleCfg(flags)))
+        from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleToolCfg
+        kwargs.setdefault("LorentzAngleTool", acc.popToolsAndMerge(PixelLorentzAngleToolCfg(flags)))
 
     if flags.InDet.Tracking.doDigitalROTCreation:
         PixelClusterOnTrackTool = acc.popToolsAndMerge(InDetPixelClusterOnTrackToolDigitalCfg(flags, name, **kwargs))
@@ -166,8 +167,8 @@ def InDetSCT_ClusterOnTrackToolCfg(flags, name='InDetSCT_ClusterOnTrackTool', **
     acc = ComponentAccumulator()
 
     if 'LorentzAngleTool' not in kwargs :
-        from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
-        SCT_LorentzAngle = acc.popToolsAndMerge(SCT_LorentzAngleCfg(flags))
+        from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleToolCfg
+        SCT_LorentzAngle = acc.popToolsAndMerge(SCT_LorentzAngleToolCfg(flags))
         kwargs.setdefault("LorentzAngleTool", SCT_LorentzAngle )
         
     kwargs.setdefault("CorrectionStrategy", 0 ) # do correct position bias
@@ -318,18 +319,13 @@ def InDetTrackPRD_AssociationCfg(flags, name='InDetTrackPRD_Association', **kwar
     return acc
 
 def InDetTRTDriftCircleCutForPatternRecoCfg(flags, name='InDetTRTDriftCircleCutForPatternReco', **kwargs):
-    result = ComponentAccumulator()
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTActiveCondAlgCfg
+    result = TRTActiveCondAlgCfg(flags) # To produce the input TRTCond::ActiveFraction CondHandle
     kwargs.setdefault("MinOffsetDCs", 5)
     kwargs.setdefault("UseNewParameterization", flags.InDet.Tracking.ActivePass.useNewParameterizationTRT)
     kwargs.setdefault("UseActiveFractionSvc", flags.Detector.EnableTRT)
     result.setPrivateTools(CompFactory.InDet.InDetTrtDriftCircleCutTool(name, **kwargs))
     return result
-
-def InDetSummaryHelperNoHoleSearchCfg(flags, name='InDetSummaryHelperNoHoleSearch', **kwargs):
-    if 'HoleSearch' not in kwargs :
-        kwargs.setdefault("HoleSearch", None)
-    from  InDetConfig.InDetRecToolConfig import InDetTrackSummaryHelperToolCfg
-    return InDetTrackSummaryHelperToolCfg(flags, name = name, **kwargs)
 
 def InDetTrackSummaryToolCfg(flags, name='InDetTrackSummaryTool', **kwargs):
     if flags.Detector.GeometryITk:
@@ -342,9 +338,10 @@ def InDetTrackSummaryToolCfg(flags, name='InDetTrackSummaryTool', **kwargs):
 
     if 'InDetSummaryHelperTool' not in kwargs :
         if do_holes:
-            from InDetConfig.InDetRecToolConfig import InDetTrackSummaryHelperToolCfg
+            from InDetConfig.InDetTrackSummaryHelperToolConfig import InDetTrackSummaryHelperToolCfg
             InDetSummaryHelperTool = acc.popToolsAndMerge(InDetTrackSummaryHelperToolCfg(flags))
         else:
+            from InDetConfig.InDetTrackSummaryHelperToolConfig import InDetSummaryHelperNoHoleSearchCfg
             InDetSummaryHelperTool = acc.popToolsAndMerge(InDetSummaryHelperNoHoleSearchCfg(flags))
         kwargs.setdefault("InDetSummaryHelperTool", InDetSummaryHelperTool)
 
@@ -363,10 +360,10 @@ def InDetTrackSummaryToolAmbiCfg(flags, name='InDetTrackSummaryToolAmbi', **kwar
     acc = ComponentAccumulator()
 
     if 'InDetSummaryHelperTool' not in kwargs :
-        from InDetConfig.InDetRecToolConfig import InDetTrackSummaryHelperToolCfg
+        from InDetConfig.InDetTrackSummaryHelperToolConfig import InDetTrackSummaryHelperToolCfg
         InDetSummaryHelperTool = acc.popToolsAndMerge(InDetTrackSummaryHelperToolCfg(flags,
-                                                                                         name = "InDetAmbiguityProcessorSplitProbSummaryHelper" + flags.InDet.Tracking.ActivePass.extension,
-                                                                                         ClusterSplitProbabilityName = "InDetAmbiguityProcessorSplitProb" + flags.InDet.Tracking.ActivePass.extension))
+                                                                                     name = "InDetAmbiguityProcessorSplitProbSummaryHelper" + flags.InDet.Tracking.ActivePass.extension,
+                                                                                     ClusterSplitProbabilityName = "InDetAmbiguityProcessorSplitProb" + flags.InDet.Tracking.ActivePass.extension))
         kwargs.setdefault("InDetSummaryHelperTool", InDetSummaryHelperTool)
 
     InDetTrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags, name, **kwargs))
@@ -382,6 +379,8 @@ def PixeldEdxAlg(flags, name = "PixeldEdxAlg", **kwargs):
 
 def InDetPixelToTPIDToolCfg(flags, name = "InDetPixelToTPIDTool", **kwargs):
     acc = PixeldEdxAlg(flags)
+    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelConfigCondAlgCfg
+    acc.merge(PixelConfigCondAlgCfg(flags)) # To produce PixelModuleData CondHandle
     InDetPixelToTPIDTool = CompFactory.InDet.PixelToTPIDTool(name, **kwargs)
     acc.setPrivateTools(InDetPixelToTPIDTool)
     return acc
@@ -405,35 +404,10 @@ def InDetRecTestBLayerToolCfg(flags, name='InDetRecTestBLayerTool', **kwargs):
     acc.setPrivateTools(InDetTestBLayerTool)
     return acc
 
-def InDetSummaryHelperSharedHitsCfg(flags, name='InDetSummaryHelperSharedHits', **kwargs):
-    acc = ComponentAccumulator()
-    if 'PixelToTPIDTool' not in kwargs :
-        InDetPixelToTPIDTool = acc.popToolsAndMerge(InDetPixelToTPIDToolCfg(flags))
-        kwargs.setdefault("PixelToTPIDTool", InDetPixelToTPIDTool)
-
-    if 'TestBLayerTool' not in kwargs :
-        testBLayerToolAcc = InDetRecTestBLayerToolCfg(flags)
-        if testBLayerToolAcc is not None:
-            InDetRecTestBLayerTool = acc.popToolsAndMerge(testBLayerToolAcc)
-        else:
-            InDetRecTestBLayerTool = None
-        kwargs.setdefault("TestBLayerTool", InDetRecTestBLayerTool)
-
-    kwargs.setdefault("DoSharedHits", flags.InDet.Tracking.doSharedHits)
-
-    if flags.Detector.EnableTRT:
-        kwargs.setdefault("DoSharedHitsTRT", flags.InDet.Tracking.doSharedHits)
-
-    from  InDetConfig.InDetRecToolConfig import InDetTrackSummaryHelperToolCfg    
-    InDetSummaryHelper = acc.popToolsAndMerge(InDetTrackSummaryHelperToolCfg(flags, name = name, **kwargs))
-
-    acc.setPrivateTools(InDetSummaryHelper)
-    return acc
-
-
 def InDetTrackSummaryToolSharedHitsCfg(flags, name='InDetTrackSummaryToolSharedHits',**kwargs):
     acc = ComponentAccumulator()
     if 'InDetSummaryHelperTool' not in kwargs :
+        from InDetConfig.InDetTrackSummaryHelperToolConfig import InDetSummaryHelperSharedHitsCfg
         InDetSummaryHelperSharedHits = acc.popToolsAndMerge(InDetSummaryHelperSharedHitsCfg(flags))
         kwargs.setdefault("InDetSummaryHelperTool", InDetSummaryHelperSharedHits)
 
@@ -923,11 +897,6 @@ def InDetKOL(name = 'InDetKOL', **kwargs):
 #############################################################################################
 #TRTSegmentFinder
 #############################################################################################
-def InDetPatternPropagatorCfg(name='InDetPatternPropagator', **kwargs):
-    result = ComponentAccumulator()
-    tool = CompFactory.Trk.RungeKuttaPropagator(name, **kwargs)
-    result.addPublicTool( tool, primary=True )
-    return result
 
 def InDetTRT_DriftCircleOnTrackUniversalToolCosmicsCfg(name='TRT_DriftCircleOnTrackUniversalTool', **kwargs):
     kwargs.setdefault("ScaleHitUncertainty", 2.)
@@ -970,7 +939,9 @@ def InDetTRT_TrackExtensionTool_xkCfg(flags, name='InDetTRT_ExtensionTool', **kw
     acc = MagneticFieldSvcCfg(flags)
 
     if 'PropagatorTool' not in kwargs :
-        InDetPatternPropagator = acc.getPrimaryAndMerge(InDetPatternPropagatorCfg())
+        from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
+        InDetPatternPropagator = acc.popToolsAndMerge(RungeKuttaPropagatorCfg(flags, name="InDetPatternPropagator"))
+        acc.addPublicTool(InDetPatternPropagator)
         kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
 
     if 'UpdatorTool' not in kwargs :
@@ -1000,9 +971,6 @@ def InDetTRT_TrackExtensionTool_xkCfg(flags, name='InDetTRT_ExtensionTool', **kw
     if flags.InDet.Tracking.ActivePass.RoISeededBackTracking:
         kwargs.setdefault("minTRTSegmentpT", flags.InDet.Tracking.ActivePass.minSecondaryPt)
 
-    acc.merge(TRT_DetElementsRoadCondAlgCfg(flags))
-    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTActiveCondAlgCfg
-    acc.merge(TRTActiveCondAlgCfg(flags))
     acc.setPrivateTools(CompFactory.InDet.TRT_TrackExtensionTool_xk(name, **kwargs))
     return acc
 
@@ -1031,8 +999,10 @@ def InDetCompetingTRT_DC_ToolCfg(flags, name='InDetCompetingTRT_DC_Tool', **kwar
 def InDetTRT_RoadMakerCfg(flags, name='InDetTRT_RoadMaker', **kwargs):
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     acc = MagneticFieldSvcCfg(flags)
+    acc.merge(TRT_DetElementsRoadCondAlgCfg(flags)) # To produce the input TRT_DetElementsRoadData_xk CondHandle
     
-    InDetPatternPropagator = acc.getPrimaryAndMerge(InDetPatternPropagatorCfg())
+    from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
+    InDetPatternPropagator = acc.popToolsAndMerge(RungeKuttaPropagatorCfg(flags, name="InDetPatternPropagator"))
     kwargs.setdefault("RoadWidth", 20.)
     kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
     acc.setPrivateTools(CompFactory.InDet.TRT_DetElementsRoadMaker_xk(name, **kwargs))
@@ -1046,7 +1016,9 @@ def InDetTRT_TrackExtensionTool_DAFCfg(flags, name='TRT_TrackExtensionTool_DAF',
         kwargs.setdefault("CompetingDriftCircleTool", InDetCompetingTRT_DC_Tool)
 
     if 'PropagatorTool' not in kwargs :
-        InDetPatternPropagator = acc.getPrimaryAndMerge(InDetPatternPropagatorCfg())
+        from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
+        InDetPatternPropagator = acc.popToolsAndMerge(RungeKuttaPropagatorCfg(flags, name="InDetPatternPropagator"))
+        acc.addPublicTool(InDetPatternPropagator)
         kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
 
     if 'RoadTool' not in kwargs :
@@ -1094,7 +1066,7 @@ def InDetTrackSummaryToolNoHoleSearchCfg(flags, name='InDetTrackSummaryToolNoHol
 
 def ROIInfoVecAlgCfg(flags, name='InDetROIInfoVecCondAlg', **kwargs) :
     acc = ComponentAccumulator()
-    from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
+    from InDetConfig.InDetCaloClusterROISelectorConfig import CaloClusterROI_SelectorCfg
     acc.merge(CaloClusterROI_SelectorCfg(flags))
     kwargs.setdefault("InputEmClusterContainerName", "InDetCaloClusterROIs")
     kwargs.setdefault("WriteKey", kwargs.get("namePrefix","") +"ROIInfoVec"+ kwargs.get("nameSuffix","") )

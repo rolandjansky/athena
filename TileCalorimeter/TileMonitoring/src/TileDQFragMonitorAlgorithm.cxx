@@ -330,7 +330,7 @@ StatusCode TileDQFragMonitorAlgorithm::fillHistograms( const EventContext& ctx )
       for (int dmu = 0; dmu < MAX_DMU; ++dmu) { // loop over dmus
         int channel = 3 * dmu;
 
-        bool isMaskedDMU = (environment() == Environment_t::online) ? (error == NO_RECO_FRAG) : false;
+        bool isMaskedDMU = m_ignoreNoRecoFragError ? (error == NO_RECO_FRAG) : false;
 
         unsigned int drawerIdx = Tile::getDrawerIdx(ros, drawer);
 

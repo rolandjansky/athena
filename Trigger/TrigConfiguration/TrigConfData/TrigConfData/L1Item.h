@@ -26,10 +26,10 @@ namespace TrigConf {
        */
       L1Item(const ptree & data);
 
-      /** Destrutor */
-      ~L1Item();
+      /** Destructor */
+      virtual ~L1Item() override = default;
 
-      virtual std::string className() const;
+      virtual std::string className() const override;
 
       /** Accessor to the CTP ID */
       unsigned int ctpId() const;
@@ -76,7 +76,7 @@ namespace TrigConf {
    private:
 
       /** Update the internal data after modification of the data object */
-      virtual void update() { load(); };
+      virtual void update() override { load(); };
       void load();
 
       std::vector<std::string> m_bunchgroups{};

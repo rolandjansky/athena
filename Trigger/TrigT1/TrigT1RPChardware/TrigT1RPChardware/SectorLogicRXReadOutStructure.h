@@ -18,20 +18,20 @@ public:
 
     void setInit();
     //
-    ubit16 makeHeader(ubit16 *inputData) override final;
+    ubit16 makeHeader(ubit16 *inputData);
     ubit16 makeSubHeader() { return 0; };
-    ubit16 makeBody(ubit16 *inputData) override final { return *inputData; };
-    ubit16 makeFooter(ubit16 errorCode) override final { return errorCode; };
-    ubit16 makeFooter(ubit16 *errorCode) override final;
+    ubit16 makeBody(ubit16 *inputData) { return *inputData; };
+    ubit16 makeFooter(ubit16 errorCode) { return errorCode; };
+    ubit16 makeFooter(ubit16 *errorCode);
 
     //**************************************************//
     // general user methods to decode ReadOut stream    //
     //**************************************************//
     ubit16 decodeFragment(ubit16 inputWord, char &field);
     //
-    bool isHeader() override final;
-    bool isBody() override final { return false; }
-    bool isFooter() override final;
+    bool isHeader();
+    bool isBody() { return false; }
+    bool isFooter();
 
     bool isSubHeader();
 

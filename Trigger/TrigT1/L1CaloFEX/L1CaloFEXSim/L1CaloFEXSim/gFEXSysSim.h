@@ -62,13 +62,13 @@ namespace LVL1 {
 
     virtual StatusCode fillgJetEDM(uint32_t tobWord, int scale) override ;
 
-    virtual StatusCode fillgScalarEJwojEDM(uint32_t tobWord, int scale) override ;
+    virtual StatusCode fillgScalarEJwojEDM(uint32_t tobWord, int scale1, int scale2) override ;
 
-    virtual StatusCode fillgMETComponentsJwojEDM(uint32_t tobWord, int scale) override ;
+    virtual StatusCode fillgMETComponentsJwojEDM(uint32_t tobWord, int scale1, int scale2) override ;
 
-    virtual StatusCode fillgMHTComponentsJwojEDM(uint32_t tobWord, int scale) override ;
+    virtual StatusCode fillgMHTComponentsJwojEDM(uint32_t tobWord, int scale1, int scale2) override ;
 
-    virtual StatusCode fillgMSTComponentsJwojEDM(uint32_t tobWord, int scale) override ;
+    virtual StatusCode fillgMSTComponentsJwojEDM(uint32_t tobWord, int scale1, int scale2) override ;
 
 
     /** Internal data */

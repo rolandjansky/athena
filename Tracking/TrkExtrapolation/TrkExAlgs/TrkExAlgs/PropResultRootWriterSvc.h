@@ -1,6 +1,6 @@
  
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKEXALGS_PROPRESULTROOTWRITERSVC_H
@@ -106,7 +106,7 @@ private:
                                       const T* fwdParameters, double fwdtime, 
                                       const T* bkwParameters, double bkwtime ) {
   
-    auto ctx = Gaudi::Hive::currentContext();
+    const auto& ctx = Gaudi::Hive::currentContext();
   
     m_eventNum = ctx.eventID().event_number();
     

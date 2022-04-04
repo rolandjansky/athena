@@ -27,8 +27,8 @@ namespace TrigConf {
       /** Constructor */
       TrigDBL1PrescalesSetLoader(const std::string & connection);
 
-      /** Destructor */
-      virtual ~TrigDBL1PrescalesSetLoader();
+      /** Destructor - cannot be defined here because QueryDefinition is an incomplete type */
+      virtual ~TrigDBL1PrescalesSetLoader() override;
 
       /**
        * @brief Load content from the Trigger DB into an L1PrescalesSet for a given L1PrescaleKey (L1PSK)

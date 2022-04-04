@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBCONDRUNPAR_TBCONDRUNPARTOOL_H
@@ -15,7 +15,6 @@
 #include <string>
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/DataHandle.h"
 
 class EventInfo;
 
@@ -61,7 +60,7 @@ class TBCondRunParTool: public AthAlgTool {
   bool extractCool(const int run);
   bool extractCoolTest(std::string folder, int run) const;
 
-  const DataHandle<EventInfo> m_eventinfo;
+  const EventInfo* m_eventinfo = nullptr;
   int m_crun;
   int m_cevent;
   std::string m_runpfolder;

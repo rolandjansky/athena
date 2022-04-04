@@ -46,7 +46,7 @@ class opt:
     enableL1NSWEmulation = False      # Enable TGC-NSW coincidence emulator : ConfigFlags.Trigger.L1MuonSim.EmulateNSW
     enableL1NSWVetoMode = True        # Enable TGC-NSW coincidence veto mode: ConfigFlags.Trigger.L1MuonSim.NSWVetoMode
     enableL1NSWMMTrigger = True       # Enable MM trigger for TGC-NSW coincidence : ConfigFlags.Trigger.L1MuonSim.doMMTrigger
-    enableL1NSWPadTrigger = False     # Enable sTGC Pad trigger for TGC-NSW coincidence : ConfigFlags.Trigger.L1MuonSim.doPadTrigger
+    enableL1NSWPadTrigger = True      # Enable sTGC Pad trigger for TGC-NSW coincidence : ConfigFlags.Trigger.L1MuonSim.doPadTrigger
     enableL1NSWStripTrigger = False   # Enable sTGC Strip trigger for TGC-NSW coincidence : ConfigFlags.Trigger.L1MuonSim.doStripTrigger
     enableL1RPCBIS78    = False       # Enable TGC-RPC BIS78 coincidence : ConfigFlags.Trigger.L1MuonSim.doBIS78
 #Individual slice flags
@@ -181,10 +181,6 @@ ConfigFlags.Trigger.EDMVersion = 3
 # Some legacy b-tagging configuration is trigger specific
 ConfigFlags.BTagging.databaseScheme = 'Trig'
 ConfigFlags.BTagging.forcedCalibrationChannel = 'AntiKt4EMTopo'
-# something is asking for MV2 :'(
-# TODO: remove whatever it is, see ATR-25239
-# Note: for some reason append(...) doesn't work here, but += [...] does
-ConfigFlags.BTagging.taggerList += ['MV2c10']
 
 # Set final Cond/Geo tag based on input file, command line or default
 globalflags.DetDescrVersion = opt.setDetDescr or ConfigFlags.Trigger.OnlineGeoTag

@@ -57,7 +57,7 @@ namespace TrigConf {
       DataStructure(const std::string & name, ptree && data);
 
       /** Destructor */
-      virtual ~DataStructure();
+      virtual ~DataStructure() = default;
 
       /** @brief Setting the configuration data */
       void setData(const ptree & data);

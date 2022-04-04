@@ -10,9 +10,6 @@ TrigConf::HLTTriggerType::HLTTriggerType( int bit )
   : m_bit(bit)
 {}
 
-TrigConf::HLTTriggerType::~HLTTriggerType( )
-{}
-
 void
 TrigConf::HLTTriggerType::print(const std::string& indent, unsigned int /*detail*/) const {
    std::cout << indent << *this;

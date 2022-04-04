@@ -21,6 +21,7 @@ TrigConf::TrigDBHLTPrescalesSetLoader::TrigDBHLTPrescalesSetLoader(const std::st
    }
 }
 
+// Destructor defined here because QueryDefinition is an incomplete type in the header
 TrigConf::TrigDBHLTPrescalesSetLoader::~TrigDBHLTPrescalesSetLoader() = default;
 
 bool

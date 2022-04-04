@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DERIVATIONFRAMEWORKTRIGGER_RANGEDITR_H
 #define DERIVATIONFRAMEWORKTRIGGER_RANGEDITR_H
 
-#include <vector>
-#include <iterator>
+
+#include <iterator> //std::distance, iterator_traits
 #include <type_traits>
 
 namespace DerivationFramework { namespace TriggerMatchingUtils {
@@ -48,7 +48,7 @@ template <typename T>
         ++m_position;
         return *this;
       }
-      RangedItr& operator++(int) {
+      RangedItr operator++(int) {
         RangedItr ret = *this;
         ++m_position;
         return ret;
@@ -58,7 +58,7 @@ template <typename T>
         --m_position;
         return *this;
       }
-      RangedItr& operator--(int) {
+      RangedItr operator--(int) {
         RangedItr ret = *this;
         --m_position;
         return ret;

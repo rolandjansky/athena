@@ -29,7 +29,7 @@ namespace TrigConf {
       JsonFileLoader();
 
       /** Destructor */
-      virtual ~JsonFileLoader();
+      virtual ~JsonFileLoader() override = default;
 
       /**
        * @brief Load content of json file into a ptree

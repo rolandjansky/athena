@@ -117,10 +117,10 @@ def ClusterMakerToolCfg(flags, name="InDetClusterMakerTool", **kwargs) :
     from PixelReadoutGeometry.PixelReadoutGeometryConfig import PixelReadoutManagerCfg
     acc.merge(PixelReadoutManagerCfg(flags))
 
-    from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleCfg
-    PixelLorentzAngleTool = acc.popToolsAndMerge(PixelLorentzAngleCfg(flags))
-    from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
-    SCTLorentzAngleTool = acc.popToolsAndMerge( SCT_LorentzAngleCfg(flags) )
+    from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleToolCfg
+    PixelLorentzAngleTool = acc.popToolsAndMerge(PixelLorentzAngleToolCfg(flags))
+    from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleToolCfg
+    SCTLorentzAngleTool = acc.popToolsAndMerge( SCT_LorentzAngleToolCfg(flags) )
 
     kwargs.setdefault("PixelLorentzAngleTool", PixelLorentzAngleTool)
     kwargs.setdefault("SCTLorentzAngleTool", SCTLorentzAngleTool)
@@ -415,6 +415,8 @@ def InDetTrackRecoCfg(flags):
                                       InputCollections = [],
                                       BarrelSegments = "TRTSegmentsTRT"))
 
+    # @TODO add TRTPhase computation somewhere (needed for cosmics)
+
     # ------------------------------------------------------------
     #
     # ----------- Main passes for standard reconstruction
@@ -602,7 +604,7 @@ def InDetTrackRecoOutputCfg(flags):
         ]
 
     # write phase calculation into ESD
-    if flags.Beam.Type is BeamType.Cosmics:
+    if flags.InDet.doTRTPhase:
         toESD += ["ComTime#TRT_Phase"]
 
     # Save PRD

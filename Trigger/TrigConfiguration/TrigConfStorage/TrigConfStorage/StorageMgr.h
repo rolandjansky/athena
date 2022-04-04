@@ -51,47 +51,47 @@ namespace TrigConf {
                   const std::string& password , std::ostream & o = std::cout);
       
       /**destructor*/
-      virtual ~StorageMgr();
+      virtual ~StorageMgr() override;
 
       // setting log level of all loaders
-      void setLevel(MSGTC::Level lvl);
+      void setLevel(MSGTC::Level lvl) override;
 
 
       // provide CTP and L1 version to be accessible by all the L1 loaders
-      void setCTPVersion(unsigned int v) { m_ctpVersion = v; }
-      void setL1Version(unsigned int v) { m_l1Version = v; }
-      unsigned int ctpVersion() const { return m_ctpVersion; }
-      unsigned int l1Version() const { return m_l1Version; }
+      void setCTPVersion(unsigned int v) override { m_ctpVersion = v; }
+      void setL1Version(unsigned int v) override { m_l1Version = v; }
+      unsigned int ctpVersion() const override { return m_ctpVersion; }
+      unsigned int l1Version() const override { return m_l1Version; }
 
 
       /**creates and returns a new database session manager*/
       SessionMgr& sessionMgr();
     
       // Mandatory interface implementation
-      virtual IL1TopoMenuLoader&               l1topoMenuLoader();
-      virtual IMasterTableLoader&              masterTableLoader();
-      virtual IMenuLoader&                     menuLoader();
-      virtual IMuctpiLoader&                   muctpiLoader();
-      virtual IDeadTimeLoader&                 deadTimeLoader();
-      virtual IPrescaledClockLoader&           prescaledClockLoader();
-      virtual IRandomLoader&                   randomLoader();
-      virtual IThresholdConfigLoader&          thresholdConfigLoader();
-      virtual ITriggerThresholdLoader&         triggerThresholdLoader();
-      virtual ITriggerThresholdValueLoader&    triggerThresholdValueLoader();
-      virtual IThresholdMonitorLoader&         thresholdMonitorLoader();
-      virtual ICTPFilesLoader&                 ctpFilesLoader();
-      virtual ICaloJetInputLoader&             caloJetInputLoader();
-      virtual ICaloSinCosLoader&               caloSinCosLoader();
-      virtual ICaloInfoLoader&                 caloInfoLoader();
-      virtual ILutCamLoader&                   lutcamLoader();
-      virtual IPrescaleSetLoader&              prescaleSetLoader();
-      virtual IPrioritySetLoader&              prioritySetLoader();
-      virtual IBunchGroupLoader&               bunchGroupLoader();
-      virtual IBunchGroupSetLoader&            bunchGroupSetLoader();
-      virtual ICTPConfigLoader&                ctpConfigLoader();
-      virtual ICTPConfigLoader&                ctpConfigOnlineLoader();
-      virtual IHLTFrameLoader&                 hltFrameLoader();
-      virtual IJobOptionTableLoader&           jobOptionTableLoader();
+      virtual IL1TopoMenuLoader&               l1topoMenuLoader() override;
+      virtual IMasterTableLoader&              masterTableLoader() override;
+      virtual IMenuLoader&                     menuLoader() override;
+      virtual IMuctpiLoader&                   muctpiLoader() override;
+      virtual IDeadTimeLoader&                 deadTimeLoader() override;
+      virtual IPrescaledClockLoader&           prescaledClockLoader() override;
+      virtual IRandomLoader&                   randomLoader() override;
+      virtual IThresholdConfigLoader&          thresholdConfigLoader() override;
+      virtual ITriggerThresholdLoader&         triggerThresholdLoader() override;
+      virtual ITriggerThresholdValueLoader&    triggerThresholdValueLoader() override;
+      virtual IThresholdMonitorLoader&         thresholdMonitorLoader() override;
+      virtual ICTPFilesLoader&                 ctpFilesLoader() override;
+      virtual ICaloJetInputLoader&             caloJetInputLoader() override;
+      virtual ICaloSinCosLoader&               caloSinCosLoader() override;
+      virtual ICaloInfoLoader&                 caloInfoLoader() override;
+      virtual ILutCamLoader&                   lutcamLoader() override;
+      virtual IPrescaleSetLoader&              prescaleSetLoader() override;
+      virtual IPrioritySetLoader&              prioritySetLoader() override;
+      virtual IBunchGroupLoader&               bunchGroupLoader() override;
+      virtual IBunchGroupSetLoader&            bunchGroupSetLoader() override;
+      virtual ICTPConfigLoader&                ctpConfigLoader() override;
+      virtual ICTPConfigLoader&                ctpConfigOnlineLoader() override;
+      virtual IHLTFrameLoader&                 hltFrameLoader() override;
+      virtual IJobOptionTableLoader&           jobOptionTableLoader() override;
 
       // These loaders are DB-only no XML implementation
       IHLTPrescaleSetLoader&                   hltPrescaleSetLoader();

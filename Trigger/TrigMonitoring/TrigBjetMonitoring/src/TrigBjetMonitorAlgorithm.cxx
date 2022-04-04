@@ -330,27 +330,32 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	    NameH = "JFxNVtx_tr_"+trigName;
 	    ATH_MSG_DEBUG( " NameH: " << NameH  );
 	    auto jf_n2t = Monitored::Scalar<int>(NameH,0.0);
-	    btag->variable<int>("JetFitter", "N2Tpair", jf_n2t);
+	    btag->variable<int>("JetFitter", "NVTX", jf_n2t);
 	    ATH_MSG_DEBUG("        jf_n2t: " << jf_n2t);
 	    fill("TrigBjetMonitor",jf_n2t);
+	    
+	    NameH = "JFxSig_tr_"+trigName;
+	    ATH_MSG_DEBUG( " NameH: " << NameH  );
+	    auto jf_sig3 = Monitored::Scalar<float>(NameH,0.0);
+	    btag->variable<float>("JetFitter", "significance3d", jf_sig3);
+	    ATH_MSG_DEBUG("        jf_sig3: " << jf_sig3);
+	    fill("TrigBjetMonitor",jf_sig3);
 	    
 	    NameH = "JFxMVtx_tr_"+trigName;
 	    ATH_MSG_DEBUG( " NameH: " << NameH  );
 	    auto jf_mass = Monitored::Scalar<float>(NameH,0.0);
-	    btag->variable<float>("JetFitter", "masssvx", jf_mass);
+	    btag->variable<float>("JetFitter", "mass", jf_mass);
 	    jf_mass *= 1.e-3;
 	    ATH_MSG_DEBUG("        jf_mass in GeV: " << jf_mass );
 	    fill("TrigBjetMonitor",jf_mass);
 	    
-		if (jf_mass > 0) {
-			NameH = "JFxEVtx_tr_"+trigName;
-			ATH_MSG_DEBUG( " NameH: " << NameH  );
-			auto jf_efrc = Monitored::Scalar<float>(NameH,0.0);
-			btag->variable<float>("JetFitter", "efracsvx", jf_efrc);
-			ATH_MSG_DEBUG("        jf_efrc: " << jf_efrc);
-			fill("TrigBjetMonitor",jf_efrc);
-		}
-	    
+	    NameH = "JFxEVtx_tr_"+trigName;
+	    ATH_MSG_DEBUG( " NameH: " << NameH  );
+	    auto jf_efrc = Monitored::Scalar<float>(NameH,0.0);
+	    btag->variable<float>("JetFitter", "energyFraction", jf_efrc);
+	    ATH_MSG_DEBUG("        jf_efrc: " << jf_efrc);
+	    fill("TrigBjetMonitor",jf_efrc);
+		    
 	    // Run-3 discriminators
 	    
 	    NameH = "RNNIP_pu_tr_"+trigName;

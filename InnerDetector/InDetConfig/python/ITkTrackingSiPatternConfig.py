@@ -58,14 +58,6 @@ def ITkSiTrackMaker_xkCfg(flags, name="ITkSiTrackMaker", InputCollections = None
     from InDetConfig.SiDetElementsRoadToolConfig import ITkSiDetElementsRoadMaker_xkCfg
     ITkSiDetElementsRoadMaker = acc.popToolsAndMerge(ITkSiDetElementsRoadMaker_xkCfg(flags))
 
-    if flags.ITk.Tracking.ActivePass.useITkPixel:
-        from InDetConfig.SiCombinatorialTrackFinderToolConfig import SiDetElementBoundaryLinksCondAlg_xk_ITkPixel_Cfg
-        acc.merge(SiDetElementBoundaryLinksCondAlg_xk_ITkPixel_Cfg(flags))
-
-    if flags.ITk.Tracking.ActivePass.useITkStrip:
-        from InDetConfig.SiCombinatorialTrackFinderToolConfig import SiDetElementBoundaryLinksCondAlg_xk_ITkStrip_Cfg
-        acc.merge(SiDetElementBoundaryLinksCondAlg_xk_ITkStrip_Cfg(flags))
-
     from InDetConfig.SiCombinatorialTrackFinderToolConfig import ITkSiCombinatorialTrackFinder_xkCfg
     track_finder = acc.popToolsAndMerge(ITkSiCombinatorialTrackFinder_xkCfg(flags))
 
@@ -91,8 +83,8 @@ def ITkSiTrackMaker_xkCfg(flags, name="ITkSiTrackMaker", InputCollections = None
     kwargs.setdefault("doCaloSeededBrem", flags.ITk.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo)
     kwargs.setdefault("doHadCaloSeedSSS", flags.ITk.Tracking.doHadCaloSeededSSS and flags.Detector.EnableCalo)
     if kwargs["useBremModel"] and kwargs["doCaloSeededBrem"]:
-        from InDetConfig.ITkRecCaloSeededROISelectionConfig import ITkCaloClusterROI_SelectorCfg
-        acc.merge(ITkCaloClusterROI_SelectorCfg(flags))
+        from InDetConfig.InDetCaloClusterROISelectorConfig import CaloClusterROI_SelectorCfg
+        acc.merge(CaloClusterROI_SelectorCfg(flags))
     kwargs.setdefault("phiWidth", flags.ITk.Tracking.ActivePass.phiWidthBrem[0])
     kwargs.setdefault("etaWidth", flags.ITk.Tracking.ActivePass.etaWidthBrem[0])
     kwargs.setdefault("InputClusterContainerName", 'ITkCaloClusterROIs')
@@ -176,8 +168,8 @@ def ITkSiSPSeededTrackFinderCfg(flags, name="ITkSiSpTrackFinder", InputCollectio
     return acc
 
 def ITkSiSPSeededTrackFinderROIConvCfg(flags, name="ITkSiSpTrackFinderROIConv", InputCollections = None, SiSPSeededTrackCollectionKey = None, **kwargs) :
-    from InDetConfig.ITkRecCaloSeededROISelectionConfig import ITkCaloClusterROI_SelectorCfg
-    acc = ITkCaloClusterROI_SelectorCfg(flags)
+    from InDetConfig.InDetCaloClusterROISelectorConfig import CaloClusterROI_SelectorCfg
+    acc = CaloClusterROI_SelectorCfg(flags)
 
     from RegionSelector.RegSelToolConfig import regSelTool_ITkStrip_Cfg
     RegSelTool_ITkStrip   = acc.popToolsAndMerge(regSelTool_ITkStrip_Cfg(flags))

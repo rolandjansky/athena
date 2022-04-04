@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
-# art-description: test job ttFC_fullSim_fullDigi + ttFC_reco_noSplit_noPseudoT_fullSim_fullDigi
-# art-type: grid
-# art-include: master/Athena
+# art-description: test job ttFC_fullSim_fullDigi + ttFC_reco_noSplit_noPseudoT_fullSim_fullDigi (was for grid, master/Athena)
 # art-output: config.txt
 # art-output: RAWtoESD_config.txt
 # art-output: *.root

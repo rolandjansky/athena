@@ -105,8 +105,16 @@ else:
 # Digitization flags
 if hasattr(overlayArgs, 'digiSeedOffset1'):
     digitizationFlags.rndmSeedOffset1 = int(overlayArgs.digiSeedOffset1)
+else:
+    logOverlay.warning('digiSeedOffset1 not set')
+    digitizationFlags.rndmSeedOffset1 = 1
+
 if hasattr(overlayArgs, 'digiSeedOffset2'):
     digitizationFlags.rndmSeedOffset2 = int(overlayArgs.digiSeedOffset2)
+else:
+    logOverlay.warning('digiSeedOffset2 not set')
+    digitizationFlags.rndmSeedOffset2 = 2
+
 if hasattr(overlayArgs, 'samplingFractionDbTag'):
     digitizationFlags.physicsList = overlayArgs.samplingFractionDbTag
 if hasattr(overlayArgs, 'digiRndmSvc'):

@@ -36,7 +36,7 @@ private:
     // layer for which the tuning should be applied
     int m_layer;
     // mapping between the parameter names of the model and its pieciewise linear interpolation obect
-    std::map<std::string, std::shared_ptr<TFCSEnergyInterpolationPiecewiseLinear>> m_parameterInterpol;
+    std::map<std::string, TFCSEnergyInterpolationPiecewiseLinear*> m_parameterInterpol;
 
     ClassDefOverride(TFCSLateralShapeTuning, 1)  //TFCSLateralShapeTuning
 };

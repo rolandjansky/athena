@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPC_DCSConditionsTool.h"
@@ -29,22 +29,26 @@
 //* retrieving of tables from DB
 //*********************************************************
 
-RPC_DCSConditionsTool::RPC_DCSConditionsTool(const std::string& type, const std::string& name, const IInterface* parent) :
-    AthAlgTool(type, name, parent),
-    m_IOVSvc(nullptr),
-    m_rpcIdHelper(nullptr),
-    m_log(msgSvc(), name),
-    m_debug(false),
-    m_verbose(false),
-    m_chronoSvc(nullptr) {
-    declareInterface<IRPC_DCSConditionsTool>(this);
 
-    m_DataLocation = "keyRPCDCS";
-
-    declareProperty("OffPanelFolder", m_offPanelFolder = "/RPC/DCS/OffRopanels");
-    declareProperty("DeadPanel", m_deadPanelFolder = "/RPC/DCS/DeadRopanels");
-    m_RPCPaneloff.str("EMPTY");
-    m_RPCPaneldead.str("EMPTY");
+RPC_DCSConditionsTool::RPC_DCSConditionsTool (const std::string& type,
+				    const std::string& name,
+				    const IInterface* parent)
+	  : AthAlgTool(type, name, parent), 
+            m_IOVSvc(nullptr),
+            m_rpcIdHelper(nullptr),
+	    m_log( msgSvc(), name ),
+	    m_debug(false),
+	    m_verbose(false),
+            m_DataLocation("keyRPCDCS"),
+            m_chronoSvc(nullptr)
+{
+  
+  declareInterface< IRPC_DCSConditionsTool >(this);
+  
+  declareProperty("OffPanelFolder",     m_offPanelFolder ="/RPC/DCS/OffRopanels" );
+  declareProperty("DeadPanel"     ,     m_deadPanelFolder="/RPC/DCS/DeadRopanels");
+  m_RPCPaneloff.str("EMPTY");
+  m_RPCPaneldead.str("EMPTY");
 }
 
 // StatusCode RPC_DCSConditionsTool::updateAddress(SG::TransientAddress* /*tad*/)

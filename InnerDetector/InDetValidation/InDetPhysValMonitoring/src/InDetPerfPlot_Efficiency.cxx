@@ -12,6 +12,7 @@ using namespace IDPVM;
 
 InDetPerfPlot_Efficiency::InDetPerfPlot_Efficiency(InDetPlotBase* pParent, const std::string& sDir) :
   InDetPlotBase(pParent, sDir),
+  m_efficiency_vs_pteta{},
   m_efficiency_vs_eta{},
   m_efficiency_vs_pt{},
   m_efficiency_vs_pt_low{},
@@ -32,6 +33,8 @@ InDetPerfPlot_Efficiency::InDetPerfPlot_Efficiency(InDetPlotBase* pParent, const
 
 void
 InDetPerfPlot_Efficiency::initializePlots() {
+
+  book(m_efficiency_vs_pteta, "efficiency_vs_pteta");
 
   book(m_efficiency_vs_eta, "efficiency_vs_eta");
   book(m_efficiency_vs_pt, "efficiency_vs_pt");
@@ -57,6 +60,8 @@ InDetPerfPlot_Efficiency::fill(const xAOD::TruthParticle& truth, const bool isGo
   double eta = truth.eta();
   double pt = truth.pt() / Gaudi::Units::GeV; // convert MeV to GeV
   double phi = truth.phi();
+
+  fillHisto(m_efficiency_vs_pteta, pt, eta, isGood, weight);
 
   fillHisto(m_efficiency_vs_eta, eta, isGood, weight);
   fillHisto(m_efficiency_vs_pt, pt, isGood, weight);

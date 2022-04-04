@@ -78,7 +78,8 @@ def toJson(fileName, metadata, L1Triggers, HLTTriggers):
     {'TargetMu' : metadata['targetMu']},
     {'RunNumber' : metadata['runNumber']},
     {'NEvents' : metadata['n_evts']},
-    {'Details' : metadata['details']}
+    {'Details' : metadata['details']},
+    {'JIRA' : metadata['JIRA']}
   ]
 
   metajsonDict = {}

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //*************************************************************************************
@@ -55,10 +55,10 @@ class TileOFCorrelation
 
   void PrintCorrelation(int dignum);
 
-  void SaveCorrelationSumm(bool deltaCorrelation, std::string OptFilterFile_CorrelationSumm, 
+  void SaveCorrelationSumm(bool deltaCorrelation, const std::string& OptFilterFile_CorrelationSumm, 
                            const TileHWID *tileHWID, MsgStream & log, int dignum);
 
-  void SaveCorrelationMatrix(bool deltaCorrelation, std::string OptFilterFile_CorrelationMatrix,
+  void SaveCorrelationMatrix(bool deltaCorrelation, const std::string& OptFilterFile_CorrelationMatrix,
                              const TileHWID *tileHWID, MsgStream & log, int dignum);
 
   void CalcWeights(bool of2,
@@ -69,20 +69,20 @@ class TileOFCorrelation
                    const std::vector<double>& HdshapeForm,
 		   MsgStream & log, int ros, int drawer, int channel, int gain, int dignum);
 
-  void BuildPulseShape(std::vector<double> &pulseShape, std::vector<double> &pulseShapeX, 
+  static void BuildPulseShape(std::vector<double> &pulseShape, std::vector<double> &pulseShapeX, 
                        std::vector<double> &pulseShapeT, int dignum, MsgStream &log);
 
-  void WriteWeightsToFile(bool deltaCorrelation, int dignum, std::string m_OptFilterFile_ai_lo,
-			  std::string m_OptFilterFile_bi_lo, std::string m_OptFilterFile_ai_hi,
-			  std::string m_OptFilterFile_bi_hi, int ros, int drawer, int channel, int gain,
+  void WriteWeightsToFile(bool deltaCorrelation, int dignum, const std::string& m_OptFilterFile_ai_lo,
+			  const std::string& m_OptFilterFile_bi_lo, const std::string& m_OptFilterFile_ai_hi,
+			  const std::string& m_OptFilterFile_bi_hi, int ros, int drawer, int channel, int gain,
 			  const TileHWID *tileHWID, MsgStream & log);
 
   void CloseWeightsFile(std::string OptFilterFile_ai_lo, std::string OptFilterFile_bi_lo,
                         std::string OptFilterFile_ai_hi, std::string OptFilterFile_bi_hi, 
 			MsgStream & log);
 
-  void OpenWeightsFile(std::string OptFilterFile_ai_lo, std::string OptFilterFile_bi_lo,
-                       std::string OptFilterFile_ai_hi, std::string OptFilterFile_bi_hi, 
+  static void OpenWeightsFile(const std::string& OptFilterFile_ai_lo, const std::string& OptFilterFile_bi_lo,
+                       const std::string& OptFilterFile_ai_hi, const std::string& OptFilterFile_bi_hi, 
                        MsgStream & log);
 
   float* getCorrelationSumm(bool deltaCorrelation, int ros, int drawer, int channel, int gain, int dignum);

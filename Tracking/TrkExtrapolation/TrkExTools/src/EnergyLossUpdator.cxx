@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -73,7 +73,8 @@ dEdXBetheBloch(const Trk::MaterialProperties& mat,
     eta2 *= eta2;
 
     if (gamma > 10.) {
-      const double eplasma = 28.816e-6 * std::sqrt(1000. * mat.zOverAtimesRho());
+      const double eplasma =
+        28.816e-6 * std::sqrt(1000. * mat.zOverAtimesRho());
       delta = 2. * std::log(eplasma / iPot) + std::log(eta2) - 1.;
     }
 
@@ -182,7 +183,7 @@ Trk::EnergyLossUpdator::dEdX(const MaterialProperties& mat,
 }
 
 // public interface method
-Trk::EnergyLoss*
+std::unique_ptr<Trk::EnergyLoss>
 Trk::EnergyLossUpdator::energyLoss(const MaterialProperties& mat,
                                    double p,
                                    double pathcorrection,
@@ -234,18 +235,17 @@ Trk::EnergyLossUpdator::energyLoss(const MaterialProperties& mat,
                   << deltaE << " meanIoni " << meanIoni << " meanRad "
                   << meanRad << " sigIoni " << sigIoni << " sigRad " << sigRad
                   << " sign " << sign << " pathLength " << pathLength);
-    std::unique_ptr<Trk::EnergyLoss> eloss =
-      !m_detailedEloss ? std::make_unique<Trk::EnergyLoss>(deltaE, sigmaDeltaE)
-                       : std::make_unique<Trk::EnergyLoss>(deltaE,
-                                                           sigmaDeltaE,
-                                                           sigmaDeltaE,
-                                                           sigmaDeltaE,
-                                                           meanIoni,
-                                                           sigIoni,
-                                                           meanRad,
-                                                           sigRad,
-                                                           pathLength);
-    return eloss.release();
+    return (!m_detailedEloss
+              ? std::make_unique<Trk::EnergyLoss>(deltaE, sigmaDeltaE)
+              : std::make_unique<Trk::EnergyLoss>(deltaE,
+                                                  sigmaDeltaE,
+                                                  sigmaDeltaE,
+                                                  sigmaDeltaE,
+                                                  meanIoni,
+                                                  sigIoni,
+                                                  meanRad,
+                                                  sigRad,
+                                                  pathLength));
   }
 
   // Code below will not be used if the parameterization of TrkUtils is used
@@ -347,9 +347,9 @@ Trk::EnergyLossUpdator::energyLoss(const MaterialProperties& mat,
       }
       // calculate the most probable value of the Landau distribution
       double mpv = m_mpvScale * xi / (beta * beta) *
-                   (std::log(m * eta2 * kaz / (iPot * iPot)) + 0.2 - beta * beta -
-                    delta); //
-                            // 12.325);
+                   (std::log(m * eta2 * kaz / (iPot * iPot)) + 0.2 -
+                    beta * beta - delta); //
+                                          // 12.325);
 
       // sigma
       // (1) - obtained from fitted function  [  return par0 +
@@ -371,24 +371,24 @@ Trk::EnergyLossUpdator::energyLoss(const MaterialProperties& mat,
   deltaE = deltaE_ioni + deltaE_rad;
 
   double sigmaDeltaE = std::sqrt(sigmaDeltaE_rad * sigmaDeltaE_rad +
-                            sigmaDeltaE_ioni * sigmaDeltaE_ioni);
+                                 sigmaDeltaE_ioni * sigmaDeltaE_ioni);
 
-  return (m_detailedEloss
-            ? new EnergyLoss(deltaE,
-                             sigmaDeltaE,
-                             sigmaDeltaE,
-                             sigmaDeltaE,
-                             (mpvSwitch ? deltaE_ioni : 0.9 * deltaE_ioni),
-                             sigmaDeltaE_ioni,
-                             deltaE_rad,
-                             sigmaDeltaE_rad,
-                             pathLength)
-            : new EnergyLoss(deltaE, sigmaDeltaE));
+  return (m_detailedEloss ? std::make_unique<EnergyLoss>(
+                              deltaE,
+                              sigmaDeltaE,
+                              sigmaDeltaE,
+                              sigmaDeltaE,
+                              (mpvSwitch ? deltaE_ioni : 0.9 * deltaE_ioni),
+                              sigmaDeltaE_ioni,
+                              deltaE_rad,
+                              sigmaDeltaE_rad,
+                              pathLength)
+                          : std::make_unique<EnergyLoss>(deltaE, sigmaDeltaE));
 }
 
 // public interface method
 
-Trk::EnergyLoss*
+std::unique_ptr<Trk::EnergyLoss>
 Trk::EnergyLossUpdator::updateEnergyLoss(Trk::EnergyLoss* eLoss,
                                          double caloEnergy,
                                          double caloEnergyError,
@@ -450,8 +450,9 @@ Trk::EnergyLossUpdator::updateEnergyLoss(Trk::EnergyLoss* eLoss,
   //
   // MOP shift due to ionization and radiation
   //
-  double MOPshift = isign * 50 * 10000. / pCaloEntry +
-                    isign * 0.75 * std::sqrt(sigmaDeltaE_ioni * sigmaDeltaE_rad);
+  double MOPshift =
+    isign * 50 * 10000. / pCaloEntry +
+    isign * 0.75 * std::sqrt(sigmaDeltaE_ioni * sigmaDeltaE_rad);
   double MOPshiftNoRad = isign * 50 * 10000. / pCaloEntry;
   //
   // define sigmas for Landau convoluted with exponential
@@ -464,7 +465,7 @@ Trk::EnergyLossUpdator::updateEnergyLoss(Trk::EnergyLoss* eLoss,
   double sigmaPlus = 4.65 * sigmaDeltaE_ioni + 1.16 * sigmaDeltaE_rad;
   //  double sigmaMinusNoRad = 1.02 * sigmaDeltaE_ioni;
   //  double sigmaPlusNoRad = 4.65 * sigmaDeltaE_ioni;
-  double xc = momentumError / (sigmaL >0. ? sigmaL : 1.);
+  double xc = momentumError / (sigmaL > 0. ? sigmaL : 1.);
   double correction =
     (0.3849 * xc * xc + 7.76672e-03 * xc * xc * xc) /
     (1 + 2.8631 * xc + 0.3849 * xc * xc + 7.76672e-03 * xc * xc * xc);
@@ -484,7 +485,7 @@ Trk::EnergyLossUpdator::updateEnergyLoss(Trk::EnergyLoss* eLoss,
     sigmaMinusDeltaE = sigmaMinus;
     sigmaPlusDeltaE = sigmaPlus;
     sigmaDeltaE = std::sqrt(0.5 * sigmaMinusDeltaE * sigmaMinusDeltaE +
-                       0.5 * sigmaPlusDeltaE * sigmaPlusDeltaE);
+                            0.5 * sigmaPlusDeltaE * sigmaPlusDeltaE);
     //
     if (m_optimalRadiation && std::abs(deltaE) < caloEnergy &&
         pCaloEntry > 100000) {
@@ -507,14 +508,15 @@ Trk::EnergyLossUpdator::updateEnergyLoss(Trk::EnergyLoss* eLoss,
       sigmaMinusDeltaE = sigmaMinus;
       sigmaPlusDeltaE = sigmaPlus;
       sigmaDeltaE = std::sqrt(0.5 * sigmaMinusDeltaE * sigmaMinusDeltaE +
-                         0.5 * sigmaPlusDeltaE * sigmaPlusDeltaE);
+                              0.5 * sigmaPlusDeltaE * sigmaPlusDeltaE);
     }
   } else {
     double sigmaPlusTot =
       std::sqrt(sigmaPlus * sigmaPlus + caloEnergyError * caloEnergyError);
     if (m_optimalRadiation) {
-      sigmaPlusTot = std::sqrt(4.65 * sigmaDeltaE_ioni * 4.65 * sigmaDeltaE_ioni +
-                          caloEnergyError * caloEnergyError);
+      sigmaPlusTot =
+        std::sqrt(4.65 * sigmaDeltaE_ioni * 4.65 * sigmaDeltaE_ioni +
+                  caloEnergyError * caloEnergyError);
     }
     double MOPtot = std::abs(MOP + MOPshift);
     if (m_optimalRadiation) {
@@ -533,7 +535,7 @@ Trk::EnergyLossUpdator::updateEnergyLoss(Trk::EnergyLoss* eLoss,
       sigmaMinusDeltaE = caloEnergyError + 0.08 * sigmaDeltaE_rad;
       sigmaPlusDeltaE = caloEnergyError + 1.16 * sigmaDeltaE_rad;
       sigmaDeltaE = std::sqrt(0.5 * sigmaMinusDeltaE * sigmaMinusDeltaE +
-                         0.5 * sigmaPlusDeltaE * sigmaPlusDeltaE);
+                              0.5 * sigmaPlusDeltaE * sigmaPlusDeltaE);
       elossFlag = 1;
     } else {
       // Use MOP after corrections
@@ -555,19 +557,19 @@ Trk::EnergyLossUpdator::updateEnergyLoss(Trk::EnergyLoss* eLoss,
       sigmaMinusDeltaE = sigmaMinus;
       sigmaPlusDeltaE = sigmaPlus;
       sigmaDeltaE = std::sqrt(0.5 * sigmaMinusDeltaE * sigmaMinusDeltaE +
-                         0.5 * sigmaPlusDeltaE * sigmaPlusDeltaE);
+                              0.5 * sigmaPlusDeltaE * sigmaPlusDeltaE);
     }
   }
 
-  return new EnergyLoss(deltaE,
-                        sigmaDeltaE,
-                        sigmaMinusDeltaE,
-                        sigmaPlusDeltaE,
-                        deltaE_ioni,
-                        sigmaDeltaE_ioni,
-                        deltaE_rad,
-                        sigmaDeltaE_rad,
-                        depth);
+  return std::make_unique<EnergyLoss>(deltaE,
+                                      sigmaDeltaE,
+                                      sigmaMinusDeltaE,
+                                      sigmaPlusDeltaE,
+                                      deltaE_ioni,
+                                      sigmaDeltaE_ioni,
+                                      deltaE_rad,
+                                      sigmaDeltaE_rad,
+                                      depth);
 }
 
 // public interface method
@@ -697,7 +699,7 @@ Trk::EnergyLossUpdator::getX0ElossScales(int icalo,
   }
 }
 
-Trk::EnergyLoss*
+std::unique_ptr<Trk::EnergyLoss>
 Trk::EnergyLossUpdator::ionizationEnergyLoss(const MaterialProperties& mat,
                                              double p,
                                              double pathcorrection,
@@ -715,8 +717,9 @@ Trk::EnergyLossUpdator::ionizationEnergyLoss(const MaterialProperties& mat,
     sign * Trk::MaterialInteraction::PDG_energyLoss_ionization(
              p, &(mat.material()), particle, sigIoni, kazL, pathLength);
 
-  return !m_detailedEloss ? new Trk::EnergyLoss(meanIoni, sigIoni)
-                          : new Trk::EnergyLoss(meanIoni,
+  return (!m_detailedEloss
+            ? std::make_unique<Trk::EnergyLoss>(meanIoni, sigIoni)
+            : std::make_unique<Trk::EnergyLoss>(meanIoni,
                                                 sigIoni,
                                                 sigIoni,
                                                 sigIoni,
@@ -724,5 +727,5 @@ Trk::EnergyLossUpdator::ionizationEnergyLoss(const MaterialProperties& mat,
                                                 sigIoni,
                                                 0.,
                                                 0.,
-                                                pathLength);
+                                                pathLength));
 }

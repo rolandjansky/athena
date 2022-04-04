@@ -188,4 +188,11 @@ class DecoLRTTTVA(JobProperty):
     StoredValue = False
 jobproperties.InDetDxAODJobPropertyContainer.add_JobProperty(DecoLRTTTVA)
 
+class AddPseudoTracks(JobProperty):
+    """Save various pseudo-tracks containers to output"""
+    statusOn = True
+    allowedTypes = ["bool"]
+    StoredValue = False
+jobproperties.InDetDxAODJobPropertyContainer.add_JobProperty(AddPseudoTracks)
+
 InDetDxAODFlags = jobproperties.InDetDxAODJobPropertyContainer

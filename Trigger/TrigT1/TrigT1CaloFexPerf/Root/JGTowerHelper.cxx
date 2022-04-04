@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloFexPerf/JGTowerHelper.h"
@@ -8,16 +8,6 @@
 
 namespace LVL1
 {
-  // Default constructor, should never be used.
-  // This implementation exists only to print the warning and avoid undefined behavior.
-  JGTowerHelper::JGTowerHelper()
-  {
-    m_eta = -999;
-    m_deta = -999;
-    m_phi = -999;
-    m_dphi = -999;
-  }
-
   // Constructor
   JGTowerHelper::JGTowerHelper(float eta, float deta, float phi, float dphi)
   {

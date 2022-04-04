@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -46,7 +46,7 @@ namespace LVL1CTP {
 
       void setRandomEngine( CLHEP::HepRandomEngine* rndmEngine );
 
-      StatusCode setConfiguration( const TrigConf::L1Menu& l1menu ) const;
+      StatusCode setConfiguration( const TrigConf::L1Menu& l1menu );
 
       StatusCode buildItemDecision( const std::map<std::string, unsigned int> & thrMultiMap,
                                     std::map<std::string, unsigned int> & itemDecisionMap,
@@ -77,15 +77,15 @@ namespace LVL1CTP {
 
       enum WrdType { TBP = 0x01, TAP = 0x02, TAV = 0x04 };
 
-      StatusCode createTriggerConfigMaps(const TrigConf::L1Menu& l1menu) const;
+      StatusCode createTriggerConfigMaps(const TrigConf::L1Menu& l1menu);
 
       //! build list of fired items and dump to string
       std::vector<std::string> firedItems(const std::vector<uint32_t>& triggerWords) const;
 
       // configuration information
-      mutable std::unique_ptr<ThresholdMap>         m_thrConfigMap ATLAS_THREAD_SAFE { nullptr };    //!< Map between threshold objects and their CTP-internal description
-      mutable std::unique_ptr<ItemMap>              m_itemConfigMap ATLAS_THREAD_SAFE { nullptr };   //!< Map between item objects and their CTP-internal description
-      mutable InternalTriggerMap    m_internalTrigger ATLAS_THREAD_SAFE;             //!< internal triggers BGRP and RNDM
+      std::unique_ptr<ThresholdMap>         m_thrConfigMap{ nullptr };    //!< Map between threshold objects and their CTP-internal description
+      std::unique_ptr<ItemMap>              m_itemConfigMap{ nullptr };   //!< Map between item objects and their CTP-internal description
+      InternalTriggerMap            m_internalTrigger;             //!< internal triggers BGRP and RNDM
       unsigned int                  m_ctpVersionNumber { 4 };      //!< CTP data format version (4 in most of Run 2 and in Run 3) 
       CTPdataformatVersion*         m_ctpDataFormat { nullptr };   //!< CTP data format details
    };

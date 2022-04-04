@@ -56,6 +56,8 @@ sTgcDigitMaker::sTgcDigitMaker(const sTgcHitIdHelper* hitIdHelper,
   m_channelTypes            = 3; // 1 -> strips, 2 -> strips+pad, 3 -> strips/wires/pads
   m_theta = 0.8; // theta=0.8 value best matches the PDF
   m_mean = 2E5;  // mean gain estimated from ATLAS note "ATL-MUON-PUB-2014-001" 
+  m_posResIncident = 1.0;
+  m_posResAngular = 12.0;
 }
 
 //----- Destructor
@@ -436,38 +438,52 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
     return nullptr;
   }
 
-  int NumberOfStrips = detEl->numberOfStrips(newId); 
-  double stripHalfPitch = detEl->channelPitch(newId)*0.5; // 3.2/2 = 1.6 mm
+  const int NumberOfStrips = detEl->numberOfStrips(newId); 
+  const double stripHalfPitch = detEl->channelPitch(newId)*0.5; // 3.2/2 = 1.6 mm
 
   //************************************ conversion of energy to charge **************************************
 
-  // Constant determined from ionization study within Garfield
-  // Note titled Charge Energy Relation which outlines conversion can be found here https://cernbox.cern.ch/index.php/apps/files/?dir=/__myshares/Documents (id:274113) 
-  double ionized_charge = (5.65E-6)*energyDeposit/CLHEP::keV; // initial ionized charge in pC per keV deposited
+  // Typical ionized charge in pC per keV deposited. The constant is determined from ionization 
+  // study with Garfield program. A note titled "Charge Energy Relation" which outlines 
+  // conversion can be found here: 
+  //   https://cernbox.cern.ch/index.php/apps/files/?dir=/__myshares/Documents (id:274113) // link is dead
+  const double ionized_charge = (5.65E-6)*energyDeposit/CLHEP::keV;
 
  // To get avalanche gain, polya function is taken from Blum paper https://inspirehep.net/literature/807304
  // m_polyaFunction = new TF1("m_polyaFunction","(1.0/[1])*(TMath::Power([0]+1,[0]+1)/TMath::Gamma([0]+1))*TMath::Power(x/[1],[0])*TMath::Exp(-([0]+1)*x/[1])",0,3000000);
-  float gain =  CLHEP::RandGamma::shoot(rndmEngine, 1. + m_theta, (1. + m_theta)/m_mean); // mean value for total gain due to E field; To calculate this gain from polya distibution we replace "alpha = 1+theta and beta = 1+theta/mean" in gamma PDF. With this gamma PDF gives us same sampling values as we get from polya PDF. 
-  double total_charge = gain*ionized_charge; // total charge after avalanche
+
+  // Mean value for total gain due to E field; 
+  // To calculate this gain from polya distibution, we replace in gamma PDF:
+  //     alpha = 1+theta and 
+  //     beta = 1+theta/mean
+  // With these substitutions, gamma PDF gives the same sampling values as those from polya PDF.
+  const double gain =  CLHEP::RandGamma::shoot(rndmEngine, 1. + m_theta, (1. + m_theta)/m_mean); 
+
+  // total charge after avalanche
+  const double total_charge = gain*ionized_charge;
 
   //************************************ spread charge among readout element ************************************** 
-  //spread charge to a gaussian distribution
-  float charge_width = CLHEP::RandGaussZiggurat::shoot(rndmEngine, m_GausMean, m_GausSigma);
-  float norm = 0.5*total_charge/(charge_width*std::sqrt(2.*M_PI)); // each readout plane reads about half the total charge produced on the wire
+
+  // Assume spread charge follows a gaussian distribution
+  const double charge_width = CLHEP::RandGaussZiggurat::shoot(rndmEngine, m_GausMean, m_GausSigma);
+
+  // each readout plane reads about half the total charge produced on the wire
+  const double norm = 0.5*total_charge/(charge_width*std::sqrt(2.*M_PI));
   std::unique_ptr<TF1> charge_spread = std::make_unique<TF1>("fgaus", "gaus(0)", -1000., 1000.); 
   charge_spread->SetParameters(norm, posOnSurf_strip.x(), charge_width);
   
   // Charge Spread including tan(theta) resolution term.
-  double tan_theta = GLODIRE.perp()/GLODIRE.z();
+  const double tan_theta = GLODIRE.perp()/GLODIRE.z();
   // The angle dependance on strip resolution goes as tan^2(angle)
-  // We add the resolution in quadrature following sTGC test beam papers
-  m_ChargeSpreadFactor = m_StripResolution*std::sqrt(1+12.*tan_theta*tan_theta);
+  const double angle_dependency = std::sqrt(m_posResIncident + m_posResAngular * tan_theta*tan_theta);
+  // Smearing of the charge, no noise is considered yet
+  m_ChargeSpreadFactor = m_StripResolution * angle_dependency;
 
   // Get the nominal strip width, which is 2.7 mm, while the strip pitch is 3.2 mm.
-  double stripWidth = detEl->getDesign(newId)->inputWidth;
+  const double stripWidth = detEl->getDesign(newId)->inputWidth;
 
   // Lower limit on strip charge, in pC, which has the same units as the parameter ionized_charge
-  double tolerance_charge = 0.0005;
+  constexpr double tolerance_charge = 0.0005;
 
   // Position of the strip closest to the hit
   Amg::Vector2D middleStrip_pos(0., 0.);
@@ -501,7 +517,7 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
   bool createNeighbor2 = true;
   unsigned int counter_strip = 0;
   // Set a maximum number of neighbour strips to avoid very long loop
-  const unsigned int max_neighbor = 10;
+  constexpr unsigned int max_neighbor = 10;
   while (createNeighbor1 || createNeighbor2) {
     // Strip numbers to be considered  
     std::vector<int> tmpStripNumbers;
@@ -546,16 +562,20 @@ std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHi
           continue;
         }
         charge = CLHEP::RandGaussZiggurat::shoot(rndmEngine, charge, m_ChargeSpreadFactor*charge);
+        // Workaround to prevent negative charge
+        if (charge < 0.0) charge = 0.;
 
         // Estimate digit time
-        int indexFromMiddleStrip = std::abs(stripnum - middleStrip[0]);
-        if (std::abs(stripnum - middleStrip[1]) < indexFromMiddleStrip) {
-          indexFromMiddleStrip = std::abs(stripnum - middleStrip[1]);
-        }
         double strip_time = sDigitTimeStrip;
         // Strip time response can be delayed due to the resistive layer. 
         // A correction would be required if the actual VMM front-end doesn't re-align the strip timing.
         if (m_doTimeOffsetStrip) {
+          // Determine how far the current strip is from the middle strip
+          int indexFromMiddleStrip = std::abs(stripnum - middleStrip[0]);
+          if (std::abs(stripnum - middleStrip[1]) < indexFromMiddleStrip) {
+            indexFromMiddleStrip = std::abs(stripnum - middleStrip[1]);
+          }
+          // Add time delay due to resistive layer
           strip_time += getTimeOffsetStrip(indexFromMiddleStrip);
         }
       

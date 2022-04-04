@@ -30,11 +30,11 @@ namespace TrigConf {
          IMenuLoader(), DBLoader("MenuLoader", sm, session) {}
 
       /**@brief destructor*/       
-      virtual ~MenuLoader(){};
+      virtual ~MenuLoader() override = default;
     
-      virtual bool load( Menu& data);
+      virtual bool load( Menu& data) override;
     
-      virtual void setEnv(ENV env) { m_env = env;  }
+      virtual void setEnv(ENV env) override { m_env = env;  }
    private:
       ENV m_env{CTP};
 

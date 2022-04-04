@@ -28,8 +28,9 @@ namespace xAOD {
       /// Default constructor
       gFexGlobalRoI_v1();
 
-      /// Initialise the object with its most important properties: only the word for gFEX
-      void initialize( uint32_t word, int tobEtScale );
+      /// Initialise the object with its properties
+      // void initialize( uint32_t word, int tobEtScaleOne );
+      void initialize( uint32_t word, int tobEtScaleOne, int tobEtScaleTwo = 0 );
 
       /// Object types
       enum ObjectType {
@@ -46,9 +47,13 @@ namespace xAOD {
       /// Set the "raw" 32-bit words describing the object candidate
       void setWord( uint32_t value );
 
-      int tobEtScale() const;
+      int tobEtScaleOne() const;
       /// Set the "raw" 32-bit words describing the object candidate
-      void setScale( int value );
+      void setScaleOne( int value );
+
+      int tobEtScaleTwo() const;
+      /// Set the "raw" 32-bit words describing the object candidate
+      void setScaleTwo( int value );
 
       /// TOB ET (decoded from TOB, stored for convenience)
       int16_t quantityOne() const;    /// getter for integer ET on TOB scale (3.2 GeV/count)

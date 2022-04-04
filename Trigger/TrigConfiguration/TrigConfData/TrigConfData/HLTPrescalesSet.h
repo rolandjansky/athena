@@ -35,7 +35,7 @@ namespace TrigConf {
       HLTPrescalesSet(const ptree & data);
 
       /** Destructor */
-      ~HLTPrescalesSet();
+      virtual ~HLTPrescalesSet() override = default;
 
       // class name
       virtual std::string className() const override {

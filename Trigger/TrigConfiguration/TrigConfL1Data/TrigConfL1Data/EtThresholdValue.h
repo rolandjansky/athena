@@ -11,14 +11,14 @@ namespace TrigConf {
    class EtThresholdValue : public TriggerThresholdValue {
    public:
       EtThresholdValue();
-      ~EtThresholdValue() = default;
+      virtual ~EtThresholdValue() override = default;
       
       virtual TriggerThresholdValue* createCopy() const override;
 
       virtual int thresholdValueCount() const override;
       
       virtual void print(const std::string& indent="", unsigned int detail=1) const override;
-      void writeXML(std::ostream & xmlfile, int indentLevel=0, int indentWidth=2) const override;
+      virtual void writeXML(std::ostream & xmlfile, int indentLevel=0, int indentWidth=2) const override;
    };
 }
 

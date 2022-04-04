@@ -7,17 +7,24 @@ from AthenaConfiguration.Enums import BeamType
 
 def SiDetElementsRoadMaker_xkCfg(flags, name="InDetSiRoadMaker", **kwargs) :
     acc = ComponentAccumulator()
+
     #
     # --- SCT and Pixel detector elements road builder
     #
 
+    from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
+    acc.merge(PixelReadoutGeometryCfg(flags)) # To produce PixelDetectorElementCollection
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+    acc.merge(SCT_ReadoutGeometryCfg(flags)) # To produce SCT_DetectorElementCollection
+
     # Create ReadCondHandle SiDetElementsLayerVectors_xk
     acc.addCondAlgo(CompFactory.InDet.SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk"))
 
-    from InDetConfig.TrackingCommonConfig import InDetPatternPropagatorCfg
-    InDetPatternPropagator = acc.getPrimaryAndMerge(InDetPatternPropagatorCfg())
-
+    from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
+    InDetPatternPropagator = acc.popToolsAndMerge(RungeKuttaPropagatorCfg(flags, name="InDetPatternPropagator"))
+    acc.addPublicTool(InDetPatternPropagator)
     kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
+
     kwargs.setdefault("usePixel", flags.InDet.Tracking.ActivePass.usePixel )
     kwargs.setdefault("PixManagerLocation", 'Pixel')
     kwargs.setdefault("useSCT", flags.InDet.Tracking.ActivePass.useSCT)
@@ -37,30 +44,27 @@ def SiDetElementsRoadMaker_xk_TRT_Cfg(flags, name = 'InDetTRT_SeededSiRoad', **k
 
     return SiDetElementsRoadMaker_xkCfg(flags, name, **kwargs)
 
-def SiDetElementsRoadMaker_xk_Trig_Cfg( flags, name="InDetTrigSiDetElementsRoadMaker", **kwargs ):
-    acc = ComponentAccumulator()
-
-    from TrigInDetConfig.TrigInDetConfig import RungeKuttaPropagatorCfg
-    RungeKuttaPropagator = acc.getPrimaryAndMerge(RungeKuttaPropagatorCfg(flags))
-    kwargs.setdefault("PropagatorTool", RungeKuttaPropagator)
-
-    return SiDetElementsRoadMaker_xkCfg(flags, name, **kwargs)
-
 def ITkSiDetElementsRoadMaker_xkCfg(flags, name="ITkSiRoadMaker", **kwargs) :
     acc = ComponentAccumulator()
     #
     # --- ITk Strip and Pixel detector elements road builder
     #
 
+    from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg
+    acc.merge(ITkPixelReadoutGeometryCfg(flags)) # To produce ITkPixelDetectorElementCollection
+    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
+    acc.merge(ITkStripReadoutGeometryCfg(flags)) # To produce ITkStripDetectorElementCollection
+
     # Create ReadCondHandle SiDetElementsLayerVectors_xk
     acc.addCondAlgo(CompFactory.InDet.SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk",
                                                                   PixelDetEleCollKey = "ITkPixelDetectorElementCollection",
                                                                   SCTDetEleCollKey = "ITkStripDetectorElementCollection"))
 
-    from InDetConfig.ITkRecToolConfig import ITkPatternPropagatorCfg
-    ITkPatternPropagator = acc.getPrimaryAndMerge(ITkPatternPropagatorCfg(flags))
-
+    from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
+    ITkPatternPropagator = acc.popToolsAndMerge(RungeKuttaPropagatorCfg(flags, name="ITkPatternPropagator"))
+    acc.addPublicTool(ITkPatternPropagator)
     kwargs.setdefault("PropagatorTool", ITkPatternPropagator)
+
     kwargs.setdefault("usePixel", flags.ITk.Tracking.ActivePass.useITkPixel )
     kwargs.setdefault("PixManagerLocation", 'ITkPixel')
     kwargs.setdefault("useSCT", flags.ITk.Tracking.ActivePass.useITkStrip)

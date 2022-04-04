@@ -52,23 +52,23 @@ checkxAOD def/myAOD_def.pool.root
 rc4=$?
 echo "art-result: ${rc4} checkxAOD myAOD_def.pool.root" 
 
-echo "============ xAODDigest.py myAOD_ca.pool.root"
-xAODDigest.py ca/myAOD_ca.pool.root myAOD_ca.txt
+echo "============ xAODDigest.py --extravars myAOD_ca.pool.root"
+xAODDigest.py --extravars ca/myAOD_ca.pool.root myAOD_ca.txt
 rc5=$?
-echo "art-result: ${rc5} xAODDigest.py myAOD_ca.pool.root" 
+echo "art-result: ${rc5} xAODDigest.py --extravars myAOD_ca.pool.root"
 echo "============ myAOD_ca.txt"
 cat myAOD_ca.txt
 echo "============ myAOD_ca.txt"
 
-echo "============ xAODDigest.py myAOD_def.pool.root"
-xAODDigest.py def/myAOD_def.pool.root myAOD_def.txt
+echo "============ xAODDigest.py --extravars myAOD_def.pool.root"
+xAODDigest.py --extravars def/myAOD_def.pool.root myAOD_def.txt
 rc6=$?
-echo "art-result: ${rc6} xAODDigest.py myAOD_def.pool.root" 
+echo "art-result: ${rc6} xAODDigest.py --extravars myAOD_def.pool.root"
 echo "============ myAOD_def.txt"
 cat myAOD_def.txt
 echo "============ myAOD_def.txt"
 
-echo "============ comparexAODDigest.py myAOD_ca.txt myAOD_def.txt"
-comparexAODDigest.py myAOD_ca.txt myAOD_def.txt
+echo "============ comparexAODDigest.py myAOD_def.txt myAOD_ca.txt"
+comparexAODDigest.py myAOD_def.txt myAOD_ca.txt
 rc7=$?
-echo "art-result: ${rc7} comparexAODDigest.py myAOD_ca.txt myAOD_def.txt" 
+echo "art-result: ${rc7} comparexAODDigest.py myAOD_def.txt myAOD_ca.txt"

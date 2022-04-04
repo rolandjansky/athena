@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUFASTDATAPREPARATOR_H
@@ -126,7 +126,7 @@ class MuFastDataPreparator: public AthAlgTool {
   void setStgcGeometry(bool use_stgc){ m_use_stgc = use_stgc; };
   void setMmGeometry(bool use_mm){ m_use_mm = use_mm; };
 
-  StatusCode setMCFlag(BooleanProperty  use_mcLUT);
+  StatusCode setMCFlag(const BooleanProperty&  use_mcLUT);
   void setRoIBasedDataAccess(bool use_RoIBasedDataAccess_MDT,
 			     bool use_RoIBasedDataAccess_RPC,
 			     bool use_RoIBasedDataAccess_TGC,

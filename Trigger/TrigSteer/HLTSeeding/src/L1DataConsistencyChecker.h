@@ -46,7 +46,8 @@ private:
     this, "ThresholdToDecisionMap", {}, "Map between L1 threshold type and the corresponding DecisionContainer name"};
 
   Gaudi::Property<std::vector<std::string>> m_excludedThresholdTypes {
-    this, "ExcludedThresholdTypes", {"internal", "TOPO", "R2TOPO", "TE", "XE", "XS"},
+    this, "ExcludedThresholdTypes",
+    {"internal", "TOPO", "R2TOPO", "TE", "XE", "XS", "NIM", "CALREQ", "MBTS", "MBTSSI", "ALFA", "ZDC", "BCM"},
     "L1 threshold types which are not subject to the consistency check "
     "(because either there are no corresponding TOBs or HLT doesn't use them)"};
 

@@ -108,8 +108,8 @@ StatusCode Muon::STGC_ROD_Decoder::fillCollection(const ROBFragment& robFrag, co
          ++nerr_channelID; 
          continue; 
        }
-
-       rdo->push_back(new STGC_RawData(channel_ID, channel->rel_bcid(), channel->tdo(), channel->pdo(), false)); // isDead = false (ok?)
+       bool timeAndChargeInCounts = true; // always true for data from detector
+       rdo->push_back(new STGC_RawData(channel_ID, channel->rel_bcid(), channel->tdo(), channel->pdo(), false,timeAndChargeInCounts)); // isDead = false (ok?)
     }
   }
 

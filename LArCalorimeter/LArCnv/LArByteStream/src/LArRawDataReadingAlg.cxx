@@ -84,7 +84,7 @@ StatusCode LArRawDataReadingAlg::execute(const EventContext& ctx) const {
 
   for (const uint32_t* robPtr : larRobs->second) {
     OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment rob(robPtr);
-    ATH_MSG_VERBOSE("Decoding ROB fragment 0x" << std::hex << rob.rob_source_id () << " with " << std::dec << rob.rod_fragment_size_word() << "ROB words");
+    ATH_MSG_VERBOSE("Decoding ROB fragment 0x" << std::hex << rob.rob_source_id () << " with " << std::dec << rob.rod_fragment_size_word() << " ROB words");
 
     if (rob.rod_fragment_size_word() <3) {
       if (m_failOnCorruption) {
@@ -129,12 +129,19 @@ StatusCode LArRawDataReadingAlg::execute(const EventContext& ctx) const {
 	case 10: //Physics mode v5 16.06.2008 for LHC 
 	  rodBlock.reset(new LArRodBlockPhysicsV5);
 	  break;
-	default:
-	  ATH_MSG_WARNING("Found unsupported ROD Block version " << rodMinorVersion 
-			<< " of ROD block type " << rodBlockType);
-	  return m_failOnCorruption ? StatusCode::FAILURE : StatusCode::SUCCESS;
+	default: // Unknown version of rod block type 4 (Physics mode)
+	  if (m_failOnCorruption) {
+	    ATH_MSG_ERROR("Found unsupported ROD Block version " << rodMinorVersion 
+			  << " of ROD block type " << rodBlockType);
+	    return StatusCode::FAILURE;
+	  }
+	  else {
+	    ATH_MSG_WARNING("Found unsupported ROD Block version " << rodMinorVersion 
+			    << " of ROD block type " << rodBlockType);
+	    continue;
+	  }
 	}// end switch(rodMinorVersion)
-      }//end of rodBlockType==4
+      }//end rodBlockType==4 (physics mode)
       else if (rodBlockType==2) { //Transparent mode
 	switch(rodMinorVersion) {
            case 4:  
@@ -143,12 +150,32 @@ StatusCode LArRawDataReadingAlg::execute(const EventContext& ctx) const {
            case 12:
              rodBlock.reset(new LArRodBlockCalibrationV3);
              break;
-           default:  
-	     ATH_MSG_WARNING("Found unsupported ROD Block version " << rodMinorVersion 
+	default:  //Unknown version of rod block type 2 (Transparent mode)
+	     if (m_failOnCorruption) {
+	       ATH_MSG_ERROR("Found unsupported ROD Block version " << rodMinorVersion 
+			     << " of ROD block type " << rodBlockType);
+	       return StatusCode::FAILURE;
+	     }
+	     else {
+	       ATH_MSG_WARNING("Found unsupported ROD Block version " << rodMinorVersion 
+			       << " of ROD block type " << rodBlockType);
+	       continue;
+	     }
+        } // end switch(rodMinorVersion)
+      }// end rodBlockType==2 (transparent mode)
+      else {
+	//Unknown rod block type if arriving here
+	if (m_failOnCorruption) {
+	  ATH_MSG_ERROR("Found unsupported ROD Block version " << rodMinorVersion 
 			<< " of ROD block type " << rodBlockType);
-	     return m_failOnCorruption ? StatusCode::FAILURE : StatusCode::SUCCESS;
-        }
-      } 
+	  return StatusCode::FAILURE;
+	}
+	else {
+	  ATH_MSG_WARNING("Found unsupported ROD Block version " << rodMinorVersion 
+			  << " of ROD block type " << rodBlockType);
+	  continue;
+	}
+      }
     }//End if need to re-init RodBlock
 
     const uint32_t* pData=rob.rod_data();

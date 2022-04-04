@@ -21,10 +21,11 @@ void JetGroupProduct::init(const std::vector<std::size_t>& siblings,
 		      const CondInd2JetGroupsInds& satisfiedBy,
 		      const std::vector<std::size_t>& condMult) {
 
-  // copy the parts of satisfiedBy corresponding to the sibling indices
-  // into m_condIndices. The number of copies made per sibling is the
-  // given by the sibling multiplicity.
-
+  // create a jetstreamer object to cycle through the
+  // possoble combinations. The streamer may form 
+  // vectors of indices by performing external products, and
+  // these may have duplicates, and vectors that differ only in
+  // order, which will need to be removed.
 
   
   std::vector<std::vector<std::size_t>> condIndices;
@@ -45,16 +46,11 @@ void JetGroupProduct::init(const std::vector<std::size_t>& siblings,
     ++m_jetEnd;; // to be used as an end marker
     m_jetMask.reserve(m_jetEnd);
     
-    // no of copies = multiplicity of the Condition
-    
-    for (std::size_t im = 0; im != mult; ++im){
-      m_condIndices.push_back(satisfiedBy.at(isib));
-    }
   }
 
 
-  auto stream = make_jetstream(condIndices, repeats, 0);
-  m_jetstreamer.reset(new JetStreamer(std::move(stream)));
+  auto streamer = make_jetstream(condIndices, repeats, 0);
+  m_jetstreamer.reset(new JetStreamer(std::move(streamer)));
 }
   
 std::vector<std::size_t> JetGroupProduct::next(const Collector& collector){
@@ -104,7 +100,6 @@ std::vector<std::size_t> JetGroupProduct::next(const Collector& collector){
     if (blocked){continue;}
 
     jg_indices.clear();
-    jg_indices.reserve(m_condIndices.size());
     for(std::size_t i = 0; i != m_jetEnd; ++i) {
       if (m_jetMask[i]) {
 	jg_indices.push_back(i);
@@ -120,3 +115,6 @@ std::vector<std::size_t> JetGroupProduct::next(const Collector& collector){
     }
   }		       
 }
+
+bool JetGroupProduct::valid() const {return m_valid;}
+

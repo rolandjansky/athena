@@ -733,6 +733,7 @@ std::unique_ptr<MuonPrdPatternCollection> MuonHoughPatternTool::getPhiMuonPatter
                     std::unique_ptr<MuonHoughPattern>& houghpattern2 = phipatterns[k][l];
                     if (!houghpattern2) continue;
                     if (phipatterns[k][l]->size() < m_thresholdpattern_xyz) continue;
+                    //cppcheck-suppress mismatchingContainers
                     if (houghpattern1.get() == houghpattern2.get()) continue;
                     if (mergedpatterns[houghpattern1.get()] == 1) continue;
                     if (mergedpatterns[houghpattern2.get()] == 1) continue;
@@ -816,7 +817,6 @@ std::unique_ptr<MuonPrdPatternCollection> MuonHoughPatternTool::getPhiMuonPatter
                     ATH_MSG_DEBUG(" Lift MuonPhiPattern size " << muonpattern->numberOfContainedPrds());
                     if (msgLvl(MSG::VERBOSE)) { printPattern(muonpattern.get()); }
                     phipatterncollection->push_back(std::move(muonpattern));
-
                 }
             }
         }
@@ -872,6 +872,7 @@ std::unique_ptr<MuonPrdPatternCollection> MuonHoughPatternTool::getEtaMuonPatter
                     std::unique_ptr<MuonHoughPattern>& houghpattern2 = etapatterns[k][l];
                     if (!houghpattern2) continue;
                     if (etapatterns[k][l]->size() < m_thresholdpattern_rz) continue;
+                    //cppcheck-suppress mismatchingContainers
                     if (houghpattern1.get() == houghpattern2.get()) continue;
                     if (mergedpatterns[houghpattern1.get()] == 1) continue;
                     if (mergedpatterns[houghpattern2.get()] == 1) continue;

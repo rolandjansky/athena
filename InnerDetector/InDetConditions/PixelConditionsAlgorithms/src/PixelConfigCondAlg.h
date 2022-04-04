@@ -722,10 +722,10 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     {this, "DBMThermalNoise", {160.0,160.0,160.0}, "Thermal noise of DBM layers"};
 
     Gaudi::Property<std::vector<int>> m_FEI4BarrelHitDiscConfig
-    {this, "FEI4BarrelHitDiscConfig", {2}, "Set HitDiscConfig parameter for barrel pixel layers"};
+    {this, "FEI4BarrelHitDiscConfig", {2,2,2}, "Set HitDiscConfig parameter for barrel pixel layers"};
 
     Gaudi::Property<std::vector<int>> m_FEI4EndcapHitDiscConfig
-    {this, "FEI4EndcapHitDiscConfig", {2}, "Set HitDiscConfig parameter for endcap pixel layers"};
+    {this, "FEI4EndcapHitDiscConfig", {2,2,2}, "Set HitDiscConfig parameter for endcap pixel layers"};
 
     Gaudi::Property<float> m_chargeScaleFEI4
     {this, "ChargeScaleFEI4", 1.0, "Scaling of the FEI4 charge"};

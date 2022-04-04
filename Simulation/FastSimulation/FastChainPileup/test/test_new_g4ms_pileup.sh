@@ -3,6 +3,7 @@
 # art-description: G4MS test with pile-up profile
 # art-type: grid
 # art-include: master/Athena
+# art-architecture: '#x86_64-intel'
 
 maxevent=25
 inputfile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ISF_Validation/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1"
@@ -32,7 +33,7 @@ FastChain_tf.py \
     --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True;' \
     --preSimInclude 'Campaigns/MC16a.py' 'Campaigns/PileUpMC16a.py' \
     --postInclude='PyJobTransforms/UseFrontier.py' \
-    --postExec 'ServiceMgr.MessageSvc.Format = "% F%32W%S%7W%R%T %0W%M"' \
+    --postExec 'ServiceMgr.MessageSvc.Format = "% F%32W%S%7W%R%T %0W%M";from IOVDbSvc.CondDB import conddb;conddb.addOverride("/TILE/OFL02/CALIB/SFR","TileOfl02CalibSfr-SIM-05")' \
     --inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles} \
     --inputLowPtMinbiasHitsFile ${LowPtMinbiasHitsFiles} \
     --pileupFinalBunch '6' \

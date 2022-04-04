@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -51,6 +51,7 @@
 #include "GaudiKernel/ThreadLocalContext.h"
 
 #include "TTree.h"
+#include "TFile.h"
 #include <iomanip>
 #include "boost/date_time/local_time/local_time.hpp"
 #include "boost/date_time/posix_time/posix_time.hpp"
@@ -192,6 +193,8 @@ TileAANtuple::TileAANtuple(std::string name, ISvcLocator* pSvcLocator)
 
   declareProperty("SkipEvents", m_skipEvents = 0);
   declareProperty("NSamples", m_nSamples=7);
+  declareProperty("Reduced", m_reduced=false);
+  declareProperty("CompressionSettings", m_compressSettings = -1);
 
   m_evtNr = -1;
 }
@@ -235,10 +238,6 @@ StatusCode TileAANtuple::initialize() {
   }
 
   ATH_CHECK( m_DQstatusKey.initialize() );
-
-  if (m_dspRawChannelContainerKey.empty() && m_bsInput) {
-    m_dspRawChannelContainerKey = "TileRawChannelCnt"; // try DSP container name to read DQ status
-  }
 
   int sample_size = N_ROS2*N_MODULES*N_CHANS*m_nSamples;
   int sample_TMDB_size = N_ROS*N_MODULES*N_TMDBCHANS*m_nSamples;
@@ -324,6 +323,10 @@ StatusCode TileAANtuple::ntuple_initialize(const EventContext& ctx,
   m_evtNr = 0;
   
   ATH_CHECK( m_thistSvc.retrieve() );
+
+  if (m_compressSettings >= 0) {
+    ATH_CHECK( m_fileMgr.retrieve() );
+  }
   
   if(initNTuple(ctx).isFailure()) {
     ATH_MSG_ERROR( " Error during ntuple initialization" );
@@ -1441,6 +1444,18 @@ StatusCode
 TileAANtuple::initNTuple(const EventContext& ctx) {
   //Aux Ntuple creation
   
+  if (m_compressSettings >= 0) {
+    std::vector<std::string> files;
+    m_fileMgr->getFiles(Io::ROOT, ( Io::WRITE | Io::CREATE ), files);
+    for (std::string& file : files) {
+      TFile* outFile = (TFile*) m_fileMgr->fptr(file);
+      if (outFile) {
+	ATH_MSG_INFO("Changing compressing settings to " << m_compressSettings << " for file: " << file);
+	outFile->SetCompressionSettings(m_compressSettings);
+      }
+    }
+  }
+
   if (m_ntupleID.size() > 0) {
     
     std::string ntupleID = m_ntupleID + "_map";
@@ -1969,7 +1984,7 @@ void TileAANtuple::DIGI_addBranch(void)
       m_ntuplePtr->Branch(NAME2("chi2OF1",f_suf),    m_arrays->m_chi2OF1[ir],       NAME3("chi2OF1",f_suf,"[4][64][48]/F")); // float
     }
     
-    if (!m_dspRawChannelContainerKey.empty()) {
+    if (!m_dspRawChannelContainerKey.empty() && !m_reduced) {
       m_ntuplePtr->Branch(NAME2("eDsp",f_suf),       m_arrays->m_eDsp[ir],             NAME3("eDsp",f_suf,"[4][64][48]/F")); // float
       m_ntuplePtr->Branch(NAME2("tDsp",f_suf),       m_arrays->m_tDsp[ir],             NAME3("tDsp",f_suf,"[4][64][48]/F")); // float
       m_ntuplePtr->Branch(NAME2("pedDsp",f_suf),     m_arrays->m_pedDsp[ir],         NAME3("pedDsp",f_suf,"[4][64][48]/F")); // float

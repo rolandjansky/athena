@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
-# art-description: Job ttFC_stdFullSim + ttFC_stdFullSimMerge + ttFC_stdFullSimDigi + ttFC_reco_noSplit_noPseudoT_stdFullSimDigi
-# art-type: grid
-# art-include: master/Athena
+# art-description: Job ttFC_stdFullSim + ttFC_stdFullSimMerge + ttFC_stdFullSimDigi + ttFC_reco_noSplit_noPseudoT_stdFullSimDigi (was for grid, master/Athena)
 # art-output: *.root
 # art-output: dcube-truth
 # art-output: dcube-id

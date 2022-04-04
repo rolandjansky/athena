@@ -27,7 +27,7 @@ namespace TrigConf {
    class IBunchGroupSetLoader : virtual public ILoader {
    public:
 
-      virtual ~IBunchGroupSetLoader() {};
+      virtual ~IBunchGroupSetLoader() override = default;
 
       virtual bool load( BunchGroupSet& data ) = 0;
    };

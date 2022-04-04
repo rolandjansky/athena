@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECALIBALG_TILELASERTIMINGTOOL_H
@@ -263,7 +263,7 @@ class TileLaserTimingTool: public AthAlgTool, virtual public ITileCalibTool {
     std::string m_rawChannelContainerName;
     std::string m_digitsContainerName;
     std::string m_ntupleID;
-    double m_fiberLightSpeed;
+    double m_fiberLightSpeed = 0.0;
     unsigned m_nSamples;
     // low limit for energy when adding samples to pulse shape
     double m_eneLowLimitPulseShape;
@@ -305,7 +305,7 @@ class TileLaserTimingTool: public AthAlgTool, virtual public ITileCalibTool {
       return true;
     }
     /** @return if a PMT is connected */
-    bool isConnectedPMT(int ros, int chan);
+    static bool isConnectedPMT(int ros, int chan);
 
     /** @return PMT#-1 for given ros and channel */
     inline int channel2PMT(int ros, int chan) {

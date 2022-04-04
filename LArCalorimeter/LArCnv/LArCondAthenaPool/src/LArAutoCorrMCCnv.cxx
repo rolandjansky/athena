@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -12,14 +12,14 @@
 #include "LArCondTPCnv/LArAutoCorrSubsetCnv_p1.h"
 #include "LArAutoCorrCompleteCnv.h"
 
-static LArAutoCorrSubsetCnv_p1   TPconverter;
+static const LArAutoCorrSubsetCnv_p1   TPconverter;
 
 LArAutoCorrSubset_p1*
 LArAutoCorrMCCnv::createPersistent (LArAutoCorrTransType* transObj)
 {
     MsgStream log(msgSvc(), "LArAutoCorrMCCnv" ); 
     //log << MSG::DEBUG << "LArAutoCorrMC write" << endmsg;
-    LArAutoCorrPersType* persObj = TPconverter.createPersistent( transObj, log );
+    LArAutoCorrPersType* persObj = TPconverter.createPersistentConst( transObj, log );
     //log << MSG::DEBUG << "Success" << endmsg;
     return persObj; 
 }
@@ -27,14 +27,14 @@ LArAutoCorrMCCnv::createPersistent (LArAutoCorrTransType* transObj)
 LArConditionsSubset<LArAutoCorrP1>*
 LArAutoCorrMCCnv::createTransient ()
 {
-    static pool::Guid   p1_guid("FA16A69D-241E-40F3-B710-77A95937E394");
-    static pool::Guid   p0_guid("4E7E36E9-2121-4327-88C5-8A516D6D6D2A");
+    static const pool::Guid   p1_guid("FA16A69D-241E-40F3-B710-77A95937E394");
+    static const pool::Guid   p0_guid("4E7E36E9-2121-4327-88C5-8A516D6D6D2A");
     if( compareClassGuid(p1_guid) ) {
         // using unique_ptr ensures deletion of the persistent object
         std::unique_ptr< LArAutoCorrSubset_p1 > col_vect( poolReadObject< LArAutoCorrSubset_p1 >() );
         MsgStream log(msgSvc(), "LArAutoCorrMCCnv" ); 
         //log << MSG::INFO << "Reading LArAutoCorrSubset_p1" << endmsg; 
-        return TPconverter.createTransient( col_vect.get(), log );
+        return TPconverter.createTransientConst( col_vect.get(), log );
     }
     else if( compareClassGuid(p0_guid) ) {
         // subset from before TP separation

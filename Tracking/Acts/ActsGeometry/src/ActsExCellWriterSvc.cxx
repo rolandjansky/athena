@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ActsGeometry/ActsExCellWriterSvc.h"
@@ -52,7 +52,7 @@ void
 ActsExCellWriterSvc::store(std::vector<Acts::ExtrapolationCell<Acts::TrackParameters>>& ecells)
 {
   
-  auto ctx = Gaudi::Hive::currentContext();
+  const auto& ctx = Gaudi::Hive::currentContext();
 
   std::lock_guard<std::mutex> lock(m_chargedMutex);
 
@@ -66,7 +66,7 @@ ActsExCellWriterSvc::doWrite()
 {
   using namespace std::chrono_literals;
   // wait until we have events
-  while(m_queue.size() == 0) {
+  while(m_queue.empty()) {
     std::this_thread::sleep_for(2s);
     if (m_doEnd) return;
   }

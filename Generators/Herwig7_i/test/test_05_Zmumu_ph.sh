@@ -10,7 +10,7 @@
 # art-output: dcube
 # art-html: dcube
 
-Gen_tf.py --ecmEnergy=13000. --maxEvents=1000 --firstEvent=-1 --randomSeed=123456 --jobConfig=600433 --outputYODAFile=MyOutput.yoda.gz --outputEVNTFile=EVNT.root --postInclude=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Herwig7_i/MC_JO/MC_test_00_dijet.py  
+Gen_tf.py --ecmEnergy=13000. --maxEvents=1000 --randomSeed=123456 --jobConfig=600433 --outputYODAFile=MyOutput.yoda.gz --outputEVNTFile=EVNT.root --postInclude=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Herwig7_i/MC_JO/MC_test_00_dijet.py  
 
 echo "art-result:$? Gen_tf"
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGL2MUONSA_PTBARRELLUT_H
@@ -42,8 +42,8 @@ class PtBarrelLUT: public AthAlgTool
     const LUT&   lut(void) const  { return m_lut; };
     const LUTsp& lutSP(void) const { return m_lutSP; };
     
-    StatusCode readLUT(std::string lut_fileName,
-		       std::string lutSP_fileName);
+    StatusCode readLUT(const std::string& lut_fileName,
+		       const std::string& lutSP_fileName);
     
   private:
     LUT    m_lut;

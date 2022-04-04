@@ -27,7 +27,7 @@ namespace TrigConf {
    class IPrescaledClockLoader : virtual public ILoader {
    public:
 
-      virtual ~IPrescaledClockLoader() {};
+      virtual ~IPrescaledClockLoader() override = default;
 
       virtual bool load( PrescaledClock& data ) = 0;
    };

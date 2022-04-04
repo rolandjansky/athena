@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MDT_DCSConditionsTool.h"
@@ -35,25 +35,36 @@ MDT_DCSConditionsTool::MDT_DCSConditionsTool(const std::string& type, const std:
     m_chronoSvc(nullptr),
     m_condMapTool("MDT_MapConversion")
 
+MDT_DCSConditionsTool::MDT_DCSConditionsTool (const std::string& type,
+				    const std::string& name,
+				    const IInterface* parent)
+	  : AthAlgTool(type, name, parent),
+            m_IOVSvc(nullptr),
+            m_mdtIdHelper(nullptr),
+            m_DataLocation("keyMDTDCS"),
+            m_chronoSvc(nullptr),
+	    m_condMapTool("MDT_MapConversion"), 
+	    m_log( msgSvc(), name ),
+	    m_debug(false),
+	    m_verbose(false)   
 {
-    declareInterface<IMDT_DCSConditionsTool>(this);
-
-    m_DataLocation = "keyMDTDCS";
-
-    declareProperty("DropChamberFolder", m_dropchamberFolder = "/MDT/DCS/DROPPEDCH");
-    declareProperty("LVFolder", m_lvFolder = "/MDT/DCS/PSLVCHSTATE");
-    declareProperty("HVFolder", m_hvFolder = "/MDT/DCS/PSHVMLSTATE");
-    declareProperty("JTAGFolder", m_jtagFolder = "/MDT/DCS/JTAGCHSTATE");
-    declareProperty("SetPointsV0Folder", m_setPointsV0Folder = "/MDT/DCS/PSV0SETPOINTS");
-    declareProperty("SetPointsV1Folder", m_setPointsV1Folder = "/MDT/DCS/PSV1SETPOINTS");
-    declareProperty("Check_on_setPoint", m_check_on_setPoint = false);
-    declareProperty("Simulation_Setup", m_simulation_Setup = false);
-    declareProperty("MDT_MapConversion", m_condMapTool);
-
-    m_MDTChamDrop.str("EMPTY");
-    m_MDTLV.str("EMPTY");
-    m_MDTHV.str("EMPTY");
-    m_MDTJTAG.str("EMPTY");
+  
+  declareInterface< IMDT_DCSConditionsTool >(this);
+  
+  declareProperty("DropChamberFolder",     m_dropchamberFolder="/MDT/DCS/DROPPEDCH");
+  declareProperty("LVFolder",     m_lvFolder="/MDT/DCS/PSLVCHSTATE");
+  declareProperty("HVFolder",     m_hvFolder="/MDT/DCS/PSHVMLSTATE");
+  declareProperty("JTAGFolder",     m_jtagFolder="/MDT/DCS/JTAGCHSTATE");
+  declareProperty("SetPointsV0Folder",     m_setPointsV0Folder="/MDT/DCS/PSV0SETPOINTS");
+  declareProperty("SetPointsV1Folder",     m_setPointsV1Folder="/MDT/DCS/PSV1SETPOINTS");
+  declareProperty("Check_on_setPoint",m_check_on_setPoint=false);
+  declareProperty("Simulation_Setup",m_simulation_Setup=false);
+  declareProperty("MDT_MapConversion", m_condMapTool);
+  
+  m_MDTChamDrop.str("EMPTY");
+  m_MDTLV.str("EMPTY");
+  m_MDTHV.str("EMPTY");
+  m_MDTJTAG.str("EMPTY");
 }
 
 StatusCode MDT_DCSConditionsTool::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* /*tad*/, const EventContext& /*ctx*/) {

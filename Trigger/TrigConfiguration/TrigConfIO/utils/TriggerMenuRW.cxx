@@ -24,8 +24,6 @@ using namespace std;
 
 struct Config {
 public:
-   ~Config(){}
-   Config(){}
 
    std::vector<std::string> knownParameters { "file", "f", "smk", "l1psk", "hltpsk", "bgsk", "db", "write", "w", "Write", "W", "help", "h", "detail", "d", "ctp", "c" };
 

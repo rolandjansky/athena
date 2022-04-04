@@ -43,7 +43,8 @@
 
 #include "DBReplicaSvc/IDBReplicaSvc.h"
 
-#include "boost/algorithm/string.hpp" // for starts_with()
+#include <boost/algorithm/string.hpp> // for starts_with()
+#include <boost/filesystem.hpp>
 
 #include <cstdlib> 	// for getenv()
 #include <cstring> 	// for strcmp()
@@ -408,6 +409,17 @@ void PoolSvc::loadComponent(const std::string& compName) {
 //__________________________________________________________________________
 void PoolSvc::setShareMode(bool shareCat) {
    m_shareCat = shareCat;
+   if (m_shareCat) {
+      if (m_writeCatalog.value().compare(0, 16, "xmlcatalog_file:") == 0) {
+         const std::string& fileName = m_writeCatalog.value().substr(16);
+         boost::filesystem::path writeCatPath(fileName);
+         if (writeCatPath.is_relative() && writeCatPath.filename() == writeCatPath.relative_path()) {
+            boost::filesystem::path absPath(boost::filesystem::current_path());
+            absPath /= writeCatPath;
+            m_writeCatalog.setValue("xmlcatalog_file:" + absPath.string());
+         }
+      }
+   }
 }
 //__________________________________________________________________________
 const pool::IFileCatalog* PoolSvc::catalog() const {

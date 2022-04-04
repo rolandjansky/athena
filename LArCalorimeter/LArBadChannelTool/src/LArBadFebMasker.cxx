@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArBadChannelTool/LArBadFebMasker.h"
@@ -83,12 +83,7 @@ void LArBadFebMasker::buildBitMask()
 
 const std::vector<std::string>& LArBadFebMasker::defaultProblems()
 {
-  static std::vector<std::string> defaults;
-  if(defaults.size() == 0)
-  {
-    defaults.reserve(1);
-    defaults.push_back("deadAllBit");
-  }
+  const static std::vector<std::string> defaults = { "deadAllBit" };
   return defaults;
 }
 

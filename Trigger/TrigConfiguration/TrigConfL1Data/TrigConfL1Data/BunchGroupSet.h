@@ -20,7 +20,7 @@ namespace TrigConf {
    public:
       BunchGroupSet();
       BunchGroupSet(const std::vector<BunchGroup>&);
-      ~BunchGroupSet() = default;
+      virtual ~BunchGroupSet() override = default;
 
       // getters
       uint16_t menuPartition() const { return m_MenuPartition; }
@@ -33,7 +33,7 @@ namespace TrigConf {
       void addBunchGroup(const BunchGroup&);
  
 
-      virtual void print(const std::string& indent="", unsigned int detail=1) const;
+      virtual void print(const std::string& indent="", unsigned int detail=1) const override;
       void writeXML(std::ostream & xmlfile, int indentLevel=0, int indentWidth=2) const;
 
 

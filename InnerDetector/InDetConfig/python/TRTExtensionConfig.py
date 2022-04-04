@@ -68,7 +68,7 @@ def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackColle
         fitter_args = {}
         if flags.InDet.Tracking.holeSearchInGX2Fit:
             fitter_args.setdefault("DoHoleSearch", True)
-            from  InDetConfig.InDetRecToolConfig import InDetBoundaryCheckToolCfg
+            from InDetConfig.InDetBoundaryCheckToolConfig import InDetBoundaryCheckToolCfg
             InDetBoundaryCheckTool = acc.popToolsAndMerge(InDetBoundaryCheckToolCfg(flags))
             fitter_args.setdefault("BoundaryCheckTool", InDetBoundaryCheckTool)
 
@@ -148,6 +148,9 @@ if __name__ == "__main__":
     ConfigFlags.Detector.GeometrySCT = True
     ConfigFlags.Detector.GeometryTRT = True
 
+    # Disable calo for this test
+    ConfigFlags.Detector.EnableCalo = False
+
     ConfigFlags.InDet.Tracking.doTRTExtension = True
     ConfigFlags.InDet.Tracking.holeSearchInGX2Fit = True
 
@@ -162,6 +165,17 @@ if __name__ == "__main__":
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     top_acc.merge(PoolReadCfg(ConfigFlags))
 
+    from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
+    top_acc.merge(BeamSpotCondAlgCfg(ConfigFlags))
+
+    if "EventInfo" not in ConfigFlags.Input.Collections:
+        from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
+        top_acc.merge(EventInfoCnvAlgCfg(ConfigFlags))
+
+    if ConfigFlags.Input.isMC:
+        from xAODTruthCnv.xAODTruthCnvConfigNew import GEN_AOD2xAODCfg
+        top_acc.merge(GEN_AOD2xAODCfg(ConfigFlags))
+
     from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
     from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
     top_acc.merge(PixelReadoutGeometryCfg(ConfigFlags))
@@ -169,36 +183,6 @@ if __name__ == "__main__":
 
     from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
     top_acc.merge(TRT_ReadoutGeometryCfg( ConfigFlags ))
-
-    from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg, MuonIdHelperSvcCfg
-    top_acc.merge(MuonGeoModelCfg(ConfigFlags))
-    top_acc.merge(MuonIdHelperSvcCfg(ConfigFlags))
-
-    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDistortionAlgCfg
-    top_acc.merge(PixelDistortionAlgCfg(ConfigFlags))
-
-    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTActiveCondAlgCfg
-    top_acc.merge(TRTActiveCondAlgCfg(ConfigFlags))
-    top_acc.merge(TC.TRT_DetElementsRoadCondAlgCfg())
-
-    from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleTool, PixelLorentzAngleCfg
-    top_acc.addPublicTool(PixelLorentzAngleTool(ConfigFlags))
-    top_acc.addPublicTool(top_acc.popToolsAndMerge(PixelLorentzAngleCfg(ConfigFlags)))
-
-    from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
-    top_acc.addPublicTool(top_acc.popToolsAndMerge(SCT_LorentzAngleCfg(ConfigFlags)))
-
-    from PixelConditionsAlgorithms.PixelConditionsConfig import (PixelChargeCalibCondAlgCfg, PixelConfigCondAlgCfg, PixelDeadMapCondAlgCfg, PixelCablingCondAlgCfg, PixelReadoutSpeedAlgCfg, PixelOfflineCalibCondAlgCfg, PixelDistortionAlgCfg)
-    top_acc.merge(PixelConfigCondAlgCfg(ConfigFlags))
-    top_acc.merge(PixelDeadMapCondAlgCfg(ConfigFlags))
-    top_acc.merge(PixelChargeCalibCondAlgCfg(ConfigFlags))
-    top_acc.merge(PixelCablingCondAlgCfg(ConfigFlags))
-    top_acc.merge(PixelReadoutSpeedAlgCfg(ConfigFlags))
-    top_acc.merge(PixelOfflineCalibCondAlgCfg(ConfigFlags))
-    top_acc.merge(PixelDistortionAlgCfg(ConfigFlags))
-
-    top_acc.merge(TC.PixelClusterNnCondAlgCfg(ConfigFlags))
-    top_acc.merge(TC.PixelClusterNnWithTrackCondAlgCfg(ConfigFlags))
 
     from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
     top_acc.merge(BeamPipeGeometryCfg(ConfigFlags))

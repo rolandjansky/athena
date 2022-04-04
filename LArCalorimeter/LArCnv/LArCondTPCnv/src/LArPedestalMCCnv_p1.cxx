@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawConditions/LArPedestalMC.h"
@@ -8,7 +8,7 @@
 void
 LArPedestalMCCnv_p1::persToTrans(const LArPedMCPersType* persObj, 
                                  LArPedMCTransType* transObj, 
-                                 MsgStream & /*log*/)
+                                 MsgStream & /*log*/) const
 {
     // Copy conditions
     transObj->set (persObj->m_vPedestal, persObj->m_vPedestalRMS);
@@ -20,7 +20,7 @@ LArPedestalMCCnv_p1::persToTrans(const LArPedMCPersType* persObj,
 void
 LArPedestalMCCnv_p1::transToPers(const LArPedMCTransType* transObj, 
                                  LArPedMCPersType* persObj, 
-                                 MsgStream & /*log*/) 
+                                 MsgStream & /*log*/) const
 {
     // Copy conditions
     persObj->m_vPedestal          = transObj->m_vPedestal;

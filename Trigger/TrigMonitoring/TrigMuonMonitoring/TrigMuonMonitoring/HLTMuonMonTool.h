@@ -282,8 +282,6 @@ class HLTMuonMonTool : public IHLTMonTool
   void fillTriggerOverlap();
   void procTriggerOverlap();
 
-  StatusCode fillL1MuRoI();
-  
   std::vector<double> m_RecMuonCB_pt;
   std::vector<double> m_RecMuonCB_eta;
   std::vector<double> m_RecMuonCB_phi;
@@ -398,8 +396,6 @@ class HLTMuonMonTool : public IHLTMonTool
   std::string m_nullstr;
   std::vector<std::string> m_esvect;
   bool m_requestESchains;
-
-  ToolHandle< Trig::IBunchCrossingTool > m_bunchTool;
 
   // YY added: for MuonCominedSelectorTool
   //  ToolHandle<Rec::IMuonCombinedSelectorTool> m_muonSelectorTool;  // removed for the moment

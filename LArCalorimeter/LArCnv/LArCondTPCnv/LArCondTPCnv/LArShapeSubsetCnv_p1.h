@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCONDTPCNV_LARSHAPESUBSETCNV_P1_H
@@ -16,13 +16,15 @@ typedef LArConditionsSubset<LArShapeP1> LArShapeTransType1;
 typedef LArShapeSubset_p1               LArShapePersType1;
 
 class LArShapeSubsetCnv_p1  
-    : public T_AthenaPoolTPCnvBase<LArShapeTransType1, LArShapePersType1 >
+    : public T_AthenaPoolTPCnvConstBase<LArShapeTransType1, LArShapePersType1 >
 {
 public:
+    using base_class::transToPers;
+    using base_class::persToTrans;
 
     LArShapeSubsetCnv_p1() {}
-    virtual void   persToTrans(const LArShapePersType1* persObj, LArShapeTransType1* transObj, MsgStream &log) ;
-    virtual void   transToPers(const LArShapeTransType1* transObj, LArShapePersType1* persObj, MsgStream &log) ;
+    virtual void   persToTrans(const LArShapePersType1* persObj, LArShapeTransType1* transObj, MsgStream &log) const override;
+    virtual void   transToPers(const LArShapeTransType1* transObj, LArShapePersType1* persObj, MsgStream &log) const override;
 
 };
 

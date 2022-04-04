@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TGC_STATUSConditionsTool.h"
@@ -9,19 +9,13 @@
 #include <map>
 #include <string>
 
-#include "AthenaPoolUtilities/AthenaAttributeList.h"
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "CoralBase/Attribute.h"
-#include "CoralBase/AttributeListSpecification.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
-#include "PathResolver/PathResolver.h"
-#include "SGTools/TransientAddress.h"
-
-TGC_STATUSConditionsTool::TGC_STATUSConditionsTool(const std::string& type, const std::string& name, const IInterface* parent) :
-    AthAlgTool(type, name, parent), m_IOVSvc(nullptr), m_chronoSvc(nullptr) {
-    declareInterface<ITGC_STATUSConditionsTool>(this);
-    m_tgcDqStatusDataLocation = "TgcDqStatusKey";
-    declareProperty("TgcDqFolder", m_FolderName = "TGC/1/DetectorStatus");
+TGC_STATUSConditionsTool::TGC_STATUSConditionsTool (const std::string& type, const std::string& name, const IInterface* parent) :
+    AthAlgTool(type, name, parent),
+    m_IOVSvc(nullptr),
+    m_tgcDqStatusDataLocation("TgcDqStatusKey"),
+    m_chronoSvc(nullptr) {
+  declareInterface< ITGC_STATUSConditionsTool >(this);
+  declareProperty("TgcDqFolder",m_FolderName="TGC/1/DetectorStatus");
 }
 
 StatusCode TGC_STATUSConditionsTool::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* /*tad*/, const EventContext& /*ctx*/) {

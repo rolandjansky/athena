@@ -19,8 +19,6 @@ std::unique_ptr<JetStreamer> make_streamer(int test){
   if (test == 0) {
     std::vector<std::size_t> jets0 {1, 2};
 
-    std::cerr <<"test0\n";
-   
     auto stream0 = std::make_unique<SimpleJetStream>(jets0,
 						     std::move(null_stream),
 						     0

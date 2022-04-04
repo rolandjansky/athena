@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConfHLTUtils_HLTUtils
@@ -7,11 +7,10 @@
 
 #include <string>
 #include <inttypes.h>
-#include <set>
-#include <vector>
-#include <mutex>
 
 #include <tbb/concurrent_hash_map.h>
+
+#include "CxxUtils/checker_macros.h"
 
 namespace TrigConf {
 
@@ -45,9 +44,7 @@ namespace TrigConf {
 
   
   class HLTUtils {
-
-    public:
-
+  public:
     /**@brief hash function translating TE names into identifiers*/
     static HLTHash string2hash( const std::string&, const std::string& category="TE" );
     /**@brief hash function translating identifiers into names (via internal dictionary)*/
@@ -57,15 +54,18 @@ namespace TrigConf {
     /**@brief debugging output of internal dictionary*/
     static void file2hashes( const std::string& fileName="hashes2string.txt" );
 
-    /**@brief In-file identifier*/
-    static std::string s_newCategory;
-
+  private:
     typedef tbb::concurrent_hash_map<HLTHash, std::string, HLTHashCompare> HashMap_t;
     typedef tbb::concurrent_hash_map<std::string, HashMap_t, stringHashCompare> CategoryMap_t;
 
+    /**@brief Function to check for hash collisions. To minimize the chance of collision*/
+    static void checkGeneratedHash(HLTHash hash, const std::string& s, const std::string& category);
+
+    /**@brief In-file identifier*/
+    inline static const std::string s_newCategory{"##NewCategory"};
+
     /**@brief Nested concurrent hash-maps to store (key=hash, value=string) pairs for different hash categories*/
-    static CategoryMap_t s_allHashesByCategory;
-      
+    inline static CategoryMap_t s_allHashesByCategory ATLAS_THREAD_SAFE{};
   };
  
 }

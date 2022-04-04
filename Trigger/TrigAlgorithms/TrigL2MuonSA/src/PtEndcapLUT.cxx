@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PtEndcapLUT.h"
@@ -56,7 +56,7 @@ std::string TrigL2MuonSA::PtEndcapLUT::KeyType::toString() const
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigL2MuonSA::PtEndcapLUT::readLUT(std::string lut_fileName)
+StatusCode TrigL2MuonSA::PtEndcapLUT::readLUT(const std::string& lut_fileName)
 {   
   std::ifstream ifs(lut_fileName.c_str());
   if (!ifs.is_open()) {
@@ -379,7 +379,7 @@ double TrigL2MuonSA::PtEndcapLUT::ptcombined(int iEta, int iPhi, double ApT, dou
 // --------------------------------------------------------------------------------                      
 // -------------------------------------------------------------------------------- 
 
-StatusCode TrigL2MuonSA::PtEndcapLUT::readLUTSigmaMean(std::string lut_mean, std::string lut_sigma)
+StatusCode TrigL2MuonSA::PtEndcapLUT::readLUTSigmaMean(const std::string& lut_mean, const std::string& lut_sigma)
 {
   std::ifstream ifsmean(lut_mean.c_str());
   std::ifstream ifssigma(lut_sigma.c_str());

@@ -38,6 +38,7 @@
 - PhysicsAnalysis/HiggsPhys/Run2/HZZ/Tools/ZMassConstraint
 - PhysicsAnalysis/JetPhys/SemileptonicCorr
 - PhysicsAnalysis/SUSYPhys/SUSYTools
+- PhysicsAnalysis/AnalysisCommon/FakeBkgTools
 - PhysicsAnalysis/TauID/DiTauMassTools
 - PhysicsAnalysis/TopPhys/TopPhysUtils/.*
 - PhysicsAnalysis/TopPhys/xAOD/.*

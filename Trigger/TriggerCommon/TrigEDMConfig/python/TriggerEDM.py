@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 
 # ********************* All Tools/Functions for the TriggerEDM **********************
@@ -15,7 +15,6 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TriggerEDM')
 
-import six
 
 #************************************************************
 #
@@ -383,7 +382,8 @@ def getPreregistrationList(version=2):
     if version==2:
         l = getHLTPreregistrationList()
     elif version==1:
-        l=list(set(getL2PreregistrationList()+getEFPreregistrationList()+getHLTPreregistrationList()))
+        # remove duplicates while preserving order
+        l=list(dict.fromkeys(getL2PreregistrationList()+getEFPreregistrationList()+getHLTPreregistrationList()))
     else:
         raise RuntimeError("Invalid version=%s supplied to getPreregistrationList" % version)
     return l
@@ -521,7 +521,7 @@ def getTPList(version=2):
     else:
         raise RuntimeError("Invalid version=%s supplied to getTPList" % version)
         
-    for t,d in six.iteritems (EDMDetails):
+    for t,d in EDMDetails.items():
         colltype = t
         if 'collection' in d:
             colltype = EDMDetails[t]['collection']
@@ -581,7 +581,7 @@ def getEDMLibraries():
 def InsertContainerNameForHLT(typedict):
     import re
     output = {}
-    for k,v in six.iteritems (typedict):
+    for k,v in typedict.items():
         newnames = []
         for el in v:
             if el.startswith('HLT_') or el == 'HLT':

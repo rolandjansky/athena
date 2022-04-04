@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_STGCDATAPREPARATOR_H
@@ -40,7 +40,7 @@ namespace TrigL2MuonSA {
     SG::ReadHandleKey<Muon::sTgcPrepDataContainer> m_stgcPrepContainerKey{
       this, "StgcPrepDataContainer", "STGC_Measurements", "Name of the STGCContainer to read in"};
 
-    bool m_use_RoIBasedDataAccess;
+    bool m_use_RoIBasedDataAccess = false;
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 

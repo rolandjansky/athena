@@ -41,7 +41,7 @@ StatusCode HiveAlgBase::initialize() {
 unsigned int
 HiveAlgBase::sleep() {
 
-  auto ctx = Gaudi::Hive::currentContext();
+  const auto& ctx = Gaudi::Hive::currentContext();
   ATHRNG::RNGWrapper* rngWrapper = m_rngSvc->getEngine(this);
   rngWrapper->setSeed( name(), ctx );
 
@@ -62,4 +62,3 @@ HiveAlgBase::sleep() {
   return sleep;
 
 }
-

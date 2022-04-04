@@ -42,10 +42,6 @@ namespace TrigConf
    {
    }
 
-   xAODMenuWriterMT::~xAODMenuWriterMT()
-   {
-   }
-
    StatusCode xAODMenuWriterMT::initialize()
    {
 

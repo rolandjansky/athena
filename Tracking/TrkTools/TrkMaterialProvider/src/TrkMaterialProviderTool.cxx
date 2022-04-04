@@ -1733,11 +1733,11 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
       if (!useMeasuredEnergy)
         calEr = 0.;
 
-      Trk::EnergyLoss* energyLossNew =
+      std::unique_ptr<Trk::EnergyLoss> energyLossNew =
         (updateEloss
            ? m_elossupdator->updateEnergyLoss(
                energyLoss2, calE, calEr, pCaloEntry, momentumError, elossFlag)
-           : new EnergyLoss(deltaE_tot,
+           : std::make_unique<EnergyLoss>(deltaE_tot,
                             sigmaDeltaE_tot,
                             sigmaMinusDeltaE_tot,
                             sigmaPlusDeltaE_tot,
@@ -1764,14 +1764,12 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
       }
 
       int eLossFlagTmp = 0;
-      Trk::EnergyLoss* energyLossParam = m_elossupdator->updateEnergyLoss(energyLoss2, 0.0, 0.0, pCaloEntry, 0., eLossFlagTmp);
+      std::unique_ptr<Trk::EnergyLoss> energyLossParam = m_elossupdator->updateEnergyLoss(energyLoss2, 0.0, 0.0, pCaloEntry, 0., eLossFlagTmp);
 
       caloEnergyNew->set_paramEnergyLoss(energyLossParam->deltaE(), energyLossParam->sigmaMinusDeltaE(), energyLossParam->sigmaPlusDeltaE());
       if(m_overwriteElossParam&&m_useCaloEnergyMeasurement) caloEnergyNew->set_paramEnergyLoss(totalEloss,meanElossIoni,0.45*sigmaElossIoni);
       ATH_MSG_DEBUG( " modifyTSOSvector energyLossParam Eloss " << energyLossParam->deltaE() << " on TSOS " << energyLossNew->deltaE() << " calE " << calE);
       Eloss_tot += caloEnergyNew->deltaE();
-      delete energyLossParam;
-      delete energyLossNew;
       delete energyLoss2;
 
       //        direction of plane

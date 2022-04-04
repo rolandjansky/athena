@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOCONDSVC_L1CALOCONDSVC_ICC
@@ -374,10 +374,7 @@ StatusCode L1CaloCondSvc::registerCondition(T*& pObj, const std::string& mykey) 
     std::list<std::string> lKeys;
 
     // loop over the keys to register a callback to L1CaloCondSvc::updateConditions
-    std::vector<std::string>::const_iterator it = vCoolInputKeys.begin();
-    for(;it!=vCoolInputKeys.end();it++) {
-      std::string key = *it;
-
+    for (const std::string& key : vCoolInputKeys) {
       lKeys.push_back(key);
       ATH_MSG_DEBUG("Adding keys to maps: "<<key);
 

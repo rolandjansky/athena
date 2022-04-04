@@ -22,11 +22,3 @@ def getFCS_StepInfoSensitiveDetector(name="FCS_StepInfoSensitiveDetector", **kwa
     kwargs.setdefault("OutputCollectionNames", ["EventSteps"])
     # TODO Add extra configuration here!!
     return CfgMgr.FCS_Param__FCS_StepInfoSDTool(name, **kwargs)
-
-##def getFastCaloSimParamActionTool(name='G4UA::FastCaloSimParamActionTool', **kwargs):
-##    from G4AtlasApps.SimFlags import simFlags
-##    # example custom configuration
-##    if name in simFlags.UserActionConfig.get_Value().keys():
-##        for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
-##            kwargs.setdefault(prop,value)
-##    return CfgMgr.G4UA__FastCaloSimParamActionTool(name,**kwargs)

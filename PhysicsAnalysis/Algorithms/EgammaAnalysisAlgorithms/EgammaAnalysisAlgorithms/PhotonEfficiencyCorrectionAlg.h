@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -13,9 +13,9 @@
 #include <EgammaAnalysisInterfaces/IAsgPhotonEfficiencyCorrectionTool.h>
 #include <SelectionHelpers/OutOfValidityHelper.h>
 #include <SelectionHelpers/SelectionReadHandle.h>
-#include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <SystematicsHandles/SysReadHandle.h>
+#include <SystematicsHandles/SysWriteDecorHandle.h>
 
 namespace CP
 {
@@ -47,7 +47,7 @@ namespace CP
 
     /// \brief the photon collection we run on
   private:
-    SysCopyHandle<xAOD::PhotonContainer> m_photonHandle {
+    SysReadHandle<xAOD::PhotonContainer> m_photonHandle {
       this, "photons", "Photons", "the photon collection to run on"};
 
     /// \brief the preselection we apply to our input
@@ -61,11 +61,8 @@ namespace CP
 
     /// \brief the decoration for the photon scale factor
   private:
-    std::string m_scaleFactorDecoration;
-
-    /// \brief the accessor for \ref m_scaleFactorDecoration
-  private:
-    std::unique_ptr<const SG::AuxElement::Accessor<float> > m_scaleFactorAccessor;
+    SysWriteDecorHandle<float> m_scaleFactorDecoration {
+      this, "scaleFactorDecoration", "", "the decoration for the photon efficiency scale factor"};
   };
 }
 

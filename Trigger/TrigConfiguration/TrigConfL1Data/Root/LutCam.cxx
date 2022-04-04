@@ -15,9 +15,6 @@ LutCam::LutCam() : L1DataBaseclass() {
    m_cam = std::vector<uint32_t>(ALL_CAM_SIZE,0);
 }
 
-LutCam::~LutCam()
-{}
-
 const std::vector<uint32_t> &
 LutCam::lut() const {
    return m_lut;

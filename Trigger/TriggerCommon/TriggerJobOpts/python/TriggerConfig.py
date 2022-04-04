@@ -405,6 +405,10 @@ def triggerBSOutputCfg(flags, hypos, offline=False):
             readBSAcc.getEventAlgo('SGInputLoader').Load += [
                 ('ByteStreamMetadataContainer', 'InputMetaDataStore+ByteStreamMetadata')]
             acc.merge(readBSAcc)
+        else:
+            # No BS metadata (thus no DetectorMask) in POOL files, need to disable the checks using it
+            hltResultMakerAlg.ResultMaker.ExtraROBs = []
+            hltResultMakerAlg.ResultMaker.ExtraSubDets = []
 
         # Transfer trigger bits to xTrigDecision which is read by offline BS writing ByteStreamCnvSvc
         decmaker = CompFactory.getComp("TrigDec::TrigDecisionMakerMT")("TrigDecMakerMT")

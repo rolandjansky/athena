@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGINDETTRACKFITTER_TRIGINDETTRACKFITTER_H
@@ -54,10 +54,10 @@ private:
   Trk::TrackStateOnSurface* createTrackStateOnSurface(Trk::TrkBaseNode* pN, const bool) const;
 
   //counters
-  ATLAS_THREAD_SAFE mutable size_t m_nTracksTotal;
-  ATLAS_THREAD_SAFE mutable size_t m_fitErrorsUnresolved;
-  ATLAS_THREAD_SAFE mutable size_t m_fitErrorsDivergence;
-  ATLAS_THREAD_SAFE mutable size_t m_fitErrorsLowPt;
+  mutable std::atomic<size_t> m_nTracksTotal;
+  mutable std::atomic<size_t> m_fitErrorsUnresolved;
+  mutable std::atomic<size_t> m_fitErrorsDivergence;
+  mutable std::atomic<size_t> m_fitErrorsLowPt;
 
   double m_DChi2;
   bool m_doMultScatt;

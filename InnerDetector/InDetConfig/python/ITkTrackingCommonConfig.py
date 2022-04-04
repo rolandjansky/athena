@@ -69,8 +69,8 @@ def ITkPixelClusterOnTrackToolDigitalCfg(flags, name='ITkPixelClusterOnTrackTool
     acc = ComponentAccumulator()
 
     if 'LorentzAngleTool' not in kwargs :
-        from SiLorentzAngleTool.ITkPixelLorentzAngleConfig import ITkPixelLorentzAngleCfg
-        ITkPixelLorentzAngleTool = acc.popToolsAndMerge(ITkPixelLorentzAngleCfg(flags))
+        from SiLorentzAngleTool.ITkPixelLorentzAngleConfig import ITkPixelLorentzAngleToolCfg
+        ITkPixelLorentzAngleTool = acc.popToolsAndMerge(ITkPixelLorentzAngleToolCfg(flags))
         kwargs.setdefault("LorentzAngleTool", ITkPixelLorentzAngleTool )
 
     if flags.ITk.Tracking.doDigitalROTCreation:
@@ -101,8 +101,8 @@ def ITkPixelClusterOnTrackToolCfg(flags, name='ITkPixelClusterOnTrackTool', **kw
     acc = ComponentAccumulator()
 
     if 'LorentzAngleTool' not in kwargs :
-        from SiLorentzAngleTool.ITkPixelLorentzAngleConfig import ITkPixelLorentzAngleCfg
-        ITkPixelLorentzAngleTool = acc.popToolsAndMerge(ITkPixelLorentzAngleCfg(flags))
+        from SiLorentzAngleTool.ITkPixelLorentzAngleConfig import ITkPixelLorentzAngleToolCfg
+        ITkPixelLorentzAngleTool = acc.popToolsAndMerge(ITkPixelLorentzAngleToolCfg(flags))
         kwargs.setdefault("LorentzAngleTool", ITkPixelLorentzAngleTool )
 
     ITkPixelClusterOnTrackTool = None
@@ -118,8 +118,8 @@ def ITkStripClusterOnTrackToolCfg(flags, name='ITkStrip_ClusterOnTrackTool', **k
     acc = ComponentAccumulator()
 
     if 'LorentzAngleTool' not in kwargs :
-        from SiLorentzAngleTool.ITkStripLorentzAngleConfig import ITkStripLorentzAngleCfg
-        ITkStripLorentzAngleTool = acc.popToolsAndMerge( ITkStripLorentzAngleCfg(flags) )
+        from SiLorentzAngleTool.ITkStripLorentzAngleConfig import ITkStripLorentzAngleToolCfg
+        ITkStripLorentzAngleTool = acc.popToolsAndMerge( ITkStripLorentzAngleToolCfg(flags) )
         kwargs.setdefault("LorentzAngleTool", ITkStripLorentzAngleTool )
 
     kwargs.setdefault("CorrectionStrategy", 0 ) # do correct position bias
@@ -194,21 +194,16 @@ def ITkTrackPRD_AssociationCfg(flags, name='ITkTrackPRD_Association', **kwargs):
     acc.addEventAlgo(CompFactory.InDet.InDetTrackPRD_Association(name, **kwargs))
     return acc
 
-def ITkSummaryHelperNoHoleSearchCfg(flags, name='ITkSummaryHelperNoHoleSearch', **kwargs):
-    if 'HoleSearch' not in kwargs :
-        kwargs.setdefault("HoleSearch", None)
-    from  InDetConfig.ITkRecToolConfig import ITkTrackSummaryHelperToolCfg
-    return ITkTrackSummaryHelperToolCfg(flags, name = name, **kwargs)
-
 def ITkTrackSummaryToolCfg(flags, name='ITkTrackSummaryTool', **kwargs):
     acc = ComponentAccumulator()
     do_holes=kwargs.get("doHolesInDet",True)
 
     if 'InDetSummaryHelperTool' not in kwargs :
         if do_holes:
-            from  InDetConfig.ITkRecToolConfig import ITkTrackSummaryHelperToolCfg
+            from  InDetConfig.InDetTrackSummaryHelperToolConfig import ITkTrackSummaryHelperToolCfg
             ITkSummaryHelperTool = acc.popToolsAndMerge(ITkTrackSummaryHelperToolCfg(flags))
         else:
+            from  InDetConfig.InDetTrackSummaryHelperToolConfig import ITkSummaryHelperNoHoleSearchCfg
             ITkSummaryHelperTool = acc.popToolsAndMerge(ITkSummaryHelperNoHoleSearchCfg(flags))
         kwargs.setdefault("InDetSummaryHelperTool", ITkSummaryHelperTool)
 
@@ -226,7 +221,7 @@ def ITkTrackSummaryToolAmbiCfg(flags, name='ITkTrackSummaryToolAmbi', **kwargs):
     acc = ComponentAccumulator()
 
     if 'InDetSummaryHelperTool' not in kwargs :
-        from InDetConfig.ITkRecToolConfig import ITkTrackSummaryHelperToolCfg
+        from InDetConfig.InDetTrackSummaryHelperToolConfig import ITkTrackSummaryHelperToolCfg
         ITkSummaryHelperTool = acc.popToolsAndMerge(ITkTrackSummaryHelperToolCfg(flags,
                                                                                  ClusterSplitProbabilityName = "ITkAmbiguityProcessorSplitProb" + flags.ITk.Tracking.ActivePass.extension))
         kwargs.setdefault("InDetSummaryHelperTool", ITkSummaryHelperTool)
@@ -235,17 +230,10 @@ def ITkTrackSummaryToolAmbiCfg(flags, name='ITkTrackSummaryToolAmbi', **kwargs):
     acc.addPublicTool(ITkTrackSummaryTool, primary=True)
     return acc
 
-def ITkSummaryHelperSharedHitsCfg(flags, name='ITkSummaryHelperSharedHits', **kwargs):
-    kwargs.setdefault("PixelToTPIDTool", None)
-    kwargs.setdefault("TestBLayerTool", None)
-    kwargs.setdefault("DoSharedHits", flags.ITk.Tracking.doSharedHits)
-
-    from  InDetConfig.ITkRecToolConfig import ITkTrackSummaryHelperToolCfg
-    return ITkTrackSummaryHelperToolCfg(flags, name = name, **kwargs)
-
 def ITkTrackSummaryToolSharedHitsCfg(flags, name='ITkTrackSummaryToolSharedHits',**kwargs):
     acc = ComponentAccumulator()
     if 'InDetSummaryHelperTool' not in kwargs :
+        from InDetConfig.InDetTrackSummaryHelperToolConfig import ITkSummaryHelperSharedHitsCfg
         ITkSummaryHelperSharedHits = acc.popToolsAndMerge(ITkSummaryHelperSharedHitsCfg(flags))
         kwargs.setdefault("InDetSummaryHelperTool", ITkSummaryHelperSharedHits)
 
@@ -644,8 +632,8 @@ def ITkTrackSummaryToolNoHoleSearchCfg(flags, name='ITkTrackSummaryToolNoHoleSea
 
 def ITkROIInfoVecCondAlgCfg(flags, name='ITkROIInfoVecCondAlg', **kwargs) :
     acc = ComponentAccumulator()
-    from InDetConfig.ITkRecCaloSeededROISelectionConfig import ITkCaloClusterROI_SelectorCfg
-    acc.merge(ITkCaloClusterROI_SelectorCfg(flags))
+    from InDetConfig.InDetCaloClusterROISelectorConfig import CaloClusterROI_SelectorCfg
+    acc.merge(CaloClusterROI_SelectorCfg(flags))
     kwargs.setdefault("InputEmClusterContainerName", "ITkCaloClusterROIs")
     kwargs.setdefault("WriteKey", kwargs.get("namePrefix","") +"ROIInfoVec"+ kwargs.get("nameSuffix","") )
     kwargs.setdefault("minPtEM", 5000.0) #in MeV

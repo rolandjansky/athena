@@ -64,7 +64,7 @@ namespace NSWL1 {
 
 
   StatusCode NSWL1Simulation::execute() {
-    auto ctx = Gaudi::Hive::currentContext();
+    const auto& ctx = Gaudi::Hive::currentContext();
     m_current_evt = ctx.eventID().event_number();
     m_current_run = ctx.eventID().run_number();
 

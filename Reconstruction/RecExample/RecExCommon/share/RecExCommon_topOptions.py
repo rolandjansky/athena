@@ -1175,8 +1175,8 @@ if rec.doWriteAOD():
             from ThinningUtils.ThinNegativeEnergyCaloClusters import ThinNegativeEnergyCaloClusters
             ThinNegativeEnergyCaloClusters()
         if rec.doCalo and AODFlags.ThinNegativeEnergyNeutralPFOs:
-            from ThinningUtils.ThinNegativeEnergyNeutralPFOs import ThinNegativeEnergyNeutralPFOs
-            ThinNegativeEnergyNeutralPFOs()
+            from ThinningUtils.ThinNegativeEnergyNeutralPFOCfg import ThinNegativeEnergyNeutralPFOCfg
+            CAtoGlobalWrapper(ThinNegativeEnergyNeutralPFOCfg, ConfigFlags , StreamName = "StreamAOD")
         from InDetRecExample.InDetJobProperties import InDetFlags
         if (AODFlags.ThinInDetForwardTrackParticles() and
             not (rec.readESD() and not objKeyStore.isInInput('xAOD::TrackParticleContainer',

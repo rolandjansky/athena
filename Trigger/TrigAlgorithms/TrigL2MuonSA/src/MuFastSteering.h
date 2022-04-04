@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUFASTSTEERING_H
@@ -36,9 +36,13 @@
 #include "xAODTrigger/MuonRoIContainer.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
+#include "GaudiKernel/IIncidentListener.h"
+
+class IIncidentSvc;
+
 enum ECRegions{ Bulk, WeakBFieldA, WeakBFieldB };
 
-class MuFastSteering : public AthReentrantAlgorithm
+class MuFastSteering : public AthReentrantAlgorithm , public IIncidentListener
 {
  public:
   enum {
@@ -50,6 +54,7 @@ class MuFastSteering : public AthReentrantAlgorithm
     ITIMER_CALIBRATION_STREAMER,
     ITIMER_TOTAL_PROCESSING
   };
+
 
  public:
 
@@ -82,16 +87,16 @@ class MuFastSteering : public AthReentrantAlgorithm
 
   /** findMuonSignatureIO(), includes reconstract algorithms for inside-out mode **/
   StatusCode findMuonSignatureIO(const xAOD::TrackParticleContainer&            idtracks,
-				 const std::vector<const TrigRoiDescriptor*>    roids,
-				 const std::vector<const LVL1::RecMuonRoI*>     muonRoIs,
+				 const std::vector<const TrigRoiDescriptor*>&    roids,
+				 const std::vector<const LVL1::RecMuonRoI*>&     muonRoIs,
 				 DataVector<xAOD::L2CombinedMuon>&              outputCBs,
 				 DataVector<xAOD::L2StandAloneMuon>&            outputSAs,
 				 const bool                                     dynamicDeltaRpc,
 				 const EventContext&                            ctx ) const;
 
   StatusCode findMuonSignatureIO(const xAOD::TrackParticleContainer&            idtracks,
-				 const std::vector<const TrigRoiDescriptor*>    roids,
-				 const std::vector<const xAOD::MuonRoI*>        muonRoIs,
+				 const std::vector<const TrigRoiDescriptor*>&    roids,
+				 const std::vector<const xAOD::MuonRoI*>&        muonRoIs,
 				 DataVector<xAOD::L2CombinedMuon>&              outputCBs,
 				 DataVector<xAOD::L2StandAloneMuon>&            outputSAs,
 				 const bool                                     dynamicDeltaRpc,
@@ -111,6 +116,8 @@ class MuFastSteering : public AthReentrantAlgorithm
                                      const EventContext&                                ctx) const;
 
   int L2MuonAlgoMap(const std::string& name) const;
+
+  virtual void handle(const Incident& incident) override;
 
  protected:
 
@@ -214,7 +221,6 @@ class MuFastSteering : public AthReentrantAlgorithm
   // Services
 
 
-
   /** Timers */
   ServiceHandle<ITrigTimerSvc> m_timerSvc;
   std::vector<TrigTimer*> m_timingTimers;
@@ -251,7 +257,8 @@ class MuFastSteering : public AthReentrantAlgorithm
 
  private:
 
-
+  ServiceHandle< IIncidentSvc > m_incidentSvc{this, "IncidentSvc", "IncidentSvc"};      
+  ServiceHandle<Gaudi::Interfaces::IOptionsSvc> m_jobOptionsSvc {this, "JobOptionsSvc", "JobOptionsSvc",    "Job options service to retrieve DataFlowConfig"   };
   // Property
   Gaudi::Property< float > m_scaleRoadBarrelInner { this, "Scale_Road_BarrelInner", 1 };
   Gaudi::Property< float > m_scaleRoadBarrelMiddle { this, "Scale_Road_BarrelMiddle", 1 };
@@ -347,6 +354,9 @@ class MuFastSteering : public AthReentrantAlgorithm
 
   // Monitor system
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
+
+
+
 };
 
 #endif // MUFASTSTEERING_H

@@ -7,7 +7,7 @@ def egammaMonitoringConfig(flags):
     result = ComponentAccumulator()
 
     # don't run in RAW -> ESD
-    if flags.DQ.Environment in ('tier0', 'tier0ESD',' online', 'AOD'):
+    if flags.DQ.Environment in ('tier0', 'tier0ESD','online', 'AOD'):
         from egammaPerformance.SetupEgammaMonitoring import MonitorElectronConfig, MonitorPhotonConfig, MonitorTnPConfig, MonitorForwardElectronConfig
 
         result.merge(MonitorElectronConfig(flags))

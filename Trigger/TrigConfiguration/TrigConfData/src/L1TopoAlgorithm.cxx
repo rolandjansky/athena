@@ -17,9 +17,6 @@ TrigConf::L1TopoAlgorithm::L1TopoAlgorithm(const std::string & algoName, Algorit
    load();
 }
 
-TrigConf::L1TopoAlgorithm::~L1TopoAlgorithm()
-{}
-
 std::string
 TrigConf::L1TopoAlgorithm::className() const {
    return "L1TopoAlgorithm";

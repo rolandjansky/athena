@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Gaudi/Athena include(s):
@@ -610,7 +610,7 @@ namespace TrigConf {
    StatusCode xAODConfigSvc::prepareEvent() {
 
       // Can the incident service provide this to us?
-      const EventContext context = Gaudi::Hive::currentContext();
+      const EventContext& context = Gaudi::Hive::currentContext();
 
       if (!m_useInFileMetadata) { // Run 3 RAWtoESD, RAWtoALL decoding mode
          return prepareEventRun3Athena(context);

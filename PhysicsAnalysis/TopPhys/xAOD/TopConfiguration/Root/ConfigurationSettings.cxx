@@ -62,10 +62,17 @@ namespace top {
     registerParameter("ElectronPt", "Electron pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
     registerParameter("Electrond0Sig", "Electron d0 significance cut for object selection. Default 5", "5.");
     registerParameter("Electrondeltaz0", "Electron delta z0 cut for object selection. Default 0.5 mm", "0.5");
+    registerParameter("ElectronIDSFFilePath", "EXPERIMENTAL! Path to a root file containing custom electron ID SFs, e.g. "
+											"dev/ElectronEfficiencyCorrection/2015_2018/rel21.2/Precision_Summer2020_v1/offline/efficiencySF.offline.TightLLH_d0z0_v13.root."
+                      "This should only be used by experts for testing SFs! Default: Using the most recent recommended map.", "Default");
     registerParameter("EgammaSystematicModel", "Egamma Calibration Systematic model : FULL_v1 , 1NP_v1 (default)",
                       "1NP_v1");
+    registerParameter("ElectronEfficiencySystematicModelNToys",
+                      "Electron Efficiency Toy Systematics Number of Toys: ","40");
+    registerParameter("ElectronEfficiencySystematicModelToySeed",
+                      "Electron Efficiency Toy Systematics Seed of Toys: ","12345");
     registerParameter("ElectronEfficiencySystematicModel",
-                      "Electron Efficiency Systematic model : FULL, SIMPLIFIED, TOTAL (default)", "TOTAL");
+                      "Electron Efficiency Systematic model : FULL, SIMPLIFIED, TOTAL (default), COMBMCTOYS", "TOTAL");
     registerParameter("ElectronEfficiencySystematicModelEtaBinning",
                       "Electron Efficiency Systematic model eta binning (option for SIMPLIFIED model, do not specify to use default; format XXX:YYY:ZZZ, e.g. 0.0:1.37:4.9)",
                       "default");
@@ -165,6 +172,14 @@ namespace top {
     registerParameter("SoftMuonAdditionalTruthInfoDoVerbose",
                       "Debug output for soft muon additional truth-level information: True or False (default)",
                       "False");
+
+    registerParameter("MuonSFCustomInputFolder",
+                      "EXPERT OPTION! Tells the MuonEfficiencyScaleFactors tools to use a custom input folder path. If set to \" \" will use the default",
+                      " ");
+
+    registerParameter("MuonBreakDownSystematics",
+                      "Tells the MuonEfficiencyScaleFactors tools to use a more complex systematic model, if set to True. Default is False",
+                      "False", {"True", "False"});
 
     registerParameter("JetPt", "Jet pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
     registerParameter("JetEta", "Absolute Jet eta cut for object selection. Default 2.5.", "2.5");

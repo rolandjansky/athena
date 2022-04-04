@@ -38,9 +38,9 @@ namespace TrigConf {
       L1Board(const std::string & boardName, const ptree & data);
 
       /** Destructor */
-      virtual ~L1Board();
+      virtual ~L1Board() override = default;
 
-      virtual std::string className() const;
+      virtual std::string className() const override;
 
       /** Accessor to the number of connectors */
       std::size_t size() const;
@@ -58,7 +58,7 @@ namespace TrigConf {
    private:
 
       /** Update the internal members */
-      virtual void update();
+      virtual void update() override;
 
       BoardType m_boardType;
       bool m_legacy;

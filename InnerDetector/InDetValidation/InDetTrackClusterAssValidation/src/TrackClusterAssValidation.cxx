@@ -1284,7 +1284,7 @@ int InDet::TrackClusterAssValidation::kine
 
     int k = (*mc).second.barcode(); if(k<=0) continue;
 
-    const HepMC::GenParticle* pa = (*mc).second.cptr();
+    HepMC::ConstGenParticlePtr pa = (*mc).second.cptr();
     if(!pa or !pa->production_vertex()) continue;
 
     int pdg = std::abs(pa->pdg_id()); if(m_pdg && m_pdg != pdg ) continue;
@@ -1456,7 +1456,7 @@ bool InDet::TrackClusterAssValidation::noReconstructedParticles(const InDet::Tra
 
       if(!Q) continue;
 
-      const HepMC::GenParticle* pa = (*mc).second.cptr();
+      HepMC::ConstGenParticlePtr pa = (*mc).second.cptr();
 
       double           px =  pa->momentum().px();
       double           py =  pa->momentum().py();
@@ -1537,7 +1537,7 @@ int InDet::TrackClusterAssValidation::charge(const InDet::TrackClusterAssValidat
   for(; mc!=mce; ++mc) {
     if(HepMC::barcode((*mc).second.cptr())==k) {
 
-      const HepMC::GenParticle*   pat  = (*mc).second.cptr();
+      HepMC::ConstGenParticlePtr   pat  = (*mc).second.cptr();
 
       rap       = 0;
       double px =  pat->momentum().px();

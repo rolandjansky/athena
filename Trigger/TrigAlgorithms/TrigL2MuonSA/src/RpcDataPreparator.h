@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_RPCDATAPREPARATOR_H
@@ -70,7 +70,7 @@ class RpcDataPreparator: public AthAlgTool
 
       // Declare the keys used to access the data: one for reading and one
       // for writing.
-      bool m_use_RoIBasedDataAccess;
+      bool m_use_RoIBasedDataAccess = false;
 
       Gaudi::Property< bool > m_emulateNoRpcHit { this, "EmulateNoRpcHit", false, "Flag for emulation of no RPC hit events" };
 };

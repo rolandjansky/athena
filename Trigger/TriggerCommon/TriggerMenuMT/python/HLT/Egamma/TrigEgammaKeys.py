@@ -92,6 +92,18 @@ class TrigEgammaKeys_GSF(TrigEgammaKeysBase):
         self.precisionElectronTrackParticleContainerGSF = recordable('HLT_IDTrack_Electron_GSF')
         self.precisionElectronContainer                 = recordable('HLT_egamma_Electrons_GSF')
 
+class TrigEgammaKeys_LRTGSF(TrigEgammaKeysBase):
+    # This class contians modified base configuration class for LRT_GSF electron trigger chains
+    def __init__(self, ion):
+        TrigEgammaKeysBase.__init__(self, ion)
+
+        # from HLT_IDTrack_Electron to HLT_IDTrack_Electron by refit alg
+        self.precisionElectronTrkCollectionGSF          = 'HLT_IDTrkTrack_Electron_LRTGSF'
+        self.precisionElectronTrackParticleContainerGSF = recordable('HLT_IDTrack_Electron_LRTGSF')
+        self.precisionElectronCaloClusterContainer      = recordable("HLT_CaloEMClusters_LRT")
+        self.precisionElectronContainer                 = recordable('HLT_egamma_Electrons_LRTGSF')
+        self._IDTrigConfig                              = getInDetTrigConfig('electronLRT')
+
 
 #
 # Get keys from variant name
@@ -100,15 +112,14 @@ def getTrigEgammaKeys(name='', ion=False):
 
     _d = {
         # Dictionary that maps a string to a configuration setting for electron and photon chains
-        ''      : TrigEgammaKeysBase(ion),
-        '_LRT'  : TrigEgammaKeys_LRT(ion),
-        '_GSF'  : TrigEgammaKeys_GSF(ion),
+        ''         : TrigEgammaKeysBase(ion),
+        '_LRT'     : TrigEgammaKeys_LRT(ion),
+        '_GSF'     : TrigEgammaKeys_GSF(ion),
+        '_LRTGSF' : TrigEgammaKeys_LRTGSF(ion),
         }
 
     if name in _d.keys():
         return _d[name]
     else:
         raise Exception('getTrigEgammaKeys() called with non valid name : ' + name + ' valid names are:' + str(_d.keys()) )
-
-
 

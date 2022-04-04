@@ -101,8 +101,10 @@ StatusCode Muon::MM_ROD_Decoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPAC
          ++nerr_channelID; 
          continue; 
        }
-
-       rdo->push_back(new MM_RawData(channel_ID, channel_number, channel->tdo(), channel->pdo(), channel->rel_bcid())); // isDead = false (ok?)
+       
+       // for data the time and charge are in counts
+       bool timeAndChargeInCounts = true;
+       rdo->push_back(new MM_RawData(channel_ID, channel_number, channel->tdo(), channel->pdo(), channel->rel_bcid(),timeAndChargeInCounts)); // isDead = false (ok?)
     }
   }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ByteStreamEventStorageInputSvc.h"
@@ -130,7 +130,7 @@ const RawEvent*
 ByteStreamEventStorageInputSvc::previousEvent()
 {
   std::lock_guard<std::mutex> lock(m_readerMutex);
-  const EventContext context{Gaudi::Hive::currentContext()};
+  const EventContext& context{Gaudi::Hive::currentContext()};
   EventCache* cache = m_eventsCache.get(context);
   // initialize before building RawEvent
   cache->releaseEvent();
@@ -197,7 +197,7 @@ const RawEvent*
 ByteStreamEventStorageInputSvc::nextEvent() {
 
   std::lock_guard<std::mutex> lock( m_readerMutex );
-  const EventContext context{ Gaudi::Hive::currentContext() };
+  const EventContext& context{ Gaudi::Hive::currentContext() };
   EventCache* cache = m_eventsCache.get(context);
 
   // initialize before building RawEvent
@@ -613,7 +613,7 @@ ByteStreamEventStorageInputSvc::ROBFragmentCheck(const RawEvent* re) const
 void
 ByteStreamEventStorageInputSvc::setEvent(void* data, unsigned int eventStatus)
 {
-  const EventContext context{Gaudi::Hive::currentContext()};
+  const EventContext& context{Gaudi::Hive::currentContext()};
   return setEvent(context, data, eventStatus);
 }
 
@@ -648,7 +648,7 @@ ByteStreamEventStorageInputSvc::setEvent(const EventContext& context,
 const
 RawEvent* ByteStreamEventStorageInputSvc::currentEvent() const
 {
-  const EventContext context{Gaudi::Hive::currentContext()};
+  const EventContext& context{Gaudi::Hive::currentContext()};
   return m_eventsCache.get(context)->rawEvent.get();
 }
 
@@ -657,7 +657,7 @@ RawEvent* ByteStreamEventStorageInputSvc::currentEvent() const
 unsigned int
 ByteStreamEventStorageInputSvc::currentEventStatus() const
 {
-  const EventContext context{Gaudi::Hive::currentContext()};
+  const EventContext& context{Gaudi::Hive::currentContext()};
   return m_eventsCache.get(context)->eventStatus;
 }
 

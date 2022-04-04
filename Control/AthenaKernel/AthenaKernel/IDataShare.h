@@ -49,7 +49,12 @@ public:
   /**
    * @brief Read the data
    */
-  virtual StatusCode readData() = 0;
+   virtual StatusCode readData() = 0;
+
+  /**
+   * @brief Commit Catalog
+   */
+   virtual StatusCode commitCatalog() = 0;
 };
 
 

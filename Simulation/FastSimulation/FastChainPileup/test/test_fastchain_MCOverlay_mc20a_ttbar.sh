@@ -3,10 +3,10 @@
 # art-description: Run FastChain with MC+MC Overlay without reco for MC20a, ttbar
 # art-type: grid
 # art-include: master/Athena
-
 # art-output: *.root
 # art-output: config.txt
 # art-output: RAWtoESD_config.txt
+# art-architecture: '#x86_64-intel'
 
 events=25
 HITS_File="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.simul.HITS.e6337_s3681/HITS.25836812._004813.pool.root.1"
@@ -34,8 +34,9 @@ rc=$?
 echo "art-result: ${rc} HITStoRDO"
 
 
-rc1=999
 rc2=999
+rc3=999
+rc4=999
 if [ ${rc} -eq 0 ]
 then
     # Reconstruction
@@ -57,9 +58,14 @@ then
                     --validationFlags 'doInDet' \
                     --valid 'True'
          rc3=$?
+
+         # regression test
+         art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
+         rc4=$?
      fi
 fi
 
 
 echo  "art-result: ${rc2} RDOtoAOD"
 echo  "art-result: ${rc3} AODtoNTUP"
+echo  "art-result: ${rc4} regression"

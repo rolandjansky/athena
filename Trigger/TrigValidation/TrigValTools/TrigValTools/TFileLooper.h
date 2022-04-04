@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGVALTOOLS_TFILELOOPER_H
@@ -10,7 +10,6 @@
  * @brief  TFileLooper class
  * @author Frank Winklmeier
  *
- * $Id: TFileLooper.h 702373 2015-10-22 13:55:56Z fwinkl $
  */
 
 #include <fstream>
@@ -20,8 +19,8 @@
 #include "TFile.h"
 #include "TString.h"
 #include "TH1.h"
+#include "TPRegexp.h"
 
-class TPRegexp;
 
 /**
  * @class  TFileLooper
@@ -35,10 +34,10 @@ class TPRegexp;
 
 class TFileLooper {
  public:
-  TFileLooper();
-  virtual ~TFileLooper();
+  TFileLooper() = default;
+  virtual ~TFileLooper() = default;
 
-  TFileLooper (const TFileLooper& other);
+  TFileLooper (const TFileLooper& other) = delete;
   TFileLooper& operator= (const TFileLooper& other) = delete;
 
   /// Start processing
@@ -87,15 +86,15 @@ class TFileLooper {
   TString rootDir() const { return m_rootDir; }
 
 protected:
-  TFile* m_file;
+  TFile* m_file{nullptr};
   TString m_rootDir;
   TString m_skipDirs;
-  Bool_t m_verbose;
-  Bool_t m_passBeforeFail;
-  Int_t m_errorCode;
+  Bool_t m_verbose{kFALSE};
+  Bool_t m_passBeforeFail{kFALSE};
+  Int_t m_errorCode{0};
 
-  std::vector<TPRegexp*> m_failRE;
-  std::vector<TPRegexp*> m_passRE;
+  std::vector<TPRegexp> m_failRE;
+  std::vector<TPRegexp> m_passRE;
 
   std::vector<std::string> m_skippedObjects;
   

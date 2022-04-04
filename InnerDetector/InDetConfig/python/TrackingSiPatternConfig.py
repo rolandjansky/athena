@@ -107,14 +107,6 @@ def SiZvertexMaker_xkCfg(flags, name="InDetZvertexMaker", InputCollections = Non
 def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None, **kwargs) :
     acc = ComponentAccumulator()
 
-    if flags.InDet.Tracking.ActivePass.usePixel:
-        from InDetConfig.SiCombinatorialTrackFinderToolConfig import SiDetElementBoundaryLinksCondAlg_xk_Pixel_Cfg
-        acc.merge(SiDetElementBoundaryLinksCondAlg_xk_Pixel_Cfg(flags))
-
-    if flags.InDet.Tracking.ActivePass.useSCT:
-        from InDetConfig.SiCombinatorialTrackFinderToolConfig import SiDetElementBoundaryLinksCondAlg_xk_SCT_Cfg
-        acc.merge(SiDetElementBoundaryLinksCondAlg_xk_SCT_Cfg(flags))
-
     kwargs.setdefault("useSCT", flags.InDet.Tracking.ActivePass.useSCT)
     kwargs.setdefault("usePixel", flags.InDet.Tracking.ActivePass.usePixel)
 
@@ -142,11 +134,11 @@ def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None,
                       and (flags.InDet.Tracking.ActivePass.extension=="" or flags.InDet.Tracking.ActivePass.extension=="BLS") )
     kwargs.setdefault("doCaloSeededBrem", flags.InDet.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo)
     if kwargs["useBremModel"] and kwargs["doCaloSeededBrem"]:
-        from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
+        from InDetConfig.InDetCaloClusterROISelectorConfig import CaloClusterROI_SelectorCfg
         acc.merge(CaloClusterROI_SelectorCfg(flags))
     kwargs.setdefault("doHadCaloSeedSSS", flags.InDet.Tracking.doHadCaloSeededSSS and flags.Detector.EnableCalo)
     if kwargs["doHadCaloSeedSSS"]:
-        from InDetConfig.InDetRecCaloSeededROISelectionConfig import HadCaloClusterROI_SelectorCfg
+        from InDetConfig.InDetCaloClusterROISelectorConfig import HadCaloClusterROI_SelectorCfg
         acc.merge(HadCaloClusterROI_SelectorCfg(flags))
     kwargs.setdefault("phiWidth", flags.InDet.Tracking.ActivePass.phiWidthBrem)
     kwargs.setdefault("etaWidth", flags.InDet.Tracking.ActivePass.etaWidthBrem)

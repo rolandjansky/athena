@@ -87,11 +87,6 @@ def createExtendNameIfNotDefaultCfg(alg,
 
     return acc
 
-
-def PhysValMonInDetHoleSearchToolCfg(flags, name="PhysValMonInDetHoleSearchTool", **kwargs):
-    from InDetConfig.InDetRecToolConfig import TrackHoleSearchToolCfg
-    return TrackHoleSearchToolCfg(flags, name=name, **kwargs)
-
 def InDetPhysHitDecoratorAlgCfg(flags, **kwargs):
     '''
     create decoration algorithm which decorates track particles with the unbiased hit residuals and pulls.
@@ -100,7 +95,9 @@ def InDetPhysHitDecoratorAlgCfg(flags, **kwargs):
     '''
     acc = ComponentAccumulator()
 
-    kwargs.setdefault( "InDetTrackHoleSearchTool", acc.popToolsAndMerge(PhysValMonInDetHoleSearchToolCfg(flags)) )
+    from InDetConfig.InDetTrackHoleSearchConfig import InDetTrackHoleSearchToolCfg
+    InDetTrackHoleSearchTool = acc.popToolsAndMerge(InDetTrackHoleSearchToolCfg(flags, name="PhysValMonInDetHoleSearchTool"))
+    kwargs.setdefault( "InDetTrackHoleSearchTool", InDetTrackHoleSearchTool)
 
     from InDetConfig.TrackingCommonConfig import InDetUpdatorCfg
     Updator = acc.popToolsAndMerge(InDetUpdatorCfg(flags))
