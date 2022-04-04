@@ -84,9 +84,9 @@ def FixRegion(config: ROOT.TDirectory, top_level: dqi.HanConfigGroup, td: ROOT.T
     l = []
     iterate_objs(td, l, td.GetPath())
     for path, (a, p) in mapping_regex.items():
-        pre = re.compile(p + '$')
+        pre = re.compile(p)
         for h in l:
-            m = pre.match(h)
+            m = pre.fullmatch(h)
             if m:
                 log.debug(f'match {p} with {h}')
                 tokenized_path = path.split('/')
