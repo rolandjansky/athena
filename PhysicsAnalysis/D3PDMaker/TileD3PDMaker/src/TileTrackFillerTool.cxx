@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -26,7 +26,7 @@ TileTrackFillerTool::TileTrackFillerTool (const std::string& type,
 m_trackToVertexTool("Reco::TrackToVertex"){
     //=========================================================================
     
-    book().ignore(); // AVOID COVERITY WARNINGS
+    TileTrackFillerTool::book().ignore(); // AVOID COVERITY WARNINGS
     declareProperty("LevelOfDetails",        m_LevelOfDetails);
     declareProperty("CellsName",             m_calocellContainerName="SelectedCells" );
     declareProperty("TrackTools", m_trackInCalo);

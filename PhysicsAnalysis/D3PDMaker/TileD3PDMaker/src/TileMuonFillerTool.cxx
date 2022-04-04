@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -40,7 +40,7 @@ TileMuonFillerTool::TileMuonFillerTool (const std::string& type,
 //=========================================================================
 // CONSTRUCTOR
 
-    book().ignore(); // AVOID COVERITY WARNINGS 
+    TileMuonFillerTool::book().ignore(); // AVOID COVERITY WARNINGS 
 
     // TRACK EXTRAPOLATOR TOOL
     declareProperty("TrackTools", m_trackInCalo);
