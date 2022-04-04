@@ -10,7 +10,6 @@ class SuperChicConfig:
 
     def __init__(self, runArgs):
         self.superchicpath = os.environ['SUPERCHICPATH']
-        
         #SuperChic specific variables for input.DAT, see writeInputDAT function for more elaboration
         self.rts = 13000. #collision energy (GeV)
         if hasattr(runArgs,"ecmEnergy"):
@@ -92,6 +91,8 @@ class SuperChicConfig:
         self.gamm = 10
         self.mcharg = 100
         self.mneut = 80
+        self.wlp = 'el'
+        self.wlm = 'el'
 
     def toFortran(self):
 
@@ -254,6 +255,9 @@ class SuperChicConfig:
         conf+=fortDouble(self.mneut)  + "                                ! [mneut]  : Neutralino mass \n"
         conf+="***********************************************************************************\n"
         conf+="***********************************************************************************\n"
+        conf+="***********************************************************************************\n"
+        conf+=fortStr(self.wlp) + "                                  ! [wlp] : leptonic decay (either 'mu' or 'el') for Wplus \n"
+        conf+=fortStr(self.wlm) + "                                  ! [wlm] : leptonic decay (either 'mu' or 'el') for Wminus \n"
 
         return conf 
 
