@@ -18,7 +18,11 @@ from DerivationFrameworkExamples.TEST6 import TEST6Cfg
 # Truth (EVNT->xAOD) formats
 # TRUTH0 - complete copy of HepMC to xAOD truth
 from DerivationFrameworkMCTruth.TRUTH0 import TRUTH0Cfg
+# TRUTH1 - extended common ATLAS truth for analysis
+from DerivationFrameworkMCTruth.TRUTH1 import TRUTH1Cfg
+# TRUTH3 - standard common ATLAS truth for analysis
+from DerivationFrameworkMCTruth.TRUTH3 import TRUTH3Cfg
 
 # Avoids compilation warnings from Flake8
 __all__ = ['TEST1Cfg','TEST2Cfg','TEST3Cfg','TEST4Cfg','TEST5Cfg','TEST6Cfg',
-           'TRUTH0Cfg']
+           'TRUTH0Cfg','TRUTH1Cfg','TRUTH3Cfg']
