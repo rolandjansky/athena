@@ -68,6 +68,12 @@ namespace NSWL1 {
     *
     *  @author Alessandro Di Mattia <dimattia@cern.ch>
     *
+    * ----------------------------------------------------------------------------------------
+    * 2022 Update: the internal cache has been removed for the code to deal with parallel
+    * processing (athenaMT) in Release 22. It has been replaced by an event-by-event cache,
+    * passed by reference throughout the workflow.
+    *
+    *  @modified by Francesco Giuseppe Gravili <francesco.giuseppe.gravili@cern.ch>
     *
     */
     class PadHits;
@@ -81,7 +87,7 @@ namespace NSWL1 {
         PadTdsOfflineTool(const std::string& type,
                         const std::string& name,
                         const IInterface* parent);
-        virtual ~PadTdsOfflineTool();
+        virtual ~PadTdsOfflineTool()=default;
         virtual StatusCode initialize() override;
         virtual void handle (const Incident& inc) override;
         virtual StatusCode gather_pad_data(std::vector<std::shared_ptr<PadData>>& pads, int side=-1, int sector=-1) override;

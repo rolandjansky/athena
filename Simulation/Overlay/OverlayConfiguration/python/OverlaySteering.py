@@ -16,10 +16,12 @@ from InDetOverlay.PixelOverlayConfig import PixelOverlayCfg
 from InDetOverlay.SCTOverlayConfig import SCTOverlayCfg
 from InDetOverlay.TRTOverlayConfig import TRTOverlayCfg
 from LArDigitization.LArDigitizationConfigNew import LArOverlayCfg, LArSuperCellOverlayCfg
-from MuonConfig.CscOverlayConfig import CscOverlayCfg
-from MuonConfig.MdtOverlayConfig import MdtOverlayCfg
-from MuonConfig.RpcOverlayConfig import RpcOverlayCfg
-from MuonConfig.TgcOverlayConfig import TgcOverlayCfg
+from MuonConfig.CSC_OverlayConfig import CSC_OverlayCfg
+from MuonConfig.MDT_OverlayConfig import MDT_OverlayCfg
+from MuonConfig.MM_OverlayConfig import MM_OverlayCfg
+from MuonConfig.RPC_OverlayConfig import RPC_OverlayCfg
+from MuonConfig.sTGC_OverlayConfig import sTGC_OverlayCfg
+from MuonConfig.TGC_OverlayConfig import TGC_OverlayCfg
 from OverlayCopyAlgs.OverlayCopyAlgsConfig import \
     CopyCaloCalibrationHitContainersCfg, CopyJetTruthInfoCfg, CopyPileupParticleTruthInfoCfg, CopyMcEventCollectionCfg, \
     CopyTimingsCfg, CopyTrackRecordCollectionsCfg
@@ -104,13 +106,17 @@ def OverlayMainCfg(configFlags):
 
     # Muon system
     if configFlags.Detector.EnableCSC:
-        acc.merge(CscOverlayCfg(configFlags))
+        acc.merge(CSC_OverlayCfg(configFlags))
     if configFlags.Detector.EnableMDT:
-        acc.merge(MdtOverlayCfg(configFlags))
+        acc.merge(MDT_OverlayCfg(configFlags))
     if configFlags.Detector.EnableRPC:
-        acc.merge(RpcOverlayCfg(configFlags))
+        acc.merge(RPC_OverlayCfg(configFlags))
     if configFlags.Detector.EnableTGC:
-        acc.merge(TgcOverlayCfg(configFlags))
+        acc.merge(TGC_OverlayCfg(configFlags))
+    if configFlags.Detector.EnablesTGC:
+        acc.merge(sTGC_OverlayCfg(configFlags))
+    if configFlags.Detector.EnableMM:
+        acc.merge(MM_OverlayCfg(configFlags))
 
     # Add MT-safe PerfMon
     if configFlags.PerfMon.doFastMonMT or configFlags.PerfMon.doFullMonMT:

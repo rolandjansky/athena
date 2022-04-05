@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloCluster_OnTrackBuilder.h"
@@ -25,7 +25,7 @@ CaloCluster_OnTrackBuilder::CaloCluster_OnTrackBuilder(const std::string& t,
   declareInterface<ICaloCluster_OnTrackBuilder>(this);
 }
 
-CaloCluster_OnTrackBuilder::~CaloCluster_OnTrackBuilder() {}
+CaloCluster_OnTrackBuilder::~CaloCluster_OnTrackBuilder() = default;
 
 StatusCode
 CaloCluster_OnTrackBuilder::initialize()

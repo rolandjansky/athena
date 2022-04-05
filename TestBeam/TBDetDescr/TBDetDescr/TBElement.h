@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //==============================================
@@ -23,8 +23,9 @@ class TBElement
 public: 
 
   TBElement();
-  TBElement ( TBElementID::TBElementID id, std::string name,
-              Amg::Vector3D position, Amg::RotationMatrix3D rotation );
+  TBElement ( TBElementID::TBElementID id, const std::string& name,
+              const Amg::Vector3D& position,
+              const Amg::RotationMatrix3D& rotation );
 
   virtual ~TBElement() {}
 

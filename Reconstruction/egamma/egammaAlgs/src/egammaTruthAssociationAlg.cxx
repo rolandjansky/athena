@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaTruthAssociationAlg.h"
@@ -25,7 +25,7 @@ egammaTruthAssociationAlg::egammaTruthAssociationAlg(const std::string& name,
   : AthReentrantAlgorithm(name, pSvcLocator)
 {}
 
-egammaTruthAssociationAlg::~egammaTruthAssociationAlg() {}
+egammaTruthAssociationAlg::~egammaTruthAssociationAlg() = default;
 
 StatusCode
 egammaTruthAssociationAlg::initialize()

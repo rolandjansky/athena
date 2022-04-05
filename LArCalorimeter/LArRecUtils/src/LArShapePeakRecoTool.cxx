@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRecUtils/LArShapePeakRecoTool.h"
@@ -76,7 +76,7 @@ std::vector<float> LArShapePeakRecoTool::peak (const std::vector<float>& samples
   float adc_2ndmax = 0;
   int   sample_2ndmax = static_cast<int> (sample_max);
   for (;it_sample!=it_sample_end;++it_sample) { //Loop over sample vector
-    if((*it_sample>adc_2ndmax) & (*it_sample<=adc_max)) {
+    if((*it_sample>adc_2ndmax) && (*it_sample<=adc_max)) {
       adc_2ndmax = *it_sample;
       sample_2ndmax = distance(samples.begin(),it_sample);
     }

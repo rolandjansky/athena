@@ -24,7 +24,7 @@
 
 EMErrorDetail::EMErrorDetail() : egDetail() { }
 
-EMErrorDetail::~EMErrorDetail() { }
+EMErrorDetail::~EMErrorDetail() = default;
 
 /** interfaces */
 const std::string EMErrorDetail::s_className = ClassName<EMErrorDetail>::name();

@@ -2,143 +2,6 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import BeamType
-
-def ITkSiElementPropertiesTableCondAlgCfg(flags, name="ITkSiElementPropertiesTableCondAlg", **kwargs):
-    # For strip DetectorElementCollection used
-    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
-    acc = ITkStripReadoutGeometryCfg(flags)
-    
-    kwargs.setdefault("ReadKey", "ITkStripDetectorElementCollection")
-    kwargs.setdefault("WriteKey", "ITkStripElementPropertiesTable")
-
-    acc.addCondAlgo(CompFactory.InDet.SiElementPropertiesTableCondAlg(name = name, **kwargs))
-    return acc
-
-def ITkSiSpacePointMakerToolCfg(flags, name="ITkSiSpacePointMakerTool", **kwargs):
-    acc = ComponentAccumulator()
-    #
-    # --- SiSpacePointMakerTool (public)
-    #
-
-    kwargs.setdefault("SCTGapParameter", 0.0015)
-
-    ITkSiSpacePointMakerTool = CompFactory.InDet.SiSpacePointMakerTool(name = "ITkSiSpacePointMakerTool", **kwargs)
-    acc.setPrivateTools(ITkSiSpacePointMakerTool)
-    return acc
-
-def ITkSiTrackerSpacePointFinderCfg(flags, name = "ITkSiTrackerSpacePointFinder", **kwargs):
-    #
-    # SiTrackerSpacePointFinder algorithm
-    #
-
-    # For strip DetectorElementCollection used
-    from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
-    acc = ITkStripReadoutGeometryCfg(flags)
-
-    ITkSiSpacePointMakerTool = acc.popToolsAndMerge(ITkSiSpacePointMakerToolCfg(flags))
-
-    kwargs.setdefault("IsITk", True)
-    kwargs.setdefault("SiSpacePointMakerTool", ITkSiSpacePointMakerTool)
-    kwargs.setdefault("PixelsClustersName", 'ITkPixelClusters')
-    kwargs.setdefault("SCT_ClustersName", 'ITkStripClusters')
-    kwargs.setdefault("SCTPropertiesKey", "ITkStripElementPropertiesTable")
-    kwargs.setdefault("SCTDetEleCollKey", "ITkStripDetectorElementCollection")
-    kwargs.setdefault("SpacePointsPixelName", 'ITkPixelSpacePoints')
-    kwargs.setdefault("SpacePointsSCTName", 'ITkStripSpacePoints')
-    kwargs.setdefault("SpacePointsOverlapName", 'ITkOverlapSpacePoints')
-    kwargs.setdefault("ProcessPixels", flags.Detector.EnableITkPixel)
-    kwargs.setdefault("ProcessSCTs", flags.Detector.EnableITkStrip and (not flags.ITk.Tracking.doFastTracking or flags.ITk.Tracking.doLargeD0))
-    kwargs.setdefault("ProcessOverlaps", flags.Detector.EnableITkStrip and (not flags.ITk.Tracking.doFastTracking or flags.ITk.Tracking.doLargeD0))
-
-    if flags.Beam.Type is BeamType.Cosmics:
-        kwargs.setdefault("ProcessOverlaps", False)
-        kwargs.setdefault("OverrideBeamSpot", True)
-        kwargs.setdefault("VertexZ", 0)
-        kwargs.setdefault("VertexX", 0)
-        kwargs.setdefault("VertexY", 99999999)
-        kwargs.setdefault("OverlapLimitOpposite", 5)
-
-    acc.addEventAlgo(CompFactory.InDet.SiTrackerSpacePointFinder(name = name, **kwargs))
-    return acc
-
-def ITkPRD_MultiTruthMakerSiCfg(flags, name="ITkPRD_MultiTruthMakerSi", **kwargs):
-    acc = ComponentAccumulator()
-
-    # For pixel + strip DetectorElementCollection used
-    if flags.Detector.GeometryITkPixel:
-        from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg
-        acc.merge(ITkPixelReadoutGeometryCfg(flags))
-
-    if flags.Detector.GeometryITkStrip:
-        from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
-        acc.merge(ITkStripReadoutGeometryCfg(flags))
-
-    if flags.ITk.Tracking.doTruth:
-        kwargs.setdefault("PixelClusterContainerName", 'ITkPixelClusters')
-        kwargs.setdefault("SCTClusterContainerName", 'ITkStripClusters')
-        kwargs.setdefault("TRTDriftCircleContainerName", "")
-        kwargs.setdefault("SimDataMapNamePixel", 'ITkPixelSDO_Map')
-        kwargs.setdefault("SimDataMapNameSCT", 'ITkStripSDO_Map')
-        kwargs.setdefault("SimDataMapNameTRT", "")
-        kwargs.setdefault("TruthNamePixel", 'PRD_MultiTruthITkPixel')
-        kwargs.setdefault("TruthNameSCT", 'PRD_MultiTruthITkStrip')
-        kwargs.setdefault("TruthNameTRT", "")
-         # a bit complicated, but this is how the truth maker gets to know which detector is on
-        if not flags.Detector.EnableITkPixel:
-            kwargs.setdefault("PixelClusterContainerName", "")
-            kwargs.setdefault("SimDataMapNamePixel", "")
-            kwargs.setdefault("TruthNamePixel", "")
-        if not flags.Detector.EnableITkStrip:
-            kwargs.setdefault("SCTClusterContainerName", "")
-            kwargs.setdefault("SimDataMapNameSCT", "")
-            kwargs.setdefault("TruthNameSCT", "")
-
-    kwargs.setdefault("PixelDetEleCollKey", "ITkPixelDetectorElementCollection")
-    kwargs.setdefault("SCTDetEleCollKey", "ITkStripDetectorElementCollection")
-
-    ITkPRD_MultiTruthMakerSi = CompFactory.InDet.PRD_MultiTruthMaker(name = name, **kwargs)
-    acc.addEventAlgo(ITkPRD_MultiTruthMakerSi)
-    return acc
-
-def ITkPRD_MultiTruthMakerSiPUCfg(flags, name="ITkPRD_MultiTruthMakerSiPU", **kwargs):
-    acc = ComponentAccumulator()
-
-    # For pixel + strip DetectorElementCollection used
-    if flags.Detector.GeometryITkPixel:
-        from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg
-        acc.merge(ITkPixelReadoutGeometryCfg(flags))
-
-    if flags.Detector.GeometryITkStrip:
-        from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
-        acc.merge(ITkStripReadoutGeometryCfg(flags))
-
-    if flags.ITk.Tracking.doTruth:
-        kwargs.setdefault("PixelClusterContainerName", 'ITkPixelPUClusters')
-        kwargs.setdefault("SCTClusterContainerName", 'ITkStripPUClusters')
-        kwargs.setdefault("TRTDriftCircleContainerName", "")
-        kwargs.setdefault("SimDataMapNamePixel", 'ITkPixel_PU_SDO_Map')
-        kwargs.setdefault("SimDataMapNameSCT", 'ITkStrip_PU_SDO_Map')
-        kwargs.setdefault("SimDataMapNameTRT", "")
-        kwargs.setdefault("TruthNamePixel", 'PRD_PU_MultiTruthITkPixel')
-        kwargs.setdefault("TruthNameSCT", 'PRD_PU_MultiTruthITkStrip')
-        kwargs.setdefault("TruthNameTRT", "")
-         # a bit complicated, but this is how the truth maker gets to know which detector is on
-        if not flags.Detector.EnableITkPixel:
-            kwargs.setdefault("PixelClusterContainerName", "")
-            kwargs.setdefault("SimDataMapNamePixel", "")
-            kwargs.setdefault("TruthNamePixel", "")
-        if not flags.Detector.EnableITkStrip:
-            kwargs.setdefault("SCTClusterContainerName", "")
-            kwargs.setdefault("SimDataMapNameSCT", "")
-            kwargs.setdefault("TruthNameSCT", "")
-
-    kwargs.setdefault("PixelDetEleCollKey", "ITkPixelDetectorElementCollection")
-    kwargs.setdefault("SCTDetEleCollKey", "ITkStripDetectorElementCollection")
-
-    ITkPRD_MultiTruthMakerSi = CompFactory.InDet.PRD_MultiTruthMaker(name = name, **kwargs)
-    acc.addEventAlgo(ITkPRD_MultiTruthMakerSi)
-    return acc
 
 def ITkNnPixelClusterSplitProbToolCfg(flags, name="ITkNnPixelClusterSplitProbTool", **kwargs):
     acc = ComponentAccumulator()
@@ -223,20 +86,21 @@ def ITkRecPreProcessingSiliconCfg(flags, **kwargs):
     # ----------- form SpacePoints from clusters in SCT and Pixels
     #
     #
-    acc.merge(ITkSiElementPropertiesTableCondAlgCfg(flags))
+    from InDetConfig.SiSpacePointFormationConfig import ITkSiTrackerSpacePointFinderCfg
     acc.merge(ITkSiTrackerSpacePointFinderCfg(flags))
     if flags.ITk.Tracking.produceNewSpacePointContainer:
         if flags.Detector.EnableITkPixel:
-            from InDetConfig.ActsTrkSpacePointFormationConfig import ActsTrkPixelSpacePointFormationCfg
+            from TrkConfig.ActsTrkSpacePointFormationConfig import ActsTrkPixelSpacePointFormationCfg
             acc.merge(ActsTrkPixelSpacePointFormationCfg(flags))
         if flags.Detector.EnableITkStrip:
-            from InDetConfig.ActsTrkSpacePointFormationConfig import ActsTrkStripSpacePointFormationCfg
+            from TrkConfig.ActsTrkSpacePointFormationConfig import ActsTrkStripSpacePointFormationCfg
             acc.merge(ActsTrkStripSpacePointFormationCfg(flags))
 
     # this truth must only be done if you do PRD and SpacePointformation
     # If you only do the latter (== running on ESD) then the needed input (simdata)
     # is not in ESD but the resulting truth (clustertruth) is already there ...
     if flags.ITk.Tracking.doTruth:
+        from InDetConfig.InDetTruthAlgsConfig import ITkPRD_MultiTruthMakerSiCfg
         acc.merge(ITkPRD_MultiTruthMakerSiCfg(flags))
 
     return acc

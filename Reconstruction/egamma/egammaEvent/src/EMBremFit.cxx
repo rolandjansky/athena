@@ -37,7 +37,7 @@ EMBremFit::EMBremFit()
 
 // destructor
 EMBremFit::~EMBremFit()
-{ }
+= default;
 
 // interfaces
 const std::string EMBremFit::s_className = ClassName<EMBremFit>::name();

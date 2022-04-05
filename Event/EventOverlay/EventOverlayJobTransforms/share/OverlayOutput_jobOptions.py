@@ -126,11 +126,9 @@ if DetFlags.overlay.TGC_on():
 
 if DetFlags.overlay.sTGC_on():
     outStream.ItemList += [ 'Muon::STGC_RawDataContainer#sTGCRDO' ]
-    outStream.ItemList += [ "sTgcDigitContainer#sTGC_DIGITS" ]
 
 if DetFlags.overlay.Micromegas_on():
     outStream.ItemList += [ 'Muon::MM_RawDataContainer#MMRDO' ]
-    outStream.ItemList += [ "MmDigitContainer#MM_DIGITS" ]
 
 if DetFlags.overlay.LVL1_on():
     if DetFlags.simulateLVL1.LAr_on():

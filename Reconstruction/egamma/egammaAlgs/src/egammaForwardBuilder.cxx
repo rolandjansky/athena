@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaForwardBuilder.h"
@@ -25,8 +25,7 @@ egammaForwardBuilder::egammaForwardBuilder(const std::string& name,
 {}
 
 egammaForwardBuilder::~egammaForwardBuilder()
-{
-}
+= default;
 
 StatusCode egammaForwardBuilder::initialize()
 {

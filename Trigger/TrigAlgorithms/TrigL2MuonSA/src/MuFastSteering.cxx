@@ -167,18 +167,19 @@ StatusCode MuFastSteering::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode MuFastSteering::finalize()
+StatusCode MuFastSteering::stop()
 {
   // close the calibration stream
   if ( m_doCalStream ) {
-    StatusCode sc = m_calStreamer->closeStream();
+    if (m_calStreamer->isStreamOpen()){
+      StatusCode sc = m_calStreamer->closeStream();
       if  ( sc != StatusCode::SUCCESS ) {
 	ATH_MSG_ERROR("Failed to close the calibration stream");}
       else {
 	ATH_MSG_INFO("Calibration stream closed");
       }
-  } 
-
+    } 
+  }
   return StatusCode::SUCCESS;
 }
 

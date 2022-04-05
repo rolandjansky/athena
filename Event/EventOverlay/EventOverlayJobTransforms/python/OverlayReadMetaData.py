@@ -472,7 +472,7 @@ def tagInfoMetaDataCheck(sigtaginfodict,pileuptaginfodict):
     logOverlayReadMetadata.debug("The following keys only appear in Signal /TagInfo MetaData:")
     logOverlayReadMetadata.debug(sigOnlyKeySet)
     for key in sigOnlyKeySet:
-        sigOnlyDict[key] = sigtaginfodict[key]
+        sigOnlyDict[key] = str(sigtaginfodict[key])
         logOverlayReadMetadata.debug("key: ", key, "value: ", sigtaginfodict[key])
         pass
     from OverlayCommonAlgs.OverlayFlags import overlayFlags

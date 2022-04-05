@@ -14,9 +14,10 @@ parser = OptionParser(usage=usage, version="%prog v0.0.1 $Id: LArG4FSStartPointF
 
 parser.add_option("-p","--particle", dest="part", type="choice", action="append", choices=["11","22","2112"], help="particle to be filtered out (default - no filter)")
 parser.add_option("-t","--truncate", dest="numevents", type=int, help="Truncate the number of events (default - all)")
+parser.add_option("-l","--outevents", dest="outevents", type=int, help="Truncate the number of output (default - all)")
 parser.add_option("-o","--output", dest="outfile", help="Name of output file")
 
-parser.set_defaults(part=[],outfile="genevents.ascii",numevents=0,draw=False,execute=False)
+parser.set_defaults(part=[],outfile="genevents.ascii",numevents=0,outevents=0,draw=False,execute=False)
 
 (options, args) = parser.parse_args()
 
@@ -85,7 +86,6 @@ if (options.numevents > stpsize) :
 if (options.numevents == 0) :
     options.numevents = stpsize #all events
 
-#starting the filter
 i = 0
 while i < options.numevents :
     if (stpsize == 0) :
@@ -115,8 +115,17 @@ while i < options.numevents :
 
 outdata.write("HepMC::IO_GenEvent-END_EVENT_LISTING")
 outdata.close()
-print ("INFO: Written", i, "starting points")
+print ("INFO: Written", i, options.numevents, "starting points")
 
+if (options.outevents > i) :
+    print ("WARNING: requested number of events is bigger then provided in input files")
+    options.outevents = 0
+
+if (options.outevents == 0) :
+    options.outevents = i #all events                                                                                                                                             
+
+#starting the filter
 exec = __file__.replace("LArG4FSStartPointFilter.py","LArG4FSStartPointFilterBody.py")
+#print('athena -c "options={:s}" {:s}'.format(str(options),exec))
 os.system('athena -c "options={:s}" {:s}'.format(str(options),exec))
 

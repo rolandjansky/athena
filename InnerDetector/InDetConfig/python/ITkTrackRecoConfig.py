@@ -2,7 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import Format
+from AthenaConfiguration.Enums import BeamType, Format
 
 ##------------------------------------------------------------------------------
 def ITk_BCM_ZeroSuppressionCfg(flags, name="ITk_BCM_ZeroSuppression", **kwargs):
@@ -54,6 +54,11 @@ def ITkStripClusterizationCfg(flags, name="ITkStripClusterization", **kwargs) :
                                                                    LorentzAngleTool = ITkStripLorentzAngleTool,
                                                                    useRowInformation = True,
                                                                    SCTDetEleCollKey = "ITkStripDetectorElementCollection")
+    if flags.ITk.selectStripIntimeHits :
+       if flags.Beam.BunchSpacing<=25 and flags.Beam.Type is BeamType.Collisions:
+          ITkStripClusteringTool.timeBins = "01X"
+       else:
+          ITkStripClusteringTool.timeBins = "X1X"
 
     kwargs.setdefault("clusteringTool", ITkStripClusteringTool)
     kwargs.setdefault("DataObjectName", 'ITkStripRDOs')
