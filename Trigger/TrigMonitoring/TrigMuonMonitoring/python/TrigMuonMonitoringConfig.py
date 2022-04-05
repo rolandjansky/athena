@@ -21,8 +21,6 @@ def TrigMuonMonitoringTool():
             HLTMuonMon.HI_pp_mode = False
         else:
             HLTMuonMon.HI_pp_mode = True
-        from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
-        HLTMuonMon.BCTool = BunchCrossingTool()
         from AthenaCommon.GlobalFlags import globalflags
         inputDataType = str(globalflags.DataSource.StoredValue)
         if inputDataType == 'data':
