@@ -30,9 +30,6 @@ namespace NSWL1 {
         declareInterface<NSWL1::IPadTdsTool>(this);
     }
     //------------------------------------------------------------------------------
-    PadTdsOfflineTool::~PadTdsOfflineTool() {
-    }
-    //------------------------------------------------------------------------------
     StatusCode PadTdsOfflineTool::initialize() {
         ATH_MSG_DEBUG( "initializing " << name() );
 
