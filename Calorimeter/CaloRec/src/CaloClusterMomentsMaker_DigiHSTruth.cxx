@@ -15,12 +15,10 @@
 //-----------------------------------------------------------------------
 
 #include "CaloClusterMomentsMaker_DigiHSTruth.h"
-#include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloClusterContainer.h"
 #include "CaloEvent/CaloCluster.h"
 #include "CaloGeoHelpers/proxim.h"
 #include "CaloEvent/CaloPrefetch.h"
-#include "CaloInterface/ILArHVFraction.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "AthAllocators/ArenaPoolSTLAllocator.h"
@@ -282,9 +280,7 @@ CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& ctx,
 
   ATH_MSG_DEBUG("Executing " << name());
 
-  const CaloCellContainer *signalCells = nullptr;
-  StatusCode sc = evtStore()->retrieve(signalCells,"AllCalo_DigiHSTruth");
-  if (sc.isFailure()) ATH_MSG_WARNING( "Could not retrieve AllCalo_DigiHSTruth container ");
+  SG::ReadHandle<CaloCellContainer> signalCells(m_signalCellKey,ctx);
 
   // Maps cell IdentifierHash to cluster index in cluster collection.
   // Only used when cluster isolation moment is calculated.
