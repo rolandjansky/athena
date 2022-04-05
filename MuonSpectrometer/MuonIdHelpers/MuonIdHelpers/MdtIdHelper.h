@@ -204,6 +204,9 @@ private:
         TubeMax = 78
     };
     unsigned int m_tubesMax{UINT_MAX};  // maximum number of tubes in any chamber
+
+    int m_BME_stat{-1};
+    int m_BMG_stat{-1};
 };
 
 // For backwards compatibility
