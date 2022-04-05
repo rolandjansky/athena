@@ -34,7 +34,6 @@ def MM_DigitizationTool(name="MM_DigitizationTool",**kwargs):
         kwargs.setdefault("OutputSDOName", overlayFlags.bkgPrefix() + "MM_SDO")
     else:
         kwargs.setdefault("OutputSDOName", "MM_SDO")
-    kwargs.setdefault("SmearingTool","MMCalibSmearingTool")
     if 'NewMerge' in jobproperties.Digitization.experimentalDigi():
         kwargs.setdefault("UseMcEventCollectionHelper",True)
     else:

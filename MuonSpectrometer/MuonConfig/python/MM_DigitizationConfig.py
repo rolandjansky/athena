@@ -1,17 +1,18 @@
-"""Define methods to construct configured TGC Digitization tools and algorithms
+"""Define methods to construct configured MM Digitization tools and algorithms
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import ProductionStep
-from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
-from MuonConfig.MuonByteStreamCnvTestConfig import MM_DigitToRDOCfg
-from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
-from Digitization.PileUpToolsConfig import PileUpToolsCfg
 from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg, PileUpXingFolderCfg
+from Digitization.PileUpToolsConfig import PileUpToolsCfg
+from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
+from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+from MuonConfig.MuonByteStreamCnvTestConfig import MM_DigitToRDOCfg
 from MuonConfig.MuonGeometryConfig import MuonDetectorCondAlgCfg
+from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
+from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 
 # The earliest and last bunch crossing times for which interactions will be sent
 # to the MMDigitizationTool.
@@ -34,7 +35,7 @@ def MM_RangeCfg(flags, name="MMRange", **kwargs):
 
 def MM_DigitizationToolCfg(flags, name="MM_DigitizationTool", **kwargs):
     """Return ComponentAccumulator with configured MM_DigitizationTool"""
-    acc = ComponentAccumulator()
+    acc = MagneticFieldSvcCfg(flags)
     acc.merge(MuonDetectorCondAlgCfg(flags))
     if flags.Digitization.PileUp:
         intervals = []
@@ -56,22 +57,20 @@ def MM_DigitizationToolCfg(flags, name="MM_DigitizationTool", **kwargs):
         kwargs.setdefault("OutputSDOName", "MM_SDO")
     from RngComps.RandomServices import AthRNGSvcCfg
     kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
-    MM_DigitizationTool = CompFactory.MM_DigitizationTool
-    acc.setPrivateTools(MM_DigitizationTool(name, **kwargs))
+    acc.setPrivateTools(CompFactory.MM_DigitizationTool(name, **kwargs))
     return acc
 
 
 def MM_OverlayDigitizationToolCfg(flags, name="MM_OverlayDigitizationTool", **kwargs):
     """Return ComponentAccumulator with MM_DigitizationTool configured for Overlay"""
-    acc = ComponentAccumulator()
+    acc = MagneticFieldSvcCfg(flags)
     kwargs.setdefault("CheckSimHits", True)
     kwargs.setdefault("OnlyUseContainerName", False)
     kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "MM_DIGITS")
     kwargs.setdefault("OutputSDOName", flags.Overlay.SigPrefix + "MM_SDO")
     from RngComps.RandomServices import AthRNGSvcCfg
     kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
-    MM_DigitizationTool = CompFactory.MM_DigitizationTool
-    acc.setPrivateTools(MM_DigitizationTool(name, **kwargs))
+    acc.setPrivateTools(CompFactory.MM_DigitizationTool(name, **kwargs))
     return acc
 
 
