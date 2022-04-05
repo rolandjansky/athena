@@ -11,8 +11,8 @@ class MyParticleSampler(PG.ParticleSampler):
     def __init__(self,energy,eta,pid,shift_z=0):
         self.pid = pid
         self.shift_z = shift_z
-        pdg_table = ROOT.TDatabasePDG.Instance()
-        mass = pdg_table.GetParticle(self.pid()).Mass()
+        pdg_table = ROOT.TDatabasePDG.Instance() #Gives values in GeV
+        mass = pdg_table.GetParticle(self.pid()).Mass()*1000.
         self.mom1 = PG.EEtaMPhiSampler(energy=energy,eta=eta,mass=mass)
 
     def shoot(self):
