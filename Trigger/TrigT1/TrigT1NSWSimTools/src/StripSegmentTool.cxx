@@ -3,31 +3,17 @@
 */
 
 #include "TrigT1NSWSimTools/StripSegmentTool.h"
-#include <TVector3.h>
 
 namespace NSWL1 {
 
   StripSegmentTool::StripSegmentTool( const std::string& type, const std::string& name, const IInterface* parent) :
     AthAlgTool(type,name,parent),
-    m_incidentSvc("IncidentSvc",name),
     m_tree(nullptr),
-    m_rIndexBits(0),
-    m_dThetaBits(0),
     m_zbounds({-1,1}),
     m_etabounds({-1,1}),
-    m_rbounds({-1,-1}),
-    m_ridxScheme(0),
-    m_dtheta_min(0),
-    m_dtheta_max(0)
+    m_rbounds({-1,-1})
   {
     declareInterface<NSWL1::IStripSegmentTool>(this);
-    declareProperty("DoNtuple",     m_doNtuple = false, "input the StripTds branches into the analysis ntuple");
-    declareProperty("sTGC_SdoContainerName", m_sTgcSdoContainer = "sTGC_SDO", "the name of the sTGC SDO container");
-    declareProperty("rIndexBits",   m_rIndexBits = 8,   "number bits in R-index calculation");
-    declareProperty("dthetaBits",   m_dThetaBits = 5,   "number bits in dTheta calculation");
-    declareProperty("dthetaMin",    m_dtheta_min = -15, "minimum allowed value for dtheta in mrad");
-    declareProperty("dthetaMax",    m_dtheta_max = 15,  "maximum allowed value for dtheta in mrad");
-    declareProperty("rIndexScheme", m_ridxScheme = 1,   "rIndex slicing scheme/ 0-->R / 1-->eta");
   }
 
   StatusCode StripSegmentTool::initialize() {
@@ -44,7 +30,10 @@ namespace NSWL1 {
       ATH_CHECK(tHistSvc->getTree(ntuple_name,m_tree));
       ATH_CHECK(this->book_branches());
     } else this->clear_ntuple_variables();
-    ATH_CHECK(m_incidentSvc.retrieve());
+    if( m_incidentSvc.retrieve().isFailure() ) {
+      ATH_MSG_FATAL("Failed to retrieve the Incident Service");
+      return StatusCode::FAILURE;
+    } else ATH_MSG_DEBUG("Incident Service successfully retrieved");
     m_incidentSvc->addListener(this,IncidentType::BeginEvent);
     ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_regSelTableKey.initialize());
@@ -53,7 +42,7 @@ namespace NSWL1 {
 
   void StripSegmentTool::handle(const Incident& inc) {
     if( inc.type()==IncidentType::BeginEvent ) {
-      this->reset_ntuple_variables();
+      this->clear_ntuple_variables();
     }
   }
 
@@ -234,9 +223,8 @@ namespace NSWL1 {
       float avg_z=(z1+z2)/2.;
 
       //segment calc
-      TVector3 v3_centr1(glx1,gly1,z1);
-      TVector3 v3_centr2(glx2,gly2,z2);
-      TVector3 v3_segment = v3_centr2 - v3_centr1;
+      ROOT::Math::XYZVector v3_centr1(glx1,gly1,z1), v3_centr2(glx2,gly2,z2);
+      ROOT::Math::XYZVector v3_segment = v3_centr2 - v3_centr1;
       phi=v3_segment.Phi();
       theta=v3_segment.Theta();
       eta=v3_segment.Eta();
@@ -337,10 +325,6 @@ namespace NSWL1 {
       m_tree->Branch(TString::Format("%s_seg_wedge2_size",n).Data(),&m_seg_wedge2_size);
     }
     return StatusCode::SUCCESS;
-  }
-
-  void StripSegmentTool::reset_ntuple_variables() {
-    clear_ntuple_variables();
   }
 
   void StripSegmentTool::clear_ntuple_variables() {
