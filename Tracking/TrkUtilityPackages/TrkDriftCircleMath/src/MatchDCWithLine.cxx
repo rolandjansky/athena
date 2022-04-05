@@ -85,7 +85,7 @@ namespace TrkDriftCircleMath {
                                   bool usePrecise) {
         // check whether hit within range
         double error = usePrecise ? dcOnTrack.drPrecise() : dcOnTrack.dr();
-        if (forceOnTrack || (!forceOffTrack && (dcOnTrack.DriftCircle::state() == DriftCircle::InTime && select(res, error)))) {
+        if (forceOnTrack || (!forceOffTrack && (dcOnTrack.driftState() == DriftCircle::InTime && select(res, error)))) {
             ++m_onTracks;
             ++m_passedTubes;
             if (dcOnTrack.id().ml() == 0)
@@ -95,7 +95,7 @@ namespace TrkDriftCircleMath {
             dcOnTrack.state(DCOnTrack::OnTrack);
         } else {
             if (dline < m_tubeRadius) {
-                if (res < 0. || dcOnTrack.DriftCircle::state() == DriftCircle::LateHit) {
+                if (res < 0. || dcOnTrack.driftState() == DriftCircle::LateHit) {
                     dcOnTrack.state(DCOnTrack::OutOfTime);
                     ++m_outOfTimes;
                 } else {

@@ -27,7 +27,6 @@
 #include "TrkDriftCircleMath/ClusterId.h"
 #include "TrkDriftCircleMath/DriftCircle.h"
 #include "TrkDriftCircleMath/MdtMultiChamberGeometry.h"
-#include "TrkDriftCircleMath/MdtStationId.h"
 #include "TrkDriftCircleMath/ResidualWithSegment.h"
 #include "TrkDriftCircleMath/Road.h"
 #include "TrkDriftCircleMath/Segment.h"
@@ -1391,10 +1390,7 @@ namespace Muon {
         int eta = m_idHelperSvc->mdtIdHelper().stationEta(chid);
         int phi = m_idHelperSvc->mdtIdHelper().stationPhi(chid);
         int name = m_idHelperSvc->mdtIdHelper().stationName(chid);
-        int isBarrel = m_idHelperSvc->mdtIdHelper().isBarrel(chid);
-        int isSmallMdt = m_idHelperSvc->issMdt(chid);
-        TrkDriftCircleMath::MdtStationId stationId(isSmallMdt, isBarrel, name, eta, phi);
-
+        
         SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
         const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle};
         if (!MuonDetMgr) { ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object"); }
@@ -1438,10 +1434,10 @@ namespace Muon {
         double tubeStage = (firstTubeMl0lay1 - firstTubeMl0).y();  // tube stagering distance
         double layDist = (firstTubeMl0lay1 - firstTubeMl0).z();    // distance between layers
 
-        TrkDriftCircleMath::MdtChamberGeometry mdtgeo(stationId, nml, nlay, ntube1, ntube2, firstTube0, firstTube1, tubeDist, tubeStage,
+        TrkDriftCircleMath::MdtChamberGeometry mdtgeo(chid, m_idHelperSvc.get(), nml, nlay, ntube1, ntube2, firstTube0, firstTube1, tubeDist, tubeStage,
                                                       layDist, detEl1->surface().center().theta());
 
-        if (msgLvl(MSG::VERBOSE)) mdtgeo.print();
+        if (msgLvl(MSG::VERBOSE)) mdtgeo.print(msgStream());
 
         return mdtgeo;
     }
@@ -1535,7 +1531,7 @@ namespace Muon {
 
             // update the drift radius after recalibration, keep error
             TrkDriftCircleMath::DriftCircle new_dc(dcit.position(), std::abs(nonconstDC->driftRadius()), dcit.dr(), dcit.drPrecise(),
-                                                   static_cast<TrkDriftCircleMath::DriftCircle::DriftState>(dcit.state()), dcit.id(),
+                                                   dcit.driftState(), dcit.id(),
                                                    dcit.index(), nonconstDC.get());
             TrkDriftCircleMath::DCOnTrack new_dc_on_track(std::move(new_dc), dcit.residual(), dcit.errorTrack());
             dcit = std::move(new_dc_on_track);

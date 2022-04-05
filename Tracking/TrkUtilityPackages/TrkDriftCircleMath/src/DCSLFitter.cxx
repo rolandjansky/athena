@@ -11,11 +11,6 @@ namespace TrkDriftCircleMath {
     bool DCSLFitter::fit(Segment& result, const Line& line, const DCOnTrackVec& dcs, const HitSelection& selection, double) const {
         if (m_debug) std::cout << "New seg: " << std::endl;  //<< seg;
 
-        // reserve enough space for hits
-        std::vector<FitData> data;
-        data.reserve(100);
-        result.dcs().reserve(100);
-
         unsigned int N = dcs.size();
 
         if (N < 2) { return false; }
@@ -34,28 +29,19 @@ namespace TrkDriftCircleMath {
             }
         }
 
-        double S(0), Sz(0), Sy(0);
-        double Zc(0), Yc(0);
-        data.resize(N);
+        double S{0}, Sz{0}, Sy{0};
+        double Zc{0}, Yc{0};
+         // reserve enough space for hits
+        std::vector<FitData> data;      
+        data.reserve(N);
         {
-            int ii(0);
-
-            DCOnTrackVec::const_iterator it = dcs.begin();
-            DCOnTrackVec::const_iterator it_end = dcs.end();
-            for (; it != it_end; ++it) {
-                FitData& datum = data[ii];
-                datum.y = it->y();
-                datum.z = it->x();
-                datum.r = std::abs(it->r());
-                if (it->dr() > 0.)
-                    datum.w = 1. / (it->dr());
-                else
-                    datum.w = 0.;
-                datum.w *= datum.w;
-                if (datum.r < 0) {
-                    datum.r = 0.;
-                    if (m_debug) std::cout << "DCSLFitter ERROR: <Negative r> " << datum.r << std::endl;
-                }
+            unsigned int ii=0;
+            for (const DCOnTrack& it : dcs) {
+                FitData datum{};
+                datum.y = it.y();
+                datum.z = it.x();
+                datum.r = std::abs(it.r());
+                datum.w = std::pow(it.dr() > 0. ? 1./  it.dr() : 0.,2);
                 if (m_debug)
                     std::cout << "DC:  (" << datum.y << "," << datum.z << ")  R = " << datum.r << " W " << datum.w << " sel "
                               << selection[ii] << std::endl;
@@ -65,6 +51,7 @@ namespace TrkDriftCircleMath {
                     Sz += datum.w * datum.z;
                     Sy += datum.w * datum.y;
                 }
+                data.push_back(std::move(datum));
                 ++ii;
             }
         }
@@ -77,7 +64,7 @@ namespace TrkDriftCircleMath {
         //
         Sy = 0;
         Sz = 0;
-        double Szz(0), Syy(0), Szy(0), Syyzz(0);
+        double Szz{0}, Syy{0}, Szy{0}, Syyzz{0};
 
         for (unsigned int i = 0; i < N; ++i) {
             FitData& datum = data[i];
@@ -132,10 +119,7 @@ namespace TrkDriftCircleMath {
 
         while (count < 100) {
             if (m_debug) std::cout << "____________NEW ITERATION________________" << count << std::endl;
-            R = 0;
-            Ry = 0;
-            Rz = 0;
-
+            R = Ry = Rz = 0;
             double chi2(0);
 
             for (unsigned int i = 0; i < N; ++i) {
@@ -202,14 +186,8 @@ namespace TrkDriftCircleMath {
             }
             ++count;
         }
-
-        if (count >= 100) {
-            if (data.capacity() > 100) {
-                result.dcs().reserve(100);
-                data.reserve(100);
-            }
-            return false;
-        }
+        // Fit did not converge
+        if (count >= 100) { return false; }
         if (m_debug) std::cout << "Calculating chi2" << std::endl;
 
         double yl{0}, chi2{0};
@@ -253,11 +231,6 @@ namespace TrkDriftCircleMath {
             std::cout << "Fit complete: Chi2 tof " << chi2 / (nhits - 2) << " " << !(chi2 / (nhits - 2) > 5) << std::endl;
             if (chi2 / (nhits - 2) > 5) { std::cout << "_______NOT GOOD " << std::endl; }
             std::cout << "fit done " << result << std::endl;
-        }
-
-        if (data.capacity() > 100) {
-            result.dcs().reserve(100);
-            data.reserve(100);
         }
         return true;
     }

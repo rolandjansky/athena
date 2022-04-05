@@ -107,10 +107,6 @@ namespace Muon {
         int eta = m_idHelperSvc->mdtIdHelper().stationEta(m_chid);
         int phi = m_idHelperSvc->mdtIdHelper().stationPhi(m_chid);
         int name = m_idHelperSvc->mdtIdHelper().stationName(m_chid);
-        int isBarrel = m_idHelperSvc->mdtIdHelper().isBarrel(m_chid);
-        int isSmallMdt = m_idHelperSvc->issMdt(m_chid);
-        TrkDriftCircleMath::MdtStationId stationId(isSmallMdt, isBarrel, name, eta, phi);
-
         // get detEL for first ml (always there)
         Identifier firstIdml0 = m_idHelperSvc->mdtIdHelper().channelID(name, eta, phi, 1, 1, 1);
         Identifier firstIdml1;
@@ -189,7 +185,7 @@ namespace Muon {
         double layDist = (firstTubeMl0lay1 - firstTubeMl0).z();    // distance between layers
 
         m_mdtGeometry = std::make_unique<TrkDriftCircleMath::MdtChamberGeometry>(
-            stationId, nml, nlay, ntube0, ntube1, firstTube0, firstTube1, tubeDist, tubeStage, layDist, m_detElMl0->center().theta());
+            m_chid, m_idHelperSvc, nml, nlay, ntube0, ntube1, firstTube0, firstTube1, tubeDist, tubeStage, layDist, m_detElMl0->center().theta());
 
         // finally if the first ml is dead, configure the MdtChamberGeometry accordingly
         if (!goodMl0 && goodMl1) m_mdtGeometry->isSecondMultiLayer(true);
