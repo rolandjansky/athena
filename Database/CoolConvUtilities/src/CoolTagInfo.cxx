@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // CoolTagInfo.cxx - implementation of AtlCoolCopy helper class
@@ -13,9 +13,10 @@
 CoolTagInfo::CoolTagInfo(const cool::IDatabasePtr& db,const std::string& folder,
 			 const std::string& destfolder,
 		     const std::string& sourcetag,const std::string& desttag,
-			 const std::string& taglabel) {
-  m_folder=destfolder;
-  m_tag=desttag;
+			 const std::string& taglabel)
+  : m_folder (destfolder),
+    m_tag (desttag)
+{
   if (db->existsFolder(folder)) {
     cool::IFolderPtr fptr=db->getFolder(folder);
     m_desc=fptr->tagDescription(sourcetag);
