@@ -17,7 +17,6 @@
 #include "TrkParticleBase/TrackParticleBase.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkTrackSummary/InDetTrackSummary.h"
-#include "TrkFitterUtils/ProtoTrackStateOnSurface.h"
 //Truth
 #include "TrkTruthData/TrackTruth.h"
 #include "AtlasHepMC/GenParticle.h"
@@ -141,20 +140,6 @@ StatusCode Trk::TrackSummaryNtupleTool::fillTrackParticleData
   const Trk::TrackSummary* summary = particle.trackSummary();
   if((!summary) || fillTrackSummary(summary).isFailure())
     ATH_MSG_WARNING ("Summary could not be written to ntuple");
-  return StatusCode::SUCCESS;
-}
-
-//////////////////////////////////////
-// fill ntuple data of a given proto-trajectory (function used for fitter validation)
-//////////////////////////////////////
-StatusCode Trk::TrackSummaryNtupleTool::fillProtoTrajectoryData 
-(  const Trk::ProtoTrajectory&,
-   const int,
-   const Trk::Perigee*,
-   const unsigned int ) const
-   //const Trk::FitterStatusCode) const
-{
-  ATH_MSG_WARNING ("this method has no function");
   return StatusCode::SUCCESS;
 }
 

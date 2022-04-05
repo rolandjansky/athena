@@ -58,13 +58,6 @@ public:
                                             const TrackTruth&,
                                             const int) const;
 
-    /** fill ntuple data of a given proto-trajectory (function used for fitter validation) */
-    virtual StatusCode fillProtoTrajectoryData (
-        const Trk::ProtoTrajectory&,
-        const int iterationIndex,
-        const Trk::Perigee*,
-        const unsigned int fitStatCode ) const;
-
     /** reset the variables after writing the record to disk ntuple */
     virtual void resetVariables( ) const;
 

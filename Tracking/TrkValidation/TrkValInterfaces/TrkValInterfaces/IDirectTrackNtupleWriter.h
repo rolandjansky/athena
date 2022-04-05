@@ -28,10 +28,7 @@ static const InterfaceID IID_IDirectTrackNtupleWriter("IDirectTrackNtupleWriter"
 
 class TrackParticleBase;
 class Track;
-class ProtoTrackStateOnSurface; //!< measurement base
 
-    /** trajectory of Trk::ProtoTrackStateOnSurface as used internally by the Trk::KalmanFitter and Trk::DeterministicAnnealingFilter */
-    typedef std::vector<Trk::ProtoTrackStateOnSurface> ProtoTrajectory;
 
 /** @class IDirectTrackNtupleWriter
     @brief Interface to set up and write a TrkValidation ntuple so that it can be
@@ -61,12 +58,6 @@ public:
     virtual StatusCode writeTrackParticleData (
         const Trk::TrackParticleBase& ) const = 0;
     
-    /** fill AND write ntuple data of a given proto-trajectory (function used for fitter validation) */
-    virtual StatusCode writeProtoTrajectoryData (
-        const Trk::ProtoTrajectory&,
-        const int iterationIndex,
-        const Trk::Perigee* = 0,
-        const unsigned int fitStatCode = 0) const = 0;
 };
 
 inline const InterfaceID& Trk::IDirectTrackNtupleWriter::interfaceID() {
