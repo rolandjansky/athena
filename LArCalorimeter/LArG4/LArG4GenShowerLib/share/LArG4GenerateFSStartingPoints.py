@@ -16,6 +16,7 @@ parser.add_option("--etaMax",     dest="etaMax",      default='3.3',            
 parser.add_option("--energyMin",  dest="energyMin",   default='20000',                    help="particle gun: particle Minimum energy (default: %default MeV)")
 parser.add_option("--energyMax",  dest="energyMax",   default='50000',                    help="particle gun: Maximum energy (default: %default MeV)")
 parser.add_option("--pid",        dest="pid",         default='11',                       help="particle gun: particle type (11=electron, 13=muon, 111=pi0 211=pi+, .., default: %default)")
+parser.add_option("--skipevents",  dest="skipevents",  default=0,              type=int,   help="select the number of events to skip (default: 0)")
 parser.add_option("--nevents",    dest="nevents",     default=5000,           type=int,   help="number of events to process (default: %default)")
 parser.add_option("--spratio",    dest="spratio",     default=0.02,           type=float, help="the ratio of starting points to be saved (default: %default)")
 (options, args) = parser.parse_args()

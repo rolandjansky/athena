@@ -22,7 +22,6 @@ globalflags.ConditionsTag = options['condition']
 from G4AtlasApps.SimFlags import simFlags
 simFlags.load_atlas_flags()
 simFlags.CalibrationRun.set_Off()
-simFlags.EventFilter.set_off()
 
 ## Layout tags: see simFlags.SimLayout for allowed values
 ## Use the default layout:
@@ -63,6 +62,7 @@ simFlags.OptionalUserActionList.addAction('G4UA::TestActionShowerLibTool')
 
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
+topSeq.G4AtlasAlg.InputTruthCollection = "GEN_EVENT"
 
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("LArG4GenShowerLib")
