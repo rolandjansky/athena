@@ -42,8 +42,6 @@ def TriggerRecoCfg(flags):
             from TrigNavSlimmingMT.TrigNavSlimmingMTConfig import TrigNavSlimmingMTCfg
             acc.merge(TrigNavSlimmingMTCfg(flags))
     elif flags.Trigger.EDMVersion in [1, 2]:
-        if flags.Trigger.EDMVersion == 1:
-            acc.merge(Run1xAODConversionCfg(flags))
         acc.merge( Run1Run2BSExtractionCfg(flags) )
         from AnalysisTriggerAlgs.AnalysisTriggerAlgsCAConfig import RoIBResultToxAODCfg
         xRoIBResultAcc, _ = RoIBResultToxAODCfg(flags)
@@ -155,6 +153,10 @@ def Run1Run2BSExtractionCfg( flags ):
     acc = ComponentAccumulator()
     extr = CompFactory.TrigBSExtraction()
 
+    # Run-1: add xAOD conversion tool
+    if flags.Trigger.EDMVersion == 1:
+        extr.BStoxAOD = acc.popToolsAndMerge( Run1xAODConversionCfg(flags) )
+
     # Add fictional output to ensure data dependency in AthenaMT
     # Keeping the run 2 workflow, we run this after we have put the full serialised navigation into xAOD
     extr.ExtraInputs += [("xAOD::TrigNavigation", "StoreGateSvc+TrigNavigation")]
@@ -218,12 +220,9 @@ def Run1xAODConversionCfg(flags):
     acc = ComponentAccumulator()
 
     log.info("Will configure Run 1 trigger EDM to xAOD conversion")
-    from TrigEDMConfig.TriggerEDM import getPreregistrationList, getTriggerEDMList
+    from TrigEDMConfig.TriggerEDM import getTriggerEDMList
     from TrigEDMConfig.TriggerEDM import getEFRun1BSList,getEFRun2EquivalentList,getL2Run1BSList,getL2Run2EquivalentList
 
-    navTool = CompFactory.HLT.Navigation("Navigation",
-                                         ClassesToPreregister = getPreregistrationList(flags.Trigger.EDMVersion) )
-    
     from InDetConfig.TrackRecoConfig import TrackCollectionCnvToolCfg,TrackParticleCreatorToolCfg,RecTrackParticleContainerCnvToolCfg
     partCreatorTool = acc.getPrimaryAndMerge( TrackParticleCreatorToolCfg(flags, 
                                                                           #name="InDetxAODParticleCreatorTool"
@@ -247,13 +246,7 @@ def Run1xAODConversionCfg(flags):
                                                 TrackCollectionCnvTool = trackCollCnvTool,
                                                 TrackParticleContainerCnvTool = recPartCnvTool
                                                 )
-
-    xaodConverter = CompFactory.TrigHLTtoxAODConversion( ExtraInputs = [("TrigBSExtractionOutput", "StoreGateSvc+TrigBSExtractionOutput")] if flags.Trigger.readBS else [],
-                                                         Navigation = navTool,
-                                                         BStoxAOD = bstoxaodTool,
-                                                         HLTResultKey="HLTResult_EF")
-
-    acc.addEventAlgo(xaodConverter)
+    acc.setPrivateTools(bstoxaodTool)
 
     # write the xAOD (Run-2) classes to the output
     acc.merge(addToESD(flags, _asList(getTriggerEDMList(flags.Trigger.ESDEDMSet, runVersion=2))))
