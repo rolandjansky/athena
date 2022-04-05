@@ -58,7 +58,7 @@ AsgElectronEfficiencyCorrectionTool::AsgElectronEfficiencyCorrectionTool(std::st
         // Declare the needed properties
         declareProperty("CorrectionFileNameList", m_corrFileNameList,
                 "List of file names that store the correction factors for simulation.");
-        declareProperty("MapFilePath", m_mapFile = "ElectronEfficiencyCorrection/2015_2018/rel21.2/Precision_Summer2020_v1/map1.txt" ,
+        declareProperty("MapFilePath", m_mapFile = "ElectronEfficiencyCorrection/2015_2018/rel21.2/Precision_Summer2020_v1/map2.txt" ,
                 "Full path to the map file");
         declareProperty("RecoKey", m_recoKey = "" ,
                 "Key associated with reconstruction");
