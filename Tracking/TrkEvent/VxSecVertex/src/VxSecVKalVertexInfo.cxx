@@ -104,18 +104,7 @@ namespace Trk {
     
   }
 
-  VxSecVKalVertexInfo::VxSecVKalVertexInfo(const VxSecVKalVertexInfo & rhs):
-    VxSecVertexInfo(rhs),
-    m_mass(rhs.m_mass),
-    m_energyFraction(rhs.m_energyFraction),
-    m_energyTrkInJet(rhs.m_energyTrkInJet),
-    m_dstToMatLayer(rhs.m_dstToMatLayer),
-    m_n2trackvertices(rhs.m_n2trackvertices),
-    m_nBigImpTracks(rhs.m_nBigImpTracks),
-    m_badTracksTP(rhs.m_badTracksTP),
-    m_badTracksIP(rhs.m_badTracksIP),
-    m_pseudoVertex(rhs.m_pseudoVertex)
-  {}
+  VxSecVKalVertexInfo::VxSecVKalVertexInfo(const VxSecVKalVertexInfo & rhs) = default;
 
   VxSecVKalVertexInfo & VxSecVKalVertexInfo::operator= (const VxSecVKalVertexInfo & rhs) {
     

@@ -12,7 +12,7 @@ Trk::MuonTrackSummary::MuonTrackSummary()
   , m_npseudoMeasurements(0)
 {}
 
-Trk::MuonTrackSummary::~MuonTrackSummary() {}
+Trk::MuonTrackSummary::~MuonTrackSummary() = default;
 
 unsigned int
 Trk::MuonTrackSummary::netaHits() const

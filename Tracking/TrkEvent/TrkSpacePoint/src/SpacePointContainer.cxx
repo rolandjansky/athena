@@ -26,9 +26,6 @@ SpacePointContainer::SpacePointContainer(SpacePointCache *cache) :
 }
 
 // Destructor:
-SpacePointContainer::~SpacePointContainer()
-{
-
-}
+SpacePointContainer::~SpacePointContainer() = default;
 
 

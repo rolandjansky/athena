@@ -42,12 +42,7 @@ namespace Trk {
     m_fitQuality(Trk::FitQuality(0.,0.)),
     m_compatibilityToPrimaryVtx(-1) {}
   
-  VxVertexOnJetAxis::VxVertexOnJetAxis(const VxVertexOnJetAxis& rhs):
-    m_tracksAtVertex(rhs.m_tracksAtVertex),
-    m_numVertex(rhs.m_numVertex),
-    m_fitQuality(rhs.m_fitQuality),
-    m_compatibilityToPrimaryVtx(rhs.m_compatibilityToPrimaryVtx)
-  { }
+  VxVertexOnJetAxis::VxVertexOnJetAxis(const VxVertexOnJetAxis& rhs) = default;
   
   VxVertexOnJetAxis &VxVertexOnJetAxis::operator= (const VxVertexOnJetAxis& rhs)
   {
@@ -72,7 +67,7 @@ namespace Trk {
     return sl;
   }
 
-  VxVertexOnJetAxis::~VxVertexOnJetAxis() {}
+  VxVertexOnJetAxis::~VxVertexOnJetAxis() = default;
 
   const Trk::FitQuality& VxVertexOnJetAxis::fitQuality() const {
     return m_fitQuality;
