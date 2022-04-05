@@ -304,6 +304,8 @@ class transform(object):
                 extraParameters.update(updateDict)
                 
             # Process anything we found
+            # List of command line arguments
+            argsList = [ i.split("=", 1)[0].lstrip('-') for i in args if i.startswith('-')]
             for k,v in extraParameters.items():
                 msg.debug('Found this extra argument: {0} with value: {1} ({2})'.format(k, v, type(v)))
                 if k not in self.parser._argClass and k not in self.parser._argAlias:
@@ -312,8 +314,8 @@ class transform(object):
                 if k in self.parser._argAlias:
                     msg.debug('Resolving alias from {0} to {1}'.format(k, self.parser._argAlias[k]))
                     k = self.parser._argAlias[k]
-                # Check if argument has already been set
-                if k in self._argdict:
+                # Check if argument has already been set on the command line
+                if k in argsList:
                     msg.debug('Ignored {0}={1} as extra parameter because this argument was given on the command line.'.format(k, v))
                     continue
                 # For callable classes we instantiate properly, otherwise we set the value for simple arguments
