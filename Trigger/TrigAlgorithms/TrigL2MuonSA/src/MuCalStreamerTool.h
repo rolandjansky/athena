@@ -81,6 +81,8 @@ namespace TrigL2MuonSA {
     //
     // finalize and close the stream
     StatusCode closeStream();
+
+    bool isStreamOpen();
     
     //
     // create the fragment corresponding to an roi
