@@ -46,9 +46,9 @@ class TrigLArNoiseBurstAlg : public ::HypoBase {
   long int m_timeTagPosToClear;
   long int m_publishTime;
   std::string m_name_of_is;
-  size_t   m_evntPos;
-  size_t   m_timeTagPos;
-  size_t   m_timeTagPosns;
+  size_t   m_evntPos = 0UL;
+  size_t   m_timeTagPos = 0UL;
+  size_t   m_timeTagPosns = 0UL;
   mutable long int m_timeTagPosRec ATLAS_THREAD_SAFE;
 }; 
 #endif
