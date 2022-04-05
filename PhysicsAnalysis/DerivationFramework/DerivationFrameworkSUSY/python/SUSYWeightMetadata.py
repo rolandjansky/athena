@@ -1,5 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 def addSUSYWeights(seq, pref = ""):
 
@@ -31,4 +30,4 @@ def addSUSYWeights(seq, pref = ""):
     
   sumOfWeightsAlg.WeightTools = listTools
   seq += sumOfWeightsAlg
-  
+
