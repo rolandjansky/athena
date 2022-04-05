@@ -6,6 +6,9 @@ topSequence = AlgSequence()
 
 ## AthenaCommon flags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+
+i = options['outevents']
+
 athenaCommonFlags.EvtMax = i
 athenaCommonFlags.PoolHitsOutput.set_Off()
 
@@ -14,11 +17,10 @@ theApp.EvtMax = i
 
 import AthenaCommon.AtlasUnixGeneratorJob
 
-from ReadEventFromFile.ReadEventFromFileConf import ReadHepMcFromAscii
-read = ReadHepMcFromAscii()
-read.AsciiFile = options['outfile']
+from TruthIO.TruthIOConf import HepMCReadFromFile
+read = HepMCReadFromFile()
+read.InputFile = options['outfile']
 topSequence += read
-
 
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 outStream = AthenaPoolOutputStream("OutStream")

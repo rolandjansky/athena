@@ -42,6 +42,10 @@ LArFastShower::LArFastShower(const std::string& name, const FastShowerConfigStru
   m_starting_points_file(),
   m_eventNum(0)
 {
+  m_generate_starting_points = (!m_configuration.m_generated_starting_points_file.empty());
+  if (m_generate_starting_points) {
+    m_starting_points_file  =  std::shared_ptr<HepMC::IO_GenEvent> ( new HepMC::IO_GenEvent(m_configuration.m_generated_starting_points_file.c_str(),std::ios::out));
+  }
   enum DETECTOR { EMB=100000, EMEC=200000, FCAL1=300000, FCAL2=400000,
                   FCAL3=500000, HECLOC=600000, HEC=700000 };
 

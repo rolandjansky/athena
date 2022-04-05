@@ -8,6 +8,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 
 #include "TH1F.h"
 
@@ -27,6 +28,12 @@ private:
 	, "CaloDetDescrManager"
 	, "CaloDetDescrManager"
 	, "SG Key for CaloDetDescrManager in the Condition Store" };
+
+  // Read handle for conditions object to get the field cache
+  SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this
+      , "AtlasFieldCacheCondObj"
+      , "fieldCondObj"
+      , "Name of the Magnetic Field conditions object key"};
 
     class Clockwork;
     Clockwork *m_c;
