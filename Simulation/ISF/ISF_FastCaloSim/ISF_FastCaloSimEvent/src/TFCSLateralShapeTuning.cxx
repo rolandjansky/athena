@@ -3,66 +3,74 @@
 */
 
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeTuning.h"
-
-//temporary includes
-#include <iostream>
-#include <fstream>
-
-#include <TFile.h>
-#include <TH1D.h>
-
-#include <TGraph.h>
-
 #include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
 
 //=============================================
 //======= TFCSLateralShapeTuning ==============
 //=============================================
 
-TFCSLateralShapeTuning::TFCSLateralShapeTuning(const char* name, const char* title, const std::string& pathToModelParameters, int intMinEta, int intMaxEta, int layer) : TFCSLateralShapeParametrizationHitBase(name, title), m_layer(layer)
+TFCSLateralShapeTuning::TFCSLateralShapeTuning(const char* name, const char* title) : TFCSLateralShapeParametrizationHitBase(name, title)
 {
-  
+}
+
+TFCSLateralShapeTuning::~TFCSLateralShapeTuning()
+{
+  //clear parameter interpolation map and free memory
+  for(std::map<std::string, TFCSEnergyInterpolationPiecewiseLinear*>::iterator itr = m_parameterInterpol.begin(); itr != m_parameterInterpol.end(); itr++) delete (itr->second);  
+  m_parameterInterpol.clear();
+}
+
+FCSReturnCode TFCSLateralShapeTuning::initFromModelFile(const std::string& pathToModelParameters, int intMinEta, int intMaxEta)
+{
+  //get current calo layer
+  int layer = TFCSLateralShapeParametrization::calosample();
+
+  //load file containing model parameters
   std::unique_ptr<TFile> modelParametersFile = std::unique_ptr<TFile>(TFile::Open(pathToModelParameters.c_str(), "READ"));
   modelParametersFile -> cd();
-  
+
+  //set parameter model names depending on layer
   std::vector<std::string> parameterModelNames;
-  
-  if (m_layer == 1 || m_layer == 5) parameterModelNames = {"a0", "a1", "a2", "a3"};
-  else if (m_layer == 2 || m_layer == 6) parameterModelNames = {"eta_s", "phi_s"};
+  if (layer == 1 || layer == 5) parameterModelNames = {"a0", "a1", "a2", "a3"};
+  else if (layer == 2 || layer == 6) parameterModelNames = {"eta_s", "phi_s"};
 
   for (auto &parameterName: parameterModelNames) {
 
     //interpolate the model parameters
     TFCSEnergyInterpolationPiecewiseLinear * linModelInterpol = new TFCSEnergyInterpolationPiecewiseLinear("", "");
 
-    TGraph * modelParameterGraph = (TGraph*)gDirectory->Get(Form("photons/layer%d/m%d_m%d_%d_%d/%s", m_layer, 
+    TGraph * modelParameterGraph = (TGraph*)gDirectory->Get(Form("photons/layer%d/m%d_m%d_%d_%d/%s", layer, 
                                                                                                      intMaxEta, intMinEta, 
                                                                                                      intMinEta, intMaxEta, 
                                                                                                      parameterName.c_str()));
     if(modelParameterGraph){
+      // initialize the model interpolation and save in interpolation map
       linModelInterpol -> InitFromArrayInEkin(modelParameterGraph->GetN(), modelParameterGraph->GetX(), modelParameterGraph->GetY());
       m_parameterInterpol.insert(std::make_pair(parameterName, linModelInterpol));
     }
     else{
-      ATH_MSG_DEBUG("[TFCSLateralShapeTuning] Could not find model parameter graph for layer="<<m_layer<<" minEta="<<intMinEta<<" maxEta="<<intMaxEta);
-      return;
+      ATH_MSG_DEBUG("[TFCSLateralShapeTuning] Could not find model parameter graph for layer="<<layer<<" minEta="<<intMinEta<<" maxEta="<<intMaxEta);
+      return FCSSuccess;
     }
   
   }
   modelParametersFile -> Close();
 
+  return FCSSuccess;
+
 }
 
-TFCSLateralShapeTuning::~TFCSLateralShapeTuning()
+FCSReturnCode TFCSLateralShapeTuning::initFromMap(const interpolationMap& interpolationMap)
 {
-  //clear parameter intpolation map and free memory
-  for(std::map<std::string, TFCSEnergyInterpolationPiecewiseLinear*>::iterator itr = m_parameterInterpol.begin(); itr != m_parameterInterpol.end(); itr++) delete (itr->second);  
-  m_parameterInterpol.clear();
+  ATH_MSG_DEBUG("[TFCSLateralShapeTuning] Initializing data tuning model from interpolation map.");
+  m_parameterInterpol = interpolationMap;
+  return FCSSuccess;
 }
+
 
 FCSReturnCode TFCSLateralShapeTuning::simulate_hit(Hit &hit, TFCSSimulationState &, const TFCSTruthState* truth, const TFCSExtrapolationState*)
 {
-  
+    
     // do not do anything if the parameter interpolation map is empty
     // this means we are in an pseudorapidity region, where no tuning to data is available
     if(m_parameterInterpol.size() == 0) return FCSSuccess;
@@ -80,9 +88,11 @@ FCSReturnCode TFCSLateralShapeTuning::simulate_hit(Hit &hit, TFCSSimulationState
     const double centerZ   = hit.center_z();
     //retrieve truth kinetic energy for interpolation
     const float Ekin = truth->Ekin();
+    //retrieve calo sample
+    int layer = TFCSLateralShapeParametrization::calosample();
+    
 
-
-    ATH_MSG_DEBUG("[TFCSLateralShapeTuning] Initializing with pdgId=" << pdgId << ", charge=" << charge<< ", caloSample=" << m_layer);
+    ATH_MSG_DEBUG("[TFCSLateralShapeTuning] Initializing with pdgId=" << pdgId << ", charge=" << charge<< ", Ekin="<<Ekin<<", caloSample=" << layer);
 
 
     ATH_MSG_DEBUG("[TFCSLateralShapeTuning] Got hit position: " <<" hit.eta="    <<hit.eta()
@@ -94,14 +104,16 @@ FCSReturnCode TFCSLateralShapeTuning::simulate_hit(Hit &hit, TFCSSimulationState
     const double deltaEta    = hit.eta() - centerEta;
     const double deltaPhi    = hit.phi() - centerPhi;
 
-    if(m_layer == 2 || m_layer == 6){
+    if(layer == 2 || layer == 6){
 
         double etaScaleFactor = m_parameterInterpol["eta_s"]->evaluate(Ekin);
         double phiScaleFactor = m_parameterInterpol["phi_s"]->evaluate(Ekin);
 
         // add a maximum scaling threshold to prevent unreasonable scalings
         etaScaleFactor = std::abs(etaScaleFactor) < maxScaling ? etaScaleFactor : maxScaling;
-        etaScaleFactor = std::abs(phiScaleFactor) < maxScaling ? phiScaleFactor : maxScaling;
+        phiScaleFactor = std::abs(phiScaleFactor) < maxScaling ? phiScaleFactor : maxScaling;
+
+        ATH_MSG_DEBUG("[TFCSLateralShapeTuning] Applying 2D eta_s - eta_phi scaling model with eta_s=" << etaScaleFactor << " and phi_s=" << phiScaleFactor);
 
         double deltaEtaCorr = etaScaleFactor*deltaEta;
         double deltaPhiCorr = phiScaleFactor*deltaPhi;
@@ -110,7 +122,8 @@ FCSReturnCode TFCSLateralShapeTuning::simulate_hit(Hit &hit, TFCSSimulationState
 
     } 
 
-    else if(m_layer == 1 || m_layer == 5){
+    else if(layer == 1 || layer == 5){
+
 
         double etaScaleFactor = getSeriesScalingFactor( m_parameterInterpol["a0"]->evaluate(Ekin), 
                                                         m_parameterInterpol["a1"]->evaluate(Ekin), 
@@ -122,6 +135,8 @@ FCSReturnCode TFCSLateralShapeTuning::simulate_hit(Hit &hit, TFCSSimulationState
         
         // add a maximum scaling threshold to prevent unreasonable scalings
         etaScaleFactor = std::abs(etaScaleFactor) < maxScaling ? etaScaleFactor : maxScaling;
+
+        ATH_MSG_DEBUG("[TFCSLateralShapeTuning] Applying eta_s series expansion model with eta_s=" << etaScaleFactor);
 
         double deltaEtaCorr = etaScaleFactor*deltaEta;
 
