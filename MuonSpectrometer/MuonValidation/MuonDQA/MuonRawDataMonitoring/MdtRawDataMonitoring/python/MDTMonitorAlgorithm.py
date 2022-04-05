@@ -414,10 +414,10 @@ def MdtMonitoringConfig(inputFlags):
                         maxy=95
                     if(iregion=="EA" or iregion=="EC"):
                         maxy=80
-                
-            
-            mdtRegionGroup.defineHistogram(var, title=titleOccvsLbPerRegionPerLayer+";LB;[Eta - Phi]", type='TH2F',
-                                           path='Overview', xbins=834, xmin=1, xmax=2502, ybins=maxy, ymin=0, ymax=maxy, ylabels=labelsY, opt='kAddBinsDynamically')
+
+            if ilayer != 'Extra':
+                mdtRegionGroup.defineHistogram(var, title=titleOccvsLbPerRegionPerLayer+";LB;[Eta - Phi]", type='TH2F',
+                                               path='Overview', xbins=834, xmin=1, xmax=2502, ybins=maxy, ymin=0, ymax=maxy, ylabels=labelsY, opt='kAddBinsDynamically')
 
         for icrate in crates:
             maxy=122
