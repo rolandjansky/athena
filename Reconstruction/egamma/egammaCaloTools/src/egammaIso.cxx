@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "egammaIso.h"
@@ -23,8 +23,7 @@ egammaIso::egammaIso(const std::string& type,
         declareInterface<IegammaIso>(this);
     }
 
-egammaIso::~egammaIso(){ 
-}
+egammaIso::~egammaIso()= default;
 
 StatusCode egammaIso::initialize(){
     ATH_MSG_DEBUG(" Initializing egammaIso");

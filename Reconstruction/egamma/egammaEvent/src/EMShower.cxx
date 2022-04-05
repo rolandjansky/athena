@@ -64,7 +64,7 @@ EMShower::EMShower()
 // Destructor
 // --------------------------
 EMShower::~EMShower()
-{ }
+= default;
 
 /// interface methods
 const std::string EMShower::s_className = ClassName<EMShower>::name();
