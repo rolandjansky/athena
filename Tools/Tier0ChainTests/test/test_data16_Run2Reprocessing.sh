@@ -38,7 +38,7 @@ echo  "art-result: ${rc2} Comparison with the latest result"
 rc3=-9999
 if [ ${rc1} -eq 0 ]
 then
-  art.py compare ref . /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/TCT_Run2Reprocessing_references_for_comparison/test_data16_2021-12-30T2101 --entries 30 --mode=semi-detailed --order-trees --ignore-exit-code diff-pool --ignore-leave '(.*)HLTResult_p1_HLTResult_HLT(.*)' --ignore-leave 'TrigNavigationAux(.*)'
+  art.py compare ref . /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/TCT_Run2Reprocessing_references_for_comparison/test_data16_2022-03-22T2101 --entries 30 --mode=semi-detailed --order-trees --ignore-exit-code diff-pool --ignore-leave '(.*)HLTResult_p1_HLTResult_HLT(.*)' --ignore-leave 'TrigNavigationAux(.*)'
   rc3=$?
 fi
 echo  "art-result: ${rc3} Comparison with fixed reference"
