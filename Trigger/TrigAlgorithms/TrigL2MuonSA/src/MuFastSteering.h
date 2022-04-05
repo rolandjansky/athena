@@ -62,7 +62,7 @@ class MuFastSteering : public AthReentrantAlgorithm , public IIncidentListener
   MuFastSteering(const std::string& name, ISvcLocator* svc);
 
   virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override;
+  virtual StatusCode stop() override;
 
   /** execute(), main code of the algorithm for AthenaMT*/
   virtual StatusCode execute(const EventContext& ctx) const override;
