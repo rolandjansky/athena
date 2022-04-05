@@ -11,23 +11,15 @@ def getSCT_ConfigurationConditionsTool() :
     if (conddb.dbdata == "COMP200"):
         SCTConfigurationFolderPath='/SCT/DAQ/Configuration/'
     #...but now check if we want to override that decision with explicit flag (if there is one)
-    try:
-        if InDetFlags.ForceCoraCool():
-            SCTConfigurationFolderPath='/SCT/DAQ/Configuration/'
-    except:
-        pass
+    if InDetFlags.ForceCoraCool():
+        SCTConfigurationFolderPath='/SCT/DAQ/Configuration/'
 
-    try:
-        if InDetFlags.ForceCoolVectorPayload():
-            SCTConfigurationFolderPath='/SCT/DAQ/Config/'
-    except:
-        pass
-    try:
-        if (InDetFlags.ForceCoolVectorPayload() and InDetFlags.ForceCoraCool()):
-            print ('*** SCT DB CONFIGURATION FLAG CONFLICT: Both CVP and CoraCool selected****')
-            SCTConfigurationFolderPath=''
-    except:
-        pass
+    if InDetFlags.ForceCoolVectorPayload():
+        SCTConfigurationFolderPath='/SCT/DAQ/Config/'
+
+    if (InDetFlags.ForceCoolVectorPayload() and InDetFlags.ForceCoraCool()):
+        raise Exception('*** SCT DB CONFIGURATION FLAG CONFLICT: Both CVP and CoraCool selected****')
+
     from SCT_ConditionsTools.SCT_ConfigurationConditionsToolSetup import SCT_ConfigurationConditionsToolSetup
     sct_ConfigurationConditionsToolSetup = SCT_ConfigurationConditionsToolSetup()
     if SCTConfigurationFolderPath=='/SCT/DAQ/Configuration/':
