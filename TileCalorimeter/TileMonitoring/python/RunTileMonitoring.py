@@ -5,53 +5,9 @@
 '''@file RunTileMonitoring.py
 @brief Script to run Tile Reconstrcution/Monitoring with new-style configuration
 '''
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType, Format
-
-
-def ByteStreamEmonReadCfg( inputFlags, type_names=[]):
-    """
-    Creates accumulator for BS Emon reading
-    """
-
-    acc = ComponentAccumulator()
-
-    EventSelectorByteStream = CompFactory.EventSelectorByteStream
-    eventSelector = EventSelectorByteStream("EventSelector")
-    eventSelector.FileBased = False
-    acc.addService( eventSelector )
-    acc.setAppProperty( "EvtSel", eventSelector.name )
-
-    ByteStreamEmonInputSvc = CompFactory.ByteStreamEmonInputSvc
-    bsInputSvc = ByteStreamEmonInputSvc( "ByteStreamInputSvc" )
-    acc.addService( bsInputSvc )
-
-    EvtPersistencySvc = CompFactory.EvtPersistencySvc
-    eventPersistencySvc = EvtPersistencySvc( "EventPersistencySvc" )
-    acc.addService( eventPersistencySvc )
-
-    ByteStreamCnvSvc = CompFactory.ByteStreamCnvSvc
-    bsCnvSvc = ByteStreamCnvSvc()
-    eventSelector.ByteStreamInputSvc = bsInputSvc.name
-    eventPersistencySvc.CnvServices = [ bsCnvSvc.name ]
-    acc.addService( bsCnvSvc )
-
-    ROBDataProviderSvc=CompFactory.ROBDataProviderSvc
-    robDPSvc = ROBDataProviderSvc()
-    acc.addService( robDPSvc )
-
-    ByteStreamAddressProviderSvc = CompFactory.ByteStreamAddressProviderSvc
-    bsAddressProviderSvc = ByteStreamAddressProviderSvc(TypeNames=type_names)
-    acc.addService( bsAddressProviderSvc )
-
-    ProxyProviderSvc = CompFactory.ProxyProviderSvc
-    proxy = ProxyProviderSvc()
-    proxy.ProviderNames += [ bsAddressProviderSvc.name ]
-    acc.addService( proxy )
-
-    return acc
-
 
 
 def _configFlagsFromPartition(flags, partition, log):
@@ -87,8 +43,10 @@ def _configFlagsFromPartition(flags, partition, log):
             beamType = 'cosmics'
         elif projectName.endswith('1beam'):
             beamType = 'singlebeam'
-        else:
+        elif beamEnergy > 0:
             beamType = 'collisions'
+        else:
+           beamType = 'cosmics'
 
         if partition == 'Tile':
             ConfigFlags.Tile.NoiseFilter = 0
@@ -148,6 +106,7 @@ if __name__=='__main__':
     parser.add_argument('--publishName', default='TilePT-stateless-10', help='EMON, Name under which to publish histograms')
     parser.add_argument('--include', default="", help='EMON, Regular expression to select histograms to publish')
     parser.add_argument('--lvl1Items', default=[], help='EMON, A list of L1 bit numbers, default []')
+    parser.add_argument('--lvl1Names', default=[], help='EMON, A list of L1 bit names, default []')
     parser.add_argument('--lvl1Logic', default='Ignore', choices=['And','Or','Ignore'], help='EMON, default: Ignore')
     parser.add_argument('--lvl1Origin', default='TAV', choices=['TBP','TAP','TAV'], help='EMON, default: TAV')
     parser.add_argument('--streamType', default='physics', help='EMON, HLT stream type (e.g. physics or calibration)')
@@ -155,6 +114,8 @@ if __name__=='__main__':
     parser.add_argument('--streamLogic', default='Or', choices=['And','Or','Ignore'], help='EMON, default: Or')
     parser.add_argument('--triggerType', type=int, default=256, help='EMON, LVL1 8 bit trigger type, default: 256')
     parser.add_argument('--groupName', default="TilePhysMon", help='EMON, Name of the monitoring group')
+    parser.add_argument('--postProcessingInterval', type=int, default=10000000,
+                        help='Number of events between postprocessing steps (<0: disabled, >evtMax: during finalization)')
 
     update_group = parser.add_mutually_exclusive_group()
     update_group.add_argument('--frequency', type=int, default=0, help='EMON, Frequency (in number of events) of publishing histograms')
@@ -187,12 +148,19 @@ if __name__=='__main__':
         if args.laser:
             parser.set_defaults(streamType='calibration', streamNames=['Tile'], streamLogic='And', keyCount=1000, groupName='TileLasMon')
         elif args.noise:
-            publishInclude = ""
+            publishInclude = ".*Summary.*|.*DMUErrors.*|.*DigiNoise.*"
             parser.set_defaults(streamType='physics', streamNames=['CosmicCalo'], streamLogic='And', include=publishInclude,
-                                triggerType=0x82, frequency=300, updatePeriod=0, keyCount=1000, groupName='TileNoiseMon')
+                                triggerType=0x82, frequency=300, updatePeriod=0, keyCount=1000, groupName='TileNoiseMon', postProcessingInterval=299)
         elif args.mbts:
-            parser.set_defaults(lvl1Logic='Or', lvl1Origin='TAV', lvl1Items=[164], streamNames=[], streamLogic='Ignore',
-                                groupName='TileMBTSMon', useMbtsTrigger = True)
+
+            _l1Items = []
+            _l1Names = ['L1_MBTS_1', 'L1_MBTS_1_EMPTY', 'L1_MBTS_1_1_EMPTY']
+            _l1Names += ['L1_MBTSA' + str(counter) for counter in range(0, 16)]
+            _l1Names += ['L1_MBTSC' + str(counter) for counter in range(0, 16)]
+            parser.set_defaults(lvl1Logic='Or', lvl1Origin='TBP', lvl1Items=_l1Items, lvl1Names=_l1Names,
+                                streamNames=[], streamLogic='And', keyCount=1000, groupName='TileMBTSMon', useMbtsTrigger = True)
+        elif any([args.tmdb, args.tmdbDigits]):
+            parser.set_defaults(postProcessingInterval=100)
 
     args, _ = parser.parse_known_args()
 
@@ -218,9 +186,11 @@ if __name__=='__main__':
 
     if args.stateless:
         _configFlagsFromPartition(ConfigFlags, args.partition, log)
+        ConfigFlags.Input.Files = []
         ConfigFlags.Input.isMC = False
         ConfigFlags.Input.Format = Format.BS
         if args.mbts and args.useMbtsTrigger:
+            ConfigFlags.Trigger.triggerConfig = 'DB'
             from AthenaConfiguration.AutoConfigOnlineRecoFlags import autoConfigOnlineRecoFlags
             autoConfigOnlineRecoFlags(ConfigFlags, args.partition)
     else:
@@ -286,7 +256,8 @@ if __name__=='__main__':
         typeNames += ['CTP_RDO/CTP_RDO']
 
     if args.stateless:
-        cfg.merge( ByteStreamEmonReadCfg(ConfigFlags, type_names=typeNames) )
+        from ByteStreamEmonSvc.EmonByteStreamConfig import EmonByteStreamCfg
+        cfg.merge( EmonByteStreamCfg(ConfigFlags, type_names=typeNames) )
         bsEmonInputSvc = cfg.getService( "ByteStreamInputSvc" )
         bsEmonInputSvc.Partition = args.partition
         bsEmonInputSvc.Key = args.key
@@ -298,12 +269,14 @@ if __name__=='__main__':
         bsEmonInputSvc.UpdatePeriod = args.updatePeriod
         bsEmonInputSvc.Frequency = args.frequency
         bsEmonInputSvc.LVL1Items = args.lvl1Items
+        bsEmonInputSvc.LVL1Names = args.lvl1Names
         bsEmonInputSvc.LVL1Logic = args.lvl1Logic
         bsEmonInputSvc.LVL1Origin = args.lvl1Origin
         bsEmonInputSvc.StreamType = 'express' if ConfigFlags.Beam.Type is BeamType.SingleBeam else args.streamType
         bsEmonInputSvc.StreamNames = args.streamNames
         bsEmonInputSvc.StreamLogic = args.streamLogic
         bsEmonInputSvc.GroupName = args.groupName
+        bsEmonInputSvc.ProcessCorruptedEvents = True
     else:
         from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
         cfg.merge( ByteStreamReadCfg(ConfigFlags, type_names = typeNames) )
@@ -345,7 +318,7 @@ if __name__=='__main__':
 
     if args.cells:
         from TileMonitoring.TileCellMonitorAlgorithm import TileCellMonitoringConfig
-        cfg.merge(TileCellMonitoringConfig(ConfigFlags, fillHistogramsForL1Triggers = l1Triggers))
+        cfg.merge(TileCellMonitoringConfig(ConfigFlags, fillHistogramsForL1Triggers = l1Triggers, fillGapScintilatorHistograms=True))
 
     if args.towers:
         from TileMonitoring.TileTowerMonitorAlgorithm import TileTowerMonitoringConfig
@@ -381,6 +354,31 @@ if __name__=='__main__':
         from TileMonitoring.TileRawChannelNoiseMonitorAlgorithm import TileRawChannelNoiseMonitoringConfig
         cfg.merge(TileRawChannelNoiseMonitoringConfig(ConfigFlags))
 
+    if any([args.digiNoise, args.rawChanNoise, args.tmdbDigits, args.tmdb]) and args.postProcessingInterval > 0:
+        from AthenaCommon.Utils.unixtools import find_datafile
+        configurations = []
+        dataPath = find_datafile('TileMonitoring')
+        if any([args.tmdbDigits, args.tmdb]):
+            configurations += [os.path.join(dataPath, 'TileTMDBPostProc.yaml')]
+        if args.digiNoise:
+            configurations += [os.path.join(dataPath, 'TileDigiNoisePostProc.yaml')]
+        if args.rawChanNoise:
+            configurations += [os.path.join(dataPath, 'TileRawChanNoisePostProc.yaml')]
+
+        from DataQualityUtils.DQPostProcessingAlg import DQPostProcessingAlg
+        ppa = DQPostProcessingAlg("DQPostProcessingAlg")
+        ppa.ExtraInputs = [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
+        ppa.Interval = args.postProcessingInterval
+        ppa.ConfigFiles = configurations
+        ppa._ctr = 1 # Start postprocessing only after specified number of events (not during the first one)
+        if ConfigFlags.Common.isOnline:
+            fileKey = ConfigFlags.DQ.FileKey
+            ppa.FileKey = (fileKey + '/') if not fileKey.endswith('/') else fileKey
+        else:
+            ppa.FileKey = f'/{ConfigFlags.DQ.FileKey}/run_{runNumber}/'
+
+        cfg.addEventAlgo(ppa, sequenceName='AthEndSeq')
+
     # Any last things to do?
     if args.postExec:
         log.info('Executing postExec: %s', args.postExec)
@@ -388,6 +386,10 @@ if __name__=='__main__':
 
     if ConfigFlags.Common.isOnline:
         cfg.getService("THistSvc").Output=["Tile DATAFILE='%s' OPT='RECREATE'" % (ConfigFlags.Output.HISTFileName)]
+        cfg.getService("TileCablingSvc").CablingType=6
+
+    if args.mbts and args.useMbtsTrigger:
+        cfg.getService('LVL1ConfigSvc').TriggerDB='TRIGGERDB_RUN3'
 
     cfg.printConfig(withDetails=args.printDetailedConfig)
 
