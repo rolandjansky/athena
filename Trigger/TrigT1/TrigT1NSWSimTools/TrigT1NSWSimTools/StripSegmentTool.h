@@ -35,6 +35,7 @@
 #include "TrigT1NSWSimTools/tdr_compat_enum.h"
 
 #include "TTree.h"
+#include <Math/Vector3D.h>
 #include <functional>
 #include <algorithm>
 #include <map>
@@ -64,16 +65,13 @@ namespace NSWL1 {
                                   public IIncidentListener {
 
   public:
-    enum cStatus {OK, FILL_ERROR, CLEARED};
-
     StripSegmentTool(const std::string& type,
                      const std::string& name,
                      const IInterface* parent);
     virtual ~StripSegmentTool()=default;
     virtual StatusCode initialize() override;
     virtual void handle (const Incident& inc) override;
-    virtual
-    StatusCode find_segments( std::vector< std::unique_ptr<StripClusterData> >& ,const std::unique_ptr<Muon::NSW_TrigRawDataContainer>& ) override;
+    virtual StatusCode find_segments( std::vector< std::unique_ptr<StripClusterData> >& ,const std::unique_ptr<Muon::NSW_TrigRawDataContainer>& ) override;
 
   private:
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
@@ -81,17 +79,19 @@ namespace NSWL1 {
 
     // methods implementing the internal data processing
     StatusCode book_branches();                             //!< book the branches to analyze the StripTds behavior
-    void reset_ntuple_variables();                          //!< reset the variables used in the analysis ntuple
     void clear_ntuple_variables();                          //!< clear the variables used in the analysis ntuple
 
-    // needed Services, Tools and Helpers
-    ServiceHandle< IIncidentSvc >      m_incidentSvc;       //!< Athena/Gaudi incident Service
     // analysis ntuple
     TTree* m_tree;                                          //!< ntuple for analysis
-    BooleanProperty  m_doNtuple;                            //!< property, see @link StripTdsOfflineTool::StripTdsOfflineTool @endlink
-    StringProperty   m_sTgcSdoContainer;                    //!< property, see @link PadTdsOfflineTool::PadTdsOfflineTool @endlink
-    IntegerProperty m_rIndexBits;
-    IntegerProperty m_dThetaBits;
+    // needed Services, Tools and Helpers
+    ServiceHandle<IIncidentSvc>  m_incidentSvc     {this, "IncidentSvc", "IncidentSvc"};  //!< Athena/Gaudi incident Service
+    Gaudi::Property<std::string> m_sTgcSdoContainer{this, "sTGC_SdoContainerName",  "sTGC_SDO", "Name of the sTGC SDO digit container"};
+    Gaudi::Property<bool>        m_doNtuple        {this, "DoNtuple",               false,      "Input StripTds branches into the analysis ntuple"};
+    Gaudi::Property<int>         m_rIndexBits      {this, "rIndexBits",              8,         "Number bits in R-index calculation"};
+    Gaudi::Property<int>         m_dThetaBits      {this, "dthetaBits",              5,         "Number bits in dTheta calculation"};
+    Gaudi::Property<float>       m_dtheta_min      {this, "dthetaMin",             -15.,        "Minimum allowed value for dtheta in mrad"};
+    Gaudi::Property<float>       m_dtheta_max      {this, "dthetaMax",              15.,        "Maximum allowed value for dtheta in mrad"};
+    Gaudi::Property<int>         m_ridxScheme      {this, "rIndexScheme",            1,         "rIndex slicing scheme/ 0-->R / 1-->eta"};
 
     // analysis variable to be put into the ntuple
     std::vector<int> *m_seg_wedge1_size;                     //!< theta
@@ -115,9 +115,6 @@ namespace NSWL1 {
     std::pair<float,float> m_zbounds;
     std::pair<float,float> m_etabounds;
     std::pair<float,float> m_rbounds;
-    int m_ridxScheme;
-    float m_dtheta_min;
-    float m_dtheta_max;
   };  // end of StripSegmentTool class
 } // namespace NSWL1
 #endif
