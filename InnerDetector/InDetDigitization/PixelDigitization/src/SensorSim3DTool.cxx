@@ -131,12 +131,13 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
     //*** Now diffuse charges to surface *** //
     //**************************************//
     //Calculate trapping times based on fluence (already includes check for fluence=0)
-    SG::ReadCondHandle<PixelRadiationDamageFluenceMapData> fluenceData(m_fluenceDataKey,ctx);
-    if (m_doRadDamage) {
-      std::pair < double, double > trappingTimes = m_radDamageUtil->getTrappingTimes(fluenceData->getFluenceLayer3D(0));   //0 = IBL
-      m_trappingTimeElectrons = trappingTimes.first;
-      m_trappingTimeHoles = trappingTimes.second;
-    }
+    SG::ReadCondHandle<PixelRadiationDamageFluenceMapData> fluenceDataHandle(m_fluenceDataKey,ctx);
+    const PixelRadiationDamageFluenceMapData *fluenceData = *fluenceDataHandle;
+
+    std::pair < double, double > trappingTimes = m_radDamageUtil->getTrappingTimes(fluenceData->getFluenceLayer3D(0));   //0 = IBL
+    m_trappingTimeElectrons = trappingTimes.first;
+    m_trappingTimeHoles = trappingTimes.second;
+
     const PixelHistoConverter& ramoPotentialMap = fluenceData->getRamoPotentialMap3D(0);
     const PixelHistoConverter& eFieldMap        = fluenceData->getEFieldMap3D(0);
     const PixelHistoConverter& xPositionMap_e   = fluenceData->getXPositionMap3D_e(0);
@@ -149,12 +150,12 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
     const PixelHistoConverter& avgChargeMap_h   = fluenceData->getAvgChargeMap3D_h();
 
     //Parameters which will be smeared by a random value for each charge propagated,
-    //recomputed for every trfHitRecord but initialized only once 
+    //recomputed for every trfHitRecord but initialized only once
     std::vector<double> DtElectron (ncharges, 0.);
     std::vector<double> DtHole (ncharges, 0.);
     std::vector<double> rdifElectron (ncharges, 0.);
     std::vector<double> rdifHole (ncharges, 0.);
-    
+
     for (size_t istep = 0; istep < trfHitRecord.size(); istep++) {
       std::pair< double,double> const & iHitRecord = trfHitRecord[istep];
 
@@ -214,20 +215,20 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
 
       const double mobilityElectron = getMobility(efield, false);
       const double mobilityHole     = getMobility(efield, true);
-      auto driftTimeElectron = getDriftTime(false, ncharges);
-      auto driftTimeHole = getDriftTime(true, ncharges);
+      auto driftTimeElectron = getDriftTime(false, ncharges, rndmEngine);
+      auto driftTimeHole = getDriftTime(true, ncharges, rndmEngine);
       //Need to determine how many elementary charges this charge chunk represents.
       double chunk_size = energy_per_step * eleholePairEnergy; //number of electrons/holes
       //set minimum limit to prevent dividing into smaller subcharges than one fundamental charge
       if (chunk_size < 1) chunk_size = 1;
       const double kappa = 1. / std::sqrt(chunk_size);
-     
+
       const double timeToElectrodeElectron = timeMap_e.getContent(timeMap_e.getBinX(1e3*y_pix), timeMap_e.getBinY(1e3*x_pix));
       const double timeToElectrodeHole =     timeMap_h.getContent(timeMap_h.getBinX(1e3*y_pix), timeMap_h.getBinY(1e3*x_pix));
-      
+
       /*  Diffusion via the Einstein relation
       D = mu * kB * T / q
-      D = (mu / mm^2/MV*ns) * (T/273 K) * 0.024 microns^2 / ns  */ 
+      D = (mu / mm^2/MV*ns) * (T/273 K) * 0.024 microns^2 / ns  */
       const auto prefactor_e = mobilityElectron*0.024*m_temperature / 273.;
       const auto prefactor_h = mobilityHole*0.024*m_temperature / 273.;
       //Apply diffusion. rdif is the max. diffusion
@@ -246,7 +247,7 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
       //hence giving us plus-in-i or pi or zero-in-j or zj etc.
       //i is in direction of x, whereas j is into the y direction, this code is ugly, but given that we don't have very few branching conditions
       //it's pretty fast
-      
+
       //This was: ramoPotentialMap.getBinY(1000*(x_pix + pixel_size_x * 3 - i * pixel_size_x)
       const std::size_t ramo_init_bin_y_pi  = ramoPotentialMap.getBinY(1000*(x_pix + pixel_size_x * 2));
       const std::size_t ramo_init_bin_y_zi  = ramoPotentialMap.getBinY(1000*(x_pix + pixel_size_x * 3));
@@ -278,11 +279,11 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
           int extraNPixYElectron = nPixY;
           int extraNPixXHole = nPixX;
           int extraNPixYHole = nPixY;
-          
-	  //Apply drift due to diffusion
+
+          //Apply drift due to diffusion
           std::array<double, 4> randomNumbers{};
-	  CLHEP::RandGaussZiggurat::shootArray(rndmEngine, 4, randomNumbers.data());
-          
+          CLHEP::RandGaussZiggurat::shootArray(rndmEngine, 4, randomNumbers.data());
+
           double xposDiffElectron = x_pix + rdifElectron[j] * randomNumbers[0];
           double yposDiffElectron = y_pix + rdifElectron[j] * randomNumbers[1];
           double xposDiffHole = x_pix + rdifHole[j] * randomNumbers[2];
@@ -306,7 +307,7 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
             yposDiffElectron += pixel_size_y;
           }
 
-	  //And drifting for for holes
+          //And drifting for for holes
           while (xposDiffHole > pixel_size_x) {
             extraNPixXHole++;
             xposDiffHole -= pixel_size_x;
@@ -323,19 +324,27 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
             extraNPixYHole--;
             yposDiffHole += pixel_size_y;
           }
-          auto xposFinalElectron = yPositionMap_e.getContent(  yPositionMap_e.getBinX(1e3*yposDiffElectron),
-			                                       yPositionMap_e.getBinY(1e3*xposDiffElectron),
-							       yPositionMap_e.getBinZ(std::min(driftTimeElectron[j],timeToElectrodeElectron)) )*1e-3;  //[mm]
-          auto yposFinalElectron = xPositionMap_e.getContent(  xPositionMap_e.getBinX(1e3*yposDiffElectron),
-			                                       xPositionMap_e.getBinY(1e3*xposDiffElectron),
-							       xPositionMap_e.getBinZ(std::min(driftTimeElectron[j],timeToElectrodeElectron)) )*1e-3;  //[mm]
+          auto xposFinalElectron = yPositionMap_e.getContent(
+            yPositionMap_e.getBinX(1e3*yposDiffElectron),
+            yPositionMap_e.getBinY(1e3*xposDiffElectron),
+            yPositionMap_e.getBinZ(std::min(driftTimeElectron[j],timeToElectrodeElectron))
+          ) * 1e-3;  //[mm]
+          auto yposFinalElectron = xPositionMap_e.getContent(
+            xPositionMap_e.getBinX(1e3*yposDiffElectron),
+            xPositionMap_e.getBinY(1e3*xposDiffElectron),
+            xPositionMap_e.getBinZ(std::min(driftTimeElectron[j],timeToElectrodeElectron))
+          ) * 1e-3;  //[mm]
 
-          auto xposFinalHole = yPositionMap_h.getContent(  yPositionMap_h.getBinX(1e3*yposDiffHole),
-			                                   yPositionMap_h.getBinY(1e3*xposDiffHole),
-							   yPositionMap_h.getBinZ(std::min(driftTimeHole[j],timeToElectrodeHole))  )*1e-3;  //[mm]
-          auto yposFinalHole = xPositionMap_h.getContent(  xPositionMap_h.getBinX(1e3*yposDiffHole),
-			                                   xPositionMap_h.getBinY(1e3*xposDiffHole),
-							   xPositionMap_h.getBinZ(std::min(driftTimeHole[j],timeToElectrodeHole))  )*1e-3;  //[mm]
+          auto xposFinalHole = yPositionMap_h.getContent(
+            yPositionMap_h.getBinX(1e3*yposDiffHole),
+            yPositionMap_h.getBinY(1e3*xposDiffHole),
+            yPositionMap_h.getBinZ(std::min(driftTimeHole[j],timeToElectrodeHole))
+          ) * 1e-3;  //[mm]
+          auto yposFinalHole = xPositionMap_h.getContent(
+            xPositionMap_h.getBinX(1e3*yposDiffHole),
+            xPositionMap_h.getBinY(1e3*xposDiffHole),
+            xPositionMap_h.getBinZ(std::min(driftTimeHole[j],timeToElectrodeHole))
+          ) * 1e-3;  //[mm]
 
           // -- Calculate signal in current pixel and in the neighboring ones
           //This was: ramoPotentialMap.getBinY(1000*(xposFinal + pixel_size_x * 3 - i * pixel_size_x)
@@ -412,11 +421,11 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
             eHitRamo_mizj_holes = energy_per_step * average_chargeHole + kappa *         (eHitRamo_mizj_holes - energy_per_step * average_chargeHole);
             eHitRamo_mimj_electrons = energy_per_step * average_chargeElectron + kappa * (eHitRamo_mimj_electrons - energy_per_step * average_chargeElectron);
             eHitRamo_mimj_holes = energy_per_step * average_chargeHole + kappa *         (eHitRamo_mimj_holes - energy_per_step * average_chargeHole);
-	  }
+          }
 
           // -- pixel coordinates --> module coordinates
           //This was: double x_mod = x_pix + pixel_size_x * extraNPixX - 0.5*module_size_x + i*pixel_size_x;
-	  //This was: double y_mod = y_pix + pixel_size_y * extraNPixY - 0.5*module_size_y + j*pixel_size_y;
+          //This was: double y_mod = y_pix + pixel_size_y * extraNPixY - 0.5*module_size_y + j*pixel_size_y;
           double x_mod_pi_electrons = x_pix + pixel_size_x * extraNPixXElectron - 0.5*module_size_x + pixel_size_x;
           double y_mod_pj_electrons = y_pix + pixel_size_y * extraNPixYElectron - 0.5*module_size_y + pixel_size_y;
           double x_mod_pi_holes =     x_pix + pixel_size_x * extraNPixXHole     - 0.5*module_size_x + pixel_size_x;
@@ -430,7 +439,7 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
           double x_mod_mi_holes =     x_pix + pixel_size_x * extraNPixXHole     - 0.5*module_size_x - pixel_size_x;
           double y_mod_mj_holes =     y_pix + pixel_size_y * extraNPixYHole     - 0.5*module_size_y - pixel_size_y;
 
-	  //This was: const SiLocalPosition& chargePos = Module.hitLocalToLocal(y_mod, x_mod) (for whatever reason half the maps x/y are inverted...)
+          //This was: const SiLocalPosition& chargePos = Module.hitLocalToLocal(y_mod, x_mod) (for whatever reason half the maps x/y are inverted...)
           const SiLocalPosition& chargePos_pipj_electrons = Module.hitLocalToLocal(y_mod_pj_electrons, x_mod_pi_electrons);
           const SiLocalPosition& chargePos_pizj_electrons = Module.hitLocalToLocal(y_mod_zj_electrons, x_mod_pi_electrons);
           const SiLocalPosition& chargePos_pimj_electrons = Module.hitLocalToLocal(y_mod_mj_electrons, x_mod_pi_electrons);
@@ -451,53 +460,53 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
           const SiLocalPosition& chargePos_mizj_holes = Module.hitLocalToLocal(y_mod_zj_holes, x_mod_mi_holes);
           const SiLocalPosition& chargePos_mimj_holes = Module.hitLocalToLocal(y_mod_mj_holes, x_mod_mi_holes);
 
-	  //This was: const SiSurfaceCharge scharge(chargePos, SiCharge(eHitRamo*eleholePairEnergy, hit_time, SiCharge::track, particleLink));
-	  const SiSurfaceCharge scharge_pipj_electrons(chargePos_pipj_electrons, SiCharge(eHitRamo_pipj_electrons*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
-	  const SiSurfaceCharge scharge_pizj_electrons(chargePos_pizj_electrons, SiCharge(eHitRamo_pizj_electrons*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
-	  const SiSurfaceCharge scharge_pimj_electrons(chargePos_pimj_electrons, SiCharge(eHitRamo_pimj_electrons*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
-	  const SiSurfaceCharge scharge_zipj_electrons(chargePos_zipj_electrons, SiCharge(eHitRamo_zipj_electrons*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
-	  const SiSurfaceCharge scharge_zizj_electrons(chargePos_zizj_electrons, SiCharge(eHitRamo_zizj_electrons*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
-	  const SiSurfaceCharge scharge_zimj_electrons(chargePos_zimj_electrons, SiCharge(eHitRamo_zimj_electrons*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
-	  const SiSurfaceCharge scharge_mipj_electrons(chargePos_mipj_electrons, SiCharge(eHitRamo_mipj_electrons*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
-	  const SiSurfaceCharge scharge_mizj_electrons(chargePos_mizj_electrons, SiCharge(eHitRamo_mizj_electrons*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
-	  const SiSurfaceCharge scharge_mimj_electrons(chargePos_mimj_electrons, SiCharge(eHitRamo_mimj_electrons*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
+          //This was: const SiSurfaceCharge scharge(chargePos, SiCharge(eHitRamo*eleholePairEnergy, hit_time, SiCharge::track, particleLink));
+          const SiSurfaceCharge scharge_pipj_electrons(chargePos_pipj_electrons, SiCharge(eHitRamo_pipj_electrons*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
+          const SiSurfaceCharge scharge_pizj_electrons(chargePos_pizj_electrons, SiCharge(eHitRamo_pizj_electrons*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
+          const SiSurfaceCharge scharge_pimj_electrons(chargePos_pimj_electrons, SiCharge(eHitRamo_pimj_electrons*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
+          const SiSurfaceCharge scharge_zipj_electrons(chargePos_zipj_electrons, SiCharge(eHitRamo_zipj_electrons*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
+          const SiSurfaceCharge scharge_zizj_electrons(chargePos_zizj_electrons, SiCharge(eHitRamo_zizj_electrons*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
+          const SiSurfaceCharge scharge_zimj_electrons(chargePos_zimj_electrons, SiCharge(eHitRamo_zimj_electrons*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
+          const SiSurfaceCharge scharge_mipj_electrons(chargePos_mipj_electrons, SiCharge(eHitRamo_mipj_electrons*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
+          const SiSurfaceCharge scharge_mizj_electrons(chargePos_mizj_electrons, SiCharge(eHitRamo_mizj_electrons*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
+          const SiSurfaceCharge scharge_mimj_electrons(chargePos_mimj_electrons, SiCharge(eHitRamo_mimj_electrons*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
 
-	  const SiSurfaceCharge scharge_pipj_holes(chargePos_pipj_holes, SiCharge(eHitRamo_pipj_holes*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
-	  const SiSurfaceCharge scharge_pizj_holes(chargePos_pizj_holes, SiCharge(eHitRamo_pizj_holes*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
-	  const SiSurfaceCharge scharge_pimj_holes(chargePos_pimj_holes, SiCharge(eHitRamo_pimj_holes*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
-	  const SiSurfaceCharge scharge_zipj_holes(chargePos_zipj_holes, SiCharge(eHitRamo_zipj_holes*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
-	  const SiSurfaceCharge scharge_zizj_holes(chargePos_zizj_holes, SiCharge(eHitRamo_zizj_holes*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
-	  const SiSurfaceCharge scharge_zimj_holes(chargePos_zimj_holes, SiCharge(eHitRamo_zimj_holes*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
-	  const SiSurfaceCharge scharge_mipj_holes(chargePos_mipj_holes, SiCharge(eHitRamo_mipj_holes*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
-	  const SiSurfaceCharge scharge_mizj_holes(chargePos_mizj_holes, SiCharge(eHitRamo_mizj_holes*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
-	  const SiSurfaceCharge scharge_mimj_holes(chargePos_mimj_holes, SiCharge(eHitRamo_mimj_holes*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
+          const SiSurfaceCharge scharge_pipj_holes(chargePos_pipj_holes, SiCharge(eHitRamo_pipj_holes*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
+          const SiSurfaceCharge scharge_pizj_holes(chargePos_pizj_holes, SiCharge(eHitRamo_pizj_holes*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
+          const SiSurfaceCharge scharge_pimj_holes(chargePos_pimj_holes, SiCharge(eHitRamo_pimj_holes*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
+          const SiSurfaceCharge scharge_zipj_holes(chargePos_zipj_holes, SiCharge(eHitRamo_zipj_holes*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
+          const SiSurfaceCharge scharge_zizj_holes(chargePos_zizj_holes, SiCharge(eHitRamo_zizj_holes*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
+          const SiSurfaceCharge scharge_zimj_holes(chargePos_zimj_holes, SiCharge(eHitRamo_zimj_holes*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
+          const SiSurfaceCharge scharge_mipj_holes(chargePos_mipj_holes, SiCharge(eHitRamo_mipj_holes*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
+          const SiSurfaceCharge scharge_mizj_holes(chargePos_mizj_holes, SiCharge(eHitRamo_mizj_holes*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
+          const SiSurfaceCharge scharge_mimj_holes(chargePos_mimj_holes, SiCharge(eHitRamo_mimj_holes*eleholePairEnergy, hit_time, SiCharge::track, mc_particle_link));
 
-	  auto addCharge = [&Module, &chargedDiodes](SiSurfaceCharge const & scharge) {
+          auto addCharge = [&Module, &chargedDiodes](SiSurfaceCharge const & scharge) {
             const SiCellId& diode = Module.cellIdOfPosition(scharge.position());
-	    if (diode.isValid()) {
+            if (diode.isValid()) {
               const SiCharge& charge = scharge.charge();
               chargedDiodes.add(diode, charge);
-            }	
-	  };
- 
-	  addCharge(scharge_pipj_electrons);
-	  addCharge(scharge_pizj_electrons);
-	  addCharge(scharge_pimj_electrons);
-	  addCharge(scharge_zipj_electrons);
-	  addCharge(scharge_zizj_electrons);
-	  addCharge(scharge_zimj_electrons);
-	  addCharge(scharge_mipj_electrons);
-	  addCharge(scharge_mizj_electrons);
-	  addCharge(scharge_mimj_electrons);
-	  addCharge(scharge_pipj_holes);
-	  addCharge(scharge_pizj_holes);
-	  addCharge(scharge_pimj_holes);
-	  addCharge(scharge_zipj_holes);
-	  addCharge(scharge_zizj_holes);
-	  addCharge(scharge_zimj_holes);
-	  addCharge(scharge_mipj_holes);
-	  addCharge(scharge_mizj_holes);
-	  addCharge(scharge_mimj_holes);
+            }
+          };
+
+          addCharge(scharge_pipj_electrons);
+          addCharge(scharge_pizj_electrons);
+          addCharge(scharge_pimj_electrons);
+          addCharge(scharge_zipj_electrons);
+          addCharge(scharge_zizj_electrons);
+          addCharge(scharge_zimj_electrons);
+          addCharge(scharge_mipj_electrons);
+          addCharge(scharge_mizj_electrons);
+          addCharge(scharge_mimj_electrons);
+          addCharge(scharge_pipj_holes);
+          addCharge(scharge_pizj_holes);
+          addCharge(scharge_pimj_holes);
+          addCharge(scharge_zipj_holes);
+          addCharge(scharge_zizj_holes);
+          addCharge(scharge_zimj_holes);
+          addCharge(scharge_mipj_holes);
+          addCharge(scharge_mizj_holes);
+          addCharge(scharge_mimj_holes);
       }
     }
   } else {
@@ -697,10 +706,12 @@ double SensorSim3DTool::getMobility(double electricField, bool isHoleBit) {
   return mobility; // mm^2/(MV*ns)
 }
 
-std::vector<double> SensorSim3DTool::getDriftTime(bool isHoleBit, size_t n) {
+std::vector<double> SensorSim3DTool::getDriftTime(bool isHoleBit, size_t n,
+                                                  CLHEP::HepRandomEngine* rndmEngine)
+{
   std::vector<double> rand (n, 0.);
   std::vector<double> result (n, 0.);
-  CLHEP::RandFlat::shootArray(n, rand.data(), 0., 1.);
+  CLHEP::RandFlat::shootArray(rndmEngine, n, rand.data(), 0., 1.);
   for(size_t i = 0; i < n; i++) {
     if (isHoleBit) {
       result[i]= (-1.) * m_trappingTimeHoles * logf(rand[i]); // ns
@@ -710,5 +721,3 @@ std::vector<double> SensorSim3DTool::getDriftTime(bool isHoleBit, size_t n) {
   }
   return result;
 }
-
-
