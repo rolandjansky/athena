@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -133,46 +133,14 @@ private:
 };
 
 //! Overload of << operator for MsgStream for debug output
-inline MsgStream&
-operator<<(MsgStream& sl, const MaterialEffectsBase& meb)
-{
-  return meb.dump(sl);
-}
+MsgStream&
+operator<<(MsgStream& sl, const MaterialEffectsBase& meb);
+
 //! Overload of << operator for std::ostream for debug output
-inline std::ostream&
-operator<<(std::ostream& sl, const MaterialEffectsBase& meb)
-{
-  return meb.dump(sl);
-}
+std::ostream&
+operator<<(std::ostream& sl, const MaterialEffectsBase& meb);
 
 } // end ns
 
-inline const Trk::Surface&
-Trk::MaterialEffectsBase::associatedSurface() const
-{
-  return *m_associatedSurface;
-}
-
-inline void
-Trk::MaterialEffectsBase::setValues(const Trk::Surface* assocSurface)
-{
-  m_associatedSurface = assocSurface;
-}
-
-inline double
-Trk::MaterialEffectsBase::thicknessInX0() const
-{
-  return m_tInX0;
-}
-
-inline bool
-Trk::MaterialEffectsBase::type(
-  const Trk::MaterialEffectsBase::MaterialEffectsType& type) const
-{
-  if (type == NumberOfMaterialEffectsTypes) {
-    return false;
-  }
-  return ((1 << static_cast<int>(type)) & m_typeFlags) != 0;
-}
-
+#include "TrkMaterialOnTrack/MaterialEffectsBase.icc"
 #endif // TRKMATERIALONTRACK_MATERIALEFFECTSBASE_H
