@@ -36,7 +36,7 @@ DerivationFramework::JetCaloClusterThinning::JetCaloClusterThinning(
 }
 
 // Destructor
-DerivationFramework::JetCaloClusterThinning::~JetCaloClusterThinning() {}
+DerivationFramework::JetCaloClusterThinning::~JetCaloClusterThinning() = default;
 
 // Athena initialize and finalize
 StatusCode
@@ -164,8 +164,7 @@ DerivationFramework::JetCaloClusterThinning::setJetClustersMask(
       select(jet, m_coneSize, cps, mask); // check clusters amongst constituents
   }
 
-  return;
-}
+  }
 
 void
 DerivationFramework::JetCaloClusterThinning::setJetClustersMask(
@@ -180,8 +179,7 @@ DerivationFramework::JetCaloClusterThinning::setJetClustersMask(
     if (jet)
       select(jet, m_coneSize, cps, mask); // check clusters amongst constituents
   }
-  return;
-}
+  }
 
 void
 DerivationFramework::JetCaloClusterThinning::select(
@@ -223,6 +221,5 @@ DerivationFramework::JetCaloClusterThinning::select(
         mask[i] = true;
     }
   }
-  return;
-}
+  }
 

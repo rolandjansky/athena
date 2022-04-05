@@ -18,7 +18,7 @@ testAthenaPhotonAlg::testAthenaPhotonAlg( const std::string& name, ISvcLocator* 
   declareProperty( "PhotonEfficiencyCorrectionTool", m_photonSF );
 }
 //
-testAthenaPhotonAlg::~testAthenaPhotonAlg() {}
+testAthenaPhotonAlg::~testAthenaPhotonAlg() = default;
 
 
 StatusCode testAthenaPhotonAlg::initialize() {

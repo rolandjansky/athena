@@ -78,8 +78,7 @@ AsgElectronSelectorTool::AsgElectronSelectorTool( const std::string& myname ) :
 // Standard destructor
 //=============================================================================
 AsgElectronSelectorTool::~AsgElectronSelectorTool()
-{
-}
+= default;
 
 
 //=============================================================================
