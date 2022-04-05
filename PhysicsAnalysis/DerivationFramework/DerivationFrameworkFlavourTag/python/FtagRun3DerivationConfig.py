@@ -138,6 +138,11 @@ def getFtagComponent(cfgFlags, jetcol, pvCol):
         PrimaryVertexCollectionName=pvCol,
     ))
 
+    acc.addEventAlgo(CompFactory.FlavorTagDiscriminants.TrackLeptonDecoratorAlg(
+        'TrackLeptonDecoratorAlg',
+        trackContainer=track_collection,
+    ))
+
     nnList = derivationTrainingMap[jetcol_name_without_Jets]
 
     acc.merge(BTagAlgsCfg(
@@ -173,7 +178,6 @@ def RenameInputContainerEmTopoHacksCfg(suffix):
     acc.addService(AddressRemappingSvc)
     acc.addService(ProxyProviderSvc(ProviderNames = [ "AddressRemappingSvc" ]))
     return acc
-
 
 def RenameInputContainerEmPflowHacksCfg(suffix):
 
