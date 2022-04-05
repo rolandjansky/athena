@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigBSExtraction/TrigBSExtraction.h"
@@ -20,6 +20,10 @@ StatusCode TrigBSExtraction::initialize() {
 
   ATH_CHECK( m_navTool.retrieve() );
 
+  // xAOD converter tool (for Run-1 data)
+  if ( !m_xAODTool.empty() ) ATH_CHECK( m_xAODTool.retrieve() );
+  else m_xAODTool.disable();
+
   // Initialize the TrigSerializeConcHelper here so that all the additional streamerinfos are read in.
   // In case of DataScouting this may give problems if the DS ROBs contain containers which
   // were not compiled with navigation (the container type information is then not known
@@ -33,23 +37,25 @@ StatusCode TrigBSExtraction::initialize() {
 
 StatusCode TrigBSExtraction::execute() {
 
-  if ( m_navToolL2.isEnabled() ) {
-    if ( repackFeaturesToSG(*m_navToolL2, m_l2ResultKey, false).isFailure() )
+  const bool isRun1 = m_navToolL2.isEnabled();
+  if ( isRun1 ) {
+    if ( repackFeaturesToSG(*m_navToolL2, m_l2ResultKey, false, false).isFailure() )
       ATH_MSG_WARNING( "failed unpacking features from BS to SG for: " << m_l2ResultKey  );
   }
   
   if ( !m_hltResultKey.empty() ) {
-    // unpack and merge with L2 result in case there is one
-    if ( repackFeaturesToSG(*m_navTool, m_hltResultKey, m_navToolL2.isEnabled() ).isFailure() )
+    // unpack, merge with L2 result and do xAOD conversion
+    // xAOD conversion is only done for HLTResult_EF in Run-1
+    if ( repackFeaturesToSG(*m_navTool, m_hltResultKey, isRun1, isRun1).isFailure() )
       ATH_MSG_WARNING( "failed unpacking features from BS to SG for: " << m_hltResultKey  );
   }
 
   for (const auto& ds_key : m_dataScoutingKeys.value()) {
-    if ( repackFeaturesToSG(*m_navTool, ds_key, false).isFailure() )
+    if ( repackFeaturesToSG(*m_navTool, ds_key, false, false).isFailure() )
       ATH_MSG_WARNING( "failed unpacking features from BS to SG for: " << ds_key );
   }
 
-  if ( m_navToolL2.isEnabled() ) m_navToolL2->reset();
+  if ( isRun1 ) m_navToolL2->reset();
   m_navTool->reset();
 
   return StatusCode::SUCCESS;
@@ -57,7 +63,9 @@ StatusCode TrigBSExtraction::execute() {
 
 
 StatusCode TrigBSExtraction::repackFeaturesToSG (HLT::Navigation& navTool,
-                                                 const std::string& key, bool equalize ) {
+                                                 const std::string& key,
+                                                 bool equalize,
+                                                 bool xAODCnv) {
 
   const HLT::HLTResult * constresult(nullptr);
   HLT::HLTResult * result(nullptr);
@@ -88,10 +96,20 @@ StatusCode TrigBSExtraction::repackFeaturesToSG (HLT::Navigation& navTool,
   }
 
   navTool.prepare();
-  // change the clid and subtype index in the feature access helpers
-  // to the new xAOD containers (that will be converted after this call)
-  std::vector< HLT::TriggerElement* > testvec;
-  navTool.getAll(testvec,false);
+
+  // optional xAOD conversion for Run-1 AOD containers
+  if ( xAODCnv && m_xAODTool.isEnabled() ) {
+
+    ATH_CHECK( m_xAODTool->convert(&navTool) );
+
+    // after AOD TrigPassBitsCollection was converted to xAOD::TrigPassBitsContainer,
+    // let's fill new xAOD::TrigPassBits objects with the proper pointers to
+    // converted xAOD containers
+    ATH_CHECK( m_xAODTool->setTrigPassBits(&navTool) );
+
+    // this will redirect all Features to the xAOD converters
+    ATH_CHECK( m_xAODTool->rewireNavigation(&navTool) );
+  }
 
   // pack navigation back into the result
   result->getNavigationResult().clear();

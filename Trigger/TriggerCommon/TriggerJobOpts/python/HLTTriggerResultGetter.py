@@ -79,10 +79,6 @@ class HLTTriggerResultGetter(Configured):
             else:
                 raise RuntimeError("Invalid EDMVersion=%s " % ConfigFlags.Trigger.EDMVersion)
 
-        if ConfigFlags.Trigger.EDMVersion == 1:
-            from TriggerJobOpts.TriggerRecoConfig import Run1xAODConversionCfg
-            CAtoGlobalWrapper(Run1xAODConversionCfg, ConfigFlags)
-
         if ConfigFlags.Trigger.EDMVersion == 1 or \
            ConfigFlags.Trigger.EDMVersion == 2:
             if rec.doTrigger():
