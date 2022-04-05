@@ -98,13 +98,12 @@ namespace met {
     bool m_usePFOLinks; 
     bool m_useFELinks; 
 
-    SG::ReadHandleKey<xAOD::VertexContainer>  m_pvcollKey;
-    SG::ReadHandleKey<xAOD::IParticleContainer>  m_clcollKey;
-    SG::ReadHandleKey<xAOD::TrackParticleContainer>  m_trkcollKey;
+    SG::ReadHandleKey<xAOD::VertexContainer>  m_pvcollKey{this,"PVColl","","Primary Vertex Collection"};
+    SG::ReadHandleKey<xAOD::IParticleContainer>  m_clcollKey{this,"ClColl","","Topo cluster Collection"};
+    SG::ReadHandleKey<xAOD::TrackParticleContainer>  m_trkcollKey{this,"TrkColl","","Track particle Collection"};
     SG::ReadHandleKey<xAOD::PFOContainer>  m_pfcollKey{this,"PFlowColl","","PFO Collection"};
-    SG::ReadHandleKey<xAOD::FlowElementContainer>  m_fecollKey{this,"FlowElementCollection","CHSParticleFlowObjects","FlowElement Collection (overrides PFO if not empty)"};
-    SG::ReadHandleKey<xAOD::IParticleContainer>  m_forcollKey;
-    SG::ReadHandleKey<xAOD::IParticleContainer>  m_hybridContKey;
+    SG::ReadHandleKey<xAOD::FlowElementContainer>  m_fecollKey{this,"FlowElementCollection","","FlowElement Collection (overrides PFO if not empty)"};
+    SG::ReadHandleKey<xAOD::IParticleContainer>  m_hybridContKey{this,"HybridKey","","Hybrid Collection"};
 
     bool m_pflow;
     bool m_useTracks;

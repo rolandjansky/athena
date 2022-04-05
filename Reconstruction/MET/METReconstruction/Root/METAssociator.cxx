@@ -51,10 +51,7 @@ namespace met {
     AsgTool(name),
     m_trkseltool(this,""),
     m_trkIsolationTool(this,""),
-    m_caloIsolationTool(this,""),
-    m_pvcollKey(""),
-    m_clcollKey(""),
-    m_trkcollKey("")
+    m_caloIsolationTool(this,"")
   {
     ATH_MSG_INFO("METAssoc constructor");
     declareProperty( "InputCollection",    m_input_data_key                      );
@@ -190,6 +187,8 @@ namespace met {
       if( hybridCont.isValid()) {
         constits.tcCont=hybridCont.cptr();
       } else {
+        ATH_MSG_WARNING("Trying to do something currently unsupported- lets abort");
+        return StatusCode::FAILURE;
         // Trying to do this using write handles (need to get some input here)
         /*std::unique_ptr<ConstDataVector<IParticleContainer>> hybridCont = std::make_unique<ConstDataVector<IParticleContainer>>();
         SG::WriteHandle<ConstDataVector<IParticleContainer>> hybridContHandle(hybridname);
@@ -212,7 +211,7 @@ namespace met {
         if (!forCont.isValid()) {
           ATH_MSG_WARNING("Unable to retrieve forward container " << m_forcoll << " for overlap removal");
           return StatusCode::FAILURE;
-        }*/
+        }
         ConstDataVector<IParticleContainer> *hybridCont = new ConstDataVector<IParticleContainer>(SG::VIEW_ELEMENTS);
 
         const IParticleContainer* centCont=0;
@@ -231,6 +230,7 @@ namespace met {
         for(const auto clus : *forCont) if (fabs(clus->eta())>=m_foreta) hybridCont->push_back(clus);
         ATH_CHECK( evtStore()->record(hybridCont,hybridname));
         constits.tcCont = hybridCont->asDataVector();
+        */
       }
     }
 
@@ -274,7 +274,7 @@ namespace met {
           constits.feCont = 0;
           SG::ReadHandle<xAOD::FlowElementContainer> feCont(m_fecollKey);
           if (!feCont.isValid()) {
-            ATH_MSG_ERROR("Unable to retrieve FlowElement container");
+            ATH_MSG_ERROR("Unable to retrieve FlowElement container "<< m_fecollKey.key());
             return StatusCode::FAILURE;
           }
           constits.feCont=feCont.cptr();
