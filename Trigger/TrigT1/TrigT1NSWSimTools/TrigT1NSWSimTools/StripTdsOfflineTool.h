@@ -1,21 +1,39 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STRIPTDSOFFLINETOOL_H
 #define STRIPTDSOFFLINETOOL_H
 
-#include "TrigT1NSWSimTools/IStripTdsTool.h"
-#include "GaudiKernel/IIncidentListener.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandGauss.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/IIncidentSvc.h"
+#include "GaudiKernel/IIncidentListener.h"
+#include "GaudiKernel/ITHistSvc.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include "GaudiKernel/ServiceHandle.h"
-
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonDigitContainer/sTgcDigit.h"
+#include "MuonDigitContainer/sTgcDigitContainer.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MuonReadoutGeometry/sTgcReadoutElement.h"
+#include "MuonSimData/MuonSimData.h"
+#include "MuonSimData/MuonSimDataCollection.h"
+
+#include "TrigT1NSWSimTools/IStripTdsTool.h"
 #include "TrigT1NSWSimTools/PadTrigger.h"
 #include "TrigT1NSWSimTools/TriggerTypes.h"
+#include "TrigT1NSWSimTools/StripOfflineData.h"
+#include "TrigT1NSWSimTools/PadOfflineData.h"
 
-#include "MuonDigitContainer/sTgcDigitContainer.h"
-#include "MuonSimData/MuonSimDataCollection.h"
+#include "TTree.h"
+#include <functional>
+#include <algorithm>
+#include <map>
+#include <utility>
+
 
 //forward declarations
 class IIncidentSvc;
@@ -46,6 +64,12 @@ namespace NSWL1 {
    *
    *  @author Jacob Searcy <jsearcy@cern.ch>
    *
+   * ----------------------------------------------------------------------------------------
+   * 2022 Update: the internal cache has been removed for the code to deal with parallel
+   * processing (athenaMT) in Release 22. It has been replaced by an event-by-event cache,
+   * passed by reference throughout the workflow.
+   *
+   *  @modified by Francesco Giuseppe Gravili <francesco.giuseppe.gravili@cern.ch>
    *
    */
 
@@ -56,67 +80,58 @@ namespace NSWL1 {
                                    public IIncidentListener {
 
   public:
-    enum cStatus {OK, FILL_ERROR, CLEARED};
-
     StripTdsOfflineTool(const std::string& type,
                       const std::string& name,
                       const IInterface* parent);
 
-    virtual ~StripTdsOfflineTool();
+    virtual ~StripTdsOfflineTool()=default;
 
     virtual StatusCode initialize() override;
 
     virtual void handle (const Incident& inc) override;
 
-    virtual
-    StatusCode gather_strip_data(std::vector<std::unique_ptr<StripData>>& strips,const std::vector<std::unique_ptr<PadTrigger>>& padTriggers) override;
+    virtual StatusCode gather_strip_data(std::vector<std::unique_ptr<StripData>>& strips,const std::vector<std::unique_ptr<PadTrigger>>& padTriggers) override;
 
 
   private:
-    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     // methods implementing the internal data processing
-    cStatus fill_strip_cache( const std::vector<std::unique_ptr<PadTrigger>>& padTriggers);   //!< loop over the digit container, apply the additional processing then fill the cache
-    void clear_cache();                                     //!< clear the strip hit cache deleting the StripData pointers
+    StatusCode fill_strip_cache(const std::vector<std::unique_ptr<PadTrigger>>& padTriggers, std::vector<std::unique_ptr<StripData>> &strip_cache);
 
     StatusCode book_branches();                             //!< book the branches to analyze the StripTds behavior
-    void reset_ntuple_variables();                          //!< reset the variables used in the analysis ntuple
     void clear_ntuple_variables();                          //!< clear the variables used in the analysis ntuple
-    void fill_strip_validation_id();                        //!< fill the ntuple branch for the StripTdsOffline
-    bool readStrip( StripData* ,const std::vector<std::unique_ptr<PadTrigger>>&);
+    void fill_strip_validation_id(std::vector<std::unique_ptr<StripData>> &strip_cache);  //!< fill the ntuple branch for the StripTdsOffline
+    bool readStrip( StripData* ,const std::vector<std::unique_ptr<PadTrigger>>&) const;
 
     // needed Servives, Tools and Helpers
-    ServiceHandle< IIncidentSvc >      m_incidentSvc;       //!< Athena/Gaudi incident Service
+    ServiceHandle<IIncidentSvc> m_incidentSvc{this, "IncidentSvc", "IncidentSvc"};  //!< Athena/Gaudi incident Service
     const MuonGM::MuonDetectorManager* m_detManager;        //!< MuonDetectorManager
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     // hidden variables
-    thread_local static std::vector<std::unique_ptr<StripData>>  m_strip_cache;                 //!< cache for the STRIP hit data in the event
-    thread_local static int     m_strip_cache_runNumber;                          //!< run number associated to the current STRIP cache
-    thread_local static int     m_strip_cache_eventNumber;                        //!< event number associated to the current STRIP cache
-    thread_local static cStatus m_strip_cache_status;                             //!< status of the current cache
-    BooleanProperty  m_doNtuple;                            //!< property, see @link StripTdsOfflineTool::StripTdsOfflineTool @endlink
+    Gaudi::Property<bool> m_doNtuple{this, "DoNtuple", false, "Input StripTds branches into the analysis ntuple"};
 
     // analysis ntuple
     TTree* m_tree;                                          //!< ntuple for analysis
 
     // analysis variable to be put into the ntuple
-    int m_nStripHits=0;                                            //!< number of STRIP hit delivered
-    std::vector<float > *m_stripCharge=0;                           //!< charge of hit STRIPs
-    std::vector<float > *m_stripCharge_6bit=0;                           //!< charge of hit STRIPs 6 bit format
-    std::vector<float > *m_stripCharge_10bit=0;                           //!< charge of hit STRIPs 10 bit format
-    std::vector<float > *m_strip_global_X=0;                           //!< global X position
-    std::vector<float > *m_strip_global_Y=0;                           //!< global Y position
-    std::vector<float > *m_strip_global_Z=0;                           //!< global Z position
-    std::vector<float > *m_strip_local_X=0;                           //!< local X position
-    std::vector<float > *m_strip_local_Y=0;                           //!< local Y position
-    std::vector<float > *m_strip_layer=0;                           //!< layer
-    std::vector<float > *m_strip_isSmall=0;                           //!< sector number // This is not the sector number ! Please avoid obvoius  and misleading stuff
-    std::vector<float > *m_strip_eta=0;                           //!< sector eta
-    std::vector<float > *m_strip_phi=0;                           //!< sector phi
-    std::vector<float > *m_strip_readStrip=0;                           //!< sector phi // this is not sector phi
-    std::vector<int > *m_strip_channel=0;                           //!< channel
-    std::vector<int > *m_strip_BCID=0;                           //!< BCID
-    std::vector<int > *m_strip_wedge=0;                           //!< multipletId
-    std::vector<float > *m_strip_time=0;                           //!< multipletId // And this is not the multiplet id
+    int m_nStripHits=0;                                     //!< number of STRIP hit delivered
+    std::vector<float > *m_stripCharge=0;                   //!< charge of hit STRIPs
+    std::vector<float > *m_stripCharge_6bit=0;              //!< charge of hit STRIPs 6 bit format
+    std::vector<float > *m_stripCharge_10bit=0;             //!< charge of hit STRIPs 10 bit format
+    std::vector<float > *m_strip_global_X=0;                //!< global X position
+    std::vector<float > *m_strip_global_Y=0;                //!< global Y position
+    std::vector<float > *m_strip_global_Z=0;                //!< global Z position
+    std::vector<float > *m_strip_local_X=0;                 //!< local X position
+    std::vector<float > *m_strip_local_Y=0;                 //!< local Y position
+    std::vector<float > *m_strip_layer=0;                   //!< layer
+    std::vector<bool > *m_strip_isSmall=0;                  //!< sector type
+    std::vector<float > *m_strip_eta=0;                     //!< sector eta
+    std::vector<float > *m_strip_phi=0;                     //!< sector phi
+    std::vector<bool > *m_strip_readStrip=0;                //!< read strip status
+    std::vector<int > *m_strip_channel=0;                   //!< channel
+    std::vector<int > *m_strip_BCID=0;                      //!< BCID
+    std::vector<int > *m_strip_wedge=0;                     //!< multipletId
+    std::vector<float > *m_strip_time=0;                    //!< time
 
     SG::ReadHandleKey<sTgcDigitContainer> m_sTgcDigitContainer = {this,"sTGC_DigitContainerName","sTGC_DIGITS","the name of the sTGC digit container"};
     SG::ReadHandleKey<MuonSimDataCollection> m_sTgcSdoContainer = {this,"sTGC_SdoContainerName","sTGC_SDO","the name of the sTGC SDO container"};
