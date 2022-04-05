@@ -129,18 +129,18 @@ MuonSegmentPlots::~MuonSegmentPlots()  = default;
 
   
   //position and direction plots
-
-  //protect against cases with no hit information!
-  if ( std::hypot(muSeg.px(),  muSeg.py(), muSeg.pz()) <= DBL_EPSILON ) return;
+  const Amg::Vector3D globalPos(muSeg.x(),muSeg.y(),muSeg.z());
+  const Amg::Vector3D globalDir(muSeg.px(),muSeg.py(),muSeg.pz());
+  
+  //protect against cases with no hit information or segments parallell to the beam!
+  if ( globalDir.mag() <= FLT_EPSILON  || globalDir.perp() <= FLT_EPSILON) return;
   //set up direction vectors
-  Amg::Vector3D globalPos(muSeg.x(),muSeg.y(),muSeg.z());
   float r = globalPos.perp();
   float z = globalPos.z();
   //fill the rz plots
   if (isSectorLarge) {rzpos_sectorLarge->Fill(z,r, chambernorm*weight);}
   else {rzpos_sectorSmall->Fill(z,r, chambernorm*weight);}
 
-  Amg::Vector3D globalDir(muSeg.px(),muSeg.py(),muSeg.pz());
   float eta = globalDir.eta();
   float phi = globalDir.phi();
   etadir->Fill(eta,weight);
