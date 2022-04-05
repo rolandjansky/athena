@@ -10,7 +10,9 @@ find_package( Superchic )
 if( SUPERCHIC_FOUND )
   set( SUPERCHICENVIRONMENT_ENVIRONMENT 
         FORCESET SUPERCHICVER ${SUPERCHIC_LCGVERSION} 
-        FORCESET SUPERCHICPATH ${SUPERCHIC_LCGROOT} )
+        FORCESET SUPERCHICPATH ${SUPERCHIC_LCGROOT} 
+        FORCESET LHAPDF_DATA_PATH "/afs/cern.ch/atlas/groups/Generators/lhapdfsets/current"
+        FORCESET LHAPATH "/afs/cern.ch/atlas/groups/Generators/lhapdfsets/current" )
 endif()
 
 
