@@ -96,17 +96,20 @@ def generateChainConfig(flags, chain, sigGenMap):
     return mainChainDict, theChainConfig
 
 
+
 def doMenuAlignment(chains):
     """
     Invoke menu alignment procedures and register aligned chains in the HLTMenuConfig
 
     Input is a list of pairs, (chain dict, chain config)
     """
+                        
     groups = [c[0]['alignmentGroups'] for c in chains]
     log.info('Alignment Combinations %s', groups)
-    alignmentCombinations = set([tuple(set(g)) for g in groups if len(g) > 1])
-    alignmentGroups = set(*alignmentCombinations)
-    log.info('Alignment Combinations %s', alignmentCombinations)
+    
+    alignmentCombinations = set([tuple(set(g)) for g in groups if len(set(g)) > 1])
+    log.info('Alignment reduced Combinations %s', alignmentCombinations)
+    alignmentGroups=set(list(itertools.chain(*alignmentCombinations)))
     log.info('Alignment Groups %s', alignmentGroups)
 
     alignmentLengths = dict.fromkeys(list(itertools.chain(*groups)), 0)

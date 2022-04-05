@@ -8,7 +8,6 @@ from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoTool
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType
-from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import getChainMultFromDict
 
 from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
@@ -33,7 +32,7 @@ def _fastCalo(flags, chainDict):
     selAcc , fastCaloSequence = _fastCaloSeq(flags)
 
      # this cannot work for asymmetric combined chains....FP
-    return ChainStep(name=selAcc.name, Sequences=[fastCaloSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
+    return ChainStep(name=selAcc.name, Sequences=[fastCaloSequence], chainDicts=[chainDict])
 
 @AccumulatorCache
 def _ftfSeq(flags):
@@ -60,7 +59,7 @@ def _ftfSeq(flags):
 
 def _ftf(flags, chainDict):
     selAcc , fastInDetSequence = _ftfSeq(flags)
-    return ChainStep( name=selAcc.name, Sequences=[fastInDetSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
+    return ChainStep( name=selAcc.name, Sequences=[fastInDetSequence], chainDicts=[chainDict])
 
 @AccumulatorCache
 def _precisonCaloSeq(flags):
@@ -92,7 +91,7 @@ def _precisonCaloSeq(flags):
 
 def _precisonCalo(flags, chainDict):
     selAcc , menuSequence = _precisonCaloSeq(flags)
-    return ChainStep(name=selAcc.name, Sequences=[menuSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
+    return ChainStep(name=selAcc.name, Sequences=[menuSequence], chainDicts=[chainDict])
 
 @AccumulatorCache
 def _precisionTrackingSeq(flags,chainDict):
@@ -118,7 +117,7 @@ def _precisionTrackingSeq(flags,chainDict):
 
 def _precisionTracking(flags, chainDict):
     selAcc , menuSequence = _precisionTrackingSeq(flags,chainDict)
-    return ChainStep(name=selAcc.name, Sequences=[menuSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
+    return ChainStep(name=selAcc.name, Sequences=[menuSequence], chainDicts=[chainDict])
 
 @AccumulatorCache
 def _precisionElectronSeq(flags):
@@ -255,7 +254,7 @@ def _precisionElectronSeq(flags):
 
 def _precisionElectron(flags, chainDict):
     selAcc , menuSequence = _precisionElectronSeq(flags)
-    return ChainStep(name=selAcc.name, Sequences=[menuSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
+    return ChainStep(name=selAcc.name, Sequences=[menuSequence], chainDicts=[chainDict])
 
 
 def generateChains(flags, chainDict):

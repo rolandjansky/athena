@@ -161,6 +161,7 @@ if __name__ == "__main__":
     import sys
     log.info(" ".join(sys.argv))
     flags.lock()
+    flags.dump()
     # Enable when debugging deduplication issues
     # ComponentAccumulator.debugMode = "trackCA trackEventAlog ... and so on"
     
