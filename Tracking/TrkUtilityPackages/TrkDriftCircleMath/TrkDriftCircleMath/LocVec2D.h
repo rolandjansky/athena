@@ -20,7 +20,8 @@ namespace TrkDriftCircleMath {
         /// Default copy & move constructors
         LocVec2D(const LocVec2D&) = default;
         LocVec2D(LocVec2D&&) = default;
-
+        LocVec2D() = default;
+        
         ~LocVec2D() = default;
         /// Returns the x coordinate of the vector
         double x() const { return m_x; }

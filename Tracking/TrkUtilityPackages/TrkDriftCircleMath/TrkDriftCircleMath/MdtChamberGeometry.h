@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DCMATH_MDTCHAMBERGEOMETRY_H
@@ -11,7 +11,6 @@
 #include "TrkDriftCircleMath/ChamberGeometry.h"
 #include "TrkDriftCircleMath/DriftCircle.h"
 #include "TrkDriftCircleMath/Line.h"
-#include "TrkDriftCircleMath/MdtStationId.h"
 #include "TrkDriftCircleMath/ResidualWithLine.h"
 
 namespace TrkDriftCircleMath {
@@ -20,7 +19,7 @@ namespace TrkDriftCircleMath {
     public:
         MdtChamberGeometry();
 
-        MdtChamberGeometry(MdtStationId id, unsigned int nml, unsigned int nlay, unsigned int ntubesml0, unsigned int ntubesml1,
+        MdtChamberGeometry(const Identifier& id, const Muon::IMuonIdHelperSvc* idHelperSvc, unsigned int nml, unsigned int nlay, unsigned int ntubesml0, unsigned int ntubesml1,
                            const LocVec2D& tube0ml0, const LocVec2D& tube0ml1, double tubeDist, double tubeStage, double layDist,
                            double stationTheta);
 
@@ -35,7 +34,7 @@ namespace TrkDriftCircleMath {
         unsigned int ntubesml0() const { return m_ntubesml[0]; }
         unsigned int ntubesml1() const { return m_ntubesml[1]; }
 
-        const MdtStationId& stationId() const override { return m_id; }
+        const Identifier& stationId() const override { return m_id; }
 
         const LocVec2D& firstTubeMl0() const { return m_firstTube[0]; }
         const LocVec2D& firstTubeMl1() const { return m_firstTube[1]; }
@@ -47,9 +46,7 @@ namespace TrkDriftCircleMath {
         double stationTheta() const override { return m_stationTheta; }
 
         double tubeRadius() const override { return m_tubeRad; }
-
-        const std::vector<LocVec2D>& allTubes() const override;
-
+   
         LocVec2D tubePosition(unsigned int ml, unsigned int lay, unsigned int tube) const override;
 
         DCVec tubesPassedByLine(const Line& line, int ml) const;
@@ -65,7 +62,7 @@ namespace TrkDriftCircleMath {
 
         bool validGeometry() const override { return m_validGeometry; }
 
-        void print() const override;
+        void print(MsgStream& msg) const override;
 
         bool validId(unsigned int ml, unsigned int lay, unsigned int tube) const;
 
@@ -73,7 +70,9 @@ namespace TrkDriftCircleMath {
         double xPosTube(unsigned int ml, unsigned int lay, unsigned int tube) const;
         double yPosTube(unsigned int ml, unsigned int lay) const;
 
-        MdtStationId m_id{};
+        Identifier m_id{};
+        bool m_sMdt{false};
+        bool m_isBarrel{false};
         unsigned int m_nml{0};
         unsigned int m_nlay{0};
         std::vector<unsigned int> m_ntubesml{};
@@ -85,7 +84,6 @@ namespace TrkDriftCircleMath {
 
         std::vector<bool> m_wasInit{};
         std::vector<LocVec2D> m_firstTube{};
-        std::vector<LocVec2D> m_allTubes{};
         bool m_validGeometry{false};
         bool m_isSecondMultiLayer{false};
     };

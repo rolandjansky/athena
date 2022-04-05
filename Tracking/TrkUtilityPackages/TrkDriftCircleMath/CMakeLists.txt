@@ -7,4 +7,4 @@ atlas_subdir( TrkDriftCircleMath )
 atlas_add_library( TrkDriftCircleMath
                    src/*.cxx
                    PUBLIC_HEADERS TrkDriftCircleMath
-                   LINK_LIBRARIES CxxUtils GaudiKernel FourMomUtils  MuonIdHelpersLib)
+                   LINK_LIBRARIES CxxUtils GaudiKernel FourMomUtils MuonReadoutGeometry MuonIdHelpersLib)

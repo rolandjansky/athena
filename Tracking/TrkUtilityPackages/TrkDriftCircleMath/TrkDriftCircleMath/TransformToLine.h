@@ -33,10 +33,10 @@ namespace TrkDriftCircleMath {
         }
 
         DriftCircle toLine(const DriftCircle& dc) const {
-            return DriftCircle(toLine(dc.position()), dc.r(), dc.dr(), dc.state(), dc.id(), dc.index(), dc.rot());
+            return DriftCircle(toLine(dc.position()), dc.r(), dc.dr(), dc.driftState(), dc.id(), dc.index(), dc.rot());
         }
         DriftCircle toLocal(const DriftCircle& dc) const {
-            return DriftCircle(toLocal(dc.position()), dc.r(), dc.dr(), dc.state(), dc.id(), dc.index(), dc.rot());
+            return DriftCircle(toLocal(dc.position()), dc.r(), dc.dr(), dc.driftState(), dc.id(), dc.index(), dc.rot());
         }
 
         /** rotate local position into line frame */
