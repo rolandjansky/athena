@@ -84,7 +84,7 @@ def JetFSTrackingSequence(dummyFlags,trkopt,RoIs):
     if IDTrigConfig.vertex_jet != IDTrigConfig.vertex:
         vtxAlgs += makeInDetTrigVertices( "amvf", IDTrigConfig.tracks_FTF(), IDTrigConfig.vertex, IDTrigConfig, IDTrigConfig.adaptiveVertex )
 
-    jetTrkSeq = parOR( "JetFSTrackingSeq_"+trkopt, viewAlgs+vtxAlgs)
+    jetTrkSeq = parOR(f"JetFSTracking_{trkopt}_RecoSequence", viewAlgs+vtxAlgs)
     trackcollmap = jetTTVA( "jet", jetTrkSeq, trkopt, IDTrigConfig, verticesname=IDTrigConfig.vertex_jet,  adaptiveVertex=IDTrigConfig.adaptiveVertex_jet )
 
     return jetTrkSeq, trackcollmap
@@ -116,7 +116,7 @@ def JetRoITrackingSequence(dummyFlags,jetsIn,trkopt,RoIs):
     # and the description in that merge request.
     ft_algs = [conf2toConfigurable(alg) for alg in findAllAlgorithms(ca_ft_algs._sequence)]
 
-    jetTrkSeq = parOR( "JetRoITrackingSeq_"+trkopt, viewAlgs + ft_algs)
+    jetTrkSeq = parOR( f"JetRoITracking_{trkopt}_RecoSequence", viewAlgs + ft_algs)
 
     # you can't use accumulator.wasMerged() here because the above
     # code only merged the algorithms. Instead we rely on this hacky
