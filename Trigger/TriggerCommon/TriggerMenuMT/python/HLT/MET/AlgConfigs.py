@@ -66,14 +66,18 @@ class TCPufitConfig(AlgConfig):
     def algType(cls):
         return "tcpufit"
 
-    def __init__(self, calib, **recoDict):
+    def __init__(self, calib, nSigma, **recoDict):
         super(TCPufitConfig, self).__init__(
-            inputs=["Clusters"], calib=calib, **recoDict
+            inputs=["Clusters"], calib=calib, nSigma=nSigma, **recoDict
         )
+        if nSigma == "default":
+            nSigma = "sig50"
+        # Strip off the 'sig' part of the string, convert the end to and int, then divide by 10
+        self.n_sigma = int(nSigma[3:]) / 10.0
 
     def make_fex_accumulator(self, flags, name, inputs):
         return CompFactory.getComp("HLT::MET::TCPufitFex")(
-            name, ClusterName=inputs["Clusters"]
+            name, ClusterName=inputs["Clusters"], NSigma=self.n_sigma
         )
 
 
@@ -141,10 +145,14 @@ class PFOPufitConfig(AlgConfig):
     def algType(cls):
         return "pfopufit"
 
-    def __init__(self, **recoDict):
+    def __init__(self, nSigma, **recoDict):
         super(PFOPufitConfig, self).__init__(
-            inputs=["MergedPFOs", "PFOPUCategory"], **recoDict
+            inputs=["MergedPFOs", "PFOPUCategory"], nSigma=nSigma, **recoDict
         )
+        if nSigma == "default":
+            nSigma = "sig50"
+        # Strip off the 'sig' part of the string, convert the end to and int, then divide by 10
+        self.n_sigma = int(nSigma[3:]) / 10.0
 
     def make_fex_accumulator(self, flags, name, inputs):
         return CompFactory.getComp("HLT::MET::PUSplitPufitFex")(
@@ -152,6 +160,7 @@ class PFOPufitConfig(AlgConfig):
             InputName=inputs["MergedPFOs"],
             InputCategoryName=inputs["PFOPUCategory"],
             NeutralThresholdMode=PUClassification.NeutralForward,
+            NSigma=self.n_sigma,
         )
 
 
@@ -160,10 +169,14 @@ class CVFPufitConfig(AlgConfig):
     def algType(cls):
         return "cvfpufit"
 
-    def __init__(self, **recoDict):
+    def __init__(self, nSigma, **recoDict):
         super(CVFPufitConfig, self).__init__(
-            inputs=["Clusters", "CVFPUCategory"], **recoDict
+            inputs=["Clusters", "CVFPUCategory"], nSigma=nSigma, **recoDict
         )
+        if nSigma == "default":
+            nSigma = "sig50"
+        # Strip off the 'sig' part of the string, convert the end to and int, then divide by 10
+        self.n_sigma = int(nSigma[3:]) / 10.0
 
     def make_fex_accumulator(self, flags, name, inputs):
         return CompFactory.getComp("HLT::MET::PUSplitPufitFex")(
@@ -171,6 +184,7 @@ class CVFPufitConfig(AlgConfig):
             InputName=inputs["Clusters"],
             InputCategoryName=inputs["CVFPUCategory"],
             NeutralThresholdMode=PUClassification.All,
+            NSigma=self.n_sigma,
         )
 
 
@@ -179,15 +193,19 @@ class MHTPufitConfig(AlgConfig):
     def algType(cls):
         return "mhtpufit"
 
-    def __init__(self, **recoDict):
+    def __init__(self, nSigma, **recoDict):
         inputs = ["Jets", "JetDef"]
         if recoDict["constitType"] == "pf":
             inputs += ["MergedPFOs"]
         else:
             inputs += ["Clusters"]
         super(MHTPufitConfig, self).__init__(
-            inputs=inputs, forceTracks=True, **recoDict
+            inputs=inputs, forceTracks=True, nSigma=nSigma, **recoDict
         )
+        if nSigma == "default":
+            nSigma = "sig50"
+        # Strip off the 'sig' part of the string, convert the end to and int, then divide by 10
+        self.n_sigma = int(nSigma[3:]) / 10.0
 
     def make_fex_accumulator(self, flags, name, inputs):
         calibHasAreaSub = "sub" in self.recoDict
@@ -207,4 +225,5 @@ class MHTPufitConfig(AlgConfig):
             ],
             JetCalibIncludesAreaSub=calibHasAreaSub,
             JetEventShapeName=rhoKey,
+            NSigma=self.n_sigma,
         )
