@@ -106,6 +106,8 @@ def MuDataPrepViewDataVerifierCfg(flags):
     if flags.Detector.GeometrysTGC and flags.Detector.GeometryMM and flags.Input.isMC:
       dataobjects += [( 'Muon::STGC_RawDataContainer' , 'StoreGateSvc+sTGCRDO' ),
                       ( 'Muon::MM_RawDataContainer' , 'StoreGateSvc+MMRDO' )]
+    if flags.Detector.GeometryMM:
+      dataobjects += [( 'MMPrepDataCollection_Cache'  , 'StoreGateSvc+' + MuonPrdCacheNames.MmCache)]
     alg = CompFactory.AthViews.ViewDataVerifier( name = "VDVMuDataPrep",
                                                  DataObjects = dataobjects)
     result.addEventAlgo(alg)

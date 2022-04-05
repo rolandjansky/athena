@@ -152,7 +152,7 @@ def MMRDODecodeCfg(flags, name="MM_RdoToMM_PrepData", **kwargs):
     acc.merge(MuonGeoModelCfg(flags))
 
     # Get the RDO -> PRD tool
-    kwargs.setdefault("DecodingTool", CompFactory.Muon.MmRdoToPrepDataToolMT(name="MmRdoToPrepDataTool"))
+    kwargs.setdefault("DecodingTool", CompFactory.Muon.MmRdoToPrepDataToolMT(name="MmRdoToPrepDataTool", PrdCacheKey = MuonPrdCacheNames.MmCache if flags.Muon.MuonTrigger else ""))
     if flags.Muon.MuonTrigger:
         kwargs.setdefault("PrintPrepData", False)
     # add RegSelTool
