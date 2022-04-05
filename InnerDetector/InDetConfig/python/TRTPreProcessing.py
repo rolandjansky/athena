@@ -8,43 +8,6 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType
 
-
-def InDetPRD_MultiTruthMakerTRTCfg(flags, name = "InDetTRT_PRD_MultiTruthMaker", **kwargs):
-    acc = ComponentAccumulator()
-
-    kwargs.setdefault("PixelDetEleCollKey", "")
-    kwargs.setdefault("SCTDetEleCollKey", "")
-    kwargs.setdefault("PixelClusterContainerName", "")
-    kwargs.setdefault("SCTClusterContainerName", "")
-    kwargs.setdefault("TRTDriftCircleContainerName", 'TRT_DriftCircles') ##read from InDetKeys.TRT_DriftCircles
-    kwargs.setdefault("SimDataMapNamePixel", "")
-    kwargs.setdefault("SimDataMapNameSCT", "")
-    kwargs.setdefault("SimDataMapNameTRT", 'TRT_SDO_Map') ##read from InDetKeys.TRT_SDOs
-    kwargs.setdefault("TruthNamePixel", "")
-    kwargs.setdefault("TruthNameSCT", "")
-    kwargs.setdefault("TruthNameTRT", 'PRD_MultiTruthTRT') ##read from InDetKeys.TRT_DriftCirclesTruth
-
-    acc.addEventAlgo(CompFactory.InDet.PRD_MultiTruthMaker(name, **kwargs))
-    return acc
-
-def InDetPRD_MultiTruthMakerTRTPUCfg(flags, name = "InDetTRT_PRD_MultiTruthMakerPU", **kwargs):
-    acc = ComponentAccumulator()
-
-    kwargs.setdefault("PixelDetEleCollKey", "")
-    kwargs.setdefault("SCTDetEleCollKey", "")
-    kwargs.setdefault("PixelClusterContainerName", "")
-    kwargs.setdefault("SCTClusterContainerName", "")
-    kwargs.setdefault("TRTDriftCircleContainerName", 'TRT_PU_DriftCircles') ##read from InDetKeys.TRT_PU_DriftCircles
-    kwargs.setdefault("SimDataMapNamePixel", "")
-    kwargs.setdefault("SimDataMapNameSCT", "")
-    kwargs.setdefault("SimDataMapNameTRT", 'TRT_PU_SDO_Map') ##read from InDetKeys.TRT_PU_SDOs
-    kwargs.setdefault("TruthNamePixel", "")
-    kwargs.setdefault("TruthNameSCT", "")
-    kwargs.setdefault("TruthNameTRT", 'PRD_PU_MultiTruthTRT') ##read from InDetKeys.TRT_PU_DriftCirclesTruth
-
-    acc.addEventAlgo(CompFactory.InDet.PRD_MultiTruthMaker(name, **kwargs))
-    return acc
-
 def InDetTRT_DriftFunctionToolCfg(flags, name = "InDetTRT_DriftFunctionTool", **kwargs):
     acc = ComponentAccumulator()
     #
@@ -252,8 +215,10 @@ def TRTPreProcessingCfg(flags, **kwargs):
     # --- we need to do truth association if requested (not for uncalibrated hits in cosmics)
     #
     if flags.InDet.doTruth and flags.Beam.Type is not BeamType.Cosmics:
+        from InDetConfig.InDetTruthAlgsConfig import InDetPRD_MultiTruthMakerTRTCfg
         acc.merge(InDetPRD_MultiTruthMakerTRTCfg(flags, name = prefix + "PRD_MultiTruthMaker"))
         if flags.InDet.doSplitReco :
+            from InDetConfig.InDetTruthAlgsConfig import InDetPRD_MultiTruthMakerTRTPUCfg
             acc.merge(InDetPRD_MultiTruthMakerTRTPUCfg(flags, name = prefix+"PRD_MultiTruthMakerPU"))
     return acc
 

@@ -187,11 +187,6 @@ def MuonStationIntersectCondAlgCfg(flags, name='MuonStationIntersectCondAlg',**k
     result.addCondAlgo(muon_station_intersect_condalg, primary=True)
     return result
 
-def KalmanUpdatorCfg(flags, name="MuonMeasUpdator", **kwargs):
-    result = ComponentAccumulator()
-    theTool = CompFactory.Trk.KalmanUpdator("MuonMeasUpdator")
-    result.setPrivateTools(theTool)
-    return result
 def MuonChi2TrackFitterCfg(flags, name='MuonChi2TrackFitter', **kwargs):    
     result = ComponentAccumulator()
 
@@ -200,7 +195,8 @@ def MuonChi2TrackFitterCfg(flags, name='MuonChi2TrackFitter', **kwargs):
     from MuonConfig.MuonRIO_OnTrackCreatorConfig import MuonRotCreatorCfg    
     rotcreator=result.popToolsAndMerge(MuonRotCreatorCfg(flags))
     
-    measurement_updater = result.popToolsAndMerge(KalmanUpdatorCfg(flags))
+    from TrkConfig.TrkMeasurementUpdatorConfig import KalmanUpdator_xkCfg
+    measurement_updater = result.popToolsAndMerge(KalmanUpdator_xkCfg(flags, name="MuonMeasUpdator"))
     
 
     kwargs.setdefault("ExtrapolationTool"    , extrapolator)

@@ -428,29 +428,6 @@ def InDetTrackSummaryToolSharedHitsCfg(flags, name='InDetTrackSummaryToolSharedH
     acc.addPublicTool(InDetTrackSummaryTool, primary=True)
     return acc
 
-def InDetUpdatorCfg(flags, name = 'InDetUpdator', **kwargs):
-    if flags.Detector.GeometryITk:
-        name = name.replace("InDet", "ITk")
-        from InDetConfig.ITkRecToolConfig import ITkUpdatorCfg
-        return ITkUpdatorCfg(flags, name, **kwargs)
-
-    acc = ComponentAccumulator()
-
-    tool = None
-    if flags.InDet.Tracking.kalmanUpdator == "fast" :
-        tool = CompFactory.Trk.KalmanUpdator_xk(name, **kwargs)
-    elif flags.InDet.Tracking.kalmanUpdator == "weight" :
-        tool = CompFactory.Trk.KalmanWeightUpdator(name, **kwargs)
-    elif flags.InDet.Tracking.kalmanUpdator == "smatrix" :
-        tool = CompFactory.Trk.KalmanUpdatorSMatrix(name, **kwargs)
-    elif flags.InDet.Tracking.kalmanUpdator == "amg" :
-        tool = CompFactory.Trk.KalmanUpdatorAmg(name, **kwargs)
-    else :
-        tool = CompFactory.Trk.KalmanUpdator(name, **kwargs)
-
-    acc.setPrivateTools(tool)
-    return acc
-
 def InDetMultipleScatteringUpdatorCfg(name = "InDetMultipleScatteringUpdator", **kwargs):
     acc = ComponentAccumulator()
 
@@ -487,8 +464,10 @@ def InDetKalmanTrackFitterBaseCfg(flags, name='InDetKalmanTrackFitterBase', **kw
         InDetRefitRotCreator = acc.popToolsAndMerge(InDetRefitRotCreatorCfg(flags))
         kwargs.setdefault("RIO_OnTrackCreatorHandle", InDetRefitRotCreator)
 
+    from TrkConfig.TrkMeasurementUpdatorConfig import InDetUpdatorCfg
     InDetUpdator = acc.popToolsAndMerge(InDetUpdatorCfg(flags))
     kwargs.setdefault('MeasurementUpdatorHandle', InDetUpdator)
+
     kwargs.setdefault('KalmanSmootherHandle', InDetBKS())
     kwargs.setdefault('KalmanOutlierLogicHandle', InDetKOL())
     kwargs.setdefault('DynamicNoiseAdjustorHandle', None)
@@ -733,6 +712,7 @@ def InDetGlobalChi2FitterBaseCfg(flags, name='GlobalChi2FitterBase', **kwargs):
     InDetNavigator = acc.popToolsAndMerge(AtlasNavigatorCfg(flags, name="InDetNavigator"))
     ELossUpdator = acc.popToolsAndMerge(AtlasEnergyLossUpdatorCfg(flags))
     InDetPropagator = acc.popToolsAndMerge(InDetPropagatorCfg(flags))
+    from TrkConfig.TrkMeasurementUpdatorConfig import InDetUpdatorCfg
     InDetUpdator = acc.popToolsAndMerge(InDetUpdatorCfg(flags))
 
     InDetMultipleScatteringUpdator = acc.popToolsAndMerge(
@@ -928,12 +908,6 @@ def InDetTRT_ExtensionToolCosmicsCfg(flags, name='InDetTRT_ExtensionToolCosmics'
     acc.setPrivateTools(CompFactory.InDet.TRT_TrackExtensionToolCosmics(name, **kwargs))
     return acc
 
-def InDetPatternUpdatorCfg(name='InDetPatternUpdator', **kwargs):
-    result = ComponentAccumulator()
-    tool = CompFactory.Trk.KalmanUpdator_xk(name, **kwargs)
-    result.addPublicTool( tool, primary=True )
-    return result
-
 def InDetTRT_TrackExtensionTool_xkCfg(flags, name='InDetTRT_ExtensionTool', **kwargs):
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     acc = MagneticFieldSvcCfg(flags)
@@ -945,7 +919,9 @@ def InDetTRT_TrackExtensionTool_xkCfg(flags, name='InDetTRT_ExtensionTool', **kw
         kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
 
     if 'UpdatorTool' not in kwargs :
-        InDetPatternUpdator = acc.getPrimaryAndMerge(InDetPatternUpdatorCfg())
+        from TrkConfig.TrkMeasurementUpdatorConfig import KalmanUpdator_xkCfg
+        InDetPatternUpdator = acc.popToolsAndMerge(KalmanUpdator_xkCfg(flags, name="InDetPatternUpdator"))
+        acc.addPublicTool(InDetPatternUpdator)
         kwargs.setdefault("UpdatorTool", InDetPatternUpdator)
 
     if 'DriftCircleCutTool' not in kwargs :

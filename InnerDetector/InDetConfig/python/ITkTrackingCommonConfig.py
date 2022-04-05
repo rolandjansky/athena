@@ -283,12 +283,13 @@ def ITkKalmanTrackFitterBaseCfg(flags, name='ITkKalmanTrackFitterBase', **kwargs
                                                                    name = 'ITkRefitRotCreator'))
         kwargs.setdefault("RIO_OnTrackCreatorHandle", ITkRefitRotCreator)
 
-    from  InDetConfig.ITkRecToolConfig import ITkUpdatorCfg
+    from TrkConfig.TrkMeasurementUpdatorConfig import ITkUpdatorCfg
     ITkUpdator = acc.popToolsAndMerge(ITkUpdatorCfg(flags))
+    kwargs.setdefault('MeasurementUpdatorHandle', ITkUpdator)
+
     ITkBKS = acc.popToolsAndMerge(ITkBKSCfg(flags))
     ITkKOL = acc.popToolsAndMerge(ITkKOLCfg(flags))
 
-    kwargs.setdefault('MeasurementUpdatorHandle', ITkUpdator)
     kwargs.setdefault('KalmanSmootherHandle', ITkBKS)
     kwargs.setdefault('KalmanOutlierLogicHandle', ITkKOL)
     kwargs.setdefault('DynamicNoiseAdjustorHandle', None)
@@ -560,7 +561,7 @@ def ITkGlobalChi2FitterBaseCfg(flags, name='ITkGlobalChi2FitterBase', **kwargs) 
 
     from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
     from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasNavigatorCfg, AtlasEnergyLossUpdatorCfg, ITkPropagatorCfg, ITkMaterialEffectsUpdatorCfg
-    from InDetConfig.ITkRecToolConfig import ITkUpdatorCfg
+    from TrkConfig.TrkMeasurementUpdatorConfig import ITkUpdatorCfg
 
     Extrapolator = acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags))
     Navigator = acc.popToolsAndMerge(AtlasNavigatorCfg(flags))
