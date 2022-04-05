@@ -68,7 +68,7 @@ def EnergyDepositionToolCfg(flags, name="EnergyDepositionTool", **kwargs):
     kwargs.setdefault("doBichsel", True)
     kwargs.setdefault("doBichselBetaGammaCut", 0.7) # dEdx not quite consistent below this
     kwargs.setdefault("doDeltaRay", False)          # needs validation
-    kwargs.setdefault("doPU", True)
+    kwargs.setdefault("doPU", False)
     EnergyDepositionTool = CompFactory.EnergyDepositionTool
     acc.setPrivateTools(EnergyDepositionTool(name, **kwargs))
     return acc
