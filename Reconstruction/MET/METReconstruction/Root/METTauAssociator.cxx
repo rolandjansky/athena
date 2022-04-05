@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // METTauAssociator.cxx
@@ -123,7 +123,7 @@ namespace met {
   {
     const TauJet* tau = static_cast<const TauJet*>(obj);
     TLorentzVector tauAxis = tauRecTools::getTauAxis(*tau);
-    const xAOD::Vertex* tauVertex = tauRecTools::getTauVertex(*tau);
+    const xAOD::Vertex* tauVertex = tau->vertex();
 
     auto clusterList = tau->clusters();
     for (const xAOD::IParticle* particle : clusterList) {

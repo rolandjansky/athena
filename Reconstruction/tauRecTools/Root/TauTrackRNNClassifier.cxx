@@ -287,7 +287,7 @@ StatusCode TrackRNN::calulateVars(const std::vector<xAOD::TauTrack*>& vTracks,
 
   // vertex variables
   double dz0_TV_PV0 = 0., sumpt_TV = 0., sumpt2_TV = 0., sumpt_PV0 = 0., sumpt2_PV0 = 0.;
-  if(vertexContainer != nullptr && !vertexContainer->empty()) {
+  if(vertexContainer != nullptr && !vertexContainer->empty() && xTau.vertex()!=nullptr) {
     dz0_TV_PV0 = xTau.vertex()->z() - vertexContainer->at(0)->z();
 
     for (const ElementLink<xAOD::TrackParticleContainer>& trk : vertexContainer->at(0)->trackParticleLinks()) {

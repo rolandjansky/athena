@@ -14,7 +14,7 @@ atlas_add_component( eflowRec
                      LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent CaloIdentifier CaloRecLib AthContainers AthLinks AthenaBaseComps CxxUtils AthenaKernel GeoPrimitives Identifier xAODBase 
 		     xAODCaloEvent xAODCore xAODEgamma xAODMuon xAODPFlow xAODTau xAODTracking GaudiKernel InDetReadoutGeometry TRT_ReadoutGeometry Particle RecoToolInterfaces 
 		     TrkParameters CaloDetDescrLib CaloUtilsLib StoreGateLib FourMomUtils PathResolver TrkCaloExtension TrkParametersIdentificationHelpers FourMomUtils 
-		     InDetTrackSelectionToolLib AthenaMonitoringKernelLib ICaloTrkMuIdTools tauRecToolsLib)
+		     InDetTrackSelectionToolLib AthenaMonitoringKernelLib ICaloTrkMuIdTools)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
