@@ -92,7 +92,7 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) const {
 
   // in the trigger, we must ignore the tau vertex, otherwise ptFinalCalib computed at calo-only step and precision step will differ
   const xAOD::Vertex* vertex = nullptr;
-  if (m_doVertexCorrection) vertex = tauRecTools::getTauVertex(xTau, inTrigger());
+  if (m_doVertexCorrection) vertex = xTau.vertex();
 
   // Loop through clusters and jet constituents
   std::vector<xAOD::CaloVertexedTopoCluster> vertexedClusterList = xTau.vertexedClusters();

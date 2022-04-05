@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "tauRecTools/TauVertexedClusterDecorator.h"
@@ -37,10 +37,7 @@ StatusCode TauVertexedClusterDecorator::initialize() {
 StatusCode TauVertexedClusterDecorator::execute(xAOD::TauJet& tau) const {
   
   // Obtain the vertex to correct the cluster
-  const xAOD::Vertex* vertex = nullptr;
-  if (tau.vertexLink().isValid()) {
-    vertex = tau.vertex();
-  }
+  const xAOD::Vertex* vertex = tau.vertex();
 
   std::vector<const xAOD::IParticle*> particleList = tau.clusters();
   
