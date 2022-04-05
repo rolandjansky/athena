@@ -103,7 +103,7 @@ private:
   StatusCode dumpPixelClusters(HitIndexMap& pixelClusterIndexMap, const EventContext& eventContext);
 
   // To get truth information from simulation
-  void getTruthInformation(InDetSimDataCollection::const_iterator& iter, TrigHTTInputUtils::ParentBitmask& parentMask, HepMcParticleLink::ExtendedBarCode& bestExtcode, const HepMC::GenParticle* bestParent);
+  void getTruthInformation(InDetSimDataCollection::const_iterator& iter, TrigHTTInputUtils::ParentBitmask& parentMask, HepMcParticleLink::ExtendedBarCode& bestExtcode, HepMC::ConstGenParticlePtr bestParent);
   HTTEventInputHeader*        m_eventHeader = nullptr;
 };
 
