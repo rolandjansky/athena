@@ -58,11 +58,6 @@ def RIO_OnTrackCreatorCfg( flags, name="InDetTrigRotCreator" ):
   acc.addPublicTool( tool, primary=True )
   return acc
 
-def KalmanxkUpdatorCfg(flags):
-  acc = ComponentAccumulator()
-  acc.addPublicTool(CompFactory.Trk.KalmanUpdator_xk( "InDetTrigPatternUpdator" ), primary=True )
-  return acc
-
 def SiTrackMaker_xkCfg(flags, name="SiTrackMaker_xk"):
   """
   based on: InnerDetector/InDetExample/InDetTrigRecExample/python/InDetTrigConfigRecNewTracking.py , should be moved elsewhere
@@ -398,34 +393,6 @@ def sctClusterizationCfg(flags, roisKey, signature):
 
   return acc
 
-def spacePointsMakingCfg(flags, signature):
-  acc = ComponentAccumulator()
-  #Space points
-
-  InDet__SiSpacePointMakerTool=CompFactory.InDet.SiSpacePointMakerTool
-  InDetSiSpacePointMakerTool = InDet__SiSpacePointMakerTool(name = "InDetSiSpacePointMakerTool"+ signature)
-  acc.addPublicTool(InDetSiSpacePointMakerTool)
-
-  acc.addCondAlgo( CompFactory.InDet.SiElementPropertiesTableCondAlg(name = "InDetSiElementPropertiesTableCondAlg") )
-
-  InDet__SiTrackerSpacePointFinder=CompFactory.InDet.SiTrackerSpacePointFinder
-  InDetSiTrackerSpacePointFinder = InDet__SiTrackerSpacePointFinder(name                   = "InDetSiTrackerSpacePointFinder_"+ signature,
-                                                                    SiSpacePointMakerTool  = InDetSiSpacePointMakerTool,
-                                                                    PixelsClustersName     = "PixelTrigClusters",
-                                                                    SCT_ClustersName       = "SCT_TrigClusters",
-                                                                    SpacePointsPixelName   = "PixelTrigSpacePoints",
-                                                                    SpacePointsSCTName     = "SCT_TrigSpacePoints",
-                                                                    SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
-                                                                    ProcessPixels          = flags.Detector.EnablePixel,
-                                                                    ProcessSCTs            = flags.Detector.EnableSCT,
-                                                                    ProcessOverlaps        = flags.Detector.EnableSCT,
-                                                                    SpacePointCacheSCT     = InDetCacheNames.SpacePointCacheSCT,
-                                                                    SpacePointCachePix     = InDetCacheNames.SpacePointCachePix,)
-  acc.addEventAlgo(InDetSiTrackerSpacePointFinder)
-
-  return acc
-
-
 def ftfCfg(flags, roisKey, signature, signatureName):
   acc = ComponentAccumulator()
 
@@ -574,7 +541,8 @@ def trigInDetFastTrackingCfg( inflags, roisKey="EMRoIs", signatureName='', in_vi
 
   acc.merge(pixelClusterizationCfg(flags, roisKey, signature))
   acc.merge(sctClusterizationCfg(flags, roisKey, signature))
-  acc.merge(spacePointsMakingCfg(flags, signature))
+  from InDetConfig.SiSpacePointFormationConfig import TrigSiTrackerSpacePointFinderCfg
+  acc.merge(TrigSiTrackerSpacePointFinderCfg(flags, name="InDetSiTrackerSpacePointFinder_"+signature))
   acc.merge(ftfCfg(flags, roisKey, signature, signatureName))
   acc.merge(trackFTFConverterCfg(flags, signature))
   return acc
@@ -648,11 +616,16 @@ def TRTExtensionToolCfg(flags):
                                                              MagneticFieldMode     = 'MapSolenoid',
                                                              PropagatorTool        =  patternPropagator )
   acc.addPublicTool( roadMaker )
+
+  from TrkConfig.TrkMeasurementUpdatorConfig import KalmanUpdator_xkCfg
+  updator = acc.popToolsAndMerge(KalmanUpdator_xkCfg(flags, name="InDetTrigPatternUpdator"))
+  acc.addPublicTool(updator)
+
   from .InDetTrigCollectionKeys import TrigTRTKeys
   extensionTool = CompFactory.InDet.TRT_TrackExtensionTool_xk ( name = f"{prefix}TrackExtensionTool_{flags.InDet.Tracking.ActivePass.name}",
                                                                 TRT_ClustersContainer = TrigTRTKeys.DriftCircles,
                                                                 PropagatorTool = patternPropagator,
-                                                                UpdatorTool    = acc.getPrimaryAndMerge( KalmanxkUpdatorCfg( flags ) ),
+                                                                UpdatorTool    = updator,
                                                                 RoadTool       = roadMaker,
                                                                 DriftCircleCutTool = acc.getPrimaryAndMerge(TRTDriftCircleCutCfg(flags)),
                                                                 MinNumberDriftCircles = flags.InDet.Tracking.ActivePass.minTRTonTrk,
@@ -742,12 +715,6 @@ def ambiguityScoringToolCfg(flags):
   acc.addPublicTool(tool, primary=True)
   return acc
 
-def KalmanUpdatorCfg(flags):
-  acc = ComponentAccumulator()
-  tool = CompFactory.Trk.KalmanUpdator("InDetTrigUpdator")
-  acc.setPrivateTools(tool)
-  return acc
-
 def FitterToolCfg(flags):
   acc = ComponentAccumulator()
   from TrkConfig.AtlasExtrapolatorToolsConfig import AtlasNavigatorCfg, AtlasEnergyLossUpdatorCfg
@@ -759,6 +726,9 @@ def FitterToolCfg(flags):
   geom_cond_key = cond_alg.getPrimary().TrackingGeometryWriteKey
   acc.merge(cond_alg)
 
+  from TrkConfig.TrkMeasurementUpdatorConfig import KalmanUpdatorCfg
+  updator = acc.popToolsAndMerge(KalmanUpdatorCfg(flags, name="InDetTrigUpdator"))
+
   fitter = CompFactory.Trk.GlobalChi2Fitter(name                  = 'InDetTrigTrackFitter',
                                             ExtrapolationTool     = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags, name="InDetTrigExtrapolator")),
                                             NavigatorTool         = acc.popToolsAndMerge(AtlasNavigatorCfg(flags, name="InDetTrigNavigator")),
@@ -766,7 +736,7 @@ def FitterToolCfg(flags):
                                             RotCreatorTool        = acc.getPrimaryAndMerge(RIO_OnTrackCreatorCfg(flags, "InDetTrigRefitRotCreator")),
                                             BroadRotCreatorTool   = None, #InDetTrigBroadInDetRotCreator, #TODO, we have function to configure it
                                             EnergyLossTool        = acc.popToolsAndMerge(AtlasEnergyLossUpdatorCfg(flags)),
-                                            MeasurementUpdateTool = acc.popToolsAndMerge(KalmanUpdatorCfg( flags )),
+                                            MeasurementUpdateTool = updator,
                                             MaterialUpdateTool    = CompFactory.Trk.MaterialEffectsUpdator(name = "InDetTrigMaterialEffectsUpdator"),
                                             StraightLine          = not flags.BField.solenoidOn,
                                             OutlierCut            = 4,

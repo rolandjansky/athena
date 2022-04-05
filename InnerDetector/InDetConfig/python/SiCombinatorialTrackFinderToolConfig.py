@@ -82,8 +82,10 @@ def SiCombinatorialTrackFinder_xkCfg(flags, name="InDetSiComTrackFinder", **kwar
     acc.addPublicTool(InDetPatternPropagator)
     kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
 
-    from InDetConfig.TrackingCommonConfig import InDetPatternUpdatorCfg
-    kwargs.setdefault("UpdatorTool", acc.getPrimaryAndMerge(InDetPatternUpdatorCfg()))
+    from TrkConfig.TrkMeasurementUpdatorConfig import KalmanUpdator_xkCfg
+    InDetPatternUpdator = acc.popToolsAndMerge(KalmanUpdator_xkCfg(flags, name="InDetPatternUpdator"))
+    acc.addPublicTool(InDetPatternUpdator)
+    kwargs.setdefault("UpdatorTool", InDetPatternUpdator)
 
     from InDetConfig.InDetBoundaryCheckToolConfig import InDetBoundaryCheckToolCfg
     kwargs.setdefault("BoundaryCheckTool", acc.popToolsAndMerge(InDetBoundaryCheckToolCfg(flags)))
@@ -125,8 +127,10 @@ def SiCombinatorialTrackFinder_xk_Trig_Cfg( flags, name="InDetTrigSiComTrackFind
   propagatorTool = acc.popToolsAndMerge( RungeKuttaPropagatorCfg( flags, name="InDetTrigPatternPropagator" ) )
   acc.addPublicTool(propagatorTool)
 
-  from TrigInDetConfig.TrigInDetConfig import KalmanxkUpdatorCfg, RIO_OnTrackCreatorCfg
-  patternUpdatorTool = acc.getPrimaryAndMerge( KalmanxkUpdatorCfg( flags ) )
+  from TrkConfig.TrkMeasurementUpdatorConfig import KalmanUpdator_xkCfg
+  patternUpdatorTool = acc.popToolsAndMerge( KalmanUpdator_xkCfg(flags, name="InDetTrigPatternUpdator") )
+
+  from TrigInDetConfig.TrigInDetConfig import RIO_OnTrackCreatorCfg
   rioOnTrackTool = acc.getPrimaryAndMerge( RIO_OnTrackCreatorCfg( flags ) )
 
   from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
@@ -171,13 +175,15 @@ def ITkSiCombinatorialTrackFinder_xkCfg(flags, name="ITkSiComTrackFinder", **kwa
     acc.addPublicTool(ITkPatternPropagator)
     kwargs.setdefault("PropagatorTool", ITkPatternPropagator)
 
-    from InDetConfig.ITkRecToolConfig import ITkPatternUpdatorCfg
-    ITkPatternUpdator = acc.popToolsAndMerge(ITkPatternUpdatorCfg(flags))
+    from TrkConfig.TrkMeasurementUpdatorConfig import KalmanUpdator_xkCfg
+    ITkPatternUpdator = acc.popToolsAndMerge(KalmanUpdator_xkCfg(flags, name="ITkPatternUpdator"))
+    acc.addPublicTool(ITkPatternUpdator)
+    kwargs.setdefault("UpdatorTool", ITkPatternUpdator)
+
     from InDetConfig.InDetBoundaryCheckToolConfig import ITkBoundaryCheckToolCfg
     ITkBoundaryCheckTool = acc.popToolsAndMerge(ITkBoundaryCheckToolCfg(flags))
-
-    kwargs.setdefault("UpdatorTool", ITkPatternUpdator)
     kwargs.setdefault("BoundaryCheckTool", ITkBoundaryCheckTool)
+
     kwargs.setdefault("usePixel", flags.Detector.EnableITkPixel)
     kwargs.setdefault("useSCT", flags.Detector.EnableITkStrip)
     kwargs.setdefault("PixelClusterContainer", 'ITkPixelClusters')
