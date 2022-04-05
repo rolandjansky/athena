@@ -30,32 +30,27 @@
 //* retrieving of tables from DB for Run2
 //*********************************************************
 
+MDT_DCSConditionsRun2Tool::MDT_DCSConditionsRun2Tool(const std::string& type, const std::string& name, const IInterface* parent) :
+    AthAlgTool(type, name, parent),
+    m_IOVSvc(nullptr),
+    m_mdtIdHelper(nullptr),
+    m_DataLocation("keyMDTDCS"),
+    m_chronoSvc(nullptr),
+    m_condMapTool("MDT_MapConversion"),
+    m_log(msgSvc(), name),
+    m_debug(false),
+    m_verbose(false) {
+    declareInterface<IMDT_DCSConditionsRun2Tool>(this);
 
-MDT_DCSConditionsRun2Tool::MDT_DCSConditionsRun2Tool (const std::string& type,
-				    const std::string& name,
-				    const IInterface* parent)
-	  : AthAlgTool(type, name, parent),
-	    m_IOVSvc(nullptr),
-	    m_mdtIdHelper(nullptr),
-            m_DataLocation("keyMDTDCS"),
-	    m_chronoSvc(nullptr),
-	    m_condMapTool("MDT_MapConversion"), 
-	    m_log( msgSvc(), name ),
-	    m_debug(false),
-	    m_verbose(false)   
-{
-  
-  declareInterface< IMDT_DCSConditionsRun2Tool >(this);
-
-  declareProperty("LVFolder",     m_lvFolder="/MDT/DCS/LV");
-  declareProperty("HVFolder",     m_hvFolder="/MDT/DCS/HV");
-  ///declareProperty("JTAGFolder",     m_jtagFolder="/MDT/DCS/JTAGCHSTATE");
-  declareProperty("MDT_MapConversion", m_condMapTool);
-  //declareProperty("Simulation_Setup",m_simulation_Setup=false);
-  m_MDTChamDrop.str("EMPTY");
-  m_MDTLV.str("EMPTY");
-  m_MDTHV.str("EMPTY");
-  m_MDTJTAG.str("EMPTY");
+    declareProperty("LVFolder", m_lvFolder = "/MDT/DCS/LV");
+    declareProperty("HVFolder", m_hvFolder = "/MDT/DCS/HV");
+    /// declareProperty("JTAGFolder",     m_jtagFolder="/MDT/DCS/JTAGCHSTATE");
+    declareProperty("MDT_MapConversion", m_condMapTool);
+    // declareProperty("Simulation_Setup",m_simulation_Setup=false);
+    m_MDTChamDrop.str("EMPTY");
+    m_MDTLV.str("EMPTY");
+    m_MDTHV.str("EMPTY");
+    m_MDTJTAG.str("EMPTY");
 }
 
 // StatusCode MDT_DCSConditionsTool::updateAddress(SG::TransientAddress* /*tad*/)

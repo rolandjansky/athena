@@ -22,22 +22,19 @@
 #include "PathResolver/PathResolver.h"
 #include "SGTools/TransientAddress.h"
 
-RpcDetectorStatusDbTool::RpcDetectorStatusDbTool(const std::string& type,
-                                                 const std::string& name,
-                                                 const IInterface* parent)
-  : AthAlgTool(type, name, parent)
-  , m_FirstCall(true)
-  , m_IOVSvc(nullptr)
-  , m_rpcDqStatusDataLocation("RpcDqStatusKey")
-  , m_log(msgSvc(), name)
-  , m_debug(false)
-  , m_verbose(false)
+RpcDetectorStatusDbTool::RpcDetectorStatusDbTool(const std::string& type, const std::string& name, const IInterface* parent) :
+    AthAlgTool(type, name, parent),
+    m_FirstCall(true),
+    m_IOVSvc(nullptr),
+    m_rpcDqStatusDataLocation("RpcDqStatusKey"),
+    m_log(msgSvc(), name),
+    m_debug(false),
+    m_verbose(false)
 
 {
     declareInterface<IRpcDetectorStatusDbTool>(this);
 
-  declareInterface<IRpcDetectorStatusDbTool>(this);
-
+    declareInterface<IRpcDetectorStatusDbTool>(this);
 
     m_rpcIdHelper = nullptr;
     declareProperty("RpcDqFolder", m_FolderName = "/RPC/DQMF/ELEMENT_STATUS");

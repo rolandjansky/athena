@@ -25,14 +25,11 @@
 //* retrieving of tables from DB
 //*********************************************************
 
-CSC_DCSConditionsTool::CSC_DCSConditionsTool (const std::string& type, const std::string& name, const IInterface* parent) :
-    AthAlgTool(type, name, parent), 
-    m_IOVSvc(nullptr),
-    m_DataLocation("keyCSCDCS"),
-    m_chronoSvc(nullptr) {
-  declareInterface< ICSC_DCSConditionsTool >(this);
-  declareProperty("HVFolder",     m_hvFolder="/CSC/DCS/LAYERSTATE");
-  declareProperty("ChamberFolder",     m_chamberFolder="/CSC/DCS/ENABLEDCHAMBERS");
+CSC_DCSConditionsTool::CSC_DCSConditionsTool(const std::string& type, const std::string& name, const IInterface* parent) :
+    AthAlgTool(type, name, parent), m_IOVSvc(nullptr), m_DataLocation("keyCSCDCS"), m_chronoSvc(nullptr) {
+    declareInterface<ICSC_DCSConditionsTool>(this);
+    declareProperty("HVFolder", m_hvFolder = "/CSC/DCS/LAYERSTATE");
+    declareProperty("ChamberFolder", m_chamberFolder = "/CSC/DCS/ENABLEDCHAMBERS");
 }
 
 StatusCode CSC_DCSConditionsTool::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* /*tad*/, const EventContext& /*ctx*/) {

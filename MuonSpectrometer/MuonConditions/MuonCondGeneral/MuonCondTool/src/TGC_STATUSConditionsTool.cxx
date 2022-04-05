@@ -9,13 +9,12 @@
 #include <map>
 #include <string>
 
-TGC_STATUSConditionsTool::TGC_STATUSConditionsTool (const std::string& type, const std::string& name, const IInterface* parent) :
-    AthAlgTool(type, name, parent),
-    m_IOVSvc(nullptr),
-    m_tgcDqStatusDataLocation("TgcDqStatusKey"),
-    m_chronoSvc(nullptr) {
-  declareInterface< ITGC_STATUSConditionsTool >(this);
-  declareProperty("TgcDqFolder",m_FolderName="TGC/1/DetectorStatus");
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
+
+TGC_STATUSConditionsTool::TGC_STATUSConditionsTool(const std::string& type, const std::string& name, const IInterface* parent) :
+    AthAlgTool(type, name, parent), m_IOVSvc(nullptr), m_tgcDqStatusDataLocation("TgcDqStatusKey"), m_chronoSvc(nullptr) {
+    declareInterface<ITGC_STATUSConditionsTool>(this);
+    declareProperty("TgcDqFolder", m_FolderName = "TGC/1/DetectorStatus");
 }
 
 StatusCode TGC_STATUSConditionsTool::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* /*tad*/, const EventContext& /*ctx*/) {
