@@ -112,8 +112,8 @@ class GenericMonitoringArray:
         '''
         unAliased = varname.split(';')[0]
         _, aliasBase = _alias(varname)
-        if aliasBase is None:
-            return
+        if aliasBase is None or aliasBase.strip() == '':
+            raise ValueError(f'Unable to define histogram using definition "{varname}" since we cannot determine its name')
         if pattern is not None:
             try:
                 iter(pattern)
@@ -331,7 +331,8 @@ def defineHistogram(varname, type='TH1F', path=None,
 
     # Alias
     varList, alias = _alias(varname)
-    if alias is None:
+    if alias is None or alias.strip() == '':
+        log.warning(f'Unable to define histogram using definition "{varname}" since we cannot determine its name.')
         return ''
 
     invalid = _invalidName(alias)
