@@ -123,12 +123,12 @@ namespace PixelConvert {
   }
 
   std::string OnlineID(const std::string& offlineID) {
-    int system;
-    int subSystem;
-    int endcap;
-    int layer;
-    int phi;
-    int eta;
+    int system{};
+    int subSystem{};
+    int endcap{};
+    int layer{};
+    int phi{};
+    int eta{};
     if ( UnpackOfflineID(offlineID,system,subSystem,endcap,layer,phi,eta) )
       return OnlineID(system,
 		      subSystem,

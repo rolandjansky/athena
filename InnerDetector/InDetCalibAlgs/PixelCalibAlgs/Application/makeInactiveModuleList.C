@@ -713,7 +713,7 @@ void setPixelMapping(bool isIBL){
       }else{
         ifs.open(x + "/PixelMapping_May08.dat");
       }
-      int tmp_barrel_ec; int tmp_layer; int tmp_module_phi; int tmp_module_eta; std::string tmp_module_name;
+      int tmp_barrel_ec{}; int tmp_layer{}; int tmp_module_phi{}; int tmp_module_eta{}; std::string tmp_module_name;
       std::vector<int> tmp_position;
       tmp_position.resize(4);
 
@@ -726,7 +726,7 @@ void setPixelMapping(bool isIBL){
         tmp_position[3] = tmp_module_eta;
         pixelMapping.push_back(std::make_pair(tmp_module_name, tmp_position));
       }
-      int tmp_hash; int tmp0; int tmp1; int tmp2; int tmp3; int tmp4; std::string tmp_id;
+      int tmp_hash{}; int tmp0{}; int tmp1{}; int tmp2{}; int tmp3{}; int tmp4{}; std::string tmp_id;
       while(ifs2 >> tmp0 >> tmp_hash >> tmp1 >> tmp2 >> tmp_barrel_ec >> tmp_layer >> tmp_module_phi >> tmp_module_eta >> tmp3 >> tmp4 >> tmp_id) {
 
         tmp_position[0] = tmp_barrel_ec;
@@ -741,7 +741,7 @@ void setPixelMapping(bool isIBL){
       ifs3.open(x + "/table_Run2.txt");
       std::string str;
       std::string tmp_word1, tmp_word2, tmp_word3;
-      int tmp_channel;
+      int tmp_channel{};
       int tmp_hashid = 0;
       std::string tmp_module_name;
       std::vector<int> tmp_position;
