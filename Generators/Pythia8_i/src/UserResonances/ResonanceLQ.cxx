@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // The ResonanceLQ class modifies the default Pythia8 setup 
@@ -39,9 +39,12 @@ namespace Pythia8{
       // Locally stored properties and couplings.
       m_kCoup = settingsPtr->parm("LeptoQuark:kCoup");
       
+            // make a copy of shared pointer before usage (starting Py8.307 particlePtr is of a type std::weak_ptr<Pythia8::ParticleDataEntry>
+      ParticleDataEntryPtr particleSPtr = particlePtr.lock();
+
       // Check that flavour info in decay channel is correctly set.
-      int id1Now = particlePtr->channel(0).product(0);
-      int id2Now = particlePtr->channel(0).product(1);
+      int id1Now = particleSPtr->channel(0).product(0);
+      int id2Now = particleSPtr->channel(0).product(1);
       
       // ============================================================
       // Modify standard Pythia8 setup to allow decays to top quarks
@@ -50,27 +53,27 @@ namespace Pythia8{
       if (id1Now < 1 || id1Now > 6) {
 	std::cout << "ERROR in ResonanceLQ::init: unallowed input quark flavour reset to u" << std::endl; 
 	id1Now   = 2;
-	particlePtr->channel(0).product(0, id1Now);
+	particleSPtr->channel(0).product(0, id1Now);
       }
       if (std::abs(id2Now) < 11 || std::abs(id2Now) > 16) {
 	std::cout << "ERROR in ResonanceLQ::init:unallowed input lepton flavour reset to e-" << std::endl; 
 	id2Now   = 11;
-	particlePtr->channel(0).product(1, id2Now);
+	particleSPtr->channel(0).product(1, id2Now);
       }
       
       // Set/overwrite charge and name of particle.
-      bool changed  = particlePtr->hasChanged();
+      bool changed  = particleSPtr->hasChanged();
       
       int chargeLQ  = particleDataPtr->chargeType(id1Now) 
 	+ particleDataPtr->chargeType(id2Now);
       
-      particlePtr->setChargeType(chargeLQ); 
+      particleSPtr->setChargeType(chargeLQ); 
       
       std::string nameLQ = "LQ_" + particleDataPtr->name(id1Now) + ","
 	+ particleDataPtr->name(id2Now);
       
-      particlePtr->setNames(nameLQ, nameLQ + "bar"); 
-      if (!changed) particlePtr->setHasChanged(false);
+      particleSPtr->setNames(nameLQ, nameLQ + "bar"); 
+      if (!changed) particleSPtr->setHasChanged(false);
       
       return;
     }
