@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // TBCondRunParTool.cxx
@@ -75,7 +75,7 @@ bool TBCondRunParTool::checkcache() {
   return update;
 }
 
-StatusCode TBCondRunParTool::getTable(const std::string table,const int /*irow*/,
+StatusCode TBCondRunParTool::getTable(const std::string& table,const int /*irow*/,
                 const void* /*tblptr*/,
 		int& ncol,int& nrow, std::vector<std::string>& names,
 				std::vector<std::string>& rows) const {
@@ -94,8 +94,9 @@ StatusCode TBCondRunParTool::getTable(const std::string table,const int /*irow*/
 }		 
 
 StatusCode TBCondRunParTool::extractVal(
-   const std::vector<std::string> names, const std::vector<std::string> rows,
-   const std::string name,int& ival) const {
+   const std::vector<std::string>& names,
+   const std::vector<std::string>& rows,
+   const std::string& name,int& ival) const {
   StatusCode found=StatusCode::FAILURE;
   for (unsigned int icol=0;icol<names.size();++icol) {
     ATH_MSG_DEBUG ( "Check " << icol << " " << names[icol] << rows[icol] );
@@ -109,8 +110,9 @@ StatusCode TBCondRunParTool::extractVal(
 }
 
 StatusCode TBCondRunParTool::extractVal(
-   const std::vector<std::string> names, const std::vector<std::string> rows,
-   const std::string name,float& fval) const {
+   const std::vector<std::string>& names,
+   const std::vector<std::string>& rows,
+   const std::string& name,float& fval) const {
   StatusCode found=StatusCode::FAILURE;
   for (unsigned int icol=0;icol<names.size();++icol) {
     ATH_MSG_DEBUG ( "Check " << icol << " " << names[icol] << rows[icol] );
@@ -124,8 +126,9 @@ StatusCode TBCondRunParTool::extractVal(
 }
 
 StatusCode TBCondRunParTool::extractVal(
-   const std::vector<std::string> names, const std::vector<std::string> rows,
-   const std::string name,std::string& sval) const {
+   const std::vector<std::string>& names,
+   const std::vector<std::string>& rows,
+   const std::string& name,std::string& sval) const {
   StatusCode found=StatusCode::FAILURE;
   for (unsigned int icol=0;icol<names.size();++icol) {
     ATH_MSG_DEBUG ( "Check " << icol << " " << names[icol] << rows[icol] );
@@ -138,13 +141,13 @@ StatusCode TBCondRunParTool::extractVal(
   return found;
 }
 
-void TBCondRunParTool::printTable(const std::vector<std::string> names,
-				  const std::vector<std::string> rows) const {
+void TBCondRunParTool::printTable(const std::vector<std::string>& names,
+				  const std::vector<std::string>& rows) const {
   for (unsigned int icol=0;icol<names.size();++icol) 
     ATH_MSG_INFO ( "Column: " << icol <<  " " << names[icol] << rows[icol] );
 }
 
-StatusCode TBCondRunParTool::getVal(const std::string folder, const unsigned int chnum, float& fval){
+StatusCode TBCondRunParTool::getVal(const std::string& folder, const unsigned int chnum, float& fval){
       StatusCode found=StatusCode::FAILURE;
       const CondAttrListCollection* atrlist=0;
       if (StatusCode::SUCCESS==detStore()->retrieve(atrlist,folder)) {
@@ -197,7 +200,7 @@ bool TBCondRunParTool::extractCool(const int run) {
   return update;
 }
 
-bool TBCondRunParTool::extractCoolTest(const std::string folder, const int /*run*/) const{
+bool TBCondRunParTool::extractCoolTest(const std::string& folder, const int /*run*/) const{
   bool update=true;
   const CondAttrListCollection* atrlist=0;
   if (StatusCode::SUCCESS==detStore()->retrieve(atrlist,folder)) {
