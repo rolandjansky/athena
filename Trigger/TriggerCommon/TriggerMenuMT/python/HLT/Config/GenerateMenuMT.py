@@ -496,15 +496,9 @@ class GenerateMenuMT(object, metaclass=Singleton):
         from TriggerMenuMT.HLT.Config.Validation.CheckL1HLTConsistency import checkL1HLTConsistency
         checkL1HLTConsistency(flags)
         
-        doCPSCheck = True
-        # Disable if we have a chain filter that only runs specific chains
-        # as this is likely to result in single-chain CPS groups
-        if self.chainFilter is not None and hasattr(self.chainFilter,'selectChains') and self.chainFilter.selectChains:
-            doCPSCheck = False
-        if doCPSCheck:
-            log.info("Checking the Coherent Prescale assignments...")
-            from TriggerMenuMT.HLT.Config.Validation.CheckCPSGroups import checkCPSGroups
-            checkCPSGroups(HLTMenuConfig.dictsList())
+        log.info("Checking the Coherent Prescale assignments...")
+        from TriggerMenuMT.HLT.Config.Validation.CheckCPSGroups import checkCPSGroups
+        checkCPSGroups(HLTMenuConfig.dictsList())
 
         log.info("Generating HLT menu JSON...")
         
