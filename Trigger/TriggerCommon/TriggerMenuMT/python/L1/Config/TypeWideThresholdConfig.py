@@ -412,21 +412,21 @@ def getConfig_jTE():
 
 def getConfig_gXE():
     confObj = odict()
-    confObj["seedThrA"] = 1 
-    confObj["seedThrB"] = 1 
-    confObj["seedThrC"] = 1 
+    confObj["seedThrA"] = 25 
+    confObj["seedThrB"] = 25 
+    confObj["seedThrC"] = 25 
     confObj["XERHO_sigmaPosA"] = 3 
     confObj["XERHO_sigmaPosB"] = 3 
     confObj["XERHO_sigmaPosC"] = 3 
     confObj["XERHO_sigmaNegA"] = 8 
     confObj["XERHO_sigmaNegB"] = 8 
     confObj["XERHO_sigmaNegC"] = 8 
-    confObj["XEJWOJ_a_A"] = 48 
-    confObj["XEJWOJ_a_B"] = 48 
-    confObj["XEJWOJ_a_C"] = 48 
-    confObj["XEJWOJ_b_A"] = 52 
-    confObj["XEJWOJ_b_B"] = 52 
-    confObj["XEJWOJ_b_C"] = 52 
+    confObj["XEJWOJ_a_A"] = 1003 
+    confObj["XEJWOJ_a_B"] = 1003 
+    confObj["XEJWOJ_a_C"] = 1003 
+    confObj["XEJWOJ_b_A"] = 409 
+    confObj["XEJWOJ_b_B"] = 409 
+    confObj["XEJWOJ_b_C"] = 409 
     confObj["XEJWOJ_c_A"] = 0 
     confObj["XEJWOJ_c_B"] = 0 
     confObj["XEJWOJ_c_C"] = 0 
