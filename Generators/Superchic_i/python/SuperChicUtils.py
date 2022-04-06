@@ -10,6 +10,9 @@ class SuperChicConfig:
 
     def __init__(self, runArgs):
         self.superchicpath = os.environ['SUPERCHICPATH']
+        
+        os.environ['LHAPATH'] = os.environ['LHAPATH'].split(':')[0]+':/afs/cern.ch/atlas/groups/Generators/lhapdfsets/current'
+        os.environ['LHAPDF_DATA_PATH'] = os.environ['LHAPATH'].split(':')[0]+':/afs/cern.ch/atlas/groups/Generators/lhapdfsets/current'
         #SuperChic specific variables for input.DAT, see writeInputDAT function for more elaboration
         self.rts = 13000. #collision energy (GeV)
         if hasattr(runArgs,"ecmEnergy"):

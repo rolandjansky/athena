@@ -87,7 +87,10 @@ from EvgenJobTransforms.EvgenConfig import gens_known, gens_lhef, gen_sortkey, g
 # TODO: Allow generation without writing an output file (if outputEVNTFile is None)?
 #if not hasattr(runArgs, "outputEVNTFile") and not hasattr(runArgs, "outputEVNT_PreFile"):
 #    raise RuntimeError("No output evgen EVNT or EVNT_Pre file provided.")
-
+if not hasattr(runArgs, "ecmEnergy"):
+    raise RuntimeError("No center of mass energy provided.")
+else:
+    evgenLog.info(' ecmEnergy = ' + str(runArgs.ecmEnergy) )
 ##==============================================================
 ## Configure standard Athena and evgen services
 ##==============================================================
