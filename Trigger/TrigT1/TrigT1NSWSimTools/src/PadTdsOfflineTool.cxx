@@ -43,7 +43,7 @@ namespace NSWL1 {
         ATH_MSG_DEBUG(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_doNtuple.name() << ((m_doNtuple)? "[True]":"[False]")<< std::setfill(' ') << std::setiosflags(std::ios::right) );
 
         ATH_CHECK(m_sTgcDigitContainer.initialize());
-        ATH_CHECK(m_sTgcSdoContainer.initialize());
+        ATH_CHECK(m_sTgcSdoContainer.initialize(m_isMC));
 
         const IInterface* parent = this->parent();
         const INamedInterface* pnamed = dynamic_cast<const INamedInterface*>(parent);
@@ -210,10 +210,6 @@ namespace NSWL1 {
     }
     //------------------------------------------------------------------------------
     StatusCode PadTdsOfflineTool::fill_pad_cache(std::vector< std::vector<std::shared_ptr<PadData>> > &pad_cache) const {
-        SG::ReadHandle<MuonSimDataCollection> sdo_container(m_sTgcSdoContainer);
-        if(!sdo_container.isValid()) {
-          ATH_MSG_WARNING("could not retrieve the sTGC SDO container: it will not be possible to associate the MC truth");
-        }
         SG::ReadHandle<sTgcDigitContainer> digit_container(m_sTgcDigitContainer);
         if(!digit_container.isValid()){
           ATH_MSG_ERROR("could not retrieve the sTGC Digit container: cannot return the STRIP hits");
@@ -383,13 +379,17 @@ namespace NSWL1 {
     bool PadTdsOfflineTool::get_truth_hits_this_pad(const Identifier &pad_id, std::vector<MuonSimData::Deposit> &deposits) const
     {
         bool success=false;
-        SG::ReadHandle<MuonSimDataCollection> sdo_container(m_sTgcSdoContainer);
-        if(sdo_container.isValid()){
-            const MuonSimData pad_sdo = (sdo_container->find(pad_id))->second;
-            pad_sdo.deposits(deposits);
-            success = true;
-        } else {
+        const MuonSimDataCollection* ptrMuonSimDataCollection = nullptr;
+        if(m_isMC) {
+          SG::ReadHandle<MuonSimDataCollection> sdo_container(m_sTgcSdoContainer);
+          if(!sdo_container.isValid()) {
             ATH_MSG_WARNING("could not retrieve the sTGC SDO container: it will not be possible to associate the MC truth");
+            return success;
+          }
+          ptrMuonSimDataCollection = sdo_container.cptr();
+          const MuonSimData pad_sdo = (ptrMuonSimDataCollection->find(pad_id))->second;
+          pad_sdo.deposits(deposits);
+          success = true;
         }
         return success;
     }
