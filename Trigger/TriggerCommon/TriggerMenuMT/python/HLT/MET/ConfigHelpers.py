@@ -33,7 +33,7 @@ log = logging.getLogger(__name__)
 
 # The keys from the MET chain dict that directly affect reconstruction
 # The order here is important as it also controls the dict -> string conversion
-recoKeys = ["EFrecoAlg", "calib", "constitType", "constitmod", "jetCalib", "addInfo"]
+recoKeys = ["EFrecoAlg", "calib", "constitType", "constitmod", "jetCalib", "nSigma", "addInfo"]
 metFSRoIs = [caloFSRoI, trkFSRoI]
 
 
