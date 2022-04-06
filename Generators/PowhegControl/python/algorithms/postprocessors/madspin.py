@@ -258,7 +258,7 @@ def __run_executable(executable):
         raise OSError("MadSpin executable {} not found!".format(executable))
     logger.info("MadSpin executable: {}".format(executable))
     with open("madspin_runcard.txt", "r") as runcard_input:
-        processes = [SingleProcessThread([executable], stdin=runcard_input, ignore_output=["INFO:","MadSpin>"],
+        processes = [SingleProcessThread(['python', executable], stdin=runcard_input, ignore_output=["INFO:","MadSpin>"],
                                          error_output=["Command \"launch\" interrupted with error:","MadSpinError"],
                                          info_output=["generating the production square matrix element"],
                                          warning_output=["stty: standard input: Invalid argument",
