@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /////////////////////////////////////////////////////////////////
 // MuPlusDsCascade.cxx, (c) ATLAS Detector software
@@ -689,7 +689,7 @@ namespace DerivationFramework {
                                     vxcItr->trackParticle(1)->phi(), m_vtx1Daug2MassHypo);
               double mass_phi = (p4Kp_in + p4Km_in).M();
               ATH_MSG_DEBUG("phi mass " << mass_phi);
-              if(mass_phi > 1100) {
+              if(mass_phi > 1600) { //1st cut on phi(K+K-) mass, loose one
                   ATH_MSG_DEBUG(" Original phi candidate rejected by the mass cut: mass = " << mass_phi );
                   continue;
                   
@@ -819,6 +819,24 @@ namespace DerivationFramework {
                 } else {
                     primaryVertex = (*pvContainer)[0];
                 }
+                  
+                // Add stronger cut on phi(K+K-) mass for D_s->phi π after cascade fit
+                if(std::abs(m_Dx_pid)==431){
+                    TLorentzVector p4Kp_in, p4Km_in;
+                    p4Kp_in.SetPtEtaPhiM( cascadeVertices[0]->trackParticle(0)->pt(),
+                                          cascadeVertices[0]->trackParticle(0)->eta(),
+                                          cascadeVertices[0]->trackParticle(0)->phi(), m_vtx1Daug1MassHypo);
+                    p4Km_in.SetPtEtaPhiM( cascadeVertices[0]->trackParticle(1)->pt(),
+                                          cascadeVertices[0]->trackParticle(1)->eta(),
+                                          cascadeVertices[0]->trackParticle(1)->phi(), m_vtx1Daug2MassHypo);
+                    double mass_phi = (p4Kp_in + p4Km_in).M();
+                    ATH_MSG_DEBUG("phi mass " << mass_phi);
+                    if(mass_phi > 1100) {
+                        ATH_MSG_DEBUG(" Original phi candidate rejected by the mass cut: mass = " << mass_phi );
+                        continue;
+                    }
+                }
+
 
                 double mass = m_CascadeTools->invariantMass(moms[1]);
                 if(chi2CutPassed) {

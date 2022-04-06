@@ -51,6 +51,7 @@ namespace DerivationFramework {
 
 
       private:
+        
         std::string m_vertexContainerKey;
         std::string m_vertexDxContainerKey;
         std::vector<std::string> m_cascadeOutputsKeys;
