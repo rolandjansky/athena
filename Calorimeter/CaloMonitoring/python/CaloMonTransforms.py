@@ -42,7 +42,7 @@ def divideHistCaloMon(inputs,doPercentage=False):
 
 
 cppyy.cppdef("""
-void binbybinDiv(size_t nCells,TH2F* fraction, const TH2F* total, const TH2* occupancy) {
+void binbybinDiv(size_t nCells,TH2* fraction, const TH2* total, const TH2* occupancy) {
 for (size_t i=0;i<nCells;++i) {
     const double t = total->GetBinContent(i);
     const double o = occupancy->GetBinContent(i);

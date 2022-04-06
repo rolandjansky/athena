@@ -445,7 +445,7 @@ def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, isMC=Fal
         allMonArray.defineHistogram('celleta,cellphi;TotalEnergyVsEtaPhi',
                                                 title="Total Cell Energy vs (#eta,#phi) in "+part+";cell #eta;cell #phi",
                                                 weight='cellEnergy',
-                                                type='TH2F', path="2d_TotalEnergy/", 
+                                                type='TH2D', path="2d_TotalEnergy/", 
                                                 cutmask='passThrCut',
                                                 xbins = lArCellBinningScheme.etaRange[part],
                                                 ybins = lArCellBinningScheme.phiRange[part],
