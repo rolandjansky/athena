@@ -44,8 +44,10 @@
 
 using namespace std;
 
-double ALFA_stagger[10] = {0.0, 0.283, -0.141, 0.141, -0.283, 0.354, -0.071, 0.212, -0.212, 0.071};
-double OD_stagger[3] = {0.0, -0.167, -0.334};
+namespace {
+const double ALFA_stagger[10] = {0.0, 0.283, -0.141, 0.141, -0.283, 0.354, -0.071, 0.212, -0.212, 0.071};
+const double OD_stagger[3] = {0.0, -0.167, -0.334};
+} // anonymous namespace
 
 #define BEAMPIPEINNERRADIUS (0.5*80.0*CLHEP::mm)
 #define BEAMPIPEOUTERRADIUS (0.5*84.0*CLHEP::mm)

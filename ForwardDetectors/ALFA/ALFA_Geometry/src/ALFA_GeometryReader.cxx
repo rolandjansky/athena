@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -100,10 +100,10 @@ void GEOMETRYCONFIGURATION::clear()
 	}
 }
 
-HepGeom::Point3D<double> ALFA_GeometryReader::ms_NominalRPPin1=HepGeom::Point3D<double>(+77.5*CLHEP::mm,+172.2*CLHEP::mm,-124.0*CLHEP::mm);
-HepGeom::Point3D<double> ALFA_GeometryReader::ms_NominalRPMainPoint=HepGeom::Point3D<double>(0.0*CLHEP::mm,31.525*CLHEP::mm,8.0*CLHEP::mm);//31.025
-HepGeom::Point3D<double> ALFA_GeometryReader::ms_NominalAlfaRefPoint=HepGeom::Point3D<double>(-77.5*CLHEP::mm,-35.2*CLHEP::mm,114.0*CLHEP::mm);//-35.7
-HepGeom::Point3D<double> ALFA_GeometryReader::ms_NominalDetPin1=HepGeom::Point3D<double>(-77.5*CLHEP::mm,-35.0*CLHEP::mm,114.0*CLHEP::mm);
+const HepGeom::Point3D<double> ALFA_GeometryReader::ms_NominalRPPin1=HepGeom::Point3D<double>(+77.5*CLHEP::mm,+172.2*CLHEP::mm,-124.0*CLHEP::mm);
+const HepGeom::Point3D<double> ALFA_GeometryReader::ms_NominalRPMainPoint=HepGeom::Point3D<double>(0.0*CLHEP::mm,31.525*CLHEP::mm,8.0*CLHEP::mm);//31.025
+const HepGeom::Point3D<double> ALFA_GeometryReader::ms_NominalAlfaRefPoint=HepGeom::Point3D<double>(-77.5*CLHEP::mm,-35.2*CLHEP::mm,114.0*CLHEP::mm);//-35.7
+const HepGeom::Point3D<double> ALFA_GeometryReader::ms_NominalDetPin1=HepGeom::Point3D<double>(-77.5*CLHEP::mm,-35.0*CLHEP::mm,114.0*CLHEP::mm);
 
 ALFA_GeometryReader::ALFA_GeometryReader()
 {
@@ -1346,11 +1346,12 @@ bool ALFA_GeometryReader::ReadDatabase(const eRPotName eRPName, const eFiberType
 	
 	memset(szSource,0,sizeof(szSource));
 	if(szDataSource) strncpy(szSource, szDataSource, sizeof(szSource)-1);
-	pch = strtok(szSource,":");
+        char* strtok_ptr = nullptr;
+	pch = strtok_r(szSource,":",&strtok_ptr);
 	while (pch != NULL)
 	{
 		strDBElements.push_back(pch);
-		pch = strtok(NULL, ":");
+		pch = strtok_r(NULL, ":",&strtok_ptr);
 	}
 	
 	//	LogStream << MSG::INFO << "MARK - elements: " << strDBElements[0] << "  " << strDBElements[1] << "  " << strDBElements[2] << endmsg;
