@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  *
  * @file HGTD_TrackTimeExtensionTools/src/HGTD_IterativeExtensionTool.cxx
  * @author Noemi Calace <noemi.calace@cern.ch>
@@ -10,6 +10,7 @@
 
 #include "HGTD_TrackTimeExtensionTools/HGTD_IterativeExtensionTool.h"
 
+#include "GeneratorObjects/McEventCollection.h"
 #include "HGTD_Identifier/HGTD_ID.h"
 #include "HGTD_RIO_OnTrack/HGTD_ClusterOnTrack.h"
 #include "HGTD_ReadoutGeometry/HGTD_DetectorManager.h"
@@ -18,17 +19,22 @@
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkTrack/TrackStateOnSurface.h"
+#include "xAODTruth/TruthParticleContainer.h"
+#include "xAODTruth/TruthVertex.h"
+#include "xAODTruth/xAODTruthHelpers.h"
 
 #include <iostream>
 #include <vector>
 
-HGTD_IterativeExtensionTool::HGTD_IterativeExtensionTool(
-    const std::string& t, const std::string& n, const IInterface* p)
+HGTD_IterativeExtensionTool::HGTD_IterativeExtensionTool(const std::string& t,
+                                                         const std::string& n,
+                                                         const IInterface* p)
     : AthAlgTool(t, n, p),
       m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
       m_updator("Trk::KalmanUpdator/KalmanUpdator"),
       m_tof_corr_tool(
           "StraightLineTOFcorrectionTool/StraightLineTOFcorrectionTool"),
+      m_truth_tool("ClusterTruthTool/ClusterTruthTool"),
       m_track(nullptr),
       m_cluster_container(nullptr),
       m_hgtd_det_mgr(nullptr),
@@ -38,6 +44,7 @@ HGTD_IterativeExtensionTool::HGTD_IterativeExtensionTool(
   declareProperty("ExtrapolatorTool", m_extrapolator);
   declareProperty("UpdatorTool", m_updator);
   declareProperty("TOFCorrTool", m_tof_corr_tool);
+  declareProperty("ClusterTruthTool", m_truth_tool);
   declareProperty("Chi2Cut", m_chi2_cut);
   declareProperty("ParticleHypothesis", m_particle_hypot);
 }
@@ -56,20 +63,22 @@ StatusCode HGTD_IterativeExtensionTool::initialize() {
   return sc;
 }
 
-std::array<std::unique_ptr<const Trk::TrackStateOnSurface>, 4>
-HGTD_IterativeExtensionTool::extendTrackToHGTD(
-    const Trk::Track& track, const HGTD_ClusterContainer* container) {
+HGTD::ExtensionObject HGTD_IterativeExtensionTool::extendTrackToHGTD(
+    const xAOD::TrackParticle& track_ptkl,
+    const HGTD_ClusterContainer* container, const HepMC::GenEvent* hs_event,
+    const InDetSimDataCollection* sim_data) {
 
   ATH_MSG_DEBUG("Start extending");
 
-  m_track = &track;
-  m_cluster_container = container;
+  const Trk::Track* track = track_ptkl.track();
 
-  std::array<std::unique_ptr<const Trk::TrackStateOnSurface>, 4> extension{
-      nullptr, nullptr, nullptr, nullptr};
+  m_track = track;                 // FIXME should avoid this
+  m_cluster_container = container; // FIXME same here
+
+  HGTD::ExtensionObject result;
 
   // get last hit on track in ITk as a starting point for the extrapolation
-  const Trk::TrackStateOnSurface* last_hit = getLastHitOnTrack(track);
+  const Trk::TrackStateOnSurface* last_hit = getLastHitOnTrack(*track);
   const Trk::TrackParameters* last_param = last_hit->trackParameters();
 
   ATH_MSG_DEBUG("last param  x: " << last_param->position().x()
@@ -79,11 +88,14 @@ HGTD_IterativeExtensionTool::extendTrackToHGTD(
                                    << ", py: " << last_param->momentum().y()
                                    << ", pz: " << last_param->momentum().z());
 
+  const xAOD::TruthParticle* truth_ptkl =
+      xAOD::TruthHelpers::getTruthParticle(track_ptkl);
+
   // get the tracking geometry
   const Trk::TrackingGeometry* trk_geom = m_extrapolator->trackingGeometry();
   if (not trk_geom) {
     ATH_MSG_DEBUG("trackingGeometry returns null");
-    return extension;
+    return result;
   }
 
   bool is_pos_endcap = last_param->eta() > 0;
@@ -94,7 +106,7 @@ HGTD_IterativeExtensionTool::extendTrackToHGTD(
 
   if (not hgtd_trk_volume) {
     ATH_MSG_DEBUG("trackingVolume returns null");
-    return extension;
+    return result;
   }
 
   const auto* confined_layers =
@@ -102,7 +114,7 @@ HGTD_IterativeExtensionTool::extendTrackToHGTD(
   // careful, this array is not ordered from inside out (only in pos endcap)
   if (not confined_layers) {
     ATH_MSG_DEBUG("confinedLayers returns null");
-    return extension;
+    return result;
   }
 
   // get the layers, traverse depending on endcap used
@@ -130,9 +142,16 @@ HGTD_IterativeExtensionTool::extendTrackToHGTD(
     // uses same particle hypothesis used for the track itself
     // TODO: BoundaryCheck set to false as in 20.20 -> what does this do?
     std::unique_ptr<const Trk::TrackParameters> extrap_result = nullptr;
+
     extrap_result.reset(m_extrapolator->extrapolate(
         *last_param, surf_obj, Trk::PropDirection::alongMomentum, false,
-        track.info().particleHypothesis()));
+        track->info().particleHypothesis()));
+
+    // get the extrapolation position info only on the first layer
+    if (hgtd_layer_i == 0) {
+      result.m_extrap_x = extrap_result->position().x();
+      result.m_extrap_y = extrap_result->position().y();
+    }
 
     ATH_MSG_DEBUG("extrap. params  x: "
                   << extrap_result->position().x()
@@ -144,7 +163,6 @@ HGTD_IterativeExtensionTool::extendTrackToHGTD(
                   << ", pz: " << extrap_result->momentum().z());
 
     // find active surfaces in the vincinity
-    // const auto* surf_arr = layer->surfaceArray(); // these are the modules
     // from this binned object, get the module closeby
     auto compatible_surfaces = getCompatibleSurfaces(*extrap_result, layer);
 
@@ -155,16 +173,26 @@ HGTD_IterativeExtensionTool::extendTrackToHGTD(
         updateStateWithBestFittingCluster(extrapolated_params);
 
     if (not updated_state) {
+      result.m_hits.at(hgtd_layer_i) = nullptr;
+      result.m_truth_primary_hits.at(hgtd_layer_i) = nullptr;
+      result.m_truth_primary_info.at(hgtd_layer_i) = HGTD::ClusterTruthInfo();
       continue;
     }
     // if the state was updated with a measurement, the it becomes the new last
     // parameter
     last_param = updated_state->trackParameters();
     // store the last track state to be returned
-    extension.at(hgtd_layer_i) = std::move(updated_state);
+
+    std::pair<const HGTD_Cluster*, HGTD::ClusterTruthInfo> truth_info =
+        getTruthMatchedCluster(compatible_surfaces, container, truth_ptkl,
+                               hs_event, sim_data);
+
+    result.m_hits.at(hgtd_layer_i) = std::move(updated_state);
+    result.m_truth_primary_hits.at(hgtd_layer_i) = truth_info.first;
+    result.m_truth_primary_info.at(hgtd_layer_i) = truth_info.second;
   }
 
-  return extension;
+  return result;
 }
 
 const Trk::TrackStateOnSurface*
@@ -331,8 +359,8 @@ HGTD_IterativeExtensionTool::findBestCompatibleCluster(
 }
 
 std::unique_ptr<const Trk::TrackStateOnSurface>
-HGTD_IterativeExtensionTool::updateState(
-    const Trk::TrackParameters* param, const HGTD_Cluster* cluster) {
+HGTD_IterativeExtensionTool::updateState(const Trk::TrackParameters* param,
+                                         const HGTD_Cluster* cluster) {
   ATH_MSG_DEBUG("[updateState] calling the updator");
 
   // FIXME: the HGTD_Cluster should know its detector element here. needs
@@ -356,4 +384,48 @@ HGTD_IterativeExtensionTool::updateState(
       *param, cot->localParameters(), cot->localCovariance(), quality);
 
   return std::make_unique<const Trk::TrackStateOnSurface>(cot, pars, quality);
+}
+
+std::pair<const HGTD_Cluster*, HGTD::ClusterTruthInfo>
+HGTD_IterativeExtensionTool::getTruthMatchedCluster(
+    const std::vector<const Trk::Surface*>& surfaces,
+    const HGTD_ClusterContainer* container,
+    const xAOD::TruthParticle* truth_ptkl, const HepMC::GenEvent* hs_event,
+    const InDetSimDataCollection* sim_data) {
+
+  if (not truth_ptkl or not sim_data) {
+    if (not truth_ptkl)
+      ATH_MSG_DEBUG("truth_ptkl is null");
+    if (not sim_data)
+      ATH_MSG_DEBUG("sim_data is null");
+
+    return {nullptr, HGTD::ClusterTruthInfo()};
+  }
+
+  std::vector<Identifier> ids;
+  std::for_each(surfaces.begin(), surfaces.end(),
+                [&](const Trk::Surface* surf) {
+                  ids.push_back(surf->associatedDetectorElementIdentifier());
+                });
+
+  for (const auto& collection : *container) {
+    // if the ID corresponding to this collection is not in the list, skip
+
+    if (std::find(ids.begin(), ids.end(), collection->identify()) ==
+        ids.end()) {
+      continue;
+    }
+    for (const auto* cluster : *collection) {
+
+      HGTD::ClusterTruthInfo truth_info = m_truth_tool->classifyCluster(
+          cluster, truth_ptkl, sim_data, hs_event);
+      // return cluster and truth info if the hit is matched to the truth
+      // particle
+      if (truth_info.origin == HGTD::ClusterTruthOrigin::TRUTH_PARTICLE) {
+        return {cluster, truth_info};
+      }
+    }
+  }
+  // no matched cluster found
+  return {nullptr, HGTD::ClusterTruthInfo()};
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  *
  * @file HGTD_TrackTimeExtension/src/TrackTimeExtensionAlg.cxx
  * @author Alexander Leopold <alexander.leopold@cern.ch>
@@ -64,16 +64,19 @@ StatusCode TrackTimeExtensionAlg::initialize() {
   m_dec_layer_cluster_truth_class =
       std::make_unique<SG::AuxElement::Decorator<std::vector<int>>>(
           m_deco_prefix + "_cluster_truth_class");
-  m_dec_layer_cluster_cluster_shadowed =
+  m_dec_layer_cluster_shadowed =
       std::make_unique<SG::AuxElement::Decorator<std::vector<bool>>>(
           m_deco_prefix + "_cluster_shadowed");
-  m_dec_layer_cluster_cluster_merged =
+  m_dec_layer_cluster_merged =
       std::make_unique<SG::AuxElement::Decorator<std::vector<bool>>>(
           m_deco_prefix + "_cluster_merged");
-  // m_dec_layer_cluster_cluster_expected =
-  //     std::make_unique<SG::AuxElement::Decorator<std::vector<bool>>>(
-  //         m_deco_prefix + "_cluster_expected");
-
+  m_dec_layer_primary_expected =
+      std::make_unique<SG::AuxElement::Decorator<std::vector<bool>>>(
+          m_deco_prefix + "_primary_expected");
+  m_dec_extrap_x = std::make_unique<SG::AuxElement::Decorator<float>>(
+      m_deco_prefix + "_extrap_x");
+  m_dec_extrap_y = std::make_unique<SG::AuxElement::Decorator<float>>(
+      m_deco_prefix + "_extrap_y");
   return StatusCode::SUCCESS;
 }
 
@@ -133,7 +136,7 @@ StatusCode TrackTimeExtensionAlg::execute() {
     ATH_MSG_DEBUG("Track eta: " << track_ptkl->eta()
                                 << " pt: " << track_ptkl->pt());
 
-    HGTDExtension_t extension{nullptr, nullptr, nullptr, nullptr};
+    HGTD::ExtensionObject extension;
 
     if (std::abs(track_ptkl->eta()) < m_eta_cut) {
       ATH_MSG_DEBUG("Track out of acceptance");
@@ -152,13 +155,8 @@ StatusCode TrackTimeExtensionAlg::execute() {
       continue;
     }
 
-    // return 4 track states on surface objects as a result of the extension
-    extension = m_extension_tool->extendTrackToHGTD(*(track_ptkl->track()),
-                                                    cluster_container);
-
-    // TODO here:
-    // retrieve truth info for associated and non-associated HGTD hits, merging
-    // or shadowing info
+    extension = m_extension_tool->extendTrackToHGTD(
+        *track_ptkl, cluster_container, hs_event, sdo_collection);
 
     // decorate the track
     ATH_CHECK(decorateTrackParticle(track_ptkl, extension, sdo_collection,
@@ -173,7 +171,7 @@ StatusCode TrackTimeExtensionAlg::execute() {
 ////////////////////////////////////////////////////////////////////////////////
 
 StatusCode TrackTimeExtensionAlg::decorateTrackParticle(
-    const xAOD::TrackParticle* track_ptkl, const HGTDExtension_t& extension,
+    const xAOD::TrackParticle* track_ptkl, const HGTD::ExtensionObject& extension,
     const InDetSimDataCollection* sdo_collection,
     const HepMC::GenEvent* hs_event, bool skip_deco) {
 
@@ -191,9 +189,16 @@ StatusCode TrackTimeExtensionAlg::decorateTrackParticle(
   is_shadowed_vec.reserve(n_hgtd_layers);
   std::vector<bool> is_merged_vec;
   is_merged_vec.reserve(n_hgtd_layers);
+  std::vector<bool> primary_exists_vec;
+  primary_exists_vec.reserve(n_hgtd_layers);
 
-  for (const std::unique_ptr<const Trk::TrackStateOnSurface>& trk_state :
-       extension) {
+  for (unsigned short i = 0; i < n_hgtd_layers; i++) {
+
+    const std::unique_ptr<const Trk::TrackStateOnSurface>& trk_state =
+        extension.m_hits.at(i);
+    const HGTD_Cluster* primary_cluster = extension.m_truth_primary_hits.at(i);
+
+    primary_exists_vec.push_back(primary_cluster != nullptr);
 
     if (trk_state) {
       ATH_MSG_DEBUG("[decorateTrackParticle] extension found");
@@ -203,9 +208,8 @@ StatusCode TrackTimeExtensionAlg::decorateTrackParticle(
           trk_state->fitQualityOnSurface()->chiSquared() /
           trk_state->fitQualityOnSurface()->doubleNumberDoF());
 
-      const HGTD_ClusterOnTrack* cot =
-          dynamic_cast<const HGTD_ClusterOnTrack*>(
-              trk_state->measurementOnTrack());
+      const HGTD_ClusterOnTrack* cot = dynamic_cast<const HGTD_ClusterOnTrack*>(
+          trk_state->measurementOnTrack());
 
       time_vec.emplace_back(cot->time());
 
@@ -254,6 +258,7 @@ StatusCode TrackTimeExtensionAlg::decorateTrackParticle(
         is_merged_vec.emplace_back(false);
       }
     }
+
   } // END LOOP over TrackStateOnSurface
 
   m_dec_layer_has_ext->set(*track_ptkl, has_cluster_vec);
@@ -261,8 +266,11 @@ StatusCode TrackTimeExtensionAlg::decorateTrackParticle(
   m_dec_layer_cluster_raw_time->set(*track_ptkl, raw_time_vec);
   m_dec_layer_cluster_time->set(*track_ptkl, time_vec);
   m_dec_layer_cluster_truth_class->set(*track_ptkl, truth_vec);
-  m_dec_layer_cluster_cluster_shadowed->set(*track_ptkl, is_shadowed_vec);
-  m_dec_layer_cluster_cluster_merged->set(*track_ptkl, is_merged_vec);
+  m_dec_layer_cluster_shadowed->set(*track_ptkl, is_shadowed_vec);
+  m_dec_layer_cluster_merged->set(*track_ptkl, is_merged_vec);
+  m_dec_layer_primary_expected->set(*track_ptkl, primary_exists_vec);
+  m_dec_extrap_x->set(*track_ptkl, extension.m_extrap_x);
+  m_dec_extrap_y->set(*track_ptkl, extension.m_extrap_y);
 
   return StatusCode::SUCCESS;
 }

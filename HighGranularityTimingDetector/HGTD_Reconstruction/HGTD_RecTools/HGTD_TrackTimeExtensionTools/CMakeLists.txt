@@ -13,7 +13,7 @@ atlas_add_component( HGTD_TrackTimeExtensionTools
                     TrkGeometry TrkEventPrimitives TrkSurfaces TrkTrack
                     HGTD_RecToolInterfaces TrkExInterfaces HGTD_PrepRawData
                     TrkDetDescrUtils HGTD_ReadoutGeometry HGTD_Identifier
-                    HGTD_RIO_OnTrack TrkToolInterfaces)
+                    HGTD_RIO_OnTrack TrkToolInterfaces InDetBeamSpotServiceLib GeneratorObjects)
 
 # Install files from the package:
 atlas_install_headers( HGTD_TrackTimeExtensionTools )
