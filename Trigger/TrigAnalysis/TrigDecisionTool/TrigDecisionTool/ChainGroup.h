@@ -148,19 +148,6 @@ namespace Trig {
       float correlatedL1Prescale(const std::string& item) const;
       float calculatePrescale(unsigned int condition=TrigDefs::Physics);
 
-      /*
-      bool getTEs(const TrigConf::HLTChain* chain, std::vector< std::vector< HLT::TriggerElement*> >& tes, 
-                  unsigned int condition = TrigDefs::Physics) const;
-      
-      bool collectConfigurationTEs(const TrigConf::HLTChain* conf, bool onlyFinals, 
-                                   std::vector< std::vector<TrigConf::HLTTriggerElement*> >& tes) const;
-      
-      bool collectNavigationTEs(unsigned int TEid, bool activeOnly, 
-                                const std::vector<unsigned int>& lastIds,
-                                std::vector<HLT::TriggerElement*>& tes) const;
-      */
-
-      //const FeatureContainer features(const TrigConf::HLTChain* chain, unsigned int condition) const;
       void appendFeatures(std::vector< std::vector< HLT::TriggerElement*> >& tes, FeatureContainer& fc) const;
 
       /**
@@ -178,16 +165,6 @@ namespace Trig {
       float L1Prescale(const std::string& item, unsigned int condition) const;
 
       std::string getLowerName(const std::string& EFname) const;
-
-
-      // for friends to run over the configuration chains 
-      typedef std::set<const TrigConf::TriggerItem*>::const_iterator const_conf_item_iterator;
-      typedef std::set<const TrigConf::HLTChain*>::const_iterator const_conf_chain_iterator;
-      const_conf_chain_iterator conf_chain_begin()   const { return m_confChains.begin(); }
-      const_conf_chain_iterator conf_chain_end()     const { return m_confChains.end(); }
-
-      const_conf_item_iterator conf_item_begin() const { return m_confItems.begin(); }
-      const_conf_item_iterator conf_item_end()   const { return m_confItems.end(); }
 
       std::vector<std::string> m_patterns;  //!< patterns with which the CG was constructed
     
@@ -211,7 +188,7 @@ namespace Trig {
 
       ChainGroup& operator= (const ChainGroup&);
 
-      float m_prescale;
+      float m_prescale{0};
 
    };
 } // End of namespace
