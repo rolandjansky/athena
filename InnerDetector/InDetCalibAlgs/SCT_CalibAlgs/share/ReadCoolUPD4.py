@@ -40,7 +40,7 @@ def formIovFromTo(runNumberStart, runNumber):
   
 #CS this modification checks which was the k-last run before the processed one
 def getRunNumberStart(runNumber, k):
-    runlistfile = open("/afs/cern.ch/user/s/sctcalib/scratch0/lastRuns.txt", "r")
+    runlistfile = open("/afs/cern.ch/work/s/sctcalib/lastRuns.txt", mode = 'r')
     content = runlistfile.read()
     runlistfile.close()
     content_list = content.split("\n")
