@@ -41,6 +41,14 @@ namespace {
     while (sum >= s_bcidsFullOrbit) {sum -= s_bcidsFullOrbit;}
     return sum;
   }
+  /// Add a special bit flagging Run-3 format for offline use in xAOD::MuonRoI
+  constexpr uint32_t roiWordAddOfflineRun3Flag (uint32_t candidateWord) {
+    return (candidateWord | 0x1u<<31);
+  }
+  /// Remove a special bit flagging Run-3 format for offline use in xAOD::MuonRoI
+  constexpr uint32_t roiWordRemoveOfflineRun3Flag (uint32_t candidateWord) {
+    return (candidateWord & ~(0x1u<<31));
+  }
 }
 
 MuonRoIByteStreamTool::MuonRoIByteStreamTool(const std::string& type,
@@ -92,17 +100,18 @@ StatusCode MuonRoIByteStreamTool::convertFromBS(const std::vector<const ROBF*>& 
   const eformat::helper::SourceIdentifier sid(m_robIds.value().at(0));
   auto it = std::find_if(vrobf.begin(), vrobf.end(), [&sid](const ROBF* rob){return rob->rob_source_id() == sid.code();});
   if (it == vrobf.end()) {
-    ATH_MSG_DEBUG("No MUCTPI ROB fragment with ID " << sid.code() << " was found, MuonRoIContainer will be empty");
+    ATH_MSG_DEBUG("No MUCTPI ROB fragment with ID 0x" << std::hex << sid.code() << std::dec
+                  << " was found, MuonRoIContainer will be empty");
     return StatusCode::SUCCESS;
   }
 
-  // Iterate over ROD words and decode
+  // Retrieve the ROD data
   const ROBF* rob = *it;
   ATH_MSG_DEBUG("MUCTPI ROB for BCID " << rob->rod_bc_id());
   const uint32_t ndata = rob->rod_ndata();
   const uint32_t* const data = rob->rod_data();
-  ATH_MSG_DEBUG("Starting to decode " << ndata << " ROD words");
 
+  // Initialise monitoring variables
   Monitored::Scalar<uint32_t> monNumWords{"NumWordsInROD", ndata};
   std::array<size_t,static_cast<size_t>(LVL1::MuCTPIBits::WordType::MAX)> wordTypeCounts{}; // zero-initialised
   auto monWordTypeCount = Monitored::Collection("WordTypeCount", wordTypeCounts);
@@ -110,10 +119,19 @@ StatusCode MuonRoIByteStreamTool::convertFromBS(const std::vector<const ROBF*>& 
   std::vector<int> bcidOffsetsWrtROB; // diffs between BCID in timeslice header and BCID in ROB header
   auto monBCIDOffsetsWrtROB = Monitored::Collection("BCIDOffsetsWrtROB", bcidOffsetsWrtROB);
 
+  // Check for empty data
+  if (ndata==0) {
+    ATH_MSG_ERROR("Empty ROD data in MUCTPI ROB 0x" << std::hex << sid.code() << std::dec);
+    Monitored::Group(m_monTool, monNumWords);
+    return StatusCode::FAILURE;
+  }
+  ATH_MSG_DEBUG("Starting to decode " << ndata << " ROD words");
+
   // We don't assume the window size at this point. Instead, we collect the start and size of candidate list for
   // each time slice and decode them later directly into the right time slice output container.
   std::vector<std::pair<size_t,size_t>> roiSlices; // v of {start, length}
 
+  // Iterate over ROD words and decode
   size_t iWord{0};
   for (const uint32_t word : CxxUtils::span{data, ndata}) {
     ATH_MSG_DEBUG("MUCTPI raw word " << iWord << ": 0x" << std::hex << word << std::dec);
@@ -164,11 +182,15 @@ StatusCode MuonRoIByteStreamTool::convertFromBS(const std::vector<const ROBF*>& 
       }
       default: {
         ATH_MSG_ERROR("The MUCTPI word 0x" << std::hex << word << std::dec << " does not match any known word type");
+        Monitored::Group(m_monTool, monNumWords, monWordType, monWordTypeCount, monBCIDOffsetsWrtROB);
         return StatusCode::FAILURE;
       }
     }
     ++iWord;
   } // Loop over all ROD words
+
+  // Fill data format monitoring histograms
+  Monitored::Group(m_monTool, monNumWords, monWordType, monWordTypeCount, monBCIDOffsetsWrtROB);
 
   // Validate the number of slices and decode the RoI candidate words in each time slice
   const size_t nSlices{roiSlices.size()};
@@ -222,7 +244,7 @@ StatusCode MuonRoIByteStreamTool::convertFromBS(const std::vector<const ROBF*>& 
         roiData.eta());
 
       // Fill the xAOD::MuonRoI object
-      (*outputIt)->back()->initialize((word | 0x1u<<31), // Flag Run-3 format in the unused MSB
+      (*outputIt)->back()->initialize(roiWordAddOfflineRun3Flag(word),
                                       roiData.eta(),
                                       roiData.phi(),
                                       minThrInfo.first,
@@ -248,9 +270,6 @@ StatusCode MuonRoIByteStreamTool::convertFromBS(const std::vector<const ROBF*>& 
     Monitored::Group(m_monTool, monBCOffset, monNumRoIs);
     ++bcOffset;
   }
-
-  // Fill per-event monitoring histograms
-  Monitored::Group(m_monTool, monNumWords, monWordType, monWordTypeCount, monBCIDOffsetsWrtROB);
 
   return StatusCode::SUCCESS;
 }
@@ -329,7 +348,7 @@ StatusCode MuonRoIByteStreamTool::convertToBS(std::vector<WROBF*>& vrobf,
     // Candidate words
     for (const xAOD::MuonRoI* roi : **inputIt) {
       monitorCandidate(m_monTool, *roi);
-      data[iWord++] = roi->roiWord();
+      data[iWord++] = roiWordRemoveOfflineRun3Flag(roi->roiWord());
       ATH_MSG_DEBUG("Added RoI word 0x" << std::hex << roi->roiWord() << std::dec);
     }
     wordTypeCounts[static_cast<size_t>(LVL1::MuCTPIBits::WordType::Candidate)] += (*inputIt)->size();
@@ -341,6 +360,9 @@ StatusCode MuonRoIByteStreamTool::convertToBS(std::vector<WROBF*>& vrobf,
   ++wordTypeCounts[static_cast<size_t>(LVL1::MuCTPIBits::WordType::Status)];
   ATH_MSG_DEBUG("Added the data status word");
 
+  // Fill data format monitoring histograms
+  Monitored::Group(m_monTool, monNumWords, monWordType, monWordTypeCount, monBCIDOffsetsWrtROB);
+
   // Check that we filled all words
   if (iWord!=rodSize) {
     ATH_MSG_ERROR("Expected to fill " << rodSize << " ROD words but filled " << iWord);
@@ -349,10 +371,7 @@ StatusCode MuonRoIByteStreamTool::convertToBS(std::vector<WROBF*>& vrobf,
 
   // Create a ROBFragment containing the ROD words
   const eformat::helper::SourceIdentifier sid(m_robIds.value().at(0));
-  vrobf.push_back(newRobFragment(eventContext, sid.code(), rodSize, data));
-
-  // Fill per-event monitoring histograms
-  Monitored::Group(m_monTool, monNumWords, monWordType, monWordTypeCount, monBCIDOffsetsWrtROB);
+  vrobf.push_back(newRobFragment(eventContext, sid.code(), rodSize, data, nSlices));
 
   return StatusCode::SUCCESS;
 }

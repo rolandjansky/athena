@@ -94,6 +94,8 @@ namespace LVL1::MuCTPIBits {
   /// Encode timeslice word
   inline constexpr uint32_t timesliceHeader(uint32_t bcid, uint32_t tobCount, uint32_t candCount) {
     uint32_t word{0};
+    word |= buildWord(RUN3_TIMESLICE_MULT_WORD_ID_VAL, RUN3_TIMESLICE_MULT_WORD_ID_SHIFT, RUN3_TIMESLICE_MULT_WORD_ID_MASK);
+    word |= buildWord(RUN3_TIMESLICE_WORD_NUM_VAL, RUN3_TIMESLICE_MULT_WORD_NUM_SHIFT, RUN3_TIMESLICE_MULT_WORD_NUM_MASK);
     word |= buildWord(bcid, RUN3_TIMESLICE_BCID_SHIFT, RUN3_TIMESLICE_BCID_MASK);
     word |= buildWord(tobCount, RUN3_TIMESLICE_NTOB_SHIFT, RUN3_TIMESLICE_NTOB_MASK);
     word |= buildWord(candCount, RUN3_TIMESLICE_NCAND_SHIFT, RUN3_TIMESLICE_NCAND_MASK);
