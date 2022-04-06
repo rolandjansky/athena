@@ -15,10 +15,12 @@
 #include "AnaAlgorithm/AnaReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/DataHandle.h"
+#include "StoreGate/ReadDecorHandleKey.h"
 
 #include "xAODPFlow/FlowElementContainer.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODMuon/MuonContainer.h"
 #include "xAODCore/AuxContainerBase.h"
-
 
 class IJetExecuteTool;
 
@@ -35,7 +37,8 @@ public:
 
 private:
 
-  bool checkLeptonLinks(const xAOD::FlowElement* fe) const;
+  bool checkLeptonLinks(const std::vector < ElementLink< xAOD::ElectronContainer > >& chargedFE_ElectronLinks,
+			const std::vector < ElementLink< xAOD::MuonContainer > >& chargedFE_MuonLinks) const;
   
   Gaudi::Property<std::string> m_electronID{this,"electronID","LHMedium","Select electron ID"};
 
@@ -44,6 +47,15 @@ private:
   
   SG::WriteHandleKey<xAOD::FlowElementContainer> m_outputChargedPFlowHandleKey= {this, "ChargedPFlowOutputContainer", "GlobalPFlowChargedParticleFlowObjects", "The output filtered Charged PFlow Objects"};
   SG::WriteHandleKey<xAOD::FlowElementContainer> m_outputNeutralPFlowHandleKey= {this, "NeutralPFlowOutputContainer", "GlobalPFlowNeutralParticleFlowObjects", "The output filtered Neutral PFlow Objects"};
+
+  SG::ReadDecorHandleKey<xAOD::FlowElementContainer> m_chargedFEElectronsReadDecorKey {this,
+      "ChargedFEElectronsReadDecorKey",
+      "JetETMissChargedParticleFlowObjects.FE_ElectronLinks",
+      "Key for links from charged FE to electrons"};
+  SG::ReadDecorHandleKey<xAOD::FlowElementContainer> m_chargedFEMuonsReadDecorKey {this,
+      "ChargedFEMuonsReadDecorKey",
+      "JetETMissChargedParticleFlowObjects.FE_MuonLinks",
+      "Key for links from charged FE to muons"};
 
 };
 

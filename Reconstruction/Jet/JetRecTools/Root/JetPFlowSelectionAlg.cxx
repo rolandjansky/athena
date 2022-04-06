@@ -5,9 +5,8 @@
 #include "JetRecTools/JetPFlowSelectionAlg.h"
 #include "AsgDataHandles/ReadHandle.h"
 #include "AsgDataHandles/WriteHandle.h"
+#include "AsgDataHandles/ReadDecorHandle.h"
 
-#include "xAODEgamma/ElectronContainer.h"
-#include "xAODMuon/MuonContainer.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODMuon/Muon.h"
 #include "xAODPFlow/FlowElement.h"
@@ -21,6 +20,8 @@ StatusCode JetPFlowSelectionAlg::initialize() {
   ATH_CHECK(m_NeutralPFlowContainerKey.initialize());
   ATH_CHECK(m_outputChargedPFlowHandleKey.initialize());
   ATH_CHECK(m_outputNeutralPFlowHandleKey.initialize());
+  ATH_CHECK(m_chargedFEElectronsReadDecorKey.initialize());
+  ATH_CHECK(m_chargedFEMuonsReadDecorKey.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -40,6 +41,18 @@ StatusCode JetPFlowSelectionAlg::execute(const EventContext& ctx) const {
     return StatusCode::FAILURE;
   }
 
+  SG::ReadDecorHandle<xAOD::FlowElementContainer, std::vector< ElementLink<xAOD::ElectronContainer> > > chargedFE_ElectronLinks(m_chargedFEElectronsReadDecorKey,ctx);
+  if (!chargedFE_ElectronLinks.isValid()){
+    ATH_MSG_ERROR("Can't retrieve input decoration " << chargedFE_ElectronLinks.key());                  
+    return StatusCode::FAILURE;
+  }
+
+  SG::ReadDecorHandle<xAOD::FlowElementContainer, std::vector< ElementLink<xAOD::MuonContainer> > > chargedFE_MuonLinks(m_chargedFEMuonsReadDecorKey,ctx);
+  if (!chargedFE_MuonLinks.isValid()){
+    ATH_MSG_ERROR("Can't retrieve input decoration "<< chargedFE_MuonLinks.key());                  
+    return StatusCode::FAILURE;
+  }
+
   auto selectedChargedPFlowObjects = std::make_unique<xAOD::FlowElementContainer>(); // SG::VIEW_ELEMENTS
   auto selectedChargedPFlowObjectsAux = std::make_unique<xAOD::FlowElementAuxContainer>();
   selectedChargedPFlowObjects->setStore(selectedChargedPFlowObjectsAux.get());
@@ -55,7 +68,7 @@ StatusCode JetPFlowSelectionAlg::execute(const EventContext& ctx) const {
   for ( const xAOD::FlowElement* fe : *ChargedPFlowObjects ) {
 
     // Select FE object if not matched to an electron or muon via links
-    if ( !checkLeptonLinks(fe) ){
+    if ( !checkLeptonLinks(chargedFE_ElectronLinks(*fe), chargedFE_MuonLinks(*fe)) ){
       xAOD::FlowElement* selectedFE = new xAOD::FlowElement();
       selectedChargedPFlowObjects->push_back(selectedFE);
       *selectedFE = *fe; // copies auxdata
@@ -167,52 +180,42 @@ StatusCode JetPFlowSelectionAlg::execute(const EventContext& ctx) const {
   return StatusCode::SUCCESS;
 }
 
-bool JetPFlowSelectionAlg::checkLeptonLinks(const xAOD::FlowElement* fe) const {
+bool JetPFlowSelectionAlg::checkLeptonLinks(const std::vector < ElementLink< xAOD::ElectronContainer > >& chargedFE_ElectronLinks,
+					    const std::vector < ElementLink< xAOD::MuonContainer > >& chargedFE_MuonLinks) const {
 
   // Links to electrons
-  static const SG::AuxElement::ConstAccessor< std::vector < ElementLink< xAOD::ElectronContainer > > > acc_electron_FE_Link("FE_ElectronLinks");
-  if( acc_electron_FE_Link.isAvailable(*fe) ){
-    std::vector< ElementLink< xAOD::ElectronContainer > > ElectronLinks=acc_electron_FE_Link(*fe);
-
-    for (ElementLink<xAOD::ElectronContainer>& ElectronLink: ElectronLinks){
-      if (!ElectronLink.isValid()){
-        ATH_MSG_WARNING("JetPFlowSelectionAlg encountered an invalid electron element link. Skipping. ");
-        continue; 
-      }
-
-      const xAOD::Electron* electron = *ElectronLink;
-      bool passElectronID = false;
-      bool gotID = electron->passSelection(passElectronID, m_electronID);
-      if (!gotID) {
-	      ATH_MSG_WARNING("Could not get Electron ID");
-	      continue;
-      }
-
-      if( electron->pt() > 10000 && passElectronID){
-        return true;
-      }
-	  }
-  }
-
-  // Links to muons
-  SG::AuxElement::ConstAccessor< std::vector < ElementLink< xAOD::MuonContainer > > > acc_muon_FE_Link("FE_MuonLinks");
-  if( acc_muon_FE_Link.isAvailable(*fe) ){
-    std::vector< ElementLink< xAOD::MuonContainer > > MuonLinks=acc_muon_FE_Link(*fe);
-
-    for (ElementLink<xAOD::MuonContainer>& MuonLink: MuonLinks){
-      if (!MuonLink.isValid()){
-        ATH_MSG_WARNING("JetPFlowSelectionAlg encountered an invalid muon element link. Skipping. ");
-        continue; 
-      }
-
-      //Details of medium muons are here:
-      //https://twiki.cern.ch/twiki/bin/view/Atlas/MuonSelectionTool
-      const xAOD::Muon* muon = *MuonLink;
-      if ( muon->quality() <= xAOD::Muon::Medium && muon->muonType() == xAOD::Muon::Combined ){
-        return true;
-      }
-
+  for (const ElementLink<xAOD::ElectronContainer>& ElectronLink: chargedFE_ElectronLinks){
+    if (!ElectronLink.isValid()){
+      ATH_MSG_WARNING("JetPFlowSelectionAlg encountered an invalid electron element link. Skipping. ");
+      continue; 
     }
+
+    const xAOD::Electron* electron = *ElectronLink;
+    bool passElectronID = false;
+    bool gotID = electron->passSelection(passElectronID, m_electronID);
+    if (!gotID) {
+      ATH_MSG_WARNING("Could not get Electron ID");
+      continue;
+    }
+    
+    if( electron->pt() > 10000 && passElectronID){
+      return true;
+    }
+  }
+  
+  // Links to muons
+  for (const ElementLink<xAOD::MuonContainer>& MuonLink: chargedFE_MuonLinks){
+    if (!MuonLink.isValid()){
+      ATH_MSG_WARNING("JetPFlowSelectionAlg encountered an invalid muon element link. Skipping. ");
+      continue; 
+    }
+    
+    //Details of medium muons are here:
+    //https://twiki.cern.ch/twiki/bin/view/Atlas/MuonSelectionTool
+    const xAOD::Muon* muon = *MuonLink;
+    if ( muon->quality() <= xAOD::Muon::Medium && muon->muonType() == xAOD::Muon::Combined ){
+      return true;
+    }    
   }
 
   return false;
