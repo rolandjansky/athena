@@ -26,11 +26,24 @@ topSequence += hgtd_cluster_maker_alg
 ################################################################################
 ################################################################################
 ## setup of tools needed in the track extension
-## from the tacking side, extrapolator and Kalman updator are needed
 
+## to classify clusters as coming from HS/PU/... a specific tool is used
+from HGTD_TruthTools.HGTD_TruthToolsConf import HGTD__ClusterTruthTool
+
+hgtd_cluster_truth_tool = HGTD__ClusterTruthTool(name="ClusterTruthTool")
+
+ToolSvc += hgtd_cluster_truth_tool
+
+
+## from the tacking side, extrapolator and Kalman updator are needed
 extrapolator = ToolSvc.AtlasExtrapolator
 
 kalman_updator = ToolSvc.InDetUpdator
+
+## beam service tool
+from AthenaCommon.AppMgr import ServiceMgr
+ServiceMgr += Service('BeamCondSvc')
+beam_conditions_svc = ServiceMgr.BeamCondSvc
 
 ## for the time of flight correction, us the straight line at speed of light hypothesis
 from HGTD_TimeCalibrationTools.HGTD_TimeCalibrationToolsConf import HGTD__StraightLineTOFcorrectionTool
@@ -47,16 +60,11 @@ htgd_ext_tool = HGTD_IterativeExtensionTool(name="IterativeExtensionTool")
 htgd_ext_tool.ExtrapolatorTool = extrapolator
 htgd_ext_tool.UpdatorTool = kalman_updator
 htgd_ext_tool.TOFCorrTool = hgtd_tof_corr_tool
+# htgd_ext_tool.BeamCondSvc = beam_conditions_svc
+htgd_ext_tool.ClusterTruthTool = hgtd_cluster_truth_tool
 htgd_ext_tool.Chi2Cut = 5.0
 
 ToolSvc += htgd_ext_tool
-
-## to classify clusters as coming from HS/PU/... a specific tool is used
-from HGTD_TruthTools.HGTD_TruthToolsConf import HGTD__ClusterTruthTool
-
-hgtd_cluster_truth_tool = HGTD__ClusterTruthTool(name="ClusterTruthTool")
-
-ToolSvc += hgtd_cluster_truth_tool
 
 ## schedule the extension algorithm from ITk to HGTD
 from HGTD_TrackTimeExtension.HGTD_TrackTimeExtensionConf import HGTD__TrackTimeExtensionAlg

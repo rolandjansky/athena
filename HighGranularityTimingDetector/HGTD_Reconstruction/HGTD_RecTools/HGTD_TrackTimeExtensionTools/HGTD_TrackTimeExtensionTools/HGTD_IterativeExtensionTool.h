@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  *
  * @file HGTD_TrackTimeExtensionTools/HGTD_IterativeExtensionTool.h
  *
@@ -26,12 +26,13 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "HGTD_RecToolInterfaces/IHGTD_TrackTimeExtensionTool.h"
 
-#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "HGTD_PrepRawData/HGTD_ClusterContainer.h"
+#include "HGTD_RecToolInterfaces/IHGTD_ClusterTruthTool.h"
 #include "HGTD_RecToolInterfaces/IHGTD_TOFcorrectionTool.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkToolInterfaces/IUpdator.h"
+#include "xAODTruth/TruthParticle.h"
 
 #include <memory>
 
@@ -59,9 +60,11 @@ public:
    *
    * @return Array of compatible HGTD hits in the form of HGTD_ClusterOnTrack.
    */
-  virtual std::array<std::unique_ptr<const Trk::TrackStateOnSurface>, 4>
-  extendTrackToHGTD(const Trk::Track& track,
-                    const HGTD_ClusterContainer* container) override;
+  HGTD::ExtensionObject extendTrackToHGTD(
+      const xAOD::TrackParticle& track_ptkl,
+      const HGTD_ClusterContainer* container,
+      const HepMC::GenEvent* hs_event = nullptr,
+      const InDetSimDataCollection* sim_data = nullptr) override final;
 
   MsgStream& dump(MsgStream& out) const;
   std::ostream& dump(std::ostream& out) const;
@@ -131,8 +134,14 @@ private:
    * update the track state.
    */
   std::unique_ptr<const Trk::TrackStateOnSurface>
-  updateState(const Trk::TrackParameters* param,
-              const HGTD_Cluster* cluster);
+  updateState(const Trk::TrackParameters* param, const HGTD_Cluster* cluster);
+
+  std::pair<const HGTD_Cluster*, HGTD::ClusterTruthInfo>
+  getTruthMatchedCluster(const std::vector<const Trk::Surface*>& surfaces,
+                         const HGTD_ClusterContainer* container,
+                         const xAOD::TruthParticle* truth_ptkl,
+                         const HepMC::GenEvent* hs_event,
+                         const InDetSimDataCollection* sim_data);
 
   // extrapolation tool
   ToolHandle<Trk::IExtrapolator> m_extrapolator;
@@ -140,6 +149,8 @@ private:
   ToolHandle<Trk::IUpdator> m_updator;
 
   ToolHandle<IHGTD_TOFcorrectionTool> m_tof_corr_tool;
+
+  ToolHandle<IHGTD_ClusterTruthTool> m_truth_tool;
 
   // keep a pointer to the currently used track, but does not own it!
   // FIXME: this is needed for the TOF correction. Maybe there is a smarter way

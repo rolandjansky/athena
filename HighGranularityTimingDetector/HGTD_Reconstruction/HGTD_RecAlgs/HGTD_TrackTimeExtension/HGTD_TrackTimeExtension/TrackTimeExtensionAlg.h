@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  *
  * @file HGTD_TrackTimeExtension/TrackTimeExtensionAlg.h
  * @author Alexander Leopold <alexander.leopold@cern.ch>
@@ -27,17 +27,14 @@
 #include "HGTD_PrepRawData/HGTD_ClusterContainer.h"
 #include "HGTD_RecToolInterfaces/IHGTD_ClusterTruthTool.h"
 #include "HGTD_RecToolInterfaces/IHGTD_TrackTimeExtensionTool.h"
+#include "InDetSimData/InDetSimDataCollection.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
-#include "InDetSimData/InDetSimDataCollection.h"
 
 #include <string>
 
 namespace HGTD {
-
-using HGTDExtension_t =
-    std::array<std::unique_ptr<const Trk::TrackStateOnSurface>, 4>;
 
 class TrackTimeExtensionAlg : public AthAlgorithm {
 
@@ -49,7 +46,7 @@ public:
 
 private:
   StatusCode decorateTrackParticle(const xAOD::TrackParticle* track_ptkl,
-                                   const HGTDExtension_t& extension,
+                                   const HGTD::ExtensionObject& extension,
                                    const InDetSimDataCollection* sdo_collection,
                                    const HepMC::GenEvent* hs_event,
                                    bool skip_deco = false);
@@ -78,13 +75,15 @@ private:
   std::unique_ptr<SG::AuxElement::Decorator<std::vector<int>>>
       m_dec_layer_cluster_truth_class;
   std::unique_ptr<SG::AuxElement::Decorator<std::vector<bool>>>
-      m_dec_layer_cluster_cluster_shadowed;
+      m_dec_layer_cluster_shadowed;
   std::unique_ptr<SG::AuxElement::Decorator<std::vector<bool>>>
-      m_dec_layer_cluster_cluster_merged;
+      m_dec_layer_cluster_merged;
   // to look for primary hits that have been missed, additional info is needed.
   // this will go in in a next iteration
-  // std::unique_ptr<SG::AuxElement::Decorator<std::vector<bool>>>
-  //     m_dec_layer_cluster_cluster_expected;
+  std::unique_ptr<SG::AuxElement::Decorator<std::vector<bool>>>
+      m_dec_layer_primary_expected;
+  std::unique_ptr<SG::AuxElement::Decorator<float>> m_dec_extrap_x;
+  std::unique_ptr<SG::AuxElement::Decorator<float>> m_dec_extrap_y;
 };
 
 } // namespace HGTD

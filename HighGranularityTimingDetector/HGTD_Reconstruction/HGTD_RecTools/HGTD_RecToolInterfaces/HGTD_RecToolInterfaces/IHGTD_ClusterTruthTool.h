@@ -46,18 +46,18 @@ enum ClusterTruthOrigin {
 };
 
 struct ClusterTruthInfo {
-  ClusterTruthOrigin origin;
+  ClusterTruthOrigin origin = ClusterTruthOrigin::UNIDENTIFIED;
   /**
    * @brief Shadowing means that a deposit was left by the truth
    * particle, but it was not the first deposit and is thus not used for the
    * time measurement -> I will have an incorrect time
    */
-  bool is_shadowed;
+  bool is_shadowed = false;
   /**
    * @brief A cluster is considered to be merged if more than one particle
    * deposited energy in a given pad.
    */
-  bool is_merged;
+  bool is_merged = false;
 };
 } // namespace HGTD
 

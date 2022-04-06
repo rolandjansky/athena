@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  *
  * @file HGTD_RecToolInterfaces/IHGTD_TrackTimeExtensionTool.h
  * @author Alexander Leopold <alexander.leopold@cern.ch>
@@ -22,14 +22,36 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "HGTD_PrepRawData/HGTD_ClusterContainer.h"
+#include "HGTD_RecToolInterfaces/IHGTD_ClusterTruthTool.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackStateOnSurface.h"
+#include "xAODTracking/TrackParticle.h"
 #include <memory>
 
 class MsgStream;
 
 static const InterfaceID
     IID_IHGTD_TrackExtensionTool("IHGTD_TrackTimeExtensionTool", 1, 0);
+
+namespace HGTD {
+
+struct ExtensionObject {
+  // track states after extrapolation, can be of hole type
+  std::array<std::unique_ptr<const Trk::TrackStateOnSurface>, 4> m_hits;
+  // truth info about primary hits left by the truth particles
+  // is kept independent of them being found during the track extension
+  std::array<const HGTD_Cluster*, 4> m_truth_primary_hits;
+  std::array<HGTD::ClusterTruthInfo, 4> m_truth_primary_info;
+  // point of extrapolation on HGTD layer closest to IP
+  float m_extrap_x = 0;
+  float m_extrap_y = 0;
+};
+
+} // namespace HGTD
+
+namespace HepMC {
+class GenEvent;
+}
 
 class IHGTD_TrackTimeExtensionTool : virtual public IAlgTool {
 
@@ -42,12 +64,15 @@ public:
    * @param [in] track Track built in the inner tracker to be extended to HGTD.
    * @param [in] container Container of HGTD_Cluster objects.
    *
-   * @return Returns 4 measurements in HGTD (can contain holes or outliers)
-   * associated to the track.
+   * @return Returns An object containing the 4 measurements in HGTD (can
+   * contain holes or outliers) associated to the track as well as truth
+   * information if available.
    */
-  virtual std::array<std::unique_ptr<const Trk::TrackStateOnSurface>, 4>
-  extendTrackToHGTD(const Trk::Track& track,
-                    const HGTD_ClusterContainer* container) = 0;
+  virtual HGTD::ExtensionObject
+  extendTrackToHGTD(const xAOD::TrackParticle& track,
+                    const HGTD_ClusterContainer* container,
+                    const HepMC::GenEvent* hs_event = nullptr,
+                    const InDetSimDataCollection* sim_data = nullptr) = 0;
 };
 
 /** Inline methods **/
