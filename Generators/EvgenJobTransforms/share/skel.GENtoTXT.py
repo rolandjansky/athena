@@ -90,11 +90,12 @@ evgenLog.info("****************** CONFIGURING EVENT GENERATION *****************
 ## NOTE: evgenConfig, topSeq, svcMgr, theApp, etc. should NOT be explicitly re-imported in JOs
 from EvgenJobTransforms.EvgenConfig import evgenConfig
 from EvgenJobTransforms.EvgenConfig import gens_known, gens_lhef, gen_sortkey, gens_testhepmc, gens_notune, gen_require_steering
-
-
 ## Ensure that an output name has been given
 # TODO: Allow generation without writing an output file (if outputEVNTFile is None)?
-
+if not hasattr(runArgs, "ecmEnergy"):
+    raise RuntimeError("No center of mass energy provided.")
+else:
+    evgenLog.info(' ecmEnergy = ' + str(runArgs.ecmEnergy) )
 ##==============================================================
 ## Configure standard Athena and evgen services
 ##==============================================================
