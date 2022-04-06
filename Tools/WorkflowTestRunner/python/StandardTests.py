@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from typing import List
 
 from .Checks import AODContentCheck, AODDigestCheck, FrozenTier0PolicyCheck
@@ -23,7 +23,7 @@ class QTest(WorkflowTest):
             if "inputHITSFile" not in extra_args:
                 extra_args += f" --inputHITSFile {input_HITS[run]}"
             if "inputRDO_BKGFile" not in extra_args:
-                extra_args += f" --inputRDO_BKGFile ../run_d*/myRDO.pool.root"
+                extra_args += " --inputRDO_BKGFile ../run_d*/myRDO.pool.root"
 
         threads = 1
         threads_argument = '--multithreaded'

@@ -37,10 +37,8 @@ atlas_add_test( read_test
 atlas_add_test( update_test
                 SOURCES
                 test/update_test.cxx
-                LINK_LIBRARIES ${CORAL_LIBRARIES} CollectionBase PersistentDataModel RootCollection CxxUtils )
-
-set_tests_properties( RootCollection_update_test_ctest
-                      PROPERTIES DEPENDS RootCollection_read_test_ctest )
+                LINK_LIBRARIES ${CORAL_LIBRARIES} CollectionBase PersistentDataModel RootCollection CxxUtils
+                DEPENDS read_test )
 
 # Component list generation:
 atlas_generate_componentslist( RootCollectionComponents )

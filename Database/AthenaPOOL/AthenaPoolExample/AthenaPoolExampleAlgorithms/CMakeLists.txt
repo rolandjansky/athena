@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthenaPoolExampleAlgorithms )
@@ -38,14 +38,9 @@ function( _add_test testName toExecute )
    # Set up the test:
    atlas_add_test( ${testName}
        SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/${testName}_test.sh
-       ${_options} )
-
-   if( ARG_DEPENDS )
-      set_tests_properties( AthenaPoolExampleAlgorithms_${testName}_ctest
-                            PROPERTIES DEPENDS "${ARG_DEPENDS}" )
-   endif()
-   set_tests_properties( AthenaPoolExampleAlgorithms_${testName}_ctest
-                         PROPERTIES TIMEOUT 600 )
+       ${_options}
+       DEPENDS ${ARG_DEPENDS}
+       PROPERTIES TIMEOUT 600 )
 
 endfunction( _add_test )
 
@@ -62,66 +57,66 @@ _add_test( AthenaPoolExample_Write
 # Read 'Hits' and write 'Tracks'
 _add_test( AthenaPoolExample_ReWrite
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_RWJobOptions.py"
-   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_Write_ctest
+   DEPENDS AthenaPoolExample_Write
    IGNORE ${TEST_IGNORE_STR} )
 
 # Read all output
 _add_test( AthenaPoolExample_Read
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadJobOptions.py"
-   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReWrite_ctest
+   DEPENDS AthenaPoolExample_ReWrite
    IGNORE ${TEST_IGNORE_STR} )
 
 # Copy 'Hits' file without extending provenance
 _add_test( AthenaPoolExample_Copy
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_CopyJobOptions.py"
-   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_Read_ctest
+   DEPENDS AthenaPoolExample_Read
    IGNORE ${TEST_IGNORE_STR} )
 
 # Read copied 'Hits' and write 'Tracks'
 _add_test( AthenaPoolExample_ReWriteAgain
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReWriteAgainJobOptions.py"
-   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_Copy_ctest
+   DEPENDS AthenaPoolExample_Copy
    IGNORE ${TEST_IGNORE_STR} )
 _add_test( AthenaPoolExample_ReWriteNext
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReWriteNextJobOptions.py"
-   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReWriteAgain_ctest
+   DEPENDS AthenaPoolExample_ReWriteAgain
    IGNORE ${TEST_IGNORE_STR} )
 
 # Read all
 _add_test( AthenaPoolExample_ReadAgain
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadAgainJobOptions.py"
-   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReWriteNext_ctest
+   DEPENDS AthenaPoolExample_ReWriteNext
    IGNORE ${TEST_IGNORE_STR} )
 
 # Concatenate jobs write 'Hits' and 'Tracks' to different streams
 _add_test( AthenaPoolExample_Concat
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ConcatJobOptions.py"
-   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReadAgain_ctest
+   DEPENDS AthenaPoolExample_ReadAgain
    IGNORE ${TEST_IGNORE_STR}
    PRE_EXEC test/pre_check.sh )
 _add_test( AthenaPoolExample_ReadConcat
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadJobOptions.py"
-   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_Concat_ctest
+   DEPENDS AthenaPoolExample_Concat
    IGNORE ${TEST_IGNORE_STR} )
 
 # Testing 'Conditions' I/O
 _add_test( AthenaPoolExample_WCond
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_WCondJobOptions.py"
-   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReadConcat_ctest
+   DEPENDS AthenaPoolExample_ReadConcat
    IGNORE ${TEST_IGNORE_STR} )
 
 _add_test( AthenaPoolExample_RCond
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_RCondJobOptions.py"
-   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_WCond_ctest
+   DEPENDS AthenaPoolExample_WCond
    IGNORE ${TEST_IGNORE_STR} )
 
 # Testing 'Metadata' I/O
 _add_test( AthenaPoolExample_WMeta
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_WMetaJobOptions.py"
-   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_RCond_ctest
+   DEPENDS AthenaPoolExample_RCond
    IGNORE ${TEST_IGNORE_STR}
    PRE_EXEC test/pre_check.sh )
 _add_test( AthenaPoolExample_RMeta
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_RMetaJobOptions.py"
-   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_WMeta_ctest
+   DEPENDS AthenaPoolExample_WMeta
    IGNORE ${TEST_IGNORE_STR} )
