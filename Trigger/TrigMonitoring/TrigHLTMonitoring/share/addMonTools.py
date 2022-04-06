@@ -71,18 +71,7 @@ if HLTMonFlags.doMonTier0:
 
     # HLTMuonMonTool - Multiple Muon algorithms EDM Dumper
     if HLTMonFlags.doMuon:
-      try:
-        from TrigMuonMonitoring.TrigMuonMonitoringConfig import TrigMuonMonitoringTool
-        HLTMonManager.AthenaMonTools += TrigMuonMonitoringTool()
-        HLTMonManager.ExtraInputs += [('xAOD::MuonContainer','StoreGateSvc+Muons')]
-        HLTMonManager.ExtraInputs += [('xAOD::VertexContainer','StoreGateSvc+PrimaryVertices')]
-        HLTMonManager.ExtraInputs += [('xAOD::EventInfo','StoreGateSvc+EventInfo')]
-        HLTMonManager.ExtraInputs += [('TrigOperationalInfoCollection','StoreGateSvc+HLT_TrigOperationalInfoCollection_EXPRESS_OPI_HLT')]
-        HLTMonManager.ExtraInputs += [('xAOD::MuonRoIContainer','StoreGateSvc+LVL1MuonRoIs')]
-      except:
-        log.info("Problems with HLTMuonTool, tool not enabled")
-        import traceback
-        log.info (traceback.format_exc())
+      log.warning("The HLT legacy muon monitoring is no longer supported")
 
     # IDtrk HLTMonTool
     if HLTMonFlags.doIDtrk:
