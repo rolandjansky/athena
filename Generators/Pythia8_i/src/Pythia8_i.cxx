@@ -526,7 +526,7 @@ StatusCode Pythia8_i::fillWeights(HepMC::GenEvent *evt){
   fWeights["Default"]=eventWeight;
   if(m_internal_event_number == 1)  {
      ATH_MSG_INFO("found LHEF version "<< m_pythia->info.LHEFversion() );
-     if (m_pythia->info.LHEFversion() != 1)  m_doLHE3Weights = true;
+     if (m_pythia->info.LHEFversion() > 1)  m_doLHE3Weights = true;
      m_weightIDs.clear();
      m_weightIDs.push_back("Default"); // notice that we are assigning a weightname = weightID
   }
