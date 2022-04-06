@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name.
 atlas_subdir( xAODEventFormatCnv )
@@ -68,14 +68,14 @@ atlas_add_test( Write
 atlas_add_test( Read
   SCRIPT athena.py --threads=8 xAODEventFormatCnv/EventFormatReadTestJobOptions.py
   POST_EXEC_SCRIPT nopost.sh
-  PROPERTIES DEPENDS "xAODEventFormatCnv_Write_ctest" )
+  DEPENDS Write )
 
 atlas_add_test( ReadWrite
   SCRIPT athena.py --threads=8 xAODEventFormatCnv/EventFormatReadWriteJobOptions.py
   POST_EXEC_SCRIPT nopost.sh
-  PROPERTIES DEPENDS "xAODEventFormatCnv_Write_ctest" )
+  DEPENDS Write )
 
 atlas_add_test( Content
   SCRIPT test/TestEventFormatContent.py readWriteTestStream0.pool.root EventFormat
   POST_EXEC_SCRIPT nopost.sh
-  PROPERTIES DEPENDS "xAODEventFormatCnv_ReadWrite_ctest" )
+  DEPENDS ReadWrite )

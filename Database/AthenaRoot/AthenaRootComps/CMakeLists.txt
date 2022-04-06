@@ -41,7 +41,7 @@ atlas_add_test( test_athena_ntuple_dumper_multiple_diffroot  # diff-root on the 
                 ENVIRONMENT ATLAS_REFERENCE_TAG=${_reftag}
                 POST_EXEC_SCRIPT nopost.sh
                 PRIVATE_WORKING_DIRECTORY
-                PROPERTIES DEPENDS AthenaRootComps_test_athena_ntuple_dumper_multiple_ctest )
+                DEPENDS test_athena_ntuple_dumper_multiple )
 
 atlas_add_test( test_athena_ntuple_dumper_varhandles_nooutput
                 SCRIPT athena.py -c"DOWRITE=0" -lERROR AthenaRootComps/test_athena_ntuple_dumper.py
@@ -66,7 +66,7 @@ atlas_add_test( test_athena_ntuple_dumper_read
                 ENVIRONMENT ATLAS_REFERENCE_TAG=${_reftag}
                 POST_EXEC_SCRIPT "arc_refcomp.sh ref.d3pd.ascii collectionName"
                 PRIVATE_WORKING_DIRECTORY
-                PROPERTIES DEPENDS AthenaRootComps_test_athena_ntuple_dumper_novarhandles_ctest )
+                DEPENDS test_athena_ntuple_dumper_novarhandles )
 
 atlas_add_test( test_athena_variable_shape1
                 SCRIPT test/test_athena_variable_shape1.sh
@@ -86,13 +86,8 @@ atlas_add_test( test_athena_variable_shape3
 atlas_add_test( test_athena_variable_shape_merged
                 SCRIPT test_athena_variable_shape_merged.sh ${CMAKE_CURRENT_SOURCE_DIR}/test/ref.data.merged.ascii
                 ENVIRONMENT ATLAS_REFERENCE_TAG=${_reftag}
-                POST_EXEC_SCRIPT nopost.sh )
-# Passing PROPERTIES DEPENDS in atlas_add_test doesn't work if there's
-# more than one dependency.
-set_tests_properties( AthenaRootComps_test_athena_variable_shape_merged_ctest
-                      PROPERTIES DEPENDS
-                      "AthenaRootComps_test_athena_variable_shape1_ctest;AthenaRootComps_test_athena_variable_shape2_ctest;AthenaRootComps_test_athena_variable_shape3_ctest" )
-           
+                POST_EXEC_SCRIPT nopost.sh
+                DEPENDS test_athena_variable_shape1 test_athena_variable_shape2 test_athena_variable_shape3 )
 
 atlas_add_test( test_athena_multtuple
                 SCRIPT test/test_athena_multtuple.sh

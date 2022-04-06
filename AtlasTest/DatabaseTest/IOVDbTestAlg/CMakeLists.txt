@@ -25,11 +25,7 @@ function (iovdbtestalg_run_test testName jo)
                   LOG_SELECT_PATTERN "^IOVDbTestAlg"
                   PROPERTIES TIMEOUT 300
                   ENVIRONMENT "POOL_OUTMSG_LEVEL=4"
-                  )
-  if( ARG_DEPENDS )
-    set_tests_properties( IOVDbTestAlg_${testName}_ctest
-                          PROPERTIES DEPENDS IOVDbTestAlg_${ARG_DEPENDS}_ctest )
-  endif()
+                  DEPENDS ${ARG_DEPENDS} )
 endfunction (iovdbtestalg_run_test)
 
 # Write out some simple objects and register them in IOVDb - COOL version:
