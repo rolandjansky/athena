@@ -264,12 +264,10 @@ ISF::ISFParticle* iFatras::TransportTool::process( const ISF::ISFParticle& isp, 
   }
 
   // use extrapolation with path limit - automatic exit at subdetector boundary
-  // NB: don't delete eParameters, it's memory is managed inside the extrapolator
-
   // additional exercise due to the current mismatch in geoID
   Trk::GeometrySignature nextGeoID=static_cast<Trk::GeometrySignature>(isp.nextGeoID());
 
-  const Trk::TrackParameters* eParameters = nullptr;
+  std::unique_ptr<const Trk::TrackParameters> eParameters = nullptr;
 
   // hit creation/energy deposit
   hitVector = (!m_hitsOff) ? new std::vector<Trk::HitInfo> : nullptr;
@@ -277,7 +275,7 @@ ISF::ISFParticle* iFatras::TransportTool::process( const ISF::ISFParticle& isp, 
 
   if ( !charged ) {
 
-    eParameters = processor->transportNeutralsWithPathLimit(inputPar,pathLim,timeLim,Trk::alongMomentum,pHypothesis,hitVector,nextGeoID);
+    eParameters.reset(processor->transportNeutralsWithPathLimit(inputPar,pathLim,timeLim,Trk::alongMomentum,pHypothesis,hitVector,nextGeoID));
 
   } else {
 
@@ -285,33 +283,32 @@ ISF::ISFParticle* iFatras::TransportTool::process( const ISF::ISFParticle& isp, 
       // input covariance matrix
       AmgSymMatrix(5) inputCov;
       inputCov.setZero();
-      const Trk::TrackParameters* measuredInputPar =
+      std::unique_ptr<Trk::TrackParameters> measuredInputPar =
         inputPar.associatedSurface()
           .createUniqueTrackParameters(inputPar.parameters()[0],
                                        inputPar.parameters()[1],
                                        inputPar.parameters()[2],
                                        inputPar.parameters()[3],
                                        inputPar.parameters()[4],
-                                       std::move(inputCov))
-          .release();
-      eParameters = processor->extrapolateWithPathLimit(*measuredInputPar,
+                                       std::move(inputCov));
+
+      eParameters.reset(processor->extrapolateWithPathLimit(*measuredInputPar,
                                                         pathLim,
                                                         timeLim,
                                                         Trk::alongMomentum,
                                                         pHypothesis,
                                                         hitVector,
-                                                        nextGeoID);
-      delete measuredInputPar;
+                                                        nextGeoID));
 
     } else {
 
-      eParameters = processor->extrapolateWithPathLimit(inputPar,
+      eParameters.reset(processor->extrapolateWithPathLimit(inputPar,
 							pathLim,
 							timeLim,
 							Trk::alongMomentum,
 							pHypothesis,
 							hitVector,
-							nextGeoID);
+							nextGeoID));
     }
   }
 
@@ -349,7 +346,7 @@ ISF::ISFParticle* iFatras::TransportTool::process( const ISF::ISFParticle& isp, 
                  (pathLim.process>100 && pathLim.x0Max <= pathLim.l0Collected))) ? pathLim.process : 0;
     int endProcess = eParameters ? 0 : ( dProc > mProc ? dProc : mProc );
 
-    m_validationTool->saveISFParticleInfo(isp,endProcess,eParameters,timeLim.time,pathLim.x0Collected);
+    m_validationTool->saveISFParticleInfo(isp,endProcess,eParameters.get(),timeLim.time,pathLim.x0Collected);
 
   }
 
@@ -363,7 +360,6 @@ ISF::ISFParticle* iFatras::TransportTool::process( const ISF::ISFParticle& isp, 
     for (auto& h : *hitVector) delete h.trackParms;
     delete hitVector;
   }
-  delete eParameters;
 
   if (uisp && m_validationOutput) {
     // save validation info
