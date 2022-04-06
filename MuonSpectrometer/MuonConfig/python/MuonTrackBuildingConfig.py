@@ -162,7 +162,9 @@ def MuonSegmentMatchingToolCfg(flags, name="MuonSegmentMatchingTool", **kwargs):
     # m_pairMatchingTool("Muon::MuonSegmentPairMatchingTool/MuonSegmentPairMatchingTool"),
     # Also, residual pull calculator not yet configured. #FIXME
     
-    result = ComponentAccumulator()
+    result = MuonEDMPrinterToolCfg(flags)
+    kwargs.setdefault("Printer", result.getPrimary() )
+
     matching = Muon__MuonSegmentMatchingTool(name, **kwargs)
     result.setPrivateTools(matching)
     return result
@@ -336,6 +338,8 @@ def MuonChamberHoleRecoveryToolCfg(flags, name="MuonChamberHoleRecoveryTool", **
         kwargs.setdefault("MMPrepDataContainer","")
     
     kwargs.setdefault('TgcPrepDataContainer', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')    
+    kwargs.setdefault("EDMPrinter", result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags) ))
+
     result.setPrivateTools(CompFactory.Muon.MuonChamberHoleRecoveryTool(name, **kwargs))
     return result
 
@@ -447,13 +451,15 @@ def MuonTrackSelectorCfg(flags, name = "MuonTrackSelectorTool", **kwargs):
 
 def MuonStandaloneTrackParticleCnvAlgCfg(flags, name = "MuonStandaloneTrackParticleCnvAlg", **kwargs):
     from InDetConfig.TrackRecoConfig import TrackCollectionCnvToolCfg, TrackParticleCnvAlgCfg, TrackParticleCreatorToolCfg, RecTrackParticleContainerCnvToolCfg
-    from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryToolCfg
+    from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryToolCfg, MuonHitSummaryToolCfg
 
     result = ComponentAccumulator()
     track_summary_tool = result.getPrimaryAndMerge(MuonTrackSummaryToolCfg(flags))
+    muon_hit_summary_tool = result.popToolsAndMerge(MuonHitSummaryToolCfg(flags))
     muon_particle_creator_tool = result.getPrimaryAndMerge( TrackParticleCreatorToolCfg(flags, name="MuonParticleCreatorTool", 
-                                                                    TrackSummaryTool=track_summary_tool, KeepAllPerigee=True,
-                                                                    MuonSummaryTool= CompFactory.Muon.MuonHitSummaryTool("MuonHitSummaryTool"),
+                                                                    TrackSummaryTool=track_summary_tool, 
+                                                                    KeepAllPerigee=True,
+                                                                    MuonSummaryTool= muon_hit_summary_tool,
                                                                     PerigeeExpression="Origin"  ) )
     track_collection_cnv_tool = result.getPrimaryAndMerge(TrackCollectionCnvToolCfg(flags, name = "MuonTrackCollectionCnvTool", TrackParticleCreator = muon_particle_creator_tool))
     kwargs.setdefault("TrackParticleCreator",  muon_particle_creator_tool)
