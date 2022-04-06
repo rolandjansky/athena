@@ -33,7 +33,7 @@ ATLAS_CHECK_FILE_THREAD_SAFETY;
  * Constructor
  */
 PerfMonMTSvc::PerfMonMTSvc(const std::string& name, ISvcLocator* pSvcLocator)
-    : AthService(name, pSvcLocator), m_isFirstEvent{false}, m_eventCounter{0}, m_eventLoopMsgCounter{0} {
+    : AthService(name, pSvcLocator), m_isFirstEvent{false}, m_eventCounter{0}, m_eventLoopMsgCounter{0}, m_checkPointTime{0} {
   // Five main snapshots : Configure, Initialize, FirstEvent, Execute, and Finalize
   m_snapshotData.resize(NSNAPSHOTS); // Default construct
 
@@ -128,8 +128,14 @@ void PerfMonMTSvc::handle(const Incident& inc) {
     // Increment the internal counter
     m_eventCounter++;
 
+    // Get current time in seconds
+    double currentTime = PMonMT::get_wall_time()*0.001;
+
     // Monitor
-    if (m_doEventLoopMonitoring && isCheckPoint()) {
+    if (m_doEventLoopMonitoring && (currentTime - m_checkPointTime > m_checkPointThreshold)) {
+      // Overwrite the last measurement time
+      m_checkPointTime = currentTime;
+
       // Capture
       m_measurementEvents.capture();
       m_eventLevelData.recordEvent(m_measurementEvents, m_eventCounter);
@@ -326,31 +332,6 @@ void PerfMonMTSvc::stopCompAud(const std::string& stepName, const std::string& c
                                           << meas.malloc    << ":"
                                           << (meas.malloc - compLevelDataMap[currentState]->m_tmp_malloc) << ":"
                                           << compLevelDataMap[currentState]->m_delta_malloc << ") kb");
-}
-
-/*
- * Is it event-level monitoring check point yet?
- */
-bool PerfMonMTSvc::isCheckPoint() {
-  // Always check 1, 2, 10, 25 for short tests
-  if (m_eventCounter <= 2 || m_eventCounter == 10 || m_eventCounter == 25)
-    return true;
-
-  // Check the user settings
-  if (m_checkPointType == "Arithmetic")
-    return (m_eventCounter % m_checkPointFactor == 0);
-  else if (m_checkPointType == "Geometric")
-    return isPower(m_eventCounter, m_checkPointFactor);
-  else
-    return false;
-}
-
-/*
- * Helper function for geometric printing
- */
-bool PerfMonMTSvc::isPower(uint64_t input, uint64_t base) {
-  while (input >= base && input % base == 0) input /= base;
-  return (input == 1);
 }
 
 /*

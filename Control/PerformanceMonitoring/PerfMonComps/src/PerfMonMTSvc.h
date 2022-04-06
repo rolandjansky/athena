@@ -94,15 +94,11 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListe
   void report2JsonFile_EventLevel(nlohmann::json& j) const;
 
   /// A few helper functions
-  bool isPower(uint64_t input, uint64_t base);  // check if input is power of base or not
-
   void aggregateSlotData();
   void divideData2Steps();
 
   std::string scaleTime(double timeMeas) const;
   std::string scaleMem(int64_t memMeas) const;
-
-  bool isCheckPoint();
 
   /// A few helper methods to get system information
   /// These should be carried to PerfMonMTUtils at some point
@@ -138,18 +134,14 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListe
   /// Print detailed tables
   Gaudi::Property<bool> m_printDetailedTables{this, "printDetailedTables", true,
                                               "Print detailed component-level metrics."};
-  /// Type of event level monitoring
-  Gaudi::Property<std::string> m_checkPointType{
-      this, "checkPointType", "Arithmetic",
-      "Type of the check point sequence: Arithmetic(0, k, 2k...) or Geometric(0,k,k^2...)."};
   /// Lower limit (in number of events) for the memory fit
   Gaudi::Property<uint64_t> m_memFitLowerLimit{
       this, "memFitLowerLimit", 25,
       "Lower limit (in number of events) for the memory fit."};
   /// Frequency of event level monitoring
-  Gaudi::Property<uint64_t> m_checkPointFactor{
-      this, "checkPointFactor", 50,
-      "Common difference if check point sequence is arithmetic, Common ratio if it is Geometric."};
+  Gaudi::Property<uint64_t> m_checkPointThreshold{
+      this, "checkPointThreshold", 30,
+      "Least amount of time (in seconds) between event-level checks."};
   /// Offset for the wall-time, comes from configuration
   Gaudi::Property<double> m_wallTimeOffset{this, "wallTimeOffset", 0, "Job start wall time in miliseconds."};
   /// Print the top N components
@@ -187,6 +179,9 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListe
 
   // Instant event-loop report counter
   std::atomic<uint64_t> m_eventLoopMsgCounter;
+
+  // The last event-level measurement time in seconds
+  std::atomic<double> m_checkPointTime;
 
   /*
    * Data structure  to store component level measurements
