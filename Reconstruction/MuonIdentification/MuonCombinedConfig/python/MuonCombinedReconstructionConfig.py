@@ -253,12 +253,11 @@ def recordMuonCreatorAlgObjs (kw):
 
 
 def MuonCreatorAlgCfg( flags, name="MuonCreatorAlg",**kwargs ):
-    from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCreatorToolCfg
-    result = MuonCreatorToolCfg(flags)
+    from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCreatorToolCfg, MuonSegmentConverterToolCfg
+    result = MuonCreatorToolCfg(flags, name="MuonCreatorTool")
     kwargs.setdefault("MuonCreatorTool",result.popPrivateTools())
 
-    # MuonSegmentConvertorTool not set up. But it currently only contains:
-    # MuonSegmentHitSummaryTool and MuonHitTimingTool, neither which appear to need explicit configuration
+    kwargs.setdefault("MuonSegmentConverterTool", result.popToolsAndMerge( MuonSegmentConverterToolCfg(flags) ) )
 
     # recordMuonCreatorAlgObjs (kwargs)
     # if muGirl is off, remove "muGirlTagMap" from "TagMaps"
@@ -493,13 +492,14 @@ def CombinedMuonOutputCfg(flags):
     return result
 
 def MuonCombinedReconstructionCfg(flags):
-    result = ComponentAccumulator()
+    from MuonConfig.MuonGeometryConfig import MuonIdHelperSvcCfg
+    # Many components need these services, so setup once here.
+    result=MuonIdHelperSvcCfg(flags)
 
     from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
     result.merge( TrackingGeometryCondAlgCfg(flags) )
    
-    muon_edm_helper_svc = CompFactory.Muon.MuonEDMHelperSvc("MuonEDMHelperSvc")
-    result.addService( muon_edm_helper_svc )
+    result.addService( CompFactory.Muon.MuonEDMHelperSvc("MuonEDMHelperSvc") )
 
     # Set up to read Tracks.
     from TrkConfig.TrackCollectionReadConfig import TrackCollectionReadCfg
@@ -568,12 +568,13 @@ if __name__=="__main__":
     # python -m MuonCombinedConfig.MuonCombinedReconstructionConfig --run --threads=1
     
     from MuonConfig.MuonConfigUtils import SetupMuonStandaloneArguments, SetupMuonStandaloneCA
+    # from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonSegmentConverterToolCfg
 
     args = SetupMuonStandaloneArguments()
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
     # Keep this commented in for now until ATLASRECTS-6858 is fixed
-    #ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/Run2/ESD/OUT_ESD.root']
+    # ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonCombinedConfig/myESD_q445_unslimmedTracks.pool.root'] #only once !51435 is accepted.
     ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.0/v2/myESD.pool.root']
     
     ConfigFlags.Concurrency.NumThreads=args.threads
@@ -608,7 +609,9 @@ if __name__=="__main__":
     
     # Commented out for now as this causes a stall. FIXME
     # Should be what provides xoadMuonSegments
-    # cfg.addEventAlgo(CompFactory.xAODMaker.MuonSegmentCnvAlg("MuonSegmentCnvAlg"))
+
+    # muonSegmentCnvTool = cfg.popToolsAndMerge( MuonSegmentConverterToolCfg(ConfigFlags, OutputLevel=0) )
+    # cfg.addEventAlgo(CompFactory.xAODMaker.MuonSegmentCnvAlg("MuonSegmentCnvAlg", MuonSegmentConverterTool=muonSegmentCnvTool))
 
     # Keep this in, since it makes debugging easier to simply uncomment and change Algo/Service name,
     # from AthenaCommon.Constants import VERBOSE
