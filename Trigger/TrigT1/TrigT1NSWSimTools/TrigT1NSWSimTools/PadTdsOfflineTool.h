@@ -147,6 +147,7 @@ namespace NSWL1 {
         const MuonGM::MuonDetectorManager* m_detManager;        //!< MuonDetectorManager
 
         // properties: container and service names
+        Gaudi::Property<bool>         m_isMC          {this, "IsMC",            true,               "This is MC"};
         Gaudi::Property<std::string>  m_rndmEngineName{this, "RndmEngineName", "PadTdsOfflineTool", "Name of the random engine"};
         Gaudi::Property<bool>         m_doNtuple      {this, "DoNtuple",        false,              "Input PadTds branches into the analysis ntuple"};
         Gaudi::Property<float>        m_vmmTimeOverThreshold{this, "VMM_TimeOverThreshold", 0.,  "Time to form a digital signal"};

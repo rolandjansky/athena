@@ -247,7 +247,7 @@ def NSWTriggerConfig(flags):
         from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
         acc.merge(SGInputLoaderCfg(flags, Load=rdoInputs))
 
-    PadTdsTool = CompFactory.NSWL1.PadTdsOfflineTool("NSWL1__PadTdsOfflineTool",DoNtuple=False,sTGC_DigitContainerName="sTGC_DIGITS_L1")
+    PadTdsTool = CompFactory.NSWL1.PadTdsOfflineTool("NSWL1__PadTdsOfflineTool",DoNtuple=False, IsMC = flags.Input.isMC, sTGC_DigitContainerName="sTGC_DIGITS_L1")
     PadTriggerLogicTool = CompFactory.NSWL1.PadTriggerLogicOfflineTool("NSWL1__PadTriggerLogicOfflineTool",DoNtuple=False)
     PadTriggerLookupTool = CompFactory.NSWL1.PadTriggerLookupTool("NSWL1__PadTriggerLookupTool")
     StripTdsTool = CompFactory.NSWL1.StripTdsOfflineTool("NSWL1__StripTdsOfflineTool",DoNtuple=False)
