@@ -22,6 +22,9 @@ test.exec_steps = [ex]
 # Only keep relevant checks from the defaults
 test.check_steps = [chk for chk in CheckSteps.default_check_steps(test)
                     if type(chk) is CheckSteps.CheckLogStep]
+# No log merging because we don't fork - force checking only the mother log
+for chk in test.check_steps:
+    chk.log_file = 'athenaHLT.log'
 
 import sys
 sys.exit(test.run())
