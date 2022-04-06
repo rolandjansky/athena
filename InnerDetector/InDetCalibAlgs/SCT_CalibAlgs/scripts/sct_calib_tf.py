@@ -110,8 +110,8 @@ def checkFileList(filelist):
 
 def updateLastRun(RunNumber):
 
-    if os.path.exists('/afs/cern.ch/user/s/sctcalib/scratch0/lastRun'):
-        f = open('/afs/cern.ch/user/s/sctcalib/scratch0/lastRun','w')
+    if os.path.exists('/afs/cern.ch/work/s/sctcalib/lastRun'):
+        f = open('/afs/cern.ch/work/s/sctcalib/lastRun','w')
         f.write(str(RunNumber)+' ')
         f.close()
         
@@ -591,6 +591,8 @@ class SCTCalibExecutor( athenaExecutor ):
         #After processing Hitmaps, change Metadata of SCTHitMaps and SCTLB (and SCTBSErrors) files so
         #they contain the number of events. This value can be used when processing
         #noisy strips to avoid running over empty files
+        
+        listOfKeys = self._trf.dataDictionary
 
         if 'doNoisyStrip' in runArgs['part']._value and runArgs['splitHitMap']._value == 1:
             outInstance0 = self.conf.dataDictionary[list(self._output)[0]]

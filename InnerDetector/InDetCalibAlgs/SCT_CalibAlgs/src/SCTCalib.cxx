@@ -199,7 +199,6 @@ StatusCode SCTCalib::initialize() {
       ATH_MSG_INFO("m_eventInfoKey.initialize() was successful");
    }
 
-
    //--- Open HIST
    if (m_readHIST) {
       ATH_MSG_INFO("------------> Reading from HIST <-------------");
@@ -231,11 +230,10 @@ StatusCode SCTCalib::initialize() {
             return StatusCode::FAILURE ;
          }
          ATH_MSG_INFO("Getting Number of events: " << m_calibEvtInfoTool->counter());
-         //--- Read number of events : Get an entry of "tier0ESD" in "/GLOBAL/DQTDataFlow/events_lb"
-         std::string osHist{std::string{"/run_"} + std::to_string(m_runNumber.value())+"/GLOBAL/DQTDataFlow/events_lb"};
-         TH1I* hist_events{dynamic_cast<TH1I*>(m_inputHist->Get(osHist.c_str()))};
-         m_numberOfEventsHist = hist_events->GetBinContent(6); // Entry in "tier0ESD"
-         if (hist_events->GetBinContent(4) > m_numberOfEventsHist) m_numberOfEventsHist = hist_events->GetBinContent(4); // Entry in "tier0"
+         //--- Read number of events : Previously from entry of "tier0ESD" in "/GLOBAL/DQTDataFlow/events_lb"
+         std::string osHist{std::string{"/run_"} + std::to_string(m_runNumber.value())+"/SCT/GENERAL/Conf/NumberOfEventsVsLB"};
+         TH1F* hist_events{dynamic_cast<TH1F*>(m_inputHist->Get(osHist.c_str()))};
+         m_numberOfEventsHist = hist_events->GetEntries();
       } else {
          ATH_MSG_WARNING("can not open HIST : " << hist.c_str());
       }
@@ -247,6 +245,7 @@ StatusCode SCTCalib::initialize() {
       m_calibEvtInfoTool->setTimeStamp(m_runStartTime, m_runEndTime);
       m_calibEvtInfoTool->setRunNumber(m_runNumber);
       m_calibEvtInfoTool->setEventNumber(m_eventNumber);
+      ATH_CHECK(m_eventInfoKey.initialize());
    }
 
    //--- Booking histograms for hitmaps
@@ -263,6 +262,8 @@ StatusCode SCTCalib::initialize() {
       m_calibEvtInfoTool->setTimeStamp(m_runStartTime, m_runEndTime);
       m_calibEvtInfoTool->setRunNumber(m_runNumber);
       m_calibEvtInfoTool->setEventNumber(m_eventNumber);
+      ATH_CHECK(m_eventInfoKey.initialize());
+      ATH_MSG_DEBUG("m_eventInfoKey.initialize() was successful");
       if (m_doNoisyStrip) {
          m_calibLbTool->read("./SCTLB.root");
       }
@@ -305,9 +306,9 @@ SCTCalib::notEnoughStatistics(const int required, const int obtained, const std:
 //////////////////////////////////////////////////////////////////////////////////
 StatusCode SCTCalib::execute() {
 
-   const bool majorityIsGoodOrUnused{(m_useMajority and m_MajorityConditionsTool->isGood()) or !m_useMajority};
-
    ATH_MSG_DEBUG("----- in execute() ----- ");
+
+   const bool majorityIsGoodOrUnused{(m_useMajority and m_MajorityConditionsTool->isGood()) or !m_useMajority};
    if (m_readBS) {
       ATH_MSG_DEBUG("in execute(): m_eventInfoKey = " << m_eventInfoKey);
       SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfoKey);
@@ -1180,7 +1181,7 @@ StatusCode SCTCalib::getNoiseOccupancy ATLAS_NOT_THREAD_SAFE () // Thread unsafe
    for (int iDisk{0}; iDisk < n_disks ; ++iDisk) {
       for (int iSide{0}; iSide < 2; ++iSide) {
          std::ostringstream streamHist;
-         streamHist << "noiseoccupancymap";
+         streamHist << "hitoccupancymap";
          if (m_noiseOccupancyTriggerAware) streamHist << "trigger";
          streamHist << "ECm_" << iDisk << "_" << iSide;
          std::string histName{stem + streamHist.str()};
@@ -1194,7 +1195,7 @@ StatusCode SCTCalib::getNoiseOccupancy ATLAS_NOT_THREAD_SAFE () // Thread unsafe
    for (int iLayer{0}; iLayer < n_barrels ; ++iLayer) {
       for (int iSide{0}; iSide < 2; ++iSide) {
          std::ostringstream streamHist;
-         streamHist << "noiseoccupancymap";
+         streamHist << "hitoccupancymap";
          if (m_noiseOccupancyTriggerAware) streamHist << "trigger";
          streamHist << "_" << iLayer << "_" << iSide;
          std::string histName{stem + streamHist.str()};
@@ -1208,7 +1209,7 @@ StatusCode SCTCalib::getNoiseOccupancy ATLAS_NOT_THREAD_SAFE () // Thread unsafe
    for (int iDisk{0}; iDisk < n_disks ; ++iDisk) {
       for (int iSide{0}; iSide < 2; ++iSide) {
          std::ostringstream streamHist;
-         streamHist << "noiseoccupancymap";
+         streamHist << "hitoccupancymap";
          if (m_noiseOccupancyTriggerAware) streamHist << "trigger";
          streamHist << "ECp_" << iDisk << "_" << iSide;
          std::string histName{stem + streamHist.str()};
@@ -1878,7 +1879,7 @@ StatusCode SCTCalib::getBSErrors ATLAS_NOT_THREAD_SAFE () { // Thread unsafe SCT
                      if (errItr!=errItrE and iType == errItr->first) {
                         std::ostringstream streamHist;
                         std::ostringstream streamHistAlt;
-                        streamHist << "SCT_T" << errItr->second << detector_part << "_" << iDisk << "_" << iSide;
+                        streamHist << "SCT_NumberOf" << errItr->second << detector_part << "_" << iDisk << "_" << iSide;
                         streamHistAlt << "SCT_" << errItr->second << detector_part << "_" << iDisk << "_" << iSide;
                         std::string folder = errItr->second+std::string("/");
                         //histogram might or might not be inside a folder with the same name
@@ -1925,7 +1926,7 @@ StatusCode SCTCalib::getBSErrors ATLAS_NOT_THREAD_SAFE () { // Thread unsafe SCT
                      }
                   }//end ErrorType Loop
                   //--- DB writing
-                  if (!(defecttype.empty())) {
+                  if (!(defecttype.empty()) || n_errorLink == 0) {
                      n_errorLink++;
                      if (thisBec==ENDCAP_C) {
                         nErrLink_ECC[iDisk][iEta]++;
@@ -1965,7 +1966,7 @@ StatusCode SCTCalib::getBSErrors ATLAS_NOT_THREAD_SAFE () { // Thread unsafe SCT
                   unsigned long long n_errors{0};
                   if (errItr!=errItrE and iType == errItr->first) {
                      std::ostringstream streamHist;
-                     streamHist << "SCT_T" << errItr->second << "B" << "_" << iLayer << "_" << iSide;
+                     streamHist << "SCT_NumberOf" << errItr->second << "B" << "_" << iLayer << "_" << iSide;
                      //histogram or might not be inside a folder with the same name
                      std::string folder = errItr->second+std::string("/");
                      std::string profname = "/run_" + std::to_string(m_runNumber.value()) + "/SCT/SCTB/errors/" + folder + streamHist.str();
@@ -2005,7 +2006,7 @@ StatusCode SCTCalib::getBSErrors ATLAS_NOT_THREAD_SAFE () { // Thread unsafe SCT
                      if (m_pCalibWriteTool->createListBSErr(waferId, m_pSCTHelper, m_numberOfEvents, osErrorList.str(), osProbList.str()).isFailure()) {
                         ATH_MSG_ERROR("Unable to run createListBSError");
                         return StatusCode::FAILURE;
-                     }//end of if m_pCalib
+                     }
                   }//end of if m_writeToCool
                } //end of if defecttype empty
             }//end of for iPhi

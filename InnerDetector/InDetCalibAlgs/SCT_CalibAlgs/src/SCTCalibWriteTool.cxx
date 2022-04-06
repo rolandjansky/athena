@@ -285,7 +285,6 @@ SCTCalibWriteTool::createListStrip ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAt
    std::ostringstream attrStr2;
    attrList0.toOutputStream(attrStr2);
    m_attrListColl_deadStrip->add(wafer_id.get_identifier32().get_compact(), attrList0);
-   //ATH_MSG_INFO("createListStrip: return StatusCode::SUCCESS");
    return StatusCode::SUCCESS;
 }
 
@@ -306,7 +305,6 @@ SCTCalibWriteTool::createListChip ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAtt
       return StatusCode::FAILURE;
    }
 
-   // Add three attr lists
    coral::AttributeList attrList0{*attrSpec};
    setBasicValues(attrList0, wafer_id, samplesize, sctId, becCapsFormat);
    attrList0["DefectType"].setValue(static_cast<std::string>(defectType));
@@ -355,19 +353,22 @@ SCTCalibWriteTool::createListNO ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrL
    if (!m_writeCondObjs) {
       return StatusCode::SUCCESS;
    }
+
    coral::AttributeListSpecification* attrSpec{createBasicDbSpec(becUnderscoreFormat)};
    attrSpec->extend("NoiseOccupancy", "float");
    if (!attrSpec->size()) {
       ATH_MSG_ERROR(" Attribute list specification is empty");
       return StatusCode::FAILURE;
    }
-   // Add three attr lists
+
    coral::AttributeList attrList0{*attrSpec};
    setBasicValues(attrList0, wafer_id, samplesize, sctId, becUnderscoreFormat);
    attrList0["NoiseOccupancy"].setValue(static_cast<float>(noise_occ));
+
    std::ostringstream attrStr2;
    attrList0.toOutputStream(attrStr2);
    m_attrListColl_no->add(wafer_id.get_identifier32().get_compact(), attrList0);
+
    return StatusCode::SUCCESS;
 }
 
@@ -379,16 +380,18 @@ SCTCalibWriteTool::createListRawOccu ATLAS_NOT_THREAD_SAFE // Thread unsafe Cond
    if (!m_writeCondObjs) {
       return StatusCode::SUCCESS;
    }
+ 
    coral::AttributeListSpecification* attrSpec{createBasicDbSpec(becUnderscoreFormat)};
    attrSpec->extend("RawOccupancy", "float");
    if (!attrSpec->size()) {
       ATH_MSG_ERROR(" Attribute list specification is empty");
       return StatusCode::FAILURE;
    }
-   // Add three attr lists
+ 
    coral::AttributeList attrList0{*attrSpec};
-   setBasicValues(attrList0, wafer_id, samplesize, sctId,becUnderscoreFormat);
+   setBasicValues(attrList0, wafer_id, samplesize, sctId, becUnderscoreFormat);
    attrList0["RawOccupancy"].setValue(static_cast<float>(raw_occu));
+ 
    std::ostringstream attrStr2;
    attrList0.toOutputStream(attrStr2);
    m_attrListColl_RawOccu->add(wafer_id.get_identifier32().get_compact(), attrList0);
@@ -404,17 +407,7 @@ SCTCalibWriteTool::createListBSErr ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAt
       return StatusCode::SUCCESS;
    }
 
-   int eta{sctId->eta_module(wafer_id)};
-   int phi{sctId->phi_module(wafer_id)};
-   int barrel_ec{sctId->barrel_ec(wafer_id)};
-   int layer{sctId->layer_disk(wafer_id)};
-
-   coral::AttributeListSpecification* attrSpec{new coral::AttributeListSpecification{}};
-   attrSpec->extend("SampleSize", "int");
-   attrSpec->extend("barrel_endcap", "int");
-   attrSpec->extend("Layer", "int");
-   attrSpec->extend("Eta", "int");
-   attrSpec->extend("Phi", "int");
+   coral::AttributeListSpecification* attrSpec{createBasicDbSpec(becUnderscoreFormat)};
    attrSpec->extend("BSErrors", "string");
    attrSpec->extend("BadFraction", "string");
 
@@ -423,13 +416,8 @@ SCTCalibWriteTool::createListBSErr ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAt
       return StatusCode::FAILURE;
    }
 
-   // Add three attr lists
    coral::AttributeList attrList0{*attrSpec};
-   attrList0["SampleSize"].setValue(static_cast<int>(samplesize));
-   attrList0["barrel_endcap"].setValue(static_cast<int>(barrel_ec));
-   attrList0["Layer"].setValue(static_cast<int>(layer));
-   attrList0["Phi"].setValue(static_cast<int>(phi));
-   attrList0["Eta"].setValue(static_cast<int>(eta));
+   setBasicValues(attrList0, wafer_id, samplesize, sctId, becUnderscoreFormat);
    attrList0["BSErrors"].setValue(static_cast<std::string>(errorList));
    attrList0["BadFraction"].setValue(static_cast<std::string>(probList));
 
