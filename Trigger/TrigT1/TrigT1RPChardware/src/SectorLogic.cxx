@@ -600,18 +600,18 @@ std::ostream &operator<<(std::ostream &stream, SectorLogic &o) {
 
     // internal register (input register)
     InternalRegister *intreginp[5];
-    // intreginp[0] = o.m_LowPtFilter_in;
-    // intreginp[1] = o.m_TileCalConfirm_in;
-    // intreginp[2] = o.m_SolveEtaOverlap_in;
-    // intreginp[3] = o.m_SortHighest_in;
-    // intreginp[4] = o.m_Sort2ndHighest_in;
-    // // internal register (output register)
+    intreginp[0] = o.m_LowPtFilter_in.data();
+    intreginp[1] = o.m_TileCalConfirm_in.data();
+    intreginp[2] = o.m_SolveEtaOverlap_in.data();
+    intreginp[3] = o.m_SortHighest_in.data();
+    intreginp[4] = o.m_Sort2ndHighest_in.data();
+    // internal register (output register)
     InternalRegister *intregoutp[5];
-    // intregoutp[0] = o.m_LowPtFilter_out;
-    // intregoutp[1] = o.m_TileCalConfirm_out;
-    // intregoutp[2] = o.m_SolveEtaOverlap_out;
-    // intregoutp[3] = o.m_SortHighest_out;
-    // intregoutp[4] = o.m_Sort2ndHighest_out;
+    intregoutp[0] = o.m_LowPtFilter_out.data();
+    intregoutp[1] = o.m_TileCalConfirm_out.data();
+    intregoutp[2] = o.m_SolveEtaOverlap_out.data();
+    intregoutp[3] = o.m_SortHighest_out.data();
+    intregoutp[4] = o.m_Sort2ndHighest_out.data();
 
     int ibx = 0;
 
