@@ -5,13 +5,17 @@
 #include "./JetGroupProduct.h"
 #include "./JetStreamer.h"
 #include "./make_jetstream.h"
+#include "./elementalJetGroups.h"
 
 #include <set>
 #include <string>
 
 JetGroupProduct::JetGroupProduct(const std::vector<std::size_t>& siblings,
 				 const CondInd2JetGroupsInds& satisfiedBy,
-				 const std::vector<std::size_t>& condMult) {
+				 const std::vector<std::size_t>& condMult,
+				 const JetGroupInd2ElemInds& jg2elemjgs):
+  m_jg2elemjgs{jg2elemjgs}
+{
 
   m_valid = !siblings.empty() or satisfiedBy.size() != condMult.size();
   if (m_valid) {init(siblings, satisfiedBy, condMult);}
@@ -105,16 +109,20 @@ std::vector<std::size_t> JetGroupProduct::next(const Collector& collector){
 	jg_indices.push_back(i);
       }
     }
-      
+
+    auto elem_indices = elementalJetGroups(jg_indices,
+					   m_jg2elemjgs);
+    if (elem_indices.empty()) {continue;}
+
     if (std::find(m_seenIndices.begin(),
 		  m_seenIndices.end(),
-		  jg_indices) == m_seenIndices.end()){
-      
-      m_seenIndices.push_back(jg_indices);
-      return jg_indices;
+		  elem_indices) == m_seenIndices.end()){
+      m_seenIndices.push_back(elem_indices);
+      return elem_indices;
     }
   }		       
 }
+
 
 bool JetGroupProduct::valid() const {return m_valid;}
 

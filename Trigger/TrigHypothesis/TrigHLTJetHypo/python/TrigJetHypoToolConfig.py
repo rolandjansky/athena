@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -10,8 +10,8 @@ from AthenaCommon.Logging import logging
 logger = logging.getLogger(__name__)
 
 
-debug = False  # SET TO FALSE  WHEN COMMITTING
-
+import os
+debug = 'JETHYPODEBUG' in os.environ
 if debug:
     from AthenaCommon.Constants import DEBUG
     logger.setLevel(DEBUG)
@@ -70,7 +70,7 @@ def  trigJetHypoToolFromDict(chain_dict):
     logger.debug("Returning a HypoTool for %s as this is the first leg with any of %s (leg signatures are %s)",
                  chain_name, tuple(jet_signature_identifiers), tuple(chain_dict['signatures']))
 
-    hypo_tool =  hypotool_from_chaindict(chain_dict)
+    hypo_tool =  hypotool_from_chaindict(chain_dict, debug)
 
     #if menu has chain in an online monitoring group, unpack the recoalg(s) and hyposcenario(s) to configure monitoring
     if any('jetMon:online' in group for group in chain_mg):
@@ -79,7 +79,6 @@ def  trigJetHypoToolFromDict(chain_dict):
         for cp in cpl:
             histFlags += [ cp['recoAlg'] ] + [ cp['hypoScenario']] 
         hypo_tool.MonTool = TrigJetHypoToolMonitoring("HLTJetHypo/"+chain_name, histFlags)        
-    hypo_tool.visit_debug = debug
     return hypo_tool
 
     
@@ -131,11 +130,6 @@ class TestStringMethods(unittest.TestCase):
             tool = trigJetHypoToolFromDict(chain_dict)
             self.assertIsNotNone(tool)
             logger.debug(chain_name.rjust(wid), str(tool))
-
-
-class TestDebugFlagIsFalse(unittest.TestCase):
-    def testValidConfigs(self):
-        self.assertFalse(debug)
 
 
 

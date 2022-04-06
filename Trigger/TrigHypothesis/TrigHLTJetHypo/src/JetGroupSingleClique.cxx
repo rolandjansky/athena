@@ -21,7 +21,9 @@ JetGroupSingleClique::JetGroupSingleClique(const std::vector<std::size_t>& satis
   } else  if (satisfyingJets.size() < n_required) {
     m_done = true;
   } else {
-    m_jetIndices = satisfyingJets;
+    m_jetGroupIndices = satisfyingJets;
+    std::sort(m_jetGroupIndices.begin(),
+	      m_jetGroupIndices.end());
     m_done = false;
   }
 
@@ -31,7 +33,7 @@ JetGroupSingleClique::JetGroupSingleClique(const std::vector<std::size_t>& satis
 std::vector<std::size_t> JetGroupSingleClique::next(const Collector& collector){
   if(collector){
     std::stringstream sstr;
-    sstr << "no of indices " << m_jetIndices.size()
+    sstr << "no of indices " << m_jetGroupIndices.size()
 	 << " done " << std::boolalpha << m_done;
     collector->collect("JetGroupSingleClique::next()", sstr.str());
   }
@@ -41,7 +43,7 @@ std::vector<std::size_t> JetGroupSingleClique::next(const Collector& collector){
   }
 
   m_done = true;
-  return m_jetIndices;
+  return m_jetGroupIndices;
 }
 
 bool  JetGroupSingleClique::valid() const {return true;}

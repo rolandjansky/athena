@@ -15,14 +15,14 @@ TEST(JetGroupProductTester, empty) {
   std::vector<std::size_t> siblings;
   CondInd2JetGroupsInds satisfiedBy;
   std::vector<std::size_t> condMult;
-  
-  JetGroupProduct jgp(siblings, satisfiedBy, condMult);
+  JetGroupInd2ElemInds jg2elemjgs;
+
+  JetGroupProduct jgp(siblings, satisfiedBy, condMult, jg2elemjgs);
   auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
 
   EXPECT_FALSE(jgp.valid());
   EXPECT_TRUE((jgp.next(collector)).empty());
 }
-
 
 
 TEST(JetGroupProductTester, onecondition) {
@@ -34,7 +34,12 @@ TEST(JetGroupProductTester, onecondition) {
 
   std::vector<std::size_t> condMult{0, 1};
 
-  JetGroupProduct jgp(siblings, satisfiedBy, condMult);
+  JetGroupInd2ElemInds jg2elemjgs;
+  jg2elemjgs[0] = std::vector<std::size_t> {0};
+  jg2elemjgs[1] = std::vector<std::size_t> {1};
+  jg2elemjgs[2] = std::vector<std::size_t> {2};
+  
+  JetGroupProduct jgp(siblings, satisfiedBy, condMult, jg2elemjgs);
 
   auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
   
@@ -61,7 +66,12 @@ TEST(JetGroupProductTester, repeatedcond) {
 
   std::vector<std::size_t> condMult{1, 2};
 
-  JetGroupProduct jgp(siblings, satisfiedBy, condMult);
+  JetGroupInd2ElemInds jg2elemjgs;
+  jg2elemjgs[0] = std::vector<std::size_t> {0};
+  jg2elemjgs[1] = std::vector<std::size_t> {1};
+  jg2elemjgs[2] = std::vector<std::size_t> {2};
+  
+  JetGroupProduct jgp(siblings, satisfiedBy, condMult, jg2elemjgs);
 
   auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
 
@@ -90,7 +100,12 @@ TEST(JetGroupProductTester, twocond) {
 
   std::vector<std::size_t> condMult{1, 1, 1};
 
-  JetGroupProduct jgp(siblings, satisfiedBy, condMult);
+  JetGroupInd2ElemInds jg2elemjgs;
+  jg2elemjgs[0] = std::vector<std::size_t> {0};
+  jg2elemjgs[1] = std::vector<std::size_t> {1};
+  jg2elemjgs[2] = std::vector<std::size_t> {2};
+  
+  JetGroupProduct jgp(siblings, satisfiedBy, condMult, jg2elemjgs);
 
   auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
 
@@ -119,10 +134,14 @@ TEST(JetGroupProductTester, reallife) {
   satisfiedBy[2] = std::vector<std::size_t> {
     0, 1, 2, 3, 4, 6, 7, 9, 10, 11, 12, 13,
     14, 15, 17, 19, 21, 25, 26, 29, 33};
-
+  
   std::vector<std::size_t> condMult{1, 1, 3};
-
-  JetGroupProduct jgp(siblings, satisfiedBy, condMult);
+  
+  JetGroupInd2ElemInds jg2elemjgs;
+  for (const auto& i : satisfiedBy[2]){
+    jg2elemjgs[i] = std::vector<std::size_t> {i};
+  }
+    JetGroupProduct jgp(siblings, satisfiedBy, condMult, jg2elemjgs);
 
   auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
 

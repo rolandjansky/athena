@@ -30,7 +30,7 @@ class JetGroupSingleClique: public IJetGroupProduct{
   virtual bool valid() const override;
   
  private:
-  std::vector<std::size_t>  m_jetIndices;
+  std::vector<std::size_t>  m_jetGroupIndices;
   bool m_done{false};
 };
 

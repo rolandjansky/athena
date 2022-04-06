@@ -11,8 +11,6 @@ using vec = std::vector<std::size_t>;
 TEST(JetGroupProductFactoryTester, nosiblings) {
  std::vector<std::size_t> siblings{};
 
-  std::vector<bool> leaves{};
-  
   CondInd2JetGroupsInds satisfiedBy;
   satisfiedBy[0] = std::vector<std::size_t>();// root node
 
@@ -28,7 +26,6 @@ TEST(JetGroupProductFactoryTester, nosiblings) {
   auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
 
   auto jgp = makeJetGroupProduct(siblings,
-				 leaves,
 				 satisfiedBy,
 				 condMult,
 				 condCap,
@@ -51,8 +48,6 @@ TEST(JetGroupProductFactoryTester, nosiblings) {
 TEST(JetGroupProductFactoryTester, one_clique_fail) {
   std::vector<std::size_t> siblings{1, 2};
 
-  std::vector<bool> leaves{false, true, true};
-  
   CondInd2JetGroupsInds satisfiedBy;
   satisfiedBy[0] = std::vector<std::size_t> {};
   satisfiedBy[1] = std::vector<std::size_t> {0, 1, 2};
@@ -73,7 +68,6 @@ TEST(JetGroupProductFactoryTester, one_clique_fail) {
   auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
 
   auto jgp = makeJetGroupProduct(siblings,
-				 leaves,
 				 satisfiedBy,
 				 condMult,
 				 condCap,
@@ -93,8 +87,6 @@ TEST(JetGroupProductFactoryTester, one_clique_fail) {
 
 TEST(JetGroupProductFactoryTester, one_clique_pass) {
   std::vector<std::size_t> siblings{1, 2};
-
-  std::vector<bool> leaves{true, true};
 
 
   // just enough jets to pass mono-clique, required = 5+1 = 6 jets
@@ -122,7 +114,6 @@ TEST(JetGroupProductFactoryTester, one_clique_pass) {
   auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
 
   auto jgp = makeJetGroupProduct(siblings,
-				 leaves,
 				 satisfiedBy,
 				 condMult,
 				 condCap,
@@ -143,8 +134,6 @@ TEST(JetGroupProductFactoryTester, one_clique_pass) {
 
 TEST(JetGroupProductFactoryTester, njets_eq_nsiblings) {
   std::vector<std::size_t> siblings{1, 2};
-
-  std::vector<bool> leaves{false, true, true};
 
 
   // just enough jets to pass mono-clique, required = 5+1 = 6 jets
@@ -167,7 +156,6 @@ TEST(JetGroupProductFactoryTester, njets_eq_nsiblings) {
   auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
 
   auto jgp = makeJetGroupProduct(siblings,
-				 leaves,
 				 satisfiedBy,
 				 condMult,
 				 condCap,
@@ -193,8 +181,6 @@ TEST(JetGroupProductFactoryTester, njets_eq_nsiblings) {
 TEST(JetGroupProductFactoryTester, 3siblings_3jets_pass) {
   std::vector<std::size_t> siblings{1, 2, 3};
 
-  std::vector<bool> leaves{true, true, true};
-
   CondInd2JetGroupsInds satisfiedBy;
   satisfiedBy[0] = std::vector<std::size_t> {};
   satisfiedBy[1] = std::vector<std::size_t> {0,1,2};
@@ -216,7 +202,6 @@ TEST(JetGroupProductFactoryTester, 3siblings_3jets_pass) {
   auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
 
   auto jgp = makeJetGroupProduct(siblings,
-				 leaves,
 				 satisfiedBy,
 				 condMult,
 				 condCap,
@@ -236,8 +221,6 @@ TEST(JetGroupProductFactoryTester, 3siblings_3jets_pass) {
 
 TEST(JetGroupProductFactoryTester, 3siblings_3jets_fail) {
   std::vector<std::size_t> siblings{1, 2, 3};
-
-  std::vector<bool> leaves{false, true, true, true};
 
 
   CondInd2JetGroupsInds satisfiedBy;
@@ -261,7 +244,6 @@ TEST(JetGroupProductFactoryTester, 3siblings_3jets_fail) {
   auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
 
   auto jgp = makeJetGroupProduct(siblings,
-				 leaves,
 				 satisfiedBy,
 				 condMult,
 				 condCap,
@@ -283,8 +265,6 @@ TEST(JetGroupProductFactoryTester, 3siblings_3jets_fail) {
 TEST(JetGroupProductFactoryTester, dijet_jets_overlap) {
   std::vector<std::size_t> siblings{1, 2};
 
-  std::vector<bool> leaves{false, true, true};
-
 
   CondInd2JetGroupsInds satisfiedBy;
   satisfiedBy[0] = std::vector<std::size_t> {};
@@ -305,7 +285,6 @@ TEST(JetGroupProductFactoryTester, dijet_jets_overlap) {
   auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
 
   auto jgp = makeJetGroupProduct(siblings,
-				 leaves,
 				 satisfiedBy,
 				 condMult,
 				 condCap,
@@ -328,8 +307,6 @@ TEST(JetGroupProductFactoryTester, dijet_jets_overlap) {
 TEST(JetGroupProductFactoryTester, dijet_jets_no_overlap) {
   std::vector<std::size_t> siblings{1, 2};
 
-  std::vector<bool> leaves{false, true, true};
-
 
   CondInd2JetGroupsInds satisfiedBy;
   satisfiedBy[0] = std::vector<std::size_t> {};
@@ -343,8 +320,8 @@ TEST(JetGroupProductFactoryTester, dijet_jets_no_overlap) {
   JetGroupInd2ElemInds jg2elemjgs;
   jg2elemjgs[0] = std::vector<std::size_t> {0};
   jg2elemjgs[1] = std::vector<std::size_t> {1};
-  jg2elemjgs[1] = std::vector<std::size_t> {2};
-  jg2elemjgs[1] = std::vector<std::size_t> {3};
+  jg2elemjgs[2] = std::vector<std::size_t> {2};
+  jg2elemjgs[3] = std::vector<std::size_t> {3};
 
   std::size_t parCapacity{2};
   bool simpleTree{false};
@@ -352,7 +329,6 @@ TEST(JetGroupProductFactoryTester, dijet_jets_no_overlap) {
   auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
 
   auto jgp = makeJetGroupProduct(siblings,
-				 leaves,
 				 satisfiedBy,
 				 condMult,
 				 condCap,
@@ -380,9 +356,6 @@ TEST(JetGroupProductFactoryTester, dijet_jets_no_overlap) {
 TEST(JetGroupProductFactoryTester, dijet_jets_some_overlap) {
   std::vector<std::size_t> siblings{1, 2};
 
-  std::vector<bool> leaves{false, true, true};
-
-
   CondInd2JetGroupsInds satisfiedBy;
   satisfiedBy[0] = std::vector<std::size_t> {};
   satisfiedBy[1] = std::vector<std::size_t> {0, 1, 2};
@@ -395,9 +368,9 @@ TEST(JetGroupProductFactoryTester, dijet_jets_some_overlap) {
   JetGroupInd2ElemInds jg2elemjgs;
   jg2elemjgs[0] = std::vector<std::size_t> {0};
   jg2elemjgs[1] = std::vector<std::size_t> {1};
-  jg2elemjgs[1] = std::vector<std::size_t> {2};
-  jg2elemjgs[1] = std::vector<std::size_t> {3};
-  jg2elemjgs[1] = std::vector<std::size_t> {4};
+  jg2elemjgs[2] = std::vector<std::size_t> {2};
+  jg2elemjgs[3] = std::vector<std::size_t> {3};
+  jg2elemjgs[4] = std::vector<std::size_t> {4};
 
   std::size_t parCapacity{2};
   bool simpleTree{false};
@@ -405,7 +378,6 @@ TEST(JetGroupProductFactoryTester, dijet_jets_some_overlap) {
   auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>(nullptr);
 
   auto jgp = makeJetGroupProduct(siblings,
-				 leaves,
 				 satisfiedBy,
 				 condMult,
 				 condCap,

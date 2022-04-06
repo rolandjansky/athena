@@ -21,7 +21,6 @@ std::size_t max_jet (const std::vector<std::size_t>& siblings,
 
 std::unique_ptr<IJetGroupProduct>
 makeJetGroupProduct(const std::vector<std::size_t>& siblings,
-		    const std::vector<bool>& leaves,
 		    const CondInd2JetGroupsInds& satisfiedBy,
 		    const std::vector<std::size_t>& condMult,
 		    const std::vector<unsigned int>& condCap,
