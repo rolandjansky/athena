@@ -312,7 +312,7 @@ namespace CP {
         const xAOD::TrackParticle* idtrack = mu.trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
         const xAOD::TrackParticle* metrack = mu.trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle);
         if (!idtrack || !metrack) idPt = mePt = -1.;
-        if (m_TurnOffMomCorr) {
+        else if (m_TurnOffMomCorr) {
             mePt = metrack->pt();
             idPt = idtrack->pt();
         } else {
