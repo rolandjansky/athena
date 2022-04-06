@@ -2,7 +2,9 @@
 
 evgenConfig.generators += ["EvtGen"]
 
-if "EVTGENVER" in os.environ:
+if hasattr(runArgs,'ecmEnergy') and runArgs.ecmEnergy > 13001.:
+  decayfile_str = "2022inclusive_BELLE.dec"  
+elif "EVTGENVER" in os.environ:
   evtgenver_str = str(os.environ['EVTGENVER'])[:3]
   evtgenver = float(evtgenver_str)
   print(" ver of EvtGen ", evtgenver)

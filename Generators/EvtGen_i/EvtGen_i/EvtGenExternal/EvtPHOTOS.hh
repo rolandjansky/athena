@@ -40,7 +40,7 @@ public:
 
 private:
 
-  EvtAbsExternalGen* m_photosEngine;
+  EvtAbsExternalGen* _photosEngine;
 
 };
 
