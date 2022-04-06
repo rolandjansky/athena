@@ -63,13 +63,24 @@ TopoSteering::reset() {
 
    ClusterTOB::clearHeap();
    eEmTOB::clearHeap();
+   eTauTOB::clearHeap();
+   jEmTOB::clearHeap();
+   jTauTOB::clearHeap();
+   cTauTOB::clearHeap();
    JetTOB::clearHeap();
    jJetTOB::clearHeap();
+   jLargeRJetTOB::clearHeap();
+   gJetTOB::clearHeap();
+   gLargeRJetTOB::clearHeap();
    MuonTOB::clearHeap();
    LateMuonTOB::clearHeap();
    MuonNextBCTOB::clearHeap();
    MetTOB::clearHeap();
    jXETOB::clearHeap();
+   jTETOB::clearHeap();
+   gXETOB::clearHeap();
+   gMHTTOB::clearHeap();
+   gTETOB::clearHeap();
    GenericTOB::clearHeap();
    CompositeTOB::clearHeap();
 
