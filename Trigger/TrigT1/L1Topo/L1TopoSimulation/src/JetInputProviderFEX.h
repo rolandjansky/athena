@@ -11,10 +11,12 @@
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/LockedHandle.h"
 
-#include "xAODTrigger/jFexSRJetRoIContainer.h" // small R jets from jFEX
-#include "xAODTrigger/jFexLRJetRoIContainer.h" // large R jets from jFEX
-#include "xAODTrigger/jFexTauRoIContainer.h" // taus from jFEX
-#include "xAODTrigger/jFexMETRoIContainer.h" // XE from jFEX
+// jFEX EDMs
+#include "xAODTrigger/jFexSRJetRoIContainer.h"
+#include "xAODTrigger/jFexLRJetRoIContainer.h"
+#include "xAODTrigger/jFexTauRoIContainer.h"
+#include "xAODTrigger/jFexMETRoIContainer.h"
+#include "xAODTrigger/jFexSumETRoIContainer.h"
 
 #include "TH1.h"
 #include "TH2.h"
@@ -39,40 +41,46 @@ namespace LVL1 {
       StatusCode fillSRJet(TCS::TopoInputEvent& inputEvent) const;
       StatusCode fillLRJet(TCS::TopoInputEvent& inputEvent) const;
       StatusCode fillTau(TCS::TopoInputEvent& inputEvent) const;
-      StatusCode filljXE(TCS::TopoInputEvent& inputEvent) const;
+      StatusCode fillXE(TCS::TopoInputEvent& inputEvent) const;
+      StatusCode fillTE(TCS::TopoInputEvent& inputEvent) const;
 
       ServiceHandle<ITHistSvc> m_histSvc;
 
       StringProperty m_gFEXJetLoc {""};
 
-      mutable LockedHandle<TH1> m_hjJetPt ATLAS_THREAD_SAFE;
-      mutable LockedHandle<TH2> m_hjJetPhiEta ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_h_jJetPt ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_h_jJetPhiEta ATLAS_THREAD_SAFE;
 
-      mutable LockedHandle<TH1> m_hjLargeRJetPt ATLAS_THREAD_SAFE;
-      mutable LockedHandle<TH2> m_hjLargeRJetPhiEta ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_h_jLJetPt ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_h_jLJetPhiEta ATLAS_THREAD_SAFE;
      
-      mutable LockedHandle<TH1> m_hjTauPt ATLAS_THREAD_SAFE;
-      mutable LockedHandle<TH1> m_hjTauIsolation ATLAS_THREAD_SAFE;
-      mutable LockedHandle<TH2> m_hjTauPhiEta ATLAS_THREAD_SAFE;
-      mutable LockedHandle<TH2> m_hjTauIsolationEta ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_h_jTauPt ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_h_jTauIsolation ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_h_jTauPhiEta ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_h_jTauIsolationEta ATLAS_THREAD_SAFE;
 
-      mutable LockedHandle<TH1> m_hjEmPt ATLAS_THREAD_SAFE;
-      mutable LockedHandle<TH2> m_hjEmPhiEta ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_h_jEmPt ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_h_jEmPhiEta ATLAS_THREAD_SAFE;
 
-      mutable LockedHandle<TH1> m_h_jxe_Pt ATLAS_THREAD_SAFE;
-      mutable LockedHandle<TH1> m_h_jxe_Phi ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_h_jXE_Pt ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_h_jXE_Phi ATLAS_THREAD_SAFE;
 
-      SG::ReadHandleKey<xAOD::jFexSRJetRoIContainer> m_jEDMKey {this, "jFexSRJetRoIKey", "L1_jFexSRJetRoI", "jFEX EDM"};
-      SG::ReadHandleKey<xAOD::jFexLRJetRoIContainer> m_JEDMKey {this, "jFexLRJetRoIKey", "L1_jFexLRJetRoI", "JFEX EDM"};
-      SG::ReadHandleKey<xAOD::jFexTauRoIContainer> m_jTauEDMKey {this, "jFexTauRoIKey", "L1_jFexTauRoI", "JFEX EDM"};
-      SG::ReadHandleKey<xAOD::jFexMETRoIContainer> m_jMet_EDMKey {this, "jFexMETRoIKey", "L1_jFexMETRoI", "jFEX Met EDM"};
+      mutable LockedHandle<TH1> m_h_jTE_sumEt ATLAS_THREAD_SAFE;
+
+      SG::ReadHandleKey<xAOD::jFexSRJetRoIContainer> m_jJet_EDMKey {this, "jFexSRJetRoIKey", "L1_jFexSRJetRoI", "jFEX Jet EDM"};
+      SG::ReadHandleKey<xAOD::jFexLRJetRoIContainer> m_jLJet_EDMKey {this, "jFexLRJetRoIKey", "L1_jFexLRJetRoI", "jFEX LJet EDM"};
+      SG::ReadHandleKey<xAOD::jFexTauRoIContainer> m_jTau_EDMKey {this, "jFexTauRoIKey", "L1_jFexTauRoI", "jFEX Tau EDM"};
+      SG::ReadHandleKey<xAOD::jFexMETRoIContainer> m_jXE_EDMKey {this, "jFexXERoIKey", "L1_jFexMETRoI", "jFEX XE EDM"};
+      SG::ReadHandleKey<xAOD::jFexSumETRoIContainer> m_jTE_EDMKey {this, "jFexTERoIKey", "L1_jFexSumETRoI", "jFEX TE EDM"};
      
       // jFex to L1Topo conversion factors
       static const int m_Et_conversion;
+      static const float m_sumEt_conversion;
       static const int m_phi_conversion;
       static const int m_eta_conversion;
 
       static const float m_EtDouble_conversion;
+      static const float m_sumEtDouble_conversion;
       static const float m_phiDouble_conversion;
       static const float m_etaDouble_conversion;
 

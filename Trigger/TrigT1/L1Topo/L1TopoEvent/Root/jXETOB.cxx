@@ -40,5 +40,5 @@ TCS::jXETOB::clearHeap() {
 }
 
 void TCS::jXETOB::print(std::ostream &o) const {
-   o << "jXE signed Ex: " << Ex() << ", signed Ey: " << Ey() << ", sum Et: " << Et();
+   o << "jXE signed Ex: " << Ex() << ", signed Ey: " << Ey() << ", Et: " << Et();
 }

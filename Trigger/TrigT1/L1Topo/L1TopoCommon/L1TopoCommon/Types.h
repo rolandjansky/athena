@@ -24,7 +24,11 @@ namespace TCS {
                          GLARGERJET=13,
                          GJET=14,
                          CTAU=15,
-                         JXE=16
+                         JXE=16,
+                         JTE=17,
+                         GXE=18,
+                         GMHT=19,
+                         GTE=20
    }; 
 
   enum outputTopoType_t { UNDEF=999,
