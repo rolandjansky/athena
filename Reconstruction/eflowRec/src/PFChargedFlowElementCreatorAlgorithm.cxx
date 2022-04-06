@@ -55,8 +55,7 @@ void PFChargedFlowElementCreatorAlgorithm::createChargedFlowElements(const eflow
     /* Get the track elementLink and add it to the xAOD:FE. 
     Note we first have to convert it to an IParticle ElementLink. */
     ElementLink<xAOD::TrackParticleContainer> theTrackLink = efRecTrack->getTrackElemLink();
-    ElementLink< xAOD::IParticleContainer > theIParticleTrackLink; 
-    theIParticleTrackLink.resetWithKeyAndIndex(theTrackLink.persKey(),theTrackLink.persIndex() ); 
+    ElementLink< xAOD::IParticleContainer > theIParticleTrackLink (theTrackLink); 
     std::vector<ElementLink<xAOD::IParticleContainer> > vecIParticleTrackLinkContainer;
     vecIParticleTrackLinkContainer.push_back(theIParticleTrackLink);
     thisFE->setChargedObjectLinks(vecIParticleTrackLinkContainer);
@@ -148,8 +147,7 @@ void PFChargedFlowElementCreatorAlgorithm::createChargedFlowElements(const eflow
       std::vector<ElementLink<xAOD::IParticleContainer> > theClusters;
       std::vector<float> theClusterWeights;
       for (auto thePair : vectorClusterToSubtractedEnergies){
-        ElementLink< xAOD::IParticleContainer > theIParticleTrackLink; 
-        theIParticleTrackLink.resetWithKeyAndIndex(thePair.first.persKey(),thePair.first.persIndex()); 
+        ElementLink< xAOD::IParticleContainer > theIParticleTrackLink(thePair.first); 
         theClusters.push_back(theIParticleTrackLink);
         theClusterWeights.push_back(thePair.second);
       }
