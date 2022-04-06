@@ -272,7 +272,7 @@ class TrigMultiTrkComboHypo: public ::ComboHypo {
   TrigCompositeUtils::DecisionIDContainer m_resolvedElectronIDs;
   TrigCompositeUtils::DecisionIDContainer m_mergedElectronIDs;
 
-  double m_trkPtMin;
+  double m_trkPtMin = 0.0;
 
 };
 
