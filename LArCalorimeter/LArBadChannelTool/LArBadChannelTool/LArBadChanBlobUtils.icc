@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 namespace LArBadChanBlobUtils {
@@ -18,12 +18,11 @@ namespace LArBadChanBlobUtils {
     std::size_t nbytes = vec.size() * ( sizeof( Channel) + sizeof( BitWord));
     blob.resize(nbytes);
     void* adr = blob.startingAddress();
-    for ( typename std::vector<Entry>::const_iterator i=vec.begin();
-	  i != vec.end(); i++) {
+    for (const Entry& ent : vec) {
       Channel* ch = static_cast<Channel*>( adr);
-      *ch = i->first.get_identifier32().get_compact(); // assign channel, here is the conversion to 32bit
+      *ch = ent.first.get_identifier32().get_compact(); // assign channel, here is the conversion to 32bit
       BitWord* st = static_cast<BitWord*>(ch+1); // st points just after channel
-      *st = i->second.packedData(); // assign status 
+      *st = ent.second.packedData(); // assign status 
       adr = static_cast<void*>(st+1); 
     }
   }
