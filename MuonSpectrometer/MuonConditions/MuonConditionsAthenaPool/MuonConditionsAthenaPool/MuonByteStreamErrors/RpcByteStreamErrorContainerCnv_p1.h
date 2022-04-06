@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDITIONSATHENAPOOL_RPCBYTESTREAMERRORCONTAINERCNV_P1_H
@@ -17,17 +17,22 @@
 class MsgStream;
 
 class RpcByteStreamErrorContainerCnv_p1
-   : public T_AthenaPoolTPCnvBase< Muon::RpcByteStreamErrorContainer, Muon::RpcByteStreamErrorContainer_p1 >
+   : public T_AthenaPoolTPCnvConstBase< Muon::RpcByteStreamErrorContainer, Muon::RpcByteStreamErrorContainer_p1 >
 {
     public:
   RpcByteStreamErrorContainerCnv_p1()  {}
 
+  using base_class::persToTrans;
+  using base_class::transToPers;
+
+  virtual
   void persToTrans( const Muon::RpcByteStreamErrorContainer_p1 *persObj,
                     Muon::RpcByteStreamErrorContainer    *transObj,
-                    MsgStream                &log );
+                    MsgStream                &log ) const override;
+  virtual
   void transToPers( const Muon::RpcByteStreamErrorContainer    *transObj,
                     Muon::RpcByteStreamErrorContainer_p1 *persObj,
-                    MsgStream                &log );
+                    MsgStream                &log ) const override;
 };
 
 
