@@ -5,8 +5,6 @@
 ## @author Charles Leggett
 ###############################################################
 
-from __future__ import print_function
-
 def _setupAtlasThreadedJob():
     from AthenaCommon.AppMgr import theApp
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr

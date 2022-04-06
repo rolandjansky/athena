@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # @file: AthenaCommon/python/ConfigurationShelve.py
 # @author: Wim Lavrijsen (WLavrijsen@lbl.gov)
@@ -392,8 +392,6 @@ def cmpConfigs (ref, chk, refName=None, chkName=None):
       map (jobofile.writelines, [l+os.linesep for l in job])
       jobofile.flush()
 
-      from future import standard_library
-      standard_library.install_aliases()
       from subprocess import getstatusoutput
       sc,out = getstatusoutput ('athena.py %s' % jobofile.name)
 

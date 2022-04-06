@@ -59,8 +59,6 @@
 #if DetFlags.detdescr.LAr_allOn() : true if all LAr det is true 
 #if DetFlags.haveRIO.Calo_on() : true if any Calo RIO are present (made or read from file) 
     
-from __future__ import print_function
-
 class DetFlags:
     # detectors
     class SubDetectors:

@@ -4,8 +4,6 @@
 # @purpose the central module to parse command line options of athena.py
 # @date December 2009
 
-from __future__ import print_function
-
 __version__ = "$Revision: 721711 $"
 __doc__ = "a module to parse command line options for athena.py"
 __author__ = "Sebastien Binet"
