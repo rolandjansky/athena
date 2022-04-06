@@ -26,8 +26,8 @@
 #include "EvtGenBase/EvtId.hh"
 #include "EvtGenBase/EvtVector4R.hh"
 
-#include "AtlasHepMC/GenEvent.h"
-#include "AtlasHepMC/GenParticle.h"
+#include "HepMC/GenEvent.h"
+#include "HepMC/GenParticle.h"
 
 #include <string>
 
@@ -46,10 +46,10 @@ protected:
 
 private:
 
-  std::string m_photonType;
-  EvtId m_gammaId;
-  double m_mPhoton;
-  bool m_initialised;
+  std::string _photonType;
+  EvtId _gammaId;
+  double _mPhoton;
+  bool _initialised;
 
   HepMC::GenParticle* createGenParticle(EvtParticle* theParticle, bool incoming);
 
