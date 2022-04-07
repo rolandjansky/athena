@@ -14,7 +14,7 @@ if DetFlags.detdescr.Calo_on(): # FIXME - check if the objects below still make 
 
 if DetFlags.detdescr.Muon_on():
    excludedAuxData = '-clusterAssociation'
-   common_flags = [ "DFCommonMuonsTight", "DFCommonGoodMuon","DFCommonMuonsMedium", "DFCommonMuonsLoose" ]
+   common_flags = [ "DFCommonMuonsTight", "DFCommonGoodMuon","DFCommonMuonsMedium", "DFCommonMuonsLoose", "InnerDetectorPt", "MuonSpectrometerPt" ]
    excludedMuonAuxData = ".-"+".-".join(iso_vars() + common_flags)
    # Adding the xAOD content by default
    track_particles = GetCombinedTrackParticles()[0]
@@ -31,7 +31,7 @@ if DetFlags.detdescr.Muon_on():
    MuonCombinedAODList+=[ "xAOD::MuonAuxContainer#"+MuonCbKeys.FinalMuonsLargeD0()+"Aux" + excludedMuonAuxData] # See note
   
    MuonCombinedAODList+=[ "xAOD::MuonContainer#Staus" ]
-   MuonCombinedAODList+=[ "xAOD::MuonAuxContainer#StausAux." + excludedAuxData ]
+   MuonCombinedAODList+=[ "xAOD::MuonAuxContainer#StausAux" + excludedMuonAuxData ]
    MuonCombinedAODList+=[ "xAOD::SlowMuonContainer#SlowMuons" ]
    MuonCombinedAODList+=[ "xAOD::SlowMuonAuxContainer#SlowMuonsAux." ]  
   
