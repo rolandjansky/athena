@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIM_FCS_STEPINFOSD_H
@@ -17,6 +17,9 @@
 #include "LArG4Code/ILArCalculatorSvc.h"
 #include "TileG4Interfaces/ITileCalculator.h"
 
+#include "CaloDetDescr/CaloDetDescrManager.h"
+#include "CxxUtils/CachedPointer.h"
+
 #include <map>
 #include <vector>
 
@@ -29,7 +32,6 @@ class LArFCAL_ID;
 class LArHEC_ID;
 class LArMiniFCAL_ID;
 class TileID;
-class CaloDetDescrManager;
 
 class LArHitContainer;
 
@@ -95,11 +97,8 @@ public:
   /// Constructor
   FCS_StepInfoSD(G4String a_name, const FCS_Param::Config& config);
 
-  /// Destructor
-  virtual ~FCS_StepInfoSD();
-
   /// Main processing method
-  G4bool ProcessHits(G4Step* a_step, G4TouchableHistory*) override;
+  virtual G4bool ProcessHits(G4Step* a_step, G4TouchableHistory*) override;
 
   /// End of athena event processing
   void EndOfAthenaEvent( ISF_FCS_Parametrization::FCS_StepInfoCollection* hitContnainer );
@@ -121,15 +120,16 @@ protected:
   /// Keep a map instead of trying to keep the full vector.
   /// At the end of the event we'll push the map back into the
   /// FCS_StepInfoCollection in StoreGate.
-  virtual void update_map(const CLHEP::Hep3Vector & l_vec, const Identifier & l_identifier, double l_energy, double l_time, bool l_valid, int l_detector, double timeWindow, double distanceWindow);
+  void getCaloDDManager();
+  void update_map(const CLHEP::Hep3Vector & l_vec, const Identifier & l_identifier, double l_energy, double l_time, bool l_valid, int l_detector, double timeWindow, double distanceWindow);
   FCS_Param::Config m_config;
   /// Pointers to the identifier helpers
-  const LArEM_ID*       m_larEmID;
-  const LArFCAL_ID*     m_larFcalID;
-  const LArHEC_ID*      m_larHecID;
-  const LArMiniFCAL_ID* m_larMiniFcalID;
-  const TileID*         m_tileID;
-  const CaloDetDescrManager *m_calo_dd_man;
+  const LArEM_ID*       m_larEmID{nullptr};
+  const LArFCAL_ID*     m_larFcalID{nullptr};
+  const LArHEC_ID*      m_larHecID{nullptr};
+  const LArMiniFCAL_ID* m_larMiniFcalID{nullptr};
+  const TileID*         m_tileID{nullptr};
+  CxxUtils::CachedPointer<const CaloDetDescrManager> m_calo_dd_man;
   std::map< Identifier , std::vector< ISF_FCS_Parametrization::FCS_StepInfo* >* > m_hit_map;
 
 private:
