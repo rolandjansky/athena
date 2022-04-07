@@ -1952,8 +1952,6 @@ MuonsAuxDyn.ET_EMCore
 MuonsAuxDyn.ET_HECCore
 MuonsAuxDyn.ET_TileCore
 MuonsAuxDyn.FSR_CandidateEnergy
-MuonsAuxDyn.InnerDetectorPt
-MuonsAuxDyn.MuonSpectrometerPt
 MuonsAuxDyn.chargedFELinks
 MuonsAuxDyn.combinedTrackOutBoundsPrecisionHits
 MuonsAuxDyn.d0_staco
@@ -2011,8 +2009,6 @@ MuonsLRTAuxDyn.ET_EMCore
 MuonsLRTAuxDyn.ET_HECCore
 MuonsLRTAuxDyn.ET_TileCore
 MuonsLRTAuxDyn.FSR_CandidateEnergy
-MuonsLRTAuxDyn.InnerDetectorPt
-MuonsLRTAuxDyn.MuonSpectrometerPt
 MuonsLRTAuxDyn.combinedTrackOutBoundsPrecisionHits
 MuonsLRTAuxDyn.d0_staco
 MuonsLRTAuxDyn.extendedClosePrecisionHits
@@ -2110,8 +2106,6 @@ StausAuxDyn.ET_EMCore
 StausAuxDyn.ET_HECCore
 StausAuxDyn.ET_TileCore
 StausAuxDyn.FSR_CandidateEnergy
-StausAuxDyn.InnerDetectorPt
-StausAuxDyn.MuonSpectrometerPt
 StausAuxDyn.combinedTrackOutBoundsPrecisionHits
 StausAuxDyn.d0_staco
 StausAuxDyn.extendedClosePrecisionHits

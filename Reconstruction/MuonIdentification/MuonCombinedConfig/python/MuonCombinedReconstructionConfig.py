@@ -451,14 +451,14 @@ def CombinedMuonOutputCfg(flags):
     aod_items+=[ "xAOD::MuonContainer#MuonsLRT"]
 
     # FIXME! Next two lines are hack to remove derivation framework variables that are added by DRAW building and are supposed to be transient
-    wp_decors = ["DFCommonMuonsTight", "DFCommonGoodMuon","DFCommonMuonsMedium", "DFCommonMuonsLoose"]
+    wp_decors = ["DFCommonMuonsTight", "DFCommonGoodMuon","DFCommonMuonsMedium", "DFCommonMuonsLoose", "InnerDetectorPt", "MuonSpectrometerPt" ]
     excludedMuonAuxData = ".-"+".-".join(iso_vars+wp_decors)
     aod_items+=[ "xAOD::MuonAuxContainer#MuonsAux" + excludedMuonAuxData ]
     aod_items+=[ "xAOD::MuonAuxContainer#MuonsLRTAux" + excludedMuonAuxData] 
 
     ### stau
     aod_items+=[ "xAOD::MuonContainer#Staus" ]
-    aod_items+=[ "xAOD::MuonAuxContainer#StausAux." + excludedAuxData ]
+    aod_items+=[ "xAOD::MuonAuxContainer#StausAux" + excludedAuxData ]
     aod_items+=[ "xAOD::SlowMuonContainer#SlowMuons" ]
     aod_items+=[ "xAOD::SlowMuonAuxContainer#SlowMuonsAux." ]
 
