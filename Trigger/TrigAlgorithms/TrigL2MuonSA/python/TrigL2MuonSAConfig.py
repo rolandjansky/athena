@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 import TrigL2MuonSA.TrigL2MuonSAConf as MuonSA
 from TrigL2MuonSA.TrigL2MuonSAMonitoring import TrigL2MuonSAMonitoring
@@ -171,8 +171,6 @@ class TrigL2MuonSAConfig(MuonSA.MuFastSteering):
             self.DoCalibrationStream = True
             self.MuonCalDataScouting = True
             self.MuonCalBufferSize   = 1024*1024
-
-        self.Timing = False
 
         # Default backextrapolator is for MC Misaligned Detector
         self.BackExtrapolator = MuonBackExtrapolatorForMisalignedDet()
