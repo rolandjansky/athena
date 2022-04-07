@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCOSTANALYSIS_COSTDATA_H
@@ -183,7 +183,7 @@ class CostData {
     StatusCode cache();
 
     const xAOD::TrigCompositeContainer* m_costCollection; //!< Cached non-owning pointer to main algorithm cost collection.
-    const xAOD::TrigCompositeContainer* m_rosCollection; //!< Cached non-owning pointer to ros cost collection.
+    const xAOD::TrigCompositeContainer* m_rosCollection = nullptr; //!< Cached non-owning pointer to ros cost collection.
     uint64_t m_algTotalTime; //!< Integrated CPU time of all algorithms in the event. Stored in discrete microseconds.
     float m_liveTime; //!< Effective walltime of either the event or the LB, in seconds (@see m_liveTimeIsPerEvent).
     uint32_t m_lb; //!< Current luminosity block number
@@ -191,11 +191,11 @@ class CostData {
     bool m_liveTimeIsPerEvent; //!< If the livetime represents a single event or all of the current LB
     const std::unordered_map<uint32_t, std::string>* m_typeMapPtr; //!< Cached non-owning pointer mapping algorithm instance names to types
     std::map<size_t, std::vector<size_t>> m_algToRos; //!< Mapping of indexes from m_costCollection to corresponding ROS requests made by algorithm
-    const std::map<std::string, std::vector<uint32_t>>* m_rosToRob; //!< Mapping of ROS corresponding to ROB requests
-    const std::map<std::string, std::set<size_t>>* m_chainToAlgIdx; //!<Mapping of chain to algorithms idx
-    const std::map<std::string, std::set<size_t>>* m_chainToUniqAlgIdx; //!<Mapping of chain name to its unique algorithms
-    const std::map<std::string, std::map<int16_t, std::set<size_t>>>* m_sequencers; //!<Mapping of sequence to algorithms
-    const std::vector<TrigCompositeUtils::AlgToChainTool::ChainInfo>* m_seededChains; //!<Set of seeded chains to monitor
+    const std::map<std::string, std::vector<uint32_t>>* m_rosToRob = nullptr; //!< Mapping of ROS corresponding to ROB requests
+    const std::map<std::string, std::set<size_t>>* m_chainToAlgIdx = nullptr; //!<Mapping of chain to algorithms idx
+    const std::map<std::string, std::set<size_t>>* m_chainToUniqAlgIdx = nullptr; //!<Mapping of chain name to its unique algorithms
+    const std::map<std::string, std::map<int16_t, std::set<size_t>>>* m_sequencers = nullptr; //!<Mapping of sequence to algorithms
+    const std::vector<TrigCompositeUtils::AlgToChainTool::ChainInfo>* m_seededChains = nullptr; //!<Set of seeded chains to monitor
 
 };
 
