@@ -20,11 +20,8 @@ def PixelClusterOnTrackCfg( flags, **kwargs ):
 
   pixelLATool = acc.popToolsAndMerge( PixelLorentzAngleToolCfg( flags) )
 
-  nnTool = CompFactory.InDet.NnClusterizationFactory( name                         = "TrigNnClusterizationFactory",
-                                                      PixelLorentzAngleTool        = pixelLATool,
-                                                      useToT                       = False,
-                                                      NnCollectionReadKey          = 'PixelClusterNN',
-                                                      NnCollectionWithTrackReadKey = 'PixelClusterNNWithTrack')
+  from InDetConfig.SiClusterizationToolConfig import TrigNnClusterizationFactoryCfg
+  nnTool = acc.popToolsAndMerge(TrigNnClusterizationFactoryCfg(flags))
   from .InDetTrigCollectionKeys import TrigPixelKeys
   tool = CompFactory.InDet.PixelClusterOnTrackTool( name,
                                                     ErrorStrategy = 2,
@@ -303,96 +300,6 @@ def trtDataPrep(flags, roisKey, signature):
 
   return acc
 
-
-def pixelClusterizationCfg(flags, roisKey, signature):
-  acc = ComponentAccumulator()
-  from RegionSelector.RegSelToolConfig import regSelTool_Pixel_Cfg
-  RegSelTool_Pixel = acc.popToolsAndMerge(regSelTool_Pixel_Cfg(flags))
-
-  #Pixel clusterisation
-  from PixelConditionsAlgorithms.PixelConditionsConfig import PixelChargeCalibCondAlgCfg, PixelOfflineCalibCondAlgCfg
-  acc.merge(PixelChargeCalibCondAlgCfg(flags))
-  acc.merge(PixelOfflineCalibCondAlgCfg(flags))
-  InDet__ClusterMakerTool=CompFactory.InDet.ClusterMakerTool
-  InDetClusterMakerTool = InDet__ClusterMakerTool(name = "InDetClusterMakerTool"+ signature)
-  acc.addPublicTool(InDetClusterMakerTool)
-
-
-  InDet__MergedPixelsTool=CompFactory.InDet.MergedPixelsTool
-  InDetMergedPixelsTool = InDet__MergedPixelsTool(name = "InDetMergedPixelsTool"+ signature,
-                                                  globalPosAlg = InDetClusterMakerTool)
-  # Enable duplcated RDO check for data15 because duplication mechanism was used.
-
-  if len(flags.Input.ProjectName)>=6 and flags.Input.ProjectName[:6]=="data15":
-    InDetMergedPixelsTool.CheckDuplicatedRDO = True
-  acc.addPublicTool(InDetMergedPixelsTool)
-
-  InDet__PixelGangedAmbiguitiesFinder=CompFactory.InDet.PixelGangedAmbiguitiesFinder
-  InDetPixelGangedAmbiguitiesFinder = InDet__PixelGangedAmbiguitiesFinder(name = "InDetPixelGangedAmbiguitiesFinder"+ signature)
-  acc.addPublicTool(InDetPixelGangedAmbiguitiesFinder)
-
-  InDet__PixelClusterization=CompFactory.InDet.PixelClusterization
-  from .InDetTrigCollectionKeys import TrigPixelKeys
-  InDetPixelClusterization = InDet__PixelClusterization(name                     = "InDetPixelClusterization"+ signature,
-                                                        clusteringTool           = InDetMergedPixelsTool,
-                                                        gangedAmbiguitiesFinder  = InDetPixelGangedAmbiguitiesFinder,
-                                                        DataObjectName           = InDetKeys.PixelRDOs(),
-                                                        AmbiguitiesMap           = TrigPixelKeys.PixelClusterAmbiguitiesMap,
-                                                        ClustersName             = "PixelTrigClusters",
-                                                        RegSelTool               = RegSelTool_Pixel,
-                                                        isRoI_Seeded             = True,
-                                                        RoIs                     = roisKey,
-                                                        ClusterContainerCacheKey = InDetCacheNames.Pixel_ClusterKey)
-
-
-  acc.addEventAlgo(InDetPixelClusterization)
-
-  return acc
-
-def sctClusterizationCfg(flags, roisKey, signature):
-  acc = ComponentAccumulator()
-
-  from RegionSelector.RegSelToolConfig import regSelTool_SCT_Cfg
-  RegSelTool_SCT   = acc.popToolsAndMerge(regSelTool_SCT_Cfg(flags))
-
-  from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_ConditionsSummaryToolCfg
-  InDetSCT_ConditionsSummaryToolWithoutFlagged = acc.popToolsAndMerge(SCT_ConditionsSummaryToolCfg(flags, withFlaggedCondTool = False, withTdaqTool = False))
-
-  from PixelConditionsAlgorithms.PixelConditionsConfig import PixelChargeCalibCondAlgCfg, PixelOfflineCalibCondAlgCfg
-  acc.merge(PixelChargeCalibCondAlgCfg(flags))
-  acc.merge(PixelOfflineCalibCondAlgCfg(flags))
-  InDet__ClusterMakerTool=CompFactory.InDet.ClusterMakerTool
-  InDetClusterMakerTool = InDet__ClusterMakerTool(name = "InDetClusterMakerTool"+ signature)
-  acc.addPublicTool(InDetClusterMakerTool)
-
-  #
-  # --- SCT_ClusteringTool (public)
-  #
-  InDet__SCT_ClusteringTool=CompFactory.InDet.SCT_ClusteringTool
-  InDetSCT_ClusteringTool = InDet__SCT_ClusteringTool(name              = "InDetSCT_ClusteringTool"+ signature,
-                                                      globalPosAlg      = InDetClusterMakerTool,
-                                                      conditionsTool    = InDetSCT_ConditionsSummaryToolWithoutFlagged)
-  #
-  # --- SCT_Clusterization algorithm
-  #
-
-  InDet__SCT_Clusterization=CompFactory.InDet.SCT_Clusterization
-  InDetSCT_Clusterization = InDet__SCT_Clusterization(name                     = "InDetSCT_Clusterization"+ signature,
-                                                      clusteringTool           = InDetSCT_ClusteringTool,
-                                                      # ChannelStatus          = InDetSCT_ChannelStatusAlg,
-                                                      DataObjectName           = InDetKeys.SCT_RDOs(),
-                                                      ClustersName             = "SCT_TrigClusters",
-                                                      conditionsTool           = InDetSCT_ConditionsSummaryToolWithoutFlagged,
-                                                      isRoI_Seeded             = True,
-                                                      RoIs                     = roisKey,
-                                                      ClusterContainerCacheKey = InDetCacheNames.SCT_ClusterKey,
-                                                      FlaggedCondCacheKey      = InDetCacheNames.SCTFlaggedCondCacheKey,
-                                                      RegSelTool               = RegSelTool_SCT)
-
-  acc.addEventAlgo(InDetSCT_Clusterization)
-
-  return acc
-
 def ftfCfg(flags, roisKey, signature, signatureName):
   acc = ComponentAccumulator()
 
@@ -539,8 +446,9 @@ def trigInDetFastTrackingCfg( inflags, roisKey="EMRoIs", signatureName='', in_vi
   acc.merge(sctDataPrepCfg(flags, roisKey, signature))
   acc.merge(trtDataPrep(flags, roisKey, signature))
 
-  acc.merge(pixelClusterizationCfg(flags, roisKey, signature))
-  acc.merge(sctClusterizationCfg(flags, roisKey, signature))
+  from InDetConfig.InDetPrepRawDataFormationConfig import TrigPixelClusterizationCfg, TrigSCTClusterizationCfg
+  acc.merge(TrigPixelClusterizationCfg(flags, roisKey=roisKey, signature=signature))
+  acc.merge(TrigSCTClusterizationCfg(flags, roisKey=roisKey, signature=signature))
   from InDetConfig.SiSpacePointFormationConfig import TrigSiTrackerSpacePointFinderCfg
   acc.merge(TrigSiTrackerSpacePointFinderCfg(flags, name="InDetSiTrackerSpacePointFinder_"+signature))
   acc.merge(ftfCfg(flags, roisKey, signature, signatureName))
@@ -581,23 +489,6 @@ def TRTDataProviderCfg(flags):
                                                    isRoI_Seeded = True,
                                                    RoIs         = flags.InDet.Tracking.ActivePass.roi )
   acc.addEventAlgo(dataProviderAlg)
-  return acc
-
-def TRTRIOMakerCfg(flags):
-  acc = ComponentAccumulator()
-  from .InDetTrigCollectionKeys import TrigTRTKeys
-  TRT_RDO_Key = "TRT_RDOs"
-  if flags.Input.Format is Format.BS:
-        TRT_RDO_Key = TrigTRTKeys.RDOs
-  
-  from InDetConfig.TRTPreProcessing import TRT_DriftCircleToolCfg # TODO, offline config used here, threfore the names are different
-  alg = CompFactory.InDet.TRT_RIO_Maker( f"{prefix}TRTDriftCircleMaker_{flags.InDet.Tracking.ActivePass.name}",
-                                          TRTRIOLocation=TrigTRTKeys.DriftCircles, 
-                                          TRTRDOLocation = TRT_RDO_Key,
-                                          isRoI_Seeded = True,
-                                          RoIs = flags.InDet.Tracking.ActivePass.roi,
-                                          TRT_DriftCircleTool = acc.getPrimaryAndMerge(TRT_DriftCircleToolCfg(flags, prefix=prefix+"_", name=f"{prefix}_DriftCircleTool")))
-  acc.addEventAlgo( alg )
   return acc
 
 def _tracksPostAmbi(flags):
@@ -674,7 +565,9 @@ def TRTExtrensionBuilderCfg(flags):
   acc = ComponentAccumulator()
   if flags.Input.Format is Format.BS:
     acc.merge( TRTDataProviderCfg(flags) )
-  acc.merge( TRTRIOMakerCfg(flags) )
+
+  from InDetConfig.InDetPrepRawDataFormationConfig import TrigTRTRIOMakerCfg
+  acc.merge( TrigTRTRIOMakerCfg(flags) )
 
   acc.merge( TRTExtensionAlgCfg(flags) )
   acc.merge( TRTExtensionProcessorCfg(flags) )

@@ -135,7 +135,7 @@ def DenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags, name="InDetAmbiguityS
         InDetAmbiScoringTool = acc.popToolsAndMerge(InDetAmbiScoringToolSiCfg(flags))
     kwargs.setdefault("ScoringTool", InDetAmbiScoringTool)
 
-    from InDetConfig.SiliconPreProcessing import NnPixelClusterSplitProbToolCfg
+    from InDetConfig.SiClusterizationToolConfig import NnPixelClusterSplitProbToolCfg
     kwargs.setdefault("SplitProbTool", acc.popToolsAndMerge(NnPixelClusterSplitProbToolCfg(flags)) if flags.InDet.Tracking.doPixelClusterSplitting else "")
 
     from InDetConfig.TrackingCommonConfig import InDetPRDtoTrackMapToolGangedPixelsCfg, PRDtoTrackMapToolCfg
@@ -167,8 +167,8 @@ def ITkDenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags, name = "ITkAmbigui
         from InDetConfig.ITkTrackingCommonConfig import ITkAmbiScoringToolCfg
         ITkAmbiScoringTool = acc.popToolsAndMerge(ITkAmbiScoringToolCfg(flags))
 
-    from InDetConfig.ITkSiliconPreProcessing import ITkNnPixelClusterSplitProbToolCfg
-    ITkNnPixelClusterSplitProbTool = acc.popToolsAndMerge(ITkNnPixelClusterSplitProbToolCfg(flags))
+    from InDetConfig.SiClusterizationToolConfig import ITkTruthPixelClusterSplitProbToolCfg
+    ITkTruthPixelClusterSplitProbTool = acc.popToolsAndMerge(ITkTruthPixelClusterSplitProbToolCfg(flags))
 
     from InDetConfig.ITkTrackingCommonConfig import ITkPRDtoTrackMapToolGangedPixelsCfg, ITkPRDtoTrackMapToolCfg
     ITkPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge(ITkPRDtoTrackMapToolGangedPixelsCfg(flags))
@@ -179,7 +179,7 @@ def ITkDenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags, name = "ITkAmbigui
     kwargs.setdefault("SplitClusterMap_new", 'SplitClusterAmbiguityMap'+flags.ITk.Tracking.ActivePass.extension)
 
     kwargs.setdefault("ScoringTool", ITkAmbiScoringTool)
-    kwargs.setdefault("SplitProbTool", ITkNnPixelClusterSplitProbTool if flags.ITk.Tracking.doPixelClusterSplitting else None,)
+    kwargs.setdefault("SplitProbTool", ITkTruthPixelClusterSplitProbTool if flags.ITk.Tracking.doPixelClusterSplitting else None,)
     kwargs.setdefault("AssociationTool", ITkPRDtoTrackMapToolGangedPixels)
     kwargs.setdefault("AssociationToolNotGanged", ITkPRDtoTrackMapTool)
     kwargs.setdefault("AssociationMapName", 'ITkPRDToTrackMap'+flags.ITk.Tracking.ActivePass.extension)

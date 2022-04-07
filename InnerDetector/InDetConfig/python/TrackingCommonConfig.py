@@ -61,37 +61,6 @@ def LWTNNCondAlgCfg(flags, **kwargs):
     acc.addCondAlgo(CompFactory.InDet.LWTNNCondAlg(kwargs.pop("name", "LWTNNCondAlg"), **kwargs))
     return acc
 
-
-def NnClusterizationFactoryCfg(flags, name="NnClusterizationFactory", **kwargs):
-    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelChargeCalibCondAlgCfg
-    acc = PixelChargeCalibCondAlgCfg(flags) # To produce PixelChargeCalibCondData CondHandle
-
-    if "PixelLorentzAngleTool" not in kwargs:
-        from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleToolCfg
-        PixelLorentzAngleTool = acc.popToolsAndMerge(PixelLorentzAngleToolCfg(flags))
-        kwargs.setdefault("PixelLorentzAngleTool", PixelLorentzAngleTool)
-
-    if flags.GeoModel.Run is LHCPeriod.Run1:
-        acc.merge(PixelClusterNnCondAlgCfg(flags, name="PixelClusterNnCondAlg", GetInputsInfo=True))
-        acc.merge(PixelClusterNnWithTrackCondAlgCfg(flags, name="PixelClusterNnWithTrackCondAlg", GetInputsInfo=True))
-    else:
-        acc.merge(LWTNNCondAlgCfg(flags, name="LWTNNCondAlg"))
-
-    kwargs.setdefault("doRunI", flags.GeoModel.Run is LHCPeriod.Run1)
-    kwargs.setdefault("useToT", False)
-    kwargs.setdefault("useRecenteringNNWithoutTracks", flags.GeoModel.Run is LHCPeriod.Run1)
-    kwargs.setdefault("useRecenteringNNWithTracks", False)
-    kwargs.setdefault("correctLorShiftBarrelWithoutTracks", 0)
-    kwargs.setdefault("correctLorShiftBarrelWithTracks", 0.030 if flags.GeoModel.Run is LHCPeriod.Run1 else 0.000)
-    kwargs.setdefault("useTTrainedNetworks", flags.GeoModel.Run is LHCPeriod.Run1)
-    kwargs.setdefault("NnCollectionReadKey", "PixelClusterNN" if flags.GeoModel.Run is LHCPeriod.Run1 else "")
-    kwargs.setdefault("NnCollectionWithTrackReadKey", "PixelClusterNNWithTrack" if flags.GeoModel.Run is LHCPeriod.Run1 else "")
-    kwargs.setdefault("NnCollectionJSONReadKey", "" if flags.GeoModel.Run is LHCPeriod.Run1 else "PixelClusterNNJSON")
-
-    acc.setPrivateTools(CompFactory.InDet.NnClusterizationFactory(name, **kwargs))
-    return acc
-
-
 def InDetPixelClusterOnTrackToolBaseCfg(flags, name="PixelClusterOnTrackTool", **kwargs):
     acc = ComponentAccumulator()
 
@@ -140,9 +109,9 @@ def InDetPixelClusterOnTrackToolDigitalCfg(flags, name="InDetPixelClusterOnTrack
 def InDetPixelClusterOnTrackToolNNSplittingCfg(flags, name="InDetPixelClusterOnTrackToolNNSplitting", **kwargs):
     acc = ComponentAccumulator()
 
-    if flags.InDet.Tracking.doPixelClusterSplitting and flags.InDet.Tracking.pixelClusterSplittingType == "NeuralNet":
-        if "NnClusterizationFactory" not in kwargs:
-            kwargs.setdefault("NnClusterizationFactory", acc.popToolsAndMerge(NnClusterizationFactoryCfg(flags)))
+    if flags.InDet.Tracking.doPixelClusterSplitting and flags.InDet.Tracking.pixelClusterSplittingType == "NeuralNet" and "NnClusterizationFactory" not in kwargs:
+        from InDetConfig.SiClusterizationToolConfig import NnClusterizationFactoryCfg
+        kwargs.setdefault("NnClusterizationFactory", acc.popToolsAndMerge(NnClusterizationFactoryCfg(flags)))
 
     acc.setPrivateTools(acc.popToolsAndMerge(InDetPixelClusterOnTrackToolBaseCfg(flags, name, **kwargs)))
     return acc

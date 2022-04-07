@@ -69,7 +69,7 @@ if __name__ == "__main__":
     top_acc.merge(PoolReadCfg(ConfigFlags))
 
     ################## SiliconPreProcessing Configurations ###################
-    from InDetConfig.ITkSiliconPreProcessing import ITkRecPreProcessingSiliconCfg
+    from InDetConfig.SiliconPreProcessing import ITkRecPreProcessingSiliconCfg
     top_acc.merge(ITkRecPreProcessingSiliconCfg(ConfigFlags))
     
     #//// TrackingSiPatternConfig configurations from Temporary location /////
