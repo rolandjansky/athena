@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <sstream>
@@ -1152,7 +1152,7 @@ bool MuonFeatureDetails::hasSameRoIOf(const MuonFeatureDetails& d) const {
 }
 
 bool MuonFeatureDetails::isEqual(const MuonFeatureDetails& d) const {
-  return (m_id == d.id() ) & this->hasSameContentOf(d);
+  return (m_id == d.id() ) && this->hasSameContentOf(d);
 }
 
 bool MuonFeatureDetails::hasSameContentOf(const MuonFeatureDetails& d) const {
