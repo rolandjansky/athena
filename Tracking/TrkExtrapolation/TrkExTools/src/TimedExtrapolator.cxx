@@ -847,9 +847,11 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
       if (cache.m_currentStatic->geometrySignature() == Trk::ID || m_caloMsSecondary) {
         const Trk::Material *extMprop = cache.m_path.process > 100 ? cache.m_currentDense : nullptr;
 
-        const Trk::TrackParameters *iPar = m_updators[0]->interact(timeLim.time, nextPar->position(),
-                                                                   nextPar->momentum(), particle, cache.m_path.process,
-                                                                   extMprop);
+        const Trk::TrackParameters* iPar =
+          m_updators[0]
+            ->interact(
+              timeLim.time, nextPar->position(), nextPar->momentum(), particle, cache.m_path.process, extMprop)
+            .release();
 
         if (!iPar) {
           return returnParameters;
@@ -866,8 +868,10 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
       // process interaction only if creation of secondaries allowed
       if (cache.m_currentStatic->geometrySignature() == Trk::ID || m_caloMsSecondary) {
         // trigger presampled interaction
-        const Trk::TrackParameters *iPar = m_updators[0]->interact(timeLim.time, nextPar->position(),
-                                                                   nextPar->momentum(), particle, timeLim.process);
+        const Trk::TrackParameters* iPar =
+          m_updators[0]
+            ->interact(timeLim.time, nextPar->position(), nextPar->momentum(), particle, timeLim.process)
+            .release();
         if (!iPar) {
           return returnParameters;
         }
@@ -897,9 +901,16 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
         if (mb && m_includeMaterialEffects) {
           if (mb->layerMaterialProperties() && mb->layerMaterialProperties()->fullMaterial(nextPar->position())) {
             const ITimedMatEffUpdator *currentUpdator = subMaterialEffectsUpdator(*cache.m_currentStatic);
-            nextPar = currentUpdator ?
-                      currentUpdator->update(nextPar, *mb, timeLim, cache.m_path,
-                                             cache.m_currentStatic->geometrySignature(), dir, particle) : nextPar;
+            nextPar = currentUpdator ? currentUpdator
+                                         ->update(nextPar,
+                                                  *mb,
+                                                  timeLim,
+                                                  cache.m_path,
+                                                  cache.m_currentStatic->geometrySignature(),
+                                                  dir,
+                                                  particle)
+                                         .release()
+                                     : nextPar;
 
             if (!nextPar) {
               ATH_MSG_VERBOSE("  [+] Update may have killed neutral track - return.");
@@ -978,7 +989,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
           double pIn = nextPar->momentum().mag();
           nextPar = currentUpdator ? currentUpdator->update(nextPar, *nextLayer, timeLim, cache.m_path,
                                                             cache.m_currentStatic->geometrySignature(), dir,
-                                                            particle) : nextPar;
+                                                            particle).release() :  nextPar;
           if (!nextPar) {
             ATH_MSG_VERBOSE("  [+] Update may have killed track - return.");
             cache.m_parametersAtBoundary.resetBoundaryInformation();
@@ -1936,9 +1947,10 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(Trk::TimedExtrapolator::C
 
       // process interaction only if creation of secondaries allowed
       if (cache.m_currentStatic->geometrySignature() == Trk::ID || m_caloMsSecondary) {
-        const Trk::TrackParameters *nextPar = m_updators[0]->interact(cache.m_time, nextPos,
-                                                                      currPar->momentum(), particle, process,
-                                                                      cache.m_currentDense);
+        const Trk::TrackParameters* nextPar =
+          m_updators[0]
+            ->interact(cache.m_time, nextPos, currPar->momentum(), particle, process, cache.m_currentDense)
+            .release();
 
         if (nextPar) {
           ATH_MSG_DEBUG(" [!] WARNING: particle survives the interaction " << process);
@@ -1978,9 +1990,13 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(Trk::TimedExtrapolator::C
       if (mb && m_includeMaterialEffects) {
         if (mb->layerMaterialProperties() && mb->layerMaterialProperties()->fullMaterial(nextPos)) {
           const ITimedMatEffUpdator *currentUpdator = subMaterialEffectsUpdator(*cache.m_currentStatic);
-          nextPar = currentUpdator ?
-                    currentUpdator->update(nextPar, *mb, timeLim, cache.m_path,
-                                           cache.m_currentStatic->geometrySignature(), dir, particle) : nextPar;
+          nextPar =
+            currentUpdator
+              ? currentUpdator
+                  ->update(
+                    nextPar, *mb, timeLim, cache.m_path, cache.m_currentStatic->geometrySignature(), dir, particle)
+                  .release()
+              : nextPar;
 
           if (!nextPar) {
             ATH_MSG_VERBOSE("  [+] Update may have killed neutral track - return.");
@@ -2061,9 +2077,16 @@ Trk::TimedExtrapolator::transportToVolumeWithPathLimit(Trk::TimedExtrapolator::C
       if (matUp && m_includeMaterialEffects) {
         const ITimedMatEffUpdator *currentUpdator = subMaterialEffectsUpdator(*cache.m_currentStatic);
 
-        nextPar = currentUpdator ?
-                  currentUpdator->update(nextPar, *nextLayer, timeLim, cache.m_path,
-                                         cache.m_currentStatic->geometrySignature(), dir, particle) : nextPar;
+        nextPar = currentUpdator ? currentUpdator
+                                     ->update(nextPar,
+                                              *nextLayer,
+                                              timeLim,
+                                              cache.m_path,
+                                              cache.m_currentStatic->geometrySignature(),
+                                              dir,
+                                              particle)
+                                     .release()
+                                 : nextPar;
 
         if (!nextPar) {
           ATH_MSG_VERBOSE("  [+] Update may have killed neutral track - return.");
@@ -2356,9 +2379,11 @@ Trk::TimedExtrapolator::transportInAlignableTV(Trk::TimedExtrapolator::Cache &ca
 
       // process interaction only if creation of secondaries allowed
       if (m_caloMsSecondary) {
-        const Trk::TrackParameters *nextPar = m_updators[0]->interact(cache.m_time, nextPos,
-                                                                      currPar->momentum(), particle, process, currMat);
-        throwIntoGarbageBin(cache,nextPar);
+        const Trk::TrackParameters* nextPar =
+          m_updators[0]
+            ->interact(cache.m_time, nextPos, currPar->momentum(), particle, process, currMat)
+            .release();
+        throwIntoGarbageBin(cache, nextPar);
 
         if (nextPar) {
           ATH_MSG_DEBUG(" [!] WARNING: particle survives the interaction " << process);
@@ -2583,8 +2608,11 @@ Trk::TimedExtrapolator::extrapolateInAlignableTV(Trk::TimedExtrapolator::Cache &
 
         const Trk::TrackParameters *iPar = nullptr;
         if (nextPar) {
-          iPar = m_updators[0]->interact(timeLim.time, nextPar->position(),
-                                         nextPar->momentum(), particle, cache.m_path.process, extMprop);
+          iPar =
+            m_updators[0]
+              ->interact(
+                timeLim.time, nextPar->position(), nextPar->momentum(), particle, cache.m_path.process, extMprop)
+              .release();
         }
 
         if (!iPar) {
@@ -2609,8 +2637,8 @@ Trk::TimedExtrapolator::extrapolateInAlignableTV(Trk::TimedExtrapolator::Cache &
       // process interaction only if creation of secondaries allowed
       if (cache.m_currentStatic->geometrySignature() == Trk::ID || m_caloMsSecondary) {
         // trigger presampled interaction
-        const Trk::TrackParameters *iPar = m_updators[0]->interact(timeLim.time, nextPar->position(),
-                                                                   nextPar->momentum(), particle, timeLim.process);
+        const Trk::TrackParameters* iPar = m_updators[0]->interact(
+          timeLim.time, nextPar->position(), nextPar->momentum(), particle, timeLim.process).release();
         if (!iPar) {
           return {nullptr, nullptr, nullptr};
         }
