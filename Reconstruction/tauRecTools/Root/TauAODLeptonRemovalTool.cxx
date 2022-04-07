@@ -6,14 +6,6 @@
 
 TauAODLeptonRemovalTool::TauAODLeptonRemovalTool(const std::string& name):
     TauRecToolBase(name) {
-    declareProperty("doMuonTrkRm",          m_doMuonTrkRm        = false,                 "Whether to remove the muon tracks from the tau candidate");
-    declareProperty("doElecTrkRm",          m_doElecTrkRm        = false,                 "Whether to remove the electron tracks from the tau candidate");
-    declareProperty("doMuonClsRm",          m_doMuonClsRm        = false,                 "Whether to remove the muon clusters from the tau candidate");
-    declareProperty("doElecClsRm",          m_doElecClsRm        = false,                 "Whether to remove the electron clusters from the tau candidate");
-    declareProperty("elecIDWP",             m_strMinElecIdWp     = "Medium",              "minimum electron identification WP, [VeryLoose, Loose, Medium, Tight]");
-    declareProperty("muonIDWP",             m_strMinMuonIdWp     = "Medium",              "minimum muon identification WP, [VeryLoose, Loose, Medium, Tight]");
-    declareProperty("eleIDWPPrefix",        m_strElecIdWpPrefix  = "DFCommonElectronsLH", "The prefix of the electron ID WP, leave to default if in confusion");
-    declareProperty("lepRemovalConeSize",   m_lepRemovalConeSize = 0.6,                   "The maximum dR between the lepton and the tau");
 }
 
 StatusCode TauAODLeptonRemovalTool::initialize() {

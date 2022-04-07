@@ -24,19 +24,20 @@ class TauAODLeptonRemovalTool : public TauRecToolBase
         virtual StatusCode initialize() override;
         virtual StatusCode execute(xAOD::TauJet&) const override;
     private:
-        bool                                        m_doMuonTrkRm        = false;
-        bool                                        m_doElecTrkRm        = false;
-        bool                                        m_doMuonClsRm        = false;
-        bool                                        m_doElecClsRm        = false;
-        std::string                                 m_strMinElecIdWp     = "Medium";   
-        std::string                                 m_strMinMuonIdWp     = "Medium";   
-        std::string                                 m_strElecIdWpPrefix  = "DFCommonElectronsLH";
-        double                                      m_lepRemovalConeSize = 0.6;
         const std::map<std::string, uint>           m_mapMuonIdWp        = {{"Tight", 0}, {"Medium", 1}, {"Loose", 2}, {"VeryLoose",3}};
         std::string                                 m_elecWpStr          = "DFCommonElectronsLHMedium";
         uint                                        m_muonWpUi           = 1;
         SG::ReadHandleKey<xAOD::MuonContainer>      m_muonInputContainer{this, "Key_MuonInputContainer", "Muons",     "input xAOD muons"};
         SG::ReadHandleKey<xAOD::ElectronContainer>  m_elecInputContainer{this, "Key_ElecInputContainer", "Electrons", "input xAOD electrons"};
+        //properties
+        Gaudi::Property<bool>        m_doMuonTrkRm       {this, "doMuonTrkRm",        false,                 "Whether to remove the muon tracks from the tau candidate"             };
+        Gaudi::Property<bool>        m_doElecTrkRm       {this, "doElecTrkRm",        false,                 "Whether to remove the electron tracks from the tau candidate"         };
+        Gaudi::Property<bool>        m_doMuonClsRm       {this, "doMuonClsRm",        false,                 "Whether to remove the muon clusters from the tau candidate"           };
+        Gaudi::Property<bool>        m_doElecClsRm       {this, "doElecClsRm",        false,                 "Whether to remove the electron clusters from the tau candidate"       };
+        Gaudi::Property<std::string> m_strMinElecIdWp    {this, "elecIDWP",           "Medium",              "minimum electron identification WP, [VeryLoose, Loose, Medium, Tight]"};
+        Gaudi::Property<std::string> m_strMinMuonIdWp    {this, "muonIDWP",           "Medium",              "minimum muon identification WP, [VeryLoose, Loose, Medium, Tight]"    };
+        Gaudi::Property<std::string> m_strElecIdWpPrefix {this, "eleIDWPPrefix",      "DFCommonElectronsLH", "The prefix of the electron ID WP, leave to default if in confusion"   };
+        Gaudi::Property<double>      m_lepRemovalConeSize{this, "lepRemovalConeSize", 0.6,                   "The maximum dR between the lepton and the tau"                        };
         //helpers
         std::vector<const xAOD::CaloCluster*>                                       getOrignalTopoClusters (const xAOD::CaloCluster   *cluster) const;
         const xAOD::TrackParticle*                                                  getOrignalTrackParticle(const xAOD::TrackParticle *trk  )   const;

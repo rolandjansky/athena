@@ -3,16 +3,6 @@
 */
 
 #include "TauAODRunnerAlg.h"
-#include "xAODJet/Jet.h"
-#include "xAODJet/JetContainer.h"
-#include "xAODTau/TauJetContainer.h"
-#include "xAODTau/TauJetAuxContainer.h"
-#include "xAODTau/TauDefs.h"
-#include "xAODTau/TauTrackContainer.h"
-#include "xAODTau/TauTrackAuxContainer.h"
-#include "xAODCore/ShallowCopy.h"
-#include "StoreGate/ReadHandle.h"
-#include "StoreGate/WriteHandle.h"
 
 TauAODRunnerAlg::TauAODRunnerAlg(const std::string &name, ISvcLocator *pSvcLocator) : 
     AthAlgorithm(name, pSvcLocator) {}

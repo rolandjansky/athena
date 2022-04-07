@@ -33,12 +33,12 @@ namespace DerivationFramework {
         virtual StatusCode doThinning() const override;
 
     private:
-        mutable std::atomic<unsigned int> m_ntot_taus {};
-        mutable std::atomic<unsigned int> m_ntot_trks {};
-        mutable std::atomic<unsigned int> m_ntot_ID_trks {};
-        mutable std::atomic<unsigned int> m_npass_taus {};
-        mutable std::atomic<unsigned int> m_npass_trks {};
-        mutable std::atomic<unsigned int> m_npass_ID_trks {};
+        mutable std::atomic<unsigned int> m_ntot_taus {0};
+        mutable std::atomic<unsigned int> m_ntot_trks {0};
+        mutable std::atomic<unsigned int> m_ntot_ID_trks {0};
+        mutable std::atomic<unsigned int> m_npass_taus {0};
+        mutable std::atomic<unsigned int> m_npass_trks {0};
+        mutable std::atomic<unsigned int> m_npass_ID_trks {0};
         
         StringProperty m_streamName{ this, "StreamName", "", "Name of the stream being thinned" };
 

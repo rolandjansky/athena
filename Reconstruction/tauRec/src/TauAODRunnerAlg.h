@@ -11,6 +11,7 @@
 #include "StoreGate/WriteHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "xAODTau/TauJetContainer.h"
+#include "xAODTau/TauJetAuxContainer.h"
 #include "xAODPFlow/PFOContainer.h"
 #include "xAODPFlow/PFOAuxContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
@@ -20,6 +21,10 @@
 #include "xAODParticleEvent/ParticleContainer.h"
 #include "xAODParticleEvent/ParticleAuxContainer.h"
 #include "xAODTau/TauTrackContainer.h"
+#include "xAODTau/TauTrackAuxContainer.h"
+#include "xAODJet/JetContainer.h"
+#include "xAODJet/JetAuxContainer.h"
+#include "xAODTau/TauDefs.h"
 #include "GaudiKernel/ToolHandle.h"
 
 /**

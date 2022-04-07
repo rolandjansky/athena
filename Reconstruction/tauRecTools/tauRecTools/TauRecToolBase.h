@@ -73,9 +73,9 @@ class TauRecToolBase : public asg::AsgTool, virtual public ITauToolBase {
   virtual StatusCode readConfig() override;
 
  protected:
-  bool m_in_trigger = false;
-  bool m_in_AOD = false;
-  std::string m_tauRecToolsTag;
+  Gaudi::Property<bool>        m_in_trigger     {this, "inTrigger",   false,                     "Indicate if the tool is running on trigger"};
+  Gaudi::Property<bool>        m_in_AOD         {this, "inAOD",       false,                     "Indicate if the tool is running on AOD"};
+  Gaudi::Property<std::string> m_tauRecToolsTag {this, "calibFolder", "tauRecTools/R22_preprod", "CVMFS path to the tau calibration folder"};
 
   bool inTrigger() const;
   bool inAOD() const;
