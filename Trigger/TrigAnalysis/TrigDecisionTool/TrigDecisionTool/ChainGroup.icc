@@ -62,7 +62,7 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
     TrigCompositeUtils::DecisionIDContainer thisChainIDs;
     HLT::Identifier chainID("");
 
-    const HLT::Chain* fchain = cgm()->chain(**chIt);
+    const HLT::Chain* fchain = cgm_assert().chain(**chIt);
     if (fchain) {
       chainID = HLT::Identifier( fchain->getChainName() );
       const std::vector<size_t> legMultiplicites = fchain->getLegMultiplicities();

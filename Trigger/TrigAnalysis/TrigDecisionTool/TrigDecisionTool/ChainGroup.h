@@ -60,7 +60,7 @@ namespace Trig {
    public:
 
       ChainGroup(const std::vector< std::string >& triggerNames,
-                 const Trig::CacheGlobalMemory& parent);
+                 Trig::CacheGlobalMemory& parent);
       ~ChainGroup() = default;
 
       typedef std::vector<std::string>::const_iterator const_iterator;
@@ -197,11 +197,13 @@ namespace Trig {
 
 #ifndef __REFLEX__
       // quick cache (external therefore reference) of the result per event
-      const Trig::CacheGlobalMemory&                       m_cgm;
+      Trig::CacheGlobalMemory&                       m_cgm;
 #endif
-      std::vector< std::string > m_names; //!< names of trigger derived from patterns & current configuration                 
+      std::vector< std::string > m_names; //!< names of trigger derived from patterns & current configuration
 
-      const Trig::CacheGlobalMemory* cgm(bool onlyConfig=false) const;
+      const Trig::CacheGlobalMemory& cgm_assert() const;
+      const Trig::CacheGlobalMemory& cgm() const { return m_cgm; }
+      Trig::CacheGlobalMemory& cgm() { return m_cgm; }
 
       // update the configuration
       void update(const TrigConf::HLTChainList* confChains,
