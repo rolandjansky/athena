@@ -17,6 +17,8 @@ outStream = AthenaPoolOutputStream("StreamEVGEN", runArgs.outputEVNT_MRGFile, no
 ## must force reading of all input objects
 outStream.TakeItemsFromInput = True
 
+## initialize IOVDbSvc so TagInfoMgr will work
+from IOVDbSvc import IOVDb
 
 #==============================================================
 # Job Configuration parameters:
