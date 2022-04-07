@@ -26,4 +26,5 @@ atlas_add_dictionary( ActsTrkEventDict
 		      ActsTrk::SpacePointData 
 		      ActsTrk::SpacePointContainer 
 		      ActsTrk::SeedContainer 
+		      ActsTrk::BoundTrackParametersContainer
 		      )

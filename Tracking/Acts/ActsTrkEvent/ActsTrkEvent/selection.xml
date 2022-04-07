@@ -16,5 +16,9 @@
   <class name="SeedContainer"
 	 id="936BD24D-A0FE-4684-9C95-6C895E38B56E" /> 
 
+  <class name="BoundTrackParameters" />
+  <class name="BoundTrackParametersContainer"
+	 id="07B10B02-CEF7-4FF9-91D5-569F506C46AE" />
+
 </lcgdict>
 

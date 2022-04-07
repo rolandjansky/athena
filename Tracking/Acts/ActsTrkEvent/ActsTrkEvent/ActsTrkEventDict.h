@@ -26,6 +26,7 @@
 #include "ActsTrkEvent/SpacePointData.h"
 #include "ActsTrkEvent/SpacePoint.h"
 #include "ActsTrkEvent/Seed.h"
+#include "ActsTrkEvent/TrackParameters.h"
 
 // Instantiate all necessary types for the dictionary.
 namespace {
@@ -34,6 +35,7 @@ namespace {
     INSTANTIATE_CONTAINER_TYPES( ActsTrk, MeasurementContainer )
     INSTANTIATE_CONTAINER_TYPES( ActsTrk, SpacePointContainer )
     INSTANTIATE_CONTAINER_TYPES( ActsTrk, SeedContainer )
+    INSTANTIATE_CONTAINER_TYPES( ActsTrk, BoundTrackParametersContainer )
   };
 }
 
