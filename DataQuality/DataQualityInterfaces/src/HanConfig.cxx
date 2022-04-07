@@ -740,7 +740,10 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
               TObjArray* toarray = new TObjArray();
               toarray->SetOwner(true);
               for (size_t iRef = 0; iRef < objects.size(); ++iRef) {
-                toarray->Add(objects[iRef][0].second->Clone());
+                // check that object is actually valid (might be missing a reference)
+                if (! objects[iRef].empty()) {
+                  toarray->Add(objects[iRef][0].second->Clone());
+                }
               }
               toWriteOut.reset(toarray);
               refsuccess = true;
