@@ -17,14 +17,10 @@
 
 #include <string>
 #include <vector>
-//#include <iostream>
 
 #include "TrigDecisionTool/ChainGroupFunctions.h"
+#include "TrigDecisionTool/CacheGlobalMemory.h"
 #include "TrigDecisionTool/TDTUtilities.h"
-
-Trig::ChainGroupFunctions::ChainGroupFunctions() {}
-
-Trig::ChainGroupFunctions::~ChainGroupFunctions() {}
 
 void Trig::ChainGroupFunctions::ChainGroupInitialize() {
   // all triggers
@@ -39,18 +35,20 @@ void Trig::ChainGroupFunctions::ChainGroupInitialize() {
   getChainGroup("HLT_.*");
 }
 
-const Trig::ChainGroup* Trig::ChainGroupFunctions::getChainGroup(const std::vector< std::string >& triggerNames) const {
+const Trig::ChainGroup* Trig::ChainGroupFunctions::getChainGroup(const std::vector< std::string >& triggerNames,
+                                                                 TrigDefs::Group props) const {
   auto searchRes = cgm()->getChainGroups().find(triggerNames);
 
   if ( searchRes != cgm()->getChainGroups().end()) {
     return searchRes->second;
   }
   else {
-    return cgm()->createChainGroup(triggerNames);
+    return cgm()->createChainGroup(triggerNames, /*alias*/{}, props);
   }
 }
 
-const Trig::ChainGroup* Trig::ChainGroupFunctions::getChainGroup(const std::string& triggerNames) const {
-   return getChainGroup(Trig::convertStringToVector(triggerNames));
+const Trig::ChainGroup* Trig::ChainGroupFunctions::getChainGroup(const std::string& triggerNames,
+                                                                 TrigDefs::Group props) const {
+  return getChainGroup(Trig::convertStringToVector(triggerNames), props);
 }
 

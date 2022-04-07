@@ -33,6 +33,7 @@
 #include "TrigSteeringEvent/Chain.h"
 #include "TrigSteeringEvent/Lvl1Item.h"
 
+#include "TrigDecisionInterface/GroupProperties.h"
 #include "TrigDecisionTool/IDecisionUnpacker.h"
 #include "TrigDecisionTool/Logger.h"
 
@@ -78,12 +79,12 @@ namespace Trig {
      *        It is not the same though as "EF_mu.*" even if in particular case that would mean the same 2 chains.
      *
      * @param alias is the short human readable name for the triggers which are in the group i.e. myMuons
-     * @param parseAsRegex Sets if regular expression are allowed in patterns. Otherwise exact matches will be required.
-     *        This is considerably faster, so is used for some internally created chains groups with a large number of patterns.
+     * @param props are additional properties for the chain group creation (e.g. disable regex parsing)
      **/
     const Trig::ChainGroup* createChainGroup(const std::vector< std::string >& patterns,
                                              const std::string& alias="",
-                                             const bool parseAsRegex = true);
+                                             TrigDefs::Group props = TrigDefs::Group::Default);
+
     /**
      * @brief Updates configuration of the chain groups
      * (i.e. regexes are reapplied to new set of chains)
@@ -113,12 +114,6 @@ namespace Trig {
     void navigation(HLT::TrigNavStructure* nav) { m_navigation = nav; }       //!< sets navigation object pointer
 
     const std::map< std::vector< std::string >, Trig::ChainGroup* >& getChainGroups() const {return m_chainGroupsRef;};
-    //    std::map<unsigned, const LVL1CTP::Lvl1Item*>  getItems() {return m_items;};
-    //    std::map<unsigned, const LVL1CTP::Lvl1Item*>  getItems() const {return m_items;};
-    //    std::map<unsigned, const HLT::Chain*>         getL2chains() {return m_l2chains;};
-    //    std::map<unsigned, const HLT::Chain*>         getL2chains() const {return m_l2chains;};
-    //    std::map<unsigned, const HLT::Chain*>         getEFchains() {return m_efchains;};
-    //    std::map<unsigned, const HLT::Chain*>         getEFchains() const {return m_efchains;};
     const std::map<std::string, std::vector<std::string> >& getStreams() const {return m_streams;};
 
     /**
@@ -173,7 +168,8 @@ namespace Trig {
     /**
      * @brief unpacks everything that belongs to a ChainGroup
      **/
-    void updateChainGroup(Trig::ChainGroup& chainGroup, const bool parseAsRegex = true);
+    void updateChainGroup(Trig::ChainGroup& chainGroup,
+                          TrigDefs::Group props = TrigDefs::Group::Default);
 
     //
     // Data members

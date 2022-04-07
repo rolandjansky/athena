@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODTRIGGERCNV_TRIGDECISIONCNVTOOL_H
@@ -14,7 +14,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 // Trigger include(s):
-#include "TrigDecisionInterface/ITrigDecisionTool.h"
+#include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigConfInterfaces/IHLTConfigSvc.h"
 
 // Local include(s):
@@ -56,8 +56,8 @@ namespace xAODMaker {
                                 uint32_t chainId, bool value = true );
 
       /// Connection to the TrigDecisionTool
-      PublicToolHandle< Trig::ITrigDecisionTool > m_tdt{this, "TrigDecisionTool",
-                                                        "Trig::TrigDecisionTool/TrigDecisionTool"};
+      PublicToolHandle< Trig::TrigDecisionTool > m_tdt{this, "TrigDecisionTool",
+                                                       "Trig::TrigDecisionTool/TrigDecisionTool"};
       /// Connection to the HLT configuration
       ServiceHandle< TrigConf::IHLTConfigSvc > m_trigconf{this, "TrigConfigSvc",
                                                          "TrigConf::xAODConfigSvc/xAODConfigSvc"};

@@ -26,8 +26,9 @@
 #include <stack>
 #include <boost/algorithm/string.hpp>
 
+#include "TrigDecisionInterface/Conditions.h"
+#include "TrigDecisionInterface/GroupProperties.h"
 #include "TrigDecisionTool/CacheGlobalMemory.h"
-#include "TrigDecisionTool/Conditions.h"
 #include "TrigDecisionTool/FeatureContainer.h"
 #include "TrigDecisionTool/Logger.h"
 #include "TrigDecisionTool/FeatureRequestDescriptor.h"
@@ -50,8 +51,6 @@ namespace TrigConf {
 
 
 namespace Trig {
-
-  //class CacheGlobalMemory;
 
    class ChainGroup : public virtual Logger {
 
@@ -206,7 +205,7 @@ namespace Trig {
       // update the configuration
       void update(const TrigConf::HLTChainList* confChains,
                   const TrigConf::ItemContainer* confItems,
-                  const bool parseAsRegex = true);
+                  TrigDefs::Group prop = TrigDefs::Group::Default);
 
       ChainGroup& operator= (const ChainGroup&);
 
