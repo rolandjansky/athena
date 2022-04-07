@@ -10,6 +10,3 @@ atlas_add_component( HGTD_RecAlgs
                      LINK_LIBRARIES AthenaBaseComps GaudiKernel GeneratorObjects
                      HGTD_RecToolInterfaces HGTD_RawData HGTD_RIO_OnTrack HGTD_Identifier
                      xAODTracking xAODTruth InDetSimData)
-
-# Install files from the package:
-atlas_install_headers( HGTD_RecAlgs )
