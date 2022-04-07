@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigMuonEfficiencyMonMT.h"
@@ -176,7 +176,7 @@ StatusCode TrigMuonEfficiencyMonMT :: selectMuonsTagAndProbe(SG::ReadHandle<xAOD
       TLorentzVector lvmu2 = mu2->p4();
       double dimu_mass = (lvmu1+lvmu2).M()/1.e3;
       vec_invmass.push_back(dimu_mass);
-      bool bit_mass = (dimu_mass > m_mass_lowlim) & (dimu_mass < m_mass_highlim);
+      bool bit_mass = (dimu_mass > m_mass_lowlim) && (dimu_mass < m_mass_highlim);
       bool bit_dR = lvmu1.DeltaR(lvmu2)>0.5;
       if(m_use_extrapolator){
 	const xAOD::TrackParticle *track1 = mu1->primaryTrackParticle();
