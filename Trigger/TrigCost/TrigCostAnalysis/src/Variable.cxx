@@ -1,6 +1,8 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
+
+#include <cmath>
 
 #include "Variable.h"
 #include "TH1F.h"
@@ -35,7 +37,7 @@ float Variable::getAccumulator() const {
 
 void Variable::setDenominator(float value) {
   // Stored as reciprocal so as to be able to check for /0 here
-  if (fabs(value) < 1e-10) {
+  if (std::abs(value) < 1e-10) {
     m_oneOverDenominator = 0.0;
   } else {
     m_oneOverDenominator = 1. / value;

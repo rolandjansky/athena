@@ -472,7 +472,7 @@ void TrigCostAnalysis::writeMetadata() {
   std::string hostnamesList = "";
   if (m_hostnames.size() > 1){
     ATH_MSG_DEBUG("Found many hostnames for this run");
-    for (auto name : m_hostnames) hostnamesList += name + ",";
+    for (const auto& name : m_hostnames) hostnamesList += name + ",";
     hostnamesList.pop_back();
   } else if (m_hostnames.size() == 1) {
     hostnamesList = *m_hostnames.begin();

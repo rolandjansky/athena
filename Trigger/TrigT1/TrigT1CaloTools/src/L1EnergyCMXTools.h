@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -121,7 +121,7 @@ class L1EnergyCMXTools : virtual public IL1EnergyCMXTools, public AthAlgTool
     /** Tool for energy sums */
     ToolHandle<LVL1::IL1EtTools> m_etTool;
     /** Debug flag */
-    bool m_debug;
+    bool m_debug = false;
 };
 
 } // end of namespace

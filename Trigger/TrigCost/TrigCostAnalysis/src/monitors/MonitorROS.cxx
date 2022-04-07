@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MonitorROS.h"
@@ -16,8 +16,8 @@ StatusCode MonitorROS::newEvent(const CostData& data, const float weight) {
 
   // Prepare ROB id per corresponding ROS name map
   if (m_robToRos.empty()) {
-    const std::map<std::string, std::vector<uint32_t>> rosToRobMap = data.rosToRobMap();
-    for (auto rosRequest : rosToRobMap) {
+    const std::map<std::string, std::vector<uint32_t>>& rosToRobMap = data.rosToRobMap();
+    for (const auto& rosRequest : rosToRobMap) {
       for (uint32_t robId : rosRequest.second) {
         m_robToRos[robId] = rosRequest.first;
       }
