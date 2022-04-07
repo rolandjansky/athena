@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -28,9 +28,6 @@ TileFCS_StepInfoSD::TileFCS_StepInfoSD(G4String name, const FCS_Param::Config & 
   : FCS_StepInfoSD(name, config)
   , m_calculator(config.m_TileCalculator)
 {
-}
-
-TileFCS_StepInfoSD::~TileFCS_StepInfoSD() {
 }
 
 G4bool TileFCS_StepInfoSD::ProcessHits(G4Step* a_step, G4TouchableHistory* /*ROhist*/) {
@@ -70,6 +67,9 @@ G4bool TileFCS_StepInfoSD::ProcessHits(G4Step* a_step, G4TouchableHistory* /*ROh
       const int numberOfProcessedHits(1);
       const double timeWindow(m_config.m_maxTimeTile);
       const double distanceWindow(m_config.m_maxRadiusTile);
+      if(!m_calo_dd_man.get()) {
+	getCaloDDManager();
+      }
       this->update_map(pos, micHit.pmt_up, micHit.e_up, micHit.time_up, true, numberOfProcessedHits, timeWindow, distanceWindow);
       this->update_map(pos, micHit.pmt_down, micHit.e_down,micHit.time_down, true, numberOfProcessedHits, timeWindow, distanceWindow);
     }

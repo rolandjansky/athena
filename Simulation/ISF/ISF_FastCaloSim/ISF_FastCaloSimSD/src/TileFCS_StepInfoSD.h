@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -29,7 +29,6 @@ class ITileCalculator;
 class TileFCS_StepInfoSD: public FCS_StepInfoSD {
 public:
   TileFCS_StepInfoSD(G4String name, const FCS_Param::Config& config);
-  ~TileFCS_StepInfoSD();
 
   G4bool ProcessHits(G4Step*, G4TouchableHistory*) override final;
 

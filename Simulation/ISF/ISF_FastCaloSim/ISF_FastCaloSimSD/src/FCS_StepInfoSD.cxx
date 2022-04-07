@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FCS_StepInfoSD.h"
@@ -11,8 +11,10 @@
 #include "CaloIdentifier/LArHEC_ID.h"
 #include "CaloIdentifier/LArMiniFCAL_ID.h"
 #include "CaloIdentifier/TileID.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
+
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/ReadCondHandle.h"
 
 #include "G4Step.hh"
 #include "G4ThreeVector.hh"
@@ -20,17 +22,7 @@
 FCS_StepInfoSD::FCS_StepInfoSD(G4String a_name, const FCS_Param::Config& config)
   : G4VSensitiveDetector(a_name)
   , m_config(config)
-  , m_larEmID(nullptr)
-  , m_larFcalID(nullptr)
-  , m_larHecID(nullptr)
-  , m_larMiniFcalID(nullptr)
-  , m_tileID(nullptr)
   , m_calo_dd_man(nullptr)
-{
-  m_calo_dd_man  = CaloDetDescrManager::instance(); //FIXME Move somewhere else!!
-}
-
-FCS_StepInfoSD::~FCS_StepInfoSD()
 {
 }
 
@@ -149,6 +141,19 @@ inline double FCS_StepInfoSD::getMaxDeltaPhi(const CaloCell_ID::CaloSample& laye
 }
 
 
+void FCS_StepInfoSD::getCaloDDManager()
+{
+  SG::ReadCondHandleKey<CaloDetDescrManager> caloMgrKey{"CaloDetDescrManager"};
+  if(caloMgrKey.initialize().isFailure()) {
+    G4ExceptionDescription description;
+    description << "Failed to get CaloDetDescrManager!";
+    G4Exception("FCS_StepInfoSD", "FCSBadCall", FatalException, description);
+    abort();
+  }
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgr(caloMgrKey,Gaudi::Hive::currentContext());
+  m_calo_dd_man.set(*caloMgr);
+}
+
 void FCS_StepInfoSD::update_map(const CLHEP::Hep3Vector & l_vec, const Identifier & l_identifier, double l_energy, double l_time, bool l_valid, int l_detector, double timeWindow, double distanceWindow)
 {
   // NB l_identifier refers to:
@@ -156,7 +161,7 @@ void FCS_StepInfoSD::update_map(const CLHEP::Hep3Vector & l_vec, const Identifie
   // - the PMT identifier for Tile
 
   // Drop any hits that don't have a good identifier attached
-  if (!m_calo_dd_man->get_element(l_identifier)) {
+  if (!m_calo_dd_man.get()->get_element(l_identifier)) {
     if(m_config.verboseLevel > 4) {
       G4cout<<this->GetName()<<" DEBUG update_map: bad identifier: "<<l_identifier.getString()<<" skipping this hit."<<G4endl;
     }
@@ -172,7 +177,7 @@ void FCS_StepInfoSD::update_map(const CLHEP::Hep3Vector & l_vec, const Identifie
   else {
 
     // Get the appropriate merging limits
-    const CaloCell_ID::CaloSample& layer = m_calo_dd_man->get_element(l_identifier)->getSampling();
+    const CaloCell_ID::CaloSample& layer = m_calo_dd_man.get()->get_element(l_identifier)->getSampling();
     const double tsame(this->getMaxTime(layer));
     bool match = false;
     for (auto map_it : * map_item->second) {
