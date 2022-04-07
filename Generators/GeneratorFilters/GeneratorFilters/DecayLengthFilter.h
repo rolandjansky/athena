@@ -27,6 +27,7 @@ private:
   float m_Zmin;
   float m_Zmax;
   float m_particle_id;
+  int m_particle_count;
 
   bool isAccepted(float distR, float distZ);
 

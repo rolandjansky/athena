@@ -16,6 +16,7 @@ DecayLengthFilter::DecayLengthFilter(const std::string& name, ISvcLocator* pSvcL
   declareProperty("Zmin", m_Zmin = 300 );
   declareProperty("Zmax", m_Zmax = 400 );
   declareProperty("particle_id", m_particle_id = 1000022 ); //pdg_id of the decaying particle, default is Neutralino
+  declareProperty("particle_count", m_particle_count = 1 ); //number of required particles with the given pdg_id
 }
 
 
@@ -37,6 +38,7 @@ StatusCode DecayLengthFilter::filterEvent() {
 
   //First, find special vertices
   int nFound(0);
+  int nPassed(0);
   for(; vtx_iter!=vtx_end; ++vtx_iter) {
 
     // now look for displaced vertices
@@ -64,6 +66,8 @@ StatusCode DecayLengthFilter::filterEvent() {
 
     //accept all events with at least one of the two decays in the orimeter
     if( isAccepted( distR, distZ) )
+      nPassed++;
+    if( nPassed >= m_particle_count )
       setFilterPassed(true);
   }
 
