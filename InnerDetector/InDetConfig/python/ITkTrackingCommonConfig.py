@@ -37,14 +37,6 @@ def ITkEtaDependentCutsSvcCfg(flags, name = 'ITkEtaDependentCutsSvc', **kwargs):
     acc.addService(ITkEtaDependentCutsSvc)
     return acc
 
-def ITkTruthClusterizationFactoryCfg(flags, name = 'ITkTruthClusterizationFactory', **kwargs):
-    acc = ComponentAccumulator()
-
-    kwargs.setdefault("InputSDOMap", 'ITkPixelSDO_Map')
-    ITkTruthClusterizationFactory = CompFactory.InDet.TruthClusterizationFactory( name, **kwargs )
-    acc.setPrivateTools(ITkTruthClusterizationFactory)
-    return acc
-
 def ITkPixelClusterOnTrackToolBaseCfg(flags, name="ITkPixelClusterOnTrackTool", **kwargs):
     acc = ComponentAccumulator()
 
@@ -90,6 +82,7 @@ def ITkPixelClusterOnTrackToolNNSplittingCfg(flags, name='ITkPixelClusterOnTrack
 
     if flags.ITk.Tracking.doPixelClusterSplitting and flags.ITk.Tracking.pixelClusterSplittingType == "Truth":
         if 'NnClusterizationFactory' not in kwargs :
+            from InDetConfig.SiClusterizationToolConfig import ITkTruthClusterizationFactoryCfg
             ITkTruthClusterizationFactory = acc.popToolsAndMerge(ITkTruthClusterizationFactoryCfg(flags))
             kwargs.setdefault("NnClusterizationFactory", ITkTruthClusterizationFactory) #Truth-based for ITk for now
 

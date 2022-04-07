@@ -1,42 +1,5 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
-
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.ComponentFactory import CompFactory
-
-def NnPixelClusterSplitProbToolCfg(flags, name="NnPixelClusterSplitProbTool", **kwargs):
-    acc = ComponentAccumulator()
-
-    # --- new NN prob tool
-    MultiplicityContent = [1 , 1 , 1]
-
-    from InDetConfig.TrackingCommonConfig import NnClusterizationFactoryCfg
-    NnClusterizationFactory = acc.getPrimaryAndMerge(NnClusterizationFactoryCfg(flags))
-
-    kwargs.setdefault("PriorMultiplicityContent", MultiplicityContent)
-    kwargs.setdefault("NnClusterizationFactory", NnClusterizationFactory)
-    kwargs.setdefault("useBeamSpotInfo", flags.InDet.Tracking.useBeamSpotInfoNN)
-
-    NnPixelClusterSplitProbTool = CompFactory.InDet.NnPixelClusterSplitProbTool(name=name,**kwargs)
-
-    acc.setPrivateTools(NnPixelClusterSplitProbTool)
-    return acc
-
-def NnPixelClusterSplitterCfg(flags, name="NnPixelClusterSplitter", **kwargs):
-    acc = ComponentAccumulator()
-
-    from InDetConfig.TrackingCommonConfig import NnClusterizationFactoryCfg
-    NnClusterizationFactory = acc.getPrimaryAndMerge(NnClusterizationFactoryCfg(flags))
-
-    kwargs.setdefault("NnClusterizationFactory", NnClusterizationFactory)
-    kwargs.setdefault("ThresholdSplittingIntoTwoClusters", 0.5)
-    kwargs.setdefault("ThresholdSplittingIntoThreeClusters", 0.25)
-    kwargs.setdefault("SplitOnlyOnBLayer", False)
-    kwargs.setdefault("useBeamSpotInfo", flags.InDet.Tracking.useBeamSpotInfoNN)
-    # --- new NN splitter
-    NnPixelClusterSplitter = CompFactory.InDet.NnPixelClusterSplitter(name=name,**kwargs)
-
-    acc.setPrivateTools(NnPixelClusterSplitter)
-    return acc
 
 def InDetRecPreProcessingSiliconCfg(flags, **kwargs):
     acc = ComponentAccumulator()
@@ -53,7 +16,7 @@ def InDetRecPreProcessingSiliconCfg(flags, **kwargs):
     # --- Slim BCM RDOs by zero-suppressing
     #   
     if flags.Detector.EnableBCM:
-        from InDetConfig.TrackRecoConfig import BCM_ZeroSuppressionCfg
+        from InDetConfig.BCM_ZeroSuppressionConfig import BCM_ZeroSuppressionCfg
         acc.merge(BCM_ZeroSuppressionCfg(flags))
     
     #
@@ -63,10 +26,10 @@ def InDetRecPreProcessingSiliconCfg(flags, **kwargs):
         #
         # --- PixelClusterization algorithm
         #
-        from InDetConfig.TrackRecoConfig import PixelClusterizationCfg
+        from InDetConfig.InDetPrepRawDataFormationConfig import PixelClusterizationCfg
         acc.merge(PixelClusterizationCfg(flags))
         if flags.InDet.doSplitReco :
-            from InDetConfig.TrackRecoConfig import PixelClusterizationPUCfg
+            from InDetConfig.InDetPrepRawDataFormationConfig import PixelClusterizationPUCfg
             acc.merge(PixelClusterizationPUCfg(flags))
     #
     # --- SCT Clusterization
@@ -75,11 +38,12 @@ def InDetRecPreProcessingSiliconCfg(flags, **kwargs):
         #
         # --- SCT_Clusterization algorithm
         #
-        from InDetConfig.TrackRecoConfig import SCTClusterizationCfg
+        from InDetConfig.InDetPrepRawDataFormationConfig import SCTClusterizationCfg
         acc.merge(SCTClusterizationCfg(flags))
         if flags.InDet.doSplitReco :
-            from InDetConfig.TrackRecoConfig import SCTClusterizationPUCfg
+            from InDetConfig.InDetPrepRawDataFormationConfig import SCTClusterizationPUCfg
             acc.merge(SCTClusterizationPUCfg(flags))
+
     #
     # ----------- form SpacePoints from clusters in SCT and Pixels
     #
@@ -96,6 +60,74 @@ def InDetRecPreProcessingSiliconCfg(flags, **kwargs):
         if flags.InDet.doSplitReco:
             from InDetConfig.InDetTruthAlgsConfig import InDetPRD_MultiTruthMakerSiPUCfg
             acc.merge(InDetPRD_MultiTruthMakerSiPUCfg(flags))
+
+    return acc
+
+def ITkRecPreProcessingSiliconCfg(flags, **kwargs):
+    acc = ComponentAccumulator()
+    # ------------------------------------------------------------
+    #
+    # ----------- Data-Preparation stage
+    #
+    # ------------------------------------------------------------
+    #
+    # ----------- PrepRawData creation from Raw Data Objects
+    #
+
+    #
+    # --- Slim BCM RDOs by zero-suppressing
+    #
+    if flags.Detector.EnableBCMPrime:
+        from InDetConfig.BCM_ZeroSuppressionConfig import BCM_ZeroSuppressionCfg
+        acc.merge(BCM_ZeroSuppressionCfg(flags))
+
+    #
+    # -- Pixel Clusterization
+    #
+    if flags.Detector.EnableITkPixel:
+        #
+        # --- PixelClusterization algorithm
+        #
+        from InDetConfig.InDetPrepRawDataFormationConfig import ITkPixelClusterizationCfg
+        acc.merge(ITkPixelClusterizationCfg(flags))
+
+    #
+    # --- Strip Clusterization
+    #
+    if flags.Detector.EnableITkStrip:
+        #
+        # --- Strip Clusterization algorithm
+        #
+        from InDetConfig.InDetPrepRawDataFormationConfig import ITkStripClusterizationCfg
+        acc.merge(ITkStripClusterizationCfg(flags))
+
+    if flags.ITk.Tracking.convertInDetClusters and flags.Detector.EnableITkPixel and flags.Detector.EnableITkStrip:
+        #
+        # --- Conversion algorithm for InDet clusters to xAOD clusters
+        #
+        from InDetConfig.ITkTrackRecoConfig import ITkInDetToXAODClusterConversionCfg
+        acc.merge(ITkInDetToXAODClusterConversionCfg(flags))
+
+    #
+    # ----------- form SpacePoints from clusters in SCT and Pixels
+    #
+    #
+    from InDetConfig.SiSpacePointFormationConfig import ITkSiTrackerSpacePointFinderCfg
+    acc.merge(ITkSiTrackerSpacePointFinderCfg(flags))
+    if flags.ITk.Tracking.produceNewSpacePointContainer:
+        if flags.Detector.EnableITkPixel:
+            from TrkConfig.ActsTrkSpacePointFormationConfig import ActsTrkPixelSpacePointFormationCfg
+            acc.merge(ActsTrkPixelSpacePointFormationCfg(flags))
+        if flags.Detector.EnableITkStrip:
+            from TrkConfig.ActsTrkSpacePointFormationConfig import ActsTrkStripSpacePointFormationCfg
+            acc.merge(ActsTrkStripSpacePointFormationCfg(flags))
+
+    # this truth must only be done if you do PRD and SpacePointformation
+    # If you only do the latter (== running on ESD) then the needed input (simdata)
+    # is not in ESD but the resulting truth (clustertruth) is already there ...
+    if flags.ITk.Tracking.doTruth:
+        from InDetConfig.InDetTruthAlgsConfig import ITkPRD_MultiTruthMakerSiCfg
+        acc.merge(ITkPRD_MultiTruthMakerSiCfg(flags))
 
     return acc
 
