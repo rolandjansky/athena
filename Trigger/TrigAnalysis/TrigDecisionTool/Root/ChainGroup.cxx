@@ -17,6 +17,7 @@
 #include "boost/regex.hpp"
 #include "boost/range/adaptor/reversed.hpp"
 
+#include "CxxUtils/bitmask.h"
 #include "TrigConfHLTData/HLTChain.h"
 #include "TrigConfHLTData/HLTStreamTag.h"
 #include "TrigConfHLTData/HLTSignature.h"
@@ -617,7 +618,7 @@ std::vector< std::vector< TrigConf::HLTTriggerElement* > > Trig::ChainGroup::get
 void
 Trig::ChainGroup::update(const TrigConf::HLTChainList* confChains,
                          const TrigConf::ItemContainer* confItems,
-                         const bool parseAsRegex) {
+                         TrigDefs::Group prop) {
 
    m_confChains.clear();
    m_confItems.clear();
@@ -628,7 +629,7 @@ Trig::ChainGroup::update(const TrigConf::HLTChainList* confChains,
    // protect against genConf failure
    if (!(confChains && confItems) ) return;
 
-   if (parseAsRegex) {
+   if (!CxxUtils::test(prop, TrigDefs::Group::NoRegex)) {
 
      for(const std::string& pat : m_patterns) {
         // find chains matching pattern

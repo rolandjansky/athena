@@ -51,7 +51,7 @@
 
 const Trig::ChainGroup* Trig::CacheGlobalMemory::createChainGroup(const std::vector< std::string >& triggerNames,
                                                                   const std::string& alias,
-                                                                  const bool parseAsRegex) {
+                                                                  TrigDefs::Group props) {
   // mutex in case this is called directly
   std::lock_guard<std::recursive_mutex> lock(m_cgmMutex);
 
@@ -60,7 +60,7 @@ const Trig::ChainGroup* Trig::CacheGlobalMemory::createChainGroup(const std::vec
 
   auto [itr, inserted] = m_chainGroups.try_emplace (key, /*ChainGroup*/ key, *this);
   if (inserted) {
-    updateChainGroup(itr->second, parseAsRegex);
+    updateChainGroup(itr->second, props);
     m_chainGroupsRef[key] = &(itr->second);
   }
   // this overwrites the pointer in the map each time in case the alias needs defining
@@ -76,8 +76,8 @@ const Trig::ChainGroup* Trig::CacheGlobalMemory::createChainGroup(const std::vec
   return m_chainGroupsRef[key];
 }
 
-void Trig::CacheGlobalMemory::updateChainGroup(Trig::ChainGroup& chainGroup, const bool parseAsRegex) {
-  chainGroup.update(m_confChains, m_confItems, parseAsRegex);
+void Trig::CacheGlobalMemory::updateChainGroup(Trig::ChainGroup& chainGroup, TrigDefs::Group props) {
+  chainGroup.update(m_confChains, m_confItems, props);
 }
 
 
@@ -97,7 +97,7 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
 
   // rebuild all the caches with decision information
 
-  //clear cache completely becuase underlying config objects might have changed
+  //clear cache completely because underlying config objects might have changed
   m_itemsCache.clear();
 
   const std::vector<float>& prescales = ctp->prescaleSet().prescales_float();
@@ -110,14 +110,10 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
   }
   ATH_MSG_DEBUG( "Updating configuration, done with L1" );
 
-  //clear cache completely becuase underlying config objects might have changed
+  //clear cache completely because underlying config objects might have changed
   m_l2chainsCache.clear();
   m_efchainsCache.clear();
   m_mConfChains.clear();
-
-  // Remember which chain groups we update in the STREAM and GROUP loops. Don't update them a second time below.
-  // Cache the pointer in a short-lived set
-  std::set<const Trig::ChainGroup*> processed_chain_groups;
 
   if ( ! confChains ) {
     ATH_MSG_WARNING( "No chains in configuration, probably run w/o HLT" );
@@ -167,52 +163,13 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
         ATH_MSG(DEBUG) << endmsg;
       }
     }
-
-
-    for (const auto& [stream, chains] : m_streams) {
-      const std::string alias("STREAM_"+stream);
-      std::vector< std::string > key_alias=Trig::keyWrap(Trig::convertStringToVector(alias));
-      const auto preIt = m_chainGroupsRef.find(key_alias);
-      if (  preIt != m_chainGroupsRef.end()) {
-        ATH_MSG_INFO( "Replacing predefined, stream based, chain group: "
-          << alias );
-        // cg already exists (from previous config, we need to update it)
-        preIt->second->m_patterns = chains;
-        updateChainGroup(*preIt->second, /*parseAsRegex=*/ false);
-        processed_chain_groups.insert(preIt->second);
-      } else {
-        processed_chain_groups.insert( createChainGroup(chains, alias, /*parseAsRegex=*/ false) );
-      }
-    }
-
-    for (const auto& [group, chains] : m_groups) {
-      const std::string alias("GROUP_"+group);
-      std::vector< std::string > key_alias=Trig::keyWrap(Trig::convertStringToVector(alias));
-      const auto preIt = m_chainGroupsRef.find(key_alias);
-      if (preIt != m_chainGroupsRef.end()) {
-        ATH_MSG_INFO( "Replacing predefined, config group based, chain "
-          << "group: " << alias );
-        preIt->second->m_patterns = chains;
-        updateChainGroup(*preIt->second, /*parseAsRegex=*/ false);
-        processed_chain_groups.insert(preIt->second);
-      } else {
-        processed_chain_groups.insert( createChainGroup(chains,alias, /*parseAsRegex=*/ false) );
-      }
-    }
-    ATH_MSG_DEBUG( "ChainGroups for streams and configuration groups "
-       "defined/updated" );
   }
 
-
-  // update all previously defined chainGroups
+  // update all defined chainGroups
   for (auto& [key, group] : m_chainGroups) {
-    if (processed_chain_groups.count(&group) == 1) {
-      continue; // We already updated this chain group, just above
-    }
     updateChainGroup(group);
   }
-   ATH_MSG_DEBUG( "Updating configuration, done with ChainGroups defined so far" );
-   ATH_MSG_DEBUG( "Updating configuration done" );
+  ATH_MSG_DEBUG( "Updating configuration done" );
 }
 
 
