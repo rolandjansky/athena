@@ -9,7 +9,6 @@
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType, Format
 
-
 def _configFlagsFromPartition(flags, partition, log):
     """
     Configure the following flags from partition in online: run number, beam type, and project
@@ -116,6 +115,8 @@ if __name__=='__main__':
     parser.add_argument('--groupName', default="TilePhysMon", help='EMON, Name of the monitoring group')
     parser.add_argument('--postProcessingInterval', type=int, default=10000000,
                         help='Number of events between postprocessing steps (<0: disabled, >evtMax: during finalization)')
+    parser.add_argument('--perfmon', action='store_true', help='Run perfmon')
+    parser.add_argument('--fpe', action='store_true', help='Run FPE auditor')
 
     update_group = parser.add_mutually_exclusive_group()
     update_group.add_argument('--frequency', type=int, default=0, help='EMON, Frequency (in number of events) of publishing histograms')
@@ -234,6 +235,10 @@ if __name__=='__main__':
     # Override default configuration flags from command line arguments
     ConfigFlags.fillFromArgs(parser=parser)
 
+    # perfmon
+    if args.perfmon:
+        ConfigFlags.PerfMon.doFullMonMT=True
+
     if args.preExec:
         log.info('Executing preExec: %s', args.preExec)
         exec(args.preExec)
@@ -247,6 +252,15 @@ if __name__=='__main__':
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     cfg = MainServicesCfg(ConfigFlags)
 
+    # Add FPE auditor
+    if args.fpe:
+        cfg.addAuditor(CompFactory.FPEAuditor())
+
+    # Add perfmon
+    if args.perfmon:
+        from PerfMonComps.PerfMonCompsConfig import PerfMonMTSvcCfg
+        cfg.merge(PerfMonMTSvcCfg(ConfigFlags))
+
     typeNames = ['TileRawChannelContainer/TileRawChannelCnt', 'TileDigitsContainer/TileDigitsCnt']
     if any([args.tmdbDigits, args.tmdb]):
         typeNames += ['TileDigitsContainer/MuRcvDigitsCnt']
@@ -254,6 +268,8 @@ if __name__=='__main__':
         typeNames += ['TileRawChannelContainer/MuRcvRawChCnt']
     if args.mbts:
         typeNames += ['CTP_RDO/CTP_RDO']
+    if ConfigFlags.Tile.RunType != 'PHY':
+        typeNames += ['TileBeamElemContainer/TileBeamElemCnt']
 
     if args.stateless:
         from ByteStreamEmonSvc.EmonByteStreamConfig import EmonByteStreamCfg
