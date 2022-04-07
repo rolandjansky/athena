@@ -150,6 +150,8 @@ def Run2Run1NavigationSlimingCfg(flags):
 
 def Run1Run2BSExtractionCfg( flags ):
     """Configures Trigger data from BS extraction """
+    from SGComps.AddressRemappingConfig import InputRenameCfg
+
     acc = ComponentAccumulator()
     extr = CompFactory.TrigBSExtraction()
 
@@ -158,8 +160,6 @@ def Run1Run2BSExtractionCfg( flags ):
         extr.BStoxAOD = acc.popToolsAndMerge( Run1xAODConversionCfg(flags) )
 
     # Add fictional output to ensure data dependency in AthenaMT
-    # Keeping the run 2 workflow, we run this after we have put the full serialised navigation into xAOD
-    extr.ExtraInputs += [("xAOD::TrigNavigation", "StoreGateSvc+TrigNavigation")]
     extr.ExtraOutputs += [("TrigBSExtractionOutput", "StoreGateSvc+TrigBSExtractionOutput")]
     if 'HLT' in flags.Trigger.availableRecoMetadata:
         serialiserTool = CompFactory.TrigTSerializer()
@@ -175,14 +175,19 @@ def Run1Run2BSExtractionCfg( flags ):
         from eformat import helper as efh
         robIDMap = {}   # map of result keys and their ROB ID
         if flags.Trigger.EDMVersion == 1:  # Run-1 has L2 and EF result
-            robIDMap["HLTResult_L2"] = efh.SourceIdentifier(efh.SubDetector.TDAQ_LVL2, 0).code()
-            robIDMap["HLTResult_EF"] = efh.SourceIdentifier(efh.SubDetector.TDAQ_EVENT_FILTER, 0).code()
-            extr.L2ResultKey = "HLTResult_L2"
-            extr.HLTResultKey = "HLTResult_EF"
+            acc.merge(InputRenameCfg("HLT::HLTResult", "HLTResult_L2", "HLTResult_L2_BS"))
+            acc.merge(InputRenameCfg("HLT::HLTResult", "HLTResult_EF", "HLTResult_EF_BS"))
+            robIDMap["HLTResult_L2_BS"] = efh.SourceIdentifier(efh.SubDetector.TDAQ_LVL2, 0).code()
+            robIDMap["HLTResult_EF_BS"] = efh.SourceIdentifier(efh.SubDetector.TDAQ_EVENT_FILTER, 0).code()
+            extr.L2ResultKeyIn = "HLTResult_L2_BS"
+            extr.L2ResultKeyOut = "HLTResult_L2"
+            extr.HLTResultKeyIn = "HLTResult_EF_BS"
+            extr.HLTResultKeyOut = "HLTResult_EF"
         else:
-            robIDMap["HLTResult_HLT"] = efh.SourceIdentifier(efh.SubDetector.TDAQ_HLT, 0).code()
-            extr.L2ResultKey = ""
-            extr.HLTResultKey = "HLTResult_HLT"
+            acc.merge(InputRenameCfg("HLT::HLTResult", "HLTResult_HLT", "HLTResult_HLT_BS"))
+            robIDMap["HLTResult_HLT_BS"] = efh.SourceIdentifier(efh.SubDetector.TDAQ_HLT, 0).code()
+            extr.HLTResultKeyIn = "HLTResult_HLT_BS"
+            extr.HLTResultKeyOut = "HLTResult_HLT"
         # Configure DataScouting
         from PyUtils.MetaReaderPeeker import metadata
         if 'stream' in metadata:
@@ -190,15 +195,16 @@ def Run1Run2BSExtractionCfg( flags ):
             if stream_local.startswith('calibration_DataScouting_'):
                 ds_tag = '_'.join(stream_local.split('_')[1:3])   # e.g. DataScouting_05
                 ds_id = int(stream_local.split('_')[2])           # e.g. 05
-                robIDMap[ds_tag] = efh.SourceIdentifier(efh.SubDetector.TDAQ_HLT, ds_id).code()
-                extr.DSResultKeys += [ds_tag]
+                acc.merge(InputRenameCfg("HLT::HLTResult", ds_tag, ds_tag+"_BS"))
+                robIDMap[ds_tag+"_BS"] = efh.SourceIdentifier(efh.SubDetector.TDAQ_HLT, ds_id).code()
+                extr.DSResultKeysIn += [ ds_tag+"_BS" ]
+                extr.DSResultKeysOut += [ ds_tag ]
     else:
         log.info("Will not schedule real HLT bytestream extraction, instead EDM gap filling is running")
         # if data doesn't have HLT info set HLTResult keys as empty strings to avoid warnings
         # but the extraction algorithm must run
-        extr.L2ResultKey = ""
-        extr.HLTResultKey = ""
-        extr.DSResultKeys = []
+        extr.HLTResultKeyIn = ""
+        extr.HLTResultKeyOut = ""
 
     HLTResults = [ f"HLT::HLTResult/{k}" for k in robIDMap.keys() ]
     acc.addService( CompFactory.ByteStreamAddressProviderSvc( TypeNames = HLTResults) )
