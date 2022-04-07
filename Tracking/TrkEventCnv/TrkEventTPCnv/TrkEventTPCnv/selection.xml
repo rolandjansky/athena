@@ -76,9 +76,32 @@
     <!-- TrkSurfaces -->
     <class name="Trk::Surface_p2" />
     <class name="std::vector<Trk::Surface_p2>" />
-       
-    <!-- TrkParameters (also used for TrkNeutralParameters) -->
 
+    <!-- BoundSurfaces -->
+    <class name="Trk::BoundSurface_p2" />
+    <class name="std::vector<Trk::BoundSurface_p2>" /> 
+    <class name="Trk::ConeBounds_p1" />
+    <class name="std::vector<Trk::ConeBounds_p1>" />
+    <class name="Trk::CylinderBounds_p1" />
+    <class name="std::vector<Trk::CylinderBounds_p1>" />
+    <class name="Trk::DiamondBounds_p1" />
+    <class name="std::vector<Trk::DiamondBounds_p1>" />
+    <class name="Trk::EllipseBounds_p1" />
+    <class name="std::vector<Trk::EllipseBounds_p1>" />
+    <class name="Trk::RotatedDiamondBounds_p1" />
+    <class name="std::vector<Trk::RotatedDiamondBounds_p1>" />
+    <class name="Trk::DiscBounds_p1" />
+    <class name="std::vector<Trk::DiscBounds_p1>" />
+    <class name="Trk::RectangleBounds_p1" />
+    <class name="std::vector<Trk::RectangleBounds_p1>" />
+    <class name="Trk::TrapezoidBounds_p1" />
+    <class name="std::vector<Trk::TrapezoidBounds_p1>" />
+    <class name="Trk::RotatedTrapezoidBounds_p1" />
+    <class name="std::vector<Trk::RotatedTrapezoidBounds_p1>" />
+    <class name="Trk::TriangleBounds_p1" />
+    <class name="std::vector<Trk::TriangleBounds_p1>" />
+
+    <!-- TrkParameters (also used for TrkNeutralParameters) -->
     <class name="Trk::TrackParameters_p2" />
     <class name="std::vector<Trk::TrackParameters_p2>" />
 

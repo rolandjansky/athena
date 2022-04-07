@@ -1,6 +1,7 @@
 <lcgdict>
 	
   <class name="Trk::TrackCollection_tlp6" id="3228B252-2C5D-11E8-B170-0800271C02BC" />
+  <class name="Trk::TrackCollection_tlp7" id="D8806153-CA92-4A1A-9859-68E40EB4E336" />
   <class name="Trk::SegmentCollection_tlp4" id="27FB33E0-3284-11E8-9390-0800271C02BC" />
     
 </lcgdict>

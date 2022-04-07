@@ -20,9 +20,10 @@ void RectangleBoundsCnv_p1 :: persToTrans( const Trk :: RectangleBounds_p1 *pers
                                     persObj->m_halfY);
 }
 
-void RectangleBoundsCnv_p1 :: transToPers( const Trk :: RectangleBounds    * /**transObj*/,
-                                                 Trk :: RectangleBounds_p1 * /**persObj*/,
+void RectangleBoundsCnv_p1 :: transToPers( const Trk :: RectangleBounds    *transObj,
+                                                 Trk :: RectangleBounds_p1 *persObj,
                                                  MsgStream                 & )
 {
-    throw std::runtime_error("RectangleBoundsCnv_p1::transToPers is deprecated!");   
+  persObj->m_halfX    = transObj->halflengthX();
+  persObj->m_halfY    = transObj->halflengthY();
 }
