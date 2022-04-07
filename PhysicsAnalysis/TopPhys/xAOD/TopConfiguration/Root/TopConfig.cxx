@@ -234,6 +234,9 @@ namespace top {
     m_muonIsolationLoose("SetMe"),
     m_muonIsolationSF("SetMe"),
     m_muonIsolationSFLoose("SetMe"),
+    m_muon_d0SigCut(3.0),
+    m_muon_delta_z0(0.5),
+    m_muonCalibMode("SetMe"),
     m_muonMuonDoSmearing2stationHighPt(true),
     m_muonMuonDoExtraSmearingHighPt(false),
     m_muonBreakDownSystematics(false),
@@ -1240,7 +1243,8 @@ namespace top {
     if (cut_wp != "None")
       m_muonIsolationWPs.emplace_back(cut_wp);
     remove_duplicates(m_muonIsolationWPs);
-
+    
+    m_muonCalibMode = settings->value("MuonCalibrationMode");
     bool muonDoSmearing2stationHighPt = false;
     settings->retrieve("MuonDoSmearing2stationHighPt", muonDoSmearing2stationHighPt);
     if (settings->value("MuonQuality") != "HighPt" ) muonDoSmearing2stationHighPt = false;

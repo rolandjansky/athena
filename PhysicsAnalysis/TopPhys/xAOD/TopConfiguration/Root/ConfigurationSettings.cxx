@@ -147,6 +147,7 @@ namespace top {
     registerParameter("MuonIsolationSFLoose", "Force loose muon isolation SF to specific WP (e.g. None).", " ");
     registerParameter("MuonDoSmearing2stationHighPt", "True/False, to turn on/off spacial corrections for 2-station muons reconstruction with missing inner MS station allowed for abs(eta)<1.3, only with MuonQuality HighPt. - Default: True", "True");
     registerParameter("MuonDoExtraSmearingHighPt", "True/False, To be used by analyses using willing to check their sensitivity to momentum resolution effects at large muon momenta and in case move to the HighPt WP - Default: false", "false");
+    registerParameter("MuonCalibrationMode", "Calibration method for muon momentum.", "correctData_CB", {"correctData_CB", "correctData_IDMS", "notCorrectData_IDMS"});
     registerParameter("UseAntiMuons", "Use AntiMuons for fake estimate. Default: false", "false");
     registerParameter("UseSoftMuons", "True to use soft muons, False (default) otherwise", "False");
     registerParameter("SoftMuonPt", "Soft Muon pT cut for object selection (in MeV). Default 4 GeV.", "4000");
