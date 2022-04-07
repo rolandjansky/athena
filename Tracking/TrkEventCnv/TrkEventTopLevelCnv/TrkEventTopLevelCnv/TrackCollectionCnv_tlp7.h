@@ -1,14 +1,14 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRACK_COLLECTION_CNV_TLP6_TRK_H
-#define TRACK_COLLECTION_CNV_TLP6_TRK_H
+#ifndef TRACK_COLLECTION_CNV_TLP7_TRK_H
+#define TRACK_COLLECTION_CNV_TLP7_TRK_H
 
 
 #include "TPTools/TopLevelTPConverter.h"
 
-#include "TrackCollection_tlp6.h"
+#include "TrackCollection_tlp7.h"
 
 #include "TrkEventTPCnv/TrkTrack/TrackCollectionCnv_p4.h"
 #include "TrkEventTPCnv/TrkTrack/TrackCnv_p4.h"
@@ -20,9 +20,18 @@
 #include "TrkEventTPCnv/TrkCompetingRIOsOnTrack/CompetingRIOsOnTrackCnv_p1.h"      
 #include "TrkEventTPCnv/TrkParameters/TrackParametersCnv_p2.h" // Also takes care of surfaces now, for these objects
 
-#include "TrkEventTPCnv/TrkSurfaces/SurfaceCnv_p2.h"                 
+#include "TrkEventTPCnv/TrkSurfaces/PerigeeSurfaceCnv_p1.h"         
+#include "TrkEventTPCnv/TrkSurfaces/BoundSurfaceCnv_p2.h"            
+#include "TrkEventTPCnv/TrkSurfaces/SurfaceCnv_p2.h"            
+#include "TrkEventTPCnv/TrkSurfaces/CylinderBoundsCnv_p1.h"          
+#include "TrkEventTPCnv/TrkSurfaces/DiamondBoundsCnv_p1.h"           
+#include "TrkEventTPCnv/TrkSurfaces/RotatedDiamondBoundsCnv_p1.h"           
+#include "TrkEventTPCnv/TrkSurfaces/DiscBoundsCnv_p1.h"              
+#include "TrkEventTPCnv/TrkSurfaces/RectangleBoundsCnv_p1.h"         
+#include "TrkEventTPCnv/TrkSurfaces/TrapezoidBoundsCnv_p1.h"         
+#include "TrkEventTPCnv/TrkSurfaces/RotatedTrapezoidBoundsCnv_p1.h"     
+#include "TrkEventTPCnv/TrkSurfaces/EllipseBoundsCnv_p1.h"     
 #include "TrkEventTPCnv/TrkDetElementSurface/DetElementSurfaceCnv_p1.h"
-
 #include "TrkEventTPCnv/TrkEventPrimitives/ErrorMatrixCnv_p1.h"            
 #include "TrkEventTPCnv/TrkMaterialOnTrack/MaterialEffectsBaseCnv_p2.h"
 #include "TrkEventTPCnv/TrkMaterialOnTrack/EnergyLossCnv_p1.h"
@@ -37,13 +46,13 @@
 #include "RecTPCnv/MuonCaloEnergyContainerCnv_tlp1.h"
 
 
-typedef TopLevelTPConverter< TrackCollectionCnv_p4, Trk::TrackCollection_tlp6 > BaseTrackCollectionCnv_tlp6;
+typedef TopLevelTPConverter< TrackCollectionCnv_p4, Trk::TrackCollection_tlp7 > BaseTrackCollectionCnv_tlp7;
 
-class TrackCollectionCnv_tlp6 : public BaseTrackCollectionCnv_tlp6
+class TrackCollectionCnv_tlp7 : public BaseTrackCollectionCnv_tlp7
 {
  public:
  
-  TrackCollectionCnv_tlp6();
+  TrackCollectionCnv_tlp7();
 
   virtual void	setPStorage( PERS *storage ) override;
   virtual PERS* createPersistentWithKey(const TRANS* transObj,
@@ -63,14 +72,24 @@ protected:
 
   TrackParametersCnv_p2             m_parametersCnv;
   
-  ConeSurfaceCnv_p2                 m_coneSurfacesCnv       ;
-  CylinderSurfaceCnv_p2             m_cylSurfacesCnv        ;
-  DiscSurfaceCnv_p2                 m_discSurfacesCnv       ;
   PerigeeSurfaceCnv_p2              m_perigeeSurfacesCnv    ;
-  PlaneSurfaceCnv_p2                m_planeSurfacesCnv      ;
-  StraightLineSurfaceCnv_p2         m_lineSurfacesCnv       ;
-  SaggedLineSurfaceCnv_p2           m_saggedLineSurfacesCnv ;
+  BoundConeSurfaceCnv_p2            m_coneSurfacesCnv       ;
+  BoundCylinderSurfaceCnv_p2        m_cylSurfacesCnv        ;
+  BoundDiscSurfaceCnv_p2            m_discSurfacesCnv       ;
+  BoundPlaneSurfaceCnv_p2           m_planeSurfacesCnv      ;
+  BoundStraightLineSurfaceCnv_p2    m_lineSurfacesCnv       ;
+  BoundSaggedLineSurfaceCnv_p2      m_saggedLineSurfacesCnv       ;
 
+  ConeBoundsCnv_p1                  m_coneBoundsCnv;
+  CylinderBoundsCnv_p1              m_cylinderBoundsCnv;
+  DiamondBoundsCnv_p1               m_diamondBoundsCnv;
+  RotatedDiamondBoundsCnv_p1        m_rotatedDiamondBoundsCnv;
+  DiscBoundsCnv_p1                  m_discBoundsCnv;
+  RectangleBoundsCnv_p1             m_rectangleBoundsCnv;
+  TrapezoidBoundsCnv_p1             m_trapesoidBoundsCnv;
+  RotatedTrapezoidBoundsCnv_p1      m_rotatedTrapesoidBoundsCnv;
+  EllipseBoundsCnv_p1               m_ellipseBoundsCnv;
+  
   FitQualityCnv_p1                  m_fitQualitiesCnv;
   MaterialEffectsBaseCnv_p2         m_matEffectsBaseCnv;
   EnergyLossCnv_p1                  m_energyLossCnv;

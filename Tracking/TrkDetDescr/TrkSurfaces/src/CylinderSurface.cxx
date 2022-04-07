@@ -70,7 +70,7 @@ Trk::CylinderSurface::CylinderSurface(const Amg::Transform3D& htrans,
   , m_referencePoint(nullptr)
   , m_rotSymmetryAxis(nullptr)
 {
-  assert(cbounds);
+  if (!cbounds) throw std::runtime_error("Cannot pass null CylinderBounds");
 }
 
 // constructor from transform

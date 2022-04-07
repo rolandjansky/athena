@@ -24,6 +24,8 @@ class Identifier;
 class MsgStream;
 template<class SURFACE, class BOUNDS_CNV>
 class BoundSurfaceCnv_p1;
+template<class SURFACE, class BOUNDS_CNV>
+class BoundSurfaceCnv_p2;
 
 namespace Trk {
 
@@ -302,6 +304,8 @@ public:
 protected: //!< data members
   template<class SURFACE, class BOUNDS_CNV>
   friend class ::BoundSurfaceCnv_p1;
+  template<class SURFACE, class BOUNDS_CNV>
+  friend class ::BoundSurfaceCnv_p2;
   //!< cache of the line direction (speeds up)
   CxxUtils::CachedValue<Amg::Vector3D> m_lineDirection;
   //!< bounds (shared)
