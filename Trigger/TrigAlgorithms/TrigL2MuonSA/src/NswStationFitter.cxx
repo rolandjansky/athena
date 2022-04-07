@@ -12,6 +12,10 @@
 #include <vector>
 #include <array>
 
+namespace{
+  constexpr double ZERO_LIMIT = 1.e-9;
+}
+
 TrigL2MuonSA::NswStationFitter::NswStationFitter(const std::string& type,
              const std::string& name,
              const IInterface*  parent):
@@ -61,7 +65,7 @@ StatusCode TrigL2MuonSA::NswStationFitter::superPointFitter(const TrigRoiDescrip
 
   ATH_MSG_DEBUG("Number of sTGC and MM hits for SPs " << trackPattern.stgcSegment.size() << " " << trackPattern.mmSegment.size());  
   if (trackPattern.stgcSegment.size() < 9 && trackPattern.mmSegment.size() < 6) {
-    ATH_MSG_WARNING("Number of sTGC and MM hits for SPs is small " << trackPattern.stgcSegment.size() + trackPattern.mmSegment.size());  
+    ATH_MSG_DEBUG("Number of sTGC and MM hits for SPs is small " << trackPattern.stgcSegment.size() + trackPattern.mmSegment.size());
   }
   else {
     ATH_CHECK( calcMergedHit(trackPattern) );
@@ -271,7 +275,7 @@ StatusCode TrigL2MuonSA::NswStationFitter::findStgcHitsInSegment(TrigL2MuonSA::S
     ATH_MSG_INFO("Number of STGC hits is too small, at least 9 hits required : "<<hitsInRoad<<" hits");
     return StatusCode::SUCCESS;
     } else if(hitsInRoad > 100) {
-    ATH_MSG_WARNING("Number of STGC hits is too large, at most (2^16 - 1) hits allowed : "<<hitsInRoad<<" hits");
+    ATH_MSG_WARNING("Number of STGC hits is too large, at most 100 hits allowed : "<<hitsInRoad<<" hits");
     return StatusCode::SUCCESS;
   }
 
@@ -308,13 +312,10 @@ StatusCode TrigL2MuonSA::NswStationFitter::findStgcHitsInSegment(TrigL2MuonSA::S
                          << " " << wireHitIdByLayer[6].size()
                          << " " << wireHitIdByLayer[7].size());
 
-  ATH_MSG_DEBUG("check point 1");
   std::vector< std::array<int, 8> > strHitIds; // Candidates' sets of strip hit ids in 8 layers
   findSetOfStgcHitIds(stgcHits, strHitIdByLayer, strHitIds);
-  ATH_MSG_DEBUG("check point 2");
   std::vector< std::array<int, 8> > wireHitIds; // Candidates' sets of wire hit ids in 8 layers
   findSetOfStgcHitIds(stgcHits, wireHitIdByLayer, wireHitIds);
-  ATH_MSG_DEBUG("check point 3");
   ATH_MSG_DEBUG("@@STGC@@ strip wire " << strHitIds.size() << " " << wireHitIds.size());
   
   bool isLargeStrip = false;
@@ -346,7 +347,6 @@ StatusCode TrigL2MuonSA::NswStationFitter::findStgcHitsInSegment(TrigL2MuonSA::S
       }
     }
   }
-  ATH_MSG_DEBUG("check point 4");
   return StatusCode::SUCCESS;
 
 }
@@ -370,14 +370,12 @@ void TrigL2MuonSA::NswStationFitter::findSetOfStgcHitIds(TrigL2MuonSA::StgcHits&
   }
   NSWCenterZ = NSWCenterZ * side;
   
-  ATH_MSG_DEBUG("check point 2.1");
   std::array<std::vector<unsigned long int>,4> hitIdsInTwo;
   std::array<std::vector<double>,4> slopeInTwo;
   std::array<std::vector<double>,4> interceptInTwo;
 
   // Loop over pairs of the i-th and the (i+4)-th layers
   for(unsigned int iPair = 0; iPair < 4; ++iPair){
-    ATH_MSG_DEBUG("check point 2.1.1 " << iPair);
     unsigned int nHitsInInner = hitIdByLayer[iPair].size();
     unsigned int nHitsInOuter = hitIdByLayer[iPair+4].size();
     if ( nHitsInInner > 0xffff-1 || nHitsInOuter > 0xffff-1) {
@@ -391,7 +389,6 @@ void TrigL2MuonSA::NswStationFitter::findSetOfStgcHitIds(TrigL2MuonSA::StgcHits&
     bool foundCounterparts[256] = {};
     // Loop over hits in the i-th layer
     for(unsigned int iHit = 0; iHit < nHitsInInner; ++iHit){
-      ATH_MSG_DEBUG("check point 2.1.1.1 " << iPair << " " << iHit);
       bool foundCounterpart = 0;
 
       double z[2] = {};
@@ -423,7 +420,6 @@ void TrigL2MuonSA::NswStationFitter::findSetOfStgcHitIds(TrigL2MuonSA::StgcHits&
 
       // Loop over hits in the (i+4)-th layer
       for(unsigned int jHit = 0; jHit < nHitsInOuter; ++jHit){
-        ATH_MSG_DEBUG("check point 2.1.1.1.1 " << iPair << " " << iHit << " " << jHit);
         int jHitId = hitIdByLayer[iPair+4].at(jHit);
         double slope, intercept;
         if(isStrip) {
@@ -478,7 +474,6 @@ void TrigL2MuonSA::NswStationFitter::findSetOfStgcHitIds(TrigL2MuonSA::StgcHits&
     }//end of iHit in the i-th layer
     // Loop over hits in the (i+4)-th layer
     for(unsigned int jHit = 0; jHit < nHitsInOuter; ++jHit){
-      ATH_MSG_DEBUG("check point 2.1.1.1.2 " << iPair << " " << jHit);
       if (!foundCounterparts[jHit]) {
         int jHitId = hitIdByLayer[iPair+4].at(jHit);
         unsigned int encodedIds = 0xffff0000 + jHitId; // fill all bits with 1 for hit id for the layer with no hit
@@ -518,15 +513,12 @@ void TrigL2MuonSA::NswStationFitter::findSetOfStgcHitIds(TrigL2MuonSA::StgcHits&
   std::array<std::vector<unsigned long int>,2> hitIdsInFour;
   std::array<std::vector<double>,2> slopeInFour;
   std::array<std::vector<double>,2> interceptInFour;
-  ATH_MSG_DEBUG("check point 2.2");
   for(unsigned int iQuad = 0; iQuad < 2; ++iQuad){
-    ATH_MSG_DEBUG("check point 2.2.1 " << iQuad);
     unsigned int nPairsInInner = hitIdsInTwo[iQuad].size();
     unsigned int nPairsInOuter = hitIdsInTwo[iQuad+2].size();
 
     bool foundCounterparts[0xffff] = {};
     for(unsigned int iPair = 0; iPair < nPairsInInner; ++iPair){
-      ATH_MSG_DEBUG("check point 2.2.1.1 " << iQuad << " " << iPair);
       bool foundCounterpart = 0;
       double slope[2];
       double intercept[2];
@@ -534,7 +526,6 @@ void TrigL2MuonSA::NswStationFitter::findSetOfStgcHitIds(TrigL2MuonSA::StgcHits&
       intercept[0] = interceptInTwo[iQuad].at(iPair);
 
       for(unsigned int jPair = 0; jPair < nPairsInOuter; ++jPair){
-        ATH_MSG_DEBUG("check point 2.2.1.1.1 " << iQuad << " " << iPair << " " << jPair);
         unsigned int ihitIds = hitIdsInTwo[iQuad].at(iPair);
         unsigned int jhitIds = hitIdsInTwo[iQuad+2].at(jPair);
         if ( !(((ihitIds>>16 & 0xffff) != 0xffff || (ihitIds & 0xffff) != 0xffff) &&
@@ -569,7 +560,6 @@ void TrigL2MuonSA::NswStationFitter::findSetOfStgcHitIds(TrigL2MuonSA::StgcHits&
       interceptInFour[iQuad].push_back(intercept[0]);
     }// end of jPair of the j-th and (j+4)-th layers, j=1,3
     for (unsigned int jPair = 0; jPair < nPairsInOuter; ++jPair) {
-      ATH_MSG_DEBUG("check point 2.2.1.1.2 " << iQuad << " " << " " << jPair);
       if(foundCounterparts[jPair]) continue; // in case of no counterpart of pairs in the outner layers
       if((hitIdsInTwo[iQuad+2].at(jPair)>>16 & 0xffff) == 0xffff || (hitIdsInTwo[iQuad+2].at(jPair) & 0xffff) == 0xffff) continue;
 //      unsigned long int encodedIds = (0xffffffff << 32) + hitIdsInTwo[iQuad+2].at(jPair);
@@ -587,7 +577,6 @@ void TrigL2MuonSA::NswStationFitter::findSetOfStgcHitIds(TrigL2MuonSA::StgcHits&
     }
   }
 
-  ATH_MSG_DEBUG("check point 2.3");
   std::vector< std::array<int, 8> > hitIdsInEight;
   std::vector<double> mseInEight;
 
@@ -595,14 +584,12 @@ void TrigL2MuonSA::NswStationFitter::findSetOfStgcHitIds(TrigL2MuonSA::StgcHits&
   unsigned int nQuadInOuter = hitIdsInFour[1].size();
 
   for(unsigned int iQuad = 0; iQuad < nQuadInInner; ++iQuad){
-    ATH_MSG_DEBUG("check point 2.3.1" << iQuad);
     double slope[2];
     double intercept[2];
     slope[0] = slopeInFour[0].at(iQuad);
     intercept[0] = interceptInFour[0].at(iQuad);
 
     for(unsigned int jQuad = 0; jQuad < nQuadInOuter; ++jQuad){
-      ATH_MSG_DEBUG("check point 2.3.1.1" << iQuad << " " << jQuad);
       unsigned long int ihitIds = hitIdsInFour[0].at(iQuad);
       unsigned long int jhitIds = hitIdsInFour[1].at(jQuad);
       int nOfLayersWithNoHit = 0;
@@ -635,7 +622,6 @@ void TrigL2MuonSA::NswStationFitter::findSetOfStgcHitIds(TrigL2MuonSA::StgcHits&
           iHitId = (unsigned int) ((jhitIds>>(3-i%4)*16) & 0xffff);
           iLayer = (i-4)+3*(i%2)+1;
         }
-        ATH_MSG_DEBUG("check point 2.3.1.1.1" << iQuad << " " << jQuad << " " << iLayer);
         if ( iHitId != 0xffff ) {
           if (isStrip) {
             r.push_back(stgcHits.at(iHitId).r);
@@ -681,9 +667,8 @@ void TrigL2MuonSA::NswStationFitter::findSetOfStgcHitIds(TrigL2MuonSA::StgcHits&
       mseInEight.push_back(mse);
     } // end of quad loop in the outer layers
   } // end of quad loop in the inner layers
-  ATH_MSG_DEBUG("check point 2.4");
   if(!hitIdsInEight.size()){
-    ATH_MSG_WARNING("No candidate segment found in STGC");
+    ATH_MSG_DEBUG("No candidate segment found in STGC");
     return;
   }
 
@@ -733,14 +718,12 @@ void TrigL2MuonSA::NswStationFitter::findSetOfStgcHitIds(TrigL2MuonSA::StgcHits&
 
   if(isStrip){   
     for(unsigned int iOctet = 0; iOctet < hitIdsInEight.size(); ++iOctet){
-      ATH_MSG_DEBUG("check point 2.4.1" << iOctet);
       if(nOctetSegments.at(iOctet) != nOcSegMax){
         continue;
       }
       if( mseInEight.at(iOctet) < msemin) {
         msemin = mseInEight.at(iOctet);
       }
-      ATH_MSG_DEBUG("check point 2.4.2" << iOctet);
     }// end of Octet loop
     for(unsigned int iOctet = 0; iOctet < hitIdsInEight.size(); ++iOctet){
       if(nOctetSegments.at(iOctet) != nOcSegMax) continue;
@@ -751,7 +734,6 @@ void TrigL2MuonSA::NswStationFitter::findSetOfStgcHitIds(TrigL2MuonSA::StgcHits&
     }
   } else { 
     for(unsigned int iOctet = 0;  iOctet < hitIdsInEight.size(); ++iOctet){
-      ATH_MSG_DEBUG("check point 2.4.1" << iOctet);
       if(patternStationName.at(iOctet) == 58){
         if( mseInEight.at(iOctet) < mseminWireL) {
           mseminWireL = mseInEight.at(iOctet);
@@ -819,19 +801,37 @@ void TrigL2MuonSA::NswStationFitter::LinearFit(std::vector<double>& x,std::vecto
 {
   double sumX=0, sumY=0, sumXY=0, sumX2=0;
   int nHits = x.size();
+  *mse = 0.;
   for (unsigned int iHit = 0; iHit < x.size(); ++iHit){
     sumX += x.at(iHit);
     sumY += y.at(iHit);
     sumXY += x.at(iHit)*y.at(iHit);
     sumX2 += x.at(iHit)*x.at(iHit);
   }
-  *slope = (nHits * sumXY - sumX * sumY) / (nHits * sumX2 - (sumX * sumX));
-  *intercept = (sumX2 * sumY - sumXY * sumX) / (nHits * sumX2 - sumX * sumX);
-  *mse = 0.;  
-  for(unsigned int iHit = 0; iHit< x.size(); ++iHit){
-    *mse += std::pow(y.at(iHit) - (*slope * x.at(iHit) + *intercept), 2.0);
+
+  if(nHits > 1) {
+    if(nHits * sumX2 - (sumX * sumX) > ZERO_LIMIT) {
+      *slope = (nHits * sumXY - sumX * sumY) / (nHits * sumX2 - (sumX * sumX));
+      *intercept = (sumX2 * sumY - sumXY * sumX) / (nHits * sumX2 - sumX * sumX);
+    } else {
+      *slope = 0.;
+      *intercept = sumY/nHits;
+    }
   }
-  *mse = *mse / (nHits - 2);
+  else if(nHits == 1) {
+    *slope = sumY/sumX;
+    *intercept = 0.;
+  }
+
+  if(nHits > 2) {
+    for(unsigned int iHit = 0; iHit< x.size(); ++iHit){
+      *mse += std::pow(y.at(iHit) - (*slope * x.at(iHit) + *intercept), 2.0);
+    }
+    *mse = *mse / (nHits - 2);
+  }
+  else {
+    *mse = 1000.;
+  }
 }
 
 void TrigL2MuonSA::NswStationFitter::LinearFitWeight(std::vector<double>& x,std::vector<double>& y,
@@ -862,6 +862,7 @@ void TrigL2MuonSA::NswStationFitter::LinearFitWeight(std::vector<double>& x,std:
   
   double sumX=0, sumY=0, sumXY=0, sumX2=0, sumW=0;
   int nHits = x.size();
+  *mse = 0.;
   for (unsigned int iHit = 0; iHit < x.size(); ++iHit){
     if(isStgc.at(iHit)){
       sumX  += weightStgc[weightBin] * x.at(iHit);
@@ -877,13 +878,30 @@ void TrigL2MuonSA::NswStationFitter::LinearFitWeight(std::vector<double>& x,std:
       sumW  += weightMm[weightBin];
     }
   }
-  *slope = (sumW * sumXY - sumX * sumY) / (sumW * sumX2 - (sumX * sumX));
-  *intercept = (sumX2 * sumY - sumXY * sumX) / (sumW * sumX2 - sumX * sumX);
-  *mse = 0.;  
-  for(unsigned int iHit = 0; iHit< x.size(); ++iHit){
-    *mse += std::pow((y.at(iHit) - (*slope * x.at(iHit) + *intercept)), 2.0);
+
+  if(nHits > 1) {
+    if(nHits * sumX2 - (sumX * sumX) > ZERO_LIMIT) {
+      *slope = (sumW * sumXY - sumX * sumY) / (sumW * sumX2 - (sumX * sumX));
+      *intercept = (sumX2 * sumY - sumXY * sumX) / (sumW * sumX2 - sumX * sumX);
+    } else {
+      *slope = 0.;
+      *intercept = sumY/nHits;
+    }
   }
-  *mse = *mse / (nHits - 2);
+  else if(nHits == 1) {
+    *slope = sumY/sumX;
+    *intercept = 0.;
+  }
+
+  if(nHits > 2) {
+    for(unsigned int iHit = 0; iHit< x.size(); ++iHit){
+      *mse += std::pow((y.at(iHit) - (*slope * x.at(iHit) + *intercept)), 2.0);
+    }
+    *mse = *mse / (nHits - 2);
+  }
+  else {
+    *mse = 1000.;
+  }
 }
 
 void TrigL2MuonSA::NswStationFitter::getNswResolution(double *stgcDeltaR, double *mmDeltaR, unsigned int size) const
@@ -1024,7 +1042,7 @@ StatusCode TrigL2MuonSA::NswStationFitter::calcMergedHit(TrigL2MuonSA::TrackPatt
   }
   double slopefit_stgc=0., interceptfit_stgc=99999., mse_stgc=1.e20;
   if(r_stgc.size() == 0) {
-    ATH_MSG_WARNING("No STGC hit to calculate superoint");
+    ATH_MSG_DEBUG("No STGC hit to calculate superoint");
   } else {
     LinearFit(z_stgc,r_stgc,&slopefit_stgc,&interceptfit_stgc,&mse_stgc);
   }
@@ -1190,10 +1208,8 @@ StatusCode TrigL2MuonSA::NswStationFitter::findMmHitsInSegment(TrigL2MuonSA::MmH
                   << " " << hitIdByLayer[6].size()
                   << " " << hitIdByLayer[7].size());
 
-  ATH_MSG_DEBUG("check point 5");
   std::vector< std::array<int, 8> > mmHitIds;
   findSetOfMmHitIds(mmHits, hitIdByLayer, mmHitIds);
-  ATH_MSG_DEBUG("check point 6");
   for (unsigned int iHit = 0; iHit < mmHitIds.size(); ++iHit) {
     std::array<int, 8> hitIds = mmHitIds.at(iHit);
     for (unsigned int iLayer = 0; iLayer < 8; ++iLayer) {
@@ -1202,7 +1218,6 @@ StatusCode TrigL2MuonSA::NswStationFitter::findMmHitsInSegment(TrigL2MuonSA::MmH
       } 
     }
   }
-  ATH_MSG_DEBUG("check point 7");
   return StatusCode::SUCCESS;
 }
 
@@ -1224,7 +1239,6 @@ void TrigL2MuonSA::NswStationFitter::findSetOfMmHitIds(TrigL2MuonSA::MmHits& mmH
   std::array<std::vector<unsigned long int>,4> hitIdsInTwo;
   std::array<std::vector<double>,4> slopeInTwo;
   std::array<std::vector<double>,4> interceptInTwo;
-  ATH_MSG_DEBUG("check point 5.1");
   // Loop over pairs of the i-th and the (i+6)-th layers
   for(unsigned int iPair = 0; iPair < 4; ++iPair){
 
@@ -1312,7 +1326,6 @@ void TrigL2MuonSA::NswStationFitter::findSetOfMmHitIds(TrigL2MuonSA::MmHits& mmH
     }
   }
 
-  ATH_MSG_DEBUG("check point 5.2");
   std::vector<std::array<int, 4>> hitIdsInFourX;
   std::vector<double> slopeInFourX;
   std::vector<double> interceptInFourX;
@@ -1330,7 +1343,6 @@ void TrigL2MuonSA::NswStationFitter::findSetOfMmHitIds(TrigL2MuonSA::MmHits& mmH
     slope[0] = slopeInTwo[0].at(iPairX);
     intercept[0] = interceptInTwo[0].at(iPairX);
     spR[0] = slope[0] * NSWCenterZ + intercept[0];
-    ATH_MSG_DEBUG("check point 5.2.1 " << nPairsInInnerX << " " << iPairX);
     for(unsigned int jPairX = 0; jPairX < nPairsInOuterX; ++jPairX){
       int ihitIds = hitIdsInTwo[0].at(iPairX);
       int jhitIds = hitIdsInTwo[1].at(jPairX);
@@ -1349,14 +1361,12 @@ void TrigL2MuonSA::NswStationFitter::findSetOfMmHitIds(TrigL2MuonSA::MmHits& mmH
       setOfHitIds[1] = (ihitIds & 0xffff);
       setOfHitIds[2] = (jhitIds>>16 & 0xffff);
       setOfHitIds[3] = (jhitIds & 0xffff);
-      ATH_MSG_DEBUG("check point 5.2.1.1 " << nPairsInOuterX << " " << jPairX);
       std::vector<double> r;
       std::vector<double> z;
       for(unsigned int iLayer = 0; iLayer < 4; ++iLayer){
         if(setOfHitIds[iLayer] == 0xffff) {
           continue;
         }
-        ATH_MSG_DEBUG("check point 5.2.1.1.1 " << iLayer << " " << setOfHitIds[iLayer]);
         double rhit = mmHits.at(setOfHitIds[iLayer]).r;
         double zhit = mmHits.at(setOfHitIds[iLayer]).z;
         r.push_back(rhit);
@@ -1377,7 +1387,6 @@ void TrigL2MuonSA::NswStationFitter::findSetOfMmHitIds(TrigL2MuonSA::MmHits& mmH
     ATH_MSG_DEBUG("@@MM@@ X quad fit slope= " << slopeInFourX.at(iQuad) << " intercept= " << interceptInFourX.at(iQuad) << " mse= " << mseInFourX.at(iQuad));
   }
 
-  ATH_MSG_DEBUG("check point 5.3");
   if(!hitIdsInFourX.size()){
     ATH_MSG_WARNING("No candidate segment found in MM X layers");
     return;
@@ -1527,7 +1536,6 @@ void TrigL2MuonSA::NswStationFitter::findSetOfMmHitIds(TrigL2MuonSA::MmHits& mmH
     patternStationName.push_back(hitStationName);
   }
 
-  ATH_MSG_DEBUG("check point 5.4");
   double mseminL = 100000.;
   double mseminS = 100000.;
   std::vector<int> octetIds(2,-1);
@@ -1557,7 +1565,6 @@ void TrigL2MuonSA::NswStationFitter::findSetOfMmHitIds(TrigL2MuonSA::MmHits& mmH
     }
     octetIds.push_back(iOctet);
   }
-  ATH_MSG_DEBUG("check point 5.5");
   
   for(unsigned int ids = 0; ids < octetIds.size(); ids++){
     if (octetIds.at(ids) != -1) {
