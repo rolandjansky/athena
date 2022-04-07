@@ -15,11 +15,12 @@ namespace NSWL1 {
   public:
 
     TriggerProcessorTool(const std::string& type, const std::string& name, const IInterface* parent);
-    virtual ~TriggerProcessorTool();
+    virtual ~TriggerProcessorTool()=default;
 
     virtual StatusCode initialize() override;
 
     StatusCode mergeRDO(const Muon::NSW_PadTriggerDataContainer* padTriggerContainer,
+                        const Muon::NSW_TrigRawDataContainer* stripTriggerContainer,
                         const Muon::NSW_TrigRawDataContainer* MMTriggerContainer,
                         Muon::NSW_TrigRawDataContainer* trigRdoContainer);
 
