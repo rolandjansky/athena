@@ -126,11 +126,11 @@ bool TrigL2MuonSA::MuCalStreamerTool::isStreamOpen() {return m_circ!=nullptr;}
    // create the fragment
    // ( dummy input for now )
 
+   ATH_MSG_DEBUG("Data scouting is set to"<<doDataScouting);
 
-
-   // skip the event if it's a data scouting chain and it's a noise burst
+   // skip the event if it's a noise burst
    unsigned int totalHits = mdtHits.size()+rpcHits.size()+tgcHits.size();
-   if ( doDataScouting && totalHits > 500 ) {
+   if (  totalHits > 500 ) {
      ATH_MSG_DEBUG("Too many hits: skip the RoI");
      updateTriggerElement=false;
      return StatusCode::SUCCESS;
@@ -200,6 +200,10 @@ bool TrigL2MuonSA::MuCalStreamerTool::isStreamOpen() {return m_circ!=nullptr;}
   
      // add the mdt fragment to the event
      event << mdtFragment;
+   }
+   else{
+     // do not write the calib stream
+     return StatusCode::SUCCESS;
    }
 
    // create the RPC fragment 
