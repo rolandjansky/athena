@@ -138,7 +138,15 @@ void PFChargedFlowElementCreatorAlgorithm::createChargedFlowElements(const eflow
             if (theSisterClusterLink.isValid()) vectorClusterToSubtractedEnergies.emplace_back(std::pair(theSisterClusterLink,trackClusterLinkPair.second.second));
             else vectorClusterToSubtractedEnergies.emplace_back(std::pair(theOriginalClusterLink,trackClusterLinkPair.second.second));
           }
-          else if (m_eOverPMode && trackClusterLinkPair.first == trackClusterLink) thisTracks_trackClusterLinksSubtracted.push_back(trackClusterLink);
+          else if (m_eOverPMode && trackClusterLinkPair.first == trackClusterLink){
+            thisTracks_trackClusterLinksSubtracted.push_back(trackClusterLink);
+            eflowRecCluster* efRecCluster = trackClusterLinkPair.first->getCluster();
+            ElementLink<xAOD::CaloClusterContainer> theOriginalClusterLink = efRecCluster->getOriginalClusElementLink();
+            ElementLink<xAOD::CaloClusterContainer> theSisterClusterLink = (*theOriginalClusterLink)->getSisterClusterLink();
+            ATH_MSG_DEBUG("Will add cluster with E, ratio and absolute subtracted energy " << (*theOriginalClusterLink)->e() << ", " << 1.0 << ", " << 0.0);
+            if (theSisterClusterLink.isValid()) vectorClusterToSubtractedEnergies.emplace_back(std::pair(theSisterClusterLink,0.0));
+            else vectorClusterToSubtractedEnergies.emplace_back(std::pair(theOriginalClusterLink,0.0));
+          }
         }
       }
 
