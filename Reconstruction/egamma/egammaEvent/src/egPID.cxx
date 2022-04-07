@@ -100,7 +100,9 @@ bool egPID::set_egammaID(egammaPIDObs::PID key, double value)
   case egammaPIDObs::IsEMMedium:
   case egammaPIDObs::IsEMTight:
   case egammaPIDObs::IsGoodOQ:
-    return set_egammaIDint( key, (unsigned int) value);
+     // Need to convert to an int first, then to unsigned int.
+     // Converting directly from a negative float to an unsigned is undefined.
+    return set_egammaIDint( key, static_cast<long int>(value));
   default:
     using elParams = std::pair<egammaPIDObs::PID, double>;
     
