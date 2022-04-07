@@ -14,7 +14,6 @@ namespace Muon
 {
   namespace nsw
   {
-
     class sTGCMapper
     {
      public:
