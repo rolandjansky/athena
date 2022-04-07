@@ -58,37 +58,37 @@ namespace NSWL1 {
    */
 
   class StripClusterTool: virtual public IStripClusterTool,
-                                   public AthAlgTool,
-                                   public IIncidentListener {
+                                  public AthAlgTool,
+                                  public IIncidentListener {
 
   public:
-    enum cStatus {OK, FILL_ERROR, CLEARED};
-
-    StripClusterTool(const std::string& type, 
-                      const std::string& name,
-                      const IInterface* parent);
+    StripClusterTool(const std::string& type,
+                     const std::string& name,
+                     const IInterface* parent);
     virtual ~StripClusterTool()=default;
     virtual StatusCode initialize() override;
     virtual void handle (const Incident& inc) override;
-    virtual
-    StatusCode cluster_strip_data( std::vector<std::unique_ptr<StripData>>& strips,std::vector<std::unique_ptr<StripClusterData>>& clusters) override;
+    virtual StatusCode cluster_strip_data( std::vector<std::unique_ptr<StripData>>& strips,std::vector<std::unique_ptr<StripClusterData>>& clusters) override;
+
   private:
     // methods implementing the internal data processing
-
+    StatusCode init_branches();                             //!< init the branches
     StatusCode book_branches();                             //!< book the branches to analyze the StripTds
-    void reset_ntuple_variables();                          //!< reset the variables used in the analysis
     void clear_ntuple_variables();                          //!< clear the variables used in the analysis
-    void fill_strip_validation_id(std::vector<std::unique_ptr<StripClusterData>>& clusters);  //!< fill the ntuple branch for the StripTdsOffline
+    StatusCode fill_strip_validation_id(std::vector<std::unique_ptr<StripClusterData>>& clusters,
+                                        std::vector< std::shared_ptr<std::vector<std::unique_ptr<StripData> >>  > &cluster_cache);
 
     // needed Servives, Tools and Helpers
-    ServiceHandle< IIncidentSvc >      m_incidentSvc;       //!< Athena/Gaudi incident Service
+    ServiceHandle< IIncidentSvc > m_incidentSvc{this, "IncidentSvc", "IncidentSvc"};       //!< Athena/Gaudi incident Service
     const MuonGM::MuonDetectorManager* m_detManager;        //!< MuonDetectorManager
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     // analysis ntuple
     TTree* m_tree;                                          //!< ntuple for analysis
-    BooleanProperty  m_doNtuple;                            //!< property, see @link StripTdsOfflineTool::StripTdsOfflineTool @endlink
-    StringProperty   m_sTgcSdoContainer;                    //!< property, see @link PadTdsOfflineTool::PadTdsOfflineTool @endlink
+    Gaudi::Property<bool>         m_isMC            {this, "IsMC",                  true,       "This is MC"};
+    Gaudi::Property<bool>         m_doNtuple        {this, "DoNtuple",              false,      "Input the sTGC strip cluster branches into the analysis ntuple"};
+    SG::ReadHandleKey<MuonSimDataCollection> m_sTgcSdoContainerKey{this,"sTGC_SdoContainerName", "sTGC_SDO", "the name of the sTGC SDO container"};
+
     // analysis variable to be put into the ntuple
     int m_cl_n;                                             //!< number of STRIP hit delivered
     std::vector<int> *m_cl_charge;                          //!< charge of hit STRIPs
@@ -107,10 +107,9 @@ namespace NSWL1 {
     std::vector<float> *m_cl_truth_y;                       //!<global y of first truth hit for strip in cluster
     std::vector<float> *m_cl_truth_z;                       //!<global z of first truth hit for strip in cluster
 
-    std::vector<float> *m_cl_truth_lx;                      //!<global x of first truth hit for strip in cluster
-    std::vector<float> *m_cl_truth_ly;                      //!<global y of first truth hit for strip in cluster
-    std::vector<float> *m_cl_truth_lz;                      //!<global z of first truth hit for strip in cluster
-
+    std::vector<float> *m_cl_truth_lx;                      //!<local x of first truth hit for strip in cluster
+    std::vector<float> *m_cl_truth_ly;                      //!<local y of first truth hit for strip in cluster
+    std::vector<float> *m_cl_truth_lz;                      //!<local z of first truth hit for strip in cluster
 
     std::vector<float> *m_cl_truth_E;                       //!<global energy of truth strip deposits
     std::vector<int> *m_cl_truth_n;                         //!<Cluster index for truth strip hits
@@ -124,14 +123,6 @@ namespace NSWL1 {
     std::vector<int> *m_cl_bandId;
 
     std::vector<int> *m_cl_phiId;
-    //Cache that holds which strips to read based on bandid
-    // 2d-vector for eta/phi station coordinates
-    // map from BandID to a set of strips
-
-    //std::vector< std::vector<std::unique_ptr<StripData> >* > m_clusters;
-    std::vector< std::shared_ptr<std::vector<std::unique_ptr<StripData> >>  > m_clusters;
   };  // end of StripClusterTool class
-
 } // namespace NSWL1
-
 #endif
