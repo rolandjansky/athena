@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include <TNtuple.h>
 #include <TFile.h>
@@ -263,7 +263,7 @@ float Calibrator::FitResidual(string key, TH1F* resHist){
 }
 
 
-TDirectory* Calibrator::Calibrate(TDirectory* dir, string key, string opt, caldata caldata_above){
+TDirectory* Calibrator::Calibrate(TDirectory* dir, const string & key, const string & opt, caldata caldata_above){
 
   //set some bool flags
   bool calrt=opt.find('R')!=string::npos;

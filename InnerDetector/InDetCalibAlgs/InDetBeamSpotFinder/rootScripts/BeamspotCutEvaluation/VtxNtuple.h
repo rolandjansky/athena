@@ -1358,7 +1358,7 @@ VtxNtuple::VtxNtuple(TTree *tree)
       tree = (TTree*)gDirectory->Get("MinBiasTree");
 
    }
-   Init(tree);
+   VtxNtuple::Init(tree);
 }
 
 VtxNtuple::~VtxNtuple()

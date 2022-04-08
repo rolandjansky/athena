@@ -2601,8 +2601,14 @@ StatusCode SCTCalib::addToSummaryStr(std::ostringstream& list, const Identifier&
    int len_chip{static_cast<int>(tmpchip.length())};
    std::string stripList{""};
    std::string chipList{""};
-   if (len_strip > 0) stripList = tmpstrip.substr(1, len_strip-2);
-   if (len_chip  > 0) chipList  = tmpchip.substr(1, len_chip-2);
+   if (len_strip > 0) {
+     int stringLength = (len_strip-2 >0) ? len_strip-2 : len_strip;
+     stripList = tmpstrip.substr(1, stringLength);
+   }
+   if (len_chip  > 0) {
+    int stringLength = (len_chip-2 >0) ? len_chip-2 : len_chip;
+     chipList  = tmpchip.substr(1, stringLength);
+   }
    //--- Identifier/SN
    IdentifierHash   waferHash{m_pSCTHelper->wafer_hash(waferId)};
    SCT_SerialNumber sn{m_CablingTool->getSerialNumberFromHash(waferHash)};
