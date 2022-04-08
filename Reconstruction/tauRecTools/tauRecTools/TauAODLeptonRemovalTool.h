@@ -15,6 +15,7 @@
 #include "xAODEgamma/ElectronContainer.h"
 #include "AsgDataHandles/ReadHandle.h"
 #include "AsgDataHandles/ReadHandleKey.h"
+#include "Gaudi/Property.h"
 
 class TauAODLeptonRemovalTool : public TauRecToolBase 
 {
