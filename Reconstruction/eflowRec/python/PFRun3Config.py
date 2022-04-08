@@ -91,7 +91,7 @@ def PFCfg(inputFlags,**kwargs):
           from eflowRec.PFCfg import getEGamFlowElementAssocAlgorithm        
           result.addEventAlgo(getEGamFlowElementAssocAlgorithm(inputFlags))
 
-      if inputFlags.PF.useMuLinks:
+      if inputFlags.PF.useMuLinks and inputFlags.Detector.GeometryMuon:
           from eflowRec.PFCfg import getMuonFlowElementAssocAlgorithm
           result.addEventAlgo(getMuonFlowElementAssocAlgorithm(inputFlags))
 

@@ -432,6 +432,8 @@ if recAlgs.doEFlow():
     if False == jobproperties.eflowRecFlags.usePFFlowElementAssoc:
         ConfigFlags.PF.useElPhotLinks = False
         ConfigFlags.PF.useMuLinks = False
+    elif not rec.doMuon:
+        ConfigFlags.PF.useMuLinks = False
 else:
     ConfigFlags.Reco.EnablePFlow = False
         
