@@ -19,11 +19,7 @@ namespace FlavorTagDiscriminants {
   TrackLeptonDecoratorAlg::TrackLeptonDecoratorAlg(
     const std::string& name, ISvcLocator* loc )
     : AthReentrantAlgorithm(name, loc),
-    m_electronID_tool("trst") 
-  {
-    declareProperty("LHElectronWP", m_electronID_wp = "VeryLooseLHElectron", 
-      "Likelihood working point for electron ID selection");
-  }
+      m_electronID_tool("AsgElectronLikelihoodTool/electronID_tool") {}
 
   StatusCode TrackLeptonDecoratorAlg::initialize() {
     ATH_MSG_INFO( "Inizializing " << name() << "... " );
@@ -39,8 +35,8 @@ namespace FlavorTagDiscriminants {
     ATH_CHECK( m_MuonContainerKey.initialize() );
 
     // Initialise electron ID tool
-    CHECK(m_electronID_tool.setProperty("WorkingPoint", m_electronID_wp));
-    CHECK(m_electronID_tool.initialize());
+    ATH_CHECK(m_electronID_tool.setProperty("WorkingPoint", m_electronID_wp));
+    ATH_CHECK(m_electronID_tool.initialize());
 
     // Prepare decorators
     m_dec_lepton_id = m_TrackContainerKey.key() + "." + m_dec_lepton_id.key();
@@ -49,7 +45,7 @@ namespace FlavorTagDiscriminants {
     ATH_MSG_DEBUG( "Inizializing decorators:"  );
     ATH_MSG_DEBUG( "    ** " << m_dec_lepton_id );
 
-    CHECK( m_dec_lepton_id.initialize() );
+    ATH_CHECK( m_dec_lepton_id.initialize() );
 
     return StatusCode::SUCCESS;
   }
@@ -111,10 +107,6 @@ namespace FlavorTagDiscriminants {
       decor_lepton_id(*track) = -13 * muon->charge();
     }
 
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode TrackLeptonDecoratorAlg::finalize() {
     return StatusCode::SUCCESS;
   }
 
