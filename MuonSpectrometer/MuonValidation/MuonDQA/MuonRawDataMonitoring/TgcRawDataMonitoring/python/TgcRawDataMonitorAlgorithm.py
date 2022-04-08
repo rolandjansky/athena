@@ -31,8 +31,8 @@ def TgcRawDataMonitoringConfig(inputFlags):
     muonSelectionTool = CompFactory.CP.MuonSelectionTool("TgcMonMuonSelectionTool")
     muonSelectionTool.MuQuality = 1 # tight:0 medium:1
     muonSelectionTool.MaxEta = 2.7 # tgc trigger coverage is only up to 2.4 but the detector coverage itself is up to 2.7
-    muonSelectionTool.ToroidOff = True # won't use pT-balance cuts
-
+    muonSelectionTool.DisablePtCuts = True # won't use pT-balance cuts
+    muonSelectionTool.TurnOffMomCorr= True   
     tgcRawDataMonAlg = helper.addAlgorithm(CompFactory.TgcRawDataMonitorAlgorithm,'TgcRawDataMonAlg',
                                            TrackExtrapolator = extrapolator,
                                            TgcRawDataMonitorTool = tgcRawDataMonitorTool,
