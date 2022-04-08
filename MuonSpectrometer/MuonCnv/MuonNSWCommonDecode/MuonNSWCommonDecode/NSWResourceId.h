@@ -33,7 +33,8 @@ namespace Muon
       NSW_DATA_FROM_SCA = 3,
       NSW_DATA_TTC = 4,
       NSW_DATA_L1A_INFO = 5,
-      NSW_DATA_AUX = 6
+      NSW_DATA_EXT = 6,
+      NSW_DATA_EXC = 7
     };
 
     class NSWResourceId
