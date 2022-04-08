@@ -50,11 +50,11 @@ public:
   unsigned int index() const;
   
   /// Is the rod in range?
-  bool rodIdInRange(std::uint32_t r) const;
+  static bool rodIdInRange(std::uint32_t r);
   
   /// Constants for evaluating hash indices of the online id. The hashing formula is in 'index()'
   enum {
-    FIRST_FIBRE=0, LAST_FIBRE=95, NUM_FIBRES=96, MAX_INDEX=19871, NUMBER_OF_INDICES=19872, INVALID_INDEX=0xFFFFFFFF, INVALID_ONLINE_ID=0xFFFFFFFF
+    FIRST_FIBRE=0, LAST_FIBRE=95, INVALID_FIBRE=255, INVALID_ROD=16777215, NUM_FIBRES=96, MAX_INDEX=19871, NUMBER_OF_INDICES=19872, INVALID_INDEX=0xFFFFFFFF, INVALID_ONLINE_ID=0xFFFFFFFF
   };
   
   /// Implement pre-increment and post-increment for iterating over fibres in a rod
