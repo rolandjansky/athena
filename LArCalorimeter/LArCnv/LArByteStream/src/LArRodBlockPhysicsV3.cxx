@@ -45,9 +45,7 @@ m_logstr(Athena::getMessageSvc(), BlockType())
   if (sc.isFailure()) {
     m_logstr << MSG::ERROR << "Unable to locate DetectorStore" << endmsg;
     std::abort();
-  } else {
-    m_logstr << MSG::INFO << "Successfully located DetectorStore" << endmsg;
-  }     
+  }    
   sc = detStore->retrieve(online_id, "LArOnlineID");
   if (sc.isFailure()) {
     m_logstr << MSG::FATAL << "Could not get LArOnlineID helper !" << endmsg;
