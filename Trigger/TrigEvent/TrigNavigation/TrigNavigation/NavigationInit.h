@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigNavigation_NavigationInit_h
@@ -26,29 +26,31 @@ namespace HLT{
   template <class FEATURE, class CONTAINER >
   struct FeatureContainerInit {
     FeatureContainerInit();
-    void null(){;}
+    void null() const {;}
   };
 
   template <class FEATURE, class CONTAINER > 
   struct RegisterFeatureContainerTypes {    
-    static void instan(){s.null();}
-    static FeatureContainerInit<FEATURE, CONTAINER> s; 
+    static void instan() {s.null();}
+    static const FeatureContainerInit<FEATURE, CONTAINER> s;
   };  
-  template <class FEATURE, class CONTAINER> FeatureContainerInit<FEATURE, CONTAINER> RegisterFeatureContainerTypes<FEATURE, CONTAINER>::s;
+  template <class FEATURE, class CONTAINER>
+  const FeatureContainerInit<FEATURE, CONTAINER> RegisterFeatureContainerTypes<FEATURE, CONTAINER>::s;
 
 
   template <class TYPE >
   struct AuxInit {
     AuxInit();
-    void null(){;}
+    void null() const {;}
   };
 
   template <class TYPE > 
   struct RegisterAuxType {    
-    static void instan(){s.null();}
-    static AuxInit<TYPE> s; 
+    static void instan() {s.null();}
+    static const AuxInit<TYPE> s;
   };  
-  template <class TYPE> AuxInit<TYPE> RegisterAuxType<TYPE>::s;
+  template <class TYPE>
+  const AuxInit<TYPE> RegisterAuxType<TYPE>::s;
 }
 
 #include "TrigNavigation/NavigationInit.icc"

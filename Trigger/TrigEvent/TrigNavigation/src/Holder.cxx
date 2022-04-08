@@ -1,9 +1,10 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <sstream>
 #include <boost/regex.hpp>
+#include <tbb/concurrent_unordered_map.h>
 
 #include "TrigNavigation/TypeMaps.h"
 #include "TrigNavigation/Holder.h"
@@ -115,14 +116,16 @@ MsgStream& HLTNavDetails::operator<< ( MsgStream& m, const HLTNavDetails::IHolde
 
 // only construct the regex once
 namespace HLTNavDetails {  
-  boost::regex rx1("_v[0-9]+$");
+  const boost::regex rx1("_v[0-9]+$");
 }
 
 std::string HLTNavDetails::formatSGkey(const std::string& prefix, const std::string& containername, const std::string& label){
   // Memoize already used keys
-  static std::map<std::string,std::string> memo;
-  std::string key = prefix+containername+label;
-  if (memo.count(key)) return memo[key];
+  static tbb::concurrent_unordered_map<std::string,std::string> memo ATLAS_THREAD_SAFE;
+  const std::string key = prefix+containername+label;
+
+  const auto itr = memo.find(key);
+  if (itr!=memo.end()) return itr->second;
 
   // Remove version
   std::string ret = boost::regex_replace(containername,rx1,std::string(""));
@@ -138,7 +141,7 @@ std::string HLTNavDetails::formatSGkey(const std::string& prefix, const std::str
   else if (!label.empty())
     ret += ("_" + label);
 
-  memo[key] = ret;
+  memo.insert({key, ret});
   return ret;
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <stdexcept>
@@ -59,7 +59,7 @@ void HLT::RoICacheHistory::stopCurrentFeatureCall()
 }
 
 //-----------------------------------------------------------------------------
-void HLT::RoICacheHistory::setCurrentFeatureCall(const FeatureCall &curr, NavigationCore *navig)
+void HLT::RoICacheHistory::setCurrentFeatureCall(const FeatureCall &curr, const NavigationCore *navig)
 {  
   if(m_current.isValid()) {
     throw std::runtime_error("HLT caching problem: current question is valid" );
@@ -109,7 +109,7 @@ bool HLT::RoICacheHistory::FeatureCall::isValid() const {
 }
 
 HLT::RoICacheHistory::RememberAttachFeature::RememberAttachFeature(const TriggerElement* te, CLID clid, const std::string& label,
-								   NavigationCore* navig, TriggerElement::ObjectIndex& idx) {
+                                                                   const NavigationCore* navig, TriggerElement::ObjectIndex& idx) {
   HLT::RoICacheHistory& roih = HLT::RoICacheHistory::instance();
   if(!roih.collectHistory()) return;
   //  std::cout << "RoICacheHistory recording also attach feature" << std::endl;
@@ -123,7 +123,7 @@ HLT::RoICacheHistory::RememberAttachFeature::RememberAttachFeature(const Trigger
 HLT::RoICacheHistory::QuestionScope::QuestionScope(const TriggerElement* te,
 						   CLID clid,
 						   const std::string& label,
-						   NavigationCore *navig, bool issingle)
+						   const NavigationCore *navig, bool issingle)
   : m_start(te)
 {
   HLT::RoICacheHistory& roih = HLT::RoICacheHistory::instance();

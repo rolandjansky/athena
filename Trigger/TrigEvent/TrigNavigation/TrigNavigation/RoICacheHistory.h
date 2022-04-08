@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGNAVIGATION_ROICACHEHISTORY_H
@@ -56,7 +56,7 @@ namespace HLT {
 
     class QuestionScope {
     public:
-      QuestionScope(const TriggerElement *te, CLID clid, const std::string& label, NavigationCore *navig, bool issingle=false);  
+      QuestionScope(const TriggerElement *te, CLID clid, const std::string& label, const NavigationCore *navig, bool issingle=false);
       QuestionScope();
       ~QuestionScope();
     private:      
@@ -66,7 +66,7 @@ namespace HLT {
     class RememberAttachFeature {
     public:
       RememberAttachFeature(const TriggerElement* te, CLID clid, const std::string& label,
-			    NavigationCore* navig, TriggerElement::ObjectIndex& idx);
+                            const NavigationCore* navig, TriggerElement::ObjectIndex& idx);
     };
 
 
@@ -79,7 +79,7 @@ namespace HLT {
 
     bool collectHistory() const { return m_collect; }
 
-    void setCurrentFeatureCall(const FeatureCall &curr, NavigationCore *navig);
+    void setCurrentFeatureCall(const FeatureCall &curr, const NavigationCore *navig);
     const FeatureCall& getCurrentFeatureCall() const { return m_current; }
 
     void addAnswer(const TriggerElement* te, const TriggerElement::FeatureAccessHelper&);
@@ -87,7 +87,7 @@ namespace HLT {
 
     void stopCurrentFeatureCall();
 
-    NavigationCore* getNavigation() const { return m_navigation; }
+    const NavigationCore* getNavigation() const { return m_navigation; }
     const TriggerElement* getWorkTE() const { return m_work; }
     const std::vector<FeatureCall>& getFeatureCalls() const { return m_questions; }       
 
@@ -106,7 +106,7 @@ namespace HLT {
     std::vector<FeatureCall>   m_questions;
     bool                    m_collect;
 
-    NavigationCore         *m_navigation;
+    const NavigationCore   *m_navigation;
     const TriggerElement   *m_work;
   };
 }

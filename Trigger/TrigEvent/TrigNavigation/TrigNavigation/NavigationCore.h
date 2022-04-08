@@ -36,7 +36,6 @@
 
 
 class StringSerializer;
-class TrigEDMSizes;
 
 namespace HLTNavDetails { class TypeMapDeleter; }
 
@@ -363,8 +362,6 @@ namespace HLT {
     HLTNavDetails::IHolder*                     getHolder ( CLID clid, const std::string& label ) const;         //!< as above
 
 
-    TrigEDMSizes* retrieveOrCreateTrigEDMSizes(const std::string& name) const;
-
     /**
      * @brief Helper method for "combine": add one "level" of multiplicity to the results.
      */
@@ -428,7 +425,7 @@ namespace HLT {
     bool serializeHoldersWithoutPayload(const std::vector<HLTNavDetails::IHolder*>& holders, std::vector<uint32_t>& output, std::vector<uint32_t>& holderblobsizes,std::vector<std::pair<CLID, std::string> >& clid_name) const;
 
     bool serializeHoldersWithPayload(const std::vector<CSPair>& payload, std::vector<uint32_t>& output, std::vector<uint32_t>& holderblobsizes,
-				     std::vector<std::pair<CLID, std::string> >& clid_name, bool recordEDMsizes) const;
+				     std::vector<std::pair<CLID, std::string> >& clid_name) const;
 
   };
 
