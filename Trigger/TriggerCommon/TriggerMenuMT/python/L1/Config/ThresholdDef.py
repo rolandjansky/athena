@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from ..Base.Thresholds import MuonThreshold, eEMThreshold, eEMVarThreshold, jEMThreshold, eTauThreshold, jTauThreshold, cTauThreshold, jJetThreshold, jLJetThreshold, gJetThreshold, gLJetThreshold, XEThreshold, TEThreshold, MBTSThreshold, MBTSSIThreshold, NimThreshold
+from .L1CaloThresholdMapping import get_threshold_cut
 
 class ThresholdDef:
 
@@ -108,104 +109,106 @@ class ThresholdDef:
         MuonThreshold( "MU3EOF"   ).setThrValue( thr=3, ba=4 ).setTGCFlags("F").setRegion("EC,FW")  # forward muon, commissioning
 
         # eEM
-        eEM_cuts = {5:3, 7:5, 9:7, 15:12, 18:15, 26:22} # TODO: name->cut dictionary (needed as long as eEM are not calibrated) 
-        for name, cut in eEM_cuts.items():
-            eEMThreshold('eEM%i' %name, 'eEM').addThrValue(cut)
+        eEM_cuts = [5, 7, 9, 15, 18, 26]
+        for thrV in eEM_cuts:
+            eEMThreshold('eEM%i' %thrV, 'eEM').addThrValue(get_threshold_cut('eEM',thrV))
 
         # eEM SPARES
         for thrV in range(1,9):
             eEMThreshold('eEMSPARE%i' % thrV, 'eEM').addThrValue(8191)
 
         # L section (used to be VH in Run2)
-        eEM_cuts = {10:8, 12:10, 18:15, 24:20, 26:22} # TODO: name->cut dictionary (needed as long as eEM are not calibrated)
-        for name, cut in eEM_cuts.items():
-            eEMThreshold('eEM%iL' % name, 'eEM').addThrValue(cut).setIsolation( reta = "Loose", wstot = "Loose", rhad = "Loose" )
+        eEM_cuts = [10, 12, 18, 24, 26]
+        for thrV in eEM_cuts:
+            eEMThreshold('eEM%iL' % thrV, 'eEM').addThrValue(get_threshold_cut('eEM',thrV)).setIsolation( reta = "Loose", wstot = "Loose", rhad = "Loose" )
 
         # M section (used to be VHI in Run2)
-        eEM_cuts = {10:8, 18:15, 22:18, 26:22, 28:24} # TODO: name->cut dictionary (needed as long as eEM are not calibrated)
-        for name, cut in eEM_cuts.items():
-            eEMThreshold('eEM%iM' % name, 'eEM').addThrValue(cut).setIsolation( reta = "Medium", wstot = "Medium", rhad = "Medium" )
+        eEM_cuts = [10, 18, 22, 26, 28]
+        for thrV in eEM_cuts:
+            eEMThreshold('eEM%iM' % thrV, 'eEM').addThrValue(get_threshold_cut('eEM',thrV)).setIsolation( reta = "Medium", wstot = "Medium", rhad = "Medium" )
 
         # T section (used to be VHIM in Run2)
-        eEM_cuts = {26:22} # TODO: name->cut dictionary (needed as long as eEM are not calibrated)
-        for name, cut in eEM_cuts.items():
-            eEMThreshold('eEM%iT' % name, 'eEM').addThrValue(cut).setIsolation( reta = "Tight", wstot = "Tight", rhad = "Tight" )
+        eEM_cuts = [26]
+        for thrV in eEM_cuts:
+            eEMThreshold('eEM%iT' % thrV, 'eEM').addThrValue(get_threshold_cut('eEM',thrV)).setIsolation( reta = "Tight", wstot = "Tight", rhad = "Tight" )
 
         # eEM with eta-dependent Et cuts
-        eEM_cuts = {24:20} # TODO: name->cut dictionary (needed as long as eEM are not calibrated)
-        for name, cut in eEM_cuts.items():
-            ThresholdDef.addVaryingThrValues( eEMVarThreshold( 'eEM%iVM' % name, 'eEM').setIsolation( reta = "Medium", wstot = "Medium", rhad = "Medium" ), pt= cut, shift_set = 1 )
+        eEM_cuts = [24]
+        for thrV in eEM_cuts:
+            ThresholdDef.addVaryingThrValues( pt= get_threshold_cut('eEM',thrV), shift_set = 1,
+                                              thr=eEMVarThreshold( 'eEM%iVM' % thrV, 'eEM').setIsolation( reta = "Medium", wstot = "Medium", rhad = "Medium" ) )
 
         # jEM
-        jEM_cuts = {20:15} # TODO: name->cut dictionary (needed as long as jEM are not calibrated)
-        for name, cut in jEM_cuts.items():
-            jEMThreshold('jEM%i' % name, 'jEM').addThrValue(cut)
+        jEM_cuts = [20]
+        for thrV in jEM_cuts:
+            jEMThreshold('jEM%i' % thrV, 'jEM').addThrValue(get_threshold_cut('jEM',thrV))
 
-        jEM_cuts = {20:15} # TODO: name->cut dictionary (needed as long as jEM are not calibrated)
-        for name, cut in jEM_cuts.items():
-            jEMThreshold('jEM%iM' % name, 'jEM').addThrValue(cut).setIsolation( iso = "Medium", frac = "Medium", frac2 = "Medium" )
+        jEM_cuts = [20] # TODO: name->cut dictionary (needed as long as jEM are not calibrated)
+        for thrV in jEM_cuts:
+            jEMThreshold('jEM%iM' % thrV, 'jEM').addThrValue(get_threshold_cut('jEM',thrV)).setIsolation( iso = "Medium", frac = "Medium", frac2 = "Medium" )
 
         # jEM SPARES
         for thrV in range(1,2):
             jEMThreshold('jEMSPARE%i' % thrV, 'jEM').addThrValue(8191)
 
         # eTAU
-        eTAU_cuts = {12:8, 20:12, 30:20, 35:25, 60:40, 80:60, 140:100} # TODO: name->cut dictionary (needed as long as eTAU are not calibrated)
-        for name, cut in eTAU_cuts.items():
-            eTauThreshold('eTAU%i' % name, 'eTAU').setEt(cut)
+        eTAU_cuts = [12, 20, 30, 35, 60, 80, 140]
+        for thrV in eTAU_cuts:
+            eTauThreshold('eTAU%i' % thrV, 'eTAU').setEt(get_threshold_cut('eTAU', thrV))
 
-        eTAU_cuts = {20:12} # TODO: name->cut dictionary (needed as long as eTAU are not calibrated)
-        for name, cut in eTAU_cuts.items():
-            eTauThreshold('eTAU%iL' % name, 'eTAU').setEt(cut).setIsolation( rCore = "Loose" )
-        eTAU_cuts = {20:12} # TODO: name->cut dictionary (needed as long as eTAU are not calibrated)
-        for name, cut in eTAU_cuts.items():
-            eTauThreshold('eTAU%iM' % name, 'eTAU').setEt(cut).setIsolation( rCore = "Medium" )
-        eTAU_cuts = {40:30} # TODO: name->cut dictionary (needed as long as eTAU are not calibrated)
-        for name, cut in eTAU_cuts.items():
-            eTauThreshold('eTAU%iHM' % name, 'eTAU').setEt(cut).setIsolation( rHad = "HadMedium" )
+        eTAU_cuts = [20]
+        for thrV in eTAU_cuts:
+            eTauThreshold('eTAU%iL' % thrV, 'eTAU').setEt(get_threshold_cut('eTAU', thrV)).setIsolation( rCore = "Loose" )
+        eTAU_cuts = [20]
+        for thrV in eTAU_cuts:
+            eTauThreshold('eTAU%iM' % thrV, 'eTAU').setEt(get_threshold_cut('eTAU', thrV)).setIsolation( rCore = "Medium" )
+        eTAU_cuts = [40]
+        for thrV in eTAU_cuts:
+            eTauThreshold('eTAU%iHM' % thrV, 'eTAU').setEt(get_threshold_cut('eTAU', thrV)).setIsolation( rHad = "HadMedium" )
 
         # eTAU SPARES
         for thrV in range(1,11):
             eTauThreshold('eTAUSPARE%i' % thrV, 'eTAU').setEt(8191)  
 
         # cTAU
-        cTAU_cuts = {20:12, 30:20, 35:25} # TODO: name->cut dictionary (needed as long as eTAU are not calibrated)
-        for name, cut in cTAU_cuts.items():
-            cTauThreshold('cTAU%iM' % name, 'cTAU').setEt(cut).setIsolation( isolation = "Medium" )
+        cTAU_cuts = [20, 30, 35]
+        for thrV in cTAU_cuts:
+            cTauThreshold('cTAU%iM' % thrV, 'cTAU').setEt(get_threshold_cut('cTAU', thrV)).setIsolation( isolation = "Medium" )
 
         # cTAU SPARES
         for thrV in range(1,3):
             cTauThreshold('cTAUSPARE%i' % thrV, 'cTAU').setEt(8191)
 
         # jTAU
-        jTAU_cuts = {20:12, 30:20} # TODO: name->cut dictionary (needed as long as jTAU are not calibrated)
-        for name, cut in jTAU_cuts.items():
-            jTauThreshold('jTAU%i' % name, 'jTAU').setEt(cut)
-        jTAU_cuts = {30:20} # TODO: name->cut dictionary (needed as long as jTAU are not calibrated)
-        for name, cut in jTAU_cuts.items():
-            jTauThreshold('jTAU%iM' % name, 'jTAU').setEt(cut).setIsolation( isolation = "Medium" )
+        jTAU_cuts = [20, 30]
+        for thrV in jTAU_cuts:
+            jTauThreshold('jTAU%i' % thrV, 'jTAU').setEt(get_threshold_cut('jTAU', thrV))
+        jTAU_cuts = [30]
+        for thrV in jTAU_cuts:
+            jTauThreshold('jTAU%iM' % thrV, 'jTAU').setEt(get_threshold_cut('jTAU', thrV)).setIsolation( isolation = "Medium" )
 
         # jTAU SPARES
         for thrV in range(1,2):
             jTauThreshold('jTAUSPARE%i' % thrV, 'jTAU').setEt(8191)
 
-        # jJET (default range)
-        jJ_cuts = {20:5, 30:12, 40:15, 50:20, 55:25, 60:30, 80:40, 90:50, 125:75, 140:85, 160:100, 180:120, 500:400} # TODO: name->cut dictionary (needed as long as jJ are not calibrated)
-        for name, cut in jJ_cuts.items():
-            ThresholdDef.addJetVaryingThrValues( jJetThreshold('jJ%i' % name, 'jJ'), pt=cut, shift_set=0, rangemin=0, rangemax=31 )
+        # jJET (default eta range)
+        # For correspondence to Run 2, see https://twiki.cern.ch/twiki/bin/viewauth/Atlas/TriggerNamingRun3#New_naming_for_Calo_items
+        jJ_cuts = [20, 30, 40, 50, 55, 60, 80, 90, 125, 140, 160, 180, 500]
+        for thrV in jJ_cuts:
+            ThresholdDef.addJetVaryingThrValues( jJetThreshold('jJ%i' % thrV, 'jJ'), pt=get_threshold_cut('jJ', thrV), shift_set=0, rangemin=0, rangemax=31 )
 
         # jJET central
-        jJ_cuts = {30:(12,25), 40:(15,25), 55:(25,23), 70:(35,23), 80:(40,25), 85:(45,21)}
-        for name, (thrV, etamax) in jJ_cuts.items():
-            ThresholdDef.addJetVaryingThrValues( jJetThreshold( 'jJ%ip0ETA%i'  % (name, etamax), 'jJ'), pt=thrV, shift_set=0, rangemin=0, rangemax=etamax )
+        jJ_cuts = [(30,25), (40,25), (55,23), (70,23), (80,25), (85,21)]
+        for thrV, etamax in jJ_cuts:
+            ThresholdDef.addJetVaryingThrValues( jJetThreshold( 'jJ%ip0ETA%i'  % (thrV, etamax), 'jJ'), pt=get_threshold_cut('jJ', thrV), shift_set=0, rangemin=0, rangemax=etamax )
 
         # jJET central, variable eta (EXAMPLE)
         # ThresholdDef.addJetVaryingThrValues( jJetThreshold('jJ12p0ETA25V', 'jJ'), pt=12, shift_set=1, rangemin=0, rangemax=25 )
 
         # jJET forward jet
-        jJ_cuts = {40:15, 50:20, 60:30, 90:50, 125:75} # TODO: name->cut dictionary (needed as long as jJ are not calibrated)
-        for name, cut in jJ_cuts.items():
-            ThresholdDef.addJetVaryingThrValues( jJetThreshold('jJ%ip31ETA49' % name, 'jJ'), pt=cut, shift_set=0, rangemin=31, rangemax=49 )
+        jJ_cuts = [40, 50, 60, 90, 125]
+        for thrV in jJ_cuts:
+            ThresholdDef.addJetVaryingThrValues( jJetThreshold('jJ%ip31ETA49' % thrV, 'jJ'), pt=get_threshold_cut('jJ', thrV), shift_set=0, rangemin=31, rangemax=49 )
 
         # jJET SPARES
         for thrV in range(1,7):
@@ -213,36 +216,36 @@ class ThresholdDef:
 
         # jLJET (default range)
         for thrV in [60, 80, 100, 120, 140, 160, 180, 200]:
-            ThresholdDef.addJetVaryingThrValues( jLJetThreshold('jLJ%i' % thrV, 'jLJ'), pt=thrV, shift_set=0, rangemin=0, rangemax=31 )
+            ThresholdDef.addJetVaryingThrValues( jLJetThreshold('jLJ%i' % thrV, 'jLJ'), pt=get_threshold_cut('jLJ', thrV), shift_set=0, rangemin=0, rangemax=31 )
 
-        # jJET SPARES
+        # jLJET SPARES
         for thrV in range(1,5):
             jLJetThreshold('jLJSPARE%i' % thrV, 'jLJ').addThrValue(8191)
 
         # gJET (default range)
         for thrV in [20, 30, 40, 50, 100, 160]:
-            gJetThreshold('gJ%i' % thrV, 'gJ').setEt(thrV)
+            gJetThreshold('gJ%i' % thrV, 'gJ').setEt(get_threshold_cut('gJ', thrV))
 
         # gLJET (default range)
         for thrV in [80, 100, 140, 160]:
-            gLJetThreshold('gLJ%i' % thrV, 'gLJ').setEt(thrV)
+            gLJetThreshold('gLJ%i' % thrV, 'gLJ').setEt(get_threshold_cut('gLJ',  thrV))
 
         # gLJET SPARES
         for thrV in range(1,5):
             gLJetThreshold('gLJSPARE%i' % thrV, 'gLJ').setEt(8191)
 
         # gXE
-        gXE_cuts = {70:30, 100:50} # TODO: name->cut dictionary (needed as long as gXE are not calibrated)
-        for name, cut in gXE_cuts.items():
-            XEThreshold('gXENC%i' % name, 'gXE').setXE(cut)
+        gXE_cuts = [70, 100]
+        for thrV in gXE_cuts:
+            XEThreshold('gXENC%i' % thrV, 'gXE').setXE(get_threshold_cut('gXENC', thrV))
 
-        gXE_cuts = {70:30, 100:50} # TODO: name->cut dictionary (needed as long as gXE are not calibrated)
-        for name, cut in gXE_cuts.items():
-            XEThreshold('gXERHO%i' % name, 'gXE').setXE(cut)
+        gXE_cuts = [70, 100]
+        for thrV in gXE_cuts:
+            XEThreshold('gXERHO%i' % thrV, 'gXE').setXE(get_threshold_cut('gXERHO', thrV))
 
-        gXE_cuts = {70:30, 80:40, 100:50} # TODO: name->cut dictionary (needed as long as gXE are not calibrated)
-        for name, cut in gXE_cuts.items():
-            XEThreshold('gXEJWOJ%i' % name, 'gXE').setXE(cut)
+        gXE_cuts = [70, 80, 100]
+        for thrV in gXE_cuts:
+            XEThreshold('gXEJWOJ%i' % thrV, 'gXE').setXE(get_threshold_cut('gXEJWOJ', thrV))
 
         # gMHT
         for thrV in [500]:
@@ -253,22 +256,22 @@ class ThresholdDef:
             TEThreshold('gTE%i' % thrV, 'gTE').setTE(thrV)
 
         # jXE
-        jXE_cuts = {70:35, 80:40, 100:50, 110:55, 500:300} # TODO: name->cut dictionary (needed as long as jXE are not calibrated)
-        for name, cut in jXE_cuts.items():
-            XEThreshold('jXE%i' % name, 'jXE').setXE(cut)
+        jXE_cuts = [70, 80, 100, 110, 500]
+        for thrV in jXE_cuts:
+            XEThreshold('jXE%i' % thrV, 'jXE').setXE(get_threshold_cut('jXE', thrV))
 
         # ENERGY SPARES
         for thrV in range(1,30):
             XEThreshold('jXESPARE%i' % thrV, 'jXE').setXE(1048575)
 
-        jXE_cuts = {100:50} # TODO: name->cut dictionary (needed as long as jXE are not calibrated)
-        for name, cut in jXE_cuts.items():
-            XEThreshold('jXEC%i' % name, 'jXE').setXE(cut)
+        jXE_cuts = [100]
+        for thrV in jXE_cuts:
+            XEThreshold('jXEC%i' % thrV, 'jXE').setXE(get_threshold_cut('jXE', thrV))
 
         # ATR-24037
-        jXE_cuts = {100:50} # TODO: name->cut dictionary (needed as long as jXE are not calibrated)
-        for name, cut in jXE_cuts.items():
-            XEThreshold('jXEPerf%i' % name, 'jXE').setXE(cut)
+        jXE_cuts = [100]
+        for thrV in jXE_cuts:
+            XEThreshold('jXEPerf%i' % thrV, 'jXE').setXE(get_threshold_cut('jXE', thrV))
 
         # jTE
         for thrV in [200,]:
