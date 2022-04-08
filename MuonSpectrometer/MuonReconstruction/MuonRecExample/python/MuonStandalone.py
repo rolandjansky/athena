@@ -225,6 +225,10 @@ class MuonStandalone(ConfiguredMuonRec):
         if (not cfgKeyStore.isInInput ('xAOD::MuonSegmentContainer', 'MuonSegments')):
             self.addAlg( CfgMgr.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg") )
 
+        if reco_stgc or reco_mircomegas:
+            self.addAlg( CfgMgr.xAODMaker__MuonSegmentCnvAlg("QuadNSW_MuonSegmentCnvAlg",
+                                                             SegmentContainerName="TrackMuonNSWSegments",
+                                                             xAODContainerName="xAODNSWSegments") )
 
         if muonStandaloneFlags.doSegmentsOnly():
             return	                    

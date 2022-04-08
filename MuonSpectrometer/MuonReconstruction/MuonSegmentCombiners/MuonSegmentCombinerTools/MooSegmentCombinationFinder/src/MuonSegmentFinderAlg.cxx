@@ -46,6 +46,7 @@ StatusCode MuonSegmentFinderAlg::initialize() {
         m_csc4dSegmentFinder.disable();
 
     ATH_CHECK(m_segmentCollectionKey.initialize());
+    ATH_CHECK(m_segmentNSWCollectionKey.initialize()); //used to perform the alignment in the NSW
     ATH_CHECK(m_cscPrdsKey.initialize(!m_cscPrdsKey.empty()));  // check for layouts without CSCs
     ATH_CHECK(m_mdtPrdsKey.initialize(m_doTGCClust || m_doRPCClust));
     ATH_CHECK(m_rpcPrdsKey.initialize());
@@ -61,6 +62,9 @@ StatusCode MuonSegmentFinderAlg::execute(const EventContext& ctx) const {
     // vector to hold segments
     SG::WriteHandle<Trk::SegmentCollection> handle(m_segmentCollectionKey, ctx);
     ATH_CHECK(handle.record(std::make_unique<Trk::SegmentCollection>()));
+
+    SG::WriteHandle<Trk::SegmentCollection> handle_segNSW(m_segmentNSWCollectionKey, ctx);
+    ATH_CHECK(handle_segNSW.record(std::make_unique<Trk::SegmentCollection>()));
 
     SG::ReadHandle<Muon::TgcPrepDataContainer> tgcPrds(m_tgcPrdsKey, ctx);   
     const Muon::TgcPrepDataContainer* tgcPrdCont = tgcPrds.cptr();
@@ -100,7 +104,7 @@ StatusCode MuonSegmentFinderAlg::execute(const EventContext& ctx) const {
             
             
             createSegmentsWithMDTs(*patt, handle.ptr(), rpcCols, tgcCols, ctx);
-            createSegmentsFromClusters(ctx, *patt, handle.ptr());
+            createSegmentsFromClusters(ctx, *patt, handle.ptr(), handle_segNSW.ptr());
         }  // end loop on pattern combinations
 
     } else {
@@ -186,7 +190,7 @@ StatusCode MuonSegmentFinderAlg::execute(const EventContext& ctx) const {
     return StatusCode::SUCCESS;
 }  // execute
 
-void MuonSegmentFinderAlg::createSegmentsFromClusters(const EventContext& ctx, const Muon::MuonPatternCombination* patt, Trk::SegmentCollection* segments) const {
+void MuonSegmentFinderAlg::createSegmentsFromClusters(const EventContext& ctx, const Muon::MuonPatternCombination* patt, Trk::SegmentCollection* segments, Trk::SegmentCollection* segmentsNSW) const {
     // turn the PRD into MuonCluster
     std::map<int, std::vector<const Muon::MuonClusterOnTrack*> > clustersPerSector;
     std::vector<Muon::MuonPatternChamberIntersect>::const_iterator it = patt->chamberData().begin();
@@ -216,7 +220,7 @@ void MuonSegmentFinderAlg::createSegmentsFromClusters(const EventContext& ctx, c
     for (; sit != sit_end; ++sit) {
         std::vector<const Muon::MuonClusterOnTrack*>& clusters = sit->second;
         std::vector<std::unique_ptr<Muon::MuonSegment>> segVec;
-        m_clusterSegMakerNSW->find(ctx, clusters, segVec, segments);
+        m_clusterSegMakerNSW->find(ctx, clusters, segVec, segments, segmentsNSW);
 
         // cleanup the memory
         for (std::vector<const Muon::MuonClusterOnTrack*>::iterator cit = clusters.begin(); cit != clusters.end(); ++cit) { delete *cit; }

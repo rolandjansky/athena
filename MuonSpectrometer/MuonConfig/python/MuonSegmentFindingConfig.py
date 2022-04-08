@@ -797,6 +797,10 @@ def MuonSegmentFindingCfg(flags, cardinality=1):
 
     result.addEventAlgo(CompFactory.xAODMaker.MuonSegmentCnvAlg("MuonSegmentCnvAlg"))
 
+    if flags.Muon.doMicromegas or flags.Muon.dosTGCs:
+        result.addEventAlgo(CompFactory.xAODMaker.MuonSegmentCnvAlg("QuadNSW_MuonSegmentCnvAlg",
+                                                                    SegmentContainerName="TrackMuonNSWSegments",
+                                                                    xAODContainerName="xAODNSWSegments"))
     return result
 
 if __name__=="__main__":

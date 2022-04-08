@@ -29,6 +29,10 @@ def StandaloneMuonOutputCfg(flags):
         aod_items+=[ "xAOD::TrackParticleContainer#EMEO_MuonSpectrometerTrackParticles" ]
         aod_items+=[ "xAOD::TrackParticleAuxContainer#EMEO_MuonSpectrometerTrackParticlesAux." ]
         
+    if flags.Muon.doMicromegas or flags.Muon.dosTGCs:
+         aod_items+=[ "xAOD::MuonSegmentContainer#xAODNSWSegments" ]
+         aod_items+=[ "xAOD::MuonSegmentAuxContainer#xAODNSWSegmentsAux." ]
+
     # TrackParticles 
     aod_items+=[ "xAOD::TrackParticleContainer#MuonSpectrometerTrackParticles" ]
     aod_items+=[ "xAOD::TrackParticleAuxContainer#MuonSpectrometerTrackParticlesAux." ]
