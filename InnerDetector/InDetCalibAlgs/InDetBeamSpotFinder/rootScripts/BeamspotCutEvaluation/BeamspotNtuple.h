@@ -148,7 +148,7 @@ BeamspotNtuple::BeamspotNtuple(TTree *tree)
       tree = (TTree*)gDirectory->Get("Beamspots");
 
    }
-   Init(tree);
+   BeamspotNtuple::Init(tree);
 }
 
 BeamspotNtuple::~BeamspotNtuple()

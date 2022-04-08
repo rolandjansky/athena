@@ -76,7 +76,7 @@ public:
   TextPage(string);
 };
 
-TextPage::TextPage(string text){
+TextPage::TextPage(const string & text){
   this->cd();
   TPaveText* pt= new TPaveText(.1,.1,0.9,0.9);
   pt->SetTextAlign(22);
