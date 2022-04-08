@@ -8,7 +8,6 @@
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "TrigTimeAlgs/ITrigTimerSvc.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
@@ -218,13 +217,6 @@ class MuFastSteering : public AthReentrantAlgorithm , public IIncidentListener
 
  protected:
 
-  // Services
-
-
-  /** Timers */
-  ServiceHandle<ITrigTimerSvc> m_timerSvc;
-  std::vector<TrigTimer*> m_timingTimers;
-
   // Tools
   ToolHandle<TrigL2MuonSA::MuFastDataPreparator>     m_dataPreparator {
 	this, "DataPreparator", "TrigL2MuonSA::MuFastDataPreparator", "data preparator" };
@@ -264,7 +256,6 @@ class MuFastSteering : public AthReentrantAlgorithm , public IIncidentListener
   Gaudi::Property< float > m_scaleRoadBarrelMiddle { this, "Scale_Road_BarrelMiddle", 1 };
   Gaudi::Property< float > m_scaleRoadBarrelOuter { this, "Scale_Road_BarrelOuter", 1 };
 
-  Gaudi::Property< bool > m_use_timer { this, "Timing", false };
   Gaudi::Property< bool > m_use_mcLUT { this, "UseLUTForMC", true};
   Gaudi::Property< bool > m_use_new_segmentfit { this, "USE_NEW_SEGMENTFIT", true};
   Gaudi::Property< bool > m_use_rpc { this, "USE_RPC", true};
