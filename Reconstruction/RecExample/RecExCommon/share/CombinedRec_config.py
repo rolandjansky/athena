@@ -92,7 +92,7 @@ if rec.doESD() and recAlgs.doTrackParticleCellAssociation() and DetFlags.ID_on()
 # functionality : energy flow
 #
 pdr.flag_domain('eflow')
-if recAlgs.doEFlow() and (rec.readESD() or (DetFlags.haveRIO.ID_on() and DetFlags.haveRIO.Calo_allOn() and rec.doMuonCombined())):
+if recAlgs.doEFlow() and (rec.readESD() or (DetFlags.haveRIO.ID_on() and DetFlags.haveRIO.Calo_allOn())):
     try:        
         from eflowRec.PFRun3Config import PFCfg
         CAtoGlobalWrapper(PFCfg, ConfigFlags)
