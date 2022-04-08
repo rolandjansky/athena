@@ -48,8 +48,10 @@ def AthenaMonitoringAODRecoCfg(flags):
         if jet_collections & met_jet_collections:
             info('Scheduling rebuild of standard MET')
             from METReconstruction.METAssociatorCfg import METAssociatorCfg
+            from METUtilities.METMakerConfig import getMETMakerAlg
             for container in jet_collections & met_jet_collections:
-                result.merge(METAssociatorCfg(flags, container))          
+                result.merge(METAssociatorCfg(flags, container))
+                result.addEventAlgo(getMETMakerAlg(container), sequenceName='METAssoc_'+container)
             from CaloTools.CaloNoiseCondAlgConfig import CaloNoiseCondAlgCfg
             result.merge(CaloNoiseCondAlgCfg(flags)) # Prereq for Calo MET
             from METReconstruction.METCalo_Cfg import METCalo_Cfg
