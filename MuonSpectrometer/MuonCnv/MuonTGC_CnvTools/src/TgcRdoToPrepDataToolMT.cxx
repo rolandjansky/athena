@@ -73,11 +73,11 @@ StatusCode Muon::TgcRdoToPrepDataToolMT::decode(std::vector<IdentifierHash>& req
   const ITGCcablingSvc* tgcCabling = cinfo->m_tgcCabling;
 
   /// clean up containers for Hits
-  for(int ibc=0; ibc<NBC+1; ibc++) {      
+  for(unsigned ibc=0; ibc<NBC+1; ibc++) {      
     // initialize with false  
     SG::WriteHandle<TgcPrepDataContainer>  handle(m_outputprepdataKeys[ibc]);
     
-    const bool externalCachePRD = !m_prdContainerCacheKeys[ibc].key().empty();
+    const bool externalCachePRD = ibc < m_prdContainerCacheKeys.size() && !m_prdContainerCacheKeys[ibc].key().empty();
     if (!externalCachePRD) {
       // record the container in storeGate
       StatusCode recStatus = handle.record( std::make_unique<TgcPrepDataContainer>(m_idHelperSvc->tgcIdHelper().module_hash_max()) );
