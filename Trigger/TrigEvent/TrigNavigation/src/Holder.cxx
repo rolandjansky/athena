@@ -52,9 +52,9 @@ IHolder::~IHolder() {
   if ( m_aux ) { delete m_aux; }
 }
 
-void IHolder::prepare(MsgStream* log, HLT::AccessProxy* sg, IConversionSvc* objSerializer, bool readonly) {
+void IHolder::prepare(const asg::AsgMessaging& logger, HLT::AccessProxy* sg, IConversionSvc* objSerializer, bool readonly) {
   m_storeGate = sg;
-  m_log = log;
+  m_logger = &logger;
   m_objectserializerSvc = objSerializer;
   m_readonly = readonly;
 }

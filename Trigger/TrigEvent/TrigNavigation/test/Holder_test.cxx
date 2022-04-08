@@ -6,7 +6,7 @@
 #include "vector"
 
 #include "TestTools/initGaudi.h"
-#include "AthenaKernel/getMessageSvc.h"
+#include "AsgMessaging/AsgMessaging.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -28,13 +28,9 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // testing code
 using namespace std;
 using namespace HLTNavDetails;
 using namespace TrigNavTest;
-// Hi-lock: (("REPORT_AND_STOP" (0 (quote hi-yellow) t)))
-
-//const int OK=1;
-//const int FAILED=0;
 
 StoreGateSvc* pStore(0);
-
+asg::AsgMessaging logger("Holder_test");
 
 typedef TrigSerializeConverter<TestBContainer> TestBContainerSerCnv;
 typedef TrigSerializeConverter<TestAuxB> TestAuxBSerCnv;
@@ -59,7 +55,7 @@ bool reg( HTYPE* full, const char* name, int idx, ITypeProxy* /*aux*/, typename 
   if ( ! base_holder ) REPORT_AND_STOP ("Holder can't create base holder" );
   
 
-  iholder->prepare(msglog, pStore, cnvsvc, false);
+  iholder->prepare(logger, pStore, cnvsvc, false);
   if (sync) {
     if ( iholder->syncWithSG() == false ) REPORT_AND_STOP( "can not sync wiht holder" );
   }
@@ -70,7 +66,7 @@ bool reg( HTYPE* full, const char* name, int idx, ITypeProxy* /*aux*/, typename 
 bool getUniqueKeyBeforeReg() {
   BEGIN_TEST( "use of unique key without sync to SG" );
   auto h = new HolderImp<TestBContainer, TestBContainer >();
-  h->prepare(msglog, pStore,0);
+  h->prepare(logger, pStore,0);
   std::string key = h->getUniqueKey();
   REPORT_AND_CONTINUE("Got unique Key:" << key);
   END_TEST;
@@ -255,7 +251,7 @@ bool externalCollection() {
   
   Holder<TestBContainer> *base = new HolderImp<TestBContainer, TestBContainer >();
   Holder<TestBContainer> *h =   dynamic_cast<Holder<TestBContainer>*>(base->clone("", "external", 77));
-  h->prepare(msglog, pStore,0, false);  
+  h->prepare(logger, pStore,0, false);
 
   END_TEST;
 }
@@ -370,8 +366,8 @@ int main() {
      return 0;
    }
    assert(pSvcLoc!=nullptr);
-   MsgStream log(Athena::getMessageSvc(), "Holder_test");
-   msglog = &log;
+
+   msglog = &logger.msg();
 
    Gaudi::Hive::setCurrentContextEvt(0);
 

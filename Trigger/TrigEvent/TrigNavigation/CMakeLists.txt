@@ -35,7 +35,7 @@ foreach( name TriggerElement_test Holder_test Registration_test Ownership_test H
    atlas_add_test( ${name}
       SOURCES test/${name}.cxx
       INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-      LINK_LIBRARIES ${Boost_LIBRARIES} TrigNavigationLib AthContainers AthContainersRoot
+      LINK_LIBRARIES ${Boost_LIBRARIES} TrigNavigationLib AsgMessagingLib AthContainers AthContainersRoot
       AthLinks AthenaKernel StoreGateLib GaudiKernel TestTools xAODCore
       TrigSerializeCnvSvcLib
       PROPERTIES TIMEOUT 300
