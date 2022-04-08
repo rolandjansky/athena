@@ -33,14 +33,14 @@ std::ostream& operator<<( std::ostream& s, const std::vector<T>& v)
   return s;
 }
 
-NavigationCore::NavigationCore(MsgStream& log)
+NavigationCore::NavigationCore(const AthAlgTool& logger)
   : TrigNavStructure(),
     m_serializerSvc(nullptr),
     m_storeGate(nullptr),
     m_objectsKeyPrefix("HLT"),
     m_objectsIndexOffset(0),
     m_holderfactory(nullptr),
-    m_log(log)
+    m_logger(logger)
 {
 }
 
