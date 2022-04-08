@@ -16,7 +16,7 @@
 
 #include "tauRecTools/ITauToolBase.h"
 #include "AsgTools/AsgTool.h"
-#include "Gaudi/Property.h"
+#include "AsgTools/PropertyWrapper.h"
 
 class TauRecToolBase : public asg::AsgTool, virtual public ITauToolBase {
  public:
