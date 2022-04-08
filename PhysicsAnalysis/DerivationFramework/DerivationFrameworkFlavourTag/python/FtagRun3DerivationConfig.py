@@ -142,6 +142,11 @@ def getFtagComponent(cfgFlags, jetcol, pvCol):
         'TrackLeptonDecoratorAlg',
         trackContainer=track_collection,
     ))
+    if cfgFlags.Input.isMC:
+        acc.addEventAlgo(CompFactory.FlavorTagDiscriminants.TrackTruthDecoratorAlg(
+            'TrackTruthDecoratorAlg',
+            trackContainer=track_collection,
+        ))
 
     nnList = derivationTrainingMap[jetcol_name_without_Jets]
 

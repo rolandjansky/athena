@@ -27,23 +27,24 @@ namespace FlavorTagDiscriminants {
 
     virtual StatusCode initialize() override;
     virtual StatusCode execute(const EventContext& ) const override;
-    virtual StatusCode finalize() override;
 
   private:
 
     // electron ID tool
+    Gaudi::Property<std::string> m_electronID_wp {
+      this, "electronID_wp", "VeryLooseLHElectron",
+        "Likelihood working point for electron ID selection"};
     AsgElectronLikelihoodTool m_electronID_tool;
-    std::string m_electronID_wp;
 
     // Input Containers
     SG::ReadHandleKey< xAOD::TrackParticleContainer > m_TrackContainerKey {
-      this,"trackContainer", "InDetTrackParticles",
+      this, "trackContainer", "InDetTrackParticles",
         "Key for the input track collection"};
     SG::ReadHandleKey< xAOD::ElectronContainer > m_ElectronContainerKey {
-      this,"electronContainer", "Electrons",
+      this, "electronContainer", "Electrons",
         "Key for the input electron collection"};
     SG::ReadHandleKey< xAOD::MuonContainer > m_MuonContainerKey {
-      this,"muonContainer", "Muons",
+      this, "muonContainer", "Muons",
         "Key for the input muon collection"};
 
     // Decorators for tracks

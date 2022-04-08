@@ -43,7 +43,20 @@ atlas_add_library( FlavorTagDiscriminants
   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS} ${ONNXRUNTIME_INCLUDE_DIRS}
   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} PathResolver
-  LINK_LIBRARIES ${Boost_LIBRARIES} ${LWTNN_LIBRARIES} ${ONNXRUNTIME_LIBRARIES} AsgTools AthContainers AthLinks JetInterface xAODBTagging xAODEventInfo xAODJet xAODMuon xAODTracking xAODEgamma ElectronPhotonSelectorToolsLib)
+  LINK_LIBRARIES ${Boost_LIBRARIES} ${LWTNN_LIBRARIES} ${ONNXRUNTIME_LIBRARIES} 
+    AsgTools
+    AthContainers
+    AthLinks
+    JetInterface
+    xAODBTagging
+    xAODEventInfo
+    xAODJet
+    xAODTracking
+    InDetTrackSystematicsToolsLib
+    xAODMuon
+    xAODEgamma
+    ElectronPhotonSelectorToolsLib
+  )
 
 
 if (NOT XAOD_STANDALONE)
@@ -57,6 +70,7 @@ if (NOT XAOD_STANDALONE)
     src/PoorMansIpAugmenterAlg.cxx
     src/JetTagConditionalDecoratorAlg.cxx
     src/TrackLeptonDecoratorAlg.cxx
+    src/TrackTruthDecoratorAlg.cxx
     src/components/FlavorTagDiscriminants_entries.cxx
     LINK_LIBRARIES FlavorTagDiscriminants
     )
