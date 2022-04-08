@@ -146,6 +146,18 @@ StatusCode JetPFlowSelectionAlg::execute(const EventContext& ctx) const {
 
         theClusters.push_back(theIParticleLink);
         newFE->setOtherObjectLinks(theClusters);
+
+        //Add CENTER_MAG moment which is needed for the vertex correction used in jet finding
+        static const SG::AuxElement::Accessor< float > acc_CENTER_MAG( "CENTER_MAG" );
+	double moment_center_mag = 0.0;
+	const xAOD::CaloCluster* castCluster_charged = dynamic_cast<const xAOD::CaloCluster*>(theCluster_charged);
+	bool isRetrieved = castCluster_charged->retrieveMoment(xAOD::CaloCluster::CENTER_MAG, moment_center_mag);
+	if (isRetrieved) {
+	  float float_moment_center_mag = moment_center_mag;
+	  acc_CENTER_MAG(*newFE) = float_moment_center_mag;
+	} 
+	else ATH_MSG_WARNING(" Could not retrieve CENTER_MAG moment from the CaloCluster");
+
       }
         
     } // End loop over topoclusters of removed charged FE objects
