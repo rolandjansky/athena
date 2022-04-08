@@ -412,21 +412,17 @@ findMinimumIndex(const float* distancesIn, const int n)
   return minIndex;
 }
 
-} // anonymous namespace
-
-namespace GSFUtils {
-
 /**
  * Merge the componentsIn and return
  * which componets got merged.
  */
 #if HAVE_TARGET_CLONES
 #if defined(__x86_64__)
-[[gnu::target_clones("sse4.2", "default")]]
+[[gnu::target_clones("sse4.2,default")]]
 #endif // end of x86_64 versions
 #endif // HAVE_TARGET_CLONES
 MergeArray
-findMerges(const Component1DArray& componentsIn, const int8_t reducedSize)
+findMergesImpl(const Component1DArray& componentsIn, const int8_t reducedSize)
 {
 
   const int32_t n = componentsIn.numComponents;
@@ -486,4 +482,13 @@ findMerges(const Component1DArray& componentsIn, const int8_t reducedSize)
   return result;
 }
 
+} // anonymous namespace
+
+namespace GSFUtils {
+
+MergeArray
+findMerges(const Component1DArray& componentsIn, const int8_t reducedSize)
+{
+  return findMergesImpl(componentsIn, reducedSize);
+}
 } // end namespace GSFUtils

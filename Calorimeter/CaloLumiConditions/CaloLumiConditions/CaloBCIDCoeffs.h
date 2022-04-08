@@ -122,11 +122,10 @@ public:
    */
   size_t nsamples_coeff() const;
 
-
-private:
   /// Number of cells that we calculate at one time.
   static constexpr size_t CHUNKSIZE = 8;
 
+private:
   /// Number of cells.
   unsigned int m_ncell;
 
