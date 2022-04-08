@@ -23,6 +23,10 @@ atlas_add_test(ThinTRTStandaloneConfig_test
                SCRIPT python -m ThinningUtils.ThinTRTStandaloneConfig
                POST_EXEC_SCRIPT nopost.sh)
 
+atlas_add_test(ThinNegativeEnergyCaloClusters_test
+               SCRIPT python -m ThinningUtils.ThinNegativeEnergyCaloClustersConfig
+               POST_EXEC_SCRIPT nopost.sh)
+
 atlas_add_test(ThinInDetForwardTrackParticlesConfig_test
                SCRIPT python -m ThinningUtils.ThinInDetForwardTrackParticlesConfig
                POST_EXEC_SCRIPT nopost.sh)

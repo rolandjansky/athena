@@ -73,7 +73,6 @@ def CaloRecoCfg(configFlags, clustersname=None):
         from TileRecAlgs.MBTSTimeDiffEventInfoAlgConfig import MBTSTimeDiffEventInfoAlgCfg
         result.merge(MBTSTimeDiffEventInfoAlgCfg(configFlags))
 
-
     return result
 
 
