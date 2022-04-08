@@ -212,7 +212,7 @@ class PowhegBase(Configurable):
         __nEvents_unscaled = self.parameters_by_keyword("numevts")[0].value
         for keyword in ["ncall1", "ncall1rm", "ncall2", "ncall2rm", "nubound", "numevts"]:
             for parameter in self.parameters_by_keyword(keyword):
-                if parameter.value > 0:
+                if int(parameter.value) > 0:
                     parameter.value = int(math.ceil(float(parameter.value) / n_cores))
         __nEvents_scaled = self.parameters_by_keyword("numevts")[0].value
         logger.info("Scaling number of events per job from {} down to {}".format(__nEvents_unscaled, __nEvents_scaled))
