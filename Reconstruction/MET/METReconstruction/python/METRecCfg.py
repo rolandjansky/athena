@@ -19,10 +19,14 @@ def METCfg(inputFlags,**kwargs):
         result.merge(METTruth_Cfg(inputFlags))
 
     from METReconstruction.METAssociatorCfg import METAssociatorCfg
+    from METUtilities.METMakerConfig import getMETMakerAlg
     result.merge(METAssociatorCfg(inputFlags, "AntiKt4EMTopo"))
+    result.addEventAlgo(getMETMakerAlg('AntiKt4EMTopo'), sequenceName='METAssoc_AntiKt4EMTopo')
     result.merge(METAssociatorCfg(inputFlags, "AntiKt4LCTopo"))
+    result.addEventAlgo(getMETMakerAlg('AntiKt4LCTopo'), sequenceName='METAssoc_AntiKt4LCTopo')
     if inputFlags.MET.DoPFlow:
        result.merge(METAssociatorCfg(inputFlags, "AntiKt4EMPFlow"))
+       result.addEventAlgo(getMETMakerAlg('AntiKt4EMPFlow'), sequenceName='METAssoc_AntiKt4EMPFlow')
         
     from OutputStreamAthenaPool.OutputStreamConfig import addToAOD, addToESD
     toESDAndAOD = ""
