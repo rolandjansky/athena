@@ -1,7 +1,7 @@
 // Emacs -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGNAVIGATION_HOLDER_H
@@ -392,7 +392,7 @@ namespace HLTNavDetails {
       bool inSG;
     };
 
-    mutable ContainerProxy m_containerProxy;
+    ContainerProxy m_containerProxy;
 
     typedef std::multimap<HLT::TriggerElement::ObjectIndex, MemoryMgr> MemoryMgrMap;
     MemoryMgrMap m_memMgr;

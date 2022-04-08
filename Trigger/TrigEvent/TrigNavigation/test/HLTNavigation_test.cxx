@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -19,7 +19,6 @@
 
 #include "TrigNavigation/Navigation.h"
 #include "TrigNavigation/Navigation.icc"
-#include "TrigNavigation/RoICacheHelper.h"
 
 #include <boost/type_traits/is_same.hpp>
 #include  <boost/type_traits/remove_const.hpp>
@@ -27,6 +26,9 @@
 
 #include "TestTypes.h"
 #include "TestUtils.h"
+
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // testing code
 
 StoreGateSvc* pStore(0);
 

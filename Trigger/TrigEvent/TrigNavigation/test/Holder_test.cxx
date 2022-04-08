@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "iostream"
@@ -16,11 +16,14 @@
 #include "AthContainers/AuxTypeRegistry.h"
 
 #include "TrigNavigation/TriggerElement.h"
+#include "CxxUtils/checker_macros.h"
 #include "CxxUtils/ubsan_suppress.h"
 
 #include "TestTypes.h"
 #include "TestUtils.h"
 #include "TInterpreter.h"
+
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // testing code
 
 using namespace std;
 using namespace HLTNavDetails;
