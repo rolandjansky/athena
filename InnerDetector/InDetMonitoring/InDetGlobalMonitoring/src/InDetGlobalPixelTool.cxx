@@ -71,6 +71,7 @@ InDetGlobalPixelTool::InDetGlobalPixelTool(
 //---------------------------------------------------------
 StatusCode InDetGlobalPixelTool::bookHistograms()
 {
+  //cppcheck-suppress publicAllocationError
   m_Pixel_track_clus_groupsize = new TH1F("m_Pixel_track_clus_groupsize","Number of pixels per cluster for clusters on track",10,0,10);
   regHist(m_Pixel_track_clus_groupsize, "InDetGlobal/Pixel", run, ATTRIB_MANAGED).isSuccess();
   m_Pixel_track_cluster_ToT = new TH1F("m_Pixel_track_cluster_ToT","Time over threshold for pixel clusters on track",100,0,300);
