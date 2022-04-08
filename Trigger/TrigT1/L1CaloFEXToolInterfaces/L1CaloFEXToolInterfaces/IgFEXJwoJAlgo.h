@@ -25,14 +25,14 @@ Interface definition for gFEXJwoJAlgo
     static const InterfaceID& interfaceID( ) ;
 
 
-    virtual void setAlgoConstant(unsigned int aFPGA_A, unsigned int bFPGA_A,
-                                 unsigned int aFPGA_B, unsigned int bFPGA_B,
-                                 unsigned int aFPGA_C, unsigned int bFPGA_C,
+    virtual void setAlgoConstant(float aFPGA_A, float bFPGA_A,
+                                 float aFPGA_B, float bFPGA_B,
+                                 float aFPGA_C, float bFPGA_C,
                                  int gXE_seedThrA, int gXE_seedThrB, int gXE_seedThrC) = 0;
 
     virtual std::vector<std::unique_ptr<gFEXJwoJTOB>> jwojAlgo(gTowersCentral Atwr, gTowersCentral Btwr,
-                                                                            gTowersForward CNtwr, gTowersForward CPtwr,
-                                                                            std::array<uint32_t, 4> & outTOB) = 0;
+                                                               gTowersForward CNtwr, gTowersForward CPtwr,
+                                                               std::array<uint32_t, 4> & outTOB) = 0;
 
 
   };
