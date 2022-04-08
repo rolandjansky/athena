@@ -9,6 +9,8 @@
 #include "MuonReadoutGeometry/MuonChannelDesign.h"
 #include "MuonReadoutGeometry/MuonClusterReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MuonReadoutGeometry/ArrayHelper.h"
+
 
 class BLinePar;
 class GeoVFullPhysVol;
@@ -178,7 +180,7 @@ namespace MuonGM {
         const BLinePar*  m_BLinePar{nullptr};
 
         // transforms (RE->layer)
-        std::array<Amg::Transform3D, 4> m_Xlg{Amg::Transform3D::Identity()};
+        std::array<Amg::Transform3D, 4> m_Xlg{make_array<Amg::Transform3D,4>(Amg::Transform3D::Identity())};
     };
 
     inline void MMReadoutElement::clearALinePar() {
