@@ -97,13 +97,7 @@ if HLTMonFlags.doMonTier0:
 
     # MET HLTMonTool
     if HLTMonFlags.doMET:
-      try:
-        from TrigMETMonitoring.TrigMETMonitoringConfig import HLTMETMonitoringTool
-        HLTMonManager.AthenaMonTools += HLTMETMonitoringTool()
-      except:
-        log.info("Problems with HLTMETTool, tool not enabled")
-        import traceback
-        log.info (traceback.format_exc())
+        log.warning("The HLT legacy MET monitoring is no longer supported")
 
     # Tau HLTMonTool
     if HLTMonFlags.doTau:

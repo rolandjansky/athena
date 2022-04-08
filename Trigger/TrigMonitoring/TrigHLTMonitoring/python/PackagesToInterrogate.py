@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Authors: Ben Smart (ben.smart@cern.ch)
 # See https://twiki.cern.ch/twiki/bin/view/Atlas/MaDQM for more information
@@ -18,7 +18,6 @@ class PackagesToInterrogate:
         "Egamma"      : { "PackageName" : "TrigEgammaMonitoring.TrigEgammaMonitoringConfig",   "ToolName" : "TrigEgammaMonitoringTool",    "MonitCategoryName" : "TrigEgammaMonitoring.TrigEgammaMonitCategory",   "Dll" : "TrigEgammaAnalysisTools"},
         "IDtrk"       : { "PackageName" : "TrigIDtrkMonitoring.TrigIDtrkMonitoringConfig",     "ToolName" : "TrigIDtrkMonitoringTool",     "MonitCategoryName" : "",                                               "Dll" : "TrigInDetAnalysisExample"},
         "Jet"         : { "PackageName" : "TrigJetMonitoring.TrigJetMonitoringConfig",         "ToolName" : "TrigJetMonitoringTool",       "MonitCategoryName" : "TrigJetMonitoring.TrigJetMonitCategory",         "Dll" : "TrigJetMonitoring"},
-        "MET"         : { "PackageName" : "TrigMETMonitoring.TrigMETMonitoringConfig",         "ToolName" : "HLTMETMonitoringTool",        "MonitCategoryName" : "TrigMETMonitoring.TrigMETMonitCategory",         "Dll" : "TrigMETMonitoring"},
         "MinBias"     : { "PackageName" : "TrigMinBiasMonitoring.TrigMinBiasMonitoringConfig", "ToolName" : "TrigMinBiasMonitoringTool",   "MonitCategoryName" : "TrigMinBiasMonitoring.TrigMinBiasMonitCategory", "Dll" : "TrigMinBiasMonitoring"},
         "Muon"        : { "PackageName" : "TrigMuonMonitoring.TrigMuonMonitoringConfig",       "ToolName" : "TrigMuonMonitoringTool",      "MonitCategoryName" : "TrigMuonMonitoring.TrigMuonMonitCategory",       "Dll" : "TrigMuonMonitoring"},
         "Tau"         : { "PackageName" : "TrigTauMonitoring.TrigTauMonitoringConfig",         "ToolName" : "TrigTauMonitoringTool",       "MonitCategoryName" : "TrigTauMonitoring.TrigTauMonitCategory",         "Dll" : "TrigTauMonitoring"}
