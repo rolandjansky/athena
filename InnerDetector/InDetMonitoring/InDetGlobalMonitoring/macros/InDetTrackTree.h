@@ -272,7 +272,7 @@ InDetTrackTree::InDetTrackTree(TTree *tree)
       tree = (TTree*)gDirectory->Get("InDetTrackTree");
 
    }
-   Init(tree);
+   InDetTrackTree::Init(tree);
 }
 
 InDetTrackTree::~InDetTrackTree()
