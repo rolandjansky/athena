@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "FastCaloSim/EmptyCellBuilderTool.h"
+#include "EmptyCellBuilderTool.h"
 #include "FastCaloSim/FastSimCell.h"
 
 #include "AthAllocators/DataPool.h"
@@ -10,7 +10,6 @@
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "TileEvent/TileCell.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 
 EmptyCellBuilderTool::EmptyCellBuilderTool(
 			     const std::string& type, 
@@ -21,44 +20,32 @@ EmptyCellBuilderTool::EmptyCellBuilderTool(
   declareInterface<ICaloCellMakerTool>( this );  
 }
 
-
-EmptyCellBuilderTool::~EmptyCellBuilderTool()
-{
-}
-
-
 StatusCode EmptyCellBuilderTool::initialize()
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO <<  "Initialisating started" << endmsg ;
-
-  StatusCode sc=BasicCellBuilderTool::initialize();
-
-  log << MSG::INFO <<  "Initialisating finished" << endmsg ;
-  return sc;
+  ATH_MSG_INFO("Initialisating started");
+  ATH_CHECK(BasicCellBuilderTool::initialize());
+  ATH_CHECK(m_caloMgrKey.initialize());
+  ATH_MSG_INFO("Initialisating finished");
+  return StatusCode::SUCCESS;
 }
 
 StatusCode
 EmptyCellBuilderTool::process (CaloCellContainer* theCellContainer,
                                const EventContext& ctx) const
 {
-  MsgStream log( msgSvc(), name() );
-  
   create_empty_calo(ctx, theCellContainer);
-
-//  log << MSG::INFO << "Executing finished calo size=" <<theCellContainer->size()<< endmsg;
   return StatusCode::SUCCESS;
 }
 
 void EmptyCellBuilderTool::create_empty_calo(const EventContext& ctx,
                                              CaloCellContainer * theCellContainer) const
 {
-  MsgStream log( msgSvc(), name() );
-  
-  const CaloDetDescrManager* caloDDM = nullptr;
-  if (detStore()->retrieve (caloDDM, "CaloMgr").isFailure() ) {
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgrHandle{m_caloMgrKey,ctx};
+  if(!caloMgrHandle.isValid()) {
+    ATH_MSG_FATAL("Failed to retrieve CaloDetDescrManager!");
     std::abort();
   }
+  const CaloDetDescrManager* caloDDM = *caloMgrHandle;
 
   ATH_MSG_DEBUG("Executing start calo size=" <<theCellContainer->size()<<" Event="<<ctx.evt());
   bool check_exist=false;
@@ -76,16 +63,13 @@ void EmptyCellBuilderTool::create_empty_calo(const EventContext& ctx,
   #else  
     DataPool<FastSimTileCell> CellsPTile(10000);
     DataPool<FastSimCaloCell> CellsPCalo(190000);
-    log << MSG::DEBUG << "before: CellsPTile.capacity()="<<CellsPTile.capacity()<<" CellsPTile.allocated()="<<CellsPTile.allocated()<<endmsg;
-    log << MSG::DEBUG << "before: CellsPCalo.capacity()="<<CellsPCalo.capacity()<<" CellsPCalo.allocated()="<<CellsPCalo.allocated()<<endmsg;
+    ATH_MSG_DEBUG("before: CellsPTile.capacity()="<<CellsPTile.capacity()<<" CellsPTile.allocated()="<<CellsPTile.allocated());
+    ATH_MSG_DEBUG("before: CellsPCalo.capacity()="<<CellsPCalo.capacity()<<" CellsPCalo.allocated()="<<CellsPCalo.allocated());
   #endif  
 
   for(CaloDetDescrManager::calo_element_const_iterator calo_iter=caloDDM->element_begin();calo_iter<caloDDM->element_end();++calo_iter) {
     const CaloDetDescrElement* theDDE=*calo_iter;
     if(theDDE) {
-//      if(n%10000==0) {
-//        log << MSG::DEBUG <<"  "<<n<<" : det_elm eta=" <<theDDE->eta()<<" phi="<<theDDE->phi()<<" hash="<<theDDE->calo_hash()<< endmsg;
-//      }
       CaloCell* theCaloCell=0;
       
       if(check_exist) theCaloCell=(CaloCell*)(theCellContainer->findCell(theDDE->calo_hash()));
@@ -125,7 +109,7 @@ void EmptyCellBuilderTool::create_empty_calo(const EventContext& ctx,
     }  
   }
 
-  log << MSG::DEBUG << ncreate<<" cells created, "<<nfound<<" cells already found: size="<<theCellContainer->size()<<" e="<<E_tot<<" ; et="<<Et_tot<<". Now initialize and order calo..." << endmsg;
+  ATH_MSG_DEBUG(ncreate<<" cells created, "<<nfound<<" cells already found: size="<<theCellContainer->size()<<" e="<<E_tot<<" ; et="<<Et_tot<<". Now initialize and order calo...");
 
   // check whether has max hash id size
   const CaloCell_ID * theCaloCCIDM   = caloDDM->getCaloCell_ID() ;
@@ -165,12 +149,8 @@ void EmptyCellBuilderTool::create_empty_calo(const EventContext& ctx,
 
   #if FastCaloSim_project_release_v1 == 12
   #else  
-    log << MSG::DEBUG << "before: CellsPTile.capacity()="<<CellsPTile.capacity()<<" CellsPTile.allocated()="<<CellsPTile.allocated()<<endmsg;
-    log << MSG::DEBUG << "before: CellsPCalo.capacity()="<<CellsPCalo.capacity()<<" CellsPCalo.allocated()="<<CellsPCalo.allocated()<<endmsg;
+    ATH_MSG_DEBUG("before: CellsPTile.capacity()="<<CellsPTile.capacity()<<" CellsPTile.allocated()="<<CellsPTile.allocated());
+    ATH_MSG_DEBUG("before: CellsPCalo.capacity()="<<CellsPCalo.capacity()<<" CellsPCalo.allocated()="<<CellsPCalo.allocated());
   #endif  
-
-//  log << MSG::INFO << "theCellContainer->hasTotalSize()="<<theCellContainer->hasTotalSize()<< endmsg;
-//  log << MSG::INFO << "theCellContainer->isOrderedAndComplete()="<<theCellContainer->isOrderedAndComplete()<< endmsg;
-//  log << MSG::INFO << "theCellContainer->isOrdered()="<<theCellContainer->isOrdered()<< endmsg;
 }
 

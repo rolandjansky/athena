@@ -1,5 +1,5 @@
 #include "FastCaloSim/FastShowerCellBuilderTool.h"
-#include "FastCaloSim/EmptyCellBuilderTool.h"
+#include "../EmptyCellBuilderTool.h"
 #include "FastCaloSim/AddNoiseCellBuilderTool.h"
 #include "FastCaloSim/FSStoregateClean.h"
 #include "FastCaloSim/CaloCellContainerFCSFinalizerTool.h"
