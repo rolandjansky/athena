@@ -110,7 +110,7 @@ def MinBiasSPSequence():
     from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTracking
     idAlgs, verifier = makeInDetTrigFastTracking(config=idTrigConfig, 
                                      rois=spInputMakerAlg.InViewRoIs, 
-                                     viewVerifier='SPViewDataVerifier', 
+                                     viewVerifier='IDDataPrepCosmicsDataVerifier', 
                                      doFTF=False)
     verifier.DataObjects += [('TrigRoiDescriptorCollection', 'StoreGateSvc+InputRoI'),
                              ('SCT_ID', 'DetectorStore+SCT_ID'),
