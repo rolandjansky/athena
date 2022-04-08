@@ -19,7 +19,7 @@ def FSCaloCellCfg(flags):
     """ Create the full-scan cells """
     from TrigCaloRec.TrigCaloRecConfig import hltCaloCellMakerCfg
 
-    return hltCaloCellMakerCfg(flags, name="HLTCaloCellMaker_FS", roisKey=caloFSRoI)
+    return hltCaloCellMakerCfg(flags, name="HLTCaloCellMaker_FS", roisKey='')
 
 @AccumulatorCache
 def CaloClusterCfg(flags, doLCCalib=False):

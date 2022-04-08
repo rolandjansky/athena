@@ -31,7 +31,14 @@ def precisionPhotonSequence(ConfigFlags, ion=False):
 
     precisionPhotonViewsMaker.ViewNodeName = precisionPhotonInViewSequence.name()
 
-    theSequence = seqAND(tag(ion)+"Sequence", [precisionPhotonViewsMaker,precisionPhotonInViewSequence])
+    theSequence = seqAND(tag(ion)+"Sequence", [])
+    # Add first the sequence part that is FS, so to run outside the view
+    from TriggerMenuMT.HLT.Egamma.TrigEgammaFactories import egammaFSEventDensitySequence
+    theSequence += egammaFSEventDensitySequence()
+
+    # And now add the the rest which is run isnide the EventView:
+    theSequence += [precisionPhotonViewsMaker,precisionPhotonInViewSequence]
+
     return (theSequence, precisionPhotonViewsMaker, sequenceOut)
 
 

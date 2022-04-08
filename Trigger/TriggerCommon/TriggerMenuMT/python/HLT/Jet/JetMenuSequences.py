@@ -6,7 +6,7 @@ from TriggerMenuMT.HLT.Config.MenuComponents import RecoFragmentsPool, MenuSeque
 from AthenaCommon.CFElements import seqAND, parOR
 from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 from AthenaConfiguration.ComponentFactory import CompFactory
-from ..CommonSequences.FullScanDefs import caloFSRoI, trkFSRoI
+from ..CommonSequences.FullScanDefs import  trkFSRoI
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from .JetRecoCommon import jetRecoDictToString
 from .JetRecoSequences import jetClusterSequence, jetCaloRecoSequences, jetTrackingRecoSequences, jetHICaloRecoSequences
@@ -112,7 +112,7 @@ def jetCaloPreselMenuSequence(configFlags, **jetRecoDict):
     InputMakerAlg = getCaloInputMaker()
     jetRecoSequences, jetsIn, jetDef, clustersKey = RecoFragmentsPool.retrieve(
         jetCaloRecoSequences,
-        configFlags, RoIs=caloFSRoI, **jetRecoDict)
+        configFlags, RoIs='', **jetRecoDict)
 
     jetDefString = jetRecoDictToString(jetRecoDict)
     jetAthRecoSeq = parOR(f"jetSeqCaloPresel_{jetDefString}_RecoSequence", jetRecoSequences)
@@ -128,7 +128,7 @@ def jetCaloRecoMenuSequence(configFlags, clusterCalib):
     jetsIn = ""
     # get calo reco sequence: topoClusterSequence is a parOR of cell and topocluster reco algorithms.
     topoClusterSequence, clustersKey = RecoFragmentsPool.retrieve(
-        jetClusterSequence, configFlags, RoIs=caloFSRoI, clusterCalib=clusterCalib)
+        jetClusterSequence, configFlags, RoIs='', clusterCalib=clusterCalib)
 
     jetAthMenuSeq = seqAND(f"jetSeqCaloRecoPassThrough_{clusterCalib}_MenuSequence",[InputMakerAlg,topoClusterSequence])
 
@@ -142,7 +142,7 @@ def jetCaloHypoMenuSequence(configFlags, isPerf, **jetRecoDict):
     InputMakerAlg = getCaloInputMaker()
     jetRecoSequences, jetsIn, jetDef, clustersKey = RecoFragmentsPool.retrieve(
         jetCaloRecoSequences,
-        configFlags, RoIs=caloFSRoI, **jetRecoDict)
+        configFlags, RoIs='', **jetRecoDict)
     jetDefString = jetRecoDictToString(jetRecoDict)
     jetAthRecoSeq = parOR(f"jetSeqCaloHypo_{jetDefString}_RecoSequence", jetRecoSequences)
     log.debug("Generating jet calo hypo menu sequence for reco %s",jetDefString)
@@ -158,7 +158,7 @@ def jetHICaloHypoMenuSequence(configFlags, isPerf, **jetRecoDict):
     InputMakerAlg = getCaloInputMaker()
     jetRecoSequences, jetsIn, jetDef, clustersKey = RecoFragmentsPool.retrieve(
         jetHICaloRecoSequences,
-        configFlags, RoIs=caloFSRoI, **jetRecoDict)
+        configFlags, RoIs='', **jetRecoDict)
 
     strtemp = "HI_{recoAlg}_{jetCalib}"
     jetDefString = strtemp.format(**jetRecoDict)
