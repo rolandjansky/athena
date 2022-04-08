@@ -17,7 +17,7 @@ from ..Config.MenuComponents import (
     MenuSequenceCA,
 )
 from copy import copy
-from ..CommonSequences.FullScanDefs import caloFSRoI, trkFSRoI
+from ..CommonSequences.FullScanDefs import trkFSRoI
 from AthenaCommon.Logging import logging
 from TrigEFMissingET.TrigEFMissingETConfig import getMETMonTool
 from abc import ABC, abstractmethod
@@ -34,7 +34,7 @@ log = logging.getLogger(__name__)
 # The keys from the MET chain dict that directly affect reconstruction
 # The order here is important as it also controls the dict -> string conversion
 recoKeys = ["EFrecoAlg", "calib", "constitType", "constitmod", "jetCalib", "nSigma", "addInfo"]
-metFSRoIs = [caloFSRoI, trkFSRoI]
+metFSRoIs = ['', trkFSRoI]
 
 
 def metRecoDictToString(recoDict, skipDefaults=True):

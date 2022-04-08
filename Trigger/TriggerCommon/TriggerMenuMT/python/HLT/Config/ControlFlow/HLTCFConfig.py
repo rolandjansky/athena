@@ -329,7 +329,7 @@ def sequenceScanner( HLTNode ):
     final_step=_mapSequencesInSteps(HLTNode, 0, childInView=False)
 
     for alg, steps in _seqMapInStep.items():
-        if 'PassSequence' in alg: # do not count PassSequences, which is used many times
+        if 'PassSequence' in alg or 'HLTCaloClusterMakerFSRecoSequence' or 'HLTCaloCellMakerFSRecoSequence' in alg: # do not count PassSequences, which is used many times. Harcoding HLTCaloClusterMakerFSRecoSequence and HLTCaloCellMakerFSRecoSequence when using FullScanTopoCluster building for photon triggers with RoI='' (also for Jets and MET) following discussion in ATR-24722. To be fixed
             continue
         # Sequences in views can be in multiple steps
         nonViewSteps = sum([0 if isInViews else 1 for (stepIndex,isInViews) in steps])

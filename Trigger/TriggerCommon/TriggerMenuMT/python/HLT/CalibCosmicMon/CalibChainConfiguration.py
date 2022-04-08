@@ -20,11 +20,11 @@ from AthenaCommon.CFElements import seqAND
 # LArNoiseBurst end-of-event configuration
 # --------------------
 def getLArNoiseBurstEndOfEvent():
-    from TriggerMenuMT.HLT.CommonSequences.FullScanDefs import caloFSRoI
+    #from TriggerMenuMT.HLT.CommonSequences.FullScanDefs import caloFSRoI
     from TriggerMenuMT.HLT.CommonSequences.CaloSequences import cellRecoSequence
 
-    cells_sequence, _ = RecoFragmentsPool.retrieve(cellRecoSequence, flags=ConfigFlags, RoIs=caloFSRoI)
-    return cells_sequence, caloFSRoI
+    cells_sequence, _ = RecoFragmentsPool.retrieve(cellRecoSequence, flags=ConfigFlags, RoIs='')
+    return cells_sequence, ''
 
 # --------------------
 # LArNoiseBurst configuration
@@ -40,7 +40,7 @@ def getLArNoiseBurst(self):
 
     from AthenaCommon.CFElements import parOR, seqAND
     noiseBurstRecoSeq = parOR( "LArNoiseRecoSeq")
-    cells_sequence, cells_name = RecoFragmentsPool.retrieve(cellRecoSequence, flags=ConfigFlags, RoIs=noiseBurstInputMakerAlg.RoIs)
+    cells_sequence, cells_name = RecoFragmentsPool.retrieve(cellRecoSequence, flags=ConfigFlags, RoIs='')
     noiseBurstRecoSeq += cells_sequence
     hypoAlg.CellContainerKey = cells_name
 
