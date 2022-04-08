@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # this script can be used to create DCube histograms from the output ntuples of NSWPRDValAlg
 
@@ -123,7 +123,7 @@ if __name__ == "__main__":
             rpc_sector_sel = lambda s: s.RPC_stationPhi[nrpcHit] == RPC_sector
 
         for nrpcHit in range(0,len(inputTree.RPC_hitLocalPositionX)):
-            rpchists += [MyHistoFiller( chamber_name = "RPC", eta_sel = rpc_eta_sel, sector_sel = rpc_sector_sel )]
+            rpchists += [MyHistoFiller( chamber_name = "RPC_Sim", eta_sel = rpc_eta_sel, sector_sel = rpc_sector_sel )]
             rpchists[nrpcHit].fill(inputTree, nrpcHit)
 
         # MDTs
@@ -140,7 +140,7 @@ if __name__ == "__main__":
             mdt_sector_sel = lambda s: s.MDT_stationPhi[nmdtHit] == MDT_sector
 
         for nmdtHit in range(0,len(inputTree.MDT_hitLocalPositionX)):
-            mdthists += [MyHistoFiller( chamber_name = "MDT", eta_sel = mdt_eta_sel, sector_sel = mdt_sector_sel )]
+            mdthists += [MyHistoFiller( chamber_name = "MDT_Sim", eta_sel = mdt_eta_sel, sector_sel = mdt_sector_sel )]
             mdthists[nmdtHit].fill(inputTree, nmdtHit)
     
         # CSCs
@@ -158,7 +158,7 @@ if __name__ == "__main__":
                 csc_sector_sel = lambda s: s.CSC_stationPhi[ncscHit] == CSC_sector
 
             for ncscHit in range(0,len(inputTree.CSC_hitGlobalPositionX)):
-                cschists += [MyHistoFiller( chamber_name = "CSC", eta_sel = csc_eta_sel, sector_sel = csc_sector_sel )]
+                cschists += [MyHistoFiller( chamber_name = "CSC_Sim", eta_sel = csc_eta_sel, sector_sel = csc_sector_sel )]
                 cschists[ncscHit].fill(inputTree, ncscHit)
         
         # TGCs
@@ -175,7 +175,7 @@ if __name__ == "__main__":
             tgc_sector_sel = lambda s: s.TGC_stationPhi[ntgcHit] == TGC_sector
 
         for ntgcHit in range(0,len(inputTree.TGC_hitLocalPositionX)):
-            tgchists += [MyHistoFiller( chamber_name = "TGC", eta_sel = tgc_eta_sel, sector_sel = tgc_sector_sel )]
+            tgchists += [MyHistoFiller( chamber_name = "TGC_Sim", eta_sel = tgc_eta_sel, sector_sel = tgc_sector_sel )]
             tgchists[ntgcHit].fill(inputTree, ntgcHit)
 
         # MMs
@@ -193,7 +193,7 @@ if __name__ == "__main__":
                 mm_sector_sel = lambda s: s.Hits_MM_off_stationPhi[nmmHit] == MM_sector
 
             for nmmHit in range(0,len(inputTree.Hits_MM_hitGlobalPositionX)):
-                mmhists += [MyHistoFiller( chamber_name = "MM", eta_sel = mm_eta_sel, sector_sel = mm_sector_sel )]
+                mmhists += [MyHistoFiller( chamber_name = "MM_Sim", eta_sel = mm_eta_sel, sector_sel = mm_sector_sel )]
                 mmhists[nmmHit].fill(inputTree, nmmHit)
 
         # sTGCs
@@ -211,7 +211,7 @@ if __name__ == "__main__":
                 stgc_sector_sel = lambda s: s.Hits_sTGC_off_stationPhi[nstgcHit] == sTGC_sector
 
             for nstgcHit in range(0,len(inputTree.Hits_sTGC_hitGlobalPositionX)):
-                stgchists += [MyHistoFiller( chamber_name = "sTGC", eta_sel = stgc_eta_sel, sector_sel = stgc_sector_sel )]
+                stgchists += [MyHistoFiller( chamber_name = "sTGC_Sim", eta_sel = stgc_eta_sel, sector_sel = stgc_sector_sel )]
                 stgchists[nstgcHit].fill(inputTree, nstgcHit) 
 
 
@@ -219,23 +219,23 @@ if __name__ == "__main__":
     truthhist = MyHistoFiller( chamber_name = "TruthInfo", eta_sel = None, sector_sel = None )
     truthhist.write(ODir)
           
-    rpchist = MyHistoFiller( chamber_name = "RPC", eta_sel = None, sector_sel = None )
+    rpchist = MyHistoFiller( chamber_name = "RPC_Sim", eta_sel = None, sector_sel = None )
     rpchist.write(ODir)
 
-    mdthist = MyHistoFiller( chamber_name = "MDT", eta_sel = None, sector_sel = None )
+    mdthist = MyHistoFiller( chamber_name = "MDT_Sim", eta_sel = None, sector_sel = None )
     mdthist.write(ODir)
 
     if Options.doCSC == True:
-        cschist = MyHistoFiller( chamber_name = "CSC", eta_sel = None, sector_sel = None )
+        cschist = MyHistoFiller( chamber_name = "CSC_Sim", eta_sel = None, sector_sel = None )
         cschist.write(ODir)
 
-    tgchist = MyHistoFiller( chamber_name = "TGC", eta_sel = None, sector_sel = None )
+    tgchist = MyHistoFiller( chamber_name = "TGC_Sim", eta_sel = None, sector_sel = None )
     tgchist.write(ODir)
 
     if Options.doMM == True:
-        mmhist = MyHistoFiller( chamber_name = "MM", eta_sel = None, sector_sel = None )
+        mmhist = MyHistoFiller( chamber_name = "MM_Sim", eta_sel = None, sector_sel = None )
         mmhist.write(ODir)
 
     if Options.doSTGC == True:
-        stgchist = MyHistoFiller( chamber_name = "sTGC", eta_sel = None, sector_sel = None )
+        stgchist = MyHistoFiller( chamber_name = "sTGC_Sim", eta_sel = None, sector_sel = None )
         stgchist.write(ODir)

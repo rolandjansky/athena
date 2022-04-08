@@ -54,7 +54,7 @@ echo "Found ${NWARNING} WARNING, ${NERROR} ERROR and ${NFATAL} FATAL messages in
 
 #####################################################################
 # create histograms for dcube
-python $Athena_DIR/bin/createDCubeHistograms.py --doMM --doSTGC
+python $Athena_DIR/bin/createDCubeSimHistograms.py --doMM --doSTGC
 exit_code=$?
 echo  "art-result: ${exit_code} DCubeSimHist"
 if [ ${exit_code} -ne 0 ]
@@ -116,7 +116,7 @@ fi
 
 #####################################################################
 # create histograms for dcube
-python $Athena_DIR/bin/createDCubeDigitHistograms.py
+python $Athena_DIR/bin/createDCubeDigitHistograms_withSel.py
 exit_code=$?
 echo  "art-result: ${exit_code} DCubeDigitHist"
 if [ ${exit_code} -ne 0 ]
@@ -171,6 +171,33 @@ python $Athena_DIR/bin/checkNSWValTree.py -i NSWPRDValAlg.reco.ntuple.root \
                                          --checkPRD &> NSWRecoCheck.txt
 exit_code=$?
 echo  "art-result: ${exit_code} NSWRecoCheck"
+if [ ${exit_code} -ne 0 ]
+then
+    exit ${exit_code}
+fi
+#####################################################################
+
+#####################################################################
+# create histograms for dcube
+python $Athena_DIR/bin/createDCubeRecoHistograms_withSel.py
+exit_code=$?
+echo  "art-result: ${exit_code} DCubeRecoHist"
+if [ ${exit_code} -ne 0 ]
+then
+    exit ${exit_code}
+fi
+#####################################################################
+
+#####################################################################
+# run dcube for reconstruction output
+$ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
+                        -r lastResults/NSWPRDValAlg.reco.dcube.root \
+                        -t KS chi2 \
+                        -c $Athena_DIR/XML/MuonPRDTest/dcube_config_reconstruction_symRun3.xml \
+                        -x dcubeReconstruction \
+                        -p NSWPRDValAlg.reco.dcube.root | tee log.DCubeReco
+exit_code=$?
+echo  "art-result: ${exit_code} DCubeReco"
 if [ ${exit_code} -ne 0 ]
 then
     exit ${exit_code}

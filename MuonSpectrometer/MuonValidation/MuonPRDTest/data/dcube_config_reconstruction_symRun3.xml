@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+
+<!-- Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration -->
+
+<dcube_client_config>
+ <dcube branch="*" cmtconfig="*" install="*" jobId="*" project="*">
+  <ref_desc>Last master nightly</ref_desc>
+  <test_desc>Current master nightly</test_desc>
+  <plimit fail="0.75" warn="0.95"/>
+  <TDirectory name="/">
+   <TDirectory name="reconstruction">
+    <hist1D name="TGCPRDStationEta" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCPRDStationPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCPRDGasgap" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCPRDChannel" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCPRDisStrip" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCPRDGlobalX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCPRDGlobalY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCPRDGlobalZ" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCPRDLocalX" plotopts="" tests="KS,chi2" type="TH1F"/>
+   </TDirectory>
+  </TDirectory>
+ </dcube>
+</dcube_client_config>
