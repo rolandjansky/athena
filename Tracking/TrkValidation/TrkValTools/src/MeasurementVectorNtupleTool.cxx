@@ -16,7 +16,6 @@
 #include "TrkValInterfaces/IValidationNtupleHelperTool.h"
 #include "TrkTrack/Track.h"
 #include "TrkParticleBase/TrackParticleBase.h"
-#include "TrkFitterUtils/ProtoTrackStateOnSurface.h"
 #include "TrkToolInterfaces/IUpdator.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
@@ -590,20 +589,6 @@ StatusCode Trk::MeasurementVectorNtupleTool::fillTrackParticleData
 
   ATH_MSG_WARNING ("MeasurementVectorNtupleTool not meant to be used with TrackParticles.");
 
-  return StatusCode::SUCCESS;
-}
-
-//////////////////////////////////////
-// fill ntuple data of a given proto-trajectory (function used for fitter validation)
-//////////////////////////////////////
-StatusCode Trk::MeasurementVectorNtupleTool::fillProtoTrajectoryData
-(  const Trk::ProtoTrajectory&,
-   const int,
-   const Trk::Perigee*,
-   const unsigned int ) const
-   //const Trk::FitterStatusCode) const
-{
-  ATH_MSG_WARNING ("MeasurementVectorNtupleTool not meant to be used with TrackParticles.");
   return StatusCode::SUCCESS;
 }
 

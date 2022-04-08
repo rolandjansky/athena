@@ -177,87 +177,6 @@ GSFTrackFitter = egammaRec.EMCommonRefitter.getGSFTrackFitter()
 # --- end of fitter loading
 ToolSvc += GSFTrackFitter
 
-
-
-###############################################################################
-###############################################################################
-#######                     DNA Realted Packaages                      ########
-###############################################################################
-###############################################################################
-
-from InDetCompetingRIOsOnTrackTool.InDetCompetingRIOsOnTrackToolConf import InDet__CompetingPixelClustersOnTrackTool as IDCPCOTT
-ElectronCompetingPixelTool = IDCPCOTT(name='ElectronKalmanCompetingPixelClustersTool',
-                                WeightCutValueBarrel = 5.5,
-                                WeightCutValueEndCap = 5.5)
-ToolSvc+=ElectronCompetingPixelTool
-
-from InDetCompetingRIOsOnTrackTool.InDetCompetingRIOsOnTrackToolConf import InDet__CompetingSCT_ClustersOnTrackTool as IDCSCOTT
-ElectronCompetingSctTool = IDCSCOTT(name='ElectronKalmanCompetingSCT_ClustersTool',
-                              WeightCutValueBarrel = 5.5,
-                              WeightCutValueEndCap = 5.5)
-ToolSvc+=ElectronCompetingSctTool
-
-from TrkCompetingRIOsOnTrackTool.TrkCompetingRIOsOnTrackToolConf import Trk__CompetingRIOsOnTrackTool as CompRotTool
-ElectronKalmanCompetingROT_Tool = CompRotTool(name='ElectronKalmanCompetingRIOsTool',
-                                        ToolForCompPixelClusters = ElectronCompetingPixelTool,
-                                        ToolForCompSCT_Clusters = ElectronCompetingSctTool)
-ToolSvc += ElectronKalmanCompetingROT_Tool
-
-from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanPiecewiseAnnealingFilter as KPAF
-ElectronKalmanInternalDAF = KPAF(name = 'ElectronKalmanInternalDAF',
-                           CompetingRIOsOnTrackCreator = ElectronKalmanCompetingROT_Tool)
-ToolSvc += ElectronKalmanInternalDAF
-
-from TrkKalmanFitter.TrkKalmanFitterConf import Trk__MeasRecalibSteeringTool
-ElectronMeasRecalibST = Trk__MeasRecalibSteeringTool(name='ElectronMeasRecalibST')
-ToolSvc += ElectronMeasRecalibST
-
-from TrkDynamicNoiseAdjustor.TrkDynamicNoiseAdjustorConf import Trk__InDetDynamicNoiseAdjustment
-ElectronDNAdjustor = Trk__InDetDynamicNoiseAdjustment(name       = 'ElectronDNAdjustor')
-                                                #signifmin  = 0,
-                                                #lambdaxmin = 0)
-ToolSvc += ElectronDNAdjustor
-
-# Load Kalman Filter tools
-from TrkKalmanFitter.TrkKalmanFitterConf import Trk__ForwardKalmanFitter as PublicFKF
-ElectronFKF = PublicFKF(name                  = 'ElectronFKF',
-                  StateChi2PerNDFPreCut = 30.0)
-ToolSvc += ElectronFKF
-
-from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanSmoother as PublicBKS
-ElectronBKS = PublicBKS(name                        = 'ElectronBKS',
-                  InitialCovarianceSeedFactor = 200.)
-ToolSvc += ElectronBKS
-
-from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanOutlierLogic as PublicKOL
-ElectronKOL = PublicKOL(name               = 'ElectronKOL',
-                  TrackChi2PerNDFCut = 17.0,
-                  StateChi2PerNDFCut = 12.5,
-                  #BroadPixelClusterHandle = BroadPixelClusterOnTrackTool
-                  )
-ToolSvc += ElectronKOL
-
-from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanFitter as ConfiguredKalmanFitter
-DNATrackFitter = ConfiguredKalmanFitter(name                             = 'DNATrackFitter',
-                                        ExtrapolatorHandle             = ElectronTrkExtrapolator,
-                                        MeasurementUpdatorHandle       = ElectronUpdator,
-                                        ForwardKalmanFitterHandle      = ElectronFKF,
-                                        KalmanSmootherHandle           = ElectronBKS,
-                                        KalmanOutlierLogicHandle       = ElectronKOL,
-                                        DynamicNoiseAdjustorHandle     = ElectronDNAdjustor,
-                                        BrempointAnalyserHandle        = None,
-                                        AlignableSurfaceProviderHandle = None,
-                                        RIO_OnTrackCreatorHandle       = ElectronRotCreator,
-                                        #RecalibratorHandle             = ElectronMeasRecalibST,
-                                        RecalibratorHandle             = None,
-                                        InternalDAFHandle              = None#ElectronKalmanInternalDAF
-                                        )
-
-ToolSvc += DNATrackFitter
-
-
-
-###############################################################################
 ###############################################################################
 #######                     GX2 Realted Packaages                      ########
 ###############################################################################
@@ -337,8 +256,8 @@ MuonRefitterToolIDSiOnly = egammaTrkRefitterTool(name = 'MuonRefitterToolIDSiOnl
                                             FitterTool = GX2TrackFitter,
                                             matEffects = 2,
                                             minNoSiHits = -1,
-					    RemoveTRTHits = True,
-					    useBeamSpot = False,
+                                            RemoveTRTHits = True,
+                                            useBeamSpot = False,
                                             OutputLevel =4)
 ToolSvc += MuonRefitterToolIDSiOnly
 

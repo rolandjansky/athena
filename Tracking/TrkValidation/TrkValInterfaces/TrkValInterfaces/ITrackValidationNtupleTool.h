@@ -27,11 +27,8 @@ static const InterfaceID IID_ITrackValidationNtupleTool("ITrackValidationNtupleT
 class TrackParticleBase;
 class MeasurementBase;     //!< measurement base
 class Track;
-class ProtoTrackStateOnSurface; //!< measurement base
 class TrackStateOnSurface;
 
-    /** trajectory of Trk::ProtoTrackStateOnSurface as used internally by the Trk::KalmanFitter and Trk::DeterministicAnnealingFilter */
-    typedef std::vector<Trk::ProtoTrackStateOnSurface> ProtoTrajectory;
 
 /** @class ITrackValidationNtupleTool
     provides the interface for validation tools which write special information
@@ -65,13 +62,6 @@ public:
                                             const TrackTruth&, 
                                             const int truthIndex = -1 ) const = 0;
     
-    /** fill ntuple data of a given proto-trajectory (function used for fitter validation) */
-    virtual StatusCode fillProtoTrajectoryData (
-        const Trk::ProtoTrajectory&,
-        const int iterationIndex,
-        const Trk::Perigee* = 0,
-        const unsigned int fitStatCode = 0) const = 0;
-
     /** reset the variables after writing the record to disk ntuple */
     virtual void resetVariables( ) const = 0;
 };

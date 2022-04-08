@@ -396,10 +396,3 @@ StatusCode Trk::BasicValTrkParticleNtupleTool::writeTrackData (
                                             const int) const {return StatusCode::SUCCESS;}
 
 
-
-    StatusCode Trk::BasicValTrkParticleNtupleTool::writeProtoTrajectoryData (
-        const Trk::ProtoTrajectory&,
-        const int,
-        const Trk::Perigee*,
-        const unsigned int ) const{return StatusCode::SUCCESS;}
-	//const Trk::FitterStatusCode) const {return StatusCode::SUCCESS;}

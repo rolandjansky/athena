@@ -212,8 +212,7 @@ StatusCode TrigFastTrackFinder::initialize() {
 
   if (m_doZFinder) {
     ATH_CHECK(m_trigZFinder.retrieve());
-  }
-  else {
+  } else {
     m_trigZFinder.disable();
   }
 
@@ -285,6 +284,8 @@ StatusCode TrigFastTrackFinder::initialize() {
 
      ATH_CHECK(m_disTrkFitter.retrieve());
      ATH_MSG_DEBUG("Retrieved tool " << m_disTrkFitter);
+  } else {
+    m_disTrkFitter.disable();
   }
 
   // UTT read/write handles
