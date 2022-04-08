@@ -20,17 +20,16 @@
  */
 struct AlgorithmIdentifier {
   AlgorithmIdentifier();
-  AlgorithmIdentifier(const size_t realSlot, const size_t saveSlot, const std::string& caller, const std::string& storeName,  MsgStream& msg, const int16_t viewID = -1);
+  AlgorithmIdentifier(const size_t realSlot, const size_t saveSlot, const std::string& caller, const std::string& storeName,  const int16_t viewID = -1);
   ~AlgorithmIdentifier() = default;
 
-  TrigConf::HLTHash callerHash() const;
-  TrigConf::HLTHash storeHash() const;
+  TrigConf::HLTHash callerHash (MsgStream& msg) const;
+  TrigConf::HLTHash storeHash (MsgStream& msg) const;
   StatusCode isValid() const;
-  void dump();
+  void dump (MsgStream& msg);
 
   size_t m_realSlot; //!< The actual slot of the algorithm
   size_t m_slotToSaveInto; //!< The slot which is used for the purposes of recording data on this algorithm's execution. Note: might not be the *actual* slot of the alg
-  MsgStream* m_msg;  //!< Convenience reference to the msg service.
   std::string m_caller; //!< Name of the algorithm
   std::string m_store; //!< Name of the algorithm's store. e.g. '0_StoreGateSvc_Impl' for the main store.
   int16_t m_viewID; //!< If not within an event view, then the m_iewID = s_noView = -1.
