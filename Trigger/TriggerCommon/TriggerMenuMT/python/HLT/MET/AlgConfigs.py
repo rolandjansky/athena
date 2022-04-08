@@ -2,11 +2,17 @@
 #  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
+import errno
+import json
+import os
+
 from .ConfigHelpers import AlgConfig
+from .HLTInputConfig import HLTInputConfigRegistry
 from ..Menu.SignatureDicts import METChainParts
 import GaudiKernel.SystemOfUnits as Units
 import TrigEFMissingET.PUClassification as PUClassification
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaCommon.Utils.unixtools import find_datafile
 
 
 from AthenaCommon.Logging import logging
@@ -227,3 +233,35 @@ class MHTPufitConfig(AlgConfig):
             JetEventShapeName=rhoKey,
             NSigma=self.n_sigma,
         )
+
+class NNHLTConfig(AlgConfig):
+
+    @classmethod
+    def algType(cls):
+        return "nn"
+
+    def __init__(self, **recoDict):
+        self.file_name = "TrigEFMissingET/20220211/NNsingleLayerRed.json"
+        # Locate the file on the calib path
+        full_name = find_datafile(self.file_name, os.environ["CALIBPATH"].split(os.pathsep))
+        if full_name is None:
+            raise FileNotFoundError(errno.ENOENT, "File not found on CALIBPATH", self.file_name)
+        with open(full_name, 'r') as fp:
+            network = json.load(fp)
+        # Read the names of the algorithms used from the network file. The network file contains
+        # the container+aux read from it, e.g. HLT_MET_cell.met so we strip off the HLT_MET_ prefix
+        # and the .XX suffix
+        self.inputs = {
+                dct2["name"].removeprefix("HLT_MET_").partition(".")[0]
+                for dct in network["inputs"]
+                for dct2 in dct["variables"]
+        }
+        super().__init__(inputs=self.inputs, inputRegistry=HLTInputConfigRegistry(), **recoDict)
+
+    def make_fex_accumulator(self, flags, name, inputs):
+        return CompFactory.getComp("HLT::MET::NNHLTFex")(
+            name,
+            TriggerMETs=[inputs[k] for k in self.inputs],
+            InputFileName=self.file_name,
+        )
+
