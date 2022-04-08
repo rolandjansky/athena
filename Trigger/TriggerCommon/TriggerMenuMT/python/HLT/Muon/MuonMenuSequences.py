@@ -154,8 +154,8 @@ def muCombAlgSequence(ConfigFlags):
     l2muCombViewsMaker.RoIsLink = "initialRoI" # ROI for merging is still from L1, we get exactly one L2 SA muon per L1 ROI
     l2muCombViewsMaker.RoITool = newRoITool # Create a new ROI centred on the L2 SA muon from Step 1
     #
-    l2muCombViewsMaker.Views = "MUCombViewRoIs" if not isCosmic() else "CosmicViewRoIs" #output of the views maker (key in "storegate")
-    l2muCombViewsMaker.InViewRoIs = "MUIDRoIs" # Name of the RoI collection inside of the view, holds the single ROI used to seed the View.
+    l2muCombViewsMaker.Views = "MUCombViewRoIs" if not isCosmic() else "MUCombViewCosmic" #output of the views maker (key in "storegate")
+    l2muCombViewsMaker.InViewRoIs = "MUIDRoIs" if not isCosmic() else "InputRoI" # Name of the RoI collection inside of the view, holds the single ROI used to seed the View. Synchronized with cosmic tracking setup in: InDetCosmicTracking.py
     #
     l2muCombViewsMaker.RequireParentView = True
     l2muCombViewsMaker.ViewFallThrough = True #if this needs to access anything from the previous step, from within the view
