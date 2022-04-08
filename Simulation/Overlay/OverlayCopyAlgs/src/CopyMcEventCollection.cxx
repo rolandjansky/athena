@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CopyMcEventCollection.h"
@@ -21,6 +21,8 @@ StatusCode CopyMcEventCollection::initialize()
   ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_signalInputKey);
   ATH_CHECK( m_outputKey.initialize() );
   ATH_MSG_VERBOSE("Initialized WriteHandleKey: " << m_outputKey);
+
+  ATH_CHECK( m_eventInfoKey.initialize() );
 
   return StatusCode::SUCCESS;
 }

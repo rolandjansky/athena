@@ -11,7 +11,7 @@ atlas_add_component( OverlayCopyAlgs
                      src/components/*.cxx
                      LINK_LIBRARIES GaudiKernel AthenaBaseComps
                      CaloSimEvent GeneratorObjects RecEvent
-                     TrackRecordLib xAODJet xAODTruth )
+                     TrackRecordLib xAODJet xAODTruth xAODEventInfo )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py
