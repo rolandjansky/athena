@@ -44,16 +44,6 @@ NavigationCore::NavigationCore(const AthAlgTool& logger)
 {
 }
 
-NavigationCore::~NavigationCore() {
-  ATH_MSG_VERBOSE("~NavigationCore: cleaning static type information");
-
-  for ( auto [clid, proxy] : HLT::TypeMaps::proxies() ) delete proxy;
-  HLT::TypeMaps::proxies().clear();
-
-  for ( auto [clid, holder] : HLT::TypeMaps::holders() ) delete holder;
-  HLT::TypeMaps::holders().clear();
-}
-
 /*****************************************************************************
  *
  * PRETTY PRINTING
@@ -373,7 +363,7 @@ bool NavigationCore::registerHolder(IHolder* holder) {
   return true;
 }
 
-bool NavigationCore::createHolder( IHolder*& holder,  CLID clid, const std::string& label, uint16_t index) {
+bool NavigationCore::createHolder( IHolder*& holder,  CLID clid, const std::string& label, uint16_t index) const {
   ATH_MSG_DEBUG("createHolder: creating holder for CLID: " << clid  << " label: " << label << " and index: " << index);
   //reset holder
   holder = 0;

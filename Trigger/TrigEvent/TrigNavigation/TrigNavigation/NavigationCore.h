@@ -21,7 +21,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthContainers/OwnershipPolicy.h"
 #include "AthContainers/DataVector.h"
-
 #include "StoreGate/StoreGateSvc.h"
 
 #include "TrigStorageDefinitions/EDM_TypeInfoMethods.h"
@@ -36,8 +35,6 @@
 
 
 class StringSerializer;
-
-namespace HLTNavDetails { class TypeMapDeleter; }
 
 class TrigBStoxAODTool;
 class TrigNavigationThinningSvc;
@@ -99,14 +96,13 @@ namespace HLT {
   class NavigationCore : public HLT::TrigNavStructure {
     friend class ::TrigNavigationThinningSvc;
     friend struct HLT::TrigNavTools::SlimmingHelper;
-    friend class HLTNavDetails::TypeMapDeleter;
     friend class ::TrigBStoxAODTool;
   public:
     /**
      * @brief constructor with parent AlgTool for printing
      */
     NavigationCore(const AthAlgTool& logger);
-    virtual ~NavigationCore();
+    virtual ~NavigationCore() = default;
 
     /**
      * @brief prepapres the navigation for next event
@@ -345,7 +341,7 @@ namespace HLT {
       return m_storeGate;
     }
 
-    template<class T> HLTNavDetails::Holder<T>* getHolder ( uint16_t subTypeIndex );                             //!< as above but does not create holder on demand (return 0 if not found)
+    template<class T> HLTNavDetails::Holder<T>* getHolder ( uint16_t subTypeIndex ) const;                             //!< as above but does not create holder on demand (return 0 if not found)
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   protected:
     //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -353,10 +349,10 @@ namespace HLT {
     // private stuff of Navigation class
 
 
-    bool createHolder ( HLTNavDetails::IHolder*& holder, CLID clid, const std::string& label, uint16_t idx );  //!< creates holder for type given by CLID
+    bool createHolder ( HLTNavDetails::IHolder*& holder, CLID clid, const std::string& label, uint16_t idx ) const;  //!< creates holder for type given by CLID
     bool registerHolder ( HLTNavDetails::IHolder* holder );
 
-    template<class T> HLTNavDetails::Holder<T>* getHolder ( const std::string& label, uint16_t suggestedIndex ); //!< aware holder discovery, creates holder if needed
+    template<class T> HLTNavDetails::Holder<T>* getHolder ( const std::string& label, uint16_t suggestedIndex ) const; //!< aware holder discovery, creates holder if needed
 
     HLTNavDetails::IHolder*                     getHolder ( CLID clid, uint16_t subTypeIndex ) const;            //!< as above but not type wise holder returned
     HLTNavDetails::IHolder*                     getHolder ( CLID clid, const std::string& label ) const;         //!< as above

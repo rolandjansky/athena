@@ -116,7 +116,7 @@ HolderImp<STORED, CONTAINER>::~HolderImp() {
 
 /////////////////////////////////////////////////////////////////////////////
 template<class STORED, class CONTAINER>
-HLTNavDetails::IHolder* HLTNavDetails::HolderImp<STORED, CONTAINER>::clone(const std::string& prefix, const std::string& label, uint16_t idx ) {
+HLTNavDetails::IHolder* HLTNavDetails::HolderImp<STORED, CONTAINER>::clone(const std::string& prefix, const std::string& label, uint16_t idx ) const {
   //typedef Holder<STORED> H;
   if ( not m_containerProxy.empty() ) {
     return 0;
@@ -164,12 +164,14 @@ void  HLTNavDetails::HolderImp<STORED, CONTAINER>::prepare(const asg::AsgMessagi
       H::m_aux = new TypelessAuxProxy();
     }
     else{
-      H::m_aux = HLT::TypeMaps::proxies()[auxCLID];
-      if ( H::m_aux == 0 ) {
+
+      const auto itr = HLT::TypeMaps::proxies().find(auxCLID);
+      if ( itr == HLT::TypeMaps::proxies().end() ) {
         ATH_MSG_ERROR("HolderImp::prepare can not find Aux store proxy " << *this);
+        return;
       }
       
-      H::m_aux = H::m_aux->clone();
+      H::m_aux = itr->second->clone();
       if ( H::m_aux == 0 ) {
         ATH_MSG_ERROR("HolderImp::prepare can not clone Aux store proxy " << *this);
       }
@@ -647,9 +649,9 @@ struct isin<STORED, CONTAINER, false> {
 };
 
 template<class STORED, class CONTAINER>
-bool HLTNavDetails::HolderImp<STORED, CONTAINER>::contains(const STORED* obj, HLT::TriggerElement::ObjectIndex& idx) const {
+bool HLTNavDetails::HolderImp<STORED, CONTAINER>::contains(const STORED* obj, HLT::TriggerElement::ObjectIndex& idx) {
   typedef Holder<STORED> H;
-  if ( !const_cast<HolderImp<STORED, CONTAINER>* >(this)->syncWithSG() )
+  if ( !syncWithSG() )
     return false;
 
   ATH_MSG_VERBOSE("HolderImp::contains");

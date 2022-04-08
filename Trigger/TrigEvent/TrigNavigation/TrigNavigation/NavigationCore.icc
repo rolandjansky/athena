@@ -16,6 +16,7 @@
 #include "TrigNavigation/Holder.h"
 #include "TrigNavigation/Holder.icc"
 #include "TrigNavigation/RoICacheHistory.h"
+#include "CxxUtils/checker_macros.h"
 #include "CxxUtils/no_sanitize_undefined.h"
 
 /*****************************************************************************
@@ -436,7 +437,7 @@ bool HLT::NavigationCore::getAllFeatures( ElementLinkVector<C>&  features, const
 /////////////////////////////////////////////////////////////////////////////
 template<class T>
 __attribute__((__used__))
-HLTNavDetails::Holder<T>* HLT::NavigationCore::getHolder NO_SANITIZE_UNDEFINED (const std::string& label, uint16_t suggestedIndex) {
+HLTNavDetails::Holder<T>* HLT::NavigationCore::getHolder NO_SANITIZE_UNDEFINED (const std::string& label, uint16_t suggestedIndex) const {
 
   // find object
   CLID clid = ClassID_traits<T>::ID();
@@ -459,7 +460,10 @@ HLTNavDetails::Holder<T>* HLT::NavigationCore::getHolder NO_SANITIZE_UNDEFINED (
     return 0;
   }
   holder = static_cast<HLTNavDetails::Holder<T>*>(baseholder);
-  registerHolder(holder);
+
+  // registerHolder is thread-safe via a mutex:
+  auto nc_this ATLAS_THREAD_SAFE = const_cast<HLT::NavigationCore*>(this);
+  nc_this->registerHolder(holder);
 
   return holder;
 }
@@ -467,7 +471,7 @@ HLTNavDetails::Holder<T>* HLT::NavigationCore::getHolder NO_SANITIZE_UNDEFINED (
 /////////////////////////////////////////////////////////////////////////////
 template<class T>
 __attribute__((__used__))
-HLTNavDetails::Holder<T>* HLT::NavigationCore::getHolder NO_SANITIZE_UNDEFINED (uint16_t subTypeIndex ) {
+HLTNavDetails::Holder<T>* HLT::NavigationCore::getHolder NO_SANITIZE_UNDEFINED (uint16_t subTypeIndex ) const {
   // find object
   CLID clid = ClassID_traits<T>::ID();
   ATH_MSG_DEBUG("Getting holder for type: " << clid);
@@ -499,7 +503,7 @@ namespace HLT{
   template<class T, class C>
   struct get< T,  C, false, true>{
     static const T* do_it(const TrigFeatureLink&fl, const HLT::NavigationCore* nav){
-      HLTNavDetails::Holder<T>* holder = const_cast<HLT::NavigationCore*>(nav)->getHolder<T>(fl.subTypeIndex());
+      HLTNavDetails::Holder<T>* holder = nav->getHolder<T>(fl.subTypeIndex());
       //std::cerr << " Holder acquired " << __LINE__ << std::endl;
       const T* ptr(0);
       holder->get(ptr, HLT::TriggerElement::ObjectIndex(fl.subTypeIndex(), fl.index(), fl.index()+1));

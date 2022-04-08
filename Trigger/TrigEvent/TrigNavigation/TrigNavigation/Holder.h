@@ -61,7 +61,7 @@ namespace HLTNavDetails {
     virtual ~IHolder();
 
 
-    virtual IHolder* clone(const std::string& prefix, const std::string& label,  uint16_t idx) = 0; // actual constructor
+    virtual IHolder* clone(const std::string& prefix, const std::string& label,  uint16_t idx) const = 0; // actual constructor
 
     /**
      * @brief prepares this holder by setting messaging, StoreGate access and providing serializer
@@ -308,7 +308,7 @@ namespace HLTNavDetails {
       return result;
     }       
 
-    virtual bool contains(const STORED* obj, HLT::TriggerElement::ObjectIndex& idx) const = 0;
+    virtual bool contains(const STORED* obj, HLT::TriggerElement::ObjectIndex& idx) = 0;
   };
 
   //////////////////////////////////////////////////////////////////////////////////////
@@ -336,7 +336,7 @@ namespace HLTNavDetails {
     HolderImp(const std::string& prefix, const std::string& label, uint16_t idx);
     virtual ~HolderImp();
 
-    virtual IHolder* clone(const std::string& prefix, const std::string& label, uint16_t idx );
+    virtual IHolder* clone(const std::string& prefix, const std::string& label, uint16_t idx ) const;
 
     /**
      * @brief adds object(s) to be holded
@@ -349,9 +349,9 @@ namespace HLTNavDetails {
     virtual bool get(const STORED*& dest, HLT::TriggerElement::ObjectIndex idx);
 
     /**
-     * @brief cehcks if object(s) in dest are holded by this holder
+     * @brief check if object(s) in dest are held by this holder
      */
-    virtual bool contains(const STORED* obj, HLT::TriggerElement::ObjectIndex& idx) const;
+    virtual bool contains(const STORED* obj, HLT::TriggerElement::ObjectIndex& idx);
 
     bool getElementLinks(ElementLinkVector<CONTAINER>& cont,  HLT::TriggerElement::ObjectIndex idx);
     bool getElementLinks(ElementLinkVector<CONTAINER>& cont);
