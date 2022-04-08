@@ -58,7 +58,7 @@ class TauAODRunnerAlg: public AthAlgorithm {
         SG::WriteHandleKey<xAOD::TauTrackContainer>     m_tauTrackOutputContainer   {this, "Key_tauTrackOutputContainer",       "TauTracks_AODReco",            "output tau track key"};
         SG::WriteHandleKey<xAOD::VertexContainer>       m_vertexOutputContainer     {this, "Key_vertexOutputContainer",         "TauSecondaryVertices_AODReco", "output vertex container key"};
         //helper
-        bool isTauModified(const xAOD::TauJet* newtau);
+        bool isTauModified(const xAOD::TauJet* newtau) const;
 };
 
 #endif // TAUREC_TAUAODRUNNERALG_H

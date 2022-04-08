@@ -11,7 +11,7 @@ TauAODLeptonRemovalTool::TauAODLeptonRemovalTool(const std::string& name):
 StatusCode TauAODLeptonRemovalTool::initialize() {
     ATH_CHECK(m_elecInputContainer.initialize());
     ATH_CHECK(m_muonInputContainer.initialize());
-    m_elecWpStr = m_strElecIdWpPrefix + m_strMinElecIdWp;
+    m_elecWpStr = m_strElecIdWpPrefix.value() + m_strMinElecIdWp.value();
     m_muonWpUi  = m_mapMuonIdWp.at(m_strMinMuonIdWp);
     return StatusCode::SUCCESS;
 }

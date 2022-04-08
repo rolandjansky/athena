@@ -150,7 +150,7 @@ StatusCode TauAODRunnerAlg::execute() {
 }
 
 //helper 
-bool TauAODRunnerAlg::isTauModified(const xAOD::TauJet* newtau) {
-    static const SG::AuxElement::Accessor<char> acc_modified("ModifiedInAOD");
+bool TauAODRunnerAlg::isTauModified(const xAOD::TauJet* newtau) const {
+    static const SG::AuxElement::ConstAccessor<char> acc_modified("ModifiedInAOD");
     return acc_modified(*newtau);
 }
