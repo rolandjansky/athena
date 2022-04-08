@@ -108,6 +108,9 @@ def PFCfg(inputFlags,**kwargs):
     result.merge(addToESD(inputFlags, toESDAndAOD))
     result.merge(addToAOD(inputFlags, toESDAndAOD))
 
+    from ThinningUtils.ThinNegativeEnergyNeutralPFOCfg import ThinNegativeEnergyNeutralPFOCfg
+    result.merge(ThinNegativeEnergyNeutralPFOCfg(inputFlags))
+
     import inspect
     stack = inspect.stack()
     if len(stack) >= 2 and stack[1].function == 'CAtoGlobalWrapper':
