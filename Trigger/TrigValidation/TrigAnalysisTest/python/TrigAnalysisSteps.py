@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -41,10 +41,15 @@ class AthenaCheckerStep(ExecStep, InputDependentStep):
     def run(self, dry_run):
         return InputDependentStep.run(self, dry_run)
 
-class TrigDecChecker(AthenaCheckerStep):
+class TrigDecChecker(InputDependentStep):
     def __init__(self, name='TrigDecChecker', in_file='AOD.pool.root'):
-        AthenaCheckerStep.__init__(self, name, 'TrigAnalysisTest/testAthenaTrigAOD_TrigDecTool.py')
+        super().__init__(name)
         self.input_file = in_file
+        self.executable = 'dumpTriggerInfo.py'
+
+    def configure(self, test):
+        self.args = f' --filesInput {self.input_file}'
+        super().configure(test)
 
 class TrigEDMChecker(AthenaCheckerStep):
     def __init__(self, name='TrigEDMChecker', in_file='AOD.pool.root'):
