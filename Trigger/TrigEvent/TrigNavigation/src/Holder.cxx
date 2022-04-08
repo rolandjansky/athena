@@ -364,8 +364,7 @@ bool IHolder::serializeDynVars (const SG::IAuxStoreIO& iio,
 
     // Serialize the object data to a temp buffer.
     std::vector<uint32_t> serialized =
-      m_serializer->serialize (cls->GetName(),
-                               const_cast<void*>(iio.getIOData (id)));
+      m_serializer->serialize (cls->GetName(), iio.getIOData (id));
 
     // Concatenate header header information to the output buffer:
     // attribute name and data type.
@@ -476,7 +475,7 @@ IHolder::deserializeDynVars (const std::vector<uint32_t>& dataBlob,
     // Object size.
     size_t var_size = *it++;
 
-    const static char* packed_pref = "SG::PackedContainer<";
+    const static char* const packed_pref = "SG::PackedContainer<";
     const static unsigned int packed_preflen = strlen(packed_pref);
     std::string vecname = tname;
     if (strncmp (vecname.c_str(), packed_pref, packed_preflen) == 0)
