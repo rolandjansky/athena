@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # this script can be used to create DCube histograms from the output ntuples of NSWPRDValAlg
 
@@ -13,7 +13,7 @@ class MyHistoFiller(object):
     truthEtaHist = ROOT.TH1F("truthEta","truthEta;#eta",100,-2.8,2.8)
     truthPhiHist = ROOT.TH1F("truthPhi","truthPhi;#phi",100,-3.15,3.15)
     #############################################################################
-    # RPCs
+    # RPC Sim Histograms
     rpcLocalX = ROOT.TH1F("rpcLocalX","rpcLocalX;RPC_hitLocalPositionX",100,-1.05,1.05)
     rpcLocalY = ROOT.TH1F("rpcLocalY","rpcLocalY;RPC_hitLocalPositionY",100,-1500,1500)
     rpcLocalZ = ROOT.TH1F("rpcLocalZ","rpcLocalZ;RPC_hitLocalPositionZ",100,-700,700)
@@ -25,8 +25,58 @@ class MyHistoFiller(object):
     rpcGlobalR = ROOT.TH1F("rpcGlobalR","rpcGlobalR;RPC_hitGlobalPositionR",100,4000,14000)
     rpcGlobalP = ROOT.TH1F("rpcGlobalP","rpcGlobalP;RPC_hitGlobalPositionP",100,-3.6,3.6)
     rpcGasGap = ROOT.TH1F("rpcGasGap","rpcGasGap;RPC_Sim_gasGapLayer",3,0,3)
+    
+    # RPC Digit Histograms (all stations)
+    rpcDigitlocalX = ROOT.TH1F("rpcDigitlocalX","rpcDigitlocalX;Digits_RPC_localPosX [mm]",100,-1200,1200)
+    rpcDigitlocalY = ROOT.TH1F("rpcDigitlocalY","rpcDigitlocalY;Digits_RPC_localPosY [mm]",100,-1200,1200)
+    rpcDigitStationEta = ROOT.TH1F("rpcDigitStationEta","rpcDigitStationEta;Digits_RPC_stationEta",20,-10,10)
+    rpcDigitStationPhi = ROOT.TH1F("rpcDigitStationPhi","rpcDigitStationPhi;Digits_RPC_stationPhi",10,0,10)
+    rpcDigitglobalX = ROOT.TH1F("rpcDigitglobalX","rpcDigitglobalX;Digits_RPC_globalPosX [mm]",100,-13000,12000)
+    rpcDigitglobalY = ROOT.TH1F("rpcDigitglobalY","rpcDigitglobalY;Digits_RPC_globalPosY [mm]",100,-15000,14000)
+    rpcDigitglobalZ = ROOT.TH1F("rpcDigitglobalZ","rpcDigitglobalZ;Digits_RPC_globalPosZ [mm]",100,-15000,15000)
+    rpcDigitGasGap = ROOT.TH1F("rpcDigitGasGap","rpcDigitGasGap;Digits_RPC_gas_gap",5,0,5)
+    rpcDigitdoubletR = ROOT.TH1F("rpcDigitdoubletR","rpcDigitdoubletR;Digits_RPC_doubletR",4,0,4)
+    rpcDigitdoubletZ = ROOT.TH1F("rpcDigitdoubletZ","rpcDigitdoubletZ;Digits_RPC_doubletZ",4,0,4)
+    rpcDigitdoubletPhi = ROOT.TH1F("rpcDigitdoubletPhi","rpcDigitdoubletPhi;Digits_RPC_doubletPhi",4,0,4)
+    rpcDigitTime = ROOT.TH1F("rpcDigitTime","rpcDigitTime;Digits_RPC_time",100,0,100)
+    rpcDigitStrip = ROOT.TH1F("rpcDigitStrip","rpcDigitStrip;Digits_RPC_strip",10,0,80)
+    rpcDigitStripNumber = ROOT.TH1F("rpcDigitStripNumber","rpcDigitStripNumber;Digits_RPC_stripNumber",10,0,80)
+    rpcDigitMeasuresPhi = ROOT.TH1F("rpcDigitMeasuresPhi","rpcDigitMeasuresPhi;Digits_RPC_measuresPhi",2,0,2)
+    rpcDigitChannel = ROOT.TH1F("rpcDigitChannel","rpcDigitChannel;Digits_RPC_channel",10,0,10)
+    rpcDigitglobalXY = ROOT.TH2F("rpcDigitglobalXY","rpcDigitglobalXY;Digits_RPC_globalPosX [mm];Digits_RPC_globalPosY [mm]",100,-15000,15000,100,-15000,15000)
+    rpcDigitglobalZY = ROOT.TH2F("rpcDigitglobalZY","rpcDigitglobalZY;Digits_RPC_globalPosZ [mm];Digits_RPC_globalPosY [mm]",100,-15000,15000,100,-15000,15000)
+    rpcDigitglobalZX = ROOT.TH2F("rpcDigitglobalZX","rpcDigitglobalZX;Digits_RPC_globalPosZ [mm];Digits_RPC_globalPosX [mm]",100,-15000,15000,100,-15000,15000)
+
+    # RPC Digit Histograms (BIS RPCs only)
+    bis_rpcDigitlocalX = ROOT.TH1F("bis_rpcDigitlocalX","bis_rpcDigitlocalX;Digits_bis_RPC_localPosX [mm]",100,-1000,1000)
+    bis_rpcDigitlocalY = ROOT.TH1F("bis_rpcDigitlocalY","bis_rpcDigitlocalY;Digits_bis_RPC_localPosY [mm]",100,-1000,1000)
+    bis7_rpcDigitlocalX = ROOT.TH1F("bis7_rpcDigitlocalX","bis7_rpcDigitlocalX;Digits_bis7_RPC_localPosX [mm]",100,-1000,1000) ## will remove the bis7/8 hists and make a separate script for them ##
+    bis7_rpcDigitlocalY = ROOT.TH1F("bis7_rpcDigitlocalY","bis7_rpcDigitlocalY;Digits_bis7_RPC_localPosY [mm]",100,-1000,1000)
+    bis8_rpcDigitlocalX = ROOT.TH1F("bis8_rpcDigitlocalX","bis8_rpcDigitlocalX;Digits_bis8_RPC_localPosX [mm]",100,-1000,1000)
+    bis8_rpcDigitlocalY = ROOT.TH1F("bis8_rpcDigitlocalY","bis8_rpcDigitlocalY;Digits_bis8_RPC_localPosY [mm]",100,-1000,1000)
+    bis_rpcDigitStationEta = ROOT.TH1F("bis_rpcDigitStationEta","bis_rpcDigitStationEta;Digits_bis_RPC_stationEta",20,-10,10)
+    bis_rpcDigitStationPhi = ROOT.TH1F("bis_rpcDigitStationPhi","bis_rpcDigitStationPhi;Digits_bis_RPC_stationPhi",10,0,10)
+    bis_rpcDigitglobalX = ROOT.TH1F("bis_rpcDigitglobalX","bis_rpcDigitglobalX;Digits_bis_RPC_globalPosX [mm]",100,-5000,5000)
+    bis_rpcDigitglobalY = ROOT.TH1F("bis_rpcDigitglobalY","bis_rpcDigitglobalY;Digits_bis_RPC_globalPosY [mm]",100,-5000,5000)
+    bis_rpcDigitglobalZ = ROOT.TH1F("bis_rpcDigitglobalZ","bis_rpcDigitglobalZ;Digits_bis_RPC_globalPosZ [mm]",100,-10000,10000)
+    bis_rpcDigitGasGap = ROOT.TH1F("bis_rpcDigitGasGap","bis_rpcDigitGasGap;Digits_bis_RPC_gas_gap",5,0,5)
+    bis_rpcDigitdoubletR = ROOT.TH1F("bis_rpcDigitdoubletR","bis_rpcDigitdoubletR;Digits_bis_RPC_doubletR",4,0,4)
+    bis_rpcDigitdoubletZ = ROOT.TH1F("bis_rpcDigitdoubletZ","bis_rpcDigitdoubletZ;Digits_bis_RPC_doubletZ",4,0,4)
+    bis_rpcDigitdoubletPhi = ROOT.TH1F("bis_rpcDigitdoubletPhi","bis_rpcDigitdoubletPhi;Digits_bis_RPC_doubletPhi",4,0,4)
+    bis_rpcDigitTime = ROOT.TH1F("bis_rpcDigitTime","bis_rpcDigitTime;Digits_bis_RPC_time [ns]",80,0,40)
+    bis7_rpcDigitTime = ROOT.TH1F("bis7_rpcDigitTime","bis7_rpcDigitTime;Digits_bis7_RPC_time [ns]",80,0,40)
+    bis8_rpcDigitTime = ROOT.TH1F("bis8_rpcDigitTime","bis8_rpcDigitTime;Digits_bis8_RPC_time [ns]",80,0,40)
+    bis_rpcDigitStrip = ROOT.TH1F("bis_rpcDigitStrip","bis_rpcDigitStrip;Digits_bis_RPC_strip",10,0,10)
+    bis_rpcDigitStripNumber = ROOT.TH1F("bis_rpcDigitStripNumber","bis_rpcDigitStripNumber;Digits_bis_RPC_stripNumber",10,0,80)
+    bis_rpcDigitMeasuresPhi = ROOT.TH1F("bis_rpcDigitMeasuresPhi","bis_rpcDigitMeasuresPhi;Digits_bis_RPC_measuresPhi",2,0,2)
+    bis_rpcDigitChannel = ROOT.TH1F("bis_rpcDigitChannel","bis_rpcDigitChannel;Digits_bis_RPC_channel",10,0,10)
+    bis_rpcDigitglobalXY = ROOT.TH2F("bis_rpcDigitglobalXY","bis_rpcDigitglobalXY;Digits_bis_RPC_globalPosX [mm];Digits_bis_RPC_globalPosY [mm]",100,-5000,5000,100,-5000,5000)
+    bis_rpcDigitglobalZY = ROOT.TH2F("bis_rpcDigitglobalZY","bis_rpcDigitglobalZY;Digits_bis_RPC_globalPosZ [mm];Digits_bis_RPC_globalPosY [mm]",100,-15000,15000,100,-5000,5000)
+    bis_rpcDigitglobalZX = ROOT.TH2F("bis_rpcDigitglobalZX","bis_rpcDigitglobalZX;Digits_bis_RPC_globalPosZ [mm];Digits_bis_RPC_globalPosX [mm]",100,-15000,15000,100,-5000,5000)    
+
+    
     #############################################################################
-    # MDTs
+    # MDT Sim Histograms
     mdtLocalX = ROOT.TH1F("mdtLocalX","mdtLocalX;MDT_hitLocalPositionX",100,-16,16)
     mdtLocalY = ROOT.TH1F("mdtLocalY","mdtLocalY;MDT_hitLocalPositionY",100,-16,16)
     mdtLocalZ = ROOT.TH1F("mdtLocalZ","mdtLocalZ;MDT_hitLocalPositionZ",100,-2500,2500)
@@ -38,6 +88,57 @@ class MyHistoFiller(object):
     mdtGlobalR = ROOT.TH1F("mdtGlobalR","mdtGlobalR;MDT_hitGlobalPositionR",100,1000,14000)
     mdtGlobalP = ROOT.TH1F("mdtGlobalP","mdtGlobalP;MDT_hitGlobalPositionP",100,-3.6,3.6)
     mdtTube = ROOT.TH1F("mdtTube","mdtTube;MDT_Sim_tube",100,0,110)  
+    
+    # MDT Digit Histograms (all stations)
+    mdtDigitlocalX = ROOT.TH1F("mdtDigitlocalX","mdtDigitlocalX;Digits_MDT_localPosX [mm]",100,-1500,1500)
+    mdtDigitlocalY = ROOT.TH1F("mdtDigitlocalY","mdtDigitlocalY;Digits_MDT_localPosY [mm]",100,-1500,1500)
+    mdtDigitStationEta = ROOT.TH1F("mdtDigitStationEta","mdtDigitStationEta;Digits_MDT_stationEta",20,-10,10)
+    mdtDigitStationPhi = ROOT.TH1F("mdtDigitStationPhi","mdtDigitStationPhi;Digits_MDT_stationPhi",10,0,10)
+    mdtDigitglobalX = ROOT.TH1F("mdtDigitglobalX","mdtDigitglobalX;Digits_MDT_globalPosX [mm]",100,-13000,12000)
+    mdtDigitglobalY = ROOT.TH1F("mdtDigitglobalY","mdtDigitglobalY;Digits_MDT_globalPosY [mm]",100,-15000,14000)
+    mdtDigitglobalZ = ROOT.TH1F("mdtDigitglobalZ","mdtDigitglobalZ;Digits_MDT_globalPosZ [mm]",100,-26000,26000)
+    mdtDigitNumberOfMultilayers = ROOT.TH1F("mdtDigitNumberOfMultilayers","mdtDigitNumberOfMultilayers;Digits_MDT_numberOfMultilayers",4,0,4)
+    mdtDigitTube = ROOT.TH1F("mdtDigitTube","mdtDigitTube;Digits_MDT_tube",100,0,100) 
+    mdtDigitTubeLayer = ROOT.TH1F("mdtDigitTubeLayer","mdtDigitTubeLayer;Digits_MDT_tubeLayer",6,0,6)  
+    mdtDigitMultilayer = ROOT.TH1F("mdtDigitMultilayer","mdtDigitMultilayer;Digits_MDT_Multilayer",4,0,4) 
+    mdtDigitTime = ROOT.TH1F("mdtDigitTime","mdtDigitTime;Digits_MDT_time [ns]",100,0,2000)
+    mdtDigitCharge = ROOT.TH1F("mdtDigitCharge","mdtDigitCharge;Digits_MDT_charge [e]",100,0,600)
+    mdtDigitChannel = ROOT.TH1F("mdtDigitChannel","mdtDigitChannel;Digits_MDT_channel",10,0,10)
+    mdtDigitglobalXY = ROOT.TH2F("mdtDigitglobalXY","mdtDigitglobalXY;Digits_MDT_globalPosX [mm];Digits_MDT_globalPosY [mm]",100,-15000,15000,100,-15000,15000)
+    mdtDigitglobalZY = ROOT.TH2F("mdtDigitglobalZY","mdtDigitglobalZY;Digits_MDT_globalPosZ [mm];Digits_MDT_globalPosY [mm]",100,-15000,15000,100,-15000,15000)
+    mdtDigitglobalZX = ROOT.TH2F("mdtDigitglobalZX","mdtDigitglobalZX;Digits_MDT_globalPosZ [mm];Digits_MDT_globalPosX [mm]",100,-15000,15000,100,-15000,15000)
+    mdtDigitlocalTubePosX = ROOT.TH1F("mdtDigitlocalTubePosX","mdtDigitlocalTubePosX;Digits_MDT_localTubePosX [mm]",100,-100,100)
+    mdtDigitlocalTubePosY = ROOT.TH1F("mdtDigitlocalTubePosY","mdtDigitlocalTubePosY;Digits_MDT_localTubePosY [mm]",100,-100,100)  
+    mdtDigitlocalTubePosZ = ROOT.TH1F("mdtDigitlocalTubePosZ","mdtDigitlocalTubePosZ;Digits_MDT_localTubePosZ [mm]",100,-100,100)
+    
+    # MDT Digit Histograms (BIS mdtDigits only)
+    bis_mdtDigitlocalX = ROOT.TH1F("bis_mdtDigitlocalX","bis_mdtDigitlocalX;Digits_bis_MDT_localPosX [mm]",100,-1500,1500)
+    bis_mdtDigitlocalY = ROOT.TH1F("bis_mdtDigitlocalY","bis_mdtDigitlocalY;Digits_bis_MDT_localPosY [mm]",100,-1500,1500)
+    bis_mdtDigitlocalZ = ROOT.TH1F("bis_mdtDigitlocalZ","bis_mdtDigitlocalZ;Digits_bis_MDT_localPosZ [mm]",960,-900,900)
+    bis_mdtDigitStationEta = ROOT.TH1F("bis_mdtDigitStationEta","bis_mdtDigitStationEta;Digits_bis_MDT_stationEta",20,-10,10)
+    bis_mdtDigitStationPhi = ROOT.TH1F("bis_mdtDigitStationPhi","bis_mdtDigitStationPhi;Digits_bis_MDT_stationPhi",10,0,10)
+    bis_mdtDigitglobalX = ROOT.TH1F("bis_mdtDigitglobalX","bis_mdtDigitglobalX;Digits_bis_MDT_globalPosX [mm]",100,-5000,5000)
+    bis_mdtDigitglobalY = ROOT.TH1F("bis_mdtDigitglobalY","bis_mdtDigitglobalY;Digits_bis_MDT_globalPosY [mm]",100,-5000,5000)
+    bis_mdtDigitglobalZ = ROOT.TH1F("bis_mdtDigitglobalZ","bis_mdtDigitglobalZ;Digits_bis_MDT_globalPosZ [mm]",100,-10000,10000)
+    bis_mdtDigitNumberOfMultilayers = ROOT.TH1F("bis_mdtDigitNumberOfMultilayers","bis_mdtDigitNumberOfMultilayers;Digits_bis_MDT_numberOfMultilayers",4,0,4)
+    bis_mdtDigitTube = ROOT.TH1F("bis_mdtDigitTube","bis_mdtDigitTube;Digits_bis_MDT_tube",100,0,100) 
+    bis_mdtDigitTubeLayer = ROOT.TH1F("bis_mdtDigitTubeLayer","bis_mdtDigitTubeLayer;Digits_bis_MDT_tubeLayer",6,0,6)  
+    bis_mdtDigitMultilayer = ROOT.TH1F("bis_mdtDigitMultilayer","bis_mdtDigitMultilayer;Digits_bis_MDT_Multilayer",4,0,4) 
+    bis_mdtDigitTime = ROOT.TH1F("bis_mdtDigitTime","bis_mdtDigitTime;Digits_bis_MDT_time [ns]",100,0,2000)
+    bis_mdtDigitCharge = ROOT.TH1F("bis_mdtDigitCharge","bis_mdtDigitCharge;Digits_bis_MDT_charge [e]",100,0,600)
+    bis_mdtDigitChannel = ROOT.TH1F("bis_mdtDigitChannel","bis_mdtDigitChannel;Digits_bis_MDT_channel",10,0,10)
+    bis_mdtDigitglobalXY = ROOT.TH2F("bis_mdtDigitglobalXY","bis_mdtDigitglobalXY;Digits_bis_MDT_globalPosX [mm];Digits_bis_MDT_globalPosY [mm]",100,-5000,5000,100,-5000,5000)
+    bis_mdtDigitglobalZY = ROOT.TH2F("bis_mdtDigitglobalZY","bis_mdtDigitglobalZY;Digits_bis_MDT_globalPosZ [mm];Digits_bis_MDT_globalPosY [mm]",100,-15000,15000,100,-5000,5000)
+    bis_mdtDigitglobalZX = ROOT.TH2F("bis_mdtDigitglobalZX","bis_mdtDigitglobalZX;Digits_bis_MDT_globalPosZ [mm];Digits_bis_MDT_globalPosX [mm]",100,-15000,15000,100,-5000,5000)    
+    bis_mdtDigitlocalTubePosX = ROOT.TH1F("bis_mdtDigitlocalTubePosX","bis_mdtDigitlocalTubePosX;Digits_MDT_localTubePosX [mm]",120,-60,60)
+    bis_mdtDigitlocalTubePosY = ROOT.TH1F("bis_mdtDigitlocalTubePosY","bis_mdtDigitlocalTubePosY;Digits_MDT_localTubePosY [mm]",960,-900,900)  
+    bis_mdtDigitlocalTubePosZ = ROOT.TH1F("bis_mdtDigitlocalTubePosZ","bis_mdtDigitlocalTubePosZ;Digits_MDT_localTubePosZ [mm]",960,-900,900)
+    
+    bis_mdtDigitlocalTubePosXY = ROOT.TH2F("bis_mdtDigitlocalTubePosXY","bis_mdtDigitlocalTubePosXY;Digits_MDT_localTubePosX [mm];Digits_MDT_localTubePosY [mm]",60,-30,30,100,-100,100)
+    bis_mdtDigitlocalTubePosZY = ROOT.TH2F("bis_mdtDigitlocalTubePosZY","bis_mdtDigitlocalTubePosZY;Digits_MDT_localTubePosZ [mm];Digits_MDT_localTubePosY [mm]",100,-1200,1200,100,-100,100)
+    bis_mdtDigitlocalTubePosZX = ROOT.TH2F("bis_mdtDigitlocalTubePosZX","bis_mdtDigitlocalTubePosZX;Digits_MDT_localTubePosZ [mm];Digits_MDT_localTubePosX [mm]",48,1,180,60,-30,30)
+
+    
     #############################################################################
     # CSC Sim Histograms
     cscStationEta = ROOT.TH1F("cscStationEta","cscStationEta;CSC_stationEta",4,-3,1)
@@ -54,7 +155,7 @@ class MyHistoFiller(object):
     cscDepositEnergy = ROOT.TH1F("cscDepositEnergy","cscDeposityEnergy;CSC_depositEnergy",100,0,0.008)
     cscSimStationEta = ROOT.TH1F("cscSimStationEta","cscSimStationEta;CSC_Sim_stationEta",4,-3,1)
     cscSimStationPhi = ROOT.TH1F("cscSimStationPhi","cscSimStationPhi;CSC_Sim_stationPhi",9,0,9)
-    cscSimChamberlayer = ROOT.TH1F("cscSimChamberLayer","cscSimChamberLayer;CSC_Sim_chamberLayer",4,0,4)
+    cscSimChamberLayer = ROOT.TH1F("cscSimChamberLayer","cscSimChamberLayer;CSC_Sim_chamberLayer",4,0,4)
     # CSC Digit Histograms
     CSCDigitStationEta = ROOT.TH1F("CSCDigitStationEta","CSCDigitStationEta;Digits_CSC_stationEta",4,-3,1)
     CSCDigitStationPhi = ROOT.TH1F("CSCDigitStationPhi","CSCDigitStationPhi;Digits_CSC_stationPhi",9,0,9)
@@ -202,7 +303,7 @@ class MyHistoFiller(object):
             MyHistoFiller.truthEtaHist.Fill(TTree.MuEntry_Particle_Eta[n])
             MyHistoFiller.truthPhiHist.Fill(TTree.MuEntry_Particle_Phi[n])
 
-        if self.__chamber_name == "RPC":
+        if self.__chamber_name == "RPC_Sim":
             if not (self.__eta_sel(TTree) and self.__sector_sel(TTree)):
                 return      
             else:
@@ -217,8 +318,73 @@ class MyHistoFiller(object):
                 MyHistoFiller.rpcGlobalR.Fill(TTree.RPC_hitGlobalPositionR[n])
                 MyHistoFiller.rpcGlobalP.Fill(TTree.RPC_hitGlobalPositionP[n])
                 MyHistoFiller.rpcGasGap.Fill(TTree.RPC_Sim_gasGapLayer[n])
+                
+        if self.__chamber_name == "RPC_Digit":
+            if not (self.__eta_sel(TTree) and self.__sector_sel(TTree)):
+                return      
+            else:
+                MyHistoFiller.rpcDigitlocalX.Fill(TTree.Digits_RPC_localPosX[n])
+                MyHistoFiller.rpcDigitlocalY.Fill(TTree.Digits_RPC_localPosY[n])
+                MyHistoFiller.rpcDigitStationEta.Fill(TTree.Digits_RPC_stationEta[n])
+                MyHistoFiller.rpcDigitStationPhi.Fill(TTree.Digits_RPC_stationPhi[n])
+                MyHistoFiller.rpcDigitglobalX.Fill(TTree.Digits_RPC_globalPosX[n])
+                MyHistoFiller.rpcDigitglobalY.Fill(TTree.Digits_RPC_globalPosY[n])
+                MyHistoFiller.rpcDigitglobalZ.Fill(TTree.Digits_RPC_globalPosZ[n])
+                MyHistoFiller.rpcDigitGasGap.Fill(TTree.Digits_RPC_gas_gap[n])
+                MyHistoFiller.rpcDigitdoubletR.Fill(TTree.Digits_RPC_doubletR[n])
+                MyHistoFiller.rpcDigitdoubletZ.Fill(TTree.Digits_RPC_doubletZ[n])
+                MyHistoFiller.rpcDigitdoubletPhi.Fill(TTree.Digits_RPC_doubletPhi[n])
+                MyHistoFiller.rpcDigitMeasuresPhi.Fill(TTree.Digits_RPC_measuresPhi[n])
+                MyHistoFiller.rpcDigitTime.Fill(TTree.Digits_RPC_time[n])
+                MyHistoFiller.rpcDigitStrip.Fill(TTree.Digits_RPC_strip[n])
+                MyHistoFiller.rpcDigitStripNumber.Fill(TTree.Digits_RPC_stripNumber[n])
+                MyHistoFiller.rpcDigitglobalXY.Fill(TTree.Digits_RPC_globalPosX[n],TTree.Digits_RPC_globalPosY[n])
+                MyHistoFiller.rpcDigitglobalZY.Fill(TTree.Digits_RPC_globalPosZ[n],TTree.Digits_RPC_globalPosY[n])
+                MyHistoFiller.rpcDigitglobalZX.Fill(TTree.Digits_RPC_globalPosZ[n],TTree.Digits_RPC_globalPosX[n])
 
-        if self.__chamber_name == "MDT":
+                # Cut on BIS78 modules only -- remove stationEta condition to also plot BIS16 in the future 
+                if TTree.Digits_RPC_stationName[n]=="BIS" and TTree.Digits_RPC_stationEta[n]>6: 
+                    #use measuresPhi=0 to extract local eta/Y coordinate from localX
+                    if TTree.Digits_RPC_measuresPhi[n]==0:
+                        MyHistoFiller.bis_rpcDigitlocalY.Fill(TTree.Digits_RPC_localPosX[n])
+                    #use measuresPhi=1 to extract local phi/X coordinate from localX
+                    elif TTree.Digits_RPC_measuresPhi[n]==1:
+                        MyHistoFiller.bis_rpcDigitlocalX.Fill(TTree.Digits_RPC_localPosX[n]) 
+                        
+                    #use globalZ<6700 to get BIS7 
+                    if TTree.Digits_RPC_globalPosZ[n]<6700:
+                        MyHistoFiller.bis7_rpcDigitTime.Fill(TTree.Digits_RPC_time[n])
+                        if TTree.Digits_RPC_measuresPhi[n]==0:
+                            MyHistoFiller.bis7_rpcDigitlocalY.Fill(TTree.Digits_RPC_localPosX[n])
+                        elif TTree.Digits_RPC_measuresPhi[n]==1:
+                            MyHistoFiller.bis7_rpcDigitlocalX.Fill(TTree.Digits_RPC_localPosX[n])
+                    else:
+                    #use globalZ>6700 to get BIS8 
+                        MyHistoFiller.bis8_rpcDigitTime.Fill(TTree.Digits_RPC_time[n])    
+                        if TTree.Digits_RPC_measuresPhi[n]==0:
+                            MyHistoFiller.bis8_rpcDigitlocalY.Fill(TTree.Digits_RPC_localPosX[n])
+                        elif TTree.Digits_RPC_measuresPhi[n]==1:
+                            MyHistoFiller.bis8_rpcDigitlocalX.Fill(TTree.Digits_RPC_localPosX[n])
+                            
+                MyHistoFiller.bis_rpcDigitStationEta.Fill(TTree.Digits_RPC_stationEta[n])
+                MyHistoFiller.bis_rpcDigitStationPhi.Fill(TTree.Digits_RPC_stationPhi[n])
+                MyHistoFiller.bis_rpcDigitglobalX.Fill(TTree.Digits_RPC_globalPosX[n])
+                MyHistoFiller.bis_rpcDigitglobalY.Fill(TTree.Digits_RPC_globalPosY[n])
+                MyHistoFiller.bis_rpcDigitglobalZ.Fill(TTree.Digits_RPC_globalPosZ[n])
+                MyHistoFiller.bis_rpcDigitGasGap.Fill(TTree.Digits_RPC_gas_gap[n])
+                MyHistoFiller.bis_rpcDigitdoubletR.Fill(TTree.Digits_RPC_doubletR[n])
+                MyHistoFiller.bis_rpcDigitdoubletZ.Fill(TTree.Digits_RPC_doubletZ[n])
+                MyHistoFiller.bis_rpcDigitdoubletPhi.Fill(TTree.Digits_RPC_doubletPhi[n])
+                MyHistoFiller.bis_rpcDigitMeasuresPhi.Fill(TTree.Digits_RPC_measuresPhi[n])
+                MyHistoFiller.bis_rpcDigitTime.Fill(TTree.Digits_RPC_time[n])
+                MyHistoFiller.bis_rpcDigitStrip.Fill(TTree.Digits_RPC_strip[n])
+                MyHistoFiller.bis_rpcDigitStripNumber.Fill(TTree.Digits_RPC_stripNumber[n])
+                MyHistoFiller.bis_rpcDigitglobalXY.Fill(TTree.Digits_RPC_globalPosX[n],TTree.Digits_RPC_globalPosY[n])
+                MyHistoFiller.bis_rpcDigitglobalZY.Fill(TTree.Digits_RPC_globalPosZ[n],TTree.Digits_RPC_globalPosY[n])
+                MyHistoFiller.bis_rpcDigitglobalZX.Fill(TTree.Digits_RPC_globalPosZ[n],TTree.Digits_RPC_globalPosX[n])
+            
+
+        if self.__chamber_name == "MDT_Sim":
             if not (self.__eta_sel(TTree) and self.__sector_sel(TTree)):
                 return
             else:
@@ -233,6 +399,51 @@ class MyHistoFiller(object):
                 MyHistoFiller.mdtGlobalR.Fill(TTree.MDT_hitGlobalPositionR[n])
                 MyHistoFiller.mdtGlobalP.Fill(TTree.MDT_hitGlobalPositionP[n])
                 MyHistoFiller.mdtTube.Fill(TTree.MDT_Sim_tube[n])
+                
+        if self.__chamber_name == "MDT_Digit":
+            if not (self.__eta_sel(TTree) and self.__sector_sel(TTree)):
+                return
+            else:
+                MyHistoFiller.mdtDigitlocalTubePosX.Fill(TTree.Digits_MDT_localTubePosX[n])
+                MyHistoFiller.mdtDigitlocalTubePosY.Fill(TTree.Digits_MDT_localTubePosY[n])
+                MyHistoFiller.mdtDigitlocalTubePosZ.Fill(TTree.Digits_MDT_localTubePosZ[n])
+                MyHistoFiller.mdtDigitStationEta.Fill(TTree.Digits_MDT_stationEta[n])
+                MyHistoFiller.mdtDigitStationPhi.Fill(TTree.Digits_MDT_stationPhi[n])
+                MyHistoFiller.mdtDigitglobalX.Fill(TTree.Digits_MDT_globalPosX[n])
+                MyHistoFiller.mdtDigitglobalY.Fill(TTree.Digits_MDT_globalPosY[n])
+                MyHistoFiller.mdtDigitglobalZ.Fill(TTree.Digits_MDT_globalPosZ[n])  
+                MyHistoFiller.mdtDigitNumberOfMultilayers.Fill(TTree.Digits_MDT_numberOfMultilayers[n])
+                MyHistoFiller.mdtDigitTube.Fill(TTree.Digits_MDT_tube[n])
+                MyHistoFiller.mdtDigitTubeLayer.Fill(TTree.Digits_MDT_tubeLayer[n])
+                MyHistoFiller.mdtDigitMultilayer.Fill(TTree.Digits_MDT_multilayer[n])
+                MyHistoFiller.mdtDigitTime.Fill(TTree.Digits_MDT_time[n])
+                MyHistoFiller.mdtDigitCharge.Fill(TTree.Digits_MDT_charge[n])
+                MyHistoFiller.mdtDigitglobalXY.Fill(TTree.Digits_MDT_globalPosX[n],TTree.Digits_MDT_globalPosY[n])
+                MyHistoFiller.mdtDigitglobalZY.Fill(TTree.Digits_MDT_globalPosZ[n],TTree.Digits_MDT_globalPosY[n])
+                MyHistoFiller.mdtDigitglobalZX.Fill(TTree.Digits_MDT_globalPosZ[n],TTree.Digits_MDT_globalPosX[n])
+                # Cut on BIS78 modules only
+                if TTree.Digits_MDT_stationName[n]=="BIS" and TTree.Digits_MDT_stationEta[n]>6: 
+                    bis_mdtDigitlocalTubePosX.Fill(TTree.Digits_MDT_localTubePosX[n])
+                    bis_mdtDigitlocalTubePosY.Fill(TTree.Digits_MDT_localTubePosY[n])
+                    bis_mdtDigitlocalTubePosZ.Fill(TTree.Digits_MDT_localTubePosZ[n])
+                    bis_mdtDigitStationEta.Fill(TTree.Digits_MDT_stationEta[n])
+                    bis_mdtDigitStationPhi.Fill(TTree.Digits_MDT_stationPhi[n])
+                    bis_mdtDigitglobalX.Fill(TTree.Digits_MDT_globalPosX[n])
+                    bis_mdtDigitglobalY.Fill(TTree.Digits_MDT_globalPosY[n])
+                    bis_mdtDigitglobalZ.Fill(TTree.Digits_MDT_globalPosZ[n])  
+                    bis_mdtDigitNumberOfMultilayers.Fill(TTree.Digits_MDT_numberOfMultilayers[n])
+                    bis_mdtDigitTube.Fill(TTree.Digits_MDT_tube[n])
+                    bis_mdtDigitTubeLayer.Fill(TTree.Digits_MDT_tubeLayer[n])
+                    bis_mdtDigitMultilayer.Fill(TTree.Digits_MDT_multilayer[n])
+                    bis_mdtDigitTime.Fill(TTree.Digits_MDT_time[n])
+                    bis_mdtDigitCharge.Fill(TTree.Digits_MDT_charge[n])
+                    bis_mdtDigitglobalXY.Fill(TTree.Digits_MDT_globalPosX[n],TTree.Digits_MDT_globalPosY[n])
+                    bis_mdtDigitglobalZY.Fill(TTree.Digits_MDT_globalPosZ[n],TTree.Digits_MDT_globalPosY[n])
+                    bis_mdtDigitglobalZX.Fill(TTree.Digits_MDT_globalPosZ[n],TTree.Digits_MDT_globalPosX[n])
+                    bis_mdtDigitlocalTubePosXY.Fill(TTree.Digits_MDT_localTubePosX[n],TTree.Digits_MDT_localTubePosY[n])
+                    bis_mdtDigitlocalTubePosZY.Fill(TTree.Digits_MDT_localTubePosZ[n],TTree.Digits_MDT_localTubePosY[n])
+                    bis_mdtDigitlocalTubePosZX.Fill(TTree.Digits_MDT_localTubePosZ[n],TTree.Digits_MDT_localTubePosX[n])
+            
 
         if self.__chamber_name == "CSC_Sim":
             if not (self.__eta_sel(TTree) and self.__sector_sel(TTree)):
@@ -248,8 +459,8 @@ class MyHistoFiller(object):
                 MyHistoFiller.cscWireLayer.Fill(TTree.CSC_Sim_wireLayer[n])
                 MyHistoFiller.cscStrip.Fill(TTree.CSC_strip[n])
                 MyHistoFiller.cscglobalTime.Fill(TTree.CSC_globalTime[n])
-                MyHistoFiller.cscKineticEnergy.Fill(TTree.CSC_KineticEnergy[n])
-                MyHistoFiller.cscDepositEnergy.Fill(TTree.CSC_DepositEnergy[n])
+                MyHistoFiller.cscKineticEnergy.Fill(TTree.CSC_kineticEnergy[n])
+                MyHistoFiller.cscDepositEnergy.Fill(TTree.CSC_depositEnergy[n])
                 MyHistoFiller.cscSimStationEta.Fill(TTree.CSC_Sim_stationEta[n])
                 MyHistoFiller.cscSimStationPhi.Fill(TTree.CSC_Sim_stationPhi[n])
                 MyHistoFiller.cscSimChamberLayer.Fill(TTree.CSC_Sim_chamberLayer[n])
@@ -400,7 +611,7 @@ class MyHistoFiller(object):
                 MyHistoFiller.TGCPRDGlobalZ.Fill(TTree.PRD_TGC_globalPosZ[n])
                 MyHistoFiller.TGCPRDLocalX.Fill(TTree.PRD_TGC_localPosX[n])
 
-        if self.__chamber_name == "MM":
+        if self.__chamber_name == "MM_Sim":
             if not (self.__eta_sel(TTree) and self.__sector_sel(TTree)):
                 return
             else:
@@ -412,7 +623,7 @@ class MyHistoFiller(object):
                 MyHistoFiller.mmStationEta.Fill(TTree.Hits_MM_off_stationEta[n])
                 MyHistoFiller.mmStationPhi.Fill(TTree.Hits_MM_off_stationPhi[n])
 
-        if self.__chamber_name == "sTGC":
+        if self.__chamber_name == "sTGC_Sim":
             if not (self.__eta_sel(TTree) and self.__sector_sel(TTree)):
                 return
             else:
@@ -433,7 +644,7 @@ class MyHistoFiller(object):
             outdir.WriteTObject(MyHistoFiller.truthEtaHist, MyHistoFiller.truthEtaHist.GetName())
             outdir.WriteTObject(MyHistoFiller.truthPhiHist, MyHistoFiller.truthPhiHist.GetName())
     
-        if self.__chamber_name == "RPC":
+        if self.__chamber_name == "RPC_Sim":
             outdir.WriteTObject(MyHistoFiller.rpcLocalX, MyHistoFiller.rpcLocalX.GetName())
             outdir.WriteTObject(MyHistoFiller.rpcLocalY, MyHistoFiller.rpcLocalY.GetName())
             outdir.WriteTObject(MyHistoFiller.rpcLocalZ, MyHistoFiller.rpcLocalZ.GetName())
@@ -445,8 +656,51 @@ class MyHistoFiller(object):
             outdir.WriteTObject(MyHistoFiller.rpcGlobalR, MyHistoFiller.rpcGlobalR.GetName())
             outdir.WriteTObject(MyHistoFiller.rpcGlobalP, MyHistoFiller.rpcGlobalP.GetName())
             outdir.WriteTObject(MyHistoFiller.rpcGasGap, MyHistoFiller.rpcGasGap.GetName())
+            
+        if self.__chamber_name == "RPC_Digit":
+            outdir.WriteTObject(MyHistoFiller.rpcDigitlocalX, MyHistoFiller.rpcDigitlocalX.GetName())
+            outdir.WriteTObject(MyHistoFiller.rpcDigitlocalY, MyHistoFiller.rpcDigitlocalY.GetName())
+            outdir.WriteTObject(MyHistoFiller.rpcDigitStationEta, MyHistoFiller.rpcDigitStationEta.GetName())
+            outdir.WriteTObject(MyHistoFiller.rpcDigitStationPhi, MyHistoFiller.rpcDigitStationPhi.GetName())
+            outdir.WriteTObject(MyHistoFiller.rpcDigitglobalX, MyHistoFiller.rpcDigitglobalX.GetName())
+            outdir.WriteTObject(MyHistoFiller.rpcDigitglobalY, MyHistoFiller.rpcDigitglobalY.GetName())
+            outdir.WriteTObject(MyHistoFiller.rpcDigitglobalZ, MyHistoFiller.rpcDigitglobalZ.GetName())
+            outdir.WriteTObject(MyHistoFiller.rpcDigitGasGap, MyHistoFiller.rpcDigitGasGap.GetName())
+            outdir.WriteTObject(MyHistoFiller.rpcDigitStrip, MyHistoFiller.rpcDigitStrip.GetName())
+            outdir.WriteTObject(MyHistoFiller.rpcDigitStripNumber, MyHistoFiller.rpcDigitStripNumber.GetName())
+            outdir.WriteTObject(MyHistoFiller.rpcDigitMeasuresPhi, MyHistoFiller.rpcDigitMeasuresPhi.GetName())
+            outdir.WriteTObject(MyHistoFiller.rpcDigitChannel, MyHistoFiller.rpcDigitChannel.GetName())
+            outdir.WriteTObject(MyHistoFiller.rpcDigitTime, MyHistoFiller.rpcDigitTime.GetName())
+            outdir.WriteTObject(MyHistoFiller.rpcDigitdoubletR, MyHistoFiller.rpcDigitdoubletR.GetName())
+            outdir.WriteTObject(MyHistoFiller.rpcDigitdoubletZ, MyHistoFiller.rpcDigitdoubletZ.GetName())
+            outdir.WriteTObject(MyHistoFiller.rpcDigitdoubletPhi, MyHistoFiller.rpcDigitdoubletPhi.GetName())
+            outdir.WriteTObject(MyHistoFiller.rpcDigitglobalXY, MyHistoFiller.rpcDigitglobalXY.GetName())
+            outdir.WriteTObject(MyHistoFiller.rpcDigitglobalZY, MyHistoFiller.rpcDigitglobalZY.GetName())
+            outdir.WriteTObject(MyHistoFiller.rpcDigitglobalZX, MyHistoFiller.rpcDigitglobalZX.GetName())
+            # BIS rpcDigit
+            outdir.WriteTObject(MyHistoFiller.bis_rpcDigitlocalX, MyHistoFiller.bis_rpcDigitlocalX.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_rpcDigitlocalY, MyHistoFiller.bis_rpcDigitlocalY.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_rpcDigitStationEta, MyHistoFiller.bis_rpcDigitStationEta.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_rpcDigitStationPhi, MyHistoFiller.bis_rpcDigitStationPhi.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_rpcDigitglobalX, MyHistoFiller.bis_rpcDigitglobalX.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_rpcDigitglobalY, MyHistoFiller.bis_rpcDigitglobalY.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_rpcDigitglobalZ, MyHistoFiller.bis_rpcDigitglobalZ.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_rpcDigitGasGap, MyHistoFiller.bis_rpcDigitGasGap.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_rpcDigitStrip, MyHistoFiller.bis_rpcDigitStrip.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_rpcDigitStripNumber, MyHistoFiller.bis_rpcDigitStripNumber.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_rpcDigitMeasuresPhi, MyHistoFiller.bis_rpcDigitMeasuresPhi.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_rpcDigitChannel, MyHistoFiller.bis_rpcDigitChannel.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_rpcDigitTime, MyHistoFiller.bis_rpcDigitTime.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis7_rpcDigitTime, MyHistoFiller.bis7_rpcDigitTime.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis8_rpcDigitTime, MyHistoFiller.bis8_rpcDigitTime.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_rpcDigitdoubletR, MyHistoFiller.bis_rpcDigitdoubletR.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_rpcDigitdoubletZ, MyHistoFiller.bis_rpcDigitdoubletZ.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_rpcDigitdoubletPhi, MyHistoFiller.bis_rpcDigitdoubletPhi.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_rpcDigitglobalXY, MyHistoFiller.bis_rpcDigitglobalXY.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_rpcDigitglobalZY, MyHistoFiller.bis_rpcDigitglobalZY.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_rpcDigitglobalZX, MyHistoFiller.bis_rpcDigitglobalZX.GetName())
 
-        if self.__chamber_name == "MDT":
+        if self.__chamber_name == "MDT_Sim":
             outdir.WriteTObject(MyHistoFiller.mdtLocalX, MyHistoFiller.mdtLocalX.GetName())
             outdir.WriteTObject(MyHistoFiller.mdtLocalY, MyHistoFiller.mdtLocalY.GetName())
             outdir.WriteTObject(MyHistoFiller.mdtLocalZ, MyHistoFiller.mdtLocalZ.GetName())
@@ -458,6 +712,48 @@ class MyHistoFiller(object):
             outdir.WriteTObject(MyHistoFiller.mdtGlobalR, MyHistoFiller.mdtGlobalR.GetName())
             outdir.WriteTObject(MyHistoFiller.mdtGlobalP, MyHistoFiller.mdtGlobalP.GetName())
             outdir.WriteTObject(MyHistoFiller.mdtTube, MyHistoFiller.mdtTube.GetName())
+
+        if self.__chamber_name == "MDT_Digit":
+            outdir.WriteTObject(MyHistoFiller.mdtDigitlocalTubePosX, MyHistoFiller.mdtDigitlocalTubePosX.GetName())
+            outdir.WriteTObject(MyHistoFiller.mdtDigitlocalTubePosY, MyHistoFiller.mdtDigitlocalTubePosY.GetName())
+            outdir.WriteTObject(MyHistoFiller.mdtDigitlocalTubePosZ, MyHistoFiller.mdtDigitlocalTubePosZ.GetName())
+            outdir.WriteTObject(MyHistoFiller.mdtDigitStationEta, MyHistoFiller.mdtDigitStationEta.GetName())
+            outdir.WriteTObject(MyHistoFiller.mdtDigitStationPhi, MyHistoFiller.mdtDigitStationPhi.GetName())
+            outdir.WriteTObject(MyHistoFiller.mdtDigitglobalX, MyHistoFiller.mdtDigitglobalX.GetName())
+            outdir.WriteTObject(MyHistoFiller.mdtDigitglobalY, MyHistoFiller.mdtDigitglobalY.GetName())
+            outdir.WriteTObject(MyHistoFiller.mdtDigitglobalZ, MyHistoFiller.mdtDigitglobalZ.GetName())
+            outdir.WriteTObject(MyHistoFiller.mdtDigitNumberOfMultilayers, MyHistoFiller.mdtDigitNumberOfMultilayers.GetName())
+            outdir.WriteTObject(MyHistoFiller.mdtDigitTube, MyHistoFiller.mdtDigitTube.GetName())
+            outdir.WriteTObject(MyHistoFiller.mdtDigitTubeLayer, MyHistoFiller.mdtDigitTubeLayer.GetName())
+            outdir.WriteTObject(MyHistoFiller.mdtDigitMultilayer, MyHistoFiller.mdtDigitMultilayer.GetName())
+            outdir.WriteTObject(MyHistoFiller.mdtDigitTime, MyHistoFiller.mdtDigitTime.GetName())
+            outdir.WriteTObject(MyHistoFiller.mdtDigitCharge, MyHistoFiller.mdtDigitCharge.GetName())
+            outdir.WriteTObject(MyHistoFiller.mdtDigitChannel, MyHistoFiller.mdtDigitChannel.GetName())
+            outdir.WriteTObject(MyHistoFiller.mdtDigitglobalXY, MyHistoFiller.mdtDigitglobalXY.GetName())
+            outdir.WriteTObject(MyHistoFiller.mdtDigitglobalZY, MyHistoFiller.mdtDigitglobalZY.GetName())
+            outdir.WriteTObject(MyHistoFiller.mdtDigitglobalZX, MyHistoFiller.mdtDigitglobalZX.GetName())
+            # BIS mdtDigit
+            outdir.WriteTObject(MyHistoFiller.bis_mdtDigitlocalTubePosX, MyHistoFiller.bis_mdtDigitlocalTubePosX.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_mdtDigitlocalTubePosY, MyHistoFiller.bis_mdtDigitlocalTubePosY.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_mdtDigitlocalTubePosZ, MyHistoFiller.bis_mdtDigitlocalTubePosZ.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_mdtDigitStationEta, MyHistoFiller.bis_mdtDigitStationEta.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_mdtDigitStationPhi, MyHistoFiller.bis_mdtDigitStationPhi.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_mdtDigitglobalX, MyHistoFiller.bis_mdtDigitglobalX.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_mdtDigitglobalY, MyHistoFiller.bis_mdtDigitglobalY.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_mdtDigitglobalZ, MyHistoFiller.bis_mdtDigitglobalZ.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_mdtDigitNumberOfMultilayers, MyHistoFiller.bis_mdtDigitNumberOfMultilayers.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_mdtDigitTube, MyHistoFiller.bis_mdtDigitTube.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_mdtDigitTubeLayer, MyHistoFiller.bis_mdtDigitTubeLayer.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_mdtDigitMultilayer, MyHistoFiller.bis_mdtDigitMultilayer.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_mdtDigitTime, MyHistoFiller.bis_mdtDigitTime.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_mdtDigitCharge, MyHistoFiller.bis_mdtDigitCharge.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_mdtDigitChannel, MyHistoFiller.bis_mdtDigitChannel.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_mdtDigitglobalXY, MyHistoFiller.bis_mdtDigitglobalXY.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_mdtDigitglobalZY, MyHistoFiller.bis_mdtDigitglobalZY.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_mdtDigitglobalZX, MyHistoFiller.bis_mdtDigitglobalZX.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_mdtDigitlocalTubePosXY, MyHistoFiller.bis_mdtDigitlocalTubePosXY.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_mdtDigitlocalTubePosZY, MyHistoFiller.bis_mdtDigitlocalTubePosZY.GetName())
+            outdir.WriteTObject(MyHistoFiller.bis_mdtDigitlocalTubePosZX, MyHistoFiller.bis_mdtDigitlocalTubePosZX.GetName())
 
 
         if self.__chamber_name == "CSC_Sim":
@@ -599,7 +895,7 @@ class MyHistoFiller(object):
             outdir.WriteTObject(MyHistoFiller.TGCPRDLocalX, MyHistoFiller.TGCPRDLocalX.GetName())
        
 
-        if self.__chamber_name == "MM":
+        if self.__chamber_name == "MM_Sim":
             outdir.WriteTObject(MyHistoFiller.mmGlobalX, MyHistoFiller.mmGlobalX.GetName())
             outdir.WriteTObject(MyHistoFiller.mmGlobalY, MyHistoFiller.mmGlobalY.GetName())
             outdir.WriteTObject(MyHistoFiller.mmGlobalZ, MyHistoFiller.mmGlobalZ.GetName())
@@ -608,7 +904,7 @@ class MyHistoFiller(object):
             outdir.WriteTObject(MyHistoFiller.mmStationEta, MyHistoFiller.mmStationEta.GetName())
             outdir.WriteTObject(MyHistoFiller.mmStationPhi, MyHistoFiller.mmStationPhi.GetName())
 
-        if self.__chamber_name == "sTGC":
+        if self.__chamber_name == "sTGC_Sim":
             outdir.WriteTObject(MyHistoFiller.stgcGlobalX, MyHistoFiller.stgcGlobalX.GetName())
             outdir.WriteTObject(MyHistoFiller.stgcGlobalY, MyHistoFiller.stgcGlobalY.GetName())
             outdir.WriteTObject(MyHistoFiller.stgcGlobalZ, MyHistoFiller.stgcGlobalZ.GetName())

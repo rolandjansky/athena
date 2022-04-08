@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 
-<!-- Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration -->
+<!-- Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration -->
 
 <dcube_client_config>
  <dcube branch="*" cmtconfig="*" install="*" jobId="*" project="*">
@@ -12,57 +12,89 @@
     <hist1D name="truthPt" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="truthEta" plotopts="" tests="KS,chi2" type="TH1F"/>
     <hist1D name="truthPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="rpclocalX" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="rpclocalY" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="rpcglobalX" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="rpcglobalY" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="rpcglobalZ" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="rpcStationEta" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="rpcStationPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="rpcdoubletR" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="rpcdoubletZ" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="rpcdoubletPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="rpcGasGap" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="rpcTime" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="mdtlocalTubePosX" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="mdtlocalTubePosY" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="mdtlocalTubePosZ" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="mdtglobalX" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="mdtglobalY" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="mdtglobalZ" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="mdtStationEta" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="mdtStationPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="mdtTube" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="mdtTubeLayer" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="mdtMultilayer" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="mdtTime" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="mdtCharge" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="bis_rpclocalX" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="bis_rpclocalY" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="bis_rpcglobalX" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="bis_rpcglobalY" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="bis_rpcglobalZ" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="bis_rpcStationEta" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="bis_rpcStationPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="bis_rpcdoubletR" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="bis_rpcdoubletZ" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="bis_rpcdoubletPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="bis_rpcGasGap" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="bis_rpcTime" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="bis_mdtlocalTubePosX" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="bis_mdtlocalTubePosY" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="bis_mdtlocalTubePosZ" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="bis_mdtglobalX" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="bis_mdtglobalY" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="bis_mdtglobalZ" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="bis_mdtStationEta" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="bis_mdtStationPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="bis_mdtTube" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="bis_mdtTubeLayer" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="bis_mdtMultilayer" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="bis_mdtTime" plotopts="" tests="KS,chi2" type="TH1F"/>
-    <hist1D name="bis_mdtCharge" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcDigitlocalX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcDigitlocalY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcDigitStationEta" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcDigitStationPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcDigitglobalX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcDigitglobalY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcDigitglobalZ" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcDigitGasGap" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcDigitdoubletR" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcDigitdoubletZ" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcDigitdoubletPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="rpcDigitTime" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtDigitStationEta" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtDigitStationPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtDigitglobalX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtDigitglobalY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtDigitglobalZ" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtDigitTube" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtDigitTubeLayer" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtDigitMultilayer" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtDigitTime" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtDigitCharge" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtDigitlocalTubePosX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtDigitlocalTubePosY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="mdtDigitlocalTubePosZ" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_rpcDigitlocalX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_rpcDigitlocalY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_rpcDigitStationEta" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_rpcDigitStationPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_rpcDigitglobalX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_rpcDigitglobalY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_rpcDigitglobalZ" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_rpcDigitGasGap" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_rpcDigitdoubletR" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_rpcDigitdoubletZ" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_rpcDigitdoubletPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_rpcDigitTime" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_mdtDigitStationEta" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_mdtDigitStationPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_mdtDigitglobalX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_mdtDigitglobalY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_mdtDigitglobalZ" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_mdtDigitTube" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_mdtDigitTubeLayer" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_mdtDigitMultilayer" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_mdtDigitTime" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_mdtDigitCharge" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_mdtDigitlocalTubePosX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_mdtDigitlocalTubePosY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="bis_mdtDigitlocalTubePosZ" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCDigitStationEta" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCDigitStationPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCDigitGasGap" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCDigitChannel" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCDigitisStrip" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCDigitlocalX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCDigitlocalY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCDigitglobalX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCDigitglobalY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCDigitglobalZ" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCSDOStationEta" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCSDOStationPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCSDOGasgap" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCSDOChannel" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCSDOisStrip" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCSDOWord" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCSDOBarcode" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCSDOGlobalX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCSDOGlobalY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCSDOGlobalZ" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCSDOLocalX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCSDOLocalY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCSDOGlotime" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCRDOStationEta" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCRDOStationPhi" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCRDOGasgap" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCRDOChannel" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCRDOisStrip" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCRDOGlobalX" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCRDOGlobalY" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCRDOGlobalZ" plotopts="" tests="KS,chi2" type="TH1F"/>
+    <hist1D name="TGCRDOLocalX" plotopts="" tests="KS,chi2" type="TH1F"/>
    </TDirectory>
-  </TDirectory> 
+  </TDirectory>
  </dcube>
 </dcube_client_config>

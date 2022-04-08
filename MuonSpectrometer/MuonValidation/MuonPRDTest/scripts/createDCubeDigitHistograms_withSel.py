@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # this script can be used to create DCube histograms from the output ntuples of NSWPRDValAlg
 
@@ -13,6 +13,8 @@ if __name__ == "__main__":
     parser.add_argument('--doCSC', help='turn off CSC if using Run4 input ROOT file', default=False, action='store_true')
     parser.add_argument('--CSCsel', help='Choose eta_sector selections for CSC, e.g. positive_1 for positive eta and sector 1, None_None for no selection', default='None_None', type=str)
     parser.add_argument('--TGCsel', help='Choose eta_sector selections for TGC, e.g. positive_1 for positive eta and sector 1, None_None for no selection', default='None_None', type=str)
+    parser.add_argument('--RPCsel', help='Choose eta_sector selections for RPC, e.g. positive_1 for positive eta and sector 1, None_None for no selection', default='None_None', type=str)
+    parser.add_argument('--MDTsel', help='Choose eta_sector selections for MDT, e.g. positive_1 for positive eta and sector 1, None_None for no selection', default='None_None', type=str)
 
     Options = parser.parse_args()
 
@@ -60,6 +62,20 @@ if __name__ == "__main__":
     else:
         TGC_sector = TGCselections[1]
         
+    RPCselections = Options.RPCsel.split("_")
+    RPC_eta = RPCselections[0]
+    if RPCselections[1] != "None":
+        RPC_sector = int (RPCselections[1])
+    else:
+        RPC_sector = RPCselections[1]
+        
+    MDTselections = Options.MDTsel.split("_")
+    MDT_eta = MDTselections[0]
+    if MDTselections[1] != "None":
+        MDT_sector = int (MDTselections[1])
+    else:
+        MDT_sector = MDTselections[1]
+        
     #Filling
     for i in range(inputTree.GetEntries()):
         inputTree.GetEntry(i)
@@ -69,7 +85,8 @@ if __name__ == "__main__":
         tgcDigitHists = []
         tgcSDOHists = []
         tgcRDOHists = []
-
+        rpcDigitHists = []
+        mdtDigitHists = []
 
         # CSCs
         if Options.doCSC == True:
@@ -123,6 +140,41 @@ if __name__ == "__main__":
         for ntgcRDO in range(0,len(inputTree.RDO_TGC_localPosX)):
             tgcRDOHists += [MyHistoFiller( chamber_name = "TGC_RDO", eta_sel = tgc_eta_sel, sector_sel = tgc_sector_sel )]
             tgcRDOHists[ntgcRDO].fill(inputTree, ntgcRDO)
+            
+        # RPCs
+        if RPC_eta == "positive":
+            rpc_eta_sel = lambda t: t.Digits_RPC_stationEta[nrpcDigit] >= 0
+        elif RPC_eta == "negative":
+            rpc_eta_sel = lambda t: t.Digits_RPC_stationEta[nrpcDigit] < 0
+        else:
+            rpc_eta_sel = lambda t: t.Digits_RPC_stationEta[nrpcDigit] < 9
+
+        if RPC_sector == "None":
+            rpc_sector_sel = lambda s: s.Digits_RPC_stationPhi[nrpcDigit] < 10
+        else:
+            rpc_sector_sel = lambda s: s.Digits_RPC_stationPhi[nrpcDigit] == RPC_sector
+
+        for nrpcDigit in range(0,len(inputTree.Digits_RPC_localPosX)):
+            rpcDigitHists += [MyHistoFiller( chamber_name = "RPC_Digit", eta_sel = rpc_eta_sel, sector_sel = rpc_sector_sel )]
+            rpcDigitHists[nrpcDigit].fill(inputTree, nrpcDigit)
+            
+        # MDTs
+        if MDT_eta == "positive":
+            mdt_eta_sel = lambda t: t.Digits_MDT_stationEta[nmdtDigit] >= 0
+        elif MDT_eta == "negative":
+            mdt_eta_sel = lambda t: t.Digits_MDT_stationEta[nmdtDigit] < 0
+        else:
+            mdt_eta_sel = lambda t: t.Digits_MDT_stationEta[nmdtDigit] < 9
+
+        if MDT_sector == "None":
+            mdt_sector_sel = lambda s: s.Digits_MDT_stationPhi[nmdtDigit] < 10
+        else:
+            mdt_sector_sel = lambda s: s.Digits_MDT_stationPhi[nmdtDigit] == MDT_sector
+
+        for nmdtDigit in range(0,len(inputTree.Digits_MDT_localPosX)):
+            mdtDigitHists += [MyHistoFiller( chamber_name = "MDT_Digit", eta_sel = mdt_eta_sel, sector_sel = mdt_sector_sel )]
+            mdtDigitHists[nmdtDigit].fill(inputTree, nmdtDigit)
+
 
     #Writing
     if Options.doCSC == True:
@@ -143,4 +195,10 @@ if __name__ == "__main__":
     
     tgcRDOHist = MyHistoFiller( chamber_name = "TGC_RDO", eta_sel = None, sector_sel = None )
     tgcRDOHist.write(ODir)
+    
+    rpcDigitHist = MyHistoFiller( chamber_name = "RPC_Digit", eta_sel = None, sector_sel = None )
+    rpcDigitHist.write(ODir)
+    
+    mdtDigitHist = MyHistoFiller( chamber_name = "MDT_Digit", eta_sel = None, sector_sel = None )
+    mdtDigitHist.write(ODir)
     
