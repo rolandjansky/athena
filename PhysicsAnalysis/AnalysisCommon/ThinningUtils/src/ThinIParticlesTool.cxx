@@ -48,8 +48,7 @@ ThinIParticlesTool::ThinIParticlesTool( const std::string& type,
 // Destructor
 //=============================================================================
 ThinIParticlesTool::~ThinIParticlesTool()
-{
-}
+= default;
 
 
 //=============================================================================

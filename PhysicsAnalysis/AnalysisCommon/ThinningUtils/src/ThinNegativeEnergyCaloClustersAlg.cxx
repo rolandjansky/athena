@@ -42,7 +42,7 @@ m_nCaloClustersThinned(0)
 // Destructor
 ///////////////
 ThinNegativeEnergyCaloClustersAlg::~ThinNegativeEnergyCaloClustersAlg()
-{}
+= default;
 
 // Athena Algorithm's Hooks
 ////////////////////////////

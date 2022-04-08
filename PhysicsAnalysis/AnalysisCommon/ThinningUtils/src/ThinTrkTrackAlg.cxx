@@ -174,7 +174,7 @@ ThinTrkTrackAlg::doMuons(const EventContext& ctx) const
     if (!acc.isAvailable(*mu)) {
       continue;
     }
-    const ElementLink<xAOD::TrackParticleContainer> link = acc(*mu);
+    const ElementLink<xAOD::TrackParticleContainer>& link = acc(*mu);
     if (!link.isValid()) {
       continue;
     }

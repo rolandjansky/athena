@@ -43,8 +43,7 @@ ReducePileUpEventInfoAlg::ReducePileUpEventInfoAlg( const std::string& name,
 // Destructor
 //=============================================================================
 ReducePileUpEventInfoAlg::~ReducePileUpEventInfoAlg()
-{
-}
+= default;
 
 
 

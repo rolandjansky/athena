@@ -43,7 +43,7 @@ m_nNeutralPFOsThinned(0)
 // Destructor
 ///////////////
 ThinNegativeEnergyNeutralPFOsAlg::~ThinNegativeEnergyNeutralPFOsAlg()
-{}
+= default;
 
 // Athena Algorithm's Hooks
 ////////////////////////////

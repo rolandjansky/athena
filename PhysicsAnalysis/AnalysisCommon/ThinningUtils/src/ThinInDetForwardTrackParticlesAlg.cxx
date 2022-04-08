@@ -46,7 +46,7 @@ m_nTracksThinned(0)
 // Destructor
 ///////////////
 ThinInDetForwardTrackParticlesAlg::~ThinInDetForwardTrackParticlesAlg()
-{}
+= default;
 
 // Athena Algorithm's Hooks
 ////////////////////////////
