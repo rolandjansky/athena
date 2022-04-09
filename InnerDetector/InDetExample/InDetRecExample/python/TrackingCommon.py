@@ -677,44 +677,6 @@ def getInDetPatternUpdator(name='InDetPatternUpdator',**kwargs) :
     from TrkMeasurementUpdator_xk.TrkMeasurementUpdator_xkConf import Trk__KalmanUpdator_xk
     return Trk__KalmanUpdator_xk(name = the_name, **kwargs)
 
-
-@makePublicTool
-def getInDetGsfMeasurementUpdator(name='InDetGsfMeasurementUpdator', **kwargs) :
-    the_name = makeName( name, kwargs )
-    if 'Updator' not in kwargs  :
-        kwargs=setDefaults(kwargs, Updator = getInDetUpdator() )
-    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMeasurementUpdator
-    return Trk__GsfMeasurementUpdator( name = the_name, **kwargs )
-
-
-@makePublicTool
-def getInDetGsfMaterialUpdator(name='InDetGsfMaterialUpdator', **kwargs) :
-    the_name = makeName( name, kwargs)
-    if 'MaximumNumberOfComponents' not in kwargs :
-        kwargs=setDefaults(kwargs, MaximumNumberOfComponents = 12)
-
-    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolution
-    return Trk__GsfMaterialMixtureConvolution (name = the_name, **kwargs)
-
-
-@makePublicTool
-def getInDetGsfExtrapolator(name='InDetGsfExtrapolator', **kwargs) :
-    the_name = makeName(name,kwargs)
-    if 'Propagators' not in kwargs :
-        kwargs=setDefaults(kwargs, Propagators = [ getInDetPropagator() ] )
-
-    if 'Navigator' not in kwargs :
-        kwargs=setDefaults(kwargs, Navigator   =  getInDetNavigator() )
-
-    if 'GsfMaterialConvolution' not in kwargs :
-        kwargs=setDefaults(kwargs, GsfMaterialConvolution        = getInDetGsfMaterialUpdator())
-
-    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfExtrapolator
-    return Trk__GsfExtrapolator(name = the_name, **setDefaults(kwargs,
-                                                               SearchLevelClosestParameters  = 10,
-                                                               StickyConfiguration           = True,
-                                                               SurfaceBasedMaterialEffects   = False ))
-
 @makePublicTool
 def getTrkMaterialProviderTool(name='TrkMaterialProviderTool',**kwargs) :
     the_name = makeName(name,kwargs)

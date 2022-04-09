@@ -1,4 +1,5 @@
 ####  Load Tracking Tools
+from egammaTrackTools.egammaTrackToolsConf import egammaTrkRefitterTool
 from AthenaCommon.GlobalFlags import globalflags
 # --- default is atlas geometry
 globalflags.DetGeo = 'atlas'
@@ -126,59 +127,14 @@ ElectronTrkExtrapolator = Trk__Extrapolator(name                    = 'ElectronT
 ToolSvc += ElectronTrkExtrapolator
 
 
-
-###############################################################################
-###############################################################################
-#######                     GSF Realted Packaages                      ########
-###############################################################################
-###############################################################################
-from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolution
-GsfMaterialUpdator = Trk__GsfMaterialMixtureConvolution (name = 'GsfMaterialUpdator',
-                                                         MaximumNumberOfComponents = 12)
-ToolSvc += GsfMaterialUpdator
-print     (GsfMaterialUpdator)
-
-from TrkMeasurementUpdator.TrkMeasurementUpdatorConf import Trk__KalmanUpdator as ConfiguredKalmanUpdator
-ElectronUpdator = ConfiguredKalmanUpdator('ElectronUpdator')
-ToolSvc += ElectronUpdator
-
-# Problems in Rel 22
-#from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMeasurementUpdator
-#GsfMeasurementUpdator = Trk__GsfMeasurementUpdator( name    = 'GsfMeasurementUpdator',
-#                                                  Updator = ElectronUpdator )
-#ToolSvc += GsfMeasurementUpdator
-
-
-
-from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfExtrapolator
-GsfExtrapolator = Trk__GsfExtrapolator(name                          = 'GsfExtrapolator',
-                                       Propagator                    = ElectronTrkPropagator,
-                                       Navigator                     = ElectronTrkNavigator,
-                                       GsfMaterialConvolution        = GsfMaterialUpdator,
-                                       SurfaceBasedMaterialEffects   = False )
-ToolSvc += GsfExtrapolator
-
-
-#problems in Rel22
-#from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GaussianSumFitter
-#GSFTrackFitter = Trk__GaussianSumFitter(name                    = 'GSFTrackFitter',
-#                                          ToolForExtrapolation    = GsfExtrapolator,
-#                                          MeasurementUpdatorType  = GsfMeasurementUpdator,
-#                                          ToolForROTCreation      = ElectronRotCreator,
-#                                          ReintegrateOutliers     = True,
-#                                          MakePerigee             = True,
-#                                          RefitOnMeasurementBase  = True,
-#                                          DoHitSorting            = True,
-#                                          ValidationMode          = False,
-#                                          OutputLevel = 3)
+# GSF configuration same as e/gamma ##
 import egammaRec.EMCommonRefitter 
-GSFTrackFitter = egammaRec.EMCommonRefitter.getGSFTrackFitter()
-
-# --- end of fitter loading
+GSFTrackFitter = egammaRec.EMCommonRefitter.getGSFTrackFitter("GSFTrackFitter")
+# --- load the e/gamma one
 ToolSvc += GSFTrackFitter
 
 ###############################################################################
-#######                     GX2 Realted Packaages                      ########
+#######                     GX2 Related Packages                       ########
 ###############################################################################
 ###############################################################################
 
@@ -221,16 +177,13 @@ job = AlgSequence()
 
 
 #######                 Loading egammaTrkRefitterTool                  ########
-
-
-from egammaTrackTools.egammaTrackToolsConf import egammaTrkRefitterTool
-ElectronRefitterTool = egammaTrkRefitterTool(name = 'ElectronRefitterTool',
-#                                            FitterTool = GSFTrackFitter,
-                                            FitterTool = GX2TrackFitter,
-                                            matEffects = 3,
-                                            minNoSiHits = -1,
-                                            useBeamSpot = False,
-                                            OutputLevel =4)
+ElectronRefitterTool = egammaTrkRefitterTool(name='ElectronRefitterTool',
+                                             # FitterTool = GSFTrackFitter,
+                                             FitterTool=GX2TrackFitter,
+                                             matEffects=3,
+                                             minNoSiHits=-1,
+                                             useBeamSpot=False,
+                                             OutputLevel =4)
 ToolSvc += ElectronRefitterTool
 
 

@@ -2,13 +2,13 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**
- * @file GsfCombinedMaterialEffects.cxx
+ * @file ElectronCombinedMaterialEffects.cxx
  * @begin         Friday 11th January 2005
  * @author        Anthony Morley, Tom  Atkinson, Christos Anastopoulos
- * @brief         Implementation code for GsfCombinedMaterialEffects class
+ * @brief         Implementation code for ElectronCombinedMaterialEffects class
  */
 
-#include "TrkGaussianSumFilterUtils/GsfCombinedMaterialEffects.h"
+#include "TrkGaussianSumFilterUtils/ElectronCombinedMaterialEffects.h"
 //
 #include "PathResolver/PathResolver.h"
 #include "TrkEventPrimitives/ParamDefs.h"
@@ -43,7 +43,7 @@ logisticFunction(const double x)
 }
 
 // Correct weights of components
-using BH = Trk::GsfCombinedMaterialEffects;
+using BH = Trk::ElectronCombinedMaterialEffects;
 void
 correctWeights(BH::MixtureParameters& mixture, const int numberOfComponents)
 {
@@ -206,10 +206,10 @@ energyLoss(GsfMaterial::EnergyLoss& cache,
 }
 
 // Helper to read in polynomials
-Trk::GsfCombinedMaterialEffects::Polynomial
+Trk::ElectronCombinedMaterialEffects::Polynomial
 readPolynomial(std::ifstream& fin)
 {
-  Trk::GsfCombinedMaterialEffects::Polynomial poly{};
+  Trk::ElectronCombinedMaterialEffects::Polynomial poly{};
   for (size_t i = 0; i < GSFConstants::polynomialCoefficients; ++i) {
     if (!fin) {
       throw std::logic_error("Reached end of stream but still expecting data.");
@@ -221,8 +221,8 @@ readPolynomial(std::ifstream& fin)
 
 } //  end of anonymous namespace
 
-// GsfCombinedMaterialEffects methods
-Trk::GsfCombinedMaterialEffects::GsfCombinedMaterialEffects(
+// ElectronCombinedMaterialEffects methods
+Trk::ElectronCombinedMaterialEffects::ElectronCombinedMaterialEffects(
   const std::string& parameterisationFileName,
   const std::string& parameterisationFileNameHighX0)
 {
@@ -348,7 +348,7 @@ Trk::GsfCombinedMaterialEffects::GsfCombinedMaterialEffects(
 }
 
 void
-Trk::GsfCombinedMaterialEffects::compute(
+Trk::ElectronCombinedMaterialEffects::compute(
   GsfMaterial::Combined& cache,
   const Trk::ComponentParameters& componentParameters,
   const Trk::MaterialProperties& materialProperties,
@@ -423,7 +423,7 @@ Trk::GsfCombinedMaterialEffects::compute(
  * energy loss
  */
 void
-Trk::GsfCombinedMaterialEffects::BetheHeitler(
+Trk::ElectronCombinedMaterialEffects::BetheHeitler(
   GsfMaterial::EnergyLoss& cache,
   const Trk::ComponentParameters& componentParameters,
   const Trk::MaterialProperties& materialProperties,

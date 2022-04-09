@@ -3,15 +3,15 @@
 */
 
 /**
- * @file   GsfCombinedMaterialEffects.h
+ * @file   ElectronCombinedMaterialEffects.h
  * @date   Friday 11th January 2005
  * @author Tom Athkinson, Anthony Morley, Christos Anastopoulos
  * Class definition for consideration of multiple scatter and energy
  * loss effects from material simultaneously
  */
 
-#ifndef TrkGsfCombinedMaterialEffects_H
-#define TrkGsfCombinedMaterialEffects_H
+#ifndef TrkElectronCombinedMaterialEffects_H
+#define TrkElectronCombinedMaterialEffects_H
 
 #include "TrkGaussianSumFilterUtils/ComponentParameters.h"
 #include "TrkGaussianSumFilterUtils/GsfConstants.h"
@@ -23,7 +23,7 @@
 
 namespace Trk {
 
-class GsfCombinedMaterialEffects
+class ElectronCombinedMaterialEffects
 {
 public:
   /** Helper Struct for multiple Gaussian components*/
@@ -52,18 +52,18 @@ public:
   };
 
   // ctor with arguments
-  GsfCombinedMaterialEffects(
+  ElectronCombinedMaterialEffects(
     const std::string& parameterisationFileName,
     const std::string& parameterisationFileNameHighX0);
 
   // ctor with arguments
-  GsfCombinedMaterialEffects() = default;
-  GsfCombinedMaterialEffects(const GsfCombinedMaterialEffects&) = default;
-  GsfCombinedMaterialEffects(GsfCombinedMaterialEffects&&) = default;
-  GsfCombinedMaterialEffects& operator=(const GsfCombinedMaterialEffects&) =
+  ElectronCombinedMaterialEffects() = default;
+  ElectronCombinedMaterialEffects(const ElectronCombinedMaterialEffects&) = default;
+  ElectronCombinedMaterialEffects(ElectronCombinedMaterialEffects&&) = default;
+  ElectronCombinedMaterialEffects& operator=(const ElectronCombinedMaterialEffects&) =
     default;
-  GsfCombinedMaterialEffects& operator=(GsfCombinedMaterialEffects&&) = default;
-  ~GsfCombinedMaterialEffects() = default;
+  ElectronCombinedMaterialEffects& operator=(ElectronCombinedMaterialEffects&&) = default;
+  ~ElectronCombinedMaterialEffects() = default;
 
   void compute(GsfMaterial::Combined&,
                const Trk::ComponentParameters&,

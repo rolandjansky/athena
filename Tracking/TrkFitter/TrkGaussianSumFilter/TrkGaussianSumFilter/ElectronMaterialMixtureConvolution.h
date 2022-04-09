@@ -3,20 +3,20 @@
 */
 
 /**
- * @file   GsfMaterialMixtureConvolution.h
+ * @file   ElectronMaterialMixtureConvolution.h
  * @date   Thursday 7th September 2006
  * @author Tom Athkinson, Anthony Morley, Christos Anastopoulos
  * @brief Class description for convolution of GSF material mixture
  */
 
-#ifndef TrkGsfMaterialMixtureConvolution_H
-#define TrkGsfMaterialMixtureConvolution_H
+#ifndef TrkElectronMaterialMixtureConvolution_H
+#define TrkElectronMaterialMixtureConvolution_H
 
 #include "TrkGaussianSumFilter/IMaterialMixtureConvolution.h"
 //
 #include "TrkGaussianSumFilterUtils/GsfMaterial.h"
 #include "TrkGaussianSumFilterUtils/MultiComponentState.h"
-#include "TrkGaussianSumFilterUtils/GsfCombinedMaterialEffects.h"
+#include "TrkGaussianSumFilterUtils/ElectronCombinedMaterialEffects.h"
 //
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -25,7 +25,7 @@ namespace Trk {
 class Layer;
 class MaterialProperties;
 
-class GsfMaterialMixtureConvolution final
+class ElectronMaterialMixtureConvolution final
   : public AthAlgTool
   , virtual public IMaterialMixtureConvolution
 {
@@ -39,12 +39,12 @@ public:
   };
 
   //!< Constructor with AlgTool parameters
-  GsfMaterialMixtureConvolution(const std::string&,
+  ElectronMaterialMixtureConvolution(const std::string&,
                                 const std::string&,
                                 const IInterface*);
 
   //!< Destructor
-  virtual ~GsfMaterialMixtureConvolution();
+  virtual ~ElectronMaterialMixtureConvolution();
 
   //!< AlgTool initialise method
   virtual StatusCode initialize() override final;
@@ -82,7 +82,7 @@ private:
                                   Trk::ParticleHypothesis particleHypothesis,
                                   MaterialUpdateType updateType) const;
 
-  GsfCombinedMaterialEffects m_materialEffects{};
+  ElectronCombinedMaterialEffects m_materialEffects{};
 
   Gaudi::Property<unsigned int> m_maximumNumberOfComponents{
     this,
