@@ -2,8 +2,7 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "FastCaloSim/AddNoiseCellBuilderTool.h"
-#include "FastCaloSim/FastSimCell.h"
+#include "AddNoiseCellBuilderTool.h"
 
 #include "AthenaKernel/RNGWrapper.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
@@ -11,18 +10,13 @@
 
 #include "CaloEvent/CaloCellContainer.h"
 #include "TileEvent/TileCell.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "StoreGate/ReadCondHandle.h"
 
-#include <map>
-#include <iomanip>
-#include <fstream>
 
-AddNoiseCellBuilderTool::AddNoiseCellBuilderTool(
-                                                 const std::string& type,
+AddNoiseCellBuilderTool::AddNoiseCellBuilderTool(const std::string& type,
                                                  const std::string& name,
                                                  const IInterface* parent)
-  : BasicCellBuilderTool(type, name, parent)
+  : base_class(type, name, parent)
 {
 }
 
@@ -34,8 +28,6 @@ AddNoiseCellBuilderTool::~AddNoiseCellBuilderTool()
 StatusCode AddNoiseCellBuilderTool::initialize()
 {
   ATH_MSG_DEBUG("Initialization started");
-
-  ATH_CHECK(BasicCellBuilderTool::initialize());
 
   ATH_CHECK(m_noiseKey.initialize());
   ATH_CHECK(m_estimatedGain.retrieve());

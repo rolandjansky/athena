@@ -1,16 +1,19 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ADDNOISE_CELLBUILDERTOOL_H
-#define ADDNOISE_CELLBUILDERTOOL_H
-//
-// CellBuilderTool.cxx
-//     Building Cells objects from Atlfast
-//
-// Michael Duehrssen
+#ifndef FASTCALOSIM_ADDNOISE_CELLBUILDERTOOL_H
+#define FASTCALOSIM_ADDNOISE_CELLBUILDERTOOL_H
 
-#include "FastCaloSim/BasicCellBuilderTool.h"
+/**
+ * @file   AddNoiseCellBuilderTool.h
+ * @class  AddNoiseCellBuilderTool
+ * @brief  Building Cells objects from Atlfast
+ * @author Michael Duehrssen 
+ */
+
+#include "CaloInterface/ICaloCellMakerTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "CaloInterface/ICaloEstimatedGainTool.h"
 #include "CaloConditions/CaloNoise.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -19,15 +22,15 @@
 
 #include <string>
 
-class AddNoiseCellBuilderTool: public BasicCellBuilderTool
+class AddNoiseCellBuilderTool: public extends<AthAlgTool, ICaloCellMakerTool>
 {
 public:
   AddNoiseCellBuilderTool(
                           const std::string& type,
                           const std::string& name,
                           const IInterface* parent);
-  virtual ~AddNoiseCellBuilderTool();
 
+  ~AddNoiseCellBuilderTool();
 
   virtual StatusCode initialize() override;
 
