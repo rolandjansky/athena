@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iterator>
@@ -105,7 +105,7 @@ bool TrigTrackPreSelHypoTool::decide( const ITrigTrackPreSelHypoTool::TrackingIn
   // Retrieve Input TrackCollection
   auto foundTracks = input.trackcollection;
 
-  if(foundTracks->size()!=0){
+  if(!foundTracks->empty()){
     pass = true;
     ATH_MSG_DEBUG( " Input track collection has size " << foundTracks->size() );
 
@@ -117,15 +117,15 @@ bool TrigTrackPreSelHypoTool::decide( const ITrigTrackPreSelHypoTool::TrackingIn
     for (const Trk::Track* track : *foundTracks){
       tp = track->perigeeParameters();
       if(tp){
-	      float trk_pt = tp->pT();
-         if(trk_pt < m_lowerTrackPtCut) continue;
-	      float trk_eta = tp->eta();
-	      float trk_phi = tp->parameters()[Trk::phi];
-	      double dR_trk_tau = sqrt((roIEta-trk_eta)*(roIEta-trk_eta) + CxxUtils::wrapToPi(roIPhi-trk_phi)*CxxUtils::wrapToPi(roIPhi-trk_phi));
-	      if ((trk_pt > trk_pt_max) && dR_trk_tau < m_deltaRLeadTrkRoI) {
-	         Ltrack = track;
-	         trk_pt_max = trk_pt;
-	      }
+	float trk_pt = tp->pT();
+	if(trk_pt < m_lowerTrackPtCut) continue;
+	float trk_eta = tp->eta();
+	float trk_phi = tp->parameters()[Trk::phi];
+	double dR_trk_tau = std::sqrt((roIEta-trk_eta)*(roIEta-trk_eta) + CxxUtils::wrapToPi(roIPhi-trk_phi)*CxxUtils::wrapToPi(roIPhi-trk_phi));
+	if ((trk_pt > trk_pt_max) && dR_trk_tau < m_deltaRLeadTrkRoI) {
+	  Ltrack = track;
+	  trk_pt_max = trk_pt;
+	}
       }
     }
     if(Ltrack) {
@@ -147,7 +147,6 @@ bool TrigTrackPreSelHypoTool::decide( const ITrigTrackPreSelHypoTool::TrackingIn
       //ltrk_phi = roIPhi;
       ltrk_z0 = Ltrack->perigeeParameters()->parameters()[Trk::z0];
       usePileupSuppCut = true;
-
     }
     else{// if no leading track use the RoI as center, but turn off pileup suppression cut
       ltrk_eta = roIEta;
@@ -159,19 +158,19 @@ bool TrigTrackPreSelHypoTool::decide( const ITrigTrackPreSelHypoTool::TrackingIn
     for (const Trk::Track* track : *foundTracks){
       tp = track->perigeeParameters();
       if(tp){
-	     float trk_eta = tp->eta();
-	     float trk_phi = tp->parameters()[Trk::phi];
-	     float trk_z0 = tp->parameters()[Trk::z0];
+	float trk_eta = tp->eta();
+	float trk_phi = tp->parameters()[Trk::phi];
+	float trk_z0 = tp->parameters()[Trk::z0];
         float trk_pt = tp->pT();
         if(trk_pt < m_lowerTrackPtCut) continue;		
-	     float dR_trki_ltrk = sqrt((ltrk_eta-trk_eta)*(ltrk_eta-trk_eta) + CxxUtils::wrapToPi(ltrk_phi-trk_phi)*CxxUtils::wrapToPi(ltrk_phi-trk_phi));
-	     float dZ0 = fabs(ltrk_z0 - trk_z0);
-	     if((dR_trki_ltrk < m_coreSize) && ((dZ0 < m_deltaZ0Cut)||!usePileupSuppCut)){
-	       ++nTracksInCore;
-	     }
-	     if((dR_trki_ltrk > m_coreSize) && (dR_trki_ltrk < m_outerSize) && ((dZ0 < m_deltaZ0Cut)||!usePileupSuppCut)){
-	       ++nTracksInIso;
-	     }
+	float dR_trki_ltrk = std::sqrt((ltrk_eta-trk_eta)*(ltrk_eta-trk_eta) + CxxUtils::wrapToPi(ltrk_phi-trk_phi)*CxxUtils::wrapToPi(ltrk_phi-trk_phi));
+	float dZ0 = std::abs(ltrk_z0 - trk_z0);
+	if((dR_trki_ltrk < m_coreSize) && ((dZ0 < m_deltaZ0Cut)||!usePileupSuppCut)){
+	  ++nTracksInCore;
+	}
+	if((dR_trki_ltrk > m_coreSize) && (dR_trki_ltrk < m_outerSize) && ((dZ0 < m_deltaZ0Cut)||!usePileupSuppCut)){
+	  ++nTracksInIso;
+	}
       }
     }
   }else{
@@ -179,16 +178,16 @@ bool TrigTrackPreSelHypoTool::decide( const ITrigTrackPreSelHypoTool::TrackingIn
   }
  
   ATH_MSG_DEBUG(
-	      " REGTEST: Number of tracks in core(isolation) = "
-	      << nTracksInCore
-	      << " ("
-	      << nTracksInIso
-	      << ") "
-         << "did not pass the number thresholds: " 
- 	      << m_tracksInCoreCut
-	      << " ("
-	      << m_tracksInIsoCut
-  << ")" );
+		" REGTEST: Number of tracks in core(isolation) = "
+		<< nTracksInCore
+		<< " ("
+		<< nTracksInIso
+		<< ") "
+		<< "did not pass the number thresholds: " 
+		<< m_tracksInCoreCut
+		<< " ("
+		<< m_tracksInIsoCut
+		<< ")" );
 
   PassedCuts++;
   
@@ -203,7 +202,7 @@ StatusCode TrigTrackPreSelHypoTool::decide(  std::vector<TrackingInfo>& input ) 
   for ( auto& i: input ) {
     if ( passed ( m_decisionId.numeric(), i.previousDecisionIDs ) ) {
       if ( decide( i ) ) {
-   addDecisionID( m_decisionId, i.decision );
+	addDecisionID( m_decisionId, i.decision );
       }
     }
   }
