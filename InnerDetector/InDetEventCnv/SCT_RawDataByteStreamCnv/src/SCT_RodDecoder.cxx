@@ -802,9 +802,14 @@ StatusCode SCT_RodDecoder::processSuperCondensedHit(const uint16_t inData,
   }
   if (secondSide) {
     const uint32_t onlineID{(robID & 0xFFFFFF) | (data.linkNumber << 24)};
-    data.setCollection(m_sctID, m_cabling->getHashFromOnlineId(onlineID), rdoIDCont, errs);
+    IdentifierHash id_hash(m_cabling->getHashFromOnlineId(onlineID));
+    if (!id_hash.is_valid()) {
+       hasError = true;
+       return sc;
+    }
+    data.setCollection(m_sctID, id_hash, rdoIDCont, errs);
   }
-  
+
   if (data.groupSize == 0)  {
     data.setOld(); // If it's the first super-condensed word
   }
