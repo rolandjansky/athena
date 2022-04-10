@@ -192,9 +192,9 @@ class eflowObject : public P4EEtaPhiM, virtual public INavigable4Momentum
 
  protected:
 
-  bool m_passedEOverPCheck;
-  bool m_isSubtracted;
-  bool m_isDuplicated;
+  bool m_passedEOverPCheck = false;
+  bool m_isSubtracted = false;
+  bool m_isDuplicated = false;
 
   void navigateClusters(const cluster_type& theClusters,
 			INavigationToken&   aToken,
@@ -228,18 +228,18 @@ class eflowObject : public P4EEtaPhiM, virtual public INavigable4Momentum
   //Cluster Reco Status
   CaloRecoStatus m_recoStatus;
 
-  double m_d0, m_z0;
+  double m_d0 = 0.0, m_z0 = 0.0;
 
-  int m_eflowType, m_charge;
-  int m_nTrack, m_nClus;
+  int m_eflowType = 0, m_charge = 0;
+  int m_nTrack = 0, m_nClus = 0;
 
-  bool m_valid;
+  bool m_valid = false;
 
   ElementLink<Analysis::MuonContainer> m_muonElementLink;
   ElementLink<VxContainer> m_convElementLink;
 
-  double m_pi0MVA;
-  double m_centerMag;
+  double m_pi0MVA = 0.0;
+  double m_centerMag = 0.0;
   
 inline double phicorr(double a)
 { 
