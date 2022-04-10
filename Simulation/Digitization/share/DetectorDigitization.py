@@ -38,7 +38,15 @@ from Digitization.DigitizationFlags import digitizationFlags
 if 'LegacyEventInfo' in digitizationFlags.experimentalDigi() and \
     not (DetFlags.pileup.any_on() or digitizationFlags.doXingByXingPileUp()):
     from xAODEventInfoCnv.xAODEventInfoCnvAlgDefault import xAODEventInfoCnvAlgDefault
-    xAODEventInfoCnvAlgDefault (sequence = job)
+    alg=xAODEventInfoCnvAlgDefault (sequence = job)
+    if not (DetFlags.pileup.any_on() or digitizationFlags.doXingByXingPileUp()):
+        alg.xAODKey="HITs_EventInfo"
+
+#make copy of xAOD::EventInfo and update information in it
+if not (DetFlags.pileup.any_on() or digitizationFlags.doXingByXingPileUp()):
+    job += CfgGetter.getAlgorithm("EventInfoUpdateFromContextAlg")
+else:
+    CfgGetter.getService("PileUpMergeSvc").EventInfoKeyName="EventInfo" # FIXME Make default?
 
 # Decorate zero pile-up
 if not (DetFlags.pileup.any_on() or digitizationFlags.doXingByXingPileUp()):

@@ -33,6 +33,8 @@ class IIncidentSvc;
 class PileUpMergeSvc;
 class StoreGateSvc;
 class EventContext;
+class EventID;
+class IEvtIdModifierSvc;
 
 /** @class PileUpEventLoopMgr
     @brief The ATLAS event loop for pile-up applications.
@@ -65,6 +67,8 @@ public:
   virtual StatusCode seek(int evt);
   /// Return the current event count
   virtual int curEvent() const;
+
+  virtual void modifyEventContext(EventContext& ctx, const EventID& eID, bool consume_modifier_stream);
 
   virtual StatusCode queryInterface(const InterfaceID& riid,
                                     void** ppvInterface);
@@ -100,6 +104,10 @@ private:
 
   /// output store
   ServiceHandle<StoreGateSvc> m_evtStore;              // overlaid (output) event store
+  
+  typedef ServiceHandle<IEvtIdModifierSvc> IEvtIdModifierSvc_t;
+  /// @property Reference to the EventID modifier Service
+  IEvtIdModifierSvc_t m_evtIdModSvc;
 
   //unsigned int m_nInputs;
   //unsigned int m_nStores;

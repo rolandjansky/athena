@@ -11,37 +11,40 @@
 
 */
 
-#include <string>
-#include <vector>
+// Base class headers
+#include "AthenaKernel/IEventSeek.h"
+#include "AthenaKernel/ICollectionSize.h"
+#include "GaudiKernel/IIncidentListener.h"
+#include "AthenaKernel/Timeout.h"
+#include "GaudiKernel/MinimalEventLoopMgr.h"
 
+// Athena headers
+#include "AthenaBaseComps/AthMessaging.h"
+#include "AthenaKernel/IAthenaEvtLoopPreSelectTool.h"
+#include "AthenaKernel/IConditionsCleanerSvc.h"
+#ifndef EVENTINFO_EVENTID_H
+# include "EventInfo/EventID.h"  /* number_type */
+#endif
+
+
+// Gaudi headers
 #include "Gaudi/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/MinimalEventLoopMgr.h"
-#include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/IAlgResourcePool.h"
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IHiveWhiteBoard.h"
 #include "GaudiKernel/IScheduler.h"
 #include "GaudiKernel/IAlgExecStateSvc.h"
 
-#include "AthenaKernel/Timeout.h"
-#include "AthenaKernel/IAthenaEvtLoopPreSelectTool.h"
-#include "AthenaKernel/IEventSeek.h"
-#include "AthenaKernel/ICollectionSize.h"
-#include "AthenaKernel/IConditionsCleanerSvc.h"
-
 // Standard includes
 #include <functional>
+#include <string>
+#include <vector>
 
 // External Libraries
 #include "tbb/concurrent_queue.h"
 //////////////////////////////////////////////////
-
-#ifndef EVENTINFO_EVENTID_H
-# include "EventInfo/EventID.h"  /* number_type */
-#endif
 
 // Forward declarations
 class IConversionSvc;
@@ -50,6 +53,7 @@ class IDataProviderSvc;
 class IIncidentSvc;
 class StoreGateSvc;
 class ISvcLocator;
+class IEvtIdModifierSvc;
 
 /** @class AthenaHiveEventLoopMgr
     @brief The default ATLAS batch event loop manager.
@@ -65,8 +69,9 @@ class AthenaHiveEventLoopMgr
   : virtual public IEventSeek,
     virtual public ICollectionSize,
     virtual public IIncidentListener,
-            public MinimalEventLoopMgr,
-            public Athena::TimeoutMaster
+    public MinimalEventLoopMgr,
+    public Athena::TimeoutMaster,
+    public AthMessaging
 {
 public:
   typedef IEvtSelector::Context   EvtContext;
@@ -94,6 +99,10 @@ protected:
   typedef ServiceHandle<IConversionSvc> IConversionSvc_t;
   /// @property Reference to the Histogram Persistency Service
   IConversionSvc_t   m_histoPersSvc;
+
+  typedef ServiceHandle<IEvtIdModifierSvc> IEvtIdModifierSvc_t;
+  /// @property Reference to the EventID modifier Service
+  IEvtIdModifierSvc_t m_evtIdModSvc;
 
   /// @property histogram persistency technology to use: "ROOT", "HBOOK", "NONE". By default ("") get property value from ApplicationMgr
   StringProperty    m_histPersName;
@@ -219,8 +228,13 @@ public:
   virtual StatusCode queryInterface( const InterfaceID& riid, 
                                      void** ppvInterface ) override;
 
+  using AthMessaging::msg;
+  using AthMessaging::msgLvl;
+
   //FIXME hack to workaround pylcgdict problem...
   virtual const std::string& name() const  override { return Service::name(); } //FIXME 
+  
+  virtual void modifyEventContext(EventContext& ctx, const EventID& eID, bool consume_modifier_stream);
 
 private:
   AthenaHiveEventLoopMgr() = delete;

@@ -1,6 +1,6 @@
 """Define methods to construct configured EventInfo conversion algorithms
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -99,4 +99,59 @@ def EventInfoOverlayCfg(flags, **kwargs):
 
     acc.merge(EventInfoOverlayAlgCfg(flags, **kwargs))
     acc.merge(EventInfoOverlayOutputCfg(flags, **kwargs))
+    return acc
+
+
+
+
+
+def EventInfoUpdateFromContextAlgCfg(flags, name="EventInfoUpdateFromContextAlg", **kwargs):
+    """Return a ComponentAccumulator for EventInfoUpdateFromContext algorithm"""
+    acc = ComponentAccumulator()
+
+    # Add beam spot conditions
+    from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
+    acc.merge(BeamSpotCondAlgCfg(flags))
+
+    kwargs.setdefault("SignalInputKey", "HITs_EventInfo")
+    kwargs.setdefault("OutputKey", "EventInfo")
+
+    # Do the xAOD::EventInfo overlay
+    acc.addEventAlgo(CompFactory.xAODMaker.EventInfoUpdateFromContextAlg(name, **kwargs))
+
+    # Re-map signal address
+    from SGComps.AddressRemappingConfig import AddressRemappingCfg
+    acc.merge(AddressRemappingCfg([
+        "xAOD::EventInfo#EventInfo->" + "HITs_EventInfo",
+        "xAOD::EventAuxInfo#EventInfoAux.->" + "HITs_EventInfoAux.",
+    ]))
+
+    return acc
+
+
+def EventInfoUpdateFromContextOutputCfg(flags, **kwargs):
+    """Return event info overlay output configuration"""
+    acc = ComponentAccumulator()
+
+    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+    if flags.Output.doWriteRDO:
+        acc.merge(OutputStreamCfg(flags, "RDO"))
+
+    return acc
+
+
+def EventInfoUpdateFromContextCfg(flags, **kwargs):
+    """Return a ComponentAccumulator for the full EventInfoOverlay algorithm accumulator"""
+
+    acc = ComponentAccumulator()
+
+    # Check if running on legacy HITS
+    if "EventInfo" not in flags.Input.Collections and "EventInfo" not in flags.Input.SecondaryCollections:
+        acc.merge(EventInfoCnvAlgCfg(flags,
+                                     inputKey="McEventInfo",
+                                     outputKey="HITs_EventInfo",
+                                     **kwargs))
+
+    acc.merge(EventInfoUpdateFromContextAlgCfg(flags, **kwargs))
+    acc.merge(EventInfoUpdateFromContextOutputCfg(flags, **kwargs))
     return acc

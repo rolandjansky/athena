@@ -70,6 +70,19 @@ def patch_mc_channel_numberMetadata(addToFile=True):
         simMDlog.info("No input Evgen MetaData object available so skipping patch of mc_channel_number metadata.")
 
 
+###
+def checkForContainerInInput(container):
+    """Check for the presence of a particular container type in the input file"""
+    if metadata_full is not None:
+        for key in metadata_full.keys():
+            if 'EventStreamInfo' in key and 'StreamEVGEN' in key:
+                for entry in metadata_full[key]['itemList']:
+                    if entry[0] == container:
+                        simMDlog.info("Input contains: %s", entry)
+                        return True
+    return False
+
+
 ### Read in special simulation job option fragments based on metadata passed by the evgen stage
 def checkForSpecialConfigurationMetadata():
 
@@ -274,6 +287,16 @@ def configureRunNumberOverrides():
 
         ######update the run/event info for each event
         from AthenaCommon.AppMgr import ServiceMgr
+        from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
+        if concurrencyProps.ConcurrencyFlags.NumThreads() > 0:
+            if not hasattr(ServiceMgr, 'AthenaHiveEventLoopMgr'):
+                from AthenaServices.AthenaServicesConf import AthenaHiveEventLoopMgr
+                ServiceMgr += AthenaHiveEventLoopMgr()
+            ServiceMgr.AthenaHiveEventLoopMgr.EvtIdModifierSvc = "EvtIdModifierSvc"  
+        else:
+            if not hasattr(ServiceMgr, 'AthenaEventLoopMgr'):
+                from AthenaServices.AthenaServicesConf import AthenaEventLoopMgr
+                ServiceMgr += AthenaEventLoopMgr()
         if not hasattr(ServiceMgr,'EvtIdModifierSvc'):
             import AthenaServices.Configurables as asc
             ServiceMgr +=asc.EvtIdModifierSvc(EvtStoreName="StoreGateSvc")

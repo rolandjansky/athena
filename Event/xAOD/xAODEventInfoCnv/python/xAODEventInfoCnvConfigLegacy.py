@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 
@@ -13,3 +13,14 @@ def getEventInfoOverlay(name="EventInfoOverlay", **kwargs):
     kwargs.setdefault("DataOverlay", overlayFlags.isDataOverlay())
 
     return CfgMgr.xAODMaker__EventInfoOverlay(name, **kwargs)
+
+
+def getEventInfoUpdateFromContextAlg(name="EventInfoUpdateFromContextAlg", **kwargs):
+    from SGComps import AddressRemappingSvc
+    AddressRemappingSvc.addInputRename("xAOD::EventInfo","EventInfo","HITs_EventInfo")
+    AddressRemappingSvc.addInputRename("xAOD::EventAuxInfo","EventInfoAux.","HITs_EventInfoAux.")
+
+    kwargs.setdefault("SignalInputKey", "HITs_EventInfo")
+    kwargs.setdefault("OutputKey", "EventInfo")
+
+    return CfgMgr.xAODMaker__EventInfoUpdateFromContextAlg(name, **kwargs)

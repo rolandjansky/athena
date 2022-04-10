@@ -87,6 +87,11 @@ CfgMgr.SGInputLoader().Load += [('McEventCollection', 'StoreGateSvc+GEN_EVENT')]
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
 
+from G4AtlasApps.G4Atlas_Metadata import checkForContainerInInput
+if not checkForContainerInInput("xAOD::EventInfo"):
+    # If xAOD::EventInfo is not present in the input file then it should be created
+    topSeq += CfgMgr.xAODMaker__EventInfoCnvAlg()
+
 # Add the (python) G4 simulation service.
 # This will kickstart a lot of simulation setup.
 topSeq += getAlgorithm("G4AtlasAlg", tryDefaultConfigurable=True)

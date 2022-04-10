@@ -321,6 +321,8 @@ def PileUpEventLoopMgrCfg(flags, name="PileUpEventLoopMgr", **kwargs):
         acc.merge(NoProfileSvcCfg(flags))
         kwargs.setdefault("BeamLuminosity", acc.getService("NoProfileSvc"))
 
+    from AthenaKernel.EventIdOverrideConfig import EvtIdModifierSvcCfg
+    kwargs.setdefault("EvtIdModifierSvc", acc.getPrimaryAndMerge(EvtIdModifierSvcCfg(flags))) # TODO make configurable?
     kwargs.setdefault("EventInfoName", "Input_EventInfo")
     # Note that this is a hack. It is needed to fix beam spot information
     # as original xAOD::EventInfo is created before conditions data could

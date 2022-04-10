@@ -20,6 +20,7 @@ def PileUpMergeSvcCfg(flags, name="PileUpMergeSvc", Intervals=[], **kwargs):
             Intervals = [Intervals]
         kwargs["Intervals"] = Intervals
 
+    kwargs.setdefault("EventInfoKeyName", "EventInfo") # FIXME Make default?
     acc.addService(CompFactory.PileUpMergeSvc(name, **kwargs), primary = True)
     return acc
 

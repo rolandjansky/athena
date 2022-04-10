@@ -140,6 +140,10 @@ if nThreads > 0:
 if not ISF_Flags.ReSimulation():
     from AthenaCommon.CfgGetter import getAlgorithm
     topSeq += getAlgorithm("BeamEffectsAlg")
+    from ISF_Example.ISF_Metadata import checkForContainerInInput
+    if not checkForContainerInInput("xAOD::EventInfo"):
+        # If xAOD::EventInfo is not present in the input file then it should be created
+        topSeq += CfgMgr.xAODMaker__EventInfoCnvAlg() ## TODO: update config so that ReSim can use the same xAOD::EventInfo
 
 #--------------------------------------------------------------
 # ISF kernel configuration
@@ -178,7 +182,7 @@ configureRunNumberOverrides()
 
 if ISF_Flags.HITSMergingRequired.anyOn():
     topSeq += collection_merger_alg
-
+    
 #--------------------------------------------------------------
 # Post kernel configuration
 #--------------------------------------------------------------
