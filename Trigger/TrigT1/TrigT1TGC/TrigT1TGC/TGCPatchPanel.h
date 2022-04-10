@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCPatchPanel_hh
@@ -46,7 +46,8 @@ public:
   void setIdSlaveBoard(int port,int id);
 
   // pointer to adjacent Patch Panel board.
-  TGCPatchPanel* getAdjacentPP(int side) const { return m_PPAdj[side]; };
+  TGCPatchPanel* getAdjacentPP(int side) { return m_PPAdj[side]; };
+  const TGCPatchPanel* getAdjacentPP(int side) const { return m_PPAdj[side]; };
   void setAdjacentPP(int side, TGCPatchPanel* PP);
 
   void setASDOut(int connector, int ch, const TGCASDOut* asdOut);

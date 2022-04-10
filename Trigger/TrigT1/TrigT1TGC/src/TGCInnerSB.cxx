@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ref. SOS054V06,SOS053V04
@@ -53,7 +53,7 @@ void TGCInnerSB::createSlaveBoardOut()
 
 void TGCInnerSB::doCoincidence()
 {
-  TGCHitPattern* pattern[2];
+  const TGCHitPattern* pattern[2];
   pattern[0] = m_patchPanelOut->getHitPattern(0);
   pattern[1] = m_patchPanelOut->getHitPattern(1);
 
