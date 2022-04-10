@@ -14,6 +14,7 @@
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "AthenaKernel/EventContextClid.h"
+#include "AthenaKernel/IEvtIdModifierSvc.h"
 
 #include "EventInfo/EventID.h"         // OLD EDM
 #include "EventInfo/EventType.h"       // OLD EDM
@@ -58,6 +59,7 @@ PileUpEventLoopMgr::PileUpEventLoopMgr(const std::string& name,
   , m_incidentSvc("IncidentSvc", name) //FIXME should this be configurable?
   , m_mergeSvc("PileUpMergeSvc", name)
   , m_evtStore("StoreGateSvc/StoreGateSvc",  name)
+  , m_evtIdModSvc("", name)
   , m_origSel("EventSelector", name)
   , m_signalSel("", name)
   , m_caches(this)
@@ -102,6 +104,7 @@ PileUpEventLoopMgr::PileUpEventLoopMgr(const std::string& name,
   declareProperty("BeamLuminosity", m_beamLumi,
                   "The service providing the beam luminosity distribution vs. run");
   declareProperty("PileUpMergeSvc", m_mergeSvc, "PileUp Merge Service");
+  declareProperty("EvtIdModifierSvc", m_evtIdModSvc, "ServiceHandle for EvtIdModifierSvc");
   declareProperty("AllowSerialAndMPToDiffer", m_allowSerialAndMPToDiffer, "When set to False, this will allow the code to reproduce serial output in an AthenaMP job, albeit with a significant performance penalty.");
   declareProperty("EventInfoName", m_evinfName, "SG key for the EventInfo object");
   declareProperty("EventInfoContName", m_evinfContName, "SG key for the EventInfoContainer object");
@@ -119,10 +122,9 @@ PileUpEventLoopMgr::~PileUpEventLoopMgr() {}
 StatusCode PileUpEventLoopMgr::initialize()
 {
   ATH_MSG_INFO ( "Initializing " << this->name() ) ;
-  if(!m_allowSerialAndMPToDiffer)
-    {
-      ATH_MSG_WARNING ( "AllowSerialAndMPToDiffer=False! This will incur serious performance penalties! But Serial and MP output will be the same." );
-    }
+  if (!m_allowSerialAndMPToDiffer) {
+    ATH_MSG_WARNING ( "AllowSerialAndMPToDiffer=False! This will incur serious performance penalties! But Serial and MP output will be the same." );
+  }
 
   //locate the StoreGateSvc and initialize our local ptr
   CHECK(m_evtStore.retrieve());
@@ -171,6 +173,16 @@ StatusCode PileUpEventLoopMgr::initialize()
     return StatusCode::FAILURE;
   }
 
+  //--------------------------------------------------------------------------
+  // Set up the EventID modifier Service
+  //--------------------------------------------------------------------------
+  if( m_evtIdModSvc.empty() ) {
+    ATH_MSG_DEBUG ( "EventID modifier Service not set. No run number, ... overrides will be applied." );
+  }
+  else if ( !m_evtIdModSvc.retrieve().isSuccess() ) {
+    ATH_MSG_INFO ( "Could not find EventID modifier Service. No run number, ... overrides will be applied." );
+  }
+
   //-------------------------------------------------------------------------
   // Base class initialize (done at the end to allow algs to access stores)
   //-------------------------------------------------------------------------
@@ -208,6 +220,38 @@ StatusCode PileUpEventLoopMgr::finalize()
 //     m_histoPersSvc    = releaseInterface(m_histoPersSvc);
 //     return MinimalEventLoopMgr::terminate();
 //  }
+
+
+//---------------------------------------------------------------------------
+void PileUpEventLoopMgr::modifyEventContext(EventContext& ctx, const EventID& eID, bool consume_modifier_stream) {
+
+  if (m_evtIdModSvc.isSet()) {
+    EventID* new_eID=new EventID(eID);
+    // interface to m_evtIdModSvc->modify_evtid wants to be able to
+    // update the pointer itself, but in reality function doesn't need
+    // it. And cannot obviously use a smart pointer here, as the
+    // pointer itself can get updated by modify_evtid, so plain
+    // pointer for now.
+    // CHECK: Update evtIdModSvc method modify_evtid interface to
+    // pointer or reference?
+    m_evtIdModSvc->modify_evtid(new_eID, consume_modifier_stream);
+    if (msgLevel(MSG::DEBUG)) {
+      unsigned int oldrunnr=eID.run_number();
+      unsigned int oldLB=eID.lumi_block();
+      unsigned int oldTS=eID.time_stamp();
+      unsigned int oldTSno=eID.time_stamp_ns_offset();
+      ATH_MSG_DEBUG ( "modifyEventContext: use evtIdModSvc runnr=" << oldrunnr << " -> " << new_eID->run_number() );
+      ATH_MSG_DEBUG ( "modifyEventContext: use evtIdModSvc LB=" << oldLB << " -> " << new_eID->lumi_block() );
+      ATH_MSG_DEBUG ( "modifyEventContext: use evtIdModSvc TimeStamp=" << oldTS << " -> " << new_eID->time_stamp() );
+      ATH_MSG_DEBUG ( "modifyEventContext: use evtIdModSvc TimeStamp ns Offset=" << oldTSno << " -> " << new_eID->time_stamp_ns_offset() );
+    }
+    ctx.setEventID( *new_eID );
+    delete new_eID;
+    return;
+  }
+
+  ctx.setEventID( eID );
+}
 
 
 //=========================================================================
@@ -252,12 +296,12 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
     }
   }
 
-  const xAOD::EventInfo *pEvent{};
+  const xAOD::EventInfo *inputEventInfo{};
 
   // loop over events if the maxevt (received as input) is different from -1.
   // if evtmax is -1 it means infinite loop
   while( (maxevt == -1 || m_nevt < maxevt) &&
-         0 != (pEvent = m_origStream.nextEventPre()) ) {
+         0 != (inputEventInfo = m_origStream.nextEventPre()) ) {
     // Check if there is a scheduled stop issued by some algorithm/sevice
     if ( m_scheduledStop ) {
       m_scheduledStop = false;
@@ -265,10 +309,6 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
       break;
     }
     ++m_nevt; ++m_ncurevt;
-    ATH_MSG_INFO ( "nextEvent(): overlaying original event " <<
-                   pEvent->runNumber() << '/' <<
-                   pEvent->eventNumber() << '/' <<
-                   pEvent->lumiBlock() );
 
     //-----------------------------------------------------------------------
     // Setup overlaid event in the event store
@@ -277,10 +317,10 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
     xAOD::EventInfo *pOverEvent = new xAOD::EventInfo();
     xAOD::EventAuxInfo *pOverEventAux = new xAOD::EventAuxInfo();
     pOverEvent->setStore( pOverEventAux );
-    ATH_MSG_DEBUG(" #subevents in the signal event =" << pEvent->subEvents().size());
+    ATH_MSG_DEBUG(" #subevents in the signal event =" << inputEventInfo->subEvents().size());
 
     // Copy the eventInfo data from origStream event
-    *pOverEvent = *pEvent;
+    *pOverEvent = *inputEventInfo;
     pOverEvent->clearSubEvents();  // start clean without any subevents
 
     // Record the xAOD object(s):
@@ -296,6 +336,47 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
     CHECK( m_evtStore->record( puei, m_evinfContName ) );
     CHECK( m_evtStore->record( puaux, m_evinfContName+"Aux." ) );
 
+    // Setup the EventContext.
+    // Ensure that the overridden run number etc. is being used
+    EventContext ctx;
+    EventID   ev_id = eventIDFromxAOD( pOverEvent );
+    bool consume_modifier_stream = false; // FIXME/CHECK: was true inside TP converter and checks for active storegate
+    // kludge FIXME
+    const AthenaAttributeList* pAttrList = m_origStream.store().tryConstRetrieve<AthenaAttributeList>("Input");
+    if ( pAttrList != nullptr && pAttrList->size() > 6 ) {
+      // Ideally we would create the initial EventID from the TAG
+      // information, but not doing that (yet?).  For now using the
+      // presence of TAG information in the HITS file to indicate that
+      // the EvtIdModifierSvc has not already been called for this
+      // Athena event.
+      consume_modifier_stream = true;
+    }
+    modifyEventContext(ctx, ev_id, consume_modifier_stream);
+    ctx.set(m_nevt,0);
+    /// Is this correct, or should it be set to a pileup store?
+    ctx.setExtension( Atlas::ExtendedEventContext(m_evtStore->hiveProxyDict(),
+                                                  ctx.eventID().run_number()) );
+    Gaudi::Hive::setCurrentContext( ctx );
+    m_aess->reset(ctx);
+    // make copy to std::move into store
+    auto puctx =std::make_unique<EventContext> ( ctx );
+    if (m_evtStore->record( std::move(puctx) ,"EventContext").isFailure()) {
+      ATH_MSG_ERROR ( "Error recording event context object" );
+      return StatusCode::FAILURE;
+    }
+
+    //Update run number, event number, lumi block and timestamp from EventContext
+    pOverEvent->setRunNumber( ctx.eventID().run_number() );
+    pOverEvent->setEventNumber( ctx.eventID().event_number() );
+    pOverEvent->setLumiBlock( ctx.eventID().lumi_block() );
+    pOverEvent->setTimeStamp( ctx.eventID().time_stamp() );
+    ATH_MSG_DEBUG( "Updated pOverEvent " << *pOverEvent );
+
+    ATH_MSG_INFO ( "nextEvent(): overlaying original event " <<
+                   pOverEvent->runNumber() << '/' <<
+                   pOverEvent->eventNumber() << '/' <<
+                   pOverEvent->lumiBlock() );
+
     //ask the BeamIntensitySvc to choose (and remember)
     //in which xing this event will be wrto the beam int distribution
     m_beamInt->selectT0();
@@ -310,13 +391,22 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
 
     // Overlay RDO files should be treated like data for reco
     // purposes, so only set this for SimHit level pile-up.
-    pOverEvent->setEventTypeBitmask( pEvent->eventTypeBitmask() | xAOD::EventInfo::IS_SIMULATION );
+    pOverEvent->setEventTypeBitmask( inputEventInfo->eventTypeBitmask() | xAOD::EventInfo::IS_SIMULATION );
 
     //  register as sub event of the overlaid
     bool addpEvent(true);
 
+    ATH_MSG_DEBUG( "inputEventInfo->evtStore()="<<inputEventInfo->evtStore()<<",  pOverEvent->evtStore()=" << pOverEvent->evtStore()<<", &m_origStream.store()="<<&m_origStream.store() );
     if ( addpEvent ) {
-      addSubEvent(pOverEvent, pEvent, 0, xAOD::EventInfo::Signal, puei, m_evinfContName );
+      xAOD::EventInfo* newEv=addSubEvent(pOverEvent, inputEventInfo, 0, xAOD::EventInfo::Signal, puei, m_evinfContName );
+      if(newEv->evtStore()==nullptr) newEv->setEvtStore(&m_origStream.store());
+      newEv->setRunNumber( ctx.eventID().run_number() );
+      newEv->setEventNumber( ctx.eventID().event_number() );
+      newEv->setLumiBlock( ctx.eventID().lumi_block() );
+      newEv->setTimeStamp( ctx.eventID().time_stamp() );
+      ATH_MSG_DEBUG( "Added inputEventInfo="<<inputEventInfo<<" as subEvent "<<newEv<<" to pOverEvent " << pOverEvent );
+      ATH_MSG_DEBUG( "  afterwards: newEv->evtStore()="<<newEv->evtStore()<<",  pOverEvent->evtStore()=" << pOverEvent->evtStore() );
+      ATH_MSG_DEBUG( "  pOverEvent->subEvents()[0].ptr()="<<pOverEvent->subEvents()[0].ptr()<<" content="<<*pOverEvent->subEvents()[0].ptr()<<" store="<< pOverEvent->subEvents()[0].ptr()->evtStore() );
     }
 
     ATH_MSG_INFO ( "set aliases" );
@@ -328,7 +418,7 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
 
     ///ask the BeamLuminositySvc to check for a new scalefactor
     bool needupdate;
-    float sf = m_beamLumi->scaleFactor( pEvent->runNumber(), pEvent->lumiBlock(), needupdate );
+    float sf = m_beamLumi->scaleFactor( pOverEvent->runNumber(), pOverEvent->lumiBlock(), needupdate );
     float currentaveragemu(sf*m_maxCollPerXing);
     pOverEvent->setAverageInteractionsPerCrossing(currentaveragemu);
     //FIXME check whether actualInteractionsPerCrossing should be set
@@ -403,12 +493,6 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
       ATH_MSG_INFO ( "Not going to process this event" );
     }
     else {
-      // create an EventContext from the eventID obj
-      EventContext ctx;
-      EventID   ev_id = eventIDFromxAOD( pOverEvent );
-      ctx.setEventID( ev_id );
-      ctx.set(m_nevt,0);
-
       if ( !(executeEvent( std::move(ctx) ).isSuccess()) ) {
         ATH_MSG_ERROR ( "Terminating event processing loop due to errors" );
         return StatusCode::FAILURE;
@@ -526,25 +610,8 @@ StatusCode PileUpEventLoopMgr::executeAlgorithms(const EventContext& ctx)
 //=========================================================================
 StatusCode PileUpEventLoopMgr::executeEvent( EventContext&& ctx )
 {
-
-  /// Is this correct, or should it be set to a pileup store?
-  ctx.setExtension( Atlas::ExtendedEventContext(m_evtStore->hiveProxyDict(),
-                                                ctx.eventID().run_number()) );
-  Gaudi::Hive::setCurrentContext( ctx );
-
-  m_aess->reset(ctx);
-
-  // make copy to std::move into store
-  auto puctx =std::make_unique<EventContext> ( ctx );
-  EventContext* pctx = puctx.get();
-
-  if (m_evtStore->record( std::move(puctx) ,"EventContext").isFailure()) {
-    ATH_MSG_ERROR( "Error recording event context object" );
-    return (StatusCode::FAILURE);
-  }
-
   /// Fire begin-Run incident if new run:
-  if (m_firstRun || (m_currentRun != pctx->eventID().run_number())) {
+  if (m_firstRun || (m_currentRun != ctx.eventID().run_number())) {
     // Fire EndRun incident unless this is the first run
     if (!m_firstRun) {
       m_incidentSvc->fireIncident(Incident(this->name(),IncidentType::EndRun));

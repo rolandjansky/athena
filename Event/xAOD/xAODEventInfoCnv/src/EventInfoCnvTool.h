@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODEVENTINFOCNV_EVENTINFOCNVTOOL_H
@@ -12,14 +12,18 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#if !defined(XAOD_ANALYSIS) && !defined(SIMULATIONBASE) && !defined(GENERATIONBASE)
+#if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE)
+#include "StoreGate/ReadCondHandleKey.h"
+#endif // not XAOD_ANALYSIS or GENERATIONBASE
+
+#if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE)
 // Beam condition include(s):
 #include "BeamSpotConditionsData/BeamSpotData.h"
+#endif // not XAOD_ANALYSIS or GENERATIONBASE
 
+#if !defined(XAOD_ANALYSIS) && !defined(SIMULATIONBASE) && !defined(GENERATIONBASE)
 // Luminosity include(s):
 #include "LumiBlockData/LuminosityCondData.h"
-
-#include "StoreGate/ReadCondHandleKey.h"
 #endif // not XAOD_ANALYSIS or SIMULATIONBASE or GENERATIONBASE
 
 // xAOD include(s):
@@ -54,20 +58,18 @@ namespace xAODMaker {
                                   const EventContext& ctx = Gaudi::Hive::currentContext()) const override;
 
    private:
-#if !defined(XAOD_ANALYSIS) && !defined(SIMULATIONBASE) && !defined(GENERATIONBASE)
-      /// Connection to the beam spot service
+#if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE)
       SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
+      Gaudi::Property<bool> m_disableBeamSpot{ this, "DisableBeamSpot", false, "disable beamspot" };
+#endif // not XAOD_ANALYSIS or GENERATIONBASE
 
+#if !defined(XAOD_ANALYSIS) && !defined(SIMULATIONBASE) && !defined(GENERATIONBASE)
       SG::ReadCondHandleKey<LuminosityCondData> m_lumiDataKey
       { this, "LumiDataKey", "", "SG key for luminosity data" };
 #endif // not XAOD_ANALYSIS or SIMULATIONBASE or GENERATIONBASE
 
-      /// Internal flag for the availability of the beam conditions service
-      bool m_beamCondSvcAvailable;
-
-      
-      /// Flag to disable beamspot service for AthenaMT migration purposes
-      bool m_disableBeamSpot;
+      /// Internal flag for the availability of the beam spot information
+      bool m_beamSpotInformationAvailable{};
 
    }; // class EventInfoCnvTool
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Tadej Novak <tadej@cern.ch>
@@ -24,7 +24,7 @@ StatusCode EventInfoOverlay::initialize()
   ATH_MSG_INFO("Data overlay: " << m_dataOverlay.value());
 
   // Check and initialize keys
-#if !defined(XAOD_ANALYSIS) && !defined(SIMULATIONBASE) && !defined(GENERATIONBASE)
+#if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE)
   ATH_CHECK(m_beamSpotKey.initialize());
 #endif
 
@@ -95,7 +95,7 @@ StatusCode EventInfoOverlay::execute(const EventContext& ctx) const
                                       bkgEvent->errorState(xAOD::EventInfo::Core)));
 
   // Ensure correct beam spot info
-#if !defined(XAOD_ANALYSIS) && !defined(SIMULATIONBASE) && !defined(GENERATIONBASE)
+#if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE)
   SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
   if (!beamSpotHandle.isValid()) {
     ATH_MSG_ERROR("Beam spot information not valid");

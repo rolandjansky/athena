@@ -6,10 +6,21 @@ if not hasattr(svcMgr,'EvtIdModifierSvc'):
     from AthenaCommon.AppMgr import theApp
     theApp.CreateSvc += ["EvtIdModifierSvc"]
 else:
-    printfunc ('g4runnumber.py: Will override the settings of the EvtIdModifierSvc that was previously set up!')
+    print('g4runnumber.py: Will override the settings of the EvtIdModifierSvc that was previously set up!')
     ## remove any existing settings
     svcMgr.EvtIdModifierSvc.Modifiers = []
 svcMgr.EvtIdModifierSvc.OutputLevel=DEBUG
+from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
+if concurrencyProps.ConcurrencyFlags.NumThreads() > 0:
+    if not hasattr(svcMgr, 'AthenaHiveEventLoopMgr'):
+        from AthenaServices.AthenaServicesConf import AthenaHiveEventLoopMgr
+        svcMgr += AthenaHiveEventLoopMgr()
+    svcMgr.AthenaHiveEventLoopMgr.EvtIdModifierSvc = "EvtIdModifierSvc"  
+else:
+    if not hasattr(svcMgr, 'AthenaEventLoopMgr'):
+        from AthenaServices.AthenaServicesConf import AthenaEventLoopMgr
+        svcMgr += AthenaEventLoopMgr()
+    svcMgr.AthenaEventLoopMgr.EvtIdModifierSvc = "EvtIdModifierSvc"
 
 fname=None
 

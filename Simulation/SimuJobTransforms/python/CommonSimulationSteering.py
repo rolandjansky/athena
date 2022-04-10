@@ -86,6 +86,9 @@ def CommonSimulationCfg(ConfigFlags, log):
         # add BeamEffectsAlg
         from BeamEffects.BeamEffectsAlgConfig import BeamEffectsAlgCfg
         cfg.merge(BeamEffectsAlgCfg(ConfigFlags))
+        if "xAOD::EventInfo#EventInfo" not in ConfigFlags.Input.TypedCollections:
+            from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
+            cfg.merge(EventInfoCnvAlgCfg(ConfigFlags)) ## TODO: update config so that ReSim can use the same xAOD::EventInfo
 
     AcceptAlgNames=[]
     if ConfigFlags.Sim.ISFRun:
@@ -103,7 +106,7 @@ def CommonSimulationCfg(ConfigFlags, log):
 
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
     from SimuJobTransforms.SimOutputConfig import getStreamHITS_ItemList
-    cfg.merge( OutputStreamCfg(ConfigFlags,"HITS", ItemList=getStreamHITS_ItemList(ConfigFlags), disableEventTag=True, AcceptAlgs=AcceptAlgNames) )
+    cfg.merge( OutputStreamCfg(ConfigFlags,"HITS", ItemList=getStreamHITS_ItemList(ConfigFlags), disableEventTag=ConfigFlags.Sim.ISF.ReSimulation, AcceptAlgs=AcceptAlgNames) )## TODO: update config so that ReSim can use the same xAOD::EventInfo
     if ConfigFlags.Sim.ISF.ReSimulation:
         cfg.getEventAlgo("OutputStreamHITS").TakeItemsFromInput=False
 

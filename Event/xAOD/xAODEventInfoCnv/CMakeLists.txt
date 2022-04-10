@@ -5,8 +5,11 @@ atlas_subdir( xAODEventInfoCnv )
 
 # Optional dependencies:
 set( extra_libs )
+if( NOT GENERATIONBASE AND NOT XAOD_ANALYSIS )
+   set( extra_libs ${extra_libs} BeamSpotConditionsData )
+endif()
 if( NOT SIMULATIONBASE AND NOT GENERATIONBASE AND NOT XAOD_ANALYSIS )
-   set( extra_libs BeamSpotConditionsData LumiBlockData )
+   set( extra_libs ${extra_libs} LumiBlockData )
 endif()
 
 # Set up the sources for the component library.
@@ -15,18 +18,18 @@ set( sources
    "src/EventInfoCnvAlg.h" "src/EventInfoCnvAlg.cxx"
    "src/EventInfoCnvTool.h" "src/EventInfoCnvTool.cxx"
    "src/EventInfoOverlay.h" "src/EventInfoOverlay.cxx"
+   "src/EventInfoUpdateFromContextAlg.h" "src/EventInfoUpdateFromContextAlg.cxx"
    "src/EventInfoReaderAlg.h" "src/EventInfoReaderAlg.cxx"
    "src/EventInfoSelectorTool.h" "src/EventInfoSelectorTool.cxx" )
-if( NOT SIMULATIONBASE AND NOT GENERATIONBASE AND NOT XAOD_ANALYSIS )
+if( NOT GENERATIONBASE AND NOT XAOD_ANALYSIS )
    list( APPEND sources
       "src/EventInfoBeamSpotDecoratorAlg.h"
       "src/EventInfoBeamSpotDecoratorAlg.cxx" )
 endif()
-
 # Component(s) in the package:
 atlas_add_component( xAODEventInfoCnv
    ${sources} src/components/*.cxx
-   LINK_LIBRARIES xAODCnvInterfaces  AthenaBaseComps AthenaKernel
+   LINK_LIBRARIES xAODCnvInterfaces AthenaBaseComps AthenaKernel
    AthenaPoolUtilities EventInfo xAODEventInfo xAODTruth GaudiKernel
    ${extra_libs} )
 
@@ -37,7 +40,7 @@ atlas_install_joboptions( share/*.py )
 
 # Setup and run tests
 set( _extraFlags )
-if( SIMULATIONBASE OR GENERATIONBASE OR XAOD_ANALYSIS )
+if( GENERATIONBASE OR XAOD_ANALYSIS )
    set( _extraFlags --noBeamSpot )
 endif()
 atlas_add_test( EvenInfoCnvConfigTest

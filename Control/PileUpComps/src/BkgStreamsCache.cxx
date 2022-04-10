@@ -400,6 +400,7 @@ StatusCode BkgStreamsCache::addSubEvts(unsigned int iXing,
       // temporary EI instance to modify BCID before adding the EI
       xAOD::EventInfo   tmp_ei( *pBkgEvent );
       tmp_ei.setBCID( BCID );
+      tmp_ei.setEvtStore(pBkgStore);
       // add subevent
       addSubEvent( overEvent, &tmp_ei, t0BinCenter, m_pileUpEventType, subEvCnt, c_pileUpEventInfoContName );
                
