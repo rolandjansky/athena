@@ -375,18 +375,13 @@ JETM15SlimmingHelper.SmartCollections = [
   "Muons",
   "InDetTrackParticles",
   "PrimaryVertices",
-  "MET_Reference_AntiKt4EMTopo",
-  "MET_Reference_AntiKt4EMPFlow",
+  "MET_Baseline_AntiKt4EMTopo",
+  "MET_Baseline_AntiKt4EMPFlow",
   "AntiKt4EMTopoJets",
   "AntiKt4EMPFlowJets",
-  "AntiKt4EMPFlowJets_BTagging201810",
-  "AntiKt4EMPFlowJets_BTagging201903",
-  "AntiKt4EMTopoJets_BTagging201810",
-  "BTagging_AntiKt4EMPFlow_201810",
-  "BTagging_AntiKt4EMPFlow_201903",
-  "BTagging_AntiKt4EMTopo_201810",                                         
-  "BTagging_AntiKtVR30Rmax4Rmin02Track_201810",
-  "BTagging_AntiKtVR30Rmax4Rmin02Track_201903",
+  "BTagging_AntiKt4EMPFlow",
+  "BTagging_AntiKt4EMTopo",                                         
+  "BTagging_AntiKtVR30Rmax4Rmin02Track",
   "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
 ]
 

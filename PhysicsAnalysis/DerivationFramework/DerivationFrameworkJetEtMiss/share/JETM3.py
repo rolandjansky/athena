@@ -6,16 +6,14 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob, buildFileName
 from DerivationFrameworkJetEtMiss.JetCommon import OutputJets, addJetOutputs, addDAODJets
 from JetRecConfig.StandardSmallRJets import AntiKt4EMPFlowLowPt, AntiKt4EMTopoLowPt
-#
 from DerivationFrameworkJetEtMiss.METCommon import addMETTruthMap, scheduleMETAssocAlg, addMETOutputs
-#
+
 if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
 
 from DerivationFrameworkPhys import PhysCommon
-  
-#
+
 #====================================================================
 # SKIMMING TOOL
 #====================================================================
@@ -68,7 +66,6 @@ JETM3Stream.AcceptAlgs(["JETM3Kernel"])
 
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 JETM3ThinningHelper = ThinningHelper( "JETM3ThinningHelper" )
-# JETM3ThinningHelper.TriggerChains = orstr.join(electronTriggers+muonTriggers)
 JETM3ThinningHelper.AppendToStream( JETM3Stream )
 
 #====================================================================
@@ -104,10 +101,11 @@ thinningTools.append(JETM3PhotonTPThinningTool)
 
 # TrackParticles associated with taus
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
-JETM3TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name            = "JETM3TauTPThinningTool",
-                                                                        StreamName              = streamName,
-                                                                        TauKey          = "TauJets",
-                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
+JETM3TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name                   = "JETM3TauTPThinningTool",
+                                                                        StreamName             = streamName,
+                                                                        TauKey                 = "TauJets",
+                                                                        InDetTrackParticlesKey = "InDetTrackParticles")
+
 ToolSvc += JETM3TauTPThinningTool
 thinningTools.append(JETM3TauTPThinningTool)
 
@@ -119,7 +117,6 @@ JETM3TPThinningTool = DerivationFramework__TrackParticleThinning( name          
                                                                   InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM3TPThinningTool
 thinningTools.append(JETM3TPThinningTool)
-
 
 # Truth particle thinning
 doTruthThinning = True
@@ -162,12 +159,6 @@ jetm3Seq += CfgMgr.DerivationFramework__DerivationKernel(	name = "JETM3Kernel",
                                                                 ThinningTools = thinningTools,
                                                                 AugmentationTools = [TrigMatchAug])
 
-OutputJets["JETM3"] = ["AntiKt4EMPFlowLowPtJets","AntiKt4EMTopoLowPtJets"]
-
-#=======================================
-# Add. small-R jet stuff in derivations
-#=======================================
-
 #=======================================
 # SCHEDULE SMALL-R JETS WITH LOW PT CUT
 #=======================================
@@ -175,6 +166,7 @@ OutputJets["JETM3"] = ["AntiKt4EMPFlowLowPtJets","AntiKt4EMTopoLowPtJets"]
 jetList = [AntiKt4EMPFlowLowPt, AntiKt4EMTopoLowPt]
 addDAODJets(jetList,DerivationFrameworkJob)
 
+OutputJets["JETM3"] = ["AntiKt4EMPFlowLowPtJets","AntiKt4EMTopoLowPtJets"]
 
 #=======================================
 # SCHEDULE CUSTOM MET RECONSTRUCTION
@@ -196,10 +188,16 @@ applyPFOAugmentation(DerivationFrameworkJob)
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM3SlimmingHelper = SlimmingHelper("JETM3SlimmingHelper")
+
+JETM3SlimmingHelper.AppendToDictionary = {'GlobalChargedParticleFlowObjects':'xAOD::FlowElementContainer','GlobalChargedParticleFlowObjectsAux':'xAOD::FlowElementAuxContainer',
+                                          'GlobalNeutralParticleFlowObjects':'xAOD::FlowElementContainer', 'GlobalNeutralParticleFlowObjectsAux':'xAOD::FlowElementAuxContainer',
+                                          'CHSGChargedParticleFlowObjects':'xAOD::FlowElementContainer','CHSGChargedParticleFlowObjectsAux':'xAOD::ShallowAuxContainer',
+                                          'CHSGNeutralParticleFlowObjects':'xAOD::FlowElementContainer','CHSGNeutralParticleFlowObjectsAux':'xAOD::ShallowAuxContainer'}
+
 JETM3SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJets",
                                         "InDetTrackParticles", "PrimaryVertices",
-                                        "MET_Reference_AntiKt4EMTopo",
-                                        "MET_Reference_AntiKt4EMPFlow",
+                                        "MET_Baseline_AntiKt4EMTopo",
+                                        "MET_Baseline_AntiKt4EMPFlow",
                                         "AntiKt4EMPFlowJets",
                                         "AntiKt4EMTopoJets",
                                         "AntiKt4TruthWZJets",
@@ -210,18 +208,17 @@ JETM3SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJet
                                         "BTagging_AntiKt4EMPFlow",
                                         "BTagging_AntiKt4EMTopo",
 					]
+
 JETM3SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
-                                    "CHSChargedParticleFlowObjects", "CHSNeutralParticleFlowObjects",
+                                    "GlobalChargedParticleFlowObjects", "GlobalNeutralParticleFlowObjects",
+                                    "CHSGChargedParticleFlowObjects", "CHSGNeutralParticleFlowObjects",
                                     "MuonTruthParticles", "egammaTruthParticles",
                                     "TruthParticles", "TruthEvents", "TruthVertices",
                                     "MuonSegments",
                                     "LVL1JetRoIs",
-                                    "JetETMissChargedParticleFlowObjects",
-                                    "JetETMissNeutralParticleFlowObjects",
                                     "Kt4EMTopoOriginEventShape","Kt4EMPFlowEventShape",
                                     ]
-JETM3SlimmingHelper.AppendToDictionary = {'CHSChargedParticleFlowObjects': 'xAOD::FlowElementContainer', 'CHSChargedParticleFlowObjectsAux':'xAOD::ShallowAuxContainer',
-                                          'CHSNeutralParticleFlowObjects': 'xAOD::FlowElementContainer', 'CHSNeutralParticleFlowObjectsAux':'xAOD::ShallowAuxContainer'}
+
 JETM3SlimmingHelper.ExtraVariables = [
   'HLT_xAOD__JetContainer_a4tcemsubjesFS.ActiveArea.ActiveArea4vec_eta.ActiveArea4vec_m.ActiveArea4vec_phi.ActiveArea4vec_pt.AlgorithmType.AverageLArQF.BchCorrCell.CentroidR.ConstituentScale.DetectorEta.EMFrac.EnergyPerSampling.FracSamplingMax.FracSamplingMaxIndex.HECFrac.HECQuality.InputType.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_m.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_m.JetEMScaleMomentum_phi.JetEMScaleMomentum_pt.JetEtaJESScaleMomentum_eta.JetEtaJESScaleMomentum_m.JetEtaJESScaleMomentum_phi.JetEtaJESScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_m.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_pt.LArQuality.N90Constituents.NegativeE.OriginCorrected.PileupCorrected.SizeParameter.Timing.eta.kinematics.m.phi.pt',
   'HLT_xAOD__JetContainer_a4tcemsubjesISFS.ActiveArea.ActiveArea4vec_eta.ActiveArea4vec_m.ActiveArea4vec_phi.ActiveArea4vec_pt.AlgorithmType.AverageLArQF.BchCorrCell.CentroidR.ConstituentScale.DetectorEta.EMFrac.EnergyPerSampling.FracSamplingMax.FracSamplingMaxIndex.HECFrac.HECQuality.InputType.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_m.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_m.JetEMScaleMomentum_phi.JetEMScaleMomentum_pt.JetEtaJESScaleMomentum_eta.JetEtaJESScaleMomentum_m.JetEtaJESScaleMomentum_phi.JetEtaJESScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_m.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_pt.LArQuality.N90Constituents.NegativeE.OriginCorrected.PileupCorrected.SizeParameter.Timing.eta.kinematics.m.phi.pt',
@@ -233,7 +230,6 @@ for truthc in [
     "TruthElectrons",
     "TruthPhotons",
     "TruthTaus",
-#    "TruthNeutrinos"
     ]:
     JETM3SlimmingHelper.StaticContent.append("xAOD::TruthParticleContainer#"+truthc)
     JETM3SlimmingHelper.StaticContent.append("xAOD::TruthParticleAuxContainer#"+truthc+"Aux.")

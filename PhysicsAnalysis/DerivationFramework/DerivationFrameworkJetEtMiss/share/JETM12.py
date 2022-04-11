@@ -6,7 +6,6 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo,
 DerivationFrameworkJob, buildFileName
 from DerivationFrameworkJetEtMiss.JetCommon import OutputJets
-#
 
 #====================================================================
 # SKIMMING TOOL 
@@ -20,7 +19,7 @@ andstr = ' && '
 trackRequirements = '(InDetTrackParticles.pt > 10.*GeV && InDetTrackParticles.TrkIsoPt1000_ptcone20 < 0.12*InDetTrackParticles.pt && InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV) < 3.0*mm )'
 trackRequirementsMu = '(InDetTrackParticles.pt > 70.*GeV && InDetTrackParticles.TrkIsoPt1000_ptcone20 < 0.12*InDetTrackParticles.pt && InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV) < 3.0*mm )'
 trackRequirementsTtbar = '(InDetTrackParticles.pt > 25.*GeV && InDetTrackParticles.TrkIsoPt1000_ptcone20 < 0.12*InDetTrackParticles.pt && InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV) < 3.0*mm )'
-jetRequirementsTtbar = '( AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 20*GeV && BTagging_AntiKt4EMTopo_201810.MV2c10_discriminant > 0.11 )'
+jetRequirementsTtbar = '( AntiKt4EMTopoJets.pt > 20*GeV && BTagging_AntiKt4EMTopo.MV2c10_discriminant > 0.11 )'
 expressionW = '( (' + orstr.join(metTriggers) + ' )' + andstr + '( count('+trackRequirements+') >=1 ) )'
 expressionMu = '( (' + orstr.join(muTriggers) + ' )' + andstr + '( count('+trackRequirementsMu+') >=1 ) )'
 expressionTtbar = '( (' + orstr.join(muTriggers) + ' )' + andstr + '( count('+trackRequirementsTtbar+') >=1 )' + andstr + '( count('+trackRequirements+') >=2 )' + andstr + '( count('+jetRequirementsTtbar+') >=1 ) )'
@@ -217,15 +216,11 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM12SlimmingHelper = SlimmingHelper("JETM12SlimmingHelper")
 JETM12SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJets",
                                         "InDetTrackParticles", "PrimaryVertices",
-                                        "MET_Reference_AntiKt4EMTopo",
-                                        "MET_Reference_AntiKt4EMPFlow",
+                                        "MET_Baseline_AntiKt4EMTopo",
+                                        "MET_Baseline__AntiKt4EMPFlow",
                                         "AntiKt4EMTopoJets","AntiKt4EMPFlowJets","AntiKt4TruthJets",
-                                        "AntiKt4EMPFlowJets_BTagging201810",
-                                        "AntiKt4EMPFlowJets_BTagging201903",
-                                        "AntiKt4EMTopoJets_BTagging201810",
-                                        "BTagging_AntiKt4EMPFlow_201810",
-                                        "BTagging_AntiKt4EMPFlow_201903",
-                                        "BTagging_AntiKt4EMTopo_201810",
+                                        "BTagging_AntiKt4EMPFlow",
+                                        "BTagging_AntiKt4EMTopo",
                                         ]
 JETM12SlimmingHelper.AllVariables = ["MuonTruthParticles","TruthParticles", "TruthVertices",
                                     "MuonSegments","InDetTrackParticles",

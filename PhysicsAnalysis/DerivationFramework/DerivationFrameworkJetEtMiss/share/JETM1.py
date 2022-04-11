@@ -167,7 +167,7 @@ JETM1SlimmingHelper.ExtraVariables  = ["AntiKt4EMTopoJets.DFCommonJets_QGTagger_
                                        "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets.zg.rg.NumTrkPt1000.TrackWidthPt1000.GhostMuonSegmentCount.EnergyPerSampling.GhostTrack",
                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.zg.rg",
                                        "AntiKt10UFOCSSKJets.NumTrkPt1000.TrackWidthPt1000.GhostMuonSegmentCount.EnergyPerSampling.GhostTrack",
-                                       "TruthVertices.z"]
+                                       "TruthVertices.barcode.z"]
 
 JETM1SlimmingHelper.AllVariables = [ "MuonSegments", "EventInfo", "TruthParticles",
                                      "AntiKt4TruthJets", "InTimeAntiKt4TruthJets", "OutOfTimeAntiKt4TruthJets",
