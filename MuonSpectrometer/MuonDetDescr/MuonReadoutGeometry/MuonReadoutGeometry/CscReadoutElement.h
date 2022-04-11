@@ -13,6 +13,7 @@
 #include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonReadoutGeometry/MuonClusterReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MuonReadoutGeometry/ArrayHelper.h"
 
 namespace Muon {
     class CscAlignModule;
@@ -289,7 +290,7 @@ namespace MuonGM {
         double m_wirepitch{-9999.};
         double m_first_strip_localcoo{-9999.};
         double m_first_wire_localcoo{-9999.};
-        std::array<double, maxwlay> m_wireplanez{-9999.};
+        std::array<double, maxwlay> m_wireplanez{make_array<double, maxwlay>(-9999.)};
 
         // internal alignment
         double m_cscIntTransl[4][3]{};  // first index is wireLayer, second = 0,1,2 for    s,z,t
