@@ -48,12 +48,11 @@ CaloGeometryLookup::CaloGeometryLookup(int ind):m_xy_grid_adjustment_factor(0.75
 }
 
 CaloGeometryLookup::~CaloGeometryLookup()
-{
-}
+= default;
 
 bool CaloGeometryLookup::has_overlap(CaloGeometryLookup* ref)
 {
-  if(m_cells.size()==0) return false;
+  if(m_cells.empty()) return false;
   for(t_cellmap::iterator ic=m_cells.begin();ic!=m_cells.end();++ic) {
     const CaloDetDescrElement* cell=ic->second;
     if(ref->IsCompatible(cell)) return true;
@@ -72,7 +71,7 @@ void CaloGeometryLookup::merge_into_ref(CaloGeometryLookup* ref)
 
 bool CaloGeometryLookup::IsCompatible(const CaloDetDescrElement* cell)
 {
-  if(m_cells.size()==0) return true;
+  if(m_cells.empty()) return true;
   t_cellmap::iterator ic=m_cells.begin();
   const CaloDetDescrElement* refcell=ic->second;
   int sampling=refcell->getSampling();
@@ -170,7 +169,7 @@ void CaloGeometryLookup::add(const CaloDetDescrElement* cell)
   m_cells[cell->identify()]=cell;
 }
 
-bool CaloGeometryLookup::index_range_adjust(int& ieta,int& iphi)
+bool CaloGeometryLookup::index_range_adjust(int& ieta,int& iphi) const
 {
   while(iphi<0) {iphi+=m_cell_grid_phi;};
   while(iphi>=m_cell_grid_phi) {iphi-=m_cell_grid_phi;};
@@ -217,7 +216,7 @@ void CaloGeometryLookup::post_process()
   
   m_cell_grid.resize(m_cell_grid_eta); 
   for(int ieta=0;ieta<m_cell_grid_eta;++ieta) {
-    m_cell_grid[ieta].resize(m_cell_grid_phi,0); 
+    m_cell_grid[ieta].resize(m_cell_grid_phi,nullptr); 
   }  
   
   for(ic=m_cells.begin();ic!=m_cells.end();++ic) {
@@ -261,7 +260,7 @@ void CaloGeometryLookup::post_process()
   //  cout<<"Grid: Sampling "<<sampling<<"_"<<index()<<": "<<ncells<<"/"<<size()<<" cells filled, "<<nempty<<" empty grid positions deta="<<m_deta_double<<" dphi="<<m_dphi_double<<endl;
 }
 
-float CaloGeometryLookup::calculate_distance_eta_phi(const CaloDetDescrElement* DDE,float eta,float phi,float& dist_eta0,float& dist_phi0)
+float CaloGeometryLookup::calculate_distance_eta_phi(const CaloDetDescrElement* DDE,float eta,float phi,float& dist_eta0,float& dist_phi0) const
 {
   dist_eta0=(eta - DDE->eta())/m_deta_double;
   dist_phi0=(TVector2::Phi_mpi_pi(phi - DDE->phi()))/m_dphi_double;
@@ -273,7 +272,7 @@ float CaloGeometryLookup::calculate_distance_eta_phi(const CaloDetDescrElement* 
 const CaloDetDescrElement* CaloGeometryLookup::getDDE(float eta,float phi,float* distance,int* steps) 
 {
   float dist = 0;
-  const CaloDetDescrElement* bestDDE=0;
+  const CaloDetDescrElement* bestDDE=nullptr;
   if(!distance) distance=&dist;
   *distance=+10000000;
   int intsteps=0;

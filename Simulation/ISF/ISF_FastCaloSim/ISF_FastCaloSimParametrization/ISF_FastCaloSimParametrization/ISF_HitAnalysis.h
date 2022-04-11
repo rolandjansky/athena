@@ -151,7 +151,7 @@ class ISF_HitAnalysis : public AthAlgorithm {
    std::vector<int>*         m_g4hit_sampling{nullptr};
 
    //CaloHitAna variables
-   FCS_matchedcellvector* m_oneeventcells; //these are all matched cells in a single event
+   FCS_matchedcellvector* m_oneeventcells = nullptr; //these are all matched cells in a single event
    FCS_matchedcellvector* m_layercells[MAX_LAYER]; //these are all matched cells in a given layer in a given event
 
    Float_t m_total_cell_e = 0;
@@ -256,7 +256,7 @@ class ISF_HitAnalysis : public AthAlgorithm {
 
    double m_CaloBoundaryR{1148};
    double m_CaloBoundaryZ{3550};
-   double m_calomargin;
+   double m_calomargin = 0.0;
    bool m_saveAllBranches;
    bool m_doAllCells;
    bool m_doClusterInfo;

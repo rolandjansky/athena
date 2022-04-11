@@ -126,7 +126,7 @@ iFatras::McMaterialEffectsEngine::McMaterialEffectsEngine(const std::string& t, 
 
 // destructor
 iFatras::McMaterialEffectsEngine::~McMaterialEffectsEngine()
-{}
+= default;
 
 // Athena standard methods
 // initialize

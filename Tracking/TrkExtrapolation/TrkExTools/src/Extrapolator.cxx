@@ -224,7 +224,7 @@ Trk::Extrapolator::Extrapolator(const std::string& t, const std::string& n, cons
 }
 
 // destructor
-Trk::Extrapolator::~Extrapolator() {}
+Trk::Extrapolator::~Extrapolator() = default;
 
 // Athena standard methods
 // initialize

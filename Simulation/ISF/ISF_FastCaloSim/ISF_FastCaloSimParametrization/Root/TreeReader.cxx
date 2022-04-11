@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TTreeFormula.h"
@@ -28,7 +28,7 @@ TreeReader::TreeReader()
   // Default constructor.
   m_isChain = false;
   m_currentTree = -1;
-  m_tree = 0;
+  m_tree = nullptr;
   m_currentEntry = -1;
   m_entries = -1;
 }
@@ -44,7 +44,7 @@ TreeReader::TreeReader(TTree* n)
 //============================================================
 {
   // Constructor.
-  m_tree = 0;
+  m_tree = nullptr;
   m_entries = -1;
   SetTree(n);
 }

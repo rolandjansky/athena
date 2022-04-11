@@ -44,7 +44,7 @@ iFatras::MultipleScatteringSamplerHighland::MultipleScatteringSamplerHighland(co
 
 // destructor
 iFatras::MultipleScatteringSamplerHighland::~MultipleScatteringSamplerHighland()
-{}
+= default;
 
 // Athena standard methods
 // initialize

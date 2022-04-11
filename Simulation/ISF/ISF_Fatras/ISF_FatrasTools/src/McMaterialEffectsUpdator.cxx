@@ -161,7 +161,7 @@ iFatras::McMaterialEffectsUpdator::McMaterialEffectsUpdator(const std::string& t
 
 // destructor
 iFatras::McMaterialEffectsUpdator::~McMaterialEffectsUpdator()
-{}
+= default;
 
 // Athena standard methods
 // initialize

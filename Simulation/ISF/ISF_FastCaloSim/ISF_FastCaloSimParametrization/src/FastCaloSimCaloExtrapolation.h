@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FastCaloSimCaloExtrapolation_H
@@ -82,20 +82,20 @@ protected:
   ///Finds Point of Closest Approach (PCA) on the cylinder defined by radius cylR and half-length cylZ of a line segment spanned by two hit positions to a cylinder 
   void findPCA(float cylR, float cylZ, Amg::Vector3D& hitPos1, Amg::Vector3D& hitPos2, Amg::Vector3D& PCA) const;
   ///Computes the distance between a point and the line segment spanned by hitPos1 and hitPos2
-  double getPointLineSegmentDistance(Amg::Vector3D& point, Amg::Vector3D& hitPos1, Amg::Vector3D& hitPos2) const;
+  static double getPointLineSegmentDistance(Amg::Vector3D& point, Amg::Vector3D& hitPos1, Amg::Vector3D& hitPos2) ;
   ///Finds PCA iteratively given two bounds A and B on a line segment, used for (rare) cases with no easy analytical solutions
   void getIterativePCA(float cylR, float cylZ, Amg::Vector3D& BoundA, Amg::Vector3D& BoundB, Amg::Vector3D& PCA) const;
   ///Returns true if point lies on the line segment spanned by hitPos1 and hitPos2, otherwise returns false
-  bool isOnSegment(Amg::Vector3D& point, Amg::Vector3D& hitPos1, Amg::Vector3D& hitPos2) const;
+  static bool isOnSegment(Amg::Vector3D& point, Amg::Vector3D& hitPos1, Amg::Vector3D& hitPos2) ;
   ///Computes intersection between the (infinite) line spanned by pointA and pointB with the positive (negative) endcap of a cylinder, returns true if intersection is found
-  bool cylinderEndcapIntersection(float cylR, float cylZ, bool positiveEndcap, Amg::Vector3D& pointA, Amg::Vector3D& pointB, Amg::Vector3D& intersection) const;
+  static bool cylinderEndcapIntersection(float cylR, float cylZ, bool positiveEndcap, Amg::Vector3D& pointA, Amg::Vector3D& pointB, Amg::Vector3D& intersection) ;
   /*!Extrapolates position on cylinder by finding intersections of subsequent hit positions, intersection is considered if we detect a travel through the surface with
    the line segment or we find a forward intersection (in the travel direction of the particle) which lies on the line segment, returns false if no such postion is found*/
   bool extrapolateWithIntersection(std::vector<Trk::HitInfo> * hitVector, float cylR, float cylZ, Amg::Vector3D& extPos, Amg::Vector3D& momDir) const;
   ///Extrapolates to the cylinder using the PCA to the polygon spanned by the individual line segments from the hitVector
   bool extrapolateWithPCA(std::vector<Trk::HitInfo> * hitVector, float cylR, float cylZ, Amg::Vector3D& extPos, Amg::Vector3D& momDir) const;
   ///Returns true if the line segment spanned by hitPos1 and hitPos2 crosses the cylinder surface, false otherwise
-  bool doesTravelThroughSurface(float cylR, float cylZ, Amg::Vector3D& hitPos1, Amg::Vector3D& hitPos2) const;
+  static bool doesTravelThroughSurface(float cylR, float cylZ, Amg::Vector3D& hitPos1, Amg::Vector3D& hitPos2) ;
   ///Returns ID of more sensible intersection between line segment spanned by hitPos1 and hitPos2 and cylinder
   int whichIntersection(float cylR, float cylZ, Amg::Vector3D& hitPos1, Amg::Vector3D& hitPos2, Amg::Vector3D& intersectionA, Amg::Vector3D intersectionB) const;
   ///Analytically computes 2D intersections between circle of radius circR and (infinite) line spanned by pointA nad pointB
@@ -103,9 +103,9 @@ protected:
   ///Analytically computes the intersection between the (infinite) line defined by pointA and pointB and the cylinder cover (without endcaps)
   int cylinderLineIntersection(float cylR, float cylZ, Amg::Vector3D& pointA, Amg::Vector3D& pointB, Amg::Vector3D& intersectA, Amg::Vector3D& intersectB) const;
   ///Checks if position of hitPos is inside, outside or on the cylinder bounds
-  enum HITPOSITION whereOnCylinder(float cylR, float cylZ, Amg::Vector3D& hitPos) const;
+  static enum HITPOSITION whereOnCylinder(float cylR, float cylZ, Amg::Vector3D& hitPos) ;
   ///Projects position hitPos onto the cylinder surface and returns projected position
-  Amg::Vector3D projectOnCylinder(float cylR, float cylZ, Amg::Vector3D& hitPos) const;
+  static Amg::Vector3D projectOnCylinder(float cylR, float cylZ, Amg::Vector3D& hitPos) ;
   ///Analytically computes the intersection between the (infinite) line spanned by hitPos1 and hitPos2 with a cylinder
   CylinderIntersections getCylinderIntersections(float cylR, float cylZ, Amg::Vector3D& hitPos1, Amg::Vector3D& hitPos2) const;
 

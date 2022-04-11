@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -26,8 +26,7 @@ Trk::NIMatEffUpdator::NIMatEffUpdator(const std::string &t, const std::string &n
 }
 
 // destructor
-Trk::NIMatEffUpdator::~NIMatEffUpdator() {
-}
+Trk::NIMatEffUpdator::~NIMatEffUpdator() = default;
 
 // Athena standard methods
 // initialize
