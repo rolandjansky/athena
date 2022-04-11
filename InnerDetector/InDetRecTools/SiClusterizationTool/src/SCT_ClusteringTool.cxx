@@ -22,7 +22,6 @@
 #include "InDetPrepRawData/SiWidth.h"
 #include "Identifier/IdentifierHash.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
-#include "InDetIdentifier/SCT_ID.h"
 
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "SiClusterizationTool/SCT_ReClustering.h"
@@ -169,19 +168,11 @@ namespace InDet {
     }
 
     ATH_CHECK(m_SCTDetEleCollKey.initialize());
+    ATH_CHECK(m_sctDetElStatus.initialize( false /*!m_sctDetElStatus.empty()*/) );
 
     return StatusCode::SUCCESS;
   }
 
-  SCT_ClusterCollection* SCT_ClusteringTool::clusterize(const InDetRawDataCollection<SCT_RDORawData>& collection,
-                                                        const SCT_ID& idHelper,
-                                                        const SCT_ChannelStatusAlg* /*status */,
-                                                        const bool /*CTBBadChannels */) const
-  {
-    ATH_MSG_INFO( "You have invoked the deprecated form of clusterize(...), please use the new interface, of the form  clusterize(InDetRawDataCollection<SCT_RDORawData> & collection,SCT_ID& idHelper)");
-    return clusterize(collection, idHelper);
-  }
-  
   void SCT_ClusteringTool::addStripsToCluster(const Identifier& firstStripId, unsigned int nStrips,
                                               std::vector<Identifier>& clusterVector, const SCT_ID& idHelper) const{
     const unsigned int firstStripNumber(idHelper.strip(firstStripId));
@@ -200,19 +191,25 @@ namespace InDet {
    * What if the last strip is bad and contiguous with the next group which is coming? 
    * What if its good and contiguous, but there are also some bad?
    **/
-  void SCT_ClusteringTool::addStripsToClusterWithChecks(const Identifier& firstStripId, unsigned int nStrips, std::vector<Identifier>& clusterVector,
-                                                        std::vector<std::vector<Identifier> >& idGroups, const SCT_ID& idHelper) const{
+  void SCT_ClusteringTool::addStripsToClusterWithChecks(const Identifier& firstStripId,
+                                                        unsigned int nStrips,
+                                                        std::vector<Identifier>& clusterVector,
+                                                        std::vector<std::vector<Identifier> >& idGroups,
+                                                        const SCT_ID& idHelper,
+                                                        const InDet::SiDetectorElementStatus *det_el_status) const{
 
     const unsigned int firstStripNumber(idHelper.strip(firstStripId));
     const unsigned int endStripNumber(firstStripNumber + nStrips); // one-past-the-end
     const Identifier   waferId(idHelper.wafer_id(firstStripId));
+    IdentifierHash     waferHash( idHelper.wafer_hash(waferId) );
+
     clusterVector.reserve(clusterVector.size() + nStrips);
 
     static const Identifier badId;
     unsigned int nBadStrips(0);
     for (unsigned int stripNumber(firstStripNumber); stripNumber not_eq endStripNumber; ++stripNumber) {
       Identifier stripId(idHelper.strip_id(waferId, stripNumber));
-      if (isBad(stripId)) {
+      if (isBad(det_el_status, idHelper, waferHash, stripId)) {
         ++nBadStrips;
         stripId = badId;
       }
@@ -234,19 +231,25 @@ namespace InDet {
     }
   }
 
-  void SCT_ClusteringTool::addStripsToClusterInclRows(const Identifier& firstStripId, unsigned int nStrips, std::vector<Identifier>& clusterVector,
-                                                      std::vector<std::vector<Identifier> >& idGroups, const SCT_ID& idHelper) const {
+  void SCT_ClusteringTool::addStripsToClusterInclRows(const Identifier& firstStripId,
+                                                      unsigned int nStrips,
+                                                      std::vector<Identifier>& clusterVector,
+                                                      std::vector<std::vector<Identifier> >& idGroups,
+                                                      const SCT_ID& idHelper,
+                                                      const InDet::SiDetectorElementStatus *det_el_status) const {
 
     const unsigned int firstStripNumber(idHelper.strip(firstStripId));
     const unsigned int firstRowNumber(idHelper.row(firstStripId));
     const unsigned int endStripNumber(firstStripNumber + nStrips); // one-past-the-end
     const Identifier   waferId(idHelper.wafer_id(firstStripId));
+    IdentifierHash     waferHash( idHelper.wafer_hash(waferId) );
+
     clusterVector.reserve(clusterVector.size() + nStrips);
     static const Identifier badId;
     unsigned int nBadStrips(0);
     for (unsigned int stripNumber(firstStripNumber); stripNumber not_eq endStripNumber; ++stripNumber) {
       Identifier stripId(idHelper.strip_id(waferId, firstRowNumber, stripNumber));
-      if (isBad(stripId)) {
+      if (isBad(det_el_status, idHelper, waferHash, stripId)) {
         ++nBadStrips;
         stripId = badId;
       }
@@ -301,11 +304,12 @@ namespace InDet {
   
   SCT_ClusterCollection * 
   SCT_ClusteringTool::clusterize(const InDetRawDataCollection<SCT_RDORawData>& collection,
-                                 const SCT_ID& idHelper) const
+                                 const SCT_ID& idHelper,
+                                 const InDet::SiDetectorElementStatus *sctDetElStatus) const
   {
     ATH_MSG_VERBOSE ("SCT_ClusteringTool::clusterize()");
 
-    if (m_doFastClustering) return fastClusterize(collection, idHelper);
+    if (m_doFastClustering) return fastClusterize(collection, idHelper, sctDetElStatus);
 
     SCT_ClusterCollection* nullResult(nullptr);
     if (collection.empty()) {
@@ -385,11 +389,11 @@ namespace InDet {
       //                or (b) pushing a new set of ids onto an empty vector
       if (passTiming or m_majority01X) {
         if (m_useRowInformation) {
-          addStripsToClusterInclRows(firstStripId, nStrips, currentVector, idGroups, idHelper); // Note this takes the current vector only
+           addStripsToClusterInclRows(firstStripId, nStrips, currentVector, idGroups, idHelper,sctDetElStatus); // Note this takes the current vector only
         } else if (not m_checkBadChannels) {
           addStripsToCluster(firstStripId, nStrips, currentVector, idHelper); // Note this takes the current vector only
         } else {
-          addStripsToClusterWithChecks(firstStripId, nStrips, currentVector, idGroups, idHelper); // This one includes the groups of vectors as well
+          addStripsToClusterWithChecks(firstStripId, nStrips, currentVector, idGroups, idHelper,sctDetElStatus); // This one includes the groups of vectors as well
         }
         for (unsigned int iStrip=0; iStrip<nStrips; iStrip++) {
           if (stripCount < 16) hitsInThirdTimeBin |= (timePattern.test(0) << stripCount);
@@ -486,7 +490,8 @@ namespace InDet {
   }
 
   SCT_ClusterCollection* SCT_ClusteringTool::fastClusterize(const InDetRawDataCollection<SCT_RDORawData>& collection,
-                                                            const SCT_ID& idHelper) const
+                                                            const SCT_ID& idHelper,
+                                                            const InDet::SiDetectorElementStatus *sctDetElStatus) const
   {
     if (collection.empty()) return nullptr;
 
@@ -514,6 +519,7 @@ namespace InDet {
     for (const SCT_RDORawData* pRawData: collectionCopy) {
       Identifier firstStripId = pRawData->identify();
       Identifier waferId = idHelper.wafer_id(firstStripId);
+      IdentifierHash waferHash = idHelper.wafer_hash(waferId);
       unsigned int nStrips = pRawData->getGroupSize();
       int thisStrip = idHelper.strip(firstStripId);
 
@@ -564,7 +570,7 @@ namespace InDet {
         }
         for (unsigned int sn=thisStrip; sn < max_strip; ++sn) {
           Identifier stripId = m_useRowInformation ? idHelper.strip_id(waferId,thisRow,sn) : idHelper.strip_id(waferId,sn);
-          if (m_conditionsTool->isGood(stripId, InDetConditions::SCT_STRIP)) {
+          if (!isBad(sctDetElStatus, idHelper, waferHash, stripId)) {
             currentVector.push_back(stripId);
           } else {
             currentVector.push_back(badId);

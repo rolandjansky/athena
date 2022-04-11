@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -79,7 +79,8 @@ public:
   virtual bool isGood(const Identifier& elementId, const EventContext& ctx, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   virtual bool isGood(const IdentifierHash& elementIdHash) const override;
   virtual bool isGood(const IdentifierHash& elementIdHash, const EventContext& ctx) const override;
-  
+  virtual void getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status, EventIDRange &the_range) const override;
+
   virtual std::set<IdentifierHash> getErrorSet(int errorType, const EventContext& ctx) const override; // Used by SCTRawDataProviderTool and others
   virtual std::set<IdentifierHash> getErrorSet(int errorType) const override; // Used by SCTRawDataProviderTool and others
 
@@ -100,6 +101,7 @@ private:
 
   const SCT_ID* m_sct_id{nullptr};
   IdContext m_cntx_sct;
+  uint64_t m_badErrorMask;
 
   mutable SG::SlotSpecificObj<std::mutex> m_cacheMutex ATLAS_THREAD_SAFE;
   struct IDCCacheEntry {

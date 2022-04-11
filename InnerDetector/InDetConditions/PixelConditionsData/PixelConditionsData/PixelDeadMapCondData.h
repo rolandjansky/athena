@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELDEADMAPCONDDATA_H
@@ -10,11 +10,13 @@
 
 class PixelDeadMapCondData {
   public:
+    typedef std::unordered_map<int, int> IntConditions;
     PixelDeadMapCondData();
     virtual ~PixelDeadMapCondData();
 
     void setModuleStatus(const int chanNum, const int value);
     int getModuleStatus(const int chanNum) const;
+    const IntConditions  &moduleStatusMap() const { return m_moduleStatus; }
 
     void setChipStatus(const int chanNum, const int value);
     int getChipStatus(const int chanNum) const;
@@ -22,7 +24,6 @@ class PixelDeadMapCondData {
     void clear();
 
   private:
-    typedef std::map<int, int> IntConditions;
     IntConditions  m_moduleStatus;
     IntConditions  m_chipStatus;
 

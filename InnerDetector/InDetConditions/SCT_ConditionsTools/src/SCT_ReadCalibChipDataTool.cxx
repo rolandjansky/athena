@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file SCT_ReadCalibChipDataTool.cxx Implementation file for SCT_ReadCalibChipDataTool.
@@ -7,6 +7,8 @@
 */
 
 #include "SCT_ReadCalibChipDataTool.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "SCT_DetectorElementStatus.h"
 
 // Include Athena stuff
 #include "Identifier/Identifier.h"
@@ -94,6 +96,49 @@ SCT_ReadCalibChipDataTool::isGood(const IdentifierHash& elementHashId, const Eve
   ATH_MSG_DEBUG("Module mean noise: " << meanNoiseValue);
   return (meanNoiseValue < m_noiseLevel);
 } //SCT_ReadCalibChipDataTool::summary()
+
+void
+SCT_ReadCalibChipDataTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status, EventIDRange &the_range) const  {
+  SG::ReadCondHandle<SCT_NoiseCalibData> condDataHandle{m_condKeyNoise, ctx};
+  if (not condDataHandle.isValid() ) {
+    ATH_MSG_ERROR("Invalid cond data handle " << m_condKeyNoise.key() );
+    return;
+  }
+  the_range = EventIDRange::intersect( the_range, condDataHandle.getRange() );
+  const SCT_NoiseCalibData* condDataNoise{condDataHandle.cptr() };
+  std::vector<bool> &status = element_status.getElementStatus();
+  if (status.empty()) {
+     status.resize(m_id_sct->wafer_hash_max(),true);
+  }
+  unsigned int element_i=0;
+  for (const SCT_ModuleNoiseCalibData& noiseOccData : *condDataNoise) {
+     const int occ_index{noiseOccIndex("NoiseByChip")};
+     if (occ_index<0) {
+        ATH_MSG_ERROR("This NoiseOccupancy noise data does not exist");
+        return;
+     }
+     const SCT_ModuleCalibParameter& moduleNoiseData{noiseOccData[occ_index]};
+
+     for (unsigned int side_i=0; side_i<2; ++side_i) {
+        unsigned int chip{side_i*CHIPS_PER_SIDE};
+        const unsigned int endChip{CHIPS_PER_SIDE+chip};
+        unsigned int nChips{0};
+        float sum{0.0};
+
+        for (; chip!=endChip; ++chip) {
+           float chipNoise{moduleNoiseData[chip]};
+           if (chipNoise!=0.0) {
+              sum+=chipNoise;
+              ++nChips;
+           }
+        }
+        const float meanNoiseValue{ nChips>0 ? sum/nChips : 0.f};
+        status.at(element_i) =  status.at(element_i) & (meanNoiseValue < m_noiseLevel);
+
+        ++element_i;
+     }
+  }
+}
 
 bool
 SCT_ReadCalibChipDataTool::isGood(const IdentifierHash& elementHashId) const {

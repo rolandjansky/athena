@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -9,15 +9,16 @@
  **/
 
 #include "SCT_ConditionsSummaryTool.h"
+#include "SCT_DetectorElementStatus.h"
 #include "SCT_ConditionsTools/ISCT_ConditionsTool.h"
 
 #include "GaudiKernel/EventContext.h"
+#include "InDetIdentifier/SCT_ID.h"
 
 // Constructor
 SCT_ConditionsSummaryTool::SCT_ConditionsSummaryTool(const std::string& type, const std::string& name, const IInterface* parent) :
-  base_class(type, name, parent),
-  m_toolHandles{this} {
-  declareProperty("ConditionsTools", m_toolHandles);
+  base_class(type, name, parent)
+{
 }
 
 //Initialize
@@ -28,7 +29,14 @@ SCT_ConditionsSummaryTool::initialize() {
     ATH_MSG_ERROR("Retrieval of ToolHandleArray<ISCT_ConditionsTool> failed.");
     return sc;
   }
-
+  ATH_CHECK( m_SCTDetEleCollKey.initialize() );
+  if (!m_SCTDetElStatusEventKey.empty() && !m_SCTDetElStatusCondKey.empty()) {
+     ATH_MSG_FATAL("The event data (SCTDetElStatusEventDataBaseKey) and cond data (SCTDetElStatusCondDataBaseKey) keys cannot be set at the same time.");
+  }
+  ATH_CHECK(m_SCTDetElStatusEventKey.initialize( !m_SCTDetElStatusEventKey.empty()));
+  ATH_CHECK(m_SCTDetElStatusCondKey.initialize( !m_SCTDetElStatusCondKey.empty()));
+  // Get SCT helper
+  ATH_CHECK(detStore()->retrieve(m_id_sct, "SCT_ID"));
   m_noReports = m_toolHandles.empty();
   return sc;
 }
@@ -78,7 +86,9 @@ SCT_ConditionsSummaryTool::isGood(const Identifier& elementId, const InDetCondit
   if (not m_noReports) {
     const EventContext& ctx{Gaudi::Hive::currentContext()};
     for (const ToolHandle<ISCT_ConditionsTool>& tool: m_toolHandles) {
-      if (tool->canReportAbout(h) and (not tool->isGood(elementId, ctx, h))) return false;
+       if (tool->canReportAbout(h) and (not tool->isGood(elementId, ctx, h))) {
+          return false;
+       }
     }
   }
   return true;
@@ -132,6 +142,54 @@ SCT_ConditionsSummaryTool::isGood(const IdentifierHash& elementHash, const Event
     }    
   }
   return true;
+}
+
+namespace {
+   const InDet::SCT_DetectorElementStatus *castToDerived(const InDet::SiDetectorElementStatus *input) {
+      const InDet::SCT_DetectorElementStatus *ret = dynamic_cast<const InDet::SCT_DetectorElementStatus *>(input);
+      if (!ret) {
+         throw std::runtime_error("Object is not of expected type InDet::SCT_DetectorElementStatus");
+      }
+      return ret;
+   }
+}
+std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> SCT_ConditionsSummaryTool::createDetectorElementStatus(const EventContext& ctx) const  {
+      std::string tool_name (name());
+      (void) tool_name;
+   if (!m_SCTDetElStatusCondKey.empty()) {
+      SG::ReadCondHandle<InDet::SiDetectorElementStatus> input_element_status{m_SCTDetElStatusCondKey, ctx};
+      return std::make_tuple(std::unique_ptr<InDet::SiDetectorElementStatus>(new InDet::SCT_DetectorElementStatus(*castToDerived(input_element_status.cptr()))),
+                             input_element_status.getRange() );
+   }
+   else if (!m_SCTDetElStatusEventKey.empty()) {
+      SG::ReadHandle<InDet::SiDetectorElementStatus> input_element_status{m_SCTDetElStatusEventKey, ctx};
+      std::string key (m_SCTDetElStatusEventKey.key());
+      (void) key;
+      return std::make_tuple(std::unique_ptr<InDet::SiDetectorElementStatus>(new InDet::SCT_DetectorElementStatus(*castToDerived(input_element_status.cptr()))),
+                             EventIDRange() );
+   }
+   else {
+      SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEleHandle(m_SCTDetEleCollKey, ctx);
+      const InDetDD::SiDetectorElementCollection* elements(*sctDetEleHandle);
+      return std::make_tuple(std::unique_ptr<InDet::SiDetectorElementStatus>(new InDet::SCT_DetectorElementStatus(*elements)),
+                             sctDetEleHandle.getRange() );
+   }
+}
+
+std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> SCT_ConditionsSummaryTool::getDetectorElementStatus(const EventContext& ctx) const {
+   std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange>
+      element_status( createDetectorElementStatus(ctx) );
+   if (not m_noReports) {
+      for (const ToolHandle<ISCT_ConditionsTool>& tool: m_toolHandles) {
+         // @TODO also check if it can report about chips ?
+         if ((tool->canReportAbout(InDetConditions::SCT_SIDE) or
+              tool->canReportAbout(InDetConditions::SCT_MODULE) or
+              tool->canReportAbout(InDetConditions::SCT_STRIP))) {
+            tool->getDetectorElementStatus(ctx,*std::get<0>(element_status),std::get<1>(element_status));
+         }
+      }
+   }
+   return element_status;
 }
 
 bool 

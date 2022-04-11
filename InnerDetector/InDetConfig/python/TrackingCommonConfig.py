@@ -369,6 +369,11 @@ def InDetRecTestBLayerToolCfg(flags, name='InDetRecTestBLayerTool', **kwargs):
         PixelConditionsSummaryTool = acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags))
         kwargs.setdefault( "PixelSummaryTool", PixelConditionsSummaryTool)
 
+    if "PixelDetElStatus" not in kwargs :
+        from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDetectorElementStatusAlgCfg
+        acc.merge( PixelDetectorElementStatusAlgCfg(flags) )
+        kwargs.setdefault("PixelDetElStatus", "PixelDetectorElementStatus")
+
     InDetTestBLayerTool = CompFactory.InDet.InDetTestBLayerTool(name, **kwargs)
     acc.setPrivateTools(InDetTestBLayerTool)
     return acc

@@ -316,6 +316,76 @@ def PixelRadSimFluenceMapAlgCfg(flags, name="PixelRadSimFluenceMapAlg", **kwargs
     return acc
 
 
+def PixelDetectorElementStatusCondAlgActiveOnlyCfg(flags, name = "PixelDetectorElementStatusCondAlgNoByteStreamErrorActiveOnly", **kwargs) :
+    '''
+    Condition alg to precompute the pixel detector element status.
+    this algo does not consider the DCS status (and the byte stream errors which are event data)
+    '''
+    acc = ComponentAccumulator()
+    if 'ConditionsSummaryTool' not in kwargs :
+        from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryToolNoByteStreamErrorsActiveOnlyCfg
+        kwargs.setdefault("ConditionsSummaryTool", acc.popToolsAndMerge( PixelConditionsSummaryToolNoByteStreamErrorsActiveOnlyCfg(flags)))
+    kwargs.setdefault( "WriteKey", "PixelDetectorElementStatusNoByteStreamActiveOnly")
+    acc.addCondAlgo( CompFactory.InDet.SiDetectorElementStatusCondAlg(name, **kwargs) )
+    return acc
+
+def PixelDetectorElementStatusCondAlgCfg(flags, name = "PixelDetectorElementStatusCondAlgNoByteStreamError", **kwargs) :
+    '''
+    Condition alg to precompute the create pixel detector element status which includes the DCS status
+    this algo does not consider the byte stream errors which are event data
+    '''
+    acc = ComponentAccumulator()
+    if 'ConditionsSummaryTool' not in kwargs :
+        acc.merge( PixelDetectorElementStatusCondAlgActiveOnlyCfg(flags) )
+        from PixelConditionsTools.PixelConditionsSummaryConfig import PixelActiveDetectorElementStatusToolCfg
+        kwargs.setdefault("ConditionsSummaryTool", acc.popToolsAndMerge( PixelActiveDetectorElementStatusToolCfg(flags,
+                                                                                                                 PixelDetElStatusCondDataBaseKey="PixelDetectorElementStatusNoByteStreamActiveOnly")) )
+    kwargs.setdefault("WriteKey", "PixelDetectorElementStatusNoByteStream")
+    acc.addCondAlgo( CompFactory.InDet.SiDetectorElementStatusCondAlg(name, **kwargs) )
+    return acc
+
+def PixelDetectorElementStatusAlgCfg(flags, name = "PixelDetectorElementStatusAlg", **kwargs) :
+    '''
+    Event alg which extends the pixel detector element status conditions data which does not consider the DCS status by the bytestream errors.
+    This alg however does only consider errors concerning the module activity, not general errors.
+    '''
+    acc = ComponentAccumulator()
+    active_only = kwargs.pop("ActiveOnly", False)
+    if 'ConditionsSummaryTool' not in kwargs and not active_only :
+        element_status_input=None
+        if flags.InDet.usePixelDCS:
+            acc.merge( PixelDetectorElementStatusCondAlgCfg(flags) )
+            element_status_input="PixelDetectorElementStatusNoByteStream"
+        else :
+            # without DCS PixelDetectorElementStatusNoByteStream and PixelDetectorElementStatusNoByteStreamActiveOnly
+            # are identically
+            acc.merge( PixelDetectorElementStatusCondAlgActiveOnlyCfg(flags) )
+            element_status_input="PixelDetectorElementStatusNoByteStreamActiveOnly"
+        from PixelConditionsTools.PixelConditionsSummaryConfig import PixelByteStreamErrorDetectorElementStatusToolCfg
+        kwargs.setdefault("ConditionsSummaryTool",
+                          acc.popToolsAndMerge(PixelByteStreamErrorDetectorElementStatusToolCfg(flags, PixelDetElStatusCondDataBaseKey=element_status_input) ))
+
+    elif 'ConditionsSummaryTool' not in kwargs and active_only :
+        acc.merge( PixelDetectorElementStatusCondAlgActiveOnlyCfg(flags) )
+        from PixelConditionsTools.PixelConditionsSummaryConfig import PixelByteStreamErrorDetectorElementStatusToolActiveOnlyCfg
+        kwargs.setdefault("ConditionsSummaryTool",
+                          acc.popToolsAndMerge(PixelByteStreamErrorDetectorElementStatusToolActiveOnlyCfg(flags, PixelDetElStatusCondDataBaseKey="PixelDetectorElementStatusNoByteStreamActiveOnly")))
+
+    kwargs.setdefault("WriteKey","PixelDetectorElementStatus")
+
+    acc.addEventAlgo( CompFactory.InDet.SiDetectorElementStatusAlg(name, **kwargs) )
+    return acc
+
+def PixelDetectorElementStatusAlgActiveOnlyCfg(flags, name = "PixelDetectorElementStatusAlgActiveOnly", **kwargs) :
+    '''
+    Event alg which extends the pixel detector element status conditions data which does not consider the DCS status by the bytestream errors.
+    This alg however does only consider errors concerning the module activity, not general errors.
+    '''
+    return PixelDetectorElementStatusAlgCfg(flags, name,
+                                            WriteKey   = "PixelDetectorElementStatusActiveOnly",
+                                            ActiveOnly = True)
+
+
 if __name__ == '__main__':
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1

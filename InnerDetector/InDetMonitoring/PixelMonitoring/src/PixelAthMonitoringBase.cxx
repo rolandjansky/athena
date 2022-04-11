@@ -100,6 +100,18 @@ void PixelAthMonitoringBase::VecAccumulator2DMap::add(const int layer, const Ide
   m_em[layer].push_back(em);
 }
 
+StatusCode PixelAthMonitoringBase::initialize() {
+   ATH_CHECK( AthMonitorAlgorithm::initialize() );
+   ATH_CHECK( m_pixelCondSummaryTool.retrieve( DisableTool{ !m_pixelDetElStatus.empty() && !m_pixelDetElStatusActiveOnly.empty() && !VALIDATE_STATUS_ARRAY_ACTIVATED} ) );
+   if (m_pixelDetElStatus.empty() || m_pixelDetElStatusActiveOnly.empty() || VALIDATE_STATUS_ARRAY_ACTIVATED) {
+      ATH_CHECK( m_pixelReadout.retrieve() );
+   }
+   ATH_CHECK(detStore()->retrieve(m_pixelid, "PixelID"));
+   ATH_CHECK( m_pixelDetElStatus.initialize( !m_pixelDetElStatus.empty()) );
+   ATH_CHECK( m_pixelDetElStatusActiveOnly.initialize( !m_pixelDetElStatusActiveOnly.empty()) );
+   return StatusCode::SUCCESS;
+}
+
 //////////////////////////////////////////////
 ///
 /// take VecAccumulator2DMap and fill the corresponding group

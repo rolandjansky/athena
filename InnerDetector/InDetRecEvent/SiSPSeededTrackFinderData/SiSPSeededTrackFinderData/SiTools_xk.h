@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,7 @@
 #define SiTools_xk_H
 
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
+#include "InDetReadoutGeometry/SiDetectorElementStatus.h"
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "TrkExInterfaces/IPatternParametersPropagator.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
@@ -84,7 +85,8 @@ namespace InDet{
         if (!m_prdToTrackMap) m_useassoTool=false;
       }
       const Trk::PRDtoTrackMap* PRDtoTrackMap() const { return m_prdToTrackMap; }
-
+      void setPixelDetectorElementStatus(const InDet::SiDetectorElementStatus *pixelDetElStatus) { m_pixelDetElStatus=pixelDetElStatus; }
+      void setSCTDetectorElementStatus(const InDet::SiDetectorElementStatus *sctDetElStatus)     { m_sctDetElStatus=sctDetElStatus; }
 
       void setTools(const Trk::MagneticFieldProperties*);
       void setTools(const IInDetConditionsTool*, const IInDetConditionsTool*);
@@ -95,6 +97,8 @@ namespace InDet{
       void setMultiTracks(const int,double);
       void setBremNoise  (bool,bool);
       void setHeavyIon   (bool);
+      const std::vector<bool> *pixelStatus() const { return m_pixelDetElStatus ? &m_pixelDetElStatus->getElementStatus() : nullptr; }
+      const std::vector<bool> *sctStatus()   const { return m_sctDetElStatus ? &m_sctDetElStatus->getElementStatus() : nullptr; }
 
     protected:
       
@@ -113,6 +117,8 @@ namespace InDet{
       const IInDetConditionsTool*     m_sctcond    ;  // Conditions for sct
       const Trk::IBoundaryCheckTool*  m_boundaryCheckTool; // Boundary checking tool for detector sensitivities
       const Trk::PRDtoTrackMap*       m_prdToTrackMap = nullptr; ///< PRD to track association maps
+      const InDet::SiDetectorElementStatus *m_pixelDetElStatus = nullptr;
+      const InDet::SiDetectorElementStatus *m_sctDetElStatus = nullptr;
 
       double                          m_xi2max     ;  // Max Xi2 for updator 
       double                          m_xi2maxBrem ;  // Max Xi2 for updator (brem fit)  
@@ -201,9 +207,9 @@ namespace InDet{
     (const IInDetConditionsTool* pix,
      const IInDetConditionsTool* sct)
     {
-      m_pixcond = pix;
-      m_sctcond = sct;
-    } 
+       m_pixcond = pix;
+       m_sctcond = sct;
+    }
  
   inline void SiTools_xk::setXi2pTmin
     (const double& xi2m,const double& xi2mNoAdd,const double& xi2ml,const double& pT)    

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -55,12 +55,17 @@ namespace InDet {
                   const Trk::MagneticFieldProperties* fieldProp,
                   const Trk::IBoundaryCheckTool* boundaryCheckTool);
 
-      
+    void setTools(const IInDetConditionsTool* pixCondTool,
+                  const IInDetConditionsTool* sctCondTool) {
+       m_tools.setTools(pixCondTool,
+                        sctCondTool);
+    }
+
     /**
      * Set magnetif field cache
      */
     void setFieldCondObj(const  AtlasFieldCacheCondObj* fieldCondObj);
-      
+
     /**
      * Set cached pointer to Pixel cluster collection in StoreGate
      */
@@ -83,6 +88,9 @@ namespace InDet {
      * Get PRD to track map
      */
     const Trk::PRDtoTrackMap* PRDtoTrackMap() const;
+
+    void setPixelDetectorElementStatus( const InDet::SiDetectorElementStatus *pixelDetElStatus) { m_tools.setPixelDetectorElementStatus(pixelDetElStatus); }
+    void setSCTDetectorElementStatus( const InDet::SiDetectorElementStatus *sctDetElStatus)     { m_tools.setSCTDetectorElementStatus(sctDetElStatus); }
 
     /**
      * Check if this object is initialized by the setTools method
@@ -252,6 +260,7 @@ namespace InDet {
     const InDet::PixelClusterContainer* m_pixcontainer{nullptr};
     /// cached pointer to SCT cluster collection in StoreGate
     const InDet::SCT_ClusterContainer* m_sctcontainer{nullptr};
+
   };
 
 } // end of name space

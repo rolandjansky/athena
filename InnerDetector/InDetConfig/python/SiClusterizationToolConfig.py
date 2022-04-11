@@ -64,6 +64,11 @@ def MergedPixelsToolCfg(flags, name="InDetMergedPixelsTool", **kwargs) :
     from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
     kwargs.setdefault("PixelConditionsSummaryTool", acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags)) )
 
+    if "PixelDetElStatus" not in kwargs :
+         from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDetectorElementStatusAlgCfg
+         acc.merge( PixelDetectorElementStatusAlgCfg(flags) )
+         kwargs.setdefault("PixelDetElStatus", "PixelDetectorElementStatus")
+
     # Enable duplcated RDO check for data15 because duplication mechanism was used.
     if len(flags.Input.ProjectName)>=6 and flags.Input.ProjectName[:6]=="data15":
         kwargs.setdefault("CheckDuplicatedRDO", True )
@@ -71,6 +76,13 @@ def MergedPixelsToolCfg(flags, name="InDetMergedPixelsTool", **kwargs) :
     InDetMergedPixelsTool = CompFactory.InDet.MergedPixelsTool(name, **kwargs)
     acc.setPrivateTools(InDetMergedPixelsTool)
     return acc
+
+def TrigMergedPixelsToolCfg(flags, name="InDetMergedPixelsTool", **kwargs) :
+    # @TODO if the configuration is different maybe it should also get a new name ?
+    #       for the time being to not introduce naming changes, the name of this private
+    #       tool is unchanged.
+    kwargs.setdefault("PixelDetElStatus","")
+    return MergedPixelsToolCfg(flags, name=name, **kwargs)
 
 def ITkMergedPixelsToolCfg(flags, name="ITkMergedPixelsTool", **kwargs) :
     acc = ComponentAccumulator()
@@ -177,6 +189,7 @@ def SCT_ClusteringToolCfg(flags, name="InDetSCT_ClusteringTool", **kwargs):
     SCTLorentzAngleTool = acc.popToolsAndMerge(SCT_LorentzAngleToolCfg(flags))
 
     kwargs.setdefault("conditionsTool", InDetSCT_ConditionsSummaryToolWithoutFlagged)
+    kwargs.setdefault("SCTDetElStatus","SCTDetectorElementStatusWithoutFlagged")
     kwargs.setdefault("globalPosAlg", InDetClusterMakerTool)
     kwargs.setdefault("LorentzAngleTool", SCTLorentzAngleTool)
     if flags.InDet.selectSCTIntimeHits :

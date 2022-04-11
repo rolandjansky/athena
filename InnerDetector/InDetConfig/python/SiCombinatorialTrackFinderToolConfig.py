@@ -89,20 +89,30 @@ def SiCombinatorialTrackFinder_xkCfg(flags, name="InDetSiComTrackFinder", **kwar
 
     from InDetConfig.InDetBoundaryCheckToolConfig import InDetBoundaryCheckToolCfg
     kwargs.setdefault("BoundaryCheckTool", acc.popToolsAndMerge(InDetBoundaryCheckToolCfg(flags)))
-    
+
     kwargs.setdefault("usePixel", flags.Detector.EnablePixel)
     kwargs.setdefault("PixelClusterContainer", "PixelClusters")
     kwargs.setdefault("SCT_ClusterContainer", "SCT_Clusters")
 
     if flags.Detector.EnablePixel:
-        from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
-        kwargs.setdefault("PixelSummaryTool", acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags)))
+        if "PixelSummaryTool" not in kwargs:
+           from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
+           kwargs.setdefault("PixelSummaryTool", acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags)))
+        if "PixelDetElStatus" not in kwargs :
+            from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDetectorElementStatusAlgCfg
+            acc.merge( PixelDetectorElementStatusAlgCfg(flags) )
+            kwargs.setdefault("PixelDetElStatus", "PixelDetectorElementStatus")
     else:
         kwargs.setdefault("PixelSummaryTool", "")
 
     if flags.Detector.EnableSCT:
-        from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_ConditionsSummaryToolCfg
-        kwargs.setdefault("SctSummaryTool", acc.popToolsAndMerge(SCT_ConditionsSummaryToolCfg(flags)))
+        if "SctSummaryTool" not in kwargs:
+           from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_ConditionsSummaryToolCfg
+           kwargs.setdefault("SctSummaryTool", acc.popToolsAndMerge(SCT_ConditionsSummaryToolCfg(flags)))
+        if "SCTDetElStatus" not in kwargs :
+            from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConfig  import SCT_DetectorElementStatusAlgCfg
+            acc.merge( SCT_DetectorElementStatusAlgCfg(flags) )
+            kwargs.setdefault("SCTDetElStatus", "SCTDetectorElementStatus" )
     else:
         kwargs.setdefault("SctSummaryTool", "")
 
@@ -190,7 +200,6 @@ def ITkSiCombinatorialTrackFinder_xkCfg(flags, name="ITkSiComTrackFinder", **kwa
     kwargs.setdefault("SCT_ClusterContainer", 'ITkStripClusters')
     kwargs.setdefault("PixelDetElementBoundaryLinks_xk", "ITkPixelDetElementBoundaryLinks_xk")
     kwargs.setdefault("SCT_DetElementBoundaryLinks_xk", "ITkStripDetElementBoundaryLinks_xk")
-    kwargs.setdefault("SCTDetEleCollKey","ITkStripDetectorElementCollection")
     kwargs.setdefault("ITkGeometry", True)
     kwargs.setdefault("doFastTracking", flags.ITk.Tracking.doFastTracking)
 

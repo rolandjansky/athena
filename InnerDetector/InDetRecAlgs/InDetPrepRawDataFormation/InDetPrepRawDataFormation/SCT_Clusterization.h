@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -27,6 +27,7 @@
 #include "SiClusterizationTool/ISCT_ClusteringTool.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
+#include "InDetReadoutGeometry/SiDetectorElementStatus.h"
 
 /// Gaudi
 #include "GaudiKernel/ServiceHandle.h"
@@ -102,6 +103,12 @@ private:
   SG::UpdateHandleKey<SCT_ClusterContainerCache> m_clusterContainerCacheKey; //!< For HLT cache
   SG::UpdateHandleKey<IDCInDetBSErrContainer_Cache> m_flaggedCondCacheKey; //!< For HLT cache
   //@}
+
+  /** @brief Optional read handle to get status data to test whether a SCT detector element is good.
+   * If set to e.g. SCTDetectorElementStatus the event data will be used instead of the SCT conditions summary tool.
+   */
+  SG::ReadHandleKey<InDet::SiDetectorElementStatus> m_sctDetElStatus
+     {this, "SCTDetElStatus", "", "Key of SiDetectorElementStatus for SCT"};
 
   /**
    * @name Flags to configure SCT_Clusterization
