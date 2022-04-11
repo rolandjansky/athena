@@ -85,7 +85,7 @@ def setupMenu():
     chains['Muon'] = [
         #ATR-19985
         ChainProp(name='HLT_mu6_mu6noL1_L1MU5VF', l1SeedThresholds=['MU5VF','FSNOSEED'], groups=SupportGroup+MultiMuonGroup),
-        ChainProp(name='HLT_mu6_L1MU5VF', groups=SingleMuonGroup+SupportGroup, monGroups=['muMon:online','muMon:shifter']),
+        ChainProp(name='HLT_mu6_L1MU5VF', groups=SingleMuonGroup+SupportGroup, monGroups=['muonMon:online','muonMon:shifter']),
 
         #ATR-20049
         ChainProp(name='HLT_2mu6_L12MU5VF',     l1SeedThresholds=['MU5VF'],   groups=SupportGroup+MultiMuonGroup),
@@ -97,7 +97,7 @@ def setupMenu():
         ChainProp(name='HLT_mu28_ivarmedium_L1MU14FCH', groups=PrimaryL1MuGroup+SingleMuonGroup),
         #-- 1 mu
         ChainProp(name='HLT_mu50_L1MU14FCH', groups=PrimaryL1MuGroup+SingleMuonGroup, monGroups=['muonMon:online','muonMon:shifter']),
-        ChainProp(name='HLT_mu60_0eta105_msonly_L1MU14FCH', groups=PrimaryL1MuGroup+SingleMuonGroup, monGroups=['muMon:shifter']),
+        ChainProp(name='HLT_mu60_0eta105_msonly_L1MU14FCH', groups=PrimaryL1MuGroup+SingleMuonGroup, monGroups=['muonMon:shifter']),
         ChainProp(name='HLT_mu60_L1MU14FCH', groups=PrimaryL1MuGroup+SingleMuonGroup),
         ChainProp(name='HLT_mu80_L1MU14FCH', groups=PrimaryL1MuGroup+SingleMuonGroup),
         ChainProp(name='HLT_mu80_msonly_3layersEC_L1MU14FCH', groups=PrimaryL1MuGroup+SingleMuonGroup),
