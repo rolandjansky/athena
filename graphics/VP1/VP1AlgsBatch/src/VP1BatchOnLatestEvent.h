@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -15,35 +15,32 @@
 //                                                         //
 /////////////////////////////////////////////////////////////
 
-#ifndef VP1ALGS_VP1BatchOnLatestEvent
-#define VP1ALGS_VP1BatchOnLatestEvent
+#ifndef VP1ALGSBATCH_VP1BATCHONLATESTEVENT
+#define VP1ALGSBATCH_VP1BATCHONLATESTEVENT
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 #include <string>
 
-// FWD
-class EventInfo;
-
-class VP1BatchOnLatestEvent: public AthAlgorithm,
+class VP1BatchOnLatestEvent final: public AthAlgorithm,
 public IIncidentListener
 {
 public:
 	VP1BatchOnLatestEvent(const std::string& name, ISvcLocator* pSvcLocator);
-	~VP1BatchOnLatestEvent();
 
-	StatusCode initialize();
-	StatusCode execute();
-	StatusCode finalize();
+	virtual StatusCode initialize() override;
+	virtual StatusCode execute() override;
+	virtual StatusCode finalize() override;
 
-	void handle(const Incident& inc);
+	virtual void handle(const Incident& inc) override;
 
 
 private:
 	std::string getRandomConfigFile();
 	void overlayATLASlogo();
 	void overlayEventDetails();
-	void getEventDetails();
 	void getHumanReadableTimestamp();
 	void makeEventDisplay();
 
@@ -59,8 +56,7 @@ private:
 	std::string m_destinationDir;
 	bool m_isGetRandomFile;
 
-	bool m_evtInfoDone;
-	const EventInfo* m_eventInfo;
+	SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey {this, "EventInfo", "EventInfo", "EventInfo Key"};
 
 	//  int m_maxProducedFiles;
 	int m_nEvent; // Internal counter for the number of processed events
