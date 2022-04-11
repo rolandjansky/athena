@@ -53,9 +53,6 @@ def defineMenu():
         'L1_3eEM12L':'',
 
         # non-primary TAU
-        'L1_jTAU20':'',
-        'L1_jTAU30':'',
-        'L1_jTAU30M':'',
         'L1_eTAU20L':'',
         'L1_eTAU35':'',
         'L1_eTAU40HM':'',
