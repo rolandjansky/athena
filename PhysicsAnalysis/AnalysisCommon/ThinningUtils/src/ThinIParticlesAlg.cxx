@@ -58,7 +58,7 @@ ThinIParticlesAlg::ThinIParticlesAlg( const std::string& name,
 // Destructor
 ///////////////
 ThinIParticlesAlg::~ThinIParticlesAlg()
-{}
+= default;
 
 
 
