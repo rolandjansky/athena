@@ -7,47 +7,12 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import Format
 from InDetRecExample.InDetKeys import InDetKeys
 
-def PixelClusterOnTrackCfg( flags, **kwargs ):
-  """
-  based on: InnerDetector/InDetExample/InDetTrigRecExample/python/InDetTrigConfigRecLoadTools.py
-  """
-  from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDistortionAlgCfg, PixelOfflineCalibCondAlgCfg
-  acc = PixelDistortionAlgCfg(flags)
-  acc.merge(PixelOfflineCalibCondAlgCfg(flags))
-
-  name =  kwargs.pop("pixelOnTrackName", "InDetTrigPixelClusterOnTrackTool")
-  from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleToolCfg
-
-  pixelLATool = acc.popToolsAndMerge( PixelLorentzAngleToolCfg( flags) )
-
-  from InDetConfig.SiClusterizationToolConfig import TrigNnClusterizationFactoryCfg
-  nnTool = acc.popToolsAndMerge(TrigNnClusterizationFactoryCfg(flags))
-  from .InDetTrigCollectionKeys import TrigPixelKeys
-  tool = CompFactory.InDet.PixelClusterOnTrackTool( name,
-                                                    ErrorStrategy = 2,
-                                                    LorentzAngleTool = pixelLATool,
-                                                    NnClusterizationFactory = nnTool, 
-                                                    SplitClusterAmbiguityMap = TrigPixelKeys.PixelClusterAmbiguitiesMap )
-  acc.addPublicTool( tool, primary=True )
-  return acc
-
-
-def SCT_ClusterOnTrackToolCfg( flags ):
-  acc = ComponentAccumulator()
-  from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleToolCfg
-  sctLATool =  acc.popToolsAndMerge( SCT_LorentzAngleToolCfg( flags ) )
-  tool = CompFactory.InDet.SCT_ClusterOnTrackTool("SCT_ClusterOnTrackTool",
-                                                    CorrectionStrategy = 0,  # do correct position bias
-                                                    ErrorStrategy      = 2,  # do use phi dependent errors
-                                                    LorentzAngleTool   = sctLATool # default name
-                                                    )
-  acc.addPublicTool ( tool, primary=True )
-  return acc
-
 def RIO_OnTrackCreatorCfg( flags, name="InDetTrigRotCreator" ):
   acc = ComponentAccumulator()
-  pixelTool = acc.getPrimaryAndMerge( PixelClusterOnTrackCfg( flags ) )
-  sctTool = acc.getPrimaryAndMerge( SCT_ClusterOnTrackToolCfg( flags ) )
+  from InDetConfig.SiClusterOnTrackTool_PixelConfig import TrigPixelClusterOnTrackToolBaseCfg
+  pixelTool = acc.popToolsAndMerge( TrigPixelClusterOnTrackToolBaseCfg( flags ) )
+  from InDetConfig.SiClusterOnTrackTool_SCTStripConfig import InDetSCT_ClusterOnTrackToolCfg
+  sctTool = acc.popToolsAndMerge( InDetSCT_ClusterOnTrackToolCfg( flags ) )
   tool = CompFactory.Trk.RIO_OnTrackCreator(name,
                                             ToolPixelCluster = pixelTool,
                                             ToolSCT_Cluster  = sctTool,

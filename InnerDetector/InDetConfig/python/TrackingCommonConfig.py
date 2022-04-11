@@ -36,7 +36,7 @@ def PixelClusterNnCondAlgCfg(flags, **kwargs):
     kwargs.setdefault("NetworkNames", nn_names)
     kwargs.setdefault("WriteKey", 'PixelClusterNN' if not track_nn else 'PixelClusterNNWithTrack')
 
-    if 'NetworkToHistoTool' not in kwargs :
+    if 'NetworkToHistoTool' not in kwargs:
         NeuralNetworkToHistoTool = acc.popToolsAndMerge(NeuralNetworkToHistoToolCfg(name = "NeuralNetworkToHistoTool"))
         kwargs.setdefault("NetworkToHistoTool", NeuralNetworkToHistoTool)
 
@@ -60,99 +60,6 @@ def LWTNNCondAlgCfg(flags, **kwargs):
     # Set up the algorithm
     acc.addCondAlgo(CompFactory.InDet.LWTNNCondAlg(kwargs.pop("name", "LWTNNCondAlg"), **kwargs))
     return acc
-
-def InDetPixelClusterOnTrackToolBaseCfg(flags, name="PixelClusterOnTrackTool", **kwargs):
-    acc = ComponentAccumulator()
-
-    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDistortionAlgCfg, PixelOfflineCalibCondAlgCfg
-    acc.merge(PixelOfflineCalibCondAlgCfg(flags))
-    if not flags.InDet.Tracking.doDBMstandalone:
-        acc.merge(PixelDistortionAlgCfg(flags))
-
-    if flags.Beam.Type is BeamType.Cosmics or flags.InDet.Tracking.doDBMstandalone:
-        kwargs.setdefault("ErrorStrategy", 0)
-        kwargs.setdefault("PositionStrategy", 0)
-
-    kwargs.setdefault("DisableDistortions", flags.InDet.Tracking.doDBMstandalone)
-    kwargs.setdefault("applyNNcorrection", flags.InDet.Tracking.doPixelClusterSplitting and flags.InDet.Tracking.pixelClusterSplittingType == "NeuralNet")
-    kwargs.setdefault("NNIBLcorrection", flags.InDet.Tracking.doPixelClusterSplitting and flags.InDet.Tracking.pixelClusterSplittingType == "NeuralNet")
-    split_cluster_map_extension = flags.InDet.Tracking.ActivePass.extension if flags.InDet.Tracking.ActivePass.useTIDE_Ambi else ""
-    kwargs.setdefault("SplitClusterAmbiguityMap", f"SplitClusterAmbiguityMap{split_cluster_map_extension}")
-    kwargs.setdefault("RunningTIDE_Ambi", flags.InDet.Tracking.doTIDE_Ambi)
-
-    acc.setPrivateTools(CompFactory.InDet.PixelClusterOnTrackTool(name, **kwargs))
-    return acc
-
-
-def InDetPixelClusterOnTrackToolDigitalCfg(flags, name="InDetPixelClusterOnTrackToolDigital", **kwargs):
-    acc = ComponentAccumulator()
-
-    kwargs.setdefault("SplitClusterAmbiguityMap", "")
-
-    if "LorentzAngleTool" not in kwargs:
-        from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleToolCfg
-        PixelLorentzAngleTool = acc.popToolsAndMerge(PixelLorentzAngleToolCfg(flags))
-        kwargs.setdefault("LorentzAngleTool", PixelLorentzAngleTool)
-
-    if flags.InDet.Tracking.doDigitalROTCreation:
-        kwargs.setdefault("applyNNcorrection", False)
-        kwargs.setdefault("NNIBLcorrection", False)
-        kwargs.setdefault("ErrorStrategy", 2)
-        kwargs.setdefault("PositionStrategy", 1)
-    else:
-        kwargs.setdefault("SplitClusterAmbiguityMap", "")
-
-    acc.setPrivateTools(acc.popToolsAndMerge(InDetPixelClusterOnTrackToolBaseCfg(flags, name, **kwargs)))
-    return acc
-
-
-def InDetPixelClusterOnTrackToolNNSplittingCfg(flags, name="InDetPixelClusterOnTrackToolNNSplitting", **kwargs):
-    acc = ComponentAccumulator()
-
-    if flags.InDet.Tracking.doPixelClusterSplitting and flags.InDet.Tracking.pixelClusterSplittingType == "NeuralNet" and "NnClusterizationFactory" not in kwargs:
-        from InDetConfig.SiClusterizationToolConfig import NnClusterizationFactoryCfg
-        kwargs.setdefault("NnClusterizationFactory", acc.popToolsAndMerge(NnClusterizationFactoryCfg(flags)))
-
-    acc.setPrivateTools(acc.popToolsAndMerge(InDetPixelClusterOnTrackToolBaseCfg(flags, name, **kwargs)))
-    return acc
-
-
-def InDetPixelClusterOnTrackToolCfg(flags, name="InDetPixelClusterOnTrackTool", **kwargs):
-    acc = ComponentAccumulator()
-
-    if "LorentzAngleTool" not in kwargs:
-        from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleToolCfg
-        kwargs.setdefault("LorentzAngleTool", acc.popToolsAndMerge(PixelLorentzAngleToolCfg(flags)))
-
-    if flags.InDet.Tracking.doDigitalROTCreation:
-        PixelClusterOnTrackTool = acc.popToolsAndMerge(InDetPixelClusterOnTrackToolDigitalCfg(flags, name, **kwargs))
-    else:
-        PixelClusterOnTrackTool = acc.popToolsAndMerge(InDetPixelClusterOnTrackToolNNSplittingCfg(flags, name, **kwargs))
-
-    acc.setPrivateTools(PixelClusterOnTrackTool)
-    return acc
-
-def InDetSCT_ClusterOnTrackToolCfg(flags, name='InDetSCT_ClusterOnTrackTool', **kwargs):
-    acc = ComponentAccumulator()
-
-    if 'LorentzAngleTool' not in kwargs :
-        from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleToolCfg
-        SCT_LorentzAngle = acc.popToolsAndMerge(SCT_LorentzAngleToolCfg(flags))
-        kwargs.setdefault("LorentzAngleTool", SCT_LorentzAngle )
-        
-    kwargs.setdefault("CorrectionStrategy", 0 ) # do correct position bias
-    kwargs.setdefault("ErrorStrategy", 2 ) # do use phi dependent errors
-
-    acc.setPrivateTools(CompFactory.InDet.SCT_ClusterOnTrackTool(name, **kwargs))
-    return acc
-
-def InDetBroadSCT_ClusterOnTrackToolCfg(flags, name='InDetBroadSCT_ClusterOnTrackTool', **kwargs):
-    kwargs.setdefault("ErrorStrategy", 0)
-    return InDetSCT_ClusterOnTrackToolCfg(flags, name=name, **kwargs)
-
-def InDetBroadPixelClusterOnTrackToolCfg(flags, name='InDetBroadPixelClusterOnTrackTool', **kwargs):
-    kwargs.setdefault("ErrorStrategy", 0)
-    return InDetPixelClusterOnTrackToolCfg(flags, name, **kwargs)
 
 def RIO_OnTrackErrorScalingCondAlgCfg(flags, name='RIO_OnTrackErrorScalingCondAlg', **kwargs):
     acc = ComponentAccumulator()
@@ -217,21 +124,25 @@ def InDetRotCreatorCfg(flags, name='InDetRotCreator', **kwargs):
     use_broad_cluster_pix = flags.InDet.Tracking.useBroadPixClusterErrors and not flags.InDet.Tracking.doDBMstandalone
     use_broad_cluster_sct = flags.InDet.Tracking.useBroadSCTClusterErrors and not flags.InDet.Tracking.doDBMstandalone
 
-    if 'ToolPixelCluster' not in kwargs :
+    if 'ToolPixelCluster' not in kwargs:
         if use_broad_cluster_pix :
+            from InDetConfig.SiClusterOnTrackTool_PixelConfig import InDetBroadPixelClusterOnTrackToolCfg
             ToolPixelCluster= acc.popToolsAndMerge(InDetBroadPixelClusterOnTrackToolCfg(flags))
         else:
+            from InDetConfig.SiClusterOnTrackTool_PixelConfig import InDetPixelClusterOnTrackToolCfg
             ToolPixelCluster= acc.popToolsAndMerge(InDetPixelClusterOnTrackToolCfg(flags))
         kwargs.setdefault("ToolPixelCluster", ToolPixelCluster)
 
-    if 'ToolSCT_Cluster' not in kwargs :
+    if 'ToolSCT_Cluster' not in kwargs:
         if use_broad_cluster_sct :
+            from InDetConfig.SiClusterOnTrackTool_SCTStripConfig import InDetBroadSCT_ClusterOnTrackToolCfg
             ToolSCT_Cluster = acc.popToolsAndMerge(InDetBroadSCT_ClusterOnTrackToolCfg(flags))
         else :
+            from InDetConfig.SiClusterOnTrackTool_SCTStripConfig import InDetSCT_ClusterOnTrackToolCfg
             ToolSCT_Cluster = acc.popToolsAndMerge(InDetSCT_ClusterOnTrackToolCfg(flags))
         kwargs.setdefault("ToolSCT_Cluster", ToolSCT_Cluster)
 
-    if 'ToolTRT_DriftCircle' not in kwargs :
+    if 'ToolTRT_DriftCircle' not in kwargs:
         kwargs.setdefault("ToolTRT_DriftCircle", acc.popToolsAndMerge(InDetTRT_DriftCircleOnTrackToolCfg(flags)))
 
     kwargs.setdefault('Mode', 'indet')
@@ -243,10 +154,10 @@ def InDetTRT_DriftCircleOnTrackUniversalToolCfg(name='InDetTRT_RefitRotCreator',
     acc = ComponentAccumulator()
     default_ScaleHitUncertainty = 2.5
 
-    if 'RIOonTrackToolDrift' not in kwargs :
+    if 'RIOonTrackToolDrift' not in kwargs:
         RIOonTrackToolDrift = acc.popToolsAndMerge(InDetBroadTRT_DriftCircleOnTrackToolCfg())
         kwargs.setdefault("RIOonTrackToolDrift", RIOonTrackToolDrift)
-    if 'RIOonTrackToolTube' not in kwargs :
+    if 'RIOonTrackToolTube' not in kwargs:
         RIOonTrackToolTube = acc.popToolsAndMerge(InDetBroadTRT_DriftCircleOnTrackToolCfg())
         kwargs.setdefault("RIOonTrackToolTube", RIOonTrackToolTube)
     kwargs.setdefault("ScaleHitUncertainty", default_ScaleHitUncertainty) 
@@ -258,7 +169,7 @@ def InDetRefitRotCreatorCfg(flags, name='InDetRefitRotCreator', **kwargs):
     default_ScaleHitUncertainty = 2.5
     ScaleHitUncertainty = kwargs.pop('ScaleHitUncertainty', default_ScaleHitUncertainty)
     if flags.Detector.EnableTRT and flags.InDet.Tracking.redoTRT_LR:
-        if 'ToolTRT_DriftCircle' not in kwargs :
+        if 'ToolTRT_DriftCircle' not in kwargs:
             ToolTRT_DriftCircle = acc.popToolsAndMerge(InDetTRT_DriftCircleOnTrackUniversalToolCfg(ScaleHitUncertainty = ScaleHitUncertainty))
             kwargs.setdefault("ToolTRT_DriftCircle", ToolTRT_DriftCircle)
     InDetRotCreator = acc.popToolsAndMerge(InDetRotCreatorCfg(flags, name = name, **kwargs))
@@ -305,7 +216,7 @@ def InDetTrackSummaryToolCfg(flags, name='InDetTrackSummaryTool', **kwargs):
     acc = ComponentAccumulator()
     do_holes = kwargs.get("doHolesInDet",True)
 
-    if 'InDetSummaryHelperTool' not in kwargs :
+    if 'InDetSummaryHelperTool' not in kwargs:
         if do_holes:
             from InDetConfig.InDetTrackSummaryHelperToolConfig import InDetTrackSummaryHelperToolCfg
             InDetSummaryHelperTool = acc.popToolsAndMerge(InDetTrackSummaryHelperToolCfg(flags))
@@ -328,7 +239,7 @@ def InDetTrackSummaryToolCfg(flags, name='InDetTrackSummaryTool', **kwargs):
 def InDetTrackSummaryToolAmbiCfg(flags, name='InDetTrackSummaryToolAmbi', **kwargs):
     acc = ComponentAccumulator()
 
-    if 'InDetSummaryHelperTool' not in kwargs :
+    if 'InDetSummaryHelperTool' not in kwargs:
         from InDetConfig.InDetTrackSummaryHelperToolConfig import InDetTrackSummaryHelperToolCfg
         InDetSummaryHelperTool = acc.popToolsAndMerge(InDetTrackSummaryHelperToolCfg(flags,
                                                                                      name = "InDetAmbiguityProcessorSplitProbSummaryHelper" + flags.InDet.Tracking.ActivePass.extension,
@@ -360,11 +271,11 @@ def InDetRecTestBLayerToolCfg(flags, name='InDetRecTestBLayerTool', **kwargs):
     if not flags.Detector.EnablePixel:
         return None
 
-    if 'Extrapolator' not in kwargs :
+    if 'Extrapolator' not in kwargs:
         from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
         kwargs.setdefault("Extrapolator", acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags)))
 
-    if 'PixelSummaryTool' not in kwargs :
+    if 'PixelSummaryTool' not in kwargs:
         from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
         PixelConditionsSummaryTool = acc.popToolsAndMerge(PixelConditionsSummaryCfg(flags))
         kwargs.setdefault( "PixelSummaryTool", PixelConditionsSummaryTool)
@@ -375,7 +286,7 @@ def InDetRecTestBLayerToolCfg(flags, name='InDetRecTestBLayerTool', **kwargs):
 
 def InDetTrackSummaryToolSharedHitsCfg(flags, name='InDetTrackSummaryToolSharedHits',**kwargs):
     acc = ComponentAccumulator()
-    if 'InDetSummaryHelperTool' not in kwargs :
+    if 'InDetSummaryHelperTool' not in kwargs:
         from InDetConfig.InDetTrackSummaryHelperToolConfig import InDetSummaryHelperSharedHitsCfg
         InDetSummaryHelperSharedHits = acc.popToolsAndMerge(InDetSummaryHelperSharedHitsCfg(flags))
         kwargs.setdefault("InDetSummaryHelperTool", InDetSummaryHelperSharedHits)
@@ -387,7 +298,7 @@ def InDetTrackSummaryToolSharedHitsCfg(flags, name='InDetTrackSummaryToolSharedH
             from InDetConfig.TRT_ElectronPidToolsConfig import TRT_ElectronPidToolCfg
             kwargs.setdefault("TRT_ElectronPidTool", acc.popToolsAndMerge(TRT_ElectronPidToolCfg(flags, name="InDetTRT_ElectronPidTool")))
 
-    if 'PixelToTPIDTool' not in kwargs :
+    if 'PixelToTPIDTool' not in kwargs:
         InDetPixelToTPIDTool = acc.popToolsAndMerge(InDetPixelToTPIDToolCfg(flags))
         kwargs.setdefault( "PixelToTPIDTool", InDetPixelToTPIDTool)
 
@@ -409,13 +320,15 @@ def InDetMultipleScatteringUpdatorCfg(name = "InDetMultipleScatteringUpdator", *
 def InDetMeasRecalibSTCfg(flags, name='InDetMeasRecalibST', **kwargs) :
     acc = ComponentAccumulator()
 
-    if 'BroadPixelClusterOnTrackTool' not in kwargs :
+    if 'BroadPixelClusterOnTrackTool' not in kwargs:
+        from InDetConfig.SiClusterOnTrackTool_PixelConfig import InDetBroadPixelClusterOnTrackToolCfg
         InDetBroadPixelClusterOnTrackTool = acc.popToolsAndMerge(InDetBroadPixelClusterOnTrackToolCfg(flags))
         kwargs.setdefault('BroadPixelClusterOnTrackTool', InDetBroadPixelClusterOnTrackTool)
-    if 'BroadSCT_ClusterOnTrackTool' not in kwargs :
+    if 'BroadSCT_ClusterOnTrackTool' not in kwargs:
+        from InDetConfig.SiClusterOnTrackTool_SCTStripConfig import InDetBroadSCT_ClusterOnTrackToolCfg
         InDetBroadSCT_ClusterOnTrackTool = acc.popToolsAndMerge(InDetBroadSCT_ClusterOnTrackToolCfg(flags))
         kwargs.setdefault('BroadSCT_ClusterOnTrackTool', InDetBroadSCT_ClusterOnTrackTool)
-    if 'CommonRotCreator' not in kwargs :
+    if 'CommonRotCreator' not in kwargs:
         InDetRefitRotCreator = acc.popToolsAndMerge(InDetRefitRotCreatorCfg(flags))
         kwargs.setdefault('CommonRotCreator', InDetRefitRotCreator)
 
@@ -429,7 +342,7 @@ def InDetKalmanTrackFitterBaseCfg(flags, name='InDetKalmanTrackFitterBase', **kw
     from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
     kwargs.setdefault("ExtrapolatorHandle", acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags)))
 
-    if 'RIO_OnTrackCreatorHandle' not in kwargs :
+    if 'RIO_OnTrackCreatorHandle' not in kwargs:
         InDetRefitRotCreator = acc.popToolsAndMerge(InDetRefitRotCreatorCfg(flags))
         kwargs.setdefault("RIO_OnTrackCreatorHandle", InDetRefitRotCreator)
 
@@ -443,7 +356,7 @@ def InDetKalmanTrackFitterBaseCfg(flags, name='InDetKalmanTrackFitterBase', **kw
     kwargs.setdefault('BrempointAnalyserHandle', None)
     kwargs.setdefault('AlignableSurfaceProviderHandle',None)
 
-    if 'RecalibratorHandle' not in kwargs :
+    if 'RecalibratorHandle' not in kwargs:
         InDetMeasRecalibST = acc.popToolsAndMerge(InDetMeasRecalibSTCfg(flags))
         kwargs.setdefault('RecalibratorHandle', InDetMeasRecalibST)
 
@@ -496,16 +409,18 @@ def KalmanInternalDAFRef(name='KalmanInternalDAFRef',**kwargs) :
 def InDetBroadRotCreatorCfg(flags, name='InDetBroadInDetRotCreator', **kwargs) :
     acc = ComponentAccumulator()
 
-    if 'ToolPixelCluster' not in kwargs :
+    if 'ToolPixelCluster' not in kwargs:
+        from InDetConfig.SiClusterOnTrackTool_PixelConfig import InDetBroadPixelClusterOnTrackToolCfg
         InDetBroadPixelClusterOnTrackTool = acc.popToolsAndMerge(InDetBroadPixelClusterOnTrackToolCfg(flags))
         kwargs.setdefault('ToolPixelCluster', InDetBroadPixelClusterOnTrackTool)
 
-    if 'ToolSCT_Cluster' not in kwargs :
+    if 'ToolSCT_Cluster' not in kwargs:
+        from InDetConfig.SiClusterOnTrackTool_SCTStripConfig import InDetBroadSCT_ClusterOnTrackToolCfg
         InDetBroadSCT_ClusterOnTrackTool = acc.popToolsAndMerge(InDetBroadSCT_ClusterOnTrackToolCfg(flags))
         kwargs.setdefault('ToolSCT_Cluster', InDetBroadSCT_ClusterOnTrackTool)
 
     if flags.Detector.EnableTRT:
-        if 'ToolTRT_DriftCircle' not in kwargs :
+        if 'ToolTRT_DriftCircle' not in kwargs:
             InDetBroadTRT_DriftCircleOnTrackTool = acc.popToolsAndMerge(InDetBroadTRT_DriftCircleOnTrackToolCfg())
             kwargs.setdefault('ToolTRT_DriftCircle', InDetBroadTRT_DriftCircleOnTrackTool)
 
@@ -556,11 +471,11 @@ def ReferenceKalmanFitterCfg(flags, name='ReferenceKalmanFitter', **kwargs) :
 def DistributedKalmanFilterCfg(flags, name="DistributedKalmanFilter", **kwargs) :
     acc = ComponentAccumulator()
 
-    if 'ExtrapolatorTool' not in kwargs :
+    if 'ExtrapolatorTool' not in kwargs:
         from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
         kwargs.setdefault('ExtrapolatorTool', acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags)))
 
-    if 'ROTcreator' not in kwargs :
+    if 'ROTcreator' not in kwargs:
         InDetRotCreator = acc.popToolsAndMerge(InDetRotCreatorCfg(flags))
         kwargs.setdefault('ROTcreator', InDetRotCreator)
 
@@ -571,7 +486,7 @@ def DistributedKalmanFilterCfg(flags, name="DistributedKalmanFilter", **kwargs) 
 def InDetGlobalChi2FitterCfg(flags, name='InDetGlobalChi2Fitter', **kwargs) :
     acc = ComponentAccumulator()
 
-    if 'RotCreatorTool' not in kwargs :
+    if 'RotCreatorTool' not in kwargs:
         InDetRotCreator = acc.popToolsAndMerge(InDetRotCreatorCfg(flags))
         kwargs.setdefault('RotCreatorTool', InDetRotCreator)
     if 'BroadRotCreatorTool' not in kwargs:
@@ -720,7 +635,7 @@ def InDetGlobalChi2FitterTRTCfg(flags, name='InDetGlobalChi2FitterTRT', **kwargs
     Global Chi2 Fitter for TRT segments with different settings
     '''
 
-    if 'RotCreatorTool' not in kwargs :
+    if 'RotCreatorTool' not in kwargs:
         InDetRefitRotCreator = acc.popToolsAndMerge(InDetRefitRotCreatorCfg(flags))
         kwargs.setdefault("RotCreatorTool", InDetRefitRotCreator)
 
@@ -758,7 +673,7 @@ def InDetTrackFitterTRTCfg(flags, name='InDetTrackFitterTRT', **kwargs) :
 def InDetGlobalChi2FitterLowPtCfg(flags, name='InDetGlobalChi2FitterLowPt', **kwargs) :
     acc = ComponentAccumulator()
 
-    if 'RotCreatorTool' not in kwargs :
+    if 'RotCreatorTool' not in kwargs:
         InDetRotCreator = acc.popToolsAndMerge(InDetRotCreatorCfg(flags))
         kwargs.setdefault('RotCreatorTool', InDetRotCreator)
     if 'BroadRotCreatorTool' not in kwargs:
@@ -854,20 +769,20 @@ def InDetTRT_DriftCircleOnTrackUniversalToolCosmicsCfg(name='TRT_DriftCircleOnTr
 def InDetTRT_ExtensionToolCosmicsCfg(flags, name='InDetTRT_ExtensionToolCosmics', **kwargs):
     acc = ComponentAccumulator()
 
-    if 'Propagator' not in kwargs :
+    if 'Propagator' not in kwargs:
         from TrkConfig.AtlasExtrapolatorToolsConfig import InDetPropagatorCfg
         InDetPropagator = acc.getPrimaryAndMerge(InDetPropagatorCfg(flags))
         kwargs.setdefault("Propagator", InDetPropagator)
 
-    if 'Extrapolator' not in kwargs :
+    if 'Extrapolator' not in kwargs:
         from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
         kwargs.setdefault("Extrapolator", acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags)))
 
-    if 'RIOonTrackToolYesDr' not in kwargs :
+    if 'RIOonTrackToolYesDr' not in kwargs:
         InDetTRT_DriftCircleOnTrackUniversalToolCosmics = acc.popToolsAndMerge(InDetTRT_DriftCircleOnTrackUniversalToolCosmicsCfg())
         kwargs.setdefault("RIOonTrackToolYesDr", InDetTRT_DriftCircleOnTrackUniversalToolCosmics)
 
-    if 'RIOonTrackToolNoDr' not in kwargs :
+    if 'RIOonTrackToolNoDr' not in kwargs:
         InDetBroadTRT_DriftCircleOnTrackTool = acc.popToolsAndMerge(InDetBroadTRT_DriftCircleOnTrackToolCfg())
         kwargs.setdefault("RIOonTrackToolNoDr", InDetBroadTRT_DriftCircleOnTrackTool)
 
@@ -881,26 +796,26 @@ def InDetTRT_TrackExtensionTool_xkCfg(flags, name='InDetTRT_ExtensionTool', **kw
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     acc = MagneticFieldSvcCfg(flags)
 
-    if 'PropagatorTool' not in kwargs :
+    if 'PropagatorTool' not in kwargs:
         from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
         InDetPatternPropagator = acc.popToolsAndMerge(RungeKuttaPropagatorCfg(flags, name="InDetPatternPropagator"))
         acc.addPublicTool(InDetPatternPropagator)
         kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
 
-    if 'UpdatorTool' not in kwargs :
+    if 'UpdatorTool' not in kwargs:
         from TrkConfig.TrkMeasurementUpdatorConfig import KalmanUpdator_xkCfg
         InDetPatternUpdator = acc.popToolsAndMerge(KalmanUpdator_xkCfg(flags, name="InDetPatternUpdator"))
         acc.addPublicTool(InDetPatternUpdator)
         kwargs.setdefault("UpdatorTool", InDetPatternUpdator)
 
-    if 'DriftCircleCutTool' not in kwargs :
+    if 'DriftCircleCutTool' not in kwargs:
         InDetTRTDriftCircleCutForPatternReco = acc.popToolsAndMerge(InDetTRTDriftCircleCutForPatternRecoCfg(flags))
         kwargs.setdefault("DriftCircleCutTool", InDetTRTDriftCircleCutForPatternReco)
 
-    if 'RIOonTrackToolYesDr' not in kwargs :
+    if 'RIOonTrackToolYesDr' not in kwargs:
         kwargs.setdefault("RIOonTrackToolYesDr", acc.popToolsAndMerge(InDetTRT_DriftCircleOnTrackToolCfg(flags)))
 
-    if 'RoadTool' not in kwargs :
+    if 'RoadTool' not in kwargs:
         InDetTRT_RoadMaker = acc.popToolsAndMerge(InDetTRT_RoadMakerCfg(flags))
         kwargs.setdefault("RoadTool", InDetTRT_RoadMaker)
 
@@ -927,15 +842,15 @@ def InDetWeightCalculatorCfg(name='InDetWeightCalculator', **kwargs):
 def InDetCompetingTRT_DC_ToolCfg(flags, name='InDetCompetingTRT_DC_Tool', **kwargs):
     acc = ComponentAccumulator()
 
-    if 'Extrapolator' not in kwargs :
+    if 'Extrapolator' not in kwargs:
         from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg
         kwargs.setdefault("Extrapolator", acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags)))
 
-    if 'ToolForWeightCalculation' not in kwargs :
+    if 'ToolForWeightCalculation' not in kwargs:
         InDetWeightCalculator = acc.popToolsAndMerge(InDetWeightCalculatorCfg())
         kwargs.setdefault("ToolForWeightCalculation", InDetWeightCalculator)
 
-    if 'ToolForTRT_DriftCircleOnTrackCreation' not in kwargs :
+    if 'ToolForTRT_DriftCircleOnTrackCreation' not in kwargs:
         kwargs.setdefault("ToolForTRT_DriftCircleOnTrackCreation", acc.popToolsAndMerge(InDetTRT_DriftCircleOnTrackToolCfg(flags)))
 
     acc.setPrivateTools(CompFactory.InDet.CompetingTRT_DriftCirclesOnTrackTool(name, **kwargs))
@@ -956,17 +871,17 @@ def InDetTRT_RoadMakerCfg(flags, name='InDetTRT_RoadMaker', **kwargs):
 def InDetTRT_TrackExtensionTool_DAFCfg(flags, name='TRT_TrackExtensionTool_DAF',**kwargs):
     acc = ComponentAccumulator()
 
-    if 'CompetingDriftCircleTool' not in kwargs :
+    if 'CompetingDriftCircleTool' not in kwargs:
         InDetCompetingTRT_DC_Tool = acc.popToolsAndMerge(InDetCompetingTRT_DC_ToolCfg(flags))
         kwargs.setdefault("CompetingDriftCircleTool", InDetCompetingTRT_DC_Tool)
 
-    if 'PropagatorTool' not in kwargs :
+    if 'PropagatorTool' not in kwargs:
         from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
         InDetPatternPropagator = acc.popToolsAndMerge(RungeKuttaPropagatorCfg(flags, name="InDetPatternPropagator"))
         acc.addPublicTool(InDetPatternPropagator)
         kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
 
-    if 'RoadTool' not in kwargs :
+    if 'RoadTool' not in kwargs:
         InDetTRT_RoadMaker = acc.popToolsAndMerge(InDetTRT_RoadMakerCfg(flags)) 
         kwargs.setdefault("RoadTool", InDetTRT_RoadMaker)
 
@@ -995,7 +910,8 @@ def InDetTRT_ExtensionToolCfg(flags, **kwargs):
 #############################################################################################
 def InDetRotCreatorDigitalCfg(flags, name='InDetRotCreatorDigital', **kwargs) :
     acc = ComponentAccumulator()
-    if 'ToolPixelCluster' not in kwargs :
+    if 'ToolPixelCluster' not in kwargs:
+        from InDetConfig.SiClusterOnTrackTool_PixelConfig import InDetPixelClusterOnTrackToolDigitalCfg
         ToolPixelCluster = acc.popToolsAndMerge(InDetPixelClusterOnTrackToolDigitalCfg(flags))
         kwargs.setdefault('ToolPixelCluster', ToolPixelCluster)
 
@@ -1027,7 +943,7 @@ def InDetAmbiScoringToolBaseCfg(flags, name='InDetAmbiScoringTool', **kwargs) :
 
     InDetTrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
 
-    if 'DriftCircleCutTool' not in kwargs :
+    if 'DriftCircleCutTool' not in kwargs:
         InDetTRTDriftCircleCutForPatternReco = acc.popToolsAndMerge(InDetTRTDriftCircleCutForPatternRecoCfg(flags))
         kwargs.setdefault("DriftCircleCutTool", InDetTRTDriftCircleCutForPatternReco )
 
@@ -1061,7 +977,7 @@ def InDetCosmicsScoringToolBaseCfg(flags, name='InDetCosmicsScoringTool', **kwar
 def InDetTRT_ExtensionToolPhaseCfg(flags, name='InDetTRT_ExtensionToolPhase', **kwargs) :
     acc = ComponentAccumulator()
     InDetTRT_DriftCircleOnTrackUniversalTool = acc.popToolsAndMerge(InDetTRT_DriftCircleOnTrackUniversalToolCfg())
-    if 'RIOonTrackToolYesDr' not in kwargs :
+    if 'RIOonTrackToolYesDr' not in kwargs:
         kwargs.setdefault("RIOonTrackToolYesDr", InDetTRT_DriftCircleOnTrackUniversalTool)
 
     kwargs.setdefault("TRT_ClustersContainer", 'TRT_DriftCirclesUncalibrated')
@@ -1143,18 +1059,10 @@ def InDetExtenScoringToolCfg(flags, name='InDetExtenScoringTool', **kwargs) :
 #TrackingSiPatternConfig
 #############################################################################################
 
-def InDetPixelClusterOnTrackToolDBMCfg(flags, name='InDetPixelClusterOnTrackToolDBM', **kwargs):
-    kwargs.setdefault("DisableDistortions", True )
-    kwargs.setdefault("applyNNcorrection", False )
-    kwargs.setdefault("NNIBLcorrection", False )
-    kwargs.setdefault("RunningTIDE_Ambi", False )
-    kwargs.setdefault("ErrorStrategy", 0 )
-    kwargs.setdefault("PositionStrategy", 0 )
-    return InDetPixelClusterOnTrackToolBaseCfg(flags, name=name, **kwargs)
-
 def InDetRotCreatorDBMCfg(flags, name='InDetRotCreatorDBM', **kwargs) :
     acc = ComponentAccumulator()
-    if 'ToolPixelCluster' not in kwargs :
+    if 'ToolPixelCluster' not in kwargs:
+        from InDetConfig.SiClusterOnTrackTool_PixelConfig import InDetPixelClusterOnTrackToolDBMCfg
         ToolPixelCluster = InDetPixelClusterOnTrackToolDBMCfg(flags)
         kwargs.setdefault('ToolPixelCluster', ToolPixelCluster)
     acc.setPrivateTools(acc.popToolsAndMerge(InDetRotCreatorCfg(flags, name=name, **kwargs)))
@@ -1177,7 +1085,7 @@ def InDetNNScoringToolBaseCfg(flags, name='InDetNNScoringTool', **kwargs) :
     InDetExtrapolator = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags))
     InDetTrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolCfg(flags))
 
-    if 'DriftCircleCutTool' not in kwargs :
+    if 'DriftCircleCutTool' not in kwargs:
         InDetTRTDriftCircleCutForPatternReco = acc.popToolsAndMerge(InDetTRTDriftCircleCutForPatternRecoCfg(flags))
         kwargs.setdefault("DriftCircleCutTool", InDetTRTDriftCircleCutForPatternReco )
 
