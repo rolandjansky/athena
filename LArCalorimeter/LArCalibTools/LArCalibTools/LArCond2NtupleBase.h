@@ -50,7 +50,16 @@ class LArCond2NtupleBase : public AthAlgorithm {
   bool m_initialized;
 
  protected:   
-  bool  m_addBC, m_addFEBTemp;
+  Gaudi::Property< bool > m_addBC{this, "AddBadChannelInfo", true, "dump BadChan info ?"};
+  Gaudi::Property< bool > m_addFEBTemp{this, "AddFEBTempInfo", false, "dump FEB temperature info ?"};
+  Gaudi::Property< bool > m_isSC{this, "isSC", false, "are we working with SC?"};
+  Gaudi::Property< bool > m_isFlat{this, "isFlat", false, "are we working with Flat conditions ?"};
+  Gaudi::Property< bool > m_OffId{this, "OffId", false, "dump also offline ID ?"};
+  Gaudi::Property< bool > m_addHash{this, "AddHash", false, "add also ID hash info ?"};
+  Gaudi::Property< bool > m_addCalib{this, "AddCalib", false, "add also calib line info info ?"};
+  Gaudi::Property< bool > m_realgeom{this, "RealGeometry", false, "add real geometry values ?"};
+  Gaudi::Property< bool > m_expandId{this,"ExpandId", true ,"add online Id decoded fields ?"}; 
+
   enum {NOT_VALID = -999};
 
   std::string m_ntpath, m_ntTitle;
@@ -90,10 +99,5 @@ class LArCond2NtupleBase : public AthAlgorithm {
       , "CaloSuperCellDetDescrManager"
       , "SG key of the resulting CaloSuperCellDetDescrManager" };
 
-  bool m_isSC;
-  bool m_isFlat;
-  bool m_OffId;
-  bool m_addHash;
-  bool m_realgeom;
 };
 #endif
