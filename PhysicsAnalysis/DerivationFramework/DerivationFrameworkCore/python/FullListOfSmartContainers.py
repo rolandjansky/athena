@@ -122,5 +122,6 @@ if InDetDxAODFlags.AddPseudoTracks():
       "InDetPlusPseudoNotFromBTrackParticles",
       "InDetNoFakesTrackParticles",
       "InDetNoFakesFromBTrackParticles",
-      "InDetNoFakesNotFromBTrackParticles"
+      "InDetNoFakesNotFromBTrackParticles",
+      "InDetSiSPSeededTracksParticles"
    ]

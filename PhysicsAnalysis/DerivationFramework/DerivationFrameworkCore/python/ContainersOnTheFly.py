@@ -132,5 +132,7 @@ if InDetDxAODFlags.AddPseudoTracks():
         ["InDetNoFakesFromBTrackParticles","xAOD::TrackParticleContainer"],
         ["InDetNoFakesFromBTrackParticlesAux","xAOD::TrackParticleAuxContainer"],
         ["InDetNoFakesNotFromBTrackParticles","xAOD::TrackParticleContainer"],
-        ["InDetNoFakesNotFromBTrackParticlesAux","xAOD::TrackParticleAuxContainer"]
+        ["InDetNoFakesNotFromBTrackParticlesAux","xAOD::TrackParticleAuxContainer"],
+        ["InDetSiSPSeededTracksParticles","xAOD::TrackParticleContainer"],
+        ["InDetSiSPSeededTracksParticlesAux","xAOD::TrackParticleAuxContainer"]
     ]
