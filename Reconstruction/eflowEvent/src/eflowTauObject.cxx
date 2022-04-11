@@ -7,10 +7,10 @@
 eflowTauObject::eflowTauObject(){
 
   //initialise the pointers
-  m_PFOContainer =  NULL;
-  m_clusterContainer = NULL;
-  m_trackContainer = NULL;
-  m_finalClusterContainer = NULL;
+  m_PFOContainer =  nullptr;
+  m_clusterContainer = nullptr;
+  m_trackContainer = nullptr;
+  m_finalClusterContainer = nullptr;
 
   //initialise number of tracks
   m_numInnerTracks = 0;
