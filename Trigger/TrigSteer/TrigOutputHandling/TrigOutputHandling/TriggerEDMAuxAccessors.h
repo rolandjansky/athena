@@ -4,6 +4,7 @@
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/VertexContainer.h"
+#include "xAODTrigger/jFexTauRoIContainer.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 #include "AthContainers/AuxElement.h"
@@ -172,6 +173,8 @@ auto vfloatAccessors = initAccessors<std::vector<float>>(
 auto elroiAccessors = initAccessors<ElementLink<TrigRoiDescriptorCollection>>("viewIndex");
 
 auto elbtagAccessors = initAccessors<ElementLink<xAOD::BTaggingContainer>>("btaggingLink");
+
+auto eljtauAccessors = initAccessors<ElementLink<xAOD::jFexTauRoIContainer>>("jTauLink");
 
 auto veltrkpAccessors = initAccessors<std::vector<ElementLink<xAOD::TrackParticleContainer>>>(
   "BTagTrackToJetAssociator", "JetFitter_tracksAtPVlinks", "SV1_badTracksIP");
