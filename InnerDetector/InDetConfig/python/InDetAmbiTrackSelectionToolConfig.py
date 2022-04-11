@@ -170,7 +170,7 @@ def ITkAmbiTrackSelectionToolCfg(flags, name = "ITkAmbiTrackSelectionTool", **kw
     kwargs.setdefault("etaWidthEM"                , 0.05)     #Split cluster ROI size
 
     if 'InDetEtaDependentCutsSvc' not in kwargs :
-        from InDetConfig.ITkTrackingCommonConfig import ITkEtaDependentCutsSvcCfg
+        from InDetConfig.InDetEtaDependentCutsConfig import ITkEtaDependentCutsSvcCfg
         acc.merge(ITkEtaDependentCutsSvcCfg(flags))
         kwargs.setdefault("InDetEtaDependentCutsSvc", acc.getService("ITkEtaDependentCutsSvc"+flags.ITk.Tracking.ActivePass.extension))
 

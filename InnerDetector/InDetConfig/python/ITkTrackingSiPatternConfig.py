@@ -160,7 +160,8 @@ def ITkSiSPSeededTrackFinderCfg(flags, name="ITkSiSpTrackFinder", InputCollectio
         kwargs.setdefault("doFastTracking", True)
 
         if 'InDetEtaDependentCutsSvc' not in kwargs :
-            acc.merge(TC.ITkEtaDependentCutsSvcCfg(flags))
+            from InDet.InDetEtaDependentCutsConfig import ITkEtaDependentCutsSvcCfg
+            acc.merge(ITkEtaDependentCutsSvcCfg(flags))
             kwargs.setdefault("InDetEtaDependentCutsSvc", acc.getService("ITkEtaDependentCutsSvc"+flags.ITk.Tracking.ActivePass.extension))
 
     ITkSiSPSeededTrackFinder = CompFactory.InDet.SiSPSeededTrackFinder(name = name+flags.ITk.Tracking.ActivePass.extension, **kwargs)

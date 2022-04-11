@@ -4,7 +4,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import LHCPeriod
 from JetTagTools.BTagTrackToVertexToolConfig import BTagTrackToVertexToolCfg
-from JetTagTools.InDetEtaDependentCutsSvcConfig import IDEtaDependentCuts_IPXD_SvcCfg
+from InDetConfig.InDetEtaDependentCutsConfig import IDEtaDependentCuts_IPXD_SvcCfg
 
 
 def IPTrackSelectorCfg(flags, name = 'IPTrackSelector', useBTagFlagsDefaults = True, **options ):
