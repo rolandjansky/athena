@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  
 from __future__ import print_function
 
@@ -8,7 +8,7 @@ import TrigEgammaMonitoring.TrigEgammaMonitCategory as egamma
 import TrigJetMonitoring.TrigJetMonitCategory as jets
 import TrigMETMonitoring.TrigMETMonitCategory as met
 import TrigMinBiasMonitoring.TrigMinBiasMonitCategory as minbias
-import TrigMuonMonitoring.TrigMuonMonitCategory as muon
+import TrigMuonMonitoringMT.TrigMuonMonitCategory as muon
 import TrigTauMonitoring.TrigTauMonitCategory as tau
 
 if 'DQMonFlags' not in dir():
