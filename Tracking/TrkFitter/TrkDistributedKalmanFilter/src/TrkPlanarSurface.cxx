@@ -61,8 +61,7 @@ namespace Trk
     m_M[2][2] = m_L[0][0] * m_L[1][1] - m_L[0][1] * m_L[1][0];
   }
 
-  TrkPlanarSurface::~TrkPlanarSurface() {
-  }
+  
 
   const double* TrkPlanarSurface::getCenter() {
     return &m_Center[0];

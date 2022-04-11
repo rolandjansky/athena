@@ -23,17 +23,14 @@
 
 Trk::TrackFitInputPreparator::TrackFitInputPreparator()
   : m_sortingRefPoint(0., 0., 0.)
-  , m_extrapolator(nullptr)
 {
   m_TP_ComparisonFunction =
     new Trk::TrkParametersComparisonFunction(m_sortingRefPoint);
 }
 
 Trk::TrackFitInputPreparator::TrackFitInputPreparator(
-  const Amg::Vector3D& gp,
-  const IExtrapolator* extrapolator)
+  const Amg::Vector3D& gp)
   : m_sortingRefPoint(gp)
-  , m_extrapolator(extrapolator)
 {
   m_TP_ComparisonFunction =
     new Trk::TrkParametersComparisonFunction(m_sortingRefPoint);
