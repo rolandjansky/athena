@@ -32,7 +32,7 @@ template<class T>
 __attribute__((__used__))
 bool HLT::NavigationCore::getFeatures( const TriggerElement* te,
 				   std::vector<const T*>&  features, const std::string& label,
-				   std::map<const T*, std::string>* /*labels*/)  {
+				   std::map<const T*, std::string>* /*labels*/) const {
 
 
   class_id_type clid = ClassID_traits<T>::ID();
@@ -63,7 +63,7 @@ bool HLT::NavigationCore::getFeatures( const TriggerElement* te,
 /////////////////////////////////////////////////////////////////////////////
 template<class T> 
 __attribute__((__used__))
-bool HLT::NavigationCore::getFeature NO_SANITIZE_UNDEFINED ( const TriggerElement* te, const T*&  feature, const std::string& label, std::string& sourcelabel) {
+bool HLT::NavigationCore::getFeature NO_SANITIZE_UNDEFINED ( const TriggerElement* te, const T*&  feature, const std::string& label, std::string& sourcelabel) const {
 
   feature = 0;
 
@@ -108,7 +108,7 @@ template<class T>
 __attribute__((__used__))
 bool HLT::NavigationCore::getFeature( const TriggerElement* te,
                                       const ConstDataVector<T>*&  feature,
-                                      const std::string& label, std::string& sourcelabel) {
+                                      const std::string& label, std::string& sourcelabel) const {
   const T* dv = nullptr;
   if (!getFeature (te, dv, label, sourcelabel))
     return false;
@@ -153,7 +153,7 @@ template<class T>
 __attribute__((__used__))
 bool HLT::NavigationCore::getRecentFeatures( const TriggerElement* te,
 					     std::vector<const T*>&  features, const std::string& label,
-					     std::map<const T*, std::string>* /*labels*/) {
+					     std::map<const T*, std::string>* /*labels*/) const {
 
   class_id_type clid = ClassID_traits<T>::ID();
 
@@ -189,7 +189,7 @@ template<class T>
 __attribute__((__used__))
 bool HLT::NavigationCore::getRecentFeature( const TriggerElement* te, 
 					    const T*&  feature, const std::string& label, 
-					    const TriggerElement*& source, std::string& sourcelabel ) {
+					    const TriggerElement*& source, std::string& sourcelabel ) const {
 
   // important! set pointer to NULL to signify nothing was found, it will later be reset to sth else eventually
   feature = 0;
@@ -231,7 +231,7 @@ bool HLT::NavigationCore::getRecentFeature( const TriggerElement* te,
 template<class C, class T> 
 __attribute__((__used__))
 bool HLT::NavigationCore::getRecentFeaturesLinks( const TriggerElement* te,
-						  ElementLinkVector<C>& links, const std::string& label ) {
+						  ElementLinkVector<C>& links, const std::string& label ) const {
 
   
   class_id_type clid = ClassID_traits<T>::ID();
@@ -284,7 +284,7 @@ struct link_to_type<ElementLink<CONTAINERTYPE> >{
 template<class LinkType> 
 __attribute__((__used__))
 bool HLT::NavigationCore::getRecentFeatureDataOrElementLink( const TriggerElement* te, LinkType& link, const std::string& label,
-                                                             const TriggerElement*& source, std::string& sourcelabel) {
+                                                             const TriggerElement*& source, std::string& sourcelabel) const {
 
 
 
@@ -334,7 +334,7 @@ __attribute__((__used__))
 bool HLT::NavigationCore::getRecentFeatureLink( const TriggerElement* te,
                                                 ElementLink<C>& link, const std::string& label, 
                                                 const TriggerElement*& source, 
-                                                std::string& sourcelabel) {
+                                                std::string& sourcelabel) const {
 
   
   class_id_type clid = ClassID_traits<T>::ID();
@@ -389,7 +389,7 @@ template<class T>
 __attribute__((__used__))
 bool HLT::NavigationCore::getFeaturesInRoI( const TriggerElement* te,
                                             std::vector<const T*>&  features, const std::string& label,
-                                            std::map<const T*, std::string>* labels) {
+                                            std::map<const T*, std::string>* labels) const {
   // easy, jump to the RoI (if not RoI node) and loop over all TEs attached to it
   const TriggerElement* roi(0);
   if ( TrigNavStructure::isRoINode(te) )
@@ -411,9 +411,9 @@ bool HLT::NavigationCore::getFeaturesInRoI( const TriggerElement* te,
 /////////////////////////////////////////////////////////////////////////////
 template<class C, class T> 
 __attribute__((__used__))
-bool HLT::NavigationCore::getAllFeatures( ElementLinkVector<C>&  features, const std::string& label ) {
+bool HLT::NavigationCore::getAllFeatures( ElementLinkVector<C>&  features, const std::string& label ) const {
   std::lock_guard<std::recursive_mutex> lock(getMutex());
-  TrigHolderStructure& holderstorage = getHolderStorage();
+  const TrigHolderStructure& holderstorage = getHolderStorage();
 
   CLID clid = ClassID_traits<T>::ID();
   ATH_MSG_DEBUG("getAllFeatures: of clid: " << clid << "(" << ClassID_traits<T>::typeName() << ")"

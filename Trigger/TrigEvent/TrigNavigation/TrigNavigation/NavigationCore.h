@@ -170,15 +170,15 @@ namespace HLT {
      */
     template<class T> 
     bool getFeatures( const TriggerElement* te, std::vector< const T*>&  features, const std::string& label="", 
-		      std::map<const T*, std::string>* labels=0 );
+		      std::map<const T*, std::string>* labels=0 ) const;
 
     template<class T> 
-    bool getFeature( const TriggerElement* te, const T*&  features, const std::string& label="", std::string& sourcelabel = ::HLT::TrigNavStructure::m_unspecifiedLabel);
+    bool getFeature( const TriggerElement* te, const T*&  features, const std::string& label="", std::string& sourcelabel = ::HLT::TrigNavStructure::m_unspecifiedLabel) const;
 
     template<class T> 
     bool getFeature( const TriggerElement* te,
                      const ConstDataVector<T>*&  features,
-                     const std::string& label="", std::string& sourcelabel = ::HLT::TrigNavStructure::m_unspecifiedLabel);
+                     const std::string& label="", std::string& sourcelabel = ::HLT::TrigNavStructure::m_unspecifiedLabel) const;
 
     template<class T> 
     const T* featureLink2Object( const TrigFeatureLink& ) const;
@@ -217,29 +217,29 @@ namespace HLT {
     template<class T> 
     bool getRecentFeatures( const TriggerElement* te, 
 			    std::vector< const T*>&  features, const std::string& label="", 
-			    std::map<const T*, std::string>* labels=0 );
+			    std::map<const T*, std::string>* labels=0 ) const;
 
     template<class T> 
     bool getRecentFeature( const TriggerElement* te, 
 			   const T*&  feature, const std::string& label="", 
 			   const TriggerElement*& source = ::HLT::TrigNavStructure::m_unspecifiedTE, 
-			   std::string& sourcelabel = ::HLT::TrigNavStructure::m_unspecifiedLabel );
+			   std::string& sourcelabel = ::HLT::TrigNavStructure::m_unspecifiedLabel ) const;
 
     template<class LinkType> 
     bool getRecentFeatureDataOrElementLink( const TriggerElement* te,
 			    LinkType& link, const std::string& label="",
 			    const TriggerElement*& source = ::HLT::TrigNavStructure::m_unspecifiedTE,
-					    std::string& sourcelabel = ::HLT::TrigNavStructure::m_unspecifiedLabel);
+					    std::string& sourcelabel = ::HLT::TrigNavStructure::m_unspecifiedLabel) const;
 
     template<class C, class T> 
     bool getRecentFeaturesLinks( const TriggerElement* te,
-			    ElementLinkVector<C>& links, const std::string& label="" );
+			    ElementLinkVector<C>& links, const std::string& label="" ) const;
 
     template<class C, class T> 
     bool getRecentFeatureLink( const TriggerElement* te,
 			       ElementLink<C>& link, const std::string& label="", 
 			       const TriggerElement*& source = ::HLT::TrigNavStructure::m_unspecifiedTE, 
-			       std::string& sourcelabel = ::HLT::TrigNavStructure::m_unspecifiedLabel );
+			       std::string& sourcelabel = ::HLT::TrigNavStructure::m_unspecifiedLabel ) const;
 
     
 
@@ -291,7 +291,7 @@ namespace HLT {
      * size of features vector (if it has grew).
      */
     template<class T> bool getFeaturesInRoI( const TriggerElement* te,  std::vector<const T*>&  features, 
-					     const std::string& label="", std::map<const T*, std::string>* labels=0 );
+					     const std::string& label="", std::map<const T*, std::string>* labels=0 ) const;
 
 
     /**
@@ -301,7 +301,7 @@ namespace HLT {
      * @param labels list of all features of this type already in place and thier labels (of not specified) faster query
      * @return true if no errors encountered
      */
-    template<class C, class T> bool getAllFeatures( ElementLinkVector<C>&  features, const std::string& label="" ) ;
+    template<class C, class T> bool getAllFeatures( ElementLinkVector<C>&  features, const std::string& label="" ) const;
 
 
 
@@ -399,7 +399,7 @@ namespace HLT {
     std::vector<std::string> m_classesToPreregisterProperty;             //!< as above but for preregistration
     std::vector<CSPair> m_classesToPreregister;   //!< classes mentioned here will be put to SG irrespectively of thier presence in event
 
-    uint16_t nextSubTypeIndex(CLID clid, const std::string&label);
+    uint16_t nextSubTypeIndex(CLID clid, const std::string&label) const;
 
     bool extractBlob(const std::vector<uint32_t>& input,
 		     std::vector<uint32_t>::const_iterator& it,

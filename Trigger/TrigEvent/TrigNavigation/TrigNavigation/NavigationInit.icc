@@ -67,7 +67,7 @@ template<class T>
 struct acquire_getRecentFeatureConstDV<T, true> {
   typedef  bool (HLT::NavigationCore::*type)( const HLT::TriggerElement*, 
 					      const ConstDataVector<T>*&, const std::string&, 
-					      const HLT::TriggerElement*&, std::string& );
+					      const HLT::TriggerElement*&, std::string& ) const;
   static type do_it() { return &HLT::NavigationCore::getRecentFeature<ConstDataVector<T>>;  }
 };
 
@@ -163,7 +163,7 @@ struct instantiate_dataelementlink<C,true>{
   static void do_it(){
     [[maybe_unused]]
     bool (HLT::NavigationCore::*temp)(const HLT::TriggerElement*,DataLink<C>& link,
-				      const std::string&, const HLT::TriggerElement*&, std::string&);
+				      const std::string&, const HLT::TriggerElement*&, std::string&) const;
   temp = &HLT::NavigationCore::getRecentFeatureDataOrElementLink<DataLink<C> >;  
   //std::cout << "DataLink version instantiated for " << ClassID_traits<C>::ID() << std::endl;
   }
@@ -174,7 +174,7 @@ struct instantiate_dataelementlink<C,false>{
   static void do_it(){
     [[maybe_unused]]
     bool (HLT::NavigationCore::*temp)(const HLT::TriggerElement*,ElementLink<C>& link,
-				      const std::string&, const HLT::TriggerElement*&, std::string&);
+				      const std::string&, const HLT::TriggerElement*&, std::string&) const;
   temp = &HLT::NavigationCore::getRecentFeatureDataOrElementLink<ElementLink<C> >;
   //std::cout << "ElementLink version instantiated for " << ClassID_traits<C>::typeName() << std::endl;
   }
@@ -210,13 +210,13 @@ HLT::FeatureContainerInit<T, C>::FeatureContainerInit() {
   //
   [[maybe_unused]]
   bool (HLT::NavigationCore::*temp_getFeatures)( const TriggerElement*, std::vector< const T*>&, 
-					     const std::string&, std::map<const T*, std::string>* );
+					     const std::string&, std::map<const T*, std::string>* ) const;
   temp_getFeatures = &HLT::NavigationCore::getFeatures<T>;
 
 
   //
   [[maybe_unused]]
-  bool (HLT::NavigationCore::*temp_getFeature)( const TriggerElement*, const T*&, const std::string&, std::string&);
+  bool (HLT::NavigationCore::*temp_getFeature)( const TriggerElement*, const T*&, const std::string&, std::string&) const;
   temp_getFeature = &HLT::NavigationCore::getFeature<T>;
 
 
@@ -239,13 +239,13 @@ HLT::FeatureContainerInit<T, C>::FeatureContainerInit() {
   [[maybe_unused]]
   bool (HLT::NavigationCore::*temp_getRecentFeatures)( const TriggerElement*, 
 			  std::vector< const T*>&, const std::string&, 
-			  std::map<const T*, std::string>*  );
+			  std::map<const T*, std::string>*  ) const;
   temp_getRecentFeatures = &HLT::NavigationCore::getRecentFeatures<T>;
 
   //
   [[maybe_unused]]
   bool (HLT::NavigationCore::*temp_getRecentFeature)( const TriggerElement*, 
-						  const T*&, const std::string&, const TriggerElement*&, std::string& );
+						  const T*&, const std::string&, const TriggerElement*&, std::string& ) const;
   temp_getRecentFeature = &HLT::NavigationCore::getRecentFeature<T>;
 
 
@@ -257,14 +257,14 @@ HLT::FeatureContainerInit<T, C>::FeatureContainerInit() {
   //
   [[maybe_unused]]
   bool (HLT::NavigationCore::*temp_getRecentFeaturesLinks)( const TriggerElement*,
-							ElementLinkVector<C>&, const std::string&  );  
+							ElementLinkVector<C>&, const std::string&  ) const;
   temp_getRecentFeaturesLinks = &HLT::NavigationCore::getRecentFeaturesLinks<C,T>;
 
 
   //
   [[maybe_unused]]
   bool (HLT::NavigationCore::*temp_getRecentFeatureLink)( const TriggerElement*,
-						      ElementLink<C>&, const std::string&, const TriggerElement*&, std::string& );
+						      ElementLink<C>&, const std::string&, const TriggerElement*&, std::string& ) const;
   temp_getRecentFeatureLink = &HLT::NavigationCore::getRecentFeatureLink<C,T>;
 
   //getRecentFeatureDataOrElementLink depends on what kind of feature we have
@@ -274,12 +274,12 @@ HLT::FeatureContainerInit<T, C>::FeatureContainerInit() {
   //
   [[maybe_unused]]
   bool (HLT::NavigationCore::*temp_getFeaturesInRoI)( const TriggerElement*,  std::vector<const T*>&, 
-						      const std::string&, std::map<const T*, std::string>* );
+						      const std::string&, std::map<const T*, std::string>* ) const;
   temp_getFeaturesInRoI = &HLT::NavigationCore::getFeaturesInRoI<T>;
 
   //
   [[maybe_unused]]
-  bool (HLT::NavigationCore::*temp_getAllFeatures)(ElementLinkVector<C>&, const std::string& );
+  bool (HLT::NavigationCore::*temp_getAllFeatures)(ElementLinkVector<C>&, const std::string& ) const;
   temp_getAllFeatures = &HLT::NavigationCore::getAllFeatures<C,T>; 
 
   //

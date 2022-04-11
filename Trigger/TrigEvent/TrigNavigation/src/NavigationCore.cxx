@@ -285,9 +285,9 @@ void NavigationCore::reset(bool inFinalize) {
   ATH_MSG_DEBUG("Navigation reset done");
 }
 
-uint16_t NavigationCore::nextSubTypeIndex(CLID clid, const std::string& /*label*/) {
+uint16_t NavigationCore::nextSubTypeIndex(CLID clid, const std::string& /*label*/) const {
   std::lock_guard<std::recursive_mutex> lock(getMutex());
-  TrigHolderStructure& holderstorage = getHolderStorage();
+  const TrigHolderStructure& holderstorage = getHolderStorage();
 
   auto holders = holderstorage.getHoldersOfClid(clid);
 
