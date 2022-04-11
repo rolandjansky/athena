@@ -177,6 +177,10 @@ public:
   double rhoMin(const double z) const; 
   double rhoMax(const double z) const; 
 
+public:
+
+  static double zedWidthDefault() { return s_zedWidthDefault; } 
+
 protected:
 
   friend class TrigRoiDescriptorCnv_p2;
