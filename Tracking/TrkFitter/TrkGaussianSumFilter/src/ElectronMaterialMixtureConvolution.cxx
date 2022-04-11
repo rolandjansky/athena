@@ -3,13 +3,13 @@
 */
 
 /**
- * @file GsfMaterialMixtureConvolution.cxx
+ * @file ElectronMaterialMixtureConvolution.cxx
  * @begin         Julay 20 2020
  * @author        Anthony Morley
  * @brief         Implementation code for GSF material mixture convolution
  */
 
-#include "TrkGaussianSumFilter/GsfMaterialMixtureConvolution.h"
+#include "TrkGaussianSumFilter/ElectronMaterialMixtureConvolution.h"
 #include "TrkGaussianSumFilterUtils/GsfConstants.h"
 #include "TrkGaussianSumFilterUtils/KLGaussianMixtureReduction.h"
 #include "TrkGaussianSumFilterUtils/MultiComponentState.h"
@@ -88,7 +88,7 @@ getMaterialProperties(const Trk::TrackParameters* trackParameters,
 
 } // end of anonymous namespace
 
-Trk::GsfMaterialMixtureConvolution::GsfMaterialMixtureConvolution(
+Trk::ElectronMaterialMixtureConvolution::ElectronMaterialMixtureConvolution(
   const std::string& type,
   const std::string& name,
   const IInterface* parent)
@@ -97,10 +97,10 @@ Trk::GsfMaterialMixtureConvolution::GsfMaterialMixtureConvolution(
   declareInterface<IMaterialMixtureConvolution>(this);
 }
 
-Trk::GsfMaterialMixtureConvolution::~GsfMaterialMixtureConvolution() = default;
+Trk::ElectronMaterialMixtureConvolution::~ElectronMaterialMixtureConvolution() = default;
 
 StatusCode
-Trk::GsfMaterialMixtureConvolution::initialize()
+Trk::ElectronMaterialMixtureConvolution::initialize()
 {
   if (m_maximumNumberOfComponents > GSFConstants::maxNumberofStateComponents) {
     ATH_MSG_FATAL("Requested MaximumNumberOfComponents > "
@@ -108,7 +108,7 @@ Trk::GsfMaterialMixtureConvolution::initialize()
     return StatusCode::FAILURE;
   }
 
-  m_materialEffects = GsfCombinedMaterialEffects(
+  m_materialEffects = ElectronCombinedMaterialEffects(
     m_parameterisationFileName, m_parameterisationFileNameHighX0);
   return StatusCode::SUCCESS;
 }
@@ -118,7 +118,7 @@ Trk::GsfMaterialMixtureConvolution::initialize()
    ========================================== */
 
 Trk::MultiComponentState
-Trk::GsfMaterialMixtureConvolution::update(
+Trk::ElectronMaterialMixtureConvolution::update(
   std::vector<GsfMaterial::Combined>& caches,
   const Trk::MultiComponentState& multiComponentState,
   const Trk::Layer& layer,
@@ -152,7 +152,7 @@ Trk::GsfMaterialMixtureConvolution::update(
 ========================================== */
 
 Trk::MultiComponentState
-Trk::GsfMaterialMixtureConvolution::preUpdate(
+Trk::ElectronMaterialMixtureConvolution::preUpdate(
   std::vector<GsfMaterial::Combined>& caches,
   const Trk::MultiComponentState& multiComponentState,
   const Trk::Layer& layer,
@@ -190,7 +190,7 @@ Trk::GsfMaterialMixtureConvolution::preUpdate(
    ========================================== */
 
 Trk::MultiComponentState
-Trk::GsfMaterialMixtureConvolution::postUpdate(
+Trk::ElectronMaterialMixtureConvolution::postUpdate(
   std::vector<GsfMaterial::Combined>& caches,
   const Trk::MultiComponentState& multiComponentState,
   const Trk::Layer& layer,
@@ -227,7 +227,7 @@ Trk::GsfMaterialMixtureConvolution::postUpdate(
 }
 
 Trk::MultiComponentState
-Trk::GsfMaterialMixtureConvolution::update(
+Trk::ElectronMaterialMixtureConvolution::update(
   std::vector<GsfMaterial::Combined>& caches,
   const Trk::MultiComponentState& inputState,
   const Trk::Layer& layer,
