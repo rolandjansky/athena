@@ -722,6 +722,9 @@ namespace top {
     registerParameter("LargeJetOverlapRemoval",
                       "Perform overlap removal including large-R jets. True or False (default: False).", "False");
 
+    registerParameter("EleEleOverlapRemoval",
+                      "Apply electron-electron overlap removal. True or False (default: False).", "False");
+
     registerParameter("HLLHC",
                       "Set to run HL-LHC studies,"
                       "True or False (default False)",
