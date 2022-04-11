@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ITRIGSERIALIZERTOOLBASE_H
@@ -27,13 +27,13 @@ public:
    *  and recursively also other objects which object may point to
    *  @return std::vector<uint32_t>
    */
-  virtual void serialize(const std::string &nameOfClass, void* instance, std::vector<uint32_t> &v) = 0;
+  virtual void serialize(const std::string &nameOfClass, const void* instance, std::vector<uint32_t> &v) = 0;
 
   /** serializes an object of a class nameOfClass pointed to by instance
    *  and recursively also other objects which object may point to
    *  @return std::vector<uint32_t>
    */
-  virtual std::vector<uint32_t> serialize(const std::string &nameOfClass, void* instance) = 0;
+  virtual std::vector<uint32_t> serialize(const std::string &nameOfClass, const void* instance) = 0;
 
   /** deserializes an object of a class nameOfClass (and recursively other objects) found in 
    *  std::vector<uint32_t>& v

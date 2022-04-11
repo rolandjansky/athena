@@ -18,7 +18,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "xAODCore/AuxSelection.h"
-#include "AthenaBaseComps/AthMessaging.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "AthContainers/OwnershipPolicy.h"
 #include "AthContainers/DataVector.h"
 
@@ -103,9 +103,9 @@ namespace HLT {
     friend class ::TrigBStoxAODTool;
   public:
     /**
-     * @brief constructor with external MsgStream for printing
+     * @brief constructor with parent AlgTool for printing
      */
-    NavigationCore(MsgStream& log);
+    NavigationCore(const AthAlgTool& logger);
     virtual ~NavigationCore();
 
     /**
@@ -410,12 +410,12 @@ namespace HLT {
 		     std::vector<uint32_t>& blob) const ;
 
   private:
-    MsgStream& m_log;
+    const AthAlgTool& m_logger;
 
     // Adapters so we can use ATH_MSG macros
-    MsgStream& msg() const { return m_log; }
+    MsgStream& msg() const { return m_logger.msg(); }
     MsgStream& msg(const MSG::Level lvl) const { return msg() << lvl; }
-    bool msgLvl(const MSG::Level lvl) const { return m_log.level() <= lvl; }
+    bool msgLvl(const MSG::Level lvl) const { return msg().level() <= lvl; }
 
     HLTNavDetails::IHolder* prepareOneHolder(CLID clid, const std::string& label);
 

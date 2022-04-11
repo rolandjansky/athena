@@ -13,6 +13,7 @@
 #include "GaudiKernel/ClassID.h"
 
 #include "xAODCore/AuxSelection.h"
+#include "AsgMessaging/AsgMessaging.h"
 #include "AthContainers/OwnershipPolicy.h"
 #include "AthContainers/DataVector.h"
 #include "AthLinks/ElementLinkVector.h"
@@ -66,7 +67,7 @@ namespace HLTNavDetails {
      * @brief prepares this holder by setting messaging, StoreGate access and providing serializer
      */
     
-    virtual void prepare(MsgStream* log, HLT::AccessProxy* sg, IConversionSvc* objSerializer, bool readonly);
+    virtual void prepare(const asg::AsgMessaging& logger, HLT::AccessProxy* sg, IConversionSvc* objSerializer, bool readonly);
     
     virtual bool syncWithSG(SG::OwnershipPolicy policy = SG::OWN_ELEMENTS) = 0;
 
@@ -156,7 +157,7 @@ namespace HLTNavDetails {
 
   protected:
     // serialization helpers
-    MsgStream*                      m_log{0};
+    const asg::AsgMessaging*        m_logger{0};
     IConversionSvc*                 m_objectserializerSvc{0};     //!< pointer to object serializer
     HLT::AccessProxy*               m_storeGate{0};               //!< pointer to SG
 
@@ -164,7 +165,7 @@ namespace HLTNavDetails {
     ITypeProxy*  m_aux{0};
 
     // Adapters so we can use ATH_MSG macros
-    MsgStream& msg() const { return *m_log; }
+    MsgStream& msg() const { return m_logger->msg(); }
     MsgStream& msg(const MSG::Level lvl) const { return msg() << lvl; }
     bool msgLvl(const MSG::Level lvl) const { return msg().level() <= lvl; }
 
@@ -361,7 +362,7 @@ namespace HLTNavDetails {
     virtual std::string getUniqueKey(); // this is backward compatibility for TrigCaloRec and TrigTauRec, whould be removed
     virtual std::string getNextKey();   // this is backward compatibility for TrigCaloRec and TrigTauRec, whould be removed
 
-    virtual void prepare(MsgStream* log, HLT::AccessProxy* sg, IConversionSvc* objSerializer, bool readonly = false);
+    virtual void prepare(const asg::AsgMessaging& logger, HLT::AccessProxy* sg, IConversionSvc* objSerializer, bool readonly = false);
     virtual bool syncWithSG(SG::OwnershipPolicy policy=SG::OWN_ELEMENTS);
     virtual bool checkAndSetOwnership(SG::OwnershipPolicy policy);
 

@@ -1,7 +1,7 @@
 // Emacs -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -86,7 +86,7 @@ HLT::BaseHolder* HLT::FullHolderFactory::createHolder(CLID clid, const std::stri
 
   ATH_MSG_DEBUG("preparing holder with msg: " << &msg() << " storegate: " << m_storeGate << " and prefix " << m_prefix);
 
-  holder->prepare(&msg(), m_storeGate, m_serializerSvc, m_readonly);
+  holder->prepare(*this, m_storeGate, m_serializerSvc, m_readonly);
   
   ATH_MSG_DEBUG("createHolder: holder prepared " << *holder);
 
