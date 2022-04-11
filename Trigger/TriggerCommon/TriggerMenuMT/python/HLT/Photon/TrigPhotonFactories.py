@@ -13,7 +13,7 @@ Offline configurations are available here:
 from egammaAlgs import egammaAlgsConf
 from egammaRec.Factories import AlgFactory,  FcnWrapper
 from egammaMVACalib.egammaMVACalibFactories import egammaMVASvc
-from egammaTools.egammaToolsFactories import egammaSwSuperClusterTool, EGammaAmbiguityTool
+from egammaTools.egammaToolsFactories import egammaSwSuperClusterTool
 # Tools and funtions from TrigEgammaFactories
 from TriggerMenuMT.HLT.Egamma.TrigEgammaFactories import TrigEMClusterTool, TrigEMShowerBuilder_HI, TrigEMShowerBuilder, TrigEgammaDecorationTools, TrigPhotonDecorationTools, TrigEMTrackMatchBuilder
 # Load TrigEgammaKeys where we store the container names and other TrigEgamma configuration values
@@ -61,7 +61,6 @@ TrigTopoEgammaPhotons_HI = AlgFactory( egammaAlgsConf.xAODEgammaBuilder,
         InputPhotonRecCollectionName = TrigEgammaKeys.precisionPhotonSuperClusterRecCollection,
         ElectronOutputName = TrigEgammaKeys.precisionElectronContainer,
         PhotonOutputName = TrigEgammaKeys.precisionPhotonContainer,
-        AmbiguityTool = EGammaAmbiguityTool,
         EMClusterTool = TrigEMClusterTool,
         EMShowerTool=TrigEMShowerBuilder_HI,
         egammaTools = FcnWrapper(TrigEgammaDecorationTools),
@@ -77,7 +76,6 @@ TrigTopoEgammaPhotons = AlgFactory( egammaAlgsConf.xAODEgammaBuilder,
         InputPhotonRecCollectionName = TrigEgammaKeys.precisionPhotonSuperClusterRecCollection,
         ElectronOutputName = TrigEgammaKeys.precisionElectronContainer,
         PhotonOutputName = TrigEgammaKeys.precisionPhotonContainer,  
-        AmbiguityTool = EGammaAmbiguityTool,
         EMClusterTool = TrigEMClusterTool,
         EMShowerTool=TrigEMShowerBuilder,
         egammaTools = FcnWrapper(TrigEgammaDecorationTools),
