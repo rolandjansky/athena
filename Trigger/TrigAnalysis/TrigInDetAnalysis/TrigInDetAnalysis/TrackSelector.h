@@ -28,6 +28,8 @@ public:
   TrackSelector( TrackFilter* selector=0 ) :  m_selector(selector) {  } 
   virtual ~TrackSelector() {}
 
+  virtual TrackSelector* clone() = 0;
+
   // add a track, do the selection while adding?
   // or later with a method which loops through them all? 
   virtual bool addTrack(TIDA::Track* t, bool (*f)(const TIDA::Track*)=0 ) {

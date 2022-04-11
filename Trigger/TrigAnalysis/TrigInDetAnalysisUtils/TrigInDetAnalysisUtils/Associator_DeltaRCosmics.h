@@ -29,6 +29,8 @@ public:
   Associator_DeltaRCosmics(const std::string& name, double deltaR) : TrackAssociator(name), m_deltaR2(deltaR*deltaR) {} 
   
   ~Associator_DeltaRCosmics() { } 
+
+  virtual TrackAssociator* clone() override { return new Associator_DeltaRCosmics(*this); }
   
   virtual void match(const std::vector<TIDA::Track*>& referenceTracks, 
 		     const std::vector<TIDA::Track*>& testTracks) {
