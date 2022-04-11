@@ -1,15 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "VP1AlgsBatch/VP1BatchOnLatestEvent.h"
+#include "VP1BatchOnLatestEvent.h"
 
 #include "VP1UtilsBase/VP1FileUtilities.h"
 
 #include "StorageSvc/DbType.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventType.h"
 #include "PathResolver/PathResolver.h"
 
 #include "GaudiKernel/ServiceHandle.h"
@@ -29,82 +26,74 @@
 
 
 
-VP1BatchOnLatestEvent::VP1BatchOnLatestEvent(const std::string& name, ISvcLocator* svcLocator):
-AthAlgorithm(name, svcLocator),
-//  m_runNumber(0),
-//  m_eventNumber(0),
-//  m_timeStamp(0),
-//  m_humanTimestamp(""),
-m_evtInfoDone(false),
-m_eventInfo{},
-m_nEvent(0),
-m_indexFile(0),
-m_lastIndexFile(0)
+VP1BatchOnLatestEvent::VP1BatchOnLatestEvent(const std::string& name, ISvcLocator* svcLocator)
+  : AthAlgorithm(name, svcLocator)
+  , m_nEvent(0)
+  , m_indexFile(0)
+  , m_lastIndexFile(0)
 {
 	declareProperty("VP1ConfigFile", m_inputVP1CfgFile="");
 	declareProperty("DestinationDirectory", m_destinationDir=""); // produce files in the run directory by default
 	declareProperty("InputDirectory", m_inputDir=""); // the directory where the input data files (e.g. ESDs) are stored
 	declareProperty("UseRandomVP1ConfigFile", m_isGetRandomFile = false); // get random configuration files if TRUE
-
-	//  declareProperty("MaxNumberOfFiles", m_maxProducedFiles=5);     // keep 5 event files in the run directory
 }
 
 // TODO: add  DestinationDirectory as argument to the -batch VP1 command option, so we can configure output folder from JobOption
 
 
-VP1BatchOnLatestEvent::~VP1BatchOnLatestEvent()
-{
-}
-
 StatusCode VP1BatchOnLatestEvent::initialize()
 {
-	msg(MSG::INFO) << " in initialize() " << endmsg;
-
-	StatusCode result = StatusCode::SUCCESS;
-
-	// use the incident service to register a handle
-	IIncidentSvc* incsvc = 0;
-	StatusCode status = service("IncidentSvc", incsvc, true);
-
-	if(status.isFailure() || incsvc==0)
-		msg(MSG::WARNING) << "Unable to get IncidentSvc!" << endmsg;
-	else
-		incsvc->addListener(this, "BeginEvent", 0);
-
-	return result;
+        ATH_MSG_INFO(" in initialize() ");
+	ATH_CHECK(m_eventInfoKey.initialize());
+	ServiceHandle<IIncidentSvc> incSvc("IncidentSvc",name());
+	ATH_CHECK(incSvc.retrieve());
+	incSvc->addListener(this, "BeginEvent", 0);
+	return StatusCode::SUCCESS;
 }
 
 StatusCode VP1BatchOnLatestEvent::execute()
 {
-	msg(MSG::DEBUG) <<" in execute() " << endmsg;
+        ATH_MSG_DEBUG(" in execute() ");
+	SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
+	if(eventInfo.isValid()) {
+	  m_eventNumber = eventInfo->eventNumber();
+	  m_runNumber = eventInfo->runNumber();
+	  m_timeStamp = eventInfo->timeStamp(); // posix time in seconds from 1970, 32 bit unsigned
 
+	  ATH_MSG_DEBUG("run number: "<< m_runNumber
+			<< ", event number: "
+			<< m_eventNumber << " : timestamp (UNIX): "
+			<< m_timeStamp
+			<< "] ");
 
-
-	//----------------------------
-	// Event information
-	//---------------------------
-	m_eventInfo = 0; //NOTE: Everything that comes from the storegate direct from the input files is const!
-
-	// ask the event store to retrieve the xAOD EventInfo container
-	//CHECK( evtStore()->retrieve( m_eventInfo, "EventInfo") );  // the second argument ("EventInfo") is the key name
-	//CHECK( evtStore()->retrieve( m_eventInfo, "McEventInfo") );  // the second argument ("McEventInfo") is the key name
-	//	   CHECK( evtStore()->retrieve( m_eventInfo) );
-	StatusCode status = evtStore()->retrieve( m_eventInfo);
-	// if there is only one container of that type in the xAOD (as with the EventInfo container), you do not need to pass
-	// the key name, the default will be taken as the only key name in the xAOD
-
-	if(status.isSuccess() && m_eventInfo!=0) {
-		m_evtInfoDone = true;
+	  if(msgLvl(MSG::DEBUG)) {
+	    std::stringstream stream;
+	    stream << "Event type: SIMULATION '" << std::boolalpha
+		   << eventInfo->eventType (xAOD::EventInfo::IS_SIMULATION)
+		   << "' - ";
+	    int i{-1};
+	    for(float weight : eventInfo->mcEventWeights()) {
+	      stream << " weight " << ++i << ": " << weight;
+	    }
+	    ATH_MSG_DEBUG(stream.str());
+	  }
+	}
+	else {
+	  ATH_MSG_ERROR(" Unable to retrieve EventInfo from StoreGate!!!");
+	  m_eventNumber = 0;
+	  m_runNumber = 0;
+	  m_timeStamp = 0;
 	}
 
-	if (m_eventInfo) getEventDetails();
+	// get a human-readable timestamp from UNIX time
+	getHumanReadableTimestamp();
 
 	return StatusCode::SUCCESS;
 }
 
 StatusCode VP1BatchOnLatestEvent::finalize()
 {
-	msg(MSG::VERBOSE) <<"in finalize() " << endmsg;
+        ATH_MSG_VERBOSE("in finalize() ");
 
 	// Let VP1FileUtilities handle the output of the last event
 	if(m_nEvent) {
@@ -117,7 +106,7 @@ StatusCode VP1BatchOnLatestEvent::finalize()
 
 void VP1BatchOnLatestEvent::handle(const Incident& inc)
 {
-	msg(MSG::INFO) << "Handling incident '" << inc.type() << "'" <<  endmsg;
+        ATH_MSG_INFO("Handling incident '" << inc.type() << "'");
 
 	// Let VP1FileUtilities handle the output of the previous event
 	if(m_nEvent) {
@@ -132,37 +121,31 @@ void VP1BatchOnLatestEvent::makeEventDisplay() {
 
 	// if the user specified empty config file name and declared 'VP1BatchOnLatestEvent.UseRandomVP1ConfigFile=True' in the jobOption
 	if (m_isGetRandomFile) {
-		msg(MSG::INFO)
-				<< "--> RANDOM MODE: Using a random VP1 configuration file..."
-				<< endmsg;
+         	ATH_MSG_INFO("--> RANDOM MODE: Using a random VP1 configuration file...");
 		m_inputVP1CfgFile = getRandomConfigFile();
 	}
 
-	msg(MSG::INFO) << "--> Input VP1 Configuration file: " << m_inputVP1CfgFile
-			<< endmsg;
+	ATH_MSG_INFO("--> Input VP1 Configuration file: " << m_inputVP1CfgFile);
 
 	// build the command to launch VP1-Batch on the latest-produced ESD file
 	std::string commandStr = "vp1 -batch";
 
 	// add custom output folder, if user specified it
 	if (m_destinationDir != "") {
-		msg(MSG::INFO) << " --> Using user-defined output folder: "
-				<< m_destinationDir << endmsg;
+                ATH_MSG_INFO(" --> Using user-defined output folder: " << m_destinationDir);
 		commandStr += " -batch-output-folder=" + m_destinationDir;
 	}
 
 	commandStr += " `cat latest_vp1event` " + m_inputVP1CfgFile;
 
 	bool vp1OK = false;
-	msg(MSG::INFO) << " ===> launching VP1-Batch: " << commandStr << endmsg;
+	ATH_MSG_INFO(" ===> launching VP1-Batch: " << commandStr);
 	try {
 		system(commandStr.c_str());
 		vp1OK = true;
 	} catch (std::runtime_error& err) {
-		msg(MSG::WARNING) << "Exception caught: " << err.what() << endmsg;
-		msg(MSG::WARNING)
-				<< "Unable to launch VP1-Batch on the latest-produced event file"
-				<< endmsg;
+	        ATH_MSG_WARNING("Exception caught: " << err.what());
+		ATH_MSG_WARNING("Unable to launch VP1-Batch on the latest-produced event file");
 	}
 	if (vp1OK) {
 		// Overlay the ATLAS logo to the image
@@ -176,7 +159,7 @@ void VP1BatchOnLatestEvent::makeEventDisplay() {
 
 std::string VP1BatchOnLatestEvent::getRandomConfigFile()
 {
-	msg(MSG::DEBUG) <<" in getRandomConfigFile() " << endmsg;
+        ATH_MSG_DEBUG(" in getRandomConfigFile() ");
 
 
 	std::string configFile;
@@ -193,8 +176,8 @@ std::string VP1BatchOnLatestEvent::getRandomConfigFile()
 	configFiles.push_back("vp1_conf_ATLASatHOME_truth_event_wGeo_frontView.vp1");
 
 	int nConfigFiles = configFiles.size();
-	msg(MSG::DEBUG) << " ===> # config files: " << nConfigFiles << endmsg;
-    int nPositions = nConfigFiles - 1;
+	ATH_MSG_DEBUG(" ===> # config files: " << nConfigFiles);
+	int nPositions = nConfigFiles - 1;
 
 	// setup random generator in [0, nConfigFiles]
 	auto seed = std::random_device{}();
@@ -206,11 +189,11 @@ std::string VP1BatchOnLatestEvent::getRandomConfigFile()
 	while ( m_indexFile == m_lastIndexFile )
 		m_indexFile = randomDist();
 	m_lastIndexFile = m_indexFile;
-	msg(MSG::DEBUG) << " ===> random index: " << m_indexFile << endmsg;
+	ATH_MSG_DEBUG(" ===> random index: " << m_indexFile);
 
 	//std::string configFile = "vp1_conf_ATLASatHOME_truth_event_wTRTGeo.vp1";
 	configFile = configFiles[m_indexFile];
-	msg(MSG::DEBUG) << " ===> random file: " << configFile << endmsg;
+	ATH_MSG_DEBUG(" ===> random file: " << configFile);
 
 	return configFile;
 
@@ -223,12 +206,12 @@ void VP1BatchOnLatestEvent::overlayATLASlogo()
 	//std::string commandStr =  "convert -composite `cat latest_vp1image` $TestArea/InstallArea/share/ATLAS-Logo-New_300pixels.png -geometry +10+10 -depth 8 test.png"; // this uses the original logo size and it draws it at (10,10)px
 	std::string commandStr = "convert -composite `cat latest_vp1image` $TestArea/InstallArea/share/ATLAS-Logo-New_300pixels.png -geometry +10+10 -depth 8 `cat latest_vp1image`";
 
-	msg(MSG::DEBUG) << " ===> overlay the ATLAS logo: " << commandStr << endmsg;
+	ATH_MSG_DEBUG( " ===> overlay the ATLAS logo: " << commandStr );
 	try {
 		system(commandStr.c_str());
 	} catch (std::runtime_error& err) {
-		msg(MSG::WARNING) << "Exception caught: " << err.what() << endmsg;
-		msg(MSG::WARNING) << "Unable to run 'convert'!" << endmsg;
+		ATH_MSG_WARNING( "Exception caught: " << err.what() );
+		ATH_MSG_WARNING( "Unable to run 'convert'!" );
 	}
 }
 
@@ -283,55 +266,15 @@ void VP1BatchOnLatestEvent::overlayEventDetails()
 			+  "${img}";              // output image: here we replace the original image
 
 
-	msg(MSG::DEBUG) << " ===> overlay the event details: " << commandStr << endmsg;
+	ATH_MSG_DEBUG( " ===> overlay the event details: " << commandStr );
 	try {
 		system(commandStr.c_str());
 	} catch (std::runtime_error& err) {
-		msg(MSG::WARNING) << "Exception caught: " << err.what() << endmsg;
-		msg(MSG::WARNING) << "Unable to run 'convert'!" << endmsg;
+		ATH_MSG_WARNING( "Exception caught: " << err.what() );
+		ATH_MSG_WARNING( "Unable to run 'convert'!" );
 	}
 }
 
-
-void VP1BatchOnLatestEvent::getEventDetails()
-{
-	// Update run_number/event_number/time_stamp
-	msg(MSG::DEBUG) << "getEventDetails()" << endmsg;
-
-	if(m_evtInfoDone) {
-
-		ATH_MSG_DEBUG(*(m_eventInfo->event_ID()));
-
-		m_eventNumber = m_eventInfo->event_ID()->event_number();
-		m_runNumber = m_eventInfo->event_ID()->run_number();
-		m_timeStamp = m_eventInfo->event_ID()->time_stamp(); // posix time in seconds from 1970, 32 bit unsigned
-
-		ATH_MSG_DEBUG("run number: "<< m_runNumber
-				<< ", event number: "
-				<< m_eventNumber << " : timestamp (UNIX): "
-				<< m_timeStamp
-				<< "] ");
-		std::stringstream stream;
-		stream << "Event type: user type '"
-				<< m_eventInfo->event_type()->user_type()
-				<< "' - ";
-		for (unsigned int i = 0; i < m_eventInfo->event_type()->n_mc_event_weights (); ++i) {
-			stream << " weight " << i << ": " << m_eventInfo->event_type()->mc_event_weight(i);
-		}
-		ATH_MSG_DEBUG(stream.str());
-	}
-
-
-	if (!m_evtInfoDone) {
-		msg(MSG::ERROR) << " Unable to retrieve EventInfo (or McEventInfo) from StoreGate!!!" << endmsg;
-		m_eventNumber = 0;
-		m_runNumber = 0;
-		m_timeStamp = 0;
-	}
-
-	// get a human-readable timestamp from UNIX time
-	getHumanReadableTimestamp();
-}
 
 void VP1BatchOnLatestEvent::getHumanReadableTimestamp()
 {
@@ -339,11 +282,11 @@ void VP1BatchOnLatestEvent::getHumanReadableTimestamp()
 	tm *ltm = localtime(&t_timestamp);
 
 	// print various components of tm structure.
-	msg(MSG::DEBUG) << "Year: "<< 1900 + ltm->tm_year
+	ATH_MSG_DEBUG( "Year: "<< 1900 + ltm->tm_year
 			<< " - " << "Month: "<< 1 + ltm->tm_mon<< " - "  // tm_mon is in the range [0, 11], so 1 must be added to get real months
 			<< "Day: "<<  ltm->tm_mday
-			<< " - " "Time: "<< ltm->tm_hour << ":" << ltm->tm_min << ":" << ltm->tm_sec // << "CEST" FIXME: check if time zone is available on data file
-			<< endmsg;
+			<< " - " "Time: "<< ltm->tm_hour << ":" << ltm->tm_min << ":" << ltm->tm_sec); // << "CEST" FIXME: check if time zone is available on data file
+
 
 	std::ostringstream ostri;
 	ostri  << 1900 + ltm->tm_year
@@ -352,6 +295,6 @@ void VP1BatchOnLatestEvent::getHumanReadableTimestamp()
 			<< "T" << ltm->tm_hour << "-" << ltm->tm_min << "-" << ltm->tm_sec; // << "CEST"; FIXME: check if time zone is available on data file
 
 	m_humanTimestamp = ostri.str();
-	msg(MSG::DEBUG) << "'human readable' timestamp: " << m_humanTimestamp << endmsg;
+	ATH_MSG_DEBUG( "'human readable' timestamp: " << m_humanTimestamp );
 }
 
