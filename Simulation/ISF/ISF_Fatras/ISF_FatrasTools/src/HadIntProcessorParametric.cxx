@@ -97,7 +97,7 @@ iFatras::HadIntProcessorParametric::HadIntProcessorParametric(const std::string&
 
 // destructor
 iFatras::HadIntProcessorParametric::~HadIntProcessorParametric()
-{}
+= default;
 
 // Athena standard methods
 // initialize

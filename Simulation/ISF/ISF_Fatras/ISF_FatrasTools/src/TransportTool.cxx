@@ -275,7 +275,13 @@ ISF::ISFParticle* iFatras::TransportTool::process( const ISF::ISFParticle& isp, 
 
   if ( !charged ) {
 
-    eParameters.reset(processor->transportNeutralsWithPathLimit(inputPar,pathLim,timeLim,Trk::alongMomentum,pHypothesis,hitVector,nextGeoID));
+    eParameters = processor->transportNeutralsWithPathLimit(inputPar,
+                                                            pathLim,
+                                                            timeLim,
+                                                            Trk::alongMomentum,
+                                                            pHypothesis,
+                                                            hitVector,
+                                                            nextGeoID);
 
   } else {
 
@@ -292,23 +298,23 @@ ISF::ISFParticle* iFatras::TransportTool::process( const ISF::ISFParticle& isp, 
                                        inputPar.parameters()[4],
                                        std::move(inputCov));
 
-      eParameters.reset(processor->extrapolateWithPathLimit(*measuredInputPar,
+      eParameters = processor->extrapolateWithPathLimit(*measuredInputPar,
                                                         pathLim,
                                                         timeLim,
                                                         Trk::alongMomentum,
                                                         pHypothesis,
                                                         hitVector,
-                                                        nextGeoID));
+                                                        nextGeoID);
 
     } else {
 
-      eParameters.reset(processor->extrapolateWithPathLimit(inputPar,
-							pathLim,
-							timeLim,
-							Trk::alongMomentum,
-							pHypothesis,
-							hitVector,
-							nextGeoID));
+      eParameters = processor->extrapolateWithPathLimit(inputPar,
+                                                        pathLim,
+                                                        timeLim,
+                                                        Trk::alongMomentum,
+                                                        pHypothesis,
+                                                        hitVector,
+                                                        nextGeoID);
     }
   }
 
@@ -326,9 +332,6 @@ ISF::ISFParticle* iFatras::TransportTool::process( const ISF::ISFParticle& isp, 
       ATH_MSG_VERBOSE( "[ fatras transport ] MS hits processed.");
     }
     // memory cleanup
-    std::vector<Trk::HitInfo>::iterator tParIter    = hitVector->begin();
-    std::vector<Trk::HitInfo>::iterator tParIterEnd = hitVector->end();
-    for ( ; tParIter != tParIterEnd; delete ((*tParIter).trackParms), ++tParIter);
     delete hitVector; hitVector = nullptr;
   }
 
@@ -357,7 +360,6 @@ ISF::ISFParticle* iFatras::TransportTool::process( const ISF::ISFParticle& isp, 
 									    timeLim.time-isp.timeStamp()) : nullptr;     // update expects time difference
   // free memory
   if ( hitVector ) {
-    for (auto& h : *hitVector) delete h.trackParms;
     delete hitVector;
   }
 

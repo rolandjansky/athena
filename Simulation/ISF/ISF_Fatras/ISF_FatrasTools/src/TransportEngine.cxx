@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -86,7 +86,7 @@ iFatras::TransportEngine::TransportEngine( const std::string& t,
  *  ==> see headerfile
  *=======================================================================*/
 iFatras::TransportEngine::~TransportEngine()
-{}
+= default;
 
 /*=========================================================================
  *  DESCRIPTION OF FUNCTION:
@@ -366,10 +366,11 @@ ISF::ISFParticle* iFatras::TransportEngine::process( const ISF::ISFParticle& isp
     // 
     // now loop over the collected information to create hits
     for (auto& es : ecc.extrapolationSteps) {
-        // get the parameters
-         const Trk::TrackParameters* parameters = es.parameters;
+        // get the parameters full ownerhip
+         auto parameters = std::unique_ptr<const Trk::TrackParameters>(es.parameters);
          // transfer into a detector ID (by layer type)
-	 hitVector.emplace_back(parameters, (parameters->position()).mag()/CLHEP::c_light, 1, 0.);
+         const double pos = (parameters->position()).mag()/CLHEP::c_light;
+         hitVector.emplace_back(std::move(parameters), pos, 1, 0.);
     }
     // [B - 3] create hits ----------------------------------------------------------------------------------------
     //   
@@ -378,13 +379,7 @@ ISF::ISFParticle* iFatras::TransportEngine::process( const ISF::ISFParticle& isp
        ATH_MSG_INFO( "[ fatras transport ] processing " << hitVector.size() << " hits from charged extrapolation.");
        if (!m_simHitCreatorID.empty()) m_simHitCreatorID->createHits(isp, hitVector);
        ATH_MSG_INFO( "[ fatras transport ] ID hits processed.");
-       // memory cleanup
-       for (auto& es : ecc.extrapolationSteps) {
-           // get the parameters
-            const Trk::TrackParameters* parameters = es.parameters;
-            delete parameters;
-        }
-     }
+    }
   }
    
   if (rParticle && m_validationMode) {

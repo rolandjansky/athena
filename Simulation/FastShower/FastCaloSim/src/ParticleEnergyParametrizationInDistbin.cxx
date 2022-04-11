@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FastCaloSim/ParticleEnergyParametrizationInDistbin.h"
@@ -9,7 +9,7 @@ using namespace std;
 
 ParticleEnergyParametrizationInDistbin::ParticleEnergyParametrizationInDistbin():TNamed("","") 
 {
-  for(int i=CaloCell_ID_FCS::FirstSample;i<CaloCell_ID_FCS::MaxSample;++i) m_ElayerProp[i]=0;
+  for(int i=CaloCell_ID_FCS::FirstSample;i<CaloCell_ID_FCS::MaxSample;++i) m_ElayerProp[i]=nullptr;
 }
 
 ParticleEnergyParametrizationInDistbin::~ParticleEnergyParametrizationInDistbin()
@@ -20,7 +20,7 @@ ParticleEnergyParametrizationInDistbin::~ParticleEnergyParametrizationInDistbin(
 void ParticleEnergyParametrizationInDistbin::SetNoDirectoryHisto()
 {
   for(int i=CaloCell_ID_FCS::FirstSample;i<CaloCell_ID_FCS::MaxSample;++i) if(m_ElayerProp[i]) {
-    m_ElayerProp[i]->SetDirectory(0);
+    m_ElayerProp[i]->SetDirectory(nullptr);
   }
 }
 
@@ -48,7 +48,7 @@ void ParticleEnergyParametrizationInDistbin::Streamer(TBuffer &R__b)
         double integ=h1->Integral();
         if(integ<=0) {
           delete h1;
-          m_ElayerProp[R__i]=0;
+          m_ElayerProp[R__i]=nullptr;
           continue;
         }
         double* fIntegral=h1->GetIntegral();
@@ -56,7 +56,7 @@ void ParticleEnergyParametrizationInDistbin::Streamer(TBuffer &R__b)
         fIntegral=h1->GetIntegral();
         if(!fIntegral) {
           delete h1;
-          m_ElayerProp[R__i]=0;
+          m_ElayerProp[R__i]=nullptr;
           continue;
         }
       }

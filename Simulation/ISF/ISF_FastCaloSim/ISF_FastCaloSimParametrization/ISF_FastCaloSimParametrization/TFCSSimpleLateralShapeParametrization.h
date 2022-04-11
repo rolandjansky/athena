@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TFCSSimpleLateralShapeParametrization_h
@@ -29,7 +29,7 @@ public:
 
   bool Initialize(float input_sigma_x, float input_sigma_y);
 
-  void getHitXY(CLHEP::HepRandomEngine *engine, double &x, double &y);
+  void getHitXY(CLHEP::HepRandomEngine *engine, double &x, double &y) const;
 
   float getSigma_x(){return m_sigmaX;};
   float getSigma_y(){return m_sigmaY;};

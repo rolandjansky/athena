@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ParticleEnergyParametrization_h
@@ -43,8 +43,8 @@ public:
   void    set_corr_vs_dist(int distbin,const TMatrixD& cova) {CorelatedGausRandom_corset(cova,DistPara(distbin)->m_corr);};
   
   void    DiceParticle(ParticleEnergyShape& p,TRandom& rand) const;
-  void    RepeatDiceParticles(ParticleEnergyShape* p,int n);
-  double  GetRandomInBinRange(TRandom& rand, double xmin_in1,double xmax_in2,TH1* in2) const;
+  void    RepeatDiceParticles(ParticleEnergyShape* p,int n) const;
+  static double  GetRandomInBinRange(TRandom& rand, double xmin_in1,double xmax_in2,TH1* in2) ;
 
   void MakeCumulativeX(int calosample,TH2* h);
   static void CorelatedGausRandom_corset(const TMatrixD& v,TMatrixD& c);
