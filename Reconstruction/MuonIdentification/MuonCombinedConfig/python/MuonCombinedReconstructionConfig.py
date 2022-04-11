@@ -551,9 +551,11 @@ def MuonCombinedReconstructionCfg(flags):
         result.merge( StauCreatorAlgCfg(flags) )
 
     # FIXME
-    # I see errors related to an unconfigured public tool. This is a quick fix, but should really move to where it is called.
+    # I see errors related to unconfigured public tools. This is a quick fix, but should really move to where it is called.
     from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCombinedTrackSummaryToolCfg
     result.addPublicTool( result.popToolsAndMerge( MuonCombinedTrackSummaryToolCfg(flags) ) )
+    from MuonConfig.MuonRecToolsConfig import MuonTrackScoringToolCfg
+    result.addPublicTool( result.popToolsAndMerge( MuonTrackScoringToolCfg(flags) ))
 
     # post processing
     result.addEventAlgo( CompFactory.ClusterMatching.CaloClusterMatchLinkAlg("MuonTCLinks",ClustersToDecorate="MuonClusterCollection") )
@@ -568,14 +570,14 @@ if __name__=="__main__":
     # python -m MuonCombinedConfig.MuonCombinedReconstructionConfig --run --threads=1
     
     from MuonConfig.MuonConfigUtils import SetupMuonStandaloneArguments, SetupMuonStandaloneCA
-    # from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonSegmentConverterToolCfg
+    from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonSegmentConverterToolCfg
 
     args = SetupMuonStandaloneArguments()
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
     # Keep this commented in for now until ATLASRECTS-6858 is fixed
-    # ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonCombinedConfig/myESD_q445_unslimmedTracks.pool.root'] #only once !51435 is accepted.
-    ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.0/v2/myESD.pool.root']
+    ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonCombinedConfig/myESD_q445_unslimmedTracks.pool.root'] #only once !51435 is accepted.
+    # ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.0/v2/myESD.pool.root']
     
     ConfigFlags.Concurrency.NumThreads=args.threads
     ConfigFlags.Concurrency.NumConcurrentEvents=args.threads # Might change this later, but good enough for the moment.
@@ -607,9 +609,13 @@ if __name__=="__main__":
     acc = MuonCombinedReconstructionCfg(ConfigFlags)
     cfg.merge(acc)
     
-    # Commented out for now as this causes a stall. FIXME
-    # Should be what provides xoadMuonSegments
+    # Needed to provide xoadMuonSegments
+    muonSegmentCnvToolAcc =  MuonSegmentConverterToolCfg(ConfigFlags, OutputLevel=0) 
+    muonSegmentCnvToolAcc.addEventAlgo(CompFactory.xAODMaker.MuonSegmentCnvAlg("MuonSegmentCnvAlg", MuonSegmentConverterTool=muonSegmentCnvToolAcc.popPrivateTools()))
+    cfg.merge(muonSegmentCnvToolAcc)
 
+    # This causes a stall. See https://its.cern.ch/jira/browse/ATEAM-825
+    # Leaving here for the moment, for convenience investigating this bug.
     # muonSegmentCnvTool = cfg.popToolsAndMerge( MuonSegmentConverterToolCfg(ConfigFlags, OutputLevel=0) )
     # cfg.addEventAlgo(CompFactory.xAODMaker.MuonSegmentCnvAlg("MuonSegmentCnvAlg", MuonSegmentConverterTool=muonSegmentCnvTool))
 

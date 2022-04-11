@@ -130,6 +130,7 @@ def MuonAmbiProcessorCfg(flags, name="MuonAmbiProcessor", **kwargs):
     kwargs.setdefault('DropDouble', False)
     scoring_tool =  result.getPrimaryAndMerge(MuonTrackScoringToolCfg( flags ))
     kwargs.setdefault('ScoringTool', scoring_tool )
+    result.addPublicTool(scoring_tool)
     muon_edm_printer = result.getPrimaryAndMerge(MuonEDMPrinterToolCfg( flags ))
 
     muon_ami_selection_tool = CompFactory.Muon.MuonAmbiTrackSelectionTool(name="MuonAmbiSelectionTool", Printer=muon_edm_printer)
