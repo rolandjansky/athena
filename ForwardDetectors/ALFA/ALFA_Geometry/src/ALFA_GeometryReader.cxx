@@ -910,10 +910,10 @@ HepGeom::Transform3D ALFA_GeometryReader::ComputeTransformMatrix(const std::vect
 	}
 	else
 	{
-		CLHEP::HepVector* pX=new CLHEP::HepVector[N];
-		CLHEP::HepVector* pY=new CLHEP::HepVector[N];
-		CLHEP::HepVector* pXs=new CLHEP::HepVector[N];
-		CLHEP::HepVector* pYs=new CLHEP::HepVector[N];
+                std::vector<CLHEP::HepVector> pX (N);
+                std::vector<CLHEP::HepVector> pY (N);
+                std::vector<CLHEP::HepVector> pXs (N);
+                std::vector<CLHEP::HepVector> pYs(N);
 
 		for(i=0;i<N;i++){
 			pX[i]=CLHEP::Hep3Vector(VecIdealRefPoints[i].x(),VecIdealRefPoints[i].y(),VecIdealRefPoints[i].z());
@@ -947,26 +947,25 @@ HepGeom::Transform3D ALFA_GeometryReader::ComputeTransformMatrix(const std::vect
 		}
 		
 		//LogStream<<MSG::INFO<<"C="<<C<<endmsg;
-		
-		double** ppfA=(double**)new char[3*sizeof(double*)];
-		double** ppfV=(double**)new char[3*sizeof(double*)];
+
+                std::vector<double*> ppfA(3);
+                std::vector<double*> ppfV(3);
 		for(i=0;i<3;i++){
-			ppfA[i]=(double*)new char[3*sizeof(double)];
-			memset(ppfA[i],0,3*sizeof(double));
-			
-			ppfV[i]=(double*)new char[3*sizeof(double)];
-			memset(ppfV[i],0,3*sizeof(double));
+                        ppfA[i]=new double[3];
+                        std::fill (ppfA[i], ppfA[i]+3, 0);
+
+                        ppfV[i]=new double[3];
+                        std::fill (ppfV[i], ppfV[i]+3, 0);
 		}
-		
-		double* pfW=(double*)new char[3*sizeof(double)];
-		memset(pfW,0,3*sizeof(double));
+
+                std::vector<double> pfW (3);
 		
 
 		for(i=0;i<3;i++){
 			for(j=0;j<3;j++) ppfA[i][j]=(double)C[i][j];
 		}
 
-		dsvd(ppfA,3,3,pfW,ppfV);
+		dsvd(ppfA.data(),3,3,pfW.data(),ppfV.data());
 
 		U=CLHEP::HepMatrix(3,3); V=CLHEP::HepMatrix(3,3);
 		for(i=0;i<3;i++){
@@ -995,17 +994,9 @@ HepGeom::Transform3D ALFA_GeometryReader::ComputeTransformMatrix(const std::vect
 		TransTot=HepGeom::Transform3D(TransM,TransT);
 
 		for(i=0;i<3;i++){
-			if(ppfA[i]) delete [] ppfA[i];
-			if(ppfV[i]) delete [] ppfV[i];
+			delete [] ppfA[i];
+			delete [] ppfV[i];
 		}
-		if(ppfA) delete [] ppfA;
-		if(ppfV) delete [] ppfV;
-		if(pfW) delete [] pfW;
-
-		if(pX) delete [] pX;
-		if(pY) delete [] pY;
-		if(pXs) delete [] pXs;
-		if(pYs) delete [] pYs;
 	}
 
 	return TransTot;
@@ -1044,7 +1035,6 @@ bool ALFA_GeometryReader::ReadSource(const eGeoSourceType eSourceType, const eRP
 	bool bRes=false;
 	int i;
 	std::string strDetType, FilePath, GeomFile;
-	PLATEPARAMS PlateParams;
 	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_DetectorReader::ReadGeometry");
 
 	if(eFType!=EFT_FIBERMD && eFType!=EFT_FIBEROD) return false;
@@ -1075,7 +1065,7 @@ bool ALFA_GeometryReader::ReadSource(const eGeoSourceType eSourceType, const eRP
 	}
 	
 	if(bRes==true){
-		memset(&PlateParams,0,sizeof(PLATEPARAMS));
+                PLATEPARAMS PlateParams {0, 0};
 		for(i=1;i<=ALFAFIBERSCNT;i++){
 			m_MapRPot[eRPName].MapPlates.insert(std::pair<int,PLATEPARAMS>(i,PlateParams));
 		}
