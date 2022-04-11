@@ -330,7 +330,8 @@ StatusCode TrackRNN::calulateVars(const std::vector<xAOD::TauTrack*>& vTracks,
       valueMap["z0sinthetaSigTJVA"][i] = xTrack->z0sinthetaSigTJVA();
       valueMap["log(rConv)"][i] = std::log( xTrack->rConv() );
       valueMap["tanh(rConvII/500)"][i] = std::tanh( xTrack->rConvII()/500. );
-      valueMap["dRJetSeedAxis"][i] = xTrack->dRJetSeedAxis(xTau);
+      // there is no seed jets in AOD so dRJetSeedAxis wont work
+      valueMap["dRJetSeedAxis"][i] = xTrack->p4().DeltaR(xTau.p4(xAOD::TauJetParameters::JetSeed));
       valueMap["dRIntermediateAxis"][i] = xTrack->p4().DeltaR( xTau.p4(xAOD::TauJetParameters::IntermediateAxis) );
       valueMap["tanh(d0SigTJVA/10)"][i] = std::tanh( xTrack->d0SigTJVA()/10. );
       valueMap["tanh(d0TJVA/10)"][i] = std::tanh( xTrack->d0TJVA()/10. );

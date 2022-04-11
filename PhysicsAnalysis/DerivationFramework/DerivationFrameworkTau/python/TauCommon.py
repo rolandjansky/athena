@@ -8,6 +8,7 @@
 
 from __future__ import print_function
 from AthenaCommon import CfgMgr 
+import logging
 
 # will likely be replaced with generic tau decorator tool
 #from tauRec.TauRecAODBuilder import TauRecAODProcessor_FTau
@@ -241,3 +242,63 @@ def addTauWPDecoration(Seq=None, evetoFixTag=None):
 
     if TauWPDecorations:
         Seq += CfgMgr.DerivationFramework__DerivationKernel("TauWPDecorator"+Seq.name(), AugmentationTools = TauWPDecorations)
+
+#=======================================
+# tauJet Muon RM Re-Reconstruction 
+#=======================================
+def addMuonRemovalTauReReco(Seq=None):
+    from tauRec.tauRecFlags import tauFlags
+    if not Seq or hasattr(Seq,"MuonRemovalTauReReco_"+Seq.name()):
+        logging.error("Muon removal TauJets re-reconstruction will not be scheduled")
+        return
+    if not tauFlags.inAOD():
+        logging.error("Muon removal TauJets re-reconstruction will not be scheduled.")
+        logging.error('Please set the inAOD flag to true before schedule the AOD re-reco.')
+        return
+    
+    logging.info("Adding Muon removal TauJets re-reconstruction")
+    import tauRec.TauAlgorithmsHolder as taualgs
+    tools_mod = []
+    tools_mod.append(taualgs.getTauAODMuonRemovalTool())
+    tools_after = []
+    tools_after.append(taualgs.getTauVertexedClusterDecorator())
+    tools_after.append(taualgs.getTauTrackRNNClassifier())
+    tools_after.append(taualgs.getEnergyCalibrationLC())        
+    tools_after.append(taualgs.getTauCommonCalcVars())
+    tools_after.append(taualgs.getTauSubstructure())            
+    tools_after.append(taualgs.getPi0ClusterCreator())          
+    tools_after.append(taualgs.getPi0ClusterScaler())           
+    tools_after.append(taualgs.getPi0ScoreCalculator())         
+    tools_after.append(taualgs.getPi0Selector())
+    tools_after.append(taualgs.getTauVertexVariables())
+    import PanTauAlgs.JobOptions_Main_PanTau as pantau
+    tools_after.append(pantau.getPanTau())                      
+    tools_after.append(taualgs.getTauCombinedTES())             
+    tools_after.append(taualgs.getMvaTESVariableDecorator())    
+    tools_after.append(taualgs.getMvaTESEvaluator())            
+    tools_after.append(taualgs.getTauIDVarCalculator())         
+    tools_after.append(taualgs.getTauJetRNNEvaluator())         
+    tools_after.append(taualgs.getTauWPDecoratorJetRNN())       
+    tools_after.append(taualgs.getTauEleRNNEvaluator())         
+    tools_after.append(taualgs.getTauWPDecoratorEleRNN())       
+    tools_after.append(taualgs.getTauDecayModeNNClassifier())
+    
+    for atool in tools_mod:
+        atool.calibFolder = tauFlags.tauRecToolsCVMFSPath()
+        atool.inAOD = tauFlags.inAOD()
+    for atool in tools_after:
+        atool.calibFolder = tauFlags.tauRecToolsCVMFSPath()
+        atool.inAOD = tauFlags.inAOD()
+    from tauRec.tauRecConf import TauAODRunnerAlg
+    MuonRemovalAODReRecoAlg = TauAODRunnerAlg(  name                            = "MuonRemovalTauReReco_"+Seq.name(), 
+                                                Key_tauOutputContainer          = "TauJets_MuonRM",
+                                                Key_pi0OutputContainer          = "TauFinalPi0s_MuonRM",
+                                                Key_neutralPFOOutputContainer   = "TauNeutralPFOs_MuonRM",
+                                                Key_chargedPFOOutputContainer   = "TauChargedPFOs_MuonRM",
+                                                Key_hadronicPFOOutputContainer  = "TauHadronicPFOs_MuonRM",
+                                                Key_tauTrackOutputContainer     = "TauTracks_MuonRM",
+                                                Key_vertexOutputContainer       = "TauSecondaryVertices_MuonRM",
+                                                modificationTools               = tools_mod,
+                                                officialTools                   = tools_after
+    )
+    Seq += MuonRemovalAODReRecoAlg
