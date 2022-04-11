@@ -34,7 +34,7 @@ namespace NSWL1 {
 
     // retrieving the private tools implementing the simulation
     if(m_dosTGC){
-      ATH_CHECK(m_pad_tds.retrieve());
+      if(m_doPad || m_doStrip) ATH_CHECK(m_pad_tds.retrieve());
       if(m_useLookup){
         ATH_CHECK(m_pad_trigger_lookup.retrieve());
       }
@@ -77,7 +77,7 @@ namespace NSWL1 {
     auto MMTriggerContainer = std::make_unique<Muon::NSW_TrigRawDataContainer>();
 
     if(m_dosTGC){
-      ATH_CHECK( m_pad_tds->gather_pad_data(pads) );
+      if(m_doPad || m_doStrip) ATH_CHECK( m_pad_tds->gather_pad_data(pads) );
       if(m_useLookup){
         ATH_CHECK( m_pad_trigger_lookup->lookup_pad_triggers(pads, padTriggers) );
       }
@@ -89,7 +89,7 @@ namespace NSWL1 {
         ATH_CHECK( m_strip_cluster->cluster_strip_data(strips,clusters) );
         ATH_CHECK( m_strip_segment->find_segments(clusters,stripTriggerContainer) );
       }
-      ATH_CHECK(PadTriggerAdapter::fillContainer(padTriggerContainer, padTriggers, m_current_evt));
+      if(m_doPad) ATH_CHECK(PadTriggerAdapter::fillContainer(padTriggerContainer, padTriggers, m_current_evt));
     }
 
     //retrive the MM Strip hit data
