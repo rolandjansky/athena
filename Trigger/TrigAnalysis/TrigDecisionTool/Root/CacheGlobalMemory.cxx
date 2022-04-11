@@ -25,6 +25,7 @@
 #include "TrigNavStructure/TriggerElement.h"
 
 #include "AsgDataHandles/ReadHandle.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "TrigSteeringEvent/Lvl1Item.h"
 
@@ -51,16 +52,17 @@
 
 const Trig::ChainGroup* Trig::CacheGlobalMemory::createChainGroup(const std::vector< std::string >& triggerNames,
                                                                   const std::string& alias,
-                                                                  TrigDefs::Group props) {
+                                                                  TrigDefs::Group props) const {
   // mutex in case this is called directly
   std::lock_guard<std::recursive_mutex> lock(m_cgmMutex);
+  auto nc_this ATLAS_THREAD_SAFE = const_cast<Trig::CacheGlobalMemory*>(this);
 
   // create a proper key
   std::vector< std::string > key=Trig::keyWrap(triggerNames);
 
-  auto [itr, inserted] = m_chainGroups.try_emplace (key, /*ChainGroup*/ key, *this);
+  auto [itr, inserted] = m_chainGroups.try_emplace (key, /*ChainGroup*/ key, *nc_this);
   if (inserted) {
-    updateChainGroup(itr->second, props);
+    nc_this->updateChainGroup(itr->second, props);
     m_chainGroupsRef[key] = &(itr->second);
   }
   // this overwrites the pointer in the map each time in case the alias needs defining

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGGER_DECISION_TOOL_CONFIGURATION_ACCESS_H
@@ -53,7 +53,8 @@ namespace Trig {
 
   private:
     
-    virtual Trig::CacheGlobalMemory* cgm() const =0; 
+    virtual Trig::CacheGlobalMemory* cgm() = 0;
+    virtual const Trig::CacheGlobalMemory* cgm() const = 0;
 
 
     

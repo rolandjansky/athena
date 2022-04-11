@@ -83,7 +83,7 @@ namespace Trig {
      **/
     const Trig::ChainGroup* createChainGroup(const std::vector< std::string >& patterns,
                                              const std::string& alias="",
-                                             TrigDefs::Group props = TrigDefs::Group::Default);
+                                             TrigDefs::Group props = TrigDefs::Group::Default) const;
 
     /**
      * @brief Updates configuration of the chain groups
@@ -187,13 +187,9 @@ namespace Trig {
     /// Navigation owned by CGM
     HLT::TrigNavStructure* m_navigation{nullptr};
 
-    // chain groups
-    std::map< std::vector< std::string >, Trig::ChainGroup > m_chainGroups;     //!< primary storage for chain groups
-    std::map< std::vector< std::string >, Trig::ChainGroup* > m_chainGroupsRef; //!< this map keeps the chain group more than once i.e. when alias is given
-
-    //    std::map<CTPID, const LVL1CTP::Lvl1Item*>          m_items;    //!< items keyed by id (changing every event)
-    //    std::map<CHAIN_COUNTER, const HLT::Chain*>         m_l2chains; //!< chains keyed by chain counter (chainging every event)
-    //    std::map<CHAIN_COUNTER, const HLT::Chain*>         m_efchains;
+    // chain groups (protected by mutex)
+    mutable std::map< std::vector< std::string >, Trig::ChainGroup > m_chainGroups ATLAS_THREAD_SAFE;     //!< primary storage for chain groups
+    mutable std::map< std::vector< std::string >, Trig::ChainGroup* > m_chainGroupsRef ATLAS_THREAD_SAFE; //!< this map keeps the chain group more than once i.e. when alias is given
 
     std::unordered_map<std::string, const LVL1CTP::Lvl1Item*> m_itemsByName;     //!< items keyed by configuration name (chainging every event)
     std::unordered_map<std::string, const HLT::Chain*> m_l2chainsByName;  //!< L2 chains keyed by chain name (chainging every event)
