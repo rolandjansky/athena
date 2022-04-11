@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -75,7 +75,7 @@ Trig::DecisionAccess::features(const std::string& chain, unsigned int condition)
 
 char
 Trig::DecisionAccess::getBGCode() const {
-  if( ! const_cast< Trig::CacheGlobalMemory* >( cgm() )->assert_decision() ) {
+  if( ! cgm()->assert_decision() ) {
     ATH_MSG_ERROR("Something went wrong in decoding the trigger decision");
     return 0;
   }

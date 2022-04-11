@@ -240,7 +240,7 @@ const LVL1CTP::Lvl1Item* Trig::CacheGlobalMemory::item(const std::string& name) 
    return nullptr;
 }
 
-bool Trig::CacheGlobalMemory::assert_decision() {
+bool Trig::CacheGlobalMemory::assert_decision() const {
   std::lock_guard<std::recursive_mutex> lock(m_cgmMutex);
   ATH_MSG_VERBOSE("asserting decision with unpacker " << m_unpacker.get());
 
@@ -331,7 +331,9 @@ bool Trig::CacheGlobalMemory::assert_decision() {
   }
 
   if( !m_decisionUnpacked ) {
-    if( unpackDecision(context).isFailure() ) {
+    // this method is locked
+    auto nc_this ATLAS_THREAD_SAFE = const_cast<Trig::CacheGlobalMemory*>(this);
+    if( nc_this->unpackDecision(context).isFailure() ) {
       ATH_MSG_WARNING( "TrigDecion object incorrect (for chains)" );
     }
     else{

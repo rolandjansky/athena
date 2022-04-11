@@ -118,10 +118,12 @@ namespace Trig {
 
     /**
      * @brief checks if new event arrived with the decision
-     * Need to use before any call to CacheGlobalMemory.
+     * Need to use before any call to CacheGlobalMemory. It is marked `const`
+     * since it is frequently called from `const` methods and is internally locked.
+     *
      * @return true if all went fine about decision, false otherwise
      **/
-    bool assert_decision();
+    bool assert_decision() const;
 
     /**
      * @brief invalidate previously unpacked decision
@@ -179,7 +181,7 @@ namespace Trig {
     const asg::EventStoreType* m_store{nullptr};
 
     /// Trigger decision unpacker helper
-    std::unique_ptr<IDecisionUnpacker> m_unpacker;
+    mutable std::unique_ptr<IDecisionUnpacker> m_unpacker ATLAS_THREAD_SAFE;  // for assert_decision
 
     bool m_decisionUnpacked{false};   //!< Was decision unpacked for this event?
     bool m_navigationUnpacked{false}; //!< Was navigation unpacked for this event?
