@@ -328,6 +328,15 @@ namespace top {
 
     inline bool doLargeJetOverlapRemoval() const {return m_doLargeJetOverlapRemoval;}
 
+    // do electron-electron overlap removal
+    inline void setEleEleOverlapRemoval() {
+      if (!m_configFixed) {
+        m_doEleEleOverlapRemoval = true;
+      }
+    }
+
+    inline bool doEleEleOverlapRemoval() const {return m_doEleEleOverlapRemoval;}
+
     // In the *_Loose trees, lepton SFs are calculated considering
     // tight ID and isolation instead of loose
     // Only tight leptons are considered in the event SF calculation
@@ -2417,6 +2426,9 @@ namespace top {
     // do overlap removal also with large-R jets
     // (using whatever procedure is used in the official tools)
     bool m_doLargeJetOverlapRemoval;
+
+    // do electron-electron overlap removal
+    bool m_doEleEleOverlapRemoval;
 
     // Dumps the normal, non-"*_Loose" trees (on demand)
     bool m_doTightEvents;
