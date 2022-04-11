@@ -166,6 +166,8 @@ class CaloCondBlobBase{
   unsigned m_sizeOfObj;
   unsigned m_nChans;
   unsigned m_nGains;
+protected:    
+  const void* m_pDataStart;
 };
 
 
