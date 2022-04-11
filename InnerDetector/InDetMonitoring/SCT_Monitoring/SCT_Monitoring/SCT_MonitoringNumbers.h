@@ -51,13 +51,9 @@ namespace SCT_Monitoring{
     N_WAFERS = 8176
   };
   
-  enum CategoryErrors {MASKEDLINKALL=0, SUMMARY, BADERR, LINKLEVEL, RODLEVEL, MASKEDCHIP, N_ERRCATEGORY};
-  static const std::vector<std::string> CategoryErrorsNames = {"MaskedLinkALL", // MASKEDLINKALL
-                                                               "Errors", // SUMMARY
-                                                               "BadErrors", // BADERR
-                                                               "LinkLevelErrors", // LINKLEVEL
-                                                               "RODLevelErrors", // RODLEVEL
-                                                               "MaskedChipALL"}; // MASKEDCHIP
+  enum CategoryErrors {MASKEDLINKALL=0, SUMMARY, BADERR, LINKLEVEL, RODLEVEL, MASKEDCHIP, BYTESTREAMPARSEERROR, TIMEOUTERROR, BCIDERROR, LVL1IDERROR, PREAMBLEERROR, FORMATTERERROR, TRAILERERROR, TRAILEROVERFLOWERROR, HEADERTRAILERLIMITERROR, ABCDERROR, RAWERROR, MASKEDLINK, RODCLOCKERROR, TRUNCATEDROD, ROBFRAGMENTERROR, MISSINGLINKHEADERERROR, MASKEDROD, ABCDERROR_CHIP0, ABCDERROR_CHIP1, ABCDERROR_CHIP2, ABCDERROR_CHIP3, ABCDERROR_CHIP4, ABCDERROR_CHIP5, ABCDERROR_ERROR1, ABCDERROR_ERROR2, ABCDERROR_ERROR4, TEMPMASKEDCHIP0, TEMPMASKEDCHIP1, TEMPMASKEDCHIP2, TEMPMASKEDCHIP3, TEMPMASKEDCHIP4, TEMPMASKEDCHIP5, ABCDERROR_ERROR7, ABCDERROR_INVALID, RODSIMULATEDDATA, N_ERRCATEGORY};
+
+  static const std::vector<std::string> CategoryErrorsNames = {"MaskedLinkALL", "Errors", "BadErrors", "LinkLevelErrors", "RODLevelErrors", "MaskedChipALL", "ByteStreamParseError", "TimeOutError", "BCIDError", "LVL1IDError", "PreambleError", "FormatterError", "TrailerError", "TrailerOverflowError", "HeaderTrailerLimitError", "ABCDError", "RawError", "MaskedLink", "RODClockError", "TruncatedROD", "ROBFragmentError", "MissingLinkHeaderError", "MaskedROD", "ABCDError_Chip0", "ABCDError_Chip1", "ABCDError_Chip2", "ABCDError_Chip3", "ABCDError_Chip4", "ABCDError_Chip5", "ABCDError_Error1", "ABCDError_Error2", "ABCDError_Error4", "TempMaskedChip0", "TempMaskedChip1", "TempMaskedChip2", "TempMaskedChip3", "TempMaskedChip4", "TempMaskedChip5", "ABCDError_Error7", "ABCDError_Invalid", "RODSimulatedData"}; 
 
   enum ProblemForCoverage {
     allRegion, //All SCT module for counting good module
