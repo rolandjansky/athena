@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # List of containers that are made on-the-fly by basically all DAOD types and
 # can therefore be reasonably added to the NameAndTypes dictionary centrally
@@ -46,16 +46,6 @@ ContainersOnTheFly = [
                         ["AntiKt4PV0TrackJetsAux","xAOD::JetAuxContainer"],
                         ["AntiKtVR30Rmax4Rmin02PV0TrackJets","xAOD::JetContainer"],
                         ["AntiKtVR30Rmax4Rmin02PV0TrackJetsAux","xAOD::JetAuxContainer"],
-                        ["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJets","xAOD::JetContainer"],
-                        ["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJetsAux","xAOD::JetAuxContainer"],
-                        ["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3SubJets","xAOD::JetContainer"],
-                        ["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3SubJetsAux","xAOD::JetAuxContainer"],
-                        ["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2GASubJets","xAOD::JetContainer"],
-                        ["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2GASubJetsAux","xAOD::JetAuxContainer"],
-                        ["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3GASubJets","xAOD::JetContainer"],
-                        ["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3GASubJetsAux","xAOD::JetAuxContainer"],
-                        ["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets","xAOD::JetContainer"],
-                        ["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJetsAux","xAOD::JetAuxContainer"],
                         ["AntiKt2LCTopoJets","xAOD::JetContainer"],
                         ["AntiKt2LCTopoJetsAux","xAOD::JetAuxContainer"],
                         ["AntiKt4EMTopoJets","xAOD::JetContainer"],
@@ -69,17 +59,20 @@ ContainersOnTheFly = [
                         ["AntiKt4EMPFlowCSSKJets","xAOD::JetContainer"],
                         ["AntiKt4EMPFlowCSSKJetsAux","xAOD::JetAuxContainer"],
                         
-                        
                         ["AntiKt10LCTopoJets","xAOD::JetContainer"],
                         ["AntiKt10LCTopoJetsAux","xAOD::JetAuxContainer"],
+                        ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets","xAOD::JetContainer"],
+                        ["AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsAux","xAOD::JetAuxContainer"],
+                        ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets","xAOD::JetContainer"],
+                        ["AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux","xAOD::JetAuxContainer"],
                         ["AntiKt10TrackCaloClusterJets","xAOD::JetContainer"],
                         ["AntiKt10TrackCaloClusterJetsAux","xAOD::JetAuxContainer"],
-                        ["AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets","xAOD::JetContainer"],
-                        ["AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsAux","xAOD::JetAuxContainer"],
-                        ["AntiKt10LCTopoCSSKJets","xAOD::JetContainer"],
-                        ["AntiKt10LCTopoCSSKJetsAux","xAOD::JetAuxContainer"],
                         ["AntiKt10UFOCSSKJets","xAOD::JetContainer"],
                         ["AntiKt10UFOCSSKJetsAux","xAOD::JetAuxContainer"],
+                        ["AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets","xAOD::JetContainer"],
+                        ["AntiKt10UFOCSSKSoftDropBeta100Zcut10JetsAux","xAOD::JetAuxContainer"],
+                        ["AntiKt10TruthSoftDropBeta100Zcut10Jets","xAOD::JetContainer"],
+                        ["AntiKt10TruthSoftDropBeta100Zcut10JetsAux","xAOD::JetAuxContainer"],
 
                         ["Kt4EMPFlowEventShape","xAOD::EventShape"],
                         ["Kt4EMPFlowEventShapeAux","xAOD::EventShapeAuxInfo"],
