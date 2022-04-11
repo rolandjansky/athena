@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "photonSuperClusterBuilder.h"
@@ -70,12 +70,17 @@ photonSuperClusterBuilder::execute(const EventContext& ctx) const
     m_photonSuperRecCollectionKey, ctx);
   ATH_CHECK(newEgammaRecs.record(std::make_unique<EgammaRecContainer>()));
 
+  size_t inputSize = egammaRecs->size();
+  outputClusterContainer->reserve(inputSize);
+  newEgammaRecs->reserve(inputSize);
+
   std::optional<SG::WriteHandle<xAOD::CaloClusterContainer> > precorrClustersH;
   if (!m_precorrClustersKey.empty()) {
     precorrClustersH.emplace (m_precorrClustersKey, ctx);
-    ATH_CHECK( precorrClustersH->record
-               (std::make_unique<xAOD::CaloClusterContainer>(),
-                std::make_unique<xAOD::CaloClusterAuxContainer>()) );
+    ATH_CHECK(precorrClustersH->record(
+      std::make_unique<xAOD::CaloClusterContainer>(),
+      std::make_unique<xAOD::CaloClusterAuxContainer>()));
+    precorrClustersH->ptr()->reserve(inputSize);
   }
 
   // The calo Det Descr manager
