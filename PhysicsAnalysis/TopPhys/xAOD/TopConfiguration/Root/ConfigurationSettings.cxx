@@ -177,7 +177,15 @@ namespace top {
     registerParameter("MuonSFCustomInputFolder",
                       "EXPERT OPTION! Tells the MuonEfficiencyScaleFactors tools to use a custom input folder path. If set to \" \" will use the default",
                       " ");
-
+    registerParameter("forceYear",
+                      "EXPERT OPTION! Tells the MuonEfficiencyScaleFactors tools to use a custom Year. If set to -1 will use the default",
+                      "-1");
+    registerParameter("forcePeriod",
+                      "EXPERT OPTION! Tells the MuonEfficiencyScaleFactors tools to use a custom Period. If set to \" \" will use the default",
+                      " ");
+    registerParameter("forceTrigger",
+                      "EXPERT OPTION! Tells the MuonEfficiencyScaleFactors tools to use a custom Trigger. If set to \" \" will use the default", 
+                      " ");
     registerParameter("MuonBreakDownSystematics",
                       "Tells the MuonEfficiencyScaleFactors tools to use a more complex systematic model, if set to True. Default is False",
                       "False", {"True", "False"});
@@ -591,6 +599,10 @@ namespace top {
                       "0.05");
     registerParameter("PRWPeriodAssignments",
                       "Specify period number assignments to run numbers ranges in this form: \"XXX:XXX:XXX\", where XXX are runnumbers, first number is the associated run number, second number is the period block start, the third number is the period block end. You can pass any number of these sets (total number of provided RunNumbers needs to be divisible by 3). Default is used if not specified",
+                      " ");
+
+    registerParameter("ForceRandomRunNumber",
+                      "If set to an integer, will disable PRW and use that value as the random run number for MC",
                       " ");
 
     registerParameter("MuonTriggerSF", "Muon trigger SFs to calculate", "HLT_mu20_iloose_L1MU15_OR_HLT_mu50");

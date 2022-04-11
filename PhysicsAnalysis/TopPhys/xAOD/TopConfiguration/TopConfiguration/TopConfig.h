@@ -1105,6 +1105,24 @@ namespace top {
         m_muonSFCustomInputFolder = s;
       }
     } 
+    int forceYear() const {return m_forceYear;}
+    void forceYear(int s) {
+      if (!m_configFixed) {
+        m_forceYear = s;
+      }
+    }
+    std::string const& forcePeriod() const {return m_forcePeriod;}
+    void forcePeriod(const std::string& s) {
+      if (!m_configFixed) {
+        m_forcePeriod = s;
+      }
+    }
+    std::string const& forceTrigger() const {return m_forceTrigger;}
+    void forceTrigger(const std::string& s) {
+      if (!m_configFixed) {
+        m_forceTrigger = s;
+      }
+    }
 
     // Soft Muon configuration
     inline virtual void softmuonPtcut(const float pt) {
@@ -1918,6 +1936,9 @@ namespace top {
 
     const std::vector<double>& PileUpCustomScaleFactors() {return m_pileup_reweighting.custom_SF;};
 
+    inline unsigned int forceRandomRunNumber() const {return m_forceRandomRunNumber;}
+    inline void setForceRandomRunNumber(const unsigned int randomRunNumber) {m_forceRandomRunNumber = randomRunNumber;}
+
     inline const std::string& muonTriggerSF() const {return m_muon_trigger_SF;}
 
     inline bool demandPriVtx() const {return m_demandPriVtx;}
@@ -2398,6 +2419,9 @@ namespace top {
     bool m_muonMuonDoExtraSmearingHighPt; //to turn on/off a special correction for the muon with high momenta.
     bool m_muonBreakDownSystematics; //to turn on/off a more complex systematic model
     std::string m_muonSFCustomInputFolder;
+    std::string m_forcePeriod;
+    int m_forceYear;
+    std::string m_forceTrigger;
 
     //Soft muon configuration
     float m_softmuonPtcut; // soft muon object selection pT cut
@@ -2736,6 +2760,8 @@ namespace top {
     // Where the sum of event weights
     // before derivation framework is kept
     std::string m_sumOfEventWeightsMetaData;
+
+    unsigned int m_forceRandomRunNumber = 0;
 
     // Object Selector name
     std::string m_objectSelectionName;
