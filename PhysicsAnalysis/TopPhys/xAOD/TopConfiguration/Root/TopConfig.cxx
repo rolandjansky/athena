@@ -241,6 +241,9 @@ namespace top {
     m_muonMuonDoExtraSmearingHighPt(false),
     m_muonBreakDownSystematics(false),
     m_muonSFCustomInputFolder(" "),
+    m_forcePeriod(" "),
+    m_forceYear(-1),
+    m_forceTrigger(" "),
 
     // Soft Muon configuration
     m_softmuonPtcut(4000.),
@@ -1268,7 +1271,18 @@ namespace top {
       std::string const& customMuonSF = settings->value("MuonSFCustomInputFolder");
       this->muonSFCustomInputFolder(customMuonSF);
     }
-
+    {
+      int customforceYear = std::stoi(settings->value("forceYear"));
+      this->forceYear(customforceYear);
+    }
+    {
+      std::string const& customforcePeriod = settings->value("forcePeriod");
+      this->forcePeriod(customforcePeriod);
+    }
+    {
+      std::string const& customforceTrigger = settings->value("forceTrigger");
+      this->forceTrigger(customforceTrigger);
+    }
     if (settings->value("UseAntiMuons") == "True") this->m_useAntiMuons = true;
 
     // Soft Muon configuration
@@ -1754,6 +1768,23 @@ namespace top {
 
     //Switch off PRW for MC samples with data overlay
     if(m_isDataOverlay) m_pileup_reweighting.apply = false;
+
+    const std::string randomRunNumberSetting = settings->value("ForceRandomRunNumber");
+    if (randomRunNumberSetting != " ") {
+      unsigned int randomRunNumber(0);
+      try {
+        randomRunNumber = std::stoul(randomRunNumberSetting);
+      } catch (...) {
+        throw std::invalid_argument{"ForceRandomRunNumber cannot be converted to an integer"};
+      }
+
+      if (randomRunNumber < 1 || randomRunNumber > 999999) {
+        throw std::invalid_argument{"ForceRandomRunNumber cannot be smaller than 0 or larger than 999999"};
+      }
+      // disable PRW
+      m_pileup_reweighting.apply = false;
+      this->setForceRandomRunNumber(randomRunNumber);
+    }
 
     m_muon_trigger_SF = settings->value("MuonTriggerSF");
 

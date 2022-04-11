@@ -694,6 +694,9 @@ int main(int argc, char** argv) {
         const xAOD::EventInfo* ei(nullptr);
         top::check(xaodEvent.retrieve(ei, topConfig->sgKeyEventInfo()),
                    "Failed to retrieve LHE3 weights from EventInfo");
+        if (topConfig->isMC() && topConfig->forceRandomRunNumber() > 0) {  
+          ei->auxdecor<unsigned int>("RandomRunNumber") = topConfig->forceRandomRunNumber();
+        }
         
         if(recalculateNominalWeightSum)
         {

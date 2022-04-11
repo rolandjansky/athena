@@ -149,6 +149,10 @@ namespace top {
                                   m_config->egammaSystematicModel()),
                  "Failed to set decorrelationModel for " + egamma_calib_name);
 
+      if (m_config->forceRandomRunNumber() > 0) {
+        top::check(asg::setProperty(egammaCalibrationAndSmearingTool, "randomRunNumber", m_config->forceRandomRunNumber()), "Cannot set randomRunNumber for the egamma tools");
+      }
+
       if (m_config->isAFII()) {
         top::check(asg::setProperty(egammaCalibrationAndSmearingTool,
                                     "useAFII", 1),
