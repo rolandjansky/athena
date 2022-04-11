@@ -5,8 +5,6 @@
 
 """Athena Python-side logging."""
 
-from __future__ import print_function
-
 from AthenaCommon import Constants
 
 

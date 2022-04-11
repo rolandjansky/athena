@@ -4,8 +4,6 @@
 # @purpose: facade to Configurables
 # @author: Sebastien Binet <binet@cern.ch>
 
-from __future__ import print_function
-
 __author__  = "Sebastien Binet <binet@cern.ch>"
 __version__ = "$Revision: 1.3 $"
 __doc__     = """

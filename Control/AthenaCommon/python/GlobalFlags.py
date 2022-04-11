@@ -22,8 +22,6 @@
 
 """
 
-from __future__ import print_function
-
 __author__ = "S.Binet, M.Gallas, David Rousseau"
 __version__= "$Revision: 1.14 $"
 __doc__    = "Global job properties"

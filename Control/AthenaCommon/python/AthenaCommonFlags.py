@@ -17,8 +17,6 @@
 
 """
 
-from __future__ import print_function
-
 __author__ = "S.Binet, M.Gallas"
 __version__= "$Revision: 1.11 $"
 __doc__    = "AthenaCommonFlags"

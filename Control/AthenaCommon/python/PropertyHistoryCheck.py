@@ -6,8 +6,6 @@
 """Check the set history of properties to look for duplicates and other
 such problems."""
 
-from __future__ import print_function
-
 
 ### data ---------------------------------------------------------------------
 __version__ = '1.0.0'

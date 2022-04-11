@@ -3,8 +3,6 @@
 # File: AthenaCommon/share/ObjectBrowser.py
 # Author: Wim Lavrijsen (LBNL, WLavrijsen@lbl.gov)
 
-from __future__ import print_function
-
 import sys
 
 try:

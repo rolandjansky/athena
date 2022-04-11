@@ -9,8 +9,6 @@
 # lxplus> chappy McParticleAlgs/rwtest_genEvent.py
 #
 
-from __future__ import print_function
-
 import sys
 
 from AthenaCommon.Include import include
