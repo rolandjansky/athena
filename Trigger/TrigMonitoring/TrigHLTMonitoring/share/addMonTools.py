@@ -83,13 +83,7 @@ if HLTMonFlags.doMonTier0:
 
     # Tau HLTMonTool
     if HLTMonFlags.doTau:
-      try:
-        from TrigTauMonitoring.TrigTauMonitoringConfig import TrigTauMonitoringTool
-        HLTMonManager.AthenaMonTools += TrigTauMonitoringTool()
-      except:
-        log.info("Problems with HLTTauTool, tool not enabled")
-        import traceback
-        log.info (traceback.format_exc())
+        log.warning("The HLT legacy Tau monitoring is no longer supported")
 
     # Jet HLTMonTool
     if HLTMonFlags.doJet:
