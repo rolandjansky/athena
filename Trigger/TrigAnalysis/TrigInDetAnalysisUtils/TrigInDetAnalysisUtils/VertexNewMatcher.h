@@ -26,6 +26,8 @@ public:
   VertexNewMatcher( const std::string& s, double d=0.5 ) : BestMatcher<TIDA::Vertex>( s, d*d ) { }  
 
   ~VertexNewMatcher() { }
+
+  BestMatcher<TIDA::Vertex>* clone() override { return new VertexNewMatcher(*this); }
   
   virtual double distance( const TIDA::Vertex* v0, const TIDA::Vertex* v1 ) const {
 

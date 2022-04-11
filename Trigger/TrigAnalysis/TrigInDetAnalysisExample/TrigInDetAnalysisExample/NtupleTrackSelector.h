@@ -23,6 +23,8 @@ public:
 
   NtupleTrackSelector( TrackFilter* selector=0 ) : TrackSelector(selector) {  } 
 
+  virtual TrackSelector* clone() override { return new NtupleTrackSelector(*this); } 
+
   /// add single Track
   void selectTrack( TIDA::Track* track ) {     
     // do the track extraction stuff here....
