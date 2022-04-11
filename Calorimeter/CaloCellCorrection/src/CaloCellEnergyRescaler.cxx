@@ -45,7 +45,7 @@ CaloCellEnergyRescaler::process (CaloCellContainer* theCaloCellContainer,
     CaloCell* theCell=(*it);
     const IdentifierHash& hash_id=theCell->caloDDE()->calo_hash();
     if (hash_id<corrValues->getNChans()) {
-      const float& scale= corrValues->getData(hash_id,0,0);
+      const float& scale= corrValues->getData(hash_id);
       theCell->setEnergy(theCell->energy()*scale);
     }//end if hash_id<NChans
   }//end loop over cells
