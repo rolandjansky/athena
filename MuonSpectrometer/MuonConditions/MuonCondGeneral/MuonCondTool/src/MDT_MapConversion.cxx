@@ -73,13 +73,13 @@ StatusCode MDT_MapConversion::initialize() {
     return StatusCode::SUCCESS;
 }
 
-const Identifier& MDT_MapConversion::ConvertToOffline(std::string_view OnlineId, bool quiet /*=false */) const {
+const Identifier& MDT_MapConversion::ConvertToOffline(std::string_view OnlineId, bool quiet) const {
     if (m_Chamber_Map.empty()) return m_Online_empty;
     std::string why_view{OnlineId.data()};
     /// Check if the 3 character is either X or Y coming from BIX / BIY
     if (why_view[2] == 'Y' || why_view[2] == 'X') why_view[2] = 'S';
     for (const auto& mappair : m_Chamber_Map) {
-        if (mappair.first != why_view) continue;
+        if (why_view.find(mappair.first) == std::string::npos) continue;        
         const Identifier& OfflineName = mappair.second;
         return OfflineName;
     }
