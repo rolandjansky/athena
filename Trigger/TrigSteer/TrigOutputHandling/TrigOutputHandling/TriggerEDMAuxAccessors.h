@@ -158,6 +158,8 @@ auto vuintAccessors = initAccessors<std::vector<unsigned>>("robs_history");
 
 auto vuint32Accessors = initAccessors<std::vector<uint32_t>>("robs_id", "robs_size", "PEBROBList", "PEBSubDetList");
 
+auto vuint8Accessors = initAccessors<std::vector<uint8_t>>("parameterPosition");
+
 auto vfloatAccessors = initAccessors<std::vector<float>>(
   "IP2D_weightBofTracks", "IP2D_weightCofTracks", "IP2D_weightUofTracks", "IP2D_sigD0wrtPVofTracks",
   "IP3D_weightBofTracks", "IP3D_weightCofTracks", "IP3D_weightUofTracks", "IP3D_sigD0wrtPVofTracks",
@@ -165,7 +167,7 @@ auto vfloatAccessors = initAccessors<std::vector<float>>(
   "JetFitter_fittedCov", "JetFitter_fittedPosition", "JetFitter_tracksAtPVchi2", "JetFitter_tracksAtPVndf",
   "EnergyPerSampling", "SumPtChargedPFOPt500", "SumPtTrkPt1000", "SumPtTrkPt500", "TrackWidthPt1000",
   "pTcuts", "z0cuts", "vertexZcuts", "btagIp_trackMomentum", "btagIp_trackDisplacement",
-  "vsi_vrtFast_trkd0", "vsi_vrtFast_trkz0");
+  "vsi_vrtFast_trkd0", "vsi_vrtFast_trkz0", "parameterPX", "parameterPY", "parameterPZ");
 
 auto elroiAccessors = initAccessors<ElementLink<TrigRoiDescriptorCollection>>("viewIndex");
 
