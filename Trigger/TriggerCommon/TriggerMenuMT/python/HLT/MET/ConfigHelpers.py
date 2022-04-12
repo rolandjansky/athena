@@ -22,7 +22,7 @@ from AthenaCommon.Logging import logging
 from TrigEFMissingET.TrigEFMissingETConfig import getMETMonTool
 from abc import ABC, abstractmethod
 from string import ascii_uppercase
-from TrigMissingETHypo.TrigMissingETHypoConfig import TrigMETCellHypoToolFromDict
+from TrigMissingETHypo.TrigMissingETHypoConfig import TrigMETHypoToolFromDict
 
 
 def streamer_hypo_tool(chainDict):
@@ -199,7 +199,7 @@ class AlgConfig(ABC):
         for idx, seq in enumerate(ath_sequences):
             if idx == len(ath_sequences) - 1:
                 hypo = conf2toConfigurable(self.make_hypo_alg())
-                hypo_tool = TrigMETCellHypoToolFromDict
+                hypo_tool = TrigMETHypoToolFromDict
             else:
                 hypo = conf2toConfigurable(self.make_passthrough_hypo_alg(idx))
                 hypo_tool = streamer_hypo_tool
@@ -261,7 +261,7 @@ class AlgConfig(ABC):
             if step_idx == len(reco_sequences) - 1:
                 # If this is the last step we have to add the hypo alg
                 hypo_alg = self.make_hypo_alg()
-                hypo_tool = TrigMETCellHypoToolFromDict
+                hypo_tool = TrigMETHypoToolFromDict
             else:
                 # Otherwise, we add a passthrough hypo
                 hypo_alg = self.make_passthrough_hypo_alg(step_idx)
