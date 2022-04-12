@@ -7358,6 +7358,75 @@ HLT_g25_tight_icalotight_xe40_cell_xe50_tcpufit_18dphiAB_18dphiAC_80mTAC_L1eEM26
     2: 9
     3: 3
     4: 2
+HLT_g25_tight_icalotight_xe40_cell_xe50_tcpufit_18dphiAB_18dphiAC_L1EM22VHI:
+  eventCount: 1
+  stepCounts:
+    0: 8
+    1: 7
+    2: 7
+    3: 4
+    4: 1
+  stepFeatures:
+    0: 14
+    1: 10
+    2: 10
+    3: 4
+    4: 4
+HLT_g25_tight_icalotight_xe40_cell_xe50_tcpufit_18dphiAB_L1EM22VHI:
+  eventCount: 1
+  stepCounts:
+    0: 8
+    1: 7
+    2: 7
+    3: 4
+    4: 1
+  stepFeatures:
+    0: 14
+    1: 10
+    2: 10
+    3: 4
+    4: 4
+HLT_g25_tight_icalotight_xe40_cell_xe50_tcpufit_18dphiAC_L1EM22VHI:
+  eventCount: 1
+  stepCounts:
+    0: 8
+    1: 7
+    2: 7
+    3: 4
+    4: 1
+  stepFeatures:
+    0: 14
+    1: 10
+    2: 10
+    3: 4
+    4: 4
+HLT_g25_tight_icalotight_xe40_cell_xe50_tcpufit_80mTAC_L1EM22VHI:
+  eventCount: 0
+  stepCounts:
+    0: 8
+    1: 7
+    2: 7
+    3: 4
+  stepFeatures:
+    0: 14
+    1: 10
+    2: 10
+    3: 4
+    4: 4
+HLT_g25_tight_icalotight_xe40_cell_xe50_tcpufit_L1EM22VHI:
+  eventCount: 1
+  stepCounts:
+    0: 8
+    1: 7
+    2: 7
+    3: 4
+    4: 1
+  stepFeatures:
+    0: 14
+    1: 10
+    2: 10
+    3: 4
+    4: 4
 HLT_g300_etcut_L1EM22VHI:
   eventCount: 1
   stepCounts:
