@@ -58,7 +58,7 @@ namespace Pixel {
     * @return word with readout technology bit set to given value
     */
    inline unsigned int makeReadoutTechnologyBit( InDetDD::PixelReadoutTechnology technology, unsigned int bit_val=1 ) {
-      assert(technology < 31);
+      assert(static_cast<unsigned int>(technology) < 31);
       return bit_val << static_cast<unsigned int>(technology);
    }
 
