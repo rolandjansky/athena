@@ -88,6 +88,6 @@ def fromRunArgs(runArgs):
     tic = time.time()
     # Run the final accumulator
     sc = cfg.run()
-    log.info("Run ISF_MainConfigNew_Test in " + str(time.time()-tic) + " seconds")
+    log.info("Run resimulation in " + str(time.time()-tic) + " seconds")
 
     sys.exit(not sc.isSuccess())
