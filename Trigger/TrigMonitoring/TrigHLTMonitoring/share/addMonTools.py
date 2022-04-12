@@ -60,14 +60,7 @@ if HLTMonFlags.doMonTier0:
 
     # HLTCaloTool - Makes basic comparisons between online/offline
     if HLTMonFlags.doCalo:
-      try:
-       if rec.doCalo and rec.doInDet:
-        from TrigCaloMonitoring.TrigCaloMonitoringConfig import HLTCaloMonitoringTool
-        HLTMonManager.AthenaMonTools+=HLTCaloMonitoringTool()
-      except:
-        log.info("Problems with HLTCaloTool, tool not enabled")
-        import traceback
-        log.info (traceback.format_exc())
+        log.warning("The HLT legacy Calo monitoring is no longer supported")
 
     # HLTMuonMonTool - Multiple Muon algorithms EDM Dumper
     if HLTMonFlags.doMuon:
