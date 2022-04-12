@@ -186,11 +186,11 @@ private:
   // extrapolation through Calo
   std::vector<Trk::HitInfo>* caloHits(const HepMC::GenParticle& part ) const;
 
-  bool Is_ID_Vertex(HepMC::ConstGenVertexPtr ver) const;
+  bool Is_ID_Vertex(const HepMC::ConstGenVertexPtr& ver) const;
   std::vector< double >          m_ID_cylinder_r;
   std::vector< double >          m_ID_cylinder_z;
-  static bool Is_EM_Vertex(HepMC::ConstGenVertexPtr ver) ;
-  static flag_simul_sate Is_below_v14_truth_cuts_Vertex(HepMC::ConstGenVertexPtr ver) ;
+  static bool Is_EM_Vertex(const HepMC::ConstGenVertexPtr& ver) ;
+  static flag_simul_sate Is_below_v14_truth_cuts_Vertex(const HepMC::ConstGenVertexPtr& ver) ;
   void MC_remove_out_of_ID(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles) const;
   static void MC_remove_out_of_EM(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles) ;
   static void MC_remove_below_v14_truth_cuts(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles) ;
