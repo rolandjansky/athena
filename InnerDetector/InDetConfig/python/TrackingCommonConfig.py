@@ -613,24 +613,6 @@ def InDetTrackSummaryToolTRTTracksCfg(flags, name='InDetTrackSummaryToolTRTTrack
     kwargs.setdefault("doSharedHits", True)
     return InDetTrackSummaryToolSharedHitsCfg(flags, name = name, **kwargs)
 
-def PublicFKF(name = 'PublicFKF', **kwargs):
-    PublicFKF = CompFactory.Trk.ForwardKalmanFitter
-    return PublicFKF(name = name, **kwargs)
-
-def InDetFKF(name='InDetFKF', **kwargs):
-    kwargs.setdefault("StateChi2PerNDFPreCut", 30.0)
-    return PublicFKF(name=name, **kwargs)
-
-def InDetBKS(name='InDetBKS', **kwargs):
-    kwargs.setdefault("InitialCovarianceSeedFactor", 200.)
-    PublicBKS = CompFactory.Trk.KalmanSmoother
-    return PublicBKS(name = name, **kwargs)
-
-def InDetKOL(name = 'InDetKOL', **kwargs):
-    kwargs.setdefault("TrackChi2PerNDFCut", 17.0)
-    kwargs.setdefault("StateChi2PerNDFCut", 12.5)
-    PublicKOL = CompFactory.Trk.KalmanOutlierLogic
-    return PublicKOL(name = name, **kwargs)
 #############################################################################################
 #TRTSegmentFinder
 #############################################################################################
