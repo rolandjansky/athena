@@ -99,12 +99,16 @@ CaloCellList::doSelect(double eta,
   m_theCellVector.clear();
   m_energy = 0;
   m_et = 0;
+  m_nBadT0 = 0;
+  m_nBadT12 = 0;
   if (m_cellcont->empty()){
     return;
   }
   std::vector<IdentifierHash> calo_mgr_vect;
   std::vector<CaloCell_ID::SUBCALO>::const_iterator itrCaloNum = m_caloNums.begin();
   std::vector<CaloCell_ID::SUBCALO>::const_iterator itrEndCaloNum = m_caloNums.end();
+
+  double dR2 = dR*dR;
 
   for (; itrCaloNum != itrEndCaloNum; ++itrCaloNum) {
     CaloCell_ID::SUBCALO caloNum = *itrCaloNum;
@@ -120,30 +124,24 @@ CaloCellList::doSelect(double eta,
     }
     m_theCellVector.reserve(m_theCellVector.size() + calo_mgr_vect.size());
 
-    if (dR > 0) {
-      double dR2 = dR * dR;
-      for (unsigned int i = 0; i < calo_mgr_vect.size(); i++) {
-        const CaloCell* cell = m_cellcont->findCell(calo_mgr_vect[i]);
-        if (cell) {
-          double pphi = proxim(cell->phi(), phi);
-          if (square(eta - cell->eta()) + square(pphi - phi) < dR2) {
-            m_theCellVector.push_back(cell);
-            m_energy += cell->energy();
-            m_et += cell->et();
-          }
-        }
-      }
-    } else {
-      for (unsigned int i = 0; i < calo_mgr_vect.size(); i++) {
-        const CaloCell* cell = m_cellcont->findCell(calo_mgr_vect[i]);
-        if (cell) {
-          double pphi = proxim(cell->phi(), phi);
-          if (std::fabs(eta - cell->eta()) < deta && std::fabs(phi - pphi) < dphi) {
-            m_theCellVector.push_back(cell);
-            m_energy += cell->energy();
-            m_et += cell->et();
-          }
-        }
+    for (unsigned int i = 0; i < calo_mgr_vect.size(); i++) {
+      const CaloCell* cell = m_cellcont->findCell(calo_mgr_vect[i]);
+      if (cell) {
+	double pphi = proxim(cell->phi(), phi);
+	if ( (dR > 0 && square(eta - cell->eta()) + square(pphi - phi) < dR2) ||
+	     (dR < 0 && std::fabs(eta - cell->eta()) < deta && std::fabs(phi - pphi) < dphi) ) {
+	  m_theCellVector.push_back(cell);
+	  m_energy += cell->energy();
+	  m_et += cell->et();
+	  if (cell->badcell()) {
+	    if (sam == CaloCell_ID::TileBar0 || sam == CaloCell_ID::TileExt0)
+	      m_nBadT0++;
+	    else if (sam == CaloCell_ID::TileBar1 || sam == CaloCell_ID::TileExt1 ||
+		     sam == CaloCell_ID::TileBar2 || sam == CaloCell_ID::TileExt2 ||
+		     sam == CaloCell_ID::TileGap1 || sam == CaloCell_ID::TileGap2)
+	      m_nBadT12++;
+	  }
+	}
       }
     }
   } // end loop on calorimeters

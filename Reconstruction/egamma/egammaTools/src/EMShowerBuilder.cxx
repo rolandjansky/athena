@@ -200,6 +200,14 @@ EMShowerBuilder::CalcHadronicLeakage(xAOD::Egamma* eg,
   value = static_cast<float>(info.ehad1);
   eg->setShowerShapeValue(value, xAOD::EgammaParameters::ehad1);
   return StatusCode::SUCCESS;
+
+  /// @brief for OQ, augmented after with egammaOQFlagsBuilder
+  unsigned int iflag = 0;
+  if (info.nBadT0 > 0)
+    iflag |= (0x1 << xAOD::EgammaParameters::DeadCellTileS0);
+  if (info.nBadT0 > 0)
+    iflag |= (0x1 << xAOD::EgammaParameters::DeadCellTileS1S2);
+  eg->setOQ(iflag);
 }
 
 StatusCode

@@ -41,6 +41,8 @@ public:
         double ethad=0;
         double ethad1=0;
         double ehad1=0;
+	unsigned short nBadT0 = 0;
+	unsigned short nBadT12 = 0;
     };
     /** @brief  method: Method to just calculate hadronic leakage*/
     virtual StatusCode execute(const xAOD::CaloCluster& cluster,
