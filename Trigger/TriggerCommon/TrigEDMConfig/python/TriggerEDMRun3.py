@@ -16,7 +16,9 @@ __log = logging.getLogger('TriggerEDMRun3Config')
 
 from TrigEDMConfig import DataScoutingInfo
 
-def recordable( name ):
+_allowedEDMPrefixes = ['HLT_', 'L1_', 'LVL1']
+
+def recordable( arg ):
     """
     Verify that the name is in the list of recorded objects and conform to the name convention
 
@@ -31,18 +33,21 @@ def recordable( name ):
     If the names are correct the outputKey is assigned with SomeKey, if there is a missmatch an exception is thrown.
     """
 
+    # Allow passing DataHandle as argument - convert to string and remove store name
+    name = str(arg).replace('StoreGateSvc+','')
+
     if "HLTNav_" in name:
         __log.error( "Don't call recordable({0}), or add any \"HLTNav_\" collection manually to the EDM. See:collectDecisionObjects.".format( name ) )
         pass
     else: #negative filtering
-        if not name.startswith( "HLT_" ):
-            __log.error( "The collection name {0} does not start with HLT_".format( name ) )
+        if not any([name.startswith(p) for p in _allowedEDMPrefixes]):
+            raise RuntimeError( f"The collection name {name} does not start with any of the allowed prefixes: {_allowedEDMPrefixes}" )
         if "Aux" in name and not name[-1] != ".":
-            __log.error( "The collection name {0} is Aux but the name does not end with the '.'".format( name ) )
+            raise RuntimeError( f"The collection name {name} is Aux but the name does not end with the '.'" )
 
     for entry in TriggerHLTListRun3:
         if entry[0].split( "#" )[1] == name:
-            return name
+            return arg
     msg = "The collection name {0} is not declared to be stored by HLT. Add it to TriggerEDMRun3.py".format( name )
     __log.error("ERROR in recordable() - see following stack trace.")
     raise RuntimeError( msg )
