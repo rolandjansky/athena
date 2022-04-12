@@ -1,6 +1,4 @@
-################################################################################
-# Package: JiveXMLServer
-################################################################################
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( JiveXMLServer )
@@ -14,7 +12,7 @@ atlas_add_library( JiveXMLServer
                    src/*.cxx
                    PUBLIC_HEADERS JiveXMLServer
                    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${TDAQ_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${TDAQ_LIBRARIES} GaudiKernel JiveXMLLib )
+                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${TDAQ_LIBRARIES} CxxUtils GaudiKernel JiveXMLLib )
 
 atlas_add_executable( jivexmlserver
                       bin/jivexmlserver.cc
