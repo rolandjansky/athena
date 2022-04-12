@@ -8,13 +8,20 @@ def getStreamHITS_ItemList(ConfigFlags):
     #--------------------------------------------------------------
     # Specify collections for output HIT files, as not all are required.
     #--------------------------------------------------------------
-    ItemList = ["EventInfo#*",
-                "McEventCollection#TruthEvent", # mc truth (hepmc)
+    ItemList = ["McEventCollection#TruthEvent", # mc truth (hepmc)
                 "TrackRecordCollection#MuonEntryLayer", # others not used in pileup
                 "xAOD::JetContainer#*",
                 "xAOD::JetAuxContainer#*",
                 "xAOD::TruthParticleContainer#TruthPileupParticles",
                 "xAOD::TruthParticleAuxContainer#TruthPileupParticlesAux."]
+
+    if "xAOD::EventInfo#EventInfo" in ConfigFlags.Input.TypedCollections:
+        ItemList += ["xAOD::EventInfo#EventInfo",
+                     "xAOD::EventAuxInfo#EventInfoAux.",
+                     "xAOD::EventInfoContainer#*",
+                     "xAOD::EventInfoAuxContainer#*"]
+    else:
+        ItemList += ["EventInfo#*"]
 
     #PLR
     if ConfigFlags.Detector.EnablePLR:
@@ -205,7 +212,7 @@ def fromRunArgs(runArgs):
             cfg.merge(sTGC_HitsTruthRelinkCfg(ConfigFlags))
 
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    cfg.merge( OutputStreamCfg(ConfigFlags,"HITS", ItemList=getStreamHITS_ItemList(ConfigFlags), disableEventTag=True) )
+    cfg.merge( OutputStreamCfg(ConfigFlags,"HITS", ItemList=getStreamHITS_ItemList(ConfigFlags), disableEventTag="xAOD::EventInfo#EventInfo" not in ConfigFlags.Input.TypedCollections) )
 
     # Post-include
     processPostInclude(runArgs, ConfigFlags, cfg)

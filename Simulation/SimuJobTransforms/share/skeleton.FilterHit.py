@@ -113,11 +113,12 @@ elif hasattr(runArgs,"outputHitsFile"):
     athenaCommonFlags.PoolHitsOutput=runArgs.outputHitsFile
 else:
     raise RuntimeError("No outputHitsFile provided.")
+
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 try:
-    Stream1 = AthenaPoolOutputStream( "StreamHITS", athenaCommonFlags.PoolHitsOutput(), noTag=True )
+    Stream1 = AthenaPoolOutputStream( "StreamHITS", athenaCommonFlags.PoolHitsOutput(), noTag=not peekInfo["xAODEventInfoPresent"] )
 except:
-    Stream1 = AthenaPoolOutputStream( "StreamHITS", "DidNotSetOutputName.root", noTag=True )
+    Stream1 = AthenaPoolOutputStream( "StreamHITS", "DidNotSetOutputName.root", noTag=not peekInfo["xAODEventInfoPresent"] )
 # The next line is an example on how to exclude clid's if they are causing a  problem
 #Stream1.ExcludeList = ['6421#*']
 
@@ -133,12 +134,20 @@ ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setTreeAutoFlush( Stream1.Ou
 #--------------------------------------------------------------
 
 #Truth
-Stream1.ItemList=["EventInfo#*",
-                  "McEventCollection#TruthEvent", # mc truth (hepmc)
+Stream1.ItemList=["McEventCollection#TruthEvent", # mc truth (hepmc)
                   "JetCollection#*", # Truth jets reconstructed (optionally) during evgen
                   "TrackRecordCollection#MuonEntryLayer"] # others not used in pileup
 #                  "TrackRecordCollection#MuonExitLayer", # not used in pileup
 #                  "TrackRecordCollection#CaloEntryLayer"] # not used in pileup
+
+# event info
+if not peekInfo["xAODEventInfoPresent"]:
+    Stream1.ItemList += ["EventInfo#*"]
+else:
+    Stream1.ItemList += ["xAOD::EventInfo#EventInfo",
+                         "xAOD::EventAuxInfo#EventInfoAux.",
+                         "xAOD::EventInfoContainer#*",
+                         "xAOD::EventInfoAuxContainer#*"]
 
 # Deal with "new" truth jet collections properly
 from PyJobTransforms.trfUtils import releaseIsOlderThan
