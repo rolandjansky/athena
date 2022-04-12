@@ -189,6 +189,7 @@ def defineMenu():
         # MBTS (ATR-24701)
         'L1_MBTS_1', 'L1_MBTS_1_1',  'L1_MBTS_2',
         'L1_MBTS_1_EMPTY', 'L1_MBTS_1_1_EMPTY', 'L1_MBTS_2_EMPTY',
+        #'L1_MBTS_1_UNPAIRED', 'L1_MBTS_2_UNPAIRED',
         'L1_MBTS_1_UNPAIRED_ISO', 'L1_MBTS_1_1_UNPAIRED_ISO', 'L1_MBTS_2_UNPAIRED_ISO',
         'L1_MBTS_A', 'L1_MBTS_C',
  
