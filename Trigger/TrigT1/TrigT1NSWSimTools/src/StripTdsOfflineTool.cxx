@@ -304,9 +304,10 @@ namespace NSWL1 {
       for(const std::shared_ptr<PadData>& pad : trig->m_pads){
         if (strip->sideId()!=pad->sideId() ||
             strip->isSmall()==pad->sectorType() || //strip returns 1 pad returns 0
-            strip->sectorId()!=pad->sectorId() ||
+            strip->sectorId()!=pad->sectorId() ||  
             std::abs(strip->etaCenter() )> trig->etaMax() || //use abs / sideC
-            std::abs(strip->etaCenter() ) < trig->etaMin()
+            std::abs(strip->etaCenter() ) < trig->etaMin() ||
+            strip->layer()!=pad->gasGapId()
            ) continue;
           else {
             strip->setBandId(trig->bandId());
@@ -314,7 +315,6 @@ namespace NSWL1 {
             return true;
           }
       }//pad loop
-      return false;
     }//padtrigger loop
     return false;
   }
