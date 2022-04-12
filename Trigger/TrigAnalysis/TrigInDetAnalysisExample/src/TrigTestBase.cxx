@@ -396,7 +396,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
       // tag and probe object creation
       for (unsigned i=0; i<m_chainNames.size(); ++i) {
 	
-	TagNProbe* tnp = 0;
+	TagNProbe2* tnp = 0;
 
 	ChainString probe = m_chainNames[i];
 
@@ -431,7 +431,10 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 	    // if matching tag found then initialise tag and probe object and store tag and probe chains in there
 	    /// this will be passed into the AnalysisConfig, which will delete it when necessary
 	    /// could perhaps be done with a unique_ptrt 
-	    tnp = new TagNProbe();
+	    double massMin = 40;
+	    double massMax = 150;
+	    if ( m_mcTruth ) tnp = new TagNProbe2( "Truth",   massMin, massMax );
+	    else             tnp = new TagNProbe2( "Offline", massMin, massMax );
 	    tnp->tag(tag);
 	    tnp->probe(probe);
 	    ATH_MSG_DEBUG( "Tag and probe pair found: " +  tag + " : " + probe ); 

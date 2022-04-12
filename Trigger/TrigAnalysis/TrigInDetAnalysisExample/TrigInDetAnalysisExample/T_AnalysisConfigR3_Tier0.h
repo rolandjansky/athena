@@ -223,7 +223,7 @@ protected:
   
   virtual void loop() {
 
-    TagNProbe2* pTnP_tool = m_TnP_tool;
+    const TagNProbe2* pTnP_tool = m_TnP_tool;
 
     if( m_provider->msg().level() <= MSG::VERBOSE) {
       m_provider->msg(MSG::VERBOSE) <<  "AnalysisConfigR3_Tier0::loop() for " << T_AnalysisConfig<T>::m_analysisInstanceName <<  endmsg;
