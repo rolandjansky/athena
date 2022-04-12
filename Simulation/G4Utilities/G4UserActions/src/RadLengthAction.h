@@ -46,11 +46,11 @@ namespace G4UA
 
     // decision if muon chamber or trigger was already hit
     // set to false every BeginOfEvent and changed in Stepping
-    bool MuChamberPassed;
-    bool MuTriggerPassed;
+    bool MuChamberPassed = false;
+    bool MuTriggerPassed = false;
 
     // primary variables obtained at BeginOfEvent
-    double etaPrimary, phiPrimary, chargePrimary;
+    double etaPrimary = 0.0, phiPrimary = 0.0, chargePrimary = 0.0;
 
     // map of volumes initialized at BeginOfRun and used
     // for comparison in Stepping
