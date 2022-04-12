@@ -35,6 +35,8 @@ def HitsFilePeeker(runArgs, skeletonLog):
     peekInfo["AntiKt4TruthJetsPresent"] = False
     peekInfo["AntiKt6TruthJetsPresent"] = False
     peekInfo["PileUpTruthParticlesPresent"] = False
+    peekInfo["xAODEventInfoPresent"] = False
+
     from PyUtils.MetaReader import read_metadata
     try:
         input_file = getHITSFile(runArgs)
@@ -91,6 +93,8 @@ def HitsFilePeeker(runArgs, skeletonLog):
                 peekInfo["AntiKt6TruthJetsPresent"] = True
             if 'TruthPileupParticles' == entry[1]:
                 peekInfo["PileUpTruthParticlesPresent"] = True
+            if 'xAOD::EventInfo' == entry[0]:
+                peekInfo["xAODEventInfoPresent"] = True
 
     from AthenaCommon.GlobalFlags import globalflags
     globalflags.DataSource="geant4"
