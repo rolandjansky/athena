@@ -370,12 +370,13 @@ namespace NSWL1 {
        The rightmost way is to define an == operator for stripdata// not sure if we need to include charge+time and such though
        Im sure somehow we get duplicated strip channels. Need to check if all the other aspects like charge, time, etc are exactly the same for those ...
       */
-      auto pos = std::unique(strips.begin(), strips.end(),
-                             [](const auto& s1, const auto& s2){
-                                 return s1->channelId()==s2->channelId() && s1->channelId()==s2->channelId();
-                             });
+      // TODO
+      // auto pos = std::unique(strips.begin(), strips.end(),
+      //                        [](const auto& s1, const auto& s2){
+      //                            return s1->channelId()==s2->channelId() && s1->channelId()==s2->channelId();
+      //                        });
 
-      strips.resize(std::distance(strips.begin(), pos));
+      // strips.resize(std::distance(strips.begin(), pos));
       auto hit=strips.begin();
 
       auto cr_cluster=std::make_shared< std::vector<std::unique_ptr<StripData>> >();
@@ -384,7 +385,7 @@ namespace NSWL1 {
       int first_ch=(*hit)->channelId();//channel id of the first strip
       ATH_MSG_DEBUG("Cluster Hits :" << (*hit)->channelId() << " " << m_idHelperSvc->stgcIdHelper().gasGap( (*hit)->Identity())
                     << "   " << (*hit)->moduleId() << "   " << (*hit)->sectorId() << "   " << (*hit)->wedge() << "  " << (*hit)->sideId() );
-      hit++;//S.I is this ncessary ?
+      // hit++;//S.I is this ncessary ?
 
       std::vector< std::shared_ptr<std::vector<std::unique_ptr<StripData> >>  > cluster_cache;
       for(auto & this_hit : strips){
@@ -418,14 +419,14 @@ namespace NSWL1 {
         int this_chid=(this_hit)->channelId();
         if ( (this_hit->channelId()<first_ch) && sameMod ) {
           ATH_MSG_ERROR("Hits Ordered incorrectly!!!" );
-          return StatusCode::FAILURE;
+          // return StatusCode::FAILURE;
         }
         if ((this_hit)->channelId()==first_ch && sameMod){
-          ATH_MSG_FATAL("Hits entered twice !!! ChannelId: " << (this_hit)->channelId() );
-          return StatusCode::FAILURE;
+          ATH_MSG_ERROR("Hits entered twice !!! ChannelId: " << (this_hit)->channelId() );
+          // return StatusCode::FAILURE;
         }
 
-        if ((this_hit)->channelId()==first_ch+1 && sameMod) cr_cluster->push_back(std::move(this_hit));
+        // if ((this_hit)->channelId()==first_ch+1 && sameMod) cr_cluster->push_back(std::move(this_hit)); // form cluster with adjacent +-1 strips 
         else {
           cluster_cache.push_back(std::move(cr_cluster));                         //put the current cluster into the clusters buffer
           cr_cluster=std::make_shared<std::vector<std::unique_ptr<StripData>>>(); //create a new empty cluster and assign this hit as the first hit
