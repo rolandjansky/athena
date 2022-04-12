@@ -25,7 +25,7 @@ namespace SCT {
     */
    inline constexpr unsigned int getChip(unsigned int side, bool swap, unsigned int strip) {
       // Get strip number
-      assert( strip>=0 && strip <=N_STRIPS_PER_SIDE);
+      assert( strip <=N_STRIPS_PER_SIDE);
 
       // Conversion from strip to chip (specific for present SCT)
       unsigned int chip{static_cast<unsigned int>(strip)/N_STRIPS_PER_CHIP}; // One ABCD chip reads 128 strips
@@ -93,7 +93,7 @@ namespace SCT {
       // side 0 swap :  0 ->  5   5 ->  0
       // side 1      :  6 ->  0  11 ->  5
       // side 1 swap :  6 ->  5  11 ->  0
-      assert( (side==0 && physical_chip_id<6) || (side ==1 && physical_chip_id>=0 && physical_chip_id<12));
+      assert( (side==0 && physical_chip_id<6) || (side ==1 && physical_chip_id<12));
       return side==0
          ? ( swap ?   N_CHIPS_PER_SIDE - 1 - physical_chip_id : physical_chip_id)
          : ( swap ? 2*N_CHIPS_PER_SIDE - 1 - physical_chip_id : physical_chip_id - N_CHIPS_PER_SIDE);
