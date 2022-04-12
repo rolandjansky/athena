@@ -48,7 +48,6 @@ def ExampleL1TriggerByteStreamToolCfg(name, writeBS=False):
   tool = CompFactory.ExampleL1TriggerByteStreamTool(name)
   muctpi_moduleid = 0
   muctpi_robid = int(SourceIdentifier(SubDetector.TDAQ_MUON_CTP_INTERFACE, muctpi_moduleid))
-  tool.MUCTPIModuleId = muctpi_moduleid
   tool.ROBIDs = [muctpi_robid]
   if writeBS:
     # write BS == read xAOD
