@@ -797,7 +797,7 @@ StatusCode ISF_HitAnalysis::execute()
        if(loopEnd==-1) {
          loopEnd = particles_size; //is this the correct thing?
        }
-       for (auto *part: *(*mcEvent->begin())) {
+       for (const auto& part: *(*mcEvent->begin())) {
          ATH_MSG_DEBUG("Number truth particles="<<particles_size<<" loopEnd="<<loopEnd);
          particleIndex++;
 
@@ -1443,7 +1443,7 @@ std::vector<Trk::HitInfo>* ISF_HitAnalysis::caloHits(const HepMC::GenParticle& p
  // geantinos not handled by PdgToParticleHypothesis - fix there
  if( pdgId == 999 ) pHypothesis = Trk::geantino;
 
- auto *  vtx = part.production_vertex();
+ auto   vtx = part.production_vertex();
  Amg::Vector3D pos(0.,0.,0.);    // default
 
  if (vtx)

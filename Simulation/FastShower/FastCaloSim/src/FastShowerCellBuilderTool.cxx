@@ -83,9 +83,9 @@
 using MCparticleCollection = std::vector<HepMC::ConstGenParticlePtr> ;
 
 //This is a copy of the previous isGenSimulStable which depended on TruthHelper
-bool FastCaloSimIsGenSimulStable(HepMC::ConstGenParticlePtr  p) {
+bool FastCaloSimIsGenSimulStable(const HepMC::ConstGenParticlePtr&  p) {
   int status=p->status();
-  auto *vertex = p->end_vertex();
+  auto vertex = p->end_vertex();
   // we want to keep primary particle with status==2 but without vertex in HepMC
   int vertex_barcode=-999999;
   if (vertex) vertex_barcode=HepMC::barcode(vertex);
@@ -172,7 +172,7 @@ FastShowerCellBuilderTool::FastShowerCellBuilderTool(const std::string& type, co
 
 FastShowerCellBuilderTool::~FastShowerCellBuilderTool()
 {
-  for (auto* el : m_shape_correction ) delete el;
+  for (auto el : m_shape_correction ) delete el;
   m_shape_correction.clear();
   for (auto const& m1 : m_map_ParticleShapeParametrizationMap ) {
     for (auto const& m2 : m1.second ) {
@@ -1967,7 +1967,7 @@ FastShowerCellBuilderTool::process_particle(CaloCellContainer* theCellContainer,
 }
 
 
-bool FastShowerCellBuilderTool::Is_ID_Vertex(HepMC::ConstGenVertexPtr ver) const
+bool FastShowerCellBuilderTool::Is_ID_Vertex(const HepMC::ConstGenVertexPtr& ver) const
 {
   if(ver) {
     double inr=ver->position().perp();
@@ -1982,11 +1982,11 @@ bool FastShowerCellBuilderTool::Is_ID_Vertex(HepMC::ConstGenVertexPtr ver) const
   }
 }
 
-bool FastShowerCellBuilderTool::Is_EM_Vertex(HepMC::ConstGenVertexPtr ver) 
+bool FastShowerCellBuilderTool::Is_EM_Vertex(const HepMC::ConstGenVertexPtr& ver) 
 {
   if(ver) {
 #ifdef HEPMC3
-    for(auto par:ver->particles_in()) {
+    for(const auto& par:ver->particles_in()) {
 #else
     for(HepMC::GenVertex::particles_in_const_iterator pin=ver->particles_in_const_begin();pin!=ver->particles_in_const_end();++pin) {
       const HepMC::GenParticle* par=*pin;
@@ -1994,7 +1994,7 @@ bool FastShowerCellBuilderTool::Is_EM_Vertex(HepMC::ConstGenVertexPtr ver)
       int absid=abs(par->pdg_id());
       if(!(absid==11 || absid==22)) return false;
     }
-    for(auto *par_out: *ver) {
+    for(const auto& par_out: *ver) {
       int absid=std::abs(par_out->pdg_id());
       if(!(absid==11 || absid==22)) return false;
     }
@@ -2004,14 +2004,14 @@ bool FastShowerCellBuilderTool::Is_EM_Vertex(HepMC::ConstGenVertexPtr ver)
   return true;
 }
 
-FastShowerCellBuilderTool::flag_simul_sate FastShowerCellBuilderTool::Is_below_v14_truth_cuts_Vertex(HepMC::ConstGenVertexPtr ver) 
+FastShowerCellBuilderTool::flag_simul_sate FastShowerCellBuilderTool::Is_below_v14_truth_cuts_Vertex(const HepMC::ConstGenVertexPtr& ver) 
 {
   if(ver) {
     int nin=0;
     int id_in=0;
 #ifdef HEPMC3
     HepMC::ConstGenParticlePtr par_in;
-    for(auto pin:ver->particles_in()) {
+    for(const auto& pin:ver->particles_in()) {
     par_in=pin;
 #else
     const HepMC::GenParticle* par_in=nullptr;
@@ -2026,7 +2026,7 @@ FastShowerCellBuilderTool::flag_simul_sate FastShowerCellBuilderTool::Is_below_v
     int nele=0;
     int ngamma=0;
     int nother=0;
-    for( auto *par_out: *ver) {
+    for( const auto& par_out: *ver) {
       int absid=std::abs(par_out->pdg_id());
       if(absid==22) {
         ++ngamma;
@@ -2055,11 +2055,11 @@ using MCparticleCollection = FastShowerCellBuilderTool::MCparticleCollection ;
 
 void MC_init_particle_simul_state(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles)
 {
-  for(const auto *par: particles){
+  for(const auto& par: particles){
     if(par) {
       do_simul_state[HepMC::barcode(par)]=1;
-      auto *outver=par->end_vertex();
-      auto *inver =par->production_vertex();
+      auto outver=par->end_vertex();
+      auto inver =par->production_vertex();
       if(outver) {
         do_simul_state[HepMC::barcode(outver)]=1;
       }
@@ -2070,19 +2070,19 @@ void MC_init_particle_simul_state(MCdo_simul_state& do_simul_state,const MCparti
   }
 }
 
-void MC_recursive_remove_out_particles(MCdo_simul_state& do_simul_state,HepMC::ConstGenVertexPtr ver,FastShowerCellBuilderTool::flag_simul_sate simul_state)
+void MC_recursive_remove_out_particles(MCdo_simul_state& do_simul_state,const HepMC::ConstGenVertexPtr& ver,FastShowerCellBuilderTool::flag_simul_sate simul_state)
 {
   if(ver) {
     do_simul_state[HepMC::barcode(ver)]=simul_state;
-    for(auto *par_out: *ver) {
+    for(const auto& par_out: *ver) {
       do_simul_state[HepMC::barcode(par_out)]=simul_state;
-      auto *outver=par_out->end_vertex();
+      auto outver=par_out->end_vertex();
       if(outver) MC_recursive_remove_out_particles(do_simul_state,outver,simul_state);
     }
   }
 }
 
-void MC_recursive_remove_in_particles(MCdo_simul_state& do_simul_state,HepMC::ConstGenVertexPtr ver,FastShowerCellBuilderTool::flag_simul_sate simul_state)
+void MC_recursive_remove_in_particles(MCdo_simul_state& do_simul_state,const HepMC::ConstGenVertexPtr& ver,FastShowerCellBuilderTool::flag_simul_sate simul_state)
 {
   if(ver) {
     if(do_simul_state[HepMC::barcode(ver)]==simul_state) {
@@ -2090,14 +2090,14 @@ void MC_recursive_remove_in_particles(MCdo_simul_state& do_simul_state,HepMC::Co
     }
     do_simul_state[HepMC::barcode(ver)]=simul_state;
 #ifdef HEPMC3
-    for(auto par:ver->particles_in()) {
+    for(const auto& par:ver->particles_in()) {
 #else
 
     for(HepMC::GenVertex::particles_in_const_iterator pin=ver->particles_in_const_begin();pin!=ver->particles_in_const_end();++pin) {
       const HepMC::GenParticle* par=*pin;
 #endif
       do_simul_state[HepMC::barcode(par)]=simul_state;
-      auto *inver=par->production_vertex();
+      auto  inver=par->production_vertex();
       if(inver) MC_recursive_remove_in_particles(do_simul_state,inver,simul_state);
     }
   }
@@ -2106,16 +2106,16 @@ void MC_recursive_remove_in_particles(MCdo_simul_state& do_simul_state,HepMC::Co
 
 void FastShowerCellBuilderTool::MC_remove_out_of_ID(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles) const
 {
-  for(const auto *par: particles){
+  for(const auto& par: particles){
     if(par) {
       if(do_simul_state[HepMC::barcode(par)]<=0) continue;
 
-      auto *inver =par->production_vertex();
+      auto inver =par->production_vertex();
       if(inver) {
         if(!Is_ID_Vertex(inver)) {
           int nin=0;
 #ifdef HEPMC3
-    for(auto invpar:inver->particles_in()) {
+    for(const auto& invpar:inver->particles_in()) {
 #else
           for(HepMC::GenVertex::particles_in_const_iterator pin=inver->particles_in_const_begin();pin!=inver->particles_in_const_end();++pin) {
             const HepMC::GenParticle* invpar=*pin;
@@ -2139,11 +2139,11 @@ void FastShowerCellBuilderTool::MC_remove_out_of_ID(MCdo_simul_state& do_simul_s
 
 void FastShowerCellBuilderTool::MC_remove_out_of_EM(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles) 
 {
-  for(const auto *par_out: particles){
+  for(const auto& par_out: particles){
     if(par_out) {
       if(do_simul_state[HepMC::barcode(par_out)]<=0) continue;
 
-      auto *outver =par_out->end_vertex();
+      auto outver =par_out->end_vertex();
       if(outver) {
         if(HepMC::barcode(outver)>=-200000) continue;
 
@@ -2157,11 +2157,11 @@ void FastShowerCellBuilderTool::MC_remove_out_of_EM(MCdo_simul_state& do_simul_s
 
 void FastShowerCellBuilderTool::MC_remove_below_v14_truth_cuts(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles) 
 {
-  for(const auto *par_out: particles){
+  for(const auto& par_out: particles){
     if(par_out) {
       if(do_simul_state[HepMC::barcode(par_out)]<=0) continue;
 
-      auto *outver =par_out->end_vertex();
+      auto outver =par_out->end_vertex();
       if(outver) {
         if(HepMC::barcode(outver)>=-200000) continue;
 
@@ -2176,11 +2176,11 @@ void FastShowerCellBuilderTool::MC_remove_below_v14_truth_cuts(MCdo_simul_state&
 
 void MC_remove_decay_to_simul(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles)
 {
-  for(const auto *par_out: particles){
+  for(const auto& par_out: particles){
     if(par_out) {
       if(do_simul_state[HepMC::barcode(par_out)]<=0) continue;
 
-      auto *inver =par_out->production_vertex();
+      auto inver =par_out->production_vertex();
       if(inver) {
         MC_recursive_remove_in_particles(do_simul_state,inver,FastShowerCellBuilderTool::mother_particle);
       }
@@ -2289,7 +2289,7 @@ FastShowerCellBuilderTool::process (CaloCellContainer* theCellContainer,
   int indpar=0;
   ATH_MSG_DEBUG("start finding partilces n="<<particles.size());
 
-  for(const auto *par: particles){
+  for(const auto& par: particles){
     if(par->pdg_id()==0) do_simul_state[HepMC::barcode(par)]=pdg_id_unkown;
     // Do not treat nuclei
     if((!m_simul_heavy_ions) && par->pdg_id() > 1000000000) do_simul_state[HepMC::barcode(par)]=heavy_ion;
@@ -2346,15 +2346,15 @@ FastShowerCellBuilderTool::process (CaloCellContainer* theCellContainer,
       msg(MSG::DEBUG)<<reason;
 
       msg()<<indpar<<": id="<<par->pdg_id()<<" stat="<<par->status()<<" pt="<<par->momentum().perp()<<" eta="<<par->momentum().eta()<<" phi="<<par->momentum().phi();
-      auto *  inver =par->production_vertex();
-      auto *outver =par->end_vertex();
+      auto   inver =par->production_vertex();
+      auto outver =par->end_vertex();
       if(inver) {
         double inr=inver->position().perp();
         double inz=inver->position().z();
         msg()<<" ; bc="<<HepMC::barcode(inver)<<" r="<<inr<<" z="<<inz<<" phi="<<inver->position().phi()<<" ; ";
         bool sep=false;
 #ifdef HEPMC3
-    for(auto invpar:inver->particles_in()) {
+    for(const auto& invpar:inver->particles_in()) {
 #else
         for(HepMC::GenVertex::particles_in_const_iterator pin=inver->particles_in_const_begin();pin!=inver->particles_in_const_end();++pin) {
           const HepMC::GenParticle* invpar=*pin;
@@ -2370,7 +2370,7 @@ FastShowerCellBuilderTool::process (CaloCellContainer* theCellContainer,
       if(outver) {
         msg()<<"->";
         bool sep=false;
-        for(auto *outpar: *outver) {
+        for(const auto& outpar: *outver) {
           if(outpar) {
             if(sep) msg()<<",";
             msg()<<HepMC::barcode(outpar);
@@ -2408,7 +2408,7 @@ FastShowerCellBuilderTool::process (CaloCellContainer* theCellContainer,
   int stat_npar=0;
   int stat_npar_OK=0;
   int stat_npar_nOK=0;
-  for(const auto *part: Simulparticles) {
+  for(const auto& part: Simulparticles) {
 
     std::vector<Trk::HitInfo>* hitVector = caloHits(*part);
 
@@ -2505,7 +2505,7 @@ std::vector<Trk::HitInfo>* FastShowerCellBuilderTool::caloHits(const HepMC::GenP
   // geantinos not handled by PdgToParticleHypothesis - fix there
   if ( pdgId == 999 ) pHypothesis = Trk::geantino;
 
-  auto *vtx = part.production_vertex();
+  auto vtx = part.production_vertex();
   Amg::Vector3D pos(0.,0.,0.);    // default
 
   if (vtx) {
