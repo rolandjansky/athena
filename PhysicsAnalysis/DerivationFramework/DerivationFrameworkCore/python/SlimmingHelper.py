@@ -549,6 +549,9 @@ class SlimmingHelper:
                 elif collectionName=="InDetNoFakesNotFromBTrackParticles":
                         from DerivationFrameworkInDet.InDetNoFakesNotFromBTrackParticlesCPContent import InDetNoFakesNotFromBTrackParticlesCPContent
                         items.extend(InDetNoFakesNotFromBTrackParticlesCPContent)
+                elif collectionName=="InDetSiSPSeededTracksParticles":
+                        from DerivationFrameworkInDet.InDetSiSPSeededTracksParticlesCPContent import InDetSiSPSeededTracksParticlesCPContent
+                        items.extend(InDetSiSPSeededTracksParticlesCPContent)
                 elif collectionName=="InDetLargeD0TrackParticles":
                         from DerivationFrameworkInDet.InDetLargeD0TrackParticlesCPContent import InDetLargeD0TrackParticlesCPContent
                         items.extend(InDetLargeD0TrackParticlesCPContent)
