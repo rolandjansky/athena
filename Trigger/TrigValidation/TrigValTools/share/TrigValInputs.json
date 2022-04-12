@@ -4,7 +4,7 @@
         "format": "BS",
         "paths": [
             "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.merge.RAW._lb0151._SFO-1._0001.1",
-	    "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.merge.RAW._lb0151._SFO-1._0002.1"
+	        "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.merge.RAW._lb0151._SFO-1._0002.1"
         ]
     },
     "data_Main": {
@@ -39,27 +39,22 @@
         "source": "data",
         "format": "BS",
         "paths": [
-	    "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data16_cos.00306147.physics_Main.daq.RAW._lb0652._SFO-1._0001.data",
-	    "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data16_cos.00306147.physics_Main.daq.RAW._lb0652._SFO-2._0001.data",
-	    "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data16_cos.00306147.physics_Main.daq.RAW._lb0652._SFO-3._0001.data",
-	    "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data16_cos.00306147.physics_Main.daq.RAW._lb0652._SFO-4._0001.data",
-	    "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data16_cos.00306147.physics_Main.daq.RAW._lb0652._SFO-5._0001.data",
-	    "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data16_cos.00306147.physics_Main.daq.RAW._lb0652._SFO-6._0001.data"
-	]            
+            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data22_cos.00415453.express_express.merge.RAW/data22_cos.00415453.express_express.merge.RAW._lb0200._SFO-11._0001.1",
+            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data22_cos.00415453.express_express.merge.RAW/data22_cos.00415453.express_express.merge.RAW._lb0200._SFO-12._0001.1",
+            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data22_cos.00415453.express_express.merge.RAW/data22_cos.00415453.express_express.merge.RAW._lb0200._SFO-13._0001.1"
+	    ]
     },
-    "data_cos_CosmicMuons": {
+    "data_cos_run2": {
         "source": "data",
         "format": "BS",
         "paths": [
-            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data16_cos.00306147.physics_CosmicMuons.merge.RAW._lb0494._SFO-ALL._0001.1"
-        ]
-    },
-    "data_cos_IDCosmic": {
-        "source": "data",
-        "format": "BS",
-        "paths": [
-            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data16_cos.00306147.physics_IDCosmic.merge.RAW._lb0494._SFO-ALL._0001.1"
-        ]
+            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data16_cos.00306147.physics_Main.daq.RAW._lb0652._SFO-1._0001.data",
+            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data16_cos.00306147.physics_Main.daq.RAW._lb0652._SFO-2._0001.data",
+            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data16_cos.00306147.physics_Main.daq.RAW._lb0652._SFO-3._0001.data",
+            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data16_cos.00306147.physics_Main.daq.RAW._lb0652._SFO-4._0001.data",
+            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data16_cos.00306147.physics_Main.daq.RAW._lb0652._SFO-5._0001.data",
+            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data16_cos.00306147.physics_Main.daq.RAW._lb0652._SFO-6._0001.data"
+	    ]
     },
     "data_ALFACalib": {
         "source": "data",

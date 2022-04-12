@@ -38,7 +38,7 @@ preexec_reco = [
   "InDetFlags.doForwardTracks.set_Value_and_Lock(False)",
 ]
 preexec_aod = preexec_reco
-Input   = 'data_cos'    # defined in TrigValTools/share/TrigValInputs.json  
+Input   = 'data_cos_run2'    # defined in TrigValTools/share/TrigValInputs.json
 
 Jobs = [ ( "Offline",     " TIDAdata-run3-offline-cosmic.dat      -r Offline -o data-hists-offline.root" ) ]
 
