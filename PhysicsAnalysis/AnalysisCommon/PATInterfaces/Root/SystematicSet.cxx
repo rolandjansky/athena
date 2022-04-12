@@ -322,7 +322,7 @@ namespace CP
   }
 
   // General hash function for SystematicSet
-  std::size_t SystematicSetHash::operator()(const SystematicSet& sysSet)
+  std::size_t SystematicSetHash::operator()(const SystematicSet& sysSet) const
   {
     return sysSet.hash();
   }
