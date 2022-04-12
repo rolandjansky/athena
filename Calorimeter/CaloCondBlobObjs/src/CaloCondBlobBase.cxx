@@ -22,6 +22,7 @@ CaloCondBlobBase::CaloCondBlobBase(coral::Blob* blob_nc,
     const CaloCondBlobBase& this_c = *this;
     m_nChans=unpacknChans(this_c.getBlobStart()[3]);
     m_nGains=unpacknGains(this_c.getBlobStart()[3]);
+    m_pDataStart=static_cast<const void*>(this_c.getBlobStart()+getHdrSize());
     //std::cout << "CaloCondBlobObj: nChans=" << m_nChans << " nGains=" << m_nGains << std::endl;
   }
   return;
@@ -53,7 +54,8 @@ CaloCondBlobBase::CaloCondBlobBase(const CaloCondBlobBase& other)
   , m_isBlobOwner(true),
     m_sizeOfObj(other.getObjSizeUint32()),
     m_nChans(other.getNChans()),
-    m_nGains(other.getNChans())
+    m_nGains(other.getNChans()),
+    m_pDataStart(static_cast<const void*>(getBlobStart()+getHdrSize()))
 {
 }
 
@@ -71,6 +73,7 @@ CaloCondBlobBase::operator=(const CaloCondBlobBase& other)
   m_sizeOfObj=static_cast<const uint32_t*>(m_blob->startingAddress())[1];
   m_nChans=unpacknChans(getBlobStart()[3]);
   m_nGains=unpacknGains(getBlobStart()[3]);
+  m_pDataStart=static_cast<const void*>(getBlobStart()+getHdrSize());
   return *this;
 }
 
@@ -129,6 +132,7 @@ CaloCondBlobBase::createBlob(uint16_t objType,
     *(++pChar) = 0;
   }
 
+  m_pDataStart=static_cast<const void*>(getBlobStart()+getHdrSize());
   return (blobSizeInBytes/sizeof(uint32_t));
 }
 
