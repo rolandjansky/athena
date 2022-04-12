@@ -1,62 +1,45 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDTOOL_MDT_MAPCONVERSION_H
 #define MUONCONDTOOL_MDT_MAPCONVERSION_H
 
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/AlgTool.h"
-#include "MuonCondInterface/IMDT_MapConversion.h"
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "AthenaBaseComps/AthAlgTool.h"
+#include "MuonCondInterface/IMDT_MapConversion.h"
+#include "MuonIdHelpers/MdtIdHelper.h"
 
-
-class Identifier;
-
-class MdtHelper;
 class IIOVSvc;
-class StatusCode;
 
+class MDT_MapConversion : public AthAlgTool, virtual public IMDT_MapConversion {
+public:
+    MDT_MapConversion(const std::string& type, const std::string& name, const IInterface* parent);
 
-class MDT_MapConversion: public AthAlgTool, virtual public IMDT_MapConversion
-{
+    virtual StatusCode initialize();
 
-public:   
+    virtual const Identifier& ConvertToOffline(std::string_view OnlineId, bool quiet = false) const;
 
-  MDT_MapConversion(const std::string& type,
-                const std::string& name,
-                const IInterface* parent);
+    //  const std::string OnlineName(Identifier OfflineId);
+    // const Identifier OfflineName(std::string OnlineId);
 
-  virtual StatusCode initialize();
+private:
+    std::map<std::string, Identifier> m_Chamber_Map;
 
+    const MdtIdHelper* m_mdtIdHelper;
 
-  virtual const Identifier& ConvertToOffline(std::string_view OnlineId,
-                                             bool quiet = false) const;
+    std::string m_OnlineName;
+    Identifier m_OfflineName;
+    Identifier m_Online_empty;
 
-  //  const std::string OnlineName(Identifier OfflineId);
-  //const Identifier OfflineName(std::string OnlineId);
+    IChronoStatSvc* m_chronoSvc;
 
- private:
-
-  std::map<std::string, Identifier> m_Chamber_Map;
-
-  const MdtIdHelper* m_mdtIdHelper;
- 
-  std::string m_OnlineName;
-  Identifier m_OfflineName;
-  Identifier m_Online_empty;
-  
-  IChronoStatSvc* m_chronoSvc;
-
-  std::string m_chrono1;
-  std::string m_chrono2;
-  std::string m_chrono3;
-  std::string m_chrono4;
-
-
+    std::string m_chrono1;
+    std::string m_chrono2;
+    std::string m_chrono3;
+    std::string m_chrono4;
 };
- 
-
 
 #endif
