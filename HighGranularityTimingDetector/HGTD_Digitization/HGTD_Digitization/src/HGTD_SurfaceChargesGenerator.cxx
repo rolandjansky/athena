@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  *
  * @file HGTD_Digitization/HGTD_SurfaceChargesGenerator.h
  *
@@ -59,12 +59,14 @@ void HGTD_SurfaceChargesGenerator::createSurfaceChargesFromHit(
 
   // check the status of truth information for this SiHit
   // some Truth information is cut for pile up events
-  HepMcParticleLink trklink(hit.particleLink());
+  EBC_EVCOLL evColl = EBC_MAINEVCOLL;
   if (m_needs_mc_evt_coll_helper) {
-    trklink.setEventCollection(
-        McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(
-            timed_hit_ptr.pileupType(), &msg()));
+    evColl = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(timed_hit_ptr.pileupType(), &msg());
   }
+
+  const unsigned int evtIndex = timed_hit_ptr.eventId();
+  const bool isEventIndexIsPosition = (evtIndex==0);
+  HepMcParticleLink trklink(hit.trackNumber(), evtIndex, evColl, isEventIndexIsPosition);
 
   SiCharge::Process hitproc(SiCharge::track);
   if (hit.trackNumber() != 0) {
