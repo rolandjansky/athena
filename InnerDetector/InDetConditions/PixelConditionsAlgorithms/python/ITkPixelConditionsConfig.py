@@ -75,14 +75,25 @@ def ITkPixelChargeCalibCondAlgCfg(flags, name="ITkPixelChargeCalibCondAlg", **kw
     """Return a ComponentAccumulator with configured PixelChargeCalibCondAlg for ITk"""
     acc = ComponentAccumulator()
     acc.merge(ITkPixelModuleConfigCondAlgCfg(flags))
-    acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection"))
+
+    folderName = ""
+    if flags.ITk.Conditions.PixelChargeCalibTag:
+        folderName = "/ITK/PixelChargeCalib"
+        if flags.ITk.Conditions.PixelChargeCalibFile:
+            acc.merge(addFolders(flags, folderName, flags.ITk.Conditions.PixelChargeCalibFile, tag=flags.ITk.Conditions.PixelChargeCalibTag, db="OFLP200", className="CondAttrListCollection"))
+        else:
+            acc.merge(addFolders(flags, folderName, "ITK", tag=flags.ITk.Conditions.PixelChargeCalibTag, db="OFLP200", className="CondAttrListCollection"))
+    # TODO: enable once in the DB
+    # else:
+    #    acc.merge(addFolders(flags, "/ITK/PixelChargeCalib", "ITK", db="OFLP200", className="CondAttrListCollection"))
+
     from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg
     acc.merge(ITkPixelReadoutGeometryCfg(flags))
     kwargs.setdefault("PixelDetEleCollKey", "ITkPixelDetectorElementCollection")
     kwargs.setdefault("PixelModuleData", "ITkPixelModuleData")
-    kwargs.setdefault("ReadKey", "")  # disabled for now as the DB is not valid for the current geometry
+    kwargs.setdefault("ReadKey", folderName)
     kwargs.setdefault("WriteKey", "ITkPixelChargeCalibCondData")
-    acc.addCondAlgo(CompFactory.PixelChargeCalibCondAlg(name, **kwargs))
+    acc.addCondAlgo(CompFactory.PixelChargeLUTCalibCondAlg(name, **kwargs))
     return acc
 
 def ITkPixelChargeLUTCalibCondAlgCfg(flags, name="ITkPixelChargeLUTCalibCondAlg", **kwargs):
