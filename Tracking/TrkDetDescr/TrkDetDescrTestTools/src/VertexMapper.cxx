@@ -28,9 +28,7 @@ Trk::VertexMapper::VertexMapper(const std::string& t, const std::string& n, cons
 
 // destructor
 Trk::VertexMapper::~VertexMapper()
-{
-
-}
+= default;
 
 // Athena standard methods
 // initialize

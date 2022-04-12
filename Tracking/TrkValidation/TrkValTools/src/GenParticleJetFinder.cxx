@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -42,7 +42,7 @@ StatusCode Trk::GenParticleJetFinder::finalize() {
 ///////////////////////////////
 std::vector< Trk::GenParticleJet >* Trk::GenParticleJetFinder::jetMCFinder(  std::vector <HepMC::ConstGenParticlePtr>&  GenStableCharged) const
 {
-  if (GenStableCharged.size() == 0) {
+  if (GenStableCharged.empty()) {
     ATH_MSG_INFO ("no selected charged particles!");
     return nullptr;
   }
@@ -105,7 +105,7 @@ std::vector< Trk::GenParticleJet >* Trk::GenParticleJetFinder::jetMCFinder(  std
       
     /* If one pair of particles are found which have the required minimal */
     
-    if (combineParticles==true) {
+    if (combineParticles) {
 
       ATH_MSG_VERBOSE ("combining: " << (*iAtMin).getNumParticles()
                  << " ("<<(*iAtMin).getIndicesInEvent().size()<<")"
@@ -116,7 +116,7 @@ std::vector< Trk::GenParticleJet >* Trk::GenParticleJetFinder::jetMCFinder(  std
         auto partsTemp = (*jAtMin).getParticles();	  
         std::vector<int> indexTemp = (*jAtMin).getIndicesInEvent();
         //	  int partsTempSize = partsTemp.size();
-        if (partsTemp.size()!=0) {
+        if (!partsTemp.empty()) {
           
           std::vector<int>::iterator       ki=indexTemp.begin();
           for (auto k =partsTemp.begin(); k!=partsTemp.end(); ++k, ++ki) {
@@ -134,7 +134,7 @@ std::vector< Trk::GenParticleJet >* Trk::GenParticleJetFinder::jetMCFinder(  std
 
         auto partsTemp = (*iAtMin).getParticles();	  
         std::vector<int> indexTemp = (*iAtMin).getIndicesInEvent();
-        if (partsTemp.size()!=0) {
+        if (!partsTemp.empty()) {
 
           std::vector<int>::iterator       ki=indexTemp.begin();
           for (auto k =partsTemp.begin(); k!=partsTemp.end(); ++k, ++ki) {
@@ -162,6 +162,6 @@ std::vector< Trk::GenParticleJet >* Trk::GenParticleJetFinder::jetMCFinder(  std
     if(partIterations==999)
       ATH_MSG_INFO ( "JetMCFinder cut off because of too many (1000) iterations");
 		  
-  } while ((yijmin<m_yijCut && partIterations<1000)==true);
+  } while (yijmin<m_yijCut && partIterations<1000);
   return myJets;
 }

@@ -75,7 +75,7 @@ Trk::TruthNtupleTool::TruthNtupleTool(
 }
 
 // destructor
-Trk::TruthNtupleTool::~TruthNtupleTool() {}
+Trk::TruthNtupleTool::~TruthNtupleTool() = default;
 
 
 

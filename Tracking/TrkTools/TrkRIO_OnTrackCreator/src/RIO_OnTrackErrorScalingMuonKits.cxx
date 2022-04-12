@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "RIO_OnTrackErrorScalingKit.h"
 #include "MuonRIO_OnTrack/MuonEtaPhiRIO_OnTrackErrorScaling.h"
@@ -44,9 +44,9 @@ class MDTRIO_OnTrackErrorScalingKit
   : public RIO_OnTrackErrorScalingSpecialisedKit<MDTRIO_OnTrackErrorScaling>
 {
 public:
-  MDTRIO_OnTrackErrorScalingKit() {}
+  MDTRIO_OnTrackErrorScalingKit() = default;
 
-  ~MDTRIO_OnTrackErrorScalingKit() {}
+  ~MDTRIO_OnTrackErrorScalingKit() = default;
 
   virtual unsigned int nParametres() const override {
     return MDTRIO_OnTrackErrorScaling::kNParamTypes;

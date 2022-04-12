@@ -76,7 +76,7 @@ Trk::GeometryBuilderCond::GeometryBuilderCond(const std::string& t, const std::s
 
 // destructor
 Trk::GeometryBuilderCond::~GeometryBuilderCond()
-{}
+= default;
 
 
 // Athena standard methods

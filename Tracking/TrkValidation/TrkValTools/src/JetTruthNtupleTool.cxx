@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ Trk::JetTruthNtupleTool::JetTruthNtupleTool(
 }
 
 // destructor
-Trk::JetTruthNtupleTool::~JetTruthNtupleTool() {}
+Trk::JetTruthNtupleTool::~JetTruthNtupleTool() = default;
 
 // initialize
 StatusCode Trk::JetTruthNtupleTool::initialize() {

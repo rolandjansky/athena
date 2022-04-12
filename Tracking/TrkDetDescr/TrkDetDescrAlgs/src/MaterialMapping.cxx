@@ -82,7 +82,7 @@ Trk::MaterialMapping::MaterialMapping(const std::string& name, ISvcLocator* pSvc
 }
 
 Trk::MaterialMapping::~MaterialMapping()
-{}
+= default;
 
 
 StatusCode Trk::MaterialMapping::initialize()

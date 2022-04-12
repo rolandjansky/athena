@@ -64,7 +64,7 @@ Trk::McEventNtupleTool::McEventNtupleTool(
 }
 
 // destructor
-Trk::McEventNtupleTool::~McEventNtupleTool() {}
+Trk::McEventNtupleTool::~McEventNtupleTool() = default;
 
 //////////////////
 /// initialize

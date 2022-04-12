@@ -56,7 +56,7 @@ Trk::TrackingVolumeDisplayer::TrackingVolumeDisplayer(const std::string& t, cons
 
 // destructor
 Trk::TrackingVolumeDisplayer::~TrackingVolumeDisplayer()
-{}
+= default;
 
 
 // the interface methods

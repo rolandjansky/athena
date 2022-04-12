@@ -33,7 +33,7 @@ Trk::SingleTrackDiffAlg::SingleTrackDiffAlg(const std::string& name, ISvcLocator
 
 }
 
-Trk::SingleTrackDiffAlg::~SingleTrackDiffAlg() {}
+Trk::SingleTrackDiffAlg::~SingleTrackDiffAlg() = default;
 
 StatusCode Trk::SingleTrackDiffAlg::initialize() {
     msg(MSG::INFO) <<"SingleTrackDiffAlg initialize()" << endmsg;

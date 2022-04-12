@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -34,7 +34,7 @@ Trk::StepEngine::StepEngine(const std::string& t, const std::string& n, const II
 
 // destructor
 Trk::StepEngine::~StepEngine()
-{}
+= default;
 
 
 // the interface method initialize

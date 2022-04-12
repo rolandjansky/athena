@@ -41,7 +41,7 @@ Trk::InputLayerMaterialProvider::InputLayerMaterialProvider(const std::string& t
 
 // destructor
 Trk::InputLayerMaterialProvider::~InputLayerMaterialProvider()
-{}
+= default;
 
 StatusCode Trk::InputLayerMaterialProvider::initialize() {
 

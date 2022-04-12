@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -55,7 +55,7 @@ Trk::TrackSummaryNtupleTool::TrackSummaryNtupleTool(
 }
 
 // destructor
-Trk::TrackSummaryNtupleTool::~TrackSummaryNtupleTool() {}
+Trk::TrackSummaryNtupleTool::~TrackSummaryNtupleTool() = default;
 
 
 ///////////////////////////////////////

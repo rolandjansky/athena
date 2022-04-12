@@ -31,7 +31,7 @@ namespace Trk
     declareInterface<V0Tools>(this);
   }
 
-  V0Tools::~V0Tools() {}
+  V0Tools::~V0Tools() = default;
 
   StatusCode V0Tools::initialize()
   {

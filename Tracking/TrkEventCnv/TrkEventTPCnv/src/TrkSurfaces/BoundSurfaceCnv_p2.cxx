@@ -47,7 +47,7 @@ transToPers( const SURFACE *transObj, Trk::BoundSurface_p2 *persObj, MsgStream &
 }
 
 // specialized for polymorphic surfaces
-typedef  ITPConverterFor<Trk::SurfaceBounds>   TPCnvForSurfBnds;
+using TPCnvForSurfBnds = ITPConverterFor<Trk::SurfaceBounds>;
 
 template< class SURFACE >
 void
@@ -77,7 +77,7 @@ transToPers( const SURFACE *transObj, Trk::BoundSurface_p2 *persObj, MsgStream &
 {
    m_surfaceCnv.transToPers( transObj, persObj, log );
    if ((transObj->m_bounds).get() && !dynamic_cast<const Trk::NoBounds*>((transObj->m_bounds).get()))
-       persObj->m_bounds = this->toPersistent( (TPCnvForSurfBnds**)0, (transObj->m_bounds).get(), log );       
+       persObj->m_bounds = this->toPersistent( (TPCnvForSurfBnds**)nullptr, (transObj->m_bounds).get(), log );       
 }
 
 

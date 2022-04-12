@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -42,7 +42,7 @@ Trk::EventToTrackLinkNtupleTool::EventToTrackLinkNtupleTool(
 }
 
 // destructor
-Trk::EventToTrackLinkNtupleTool::~EventToTrackLinkNtupleTool() {}
+Trk::EventToTrackLinkNtupleTool::~EventToTrackLinkNtupleTool() = default;
 
 StatusCode Trk::EventToTrackLinkNtupleTool::initialize() {
   if(checkCollectionType().isFailure()) return StatusCode::FAILURE;

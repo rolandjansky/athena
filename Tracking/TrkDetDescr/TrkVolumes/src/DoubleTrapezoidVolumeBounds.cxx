@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -69,7 +69,7 @@ Trk::DoubleTrapezoidVolumeBounds::DoubleTrapezoidVolumeBounds(
   , m_objectAccessor(trabo.m_objectAccessor)
 {}
 
-Trk::DoubleTrapezoidVolumeBounds::~DoubleTrapezoidVolumeBounds() {}
+Trk::DoubleTrapezoidVolumeBounds::~DoubleTrapezoidVolumeBounds() = default;
 
 Trk::DoubleTrapezoidVolumeBounds&
 Trk::DoubleTrapezoidVolumeBounds::operator=(

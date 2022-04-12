@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
@@ -46,8 +46,7 @@ namespace Trk
 
 
   ZScanSeedFinder::~ZScanSeedFinder()
-  {
-  }
+  = default;
 
 
   StatusCode ZScanSeedFinder::initialize()
@@ -168,7 +167,7 @@ namespace Trk
                                        const xAOD::Vertex * constraint) const
   {
     const EventContext& ctx = Gaudi::Hive::currentContext();
-    Cache& cache = *m_cache.get(ctx);
+    Cache& cache = *m_cache;
 
     Amg::Vector2D constraintkey;
     if (constraint) {

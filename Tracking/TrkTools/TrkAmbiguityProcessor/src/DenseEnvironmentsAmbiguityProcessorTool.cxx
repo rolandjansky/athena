@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DenseEnvironmentsAmbiguityProcessorTool.h"
@@ -62,8 +62,7 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::
 }
 //==================================================================================================
 
-Trk::DenseEnvironmentsAmbiguityProcessorTool::~DenseEnvironmentsAmbiguityProcessorTool(){
-}
+Trk::DenseEnvironmentsAmbiguityProcessorTool::~DenseEnvironmentsAmbiguityProcessorTool()= default;
 //==================================================================================================
 
 StatusCode 

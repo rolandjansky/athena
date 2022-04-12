@@ -24,7 +24,7 @@ NeuralNetworkToHistoTool::NeuralNetworkToHistoTool(const std::string& name,
 }
 
 NeuralNetworkToHistoTool::~NeuralNetworkToHistoTool()
-{}
+= default;
 
 StatusCode NeuralNetworkToHistoTool::initialize() {
 
