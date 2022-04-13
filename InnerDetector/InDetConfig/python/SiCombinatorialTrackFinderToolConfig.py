@@ -64,13 +64,13 @@ def SiCombinatorialTrackFinder_xkCfg(flags, name="InDetSiComTrackFinder", **kwar
     # --- Local track finding using sdCaloSeededSSSpace point seed
     #
     if flags.InDet.Tracking.doDBMstandalone:
-        from InDetConfig.TrackingCommonConfig import InDetRotCreatorDBMCfg
+        from TrkConfig.TrkRIO_OnTrackCreatorConfig import InDetRotCreatorDBMCfg
         RotCreator = acc.popToolsAndMerge(InDetRotCreatorDBMCfg(flags))
         kwargs.setdefault("useSCT", False)
         kwargs.setdefault("MagneticFieldMode", "NoField")
         kwargs.setdefault("TrackQualityCut", 9.3)
     else:
-        from InDetConfig.TrackingCommonConfig import InDetRotCreatorDigitalCfg
+        from TrkConfig.TrkRIO_OnTrackCreatorConfig import InDetRotCreatorDigitalCfg
         RotCreator = acc.popToolsAndMerge(InDetRotCreatorDigitalCfg(flags))
         kwargs.setdefault("useSCT", flags.Detector.EnableSCT)
 
@@ -140,8 +140,8 @@ def SiCombinatorialTrackFinder_xk_Trig_Cfg( flags, name="InDetTrigSiComTrackFind
   from TrkConfig.TrkMeasurementUpdatorConfig import KalmanUpdator_xkCfg
   patternUpdatorTool = acc.popToolsAndMerge( KalmanUpdator_xkCfg(flags, name="InDetTrigPatternUpdator") )
 
-  from TrigInDetConfig.TrigInDetConfig import RIO_OnTrackCreatorCfg
-  rioOnTrackTool = acc.getPrimaryAndMerge( RIO_OnTrackCreatorCfg( flags ) )
+  from TrkConfig.TrkRIO_OnTrackCreatorConfig import TrigRotCreatorCfg
+  rioOnTrackTool = acc.getPrimaryAndMerge( TrigRotCreatorCfg( flags ) )
 
   from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
   pixelCondSummaryTool = acc.popToolsAndMerge( PixelConditionsSummaryCfg(flags) )
@@ -176,7 +176,7 @@ def ITkSiCombinatorialTrackFinder_xkCfg(flags, name="ITkSiComTrackFinder", **kwa
     #
     # --- Local track finding using sdCaloSeededSSSpace point seed
     #
-    from InDetConfig.ITkTrackingCommonConfig import ITkRotCreatorDigitalCfg
+    from TrkConfig.TrkRIO_OnTrackCreatorConfig import ITkRotCreatorDigitalCfg
     ITkRotCreatorDigital = acc.getPrimaryAndMerge(ITkRotCreatorDigitalCfg(flags))
     kwargs.setdefault("RIOonTrackTool", ITkRotCreatorDigital)
 
