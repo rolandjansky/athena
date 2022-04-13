@@ -328,13 +328,15 @@ namespace top {
     }
 
     // Define the trigger string for scale factors
-    const std::string trigger_string = "SINGLE_E_2015_e24_lhmedium_L1EM20VH_"
-                                       "OR_e60_lhmedium_"
-                                       "OR_e120_lhloose_"
-                                       "2016_2018_e26_lhtight_nod0_ivarloose_"
-                                       "OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0";
+    std::string trigger_string = "SINGLE_E_2015_e24_lhmedium_L1EM20VH_"
+                                 "OR_e60_lhmedium_"
+                                 "OR_e120_lhloose_"
+                                 "2016_2018_e26_lhtight_nod0_ivarloose_"
+                                 "OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0";
 
-
+    if (m_config->electronForceTrigger() != " " ) {
+      trigger_string = m_config->electronForceTrigger();
+    }
 
     // Define the tool prefix name
     const std::string elSFPrefix = "AsgElectronEfficiencyCorrectionTool_";

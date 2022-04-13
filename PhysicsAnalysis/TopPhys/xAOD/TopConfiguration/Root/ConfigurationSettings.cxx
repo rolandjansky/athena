@@ -177,19 +177,22 @@ namespace top {
     registerParameter("MuonSFCustomInputFolder",
                       "EXPERT OPTION! Tells the MuonEfficiencyScaleFactors tools to use a custom input folder path. If set to \" \" will use the default",
                       " ");
-    registerParameter("forceYear",
+    registerParameter("MuonForceYear",
                       "EXPERT OPTION! Tells the MuonEfficiencyScaleFactors tools to use a custom Year. If set to -1 will use the default",
                       "-1");
-    registerParameter("forcePeriod",
+    registerParameter("MuonForcePeriod",
                       "EXPERT OPTION! Tells the MuonEfficiencyScaleFactors tools to use a custom Period. If set to \" \" will use the default",
                       " ");
-    registerParameter("forceTrigger",
+    registerParameter("MuonForceTrigger",
                       "EXPERT OPTION! Tells the MuonEfficiencyScaleFactors tools to use a custom Trigger. If set to \" \" will use the default", 
                       " ");
     registerParameter("MuonBreakDownSystematics",
                       "Tells the MuonEfficiencyScaleFactors tools to use a more complex systematic model, if set to True. Default is False",
                       "False", {"True", "False"});
 
+    registerParameter("ElectronForceTrigger",
+                      "EXPERT OPTION! Tells the tools to use a custom electron Trigger. If set to \" \" will use the default", 
+                      " ");
     registerParameter("JetPt", "Jet pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
     registerParameter("JetEta", "Absolute Jet eta cut for object selection. Default 2.5.", "2.5");
    
