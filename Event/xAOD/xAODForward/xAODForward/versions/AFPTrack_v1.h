@@ -22,14 +22,10 @@
 #include "AthContainers/AuxElement.h"
 #include "AthLinks/ElementLink.h"
 
-// needed for forward declaration
-#include "AthContainers/DataVector.h"
+// Internal include(s):
+#include "xAODForward/AFPSiHitContainer.h"
 
 namespace xAOD {
-  // forward declaration
-  class AFPSiHit_v1;
-  typedef DataVector< AFPSiHit_v1 > AFPSiHitContainer_v1;
-
   /**
    * @brief Class representing a track reconstructed in AFP.
    * 
@@ -40,7 +36,7 @@ namespace xAOD {
   {
   public:
     /// Type of a link to the hit
-    typedef ElementLink< AFPSiHitContainer_v1 > AFPHitLink_t;
+    typedef ElementLink< AFPSiHitContainer > AFPHitLink_t;
 
     /** 
      * @brief Index of the station where track was reconstructed.

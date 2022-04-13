@@ -25,18 +25,11 @@
 // needed for forward declaration
 #include "AthContainers/DataVector.h"
 
-#include "xAODForward/versions/AFPProton_v1.h"
-#include "xAODForward/versions/AFPProtonContainer_v1.h"
-#include "xAODForward/versions/AFPToFTrack_v1.h"
-#include "xAODForward/versions/AFPToFTrackContainer_v1.h"
+// Internal include(s):
+#include "xAODForward/AFPProtonContainer.h"
+#include "xAODForward/AFPToFTrackContainer.h"
 
 namespace xAOD {
-  // forward declaration
-  class AFPProton_v1;
-  typedef DataVector< AFPProton_v1 > AFPProtonContainer_v1;
-
-  class AFPToFTrack_v1;
-  typedef DataVector< AFPToFTrack_v1 > AFPToFTrackContainer_v1;
 
   /**
    * @brief Class representing a vertex reconstructed in AFP.
@@ -49,10 +42,10 @@ namespace xAOD {
   public:
 
     /// Type of a link to the proton
-    typedef ElementLink< AFPProtonContainer_v1 > AFPProtonLink_t;
+    typedef ElementLink< AFPProtonContainer > AFPProtonLink_t;
 
     /// Type of a link to the tofTrack
-    typedef ElementLink< AFPToFTrackContainer_v1 > AFPToFTrackLink_t;
+    typedef ElementLink< AFPToFTrackContainer > AFPToFTrackLink_t;
 
     /** 
      * @brief Vertex position .

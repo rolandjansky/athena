@@ -22,8 +22,8 @@
 #include "AthContainers/AuxElement.h"
 #include "AthLinks/ElementLink.h"
 
-#include "xAODForward/versions/AFPSiHitsCluster_v1.h"
-#include "xAODForward/versions/AFPSiHitsClusterContainer_v1.h"
+// Internal include(s):
+#include "xAODForward/AFPSiHitsClusterContainer.h"
 
 namespace xAOD {
 
@@ -37,7 +37,7 @@ namespace xAOD {
   {
   public:
     /// Type of a link to the cluster
-    typedef ElementLink< AFPSiHitsClusterContainer_v1 > AFPClusterLink_t;
+    typedef ElementLink< AFPSiHitsClusterContainer > AFPClusterLink_t;
 
     /** 
      * @brief Index of the station where track was reconstructed.
