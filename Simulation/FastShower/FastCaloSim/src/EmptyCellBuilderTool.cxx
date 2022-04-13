@@ -11,19 +11,16 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "TileEvent/TileCell.h"
 
-EmptyCellBuilderTool::EmptyCellBuilderTool(
-			     const std::string& type, 
-			     const std::string& name, 
-			     const IInterface* parent)
-  :BasicCellBuilderTool(type, name, parent)
+EmptyCellBuilderTool::EmptyCellBuilderTool(const std::string& type, 
+					   const std::string& name, 
+					   const IInterface* parent)
+  : base_class(type, name, parent)
 { 
-  declareInterface<ICaloCellMakerTool>( this );  
 }
 
 StatusCode EmptyCellBuilderTool::initialize()
 {
   ATH_MSG_INFO("Initialisating started");
-  ATH_CHECK(BasicCellBuilderTool::initialize());
   ATH_CHECK(m_caloMgrKey.initialize());
   ATH_MSG_INFO("Initialisating finished");
   return StatusCode::SUCCESS;
@@ -65,10 +62,9 @@ void EmptyCellBuilderTool::create_empty_calo(const EventContext& ctx,
     DataPool<FastSimCaloCell> CellsPCalo(190000);
     ATH_MSG_DEBUG("before: CellsPTile.capacity()="<<CellsPTile.capacity()<<" CellsPTile.allocated()="<<CellsPTile.allocated());
     ATH_MSG_DEBUG("before: CellsPCalo.capacity()="<<CellsPCalo.capacity()<<" CellsPCalo.allocated()="<<CellsPCalo.allocated());
-  #endif  
+  #endif
 
-  for(CaloDetDescrManager::calo_element_const_iterator calo_iter=caloDDM->element_begin();calo_iter<caloDDM->element_end();++calo_iter) {
-    const CaloDetDescrElement* theDDE=*calo_iter;
+  for(const CaloDetDescrElement* theDDE : caloDDM->element_range()) {
     if(theDDE) {
       CaloCell* theCaloCell=0;
       
@@ -88,7 +84,6 @@ void EmptyCellBuilderTool::create_empty_calo(const EventContext& ctx,
             theCaloCell=new FastSimCaloCell();
           }
         #else  
-  //        theCaloCell=new CaloCell(theDDE,0.0,0.0,1.0,CaloGain::INVALIDGAIN);
           if(calo==CaloCell_ID::TILE) {
             theCaloCell = CellsPTile.nextElementPtr();
           } else {
@@ -105,7 +100,6 @@ void EmptyCellBuilderTool::create_empty_calo(const EventContext& ctx,
         theCellContainer->push_back(theCaloCell);
         ++ncreate;
       }  
-//      ++n;
     }  
   }
 
