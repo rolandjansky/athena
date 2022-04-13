@@ -27,7 +27,7 @@
 #include "TrigInDetAnalysis/TIDAVertex.h"
 #include "TrigInDetAnalysis/TrackSelector.h"     
 #include "TrigInDetAnalysisUtils/T_AnalysisConfig.h"
-#include "TrigInDetAnalysisUtils/TagNProbe.h"
+#include "TrigInDetAnalysisUtils/TagNProbe2.h"
 
 #include "TrigInDetAnalysisExample/Analysis_Tier0.h"
 #include "TrigInDetAnalysisExample/AnalysisR3_Tier0.h"
@@ -110,7 +110,7 @@ public:
 			 TrackFilter*     testFilter,  TrackFilter*     referenceFilter, 
 			 TrackAssociator* associator,
 			 TrackAnalysis*   analysis,
-			 TagNProbe*       TnP_tool = 0) :
+			 TagNProbe2*      TnP_tool = 0) :
     T_AnalysisConfig<T>( analysisInstanceName,
 			 testChainName,      testType,      testKey,
 			 referenceChainName, referenceType, referenceKey,
@@ -687,39 +687,8 @@ protected:
 	m_provider->msg(MSG::WARNING) << " Offline tracks not found " << endmsg;
       }
 
-      // set event configuration for tagnprobe 
-      if ( TnP_flag ) {
+    }
 
-	// dummy values
-	double ZmassMin = 40 ;
-	double ZmassMax = 150 ;
-	m_TnP_tool->SetEventConfiguration( 
-					  m_selectorRef, &filterRef,    // offline tracks and filter
-					  "Offline",                    // offline chain name
-					  0,                            // trigger object matcher
-					  ZmassMin, ZmassMax );         // set the Zmass range
-      }
-	  
-    }
-    else { 
-      /// what is this ???
-      if ( m_mcTruth && foundTruth ){
-	
-	if ( TnP_flag ) {
-	      
-	  // dummy values
-	  double ZmassMin = 40 ;
-	  double ZmassMax = 150 ;
-	      
-	  m_TnP_tool->SetEventConfiguration( 
-					    &selectorTruth, &filter_truth,   // truth tracks and filter
-					    "Truth",                         // truth chain name
-					    0,                               // trigger object matcher
-					    ZmassMin, ZmassMax );            // set the Zmass range
-	}
-	    
-      }
-    }
 
     //    std::cout << "\tloop() loop over chains proper ..." << std::endl;
 
@@ -982,7 +951,7 @@ protected:
       std::vector<TIDA::Roi*> rois ;
       
       if (TnP_flag) {
-	rois = m_TnP_tool->GetRois( m_event->chains() );
+	rois = m_TnP_tool->GetRois( m_event->chains(), m_selectorRef, &filterRef, m_invmass, m_invmass_obj );
 	// needs to be done AFTER retrieving offline tracks as m_selectorRef passed as arguement, hence restructuring
       }
       else {
@@ -996,11 +965,6 @@ protected:
 
       for ( unsigned iroi=0 ; iroi<rois.size() ; iroi++ ) {
 
-	// filling invariant mass histograms for tag and probe analysis
-	if ( TnP_flag ) {
-	  m_TnP_tool->Fill( m_invmass, m_invmass_obj, iroi ) ;
-	}
-	
 	if ( this->filterOnRoi() ) { 
 	  filterRef.setRoi( &(rois.at(iroi)->roi() ) ); 
 	  filterRef.containtracks( m_containTracks ); 
@@ -1437,7 +1401,7 @@ protected:
   
   bool   m_containTracks;
 
-  TagNProbe* m_TnP_tool; 
+  TagNProbe2* m_TnP_tool; 
 
   TH1F*      m_invmass;
   TH1F*      m_invmass_obj;
