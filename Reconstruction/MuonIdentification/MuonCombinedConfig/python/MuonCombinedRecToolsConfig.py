@@ -588,7 +588,7 @@ def MuidMaterialEffectsOnTrackProviderParamCfg(flags, name='MuidMaterialEffectsO
     return result
 
 def MuonTrackQueryCfg(flags, name="MuonTrackQuery", **kwargs ):
-    from MuonConfig.MuonRIO_OnTrackCreatorConfig import MdtDriftCircleOnTrackCreatorCfg
+    from MuonConfig.MuonRIO_OnTrackCreatorToolConfig import MdtDriftCircleOnTrackCreatorCfg
     result = MdtDriftCircleOnTrackCreatorCfg(flags)
     kwargs.setdefault("MdtRotCreator",   result.popPrivateTools() )
     from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
@@ -665,7 +665,7 @@ def MuonAlignmentUncertToolPhiCfg(flags,name ="MuonAlignmentUncertToolPhi", **kw
 
 def CombinedMuonTrackBuilderCfg(flags, name='CombinedMuonTrackBuilder', **kwargs ):
     from AthenaCommon.SystemOfUnits import meter
-    from MuonConfig.MuonRIO_OnTrackCreatorConfig import CscClusterOnTrackCreatorCfg,MdtDriftCircleOnTrackCreatorCfg
+    from MuonConfig.MuonRIO_OnTrackCreatorToolConfig import CscClusterOnTrackCreatorCfg, MdtDriftCircleOnTrackCreatorCfg
     from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryToolCfg
     result = ComponentAccumulator()
     acc = MuidCaloEnergyToolParamCfg(flags)
@@ -845,7 +845,7 @@ def MuidMuonRecoveryCfg(flags, name='MuidMuonRecovery',**kwargs):
     return result
 
 def MuonCombinedTrackFitterCfg(flags, name="MuonCombinedTrackFitter", **kwargs ):
-    from MuonConfig.MuonRIO_OnTrackCreatorConfig import MuonRotCreatorCfg
+    from TrkConfig.TrkRIO_OnTrackCreatorConfig import MuonRotCreatorCfg
     from TrkConfig.TrkExRungeKuttaPropagatorConfig import MuonCombinedPropagatorCfg
 
     result = AtlasExtrapolatorCfg(flags)
@@ -1106,7 +1106,7 @@ def MuonLayerAmbiguitySolverToolCfg(flags, name="MuonLayerAmbiguitySolverTool", 
     return result
 
 def MdtDriftCircleOnTrackCreatorStauCfg(flags, name="MdtDriftCircleOnTrackCreatorStau",**kwargs ):
-    from MuonConfig.MuonRIO_OnTrackCreatorConfig import MdtDriftCircleOnTrackCreatorCfg, MdtCalibWindowNumber
+    from MuonConfig.MuonRIO_OnTrackCreatorToolConfig import MdtDriftCircleOnTrackCreatorCfg, MdtCalibWindowNumber
     kwargs.setdefault("TimingMode", 3 )
     kwargs.setdefault("TimeWindowSetting", MdtCalibWindowNumber('Collision_t0fit') )
     return MdtDriftCircleOnTrackCreatorCfg(name,**kwargs)

@@ -7,19 +7,6 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import Format
 from InDetRecExample.InDetKeys import InDetKeys
 
-def RIO_OnTrackCreatorCfg( flags, name="InDetTrigRotCreator" ):
-  acc = ComponentAccumulator()
-  from InDetConfig.SiClusterOnTrackTool_PixelConfig import TrigPixelClusterOnTrackToolBaseCfg
-  pixelTool = acc.popToolsAndMerge( TrigPixelClusterOnTrackToolBaseCfg( flags ) )
-  from InDetConfig.SiClusterOnTrackTool_SCTStripConfig import InDetSCT_ClusterOnTrackToolCfg
-  sctTool = acc.popToolsAndMerge( InDetSCT_ClusterOnTrackToolCfg( flags ) )
-  tool = CompFactory.Trk.RIO_OnTrackCreator(name,
-                                            ToolPixelCluster = pixelTool,
-                                            ToolSCT_Cluster  = sctTool,
-                                            Mode             = 'indet')
-  acc.addPublicTool( tool, primary=True )
-  return acc
-
 def SiTrackMaker_xkCfg(flags, name="SiTrackMaker_xk"):
   """
   based on: InnerDetector/InDetExample/InDetTrigRecExample/python/InDetTrigConfigRecNewTracking.py , should be moved elsewhere
@@ -31,13 +18,8 @@ def SiTrackMaker_xkCfg(flags, name="SiTrackMaker_xk"):
   from InDetConfig.SiCombinatorialTrackFinderToolConfig import SiCombinatorialTrackFinder_xk_Trig_Cfg
   combTrackFinderTool = acc.popToolsAndMerge( SiCombinatorialTrackFinder_xk_Trig_Cfg( flags ) )
 
-  from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
-  acc.merge(addFoldersSplitOnline( flags, "INDET", '/Indet/Onl/TrkErrorScaling', '/Indet/TrkErrorScaling', className="CondAttrListCollection") )
-
-  acc.addCondAlgo( CompFactory.RIO_OnTrackErrorScalingCondAlg(ErrorScalingType = ["PixelRIO_OnTrackErrorScaling", "SCTRIO_OnTrackErrorScaling", "TRTRIO_OnTrackErrorScaling"],
-                                                              OutKeys        = ["ConditionStore+/Indet/TrkErrorScalingPixel", "ConditionStore+/Indet/TrkErrorScalingSCT", "ConditionStore+/Indet/TrkErrorScalingTRT"],
-                                                              ReadKey        = "ConditionStore+/Indet/TrkErrorScaling") )
-
+  from TrkConfig.TrkRIO_OnTrackCreatorConfig import RIO_OnTrackErrorScalingCondAlgCfg
+  acc.merge(RIO_OnTrackErrorScalingCondAlgCfg(flags))
 
   tool = CompFactory.InDet.SiTrackMaker_xk( name,
                                             RoadTool                 = roadTool,
@@ -580,6 +562,7 @@ def FitterToolCfg(flags):
   from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import (
       TrackingGeometryCondAlgCfg)
   from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
+  from TrkConfig.TrkRIO_OnTrackCreatorConfig import TrigRotCreatorCfg
   cond_alg = TrackingGeometryCondAlgCfg(flags)
   geom_cond_key = cond_alg.getPrimary().TrackingGeometryWriteKey
   acc.merge(cond_alg)
@@ -591,7 +574,7 @@ def FitterToolCfg(flags):
                                             ExtrapolationTool     = acc.getPrimaryAndMerge(InDetExtrapolatorCfg(flags, name="InDetTrigExtrapolator")),
                                             NavigatorTool         = acc.popToolsAndMerge(AtlasNavigatorCfg(flags, name="InDetTrigNavigator")),
                                             PropagatorTool        = acc.popToolsAndMerge( RungeKuttaPropagatorCfg( flags, name="InDetTrigRKPropagator" ) ),
-                                            RotCreatorTool        = acc.getPrimaryAndMerge(RIO_OnTrackCreatorCfg(flags, "InDetTrigRefitRotCreator")),
+                                            RotCreatorTool        = acc.popToolsAndMerge(TrigRotCreatorCfg(flags)),
                                             BroadRotCreatorTool   = None, #InDetTrigBroadInDetRotCreator, #TODO, we have function to configure it
                                             EnergyLossTool        = acc.popToolsAndMerge(AtlasEnergyLossUpdatorCfg(flags)),
                                             MeasurementUpdateTool = updator,

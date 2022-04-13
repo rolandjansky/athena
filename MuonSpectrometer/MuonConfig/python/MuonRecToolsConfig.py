@@ -42,7 +42,7 @@ def MuonHitSummaryToolCfg(flags, name="MuonHitSummaryTool", **kwargs):
 def MuonSeededSegmentFinderCfg(flags,name="MuonSeededSegmentFinder", **kwargs):
     Muon__MuonSeededSegmentFinder=CompFactory.Muon.MuonSeededSegmentFinder
     from MuonConfig.MuonSegmentFindingConfig import DCMathSegmentMakerCfg, MdtMathSegmentFinderCfg # FIXME - should really shift this to RecTools then.
-    from MuonConfig.MuonRIO_OnTrackCreatorConfig import MdtDriftCircleOnTrackCreatorCfg
+    from MuonConfig.MuonRIO_OnTrackCreatorToolConfig import MdtDriftCircleOnTrackCreatorCfg
     result = ComponentAccumulator()
     
     mdt_segment_finder = result.popToolsAndMerge( MdtMathSegmentFinderCfg(flags, name="MCTBMdtMathSegmentFinder", UseChamberTheta = False, AssociationRoadWidth = 1.5) )
@@ -141,7 +141,7 @@ def MuonAmbiProcessorCfg(flags, name="MuonAmbiProcessor", **kwargs):
 
 def MuonTrackCleanerCfg(flags, name="MuonTrackCleaner", **kwargs):
     Muon__MuonTrackCleaner=CompFactory.Muon.MuonTrackCleaner
-    from MuonConfig.MuonRIO_OnTrackCreatorConfig import MdtDriftCircleOnTrackCreatorCfg, TriggerChamberClusterOnTrackCreatorCfg
+    from MuonConfig.MuonRIO_OnTrackCreatorToolConfig import MdtDriftCircleOnTrackCreatorCfg, TriggerChamberClusterOnTrackCreatorCfg
     from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
 
     result=ComponentAccumulator()
@@ -191,7 +191,7 @@ def MuonChi2TrackFitterCfg(flags, name='MuonChi2TrackFitter', **kwargs):
 
     from TrkConfig.AtlasExtrapolatorConfig import MuonExtrapolatorCfg
     extrapolator= result.popToolsAndMerge(MuonExtrapolatorCfg(flags))
-    from MuonConfig.MuonRIO_OnTrackCreatorConfig import MuonRotCreatorCfg    
+    from TrkConfig.TrkRIO_OnTrackCreatorConfig import MuonRotCreatorCfg
     rotcreator=result.popToolsAndMerge(MuonRotCreatorCfg(flags))
     
     from TrkConfig.TrkMeasurementUpdatorConfig import KalmanUpdator_xkCfg
@@ -260,13 +260,13 @@ def MuonPhiHitSelector(flags, name="MuonPhiHitSelector",**kwargs):
 
 
 def MuPatHitToolCfg(flags, name="MuPatHitTool",**kwargs):
-    from MuonConfig.MuonRIO_OnTrackCreatorConfig import MdtDriftCircleOnTrackCreatorCfg
+    from MuonConfig.MuonRIO_OnTrackCreatorToolConfig import MdtDriftCircleOnTrackCreatorCfg
     result = MdtDriftCircleOnTrackCreatorCfg(flags)
     mdt_creator=result.getPrimary()
     kwargs.setdefault("MdtRotCreator", mdt_creator)
 
     if flags.Detector.GeometryCSC:
-        from MuonConfig.MuonRIO_OnTrackCreatorConfig import CscClusterOnTrackCreatorCfg
+        from MuonConfig.MuonRIO_OnTrackCreatorToolConfig import CscClusterOnTrackCreatorCfg
         kwargs.setdefault("CscRotCreator", result.popToolsAndMerge(CscClusterOnTrackCreatorCfg(flags)))
     else:
         kwargs.setdefault("CscRotCreator", "")
@@ -296,7 +296,7 @@ def MuonTrackExtrapolationToolCfg(flags, name="MuonTrackExtrapolationTool", **kw
     return result
 
 def MuonRefitToolCfg(flags, name="MuonRefitTool", **kwargs):
-    from MuonConfig.MuonRIO_OnTrackCreatorConfig import MdtDriftCircleOnTrackCreatorCfg, TriggerChamberClusterOnTrackCreatorCfg
+    from MuonConfig.MuonRIO_OnTrackCreatorToolConfig import MdtDriftCircleOnTrackCreatorCfg, TriggerChamberClusterOnTrackCreatorCfg
 
     # FIXME - many tools are not yet explicitly configured here.
     result = ComponentAccumulator()
