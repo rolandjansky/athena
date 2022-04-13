@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkAmbiguitySolver/TrkAmbiguityScore.h"
@@ -18,7 +18,7 @@ Trk::TrkAmbiguityScore::TrkAmbiguityScore(const std::string& name, ISvcLocator* 
 
 //--------------------------------------------------------------------------
 Trk::TrkAmbiguityScore::~TrkAmbiguityScore(void)
-{}
+= default;
 
 //-----------------------------------------------------------------------
 StatusCode

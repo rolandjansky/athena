@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //Author: Lianyou Shan <lianyou.shan@cern.ch>
 
@@ -24,7 +24,7 @@ namespace Trk{
   }
   
   //destructor
-  SecVertexMergingTool::~SecVertexMergingTool(){}
+  SecVertexMergingTool::~SecVertexMergingTool()= default;
 
 //initialize
   StatusCode SecVertexMergingTool::initialize()

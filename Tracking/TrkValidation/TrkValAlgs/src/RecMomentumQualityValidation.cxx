@@ -41,7 +41,7 @@ Trk::RecMomentumQualityValidation::RecMomentumQualityValidation(const std::strin
 //================ Destructor =================================================
 
 Trk::RecMomentumQualityValidation::~RecMomentumQualityValidation()
-{}
+= default;
 
 
 //================ Initialisation =================================================

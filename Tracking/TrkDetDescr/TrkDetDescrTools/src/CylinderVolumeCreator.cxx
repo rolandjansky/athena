@@ -52,7 +52,7 @@ Trk::CylinderVolumeCreator::CylinderVolumeCreator(const std::string& t, const st
 
 // destructor
 Trk::CylinderVolumeCreator::~CylinderVolumeCreator()
-{}
+= default;
 
 
 // the interface methods

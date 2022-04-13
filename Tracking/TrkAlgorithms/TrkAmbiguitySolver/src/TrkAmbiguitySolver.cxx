@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkAmbiguitySolver/TrkAmbiguitySolver.h"
@@ -21,7 +21,7 @@ Trk::TrkAmbiguitySolver::TrkAmbiguitySolver(const std::string& name, ISvcLocator
 
 //--------------------------------------------------------------------------
 Trk::TrkAmbiguitySolver::~TrkAmbiguitySolver(void)
-{}
+= default;
 
 //-----------------------------------------------------------------------
 StatusCode

@@ -81,7 +81,7 @@ Trk::PerigeeParametersNtupleTool::PerigeeParametersNtupleTool(
 }
 
 // destructor
-Trk::PerigeeParametersNtupleTool::~PerigeeParametersNtupleTool() {}
+Trk::PerigeeParametersNtupleTool::~PerigeeParametersNtupleTool() = default;
 
 
 ///////////////////////////////////////

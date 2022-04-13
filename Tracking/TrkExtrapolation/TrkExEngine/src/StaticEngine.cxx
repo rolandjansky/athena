@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -23,7 +23,7 @@ Trk::StaticEngine::StaticEngine(const std::string& t, const std::string& n, cons
 
 // destructor
 Trk::StaticEngine::~StaticEngine()
-{}
+= default;
 
 
 // the interface method initialize

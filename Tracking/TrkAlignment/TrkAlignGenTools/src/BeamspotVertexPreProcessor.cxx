@@ -117,8 +117,7 @@ BeamspotVertexPreProcessor::BeamspotVertexPreProcessor(const std::string & type,
 
 //________________________________________________________________________
 BeamspotVertexPreProcessor::~BeamspotVertexPreProcessor()
-{
-}
+= default;
 
 //________________________________________________________________________
 StatusCode BeamspotVertexPreProcessor::initialize()

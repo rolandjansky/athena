@@ -104,7 +104,7 @@ Trk::TrackValidationNtupleWriter::TrackValidationNtupleWriter(const std::string&
     declareProperty("doTrackParticle", m_doTrackParticle, "Swith to record Rec:TrackParticle Trees");
 }
 
-Trk::TrackValidationNtupleWriter::~TrackValidationNtupleWriter() {}
+Trk::TrackValidationNtupleWriter::~TrackValidationNtupleWriter() = default;
 
 StatusCode Trk::TrackValidationNtupleWriter::initialize() {
 

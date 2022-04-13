@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -33,7 +33,7 @@ Trk::CompoundLayerMaterialCreator::CompoundLayerMaterialCreator(const std::strin
 
 // destructor
 Trk::CompoundLayerMaterialCreator::~CompoundLayerMaterialCreator()
-{}
+= default;
 
 
 Trk::LayerMaterialProperties* Trk::CompoundLayerMaterialCreator::createLayerMaterial(const Trk::LayerMaterialRecord& lmr) const
