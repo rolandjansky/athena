@@ -136,7 +136,7 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
     IdentifierHash linkIDHash; // Determined from header and changed for links using Rx redundancy (waferHash)
     Identifier collID; // Determined from linkIDHash (waferID)
     int errors{0}; // Encodes the errors on the header (bit 4: error in condensed mode 1st hit, bit 5: error in condensed mode 2nd hit)
-    CacheHelper cache; // For the trigger
+    CacheHelper cache{}; // For the trigger
     std::vector<int> errorHit;
 
     int side {-1};
