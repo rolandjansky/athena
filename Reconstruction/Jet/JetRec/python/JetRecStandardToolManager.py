@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # JetRecStandardToolManager.py
 #
@@ -265,7 +265,7 @@ if jetFlags.useTruth():
 #  ungroomed_modifiers += [jtm.jvt]
 
 # Modifiers for groomed jets.
-groomed_modifiers = [
+all_groomed_modifiers = [
     jtm.jetsorter,
     jtm.nsubjettiness,
     jtm.ktdr,
@@ -273,6 +273,8 @@ groomed_modifiers = [
     jtm.encorr,
     jtm.energycorrelatorgeneralized,
     jtm.energycorrelatorgeneralizedratios,
+    jtm.energycorrelatorgeneralizedincllseries,
+    jtm.energycorrelatorgeneralizedratiosincllseries,
     jtm.charge,
     jtm.angularity,
     jtm.comshapes,
@@ -285,7 +287,10 @@ groomed_modifiers = [
     jtm.qw,
     jtm.trksummoms,
     jtm.jetens
-    ]
+]
+
+groomed_modifiers = filterout(["energycorrelatorgeneralizedincllseries", "energycorrelatorgeneralizedratiosincllseries"], all_groomed_modifiers)
+groomed_ufo_modifiers = filterout(["energycorrelatorgeneralized", "energycorrelatorgeneralizedratios"], all_groomed_modifiers)
 
 # Modifiers for pflow jets.
 # Same as topo jets.
@@ -314,6 +319,10 @@ tcc_ungroomed_modifiers += filterout(["ecpsfrac","larhvcorr","caloqual_cluster",
 tcc_groomed_modifiers = []
 tcc_groomed_modifiers += [jtm.constitfourmom_pflow]
 tcc_groomed_modifiers += groomed_modifiers
+
+ufo_groomed_modifiers = []
+ufo_groomed_modifiers += [jtm.constitfourmom_pflow]
+ufo_groomed_modifiers += groomed_ufo_modifiers
 
 # Here add tools to be run for topo jets and NOT for pflow.
 
@@ -357,6 +366,7 @@ if len(jetFlags.skipTools()):
   emtopo_groomed_modifiers          = filterout(jetFlags.skipTools(), emtopo_groomed_modifiers)
   lctopo_groomed_modifiers          = filterout(jetFlags.skipTools(), lctopo_groomed_modifiers)
   tcc_groomed_modifiers             = filterout(jetFlags.skipTools(), tcc_groomed_modifiers)
+  ufo_groomed_modifiers             = filterout(jetFlags.skipTools(), ufo_groomed_modifiers)
 
 # Add modifier lists to jtm indexed by modifier type name.
 jtm.modifiersMap["none"]                  = []
@@ -372,6 +382,7 @@ jtm.modifiersMap["emtopo_groomed"]        =      list(emtopo_groomed_modifiers)
 jtm.modifiersMap["lctopo_groomed"]        =      list(lctopo_groomed_modifiers)
 jtm.modifiersMap["pflow_groomed"]         =      list(pflow_groomed_modifiers)
 jtm.modifiersMap["tcc_groomed"]           =      list(tcc_groomed_modifiers)
+jtm.modifiersMap["ufo_groomed"]           =      list(ufo_groomed_modifiers)
 
 if jetFlags.useTruth():
   jtm.modifiersMap["truth_ungroomed"]        =      list(truth_ungroomed_modifiers)

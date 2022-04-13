@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # JetRecStandardTools.py
 #
@@ -855,6 +855,12 @@ jtm += EnergyCorrelatorGeneralizedTool("energycorrelatorgeneralized")
 
 # ... & their ratios
 jtm += EnergyCorrelatorGeneralizedRatiosTool("energycorrelatorgeneralizedratios")
+
+# Generalized energy correlations including L-series (just for UFO jets)
+jtm += EnergyCorrelatorGeneralizedTool("energycorrelatorgeneralizedincllseries", DoLSeries = True)
+
+# ... & their ratios
+jtm += EnergyCorrelatorGeneralizedRatiosTool("energycorrelatorgeneralizedratiosincllseries", DoLSeries = True)
 
 # COM shapes.
 jtm += CenterOfMassShapesTool("comshapes")

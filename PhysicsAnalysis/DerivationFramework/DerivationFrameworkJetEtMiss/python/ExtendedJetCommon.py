@@ -94,7 +94,7 @@ def addDefaultUFOSoftDropJets(sequence,outputlist,dotruth=True,writeUngroomed=Fa
     
     addDefaultUFOJets(sequence,outputlist)
 
-    addSoftDropJets('AntiKt', 1.0, 'UFOCSSK', beta=1.0, zcut=0.1, mods="tcc_groomed", 
+    addSoftDropJets('AntiKt', 1.0, 'UFOCSSK', beta=1.0, zcut=0.1, mods="ufo_groomed",
                     algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
 
 ##################################################################
