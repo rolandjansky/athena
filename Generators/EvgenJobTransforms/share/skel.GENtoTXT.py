@@ -163,11 +163,10 @@ if hasattr(runArgs,"inputGeneratorFile") and ',' not in runArgs.inputGeneratorFi
 if hasattr(runArgs,"inputGeneratorFile") and ',' in runArgs.inputGeneratorFile:
     multiInput=runArgs.inputGeneratorFile.count(',')+1
 
-#comment out for now
-#if hasattr(runArgs, "outputTXTFile") or hasattr(runArgs, "inputGeneratorFile"):
-#    from EvgenProdTools.EvgenProdToolsConf import TestLHE
-#    if not hasattr(genSeq, "TestLHE"):
-#        genSeq += TestLHE()
+if hasattr(runArgs, "outputTXTFile") or hasattr(runArgs, "inputGeneratorFile") or os.path.isfle("events.lhe"):
+    from EvgenProdTools.EvgenProdToolsConf import TestLHE
+    if not hasattr(genSeq, "TestLHE"):
+        genSeq += TestLHE()
 
 # Main job option include
 # Only permit one jobConfig argument for evgen: does more than one _ever_ make sense?
@@ -591,9 +590,6 @@ elif "AcerMC" in evgenConfig.generators:
 elif "CompHep" in evgenConfig.generators:
     datFile = "inparmCompHep.dat"
 
-#if hasattr(runArgs,"outputTXTFile"): outputTXTFile=runArgs.outputTXTFile
-## Events files
-#eventsFile = outputTXTFile
 if "Alpgen" in evgenConfig.generators:
    eventsFile = "alpgen.unw_events"
 elif "Protos" in evgenConfig.generators:

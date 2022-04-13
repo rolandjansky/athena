@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -10,15 +10,32 @@
 #include "GeneratorModules/GenBase.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "TruthHelper/IsGenNonInteracting.h"
+#include "TruthUtils/PIDHelpers.h"
 #include "AGDDControl/XercesParser.h"
 #include "TFile.h"
 #include "TH1.h"
 #include "HepMC/GenEvent.h"
-#include<cmath>
-#include<ctype.h>
-#include<locale>
+#include <cmath>
+#include <ctype.h>
+#include <locale>
 
-#include<fstream>
+#include <fstream>
+
+using std::vector;
+using std::string;
+
+struct mom
+{
+    double px = 0.;
+    double py = 0.;
+    double pz = 0.;
+    double e = 0.;
+    double mass = 0.;
+};
+
+typedef std::array<int, 5> initInfo;
+typedef std::array<int, 9> parInfo;
+typedef std::array<int, 3> rwgtInfo;
 
 class TestLHE : public GenBase {
 
@@ -29,7 +46,19 @@ class TestLHE : public GenBase {
         StatusCode execute();
         StatusCode finalize();
 
+        initInfo check_InitBlock(const vector<std::string>& groupname, const vector<std::string>& weightname, const vector<int>& weightid);
+        parInfo  check_particleInfo(int numline, int nPar, float energyDiff, float momDiff, bool doTest, const vector<int>& pdgid, const vector<int>& unknownID, const vector<int>& Parstatus, const vector<mom>& FourMom);
+        rwgtInfo check_rwgtBlock(const vector<int>& initWeightId, const vector<int>& rwgtId);
+
+        int check_eventInfoFormat(const vector<int>& intInfo, const vector<float>& floatInfo);
+        int check_particleInfoFormat(const vector<int>& intInfo, const vector<float>& floatInfo);
+        int check_weightConsistent(const vector<float>& eventWeight, const vector<float>& listWeight, float weightDiff);
+        std::string weight_Modification(int numLine, std::string& input, const std::string& modifyWeight, float eventWeight, int eventLine);
+
     private:
+
+        std::ifstream LHEfile;
+        std::ofstream ModifiedFile;
 
         bool m_doHist;
         int m_pdg;
@@ -51,6 +80,10 @@ class TestLHE : public GenBase {
 
         bool m_ifCreateNewLheFile;
 
+        std::array<int, 5> initList;
+        std::array<int, 9> particleList;
+        std::array<int, 3> rwgtList;
+
         std::string m_unknownPDGIDFile;
         std::string m_eventsLheFile;
         std::string m_modifiedLheFile;
@@ -59,39 +92,32 @@ class TestLHE : public GenBase {
         ServiceHandle<ITHistSvc> m_thistSvc;
 
         std::vector<int> m_unknownPDGID_tab;
+        std::vector<int> m_G4pdgID_tab;
+        std::vector<int> m_SusyPdgID_tab;
+
+        std::vector<int> m_storeRwgtLine;
 
         //========Initial Weight Check=======
         std::vector<std::string> m_GroupName;                //weightGroupName
-        std::vector<std::vector<int>> m_WeightInitID;        //Initial part weightID
-        std::vector<std::vector<std::string>> m_WeightInitName;   //Initial part weightName
-        std::vector<int> weightTemp;
-        std::vector<int> weightBlockTemp;             //rwgt part weight id temp vector
-        std::vector<std::vector<int>> m_WeightID;            //rwgt part weight ID
-        std::vector<std::vector<double>> m_WeightValue;      //rwgt part weight value
-        std::vector<double> weightValueTemp;
-        std::vector<std::string> modifyweightTemp;
-        std::vector<std::string> WeightInitTemp;
-        std::vector<std::string> InformationTemp;          //event and particle information Temp vector
-        std::vector<std::vector<std::string>> modify_weight;
-        std::vector<std::vector<std::string>> target_information;
+        std::vector<int>         m_InitID;
+        std::vector<int>         m_WeightInitID;             //Initial part weight ID
+        std::vector<std::string> m_WeightInitName;           //Initial part weight name
+        std::vector<int>         m_WeightID;                 //rwgt part weight ID
+        std::vector<float>       m_WeightValue;              //rwgt part weight value
+        std::vector<std::string>       modify_weight;
 
         //========End Weight Check========
-        std::vector<int> m_storeEventLine;
-        std::vector<int> m_G4pdgID_tab;
-        std::vector<int> m_SusyPdgID_tab;
-        std::vector<std::vector<int> > m_EventIntInfo_tab;
-        std::vector<std::vector<float>> m_EventFloatInfo_tab;
-        std::vector<std::vector<std::vector<int>>> m_ParticleIntInfo_tab;
-        std::vector<int> m_tempInt_tab;
-        std::vector<std::vector<int>> m_particleTempInt_tab;
-        std::vector<std::vector<std::vector<float>>> m_ParticleFloatInfo_tab;
-        std::vector<float> m_tempFloat_tab;
-        std::vector<std::vector<float>> m_particleTempFloat_tab;
-        std::vector<int> m_InitIntInfo_tab;
+        std::vector<float> m_storeEventWeight;
+        std::vector<float> m_storeListWeight;
+        std::vector<int >  m_EventIntInfo_tab;
+        std::vector<float> m_EventFloatInfo_tab;
+        std::vector<std::vector<int>> m_ParticleIntInfo_tab;
+        std::vector<int>   m_particleTempInt_tab;
+        std::vector<std::vector<float>> m_ParticleFloatInfo_tab;
+        std::vector<float> m_particleTempFloat_tab;
+        std::vector<int>   m_InitIntInfo_tab;
         std::vector<float> m_InitFloatInfo_tab;
 
-        //=======comment line information
-        std::vector<int> storeCommentline;
 
         int m_invalidEventformatCheckRate;
         int m_invalidParticleFormatCheckRate;
@@ -102,20 +128,59 @@ class TestLHE : public GenBase {
         int m_particleInfiniteCheckRate;
         int m_tachyonParticleCheckRate;
         int m_unknownPDGIDCheckRate;
+        int m_idDuplicateCheckRate;
+        int m_nameDuplicateCheckRate;
+        int m_idInitDuplicateCheckRate;
+        int m_nameSpecialLetterCheckRate;
+        int m_isAscendOrderCheckRate;
+        int m_isInitAscendOrderCheckRate;
+        int m_nameForId0CheckRate;
+        int m_particleNumberCheckRate;
+        int m_weightSameValueCheckRate;
+        int m_weightConsistentCheckRate;
+        int m_weightExceedRangeCheckRate;
 
         int n_events;
         int n_particles;
+        int version;
+        int InitWeightNumber;
 
-        std::ifstream LHEfile;
+        // ======= initialization information in LHE file =========
+        std::pair<int, int> IDBMUP;      //PDG id of beam partibles
+        std::pair<double, double> EBMUP; //Energy of beam partibles given in GeV
+        std::pair<int, int> PDFGUP;      //author group for the PDG used for the beams according to the PDFLib specification
+        std::pair<int, int> PDFSUP;      //id number the PDF used for the beams
+        int IDWTUP;                      //event weight from ME generator
+        int NPRUP;                       //number of different subprocesses 
+        double XSECUP;                   //cross-section for different subprocesses (pb)
+        double XERRUP;                   //statistical error in the cross-section (pb)
+        double XMAXUP;                   //maximum event weights
+        int LPRUP;                       //subprocess code
 
-        //calculate transverse momentum
-        float calculateMomentum(float x_momentum, float y_momentum)
-        {
-            float momentum = std::sqrt(x_momentum*x_momentum + y_momentum*y_momentum);
-            return momentum;
+        // ======= event information in LHE file ==========
+        int NUP = 0;
+        int IDPRUP = 0;
+        double XWGTUP = 0.;
+        double SCALUP = 0.;
+        double AQEDUP = 0.;
+        double AQCDUP = 0.;
+
+        // ====== particle information in LHE file ===========
+        std::vector<int> IDUP;
+        std::vector<int> ISTUP;
+        std::vector<int> MOTHUP1;
+        std::vector<int> MOTHUP2;
+        std::vector<int> ICOLUP1;
+        std::vector<int> ICOLUP2;
+        std::vector<mom> FourMomentum;
+        std::vector<double> VTIMUP;
+        std::vector<double> SPINUP;
+
+        bool currentFind(const std::string& str, const std::string& currentLine) const {
+            return currentLine.find(str) != std::string::npos;
         }
 
-        bool nameDuplicate(std::vector<std::string> &weightName)
+        bool nameDuplicate(const std::vector<std::string>& weightName)
         {
             int length = weightName.size();
             for(int i = 0 ; i < length-1 ; i++)
@@ -130,7 +195,7 @@ class TestLHE : public GenBase {
             return false;
         }
 
-        bool idDuplicate(std::vector<int> &weightID)
+        bool idDuplicate(const std::vector<int>& weightID)
         {
             int length = weightID.size();
             for(int i = 0 ; i < length-1 ; i++)
@@ -145,7 +210,7 @@ class TestLHE : public GenBase {
             return false;
         }
 
-        bool CheckTextNumberOrLetter(std::vector<std::string> GroupName)
+        bool CheckTextNumberOrLetter(const std::vector<std::string>& GroupName)
         {
             bool isSpecial = false;
             std::locale loc;
@@ -167,6 +232,14 @@ class TestLHE : public GenBase {
             }
             return isSpecial;
         }
+
+        int check_lheSymbol(const std::string& symbolLine);
+        std::string GetGroupName(const std::string& Groupline, const std::string& symbol);
+        int GetWeightId(const std::string& IDline, const std::string& symbol);
+        std::string GetWeightName(const std::string& wline, const std::string& symbol);
+        double GetWeight(const std::string& wline);
+        vector<int> GetEventIntInfo(const std::string& eventLine);
+        vector<float> GetEventFloatInfo(const std::string& eventLine);
 
 };
 
