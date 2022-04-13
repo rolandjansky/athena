@@ -113,11 +113,11 @@ momentumOutput(const Amg::Vector3D& mom)
 
 } // end of anonymous namespace
 
-Trk::Extrapolator::Cache::AtomicMax Trk::Extrapolator::Cache::s_navigSurfsMax{};
-Trk::Extrapolator::Cache::AtomicMax Trk::Extrapolator::Cache::s_navigVolsMax{};
-Trk::Extrapolator::Cache::AtomicMax Trk::Extrapolator::Cache::s_navigVolsIntMax{};
-Trk::Extrapolator::Cache::AtomicMax Trk::Extrapolator::Cache::s_containerSizeMax{};
-bool Trk::Extrapolator::Cache::s_reported{};
+Trk::Cache::AtomicMax Trk::Cache::s_navigSurfsMax{};
+Trk::Cache::AtomicMax Trk::Cache::s_navigVolsMax{};
+Trk::Cache::AtomicMax Trk::Cache::s_navigVolsIntMax{};
+Trk::Cache::AtomicMax Trk::Cache::s_containerSizeMax{};
+bool Trk::Cache::s_reported{};
 
 // constructor
 Trk::Extrapolator::Extrapolator(const std::string& t, const std::string& n, const IInterface* p)
@@ -450,18 +450,18 @@ Trk::Extrapolator::finalize()
   }
   delete m_referenceSurface;
 
-  if (!Trk::Extrapolator::Cache::s_reported) {
-    Trk::Extrapolator::Cache::s_reported = true;
-    ATH_MSG_INFO("Trk::Extrapolator::Cache s_navigSurfsMax    = "
-                 << Trk::Extrapolator::Cache::s_navigSurfsMax.val());
-    ATH_MSG_INFO("Trk::Extrapolator::Cache s_navigSurfsMax    = "
-                 << Trk::Extrapolator::Cache::s_navigSurfsMax.val());
-    ATH_MSG_INFO("Trk::Extrapolator::Cache s_navigVolsMax     = "
-                 << Trk::Extrapolator::Cache::s_navigVolsMax.val());
-    ATH_MSG_INFO("Trk::Extrapolator::Cache s_navigVolsIntMax  = "
-                 << Trk::Extrapolator::Cache::s_navigVolsIntMax.val());
-    ATH_MSG_INFO("Trk::Extrapolator::Cache s_containerSizeMax = "
-                 << Trk::Extrapolator::Cache::s_containerSizeMax.val());
+  if (!Trk::Cache::s_reported) {
+    Trk::Cache::s_reported = true;
+    ATH_MSG_INFO("Trk::Cache s_navigSurfsMax    = "
+                 << Trk::Cache::s_navigSurfsMax.val());
+    ATH_MSG_INFO("Trk::Cache s_navigSurfsMax    = "
+                 << Trk::Cache::s_navigSurfsMax.val());
+    ATH_MSG_INFO("Trk::Cache s_navigVolsMax     = "
+                 << Trk::Cache::s_navigVolsMax.val());
+    ATH_MSG_INFO("Trk::Cache s_navigVolsIntMax  = "
+                 << Trk::Cache::s_navigVolsIntMax.val());
+    ATH_MSG_INFO("Trk::Cache s_containerSizeMax = "
+                 << Trk::Cache::s_containerSizeMax.val());
   }
 
   return StatusCode::SUCCESS;
@@ -532,7 +532,7 @@ Trk::Extrapolator::extrapolateStepwiseImpl(const EventContext& ctx,
   cache.m_parametersOnDetElements = &tmp;
   cache.m_ownParametersOnDetElements = true;
   // Material effect updator cache
-  populateMatEffUpdatorCache(cache);
+  cache.populateMatEffUpdatorCache(m_subupdaters);
   //TODO revisit when objcontainer is streamlined
   auto cloneInput = std::unique_ptr<Trk::TrackParameters>(parm.clone());
   // run the extrapolation
@@ -572,7 +572,7 @@ Trk::Extrapolator::extrapolateToNextActiveLayerImpl(const EventContext& ctx,
   ++cache.m_methodSequence;
   ATH_MSG_DEBUG("M-[" << cache.m_methodSequence << "] extrapolateToNextActiveLayer(...) ");
   // Material effect updator cache
-  populateMatEffUpdatorCache(cache);
+  cache.populateMatEffUpdatorCache(m_subupdaters);
   // initialize the return parameters vector
   //TODO revisit when objcontainer is streamlined
   auto cloneInput = std::unique_ptr<Trk::TrackParameters>(parm.clone());
@@ -642,7 +642,7 @@ Trk::Extrapolator::extrapolateToNextActiveLayerMImpl(
   ++cache.m_methodSequence;
   ATH_MSG_DEBUG("M-[" << cache.m_methodSequence << "] extrapolateToNextActiveLayerM(...) ");
   // Material effect updator cache
-  populateMatEffUpdatorCache(cache);
+  cache.populateMatEffUpdatorCache(m_subupdaters);
   // initialize the return parameters vector
   auto cloneInput = std::unique_ptr<Trk::TrackParameters>(parm.clone());
   ManagedTrackParmPtr currPar(cache.manage(std::move(cloneInput)));
@@ -899,9 +899,9 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
     if (nextPar) {
       // collect material
       if (propagVol->zOverAtimesRho() != 0. && !cache.m_matstates && cache.m_extrapolationCache) {
-        if (checkCache(cache, " extrapolateToNextMaterialLayer")) {
+        if (cache.checkCache(" extrapolateToNextMaterialLayer").empty()) {
           if (m_dumpCache) {
-            dumpCache(cache, " extrapolateToNextMaterialLayer");
+            ATH_MSG_DEBUG(cache.to_string(" extrapolateToNextMaterialLayer"));
           }
           double dInX0 = fabs(path) / propagVol->x0();
           ATH_MSG_DEBUG(" add x0 " << dInX0);
@@ -916,7 +916,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
           cache.m_extrapolationCache->updateEloss(
             eloss->meanIoni(), eloss->sigmaIoni(), eloss->meanRad(), eloss->sigmaRad());
           if (m_dumpCache) {
-            dumpCache(cache, " After");
+            ATH_MSG_DEBUG(cache.to_string( " After"));
           }
         }
       }
@@ -941,13 +941,13 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
         //
        if (cache.m_extrapolationCache) {
           if (m_dumpCache) {
-            dumpCache(cache, " mat states extrapolateToNextMaterialLayer");
+            ATH_MSG_DEBUG(cache.to_string( " mat states extrapolateToNextMaterialLayer"));
           }
           cache.m_extrapolationCache->updateX0(dInX0);
           cache.m_extrapolationCache->updateEloss(
             eloss->meanIoni(), eloss->sigmaIoni(), eloss->meanRad(), eloss->sigmaRad());
           if (m_dumpCache) {
-            dumpCache(cache, " After");
+            ATH_MSG_DEBUG(cache.to_string( " After"));
           }
         }
         auto mefot =
@@ -1230,9 +1230,9 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
       ATH_MSG_DEBUG("  [+] Number of intersection solutions: " << solutions.size());
       if (cache.m_currentDense->zOverAtimesRho() != 0. && !cache.m_matstates &&
           cache.m_extrapolationCache) {
-        if (checkCache(cache, " extrapolateToNextMaterialLayer dense")) {
+        if (cache.checkCache(" extrapolateToNextMaterialLayer dense").empty()) {
           if (m_dumpCache) {
-            dumpCache(cache, " extrapolateToNextMaterialLayer dense ");
+            ATH_MSG_DEBUG(cache.to_string( " extrapolateToNextMaterialLayer dense "));
           }
           double dInX0 = fabs(path) / cache.m_currentDense->x0();
           cache.m_extrapolationCache->updateX0(dInX0);
@@ -1243,7 +1243,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
           cache.m_extrapolationCache->updateEloss(
             eloss->meanIoni(), eloss->sigmaIoni(), eloss->meanRad(), eloss->sigmaRad());
           if (m_dumpCache) {
-            dumpCache(cache, " After");
+            ATH_MSG_DEBUG(cache.to_string(" After"));
           }
         }
       }
@@ -1273,7 +1273,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
 
         if (cache.m_extrapolationCache) {
           if (m_dumpCache) {
-            dumpCache(cache, " extrapolateToNextMaterialLayer dense");
+            ATH_MSG_DEBUG(cache.to_string(" extrapolateToNextMaterialLayer dense"));
           }
           cache.m_extrapolationCache->updateX0(dInX0);
           cache.m_extrapolationCache->updateEloss(eloss->meanIoni(),
@@ -1281,7 +1281,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
                                                   eloss->meanRad(),
                                                   eloss->sigmaRad());
           if (m_dumpCache) {
-            dumpCache(cache, " After");
+             ATH_MSG_DEBUG(cache.to_string(" After"));
           }
         }
         auto mefot = std::make_unique<const Trk::MaterialEffectsOnTrack>(
@@ -1337,7 +1337,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
               const IMaterialEffectsUpdator* currentUpdator =
                 subMaterialEffectsUpdator(*cache.m_currentStatic);
               IMaterialEffectsUpdator::ICache& currentUpdatorCache =
-                subMaterialEffectsUpdatorCache(cache, *cache.m_currentStatic);
+                cache.subMaterialEffectsUpdatorCache();
 
               if (currentUpdator) {
                 nextPar = cache.manage(
@@ -1372,10 +1372,10 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
               }
 
               if (!cache.m_matstates && cache.m_extrapolationCache) {
-                if (checkCache(cache, " extrapolateToNextMaterialLayer thin")) {
+                if (cache.checkCache(" extrapolateToNextMaterialLayer thin").empty()) {
                   double dInX0 = thick / lx0;
                   if (m_dumpCache) {
-                    dumpCache(cache, " extrapolateToNextMaterialLayer thin ");
+                    ATH_MSG_DEBUG(cache.to_string(" extrapolateToNextMaterialLayer thin "));
                   }
                   cache.m_extrapolationCache->updateX0(dInX0);
                   double currentqoverp = nextPar->parameters()[Trk::qOverP];
@@ -1384,7 +1384,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
                   cache.m_extrapolationCache->updateEloss(
                     eloss->meanIoni(), eloss->sigmaIoni(), eloss->meanRad(), eloss->sigmaRad());
                   if (m_dumpCache) {
-                    dumpCache(cache, " After");
+                     ATH_MSG_DEBUG(cache.to_string(" After"));
                   }
                 }
               }
@@ -1404,15 +1404,15 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
                 std::unique_ptr<const Trk::TrackParameters> cvlTP(new Trk::CurvilinearParameters(
                   nextPar->position(), nextPar->momentum(), nextPar->charge()));
                if (cache.m_extrapolationCache) {
-                  if (checkCache(cache, " mat states extrapolateToNextMaterialLayer thin")) {
+                  if (cache.checkCache(" mat states extrapolateToNextMaterialLayer thin").empty()) {
                     if (m_dumpCache) {
-                      dumpCache(cache, " extrapolateToNextMaterialLayer thin");
+                      ATH_MSG_DEBUG(cache.to_string(" extrapolateToNextMaterialLayer thin "));
                     }
                     cache.m_extrapolationCache->updateX0(dInX0);
                     cache.m_extrapolationCache->updateEloss(
                       eloss->meanIoni(), eloss->sigmaIoni(), eloss->meanRad(), eloss->sigmaRad());
                     if (m_dumpCache) {
-                      dumpCache(cache, " After");
+                      ATH_MSG_DEBUG(cache.to_string(" After"));
                     }
                   }
                 }
@@ -1489,7 +1489,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
             const IMaterialEffectsUpdator* currentUpdator =
               subMaterialEffectsUpdator(*cache.m_currentStatic);
             IMaterialEffectsUpdator::ICache& currentUpdatorCache =
-              subMaterialEffectsUpdatorCache(cache, *cache.m_currentStatic);
+              cache.subMaterialEffectsUpdatorCache();
 
             if (currentUpdator) {
               nextPar = cache.manage(
@@ -1522,10 +1522,10 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
             }
 
             if (!cache.m_matstates && cache.m_extrapolationCache) {
-              if (checkCache(cache, " extrapolateToNextMaterialLayer thin")) {
+              if (cache.checkCache(" extrapolateToNextMaterialLayer thin").empty()) {
                 double dInX0 = thick / lx0;
                 if (m_dumpCache) {
-                  dumpCache(cache, " extrapolateToNextMaterialLayer thin ");
+                  ATH_MSG_DEBUG(cache.to_string(" extrapolateToNextMaterialLayer thin "));
                 }
                 cache.m_extrapolationCache->updateX0(dInX0);
                 Trk::MaterialProperties materialProperties(
@@ -1536,7 +1536,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
                 cache.m_extrapolationCache->updateEloss(
                   eloss->meanIoni(), eloss->sigmaIoni(), eloss->meanRad(), eloss->sigmaRad());
                 if (m_dumpCache) {
-                  dumpCache(cache, " After");
+                  ATH_MSG_DEBUG(cache.to_string( " After"));
                 }
               }
             }
@@ -1558,15 +1558,15 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
               std::unique_ptr<const Trk::TrackParameters> cvlTP(new Trk::CurvilinearParameters(
                 nextPar->position(), nextPar->momentum(), nextPar->charge()));
              if (cache.m_extrapolationCache) {
-                if (checkCache(cache, " mat states extrapolateToNextMaterialLayer thin")) {
+                if (cache.checkCache(" mat states extrapolateToNextMaterialLayer thin").empty()) {
                   if (m_dumpCache) {
-                    dumpCache(cache, " extrapolateToNextMaterialLayer thin");
+                    ATH_MSG_DEBUG(cache.to_string(" extrapolateToNextMaterialLayer thin "));
                   }
                   cache.m_extrapolationCache->updateX0(dInX0);
                   cache.m_extrapolationCache->updateEloss(
                     eloss->meanIoni(), eloss->sigmaIoni(), eloss->meanRad(), eloss->sigmaRad());
                   if (m_dumpCache) {
-                    dumpCache(cache, " After");
+                    ATH_MSG_DEBUG(cache.to_string( " After"));
                   }
                 }
               }
@@ -2094,7 +2094,7 @@ Trk::Extrapolator::extrapolateToVolumeImpl(const EventContext& ctx,
       //TODO revisit when objcontainer is streamlined
       auto cloneInput = std::unique_ptr<Trk::TrackParameters>(parm.clone());
       // Material effect updator cache
-      populateMatEffUpdatorCache(cache);
+      cache.populateMatEffUpdatorCache(m_subupdaters);
       returnParms = extrapolateImpl(ctx,
                                     cache,
                                     prop,
@@ -2123,7 +2123,7 @@ Trk::Extrapolator::extrapolateToVolumeImpl(const EventContext& ctx,
         //TODO revisit when objcontainer is streamlined
         auto cloneInput = std::unique_ptr<Trk::TrackParameters>(parm.clone());
         // Material effect updator cache
-        populateMatEffUpdatorCache(cache);
+        cache.populateMatEffUpdatorCache(m_subupdaters);
         returnParms = extrapolateImpl(ctx,
                                       cache,
                                       prop,
@@ -2163,7 +2163,7 @@ Trk::Extrapolator::extrapolate(const EventContext& ctx,
   // Material effect updator cache
   //TODO revisit when objcontainer is streamlined
   auto cloneInput = std::unique_ptr<Trk::TrackParameters>(parm.clone());
-  populateMatEffUpdatorCache(cache);
+  cache.populateMatEffUpdatorCache(m_subupdaters);
   return extrapolateImpl(ctx,
                          cache,
                          cache.manage(std::move(cloneInput)).index(),
@@ -2246,7 +2246,7 @@ Trk::Extrapolator::extrapolateBlindly(const EventContext& ctx,
       //TODO revisit when objcontainer is streamlined
       auto cloneInput = std::unique_ptr<Trk::TrackParameters>(parm.clone());
       // Material effect updator cache
-      populateMatEffUpdatorCache(cache);
+      cache.populateMatEffUpdatorCache(m_subupdaters);
       return extrapolateBlindlyImpl(ctx,
                                     cache,
                                     (*currentPropagator),
@@ -2382,7 +2382,7 @@ Trk::Extrapolator::extrapolateM(const EventContext& ctx,
 
   Cache cache{};
   // Material effect updator cache
-  populateMatEffUpdatorCache(cache);
+  cache.populateMatEffUpdatorCache(m_subupdaters);
   ATH_MSG_DEBUG("C-[" << cache.m_methodSequence << "] extrapolateM()");
   // create a new vector for the material to be collected
   cache.m_matstates = new std::vector<const Trk::TrackStateOnSurface*>;
@@ -3000,7 +3000,7 @@ Trk::Extrapolator::extrapolateImpl(const EventContext& ctx,
 
     const IMaterialEffectsUpdator* currentUpdator = subMaterialEffectsUpdator(tvol);
     IMaterialEffectsUpdator::ICache& currentUpdatorCache =
-      subMaterialEffectsUpdatorCache(cache, tvol);
+     cache.subMaterialEffectsUpdatorCache(tvol);
 
     ManagedTrackParmPtr upNext;
     if (currentUpdator) {
@@ -3036,7 +3036,7 @@ Trk::Extrapolator::extrapolateImpl(const EventContext& ctx,
                                                            << " cache.m_extrapolationCache "
                                                            << cache.m_extrapolationCache);
     if (cache.m_extrapolationCache) {
-      dumpCache(cache, " In extrapolate ");
+      ATH_MSG_DEBUG(cache.to_string(" In extrapolate "));
     }
   }
 
@@ -3491,7 +3491,7 @@ Trk::Extrapolator::insideVolumeStaticLayers(const EventContext& ctx,
 
       const IMaterialEffectsUpdator* currentUpdator = subMaterialEffectsUpdator(tvol);
       IMaterialEffectsUpdator::ICache& currentUpdatorCache =
-        subMaterialEffectsUpdatorCache(cache, tvol);
+        cache.subMaterialEffectsUpdatorCache(tvol);
 
       if (currentUpdator) {
         nextParameters = cache.manage(
@@ -3514,7 +3514,7 @@ Trk::Extrapolator::insideVolumeStaticLayers(const EventContext& ctx,
       } else {
         ATH_MSG_VERBOSE("  [-] Initial postUpdate killed track.");
         cache.m_parametersAtBoundary.resetBoundaryInformation();
-        resetRecallInformation(cache);
+        cache.resetRecallInformation();
         return {};
       }
     }
@@ -3547,14 +3547,14 @@ Trk::Extrapolator::insideVolumeStaticLayers(const EventContext& ctx,
         ATH_MSG_VERBOSE("  [+] Update may have killed track - return.");
         // set the new boundary information
         cache.m_parametersAtBoundary.resetBoundaryInformation();
-        resetRecallInformation(cache);
+        cache.resetRecallInformation();
         return {};
       } if (cache.m_boundaryVolume && nextParameters &&
                  !cache.m_boundaryVolume->inside(nextParameters->position())) {
         ATH_MSG_VERBOSE("  [+] Parameter outside the given boundary/world stopping loop.");
         // set the new boundary information
         cache.m_parametersAtBoundary.resetBoundaryInformation();
-        resetRecallInformation(cache);
+        cache.resetRecallInformation();
         return {};
       }
       // --------------------------------------------------------
@@ -3619,14 +3619,14 @@ Trk::Extrapolator::insideVolumeStaticLayers(const EventContext& ctx,
         ATH_MSG_VERBOSE("  [+] Update may have killed track - return.");
         // set the new boundary information
         cache.m_parametersAtBoundary.resetBoundaryInformation();
-        resetRecallInformation(cache);
+        cache.resetRecallInformation();
         return {};
       } if (cache.m_boundaryVolume && updateNext &&
                  !cache.m_boundaryVolume->inside(updateNext->position())) {
         ATH_MSG_VERBOSE("  [+] Parameter outside the given boundary/world stopping loop.");
         // set the new boundary information
         cache.m_parametersAtBoundary.resetBoundaryInformation();
-        resetRecallInformation(cache);
+        cache.resetRecallInformation();
         return {};
       }
       // the fallback if only one step was done - solve cleaner
@@ -3651,7 +3651,7 @@ Trk::Extrapolator::insideVolumeStaticLayers(const EventContext& ctx,
                                                      matupmode);
 
       // set the recallInformation <- everything went fine
-      setRecallInformation(cache, *cache.m_destinationSurface, *destinationLayer, tvol);
+      cache.setRecallInformation( *cache.m_destinationSurface, *destinationLayer, tvol);
       // done
       return nextParameters;
     }
@@ -3668,7 +3668,7 @@ Trk::Extrapolator::insideVolumeStaticLayers(const EventContext& ctx,
                                                   particle));
     // job done: cleanup and go home
     // reset the recallInformation
-    resetRecallInformation(cache);
+    cache.resetRecallInformation();
     // return the directly extrapolated ones
     return nextParameters;
   }
@@ -3744,7 +3744,7 @@ Trk::Extrapolator::insideVolumeStaticLayers(const EventContext& ctx,
       ATH_MSG_VERBOSE("    Starting Parameters not defined.");
     }
     // reset the recall information as it is invalid
-    resetRecallInformation(cache);
+    cache.resetRecallInformation();
   }
 
   if (bParameters && bParameters->associatedSurface().materialLayer()) {
@@ -3753,7 +3753,7 @@ Trk::Extrapolator::insideVolumeStaticLayers(const EventContext& ctx,
 
       const IMaterialEffectsUpdator* currentUpdator = m_subupdaters[tvol.geometrySignature()];
       IMaterialEffectsUpdator::ICache& currentUpdatorCache =
-        subMaterialEffectsUpdatorCache(cache, tvol);
+        cache.subMaterialEffectsUpdatorCache(tvol);
 
       if (currentUpdator) {
         bParameters = cache.manage(currentUpdator->update(
@@ -3974,7 +3974,7 @@ Trk::Extrapolator::extrapolateToDestinationLayer(const EventContext& ctx,
   // return the pre-updated ones
   const IMaterialEffectsUpdator* currentUpdator = subMaterialEffectsUpdator(tvol);
   IMaterialEffectsUpdator::ICache& currentUpdatorCache =
-    subMaterialEffectsUpdatorCache(cache, tvol);
+    cache.subMaterialEffectsUpdatorCache(tvol);
 
   ManagedTrackParmPtr preUpdatedParameters(cache.manage());
   if (currentUpdator && destParameters && !startIsDestLayer) {
@@ -4044,7 +4044,7 @@ Trk::Extrapolator::extrapolateToIntermediateLayer(const EventContext& ctx,
   // chose the current updator
   const IMaterialEffectsUpdator* currentUpdator = subMaterialEffectsUpdator(tvol);
   IMaterialEffectsUpdator::ICache& currentUpdatorCache =
-    subMaterialEffectsUpdatorCache(cache, tvol);
+    cache.subMaterialEffectsUpdatorCache(tvol);
   // then go onto the Layer
   ManagedTrackParmPtr parm(cache.manage(parm_ref));
   ManagedTrackParmPtr parsOnLayer(cache.trackParmContainer());
@@ -4380,7 +4380,7 @@ Trk::Extrapolator::initializeNavigation(const EventContext& ctx,
       // 3 - GLOBAL SEARCH METHOD
       ++m_startThroughGlobalSearch;
       // non-perigee surface
-      resetRecallInformation(cache);
+      cache.resetRecallInformation();
       associatedVolume = cache.volume(ctx,parm->position());
 
       associatedLayer =
@@ -4654,7 +4654,7 @@ Trk::Extrapolator::addMaterialEffectsOnTrack(const EventContext& ctx,
     if (cache.m_extrapolationCache) {
       double tInX0 = pathCorrection * materialProperties->thicknessInX0();
       if (m_dumpCache) {
-        dumpCache(cache, " addMaterialEffectsOnTrack");
+        ATH_MSG_DEBUG(cache.to_string(" addMaterialEffectsOnTrack"));
       }
       cache.m_extrapolationCache->updateX0(tInX0);
       double currentQoP = parsOnLayer->parameters()[Trk::qOverP];
@@ -4665,7 +4665,7 @@ Trk::Extrapolator::addMaterialEffectsOnTrack(const EventContext& ctx,
                                               energyLoss->meanRad(),
                                               energyLoss->sigmaRad());
       if (m_dumpCache) {
-        dumpCache(cache, " After");
+        ATH_MSG_DEBUG(cache.to_string(" After"));
       }
     }
     ATH_MSG_VERBOSE("  [V] Validation mode: MaterialProperties found on this layer.");
@@ -4690,7 +4690,7 @@ Trk::Extrapolator::addMaterialEffectsOnTrack(const EventContext& ctx,
                         "switch joboption DetailedEloss on ");
       }
       if (m_dumpCache) {
-        dumpCache(cache, " addMaterialEffectsOnTrack");
+        ATH_MSG_DEBUG(cache.to_string(" addMaterialEffectsOnTrack"));
       }
       cache.m_extrapolationCache->updateX0(tInX0);
       cache.m_extrapolationCache->updateEloss(energyLoss->meanIoni(),
@@ -4698,7 +4698,7 @@ Trk::Extrapolator::addMaterialEffectsOnTrack(const EventContext& ctx,
                                               energyLoss->meanRad(),
                                               energyLoss->sigmaRad());
       if (m_dumpCache) {
-        dumpCache(cache, " After");
+        ATH_MSG_DEBUG(cache.to_string(" After"));
       }
     }
     auto meot = std::make_unique<const Trk::MaterialEffectsOnTrack>(
@@ -4710,36 +4710,8 @@ Trk::Extrapolator::addMaterialEffectsOnTrack(const EventContext& ctx,
   }
 }
 
-void
-Trk::Extrapolator::dumpCache(Cache& cache, const std::string& txt) const
-{
-  if (cache.m_cacheEloss != nullptr && cache.m_cacheEloss != cache.m_extrapolationCache->eloss()) {
-    ATH_MSG_DEBUG(" NO dumpCache: Eloss cache pointer overwritten "
-                  << cache.m_cacheEloss << " from extrapolationCache "
-                  << cache.m_extrapolationCache->eloss());
-    return;
-  }
 
-  ATH_MSG_DEBUG(txt << " X0 " << cache.m_extrapolationCache->x0tot() << " Eloss deltaE "
-                    << cache.m_extrapolationCache->eloss()->deltaE() << " Eloss sigma "
-                    << cache.m_extrapolationCache->eloss()->sigmaDeltaE() << " meanIoni "
-                    << cache.m_extrapolationCache->eloss()->meanIoni() << " sigmaIoni "
-                    << cache.m_extrapolationCache->eloss()->sigmaIoni() << " meanRad "
-                    << cache.m_extrapolationCache->eloss()->meanRad() << " sigmaRad "
-                    << cache.m_extrapolationCache->eloss()->sigmaRad());
-}
 
-bool
-Trk::Extrapolator::checkCache(Cache& cache, const std::string& txt) const
-{
-  if (cache.m_cacheEloss != nullptr && cache.m_cacheEloss != cache.m_extrapolationCache->eloss()) {
-    ATH_MSG_DEBUG(txt << " PROBLEM Eloss cache pointer overwritten " << cache.m_cacheEloss
-                      << " from extrapolationCache " << cache.m_extrapolationCache->eloss());
-    return false;
-  }
-    return true;
-
-}
 
 std::unique_ptr<std::vector<std::pair<std::unique_ptr<Trk::TrackParameters>, int>>>
 Trk::Extrapolator::extrapolate(const EventContext& ctx,
@@ -4768,7 +4740,7 @@ Trk::Extrapolator::extrapolate(const EventContext& ctx,
   // cleanup
   cache.m_parametersAtBoundary.resetBoundaryInformation();
   // Material effect updator cache
-  populateMatEffUpdatorCache(cache);
+  cache.populateMatEffUpdatorCache(m_subupdaters);
   // extrapolate to subdetector boundary
   //TODO revisit when objcontainer is streamlined
   auto cloneInput = std::unique_ptr<Trk::TrackParameters>(parm.clone());
@@ -4842,7 +4814,7 @@ Trk::Extrapolator::extrapolateWithPathLimit(const EventContext& ctx,
   // cleanup
   cache.m_parametersAtBoundary.resetBoundaryInformation();
   // Material effect updator cache
-  populateMatEffUpdatorCache(cache);
+  cache.populateMatEffUpdatorCache(m_subupdaters);
 
   // if no input volume, define as highest volume
   // const Trk::TrackingVolume* destVolume = boundaryVol ? boundaryVol :
@@ -5383,13 +5355,13 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
       std::unique_ptr<EnergyLoss> eloss = (m_elossupdaters[0]->energyLoss(
         materialProperties, fabs(1. / currentqoverp), 1., dir, particle));
       if (m_dumpCache) {
-        dumpCache(cache, " extrapolateToVolumeWithPathLimit");
+        ATH_MSG_DEBUG(cache.to_string( " extrapolateToVolumeWithPathLimit"));
       }
       cache.m_extrapolationCache->updateX0(dInX0);
       cache.m_extrapolationCache->updateEloss(
         eloss->meanIoni(), eloss->sigmaIoni(), eloss->meanRad(), eloss->sigmaRad());
       if (m_dumpCache) {
-        dumpCache(cache, " After");
+        ATH_MSG_DEBUG(cache.to_string(" After"));
       }
     }
     if (cache.m_currentDense->zOverAtimesRho() != 0. && cache.m_matstates) {
@@ -5410,13 +5382,13 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
 
      if (cache.m_extrapolationCache) {
         if (m_dumpCache) {
-          dumpCache(cache, " extrapolateToVolumeWithPathLimit");
+          ATH_MSG_DEBUG(cache.to_string(" extrapolateToVolumeWithPathLimit"));
         }
         cache.m_extrapolationCache->updateX0(dInX0);
         cache.m_extrapolationCache->updateEloss(
           eloss->meanIoni(), eloss->sigmaIoni(), eloss->meanRad(), eloss->sigmaRad());
         if (m_dumpCache) {
-          dumpCache(cache, " After");
+          ATH_MSG_DEBUG(cache.to_string( " After"));
         }
       }
       auto mefot = std::make_unique<const Trk::MaterialEffectsOnTrack>(
@@ -5444,7 +5416,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
             const IMaterialEffectsUpdator* currentUpdator =
               subMaterialEffectsUpdator(*cache.m_currentStatic);
             IMaterialEffectsUpdator::ICache& currentUpdatorCache =
-              subMaterialEffectsUpdatorCache(cache, *cache.m_currentStatic);
+              cache.subMaterialEffectsUpdatorCache();
             if (currentUpdator) {
               nextPar = cache.manage(
                 currentUpdator->update(
@@ -5532,7 +5504,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
         const IMaterialEffectsUpdator* currentUpdator =
           subMaterialEffectsUpdator(*cache.m_currentStatic);
         IMaterialEffectsUpdator::ICache& currentUpdatorCache =
-          subMaterialEffectsUpdatorCache(cache, *cache.m_currentStatic);
+          cache.subMaterialEffectsUpdatorCache();
 
         if (matUp && nextLayer->surfaceArray()) {
           double pIn = nextPar->momentum().mag();

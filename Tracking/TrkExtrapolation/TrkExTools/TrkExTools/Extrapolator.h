@@ -12,46 +12,46 @@
 // Gaudi/StoreGate
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaBaseComps/AthCheckedComponent.h"
+#include "TrkExInterfaces/IExtrapolator.h"
+
 #include "GaudiKernel/ToolHandle.h"
 
-// Event Context
-#include "GaudiKernel/EventContext.h"
+
 
 // Trk
-#include "TrkDetDescrUtils/GeometrySignature.h"
-#include "TrkEventPrimitives/ParticleHypothesis.h"
-#include "TrkEventPrimitives/PropDirection.h"
-#include "TrkExInterfaces/IExtrapolator.h"
-#include "TrkExInterfaces/IMaterialEffectsUpdator.h"
-#include "TrkExInterfaces/INavigator.h"
-#include "TrkExInterfaces/IPropagator.h"
-#include "TrkExUtils/ExtrapolationCache.h"
-#include "TrkGeometry/MagneticFieldProperties.h"
-#include "TrkGeometry/TrackingVolume.h"
-#include "TrkGeometry/TrackingGeometry.h"
-#include "TrkNeutralParameters/NeutralParameters.h"
-#include "TrkParameters/TrackParameters.h"
-#include "TrkSurfaces/BoundaryCheck.h"
-#include "TrkSurfaces/PlaneSurface.h"
-#include "TrkVolumes/BoundarySurface.h"
-#include "TrkVolumes/BoundarySurfaceFace.h"
-// STL
-#include <cstring>
-#include <utility>
+#include "TrkEventPrimitives/ParticleHypothesis.h" //enum
+#include "TrkEventPrimitives/PropDirection.h" //enum
 
-#include <map>
-#include <vector>
+#include "TrkExInterfaces/IMaterialEffectsUpdator.h"// in tool handle array
+#include "TrkExInterfaces/INavigator.h" //in tool handle
+#include "TrkExInterfaces/IPropagator.h" //in tool handle
+#include "TrkGeometry/MagneticFieldProperties.h" //member
+
+#include "TrkNeutralParameters/NeutralParameters.h" //typedef
+#include "TrkParameters/TrackParameters.h" //template parameter in typedef
+#include "TrkSurfaces/BoundaryCheck.h" //template parameter in typedef
+
+#include "LocalExtrapolatorCache.h" //for Trk::Cache
+
 // Amg
-#include "EventPrimitives/EventPrimitives.h"
-#include "GeoPrimitives/GeoPrimitives.h"
+#include "EventPrimitives/EventPrimitives.h" //Amg::Vector etc
 // xAOD
-#include "xAODTracking/NeutralParticle.h"
-#include "xAODTracking/TrackParticle.h"
+#include "xAODTracking/NeutralParticle.h" //typedef
+#include "xAODTracking/TrackParticle.h" //typedef
 
 #include "ObjContainer.h"
 #include <Gaudi/Accumulators.h>
+// STL
+#include <cstring>
+#include <utility>
+#include <memory>
+#include <map>
+#include <vector>
 
 class MsgStream;
+class EventContext;
+
+
 namespace Trk {
 class Track;
 class Surface;
@@ -60,14 +60,12 @@ class Volume;
 class DetachedTrackingVolume;
 class TrackingGeometry;
 class TrackParticleBase;
-class IPropagator;
 class IDynamicLayerCreator;
-class INavigator;
 class IMultipleScatteringUpdator;
 class IEnergyLossUpdator;
-class IPropagator;
 class AlignableTrackingVolume;
 class ExtrapolationCache;
+class TrackingVolume;
 
 typedef std::vector<Trk::TrackParameters*> TrackParametersPtrVector;
 typedef std::vector<std::unique_ptr<Trk::TrackParameters>> TrackParametersUVector;
@@ -77,48 +75,6 @@ using TrackParmContainer = ObjContainer<Trk::TrackParameters>;
 using TrackParmPtr = ObjRef;
 using ManagedTrackParmPtr = ObjPtr<Trk::TrackParameters>;
 
-/** @struct ParametersAtBoundarySurface
-  has only three member
-  - BoundarySurface
-  - TrackParameters
-  - bool that indicated the deletion of the TrackParameters
-  */
-struct ParametersNextVolume
-{
-  //!< the members
-  const TrackingVolume* nextVolume;
-  ManagedTrackParmPtr nextParameters;
-  ManagedTrackParmPtr navParameters;
-  BoundarySurfaceFace exitFace;
-
-  ParametersNextVolume(TrackParmContainer& track_parm_container)
-    : nextVolume(nullptr)
-    , nextParameters(track_parm_container)
-    , navParameters(track_parm_container)
-    , exitFace(undefinedFace)
-  {
-  }
-
-  //!< update the boundaryInformation
-  void boundaryInformation(const TrackingVolume* tvol,
-                           ManagedTrackParmPtr nextPars,
-                           ManagedTrackParmPtr navPars,
-                           BoundarySurfaceFace face = undefinedFace)
-  {
-    nextVolume = tvol;
-    nextParameters = std::move(nextPars);
-    navParameters = std::move(navPars);
-    exitFace = face;
-  }
-  //!< reset the boundary information by invalidating it
-  void resetBoundaryInformation()
-  {
-    nextVolume = nullptr;
-    exitFace = undefinedFace;
-    nextParameters = ManagedTrackParmPtr();
-    navParameters = ManagedTrackParmPtr();
-  }
-};
 
 /**
   @class Extrapolator
@@ -329,138 +285,7 @@ private:
    * Cache to be passed to and between the private methods
    */
   typedef std::vector<std::pair<std::unique_ptr<Trk::TrackParameters>, int>> identifiedParameters_t;
-  struct Cache
-  {
-
-    TrackParmContainer m_trackParmContainer;
-    //!< parameters to be used for final propagation in case of fallback
-    ManagedTrackParmPtr m_lastValidParameters;
-    //!< return helper for parameters and boundary
-    ParametersNextVolume m_parametersAtBoundary;
-    //!< Caches per MaterialUpdator
-    std::vector<Trk::IMaterialEffectsUpdator::ICache> m_MaterialUpCache;
-    //!<  internal switch for resolved configuration
-    bool m_dense = false;
-    //!< Flag the recall solution
-    bool m_recall = false;
-    bool m_robustSampling = true;
-    bool m_ownParametersOnDetElements = true;
-    unsigned int m_layerResolved{};
-    unsigned int m_methodSequence = 0;
-    const Surface* m_destinationSurface = nullptr;
-    //!< the boundary volume check
-    const Volume* m_boundaryVolume = nullptr;
-    //!< Destination Surface for recall
-    const Surface* m_recallSurface = nullptr;
-    //!< Destination Layer for recall
-    const Layer* m_recallLayer = nullptr;
-    //!< Destination TrackingVolume for recall
-    const TrackingVolume* m_recallTrackingVolume = nullptr;
-    const Trk::TrackingVolume* m_currentStatic = nullptr;
-    const Trk::TrackingVolume* m_currentDense = nullptr;
-    const Trk::TrackingVolume* m_highestVolume = nullptr;
-    //!< return helper for parameters on detector elements
-    TrackParametersPtrVector* m_parametersOnDetElements = nullptr;
-    //!< cache layer with last material update
-    const Layer* m_lastMaterialLayer = nullptr;
-    //!< cache for collecting the total X0 ans Eloss
-    Trk::ExtrapolationCache* m_extrapolationCache = nullptr;
-    //!< cache pointer for Eloss
-    const Trk::EnergyLoss* m_cacheEloss = nullptr;
-    //!< cache of TrackStateOnSurfaces
-    std::vector<const Trk::TrackStateOnSurface*>* m_matstates = nullptr;
-    //!< cache of Transport Jacobians
-    std::vector<Trk::TransportJacobian*>* m_jacs = nullptr;
-    // for active volumes
-    std::unique_ptr<identifiedParameters_t> m_identifiedParameters;
-
-    const Trk::TrackingGeometry *m_trackingGeometry = nullptr;
-    double m_path{};
-
-    std::pair<unsigned int, unsigned int> m_denseResolved;
-
-    std::vector<DestSurf> m_staticBoundaries;
-    std::vector<DestSurf> m_detachedBoundaries;
-    std::vector<DestSurf> m_denseBoundaries;
-    std::vector<DestSurf> m_navigBoundaries;
-    std::vector<DestSurf> m_layers;
-
-    std::vector<std::pair<const Trk::DetachedTrackingVolume*, unsigned int>> m_detachedVols;
-    std::vector<std::pair<const Trk::TrackingVolume*, unsigned int>> m_denseVols;
-    std::vector<std::pair<const Trk::TrackingVolume*, const Trk::Layer*>> m_navigLays;
-    std::vector<std::pair<const Trk::Surface*, Trk::BoundaryCheck>> m_navigSurfs;
-    std::vector<const Trk::DetachedTrackingVolume*> m_navigVols;
-    std::vector<std::pair<const Trk::TrackingVolume*, unsigned int>> m_navigVolsInt;
-
-    TrackParmContainer& trackParmContainer() { return m_trackParmContainer; }
-
- 
-    ManagedTrackParmPtr manage(std::unique_ptr<Trk::TrackParameters>&& parm)
-    {
-      return ManagedTrackParmPtr(trackParmContainer(), std::move(parm));
-    }
-    ManagedTrackParmPtr manage(TrackParmPtr parm)
-    {
-      return ManagedTrackParmPtr(trackParmContainer(), parm);
-    }
-    ManagedTrackParmPtr manage() { return ManagedTrackParmPtr(trackParmContainer()); }
-
-    const Trk::TrackingGeometry *trackingGeometry( const Trk::INavigator &navigator, const EventContext &ctx) {
-       if (!m_trackingGeometry) {
-          m_trackingGeometry = navigator.trackingGeometry(ctx);
-       }
-       return m_trackingGeometry;
-    }
-
-    const Trk::TrackingVolume *volume(const EventContext&, const Amg::Vector3D& gp) const {
-       assert(m_trackingGeometry);
-       return m_trackingGeometry->lowestTrackingVolume(gp);
-    }
-
-    Cache()
-      : m_trackParmContainer(128)
-      , // always reserve some space; still occasionally more slots are
-        // needed; above 150 there are very few cases the max in q431 was 257
-      m_lastValidParameters(m_trackParmContainer)
-      , m_parametersAtBoundary(m_trackParmContainer)
-    {
-      m_navigSurfs.reserve(1024);
-      m_navigVols.reserve(64);
-      m_navigVolsInt.reserve(64);
-    }
-    ~Cache()
-    {
-      s_navigSurfsMax.update(m_navigSurfs.size());
-      s_navigVolsMax.update(m_navigVols.size());
-      s_navigVolsIntMax.update(m_navigVols.size());
-      if (m_ownParametersOnDetElements && m_parametersOnDetElements) {
-        for (const Trk::TrackParameters* parm : *m_parametersOnDetElements) {
-          delete parm;
-        }
-      }
-      s_containerSizeMax.update(trackParmContainer().size());
-    }
-
-    /**
-     * struct for accumulating stat counters
-     */
-    struct AtomicMax
-    {
-      void update(size_t val)
-      {
-        while (val > m_maxVal) {
-          val = m_maxVal.exchange(val);
-        }
-      }
-      size_t val() const { return m_maxVal; }
-      std::atomic<size_t> m_maxVal = 0;
-    };
-    static AtomicMax s_navigSurfsMax ATLAS_THREAD_SAFE;
-    static AtomicMax s_navigVolsMax ATLAS_THREAD_SAFE;
-    static AtomicMax s_navigVolsIntMax ATLAS_THREAD_SAFE;
-    static AtomicMax s_containerSizeMax ATLAS_THREAD_SAFE;
-    static bool s_reported ATLAS_THREAD_SAFE;
-  };
+  
 
   /**
    * Actual heavy lifting implementation for
@@ -783,23 +608,7 @@ private:
   /** Access the subPropagator to the given volume*/
   const IMaterialEffectsUpdator* subMaterialEffectsUpdator(const TrackingVolume& tvol) const;
 
-  /** Get the IMaterialEffectsUpdator::ICache  for the MaterialEffectsUpdator*/
-  IMaterialEffectsUpdator::ICache& subMaterialEffectsUpdatorCache(Cache& cache,
-                                                                  const TrackingVolume& tvol) const;
-
-  /** Prepare the IMaterialEffectsUpdator::ICache for each
-   * Material Effects updator */
-  void populateMatEffUpdatorCache(Cache& cache) const;
-
-  /** Private method for setting recall Information */
-  void setRecallInformation(Cache& cache,
-                            const Surface&,
-                            const Layer&,
-                            const TrackingVolume&) const;
-
-  /** Private method for resetting the recallInformation */
-  void resetRecallInformation(Cache& cache) const;
-
+ 
   /** Private method to return from extrapolate() main method,
       cleans up, calls model action or validation action, empties garbage bin and leaves */
   const Trk::TrackParameters* returnResult(Cache& cache, const Trk::TrackParameters* result) const;
@@ -817,8 +626,7 @@ private:
                                  Trk::PropDirection propDir,
                                  Trk::ParticleHypothesis) const;
 
-  void dumpCache(Cache& cache, const std::string& txt) const;
-  bool checkCache(Cache& cache, const std::string& txt) const;
+  
 
   /** Private method for conversion of the synchronized geometry signature to
    * the natural subdetector ordering */
