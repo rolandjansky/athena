@@ -18,16 +18,12 @@
 #include "AthContainers/AuxElement.h"
 #include "AthLinks/ElementLink.h"
 
-// needed for forward declaration
-#include "AthContainers/DataVector.h"
-
 // helper classes decoding AFP information
 #include "xAODForward/AFPStationID.h"
 #include "xAODForward/AFPPixelLayerID.h"
 
 // xAOD representing hits
-#include "xAODForward/versions/AFPSiHit_v2.h"
-#include "xAODForward/versions/AFPSiHitContainer_v2.h"
+#include "xAODForward/AFPSiHitContainer.h"
 
 namespace xAOD {
 
@@ -36,7 +32,7 @@ namespace xAOD {
   {
   public:
     /// Type of a link to the hit
-    typedef ElementLink< AFPSiHitContainer_v2 > AFPHitLink_t;
+    typedef ElementLink< AFPSiHitContainer > AFPHitLink_t;
 
     /**
      * @brief Index of the station with pixels cluster
