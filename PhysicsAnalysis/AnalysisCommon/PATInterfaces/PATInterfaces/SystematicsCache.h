@@ -11,6 +11,7 @@
 #include <AsgMessaging/AsgMessagingForward.h>
 #include <AsgMessaging/MessageCheck.h>
 #include <CxxUtils/AthUnlikelyMacros.h>
+#include <PATInterfaces/SystematicCode.h>
 #include <PATInterfaces/SystematicSet.h>
 #include <functional>
 #include <mutex>
@@ -52,7 +53,7 @@ namespace CP
   ///    return StatusCode::SUCCESS;
   ///  }
   ///
-  /// StatusCode MyTool :: applySystematicVariation (const CP::SystematicSet& sys, ...) {
+  /// CP::SystematicCode MyTool :: applySystematicVariation (const CP::SystematicSet& sys, ...) {
   ///   return m_calibCache.get (sys, m_currentConfig);
   /// }
   ///
@@ -110,7 +111,7 @@ namespace CP
 
     /// get the pointer to the cached calibration data for the given
     /// systematic, calculating it if necessary
-    StatusCode get (const CP::SystematicSet& sys, const CalibData*& result) const;
+    SystematicCode get (const CP::SystematicSet& sys, const CalibData*& result) const;
 
 
 
@@ -180,15 +181,17 @@ namespace CP
 
 
   template<typename CalibData>
-  StatusCode SystematicsCache<CalibData> ::
+  SystematicCode SystematicsCache<CalibData> ::
   get (const CP::SystematicSet& sys, const CalibData*& result) const
   {
+    ANA_CHECK_SET_TYPE (SystematicCode);
+
     // fast-path, check if we already calculated this
     auto iter = m_cache.find (sys);
     if (ATH_LIKELY (iter != m_cache.end())) //[[likely]], removed until C++20 support
     {
       result = iter->second.get();
-      return StatusCode::SUCCESS;
+      return SystematicCode::Ok;
     }
 
     // create a lock to prevent the concurrent (or duplicate)
@@ -206,7 +209,7 @@ namespace CP
     if (iter != m_cache.end())
     {
       result = iter->second.get();
-      return StatusCode::SUCCESS;
+      return SystematicCode::Ok;
     }
 
     // we will only ever calculate the systematics for our set of
@@ -240,7 +243,7 @@ namespace CP
     // already there, this will do nothing.
     m_cache.emplace (sys, mycalib);
     result = mycalib.get();
-    return StatusCode::SUCCESS;
+    return SystematicCode::Ok;
   }
 }
 

@@ -180,7 +180,7 @@ namespace CP
   struct SystematicSetHash
     : public std::unary_function<SystematicSet, std::size_t>
   {
-    std::size_t operator()(const SystematicSet&);
+    std::size_t operator()(const SystematicSet&) const;
   };
 
   /// Hash function specifically for boost::hash
