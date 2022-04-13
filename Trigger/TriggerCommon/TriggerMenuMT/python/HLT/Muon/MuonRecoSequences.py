@@ -203,7 +203,7 @@ def muonDecodeCfg(flags, RoIs):
 
     return acc
 
-def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False, extraLoads=None, l2mtmode=False ):
+def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False, extraLoads=None, l2mtmode=False, calib=False ):
 
   from AthenaCommon.AppMgr import ToolSvc
   from AthenaCommon.CFElements import parOR
@@ -214,6 +214,8 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False, extraLo
     postFix = "IOmode"
   elif l2mtmode:
     postFix = "l2mtmode"
+  elif calib:
+    postFix = "Calib"
   muFastRecoSequence = parOR("l2Mu"+postFix+"ViewNode")
 
   # In insideout mode, need to inherit muon decoding objects for TGC, RPC, MDT, CSC
