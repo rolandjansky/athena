@@ -58,10 +58,6 @@ namespace {
 		std::vector<int> sector_CSide_eta1_ontrack;
 		std::vector<int> sector_ASide_eta1_ontrack;
 		std::vector<int> sector_CSide_eta2_ontrack;
-		std::vector<int> sector_lb_ASide_eta1_ontrack;
-		std::vector<int> sector_lb_ASide_eta2_ontrack;
-		std::vector<int> sector_lb_CSide_eta1_ontrack;
-		std::vector<int> sector_lb_CSide_eta2_ontrack;
 		std::vector<int> stationPhi_ASide_eta1;
 		std::vector<int> stationPhi_ASide_eta2;
 		std::vector<int> stationPhi_CSide_eta1;
@@ -74,6 +70,7 @@ namespace {
 
 	struct MMByPhiStruct {
 		std::vector<int> sector_lb;
+	        std::vector<int> sector_lb_ontrack;
 	};
 
 	struct MMSummaryHistogramStruct {
@@ -383,6 +380,7 @@ void MMRawDataMonAlg::clusterFromTrack(const xAOD::TrackParticleContainer*  muon
 	MMSummaryHistogramStruct summaryPlots[2][2][4];
 	MMSummaryHistogramStruct summaryPlots_full[2][16][2][2][4];
 	MMOverviewHistogramStruct overviewPlots;
+	MMByPhiStruct occupancyPlots[16][2];
 
 	for(const xAOD::TrackParticle* meTP : *muonContainer) {
 		
@@ -406,7 +404,6 @@ void MMRawDataMonAlg::clusterFromTrack(const xAOD::TrackParticleContainer*  muon
 				if(!cluster) continue;
 
 				std::string stName = m_idHelperSvc->mmIdHelper().stationNameString(m_idHelperSvc->mmIdHelper().stationName(rot_id));
-				int stNumber 	   = m_idHelperSvc->mmIdHelper().stationName(rot_id);
 				int stEta          = m_idHelperSvc->mmIdHelper().stationEta(rot_id);
 				int stPhi          = m_idHelperSvc->mmIdHelper().stationPhi(rot_id);
 				int multi          = m_idHelperSvc->mmIdHelper().multilayer(rot_id);
@@ -414,35 +411,38 @@ void MMRawDataMonAlg::clusterFromTrack(const xAOD::TrackParticleContainer*  muon
 				int ch             = m_idHelperSvc->mmIdHelper().channel(rot_id);
 
 				// MMS and MML phi sectors
-				int phisec = (stNumber%2==0) ? 1 : 0;
+				//				int phisec = (stNumber%2==0) ? 1 : 0;
 				int sectorPhi = get_sectorPhi_from_stationPhi_stName(stPhi,stName);
 				int PCB = get_PCB_from_channel(ch);
+				int iside = (stEta > 0) ? 1 : 0;
+
 				auto& vects = overviewPlots;
 
+				auto& thisSect = occupancyPlots[sectorPhi-1][iside];
+				const int pcb_counter = 5; // index for the PCBs from 1 to 8 as done globally for the two detector components (abs(eta)=1 and abs(eta)=2)
+				int PCBeta12 = (std::abs(stEta) == 2) ? (PCB + pcb_counter) : PCB;
+				thisSect.sector_lb_ontrack.push_back(get_bin_for_occ_lb_pcb_hist(multi,gap,PCBeta12));
+				
 				// Occupancy plots with PCB granularity further divided for each eta sector: -2, -1, 1, 2
 				// Filling Vectors for stationEta=-1 - cluster on track
 				if(stEta==-1) {
 					vects.stationPhi_CSide_eta1_ontrack.push_back(sectorPhi);
 					vects.sector_CSide_eta1_ontrack.push_back(get_bin_for_occ_CSide_pcb_eta1_hist(stEta, multi, gap, PCB));
-					vects.sector_lb_CSide_eta1_ontrack.push_back(get_bin_for_occ_lb_CSide_pcb_eta1_hist(stEta, multi, gap, PCB, phisec));
 				}
 				// Filling Vectors for stationEta=-2 - cluster on track
 				else if(stEta==-2) {
 					vects.stationPhi_CSide_eta2_ontrack.push_back(sectorPhi);
 					vects.sector_CSide_eta2_ontrack.push_back(get_bin_for_occ_CSide_pcb_eta2_hist(stEta,multi,gap,PCB));
-					vects.sector_lb_CSide_eta2_ontrack.push_back(get_bin_for_occ_lb_CSide_pcb_eta2_hist(stEta,multi,gap,PCB,phisec));
 				}
 				// Filling Vectors for stationEta=1 - cluster on track
 				else if(stEta==1) {
 					vects.stationPhi_ASide_eta1_ontrack.push_back(sectorPhi);
 					vects.sector_ASide_eta1_ontrack.push_back(get_bin_for_occ_ASide_pcb_eta1_hist(stEta,multi,gap,PCB));
-					vects.sector_lb_ASide_eta1_ontrack.push_back(get_bin_for_occ_lb_ASide_pcb_eta1_hist(stEta,multi,gap,PCB,phisec));
 				}
 				// Filling Vectors for stationEta=2 - cluster on track
 				else {
 					vects.stationPhi_ASide_eta2_ontrack.push_back(sectorPhi);
 					vects.sector_ASide_eta2_ontrack.push_back(get_bin_for_occ_ASide_pcb_eta2_hist(stEta,multi,gap,PCB));
-					vects.sector_lb_ASide_eta2_ontrack.push_back(get_bin_for_occ_lb_ASide_pcb_eta2_hist(stEta,multi,gap,PCB,phisec));
 				}
 
 				float x = cluster->localParameters()[Trk::loc1];
@@ -524,15 +524,16 @@ void MMRawDataMonAlg::clusterFromTrack(const xAOD::TrackParticleContainer*  muon
 	auto sector_CSide_eta2_ontrack = Monitored::Collection("sector_CSide_eta2_ontrack",vects.sector_CSide_eta2_ontrack);                                                                  
 	auto sector_CSide_eta1_ontrack = Monitored::Collection("sector_CSide_eta1_ontrack",vects.sector_CSide_eta1_ontrack);   
 	auto lb_ontrack = Monitored::Scalar<int>("lb_ontrack", lb);
-	auto sector_lb_CSide_eta2_ontrack = Monitored::Collection("sector_lb_CSide_eta2_ontrack",vects.sector_lb_CSide_eta2_ontrack);
-	auto sector_lb_CSide_eta1_ontrack = Monitored::Collection("sector_lb_CSide_eta1_ontrack",vects.sector_lb_CSide_eta1_ontrack);
-	auto sector_lb_ASide_eta2_ontrack = Monitored::Collection("sector_lb_ASide_eta2_ontrack",vects.sector_lb_ASide_eta2_ontrack);
-	auto sector_lb_ASide_eta1_ontrack = Monitored::Collection("sector_lb_ASide_eta1_ontrack",vects.sector_lb_ASide_eta1_ontrack);
 
-	fill("mmMonitor", stationPhi_CSide_eta1_ontrack, stationPhi_CSide_eta2_ontrack, stationPhi_ASide_eta1_ontrack, stationPhi_ASide_eta2_ontrack, sector_CSide_eta1_ontrack, sector_CSide_eta2_ontrack, sector_ASide_eta1_ontrack,sector_ASide_eta2_ontrack, sector_lb_CSide_eta2_ontrack, sector_lb_CSide_eta1_ontrack, sector_lb_ASide_eta2_ontrack, sector_lb_ASide_eta1_ontrack, lb_ontrack);
+	fill("mmMonitor", stationPhi_CSide_eta1_ontrack, stationPhi_CSide_eta2_ontrack, stationPhi_ASide_eta1_ontrack, stationPhi_ASide_eta2_ontrack, sector_CSide_eta1_ontrack, sector_CSide_eta2_ontrack, sector_ASide_eta1_ontrack,sector_ASide_eta2_ontrack, lb_ontrack);
 
 	for(int iside = 0; iside < 2; ++iside) {
 		std::string MM_sideGroup = "MM_sideGroup" + MM_Side[iside];
+		for(int statPhi=0; statPhi<16; ++statPhi) {
+		  auto& occ_lb = occupancyPlots[statPhi][iside];
+		  auto sector_lb_ontrack = Monitored::Collection("sector_lb_"+MM_Side[iside]+"_phi"+std::to_string(statPhi+1)+"_ontrack",occ_lb.sector_lb_ontrack);
+		  fill(MM_sideGroup, lb_ontrack, sector_lb_ontrack);
+		}
 		for(int multiplet=0; multiplet < 2; ++multiplet) {
 			for(int gas_gap = 0; gas_gap < 4; ++gas_gap) {
 				auto& Vectors = summaryPlots[iside][multiplet][gas_gap];
