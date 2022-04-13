@@ -608,6 +608,11 @@ namespace Muon {
         std::pair<std::pair<int, int>, bool> netaPhiHits =
             associateClustersToSegment(segment, chid, sInfo.globalTrans, sInfo.clusters, sInfo.phimin, sInfo.phimax, rioDistVec);
 
+        if (rioDistVec.empty()){
+            ATH_MSG_VERBOSE("No measurements were collected.");
+            return nullptr;
+            
+        }
         /// Copy hits into vector
         auto meas_for_fit = [&rioDistVec] () {
             std::vector<const Trk::MeasurementBase*> out{};
@@ -648,6 +653,10 @@ namespace Muon {
                 surf->localToGlobalDirection(segLocDir, gdir);
 
                 if (track->measurementsOnTrack() && rioDistVec.size() != track->measurementsOnTrack()->size()) {
+                    if (track->measurementsOnTrack()->empty()) {
+                        ATH_MSG_DEBUG("No measurements survived");
+                        return nullptr;
+                    }
                     ATH_MSG_DEBUG(" ROT vector size changed after fit, updating ");
                     garbage_collector = std::move(rioDistVec);
                     rioDistVec.reserve(track->measurementsOnTrack()->size());
