@@ -136,7 +136,7 @@ protected:
   {
     this, "PixelReadoutManager", "PixelReadoutManager", "Pixel readout manager"
   };
-  const PixelID* m_pixelid;
+  const PixelID* m_pixelid{};
 
   /** @brief Optional read handle to get status data to test whether a pixel detector element is good.
    * If set to e.g. PixelDetectorElementStatus the event data will be used instead of the pixel conditions summary tool.

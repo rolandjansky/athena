@@ -161,12 +161,12 @@ private:
   Gaudi::Property<bool> m_useByteStreamRD53
      {this, "UseByteStreamRD53", false, "Switch of the ByteStream error for RD53"};
 
-  unsigned int  m_readoutTechnologyMask;
-  bool m_doOnline;
-  bool m_doLumiBlock;
-  bool m_doLowOccupancy;
-  bool m_doHighOccupancy;
-  bool m_doHeavyIonMon;
+  unsigned int  m_readoutTechnologyMask{};
+  bool m_doOnline{};
+  bool m_doLumiBlock{};
+  bool m_doLowOccupancy{};
+  bool m_doHighOccupancy{};
+  bool m_doHeavyIonMon{};
 
 };
 #endif
