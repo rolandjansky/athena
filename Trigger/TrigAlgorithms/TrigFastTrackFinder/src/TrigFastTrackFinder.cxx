@@ -290,6 +290,7 @@ StatusCode TrigFastTrackFinder::initialize() {
 
   // UTT read/write handles
   ATH_CHECK( m_recJetRoiCollectionKey.initialize(m_doHitDV) );
+  ATH_CHECK( m_hitDVSeedKey.initialize(m_doHitDV) ) ;
   ATH_CHECK( m_hitDVTrkKey.initialize(m_doHitDV) ) ;
   ATH_CHECK( m_hitDVSPKey.initialize(m_doHitDV) );
   ATH_CHECK( m_dEdxTrkKey.initialize(m_dodEdxTrk) );
@@ -516,6 +517,7 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
     ATH_MSG_DEBUG("REGTEST / Found " << mnt_roi_nSPs << " space points.");
     ATH_MSG_DEBUG("REGTEST / Found " << mnt_roi_nSPsPIX << " Pixel space points.");
     ATH_MSG_DEBUG("REGTEST / Found " << mnt_roi_nSPsSCT << " SCT space points.");
+    ATH_MSG_DEBUG("REGTEST / converted space points size = " << convertedSpacePoints.size());
     m_countRoIwithEnoughHits++;
   }
   else {
@@ -1485,14 +1487,19 @@ void TrigFastTrackFinder::makeSeedsOnGPU(const TrigCombinatorialSettings& tcs, c
 StatusCode TrigFastTrackFinder::createEmptyUTTEDMs(const EventContext& ctx) const
 {
    if( m_doHitDV ) {
+      SG::WriteHandle<xAOD::TrigCompositeContainer> hitDVSeedHandle(m_hitDVSeedKey, ctx);
+      ATH_CHECK( hitDVSeedHandle.record(std::make_unique<xAOD::TrigCompositeContainer>(), std::make_unique<xAOD::TrigCompositeAuxContainer>()) );
+
       SG::WriteHandle<xAOD::TrigCompositeContainer> hitDVTrkHandle(m_hitDVTrkKey, ctx);
       ATH_CHECK( hitDVTrkHandle.record(std::make_unique<xAOD::TrigCompositeContainer>(), std::make_unique<xAOD::TrigCompositeAuxContainer>()) );
+
       SG::WriteHandle<xAOD::TrigCompositeContainer> hitDVSPHandle(m_hitDVSPKey, ctx);
       ATH_CHECK( hitDVSPHandle.record(std::make_unique<xAOD::TrigCompositeContainer>(), std::make_unique<xAOD::TrigCompositeAuxContainer>()) );
    }
    if( m_dodEdxTrk ) {
       SG::WriteHandle<xAOD::TrigCompositeContainer> dEdxTrkHandle(m_dEdxTrkKey, ctx);
       ATH_CHECK( dEdxTrkHandle.record(std::make_unique<xAOD::TrigCompositeContainer>(), std::make_unique<xAOD::TrigCompositeAuxContainer>()) );
+
       SG::WriteHandle<xAOD::TrigCompositeContainer> dEdxHitHandle(m_dEdxHitKey, ctx);
       ATH_CHECK( dEdxHitHandle.record(std::make_unique<xAOD::TrigCompositeContainer>(), std::make_unique<xAOD::TrigCompositeAuxContainer>()) );
    }
@@ -1506,6 +1513,10 @@ StatusCode TrigFastTrackFinder::createEmptyUTTEDMs(const EventContext& ctx) cons
 StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::vector<TrigSiSpacePointBase>& convertedSpacePoints,
 					  const TrackCollection& outputTracks) const
 {
+   SG::WriteHandle<xAOD::TrigCompositeContainer> hitDVSeedHandle(m_hitDVSeedKey, ctx);
+   ATH_CHECK( hitDVSeedHandle.record(std::make_unique<xAOD::TrigCompositeContainer>(), std::make_unique<xAOD::TrigCompositeAuxContainer>()) );
+   auto hitDVSeedContainer = hitDVSeedHandle.ptr();
+
    SG::WriteHandle<xAOD::TrigCompositeContainer> hitDVTrkHandle(m_hitDVTrkKey, ctx);
    ATH_CHECK( hitDVTrkHandle.record(std::make_unique<xAOD::TrigCompositeContainer>(), std::make_unique<xAOD::TrigCompositeAuxContainer>()) );
    auto hitDVTrkContainer = hitDVTrkHandle.ptr();
@@ -1515,36 +1526,38 @@ StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::ve
    auto hitDVSPContainer = hitDVSPHandle.ptr();
 
    // select good tracks
-   const float  TRKCUT_PT               = 0.5;
-   const float  TRKCUT_A0BEAM           = 2.5;
-   const int    TRKCUT_N_HITS_INNERMOST = 1;
-   const int    TRKCUT_N_HITS_PIX       = 2;
-   const int    TRKCUT_N_HITS           = 4;
-   std::unordered_map<const Trk::PrepRawData*, int> umap_fittedTrack_prd;
+   const float  TRKCUT_PT_GEV       = 0.5;
+   const float  TRKCUT_A0BEAM       = 2.5;
+   const int    TRKCUT_N_HITS_INNER = 1;
+   const int    TRKCUT_N_HITS_PIX   = 2;
+   const int    TRKCUT_N_HITS       = 4;
+   std::unordered_map<Identifier, int> umap_fittedTrack_identifier;
    int fittedTrack_id = -1;
    std::vector<int>   v_dvtrk_id;
    std::vector<float> v_dvtrk_pt;
    std::vector<float> v_dvtrk_eta;
    std::vector<float> v_dvtrk_phi;
-   std::vector<int>   v_dvtrk_n_hits_innermost;
+   std::vector<int>   v_dvtrk_n_hits_inner;
    std::vector<int>   v_dvtrk_n_hits_pix;
    std::vector<int>   v_dvtrk_n_hits_sct;
    std::vector<float> v_dvtrk_a0beam;
    for (auto track : outputTracks) {
-      if ( ! track->perigeeParameters() ) continue;
-      if ( ! track->trackSummary() )      continue;
+      if ( track->perigeeParameters()==nullptr ) continue;
+      if ( track->trackSummary()==nullptr )  continue;
       int n_hits_innermost = track->trackSummary()->get(Trk::SummaryType::numberOfInnermostPixelLayerHits);
-      int n_hits_pix       = track->trackSummary()->get(Trk::SummaryType::numberOfPixelHits);
-      int n_hits_sct       = track->trackSummary()->get(Trk::SummaryType::numberOfSCTHits);
-      if( n_hits_innermost < TRKCUT_N_HITS_INNERMOST )  continue;
-      if( n_hits_pix < TRKCUT_N_HITS_PIX )              continue;
-      if( (n_hits_pix+n_hits_sct) < TRKCUT_N_HITS )     continue;
-      float theta  = track->perigeeParameters()->parameters()[Trk::theta];
-      float qOverP = track->perigeeParameters()->parameters()[Trk::qOverP];
-      if( std::abs(qOverP)<1e-12 ) qOverP = 1e-12;
-      float pt = std::sin(theta)/qOverP;
-      pt /= 1000.0;
-      if( pt < TRKCUT_PT ) continue;
+      int n_hits_next_to_innermost = track->trackSummary()->get(Trk::SummaryType::numberOfNextToInnermostPixelLayerHits);
+      int n_hits_inner = n_hits_innermost + n_hits_next_to_innermost;
+      int n_hits_pix   = track->trackSummary()->get(Trk::SummaryType::numberOfPixelHits);
+      int n_hits_sct   = track->trackSummary()->get(Trk::SummaryType::numberOfSCTHits);
+      if( n_hits_inner < TRKCUT_N_HITS_INNER )      continue;
+      if( n_hits_pix < TRKCUT_N_HITS_PIX )          continue;
+      if( (n_hits_pix+n_hits_sct) < TRKCUT_N_HITS ) continue;
+      float theta     = track->perigeeParameters()->parameters()[Trk::theta];
+      float absqOverP = std::abs(track->perigeeParameters()->parameters()[Trk::qOverP]);
+      if( absqOverP<1e-12 ) absqOverP = 1e-12;
+      float ptGeV = std::sin(theta)/absqOverP;
+      ptGeV /= Gaudi::Units::GeV;
+      if( ptGeV < TRKCUT_PT_GEV ) continue;
       float a0   = track->perigeeParameters()->parameters()[Trk::d0];
       float phi0 = track->perigeeParameters()->parameters()[Trk::phi0];
       float shift_x = 0; float shift_y = 0;
@@ -1554,31 +1567,31 @@ StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::ve
 
       // track is selected
       fittedTrack_id++;
-      ATH_MSG_DEBUG("Selected track pT = " << pt);
+      ATH_MSG_DEBUG("Selected track pT = " << ptGeV << " GeV");
       DataVector<const Trk::MeasurementBase>::const_iterator
 	 m  = track->measurementsOnTrack()->begin(),
 	 me = track->measurementsOnTrack()->end  ();
       for(; m!=me; ++m ) {
 	 const Trk::PrepRawData* prd = ((const Trk::RIO_OnTrack*)(*m))->prepRawData();
 	 if( prd == nullptr ) continue;
-	 if( umap_fittedTrack_prd.find(prd) == umap_fittedTrack_prd.end() ) {
-	    umap_fittedTrack_prd.insert(std::make_pair(prd,fittedTrack_id));
+	 Identifier id_prd = prd->identify();
+	 if( umap_fittedTrack_identifier.find(id_prd) == umap_fittedTrack_identifier.end() ) {
+	    umap_fittedTrack_identifier.insert(std::make_pair(id_prd,fittedTrack_id));
 	 }
       }
-
       float eta = -std::log(std::tan(0.5*theta));
       float phi = track->perigeeParameters()->parameters()[Trk::phi];
       v_dvtrk_id.push_back(fittedTrack_id);
-      v_dvtrk_pt.push_back(pt*1000.0);
+      v_dvtrk_pt.push_back(ptGeV*Gaudi::Units::GeV);
       v_dvtrk_eta.push_back(eta);
       v_dvtrk_phi.push_back(phi);
-      v_dvtrk_n_hits_innermost.push_back(n_hits_innermost);
+      v_dvtrk_n_hits_inner.push_back(n_hits_inner);
       v_dvtrk_n_hits_pix.push_back(n_hits_pix);
       v_dvtrk_n_hits_sct.push_back(n_hits_sct);
       v_dvtrk_a0beam.push_back(a0beam);
    }
-   ATH_MSG_DEBUG("Nr of selected tracks = " << fittedTrack_id);
-   ATH_MSG_DEBUG("Nr of PRDs used by selected tracks = " << umap_fittedTrack_prd.size());
+   ATH_MSG_DEBUG("Nr of selected tracks / all = " << fittedTrack_id << " / " << outputTracks.size());
+   ATH_MSG_DEBUG("Nr of Identifiers used by selected tracks = " << umap_fittedTrack_identifier.size());
 
    // space points
    int n_sp           = 0;
@@ -1591,33 +1604,49 @@ StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::ve
    std::vector<bool>  v_sp_isSct;
    std::vector<int>   v_sp_usedTrkId;
 
-   for(unsigned int iSp=0; iSp<convertedSpacePoints.size(); ++iSp) {
+   std::unordered_map<Identifier, int> umap_sp_identifier;
 
+   for(unsigned int iSp=0; iSp<convertedSpacePoints.size(); ++iSp) {
       bool isPix = convertedSpacePoints[iSp].isPixel();
       bool isSct = convertedSpacePoints[iSp].isSCT();
       if( ! isPix && ! isSct ) continue;
-
       const Trk::SpacePoint* sp = convertedSpacePoints[iSp].offlineSpacePoint();
-      const Amg::Vector3D& pos_sp = sp->globalPosition();
-      float sp_x = pos_sp[Amg::x];
-      float sp_y = pos_sp[Amg::y];
-      float sp_z = pos_sp[Amg::z];
-      TVector3 p3Sp(sp_x,sp_y,sp_z);
-      float sp_eta = p3Sp.Eta();
-      float sp_phi = p3Sp.Phi();
-
-      // whether used by selected tracks
-      const Trk::PrepRawData* prd = sp->clusterList().first;
-      int usedTrack_id = -1;
-      if( prd != nullptr && umap_fittedTrack_prd.find(prd) != umap_fittedTrack_prd.end() ) {
-	 ATH_MSG_DEBUG("prd first is there in umap");
-	 usedTrack_id = umap_fittedTrack_prd[prd];
+      std::vector<const Trk::PrepRawData*> prds;
+      prds.reserve(2);
+      if(sp->clusterList().first !=nullptr)  prds.push_back(sp->clusterList().first);
+      if(sp->clusterList().second!=nullptr)  prds.push_back(sp->clusterList().second);
+      for(const Trk::PrepRawData* prd : prds) {
+	 Identifier id_prd =  prd->identify();
+	 if( umap_sp_identifier.find(id_prd) == umap_sp_identifier.end() ) {
+	    umap_sp_identifier.insert(std::make_pair(id_prd,-1));
+	 }
       }
-      else {
-	 const Trk::PrepRawData* prd = sp->clusterList().second;
-	 if( prd != nullptr && umap_fittedTrack_prd.find(prd) != umap_fittedTrack_prd.end() ) {
-	    ATH_MSG_DEBUG("prd second is there in umap");
-	    usedTrack_id = umap_fittedTrack_prd[prd];
+   }
+   int n_id_usedByTrack = 0;
+   for(auto it=umap_sp_identifier.begin(); it!=umap_sp_identifier.end(); ++it) {
+      Identifier id_sp = it->first;
+      if( umap_fittedTrack_identifier.find(id_sp) != umap_fittedTrack_identifier.end() ) {
+	 umap_sp_identifier[id_sp] = umap_fittedTrack_identifier[id_sp];
+	 ++n_id_usedByTrack;
+      }
+   }
+   ATH_MSG_DEBUG("Nr of SPs / Identifiers (all) / Identifiers (usedByTrack) = " << convertedSpacePoints.size() << " / " << umap_sp_identifier.size() << " / " << n_id_usedByTrack);
+
+   for(unsigned int iSp=0; iSp<convertedSpacePoints.size(); ++iSp) {
+      bool isPix = convertedSpacePoints[iSp].isPixel();
+      bool isSct = convertedSpacePoints[iSp].isSCT();
+      if( ! isPix && ! isSct ) continue;
+      const Trk::SpacePoint* sp = convertedSpacePoints[iSp].offlineSpacePoint();
+      std::vector<const Trk::PrepRawData*> prds;
+      prds.reserve(2);
+      if(sp->clusterList().first !=nullptr)  prds.push_back(sp->clusterList().first);
+      if(sp->clusterList().second!=nullptr)  prds.push_back(sp->clusterList().second);
+      int usedTrack_id = -1;
+      for(const Trk::PrepRawData* prd : prds) {
+	 Identifier id_prd =  prd->identify();
+	 if( umap_sp_identifier.find(id_prd) != umap_sp_identifier.end() ) {
+	    int trkid = umap_sp_identifier[id_prd];
+	    if( trkid != -1 ) usedTrack_id = trkid;
 	 }
       }
 
@@ -1626,6 +1655,14 @@ StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::ve
       if( usedTrack_id != -1 ) n_sp_usedByTrk++;
       int  layer = convertedSpacePoints[iSp].layer();
       float sp_r = convertedSpacePoints[iSp].r();
+
+      const Amg::Vector3D& pos_sp = sp->globalPosition();
+      float sp_x = pos_sp[Amg::x];
+      float sp_y = pos_sp[Amg::y];
+      float sp_z = pos_sp[Amg::z];
+      TVector3 p3Sp(sp_x,sp_y,sp_z);
+      float sp_eta = p3Sp.Eta();
+      float sp_phi = p3Sp.Phi();
 
       v_sp_eta.push_back(sp_eta);
       v_sp_r.push_back(sp_r);
@@ -1638,20 +1675,17 @@ StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::ve
       ATH_MSG_VERBOSE("+++ SP eta / phi / layer / ixPix / usedTrack_id = " << sp_eta << " / " << sp_phi << " / " << layer << " / " << isPix << " / " << usedTrack_id);
 
    }
-   ATH_MSG_VERBOSE("Nr of SPs = " << n_sp);
-   ATH_MSG_VERBOSE("Nr of SPs used by selected tracks = " << n_sp_usedByTrk);
+   ATH_MSG_DEBUG("Nr of SPs / all = " << n_sp << " / " << convertedSpacePoints.size());
+   ATH_MSG_DEBUG("Nr of SPs used by selected tracks = " << n_sp_usedByTrk);
 
    // Seed
-   std::vector<float> v_seeds_eta;
-   std::vector<float> v_seeds_phi;
-
+   std::vector<float>   v_seeds_eta;
+   std::vector<float>   v_seeds_phi;
+   std::vector<int16_t> v_seeds_type;
+   
    if( m_doHitDV_Seeding ) {
 
-      // space-point based (unseeded mode)
-      ATH_CHECK( findSPSeeds(ctx, v_sp_eta, v_sp_phi, v_sp_layer, v_sp_usedTrkId, v_seeds_eta, v_seeds_phi) );
-      ATH_MSG_VERBOSE("Nr of SP seeds = " << v_seeds_eta.size());
-
-      // add J1 J30 seeds
+      // add L1 Jet seeds
       const unsigned int L1JET_ET_CUT = 30;
 
       auto recJetRoiCollectionHandle = SG::makeHandle( m_recJetRoiCollectionKey, ctx );
@@ -1677,11 +1711,36 @@ StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::ve
 	 if( roiPhi > TMath::Pi() ) roiPhi -= 2 * TMath::Pi();
 	 v_seeds_eta.push_back(recRoI->eta());
 	 v_seeds_phi.push_back(roiPhi);
+	 v_seeds_type.push_back(0); // L1_J:0
       }
-      ATH_MSG_VERBOSE("Nr of SP + L1_J30 seeds = " << v_seeds_eta.size());
+      ATH_MSG_DEBUG("Nr of L1_J" << L1JET_ET_CUT << " seeds = " << v_seeds_eta.size());
+
+      // space-point based (unseeded mode)
+      std::vector<float> v_spseeds_eta;
+      std::vector<float> v_spseeds_phi;
+      ATH_CHECK( findSPSeeds(ctx, v_sp_eta, v_sp_phi, v_sp_layer, v_sp_usedTrkId, v_spseeds_eta, v_spseeds_phi) );
+      ATH_MSG_DEBUG("Nr of SP seeds = " << v_spseeds_eta.size());
+      for(size_t idx=0; idx<v_spseeds_eta.size(); ++idx) {
+	 v_seeds_eta.push_back(v_spseeds_eta[idx]);
+	 v_seeds_phi.push_back(v_spseeds_phi[idx]);
+	 v_seeds_type.push_back(1); // SP: 1
+      }
+      ATH_MSG_DEBUG("Nr of SP + L1_J" << L1JET_ET_CUT << " seeds = " << v_seeds_eta.size());
    }
 
    // fill objects
+
+   // seeds
+   const int N_MAX_SEEDS = 200;
+   int n_seeds = std::min(N_MAX_SEEDS,(int)v_seeds_eta.size());
+   hitDVSeedContainer->reserve(n_seeds);
+   for(auto iSeed=0; iSeed < n_seeds; ++iSeed) {
+      xAOD::TrigComposite *hitDVSeed = new xAOD::TrigComposite();
+      hitDVSeedContainer->push_back(hitDVSeed);
+      hitDVSeed->setDetail<float>   ("hitDVSeed_eta",  v_seeds_eta[iSeed]);
+      hitDVSeed->setDetail<float>   ("hitDVSeed_phi",  v_seeds_phi[iSeed]);
+      hitDVSeed->setDetail<int16_t> ("hitDVSeed_type", v_seeds_type[iSeed]);
+   }
 
    // track
    const float TRKCUT_DELTA_R_TO_SEED = 1.0;
@@ -1701,22 +1760,22 @@ StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::ve
       }
       xAOD::TrigComposite *hitDVTrk = new xAOD::TrigComposite();
       hitDVTrkContainer->push_back(hitDVTrk);
-      hitDVTrk->setDetail<int>  ("hitDVTrk_id",  v_dvtrk_id[iTrk]);
-      hitDVTrk->setDetail<float>("hitDVTrk_pt",  v_dvtrk_pt[iTrk]);
-      hitDVTrk->setDetail<float>("hitDVTrk_eta", v_dvtrk_eta[iTrk]);
-      hitDVTrk->setDetail<float>("hitDVTrk_phi", v_dvtrk_phi[iTrk]);
-      hitDVTrk->setDetail<int>  ("hitDVTrk_n_hits_innermost", v_dvtrk_n_hits_innermost[iTrk]);
-      hitDVTrk->setDetail<int>  ("hitDVTrk_n_hits_pix", v_dvtrk_n_hits_pix[iTrk]);
-      hitDVTrk->setDetail<int>  ("hitDVTrk_n_hits_sct", v_dvtrk_n_hits_sct[iTrk]);
-      hitDVTrk->setDetail<float>("hitDVTrk_a0beam",     v_dvtrk_a0beam[iTrk]);
+      hitDVTrk->setDetail<int>    ("hitDVTrk_id",  v_dvtrk_id[iTrk]);
+      hitDVTrk->setDetail<float>  ("hitDVTrk_pt",  v_dvtrk_pt[iTrk]);
+      hitDVTrk->setDetail<float>  ("hitDVTrk_eta", v_dvtrk_eta[iTrk]);
+      hitDVTrk->setDetail<float>  ("hitDVTrk_phi", v_dvtrk_phi[iTrk]);
+      hitDVTrk->setDetail<int16_t>("hitDVTrk_n_hits_inner", v_dvtrk_n_hits_inner[iTrk]);
+      hitDVTrk->setDetail<int16_t>("hitDVTrk_n_hits_pix",   v_dvtrk_n_hits_pix[iTrk]);
+      hitDVTrk->setDetail<int16_t>("hitDVTrk_n_hits_sct",   v_dvtrk_n_hits_sct[iTrk]);
+      hitDVTrk->setDetail<float>  ("hitDVTrk_a0beam",       v_dvtrk_a0beam[iTrk]);
    }
 
    // space points
-   const float SPCUT_DELTA_R_TO_SEED = 0.6;
-   unsigned int n_sp_stored = 0;
-   const unsigned int N_MAX_SP_STORED = 100000;
-
-   hitDVSPContainer->reserve(v_sp_eta.size());
+   const float SPCUT_DELTA_R_TO_SEED = 1.0;
+   int n_sp_stored = 0;
+   const int N_MAX_SP_STORED = 100000;
+   int n_sp_reserve = std::min(N_MAX_SP_STORED,(int)v_sp_eta.size());
+   hitDVSPContainer->reserve(n_sp_reserve);
    for(unsigned int iSp=0; iSp<v_sp_eta.size(); ++iSp) {
       float sp_eta = v_sp_eta[iSp];
       float sp_phi = v_sp_phi[iSp];
@@ -1742,6 +1801,7 @@ StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::ve
       hitDVSP->setDetail<bool>   ("hitDVSP_isSct",     v_sp_isSct[iSp]);
       hitDVSP->setDetail<int16_t>("hitDVSP_usedTrkId", (int16_t)v_sp_usedTrkId[iSp]);
    }
+   ATH_MSG_DEBUG("Nr of SPs stored = " << n_sp_stored);
 
    return StatusCode::SUCCESS;
 }
@@ -1751,9 +1811,6 @@ StatusCode TrigFastTrackFinder::findSPSeeds( const EventContext& ctx,
 					     const std::vector<int>& v_sp_layer, const std::vector<int>& v_sp_usedTrkId,
 					     std::vector<float>& seeds_eta, std::vector<float>& seeds_phi ) const
 {
-   seeds_eta.clear();
-   seeds_phi.clear();
-
    const int   NBINS_ETA = 50;
    const float ETA_MIN   = -2.5;
    const float ETA_MAX   =  2.5;

@@ -164,11 +164,12 @@ protected:
 
   // DataHandles for UTT
   SG::ReadHandleKey<DataVector<LVL1::RecJetRoI>> m_recJetRoiCollectionKey {this, "RecJetRoI", "", ""};
-  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_hitDVTrkKey{this, "HitDVTrk", "", ""};
-  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_hitDVSPKey {this, "HitDVSP",  "", ""};
-  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_dEdxTrkKey {this, "dEdxTrk",  "", ""};
-  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_dEdxHitKey {this, "dEdxHit",  "", ""};
-  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_disTrkCandKey{this, "DisTrkCand", "", ""};
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_hitDVSeedKey {this, "HitDVSeed", "", ""};
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_hitDVTrkKey  {this, "HitDVTrk",  "", ""};
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_hitDVSPKey   {this, "HitDVSP",   "", ""};
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_dEdxTrkKey   {this, "dEdxTrk",   "", ""};
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_dEdxHitKey   {this, "dEdxHit",   "", ""};
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_disTrkCandKey{this, "DisTrkCand","", ""};
 
   // Control flags
 
