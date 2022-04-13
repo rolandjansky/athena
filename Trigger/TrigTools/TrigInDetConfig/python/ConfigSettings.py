@@ -122,6 +122,7 @@ class _ConfigSettings_bjet( _ConfigSettingsBase ):
       self._name     = "bjet"
       self._suffix   = "Bjet"
       self._roi      = "HLT_Roi_Bjet"
+      self._pTmin    = 0.8*GeV
       self._etaHalfWidth    = 0.4
       self._phiHalfWidth    = 0.4
 
