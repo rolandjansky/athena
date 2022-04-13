@@ -122,8 +122,8 @@ namespace Muon {
    }
 
    const std::string& MuonStationIndex::phiName( PhiIndex index ) { 
-      static const std::array<std::string, 12> phiIndexNames = {
-         "BM1", "BM2", "BO1", "BO2", "T1", "T2", "T3", "T4", "CSC", "STGC1",
+      static const std::array<std::string, 14> phiIndexNames = {
+         "BI1", "BI2", "BM1", "BM2", "BO1", "BO2", "T1", "T2", "T3", "T4", "CSC", "STGC1",
          "STGC2", "PhiIndexMax"
       };
 
