@@ -1,7 +1,7 @@
 // Emacs -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGNAVIGATION_FULLHOLDERFACTORY
@@ -27,7 +27,7 @@ namespace HLT {
 
     HLT::BaseHolder* fromSerialized(int version, const std::vector<uint32_t>::const_iterator& start, const std::vector<uint32_t>::const_iterator& end) override;
 
-    HLT::BaseHolder* createHolder(class_id_type clid, const std::string& label, uint16_t index) override;
+    HLT::BaseHolder* createHolder(class_id_type clid, const std::string& label, uint16_t index) const override;
 
     void prepare(StoreGateSvc* store, IConversionSvc* serializer, bool readonly = true) {
       m_storeGate = store;

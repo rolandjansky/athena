@@ -86,7 +86,7 @@ bool creation() {
 
   //////////////////////////////////////////////////////////////////
   REPORT_AND_CONTINUE( "Creation of the holders Container <-> Container with details" );
-  ITypeProxy* deco = HLT::TypeMaps::proxies()[ClassID_traits<TestAuxB>::ID()]->clone();
+  ITypeProxy* deco = HLT::TypeMaps::proxies().at(ClassID_traits<TestAuxB>::ID())->clone();
   Holder<TestBContainer >* cc_dec(0) ; 
   if ( !reg(new HolderImp<TestBContainer, TestBContainer >(), "creation2", 2, deco, cc_dec) ) REPORT_AND_STOP("reg creation2") ;
 
@@ -109,7 +109,7 @@ bool add_operation(bool wihtAux) {
   BEGIN_TEST ( "Simple test of Container <-> Container holder (add)" );
   ITypeProxy* deco(0);
   if (wihtAux)
-    deco = HLT::TypeMaps::proxies()[ClassID_traits<TestAuxB>::ID()]->clone();
+    deco = HLT::TypeMaps::proxies().at(ClassID_traits<TestAuxB>::ID())->clone();
 
   Holder<TestBContainer>* cch(0);
   if ( !reg( new HolderImp<TestBContainer, TestBContainer>(), "TestB", 11, deco, cch) ) REPORT_AND_STOP("It should have failed before");

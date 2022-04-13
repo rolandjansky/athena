@@ -44,16 +44,6 @@ NavigationCore::NavigationCore(const AthAlgTool& logger)
 {
 }
 
-NavigationCore::~NavigationCore() {
-  ATH_MSG_VERBOSE("~NavigationCore: cleaning static type information");
-
-  for ( auto [clid, proxy] : HLT::TypeMaps::proxies() ) delete proxy;
-  HLT::TypeMaps::proxies().clear();
-
-  for ( auto [clid, holder] : HLT::TypeMaps::holders() ) delete holder;
-  HLT::TypeMaps::holders().clear();
-}
-
 /*****************************************************************************
  *
  * PRETTY PRINTING
@@ -295,9 +285,9 @@ void NavigationCore::reset(bool inFinalize) {
   ATH_MSG_DEBUG("Navigation reset done");
 }
 
-uint16_t NavigationCore::nextSubTypeIndex(CLID clid, const std::string& /*label*/) {
+uint16_t NavigationCore::nextSubTypeIndex(CLID clid, const std::string& /*label*/) const {
   std::lock_guard<std::recursive_mutex> lock(getMutex());
-  TrigHolderStructure& holderstorage = getHolderStorage();
+  const TrigHolderStructure& holderstorage = getHolderStorage();
 
   auto holders = holderstorage.getHoldersOfClid(clid);
 
@@ -373,7 +363,7 @@ bool NavigationCore::registerHolder(IHolder* holder) {
   return true;
 }
 
-bool NavigationCore::createHolder( IHolder*& holder,  CLID clid, const std::string& label, uint16_t index) {
+bool NavigationCore::createHolder( IHolder*& holder,  CLID clid, const std::string& label, uint16_t index) const {
   ATH_MSG_DEBUG("createHolder: creating holder for CLID: " << clid  << " label: " << label << " and index: " << index);
   //reset holder
   holder = 0;

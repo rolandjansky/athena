@@ -70,18 +70,19 @@ HLT::BaseHolder* HLT::FullHolderFactory::fromSerialized(int version, const std::
   return baseholder;
 }
 
-HLT::BaseHolder* HLT::FullHolderFactory::createHolder(CLID clid, const std::string& label, sub_index_type index) {
+HLT::BaseHolder* HLT::FullHolderFactory::createHolder(CLID clid, const std::string& label, sub_index_type index) const {
   ATH_MSG_DEBUG("createHolder: creating holder for CLID: " << clid  << " label: " << label << " and index: " << index << " readonly: " << m_readonly);
 
-  if ( HLT::TypeMaps::holders().count(clid) == 0 ) {
+  const auto itr = HLT::TypeMaps::holders().find(clid);
+  if ( itr == HLT::TypeMaps::holders().end() ) {
     ATH_MSG_ERROR("createHolder: holder can't be done, no predefined storage found for CLID: " << clid);
-    return 0;
+    return nullptr;
   }
 
-  auto holder = HLT::TypeMaps::holders()[clid]->clone(m_prefix, label, index);
+  auto holder = itr->second->clone(m_prefix, label, index);
   if(!holder){
     ATH_MSG_ERROR("createHolder: clone of holder failed clid: " << clid);
-    return 0;
+    return nullptr;
   }
 
   ATH_MSG_DEBUG("preparing holder with msg: " << &msg() << " storegate: " << m_storeGate << " and prefix " << m_prefix);
