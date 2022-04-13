@@ -10,7 +10,7 @@ Reco_tf.py \
 --AMI=q442 \
 --athenaopts='--nprocs=2' \
 --maxEvents=500 \
---outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root --outputHISTFile=myHIST.root \
+--outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root \
 --imf False
 
 rc1=$?
