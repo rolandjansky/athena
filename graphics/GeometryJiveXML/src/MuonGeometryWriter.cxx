@@ -470,7 +470,10 @@ namespace JiveXML {
                                       ) {
                                    // same chamber in oppposite eta region, add it to a separate phi index list
                                    std::string stationPhi = DataType(phiIndex2).toString();
-                                   if (phiString_mirrorEta.find(stationPhi) == std::string::npos) phiString_mirrorEta += " " + stationPhi;
+                                   if (phiString_mirrorEta.find(stationPhi) == std::string::npos){
+                                      if (not phiString_mirrorEta.empty()) phiString_mirrorEta += " ";
+                                      phiString_mirrorEta += stationPhi;
+                                   }
                                    pvnswsub.next();
                                 }
                                 else {
@@ -491,7 +494,7 @@ namespace JiveXML {
                                 int eta = std::stoi(chamberName.substr(8,1));
                                 writeATrd(out, stationTech, stationName, zi, zo, ri, ro, wi, wo, eta, phiString, dphi, shift, 0);
                                 if (phiString_mirrorEta!="") {
-                                   writeATrd(out, stationTech, stationName, zi, zo, ri, ro, wi, wo, -eta, phiString_mirrorEta, dphi, shift, 0);
+                                   writeATrd(out, stationTech, stationName, -zi, -zo, ri, ro, wi, wo, -eta, phiString_mirrorEta, dphi, shift, 0);
                                 }
 
                                 phiString = ""; // reset for new chambers
@@ -578,7 +581,10 @@ namespace JiveXML {
                                 else if (pos_rot.distance(HepGeom::Point3D<double>(pos_rot2.x(), pos_rot2.y(), -pos_rot2.z())) < m_smallDistance) {
                                    // same chamber in oppposite eta region, add it to a separate phi index list
                                    std::string stationPhi = DataType(phiIndex2).toString();
-                                   if (phiString_mirrorEta.find(stationPhi) == std::string::npos) phiString_mirrorEta += " " + stationPhi;
+                                   if (phiString_mirrorEta.find(stationPhi) == std::string::npos) {
+                                      if (not phiString_mirrorEta.empty()) phiString_mirrorEta += " ";
+                                      phiString_mirrorEta += stationPhi;
+                                   }
                                    pvnswsub.next();
                                 }
                                 else {
@@ -611,7 +617,7 @@ namespace JiveXML {
                                    readBrepAsATrd(theBrep, rho, vtxList, ri, ro, wi, wo);
                                    writeATrd(out, stationTech, stationName, zi, zo, ri, ro, wi, wo, eta, phiString, dphi, shift, 0);
                                    if (phiString_mirrorEta!="") {
-                                      writeATrd(out, stationTech, stationName, zi, zo, ri, ro, wi, wo, -eta, phiString_mirrorEta, dphi, shift, 0);
+                                      writeATrd(out, stationTech, stationName, -zi, -zo, ri, ro, wi, wo, -eta, phiString_mirrorEta, dphi, shift, 0);
                                    }
                                 }
 
@@ -627,7 +633,7 @@ namespace JiveXML {
                                    readBrepAsATrd(theBrep, rho, vtxList1, ri, ro, wi, wo);
                                    writeATrd(out, stationTech, stationName, zi, zo, ri, ro, wi, wo, eta, phiString, dphi, shift, 0);
                                    if (phiString_mirrorEta!="") {
-                                      writeATrd(out, stationTech, stationName, zi, zo, ri, ro, wi, wo, -eta, phiString_mirrorEta, dphi, shift, 0);
+                                      writeATrd(out, stationTech, stationName, -zi, -zo, ri, ro, wi, wo, -eta, phiString_mirrorEta, dphi, shift, 0);
                                    }
 
                                    // Second ATrd (outter part): vertex 0, 1, 2, 5
@@ -635,7 +641,7 @@ namespace JiveXML {
                                    readBrepAsATrd(theBrep, rho, vtxList2, ri, ro, wi, wo);
                                    writeATrd(out, stationTech, stationName, zi, zo, ri, ro, wi, wo, eta, phiString, dphi, shift, 0);
                                    if (phiString_mirrorEta!="") {
-                                      writeATrd(out, stationTech, stationName, zi, zo, ri, ro, wi, wo, -eta, phiString_mirrorEta, dphi, shift, 0);
+                                      writeATrd(out, stationTech, stationName, -zi, -zo, ri, ro, wi, wo, -eta, phiString_mirrorEta, dphi, shift, 0);
                                    }
 
                                 }
