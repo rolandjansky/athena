@@ -32,7 +32,19 @@ def ITkPixelModuleConfigCondAlgCfg(flags, name="ITkPixelModuleConfigCondAlg", **
             EndcapLorentzAngleCorr   = [  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0],
             InnermostNoiseShape      = [0.0, 1.0],
             NextInnermostNoiseShape  = [0.0, 1.0],
-            PixelNoiseShape          = [0.0, 1.0]
+            PixelNoiseShape          = [0.0, 1.0],
+            # charge calib
+            DefaultBarrelAnalogThreshold = [900, 600, 600, 600, 600],
+            DefaultEndcapAnalogThreshold = [600, 600, 600, 600, 600, 600, 600, 600, 600],
+            DefaultBarrelAnalogThresholdSigma = [36, 24, 24, 24, 24],
+            DefaultEndcapAnalogThresholdSigma = [24, 24, 24, 24, 24, 24, 24, 24, 24],
+            DefaultBarrelAnalogThresholdNoise = [110, 75, 75, 75, 75],
+            DefaultEndcapAnalogThresholdNoise = [75, 75, 75, 75, 75, 75, 75, 75, 75],
+            DefaultBarrelInTimeThreshold = [1000, 1000, 1000, 1000, 1000],
+            DefaultEndcapInTimeThreshold = [1500, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000],
+            DefaultCalibrationParameterA = 14.0,
+            DefaultCalibrationParameterE = -1000.0,
+            DefaultCalibrationParameterC = 8000.0,
         )
     CondArgs.update(kwargs)
     acc.addCondAlgo(CompFactory.PixelModuleConfigCondAlg(name, **CondArgs))
