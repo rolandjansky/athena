@@ -1,4 +1,5 @@
 #include "PixelActiveDetectorElementStatusTool.h"
+#include <unordered_map>
 
 StatusCode PixelActiveDetectorElementStatusTool::initialize()
 {
@@ -21,7 +22,7 @@ StatusCode PixelActiveDetectorElementStatusTool::initialize()
          ATH_MSG_FATAL("Logic error: status id too large. Cannot be represented by a bit");
          return StatusCode::FAILURE;
       }
-      m_activeStatusMask |= (1<<active_status);
+      m_activeStatusMask |= (1u<<active_status);
    }
    return StatusCode::SUCCESS;
 }
@@ -35,7 +36,8 @@ namespace {
    }
 }
 
-std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> PixelActiveDetectorElementStatusTool::getDetectorElementStatus(const EventContext& ctx) const  {
+std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> 
+PixelActiveDetectorElementStatusTool::getDetectorElementStatus(const EventContext& ctx) const  {
    std::tuple< std::unique_ptr<InDet::SiDetectorElementStatus>,EventIDRange> element_status_and_range( createDetectorElementStatus(ctx));
    EventIDRange &the_range = std::get<1>(element_status_and_range);
    InDet::SiDetectorElementStatus *element_status = std::get<0>(element_status_and_range).get();

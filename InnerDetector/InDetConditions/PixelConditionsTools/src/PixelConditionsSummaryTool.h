@@ -11,13 +11,14 @@
 #ifndef PIXELCONDITIONSSERVICES_PIXELCONDITIONSSUMMARYTOOL_H
 #define PIXELCONDITIONSSERVICES_PIXELCONDITIONSSUMMARYTOOL_H
 
-#include <string>
+
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "Gaudi/Property.h"
 #include "InDetConditionsSummaryService/IDetectorElementStatusTool.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
+
+#include "GaudiKernel/ServiceHandle.h"
+#include "Gaudi/Property.h"
 
 #include "AthenaKernel/SlotSpecificObj.h"
 
@@ -30,11 +31,20 @@
 #include "PixelConditionsData/PixelDCSStateData.h"
 #include "PixelConditionsData/PixelDCSStatusData.h"
 #include "PixelConditionsData/PixelTDAQData.h"
-#include "PixelConditionsData/PixelByteStreamErrors.h"
+
 #include "PixelReadoutGeometry/IPixelReadoutManager.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetReadoutGeometry/SiDetectorElementStatus.h"
+
+#include <string>
+#include <mutex>
+#include <tuple>
+#include <memory>
+#include <cstdint>//uint64_t
+#include <vector>
+#include <bitset>
+#include <limits>
 
 class PixelConditionsSummaryTool: public AthAlgTool, virtual public IDetectorElementStatusTool,virtual public IInDetConditionsTool {
   public:
@@ -78,14 +88,14 @@ class PixelConditionsSummaryTool: public AthAlgTool, virtual public IDetectorEle
     bool checkChipStatus(IdentifierHash moduleHash, Identifier pixid, const EventContext& ctx) const;
 
   private:
-    const PixelID* m_pixelID;
+    const PixelID* m_pixelID{};
 
     std::vector<std::string> m_isActiveStatus;
     std::vector<std::string> m_isActiveStates;
     std::vector<int> m_activeState;
     std::vector<int> m_activeStatus;
-    unsigned int m_activeStateMask;  ///< mask in which each state is represented by a bit and for states which are cnsidered active the corresponding bit is set;
-    unsigned int m_activeStatusMask; ///< mask in which each status is represented by a bit and for status values which are cnsidered active the corresponding bit is set;
+    unsigned int m_activeStateMask{};  ///< mask in which each state is represented by a bit and for states which are cnsidered active the corresponding bit is set;
+    unsigned int m_activeStatusMask{}; ///< mask in which each status is represented by a bit and for status values which are cnsidered active the corresponding bit is set;
 
     Gaudi::Property<bool> m_useByteStreamFEI4
     {this, "UseByteStreamFEI4", false, "Switch of the ByteStream error for FEI4"};
@@ -173,7 +183,8 @@ inline bool PixelConditionsSummaryTool::checkChipStatus(IdentifierHash moduleHas
   std::bitset<16> chipStatus(SG::ReadCondHandle<PixelDeadMapCondData>(m_condDeadMapKey, ctx)->getChipStatus(moduleHash));
   if (chipStatus.any()) {
     Identifier moduleID = m_pixelID->wafer_id(pixid);
-    std::bitset<16> circ; circ.set(m_pixelReadout->getFE(pixid,moduleID));
+    std::bitset<16> circ; 
+    circ.set(m_pixelReadout->getFE(pixid,moduleID));
     if ((chipStatus&circ).any()) { return false; }
   }
   return true;

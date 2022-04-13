@@ -7,6 +7,7 @@
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "PixelDetectorElementStatus.h"
 #include "PixelReadoutGeometry/PixelFEUtils.h"
+#include "PixelConditionsData/PixelByteStreamErrors.h"
 
 PixelConditionsSummaryTool::PixelConditionsSummaryTool(const std::string& type, const std::string& name, const IInterface* parent)
   :AthAlgTool(type, name, parent),
@@ -56,7 +57,7 @@ StatusCode PixelConditionsSummaryTool::initialize(){
       ATH_MSG_FATAL("Logic error: state id too large. Cannot be represented by a bit");
       return StatusCode::FAILURE;
     }
-    m_activeStateMask |= (1<<m_activeState.back());
+    m_activeStateMask |= (1u<<m_activeState.back());
   }
 
   m_activeStatusMask=0;
@@ -74,7 +75,7 @@ StatusCode PixelConditionsSummaryTool::initialize(){
       ATH_MSG_FATAL("Logic error: status id too large. Cannot be represented by a bit");
       return StatusCode::FAILURE;
     }
-    m_activeStatusMask |= (1<<m_activeStatus.back());
+    m_activeStatusMask |= (1u<<m_activeStatus.back());
   }
 
   return StatusCode::SUCCESS;
