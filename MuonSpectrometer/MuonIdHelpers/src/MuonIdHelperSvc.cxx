@@ -341,7 +341,12 @@ namespace Muon {
         }
         MuonStationIndex::PhiIndex index = MuonStationIndex::PhiUnknown;
         MuonStationIndex::StIndex stIndex = stationIndex(id);
-        if (stIndex == MuonStationIndex::BM) {
+        if (stIndex == MuonStationIndex::BI) {
+            if (rpcIdHelper().doubletR(id) == 1)
+                index = MuonStationIndex::BI1;
+            else
+                index = MuonStationIndex::BI2;
+        }else if (stIndex == MuonStationIndex::BM) {
             if (rpcIdHelper().doubletR(id) == 1)
                 index = MuonStationIndex::BM1;
             else

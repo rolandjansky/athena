@@ -75,9 +75,9 @@ public:
 private:
   StatusCode fillHitCounts (int barcode);
 
-  int* m_nprecLayers;
-  int* m_nphiLayers;
-  int* m_ntrigEtaLayers;
+  int* m_nprecLayers{nullptr};
+  int* m_nphiLayers{nullptr};
+  int* m_ntrigEtaLayers{nullptr};
   std::vector<int*> m_nprecHitsPerChamberLayer;
   std::vector<int*> m_nphiHitsPerChamberLayer;
   std::vector<int*> m_ntrigEtaHitsPerChamberLayer;
