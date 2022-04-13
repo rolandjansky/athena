@@ -1,6 +1,4 @@
-################################################################################
-# Package: DataQualityTools
-################################################################################
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( DataQualityTools )
@@ -8,15 +6,12 @@ atlas_subdir( DataQualityTools )
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
-# this line failed automatic conversion in cmt2cmake :
-# macro_append cppflags ""  private
-
 # Component(s) in the package:
 atlas_add_component( DataQualityTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} CaloGeoHelpers AthenaBaseComps AthenaMonitoringLib StoreGateLib xAODCaloEvent xAODEventInfo xAODJet xAODMissingET xAODMuon xAODTracking LUCID_RawEvent ZdcEvent ZdcIdentifier GaudiKernel InDetIdentifier InDetRawData InDetReadoutGeometry InDetPrepRawData LArRawEvent LArRecEvent MagFieldInterfaces MuonCalibITools MuonIdHelpersLib MuonRDO MuonRecHelperToolsLib RecBackgroundEvent RecoToolInterfaces TileEvent LWHists TrkParameters TrkExInterfaces TrkVertexAnalysisUtilsLib TrigDecisionToolLib TrigCaloEvent TrigMuonEvent TrigParticle TrigT1Result MuonSelectorToolsLib MagFieldElements MagFieldConditions IsolationSelectionLib TrkSpacePoint)
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaMonitoringKernelLib AthenaMonitoringLib GaudiKernel GeoPrimitives InDetIdentifier InDetPrepRawData InDetRawData IsolationSelectionLib LArRawEvent LArRecEvent LUCID_RawEvent LWHists MagFieldConditions MagFieldElements MuonAnalysisInterfacesLib MuonRDO RecBackgroundEvent StoreGateLib TileEvent TrigDecisionToolLib TrigT1Result TrkExInterfaces TrkParameters TrkSpacePoint ZdcEvent ZdcIdentifier ZdcRecLib xAODEgamma xAODEventInfo xAODJet xAODMissingET xAODMuon xAODTracking )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

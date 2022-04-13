@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -20,9 +20,9 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "StoreGate/ReadHandle.h"
 
-static const char* envstrings[AthenaMonManager::altprod+1] = { "user", "noOutput", "online", "tier0", 
+static const char* const envstrings[AthenaMonManager::altprod+1] = { "user", "noOutput", "online", "tier0",
 							       "tier0Raw", "tier0ESD", "AOD", "altprod" };
-static const char* eventflagdets[] = { "Pixel", "SCT", "TRT",
+static const char* const eventflagdets[] = { "Pixel", "SCT", "TRT",
 				       "LAr", "Tile", "Muon",
 				       "ForwardDet", "Core", 
 				       "Background", "Lumi"};
