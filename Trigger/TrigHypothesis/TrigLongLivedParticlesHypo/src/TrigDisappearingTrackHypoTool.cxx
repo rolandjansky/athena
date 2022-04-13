@@ -138,12 +138,12 @@ bool TrigDisappearingTrackHypoTool::decideOnSingleObject( DisTrkHypoInfo& input,
 
    auto distrk = input.disTrk;
 
-   int   category  = distrk->getDetail<int>  (prefix+"_category");
+   int   category  = (int)distrk->getDetail<int16_t>(prefix+"_category");
    float pt        = distrk->getDetail<float>(prefix+"_pt");
    float refit_pt  = distrk->getDetail<float>(prefix+"_refit_pt");
    float bdt_score = distrk->getDetail<float>(prefix+"_bdtscore");
-   pt       /= 1000.0;
-   refit_pt /= 1000.0;
+   pt       /= Gaudi::Units::GeV;
+   refit_pt /= Gaudi::Units::GeV;
 
    // selection
    bool is_passed = false;
