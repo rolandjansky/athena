@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigDecision_TrigDecisionToolCore_h
@@ -58,7 +58,8 @@ namespace Trig {
     const Trig::ExpertMethods& ExperimentalAndExpertMethods() const { return m_expertMethods; }
 
   protected:
-    virtual Trig::CacheGlobalMemory* cgm() const;
+    virtual Trig::CacheGlobalMemory* cgm();
+    virtual const Trig::CacheGlobalMemory* cgm() const;
 
     
   private:

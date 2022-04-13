@@ -79,7 +79,7 @@ const LVL1CTP::Lvl1Item* Trig::ExpertMethods::getItemDetails(const std::string& 
 
 Trig::CacheGlobalMemory* Trig::ExpertMethods::cgm(bool onlyConfig) const {
   if ( ! onlyConfig ) {
-    if ( !const_cast<Trig::CacheGlobalMemory*>(m_cacheGlobalMemory->get())->assert_decision() ) {
+    if ( !m_cacheGlobalMemory->get()->assert_decision() ) {
       ATH_MSG_WARNING("TDT has not ben able to unpack trigger decision");    
     } 
   } 
@@ -112,7 +112,7 @@ const HLT::TrigNavStructure* Trig::ExpertMethods::getNavigation() const
 
 Trig::CacheGlobalMemory* Trig::ExpertMethods::cgm(bool onlyConfig) const {
   if ( ! onlyConfig ) {
-    if ( !const_cast<Trig::CacheGlobalMemory*>(m_cacheGlobalMemory)->assert_decision() ) {
+    if ( !m_cacheGlobalMemory->assert_decision() ) {
       ATH_MSG_WARNING("TDT has not ben able to unpack trigger decision");    
     } 
   } 
