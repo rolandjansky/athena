@@ -7,12 +7,13 @@ atlas_subdir( PixelConditionsAlgorithms )
 find_package( CLHEP )
 find_package( CORAL COMPONENTS CoralBase )
 find_package( ROOT COMPONENTS Core RIO )
+find_package( nlohmann_json )
 
 # Component(s) in the package:
 atlas_add_component( PixelConditionsAlgorithms
    src/*.h src/*.cxx src/components/*.cxx
    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities DetDescrConditions GaudiKernel GeoModelUtilities GeoPrimitives Identifier InDetCondTools InDetIdentifier InDetReadoutGeometry PathResolver PixelConditionsData PixelReadoutGeometryLib StoreGateLib TrkGeometry TrkSurfaces MuonReadoutGeometry TRT_ReadoutGeometry)
+   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} nlohmann_json::nlohmann_json AthenaBaseComps AthenaKernel AthenaPoolUtilities DetDescrConditions GaudiKernel GeoModelUtilities GeoPrimitives Identifier InDetCondTools InDetIdentifier InDetReadoutGeometry PathResolver PixelConditionsData PixelReadoutGeometryLib StoreGateLib TrkGeometry TrkSurfaces MuonReadoutGeometry TRT_ReadoutGeometry)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SiClusterizationTool/TotPixelClusterSplitter.h"
@@ -45,7 +45,8 @@ std::vector<InDet::PixelClusterParts> InDet::TotPixelClusterSplitter::splitClust
 
   InDetDD::SiCellId * CellIds = new InDetDD::SiCellId[NumPixels];
 
-  SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey);
+  SG::ReadCondHandle<PixelChargeCalibCondData> calibDataHandle(m_chargeDataKey);
+  const PixelChargeCalibCondData *calibData = *calibDataHandle;
 
   // Detect special pixels and exclude them if necessary.
   // Veto removed on 28-7-2011 by K. Barry - residual-level 
@@ -223,11 +224,11 @@ std::vector<InDet::PixelClusterParts> InDet::TotPixelClusterSplitter::splitClust
         Identifier pixid = Rdos[i];
         Identifier moduleID = pixelID.wafer_id(pixid);
         IdentifierHash moduleHash = pixelID.wafer_hash(moduleID); // wafer hash
-        int circ = m_pixelReadout->getFE(pixid, moduleID);
+        unsigned int FE = m_pixelReadout->getFE(pixid, moduleID);
         InDetDD::PixelDiodeType type = m_pixelReadout->getDiodeType(pixid);
 
         SplitRdos[j].push_back(Rdos[i]);
-        Totgroups[j].push_back(static_cast<int>(calibData->getToT((int)moduleHash,circ,type,Charges[i]/2.0)));
+        Totgroups[j].push_back(calibData->getToT(type, moduleHash, FE, Charges[i] / 2.0));
         Lvl1groups[j].push_back(Lvl1a);
       }
     }

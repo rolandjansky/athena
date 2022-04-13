@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file PixelConditionsAlgorithms/PixelSiliconConditionsTestAlg.h
@@ -24,12 +24,10 @@
 
 class PixelSiliconConditionsTestAlg : public AthAlgorithm {
   public:
-    PixelSiliconConditionsTestAlg(const std::string &name,ISvcLocator *pSvcLocator) ;
-    virtual ~PixelSiliconConditionsTestAlg() = default;
+    PixelSiliconConditionsTestAlg(const std::string &name, ISvcLocator *pSvcLocator);
 
     virtual StatusCode initialize() override;
     virtual StatusCode execute() override;
-    virtual StatusCode finalize() override;
 
   private:
 

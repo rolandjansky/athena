@@ -145,7 +145,7 @@ public:
         double noiseToT = CLHEP::RandGaussZiggurat::shoot(rndmEngine, noiseToTm, 1.);
 
         InDetDD::PixelDiodeType type = m_pixelReadout->getDiodeType(noisyID);
-        double chargeShape = chargeCalibData->getCharge((int) moduleHash, circuit, type, noiseToT);
+        double chargeShape = chargeCalibData->getCharge(type, moduleHash, circuit, noiseToT);
 
         chargedDiodes.add(diodeNoise, SiCharge(chargeShape, 0, SiCharge::noise));
       }
