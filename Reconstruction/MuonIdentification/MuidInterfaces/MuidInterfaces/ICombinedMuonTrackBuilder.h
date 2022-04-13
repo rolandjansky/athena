@@ -44,31 +44,35 @@ namespace Rec {
             return IID_ICombinedMuonTrackBuilder;
         }
         /**ICombinedMuonTrackBuilder interface: build and fit combined ID/Calo/MS track */
-        virtual std::unique_ptr<Trk::Track> combinedFit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack,
-                                                        const Trk::Track& spectrometerTrack, const EventContext& ctx) const = 0;
+        virtual std::unique_ptr<Trk::Track> combinedFit(const EventContext& ctx,
+                                                        const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack,
+                                                        const Trk::Track& spectrometerTrack) const = 0;
 
         /**ICombinedMuonTrackBuilder interface:
            build and fit indet track extended to include MS Measurement set.
            Adds material effects as appropriate plus calo energy-loss treatment */
-        virtual std::unique_ptr<Trk::Track> indetExtension(const Trk::Track& indetTrack,
-                                                           const Trk::MeasurementSet& spectrometerMeasurements, const EventContext& ctx,
+        virtual std::unique_ptr<Trk::Track> indetExtension(const EventContext& ctx,
+                                                           const Trk::Track& indetTrack,
+                                                           const Trk::MeasurementSet& spectrometerMeasurements, 
                                                            const Trk::TrackParameters* innerParameters = nullptr,
                                                            const Trk::TrackParameters* middleParameters = nullptr,
                                                            const Trk::TrackParameters* outerParameters = nullptr) const = 0;
 
-        /**ICombinedMuonTrackBuilder interface:
-           propagate to perigee adding calo energy-loss and material to MS track */
-        virtual std::unique_ptr<Trk::Track> standaloneFit(const Trk::Track& spectrometerTrack, const EventContext& ctx,
-                                                          const Trk::Vertex* vertex = nullptr, float bs_x = 0., float bs_y = 0.,
-                                                          float bs_z = 0.) const = 0;
+        /**ICombinedMuonTrackBuilder interface :
+           propagate to perigee adding calo energy-loss and material to MS track 
+            MSOE track building
+        */
+        virtual std::unique_ptr<Trk::Track> standaloneFit(const EventContext& ctx, const Trk::Track& spectrometerTrack,
+                                                          const Amg::Vector3D& bs, const Trk::Vertex* vertex = nullptr) const = 0;
 
         /**ICombinedMuonTrackBuilder interface:
-           refit a track removing any indet measurements with optional addition of pseudoMeasurements */
-        virtual std::unique_ptr<Trk::Track> standaloneRefit(const Trk::Track& combinedTrack, const EventContext& ctx, float bs_x = 0.,
-                                                            float bs_y = 0., float bs_z = 0.) const = 0;
+           refit a track removing any indet measurements with optional addition of pseudoMeasurements 
+            ME track building
+        */
+        virtual std::unique_ptr<Trk::Track> standaloneRefit(const EventContext& ctx, const Trk::Track& combinedTrack,  const Amg::Vector3D& bs) const = 0;
 
         /*refit a track*/
-        virtual std::unique_ptr<Trk::Track> fit(Trk::Track& track, const EventContext& ctx, const Trk::RunOutlierRemoval runOutlier = false,
+        virtual std::unique_ptr<Trk::Track> fit(const EventContext& ctx, Trk::Track& track, const Trk::RunOutlierRemoval runOutlier = false,
                                                 const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const = 0;
     };
 

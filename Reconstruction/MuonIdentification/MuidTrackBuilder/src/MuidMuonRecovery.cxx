@@ -114,7 +114,7 @@ namespace Rec {
 
         unsigned int nmeas = 0;
 
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator tsosit = spectrometerTrack.trackStateOnSurfaces()->begin();
+        Trk::TrackStates::const_iterator tsosit = spectrometerTrack.trackStateOnSurfaces()->begin();
 
         for (; tsosit != spectrometerTrack.trackStateOnSurfaces()->end(); ++tsosit) {
             const Trk::MeasurementBase* meas = (*tsosit)->measurementOnTrack();
@@ -278,7 +278,7 @@ namespace Rec {
         // fit the combined track
         std::unique_ptr<Trk::Track> combinedTrack;
         if (!m_trackBuilder.empty()) {
-            combinedTrack = m_trackBuilder->indetExtension(indetTrack, spectrometerMeasurements, ctx, innerParameters, middleParameters,
+            combinedTrack = m_trackBuilder->indetExtension(ctx, indetTrack, spectrometerMeasurements, innerParameters, middleParameters,
                                                            outerParameters);
         }
 
