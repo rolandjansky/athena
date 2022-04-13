@@ -379,7 +379,7 @@ namespace ST {
     bool currentSystematicIsVariation() const;
     bool currentSystematicIsWeight() const;
 
-    ST::SystInfo getSystInfo(const CP::SystematicVariation& sys) const;
+    ST::SystInfo getSystInfo(const CP::SystematicVariation& sys) const override final;
 
     std::vector<ST::SystInfo> getSystInfoList() const override final;
 
