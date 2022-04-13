@@ -101,7 +101,7 @@ private:
 
   const SCT_ID* m_sct_id{nullptr};
   IdContext m_cntx_sct;
-  uint64_t m_badErrorMask;
+  uint64_t m_badErrorMask{};
 
   mutable SG::SlotSpecificObj<std::mutex> m_cacheMutex ATLAS_THREAD_SAFE;
   struct IDCCacheEntry {

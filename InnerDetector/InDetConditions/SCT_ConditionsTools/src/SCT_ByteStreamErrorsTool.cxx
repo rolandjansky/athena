@@ -193,7 +193,7 @@ SCT_ByteStreamErrorsTool::getDetectorElementStatus(const EventContext& ctx, InDe
    unsigned int element_i=0;
    for ( const auto &val : idcCachePtr->IDCCache->rawReadAccess()) {
       uint64_t error_code = val;
-      bool is_bad=error_code<63 && ((1<<error_code) &  m_badErrorMask);
+      bool is_bad=(error_code<63) && ((1ull<<error_code) &  m_badErrorMask);
       status.at(element_i) = status.at(element_i) & not is_bad;
       if ( is_bad ) {
          ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool Bad Error " << error_code  << " for ID " << element_i);
