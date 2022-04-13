@@ -27,8 +27,7 @@ if not 'DQMonFlags' in dir():
 # Bphys - Running JpsiFinder
 if HLTMonFlags.doMonTier0:
     if HLTMonFlags.doBphys and rec.doInDet:
-      log.info('Including RunJpsiFinder.py')
-      include( "TrigBphysMonitoring/RunJpsiFinder.py" )
+      log.warning('B-Physics JpsiFinder is no longer supported')
 
 topSequence += AthenaMonManager("HLTMonManager",
         Run=DQMonFlags.monManRun(),
@@ -107,13 +106,7 @@ if HLTMonFlags.doMonTier0:
 
     # B-phys HLTMonTool
     if HLTMonFlags.doBphys:
-      try:
-        from TrigBphysMonitoring.TrigBphysMonitoringConfig import TrigBphysMonitoringTool
-        HLTMonManager.AthenaMonTools += TrigBphysMonitoringTool()
-      except:
-        log.info("Problems with HLTBphysTool, tool not enabled")
-        import traceback
-        log.info (traceback.format_exc())
+        log.warning("The HLT legacy B-Physics monitoring is no longer supported")
 
     # MinBias HLTMonTool
     if HLTMonFlags.doMinBias:

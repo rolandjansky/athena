@@ -9,7 +9,6 @@ class PackagesToInterrogate:
     PackagesToInterrogate = {
         "General"     : { "PackageName" : "TrigHLTMonitoring.TrigHLTMonitoringConfig",         "ToolName" : "HLTGeneralTool",              "MonitCategoryName" : "",                                               "Dll" : "TrigHLTMonitoring"},
         "Bjet"        : { "PackageName" : "TrigBjetMonitoring.TrigBjetMonitoringConfig",       "ToolName" : "TrigBjetMonitoringConfig",    "MonitCategoryName" : "TrigBjetMonitoring.TrigBjetMonitCategory",       "Dll" : "TrigBjetMonitoring"},
-        "Bphys"       : { "PackageName" : "TrigBphysMonitoring.TrigBphysMonitoringConfig",     "ToolName" : "TrigBphysMonitoringTool",     "MonitCategoryName" : "TrigBphysMonitoring.TrigBphysMonitCategory",     "Dll" : "TrigBphysMonitoring"},
         "Egamma"      : { "PackageName" : "TrigEgammaMonitoring.TrigEgammaMonitoringConfig",   "ToolName" : "TrigEgammaMonitoringTool",    "MonitCategoryName" : "TrigEgammaMonitoring.TrigEgammaMonitCategory",   "Dll" : "TrigEgammaAnalysisTools"},
         "IDtrk"       : { "PackageName" : "TrigIDtrkMonitoring.TrigIDtrkMonitoringConfig",     "ToolName" : "TrigIDtrkMonitoringTool",     "MonitCategoryName" : "",                                               "Dll" : "TrigInDetAnalysisExample"},
         "Jet"         : { "PackageName" : "TrigJetMonitoring.TrigJetMonitoringConfig",         "ToolName" : "TrigJetMonitoringTool",       "MonitCategoryName" : "TrigJetMonitoring.TrigJetMonitCategory",         "Dll" : "TrigJetMonitoring"},

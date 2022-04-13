@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 def TrigBphysMonConfig(inputFlags):
@@ -10,7 +10,7 @@ def TrigBphysMonConfig(inputFlags):
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'TrigBphysAthMonitorCfg')
     
-    from TrigBphysMonitoring.TrigBphysMonitoringConfigMT import TrigBphysMonAlgBuilder
+    from TrigBphysMonitoring.TrigBphysMonitoringConfig import TrigBphysMonAlgBuilder
     monAlgCfg = TrigBphysMonAlgBuilder( helper, useMonGroups = True ) 
     
     # build monitor and book histograms
