@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -80,7 +80,6 @@ struct TestFolderFixture{
 
 BOOST_FIXTURE_TEST_SUITE(TagFunctionsBasicTest , GaudiKernelFixture)
   BOOST_AUTO_TEST_CASE( SanityCheck ){
-    BOOST_TEST(gaudiIsInitialised);
     BOOST_TEST(svcLoc!=nullptr);
   }
   //
