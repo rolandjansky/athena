@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 import PyJobTransforms.trfArgClasses as trfArgClasses
 
@@ -122,4 +122,10 @@ def addStdEvgenArgs(parser):
                         help = 'set logging level to DEBUG',
                         type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         default=trfArgClasses.argBool('False'))
+
+    parser.add_argument('--ignoreBlackList', '--ignoreBlacklist', group='Evgen',
+                        help = 'ignore Blacklist - allows to run a test in a blacklisted release',
+                        type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        default=trfArgClasses.argBool('False'))  
+
 
