@@ -86,13 +86,7 @@ if HLTMonFlags.doMonTier0:
 
     # Jet HLTMonTool
     if HLTMonFlags.doJet:
-      try:
-        from TrigJetMonitoring.TrigJetMonitoringConfig import TrigJetMonitoringTool
-        HLTMonManager.AthenaMonTools += TrigJetMonitoringTool()
-      except:
-        log.info("Problems with HLTJetTool, tool not enabled")
-        import traceback
-        log.info (traceback.format_exc())
+        log.warning("The HLT legacy jet monitoring is no longer supported")
 
     # b-jet HLTMonTool
     if HLTMonFlags.doBjet and rec.doInDet:
