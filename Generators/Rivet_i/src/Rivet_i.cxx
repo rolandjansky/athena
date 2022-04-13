@@ -13,6 +13,9 @@
 #include "AthenaKernel/errorcheck.h"
 #include "PathResolver/PathResolver.h"
 
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
+
 #include "GaudiKernel/IAppMgrUI.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ITHistSvc.h"
@@ -156,6 +159,8 @@ StatusCode Rivet_i::initialize() {
 StatusCode Rivet_i::execute() {
   ATH_MSG_DEBUG("Rivet_i execute");
 
+  const EventContext& ctx = getContext();
+
   // Get the event collection
   /// @todo Replace with new GenBase functionality
   const McEventCollection* eventCollection;
@@ -177,7 +182,7 @@ StatusCode Rivet_i::execute() {
   }
 
   // Modify the event units etc. if necessary
-  const HepMC::GenEvent* checkedEvent = checkEvent(event);
+  const HepMC::GenEvent* checkedEvent = checkEvent(event, ctx);
   // ATH_MSG_ALWAYS("CHK1 BEAM ENERGY = " << checkedEvent->beam_particles().first->momentum().e());
   // ATH_MSG_ALWAYS("CHK1 UNITS == MEV = " << std::boolalpha << (checkedEvent->momentum_unit() == HepMC::Units::MEV));
 
@@ -253,13 +258,22 @@ inline std::vector<std::string> split(const std::string& input, const std::strin
     return {first, last};
 }
 
-const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
+const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event, const EventContext& ctx) {
   std::vector<HepMC::GenParticlePtr> beams;
   HepMC::GenEvent* modEvent = new HepMC::GenEvent(*event);
 
   // overwrite the HEPMC dummy event number with the proper ATLAS event number
-  SG::ReadHandle<xAOD::EventInfo> evtInfo(m_evtInfoKey);
-  modEvent->set_event_number((int)evtInfo->eventNumber());
+  SG::ReadHandle<xAOD::EventInfo> evtInfo(m_evtInfoKey, ctx);
+  if (evtInfo.isValid()) { // EVTN file uses xAOD::EventInfo
+    modEvent->set_event_number(static_cast<int>(evtInfo->eventNumber()));
+  }
+  else { // EVNT file uses legacy EventInfo
+    const DataHandle<EventInfo> eventInfo;
+    if (StatusCode::SUCCESS == evtStore()->retrieve(eventInfo)) {
+      uint64_t eventNumber = eventInfo->event_ID()->event_number();
+      modEvent->set_event_number(static_cast<int>(eventNumber));
+    }
+  }
 
   // weight-name cleaning
 #ifdef HEPMC3
