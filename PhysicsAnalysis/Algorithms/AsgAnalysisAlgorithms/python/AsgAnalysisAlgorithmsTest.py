@@ -190,7 +190,7 @@ def makeGeneratorAlgorithmsSequence (dataType) :
             "GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_25ns_276262-284484_OflLumi-13TeV-008.root",
             "GoodRunsLists/data16_13TeV/20180129/PHYS_StandardGRL_All_Good_25ns_297730-311481_OflLumi-13TeV-009.root",
         ]
-        prwfiles = ["/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc16_13TeV/pileup_mc16a_dsid410501_FS.root"]
+        prwfiles = ["dev/PileupReweighting/mc16_13TeV/pileup_mc16a_dsid410501_FS.root"]
 
     from AsgAnalysisAlgorithms.PileupAnalysisSequence import \
         makePileupAnalysisSequence
@@ -237,7 +237,7 @@ def pileupConfigFiles(dataType):
             "GoodRunsLists/data16_13TeV/20180129/PHYS_StandardGRL_All_Good_25ns_297730-311481_OflLumi-13TeV-009.root",
         ]
         if dataType == "mc":
-            prwfiles = ["/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc16_13TeV/pileup_mc16a_dsid410501_FS.root"]
+            prwfiles = ["dev/PileupReweighting/mc16_13TeV/pileup_mc16a_dsid410501_FS.root"]
         else:
             # We don't have a PRW file that works properly for the AFII file so we don't apply it in
             # this case
