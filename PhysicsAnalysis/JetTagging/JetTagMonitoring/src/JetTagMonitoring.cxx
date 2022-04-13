@@ -1254,9 +1254,9 @@ void JetTagMonitoring::fillBtagHistograms(const xAOD::Jet *jet, bool fill_top_hi
   
   if (!btag) return; 
   
-  double sv1ip3d = btag->SV1plusIP3D_discriminant();
+  double sv1ip3d = 0;
   double mv_tmp = 0;
-  btag->MVx_discriminant(m_mv_algorithmName,mv_tmp);
+  //btag->MVx_discriminant(m_mv_algorithmName,mv_tmp);
   double mv = mv_tmp;
   
   ATH_MSG_DEBUG("btagging weights: " << "SV1IP3D: " << sv1ip3d << ", MV: "  << mv);
@@ -1299,11 +1299,11 @@ void JetTagMonitoring::fillDetailedHistograms(const xAOD::Jet *jet, Jet_t taggab
     return;
   }
   //* detailed information for impact parameter-based informations *//
-  unsigned int ntrk  = btag->nIP3D_TrackParticles();                  // number of tracks used for tagging in the jet
-  double pb          = btag->IP3D_pb();                               // b likelihood
-  double pu          = btag->IP3D_pu();                               // u likelihood
-  double pc          = btag->IP3D_pc();                               // c likelihood
-  double llr         = btag->IP3D_loglikelihoodratio();               // log likelihood ratio 
+  unsigned int ntrk  = 0;               // number of tracks used for tagging in the jet
+  double pb          = 0;               // b likelihood
+  double pu          = 0;               // u likelihood
+  double pc          = 0;               // c likelihood
+  double llr         = 0;               // log likelihood ratio 
         
   if ( taggabilityLabel == goodJet ) {
     m_tag_ip3d_n->Fill((float)ntrk); 
@@ -1323,11 +1323,11 @@ void JetTagMonitoring::fillDetailedHistograms(const xAOD::Jet *jet, Jet_t taggab
   ATH_MSG_VERBOSE("InfoBase for IP3D: #tracks = " << ntrk << ", Pb = " << pb 
 		  << ", Pu = " << pu<< ", Pc = " << pc << ", llr = " << llr);
 
-  ntrk  = btag->nIP2D_TrackParticles();  // number of tracks used for tagging in the jet
-  pb          = btag->IP2D_pb();        // b likelihood
-  pu          = btag->IP2D_pu();        // u likelihood
-  pc          = btag->IP2D_pc();        // c likelihood
-  llr         = btag->IP2D_loglikelihoodratio(); // log likelihood ratio 
+  ntrk = 0;  // number of tracks used for tagging in the jet
+  pb   = 0; // b likelihood
+  pu   = 0; // u likelihood
+  pc   = 0; // c likelihood
+  llr  = 0; // log likelihood ratio 
     
   if ( taggabilityLabel == goodJet ) {
     m_tag_ip2d_n->Fill((float)ntrk); 
@@ -1348,13 +1348,13 @@ void JetTagMonitoring::fillDetailedHistograms(const xAOD::Jet *jet, Jet_t taggab
 		  << ", Pu = " << pu<< ", Pc = " << pc << ", llr = " << llr);
 
   float sig3d = 0;
-  btag->variable<float>("SV1", "significance3d" , sig3d);
+  //btag->variable<float>("SV1", "significance3d" , sig3d);
   m_tag_sv0_sig3d->Fill(sig3d);
     
-  pb          = btag->SV1_pb();        // b likelihood
-  pu          = btag->SV1_pu();        // u likelihood
-  pc          = btag->SV1_pc();        // c likelihood
-  llr         = btag->SV1_loglikelihoodratio();// log likelihood ratio 
+  pb          = 0;        // b likelihood
+  pu          = 0;        // u likelihood
+  pc          = 0;        // c likelihood
+  llr         = 0;        // log likelihood ratio 
     
   if ( taggabilityLabel == goodJet ) {
     m_tag_sv1_b->Fill(pb);
@@ -1371,7 +1371,7 @@ void JetTagMonitoring::fillDetailedHistograms(const xAOD::Jet *jet, Jet_t taggab
 
   ATH_MSG_VERBOSE("InfoBase for SV1: Pb = " << pb << ", Pu = " << pu<< ", Pc = " << pc<< ", llr = " << llr);
     
-  llr = btag->JetFitter_loglikelihoodratio(); // log likelihood ratio 
+  llr = 0; // log likelihood ratio 
   if ( taggabilityLabel == goodJet ) {
     m_tag_jetfitter_llr->Fill(llr);
   }
@@ -1380,7 +1380,7 @@ void JetTagMonitoring::fillDetailedHistograms(const xAOD::Jet *jet, Jet_t taggab
   }
  
   // log likelihood ratio
-  llr = btag->JetFitter_loglikelihoodratio();
+  llr = 0;
  
   if ( taggabilityLabel == goodJet ) {
     m_tag_jfcnn_llr->Fill(llr);
@@ -1442,9 +1442,9 @@ void JetTagMonitoring::fillGoodJetHistos(const xAOD::Jet *jet) {
     ATH_MSG_WARNING("btag pointer is null in JetTagMonitoring::fillGoodJetHistos; filling these histograms will be skipped");
     return;
   }
-  double sv1ip3d = btag->SV1plusIP3D_discriminant();
+  double sv1ip3d = 0;
   double mv_tmp = 0;
-  btag->MVx_discriminant(m_mv_algorithmName,mv_tmp);
+  //btag->MVx_discriminant(m_mv_algorithmName,mv_tmp);
   double mv = mv_tmp;
   
   m_tag_sv1ip3d_w->Fill(sv1ip3d);
@@ -1559,9 +1559,9 @@ void JetTagMonitoring::fillSuspectJetHistos(const xAOD::Jet *jet) {
     ATH_MSG_WARNING("btag pointer is null in JetTagMonitoring::fillSuspectJetHistos; filling these histograms will be skipped");
     return;
   }
-  double sv1ip3d = btag->SV1plusIP3D_discriminant(); 
+  double sv1ip3d = 0; 
   double mv_tmp = 0;
-  btag->MVx_discriminant(m_mv_algorithmName,mv_tmp);
+  //btag->MVx_discriminant(m_mv_algorithmName,mv_tmp);
   double mv = mv_tmp;
  
   m_tag_sv1ip3d_w_sj->Fill(sv1ip3d);
