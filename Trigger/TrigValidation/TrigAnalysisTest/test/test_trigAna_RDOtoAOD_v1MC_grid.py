@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
-# art-description: Test of transform RDO->RDO_TRIG->ESD->AOD with threads=4
+# art-description: Test of transform RDO->RDO_TRIG->ESD->AOD with threads=4, MC_pp_run3_v1 and AODSLIM
 # art-type: grid
 # art-include: master/Athena
 # art-athena-mt: 4
@@ -24,9 +24,9 @@ from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 from TrigAnalysisTest.TrigAnalysisSteps import add_analysis_steps
 
 preExec = ';'.join([
-  'setMenu=\'Dev_pp_run3_v1_TriggerValidation_prescale\'',
+  'setMenu=\'MC_pp_run3_v1\'',
   'from AthenaConfiguration.AllConfigFlags import ConfigFlags',
-  'ConfigFlags.Trigger.AODEDMSet=\'AODFULL\'',
+  'ConfigFlags.Trigger.AODEDMSet=\'AODSLIM\'',
 ])
 
 rdo2aod = ExecStep.ExecStep()
