@@ -6,6 +6,16 @@
 #include "PixelConditionsData/PixelDCSStatusData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "Gaudi/Property.h"
+#include <memory>
+#include <tuple>
+#include <vector>
+#include <string>
+
+namespace InDet{
+  class SiDetectorElementStatus;
+}
+
+class EventContext;
 
 class PixelActiveDetectorElementStatusTool : public PixelDetectorElementStatusToolBase
 {
@@ -24,7 +34,7 @@ private:
    Gaudi::Property< std::vector<std::string> > m_isActiveStatus
       {this,  "IsActiveStatus", {},"Pixel module status for which the module is considered active." };
 
-   unsigned int m_activeStatusMask; ///< mask in which each status is represented by a bit and for status values which are cnsidered active the corresponding bit is set;
+   unsigned int m_activeStatusMask{0}; ///< mask in which each status is represented by a bit and for status values which are cnsidered active the corresponding bit is set;
 };
 
 inline InterfaceID& PixelActiveDetectorElementStatusTool::interfaceID(){
