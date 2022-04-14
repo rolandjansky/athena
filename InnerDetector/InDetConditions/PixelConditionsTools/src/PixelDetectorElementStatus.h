@@ -19,7 +19,9 @@ namespace InDet {
     protected:
       virtual unsigned int numberOfChips(const InDetDD::SiDetectorDesign& design) const override {
          // @TODO eliminate the dynamic cast when not in debug build
-         return dynamic_cast<const InDetDD::PixelModuleDesign &>(design).numberOfCircuits();
+         const InDetDD::PixelModuleDesign &pixel_design=dynamic_cast<const InDetDD::PixelModuleDesign &>(design);
+         // number of circuits reported for FEI3 is only the number of circuits per half-module
+         return pixel_design.numberOfCircuits() * (pixel_design.getReadoutTechnology() ==  InDetDD::PixelReadoutTechnology::FEI3 ? 2 : 1);
       }
 
    };
