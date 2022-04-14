@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 '''
 @file TileLaserCalibAlgConfig.py
@@ -85,6 +85,7 @@ if __name__=='__main__':
     inputFile = 'data18_tilecomm.00363899.calibration_tile.daq.RAW._lb0000._TileREB-ROS._0005-200ev.data'
     ConfigFlags.Input.Files = [inputDirectory + '/' + inputFile]
     ConfigFlags.Exec.MaxEvents = 3
+    ConfigFlags.Tile.RunType = 'LAS'
     ConfigFlags.fillFromArgs()
     ConfigFlags.lock()
 
@@ -96,7 +97,7 @@ if __name__=='__main__':
     tileTypeNames = ['TileRawChannelContainer/TileRawChannelCnt',
                      'TileBeamElemContainer/TileBeamElemCnt',
                      'TileDigitsContainer/TileDigitsCnt',
-                     'TileLaserObject/TileLaserObject']
+                     'TileLaserObject/TileLaserObj']
     cfg.merge( ByteStreamReadCfg(ConfigFlags, type_names = tileTypeNames) )
     cfg.getService('ByteStreamCnvSvc').ROD2ROBmap = [ "-1" ]
 
@@ -107,7 +108,7 @@ if __name__=='__main__':
     from TileRecUtils.TileRawChannelMakerConfig import TileRawChannelMakerCfg
     cfg.merge( TileRawChannelMakerCfg(ConfigFlags) )
 
-    cfg.merge( TileLaserCalibAlgCfg(ConfigFlags, ) )
+    cfg.merge( TileLaserCalibAlgCfg(ConfigFlags) )
 
     cfg.printConfig(withDetails = True, summariseProps = True)
     ConfigFlags.dump()
