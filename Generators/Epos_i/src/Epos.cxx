@@ -211,7 +211,14 @@ StatusCode Epos::fillEvt( HepMC::GenEvent* evt )
 
   HepMC::set_random_states(evt, m_seeds );
 
-  evt->weights().push_back(1.0); 
+  evt->weights().push_back(1.0);
+
+#ifdef HEPMC3
+    m_runinfo = std::make_shared<HepMC3::GenRunInfo>();
+    std::vector<std::string> names = {"Default"};
+    m_runinfo->set_weight_names(names);
+#endif
+
   //correct units, for hepMC printing uncomment lines below
 #ifdef HEPMC3
     evt->set_units(HepMC3::Units::MEV, HepMC3::Units::MM);
