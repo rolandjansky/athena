@@ -28,15 +28,22 @@ public:
                   SiCommonItems *commonItems,
                   WaferTree *moduleTree);
 
+  virtual int sensorId(std::map<std::string, int> &index) const override final;
   virtual void addSensorType(const std::string& clas,
                              const std::string& typeName,
                              const std::map<std::string, std::string>& parameters) override final;
+  virtual void addSensor(const std::string& typeName,
+                         std::map<std::string, int> &index,
+                         int sequentialId,
+                         GeoVFullPhysVol *fpv) override final;
 
 private:
   void makePLRModule(const std::string& typeName,
                      const std::map<std::string, std::string> &parameters);
 
   PixelDetectorManager *m_detectorManager{};
+  SiCommonItems *m_commonItems{};
+  WaferTree *m_moduleTree{};
 };
 
 } // namespace InDetDD
