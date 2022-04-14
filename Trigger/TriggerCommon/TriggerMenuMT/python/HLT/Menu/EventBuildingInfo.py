@@ -37,7 +37,8 @@ PartialEventBuildingIdentifiers = [
     'TilePEB',
     'AlfaPEB',
     'ZDCPEB',
-    'AFPPEB'
+    'AFPPEB',
+    'LumiPEB'
 ]
 
 
