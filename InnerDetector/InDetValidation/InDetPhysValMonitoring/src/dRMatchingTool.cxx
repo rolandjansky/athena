@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "dRMatchingTool.h"
@@ -102,8 +102,7 @@ dRMatchingTool::dRMatchingTool(const std::string& name) :
   declareProperty("pTResMax", m_pTResMax = -1);
 }
 
-dRMatchingTool::~dRMatchingTool() {
-}
+dRMatchingTool::~dRMatchingTool() = default;
 
 StatusCode
 dRMatchingTool::initialize() {

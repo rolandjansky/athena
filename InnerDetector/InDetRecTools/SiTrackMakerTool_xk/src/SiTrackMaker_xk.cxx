@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -458,7 +458,7 @@ MsgStream& InDet::SiTrackMaker_xk::dumpconditions(MsgStream& out) const
 // Dumps event information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::SiTrackMaker_xk::dumpevent(SiTrackMakerEventData_xk& data, MsgStream& out) const
+MsgStream& InDet::SiTrackMaker_xk::dumpevent(SiTrackMakerEventData_xk& data, MsgStream& out) 
 {
   out<<"|---------------------------------------------------------------------|"
      <<std::endl;
@@ -1119,7 +1119,7 @@ InDet::TrackQualityCuts InDet::SiTrackMaker_xk::setTrackQualityCuts(bool simpleT
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiTrackMaker_xk::detectorElementsSelection(SiTrackMakerEventData_xk& data,
-                                                       std::list<const InDetDD::SiDetectorElement*>& DE) const
+                                                       std::list<const InDetDD::SiDetectorElement*>& DE) 
 {
   std::list<const InDetDD::SiDetectorElement*>::iterator d = DE.begin();
   if (!data.dbm()) {
@@ -1231,7 +1231,7 @@ bool InDet::SiTrackMaker_xk::newSeed(SiTrackMakerEventData_xk& data, const std::
 /////////////////////////////////////////////////////////////////////
 
 
-int InDet::SiTrackMaker_xk::kindSeed(const std::vector<const Trk::SpacePoint*>& Sp) const
+int InDet::SiTrackMaker_xk::kindSeed(const std::vector<const Trk::SpacePoint*>& Sp) 
 {
   if(Sp.size()!=3) return 4;
 
@@ -1242,7 +1242,7 @@ int InDet::SiTrackMaker_xk::kindSeed(const std::vector<const Trk::SpacePoint*>& 
   return n;
 }
 
-int InDet::SiTrackMaker_xk::rapidity(const std::vector<const Trk::SpacePoint*>& Sp) const
+int InDet::SiTrackMaker_xk::rapidity(const std::vector<const Trk::SpacePoint*>& Sp) 
 {
   if(Sp.size() < 2) return 0;
 
@@ -1264,7 +1264,7 @@ int InDet::SiTrackMaker_xk::rapidity(const std::vector<const Trk::SpacePoint*>& 
 // Clusters-track multimap production
 ///////////////////////////////////////////////////////////////////
 
-void  InDet::SiTrackMaker_xk::clusterTrackMap(SiTrackMakerEventData_xk& data, Trk::Track* Tr) const
+void  InDet::SiTrackMaker_xk::clusterTrackMap(SiTrackMakerEventData_xk& data, Trk::Track* Tr) 
 {
   DataVector<const Trk::MeasurementBase>::const_iterator
     m  = Tr->measurementsOnTrack()->begin(),
@@ -1280,7 +1280,7 @@ void  InDet::SiTrackMaker_xk::clusterTrackMap(SiTrackMakerEventData_xk& data, Tr
 // Test is it new track
 ///////////////////////////////////////////////////////////////////
 
-bool InDet::SiTrackMaker_xk::isNewTrack(SiTrackMakerEventData_xk& data, Trk::Track* Tr) const
+bool InDet::SiTrackMaker_xk::isNewTrack(SiTrackMakerEventData_xk& data, Trk::Track* Tr) 
 {
   const Trk::PrepRawData* prd   [100];
   std::multimap<const Trk::PrepRawData*,const Trk::Track*>::const_iterator
@@ -1509,7 +1509,7 @@ bool InDet::SiTrackMaker_xk::isHadCaloCompatible(SiTrackMakerEventData_xk& data)
 // Test is it DBM seed
 ///////////////////////////////////////////////////////////////////
 
-bool InDet::SiTrackMaker_xk::isDBMSeeds(const Trk::SpacePoint* s) const
+bool InDet::SiTrackMaker_xk::isDBMSeeds(const Trk::SpacePoint* s) 
 {
   const InDetDD::SiDetectorElement* de=
     static_cast<const InDetDD::SiDetectorElement*>(s->clusterList().first->detectorElement());
@@ -1524,7 +1524,7 @@ bool InDet::SiTrackMaker_xk::isDBMSeeds(const Trk::SpacePoint* s) const
 /// tangents to the estimated trajectory (assuming a circle in x-y and straight
 /// line in r-z)
 void InDet::SiTrackMaker_xk::globalDirections
-(const double* p0, const double* p1, const double* p2, double* d0, double* d1, double* d2) const
+(const double* p0, const double* p1, const double* p2, double* d0, double* d1, double* d2) 
 {
   /// transform transverse coordinates relative to the first SP
   double x01 = p1[0]-p0[0]      ;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -118,7 +118,7 @@ namespace InDet {
 
       /**Tracks that will be passed out of AmbiProcessor.
          Recreated anew each time process() is called*/ 
-      MsgStream&    dumpevent      (MsgStream&    out) const;
+      static MsgStream&    dumpevent      (MsgStream&    out) ;
       MsgStream&    dumpconditions (MsgStream&    out) const;
 
     };

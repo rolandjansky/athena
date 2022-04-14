@@ -104,13 +104,11 @@ namespace InDet {
     SG::ReadHandleKey<InDet::SiDetectorElementStatus> m_sctDetElStatus
        {this, "SCTDetElStatus", "", "Key of SiDetectorElementStatus for SCT"};
 
-    const SCT_ID* m_sctID{nullptr};
-
     /// Time bin bits for timing requirement. Set by decodeTimeBins() in initialize().
     int m_timeBinBits[3]{-1, -1, -1};
 
     /// Add strips to a cluster vector without checking for bad strips
-    void addStripsToCluster(const Identifier& firstStripId, unsigned int nStrips, IdVec_t& clusterVector, const SCT_ID& idHelper) const;
+    static void addStripsToCluster(const Identifier& firstStripId, unsigned int nStrips, IdVec_t& clusterVector, const SCT_ID& idHelper) ;
 
     /// Add strips to a cluster vector checking for bad strips
     void addStripsToClusterWithChecks(const Identifier& firstStripId, unsigned int nStrips, IdVec_t& clusterVector,
@@ -136,12 +134,12 @@ namespace InDet {
     };
     
     /// Calculate the cluster position and width given the first and last strip numbers for this element
-    DimensionAndPosition clusterDimensions(int firstStrip, int lastStrip, const InDetDD::SiDetectorElement* element,
-					   const SCT_ID& idHelper) const;
+    static DimensionAndPosition clusterDimensions(int firstStrip, int lastStrip, const InDetDD::SiDetectorElement* element,
+					   const SCT_ID& idHelper) ;
 
     /// Calculate the cluster position and width given the first,last strip, and row numbers  for this element for ITk.
-    DimensionAndPosition clusterDimensionsInclRow(int firstStrip, int lastStrip, int row,
-                                                  const InDetDD::SiDetectorElement* element, const InDetDD::SCT_ModuleSideDesign* design) const;
+    static DimensionAndPosition clusterDimensionsInclRow(int firstStrip, int lastStrip, int row,
+                                                  const InDetDD::SiDetectorElement* element, const InDetDD::SCT_ModuleSideDesign* design) ;
   
     /// In-class facade on the 'isGood' method for a strip identifier
     bool isBad(const InDet::SiDetectorElementStatus *sctDetElStatus, const SCT_ID& sctID, const IdentifierHash &waferHash, const Identifier& stripId) const;
@@ -153,8 +151,8 @@ namespace InDet {
     /// @name Test the clusters time bin to see if matches pattern
     //@{
     bool       testTimeBins(int timeBin) const;
-    bool       testTimeBins01X(int timeBin) const;
-    bool       testTimeBinsX1X(int timeBin) const;
+    static bool       testTimeBins01X(int timeBin) ;
+    static bool       testTimeBinsX1X(int timeBin) ;
     bool       testTimeBinsN(const std::bitset<3>& timePattern) const;
     //@}
   };//end of class  

@@ -52,7 +52,7 @@ namespace InDet
   // The second argument is the pixel module the hit belongs to.  
   bool PixelClusteringToolBase::isGanged(const Identifier& rdoID,
                                   const InDetDD::SiDetectorElement* element,  
-                                  Identifier& gangedID) const
+                                  Identifier& gangedID) 
   {
     // returns true for ganged pixels. If true returns Identifier of pixel
     InDetDD::SiCellId cellID = element->cellIdFromIdentifier (rdoID);

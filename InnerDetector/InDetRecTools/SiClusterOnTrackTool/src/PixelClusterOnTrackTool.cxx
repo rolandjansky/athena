@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -85,8 +85,7 @@ InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
 // Destructor
 ///////////////////////////////////////////////////////////////////
 
-InDet::PixelClusterOnTrackTool::~PixelClusterOnTrackTool() {
-}
+InDet::PixelClusterOnTrackTool::~PixelClusterOnTrackTool() = default;
 
 ///////////////////////////////////////////////////////////////////
 // Initialisation
@@ -544,7 +543,6 @@ InDet::PixelClusterOnTrackTool::correctBow(const Identifier &id, Amg::Vector2D &
   Amg::Vector2D newpos = SG::ReadCondHandle<PixelDistortionData>(m_distortionKey)->correctReconstruction(m_pixelid->wafer_hash(id), localpos, dir);
 
   localpos = newpos;
-  return;
 }
 
 const InDet::PixelClusterOnTrack *

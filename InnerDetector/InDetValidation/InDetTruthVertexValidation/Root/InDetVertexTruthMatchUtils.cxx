@@ -78,7 +78,7 @@ HardScatterType classifyHardScatter( const xAOD::VertexContainer & vxContainer )
   // MATCHED, MERGED, SPLIT or FAKE
   xAOD::Vertex::Decorator<VertexMatchType> matchTypeDecor("VertexMatchType");
 
-  if (  matches.size() == 0 ) {
+  if (  matches.empty() ) {
     // No reco vertices with tracks from hard-scatter
     return NONE;
   } else if ( matches.size() == 1 ) {

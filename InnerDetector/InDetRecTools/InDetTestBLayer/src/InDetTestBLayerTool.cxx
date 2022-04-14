@@ -51,7 +51,7 @@ InDetTestBLayerTool::InDetTestBLayerTool(const std::string& name,
   declareProperty("GoodFracCut", m_goodFracCut = 0.5);
 }
 
-InDetTestBLayerTool::~InDetTestBLayerTool() {}
+InDetTestBLayerTool::~InDetTestBLayerTool() = default;
 
 StatusCode
 InDetTestBLayerTool::initialize()

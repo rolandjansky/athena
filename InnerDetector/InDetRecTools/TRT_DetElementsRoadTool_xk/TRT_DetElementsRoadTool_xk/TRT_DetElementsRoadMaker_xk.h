@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -126,14 +126,14 @@ namespace InDet {
 			      std::vector<const InDetDD::TRT_BaseElement*>&) const;
       void detElementsRoadCTB(std::list<Amg::Vector3D>&,
 			      std::vector<const InDetDD::TRT_BaseElement*>&) const;
-      double stepToDetElement
-	(const InDetDD::TRT_BaseElement*&,Amg::Vector3D&,Amg::Vector3D&) const;
+      static double stepToDetElement
+	(const InDetDD::TRT_BaseElement*&,Amg::Vector3D&,Amg::Vector3D&) ;
 
       Trk::CylinderBounds getBound(MagField::AtlasFieldCache& fieldCache, const Trk::TrackParameters&) const;
 
       MsgStream&    dumpConditions(MsgStream   & out) const;
 
-      MsgStream&    dumpEvent     (MsgStream   & out, int size_road) const;
+      static MsgStream&    dumpEvent     (MsgStream   & out, int size_road) ;
 
       inline
       const TRT_DetElementsLayerVectors_xk *getLayers() const {

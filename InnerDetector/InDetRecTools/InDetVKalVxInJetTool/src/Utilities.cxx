@@ -99,7 +99,7 @@ namespace InDet{
   }
 
                /*  Technicalities */
-  double InDetVKalVxInJetTool::projSV_PV(const Amg::Vector3D & SV, const xAOD::Vertex & PV, const TLorentzVector & Jet) const
+  double InDetVKalVxInJetTool::projSV_PV(const Amg::Vector3D & SV, const xAOD::Vertex & PV, const TLorentzVector & Jet) 
   {  
      TVector3 SV_PV( SV.x()-PV.x(), SV.y()-PV.y(), SV.z()-PV.z() );
      return Jet.Vect().Unit()*SV_PV.Unit();
@@ -262,7 +262,7 @@ namespace InDet{
 //----------------------------
 //   Vertex error along radius
 //----------------------------
-  double InDetVKalVxInJetTool::vrtRadiusError(const Amg::Vector3D & SecVrt, const std::vector<double>  & VrtErr) const
+  double InDetVKalVxInJetTool::vrtRadiusError(const Amg::Vector3D & SecVrt, const std::vector<double>  & VrtErr) 
   {
     double DirX=SecVrt.x(), DirY=SecVrt.y(); 
     double Covar =    DirX*VrtErr[0]*DirX
@@ -277,7 +277,7 @@ namespace InDet{
 
 
   double InDetVKalVxInJetTool::coneDist(const AmgVector(5) & vectPerig, const TLorentzVector & jetDir)
-  const
+  
   {
   
   	  double  etaTr = -std::log(std::tan(vectPerig[3]/2.));
@@ -294,7 +294,7 @@ namespace InDet{
 
    double InDetVKalVxInJetTool::massV0(std::vector< std::vector<double> >& trkAtVrt,
                                double massP, double massPi )
-   const
+   
    {
         double ap1=1./std::abs(trkAtVrt[0][2]);
 	double ap2=1./std::abs(trkAtVrt[1][2]);
@@ -319,7 +319,7 @@ namespace InDet{
 //
 // Search for outliers using track Chi2 and track Ranking
    int InDetVKalVxInJetTool::findMax( std::vector<double>& chi2PerTrk, std::vector<float> & rank)
-   const
+   
    { 
       double chi2Ref=0.;
       int position=-1;
@@ -334,7 +334,7 @@ namespace InDet{
 //  Function returns a transverse momentum of track w/r some direction
 //
   double InDetVKalVxInJetTool::pTvsDir(const Amg::Vector3D &dir, const std::vector< double >& inpTrk) 
-  const
+  
   {
      double norm=std::hypot(dir.x(),dir.y(),dir.z());
      double sx=dir.x()/norm; double sy=dir.y()/norm; double sz=dir.z()/norm;
@@ -374,7 +374,7 @@ namespace InDet{
    }
 
   TLorentzVector InDetVKalVxInJetTool::totalMom(const std::vector<const xAOD::TrackParticle*>& InpTrk) 
-  const
+  
   {
      TLorentzVector sum(0.,0.,0.,0.); 
      for (int i = 0; i < (int)InpTrk.size(); ++i) {
@@ -401,7 +401,7 @@ namespace InDet{
 //-- Perigee in xAOD::TrackParticle
 //
 
-  const Trk::Perigee* InDetVKalVxInJetTool::getPerigee( const xAOD::TrackParticle* i_ntrk) const
+  const Trk::Perigee* InDetVKalVxInJetTool::getPerigee( const xAOD::TrackParticle* i_ntrk) 
   {
        return &(i_ntrk->perigeeParameters());
   }
@@ -501,7 +501,7 @@ namespace InDet{
           splshBL=share+split;
        }
   }
-  void   InDetVKalVxInJetTool::getPixelDiscs(const xAOD::TrackParticle* Part, int &d0Hit, int &d1Hit, int &d2Hit) const
+  void   InDetVKalVxInJetTool::getPixelDiscs(const xAOD::TrackParticle* Part, int &d0Hit, int &d1Hit, int &d2Hit) 
   {
         uint32_t HitPattern=Part->hitPattern();
 	d0Hit=0; if( HitPattern&((1<<Trk::pixelEndCap0)) ) d0Hit=1;
@@ -512,7 +512,7 @@ namespace InDet{
 /*************************************************************************************************************/
 
   Amg::MatrixX InDetVKalVxInJetTool::makeVrtCovMatrix( std::vector<double> & errorMatrix )
-  const
+  
   {
       Amg::MatrixX vrtCovMtx(3,3);  
       vrtCovMtx(0,0)                  = errorMatrix[0];
@@ -578,7 +578,7 @@ namespace InDet{
   } 
 
 
-  int InDetVKalVxInJetTool::getIdHF(const xAOD::TrackParticle* TP ) const {
+  int InDetVKalVxInJetTool::getIdHF(const xAOD::TrackParticle* TP ) {
       if( TP->isAvailable< ElementLink< xAOD::TruthParticleContainer> >( "truthParticleLink") ) {
         const ElementLink<xAOD::TruthParticleContainer>& tplink = 
                                TP->auxdata< ElementLink< xAOD::TruthParticleContainer > >("truthParticleLink");
@@ -604,7 +604,7 @@ namespace InDet{
       return 0;
   }
 
-  int InDetVKalVxInJetTool::notFromBC(int PDGID) const {
+  int InDetVKalVxInJetTool::notFromBC(int PDGID) {
     int noBC=0;
     if(PDGID<=0)return 1;
     if(PDGID>600 && PDGID<4000)noBC=1;
@@ -615,7 +615,7 @@ namespace InDet{
   //if(PDGID==4114 || PDGID==4214 || PDGID==4224 || PDGID==4314 || PDGID==4324)continue;
     return noBC;
   }
-  const xAOD::TruthParticle * InDetVKalVxInJetTool::getPreviousParent(const xAOD::TruthParticle * child, int & ParentPDG) const {
+  const xAOD::TruthParticle * InDetVKalVxInJetTool::getPreviousParent(const xAOD::TruthParticle * child, int & ParentPDG) {
     ParentPDG=0;
     if( child->hasProdVtx() ){
        if( child->prodVtx()->nIncomingParticles()==1 ){
@@ -627,7 +627,7 @@ namespace InDet{
   }
 
 
-  int InDetVKalVxInJetTool::getG4Inter(const xAOD::TrackParticle* TP ) const {
+  int InDetVKalVxInJetTool::getG4Inter(const xAOD::TrackParticle* TP ) {
       if( TP->isAvailable< ElementLink< xAOD::TruthParticleContainer> >( "truthParticleLink") ) {
         const ElementLink<xAOD::TruthParticleContainer>& tplink = 
                                TP->auxdata< ElementLink< xAOD::TruthParticleContainer > >("truthParticleLink");
@@ -635,7 +635,7 @@ namespace InDet{
       }
       return 0;
   }
-  int InDetVKalVxInJetTool::getMCPileup(const xAOD::TrackParticle* TP ) const {
+  int InDetVKalVxInJetTool::getMCPileup(const xAOD::TrackParticle* TP ) {
       if( TP->isAvailable< ElementLink< xAOD::TruthParticleContainer> >( "truthParticleLink") ) {
         const ElementLink<xAOD::TruthParticleContainer>& tplink = 
                                TP->auxdata< ElementLink< xAOD::TruthParticleContainer > >("truthParticleLink");

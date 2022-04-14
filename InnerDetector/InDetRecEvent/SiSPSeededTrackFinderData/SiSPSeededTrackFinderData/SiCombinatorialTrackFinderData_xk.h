@@ -161,7 +161,7 @@ namespace InDet {
     int& dholesmax();
     bool& simpleTrack();
     // flag to tell whether to return tracks even in case fit is un-successful (for disappearing track trigger)
-    bool  flagToReturnFailedTrack();
+    bool  flagToReturnFailedTrack() const;
     // code to tell the fit result (code includes non-succesful cases for disappearing track trigger)
     SiCombinatorialTrackFinderData_xk::ResultCode resultCode();
     double& pTmin();

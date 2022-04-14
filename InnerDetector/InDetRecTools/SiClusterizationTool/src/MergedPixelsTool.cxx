@@ -1,5 +1,5 @@
 /*
-  copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -486,7 +486,7 @@ namespace InDet {
   bool MergedPixelsTool::checkDuplication(const PixelID& pixelID,
                                           const Identifier& rdoID, 
                                           const int& lvl1, 
-                                          std::vector<rowcolID>& collectionID) const {
+                                          std::vector<rowcolID>& collectionID) {
     
     // check if duplicates are found. If that is the case, update the LVL1 
     auto isDuplicate=[pixelID,rdoID](const rowcolID& rc) -> bool {

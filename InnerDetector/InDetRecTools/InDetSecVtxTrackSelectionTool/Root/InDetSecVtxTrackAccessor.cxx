@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //Author: Lianyou Shan <lianyou.shan@cern.ch>
 // -*- c++ -*-
@@ -27,7 +27,6 @@ InDet::SummaryAccessor::SummaryAccessor(const asg::IAsgTool* tool)
 void InDet::SummaryAccessor::setSummaryType( xAOD::SummaryType sumType )
 {
   m_summaryType = sumType;
-  return;
 }
 
 StatusCode InDet::SummaryAccessor::access( const xAOD::TrackParticle& track,

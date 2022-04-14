@@ -797,7 +797,7 @@ bool InDet::SiSPSeededTrackFinder::isGoodEvent(const EventContext& ctx) const {
 // Track quality calculation
 ///////////////////////////////////////////////////////////////////
 
-double InDet::SiSPSeededTrackFinder::trackQuality(const Trk::Track* Tr) const
+double InDet::SiSPSeededTrackFinder::trackQuality(const Trk::Track* Tr) 
 {
  double quality = 0. ;
  double baseScorePerHit       = 17.;

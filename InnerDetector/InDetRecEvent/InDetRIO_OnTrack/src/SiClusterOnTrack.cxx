@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -47,8 +47,7 @@ InDet::SiClusterOnTrack::SiClusterOnTrack( const Trk::LocalParameters& locpars,
 
 // Destructor:
 InDet::SiClusterOnTrack::~SiClusterOnTrack()
-{ 
-}
+= default;
 
 // Default constructor:
 InDet::SiClusterOnTrack::SiClusterOnTrack():
@@ -60,12 +59,9 @@ InDet::SiClusterOnTrack::SiClusterOnTrack():
 
 // copy constructor:
 InDet::SiClusterOnTrack::SiClusterOnTrack( const SiClusterOnTrack& rot)
-    :
-    RIO_OnTrack(rot),
-    m_idDE(rot.m_idDE),
-    m_globalPosition(rot.m_globalPosition),
-    m_isbroad(rot.m_isbroad)
-{}
+    
+    
+= default;
 
 // assignment operator:
 InDet::SiClusterOnTrack& InDet::SiClusterOnTrack::operator=( const SiClusterOnTrack& rot){

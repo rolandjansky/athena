@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -418,14 +418,14 @@ namespace InDet
     bool isTwoPartClus(float splitProb1, float splitProb2) const;
     bool isMultiPartClus(float splitProb2) const;
 
-    void rejectHitOverUse(TrackHitDetails& trackHitDetails, TSoS_Details& tsosDetails, int index) const;
-    void rejectHit       (TrackHitDetails& trackHitDetails, TSoS_Details& tsosDetails, int index) const;
-    void rejectSharedHit (TrackHitDetails& trackHitDetails, TSoS_Details& tsosDetails, int index) const;
-    void rejectSharedHitInvalid (TrackHitDetails& trackHitDetails, TSoS_Details& tsosDetails, int index) const;
-    void sharedToSplitPix(TrackHitDetails& trackHitDetails, TSoS_Details& tsosDetails, int index) const;
-    void addSharedHit    (TrackHitDetails& trackHitDetails, TSoS_Details& tsosDetails, int index) const;
-    void increaseSharedHitCounters(TrackHitDetails& trackHitDetails, bool isPix, bool isSCT) const;
-    void decreaseSharedHitCounters(TrackHitDetails& trackHitDetails, bool isPix, bool isSCT) const;
+    static void rejectHitOverUse(TrackHitDetails& trackHitDetails, TSoS_Details& tsosDetails, int index) ;
+    static void rejectHit       (TrackHitDetails& trackHitDetails, TSoS_Details& tsosDetails, int index) ;
+    static void rejectSharedHit (TrackHitDetails& trackHitDetails, TSoS_Details& tsosDetails, int index) ;
+    static void rejectSharedHitInvalid (TrackHitDetails& trackHitDetails, TSoS_Details& tsosDetails, int index) ;
+    static void sharedToSplitPix(TrackHitDetails& trackHitDetails, TSoS_Details& tsosDetails, int index) ;
+    static void addSharedHit    (TrackHitDetails& trackHitDetails, TSoS_Details& tsosDetails, int index) ;
+    static void increaseSharedHitCounters(TrackHitDetails& trackHitDetails, bool isPix, bool isSCT) ;
+    static void decreaseSharedHitCounters(TrackHitDetails& trackHitDetails, bool isPix, bool isSCT) ;
 
     /** TRT minimum number of drift circles tool- returns allowed minimum number of TRT drift circles */
     PublicToolHandle<ITrtDriftCircleCutTool>  m_selectortool{this, "DriftCircleCutTool", "InDet::InDetTrtDriftCircleCutTool"};

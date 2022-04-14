@@ -89,7 +89,7 @@ namespace InDet
  }//end of constructor
  
  DivisiveMultiSeedFinder::~DivisiveMultiSeedFinder()
- {}
+ = default;
 
  std::vector< std::vector<const Trk::Track *> > DivisiveMultiSeedFinder::seeds(const std::vector<const Trk::Track*>& tracks )const
  {

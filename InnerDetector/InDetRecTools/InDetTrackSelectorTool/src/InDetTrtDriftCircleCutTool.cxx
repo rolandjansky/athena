@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackSelectorTool/InDetTrtDriftCircleCutTool.h"
@@ -26,7 +26,7 @@ InDet::InDetTrtDriftCircleCutTool::InDetTrtDriftCircleCutTool(const std::string&
 }
 
 InDet::InDetTrtDriftCircleCutTool::~InDetTrtDriftCircleCutTool()
-{}
+= default;
 
 int InDet::InDetTrtDriftCircleCutTool::minNumberDCs(const Trk::TrackParameters* trkp) const {
   if(!m_param){

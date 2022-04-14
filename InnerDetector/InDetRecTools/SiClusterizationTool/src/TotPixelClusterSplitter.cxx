@@ -248,7 +248,7 @@ std::vector<InDet::PixelClusterParts> InDet::TotPixelClusterSplitter::splitClust
   return splitCluster(OrigCluster);
 }
 
-int InDet::TotPixelClusterSplitter::pixelType(const int PhiIdx, const int EtaIdx) const
+int InDet::TotPixelClusterSplitter::pixelType(const int PhiIdx, const int EtaIdx) 
 {
   if (!(EtaIdx%18 == 0 || EtaIdx%18 == 17))
   {

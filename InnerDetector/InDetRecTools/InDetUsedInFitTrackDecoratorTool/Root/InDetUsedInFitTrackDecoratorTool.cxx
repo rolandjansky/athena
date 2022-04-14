@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s):
@@ -38,7 +38,7 @@ InDet::InDetUsedInFitTrackDecoratorTool::InDetUsedInFitTrackDecoratorTool(const 
 
 // Destructor
 InDet::InDetUsedInFitTrackDecoratorTool::~InDetUsedInFitTrackDecoratorTool()
-{}
+= default;
 
 // Initialize
 StatusCode InDet::InDetUsedInFitTrackDecoratorTool::initialize()

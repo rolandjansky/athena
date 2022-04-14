@@ -42,8 +42,8 @@ namespace {
   FitWeight fitWeight(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx, const AMVFVerticesAcc& vtxDeco, const AMVFWeightsAcc& wgtDeco) {
 
     // Get our AMVF vertices/weights decorations
-    const std::vector<ElementLink<xAOD::VertexContainer>> AMVFVertices = vtxDeco(*trk);
-    const std::vector<float> AMVFWeights = wgtDeco(*trk);
+    const std::vector<ElementLink<xAOD::VertexContainer>>& AMVFVertices = vtxDeco(*trk);
+    const std::vector<float>& AMVFWeights = wgtDeco(*trk);
 
     // Determine if the vertex matches any of the vertices the track is used in the fit of
     int leading = -1;
@@ -353,7 +353,7 @@ bool TrackVertexAssociationTool::isCompatible(const xAOD::TrackParticle& trk) co
     throw std::runtime_error("ERROR in CP::TrackVertexAssociationTool::isCompatible : could not retrieve xAOD::EventInfo!");
   }
   SG::ReadDecorHandle<xAOD::EventInfo, ElementLink<xAOD::VertexContainer>> hardScatterDeco(m_hardScatterDecoKey, ctx);
-  ElementLink<xAOD::VertexContainer> vtxLink = hardScatterDeco(*evt);
+  const ElementLink<xAOD::VertexContainer>& vtxLink = hardScatterDeco(*evt);
   if (!vtxLink.isValid()) {
     throw std::runtime_error("ERROR in CP::TrackVertexAssociationTool::isCompatible : hardscatter vertex link is not valid!");
   }

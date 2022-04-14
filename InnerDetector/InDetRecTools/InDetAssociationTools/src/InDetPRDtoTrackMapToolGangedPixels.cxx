@@ -25,7 +25,7 @@ InDet::InDetPRDtoTrackMapToolGangedPixels::InDetPRDtoTrackMapToolGangedPixels(co
 }
 
 InDet::InDetPRDtoTrackMapToolGangedPixels::~InDetPRDtoTrackMapToolGangedPixels()
-{}
+= default;
 
 StatusCode InDet::InDetPRDtoTrackMapToolGangedPixels::initialize()
 {

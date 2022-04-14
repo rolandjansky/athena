@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -104,7 +104,7 @@ namespace InDet
       std::unique_ptr<OccupancyData> makeData(const EventContext& ctx) const;
       std::unique_ptr<OccupancyData> makeDataTrigger() const;
 
-      bool isMiddleBXOn(unsigned int word) const;
+      static bool isMiddleBXOn(unsigned int word) ;
       bool passValidityGate(unsigned int word, float t0) const;
 
       void  countHitsNearTrack (OccupancyData& data,
@@ -115,7 +115,7 @@ namespace InDet
 
    /** To convert from array index to det id and viceversa */
    int findArrayTotalIndex(const int det, const int lay) const;
-   int mapPhiToPhisector(const double phi) const;
+   static int mapPhiToPhisector(const double phi) ;
    int mapEtaToPartition(const double eta) const;
 
    /** External tools:  */

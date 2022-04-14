@@ -279,18 +279,18 @@ namespace InDet {
       int qualityTracksSelection(InDet::TrackClusterAssValidation::EventData_t &event_data) const;
       int kine(const InDet::TrackClusterAssValidation::EventData_t &event_data,const Trk::PrepRawData*,const Trk::PrepRawData*,int*,int) const;
       int kine (const InDet::TrackClusterAssValidation::EventData_t &event_data,const Trk::PrepRawData*,int*,int) const;
-      int kine0(const InDet::TrackClusterAssValidation::EventData_t &event_data,const Trk::PrepRawData*,int*,int) const;
-      bool isTruth(const InDet::TrackClusterAssValidation::EventData_t&  ,const Trk::PrepRawData*) const;
-      bool isTheSameDetElement(const InDet::TrackClusterAssValidation::EventData_t &event_data, int,const Trk::PrepRawData*) const;
-      bool isTheSameDetElement(const InDet::TrackClusterAssValidation::EventData_t &event_data,int,const Trk::SpacePoint* ) const;
+      static int kine0(const InDet::TrackClusterAssValidation::EventData_t &event_data,const Trk::PrepRawData*,int*,int) ;
+      static bool isTruth(const InDet::TrackClusterAssValidation::EventData_t&  ,const Trk::PrepRawData*) ;
+      static bool isTheSameDetElement(const InDet::TrackClusterAssValidation::EventData_t &event_data, int,const Trk::PrepRawData*) ;
+      static bool isTheSameDetElement(const InDet::TrackClusterAssValidation::EventData_t &event_data,int,const Trk::SpacePoint* ) ;
 
-      PRD_MultiTruthCollection::const_iterator findTruth
-      (const InDet::TrackClusterAssValidation::EventData_t &event_data,const Trk::PrepRawData*,PRD_MultiTruthCollection::const_iterator&) const;
+      static PRD_MultiTruthCollection::const_iterator findTruth
+      (const InDet::TrackClusterAssValidation::EventData_t &event_data,const Trk::PrepRawData*,PRD_MultiTruthCollection::const_iterator&) ;
 
       int charge(const InDet::TrackClusterAssValidation::EventData_t &event_data,std::pair<int,const Trk::PrepRawData*>,int&) const;
 
       MsgStream&    dumptools(MsgStream&    out, MSG::Level level) const;
-      MsgStream&    dumpevent(MsgStream&    out, const InDet::TrackClusterAssValidation::EventData_t &event_data) const;
+      static MsgStream&    dumpevent(MsgStream&    out, const InDet::TrackClusterAssValidation::EventData_t &event_data) ;
 
     };
 

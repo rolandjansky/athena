@@ -139,8 +139,8 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
 				      const SCT_ID                       * sctID,
 				      const Trk::IExtendedTrackSummaryTool* trkSummaryTool,
 				      bool                               useTrackSummary,
-				      unsigned int                       * inTimeStart,
-				      unsigned int                       * inTimeEnd) const
+				      const unsigned int                       * inTimeStart,
+				      const unsigned int                       * inTimeEnd) const
 {
 
   recoToTruthMap rttMap;

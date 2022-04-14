@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -91,7 +91,7 @@ InDet::InDetTrackSplitterTool::InDetTrackSplitterTool( std::string const & type,
 }
 
 //=========================================================
-InDet::InDetTrackSplitterTool::~InDetTrackSplitterTool() { }
+InDet::InDetTrackSplitterTool::~InDetTrackSplitterTool() = default;
 
 
 //=========================================================
@@ -847,7 +847,6 @@ void InDet::InDetTrackSplitterTool::splitTracks(TrackCollection const* inputTrac
   }
 
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Leaving splitTracks" <<endmsg;
-  return;
 }
 
 /** 

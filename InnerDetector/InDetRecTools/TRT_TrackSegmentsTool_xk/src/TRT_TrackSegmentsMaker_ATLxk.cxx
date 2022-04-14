@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -61,8 +61,7 @@ InDet::TRT_TrackSegmentsMaker_ATLxk::TRT_TrackSegmentsMaker_ATLxk
 // Destructor  
 ///////////////////////////////////////////////////////////////////
 InDet::TRT_TrackSegmentsMaker_ATLxk::~TRT_TrackSegmentsMaker_ATLxk()
-{ 
-}
+= default;
 
 
 
@@ -528,7 +527,7 @@ MsgStream& InDet::TRT_TrackSegmentsMaker_ATLxk::dumpConditions( MsgStream& out )
 ///////////////////////////////////////////////////////////////////
 
 MsgStream& InDet::TRT_TrackSegmentsMaker_ATLxk::dumpEvent( MsgStream& out,
-                                                           InDet::ITRT_TrackSegmentsMaker::IEventData &virt_event_data) const
+                                                           InDet::ITRT_TrackSegmentsMaker::IEventData &virt_event_data) 
 {
    TRT_TrackSegmentsMaker_ATLxk::EventData &
       event_data = TRT_TrackSegmentsMaker_ATLxk::EventData::getPrivateEventData(virt_event_data);
@@ -773,7 +772,7 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::findLocaly(const EventContext &ctx,
 // Remove fake TRT segments
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TRT_TrackSegmentsMaker_ATLxk::segmentsPreparation(TRT_TrackSegmentsMaker_ATLxk::EventData &event_data) const
+void InDet::TRT_TrackSegmentsMaker_ATLxk::segmentsPreparation(TRT_TrackSegmentsMaker_ATLxk::EventData &event_data) 
 {
   std::multimap<int,Trk::TrackSegment*>::reverse_iterator 
     qs = event_data.m_qualitySegment.rbegin();

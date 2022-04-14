@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -42,7 +42,7 @@ InDet::TRT_DriftCircleOnTrackRecalibrateTool::TRT_DriftCircleOnTrackRecalibrateT
 // Destructor  
 ///////////////////////////////////////////////////////////////////
 
-InDet::TRT_DriftCircleOnTrackRecalibrateTool::~TRT_DriftCircleOnTrackRecalibrateTool(){}
+InDet::TRT_DriftCircleOnTrackRecalibrateTool::~TRT_DriftCircleOnTrackRecalibrateTool()= default;
 
 ///////////////////////////////////////////////////////////////////
 // Initialisation

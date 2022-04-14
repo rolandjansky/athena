@@ -57,7 +57,7 @@ InDet::CompetingPixelClustersOnTrackTool::CompetingPixelClustersOnTrackTool(
 // Destructor
 ///////////////////////////////////////////////////////////////////
 
-InDet::CompetingPixelClustersOnTrackTool::~CompetingPixelClustersOnTrackTool() {}
+InDet::CompetingPixelClustersOnTrackTool::~CompetingPixelClustersOnTrackTool() = default;
 
 ///////////////////////////////////////////////////////////////////
 // Initialisation

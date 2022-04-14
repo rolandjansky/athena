@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  *
@@ -114,7 +114,7 @@ public:
 //   double MomentumDirection( int, const Amg::Vector3D & ) const ;
 
 
-   double VrtVrtDist( xAOD::Vertex * v1, xAOD::Vertex * v2 ) const;
+   static double VrtVrtDist( xAOD::Vertex * v1, xAOD::Vertex * v2 ) ;
 
    float removeTracksInBadSeed( xAOD::Vertex * myxAODVertex, std::vector<const Trk::TrackParameters*> & ) const ;
 
