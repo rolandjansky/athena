@@ -16,11 +16,13 @@ atlas_add_library( ForwardTransportSvcLib
                    LINK_LIBRARIES ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib ForwardTracker GaudiKernel )
 
 # Component(s) in the package:
-atlas_add_component( ForwardTransportSvc
-                     src/*.cxx
-                     src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps ForwardTracker ForwardTransportSvcLib GaudiKernel GeneratorObjects )
+atlas_add_library( ForwardTransportSvc
+                   src/*.cxx
+                   src/components/*.cxx
+                   OBJECT
+                   NO_PUBLIC_HEADERS
+                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps ForwardTracker ForwardTransportSvcLib GaudiKernel GeneratorObjects )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

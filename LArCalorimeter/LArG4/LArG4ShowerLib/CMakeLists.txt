@@ -14,6 +14,7 @@ find_package( XercesC )
 # Component(s) in the package:
 atlas_add_library( LArG4ShowerLib
                    src/*.cxx
+                   OBJECT
                    PUBLIC_HEADERS LArG4ShowerLib
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}

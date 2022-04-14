@@ -13,8 +13,8 @@ def getEntryLayerTool(name="ISF_EntryLayerTool", **kwargs):
     from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
     if athenaCommonFlags.DoFullChain() and DetFlags.pileup.any_on():
         kwargs.setdefault('EvtStore', 'OriginalEvent_SG') # For Fast Chain
-    from ISF_Geant4CommonTools.ISF_Geant4CommonToolsConf import ISF__EntryLayerTool
-    return ISF__EntryLayerTool(name, **kwargs)
+    import AthenaCommon.CfgMgr as CfgMgr 
+    return CfgMgr.ISF__EntryLayerTool(name, **kwargs)
 
 
 def getEntryLayerToolMT(name="ISF_EntryLayerToolMT", **kwargs):
@@ -25,8 +25,8 @@ def getEntryLayerToolMT(name="ISF_EntryLayerToolMT", **kwargs):
     from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
     if athenaCommonFlags.DoFullChain() and DetFlags.pileup.any_on():
         kwargs.setdefault('EvtStore', 'OriginalEvent_SG') # For Fast Chain
-    from ISF_Geant4CommonTools.ISF_Geant4CommonToolsConf import ISF__EntryLayerToolMT
-    return ISF__EntryLayerToolMT(name, **kwargs)
+    import AthenaCommon.CfgMgr as CfgMgr 
+    return CfgMgr.ISF__EntryLayerToolMT(name, **kwargs)
 
 
 def getAFIIEntryLayerTool(name="ISF_AFIIEntryLayerTool", **kwargs):

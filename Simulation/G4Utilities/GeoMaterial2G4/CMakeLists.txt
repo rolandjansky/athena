@@ -15,6 +15,7 @@ find_package( GeoModel COMPONENTS GeoModelKernel )
 # Component(s) in the package:
 atlas_add_library( GeoMaterial2G4
                    src/*.cxx
+                   OBJECT
                    PUBLIC_HEADERS GeoMaterial2G4
                    INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
                    LINK_LIBRARIES ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} ${GEOMODEL_LIBRARIES} AthenaKernel GaudiKernel

@@ -17,6 +17,7 @@ add_definitions(-DLARG4NOROOT)
 atlas_add_library( LArG4Code
                    src/*.cc
                    src/*.cxx
+                   OBJECT
                    PUBLIC_HEADERS LArG4Code
                    INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}

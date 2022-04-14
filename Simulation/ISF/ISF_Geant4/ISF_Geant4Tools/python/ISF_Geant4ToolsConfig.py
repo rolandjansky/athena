@@ -7,8 +7,8 @@ def getMCTruthUserActionTool(name='ISFMCTruthUserActionTool', **kwargs):
     # get the MT action
     from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault('TruthRecordSvc',  simFlags.TruthStrategy.TruthServiceName())
-    from ISF_Geant4Tools.ISF_Geant4ToolsConf import G4UA__iGeant4__MCTruthUserActionTool
-    return G4UA__iGeant4__MCTruthUserActionTool(name, **kwargs)
+    from AthenaCommon import CfgMgr
+    return CfgMgr.G4UA__iGeant4__MCTruthUserActionTool(name, **kwargs)
 
 
 ## -----------------------------------------------------------------------------
@@ -24,8 +24,9 @@ def getTrackProcessorUserActionTool(name="ISFG4TrackProcessorUserActionTool", **
     from ISF_Config.ISF_jobProperties import ISF_Flags
     kwargs.setdefault('ParticleBroker'     , ISF_Flags.ParticleBroker())
     kwargs.setdefault('GeoIDSvc',       'ISF_GeoIDSvc'         )
-    from ISF_Geant4Tools.ISF_Geant4ToolsConf import G4UA__iGeant4__TrackProcessorUserActionPassBackTool
-    return G4UA__iGeant4__TrackProcessorUserActionPassBackTool(name, **kwargs)
+    from AthenaCommon import CfgMgr
+    return CfgMgr.G4UA__iGeant4__TrackProcessorUserActionPassBackTool(name, **kwargs)
+
 
 
 ### Specialized Versions
@@ -39,8 +40,8 @@ def getFullG4TrackProcessorUserActionTool(name='FullG4TrackProcessorUserActionTo
     from G4AtlasApps.SimFlags import simFlags
     if simFlags.SimulateCavern.get_Value():
         kwargs.setdefault('TruthVolumeLevel',  2)
-    from ISF_Geant4Tools.ISF_Geant4ToolsConf import G4UA__iGeant4__TrackProcessorUserActionFullG4Tool
-    return G4UA__iGeant4__TrackProcessorUserActionFullG4Tool(name, **kwargs)
+    from AthenaCommon import CfgMgr
+    return CfgMgr.G4UA__iGeant4__TrackProcessorUserActionFullG4Tool(name, **kwargs)
 
 def getPassBackG4TrackProcessorUserActionTool(name='PassBackG4TrackProcessorUserActionTool', **kwargs):
     return getTrackProcessorUserActionTool(name, **kwargs)

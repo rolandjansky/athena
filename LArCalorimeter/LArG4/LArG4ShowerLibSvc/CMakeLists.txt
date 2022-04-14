@@ -14,11 +14,13 @@ atlas_add_library( LArG4ShowerLibSvcLib
                    LINK_LIBRARIES GaudiKernel LArG4Code AthenaBaseComps )
 
 # Component(s) in the package:
-atlas_add_component( LArG4ShowerLibSvc
-                     src/*.cxx
-                     src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${GEANT4_LIBRARIES} LArG4ShowerLibSvcLib AthenaKernel LArG4ShowerLib PathResolver )
+atlas_add_library( LArG4ShowerLibSvc
+                   src/*.cxx
+                   src/components/*.cxx
+                   OBJECT
+                   NO_PUBLIC_HEADERS
+                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS}
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${GEANT4_LIBRARIES} LArG4ShowerLibSvcLib AthenaKernel LArG4ShowerLib PathResolver )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

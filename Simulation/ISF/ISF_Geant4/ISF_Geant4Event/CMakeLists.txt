@@ -15,6 +15,7 @@ find_package( XercesC )
 # Component(s) in the package:
 atlas_add_library( ISF_Geant4Event
                    src/*.cxx
+                   OBJECT
                    PUBLIC_HEADERS ISF_Geant4Event
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
