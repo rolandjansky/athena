@@ -11,7 +11,6 @@ class PackagesToInterrogate:
         "Bjet"        : { "PackageName" : "TrigBjetMonitoring.TrigBjetMonitoringConfig",       "ToolName" : "TrigBjetMonitoringConfig",    "MonitCategoryName" : "TrigBjetMonitoring.TrigBjetMonitCategory",       "Dll" : "TrigBjetMonitoring"},
         "Egamma"      : { "PackageName" : "TrigEgammaMonitoring.TrigEgammaMonitoringConfig",   "ToolName" : "TrigEgammaMonitoringTool",    "MonitCategoryName" : "TrigEgammaMonitoring.TrigEgammaMonitCategory",   "Dll" : "TrigEgammaAnalysisTools"},
         "IDtrk"       : { "PackageName" : "TrigIDtrkMonitoring.TrigIDtrkMonitoringConfig",     "ToolName" : "TrigIDtrkMonitoringTool",     "MonitCategoryName" : "",                                               "Dll" : "TrigInDetAnalysisExample"},
-        "MinBias"     : { "PackageName" : "TrigMinBiasMonitoring.TrigMinBiasMonitoringConfig", "ToolName" : "TrigMinBiasMonitoringTool",   "MonitCategoryName" : "TrigMinBiasMonitoring.TrigMinBiasMonitCategory", "Dll" : "TrigMinBiasMonitoring"},
     }
     #    "Egamma"      : { "PackageName" : "TrigEgammaMonitoring.TrigEgammaMonitoringConfig",   "ToolName" : "HLTEgammaMonitoringTool",     "MonitCategoryName" : "TrigEgammaMonitoring.TrigEgammaMonitCategory",   "Dll" : "TrigEgammaMonitoring"},
     #    "Egamma_Dump" : { "PackageName" : "TrigEgammaMonitoring.TrigEgammaMonitoringConfig",   "ToolName" : "HLTEgammaMonitoringDumpTool", "MonitCategoryName" : "TrigEgammaMonitoring.TrigEgammaMonitCategory",   "Dll" : "TrigEgammaMonitoring"}

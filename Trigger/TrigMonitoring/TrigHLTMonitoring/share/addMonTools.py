@@ -104,13 +104,7 @@ if HLTMonFlags.doMonTier0:
 
     # MinBias HLTMonTool
     if HLTMonFlags.doMinBias:
-      try:
-        from TrigMinBiasMonitoring.TrigMinBiasMonitoringConfig import TrigMinBiasMonitoringTool
-        HLTMonManager.AthenaMonTools += TrigMinBiasMonitoringTool()
-      except:
-        log.info("Problems with HLTMinBiasDumpTool, tool not enabled")
-        import traceback
-        log.info (traceback.format_exc())
+        log.warning("The HLT legacy MinBias monitoring is no longer supported")
 
 ################ Dump Tools ################
 
