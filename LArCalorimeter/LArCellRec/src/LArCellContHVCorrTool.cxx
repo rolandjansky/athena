@@ -33,13 +33,8 @@ StatusCode LArCellContHVCorrTool::process(CaloCellContainer* cellCollection, con
     
    
    for (CaloCell* theCell : *cellCollection) {
-     if (theCell->caloDDE()->is_tile()) {
-       continue; 
-       //Could possibly also break the loop, assuming all Tile cells come after LAr in an 
-       //odered CaloCellContainer
-     }
      float hvcorr = oflHVCorr->HVScaleCorr(theCell->ID());
-
+     
      //Report large correction values
      if (hvcorr<0.9 ) {
        if (hvcorr<0.4) {
