@@ -137,7 +137,10 @@ def PixelChargeCalibCondAlgCfg(flags, name="PixelChargeCalibCondAlg", **kwargs):
     acc.merge(PixelReadoutGeometryCfg(flags))
     kwargs.setdefault("PixelDetEleCollKey", "PixelDetectorElementCollection")
     kwargs.setdefault("PixelModuleData", "PixelModuleData")
-    kwargs.setdefault("ReadKey", "/PIXEL/PixCalib")
+    if flags.GeoModel.Run is LHCPeriod.Run2:
+        kwargs.setdefault("ReadKey", "/PIXEL/PixCalib")
+    else:
+        kwargs.setdefault("ReadKey", "")  # FIXME: temporarily disabling DB access for Run 1 due to crashes
     kwargs.setdefault("WriteKey", "PixelChargeCalibCondData")
     acc.addCondAlgo(CompFactory.PixelChargeCalibCondAlg(name, **kwargs))
     return acc
