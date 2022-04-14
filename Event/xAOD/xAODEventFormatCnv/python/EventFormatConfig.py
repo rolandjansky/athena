@@ -50,7 +50,7 @@ def EventFormatCfg(flags, stream, streamName=None, key=None):
 
     # attach the FileMetaData creator to the output stream
     creator = components.xAODMaker.EventFormatStreamHelperTool(
-        f'{streamName}_FileMetaDataCreatorTool',
+        f'{streamName}_EventFormatStreamHelperTool',
         Key=key,
         DataHeaderKey=streamName,
     )
