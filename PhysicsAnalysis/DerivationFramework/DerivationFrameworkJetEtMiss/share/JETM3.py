@@ -175,7 +175,7 @@ addDefaultUFOJets(jetm3Seq,"JETM3",doCHS=True)
 addTrimmedJets("AntiKt", 1.0, "UFOCSSK", rclus=0.2, ptfrac=0.05, algseq=jetm3Seq, outputGroup="JETM3", writeUngroomed=False, mods="tcc_groomed")
 addTrimmedJets("AntiKt", 1.0, "UFOCHS", rclus=0.2, ptfrac=0.05, algseq=jetm3Seq, outputGroup="JETM3", writeUngroomed=False, mods="tcc_groomed")
 # CSSK UFO SoftDrop jets
-addSoftDropJets("AntiKt", 1.0, "UFOCSSK", beta=1.0, zcut=0.1, algseq=jetm3Seq, outputGroup="JETM3", writeUngroomed=False, mods="tcc_groomed")
+addSoftDropJets("AntiKt", 1.0, "UFOCSSK", beta=1.0, zcut=0.1, algseq=jetm3Seq, outputGroup="JETM3", writeUngroomed=False, mods="ufo_groomed")
 addRecursiveSoftDropJets('AntiKt', 1.0, 'UFOCSSK', beta=1.0, zcut=0.05, N=-1,  mods="tcc_groomed", algseq=jetm3Seq, outputGroup="JETM3", writeUngroomed=False)
 addBottomUpSoftDropJets('AntiKt', 1.0, 'UFOCSSK', beta=1.0, zcut=0.05, mods="tcc_groomed", algseq=jetm3Seq, outputGroup="JETM3", writeUngroomed=False)
 
