@@ -4,6 +4,7 @@
 #include "JetMomentTools/JetWidthTool.h"
 #include "JetMomentTools/JetVertexFractionTool.h"
 #include "JetMomentTools/JetVertexTaggerTool.h"
+#include "JetMomentTools/JetVertexNNTagger.h"
 #include "JetMomentTools/JetForwardJvtTool.h"
 #include "JetMomentTools/JetForwardPFlowJvtTool.h"
 #include "JetMomentTools/JetTrackMomentsTool.h"
@@ -30,6 +31,7 @@ DECLARE_COMPONENT( JetCaloQualityTool )
 DECLARE_COMPONENT( JetWidthTool )
 DECLARE_COMPONENT( JetVertexFractionTool )
 DECLARE_COMPONENT( JetVertexTaggerTool )
+DECLARE_COMPONENT( JetPileupTag::JetVertexNNTagger )
 DECLARE_COMPONENT( JetForwardJvtTool )
 DECLARE_COMPONENT(JetForwardPFlowJvtTool)
 DECLARE_COMPONENT( JetTrackMomentsTool )

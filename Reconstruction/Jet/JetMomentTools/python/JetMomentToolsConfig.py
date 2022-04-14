@@ -97,7 +97,7 @@ def getJVFTool(jetdef, modspec):
     return jvf
 
 
-# Jet vertex fraction with selection.
+# Jet vertex tagger with selection.
 def getJVTTool(jetdef, modspec):
     jvt = CompFactory.JetVertexTaggerTool(
         "jvt",
@@ -105,6 +105,15 @@ def getJVTTool(jetdef, modspec):
         SuppressInputDependence = True
     )
     return jvt
+
+# Jet vertex tagger with neural network.
+def getNNJvtTool(jetdef, modspec):
+    nnjvt = CompFactory.getComp("JetPileupTag::JetVertexNNTagger")(
+        "nnjvt",
+        VertexContainer = jetContextDic[modspec or jetdef.context]["Vertices"],
+        SuppressInputDependence = True
+    )
+    return nnjvt
 
 
 def getTrackMomentsTool(jetdef, modspec):
@@ -182,7 +191,7 @@ def getPFlowfJVTTool(jetdef, modspec):
     from JetCalibTools import JetCalibToolsConfig
     jetCalibrationTool = JetCalibToolsConfig.getJetCalibToolFromString(jetdef, "AnalysisLatest:mc:JetArea_Residual_EtaJES")
 
-    wPFOTool = CompFactory.CP__WeightPFOTool("fJVT__wPFO")
+    wPFOTool = CompFactory.getComp('CP::WeightPFOTool')("fJVT__wPFO")
 
     trackingKeys = jetContextDic[modspec or jetdef.context]
 
