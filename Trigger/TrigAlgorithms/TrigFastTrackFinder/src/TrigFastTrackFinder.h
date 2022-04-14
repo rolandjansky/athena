@@ -273,7 +273,8 @@ protected:
   bool isCleaningPassDisTrack(const TrigInDetTriplet&, Trk::Track*, bool) const;
   double disTrackQuality(const Trk::Track*) const;
   void recoVertexForDisTrack(const EventContext&, TrackCollection&, std::vector<double>&, std::vector<double>&, std::vector<double>&) const;
-  bool isPreselPassDisTrack(Trk::Track*, double, double) const;
+  bool isPreselPassDisTrackBeforeRefit(Trk::Track*, double, double) const;
+  bool isPreselPassDisTrackAfterRefit(Trk::Track*, Trk::Track*, double, double) const;
   bool isGoodForDisTrackVertex(Trk::Track*) const;
   const Trk::Perigee* extrapolateDisTrackToBS(Trk::Track*, const std::vector<double>&, const std::vector<double>&, const std::vector<double>&) const;
   void filterSharedDisTracks(std::vector<std::tuple<bool, double,Trk::Track*>>&) const;

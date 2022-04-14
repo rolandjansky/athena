@@ -166,12 +166,9 @@ HPtdEdxTrkVars = '.'.join(HPtdEdxTrkToKeep)
 
 DisTrkToKeepNoIso = ['pt','eta','phi','d0','z0','chi2','ndof','n_hits_innermost','n_hits_inner','n_hits_pix','n_hits_sct',
                      'pt_wrtVtx','eta_wrtVtx','phi_wrtVtx','d0_wrtVtx','z0_wrtVtx',
-                     'n_brhits_ibl','n_brhits_pix1','n_brhits_pix2','n_brhits_pix3','n_brhits_sct1','n_brhits_sct2','n_brhits_sct3','n_brhits_sct4',
                      'chi2sum_br_ibl','chi2sum_br_pix1','chi2sum_br_pix2','chi2sum_br_pix3','chi2sum_br_sct1','chi2sum_br_sct2','chi2sum_br_sct3','chi2sum_br_sct4',
-                     'ndofsum_br_ibl','ndofsum_br_pix1','ndofsum_br_pix2','ndofsum_br_pix3','ndofsum_br_sct1','ndofsum_br_sct2','ndofsum_br_sct3','ndofsum_br_sct4',
-                     'n_brhits_good_ibl','n_brhits_good_pix1','n_brhits_good_pix2','n_brhits_good_pix3',
-                     'n_brhits_good_sct1','n_brhits_good_sct2','n_brhits_good_sct3','n_brhits_good_sct4']
-DisTrkToKeepIso = ['category','is_fail','iso1_dr01','iso1_dr02','iso1_dr04','iso2_dr01','iso2_dr02','iso2_dr04','iso3_dr01','iso3_dr02','iso3_dr04']
+                     'ndofsum_br_ibl','ndofsum_br_pix1','ndofsum_br_pix2','ndofsum_br_pix3','ndofsum_br_sct1','ndofsum_br_sct2','ndofsum_br_sct3','ndofsum_br_sct4']
+DisTrkToKeepIso = ['category','is_fail','iso1_dr01','iso1_dr02','iso2_dr01','iso2_dr02','iso3_dr01','iso3_dr02']
 DisTrkVars = []
 for var in DisTrkToKeepNoIso:
     DisTrkVars.append('disTrkCand_'+var)
