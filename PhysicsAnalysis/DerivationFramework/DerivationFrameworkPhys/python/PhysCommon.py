@@ -65,7 +65,7 @@ AntiKt4EMTopo_deriv = AntiKt4EMTopo.clone(
 )
 
 AntiKt4EMPFlow_deriv = AntiKt4EMPFlow.clone(
-   modifiers = AntiKt4EMPFlow.modifiers+("JetPtAssociation","QGTagging","fJVT")
+   modifiers = AntiKt4EMPFlow.modifiers+("JetPtAssociation","QGTagging","fJVT","NNJVT")
 )
 
 jetList = [AntiKt4EMTopo_deriv,
