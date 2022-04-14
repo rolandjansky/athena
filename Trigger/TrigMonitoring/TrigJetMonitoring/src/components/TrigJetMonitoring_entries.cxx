@@ -5,9 +5,27 @@
 #include "../HLTJetMonTool.h"
 #include "../TrigL1JetMonitorAlgorithm.h"
 #include "../TrigL1JFexSRJetMonitorAlgorithm.h"
+#include "../TrigL1FexJetMonitorTool.h"
+#include "xAODTrigger/jFexSRJetRoIContainer.h"
+#include "xAODTrigger/jFexLRJetRoIContainer.h"
 
-DECLARE_COMPONENT( HLTJetMonTool )
-DECLARE_COMPONENT( TrigL1JetMonitorAlgorithm )
-DECLARE_COMPONENT( TrigL1JFexSRJetMonitorAlgorithm )
+typedef TrigL1FexJetMonitorTool<xAOD::jFexSRJetRoIContainer>
+TrigjFexSRJetRoIMonitorTool;
+
+typedef TrigL1FexJetMonitorTool<xAOD::jFexLRJetRoIContainer>
+TrigjFexLRJetRoIMonitorTool;
+
+typedef TrigL1FexJetMonitorTool<xAOD::gFexJetRoIContainer>
+TriggFexJetRoIMonitorTool;
+
+// typedef TrigL1FexJetMonitorTool<double>
+// TrigjFexSRJetRoIMonitorTool;
+
+
+DECLARE_COMPONENT(HLTJetMonTool)
+DECLARE_COMPONENT(TrigL1JetMonitorAlgorithm)
+DECLARE_COMPONENT(TrigL1JFexSRJetMonitorAlgorithm)
+DECLARE_COMPONENT(TrigjFexSRJetRoIMonitorTool)
+DECLARE_COMPONENT(TrigjFexLRJetRoIMonitorTool)
 
 

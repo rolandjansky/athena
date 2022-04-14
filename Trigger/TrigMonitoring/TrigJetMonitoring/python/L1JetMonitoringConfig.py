@@ -17,44 +17,73 @@ class L1JetMonAlg():
   def toAlg(self,monhelper):
     from AthenaConfiguration.ComponentFactory import CompFactory
 
-    jFex = self.L1JetContainer == 'L1_jFexSRJetRoI'
+    jFexSR = self.L1JetContainer == 'L1_jFexSRJetRoI'
+    jFexLR = self.L1JetContainer == 'L1_jFexLRJetRoI'
+    gFex = self.L1JetContainer == 'L1_gFexJetRoI'
 
+    L1Fex = jFexSR or jFexLR or gFex
+    
     jetcontainer       = self.L1JetContainer
     triggerChain       = self.TriggerChain
     ismatched          = self.Matched
 
-    if jFex:
-      alg = monhelper.addAlgorithm(CompFactory.TrigL1JFexSRJetMonitorAlgorithm, self.name)
+    if L1Fex:
+      alg = monhelper.addAlgorithm(CompFactory.TrigL1JFexJetMonitorAlgorithm, self.name)
+      if jFexSR:
+        tools = [CompFactory.TrigjFexSRJetRoIMonitorTool, "jFexSRDataRetriever"]
+        for t in tools: t.do_matching = False # PS under development
+        alg.m_fillers = tools
+        
+      elif jFexLR:
+        tools = [CompFactory.TrigjFexLRJetRoIMonitorTool, "jFexLRDataRetriever"] # PS under development
+        for t in tools: t.do_matching = False 
+        alg.m_fillers = tools
+
+      elif gFex:
+        tools = [CompFactory.TriggFexJetRoIMonitorTool, "gFexDataRetriever"] # PS under development
+        for t in tools: t.do_matching = False 
+        alg.m_fillers = tools
+
+      else:
+        raise RuntimeError("L1Fex flag is set, but no corresponding container flag is set")
+      
     else:
       alg = monhelper.addAlgorithm(CompFactory.TrigL1JetMonitorAlgorithm, self.name)
+      alg.IsMatched      = ismatched
 
     # aliases to save typing
     jetcontainer       = self.L1JetContainer
     triggerChain       = self.TriggerChain
-    ismatched          = self.Matched
     
     alg.L1JetContainer = jetcontainer
     alg.TriggerChain   = triggerChain
-    alg.IsMatched      = ismatched
     
     # Add a generic monitoring tool (a "group" in old language). The returned 
     # object here is the standard GenericMonitoringTool
 
     Path  = jetcontainer+'/'
     Path += 'NoTriggerSelection/' if triggerChain == '' else triggerChain+'/'
-    if jFex:
+    if jFexSR:
       myGroup = monhelper.addGroup(alg,'TrigL1JFexSRJetMonitor','HLT/JetMon/L1/')
-      myGroup.defineHistogram('et',title='et',path=Path,xbins=400,xmin=0.0,xmax=400.0)
-
+    elif jFexLR:
+      myGroup = monhelper.addGroup(alg,'TrigL1JFexLRJetMonitor','HLT/JetMon/L1/')
+    elif gFex:
+      myGroup = monhelper.addGroup(alg,'TrigL1GFexJetMonitor','HLT/JetMon/L1/')
     else:
       myGroup = monhelper.addGroup(alg,'TrigL1JetMonitor','HLT/JetMon/L1/')
+                                  
+
+    if L1Fex:
+      myGroup.defineHistogram('et',title='et',path=Path,xbins=400,xmin=0.0,xmax=400.0)
+    else:
       myGroup.defineHistogram('et8x8',title='et8x8',path=Path,xbins=400,xmin=0.0,xmax=400.0)
+
       
     myGroup.defineHistogram('eta',title='eta',path=Path,xbins=50,xmin=-5,xmax=5)
     myGroup.defineHistogram('phi',title='phi',path=Path,xbins=50,xmin=-3.3,xmax=3.3)
 
     # Add histograms for L1 jets matched to offline/online jets
-    if ismatched:
+    if ismatched and not L1Fex:  # PS under development
       matchedOJ   = self.MatchedOJ
       matchedHLTJ = self.MatchedHLTJ
 

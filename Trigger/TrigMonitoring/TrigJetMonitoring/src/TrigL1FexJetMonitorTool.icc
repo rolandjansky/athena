@@ -1,0 +1,300 @@
+// -*- C++ -*-
+
+/*
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+*/
+
+// #include "TrigL1FexJetMonitorTool.h"
+#include "AthenaMonitoring/AthMonitorAlgorithm.h"
+#include "./L1FexGroupNameDispatcher.h"
+#include "./vetoL1Jet.h"
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+template<typename JetContainer>
+TrigL1FexJetMonitorTool<JetContainer>::TrigL1FexJetMonitorTool(const std::string& type,
+							       const std::string& name,
+							       const IInterface* parent) 
+  : AthAlgTool( type, name, parent )
+{
+
+}
+
+//___________________________________________________________________________
+template<typename JetContainer>
+StatusCode TrigL1FexJetMonitorTool<JetContainer>::queryInterface(const InterfaceID& riid, void** ppvIf )
+{
+  if ( riid == ITrigJetMonitorTool::interfaceID() )  {
+    *ppvIf = (ITrigJetMonitorTool*)this;
+    addRef();
+    return StatusCode::SUCCESS;
+  }
+  
+  return AthAlgTool::queryInterface( riid, ppvIf );
+}
+
+//___________________________________________________________________________
+template<typename JetContainer>
+StatusCode TrigL1FexJetMonitorTool<JetContainer>::initialize()
+{
+  m_groupName = groupNameDispatcher(this);
+  
+  ATH_CHECK(m_l1jetContainerkey.initialize());
+
+  if (m_doMatching) {
+    m_offmatchedKey =
+      m_l1jetContainerkey.key() + ".matched_" + m_offlineJetContainerToMatch;
+    
+    m_offptdiffKey =
+      m_l1jetContainerkey.key() + ".ptdiff_" + m_offlineJetContainerToMatch;
+    
+    m_offenergydiffKey =
+      m_l1jetContainerkey.key() + ".energydiff_" + m_offlineJetContainerToMatch;
+    
+    m_offmassdiffKey =
+      m_l1jetContainerkey.key() + ".massdiff_" + m_offlineJetContainerToMatch;
+    
+    m_offptrespKey =
+      m_l1jetContainerkey.key() + ".ptresp_" + m_offlineJetContainerToMatch;
+    
+    m_offenergyrespKey =
+      m_l1jetContainerkey.key() + ".energyresp_" + m_offlineJetContainerToMatch;
+    
+    m_offmassrespKey =
+      m_l1jetContainerkey.key() + ".massresp_" + m_offlineJetContainerToMatch;
+    
+    m_offptrefKey =
+      m_l1jetContainerkey.key() + ".ptRef_" + m_offlineJetContainerToMatch;
+    
+    m_offetarefKey =
+      m_l1jetContainerkey.key() + ".etaRef_" + m_offlineJetContainerToMatch;
+
+    ATH_CHECK(m_offmatchedKey.initialize() );
+    ATH_CHECK(m_offptdiffKey.initialize() );
+    ATH_CHECK(m_offenergydiffKey.initialize() );
+    ATH_CHECK(m_offmassdiffKey.initialize() );
+    ATH_CHECK(m_offptrespKey.initialize() );
+    ATH_CHECK(m_offenergyrespKey.initialize() );
+    ATH_CHECK(m_offmassrespKey.initialize() );
+    ATH_CHECK(m_offptrefKey.initialize() );
+    ATH_CHECK(m_offetarefKey.initialize() );
+    
+    m_hltmatchedKey =
+      m_l1jetContainerkey.key() + ".matched_" + m_HLTJetContainerToMatch;
+    
+    m_hltptdiffKey =
+      m_l1jetContainerkey.key() + ".ptdiff_" + m_HLTJetContainerToMatch;
+    
+    m_hltenergydiffKey =
+      m_l1jetContainerkey.key() + ".energydiff_" + m_HLTJetContainerToMatch;
+    
+    m_hltmassdiffKey =
+      m_l1jetContainerkey.key() + ".massdiff_" + m_HLTJetContainerToMatch;
+    
+    m_hltptrespKey =
+      m_l1jetContainerkey.key() + ".ptresp_" + m_HLTJetContainerToMatch;
+    
+    m_hltenergyrespKey =
+      m_l1jetContainerkey.key() + ".energyresp_" + m_HLTJetContainerToMatch;
+    
+    m_hltmassrespKey =
+      m_l1jetContainerkey.key() + ".massresp_" + m_HLTJetContainerToMatch;
+    
+    m_hltptrefKey =
+      m_l1jetContainerkey.key() + ".ptRef_" + m_HLTJetContainerToMatch;
+    
+    m_hltetarefKey =
+      m_l1jetContainerkey.key() + ".etaRef_" + m_HLTJetContainerToMatch;
+    
+    ATH_CHECK(m_hltmatchedKey.initialize());
+    ATH_CHECK(m_hltptdiffKey.initialize());
+    ATH_CHECK(m_hltenergydiffKey.initialize());
+    ATH_CHECK(m_hltmassdiffKey.initialize());
+    ATH_CHECK(m_hltptrespKey.initialize());
+    ATH_CHECK(m_hltenergyrespKey.initialize());
+    ATH_CHECK(m_hltmassrespKey.initialize());
+    ATH_CHECK(m_hltptrefKey.initialize());
+    ATH_CHECK(m_hltetarefKey.initialize());
+
+  } else {
+    // declare the keys unused if no matching is configured
+
+    // offline container matching
+    ATH_CHECK(m_offmatchedKey.initialize(false));
+    ATH_CHECK(m_offptdiffKey.initialize(false));
+    ATH_CHECK(m_offenergydiffKey.initialize(false));
+    ATH_CHECK(m_offmassdiffKey.initialize(false));
+    ATH_CHECK(m_offptrespKey.initialize(false));
+    ATH_CHECK(m_offenergyrespKey.initialize(false));
+    ATH_CHECK(m_offmassrespKey.initialize(false));
+    ATH_CHECK(m_offptrefKey.initialize(false));
+    ATH_CHECK(m_offetarefKey.initialize(false));
+
+    // trigger container matching
+    ATH_CHECK(m_hltmatchedKey.initialize(false));
+    ATH_CHECK(m_hltptdiffKey.initialize(false));
+    ATH_CHECK(m_hltenergydiffKey.initialize(false));
+    ATH_CHECK(m_hltmassdiffKey.initialize(false));
+    ATH_CHECK(m_hltptrespKey.initialize(false));
+    ATH_CHECK(m_hltenergyrespKey.initialize(false));
+    ATH_CHECK(m_hltmassrespKey.initialize(false));
+    ATH_CHECK(m_hltptrefKey.initialize(false));
+    ATH_CHECK(m_hltetarefKey.initialize(false));
+
+  }
+    
+  return StatusCode::SUCCESS;
+}
+
+//___________________________________________________________________________
+template<typename JetContainer>
+StatusCode TrigL1FexJetMonitorTool<JetContainer>::finalize()
+{
+  return StatusCode::SUCCESS;
+}
+
+//___________________________________________________________________________
+template<typename JetContainer>
+StatusCode
+TrigL1FexJetMonitorTool<JetContainer>::getData(const EventContext& ctx,
+					       std::vector<JetData>& jetData
+					       ) const{
+  
+  // Retrieve the L1 jet container
+  SG::ReadHandle<JetContainer> jets(m_l1jetContainerkey, ctx);
+  if( !jets.isValid() ){
+    // the L! containers should _always_ be present, although may be empty.
+    ATH_MSG_ERROR("evtStore() does not contain the L1 jet collection with name "
+		 << m_l1jetContainerkey);
+    return StatusCode::FAILURE;
+  }
+
+  // find vasrtiables associated with jets in the input container.
+  for(const auto j : *jets){
+    /*
+      Ensure that the the et is above a hardware threshold:
+      From Sergi Rodriguez 23/02/2022
+      in the bitwise simulation we also have an energy threshold, 
+      which is taken from the trigger menu.
+      If the Et is below the threshold the TOB word is set to 0
+    */
+
+    if (vetoJet(j)) {continue;}
+    // if (j->tobWord() == 0) {continue;}
+
+    jetData.emplace_back(j->et()*0.001,
+			 j->eta(),
+			 j->phi());
+   
+    // Fill. First argument is the tool (GMT) name as defined in
+    // TrigJetMonitorAlgorithm.py, 
+    // all others are the variables to be saved.
+    // auto tool = getGroup("TrigL1JFexSRJetMonitor");
+    // fill(tool,et,eta,phi);
+  }
+
+  /*
+      
+  if (m_isMatched) {
+    calcMatchedVars(jets, ctx);
+  }
+  */
+  
+  return StatusCode::SUCCESS;
+}
+
+/*
+template<typename JetContainer>
+StatusCode
+TrigL1FexJetMonitorTool<JetContainer>::calcMatchedVats(const SG::ReadHandle<JetContainer>& jets,
+						       const EventContext& ctx) const
+{
+  SG::ReadDecorHandle<JetContainer, char>  offmatchedHandle(m_offmatchedKey, ctx);
+  SG::ReadDecorHandle<JetContainer, double> offptdiffHandle(m_offptdiffKey, ctx);
+  SG::ReadDecorHandle<JetContainer, double> offenergydiffHandle(m_offenergydiffKey, ctx);
+  SG::ReadDecorHandle<JetContainer, double> offmassdiffHandle(m_offmassdiffKey, ctx);
+  SG::ReadDecorHandle<JetContainer, double> offptrespHandle(m_offptrespKey, ctx);
+  SG::ReadDecorHandle<JetContainer, double> offenergyrespHandle(m_offenergyrespKey, ctx);
+  SG::ReadDecorHandle<JetContainer, double> offmassrespHandle(m_offmassrespKey, ctx);
+  SG::ReadDecorHandle<JetContainer, double> offptrefHandle(m_offptrefKey, ctx);
+  SG::ReadDecorHandle<JetContainer, double> offetarefHandle(m_offetarefKey, ctx);
+  
+  SG::ReadDecorHandle<JetContainer, char>  hltmatchedHandle(m_hltmatchedKey, ctx);
+  SG::ReadDecorHandle<JetContainer, double> hltptdiffHandle(m_hltptdiffKey, ctx);
+  SG::ReadDecorHandle<JetContainer, double> hltenergydiffHandle(m_hltenergydiffKey, ctx);
+  SG::ReadDecorHandle<JetContainer, double> hltmassdiffHandle(m_hltmassdiffKey, ctx);
+  SG::ReadDecorHandle<JetContainer, double> hltptrespHandle(m_hltptrespKey, ctx);
+  SG::ReadDecorHandle<JetContainer, double> hltenergyrespHandle(m_hltenergyrespKey, ctx);
+  SG::ReadDecorHandle<JetContainer, double> hltmassrespHandle(m_hltmassrespKey, ctx);
+  SG::ReadDecorHandle<JetContainer, double> hltptrefHandle(m_hltptrefKey, ctx);
+  SG::ReadDecorHandle<JetContainer, double> hltetarefHandle(m_hltetarefKey, ctx);
+
+  auto offmatched = Monitored::Collection("offmatched",
+					  jets,
+					  [offmatchedHandle](const JetContainer::const_value_type jet) {
+					    return offmatchedHandle(*jet);}
+					  );
+  
+  auto offdPt = Monitored::Scalar("offptdiff",0.0);
+  auto offdEnergy = Monitored::Scalar("offenergydiff",0.0);
+  auto offdMass = Monitored::Scalar("offmassdiff",0.0);
+  auto offrPt = Monitored::Scalar("offptresp",0.0);
+  auto offrEnergy = Monitored::Scalar("offenergyresp",0.0);
+  auto offrMass = Monitored::Scalar("offmassresp",0.0);
+  auto offptRef = Monitored::Scalar("offptref",0.0);
+  auto offetaRef = Monitored::Scalar("offetaref",0.0);
+
+  auto hltmatched = Monitored::Collection("hltmatched",
+					  jets,
+					  [hltmatchedHandle](const JetContainer::const_value_type jet) {
+					    return hltmatchedHandle(*jet);}
+					  );
+
+  auto hltdPt = Monitored::Scalar("hltptdiff",0.0);
+  auto hltdEnergy = Monitored::Scalar("hltenergydiff",0.0);
+  auto hltdMass = Monitored::Scalar("hltmassdiff",0.0);
+  auto hltrPt = Monitored::Scalar("hltptresp",0.0);
+  auto hltrEnergy = Monitored::Scalar("hltenergyresp",0.0);
+  auto hltrMass = Monitored::Scalar("hltmassresp",0.0);
+  auto hltptRef = Monitored::Scalar("hltptref",0.0);
+  auto hltetaRef = Monitored::Scalar("hltetaref",0.0);
+
+  // Loop over L1 jets and fill pt, energy, mass differences and responses
+  // between matched jets, plus reference pT and eta
+  
+  auto tool = getGroup("TrigL1JFexSRJetMonitor");
+  for(const JetContainer::const_value_type jet : jets){
+    bool offmatched = offmatchedHandle(*jet);
+    bool hltmatched = hltmatchedHandle(*jet);
+
+    if(offmatched){
+      m_offMatchedVars[TrigJetMonitoringVarEnum::dPt] = offptdiffHandle(*jet);
+      m_offMatchedVars[TrigJetMonitoringVarEnum::dEnergy] = offenergydiffHandle(*jet);
+      m_offMatchedVars[TrigJetMonitoringVarEnum::dMass] = offmassdiffHandle(*jet);
+      m_offMatchedVars[TrigJetMonitoringVarEnum::rPt] = offptrespHandle(*jet);
+      m_offMatchedVars[TrigJetMonitoringVarEnum::rEnergy] = offenergyrespHandle(*jet);
+      m_offMatchedVars[TrigJetMonitoringVarEnum::rMass] = offmassrespHandle(*jet);
+      m_offMatchedVars[TrigJetMonitoringVarEnum::ptRef] = offptrefHandle(*jet);
+      m_offMatchedVars[TrigJetMonitoringVarEnum::etaRef] = offetarefHandle(*jet);
+    }
+    
+    if(hltmatched){
+      m_hltMatchedVars[TrigJetMonitoringVarEnum::dPt] = hltptdiffHandle(*jet);
+      m_hltMatchedVars[TrigJetMonitoringVarEnum::dEnergy] = hltenergydiffHandle(*jet);
+      m_hltMatchedVars[TrigJetMonitoringVarEnum::dMass] = hltmassdiffHandle(*jet);
+      m_hltMatchedVars[TrigJetMonitoringVarEnum::rPt] = hltptrespHandle(*jet);
+      m_hltMatchedVars[TrigJetMonitoringVarEnum::rEnergy] = hltenergyrespHandle(*jet);
+      m_hltMatchedVars[TrigJetMonitoringVarEnum::rMass] = hltmassrespHandle(*jet);
+      m_hltMatchedVars[TrigJetMonitoringVarEnum::ptRef] = hltptrefHandle(*jet);
+      m_hltMatchedVars[TrigJetMonitoringVarEnum::etaRef] = hltetarefHandle(*jet);
+    } 
+  }
+  
+  fill(tool, offmatched);
+  fill(tool, hltmatched);
+
+  return;
+}
+*/
+
