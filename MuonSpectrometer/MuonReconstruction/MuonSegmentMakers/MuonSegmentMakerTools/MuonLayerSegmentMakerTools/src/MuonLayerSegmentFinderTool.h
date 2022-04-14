@@ -22,6 +22,7 @@
 #include "MuonSegmentMakerToolInterfaces/IMuonClusterSegmentFinder.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonClusterSegmentFinderTool.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonLayerSegmentFinderTool.h"
+#include "MuonRecToolInterfaces/HoughDataPerSec.h"
 
 namespace Muon {
 
@@ -43,6 +44,9 @@ namespace Muon {
                   const  MuonLayerPrepRawData& layerPrepRawData,
                   std::vector<std::shared_ptr<const Muon::MuonSegment> >& segments) const override;
 
+        void findMdtSegmentsFromHough(const EventContext& ctx,
+                                      const MuonSystemExtension::Intersection& intersection, 
+                                      std::vector<std::shared_ptr<const Muon::MuonSegment> >& segments) const override;
     private:
         /** find segments from PRD clusters */
         void findClusterSegments(const EventContext& ctx, const MuonSystemExtension::Intersection& intersection,
@@ -98,6 +102,12 @@ namespace Muon {
             "NSWMuonClusterSegmentFinderTool",
             "Muon::MuonClusterSegmentFinderTool/MuonClusterSegmentFinderTool",
         };
+        /// Use the hough data to find sectors in the speectrometer traversed by a muon.
+        SG::ReadHandleKey<Muon::HoughDataPerSectorVec> m_houghDataPerSectorVecKey{this, "HoughKey",
+                                                                                   "", "HoughDataPerSectorVec key"};
+
+        const Muon::MuonSectorMapping m_muonSectorMapping{};
+
     };
 }  // namespace Muon
 
