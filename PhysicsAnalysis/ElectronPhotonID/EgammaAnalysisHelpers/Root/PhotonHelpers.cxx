@@ -1,50 +1,41 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EgammaAnalysisHelpers/PhotonHelpers.h"
-#include "xAODEgamma/Photon.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
-#include "AsgMessaging/AsgMessaging.h"
+#include "xAODEgamma/Photon.h"
 
 // ==================================================================
-bool PhotonHelpers::passOQquality(const xAOD::Photon *ph){
+bool
+PhotonHelpers::passOQquality(const xAOD::Photon& ph)
+{
 
-  static const asg::AsgMessaging msg("PhotonHelpers");
-  if(!ph){
-    msg.msg(MSG::WARNING) << "No photon found!" << endmsg;
-    return 0;
-  }
-  
-  return !( ( ph->OQ() & 1073741824 )!=0 ||
+  return !((ph.OQ() & 1073741824) != 0 ||
 
-	 ( ( ph->OQ() & 134217728 )!=0 &&
+           ((ph.OQ() & 134217728) != 0 &&
 
-	   ( ph->showerShapeValue(xAOD::EgammaParameters::Reta) > 0.98
+            (ph.showerShapeValue(xAOD::EgammaParameters::Reta) > 0.98
 
-	    || ph->showerShapeValue(xAOD::EgammaParameters::f1) > 0.4
+             || ph.showerShapeValue(xAOD::EgammaParameters::f1) > 0.4
 
-	    || (ph->OQ() & 67108864) !=0)
+             || (ph.OQ() & 67108864) != 0)
 
-	   ) );
+              ));
 }
 // ==================================================================
-bool PhotonHelpers::passOQqualityDelayed(const xAOD::Photon *ph){
+bool
+PhotonHelpers::passOQqualityDelayed(const xAOD::Photon& ph)
+{
 
-  static const asg::AsgMessaging msg("PhotonHelpers");
-  if(!ph){
-    msg.msg(MSG::WARNING) << "No photon found!" << endmsg;
-    return 0;
-  }
-  
-  return !( ( ph->OQ() & 1073741824)!=0 ||
+  return !((ph.OQ() & 1073741824) != 0 ||
 
-	 ( ( ph->OQ() & 134217728)!=0 &&
+           ((ph.OQ() & 134217728) != 0 &&
 
-	   ( ph->showerShapeValue(xAOD::EgammaParameters::Reta) > 0.98
+            (ph.showerShapeValue(xAOD::EgammaParameters::Reta) > 0.98
 
-	     || ph->showerShapeValue(xAOD::EgammaParameters::f1) > 0.4
+             || ph.showerShapeValue(xAOD::EgammaParameters::f1) > 0.4
 
-	     ) ) );
+             )));
 }
