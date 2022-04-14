@@ -147,21 +147,22 @@ void McEventCollectionCnv_p5::persToTrans( const McEventCollection_p5* persObj,
 
 
 
-       // pdfinfo restore
-      if (!persEvt.m_pdfinfo.empty())
-        {
-          const std::vector<double>& pdf = persEvt.m_pdfinfo;
-              HepMC3::GenPdfInfoPtr pi = std::make_shared<HepMC3::GenPdfInfo>();
-              pi->set(
-              static_cast<int>(pdf[6]), // id1
-              static_cast<int>(pdf[5]), // id2
+    // pdfinfo restore
+    if (!persEvt.m_pdfinfo.empty())
+    {
+      const std::vector<double>& pdf = persEvt.m_pdfinfo;
+      HepMC3::GenPdfInfoPtr pi = std::make_shared<HepMC3::GenPdfInfo>();
+      pi->set(static_cast<int>(pdf[8]), // id1
+              static_cast<int>(pdf[7]), // id2
               pdf[4],                   // x1
               pdf[3],                   // x2
               pdf[2],                   // scalePDF
               pdf[1],                   // pdf1
-              pdf[0] );                 // pdf2
-              genEvt->set_pdf_info(pi);
-        }
+              pdf[0],                   // pdf2
+              static_cast<int>(pdf[6]), // pdf_id1
+              static_cast<int>(pdf[5]));// pdf_id2
+      genEvt->set_pdf_info(pi);
+    }
     transObj->push_back( genEvt );
 
     // create a temporary map associating the barcode of an end-vtx to its
@@ -743,9 +744,12 @@ void McEventCollectionCnv_p5::writeGenVertex( HepMC::ConstGenVertexPtr vtx,
                                               McEventCollection_p5& persEvt ) const
 {
   const HepMC::FourVector& position = vtx->position();
-  auto A_weights=vtx->attribute<HepMC3::VectorDoubleAttribute>("weights");
+  auto A_weights=vtx->attribute<HepMC3::VectorFloatAttribute>("weights");
   auto A_barcode=vtx->attribute<HepMC3::IntAttribute>("barcode");
-  std::vector<double> weights=A_weights?(A_weights->value()):std::vector<double>();
+  std::vector<float> weights;
+  if (A_weights) {
+    weights = A_weights->value();
+  }
   persEvt.m_genVertices.push_back(
                                   GenVertex_p5( position.x(),
                                                 position.y(),
