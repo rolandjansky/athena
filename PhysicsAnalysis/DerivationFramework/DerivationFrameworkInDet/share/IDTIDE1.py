@@ -1,5 +1,5 @@
 #====================================================================
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #====================================================================
 # IDTIDE1.py
 # Contact: atlas-cp-tracking-denseenvironments@cern.ch
@@ -45,6 +45,14 @@ if 'DerivationFrameworkIsMonteCarlo' not in dir() :
   DerivationFrameworkIsMonteCarlo=( globalflags.DataSource=='geant4' )
 
 IsMonteCarlo=DerivationFrameworkIsMonteCarlo
+
+#====================================================================
+# Re-run jet reconstruction needed for preselection
+#====================================================================
+from JetRecConfig.StandardSmallRJets import AntiKt4EMTopo,AntiKt4EMPFlow
+jetList = [AntiKt4EMTopo,AntiKt4EMPFlow]
+from DerivationFrameworkJetEtMiss.JetCommon import addDAODJets
+addDAODJets(jetList,DerivationFrameworkJob)
 
 #====================================================================
 # SET UP STREAM  
@@ -505,18 +513,10 @@ IDTIDE1Stream.AddItem("xAOD::JetContainer#AntiKt4EMPFlowJets")
 IDTIDE1Stream.AddItem("xAOD::JetAuxContainer#AntiKt4EMPFlowJetsAux.-PseudoJet")
 IDTIDE1Stream.AddItem("xAOD::JetContainer#AntiKt2PV0TrackJets")
 IDTIDE1Stream.AddItem("xAOD::JetAuxContainer#AntiKt2PV0TrackJetsAux.-PseudoJet")
-#IDTIDE1Stream.AddItem("xAOD::JetContainer#AntiKt3PV0TrackJets")
-#IDTIDE1Stream.AddItem("xAOD::JetAuxContainer#AntiKt3PV0TrackJetsAux.")
-#IDTIDE1Stream.AddItem("xAOD::JetContainer#AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets")
-#IDTIDE1Stream.AddItem("xAOD::JetAuxContainer#AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsAux.")
 IDTIDE1Stream.AddItem("xAOD::BTaggingContainer#BTagging_AntiKt4EMTopo")
 IDTIDE1Stream.AddItem("xAOD::BTaggingAuxContainer#BTagging_AntiKt4EMTopoAux.")
 IDTIDE1Stream.AddItem("xAOD::BTaggingContainer#BTagging_AntiKt4EMPFlow")
 IDTIDE1Stream.AddItem("xAOD::BTaggingAuxContainer#BTagging_AntiKt4EMPFlowAux.")
-IDTIDE1Stream.AddItem("xAOD::BTaggingContainer#BTagging_AntiKt2Track")
-IDTIDE1Stream.AddItem("xAOD::BTaggingAuxContainer#BTagging_AntiKt2TrackAux.")
-#IDTIDE1Stream.AddItem("xAOD::BTaggingContainer#BTagging_AntiKt3Track")
-#IDTIDE1Stream.AddItem("xAOD::BTaggingAuxContainer#BTagging_AntiKt3TrackAux.")
 if IsMonteCarlo:
   IDTIDE1Stream.AddItem("xAOD::TruthParticleContainer#*")
   IDTIDE1Stream.AddItem("xAOD::TruthParticleAuxContainer#TruthParticlesAux.-caloExtension")
