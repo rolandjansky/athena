@@ -16,6 +16,7 @@ from egammaRec.Factories import ToolFactory
 from egammaCaloTools.egammaCaloToolsFactories import (
     egammaCheckEnergyDepositTool)
 from egammaCaloTools import egammaCaloToolsConf
+from InDetRecExample.InDetJobProperties import InDetFlags
 
 egammaCaloClusterROISelector = ToolFactory(
     egammaCaloToolsConf.egammaCaloClusterSelector,
@@ -49,6 +50,33 @@ InDetCaloClusterROISelector = InDet__CaloClusterROI_Selector(
     egammaCaloClusterSelector=egammaCaloClusterROISelector()
 )
 
+
+def CaloClusterROIPhiRZContainerMaker(name="CaloClusterROIPhiRZContainerMaker", **kwargs):
+
+    # if "CaloSurfaceBuilder" not in kwargs :
+    #    from CaloTrackingGeometry.CaloSurfaceBuilderBase import CaloSurfaceBuilderFactory
+    #    kwargs.setdefault("CaloSurfaceBuilder", CaloSurfaceBuilderFactory( '' ) )
+
+    kwargs.setdefault("InputClusterContainerName",  InDetKeys.CaloClusterContainer())
+    kwargs.setdefault("EMEnergyOnly", True)
+
+    OutputROIContainerName=[]
+    minPt=[]
+    phiWidth=[]
+
+    kwargs.setdefault("OutputROIContainerName", OutputROIContainerName)
+    kwargs.setdefault("minPt", minPt)
+    kwargs.setdefault("phiWidth", phiWidth)
+
+    if "egammaCaloClusterSelector" not in kwargs:
+        kwargs["egammaCaloClusterSelector"] = egammaCaloClusterROISelector()
+
+    from InDetCaloClusterROISelector.InDetCaloClusterROISelectorConf import InDet__CaloClusterROIPhiRZContainerMaker
+    return InDet__CaloClusterROIPhiRZContainerMaker(name, **kwargs)
+
+
 topSequence += InDetCaloClusterROISelector
+topSequence += CaloClusterROIPhiRZContainerMaker()
+
 if (InDetFlags.doPrintConfigurables()):
     printfunc(InDetCaloClusterROISelector)

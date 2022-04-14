@@ -1,6 +1,19 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 # Configuration of InDetCaloClusterROISelector package
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+
+def CaloDepthEntranceCfg(flags, name="CaloDepthToolEntrance", **kwargs):
+    acc = ComponentAccumulator()
+    kwargs.setdefault("DepthChoice", "entrance")
+    acc.setPrivateTools(CompFactory.CaloDepthTool(name, **kwargs))
+    return acc
+
+def CaloSurfaceBuilderEntranceCfg(flags, name="CaloSurfaceBuilderEntrance", **kwargs):
+    acc = ComponentAccumulator()
+    kwargs.setdefault("CaloDepthTool", acc.popToolsAndMerge(CaloDepthEntranceCfg(flags)))
+    acc.setPrivateTools( CompFactory.CaloSurfaceBuilder(name, **kwargs) )
+    return acc
 
 def CaloClusterROI_SelectorCfg(ConfigFlags, name="CaloClusterROISelector", **kwargs):
     from egammaAlgs.egammaTopoClusterCopierConfig import egammaTopoClusterCopierCfg
@@ -19,6 +32,34 @@ def CaloClusterROI_SelectorCfg(ConfigFlags, name="CaloClusterROISelector", **kwa
     result.addEventAlgo(CompFactory.InDet.CaloClusterROI_Selector(name, **kwargs), primary=True)
     return result
 
+def CaloClusterROIPhiRZContainerMakerCfg(ConfigFlags, name="CaloClusterROIPhiRZContainerMaker", **kwargs):
+    from egammaAlgs.egammaTopoClusterCopierConfig import egammaTopoClusterCopierCfg
+    result = egammaTopoClusterCopierCfg(ConfigFlags)
+
+    if "CaloSurfaceBuilder" not in kwargs :
+        kwargs.setdefault("CaloSurfaceBuilder", result.popToolsAndMerge( CaloSurfaceBuilderEntranceCfg(ConfigFlags) ))
+
+    kwargs.setdefault("InputClusterContainerName",  ConfigFlags.Egamma.Keys.Internal.EgammaTopoClusters)
+    kwargs.setdefault("EMEnergyOnly", True)
+
+    OutputROIContainerName=[]
+    minPt=[]
+    phiWidth=[]
+
+    kwargs.setdefault("OutputROIContainerName", OutputROIContainerName)
+    kwargs.setdefault("minPt", minPt)
+    kwargs.setdefault("phiWidth", phiWidth)
+
+    if "egammaCaloClusterSelector" not in kwargs:
+        from egammaCaloTools.egammaCaloToolsConfig import egammaCaloClusterSelectorCfg
+        kwargs["egammaCaloClusterSelector"] = result.popToolsAndMerge(egammaCaloClusterSelectorCfg(ConfigFlags))
+    result.addEventAlgo(CompFactory.InDet.CaloClusterROIPhiRZContainerMaker(name, **kwargs), primary=True)
+    return result
+
+def ITKCaloClusterROIPhiRZContainerMakerCfg(ConfigFlags, name="CaloClusterROIPhiRZContainerMaker", **kwargs):
+    return CaloClusterROIPhiRZContainerMakerCfg(ConfigFlags, name, **kwargs)
+
+
 def HadCaloClusterROI_SelectorCfg(ConfigFlags, name="HadCaloClusterROISelector", **kwargs):
     from egammaAlgs.egammaTopoClusterCopierConfig import egammaTopoClusterCopierCfg
     result = egammaTopoClusterCopierCfg(ConfigFlags)
@@ -35,3 +76,29 @@ def HadCaloClusterROI_SelectorCfg(ConfigFlags, name="HadCaloClusterROISelector",
         kwargs["egammaCaloClusterSelector"] = result.popToolsAndMerge(egammaHadCaloClusterSelectorCfg(ConfigFlags))
     result.addEventAlgo(CompFactory.InDet.CaloClusterROI_Selector(name, **kwargs), primary=True)
     return result
+
+def HadCaloClusterROIPhiRZContainerMakerCfg(ConfigFlags, name="HadCaloClusterROIPhiRZContainerMaker", **kwargs):
+    from egammaAlgs.egammaTopoClusterCopierConfig import egammaTopoClusterCopierCfg
+    result = egammaTopoClusterCopierCfg(ConfigFlags)
+
+    kwargs.setdefault("InputClusterContainerName",  "CaloCalTopoClusters")
+
+    if "CaloSurfaceBuilder" not in kwargs :
+        kwargs.setdefault("CaloSurfaceBuilder", result.popToolsAndMerge( CaloSurfaceBuilderEntranceCfg(ConfigFlags) ))
+
+    OutputROIContainerName=[]
+    minPt=[]
+    phiWidth=[]
+
+    kwargs.setdefault("OutputROIContainerName", OutputROIContainerName)
+    kwargs.setdefault("minPt", minPt)
+    kwargs.setdefault("phiWidth", phiWidth)
+
+    if "egammaCaloClusterSelector" not in kwargs:
+        from egammaCaloTools.egammaCaloToolsConfig import egammaHadCaloClusterSelectorCfg
+        kwargs["egammaCaloClusterSelector"] = result.popToolsAndMerge(egammaHadCaloClusterSelectorCfg(ConfigFlags))
+    result.addEventAlgo(CompFactory.InDet.CaloClusterROIPhiRZContainerMaker(name, **kwargs), primary=True)
+    return result
+
+def ITKHadCaloClusterROIPhiRZContainerMakerCfg(ConfigFlags, name="HadCaloClusterROIPhiRZContainerMaker", **kwargs):
+    return HadCaloClusterROIPhiRZContainerMakerCfg(ConfigFlags, name, **kwargs)

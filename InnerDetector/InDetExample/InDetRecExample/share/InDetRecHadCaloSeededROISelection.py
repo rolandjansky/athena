@@ -11,6 +11,8 @@
 #
 from egammaRec.Factories import ToolFactory
 from egammaCaloTools import egammaCaloToolsConf
+from InDetRecExample.InDetJobProperties import InDetFlags
+
 egammaCaloClusterHadROISelector = ToolFactory( egammaCaloToolsConf.egammaCaloClusterSelector,
                                                name = 'caloClusterHadROISelector',
                                                egammaCheckEnergyDepositTool = "",
@@ -38,7 +40,33 @@ InDetHadCaloClusterROISelector = InDet__CaloClusterROI_Selector ( name          
                                                                   CaloClusterROIBuilder        = InDetCaloClusterROIBuilder,
                                                                   egammaCaloClusterSelector    = egammaCaloClusterHadROISelector()
                                                                 )
-topSequence += InDetHadCaloClusterROISelector
-if (InDetFlags.doPrintConfigurables()):
-    print (InDetHadCaloClusterROISelector)
+
+def HadCaloClusterROIPhiRZContainerMaker(name="HadCaloClusterROIPhiRZContainerMaker", **kwargs):
+
+    # if "CaloSurfaceBuilder" not in kwargs :
+    #     from CaloTrackingGeometry.CaloSurfaceBuilderBase import CaloSurfaceBuilderFactory
+    #     kwargs.setdefault("CaloSurfaceBuilder", CaloSurfaceBuilderFactory( '' ) )
+
+    kwargs.setdefault("InputClusterContainerName",  "CaloCalTopoClusters")
+
+    OutputROIContainerName=[]
+    minPt=[]
+    phiWidth=[]
+
+    kwargs.setdefault("OutputROIContainerName", OutputROIContainerName)
+    kwargs.setdefault("minPt", minPt)
+    kwargs.setdefault("phiWidth", phiWidth)
+
+    if "egammaCaloClusterSelector" not in kwargs:
+        kwargs["egammaCaloClusterSelector"] = egammaCaloClusterHadROISelector()
+    from InDetCaloClusterROISelector.InDetCaloClusterROISelectorConf import InDet__CaloClusterROIPhiRZContainerMaker
+    return InDet__CaloClusterROIPhiRZContainerMaker(name, **kwargs)
+
+
+if InDetFlags.doCaloSeededAmbi() :
+    topSequence += InDetHadCaloClusterROISelector
+    topSequence += HadCaloClusterROIPhiRZContainerMaker()
+
+    if (InDetFlags.doPrintConfigurables()):
+        print (InDetHadCaloClusterROISelector)
 
