@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -265,7 +265,7 @@ namespace OverlayTesting {
       return tool;
     }
 
-    unsigned int encodeDigit(const std::vector<unsigned int>& bits)
+    static unsigned int encodeDigit(const std::vector<unsigned int>& bits)
     {
       unsigned digit(0);
       const unsigned one(1);
@@ -277,7 +277,7 @@ namespace OverlayTesting {
       return digit;
     }
 
-    bool initMcEventCollection(std::vector<HepMC::GenParticlePtr>& genPartList)
+    static bool initMcEventCollection(std::vector<HepMC::GenParticlePtr>& genPartList)
     {
       // create dummy input McEventCollection with a name that
       // HepMcParticleLink knows about
@@ -297,7 +297,7 @@ namespace OverlayTesting {
       return true;
     }
 
-    void populateGenEvent(HepMC::GenEvent & ge, int pdgid1, int pdgid2, std::vector<HepMC::GenParticlePtr>& genPartList)
+    static void populateGenEvent(HepMC::GenEvent & ge, int pdgid1, int pdgid2, std::vector<HepMC::GenParticlePtr>& genPartList)
     {
       HepMC::FourVector myPos( 0.0, 0.0, 0.0, 0.0);
       HepMC::GenVertexPtr myVertex = HepMC::newGenVertexPtr( myPos, -1 );

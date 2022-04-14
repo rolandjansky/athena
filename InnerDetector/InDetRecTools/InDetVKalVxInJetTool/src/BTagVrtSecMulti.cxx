@@ -873,7 +873,7 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
 
 
    void InDetVKalVxInJetTool::clean1TrVertexSet(std::vector<WrkVrt> *wrkVrtSet)
-   const
+   
    {
      std::vector<int> countVT(wrkVrtSet->size(),0);
      std::vector<int> linkedVrt(wrkVrtSet->size(),0);
@@ -918,7 +918,7 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
    
    void InDetVKalVxInJetTool::trackClassification(std::vector<WrkVrt> *wrkVrtSet, 
                                              std::vector< std::deque<long int> > *TrkInVrt)
-   const
+   
    { 
       int NSet=wrkVrtSet->size(); 
       for(int iv=0; iv<NSet; iv++) {
@@ -937,7 +937,7 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
                                        std::vector< std::deque<long int> > *TrkInVrt,
 				       long int & selectedTrack,
 				       long int & selectedVertex)
-   const
+   
    {
       long int NTrack=TrkInVrt->size(); 
       int it, jv, itmp, NVrt, VertexNumber;
@@ -1053,7 +1053,7 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
 //
    int InDetVKalVxInJetTool::nTrkCommon( std::vector<WrkVrt> *wrkVrtSet, 
                                          int V1, int V2)
-   const
+   
    {
       int NTrk_V1 = (*wrkVrtSet).at(V1).selTrk.size(); if( NTrk_V1< 2) return 0;   /* Bad vertex */
       int NTrk_V2 = (*wrkVrtSet).at(V2).selTrk.size(); if( NTrk_V2< 2) return 0;   /* Bad vertex */
@@ -1105,7 +1105,7 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
 // Give minimal distance between nonmodifed yet vertices
 //   
    double InDetVKalVxInJetTool::minVrtVrtDistNext( std::vector<WrkVrt> *wrkVrtSet, int & V1, int & V2)
-   const
+   
    {  
      V1=0; V2=0;
      double foundMinVrtDst=1000000.;
@@ -1257,8 +1257,7 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
            }
          }
       }
-      return ;
-   }
+        }
 
 //
 //  Iterate track removal until vertex get good Chi2
@@ -1371,7 +1370,7 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
    }
 
     bool InDetVKalVxInJetTool::isPart( std::deque<long int> test, std::deque<long int> base)
-   const
+   
    {
       std::deque<long int>::iterator trk=test.begin();
       for(trk=test.begin(); trk!=test.end(); ++trk)
@@ -1380,7 +1379,7 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
    }
 
    double InDetVKalVxInJetTool::jetProjDist( Amg::Vector3D & SecVrt,const xAOD::Vertex &primVrt,const TLorentzVector &jetDir)
-   const
+   
    {
       Amg::Vector3D vv=SecVrt-primVrt.position();
       return ( vv.x()*jetDir.X()+vv.y()*jetDir.Y()+vv.z()*jetDir.Z() )/ jetDir.P();

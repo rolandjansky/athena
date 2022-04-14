@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -169,8 +169,8 @@ namespace InDet{
     ///////////////////////////////////////////////////////////////////
 
     void computeBounds();
-    float stepToDetElement(const InDetDD::SiDetectorElement*&,
-                           Amg::Vector3D&, Amg::Vector3D&) const;
+    static float stepToDetElement(const InDetDD::SiDetectorElement*&,
+                           Amg::Vector3D&, Amg::Vector3D&) ;
 
     Trk::CylinderBounds getBound(MagField::AtlasFieldCache& fieldCache,
                                  const Trk::TrackParameters&) const;
@@ -188,7 +188,7 @@ namespace InDet{
     /// this method is used to initialize the detector element usage tracker member 
     /// of the event data struct in case it has not been previously set. 
     /// modifies the 'data' argument, based on information in the 'layers' argument. 
-    void bookUsageTracker(InDet::SiDetElementRoadMakerData_xk & data, const SiDetElementsLayerVectors_xk &layers) const;
+    static void bookUsageTracker(InDet::SiDetElementRoadMakerData_xk & data, const SiDetElementsLayerVectors_xk &layers) ;
 
   };
 

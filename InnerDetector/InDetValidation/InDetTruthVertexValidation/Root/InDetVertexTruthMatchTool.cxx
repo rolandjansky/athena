@@ -93,7 +93,7 @@ void createTrackTruthMap(const std::vector<const xAOD::TruthEventBaseContainer *
           && trk_truthPartAcc(*trk).isValid() && trk_truthProbAcc(*trk) >= matchCut)
       {
         nMatch++;
-        auto truthParticle = trk_truthPartAcc(*trk);
+        const auto& truthParticle = trk_truthPartAcc(*trk);
         if (backLinkDecor.isAvailable(**truthParticle) && backLinkDecor(**truthParticle).isValid())
         {
           nLink++;
@@ -125,7 +125,7 @@ bool compareMatchPair(const VertexTruthMatchInfo& a, const VertexTruthMatchInfo&
 
 
 const xAOD::TrackParticleContainer*
-InDetVertexTruthMatchTool::findTrackParticleContainer( const xAOD::VertexContainer& vxContainer ) const
+InDetVertexTruthMatchTool::findTrackParticleContainer( const xAOD::VertexContainer& vxContainer ) 
 {
   for (auto vtx : vxContainer)
   {
@@ -358,7 +358,7 @@ StatusCode InDetVertexTruthMatchTool::matchVertices( const xAOD::VertexContainer
     if ( assignedType[i] ) continue; // make sure we don't reclassify vertices already found in the split loop below
 
     std::vector<VertexTruthMatchInfo> & info = matchInfoDecor( *vxContainer[i] );
-    if (info.size() == 0) {
+    if (info.empty()) {
       matchTypeDecor( *vxContainer[i] ) = DUMMY;
     } else if ( !std::get<0>(info[0]).isValid() ) {
       matchTypeDecor( *vxContainer[i] ) = FAKE;
@@ -377,7 +377,7 @@ StatusCode InDetVertexTruthMatchTool::matchVertices( const xAOD::VertexContainer
         //equality test is in code but doesnt seem to work for ElementLinks that I have?
         //so i am just checking that the contianer key hash and the index are the same
         if (matchTypeDecor( *vxContainer[j] ) == FAKE || matchTypeDecor( *vxContainer[j] ) == DUMMY) continue;
-        if (info2.size() > 0 && std::get<0>(info2[0]).isValid() && std::get<0>(info[0]).key() == std::get<0>(info2[0]).key() && std::get<0>(info[0]).index() == std::get<0>(info2[0]).index() ) {
+        if (!info2.empty() && std::get<0>(info2[0]).isValid() && std::get<0>(info[0]).key() == std::get<0>(info2[0]).key() && std::get<0>(info[0]).index() == std::get<0>(info2[0]).index() ) {
           //add split links; first between first one found and newest one
           splitPartnerDecor( *vxContainer[i] ).emplace_back( vxContainer, j );
           splitPartnerDecor( *vxContainer[j] ).emplace_back( vxContainer, i );
@@ -442,8 +442,6 @@ StatusCode InDetVertexTruthMatchTool::matchVertices( const xAOD::VertexContainer
 bool InDetVertexTruthMatchTool::pass( const xAOD::TruthParticle & truthPart ) const {
 
   //remove the registered secondaries
-  if( truthPart.pt() < m_trkPtCut ) return false;
-
-  return true;
+  return truthPart.pt() >= m_trkPtCut;
 
 }

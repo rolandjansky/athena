@@ -50,7 +50,7 @@ namespace InDet {
   }
 
   TRT_SegmentToTrackTool::~TRT_SegmentToTrackTool()
-  {}
+  = default;
 
 
   StatusCode TRT_SegmentToTrackTool::initialize() {
@@ -133,7 +133,7 @@ namespace InDet {
   ///////////////////////////////////////////////////////////////////
   // Dumps event information into the MsgStream
   ///////////////////////////////////////////////////////////////////
-  MsgStream& InDet::TRT_SegmentToTrackTool::dumpevent( MsgStream& out ) const {
+  MsgStream& InDet::TRT_SegmentToTrackTool::dumpevent( MsgStream& out ) {
     return out;
   }
 
@@ -831,8 +831,7 @@ namespace InDet {
       event_data.m_trackScores.emplace_back(-score, trk );
     }
 
-    return;
-
+    
   }
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloClusterROI_Builder.h"
@@ -23,7 +23,7 @@ InDet::CaloClusterROI_Builder::CaloClusterROI_Builder(const std::string& t,
   declareInterface<ICaloClusterROI_Builder>(this);
 }
 
-InDet::CaloClusterROI_Builder::~CaloClusterROI_Builder() {}
+InDet::CaloClusterROI_Builder::~CaloClusterROI_Builder() = default;
 
 StatusCode
 InDet::CaloClusterROI_Builder::initialize()
@@ -114,7 +114,7 @@ InDet::CaloClusterROI_Builder::getCaloSurface(
 const Trk::LocalParameters*
 InDet::CaloClusterROI_Builder::getClusterLocalParameters(
   const xAOD::CaloCluster* cluster,
-  const Trk::Surface* surf) const
+  const Trk::Surface* surf) 
 {
 
   Amg::Vector3D surfRefPoint = surf->globalReferencePoint();

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -111,7 +111,7 @@ namespace InDet {
       mutable std::mutex m_statMutex ATLAS_THREAD_SAFE;
       mutable Counter_t  m_total     ATLAS_THREAD_SAFE {};
       MsgStream& dumpContainerNames(MsgStream& out) const;
-      MsgStream& dumpevent(MsgStream&, const InDet::TRT_StandaloneTrackFinder::Counter_t&);
+      static MsgStream& dumpevent(MsgStream&, const InDet::TRT_StandaloneTrackFinder::Counter_t&);
       friend MsgStream& operator<< (MsgStream&, const InDet::TRT_StandaloneTrackFinder::Counter_t&);      
     };
    

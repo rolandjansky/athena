@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @class BCMOverlay
@@ -40,9 +40,9 @@ private:
   std::unique_ptr<BCM_RawData> mergeChannel(const BCM_RawData *bkgRDO, 
                                             const BCM_RawData *signalRDO) const;
 
-  void overlayPulses(std::vector<std::unique_ptr<BCM_Pulse>>& merged_pulses) const;
+  static void overlayPulses(std::vector<std::unique_ptr<BCM_Pulse>>& merged_pulses) ;
 
-  std::pair<BCM_Pulse*, BCM_Pulse*> timeOrder(BCM_Pulse* pulse1, BCM_Pulse* pulse2) const;
+  static std::pair<BCM_Pulse*, BCM_Pulse*> timeOrder(BCM_Pulse* pulse1, BCM_Pulse* pulse2) ;
 
   static bool compare(const std::unique_ptr<BCM_Pulse>& a, const std::unique_ptr<BCM_Pulse>& b);
 

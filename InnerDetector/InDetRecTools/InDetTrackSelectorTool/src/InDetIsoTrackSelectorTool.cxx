@@ -40,7 +40,7 @@ InDet::InDetIsoTrackSelectorTool::InDetIsoTrackSelectorTool(const std::string & 
 
 //_______________________________________________________________________________
 InDet::InDetIsoTrackSelectorTool::~InDetIsoTrackSelectorTool()
-{}
+= default;
 
 //_______________________________________________________________________________
 StatusCode InDet::InDetIsoTrackSelectorTool::initialize()

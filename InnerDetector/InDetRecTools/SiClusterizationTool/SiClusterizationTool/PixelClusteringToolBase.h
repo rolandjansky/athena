@@ -52,9 +52,9 @@ protected:
      // a ganged pixel. If this is the case, the last argument assumes the 
      // value of the identifier of the cell it is ganged with. 
      // The second argument is the pixel module the hit belongs to.
-     bool isGanged(const Identifier& rdoID,
+     static bool isGanged(const Identifier& rdoID,
 		   const InDetDD::SiDetectorElement* element,
-		   Identifier & gangedID) const;
+		   Identifier & gangedID) ;
 
      bool isGoodRDO(const InDet::SiDetectorElementStatus *pixelDetElStatus, const IdentifierHash& moduleHash, const Identifier& rdoID) const {
         VALIDATE_STATUS_ARRAY(m_useModuleMap && pixelDetElStatus, pixelDetElStatus->isChipGood(moduleHash,m_pixelReadout->getFE(rdoID, m_pixelId->wafer_id(rdoID))), m_summaryTool->isGood(moduleHash, rdoID));
@@ -74,7 +74,7 @@ protected:
 
      ServiceHandle<InDetDD::IPixelReadoutManager> m_pixelReadout
         {this, "PixelReadoutManager", "PixelReadoutManager", "Pixel readout manager" };
-     const PixelID* m_pixelId;
+     const PixelID* m_pixelId = nullptr;
 
      BooleanProperty m_useModuleMap{this, "UsePixelModuleMap", true, "Use bad modules map"};
      BooleanProperty m_addCorners{this, "AddCorners", true};

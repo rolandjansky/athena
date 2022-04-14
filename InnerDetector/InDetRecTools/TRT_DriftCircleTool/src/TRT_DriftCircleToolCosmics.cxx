@@ -92,7 +92,7 @@ InDet::TRT_DriftCircleToolCosmics::TRT_DriftCircleToolCosmics(const std::string&
 // Destructor  
 ///////////////////////////////////////////////////////////////////
 
-InDet::TRT_DriftCircleToolCosmics::~TRT_DriftCircleToolCosmics(){}
+InDet::TRT_DriftCircleToolCosmics::~TRT_DriftCircleToolCosmics()= default;
 
 ///////////////////////////////////////////////////////////////////
 // Test validity gate

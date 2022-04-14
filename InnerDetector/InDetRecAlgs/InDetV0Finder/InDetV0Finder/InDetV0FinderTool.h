@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -175,7 +175,7 @@ namespace InDet
 
     void SGError(const std::string& errService) const;
 
-    double invariantMass(const Trk::TrackParameters* per1, const Trk::TrackParameters* per2, double m1, double m2) const;
+    static double invariantMass(const Trk::TrackParameters* per1, const Trk::TrackParameters* per2, double m1, double m2) ;
 
     bool doFit(const xAOD::TrackParticle* track1, const xAOD::TrackParticle* track2, Amg::Vector3D &startingPoint) const;
 

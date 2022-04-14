@@ -42,7 +42,7 @@ StatusCode InDet::LowBetaAlg::initializeTrtToolBetaLiklihood()
 	m_TrtTool = new TrtToolBetaLiklihood();
 	
 	// Load the default prior values
-	m_TrtTool->TRT_LoadDefaultPriors();
+	TrtToolBetaLiklihood::TRT_LoadDefaultPriors();
 /*
 	// Register a function for obtaining priors from the TRT conditions database
 	const DataHandle<CondAttrListCollection> collectionHandle;
@@ -90,7 +90,7 @@ StatusCode InDet::LowBetaAlg::update(IOVSVC_CALLBACK_ARGS_P(I,keys))
 	{
 	  // Ensure that the collection is the same size as the priors
 	  // (Make sure we're replacing everything, not just a portion of the priors)
-	  if (collection->size() != m_TrtTool->TRT_NumPriors())
+	  if (collection->size() != TrtToolBetaLiklihood::TRT_NumPriors())
 	    ATH_MSG_WARNING("Unexpected number of priors retrieved from the condDB (got " << collection->size() << ", expected " << m_TrtTool->TRT_NumPriors() << ").  Using defaults.");
 	  else
 	  {
@@ -172,7 +172,7 @@ StatusCode InDet::LowBetaAlg::update(IOVSVC_CALLBACK_ARGS_P(I,keys))
 	        if (dFile != nullptr)
 	          fprintf(dFile,"\n");
 	        
-	        m_TrtTool->TRT_UpdatePriorValues(radiusIndex,etaIndex,barrelOrEndcap,bitValues);
+	        TrtToolBetaLiklihood::TRT_UpdatePriorValues(radiusIndex,etaIndex,barrelOrEndcap,bitValues);
 	        free(bitValues);
 	      }
 	      else if (dFile != nullptr) // If debug, print a warning line to file

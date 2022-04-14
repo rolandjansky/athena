@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -212,8 +212,7 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::endEvent (InDet::ITRT_TrackSeg
     for (unsigned int i=event_data.m_segmentDriftCirclesCount; i<event_data.m_segments.size(); i++) delete event_data.m_segments[i];
   }
 
-  return;
-}
+  }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //   segment finding algorithm function: find, calls findSeed 
@@ -384,9 +383,6 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::find(const EventContext &/*ctx
     convert(event_data.m_segmentDriftCircles[i], trackpar, event_data);
   }
   ATH_MSG_DEBUG(  "find(), number of converted segments: " << event_data.m_segments.size() );
-
-  //  fclose(fout);
-  return;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -522,10 +518,7 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::findSeedInverseR(double *par,
   for (int i=0; i<101; i++) if (scanInverseR[i]>hitsMax) { iMax = i; hitsMax = scanInverseR[i]; } // find max bin
 	  
   par[2] = 0.00004 * (iMax-50); // save estimated inverse radius
-  for (int i=0; i<2; i++) par[3+i] = mean[i]; // save pivot x, y
-
-  return;
-}
+  for (int i=0; i<2; i++) par[3+i] = mean[i]; }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //   convert list of TRT hits to "TrackSegment": convert()
@@ -560,10 +553,7 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::linearRegressionParabolaFit(do
   for (int i=0; i<3; i++) { a[i] /= discriminant; }
 
   double inverseSin3phi = 1. + a[1]*a[1]; inverseSin3phi *= std::sqrt(inverseSin3phi); // 1/sin^3phi
-  a[2] *= 2. / inverseSin3phi; // inverse R
-
-  return;
-}
+  a[2] *= 2. / inverseSin3phi; }
 
 bool InDet::TRT_TrackSegmentsMaker_BarrelCosmics::sortHits( const InDet::TRT_DriftCircle *dc1, const InDet::TRT_DriftCircle *dc2 ) {
 
@@ -765,8 +755,6 @@ if (1) { // limit the scope of all these variables
   //add segment to list of segments
   ATH_MSG_DEBUG( "Add " << event_data.m_segments.size() << "th segment to list" );
   event_data.m_segments.push_back(segment);
-
-  return; 
 } 
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -840,8 +828,7 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::segFit(double *measx, double *
 
   for (int i=0; i<nhits; i++) { measx[i] += shift[0]; measy[i] += shift[1]; }
   
-  return;
-}
+  }
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -945,8 +932,6 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::findOld(TRT_TrackSegmentsMaker
     convert(event_data.m_segmentDriftCircles[i], trackpar, event_data);
   }
   ATH_MSG_DEBUG( "find(), number of converted segments: " << event_data.m_segments.size() );
-
-  return;
 }
 
 

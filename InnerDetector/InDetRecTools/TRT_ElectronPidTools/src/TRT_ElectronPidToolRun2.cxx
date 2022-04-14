@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -489,8 +489,8 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(
     ctx, dEdx_noHTHits, pTrk, Trk::electron, Trk::pion, dEdx_usedHits_noHTHits);
 
   // Limit the probability values the upper and lower limits that are given/trusted for each part:
-  double limProbHT = HTcalc->Limit(PIDvalues[Trk::eProbabilityHT]);
-  double limProbToT = HTcalc->Limit(PIDvalues[Trk::eProbabilityToT]);
+  double limProbHT = HTcalculator::Limit(PIDvalues[Trk::eProbabilityHT]);
+  double limProbToT = HTcalculator::Limit(PIDvalues[Trk::eProbabilityToT]);
 
   // Calculate the combined probability, assuming no correlations (none are expected).
   PIDvalues[Trk::eProbabilityComb] =

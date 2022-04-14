@@ -57,7 +57,7 @@ InDet::InDetVertexSplitter::InDetVertexSplitter(const std::string& name,
 /// Destructor - check up memory allocation
 /// delete any memory allocation on the heap
 
-InDet::InDetVertexSplitter::~InDetVertexSplitter() {}
+InDet::InDetVertexSplitter::~InDetVertexSplitter() = default;
 
 ////////////////////////////////////////////////////////////////////////////////////
 /// Initialize
@@ -208,7 +208,7 @@ StatusCode InDet::InDetVertexSplitter::split_vertices() {
           }
           Trk::TrackParticleBase *trkCopy1 = new Trk::TrackParticleBase((*tpb));
           Trk::TrackParticleBase *trkCopy2 = new Trk::TrackParticleBase((*tpb));
-          if (trackmatched == false){
+          if (!trackmatched){
             oeNameString.clear();
             if (m_isUnmatchOdd)  oeNameString = "odd";
             if (!m_isUnmatchOdd) oeNameString = "even";
@@ -227,7 +227,7 @@ StatusCode InDet::InDetVertexSplitter::split_vertices() {
             m_addToVxUnmatch++;
             if (m_addToVxUnmatch > m_maxVtx) m_addToVxUnmatch = 1;
           }
-          if (trackmatched == true){
+          if (trackmatched){
             oeNameString.clear();
             if (m_isMatchedOdd)  oeNameString = "odd";
             if (!m_isMatchedOdd) oeNameString = "even";
@@ -284,7 +284,7 @@ StatusCode InDet::InDetVertexSplitter::split_vertices() {
           }
           Trk::Track *trkCopy1 = new Trk::Track((*(*trkItr)));
           Trk::Track *trkCopy2 = new Trk::Track((*(*trkItr)));
-          if (trackmatched == false){
+          if (!trackmatched){
             oeNameString.clear();
             if (m_isUnmatchOdd)  oeNameString = "odd";
             if (!m_isUnmatchOdd) oeNameString = "even";
@@ -303,7 +303,7 @@ StatusCode InDet::InDetVertexSplitter::split_vertices() {
             m_addToVxUnmatch++;
             if (m_addToVxUnmatch > m_maxVtx) m_addToVxUnmatch = 1;
           }
-          if (trackmatched == true){
+          if (trackmatched){
             oeNameString.clear();
             if (m_isMatchedOdd)  oeNameString = "odd";
             if (!m_isMatchedOdd) oeNameString = "even";

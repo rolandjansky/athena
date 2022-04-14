@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_TrackExtensionAlg/TRT_TrackExtensionAlg.h"
@@ -123,7 +123,7 @@ MsgStream& InDet::TRT_TrackExtensionAlg::dumpConditions( MsgStream& out ) const 
 // Dumps event information into the ostream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::TRT_TrackExtensionAlg::dumpEvent( MsgStream& out, const InDet::TRT_TrackExtensionAlg::Counter_t &counter ) const {
+MsgStream& InDet::TRT_TrackExtensionAlg::dumpEvent( MsgStream& out, const InDet::TRT_TrackExtensionAlg::Counter_t &counter ) {
 
 	out<<"|-------------------------------------------------------------------";
 	out<<"-----------------------------|"

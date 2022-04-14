@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -305,7 +305,7 @@ ITk::StripClusterOnTrackTool::correct
 }
 
 double
-ITk::StripClusterOnTrackTool::getCorrection(double phi, int nstrip) const {
+ITk::StripClusterOnTrackTool::getCorrection(double phi, int nstrip) {
   // Inherited from SCT
   // Worth revisiting at some point, if only to retrieve the numbers from the database instead of using hardcoded ones
 
@@ -342,7 +342,7 @@ ITk::StripClusterOnTrackTool::getCorrection(double phi, int nstrip) const {
 }
 
 double
-ITk::StripClusterOnTrackTool::getError(double phi, int nstrip) const {
+ITk::StripClusterOnTrackTool::getError(double phi, int nstrip) {
   // Inherited from SCT
   // Worth revisiting at some point, if only to retrieve the numbers from the database instead of using hardcoded ones
   float sigma1[60] = {
@@ -431,7 +431,7 @@ std::unique_ptr<const InDet::SCT_ClusterOnTrack> ITk::StripClusterOnTrackTool::c
   Trk::LocalParameters              locpar(SC->localPosition  ());
   Amg::MatrixX                      cov   (SC->localCovariance());
   Amg::Vector3D                     glob  (SC->globalPosition ());
-  bool isbroad=(m_option_errorStrategy==0) ? true : false;
+  bool isbroad=m_option_errorStrategy==0;
 
   //return new InDet::SCT_ClusterOnTrack (SC,locpar,cov,iH,glob,isbroad);
   return std::make_unique<const InDet::SCT_ClusterOnTrack> (SC,locpar,cov,iH,glob,isbroad);
@@ -486,7 +486,7 @@ std::unique_ptr<const InDet::SCT_ClusterOnTrack> ITk::StripClusterOnTrackTool::c
   cov(1, 1) = pitch*pitch / 12.;
   
   // ??
-  bool isbroad=(m_option_errorStrategy==0) ? true : false;
+  bool isbroad=m_option_errorStrategy==0;
 
   const InDet::SiWidth width = SC->width();
 

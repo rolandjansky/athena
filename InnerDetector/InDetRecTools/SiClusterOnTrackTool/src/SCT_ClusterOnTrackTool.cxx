@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -277,7 +277,7 @@ InDet::SCT_ClusterOnTrackTool::correct
 }
 
 double
-InDet::SCT_ClusterOnTrackTool::getCorrection(double phi, int nstrip) const {
+InDet::SCT_ClusterOnTrackTool::getCorrection(double phi, int nstrip) {
   float corr1[30] = {
     0.3, 0.8, 1.1, 1.5, 1.9, 1.9, 2.1, 2.4, 2.3, 2.6,
     2.6, 2.7, 2.8, 2.7, 2.5, 2.6, 2.8, 2.6, 2.6, 2.7,
@@ -311,7 +311,7 @@ InDet::SCT_ClusterOnTrackTool::getCorrection(double phi, int nstrip) const {
 }
 
 double
-InDet::SCT_ClusterOnTrackTool::getError(double phi, int nstrip) const {
+InDet::SCT_ClusterOnTrackTool::getError(double phi, int nstrip) {
   float sigma1[60] = {
     22.1, 21.8, 21.4, 21.0, 20.5, 20.0, 19.6, 19.1, 18.5, 18.0,
     17.4, 17.0, 16.4, 15.8, 15.4, 14.9, 14.4, 14.1, 13.3, 13.1,

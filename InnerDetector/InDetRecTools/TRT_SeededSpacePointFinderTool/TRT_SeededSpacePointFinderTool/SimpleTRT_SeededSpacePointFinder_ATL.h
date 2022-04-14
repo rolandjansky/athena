@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -136,7 +136,7 @@ namespace InDet{
        
        /** determines the width of the considered ROI around the TP. deltaPhi and deltaEta are return values */
        //void getSearchRange(const Trk::TrackParameters& directionTRT, double& deltaPhi, double& deltaEta);
-       void getSearchRange(double& deltaPhi, double& deltaEta) const;
+       static void getSearchRange(double& deltaPhi, double& deltaEta) ;
 
        /** retrieves SP Collections of modules in the ROI and sorts them by SCT layer */
        void getSpacePointsInROI(const EventContext& ctx,

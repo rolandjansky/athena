@@ -44,7 +44,7 @@ InDet::InDetVertexSplitterHist::InDetVertexSplitterHist(const std::string& name,
 /// Destructor - check up memory allocation
 /// delete any memory allocation on the heap
 
-InDet::InDetVertexSplitterHist::~InDetVertexSplitterHist() {}
+InDet::InDetVertexSplitterHist::~InDetVertexSplitterHist() = default;
 
 ////////////////////////////////////////////////////////////////////////////////////
 /// Initialize

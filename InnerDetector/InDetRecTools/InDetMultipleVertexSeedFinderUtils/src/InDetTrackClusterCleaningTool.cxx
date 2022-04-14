@@ -37,7 +37,7 @@ namespace InDet
   declareProperty("Extrapolator",m_extrapolator);  
  }//end of constructor 
 
- InDetTrackClusterCleaningTool::~InDetTrackClusterCleaningTool(){}
+ InDetTrackClusterCleaningTool::~InDetTrackClusterCleaningTool()= default;
 
  std::pair<std::vector<const Trk::Track*>,std::vector<const Trk::Track*> > InDetTrackClusterCleaningTool::
                                                                            clusterAndOutliers(const std::vector<const Trk::Track*>& cluster,

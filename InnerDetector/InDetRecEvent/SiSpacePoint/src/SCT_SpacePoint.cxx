@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkPrepRawData/PrepRawData.h"
@@ -58,10 +58,9 @@ namespace InDet
   //-------------------------------------------------------------
 
   SCT_SpacePoint::SCT_SpacePoint(const SCT_SpacePoint &o)
-    :
-    Trk::SpacePoint(o)
-  {
-  }
+    
+    
+  = default;
 
   //-------------------------------------------------------------
 

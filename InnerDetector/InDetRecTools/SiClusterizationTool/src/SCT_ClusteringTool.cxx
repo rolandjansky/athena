@@ -98,7 +98,7 @@ namespace InDet {
     return testTimeBinsN(timePattern);
   }
 
-  bool SCT_ClusteringTool::testTimeBins01X(int timeBin) const {
+  bool SCT_ClusteringTool::testTimeBins01X(int timeBin) {
     // Convert the given timebin to a bit set and test each bit
     // if bit is -1 (i.e. X) it always passes, otherwise require exact match of 0/1
     // N.B bitset has opposite order to the bit pattern we define
@@ -110,7 +110,7 @@ namespace InDet {
     return pass;
   } 
   
-  bool SCT_ClusteringTool::testTimeBinsX1X(int timeBin) const {
+  bool SCT_ClusteringTool::testTimeBinsX1X(int timeBin) {
     // Convert the given timebin to a bit set and test each bit
     // if bit is -1 (i.e. X) it always passes, otherwise require exact match of 0/1
     // N.B bitset has opposite order to the bit pattern we define
@@ -174,7 +174,7 @@ namespace InDet {
   }
 
   void SCT_ClusteringTool::addStripsToCluster(const Identifier& firstStripId, unsigned int nStrips,
-                                              std::vector<Identifier>& clusterVector, const SCT_ID& idHelper) const{
+                                              std::vector<Identifier>& clusterVector, const SCT_ID& idHelper) {
     const unsigned int firstStripNumber(idHelper.strip(firstStripId));
     const unsigned int endStripNumber(firstStripNumber + nStrips); // one-past-the-end
     const Identifier   waferId(idHelper.wafer_id(firstStripId));
@@ -740,7 +740,7 @@ namespace InDet {
   SCT_ClusteringTool::DimensionAndPosition 
   SCT_ClusteringTool::clusterDimensions(int firstStrip, int lastStrip,
                                         const InDetDD::SiDetectorElement* pElement,
-                                        const SCT_ID& /*idHelper*/) const {  //since a range check on strip numbers was removed, idHelper is no longer needed here
+                                        const SCT_ID& /*idHelper*/) {  //since a range check on strip numbers was removed, idHelper is no longer needed here
     const int                      nStrips(lastStrip - firstStrip + 1); 
     // Consider strips before and after (in case nStrips=1), both are guaranteed 
     // to return sensible results, even for end strips
@@ -755,7 +755,7 @@ namespace InDet {
 
   SCT_ClusteringTool::DimensionAndPosition 
   SCT_ClusteringTool::clusterDimensionsInclRow(int firstStrip, int lastStrip, int row,
-                                               const InDetDD::SiDetectorElement* pElement, const InDetDD::SCT_ModuleSideDesign* design) const{
+                                               const InDetDD::SiDetectorElement* pElement, const InDetDD::SCT_ModuleSideDesign* design) {
     const int                      nStrips(lastStrip - firstStrip + 1); 
     const int firstStrip1D = design->strip1Dim(firstStrip, row);
     const int lastStrip1D = design->strip1Dim(lastStrip, row);

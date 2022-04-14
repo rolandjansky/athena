@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SiSPSeededTrackFinderData/ITkSiSpacePointsProSeed.h"
@@ -53,8 +53,7 @@ namespace ITk
   /////////////////////////////////////////////////////////////////////////////////
 
   SiSpacePointsProSeed::~SiSpacePointsProSeed() 
-  {
-  }
+  = default;
 
   /////////////////////////////////////////////////////////////////////////////////
   // Set 

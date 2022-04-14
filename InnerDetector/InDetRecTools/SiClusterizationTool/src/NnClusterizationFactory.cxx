@@ -549,7 +549,7 @@ namespace InDet {
   }
 
   double 
-  NnClusterizationFactory::correctedRMSX(double posPixels) const{
+  NnClusterizationFactory::correctedRMSX(double posPixels) {
     // This gives location in pixels
     constexpr double pitch = 0.05;
     const double corrected = posPixels * pitch;
@@ -639,8 +639,7 @@ namespace InDet {
       erm(1,1)=RMSy*RMSy;
       errorMatrix.push_back(erm);
     }//end nParticles
-    return;
-  }//getErrorMatrixFromOutput
+     }//getErrorMatrixFromOutput
 
 
   std::vector<Amg::Vector2D> 

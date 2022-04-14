@@ -66,7 +66,7 @@ InDetV0Finder::InDetV0Finder(const std::string &n, ISvcLocator *pSvcLoc)
   declareProperty("massLambda", m_massLambda);
 }
 
-InDetV0Finder::~InDetV0Finder() {}
+InDetV0Finder::~InDetV0Finder() = default;
 
 StatusCode InDetV0Finder::initialize()
 {

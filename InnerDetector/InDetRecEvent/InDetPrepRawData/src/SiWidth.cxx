@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -19,10 +19,9 @@ InDet::SiWidth::SiWidth() :
 {}
 
 // Copy constructor:
-InDet::SiWidth::SiWidth(const InDet::SiWidth& width) :
-  m_colrow(width.m_colrow),
-  m_phirzWidth(width.m_phirzWidth)
-{}
+InDet::SiWidth::SiWidth(const InDet::SiWidth& width) 
+  
+= default;
 
 // Constructor with parameters:
 InDet::SiWidth::SiWidth(const Amg::Vector2D& colrow, const  Amg::Vector2D& phiRZ) :
@@ -40,8 +39,7 @@ InDet::SiWidth::SiWidth(const Amg::Vector2D& colrow) :
 
 // Destructor:
 InDet::SiWidth::~SiWidth()
-{
-}
+= default;
 
 // Assignment operator:
 InDet::SiWidth& InDet::SiWidth::operator=(const InDet::SiWidth &width)

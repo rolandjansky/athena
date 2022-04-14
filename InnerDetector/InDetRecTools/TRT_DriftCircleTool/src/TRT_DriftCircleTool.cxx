@@ -86,7 +86,7 @@ InDet::TRT_DriftCircleTool::TRT_DriftCircleTool(const std::string& t,
 // Destructor  
 ///////////////////////////////////////////////////////////////////
 
-InDet::TRT_DriftCircleTool::~TRT_DriftCircleTool(){}
+InDet::TRT_DriftCircleTool::~TRT_DriftCircleTool()= default;
 
 ///////////////////////////////////////////////////////////////////
 // Initialisation
