@@ -35,6 +35,7 @@
 
 // ROOT includes
 #include "TROOT.h"
+#include "TSystem.h"
 
 // System includes
 #include <sstream>
@@ -93,6 +94,7 @@ StatusCode HltEventLoopMgr::initialize()
   ATH_MSG_INFO(" ---> HardTimeout               = " << m_hardTimeout.value());
   ATH_MSG_INFO(" ---> SoftTimeoutFraction       = " << m_softTimeoutFraction.value());
   ATH_MSG_INFO(" ---> SoftTimeoutValue          = " << m_softTimeoutValue.count());
+  ATH_MSG_INFO(" ---> TraceOnTimeout            = " << m_traceOnTimeout.value());
   ATH_MSG_INFO(" ---> MaxFrameworkErrors        = " << m_maxFrameworkErrors.value());
   ATH_MSG_INFO(" ---> FwkErrorDebugStreamName   = " << m_fwkErrorDebugStreamName.value());
   ATH_MSG_INFO(" ---> AlgErrorDebugStreamName   = " << m_algErrorDebugStreamName.value());
@@ -1065,6 +1067,12 @@ void HltEventLoopMgr::runEventTimer()
         if (!Athena::Timeout::instance(ctx).reached()) {
           ATH_MSG_ERROR("Soft timeout in slot " << i << ". Processing time exceeded the limit of " << m_softTimeoutValue.count() << " ms");
           setTimeout(Athena::Timeout::instance(ctx));
+          // Generate a stack trace only once, on the first timeout
+          if (m_traceOnTimeout.value() && !m_timeoutTraceGenerated) {
+            ATH_MSG_INFO("Generating stack trace due to the soft timeout");
+            m_timeoutTraceGenerated = true;
+            gSystem->StackTrace();
+          }
         }
       }
     }
