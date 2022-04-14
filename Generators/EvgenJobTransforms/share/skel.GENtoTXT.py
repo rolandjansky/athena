@@ -163,7 +163,7 @@ if hasattr(runArgs,"inputGeneratorFile") and ',' not in runArgs.inputGeneratorFi
 if hasattr(runArgs,"inputGeneratorFile") and ',' in runArgs.inputGeneratorFile:
     multiInput=runArgs.inputGeneratorFile.count(',')+1
 
-if hasattr(runArgs, "outputTXTFile") or hasattr(runArgs, "inputGeneratorFile") or os.path.isfle("events.lhe"):
+if hasattr(runArgs, "outputTXTFile") or hasattr(runArgs, "inputGeneratorFile") or os.path.isfile("events.lhe"):
     from EvgenProdTools.EvgenProdToolsConf import TestLHE
     if not hasattr(genSeq, "TestLHE"):
         genSeq += TestLHE()
