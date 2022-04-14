@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -18,11 +18,13 @@
 //
 #include "AthenaKernel/IOVTime.h"
 #include "CoolKernel/ValidityKey.h"
+#include "CxxUtils/checker_macros.h"
 #include "IOVDbDataModel/IOVMetaDataContainer.h"
 #include "../src/ReadFromFileMetaData.h"
 //
-//
 #include "GaudiKernelFixtureBase.h"
+
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 struct GaudiKernelFixture:public GaudiKernelFixtureBase{
   GaudiKernelFixture():GaudiKernelFixtureBase(){
