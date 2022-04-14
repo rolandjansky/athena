@@ -28,7 +28,7 @@ class L1JetMonAlg():
     ismatched          = self.Matched
 
     if L1Fex:
-      alg = monhelper.addAlgorithm(CompFactory.TrigL1JFexJetMonitorAlgorithm, self.name)
+      alg = monhelper.addAlgorithm(CompFactory.TrigL1FexJetMonitorAlgorithm, self.name)
       if jFexSR:
         tools = [CompFactory.TrigjFexSRJetRoIMonitorTool, "jFexSRDataRetriever"]
         for t in tools: t.do_matching = False # PS under development
