@@ -563,8 +563,8 @@ def setupMenu():
         ChainProp(name='HLT_xe75_cell_xe65_tcpufit_xe90_trkmht_L1XE50', l1SeedThresholds=['FSNOSEED']*3, groups=PrimaryLegGroup+SingleMETGroup, monGroups=['metMon:shifter']),
         ChainProp(name='HLT_xe60_cell_xe95_pfsum_cssk_L1XE50', l1SeedThresholds=['FSNOSEED']*2, groups=PrimaryLegGroup+SingleMETGroup, monGroups=['metMon:shifter']),
         ChainProp(name='HLT_xe55_cell_xe70_tcpufit_xe90_pfsum_vssk_L1XE50', l1SeedThresholds=['FSNOSEED']*3, groups=PrimaryLegGroup+SingleMETGroup, monGroups=['metMon:shifter']),
-        ChainProp(name='HLT_xe65_cell_xe105_mhtpufit_em_subjesgscIS_L1XE50', l1SeedThresholds=['FSNOSEED']*2, groups=PrimaryLegGroup+SingleMETGroup, monGroups=['metMon:shifter']),
-        ChainProp(name='HLT_xe65_cell_xe100_mhtpufit_pf_subjesgscIS_L1XE50', l1SeedThresholds=['FSNOSEED']*2, groups=PrimaryLegGroup+SingleMETGroup, monGroups=['metMon:shifter']),
+        ChainProp(name='HLT_xe65_cell_xe105_mhtpufit_em_L1XE50', l1SeedThresholds=['FSNOSEED']*2, groups=PrimaryLegGroup+SingleMETGroup, monGroups=['metMon:shifter']),
+        ChainProp(name='HLT_xe65_cell_xe100_mhtpufit_pf_L1XE50', l1SeedThresholds=['FSNOSEED']*2, groups=PrimaryLegGroup+SingleMETGroup, monGroups=['metMon:shifter']),
         ChainProp(name='HLT_xe55_cell_xe70_tcpufit_xe95_pfsum_cssk_L1XE50', l1SeedThresholds=['FSNOSEED']*3, groups=PrimaryLegGroup+SingleMETGroup, monGroups=['metMon:shifter']),
         ChainProp(name='HLT_xe65_cell_xe95_pfsum_vssk_L1XE50', l1SeedThresholds=['FSNOSEED']*2, groups=PrimaryLegGroup+SingleMETGroup, monGroups=['metMon:shifter']),
 
@@ -576,14 +576,22 @@ def setupMenu():
         ChainProp(name='HLT_xe75_cell_xe65_tcpufit_xe90_trkmht_L1jXE100', l1SeedThresholds=['FSNOSEED']*3, groups=PrimaryPhIGroup+SingleMETGroup, monGroups=['metMon:shifter']),
         ChainProp(name='HLT_xe60_cell_xe95_pfsum_cssk_L1jXE100', l1SeedThresholds=['FSNOSEED']*2, groups=PrimaryPhIGroup+SingleMETGroup, monGroups=['metMon:shifter']),
         ChainProp(name='HLT_xe55_cell_xe70_tcpufit_xe90_pfsum_vssk_L1jXE100', l1SeedThresholds=['FSNOSEED']*3, groups=PrimaryPhIGroup+SingleMETGroup, monGroups=['metMon:shifter']),
-        ChainProp(name='HLT_xe65_cell_xe105_mhtpufit_em_subjesgscIS_L1jXE100', l1SeedThresholds=['FSNOSEED']*2, groups=PrimaryPhIGroup+SingleMETGroup, monGroups=['metMon:shifter']),
-        ChainProp(name='HLT_xe65_cell_xe100_mhtpufit_pf_subjesgscIS_L1jXE100', l1SeedThresholds=['FSNOSEED']*2, groups=PrimaryPhIGroup+SingleMETGroup, monGroups=['metMon:shifter']),
+        ChainProp(name='HLT_xe65_cell_xe105_mhtpufit_em_L1jXE100', l1SeedThresholds=['FSNOSEED']*2, groups=PrimaryPhIGroup+SingleMETGroup, monGroups=['metMon:shifter']),
+        ChainProp(name='HLT_xe65_cell_xe100_mhtpufit_pf_L1jXE100', l1SeedThresholds=['FSNOSEED']*2, groups=PrimaryPhIGroup+SingleMETGroup, monGroups=['metMon:shifter']),
         ChainProp(name='HLT_xe55_cell_xe70_tcpufit_xe95_pfsum_cssk_L1jXE100', l1SeedThresholds=['FSNOSEED']*3, groups=PrimaryPhIGroup+SingleMETGroup, monGroups=['metMon:shifter']),
         ChainProp(name='HLT_xe65_cell_xe95_pfsum_vssk_L1jXE100', l1SeedThresholds=['FSNOSEED']*2, groups=PrimaryPhIGroup+SingleMETGroup, monGroups=['metMon:shifter']),
 
         ChainProp(name='HLT_xe30_cell_xe30_tcpufit_L1jXE70', l1SeedThresholds=['FSNOSEED']*2, groups=SupportPhIGroup+MultiMETGroup, monGroups=['metMon:t0']), #must be FS seeded
         ChainProp(name='HLT_xe65_cell_xe110_tcpufit_L1jXE100',l1SeedThresholds=['FSNOSEED']*2, groups=SupportPhIGroup+MultiMETGroup, monGroups=['metMon:t0']), # Intended PS=-1
         ChainProp(name='HLT_xe80_cell_xe115_tcpufit_L1jXE100',l1SeedThresholds=['FSNOSEED']*2, groups=PrimaryPhIGroup+MultiMETGroup, monGroups=['metMon:shifter']),
+
+        ChainProp(name='HLT_xe65_cell_xe90_pfopufit_L1gXEJWOJ100', l1SeedThresholds=['FSNOSEED']*2, groups=PrimaryPhIGroup+SingleMETGroup, monGroups=['metMon:shifter']),
+        ChainProp(name='HLT_xe65_cell_xe90_pfopufit_L1gXERHO100', l1SeedThresholds=['FSNOSEED']*2, groups=PrimaryPhIGroup+SingleMETGroup, monGroups=['metMon:shifter']),
+        ChainProp(name='HLT_xe65_cell_xe90_pfopufit_L1gXENC100', l1SeedThresholds=['FSNOSEED']*2, groups=PrimaryPhIGroup+SingleMETGroup, monGroups=['metMon:shifter']),
+
+        ChainProp(name='HLT_xe65_cell_xe100_mhtpufit_pf_L1gXEJWOJ100', l1SeedThresholds=['FSNOSEED']*2, groups=PrimaryPhIGroup+SingleMETGroup, monGroups=['metMon:shifter']),
+        ChainProp(name='HLT_xe65_cell_xe100_mhtpufit_pf_L1gXERHO100', l1SeedThresholds=['FSNOSEED']*2, groups=PrimaryPhIGroup+SingleMETGroup, monGroups=['metMon:shifter']),
+        ChainProp(name='HLT_xe65_cell_xe100_mhtpufit_pf_L1gXENC100', l1SeedThresholds=['FSNOSEED']*2, groups=PrimaryPhIGroup+SingleMETGroup, monGroups=['metMon:shifter']),
 
         ChainProp(name='HLT_xe80_cell_xe115_tcpufit_L1gXEJWOJ100',l1SeedThresholds=['FSNOSEED']*2, groups=PrimaryPhIGroup+MultiMETGroup, monGroups=['metMon:shifter']),
         ChainProp(name='HLT_xe80_cell_xe115_tcpufit_L1gXERHO100',l1SeedThresholds=['FSNOSEED']*2, groups=PrimaryPhIGroup+MultiMETGroup, monGroups=['metMon:shifter']),
@@ -609,6 +617,18 @@ def setupMenu():
         ChainProp(name='HLT_j175_pf_ftf_preselj140_L1J50', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportLegGroup+['RATE:CPS_J50']),
         ChainProp(name='HLT_j260_pf_ftf_preselj200_L1J75', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportLegGroup+['RATE:CPS_J75']),
         ChainProp(name='HLT_j360_pf_ftf_preselj225_L1J100', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportLegGroup+['RATE:CPS_J100']),
+
+        # EMTopo calibration triggers, same threshold as PF for rate evaluation
+        ChainProp(name='HLT_j25_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportGroup+['RATE:CPS_RD0_FILLED']),
+        ChainProp(name='HLT_j35_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportGroup+['RATE:CPS_RD0_FILLED']),
+        ChainProp(name='HLT_j45_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportGroup+['RATE:CPS_RD0_FILLED']),
+        ChainProp(name='HLT_j45_L1J15', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream,'express'], groups=SingleJetGroup+SupportLegGroup, monGroups=['jetMon:t0','jetMon:online']),
+        ChainProp(name='HLT_j60_L1J20', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportLegGroup+['RATE:CPS_J20']),
+        ChainProp(name='HLT_j85_L1J20', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportLegGroup+['RATE:CPS_J20']),
+        ChainProp(name='HLT_j110_L1J30', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportLegGroup+['RATE:CPS_J30']),
+        ChainProp(name='HLT_j175_L1J50', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportLegGroup+['RATE:CPS_J50']),
+        ChainProp(name='HLT_j260_L1J75', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportLegGroup+['RATE:CPS_J75']),
+        ChainProp(name='HLT_j360_L1J100', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportLegGroup+['RATE:CPS_J100']),
 
         ChainProp(name='HLT_j420_pf_ftf_preselj225_L1J100', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream,'express'], groups=SingleJetGroup+PrimaryLegGroup, monGroups=['jetMon:shifter,jetMon:online']),
         ChainProp(name='HLT_j440_pf_ftf_preselj225_L1J100', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+PrimaryLegGroup),
@@ -855,6 +875,12 @@ def setupMenu():
 
         ChainProp(name='HLT_j0_perf_L1J12_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['PS:Online']+SingleJetGroup+SupportLegGroup),
 
+        # Low-threshold calibration Large-R jets
+        ChainProp(name='HLT_j110_a10sd_cssk_pf_jes_ftf_preselj80_L1jLJ80', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportPhIGroup+['RATE:CPS_jLJ80']),
+        ChainProp(name='HLT_j110_a10t_lcw_jes_L1jLJ80', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportPhIGroup+['RATE:CPS_jLJ80']),
+        ChainProp(name='HLT_j260_a10sd_cssk_pf_jes_ftf_preselj200_L1jLJ120', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportPhIGroup+['RATE:CPS_jLJ120']),
+        ChainProp(name='HLT_j260_a10t_lcw_jes_L1jLJ120', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportPhIGroup+['RATE:CPS_jLJ120']),
+
         # ATR-24838 Large R L1J100 jet chains with jLJ L1 items (L1J100->L1jLJ140)
         ChainProp(name='HLT_j460_a10sd_cssk_pf_jes_ftf_preselj225_L1jLJ140', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream,'express'], groups=SingleJetGroup+PrimaryPhIGroup, monGroups=['jetMon:shifter', 'jetMon:online']),
         ChainProp(name='HLT_j460_a10t_lcw_jes_L1jLJ140', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+PrimaryPhIGroup),
@@ -883,6 +909,18 @@ def setupMenu():
         ChainProp(name='HLT_3j200_L1gJ160', l1SeedThresholds=['FSNOSEED'], groups=MultiJetGroup + PrimaryPhIGroup),
         ChainProp(name='HLT_j0_HT1000_L1gJ160', l1SeedThresholds=['FSNOSEED'], groups=PrimaryPhIGroup+SingleJetGroup),
         ChainProp(name='HLT_j0_HT1000_pf_ftf_preselj180_L1gJ160', l1SeedThresholds=['FSNOSEED'], groups=PrimaryPhIGroup+SingleJetGroup),
+
+        # Triggers for gFEX commissioning
+        ChainProp(name='HLT_j60_L1gJ20', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportPhIGroup),
+        ChainProp(name='HLT_j85_L1gJ20', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportPhIGroup),
+        ChainProp(name='HLT_j110_L1gJ30', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportPhIGroup),
+        ChainProp(name='HLT_j175_L1gJ50', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportPhIGroup),
+        ChainProp(name='HLT_j360_L1gJ100', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportPhIGroup),
+
+        ChainProp(name='HLT_j110_a10sd_cssk_pf_jes_ftf_preselj80_L1gLJ80', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportPhIGroup),
+        ChainProp(name='HLT_j110_a10t_lcw_jes_L1gLJ80', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportPhIGroup),
+        ChainProp(name='HLT_j175_a10sd_cssk_pf_jes_ftf_preselj140_L1gLJ100', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportPhIGroup),
+        ChainProp(name='HLT_j175_a10t_lcw_jes_L1gLJ100', l1SeedThresholds=['FSNOSEED'], groups=SingleJetGroup+SupportPhIGroup),
 
     ]
 
