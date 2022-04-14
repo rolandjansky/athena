@@ -135,6 +135,8 @@ def InDetDetailedTrackTruthMakerCfg(flags, Tracks, DetailedTruth, name='Maker',*
     # for cosmics, at the stage of SiPatternRecognition, the TRT truth information is not yet available
     useTRT = flags.Detector.EnableTRT and not(flags.Beam.Type is BeamType.Cosmics and (DetailedTruth == "SiSPSeededTracksDetailedTruth" or DetailedTruth == "ResolvedTracksDetailedTruth"))
     kwargs.setdefault("TruthNameTRT", 'PRD_MultiTruthTRT' if useTRT else "")
+    if flags.Overlay.doTrackOverlay:
+        kwargs.setdefault("TrackOverlayDetailedName",flags.Overlay.BkgPrefix+DetailedTruth)
 
     acc.addEventAlgo(CompFactory.InDet.InDetDetailedTrackTruthMaker(name = DetailedTruth+name, **kwargs))
     return acc

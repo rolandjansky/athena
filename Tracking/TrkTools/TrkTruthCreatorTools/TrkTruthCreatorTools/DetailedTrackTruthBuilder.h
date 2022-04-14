@@ -33,7 +33,8 @@ namespace Trk {
     /** See description for IDetailedTrackTruthBuilder::buildDetailedTrackTruth() */
     virtual void buildDetailedTrackTruth(DetailedTrackTruthCollection *output,
 					 const TrackCollection& tracks,
-					 const std::vector<const PRD_MultiTruthCollection*>& prdTruth) const;
+					 const std::vector<const PRD_MultiTruthCollection*>& prdTruth,
+					 unsigned int maxTracks=-1) const;
 
   private:
     typedef InverseMultiMap<PRD_MultiTruthCollection> PRD_InverseTruth;
