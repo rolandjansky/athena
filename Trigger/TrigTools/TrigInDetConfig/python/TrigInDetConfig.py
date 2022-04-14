@@ -526,15 +526,6 @@ def TRTExtrensionBuilderCfg(flags):
 
   return acc
 
-def InDetPRDtoTrackMapToolGangedPixelsCfg(flags):
-  acc = ComponentAccumulator()
-  from .InDetTrigCollectionKeys import TrigPixelKeys
-  tool =  CompFactory.InDet.InDetPRDtoTrackMapToolGangedPixels( "InDetTrigPRDtoTrackMapToolGangedPixels",
-                                                                PixelClusterAmbiguitiesMapName=TrigPixelKeys.PixelClusterAmbiguitiesMap, 
-                                                                addTRToutliers = False)
-  acc.addPublicTool(tool, primary=True)
-  return acc
-
 def ambiguityScoringToolCfg(flags):
   acc = ComponentAccumulator()
   from TrkConfig.AtlasExtrapolatorConfig import InDetExtrapolatorCfg #TODO using offline, consider porting

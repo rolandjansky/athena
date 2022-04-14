@@ -41,7 +41,8 @@ def TRT_SegmentToTrackToolCfg(flags, name ='InDetTRT_SegmentToTrackTool', extens
     #
 
     if flags.InDet.Tracking.ActivePass.usePrdAssociationTool:
-        asso_tool = acc.popToolsAndMerge( TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags) )
+        from InDetConfig.InDetAssociationToolsConfig import InDetPRDtoTrackMapToolGangedPixelsCfg
+        asso_tool = acc.popToolsAndMerge( InDetPRDtoTrackMapToolGangedPixelsCfg(flags) )
     else:
         asso_tool = None
 
@@ -122,7 +123,8 @@ def TRT_SegmentsToTrackCfg( flags, name ='InDetTRT_SegmentsToTrack_Barrel', exte
     InDetTrackSummaryToolTRTTracks = acc.popToolsAndMerge(TC.InDetTrackSummaryToolTRTTracksCfg(flags))
     acc.addPublicTool(InDetTrackSummaryToolTRTTracks)
 
-    InDetPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge( TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags) )
+    from InDetConfig.InDetAssociationToolsConfig import InDetPRDtoTrackMapToolGangedPixelsCfg
+    InDetPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge( InDetPRDtoTrackMapToolGangedPixelsCfg(flags) )
     acc.addPublicTool(InDetPRDtoTrackMapToolGangedPixels)
 
     kwargs.setdefault("InputSegmentsCollection", BarrelSegments)
@@ -152,10 +154,11 @@ def TRTStandaloneCfg( flags, extension = '', InputCollections = None, BarrelSegm
     if flags.InDet.Tracking.ActivePass.usePrdAssociationTool and extension != "_TRT" :
         prefix='InDetTRTonly_'
         prd_to_track_map = prefix+'PRDtoTrackMap'+extension
-        acc.merge(TC.InDetTrackPRD_AssociationCfg(flags,
-                                                  name = prefix + 'TrackPRD_Association' + extension,
-                                                  AssociationMapName = prd_to_track_map,
-                                                  TracksName = list(InputCollections)))
+        from InDetConfig.InDetTrackPRD_AssociationConfig import InDetTrackPRD_AssociationCfg
+        acc.merge(InDetTrackPRD_AssociationCfg(flags,
+                                               name = prefix + 'TrackPRD_Association' + extension,
+                                               AssociationMapName = prd_to_track_map,
+                                               TracksName = list(InputCollections)))
     
     if flags.Beam.Type is not BeamType.Cosmics:
         #

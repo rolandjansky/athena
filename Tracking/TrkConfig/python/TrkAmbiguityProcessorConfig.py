@@ -29,8 +29,9 @@ def SimpleAmbiguityProcessorToolCfg(flags, name = "InDetAmbiguityProcessor", Clu
         from InDetConfig.TrackingCommonConfig import InDetTrackFitterCfg
         InDetTrackFitter = acc.popToolsAndMerge(InDetTrackFitterCfg(flags))
 
-    from InDetConfig.TrackingCommonConfig import InDetPRDtoTrackMapToolGangedPixelsCfg, InDetTrackSummaryToolAmbiCfg
+    from InDetConfig.InDetAssociationToolsConfig import InDetPRDtoTrackMapToolGangedPixelsCfg
     InDetPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge(InDetPRDtoTrackMapToolGangedPixelsCfg(flags))
+    from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolAmbiCfg
     ambi_track_summary_tool = acc.getPrimaryAndMerge(InDetTrackSummaryToolAmbiCfg(flags, name = "InDetAmbiguityProcessorSplitProbTrackSummaryTool" + flags.InDet.Tracking.ActivePass.extension))
 
     from InDetConfig.InDetAmbiTrackSelectionToolConfig import InDetAmbiTrackSelectionToolCfg
@@ -62,8 +63,9 @@ def SimpleAmbiguityProcessorTool_TRT_Cfg(flags, name='InDetTRT_SeededAmbiguityPr
     #
     # --- load Ambiguity Processor
     #
-    from InDetConfig.TrackingCommonConfig import InDetTrackFitterBTCfg, InDetPRDtoTrackMapToolGangedPixelsCfg
+    from InDetConfig.TrackingCommonConfig import InDetTrackFitterBTCfg
     InDetTrackFitterBT = acc.popToolsAndMerge(InDetTrackFitterBTCfg(flags))
+    from InDetConfig.InDetAssociationToolsConfig import InDetPRDtoTrackMapToolGangedPixelsCfg
     InDetPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge(InDetPRDtoTrackMapToolGangedPixelsCfg(flags))
 
     #
@@ -108,11 +110,12 @@ def SimpleAmbiguityProcessorTool_Trig_Cfg(flags, name='InDetTrig_SeededAmbiguity
     kwargs.setdefault("pTminBrem", 5*Units.GeV)
     kwargs.setdefault("MatEffects", 3)
     
-    from TrigInDetConfig.TrigInDetConfig import FitterToolCfg, ambiguityScoringToolCfg, InDetPRDtoTrackMapToolGangedPixelsCfg, TrackSummaryToolCfg
+    from TrigInDetConfig.TrigInDetConfig import FitterToolCfg, ambiguityScoringToolCfg, TrackSummaryToolCfg
     kwargs.setdefault("Fitter",acc.getPrimaryAndMerge(FitterToolCfg(flags)))
     kwargs.setdefault("ScoringTool", acc.getPrimaryAndMerge(ambiguityScoringToolCfg(flags)))
-    kwargs.setdefault("AssociationTool", acc.getPrimaryAndMerge(InDetPRDtoTrackMapToolGangedPixelsCfg(flags)))
     kwargs.setdefault("TrackSummaryTool", acc.popToolsAndMerge(TrackSummaryToolCfg(flags, useTRT=False, makePublic=False)))
+    from InDetConfig.InDetAssociationToolsConfig import TrigPRDtoTrackMapToolGangedPixelsCfg
+    kwargs.setdefault("AssociationTool", acc.getPrimaryAndMerge(TrigPRDtoTrackMapToolGangedPixelsCfg(flags)))
 
     from InDetConfig.InDetAmbiTrackSelectionToolConfig import InDetTrigTrackSelectionToolCfg
     kwargs.setdefault("SelectionTool", acc.getPrimaryAndMerge(InDetTrigTrackSelectionToolCfg(flags)))
@@ -138,8 +141,9 @@ def DenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags, name="InDetAmbiguityS
     from InDetConfig.SiClusterizationToolConfig import NnPixelClusterSplitProbToolCfg
     kwargs.setdefault("SplitProbTool", acc.popToolsAndMerge(NnPixelClusterSplitProbToolCfg(flags)) if flags.InDet.Tracking.doPixelClusterSplitting else "")
 
-    from InDetConfig.TrackingCommonConfig import InDetPRDtoTrackMapToolGangedPixelsCfg, PRDtoTrackMapToolCfg
+    from InDetConfig.InDetAssociationToolsConfig import InDetPRDtoTrackMapToolGangedPixelsCfg
     kwargs.setdefault("AssociationTool", acc.popToolsAndMerge(InDetPRDtoTrackMapToolGangedPixelsCfg(flags)))
+    from InDetConfig.TrackingCommonConfig import PRDtoTrackMapToolCfg
     kwargs.setdefault("AssociationToolNotGanged", acc.popToolsAndMerge(PRDtoTrackMapToolCfg()))
     kwargs.setdefault("AssociationMapName", f"PRDToTrackMap{flags.InDet.Tracking.ActivePass.extension}")
 
@@ -170,8 +174,9 @@ def ITkDenseEnvironmentsAmbiguityScoreProcessorToolCfg(flags, name = "ITkAmbigui
     from InDetConfig.SiClusterizationToolConfig import ITkTruthPixelClusterSplitProbToolCfg
     ITkTruthPixelClusterSplitProbTool = acc.popToolsAndMerge(ITkTruthPixelClusterSplitProbToolCfg(flags))
 
-    from InDetConfig.ITkTrackingCommonConfig import ITkPRDtoTrackMapToolGangedPixelsCfg, ITkPRDtoTrackMapToolCfg
+    from InDetConfig.InDetAssociationToolsConfig import ITkPRDtoTrackMapToolGangedPixelsCfg
     ITkPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge(ITkPRDtoTrackMapToolGangedPixelsCfg(flags))
+    from InDetConfig.ITkTrackingCommonConfig import ITkPRDtoTrackMapToolCfg
     ITkPRDtoTrackMapTool = acc.popToolsAndMerge(ITkPRDtoTrackMapToolCfg(flags))
 
     kwargs.setdefault("sharedProbCut",  flags.ITk.Tracking.pixelClusterSplitProb1)
@@ -239,8 +244,9 @@ def DenseEnvironmentsAmbiguityProcessorToolCfg(flags, name="InDetAmbiguityProces
         ReferenceKalmanFitter = acc.popToolsAndMerge(ReferenceKalmanFitterCfg(flags, name='ReferenceKalmanFitter'+flags.InDet.Tracking.ActivePass.extension))
         fitter_list.append(ReferenceKalmanFitter)
 
-    from InDetConfig.TrackingCommonConfig import InDetPRDtoTrackMapToolGangedPixelsCfg, InDetTrackSummaryToolAmbiCfg
+    from InDetConfig.InDetAssociationToolsConfig import InDetPRDtoTrackMapToolGangedPixelsCfg
     InDetPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge(InDetPRDtoTrackMapToolGangedPixelsCfg(flags))
+    from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolAmbiCfg
     ambi_track_summary_tool = acc.getPrimaryAndMerge(InDetTrackSummaryToolAmbiCfg(flags, name = "InDetAmbiguityProcessorSplitProbTrackSummaryTool" + flags.InDet.Tracking.ActivePass.extension))
 
     from InDetConfig.InDetAmbiTrackSelectionToolConfig import InDetAmbiTrackSelectionToolCfg
@@ -284,13 +290,14 @@ def ITkDenseEnvironmentsAmbiguityProcessorToolCfg(flags, name = "ITkAmbiguityPro
     ITkBoundaryCheckTool = acc.popToolsAndMerge(ITkBoundaryCheckToolCfg(flags))
     fitter_args.setdefault("BoundaryCheckTool", ITkBoundaryCheckTool)
 
-    from InDetConfig.ITkTrackingCommonConfig import ITkTrackFitterAmbiCfg, ITkPRDtoTrackMapToolGangedPixelsCfg, ITkTrackSummaryToolCfg
+    from InDetConfig.ITkTrackingCommonConfig import ITkTrackFitterAmbiCfg, ITkTrackSummaryToolCfg
     fitter_list=[]
     ITkTrackFitterAmbi = acc.popToolsAndMerge(ITkTrackFitterAmbiCfg(flags,
                                                                    name='ITkTrackFitterAmbi'+flags.ITk.Tracking.ActivePass.extension,
                                                                    **fitter_args))
     fitter_list.append(ITkTrackFitterAmbi)
 
+    from InDetConfig.InDetAssociationToolsConfig import ITkPRDtoTrackMapToolGangedPixelsCfg
     ITkPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge(ITkPRDtoTrackMapToolGangedPixelsCfg(flags))
 
     ambi_track_summary_tool = acc.getPrimaryAndMerge(ITkTrackSummaryToolCfg( flags,
