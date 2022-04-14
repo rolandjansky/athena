@@ -31,7 +31,7 @@ namespace MuonCombined {
         ATH_CHECK(m_trackFitter.retrieve());
         ATH_CHECK(m_trackAmbiguityResolver.retrieve());
         // trigger does not use primary vertex
-        if (!m_vertexKey.empty()) ATH_CHECK(m_vertexKey.initialize());
+        ATH_CHECK(m_vertexKey.initialize(!m_vertexKey.empty()));
         ATH_CHECK(m_trackSummaryTool.retrieve());
         if (!m_recoValidationTool.empty()) ATH_CHECK(m_recoValidationTool.retrieve());
         return StatusCode::SUCCESS;
