@@ -102,28 +102,6 @@ def InDetTRT_DriftCircleOnTrackUniversalToolCfg(name='InDetTRT_RefitRotCreator',
     acc.setPrivateTools(CompFactory.InDet.TRT_DriftCircleOnTrackUniversalTool(name, **kwargs))
     return acc
 
-def InDetPRDtoTrackMapToolGangedPixelsCfg(flags, name='PRDtoTrackMapToolGangedPixels', **kwargs):
-    acc = ComponentAccumulator()
-    kwargs.setdefault("PixelClusterAmbiguitiesMapName", 'PixelClusterAmbiguitiesMap')
-    kwargs.setdefault("addTRToutliers", True)
-    acc.setPrivateTools(CompFactory.InDet.InDetPRDtoTrackMapToolGangedPixels(name, **kwargs))
-    return acc
-
-def InDetTrackPRD_AssociationCfg(flags, name='InDetTrackPRD_Association', **kwargs):
-    acc = ComponentAccumulator()
-
-    if kwargs.get('TracksName', None) is None :
-        raise Exception('Not TracksName argument provided')
-
-    if 'AssociationTool' not in kwargs:
-        kwargs.setdefault("AssociationTool", acc.popToolsAndMerge(InDetPRDtoTrackMapToolGangedPixelsCfg(flags)))
-
-    if "AssociationMapName" not in kwargs:
-        kwargs.setdefault("AssociationMapName", "InDetPRDtoTrackMap" + flags.InDet.Tracking.ActivePass.extension)
-
-    acc.addEventAlgo(CompFactory.InDet.InDetTrackPRD_Association(name, **kwargs))
-    return acc
-
 def InDetTRTDriftCircleCutForPatternRecoCfg(flags, name='InDetTRTDriftCircleCutForPatternReco', **kwargs):
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTActiveCondAlgCfg
     result = TRTActiveCondAlgCfg(flags) # To produce the input TRTCond::ActiveFraction CondHandle

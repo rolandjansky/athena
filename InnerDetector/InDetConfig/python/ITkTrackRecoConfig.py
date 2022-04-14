@@ -41,7 +41,7 @@ def ITkTrackCollectionMergerAlgCfg(flags, name="ITkTrackCollectionMerger", Input
 
     kwargs.setdefault("TracksLocation", InputCombinedTracks)
     kwargs.setdefault("OutputTracksLocation", 'CombinedITkTracks')
-    from InDetConfig.ITkTrackingCommonConfig import ITkPRDtoTrackMapToolGangedPixelsCfg
+    from InDetConfig.InDetAssociationToolsConfig import ITkPRDtoTrackMapToolGangedPixelsCfg
     ITkPRDtoTrackMapToolGangedPixels = result.popToolsAndMerge(ITkPRDtoTrackMapToolGangedPixelsCfg(flags))
     kwargs.setdefault("AssociationTool", ITkPRDtoTrackMapToolGangedPixels)
     kwargs.setdefault("AssociationMapName", 'ITkPRDToTrackMapCombinedITkTracks')

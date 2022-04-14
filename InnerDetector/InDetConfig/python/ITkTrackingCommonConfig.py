@@ -4,26 +4,6 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType
 import AthenaCommon.SystemOfUnits as Units
 
-def ITkPRDtoTrackMapToolGangedPixelsCfg(flags, name='ITkPRDtoTrackMapToolGangedPixels', **kwargs):
-    acc = ComponentAccumulator()
-    kwargs.setdefault("PixelClusterAmbiguitiesMapName", 'ITkPixelClusterAmbiguitiesMap')
-    kwargs.setdefault("addTRToutliers", False)
-    acc.setPrivateTools(CompFactory.InDet.InDetPRDtoTrackMapToolGangedPixels( name, **kwargs))
-    return acc
-
-def ITkTrackPRD_AssociationCfg(flags, name='ITkTrackPRD_Association', **kwargs):
-    acc = ComponentAccumulator()
-
-    if kwargs.get('TracksName', None) is None :
-        raise Exception('Not TracksName argument provided')
-
-    if 'AssociationTool' not in kwargs:
-        kwargs.setdefault("AssociationTool", acc.popToolsAndMerge(ITkPRDtoTrackMapToolGangedPixelsCfg(flags)))
-
-    kwargs.setdefault("AssociationMapName", 'ITkPRDtoTrackMap' + flags.ITk.Tracking.ActivePass.extension)
-    acc.addEventAlgo(CompFactory.InDet.InDetTrackPRD_Association(name, **kwargs))
-    return acc
-
 def ITkTrackSummaryToolCfg(flags, name='ITkTrackSummaryTool', **kwargs):
     acc = ComponentAccumulator()
     do_holes=kwargs.get("doHolesInDet",True)
