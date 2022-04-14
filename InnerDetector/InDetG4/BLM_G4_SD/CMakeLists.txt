@@ -11,13 +11,16 @@ find_package( GTest )
 # Component(s) in the package:
 atlas_add_library( BLM_G4_SDLib
                    src/*.cxx
+                   OBJECT
                    NO_PUBLIC_HEADERS
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
                    LINK_LIBRARIES ${CLHEP_LIBRARIES} ${GEANT4_LIBRARIES} ${GTEST_LIBRARIES} G4AtlasToolsLib InDetSimEvent MCTruth StoreGateLib )
 
-atlas_add_component( BLM_G4_SD
-                     src/components/*.cxx
-                     LINK_LIBRARIES BLM_G4_SDLib )
+atlas_add_library( BLM_G4_SD
+                   src/components/*.cxx
+                   OBJECT
+                   NO_PUBLIC_HEADERS
+                   PRIVATE_LINK_LIBRARIES BLM_G4_SDLib )
 
 # Test(s) in the package:
 atlas_add_test( BLM_G4_SDToolConfig_test

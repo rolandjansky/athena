@@ -86,8 +86,8 @@ condSeq += getAlgorithm( "AtlasFieldMapCondAlg" )
 condSeq += getAlgorithm( "AtlasFieldCacheCondAlg" )
 condSeq.AtlasFieldCacheCondAlg.LockMapCurrents = False
 
-from MagFieldUtils.MagFieldUtilsConf import MagField__CondReader
+import AthenaCommon.CfgMgr as CfgMgr
 topSequence = AlgSequence()
-topSequence += MagField__CondReader("MagFieldCondReader")
+topSequence += CfgMgr.MagField__CondReader("MagFieldCondReader")
 
 theApp.EvtMax = currents[-1][0]+5   # 5 events per IOV

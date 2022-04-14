@@ -245,12 +245,10 @@ def getFatrasStaticNavigationEngine(name="ISF_FatrasStaticNavigationEngine", **k
 
 # Not used anywhere - not migrated to CA config
 def getG4RunManagerHelper(name="ISF_G4RunManagerHelper", **kwargs):
-    from ISF_Geant4Tools.ISF_Geant4ToolsConf import iGeant4__G4RunManagerHelper
-    return iGeant4__G4RunManagerHelper(name, **kwargs)
+    return CfgMgr.iGeant4__G4RunManagerHelper(name, **kwargs)
 
 def getFatrasPdgG4Particle(name="ISF_FatrasPdgG4Particle", **kwargs):
-    from ISF_FatrasToolsG4.ISF_FatrasToolsG4Conf import iFatras__PDGToG4Particle
-    return iFatras__PDGToG4Particle(name, **kwargs )
+    return CfgMgr.iFatras__PDGToG4Particle(name, **kwargs )
 
 def getFatrasParticleDecayHelper(name="ISF_FatrasParticleDecayHelper", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
@@ -267,8 +265,7 @@ def getFatrasParticleDecayHelper(name="ISF_FatrasParticleDecayHelper", **kwargs)
     kwargs.setdefault("PhysicsValidationTool"       , getPublicTool('ISF_FatrasPhysicsValidationTool'))
     #kwargs.setdefault("G4RunManagerHelper"  , getPublicTool('ISF_G4RunManagerHelper'))
 
-    from ISF_FatrasToolsG4.ISF_FatrasToolsG4Conf import iFatras__G4ParticleDecayHelper
-    return iFatras__G4ParticleDecayHelper(name, **kwargs )
+    return CfgMgr.iFatras__G4ParticleDecayHelper(name, **kwargs )
 
 ############################################################################
 # (1)  Charged Leptons and Hadrons
@@ -289,8 +286,7 @@ def getFatrasG4HadIntProcessor(name="ISF_FatrasG4HadIntProcessor", **kwargs):
     kwargs.setdefault('ValidationMode'      , ISF_Flags.ValidationMode())
     kwargs.setdefault("MomentumCut"        , FatrasTuningFlags.MomCutOffSec())
 
-    from ISF_FatrasToolsG4.ISF_FatrasToolsG4Conf import iFatras__G4HadIntProcessor
-    return iFatras__G4HadIntProcessor(name, **kwargs )
+    return CfgMgr.iFatras__G4HadIntProcessor(name, **kwargs )
 
 def getFatrasParametricHadIntProcessor(name="ISF_FatrasParametricHadIntProcessor", **kwargs):
     from G4AtlasApps.SimFlags import simFlags

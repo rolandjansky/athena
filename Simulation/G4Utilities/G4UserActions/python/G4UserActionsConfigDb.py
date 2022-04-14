@@ -6,11 +6,11 @@ from AthenaCommon.CfgGetter import addTool
 addTool("G4UserActions.G4UserActionsConfig.getAthenaTrackingActionTool", "G4UA::AthenaTrackingActionTool")
 addTool("G4UserActions.G4UserActionsConfig.getAthenaStackingActionTool", "G4UA::AthenaStackingActionTool")
 
-addTool("G4UserActions.G4UserActionsConf.G4UA__G4SimTimerTool", "G4UA::G4SimTimerTool")
-addTool("G4UserActions.G4UserActionsConf.G4UA__CosmicPerigeeActionTool", "G4UA::CosmicPerigeeActionTool")
-addTool("G4UserActions.G4UserActionsConf.G4UA__G4TrackCounterTool", "G4UA::G4TrackCounterTool")
-addTool("G4UserActions.G4UserActionsConf.G4UA__LengthIntegratorTool", "G4UA::LengthIntegratorTool")
-addTool("G4UserActions.G4UserActionsConf.G4UA__PhotonKillerTool", "G4UA::PhotonKillerTool")
+addTool("AthenaCommon.CfgMgr.G4UA__G4SimTimerTool", "G4UA::G4SimTimerTool")
+addTool("AthenaCommon.CfgMgr.G4UA__CosmicPerigeeActionTool", "G4UA::CosmicPerigeeActionTool")
+addTool("AthenaCommon.CfgMgr.G4UA__G4TrackCounterTool", "G4UA::G4TrackCounterTool")
+addTool("AthenaCommon.CfgMgr.G4UA__LengthIntegratorTool", "G4UA::LengthIntegratorTool")
+addTool("AthenaCommon.CfgMgr.G4UA__PhotonKillerTool", "G4UA::PhotonKillerTool")
 
 addTool("G4UserActions.G4UserActionsConfig.getFixG4CreatorProcessTool", "G4UA::FixG4CreatorProcessTool")
 addTool("G4UserActions.G4UserActionsConfig.getFastIDKillerTool", "G4UA::FastIDKillerTool")
