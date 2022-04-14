@@ -1,4 +1,3 @@
-#include "../TgcRdoToPrepDataToolCore.h"
 #include "../TgcRdoToPrepDataToolMT.h"
 #include "../TgcRdoContByteStreamTool.h"
 #include "../TGC_RodDecoderReadout.h"
