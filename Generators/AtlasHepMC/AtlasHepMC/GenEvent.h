@@ -84,11 +84,15 @@ inline GenEvent* copyemptyGenEvent(const GenEvent* inEvt) {
 inline ConstGenVertexPtr  barcode_to_vertex(const GenEvent* e, int id ) {
     auto vertices=e->vertices();
     for (auto v: vertices) {
-        auto barcode_attr=e->attribute<HepMC3::IntAttribute>("barcode");
+        auto barcode_attr=v->attribute<HepMC3::IntAttribute>("barcode");
         if (!barcode_attr) continue;
         if (barcode_attr->value()==id) return v;
     }
-    if (-id>0&&-id<=(int)vertices.size()) return vertices[-id-1];
+    if (-id>0&&-id<=(int)vertices.size()) {
+      if (!vertices[-id-1]->attribute<HepMC3::IntAttribute>("barcode")) {
+        return vertices[-id-1];
+      }
+    }
     return  HepMC3::ConstGenVertexPtr();
 }
 
@@ -99,7 +103,11 @@ inline ConstGenParticlePtr  barcode_to_particle(const GenEvent* e, int id ) {
         if (!barcode_attr) continue;
         if (barcode_attr->value()==id) return p;
     }
-    if (id>0&&id<=(int)particles.size()) return particles[id-1];
+    if (id>0&&id<=(int)particles.size()) {
+      if (!particles[id-1]->attribute<HepMC3::IntAttribute>("barcode")) {
+        return particles[id-1];
+      }
+    }
     return  HepMC3::ConstGenParticlePtr();
 }
 
@@ -110,7 +118,11 @@ inline GenVertexPtr  barcode_to_vertex(GenEvent* e, int id ) {
         if (!barcode_attr) continue;
         if (barcode_attr->value()==id) return v;
     }
-    if (-id>0&&-id<=(int)vertices.size()) return vertices[-id-1];
+    if (-id>0&&-id<=(int)vertices.size()) {
+      if (!vertices[-id-1]->attribute<HepMC3::IntAttribute>("barcode")) {
+        return vertices[-id-1];
+      }
+    }
     return  HepMC3::GenVertexPtr();
 }
 
@@ -121,7 +133,11 @@ inline GenParticlePtr  barcode_to_particle(GenEvent* e, int id ) {
         if (!barcode_attr) continue;
         if (barcode_attr->value()==id) return p;
     }
-    if (id>0&&id<=(int)particles.size()) return particles[id-1];
+    if (id>0&&id<=(int)particles.size()) {
+      if (!particles[id-1]->attribute<HepMC3::IntAttribute>("barcode")) {
+        return particles[id-1];
+      }
+    }
     return  HepMC3::GenParticlePtr();
 }
 
