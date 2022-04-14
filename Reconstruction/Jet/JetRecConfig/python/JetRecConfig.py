@@ -386,9 +386,11 @@ def getConstitPJGAlg(constitdef,suffix=None, flags=None):
         from AthenaConfiguration.Enums import BeamType        
         pjgalg.UseChargedPV = (flags.Beam.Type == BeamType.Collisions)
     
-    if suffix == 'EMPFlowPUSB':
+    if suffix == 'PUSB':
         pjgalg.UseChargedPV=False
         pjgalg.UseChargedPUsideband=True
+    elif suffix == 'Neut':
+        pjgalg.UseCharged=False
     # end of HAck
         
     return pjgalg

@@ -25,7 +25,7 @@ def getEventShapeName( defOrLabel, nameprefix="", suffix=None, radius=0.4):
         label = defOrLabel.replace('_','')
 
     R = str(int(10*radius))
-    suffix =  '_'+suffix  if suffix else ''
+    suffix = suffix or ""
     nameprefix = nameprefix or "" # just in case we are passed None
     
     return f"{nameprefix}Kt{R}{label}{suffix}EventShape"
