@@ -128,16 +128,23 @@ def setupMenu():
         ChainProp(name='HLT_e14_lhtight_e4_etcut_probe_1invmAB5_L1JPSI-1M5-EM12', l1SeedThresholds=['EM12','PROBEEM3'], groups=DevGroup+MultiElectronGroup),
 
         #Photon Ringer Chains ATR-24384
-        ChainProp(name='HLT_g20_loose_ringer_L1EM15VHI', groups=SinglePhotonGroup),
-        ChainProp(name='HLT_g20_medium_ringer_L1EM15VHI', groups=SinglePhotonGroup),
-        ChainProp(name='HLT_g20_tight_ringer_L1EM15VHI', groups=SinglePhotonGroup),
-        ChainProp(name='HLT_g120_loose_ringer_L1EM22VHI', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g20_loose_ringer_L1EM15VHI', groups=DevGroup+SinglePhotonGroup),
+        ChainProp(name='HLT_g20_medium_ringer_L1EM15VHI', groups=DevGroup+SinglePhotonGroup),
+        ChainProp(name='HLT_g20_tight_ringer_L1EM15VHI', groups=DevGroup+SinglePhotonGroup),
+        ChainProp(name='HLT_g120_loose_ringer_L1EM22VHI', groups=DevGroup+SinglePhotonGroup),
 
         #LRTGSF test chains
         ChainProp(name='HLT_e26_lhloose_nopix_lrttight_gsf_L1EM22VHI', groups=DevGroup+SingleElectronGroup),
         ChainProp(name='HLT_e5_idperf_loose_lrtloose_gsf_L1EM3', groups=DevGroup+SingleElectronGroup),
         ChainProp(name='HLT_e5_lhloose_nopix_lrtloose_gsf_L1EM3', groups=DevGroup+SingleElectronGroup),
         ChainProp(name='HLT_e5_lhloose_nopix_lrtloose_L1EM3', groups=DevGroup+SingleElectronGroup),
+
+        # For ringer validation
+        ChainProp(name='HLT_g20_loose_L1EM15VHI',  groups=DevGroup+SinglePhotonGroup),
+        ChainProp(name='HLT_g20_medium_L1EM15VHI', groups=DevGroup+SinglePhotonGroup),
+
+        # For eFEX validation
+        ChainProp(name='HLT_e26_lhtight_ivarloose_L1EM22VH', groups=DevGroup+SingleElectronGroup),
     ]
 
     chains['MET'] += [
