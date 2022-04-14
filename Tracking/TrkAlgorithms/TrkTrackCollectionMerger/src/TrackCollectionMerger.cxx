@@ -23,7 +23,8 @@ Trk::TrackCollectionMerger::TrackCollectionMerger
   AthAlgorithm(name, pSvcLocator ),
   m_createViewCollection(true),
   m_updateSharedHits(true),
-  m_updateAdditionalInfo(false)
+  m_updateAdditionalInfo(false),
+  m_doTrackOverlay(false)
 {
   m_outtracklocation         = "CombinedInDetTracks"    ;
 
@@ -33,6 +34,7 @@ Trk::TrackCollectionMerger::TrackCollectionMerger
   declareProperty("CreateViewColllection" ,         m_createViewCollection   );
   declareProperty("UpdateSharedHits" ,              m_updateSharedHits);
   declareProperty("UpdateAdditionalInfo" ,          m_updateAdditionalInfo);
+  declareProperty("DoTrackOverlay",                 m_doTrackOverlay);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -44,6 +46,9 @@ StatusCode Trk::TrackCollectionMerger::initialize()
 
   ATH_MSG_DEBUG("Initializing TrackCollectionMerger");
   ATH_CHECK(  m_tracklocation.initialize() );
+  ATH_CHECK(  m_pileupTRT.initialize( m_doTrackOverlay ) );
+  ATH_CHECK(  m_pileupPixel.initialize( m_doTrackOverlay ) );
+  ATH_CHECK(  m_pileupSCT.initialize( m_doTrackOverlay ) );
   ATH_CHECK( m_outtracklocation.initialize() );
   if (not m_trkSummaryTool.name().empty()) ATH_CHECK( m_trkSummaryTool.retrieve() );
   if (not m_assoTool.name().empty()) ATH_CHECK( m_assoTool.retrieve() );
@@ -60,7 +65,7 @@ Trk::TrackCollectionMerger::execute(){
   std::unique_ptr<TrackCollection> outputCol = m_createViewCollection ?
     std::make_unique<TrackCollection>(SG::VIEW_ELEMENTS) : std::make_unique<TrackCollection>();
   ATH_MSG_DEBUG("Number of Track collections " << m_tracklocation.size());
-
+  
   // pre-loop to reserve enough space in the output collection
   std::vector<const TrackCollection*> trackCollections;
   trackCollections.reserve(m_tracklocation.size());

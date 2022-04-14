@@ -71,6 +71,12 @@ def TrackCollectionMergerAlgCfg(flags, name="InDetTrackCollectionMerger",
                                 **kwargs):
     result = ComponentAccumulator()
 
+    if flags.Overlay.doTrackOverlay:
+        kwargs.setdefault("DoTrackOverlay",True)
+        if "Disappearing" in name:
+            InputCombinedTracks+=flags.Overlay.BkgPrefix+"DisappearingTracks"
+        else:
+            InputCombinedTracks+=flags.Overlay.BkgPrefix+"CombinedInDetTracks"
     kwargs.setdefault("TracksLocation", InputCombinedTracks)
     kwargs.setdefault("OutputTracksLocation", OutputCombinedTracks)
     from InDetConfig.InDetAssociationToolsConfig import InDetPRDtoTrackMapToolGangedPixelsCfg
@@ -79,6 +85,7 @@ def TrackCollectionMergerAlgCfg(flags, name="InDetTrackCollectionMerger",
     kwargs.setdefault("AssociationMapName", AssociationMapName)
     kwargs.setdefault("UpdateSharedHits", True)
     kwargs.setdefault("UpdateAdditionalInfo", True)
+    kwargs.setdefault("DoTrackOverlay",flags.Overlay.doTrackOverlay)
     from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolSharedHitsCfg
     TrackSummaryTool = result.getPrimaryAndMerge(InDetTrackSummaryToolSharedHitsCfg(flags, name=OutputCombinedTracks+"SummaryToolSharedHits"))
     TrackSummaryTool.InDetSummaryHelperTool.ClusterSplitProbabilityName = CombinedInDetClusterSplitProbContainer

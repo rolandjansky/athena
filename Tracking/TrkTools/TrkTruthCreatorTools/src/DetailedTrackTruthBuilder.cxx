@@ -104,7 +104,8 @@ StatusCode DetailedTrackTruthBuilder::initialize() {
 void DetailedTrackTruthBuilder::
 buildDetailedTrackTruth(DetailedTrackTruthCollection *output,
 			const TrackCollection& tracks,
-			const std::vector<const PRD_MultiTruthCollection*>& prdTruth) const
+			const std::vector<const PRD_MultiTruthCollection*>& prdTruth,
+			unsigned int maxTracks) const
 {
   ATH_MSG_VERBOSE("DetailedTrackTruthBuilder::buildDetailedTrackTruth() ");
   
@@ -143,6 +144,7 @@ buildDetailedTrackTruth(DetailedTrackTruthCollection *output,
   // Find associated truth for each track
 
   for(unsigned itrack=0; itrack<tracks.size(); ++itrack) {
+    if(itrack==maxTracks) break; //for track overlay purposes: tracks starting here will be background tracks that shouldn't be processed
     ElementLink<DataVector<Trk::Track> > ptrack(tracks, itrack);
     addTrack(output, ptrack, orderedPRD_Truth, inverseTruth);
   }

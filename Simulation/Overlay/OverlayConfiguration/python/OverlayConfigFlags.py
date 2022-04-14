@@ -19,4 +19,6 @@ def createOverlayConfigFlags():
     flags.addFlag("Overlay.SigPrefix", "Sig_")
     # Overlay extra input dependencies
     flags.addFlag("Overlay.ExtraInputs", [("McEventCollection", "TruthEvent")])
+    #track overlay flag
+    flags.addFlag("Overlay.doTrackOverlay",False)
     return flags

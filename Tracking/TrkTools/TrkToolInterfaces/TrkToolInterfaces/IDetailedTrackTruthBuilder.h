@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IDETAILEDTRACKTRUTHBUILDER_H
@@ -35,10 +35,13 @@ namespace Trk {
      * caller. (As e.g. returning an object on the heap would do.)
      * The caller can use it to work with stack or heap objects. 
      * Call with output==0 is a no-op. (But output should not be garbage, it must be initialized.)
+     * 
+     * Adding an int to tell it to only calculate the detailed track truth for certain tracks: used only by track overlay
      */
     virtual void buildDetailedTrackTruth(DetailedTrackTruthCollection *output,
 					 const TrackCollection& tracks,
-					 const std::vector<const PRD_MultiTruthCollection*>& prdTruth) const = 0;
+					 const std::vector<const PRD_MultiTruthCollection*>& prdTruth,
+					 unsigned int maxTracks=-1) const = 0;
   };
   
 } // namespace Trk
