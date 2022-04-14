@@ -17,6 +17,7 @@
 #include "GeoModelUtilities/GeoAlignmentStore.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
+#include "InDetIdentifier/PLR_ID.h"
 #include "ReadoutGeometryBase/SiReadoutCellId.h"
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/SurfaceBounds.h"
@@ -59,7 +60,13 @@ namespace InDetDD {
   bool
   SiDetectorElement::isSCT() const
   {
-    return !m_isPixel;
+    return m_isSCT;
+  }
+
+bool
+  SiDetectorElement::isPLR() const
+  {
+    return m_isPLR;
   }
 
   bool
@@ -121,11 +128,15 @@ namespace InDetDD {
         if (pixelIdHelper) {
           id = pixelIdHelper->pixel_id(m_id, cellId.phiIndex(), cellId.etaIndex());
         }
-      } else {
+      } else if (isSCT()) {
         const SCT_ID* sctIdHelper = dynamic_cast<const SCT_ID*>(getIdHelper());
         if (sctIdHelper) {
           id = sctIdHelper->strip_id(m_id, cellId.strip());
-	  
+        }
+      }  else if (isPLR()) {
+        const PLR_ID* plrIdHelper = dynamic_cast<const PLR_ID*>(getIdHelper());
+        if (plrIdHelper) {
+          id = plrIdHelper->pixel_id(m_id, cellId.phiIndex(), cellId.etaIndex());
         }
       }
     }
@@ -147,22 +158,27 @@ namespace InDetDD {
         if (pixelIdHelper) {
           cellId = SiCellId(pixelIdHelper->phi_index(identifier), pixelIdHelper->eta_index(identifier));
         }
-      } else {
+      } else if (isSCT()) {
         const SCT_ID* sctIdHelper = dynamic_cast<const SCT_ID*>(getIdHelper());
         if (sctIdHelper) {
-	  //This adds some extra code for supporting rows, 
-	  //but this method is only used in validation-type code
-	  //So should not add an overhead in normal running
-	  //(although we perhaps still try to avoid this...)
-	  int strip = sctIdHelper->strip(identifier);
-	  int row = sctIdHelper->row(identifier);
-	  if(row>0){
-	    auto &sctDesign = *static_cast<const SiDetectorDesign *>(m_siDesign);
-	    int strip1D = sctDesign.strip1Dim(strip, row);
-	    cellId = SiCellId(strip1D);
-	  }
-	  else cellId =  SiCellId(strip);
-	}
+  	      //This adds some extra code for supporting rows, 
+  	      //but this method is only used in validation-type code
+	      //So should not add an overhead in normal running
+	      //(although we perhaps still try to avoid this...)
+	      int strip = sctIdHelper->strip(identifier);
+	      int row = sctIdHelper->row(identifier);
+	      if(row>0){
+	        auto &sctDesign = *static_cast<const SiDetectorDesign *>(m_siDesign);
+	        int strip1D = sctDesign.strip1Dim(strip, row);
+	        cellId = SiCellId(strip1D);
+	      }
+	      else cellId =  SiCellId(strip);
+	    }
+      } else if (isPLR()) {
+        const PLR_ID* plrIdHelper = dynamic_cast<const PLR_ID*>(getIdHelper());
+        if (plrIdHelper) {
+          cellId = SiCellId(plrIdHelper->phi_index(identifier), plrIdHelper->eta_index(identifier));
+        }
       }
     }
 
@@ -368,8 +384,10 @@ namespace InDetDD {
 
     // Set booleans for wether we are pixel/sct barrel/endcap
     m_isPixel = getIdHelper()->is_pixel(m_id);
-    if (!m_isPixel && !getIdHelper()->is_sct(m_id)) {
-      ATH_MSG_WARNING("Element id is not for pixel or SCT");
+    m_isSCT = getIdHelper()->is_sct(m_id);
+    m_isPLR = getIdHelper()->is_lumi(m_id); // we use is_lumi here instead of is_plr because is_plr is currently only setup for ExpandedIdentifiers and not Identifiers, which is what is needed here.
+    if (!m_isPixel && !m_isSCT && !m_isPLR) {
+      ATH_MSG_WARNING("Element id is not for pixel, SCT, or PLR");
     }
 
     // Set m_idHash. Also set m_isBarrel.
@@ -384,11 +402,17 @@ namespace InDetDD {
           m_isDBM = true;
         }
       }
-    } else {
+    } else if (isSCT()) {
       const SCT_ID* sctId = dynamic_cast<const SCT_ID*>(getIdHelper());
       if (sctId) {
         m_isBarrel = sctId->is_barrel(m_id);
         m_idHash = sctId->wafer_hash(m_id);
+      }
+    } else if (isPLR()) {
+      const PLR_ID* plrId = dynamic_cast<const PLR_ID*>(getIdHelper());
+      if (plrId) {
+        m_isBarrel = plrId->is_barrel(m_id);
+        m_idHash = plrId->wafer_hash(m_id);
       }
     }
 

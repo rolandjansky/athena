@@ -19,6 +19,7 @@
 #include "ReadoutGeometryBase/InDetDD_Defs.h"
 
 #include "InDetIdentifier/PixelID.h"
+#include "InDetIdentifier/PLR_ID.h"
 
 #include <map>
 
@@ -143,7 +144,7 @@ namespace InDetDD {
                                   GeoVAlignmentStore* alignStore) const override;
     
      private:  
-    
+
       /** implements the main alignment update for delta transforms in different frames,
           it translates into the LocalDelta or GlobalDelta function of SiDetectorManager
       */
@@ -157,10 +158,10 @@ namespace InDetDD {
       /** prevent copy and assignment */
       const PixelDetectorManager & operator=(const PixelDetectorManager &right);
       PixelDetectorManager(const PixelDetectorManager &right);
-    
-    
+
+
       virtual const PixelID  * getIdHelper() const override;
-    
+
       // data members
       std::vector<PVLink>                                           m_volume;
       SiDetectorElementCollection                                   m_elementCollection;

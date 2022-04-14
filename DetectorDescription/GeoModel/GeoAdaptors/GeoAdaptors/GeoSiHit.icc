@@ -7,6 +7,7 @@
 #include "HGTD_ReadoutGeometry/HGTD_DetectorManager.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
+#include "InDetIdentifier/PLR_ID.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetSimEvent/SiHit.h"
 #include "PixelReadoutGeometry/PixelDetectorManager.h"
@@ -24,18 +25,12 @@ inline HepGeom::Point3D<double> GeoSiHit::getGlobalPosition() const {
   if (Barrel== 1) Barrel = -2;
   Identifier id;
   const InDetDD::SolidStateDetectorElementBase *geoelement{};
-  if (m_hit->isPixel() || m_hit->isPLR()) {
-
+  if (m_hit->isPixel()) {
     id = pixID()->wafer_id(Barrel,
 			m_hit->getLayerDisk(),
 			m_hit->getPhiModule(),
 			m_hit->getEtaModule());
-
-    if (m_hit->isPLR()) {
-      geoelement = plrMgr()->getDetectorElement(id);
-    } else {
-      geoelement = pixMgr()->getDetectorElement(id);
-    }
+    geoelement = pixMgr()->getDetectorElement(id);
   } else if (m_hit->isSCT()) {
     id = sctID()->wafer_id(Barrel,
 			m_hit->getLayerDisk(),
@@ -43,6 +38,12 @@ inline HepGeom::Point3D<double> GeoSiHit::getGlobalPosition() const {
 			m_hit->getEtaModule(),
 			m_hit->getSide() );
     geoelement = sctMgr()->getDetectorElement(id);
+  } else if (m_hit->isPLR()) {
+    id = plrID()->wafer_id(Barrel,
+            m_hit->getLayerDisk(),
+            m_hit->getPhiModule(),
+            m_hit->getEtaModule());
+    geoelement = plrMgr()->getDetectorElement(id);
   } else if (m_hit->isHGTD()) {
     id = hgtdID()->wafer_id(Barrel,
 			m_hit->getLayerDisk(),
