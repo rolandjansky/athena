@@ -165,12 +165,6 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.EvtRej_Bins, xmin=lArDQGlobals.EvtRej_Min, xmax=lArDQGlobals.EvtRej_Max,
                                   xlabels=lArDQGlobals.EvtRej_labels)
-    Group.defineHistogram('EvtRej,EvtRejYield1D;EventsRejectedYield', 
-                                  title='Data corruption yield;Corruption type;Yield(%)',
-                                  type='TProfile',
-                                  path=summary_hist_path,
-                                  xbins=lArDQGlobals.EvtRej_Bins-1, xmin=lArDQGlobals.EvtRej_Min, xmax=lArDQGlobals.EvtRej_Max-1,
-                                  xlabels=lArDQGlobals.EvtRejYield_labels)
     Group.defineHistogram('LB0,EvtRejYield;RAW_YieldOfRejectedEventsVsLB', 
                                   title='Yield of corrupted events (DATACORRUPTED);Luminosity Block;Yield(%)',
                                   type='TProfile',
