@@ -73,6 +73,25 @@ def xAODDigest(evt, counter=False, extravars=False):
         else:
             phot1pt = phot1eta = phot1phi = 0
 
+        if extravars:
+            jets = safeRetrieve(evt,"xAOD::JetContainer", "AntiKt4EMPFlowJets")
+            nJet = len(jets)
+            if jets:
+                jet1pt = jets[0].pt()
+                jet1eta = jets[0].eta()
+                jet1phi = jets[0].phi()
+            else:
+                jet1pt = jet1eta = jet1phi = 0
+
+            met = safeRetrieve(evt,"xAOD::MissingETContainer", "MET_Reference_AntiKt4EMPFlow")
+            nmet = len(met)
+            if met:
+                metx = met[nmet-1].mpx()
+                mety = met[nmet-1].mpy()
+                sumet = met[nmet-1].sumet()
+            else:
+                metx = mety = sumet = 0
+
         nTrueElectrons = 0
         nTruePhotons = 0
         acc = ROOT.SG.AuxElement.ConstAccessor(
@@ -102,7 +121,8 @@ def xAODDigest(evt, counter=False, extravars=False):
                            nTauTracks, nTaus, tau1pt, tau1eta, tau1phi,
                            nMuons, muon1pt, muon1eta, muon1phi,
                            nElec, elec1pt, elec1eta, elec1phi, nTrueElectrons, nFakeElectrons,
-                           nPhot, phot1pt, phot1eta, phot1phi, nTruePhotons, nFakePhotons))
+                           nPhot, phot1pt, phot1eta, phot1phi ,nTruePhotons, nFakePhotons,
+                           nJet, jet1pt, jet1eta, jet1phi, nmet, metx, mety, sumet))
         else:
             result.append((runnbr, evtnbr, nclus, nIdTracks, nTauTracks, nTaus, nMuons,
                            nElec, nTrueElectrons, nFakeElectrons,
@@ -185,7 +205,8 @@ def main():
                   "nTauTracks", "nTaus", "tau1pt", "tau1eta", "tau1phi",
                   "nMuons", "muon1pt", "muon1eta", "muon1phi",
                   "nElec", "elec1pt", "elec1eta", "elec1phi", "nTrueElec", "nFakeElec",
-                  "nPhot", "phot1pt", "phot1eta", "phot1phi", "nTruePhot", "nFakePhot")
+                  "nPhot", "phot1pt", "phot1eta", "phot1phi", "nTruePhot", "nFakePhot",
+                  "nJet", "jet1pt", "jet1eta", "jet1phi", "nmet", "metx", "mety", "sumet" )
         row_format_header = "{:>20}" * len(header)
         row_format_header += os.linesep
         row_format_data = "{:d} {:d} " + "{:20.4f}" * (len(header)-2)
