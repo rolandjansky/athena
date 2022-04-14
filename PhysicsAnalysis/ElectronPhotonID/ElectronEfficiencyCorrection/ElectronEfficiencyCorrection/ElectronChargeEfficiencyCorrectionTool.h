@@ -6,12 +6,9 @@
 #define ELECTRONCHARGECORRECTION__ELECTRONCHARGECORRECTIONTOOL__H
 
 #include "AsgTools/AsgTool.h"
-//#include
-//"ElectronChargeEfficiencyCorrectionTool/IElectronChargeEfficiencyCorrectionTool.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
 #include "PATInterfaces/ISystematicsTool.h"
 #include "TH2.h"
-// #include "xAODTruth/TruthParticle.h"
 #include "AthContainers/AuxElement.h"
 #include "xAODEgamma/ElectronFwd.h"
 
@@ -23,7 +20,6 @@
 namespace xAOD {
 class IParticle;
 }
-// class TH2D;
 
 namespace CP {
 
@@ -41,11 +37,6 @@ public:
   /// Standard destructor
   virtual ~ElectronChargeEfficiencyCorrectionTool();
 
-  // METADATA  // TO DO
-  //    virtual StatusCode beginInputFile();
-  //    virtual StatusCode beginEvent();
-  // virtual StatusCode endInputFile();
-
 public:
   /// Gaudi Service Interface method implementations
   virtual StatusCode initialize();
@@ -61,9 +52,6 @@ public:
   /// Decorate the electron
   virtual CP::CorrectionCode applyEfficiencyScaleFactor(
     const xAOD::Electron& inputObject) const;
-
-  /// Systematics
-  //  void applySysVariation();
 
   /// Returns whether this tool is affected by the given systematics
   virtual bool isAffectedBySystematic(
@@ -100,13 +88,6 @@ private:
                           double pt,
                           TH2* hrates,
                           double& flipRate) const;
-
-  /// Get the charge of the original electron
-  CP::CorrectionCode getEleTruthCharge(const xAOD::Electron& ele,
-                                       int& truthcharge) const;
-
-  /// Return true if it's prompt ele
-  CP::CorrectionCode isGoodEle(const xAOD::Electron& ele, bool& goodele) const;
 
   /// Force the data type to a given value
   int m_dataTypeOverwrite;

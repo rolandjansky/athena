@@ -1,4 +1,5 @@
 <lcgdict>
     <class name="AsgElectronEfficiencyCorrectionTool" /> 
     <class name="CP::ElectronChargeEfficiencyCorrectionTool" /> 
+    <function pattern="ElectronEfficiencyHelpers::*" />
 </lcgdict>
