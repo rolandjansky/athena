@@ -49,6 +49,7 @@ evgenConfig.generators += ["HepMCAscii"]
 from TruthIO.TruthIOConf import HepMCReadFromFile
 genSeq += HepMCReadFromFile()
 del testSeq.TestHepMC
+del testSeq.TestLHE
 EOF
 
 Gen_tf.py --ecmEnergy=13000. --maxEvents=1 --outputYODAFile=test_gen_rivet_athena.yoda.gz \
