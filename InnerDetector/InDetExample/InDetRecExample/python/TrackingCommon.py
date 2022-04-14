@@ -228,25 +228,6 @@ def getRIO_OnTrackErrorScalingCondAlg( **kwargs) :
                                                              OutKeys             = error_scaling_outkey) )
 
 
-
-
-def getEventInfoKey() :
-    from AthenaCommon.DetFlags    import DetFlags
-
-    isData = (globalflags.DataSource == 'data')
-
-    eventInfoKey = "EventInfo"
-    if not isData:
-        eventInfoKey = "McEventInfo"
-    if globalflags.isOverlay() and isData :
-        if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.TRT_on():
-            from OverlayCommonAlgs.OverlayFlags import overlayFlags
-            eventInfoKey = (overlayFlags.dataStore() + '+' + eventInfoKey).replace("StoreGateSvc+","")
-        else :
-            eventInfoKey = "McEventInfo"
-    return eventInfoKey
-
-
 def getNeuralNetworkToHistoTool(**kwargs) :
     from TrkNeuralNetworkUtils.TrkNeuralNetworkUtilsConf import Trk__NeuralNetworkToHistoTool
     name = kwargs.pop('name',"NeuralNetworkToHistoTool")
