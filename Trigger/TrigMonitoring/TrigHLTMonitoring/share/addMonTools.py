@@ -90,13 +90,7 @@ if HLTMonFlags.doMonTier0:
 
     # b-jet HLTMonTool
     if HLTMonFlags.doBjet and rec.doInDet:
-      try:
-        from TrigBjetMonitoring.TrigBjetMonitoringConfig import TrigBjetMonitoringConfig
-        HLTMonManager.AthenaMonTools += TrigBjetMonitoringConfig()
-      except:
-        log.info("Problems with HLTBjetTool, tool not enabled")
-        import traceback
-        log.info (traceback.format_exc())
+        log.warning("The HLT legacy b-jet monitoring is no longer supported")
 
     # B-phys HLTMonTool
     if HLTMonFlags.doBphys:
