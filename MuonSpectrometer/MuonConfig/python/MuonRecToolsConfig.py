@@ -11,7 +11,7 @@ def MuonEDMPrinterToolCfg(flags, name="MuonEDMPrinterTool", **kwargs):
     result = ComponentAccumulator()    
     kwargs.setdefault('TgcPrdCollection', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
     the_tool = CompFactory.Muon.MuonEDMPrinterTool(name, **kwargs)
-    result.addPublicTool(the_tool, primary = True)
+    result.setPrivateTools(the_tool)
     return result
 
 def MuonTrackToSegmentToolCfg(flags,name="MuonTrackToSegmentTool", **kwargs):
