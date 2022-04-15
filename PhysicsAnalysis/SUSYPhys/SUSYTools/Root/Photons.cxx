@@ -122,8 +122,8 @@ StatusCode SUSYObjDef_xAOD::FillPhoton(xAOD::Photon& input, float ptcut, float e
     if ( (!m_photonAllowLate && acc_passPhCleaning(input)) || (m_photonAllowLate && acc_passPhCleaningNoTime(input)) ) passPhCleaning = true;
   } else {
     ATH_MSG_VERBOSE ("DFCommonPhotonsCleaning is not found in DAOD..");
-    if ( (!m_photonAllowLate && PhotonHelpers::passOQquality(&input)) || 
-         ( m_photonAllowLate && PhotonHelpers::passOQqualityDelayed(&input)) ) passPhCleaning = true;
+    if ( (!m_photonAllowLate && PhotonHelpers::passOQquality(input)) || 
+         ( m_photonAllowLate && PhotonHelpers::passOQqualityDelayed(input)) ) passPhCleaning = true;
   }
   if (!passPhCleaning) return StatusCode::SUCCESS;
 

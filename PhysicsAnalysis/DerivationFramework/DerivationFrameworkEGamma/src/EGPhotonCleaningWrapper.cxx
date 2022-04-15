@@ -65,16 +65,16 @@ EGPhotonCleaningWrapper::addBranches() const
     bool applyFF = (!m_fudgeMCTool.empty());
 
     if (!applyFF) {
-      passSelection = PhotonHelpers::passOQquality(photon);
-      passSelectionDelayed = PhotonHelpers::passOQqualityDelayed(photon);
+      passSelection = PhotonHelpers::passOQquality(*photon);
+      passSelectionDelayed = PhotonHelpers::passOQqualityDelayed(*photon);
     } else {
       // apply the shower shape corrections
       CP::CorrectionCode correctionCode = CP::CorrectionCode::Ok;
       xAOD::Photon* ph = nullptr;
       correctionCode = m_fudgeMCTool->correctedCopy(*photon, ph);
       if (correctionCode == CP::CorrectionCode::Ok) {
-        passSelection = PhotonHelpers::passOQquality(ph);
-        passSelectionDelayed = PhotonHelpers::passOQqualityDelayed(ph);
+        passSelection = PhotonHelpers::passOQquality(*ph);
+        passSelectionDelayed = PhotonHelpers::passOQqualityDelayed(*ph);
       } else if (correctionCode == CP::CorrectionCode::Error) {
         Error("addBranches()",
               "Error applying fudge factors to current photon");
