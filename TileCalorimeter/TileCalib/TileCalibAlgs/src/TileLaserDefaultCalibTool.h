@@ -84,7 +84,7 @@ class TileLaserDefaultCalibTool : public AthAlgTool, virtual public ITileCalibTo
   SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this,
       "TileRawChannelContainer", "TileRawChannelOpt2", "Tile raw channel container"};
   SG::ReadHandleKey<TileLaserObject> m_laserContainerKey{this,
-      "TileLaserObject", "TileLaserObject", "Tile laser object"};
+      "TileLaserObject", "TileLaserObj", "Tile laser object"};
 
   ToolHandle<ITileDCSTool> m_tileDCS{this, "TileDCSTool", "TileDCSTool", "Tile DCS tool"};
 

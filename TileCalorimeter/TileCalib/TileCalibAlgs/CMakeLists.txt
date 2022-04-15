@@ -34,3 +34,13 @@ atlas_add_test( TileRawChNoiseCalibAlgConfig_test
                 SCRIPT python -m TileCalibAlgs.TileRawChNoiseCalibAlgConfig
                 PROPERTIES TIMEOUT 300
                 POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TileLaserCalibAlgConfig_test
+                SCRIPT python -m TileCalibAlgs.TileLaserCalibAlgConfig
+                PROPERTIES TIMEOUT 300
+                POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TileCisCalibAlgConfig_test
+                SCRIPT python -m TileCalibAlgs.TileCisCalibAlgConfig
+                PROPERTIES TIMEOUT 300
+                POST_EXEC_SCRIPT nopost.sh)
