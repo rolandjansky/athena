@@ -253,15 +253,26 @@ StatusCode PixelChargeLUTCalibCondAlg::execute(const EventContext& ctx) const {
           writeCdo -> setQ2TotE(InDetDD::PixelDiodeType::LONG, moduleHash, totE); // can not move as shared
           writeCdo -> setQ2TotC(InDetDD::PixelDiodeType::LONG, moduleHash, totC); // can not move as shared
 
-          // Ganged pixel
-          writeCdo -> setAnalogThreshold(InDetDD::PixelDiodeType::GANGED, moduleHash, std::move(analogThresholdGanged));
-          writeCdo -> setAnalogThresholdSigma(InDetDD::PixelDiodeType::GANGED, moduleHash, std::move(analogThresholdSigmaGanged));
-          writeCdo -> setAnalogThresholdNoise(InDetDD::PixelDiodeType::GANGED, moduleHash, std::move(analogThresholdNoiseGanged));
-          writeCdo -> setInTimeThreshold(InDetDD::PixelDiodeType::GANGED, moduleHash, std::move(inTimeThresholdGanged));
+          // Ganged/large pixel
+          if (p_design->getReadoutTechnology() == InDetDD::PixelReadoutTechnology::RD53) {
+            writeCdo -> setAnalogThreshold(InDetDD::PixelDiodeType::LARGE, moduleHash, std::move(analogThresholdGanged));
+            writeCdo -> setAnalogThresholdSigma(InDetDD::PixelDiodeType::LARGE, moduleHash, std::move(analogThresholdSigmaGanged));
+            writeCdo -> setAnalogThresholdNoise(InDetDD::PixelDiodeType::LARGE, moduleHash, std::move(analogThresholdNoiseGanged));
+            writeCdo -> setInTimeThreshold(InDetDD::PixelDiodeType::LARGE, moduleHash, std::move(inTimeThresholdGanged));
 
-          writeCdo -> setQ2TotA(InDetDD::PixelDiodeType::GANGED, moduleHash, std::move(totAGanged));
-          writeCdo -> setQ2TotE(InDetDD::PixelDiodeType::GANGED, moduleHash, std::move(totEGanged));
-          writeCdo -> setQ2TotC(InDetDD::PixelDiodeType::GANGED, moduleHash, std::move(totCGanged));
+            writeCdo -> setQ2TotA(InDetDD::PixelDiodeType::LARGE, moduleHash, std::move(totAGanged));
+            writeCdo -> setQ2TotE(InDetDD::PixelDiodeType::LARGE, moduleHash, std::move(totEGanged));
+            writeCdo -> setQ2TotC(InDetDD::PixelDiodeType::LARGE, moduleHash, std::move(totCGanged));
+          } else {
+            writeCdo -> setAnalogThreshold(InDetDD::PixelDiodeType::GANGED, moduleHash, std::move(analogThresholdGanged));
+            writeCdo -> setAnalogThresholdSigma(InDetDD::PixelDiodeType::GANGED, moduleHash, std::move(analogThresholdSigmaGanged));
+            writeCdo -> setAnalogThresholdNoise(InDetDD::PixelDiodeType::GANGED, moduleHash, std::move(analogThresholdNoiseGanged));
+            writeCdo -> setInTimeThreshold(InDetDD::PixelDiodeType::GANGED, moduleHash, std::move(inTimeThresholdGanged));
+
+            writeCdo -> setQ2TotA(InDetDD::PixelDiodeType::GANGED, moduleHash, std::move(totAGanged));
+            writeCdo -> setQ2TotE(InDetDD::PixelDiodeType::GANGED, moduleHash, std::move(totEGanged));
+            writeCdo -> setQ2TotC(InDetDD::PixelDiodeType::GANGED, moduleHash, std::move(totCGanged));
+          }
         }
       }
     }
