@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 // Use CloneTree(0) to get the structure of the tree, then copy events one event at a time from old to new tree 
@@ -20,6 +20,7 @@
 //  Options: -1, any int
 //  if -1 is given, auto_flush for the CollectionTree will be set to the auto flush of the input CollectionTree
 
+#include "CxxUtils/no_bitwise_op_warning.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TKey.h" 

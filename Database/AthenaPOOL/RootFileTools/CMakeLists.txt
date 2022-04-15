@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name.
 atlas_subdir( RootFileTools )
@@ -15,4 +15,4 @@ atlas_add_executable( mergePOOL
 atlas_add_executable( compressionTool
    src/compressionTool.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} CxxUtils )
