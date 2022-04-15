@@ -17,18 +17,25 @@
 #include "TestTools/initGaudi.h"
 #include "TInterpreter.h"
 #include "CxxUtils/ubsan_suppress.h"
+#include "CxxUtils/checker_macros.h"
 #include <string>
+#include <mutex>
 
 struct GaudiKernelFixtureBase{
-  ISvcLocator* svcLoc{nullptr};
+  static ISvcLocator* svcLoc ATLAS_THREAD_SAFE;
+  static std::mutex m;
   const std::string jobOpts{};
   GaudiKernelFixtureBase(const std::string & jobOptionFile = "IOVDbSvc_BoostTest.txt"):jobOpts(jobOptionFile){
     CxxUtils::ubsan_suppress ([]() { TInterpreter::Instance(); } );
+    std::scoped_lock lock (m);
     if (svcLoc==nullptr){
       std::string fullJobOptsName="IOVDbSvc/" + jobOpts;
       Athena_test::initGaudi(fullJobOptsName, svcLoc);
     }
   }
 };
+
+ISvcLocator* GaudiKernelFixtureBase::svcLoc = nullptr;
+std::mutex GaudiKernelFixtureBase::m;
 
 #endif
