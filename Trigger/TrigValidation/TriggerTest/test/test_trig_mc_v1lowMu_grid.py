@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-# art-description: Trigger RDO->RDO_TRIG athena test of the minbias slice in Dev_pp_run3_v1 menu (minbias input)
+# art-description: Trigger RDO->RDO_TRIG athena test of lowMu menu
 # art-type: grid
 # art-include: master/Athena
 # art-athena-mt: 4
@@ -26,7 +26,7 @@ ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'minbias'
 ex.threads = 4
 ex.concurrent_events = 4
-ex.args = '-c "setMenu=\'PhysicsP1_pp_lowMu_run3_v1\';doEmptyMenu=True;doMinBiasSlice=True;doJetSlice=True;doWriteBS=False;doWriteRDOTrigger=True;"'
+ex.args = '-c "setMenu=\'PhysicsP1_pp_lowMu_run3_v1\';doWriteRDOTrigger=True;"'
 
 test = Test.Test()
 test.art_type = 'grid'
