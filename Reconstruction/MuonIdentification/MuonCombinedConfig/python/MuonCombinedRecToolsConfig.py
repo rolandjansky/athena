@@ -1142,7 +1142,7 @@ def MuonInsideOutRecoToolCfg(flags, name="MuonInsideOutRecoTool", **kwargs):
         kwargs.setdefault("VertexContainer", "")
 
     result = MuonEDMPrinterToolCfg(flags)
-    kwargs.setdefault("MuonEDMPrinterTool", result.getPrimary())
+    kwargs.setdefault("MuonEDMPrinterTool", result.popPrivateTools())
 
     layersegmentfindertool = result.popToolsAndMerge(
         MuonLayerSegmentFinderToolCfg(flags, name="MuonLayerSegmentFinderTool"))
@@ -1323,7 +1323,7 @@ def MuTagAmbiguitySolverToolCfg(flags, name='MuTagAmbiguitySolverTool', **kwargs
     kwargs.setdefault("RejectOuterEndcap", True)
     kwargs.setdefault("RejectMatchPhi", True)
     result = MuonEDMPrinterToolCfg(flags)
-    kwargs.setdefault("Printer", result.getPrimary())
+    kwargs.setdefault("Printer", result.popPrivateTools())
     kwargs.setdefault("MuonSegmentMatchingTool", result.popToolsAndMerge(
         MuonSegmentMatchingToolCfg(flags)))
 

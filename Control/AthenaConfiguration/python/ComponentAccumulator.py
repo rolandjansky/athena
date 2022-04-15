@@ -409,7 +409,7 @@ class ComponentAccumulator:
                 self._msg.warning("Called addEvenAlgo with a list of algorithms and primary==True. "
                                   "Designating the first algorithm as primary component")
             if self._primaryComp:
-                self._msg.warning("Overwriting primary component of this CA. Was %s/%s, now %s/%s",
+                self._msg.warning("addEventAlgo: Overwriting primary component of this CA. Was %s/%s, now %s/%s",
                                   self._primaryComp.__cpp_type__, self._primaryComp.name,
                                   algorithms[0].__cpp_type__, algorithms[0].name)
             #keep a ref of the algorithm as primary component
@@ -450,7 +450,7 @@ class ComponentAccumulator:
         deduplicate(algo, self._conditionsAlgs) #will raise on conflict
         if primary:
             if self._primaryComp:
-                self._msg.warning("Overwriting primary component of this CA. Was %s/%s, now %s/%s",
+                self._msg.warning("addCondAlgo: Overwriting primary component of this CA. Was %s/%s, now %s/%s",
                                   self._primaryComp.__cpp_type__, self._primaryComp.name,
                                   algo.__cpp_type__, algo.name)
             #keep a ref of the de-duplicated conditions algorithm as primary component
@@ -486,7 +486,7 @@ class ComponentAccumulator:
         deduplicate(newSvc, self._services)  #may raise on conflict
         if primary:
             if self._primaryComp:
-                self._msg.warning("Overwriting primary component of this CA. Was %s/%s, now %s/%s",
+                self._msg.warning("addService: Overwriting primary component of this CA. Was %s/%s, now %s/%s",
                                   self._primaryComp.__cpp_type__, self._primaryComp.name,
                                   newSvc.__cpp_type__, newSvc.name)
             #keep a ref of the de-duplicated service as primary component
@@ -532,7 +532,7 @@ class ComponentAccumulator:
         deduplicate(newTool,self._publicTools)
         if primary:
             if self._primaryComp:
-                self._msg.warning("Overwriting primary component of this CA. Was %s/%s, now %s/%s",
+                self._msg.warning("addPublicTool: Overwriting primary component of this CA. Was %s/%s, now %s/%s",
                                   self._primaryComp.__cpp_type__, self._primaryComp.name,
                                   newTool.__cpp_type__, newTool.name)
             #keep a ref of the de-duplicated tool as primary component
