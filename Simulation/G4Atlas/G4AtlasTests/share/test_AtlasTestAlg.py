@@ -42,8 +42,6 @@ include("G4AtlasApps/G4Atlas.flat.configuration.py")
 
 from AthenaCommon.CfgGetter import getAlgorithm
 job += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
-from G4AtlasTests.G4AtlasTestsConf import AtlasTestAlg
-job += AtlasTestAlg()
 
 ## Histogramming
 from AthenaCommon.AppMgr import ServiceMgr

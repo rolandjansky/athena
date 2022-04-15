@@ -13,8 +13,8 @@ from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 
 if not hasattr(job, 'G4TestAlg'):
-    from G4AtlasTests.G4AtlasTestsConf import G4TestAlg
-    job += G4TestAlg()
+    import AthenaCommon.CfgMgr as CfgMgr
+    job += CfgMgr.G4TestAlg()
 from AthenaCommon.DetFlags import DetFlags
 from G4AtlasApps.SimFlags import simFlags
 simFlags.ReleaseGeoModel=False;

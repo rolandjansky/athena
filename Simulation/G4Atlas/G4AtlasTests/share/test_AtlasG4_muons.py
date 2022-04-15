@@ -78,8 +78,8 @@ ServiceMgr.THistSvc.Output  = ["truth DATAFILE='truth.root' OPT='RECREATE'"];
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 
-from G4AtlasTests.G4AtlasTestsConf import G4TestAlg
-job += G4TestAlg()
+import AthenaCommon.CfgMgr as CfgMgr
+job += CfgMgr.G4TestAlg()
 from AthenaCommon import CfgGetter
 job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("TruthTestTool", checkType=True)]
 job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("EvgenTruthTestTool", checkType=True)] 
@@ -100,8 +100,6 @@ job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("RPCHitsTestTool", check
 job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("CSCHitsTestTool", checkType=True)]
 job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("TGCHitsTestTool", checkType=True)]
 
-
-#job += AtlasTestAlg()
 
 # Control random number seeds so that daily runs are identical
 from G4AtlasAlg.G4AtlasAlgConf import G4AtlasAlg
