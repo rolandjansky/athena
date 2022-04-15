@@ -37,6 +37,7 @@ class L1JetMonAlg():
         tool = toolClass("jFexSRDataRetriever")
         tool.do_matching = False   # PS under development
         tool.l1container = self.L1JetContainer
+        tool.group_name = 'TrigL1JFexSRJetMonitor'
         alg.fillers = [tool]
         
       elif jFexLR:
@@ -45,6 +46,7 @@ class L1JetMonAlg():
         tool = toolClass("jFexLRDataRetriever")
         tool.do_matching = False   # PS under development
         tool.l1container = self.L1JetContainer
+        tool.group_name = 'TrigL1JFexLRJetMonitor'
         alg.fillers = [tool]
       elif gFexSR:
         toolClass = getattr(CompFactory,
@@ -52,6 +54,7 @@ class L1JetMonAlg():
         tool = toolClass("gFexDataRetriever")
         tool.do_matching = False   # PS under development
         tool.l1container = self.L1JetContainer
+        tool.group_name = 'TrigL1GFexSRJetMonitor'
         alg.fillers = [tool]
       elif gFexLR:
         toolClass = getattr(CompFactory,
@@ -59,6 +62,7 @@ class L1JetMonAlg():
         tool = toolClass("gFexDataRetriever")
         tool.do_matching = False   # PS under development
         tool.l1container = self.L1JetContainer
+        tool.group_name = 'TrigL1GFexLRJetMonitor'
         alg.fillers = [tool]
       else:
         raise RuntimeError("L1Fex flag is set, but no corresponding container flag is set " + self.L1JetContainer)

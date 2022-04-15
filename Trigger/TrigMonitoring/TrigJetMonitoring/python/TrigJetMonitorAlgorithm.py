@@ -553,13 +553,27 @@ def jetMonitoringConfig(inputFlags,jetcoll,athenaMT):
            group = monhelper.addGroup(parentAlg, conf.Group, conf.topLevelDir+'/'+conf.bottomLevelDir+'/NoTriggerSelection/')
            # define the histograms
            for histname in [ 'ptdiff', 'energydiff', 'massdiff' ]: #defines which variable difference will be plotted
-             group.defineHistogram(histname,title=histname, type="TH1F", path='MatchedJets_{}'.format(JetCollections[InputType][jetcoll]['MatchTo']), xbins=100 , xmin=-100000., xmax=100000. ,)
+             group.defineHistogram(histname,title=histname, type="TH1F",
+                                   path='MatchedJets_{}'.format(JetCollections[InputType][jetcoll]['MatchTo']),
+                                   xbins=100 , xmin=-100000., xmax=100000. ,)
+             
            for histname in [ 'ptresp', 'energyresp', 'massresp' ]:
-             group.defineHistogram(histname,title=histname, type="TH1F", path='MatchedJets_{}'.format(JetCollections[InputType][jetcoll]['MatchTo']), xbins=100 , xmin=-2., xmax=2. ,)
-           group.defineHistogram('ptresp,ptref;ptresp_vs_ptRef',title='ptresponse vs ptRef', type="TH2F", path='MatchedJets_{}'.format(JetCollections[InputType][jetcoll]['MatchTo']), xbins=10 , xmin=-2., xmax=2., ybins=10, ymin=0., ymax=500000.,)
-           group.defineHistogram('ptresp,etaref;ptresp_vs_etaRef',title='ptresponse vs etaRef', type="TH2F", path='MatchedJets_{}'.format(JetCollections[InputType][jetcoll]['MatchTo']), xbins=10 , xmin=-2., xmax=2., ybins=10, ymin=-5., ymax=5.,)
+             group.defineHistogram(histname,title=histname, type="TH1F",
+                                   path='MatchedJets_{}'.format(JetCollections[InputType][jetcoll]['MatchTo']),
+                                   xbins=100 , xmin=-2., xmax=2. ,)
+             
+           group.defineHistogram('ptresp,ptref;ptresp_vs_ptRef',title='ptresponse vs ptRef', type="TH2F",
+                                 path='MatchedJets_{}'.format(JetCollections[InputType][jetcoll]['MatchTo']),
+                                 xbins=10 , xmin=-2., xmax=2., ybins=10, ymin=0., ymax=500000.,)
+           
+           group.defineHistogram('ptresp,etaref;ptresp_vs_etaRef',title='ptresponse vs etaRef', type="TH2F",
+                                 path='MatchedJets_{}'.format(JetCollections[InputType][jetcoll]['MatchTo']),
+                                 xbins=10 , xmin=-2., xmax=2., ybins=10, ymin=-5., ymax=5.,)
+           
        matchedJetColl   = JetCollections[InputType][jetcoll]['MatchTo']
-       jetmatchKey      = '{}.matched_{}'.format(jetcoll,matchedJetColl) #we can get specific calibration scales by adding e.g. '_EtaJESScale' to the strings
+       
+       # we can get specific calibration scales by adding e.g. '_EtaJESScale' to the strings
+       jetmatchKey      = '{}.matched_{}'.format(jetcoll,matchedJetColl)
        jetptdiffKey     = '{}.ptdiff_{}'.format(jetcoll,matchedJetColl)
        jetenergydiffKey = '{}.energydiff_{}'.format(jetcoll,matchedJetColl)
        jetmassdiffKey   = '{}.massdiff_{}'.format(jetcoll,matchedJetColl)
@@ -569,14 +583,20 @@ def jetMonitoringConfig(inputFlags,jetcoll,athenaMT):
        jetptrefKey      = '{}.ptRef_{}'.format(jetcoll,matchedJetColl)
        jetetarefKey     = '{}.etaRef_{}'.format(jetcoll,matchedJetColl)
        name = 'jetMatched_{}_{}'.format(jetcoll,matchedJetColl)
-       conf.appendHistos(ToolSpec('JetHistoMatchedFiller',name,JetMatchedKey=jetmatchKey,JetPtDiffKey=jetptdiffKey,JetEnergyDiffKey=jetenergydiffKey,
-                                  JetMassDiffKey=jetmassdiffKey,JetPtRespKey=jetptrespKey,JetEnergyRespKey=jetenergyrespKey,JetMassRespKey=jetmassrespKey,
+       conf.appendHistos(ToolSpec('JetHistoMatchedFiller', name,
+                                  JetMatchedKey=jetmatchKey, JetPtDiffKey=jetptdiffKey,
+                                  JetEnergyDiffKey=jetenergydiffKey,
+                                  JetMassDiffKey=jetmassdiffKey, JetPtRespKey=jetptrespKey,
+                                  JetEnergyRespKey=jetenergyrespKey, JetMassRespKey=jetmassrespKey,
                                   JetPtRefKey=jetptrefKey,JetEtaRefKey=jetetarefKey,
                                   defineHistoFunc=defineHistoForHLTJetMatch,Group='matchedJets_'+jetcoll)
        )
    else: # offline
      for hist in ExtraOfflineHists: conf.appendHistos(hist)
-     if 'AntiKt4' in jetcoll: conf.appendHistos(SelectSpec( 'LooseBadFailedJets', 'LooseBad', InverseJetSel=True, FillerTools = ["pt","phi","eta"])) #cleaning variables not applicable for large-R collections
+     if 'AntiKt4' in jetcoll: conf.appendHistos(SelectSpec('LooseBadFailedJets', 'LooseBad',
+                                                           InverseJetSel=True,
+                                                           FillerTools = ["pt","phi","eta"])) #cleaning variables not applicable for large-R collections
+     
      if 'PF' in jetcoll: # dedicated histograms for offline PFlow jets
        conf.appendHistos("SumPtChargedPFOPt500[0]")
        conf.appendHistos("fCharged")
@@ -586,11 +606,23 @@ def jetMonitoringConfig(inputFlags,jetcoll,athenaMT):
          group = monhelper.addGroup(parentAlg, conf.Group, conf.topLevelDir+'/'+conf.bottomLevelDir+'/standardHistos/')
          # define the histograms
          for histname in [ 'ptdiff', 'energydiff', 'massdiff' ]: #defines which variable difference will be plotted
-           group.defineHistogram(histname,title=histname, type="TH1F", path='MatchedJets_{}'.format(OfflineJetCollections[jetcoll]['MatchTo']), xbins=100 , xmin=-100000., xmax=100000. ,)
+           group.defineHistogram(histname,title=histname, type="TH1F",
+                                 path='MatchedJets_{}'.format(OfflineJetCollections[jetcoll]['MatchTo']),
+                                 xbins=100 , xmin=-100000., xmax=100000. ,)
+           
          for histname in [ 'ptresp', 'energyresp', 'massresp' ]:
-           group.defineHistogram(histname,title=histname, type="TH1F", path='MatchedJets_{}'.format(OfflineJetCollections[jetcoll]['MatchTo']), xbins=100 , xmin=-2., xmax=2. ,)
-         group.defineHistogram('ptresp,ptref;ptresp_vs_ptRef',title='ptresp vs ptRef', type="TH2F", path='MatchedJets_{}'.format(OfflineJetCollections[jetcoll]['MatchTo']), xbins=10 , xmin=-2., xmax=2., ybins=10, ymin=0., ymax=500000.,)
-         group.defineHistogram('ptresp,etaref;ptresp_vs_etaRef',title='ptresp vs etaRef', type="TH2F", path='MatchedJets_{}'.format(OfflineJetCollections[jetcoll]['MatchTo']), xbins=10 , xmin=-2., xmax=2., ybins=10, ymin=-5., ymax=5.,)
+           group.defineHistogram(histname,title=histname, type="TH1F",
+                                 path='MatchedJets_{}'.format(OfflineJetCollections[jetcoll]['MatchTo']),
+                                 xbins=100 , xmin=-2., xmax=2. ,)
+           
+         group.defineHistogram('ptresp,ptref;ptresp_vs_ptRef',title='ptresp vs ptRef', type="TH2F",
+                               path='MatchedJets_{}'.format(OfflineJetCollections[jetcoll]['MatchTo']),
+                               xbins=10 , xmin=-2., xmax=2., ybins=10, ymin=0., ymax=500000.,)
+         
+         group.defineHistogram('ptresp,etaref;ptresp_vs_etaRef',title='ptresp vs etaRef', type="TH2F",
+                               path='MatchedJets_{}'.format(OfflineJetCollections[jetcoll]['MatchTo']),
+                               xbins=10 , xmin=-2., xmax=2., ybins=10, ymin=-5., ymax=5.,)
+         
        matchedJetColl   = OfflineJetCollections[jetcoll]['MatchTo']
        jetmatchKey      = '{}.matched_{}'.format(jetcoll,matchedJetColl)
        jetptdiffKey     = '{}.ptdiff_{}'.format(jetcoll,matchedJetColl)
@@ -602,9 +634,13 @@ def jetMonitoringConfig(inputFlags,jetcoll,athenaMT):
        jetptrefKey      = '{}.ptRef_{}'.format(jetcoll,matchedJetColl)
        jetetarefKey     = '{}.etaRef_{}'.format(jetcoll,matchedJetColl)
        name = 'jetMatched_{}_{}'.format(jetcoll,matchedJetColl)
-       conf.appendHistos(ToolSpec('JetHistoMatchedFiller',name,JetMatchedKey=jetmatchKey,JetPtDiffKey=jetptdiffKey,JetEnergyDiffKey=jetenergydiffKey,
-                                  JetMassDiffKey=jetmassdiffKey,JetPtRespKey=jetptrespKey,JetEnergyRespKey=jetenergyrespKey,JetMassRespKey=jetmassrespKey,
-                                  JetPtRefKey=jetptrefKey,JetEtaRefKey=jetetarefKey,
+       conf.appendHistos(ToolSpec('JetHistoMatchedFiller',name,
+                                  JetMatchedKey=jetmatchKey, JetPtDiffKey=jetptdiffKey,
+                                  JetEnergyDiffKey=jetenergydiffKey,
+                                  JetMassDiffKey=jetmassdiffKey, JetPtRespKey=jetptrespKey,
+                                  JetEnergyRespKey=jetenergyrespKey,
+                                  JetMassRespKey=jetmassrespKey,
+                                  JetPtRefKey=jetptrefKey, JetEtaRefKey=jetetarefKey,
                                   defineHistoFunc=defineHistoForOfflineJetMatch,Group='matchedJets_'+jetcoll)
        )
 
@@ -750,7 +786,10 @@ def jetEfficiencyMonitoringConfig(inputFlags,onlinejetcoll,offlinejetcoll,chain,
        append = "offlineCut_"+conf.name.split("_")[-1] if "offlineCut" in conf.name else "noOfflineCut"
        histname = "trigEff_vs_"+conf.Var.Name+"_"+append
        xbins, xmin, xmax = getBinningFromThreshold(chain,conf.Var.Name)
-       group.defineHistogram('trigPassed,jetVar;'+histname,title=histname, type="TEfficiency", path=chainFolder, xbins=xbins , xmin=xmin, xmax=xmax ,)
+       group.defineHistogram('trigPassed,jetVar;'+histname, title=histname, type="TEfficiency",
+                             path=chainFolder,
+                             xbins=xbins , xmin=xmin, xmax=xmax,)
+       
    # Get jet index and eta selection for offline jets
    validchain = chain.replace('noalg','j0') 
    parts        = validchain.split('j')
@@ -964,7 +1003,9 @@ if __name__=='__main__':
     chainMonitorConfF.toAlg(helper)
     # efficiency plots
     if chainDict['RefChain'] != 'NONE' and chainDict['OfflineColl'] != 'NONE':
-      effMonitorConf = jetEfficiencyMonitoringConfig(ConfigFlags,jetcoll,chainDict['OfflineColl'],chain,chainDict['RefChain'],AthenaMT)
+      effMonitorConf = jetEfficiencyMonitoringConfig(ConfigFlags, jetcoll,
+                                                     chainDict['OfflineColl'], chain,
+                                                     chainDict['RefChain'], AthenaMT)
       effMonitorConf.toAlg(helper)
 
   cfg.merge(helper.result())
