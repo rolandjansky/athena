@@ -180,6 +180,17 @@ StatusCode LArRawDataReadingAlg::execute(const EventContext& ctx) const {
 
     const uint32_t* pData=rob.rod_data();
     const uint32_t  nData=rob.rod_ndata();
+    if (nData==0) {
+      if (m_failOnCorruption) {
+	ATH_MSG_ERROR("ROD reports data block size 0");
+	return StatusCode::FAILURE;
+      }
+      else {
+	ATH_MSG_WARNING("ROD reports data block size 0");
+	continue;
+      }
+    }
+
     if (!rodBlock->setFragment(pData,nData)) {
       ATH_MSG_ERROR("Failed to assign fragment pointer to LArRodBlockStructure");
       return StatusCode::FAILURE;
