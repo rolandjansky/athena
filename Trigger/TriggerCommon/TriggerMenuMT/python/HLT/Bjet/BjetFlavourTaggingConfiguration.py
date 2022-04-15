@@ -42,6 +42,10 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks, BTagName,
         'BTagging/201903/dl1r/antikt4empflow/network.json',
         'BTagging/201903/dl1/antikt4empflow/network.json',
 
+        # The following were the best offline R22 taggers according to
+        #
+        # https://ftag-docs.docs.cern.ch/algorithms/available_taggers/
+        #
         # loose track selection, trained on r21
         'BTagging/20210517/dipsLoose/antikt4empflow/network.json',
         # IP3D track selection, trained on r21
@@ -51,14 +55,22 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks, BTagName,
         # DL1d, uses IP3D dips above
         'BTagging/20210528r22/dl1d/antikt4empflow/network.json',
 
-        # The following were the best online R22 taggers according to
+
+        # These are trigger-specific trainings
         #
-        # https://ftag-docs.docs.cern.ch/algorithms/available_taggers/
-        #
-        # R22 retraining for DIPS, provides dips20211116 with a loose track selection
+        # R22 retraining for DIPS, provides dips20211116 with a loose
+        # track selection
         'BTagging/20211216trig/dips/AntiKt4EMPFlow/network.json',
         # R22 retraining with the above DIPS, provides DL1d20211216
         'BTagging/20211216trig/dl1d/AntiKt4EMPFlow/network.json',
+        #
+        # anti-bb tagger, see ATLINFR-4511
+        # this is required by the above tagger, but isn't a trigger
+        # training. Ideally should be replaced with 20211216trig
+        'BTagging/20210729/dipsLoose/antikt4empflow/network.json',
+        # This is the trigger specific one
+        'BTagging/20220331trig/DL1bb/antikt4empflow/network.json',
+
     ]
 
     acc.merge(BTagAlgsCfg(
