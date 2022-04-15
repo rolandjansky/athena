@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -18,7 +18,7 @@
 #include "TClass.h"
 #include "TBaseClass.h"
 #include "TList.h"
-#include "RootUtils/TClassEditRootUtils.h"
+#include "TClassEdit.h"
 
 
 namespace {
@@ -32,10 +32,18 @@ namespace {
  */
 TClass* getElementType (TClass* dvcls)
 {
-  TClassEdit::TSplitType sp (dvcls->GetName());
-  if (sp.fElements.size() < 2)
-    return 0;
-  return TClass::GetClass (sp.fElements[1].c_str());
+  std::string eltName;
+  {
+    // Protect against data race inside TClassEdit.
+    // https://github.com/root-project/root/issues/10353
+    // Should be fixed in root 6.26.02.
+    R__WRITE_LOCKGUARD(ROOT::gCoreMutex);
+    TClassEdit::TSplitType sp (dvcls->GetName());
+    if (sp.fElements.size() < 2)
+      return 0;
+    eltName = sp.fElements[1];
+  }
+  return TClass::GetClass (eltName.c_str());
 }
 
 
