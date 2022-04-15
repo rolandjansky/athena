@@ -27,12 +27,22 @@ OfflineJetCollections = {
 # L1 jet collections and chains to monitor
 ###########################################
 
-L1JetCollections = {
-  # The MatchedTo list must be of length 2, and contain the names of an offline collection
-  # and an HLT collection. These names can be the empty string.
-  'LVL1JetRoIs'  : { 'MatchTo' : ['AntiKt4EMPFlowJets','HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf'] },
-  'L1_jFexSRJetRoI' : { 'MatchTo' : ['AntiKt4EMPFlowJets','HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf'] },
+# The MatchedTo list must be either emptu of length 2, and contain the names of an offline collection
+# and an HLT collection. These names can be the empty string.
 
+L1JetCollections = {
+
+  'LVL1JetRoIs'  : {
+    'MatchTo' : ['AntiKt4EMPFlowJets',
+                 'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf']
+  },
+  
+  'L1_jFexSRJetRoI': {'MatchTo': ['AntiKt4EMPFlowJets',
+                                  'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf']},
+
+  'L1_jFexLRJetRoI': {'MatchTo': []},
+  'L1_gFexSRJetRoI': {'MatchTo': []},
+  'L1_gFexLRJetRoI': {'MatchTo': []},
 }
 
 # Now seeing new L1 containers of differing types. These types
@@ -46,9 +56,11 @@ l1Coll2MatcherKey = {
   'L1_jFexSRJetRoI': 'L1jFexSRJetRoIContainerName',
 }
 
-for k, colls in L1JetCollections.items():
-  if colls and (k not in l1Coll2MatcherKey):
-    logger.error('Requesting matches to an L1 container', str(k), ' but have not supplied a Matcher ReadHandleKey')
+for k, d in L1JetCollections.items():
+  if d['MatchTo'] and (k not in l1Coll2MatcherKey):
+    logger.error('Requesting matches to an L1 container ',
+                 str(k), 
+                 ' but have not supplied a Matcher ReadHandleKey')
     
 
 # the values of Chain2L1JetCollDict are keys of L1JetCollections.
@@ -599,13 +611,18 @@ def jetMonitoringConfig(inputFlags,jetcoll,athenaMT):
    return conf
 
 def l1JetMonitoringConfig(inputFlags,jetcoll,chain='',matched=False):
+  print ('PS DEBUG, in l1JetMonitoringConfig. jetcoll:', jetcoll) 
   from TrigJetMonitoring.L1JetMonitoringConfig import L1JetMonAlg
   name = jetcoll if chain=='' else jetcoll+'_'+chain
 
   if not L1JetCollections[jetcoll]['MatchTo']:
     conf = L1JetMonAlg(name,jetcoll,chain)
   else:
-    conf = L1JetMonAlg(name,jetcoll,chain,matched,L1JetCollections[jetcoll]['MatchTo'][0],L1JetCollections[jetcoll]['MatchTo'][1])
+    assert  len(L1JetCollections[jetcoll]['MatchTo']) == 2
+    
+    conf = L1JetMonAlg(name,jetcoll,chain,
+                       matched,L1JetCollections[jetcoll]['MatchTo'][0],
+                       L1JetCollections[jetcoll]['MatchTo'][1])
 
   return conf
 

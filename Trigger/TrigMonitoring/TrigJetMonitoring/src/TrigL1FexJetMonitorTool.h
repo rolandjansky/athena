@@ -12,6 +12,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
+#include <string>
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -45,9 +46,14 @@ public:
   virtual std::string groupName() const override {return m_groupName;}
   
 private:
-  
-  // Name of the L1 jet collection to be monitored
+
+  // initialisation using an initialise list  ie {...}
+  // does not work - sommrthing to do with the template.
+  // intstead use declareProperty in the constructor.
   SG::ReadHandleKey<JetContainer> m_l1jetContainerkey;
+  
+  Gaudi::Property<std::string> m_groupName {
+    this, "group_name",  {},  "name of monitoring group"};
   
   // Variables to add matched histograms
   Gaudi::Property<bool> m_doMatching {
@@ -130,9 +136,6 @@ private:
   SG::ReadDecorHandleKey<JetContainer> m_hltetarefKey{
     this, "hltetaref", "hltetaref",
     "SG key for input matched etaref decoration"};
-
-  std::string m_groupName{"uninitialised"};
-
 
 
 };

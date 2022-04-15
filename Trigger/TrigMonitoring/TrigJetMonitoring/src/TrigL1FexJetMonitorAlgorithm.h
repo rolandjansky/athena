@@ -31,7 +31,8 @@ public:
   virtual StatusCode fillHistograms(const EventContext& ctx) const override;
   
 private:
-  ToolHandleArray<ITrigJetMonitorTool> m_fillers;
+  ToolHandleArray<ITrigJetMonitorTool> m_fillers {
+    this, "fillers", {}, "jet data calculators"};
    
 };
 #endif

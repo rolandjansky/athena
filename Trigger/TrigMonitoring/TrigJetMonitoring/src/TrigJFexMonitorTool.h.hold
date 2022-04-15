@@ -38,9 +38,6 @@ public:
   
 private:
   
-  // Name of the L1 jet collection to be monitored
-  SG::ReadHandleKey<JetContainer> m_l1jetContainerkey;
-  
   // Variables to add matched histograms
   Gaudi::Property<bool> m_isMatched {
     this, "IsMatched", true,

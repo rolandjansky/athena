@@ -19,43 +19,59 @@ class L1JetMonAlg():
 
     jFexSR = self.L1JetContainer == 'L1_jFexSRJetRoI'
     jFexLR = self.L1JetContainer == 'L1_jFexLRJetRoI'
-    gFex = self.L1JetContainer == 'L1_gFexJetRoI'
+    gFexSR = self.L1JetContainer == 'L1_gFexSRJetRoI'
+    gFexLR = self.L1JetContainer == 'L1_gFexSRJetRoI'
 
-    L1Fex = jFexSR or jFexLR or gFex
+    L1Fex = jFexSR or jFexLR or gFexSR or gFexLR
     
     jetcontainer       = self.L1JetContainer
     triggerChain       = self.TriggerChain
     ismatched          = self.Matched
 
     if L1Fex:
-      alg = monhelper.addAlgorithm(CompFactory.TrigL1FexJetMonitorAlgorithm, self.name)
+      alg = monhelper.addAlgorithm(CompFactory.TrigL1FexJetMonitorAlgorithm,
+                                   self.name)
       if jFexSR:
-        tools = [CompFactory.TrigjFexSRJetRoIMonitorTool, "jFexSRDataRetriever"]
-        for t in tools: t.do_matching = False # PS under development
-        alg.m_fillers = tools
+        toolClass = getattr(CompFactory,
+                            'TrigL1FexJetMonitorTool<DataVector<xAOD::jFexSRJetRoI_v1, DataModel_detail::NoBase> >')
+        tool = toolClass("jFexSRDataRetriever")
+        tool.do_matching = False   # PS under development
+        tool.l1container = self.L1JetContainer
+        alg.fillers = [tool]
         
       elif jFexLR:
-        tools = [CompFactory.TrigjFexLRJetRoIMonitorTool, "jFexLRDataRetriever"] # PS under development
-        for t in tools: t.do_matching = False 
-        alg.m_fillers = tools
-
-      elif gFex:
-        tools = [CompFactory.TriggFexJetRoIMonitorTool, "gFexDataRetriever"] # PS under development
-        for t in tools: t.do_matching = False 
-        alg.m_fillers = tools
-
+        toolClass = getattr(CompFactory,
+                            'TrigL1FexJetMonitorTool<DataVector<xAOD::jFexLRJetRoI_v1, DataModel_detail::NoBase> >')
+        tool = toolClass("jFexLRDataRetriever")
+        tool.do_matching = False   # PS under development
+        tool.l1container = self.L1JetContainer
+        alg.fillers = [tool]
+      elif gFexSR:
+        toolClass = getattr(CompFactory,
+                            'TrigL1FexJetMonitorTool<DataVector<xAOD::gFexJetRoI_v1, DataModel_detail::NoBase> >')
+        tool = toolClass("gFexDataRetriever")
+        tool.do_matching = False   # PS under development
+        tool.l1container = self.L1JetContainer
+        alg.fillers = [tool]
+      elif gFexLR:
+        toolClass = getattr(CompFactory,
+                            'TrigL1FexJetMonitorTool<DataVector<xAOD::gFexJetRoI_v1, DataModel_detail::NoBase> >')
+        tool = toolClass("gFexDataRetriever")
+        tool.do_matching = False   # PS under development
+        tool.l1container = self.L1JetContainer
+        alg.fillers = [tool]
       else:
-        raise RuntimeError("L1Fex flag is set, but no corresponding container flag is set")
+        raise RuntimeError("L1Fex flag is set, but no corresponding container flag is set " + self.L1JetContainer)
       
     else:
       alg = monhelper.addAlgorithm(CompFactory.TrigL1JetMonitorAlgorithm, self.name)
       alg.IsMatched      = ismatched
+      alg.L1JetContainer = jetcontainer
 
     # aliases to save typing
     jetcontainer       = self.L1JetContainer
     triggerChain       = self.TriggerChain
     
-    alg.L1JetContainer = jetcontainer
     alg.TriggerChain   = triggerChain
     
     # Add a generic monitoring tool (a "group" in old language). The returned 
@@ -67,8 +83,10 @@ class L1JetMonAlg():
       myGroup = monhelper.addGroup(alg,'TrigL1JFexSRJetMonitor','HLT/JetMon/L1/')
     elif jFexLR:
       myGroup = monhelper.addGroup(alg,'TrigL1JFexLRJetMonitor','HLT/JetMon/L1/')
-    elif gFex:
-      myGroup = monhelper.addGroup(alg,'TrigL1GFexJetMonitor','HLT/JetMon/L1/')
+    elif gFexSR:
+      myGroup = monhelper.addGroup(alg,'TrigL1GFexSRJetMonitor','HLT/JetMon/L1/')
+    elif gFexLR:
+      myGroup = monhelper.addGroup(alg,'TrigL1GFexLRJetMonitor','HLT/JetMon/L1/')
     else:
       myGroup = monhelper.addGroup(alg,'TrigL1JetMonitor','HLT/JetMon/L1/')
                                   

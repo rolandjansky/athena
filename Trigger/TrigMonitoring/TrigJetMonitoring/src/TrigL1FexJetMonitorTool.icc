@@ -6,7 +6,6 @@
 
 // #include "TrigL1FexJetMonitorTool.h"
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
-#include "./L1FexGroupNameDispatcher.h"
 #include "./vetoL1Jet.h"
 
 
@@ -18,6 +17,7 @@ TrigL1FexJetMonitorTool<JetContainer>::TrigL1FexJetMonitorTool(const std::string
 							       const IInterface* parent) 
   : AthAlgTool( type, name, parent )
 {
+  declareProperty("l1container", m_l1jetContainerkey);
 
 }
 
@@ -38,8 +38,6 @@ StatusCode TrigL1FexJetMonitorTool<JetContainer>::queryInterface(const Interface
 template<typename JetContainer>
 StatusCode TrigL1FexJetMonitorTool<JetContainer>::initialize()
 {
-  m_groupName = groupNameDispatcher(this);
-  
   ATH_CHECK(m_l1jetContainerkey.initialize());
 
   if (m_doMatching) {

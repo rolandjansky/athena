@@ -9,6 +9,7 @@
 #include "../TrigL1FexJetMonitorAlgorithm.h"
 #include "xAODTrigger/jFexSRJetRoIContainer.h"
 #include "xAODTrigger/jFexLRJetRoIContainer.h"
+#include "xAODTrigger/gFexJetRoIContainer.h"
 
 typedef TrigL1FexJetMonitorTool<xAOD::jFexSRJetRoIContainer>
 TrigjFexSRJetRoIMonitorTool;
@@ -29,5 +30,6 @@ DECLARE_COMPONENT(TrigL1FexJetMonitorAlgorithm)
 DECLARE_COMPONENT(TrigL1JFexSRJetMonitorAlgorithm)
 DECLARE_COMPONENT(TrigjFexSRJetRoIMonitorTool)
 DECLARE_COMPONENT(TrigjFexLRJetRoIMonitorTool)
+DECLARE_COMPONENT(TriggFexJetRoIMonitorTool)
 
 
