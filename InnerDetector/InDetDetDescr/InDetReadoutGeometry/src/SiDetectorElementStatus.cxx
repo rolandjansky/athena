@@ -37,7 +37,7 @@ namespace InDet {
 
       if (!getElementStatus().empty()      && !b.getElementStatus().empty()) {
          for (std::size_t elm_i=0; elm_i < m_elementStatus.size(); ++elm_i) {
-            m_elementStatus[elm_i] = m_elementStatus[elm_i] & b.m_elementStatus[elm_i];
+            m_elementStatus[elm_i] = m_elementStatus[elm_i] && b.m_elementStatus[elm_i];
          }
       }
       else if (!b.getElementStatus().empty()) {
