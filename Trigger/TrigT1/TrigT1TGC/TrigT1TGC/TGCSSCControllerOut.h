@@ -12,7 +12,7 @@ namespace LVL1TGCTrigger {
 class TGCSSCControllerOut
 {
  public:
-  enum {MaxNumberOfPhiInSSC = 2};
+  enum {MaxNumberOfPhiInSSC = 4};
   enum {MaxNumberOfChamberInR = 5};
 
  public: 

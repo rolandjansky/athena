@@ -55,10 +55,11 @@ TGCSSCControllerOut* TGCSSCController::distribute(TGCHighPtChipOut* wire[], TGCH
 	int chamberNo = getChamberNo(chip,strip->getHitID(chip,iCandidate));
 	//if((chamberNo<0)||(chamberNo >= MaxNumberOfChamberInR)) continue;
 	
-	int PhiPosInSSC = getPhiPosInSSC(chip,strip->getHitID(chip,iCandidate));
 	int iPhi = convertPhi(chip,
 			      strip->getHitID(chip,iCandidate),
 			      strip->getPos(chip,iCandidate) );
+	int PhiPosInSSC = iPhi;
+	if ( PhiPosInSSC > 3 ) continue;
 	out->setPhi(chamberNo, PhiPosInSSC, iPhi); 
 	out->setDPhi(chamberNo, PhiPosInSSC,strip->getDev(chip,iCandidate));
 	out->setPtPhi(chamberNo, PhiPosInSSC, strip->getPt(chip,iCandidate));
