@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 """Define methods to construct configured Tile pulse shape conditions tool and algorithm"""
 
@@ -15,7 +15,7 @@ def TilePulseShapeCondAlgCfg(flags, **kwargs):
         TilePulseShape -- name of Tile pulse shape conditions object. Defaults to TilePulseShape.
         PulseType -- type of Tile pulse shape. Defaults to run type (PED->PHY, BILAS->LAS).
                      Possible Tile pulse shape types:
-                        PHY, LAS, CIS/PULSE100, CIS/PULSE5P2, CIS/LEAK100, CIS/LEAK5P2, MURCV.
+                        PHY, LAS, CIS, CIS/PULSE100, CIS/PULSE5P2, CIS/LEAK100, CIS/LEAK5P2, MURCV.
     """
 
     acc = ComponentAccumulator()
@@ -29,7 +29,7 @@ def TilePulseShapeCondAlgCfg(flags, **kwargs):
     pulseShape = kwargs.get('TilePulseShape', 'TilePulseShape')
     pulseType = kwargs.get('PulseType', runType)
 
-    actualPulseType = {'PHY' : 'PHY', 'PED' : 'PHY', 'LAS' : 'LAS', 'BILAS' : 'LAS',
+    actualPulseType = {'PHY' : 'PHY', 'PED' : 'PHY', 'LAS' : 'LAS', 'BILAS' : 'LAS', 'CIS' : 'CIS/PULSE100',
                        'CISPULSE100' : 'CIS/PULSE100', 'CISPULSE5P2' : 'CIS/PULSE5P2',
                        'CISLEAK100' : 'CIS/LEAK100', 'CISLEAK5P2' : 'CIS/LEAK5P2'}
 
