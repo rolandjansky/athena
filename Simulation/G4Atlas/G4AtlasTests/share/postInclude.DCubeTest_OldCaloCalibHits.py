@@ -16,8 +16,8 @@ from G4AtlasApps.SimFlags import simFlags
 simFlags.ReleaseGeoModel=False;
 
 if not hasattr(job, 'G4TestAlg'):
-    from G4AtlasTests.G4AtlasTestsConf import G4TestAlg
-    job += G4TestAlg()
+    import AthenaCommon.CfgMgr as CfgMgr
+    job += CfgMgr.G4TestAlg()
 from AthenaCommon import CfgGetter
 job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("TruthTestTool", checkType=True)]
 job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("PixelHitsTestTool", checkType=True)]
