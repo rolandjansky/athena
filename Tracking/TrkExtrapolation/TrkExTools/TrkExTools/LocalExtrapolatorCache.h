@@ -147,16 +147,33 @@ struct Cache
     void
     resetRecallInformation();
     
+    ///String representation of cache
     std::string 
     to_string(const std::string& txt) const;
     
-    std::string 
-    checkCache(const std::string& txt) const;
-    
+    ///Check cache integrity
     bool
     elossPointerOverwritten() const;
     
+    ///String error message if the cache has a problem
+    std::string
+    elossPointerErrorMsg(int lineNumber=0) const;
     
+    ///Retrieve boundaries
+    void
+    retrieveBoundaries();
+    
+    ///Add one layer and navigLayer
+    void
+    addOneNavigationLayer(const Trk::TrackingVolume* pDetVol, const Trk::Layer* pLayer, bool boundaryCheck=true);
+    
+    ///Add one layer and navigLayer using the current static vol
+    void
+    addOneNavigationLayer(const Trk::Layer* pLayer, bool boundaryCheck=true);
+    
+    ///Insert navigation surfaces from layers, dense boundaries, navig boundaries and detached boundaries
+    void
+    copyToNavigationSurfaces();
 
     /**
      * struct for accumulating stat counters

@@ -518,8 +518,7 @@ Trk::Extrapolator::extrapolateStepwiseImpl(const EventContext& ctx,
                                            const Trk::Surface& sf,
                                            Trk::PropDirection dir,
                                            const Trk::BoundaryCheck& bcheck,
-                                           Trk::ParticleHypothesis particle) const
-{
+                                           Trk::ParticleHypothesis particle) const{
 
   Cache cache{};
   // statistics && sequence output ----------------------------------------
@@ -780,13 +779,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
   if (staticVol && (staticVol != cache.m_currentStatic || resolveActive != m_resolveActive)) {
     // retrieve boundaries
     cache.m_currentStatic = staticVol;
-    cache.m_staticBoundaries.clear();
-    const std::vector<SharedObject<const BoundarySurface<TrackingVolume>>>& bounds =
-      staticVol->boundarySurfaces();
-    for (unsigned int ib = 0; ib < bounds.size(); ib++) {
-      const Trk::Surface& surf = (bounds[ib].get())->surfaceRepresentation();
-      cache.m_staticBoundaries.emplace_back(&surf, true);
-    }
+    cache.retrieveBoundaries();
 
     cache.m_detachedVols.clear();
     cache.m_detachedBoundaries.clear();
@@ -814,13 +807,12 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
             }
           } else {
             if (!m_resolveMultilayers || !(*iTer)->multilayerRepresentation()) {
-              cache.m_layers.emplace_back(&(layR->surfaceRepresentation()), true);
-              cache.m_navigLays.emplace_back((*iTer)->trackingVolume(), layR);
+              cache.addOneNavigationLayer((*iTer)->trackingVolume(), layR);
+              
             } else {
               const std::vector<const Trk::Layer*>* multi = (*iTer)->multilayerRepresentation();
               for (unsigned int i = 0; i < multi->size(); i++) {
-                cache.m_layers.emplace_back(&((*multi)[i]->surfaceRepresentation()), true);
-                cache.m_navigLays.emplace_back((*iTer)->trackingVolume(), (*multi)[i]);
+                cache.addOneNavigationLayer((*iTer)->trackingVolume(), (*multi)[i]);
               }
             }
           }
@@ -855,8 +847,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
           } else if (confLays) {
             std::vector<const Trk::Layer*>::const_iterator lIt = confLays->begin();
             for (; lIt != confLays->end(); ++lIt) {
-              cache.m_layers.emplace_back(&((*lIt)->surfaceRepresentation()), true);
-              cache.m_navigLays.emplace_back((*iTer)->trackingVolume(), *lIt);
+              cache.addOneNavigationLayer((*iTer)->trackingVolume(), (*lIt));
             }
           }
         }
@@ -899,7 +890,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
     if (nextPar) {
       // collect material
       if (propagVol->zOverAtimesRho() != 0. && !cache.m_matstates && cache.m_extrapolationCache) {
-        if (cache.checkCache(" extrapolateToNextMaterialLayer").empty()) {
+        if (not cache.elossPointerOverwritten()) {
           if (m_dumpCache) {
             ATH_MSG_DEBUG(cache.to_string(" extrapolateToNextMaterialLayer"));
           }
@@ -918,6 +909,8 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
           if (m_dumpCache) {
             ATH_MSG_DEBUG(cache.to_string( " After"));
           }
+        } else {
+          ATH_MSG_DEBUG(cache.elossPointerErrorMsg(__LINE__));
         }
       }
       if (propagVol->zOverAtimesRho() != 0. && cache.m_matstates) {
@@ -1065,8 +1058,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
       // collect unordered layers
       if (confinedLays) {
         for (unsigned int il = 0; il < confinedLays->size(); il++) {
-          cache.m_layers.emplace_back(&((*confinedLays)[il]->surfaceRepresentation()), true);
-          cache.m_navigLays.emplace_back(dVol, (*confinedLays)[il]);
+          cache.addOneNavigationLayer(dVol, (*confinedLays)[il]);
         }
       }
     } else { // active material
@@ -1109,47 +1101,28 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
         // layers ?
         if (detVol->confinedLayers()) {
           const Trk::Layer* lay = detVol->associatedLayer(gp);
-          // if (lay && ( (*dIter)->layerRepresentation()
-          //         &&(*dIter)->layerRepresentation()->layerType()>0 ) ) currentActive=(*dIter);
+          
           if (lay) {
-            cache.m_layers.emplace_back(&(lay->surfaceRepresentation()), true);
-            cache.m_navigLays.emplace_back(detVol, lay);
+            cache.addOneNavigationLayer(detVol, lay);
+            
           }
           const Trk::Layer* nextLayer =
             detVol->nextLayer(currPar->position(), dir * currPar->momentum().unit(), true);
           if (nextLayer && nextLayer != lay) {
-            cache.m_layers.emplace_back(&(nextLayer->surfaceRepresentation()), true);
-            cache.m_navigLays.emplace_back(detVol, nextLayer);
+            cache.addOneNavigationLayer(detVol, nextLayer);
           }
         } else if (detVol->confinedArbitraryLayers()) {
           const std::vector<const Trk::Layer*>* layers = detVol->confinedArbitraryLayers();
           for (unsigned int il = 0; il < layers->size(); il++) {
-            cache.m_layers.emplace_back(&((*layers)[il]->surfaceRepresentation()), true);
-            cache.m_navigLays.emplace_back(detVol, (*layers)[il]);
+            cache.addOneNavigationLayer(detVol, (*layers)[il]);
           }
         }
       }
     }
   }
   delete detVols;
-
-  if (not cache.m_layers.empty()) {
-    cache.m_navigSurfs.insert(
-      cache.m_navigSurfs.end(), cache.m_layers.begin(), cache.m_layers.end());
-  }
-  if (not cache.m_denseBoundaries.empty()) {
-    cache.m_navigSurfs.insert(
-      cache.m_navigSurfs.end(), cache.m_denseBoundaries.begin(), cache.m_denseBoundaries.end());
-  }
-  if (not cache.m_navigBoundaries.empty()) {
-    cache.m_navigSurfs.insert(
-      cache.m_navigSurfs.end(), cache.m_navigBoundaries.begin(), cache.m_navigBoundaries.end());
-  }
-  if (not cache.m_detachedBoundaries.empty()) {
-    cache.m_navigSurfs.insert(cache.m_navigSurfs.end(),
-                              cache.m_detachedBoundaries.begin(),
-                              cache.m_detachedBoundaries.end());
-  }
+  cache.copyToNavigationSurfaces();
+  
   // current dense
   cache.m_currentDense = cache.m_highestVolume;
   if (cache.m_dense && cache.m_denseVols.empty()) {
@@ -1230,7 +1203,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
       ATH_MSG_DEBUG("  [+] Number of intersection solutions: " << solutions.size());
       if (cache.m_currentDense->zOverAtimesRho() != 0. && !cache.m_matstates &&
           cache.m_extrapolationCache) {
-        if (cache.checkCache(" extrapolateToNextMaterialLayer dense").empty()) {
+        if (not cache.elossPointerOverwritten()) {
           if (m_dumpCache) {
             ATH_MSG_DEBUG(cache.to_string( " extrapolateToNextMaterialLayer dense "));
           }
@@ -1245,6 +1218,8 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
           if (m_dumpCache) {
             ATH_MSG_DEBUG(cache.to_string(" After"));
           }
+        } else {
+          ATH_MSG_DEBUG(cache.elossPointerErrorMsg(__LINE__));
         }
       }
       // collect material
@@ -1372,7 +1347,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
               }
 
               if (!cache.m_matstates && cache.m_extrapolationCache) {
-                if (cache.checkCache(" extrapolateToNextMaterialLayer thin").empty()) {
+                if (not cache.elossPointerOverwritten()) {
                   double dInX0 = thick / lx0;
                   if (m_dumpCache) {
                     ATH_MSG_DEBUG(cache.to_string(" extrapolateToNextMaterialLayer thin "));
@@ -1386,7 +1361,10 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
                   if (m_dumpCache) {
                      ATH_MSG_DEBUG(cache.to_string(" After"));
                   }
+                } else {
+                  ATH_MSG_DEBUG(cache.elossPointerErrorMsg(__LINE__));
                 }
+                
               }
 
               if (cache.m_matstates) {
@@ -1404,7 +1382,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
                 std::unique_ptr<const Trk::TrackParameters> cvlTP(new Trk::CurvilinearParameters(
                   nextPar->position(), nextPar->momentum(), nextPar->charge()));
                if (cache.m_extrapolationCache) {
-                  if (cache.checkCache(" mat states extrapolateToNextMaterialLayer thin").empty()) {
+                  if (not cache.elossPointerOverwritten()) {
                     if (m_dumpCache) {
                       ATH_MSG_DEBUG(cache.to_string(" extrapolateToNextMaterialLayer thin "));
                     }
@@ -1414,6 +1392,8 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
                     if (m_dumpCache) {
                       ATH_MSG_DEBUG(cache.to_string(" After"));
                     }
+                  } else {
+                    ATH_MSG_DEBUG(cache.elossPointerErrorMsg(__LINE__));
                   }
                 }
                 auto mefot = std::make_unique<const Trk::MaterialEffectsOnTrack>(
@@ -1522,7 +1502,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
             }
 
             if (!cache.m_matstates && cache.m_extrapolationCache) {
-              if (cache.checkCache(" extrapolateToNextMaterialLayer thin").empty()) {
+              if (not cache.elossPointerOverwritten()) {
                 double dInX0 = thick / lx0;
                 if (m_dumpCache) {
                   ATH_MSG_DEBUG(cache.to_string(" extrapolateToNextMaterialLayer thin "));
@@ -1538,6 +1518,8 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
                 if (m_dumpCache) {
                   ATH_MSG_DEBUG(cache.to_string( " After"));
                 }
+              } else {
+                ATH_MSG_DEBUG(cache.elossPointerErrorMsg(__LINE__));
               }
             }
 
@@ -1558,7 +1540,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
               std::unique_ptr<const Trk::TrackParameters> cvlTP(new Trk::CurvilinearParameters(
                 nextPar->position(), nextPar->momentum(), nextPar->charge()));
              if (cache.m_extrapolationCache) {
-                if (cache.checkCache(" mat states extrapolateToNextMaterialLayer thin").empty()) {
+                if (not cache.elossPointerOverwritten()) {
                   if (m_dumpCache) {
                     ATH_MSG_DEBUG(cache.to_string(" extrapolateToNextMaterialLayer thin "));
                   }
@@ -1568,6 +1550,8 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
                   if (m_dumpCache) {
                     ATH_MSG_DEBUG(cache.to_string( " After"));
                   }
+                } else {
+                  ATH_MSG_DEBUG(cache.elossPointerErrorMsg(__LINE__));
                 }
               }
               auto mefot = std::make_unique<const Trk::MaterialEffectsOnTrack>(
@@ -1837,13 +1821,7 @@ Trk::Extrapolator::extrapolateInAlignableTV(const EventContext& ctx,
 
   // assume new static volume, retrieve boundaries
   cache.m_currentStatic = staticVol;
-  cache.m_staticBoundaries.clear();
-  const std::vector<SharedObject<const BoundarySurface<TrackingVolume>>>& bounds =
-    staticVol->boundarySurfaces();
-  for (unsigned int ib = 0; ib < bounds.size(); ib++) {
-    const Trk::Surface& surf = (bounds[ib].get())->surfaceRepresentation();
-    cache.m_staticBoundaries.emplace_back(&surf, true);
-  }
+  cache.retrieveBoundaries();
 
   cache.m_navigSurfs.insert(
     cache.m_navigSurfs.end(), cache.m_staticBoundaries.begin(), cache.m_staticBoundaries.end());
@@ -4969,14 +4947,8 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
 
   // update if new static volume
   if (updateStatic) { // retrieve boundaries
-    cache.m_staticBoundaries.clear();
-    const std::vector<SharedObject<const BoundarySurface<TrackingVolume>>>& bounds =
-      cache.m_currentStatic->boundarySurfaces();
-    for (unsigned int ib = 0; ib < bounds.size(); ib++) {
-      const Trk::Surface& surf = (bounds[ib].get())->surfaceRepresentation();
-      cache.m_staticBoundaries.emplace_back(&surf, true);
-    }
-
+    cache.retrieveBoundaries();
+    //
     cache.m_detachedVols.clear();
     cache.m_detachedBoundaries.clear();
     cache.m_denseVols.clear();
@@ -5028,8 +5000,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
           } else if (confLays) {
             std::vector<const Trk::Layer*>::const_iterator lIt = confLays->begin();
             for (; lIt != confLays->end(); ++lIt) {
-              cache.m_layers.emplace_back(&((*lIt)->surfaceRepresentation()), true);
-              cache.m_navigLays.emplace_back((*iTer)->trackingVolume(), *lIt);
+              cache.addOneNavigationLayer((*iTer)->trackingVolume(), *lIt);
             }
           }
         }
@@ -5126,8 +5097,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
       // collect unordered layers
       if (confinedLays) {
         for (unsigned int il = 0; il < confinedLays->size(); il++) {
-          cache.m_layers.emplace_back(&((*confinedLays)[il]->surfaceRepresentation()), true);
-          cache.m_navigLays.emplace_back(dVol, (*confinedLays)[il]);
+          cache.addOneNavigationLayer(dVol, (*confinedLays)[il]);
         }
       }
     } else { // active material
@@ -5173,30 +5143,23 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
             Trk::BinnedArraySpan<Trk::Layer const * const> cLays = detVol->confinedLayers()->arrayObjects();
             for (unsigned int i = 0; i < cLays.size(); i++) {
               if (cLays[i]->layerType() > 0 || cLays[i]->layerMaterialProperties()) {
-                cache.m_layers.emplace_back(&(cLays[i]->surfaceRepresentation()), true);
-                cache.m_navigLays.emplace_back(cache.m_currentStatic, cLays[i]);
+                cache.addOneNavigationLayer(cLays[i]);
               }
             }
           } else {
             const Trk::Layer* lay = detVol->associatedLayer(gp);
-            // if (lay && ( (*dIter)->layerRepresentation()
-            //     &&(*dIter)->layerRepresentation()->layerType()>0 ) ) currentActive=(*dIter);
             if (lay) {
-              cache.m_layers.emplace_back(&(lay->surfaceRepresentation()), true);
-              cache.m_navigLays.emplace_back(detVol, lay);
+              cache.addOneNavigationLayer(detVol, lay);
             }
             const Trk::Layer* nextLayer =
               detVol->nextLayer(currPar->position(), dir * currPar->momentum().normalized(), true);
             if (nextLayer && nextLayer != lay) {
-              cache.m_layers.emplace_back(&(nextLayer->surfaceRepresentation()), true);
-              cache.m_navigLays.emplace_back(detVol, nextLayer);
+              cache.addOneNavigationLayer(detVol, nextLayer);
             }
           }
         } else if (detVol->confinedArbitraryLayers()) {
-          const std::vector<const Trk::Layer*>* layers = detVol->confinedArbitraryLayers();
-          for (unsigned int il = 0; il < layers->size(); il++) {
-            cache.m_layers.emplace_back(&((*layers)[il]->surfaceRepresentation()), true);
-            cache.m_navigLays.emplace_back(detVol, (*layers)[il]);
+          for (const auto & pThisLayer:  *(detVol->confinedArbitraryLayers())) {
+            cache.addOneNavigationLayer(detVol, pThisLayer);
           }
         }
       }
@@ -5212,49 +5175,29 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
         cache.m_currentStatic->confinedLayers()->arrayObjects();
       for (unsigned int i = 0; i < cLays.size(); i++) {
         if (cLays[i]->layerType() > 0 || cLays[i]->layerMaterialProperties()) {
-          cache.m_layers.emplace_back(&(cLays[i]->surfaceRepresentation()), true);
-          cache.m_navigLays.emplace_back(cache.m_currentStatic, cLays[i]);
+          cache.addOneNavigationLayer(cLays[i]);
         }
       }
     } else {
       // * this does not work - debug !
       const Trk::Layer* lay = cache.m_currentStatic->associatedLayer(gp);
       if (lay) {
-        cache.m_layers.emplace_back(&(lay->surfaceRepresentation()), false);
-        cache.m_navigLays.emplace_back(cache.m_currentStatic, lay);
+        static constexpr bool boundsCheck{false};
+        cache.addOneNavigationLayer(lay, boundsCheck);
         const Trk::Layer* nextLayer =
           lay->nextLayer(currPar->position(), dir * currPar->momentum().normalized());
         if (nextLayer && nextLayer != lay) {
-          cache.m_layers.emplace_back(&(nextLayer->surfaceRepresentation()), false);
-          cache.m_navigLays.emplace_back(cache.m_currentStatic, nextLayer);
+          cache.addOneNavigationLayer(nextLayer, boundsCheck);
         }
         const Trk::Layer* backLayer =
           lay->nextLayer(currPar->position(), -dir * currPar->momentum().normalized());
         if (backLayer && backLayer != lay) {
-          cache.m_layers.emplace_back(&(backLayer->surfaceRepresentation()), false);
-          cache.m_navigLays.emplace_back(cache.m_currentStatic, backLayer);
+          cache.addOneNavigationLayer(backLayer, boundsCheck);
         }
       }
     }
   }
-
-  if (!cache.m_layers.empty()) {
-    cache.m_navigSurfs.insert(
-      cache.m_navigSurfs.end(), cache.m_layers.begin(), cache.m_layers.end());
-  }
-  if (!cache.m_denseBoundaries.empty()) {
-    cache.m_navigSurfs.insert(
-      cache.m_navigSurfs.end(), cache.m_denseBoundaries.begin(), cache.m_denseBoundaries.end());
-  }
-  if (!cache.m_navigBoundaries.empty()) {
-    cache.m_navigSurfs.insert(
-      cache.m_navigSurfs.end(), cache.m_navigBoundaries.begin(), cache.m_navigBoundaries.end());
-  }
-  if (!cache.m_detachedBoundaries.empty()) {
-    cache.m_navigSurfs.insert(cache.m_navigSurfs.end(),
-                              cache.m_detachedBoundaries.begin(),
-                              cache.m_detachedBoundaries.end());
-  }
+  cache.copyToNavigationSurfaces();
 
   // current dense
   cache.m_currentDense = cache.m_highestVolume;
