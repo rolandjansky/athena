@@ -9,7 +9,6 @@
 #include "DerivationFrameworkCalo/MaxCellDecorator.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloUtils/CaloClusterStoreHelper.h"
-#include "xAODEgamma/EgammaContainer.h"
 
 #include <string>
 #include <vector>
@@ -48,6 +47,13 @@ DerivationFramework::MaxCellDecorator::initialize()
     m_SGKey_electrons_decorations.emplace_back(key + ".maxEcell_x");
     m_SGKey_electrons_decorations.emplace_back(key + ".maxEcell_y");
     m_SGKey_electrons_decorations.emplace_back(key + ".maxEcell_z");
+
+    if (!m_SGKey_egammaClusters.key().empty()) {
+      ATH_MSG_INFO("Using " << m_SGKey_egammaClusters.key() << " to try to match a cluster to the LRT egamma cluster");
+      ATH_CHECK(m_SGKey_egammaClusters.initialize());
+      m_SGKey_electrons_decorations.emplace_back(key + ".dR");
+    }
+
     ATH_CHECK(m_SGKey_electrons_decorations.initialize());
   }
 
@@ -103,8 +109,9 @@ DerivationFramework::MaxCellDecorator::addBranches() const
 
     const xAOD::EgammaContainer* importedPhotons = photonContainer.ptr();
     for (const auto* egamma : *importedPhotons) {
+      const xAOD::CaloCluster *cluster = egamma->caloCluster();
       DerivationFramework::MaxCellDecorator::calculation res =
-        decorateObject(egamma, ctx);
+        decorateObject(cluster, ctx);
       decorationPh0(*egamma) = res.maxEcell_time;
       decorationPh1(*egamma) = res.maxEcell_energy;
       decorationPh2(*egamma) = res.maxEcell_gain;
@@ -119,6 +126,16 @@ DerivationFramework::MaxCellDecorator::addBranches() const
     // Retrieve electron container
     SG::ReadHandle<xAOD::EgammaContainer> electronContainer(m_SGKey_electrons,
                                                             ctx);
+
+    //
+    std::optional<SG::WriteDecorHandle<xAOD::EgammaContainer, float>>  odecorationEl7;
+    const xAOD::CaloClusterContainer* egClContainer(nullptr);
+    if (!m_SGKey_egammaClusters.key().empty()) {
+      SG::ReadHandle<xAOD::CaloClusterContainer> egClContainerRH(
+	m_SGKey_egammaClusters, ctx);
+      egClContainer = egClContainerRH.ptr();
+      odecorationEl7.emplace(m_SGKey_electrons_decorations[7], ctx);
+    }
 
     // setup vector of decorators
     SG::WriteDecorHandle<xAOD::EgammaContainer, float> decorationEl0(
@@ -138,8 +155,22 @@ DerivationFramework::MaxCellDecorator::addBranches() const
 
     const xAOD::EgammaContainer* importedElectrons = electronContainer.ptr();
     for (const auto* egamma : *importedElectrons) {
+      const xAOD::CaloCluster *cluster = egamma->caloCluster();
+      if (!m_SGKey_egammaClusters.key().empty()) {
+	double dRMin = 9e9;
+	const xAOD::CaloCluster *matchedCluster(nullptr);
+	for (const auto *clus : *egClContainer) {
+	  double dR = clus->p4().DeltaR(cluster->p4());
+	  if (dR < dRMin && dR < m_dRLRTegClusegClusMax) {
+	    dRMin = dR;
+	    matchedCluster = clus;
+	  }
+	}
+	cluster = matchedCluster;
+	odecorationEl7.value()(*egamma) = dRMin;
+      }
       DerivationFramework::MaxCellDecorator::calculation res =
-        decorateObject(egamma, ctx);
+        decorateObject(cluster, ctx);
       decorationEl0(*egamma) = res.maxEcell_time;
       decorationEl1(*egamma) = res.maxEcell_energy;
       decorationEl2(*egamma) = res.maxEcell_gain;
@@ -155,17 +186,16 @@ DerivationFramework::MaxCellDecorator::addBranches() const
 
 DerivationFramework::MaxCellDecorator::calculation
 DerivationFramework::MaxCellDecorator::decorateObject(
-  const xAOD::Egamma* egamma,
+  const xAOD::CaloCluster* cluster,
   const EventContext& ctx) const
 {
 
   DerivationFramework::MaxCellDecorator::calculation result;
 
-  const xAOD::CaloCluster* cluster = egamma->caloCluster();
-
   if (cluster) {
     if (!cluster->getCellLinks()) {
       ATH_MSG_WARNING("CellLinks not found");
+      return result;
     }
 
     SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{ m_cablingKey, ctx };
