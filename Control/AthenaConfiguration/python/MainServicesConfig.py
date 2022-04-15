@@ -151,10 +151,6 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
         elmgr.SchedulerSvc = scheduler.getName()
         cfg.addService( elmgr )
 
-        # enable timeline recording
-        TimelineSvc=CompFactory.TimelineSvc
-        cfg.addService( TimelineSvc( RecordTimeline = True, Partial = False ) )
-
         #
         ## Setup SGCommitAuditor to sweep new DataObjects at end of Alg execute
         #
