@@ -223,8 +223,8 @@ private:
    /// tokenize a string based on a substring
    void tokenizeAtSep( std::vector<std::string>&, const std::string&, const std::string& ) const;
 
-   /// Try to match a DataProxy to a vector of strings
-   bool matchKey(const std::vector<std::string>& key, const SG::DataProxy* proxy) const;
+   /// Try to match a DataProxy name to a vector of strings
+   bool matchKey(const std::vector<std::string>& key, const std::string& proxyName) const;
 
    /// Write MetaData for this stream (by default) or for a substream outputFN (in ES mode)
    void writeMetaData( const std::string& outputFN="" );

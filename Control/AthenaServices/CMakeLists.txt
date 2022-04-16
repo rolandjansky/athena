@@ -18,7 +18,7 @@ atlas_add_component( AthenaServices
    ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel RootUtilsPyROOT CxxUtils
    AthContainers AthContainersInterfaces DataModelRoot PerfMonEvent
    PerfMonKernel SGTools StoreGateLib PersistentDataModel EventInfo xAODCore
-   xAODEventInfo EventInfoUtils GaudiKernel )
+   xAODEventInfo EventInfoUtils GaudiKernel RootAuxDynIO )
 
 # Test library checking the ability to build T/P converters:
 atlas_add_tpcnv_library( AthenaServicesTest src/test/*.cxx
@@ -30,7 +30,8 @@ atlas_add_test( AthenaOutputStream_test
    SOURCES test/AthenaOutputStream_test.cxx src/AthenaOutputStream.cxx
    src/OutputStreamSequencerSvc.cxx src/MetaDataSvc.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES TestTools AsgTools AthenaKernel SGTools StoreGateLib GaudiKernel AthenaBaseComps PersistentDataModel
+   LINK_LIBRARIES TestTools AsgTools AthenaKernel SGTools StoreGateLib
+                  GaudiKernel AthenaBaseComps PersistentDataModel RootAuxDynIO
    LOG_IGNORE_PATTERN "^AthenaRootStrea... +(INFO|DEBUG)|^SGAudSvc +(INFO|DEBUG)|of type DataHistory|DEBUG Recorded object|object modifiable when retrieved|^ToolSvc +DEBUG Service base class initialized|^ServiceManager +DEBUG Initializing service|^IncidentSvc *DEBUG Adding .* listener|DecisionSvc +DEBUG|^IoComponentMgr +(INFO|DEBUG)|DBReplicaSvc|^HistogramPersis.*DEBUG|^ItemListSvc +(INFO|DEBUG)|Info File PoolFileCatalog.xml does not exist|DataModelCompatSvc::initialize|^ProxyProviderSvc +DEBUG|^DataModelCompatSvc +DEBUG|^AthenaOutputStreamVERBOSE|^AthenaOutputStream +DEBUG|^TimelineSvc +DEBUG|CLIDRegistry entries|in DataObject @0x" )
 # Avoid spurious ubsan warnings.
 set_target_properties( AthenaServices_AthenaOutputStream_test PROPERTIES ENABLE_EXPORTS True )

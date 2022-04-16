@@ -269,6 +269,16 @@ class MetaDataSvc : public ::AthService,
   void recordHook(const std::type_info&) override;
   void removeHook(const std::type_info&) override;
 
+  /** check if the metadata object key contains Stream name (added by SharedWriter in MetaDataSvc)
+   *  remove stream part from the key (i.e. modify the parameter) and return it
+   */
+  std::string removeStreamFromKey(std::string& key);
+
+  /** Get all per-stream Key variants created for in-file metadata object with original key
+   * If no stream-specific keys are found, it returns the original key
+   */
+  virtual std::set<std::string> getPerStreamKeysFor(const std::string& key ) const override final;
+
  private:
   /** Adds a proxy for a metadata object to the input metadata store.
    * The file, class, container, key, and stream number of the metadata object
@@ -313,8 +323,12 @@ class MetaDataSvc : public ::AthService,
   std::map<std::string, CLID> m_persToClid;
   std::map<CLID, std::string> m_toolForClid;
 
-  std::set<CLID> m_handledClasses;
-
+  std::set<CLID>        m_handledClasses;
+  /// marker string for embedding stream name in MetaData object keys for SharedWriter server 
+  const std::string     m_streamInKeyMark = "__STREAM[";
+  
+  std::map< std::string, std::set<std::string> > m_streamKeys;
+   
  private:  // properties
   /// MetaDataContainer, POOL container name for MetaData.
   StringProperty m_metaDataCont;
