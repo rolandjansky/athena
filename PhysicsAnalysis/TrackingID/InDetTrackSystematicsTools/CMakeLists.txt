@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the name of the package:
 atlas_subdir( InDetTrackSystematicsTools )
@@ -35,7 +35,7 @@ endif()
 atlas_add_executable( graph_to_function
    util/graph_to_function.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} CxxUtils )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
