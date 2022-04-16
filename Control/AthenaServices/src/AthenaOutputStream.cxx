@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaOutputStream.h"
@@ -37,6 +37,7 @@
 #include "AthContainersInterfaces/IAuxStore.h"
 #include "AthContainersInterfaces/IConstAuxStore.h"
 #include "AthContainersInterfaces/IAuxStoreIO.h"
+#include "RootAuxDynIO/RootAuxDynIO.h"
 #include "OutputStreamSequencerSvc.h"
 #include "MetaDataSvc.h"
 #include "SelectionVetoes.h"
@@ -53,7 +54,6 @@ using std::string;
 using std::vector;
 using boost::tokenizer;
 using boost::char_separator;
-
 
 //****************************************************************************
 
@@ -792,14 +792,20 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item,
       // Now loop over any found proxies
       for (; iter != end; ++iter) {
          SG::DataProxy* itemProxy(iter->second);
+         string proxyName = itemProxy->name();
+         string stream;
+         if( m_currentStore == &m_metadataStore ) {
+            // only check metadata keys
+            stream = m_metaDataSvc->removeStreamFromKey(proxyName);  // can modify proxyName
+         }
          // Does this key match the proxy key name - allow for wildcarding and aliases
          bool keyMatch = ( item_key == "*" ||
-                           item_key == itemProxy->name() ||
+                           item_key == proxyName ||
                            itemProxy->hasAlias(item_key) );
          if (!keyMatch) {
-            ATH_MSG_VERBOSE("Calling matchKey( " << keyTokens << ", " << itemProxy->name() << ")" );
-            keyMatch = matchKey(keyTokens, itemProxy);
-            ATH_MSG_VERBOSE("Done calling matchKey( " << keyTokens << ", " << itemProxy->name() << ") with result: " << keyMatch );
+            ATH_MSG_VERBOSE("Calling matchKey( " << keyTokens << ", " << proxyName << ")" );
+            keyMatch = matchKey(keyTokens, proxyName);
+            ATH_MSG_VERBOSE("Done calling matchKey( " << keyTokens << ", " << proxyName << ") with result: " << keyMatch );
         }
 
          // Now undo the flag based on a similar analysis of excluded wildcard keys
@@ -813,21 +819,26 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item,
                std::string::size_type xsep = c2k_it->find(wildCard);
                // If wildcard not found, then check whether the second is an excluded key
                if (xsep == std::string::npos) {
-                  if (*c2k_it == itemProxy->name()) {
+                  if (*c2k_it == proxyName) {
                      xkeyMatch = true;
                   }
                } else { // Otherwise take before and after wildcard for later use
                   this->tokenizeAtSep( xkeyTokens, *c2k_it, wildCard );
-                  ATH_MSG_DEBUG("x Proxy name=" << itemProxy->name() );
-                  xkeyMatch = matchKey(xkeyTokens, itemProxy);
+                  ATH_MSG_DEBUG("x Proxy name=" << proxyName );
+                  xkeyMatch = matchKey(xkeyTokens, proxyName);
                }
             }
+         }
+         if( !stream.empty() and stream != m_outputName ) {
+            // reject keys that are marked for a different output stream
+            ATH_MSG_DEBUG("Rejecting key: " << itemProxy->name() << " in output: " << m_outputName);
+            xkeyMatch = true;
          }
          // All right, it passes key match find in itemList, but not in excludeList
          if (keyMatch && !xkeyMatch) {
             if (m_forceRead && itemProxy->isValid()) {
                if (nullptr == itemProxy->accessData()) {
-                  ATH_MSG_ERROR(" Could not get data object for id " << remapped_item_id << ",\"" << itemProxy->name());
+                  ATH_MSG_ERROR(" Could not get data object for id " << remapped_item_id << ",\"" << proxyName);
                }
             }
             if (nullptr != itemProxy->object()) {
@@ -842,7 +853,7 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item,
                      if( metaCont ) {
                         void* obj = metaCont->getAsVoid( m_outSeqSvc->currentRangeID() );
                         auto altbucket = std::make_unique<AltDataBucket>(
-                           obj, item_id, *CLIDRegistry::CLIDToTypeinfo(item_id), itemProxy->name() );
+                           obj, item_id, *CLIDRegistry::CLIDToTypeinfo(item_id), proxyName );
                         m_objects.push_back( altbucket.get() );
                         m_ownedObjects.push_back( std::move(altbucket) );
                         m_altObjects.push_back( itemProxy->object() ); // only for duplicate prevention
@@ -871,7 +882,7 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item,
                  }
                  else
                    m_objects.push_back(itemProxy->object());
-                 ATH_MSG_DEBUG(" Added object " << item_id << ",\"" << itemProxy->name() << "\"");
+                 ATH_MSG_DEBUG(" Added object " << item_id << ",\"" << proxyName << "\"");
                }
 
                // Build ItemListSvc string
@@ -879,10 +890,10 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item,
                std::stringstream tns;
                if (!m_pCLIDSvc->getTypeNameOfID(item_id, tn).isSuccess()) {
                   ATH_MSG_ERROR(" Could not get type name for id "
-                         << item_id << ",\"" << itemProxy->name());
-                  tns << item_id << '_' << itemProxy->name();
+                         << item_id << ",\"" << proxyName);
+                  tns << item_id << '_' << proxyName;
                } else {
-                  tn += '_' + itemProxy->name();
+                  tn += '_' + proxyName;
                   tns << tn;
                }
 
@@ -890,7 +901,7 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item,
                /// Both variable selection and lossy float compression
                /// are limited to event data for the time being
                if ((*m_currentStore)->storeID() == StoreID::EVENT_STORE &&
-                   item_key.find( "Aux." ) == ( item_key.size() - 4 )) {
+                   item_key.find( RootAuxDynIO::AUX_POSTFIX ) == ( item_key.size() - 4 )) {
 
                   const SG::IConstAuxStore* auxstore( nullptr );
                   try {
@@ -1124,7 +1135,7 @@ void AthenaOutputStream::tokenizeAtSep( std::vector<std::string>& subStrings,
 }
 
 bool AthenaOutputStream::matchKey(const std::vector<std::string>& key,
-                                  const SG::DataProxy* proxy) const {
+                                  const string& proxyName) const {
   bool keyMatch = true; // default return
 
   // Get an iterator to the first (not zeroth!) string in the vector
@@ -1133,7 +1144,6 @@ bool AthenaOutputStream::matchKey(const std::vector<std::string>& key,
 
   // Walk through the whole proxyName string and try to match to all sub-keys
   // We are using that: std::string::npos!=string.find("") is always true
-  const std::string& proxyName = proxy->name();
   std::string::size_type proxyNamePos=0;
   while ( itr != itrEnd &&
           std::string::npos != ( proxyNamePos = proxyName.find(*itr, proxyNamePos) )
