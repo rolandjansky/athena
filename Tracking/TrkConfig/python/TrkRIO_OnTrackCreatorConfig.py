@@ -111,10 +111,6 @@ def TrigRotCreatorCfg(flags, name='InDetTrigRotCreator', **kwargs):
         ToolSCT_Cluster = acc.popToolsAndMerge(InDetSCT_ClusterOnTrackToolCfg(flags))
         kwargs.setdefault("ToolSCT_Cluster", ToolSCT_Cluster)
 
-    if 'ToolTRT_DriftCircle' not in kwargs:
-        from InDetConfig.TrackingCommonConfig import InDetTRT_DriftCircleOnTrackToolCfg
-        kwargs.setdefault("ToolTRT_DriftCircle", acc.popToolsAndMerge(InDetTRT_DriftCircleOnTrackToolCfg(flags)))
-
     kwargs.setdefault('Mode', 'indet')
 
     acc.setPrivateTools(CompFactory.Trk.RIO_OnTrackCreator(name, **kwargs))
