@@ -184,7 +184,6 @@ TileGeoG4CalibSD::TileGeoG4CalibSD(const G4String& name, const std::vector<std::
 //DESTRUCTOR
 TileGeoG4CalibSD::~TileGeoG4CalibSD() {
   delete m_simEn;
-  delete m_tile_eep;
   delete m_lookupDM;
 }
 
