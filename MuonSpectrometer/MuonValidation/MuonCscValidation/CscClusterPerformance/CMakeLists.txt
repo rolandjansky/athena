@@ -12,10 +12,10 @@ find_package( ROOT COMPONENTS Tree Core MathCore Hist RIO pthread Graf Graf3d Gp
 atlas_add_executable( csc_cluster_performance
                       src/csc_cluster_performance.cxx
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} CxxUtils )
 
 atlas_add_executable( csc_cosmic_cluster
                       src/csc_cosmic_cluster.cxx
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} CxxUtils )
 
