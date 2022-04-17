@@ -45,7 +45,6 @@ CP::ElectronChargeEfficiencyCorrectionTool::
   , m_pt_lowlimit(0.0)
   , m_pt_uplimit(0.0)
   , m_gevmev(0.0)
-  , m_truthCharge(0)
   , m_filtered_sys_sets()
   , m_mySysConf()
   , m_affectingSys()
