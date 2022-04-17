@@ -233,7 +233,7 @@ StatusCode LVL1TGCTrigger::execute()
     SG::WriteHandle<TgcL1RdoContainer> tgcL1rdoHandle (m_keyTgcL1Rdo, ctx);
     auto trgContainer=std::make_unique<TgcL1RdoContainer>();
     for(const auto& tgcRdoMap : tgcrdo){
-      for(const auto& rawData : *tgcRdoMap.second){
+      for(const auto rawData : *tgcRdoMap.second){
         trgContainer->push_back(rawData);
       }
     }

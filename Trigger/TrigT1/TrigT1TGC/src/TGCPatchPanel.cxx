@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1TGC/TGCPatchPanel.h"
@@ -63,7 +63,7 @@ void TGCPatchPanel::showResult() const
     for( i=0; i<NumberOfPatchPanelOut; i+=1) {
       if(m_PPOut[i]!=0){
         for( k=0; k<NumberOfConnectorPerPPOut; k+=1) {
-          const TGCHitPattern* pattern = m_PPOut[i]->getHitPattern(k);
+          const TGCHitPattern* pattern = std::as_const(m_PPOut[i])->getHitPattern(k);
           if(pattern!=0){
             int nCh = m_connectionInPP
               ->getNumberOfChannel(NumberOfConnectorPerPPOut*i+k);
