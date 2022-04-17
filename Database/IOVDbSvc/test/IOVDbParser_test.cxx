@@ -95,11 +95,11 @@ BOOST_FIXTURE_TEST_SUITE(IOVDbParserTest , GaudiKernelFixture)
       BOOST_TEST(parser1.addressHeader()=="<address_header service_type=\"71\" clid=\"40774348\" />");
       BOOST_TEST(parser1.symLinks().empty());
       BOOST_TEST(!parser1.noTagOverride());
-      BOOST_TEST(parser1.classId()==40774348);
+      BOOST_TEST(parser1.classId(log)==40774348);
       BOOST_TEST(!parser1.onlyReadMetadata());
       BOOST_TEST(!parser1.extensible());
-      BOOST_TEST(!parser1.overridesIov());
-      BOOST_TEST(parser1.iovOverrideValue()==0);
+      BOOST_TEST(!parser1.overridesIov(log));
+      BOOST_TEST(parser1.iovOverrideValue(log)==0);
       //checks for ATEAM-666
       //the following doesnt close the forceTimestamp element correctly
       //std::string invalidString1{"extraText<timeStamp>time</timeStamp><forceTimestamp>123456</forceTimestamp<addrHeader><address_header service_type=\"71\" clid=\"40774348\" /></addrHeader><typeName>AthenaAttributeList</typeName>"};
@@ -107,7 +107,7 @@ BOOST_FIXTURE_TEST_SUITE(IOVDbParserTest , GaudiKernelFixture)
       IOVDbParser parser4(invalidString1, log);
       BOOST_TEST( parser4.isValid() == false);
       BOOST_TEST(parser4.getKey("forceTimestamp", "", returnValue) == false);
-      BOOST_TEST(parser1.iovOverrideValue()==0);
+      BOOST_TEST(parser1.iovOverrideValue(log)==0);
       BOOST_TEST(returnValue == "");
     }
   BOOST_AUTO_TEST_SUITE_END()
