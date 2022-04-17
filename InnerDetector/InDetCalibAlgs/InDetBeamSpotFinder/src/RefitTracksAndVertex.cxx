@@ -30,7 +30,7 @@ RefitTracksAndVertex::RefitTracksAndVertex( const std::string& name, ISvcLocator
   , m_vertexListInput("PrimaryVertices")
   , m_trackListOutput("SiTracksWithRefitTracksAndVertex")
   , m_outputVertexContainerName("RefittedPrimaryVertex")
-  , m_trackFitter("Trk::KalmanFitter/TrkKalmanFitter")
+  , m_trackFitter("Trk::GlobalChi2Fitter/InDetTrackFitter")
   , m_vertexFitter("Trk::FullVertexFitter")
   , m_applyTrkSel(false)
   , m_refitTracks(true)
