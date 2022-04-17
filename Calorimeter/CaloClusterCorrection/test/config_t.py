@@ -320,7 +320,8 @@ def test2 (flags_in):
                     DBInstance='OFLP200',
                     CacheAlign=3,
                     GlobalTag='OFLCOND-RUN12-SDR-31',
-                    Folders = ['<db>COOLOFL_CALO/OFLP200</db> /CALO/Ofl/CaloSwClusterCorrections/rfac<tag>CaloOflSwClusterCorrections.00-02-12-rfac-v5</tag>',
+                    Folders = ['/TagInfo<metaOnly/>',
+                               '<db>COOLOFL_CALO/OFLP200</db> /CALO/Ofl/CaloSwClusterCorrections/rfac<tag>CaloOflSwClusterCorrections.00-02-12-rfac-v5</tag>',
                                '<db>COOLOFL_CALO/OFLP200</db> /CALO/Ofl/CaloSwClusterCorrections/etaoff<tag>CaloOflSwClusterCorrections.00-02-12-etaoff-v5</tag>',
                                '<db>COOLOFL_CALO/OFLP200</db> /CALO/Ofl/CaloSwClusterCorrections/phioff<tag>CaloOflSwClusterCorrections.00-02-12-phioff-v5data</tag>',
                                '<db>COOLOFL_CALO/OFLP200</db> /CALO/Ofl/CaloSwClusterCorrections/larupdate<tag>CaloOflSwClusterCorrections.00-02-12-larupdate</tag>',
@@ -390,7 +391,8 @@ def test3 (flags_in):
                     DBInstance='CONDBR2',
                     CacheAlign=3,
                     GlobalTag='CONDBR2-BLKPA-2017-05',
-                    Folders=['<db>COOLONL_CALO/CONDBR2</db> /CALO/CaloSwClusterCorrections/larupdate<tag></tag>',
+                    Folders=['/TagInfo<metaOnly/>',
+                             '<db>COOLONL_CALO/CONDBR2</db> /CALO/CaloSwClusterCorrections/larupdate<tag></tag>',
                              '<db>COOLONL_CALO/CONDBR2</db> /CALO/CaloSwClusterCorrections/calhits<tag>CaloSwClusterCorrections.00-02-12-calhits-v8</tag>'])
 
     exp.check (ca.getService ('IOVDbSvc'))
@@ -436,7 +438,7 @@ def test4 (flags_in):
                    DBInstance='CONDBR2',
                    CacheAlign=3,
                    GlobalTag='CONDBR2-BLKPA-2017-05',
-                   Folders=['<db>COOLONL_CALO/CONDBR2</db> /CALO/CaloSwClusterCorrections/gap<tag>xvers</tag>'])
+                   Folders=['/TagInfo<metaOnly/>','<db>COOLONL_CALO/CONDBR2</db> /CALO/CaloSwClusterCorrections/gap<tag>xvers</tag>'])
     exp.check (ca.getService ('IOVDbSvc'))
 
 
@@ -544,7 +546,7 @@ def test7 (flags_in):
                     DBInstance='CONDBR2',
                     CacheAlign=3,
                     GlobalTag='CONDBR2-BLKPA-2017-05',
-                    Folders=['<db>COOLONL_CALO/CONDBR2</db> /CALO/CaloSwClusterCorrections/gap<tag></tag>'])
+                    Folders=['/TagInfo<metaOnly/>','<db>COOLONL_CALO/CONDBR2</db> /CALO/CaloSwClusterCorrections/gap<tag></tag>'])
     exp.check (ca.getService ('IOVDbSvc'))
 
     return
@@ -587,7 +589,7 @@ def test8 (flags_in):
                     DBInstance='CONDBR2',
                     CacheAlign=3,
                     GlobalTag='CONDBR2-BLKPA-2017-05',
-                    Folders=['<db>COOLONL_CALO/CONDBR2</db> /CALO/CaloSwClusterCorrections/gap<tag>xvers</tag>'])
+                    Folders=['/TagInfo<metaOnly/>','<db>COOLONL_CALO/CONDBR2</db> /CALO/CaloSwClusterCorrections/gap<tag>xvers</tag>'])
     exp.check (ca.getService ('IOVDbSvc'))
 
     return
@@ -868,7 +870,7 @@ def test15 (flags_in):
                     DBInstance='CONDBR2',
                     CacheAlign=3,
                     GlobalTag='CONDBR2-BLKPA-2017-05',
-                    Folders=['<db>COOLOFL_CALO/CONDBR2</db> /CALO/Ofl/CaloSwClusterCorrections/phioff<tag>tag1</tag>'])
+                    Folders=['/TagInfo<metaOnly/>','<db>COOLOFL_CALO/CONDBR2</db> /CALO/Ofl/CaloSwClusterCorrections/phioff<tag>tag1</tag>'])
     exp.check (ca.getService ('IOVDbSvc'))
 
     ca.wasMerged()
