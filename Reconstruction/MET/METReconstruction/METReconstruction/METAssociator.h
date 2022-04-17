@@ -88,9 +88,6 @@ namespace met {
     ToolHandle<xAOD::ICaloTopoClusterIsolationTool> m_caloIsolationTool;
 
     std::string m_input_data_key;
-    std::string m_pvcoll;
-    std::string m_trkcoll;
-    std::string m_clcoll;
     std::string m_neutralFELinksKey; 
     std::string m_chargedFELinksKey; 
     std::string m_neutralPFOLinksKey; 
@@ -98,9 +95,9 @@ namespace met {
     bool m_usePFOLinks; 
     bool m_useFELinks; 
 
-    SG::ReadHandleKey<xAOD::VertexContainer>  m_pvcollKey{this,"PVColl","","Primary Vertex Collection"};
-    SG::ReadHandleKey<xAOD::IParticleContainer>  m_clcollKey{this,"ClColl","","Topo cluster Collection"};
-    SG::ReadHandleKey<xAOD::TrackParticleContainer>  m_trkcollKey{this,"TrkColl","","Track particle Collection"};
+    SG::ReadHandleKey<xAOD::VertexContainer>  m_pvcollKey{this,"PrimVxColl","PrimaryVertices","Primary Vertex Collection"};
+    SG::ReadHandleKey<xAOD::IParticleContainer>  m_clcollKey{this,"ClusColl","CaloCalTopoClusters","Topo cluster Collection"};
+    SG::ReadHandleKey<xAOD::TrackParticleContainer>  m_trkcollKey{this,"TrkColl","InDetTrackParticles","Track particle Collection"};
     SG::ReadHandleKey<xAOD::PFOContainer>  m_pfcollKey{this,"PFlowColl","","PFO Collection"};
     SG::ReadHandleKey<xAOD::FlowElementContainer>  m_fecollKey{this,"FlowElementCollection","","FlowElement Collection (overrides PFO if not empty)"};
     SG::ReadHandleKey<xAOD::IParticleContainer>  m_hybridContKey{this,"HybridKey","","Hybrid Collection"};
