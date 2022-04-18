@@ -42,7 +42,7 @@ InDet::TRT_SeededTrackFinder::TRT_SeededTrackFinder
     m_nprint(0),
     m_ntracks(0),
     m_trackmaker("InDet::TRT_SeededTrackFinderTool"),
-    m_fitterTool("Trk::KalmanFitter/InDetTrackFitter"),
+    m_fitterTool("Trk::GlobalChi2Fitter/InDetTrackFitter"),
     m_SegmentsKey("TRTSegments"),
     m_outTracksKey("TRTSeededTracks")
 {
