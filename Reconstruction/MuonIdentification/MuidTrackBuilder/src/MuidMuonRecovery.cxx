@@ -34,11 +34,8 @@
 namespace Rec {
 
     MuidMuonRecovery::MuidMuonRecovery(const std::string& type, const std::string& name, const IInterface* parent) :
-        AthAlgTool(type, name, parent), m_minP(10. * Gaudi::Units::GeV), m_minPt(5. * Gaudi::Units::GeV), m_pullCut(5) {
-        declareInterface<IMuidMuonRecovery>(this);
-        declareProperty("MinP", m_minP);
-        declareProperty("MinPt", m_minPt);
-        declareProperty("PullCut", m_pullCut);
+        AthAlgTool(type, name, parent){
+        declareInterface<IMuidMuonRecovery>(this);       
     }
 
     //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
@@ -101,26 +98,20 @@ namespace Rec {
         }
 
         // track builder prefers estimate of inner, middle and outer spectrometer track parameters
-        const Trk::TrackParameters* innerParameters = nullptr;
-        const Trk::TrackParameters* middleParameters = nullptr;
-        const Trk::TrackParameters* outerParameters = nullptr;
-        const Trk::TrackParameters* lastPars = lastIndetPars;
+        std::unique_ptr<Trk::TrackParameters> innerParameters, middleParameters, outerParameters;
+        std::unique_ptr<Trk::TrackParameters> lastPars = lastIndetPars->uniqueClone();
+        bool innerParsSet{false};
 
         std::vector<const Trk::TrackStateOnSurface*> stations;
-        std::set<Muon::MuonStationIndex::StIndex> etaIndices;
-        std::set<Muon::MuonStationIndex::StIndex> phiIndices;
-        std::set<Muon::MuonStationIndex::StIndex> badEtaIndices;
-        std::set<Muon::MuonStationIndex::StIndex> badPhiIndices;
+        std::set<Muon::MuonStationIndex::StIndex> etaIndices, phiIndices, badEtaIndices, badPhiIndices;
 
         unsigned int nmeas = 0;
 
-        Trk::TrackStates::const_iterator tsosit = spectrometerTrack.trackStateOnSurfaces()->begin();
-
-        for (; tsosit != spectrometerTrack.trackStateOnSurfaces()->end(); ++tsosit) {
-            const Trk::MeasurementBase* meas = (*tsosit)->measurementOnTrack();
+        for (const Trk::TrackStateOnSurface* tsosit : *spectrometerTrack.trackStateOnSurfaces()) {
+            const Trk::MeasurementBase* meas = tsosit->measurementOnTrack();
             if (!meas) continue;
 
-            if ((*tsosit)->type(Trk::TrackStateOnSurface::Outlier)) continue;
+            if (tsosit->type(Trk::TrackStateOnSurface::Outlier)) continue;
 
             Identifier id = m_edmHelperSvc->getIdentifier(*meas);
             if (!id.is_valid()) continue;
@@ -142,12 +133,12 @@ namespace Rec {
                 continue;
             }
 
-            const Trk::TrackParameters* exPars = nullptr;
+            std::unique_ptr<Trk::TrackParameters> exPars{};
             if (lastPars->associatedSurface() == meas->associatedSurface()) {
                 ATH_MSG_DEBUG("Using existing pars");
-                exPars = lastPars;
+                exPars = std::move(lastPars);
             } else {
-                exPars = m_extrapolator->extrapolate(ctx, *lastPars, meas->associatedSurface(), Trk::alongMomentum, false, Trk::muon).release();
+                exPars = m_extrapolator->extrapolate(ctx, *lastPars, meas->associatedSurface(), Trk::alongMomentum, false, Trk::muon);               
             }
 
             if (!exPars) {
@@ -155,74 +146,59 @@ namespace Rec {
                 continue;
             }
 
-            const Trk::ResidualPull* res = m_residualCalculator->residualPull(meas, exPars, Trk::ResidualPull::Unbiased);
+            std::unique_ptr<const Trk::ResidualPull> res {m_residualCalculator->residualPull(meas, exPars.get(), Trk::ResidualPull::Unbiased)};
 
             ATH_MSG_DEBUG(" " << m_idHelperSvc->toStringChamber(id) << "  residual " << m_printer->print(*res));
 
-            if (fabs(res->pull().front()) > m_pullCut) {
+            if (std::abs(res->pull().front()) > m_pullCut) {
                 if (measuresPhi) {
                     badPhiIndices.insert(index);
                 } else {
                     badEtaIndices.insert(index);
                 }
             }
-            delete res;
+          
 
             if (msgLvl(MSG::DEBUG)) {
                 if (!m_idHelperSvc->measuresPhi(id)) {
                     const MuonGM::MuonReadoutElement* detEl = nullptr;
-
                     if (m_idHelperSvc->isMdt(id)) {
                         const Muon::MdtDriftCircleOnTrack* mdt = dynamic_cast<const Muon::MdtDriftCircleOnTrack*>(meas);
-
                         if (mdt) { detEl = mdt->detectorElement(); }
                     } else if (m_idHelperSvc->isCsc(id)) {
                         const Muon::CscClusterOnTrack* csc = dynamic_cast<const Muon::CscClusterOnTrack*>(meas);
-
                         if (csc) { detEl = csc->detectorElement(); }
                     }
 
                     if (detEl) {
                         const Trk::PlaneSurface* detSurf = dynamic_cast<const Trk::PlaneSurface*>(&detEl->surface());
-
                         if (detSurf) {
-                            Trk::LocalDirection* idDir = new Trk::LocalDirection;
-                            detSurf->globalToLocalDirection(exPars->momentum(), *idDir);
+                            Trk::LocalDirection idDir{};
+                            detSurf->globalToLocalDirection(exPars->momentum(), idDir);
 
-                            const Trk::TrackParameters* pars = (*tsosit)->trackParameters();
-                            Trk::LocalDirection* msDir = new Trk::LocalDirection;
-                            detSurf->globalToLocalDirection(pars->momentum(), *msDir);
-
-                            if (idDir && msDir) {
-                                ATH_MSG_DEBUG(" local Angles: id (" << idDir->angleXZ() << "," << idDir->angleYZ() << ")  ms ("
-                                                                    << msDir->angleXZ() << "," << msDir->angleYZ() << ")");
-                            }
-                            delete idDir;
-                            delete msDir;
+                            const Trk::TrackParameters* pars = tsosit->trackParameters();
+                            Trk::LocalDirection msDir{};
+                            detSurf->globalToLocalDirection(pars->momentum(), msDir);
+                            ATH_MSG_DEBUG(" local Angles: id (" << idDir.angleXZ() << "," << idDir.angleYZ() << ")  ms ("
+                                                                << msDir.angleXZ() << "," << msDir.angleYZ() << ")");                           
                         }
                     }
                 }
             }  // end DEBUG toggle
 
-            if (lastPars == lastIndetPars) {
-                if (!innerParameters && exPars != lastPars) { innerParameters = exPars; }
-            } else if (lastPars != exPars) {
-                if (innerParameters && !middleParameters && middleParameters != exPars) {
-                    middleParameters = exPars;
-                } else if (lastPars != innerParameters && lastPars != middleParameters) {
-                    delete lastPars;
-                }
+            if (!innerParsSet && !innerParameters && exPars && lastPars) {
+               innerParameters = std::move(exPars); 
+            } else if (exPars && innerParameters && !middleParameters ) {
+                middleParameters = std::move(exPars);                
             }
-
-            lastPars = exPars;
+            lastPars = std::move(exPars);
+            innerParsSet = true;
         }
 
         if (middleParameters) {
-            if (lastPars != middleParameters) { outerParameters = lastPars; }
+            outerParameters = std::move(lastPars); 
         } else {
-            middleParameters = innerParameters;
-            innerParameters = nullptr;
-
+            middleParameters = std::move(innerParameters);            
             if (!middleParameters) {
                 ATH_MSG_DEBUG("parameter extrapolation failed");
                 return nullptr;
@@ -234,26 +210,19 @@ namespace Rec {
 
         if (!cleanPhi && !cleanEta) {
             ATH_MSG_DEBUG("No layers removed");
-            delete innerParameters;
-            delete middleParameters;
-            delete outerParameters;
             return nullptr;
         }
 
         if (badEtaIndices.size() == etaIndices.size()) {
             ATH_MSG_DEBUG("All layers removed");
-            delete innerParameters;
-            delete middleParameters;
-            delete outerParameters;
             return nullptr;
         }
 
         Trk::MeasurementSet spectrometerMeasurements;
-        tsosit = spectrometerTrack.trackStateOnSurfaces()->begin();
-        for (; tsosit != spectrometerTrack.trackStateOnSurfaces()->end(); ++tsosit) {
-            const Trk::MeasurementBase* meas = (*tsosit)->measurementOnTrack();
+        for (const Trk::TrackStateOnSurface*  tsosit : *spectrometerTrack.trackStateOnSurfaces()) {
+            const Trk::MeasurementBase* meas = tsosit->measurementOnTrack();
             if (!meas) continue;
-            if ((*tsosit)->type(Trk::TrackStateOnSurface::Outlier)) continue;
+            if (tsosit->type(Trk::TrackStateOnSurface::Outlier)) continue;
 
             Identifier id = m_edmHelperSvc->getIdentifier(*meas);
             if (!id.is_valid()) continue;
@@ -269,23 +238,15 @@ namespace Rec {
 
         if (spectrometerMeasurements.size() < 6) {
             ATH_MSG_DEBUG("Too few hits left - discarding fit");
-            delete innerParameters;
-            delete middleParameters;
-            delete outerParameters;
             return nullptr;
         }
 
         // fit the combined track
         std::unique_ptr<Trk::Track> combinedTrack;
         if (!m_trackBuilder.empty()) {
-            combinedTrack = m_trackBuilder->indetExtension(ctx, indetTrack, spectrometerMeasurements, innerParameters, middleParameters,
-                                                           outerParameters);
+            combinedTrack = m_trackBuilder->indetExtension(ctx, indetTrack, spectrometerMeasurements, std::move(innerParameters), std::move(middleParameters),
+                                                           std::move(outerParameters));
         }
-
-        delete innerParameters;
-        delete middleParameters;
-        delete outerParameters;
-
         if (combinedTrack) {
             ++m_recoverySuccess;
             combinedTrack->info().setPatternRecognitionInfo(Trk::TrackInfo::MuidMuonRecoveryTool);
@@ -297,7 +258,6 @@ namespace Rec {
             ++m_recoveryFitFailure;
             ATH_MSG_DEBUG("track fit failure ");
         }
-
         return combinedTrack;
     }
 
