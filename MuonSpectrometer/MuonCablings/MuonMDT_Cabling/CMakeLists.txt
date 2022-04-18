@@ -11,4 +11,5 @@ atlas_add_component( MuonMDT_Cabling
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel StoreGateLib MuonIdHelpersLib MuonCablingData AthenaPoolUtilities MuonCondSvcLib PathResolver SGTools )
+                     LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel StoreGateLib MuonIdHelpersLib 
+                                    MuonCablingData AthenaPoolUtilities MuonCondSvcLib PathResolver SGTools )
