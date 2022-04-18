@@ -331,7 +331,7 @@ namespace DerivationFramework {
       int trkIndex2 = -999;
       for( unsigned int i(0); i < el->nTrackParticles(); ++i ){
         const auto *trackParticle = el->trackParticle( i );
-        if( nSiHits(trackParticle) >= 7 &&  ElectronSelectorHelpers::passBLayerRequirement(trackParticle) ) {
+        if( nSiHits(trackParticle) >= 7 &&  ElectronSelectorHelpers::passBLayerRequirement(*trackParticle) ) {
           if ( trk1 == nullptr ){
             trk1 = trackParticle;
             trkIndex1 = i;

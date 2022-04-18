@@ -352,9 +352,9 @@ asg::AcceptData AsgElectronSelectorTool::accept( const EventContext& ctx, const 
     notFoundList += "ambiguityType ";
   }
 
-  nSiHitsPlusDeadSensors = ElectronSelectorHelpers::numberOfSiliconHitsAndDeadSensors(track);
-  nPixHitsPlusDeadSensors = ElectronSelectorHelpers::numberOfPixelHitsAndDeadSensors(track);
-  passBLayerRequirement = ElectronSelectorHelpers::passBLayerRequirement(track);
+  nSiHitsPlusDeadSensors = ElectronSelectorHelpers::numberOfSiliconHitsAndDeadSensors(*track);
+  nPixHitsPlusDeadSensors = ElectronSelectorHelpers::numberOfPixelHitsAndDeadSensors(*track);
+  passBLayerRequirement = ElectronSelectorHelpers::passBLayerRequirement(*track);
 
   // calculate the output of the selector tool
   double mvaScore = calculate(ctx, eg, mu);
@@ -581,8 +581,8 @@ std::vector<float> AsgElectronSelectorTool::calculateMultipleOutputs(const Event
 
   EoverP =  energy * std::abs(trackqoverp);
 
-  nPixHitsPlusDeadSensors = ElectronSelectorHelpers::numberOfPixelHitsAndDeadSensors(track);
-  nSCTHitsPlusDeadSensors = ElectronSelectorHelpers::numberOfSCTHitsAndDeadSensors(track);
+  nPixHitsPlusDeadSensors = ElectronSelectorHelpers::numberOfPixelHitsAndDeadSensors(*track);
+  nSCTHitsPlusDeadSensors = ElectronSelectorHelpers::numberOfSCTHitsAndDeadSensors(*track);
 
   // retrieve Calorimeter variables
   // reta = e237/e277
