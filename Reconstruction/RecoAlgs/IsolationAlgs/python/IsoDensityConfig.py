@@ -37,14 +37,21 @@ def NFlowInputAlgCfg(flags, name='NFlowInputAlg', **kwargs):
     from JetRecConfig.JetRecConfig import JetInputCfg
 
     # Get the input (FlowObject, with CHS and origin (for neutral) and weight (for charged) correction)
-    acc.merge(JetInputCfg(flags, cst.EMPFlow) )
+    if 'InputType' not in kwargs:
+        kwargs['InputType'] = 'EMPFlow'
+    cstI = cst[kwargs['InputType']]
+    acc.merge(JetInputCfg(flags, cstI))
+
+    cstO = cstI.containername[0:cstI.containername.find('ParticleFlowObjects')]
+    mlog.info('Configuring density for type '+cstO)
+    cstOs = cstO if cstO != 'CHS' else ''
 
     # Then transform into pseudo-jets for the neutral only
     constitpjalg = CompFactory.PseudoJetAlgorithm(
-        name = "PseudoJetAlgForIsoNFlow",
-        InputContainer = "CHSNeutralParticleFlowObjects",
-        OutputContainer = "PseudoJetNFlow",
-        Label = "EMNPFlow",
+        name = "PseudoJetAlgForIso"+cstOs+"NFlow",
+        InputContainer = cstO+"NeutralParticleFlowObjects",
+        OutputContainer = "PseudoJet"+cstOs+"NFlow",
+        Label = "EM"+cstOs+"NPFlow",
         SkipNegativeEnergy=True)
 
     # Add the algs to the sequence in the ComponentAccumulator
@@ -55,24 +62,20 @@ def NFlowInputAlgCfg(flags, name='NFlowInputAlg', **kwargs):
 
 def DensityForIsoAlgCfg(flags, name = "CentralDensityForTopoIso", **kwargs):
 
-    from EventShapeTools.EventDensityConfig import configEventDensityTool
-    from JetRecConfig.StandardJetConstits import stdConstitDic as cst
     mlog = logging.getLogger(name)
     mlog.info('Starting density alg for isolation configuration')
 
     acc = ComponentAccumulator()
-
-    # Need to understand how to know that the above has been configured
-    #acc.merge(EMTopoInputAlgCfg(flags))
     
     # And then the density tool and algs. By default the central one
     if name.find('Topo') >= 0:
-        inputconstit = cst.EMTopo
+        inputO = 'PseudoJetEMTopoClusters'
         outputS = 'TopoCluster'
     elif name.find('NFlow') >= 0:
-        inputconstit = cst.EMPFlow # needed to call configEventDensityTool, but no effect since we'll override input and output names        
-        kwargs['InputContainer'] = 'PseudoJetNFlow'    
-        outputS = 'NeutralParticleFlow'
+        suff = 'CSSK' if name.find('CSSK') >= 0 else ''
+        inputO = 'PseudoJet'+suff+'NFlow'
+        outputS = 'NeutralParticle'+suff+'Flow'
+    kwargs['InputContainer'] = inputO
     kwargs['JetRadius'] = 0.5
     kwargs['UseFourMomArea'] = True
     kwargs['VoronoiRfact'] = 0.9
@@ -85,9 +88,8 @@ def DensityForIsoAlgCfg(flags, name = "CentralDensityForTopoIso", **kwargs):
         kwargs['OutputContainer'] = outputS+'IsoForwardEventShape'
         kwargs['AbsRapidityMin'] = 1.5
         kwargs['AbsRapidityMax'] = 3.0
-
-    densityTool = configEventDensityTool(name+'Tool',
-                                         inputconstit, **kwargs)
+    densityTool = CompFactory.EventDensityTool(
+        name = name+'Tool',**kwargs)
     
     densityAlg = CompFactory.EventDensityAthAlg(
         name = name+'Alg',

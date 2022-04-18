@@ -42,7 +42,7 @@ bool xAOD::EgammaHelpers::isBarrel(const xAOD::CaloCluster *cluster){
   return cluster->inBarrel();
 }
 // ==================================================================
-std::vector< ElementLink< xAOD::CaloClusterContainer > > xAOD::EgammaHelpers::getAssociatedTopoClustersLinks(const xAOD::CaloCluster *cluster){ 
+std::vector< ElementLink< xAOD::CaloClusterContainer > > xAOD::EgammaHelpers::getAssociatedTopoClustersLinks(const xAOD::CaloCluster *cluster){
 
   static const SG::AuxElement::Accessor < std::vector< ElementLink< xAOD::CaloClusterContainer > > > caloClusterLinks("constituentClusterLinks");
   std::vector< ElementLink< xAOD::CaloClusterContainer > > veclinks; 
@@ -64,6 +64,47 @@ std::vector<const xAOD::CaloCluster*> xAOD::EgammaHelpers::getAssociatedTopoClus
     }
   }  
   return topoclusters;
+}
+// ==================================================================
+std::vector< ElementLink< xAOD::FlowElementContainer > > xAOD::EgammaHelpers::getAssociatedFlowElementsLinks(const xAOD::Egamma *eg,
+													     bool neutral){
+  static const SG::AuxElement::Accessor < std::vector< ElementLink< xAOD::FlowElementContainer > > > nflowElementLinks("neutralFELinks");
+  static const SG::AuxElement::Accessor < std::vector< ElementLink< xAOD::FlowElementContainer > > > cflowElementLinks("chargedFELinks");
+  std::vector< ElementLink< xAOD::FlowElementContainer > > veclinks;
+  if(neutral && nflowElementLinks.isAvailable(*eg)){
+    veclinks=nflowElementLinks(*eg);
+  } else if(!neutral && cflowElementLinks.isAvailable(*eg)){
+    veclinks=cflowElementLinks(*eg);
+  }
+  return veclinks;
+}
+// ==================================================================
+std::vector<const xAOD::FlowElement*> xAOD::EgammaHelpers::getAssociatedFlowElements(const xAOD::Egamma *eg,
+										     bool neutral, bool charged){
+  std::vector< const xAOD::FlowElement* > flowelements;
+  if (!neutral && !charged)
+    return flowelements;
+  std::vector< ElementLink< xAOD::FlowElementContainer > > veclinks = xAOD::EgammaHelpers::getAssociatedFlowElementsLinks(eg,neutral);
+  for (const auto& i : veclinks){
+    if(i.isValid()){
+      flowelements.push_back(*i);
+    }
+    else{
+      flowelements.push_back(nullptr);
+    }
+  }
+  if (neutral && charged) {
+    std::vector< ElementLink< xAOD::FlowElementContainer > > oveclinks = xAOD::EgammaHelpers::getAssociatedFlowElementsLinks(eg,false);
+    for (const auto& i : oveclinks){
+      if(i.isValid()){
+	flowelements.push_back(*i);
+      }
+      else{
+	flowelements.push_back(nullptr);
+      }
+    }
+  }
+  return flowelements;
 }
 // ==================================================================
 std::set<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParticles(const xAOD::Egamma *eg, 

@@ -15,11 +15,6 @@ ExtraElectronsTruth=[
     ]
 
 ExtraContentMuons=[
-#    "Muons.DFCommonGoodMuon",
-#    "Muons.DFCommonMuonsLoose",
-#    "Muons.DFCommonMuonsMedium",
-#    "Muons.DFCommonMuonsTight",
-    "Muons.DFCommonMuonsPreselection",
     "Muons.ptcone20",
     "Muons.ptcone30",
     "Muons.ptcone40",
