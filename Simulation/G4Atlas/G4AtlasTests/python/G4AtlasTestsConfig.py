@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr,Logging
 
@@ -124,5 +124,5 @@ def getSteppingValidationTool(name="G4UA::SteppingValidationTool",**kwargs):
         #from AthenaCommon.AppMgr import theApp
         #theApp.exit(1)
         return False
-    from G4AtlasTests.G4AtlasTestsConf import G4UA__SteppingValidationTool
+    from AtlasGeant4.AtlasGeant4Conf import G4UA__SteppingValidationTool
     return G4UA__SteppingValidationTool(name, **kwargs)
