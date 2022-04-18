@@ -159,22 +159,7 @@ Trk::MaterialEffectsUpdator::updateImpl(
 
   // get the real pathlength
   double pathCorrection = std::abs(lay.surfaceRepresentation().pathCorrection(parm->position(), parm->momentum()));
-
-  // set the output if restricted to the direction
-  bool outputFlag = m_msgOutputValidationDirection ? dir == int(m_validationDirection) : true;
-
-  // --------------------------------------------------------------------------------------------------
-  if (msgLvl(MSG::VERBOSE) && outputFlag) {
-    double layerR = lay.surfaceRepresentation().bounds().r();
-    double layerZ = lay.surfaceRepresentation().center().z();
-    double eta = parm->momentum().eta();
-    double sX0 = mprop->thicknessInX0();
-    double tX0 = pathCorrection * mprop->thicknessInX0();
-    ATH_MSG_VERBOSE("  [M] full material update,  layer with [r,z] = [ " << layerR << ", " << layerZ << " ] - Index "
-                                                                         << lay.layerIndex());
-    ATH_MSG_VERBOSE("      thickness/X0 , path/X0  (eta: g.factor) = " << sX0 << " , " << tX0 << " (" << eta << ": "
-                                                                       << pathCorrection << ")");
-  }
+  
   // --------------------------------------------------------------------------------------------------
   if (m_validationMode) {
     cache.validationLayer = &lay;
