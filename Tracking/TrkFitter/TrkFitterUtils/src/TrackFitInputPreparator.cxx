@@ -12,7 +12,6 @@
 #include "TrkEventUtils/TrackStateOnSurfaceComparisonFunction.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkFitterUtils/MeasBaseIndexComparisonFunction.h"
-#include "TrkFitterUtils/ProtoMaterialEffects.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkToolInterfaces/IUpdator.h"
