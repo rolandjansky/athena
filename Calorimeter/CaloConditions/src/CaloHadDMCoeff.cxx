@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloConditions/CaloHadDMCoeff.h"
@@ -7,16 +7,13 @@
 #include <iostream>
 
 CaloHadDMCoeff::CaloHadDMCoeff()
-{
-
-}
+= default;
 
 
 CaloHadDMCoeff::CaloHadDMCoeff(const CaloHadDMCoeff &other)
-  : m_DMCoeffSet (other.m_DMCoeffSet),
-    m_DMAreaSet (other.m_DMAreaSet)
-{
-}
+  
+    
+= default;
 
 
 CaloHadDMCoeff& CaloHadDMCoeff::operator= (const CaloHadDMCoeff& other)

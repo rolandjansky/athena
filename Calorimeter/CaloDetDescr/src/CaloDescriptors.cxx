@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloDetDescr/CaloDescriptors.h"
@@ -30,8 +30,7 @@ EMBDescriptor::EMBDescriptor(const Identifier& id
 }
 
 EMBDescriptor::~EMBDescriptor()
-{
-}
+= default;
 
 // -- EMECDescriptor --
 EMECDescriptor::EMECDescriptor(const Identifier& id
@@ -57,8 +56,7 @@ EMECDescriptor::EMECDescriptor(const Identifier& id
 }
 
 EMECDescriptor::~EMECDescriptor()
-{
-}
+= default;
 
 // -- HECDescriptor --
 HECDescriptor::HECDescriptor(const Identifier& id
@@ -84,8 +82,7 @@ HECDescriptor::HECDescriptor(const Identifier& id
 }
 
 HECDescriptor::~HECDescriptor()
-{
-}
+= default;
 
 // -- FCALDescriptor --
 FCALDescriptor::FCALDescriptor(const Identifier& id
@@ -111,5 +108,4 @@ FCALDescriptor::FCALDescriptor(const Identifier& id
 }
 
 FCALDescriptor::~FCALDescriptor()
-{
-}
+= default;

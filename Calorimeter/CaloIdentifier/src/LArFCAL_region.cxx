@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArFCAL_region.h"
@@ -41,9 +41,7 @@ LArFCAL_region::LArFCAL_region(unsigned int& minHash, short int& nbEtaBins, shor
  
 }
 
-LArFCAL_region::~LArFCAL_region()
-{
-}
+
 
 short int LArFCAL_region::numberOfEta() const
 {

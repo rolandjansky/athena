@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloIdentifier/JGTowerBase_ID.h"
@@ -35,7 +35,7 @@ JGTowerBase_ID::JGTowerBase_ID(void) :
 
 }
 
-JGTowerBase_ID:: ~JGTowerBase_ID(){}
+JGTowerBase_ID:: ~JGTowerBase_ID()= default;
 
 
 

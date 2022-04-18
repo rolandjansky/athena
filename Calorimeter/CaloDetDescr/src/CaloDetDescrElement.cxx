@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloDetDescr/CaloDetDescrElement.h"
@@ -58,8 +58,7 @@ CaloDetDescrElement::CaloDetDescrElement(const IdentifierHash subcaloHash,
 }
 
 CaloDetDescrElement::~CaloDetDescrElement () 
-{
-}
+= default;
 
 Identifier
 CaloDetDescrElement::identify() const

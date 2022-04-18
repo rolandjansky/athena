@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -12,11 +12,10 @@
 
 
 CaloDmDescrArea::CaloDmDescrArea()
-{ }
+= default;
 
 
-CaloDmDescrArea::~CaloDmDescrArea()
-{ }
+
 
 
 /* ****************************************************************************
@@ -27,7 +26,7 @@ int CaloDmDescrArea::getArea(const int &key, const float &xeta)
 {
   int nsmp=DMA_UNCLASS;
 
-  float eta = fabs(xeta);
+  float eta = std::abs(xeta);
 
   if(key >=4101 && key <=4105) { // inner detector
     if(eta <1.5) {

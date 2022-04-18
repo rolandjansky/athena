@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloIdentifier/CaloID_Exception.h"
@@ -28,7 +28,7 @@ void CaloID_Exception::code(int lCode)
 int CaloID_Exception::code() const 
 { return m_code;}
 
-CaloID_Exception::operator std::string () 
+CaloID_Exception::operator std::string () const 
 
 {
   return
