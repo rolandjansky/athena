@@ -32,7 +32,8 @@
 #include "TileEvent/TileContainer.h"
 #include "TileEvent/TileLaserObject.h"
 #include "TileEvent/TileMuonReceiverContainer.h"
-#include "TileByteStream/TileBeamElemContByteStreamCnv.h"
+#include "TileByteStream/TileHid2RESrcID.h"
+#include "TileIdentifier/TileTBFrag.h"
 #include "TileL2Algs/TileL2Builder.h"
 
 // Calo includes
@@ -45,6 +46,10 @@
 #include "AthenaKernel/errorcheck.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
+
+#include "eformat/ROBFragment.h"
+#include "eformat/FullEventFragment.h"
 
 // Gaudi includes
 #include "GaudiKernel/ITHistSvc.h"
@@ -145,7 +150,6 @@ TileAANtuple::TileAANtuple(std::string name, ISvcLocator* pSvcLocator)
 , m_tileMgr(0)
 , m_tileBadChanTool("TileBadChanTool")
 , m_tileToolEmscale("TileCondToolEmscale")
-, m_beamCnv(0)
 , m_l2Builder()
 , m_sumEt_xx()
 , m_sumEz_xx()
@@ -211,7 +215,7 @@ StatusCode TileAANtuple::initialize() {
 
   // find TileCablingService
   m_cabling = TileCablingService::getInstance();
-  
+
   // retrieve TileDetDescr Manager det store
   ATH_CHECK( detStore()->retrieve(m_tileMgr) );
   
@@ -272,25 +276,13 @@ StatusCode TileAANtuple::ntuple_initialize(const EventContext& ctx,
                                            const TileDQstatus& DQstatus)
 {
   if (m_bsInput) {
-    ServiceHandle<IConversionSvc> cnvSvc("ByteStreamCnvSvc", "");
-    if (cnvSvc.retrieve().isFailure()) {
-      ATH_MSG_ERROR( " Can't get ByteStreamCnvSvc " );
-      m_beamCnv = NULL;
-      
-    } else {
-      
-      m_beamCnv =
-      dynamic_cast<TileBeamElemContByteStreamCnv *>(cnvSvc->converter(
-                                                                      ClassID_traits<TileBeamElemContainer>::ID()));
-      
-      if (m_beamCnv == NULL) {
-        ATH_MSG_ERROR( " Can't get TileBeamElemContByteStreamCnv " );
-      }
-    }
-  } else {
-    m_beamCnv = NULL;
+    ATH_CHECK( m_robSvc.retrieve() );
+    ATH_CHECK( m_decoder.retrieve() );
+    const TileHid2RESrcID* hid2re = m_decoder->getHid2re();
+    m_ROBID.push_back( hid2re->getRobFromFragID(DIGI_PAR_FRAG) );
+    m_ROBID.push_back( hid2re->getRobFromFragID(LASER_OBJ_FRAG) );
   }
-  
+
   uint32_t calib = DQstatus.calibMode();
   bool calibMode  = (calib == 1);
   if ( calibMode != m_calibMode && calib!=0xFFFFFFFF ) {
@@ -356,7 +348,7 @@ StatusCode TileAANtuple::execute() {
   }
   
   bool empty = true;
-  
+
   // store BeamElements
   if (!m_beamElemContainerKey.key().empty()) {
     empty &= storeBeamElements(*DQstatus).isFailure();
@@ -389,19 +381,30 @@ StatusCode TileAANtuple::execute() {
   empty &= storeTMDBDigits(ctx).isFailure();
   empty &= storeTMDBRawChannel(ctx).isFailure();
 
-  if (m_beamCnv) {
-    SG::makeHandle (m_beamElemContainerKey, ctx).get();
-    m_evTime = m_beamCnv->eventFragment()->bc_time_seconds();
-    m_evt = m_beamCnv->eventFragment()->global_id();
-    if ( m_beamCnv->validBeamFrag() )
-      m_run = m_beamCnv->robFragment()->rod_run_no();   // take it from beam ROD header
-    else
-      m_run = m_beamCnv->eventFragment()->run_no();  // sometimes run_no is 0 here
-  } else {
-    m_evTime = 0;
-    m_evt = m_evtNr;
-    m_run = 0;
+  m_evTime = 0;
+
+  if (m_bsInput) {
+    const eformat::FullEventFragment<const uint32_t*>* event = nullptr;
+    const eformat::ROBFragment<const uint32_t*>* robFrag = nullptr;
+    event = m_robSvc->getEvent();
+    std::vector<const ROBDataProviderSvc::ROBF*> robf;
+    // keep pointer to whole event and to CIS PAR frag internally
+    m_robSvc->getROBData(m_ROBID, robf);
+    robFrag = (robf.size() > 0 ) ? robf[0] : nullptr;
+    if (event) {
+      m_evTime = event->bc_time_seconds();
+      if ( robFrag ) {
+        // Store ROD header info from collection
+        int rod = N_RODS-1;
+        m_l1ID[rod]   = robFrag->rod_lvl1_id();
+        m_l1Type[rod] = robFrag->rod_lvl1_trigger_type();
+        m_evType[rod] = robFrag->rod_detev_type();
+        m_evBCID[rod] = robFrag->rod_bc_id();
+        if (m_trigType == 0) m_trigType = -m_l1Type[rod]; // make negative to distinguish from TileCal internal trig types
+      }
+    }
   }
+
   m_lumiBlock = -1; // placeholder
   
   //Get run and event numbers
@@ -627,19 +630,6 @@ StatusCode TileAANtuple::storeBeamElements(const TileDQstatus& DQstatus) {
   }
   
   m_trigType = cispar[12];
-  
-  // Store ROD header info from collection
-  if (m_beamCnv) {
-    const eformat::ROBFragment<const uint32_t*> *rob = m_beamCnv->robFragment();
-    if (rob) {
-      int rod = N_RODS-1;
-      m_l1ID[rod]   = rob->rod_lvl1_id();
-      m_l1Type[rod] = rob->rod_lvl1_trigger_type();
-      m_evType[rod] = rob->rod_detev_type();
-      m_evBCID[rod] = rob->rod_bc_id();
-      if (m_trigType == 0) m_trigType = -m_l1Type[rod]; // make negative to distinguish from TileCal internal trig types
-    }
-  }
   
   return StatusCode::SUCCESS;
 }
