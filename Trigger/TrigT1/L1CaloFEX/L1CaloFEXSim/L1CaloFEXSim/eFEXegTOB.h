@@ -23,16 +23,17 @@ namespace LVL1 {
     unsigned int m_eta;
     unsigned int m_phi;
     unsigned int m_ET;
-    unsigned int m_Reta_Num;
-    unsigned int m_Reta_Den;
-    unsigned int m_Rhad_Num;
-    unsigned int m_Rhad_Den;
+    unsigned int m_Reta_Core;
+    unsigned int m_Reta_Env;
+    unsigned int m_Rhad_EM;
+    unsigned int m_Rhad_Had;
     unsigned int m_Wstot_Num;
     unsigned int m_Wstot_Den;
     unsigned int m_FPGA_ID;
     unsigned int m_eFEX_ID;
     bool m_seed_UnD;
     unsigned int m_seed;
+    uint32_t m_tobword;
     
   public:
     eFEXegTOB();
@@ -47,12 +48,13 @@ namespace LVL1 {
     inline bool getSeedUnD() const {return m_seed_UnD;}
     // seed index in eta
     inline unsigned  int getSeed() const {return m_seed;}
-    inline unsigned  int getRetaNum() const {return m_Reta_Num;}
-    inline unsigned  int getRetaDen() const {return m_Reta_Den;}
-    inline unsigned  int getRhadNum() const {return m_Rhad_Num;}
-    inline unsigned  int getRhadDen() const {return m_Rhad_Den;}
+    inline unsigned  int getRetaCore() const {return m_Reta_Core;}
+    inline unsigned  int getRetaEnv() const {return m_Reta_Env;}
+    inline unsigned  int getRhadEM() const {return m_Rhad_EM;}
+    inline unsigned  int getRhadHad() const {return m_Rhad_Had;}
     inline unsigned  int getWstotNum() const {return m_Wstot_Num;}
     inline unsigned  int getWstotDen() const {return m_Wstot_Den;}
+    inline uint32_t getTobword() const {return m_tobword;}
     
     unsigned int setEta(unsigned int);
     unsigned int setPhi(unsigned int);
@@ -61,12 +63,13 @@ namespace LVL1 {
     unsigned int seteFEXID(unsigned int);
     bool setSeedUnD(bool);
     unsigned int setSeed(unsigned int);
-    unsigned int setRetaNum(unsigned int);
-    unsigned int setRetaDen(unsigned int);
-    unsigned int setRhadNum(unsigned int);
-    unsigned int setRhadDen(unsigned int);
+    unsigned int setRetaCore(unsigned int);
+    unsigned int setRetaEnv(unsigned int);
+    unsigned int setRhadEM(unsigned int);
+    unsigned int setRhadHad(unsigned int);
     unsigned int setWstotNum(unsigned int);
     unsigned int setWstotDen(unsigned int);
+    uint32_t setTobword(uint32_t);
   };
   
 } // end of namespace

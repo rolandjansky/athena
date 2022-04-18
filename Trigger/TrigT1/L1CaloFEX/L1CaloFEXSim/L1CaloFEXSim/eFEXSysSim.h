@@ -23,6 +23,7 @@
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "L1CaloFEXSim/eFEXFPGATowerIdProvider.h"
+#include "L1CaloFEXSim/eFEXegTOB.h"
 
 #include "xAODTrigger/eFexEMRoIContainer.h"
 #include "xAODTrigger/eFexEMRoIAuxContainer.h"
@@ -86,7 +87,7 @@ namespace LVL1 {
 
     //std::map<int,eTower> m_eTowersColl;
 
-    std::map<int, std::vector<uint32_t> > m_allEmTobs;
+    std::map<int, std::vector<eFEXegTOB> > m_allEmTobObjects;
 
     std::map<int, std::vector<uint32_t> > m_allTauTobs;
 

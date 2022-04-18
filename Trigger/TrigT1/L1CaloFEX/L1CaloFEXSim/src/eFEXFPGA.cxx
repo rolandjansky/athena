@@ -83,8 +83,7 @@ void eFEXFPGA::reset(){
 }
 
 StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
-
-  m_emTobwords.clear();
+  m_emTobObjects.clear();
   m_tauTobwords.clear();
 
   SG::ReadHandle<eTowerContainer> eTowerContainer(m_eTowerContainerKey/*,ctx*/);
@@ -151,10 +150,10 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
       // Get Reta and Rhad outputs
       std::vector<unsigned int> RetaCoreEnv; 
       m_eFEXegAlgoTool->getReta(RetaCoreEnv);
-      std::vector<unsigned int> RhadCoreEnv; 
-      m_eFEXegAlgoTool->getRhad(RhadCoreEnv);
-      std::vector<unsigned int> WstotCoreEnv;
-      m_eFEXegAlgoTool->getWstot(WstotCoreEnv);
+      std::vector<unsigned int> RhadEMHad; 
+      m_eFEXegAlgoTool->getRhad(RhadEMHad);
+      std::vector<unsigned int> WstotDenNum;
+      m_eFEXegAlgoTool->getWstot(WstotDenNum);
 
       // Set Reta, Rhad and Wstot WP
       unsigned int RetaWP = 0;
@@ -174,22 +173,23 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
       }
       else{
 	SetIsoWP(RetaCoreEnv,threshReta,RetaWP,RetaBitS);
-	SetIsoWP(RhadCoreEnv,threshRhad,RhadWP,RhadBitS);
-	SetIsoWP(WstotCoreEnv,threshWstot,WstotWP,WstotBitS);
+	SetIsoWP(RhadEMHad,threshRhad,RhadWP,RhadBitS);
+	SetIsoWP(WstotDenNum,threshWstot,WstotWP,WstotBitS);
       }
       int eta_ind = ieta; // No need to offset eta index with new 0-5 convention
       int phi_ind = iphi - 1;
 
       //form the egamma tob word
       uint32_t tobword = m_eFEXFormTOBsTool->formEmTOBWord(m_id,eta_ind,phi_ind,RhadWP,WstotWP,RetaWP,seed,eEMTobEt,ptMinToTopoCounts);
-      if ( (tobword != 0) && (eEMTobEt != 0) ) m_emTobwords.push_back(tobword);
 
       std::unique_ptr<eFEXegTOB> tmp_tob = m_eFEXegAlgoTool->geteFEXegTOB();
       
       tmp_tob->setFPGAID(m_id);
-      // TODO tmp_tob->.setEFEXID(xxx);
+      tmp_tob->seteFEXID(m_efexid);
       tmp_tob->setEta(ieta);
       tmp_tob->setPhi(iphi);
+      tmp_tob->setTobword(tobword);
+      if ( (tobword != 0) && (eEMTobEt != 0) ) m_emTobObjects.push_back(*tmp_tob);
 
       // for plotting
       if (inputOutputCollection->getdooutput()) {
@@ -197,10 +197,10 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
         inputOutputCollection->addEMtob(tobword);
         inputOutputCollection->addValue_eg("WstotNum", tmp_tob->getWstotNum());
         inputOutputCollection->addValue_eg("WstotDen", tmp_tob->getWstotDen());
-        inputOutputCollection->addValue_eg("RetaNum", tmp_tob->getRetaNum());
-        inputOutputCollection->addValue_eg("RetaDen", tmp_tob->getRetaDen());
-        inputOutputCollection->addValue_eg("RhadNum", tmp_tob->getRhadNum());
-        inputOutputCollection->addValue_eg("RhadDen", tmp_tob->getRhadDen());
+        inputOutputCollection->addValue_eg("RetaNum", tmp_tob->getRetaCore());
+        inputOutputCollection->addValue_eg("RetaDen", tmp_tob->getRetaEnv());
+        inputOutputCollection->addValue_eg("RhadNum", tmp_tob->getRhadEM());
+        inputOutputCollection->addValue_eg("RhadDen", tmp_tob->getRhadHad());
         inputOutputCollection->addValue_eg("haveSeed", m_eFEXegAlgoTool->hasSeed());
         inputOutputCollection->addValue_eg("ET", m_eFEXegAlgoTool->getET());
         float eta = 9999;
@@ -330,14 +330,14 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
 
 
 
-std::vector<uint32_t> eFEXFPGA::getEmTOBs()
+std::vector<eFEXegTOB> eFEXFPGA::getEmTOBs()
 {
-  auto tobsSort = m_emTobwords;
+  auto tobsSort = m_emTobObjects;
 
   ATH_MSG_DEBUG("number of tobs: " <<tobsSort.size() << " in FPGA: " << m_id << " before truncation");
 
   // sort tobs by their et (last 12 bits of the 32 bit tob word)
-  std::sort (tobsSort.begin(), tobsSort.end(), etSort);
+  std::sort (tobsSort.begin(), tobsSort.end(), TOBetSort);
 
   // return the top 6 highest ET TOBs from the FPGA
   if (tobsSort.size() > 6) tobsSort.resize(6);

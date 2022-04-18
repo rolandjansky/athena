@@ -17,16 +17,17 @@ LVL1::eFEXegTOB::eFEXegTOB():
   m_eta{99999},
   m_phi{99999},
   m_ET{99999},
-  m_Reta_Num{99999},
-  m_Reta_Den{99999},
-  m_Rhad_Num{99999},
-  m_Rhad_Den{99999},
+  m_Reta_Core{99999},
+  m_Reta_Env{99999},
+  m_Rhad_EM{99999},
+  m_Rhad_Had{99999},
   m_Wstot_Num{99999},
   m_Wstot_Den{99999},
   m_FPGA_ID{99999},
   m_eFEX_ID{99999},
   m_seed_UnD{1},
-  m_seed{99999}
+  m_seed{99999},
+  m_tobword{0}
 {}
 
 unsigned int LVL1::eFEXegTOB::setEta(unsigned int eta) {
@@ -64,24 +65,24 @@ unsigned int LVL1::eFEXegTOB::setSeed(unsigned int seed) {
   return m_seed;
 }
 
-unsigned int LVL1::eFEXegTOB::setRetaNum(unsigned int retaNum) {
-  m_Reta_Num = retaNum;
-  return m_Reta_Num;
+unsigned int LVL1::eFEXegTOB::setRetaCore(unsigned int retaCore) {
+  m_Reta_Core = retaCore;
+  return m_Reta_Core;
 }
 
-unsigned int LVL1::eFEXegTOB::setRetaDen(unsigned int retaDen) {
-  m_Reta_Den = retaDen;
-  return m_Reta_Den;
+unsigned int LVL1::eFEXegTOB::setRetaEnv(unsigned int retaEnv) {
+  m_Reta_Env = retaEnv;
+  return m_Reta_Env;
 }
 
-unsigned int LVL1::eFEXegTOB::setRhadNum(unsigned int rhadNum) {
-  m_Rhad_Num = rhadNum;
-  return m_Rhad_Num;
+unsigned int LVL1::eFEXegTOB::setRhadEM(unsigned int rhadEM) {
+  m_Rhad_EM = rhadEM;
+  return m_Rhad_EM;
 }
 
-unsigned int LVL1::eFEXegTOB::setRhadDen(unsigned int rhadDen) {
-  m_Rhad_Den = rhadDen;
-  return m_Rhad_Den;
+unsigned int LVL1::eFEXegTOB::setRhadHad(unsigned int rhadHad) {
+  m_Rhad_Had = rhadHad;
+  return m_Rhad_Had;
 }
 
 unsigned int LVL1::eFEXegTOB::setWstotNum(unsigned int wstot_Num) {
@@ -92,4 +93,9 @@ unsigned int LVL1::eFEXegTOB::setWstotNum(unsigned int wstot_Num) {
 unsigned int LVL1::eFEXegTOB::setWstotDen(unsigned int wstot_Den) {
   m_Wstot_Den = wstot_Den;
   return m_Wstot_Den;
+}
+
+uint32_t LVL1::eFEXegTOB::setTobword(uint32_t tobword) {
+  m_tobword = tobword;
+  return m_tobword;
 }
