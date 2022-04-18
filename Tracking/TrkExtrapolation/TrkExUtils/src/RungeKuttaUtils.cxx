@@ -164,52 +164,38 @@ mult3x5Helper(double* ATH_RESTRICT Jac,
               const double* ATH_RESTRICT V,
               const double* ATH_RESTRICT P)
 {
-  using vec2 = CxxUtils::vec<double, 2>;
   /*
    * |Jac[0] |= |V[0]| * |P[0]| + |V[1]| * |P[1] | + |V[2]| * |P[2] |
    * |Jac[1] |= |V[0]| * |P[7]| + |V[1]| * |P[8] | + |V[2]| * |P[9] |
-   *
    * |Jac[2] |= |V[0]| * |P[14]| + |V[1]| * |P[15]| +  |V[2]| * |P[16]|
    * |Jac[3] |= |V[0]| * |P[21]| + |V[1]| * |P[22]| +  |V[2]| * |P[23]|
    *
    * Jac[4] = V[0] * P[28] + V[1] * P[29] + V[2] * P[30];
    *
-   * The first 2  we can do in vertical SIMD (128 bit ) fashion
-   *
-   * {Jac[0] | Jac[1]} =
-   * {V[0] | V[0]} * {P[0]  | P[7]} +
-   * {V[1] | V[1]} * {P[1]  | P[8]}
-   * {V[2] | V[2]} * {P[16] | P[23}
-   *
-   * {Jac[2] | Jac[3]} =
-   * {V[0] | V[0]} * {P[14] | P[21]} +
-   * {V[1] | V[1]} * {P[15] | P[22]} +
-   * {V[2] | V[2]} * {P[16] | P[23}
-   *
-   * Where  {} is a SIMD size 2 vector
+   * The first 4  we can do in vertical SIMD fashion
+   * {Jac[0] | Jac[1] Jac[2] | Jac[3] } =
+   * V[0]  * {P[0]  | P[7] | P[14] | P[21]} +
+   * V[1]  * {P[1]  | P[8] | P[15] | P[22]} +
+   * V[2]  * {P[2]  | P[9] | P[16] | P[23]}
+   * Where  {} is a SIMD size 4 vector
    *
    * The remaining odd (5th) element is done at the end
    * Jac[4] = V[0] * P[28] + V[1] * P[29] + V[2] * P[30];
    */
-  using vec2 = CxxUtils::vec<double, 2>;
-  // 1st/2nd element
-  vec2 P1v1 = { P[0], P[7] };
-  vec2 res1 = V[0] * P1v1;
-  vec2 P1v2 = { P[1], P[8] };
-  res1 += V[1] * P1v2;
-  vec2 P1v3 = { P[2], P[9] };
-  res1 += V[2] * P1v3;
-  CxxUtils::vstore(&Jac[0], res1);
 
-  // 3th/4th element
-  vec2 P2v1 = { P[14], P[21] };
-  vec2 res2 = V[0] * P2v1;
-  vec2 P2v2 = { P[15], P[22] };
-  res2 += V[1] * P2v2;
-  vec2 P2v3 = { P[16], P[23] };
-  res2 += V[2] * P2v3;
-  CxxUtils::vstore(&Jac[2], res2);
+  using vec4 = CxxUtils::vec<double, 4>;
+  // 1st 4 elements
+  vec4 P0 = { P[0], P[7], P[14], P[21] };
+  vec4 res = V[0] * P0;
 
+  vec4 P1 = { P[1], P[8], P[15], P[22] };
+  res += V[1] * P1;
+ 
+  vec4 P2 = { P[2], P[9], P[16], P[23] };
+  res += V[2] * P2;
+ 
+  CxxUtils::vstore(&Jac[0], res);
+  
   // The 5th element
   Jac[4] = V[0] * P[28] + V[1] * P[29] + V[2] * P[30];
 }
