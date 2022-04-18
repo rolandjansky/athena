@@ -121,8 +121,6 @@ namespace xAOD {
         const std::vector<Iso::IsolationType>& cones,
         CaloCorrection corrections,
         const CaloClusterContainer* container,
-        const CaloCluster* fwdClus,
-        const Egamma* egObj,
         double coneCoreSize,
         derefMap_t& derefMap) const;
 
@@ -212,7 +210,8 @@ namespace xAOD {
                               std::vector<float>& m_coneSizes,
                               bool coreEMonly,
                               const FlowElementContainer* container,
-                              double coneCoreSize) const;
+                              double coneCoreSize,
+			      const Egamma *egObj = nullptr) const;
 
       // sum of pt of pflow objects in a cone
       bool pflowObjCones(CaloIsolation& result,
@@ -230,7 +229,8 @@ namespace xAOD {
         float dphiMax,
         float dR2Max,
         const std::vector<const FlowElement*>& clusts,
-        bool onlyEM = false) const;
+        bool onlyEM = false,
+	const Egamma *egObj = nullptr) const;
 
       // core eg 5x7 egamma subtraction
       bool correctIsolationEnergy_Eeg57(

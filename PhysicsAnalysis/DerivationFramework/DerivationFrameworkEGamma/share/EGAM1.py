@@ -31,6 +31,8 @@ from DerivationFrameworkPhys import PhysCommon
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkEGamma.EGAM1ExtraContent import *
 
+from DerivationFrameworkEGamma import EGammaIso
+pflowIsoVar,densityList,densityDict = EGammaIso.makeEGammaCommonIso()
 
 # ====================================================================
 # read common DFEGamma settings from egammaDFFlags
@@ -701,6 +703,8 @@ for tool in EGAM1_ClusterEnergyPerLayerDecorators:
 
 # Add energy density variables
 EGAM1SlimmingHelper.ExtraVariables += ExtraVariablesEventShape
+EGAM1SlimmingHelper.AppendToDictionary.update(densityDict)
+EGAM1SlimmingHelper.ExtraVariables += densityList
 
 # Add event info
 if jobproperties.egammaDFFlags.doEGammaEventInfoSlimming:
