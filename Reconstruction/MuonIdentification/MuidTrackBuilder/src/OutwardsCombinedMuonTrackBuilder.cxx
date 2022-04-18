@@ -26,7 +26,7 @@
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "VxVertex/RecVertex.h"
-
+#include "MuonTrackMakerUtils/MuonTSOSHelper.h"
 namespace Rec {
 
     OutwardsCombinedMuonTrackBuilder::OutwardsCombinedMuonTrackBuilder(const std::string& type, const std::string& name,
@@ -108,19 +108,15 @@ namespace Rec {
     std::unique_ptr<Trk::Track> OutwardsCombinedMuonTrackBuilder::indetExtension(const EventContext& ctx,                                                                                 
                                                                                  const Trk::Track& indetTrack,
                                                                                  const Trk::MeasurementSet& spectrometerMeas,
-                                                                                 const Trk::TrackParameters* /*innerParameters*/,
-                                                                                 const Trk::TrackParameters* /*middleParameters*/,
-                                                                                 const Trk::TrackParameters* /*outerParameters*/) const {
+                                                                                 std::unique_ptr<Trk::TrackParameters> /*innerParameters*/,
+                                                                                 std::unique_ptr<Trk::TrackParameters> /*middleParameters*/,
+                                                                                 std::unique_ptr<Trk::TrackParameters> /*outerParameters*/) const {
         ATH_MSG_VERBOSE("indetExtension fit::");
 
         Trk::TrackStates trajectory{};
 
-        for (int i = 0; i < (int)spectrometerMeas.size(); i++) {
-            std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typeM;
-            typeM.set(Trk::TrackStateOnSurface::Measurement);
-
-            Trk::TrackStateOnSurface* tsos = new Trk::TrackStateOnSurface(spectrometerMeas[i]->uniqueClone(), nullptr, nullptr, nullptr, typeM);
-            trajectory.push_back(tsos);
+        for ( const Trk::MeasurementBase* tsos : spectrometerMeas) {
+            trajectory.push_back(Muon::MuonTSOSHelper::createMeasTSOS(tsos->uniqueClone(), nullptr, Trk::TrackStateOnSurface::Measurement));
         }
 
         Trk::TrackInfo trackInfo(Trk::TrackInfo::Unknown, Trk::muon);

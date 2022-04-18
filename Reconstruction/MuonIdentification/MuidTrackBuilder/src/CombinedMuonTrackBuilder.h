@@ -73,10 +73,10 @@ namespace Rec {
         /** ICombinedMuonTrackBuilder interface:
             build and fit indet track extended to include MS Measurement set.
             Adds material effects as appropriate plus calo energy-loss treatment */
-        virtual std::unique_ptr<Trk::Track> indetExtension(const EventContext& ctx,const Trk::Track& indetTrack, const Trk::MeasurementSet& spectrometerMeas,
-                                                           const Trk::TrackParameters* innerParameters,
-                                                           const Trk::TrackParameters* middleParameters,
-                                                           const Trk::TrackParameters* outerParameters) const override;
+        virtual std::unique_ptr<Trk::Track> indetExtension(const EventContext& ctx,const Trk::Track& indetTrack, const Trk::MeasurementSet& spectrometerMeas,                                                           
+                                                           std::unique_ptr<Trk::TrackParameters> innerParameters,                                                           
+                                                           std::unique_ptr<Trk::TrackParameters> middleParameters,                                                           
+                                                           std::unique_ptr<Trk::TrackParameters> outerParameters) const override;
 
         /** ICombinedMuonTrackBuilder interface:
             propagate to perigee adding calo energy-loss and material to MS track */

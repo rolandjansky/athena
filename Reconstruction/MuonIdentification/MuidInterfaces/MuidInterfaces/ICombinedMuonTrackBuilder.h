@@ -54,9 +54,9 @@ namespace Rec {
         virtual std::unique_ptr<Trk::Track> indetExtension(const EventContext& ctx,
                                                            const Trk::Track& indetTrack,
                                                            const Trk::MeasurementSet& spectrometerMeasurements, 
-                                                           const Trk::TrackParameters* innerParameters = nullptr,
-                                                           const Trk::TrackParameters* middleParameters = nullptr,
-                                                           const Trk::TrackParameters* outerParameters = nullptr) const = 0;
+                                                           std::unique_ptr<Trk::TrackParameters> innerParameters = nullptr,
+                                                           std::unique_ptr<Trk::TrackParameters> middleParameters = nullptr,
+                                                           std::unique_ptr<Trk::TrackParameters> outerParameters = nullptr) const = 0;
 
         /**ICombinedMuonTrackBuilder interface :
            propagate to perigee adding calo energy-loss and material to MS track 

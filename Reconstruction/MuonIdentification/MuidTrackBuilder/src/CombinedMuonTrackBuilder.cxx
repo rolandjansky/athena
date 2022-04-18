@@ -539,9 +539,9 @@ namespace Rec {
     std::unique_ptr<Trk::Track> CombinedMuonTrackBuilder::indetExtension(const EventContext& ctx,
                                                                          const Trk::Track& indetTrack,
                                                                          const Trk::MeasurementSet& spectrometerMeasurements,
-                                                                         const Trk::TrackParameters* innerParameters,
-                                                                         const Trk::TrackParameters* middleParameters,
-                                                                         const Trk::TrackParameters* outerParameters) const {
+                                                                         std::unique_ptr<Trk::TrackParameters> innerParameters,
+                                                                         std::unique_ptr<Trk::TrackParameters> middleParameters,
+                                                                         std::unique_ptr<Trk::TrackParameters> outerParameters) const {
         if (msgLvl(MSG::VERBOSE)) {
             msg(MSG::VERBOSE) << endmsg << "indetExtension fit:: " << std::setiosflags(std::ios::fixed);
 
