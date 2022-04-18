@@ -129,7 +129,7 @@ TrigCaloTowerMaker::TrigCaloTowerMaker(const std::string& name, ISvcLocator* pSv
   //}
   m_caloTowerNav4LinkKey = m_outputTowerKey.key();
 
-ATH_CHECK( m_inputRoiKey.initialize() );
+ATH_CHECK( m_inputRoiKey.initialize(SG::AllowEmpty) );
 ATH_CHECK( m_inputCellsKey.initialize() );
 ATH_CHECK( m_outputTowerKey.initialize() );
 ATH_CHECK( m_caloTowerNav4LinkKey.initialize() );
@@ -158,23 +158,32 @@ StatusCode TrigCaloTowerMaker::execute()
   auto ctx = getContext();
     
   // Get RoiDescriptor
-  auto roiCollection = SG::makeHandle(m_inputRoiKey, ctx);
-  
-  auto  caloTowerContainer =   SG::makeHandle (m_outputTowerKey, ctx); 
+  const bool seedLess = m_inputRoiKey.empty();
+  std::unique_ptr<TrigRoiDescriptor> roiDescriptor;
+  if (!seedLess){
+      SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection = SG::makeHandle( m_inputRoiKey, ctx);
+      if ( not roiCollection.isValid() ) {
+        ATH_MSG_ERROR("Cell maker did not get a valid RoIs collection");
+        return StatusCode::FAILURE;
+      }
+      if (roiCollection->size()==0) {
+        ATH_MSG_DEBUG(" RoI collection size = 0");
+        return StatusCode::SUCCESS;
+      }
+      if (roiCollection->size() > 1) ATH_MSG_WARNING("Misconfiguration - Called with " << roiCollection->size() << " ROI, but it should be called with 1 RoI - Will only process the first RoI"); 
 
-  if (roiCollection->size()==0) {
-    ATH_MSG_DEBUG(" RoI collection size = 0");
-    return StatusCode::SUCCESS;
+      roiDescriptor = std::make_unique<TrigRoiDescriptor>(*roiCollection->begin());
+      ATH_MSG_DEBUG("Operating on " << roiCollection->size() <<"RoI(s)");
   }
-  
-  const TrigRoiDescriptor* roiDescriptor = *(roiCollection->begin());
-  if (roiCollection->size() > 1) ATH_MSG_WARNING("Misconfiguration - Called with " << roiCollection->size() << " ROI, but it should be called with 1 RoI - Will only process the first RoI"); 
-      
-  
+  else {
+    roiDescriptor = std::make_unique<TrigRoiDescriptor>(TrigRoiDescriptor(true));
+  }
   ATH_MSG_DEBUG ( " RoI id " << roiDescriptor->roiId()
 	  << " located at   phi = " <<  roiDescriptor->phi()
 	  << ", eta = " << roiDescriptor->eta() );
-    
+  
+  auto  caloTowerContainer =   SG::makeHandle (m_outputTowerKey, ctx); 
+
   /// ho hum, this needs a flag for using own wdiths rather than those from the roiDescriptor  
   /// in addition, this will *not* work properly for composite RoIs
     

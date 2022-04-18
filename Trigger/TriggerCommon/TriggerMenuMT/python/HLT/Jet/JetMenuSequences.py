@@ -108,6 +108,9 @@ def makeMenuSequence(jetSeq,IMAlg,jetsIn,jetDefString,hypoType=JetHypoAlgType.ST
 ### --- Menu Sequence getters ---
 
 # For the preselection step before running tracking (step 1)
+# We set RoIs='' (recognised as seedless) instead of caloFSRoI (output of caloInputMater()) to
+# cut data dependency to InputMaker and allow full scan CaloCell+Clustering to be
+# shared with EGamma (ATR-24722)
 def jetCaloPreselMenuSequence(configFlags, **jetRecoDict):
     InputMakerAlg = getCaloInputMaker()
     jetRecoSequences, jetsIn, jetDef, clustersKey = RecoFragmentsPool.retrieve(
@@ -123,6 +126,7 @@ def jetCaloPreselMenuSequence(configFlags, **jetRecoDict):
                             hypoType=JetHypoAlgType.PRESEL), jetDef, clustersKey
 
 # A null preselection, which will only run the cluster making (step 1)
+# We set RoIs='' for same reason as described for jetCaloPreselMenuSequence
 def jetCaloRecoMenuSequence(configFlags, clusterCalib):
     InputMakerAlg = getCaloInputMaker()
     jetsIn = ""
@@ -138,6 +142,7 @@ def jetCaloRecoMenuSequence(configFlags, clusterCalib):
 
 # A full hypo selecting only on calo jets (step 1)
 # Passing isPerf = True disables the hypo
+# We set RoIs='' for same reason as described for jetCaloPreselMenuSequence
 def jetCaloHypoMenuSequence(configFlags, isPerf, **jetRecoDict):
     InputMakerAlg = getCaloInputMaker()
     jetRecoSequences, jetsIn, jetDef, clustersKey = RecoFragmentsPool.retrieve(
@@ -154,6 +159,7 @@ def jetCaloHypoMenuSequence(configFlags, isPerf, **jetRecoDict):
 
 # A full hypo selecting only on heavy ion calo jets (step 1)
 # Passing isPerf = True disables the hypo
+# We set RoIs='' for same reason as described for jetCaloPreselMenuSequence
 def jetHICaloHypoMenuSequence(configFlags, isPerf, **jetRecoDict):
     InputMakerAlg = getCaloInputMaker()
     jetRecoSequences, jetsIn, jetDef, clustersKey = RecoFragmentsPool.retrieve(
@@ -162,8 +168,9 @@ def jetHICaloHypoMenuSequence(configFlags, isPerf, **jetRecoDict):
 
     strtemp = "HI_{recoAlg}_{jetCalib}"
     jetDefString = strtemp.format(**jetRecoDict)
+    jetAthRecoSeq = parOR(f"jetSeqHICaloHypo_{jetDefString}_RecoSequence", jetRecoSequences)
     log.debug("Generating jet HI calo hypo menu sequence for reco %s",jetDefString)
-    jetAthMenuSeq = seqAND(f"jetSeqHICaloHypo_{jetDefString}_MenuSequence",[InputMakerAlg]+jetRecoSequences)
+    jetAthMenuSeq = seqAND(f"jetSeqHICaloHypo_{jetDefString}_MenuSequence",[InputMakerAlg,jetAthRecoSeq])
 
     hypoType = JetHypoAlgType.STANDARD
     if isPerf: hypoType = JetHypoAlgType.PASSTHROUGH
