@@ -1105,22 +1105,29 @@ namespace top {
         m_muonSFCustomInputFolder = s;
       }
     } 
-    int forceYear() const {return m_forceYear;}
-    void forceYear(int s) {
+    int muonForceYear() const {return m_muonForceYear;}
+    void muonForceYear(int s) {
       if (!m_configFixed) {
-        m_forceYear = s;
+        m_muonForceYear = s;
       }
     }
-    std::string const& forcePeriod() const {return m_forcePeriod;}
-    void forcePeriod(const std::string& s) {
+    std::string const& muonForcePeriod() const {return m_muonForcePeriod;}
+    void muonForcePeriod(const std::string& s) {
       if (!m_configFixed) {
-        m_forcePeriod = s;
+        m_muonForcePeriod = s;
       }
     }
-    std::string const& forceTrigger() const {return m_forceTrigger;}
-    void forceTrigger(const std::string& s) {
+    std::string const& muonForceTrigger() const {return m_muonForceTrigger;}
+    void muonForceTrigger(const std::string& s) {
       if (!m_configFixed) {
-        m_forceTrigger = s;
+        m_muonForceTrigger = s;
+      }
+    }
+
+    std::string const& electronForceTrigger() const {return m_electronForceTrigger;}
+    void electronForceTrigger(const std::string& s) {
+      if (!m_configFixed) {
+        m_electronForceTrigger = s;
       }
     }
 
@@ -2419,9 +2426,10 @@ namespace top {
     bool m_muonMuonDoExtraSmearingHighPt; //to turn on/off a special correction for the muon with high momenta.
     bool m_muonBreakDownSystematics; //to turn on/off a more complex systematic model
     std::string m_muonSFCustomInputFolder;
-    std::string m_forcePeriod;
-    int m_forceYear;
-    std::string m_forceTrigger;
+    std::string m_muonForcePeriod;
+    int m_muonForceYear;
+    std::string m_muonForceTrigger;
+    std::string m_electronForceTrigger;
 
     //Soft muon configuration
     float m_softmuonPtcut; // soft muon object selection pT cut

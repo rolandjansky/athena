@@ -266,12 +266,12 @@ namespace top {
         top::check(asg::setProperty(tool, "CustomInputFolder", m_config->muonSFCustomInputFolder()),
                    "Failed to set CustomInputFolder property for MuonTriggerScaleFactors tool");
       }
-      if (m_config->forcePeriod() != " ") {
-        top::check(asg::setProperty(tool, "forcePeriod", m_config->forcePeriod()),
+      if (m_config->muonForcePeriod() != " ") {
+        top::check(asg::setProperty(tool, "forcePeriod", m_config->muonForcePeriod()),
                    "Failed to set forcePeriod property for MuonTriggerScaleFactors tool");
       }
-      if (m_config->forceYear() != -1) {
-        top::check(asg::setProperty(tool, "forceYear", m_config->forceYear()),
+      if (m_config->muonForceYear() != -1) {
+        top::check(asg::setProperty(tool, "forceYear", m_config->muonForceYear()),
                    "Failed to set forceYear property for MuonTriggerScaleFactors tool");
       }
       top::check(tool->initialize(), "Failed to init. " + name);

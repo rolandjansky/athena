@@ -278,8 +278,8 @@ namespace top {
         m_muon_trigger_sf_config = "HLT_mu26_ivarmedium_OR_HLT_mu50";
       }
 
-      if (m_config->forceTrigger() != " "){ 
-        m_muon_trigger_sf_config = m_config->forceTrigger();
+      if (m_config->muonForceTrigger() != " "){ 
+        m_muon_trigger_sf_config = m_config->muonForceTrigger();
       }
 
       ATH_MSG_DEBUG("Muon trigger scale factor config is : " + m_muon_trigger_sf_config);

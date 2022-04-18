@@ -313,13 +313,13 @@ namespace top {
       if (m_config->muonSFCustomInputFolder() != " ") {
         top::check(m_muonTool.setProperty("CustomInputFolder", m_config->muonSFCustomInputFolder()), "Failed to set CustomInputFolder property for MuonTriggerScaleFactors tool");
       }
-      if (m_config->forcePeriod() != " ") {
-        top::check(m_muonTool.setProperty("forcePeriod", m_config->forcePeriod()), "Failed to set forcePeriod property for MuonTriggerScaleFactors tool");
+      if (m_config->muonForcePeriod() != " ") {
+        top::check(m_muonTool.setProperty("forcePeriod", m_config->muonForcePeriod()), "Failed to set forcePeriod property for MuonTriggerScaleFactors tool");
       } else{
         top::check(m_muonTool.setProperty("forcePeriod", ""), "Failed to set forcePeriod property for MuonTriggerScaleFactors tool");
       }
-      if (m_config->forceYear() != -1) {
-        top::check(m_muonTool.setProperty("forceYear", m_config->forceYear()), "Failed to set forceYear property for MuonTriggerScaleFactors tool");
+      if (m_config->muonForceYear() != -1) {
+        top::check(m_muonTool.setProperty("forceYear", m_config->muonForceYear()), "Failed to set forceYear property for MuonTriggerScaleFactors tool");
       }
       top::check(m_muonTool.initialize(), "Failed to initialise");
       muonTools.push_back(m_muonTool.getHandle());

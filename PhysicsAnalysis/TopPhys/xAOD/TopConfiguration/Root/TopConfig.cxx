@@ -241,9 +241,10 @@ namespace top {
     m_muonMuonDoExtraSmearingHighPt(false),
     m_muonBreakDownSystematics(false),
     m_muonSFCustomInputFolder(" "),
-    m_forcePeriod(" "),
-    m_forceYear(-1),
-    m_forceTrigger(" "),
+    m_muonForcePeriod(" "),
+    m_muonForceYear(-1),
+    m_muonForceTrigger(" "),
+    m_electronForceTrigger(" "),
 
     // Soft Muon configuration
     m_softmuonPtcut(4000.),
@@ -1272,18 +1273,22 @@ namespace top {
       this->muonSFCustomInputFolder(customMuonSF);
     }
     {
-      int customforceYear = std::stoi(settings->value("forceYear"));
-      this->forceYear(customforceYear);
+      int customMuonForceYear = std::stoi(settings->value("MuonForceYear"));
+      this->muonForceYear(customMuonForceYear);
     }
     {
-      std::string const& customforcePeriod = settings->value("forcePeriod");
-      this->forcePeriod(customforcePeriod);
+      std::string const& customMuonForcePeriod = settings->value("MuonForcePeriod");
+      this->muonForcePeriod(customMuonForcePeriod);
     }
     {
-      std::string const& customforceTrigger = settings->value("forceTrigger");
-      this->forceTrigger(customforceTrigger);
+      std::string const& customMuonForceTrigger = settings->value("MuonForceTrigger");
+      this->muonForceTrigger(customMuonForceTrigger);
     }
     if (settings->value("UseAntiMuons") == "True") this->m_useAntiMuons = true;
+    {
+      std::string const& customElectronForceTrigger = settings->value("ElectronForceTrigger");
+      this->electronForceTrigger(customElectronForceTrigger);
+    }
 
     // Soft Muon configuration
     this->softmuonPtcut(readFloatOption(settings, "SoftMuonPt"));
