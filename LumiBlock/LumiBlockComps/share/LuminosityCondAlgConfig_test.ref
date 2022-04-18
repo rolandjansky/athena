@@ -9,7 +9,7 @@ Py:ComponentAccumulator    INFO  \__ LuminosityCondAlg (cond alg)
 Py:ComponentAccumulator    INFO      * LuminosityFolderInputKey: /TRIGGER/OFLLUMI/OflPrefLumi
 Py:ComponentAccumulator    INFO      * LuminosityOutputKey: LuminosityCondData
 Py:ComponentAccumulator    INFO      * OnlineLumiCalibrationInputKey: OnlineLumiCalibrationCondData
-IOVDbSvc: ['<db>COOLOFL_TRIGGER/CONDBR2</db> /TRIGGER/OFLLUMI/OflPrefLumi', '<db>COOLONL_TDAQ/CONDBR2</db> /TDAQ/OLC/CALIBRATIONS']
+IOVDbSvc: ['/TagInfo<metaOnly/>', '<db>COOLOFL_TRIGGER/CONDBR2</db> /TRIGGER/OFLLUMI/OflPrefLumi', '<db>COOLONL_TDAQ/CONDBR2</db> /TDAQ/OLC/CALIBRATIONS']
 --- run2/express
 Py:ComponentAccumulator    INFO Condition Algorithms
 Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
@@ -21,7 +21,7 @@ Py:ComponentAccumulator    INFO  \__ LuminosityCondAlg (cond alg)
 Py:ComponentAccumulator    INFO      * LuminosityFolderInputKey: /TRIGGER/LUMI/OnlPrefLumi
 Py:ComponentAccumulator    INFO      * LuminosityOutputKey: LuminosityCondData
 Py:ComponentAccumulator    INFO      * OnlineLumiCalibrationInputKey: OnlineLumiCalibrationCondData
-IOVDbSvc: ['<db>COOLONL_TRIGGER/CONDBR2</db> /TRIGGER/LUMI/OnlPrefLumi', '<db>COOLONL_TDAQ/CONDBR2</db> /TDAQ/OLC/CALIBRATIONS']
+IOVDbSvc: ['/TagInfo<metaOnly/>', '<db>COOLONL_TRIGGER/CONDBR2</db> /TRIGGER/LUMI/OnlPrefLumi', '<db>COOLONL_TDAQ/CONDBR2</db> /TDAQ/OLC/CALIBRATIONS']
 --- run1
 Py:ComponentAccumulator    INFO Condition Algorithms
 Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
@@ -46,7 +46,7 @@ Py:ComponentAccumulator    INFO      * FillParamsInputKey: FillParamsCondData
 Py:ComponentAccumulator    INFO      * LuminosityFolderInputKey: /TRIGGER/OFLLUMI/LBLESTOFL
 Py:ComponentAccumulator    INFO      * LuminosityOutputKey: LuminosityCondData
 Py:ComponentAccumulator    INFO      * OnlineLumiCalibrationInputKey: OnlineLumiCalibrationCondData
-IOVDbSvc: ['<db>COOLOFL_TRIGGER/COMP200</db> /TRIGGER/OFLLUMI/LBLESTOFL', '<db>COOLONL_TDAQ/COMP200</db> /TDAQ/OLC/LHC/FILLPARAMS<tag>HEAD</tag>', '<db>COOLONL_TDAQ/COMP200</db> /TDAQ/OLC/BUNCHLUMIS', '<db>COOLONL_TRIGGER/COMP200</db> /TRIGGER/LVL1/BunchGroupContent<tag>HEAD</tag>', '<db>COOLONL_TDAQ/COMP200</db> /TDAQ/OLC/CALIBRATIONS']
+IOVDbSvc: ['/TagInfo<metaOnly/>', '<db>COOLOFL_TRIGGER/COMP200</db> /TRIGGER/OFLLUMI/LBLESTOFL', '<db>COOLONL_TDAQ/COMP200</db> /TDAQ/OLC/LHC/FILLPARAMS<tag>HEAD</tag>', '<db>COOLONL_TDAQ/COMP200</db> /TDAQ/OLC/BUNCHLUMIS', '<db>COOLONL_TRIGGER/COMP200</db> /TRIGGER/LVL1/BunchGroupContent<tag>HEAD</tag>', '<db>COOLONL_TDAQ/COMP200</db> /TDAQ/OLC/CALIBRATIONS']
 --- run1/express
 Py:ComponentAccumulator    INFO Condition Algorithms
 Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
@@ -71,7 +71,7 @@ Py:ComponentAccumulator    INFO      * FillParamsInputKey: FillParamsCondData
 Py:ComponentAccumulator    INFO      * LuminosityFolderInputKey: /TRIGGER/LUMI/LBLESTONL
 Py:ComponentAccumulator    INFO      * LuminosityOutputKey: LuminosityCondData
 Py:ComponentAccumulator    INFO      * OnlineLumiCalibrationInputKey: OnlineLumiCalibrationCondData
-IOVDbSvc: ['<db>COOLONL_TRIGGER/COMP200</db> /TRIGGER/LUMI/LBLESTONL', '<db>COOLONL_TDAQ/COMP200</db> /TDAQ/OLC/LHC/FILLPARAMS<tag>HEAD</tag>', '<db>COOLONL_TDAQ/COMP200</db> /TDAQ/OLC/BUNCHLUMIS', '<db>COOLONL_TRIGGER/COMP200</db> /TRIGGER/LVL1/BunchGroupContent<tag>HEAD</tag>', '<db>COOLONL_TDAQ/COMP200</db> /TDAQ/OLC/CALIBRATIONS']
+IOVDbSvc: ['/TagInfo<metaOnly/>', '<db>COOLONL_TRIGGER/COMP200</db> /TRIGGER/LUMI/LBLESTONL', '<db>COOLONL_TDAQ/COMP200</db> /TDAQ/OLC/LHC/FILLPARAMS<tag>HEAD</tag>', '<db>COOLONL_TDAQ/COMP200</db> /TDAQ/OLC/BUNCHLUMIS', '<db>COOLONL_TRIGGER/COMP200</db> /TRIGGER/LVL1/BunchGroupContent<tag>HEAD</tag>', '<db>COOLONL_TDAQ/COMP200</db> /TDAQ/OLC/CALIBRATIONS']
 --- mc
 Py:ComponentAccumulator    INFO Condition Algorithms
 Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
