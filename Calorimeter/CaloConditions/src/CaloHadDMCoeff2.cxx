@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloConditions/CaloHadDMCoeff2.h"
@@ -14,17 +14,13 @@
 c-tor
 *************************************************************************** */
 CaloHadDMCoeff2::CaloHadDMCoeff2()
-{
-
-}
+= default;
 
 
 CaloHadDMCoeff2::CaloHadDMCoeff2(const CaloHadDMCoeff2 &other)
-  : m_DMCoeffSet (other.m_DMCoeffSet),
-    m_DMAreaSet (other.m_DMAreaSet),
-    m_area_offsets (other.m_area_offsets)
-{
-}
+  
+    
+= default;
 
 
 CaloHadDMCoeff2& CaloHadDMCoeff2::operator= (const CaloHadDMCoeff2& other)
@@ -122,7 +118,7 @@ int CaloHadDMCoeff2::getBinLambda(const int n_area, const float & cls_lambda) co
 int CaloHadDMCoeff2::getBinEta(const int n_area, const float & cls_eta) const
 {
   const HadDMArea *dmArea = &m_DMAreaSet[n_area];
-  float cls_abseta = fabs(cls_eta);
+  float cls_abseta = std::abs(cls_eta);
   if(cls_abseta < dmArea->m_dimEta.m_vMin || cls_abseta >= dmArea->m_dimEta.m_vMax) return (-1);
   return (int)((cls_abseta - dmArea->m_dimEta.m_vMin)/dmArea->m_dimEta.m_bin_size);
 }

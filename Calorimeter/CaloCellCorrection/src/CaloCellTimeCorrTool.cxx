@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloCellTimeCorrTool.h" 
@@ -12,7 +12,7 @@ CaloCellTimeCorrTool::CaloCellTimeCorrTool (const std::string& type,
 						const IInterface* parent) :
   base_class (type, name, parent) {}
 
-CaloCellTimeCorrTool::~CaloCellTimeCorrTool() {}
+CaloCellTimeCorrTool::~CaloCellTimeCorrTool() = default;
 
 
 StatusCode CaloCellTimeCorrTool::initialize() {

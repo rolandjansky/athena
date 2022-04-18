@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file CaloIdentifier/src/LArEM_Base_ID.cxx
@@ -7,6 +7,8 @@
  * @date Aug, 2012
  * @brief Factor out code common between LArEM_ID and LArEM_SuperCell_ID.
  */
+
+#include <cmath>
 
 #include "CaloIdentifier/LArEM_Base_ID.h"
 #include "LArEM_region.h"
@@ -956,10 +958,10 @@ int   LArEM_Base_ID::get_prevInEta(const LArEM_region* emRegion, const unsigned 
 	unsigned int maxHashMinus = prevEmRegion->hashMax();
 	float phiMargin = 0.25*std::min(gPhi,gPhiMinus);
 	float rPhi = (index-minHash)*gPhi+emRegion->phiMin();
-	int nPhiMinusFirst = int(floor((rPhi     -prevEmRegion->phiMin())
+	int nPhiMinusFirst = int(std::floor((rPhi     -prevEmRegion->phiMin())
 				       /gPhiMinus+phiMargin))
 	  +maxHashMinus-nPhiMinus;
-	int nPhiMinusNext  = int(floor((rPhi+gPhi-prevEmRegion->phiMin())
+	int nPhiMinusNext  = int(std::floor((rPhi+gPhi-prevEmRegion->phiMin())
 				       /gPhiMinus+phiMargin))
 	  +maxHashMinus-nPhiMinus;
 	if ( nPhiMinusNext == nPhiMinusFirst ) nPhiMinusNext++;
@@ -1008,9 +1010,9 @@ int   LArEM_Base_ID::get_nextInEta(const LArEM_region* emRegion, const unsigned 
       unsigned int minHashPlus = nextEmRegion->hashMin();
       float phiMargin = 0.25*std::min(gPhi,gPhiPlus);
       float rPhi = (index+nPhi-maxHash)*gPhi+emRegion->phiMin();
-      int nPhiPlusFirst = int(floor((rPhi     -nextEmRegion->phiMin())
+      int nPhiPlusFirst = int(std::floor((rPhi     -nextEmRegion->phiMin())
 				    /gPhiPlus+phiMargin))+minHashPlus;
-      int nPhiPlusNext  = int(floor((rPhi+gPhi-nextEmRegion->phiMin())
+      int nPhiPlusNext  = int(std::floor((rPhi+gPhi-nextEmRegion->phiMin())
 				    /gPhiPlus+phiMargin))+minHashPlus;
       if ( nPhiPlusNext == nPhiPlusFirst ) nPhiPlusNext++;
 
@@ -1072,9 +1074,9 @@ int   LArEM_Base_ID::get_prevInSamp(const LArEM_region* emRegion, const unsigned
 	float phiMargin = 0.25*std::min(gPhi,gPhiMinus);
 	// phi 'coordinate' in initial region
 	float rPhi = ((index-minHash)%nPhi)*gPhi+emRegion->phiMin();
-	int nPhiMinusFirst = int(floor((rPhi     -prevEmRegion->phiMin())
+	int nPhiMinusFirst = int(std::floor((rPhi     -prevEmRegion->phiMin())
 				       /gPhiMinus+phiMargin));
-	int nPhiMinusNext  = int(floor((rPhi+gPhi-prevEmRegion->phiMin())
+	int nPhiMinusNext  = int(std::floor((rPhi+gPhi-prevEmRegion->phiMin())
 				       /gPhiMinus+phiMargin));
 	if ( nPhiMinusNext == nPhiMinusFirst ) nPhiMinusNext++;
 		
@@ -1130,9 +1132,9 @@ int   LArEM_Base_ID::get_nextInSamp(const LArEM_region* emRegion, const unsigned
 	float phiMargin = 0.25*std::min(gPhi,gPhiPlus);
 	// phi 'coordinate' in initial region
 	float rPhi = ((index-minHash)%nPhi)*gPhi+emRegion->phiMin();
-	int nPhiPlusFirst = int(floor((rPhi     -nextEmRegion->phiMin())
+	int nPhiPlusFirst = int(std::floor((rPhi     -nextEmRegion->phiMin())
 				      /gPhiPlus+phiMargin));
-	int nPhiPlusNext  = int(floor((rPhi+gPhi-nextEmRegion->phiMin())
+	int nPhiPlusNext  = int(std::floor((rPhi+gPhi-nextEmRegion->phiMin())
 				      /gPhiPlus+phiMargin));
 	if ( nPhiPlusNext == nPhiPlusFirst ) nPhiPlusNext++;
 
@@ -1195,9 +1197,9 @@ int   LArEM_Base_ID::get_prevInSubdet(const LArEM_region* emRegion, const unsign
 	float phiMargin = 0.25*std::min(gPhi,gPhiMinus);
 	// phi 'coordinate' in initial region
 	float rPhi = ((index-minHash)%nPhi)*gPhi+emRegion->phiMin();
-	int nPhiMinusFirst = int(floor((rPhi     -prevEmRegion->phiMin())
+	int nPhiMinusFirst = int(std::floor((rPhi     -prevEmRegion->phiMin())
 				       /gPhiMinus+phiMargin));
-	int nPhiMinusNext  = int(floor((rPhi+gPhi-prevEmRegion->phiMin())
+	int nPhiMinusNext  = int(std::floor((rPhi+gPhi-prevEmRegion->phiMin())
 				       /gPhiMinus+phiMargin));
 	if ( nPhiMinusNext == nPhiMinusFirst ) nPhiMinusNext++;
 	// eta 'coordinate' in initial region
@@ -1253,9 +1255,9 @@ int   LArEM_Base_ID::get_nextInSubdet(const LArEM_region* emRegion, const unsign
 	float phiMargin = 0.25*std::min(gPhi,gPhiPlus);
 	// phi 'coordinate' in initial region
 	float rPhi = ((index-minHash)%nPhi)*gPhi+emRegion->phiMin();
-	int nPhiPlusFirst = int(floor((rPhi     -nextEmRegion->phiMin())
+	int nPhiPlusFirst = int(std::floor((rPhi     -nextEmRegion->phiMin())
 				      /gPhiPlus+phiMargin));
-	int nPhiPlusNext  = int(floor((rPhi+gPhi-nextEmRegion->phiMin())
+	int nPhiPlusNext  = int(std::floor((rPhi+gPhi-nextEmRegion->phiMin())
 				      /gPhiPlus+phiMargin));
 	if ( nPhiPlusNext == nPhiPlusFirst ) nPhiPlusNext++;
 

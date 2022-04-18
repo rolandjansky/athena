@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloDetDescrUtils/CaloSuperCellUtils.h"
@@ -157,7 +157,7 @@ void createDescriptors(CaloSuperCellDetDescrManager* mgr)
   const CaloCell_Base_ID* calo_helper = mgr->getCaloCell_ID();
   for (Identifier reg_id : calo_helper->reg_range()) {
     if (! calo_helper->is_tile (reg_id)) {
-      mgr->add (new CaloDetDescriptor (reg_id, 0, calo_helper));
+      mgr->add (new CaloDetDescriptor (reg_id, nullptr, calo_helper));
     }
     else {
       mgr->add_tile (new CaloDetDescriptor

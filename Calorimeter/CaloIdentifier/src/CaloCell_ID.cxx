@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -23,8 +23,7 @@ CaloCell_ID::CaloCell_ID(const LArEM_ID*        em_id,
 
 
 CaloCell_ID::~CaloCell_ID(void) 
-{
-}
+= default;
 
 
 int

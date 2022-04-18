@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CaloCellList_H
@@ -80,7 +80,7 @@ private:
   vector_type m_theCellVector;
   double m_energy;
   double m_et;
-  unsigned short m_nBadT0, m_nBadT12;
+  unsigned short m_nBadT0 = 0U, m_nBadT12 = 0U;
 };
 
 inline CaloCellList::list_iterator
