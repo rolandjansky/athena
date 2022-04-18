@@ -581,9 +581,12 @@ void McEventCollectionCnv_p4::writeGenVertex( HepMC::ConstGenVertexPtr vtx,
                                               McEventCollection_p4& persEvt ) const
 {
   const HepMC::FourVector& position = vtx->position();
-  auto A_weights=vtx->attribute<HepMC3::VectorDoubleAttribute>("weights");
+  auto A_weights=vtx->attribute<HepMC3::VectorFloatAttribute>("weights");
   auto A_barcode=vtx->attribute<HepMC3::IntAttribute>("barcode");
-  std::vector<double> weights=A_weights?(A_weights->value()):std::vector<double>();
+  std::vector<float> weights;
+  if (A_weights) {
+    weights = A_weights->value();
+  }
   persEvt.m_genVertices.push_back(
                                   GenVertex_p4( position.x(),
                                                 position.y(),

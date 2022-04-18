@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // GenVertex_p6.h 
@@ -36,10 +36,11 @@ class GenVertex_p6
   GenVertex_p6();
 
   /// Constructor with a fair number of parameters
+  template <class ITERATOR>
   GenVertex_p6( const double x, const double y, const double z, const double t,
 		const int id, 
-		const std::vector<double>::const_iterator weightsBegin,
-		const std::vector<double>::const_iterator weightsEnd,
+		ITERATOR weightsBegin,
+		ITERATOR weightsEnd,
 		const int barcode);
 
   /////////////////////////////////////////////////////////////////// 
@@ -100,11 +101,12 @@ inline GenVertex_p6::GenVertex_p6():
   m_barcode       ( 0 )
 {}
 
+  template <class ITERATOR>
 inline GenVertex_p6::GenVertex_p6( const double x, const double y, 
 				   const double z, const double t,
 				   const int id, 
-				   const std::vector<double>::const_iterator weightsBegin,
-				   const std::vector<double>::const_iterator weightsEnd,
+				   ITERATOR weightsBegin,
+				   ITERATOR weightsEnd,
 				   const int barcode ):
   m_x             ( static_cast<float>(x) ),
   m_y             ( static_cast<float>(y) ),
