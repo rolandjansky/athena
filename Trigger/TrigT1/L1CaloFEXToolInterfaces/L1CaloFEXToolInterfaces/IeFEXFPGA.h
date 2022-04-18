@@ -16,6 +16,7 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "xAODTrigger/eFexEMRoI.h"
 #include "L1CaloFEXSim/eFEXOutputCollection.h"
+#include "L1CaloFEXSim/eFEXegTOB.h"
 
 namespace LVL1 {
   
@@ -41,7 +42,7 @@ Interface definition for eFEXFPGA
     
     virtual void SetIsoWP(std::vector<unsigned int> &, std::vector<unsigned int> &, unsigned int &, unsigned int &) = 0;
 
-    virtual std::vector<uint32_t> getEmTOBs() = 0; 
+    virtual std::vector<eFEXegTOB> getEmTOBs() = 0; 
 
     virtual std::vector<uint32_t> getTauTOBs() = 0; 
 

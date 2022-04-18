@@ -42,9 +42,9 @@ namespace LVL1 {
     return StatusCode::SUCCESS;
   }
   
-  void eFEXFillEDM::fillEmEDM(std::unique_ptr<xAOD::eFexEMRoIContainer> &container, uint8_t eFexNum, uint32_t tobWord)
+  void eFEXFillEDM::fillEmEDM(std::unique_ptr<xAOD::eFexEMRoIContainer> &container, uint8_t eFexNum, const eFEXegTOB& tobObject)
   {
-    uint32_t tobWord0 = tobWord;
+    uint32_t tobWord0 = tobObject.getTobword();
     // Only needed for xTOBs, which aren't filled yet
     // uint32_t tobWord1 = 0;
 
@@ -58,6 +58,13 @@ namespace LVL1 {
     container->push_back(myEmEDM);
     
     myEmEDM->initialize(eFEX, shelf, tobWord0); 
+
+    myEmEDM->setRetaCore(tobObject.getRetaCore());
+    myEmEDM->setRetaEnv(tobObject.getRetaEnv());
+    myEmEDM->setRhadEM(tobObject.getRhadEM());
+    myEmEDM->setRhadHad(tobObject.getRhadHad());
+    myEmEDM->setWstotNumerator(tobObject.getWstotNum());
+    myEmEDM->setWstotDenominator(tobObject.getWstotDen());
 
     ATH_MSG_DEBUG(" setting eFEX Number:  " << +myEmEDM->eFexNumber() << " shelf: " << +myEmEDM->shelfNumber() << " et: " << myEmEDM->et() << " eta: " << myEmEDM->eta() <<  " phi: " << myEmEDM->phi() << " input eFexNum: " << +eFexNum << " TOB word: " << tobWord0 << MSG::dec );
 
