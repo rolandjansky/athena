@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTrackToSegmentTool.h"
@@ -52,11 +52,11 @@ namespace Muon {
         std::set<Identifier> chIds;
 
         // copy rots, get surface
-        DataVector<const Trk::MeasurementBase>* rots = new DataVector<const Trk::MeasurementBase>();
+        std::unique_ptr<DataVector<const Trk::MeasurementBase>> rots = std::make_unique<DataVector<const Trk::MeasurementBase>>();
         rots->reserve(track.measurementsOnTrack()->size());
 
         // loop over TSOS
-        const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
+        const Trk::TrackStates* states = track.trackStateOnSurfaces();
         if (!states) {
             ATH_MSG_WARNING(" track without states, discarding track ");
             return nullptr;
@@ -66,21 +66,18 @@ namespace Muon {
 
         const Amg::Transform3D* surfaceTransform = nullptr;
         const Amg::Transform3D* backupTransform = nullptr;
-        const Amg::Transform3D* surfaceTransformToBeDeleted = nullptr;
-        double weightedDistanceSquared = 0;
-        double weightSquared = 0;
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit = states->begin();
-        DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit_end = states->end();
-        for (; tsit != tsit_end; ++tsit) {
-            if (!*tsit) continue;  // sanity check
+        std::unique_ptr<Amg::Transform3D> surfaceTransformToBeDeleted;
+        double weightedDistanceSquared{0}, weightSquared{0};
+        for (const Trk::TrackStateOnSurface* tsos : *states) {
+            if (!tsos) continue;  // sanity check
 
             // require TrackParameters
-            const Trk::TrackParameters* pars = (*tsit)->trackParameters();
+            const Trk::TrackParameters* pars = tsos->trackParameters();
             if (!pars) continue;
 
             // check whether state is a measurement
-            const Trk::MeasurementBase* meas = (*tsit)->measurementOnTrack();
-            if (!meas || (*tsit)->type(Trk::TrackStateOnSurface::Outlier)) continue;
+            const Trk::MeasurementBase* meas = tsos->measurementOnTrack();
+            if (!meas || tsos->type(Trk::TrackStateOnSurface::Outlier)) continue;
             rots->push_back(meas->clone());
 
             // only consider eta hits
@@ -95,16 +92,13 @@ namespace Muon {
             weightSquared += weight;
             if (m_idHelperSvc->isMdt(id)) {
                 chIds.insert(m_idHelperSvc->chamberId(id));
-
                 if (!surfaceTransform) {
                     const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(meas);
                     if (mdt) {
                         // create new surface using AMDB reference frame
-                        Amg::Transform3D* tmpSurfaceTransform =
-                            new Amg::Transform3D(mdt->detectorElement()->AmdbLRSToGlobalTransform().rotation());
-                        tmpSurfaceTransform->pretranslate(mdt->detectorElement()->center());
-                        surfaceTransform = tmpSurfaceTransform;
-                        surfaceTransformToBeDeleted = surfaceTransform;
+                        surfaceTransformToBeDeleted = std::make_unique<Amg::Transform3D>(mdt->detectorElement()->AmdbLRSToGlobalTransform().rotation());
+                        surfaceTransformToBeDeleted->pretranslate(mdt->detectorElement()->center());
+                        surfaceTransform = surfaceTransformToBeDeleted.get();                       
                     }
                 }
             } else if ((m_idHelperSvc->isMM(id) || m_idHelperSvc->isCsc(id)) && !surfaceTransform) {
@@ -118,23 +112,21 @@ namespace Muon {
         double refDistance = (weightSquared > 0 ? weightedDistanceSquared / weightSquared : 1) - 100;
         ATH_MSG_DEBUG(" weighted distance " << refDistance);
 
-        Amg::Vector3D refPos = perigee->position() + refDistance * dir;
+        const Amg::Vector3D refPos = perigee->position() + refDistance * dir;
 
         // find closest measured parameters
         double minDist = -1e6;
         const Trk::TrackParameters* closestPars = nullptr;
-        tsit = states->begin();
-        tsit_end = states->end();
-        for (; tsit != tsit_end; ++tsit) {
-            if (!*tsit) continue;  // sanity check
+        for (const Trk::TrackStateOnSurface* tsos : *states) {
+            if (!tsos) continue;  // sanity check
 
             // require TrackParameters
-            const Trk::TrackParameters* pars = (*tsit)->trackParameters();
+            const Trk::TrackParameters* pars = tsos->trackParameters();
             if (!pars || !pars->covariance()) continue;
 
             // look for the closest measured parameters to the reference point
             double distance = (pars->position() - refPos).dot(dir);
-            if (distance < 0 && distance > minDist) {
+            if (distance < 0 && std::abs(distance) < std::abs(minDist)) {
                 minDist = distance;
                 closestPars = pars;
             }
@@ -145,7 +137,6 @@ namespace Muon {
                                                                                                       << m_printer->print(track)
                                                                                                       << std::endl
                                                                                                       << m_printer->printStations(track));
-            delete rots;
             return nullptr;
         }
 
@@ -156,26 +147,27 @@ namespace Muon {
 
         Amg::Transform3D transform(surfaceTransform->rotation());
         transform.pretranslate(refPos);
-        double surfDim = 500.;
-        Trk::PlaneSurface* surf = new Trk::PlaneSurface(transform, surfDim, surfDim);
-        delete surfaceTransformToBeDeleted;
-        // lifetime of exPars is managed in this scope
-        auto exPars = m_propagator->propagate(ctx, *closestPars, *surf, minDist > 0 ? Trk::oppositeMomentum : Trk::alongMomentum, false,
+        constexpr double surfDim = 500.;
+        std::unique_ptr<Trk::PlaneSurface> surf = std::make_unique<Trk::PlaneSurface>(transform, surfDim, surfDim);
+        std::unique_ptr<Trk::TrackParameters> exPars = m_propagator->propagate(ctx, *closestPars, *surf, minDist > 0 ? Trk::oppositeMomentum : Trk::alongMomentum, false,
                                               Trk::MagneticFieldProperties(Trk::NoField));
         if (!exPars || !exPars->covariance()) {
-            ATH_MSG_DEBUG(" propagation failed!!! ");
-            if (!surf->associatedDetectorElement()) delete surf;
-            // delete exPars; // it is save to delete a NULL pointer
-            delete rots;
-            return nullptr;
-        }
+            ATH_MSG_VERBOSE("First trial reaching the surface failed. This is presumably due to a too large momentum. Let's try with a dummy 1 GeV momentum");
+            std::unique_ptr<Trk::TrackParameters> cloned_pars {closestPars->clone()};
+            constexpr double OneOverGeV = 1./ Gaudi::Units::GeV;
+            cloned_pars->parameters()[Trk::qOverP] = cloned_pars->charge() *OneOverGeV;
+            exPars = m_propagator->propagate(ctx, *cloned_pars, *surf,  Trk::anyDirection, false,
+                                              Trk::MagneticFieldProperties(Trk::NoField));
 
+            if (!exPars){
+                ATH_MSG_DEBUG(" propagation failed!!! "<<*cloned_pars<<std::endl<<std::endl<<*surf);
+                return nullptr;
+            }
+            exPars->parameters()[Trk::qOverP] = closestPars->parameters()[Trk::qOverP];
+        }
         Amg::Vector2D locPos;
         if (!surf->globalToLocal(exPars->position(), exPars->momentum(), locPos)) {
-            ATH_MSG_WARNING(" localToGlobal failed!!! ");
-            if (!surf->associatedDetectorElement()) delete surf;
-            // delete exPars;
-            delete rots;
+            ATH_MSG_WARNING(" localToGlobal failed!!! ");            
             return nullptr;
         }
         Trk::LocalDirection locDir;
@@ -194,8 +186,7 @@ namespace Muon {
         globalToLocalMeasJacobian(Trk::phi, Trk::phi) = globalToLocalMeasAnglesJacobian(0, 0);
         globalToLocalMeasJacobian(Trk::theta, Trk::theta) = globalToLocalMeasAnglesJacobian(1, 1);
         globalToLocalMeasJacobian(Trk::theta, Trk::phi) = globalToLocalMeasAnglesJacobian(0, 1);  // also fills (Trk::phi,Trk::theta)
-        globalToLocalMeasJacobian(Trk::phi, Trk::theta) =
-            globalToLocalMeasJacobian(Trk::theta, Trk::phi);  // also fills (Trk::theta,Trk::phi)
+        globalToLocalMeasJacobian(Trk::phi, Trk::theta) =  globalToLocalMeasJacobian(Trk::theta, Trk::phi);  // also fills (Trk::theta,Trk::phi)
         globalToLocalMeasJacobian(Trk::qOverP, Trk::qOverP) = 1.0;
 
         AmgSymMatrix(5) cov = exPars->covariance()->similarity(globalToLocalMeasJacobian);
@@ -204,21 +195,16 @@ namespace Muon {
         if (!chIds.empty()) {
             // calculate holes
             std::vector<Identifier> holes;
-            std::set<Identifier>::iterator cit = chIds.begin();
-            std::set<Identifier>::iterator cit_end = chIds.end();
-            for (; cit != cit_end; ++cit) {
-                std::vector<Identifier> holesChamber = calculateHoles(ctx, *cit, *exPars, rots->stdcont());
+            for (const Identifier& chid : chIds) {
+                std::vector<Identifier> holesChamber = calculateHoles(ctx, chid, *exPars, rots->stdcont());
                 holes.insert(holes.end(), holesChamber.begin(), holesChamber.end());
             }
-
             quality = new MuonSegmentQuality(fq->chiSquared(), fq->numberDoF(), holes);
 
         } else {
             quality = new Trk::FitQuality(fq->chiSquared(), fq->numberDoF());
         }
-        MuonSegment* seg = new MuonSegment(locPos, locDir, cov, surf, rots, quality);
-        // delete exPars;
-
+        MuonSegment* seg = new MuonSegment(locPos, locDir, cov, surf.release(), rots.release(), quality);
         return seg;
     }
 
