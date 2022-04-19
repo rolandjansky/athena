@@ -144,7 +144,7 @@ StatusCode RpcDigitizationTool::initialize() {
     ATH_MSG_DEBUG("Input objects in container : '" << m_inputHitCollectionName << "'");
 
     // Initialize ReadHandleKey
-    ATH_CHECK(m_hitsContainerKey.initialize(!m_onlyUseContainerName));
+    ATH_CHECK(m_hitsContainerKey.initialize(true));
 
     // initialize the output WriteHandleKeys
     ATH_CHECK(m_outputDigitCollectionKey.initialize());
