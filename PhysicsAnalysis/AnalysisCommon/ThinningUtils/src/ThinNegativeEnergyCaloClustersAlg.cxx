@@ -104,15 +104,18 @@ ThinNegativeEnergyCaloClustersAlg::execute(const EventContext& ctx) const
   mask.assign(nCaloClusters, false);
 
   // Loop over CaloClusters and update mask
+  unsigned long int nCaloClustersThinned = 0;
   for (int i = 0; i < nCaloClusters; ++i) {
     const xAOD::CaloCluster* caloCluster = (*caloClusters)[i];
     // Retain postive energy clusters
     if (caloCluster->rawE() > 0.0) {
       mask[i] = true;
     } else {
-      m_nCaloClustersThinned.fetch_add(1, std::memory_order_relaxed);
+      ++nCaloClustersThinned;
     }
   }
+  m_nCaloClustersThinned.fetch_add(nCaloClustersThinned,
+                                   std::memory_order_relaxed);
 
   // Apply masks to thinning service
   caloClusters.keep(mask);

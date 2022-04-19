@@ -17,12 +17,12 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/ThinningHandleKey.h"
 // STL includes
-#include <string>
 #include <atomic>
+#include <string>
 
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
-class ThinNegativeEnergyCaloClustersAlg : public AthReentrantAlgorithm
+class ThinNegativeEnergyCaloClustersAlg final : public AthReentrantAlgorithm
 {
 public:
   /// Constructor with parameters:
