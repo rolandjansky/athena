@@ -39,7 +39,7 @@ class DummyDumperAlg : public AthAlgorithm
   int m_eventCounter;
   int m_dummyInt;
 
-  ITHistSvc* m_ths;
+  ITHistSvc* m_ths = nullptr;
 };
 
 #endif
