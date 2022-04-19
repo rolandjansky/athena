@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // RootNtupleEventSelector.cxx 
@@ -21,7 +21,7 @@
 #include "TROOT.h"
 #include "RootUtils/TBranchElementClang.h"
 #include "TClass.h"
-#include "RootUtils/TClassEditRootUtils.h"
+#include "TClassEdit.h"
 #include "TFile.h"
 #include "TKey.h"
 #include "TLeaf.h"
@@ -910,8 +910,14 @@ RootNtupleEventSelector::createRootBranchAddresses(StoreID::type storeID,
         if (!m_clidsvc->getIDOfTypeInfoName(ti_typename, id)
             .isSuccess()) {
           // try another one...
-          ti_typename = TClassEdit::ShortType(ti_typename.c_str(),
-                                              TClassEdit::kDropAllDefault);
+          {
+            // Protect against data race inside TClassEdit.
+            // https://github.com/root-project/root/issues/10353
+            // Should be fixed in root 6.26.02.
+            R__WRITE_LOCKGUARD(ROOT::gCoreMutex);
+            ti_typename = TClassEdit::ShortType(ti_typename.c_str(),
+                                                TClassEdit::kDropAllDefault);
+          }
           if (!m_clidsvc->getIDOfTypeInfoName(ti_typename, id)
               .isSuccess()) {
             ATH_MSG_DEBUG("** could not find a CLID from type-info ["
@@ -1027,8 +1033,14 @@ RootNtupleEventSelector::createMetaDataRootBranchAddresses(StoreGateSvc *store,
         if (!m_clidsvc->getIDOfTypeInfoName(ti_typename, id)
             .isSuccess()) {
           // try another one...
-          ti_typename = TClassEdit::ShortType(ti_typename.c_str(),
-                                              TClassEdit::kDropAllDefault);
+          {
+            // Protect against data race inside TClassEdit.
+            // https://github.com/root-project/root/issues/10353
+            // Should be fixed in root 6.26.02.
+            R__WRITE_LOCKGUARD(ROOT::gCoreMutex);
+            ti_typename = TClassEdit::ShortType(ti_typename.c_str(),
+                                                TClassEdit::kDropAllDefault);
+          }
           if (!m_clidsvc->getIDOfTypeInfoName(ti_typename, id)
               .isSuccess()) {
             ATH_MSG_INFO("** could not find a CLID from type-info ["
