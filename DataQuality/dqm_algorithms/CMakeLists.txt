@@ -41,7 +41,7 @@ atlas_add_dictionary( dqm_algorithmsDict
                       dqm_algorithms/dqm_algorithmsDict.h
                       dqm_algorithms/selection.xml
                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} dqm_algorithms dqm_tools dqm_summaries )
+                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} dqm_algorithms dqm_tools dqm_summaries CxxUtils )
 
 atlas_add_dictionary( dqm_toolsDict
                       dqm_algorithms/tools/dqm_toolsDict.h
