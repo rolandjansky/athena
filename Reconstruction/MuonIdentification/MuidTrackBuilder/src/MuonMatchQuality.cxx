@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -155,13 +155,16 @@ namespace Rec {
         covariance = *cov1 + *cov2 + *m_alignmentUncertainty;
         if (CA.innerMatchDOF < 5) {
             deltaQoverP = 0.;
-            for (int i = 0; i != Trk::qOverP; ++i) { covariance(i, Trk::qOverP) = 0.; }
-            for (int i = 0; i != Trk::qOverP; ++i) { covariance(Trk::qOverP, i) = 0.; }
+            for (int i = 0; i != Trk::qOverP; ++i) { 
+                covariance(i, Trk::qOverP) = covariance(Trk::qOverP, i) = 0.; 
+            }
             covariance(Trk::qOverP, Trk::qOverP) = 1.;
         } else {
             deltaQoverP /= Units::TeV;
-            for (int i = 0; i != Trk::qOverP; ++i) { covariance(i, Trk::qOverP) /= Units::TeV; }
-            for (int i = 0; i != Trk::qOverP; ++i) { covariance(Trk::qOverP, i) /= Units::TeV; }
+            for (int i = 0; i != Trk::qOverP; ++i) { 
+                covariance(i, Trk::qOverP) /= Units::TeV; 
+                covariance(Trk::qOverP, i) /= Units::TeV; 
+            }
             covariance(Trk::qOverP, Trk::qOverP) /= (Units::TeV * Units::TeV);
         }
 
