@@ -20,10 +20,6 @@ TrigjFexLRJetRoIMonitorTool;
 typedef TrigL1FexJetMonitorTool<xAOD::gFexJetRoIContainer>
 TriggFexJetRoIMonitorTool;
 
-// typedef TrigL1FexJetMonitorTool<double>
-// TrigjFexSRJetRoIMonitorTool;
-
-
 DECLARE_COMPONENT(HLTJetMonTool)
 DECLARE_COMPONENT(TrigL1JetMonitorAlgorithm)
 DECLARE_COMPONENT(TrigL1FexJetMonitorAlgorithm)

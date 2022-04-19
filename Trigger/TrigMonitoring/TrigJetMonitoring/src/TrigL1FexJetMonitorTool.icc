@@ -162,10 +162,10 @@ TrigL1FexJetMonitorTool<JetContainer>::getData(const EventContext& ctx,
   // Retrieve the L1 jet container
   SG::ReadHandle<JetContainer> jets(m_l1jetContainerkey, ctx);
   if( !jets.isValid() ){
-    // the L! containers should _always_ be present, although may be empty.
-    ATH_MSG_ERROR("evtStore() does not contain the L1 jet collection with name "
+    // the L1 containers should _always_ be present, although may be empty.
+    ATH_MSG_WARNING("evtStore() does not contain the L1 jet collection with name "
 		 << m_l1jetContainerkey);
-    return StatusCode::FAILURE;
+    return StatusCode::SUCCESS;
   }
 
   // find vasrtiables associated with jets in the input container.
