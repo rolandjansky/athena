@@ -22,7 +22,8 @@
 photonSuperClusterBuilder::photonSuperClusterBuilder(const std::string& name,
                                                      ISvcLocator* pSvcLocator)
   : egammaSuperClusterBuilderBase(name, pSvcLocator)
-{}
+{
+}
 
 StatusCode
 photonSuperClusterBuilder::initialize()
@@ -74,9 +75,9 @@ photonSuperClusterBuilder::execute(const EventContext& ctx) const
   outputClusterContainer->reserve(inputSize);
   newEgammaRecs->reserve(inputSize);
 
-  std::optional<SG::WriteHandle<xAOD::CaloClusterContainer> > precorrClustersH;
+  std::optional<SG::WriteHandle<xAOD::CaloClusterContainer>> precorrClustersH;
   if (!m_precorrClustersKey.empty()) {
-    precorrClustersH.emplace (m_precorrClustersKey, ctx);
+    precorrClustersH.emplace(m_precorrClustersKey, ctx);
     ATH_CHECK(precorrClustersH->record(
       std::make_unique<xAOD::CaloClusterContainer>(),
       std::make_unique<xAOD::CaloClusterAuxContainer>()));
@@ -84,16 +85,27 @@ photonSuperClusterBuilder::execute(const EventContext& ctx) const
   }
 
   // The calo Det Descr manager
-  SG::ReadCondHandle<CaloDetDescrManager> caloDetDescrMgrHandle { m_caloDetDescrMgrKey, ctx };
+  SG::ReadCondHandle<CaloDetDescrManager> caloDetDescrMgrHandle{
+    m_caloDetDescrMgrKey, ctx
+  };
   ATH_CHECK(caloDetDescrMgrHandle.isValid());
   const CaloDetDescrManager* calodetdescrmgr = *caloDetDescrMgrHandle;
 
-  // Reserve a vector to keep track of what is used
-  std::vector<bool> isUsed(egammaRecs->size(), false);
-  std::vector<bool> isUsedRevert(egammaRecs->size(), false);
+  // If no input return
+  if (egammaRecs->empty()) {
+    return StatusCode::SUCCESS;
+  }
+  // Figure the cellCont we need to point to
+  const DataLink<CaloCellContainer>& cellCont =
+    (*egammaRecs)[0]->caloCluster()->getCellLinks()->getCellContainerLink();
+
   // Loop over input egammaRec objects, build superclusters.
-  for (std::size_t i = 0; i < egammaRecs->size(); ++i) {
-    if (isUsed[i]){
+  size_t numInput = egammaRecs->size();
+  std::vector<bool> isUsed(numInput, false);
+  std::vector<bool> isUsedRevert(numInput, false);
+  // Loop over input egammaRec objects, build superclusters.
+  for (std::size_t i = 0; i < numInput; ++i) {
+    if (isUsed[i]) {
       continue;
     }
 
@@ -103,37 +115,36 @@ photonSuperClusterBuilder::execute(const EventContext& ctx) const
     if (!seedClusterSelection(clus)) {
       continue;
     }
-    // Passed preliminary custs
-    // Mark seed as used
-    isUsedRevert = isUsed; // save status in case we fail to create supercluster
+    // save status in case we fail to create supercluster
+    isUsedRevert = isUsed;
+    // Mark seed as used,
     isUsed[i] = true;
 
-    // Start accumulating the clusters from the seed
+    // Now we find all the secondary cluster for this seed
+    // and we accumulate them
     std::vector<const xAOD::CaloCluster*> accumulatedClusters;
     accumulatedClusters.push_back(clus);
-
     const std::vector<std::size_t> secondaryIndices =
       searchForSecondaryClusters(i, egammaRecs.cptr(), isUsed);
-
     for (const auto secClusIndex : secondaryIndices) {
       const auto* const secRec = (*egammaRecs)[secClusIndex];
       accumulatedClusters.push_back(secRec->caloCluster());
     }
 
-    // Create the new cluster: take the full list of cluster and add their cells
-    // together
+    // Create the new cluster
     auto egType = (egRec->getNumberOfVertices() > 0)
                     ? xAOD::EgammaParameters::convertedPhoton
                     : xAOD::EgammaParameters::unconvertedPhoton;
-
     bool clusterAdded =
       createNewCluster(ctx,
                        accumulatedClusters,
+                       cellCont,
                        *calodetdescrmgr,
                        egType,
                        outputClusterContainer.ptr(),
                        precorrClustersH ? precorrClustersH->ptr() : nullptr);
 
+    // If we failed to create a cluster revert isUsed for the cluster
     if (!clusterAdded) {
       isUsed.swap(isUsedRevert);
       continue;
