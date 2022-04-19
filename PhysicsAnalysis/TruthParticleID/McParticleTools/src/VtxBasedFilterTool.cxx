@@ -24,6 +24,7 @@
 
 // McParticleTools includes
 #include "VtxBasedFilterTool.h"
+#include "copyBeamParticles.h"
 #include "AtlasHepMC/Flow.h"
 using namespace TruthHelper;
 
@@ -90,6 +91,8 @@ StatusCode VtxBasedFilterTool::buildMcAod( const McEventCollection* in,
       outEvt = 0;
       continue;
     }
+
+    TruthHelper::copyBeamParticles (*inEvt, *outEvt);
 
     out->push_back( outEvt );
   }

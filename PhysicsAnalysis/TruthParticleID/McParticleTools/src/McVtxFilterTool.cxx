@@ -23,6 +23,7 @@
 
 // McParticleTools includes
 #include "McVtxFilterTool.h"
+#include "copyBeamParticles.h"
 
 /////////////////////////////////////////////////////////////////// 
 /// Public methods: 
@@ -290,6 +291,8 @@ McVtxFilterTool::filterMcEventCollection( const McEventCollection* mcColl,
     }
   
   } //> end do SignalProcessVtx
+
+  TruthHelper::copyBeamParticles (*evtSrc, *evt);
 
   filterColl->push_back(evt);
   return;
