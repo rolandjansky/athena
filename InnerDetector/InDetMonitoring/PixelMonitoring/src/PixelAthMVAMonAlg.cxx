@@ -14,14 +14,15 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "TrkSurfaces/CylinderSurface.h"
+#include "TTree.h"
+#include "TFile.h"
 
 PixelAthMVAMonAlg::PixelAthMVAMonAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthMonitorAlgorithm(name, pSvcLocator),
   m_holeSearchTool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool", this),
   m_trackSelTool("InDet::InDetTrackSelectionTool/TrackSelectionTool", this),
   m_trkextrapolator("Trk::Extrapolator/InDetExtrapolator"),
-  m_atlasid(nullptr),
-  m_pixelid(nullptr)
+  m_atlasid(nullptr)
 {
   declareProperty("HoleSearchTool", m_holeSearchTool);
   declareProperty("TrackSelectionTool", m_trackSelTool);

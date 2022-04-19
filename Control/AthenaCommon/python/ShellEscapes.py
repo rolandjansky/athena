@@ -5,8 +5,6 @@
 
 """Provide shell escapes from the prompt by catching name and syntax errors."""
 
-from __future__ import print_function
-
 import os, sys
 import re
 import AthenaCommon.Utils.unixtools as unixtools

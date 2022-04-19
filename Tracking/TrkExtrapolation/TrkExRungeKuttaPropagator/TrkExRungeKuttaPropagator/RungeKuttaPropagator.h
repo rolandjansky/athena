@@ -23,9 +23,6 @@
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "MagFieldElements/AtlasFieldCache.h"
 
-//
-#include "CxxUtils/restrict.h"
-
 namespace Trk {
 
     class Surface                  ;
@@ -37,14 +34,29 @@ namespace Trk {
 /**
    @class RungeKuttaPropagator
 
-   Trk::RungeKuttaPropagator is algorithm for track parameters propagation through
-   magnetic field with or without jacobian of transformation. This algorithm
-   contains three steps.
+   Trk::RungeKuttaPropagator is an algorithm for track parameters propagation through
+   magnetic field with or without the jacobian of the transformation. 
+
+   The implementation performs the propagation in global coordinates and uses
+   Jacobian matrices (see RungeKuttaUtils) for the transformations between the 
+   global frame and local surface-attached coordinate systems.
+   
+   One can choose to perform the transport of the parameters only and omit the transport 
+   of the associated covariances (propagateParameters).
+ 
+   It does NOT include material effects (unlike the STEP propagator).
+   As a result the ParticleHypothesis argument is not really used.
+   It is assumed that in the client code , the propagation,
+   transport of the track parameters and their associated
+   covariances, is decoupled from the actual corrections due
+   to interaction with the detector material.
+  
+   The algorithm contains three steps : 
 
    1.The first step of the algorithm is track parameters transformation from
    local presentation for given start surface to global Runge Kutta coordinates.
 
-   2.The second step is propagation through magnetic field with or without jacobian.
+   2.The second step is propagation through the magnetic field with or without jacobian.
 
    3.Third step is transformation from global Runge Kutta presentation to local
    presentation of given output surface.
@@ -71,9 +83,9 @@ namespace Trk {
    V               V               V               V              V
    PlaneSurface StraightLineSurface DiscSurface CylinderSurface PerigeeSurface
 
-   For propagation using Runge Kutta method we use global coordinate, direction,
-   inverse momentum and Jacobian of transformation. All this parameters we save
-   in array P[42].
+   For propagation using Runge Kutta method we use global coordinates, direction,
+   inverse momentum and Jacobian of transformation. All these parameters we save
+   in an array P[42].
    /dL0    /dL1    /dPhi   /dThe   /dCM
    X  ->P[0]  dX /   P[ 7]   P[14]   P[21]   P[28]   P[35]
    Y  ->P[1]  dY /   P[ 8]   P[15]   P[22]   P[29]   P[36]
@@ -84,7 +96,7 @@ namespace Trk {
    CM ->P[6]  dCM/   P[13]   P[20]   P[27]   P[34]   P[41]
 
    where
-   in case local presentation
+   in case of local re-presentation
 
    L0  - first  local coordinate  (surface dependent)
    L1  - second local coordinate  (surface dependent)
@@ -92,7 +104,7 @@ namespace Trk {
    The - Polar     angle
    CM  - charge/momentum
 
-   in case global presentation
+   in case of global re-presentation
 
    X   - global x-coordinate        = surface dependent
    Y   - global y-coordinate        = surface dependent
@@ -102,13 +114,9 @@ namespace Trk {
    Az  - direction cosine to z-axis = Cos(The)
    CM  - charge/momentum            = local CM
 
-   Comment:
-   if pointer to const *  = 0 algorithm will propagate track
-   parameters and jacobian of transformation according straight line model
 
    @author Igor.Gavrilenko@cern.ch
-
-   @authors AthenaMT modifications RD Schaffer C Anastopoulos
+   @authors RD Schaffer C Anastopoulos AthenaMT modifications
 */
 
     class RungeKuttaPropagator final
@@ -126,13 +134,10 @@ namespace Trk {
         using IPropagator::propagateT;
 
         RungeKuttaPropagator(const std::string&,const std::string&,const IInterface*);
-
-        virtual ~RungeKuttaPropagator ();
-
-        /** AlgTool initailize method.*/
         virtual StatusCode initialize() override final;
+        virtual ~RungeKuttaPropagator () = default;
 
-        /** Main propagation method NeutralParameters */
+        /** Main propagation method for NeutralParameters */
         virtual std::unique_ptr<NeutralParameters> propagate
         (const NeutralParameters        &,
          const Surface                  &,
@@ -141,155 +146,155 @@ namespace Trk {
          bool                            ) const override final;
 
         /** Main propagation method without transport jacobian production*/
-        virtual  std::unique_ptr<TrackParameters>           propagate
-        (const EventContext&          ctx,
-         const TrackParameters          &,
-         const Surface                  &,
-         const PropDirection             ,
-         const BoundaryCheck            &,
-         const MagneticFieldProperties  &,
-         ParticleHypothesis              ,
-         bool                            ,
-         const TrackingVolume*           ) const override final;
+        virtual std::unique_ptr<TrackParameters> propagate(
+          const EventContext& ctx,
+          const TrackParameters&,
+          const Surface&,
+          const PropDirection,
+          const BoundaryCheck&,
+          const MagneticFieldProperties&,
+          ParticleHypothesis /*not used*/,
+          bool,
+          const TrackingVolume*) const override final;
 
         /** Main propagation method with transport jacobian production*/
-        virtual  std::unique_ptr<TrackParameters>           propagate
-        (const EventContext&          ctx,
-         const TrackParameters          &,
-         const Surface                  &,
-         const PropDirection             ,
-         const BoundaryCheck            &,
-         const MagneticFieldProperties  &,
-         TransportJacobian             *&,
-         double                         &,
-         ParticleHypothesis              ,
-         bool                            ,
-         const TrackingVolume*            ) const override final;
+        virtual std::unique_ptr<TrackParameters> propagate(
+          const EventContext& ctx,
+          const TrackParameters&,
+          const Surface&,
+          const PropDirection,
+          const BoundaryCheck&,
+          const MagneticFieldProperties&,
+          TransportJacobian*&,
+          double&,
+          ParticleHypothesis /*not used*/,
+          bool,
+          const TrackingVolume*) const override final;
 
         /** The propagation method finds the closest surface */
-        virtual std::unique_ptr<TrackParameters>           propagate
-        (const EventContext&          ctx,
-         const TrackParameters         &,
-         std::vector<DestSurf>         &,
-         PropDirection                  ,
-         const MagneticFieldProperties &,
-         ParticleHypothesis             ,
-         std::vector<unsigned int>     &,
-         double                        &,
-         bool                           ,
-         bool                           ,
-         const TrackingVolume*          ) const override final;
+        virtual std::unique_ptr<TrackParameters> propagate(
+          const EventContext& ctx,
+          const TrackParameters&,
+          std::vector<DestSurf>&,
+          PropDirection,
+          const MagneticFieldProperties&,
+          ParticleHypothesis /*not used*/,
+          std::vector<unsigned int>&,
+          double&,
+          bool,
+          bool,
+          const TrackingVolume*) const override final;
 
-        /** Main propagation method for parameters only without transport jacobian productio*/
-        virtual  std::unique_ptr<TrackParameters>           propagateParameters
-        (const EventContext&          ctx,
-         const TrackParameters          &,
-         const Surface                  &,
-         const PropDirection             ,
-         const BoundaryCheck            &,
-         const MagneticFieldProperties  &,
-         ParticleHypothesis              ,
-         bool                            ,
-         const TrackingVolume*          ) const override final;
+        /** Main propagation method for parameters only. Without transport jacobian production*/
+        virtual std::unique_ptr<TrackParameters> propagateParameters(
+          const EventContext& ctx,
+          const TrackParameters&,
+          const Surface&,
+          const PropDirection,
+          const BoundaryCheck&,
+          const MagneticFieldProperties&,
+          ParticleHypothesis /*not used*/,
+          bool,
+          const TrackingVolume*) const override final;
 
-
-        /** Main propagation method for parameters only with transport jacobian productio*/
-        virtual  std::unique_ptr<TrackParameters>           propagateParameters
-        (const EventContext&          ctx,
-         const TrackParameters          &,
-         const Surface                  &,
-         const PropDirection             ,
-         const BoundaryCheck            &,
-         const MagneticFieldProperties  &,
-         TransportJacobian             *&,
-         ParticleHypothesis              ,
-         bool                            ,
-         const TrackingVolume*           ) const override final;
+        /** Main propagation method for parameters only with transport jacobian production*/
+        virtual std::unique_ptr<TrackParameters> propagateParameters(
+          const EventContext& ctx,
+          const TrackParameters&,
+          const Surface&,
+          const PropDirection,
+          const BoundaryCheck&,
+          const MagneticFieldProperties&,
+          TransportJacobian*&,
+          ParticleHypothesis /*not used*/,
+          bool,
+          const TrackingVolume*) const override final;
 
         /** Global position together with direction of the trajectory on the surface */
-        virtual const IntersectionSolution*      intersect
-        (const EventContext&          ctx,
-         const TrackParameters          &,
-         const Surface                  &,
-         const MagneticFieldProperties  &,
-         ParticleHypothesis particle=pion,
-         const TrackingVolume*   tvol=nullptr  ) const override final;
+        virtual const IntersectionSolution* intersect(
+          const EventContext& ctx,
+          const TrackParameters&,
+          const Surface&,
+          const MagneticFieldProperties&,
+          ParticleHypothesis /*not used*/,
+          const TrackingVolume* tvol = nullptr) const override final;
 
         /** GlobalPositions list interface:*/
-        virtual void globalPositions
-        (const EventContext&          ctx,
-         std::list<Amg::Vector3D>       &,
-         const TrackParameters          &,
-         const MagneticFieldProperties  &,
-         const CylinderBounds&           ,
-         double                          ,
-         ParticleHypothesis particle=pion,
-         const TrackingVolume* tvol=nullptr    ) const override final;
+        virtual void globalPositions(
+          const EventContext& ctx,
+          std::list<Amg::Vector3D>&,
+          const TrackParameters&,
+          const MagneticFieldProperties&,
+          const CylinderBounds&,
+          double,
+          ParticleHypothesis /*not used*/,
+          const TrackingVolume* tvol = nullptr) const override final;
 
         /////////////////////////////////////////////////////////////////////////////////
         // Public methods for Trk::PatternTrackParameters (from IPattern'Propagator)
         /////////////////////////////////////////////////////////////////////////////////
 
         /** Main propagation method */
-        virtual bool propagate
-        (const EventContext&          ctx,
-         PatternTrackParameters         &,
-         const Surface                  &,
-         PatternTrackParameters         &,
-         PropDirection                   ,
-         const MagneticFieldProperties  &,
-         ParticleHypothesis particle=pion) const  override final;
+        virtual bool propagate(
+          const EventContext& ctx,
+          PatternTrackParameters&,
+          const Surface&,
+          PatternTrackParameters&,
+          PropDirection,
+          const MagneticFieldProperties&,
+          ParticleHypothesis particle = pion) const override final;
 
         /** Main propagation method with step to surface calculation*/
-        virtual bool propagate
-        (const EventContext&          ctx,
-         PatternTrackParameters         &,
-         const Surface                  &,
-         PatternTrackParameters         &,
-         PropDirection                   ,
-         const MagneticFieldProperties  &,
-         double                         &,
-         ParticleHypothesis particle=pion) const  override final;
+        virtual bool propagate(
+          const EventContext& ctx,
+          PatternTrackParameters&,
+          const Surface&,
+          PatternTrackParameters&,
+          PropDirection,
+          const MagneticFieldProperties&,
+          double&,
+          ParticleHypothesis particle = pion) const override final;
 
         /** Main propagation method for parameters only */
-        virtual bool propagateParameters
-        (const EventContext&          ctx,
-         PatternTrackParameters         &,
-         const Surface                  &,
-         PatternTrackParameters         &,
-         PropDirection                   ,
-         const MagneticFieldProperties  &,
-         ParticleHypothesis particle=pion) const  override final;
+        virtual bool propagateParameters(
+          const EventContext& ctx,
+          PatternTrackParameters&,
+          const Surface&,
+          PatternTrackParameters&,
+          PropDirection,
+          const MagneticFieldProperties&,
+          ParticleHypothesis particle = pion) const override final;
 
-        /** Main propagation method for parameters only with step to surface calculation*/
-        virtual bool propagateParameters
-        (const EventContext&          ctx,
-         PatternTrackParameters         &,
-         const Surface                  &,
-         PatternTrackParameters         &,
-         PropDirection                   ,
-         const MagneticFieldProperties  &,
-         double                         &,
-         ParticleHypothesis particle=pion) const  override final;
+        /** Main propagation method for parameters only with step to surface
+         * calculation*/
+        virtual bool propagateParameters(
+          const EventContext& ctx,
+          PatternTrackParameters&,
+          const Surface&,
+          PatternTrackParameters&,
+          PropDirection,
+          const MagneticFieldProperties&,
+          double&,
+          ParticleHypothesis particle = pion) const override final;
 
         /** GlobalPositions list interface:*/
-        virtual void globalPositions
-        (const EventContext&          ctx,
-         std::list<Amg::Vector3D>       &,
-         const PatternTrackParameters   &,
-         const MagneticFieldProperties  &,
-         const CylinderBounds           &,
-         double                          ,
-         ParticleHypothesis particle=pion) const  override final;
+        virtual void globalPositions(
+          const EventContext& ctx,
+          std::list<Amg::Vector3D>&,
+          const PatternTrackParameters&,
+          const MagneticFieldProperties&,
+          const CylinderBounds&,
+          double,
+          ParticleHypothesis particle = pion) const override final;
 
         /** GlobalPostions and steps for set surfaces */
-        virtual void globalPositions
-        (const EventContext&          ctx,
-         const PatternTrackParameters                 &,
-         std::list<const Surface*>                    &,
-         std::list< std::pair<Amg::Vector3D,double> > &,
-         const MagneticFieldProperties                &,
-         ParticleHypothesis particle=pion              ) const  override final;
+        virtual void globalPositions(
+          const EventContext& ctx,
+          const PatternTrackParameters&,
+          std::list<const Surface*>&,
+          std::list<std::pair<Amg::Vector3D, double>>&,
+          const MagneticFieldProperties&,
+          ParticleHypothesis particle = pion) const override final;
 
         struct Cache
         {
@@ -314,40 +319,35 @@ namespace Trk {
         // Private methods:
         /////////////////////////////////////////////////////////////////////////////////
         /** Test quality Jacobian calculation */
-        void JacobianTest
-        (const TrackParameters        &,
-         const Surface                &,
-         const MagneticFieldProperties&) const;
-
+        void JacobianTest(const TrackParameters&,
+                          const Surface&,
+                          const MagneticFieldProperties&) const;
 
         /** Internal RungeKutta propagation method for charge track parameters*/
 
-        std::unique_ptr<TrackParameters>      propagateRungeKutta
-        (Cache& cache                  ,
-         bool                          ,
-         const TrackParameters        &,
-         const Surface                &,
-         const PropDirection           ,
-         const BoundaryCheck&          ,
-         const MagneticFieldProperties&,
-         double                       *,
-         bool                returnCurv) const;
+        std::unique_ptr<TrackParameters> propagateRungeKutta(
+          Cache& cache,
+          bool,
+          const TrackParameters&,
+          const Surface&,
+          const PropDirection,
+          const BoundaryCheck&,
+          const MagneticFieldProperties&,
+          double*,
+          bool returnCurv) const;
 
         /** Internal RungeKutta propagation method */
 
-        bool propagateRungeKutta
-        (Cache& cache                  ,
-         bool                          ,
-         PatternTrackParameters       &,
-         const Surface                &,
-         PatternTrackParameters       &,
-         PropDirection                 ,
-         const MagneticFieldProperties&,
-         double                       &) const;
+        bool propagateRungeKutta(Cache& cache,
+                                 bool,
+                                 PatternTrackParameters&,
+                                 const Surface&,
+                                 PatternTrackParameters&,
+                                 PropDirection,
+                                 const MagneticFieldProperties&,
+                                 double&) const;
 
-        void getFieldCacheObject(
-          Cache& cache,
-          const EventContext& ctx) const;
+        void getFieldCacheObject(Cache& cache, const EventContext& ctx) const;
 
         // Private data members:
         // Read handle for conditions object to get the field cache
@@ -358,15 +358,12 @@ namespace Trk {
           "Name of the Magnetic Field conditions object key"
         };
 
-        double m_dlt                                               ;  // accuracy parameter
-        double m_helixStep                                         ;  // max step whith helix model
-        double m_straightStep                                      ;  // max step whith srtaight line model
-        bool   m_usegradient                                       ;  // use magnetif field gradient
+        double m_dlt;          // accuracy parameter
+        double m_helixStep;    // max step whith helix model
+        double m_straightStep; // max step whith srtaight line model
+        bool m_usegradient;    // use magnetif field gradient into the error
+                               // propagation
     };
-
-    /////////////////////////////////////////////////////////////////////////////////
-    // Inline methods for magnetic field information
-    /////////////////////////////////////////////////////////////////////////////////
 
 }//end namespace Trk
 #endif // RungeKuttaPropagator_H

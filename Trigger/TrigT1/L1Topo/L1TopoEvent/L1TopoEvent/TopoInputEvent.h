@@ -23,6 +23,10 @@
 #include "L1TopoEvent/MuonTOBArray.h"
 #include "L1TopoEvent/MetTOBArray.h"
 #include "L1TopoEvent/jXETOBArray.h"
+#include "L1TopoEvent/jTETOBArray.h"
+#include "L1TopoEvent/gXETOBArray.h"
+#include "L1TopoEvent/gMHTTOBArray.h"
+#include "L1TopoEvent/gTETOBArray.h"
 #include "L1TopoCommon/StatusCode.h"
 #include "L1TopoCommon/Types.h"
 
@@ -59,6 +63,10 @@ namespace TCS {
       const MuonNextBCTOBArray & muonsNextBC() const { return m_muonsNextBC; }
       const MetTOB & met() const { return m_met[0]; }
       const jXETOB & jxe() const { return m_jxe[0]; }
+      const jTETOB & jte() const { return m_jte[0]; }
+      const gXETOB & gxe() const { return m_gxe[0]; }
+      const gMHTTOB & gmht() const { return m_gmht[0]; }
+      const gTETOB & gte() const { return m_gte[0]; }
       uint32_t run_number()        const { return m_runNo; }
       uint32_t event_number()      const { return m_evtNo; }
       uint32_t lumi_block()        const { return m_lumiB; }
@@ -79,6 +87,10 @@ namespace TCS {
       bool overflowFromgJetInput   () const { return m_overflowFromgJetInput   ; }
       bool overflowFromEnergyInput() const { return m_overflowFromEnergyInput; }
       bool overflowFromjXEInput   () const { return m_overflowFromjXEInput   ; }
+      bool overflowFromjTEInput   () const { return m_overflowFromjTEInput   ; }
+      bool overflowFromgXEInput   () const { return m_overflowFromgXEInput   ; }
+      bool overflowFromgMHTInput   () const { return m_overflowFromgMHTInput   ; }
+      bool overflowFromgTEInput   () const { return m_overflowFromgTEInput   ; }
       bool overflowFromMuonInput  () const { return m_overflowFromMuonInput  ; }
       /** @} */ // end of groupOverflowGetters
       StatusCode addCluster(const ClusterTOB & cluster);
@@ -99,6 +111,10 @@ namespace TCS {
       StatusCode addgJet(const gJetTOB & jet);
       StatusCode setMET(const MetTOB & met);
       StatusCode setjXE(const jXETOB & jXE);
+      StatusCode setjTE(const jTETOB & jTE);
+      StatusCode setgXE(const gXETOB & gXE);
+      StatusCode setgMHT(const gMHTTOB & gMHT);
+      StatusCode setgTE(const gTETOB & gTE);
       StatusCode setEventInfo(const uint32_t runNo, const uint32_t evtNo, const uint32_t lumiB, const uint32_t BCID);
       /** @defgroup groupOverflowSetters
        *  @brief setter function for overflow bits
@@ -117,6 +133,10 @@ namespace TCS {
       void setOverflowFromgJetInput   (const bool &v);
       void setOverflowFromEnergyInput(const bool &v);
       void setOverflowFromjXEInput(const bool &v);
+      void setOverflowFromjTEInput(const bool &v);
+      void setOverflowFromgXEInput(const bool &v);
+      void setOverflowFromgMHTInput(const bool &v);
+      void setOverflowFromgTEInput(const bool &v);
       void setOverflowFromMuonInput  (const bool &v);
       /** @} */ // end of groupOverflowSetters
       // access all inputs by type
@@ -156,8 +176,12 @@ namespace TCS {
       MuonTOBArray      m_muons;
       LateMuonTOBArray  m_lateMuons;
       MuonNextBCTOBArray  m_muonsNextBC;
-      MetTOBArray       m_met; // will have size 1
-      jXETOBArray       m_jxe; // will have size 1
+      MetTOBArray       m_met;  // will have size 1
+      jXETOBArray       m_jxe;  // will have size 1
+      jTETOBArray       m_jte;  // will have size 1
+      gXETOBArray       m_gxe;  // will have size 1
+      gMHTTOBArray      m_gmht; // will have size 1
+      gTETOBArray       m_gte;  // will have size 1
 
       uint32_t m_runNo {0};
       uint32_t m_evtNo {0};
@@ -177,6 +201,10 @@ namespace TCS {
       bool m_overflowFromgJetInput { false };
       bool m_overflowFromEnergyInput { false };
       bool m_overflowFromjXEInput { false };
+      bool m_overflowFromjTEInput { false };
+      bool m_overflowFromgXEInput { false };
+      bool m_overflowFromgMHTInput { false };
+      bool m_overflowFromgTEInput { false };
       bool m_overflowFromMuonInput { false };
       std::string m_inputDumpFile { "" };
 

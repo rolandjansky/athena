@@ -9,11 +9,14 @@
 # actual code to configure al;l the different algorithm instances for 
 # the different slices 
 
-def TIDAMonitoring( flags=None, name=None ) :  
-
-#       print( "SUTT creating monitoring: ", name )
+def TIDAMonitoring( flags=None, name=None, monlevel=None ) :  
 
         tools = []
+
+        from AthenaCommon.Logging import logging
+        log = logging.getLogger("TIDAMonitoring")
+
+        log.info( "Creating TIDA monitoring: "+ name )
 
         from TrigIDtrkMonitoring.TIDAChains import getchains
         
@@ -34,10 +37,10 @@ def TIDAMonitoring( flags=None, name=None ) :
                               "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1eEM26M:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el1_tag:te=0",
                               "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1eEM26M:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el1_probe:te=1",
                               "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el2_tag:te=0",
-                              "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el2_probe:te=1" ] )
+                              "HLT_e26_lhtight_e14_etcut_idperf_probe_50invmAB130_L1EM22VHI:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron:extra=el2_probe:te=1" ], monlevel )
 
         tidaegamma.ntupleChainNames = chains
-        
+
         tidaegamma.MonTools = createMonTools( flags, tidaegamma.SliceTag, chains )
 
         tools += [ tidaegamma ]
@@ -52,7 +55,7 @@ def TIDAMonitoring( flags=None, name=None ) :
         tidaegammalrt.SliceTag = "HLT/TRIDT/Egamma/Expert"
 
         chains = getchains( [ "HLT_e.*idperf_loose_lrtloose.*:HLT_IDTrack_ElecLRT_FTF:HLT_Roi_FastElectron_LRT",
-                              "HLT_e.*idperf_loose_lrtloose.*:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT" ] )
+                              "HLT_e.*idperf_loose_lrtloose.*:HLT_IDTrack_ElecLRT_IDTrig:HLT_Roi_FastElectron_LRT" ], monlevel )
         
         tidaegammalrt.ntupleChainNames = chains
 
@@ -73,7 +76,7 @@ def TIDAMonitoring( flags=None, name=None ) :
         chains = getchains( [ "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_FTF:roi=HLT_Roi_L2SAMuon",
                               "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_IDTrig:roi=HLT_Roi_L2SAMuon",
                               "HLT_mu.*ivarperf.*:key=HLT_IDTrack_MuonIso_FTF:roi=HLT_Roi_MuonIso",
-                              "HLT_mu.*ivarperf.*:key=HLT_IDTrack_MuonIso_IDTrig:roi=HLT_Roi_MuonIso" ] )
+                              "HLT_mu.*ivarperf.*:key=HLT_IDTrack_MuonIso_IDTrig:roi=HLT_Roi_MuonIso" ], monlevel )
                               
 
         tidamuon.ntupleChainNames += chains
@@ -97,7 +100,7 @@ def TIDAMonitoring( flags=None, name=None ) :
                               "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIso",
                               "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_TauIso",
                               "HLT_tau.*idperf.*BDT.*:key=HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIsoBDT",
-                              "HLT_tau.*idperf.*BDT.*:key=HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_TauIsoBDT" ] )
+                              "HLT_tau.*idperf.*BDT.*:key=HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_TauIsoBDT" ], monlevel )
 
         tidatau.ntupleChainNames += chains
         
@@ -117,7 +120,7 @@ def TIDAMonitoring( flags=None, name=None ) :
         chains = getchains( [ "HLT_j45_pf_ftf_preselj20_L1J15:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
                               "HLT_j.*_ftf.*boffperf.*:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
                               "HLT_j.*.*boffperf.*:key=HLT_IDTrack_Bjet_FTF",
-                              "HLT_j.*.*boffperf.*:key=HLT_IDTrack_Bjet_IDTrig" ] )
+                              "HLT_j.*.*boffperf.*:key=HLT_IDTrack_Bjet_IDTrig" ], monlevel )
                         
         tidabjet.ntupleChainNames += chains
 
@@ -162,19 +165,19 @@ def TrigR3Mon_builder( flags=None, name="NoName" ):
 
 #wrapper function for the central moniotring configuration 
 
-def TrigInDetMonConfig( flags ):
-        return TIDAMonitoringCA( flags )
+def TrigInDetMonConfig( flags, monlevels=None ):
+        return TIDAMonitoringCA( flags, monlevels )
 
 
 
 # component accumulator wrapper around the overall monitoring functiom                
 
-def TIDAMonitoringCA( flags ):
+def TIDAMonitoringCA( flags, monlevels=None ):
 
         from AthenaMonitoring import AthMonitorCfgHelper
         monConfig = AthMonitorCfgHelper(flags, "TrigIDMon")
 
-        algs = TIDAMonitoring(flags, "SeeminglyIrrelevant")
+        algs = TIDAMonitoring(flags, "SeeminglyIrrelevant", monlevels )
         for a in algs:
                 monConfig.addAlgorithm(a)
 
@@ -189,10 +192,14 @@ def TIDAMonitoringCA( flags ):
 
 
 def histsvc( flags ):
+
+    from AthenaCommon.Logging import log
+
+    if flags.Output.HISTFileName: 
+            log.info( "histsvc: Create THistSvc with file name: "+flags.Output.HISTFileName )
+    
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     ca = ComponentAccumulator()
-    
-    print( "histsvc: ", flags.Output.HISTFileName )
     
     from AthenaConfiguration.ComponentFactory import CompFactory
     THistSvc = CompFactory.THistSvc
@@ -200,6 +207,7 @@ def histsvc( flags ):
     histsvc = THistSvc()
     if flags.Output.HISTFileName:
         histsvc.Output += ["%s DATAFILE='%s' OPT='RECREATE'" % (flags.DQ.FileKey, flags.Output.HISTFileName)]
+        log.info( "histsvc: "+histsvc.Output[-1] )
             
     ca.addService(histsvc)
        
@@ -209,16 +217,16 @@ def histsvc( flags ):
 
 if __name__=='__main__':
 
-    # Setup the Run III behavior
+    # Run 3 behavior
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior = 1
 
     # Setup logs
     from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import DEBUG
-    log.setLevel(DEBUG)
-    # from AthenaCommon.Constants import INFO
-    # log.setLevel(INFO)
+    from AthenaCommon.Constants import INFO
+    log.setLevel(INFO)
+
+    log.info( "test running" )
 
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -238,9 +246,12 @@ if __name__=='__main__':
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     cfg = MainServicesCfg(ConfigFlags)
+
     cfg.merge( PoolReadCfg(ConfigFlags) )
+
     cfg.merge( histsvc(ConfigFlags) )
 
+#   cfg.merge( TrigInDetMonConfig( ConfigFlags, "bJetMon:t0" ) ) 
     cfg.merge( TrigInDetMonConfig( ConfigFlags ) ) 
 
     # If you want to turn on more detailed messages ...

@@ -70,7 +70,11 @@ def DigitizationMainContentCfg(flags):
             from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
             acc.merge(EventInfoCnvAlgCfg(flags,
                                         inputKey="McEventInfo",
-                                        outputKey="EventInfo"))
+                                        outputKey="HITs_EventInfo"))
+
+        from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoUpdateFromContextAlgCfg
+        acc.merge(EventInfoUpdateFromContextAlgCfg(flags))
+
         # Decorate pile-up values
         from Digitization.PileUpConfigNew import NoPileUpMuWriterCfg
         acc.merge(NoPileUpMuWriterCfg(flags))

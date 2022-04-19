@@ -10,7 +10,7 @@ from InDetRecExample.InDetKeys          import InDetKeys
 class  ConfiguredInDetTrackTruth:
     
 
-    def __init__(self, Tracks = None, DetailedTruth = None, TracksTruth = None, PixelClustersTruth = InDetKeys.PixelClustersTruth(), SCT_ClustersTruth = InDetKeys.SCT_ClustersTruth(), TRT_DriftCirclesTruth = InDetKeys.TRT_DriftCirclesTruth()):
+    def __init__(self, Tracks = None, DetailedTruth = None, TracksTruth = None, doTrackOverlay=False, PixelClustersTruth = InDetKeys.PixelClustersTruth(), SCT_ClustersTruth = InDetKeys.SCT_ClustersTruth(), TRT_DriftCirclesTruth = InDetKeys.TRT_DriftCirclesTruth()):
 
         from InDetRecExample.InDetJobProperties import InDetFlags
         from AthenaCommon.DetFlags              import DetFlags
@@ -43,6 +43,9 @@ class  ConfiguredInDetTrackTruth:
         if ((not DetFlags.haveRIO.TRT_on()) or
             (InDetFlags.doCosmics() and (DetailedTruth == "SiSPSeededTracksDetailedTruth" or DetailedTruth == "ResolvedTracksDetailedTruth"))):
             DetailedTruthMaker.TruthNameTRT = ""
+        #If doing track overlay, the overlay track truth will be added
+        if doTrackOverlay:
+            DetailedTruthMaker.TrackOverlayDetailedName="Bkg_"+DetailedTruth
 
         #if Tracks == "Tracks":
         #    DetailedTruthMaker.OutputLevel = VERBOSE

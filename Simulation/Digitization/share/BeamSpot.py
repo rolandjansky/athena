@@ -18,4 +18,5 @@ from OverlayCommonAlgs.OverlayFlags import overlayFlags
 if (DetFlags.pileup.any_on() or digitizationFlags.doXingByXingPileUp()) or (globalflags.isOverlay() and not overlayFlags.isOverlayMT()):
     from AthenaCommon.AlgSequence import AlgSequence
     job = AlgSequence()
-    job += CfgGetter.getAlgorithm("BeamSpotFixerAlg")
+    alg = CfgGetter.getAlgorithm("BeamSpotFixerAlg")
+    job += alg

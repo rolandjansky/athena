@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local includes:
@@ -48,7 +48,7 @@ LVL1CTP::ResultBuilder::~ResultBuilder() {
 
 
 StatusCode
-LVL1CTP::ResultBuilder::setConfiguration( const TrigConf::L1Menu& l1menu ) const
+LVL1CTP::ResultBuilder::setConfiguration( const TrigConf::L1Menu& l1menu )
 {
    ATH_MSG_DEBUG( "Set configuration with CTP version " << m_ctpVersionNumber );
 
@@ -57,7 +57,7 @@ LVL1CTP::ResultBuilder::setConfiguration( const TrigConf::L1Menu& l1menu ) const
 
 
 StatusCode
-LVL1CTP::ResultBuilder::createTriggerConfigMaps(const TrigConf::L1Menu& l1menu) const
+LVL1CTP::ResultBuilder::createTriggerConfigMaps(const TrigConf::L1Menu& l1menu)
 {
    ATH_MSG_DEBUG("Creating trigger configuration maps from run-3-style menu");
 

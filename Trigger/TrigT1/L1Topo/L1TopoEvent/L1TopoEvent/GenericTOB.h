@@ -23,6 +23,10 @@
 #include "L1TopoEvent/MuonNextBCTOB.h"
 #include "L1TopoEvent/MetTOB.h"
 #include "L1TopoEvent/jXETOB.h"
+#include "L1TopoEvent/jTETOB.h"
+#include "L1TopoEvent/gXETOB.h"
+#include "L1TopoEvent/gMHTTOB.h"
+#include "L1TopoEvent/gTETOB.h"
 
 
 // TODO implement sizecheck lile in ClusterTOB
@@ -44,34 +48,34 @@ namespace TCS {
       // constructor from jet
       GenericTOB(const JetTOB & jet, JetTOB::JetSize jetSize);
 
-      // constructor from jtaus
+      // constructor from jFEX Tau
       GenericTOB(const jTauTOB & tau);
 
-      // constructor from jEm
+      // constructor from jFEX Em
       GenericTOB(const jEmTOB & jem);
 
-      // constructor from large r jet
+      // constructor from jFEX LJet
       GenericTOB(const jLargeRJetTOB & jet);
 
-      // constructor from large r gjet
+      // constructor from gFEX LJet
       GenericTOB(const gLargeRJetTOB & jet);
 
-      // constructor from small r jet
+      // constructor from jFEX Jet
       GenericTOB(const jJetTOB & jet);
 
-      // constructor from small r gjet
+      // constructor from gFEX Jet
       GenericTOB(const gJetTOB & jet);
 
       // constructor from cluster
       GenericTOB(const ClusterTOB & cluster);
 
-      // constructor from eEm
+      // constructor from eFEX Em
       GenericTOB(const eEmTOB & eem);
 
-      // constructor from eTau
+      // constructor from eFEX Tau
       GenericTOB(const eTauTOB & etau);
 
-      // constructor from eTau
+      // constructor from cTau
       GenericTOB(const cTauTOB & ctau);
 
       // constructor from muon
@@ -86,8 +90,20 @@ namespace TCS {
       // constructor from met
       GenericTOB(const MetTOB & met);
 
-      // constructor from jxe
+      // constructor from jFEX XE
       GenericTOB(const jXETOB & jxe);
+
+      // constructor from jFEX TE
+      GenericTOB(const jTETOB & jte);
+
+      // constructor from gFEX XE
+      GenericTOB(const gXETOB & gxe);
+
+      // constructor from gFEX MHT
+      GenericTOB(const gMHTTOB & gmht);
+
+      // constructor from gFEX TE
+      GenericTOB(const gTETOB & gte);
 
       // destructor
       ~GenericTOB();
@@ -104,15 +120,18 @@ namespace TCS {
 
       int Ex() const { return m_Ex; }
       int Ey() const { return m_Ey; }
+      unsigned int Et2() const { return m_Et2; }
+      unsigned int sumEt() const { return m_sumEt; }
 
       int eta() const { return m_eta; }
       int phi() const { return m_phi; }
 
-      //eEm
+      // eEm isolation
       unsigned int Reta() const { return m_reta; }
       unsigned int Rhad() const { return m_rhad; }
       unsigned int Wstot() const { return m_wstot; }
       
+      // eTau isolation
       unsigned int rCore() const { return m_rCore; }
       unsigned int rHad() const { return m_rHad; }
 
@@ -127,7 +146,9 @@ namespace TCS {
       double etaDouble() const { return m_etaDouble; }
       double phiDouble() const { return m_phiDouble; }
 
-      double Et2() const { return m_Et2; }
+      double ExDouble() const { return m_ExDouble; }
+      double EyDouble() const { return m_EyDouble; }
+      double sumEtDouble() const { return m_sumEtDouble; }
 
       virtual void print(std::ostream &o) const;
 
@@ -143,6 +164,7 @@ namespace TCS {
       int m_Ex { 0 };
       int m_Ey { 0 };
       unsigned int m_Et2 { 0 };
+      unsigned int m_sumEt { 0 };
 
       int m_eta { 0 };
       int m_phi { 0 };
@@ -159,6 +181,7 @@ namespace TCS {
 
       double m_ExDouble { 0 };
       double m_EyDouble { 0 };
+      double m_sumEtDouble { 0 };
 
       unsigned int m_reta {0};
       unsigned int m_rhad {0};

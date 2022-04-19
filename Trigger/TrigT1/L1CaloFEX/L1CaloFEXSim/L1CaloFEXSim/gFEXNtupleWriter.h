@@ -130,7 +130,8 @@ private:
   std::vector<float> m_gGlobal_MHTy;
   std::vector<float> m_gGlobal_MSTx;
   std::vector<float> m_gGlobal_MSTy;
-  std::vector<float> m_gGlobal_etScale;
+  std::vector<float> m_gGlobal_etScale1;
+  std::vector<float> m_gGlobal_etScale2;
 
 
 

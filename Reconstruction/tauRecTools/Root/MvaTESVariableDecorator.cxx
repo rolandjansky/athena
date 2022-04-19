@@ -92,7 +92,7 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) const {
 
   // in the trigger, we must ignore the tau vertex, otherwise ptFinalCalib computed at calo-only step and precision step will differ
   const xAOD::Vertex* vertex = nullptr;
-  if (m_doVertexCorrection) vertex = tauRecTools::getTauVertex(xTau, inTrigger());
+  if (m_doVertexCorrection) vertex = xTau.vertex();
 
   // Loop through clusters and jet constituents
   std::vector<xAOD::CaloVertexedTopoCluster> vertexedClusterList = xTau.vertexedClusters();
@@ -180,17 +180,20 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) const {
   if(inTrigger()) {
     return StatusCode::SUCCESS;
   }
-
-  // retrieve Ghost Muon Segment Count (for punch-through studies)
-  if (! xTau.jetLink().isValid()) {
-    ATH_MSG_ERROR("Tau jet link is invalid.");
-    return StatusCode::FAILURE;
+  // no seed jets in AOD
+  if (!inAOD()){
+    // retrieve Ghost Muon Segment Count (for punch-through studies)
+    if (! xTau.jetLink().isValid()) {
+      ATH_MSG_ERROR("Tau jet link is invalid.");
+      return StatusCode::FAILURE;
+    }
+    const xAOD::Jet* jetSeed = xTau.jet(); 
+    
+    int nMuSeg=0;
+    if(!jetSeed->getAttribute<int>("GhostMuonSegmentCount", nMuSeg)) nMuSeg=0;
+    xTau.setDetail(xAOD::TauJetParameters::GhostMuonSegmentCount, nMuSeg);
   }
-  const xAOD::Jet* jetSeed = xTau.jet(); 
-  
-  int nMuSeg=0;
-  if(!jetSeed->getAttribute<int>("GhostMuonSegmentCount", nMuSeg)) nMuSeg=0;
-  xTau.setDetail(xAOD::TauJetParameters::GhostMuonSegmentCount, nMuSeg);
+
   
   // summing corrected Pi0 PFO energies
   TLorentzVector Pi0_totalP4;

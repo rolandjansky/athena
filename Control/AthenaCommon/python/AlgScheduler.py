@@ -29,8 +29,6 @@
 #
 
 
-from __future__ import print_function
-
 class AlgScheduler:
     def __init__(self,theSched=None,thePrec=None):
         """Setup Algorithm Scheduler"""

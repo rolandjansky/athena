@@ -37,9 +37,9 @@
 #include "RecTPCnv/MuonCaloEnergyContainerCnv_tlp1.h"
 
 
-typedef TopLevelTPConverter< TrackCollectionCnv_p4, Trk::TrackCollection_tlp6 > BaseTrackCollectionCnv;
+typedef TopLevelTPConverter< TrackCollectionCnv_p4, Trk::TrackCollection_tlp6 > BaseTrackCollectionCnv_tlp6;
 
-class TrackCollectionCnv_tlp6 : public BaseTrackCollectionCnv
+class TrackCollectionCnv_tlp6 : public BaseTrackCollectionCnv_tlp6
 {
  public:
  

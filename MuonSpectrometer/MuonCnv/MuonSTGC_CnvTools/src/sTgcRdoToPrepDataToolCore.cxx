@@ -42,35 +42,38 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(Muon::sTgcPrepData
     const IdentifierHash hash = rdoColl->identifyHash();
 
     ATH_MSG_DEBUG(" ***************** Start of process STGC Collection with hash Id: " << hash);
-
-    sTgcPrepDataCollection* prdColl = nullptr;
   
     // check if the collection already exists, otherwise add it
     if ( stgcPrepDataContainer->indexFindPtr(hash) != nullptr ) {
         ATH_MSG_DEBUG("In processCollection: collection already contained in the sTGC PrepData container");
         return StatusCode::FAILURE;
 
-    } else {
-        prdColl = new sTgcPrepDataCollection(hash);
-        idWithDataVect.push_back(hash);
+    } 
 
-        // set the offline identifier of the collection Id
-        IdContext  context = m_idHelperSvc->stgcIdHelper().module_context();
-        Identifier moduleId;
-        int getId = m_idHelperSvc->stgcIdHelper().get_id(hash, moduleId, &context);
-        if ( getId != 0 ) {
-            ATH_MSG_ERROR("Could not convert the hash Id: " << hash << " to identifier");
-        } else {
-            prdColl->setIdentifier(moduleId);
-        }
-
-        if (StatusCode::SUCCESS != stgcPrepDataContainer->addCollection(prdColl, hash)) {
-            ATH_MSG_DEBUG("In processCollection - Couldn't record in the Container sTGC Collection with hashID = " << (int)hash );
-            return StatusCode::FAILURE;
-        }
-
+    // Get write handle for this collection
+    sTgcPrepDataContainer::IDC_WriteHandle lock = stgcPrepDataContainer->getWriteHandle( hash );
+    // Check if collection already exists (via the cache, i.e. in online trigger mode)
+    if( lock.OnlineAndPresentInAnotherView() ) {
+      ATH_MSG_DEBUG("In processCollection: collection already available in the sTgc PrepData container (via cache)");
+      idWithDataVect.push_back(hash);
+      return StatusCode::SUCCESS;
     }
 
+    // Make the PRD collection (will be added to container later
+    std::unique_ptr<sTgcPrepDataCollection> prdColl = std::make_unique<sTgcPrepDataCollection>(hash);
+    idWithDataVect.push_back(hash);
+
+    // set the offline identifier of the collection Id
+    IdContext  context = m_idHelperSvc->stgcIdHelper().module_context();
+    Identifier moduleId;
+    int getId = m_idHelperSvc->stgcIdHelper().get_id(hash, moduleId, &context);
+    if ( getId != 0 ) {
+      ATH_MSG_ERROR("Could not convert the hash Id: " << hash << " to identifier");
+    } else {
+      prdColl->setIdentifier(moduleId);
+    }
+
+    // vectors to hold PRDs decoded for this RDO collection
     std::vector<sTgcPrepData> sTgcStripPrds;
     std::vector<sTgcPrepData> sTgcWirePrds;
     std::vector<sTgcPrepData> sTgcPadPrds;
@@ -147,7 +150,7 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(Muon::sTgcPrepData
             }
         }
 
-        double resolution = width/sqrt(12.); 
+        const double resolution = width/sqrt(12.); 
         auto   cov = Amg::MatrixX(1,1);
         cov.setIdentity();
         (cov)(0,0) = resolution*resolution;  
@@ -189,6 +192,10 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(Muon::sTgcPrepData
             prdColl->emplace_back(new sTgcPrepData(prd));
         }
     }
+
+    // now add the collection to the container
+    ATH_CHECK( lock.addOrDelete(std::move( prdColl ) ) );
+    ATH_MSG_DEBUG("PRD hash " << hash << " has been moved to container");
 
     // clear vector and delete elements
     sTgcStripPrds.clear();

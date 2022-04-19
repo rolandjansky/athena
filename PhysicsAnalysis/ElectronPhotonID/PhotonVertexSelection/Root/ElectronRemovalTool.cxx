@@ -34,9 +34,7 @@ namespace CP {
 
   //____________________________________________________________________________
   ElectronRemovalTool::~ElectronRemovalTool()
-  {
-  
-  }
+  = default;
 
   //____________________________________________________________________________
   StatusCode ElectronRemovalTool::initialize()

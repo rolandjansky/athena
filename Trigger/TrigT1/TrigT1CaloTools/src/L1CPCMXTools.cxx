@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <map>
@@ -341,7 +341,7 @@ void L1CPCMXTools::getHits(const TrigConf::L1Menu* l1menu, const xAOD::CMXCPTob 
     /* Now get the hit information using RecEmTauroI */
     RecEmTauRoI recRoI(roi->roiWord(), &(*l1menu));
     auto mask = recRoI.thresholdPattern();
-    for (auto threshold : thresholds) {
+    for (const auto& threshold : thresholds) {
       auto numThresh = threshold->mapping();
       if (!recRoI.isValidThreshold(numThresh) ||
           (((1 << numThresh) & mask) == 0)) {

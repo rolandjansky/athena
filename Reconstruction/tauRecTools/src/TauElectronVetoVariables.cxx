@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -161,11 +161,11 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau) const {
       CaloClusterCellLink::const_iterator pCellIter  = cluster.getCellLinks()->begin();
       CaloClusterCellLink::const_iterator pCellIterE = cluster.getCellLinks()->end();
       for (; pCellIter != pCellIterE; ++pCellIter) {
-	      double cellEta{}, cellPhi{}, cellET{};
+	double cellEta{}, cellPhi{}, cellET{};
         pCell = *pCellIter;
         if (cellSeen.test(pCell->caloDDE()->calo_hash())) continue;
         else cellSeen.set(pCell->caloDDE()->calo_hash());
-        if (m_doVertexCorrection && pTau.vertexLink().isValid()) {
+        if (m_doVertexCorrection && pTau.vertex()!=nullptr) {
           CaloVertexedCell vxCell (*pCell, pTau.vertex()->position());
           cellPhi = vxCell.phi();
           cellEta = vxCell.eta();

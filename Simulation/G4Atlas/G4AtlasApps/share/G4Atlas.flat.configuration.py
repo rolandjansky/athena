@@ -83,8 +83,8 @@ if not simFlags.ISFRun:
 
 ## AtlasSimSkeleton._do_external
 from AthenaCommon.AppMgr import ToolSvc,ServiceMgr
-from Geo2G4.Geo2G4Conf import Geo2G4Svc
-geo2G4Svc = Geo2G4Svc()
+import AthenaCommon.CfgMgr as CfgMgr
+geo2G4Svc = CfgMgr.Geo2G4Svc()
 theApp.CreateSvc += ["Geo2G4Svc"]
 ServiceMgr += geo2G4Svc
 ## Enable top transforms for the ATLAS geometry
@@ -162,13 +162,16 @@ if not simFlags.ISFRun:
         else:
             as_alg = False
         ## NB. Two-arg constructor is needed, since otherwise metadata writing fails!
-        stream1 = AthenaPoolOutputStream("StreamHITS", athenaCommonFlags.PoolHitsOutput(), asAlg=as_alg, noTag=True)
+        stream1 = AthenaPoolOutputStream("StreamHITS", athenaCommonFlags.PoolHitsOutput(), asAlg=as_alg, noTag=False)
 
         ## Write geometry tag info - move to main method
         #import EventInfoMgt.EventInfoMgtInit
 
         ## EventInfo & TruthEvent always written by default
-        stream1.ItemList = ["EventInfo#*",
+        stream1.ItemList = ["xAOD::EventInfo#EventInfo",
+                            "xAOD::EventAuxInfo#EventInfoAux.",
+                            "xAOD::EventInfoContainer#*",
+                            "xAOD::EventInfoAuxContainer#*",
                             "McEventCollection#TruthEvent",
                             "JetCollection#*"]
 

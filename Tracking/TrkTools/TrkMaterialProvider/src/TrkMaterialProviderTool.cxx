@@ -77,7 +77,7 @@ Trk::TrkMaterialProviderTool::TrkMaterialProviderTool(const std::string& t, cons
 
 // destructor
 Trk::TrkMaterialProviderTool::~TrkMaterialProviderTool()
-{}
+= default;
 
 // Athena standard methods
 // initialize

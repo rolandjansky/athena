@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -340,8 +340,8 @@ private:
    * method
    */
 
-  double estimateDeltaZ(const Trk::TrackParameters& myPerigee,
-                        const Amg::Vector3D& myTransvVertex) const;
+  static double estimateDeltaZ(const Trk::TrackParameters& myPerigee,
+                        const Amg::Vector3D& myTransvVertex) ;
 
   /**
    * copying from the guassian density alg
@@ -354,7 +354,7 @@ private:
    * then delete it and set to zero
    */
 
-  void releaseCandidate(xAOD::Vertex*& candidate) const;
+  static void releaseCandidate(xAOD::Vertex*& candidate) ;
 
 }; // end of class
 } // end of namespace definitions

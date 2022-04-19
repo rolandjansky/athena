@@ -3,8 +3,6 @@
 # File: AthenaCommon/python/OldStyleConfig.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
 
-from __future__ import print_function
-
 from AthenaCommon import Logging
 
 

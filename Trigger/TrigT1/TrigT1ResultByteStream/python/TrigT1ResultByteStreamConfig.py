@@ -5,6 +5,7 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, CAtoGlobalWrapper
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import Format
+from TrigEDMConfig.TriggerEDMRun3 import recordable
 from libpyeformat_helper import SourceIdentifier, SubDetector
 
 #Muon RecRoiTools
@@ -48,7 +49,6 @@ def ExampleL1TriggerByteStreamToolCfg(name, writeBS=False):
   tool = CompFactory.ExampleL1TriggerByteStreamTool(name)
   muctpi_moduleid = 0
   muctpi_robid = int(SourceIdentifier(SubDetector.TDAQ_MUON_CTP_INTERFACE, muctpi_moduleid))
-  tool.MUCTPIModuleId = muctpi_moduleid
   tool.ROBIDs = [muctpi_robid]
   if writeBS:
     # write BS == read xAOD
@@ -57,7 +57,7 @@ def ExampleL1TriggerByteStreamToolCfg(name, writeBS=False):
   else:
     # read BS == write xAOD
     tool.MuonRoIContainerReadKey=""
-    tool.MuonRoIContainerWriteKey="LVL1MuonRoIs"
+    tool.MuonRoIContainerWriteKey=recordable("LVL1MuonRoIs")
   return tool
 
 def MuonRoIByteStreamToolCfg(name, flags, writeBS=False):
@@ -84,7 +84,7 @@ def MuonRoIByteStreamToolCfg(name, flags, writeBS=False):
     tool.MuonRoIContainerReadKeys += containerNames
   else:
     # read BS == write xAOD
-    tool.MuonRoIContainerWriteKeys += containerNames
+    tool.MuonRoIContainerWriteKeys += [recordable(c) for c in containerNames]
 
   tool.RPCRecRoiTool = getRun3RPCRecRoiTool(name="RPCRecRoiTool",useRun3Config=flags.Trigger.enableL1MuonPhase1)
   tool.TGCRecRoiTool = getRun3TGCRecRoiTool(name="TGCRecRoiTool",useRun3Config=flags.Trigger.enableL1MuonPhase1)

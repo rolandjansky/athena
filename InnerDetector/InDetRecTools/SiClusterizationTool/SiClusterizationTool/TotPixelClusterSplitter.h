@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -77,7 +77,7 @@ namespace InDet
             4 : short inter-ganged pixel
             5 : long inter-ganged pixel
       */
-      int pixelType(const int PhiIdx, const int EtaIdx) const;
+      static int pixelType(const int PhiIdx, const int EtaIdx) ;
 
       enum SplitType { PhiSplit = 0, EtaSplit = 1, NoSplit = 2 };
 

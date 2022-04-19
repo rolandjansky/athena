@@ -189,11 +189,11 @@ L399:
 /*-----------------------------------------------------*/
 void scaleg(double g[], double scale[], long int N, long int mfirst) noexcept
 {
+   if (N == 1) scale[0]=1.;
    if (N <= 1) return;
-   int g_dim1=mfirst;
-#define g_ref(a_1,a_2) g[(a_2)*(g_dim1) + (a_1)]
+#define g_ref(a_1,a_2) g[(a_2)*(mfirst) + (a_1)]
    for(int i=0; i<N; i++){
-     if( g_ref(i,i)==0. )continue;
+     if( g_ref(i,i)==0. ){scale[i]=1.; continue;}
      scale[i] = 1./std::sqrt(std::abs(g_ref(i,i)));
      g_ref(i, i) = d_sign( 1., g_ref(i, i));
    }

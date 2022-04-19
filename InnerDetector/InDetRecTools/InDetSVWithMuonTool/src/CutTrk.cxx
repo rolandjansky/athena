@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -106,9 +106,7 @@ namespace InDet{
           if( sc.isFailure() )                 continue;
 	  SelectedTracks.push_back(*i_ntrk);
       }
-      AnalysisUtils::Sort::pT (&SelectedTracks); // no equivalent for TrkTrack yet...
-      return;
-   }
+      AnalysisUtils::Sort::pT (&SelectedTracks);   }
 
 
 }//end namespace

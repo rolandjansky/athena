@@ -200,13 +200,22 @@ def addSidebandEventShape(sequence=DerivationFrameworkJob):
         if not hasattr(sequence,a.getName()):
             sequence += conf2toConfigurable(a)
 
-    constitPJAlg = getConstitPJGAlg(cst.GPFlow, suffix='EMPFlowPUSB')
+    constitPJAlg = getConstitPJGAlg(cst.GPFlow, suffix='PUSB')
     if not hasattr(sequence,constitPJAlg.getName()):
         sequence += conf2toConfigurable(constitPJAlg)
 
-    eventshapealg = buildEventShapeAlg(cst.GPFlow, '', suffix = 'EMPFlowPUSB' )
+    eventshapealg = buildEventShapeAlg(cst.GPFlow, '', suffix = 'PUSB' )
     if not hasattr(sequence, eventshapealg.getName()):
         sequence += conf2toConfigurable(eventshapealg)
+
+    #New "sideband" definition when using CHS based on TTVA
+    constitNeutralPJAlg = getConstitPJGAlg(cst.GPFlow, suffix='Neut')
+    if not hasattr(sequence,constitNeutralPJAlg.getName()):
+        sequence += conf2toConfigurable(constitNeutralPJAlg)
+
+    neutraleventshapealg = buildEventShapeAlg(cst.GPFlow, '', suffix = 'Neut' )
+    if not hasattr(sequence, neutraleventshapealg.getName()):
+        sequence += conf2toConfigurable(neutraleventshapealg)
 
 
 ##################################################################

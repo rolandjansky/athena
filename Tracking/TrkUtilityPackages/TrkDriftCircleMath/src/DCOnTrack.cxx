@@ -10,15 +10,15 @@ namespace TrkDriftCircleMath {
         double pull = dc.residual() / dc.dr();
 
         os << dc.position() << std::setw(6) << " r " << dc.r() << " dr " << dc.dr() << " id " << dc.id();
-        if (dc.DriftCircle::state() == TrkDriftCircleMath::DriftCircle::EarlyHit)
+        if (dc.driftState() == TrkDriftCircleMath::DriftCircle::EarlyHit)
             os << " EarlyHit";
-        else if (dc.DriftCircle::state() == TrkDriftCircleMath::DriftCircle::InTime)
+        else if (dc.driftState() == TrkDriftCircleMath::DriftCircle::InTime)
             os << " InTime";
-        else if (dc.DriftCircle::state() == TrkDriftCircleMath::DriftCircle::LateHit)
+        else if (dc.driftState() == TrkDriftCircleMath::DriftCircle::LateHit)
             os << " LateHit";
-        else if (dc.DriftCircle::state() == TrkDriftCircleMath::DriftCircle::EmptyTube)
+        else if (dc.driftState() == TrkDriftCircleMath::DriftCircle::EmptyTube)
             os << " EmptyTube";
-        else if (dc.DriftCircle::state() == TrkDriftCircleMath::DriftCircle::NotCrossed)
+        else if (dc.driftState() == TrkDriftCircleMath::DriftCircle::NotCrossed)
             os << " NotCrossed";
         else
             os << " unknown state";
@@ -37,15 +37,15 @@ namespace TrkDriftCircleMath {
     }
 
     MsgStream& operator<<(MsgStream& os, const TrkDriftCircleMath::DCOnTrack& dc) {
-        if (dc.DriftCircle::state() == TrkDriftCircleMath::DriftCircle::EarlyHit)
+        if (dc.driftState() == TrkDriftCircleMath::DriftCircle::EarlyHit)
             os << " EarlyHit";
-        else if (dc.DriftCircle::state() == TrkDriftCircleMath::DriftCircle::InTime)
+        else if (dc.driftState() == TrkDriftCircleMath::DriftCircle::InTime)
             os << " InTime";
-        else if (dc.DriftCircle::state() == TrkDriftCircleMath::DriftCircle::LateHit)
+        else if (dc.driftState() == TrkDriftCircleMath::DriftCircle::LateHit)
             os << " LateHit";
-        else if (dc.DriftCircle::state() == TrkDriftCircleMath::DriftCircle::EmptyTube)
+        else if (dc.driftState() == TrkDriftCircleMath::DriftCircle::EmptyTube)
             os << " EmptyTube";
-        else if (dc.DriftCircle::state() == TrkDriftCircleMath::DriftCircle::NotCrossed)
+        else if (dc.driftState() == TrkDriftCircleMath::DriftCircle::NotCrossed)
             os << " NotCrossed";
         else
             os << " unknown state";

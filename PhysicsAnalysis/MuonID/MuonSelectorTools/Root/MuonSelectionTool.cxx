@@ -312,7 +312,7 @@ namespace CP {
         const xAOD::TrackParticle* idtrack = mu.trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
         const xAOD::TrackParticle* metrack = mu.trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle);
         if (!idtrack || !metrack) idPt = mePt = -1.;
-        if (m_TurnOffMomCorr) {
+        else if (m_TurnOffMomCorr) {
             mePt = metrack->pt();
             idPt = idtrack->pt();
         } else {
@@ -320,7 +320,7 @@ namespace CP {
                 ATH_MSG_FATAL("The muon with pT " << mu.pt() * MeVtoGeV << " eta: " << mu.eta() << ", phi:" << mu.phi()
                                                   << " q:" << mu.charge() << ", author:" << mu.author()
                                                   << " is not decorated with calibrated momenta. Please fix");
-                throw std::runtime_error("MuonSeelctionTool() - qOverP significance calulcation failed");
+                throw std::runtime_error("MuonSelectionTool() - qOverP significance calculation failed");
             }
             mePt = mePt_acc(mu);
             idPt = idPt_acc(mu);

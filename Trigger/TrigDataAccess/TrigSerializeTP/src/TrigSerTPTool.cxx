@@ -64,6 +64,20 @@ StatusCode TrigSerTPTool::initialize(){
    ATH_CHECK( m_dictSvc.retrieve() );
    ATH_CHECK( m_tpcnvsvc.retrieve() );
 
+   /* When a P<->T conversion is requested, this tool makes a call to TClass::GetClass.
+    * The way it's done here can cause performance issues in some circumstances.
+    * For example, reading data16 RAW files trigger a P->T conversion from
+    * DataVector<xAOD::TauJet_v2> to DataVector<xAOD::TauJet_v3> in RAWtoALL/22.0.62.
+    * The problem is that the converter returns the full class name through
+    * ITPCnvBase::transientTInfo(), which in this case resolves into
+    * DataVector<xAOD::TauJet_v3,DataVector<xAOD::IParticle,DataModel_detail::NoBase> >
+    * Passing this directly to TClass::GetClass causes AutoLoading/HeaderParsing
+    * which notoriously allocates memory and never releases it. Here, we work
+    * around this problem by stripping the base class information from the name
+    * that's passed to TClass::GetClass, in this case simply DataVector<xAOD::TauJet_v3>
+    */
+   m_clNameRules.add("DataVector<$T, $B>", "DataVector<$T>");
+
    return StatusCode::SUCCESS;
 }
 
@@ -113,7 +127,7 @@ void* TrigSerTPTool::convertTP( const std::string &clname, void *ptr,
  
    // Create a persistent object:
    const std::string persname =
-      System::typeinfoName( cnvtr->persistentTInfo() );
+      m_clNameRules.apply( System::typeinfoName( cnvtr->persistentTInfo() ) );
    TClass *persObjCl = getClass( persname );
    void *persptr( 0 );
    if( persObjCl ) {
@@ -167,7 +181,7 @@ void* TrigSerTPTool::convertPT( const std::string &persName, void *pers,
    }
 
    // Get the name of the transient class:
-   transName = System::typeinfoName( cnvtr->transientTInfo() );
+   transName = m_clNameRules.apply( System::typeinfoName( cnvtr->transientTInfo() ) );
 
    // Create the transient object:
    TClass *transCl = getClass( transName );

@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
+from AthenaConfiguration.Enums import BeamType
 # TODO : Add some exta levels?
 
 def createITkConfigFlags():
@@ -27,8 +28,12 @@ def createITkConfigFlags():
                                                          or prevFlags.ITk.Geometry.BCMPrimeLocal
                                                          or prevFlags.ITk.Geometry.PLRLocal))
 
+  itkcf.addFlag("ITk.Conditions.PixelChargeCalibTag", "")
+  itkcf.addFlag("ITk.Conditions.PixelChargeCalibFile", "")
+
   itkcf.addFlag("ITk.doStripModuleVeto", False) # Turn on SCT_ModuleVetoSvc, allowing it to be configured later
   itkcf.addFlag("ITk.checkDeadPixelsOnTrack", True) # Enable check for dead modules and FEs
+  itkcf.addFlag("ITk.selectStripIntimeHits", lambda prevFlags: not(prevFlags.Beam.Type is BeamType.Cosmics) ) # defines if the X1X mode is used for the offline or not
 
   itkcf.addFlag("ITk.Tracking.doStoreTrackSeeds", False) # Turn on to save the Track Seeds in a xAOD track collecting for development studies
   itkcf.addFlag("ITk.Tracking.doDigitalROTCreation", False) # use PixelClusterOnTrackToolDigital during ROT creation to save CPU

@@ -72,6 +72,7 @@ def IOVDbSvcCfg(configFlags):
     # Get TagInfoMgr
     from EventInfoMgt.TagInfoMgrConfig import TagInfoMgrCfg 
     result.merge(TagInfoMgrCfg(configFlags)[0])
+    iovDbSvc.Folders.append("/TagInfo<metaOnly/>")
     
     # Set up MetaDataSvc                                                                                             
     from AthenaServices.MetaDataSvcConfig import MetaDataSvcCfg

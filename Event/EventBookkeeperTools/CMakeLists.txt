@@ -55,10 +55,12 @@ if( NOT XAOD_STANDALONE )
                    PROPERTIES TIMEOUT 300
                    POST_EXEC_SCRIPT nopost.sh )
 
-   atlas_add_test( CutFlowSvcTest
-                   SCRIPT test/test_CutFlowSvc.py
-                   PROPERTIES TIMEOUT 300
-                   POST_EXEC_SCRIPT nopost.sh )
+   if( NOT GENERATIONBASE )
+      atlas_add_test( CutFlowSvcTest
+                      SCRIPT test/test_CutFlowSvc.py
+                      PROPERTIES TIMEOUT 300
+                      POST_EXEC_SCRIPT nopost.sh )
+   endif()
 
    atlas_add_test( CutFlowSvcDummyAlg
                    SCRIPT athena EventBookkeeperTools/TestCutFlowSvcDummyAlg.py

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -17,7 +17,7 @@
 
 #include "ZdcEvent/ZdcDigits.h"
 //#include "ZdcIdentifier/ZdcID.h"
-#include "DataQualityTools/ZdcSignalSinc.h"
+#include "ZdcRec/ZdcSignalSinc.h"
 
 #include "DataQualityTools/DQTNonCollBkg_ZDC.h"
 

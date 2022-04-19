@@ -1177,6 +1177,18 @@ StatusCode HltEventLoopMgr::startNextEvent(EventLoopStatus& loopStatus)
     }
     return StatusCode::SUCCESS;
   }
+  catch (const hltonl::Exception::MissingCTPFragment& e) {
+    sc = StatusCode::FAILURE;
+    if (check(e.what(), HLT::OnlineErrorCode::MISSING_CTP_FRAGMENT, *eventContext)) {
+      return sc;
+    }
+  }
+  catch (const hltonl::Exception::BadCTPFragment& e) {
+    sc = StatusCode::FAILURE;
+    if (check(e.what(), HLT::OnlineErrorCode::BAD_CTP_FRAGMENT, *eventContext)) {
+      return sc;
+    }
+  }
   catch (const std::exception& e) {
     ATH_MSG_ERROR("Failed to get next event from the event source, std::exception caught: " << e.what());
     sc = StatusCode::FAILURE;

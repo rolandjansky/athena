@@ -484,7 +484,8 @@ StatusCode PixelFastDigitizationTool::digitize(const EventContext& ctx)
   if(!m_pixelClusterMap) { m_pixelClusterMap = new Pixel_detElement_RIO_map; }
   else { m_pixelClusterMap->clear(); }
 
-  SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey, ctx);
+  SG::ReadCondHandle<PixelChargeCalibCondData> calibDataHandle(m_chargeDataKey, ctx);
+  const PixelChargeCalibCondData *calibData = *calibDataHandle;
   std::vector<int> trkNo;
   std::vector<Identifier> detEl;
 
@@ -579,10 +580,10 @@ StatusCode PixelFastDigitizationTool::digitize(const EventContext& ctx)
       double pixMinimalPathCut= 1. / m_pixPathLengthTotConv;
 
       Identifier diodeID = hitId;
-      int circ = m_pixelReadout->getFE(diodeID,moduleID);
+      unsigned int FE = m_pixelReadout->getFE(diodeID, moduleID);
       InDetDD::PixelDiodeType type = m_pixelReadout->getDiodeType(diodeID);
 
-      double th0 = calibData->getAnalogThreshold((int)waferHash,circ,type)/m_ThrConverted;
+      double th0 = calibData->getAnalogThreshold(type, waferHash, FE) / m_ThrConverted;
 
       //        if (old_th != th0) std::cout<<"converted threshold "<<th0<<std::endl, old_th= th0;
 

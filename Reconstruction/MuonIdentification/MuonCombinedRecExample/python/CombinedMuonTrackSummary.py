@@ -18,9 +18,16 @@ beamFlags                      = jobproperties.Beam
 atlasExtrapolator              = getPublicTool('AtlasExtrapolator')
 muonTrackSummaryHelper         = getPublicTool('MuonTrackSummaryHelperTool')
 
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from InDetRecExample import TrackingCommon
-TestPixelLayerTool = TrackingCommon.getInDetTestPixelLayerTool("CombinedMuonPixelLayerToolDefault",
-                                                               Extrapolator = atlasExtrapolator)
+
+if ConfigFlags.Muon.MuonTrigger:
+  # @TODO change name ?
+  TestPixelLayerTool = TrackingCommon.getInDetTrigTestPixelLayerTool("CombinedMuonPixelLayerToolDefault",
+                                                                     Extrapolator = atlasExtrapolator)
+else :
+  TestPixelLayerTool = TrackingCommon.getInDetTestPixelLayerTool("CombinedMuonPixelLayerToolDefault",
+                                                                 Extrapolator = atlasExtrapolator)
 
 from InDetBoundaryCheckTool.InDetBoundaryCheckToolConf import InDet__InDetBoundaryCheckTool
 CombinedMuonIDBoundaryCheckTool = InDet__InDetBoundaryCheckTool(

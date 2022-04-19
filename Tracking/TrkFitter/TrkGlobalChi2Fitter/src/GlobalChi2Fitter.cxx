@@ -7409,8 +7409,7 @@ namespace Trk {
     return rv;
   }
 
-  GlobalChi2Fitter::~GlobalChi2Fitter() {
-  }
+  GlobalChi2Fitter::~GlobalChi2Fitter() = default;
 
   std::vector<std::unique_ptr<TrackParameters>> GlobalChi2Fitter::holesearchExtrapolation(
     const EventContext & ctx,

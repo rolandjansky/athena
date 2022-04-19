@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SimpleAmbiguityProcessorTool.h"
@@ -40,8 +40,7 @@ Trk::SimpleAmbiguityProcessorTool::SimpleAmbiguityProcessorTool(const std::strin
 //==================================================================================================
 
 Trk::SimpleAmbiguityProcessorTool::~SimpleAmbiguityProcessorTool()
-{
-}
+= default;
 //==================================================================================================
 
 StatusCode Trk::SimpleAmbiguityProcessorTool::initialize(){

@@ -11,6 +11,7 @@
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "Identifier/Identifier.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
+#include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
 
 #include <memory>
 
@@ -25,7 +26,7 @@ InDet::InDetPRDtoTrackMapToolGangedPixels::InDetPRDtoTrackMapToolGangedPixels(co
 }
 
 InDet::InDetPRDtoTrackMapToolGangedPixels::~InDetPRDtoTrackMapToolGangedPixels()
-{}
+= default;
 
 StatusCode InDet::InDetPRDtoTrackMapToolGangedPixels::initialize()
 {
@@ -195,29 +196,29 @@ InDet::InDetPRDtoTrackMapToolGangedPixels::getPrdsOnTrack(Trk::PRDtoTrackMap &vi
   // size it
   vec.reserve(track.measurementsOnTrack()->size());
 
-  // get the PRDs for the measuremenst on track
+  // get the PRDs for the measurements on track
   DataVector<const Trk::MeasurementBase>::const_iterator it    = track.measurementsOnTrack()->begin();
   DataVector<const Trk::MeasurementBase>::const_iterator itEnd = track.measurementsOnTrack()->end();
   for (;it!=itEnd;++it)
     {
     const auto meas{*it};
     if (meas->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
-    const Trk::RIO_OnTrack* rot = static_cast<const Trk::RIO_OnTrack*>(meas);
-      vec.push_back(rot->prepRawData());
+      const Trk::RIO_OnTrack* rot = static_cast<const Trk::RIO_OnTrack*>(meas);
+      if(rot->prepRawData()) vec.push_back(rot->prepRawData());
     }
   }
   ATH_MSG_DEBUG(" Getting "<<vec.size()<<" PRDs from track at:"<<&track);
-  // new mode, we add the outleirs in the TRT
+  // new mode, we add the outliers in the TRT
   if (m_addTRToutliers) {
-    // get the PRDs for the measuremenst on track
+    // get the PRDs for the measurements on track
     for (const Trk::MeasurementBase* meas : *track.outliersOnTrack()){
-      // get the ROT, make sure it is not a pseudo measurment
+      // get the ROT, make sure it is not a pseudo measurement
       if (meas->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
         const Trk::RIO_OnTrack* rot = static_cast<const Trk::RIO_OnTrack*>(meas);
         // check if outlier is TRT ?
         if (rot->rioType(Trk::RIO_OnTrackType::TRT_DriftCircle)) {
           // add to the list, it is TRT
-          vec.push_back(rot->prepRawData());
+          if(rot->prepRawData()) vec.push_back(rot->prepRawData());
         }
       }
     }

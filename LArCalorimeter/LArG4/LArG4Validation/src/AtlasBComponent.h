@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CLHEP/GenericFunctions/AbsFunction.hh"
 
 // Real magnetic field svc
-#include "MagFieldInterfaces/IMagFieldSvc.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
  
 // This class is an adaptor:
 namespace Genfun {
@@ -18,7 +17,7 @@ namespace Genfun {
       public:
     
     // Constructor:
-    AtlasBComponent(unsigned int index);
+    AtlasBComponent(unsigned int index, MagField::AtlasFieldCache* fieldCache);
    
     // Destructor:
     virtual ~AtlasBComponent();
@@ -40,7 +39,7 @@ namespace Genfun {
     AtlasBComponent& operator= (const AtlasBComponent&);
 
     // Mag field accessor
-    ServiceHandle<MagField::IMagFieldSvc>   m_magFieldSvc;
+    MagField::AtlasFieldCache* m_fieldCache{};
 
   };   
 

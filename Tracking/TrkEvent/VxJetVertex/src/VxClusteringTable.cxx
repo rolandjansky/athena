@@ -24,9 +24,9 @@
 
 namespace Trk {
 
-  VxClusteringTable::VxClusteringTable() {}
+  VxClusteringTable::VxClusteringTable() = default;
 
-  VxClusteringTable::~VxClusteringTable() {}
+  VxClusteringTable::~VxClusteringTable() = default;
 
   VxClusteringTable & VxClusteringTable::operator= (const VxClusteringTable & rhs) {
     if (this!=&rhs) {

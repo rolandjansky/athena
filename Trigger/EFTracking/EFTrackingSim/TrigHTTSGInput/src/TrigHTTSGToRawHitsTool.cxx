@@ -267,7 +267,7 @@ TrigHTTSGToRawHitsTool::readPixelSimulation(HitIndexMap& hitIndexMap, unsigned i
         hitIndexMap[tmpId] = hitIndex; // add second entry for ganged pixel ID
       }
       // if there is simulation truth available, try to retrieve the "most likely" barcode for this pixel.
-      const HepMC::GenParticle* bestParent = nullptr;
+      HepMC::ConstGenParticlePtr bestParent = nullptr;
       TrigHTTInputUtils::ParentBitmask parentMask;
       HepMcParticleLink::ExtendedBarCode bestExtcode;
       if (!m_pixelSDOKey.empty()) {
@@ -350,7 +350,7 @@ TrigHTTSGToRawHitsTool::readStripSimulation(HitIndexMap& hitIndexMap, unsigned i
       ++hitIndex;
       // if there is simulation truth available, try to retrieve the
       // "most likely" barcode for this strip.
-      const HepMC::GenParticle* bestParent = nullptr;
+      HepMC::ConstGenParticlePtr bestParent = nullptr;
       TrigHTTInputUtils::ParentBitmask parentMask;
       HepMcParticleLink::ExtendedBarCode bestExtcode;
       if (!m_stripSDOKey.empty()) {
@@ -425,7 +425,7 @@ TrigHTTSGToRawHitsTool::dumpPixelClusters(HitIndexMap& pixelClusterIndexMap, con
     for (const InDet::SiCluster* cluster : *pixelClusterCollection) {
       Identifier theId = cluster->identify();
       // if there is simulation truth available, try to retrieve the "most likely" barcode for this pixel cluster.
-      const HepMC::GenParticle* bestParent = nullptr;
+      HepMC::ConstGenParticlePtr bestParent = nullptr;
       TrigHTTInputUtils::ParentBitmask parentMask;
       HepMcParticleLink::ExtendedBarCode bestExtcode;
       if (!m_pixelSDOKey.empty()) {
@@ -474,7 +474,7 @@ TrigHTTSGToRawHitsTool::readOfflineClusters(std::vector <HTTCluster>& clusters, 
     for (const InDet::SiCluster* cluster : *pixelClusterCollection) {
 
       // if there is simulation truth available, try to retrieve the "most likely" barcode for this pixel cluster.
-      const HepMC::GenParticle* bestParent = nullptr;
+      HepMC::ConstGenParticlePtr bestParent = nullptr;
       TrigHTTInputUtils::ParentBitmask parentMask;
       HepMcParticleLink::ExtendedBarCode bestExtcode;
       if (!m_pixelSDOKey.empty()) {
@@ -562,7 +562,7 @@ TrigHTTSGToRawHitsTool::readOfflineClusters(std::vector <HTTCluster>& clusters, 
       const Amg::Vector3D gPos = sielement->globalPosition(localPos);
       // if there is simulation truth available, try to retrieve the
       // "most likely" barcode for this strip.
-      const HepMC::GenParticle* bestParent = nullptr;
+      HepMC::ConstGenParticlePtr bestParent = nullptr;
       TrigHTTInputUtils::ParentBitmask parentMask;
       HepMcParticleLink::ExtendedBarCode bestExtcode;
       if (!m_stripSDOKey.empty()) {
@@ -632,31 +632,22 @@ TrigHTTSGToRawHitsTool::readTruthTracks(std::vector <HTTTruthTrack>& truth, cons
     HepGeom::Point3D<double>  primaryVtx(0., 0., 0.);
     // the event should have signal process vertex unless it was generated as single particles.
     // if it exists, use it for the primary vertex.
-#ifdef HEPMC3
-
-    if (HepMC::signal_process_vertex(genEvent)) {
-      primaryVtx.set(HepMC::signal_process_vertex(genEvent)->position().x(),
-        HepMC::signal_process_vertex(genEvent)->position().y(),
-        HepMC::signal_process_vertex(genEvent)->position().z());
+    HepMC::ConstGenVertexPtr spv = HepMC::signal_process_vertex(genEvent);
+    if (spv) {
+        primaryVtx.set(spv->position().x(),
+                       spv->position().y(),
+                       spv->position().z());
       ATH_MSG_DEBUG("using signal process vertex for eventIndex " << ievt << ":"
         << primaryVtx.x() << "\t" << primaryVtx.y() << "\t" << primaryVtx.z());
     }
-#else
-    if (HepMC::signal_process_vertex(genEvent)) {
-      primaryVtx.set(HepMC::signal_process_vertex(genEvent)->point3d().x(),
-        HepMC::signal_process_vertex(genEvent)->point3d().y(),
-        HepMC::signal_process_vertex(genEvent)->point3d().z());
-      ATH_MSG_DEBUG("using signal process vertex for eventIndex " << ievt << ":"
-        << primaryVtx.x() << "\t" << primaryVtx.y() << "\t" << primaryVtx.z());
-    }
-#endif
 
     //    for (HepMC::GenEvent::particle_const_iterator it = genEvent->particles_begin(), ft = genEvent->particles_end(); it != ft; ++it) {
     for (auto it = HepMC::begin(*genEvent), ft = HepMC::end(*genEvent); it != ft; ++it) {
+      HepMC::ConstGenParticlePtr particle = *it;
 
-      const int pdgcode = (*it)->pdg_id();
+      const int pdgcode = particle->pdg_id();
       // reject generated particles without a production vertex.
-      if ((*it)->production_vertex() == nullptr) {
+      if (particle->production_vertex() == nullptr) {
         continue;
       }
       // reject neutral or unstable particles
@@ -670,13 +661,13 @@ TrigHTTSGToRawHitsTool::readTruthTracks(std::vector <HTTTruthTrack>& truth, cons
       if (std::abs(charge) < 0.5) {
         continue;
       }
-      if ((*it)->status() % 1000 != 1) {
+      if (particle->status() % 1000 != 1) {
         continue;
       }
 
       // truth-to-track tool
-      const Amg::Vector3D momentum((*it)->momentum().px(), (*it)->momentum().py(), (*it)->momentum().pz());
-      const Amg::Vector3D position((*it)->production_vertex()->position().x(), (*it)->production_vertex()->position().y(), (*it)->production_vertex()->position().z());
+      const Amg::Vector3D momentum(particle->momentum().px(), particle->momentum().py(), particle->momentum().pz());
+      const Amg::Vector3D position(particle->production_vertex()->position().x(), particle->production_vertex()->position().y(), particle->production_vertex()->position().z());
       const Trk::CurvilinearParameters cParameters(position, momentum, charge);
 
       Trk::PerigeeSurface persf;
@@ -704,29 +695,17 @@ TrigHTTSGToRawHitsTool::readTruthTracks(std::vector <HTTTruthTrack>& truth, cons
       const double track_truth_costheta = tP ? std::cos(tP->parameters()[Trk::theta]) : -1.;
       double truth_d0corr = track_truth_d0 - (primaryVtx.y() * cos(track_truth_phi) - primaryVtx.x() * sin(track_truth_phi));
       double truth_zvertex = 0.;
-#ifdef HEPMC3
-      const HepGeom::Point3D<double> startVertex((*it)->production_vertex()->position().x(), (*it)->production_vertex()->position().y(), (*it)->production_vertex()->position().z());
-#else
-      const HepGeom::Point3D<double> startVertex((*it)->production_vertex()->point3d().x(), (*it)->production_vertex()->point3d().y(), (*it)->production_vertex()->point3d().z());
-#endif
-      // categorize (*it) (prompt, secondary, etc.) based on InDetPerformanceRTT/detector paper criteria.
+      const HepGeom::Point3D<double> startVertex(particle->production_vertex()->position().x(), particle->production_vertex()->position().y(), particle->production_vertex()->position().z());
+      // categorize particle (prompt, secondary, etc.) based on InDetPerformanceRTT/detector paper criteria.
       bool isPrimary = true;
       if (std::abs(truth_d0corr) > 2.) { isPrimary = false; }
-      if (HepMC::barcode(*it) > 100000 || HepMC::barcode(*it) == 0) { isPrimary = false; }
+      if (HepMC::barcode(particle) > 100000 || HepMC::barcode(particle) == 0) { isPrimary = false; }
 
-      if (isPrimary && (*it)->production_vertex()) {
-#ifdef HEPMC3        
-        const HepGeom::Point3D<double> startVertex((*it)->production_vertex()->position().x(), (*it)->production_vertex()->position().y(), (*it)->production_vertex()->position().z());
-#else
-        const HepGeom::Point3D<double> startVertex((*it)->production_vertex()->point3d().x(), (*it)->production_vertex()->point3d().y(), (*it)->production_vertex()->point3d().z());
-#endif
+      if (isPrimary && particle->production_vertex()) {
+        const HepGeom::Point3D<double> startVertex(particle->production_vertex()->position().x(), particle->production_vertex()->position().y(), particle->production_vertex()->position().z());
         if (std::abs(startVertex.z() - truth_zvertex) > 100.) { isPrimary = false; }
-        if ((*it)->end_vertex()) {
-#ifdef HEPMC3
-          HepGeom::Point3D<double> endVertex((*it)->end_vertex()->position().x(), (*it)->end_vertex()->position().y(), (*it)->end_vertex()->position().z());
-#else
-          HepGeom::Point3D<double> endVertex((*it)->end_vertex()->point3d().x(), (*it)->end_vertex()->point3d().y(), (*it)->end_vertex()->point3d().z());
-#endif          
+        if (particle->end_vertex()) {
+          HepGeom::Point3D<double> endVertex(particle->end_vertex()->position().x(), particle->end_vertex()->position().y(), particle->end_vertex()->position().z());
           if (endVertex.perp() < HTT_PT_TRUTHMIN && std::abs(endVertex.z()) < HTT_Z_TRUTHMIN) { isPrimary = false; }
         }
       }
@@ -734,7 +713,7 @@ TrigHTTSGToRawHitsTool::readTruthTracks(std::vector <HTTTruthTrack>& truth, cons
         isPrimary = false;
       }
 
-      HepMcParticleLink::ExtendedBarCode extBarcode2(HepMC::barcode(*it), ievt);
+      HepMcParticleLink::ExtendedBarCode extBarcode2(HepMC::barcode(particle), ievt);
 
       HTTTruthTrack tmpSGTrack;
       tmpSGTrack.setVtxX(track_truth_x0);
@@ -763,7 +742,7 @@ TrigHTTSGToRawHitsTool::readTruthTracks(std::vector <HTTTruthTrack>& truth, cons
 void TrigHTTSGToRawHitsTool::getTruthInformation(InDetSimDataCollection::const_iterator& iter,
   TrigHTTInputUtils::ParentBitmask& parentMask,
   HepMcParticleLink::ExtendedBarCode& bestExtcode,
-  const HepMC::GenParticle* bestParent) {
+  HepMC::ConstGenParticlePtr bestParent) {
 
   const InDetSimData& sdo(iter->second);
   const std::vector<InDetSimData::Deposit>& deposits(sdo.getdeposits());
@@ -772,7 +751,6 @@ void TrigHTTSGToRawHitsTool::getTruthInformation(InDetSimDataCollection::const_i
     const HepMcParticleLink& particleLink(dep.first);
     // RDO's without SDO's are delta rays or detector noise.
     if (!particleLink.isValid()) { continue; }
-    //    HepMC::ConstGenParticlePtr particle(particleLink);
     const float genEta = particleLink->momentum().pseudoRapidity();
     const float genPt = particleLink->momentum().perp(); // MeV
     // reject unstable particles

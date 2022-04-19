@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -29,7 +29,7 @@ class SCT_ReClustering
   /** called by SCT_ClusteringTool. If some bad channel has broken the 
    * cluster (provided as a list of RDOs) in non-consecutive fragments, just split it.
    */ 
-  std::vector<std::vector<Identifier> > recluster(std::vector<std::vector<Identifier>>&, const SCT_ID&);
+  static std::vector<std::vector<Identifier> > recluster(std::vector<std::vector<Identifier>>&, const SCT_ID&);
     
  private:
   typedef std::vector<Identifier> ID_Vector; 

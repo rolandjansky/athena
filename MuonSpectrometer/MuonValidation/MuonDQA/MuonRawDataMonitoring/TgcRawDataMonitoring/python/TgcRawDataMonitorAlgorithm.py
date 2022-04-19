@@ -31,8 +31,8 @@ def TgcRawDataMonitoringConfig(inputFlags):
     muonSelectionTool = CompFactory.CP.MuonSelectionTool("TgcMonMuonSelectionTool")
     muonSelectionTool.MuQuality = 1 # tight:0 medium:1
     muonSelectionTool.MaxEta = 2.7 # tgc trigger coverage is only up to 2.4 but the detector coverage itself is up to 2.7
-    muonSelectionTool.ToroidOff = True # won't use pT-balance cuts
-
+    muonSelectionTool.DisablePtCuts = True # won't use pT-balance cuts
+    muonSelectionTool.TurnOffMomCorr= True   
     tgcRawDataMonAlg = helper.addAlgorithm(CompFactory.TgcRawDataMonitorAlgorithm,'TgcRawDataMonAlg',
                                            TrackExtrapolator = extrapolator,
                                            TgcRawDataMonitorTool = tgcRawDataMonitorTool,
@@ -132,6 +132,7 @@ def TgcRawDataMonitoringConfig(inputFlags):
     ################################################################################################################
     trigThrPatternsPath = 'TrigPatterns/'
     for monTrig in tgcRawDataMonAlg.ThrPatternList.split(','):
+        if monTrig == "":continue
         monTrigGroup = helper.addGroup(tgcRawDataMonAlg, 'TgcRawDataMonitor'+monTrig, mainDir)
         monTrigGroup.defineHistogram('l1item_roi_eta_'+monTrig+',l1item_roi_phi_'+monTrig+';L1Item_MuonRoI_EtaVsPhi_'+monTrig,title='L1Item_MuonRoI_EtaVsPhi_'+monTrig+';MuonRoI Eta;MuonRoI Phi',
                                      path=trigThrPatternsPath,type='TH2F',xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
@@ -165,6 +166,7 @@ def TgcRawDataMonitoringConfig(inputFlags):
     for monTrig in tgcRawDataMonAlg.CtpDecisionMoniorList.split(';'):
         tmp = monTrig.split(',')[0]
         objname = tmp.replace('Tit:','')
+        if objname == "":continue
         monTrigGroup = helper.addGroup(tgcRawDataMonAlg, 'TgcRawDataMonitor'+objname, mainDir)
 
         monTrigGroup.defineHistogram('ctpMultiplicity;'+objname+'_ctpMultiplicity',title=objname+' ctpMultiplicity;Ctp Output Multiplicity;Number of events',

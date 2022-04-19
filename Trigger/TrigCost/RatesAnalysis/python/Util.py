@@ -8,6 +8,9 @@
 @brief Utility functions used by RatesPostProcessing
 '''
 
+from AthenaCommon.Logging import logging
+log = logging.getLogger('RatesPostProcessing')
+
 def toCSV(fileName, metadata, HLTTriggers, readL1=False):
   import csv
 
@@ -79,8 +82,16 @@ def toJson(fileName, metadata, L1Triggers, HLTTriggers):
     {'RunNumber' : metadata['runNumber']},
     {'NEvents' : metadata['n_evts']},
     {'Details' : metadata['details']},
-    {'JIRA' : metadata['JIRA']}
+    {'JIRA' : metadata['JIRA']},
+    {'AMITag' : metadata['amiTag']},
+    {'SMK' :  metadata['masterKey']},
+    {'DB' : readDBFromAMI(metadata['amiTag']) if metadata['amiTag'] else None},
+    {'LVL1PSK' :  metadata['lvl1PrescaleKey']},
+    {'HLTPSK' :  metadata['hltPrescaleKey']},
+    {'AtlasProject' : metadata['AtlasProject']},
+    {'AtlasVersion' : metadata['AtlasVersion']}
   ]
+
 
   metajsonDict = {}
   metajsonDict['text'] = 'metadata'
@@ -91,6 +102,7 @@ def toJson(fileName, metadata, L1Triggers, HLTTriggers):
 
 
 def getMetadata(inputFile):
+  '''Get metadata for rates.json file'''
   metatree = inputFile.Get("metadata")
   if metatree is None:
     return None
@@ -180,3 +192,20 @@ def getGlobalGroup(inputFile, filter):
             for hist in globalsKey.ReadObj().GetListOfKeys():
               if hist.GetName() == 'data':
                 return hist.ReadObj()
+
+def readDBFromAMI(amiTag):
+  ''' Read used database based on AMI tag '''
+  try:
+    import pyAMI.client
+    import pyAMI.atlas.api as AtlasAPI
+  except ModuleNotFoundError:
+    log.warning("Unable to import AMIClient from pyAMI. Maybe you didn't do localSetupPyAMI?")
+    return ""
+
+  amiclient = pyAMI.client.Client('atlas')
+  AtlasAPI.init()
+
+  command = [ 'AMIGetAMITagInfo', '-amiTag="%s"' % amiTag,]
+  amiTagInfo = amiclient.execute(command, format = 'dict_object').get_rows('amiTagInfo')[0]
+
+  return amiTagInfo['DBserver'] if "DBserver" in amiTagInfo else None

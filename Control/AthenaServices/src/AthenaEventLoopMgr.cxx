@@ -13,11 +13,15 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // non-MT EventLoopMgr
 #include <fstream> /* ofstream */
 #include <iomanip>
 
+// Athena includes
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/IEventSeek.h"
 #include "AthenaKernel/IAthenaEvtLoopPreSelectTool.h"
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "AthenaKernel/EventContextClid.h"
-#include "AthenaKernel/errorcheck.h"
+#include "AthenaKernel/IEvtIdModifierSvc.h"
 
 #include "GaudiKernel/IAlgorithm.h"
 #include "GaudiKernel/SmartIF.h"
@@ -57,11 +61,13 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // non-MT EventLoopMgr
 AthenaEventLoopMgr::AthenaEventLoopMgr(const std::string& nam, 
 				       ISvcLocator* svcLoc)
   : MinimalEventLoopMgr(nam, svcLoc), 
+    AthMessaging (Athena::getMessageSvc(), nam),
     m_incidentSvc ( "IncidentSvc",  nam ), 
     m_eventStore( "StoreGateSvc", nam ), 
     m_evtSelector(nullptr), m_evtSelCtxt(nullptr),
     m_histoDataMgrSvc( "HistogramDataSvc",         nam ), 
     m_histoPersSvc   ( "HistogramPersistencySvc",  nam ), 
+    m_evtIdModSvc    ( "",         nam ),
     m_currentRun(0), m_firstRun(true), m_tools(this),
     m_nevt(0), m_writeHists(false),
     m_nev(0), m_proc(0), m_useTools(false), 
@@ -98,6 +104,8 @@ AthenaEventLoopMgr::AthenaEventLoopMgr(const std::string& nam,
                   "Require valid input attribute list to be present");
   declareProperty("UseSecondaryEventNumber", m_useSecondaryEventNumber = false,
                   "In case of DoubleEventSelector use event number from secondary input");
+  declareProperty("EvtIdModifierSvc", m_evtIdModSvc,
+                  "ServiceHandle for EvtIdModifierSvc");
 }
 
 //=========================================================================
@@ -112,7 +120,7 @@ AthenaEventLoopMgr::~AthenaEventLoopMgr()
 //=========================================================================
 StatusCode AthenaEventLoopMgr::initialize()    
 {
-  info() << "Initializing " << name() << endmsg ;
+  ATH_MSG_INFO ( "Initializing " << name() ) ;
 
   m_autoRetrieveTools = false;
   m_checkToolDeps = false;
@@ -120,8 +128,7 @@ StatusCode AthenaEventLoopMgr::initialize()
   StatusCode sc = MinimalEventLoopMgr::initialize();
   if ( !sc.isSuccess() ) 
   {
-    error() << "Failed to initialize base class MinimalEventLoopMgr"
-            << endmsg;
+    ATH_MSG_ERROR ( "Failed to initialize base class MinimalEventLoopMgr" );
     return sc;
   }
 
@@ -132,8 +139,7 @@ StatusCode AthenaEventLoopMgr::initialize()
   sc = m_eventStore.retrieve();
   if( !sc.isSuccess() )  
   {
-    fatal() << "Error retrieving pointer to StoreGateSvc"
-            << endmsg;
+    ATH_MSG_FATAL ( "Error retrieving pointer to StoreGateSvc" );
     return sc;
   }
 
@@ -144,7 +150,7 @@ StatusCode AthenaEventLoopMgr::initialize()
   sc = m_incidentSvc.retrieve();
   if( !sc.isSuccess() )  
   {
-    fatal() << "Error retrieving IncidentSvc." << endmsg;
+    ATH_MSG_FATAL ( "Error retrieving IncidentSvc." );
     return sc;
   }
 
@@ -154,8 +160,7 @@ StatusCode AthenaEventLoopMgr::initialize()
   SmartIF<IProperty> prpMgr(serviceLocator());
   if ( !prpMgr.isValid() ) 
   {
-    fatal() << "IProperty interface not found in ApplicationMgr." 
-            << endmsg;
+    ATH_MSG_FATAL ( "IProperty interface not found in ApplicationMgr." );
     return StatusCode::FAILURE;
   }
 
@@ -166,8 +171,7 @@ StatusCode AthenaEventLoopMgr::initialize()
   sc = m_histoDataMgrSvc.retrieve();
   if( !sc.isSuccess() )  
   {
-    fatal() << "Error retrieving HistogramDataSvc" 
-            << endmsg;
+    ATH_MSG_FATAL ( "Error retrieving HistogramDataSvc" );
     return sc;
   }
     
@@ -183,8 +187,7 @@ StatusCode AthenaEventLoopMgr::initialize()
 				       this->name() );
 
     if( !sc.isSuccess() )  {
-      warning() << "Histograms cannot not be saved - though required." 
-                << endmsg;
+      ATH_MSG_WARNING ( "Histograms cannot not be saved - though required." );
     } else {
 
       IService *is = nullptr;
@@ -195,13 +198,11 @@ StatusCode AthenaEventLoopMgr::initialize()
       }
 
       if (sc.isFailure()) {
-	error() << "could not locate actual Histogram persistency service"
-                << endmsg;
+	ATH_MSG_ERROR ( "could not locate actual Histogram persistency service" );
       } else {
 	Service *s = dynamic_cast<Service*>(is);
 	if (s == nullptr) {
-	  error() << "Could not dcast HistPersSvc to a Service"
-		<< endmsg;
+	  ATH_MSG_ERROR ( "Could not dcast HistPersSvc to a Service" );
 	} else {
 	  const Gaudi::Details::PropertyBase &prop = s->getProperty("OutputFile");
 	  std::string val;
@@ -211,9 +212,8 @@ StatusCode AthenaEventLoopMgr::initialize()
 	    val = sprop.value();
 
 	  } catch (...) {
-            verbose() << "could not dcast OutputFile property to a StringProperty."
-                      << " Need to fix Gaudi."
-                      << endmsg;
+            ATH_MSG_VERBOSE ( "could not dcast OutputFile property to a StringProperty."
+                      << " Need to fix Gaudi." );
 
 	    val = prop.toString();
 
@@ -233,8 +233,20 @@ StatusCode AthenaEventLoopMgr::initialize()
     }
     
 
-  }  else { if (msgLevel(MSG::DEBUG)) { debug() << "Histograms saving not required." 
-                                                << endmsg; } }
+  }  else {
+    ATH_MSG_DEBUG ( "Histograms saving not required." );
+  }
+
+//--------------------------------------------------------------------------
+// Set up the EventID modifier Service
+//--------------------------------------------------------------------------
+  if( m_evtIdModSvc.empty() ) {
+    ATH_MSG_DEBUG ( "EventID modifier Service not set. No run number, ... overrides will be applied." );
+  }
+  else if ( !m_evtIdModSvc.retrieve().isSuccess() ) {
+    ATH_MSG_INFO ( "Could not find EventID modifier Service. No run number, ... overrides will be applied." );
+  }
+
 //-------------------------------------------------------------------------
 // Setup EventSelector service
 //-------------------------------------------------------------------------
@@ -242,7 +254,7 @@ StatusCode AthenaEventLoopMgr::initialize()
   // the evt sel is usually specified as a property of ApplicationMgr
   if (selName.empty()) 
     sc = setProperty(prpMgr->getProperty("EvtSel"));
-  if (sc.isFailure()) warning() << "Unable to set EvtSel property" << endmsg;
+  if (sc.isFailure()) ATH_MSG_WARNING ( "Unable to set EvtSel property" );
 
   // We do not expect a Event Selector necessarily being declared
   if( !selName.empty() && selName != "NONE") {
@@ -254,20 +266,20 @@ StatusCode AthenaEventLoopMgr::initialize()
       
       // reset iterator
       if (m_evtSelector->createContext(m_evtSelCtxt).isFailure()) {
-	fatal() << "Can not create the event selector Context." 
-                << endmsg;
+	ATH_MSG_FATAL ( "Can not create the event selector Context." 
+                );
 	return StatusCode::FAILURE;
       }
       if (msgLevel(MSG::INFO)) {
 	INamedInterface* named (dynamic_cast< INamedInterface* >(theEvtSel));
 	if (nullptr != named) {
-	  info() << "Setup EventSelector service " << named->name( ) 
-                 << endmsg;
+	  ATH_MSG_INFO ( "Setup EventSelector service " << named->name( ) 
+                 );
 	}
       }
     } else if (sc.isFailure()) {
-      fatal() << "No valid event selector called " << selName 
-              << endmsg;
+      ATH_MSG_FATAL ( "No valid event selector called " << selName 
+              );
       return StatusCode::FAILURE;
     }
   }  
@@ -284,7 +296,7 @@ StatusCode AthenaEventLoopMgr::initialize()
   // Get the AlgExecStateSvc
   m_aess = serviceLocator()->service("AlgExecStateSvc");
   if( !m_aess.isValid() ) {
-    fatal() << "Error retrieving AlgExecStateSvc" << endmsg;
+    ATH_MSG_FATAL ( "Error retrieving AlgExecStateSvc" );
     return StatusCode::FAILURE;
   }
 
@@ -296,7 +308,7 @@ StatusCode AthenaEventLoopMgr::initialize()
   // Print if we override the event number using the one from secondary event
   if (m_useSecondaryEventNumber)
   {
-    info() << "Using secondary event number." << endmsg;
+    ATH_MSG_INFO ( "Using secondary event number." );
   }
 
   return sc;
@@ -312,11 +324,11 @@ AthenaEventLoopMgr::setClearStorePolicy(Gaudi::Details::PropertyBase&) {
   if ( policyName != "BeginEvent" &&
        policyName != "EndEvent" ) {
 
-    fatal() << "Unknown policy [" << policyName 
+    ATH_MSG_FATAL ( "Unknown policy [" << policyName 
             << "] for the 'ClearStore-policy !"
             << endmsg
             << "Valid values are: BeginEvent, EndEvent"
-            << endmsg;
+            );
     throw GaudiException("Can not setup 'ClearStore'-policy",
 			 name(),
 			 StatusCode::FAILURE);
@@ -363,19 +375,13 @@ StatusCode AthenaEventLoopMgr::finalize()
 {
 
   StatusCode sc = MinimalEventLoopMgr::finalize();
-  if (sc.isFailure()) 
-  {
-    error() 
-	  << "Error in Algorithm Finalize" 
-	  << endmsg;
+  if (sc.isFailure()) {
+    ATH_MSG_ERROR ( "Error in Algorithm Finalize" );
   }
 
   StatusCode sc2 = writeHistograms(true);
-  if (sc2.isFailure()) 
-  {
-    error() 
-	  << "Error in writing Histograms"
-	  << endmsg;
+  if (sc2.isFailure()) {
+    ATH_MSG_ERROR ( "Error in writing Histograms" );
   }
 
   // Release all interfaces (ignore StatusCodes)
@@ -391,11 +397,11 @@ StatusCode AthenaEventLoopMgr::finalize()
     tool_iterator firstTool = m_tools.begin();
     tool_iterator lastTool  = m_tools.end();
     unsigned int toolCtr = 0;
-    info() << "Summary of AthenaEvtLoopPreSelectTool invocation: (invoked/success/failure)" << endmsg;
-    info() << "-----------------------------------------------------" << endmsg;
+    ATH_MSG_INFO ( "Summary of AthenaEvtLoopPreSelectTool invocation: (invoked/success/failure)" );
+    ATH_MSG_INFO ( "-----------------------------------------------------" );
 
     for ( ; firstTool != lastTool; ++firstTool ) {
-      info() << std::setw(2)     << std::setiosflags(std::ios_base::right)
+      ATH_MSG_INFO ( std::setw(2)     << std::setiosflags(std::ios_base::right)
              << toolCtr+1 << ".) " << std::resetiosflags(std::ios_base::right)
              << std::setw(48) << std::setfill('.')
              << std::setiosflags(std::ios_base::left)
@@ -409,7 +415,7 @@ StatusCode AthenaEventLoopMgr::finalize()
              << "/"
              << m_toolReject[toolCtr]
              << ")"
-             << endmsg;
+             );
       toolCtr++;
     }
   }
@@ -435,7 +441,7 @@ StatusCode AthenaEventLoopMgr::writeHistograms(bool force) {
       } );
 
     if ( !sc.isSuccess() ) {
-      error() << "Error while traversing Histogram data store" << endmsg;
+      ATH_MSG_ERROR ( "Error while traversing Histogram data store" );
       return sc;
     }
 
@@ -459,12 +465,12 @@ StatusCode AthenaEventLoopMgr::writeHistograms(bool force) {
             return iret.isFailure() ? iret : isc;
           } );
         if ( ! sc.isSuccess() ) {
-          error() << "Error while saving Histograms." << endmsg;
+          ATH_MSG_ERROR ( "Error while saving Histograms." );
         }
       }
 
       if (force || (writeInterval != 0 && m_nevt%writeInterval == 0) ) {
-        if (msgLevel(MSG::DEBUG)) { debug() << "committing Histograms" << endmsg; }
+        ATH_MSG_DEBUG ( "committing Histograms" );
         m_histoPersSvc->conversionSvc()->commitOutput("",true).ignore();
       }
     }
@@ -487,10 +493,8 @@ StatusCode AthenaEventLoopMgr::initializeAlgorithms() {
       StatusCode sc = (*ita)->sysInitialize();
       if( sc.isFailure() )
 	{
-	  error()
-		<< "Unable to initialize Algorithm: "
-		<< (*ita)->name()
-		<< endmsg;
+	  ATH_MSG_ERROR ( "Unable to initialize Algorithm: "
+		<< (*ita)->name() );
 	  return sc;
 	}
     }
@@ -501,10 +505,8 @@ StatusCode AthenaEventLoopMgr::initializeAlgorithms() {
     {
       StatusCode sc = (*ita)->sysInitialize();
       if( sc.isFailure() ) {
-	error()
-	      << "Unable to initialize Output Stream: "
-	      << (*ita)->name()
-	      << endmsg;
+	ATH_MSG_ERROR ( "Unable to initialize Output Stream: "
+	      << (*ita)->name() );
 	return sc;
       }
 
@@ -529,9 +531,8 @@ StatusCode AthenaEventLoopMgr::executeAlgorithms(const EventContext& ctx) {
     // function
     m_aess->algExecState(*ita,ctx).setState(AlgExecState::State::Done, sc);
     if ( !sc.isSuccess() ) {
-      info()  << "Execution of algorithm "
-              << (*ita)->name() << " failed with StatusCode::" << sc
-              << endmsg;
+      ATH_MSG_INFO ( "Execution of algorithm "
+              << (*ita)->name() << " failed with StatusCode::" << sc );
       return sc;
     }
   }
@@ -550,9 +551,12 @@ StatusCode AthenaEventLoopMgr::executeEvent(EventContext&& ctx)
   std::unique_ptr<EventInfo> pEventPtr;
   unsigned int conditionsRun = EventIDBase::UNDEFNUM;
   EventID eventID;
+  bool consume_modifier_stream = false; // FIXME/CHECK: was true inside TP converter and checks for active storegate
   if ( m_evtSelCtxt )
   { // Deal with the case when an EventSelector is provided
-    // Retrieve the Event object
+
+    // First try to build a legacy EventInfo object from the TAG information
+    // Read the attribute list
     const AthenaAttributeList* pAttrList = eventStore()->tryConstRetrieve<AthenaAttributeList>("Input");
     if ( pAttrList != nullptr && pAttrList->size() > 6 ) { // Try making EventID-only EventInfo object from in-file TAG
       try {
@@ -562,12 +566,14 @@ StatusCode AthenaEventLoopMgr::executeEvent(EventContext&& ctx)
         unsigned int eventTimeNS = (*pAttrList)["EventTimeNanoSec"].data<unsigned int>();
         unsigned int lumiBlock = (*pAttrList)["LumiBlockN"].data<unsigned int>();
         unsigned int bunchId = (*pAttrList)["BunchId"].data<unsigned int>();
-    
+
+        ATH_MSG_DEBUG ( "use TAG with runNumber=" << runNumber );
+        consume_modifier_stream = true;
         // an option to override primary eventNumber with the secondary one in case of DoubleEventSelector
         if ( m_useSecondaryEventNumber ) {
             unsigned long long eventNumberSecondary{};
             if ( !(pAttrList->exists("hasSecondaryInput") && (*pAttrList)["hasSecondaryInput"].data<bool>()) ) {
-                fatal() << "Secondary EventNumber requested, but secondary input does not exist!" << endmsg;
+                ATH_MSG_FATAL ( "Secondary EventNumber requested, but secondary input does not exist!" );
                 return StatusCode::FAILURE;
             }
             if ( pAttrList->exists("EventNumber_secondary") ) {
@@ -581,7 +587,7 @@ StatusCode AthenaEventLoopMgr::executeEvent(EventContext&& ctx)
                     eventNumberSecondary = pEventSecondary->event_ID()->event_number();
                 }
                 else {
-                    fatal() << "Secondary EventNumber requested, but it does not exist!" << endmsg;
+                    ATH_MSG_FATAL ( "Secondary EventNumber requested, but it does not exist!" );
                     return StatusCode::FAILURE;
                 }
             }
@@ -589,7 +595,7 @@ StatusCode AthenaEventLoopMgr::executeEvent(EventContext&& ctx)
                 bool doEvtHeartbeat(m_eventPrintoutInterval.value() > 0 && 
                                     0 == (m_nev % m_eventPrintoutInterval.value()));
                 if (doEvtHeartbeat) {
-                    info() << "  ===>>>  using secondary event #" << eventNumberSecondary << " instead of #" << eventNumber << "  <<<===" << endmsg;
+                    ATH_MSG_INFO ( "  ===>>>  using secondary event #" << eventNumberSecondary << " instead of #" << eventNumber << "  <<<===" );
                 }
                 eventNumber = eventNumberSecondary;
             }
@@ -599,10 +605,12 @@ StatusCode AthenaEventLoopMgr::executeEvent(EventContext&& ctx)
           (new EventID(runNumber, eventNumber, eventTime, eventTimeNS, lumiBlock, bunchId), (EventType*)nullptr);
         pEvent = pEventPtr.get();
 
-        if (pAttrList->exists ("ConditionsRun"))
+        if (!m_evtIdModSvc.isSet() && pAttrList->exists ("ConditionsRun")) {
           conditionsRun = (*pAttrList)["ConditionsRun"].data<unsigned int>();
-        else
+        }
+        else {
           conditionsRun = runNumber;
+        }
         
 	eventID=*(pEvent->event_ID());
       } catch (...) {
@@ -620,29 +628,33 @@ StatusCode AthenaEventLoopMgr::executeEvent(EventContext&& ctx)
       }
 */
     } else if (m_requireInputAttributeList) {
-      fatal() << "Valid input attribute list required but not present!" << endmsg;
+      ATH_MSG_FATAL ( "Valid input attribute list required but not present!" );
       return StatusCode::FAILURE;
     }
-
-    if ( pEvent == nullptr ) { //Try getting EventInfo from old-style object
+    // In the case that there is no TAG information
+    if ( pEvent == nullptr ) {
+      // Secondly try to retrieve a legacy EventInfo object from the input file
       pEvent=eventStore()->tryConstRetrieve<EventInfo>();
       if (pEvent) {
 	eventID=(*pEvent->event_ID());
       }
-      else { //Try getting xAOD::EventInfo object
+      else {
+        // Finally try to retrieve an xAOD::EventInfo object from the
+        // input file and build a legacy EventInfo object from that.
 	const xAOD::EventInfo* xAODEvent=
 	  eventStore()->tryConstRetrieve<xAOD::EventInfo>(); 
 	if (xAODEvent==nullptr) {
-	  error() << "Failed to get EventID from input. Tried old-style and xAOD::EventInfo" <<endmsg;
+	  ATH_MSG_ERROR ( "Failed to get EventID from input. Tried old-style and xAOD::EventInfo" );
 	  return StatusCode::FAILURE;
 	}
+        ATH_MSG_DEBUG ( "use xAOD::EventInfo with runNumber=" << xAODEvent->runNumber() );
 	// Record the old-style object for those clients that still need it
 	pEventPtr = std::make_unique<EventInfo>(new EventID(eventIDFromxAOD(xAODEvent)), new EventType(eventTypeFromxAOD(xAODEvent)));
 	pEvent = pEventPtr.get();
 	eventID=*(pEvent->event_ID());
 	StatusCode sc = eventStore()->record(std::move(pEventPtr),"");
 	if( !sc.isSuccess() )  {
-	  error() << "Error declaring event data object" << endmsg;
+	  ATH_MSG_ERROR ( "Error declaring event data object" );
 	  return StatusCode::FAILURE;
 	}
       }
@@ -650,7 +662,8 @@ StatusCode AthenaEventLoopMgr::executeEvent(EventContext&& ctx)
   }
   else 
   {
-    // With no iterator it's up to us to create an EventInfo
+    // No EventSelector is provided, so with no iterator it's up to us
+    // to create an EventInfo
     pEventPtr = std::make_unique<EventInfo>
       (new EventID(1,m_nevt,0), new EventType());
     pEvent = pEventPtr.get();
@@ -658,30 +671,27 @@ StatusCode AthenaEventLoopMgr::executeEvent(EventContext&& ctx)
     eventID=*(pEvent->event_ID());
     StatusCode sc = eventStore()->record(std::move(pEventPtr),"");
     if( !sc.isSuccess() )  {
-      error() 
-	    << "Error declaring event data object" << endmsg;
+      ATH_MSG_ERROR ( "Error declaring event data object" );
       return (StatusCode::FAILURE);
     } 
   }
 
-  if (installEventContext (ctx, eventID, conditionsRun).isFailure())
+  if (installEventContext (ctx, eventID, conditionsRun, consume_modifier_stream).isFailure())
   {
-    error() 
-          << "Error installing event context object" << endmsg;
+    ATH_MSG_ERROR ( "Error installing event context object" );
     return (StatusCode::FAILURE);
   }
 
   /// Fire begin-Run incident if new run:
-  if (m_firstRun || (m_currentRun != eventID.run_number()) ) {
+  if (m_firstRun || (m_currentRun != ctx.eventID().run_number()) ) {
     // Fire EndRun incident unless this is the first run
     if (!m_firstRun) {
       m_incidentSvc->fireIncident(Incident(name(),IncidentType::EndRun));
     }
     m_firstRun=false;
-    m_currentRun = eventID.run_number();
+    m_currentRun = ctx.eventID().run_number();
 
-    info() << "  ===>>>  start of run " << m_currentRun << "    <<<==="
-           << endmsg;
+    ATH_MSG_INFO ( "  ===>>>  start of run " << m_currentRun << "    <<<===" );
 
     m_incidentSvc->fireIncident(Incident(name(),IncidentType::BeginRun,ctx));
   }
@@ -692,7 +702,7 @@ StatusCode AthenaEventLoopMgr::executeEvent(EventContext&& ctx)
   unsigned int toolCtr=0;
   if(m_useTools) {
     if (pEvent == nullptr) {
-      error() << "Tools for event selection work only with old-style EventInfo!"  << endmsg;
+      ATH_MSG_ERROR ( "Tools for event selection work only with old-style EventInfo!"  );
       return StatusCode::FAILURE;
     }
 
@@ -713,11 +723,11 @@ StatusCode AthenaEventLoopMgr::executeEvent(EventContext&& ctx)
   bool doEvtHeartbeat(m_eventPrintoutInterval.value() > 0 && 
                       0 == (m_nev % m_eventPrintoutInterval.value()));
   if (doEvtHeartbeat)  {
-    if(!m_useTools) info() << "  ===>>>  start processing event #" << evtNumber << ", run #" << m_currentRun 
-	<< " " << m_nev << " events processed so far  <<<===" << endmsg;
-   else info() << "  ===>>>  start processing event #" << evtNumber << ", run #" << m_currentRun 
+    if(!m_useTools) ATH_MSG_INFO ( "  ===>>>  start processing event #" << evtNumber << ", run #" << m_currentRun 
+	<< " " << m_nev << " events processed so far  <<<===" );
+   else ATH_MSG_INFO ( "  ===>>>  start processing event #" << evtNumber << ", run #" << m_currentRun 
 	<< " " << m_nev << " events read and " << m_proc 
-        << " events processed so far  <<<===" << endmsg;   
+        << " events processed so far  <<<===" );   
   }
 
   // Reset the timeout singleton
@@ -728,9 +738,8 @@ StatusCode AthenaEventLoopMgr::executeEvent(EventContext&& ctx)
 
   // An incident may schedule a stop, in which case is better to exit before the actual execution.
   if ( m_scheduledStop ) {
-    always() << "A stopRun was requested by an incidentListener. "
-             << "Do not process this event." 
-             << endmsg;
+    ATH_MSG_ALWAYS ( "A stopRun was requested by an incidentListener. "
+             << "Do not process this event." );
     return (StatusCode::SUCCESS);
   }
 
@@ -747,20 +756,18 @@ StatusCode AthenaEventLoopMgr::executeEvent(EventContext&& ctx)
  ///    RECOVERABLE: skip algorithms, but do not terminate job
  ///    FAILURE: terminate job 
     if (m_failureMode == 1 && sc.isRecoverable() ) {
-      warning() << "RECOVERABLE error returned by algorithm. "
+      ATH_MSG_WARNING ( "RECOVERABLE error returned by algorithm. "
                 << "Skipping remaining algorithms." << std::endl
                 << "\tNo output will be written for this event, "
-                << "but job will continue to next event"
-                << endmsg;
+                << "but job will continue to next event" );
       eventFailed = false;
     }
 
  /// m_failureMode 2: skip algorithms, but do not terminate job
     if (m_failureMode >= 2) {
-      info() << "Skipping remaining algorithms." << std::endl
+      ATH_MSG_INFO ( "Skipping remaining algorithms." << std::endl
              << "\tNo output will be written for this event, "
-             << "but job will continue to next event"
-             << endmsg;
+             << "but job will continue to next event" );
       eventFailed = false;
     }
 
@@ -787,14 +794,14 @@ StatusCode AthenaEventLoopMgr::executeEvent(EventContext&& ctx)
   }  // end of toolsPassed test
   ++m_nev;
   if (doEvtHeartbeat) {
-    if(!m_useTools) info() << "  ===>>>  done processing event #" << evtNumber << ", run #" << m_currentRun 
-                           << " " << m_nev << " events processed so far  <<<===" << endmsg;
-    else info()	<< "  ===>>>  done processing event #" << evtNumber << ", run #" << m_currentRun 
+    if(!m_useTools) ATH_MSG_INFO ( "  ===>>>  done processing event #" << evtNumber << ", run #" << m_currentRun 
+                           << " " << m_nev << " events processed so far  <<<===" );
+    else ATH_MSG_INFO ( "  ===>>>  done processing event #" << evtNumber << ", run #" << m_currentRun 
                 << " " << m_nev << " events read and " << m_proc 
-                << " events processed so far <<<===" << endmsg;
+                << " events processed so far <<<===" );
    std::ofstream outfile( "eventLoopHeartBeat.txt");
    if ( !outfile ) {
-     error() << " unable to open: eventLoopHeartBeat.txt" << endmsg;
+     ATH_MSG_ERROR ( " unable to open: eventLoopHeartBeat.txt" );
    } else {
      outfile << "  done processing event #" << evtNumber << ", run #" << m_currentRun 
 	     << " " << m_nev << " events read so far  <<<===" << std::endl;
@@ -862,7 +869,7 @@ StatusCode AthenaEventLoopMgr::nextEvent(int maxevt)
     // Check if there is a scheduled stop issued by some algorithm/sevice
     if ( m_scheduledStop ) {
       m_scheduledStop = false;
-      always() << "A stopRun was requested. Terminating event loop." << endmsg;
+      ATH_MSG_ALWAYS ( "A stopRun was requested. Terminating event loop." );
       break;
     }
 
@@ -876,8 +883,7 @@ StatusCode AthenaEventLoopMgr::nextEvent(int maxevt)
 	0 != total_nevt ) {
       sc = eventStore()->clearStore();
       if( !sc.isSuccess() ) {
-	error()
-	      << "Clear of Event data store failed" << endmsg;
+	ATH_MSG_ERROR (  "Clear of Event data store failed" );
         m_incidentSvc->fireIncident(Incident(name(),"EndEvtLoop"));
 	return sc;
       }
@@ -898,14 +904,13 @@ StatusCode AthenaEventLoopMgr::nextEvent(int maxevt)
       if ( !sc.isSuccess() )
       {
         // This is the end of the loop. No more events in the selection
-        info() << "No more events in event selection " << endmsg;
+        ATH_MSG_INFO ( "No more events in event selection " );
 	sc = StatusCode::SUCCESS;
         break;
       }
 
       if (m_evtSelector->createAddress(*m_evtSelCtxt, addr).isFailure()) {
-        error()
-	      << "Could not create an IOpaqueAddress" << endmsg;
+        ATH_MSG_ERROR ( "Could not create an IOpaqueAddress" );
         break;
       }
       
@@ -915,12 +920,12 @@ StatusCode AthenaEventLoopMgr::nextEvent(int maxevt)
 	//create its proxy
 	sc = eventStore()->recordAddress(addr);
 	if( !sc.isSuccess() ) {
-	  warning() << "Error declaring Event object" << endmsg;
+	  ATH_MSG_WARNING ( "Error declaring Event object" );
 	  continue;
 	}
       } 
       if ((sc=eventStore()->loadEventProxies()).isFailure()) {
-	error() << "Error loading Event proxies" << endmsg;
+	ATH_MSG_ERROR ( "Error loading Event proxies" );
 	continue;
       } 
     }
@@ -934,8 +939,7 @@ StatusCode AthenaEventLoopMgr::nextEvent(int maxevt)
     if(m_doChrono && total_nevt>1) m_chronoStatSvc->chronoStart("EventLoopMgr_postexec");
     if( !sc.isSuccess() )
     {
-      error() 
-	    << "Terminating event processing loop due to errors" << endmsg;
+      ATH_MSG_ERROR ( "Terminating event processing loop due to errors" );
       break;
     }
 
@@ -945,8 +949,7 @@ StatusCode AthenaEventLoopMgr::nextEvent(int maxevt)
     if ( s_clearStore == ClearStorePolicy::EndEvent ) {
       sc = eventStore()->clearStore();
       if( !sc.isSuccess() ) {
-        error() 
-	      << "Clear of Event data store failed" << endmsg;
+        ATH_MSG_ERROR ( "Clear of Event data store failed" );
 	break;
       }
     }
@@ -969,15 +972,13 @@ StatusCode AthenaEventLoopMgr::seek (int evt)
 {
   IEvtSelectorSeek* is = dynamic_cast<IEvtSelectorSeek*> (m_evtSelector);
   if (is == nullptr) {
-    error() << "Seek failed; unsupported by event selector"
-	  <<endmsg;
+    ATH_MSG_ERROR ( "Seek failed; unsupported by event selector" );
     return StatusCode::FAILURE;
   }
 
   if (!m_evtSelCtxt) {
     if (m_evtSelector->createContext(m_evtSelCtxt).isFailure()) {
-      fatal() << "Can not create the event selector Context."
-              << endmsg;
+      ATH_MSG_FATAL ( "Can not create the event selector Context." );
       return StatusCode::FAILURE;
     }
   }
@@ -987,7 +988,7 @@ StatusCode AthenaEventLoopMgr::seek (int evt)
     m_nevt = evt;
   }
   else {
-    error() << "Seek failed." << endmsg;
+    ATH_MSG_ERROR ( "Seek failed." );
   }
   return sc;
 }
@@ -1008,15 +1009,13 @@ int AthenaEventLoopMgr::size()
 {
   IEvtSelectorSeek* cs = dynamic_cast<IEvtSelectorSeek*> (m_evtSelector);
   if (cs == nullptr) {
-    error() << "Collection size unsupported by event selector"
-	  <<endmsg;
+    ATH_MSG_ERROR ( "Collection size unsupported by event selector" );
     return -1;
   }
 
   if (!m_evtSelCtxt) {
     if (m_evtSelector->createContext(m_evtSelCtxt).isFailure()) {
-      fatal() << "Can not create the event selector Context."
-              << endmsg;
+      ATH_MSG_FATAL ( "Can not create the event selector Context." );
       return -1;
     }
   }
@@ -1033,19 +1032,19 @@ void AthenaEventLoopMgr::handle(const Incident& inc)
     return;
 
   if(!m_firstRun) {
-    warning() << "Skipping BeforeFork handler. Begin run has already passed" << endmsg;
+    ATH_MSG_WARNING ( "Skipping BeforeFork handler. Begin run has already passed" );
     return;
   }
 
   // Initialize Algorithms and Output Streams
   StatusCode sc = initializeAlgorithms();
   if(sc.isFailure()) {
-    error() << "Failed to initialize Algorithms" << endmsg;
+    ATH_MSG_ERROR ( "Failed to initialize Algorithms" );
     return; 
   }
 
   if(!m_evtSelCtxt) {
-    warning() << "Skipping BeforeFork handler. No event selector is provided" << endmsg;
+    ATH_MSG_WARNING ( "Skipping BeforeFork handler. No event selector is provided" );
     return;
   }
 
@@ -1053,25 +1052,25 @@ void AthenaEventLoopMgr::handle(const Incident& inc)
   IOpaqueAddress* addr = nullptr;
   sc = m_evtSelector->next(*m_evtSelCtxt);
   if(!sc.isSuccess()) {
-    info() << "No more events in event selection " << endmsg;
+    ATH_MSG_INFO ( "No more events in event selection " );
     return;
   }
   sc = m_evtSelector->createAddress(*m_evtSelCtxt, addr);
   if (sc.isFailure()) {
-    error() << "Could not create an IOpaqueAddress" << endmsg;
+    ATH_MSG_ERROR ( "Could not create an IOpaqueAddress" );
     return; 
   }
   if (nullptr != addr) {
     //create its proxy
     sc = eventStore()->recordAddress(addr);
     if(!sc.isSuccess()) {
-      error() << "Error declaring Event object" << endmsg;
+      ATH_MSG_ERROR ( "Error declaring Event object" );
       return;
     }
   } 
   
   if(eventStore()->loadEventProxies().isFailure()) {
-    warning() << "Error loading Event proxies" << endmsg;
+    ATH_MSG_WARNING ( "Error loading Event proxies" );
     return;
   }
 
@@ -1083,38 +1082,36 @@ void AthenaEventLoopMgr::handle(const Incident& inc)
   else { //Try getting xAOD::EventInfo object
     const xAOD::EventInfo* xAODEvent=eventStore()->tryConstRetrieve<xAOD::EventInfo>();
     if (xAODEvent==nullptr) {
-      error() << "Failed to get EventID from input. Tried old-style and xAOD::EventInfo" <<endmsg;
+      ATH_MSG_ERROR ( "Failed to get EventID from input. Tried old-style and xAOD::EventInfo" );
       return;
     }
     eventID=eventIDFromxAOD(xAODEvent);
   }
 
+
   // Need to make sure we have a valid EventContext in place before
   // doing anything that could fire incidents.
   unsigned int conditionsRun = eventID.run_number();
-  {
-    const AthenaAttributeList* pAttrList = eventStore()->tryConstRetrieve<AthenaAttributeList>();
-    if ( pAttrList != nullptr ) {
-      if (pAttrList->exists ("ConditionsRun"))
-        conditionsRun = (*pAttrList)["ConditionsRun"].data<unsigned int>();
-    }
-  }
   EventContext ctx;
-  if (installEventContext (ctx, eventID, conditionsRun).isFailure()) {
-    error() << "Unable to install EventContext object" << endmsg;
+  bool consume_modifier_stream = false;
+  // In the case of the BeginRun incident, we just want to take the
+  // next IoV from the list in the EvtIdModifierSvc, but leave it to
+  // be used for the next executeEvent call. TODO CHECK
+  if (installEventContext (ctx, eventID, conditionsRun, consume_modifier_stream).isFailure()) {
+    ATH_MSG_ERROR ( "Unable to install EventContext object" );
     return;
   }
 
   m_incidentSvc->fireIncident(Incident(name(),IncidentType::BeginRun,ctx));
   m_firstRun=false;
-  m_currentRun = eventID.run_number();
+  m_currentRun = ctx.eventID().run_number();
 
   // Clear Store
   const ClearStorePolicy::Type s_clearStore = clearStorePolicy( m_clearStorePolicy.value(), msgStream() );
   if(s_clearStore==ClearStorePolicy::EndEvent) {
     sc = eventStore()->clearStore();
     if(!sc.isSuccess()) {
-      error() << "Clear of Event data store failed" << endmsg;
+      ATH_MSG_ERROR ( "Clear of Event data store failed" );
     }
   }
 }
@@ -1153,23 +1150,56 @@ AthenaEventLoopMgr::eventStore() const {
 //=========================================================================
 StatusCode AthenaEventLoopMgr::installEventContext (EventContext& ctx,
                                                     const EventID& pEvent,
-                                                    unsigned int conditionsRun)
+                                                    unsigned int conditionsRun,
+                                                    bool consume_modifier_stream)
 {
   ctx.setEventID(pEvent);
   ctx.set(m_nev,0);
-
   Atlas::setExtendedEventContext(ctx,
                                  Atlas::ExtendedEventContext( eventStore()->hiveProxyDict(),
                                                               conditionsRun) );
+  modifyEventContext(ctx,pEvent,consume_modifier_stream);
   Gaudi::Hive::setCurrentContext( ctx );
 
   m_aess->reset( ctx );
   if (eventStore()->record(std::make_unique<EventContext> ( ctx ),
                            "EventContext").isFailure())
   {
-    error() << "Error recording event context object" << endmsg;
+    ATH_MSG_ERROR ( "Error recording event context object" );
     return (StatusCode::FAILURE);
   }
 
   return StatusCode::SUCCESS;
+}
+
+//---------------------------------------------------------------------------
+
+void AthenaEventLoopMgr::modifyEventContext(EventContext& ctx, const EventID& eID, bool consume_modifier_stream) {
+  if (m_evtIdModSvc.isSet()) {
+    EventID* new_eID=new EventID(eID);
+    // interface to m_evtIdModSvc->modify_evtid wants to be able to
+    // update the pointer itself, but in reality function doesn't need
+    // it. And cannot obviously use a smart pointer here, as the
+    // pointer itself can get updated by modify_evtid, so plain
+    // pointer for now.
+    // CHECK: Update evtIdModSvc method modify_evtid interface to
+    // pointer or reference?
+    m_evtIdModSvc->modify_evtid(new_eID, consume_modifier_stream);
+    if (msgLevel(MSG::DEBUG)) {
+      unsigned int oldrunnr=eID.run_number();
+      unsigned int oldLB=eID.lumi_block();
+      unsigned int oldTS=eID.time_stamp();
+      unsigned int oldTSno=eID.time_stamp_ns_offset();
+      ATH_MSG_DEBUG ( "modifyEventContext: use evtIdModSvc runnr=" << oldrunnr << " -> " << new_eID->run_number() );
+      ATH_MSG_DEBUG ( "modifyEventContext: use evtIdModSvc LB=" << oldLB << " -> " << new_eID->lumi_block() );
+      ATH_MSG_DEBUG ( "modifyEventContext: use evtIdModSvc TimeStamp=" << oldTS << " -> " << new_eID->time_stamp() );
+      ATH_MSG_DEBUG ( "modifyEventContext: use evtIdModSvc TimeStamp ns Offset=" << oldTSno << " -> " << new_eID->time_stamp_ns_offset() );
+    }
+    ctx.setEventID( *new_eID );
+    Atlas::getExtendedEventContext(ctx).setConditionsRun( ctx.eventID().run_number() );
+    delete new_eID;
+    return;
+  }
+
+  ctx.setEventID( eID );
 }

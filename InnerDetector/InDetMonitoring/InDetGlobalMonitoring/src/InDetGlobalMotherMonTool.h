@@ -181,10 +181,10 @@ public:
 
     template <class histClass>
     StatusCode registerManHist ( 
-	histClass * & target, std::string path, Interval_t interval,
-	std::string name, std::string title,
+	histClass * & target, const std::string & path, Interval_t interval,
+	const std::string & name, const std::string & title,
 	int nbinsx, double xlow, double xhi,
-	std::string xlabel = "", std::string ylabel = "" )
+	const std::string & xlabel = "", const std::string & ylabel = "" )
 	{
 	    target = new histClass( name.c_str(), title.c_str(), 
 				    nbinsx, xlow, xhi );
@@ -197,9 +197,9 @@ public:
     
     template <class histClass>
     StatusCode registerHistI ( 
-	MonGroup & theGroup, histClass * & target, std::string name, std::string title,
+	MonGroup & theGroup, histClass * & target, const std::string & name, const std::string & title,
 	int nbinsx, double xlow, double xhi,
-	std::string xlabel = "", std::string ylabel = "" )
+	const std::string & xlabel = "", const std::string & ylabel = "" )
 	{
 	    target = histClass::create( name.c_str(), title.c_str(), nbinsx, xlow, xhi );
 	    
@@ -214,10 +214,10 @@ public:
 
     template <class histClass>
     StatusCode registerHistI ( 
-	MonGroup & theGroup, histClass * & target, std::string name, std::string title,
+	MonGroup & theGroup, histClass * & target, const std::string & name, const std::string &title,
 	int nbinsx, double xlow, double xhi,
 	int nbinsy, double ylow, double yhi,
-	std::string xlabel = "", std::string ylabel = "" )
+	const std::string & xlabel = "", const std::string & ylabel = "" )
 	{
 	    target = histClass::create( name.c_str(), title.c_str(), 
 					nbinsx, xlow, xhi,
@@ -234,9 +234,9 @@ public:
     
     template <class histClass>
     StatusCode registerHistIR ( 
-	MonGroup & theGroup, histClass * & target, std::string name, std::string title,
+	MonGroup & theGroup, histClass * & target, const std::string & name, const std::string & title,
 	int nbinsx, double xlow, double xhi,
-	std::string xlabel = "", std::string ylabel = "" )
+	const std::string & xlabel = "", const std::string & ylabel = "" )
 	{
 	    target = new histClass( name.c_str(), title.c_str(), 
 				    nbinsx, xlow, xhi );
@@ -252,10 +252,10 @@ public:
     
     template <class histClass>
     StatusCode registerHistIR ( 
-	MonGroup & theGroup, histClass * & target, std::string name, std::string title,
+	MonGroup & theGroup, histClass * & target, const std::string & name, const std::string & title,
 	int nbinsx, double xlow, double xhi,
 	int nbinsy, double ylow, double yhi,
-	std::string xlabel = "", std::string ylabel = "" )
+	const std::string & xlabel = "", const std::string & ylabel = "" )
 	{
 	    target = new histClass( name.c_str(), title.c_str(), 
 				    nbinsx, xlow, xhi,

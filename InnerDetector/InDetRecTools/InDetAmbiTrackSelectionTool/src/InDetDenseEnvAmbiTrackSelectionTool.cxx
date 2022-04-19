@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -709,8 +709,7 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::fillTrackDetails(const Trk::Tra
     tsosDetails.m_type[index] = SharedHit;
   } // End loop over TSOS's
   
-  return;
-}
+  }
 
 //==========================================================================================
 //
@@ -1257,8 +1256,7 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
                                           trackHitDetails.m_numWeightedShared);
   }
 
-  return;
-} // decideWhichHitsToKeep 
+  } // decideWhichHitsToKeep 
 
 //==========================================================================================
 
@@ -1738,64 +1736,56 @@ inline bool InDet::InDetDenseEnvAmbiTrackSelectionTool::isMultiPartClus(float sp
 //
 //============================================================================================
 inline void InDet::InDetDenseEnvAmbiTrackSelectionTool::rejectHitOverUse(TrackHitDetails& trackHitDetails, 
-    TSoS_Details& tsosDetails, int index) const {
+    TSoS_Details& tsosDetails, int index) {
   trackHitDetails.m_trkCouldBeAccepted = false; // we have to remove at least one PRD
   tsosDetails.m_type[index] = RejectedHitOverUse;
-  return;
 }
 inline void InDet::InDetDenseEnvAmbiTrackSelectionTool::rejectHit(TrackHitDetails& trackHitDetails, 
-    TSoS_Details& tsosDetails, int index) const {
+    TSoS_Details& tsosDetails, int index) {
   trackHitDetails.m_trkCouldBeAccepted = false; // we have to remove at least one PRD
   tsosDetails.m_type[index] = RejectedHit;
-  return;
 }
 // used after counters have been set
 inline void InDet::InDetDenseEnvAmbiTrackSelectionTool::rejectSharedHit(TrackHitDetails& trackHitDetails, 
-    TSoS_Details& tsosDetails, int index) const {
+    TSoS_Details& tsosDetails, int index) {
   rejectHit(trackHitDetails, tsosDetails, index); // reject
   decreaseSharedHitCounters( trackHitDetails, 
       (tsosDetails.m_detType[index]%10 == 1), 
       (tsosDetails.m_detType[index]%10 == 2) );
-  return;
 }
 // used after counters have been set
 inline void InDet::InDetDenseEnvAmbiTrackSelectionTool::rejectSharedHitInvalid(TrackHitDetails& trackHitDetails, 
-    TSoS_Details& tsosDetails, int index) const {
+    TSoS_Details& tsosDetails, int index) {
   trackHitDetails.m_trkCouldBeAccepted = false;
   tsosDetails.m_type[index] = RejectedHitInvalid; // do not use rejectHit function since use this flag
   decreaseSharedHitCounters( trackHitDetails, 
       (tsosDetails.m_detType[index]%10 == 1), 
       (tsosDetails.m_detType[index]%10 == 2) );
-  return;
 }
 // used after counters have been set
 inline void InDet::InDetDenseEnvAmbiTrackSelectionTool::sharedToSplitPix(TrackHitDetails& trackHitDetails, 
-    TSoS_Details& tsosDetails, int index) const {
+    TSoS_Details& tsosDetails, int index) {
   // from shared
   decreaseSharedHitCounters( trackHitDetails, true, false ); // isPix=true
   // to split
   tsosDetails.m_type[index] = SplitSharedHit;
   trackHitDetails.m_numSplitSharedPix++;
-  return;
 }
 inline void InDet::InDetDenseEnvAmbiTrackSelectionTool::addSharedHit(TrackHitDetails& trackHitDetails, 
-    TSoS_Details& tsosDetails, int index) const {
+    TSoS_Details& tsosDetails, int index) {
   tsosDetails.m_type[index] = SharedHit;
   increaseSharedHitCounters( trackHitDetails, (tsosDetails.m_detType[index]%10 == 1), (tsosDetails.m_detType[index]%10 == 2) );
-  return;
 }
-inline void InDet::InDetDenseEnvAmbiTrackSelectionTool::increaseSharedHitCounters(TrackHitDetails& trackHitDetails, bool isPix, bool isSCT) const {
+inline void InDet::InDetDenseEnvAmbiTrackSelectionTool::increaseSharedHitCounters(TrackHitDetails& trackHitDetails, bool isPix, bool isSCT) {
   trackHitDetails.m_numShared++; // increase counter 
   trackHitDetails.m_numWeightedShared += (isPix ? 2 : 1); // increase counter
   // protect from TRT hits (needed?)
   if( isSCT ) { trackHitDetails.m_numSCT_Shared++; }
-  return;
-}
-inline void InDet::InDetDenseEnvAmbiTrackSelectionTool::decreaseSharedHitCounters(TrackHitDetails& trackHitDetails, bool isPix, bool isSCT) const {
+  }
+inline void InDet::InDetDenseEnvAmbiTrackSelectionTool::decreaseSharedHitCounters(TrackHitDetails& trackHitDetails, bool isPix, bool isSCT) {
   trackHitDetails.m_numShared--; // decrease counter
   trackHitDetails.m_numWeightedShared -= (isPix ? 2 : 1); // increase counter
   // protect from TRT hits (needed?)
   if( isSCT ) { trackHitDetails.m_numSCT_Shared--; }
-  return;
-}
+  }
 //============================================================================================

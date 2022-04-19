@@ -5,6 +5,7 @@
 #include "./JetGroupUnion.h"
 #include <set>
 #include <string>
+#include <algorithm>
 #include <sstream>
 
 

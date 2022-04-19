@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -62,8 +62,7 @@ Trk::MultipleScatteringUpdator::MultipleScatteringUpdator(const std::string &t, 
 }
 
 // destructor
-Trk::MultipleScatteringUpdator::~MultipleScatteringUpdator() {
-}
+Trk::MultipleScatteringUpdator::~MultipleScatteringUpdator() = default;
 
 // Athena standard methods
 // initialize

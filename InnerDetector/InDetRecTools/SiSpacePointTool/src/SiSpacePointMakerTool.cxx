@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SiSpacePointTool/SiSpacePointMakerTool.h"
@@ -245,7 +245,7 @@ namespace InDet {
 
   //--------------------------------------------------------------------------
   void SiSpacePointMakerTool::fillPixelSpacePointCollection(const InDet::PixelClusterCollection* clusters, 
-                                                            SpacePointCollection* spacepointCollection) const {
+                                                            SpacePointCollection* spacepointCollection) {
                                                               
     InDet::PixelClusterCollection::const_iterator clusStart = clusters->begin(); 
     InDet::PixelClusterCollection::const_iterator clusFinish = clusters->end(); 
@@ -696,7 +696,7 @@ namespace InDet {
   //--------------------------------------------------------------------------
   //
   Trk::SpacePoint* SiSpacePointMakerTool::makeSCT_SpacePoint
-  (InDet::SCTinformation& In0,InDet::SCTinformation& In1,IdentifierHash ID0,IdentifierHash ID1,double limit,double slimit) const {
+  (InDet::SCTinformation& In0,InDet::SCTinformation& In1,IdentifierHash ID0,IdentifierHash ID1,double limit,double slimit) {
 
 
     double a  =-In0.traj_direction().dot(In1.normal());

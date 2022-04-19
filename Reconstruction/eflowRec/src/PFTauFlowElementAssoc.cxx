@@ -7,7 +7,6 @@
 #include "xAODTau/TauTrack.h"
 #include "xAODPFlow/FlowElementContainer.h"
 #include "xAODPFlow/FlowElement.h"
-#include "tauRecTools/HelperFunctions.h"
 
 using TauJetLink_t = ElementLink<xAOD::TauJetContainer>;
 using FELink_t = ElementLink<xAOD::FlowElementContainer>;
@@ -81,7 +80,7 @@ StatusCode PFTauFlowElementAssoc::execute(const EventContext &ctx) const {
       // Skip taus that won't be written to AOD
       if(!acc_passThinning(*tau)) continue;
       // Get tau vertex
-      const xAOD::Vertex* tauVertex = tauRecTools::getTauVertex(*tau);
+      const xAOD::Vertex* tauVertex = tau->vertex();
       // Get the clusters associated to the tau
       std::vector<const xAOD::IParticle*> tauClusters = tau->clusters();
       for (const auto *cluster : tauClusters) {

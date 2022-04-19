@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGNAVSTRUCTURE_TRIGGERELEMENT_H
@@ -16,25 +16,6 @@
 
 #include "TrigNavStructure/Types.h"
 namespace HLT {
-
-  //  class NavigationCore;
-  //  class RoICacheHelper;
-  //  class TrigNavigationSlimmingTool;
-  /*
-  class FeatureDescriptor {
-  public:
-    FeatureDescriptor(std::string label, uint32_t objectsBegin, uint32_t objectsEnd)
-      : m_label(label), m_begin(objectsBegin), m_end(objectsEnd) {}
-
-    const std::string& label() const { return m_label; }
-    uint32_t objectsBegin() const { return m_begin; }
-    uint32_t objectsEnd() const { return m_end; }
-  private:
-    std::string m_label;
-    uint32_t m_begin;
-    uint32_t m_end;
-  };
-  */
 
   /**
    * @brief TriggerElement is the basic ingreedient of the interface between HLT algorithms and the navigation
@@ -82,10 +63,6 @@ namespace HLT {
     void setErrorState(bool state = true);
 
     inline bool getErrorState() const { return m_state & errorState; }
-
-    //    friend class HLT::NavigationCore; //!< this class will be able to play with the navigation
-    //    friend class HLT::TrigNavigationSlimmingTool;
-    //    friend class HLT::RoICacheHelper; //!< this class will be able to play with the navigation
 
     /**
      * @brief Helper class for conversion from/to int stored in TE and pair of ints used in Navigation

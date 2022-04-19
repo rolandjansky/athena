@@ -10,11 +10,11 @@
 #include "AthenaKernel/DataBucketBase.h"
 #include "AthenaKernel/SlotSpecificObj.h"
 #include "CxxUtils/crc64.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "TrigConfHLTUtils/HLTUtils.h"
 
 #include "TrigNavigation/TriggerElement.h"
-#include "TrigNavigation/TrigEDMSizes.h"
 #include "TrigNavigation/RoICacheHistory.h"
 #include "TrigNavigation/NavigationCore.h"
 
@@ -33,25 +33,15 @@ std::ostream& operator<<( std::ostream& s, const std::vector<T>& v)
   return s;
 }
 
-NavigationCore::NavigationCore(MsgStream& log)
+NavigationCore::NavigationCore(const AthAlgTool& logger)
   : TrigNavStructure(),
     m_serializerSvc(nullptr),
     m_storeGate(nullptr),
     m_objectsKeyPrefix("HLT"),
     m_objectsIndexOffset(0),
     m_holderfactory(nullptr),
-    m_log(log)
+    m_logger(logger)
 {
-}
-
-NavigationCore::~NavigationCore() {
-  ATH_MSG_VERBOSE("~NavigationCore: cleaning static type information");
-
-  for ( auto [clid, proxy] : HLT::TypeMaps::proxies() ) delete proxy;
-  HLT::TypeMaps::proxies().clear();
-
-  for ( auto [clid, holder] : HLT::TypeMaps::holders() ) delete holder;
-  HLT::TypeMaps::holders().clear();
 }
 
 /*****************************************************************************
@@ -100,37 +90,6 @@ bool NavigationCore::serialize( std::vector<uint32_t>& output, std::vector<unsig
   return serialize(output, cuts, clid_name);
 }
 
-HLT::TrigEDMSizes* NavigationCore::retrieveOrCreateTrigEDMSizes(const std::string& name) const {
-  // check if SG contains a previously registered TrigEDMSizes object
-  // reuse it and update it
-  // this is an issue when running L2 and EF together in athena
-  TrigEDMSizes* sizes(0);
-  if ( m_storeGate->transientContains(ClassID_traits<HLT::TrigEDMSizes>::ID(), name )) {
-    ATH_MSG_DEBUG("A previously registered object of type = (HLT::TrigEDMSizes) and name = " << name << " was found in SG.");
-    const TrigEDMSizes* sizesSG(0) ;
-    if ( m_storeGate->retrieve(sizesSG, name).isFailure() ) {
-      ATH_MSG_WARNING("There was an error when retrieving the old object of type = (HLT::TrigEDMSizes) and name = " << name << " from SG.");
-    } else {
-      sizes = const_cast<TrigEDMSizes*>(sizesSG);
-    }
-  } else {
-    if ( m_storeGate->contains(ClassID_traits<HLT::TrigEDMSizes>::ID(), name) ) {
-      ATH_MSG_DEBUG("An object of type = (HLT::TrigEDMSizes) and name = " << name << " accessible through SG was found.");
-      const TrigEDMSizes* sizesSG(0) ;
-      if ( m_storeGate->retrieve(sizesSG, name).isFailure() ) {
-        ATH_MSG_WARNING("There was an error when retrieving the object contained in SG of type = (HLT::TrigEDMSizes) and name = " << name << ".");
-      } else {
-        sizes = const_cast<TrigEDMSizes*>(sizesSG);
-      }
-    } else {
-      sizes = new TrigEDMSizes();
-      m_storeGate->record(sizes, name).ignore();
-      ATH_MSG_DEBUG("A new object of type = (HLT::TrigEDMSizes) and name = " << name << " was registered in SG.");
-    }
-  }
-  return sizes;
-}
-
 bool NavigationCore::serialize( std::vector<uint32_t>& output, std::vector<unsigned int>& cuts, std::vector<std::pair<CLID, std::string> >& clid_name ) const {
   std::vector<uint32_t> holderdata;
   std::vector<unsigned int> holderblobsizes;
@@ -142,7 +101,7 @@ bool NavigationCore::serialize( std::vector<uint32_t>& output, std::vector<unsig
   if ( m_classesToPayload.empty() ) { // this is offline case
     status = serializeHoldersWithoutPayload(holderstorage.getAllHolders<IHolder>(),holderdata, holderblobsizes, clid_name);
   } else { // this is online case when list of classes to payload is not empty
-    status = serializeHoldersWithPayload(m_classesToPayload,holderdata,holderblobsizes,clid_name,true);
+    status = serializeHoldersWithPayload(m_classesToPayload,holderdata,holderblobsizes,clid_name);
   }
 
   if(!status){
@@ -166,7 +125,7 @@ bool NavigationCore::serialize_DSonly( std::vector<uint32_t>& output, std::vecto
   std::vector<uint32_t> holderdata;
   std::vector<unsigned int> holderblobsizes;
 
-  bool status = serializeHoldersWithPayload(m_classesToPayload_DSonly,holderdata,holderblobsizes,clid_name,true);
+  bool status = serializeHoldersWithPayload(m_classesToPayload_DSonly,holderdata,holderblobsizes,clid_name);
   if(!status){
     ATH_MSG_WARNING("holder serialization failed");
     return false;
@@ -237,7 +196,7 @@ bool NavigationCore::deserialize( const std::vector<uint32_t>& input ) {
     EventContext::ContextEvt_t m_evt;
     std::unordered_map<uint64_t, std::shared_ptr<HLT::BaseHolder>> m_holders;
   };
-  static SG::SlotSpecificObj<DeserializedMemo> memos;
+  static SG::SlotSpecificObj<DeserializedMemo> memos ATLAS_THREAD_SAFE;
 
   const EventContext& ctx = Gaudi::Hive::currentContext();
   DeserializedMemo& memo = *memos.get (ctx);
@@ -326,9 +285,9 @@ void NavigationCore::reset(bool inFinalize) {
   ATH_MSG_DEBUG("Navigation reset done");
 }
 
-uint16_t NavigationCore::nextSubTypeIndex(CLID clid, const std::string& /*label*/) {
+uint16_t NavigationCore::nextSubTypeIndex(CLID clid, const std::string& /*label*/) const {
   std::lock_guard<std::recursive_mutex> lock(getMutex());
-  TrigHolderStructure& holderstorage = getHolderStorage();
+  const TrigHolderStructure& holderstorage = getHolderStorage();
 
   auto holders = holderstorage.getHoldersOfClid(clid);
 
@@ -404,7 +363,7 @@ bool NavigationCore::registerHolder(IHolder* holder) {
   return true;
 }
 
-bool NavigationCore::createHolder( IHolder*& holder,  CLID clid, const std::string& label, uint16_t index) {
+bool NavigationCore::createHolder( IHolder*& holder,  CLID clid, const std::string& label, uint16_t index) const {
   ATH_MSG_DEBUG("createHolder: creating holder for CLID: " << clid  << " label: " << label << " and index: " << index);
   //reset holder
   holder = 0;
@@ -458,13 +417,10 @@ bool NavigationCore::getFeatureAccessors( const TriggerElement* te, class_id_typ
 					  const TriggerElement*& source,
 					  std::string& sourcelabel) const {
   
-  NavigationCore* non_const_this = const_cast<NavigationCore*>(this);
-  
-
   //if query was via subindex we don't cache the query (no support yet)
   //note that the instantiation of this object has side effects (with calls to the caching singleton etc...)
   HLT::RoICacheHistory::QuestionScope qscope( with_cache_recording && (index_or_label.which() == 1)?
-					      HLT::RoICacheHistory::QuestionScope(te, clid, boost::get<std::string>(index_or_label), non_const_this, only_single_feature) :
+					      HLT::RoICacheHistory::QuestionScope(te, clid, boost::get<std::string>(index_or_label), this, only_single_feature) :
 					      HLT::RoICacheHistory::QuestionScope() );
   
   return TrigNavStructure::getFeatureAccessors(te,clid,index_or_label,only_single_feature,features,with_cache_recording,travel_backward_recursively,source,sourcelabel);
@@ -526,7 +482,7 @@ bool NavigationCore::serializeWithHolderSection(const std::vector<uint32_t>& hol
 
 bool NavigationCore::serializeHoldersWithPayload(const std::vector<CSPair>& payload, std::vector<uint32_t>& output,
 						 std::vector<uint32_t>& holderblobsizes,
-						 std::vector<std::pair<CLID, std::string> >& clid_name, bool recordSizes) const {
+						 std::vector<std::pair<CLID, std::string> >& clid_name) const {
 
   ATH_MSG_DEBUG("serialization: number of classes to payload: " << payload.size());
   for ( auto& cl :  payload) {
@@ -553,11 +509,6 @@ bool NavigationCore::serializeHoldersWithPayload(const std::vector<CSPair>& payl
     
     holderblobsizes.push_back(1+holderblob.size()); //one for leading size bit 
     clid_name.push_back(std::pair < CLID, std::string> (holder->typeClid(), holder->label()));
-
-    TrigEDMSizes* sizes = retrieveOrCreateTrigEDMSizes("TrigEDMSizes");
-    if (sizes && recordSizes){
-      sizes->addObject(holder->collectionName(), holder->label(), payloadsize, output.size() );
-    }
   }
 
   return true;

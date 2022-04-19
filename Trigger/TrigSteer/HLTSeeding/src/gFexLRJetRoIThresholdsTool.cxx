@@ -3,9 +3,20 @@
 */
 #include "gFexLRJetRoIThresholdsTool.h"
 
-uint64_t gFexLRJetRoIThresholdsTool::getPattern(const xAOD::gFexJetRoI& /*roi*/,
-                                                const RoIThresholdsTool::ThrVec& /*menuThresholds*/,
+uint64_t gFexLRJetRoIThresholdsTool::getPattern(const xAOD::gFexJetRoI& roi,
+                                                const RoIThresholdsTool::ThrVec& menuThresholds,
                                                 const TrigConf::L1ThrExtraInfoBase& /*menuExtraInfo*/) const {
-  // THIS IS CURRENTLY ONLY A PLACEHOLDER
-  return 0xffffffffffffffff;
+  float et = roi.et();
+  uint64_t thresholdMask = 0;
+
+  for (const std::shared_ptr<TrigConf::L1Threshold>& thrBase : menuThresholds) {
+    std::shared_ptr<TrigConf::L1Threshold_gLJ> thr = std::static_pointer_cast<TrigConf::L1Threshold_gLJ>(thrBase);
+    
+    if (et > thr->thrValueMeV()) {
+      thresholdMask |= (1<<thr->mapping());
+    }
+    
+  }
+  
+  return thresholdMask;
 }

@@ -25,7 +25,7 @@ DerivationFramework::MaxCellDecorator::MaxCellDecorator(const std::string& t,
 }
 
 // Destructor
-DerivationFramework::MaxCellDecorator::~MaxCellDecorator() {}
+DerivationFramework::MaxCellDecorator::~MaxCellDecorator() = default;
 
 // Athena initialize and finalize
 StatusCode

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // CoraCoolDatabase.cxx
@@ -179,7 +179,7 @@ bool CoraCoolDatabase::storeSpec(const std::string& tablename,
   }
   // now update table with specification
   try {
-    coral::AttributeList data ATLAS_THREAD_SAFE; // Not shared, ok
+    coral::AttributeList data;
     data.extend<std::string>("NAME");
     data.extend<std::string>("ATTRSPEC");
     data[0].data<std::string>()=tablename;
@@ -397,7 +397,7 @@ bool CoraCoolDatabase::deleteFolder(const std::string& coolfolder) {
       seqpk.dropSeq();
     }
     // remove the row from the CORACOOLATTR table
-    coral::AttributeList bindvar ATLAS_THREAD_SAFE; // Not shared, ok
+    coral::AttributeList bindvar;
     bindvar.extend<std::string>("SNAME");
     bindvar[0].data<std::string>()=tablename;
     coral::ITable& table=m_proxy->nominalSchema().tableHandle(

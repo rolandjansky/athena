@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkTrack/Track.h"
@@ -62,7 +62,7 @@ namespace Trk {
 
   //________________________________________________________________________
   AnalyticalDerivCalcTool::~AnalyticalDerivCalcTool()
-  {}
+  = default;
 
   //________________________________________________________________________
   StatusCode AnalyticalDerivCalcTool::initialize()

@@ -43,8 +43,8 @@ def TRT_TrackSegmentsMaker_ATLxkCfg(flags, name = 'InDetTRT_SeedsMaker', extensi
     #
     # --- offline version  of TRT segemnt making
     #
-    InDetPatternPropagator = acc.getPrimaryAndMerge(TC.InDetPatternPropagatorCfg())
-
+    from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
+    InDetPatternPropagator = acc.popToolsAndMerge(RungeKuttaPropagatorCfg(flags, name="InDetPatternPropagator"))
     InDetTRTExtensionTool = acc.popToolsAndMerge(TC.InDetTRT_ExtensionToolCfg(flags))
     acc.addPublicTool(InDetTRTExtensionTool)
 
@@ -76,8 +76,8 @@ def TRT_TrackSegmentsMakerCondAlg_ATLxkCfg(flags, name = 'InDetTRT_SeedsMakerCon
         # TRT-only/back-tracking segment finding
         pTmin = flags.InDet.Tracking.ActivePass.minSecondaryPt
 
-    InDetPatternPropagator = acc.getPrimaryAndMerge(TC.InDetPatternPropagatorCfg())
-
+    from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
+    InDetPatternPropagator = acc.popToolsAndMerge(RungeKuttaPropagatorCfg(flags, name="InDetPatternPropagator"))
     kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
     kwargs.setdefault("NumberMomentumChannel", flags.InDet.Tracking.ActivePass.TRTSegFinderPtBins)
     kwargs.setdefault("pTmin", pTmin)
@@ -168,10 +168,11 @@ def TRTSegmentFindingCfg(flags, extension = "", InputCollections = None, BarrelS
     prefix = 'InDetSegment'
     suffix = extension
     if usePrdAssociationTool:
-        acc.merge(TC.InDetTrackPRD_AssociationCfg(flags,
-                                                  name = prefix + 'TrackPRD_Association' + suffix,
-                                                  AssociationMapName = prefix + 'PRDtoTrackMap' + suffix,
-                                                  TracksName = list(InputCollections)))
+        from InDetConfig.InDetTrackPRD_AssociationConfig import InDetTrackPRD_AssociationCfg
+        acc.merge(InDetTrackPRD_AssociationCfg(flags,
+                                               name = prefix + 'TrackPRD_Association' + suffix,
+                                               AssociationMapName = prefix + 'PRDtoTrackMap' + suffix,
+                                               TracksName = list(InputCollections)))
     #
     # --- TRT track reconstruction
     #

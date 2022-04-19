@@ -24,7 +24,7 @@ def merge(input_file_pattern, output_file):
 
     # Open output file and write events
     nEvents = 0
-    with open(output_file, "ab") as f_output:
+    with open(output_file, "a") as f_output:
         logger.info("... reading metadata from {}".format(input_file_list[0]))
         # Start with the first file and extract opening/closing string
         s_preamble = preamble(input_file_list[0])

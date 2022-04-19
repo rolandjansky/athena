@@ -31,7 +31,7 @@ DerivationFramework::ClusterEnergyPerLayerDecorator::
 // Destructor
 DerivationFramework::ClusterEnergyPerLayerDecorator::
   ~ClusterEnergyPerLayerDecorator()
-{}
+= default;
 
 // Athena initialize and finalize
 StatusCode

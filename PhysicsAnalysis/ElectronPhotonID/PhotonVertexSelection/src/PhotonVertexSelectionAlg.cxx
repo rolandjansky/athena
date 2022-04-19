@@ -32,7 +32,7 @@ namespace CP {
 
   //**********************************************************************
 
-  PhotonVertexSelectionAlg::~PhotonVertexSelectionAlg() { }
+  PhotonVertexSelectionAlg::~PhotonVertexSelectionAlg() = default;
 
   //**********************************************************************
 

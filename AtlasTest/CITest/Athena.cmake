@@ -32,6 +32,9 @@ atlas_add_citest( SimulationRun4FullSim
 atlas_add_citest( PileUpPresamplingRun2
    SCRIPT RunWorkflowTests_Run2.py --CI -p -w PileUpPresampling -e '--maxEvents 5' --no-output-checks )
 
+atlas_add_citest( PileUpPresamplingRun3
+   SCRIPT RunWorkflowTests_Run3.py --CI -p -w PileUpPresampling -e '--maxEvents 5' --no-output-checks )
+
 atlas_add_citest( OverlayRun2MC
    SCRIPT RunWorkflowTests_Run2.py --CI -o -w MCOverlay )
 
@@ -51,13 +54,11 @@ atlas_add_citest( RecoRun2Data_CAConfig
 
 atlas_add_citest( RecoRun2Data_DAODPHYS
    SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/DAODPhys.sh PHYS ../RecoRun2Data/run_q442/myAOD.pool.root
-   PROPERTIES REQUIRED_FILES ../RecoRun2Data/run_q442/myAOD.pool.root
-   DEPENDS RecoRun2Data )
+   DEPENDS_SUCCESS RecoRun2Data )
 
 atlas_add_citest( RecoRun2Data_DAODPHYSLite
    SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/DAODPhys.sh PHYSLITE ../RecoRun2Data/run_q442/myAOD.pool.root
-   PROPERTIES REQUIRED_FILES ../RecoRun2Data/run_q442/myAOD.pool.root
-   DEPENDS RecoRun2Data )
+   DEPENDS_SUCCESS RecoRun2Data )
 
 atlas_add_citest( RecoRun2MC
    SCRIPT RunWorkflowTests_Run2.py --CI -r -w MCReco -e '--maxEvents 25' --threads 0 --no-output-checks )
@@ -67,8 +68,7 @@ atlas_add_citest( RecoRun2MC_CAConfig
 
 atlas_add_citest( RecoRun2MC_PileUp
    SCRIPT RunWorkflowTests_Run2.py --CI -p -w MCPileUpReco -e '--maxEvents 5 --inputRDO_BKGFile=../../PileUpPresamplingRun2/run_d1730/myRDO.pool.root' --no-output-checks  # go two levels up as the test runs in a subfolder
-   PROPERTIES REQUIRED_FILES ../PileUpPresamplingRun2/run_d1730/myRDO.pool.root
-   DEPENDS PileUpPresamplingRun2 )
+   DEPENDS_SUCCESS PileUpPresamplingRun2 )
 
 atlas_add_citest( RecoRun3MC
    SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/RecoRun3MC.sh )
@@ -78,8 +78,7 @@ atlas_add_citest( RecoRun3MC_CAConfig
 
 atlas_add_citest( RecoRun4MC
    SCRIPT RunWorkflowTests_Run4.py --CI -r -w MCReco -e '--maxEvents 5 --inputHITSFile=../../SimulationRun4FullSim/run_s3761/myHITS.pool.root'  # go two levels up as the test runs in a subfolder
-   PROPERTIES REQUIRED_FILES ../SimulationRun4FullSim/run_s3761/myHITS.pool.root
-   DEPENDS SimulationRun4FullSim )
+   DEPENDS_SUCCESS SimulationRun4FullSim )
 
 
 #################################################################################
@@ -91,13 +90,11 @@ atlas_add_citest( DataQuality_r21ESD
 
 atlas_add_citest( DataQuality_Run3MC
    SCRIPT Run3DQTestingDriver.py 'Input.Files=["../RecoRun3MC/run_q445/myAOD.pool.root"]' DQ.Environment=AOD --threads=1
-   PROPERTIES REQUIRED_FILES ../RecoRun3MC/run_q445/myAOD.pool.root
-   DEPENDS RecoRun3MC )
+   DEPENDS_SUCCESS RecoRun3MC )
 
 atlas_add_citest( DataQuality_r21ESD_Postprocessing
    SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/DataQuality_r21ESD_Postprocessing.sh
-   PROPERTIES REQUIRED_FILES ../DataQuality_r21ESD/DataQuality_r21ESD_HIST.root
-   DEPENDS DataQuality_r21ESD )
+   DEPENDS_SUCCESS DataQuality_r21ESD )
 
 
 #################################################################################
@@ -145,6 +142,5 @@ atlas_add_citest( MuonDigiReco_digi
 
 atlas_add_citest( MuonDigiReco_reco
    SCRIPT Reco_tf.py --inputRDOFile ../MuonDigiReco_digi/OUT_RDO.root --autoConfiguration everything --imf False --outputESDFile OUT_ESD.root
-   PROPERTIES REQUIRED_FILES ../MuonDigiReco_digi/OUT_RDO.root
-   DEPENDS MuonDigiReco_digi
+   DEPENDS_SUCCESS MuonDigiReco_digi
    POST_EXEC_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/checkMuonDigiReco.sh )

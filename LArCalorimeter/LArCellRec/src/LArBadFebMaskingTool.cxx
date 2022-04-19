@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -140,7 +140,7 @@ StatusCode LArBadFebMaskingTool::process (CaloCellContainer* theCont,
 
       LArBadFeb febstatus = badFebs->status(febId);
       inError = febstatus.inError();
-      isDead = ( febstatus.deadReadout() | febstatus.deadAll() );
+      isDead = ( febstatus.deadReadout() || febstatus.deadAll() );
       ATH_MSG_DEBUG (" inError, isDead "  << inError << " " << isDead);
       
 

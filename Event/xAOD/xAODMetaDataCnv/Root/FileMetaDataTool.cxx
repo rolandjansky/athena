@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s):
@@ -48,9 +48,14 @@ StatusCode
 
       // Now copy all object to MetaDataStore
       for(const std::string& key : m_keys) {
+#ifdef XAOD_STANDALONE
          ASG_CHECK(copy(key));
+#else
+         for(const std::string& stream_key : m_metaDataSvc->getPerStreamKeysFor(key) ) {
+            ASG_CHECK( copy(stream_key) );
+         }
+#endif  // XAOD_STANDALONE
       }
-
       return StatusCode::SUCCESS;
     }
 

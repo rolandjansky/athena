@@ -54,7 +54,7 @@ InDet::InDetEventSplitter::InDetEventSplitter(const std::string& name,
 /// Destructor - check up memory allocation
 /// delete any memory allocation on the heap
 
-InDet::InDetEventSplitter::~InDetEventSplitter() {}
+InDet::InDetEventSplitter::~InDetEventSplitter() = default;
 
 ////////////////////////////////////////////////////////////////////////////////////
 /// Initialize

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@ Trk::ExtrapolationEngine::ExtrapolationEngine(const std::string& t, const std::s
 
 // destructor
 Trk::ExtrapolationEngine::~ExtrapolationEngine()
-{}
+= default;
 
 
 // the interface method initialize

@@ -14,7 +14,7 @@ void MaterialEffectsBaseCnv_p2::persToTrans(
   MsgStream& log)
 {
   transObj->m_tInX0              = persObj->m_tInX0;
-  transObj->m_associatedSurface = this->createTransFromPStore( (ITPConverterFor<Trk::Surface>**)nullptr, persObj->m_associatedSurface, log );
+  transObj->m_associatedSurface  = this->createTransFromPStore( (ITPConverterFor<Trk::Surface>**)nullptr, persObj->m_associatedSurface, log );
   transObj->m_typeFlags          = persObj->m_typeFlags;
 }
 

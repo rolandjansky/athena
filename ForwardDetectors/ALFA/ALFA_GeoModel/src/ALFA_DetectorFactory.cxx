@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoModelKernel/GeoMaterial.h"  
@@ -44,8 +44,10 @@
 
 using namespace std;
 
-double ALFA_stagger[10] = {0.0, 0.283, -0.141, 0.141, -0.283, 0.354, -0.071, 0.212, -0.212, 0.071};
-double OD_stagger[3] = {0.0, -0.167, -0.334};
+namespace {
+const double ALFA_stagger[10] = {0.0, 0.283, -0.141, 0.141, -0.283, 0.354, -0.071, 0.212, -0.212, 0.071};
+const double OD_stagger[3] = {0.0, -0.167, -0.334};
+} // anonymous namespace
 
 #define BEAMPIPEINNERRADIUS (0.5*80.0*CLHEP::mm)
 #define BEAMPIPEOUTERRADIUS (0.5*84.0*CLHEP::mm)
@@ -89,20 +91,18 @@ void CONFIGURATION::clear()
 }
 
 ALFA_DetectorFactory::ALFA_DetectorFactory(StoreGateSvc *pDetStore,IRDBAccessSvc *pAccess, const PCONFIGURATION pConfig)
-  :m_pDetectorManager(NULL),m_pDetectorStore(pDetStore),m_pIRDBAccess(pAccess)
+  :m_pDetectorManager(NULL),
+   m_pDetectorStore(pDetStore),
+   m_pIRDBAccess(pAccess),
+   m_eRequestedMetrologyType((eMetrologyType)(pConfig->GeometryConfig.eRPMetrologyGeoType)),
+   m_Config(*pConfig),
+   m_pGeoReader(std::make_unique<ALFA_GeometryReader>())
 {
-	//create geometry reader
-	m_eRequestedMetrologyType=(eMetrologyType)(pConfig->GeometryConfig.eRPMetrologyGeoType);
-	m_Config=*pConfig;
-	m_ListExistingRPots.clear();
-	m_MapMaterials.clear();
-	m_pGeoReader=(ALFA_GeometryReader*)new ALFA_GeometryReader();
 
 }
 
 ALFA_DetectorFactory::~ALFA_DetectorFactory()
 {
-	if(m_pGeoReader!=NULL) delete m_pGeoReader;
 }
 
 bool ALFA_DetectorFactory::ReadGeometry(bool bAlignCorrections)
@@ -110,11 +110,9 @@ bool ALFA_DetectorFactory::ReadGeometry(bool bAlignCorrections)
 	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_DetectorFactory::ReadGeometry");
 
 	bool bRes=false;
-	eRPotName eRPName;
 	list<eRPotName>::const_iterator iterRPName;
 
-	if(m_pGeoReader!=NULL) delete m_pGeoReader;
-	m_pGeoReader=(ALFA_GeometryReader*)new ALFA_GeometryReader();
+	m_pGeoReader=std::make_unique<ALFA_GeometryReader>();
 
 	//first we need to setup to zero positions for SWCORRECTIONS
 	if(m_eRequestedMetrologyType==EMT_SWCORRECTIONS){
@@ -123,7 +121,7 @@ bool ALFA_DetectorFactory::ReadGeometry(bool bAlignCorrections)
 	}
 	else if(m_eRequestedMetrologyType==EMT_NOMINAL){
 		for(int i=0;i<RPOTSCNT;i++){
-			eRPName=(eRPotName)(i+1);
+                        eRPotName eRPName = (eRPotName)(i+1);
 			if(m_Config.bIsTransformInDetector[i]==true){
 				m_Config.GeometryConfig.CfgRPosParams[i].usercorr.bIsEnabledUserTranform=true;
 				m_Config.GeometryConfig.CfgRPosParams[i].usercorr.UserOriginOfDetTransInRPot=Point3DInDetector(eRPName);
@@ -159,14 +157,13 @@ void ALFA_DetectorFactory::SaveGeometry()
 	eGeoSourceType eGeoType;
 	char szFilename[64];
 	char szPrefix[8];
-	list<eRPotName>::const_iterator iterRPName;
 	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_DetectorFactory::SaveGeometry");
-		
-	for(iterRPName=m_ListExistingRPots.begin();iterRPName!=m_ListExistingRPots.end();iterRPName++)
+
+        for (const eRPotName& eRPName : m_ListExistingRPots)
 	{
 		if(m_eRequestedMetrologyType==EMT_NOMINAL || m_eRequestedMetrologyType==EMT_METROLOGY){
 			//MD fibers
-			eGeoType=m_pGeoReader->GetRPGeometryType(*iterRPName,EFT_FIBERMD);
+			eGeoType=m_pGeoReader->GetRPGeometryType(eRPName,EFT_FIBERMD);
 			if(eGeoType!=EGST_UNDEFINED){
 				switch(eGeoType){
 					case EGST_IDEALGEOMETRY:
@@ -182,16 +179,16 @@ void ALFA_DetectorFactory::SaveGeometry()
 						strcpy(szPrefix,"");
 						break;
 				}
-				sprintf(szFilename,"%sgeometry_MD_RP-%s.txt",szPrefix,m_pGeoReader->GetRPotLabel(*iterRPName));
-				m_pGeoReader->StoreReconstructionGeometry(*iterRPName, EFT_FIBERMD, szFilename);
+				sprintf(szFilename,"%sgeometry_MD_RP-%s.txt",szPrefix,m_pGeoReader->GetRPotLabel(eRPName));
+				m_pGeoReader->StoreReconstructionGeometry(eRPName, EFT_FIBERMD, szFilename);
 				LogStream<<MSG::INFO<<"The MD fiber geometry was stored in the "<<szFilename<<" file"<<endmsg;
 			}
 			else{
-				LogStream<<MSG::INFO<<"Unknown MD fiber geometry of the RPot "<<m_pGeoReader->GetRPotLabel(*iterRPName)<<" file"<<endmsg;
+				LogStream<<MSG::INFO<<"Unknown MD fiber geometry of the RPot "<<m_pGeoReader->GetRPotLabel(eRPName)<<" file"<<endmsg;
 			}
 
 			//OD fibers
-			eGeoType=m_pGeoReader->GetRPGeometryType(*iterRPName,EFT_FIBEROD);
+			eGeoType=m_pGeoReader->GetRPGeometryType(eRPName,EFT_FIBEROD);
 			if(eGeoType!=EGST_UNDEFINED){
 				switch(eGeoType){
 					case EGST_IDEALGEOMETRY:
@@ -207,18 +204,18 @@ void ALFA_DetectorFactory::SaveGeometry()
 						strcpy(szPrefix,"");
 						break;
 				}
-				sprintf(szFilename,"%sgeometry_OD_RP-%s.txt",szPrefix,m_pGeoReader->GetRPotLabel(*iterRPName));
-				m_pGeoReader->StoreReconstructionGeometry(*iterRPName, EFT_FIBEROD, szFilename);
+				sprintf(szFilename,"%sgeometry_OD_RP-%s.txt",szPrefix,m_pGeoReader->GetRPotLabel(eRPName));
+				m_pGeoReader->StoreReconstructionGeometry(eRPName, EFT_FIBEROD, szFilename);
 				LogStream<<MSG::INFO<<"The OD fiber geometry was stored in the "<<szFilename<<" file"<<endmsg;
 			}
 			else{
-				LogStream<<MSG::INFO<<"Unknown OD fiber geometry of the RPot "<<m_pGeoReader->GetRPotLabel(*iterRPName)<<" file"<<endmsg;
+				LogStream<<MSG::INFO<<"Unknown OD fiber geometry of the RPot "<<m_pGeoReader->GetRPotLabel(eRPName)<<" file"<<endmsg;
 			}
 		}
 
 		//save RP geometry params
-		sprintf(szFilename,"geometryinfo_MD_RP-%s.txt",m_pGeoReader->GetRPotLabel(*iterRPName));
-		m_pGeoReader->SaveRPGeometryParams(*iterRPName, szFilename);
+		sprintf(szFilename,"geometryinfo_MD_RP-%s.txt",m_pGeoReader->GetRPotLabel(eRPName));
+		m_pGeoReader->SaveRPGeometryParams(eRPName, szFilename);
 		LogStream<<MSG::INFO<<"RP geometry info was stored in the "<<szFilename<<" file"<<endmsg;
 	}
 }
@@ -695,8 +692,6 @@ void ALFA_DetectorFactory::create(GeoPhysVol* pWorld)
 {
 	int i;
 	StatusCode sc;
-	eRPotName eRPName;
-	list<eRPotName>::const_iterator iterRPName;
 	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_DetectorFactory::create");
 
 	LogStream<<MSG::INFO<<"ALFA_DetectorFactory::buildALFA_RP"<<endmsg;
@@ -762,10 +757,9 @@ void ALFA_DetectorFactory::create(GeoPhysVol* pWorld)
 	ConstructAlfaStations(&mapActiveStations, pWorld);
 	if(m_Config.bConstructBeampipe) ConstructBeampipe(pWorld);
 	//LogStream<<MSG::INFO<<"MARK1"<<endmsg;
-	
-	for(iterRPName=m_ListExistingRPots.begin();iterRPName!=m_ListExistingRPots.end();iterRPName++)
+
+        for (const eRPotName& eRPName : m_ListExistingRPots)
 	{	
-		eRPName=*iterRPName;
 		m_pGeoReader->GetRPPosParams(&RPosParams,eRPName);
 		m_pGeoReader->GetASPosParams(&AStationParams,RPosParams.eASName);
 		pPhysAlfaBox=mapActiveStations[RPosParams.eASName].pPhysVolume;
@@ -1919,10 +1913,8 @@ void ALFA_DetectorFactory::UpdateTransforms(PALIGNPARAMETERS pAlignParams)
 	StatusCode sc;
 	char szLabel[32];
 	RPPOSPARAMS RPosParams;
-	eRPotName eRPName;
 	StoredAlignX* pAlignX;
 	GeoAlignableTransform* pAlTrans;
-	list<eRPotName>::const_iterator iterRPName;
 	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_DetectorFactory::UpdateTransforms");
 
 	if(m_eRequestedMetrologyType==EMT_SWCORRECTIONS){
@@ -1933,9 +1925,8 @@ void ALFA_DetectorFactory::UpdateTransforms(PALIGNPARAMETERS pAlignParams)
 		}
 
 		if(ReadGeometry(true)){
-			for(iterRPName=m_ListExistingRPots.begin();iterRPName!=m_ListExistingRPots.end();iterRPName++)
+                  for (const eRPotName& eRPName : m_ListExistingRPots)
 			{
-				eRPName=*iterRPName;
 				m_pGeoReader->GetRPPosParams(&RPosParams,eRPName);
 
 				sprintf(szLabel,"AlTransRPBox[%02d]",eRPName);

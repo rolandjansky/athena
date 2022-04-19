@@ -18,10 +18,9 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "xAODCore/AuxSelection.h"
-#include "AthenaBaseComps/AthMessaging.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "AthContainers/OwnershipPolicy.h"
 #include "AthContainers/DataVector.h"
-
 #include "StoreGate/StoreGateSvc.h"
 
 #include "TrigStorageDefinitions/EDM_TypeInfoMethods.h"
@@ -36,9 +35,6 @@
 
 
 class StringSerializer;
-class TrigEDMSizes;
-
-namespace HLTNavDetails { class TypeMapDeleter; }
 
 class TrigBStoxAODTool;
 class TrigNavigationThinningSvc;
@@ -100,14 +96,13 @@ namespace HLT {
   class NavigationCore : public HLT::TrigNavStructure {
     friend class ::TrigNavigationThinningSvc;
     friend struct HLT::TrigNavTools::SlimmingHelper;
-    friend class HLTNavDetails::TypeMapDeleter;
     friend class ::TrigBStoxAODTool;
   public:
     /**
-     * @brief constructor with external MsgStream for printing
+     * @brief constructor with parent AlgTool for printing
      */
-    NavigationCore(MsgStream& log);
-    virtual ~NavigationCore();
+    NavigationCore(const AthAlgTool& logger);
+    virtual ~NavigationCore() = default;
 
     /**
      * @brief prepapres the navigation for next event
@@ -175,15 +170,15 @@ namespace HLT {
      */
     template<class T> 
     bool getFeatures( const TriggerElement* te, std::vector< const T*>&  features, const std::string& label="", 
-		      std::map<const T*, std::string>* labels=0 );
+		      std::map<const T*, std::string>* labels=0 ) const;
 
     template<class T> 
-    bool getFeature( const TriggerElement* te, const T*&  features, const std::string& label="", std::string& sourcelabel = ::HLT::TrigNavStructure::m_unspecifiedLabel);
+    bool getFeature( const TriggerElement* te, const T*&  features, const std::string& label="", std::string& sourcelabel = ::HLT::TrigNavStructure::m_unspecifiedLabel) const;
 
     template<class T> 
     bool getFeature( const TriggerElement* te,
                      const ConstDataVector<T>*&  features,
-                     const std::string& label="", std::string& sourcelabel = ::HLT::TrigNavStructure::m_unspecifiedLabel);
+                     const std::string& label="", std::string& sourcelabel = ::HLT::TrigNavStructure::m_unspecifiedLabel) const;
 
     template<class T> 
     const T* featureLink2Object( const TrigFeatureLink& ) const;
@@ -222,29 +217,29 @@ namespace HLT {
     template<class T> 
     bool getRecentFeatures( const TriggerElement* te, 
 			    std::vector< const T*>&  features, const std::string& label="", 
-			    std::map<const T*, std::string>* labels=0 );
+			    std::map<const T*, std::string>* labels=0 ) const;
 
     template<class T> 
     bool getRecentFeature( const TriggerElement* te, 
 			   const T*&  feature, const std::string& label="", 
 			   const TriggerElement*& source = ::HLT::TrigNavStructure::m_unspecifiedTE, 
-			   std::string& sourcelabel = ::HLT::TrigNavStructure::m_unspecifiedLabel );
+			   std::string& sourcelabel = ::HLT::TrigNavStructure::m_unspecifiedLabel ) const;
 
     template<class LinkType> 
     bool getRecentFeatureDataOrElementLink( const TriggerElement* te,
 			    LinkType& link, const std::string& label="",
 			    const TriggerElement*& source = ::HLT::TrigNavStructure::m_unspecifiedTE,
-					    std::string& sourcelabel = ::HLT::TrigNavStructure::m_unspecifiedLabel);
+					    std::string& sourcelabel = ::HLT::TrigNavStructure::m_unspecifiedLabel) const;
 
     template<class C, class T> 
     bool getRecentFeaturesLinks( const TriggerElement* te,
-			    ElementLinkVector<C>& links, const std::string& label="" );
+			    ElementLinkVector<C>& links, const std::string& label="" ) const;
 
     template<class C, class T> 
     bool getRecentFeatureLink( const TriggerElement* te,
 			       ElementLink<C>& link, const std::string& label="", 
 			       const TriggerElement*& source = ::HLT::TrigNavStructure::m_unspecifiedTE, 
-			       std::string& sourcelabel = ::HLT::TrigNavStructure::m_unspecifiedLabel );
+			       std::string& sourcelabel = ::HLT::TrigNavStructure::m_unspecifiedLabel ) const;
 
     
 
@@ -296,7 +291,7 @@ namespace HLT {
      * size of features vector (if it has grew).
      */
     template<class T> bool getFeaturesInRoI( const TriggerElement* te,  std::vector<const T*>&  features, 
-					     const std::string& label="", std::map<const T*, std::string>* labels=0 );
+					     const std::string& label="", std::map<const T*, std::string>* labels=0 ) const;
 
 
     /**
@@ -306,7 +301,7 @@ namespace HLT {
      * @param labels list of all features of this type already in place and thier labels (of not specified) faster query
      * @return true if no errors encountered
      */
-    template<class C, class T> bool getAllFeatures( ElementLinkVector<C>&  features, const std::string& label="" ) ;
+    template<class C, class T> bool getAllFeatures( ElementLinkVector<C>&  features, const std::string& label="" ) const;
 
 
 
@@ -346,7 +341,7 @@ namespace HLT {
       return m_storeGate;
     }
 
-    template<class T> HLTNavDetails::Holder<T>* getHolder ( uint16_t subTypeIndex );                             //!< as above but does not create holder on demand (return 0 if not found)
+    template<class T> HLTNavDetails::Holder<T>* getHolder ( uint16_t subTypeIndex ) const;                             //!< as above but does not create holder on demand (return 0 if not found)
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   protected:
     //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -354,16 +349,14 @@ namespace HLT {
     // private stuff of Navigation class
 
 
-    bool createHolder ( HLTNavDetails::IHolder*& holder, CLID clid, const std::string& label, uint16_t idx );  //!< creates holder for type given by CLID
+    bool createHolder ( HLTNavDetails::IHolder*& holder, CLID clid, const std::string& label, uint16_t idx ) const;  //!< creates holder for type given by CLID
     bool registerHolder ( HLTNavDetails::IHolder* holder );
 
-    template<class T> HLTNavDetails::Holder<T>* getHolder ( const std::string& label, uint16_t suggestedIndex ); //!< aware holder discovery, creates holder if needed
+    template<class T> HLTNavDetails::Holder<T>* getHolder ( const std::string& label, uint16_t suggestedIndex ) const; //!< aware holder discovery, creates holder if needed
 
     HLTNavDetails::IHolder*                     getHolder ( CLID clid, uint16_t subTypeIndex ) const;            //!< as above but not type wise holder returned
     HLTNavDetails::IHolder*                     getHolder ( CLID clid, const std::string& label ) const;         //!< as above
 
-
-    TrigEDMSizes* retrieveOrCreateTrigEDMSizes(const std::string& name) const;
 
     /**
      * @brief Helper method for "combine": add one "level" of multiplicity to the results.
@@ -406,19 +399,19 @@ namespace HLT {
     std::vector<std::string> m_classesToPreregisterProperty;             //!< as above but for preregistration
     std::vector<CSPair> m_classesToPreregister;   //!< classes mentioned here will be put to SG irrespectively of thier presence in event
 
-    uint16_t nextSubTypeIndex(CLID clid, const std::string&label);
+    uint16_t nextSubTypeIndex(CLID clid, const std::string&label) const;
 
     bool extractBlob(const std::vector<uint32_t>& input,
 		     std::vector<uint32_t>::const_iterator& it,
 		     std::vector<uint32_t>& blob) const ;
 
   private:
-    MsgStream& m_log;
+    const AthAlgTool& m_logger;
 
     // Adapters so we can use ATH_MSG macros
-    MsgStream& msg() const { return m_log; }
+    MsgStream& msg() const { return m_logger.msg(); }
     MsgStream& msg(const MSG::Level lvl) const { return msg() << lvl; }
-    bool msgLvl(const MSG::Level lvl) const { return m_log.level() <= lvl; }
+    bool msgLvl(const MSG::Level lvl) const { return msg().level() <= lvl; }
 
     HLTNavDetails::IHolder* prepareOneHolder(CLID clid, const std::string& label);
 
@@ -428,7 +421,7 @@ namespace HLT {
     bool serializeHoldersWithoutPayload(const std::vector<HLTNavDetails::IHolder*>& holders, std::vector<uint32_t>& output, std::vector<uint32_t>& holderblobsizes,std::vector<std::pair<CLID, std::string> >& clid_name) const;
 
     bool serializeHoldersWithPayload(const std::vector<CSPair>& payload, std::vector<uint32_t>& output, std::vector<uint32_t>& holderblobsizes,
-				     std::vector<std::pair<CLID, std::string> >& clid_name, bool recordEDMsizes) const;
+				     std::vector<std::pair<CLID, std::string> >& clid_name) const;
 
   };
 

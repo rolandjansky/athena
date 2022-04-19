@@ -1,5 +1,5 @@
 #/*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAURECTOOLS_HELPERFUNCTIONS_H
@@ -32,13 +32,6 @@ namespace tauRecTools
    */ 
   const xAOD::Vertex* getJetVertex(const xAOD::Jet& jet);
  
-  /**
-   * @brief Return the vertex of tau candidate
-   *        If the vertex link of tau candidate is valid, then the vertex which the link point to will
-   *        be returned. Otherwise, it will try to retrieve the vertex of the seed jet in offline reconstruction
-   */  
-  const xAOD::Vertex* getTauVertex(const xAOD::TauJet& tau, bool inTrigger = false);
-
   /**
    * @brief Return the four momentum of the tau axis
    *        The tau axis is widely used to select clusters and cells in tau reconstruction.

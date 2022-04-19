@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -80,7 +80,7 @@ Trk::CylinderVolumeBounds::CylinderVolumeBounds(
   , m_boundaryAccessors()
 {}
 
-Trk::CylinderVolumeBounds::~CylinderVolumeBounds() {}
+Trk::CylinderVolumeBounds::~CylinderVolumeBounds() = default;
 
 Trk::CylinderVolumeBounds&
 Trk::CylinderVolumeBounds::operator=(const Trk::CylinderVolumeBounds& cylbo)

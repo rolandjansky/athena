@@ -222,7 +222,7 @@ namespace G4UA
  }
 
 
-  std::string LengthIntegrator::getMaterialClassification(std::string name)
+  std::string LengthIntegrator::getMaterialClassification(const std::string& name)
   {
 
     if((name.find("DM_Atlas_Air") != std::string::npos) || (name.find("DM_Atlas") != std::string::npos) ||
@@ -366,7 +366,7 @@ namespace G4UA
 
   }
 
-  std::string LengthIntegrator::getVolumeType(std::string s){
+  std::string LengthIntegrator::getVolumeType(const std::string& s){
 
     std::string type = "";
     if(m_splitModerator && ( s.find("Moderator") != std::string::npos || s.find("BoratedPolyethylene") != std::string::npos)) type = "Moderator";

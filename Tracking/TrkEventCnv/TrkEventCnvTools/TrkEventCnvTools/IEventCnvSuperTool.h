@@ -65,6 +65,9 @@ namespace Trk
      
     /** Maximum number of permitted errors. */
     virtual int maxNumberOfErrors() const =0;
+
+    /** Track overlay flag*/
+    virtual bool doTrackOverlay() const=0;
     
   };
 }

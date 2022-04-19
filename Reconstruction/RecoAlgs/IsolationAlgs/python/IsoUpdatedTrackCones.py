@@ -47,7 +47,7 @@ def GetUpdatedIsoTrackCones(postfix="", object_types=("Electrons", "Photons", "M
                 kwargs["PhCorTypes"] = trkcor_list
                 kwargs["PhCorTypesExtra"] = [[]]
                 kwargs["CustomConfigurationNamePh"] = name
-            if "Muons" in object_types:
+            if "Muons" in object_types and not loose_cone:
                 kwargs["MuIsoTypes"] = ptcone_list
                 kwargs["MuCorTypes"] = trkcor_list
                 kwargs["MuCorTypesExtra"] = [[]]

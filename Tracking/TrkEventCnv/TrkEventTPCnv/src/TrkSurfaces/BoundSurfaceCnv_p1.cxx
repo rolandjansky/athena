@@ -58,7 +58,6 @@ transToPers( const SURFACE *transObj, Trk::BoundSurface_p1 *persObj, MsgStream &
 {
    m_surfaceCnv.transToPers( transObj, persObj, log );
    if ((transObj->m_bounds).get() && !dynamic_cast<const Trk::NoBounds*>((transObj->m_bounds).get()))
-       // persObj->m_bounds = this->toPersistent( &m_boundsCnv, (transObj->m_bounds).get(), log );
      log<<MSG::WARNING<<" No longer writing out bounds... "<<endmsg;
 }
 
@@ -83,11 +82,8 @@ void
 BoundSurfaceCnv_p1< SURFACE, TPCnvForSurfBnds >::
 transToPers( const SURFACE *transObj, Trk::BoundSurface_p1 *persObj, MsgStream &log )
 {
-    //std::cout<<"transToPers for "<<typeid(*transObj).name()<<std::endl;
    m_surfaceCnv.transToPers( transObj, persObj, log );
    if ((transObj->m_bounds).get() && !dynamic_cast<const Trk::NoBounds*>((transObj->m_bounds).get()))
-      // std::cout<<"Trying to convert "<<typeid( (transObj->m_bounds).getRef() ).name()<<" using "<<typeid( TPCnvForSurfBnds ).name()<<std::endl;   
-       // persObj->m_bounds = this->toPersistent( (TPCnvForSurfBnds**)0, (transObj->m_bounds).get(), log );
        log<<MSG::WARNING<<" No longer writing out bounds... "<<endmsg;
        
 }

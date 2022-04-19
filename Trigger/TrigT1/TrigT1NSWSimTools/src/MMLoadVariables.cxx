@@ -114,7 +114,7 @@ StatusCode MMLoadVariables::getMMDigitsInfo(const McEventCollection *truthContai
         } //end particle loop
       } //end truth container loop (should be only 1 container per event)
       } // if truth container is not null
-      auto ctx = Gaudi::Hive::currentContext();
+      const auto& ctx = Gaudi::Hive::currentContext();
       int event = ctx.eventID().event_number();
 
       int TruthParticle_n = j;
@@ -208,7 +208,7 @@ StatusCode MMLoadVariables::getMMDigitsInfo(const McEventCollection *truthContai
             fillVars.NSWMM_dig_stripGposX.push_back(globalPosX);
             fillVars.NSWMM_dig_stripGposY.push_back(globalPosY);
             fillVars.NSWMM_dig_stripGposZ.push_back(globalPosZ);
-            if(globalPosY.size() == 0) continue;
+            if(globalPosY.empty()) continue;
 
             if (!time.empty()) entries_tmp.push_back(
               digitWrapper(digit, stName, -1.,

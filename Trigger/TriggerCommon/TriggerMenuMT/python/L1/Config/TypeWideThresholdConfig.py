@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from collections import OrderedDict as odict
 
@@ -412,21 +412,21 @@ def getConfig_jTE():
 
 def getConfig_gXE():
     confObj = odict()
-    confObj["seedThrA"] = 1 
-    confObj["seedThrB"] = 1 
-    confObj["seedThrC"] = 1 
+    confObj["seedThrA"] = 25 
+    confObj["seedThrB"] = 25 
+    confObj["seedThrC"] = 25 
     confObj["XERHO_sigmaPosA"] = 3 
     confObj["XERHO_sigmaPosB"] = 3 
     confObj["XERHO_sigmaPosC"] = 3 
     confObj["XERHO_sigmaNegA"] = 8 
     confObj["XERHO_sigmaNegB"] = 8 
     confObj["XERHO_sigmaNegC"] = 8 
-    confObj["XEJWOJ_a_A"] = 48 
-    confObj["XEJWOJ_a_B"] = 48 
-    confObj["XEJWOJ_a_C"] = 48 
-    confObj["XEJWOJ_b_A"] = 52 
-    confObj["XEJWOJ_b_B"] = 52 
-    confObj["XEJWOJ_b_C"] = 52 
+    confObj["XEJWOJ_a_A"] = 1003 
+    confObj["XEJWOJ_a_B"] = 1003 
+    confObj["XEJWOJ_a_C"] = 1003 
+    confObj["XEJWOJ_b_A"] = 409 
+    confObj["XEJWOJ_b_B"] = 409 
+    confObj["XEJWOJ_b_C"] = 409 
     confObj["XEJWOJ_c_A"] = 0 
     confObj["XEJWOJ_c_B"] = 0 
     confObj["XEJWOJ_c_C"] = 0 
@@ -435,7 +435,7 @@ def getConfig_gXE():
 
 def getConfig_gTE():
     confObj = odict()
-    confObj["resolutionMeV"] = 200
+    confObj["resolutionMeV"] = 800
     return confObj
 
 
@@ -457,7 +457,7 @@ def getConfig_EM():
         odict([ ("etamax", 49), ("etamin", -49), ("isobit", 1), ("mincut",  0), ("offset",   0), ("priority", 0), ("slope",  0), ("upperlimit",  0)]),
         odict([ ("etamax", 49), ("etamin", -49), ("isobit", 2), ("mincut", 20), ("offset", -18), ("priority", 0), ("slope", 80), ("upperlimit", 50)]),
         odict([ ("etamax", 49), ("etamin", -49), ("isobit", 3), ("mincut", 20), ("offset", -18), ("priority", 0), ("slope", 80), ("upperlimit", 50)]),
-        odict([ ("etamax", 49), ("etamin", -49), ("isobit", 4), ("mincut", 20), ("offset", -18), ("priority", 0), ("slope", 80), ("upperlimit", 50)]),
+        odict([ ("etamax", 49), ("etamin", -49), ("isobit", 4), ("mincut", 10), ("offset", -20), ("priority", 0), ("slope", 80), ("upperlimit", 50)]),
         odict([ ("etamax", 49), ("etamin", -49), ("isobit", 5), ("mincut", 20), ("offset", -18), ("priority", 0), ("slope", 80), ("upperlimit", 50)]),
     ]
     confObj["ptMinToTopo"] = 3

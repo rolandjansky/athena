@@ -33,3 +33,24 @@ def ITkPrdAssociationToolCfg(flags, name='ITkPrdAssociationTool', **kwargs):
 def ITkPrdAssociationTool_setupCfg(flags, name='ITkPrdAssociationTool_setup', **kwargs):
   kwargs.setdefault("SetupCorrect", True)
   return ITkPrdAssociationToolCfg(flags, name, **kwargs)
+
+def InDetPRDtoTrackMapToolGangedPixelsCfg(flags, name='PRDtoTrackMapToolGangedPixels', **kwargs):
+    acc = ComponentAccumulator()
+    kwargs.setdefault("PixelClusterAmbiguitiesMapName", 'PixelClusterAmbiguitiesMap')
+    kwargs.setdefault("addTRToutliers", True)
+    acc.setPrivateTools(CompFactory.InDet.InDetPRDtoTrackMapToolGangedPixels(name, **kwargs))
+    return acc
+
+def TrigPRDtoTrackMapToolGangedPixelsCfg(flags, name='InDetTrigPRDtoTrackMapToolGangedPixels', **kwargs):
+    acc = ComponentAccumulator()
+    kwargs.setdefault("PixelClusterAmbiguitiesMapName", 'TrigPixelClusterAmbiguitiesMap')
+    kwargs.setdefault("addTRToutliers", False)
+    acc.setPrivateTools(CompFactory.InDet.InDetPRDtoTrackMapToolGangedPixels(name, **kwargs))
+    return acc
+
+def ITkPRDtoTrackMapToolGangedPixelsCfg(flags, name='ITkPRDtoTrackMapToolGangedPixels', **kwargs):
+    acc = ComponentAccumulator()
+    kwargs.setdefault("PixelClusterAmbiguitiesMapName", 'ITkPixelClusterAmbiguitiesMap')
+    kwargs.setdefault("addTRToutliers", False)
+    acc.setPrivateTools(CompFactory.InDet.InDetPRDtoTrackMapToolGangedPixels(name, **kwargs))
+    return acc

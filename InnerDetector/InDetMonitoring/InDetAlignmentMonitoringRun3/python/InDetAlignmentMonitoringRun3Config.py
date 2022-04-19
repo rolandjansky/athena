@@ -32,6 +32,7 @@ def InDetAlignmentMonitoringRun3Config(flags):
             setattr(inDetAlignMonGenericTracksAlg, k, v)
 
         inDetAlignMonGenericTracksAlg.TrackSelectionTool = CompFactory.InDet.InDetTrackSelectionTool('IDAlignMonGenericTracksAlg_TrackSelectionTool')
+        inDetAlignMonGenericTracksAlg.TrackSelectionTool.TrackSummaryTool            = None
         inDetAlignMonGenericTracksAlg.TrackSelectionTool.UseTrkTrackTools            = True
         inDetAlignMonGenericTracksAlg.TrackSelectionTool.CutLevel                    = "TightPrimary"
         inDetAlignMonGenericTracksAlg.TrackSelectionTool.maxNPixelHoles              = 1
@@ -59,6 +60,7 @@ def InDetAlignmentMonitoringRun3Config(flags):
             setattr(inDetAlignMonResidualsAlg, k, v)
 
         inDetAlignMonResidualsAlg.TrackSelectionTool = CompFactory.InDet.InDetTrackSelectionTool('IDAlignMonResidualsAlg_TrackSelectionTool')
+        inDetAlignMonResidualsAlg.TrackSelectionTool.TrackSummaryTool            = None
         inDetAlignMonResidualsAlg.TrackSelectionTool.UseTrkTrackTools            = True
         inDetAlignMonResidualsAlg.TrackSelectionTool.CutLevel                    = "TightPrimary"
         inDetAlignMonResidualsAlg.TrackSelectionTool.maxNPixelHoles              = 1

@@ -107,7 +107,7 @@ namespace NSWL1 {
   }
 
   StatusCode MMTriggerTool::runTrigger(Muon::NSW_TrigRawDataContainer* rdo, const bool do_MMDiamonds) {
-    auto ctx = Gaudi::Hive::currentContext();
+    const auto& ctx = Gaudi::Hive::currentContext();
     int event = ctx.eventID().event_number();
     ATH_MSG_DEBUG("********************************************************* EVENT NUMBER = " << event);
 
@@ -421,7 +421,7 @@ namespace NSWL1 {
             //                                                          //
             //////////////////////////////////////////////////////////////
 
-            if (road_fits.size() == 0 and hitDatas.size() == 8) ATH_MSG_DEBUG( "TruthRF0 " << tpos     << " " << ppos   << " " << dt << " " << trueta );
+            if (road_fits.empty() and hitDatas.size() == 8) ATH_MSG_DEBUG( "TruthRF0 " << tpos     << " " << ppos   << " " << dt << " " << trueta );
 
             for (unsigned int i = 0; i < road_fits.size(); i++) {
               if (road_fits[i].fit_roi == 0 and hitDatas.size() == 8) {

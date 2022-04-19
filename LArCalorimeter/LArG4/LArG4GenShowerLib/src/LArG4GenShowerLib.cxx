@@ -276,7 +276,7 @@ StatusCode LArG4GenShowerLib::execute()
 HepMC::ConstGenParticlePtr LArG4GenShowerLib::getParticleFromMC()
 {
   const DataHandle<McEventCollection> mcEvent;
-  if (evtStore()->retrieve(mcEvent,"BeamTruthEvent").isFailure()) return 0;
+  if (evtStore()->retrieve(mcEvent,"GEN_EVENT").isFailure()) return 0;
 
   // Return the first particle of the first event
   if (mcEvent)

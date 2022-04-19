@@ -48,7 +48,13 @@ def RecoSteering(flags):
     if flags.Detector.EnableCalo:
         from CaloRec.CaloRecoConfig import CaloRecoCfg
         acc.merge(CaloRecoCfg(flags))
-        log.info("---------- Configured calorimeter reconstruction")
+        # configure xAOD thinning
+        if (flags.Output.doWriteAOD and
+                flags.Calo.Thin.NegativeEnergyCaloClusters):
+            from ThinningUtils.ThinNegativeEnergyCaloClustersConfig import (
+                ThinNegativeEnergyCaloClustersCfg)
+            acc.merge(ThinNegativeEnergyCaloClustersCfg(flags))
+    log.info("---------- Configured calorimeter reconstruction")
 
     # ID / ITk
     if flags.Reco.EnableTracking:
@@ -116,11 +122,17 @@ def RecoSteering(flags):
         acc.merge(TauReconstructionCfg(flags))
         log.info("---------- Configured tau reconstruction")
 
+    # MET
+    if flags.Reco.EnableMet:
+        from METReconstruction.METRecCfg import METCfg
+        acc.merge(METCfg(flags))
+        log.info("---------- Configured MET")
+
     if flags.Reco.EnablePFlow:
         from eflowRec.PFRun3Config import PFTauFELinkCfg
         acc.merge(PFTauFELinkCfg(flags))
         log.info("---------- Configured particle flow tau FE linking")
-    
+
     # HI
     if flags.Reco.EnableHI:
         from HIRecConfig.HIRecConfig import HIRecCfg

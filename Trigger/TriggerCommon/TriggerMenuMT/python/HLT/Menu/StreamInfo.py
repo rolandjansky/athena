@@ -74,6 +74,8 @@ _all_streams = [
     StreamInfo('ZDCCalib', 'calibration', False, False),
     StreamInfo('IDCalib', 'calibration', False, False),
     StreamInfo('AFPCalib', 'calibration', False, False),
+    StreamInfo('PixelBeam', 'calibration', True, False),
+    StreamInfo('VdM', 'calibration', True, False),
     # HI STREAMS
     StreamInfo('HardProbes', 'physics', True, True),
     StreamInfo('MinBias', 'physics', True, True),

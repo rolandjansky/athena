@@ -31,8 +31,7 @@ SpacePointCollection::SpacePointCollection(const SpacePointCollection& spc) :
 }
 
 // Destructor:
-SpacePointCollection::~SpacePointCollection()
-{ }
+SpacePointCollection::~SpacePointCollection() = default;
 
 Identifier SpacePointCollection::identify() const
 {

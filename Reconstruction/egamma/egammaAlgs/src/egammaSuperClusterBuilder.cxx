@@ -70,12 +70,17 @@ egammaSuperClusterBuilder::execute(const EventContext& ctx) const
     m_egammaSuperRecCollectionKey, ctx);
   ATH_CHECK(newEgammaRecs.record(std::make_unique<EgammaRecContainer>()));
 
+  size_t inputSize = egammaRecs->size();
+  outputClusterContainer->reserve(inputSize);
+  newEgammaRecs->reserve(inputSize);
+
   std::optional<SG::WriteHandle<xAOD::CaloClusterContainer>> precorrClustersH;
   if (!m_precorrClustersKey.empty()) {
     precorrClustersH.emplace(m_precorrClustersKey, ctx);
     ATH_CHECK(precorrClustersH->record(
       std::make_unique<xAOD::CaloClusterContainer>(),
       std::make_unique<xAOD::CaloClusterAuxContainer>()));
+    precorrClustersH->ptr()->reserve(inputSize);
   }
 
   // The calo Det Descr manager

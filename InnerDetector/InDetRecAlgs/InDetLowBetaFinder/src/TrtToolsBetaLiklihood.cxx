@@ -40,8 +40,7 @@ static std::vector<double> TrkRF(60);
 static TH1F *LBitvsEta[TrtToolBetaLiklihood::NRFEBINS][TrtToolBetaLiklihood::NETABINS][2];
 double LBitProb[TrtToolBetaLiklihood::NRFEBINS][TrtToolBetaLiklihood::NETABINS][2][24];
 
-TrtToolBetaLiklihood::TrtToolBetaLiklihood() {
-}
+TrtToolBetaLiklihood::TrtToolBetaLiklihood() = default;
 
 std::vector<float> TrtToolBetaLiklihood::TRT_FEbeta(std::vector<int> TRT_bitpattern, std::vector<int> TRT_bec, std::vector<int> TRT_strawlayer, std::vector<int> TRT_layer, 
                            std::vector<float> TRT_t0, std::vector<float> TRT_estDrift, std::vector<float> TRT_R, std::vector<float> TRT_R_track, 
@@ -112,7 +111,7 @@ std::vector<float> TrtToolBetaLiklihood::TRT_FEbeta(std::vector<int> TRT_bitpatt
 
   //std::cout << "waypoint 4" << std::endl;
   float beta=0; float betaSigmaLo=0; float betaSigmaUp=0;
-  if(LBitA.size()>0) TrtToolBetaLiklihood::TRT_FEbeta_min(beta, betaSigmaLo, betaSigmaUp);
+  if(!LBitA.empty()) TrtToolBetaLiklihood::TRT_FEbeta_min(beta, betaSigmaLo, betaSigmaUp);
   else beta = -998;   
   //std::cout << "waypoint 5" << std::endl;
   float correctedBeta = TrtToolBetaLiklihood::TRT_CorrectFEbeta(beta, RecEta);
@@ -463,7 +462,7 @@ unsigned int TrtToolBetaLiklihood::TRT_NumPriors()
 }
 
 // Update a specific prior value
-void TrtToolBetaLiklihood::TRT_UpdatePriorValues(int radiusIndex, int etaIndex, int barrelOrEndcap, double* bitValues)
+void TrtToolBetaLiklihood::TRT_UpdatePriorValues(int radiusIndex, int etaIndex, int barrelOrEndcap, const double* bitValues)
 {
   int j;
   

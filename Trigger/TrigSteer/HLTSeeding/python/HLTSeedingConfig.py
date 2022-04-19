@@ -323,13 +323,15 @@ def HLTSeedingCfg(flags, seqName = None):
     decoderAlg.ctpUnpacker = CompFactory.CTPUnpackingTool( ForceEnableAllChains = flags.Trigger.HLTSeeding.forceEnableAllChains,
                                                            MonTool = CTPUnpackingMonitoring(512, 400) )
 
-    def checkConsistency(thrName):
-        '''Filter out threshold types for which HLT doesn't read TOBs from L1 readout'''
-        return thrName not in ['FSNOSEED','TE','XE','XS'] and not thrName.startswith('PROBE')
+    # Add L1DataConsistencyChecker unless we forceEnableAllChains which always results in missing TOBs
+    if not flags.Trigger.HLTSeeding.forceEnableAllChains:
+        def checkConsistency(thrName):
+            '''Filter out threshold types for which HLT doesn't read TOBs from L1 readout'''
+            return thrName not in ['FSNOSEED','TE','XE','XS'] and not thrName.startswith('PROBE')
 
-    decoderAlg.L1DataConsistencyChecker = CompFactory.L1DataConsistencyChecker(
-        ThresholdToDecisionMap = dict([(k,v) for k,v in _mapL1ThresholdToDecisionCollection.items() if checkConsistency(k)]),
-        MonTool = L1DataConsistencyMonitoring(flags) )
+        decoderAlg.L1DataConsistencyChecker = CompFactory.L1DataConsistencyChecker(
+            ThresholdToDecisionMap = dict([(k,v) for k,v in _mapL1ThresholdToDecisionCollection.items() if checkConsistency(k)]),
+            MonTool = L1DataConsistencyMonitoring(flags) )
 
     #Transient bytestream
     from AthenaConfiguration.Enums import Format

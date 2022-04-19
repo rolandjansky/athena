@@ -21,6 +21,11 @@
 
 class MsgStream;
 
+template<class SURFACE, class BOUNDS_CNV>
+class BoundSurfaceCnv_p1;
+template<class SURFACE, class BOUNDS_CNV>
+class BoundSurfaceCnv_p2;
+
 namespace Trk {
 
 class LocalParameters;
@@ -285,6 +290,10 @@ public:
   virtual std::string name() const override;
 
 protected:
+  template<class SURFACE, class BOUNDS_CNV>
+  friend class ::BoundSurfaceCnv_p1;
+  template<class SURFACE, class BOUNDS_CNV>
+  friend class ::BoundSurfaceCnv_p2;
   //!< bounds (shared)
   SharedObject<const ConeBounds> m_bounds;
   //!< The global reference point (== a point on thesurface)

@@ -14,7 +14,7 @@
 #include "MuonReadoutGeometry/MuonClusterReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MuonStripDesign.h"
-
+#include "MuonReadoutGeometry/ArrayHelper.h"
 class GeoVFullPhysVol;
 
 namespace Muon {
@@ -263,10 +263,10 @@ namespace MuonGM {
         double m_phipaneldead{-9999.};
         double m_etapaneldead{-9999.};
         double m_exthonthick{-9999.};
-        std::array<double, maxphipanels> m_first_phistrip_s{-9999.};
-        std::array<double, maxphipanels> m_first_etastrip_z{-9999.};
-        std::array<double, maxphipanels> m_etastrip_s{-9999.};
-        std::array<double, maxetapanels> m_phistrip_z{-9999.};
+        std::array<double, maxphipanels> m_first_phistrip_s{ make_array<double,maxphipanels>(-9999.)};
+        std::array<double, maxphipanels> m_first_etastrip_z{make_array<double,maxphipanels>(-9999.)};
+        std::array<double, maxphipanels> m_etastrip_s{make_array<double,maxphipanels>(-9999.)};
+        std::array<double, maxetapanels> m_phistrip_z{make_array<double,maxphipanels>(-9999.)};
 
         Amg::Transform3D m_Xlg[3][2];
 

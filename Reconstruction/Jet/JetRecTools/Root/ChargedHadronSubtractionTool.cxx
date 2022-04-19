@@ -18,7 +18,7 @@ StatusCode ChargedHadronSubtractionTool::initialize() {
   }
 
   ATH_CHECK( m_trkVtxAssoc_key.initialize(m_useTrackToVertexTool && !m_ignoreVertex) );
-  ATH_CHECK( m_vertexContainer_key.initialize(!(m_useTrackToVertexTool && !m_ignoreVertex)) );
+  ATH_CHECK( m_vertexContainer_key.initialize(!m_ignoreVertex));
 
   return StatusCode::SUCCESS;
 }
@@ -204,6 +204,14 @@ StatusCode ChargedHadronSubtractionTool::matchToPrimaryVertex(xAOD::FlowElementC
 	}
 	else {
 	  matchedToPrimaryVertex = (xAOD::VxType::PriVtx == thisTracksVertex->vertexType());
+	  // r21 PU sideband definition (see below)
+	  // needed for comparisons with new r22 definition (neutral only)
+	  vtx = getPrimaryVertex();
+	  if(vtx != nullptr && vtx->vertexType() != xAOD::VxType::NoVtx){
+	    float z0 = ptrk->z0() + ptrk->vz() - vtx->z();
+	    float theta = ptrk->theta();
+	    if (std::abs(z0*sin(theta)) < 2.0*m_z0sinThetaCutValue && std::abs(z0*sin(theta)) >= m_z0sinThetaCutValue ) matchedToPileupSideband = true;
+	  }
 	}
       } else { // Use Primary Vertex
         if(vtx->vertexType()==xAOD::VxType::NoVtx) { // No reconstructed vertices

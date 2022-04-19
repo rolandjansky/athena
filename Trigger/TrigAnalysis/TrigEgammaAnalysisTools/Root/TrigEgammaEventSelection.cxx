@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**********************************************************************
  * AsgTool: TrigEgammaEventSelection
@@ -738,7 +738,7 @@ bool TrigEgammaEventSelection::fillElectron( const xAOD::Electron *el ){
   m_el_nGoodVtx             = getNGoodVertex();
   m_el_nPileupPrimaryVtx    = getNPVtx();
 
-  auto ctx = Gaudi::Hive::currentContext() ;
+  const auto& ctx = Gaudi::Hive::currentContext() ;
   // rerun Likelihood Veryloose selector tool
   bool accept=(bool)m_electronLHVLooseTool->accept(ctx,el, getAvgMu());
   m_el_lhVLoose             = accept;
@@ -959,7 +959,7 @@ bool TrigEgammaEventSelection::fillHLTElectron( const xAOD::Electron *el ){
   m_trig_EF_el_hasCalo                      ->push_back( hasCalo ); 
   m_trig_EF_el_hasTrack                     ->push_back( hasTrack );
 
-  auto ctx  = Gaudi::Hive::currentContext();
+  const auto& ctx  = Gaudi::Hive::currentContext();
   m_trig_EF_calo_tight                      ->push_back((bool)(m_EFCaloElectronIsEMSelectors[0]->accept(ctx,el)));
   m_trig_EF_calo_medium                     ->push_back((bool)(m_EFCaloElectronIsEMSelectors[1]->accept(ctx,el)));
   m_trig_EF_calo_loose                      ->push_back((bool)(m_EFCaloElectronIsEMSelectors[2]->accept(ctx,el)));

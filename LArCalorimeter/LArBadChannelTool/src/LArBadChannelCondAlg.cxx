@@ -80,8 +80,8 @@ StatusCode LArBadChannelCondAlg::execute() {
 	ATH_CHECK(detStore()->retrieve(onlID,"LArOnlineID"));
 	onlineID=onlID;
      }
-     LArBadChannelDecoder decoder(&(*onlineID), msg());
-     std::vector<std::pair<HWIdentifier,LArBadChannel> > bcVec = decoder.readASCII(m_inputFileName,LArBadChannelState::MAXCOOLCHAN);
+     LArBadChannelDecoder decoder(&(*onlineID));
+     std::vector<std::pair<HWIdentifier,LArBadChannel> > bcVec = decoder.readASCII(m_inputFileName,LArBadChannelState::MAXCOOLCHAN, msg());
      for (auto& idBC : bcVec) {
        badChannelCont->add(idBC.first,idBC.second);
      }

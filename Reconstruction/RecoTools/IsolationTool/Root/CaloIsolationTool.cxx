@@ -30,11 +30,10 @@
 #include "xAODPrimitives/IsolationHelpers.h"
 #include "xAODPrimitives/IsolationCorrectionHelper.h"
 
-#include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/EgammaDefs.h"
-#include "xAODMuon/Muon.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
 #include "FourMomUtils/xAODP4Helpers.h"
+#include "xAODPFlow/FEHelpers.h"
 
 #include "boost/format.hpp"
 #include <cmath>
@@ -224,7 +223,7 @@ namespace xAOD {
 
     // muon topoetcone isolation
     const TrackParticle* trkp = dynamic_cast<const TrackParticle*>(ip);
-    if( trkp ) return caloTopoClusterIsolation(result,*trkp,cones,corrlist,container,nullptr,nullptr,coneCoreSize,derefMap);
+    if( trkp ) return caloTopoClusterIsolation(result,*trkp,cones,corrlist,container,coneCoreSize,derefMap);
 
     // egamma topoetcone isolation
     const Egamma* egam = dynamic_cast<const Egamma*>(ip);
@@ -439,10 +438,16 @@ namespace xAOD {
       coneSizes.push_back(Iso::coneSize(isoType));
     }
 
-    float phi = eg.caloCluster()->phi();
-    float eta = eg.caloCluster()->eta();
+    // neutral pflow are pv-corrected
+    // ==> use electron eta/phi (not associated SC eta/phi)
+    // ==> for photons, there is a mismatch...
+    float phi = eg.phi();
+    float eta = eg.eta();
 
-    if (!pflowConeIsolation(result, eta, phi, coneSizes, true, nullptr, coneCoreSize)) {
+    ATH_MSG_DEBUG("eg pt eta phi " << eg.pt() << " " << eta << " " << phi
+		  << " cluster eta, phi = " << eg.caloCluster()->eta() << " " << eg.caloCluster()->phi());
+
+    if (!pflowConeIsolation(result, eta, phi, coneSizes, true, nullptr, coneCoreSize, &eg)) {
       ATH_MSG_WARNING("pflowConeIsolation failed");
       return false;
     }
@@ -624,8 +629,6 @@ namespace xAOD {
 						   const std::vector<Iso::IsolationType>& isoTypes,
 						   CaloCorrection corrlist,
 						   const CaloClusterContainer* container,
-                                                   const CaloCluster* fwdClus,
-                                                   const Egamma* egObj,
                                                    double coneCoreSize,
                                                    derefMap_t& derefMap) const {
     if( isoTypes.empty() ) {
@@ -648,7 +651,7 @@ for( auto isoType : isoTypes ){
     ATH_MSG_DEBUG("TrackParticle eta = " << tp.eta() << ", phi = " << tp.phi() << ", extrap eta = " << eta << ", phi = " << phi);
 
     // get energy in cones
-    if (!topoConeIsolation(result, eta, phi, coneSizes, false, container, fwdClus, egObj, coneCoreSize)) {
+    if (!topoConeIsolation(result, eta, phi, coneSizes, false, container, nullptr, nullptr, coneCoreSize)) {
       ATH_MSG_WARNING("Could not compute topo isolation for muons");
       return false;
     }
@@ -660,7 +663,7 @@ for( auto isoType : isoTypes ){
     }
 
     if (!m_saveOnlyRequestedCorrections || result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::pileupCorrection))) {
-      if (!EDCorrection(result,isoTypes,eta,"topo",fwdClus))
+      if (!EDCorrection(result,isoTypes,eta,"topo",nullptr))
 	ATH_MSG_WARNING("Could not apply ED correction to topo isolation");
     }
 
@@ -1010,7 +1013,8 @@ for( auto isoType : isoTypes ){
                                         std::vector<float>& coneSizes,
                                         bool coreEMonly,
                                         const FlowElementContainer* container,
-                                        double coneCoreSize) const
+                                        double coneCoreSize,
+					const Egamma *egObj) const
   {
 
     // container is large: preselect only those in max cone size
@@ -1043,7 +1047,8 @@ for( auto isoType : isoTypes ){
 
     if (!m_saveOnlyRequestedCorrections || result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::coreCone))) {
       // Core subtraction
-      if (!correctIsolationEnergy_pflowCore(result, eta, phi, -1, -1, coneCoreSize*coneCoreSize, clusts, coreEMonly))  // be careful, require a certain tag of eflowRec, below which eSample are not always filled
+      // be careful, require a certain tag of eflowRec, below which eSample are not always filled
+      if (!correctIsolationEnergy_pflowCore(result, eta, phi, -1, -1, coneCoreSize*coneCoreSize, clusts, coreEMonly, egObj))
 	ATH_MSG_WARNING("Could not compure pflow core");
     }
 
@@ -1074,7 +1079,8 @@ for( auto isoType : isoTypes ){
 
       for (unsigned int i = 0; i < coneSizes.size(); i++) {
 	if (dr < coneSizes[i]) {
-	  ATH_MSG_DEBUG("Adding topo " << cl << " dR = " << dr << " et of a topo clust et = " << et << " (calibrated " << cl->pt() << ", tilegap et = " << tilegap3_et << ")");
+	  ATH_MSG_DEBUG("Adding topo " << cl << " dR = " << dr << " et of a topo clust et = " << et
+			<< " (calibrated " << cl->pt() << ", tilegap et = " << tilegap3_et << ")");
 	  result.etcones[i] += et;
 	}
       }
@@ -1316,9 +1322,12 @@ for( auto isoType : isoTypes ){
     return true;
   }
 
-bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, float eta, float phi,
-							 float detaMax, float dphiMax, float dR2Max,
-							 const std::vector<const FlowElement*>& clusts, bool onlyEM) const
+bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result,
+							 float eta, float phi,
+							 float detaMax, float dphiMax,
+							 float dR2Max,
+							 const std::vector<const FlowElement*>& clusts,
+							 bool onlyEM, const Egamma* egObj) const
   {
 
     float pflowCore(0.);
@@ -1347,6 +1356,59 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
       /// add to the core
       pflowCore += et;
       ATH_MSG_DEBUG("pflow to be added to core: et = " << et << " (em frac = " << emfrac << "), total = " << pflowCore);
+    }
+
+    if (egObj) {
+      float pflowCoreSC(0.);
+      // These are the original FE, before origin correction, before CSSK... But the index should still match
+      // for the corresponding FE in the post-processed container
+      std::vector<const xAOD::FlowElement*> fes = EgammaHelpers::getAssociatedFlowElements(egObj);
+      ATH_MSG_DEBUG("Number of associated neutral FE = " << fes.size());
+      for (const FlowElement *fe : fes) {
+	if (fe == nullptr) {
+	  ATH_MSG_DEBUG("null pointer to associated neutral");
+	  continue;
+	}
+	ATH_MSG_DEBUG("asso pflo: eta " << fe->eta() << " phi " << fe->phi() << " pt " << fe->pt() << " charge " << fe->charge() << " index = " << fe->index());
+	const FlowElement *afe(nullptr);
+	for (const FlowElement *cl : clusts) {
+	  if (fe->index() == cl->index()) {
+	    afe = cl;
+	    break;
+	  }
+	}
+	if (afe == nullptr)
+	  continue;
+	ATH_MSG_DEBUG("asso pflo after vertex correction : eta " << afe->eta() << " phi " << afe->phi() << " pt " << afe->pt());
+	/// get energy
+	float et = afe->pt();
+	if (et <= 0 || fabs(afe->eta()) > 7.0) continue;
+
+	double emfrac = 1.;
+	if (m_ExcludeTG3 || onlyEM) {
+	  std::vector<float> allEne = FEHelpers::getEnergiesPerSampling(*afe);
+
+	  if (m_ExcludeTG3)
+	    et -= allEne.at(17)/cosh(afe->eta());
+
+	  if (onlyEM) {
+	    double eEM = 0;
+	    for (int i = 0; i <= 7; i++) eEM += allEne.at(i);
+	    double eAll = fe->e();
+	    if (m_ExcludeTG3)
+	      eAll -= allEne.at(17);
+	    emfrac = std::min(1.,eEM / eAll);
+	  }
+	  et *= emfrac;
+	}
+	/// add to the core
+	pflowCoreSC += et;
+	ATH_MSG_DEBUG("asso pflow to be added to core " << fe << " et = " << et << " (em frac = " << emfrac << "), total = " << pflowCoreSC);
+      }
+      std::map<Iso::IsolationCorrectionParameter,float> corecorrSC;
+      corecorrSC[Iso::coreEnergy] = pflowCoreSC;
+      corecorrSC[Iso::coreArea]   = 0;
+      result.coreCorrections[Iso::coreConeSC] = corecorrSC;
     }
 
     /// set results

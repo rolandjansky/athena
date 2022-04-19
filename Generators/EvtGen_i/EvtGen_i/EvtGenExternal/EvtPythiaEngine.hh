@@ -69,24 +69,24 @@ private:
 
   int getModeInt(EvtDecayBase* decayModel);
 
-  Pythia8::Pythia* m_genericPythiaGen;
-  Pythia8::Pythia* m_aliasPythiaGen;
-  Pythia8::Pythia* m_thePythiaGenerator;
+  Pythia8::Pythia* _genericPythiaGen;
+  Pythia8::Pythia* _aliasPythiaGen;
+  Pythia8::Pythia* _thePythiaGenerator;
 
-  Pythia8::ParticleData m_genericPartData, m_aliasPartData;  
-  Pythia8::ParticleData m_theParticleData;
+  Pythia8::ParticleData _genericPartData, _aliasPartData;  
+  Pythia8::ParticleData _theParticleData;
 
-  std::vector<int> m_daugPDGVector;
-  std::vector<EvtVector4R> m_daugP4Vector;
+  std::vector<int> _daugPDGVector;
+  std::vector<EvtVector4R> _daugP4Vector;
 
   typedef std::map<int, std::vector<int> > PythiaModeMap;
-  PythiaModeMap m_pythiaModeMap;
+  PythiaModeMap _pythiaModeMap;
 
-  bool m_convertPhysCodes, m_initialised, m_useEvtGenRandom;
+  bool _convertPhysCodes, _initialised, _useEvtGenRandom;
 
-  EvtPythiaRandom* m_evtgenRandom;
+  EvtPythiaRandom* _evtgenRandom;
 
-  std::map<int, int> m_addedPDGCodes;
+  std::map<int, int> _addedPDGCodes;
 
 };
 

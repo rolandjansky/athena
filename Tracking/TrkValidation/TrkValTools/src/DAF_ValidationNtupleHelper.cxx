@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -53,7 +53,7 @@ AthAlgTool(t,n,p),
 }
 
 // destructor
-Trk::DAF_ValidationNtupleHelper::~DAF_ValidationNtupleHelper() {}
+Trk::DAF_ValidationNtupleHelper::~DAF_ValidationNtupleHelper() = default;
 
 
 

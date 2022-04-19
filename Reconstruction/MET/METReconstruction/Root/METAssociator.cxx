@@ -51,16 +51,10 @@ namespace met {
     AsgTool(name),
     m_trkseltool(this,""),
     m_trkIsolationTool(this,""),
-    m_caloIsolationTool(this,""),
-    m_pvcollKey(""),
-    m_clcollKey(""),
-    m_trkcollKey("")
+    m_caloIsolationTool(this,"")
   {
     ATH_MSG_INFO("METAssoc constructor");
     declareProperty( "InputCollection",    m_input_data_key                      );
-    declareProperty( "PrimVxColl",         m_pvcoll      = "PrimaryVertices"     );
-    declareProperty( "TrkColl",            m_trkcoll     = "InDetTrackParticles" );
-    declareProperty( "ClusColl",           m_clcoll      = "CaloCalTopoClusters" );
     declareProperty( "UseModifiedClus",    m_useModifiedClus = false             );
     declareProperty( "UseTracks",          m_useTracks   = true                  );
     declareProperty( "PFlow",              m_pflow       = false                 );
@@ -97,7 +91,7 @@ namespace met {
     ATH_CHECK(m_trkIsolationTool.retrieve());
     ATH_CHECK(m_caloIsolationTool.retrieve());
 
-    if(m_clcoll == "CaloCalTopoClusters") {
+    if(m_clcollKey.key() == "CaloCalTopoClusters") {
       if(m_useModifiedClus) {
         ATH_MSG_ERROR("Configured to use modified topocluster collection but \"CaloCalTopoClusters\" collection specified!");
         return StatusCode::FAILURE;
@@ -106,17 +100,15 @@ namespace met {
       }
     } else {
       if(m_useModifiedClus) {
-        ATH_MSG_INFO("Configured to use modified topocluster collection \"" << m_clcoll << "\".");
+        ATH_MSG_INFO("Configured to use modified topocluster collection \"" << m_clcollKey.key() << "\".");
       } else {
-        ATH_MSG_ERROR("Configured to use topocluster collection \"" << m_clcoll << "\", but modified clusters flag not set!");
+        ATH_MSG_ERROR("Configured to use topocluster collection \"" << m_clcollKey.key() << "\", but modified clusters flag not set!");
         return StatusCode::FAILURE;
       }
     }
 
     //initialise read handle keys
-    ATH_CHECK( m_pvcollKey.assign(m_pvcoll));
     ATH_CHECK( m_pvcollKey.initialize(m_useTracks));
-    ATH_CHECK( m_trkcollKey.assign(m_trkcoll));
     ATH_CHECK( m_trkcollKey.initialize(m_useTracks));
     
     ATH_CHECK(m_fecollKey.initialize(m_pflow && !m_fecollKey.key().empty()));
@@ -135,11 +127,10 @@ namespace met {
       }
     }
 
-    ATH_CHECK( m_clcollKey.assign(m_clcoll));
     ATH_CHECK( m_clcollKey.initialize(!m_skipconst || m_forcoll.empty()));
 
     std::string hybridname = "Etmiss";
-    hybridname += m_clcoll;
+    hybridname += m_clcollKey.key();
     hybridname += m_foreta;
     hybridname += m_forcoll;
     ATH_CHECK( m_hybridContKey.assign(hybridname));
@@ -175,14 +166,14 @@ namespace met {
 
       SG::ReadHandle<IParticleContainer> topoclusterCont(m_clcollKey);
       if (!topoclusterCont.isValid()) {
-        ATH_MSG_WARNING("Unable to retrieve topocluster container " << m_clcoll << " for overlap removal");
+        ATH_MSG_WARNING("Unable to retrieve topocluster container " << m_clcollKey.key() << " for overlap removal");
         return StatusCode::FAILURE;
       }
       constits.tcCont=topoclusterCont.cptr();
       ATH_MSG_DEBUG("Successfully retrieved topocluster collection");
     } else {
       std::string hybridname = "Etmiss";
-      hybridname += m_clcoll;
+      hybridname += m_clcollKey.key();
       hybridname += m_foreta;
       hybridname += m_forcoll;
 
@@ -190,6 +181,8 @@ namespace met {
       if( hybridCont.isValid()) {
         constits.tcCont=hybridCont.cptr();
       } else {
+        ATH_MSG_WARNING("Trying to do something currently unsupported- lets abort");
+        return StatusCode::FAILURE;
         // Trying to do this using write handles (need to get some input here)
         /*std::unique_ptr<ConstDataVector<IParticleContainer>> hybridCont = std::make_unique<ConstDataVector<IParticleContainer>>();
         SG::WriteHandle<ConstDataVector<IParticleContainer>> hybridContHandle(hybridname);
@@ -212,7 +205,7 @@ namespace met {
         if (!forCont.isValid()) {
           ATH_MSG_WARNING("Unable to retrieve forward container " << m_forcoll << " for overlap removal");
           return StatusCode::FAILURE;
-        }*/
+        }
         ConstDataVector<IParticleContainer> *hybridCont = new ConstDataVector<IParticleContainer>(SG::VIEW_ELEMENTS);
 
         const IParticleContainer* centCont=0;
@@ -231,6 +224,7 @@ namespace met {
         for(const auto clus : *forCont) if (fabs(clus->eta())>=m_foreta) hybridCont->push_back(clus);
         ATH_CHECK( evtStore()->record(hybridCont,hybridname));
         constits.tcCont = hybridCont->asDataVector();
+        */
       }
     }
 
@@ -240,7 +234,7 @@ namespace met {
     }else{
       SG::ReadHandle<VertexContainer> vxCont(m_pvcollKey);
       if (!vxCont.isValid()) {
-        ATH_MSG_WARNING("Unable to retrieve primary vertex container " << m_pvcoll);
+        ATH_MSG_WARNING("Unable to retrieve primary vertex container " << m_pvcollKey.key());
         //this is actually really bad.  If it's empty that's okay
         return StatusCode::FAILURE;
       }
@@ -260,7 +254,7 @@ namespace met {
       }
 
       constits.trkCont=0;
-      ATH_MSG_DEBUG("Retrieving Track collection " << m_trkcoll);
+      ATH_MSG_DEBUG("Retrieving Track collection " << m_trkcollKey.key());
       SG::ReadHandle<TrackParticleContainer> trCont(m_trkcollKey);
       if (!trCont.isValid()) {
         ATH_MSG_WARNING("Unable to retrieve track particle container");
@@ -274,7 +268,7 @@ namespace met {
           constits.feCont = 0;
           SG::ReadHandle<xAOD::FlowElementContainer> feCont(m_fecollKey);
           if (!feCont.isValid()) {
-            ATH_MSG_ERROR("Unable to retrieve FlowElement container");
+            ATH_MSG_ERROR("Unable to retrieve FlowElement container "<< m_fecollKey.key());
             return StatusCode::FAILURE;
           }
           constits.feCont=feCont.cptr();

@@ -104,7 +104,9 @@ def ITkStripPhysicsRegionToolCfg(ConfigFlags, name='ITkStripPhysicsRegionTool', 
     kwargs.setdefault("RegionName", 'ITkStrip')
     volumeList = ['ITkStrip::BRLSensorSS', 'ITkStrip::BRLSensorMS',
                   'ITkStrip::ECSensor0', 'ITkStrip::ECSensor1', 'ITkStrip::ECSensor2',
-                  'ITkStrip::ECSensor3', 'ITkStrip::ECSensor4', 'ITkStrip::ECSensor5']
+                  'ITkStrip::ECSensor3', 'ITkStrip::ECSensor4', 'ITkStrip::ECSensor5',
+                  'ITkStrip::ECSensorBack0', 'ITkStrip::ECSensorBack1', 'ITkStrip::ECSensorBack2',
+                  'ITkStrip::ECSensorBack3', 'ITkStrip::ECSensorBack4', 'ITkStrip::ECSensorBack5']
     kwargs.setdefault("VolumeList",  volumeList)
     kwargs.setdefault("ElectronCut", 0.05)
     kwargs.setdefault("PositronCut", 0.05)

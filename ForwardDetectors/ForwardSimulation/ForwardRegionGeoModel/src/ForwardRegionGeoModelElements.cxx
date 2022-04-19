@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ForwardRegionGeoModelFactory.h"
@@ -23,7 +23,7 @@
 #include "GeoGenericFunctions/Cos.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
-GeoPhysVol* ForwardRegionGeoModelFactory::insertMagnetEnvelope(std::string name, double x, double y, double z, double rotationAngle, double diameter, double halfL, double dL, GeoPhysVol* fwrPhys)
+GeoPhysVol* ForwardRegionGeoModelFactory::insertMagnetEnvelope(const std::string& name, double x, double y, double z, double rotationAngle, double diameter, double halfL, double dL, GeoPhysVol* fwrPhys)
 {
     const GeoTube     *tube  = new GeoTube(0, diameter/2, halfL-dL);
 
@@ -46,7 +46,7 @@ GeoPhysVol* ForwardRegionGeoModelFactory::insertMagnetEnvelope(std::string name,
     return tubePhys;
 }
 
-void ForwardRegionGeoModelFactory::insertCircularElement(std::string name, double x, double y, double z, double rotationAngle, double xAperture, double yAperture, double halfL, double dL, double tubeThickness, GeoPhysVol* fwrPhys)
+void ForwardRegionGeoModelFactory::insertCircularElement(const std::string& name, double x, double y, double z, double rotationAngle, double xAperture, double yAperture, double halfL, double dL, double tubeThickness, GeoPhysVol* fwrPhys)
 {
     double r0 = std::max(xAperture,yAperture)*Gaudi::Units::mm/2;
 
@@ -79,7 +79,7 @@ void ForwardRegionGeoModelFactory::insertCircularElement(std::string name, doubl
 //    fwrPhys->add(ringPhys);
 }
 
-void ForwardRegionGeoModelFactory::insertEllipticalElement(std::string name, double x, double y, double z, double rotationAngle, double xAperture, double yAperture, double halfL, double dL, double tubeThickness, GeoPhysVol* fwrPhys)
+void ForwardRegionGeoModelFactory::insertEllipticalElement(const std::string& name, double x, double y, double z, double rotationAngle, double xAperture, double yAperture, double halfL, double dL, double tubeThickness, GeoPhysVol* fwrPhys)
 {
     const GeoShape * ringTube0;
     GeoShape * ringTube2;
@@ -122,7 +122,7 @@ void ForwardRegionGeoModelFactory::insertEllipticalElement(std::string name, dou
 //    fwrPhys->add(ringPhys);
 }
 
-void ForwardRegionGeoModelFactory::insertXRecticircularElement(std::string name, double x, double y, double z, double rotationAngle, double xAperture, double yAperture, double halfL, double dL, double tubeThickness, GeoPhysVol* fwrPhys)
+void ForwardRegionGeoModelFactory::insertXRecticircularElement(const std::string& name, double x, double y, double z, double rotationAngle, double xAperture, double yAperture, double halfL, double dL, double tubeThickness, GeoPhysVol* fwrPhys)
 {
     double beamScreenSeparation = 1.5*Gaudi::Units::mm;
     double beamScreenCuThick = 0.05*Gaudi::Units::mm;
@@ -203,7 +203,7 @@ void ForwardRegionGeoModelFactory::insertXRecticircularElement(std::string name,
 //    fwrPhys->add(ringPhysSteel);
 }
 
-void ForwardRegionGeoModelFactory::insertYRecticircularElement(std::string name, double x, double y, double z, double rotationAngle, double xAperture, double yAperture, double halfL, double dL, double tubeThickness, GeoPhysVol* fwrPhys)
+void ForwardRegionGeoModelFactory::insertYRecticircularElement(const std::string& name, double x, double y, double z, double rotationAngle, double xAperture, double yAperture, double halfL, double dL, double tubeThickness, GeoPhysVol* fwrPhys)
 {
     double beamScreenSeparation = 1.5*Gaudi::Units::mm;
     double beamScreenCuThick = 0.05*Gaudi::Units::mm;
@@ -282,7 +282,7 @@ void ForwardRegionGeoModelFactory::insertYRecticircularElement(std::string name,
 //    fwrPhys->add(ringPhysSteel);
 }
 
-void ForwardRegionGeoModelFactory::insertTrousersElement(std::string name, double x, double y, double z, double rotationAngle, GeoPhysVol* fwrPhys)
+void ForwardRegionGeoModelFactory::insertTrousersElement(const std::string& name, double x, double y, double z, double rotationAngle, GeoPhysVol* fwrPhys)
 {
     // "Trousers" -- transition from 1 to 2 beampipes
     // rewritten from Knut Dundas Moraa's AGDD file and modified
@@ -390,7 +390,7 @@ void ForwardRegionGeoModelFactory::insertTrousersElement(std::string name, doubl
 //    fwrPhys->add(ringPhys);
 }
 
-void ForwardRegionGeoModelFactory::insertTCLElement(std::string name, double x, double y, double z, GeoPhysVol* fwrPhys, double TCLJawDistO, double TCLJawDistI, bool tungstenInsteadOfCopper)
+void ForwardRegionGeoModelFactory::insertTCLElement(const std::string& name, double x, double y, double z, GeoPhysVol* fwrPhys, double TCLJawDistO, double TCLJawDistI, bool tungstenInsteadOfCopper)
 {
     // Constants
     double TCL_BOX_halflength, TCL_BOX_halfwidth, TCL_BOX_halfheight, TCL_BOX_sideThickness, TCL_BOX_topBottomThickness, TCL_BOX_endThickness, TCL_TUBE_halflength, TCL_TUBE_halfapperture, TCL_TUBE_thickness;

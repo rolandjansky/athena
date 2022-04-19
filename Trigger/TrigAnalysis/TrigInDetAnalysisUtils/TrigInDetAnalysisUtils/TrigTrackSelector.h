@@ -88,6 +88,7 @@ public:
 
   ~TrigTrackSelector() { clear(); }
 
+  virtual TrackSelector* clone() override { return new TrigTrackSelector(*this); }
 
   void setBeamline( double x, double y, double z=0) { m_xBeam = x; m_yBeam = y; m_zBeam=z; }
 

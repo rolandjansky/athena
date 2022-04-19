@@ -331,7 +331,13 @@ def getLabelIndices(chain_dict):
 
 def  hypotool_from_chaindict(chain_dict, visit_debug=False):
 
-
+    if visit_debug:
+        fn = chain_dict['chainName'] + '_chaindict.log'
+        from pprint import pprint
+        with open(fn, 'w') as fh:
+            pprint(chain_dict, fh)
+        
+                        
     helperToolConfigTools =  make_fastreduction_configurers(chain_dict)
 
     prefilterMakers = make_prefilter_configurers(chain_dict)
@@ -358,6 +364,8 @@ def  hypotool_from_chaindict(chain_dict, visit_debug=False):
             }
     
     hypo_tool = toolclass(**args)
+    hypo_tool.visit_debug = visit_debug
+
         
     return hypo_tool
 

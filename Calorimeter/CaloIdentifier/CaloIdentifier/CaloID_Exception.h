@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /* date of creation : 10/X/2002 */
@@ -58,7 +58,7 @@ public:
      */
     int code() const ;
 
-    operator std::string();
+    operator std::string() const;
 
 
 private:

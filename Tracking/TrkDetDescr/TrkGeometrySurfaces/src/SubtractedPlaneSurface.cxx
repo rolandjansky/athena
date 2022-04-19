@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -23,10 +23,8 @@ Trk::SubtractedPlaneSurface::SubtractedPlaneSurface()
 
 // copy constructor
 Trk::SubtractedPlaneSurface::SubtractedPlaneSurface(const SubtractedPlaneSurface& psf)
-  : Trk::PlaneSurface(psf)
-  , m_subtrVol(psf.m_subtrVol)
-  , m_shared(psf.m_shared)
-{}
+   
+= default;
 
 // copy constructor with shift
 Trk::SubtractedPlaneSurface::SubtractedPlaneSurface(const SubtractedPlaneSurface& psf, const Amg::Transform3D& transf)
@@ -43,7 +41,7 @@ Trk::SubtractedPlaneSurface::SubtractedPlaneSurface(const Trk::PlaneSurface& ps,
 {}
 
 // destructor (will call destructor from base class which deletes objects)
-Trk::SubtractedPlaneSurface::~SubtractedPlaneSurface() {}
+Trk::SubtractedPlaneSurface::~SubtractedPlaneSurface() = default;
 
 Trk::SubtractedPlaneSurface&
 Trk::SubtractedPlaneSurface::operator=(const Trk::SubtractedPlaneSurface& psf)

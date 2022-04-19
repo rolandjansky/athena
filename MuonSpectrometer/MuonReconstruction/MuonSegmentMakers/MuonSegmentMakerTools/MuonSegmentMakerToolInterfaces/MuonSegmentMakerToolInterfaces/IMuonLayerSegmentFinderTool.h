@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_IMUONLAYERSEGMENTFINDERTOOL_H
@@ -30,6 +30,9 @@ namespace Muon {
                   const  MuonLayerPrepRawData& layerPrepRawData,
                   std::vector<std::shared_ptr<const Muon::MuonSegment> >& segments) const = 0;
 
+        virtual void findMdtSegmentsFromHough(const EventContext& ctx,
+                                      const MuonSystemExtension::Intersection& intersection, 
+                                      std::vector<std::shared_ptr<const Muon::MuonSegment> >& segments) const = 0;
         virtual ~IMuonLayerSegmentFinderTool() = default;
     };
 

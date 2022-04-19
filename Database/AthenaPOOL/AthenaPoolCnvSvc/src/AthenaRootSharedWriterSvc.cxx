@@ -220,7 +220,11 @@ StatusCode AthenaRootSharedWriterSvc::share(int/* numClients*/, bool motherClien
                ATH_MSG_INFO("ROOT Monitor add client: " << m_rootClientIndex << ", " << client);
             } else {
                TMessage* message = nullptr;
-               socket->Recv(message);
+               Int_t result = socket->Recv(message);
+               if (result < 0) {
+                  ATH_MSG_ERROR("ROOT Monitor got an error while receiving the message from the socket: " << result);
+                  return StatusCode::FAILURE;
+               }
                if (message == nullptr) {
                   ATH_MSG_WARNING("ROOT Monitor got no message from socket: " << socket);
                } else if (message->What() == kMESS_STRING) {
@@ -273,6 +277,10 @@ StatusCode AthenaRootSharedWriterSvc::share(int/* numClients*/, bool motherClien
          sc = m_cnvSvc->commitOutput("", false);
          if (sc.isFailure() && !sc.isRecoverable()) {
             ATH_MSG_INFO("commitOutput failed, metadata done.");
+            if (anyActiveClients && m_rootClientCount == 0) {
+              ATH_MSG_INFO("ROOT Monitor: No clients, terminating the loop...");
+              anyActiveClients = false;
+            }
          }
       }
    }

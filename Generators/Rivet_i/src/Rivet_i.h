@@ -52,7 +52,7 @@ private:
 //  StatusCode regGraph(const AIDA::IDataPointSet& dps, const std::string& path);
 
   // Check and potentially modify events for correct units, beam particles, ...
-  const HepMC::GenEvent* checkEvent(const HepMC::GenEvent* event);
+  const HepMC::GenEvent* checkEvent(const HepMC::GenEvent* event, const EventContext& ctx);
 
   /// A pointer to the THistSvc
   //ServiceHandle<ITHistSvc> m_histSvc;

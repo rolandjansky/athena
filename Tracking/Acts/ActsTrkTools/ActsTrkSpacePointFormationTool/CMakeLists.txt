@@ -14,6 +14,7 @@ atlas_add_component( ActsTrkSpacePointFormationTool
                      ActsTrkEvent
                      ActsTrkToolInterfacesLib
                      ActsUtilsLib
+                     InDetCondTools
                      PixelReadoutGeometryLib
                      ReadoutGeometryBase
                      SCT_ReadoutGeometry

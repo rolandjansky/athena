@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -52,6 +52,21 @@ public:
   std::size_t nBadStripsForChip(const IdentifierHash& waferHash, const int strip) const;
   /// Check if a strip is bad
   bool isBadStrip(const IdentifierHash& waferHash, const int strip) const;
+
+  const std::array<std::bitset<SCT_ConditionsData::STRIPS_PER_CHIP>,
+                   SCT_ConditionsData::CHIPS_PER_SIDE>
+  &badStripsForModule(const IdentifierHash& waferHash) const {
+     std::size_t moduleIndex{static_cast<std::size_t>(waferHash/SCT_ConditionsData::SIDES_PER_MODULE)};
+     // 0 to 1
+     std::size_t waferIndex{static_cast<std::size_t>(waferHash%SCT_ConditionsData::SIDES_PER_MODULE)};
+     return m_badStripArray[moduleIndex][waferIndex];
+  }
+  const std::array<std::array<std::array<std::bitset<SCT_ConditionsData::STRIPS_PER_CHIP>,
+    SCT_ConditionsData::CHIPS_PER_SIDE>,
+    SCT_ConditionsData::SIDES_PER_MODULE>,
+             SCT_ConditionsData::NUMBER_OF_MODULES>& badStrips() const {
+     return m_badStripArray;
+  }
 
 private:
   void clearModule(const std::size_t moduleIndex);

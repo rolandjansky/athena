@@ -106,7 +106,7 @@ private:
     ubit16 m_NDLLCYC;
     ubit16 m_NBunch;
     ubit16 m_nclock;
-    ubit16 m_nchan[2];
+    ubit16 m_nchan[2]{};
     ubit16 m_timeSeparation;
     Matrix *m_CM;  // pointer to the CM
     ubit16 *m_BS;  // pointer to Fragment

@@ -107,7 +107,7 @@ MetaData(IOVMet...  DEBUG Opened container MetaData(IOVMetaDataContainer_p1//Tag
 MetaDataSvc         DEBUG Registering all Tools in ToolHandleArray MetaDataTools
 MetaDataSvc         DEBUG Adding public ToolHandle tool ToolSvc.IOVDbMetaDataTool (IOVDbMetaDataTool)
 AthenaPoolAddre...  DEBUG Cannot retrieve DataHeader from DetectorStore.
-EventInfoCnvAlg...   INFO Beam conditions service not available
+EventInfoCnvAlg...   INFO Beam spot information not available
 EventInfoCnvAlg...   INFO Will not fill beam spot information into xAOD::EventInfo
 ReadData             INFO in initialize()
   + INPUT   ( 'DataHeader' , 'StoreGateSvc+EventSelector' ) 

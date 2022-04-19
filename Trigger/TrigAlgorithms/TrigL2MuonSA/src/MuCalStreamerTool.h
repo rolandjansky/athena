@@ -81,6 +81,8 @@ namespace TrigL2MuonSA {
     //
     // finalize and close the stream
     StatusCode closeStream();
+
+    bool isStreamOpen();
     
     //
     // create the fragment corresponding to an roi
@@ -118,8 +120,6 @@ namespace TrigL2MuonSA {
     // ROB DataProvider
     ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
 
-    // id of the circular buffer
-    int m_cid {-1};
 
     // local buffer for the TrigComposite object
     int m_localBufferSize = 0;

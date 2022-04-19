@@ -18,8 +18,9 @@
 #include <iostream>
 #include <cmath>
 
-struct HTTTrackPars
+class HTTTrackPars
 {
+public:
     double phi;
     double qOverPt;
     double d0;
@@ -51,8 +52,9 @@ struct HTTTrackPars
 
 
 // Useful to store bin numbers, i.e.
-struct HTTTrackParsI
+class HTTTrackParsI
 {
+public:
     int phi;
     int qOverPt;
     int d0;

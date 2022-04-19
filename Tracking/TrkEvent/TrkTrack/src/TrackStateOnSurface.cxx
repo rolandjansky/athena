@@ -8,7 +8,7 @@
 #include <string>
 
 namespace Trk {
-TrackStateOnSurface::TrackStateOnSurface() {}
+TrackStateOnSurface::TrackStateOnSurface() = default;
 
 TrackStateOnSurface::TrackStateOnSurface(
   std::unique_ptr<const MeasurementBase> meas,

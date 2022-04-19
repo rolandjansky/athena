@@ -40,43 +40,6 @@ Extrapolator::subMaterialEffectsUpdator(const Trk::TrackingVolume& tvol) const
            : nullptr;
 }
 
-inline IMaterialEffectsUpdator::ICache&
-Extrapolator::subMaterialEffectsUpdatorCache(Cache& cache,
-                                             const TrackingVolume& tvol) const
-{
-  return cache.m_MaterialUpCache[tvol.geometrySignature()];
-}
-
-inline void
-Extrapolator::populateMatEffUpdatorCache(Cache& cache) const
-{
-  size_t numUpdaters = m_subupdaters.size();
-  cache.m_MaterialUpCache.reserve(numUpdaters);
-  for (size_t i = 0; i < numUpdaters; ++i) {
-    cache.m_MaterialUpCache.emplace_back(m_subupdaters[i]->getCache());
-  }
-}
-
-inline void
-Extrapolator::setRecallInformation(Cache& cache,
-                                   const Surface& rsf,
-                                   const Layer& rlay,
-                                   const TrackingVolume& rvol) const
-{
-  cache.m_recall = true;
-  cache.m_recallSurface = &rsf;
-  cache.m_recallLayer = &rlay;
-  cache.m_recallTrackingVolume = &rvol;
-}
-
-inline void
-Extrapolator::resetRecallInformation(Cache& cache) const
-{
-  cache.m_recall = false;
-  cache.m_recallSurface = nullptr;
-  cache.m_recallLayer = nullptr;
-  cache.m_recallTrackingVolume = nullptr;
-}
 
 inline const Trk::TrackParameters*
 Extrapolator::returnResult(Cache& cache,

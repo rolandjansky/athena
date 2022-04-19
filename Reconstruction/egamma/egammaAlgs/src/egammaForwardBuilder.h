@@ -69,7 +69,6 @@ class egammaForwardBuilder : public AthReentrantAlgorithm
 
  private:
    StatusCode ExecObjectQualityTool(const EventContext& ctx,
-                                    const CaloDetDescrManager* calodetdescrmgr,
                                     xAOD::Egamma* eg) const;
 
    /** @brief Tool to perform object quality*/
@@ -93,13 +92,6 @@ class egammaForwardBuilder : public AthReentrantAlgorithm
      "CaloCalTopoClusters",
      "Name of the input cluster collection"
    };
-
-   SG::ReadCondHandleKey<CaloDetDescrManager> m_caloDetDescrMgrKey {
-    this,
-    "CaloDetDescrManager",
-    "CaloDetDescrManager",
-    "SG Key for CaloDetDescrManager in the Condition Store"
-  };
 
    /** @brief output electron container */
    SG::WriteHandleKey<xAOD::ElectronContainer> m_electronOutputKey{

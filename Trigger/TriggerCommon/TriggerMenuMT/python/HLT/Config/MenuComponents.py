@@ -730,11 +730,12 @@ class StepComponent(object):
 class ChainStep(object):
     """Class to describe one step of a chain; if multiplicity is greater than 1, the step is combo/combined.  Set one multiplicity value per sequence"""
     def __init__(self, name,  Sequences=[], multiplicity=[1], chainDicts=[], comboHypoCfg=ComboHypoCfg, comboToolConfs=[], isEmpty = False, createsGhostLegs = False):
-
+        # TODO: remove parameter multiplicity, since this must be extracted from the ChainDict ATR-23928
         # include cases of empty steps with multiplicity = [] or multiplicity=[0,0,0///]
         if sum(multiplicity)==0:
             multiplicity=[]
         else:
+            log.debug("chain %s, step %s: len=%d multiplicty=%d", chainDicts[0]['chainName'], name, len(chainDicts), len(multiplicity))
             # sanity check on inputs, excluding empty steps
             if len(chainDicts) != len(multiplicity):
                 log.error("[ChainStep] Sequences: %s",Sequences)

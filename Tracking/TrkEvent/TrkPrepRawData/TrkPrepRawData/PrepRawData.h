@@ -68,9 +68,9 @@ public:
   /** public because of DataPool*/
   PrepRawData();
   PrepRawData(const PrepRawData&);
-  PrepRawData(PrepRawData&&) noexcept;
-  PrepRawData& operator=(const PrepRawData&);
-  PrepRawData& operator=(PrepRawData&&) noexcept;
+  PrepRawData(PrepRawData&&) noexcept = default;
+  PrepRawData& operator=(const PrepRawData&) = default;
+  PrepRawData& operator=(PrepRawData&&) noexcept = default;
 
   /** Full Constructor using lvalue references
       @param clusId Identifier of the tube, strip etc which has produced this

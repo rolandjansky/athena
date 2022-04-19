@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -93,6 +93,7 @@ TrackCollection_PERS * TrackCollectionCnv::createPersistentWithKey( TrackCollect
 TrackCollection *TrackCollectionCnv::createTransientWithKey(const std::string& key)
 {
     m_log.setLevel( m_msgSvc->outputLevel() );
+    static const pool::Guid p7_guid( "D8806153-CA92-4A1A-9859-68E40EB4E336" );
     static const pool::Guid p6_guid( "3228B252-2C5D-11E8-B170-0800271C02BC" );
     static const pool::Guid p5_guid( "436E4996-9D6E-11E3-AD2A-6C3BE51AB9F1" );
     static const pool::Guid p4_guid( "3BEB819F-6ED2-48F6-9F95-E65E1759E781" );
@@ -102,9 +103,13 @@ TrackCollection *TrackCollectionCnv::createTransientWithKey(const std::string& k
     static const pool::Guid p0_guid( "70ECEBFC-BE00-46C2-8B35-4CC12D18DE39" );
 
     TrackCollection *p_collection = nullptr;
-    if( compareClassGuid( p6_guid )){
+    if( compareClassGuid( p7_guid )){
       poolReadObject< TrackCollection_PERS >( m_TPConverter );
       p_collection = m_TPConverter.createTransientWithKey( key, m_log );
+    }
+    else if( compareClassGuid( p6_guid )){
+      poolReadObject< Trk::TrackCollection_tlp6 >( m_TPConverter_tlp6 );
+      p_collection = m_TPConverter_tlp6.createTransientWithKey( key, m_log );
     }
     else if( compareClassGuid( p5_guid )){
       initializeOldExtConverters();

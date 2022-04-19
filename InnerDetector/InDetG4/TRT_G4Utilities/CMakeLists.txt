@@ -11,6 +11,7 @@ find_package( Boost COMPONENTS unit_test_framework )
 # Component(s) in the package:
 atlas_add_library( TRT_G4Utilities
                    src/*.cc
+                   OBJECT
                    PUBLIC_HEADERS TRT_G4Utilities
                    INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}

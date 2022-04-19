@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -67,12 +67,12 @@ public:
         const Trk::TrackState::MeasurementType) const;
 
 private:
-    double calcPull(
+    static double calcPull(
         const double residual,
         const double locMesCov,
         const double locTrkCov,
         const Trk::ResidualPull::ResidualType&,
-        bool& pullIsValid ) const;
+        bool& pullIsValid ) ;
 }
 ; // end class
 } // end namespace InDet

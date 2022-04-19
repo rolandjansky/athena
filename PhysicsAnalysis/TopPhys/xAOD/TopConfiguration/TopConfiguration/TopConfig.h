@@ -1092,6 +1092,7 @@ namespace top {
     inline virtual const std::vector<std::string>& muonIsolationWPs() const {return m_muonIsolationWPs;}
     std::string const& muonIsolationSF() const {return m_muonIsolationSF;}
     std::string const& muonIsolationSFLoose() const {return m_muonIsolationSFLoose;}
+    std::string const& muonCalibMode() const {return m_muonCalibMode;}
     inline virtual bool muonMuonDoSmearing2stationHighPt() const {return m_muonMuonDoSmearing2stationHighPt;}
     inline virtual bool muonMuonDoExtraSmearingHighPt() const {return m_muonMuonDoExtraSmearingHighPt;}
 
@@ -1104,6 +1105,31 @@ namespace top {
         m_muonSFCustomInputFolder = s;
       }
     } 
+    int muonForceYear() const {return m_muonForceYear;}
+    void muonForceYear(int s) {
+      if (!m_configFixed) {
+        m_muonForceYear = s;
+      }
+    }
+    std::string const& muonForcePeriod() const {return m_muonForcePeriod;}
+    void muonForcePeriod(const std::string& s) {
+      if (!m_configFixed) {
+        m_muonForcePeriod = s;
+      }
+    }
+    std::string const& muonForceTrigger() const {return m_muonForceTrigger;}
+    void muonForceTrigger(const std::string& s) {
+      if (!m_configFixed) {
+        m_muonForceTrigger = s;
+      }
+    }
+
+    std::string const& electronForceTrigger() const {return m_electronForceTrigger;}
+    void electronForceTrigger(const std::string& s) {
+      if (!m_configFixed) {
+        m_electronForceTrigger = s;
+      }
+    }
 
     // Soft Muon configuration
     inline virtual void softmuonPtcut(const float pt) {
@@ -1917,6 +1943,9 @@ namespace top {
 
     const std::vector<double>& PileUpCustomScaleFactors() {return m_pileup_reweighting.custom_SF;};
 
+    inline unsigned int forceRandomRunNumber() const {return m_forceRandomRunNumber;}
+    inline void setForceRandomRunNumber(const unsigned int randomRunNumber) {m_forceRandomRunNumber = randomRunNumber;}
+
     inline const std::string& muonTriggerSF() const {return m_muon_trigger_SF;}
 
     inline bool demandPriVtx() const {return m_demandPriVtx;}
@@ -2392,10 +2421,15 @@ namespace top {
     std::vector<std::string> m_muonIsolationWPs; // list of all WPs to store aux decorations for
     int m_muon_d0SigCut;
     float m_muon_delta_z0;
+    std::string m_muonCalibMode; // calibration mode for the muon calibration tool
     bool m_muonMuonDoSmearing2stationHighPt; //to turn on/off special correction for the reco with 2-station muons with missing inner MS station allowed for abs(eta)<1.3, only HighPt WP
     bool m_muonMuonDoExtraSmearingHighPt; //to turn on/off a special correction for the muon with high momenta.
     bool m_muonBreakDownSystematics; //to turn on/off a more complex systematic model
     std::string m_muonSFCustomInputFolder;
+    std::string m_muonForcePeriod;
+    int m_muonForceYear;
+    std::string m_muonForceTrigger;
+    std::string m_electronForceTrigger;
 
     //Soft muon configuration
     float m_softmuonPtcut; // soft muon object selection pT cut
@@ -2734,6 +2768,8 @@ namespace top {
     // Where the sum of event weights
     // before derivation framework is kept
     std::string m_sumOfEventWeightsMetaData;
+
+    unsigned int m_forceRandomRunNumber = 0;
 
     // Object Selector name
     std::string m_objectSelectionName;

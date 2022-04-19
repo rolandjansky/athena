@@ -712,12 +712,12 @@ void PixelPrepDataToxAOD::addRdoInformation(xAOD::TrackMeasurementValidation* xp
     // charge calibration parameters
     Identifier moduleID = m_PixelHelper->wafer_id(rId);
     IdentifierHash moduleHash = m_PixelHelper->wafer_hash(moduleID); // wafer hash
-    int circ = m_pixelReadout->getFE(rId, moduleID);
+    unsigned int FE = m_pixelReadout->getFE(rId, moduleID);
     InDetDD::PixelDiodeType type = m_pixelReadout->getDiodeType(rId);
 
-    CTerm.push_back(calibData->getQ2TotC((int)moduleHash, circ, type));
-    ATerm.push_back(calibData->getQ2TotA((int)moduleHash, circ, type));
-    ETerm.push_back(calibData->getQ2TotE((int)moduleHash, circ, type));
+    CTerm.push_back(calibData->getQ2TotC(type, moduleHash, FE));
+    ATerm.push_back(calibData->getQ2TotA(type, moduleHash, FE));
+    ETerm.push_back(calibData->getQ2TotE(type, moduleHash, FE));
 
   }//end iteration on rdos
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // InDetPhysValMonitoring includes
@@ -26,8 +26,7 @@ TrackTruthSelectionTool::TrackTruthSelectionTool(const std::string& name) :
   declareProperty("pdgId", m_pdgId = -1);
 }
 
-TrackTruthSelectionTool::~TrackTruthSelectionTool() {
-}
+TrackTruthSelectionTool::~TrackTruthSelectionTool() = default;
 
 StatusCode
 TrackTruthSelectionTool::initialize() {

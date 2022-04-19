@@ -84,6 +84,32 @@ def muFastAlgSequence(ConfigFlags):
     l2muFastSequence = seqAND("l2muFastSequence", [ l2MuViewsMaker, muFastSequence ])
     return (l2muFastSequence, l2MuViewsMaker, sequenceOut)
 
+def muFastCalibAlgSequence(ConfigFlags):
+
+    ### set the EVCreator ###
+    l2MuViewsMaker = EventViewCreatorAlgorithm("IMl2MuCalib")
+    #
+    l2MuViewsMaker.RoIsLink = "initialRoI" # ROI is from L1
+    l2MuViewsMaker.RoITool = ViewCreatorInitialROITool() # ROI is from L1
+    #
+    l2MuViewsMaker.Views = "MUCalibViewRoIs"
+    l2MuViewsMaker.InViewRoIs = "MURoIs"
+    #
+    l2MuViewsMaker.ViewFallThrough = True
+
+    ### get muFast reco sequence ###
+    from .MuonRecoSequences import muFastRecoSequence, muonDecodeCfg
+    viewAlgs_MuonPRD = algorithmCAToGlobalWrapper(muonDecodeCfg,ConfigFlags,RoIs=l2MuViewsMaker.InViewRoIs.path())
+
+    from .MuonRecoSequences  import  isCosmic
+    muFastRecoSeq, sequenceOut = muFastRecoSequence( l2MuViewsMaker.InViewRoIs, doFullScanID= isCosmic(), calib=True )
+
+    muFastSequence = parOR("muFastCalibRecoSequence", [viewAlgs_MuonPRD, muFastRecoSeq])
+    l2MuViewsMaker.ViewNodeName = muFastSequence.name()
+
+    l2muFastSequence = seqAND("l2muFastCalibSequence", [ l2MuViewsMaker, muFastSequence ])
+    return (l2muFastSequence, l2MuViewsMaker, sequenceOut)
+
 def muFastSequence(is_probe_leg=False):
 
     (l2muFastSequence, l2MuViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muFastAlgSequence, ConfigFlags)
@@ -91,6 +117,23 @@ def muFastSequence(is_probe_leg=False):
     ### set up MuFastHypo ###
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMufastHypoAlg
     trigMufastHypo = TrigMufastHypoAlg("TrigL2MufastHypoAlg")
+    trigMufastHypo.MuonL2SAInfoFromMuFastAlg = sequenceOut
+
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMufastHypoToolFromDict
+
+    return MenuSequence( Sequence    = l2muFastSequence,
+                         Maker       = l2MuViewsMaker,
+                         Hypo        = trigMufastHypo,
+                         HypoToolGen = TrigMufastHypoToolFromDict,
+                         IsProbe     = is_probe_leg)
+
+def muFastCalibSequence(is_probe_leg=False):
+
+    (l2muFastSequence, l2MuViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muFastCalibAlgSequence, ConfigFlags)
+
+    ### set up MuFastHypo ###
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMufastHypoAlg
+    trigMufastHypo = TrigMufastHypoAlg("TrigL2MufastCalibHypoAlg")
     trigMufastHypo.MuonL2SAInfoFromMuFastAlg = sequenceOut
 
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMufastHypoToolFromDict
@@ -154,8 +197,8 @@ def muCombAlgSequence(ConfigFlags):
     l2muCombViewsMaker.RoIsLink = "initialRoI" # ROI for merging is still from L1, we get exactly one L2 SA muon per L1 ROI
     l2muCombViewsMaker.RoITool = newRoITool # Create a new ROI centred on the L2 SA muon from Step 1
     #
-    l2muCombViewsMaker.Views = "MUCombViewRoIs" if not isCosmic() else "CosmicViewRoIs" #output of the views maker (key in "storegate")
-    l2muCombViewsMaker.InViewRoIs = "MUIDRoIs" # Name of the RoI collection inside of the view, holds the single ROI used to seed the View.
+    l2muCombViewsMaker.Views = "MUCombViewRoIs" if not isCosmic() else "MUCombViewCosmic" #output of the views maker (key in "storegate")
+    l2muCombViewsMaker.InViewRoIs = "MUIDRoIs" if not isCosmic() else "InputRoI" # Name of the RoI collection inside of the view, holds the single ROI used to seed the View. Synchronized with cosmic tracking setup in: InDetCosmicTracking.py
     #
     l2muCombViewsMaker.RequireParentView = True
     l2muCombViewsMaker.ViewFallThrough = True #if this needs to access anything from the previous step, from within the view

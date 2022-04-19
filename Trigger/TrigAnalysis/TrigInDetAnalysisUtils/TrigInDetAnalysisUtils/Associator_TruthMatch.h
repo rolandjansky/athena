@@ -48,7 +48,9 @@ public:
   Associator_TruthMatcher() : TrackAssociator("Truth")  { }
   
   virtual ~Associator_TruthMatcher() { }
-  
+
+  virtual TrackAssociator* clone() override { return new Associator_TruthMatcher(*this); }
+
   //Fill reference tracks in matching step
   virtual void match( const std::vector<TIDA::Track*>& refTracks, 
 		      const std::vector<TIDA::Track*>& testTracks) {

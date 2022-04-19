@@ -37,7 +37,8 @@ if not hasattr(runArgs,"inputHITSFile"):
     raise RuntimeError("No inputHITSFile provided.")
 
 from SimuJobTransforms.HitsFilePeeker import HitsFilePeeker
-HitsFilePeeker(runArgs, merHitLog)
+peekInfo = HitsFilePeeker(runArgs, merHitLog)
+
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.geometry.all_setOff()
 
@@ -110,9 +111,9 @@ if not hasattr(runArgs,"outputHITS_MRGFile"):
 Out = runArgs.outputHITS_MRGFile
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 try:
-  StreamHITS = AthenaPoolOutputStream( "StreamHITS", Out, True, noTag=True )
+  StreamHITS = AthenaPoolOutputStream( "StreamHITS", Out, True, noTag=not peekInfo["xAODEventInfoPresent"] )
 except:
-  StreamHITS = AthenaPoolOutputStream( "StreamHITS", "DidNotSetOutputName.root", True, noTag=True )
+  StreamHITS = AthenaPoolOutputStream( "StreamHITS", "DidNotSetOutputName.root", True, noTag=not peekInfo["xAODEventInfoPresent"] )
 StreamHITS.TakeItemsFromInput=TRUE;
 # The next line is an example on how to exclude clid's if they are causing a  problem
 #StreamHITS.ExcludeList = ['6421#*']

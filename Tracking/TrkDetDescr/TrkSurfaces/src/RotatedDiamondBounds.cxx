@@ -63,39 +63,28 @@ Trk::RotatedDiamondBounds::inside(const Amg::Vector2D& locpo, double tol1, doubl
 bool
 Trk::RotatedDiamondBounds::insideFull(const Amg::Vector2D& locpo, double tol1, double tol2) const
 {
-  // the cases:
-  // (0)
-  if (!m_boundValues[RotatedDiamondBounds::bv_halfY1] && !m_boundValues[RotatedDiamondBounds::bv_minHalfX])
-    return false;
-  // (1)
-  if (locpo[Trk::locX] < -2. * m_boundValues[RotatedDiamondBounds::bv_halfY1] - tol2)
-    return false;
-  if (locpo[Trk::locX] > 2. * m_boundValues[RotatedDiamondBounds::bv_halfY2] + tol2)
-    return false;
-  // (2)
-  if (fabs(locpo[Trk::locY]) > (m_boundValues[RotatedDiamondBounds::bv_medHalfX] + tol1))
-    return false;
-  // (3)
-  if (fabs(locpo[Trk::locY]) <
-      (fmin(m_boundValues[RotatedDiamondBounds::bv_minHalfX], m_boundValues[RotatedDiamondBounds::bv_maxHalfX]) - tol1))
-    return true;
-  // (4)
-  /** use basic calculation of a straight line */
-  if (locpo[Trk::locX] < 0) {
-    double k =
-      m_boundValues[RotatedDiamondBounds::bv_halfY1] > 0.
-        ? (m_boundValues[RotatedDiamondBounds::bv_medHalfX] - m_boundValues[RotatedDiamondBounds::bv_minHalfX]) / 2 /
-            m_boundValues[RotatedDiamondBounds::bv_halfY1]
-        : 0.;
-    return (fabs(locpo[Trk::locY]) <= m_boundValues[RotatedDiamondBounds::bv_medHalfX] - k * fabs(locpo[Trk::locX]));
-  }
-    double k =
-      m_boundValues[RotatedDiamondBounds::bv_halfY2] > 0.
-        ? (m_boundValues[RotatedDiamondBounds::bv_medHalfX] - m_boundValues[RotatedDiamondBounds::bv_maxHalfX]) / 2 /
-            m_boundValues[RotatedDiamondBounds::bv_halfY2]
-        : 0.;
-    return (fabs(locpo[Trk::locY]) <= m_boundValues[RotatedDiamondBounds::bv_medHalfX] - k * fabs(locpo[Trk::locX]));
+  // validity check
+  if (!m_boundValues[RotatedDiamondBounds::bv_halfY1] && !m_boundValues[RotatedDiamondBounds::bv_minHalfX]) return false;
 
+  // quick False (radial direction)
+  if (locpo[Trk::locX] < -2. * m_boundValues[RotatedDiamondBounds::bv_halfY1] - tol1) return false;
+  if (locpo[Trk::locX] >  2. * m_boundValues[RotatedDiamondBounds::bv_halfY2] + tol1) return false;
+
+  double  absY = std::abs(locpo[Trk::locY]);
+
+  // quick False (transverse direction)
+  if (absY > (m_boundValues[RotatedDiamondBounds::bv_medHalfX] + tol2)) return false;
+  
+  // quick True
+  if (absY < std::min(m_boundValues[RotatedDiamondBounds::bv_minHalfX], m_boundValues[RotatedDiamondBounds::bv_maxHalfX]) + tol2) return true;
+
+  /** use basic calculation of a straight line */
+  const double& halfBaseUp = locpo[Trk::locX] < 0 ? m_boundValues[RotatedDiamondBounds::bv_medHalfX] : m_boundValues[RotatedDiamondBounds::bv_maxHalfX];
+  const double& halfBaseLo = locpo[Trk::locX] < 0 ? m_boundValues[RotatedDiamondBounds::bv_minHalfX] : m_boundValues[RotatedDiamondBounds::bv_medHalfX];
+  const double& halfH      = locpo[Trk::locX] < 0 ? m_boundValues[RotatedDiamondBounds::bv_halfY1]   : m_boundValues[RotatedDiamondBounds::bv_halfY2];
+  double k = halfH ? 0.5*(halfBaseUp - halfBaseLo)/halfH : 0.;
+  double sign = (k < 0) ? -1. : 1.; 
+  return (absY - tol2 <= m_boundValues[RotatedDiamondBounds::bv_medHalfX] + k * (locpo[Trk::locX] + sign*tol1));
 }
 
 // opening angle in point A

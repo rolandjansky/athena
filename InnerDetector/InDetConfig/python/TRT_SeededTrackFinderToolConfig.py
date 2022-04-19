@@ -11,11 +11,19 @@ def TRT_SeededTrackFinder_ATLCfg(flags, name='InDetTRT_SeededTrackMaker', InputC
     #
     # --- TRT seeded back tracking tool
     #
-    from InDetConfig.TrackingCommonConfig import InDetPatternPropagatorCfg, InDetPatternUpdatorCfg
-    InDetPatternPropagator = acc.getPrimaryAndMerge(InDetPatternPropagatorCfg())
-    InDetPatternUpdator = acc.getPrimaryAndMerge(InDetPatternUpdatorCfg())
+    from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
+    InDetPatternPropagator = acc.popToolsAndMerge(RungeKuttaPropagatorCfg(flags, name="InDetPatternPropagator"))
+    acc.addPublicTool(InDetPatternPropagator)
+    kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
+
+    from TrkConfig.TrkMeasurementUpdatorConfig import KalmanUpdator_xkCfg
+    InDetPatternUpdator = acc.popToolsAndMerge(KalmanUpdator_xkCfg(flags, name="InDetPatternUpdator"))
+    acc.addPublicTool(InDetPatternUpdator)
+    kwargs.setdefault("UpdatorTool", InDetPatternUpdator)
+
     from InDetConfig.SiCombinatorialTrackFinderToolConfig import SiCombinatorialTrackFinder_xkCfg
     InDetSiComTrackFinder = acc.popToolsAndMerge(SiCombinatorialTrackFinder_xkCfg(flags))
+    kwargs.setdefault("CombinatorialTrackFinder", InDetSiComTrackFinder)
 
     if flags.InDet.Tracking.ActivePass.usePixel and flags.InDet.Tracking.ActivePass.useSCT:
         from InDetConfig.SiDetElementsRoadToolConfig import SiDetElementsRoadMaker_xk_TRT_Cfg
@@ -29,11 +37,8 @@ def TRT_SeededTrackFinder_ATLCfg(flags, name='InDetTRT_SeededTrackMaker', InputC
     from InDetConfig.TRT_SeededSpacePointFinderToolConfig import TRT_SeededSpacePointFinder_ATLCfg
     InDetTRT_SeededSpacePointFinder = acc.popToolsAndMerge(TRT_SeededSpacePointFinder_ATLCfg(flags, InputCollections=InputCollections))
     acc.addPublicTool(InDetTRT_SeededSpacePointFinder)
-
-    kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
-    kwargs.setdefault("UpdatorTool", InDetPatternUpdator)
     kwargs.setdefault("SeedTool", InDetTRT_SeededSpacePointFinder)
-    kwargs.setdefault("CombinatorialTrackFinder", InDetSiComTrackFinder)
+
     kwargs.setdefault("pTmin", flags.InDet.Tracking.ActivePass.minSecondaryPt)
     kwargs.setdefault("nHolesMax", flags.InDet.Tracking.ActivePass.SecondarynHolesMax)
     kwargs.setdefault("nHolesGapMax", flags.InDet.Tracking.ActivePass.SecondarynHolesGapMax)

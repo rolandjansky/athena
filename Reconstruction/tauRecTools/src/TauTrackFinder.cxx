@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -96,8 +96,7 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
   }
 
   // get the primary vertex
-  const xAOD::Vertex* pVertex = nullptr;
-  if (pTau.vertexLink().isValid()) pVertex = pTau.vertex();
+  const xAOD::Vertex* pVertex = pTau.vertex();
 
   // retrieve tracks wrt a vertex                                                                                                                              
   // as a vertex is used: tau origin / PV / beamspot / 0,0,0 (in this order, depending on availability)                                                        
@@ -260,7 +259,8 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
   xAOD::Vertex vxbkp;
   vxbkp.makePrivateStore();
 
-  if (pTau.vertexLink().isValid() && pTau.vertex()->vertexType() != xAOD::VxType::NoVtx) {
+  // FIXME: don't we want to use the beamspot in the offline reconstruction too, when there is no reconstructed primary vertex?
+  if (pTau.vertex()!=nullptr && pTau.vertex()->vertexType() != xAOD::VxType::NoVtx) {
     vxcand = pTau.vertex();
   }
   else if (inTrigger()) { // online: use vertex with x-y coordinates from the beamspot and the z from the leading track
@@ -418,9 +418,7 @@ StatusCode TauTrackFinder::extrapolateToCaloSurface(xAOD::TauJet& pTau) const {
   for( xAOD::TauTrack* tauTrack : pTau.allTracks() ) {
     const xAOD::TrackParticle *orgTrack = tauTrack->track();
     if( !orgTrack ) continue;
-    trackIndex = orgTrack->index();
-
-    
+    trackIndex = orgTrack->index();   
 
     // set default values
     float etaEM = -10.0;

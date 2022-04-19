@@ -102,13 +102,6 @@ public:
                                             const TrackTruth&, 
                                             const int truthIndex = -1 ) const;  
 
-    /** fill AND write ntuple data of a given proto-trajectory (function used for fitter validation) */
-    virtual StatusCode writeProtoTrajectoryData (
-        const Trk::ProtoTrajectory&,
-        const int iterationIndex,
-        const Trk::Perigee* = 0,
-        const unsigned int fitStatCode  = 0 ) const;
-
     /** write the filled data into the ntuple */
     virtual StatusCode writeRecord( TTree* tree ) const; 
 private:

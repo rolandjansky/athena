@@ -32,7 +32,19 @@ def ITkPixelModuleConfigCondAlgCfg(flags, name="ITkPixelModuleConfigCondAlg", **
             EndcapLorentzAngleCorr   = [  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0],
             InnermostNoiseShape      = [0.0, 1.0],
             NextInnermostNoiseShape  = [0.0, 1.0],
-            PixelNoiseShape          = [0.0, 1.0]
+            PixelNoiseShape          = [0.0, 1.0],
+            # charge calib
+            DefaultBarrelAnalogThreshold = [900, 600, 600, 600, 600],
+            DefaultEndcapAnalogThreshold = [600, 600, 600, 600, 600, 600, 600, 600, 600],
+            DefaultBarrelAnalogThresholdSigma = [36, 24, 24, 24, 24],
+            DefaultEndcapAnalogThresholdSigma = [24, 24, 24, 24, 24, 24, 24, 24, 24],
+            DefaultBarrelAnalogThresholdNoise = [110, 75, 75, 75, 75],
+            DefaultEndcapAnalogThresholdNoise = [75, 75, 75, 75, 75, 75, 75, 75, 75],
+            DefaultBarrelInTimeThreshold = [1000, 1000, 1000, 1000, 1000],
+            DefaultEndcapInTimeThreshold = [1500, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000],
+            DefaultCalibrationParameterA = 14.0,
+            DefaultCalibrationParameterE = -1000.0,
+            DefaultCalibrationParameterC = 8000.0,
         )
     CondArgs.update(kwargs)
     acc.addCondAlgo(CompFactory.PixelModuleConfigCondAlg(name, **CondArgs))
@@ -63,14 +75,25 @@ def ITkPixelChargeCalibCondAlgCfg(flags, name="ITkPixelChargeCalibCondAlg", **kw
     """Return a ComponentAccumulator with configured PixelChargeCalibCondAlg for ITk"""
     acc = ComponentAccumulator()
     acc.merge(ITkPixelModuleConfigCondAlgCfg(flags))
-    acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection"))
+
+    folderName = ""
+    if flags.ITk.Conditions.PixelChargeCalibTag:
+        folderName = "/ITK/PixelChargeCalib"
+        if flags.ITk.Conditions.PixelChargeCalibFile:
+            acc.merge(addFolders(flags, folderName, flags.ITk.Conditions.PixelChargeCalibFile, tag=flags.ITk.Conditions.PixelChargeCalibTag, db="OFLP200", className="CondAttrListCollection"))
+        else:
+            acc.merge(addFolders(flags, folderName, "ITK", tag=flags.ITk.Conditions.PixelChargeCalibTag, db="OFLP200", className="CondAttrListCollection"))
+    # TODO: enable once in the DB
+    # else:
+    #    acc.merge(addFolders(flags, "/ITK/PixelChargeCalib", "ITK", db="OFLP200", className="CondAttrListCollection"))
+
     from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg
     acc.merge(ITkPixelReadoutGeometryCfg(flags))
     kwargs.setdefault("PixelDetEleCollKey", "ITkPixelDetectorElementCollection")
     kwargs.setdefault("PixelModuleData", "ITkPixelModuleData")
-    kwargs.setdefault("ReadKey", "/PIXEL/PixCalib")  # Proper calibration path inserted
+    kwargs.setdefault("ReadKey", folderName)
     kwargs.setdefault("WriteKey", "ITkPixelChargeCalibCondData")
-    acc.addCondAlgo(CompFactory.PixelChargeCalibCondAlg(name, **kwargs))
+    acc.addCondAlgo(CompFactory.PixelChargeLUTCalibCondAlg(name, **kwargs))
     return acc
 
 def ITkPixelChargeLUTCalibCondAlgCfg(flags, name="ITkPixelChargeLUTCalibCondAlg", **kwargs):

@@ -40,7 +40,7 @@ class TrigLArNoiseBurstHypoTool : public extends<AthAlgTool, ITrigLArNoiseBurstH
   Gaudi::Property< bool >  m_mNBTight_PsVetoFlaggedPartitions{ this, "MNBTight_PsVetoFlaggedPartitions", true, "flag to be used for NB detection" };
 
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
-  unsigned int m_mask;
+  unsigned int m_mask = 0U;
   
 }; 
 

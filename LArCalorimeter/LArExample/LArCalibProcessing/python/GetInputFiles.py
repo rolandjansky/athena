@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from os import popen
 
@@ -14,8 +14,12 @@ def GetInputFiles(inputPath,filePattern):
                    % {'cmd':cmd,'path':inputPath,'pattern':filePattern}):
         if f[len(f)-1:]=='\n':
             f=f[0:len(f)-1]
-        if (inputPath[0:5]=='/eos/'):    
+        if (inputPath[0:11]=='/eos/atlas/'):    
            fileList+=['root://eosatlas.cern.ch/'+inputPath+'/'+f]
+        elif (inputPath[0:10]=='/eos/user/'):   
+           fileList+=['root://eosuser.cern.ch/'+inputPath+'/'+f]
+        elif (inputPath[0:12]=='/eos/project'):   
+           fileList+=['root://eosproject.cern.ch/'+inputPath+'/'+f]
         else:   
            fileList+=[inputPath+'/'+f]
     print ("Found ",len(fileList), " files")
@@ -25,5 +29,15 @@ def GetInputFiles(inputPath,filePattern):
 def GetInputFilesFromTokens(inputPath,runnumber,prefix=".*",trigger=".*"):
     #pattern=prefix+"\.00"+str(runnumber)+"\..*"
     pattern="%(prefix)s.*%(rn)07d.%(trig)s.*" % {'prefix' : prefix ,'rn' : runnumber,'trig' : trigger}
+    
+    return GetInputFiles(inputPath,pattern)
+
+def GetInputFilesFromPattern(inputPath,prefix=".*",trigger=".*"):
+    pattern="%(prefix)s.*%(trig)s.*" % {'prefix' : prefix ,'trig' : trigger}
+    
+    return GetInputFiles(inputPath,pattern)
+
+def GetInputFilesFromPrefix(inputPath,prefix=".*"):
+    pattern="%(prefix)s.*" % {'prefix' : prefix }
     
     return GetInputFiles(inputPath,pattern)

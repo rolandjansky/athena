@@ -48,7 +48,7 @@ InDet::InDetHardScatterSelectionTool::InDetHardScatterSelectionTool(const std::s
 
 // Destructor
 InDet::InDetHardScatterSelectionTool::~InDetHardScatterSelectionTool()
-{}
+= default;
 
 // Initialize
 StatusCode InDet::InDetHardScatterSelectionTool::initialize()
@@ -147,7 +147,7 @@ const xAOD::Vertex* InDet::InDetHardScatterSelectionTool::getHardScatter(const x
       return nullptr;
     }
     SG::ReadDecorHandle<xAOD::EventInfo, ElementLink<xAOD::VertexContainer>> hardScatterDeco(m_hardScatterDecoKey, ctx);
-    ElementLink<xAOD::VertexContainer> vtxLink = hardScatterDeco(*evtInfo);
+    const ElementLink<xAOD::VertexContainer>& vtxLink = hardScatterDeco(*evtInfo);
     if (!vtxLink.isValid()) {
       ATH_MSG_ERROR("Hardscatter vertex link is not valid, returning nullptr!");
       return nullptr;

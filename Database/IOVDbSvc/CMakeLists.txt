@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( IOVDbSvc )
@@ -149,7 +149,7 @@ atlas_add_test( Json2Cool_test
    src/IOVDbStringFunctions.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${CORAL_LIBRARIES}
-   nlohmann_json::nlohmann_json
+   nlohmann_json::nlohmann_json CxxUtils
    POST_EXEC_SCRIPT "nopost.sh" )
 
 atlas_add_test( Cool2Json_test

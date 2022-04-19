@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 '''
 @file TileCisCalibAlgConfig.py
@@ -8,6 +8,8 @@
 def TileCisDefaulCalibToolCfg(flags, **kwargs):
 
     ''' Function to configure TileCisDefaultCalibTool tool'''
+
+    kwargs.setdefault('removePed', True)
 
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
@@ -39,10 +41,14 @@ def TileCisCalibAlgCfg(flags, **kwargs):
 
     ''' Function to configure TileCisCalibAlg algorithm'''
 
+    kwargs.setdefault('name', 'TileCisCalibAlg')
+    kwargs.setdefault('RunType', 8)
+    kwargs.setdefault('RunNumber', flags.Input.RunNumber[0])
+
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
 
-    if 'Tools' not in kwargs:
+    if 'TileCalibTools' not in kwargs:
         cisCalibTool = acc.popToolsAndMerge( TileCisDefaulCalibToolCfg(flags) )
         kwargs['TileCalibTools'] = [cisCalibTool]
 
@@ -71,6 +77,7 @@ if __name__=='__main__':
     ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.Tile.doFit = True
     ConfigFlags.Exec.MaxEvents = 3
+    ConfigFlags.Tile.RunType = 'CIS'
     ConfigFlags.fillFromArgs()
     ConfigFlags.lock()
 
@@ -92,12 +99,12 @@ if __name__=='__main__':
     from TileRecUtils.TileRawChannelMakerConfig import TileRawChannelMakerCfg
     cfg.merge( TileRawChannelMakerCfg(ConfigFlags) )
 
-    cfg.merge( TileCisCalibAlgCfg(ConfigFlags, ) )
+    cfg.merge( TileCisCalibAlgCfg(ConfigFlags) )
 
     cfg.printConfig(withDetails = True, summariseProps = True)
     ConfigFlags.dump()
 
-    cfg.store( open('TileTopCalibAlg.pkl','wb') )
+    cfg.store( open('TileCisCalibAlg.pkl','wb') )
 
     sc = cfg.run()
 

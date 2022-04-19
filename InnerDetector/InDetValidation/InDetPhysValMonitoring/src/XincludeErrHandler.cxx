@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "XincludeErrHandler.h"
@@ -9,8 +9,7 @@
 XIncludeErrHandler::XIncludeErrHandler() : m_errors(false) {
 }
 
-XIncludeErrHandler::~XIncludeErrHandler() {
-}
+XIncludeErrHandler::~XIncludeErrHandler() = default;
 
 bool
 XIncludeErrHandler::handleError(const xercesc::DOMError& domError) {

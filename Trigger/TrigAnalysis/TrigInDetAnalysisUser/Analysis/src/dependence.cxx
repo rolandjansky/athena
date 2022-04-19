@@ -4,7 +4,7 @@
  **     @author  berare gokturk
  **     @date    Mon 17 May 2021 20:02:26 CET 
  **
- **     Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  **/
 
 #include <string>
@@ -165,7 +165,7 @@ void efficiency( std::vector<double>& bins, std::vector<double>& values, const s
 
   for ( size_t i=0 ; i<files.size() ; i++ ) { 
     
-    std::string s = files[i];
+    const std::string& s = files[i];
     
     std::cout << "file: "<< s << "\tvalue: "<< values[i] << std::endl; 
 
@@ -288,7 +288,7 @@ void mean( std::vector<double>& bins, std::vector<double>& values, const std::ve
 
   for ( size_t i=0 ; i<files.size() ; i++ ) { 
 
-    std::string s = files[i];
+    const std::string& s = files[i];
     
     TFile* f = new TFile( s.c_str() );
     

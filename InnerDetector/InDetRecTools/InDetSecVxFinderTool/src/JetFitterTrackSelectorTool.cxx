@@ -12,7 +12,7 @@ using namespace InDet;
         declareInterface< JetFitterTrackSelectorTool >(this);
     }
 
-    JetFitterTrackSelectorTool::~JetFitterTrackSelectorTool() {}
+    JetFitterTrackSelectorTool::~JetFitterTrackSelectorTool() = default;
 
     StatusCode JetFitterTrackSelectorTool::initialize() {
 

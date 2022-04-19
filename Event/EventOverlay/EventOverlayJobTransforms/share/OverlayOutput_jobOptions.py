@@ -126,11 +126,9 @@ if DetFlags.overlay.TGC_on():
 
 if DetFlags.overlay.sTGC_on():
     outStream.ItemList += [ 'Muon::STGC_RawDataContainer#sTGCRDO' ]
-    outStream.ItemList += [ "sTgcDigitContainer#sTGC_DIGITS" ]
 
 if DetFlags.overlay.Micromegas_on():
     outStream.ItemList += [ 'Muon::MM_RawDataContainer#MMRDO' ]
-    outStream.ItemList += [ "MmDigitContainer#MM_DIGITS" ]
 
 if DetFlags.overlay.LVL1_on():
     if DetFlags.simulateLVL1.LAr_on():
@@ -146,6 +144,22 @@ if DetFlags.overlay.LVL1_on():
         outStream.ItemList += [ 'TileDigitsContainer#MuRcvDigitsCnt' ]
         outStream.ItemList += [ 'TileRawChannelContainer#MuRcvRawChCnt' ]
         outStream.ItemList += [ 'TileMuonReceiverContainer#TileMuRcvCnt' ]
+
+#add the tracks
+if overlayFlags.doTrackOverlay():
+    outStream.ItemList += [ 'TrackCollection#Bkg_CombinedInDetTracks' ]
+    outStream.ItemList += [ 'TrackCollection#Bkg_DisappearingTracks' ]
+    outStream.ItemList += [ 'TrackCollection#Bkg_ResolvedForwardTracks' ]
+    outStream.ItemList += [ 'InDet::TRT_DriftCircleContainer#Bkg_TRT_DriftCircles' ]
+    outStream.ItemList += [ 'InDet::PixelClusterContainer#Bkg_PixelClusters' ]
+    outStream.ItemList += [ 'InDet::SCT_ClusterContainer#Bkg_SCT_Clusters' ]
+    if DetFlags.overlay.Truth_on():
+        outStream.ItemList += [ 'PRD_MultiTruthCollection#Bkg_PRD_MultiTruthTRT' ]
+        outStream.ItemList += [ 'PRD_MultiTruthCollection#Bkg_PRD_MultiTruthPixel' ]
+        outStream.ItemList += [ 'PRD_MultiTruthCollection#Bkg_PRD_MultiTruthSCT' ]
+        outStream.ItemList += [ 'DetailedTrackTruthCollection#Bkg_DisappearingTracksDetailedTruth' ]
+        outStream.ItemList += [ 'DetailedTrackTruthCollection#Bkg_ResolvedForwardTracksDetailedTruth' ]
+        outStream.ItemList += [ 'DetailedTrackTruthCollection#Bkg_CombinedInDetTracksDetailedTruth' ]
 
 # Temporary to ensure the output is stored
 outStream.TransientItems = outStream.ItemList

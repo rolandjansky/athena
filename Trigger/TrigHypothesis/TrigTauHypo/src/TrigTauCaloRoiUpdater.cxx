@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigTauCaloRoiUpdater.h"
@@ -14,7 +14,7 @@
 #include "TLorentzVector.h"
 
 TrigTauCaloRoiUpdater::TrigTauCaloRoiUpdater(const std::string & name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator) {}
+  AthReentrantAlgorithm(name, pSvcLocator) {}
 
 StatusCode TrigTauCaloRoiUpdater::initialize() {
 
@@ -33,11 +33,9 @@ StatusCode TrigTauCaloRoiUpdater::initialize() {
 
 
 
-
-StatusCode TrigTauCaloRoiUpdater::execute() {
+StatusCode TrigTauCaloRoiUpdater::execute(const EventContext& ctx) const {
 
   ATH_MSG_DEBUG( "Running "<< name() <<" ... " );
-  const EventContext& ctx = getContext();
 
   // Prepare Outputs
   std::unique_ptr< TrigRoiDescriptorCollection > roICollection( new TrigRoiDescriptorCollection() );
@@ -47,10 +45,10 @@ StatusCode TrigTauCaloRoiUpdater::execute() {
   CHECK( CCContainerHandle.isValid() );
   const xAOD::CaloClusterContainer *RoICaloClusterContainer = CCContainerHandle.get();
 
-  if(RoICaloClusterContainer != NULL) {
+  if(RoICaloClusterContainer != nullptr) {
     ATH_MSG_DEBUG( "Size of vector CaloCluster container is " << RoICaloClusterContainer->size());
-    if(RoICaloClusterContainer->size()==0) {
-      ATH_MSG_DEBUG( "CaloCluster container has zero size");
+    if(RoICaloClusterContainer->empty()) {
+      ATH_MSG_DEBUG( "CaloCluster container is empty");
     }
   }else {
     ATH_MSG_ERROR( "no CaloCluster container found " );

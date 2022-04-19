@@ -22,8 +22,7 @@ ATLAS_CHECK_FILE_THREAD_SAFETY;
 
 class GeoPhysVol;
 
-namespace MuonGM {
-
+namespace MuonGM {   
     constexpr int maxfieldindex = 10;
 
     class MuonDetectorManager;

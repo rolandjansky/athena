@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCOSTMONITOR_TRIGCOSTDATASTORE_H
@@ -48,27 +48,33 @@ class TrigCostDataStore {
    * @brief Inserts the payload into the map
    * @param[in] ai The AlgorithmIdentifier to insert for (the key)
    * @param[in] payload The payload to record
+   * @param[in] msg a reference to the msgstream for printing
    * @returns Success unless and out-of-range slot, then Failure
    */
-  StatusCode insert(const AlgorithmIdentifier& ai, const PAYLOAD& payload);
+  StatusCode insert(const AlgorithmIdentifier& ai, const PAYLOAD& payload,
+                    MsgStream& msg);
 
   /**
    * @brief Inserts the entry in the vector payload into the map
    * @param[in] ai The AlgorithmIdentifier to insert for (the key)
    * @param[in] entry The entry to record
+   * @param[in] msg a reference to the msgstream for printing
    * @returns Success unless and class is not initialized, then Failure
    */
   template<typename ENTRY>
-  StatusCode push_back(const AlgorithmIdentifier& ai, ENTRY&& entry);
+  StatusCode push_back(const AlgorithmIdentifier& ai, ENTRY&& entry,
+                       MsgStream& msg);
 
   /**
    * @brief Retrieve a payload from the map given an AlgorithmIdentifier
    * @param[in] ai The AlgorithmIdentifier to fetch (the key)
    * @param[out] payload Reference to const_accessor to payload to return
+   * @param[in] msg a reference to the msgstream for printing
    * @returns Success if the payload was located, else Failure
    */
   StatusCode retrieve(const AlgorithmIdentifier& ai, 
-    typename tbb::concurrent_hash_map<AlgorithmIdentifier, PAYLOAD, AlgorithmIdentifierHashCompare>::const_accessor& payload) const;
+    typename tbb::concurrent_hash_map<AlgorithmIdentifier, PAYLOAD, AlgorithmIdentifierHashCompare>::const_accessor& payload,
+    MsgStream& msg) const;
 
   /**
    * @brief Clears all data stored in an event slot

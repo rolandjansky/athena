@@ -13,9 +13,9 @@
 
 namespace PhotonHelpers{
   ///@brief Helper to ease the implemmantation of the pass Quality requirements
-  bool passOQquality(const xAOD::Photon *ph);
+  bool passOQquality(const xAOD::Photon& ph);
   ///@brief Helpers to ease the implementation of the pass Quality requirements
-  bool passOQqualityDelayed(const xAOD::Photon *ph);
+  bool passOQqualityDelayed(const xAOD::Photon& ph);
 }
 
 #endif

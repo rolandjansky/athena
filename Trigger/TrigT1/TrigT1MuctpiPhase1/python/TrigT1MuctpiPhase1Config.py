@@ -21,7 +21,7 @@ def getTrigThresholdDecisionTool(name="TrigThresholdDecisionTool"):
   return tool
 
 
-def MUCTPI_AthToolCfg(name):
+def MUCTPI_AthToolCfg(flags, name):
   tool = CompFactory.getComp("LVL1MUCTPIPHASE1::MUCTPI_AthTool")(name)
   tool.RPCRecRoiTool = getRun3RPCRecRoiTool("RPCRecRoiTool", useRun3Config=True)
   tool.TGCRecRoiTool = getRun3TGCRecRoiTool("TGCRecRoiTool", useRun3Config=True)
@@ -37,13 +37,19 @@ def MUCTPI_AthToolCfg(name):
   tool.LUTXMLFile = "TrigConfMuctpi/overlapRun3_20201214.xml"
   logger.info( "Configuring MuCTPI simulation with configuration file: %s", tool.LUTXMLFile )
 
+  if flags.Trigger.doHLT:
+      # Check the RoI EDM containers are registered in HLT outputs
+      from TrigEDMConfig.TriggerEDMRun3 import recordable
+      for key in tool.MUCTPI_xAODLocation:
+          assert key==recordable(key), f'recordable() check failed for {key}'
+
   return tool
 
 
 def MUCTPI_AthAlgCfg(flags):
   acc = ComponentAccumulator()
   alg = CompFactory.getComp("LVL1MUCTPIPHASE1::MUCTPI_AthAlg")(name="MUCTPI_AthAlg")
-  alg.MUCTPI_AthTool = MUCTPI_AthToolCfg(name="MUCTPI_AthTool")
+  alg.MUCTPI_AthTool = MUCTPI_AthToolCfg(flags, name="MUCTPI_AthTool")
   acc.addEventAlgo(alg)
   return acc
 
@@ -62,8 +68,8 @@ class DefaultL1MuctpiPhase1( LVL1MUCTPIPHASE1__MUCTPI_AthAlg ):
   def __init__( self, name = "MUCTPI_AthAlg" ):
 
     LVL1MUCTPIPHASE1__MUCTPI_AthAlg.__init__( self, name )
-
-    self.MUCTPI_AthTool = MUCTPI_AthToolCfg("MUCTPI_AthTool")
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    self.MUCTPI_AthTool = MUCTPI_AthToolCfg(ConfigFlags, "MUCTPI_AthTool")
 
 
 class L1MuctpiPhase1( DefaultL1MuctpiPhase1 ):

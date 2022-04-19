@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
-# art-description: Test of transform RDO->RDO_TRIG->ESD->AOD with threads=1
+# art-description: Test of transform RDO->RDO_TRIG->ESD->AOD with threads=4
 # art-type: grid
 # art-include: master/Athena
 # art-athena-mt: 4

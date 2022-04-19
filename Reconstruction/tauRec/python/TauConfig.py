@@ -15,9 +15,9 @@ def TauBuildAlgCfg(flags):
 
     # Schedule total noise cond alg
     from CaloTools.CaloNoiseCondAlgConfig import CaloNoiseCondAlgCfg
-    result.merge(CaloNoiseCondAlgCfg(flags,"totalNoise"))
+    result.merge(CaloNoiseCondAlgCfg(flags, "totalNoise"))
     # Schedule electronic noise cond alg (needed for LC weights)
-    result.merge(CaloNoiseCondAlgCfg(flags,"electronicNoise"))
+    result.merge(CaloNoiseCondAlgCfg(flags, "electronicNoise"))
 
     # get tools from holder
     import tauRec.TauToolHolder as tauTools
@@ -68,7 +68,7 @@ def TauBuildAlgCfg(flags):
 
     BuildAlg.Tools = tools
 
-    result.addEventAlgo(BuildAlg)  
+    result.addEventAlgo(BuildAlg)
     return result
 
 def TauCaloAlgCfg(flags):
@@ -97,7 +97,7 @@ def TauCaloAlgCfg(flags):
     CaloTopoForTausMaker.ClustersOutputName = "TauPi0SubtractedClusters"
     CaloTopoForTausMaker.ClusterMakerTools = [result.popToolsAndMerge(tauTools.TauCaloTopoClusterMakerCfg(flags)),
                                               result.popToolsAndMerge(tauTools.TauCaloTopoClusterSplitterCfg(flags))]
-    
+
     CaloTopoForTausMaker.ClusterCorrectionTools += [result.popToolsAndMerge(tauTools.TauCaloClusterBadChannelCfg(flags))]
     CaloTopoForTausMaker.ClusterCorrectionTools += [result.popToolsAndMerge(tauTools.TauCaloClusterMomentsMakerCfg(flags))]
 
@@ -130,7 +130,7 @@ def TauRunnerAlgCfg(flags):
 
     # get tools from holder
     import tauRec.TauToolHolder as tauTools
-    
+
     tools = []
 
     ### TauRecPi0EflowProcessor ###
@@ -139,7 +139,7 @@ def TauRunnerAlgCfg(flags):
     tools.append( result.popToolsAndMerge(tauTools.Pi0ScoreCalculatorCfg(flags)) )
     tools.append( result.popToolsAndMerge(tauTools.Pi0SelectorCfg(flags)) )
 
-    ### TauRecVariablesProcessor ###    
+    ### TauRecVariablesProcessor ###
     if flags.Tau.isStandalone or flags.InDet.PriVertex.doVertexFinding:
         tools.append(result.popToolsAndMerge(tauTools.TauVertexVariablesCfg(flags)) )
 
@@ -169,14 +169,16 @@ def TauRunnerAlgCfg(flags):
     tools.append( result.popToolsAndMerge(tauTools.TauAODSelectorCfg(flags)) )
 
     TauRunnerAlg=CompFactory.getComp("TauRunnerAlg")
-    RunnerAlg = TauRunnerAlg ( name="TauRecRunnerAlg",
-                               Key_tauInputContainer="tmp_TauJets",
-                               Key_tauOutputContainer=flags.Tau.outputKey,
-                               Key_neutralPFOOutputContainer="TauPi0Clusters",
-                               Key_hadronicPFOOutputContainer="TauHadronicParticleFlowObjects",
-                               Key_vertexOutputContainer = "TauSecondaryVertices",
-                               Key_chargedPFOOutputContainer = "TauChargedParticleFlowObjects"
-    )
+    RunnerAlg = TauRunnerAlg(name="TauRecRunnerAlg",
+                             Key_tauInputContainer="tmp_TauJets",
+                             Key_Pi0ClusterInputContainer="TauPi0Clusters",
+                             Key_tauOutputContainer=flags.Tau.outputKey,
+                             Key_neutralPFOOutputContainer="TauNeutralParticleFlowObjects",
+                             Key_hadronicPFOOutputContainer="TauHadronicParticleFlowObjects",
+                             Key_vertexOutputContainer="TauSecondaryVertices",
+                             Key_chargedPFOOutputContainer="TauChargedParticleFlowObjects",
+                             Key_pi0Container="TauFinalPi0s",
+                             )
 
     RunnerAlg.Tools = tools
 
@@ -227,6 +229,14 @@ def TauOutputCfg(flags):
 
     return result
 
+def TauxAODthinngCfg(flags):
+
+    result = ComponentAccumulator()
+    tauThinAlg = CompFactory.TauThinningAlg("TauThinningAlg")
+    result.addEventAlgo(tauThinAlg)
+
+    return result
+
 def TauReconstructionCfg(flags):
 
     result=ComponentAccumulator()
@@ -243,6 +253,10 @@ def TauReconstructionCfg(flags):
     if (flags.Output.doWriteESD or flags.Output.doWriteAOD):
         tauOut = TauOutputCfg(flags)
         result.merge(tauOut)
+
+    if (flags.Output.doWriteAOD and flags.Tau.ThinTaus):
+        result.merge(TauxAODthinngCfg(flags))
+
 
     return result
 

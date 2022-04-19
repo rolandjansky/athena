@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -65,7 +65,7 @@ public:
       @param [in] phi     angle of track relative to Lorentz drift direction, in transverse plane
       @param [in] nstrip  Strip cluster size (number of strips)
   */
-  double getCorrection(double phi, int nstrip) const;
+  static double getCorrection(double phi, int nstrip) ;
   
 
   /** @brief Returns the resolution on the reconstructed position (local x) of Strip clusters
@@ -78,7 +78,7 @@ public:
     barrel clusters (80 micron pitch).  It can be applied also to endcap clusters, after
     rescaling to the appropriate pitch.
   */
-  double getError(double phi, int nstrip) const;
+  static double getError(double phi, int nstrip) ;
 
  private:
 

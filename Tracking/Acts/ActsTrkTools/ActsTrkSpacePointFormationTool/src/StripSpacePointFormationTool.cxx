@@ -5,9 +5,9 @@
 #include "StripSpacePointFormationTool.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "ReadoutGeometryBase/SiCellId.h"
+#include "InDetCondTools/ISiLorentzAngleTool.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "SCT_ReadoutGeometry/StripStereoAnnulusDesign.h"
-
 #include "xAODInDetMeasurement/StripClusterAuxContainer.h"
 #include "ActsUtils/ContainerAccessor.h"
 
@@ -22,6 +22,8 @@ namespace ActsTrk {
     StatusCode StripSpacePointFormationTool::initialize() {
 
         ATH_CHECK(detStore()->retrieve(m_stripId,"SCT_ID"));
+
+        ATH_CHECK(m_lorentzAngleTool.retrieve());
 
         return StatusCode::SUCCESS;
     }
@@ -278,7 +280,6 @@ namespace ActsTrk {
 
         // trigger element and clusters
         const InDetDD::SiDetectorElement* element = elements[0];
-        IdentifierHash Id = element->identifyHash();
         bool isEndcap = element->isEndcap();
 
         std::vector<StripInformationHelper> stripInfos;
@@ -286,9 +287,10 @@ namespace ActsTrk {
 
         // loop on all clusters on the trigger detector element and save the related information
         for (auto& cluster_index : clusters[0]) {
-            auto ends = getStripEnds(cluster_index.first, element);
+            size_t stripIndex = -1;
+            auto ends = getStripEnds(cluster_index.first, element, stripIndex);
             const auto& localPos = cluster_index.first->localPosition<1>();
-            StripInformationHelper stripInfo(ends.first, ends.second, beamSpotVertex, localPos(0, 0), cluster_index.second);
+            StripInformationHelper stripInfo(ends.first, ends.second, beamSpotVertex, localPos(0, 0), cluster_index.second, stripIndex);
             stripInfos.push_back(stripInfo);
         }
 
@@ -309,8 +311,11 @@ namespace ActsTrk {
                 double min = overlapExtents[currentIndex*2-2];
                 double max = overlapExtents[currentIndex*2-1];
 
+                size_t minStrip, maxStrip = 0;
+
                 if (m_stripGapParameter != 0.) {
                     updateRange(element, currentElement, slimit, min, max);
+                    correctPolarRange(element, min, max, minStrip, maxStrip);
                 }
 
                 float sign = isEndcap ? ( std::signbit(currentElement->normal().z()*element->normal().z()) ? -1. : 1.) : 1.;
@@ -327,8 +332,9 @@ namespace ActsTrk {
 
                         if (not processed) {
                             processed = true;
-                            auto ends = getStripEnds(cluster_index.first, currentElement);
-                            currentStripInfo.set(ends.first, ends.second, beamSpotVertex, currentLocalPos(0, 0), cluster_index.second);
+                            size_t currentStripIndex = 0;
+                            auto ends = getStripEnds(cluster_index.first, currentElement, currentStripIndex);
+                            currentStripInfo.set(ends.first, ends.second, beamSpotVertex, currentLocalPos(0, 0), cluster_index.second, currentStripIndex);
                         }
 
                         // depending on the index you are processing, you save the space point in the correct container
@@ -360,16 +366,29 @@ namespace ActsTrk {
                 double min = sign*overlapExtents[4*currentIndex-10];
                 double max = sign*overlapExtents[4*currentIndex- 9];
 
+                size_t minStrip, maxStrip = 0;
+
                 if (m_stripGapParameter != 0.) {
                     updateRange(element, currentElement, slimit, min, max);
+                    correctPolarRange(element, min, max, minStrip, maxStrip);
                 }
 
                 std::vector<StripInformationHelper*> stripPhiInfos;
                 stripPhiInfos.reserve(stripInfos.size());
 
                 for(auto& stripInfo : stripInfos) {
-                    float localPosition = stripInfo.locX();
-                    if (min <= localPosition && localPosition <= max) {
+                    auto stripIndex = stripInfo.stripIndex();
+                    auto localPosition = stripInfo.locX();
+                    auto centralValue = localPosition;
+                    auto minValue = min;
+                    auto maxValue = max;
+                    if (isEndcap) {
+                        centralValue = stripIndex;
+                        minValue = minStrip;
+                        maxValue = maxStrip;
+                    }
+
+                    if (minValue <= centralValue and centralValue <= maxValue) {
                         stripPhiInfos.push_back(&stripInfo);
                     }
                 }
@@ -382,15 +401,26 @@ namespace ActsTrk {
 
                 if (m_stripGapParameter != 0.) {
                     updateRange(element, currentElement, slimit, min, max);
+                    correctPolarRange(currentElement, min, max, minStrip, maxStrip);
                 }
 
                 for (auto& cluster_index : clusters[currentIndex]) {
                     const auto& currentLocalPos = cluster_index.first->localPosition<1>();
 
-                    if(currentLocalPos(0, 0) < min || currentLocalPos(0, 0) > max ) continue;
+                    size_t currentStripIndex = 0;
+                    auto ends = getStripEnds(cluster_index.first, currentElement, currentStripIndex);
+                    StripInformationHelper currentStripInfo(ends.first, ends.second, beamSpotVertex, currentLocalPos(0, 0), cluster_index.second, currentStripIndex);
+                    auto centralValue = currentLocalPos(0, 0);
+                    auto minValue = min;
+                    auto maxValue = max;
+                    if (isEndcap) {
+                        centralValue = currentStripIndex;
+                        minValue = minStrip;
+                        maxValue = maxStrip;
+                    }
 
-                    auto ends = getStripEnds(cluster_index.first, currentElement);
-                    StripInformationHelper currentStripInfo(ends.first, ends.second, beamSpotVertex, currentLocalPos(0, 0), cluster_index.second);
+                    if (centralValue < minValue or centralValue > maxValue)
+                        continue;
 
                     for(auto& stripInfo : stripPhiInfos) {
                         std::unique_ptr<ActsTrk::SpacePoint>
@@ -401,6 +431,7 @@ namespace ActsTrk {
                     }
                 }
             }
+            return;
         }
 
         for(int n=0; n!=nElements; ++n) {
@@ -413,9 +444,10 @@ namespace ActsTrk {
             }
 
             for (auto& cluster_index : clusters[currentIndex]) {
-                auto ends = getStripEnds(cluster_index.first, element);
+                size_t currentStripIndex = 0;
+                auto ends = getStripEnds(cluster_index.first, element, currentStripIndex);
                 const auto& currentLocalPos = cluster_index.first->localPosition<1>();
-                StripInformationHelper currentStripInfo(ends.first, ends.second, beamSpotVertex, currentLocalPos(0, 0), cluster_index.second);
+                StripInformationHelper currentStripInfo(ends.first, ends.second, beamSpotVertex, currentLocalPos(0, 0), cluster_index.second, currentStripIndex);
 
                 for(auto& stripInfo : stripInfos) {
                     // depending on the index you are processing, you save the space point in the correct container
@@ -448,32 +480,40 @@ namespace ActsTrk {
         double b  = firstInfo.stripDirection().dot(secondInfo.normal());
         double l0 = firstInfo.oneOverStrip()*slimit+limit ;
 
-        if(std::abs(a) > (std::abs(b)*l0)) return nullptr;
+        if(std::abs(a) > (std::abs(b)*l0)) {
+            return nullptr;
+        }
 
         double c  =-secondInfo.trajDirection().dot(firstInfo.normal());
         double d  = secondInfo.stripDirection().dot(firstInfo.normal());
         double l1 = secondInfo.oneOverStrip()*slimit+limit ;
 
-        if(std::abs(c) > (std::abs(d)*l1)) return nullptr;
+        if(std::abs(c) > (std::abs(d)*l1)) {
+            return nullptr;
+        }
 
         double m = a/b;
 
         if(slimit!=0.) {
             double n = c/d;
-            if     (m >  limit || n >  limit) {
+            if (m >  limit || n >  limit) {
                 double cs  = firstInfo.stripDirection().dot(secondInfo.stripDirection())*(firstInfo.oneOverStrip()*firstInfo.oneOverStrip());
                 double dm  = (m-1);
                 double dmn = (n-1.)*cs;
                 if(dmn > dm) dm = dmn;
                 m-=dm; n-=(dm/cs);
-                if(std::abs(m) > limit || std::abs(n) > limit) return nullptr;
-            } else if(m < -limit || n < -limit) {
+                if(std::abs(m) > limit || std::abs(n) > limit) {
+                    return nullptr;
+                }
+            } else if (m < -limit || n < -limit) {
                 double cs  = firstInfo.stripDirection().dot(secondInfo.stripDirection())*(firstInfo.oneOverStrip()*firstInfo.oneOverStrip());
                 double dm  = -(1.+m);
                 double dmn = -(1.+n)*cs;
                 if(dmn > dm) dm = dmn;
                 m+=dm; n+=(dm/cs);
-                if(std::abs(m) > limit || std::abs(n) > limit) return nullptr;
+                if(std::abs(m) > limit || std::abs(n) > limit) {
+                    return nullptr;
+                }
             }
         }
 
@@ -508,7 +548,7 @@ namespace ActsTrk {
         Amg::Vector3D           C  = element1->center() ;
         bool isAnnulus = (element1->design().shape() == InDetDD::Annulus);
 
-        double x12 = T1(0,0)*T2(0,0)+T1(1,0)*T2(1,0)+T1(2,0)*T2(2,0)                              ;
+        double x12 = T1(0,0)*T2(0,0)+T1(1,0)*T2(1,0)+T1(2,0)*T2(2,0);
         double r   = isAnnulus ? std::sqrt(C[0]*C[0]+C[1]*C[1]) : std::sqrt(T1(0,3)*T1(0,3)+T1(1,3)*T1(1,3));
         double s   = (T1(0,3)-T2(0,3))*T1(0,2)+(T1(1,3)-T2(1,3))*T1(1,2)+(T1(2,3)-T2(2,3))*T1(2,2);
 
@@ -530,21 +570,16 @@ namespace ActsTrk {
         double dm = offset(element1, element2, stripLengthGapTolerance);
         min -= dm;
         max += dm;
-
-        if (element2->isEndcap())
-            correctPolarRange(element2, min, max);
     }
 
     void StripSpacePointFormationTool::correctPolarRange(const InDetDD::SiDetectorElement* element,
                                                          double& min,
-                                                         double& max) const
+                                                         double& max,
+                                                         size_t& minStrip,
+                                                         size_t& maxStrip) const
     {
-        // converting min and max from cartesian reference frame to polar frame
-        const Amg::Vector3D& center = element->center();
-        double radius = std::sqrt(center.x()*center.x()+center.y()*center.y());
-
-        InDetDD::SiCellId minCellId = element->cellIdOfPosition(InDetDD::SiLocalPosition(radius, min, 0.));
-        InDetDD::SiCellId maxCellId = element->cellIdOfPosition(InDetDD::SiLocalPosition(radius, max, 0.));
+        if (element->isBarrel())
+            return;
 
         // design for endcap modules
         const InDetDD::StripStereoAnnulusDesign *design
@@ -554,11 +589,25 @@ namespace ActsTrk {
             return;
         }
 
-        // check if in available range
-        if (maxCellId.strip()>design->diodesInRow(0) or (maxCellId.strip()<0))
-            maxCellId = InDetDD::SiCellId(design->diodesInRow(0)-1);
-        if (minCellId.strip()<0)
+        // converting min and max from cartesian reference frame to polar frame
+        auto firstPosition = (design->localPositionOfCell(design->strip1Dim(0, 0))+
+            design->localPositionOfCell(design->strip1Dim(design->diodesInRow(0)-1, 0)))*0.5;
+
+        double radius = firstPosition.xEta();
+
+        InDetDD::SiCellId minCellId = element->cellIdOfPosition(InDetDD::SiLocalPosition(radius, min, 0.));
+        InDetDD::SiCellId maxCellId = element->cellIdOfPosition(InDetDD::SiLocalPosition(radius, max, 0.));
+
+        if (not minCellId.isValid()) {
             minCellId = InDetDD::SiCellId(0);
+        }
+
+        if (not maxCellId.isValid()) {
+            maxCellId = InDetDD::SiCellId(design->diodesInRow(0)-1);
+        }
+
+        minStrip = minCellId.strip();
+        maxStrip = maxCellId.strip();
 
         // re-evaluate min and max in polar coordinate from the strip index
         min = design->localPositionOfCellPC(minCellId).xPhi();
@@ -567,11 +616,16 @@ namespace ActsTrk {
         // depends on how the reference frame is oriented. If needed swap min and max
         if (min>max)
             std::swap(min, max);
+
+        min -= 0.5*design->phiPitchPhi();
+        max += 0.5*design->phiPitchPhi();
+
     }
 
     std::pair<Amg::Vector3D, Amg::Vector3D >
         StripSpacePointFormationTool::getStripEnds(const xAOD::StripCluster* cluster,
-                                                   const InDetDD::SiDetectorElement* element) const
+                                                   const InDetDD::SiDetectorElement* element,
+                                                   size_t& stripIndex) const
     {
         const Eigen::Matrix<float,1,1>& localPos = cluster->localPosition<1>();
         InDetDD::SiLocalPosition localPosition(0., localPos(0, 0), 0.);
@@ -591,9 +645,13 @@ namespace ActsTrk {
             int firstStrip = m_stripId->strip(firstStripId);
             int stripRow = m_stripId->row(firstStripId);
             int clusterSizeInStrips = cluster->channelsInPhi();
-
             // Evaluate position on the readout from first strip and cluster width
-            localPosition = design->localPositionOfCluster(design->strip1Dim(firstStrip, stripRow), clusterSizeInStrips);
+            auto clusterPosition = design->localPositionOfCluster(design->strip1Dim(firstStrip, stripRow), clusterSizeInStrips);
+            double shift = m_lorentzAngleTool->getLorentzShift(element->identifyHash());
+            localPosition = InDetDD::SiLocalPosition(clusterPosition.xEta(), clusterPosition.xPhi()+shift, 0.);
+
+            auto cellid = design->cellIdOfPosition(localPosition);
+            stripIndex = cellid.strip();
         }
 
         std::pair<Amg::Vector3D, Amg::Vector3D > ends(element->endsOfStrip(localPosition));

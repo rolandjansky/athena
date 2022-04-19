@@ -150,7 +150,7 @@ def checkFile(fileName, the_type, requireTree):
     file_handle.Close()
     msg.info("File %s looks ok.", fileName)
 
-    if not isIMTEnabled:
+    if not isIMTEnabled and 'TRF_MULTITHREADED_VALIDATION' in os.environ and 'ATHENA_CORE_NUMBER' in os.environ:
         ROOT.ROOT.DisableImplicitMT()
 
     return 0

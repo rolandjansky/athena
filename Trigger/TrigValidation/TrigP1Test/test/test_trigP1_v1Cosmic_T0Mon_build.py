@@ -17,7 +17,15 @@ hlt.threads = 4
 hlt.concurrent_events = 4
 hlt.input = 'data_cos'
 hlt.max_events = 50
-hlt.args = '-c "setMenu=\'Cosmic_run3_v1\';doCosmics=True;doL1Sim=True;rewriteLVL1=True;"'
+hltPrecommand = ''.join([
+  "setMenu='Cosmic_run3_v1';",
+  "doCosmics=True;",
+  "doL1Sim=True;",
+  "rewriteLVL1=True;",
+  "setDetDescr='ATLAS-R3S-2021-01-00-02';",
+  "condOverride={'/MDT/Onl/T0BLOB':'MDTT0-RUN3-Onl-UPD1-01-BLOB'};"  # TODO: use R3 HLT cond tag when available
+])
+hlt.args = f'-c "{hltPrecommand}"'
 hlt.args += ' -o output'
 
 # Extract the physics_Main stream out of the BS file with many streams
@@ -45,8 +53,10 @@ tzreco.explicit_input = True
 tzreco.max_events = 50
 tzreco.args = '--inputBSFile=' + find_file('*.physics_Main*._athenaHLT*.data')  # output of the previous step
 tzreco.args += ' --outputESDFile=ESD.pool.root --outputAODFile=AOD.pool.root'
-tzreco.args += ' --conditionsTag=\'CONDBR2-BLKPA-RUN2-06\' --geometryVersion=\'ATLAS-R2-2016-01-00-01\''
+tzreco.args += ' --geometryVersion=\'ATLAS-R3S-2021-01-00-02\''
+tzreco.args += ' --conditionsTag=\'CONDBR2-BLKPA-RUN2-09\''  # TODO: use R3 BLK cond tag when available
 tzreco.args += ' --preExec="{:s}"'.format(tzrecoPreExec)
+tzreco.args += ' --postExec="conddb.addOverride(\'/MDT/T0BLOB\',\'MDTT0-RUN3-01-00\')"'  # TODO: use R3 BLK cond tag when available
 tzreco.args += ' --postInclude="TriggerTest/disableChronoStatSvcPrintout.py"'
 
 # Tier-0 monitoring step (AOD->HIST)

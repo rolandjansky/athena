@@ -9,7 +9,6 @@
 
 
 from AthenaConfiguration.ComponentFactory import CompFactory
-from JetRecConfig.JetRecConfig import isAthenaRelease
 from EventShapeTools.EventDensityConfig import configEventDensityTool, getEventShapeName
 
 def _buildJetAlgForInput(suffix, tools ):
@@ -47,7 +46,7 @@ def buildPV0TrackSel(parentjetdef, spec):
     trkOptions = jetContextDic[parentjetdef.context]
     tvaTool = getTTVAToolForReco("trackjetTVAtool", 
                                  returnCompFactory = True,
-                                 addDecoAlg = isAthenaRelease(),
+                                 addDecoAlg = False ,# not needed : UsedInFit decorations are part of other prerequisites  
                                  WorkingPoint = "Nonprompt_All_MaxWeight",
                                  TrackContName = trkOptions['JetTracksQualityCuts'],
                                  VertexContName = trkOptions['Vertices'],

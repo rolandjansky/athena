@@ -260,13 +260,7 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset, gFEXOutputC
    bFPGA_B = thr_gXE.JWOJ_param('B','b') / (pow(2, 10)-1);
    aFPGA_C = thr_gXE.JWOJ_param('C','a') / (pow(2, 10)-1);
    bFPGA_C = thr_gXE.JWOJ_param('C','b') / (pow(2, 10)-1);
-   
-   aFPGA_A = 1;
-   bFPGA_A = 1;
-   aFPGA_B = 1;
-   bFPGA_B = 1;
-   aFPGA_C = 1;
-   bFPGA_C = 1;
+
 
    m_gFEXJwoJAlgoTool->setAlgoConstant(aFPGA_A, bFPGA_A,
                                        aFPGA_B, bFPGA_B,

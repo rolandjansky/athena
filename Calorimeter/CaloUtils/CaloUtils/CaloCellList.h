@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CaloCellList_H
@@ -64,6 +64,7 @@ public:
   double energy() const; // returns the energy of the selected cells
   double et() const;     // returns the et of the selected cells
   int ncells() const;    // returns the number of cells
+  unsigned short nBadT(int i) const; // returns the number of bad timed cell in Tile (0, 1 for sampling 0 and 1+2)
 
 private:
   void doSelect(double eta,
@@ -79,6 +80,7 @@ private:
   vector_type m_theCellVector;
   double m_energy;
   double m_et;
+  unsigned short m_nBadT0 = 0U, m_nBadT12 = 0U;
 };
 
 inline CaloCellList::list_iterator
@@ -109,6 +111,12 @@ inline int
 CaloCellList::ncells() const
 {
   return m_theCellVector.size();
+}
+
+inline unsigned short
+CaloCellList::nBadT(int i) const
+{
+  return (i == 0 ? m_nBadT0 : m_nBadT12);
 }
 
 #endif

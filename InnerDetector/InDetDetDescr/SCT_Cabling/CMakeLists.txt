@@ -3,6 +3,8 @@
 # Declare the package name:
 atlas_subdir( SCT_Cabling )
 
+find_package(Boost)
+
 # Component(s) in the package:
 atlas_add_library( SCT_CablingLib
                    src/*.cxx
@@ -24,3 +26,12 @@ atlas_add_test( TestSCT_CablingConfig
                 POST_EXEC_SCRIPT noerror.sh
                 PROPERTIES TIMEOUT 600
                 ENVIRONMENT THREADS=1 )
+                
+atlas_add_test( SCT_OnlineId_test	
+  SOURCES 
+  test/SCT_OnlineId_test.cxx 
+  INCLUDE_DIRS  ${Boost_INCLUDE_DIRS}  
+  LINK_LIBRARIES ${Boost_LIBRARIES} CxxUtils SCT_CablingLib
+  POST_EXEC_SCRIPT nopost.sh
+)
+

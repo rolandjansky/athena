@@ -33,9 +33,9 @@ StatusCode gFEXJwoJAlgo::initialize(){
 }
 
 
-void gFEXJwoJAlgo::setAlgoConstant(unsigned int aFPGA_A, unsigned int bFPGA_A,
-                                   unsigned int aFPGA_B, unsigned int bFPGA_B,
-                                   unsigned int aFPGA_C, unsigned int bFPGA_C,
+void gFEXJwoJAlgo::setAlgoConstant(float aFPGA_A, float bFPGA_A,
+                                   float aFPGA_B, float bFPGA_B,
+                                   float aFPGA_C, float bFPGA_C,
                                    int gXE_seedThrA, int gXE_seedThrB, int gXE_seedThrC) {
   m_aFPGA_A = aFPGA_A;
   m_bFPGA_A = bFPGA_A;
@@ -127,7 +127,9 @@ std::vector<std::unique_ptr<gFEXJwoJTOB>> gFEXJwoJAlgo::jwojAlgo(gTowersCentral 
   sumEtFPGA(Ctwr, C_sumEt);
 
   sumEt(A_sumEt, B_sumEt, C_sumEt, total_sumEt);
-
+  // Truncate two bits of SumEt to allow for a larger energy range with 800 MeV resolution
+  total_sumEt = total_sumEt/4; 
+   
   sumEt(A_MHT_x, B_MHT_x, C_MHT_x, MHT_x);
   sumEt(A_MHT_y, B_MHT_y, C_MHT_y, MHT_y);
   sumEt(A_MST_x, B_MST_x, C_MST_x, MST_x);
@@ -295,7 +297,7 @@ void gFEXJwoJAlgo::gBlockAB(gTowersCentral twrs, gTowersCentral & gBlkSum){
 
 
 void gFEXJwoJAlgo::metFPGA(gTowersCentral twrs, gTowersCentral & gBlkSum, int gBlockthreshold,
-                           unsigned int aFPGA, unsigned int bFPGA,
+                           float aFPGA, float bFPGA,
                            int & MHT_x, int & MHT_y,
                            int & MST_x, int & MST_y,
                            int & MET_x, int & MET_y){

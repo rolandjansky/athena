@@ -29,14 +29,14 @@ public:
                     SiCommonItems *commonItems,
                     WaferTree *moduleTree);
 
-  virtual int sensorId(std::map<std::string, int> &index) const override final;
+  virtual int sensorId(std::map<std::string, int> &index) const override;
   virtual void addSensorType(const std::string& clas,
                              const std::string& typeName,
                              const std::map<std::string, std::string>& parameters) override;
   virtual void addSensor(const std::string& typeName,
                          std::map<std::string, int> &index,
                          int sequentialId,
-                         GeoVFullPhysVol *fpv) override final;
+                         GeoVFullPhysVol *fpv) override;
   // virtual void addAlignable(int level,
   //                           std::map<std::string, int> &index,
   //                           GeoVFullPhysVol *fpv,
@@ -53,7 +53,6 @@ public:
 protected:
   std::map<std::string, int> m_geometryMap;
 
-private:
   void makePixelModule(const std::string& typeName,
                        const std::map<std::string, std::string> &parameters);
 

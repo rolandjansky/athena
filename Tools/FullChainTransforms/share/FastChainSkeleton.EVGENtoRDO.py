@@ -749,8 +749,8 @@ if ISF_Flags.UsingGeant4():
 
     ## AtlasSimSkeleton._do_external
     from AthenaCommon.AppMgr import ToolSvc
-    from Geo2G4.Geo2G4Conf import Geo2G4Svc
-    geo2G4Svc = Geo2G4Svc()
+    from AthenaCommon import CfgMgr
+    geo2G4Svc = CfgMgr.Geo2G4Svc()
     theApp.CreateSvc += ["Geo2G4Svc"]
     ServiceMgr += geo2G4Svc
     ## Enable top transforms for the ATLAS geometry

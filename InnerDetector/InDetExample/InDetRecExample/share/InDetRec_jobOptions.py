@@ -9,7 +9,8 @@
 from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon.BeamFlags import jobproperties
 from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
-
+from OverlayCommonAlgs.OverlayFlags import overlayFlags
+from InDetRecExample import TrackingCommon
 
 # check (for robustness) if ID is on at all!
 if not DetFlags.detdescr.ID_on():
@@ -165,7 +166,17 @@ else:
     #
     # ------------------------------------------------------------
     # --- silicon
+    if DetFlags.haveRIO.pixel_on():
+      topSequence += TrackingCommon.getPixelDetectorElementStatusAlg()
+      topSequence += TrackingCommon.getPixelDetectorElementStatusAlgActiveOnly()
+
+    if DetFlags.haveRIO.SCT_on():
+      topSequence += TrackingCommon.getSCTDetectorElementStatusAlgWithoutFlagged()
+
     include ("InDetRecExample/InDetRecPreProcessingSilicon.py")
+
+    if DetFlags.haveRIO.SCT_on():
+      topSequence += TrackingCommon.getSCTDetectorElementStatusAlg()
 
     # --- TRT, no drift information if cosmics, do not use extrenal phase in any case
     if not InDetFlags.doDBMstandalone():
@@ -202,6 +213,7 @@ else:
     #
     # --- Pixel track segment finding
     #
+
     ClusterSplitProbContainer=''
     if InDetFlags.doTrackSegmentsPixel():
 
@@ -861,7 +873,6 @@ else:
                                                         MinDegreesOfFreedom = 1,
                                                         MatEffects          =  InDetFlags.materialInteractionsType(),
                                                         MinSiHits           =  InDetNewTrackingCuts.minClusters() )
-#        InDetTruthTrackBuilder.OutputLevel = VERBOSE
         ToolSvc += InDetTruthTrackBuilder
 
         # --- the truth PRD trajectory builder
@@ -896,7 +907,6 @@ else:
             InDetPRD_TruthTrajectoryBuilder.PRD_TruthTrajectoryManipulators = [ InDetTruthTrajectorySorter, InDetTruthTrajectoryManipulator ]
 
         ToolSvc+=InDetPRD_TruthTrajectoryBuilder
-#        InDetPRD_TruthTrajectoryBuilder.OutputLevel = VERBOSE
 
         # --- the (1st) trajectory selector
         PRD_TruthTrajectorySelector = []
@@ -916,18 +926,18 @@ else:
                                                           AssociationTool            = getInDetPRDtoTrackMapToolGangedPixels(),
                                                           TrackSummaryTool           = TrackingCommon.getInDetTrackSummaryToolSharedHits(),
                                                           PRD_TruthTrajectorySelectors  = PRD_TruthTrajectorySelector )
-#        InDetTruthTrackCreation.OutputLevel = VERBOSE
         topSequence += InDetTruthTrackCreation
 
         if  InDetFlags.doSplitReco() or InDetFlags.doIdealPseudoTracking() :
           # --- add the truth to the truth tracks ;-)
           include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
           InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.PseudoTracks(),
-                                                     InDetKeys.PseudoDetailedTracksTruth(),
-                                                     InDetKeys.PseudoTracksTruth(),
-                                                     PixelClusterTruth,
-                                                     SCT_ClusterTruth,
-                                                     TRT_DriftCircleTruth)
+                                                       InDetKeys.PseudoDetailedTracksTruth(),
+                                                       InDetKeys.PseudoTracksTruth(),
+                                                       False,
+                                                       PixelClusterTruth,
+                                                       SCT_ClusterTruth,
+                                                       TRT_DriftCircleTruth)
 
           from TrkTruthToTrack.TrkTruthToTrackConf import Trk__TruthToTrack
           InDetTruthToTrack  = Trk__TruthToTrack(name         = "InDetTruthToTrack",
@@ -986,6 +996,8 @@ else:
         merger_track_summary_tool = TrackingCommon.getInDetTrackSummaryToolSharedHits(namePrefix                 = 'CombinedInDetSplitProb',
                                                                                       ClusterSplitProbabilityName= CombinedInDetClusterSplitProbContainer)
         assert( TrackingCommon.combinedClusterSplitProbName() == CombinedInDetClusterSplitProbContainer)
+        if overlayFlags.doTrackOverlay():
+          InputCombinedInDetTracks += ["Bkg_CombinedInDetTracks"]
         TrkTrackCollectionMerger = Trk__TrackCollectionMerger(name                    = "InDetTrackCollectionMerger",
                                                               TracksLocation          = InputCombinedInDetTracks,
                                                               OutputTracksLocation    = InDetKeys.UnslimmedTracks(),
@@ -993,6 +1005,7 @@ else:
                                                               AssociationMapName      = "PRDtoTrackMap" + InDetKeys.UnslimmedTracks(),
                                                               UpdateSharedHits        = True,
                                                               UpdateAdditionalInfo    = True,
+                                                              DoTrackOverlay          = overlayFlags.doTrackOverlay(),
                                                               SummaryTool             = merger_track_summary_tool)
         topSequence += TrkTrackCollectionMerger
 
@@ -1015,47 +1028,50 @@ else:
         if InDetFlags.doTruth():
           # set up the truth info for this container
           #
-            include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
-            InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.UnslimmedTracks(),
-                                                         InDetKeys.UnslimmedDetailedTracksTruth(),
-                                                         InDetKeys.UnslimmedTracksTruth())
+          include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
+          from OverlayCommonAlgs.OverlayFlags import overlayFlags
+          InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.UnslimmedTracks(),
+                                                       InDetKeys.UnslimmedDetailedTracksTruth(),
+                                                       InDetKeys.UnslimmedTracksTruth(),
+                                                       overlayFlags.doTrackOverlay())
           #
           # add final output for statistics
           #
-            TrackCollectionTruthKeys += [ InDetKeys.UnslimmedTracksTruth() ]
+          TrackCollectionTruthKeys += [ InDetKeys.UnslimmedTracksTruth() ]
 
 
 
       # Dummy Merger to fill additional info for PRD-associated pixel tracklets
       if InDetFlags.doTrackSegmentsDisappearing():
-       DummyCollection = []
-       if InDetFlags.doTRTExtension() :
-         DummyCollection += [ InDetKeys.ExtendedTracksDisappearing()]
-       merger_track_summary_tool = TrackingCommon.getInDetTrackSummaryToolSharedHits(namePrefix                 = 'DisappearingSplitProb',
-                                                                                     ClusterSplitProbabilityName= DisappearingClusterSplitProbContainer)
-       from InDetRecExample.TrackingCommon                        import getInDetPRDtoTrackMapToolGangedPixels
-       TrkTrackCollectionMerger_pix = Trk__TrackCollectionMerger(name                    = "InDetTrackCollectionMerger_pix",
-                                                                 TracksLocation          = DummyCollection,
-                                                                 OutputTracksLocation    = InDetKeys.DisappearingTracks(),
-                                                                 AssociationTool         = getInDetPRDtoTrackMapToolGangedPixels(),
-                                                                 UpdateSharedHits        = True,
-                                                                 UpdateAdditionalInfo    = True,
-                                                                 SummaryTool             = merger_track_summary_tool)
-       #TrkTrackCollectionMerger_pix.OutputLevel = VERBOSE
-       topSequence += TrkTrackCollectionMerger_pix
+        DummyCollection = []
+        if InDetFlags.doTRTExtension() :
+          DummyCollection += [ InDetKeys.ExtendedTracksDisappearing()]
+        if overlayFlags.doTrackOverlay():
+          DummyCollection += ["Bkg_DisappearingTracks"]
+        merger_track_summary_tool = TrackingCommon.getInDetTrackSummaryToolSharedHits(namePrefix                 = 'DisappearingSplitProb',
+                                                                                    ClusterSplitProbabilityName= DisappearingClusterSplitProbContainer)
+        from InDetRecExample.TrackingCommon                        import getInDetPRDtoTrackMapToolGangedPixels
+        TrkTrackCollectionMerger_pix = Trk__TrackCollectionMerger(name                    = "InDetTrackCollectionMerger_pix",
+                                                                  TracksLocation          = DummyCollection,
+                                                                  OutputTracksLocation    = InDetKeys.DisappearingTracks(),
+                                                                  AssociationTool         = getInDetPRDtoTrackMapToolGangedPixels(),
+                                                                  UpdateSharedHits        = True,
+                                                                  UpdateAdditionalInfo    = True,
+                                                                  DoTrackOverlay          = overlayFlags.doTrackOverlay(),
+                                                                  SummaryTool             = merger_track_summary_tool)
+        topSequence += TrkTrackCollectionMerger_pix
 
-
-       if InDetFlags.doTruth():
+        if InDetFlags.doTruth():
           # set up the truth info for this container
           #
-            include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
-            InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.DisappearingTracks(),
-                                                         InDetKeys.DisappearingDetailedTracksTruth(),
-                                                         InDetKeys.DisappearingTracksTruth())
+          include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
+          InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.DisappearingTracks(),
+                                                       InDetKeys.DisappearingDetailedTracksTruth(),
+                                                       InDetKeys.DisappearingTracksTruth(),
+                                                       overlayFlags.doTrackOverlay())
 
-
-       if (InDetFlags.doPrintConfigurables()):
-         printfunc (TrkTrackCollectionMerger_pix)
+        if (InDetFlags.doPrintConfigurables()):
+          printfunc (TrkTrackCollectionMerger_pix)
 
 
     # ------------------------------------------------------------

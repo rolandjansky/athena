@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 ///////////////////////////////////////////////////////////////////
 // PlanarModuleStepper.cxx, (c) ATLAS Detector software
@@ -23,7 +23,7 @@ Trk::PlanarModuleStepper::PlanarModuleStepper(const std::string& t, const std::s
 
 // destructor
 Trk::PlanarModuleStepper::~PlanarModuleStepper()
-{}
+= default;
 
 
 // Athena standard methods

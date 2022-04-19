@@ -111,20 +111,6 @@ namespace top {
     *
     ************************************************************/
 
-    // Muon SF tools now require you to have setup an instance of
-    // the pileup reweighting tool!
-    // If we haven't set it up then tell the user this and exit.
-    if (!m_config->doPileupReweighting() and !m_config->isDataOverlay()) {
-      ATH_MSG_ERROR("\nThe Muon SF tools now require that you have"
-                    " previously setup an instance of "
-                    "the pileup reweighting tool.\n\n"
-                    "To do this set the options:\n\n\t"
-                    "PRWLumiCalcFiles\n and \n\tPRWConfigFiles \n\n"
-                    "in your config file.");
-      
-      return StatusCode::FAILURE;
-    }
-
     /************************************************************
     * Trigger Scale Factors:
     *    setup trigger SFs for nominal and 'loose' muon WPs
@@ -276,6 +262,18 @@ namespace top {
                  "Failed to set MuonQuality for " + name);
       top::check(asg::setProperty(tool, "AllowZeroSF", true),
                  "Failed to set AllowZeroSF for " + name);
+      if (m_config->muonSFCustomInputFolder() != " ") {
+        top::check(asg::setProperty(tool, "CustomInputFolder", m_config->muonSFCustomInputFolder()),
+                   "Failed to set CustomInputFolder property for MuonTriggerScaleFactors tool");
+      }
+      if (m_config->muonForcePeriod() != " ") {
+        top::check(asg::setProperty(tool, "forcePeriod", m_config->muonForcePeriod()),
+                   "Failed to set forcePeriod property for MuonTriggerScaleFactors tool");
+      }
+      if (m_config->muonForceYear() != -1) {
+        top::check(asg::setProperty(tool, "forceYear", m_config->muonForceYear()),
+                   "Failed to set forceYear property for MuonTriggerScaleFactors tool");
+      }
       top::check(tool->initialize(), "Failed to init. " + name);
     }
     return tool;
@@ -320,8 +318,23 @@ namespace top {
                  "Failed to set doExtraSmearing for " + name + " tool");
       top::check(asg::setProperty(tool, "do2StationsHighPt", do2StationsHighPt),
                  "Failed to set do2StationsHighPt for " + name + " tool");
-      top::check(asg::setProperty(tool, "calibrationMode", 0),
-                 "Failed to set do2StationsHighPt for " + name + " tool");     
+      if (m_config->isMC() && m_config->forceRandomRunNumber() > 0) {
+        top::check(asg::setProperty(tool, "useRandomRunNumber", false),
+                   "Failed to set useRandomRunNumber for " + name + " tool");
+      }
+      // this is a hack to assign mc21 campaign to mc16
+      std::vector<unsigned int> campaign = {310000, 330000};
+      top::check(asg::setProperty(tool, "MCperiods18", campaign),
+                 "Failed to set MCperiods18 for " + name + " tool");
+      CP::MuonCalibrationPeriodTool::CalibMode calibMode = CP::MuonCalibrationPeriodTool::CalibMode::noOption;
+      if (m_config->muonCalibMode() == "correctData_CB")
+	      calibMode = CP::MuonCalibrationPeriodTool::CalibMode::correctData_CB;
+      else if (m_config->muonCalibMode() == "correctData_IDMS")
+	      calibMode = CP::MuonCalibrationPeriodTool::CalibMode::correctData_IDMS;
+      else if (m_config->muonCalibMode() == "notCorrectData_IDMS")
+	      calibMode = CP::MuonCalibrationPeriodTool::CalibMode::notCorrectData_IDMS;
+      top::check(asg::setProperty(tool, "calibrationMode", calibMode),
+		 "Failed to set calibrationMode for " + name + " tool");
       top::check(tool->initialize(),
                  "Failed to set initialize " + name);
     }

@@ -253,17 +253,12 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, const s
      fillRNNCluster( trigger, online_tau_vec_mp, true );
   }
 
-  fillHLTEfficiencies(ctx, trigger, offline_for_hlt_tau_vec_1p, online_tau_vec_all, "1P");
-  fillHLTEfficiencies(ctx, trigger, offline_for_hlt_tau_vec_3p, online_tau_vec_all, "3P");
-
-  // fill ditau information 
   if(info.isDiTau){
+     // fill ditau information 
      fillDiTauVars(trigger, online_tau_vec_all);
      fillDiTauHLTEfficiencies(ctx, trigger, offline_for_hlt_tau_vec_all, online_tau_vec_all);
-  }
-
-  // fill T&P chains info                                                                                             
-  if(info.isTAndP){
+  } else if (info.isTAndP){
+    // fill T&P chains info                                                                                             
     if(info.hasElectron){
       SG::ReadHandle<xAOD::ElectronContainer> offElec(m_offlineElectronKey, ctx);
       if(!offElec.isValid())
@@ -325,6 +320,9 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, const s
       fillTagAndProbeVars(trigger, online_tau_vec, online_muons);
       fillTAndPHLTEfficiencies(ctx, trigger, offMuon_vec, online_muons, offline_for_hlt_tau_vec_all, online_tau_vec_all); 
     }
+  } else {
+    fillHLTEfficiencies(ctx, trigger, offline_for_hlt_tau_vec_1p, online_tau_vec_all, "1P");
+    fillHLTEfficiencies(ctx, trigger, offline_for_hlt_tau_vec_3p, online_tau_vec_all, "3P");
   }
 
   // true_taus

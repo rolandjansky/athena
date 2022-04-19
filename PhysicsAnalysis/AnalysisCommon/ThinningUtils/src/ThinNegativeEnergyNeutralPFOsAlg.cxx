@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ThinNegativeEnergyNeutralPFOsAlg.cxx
@@ -43,7 +43,7 @@ m_nNeutralPFOsThinned(0)
 // Destructor
 ///////////////
 ThinNegativeEnergyNeutralPFOsAlg::~ThinNegativeEnergyNeutralPFOsAlg()
-{}
+= default;
 
 // Athena Algorithm's Hooks
 ////////////////////////////

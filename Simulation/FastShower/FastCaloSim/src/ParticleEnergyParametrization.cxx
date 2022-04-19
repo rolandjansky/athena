@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FastCaloSim/ParticleEnergyParametrization.h"
@@ -81,8 +81,8 @@ Double_t GetRandom (TRandom& rand, const TH1& h)
 ParticleEnergyParametrization::ParticleEnergyParametrization(int id,double E,double eta):TNamed(Form("ParticleShape%d_E%d_eta%d",id,(int)(E+0.1),(int)(eta*100+0.1)),Form("ParticleShape pdgid=%d E=%1.1f eta=%4.2f",id,E,eta)),m_id(id),m_E(E),m_eta(eta),
   m_weights_err()
 {
-  m_Ecal_vs_dist=0;
-  m_h_layer_d_fine=0;
+  m_Ecal_vs_dist=nullptr;
+  m_h_layer_d_fine=nullptr;
   for(int i=CaloCell_ID_FCS::FirstSample;i<CaloCell_ID_FCS::MaxSample;++i) {
     m_weights[i]=1;
 //    m_Elayermean_vs_dist[i]=0;
@@ -107,7 +107,7 @@ void ParticleEnergyParametrization::MakeCumulativeX(int calosample,TH2* h) {
   
   for(int distbin=1;distbin<=h->GetNbinsX();++distbin) {
     TH1D* h1=h->ProjectionY("_py",distbin,distbin);
-    h1->SetDirectory(0);
+    h1->SetDirectory(nullptr);
     h1->ComputeIntegral();
     if(!DistPara(distbin)) {
       cout<<"ParticleEnergyParametrization::MakeCumulativeX : calosample="<<calosample<<" distbin="<<distbin<<" size="<<m_DistPara.GetSize()<<" m_Ecal_vs_dist->GetNbinsX()="<<m_Ecal_vs_dist->GetNbinsX()<<endl;
@@ -358,7 +358,7 @@ void ParticleEnergyParametrization::DiceParticle(ParticleEnergyShape& p,TRandom&
   }
 }
 
-void ParticleEnergyParametrization::RepeatDiceParticles(ParticleEnergyShape* p,int n) {
+void ParticleEnergyParametrization::RepeatDiceParticles(ParticleEnergyShape* p,int n) const {
   TRandom rand;
   for(int ip=0;ip<n;++ip) {
     if(ip%1000==0) cout<<"simul particle "<<ip<<endl;
@@ -366,7 +366,7 @@ void ParticleEnergyParametrization::RepeatDiceParticles(ParticleEnergyShape* p,i
   }
 }
 
-double ParticleEnergyParametrization::GetRandomInBinRange(TRandom& rand, double xmin_in1, double xmax_in1 , TH1* in2) const {
+double ParticleEnergyParametrization::GetRandomInBinRange(TRandom& rand, double xmin_in1, double xmax_in1 , TH1* in2) {
 
  // cout << " enter GetRandomInBinRange " << endl;
   int NumOfBin_in2 = in2->GetNbinsX();
@@ -399,8 +399,8 @@ return x;
 
 void ParticleEnergyParametrization::SetNoDirectoryHisto()
 {
-  if(m_Ecal_vs_dist) m_Ecal_vs_dist->SetDirectory(0);
-  if(m_h_layer_d_fine) m_h_layer_d_fine->SetDirectory(0);
+  if(m_Ecal_vs_dist) m_Ecal_vs_dist->SetDirectory(nullptr);
+  if(m_h_layer_d_fine) m_h_layer_d_fine->SetDirectory(nullptr);
   for(int distbin=0;distbin<m_DistPara.GetSize();++distbin) if(DistPara(distbin)) DistPara(distbin)->SetNoDirectoryHisto();
 }
 
@@ -422,7 +422,7 @@ void ParticleEnergyParametrization::Streamer(TBuffer &R__b)
       R__b >> m_Ecal_vs_dist;
       if(R__v>=3) { 
         R__b >> m_h_layer_d_fine;
-        if(m_h_layer_d_fine) m_h_layer_d_fine->SetDirectory(0);
+        if(m_h_layer_d_fine) m_h_layer_d_fine->SetDirectory(nullptr);
       }
       m_DistPara.Streamer(R__b);
       int R__i;
@@ -434,14 +434,14 @@ void ParticleEnergyParametrization::Streamer(TBuffer &R__b)
         double integ=m_Ecal_vs_dist->Integral();
         if(integ<=0) {
           delete m_Ecal_vs_dist;
-          m_Ecal_vs_dist=0;
+          m_Ecal_vs_dist=nullptr;
         } else {
           double* fIntegral=m_Ecal_vs_dist->GetIntegral();
           if(!fIntegral) m_Ecal_vs_dist->ComputeIntegral();
           fIntegral=m_Ecal_vs_dist->GetIntegral();
           if(!fIntegral) {
             delete m_Ecal_vs_dist;
-            m_Ecal_vs_dist=0;
+            m_Ecal_vs_dist=nullptr;
           }
         }  
       }

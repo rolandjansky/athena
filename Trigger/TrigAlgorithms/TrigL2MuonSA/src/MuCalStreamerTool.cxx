@@ -62,7 +62,7 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::openStream(int calBufferSize)
   std::string name = m_calBufferName;
   name += "_"+m_algInstanceName;
   
-  if ( m_cid == -1 ) { 
+  if ( m_circ == nullptr ) { 
       try
 	{
 	  m_circ = new TrigL2MuonSA::MuCalCircClient (0, name, calBufferSize);
@@ -91,17 +91,23 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::closeStream()
 {
 
   std::string name = m_calBufferName+"_"+m_algInstanceName;
-
+  ATH_MSG_DEBUG("I'm going to close the stream "<<name);
 
   if (m_circ)
     {
       delete m_circ;
-      m_circ = 0;
+      m_circ = nullptr;
     }
 
   return StatusCode::SUCCESS;
 
 }
+
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+bool TrigL2MuonSA::MuCalStreamerTool::isStreamOpen() {return m_circ!=nullptr;}
 
 
 // --------------------------------------------------------------------------------
@@ -120,11 +126,11 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::closeStream()
    // create the fragment
    // ( dummy input for now )
 
+   ATH_MSG_DEBUG("Data scouting is set to"<<doDataScouting);
 
-
-   // skip the event if it's a data scouting chain and it's a noise burst
+   // skip the event if it's a noise burst
    unsigned int totalHits = mdtHits.size()+rpcHits.size()+tgcHits.size();
-   if ( doDataScouting && totalHits > 500 ) {
+   if (  totalHits > 500 ) {
      ATH_MSG_DEBUG("Too many hits: skip the RoI");
      updateTriggerElement=false;
      return StatusCode::SUCCESS;
@@ -195,6 +201,10 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::closeStream()
      // add the mdt fragment to the event
      event << mdtFragment;
    }
+   else{
+     // do not write the calib stream
+     return StatusCode::SUCCESS;
+   }
 
    // create the RPC fragment 
    if ( rpcHits.size() > 0 ) {    
@@ -236,6 +246,8 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::closeStream()
      }
 
    }
+   ATH_MSG_DEBUG("Dumping the event stream");
+   ATH_MSG_DEBUG(event);
   if (m_circ)
   {
     m_circ->dumpToCirc (event);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -60,7 +60,7 @@ inline void ROIB::Header::setL1ID( const uint32_t i ) {
 }
 
 inline void ROIB::Header::setBCID( const uint32_t i ) {
-  if (  m_header.size() > 4 ) m_header[ 5 ] = i;
+  if (  m_header.size() > 5 ) m_header[ 5 ] = i;
 }
 
 inline void ROIB::Header::setTriggerType( const uint32_t i ) {

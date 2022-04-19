@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 /********************************************************************
@@ -36,8 +36,7 @@ InDet::CaloClusterROI_Selector::CaloClusterROI_Selector(const std::string& name,
 
 // ================================================================
 InDet::CaloClusterROI_Selector::~CaloClusterROI_Selector()
-{  
-}
+= default;
 
 // =================================================================
 StatusCode InDet::CaloClusterROI_Selector::initialize()

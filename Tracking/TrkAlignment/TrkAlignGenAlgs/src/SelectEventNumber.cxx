@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkAlignGenAlgs/SelectEventNumber.h"
@@ -22,9 +22,7 @@ SelectEventNumber::SelectEventNumber(const std::string& name, ISvcLocator* pSvcL
 
 //___________________________________________________________________________
 SelectEventNumber::~SelectEventNumber() 
-{
-    
-}
+= default;
 
 //___________________________________________________________________________
 StatusCode SelectEventNumber::initialize() 

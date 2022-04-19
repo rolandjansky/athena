@@ -115,8 +115,7 @@ Root::TPhotonIsEMSelector::TPhotonIsEMSelector(const char *name) :
 }
 
 // =================================================================
-Root::TPhotonIsEMSelector::~TPhotonIsEMSelector() {
-}
+Root::TPhotonIsEMSelector::~TPhotonIsEMSelector() = default;
 
 /** The initialization of this tool registers all applied cuts
     and make sure that they got registered

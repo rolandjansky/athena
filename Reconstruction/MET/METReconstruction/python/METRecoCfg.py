@@ -216,7 +216,10 @@ class METConfig:
                                                               maxD0=2,
                                                               minPt=500)
         #
-        self.trkvxtool=CompFactory.getComp("CP::TrackVertexAssociationTool")("TrackVertexAssociationTool_MET", WorkingPoint="Nonprompt_All_MaxWeight")
+        from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+        components = ComponentAccumulator()
+        from TrackVertexAssociationTool.TTVAToolConfig import TTVAToolCfg
+        self.trkvxtool=components.popToolsAndMerge(TTVAToolCfg(inputFlags, "TrackVertexAssociationTool_MET",addDecoAlg=True, WorkingPoint="Nonprompt_All_MaxWeight"))
         #
         self.trkisotool = CompFactory.getComp("xAOD::TrackIsolationTool")("TrackIsolationTool_MET")
         self.trkisotool.TrackSelectionTool = self.trkseltool # As configured above

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,7 +13,6 @@
 #include "GaudiKernel/StatusCode.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkFitterUtils/FitterTypes.h"
-#include "TrkFitterUtils/ProtoTrackStateOnSurface.h"
 #include "TrkEventUtils/TrkParametersComparisonFunction.h" // is a typedef
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
@@ -23,7 +22,6 @@ namespace Trk {
   class Track;
   class IExtrapolator;           // Extrapolation Tool
   typedef bool SortInputFlag;    //!< switch to toggle sorting
-  typedef std::vector<Trk::ProtoTrackStateOnSurface> Trajectory;
   typedef DataVector<const TrackStateOnSurface>::const_iterator TS_iterator;
   typedef std::vector<std::pair<const Trk::MeasurementBase*, int> > MB_IndexVector;
 
@@ -45,36 +43,10 @@ namespace Trk {
     TrackFitInputPreparator();
       
     //! constructor with non-zero sorting reference point.
-    TrackFitInputPreparator(const Amg::Vector3D&, const IExtrapolator* extrapolator=0);
+    TrackFitInputPreparator(const Amg::Vector3D&);
 
     //! destructor
     ~TrackFitInputPreparator();
-
-    /** @brief fill KF-internal trajectory from input Track and determine
-        the reference parameters. Optionally sort and reset the outlier
-        flags. */
-    StatusCode copyToTrajectory (Trajectory&, const TrackParameters*&,
-                                 const Track&, const SortInputFlag,
-                                 const bool,
-                                 const ParticleHypothesis&  partHypo ) const;
-
-    /** @brief fill KF-internal trajectory from input Track and an additional
-        vector of measurements. 
-
-        Also determines the reference parameters. Optionally sort and reset
-        the outlier flags. */
-    StatusCode copyToTrajectory (Trajectory&, const TrackParameters*&,
-                                 const Track&, const MeasurementSet&,
-                                 const SortInputFlag, const bool,
-                                 const ParticleHypothesis&  partHypo) const;
-
-    /** @brief fill KF-internal trajectory from two input Tracks and determine
-        the reference parameters. Optionally sort and reset the outlier flags. */
-    StatusCode copyToTrajectory (Trajectory&, const TrackParameters*&,
-                                 const Track&, const Track&,
-                                 const SortInputFlag, const bool,
-                                 const ParticleHypothesis&  partHypo
-                                 ) const;
 
     /** @brief fill a new track object from track+measurements using flags
         for sorting and outliers. This method is a factory, that is the
@@ -102,11 +74,7 @@ namespace Trk {
     const Amg::Vector3D           m_sortingRefPoint;
     TrkParametersComparisonFunction*    m_TP_ComparisonFunction;
     
-    const IExtrapolator*          m_extrapolator;
 
-    void insertStateIntoTrajectory(Trajectory&, const MeasurementBase*,
-                             bool, bool, const TrackParameters*,
-                             const ParticleHypothesis&  partHypo) const;
   };
 
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StoreGate/StoreGateSvc.h"
@@ -39,12 +39,12 @@ int main ATLAS_NOT_THREAD_SAFE () {
   // Test slot override
   AlgorithmIdentifier ai = AlgorithmIdentifierMaker::make(Gaudi::Hive::currentContext(), "ALG_A", log, 10);
 
-  ai.dump();
+  ai.dump(log);
 
   // Test hash collision. These two strings are known to collide.
   AlgorithmIdentifier collision_a = AlgorithmIdentifierMaker::make(Gaudi::Hive::currentContext(), "APP_HLT:HLTMPPU-36:HLT-36:tpu-rack-73:pc-tdq-tpu-73012-30", log);
   AlgorithmIdentifier collision_b = AlgorithmIdentifierMaker::make(Gaudi::Hive::currentContext(), "APP_HLT:HLTMPPU-36:HLT-36:tpu-rack-75:pc-tdq-tpu-75033-11", log);
 
-  collision_a.dump();
-  collision_b.dump();
+  collision_a.dump(log);
+  collision_b.dump(log);
 }

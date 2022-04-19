@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -416,7 +416,7 @@ TRT_LocalOccupancy::countHitsNearTrack (OccupancyData& data,
 
 
 // ========================================================================
-bool TRT_LocalOccupancy::isMiddleBXOn(unsigned int word) const {
+bool TRT_LocalOccupancy::isMiddleBXOn(unsigned int word) {
   // check that there is at least one hit in middle 25 ns
   unsigned mask = 0x00010000;
   int i=0;
@@ -464,7 +464,7 @@ bool TRT_LocalOccupancy::passValidityGate(unsigned int word, float t0) const {
     return arrayindex;
   }
 
-int TRT_LocalOccupancy::mapPhiToPhisector(const double t_phi) const {
+int TRT_LocalOccupancy::mapPhiToPhisector(const double t_phi) {
 
   int phisector=33;
   // do phi selection

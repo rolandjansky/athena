@@ -26,9 +26,13 @@ void TrapezoidBoundsCnv_p1 :: persToTrans( const Trk :: TrapezoidBounds_p1 *pers
   transObj->m_beta                                                = persObj->m_beta;
 }
 
-void TrapezoidBoundsCnv_p1 :: transToPers( const Trk :: TrapezoidBounds    * /**transObj*/,
-                                                 Trk :: TrapezoidBounds_p1 * /**persObj*/,
+void TrapezoidBoundsCnv_p1 :: transToPers( const Trk :: TrapezoidBounds    *transObj,
+                                                 Trk :: TrapezoidBounds_p1 *persObj,
                                                  MsgStream                 & ) 
 {
-  throw std::runtime_error("TrapezoidBoundsCnv_p1::transToPers is deprecated!");   
+  persObj->m_minHalfX  = transObj->minHalflengthX();
+  persObj->m_maxHalfX  = transObj->maxHalflengthX();
+  persObj->m_halfY    = transObj->halflengthY();
+  persObj->m_alpha    = transObj->m_alpha;
+  persObj->m_beta    = transObj->m_beta;
 }

@@ -35,7 +35,7 @@
 
 namespace {
   // the tube number of a tube in a tubeLayer ia encoded in the GeoSerialIdentifier (modulo maxNTubesPerLayer)
-  static constexpr unsigned int maxNTubesPerLayer = MdtIdHelper::maxNTubesPerLayer;
+  constexpr unsigned int maxNTubesPerLayer = MdtIdHelper::maxNTubesPerLayer;
 }
 
 //================ Constructor =================================================
@@ -168,7 +168,7 @@ void iFatras::SimHitCreatorMS::handle( const Incident& inc ) {
 	m_mdtSimHitCollection = new MDTSimHitCollection( m_mdtCollectionName);
 	if ( (evtStore()->record(m_mdtSimHitCollection, m_mdtCollectionName, true)).isFailure() ) {
              ATH_MSG_ERROR( "[ --- ] Unable to record MDTSimHitCollection " << m_mdtCollectionName);
-             delete m_mdtSimHitCollection; m_mdtSimHitCollection=0;
+             delete m_mdtSimHitCollection; m_mdtSimHitCollection=nullptr;
         }
       }
       if ( evtStore()->contains<RPCSimHitCollection>(m_rpcCollectionName) ){
@@ -179,7 +179,7 @@ void iFatras::SimHitCreatorMS::handle( const Incident& inc ) {
 	m_rpcSimHitCollection = new RPCSimHitCollection( m_rpcCollectionName);
 	if ( (evtStore()->record(m_rpcSimHitCollection, m_rpcCollectionName, true)).isFailure() ) {
              ATH_MSG_ERROR( "[ --- ] Unable to record RPCSimHitCollection " << m_rpcCollectionName);
-             delete m_rpcSimHitCollection; m_rpcSimHitCollection=0;
+             delete m_rpcSimHitCollection; m_rpcSimHitCollection=nullptr;
         }
       }
       if ( evtStore()->contains<TGCSimHitCollection>(m_tgcCollectionName) ){
@@ -190,7 +190,7 @@ void iFatras::SimHitCreatorMS::handle( const Incident& inc ) {
 	m_tgcSimHitCollection = new TGCSimHitCollection( m_tgcCollectionName);
 	if ( (evtStore()->record(m_tgcSimHitCollection, m_tgcCollectionName, true)).isFailure() ) {
              ATH_MSG_ERROR( "[ --- ] Unable to record TGCSimHitCollection " << m_tgcCollectionName);
-             delete m_tgcSimHitCollection; m_tgcSimHitCollection=0;
+             delete m_tgcSimHitCollection; m_tgcSimHitCollection=nullptr;
         }
       }
       if ( evtStore()->contains<CSCSimHitCollection>(m_cscCollectionName) ){
@@ -201,7 +201,7 @@ void iFatras::SimHitCreatorMS::handle( const Incident& inc ) {
 	m_cscSimHitCollection = new CSCSimHitCollection( m_cscCollectionName);
 	if ( (evtStore()->record(m_cscSimHitCollection, m_cscCollectionName, true)).isFailure() ) {
              ATH_MSG_ERROR( "[ --- ] Unable to record CSCSimHitCollection " << m_cscCollectionName);
-             delete m_cscSimHitCollection; m_cscSimHitCollection=0;
+             delete m_cscSimHitCollection; m_cscSimHitCollection=nullptr;
         }
       }
       if ( evtStore()->contains<MMSimHitCollection>(m_mmCollectionName) ){
@@ -212,7 +212,7 @@ void iFatras::SimHitCreatorMS::handle( const Incident& inc ) {
 	m_mmSimHitCollection = new MMSimHitCollection( m_mmCollectionName);
 	if ( (evtStore()->record(m_mmSimHitCollection, m_mmCollectionName, true)).isFailure() ) {
              ATH_MSG_ERROR( "[ --- ] Unable to record MMSimHitCollection " << m_mmCollectionName);
-             delete m_mmSimHitCollection; m_mmSimHitCollection=0;
+             delete m_mmSimHitCollection; m_mmSimHitCollection=nullptr;
         }
       }
       if ( evtStore()->contains<sTGCSimHitCollection>(m_stgcCollectionName) ){
@@ -223,12 +223,11 @@ void iFatras::SimHitCreatorMS::handle( const Incident& inc ) {
 	m_stgcSimHitCollection = new sTGCSimHitCollection( m_stgcCollectionName);
 	if ( (evtStore()->record(m_stgcSimHitCollection, m_stgcCollectionName, true)).isFailure() ) {
              ATH_MSG_ERROR( "[ --- ] Unable to record sTGCSimHitCollection " << m_stgcCollectionName);
-             delete m_stgcSimHitCollection; m_stgcSimHitCollection=0;
+             delete m_stgcSimHitCollection; m_stgcSimHitCollection=nullptr;
         }
       }
    }
-   return;
-}
+   }
 
 
 //================ Track Creation Interface  =====================================
@@ -240,7 +239,7 @@ void iFatras::SimHitCreatorMS::createHits(const ISF::ISFParticle& isp,
   std::vector<Trk::HitInfo>::const_iterator plIterEnd = hits.end();
   for ( ; plIter != plIterEnd; ++plIter ){
     // get the parameters & associated layer
-    const Trk::TrackParameters* parm = (*plIter).trackParms;
+    const Trk::TrackParameters* parm = (*plIter).trackParms.get();
     double timeInfo = (*plIter).time;
     const Trk::Layer*        currLay = m_extrapolator->trackingGeometry()->associatedLayer( parm->position() );
 
@@ -542,6 +541,5 @@ void iFatras::SimHitCreatorMS::initDeadChannels(const MuonGM::MdtReadoutElement*
   }
   std::sort(deadTubes.begin(), deadTubes.end());
   m_DeadChannels[detElId] = deadTubes;
-  return;
 }
 

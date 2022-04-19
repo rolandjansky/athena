@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////
@@ -16,9 +16,7 @@ namespace FastCaloSim {
   }
   
   //__________________________________________________________________________
-  FSStoregateClean::~FSStoregateClean(){
-    
-  }
+  FSStoregateClean::~FSStoregateClean()= default;
 
   //__________________________________________________________________________
   StatusCode FSStoregateClean::initialize()
@@ -42,7 +40,7 @@ namespace FastCaloSim {
     for(unsigned int i=0;i<m_SG_keys.size();++i) {
       msg(MSG::INFO) << "deleting : "<<m_SG_keys[i]<<" ..."<<endmsg;
       
-      const INavigable4MomentumCollection* p = 0;
+      const INavigable4MomentumCollection* p = nullptr;
       sc = evtStore()->retrieve(p,m_SG_keys[i]);
 
       if (sc.isFailure()) {
@@ -53,7 +51,7 @@ namespace FastCaloSim {
         if (sc.isFailure()) {
 	  msg(MSG::ERROR) << "Unable to delete pointer to Object "<<m_SG_keys[i]<< endmsg;
         } else {
-          p=0;
+          p=nullptr;
           sc = evtStore()->retrieve(p,m_SG_keys[i]);
 	  sc.ignore();
           msg(MSG::INFO) << "deleting "<<m_SG_keys[i]<<" done, test p*="<<p<<endmsg;

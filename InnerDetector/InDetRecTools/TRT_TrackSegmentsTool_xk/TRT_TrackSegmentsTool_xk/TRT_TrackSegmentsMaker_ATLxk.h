@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -190,10 +190,10 @@ namespace InDet{
                       const Trk::PRDtoTrackMap *prd_to_track_map,
                       TRT_TrackSegmentsMaker_ATLxk::EventData &event_data) const;
 
-      void segmentsPreparation(TRT_TrackSegmentsMaker_ATLxk::EventData &event_data) const;
+      static void segmentsPreparation(TRT_TrackSegmentsMaker_ATLxk::EventData &event_data) ;
 
       MsgStream&    dumpConditions(MsgStream   & out) const;
-      MsgStream&    dumpEvent     (MsgStream   & out,InDet::ITRT_TrackSegmentsMaker::IEventData &event_data) const;
+      static MsgStream&    dumpEvent     (MsgStream   & out,InDet::ITRT_TrackSegmentsMaker::IEventData &event_data) ;
     };
 
 } // end of name space

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 ///////////////////////////////////////////////////////////////////
 // L1CPHitsTools.h, 
@@ -98,7 +98,7 @@ class L1CPHitsTools : virtual public IL1CPHitsTools, public AthAlgTool
                        const HitsVector& hits0, const HitsVector& hits1,
 		       int crate, int dataId, int peak) const;
 
-    bool m_debug;
+    bool m_debug = false;
      
 };
 

@@ -21,10 +21,13 @@ void CylinderBoundsCnv_p1 :: persToTrans( const Trk :: CylinderBounds_p1 *persOb
                                    persObj->m_halfZ);
 }
 
-void CylinderBoundsCnv_p1 :: transToPers( const Trk :: CylinderBounds    * /**transObj*/,
-                                                Trk :: CylinderBounds_p1 * /**persObj*/,
+void CylinderBoundsCnv_p1 :: transToPers( const Trk :: CylinderBounds    *transObj,
+                                                Trk :: CylinderBounds_p1 *persObj,
                                                 MsgStream                & )
 {
-  throw std::runtime_error("CylinderBoundsCnv_p1::transToPers is deprecated!");   
+  persObj->m_radius    = transObj->r();
+  persObj->m_averagePhi    = transObj->averagePhi();
+  persObj->m_halfPhiSector  = transObj->halfPhiSector();
+  persObj->m_halfZ = transObj->halflengthZ();
 }
 

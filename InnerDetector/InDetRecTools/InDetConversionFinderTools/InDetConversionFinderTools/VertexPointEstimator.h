@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETCONVERSIONFINDERTOOLS_VERTEXPOINTESTIMATOR_H
@@ -66,12 +66,12 @@ namespace InDet {
                                     float& deltaR) const;
 
 
-    double areaVar(double, double, double, double, double, double, double&) const;
-    double areaVar(double, double, double, double, double, double, double&, double&, double&) const;
-    bool   circleIntersection(double, double, double, 
+    static double areaVar(double, double, double, double, double, double, double&) ;
+    static double areaVar(double, double, double, double, double, double, double&, double&, double&) ;
+    static bool   circleIntersection(double, double, double, 
 			      double, double, double, 
 			      double&, double&, 
-			      double&, double&) const;
+			      double&, double&) ;
     static bool   secondDegree(double, double, double, double&, double&) ;
     static double areaTriangle(double, double, double, double, double, double) ;
     

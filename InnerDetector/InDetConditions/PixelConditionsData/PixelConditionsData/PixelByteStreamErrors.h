@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelConditionsData_PixelByteStreamErrors_h
@@ -18,7 +18,7 @@ namespace PixelByteStreamErrors {
       lastErrType=RODDataOVerflow, ErrorsNumber=lastErrType+1 };
 
   //!< @brief for cases when error doe snot need to be accumulated
-  inline IDCInDetBSErrContainer::ErrorCode makeError( PixelErrorsEnum errType ) { return IDCInDetBSErrContainer::ErrorCode{1} << errType; }
+  inline constexpr IDCInDetBSErrContainer::ErrorCode makeError( PixelErrorsEnum errType ) { return IDCInDetBSErrContainer::ErrorCode{1} << errType; }
 
   //!< @brief helper to be used in clients to fetch error information
   inline bool hasError(IDCInDetBSErrContainer::ErrorCode errWord,  PixelErrorsEnum errType ) { return errWord & makeError( errType ); }

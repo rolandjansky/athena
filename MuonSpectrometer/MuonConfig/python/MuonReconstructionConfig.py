@@ -29,6 +29,10 @@ def StandaloneMuonOutputCfg(flags):
         aod_items+=[ "xAOD::TrackParticleContainer#EMEO_MuonSpectrometerTrackParticles" ]
         aod_items+=[ "xAOD::TrackParticleAuxContainer#EMEO_MuonSpectrometerTrackParticlesAux." ]
         
+    if flags.Muon.doMicromegas or flags.Muon.dosTGCs:
+         aod_items+=[ "xAOD::MuonSegmentContainer#xAODNSWSegments" ]
+         aod_items+=[ "xAOD::MuonSegmentAuxContainer#xAODNSWSegmentsAux." ]
+
     # TrackParticles 
     aod_items+=[ "xAOD::TrackParticleContainer#MuonSpectrometerTrackParticles" ]
     aod_items+=[ "xAOD::TrackParticleAuxContainer#MuonSpectrometerTrackParticlesAux." ]
@@ -125,11 +129,16 @@ def StandaloneMuonOutputCfg(flags):
 
 def MuonReconstructionCfg(flags):
     # https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonStandalone.py
-    result=ComponentAccumulator()
     from MuonConfig.MuonPrepDataConvConfig import MuonPrepDataConvCfg
     from MuonConfig.MuonRecToolsConfig import MuonTrackScoringToolCfg, MuonTrackSummaryToolCfg
-    result.merge(MuonPrepDataConvCfg(flags))
+    from MuonConfig.MuonGeometryConfig import MuonIdHelperSvcCfg
 
+    # Many components need these services, so setup once here.
+    result=MuonIdHelperSvcCfg(flags)
+    result.addService( CompFactory.Muon.MuonEDMHelperSvc(name="MuonEDMHelperSvc") )
+
+    # Now setup reconstruction steps
+    result.merge(MuonPrepDataConvCfg(flags))
     result.merge( MuonSegmentFindingCfg(flags))
     result.merge( MuonTrackBuildingCfg(flags))
     result.merge( MuonStandaloneTrackParticleCnvAlgCfg(flags) )
@@ -176,14 +185,9 @@ if __name__=="__main__":
     from SGComps.AddressRemappingConfig import InputRenameCfg
     cfg.merge(InputRenameCfg("TrackCollection", "MuonSpectrometerTracks", "MuonSpectrometerTracks_old"))
 
-    # This is a temporary fix! Should be private!
-    Muon__MuonEDMHelperSvc=CompFactory.Muon.MuonEDMHelperSvc
-    muon_edm_helper_svc = Muon__MuonEDMHelperSvc("MuonEDMHelperSvc")
-    cfg.addService( muon_edm_helper_svc )
-
     cfg.printConfig(withDetails = True)
     # drop faulty remapping
-    # the evaluation of MuonSegmentNameFixCfg should happen conditinally instead
+    # the evaluation of MuonSegmentNameFixCfg should happen conditionally instead
     # this is hack that is functioning only because this is top level CA
     oldRemaps = cfg.getService("AddressRemappingSvc").TypeKeyRenameMaps
     cfg.getService("AddressRemappingSvc").TypeKeyRenameMaps = [ remap for remap in oldRemaps if "Trk::SegmentCollection" not in remap]

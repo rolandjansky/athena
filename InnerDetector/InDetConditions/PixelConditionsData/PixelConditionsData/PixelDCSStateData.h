@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file PixelConditionsData/PixelDCSStateData.h
@@ -18,13 +18,14 @@
 
 class PixelDCSStateData {
   public:
+    typedef std::unordered_map<int, int> IntConditions;
     void setModuleStatus(const int chanNum, const int value);
     int getModuleStatus(const int chanNum) const;
 
     enum DCSModuleState{READY,ON,UNKNOWN,TRANSITION,UNDEFINED,NOSTATE};
+    const IntConditions &moduleStatusMap() const { return m_moduleStatus; }
 
   private:
-    typedef std::unordered_map<int, int> IntConditions;
     IntConditions  m_moduleStatus;
 };
 

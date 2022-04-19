@@ -160,7 +160,8 @@ def ITkSiSPSeededTrackFinderCfg(flags, name="ITkSiSpTrackFinder", InputCollectio
         kwargs.setdefault("doFastTracking", True)
 
         if 'InDetEtaDependentCutsSvc' not in kwargs :
-            acc.merge(TC.ITkEtaDependentCutsSvcCfg(flags))
+            from InDet.InDetEtaDependentCutsConfig import ITkEtaDependentCutsSvcCfg
+            acc.merge(ITkEtaDependentCutsSvcCfg(flags))
             kwargs.setdefault("InDetEtaDependentCutsSvc", acc.getService("ITkEtaDependentCutsSvc"+flags.ITk.Tracking.ActivePass.extension))
 
     ITkSiSPSeededTrackFinder = CompFactory.InDet.SiSPSeededTrackFinder(name = name+flags.ITk.Tracking.ActivePass.extension, **kwargs)
@@ -204,9 +205,10 @@ def ITkTrackingSiPatternCfg(flags, InputCollections = None, ResolvedTrackCollect
     # --- get list of already associated hits (always do this, even if no other tracking ran before)
     #
     if (len(InputCollections) > 0) and flags.ITk.Tracking.ActivePass.usePrdAssociationTool:
-        acc.merge(TC.ITkTrackPRD_AssociationCfg(flags,
-                                                name = 'ITkTrackPRD_Association' + flags.ITk.Tracking.ActivePass.extension,
-                                                TracksName = list(InputCollections)))
+        from InDetConfig.InDetTrackPRD_AssociationConfig import ITkTrackPRD_AssociationCfg
+        acc.merge(ITkTrackPRD_AssociationCfg(flags,
+                                             name = 'ITkTrackPRD_Association' + flags.ITk.Tracking.ActivePass.extension,
+                                             TracksName = list(InputCollections)))
 
     # ------------------------------------------------------------
     #

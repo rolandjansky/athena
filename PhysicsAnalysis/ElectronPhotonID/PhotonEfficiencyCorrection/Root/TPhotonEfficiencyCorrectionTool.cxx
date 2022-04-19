@@ -19,8 +19,7 @@ Root::TPhotonEfficiencyCorrectionTool::TPhotonEfficiencyCorrectionTool(const cha
     Root::TElectronEfficiencyCorrectionTool(name){
     }
 
-Root::TPhotonEfficiencyCorrectionTool::~TPhotonEfficiencyCorrectionTool(){
-}
+Root::TPhotonEfficiencyCorrectionTool::~TPhotonEfficiencyCorrectionTool()= default;
 
 int Root::TPhotonEfficiencyCorrectionTool::initialize(){
     //Apparently the TResult needs a "specific convention" for the 1st  2

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -108,10 +108,19 @@ def Run1Run2DecisionMakerCfg(flags):
 
     acc.addEventAlgo(decCnv)
 
-    acc.addEventAlgo( CompFactory.xAODMaker.TrigNavigationCnvAlg('TrigNavigationCnvAlg', 
-                                                                 doL2 = doL2 and not doEF, 
-                                                                 doEF = doEF,
-                                                                 doHLT = doHLT))
+    # TrigNavigationCnvAlg runs on the original HLTResult in the bytestream as it used
+    # to be in serial athena, i.e. it does not run on the modified HLTResult created by
+    # TrigBSExtraction. See also ATLASRECTS-6453.
+    from SGComps.AddressRemappingConfig import InputRenameCfg
+
+    # Even for Run-1, we only convert the EF result:
+    aodKey = "HLTResult_HLT" if doHLT else "HTLResult_EF"
+
+    acc.merge(InputRenameCfg("HLT::HLTResult", aodKey, aodKey+"_BS"))
+    acc.addEventAlgo( CompFactory.xAODMaker.TrigNavigationCnvAlg('TrigNavigationCnvAlg',
+                                                                 AODKey = aodKey,
+                                                                 xAODKey = "TrigNavigation") )
+
     return acc
 
 def Run3DecisionMakerCfg(flags):

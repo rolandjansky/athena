@@ -54,8 +54,7 @@ InDet::TRT_TrackExtensionToolCosmics::TRT_TrackExtensionToolCosmics
 ///////////////////////////////////////////////////////////////////
 
 InDet::TRT_TrackExtensionToolCosmics::~TRT_TrackExtensionToolCosmics()
-{
-}
+= default;
 
 ///////////////////////////////////////////////////////////////////
 // Initialisation

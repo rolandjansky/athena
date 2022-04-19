@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -91,7 +91,7 @@ namespace InDet
   }
   
 
-  InDetImprovedJetFitterVxFinder::~InDetImprovedJetFitterVxFinder() {}
+  InDetImprovedJetFitterVxFinder::~InDetImprovedJetFitterVxFinder() = default;
   
 
   StatusCode InDetImprovedJetFitterVxFinder::initialize() {
@@ -204,7 +204,7 @@ namespace InDet
 								     const TLorentzVector & /*jetMomentum*/,
                                                                      const std::vector<const Trk::ITrackLink*> & /*firstInputTracks*/,
                                                                      const std::vector<const Trk::ITrackLink*> & /*secondInputTracks*/,
-                                                                     const Amg::Vector3D & /*vtxSeedDirection*/ ) const 
+                                                                     const Amg::Vector3D & /*vtxSeedDirection*/ ) 
   {
 
     // The overload is legacy. This is where we interface to JetFitter proper

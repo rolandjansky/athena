@@ -25,7 +25,8 @@ namespace ActsTrk {
                            const Amg::Vector3D& stripEnd,
                            const Amg::Vector3D& beamSpotVertex,
                            const float& locx,
-                           const size_t& clusterIndex);
+                           const size_t& clusterIndex,
+                           const size_t& stripIndex);
     //@}
 
     /// @name Destructor, copy construcor, assignment operator
@@ -41,7 +42,8 @@ namespace ActsTrk {
              const Amg::Vector3D& stripEnd,
              const Amg::Vector3D& beamSpotVertex,
              const float& locx,
-             const size_t& clusterIndex);
+             const size_t& clusterIndex,
+             const size_t& stripIndex);
     //@}
 
     /// @name Public methods to return strip properties
@@ -53,6 +55,7 @@ namespace ActsTrk {
     const Amg::Vector3D& normal() const {return m_normal;}
     const double& oneOverStrip() const {return m_oneOverStrip;}
     const float& locX() const {return m_locX;}
+    const size_t& stripIndex() const {return m_stripIndex;}
     Amg::Vector3D position(const double& shift) const;
     //@}
 
@@ -76,6 +79,8 @@ namespace ActsTrk {
     double        m_oneOverStrip;
     /// @param m_locX Location X of cluster
     float         m_locX;
+    /// @param m_stripIndex index of the strip corresponding to location
+    size_t        m_stripIndex;
     /// @param m_clusterIndex xAOD::StripCluster index in container
     size_t        m_clusterIndex;
   };

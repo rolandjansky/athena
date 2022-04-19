@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigNavigation/NavigationInit.h"
@@ -71,10 +71,10 @@ struct a_default_ctor{
 
 template <typename TYPELIST>
 struct a_class_that_calls_default_ctor{
-  static a_default_ctor<TYPELIST> member;
+  static const a_default_ctor<TYPELIST> member;
 };
 
 #define REGISTER_PACKAGE_WITH_NAVI(name)\
 template<> a_default_ctor<class_##name::map>\
-a_class_that_calls_default_ctor<class_##name::map>::member = \
+const a_class_that_calls_default_ctor<class_##name::map>::member = \
 a_default_ctor<class_##name::map>();

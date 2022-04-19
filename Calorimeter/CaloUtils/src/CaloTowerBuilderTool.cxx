@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -42,8 +42,7 @@ CaloTowerBuilderTool::CaloTowerBuilderTool(const std::string& name,
 }
 
 CaloTowerBuilderTool::~CaloTowerBuilderTool()
-{ 
-}
+= default;
 
 /////////////////////////////
 // Specific Initialization //
@@ -172,7 +171,7 @@ CaloTowerBuilderTool::execute(const EventContext& ctx,
 
   //Init internal structure m_cellStore on first invocation
   //Alignment updates are not taken into account! 
-  if (m_cellStoreInit.load() == false) {
+  if (!m_cellStoreInit.load()) {
     //Aquire mutex before writing to m_cellStore
       std::scoped_lock guard(m_cellStoreMutex);
       //cast alway const-ness, acceptable since this is protected by a mutex

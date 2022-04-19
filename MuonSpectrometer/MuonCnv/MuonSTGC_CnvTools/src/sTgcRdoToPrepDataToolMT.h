@@ -6,6 +6,7 @@
 #define MUONTGC_CNVTOOLS_STGCRDOTOPREPDATATOOLMT
 
 #include "sTgcRdoToPrepDataToolCore.h"
+#include "MuonPrepRawData/MuonPrepDataCollection_Cache.h"
 
 namespace Muon 
 {
@@ -27,6 +28,10 @@ namespace Muon
 
     protected:
       virtual Muon::sTgcPrepDataContainer* setupSTGC_PrepDataContainer() const override;
+
+
+      /// This is the key for the cache for the sTGC PRD containers, can be empty
+      SG::UpdateHandleKey<sTgcPrepDataCollection_Cache> m_prdContainerCacheKey;
    }; 
 } // end of namespace
 

@@ -44,7 +44,6 @@ persToTrans( const Trk::TrackStateOnSurface_p3 *persObj, Trk::TrackStateOnSurfac
                                         persObj->m_typeFlags);
   transObj->m_measurementOnTrack.reset(meas);
   transObj->m_materialEffectsOnTrack.reset(materialEffects);
-  transObj->setFlags();
 }
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -49,7 +49,7 @@ StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::
   pTau.setDetail(xAOD::TauJetParameters::trFlightPathSig, (float)(-1111.));
   
   // try to find secondary vertex if more than 1 track and the tau vertex is available
-  if ( pTau.nTracks() < 2 ||  !pTau.vertexLink().isValid() ) {
+  if ( pTau.nTracks() < 2 ||  pTau.vertex()==nullptr ) {
     return StatusCode::SUCCESS;
   }
 
@@ -123,11 +123,11 @@ StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::
 //-------------------------------------------------------------------------
 double TauVertexVariables::trFlightPathSig(const xAOD::TauJet& pTau, const xAOD::Vertex& secVertex) const {
 
-  if (! pTau.vertexLink().isValid()) {
+  const xAOD::Vertex* pVertex = pTau.vertex();
+  if (pVertex==nullptr) {
     ATH_MSG_WARNING("No primary vertex information for calculation of transverse flight path significance");
     return -11111.;
   }
-  const xAOD::Vertex* pVertex = pTau.vertex();
 
   double fpx = secVertex.position().x() - pVertex->position().x();
   double fpy = secVertex.position().y() - pVertex->position().y();

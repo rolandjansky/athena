@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -1785,11 +1785,11 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
           if (cache.m_hitVector) {
             double hitTiming = cache.m_timeIn+cache.m_timeOfFlight+cache.m_timeStep;
             if (binIDMat && binIDMat->second>0 && !iMat ) {  // exit from active layer
-              cache.m_hitVector->push_back(Trk::HitInfo(cPar->clone(), hitTiming,-binIDMat->second,0.));
+              cache.m_hitVector->push_back(Trk::HitInfo(cPar->uniqueClone(), hitTiming,-binIDMat->second,0.));
             } else if (binIDMat && binIDMat->second>0 && (iMat->second==0 || iMat->second==binIDMat->second) ) {  // exit from active layer
-              cache.m_hitVector->push_back(Trk::HitInfo(cPar->clone(), hitTiming,-binIDMat->second,0.));
+              cache.m_hitVector->push_back(Trk::HitInfo(cPar->uniqueClone(), hitTiming,-binIDMat->second,0.));
             } else if (iMat && iMat->second>0) {       // entry active layer
-              cache.m_hitVector->push_back(Trk::HitInfo(cPar->clone(), hitTiming, iMat->second,0.));
+              cache.m_hitVector->push_back(Trk::HitInfo(cPar->uniqueClone(), hitTiming, iMat->second,0.));
             }
           }
 
@@ -1842,11 +1842,11 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
           if (cache.m_hitVector) {
             double hitTiming = cache.m_timeIn+cache.m_timeOfFlight+cache.m_timeStep;
             if (binIDMat && binIDMat->second>0 && !nextMat ) {  // exit from active layer
-              cache.m_hitVector->push_back(Trk::HitInfo(cPar->clone(), hitTiming, -binIDMat->second,0.));
+              cache.m_hitVector->push_back(Trk::HitInfo(cPar->uniqueClone(), hitTiming, -binIDMat->second,0.));
             } else if (binIDMat && binIDMat->second>0 && (nextMat->second==0 || nextMat->second==binIDMat->second) ) {  // exit from active layer
-              cache.m_hitVector->push_back(Trk::HitInfo(cPar->clone(), hitTiming, -binIDMat->second,0.));
+              cache.m_hitVector->push_back(Trk::HitInfo(cPar->uniqueClone(), hitTiming, -binIDMat->second,0.));
             } else if (nextMat && nextMat->second>0) {       // entry active layer
-              cache.m_hitVector->push_back(Trk::HitInfo(cPar->clone(), hitTiming, nextMat->second,0.));
+              cache.m_hitVector->push_back(Trk::HitInfo(cPar->uniqueClone(), hitTiming, nextMat->second,0.));
             }
           }
 

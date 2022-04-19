@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCLUSTERROI_BUILDER_H
@@ -44,9 +44,9 @@ public:
 
 private:
   const Trk::Surface* getCaloSurface(const xAOD::CaloCluster* cluster) const;
-  const Trk::LocalParameters* getClusterLocalParameters(
+  static const Trk::LocalParameters* getClusterLocalParameters(
     const xAOD::CaloCluster* cluster,
-    const Trk::Surface* surf) const;
+    const Trk::Surface* surf) ;
 
   bool findPosition(const xAOD::CaloCluster* cluster) const;
 

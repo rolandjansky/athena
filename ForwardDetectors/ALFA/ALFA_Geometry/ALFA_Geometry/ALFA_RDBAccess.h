@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ALFA_RDBAccess_h
@@ -47,7 +47,10 @@ class ALFA_RDBAccess
 		bool ReadFiberGeometry(IRDBAccessSvc* iAccessSvc, std::string element, std::string tag, std::string node);
 	
 	public:
-		bool ReadGeometry(const eRPotName eRPName, eFiberType eFType, std::string element, std::string tag, std::string node);
+		bool ReadGeometry(const eRPotName eRPName, eFiberType eFType,
+                                  const std::string& element,
+                                  const std::string& tag,
+                                  const std::string& node);
 		
 	private:
 		IRDBRecordset_ptr m_fiberGeometry;

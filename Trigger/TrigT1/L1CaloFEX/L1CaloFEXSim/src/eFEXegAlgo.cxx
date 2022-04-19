@@ -195,6 +195,9 @@ void LVL1::eFEXegAlgo::getWstot(std::vector<unsigned int> & output){
     for (int j = 0; j <= 2; ++j) { // phi
       unsigned int eT; 
       getWindowET(1, j, i, eT);
+      // NB need to be careful as numer and den are defined such that wstot=numer/den,
+      // but in the firmware (and therefore this bitwise code) we actually 
+      // check that den/numer < Threshold
       numer += eT*weight;
       den += eT;
     }
@@ -254,15 +257,17 @@ std::unique_ptr<eFEXegTOB> LVL1::eFEXegAlgo::geteFEXegTOB() {
 
   std::vector<unsigned int> temvector;
   getWstot(temvector);
-
+  // For wstot, num and den seem switched around, but this is because the 'numerator' and 'denominator'
+  // mean different things at different points in the processing chain
+  // When the threshold comparison is done in the SetIsoWP function, we actually check Den/Num
   out->setWstotNum(temvector[1]);
   out->setWstotDen(temvector[0]);
   getRhad(temvector);
-  out->setRhadNum(temvector[1]);
-  out->setRhadDen(temvector[0] + temvector[1]);
+  out->setRhadEM(temvector[0]);
+  out->setRhadHad(temvector[1]);
   getReta(temvector);
-  out->setRetaNum(temvector[0]);
-  out->setRetaDen(temvector[0] + temvector[1]);
+  out->setRetaCore(temvector[0]);
+  out->setRetaEnv(temvector[1]);
   out->setSeedUnD(m_seed_UnD);
   out->setSeed(m_seedID);
   return out;

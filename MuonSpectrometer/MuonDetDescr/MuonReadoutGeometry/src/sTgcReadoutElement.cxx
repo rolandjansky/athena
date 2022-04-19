@@ -205,38 +205,27 @@ namespace MuonGM {
             int chMax =  manager()->stgcIdHelper()->channelMax(id);
             if (chMax<0) chMax = 350;*/
 
-            m_etaDesign[il].type = MuonChannelDesign::Type::etaStrip;
-            m_etaDesign[il].detType = MuonChannelDesign::DetType::STGC;
-
-            m_etaDesign[il].yCutout = yCutout;
-            m_etaDesign[il].firstPitch = roParam.firstStripWidth[il];
-
-            m_etaDesign[il].xSize    = m_lengthChamber - ysFrame - ylFrame;
-            m_etaDesign[il].xLength  = m_lengthChamber;
-            m_etaDesign[il].ysFrame  = ysFrame;
-            m_etaDesign[il].ylFrame  = ylFrame;
-            m_etaDesign[il].minYSize = roParam.sStripWidth;
-            m_etaDesign[il].maxYSize = roParam.lStripWidth;
-
-            m_halfX[il]    = m_etaDesign[il].xSize / 2.0;
-            m_minHalfY[il] = roParam.sStripWidth / 2.0;
-            m_maxHalfY[il] = roParam.lStripWidth / 2.0;
-
-            m_etaDesign[il].deadO = 0.;
-            m_etaDesign[il].deadI = 0.;
-            m_etaDesign[il].deadS = 0.;
-
+            m_etaDesign[il].type        = MuonChannelDesign::ChannelType::etaStrip;
+            m_etaDesign[il].detType     = MuonChannelDesign::DetType::STGC;
+            m_etaDesign[il].xSize       = m_lengthChamber - ysFrame - ylFrame;
+            m_etaDesign[il].minYSize    = roParam.sStripWidth;
+            m_etaDesign[il].maxYSize    = roParam.lStripWidth;
+            m_etaDesign[il].yCutout     = yCutout;
             m_etaDesign[il].inputPitch  = stgc->stripPitch();
             m_etaDesign[il].inputLength = m_etaDesign[il].minYSize;
             m_etaDesign[il].inputWidth  = stgc->stripWidth();
-            m_etaDesign[il].thickness   = tech->gasThickness;  //+stgc->GetTechnology()->pcbThickness;
+            m_etaDesign[il].thickness   = tech->gasThickness;
+            m_etaDesign[il].firstPitch  = roParam.firstStripWidth[il];
             m_etaDesign[il].firstPos    = (m_diamondShape) ? -(m_etaDesign[il].xSize - yCutout) + m_etaDesign[il].firstPitch
                                                            : -0.5 * m_etaDesign[il].xSize + m_etaDesign[il].firstPitch;
+            m_etaDesign[il].febSide     = (il % 2 == 0) ? 1 : -1; // sFEB side (locY > 0 for layers 1,3, locY < 0 for layers 2,4)
+            m_etaDesign[il].nch         = roParam.nStrips;
 
-            m_etaDesign[il].sAngle = 0.;
-            m_etaDesign[il].signY  = 1;
-            m_etaDesign[il].nch    = roParam.nStrips;
             m_nStrips.push_back(m_etaDesign[il].nch);
+            
+            m_halfX[il]    = 0.5*m_etaDesign[il].xSize;
+            m_minHalfY[il] = 0.5*roParam.sStripWidth;
+            m_maxHalfY[il] = 0.5*roParam.lStripWidth;
 
 #ifndef NDEBUG
             if (log.level() <= MSG::DEBUG)
@@ -250,16 +239,12 @@ namespace MuonGM {
         //-------------------
             
         for (int il = 0; il < m_nlayers; il++) {
-            m_phiDesign[il].type     = MuonChannelDesign::Type::phiStrip;
-            m_phiDesign[il].detType  = MuonChannelDesign::DetType::STGC;
-            m_phiDesign[il].xSize    = m_lengthChamber - ysFrame - ylFrame;
-            m_phiDesign[il].minYSize = roParam.sPadWidth;
-            m_phiDesign[il].maxYSize = roParam.lPadWidth;
-
-            m_phiDesign[il].deadO = 0.;
-            m_phiDesign[il].deadI = 0.;
-            m_phiDesign[il].deadS = 0.;
-
+            m_phiDesign[il].type        = MuonChannelDesign::ChannelType::phiStrip;
+            m_phiDesign[il].detType     = MuonChannelDesign::DetType::STGC;
+            m_phiDesign[il].xSize       = m_lengthChamber - ysFrame - ylFrame;
+            m_phiDesign[il].minYSize    = roParam.sPadWidth;
+            m_phiDesign[il].maxYSize    = roParam.lPadWidth;
+            m_etaDesign[il].yCutout     = yCutout;
             m_phiDesign[il].inputPitch  = stgc->wirePitch();
             m_phiDesign[il].inputLength = m_phiDesign[il].xSize;
             m_phiDesign[il].inputWidth  = 0.015;
@@ -269,10 +254,8 @@ namespace MuonGM {
             m_phiDesign[il].groupWidth  = roParam.wireGroupWidth;     // Number of Wires normal group
             m_phiDesign[il].nGroups     = roParam.nWireGroups[il];    // Number of Wire Groups
             m_phiDesign[il].wireCutout  = roParam.wireCutout[il];     // Size of "active" wire region for digits
-
-            m_phiDesign[il].sAngle = 0.;  // handled by surface rotation
-            m_phiDesign[il].signY  = 1;
-            m_phiDesign[il].nch    = roParam.nWires[il];
+            m_phiDesign[il].febSide     = -m_etaDesign[il].febSide;   // the pFEB is opposite from the sFEB
+            m_phiDesign[il].nch         = roParam.nWires[il];
 
             m_nWires.push_back(m_phiDesign[il].nGroups);  // number of nWireGroups
 
@@ -298,19 +281,13 @@ namespace MuonGM {
             m_padDesign[il].yCutout = yCutout;
             m_padDesign[il].etasign = Etasign;
             m_padDesign[il].setR(radius);
-
             m_padDesign[il].sPadWidth = roParam.sPadWidth;
             m_padDesign[il].lPadWidth = roParam.lPadWidth;
-
-            m_PadhalfX[il]    = m_padDesign[il].Size / 2.0;
-            m_PadminHalfY[il] = roParam.sPadWidth / 2.0;
-            m_PadmaxHalfY[il] = roParam.lPadWidth / 2.0;
-
-            m_padDesign[il].deadO = 0.;
-            m_padDesign[il].deadI = 0.;
-            m_padDesign[il].deadS = 0.;
-
             m_padDesign[il].nPadColumns = roParam.nPadPhi[il];
+
+            m_PadhalfX[il]    = 0.5*m_padDesign[il].Size;
+            m_PadminHalfY[il] = 0.5*roParam.sPadWidth;
+            m_PadmaxHalfY[il] = 0.5*roParam.lPadWidth;
 
             // The C side of the NSW is mirrored instead of rotated
             // We should be using the same values for the pads for both A and C
@@ -335,8 +312,6 @@ namespace MuonGM {
             }
 
             m_padDesign[il].thickness = thickness;
-            m_padDesign[il].sAngle = 0.;  // handled by surface rotation
-            m_padDesign[il].signY  = 1;
 
 #ifndef NDEBUG
             if (log.level() <= MSG::DEBUG)

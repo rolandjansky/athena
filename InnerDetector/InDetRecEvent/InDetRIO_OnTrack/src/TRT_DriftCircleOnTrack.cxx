@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -90,7 +90,7 @@ InDet::TRT_DriftCircleOnTrack::TRT_DriftCircleOnTrack(
 
 // Destructor:
 InDet::TRT_DriftCircleOnTrack::~TRT_DriftCircleOnTrack()
-{}
+= default;
 
 // default constructor:
 InDet::TRT_DriftCircleOnTrack::TRT_DriftCircleOnTrack()
@@ -108,19 +108,9 @@ InDet::TRT_DriftCircleOnTrack::TRT_DriftCircleOnTrack()
 {}
 
 //copy constructor:
-InDet::TRT_DriftCircleOnTrack::TRT_DriftCircleOnTrack( const InDet::TRT_DriftCircleOnTrack& rot):
-	Trk::RIO_OnTrack(rot),
-  m_globalPosition(rot.m_globalPosition),
-  m_localAngle(rot.m_localAngle),
-  m_positionAlongWire(rot.m_positionAlongWire),
-  m_rio(rot.m_rio),
-  m_idDE(rot.m_idDE),
-  m_status(rot.m_status),
-  m_highLevel(rot.m_highLevel),
-  m_timeOverThreshold(rot.m_timeOverThreshold),
-  m_detEl(rot.m_detEl)
-{
-}
+InDet::TRT_DriftCircleOnTrack::TRT_DriftCircleOnTrack( const InDet::TRT_DriftCircleOnTrack& rot)
+  
+= default;
 
 //assignment operator:
 InDet::TRT_DriftCircleOnTrack& InDet::TRT_DriftCircleOnTrack::operator=( const InDet::TRT_DriftCircleOnTrack& rot)

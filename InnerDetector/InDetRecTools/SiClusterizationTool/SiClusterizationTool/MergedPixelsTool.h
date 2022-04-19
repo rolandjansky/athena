@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -120,10 +120,10 @@ namespace InDet {
                           const std::vector<network>& connections,    
                           std::vector<rowcolID>& collectionID) const;
                           
-    bool checkDuplication(const PixelID& pixelID,
+    static bool checkDuplication(const PixelID& pixelID,
                           const Identifier& rdoID, 
                           const int& lvl1, 
-                          std::vector<rowcolID>& collectionID) const;
+                          std::vector<rowcolID>& collectionID) ;
                        
 
     BooleanProperty m_checkDuplicatedRDO{this, "CheckDuplicatedRDO", false, "Check duplicated RDOs using isDuplicated method"};

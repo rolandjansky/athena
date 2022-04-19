@@ -92,7 +92,10 @@ def MuDataPrepViewDataVerifierCfg(flags):
                  ( 'TgcPrepDataCollection_Cache' , 'StoreGateSvc+' + MuonPrdCacheNames.TgcCache + 'PriorBC' ),
                  ( 'TgcPrepDataCollection_Cache' , 'StoreGateSvc+' + MuonPrdCacheNames.TgcCache + 'NextBC' ),
                  ( 'TgcPrepDataCollection_Cache' , 'StoreGateSvc+' + MuonPrdCacheNames.TgcCache + 'AllBCs' ),
-                 ( 'TgcPrepDataCollection_Cache' , 'StoreGateSvc+' + MuonPrdCacheNames.TgcCache )
+                 ( 'TgcPrepDataCollection_Cache' , 'StoreGateSvc+' + MuonPrdCacheNames.TgcCache ),
+                 ( 'TgcCoinDataCollection_Cache' , 'StoreGateSvc+' + MuonPrdCacheNames.TgcCoinCache + 'PriorBC' ),
+                 ( 'TgcCoinDataCollection_Cache' , 'StoreGateSvc+' + MuonPrdCacheNames.TgcCoinCache + 'NextBC' ),
+                 ( 'TgcCoinDataCollection_Cache' , 'StoreGateSvc+' + MuonPrdCacheNames.TgcCoinCache )
                ]
     if flags.Input.isMC:
       dataobjects += [( 'MdtCsmContainer' , 'StoreGateSvc+MDTCSM' ),
@@ -106,6 +109,9 @@ def MuDataPrepViewDataVerifierCfg(flags):
     if flags.Detector.GeometrysTGC and flags.Detector.GeometryMM and flags.Input.isMC:
       dataobjects += [( 'Muon::STGC_RawDataContainer' , 'StoreGateSvc+sTGCRDO' ),
                       ( 'Muon::MM_RawDataContainer' , 'StoreGateSvc+MMRDO' )]
+    if flags.Detector.GeometrysTGC and flags.Detector.GeometryMM:
+      dataobjects += [( 'MMPrepDataCollection_Cache'  , 'StoreGateSvc+' + MuonPrdCacheNames.MmCache)]
+      dataobjects += [( 'sTgcPrepDataCollection_Cache'  , 'StoreGateSvc+' + MuonPrdCacheNames.sTgcCache)]
     alg = CompFactory.AthViews.ViewDataVerifier( name = "VDVMuDataPrep",
                                                  DataObjects = dataobjects)
     result.addEventAlgo(alg)
@@ -200,7 +206,7 @@ def muonDecodeCfg(flags, RoIs):
 
     return acc
 
-def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False, extraLoads=None, l2mtmode=False ):
+def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False, extraLoads=None, l2mtmode=False, calib=False ):
 
   from AthenaCommon.AppMgr import ToolSvc
   from AthenaCommon.CFElements import parOR
@@ -211,6 +217,8 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False, extraLo
     postFix = "IOmode"
   elif l2mtmode:
     postFix = "l2mtmode"
+  elif calib:
+    postFix = "Calib"
   muFastRecoSequence = parOR("l2Mu"+postFix+"ViewNode")
 
   # In insideout mode, need to inherit muon decoding objects for TGC, RPC, MDT, CSC

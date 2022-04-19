@@ -11,10 +11,8 @@
 #include "xAODForward/AFPSiHitAuxContainer.h"
 
 AFP_Raw2Digi::AFP_Raw2Digi(const std::string &name, ISvcLocator *pSvcLocator)
-  : AthReentrantAlgorithm(name, pSvcLocator),
-    m_DigiTool( "AFP_Raw2DigiTool")
+  : AthReentrantAlgorithm(name, pSvcLocator)
 {
-  declareProperty("DigiTool", m_DigiTool , "Tool to translate RawData to xAOD");
 }
 
 AFP_Raw2Digi::~AFP_Raw2Digi() {}

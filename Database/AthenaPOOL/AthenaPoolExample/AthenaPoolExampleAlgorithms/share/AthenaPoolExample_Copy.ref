@@ -101,7 +101,7 @@ MetaData(IOVMet...  DEBUG    attributes# = 1
 MetaData(IOVMet...  DEBUG Branch container 'IOVMetaDataContainer_p1__TagInfo'
 MetaData(IOVMet...  DEBUG Opened container MetaData(IOVMetaDataContainer_p1//TagInfo) of type ROOT_Tree
 AthenaPoolAddre...  DEBUG Cannot retrieve DataHeader from DetectorStore.
-EventInfoCnvAlg...   INFO Beam conditions service not available
+EventInfoCnvAlg...   INFO Beam spot information not available
 EventInfoCnvAlg...   INFO Will not fill beam spot information into xAOD::EventInfo
 Stream1             DEBUG In initialize 
 Stream1             DEBUG Found IDecisionSvc.

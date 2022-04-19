@@ -73,7 +73,7 @@ EMExtrapolationTools::EMExtrapolationTools(const std::string& type,
   declareInterface<IEMExtrapolationTools>(this);
 }
 
-EMExtrapolationTools::~EMExtrapolationTools() {}
+EMExtrapolationTools::~EMExtrapolationTools() = default;
 
 StatusCode
 EMExtrapolationTools::initialize()

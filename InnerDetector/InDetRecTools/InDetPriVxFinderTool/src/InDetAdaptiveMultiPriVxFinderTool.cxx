@@ -1098,7 +1098,7 @@ InDetAdaptiveMultiPriVxFinderTool::SGError(const std::string& errService)
 double
 InDetAdaptiveMultiPriVxFinderTool::estimateDeltaZ(
   const Trk::TrackParameters& myPerigee,
-  const Amg::Vector3D& myTransvVertex) const
+  const Amg::Vector3D& myTransvVertex) 
 {
   Amg::Vector3D lp = myTransvVertex;
 
@@ -1154,7 +1154,7 @@ InDetAdaptiveMultiPriVxFinderTool::ipSignificance(
 
 void
 InDetAdaptiveMultiPriVxFinderTool::releaseCandidate(
-  xAOD::Vertex*& candidate) const
+  xAOD::Vertex*& candidate) 
 {
   if (candidate == nullptr)
     return;

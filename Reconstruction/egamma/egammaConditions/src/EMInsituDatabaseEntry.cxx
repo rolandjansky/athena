@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaConditions/EMInsituDatabaseEntry.h"
@@ -25,8 +25,7 @@ EMInsituDatabaseEntry::EMInsituDatabaseEntry(const std::string& dbaseID)
 
 /** Default Destructor*/
 EMInsituDatabaseEntry::~EMInsituDatabaseEntry()
-{
-}
+= default;
 
 /** Fill this EMInsituDatabaseEntry from given APEfficiencyMatrix*/
 bool EMInsituDatabaseEntry::setMatrix(const EMClusterErrorsMatrix &apClusterErrorsMatrix)

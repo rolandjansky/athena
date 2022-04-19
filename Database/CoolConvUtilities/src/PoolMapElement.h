@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef COOLCONVUTILS_POOLMAPELEMENT_H
@@ -14,7 +14,7 @@
 class PoolMapElement {
  public:
   PoolMapElement();
-  PoolMapElement(const int usage,const std::string foldertag);
+  PoolMapElement(const int usage,const std::string& foldertag);
   // increment usage count
   void inccount();
   void setErrorBit(const int bit);
@@ -39,7 +39,7 @@ class PoolMapElement {
 };
 
 inline PoolMapElement::PoolMapElement(const int usage, 
-				      const std::string foldertag) :
+				      const std::string& foldertag) :
   m_count(usage),m_errcode(0),m_lfn(""),m_pfn("") {
   m_folders.push_back(foldertag);
 }

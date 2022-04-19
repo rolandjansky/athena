@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TreeReader_h
@@ -31,10 +31,10 @@ class TreeReader //: public TTreeFormulaManager
  private:
 
   TTree* m_tree;
-  int    m_currentEntry; 			// current ntuple entry stored in buffer
+  int    m_currentEntry = 0; 			// current ntuple entry stored in buffer
   int    m_entries;      			// total number of entries
-  bool   m_isChain;
-  int    m_currentTree;
+  bool   m_isChain = false;
+  int    m_currentTree = 0;
   std::map<std::string, TTreeFormula*>     m_formulae;	// known formulae
 
  public:

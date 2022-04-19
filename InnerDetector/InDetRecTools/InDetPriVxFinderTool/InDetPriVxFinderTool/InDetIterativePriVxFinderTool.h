@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -121,9 +121,9 @@ private:
   double compatibility(const Trk::TrackParameters& measPerigee,
                        const xAOD::Vertex& vertex) const;
 
-  void countTracksAndNdf(xAOD::Vertex* myxAODVertex,
+  static void countTracksAndNdf(xAOD::Vertex* myxAODVertex,
                          double& ndf,
-                         int& ntracks) const;
+                         int& ntracks) ;
 
   ToolHandle<Trk::IVertexFitter> m_iVertexFitter{ this,
                                                   "VertexFitterTool",

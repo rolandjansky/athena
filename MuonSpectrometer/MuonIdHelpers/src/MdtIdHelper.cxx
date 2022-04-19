@@ -263,7 +263,9 @@ int MdtIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
         if (m_msgSvc) { log << MSG::DEBUG << " Maximum number of MDT tubes is " << m_tubesMax << endmsg; }
     }
     m_init = true;
-    return (status);
+    m_BME_stat = stationNameIndex("BME");
+    m_BMG_stat = stationNameIndex("BMG");
+    return status;
 }
 
 int MdtIdHelper::init_id_to_hashes() {
@@ -366,9 +368,9 @@ int MdtIdHelper::stationEtaMin(const Identifier& id) const {
                 }
             }
         }
-        return (result);
+        return result;
     }
-    return (999);  /// default
+    return 999;  /// default
 }
 
 int MdtIdHelper::stationEtaMax(const Identifier& id) const {
@@ -386,7 +388,7 @@ int MdtIdHelper::stationEtaMax(const Identifier& id) const {
                 }
             }
         }
-        return (result);
+        return result;
     }
     return (-999);
 }
@@ -404,7 +406,7 @@ int MdtIdHelper::stationPhiMin(const Identifier& id) const {
         }
     }
     /// Failed to find the min
-    return (999);
+    return 999;
 }
 
 int MdtIdHelper::stationPhiMax(const Identifier& id) const {
@@ -438,7 +440,7 @@ int MdtIdHelper::numberOfMultilayers(const Identifier& id) const {
                 }
             }
         }
-        return (result);
+        return result;
     }
     return (-999);
 }
@@ -462,9 +464,9 @@ int MdtIdHelper::multilayerMin(const Identifier& id) const {
                 }
             }
         }
-        return (result);
+        return result;
     }
-    return (999);  /// default
+    return 999;  /// default
 }
 
 int MdtIdHelper::multilayerMax(const Identifier& id) const {
@@ -482,7 +484,7 @@ int MdtIdHelper::multilayerMax(const Identifier& id) const {
                 }
             }
         }
-        return (result);
+        return result;
     }
     return (-999);
 }
@@ -506,9 +508,9 @@ int MdtIdHelper::tubeLayerMin(const Identifier& id) const {
                 }
             }
         }
-        return (result);
+        return result;
     }
-    return (999);  // default
+    return 999;  // default
 }
 
 int MdtIdHelper::tubeLayerMax(const Identifier& id) const {
@@ -526,7 +528,7 @@ int MdtIdHelper::tubeLayerMax(const Identifier& id) const {
                 }
             }
         }
-        return (result);
+        return result;
     }
     return (-999);
 }
@@ -550,9 +552,9 @@ int MdtIdHelper::tubeMin(const Identifier& id) const {
                 }
             }
         }
-        return (result);
+        return result;
     }
-    return (999);  /// default
+    return 999;  /// default
 }
 
 int MdtIdHelper::tubeMax(const Identifier& id) const {
@@ -570,7 +572,7 @@ int MdtIdHelper::tubeMax(const Identifier& id) const {
                 }
             }
         }
-        return (result);
+        return result;
     }
     return (-999);
 }
@@ -799,21 +801,9 @@ int MdtIdHelper::gasGap(const Identifier& id) const { return tubeLayer(id); }
 
 bool MdtIdHelper::measuresPhi(const Identifier& /*id*/) const { return false; }
 
-bool MdtIdHelper::isBME(const Identifier& id) const {
-    int index = stationName(id);
-    if (stationNameIndex("BME") == index)
-        return true;
-    else
-        return false;
-}
+bool MdtIdHelper::isBME(const Identifier& id) const { return m_BME_stat  == stationName(id); }
 
-bool MdtIdHelper::isBMG(const Identifier& id) const {
-    int index = stationName(id);
-    if (stationNameIndex("BMG") == index)
-        return true;
-    else
-        return false;
-}
+bool MdtIdHelper::isBMG(const Identifier& id) const { return m_BMG_stat == stationName(id); }
 
 int MdtIdHelper::channel(const Identifier& id) const { return tube(id); }
 

@@ -7,8 +7,6 @@
 """
 #
 #
-from __future__ import print_function
-
 __author__  = 'D. Rousseau'
 __version__="$Revision: 1.3 $"
 __doc__="Beam structure flags . "

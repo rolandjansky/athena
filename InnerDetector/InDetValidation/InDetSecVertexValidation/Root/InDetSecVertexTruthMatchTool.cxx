@@ -491,7 +491,7 @@ StatusCode InDetSecVertexTruthMatchTool::matchVertices( const xAOD::VertexContai
 
     std::vector<VertexTruthMatchInfo> & info = matchInfoDecor( *vtxContainer[i] );
 
-    if (info.size() == 0) {                                // no true decay vertices matched 
+    if (info.empty()) {                                // no true decay vertices matched 
       ATH_MSG_DEBUG("No true decay vertices matched. Vertex is fake.");
       matchTypeDecor( *vtxContainer[i] ) = FAKE;
     } else if (info.size() >= 2 ) {                        // more than one true deacy vertices matched
@@ -520,7 +520,7 @@ StatusCode InDetSecVertexTruthMatchTool::matchVertices( const xAOD::VertexContai
         //equality test is in code but doesnt seem to work for ElementLinks that I have?
         //so i am just checking that the contianer key hash and the index are the same
         if (matchTypeDecor( *vtxContainer[j] ) == FAKE) continue;
-        if (info2.size() > 0 && std::get<0>(info2[0]).isValid() && std::get<0>(info[0]).key() == std::get<0>(info2[0]).key() && std::get<0>(info[0]).index() == std::get<0>(info2[0]).index() ) {
+        if (!info2.empty() && std::get<0>(info2[0]).isValid() && std::get<0>(info[0]).key() == std::get<0>(info2[0]).key() && std::get<0>(info[0]).index() == std::get<0>(info2[0]).index() ) {
           //add split links; first between first one found and newest one
           splitPartnerDecor( *vtxContainer[i] ).emplace_back( vtxContainer, j );
           splitPartnerDecor( *vtxContainer[j] ).emplace_back( vtxContainer, i );
@@ -1000,5 +1000,4 @@ void InDetSecVertexTruthMatchTool::countReconstructibleDescendentParticles(const
     }
   }
   
-  return;
-}
+  }

@@ -119,7 +119,8 @@ if InDetFlags.doPRDFormation():
       #
       from SiClusterizationTool.SiClusterizationToolConf import InDet__MergedPixelsTool
       InDetMergedPixelsTool = InDet__MergedPixelsTool(name                    = "InDetMergedPixelsTool", 
-                                                      globalPosAlg            = InDetClusterMakerTool)
+                                                      globalPosAlg            = InDetClusterMakerTool,
+                                                      PixelDetElStatus          = "PixelDetectorElementStatus")
       # Enable duplcated RDO check for data15 because duplication mechanism was used.
       from RecExConfig.RecFlags import rec
       if len(rec.projectName())>=6 and rec.projectName()[:6]=="data15":
@@ -186,7 +187,8 @@ if InDetFlags.doPRDFormation():
       from SiClusterizationTool.SiClusterizationToolConf import InDet__SCT_ClusteringTool
       InDetSCT_ClusteringTool = InDet__SCT_ClusteringTool(name              = "InDetSCT_ClusteringTool",
                                                           globalPosAlg      = InDetClusterMakerTool,
-                                                          conditionsTool = InDetSCT_ConditionsSummaryToolWithoutFlagged)
+                                                          conditionsTool = InDetSCT_ConditionsSummaryToolWithoutFlagged,
+                                                          SCTDetElStatus    = "SCTDetectorElementStatusWithoutFlagged")
       if InDetFlags.selectSCTIntimeHits():
          if InDetFlags.InDet25nsec(): 
             InDetSCT_ClusteringTool.timeBins = "01X" 
@@ -206,7 +208,9 @@ if InDetFlags.doPRDFormation():
                                                           # ChannelStatus         = InDetSCT_ChannelStatusAlg,
                                                           DataObjectName          = InDetKeys.SCT_RDOs(),
                                                           ClustersName            = InDetKeys.SCT_Clusters(),
-                                                          conditionsTool          = InDetSCT_ConditionsSummaryToolWithoutFlagged)
+                                                          conditionsTool          = InDetSCT_ConditionsSummaryToolWithoutFlagged,
+                                                          SCTDetElStatus            = "SCTDetectorElementStatusWithoutFlagged"
+                                                          )
       if InDetFlags.cutSCTOccupancy():
         InDetSCT_Clusterization.maxFiredStrips = 384 #77
       else:

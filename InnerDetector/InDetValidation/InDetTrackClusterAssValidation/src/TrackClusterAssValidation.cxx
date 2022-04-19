@@ -199,7 +199,7 @@ StatusCode InDet::TrackClusterAssValidation::execute(const EventContext& ctx) co
   newSpacePointsEvent   (ctx,event_data);
   event_data.m_nqtracks = qualityTracksSelection(event_data);
   tracksComparison      (ctx,event_data);
-  if(event_data.m_particles[0].size() > 0) {
+  if(!event_data.m_particles[0].empty()) {
 
     efficiencyReconstruction(event_data);
     if(msgLvl(MSG::DEBUG)) noReconstructedParticles(event_data);
@@ -739,7 +739,7 @@ MsgStream& InDet::TrackClusterAssValidation::dumptools( MsgStream& out, MSG::Lev
 // Dumps event information into the ostream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::TrackClusterAssValidation::dumpevent( MsgStream& out, const InDet::TrackClusterAssValidation::EventData_t &event_data ) const
+MsgStream& InDet::TrackClusterAssValidation::dumpevent( MsgStream& out, const InDet::TrackClusterAssValidation::EventData_t &event_data ) 
 {
   out << MSG::DEBUG << "\n";
   auto formatOutput = [&out](const auto val){
@@ -1284,7 +1284,7 @@ int InDet::TrackClusterAssValidation::kine
 
     int k = (*mc).second.barcode(); if(k<=0) continue;
 
-    const HepMC::GenParticle* pa = (*mc).second.cptr();
+    HepMC::ConstGenParticlePtr pa = (*mc).second.cptr();
     if(!pa or !pa->production_vertex()) continue;
 
     int pdg = std::abs(pa->pdg_id()); if(m_pdg && m_pdg != pdg ) continue;
@@ -1322,7 +1322,7 @@ int InDet::TrackClusterAssValidation::kine
 ///////////////////////////////////////////////////////////////////
 
 int InDet::TrackClusterAssValidation::kine0
-(const InDet::TrackClusterAssValidation::EventData_t &event_data,const Trk::PrepRawData* d,int* Kine,int nmax) const
+(const InDet::TrackClusterAssValidation::EventData_t &event_data,const Trk::PrepRawData* d,int* Kine,int nmax) 
 {
 
   PRD_MultiTruthCollection::const_iterator mce;
@@ -1346,7 +1346,7 @@ int InDet::TrackClusterAssValidation::kine0
 ///////////////////////////////////////////////////////////////////
 
 bool InDet::TrackClusterAssValidation::isTruth
-(const InDet::TrackClusterAssValidation::EventData_t &event_data,const Trk::PrepRawData* d) const
+(const InDet::TrackClusterAssValidation::EventData_t &event_data,const Trk::PrepRawData* d) 
 {
   PRD_MultiTruthCollection::const_iterator mce;
   PRD_MultiTruthCollection::const_iterator mc = findTruth(event_data,d,mce);
@@ -1358,7 +1358,7 @@ bool InDet::TrackClusterAssValidation::isTruth
 ///////////////////////////////////////////////////////////////////
 
 bool InDet::TrackClusterAssValidation::isTheSameDetElement
-(const InDet::TrackClusterAssValidation::EventData_t &event_data, int K,const Trk::PrepRawData* d) const
+(const InDet::TrackClusterAssValidation::EventData_t &event_data, int K,const Trk::PrepRawData* d) 
 {
   std::multimap<int,const Trk::PrepRawData*>::const_iterator k = event_data.m_kinecluster.find(K);
   for(; k!=event_data.m_kinecluster.end(); ++k) {
@@ -1374,7 +1374,7 @@ bool InDet::TrackClusterAssValidation::isTheSameDetElement
 ///////////////////////////////////////////////////////////////////
 
 bool InDet::TrackClusterAssValidation::isTheSameDetElement
-(const InDet::TrackClusterAssValidation::EventData_t &event_data, int K,const Trk::SpacePoint* sp) const
+(const InDet::TrackClusterAssValidation::EventData_t &event_data, int K,const Trk::SpacePoint* sp) 
 {
   const Trk::PrepRawData*  p1 = sp->clusterList().first;
   const Trk::PrepRawData*  p2 = sp->clusterList().second;
@@ -1456,7 +1456,7 @@ bool InDet::TrackClusterAssValidation::noReconstructedParticles(const InDet::Tra
 
       if(!Q) continue;
 
-      const HepMC::GenParticle* pa = (*mc).second.cptr();
+      HepMC::ConstGenParticlePtr pa = (*mc).second.cptr();
 
       double           px =  pa->momentum().px();
       double           py =  pa->momentum().py();
@@ -1499,7 +1499,7 @@ PRD_MultiTruthCollection::const_iterator
 InDet::TrackClusterAssValidation::findTruth
 (const InDet::TrackClusterAssValidation::EventData_t &event_data,
  const Trk::PrepRawData* d,
- PRD_MultiTruthCollection::const_iterator& mce) const
+ PRD_MultiTruthCollection::const_iterator& mce) 
 {
   const InDet::SCT_Cluster    * si = dynamic_cast<const InDet::SCT_Cluster*>    (d);
   const InDet::PixelCluster   * px = dynamic_cast<const InDet::PixelCluster*>   (d);
@@ -1537,7 +1537,7 @@ int InDet::TrackClusterAssValidation::charge(const InDet::TrackClusterAssValidat
   for(; mc!=mce; ++mc) {
     if(HepMC::barcode((*mc).second.cptr())==k) {
 
-      const HepMC::GenParticle*   pat  = (*mc).second.cptr();
+      HepMC::ConstGenParticlePtr   pat  = (*mc).second.cptr();
 
       rap       = 0;
       double px =  pat->momentum().px();

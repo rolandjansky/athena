@@ -169,17 +169,17 @@ namespace CP{
   TH1* ShowerDepthTool::getHistoFromFile(const TString& fileName,const TString& histoName)
   {
     std::unique_ptr<TFile> f(TFile::Open(fileName));
-    if (!f.get()){
+    if (!f){
       return nullptr;
     }
     TH1 *h = dynamic_cast<TH1*>( f->Get(histoName) );
     if (!h){
-      f.get()->Close();
+      f->Close();
       return nullptr;
     }
     //The file we be deleted so use SetDirectory
     h->SetDirectory(nullptr);
-    f.get()->Close();
+    f->Close();
     return h;
   }
 

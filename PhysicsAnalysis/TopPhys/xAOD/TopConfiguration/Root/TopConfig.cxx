@@ -234,10 +234,17 @@ namespace top {
     m_muonIsolationLoose("SetMe"),
     m_muonIsolationSF("SetMe"),
     m_muonIsolationSFLoose("SetMe"),
+    m_muon_d0SigCut(3.0),
+    m_muon_delta_z0(0.5),
+    m_muonCalibMode("SetMe"),
     m_muonMuonDoSmearing2stationHighPt(true),
     m_muonMuonDoExtraSmearingHighPt(false),
     m_muonBreakDownSystematics(false),
     m_muonSFCustomInputFolder(" "),
+    m_muonForcePeriod(" "),
+    m_muonForceYear(-1),
+    m_muonForceTrigger(" "),
+    m_electronForceTrigger(" "),
 
     // Soft Muon configuration
     m_softmuonPtcut(4000.),
@@ -1240,7 +1247,8 @@ namespace top {
     if (cut_wp != "None")
       m_muonIsolationWPs.emplace_back(cut_wp);
     remove_duplicates(m_muonIsolationWPs);
-
+    
+    m_muonCalibMode = settings->value("MuonCalibrationMode");
     bool muonDoSmearing2stationHighPt = false;
     settings->retrieve("MuonDoSmearing2stationHighPt", muonDoSmearing2stationHighPt);
     if (settings->value("MuonQuality") != "HighPt" ) muonDoSmearing2stationHighPt = false;
@@ -1264,8 +1272,23 @@ namespace top {
       std::string const& customMuonSF = settings->value("MuonSFCustomInputFolder");
       this->muonSFCustomInputFolder(customMuonSF);
     }
-
+    {
+      int customMuonForceYear = std::stoi(settings->value("MuonForceYear"));
+      this->muonForceYear(customMuonForceYear);
+    }
+    {
+      std::string const& customMuonForcePeriod = settings->value("MuonForcePeriod");
+      this->muonForcePeriod(customMuonForcePeriod);
+    }
+    {
+      std::string const& customMuonForceTrigger = settings->value("MuonForceTrigger");
+      this->muonForceTrigger(customMuonForceTrigger);
+    }
     if (settings->value("UseAntiMuons") == "True") this->m_useAntiMuons = true;
+    {
+      std::string const& customElectronForceTrigger = settings->value("ElectronForceTrigger");
+      this->electronForceTrigger(customElectronForceTrigger);
+    }
 
     // Soft Muon configuration
     this->softmuonPtcut(readFloatOption(settings, "SoftMuonPt"));
@@ -1750,6 +1773,23 @@ namespace top {
 
     //Switch off PRW for MC samples with data overlay
     if(m_isDataOverlay) m_pileup_reweighting.apply = false;
+
+    const std::string randomRunNumberSetting = settings->value("ForceRandomRunNumber");
+    if (randomRunNumberSetting != " ") {
+      unsigned int randomRunNumber(0);
+      try {
+        randomRunNumber = std::stoul(randomRunNumberSetting);
+      } catch (...) {
+        throw std::invalid_argument{"ForceRandomRunNumber cannot be converted to an integer"};
+      }
+
+      if (randomRunNumber < 1 || randomRunNumber > 999999) {
+        throw std::invalid_argument{"ForceRandomRunNumber cannot be smaller than 0 or larger than 999999"};
+      }
+      // disable PRW
+      m_pileup_reweighting.apply = false;
+      this->setForceRandomRunNumber(randomRunNumber);
+    }
 
     m_muon_trigger_SF = settings->value("MuonTriggerSF");
 

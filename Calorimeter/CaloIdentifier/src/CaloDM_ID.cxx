@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloIdentifier/CaloDM_ID.h"
@@ -39,7 +39,7 @@ CaloDM_ID::CaloDM_ID(void) :
 
 }
 
-CaloDM_ID:: ~CaloDM_ID(){}
+CaloDM_ID:: ~CaloDM_ID()= default;
 
 
 int CaloDM_ID::eta_min(const Identifier& id) const

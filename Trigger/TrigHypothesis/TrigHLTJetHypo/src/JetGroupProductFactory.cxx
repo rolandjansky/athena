@@ -6,6 +6,7 @@
 #include "./JetGroupProduct.h"
 #include "./EmptyJetGroupProduct.h"
 #include "./JetGroupUnion.h"
+#include "./JetGroupReducer.h"
 #include "./JetGroupSingleClique.h"
 
 #include <algorithm>
@@ -70,13 +71,12 @@ bool willPassSimpleTree(const std::vector<std::size_t>& siblings,
 
 std::unique_ptr<IJetGroupProduct>
 makeJetGroupProduct(const std::vector<std::size_t>& siblings,
-		    const std::vector<bool>&,
 		    const CondInd2JetGroupsInds& satisfiedBy,
 		    const std::vector<std::size_t>& condMult,
 		    const std::vector<unsigned int>& condCap,
 		    const std::vector<int>& condClique,
-		    const JetGroupInd2ElemInds&,
-		    std::size_t,
+		    const JetGroupInd2ElemInds& jg2elemjgs,
+		    std::size_t parentCap,
 		    bool simpleTree,
 		    const Collector&) {
 
@@ -132,7 +132,15 @@ makeJetGroupProduct(const std::vector<std::size_t>& siblings,
 					condMult.at(ind)*condCap.at(ind);});
 
 
-  if (simpleTree) {
+  bool cap1{true};
+  for(const auto& s: siblings) {
+    if (condCap.at(s) != 1) {
+      cap1 = false;
+      break;
+    }
+  }
+  
+  if (simpleTree and cap1) {
     if (clique_map.size() == 1){
       jgp.reset(new JetGroupSingleClique(satisfiedBy.at(1),  // first child
 					 n_required));
@@ -163,11 +171,34 @@ makeJetGroupProduct(const std::vector<std::size_t>& siblings,
 				  satisfiedBy));
       return jgp;
     }
+
+    jgp.reset(new EmptyJetGroupProduct);
+    return jgp;    
   }
+
+  // tree is non-simple or there are siblings are not all capacity 1.
+  // Special case: parent node is AcceptAll, one child.
+  // Examples:
+  // Dijet scenario (non-simple tree, root node has one child).
+  // HT scenario (simple tree, child node has cap != 1)
+  if (parentCap == 0 and siblings.size() == 1) {
+
+    jgp.reset(new JetGroupReducer(siblings,
+				  satisfiedBy,
+				  jg2elemjgs));
+    return jgp;
+  }
+  
   
   // Otherwise need a group product that will step
   // through the external products of the sets
-  jgp.reset(new JetGroupProduct(siblings, satisfiedBy, condMult));
+  // Note - if a tree contained an AcceptAll node internally,
+  // for which all children had capactity = 1, a JetGroupReducer
+  // could be used. This would be a very unusual case, and is
+  // not treated here.
+  
+  jgp.reset(new JetGroupProduct(siblings, satisfiedBy, condMult,
+				jg2elemjgs));
   return jgp;
 }
 		    

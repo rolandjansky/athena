@@ -54,10 +54,6 @@ def DeterministicAnnealingFilterCfg(flags, name = 'InDetDAF', **kwargs):
 def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackCollection = None, ExtendedTracksMap = None, **kwargs):
     acc = ComponentAccumulator()
 
-    ForwardTrackCollection = ExtendedTrackCollection
-    # set output extension map name
-    OutputExtendedTracks = ExtendedTracksMap
-
     if flags.InDet.Tracking.trtExtensionType == 'DAF' :
         #
         # --- DAF Fitter setup
@@ -93,8 +89,8 @@ def InDetExtensionProcessorCfg(flags, SiTrackCollection=None, ExtendedTrackColle
     InDetTrackSummaryTool = acc.getPrimaryAndMerge(TC.InDetTrackSummaryToolCfg(flags))
 
     kwargs.setdefault("TrackName", SiTrackCollection)
-    kwargs.setdefault("ExtensionMap", OutputExtendedTracks)
-    kwargs.setdefault("NewTrackName", ForwardTrackCollection)
+    kwargs.setdefault("ExtensionMap", ExtendedTracksMap)
+    kwargs.setdefault("NewTrackName", ExtendedTrackCollection)
     kwargs.setdefault("TrackFitter", InDetExtensionFitter)
     kwargs.setdefault("TrackSummaryTool", InDetTrackSummaryTool)
     kwargs.setdefault("ScoringTool", InDetExtenScoringTool)
@@ -129,9 +125,10 @@ def NewTrackingTRTExtensionCfg(flags, SiTrackCollection = None, ExtendedTrackCol
                                        TrackExtensionTool = acc.popToolsAndMerge(TC.InDetTRT_ExtensionToolCfg(flags))))
 
     acc.merge(InDetExtensionProcessorCfg(flags,
-                                            SiTrackCollection = SiTrackCollection,
-                                            ExtendedTrackCollection = ExtendedTrackCollection,
-                                            ExtendedTracksMap = ExtendedTracksMap))
+                                         SiTrackCollection = SiTrackCollection,
+                                         ExtendedTrackCollection = ExtendedTrackCollection,
+                                         ExtendedTracksMap = ExtendedTracksMap))
+
     return acc
 ##########################################################################################################################
 
@@ -188,19 +185,17 @@ if __name__ == "__main__":
     top_acc.merge(BeamPipeGeometryCfg(ConfigFlags))
 
     InputCollections = []
-    
-    InDetSpSeededTracksKey    = 'SiSPSeededTracks'  # InDetKeys.SiSpSeededTracks()
-    SiSPSeededTrackCollectionKey = InDetSpSeededTracksKey
 
-    ExtendedTrackCollection = 'ExtendedTracksPhase' # InDetKeys.ExtendedTracksPhase
-    ExtendedTracksMap = 'ExtendedTracksMapPhase'    # InDetKeys.ExtendedTracksMapPhase
+    ResolvedTracks = 'ResolvedTracks'
+    InDetSpSeededTracksKey = 'SiSPSeededTracks'
+    ExtendedTrackCollection = 'ExtendedTracks'
+    ExtendedTracksMap = 'ExtendedTracksMap'
 
     #################### Additional Configuration  ########################
     #######################################################################
     ################# TRTPreProcessing Configuration ######################
-    if not ConfigFlags.InDet.Tracking.doDBMstandalone:
-        from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
-        top_acc.merge(TRTPreProcessingCfg(ConfigFlags))
+    from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
+    top_acc.merge(TRTPreProcessingCfg(ConfigFlags))
 
     ################ TRTSegmentFinding Configuration ######################
     from InDetConfig.TRTSegmentFindingConfig import TRTSegmentFindingCfg
@@ -209,25 +204,20 @@ if __name__ == "__main__":
                                         InputCollections = InputCollections,
                                         BarrelSegments = 'TRTSegments'))
 
+    ############### SiliconPreProcessing Configuration ####################
+    from InDetConfig.SiliconPreProcessing import InDetRecPreProcessingSiliconCfg
+    top_acc.merge(InDetRecPreProcessingSiliconCfg(ConfigFlags))
+
     ####################### TrackingSiPattern #############################
-    from InDetConfig.TrackingSiPatternConfig import SiSPSeededTrackFinderCfg
-    top_acc.merge(SiSPSeededTrackFinderCfg( ConfigFlags,
-                                            InputCollections = InputCollections,
-                                            SiSPSeededTrackCollectionKey = InDetSpSeededTracksKey))
+    from InDetConfig.TrackingSiPatternConfig import TrackingSiPatternCfg
+    top_acc.merge(TrackingSiPatternCfg( ConfigFlags,
+                                        InputCollections = InputCollections,
+                                        ResolvedTrackCollectionKey = ResolvedTracks,
+                                        SiSPSeededTrackCollectionKey = InDetSpSeededTracksKey))
 
-    ########################## Clusterization #############################
-    from InDetConfig.ClusterizationConfig import InDetClusterizationAlgorithmsCfg
-    top_acc.merge(InDetClusterizationAlgorithmsCfg(ConfigFlags))
-
-    ######################## PixelByteStreamErrs ##########################
-    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelHitDiscCnfgAlgCfg
-    top_acc.merge(PixelHitDiscCnfgAlgCfg(ConfigFlags))
-
-    from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConfig import PixelRawDataProviderAlgCfg
-    top_acc.merge(PixelRawDataProviderAlgCfg(ConfigFlags))
     ########################### TRTExtension  #############################
     top_acc.merge(NewTrackingTRTExtensionCfg(ConfigFlags,
-                                             SiTrackCollection=InDetSpSeededTracksKey,
+                                             SiTrackCollection = ResolvedTracks,
                                              ExtendedTrackCollection = ExtendedTrackCollection, 
                                              ExtendedTracksMap = ExtendedTracksMap))
     #######################################################################

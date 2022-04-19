@@ -31,13 +31,12 @@
 class CaloCell_ID;
 class LArHVFraction;
 
-#include "StoreGate/DataHandle.h"
-#include "AthenaKernel/IOVSvcDefs.h"
 #include "CaloRec/CaloClusterCollectionProcessor.h"
 #include "CaloDetDescr/CaloDepthTool.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloInterface/ILArHVFraction.h"
 #include "CaloConditions/CaloNoise.h"
+#include "CaloEvent/CaloCellContainer.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include <string>
 #include <vector>
@@ -127,7 +126,7 @@ class CaloClusterMomentsMaker_DigiHSTruth: public AthAlgTool, virtual public Cal
     "CaloDetDescrManager"
   };
 
-
+  SG::ReadHandleKey<CaloCellContainer> m_signalCellKey{this,"SignalCells","AllCalo_DigiHSTruth"};
 
  /** @brief Key of the CaloNoise Conditions data object. Typical values 
      are '"electronicNoise', 'pileupNoise', or '"totalNoise' (default) */

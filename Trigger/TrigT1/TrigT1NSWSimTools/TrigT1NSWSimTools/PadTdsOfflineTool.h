@@ -68,6 +68,12 @@ namespace NSWL1 {
     *
     *  @author Alessandro Di Mattia <dimattia@cern.ch>
     *
+    * ----------------------------------------------------------------------------------------
+    * 2022 Update: the internal cache has been removed for the code to deal with parallel
+    * processing (athenaMT) in Release 22. It has been replaced by an event-by-event cache,
+    * passed by reference throughout the workflow.
+    *
+    *  @modified by Francesco Giuseppe Gravili <francesco.giuseppe.gravili@cern.ch>
     *
     */
     class PadHits;
@@ -81,7 +87,7 @@ namespace NSWL1 {
         PadTdsOfflineTool(const std::string& type,
                         const std::string& name,
                         const IInterface* parent);
-        virtual ~PadTdsOfflineTool();
+        virtual ~PadTdsOfflineTool()=default;
         virtual StatusCode initialize() override;
         virtual void handle (const Incident& inc) override;
         virtual StatusCode gather_pad_data(std::vector<std::shared_ptr<PadData>>& pads, int side=-1, int sector=-1) override;
@@ -141,6 +147,7 @@ namespace NSWL1 {
         const MuonGM::MuonDetectorManager* m_detManager;        //!< MuonDetectorManager
 
         // properties: container and service names
+        Gaudi::Property<bool>         m_isMC          {this, "IsMC",            true,               "This is MC"};
         Gaudi::Property<std::string>  m_rndmEngineName{this, "RndmEngineName", "PadTdsOfflineTool", "Name of the random engine"};
         Gaudi::Property<bool>         m_doNtuple      {this, "DoNtuple",        false,              "Input PadTds branches into the analysis ntuple"};
         Gaudi::Property<float>        m_vmmTimeOverThreshold{this, "VMM_TimeOverThreshold", 0.,  "Time to form a digital signal"};

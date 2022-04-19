@@ -90,7 +90,7 @@ bool SCT_OnlineId::fibreInRange(std::uint32_t f) const{
 }
 
 //
-bool SCT_OnlineId::rodIdInRange(std::uint32_t r) const {
+bool SCT_OnlineId::rodIdInRange(std::uint32_t r){
   const std::uint32_t lowestRodId(0x210000);
   const std::uint32_t highestRodId=0x24010F;
   return ((r >=lowestRodId) and (r<=highestRodId)) ;

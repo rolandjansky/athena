@@ -19,7 +19,7 @@ from TriggerMenuMT.HLT.Egamma.TrigEgammaFactories import TrigEMClusterTool, Trig
 
 """ Importing all the tool components """
 from egammaMVACalib.egammaMVACalibFactories import egammaMVASvc
-from egammaTools.egammaToolsFactories import egammaSwSuperClusterTool, EGammaAmbiguityTool
+from egammaTools.egammaToolsFactories import egammaSwSuperClusterTool
 from egammaAlgs import egammaAlgsConf
 from egammaRec.Factories import AlgFactory, FcnWrapper
     
@@ -60,7 +60,6 @@ def TrigTopoEgammaElectronCfg(name='topoEgammaBuilder_TrigElectrons'):
             InputPhotonRecCollectionName = TrigEgammaKeys.precisionPhotonSuperClusterRecCollection,
             ElectronOutputName = TrigEgammaKeys.precisionElectronContainer,
             PhotonOutputName = TrigEgammaKeys.precisionPhotonContainer,  
-            AmbiguityTool = EGammaAmbiguityTool,
             EMClusterTool = TrigEMClusterTool,
             EMShowerTool=TrigEMShowerBuilder,
             egammaTools = FcnWrapper(TrigEgammaDecorationTools),

@@ -35,7 +35,7 @@ def MuonPrdCacheCfg(flags):
                                        TgcCacheStr       = MuonPrdCacheNames.TgcCache,
                                        sTgcCacheKey      = (MuonPrdCacheNames.sTgcCache if flags.Detector.GeometrysTGC else ""),
                                        MmCacheKey        = (MuonPrdCacheNames.MmCache if flags.Detector.GeometryMM else ""),
-                                       TgcCoinCacheKey   = MuonPrdCacheNames.TgcCoinCache,
+                                       TgcCoinCacheStr   = MuonPrdCacheNames.TgcCoinCache,
                                        RpcCoinCacheKey   = MuonPrdCacheNames.RpcCoinCache,
                                        )
 
@@ -97,7 +97,8 @@ def TgcRDODecodeCfg(flags, name="TgcRdoToTgcPrepData", **kwargs):
 
     # Get the RDO -> PRD tool
     kwargs.setdefault("DecodingTool", CompFactory.Muon.TgcRdoToPrepDataToolMT(name="TgcPrepDataProviderTool",
-                                                                              PrdCacheString = MuonPrdCacheNames.TgcCache if flags.Muon.MuonTrigger else ""))
+                                                                              PrdCacheString = MuonPrdCacheNames.TgcCache if flags.Muon.MuonTrigger else "",
+                                                                              CoinCacheString = MuonPrdCacheNames.TgcCoinCache if flags.Muon.MuonTrigger else ""))
 
     # add RegSelTool
     from RegionSelector.RegSelToolConfig import regSelTool_TGC_Cfg
@@ -134,7 +135,7 @@ def StgcRDODecodeCfg(flags, name="StgcRdoToStgcPrepData", **kwargs):
     acc.merge(MuonGeoModelCfg(flags))
 
     # Get the RDO -> PRD tool
-    kwargs.setdefault("DecodingTool", CompFactory.Muon.sTgcRdoToPrepDataToolMT(name="sTgcRdoToTgcPrepDataTool"))
+    kwargs.setdefault("DecodingTool", CompFactory.Muon.sTgcRdoToPrepDataToolMT(name="sTgcRdoToTgcPrepDataTool", PrdCacheKey = MuonPrdCacheNames.sTgcCache if flags.Muon.MuonTrigger else ""))
     # add RegSelTool
     # from RegionSelector.RegSelToolConfig import regSelTool_STGC_Cfg
     # kwargs.setdefault("RegSel_STGC", acc.popToolsAndMerge(regSelTool_STGC_Cfg(flags)))
@@ -152,7 +153,7 @@ def MMRDODecodeCfg(flags, name="MM_RdoToMM_PrepData", **kwargs):
     acc.merge(MuonGeoModelCfg(flags))
 
     # Get the RDO -> PRD tool
-    kwargs.setdefault("DecodingTool", CompFactory.Muon.MmRdoToPrepDataToolMT(name="MmRdoToPrepDataTool"))
+    kwargs.setdefault("DecodingTool", CompFactory.Muon.MmRdoToPrepDataToolMT(name="MmRdoToPrepDataTool", PrdCacheKey = MuonPrdCacheNames.MmCache if flags.Muon.MuonTrigger else ""))
     if flags.Muon.MuonTrigger:
         kwargs.setdefault("PrintPrepData", False)
     # add RegSelTool

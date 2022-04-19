@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "KitManager.h"
 #include <sstream>
 #include <stdexcept>
 
-KitManagerBase::KitManagerBase() {}
-KitManagerBase::~KitManagerBase() {}
+KitManagerBase::KitManagerBase() = default;
+KitManagerBase::~KitManagerBase() = default;
 
 const void *KitManagerBase::kitPtr(const std::string &name) const {
   std::lock_guard<std::mutex> lock (m_mutex);

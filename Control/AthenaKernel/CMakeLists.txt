@@ -62,7 +62,9 @@ atlas_add_test( type_tools_test
 
 atlas_add_test( Units_test
    SOURCES test/Units_test.cxx
-   LINK_LIBRARIES GaudiKernel TestTools AthenaKernel )
+   LINK_LIBRARIES GaudiKernel TestTools AthenaKernel
+   # Ignore some objdump warnings we see with clang14.
+   LOG_IGNORE_PATTERN "Warning: Unrecognized form|Warning: DIE at offset" )
 
 atlas_add_test( DataObjectSharedPtr_test
    SOURCES test/DataObjectSharedPtr_test.cxx

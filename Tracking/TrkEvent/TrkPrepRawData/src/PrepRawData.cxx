@@ -109,16 +109,6 @@ PrepRawData::PrepRawData(const PrepRawData& RIO)
 #endif
 }
 
-// move constructor:
-PrepRawData::PrepRawData(PrepRawData&& RIO) noexcept = default;
-
-// assignment operator
-PrepRawData&
-PrepRawData::operator=(const PrepRawData& RIO) = default;
-
-PrepRawData&
-PrepRawData::operator=(PrepRawData&& RIO) noexcept = default;
-
 MsgStream&
 PrepRawData::dump(MsgStream& stream) const
 {

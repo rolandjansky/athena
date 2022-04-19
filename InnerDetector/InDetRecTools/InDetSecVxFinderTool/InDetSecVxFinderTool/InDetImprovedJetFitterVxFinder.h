@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -80,11 +80,11 @@ namespace InDet {
 
     void sortTrackCollectionByPt( std::vector< const Trk::ITrackLink* >& ) const;
 
-    Trk::VxJetCandidate* findSecVertex(const Trk::RecVertex & primaryVertex,
+    static Trk::VxJetCandidate* findSecVertex(const Trk::RecVertex & primaryVertex,
                                        const TLorentzVector & jetMomentum,
                                        const std::vector<const Trk::ITrackLink*> & firstInputTracks,
                                        const std::vector<const Trk::ITrackLink*> & secondInputTracks,
-                                       const Amg::Vector3D & vtxSeedDirection) const;
+                                       const Amg::Vector3D & vtxSeedDirection) ;
         
 
     void doTheFit(Trk::VxJetCandidate* myJetCandidate,

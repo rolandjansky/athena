@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -22,7 +22,7 @@ TileClusterFillerTool::TileClusterFillerTool (const std::string& type,
   BlockFillerTool<xAOD::CaloCluster> (type, name, parent){
 //=========================================================================
   
-  book().ignore(); // AVOID COVERITY WARNINGS
+  TileClusterFillerTool::book().ignore(); // AVOID COVERITY WARNINGS
   declareProperty("LevelOfDetails", m_LevelOfDetails = 2);
   
 } // TileClusterFillerTool::TileCaloClusterFillerTool

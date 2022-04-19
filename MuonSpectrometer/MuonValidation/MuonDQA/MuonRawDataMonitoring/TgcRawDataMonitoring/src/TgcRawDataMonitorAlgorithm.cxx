@@ -47,7 +47,7 @@ StatusCode TgcRawDataMonitorAlgorithm::initialize() {
 
   ATH_CHECK(m_L1MenuKey.initialize()); // ReadHandleKey, but DetStore (so renounce)
   renounce(m_L1MenuKey);
-  ATH_CHECK(m_thresholdPatternsKey.initialize(!m_thresholdPatternsKey.empty()));
+  ATH_CHECK(m_thresholdPatternsKey.initialize(m_monitorThresholdPatterns.value()));
 
   m_extZposition.push_back(m_M1_Z.value());
   m_extZposition.push_back(m_M2_Z.value());

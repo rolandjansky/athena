@@ -48,6 +48,8 @@ public:
   { std::abort(); }
   virtual int maxNumberOfErrors() const override
   { std::abort(); }
+  virtual bool doTrackOverlay() const override
+  { std::abort(); }
 
   virtual const Trk::Surface* getSurface(const Identifier& id) const override;
   void addSurface (std::unique_ptr<Trk::Surface> surf);

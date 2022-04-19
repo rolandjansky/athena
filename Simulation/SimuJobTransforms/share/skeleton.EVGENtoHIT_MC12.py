@@ -226,6 +226,11 @@ if jobproperties.Beam.beamType.get_Value() != 'cosmics':
     else:
         simFlags.EventFilter.set_On()
 
+from G4AtlasApps.G4Atlas_Metadata import checkForContainerInInput
+if not checkForContainerInInput("xAOD::EventInfo"):
+    # If xAOD::EventInfo is not present in the input file then it should be created
+    topSeq += CfgMgr.xAODMaker__EventInfoCnvAlg()
+
 include("G4AtlasApps/G4Atlas.flat.configuration.py")
 
 ## The looper killer is on by default. Disable it if this is requested.

@@ -26,7 +26,7 @@ def defineInputsMenu():
                   for group in conn["algorithmGroups"]:
                       if group["fpga"]==0 and group["clock"]==1:
                          group["algorithms"] += [
-                             TopoMenuDef( '0DR04-MU5VFab-CjJ50ab',  outputbits = 11), #Bjet, TODO: not a primary
+                             TopoMenuDef( '0DR04-MU5VFab-CjJ90ab',  outputbits = 11), #Bjet, TODO: not a primary
                          ]
    
 

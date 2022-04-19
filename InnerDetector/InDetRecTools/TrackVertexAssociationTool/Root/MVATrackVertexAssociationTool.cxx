@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Includes from this package
@@ -107,7 +107,7 @@ bool MVATrackVertexAssociationTool::isCompatible(const xAOD::TrackParticle& trk)
     throw std::runtime_error("ERROR in CP::MVATrackVertexAssociationTool::isCompatible : could not retrieve xAOD::EventInfo!");
   }
   SG::ReadDecorHandle<xAOD::EventInfo, ElementLink<xAOD::VertexContainer>> hardScatterDeco(m_hardScatterDecoKey, ctx);
-  ElementLink<xAOD::VertexContainer> vtxLink = hardScatterDeco(*evt);
+  const ElementLink<xAOD::VertexContainer>& vtxLink = hardScatterDeco(*evt);
   if (!vtxLink.isValid()) {
     throw std::runtime_error("ERROR in CP::MVATrackVertexAssociationTool::isCompatible : hardscatter vertex link is not valid!");
   }

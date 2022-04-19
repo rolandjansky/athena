@@ -147,6 +147,7 @@ namespace top {
     registerParameter("MuonIsolationSFLoose", "Force loose muon isolation SF to specific WP (e.g. None).", " ");
     registerParameter("MuonDoSmearing2stationHighPt", "True/False, to turn on/off spacial corrections for 2-station muons reconstruction with missing inner MS station allowed for abs(eta)<1.3, only with MuonQuality HighPt. - Default: True", "True");
     registerParameter("MuonDoExtraSmearingHighPt", "True/False, To be used by analyses using willing to check their sensitivity to momentum resolution effects at large muon momenta and in case move to the HighPt WP - Default: false", "false");
+    registerParameter("MuonCalibrationMode", "Calibration method for muon momentum.", "correctData_CB", {"correctData_CB", "correctData_IDMS", "notCorrectData_IDMS"});
     registerParameter("UseAntiMuons", "Use AntiMuons for fake estimate. Default: false", "false");
     registerParameter("UseSoftMuons", "True to use soft muons, False (default) otherwise", "False");
     registerParameter("SoftMuonPt", "Soft Muon pT cut for object selection (in MeV). Default 4 GeV.", "4000");
@@ -176,11 +177,22 @@ namespace top {
     registerParameter("MuonSFCustomInputFolder",
                       "EXPERT OPTION! Tells the MuonEfficiencyScaleFactors tools to use a custom input folder path. If set to \" \" will use the default",
                       " ");
-
+    registerParameter("MuonForceYear",
+                      "EXPERT OPTION! Tells the MuonEfficiencyScaleFactors tools to use a custom Year. If set to -1 will use the default",
+                      "-1");
+    registerParameter("MuonForcePeriod",
+                      "EXPERT OPTION! Tells the MuonEfficiencyScaleFactors tools to use a custom Period. If set to \" \" will use the default",
+                      " ");
+    registerParameter("MuonForceTrigger",
+                      "EXPERT OPTION! Tells the MuonEfficiencyScaleFactors tools to use a custom Trigger. If set to \" \" will use the default", 
+                      " ");
     registerParameter("MuonBreakDownSystematics",
                       "Tells the MuonEfficiencyScaleFactors tools to use a more complex systematic model, if set to True. Default is False",
                       "False", {"True", "False"});
 
+    registerParameter("ElectronForceTrigger",
+                      "EXPERT OPTION! Tells the tools to use a custom electron Trigger. If set to \" \" will use the default", 
+                      " ");
     registerParameter("JetPt", "Jet pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
     registerParameter("JetEta", "Absolute Jet eta cut for object selection. Default 2.5.", "2.5");
    
@@ -590,6 +602,10 @@ namespace top {
                       "0.05");
     registerParameter("PRWPeriodAssignments",
                       "Specify period number assignments to run numbers ranges in this form: \"XXX:XXX:XXX\", where XXX are runnumbers, first number is the associated run number, second number is the period block start, the third number is the period block end. You can pass any number of these sets (total number of provided RunNumbers needs to be divisible by 3). Default is used if not specified",
+                      " ");
+
+    registerParameter("ForceRandomRunNumber",
+                      "If set to an integer, will disable PRW and use that value as the random run number for MC",
                       " ");
 
     registerParameter("MuonTriggerSF", "Muon trigger SFs to calculate", "HLT_mu20_iloose_L1MU15_OR_HLT_mu50");

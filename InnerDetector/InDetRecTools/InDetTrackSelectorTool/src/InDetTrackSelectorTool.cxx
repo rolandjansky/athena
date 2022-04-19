@@ -46,7 +46,7 @@ InDetTrackSelectorTool::InDetTrackSelectorTool(const std::string & t, const std:
 
 //_______________________________________________________________________________
 InDetTrackSelectorTool::~InDetTrackSelectorTool()
-{}
+= default;
 
 //_______________________________________________________________________________
 StatusCode InDetTrackSelectorTool::initialize()

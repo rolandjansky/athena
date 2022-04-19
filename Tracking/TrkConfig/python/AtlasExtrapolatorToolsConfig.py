@@ -22,52 +22,6 @@ def AtlasNavigatorCfg(flags,
     result.setPrivateTools(CompFactory.Trk.Navigator(name,**kwargs))
     return result
 
-def AtlasRKPropagatorCfg(flags,
-                         name='AtlasRungeKuttaPropagator',
-                         **kwargs):
-    result = ComponentAccumulator()
-    AtlasRungeKuttaPropagator = CompFactory.Trk.RungeKuttaPropagator(name, **kwargs)
-    result.setPrivateTools(AtlasRungeKuttaPropagator)
-    return result
-
-def AtlasSTEP_PropagatorCfg(flags,
-                            name='AtlasSTEP_Propagator',
-                            **kwargs):
-    result = ComponentAccumulator()
-    AtlasSTEP_Propagator = CompFactory.Trk.STEP_Propagator(name, **kwargs)
-    result.setPrivateTools(AtlasSTEP_Propagator)
-    return result
-
-def AtlasNoMatSTEP_PropagatorCfg(flags,
-                            name='NoMatSTEP_Propagator',
-                            **kwargs):
-    kwargs.setdefault("MaterialEffects", False)
-    return AtlasSTEP_PropagatorCfg(flags, name, **kwargs)
-
-def MuonSTEP_PropagatorCfg(flags, name='MuonSTEP_Propagator', **kwargs):
-    # In the old ConfigDb this was named MuonStraightLinePropagator (!)
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    result = ComponentAccumulator()
-
-    acc  = MagneticFieldSvcCfg(flags)
-    result.merge(acc)
-
-    kwargs.setdefault("Tolerance", 0.00001 )
-    kwargs.setdefault("MaterialEffects", True  )
-    kwargs.setdefault("IncludeBgradients", True  )
-
-    propagator = CompFactory.Trk.STEP_Propagator(name=name, **kwargs)
-    result.setPrivateTools(propagator)
-    return result
-
-def MuonCombinedPropagatorCfg(flags, name='MuonCombinedPropagator', **kwargs ):
-    if not flags.Muon.MuonTrigger:
-        kwargs.setdefault("AccuracyParameter",   .000001 )
-        kwargs.setdefault("IncludeBgradients",   True )
-        kwargs.setdefault("MaxHelixStep",        .001 )
-        kwargs.setdefault("MaxStraightLineStep", .001 )
-    return AtlasRKPropagatorCfg(flags, name, **kwargs)
-
 def InDetPropagatorCfg(flags,
                        name='InDetPropagator',
                        **kwargs):
@@ -75,13 +29,15 @@ def InDetPropagatorCfg(flags,
 
     InDetPropagator = None
     if flags.InDet.Tracking.propagatorType == "STEP":
+        from TrkConfig.TrkExSTEP_PropagatorConfig import AtlasSTEP_PropagatorCfg
         InDetPropagator = result.popToolsAndMerge(
             AtlasSTEP_PropagatorCfg(flags, name, **kwargs))
     elif flags.InDet.Tracking.propagatorType == "RungeKutta":
         kwargs.setdefault("AccuracyParameter", 0.0001)
         kwargs.setdefault("MaxStraightLineStep", .004)  # Fixes a failed fit
+        from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
         InDetPropagator = result.popToolsAndMerge(
-            AtlasRKPropagatorCfg(flags, name, **kwargs))
+            RungeKuttaPropagatorCfg(flags, name, **kwargs))
 
     result.setPrivateTools(InDetPropagator)
     return result
@@ -90,9 +46,8 @@ def InDetPropagatorCfg(flags,
 def ITkPropagatorCfg(flags,
                      name='ITkPropagator',
                      **kwargs):
-    kwargs.setdefault("AccuracyParameter", 0.0001)
-    kwargs.setdefault("MaxStraightLineStep", .004)  # Fixes a failed fit
-    return AtlasRKPropagatorCfg(flags, name, **kwargs)
+    from TrkConfig.TrkExRungeKuttaPropagatorConfig import ITkRKPropagatorCfg
+    return ITkRKPropagatorCfg(flags, name, **kwargs)
 
 def AtlasEnergyLossUpdatorCfg(flags,
                               name='AtlasEnergyLossUpdator',

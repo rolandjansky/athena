@@ -3,6 +3,8 @@
 */
 
 #include "./JetGroupReducer.h"
+#include "./elementalJetGroups.h"
+
 #include <set>
 #include <string>
 #include <sstream>
@@ -10,7 +12,7 @@
 
 JetGroupReducer::JetGroupReducer(const std::vector<std::size_t>& siblings,
 				 const CondInd2JetGroupsInds& satisfiedBy, 
-				 const JetGroupInd2ElemInds& jg2elem){
+				 const JetGroupInd2ElemInds& jg2elemjgs){
   
   // make a vector of the jet indices that satisfy the sibling Conditions
   // with no duplicates
@@ -50,20 +52,24 @@ JetGroupReducer::JetGroupReducer(const std::vector<std::size_t>& siblings,
 		      satisfying.end());
   }
 
+  std::vector<std::size_t> jet_indices;
   for(auto iter = satisfying.begin(); iter != end; ++iter) {
-    m_jetIndices.insert(m_jetIndices.end(),
-			jg2elem.at(*iter).begin(),
-			jg2elem.at(*iter).end());
+    jet_indices.insert(jet_indices.end(),
+		       jg2elemjgs.at(*iter).begin(),
+		       jg2elemjgs.at(*iter).end());
   }
 
-  std::sort(m_jetIndices.begin(),
-	    m_jetIndices.end());
+  std::sort(jet_indices.begin(),
+	    jet_indices.end());
   
-  auto final_end = std::unique(m_jetIndices.begin(),
-			       m_jetIndices.end());
-
+  auto final_end = std::unique(jet_indices.begin(),
+			       jet_indices.end());
   
-  m_jetIndices.resize(final_end-m_jetIndices.begin());
+  
+  jet_indices.resize(final_end-jet_indices.begin());
+  
+  m_jetIndices = elementalJetGroups(jet_indices,
+				    jg2elemjgs);
   m_done = false;
   }
 

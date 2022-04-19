@@ -23,6 +23,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "SGTools/SGVersionedKey.h"
 #include "PersistentDataModel/DataHeader.h"
+#include "RootAuxDynIO/RootAuxDynIO.h"
 
 #include "OutputStreamSequencerSvc.h"
 
@@ -414,6 +415,26 @@ StatusCode MetaDataSvc::rootOpenAction(FILEMGR_CALLBACK_ARGS) {
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
+// check if the metadata object key contains Stream name (added by SharedWriter in MetaDataSvc)
+// remove stream part from the key (i.e. modify the parameter) and return it
+std::string MetaDataSvc::removeStreamFromKey(std::string& key) {
+   size_t pos = key.find(m_streamInKeyMark);
+   if( pos==std::string::npos ) return "";
+   size_t epos = key.find(']', pos);
+   size_t spos = pos + m_streamInKeyMark.size();
+   std::string stream = key.substr( spos, epos - spos );
+   key = key.substr(0, pos) + key.substr(epos+1);
+   return stream;
+}
+//__________________________________________________________________________
+std::set<std::string> MetaDataSvc::getPerStreamKeysFor(const std::string& key ) const {
+   auto iter = m_streamKeys.find( key );
+   if( iter == m_streamKeys.end() ) {
+      return std::set<std::string>( {key} );
+   } 
+   return iter->second;
+}
+//__________________________________________________________________________
 StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr) {
    std::string fileName = tokenStr.substr(tokenStr.find("[FILE=") + 6);
    fileName = fileName.substr(0, fileName.find(']'));
@@ -483,6 +504,21 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
          }
       }
    }
+   // make stream-unique keys for infile metadata objects
+   // AthenaOutputStream will use this to distribute objects to the right stream (and restore the original key)
+   if( clid == 178309087 ) {  // FileMetaData
+      std::string newName = keyName + m_streamInKeyMark + fileName + "]";
+      ATH_MSG_DEBUG("Recording " << keyName << " as " << newName);
+      m_streamKeys[keyName].insert(newName);
+      keyName = std::move(newName);
+   }
+   if( clid == 73252552 ) {  // FileMetaDataAuxInfo
+      std::string newName = keyName.substr(0, keyName.find(RootAuxDynIO::AUX_POSTFIX)) + m_streamInKeyMark
+                          + fileName +  + "]" + RootAuxDynIO::AUX_POSTFIX;
+      ATH_MSG_DEBUG("Recording " << keyName << " as " << newName);
+      m_streamKeys[keyName].insert(newName);
+      keyName = std::move(newName);
+   }
    const std::string par[3] = { "SHM" , keyName , className };
    const unsigned long ipar[2] = { num , 0 };
    IOpaqueAddress* opqAddr = nullptr;
@@ -504,7 +540,8 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
       ATH_MSG_FATAL("addProxyToInputMetaDataStore: Cannot access data for " << tokenStr);
       return(StatusCode::FAILURE);
    }
-   if (keyName.find("Aux.") != std::string::npos && m_inputDataStore->symLink(clid, keyName, 187169987).isFailure()) {
+   if (keyName.find(RootAuxDynIO::AUX_POSTFIX) != std::string::npos
+       && m_inputDataStore->symLink(clid, keyName, 187169987).isFailure()) {
       ATH_MSG_WARNING("addProxyToInputMetaDataStore: Cannot symlink to AuxStore for " << tokenStr);
    }
    return(StatusCode::SUCCESS);
@@ -646,3 +683,5 @@ void MetaDataSvc::unlockTools() const
       if( lockable ) lockable->unlock_shared();
    }
 }
+
+

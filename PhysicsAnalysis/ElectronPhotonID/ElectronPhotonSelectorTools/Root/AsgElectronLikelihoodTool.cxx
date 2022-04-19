@@ -326,10 +326,10 @@ AsgElectronLikelihoodTool::accept(const EventContext& ctx,
     const xAOD::TrackParticle* t = el->trackParticle();
     if (t) {
       nSiHitsPlusDeadSensors =
-        ElectronSelectorHelpers::numberOfSiliconHitsAndDeadSensors(t);
+        ElectronSelectorHelpers::numberOfSiliconHitsAndDeadSensors(*t);
       nPixHitsPlusDeadSensors =
-        ElectronSelectorHelpers::numberOfPixelHitsAndDeadSensors(t);
-      passBLayerRequirement = ElectronSelectorHelpers::passBLayerRequirement(t);
+        ElectronSelectorHelpers::numberOfPixelHitsAndDeadSensors(*t);
+      passBLayerRequirement = ElectronSelectorHelpers::passBLayerRequirement(*t);
       d0 = t->d0();
       EoverP = std::abs(t->qOverP()) * energy;
     } else {

@@ -274,13 +274,16 @@ namespace LVL1 {
       auto & thr_gJ = l1Menu->thrExtraInfo().gJ();
       auto & thr_gLJ = l1Menu->thrExtraInfo().gLJ();
       auto & thr_gXE = l1Menu->thrExtraInfo().gXE();
+      auto & thr_gTE = l1Menu->thrExtraInfo().gTE();
 
       int gJ_scale = 0;
       int gLJ_scale = 0;
       int gXE_scale = 0;
+      int gTE_scale = 0;
       gJ_scale = thr_gJ.resolutionMeV(); 
       gLJ_scale = thr_gLJ.resolutionMeV(); 
       gXE_scale = thr_gXE.resolutionMeV(); 
+      gTE_scale = thr_gTE.resolutionMeV(); 
 
 
       //iterate over all gRho Tobs and fill EDM with them
@@ -313,19 +316,19 @@ namespace LVL1 {
 
       //iterate over all JwoJ scalar energy Tobs and fill EDM with them (should be only one)
       for(auto &tob : m_allgScalarEJwojTobs){
-         ATH_CHECK(fillgScalarEJwojEDM(tob, gXE_scale));
+         ATH_CHECK(fillgScalarEJwojEDM(tob, gXE_scale, gTE_scale));
       }
       //iterate over all JwoJ METcomponents Tobs and fill EDM with them (should be only one)
       for(auto &tob : m_allgMETComponentsJwojTobs){
-         ATH_CHECK(fillgMETComponentsJwojEDM(tob, gXE_scale));
+         ATH_CHECK(fillgMETComponentsJwojEDM(tob, gXE_scale, gXE_scale));
       }
       //iterate over all JwoJ MHTcomponents Tobs and fill EDM with them (should be only one)
       for(auto &tob : m_allgMHTComponentsJwojTobs){
-         ATH_CHECK(fillgMHTComponentsJwojEDM(tob, gXE_scale));
+         ATH_CHECK(fillgMHTComponentsJwojEDM(tob, gXE_scale, gXE_scale));
       }
       //iterate over all JwoJ MSTcomponents Tobs and fill EDM with them (should be only one)
       for(auto &tob : m_allgMSTComponentsJwojTobs){
-         ATH_CHECK(fillgMSTComponentsJwojEDM(tob, gXE_scale));
+         ATH_CHECK(fillgMSTComponentsJwojEDM(tob, gXE_scale, gXE_scale));
       }
 
       
@@ -391,38 +394,38 @@ namespace LVL1 {
       return StatusCode::SUCCESS;
    }
 
-   StatusCode gFEXSysSim::fillgMETComponentsJwojEDM(uint32_t tobWord, int gXE_scale){
+   StatusCode gFEXSysSim::fillgMETComponentsJwojEDM(uint32_t tobWord, int scale1, int scale2){
 
       std::unique_ptr<xAOD::gFexGlobalRoI> myEDM (new xAOD::gFexGlobalRoI());
       m_gMETComponentsJwojContainer->push_back(std::move(myEDM));
-      m_gMETComponentsJwojContainer->back()->initialize(tobWord, gXE_scale);
+      m_gMETComponentsJwojContainer->back()->initialize(tobWord, scale1, scale2);
 
       return StatusCode::SUCCESS;
    }
 
-   StatusCode gFEXSysSim::fillgMHTComponentsJwojEDM(uint32_t tobWord, int gXE_scale){
+   StatusCode gFEXSysSim::fillgMHTComponentsJwojEDM(uint32_t tobWord, int scale1, int scale2){
 
       std::unique_ptr<xAOD::gFexGlobalRoI> myEDM (new xAOD::gFexGlobalRoI());
       m_gMHTComponentsJwojContainer->push_back(std::move(myEDM));
-      m_gMHTComponentsJwojContainer->back()->initialize(tobWord, gXE_scale);
+      m_gMHTComponentsJwojContainer->back()->initialize(tobWord, scale1, scale2);
 
       return StatusCode::SUCCESS;
    }
 
-   StatusCode gFEXSysSim::fillgMSTComponentsJwojEDM(uint32_t tobWord, int gXE_scale){
+   StatusCode gFEXSysSim::fillgMSTComponentsJwojEDM(uint32_t tobWord, int scale1, int scale2){
 
       std::unique_ptr<xAOD::gFexGlobalRoI> myEDM (new xAOD::gFexGlobalRoI());
       m_gMSTComponentsJwojContainer->push_back(std::move(myEDM));
-      m_gMSTComponentsJwojContainer->back()->initialize(tobWord, gXE_scale);
+      m_gMSTComponentsJwojContainer->back()->initialize(tobWord, scale1, scale2);
 
       return StatusCode::SUCCESS;
    }
 
-   StatusCode gFEXSysSim::fillgScalarEJwojEDM(uint32_t tobWord, int gXE_scale){
+   StatusCode gFEXSysSim::fillgScalarEJwojEDM(uint32_t tobWord, int scale1, int scale2){
 
       std::unique_ptr<xAOD::gFexGlobalRoI> myEDM (new xAOD::gFexGlobalRoI());
       m_gScalarEJwojContainer->push_back(std::move(myEDM));
-      m_gScalarEJwojContainer->back()->initialize(tobWord, gXE_scale);
+      m_gScalarEJwojContainer->back()->initialize(tobWord, scale1, scale2);
 
       return StatusCode::SUCCESS;
    }

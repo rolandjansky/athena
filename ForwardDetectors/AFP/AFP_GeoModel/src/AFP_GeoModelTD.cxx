@@ -147,7 +147,7 @@ void AFP_GeoModelFactory::addSepRadLBar(const char* pszStationName, const int nQ
 
 	//Radiator elbow
 	double fRadYDim=BarDims.fRadYDim;
-	double fElbowXDim=BarDims.fRadYDim;
+	double fElbowXDim=fRadYDim;
 	TotTransform=TransInMotherVolume*HepGeom::Translate3D(  fX1Pos-0.5*BarDims.fLGuideWidth+0.5*fElbowXDim+fTaperOffset,
                                                             BarDims.fLGuideLength+0.5*fRadYDim,
                                                             fX2Pos);

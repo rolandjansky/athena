@@ -204,6 +204,35 @@ def normToEntriesAndSetMin(inputs,minVal=0,maxVal=0,useMax=False):
 
     return [cl]
 
+def normToBinAndSetMinMax(inputs,bin_norm=0,minVal=0,maxVal=0,useMax=False, titleToReplace="",replaceWith="",newYaxis=""):
+    """ This function normalises histogram 1 to the content of bin bin_norm (which is supposed to represent the number of events) and sets the histogram max/min """
+
+    assert len(inputs) == 1 , len(inputs)
+    assert len(inputs[0][1]) == 1 , len(inputs[0][1])
+
+    cl = inputs[0][1][0].Clone()
+    Nen = inputs[0][1][0].GetBinContent(bin_norm)
+    if Nen!=0:
+        cl.Scale(100./Nen)
+        pass
+
+    cl.SetMinimum(minVal)
+    if useMax:
+        cl.SetMaximum(maxVal)
+        pass
+
+    if newYaxis!="":
+       cl.GetYaxis().SetTitle(newYaxis)
+
+    if titleToReplace=="":
+        return [cl]
+
+    tit = cl.GetTitle()
+    tit=tit.replace(titleToReplace,replaceWith)
+    cl.SetTitle(tit)
+
+    return [cl]
+
 
 
 def divideHist(inputs,titleToReplace="",replaceWith=""):

@@ -103,9 +103,7 @@ namespace Trk {
 
   //________________________________________________________________________
   MSConstraintTracksProvider::~MSConstraintTracksProvider()
-  {
-
-  }
+  = default;
 
   //________________________________________________________________________
   StatusCode MSConstraintTracksProvider::initialize()

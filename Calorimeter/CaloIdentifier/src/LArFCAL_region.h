@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARFCAL_REGION_H
@@ -26,7 +26,7 @@ public:
 		   float minEta, float granulEta, float minPhi, float granulPhi,  bool fullSym, 
 		   short int& prevEtaSamp, short int& nextEtaSamp);    
 
-    ~LArFCAL_region(void);
+    ~LArFCAL_region(void) = default;
 
     /** number of eta bins in the whole region */
     short int numberOfEta() const;

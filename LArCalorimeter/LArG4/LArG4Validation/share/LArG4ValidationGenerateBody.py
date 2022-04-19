@@ -1,7 +1,7 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.DetFlags import DetFlags
-# - Select detectors 
+# - Select detectors
 DetFlags.ID_setOn()
 DetFlags.Calo_setOn()
 DetFlags.Muon_setOn()
@@ -27,6 +27,8 @@ else :
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
+from EvgenJobTransforms.EvgenConfig import evgenConfig
+
 athenaCommonFlags.PoolHitsOutput=options['output'] + '.HITS.pool.root'
 
 athenaCommonFlags.EvtMax=options['nevents']
@@ -46,6 +48,21 @@ if len(options['geometry']) > 0 :
 else :
     simFlags.SimLayout.set_On()
 
+## Global flags needed by externals
+from AthenaCommon.GlobalFlags import globalflags
+globalflags.DataSource = 'geant4'
+globalflags.DetGeo = 'atlas'
+globalflags.DetDescrVersion = simFlags.SimLayout.get_Value()
+
+if not options ['simulate']:
+    ## Translate conditions tag into IOVDbSvc global tag: must be done before job propertie are locked!!!
+    from AthenaCommon.AppMgr import ServiceMgr
+    from IOVDbSvc.IOVDbSvcConf import IOVDbSvc
+    ServiceMgr += IOVDbSvc()
+    if not hasattr(ServiceMgr.IOVDbSvc, 'GlobalTag') or not ServiceMgr.IOVDbSvc.GlobalTag:
+        ServiceMgr.IOVDbSvc.GlobalTag = globalflags.ConditionsTag.get_Value()
+
+
 if len(options['physlist']) > 0 :
     simFlags.PhysicsList = options['physlist']
 
@@ -54,21 +71,24 @@ if options['input'] is not None:
 else:
     ## Use single particle generator
     import AthenaCommon.AtlasUnixGeneratorJob
-    spgorders = ['pdgcode: constant '+options['pid'],
-                 'vertX: constant 0.0',
-                 'vertY: constant 0.0',
-                 'vertZ: constant 0.0',
-                 't: constant 0.0',
-                 'eta: flat ' + options['etaMin'] + ' ' + options['etaMax'],
-                 'phi: flat 0 6.28318',
-                 'e: flat ' + options['energyMin'] + ' ' + options['energyMax']]
-
+    import ParticleGun as PG
+    topSequence += PG.ParticleGun(randomSvcName=simFlags.RandomSvc.get_Value(), randomStream="SINGLE")
+    topSequence.ParticleGun.sampler.pid = int(options["pid"])
+    if options["configFileName"] != "" :
+        energy={}
+        inputfile=open(options["ConfigFileName"])
+        for line in inputfile:
+            for v in line.split():
+                data.append(int(v))
+        energyBins=set(data)
+        topSequence.ParticleGun.sampler.mom = PG.EEtaMPhiSampler(energy=energyBins, eta=[3.8, 4.8])
+    else:
+        print (options["energyMin"], options["energyMax"])
+        topSequence.ParticleGun.sampler.mom = PG.EEtaMPhiSampler(energy=set([100000,200000,500000]), eta=[-5.0,-3.0, 3.0,5.0])
+    evgenConfig.generators += ["ParticleGun"]
     athenaCommonFlags.PoolEvgenInput.set_Off()
-    from ParticleGenerator.ParticleGeneratorConf import ParticleGenerator
-    topSequence += ParticleGenerator()
-    topSequence.ParticleGenerator.orders = sorted(spgorders)
 
-if (options['parameterize'] > 0): 
+if (options['parameterize'] > 0):
     simFlags.LArParameterization=options['parameterize']
 
     if len(options['fsLibs']) > 0 :
@@ -77,15 +97,33 @@ if (options['parameterize'] > 0):
         if not hasattr( ServiceMgr, 'LArG4ShowerLibSvc' ):
              ServiceMgr += LArG4ShowerLibSvc()
         ServiceMgr.LArG4ShowerLibSvc.FileNameList = options['fsLibs']
-    
+
 
 ## Set Event #
 simFlags.RunNumber = options['runNumber']
 
-include("G4AtlasApps/G4Atlas.flat.configuration.py")
+if options['simulate']:
+    include("G4AtlasApps/G4Atlas.flat.configuration.py")
 
-from AthenaCommon.CfgGetter import getAlgorithm
-topSequence += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
+    from AthenaCommon.CfgGetter import getAlgorithm
+    topSequence += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
+    topSequence.G4AtlasAlg.InputTruthCollection = "GEN_EVENT"
+    from MagFieldServices import SetupField
+
+else:
+    if athenaCommonFlags.PoolEvgenInput.statusOn:
+        ## Tell the event selector about the evgen input files and event skipping
+        if not hasattr(svcMgr, 'EventSelector'):
+            import AthenaPoolCnvSvc.ReadAthenaPool
+        svcMgr.EventSelector.InputCollections = athenaCommonFlags.PoolEvgenInput()
+        if athenaCommonFlags.SkipEvents.statusOn:
+            svcMgr.EventSelector.SkipEvents = athenaCommonFlags.SkipEvents()
+
+    ## GeoModel stuff
+    from AtlasGeoModel import SetGeometryVersion
+    from AtlasGeoModel import GeoModelInit
+    from AtlasGeoModel import SimEnvelopes
+    from MagFieldServices import SetupField
 
 from LArG4Validation.LArG4ValidationConf import SingleTrackValidation
 topSequence += SingleTrackValidation()

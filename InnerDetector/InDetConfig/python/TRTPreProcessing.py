@@ -8,43 +8,6 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType
 
-
-def InDetPRD_MultiTruthMakerTRTCfg(flags, name = "InDetTRT_PRD_MultiTruthMaker", **kwargs):
-    acc = ComponentAccumulator()
-
-    kwargs.setdefault("PixelDetEleCollKey", "")
-    kwargs.setdefault("SCTDetEleCollKey", "")
-    kwargs.setdefault("PixelClusterContainerName", "")
-    kwargs.setdefault("SCTClusterContainerName", "")
-    kwargs.setdefault("TRTDriftCircleContainerName", 'TRT_DriftCircles') ##read from InDetKeys.TRT_DriftCircles
-    kwargs.setdefault("SimDataMapNamePixel", "")
-    kwargs.setdefault("SimDataMapNameSCT", "")
-    kwargs.setdefault("SimDataMapNameTRT", 'TRT_SDO_Map') ##read from InDetKeys.TRT_SDOs
-    kwargs.setdefault("TruthNamePixel", "")
-    kwargs.setdefault("TruthNameSCT", "")
-    kwargs.setdefault("TruthNameTRT", 'PRD_MultiTruthTRT') ##read from InDetKeys.TRT_DriftCirclesTruth
-
-    acc.addEventAlgo(CompFactory.InDet.PRD_MultiTruthMaker(name, **kwargs))
-    return acc
-
-def InDetPRD_MultiTruthMakerTRTPUCfg(flags, name = "InDetTRT_PRD_MultiTruthMakerPU", **kwargs):
-    acc = ComponentAccumulator()
-
-    kwargs.setdefault("PixelDetEleCollKey", "")
-    kwargs.setdefault("SCTDetEleCollKey", "")
-    kwargs.setdefault("PixelClusterContainerName", "")
-    kwargs.setdefault("SCTClusterContainerName", "")
-    kwargs.setdefault("TRTDriftCircleContainerName", 'TRT_PU_DriftCircles') ##read from InDetKeys.TRT_PU_DriftCircles
-    kwargs.setdefault("SimDataMapNamePixel", "")
-    kwargs.setdefault("SimDataMapNameSCT", "")
-    kwargs.setdefault("SimDataMapNameTRT", 'TRT_PU_SDO_Map') ##read from InDetKeys.TRT_PU_SDOs
-    kwargs.setdefault("TruthNamePixel", "")
-    kwargs.setdefault("TruthNameSCT", "")
-    kwargs.setdefault("TruthNameTRT", 'PRD_PU_MultiTruthTRT') ##read from InDetKeys.TRT_PU_DriftCirclesTruth
-
-    acc.addEventAlgo(CompFactory.InDet.PRD_MultiTruthMaker(name, **kwargs))
-    return acc
-
 def InDetTRT_DriftFunctionToolCfg(flags, name = "InDetTRT_DriftFunctionTool", **kwargs):
     acc = ComponentAccumulator()
     #
@@ -113,7 +76,7 @@ def TRTDriftTimes(flags):
                       HighGateArgon   = 42.1875*ns)
 
 
-def TRT_DriftCircleToolCfg(flags, prefix, name = "InDetTRT_DriftCircleTool", **kwargs):
+def TRT_DriftCircleToolCfg(flags, name = "InDetTRT_DriftCircleTool", **kwargs):
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTAlignCondAlgCfg
     acc = TRTAlignCondAlgCfg(flags)
     #
@@ -131,7 +94,7 @@ def TRT_DriftCircleToolCfg(flags, prefix, name = "InDetTRT_DriftCircleTool", **k
     #
     # --- TRT_DriftFunctionTool
     #
-    InDetTRT_DriftFunctionTool = acc.popToolsAndMerge(InDetTRT_DriftFunctionToolCfg(flags, name = prefix + "DriftFunctionTool", **kwargs))
+    InDetTRT_DriftFunctionTool = acc.popToolsAndMerge(InDetTRT_DriftFunctionToolCfg(flags, **kwargs))
     acc.addPublicTool(InDetTRT_DriftFunctionTool)
 
     from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_StrawStatusSummaryToolCfg
@@ -170,91 +133,35 @@ def TRT_DriftCircleToolCfg(flags, prefix, name = "InDetTRT_DriftCircleTool", **k
     acc.setPrivateTools(TRT_DriftCircleTool(name, **kwargs))
     return acc
 
-
-
-def InDetTRT_RIO_MakerCfg(flags, prefix, collection, name = "InDetTRT_RIO_Maker", **kwargs):
-    acc = ComponentAccumulator()
-    #
-    # --- TRT_DriftCircleTool
-    #
-    InDetTRT_DriftCircleTool = acc.popToolsAndMerge(TRT_DriftCircleToolCfg(flags, prefix, name = "InDetTRT_DriftCircleTool"))
-    acc.addPublicTool(InDetTRT_DriftCircleTool)
-
-    # Region selector tools for TRT
-    from RegionSelector.RegSelToolConfig import regSelTool_TRT_Cfg
-    RegSelTool_TRT = acc.popToolsAndMerge(regSelTool_TRT_Cfg(flags))
-    #
-    # --- TRT_RIO_Maker Algorithm
-    #
-    kwargs.setdefault("TRT_DriftCircleTool", InDetTRT_DriftCircleTool)
-    kwargs.setdefault("TrtDescrManageLocation", 'TRT')
-    kwargs.setdefault("TRTRDOLocation", 'TRT_RDOs')
-    kwargs.setdefault("TRTRIOLocation", collection)
-    kwargs.setdefault("RegSelTool", RegSelTool_TRT)
-
-    acc.addEventAlgo(CompFactory.InDet.TRT_RIO_Maker(name, **kwargs))
-    return acc
-
-def InDetTRT_RIO_MakerPUCfg(flags, prefix, collectionPU, name = "InDetTRT_RIO_MakerPU", **kwargs):
-    acc = ComponentAccumulator()
-    #
-    # --- TRT_DriftCircleTool
-    #
-    InDetTRT_DriftCircleTool = acc.popToolsAndMerge(TRT_DriftCircleToolCfg(flags, prefix, name = "InDetTRT_DriftCircleTool"))
-    acc.addPublicTool(InDetTRT_DriftCircleTool)
-
-    # Region selector tools for TRT
-    from RegionSelector.RegSelToolConfig import regSelTool_TRT_Cfg
-    RegSelTool_TRT = acc.popToolsAndMerge(regSelTool_TRT_Cfg(flags))
-    #
-    # --- TRT_RIO_Maker Algorithm
-    #
-    kwargs.setdefault("TRT_DriftCircleTool", InDetTRT_DriftCircleTool)
-    kwargs.setdefault("TrtDescrManageLocation", 'TRT')
-    kwargs.setdefault("TRTRDOLocation", 'TRT_PU_RDOs')
-    kwargs.setdefault("TRTRIOLocation", collectionPU)
-    kwargs.setdefault("RegSelTool", RegSelTool_TRT)
-
-    acc.addEventAlgo(CompFactory.InDet.TRT_RIO_Maker(name, **kwargs))
-    return acc
 ########################################################################################################
 ########################################################################################################
 def TRTPreProcessingCfg(flags, **kwargs):
     acc = ComponentAccumulator()
 
     #
-    # --- setup naming of tools and algs
-    #
-    if flags.Beam.Type is BeamType.Cosmics:
-        prefix     = "InDetTRT_noTime_"
-        collection = 'TRT_DriftCirclesUncalibrated' ##read from InDetKeys.TRT_DriftCirclesUncalibrated
-        if flags.InDet.doSplitReco:
-            collectionPU = 'TRT_PU_DriftCirclesUncalibrated' ##read from InDetKeys.TRT_PU_DriftCirclesUncalibrated
-    else:
-        prefix     = "InDetTRT_"
-        collection = 'TRT_DriftCircles' ##InDetKeys.TRT_DriftCircles
-        if flags.InDet.doSplitReco:
-            collectionPU = 'TRT_PU_DriftCircles' ##read from InDetKeys.TRT_PU_DriftCircles
-
-    #
     # --- TRT_RIO_Maker Algorithm
     #
-    acc.merge(InDetTRT_RIO_MakerCfg(flags, prefix, collection, name = prefix+"RIO_Maker"))
-    if flags.InDet.doSplitReco :
-        acc.merge(InDetTRT_RIO_MakerPUCfg(flags, prefix, collectionPU, name = prefix+"RIO_MakerPU", **kwargs))
+    from InDetConfig.InDetPrepRawDataFormationConfig import InDetTRT_RIO_MakerCfg
+    acc.merge(InDetTRT_RIO_MakerCfg(flags))
+    if flags.InDet.doSplitReco:
+        from InDetConfig.InDetPrepRawDataFormationConfig import InDetTRT_RIO_MakerPUCfg
+        acc.merge(InDetTRT_RIO_MakerPUCfg(flags))
+
     #
     #    Include alg to save the local occupancy inside xAOD::EventInfo
     #
     if flags.InDet.doTRTGlobalOccupancy:
         from InDetConfig.TRT_ElectronPidToolsConfig import TRTOccupancyIncludeCfg
-        acc.merge(TRTOccupancyIncludeCfg(flags, name=prefix + "TRTOccupancyInclude"))
+        acc.merge(TRTOccupancyIncludeCfg(flags))
     #
     # --- we need to do truth association if requested (not for uncalibrated hits in cosmics)
     #
     if flags.InDet.doTruth and flags.Beam.Type is not BeamType.Cosmics:
-        acc.merge(InDetPRD_MultiTruthMakerTRTCfg(flags, name = prefix + "PRD_MultiTruthMaker"))
+        from InDetConfig.InDetTruthAlgsConfig import InDetPRD_MultiTruthMakerTRTCfg
+        acc.merge(InDetPRD_MultiTruthMakerTRTCfg(flags))
         if flags.InDet.doSplitReco :
-            acc.merge(InDetPRD_MultiTruthMakerTRTPUCfg(flags, name = prefix+"PRD_MultiTruthMakerPU"))
+            from InDetConfig.InDetTruthAlgsConfig import InDetPRD_MultiTruthMakerTRTPUCfg
+            acc.merge(InDetPRD_MultiTruthMakerTRTPUCfg(flags))
     return acc
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -135,8 +135,7 @@ InDet::TRT_SeededTrackFinder_ATL::TRT_SeededTrackFinder_ATL
 ///////////////////////////////////////////////////////////////////
 
 InDet::TRT_SeededTrackFinder_ATL::~TRT_SeededTrackFinder_ATL()
-{
-}
+= default;
 
 ///////////////////////////////////////////////////////////////////
 // Initialisation

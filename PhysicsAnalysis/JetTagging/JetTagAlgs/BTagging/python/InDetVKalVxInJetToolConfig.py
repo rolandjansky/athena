@@ -4,7 +4,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import LHCPeriod
 from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
-from JetTagTools.InDetEtaDependentCutsSvcConfig import IDEtaDependentCuts_SV1_SvcCfg
+from InDetConfig.InDetEtaDependentCutsConfig import IDEtaDependentCuts_SV1_SvcCfg
 
 
 def InDetVKalVxInJetToolCfg(ConfigFlags, name, MSV = False, useBTagFlagsDefaults = True, **options):

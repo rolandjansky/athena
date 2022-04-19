@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 __author__ =   "Mark Sutton and Lukas Novotny"
 __doc__    =   "vertexFinder_builder"
@@ -213,7 +213,7 @@ def iterativeVertexFinderTool_builder( signature, config ) :
    
     # the track summary tool, and extrapolator will be needed by multiple 
     # tools so create them once and pass them into the builders ...  
-    trackSummaryTool = TrackingCommon.getInDetTrackSummaryTool()
+    trackSummaryTool = None
     extrapolator     = TrackingCommon.getInDetExtrapolator()
 
     # get the selection cuts use to select the actual tracks in the tool ...
@@ -308,7 +308,7 @@ def adaptiveMultiVertexFinderTool_builder( signature, config ) :
    
     # the track summary tool, and extrapolator will be needed by multiple 
     # tools so create them once and pass them into the builders ...  
-    trackSummaryTool = TrackingCommon.getInDetTrackSummaryTool()
+    trackSummaryTool = None
     extrapolator     = TrackingCommon.getInDetExtrapolator()
     doVtx3DFinding   = True # TODO!!!! InDetFlags.doPrimaryVertex3DFinding()
 

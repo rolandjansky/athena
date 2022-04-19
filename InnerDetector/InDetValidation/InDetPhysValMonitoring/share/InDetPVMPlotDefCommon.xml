@@ -714,6 +714,11 @@
 </h>
 
 <!-- GOOD eff plots -->
+<h id="efficiency_vs_pteta" type="TEfficiency" title="Fraction of reco-matched truth track">
+  <x title="p_{T} [GeV]" n="200" lo="0.0" hi="20"/>
+  <y title="#eta" n="27" lo="-&ETA;" hi="&ETA;"/>
+</h>
+
 <h id="efficiency_vs_eta" type="TEfficiency" title="Fraction of reco-matched truth track">
   <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>

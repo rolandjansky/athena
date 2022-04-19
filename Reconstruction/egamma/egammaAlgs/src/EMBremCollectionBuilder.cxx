@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "EMBremCollectionBuilder.h"
@@ -269,7 +269,7 @@ EMBremCollectionBuilder::createNew(
       ElementLink<xAOD::TruthParticleContainer>>
       tPL("truthParticleLink");
     if (tPL.isAvailable(*original)) {
-      ElementLink<xAOD::TruthParticleContainer> linkToTruth = tPL(*original);
+      const ElementLink<xAOD::TruthParticleContainer>& linkToTruth = tPL(*original);
       tPL(*aParticle) = linkToTruth;
     }
     static const SG::AuxElement::Accessor<float> tMP("truthMatchProbability");

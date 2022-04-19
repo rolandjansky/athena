@@ -27,6 +27,7 @@ namespace TrkDriftCircleMath {
 
         double xval(const LocVec2D& lv) const { return cosphi() * lv.x() + sinphi() * lv.y(); }
         double yval(const LocVec2D& lv) const { return -sinphi() * lv.x() + cosphi() * lv.y(); }
+        LocVec2D operator*(const LocVec2D& lv) const {return LocVec2D{xval(lv), yval(lv)}; }
 
         RotPhi inverse() const { return RotPhi(-phi()); }
 
@@ -43,7 +44,4 @@ namespace TrkDriftCircleMath {
     };
 
 }  // namespace TrkDriftCircleMath
-
-TrkDriftCircleMath::LocVec2D operator*(const TrkDriftCircleMath::RotPhi& rot, const TrkDriftCircleMath::LocVec2D& lv);
-
 #endif

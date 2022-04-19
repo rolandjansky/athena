@@ -35,7 +35,7 @@ Trk::TrackingVolumeArrayCreator::TrackingVolumeArrayCreator(
 }
 
 // destructor
-Trk::TrackingVolumeArrayCreator::~TrackingVolumeArrayCreator() {}
+Trk::TrackingVolumeArrayCreator::~TrackingVolumeArrayCreator() = default;
 
 Trk::TrackingVolumeArray*
 Trk::TrackingVolumeArrayCreator::cylinderVolumesArrayInR(

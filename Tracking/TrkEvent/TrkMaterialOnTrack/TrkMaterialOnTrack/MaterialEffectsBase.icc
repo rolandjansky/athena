@@ -1,0 +1,53 @@
+/*
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+*/
+
+namespace Trk {
+
+inline MaterialEffectsBase::MaterialEffectsBase()
+  : SurfacePtrHolderDetEl(nullptr)
+  , m_tInX0(0.0)
+  , m_typeFlags(0)
+{
+}
+
+inline MaterialEffectsBase::MaterialEffectsBase(
+  double tInX0,
+  const Surface& sf,
+  const std::bitset<Trk::MaterialEffectsBase::NumberOfMaterialEffectsTypes>&
+    typePattern)
+  : SurfacePtrHolderDetEl(sf)
+  , m_tInX0(tInX0)
+  , m_typeFlags(typePattern.to_ulong())
+{
+}
+
+inline const Trk::Surface&
+Trk::MaterialEffectsBase::associatedSurface() const
+{
+  return *m_associatedSurface;
+}
+
+inline void
+Trk::MaterialEffectsBase::setValues(const Trk::Surface* assocSurface)
+{
+  m_associatedSurface = assocSurface;
+}
+
+inline double
+Trk::MaterialEffectsBase::thicknessInX0() const
+{
+  return m_tInX0;
+}
+
+inline bool
+Trk::MaterialEffectsBase::type(
+  const Trk::MaterialEffectsBase::MaterialEffectsType& type) const
+{
+  if (type == NumberOfMaterialEffectsTypes) {
+    return false;
+  }
+  return ((1 << static_cast<int>(type)) & m_typeFlags) != 0;
+}
+
+}

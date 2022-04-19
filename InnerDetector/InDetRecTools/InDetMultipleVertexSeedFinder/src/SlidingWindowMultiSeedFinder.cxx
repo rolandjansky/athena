@@ -83,7 +83,7 @@ namespace InDet
  }
  
  SlidingWindowMultiSeedFinder::~SlidingWindowMultiSeedFinder()
- {}
+ = default;
 
  std::vector< std::vector<const Trk::Track *> > SlidingWindowMultiSeedFinder::seeds(const std::vector<const Trk::Track*>& tracks )const
  {

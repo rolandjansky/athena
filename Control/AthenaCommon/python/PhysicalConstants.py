@@ -41,8 +41,6 @@
 #          and pressure; also added Gas threshold.
 # -----
 
-from __future__ import print_function
-
 from .SystemOfUnits import henry, eplus, MeV, joule, s, m, kelvin, atmosphere, g, mg, cm3, mole
 
 #

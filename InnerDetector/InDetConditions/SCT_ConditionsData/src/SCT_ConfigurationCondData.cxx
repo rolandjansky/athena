@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //----------------------------------------------------------------------
@@ -46,7 +46,7 @@ void SCT_ConfigurationCondData::clearBadStripIds() {
 //----------------------------------------------------------------------
 // Check if a strip identifier is bad one
 bool SCT_ConfigurationCondData::isBadStrip(const IdentifierHash& hash, const int strip) const {
-  return m_badStripArray[hash][strip];
+   return m_badStripArray.at(hash.value()).test(strip);
 }
 
 //----------------------------------------------------------------------

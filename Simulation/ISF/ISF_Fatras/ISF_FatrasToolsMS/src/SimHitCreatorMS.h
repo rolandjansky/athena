@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FATRASTOOLSMS_SIMHITCREATORMS_H
@@ -130,7 +130,7 @@ namespace iFatras
 
       int   				   m_BMGid; //added to protect against dead sensors
       bool                                 m_createAllMdtHits;      
-      bool   				   m_BMGpresent;//added to protect against dead sensors
+      bool   				   m_BMGpresent = false;//added to protect against dead sensors
       std::map<Identifier, std::vector<Identifier> > m_DeadChannels;
     }; 
 

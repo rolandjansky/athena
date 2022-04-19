@@ -8,6 +8,7 @@
 
 #include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "InDetIdentifier/PixelID.h"
+#include "InDetIdentifier/PLR_ID.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
@@ -36,9 +37,20 @@ namespace InDetDD {
     // Initialized the Identifier helper.
     //
 
-    StatusCode sc = detStore->retrieve(m_idHelper,"PixelID");
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR("Could not retrieve Pixel id helper");
+
+    if(name!="PLR"){
+      StatusCode sc = detStore->retrieve(m_idHelper,"PixelID");
+      if (sc.isFailure()) {
+        ATH_MSG_ERROR("Could not retrieve PixelID helper");
+      }
+    }
+    else {
+      const PLR_ID* plr_idHelper;
+      StatusCode sc = detStore->retrieve(plr_idHelper,"PLR_ID");
+      if (sc.isFailure()) {
+        ATH_MSG_ERROR("Could not retrieve PLR_ID helper");
+      }
+      m_idHelper = plr_idHelper;
     }
 
     // Initialize the collections.

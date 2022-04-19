@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMPARAMETRIZATION_CALOGEOMETRYLOOKUP_H
@@ -93,8 +93,8 @@ class CaloGeometryLookup {
 
     int raw_eta_position_to_index(float eta_raw) const {return TMath::Floor((eta_raw-mineta_raw())/m_deta_double);};
     int raw_phi_position_to_index(float phi_raw) const {return TMath::Floor((phi_raw-minphi_raw())/m_dphi_double);};
-    bool index_range_adjust(int& ieta,int& iphi);
-    float calculate_distance_eta_phi(const CaloDetDescrElement* DDE,float eta,float phi,float& dist_eta0,float& dist_phi0);
+    bool index_range_adjust(int& ieta,int& iphi) const;
+    float calculate_distance_eta_phi(const CaloDetDescrElement* DDE,float eta,float phi,float& dist_eta0,float& dist_phi0) const;
 
     int m_index;
     t_cellmap m_cells;

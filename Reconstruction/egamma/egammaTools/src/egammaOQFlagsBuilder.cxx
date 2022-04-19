@@ -22,28 +22,6 @@
 
 namespace {
 bool
-isbadtilecell(CaloCellList& ccl,
-              const float clusterEta,
-              const float clusterPhi,
-              const double sizeEta,
-              const double sizePhi,
-              const CaloSampling::CaloSample sample)
-{
-
-  bool isbadtilecell = false;
-  ccl.select(clusterEta, clusterPhi, sizeEta, sizePhi, sample);
-  CaloCellList::list_iterator cclIter = ccl.begin();
-  CaloCellList::list_iterator cclIterEnd = ccl.end();
-  for (; cclIter != cclIterEnd; cclIter++) {
-    const CaloCell* cell = (*cclIter);
-    if (cell->badcell()) { // check of bad tile cell
-      isbadtilecell = true;
-      break;
-    }
-  }
-  return isbadtilecell;
-}
-bool
 findCentralCell(const xAOD::CaloCluster* cluster, Identifier& cellCentrId)
 {
 
@@ -149,7 +127,6 @@ egammaOQFlagsBuilder::finalize()
 
 StatusCode
 egammaOQFlagsBuilder::execute(const EventContext& ctx,
-                              const CaloDetDescrManager& cmgr,
                               xAOD::Egamma& eg) const
 {
   // Protection against bad pointers
@@ -162,7 +139,6 @@ egammaOQFlagsBuilder::execute(const EventContext& ctx,
   }
   //
   const float clusterEta = cluster->eta();
-  const float clusterPhi = cluster->phi();
   //
   // In case we have the sizes set during the cluster construction.
   int etaSize = cluster->getClusterEtaSize();
@@ -183,7 +159,7 @@ egammaOQFlagsBuilder::execute(const EventContext& ctx,
     }
   }
 
-  unsigned int iflag = 0;
+  unsigned int iflag = eg.OQ();
 
   // Set timing bit
   const double absEnergyGeV = fabs(cluster->e() * (1. / Gaudi::Units::GeV));
@@ -523,46 +499,6 @@ egammaOQFlagsBuilder::execute(const EventContext& ctx,
 
   if (isDeadHVS1S2S3Edge) {
     iflag |= (0x1 << xAOD::EgammaParameters::DeadHVS1S2S3Edge);
-  }
-
-  // Check the tile component
-  // Get CaloCellContainer
-  SG::ReadHandle<CaloCellContainer> cellcoll(m_cellsKey, ctx);
-  // check is only used for serial running; remove when MT scheduler used
-  if (!cellcoll.isValid()) {
-    ATH_MSG_ERROR("Failed to retrieve cell container: " << m_cellsKey.key());
-    return StatusCode::FAILURE;
-  }
-  CaloCell_ID::SUBCALO HADCal =
-    static_cast<CaloCell_ID::SUBCALO>(CaloCell_ID::TILE);
-  CaloCellList ccl(&cmgr,cellcoll.cptr(), HADCal);
-  double size = 0.12;
-  // TileBar0  or TileExt0
-  bool isDeadCellTileS0 =
-    (isbadtilecell(
-       ccl, clusterEta, clusterPhi, size, size, CaloSampling::TileBar0) ||
-     isbadtilecell(
-       ccl, clusterEta, clusterPhi, size, size, CaloSampling::TileExt0));
-
-  if (isDeadCellTileS0) {
-    iflag |= (0x1 << xAOD::EgammaParameters::DeadCellTileS0);
-  }
-  // TileBar1 TileExt1 TileGap1 TileBar2 TileExt2 TileGap2
-  bool isDeadCellTileS1S2 =
-    (isbadtilecell(
-       ccl, clusterEta, clusterPhi, size, size, CaloSampling::TileBar1) ||
-     isbadtilecell(
-       ccl, clusterEta, clusterPhi, size, size, CaloSampling::TileExt1) ||
-     isbadtilecell(
-       ccl, clusterEta, clusterPhi, size, size, CaloSampling::TileGap1) ||
-     isbadtilecell(
-       ccl, clusterEta, clusterPhi, size, size, CaloSampling::TileBar2) ||
-     isbadtilecell(
-       ccl, clusterEta, clusterPhi, size, size, CaloSampling::TileExt2) ||
-     isbadtilecell(
-       ccl, clusterEta, clusterPhi, size, size, CaloSampling::TileGap2));
-  if (isDeadCellTileS1S2) {
-    iflag |= (0x1 << xAOD::EgammaParameters::DeadCellTileS1S2);
   }
 
   eg.setOQ(iflag);

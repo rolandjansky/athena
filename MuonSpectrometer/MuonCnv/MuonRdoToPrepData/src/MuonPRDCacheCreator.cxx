@@ -13,11 +13,9 @@ MuonPRDCacheCreator::MuonPRDCacheCreator(const std::string &name,ISvcLocator *pS
   m_CscStripCacheKey(""),
   m_MdtCacheKey(""),
   m_RpcCacheKey(""),
-  m_TgcCacheKeys{"","","",""},
   m_sTgcCacheKey(""),
   m_MmCacheKey(""),
-  m_RpcCoinCacheKey(""),
-  m_TgcCoinCacheKey("")
+  m_RpcCoinCacheKey("")
 {
   declareProperty("CscCacheKey",        m_CscCacheKey);
   declareProperty("CscStripCacheKey",   m_CscStripCacheKey);
@@ -26,7 +24,6 @@ MuonPRDCacheCreator::MuonPRDCacheCreator(const std::string &name,ISvcLocator *pS
   declareProperty("sTgcCacheKey",       m_sTgcCacheKey);
   declareProperty("MmCacheKey",         m_MmCacheKey);
   declareProperty("RpcCoinCacheKey",    m_RpcCoinCacheKey);
-  declareProperty("TgcCoinCacheKey",    m_TgcCoinCacheKey);
   declareProperty("DisableViewWarning", m_disableWarning);
 }
   
@@ -38,12 +35,13 @@ StatusCode MuonPRDCacheCreator::initialize() {
   ATH_CHECK( m_sTgcCacheKey.initialize( SG::AllowEmpty ));
   ATH_CHECK( m_MmCacheKey.initialize( SG::AllowEmpty ));
   ATH_CHECK( m_RpcCoinCacheKey.initialize( SG::AllowEmpty ));
-  ATH_CHECK( m_TgcCoinCacheKey.initialize( SG::AllowEmpty ));
 
-  // build the TGC PRD cache keys (multiple due to reading out multiple BC)
-  if(m_tgcPrdCacheKeyStr.value() != ""){
+  // build the TGC PRD and Coin cache keys (multiple due to reading out multiple BC)
+  const bool doTgcPrdCache = not m_tgcPrdCacheKeyStr.empty();
+  if( doTgcPrdCache ) {
+    m_TgcCacheKeys.resize(TgcDigit::BC_NEXT+1);
     for(int ibc=0; ibc<TgcDigit::BC_NEXT+1; ibc++) { 
-      int bcTag=ibc+1;
+      const int bcTag=ibc+1;
       std::ostringstream location;
       location << m_tgcPrdCacheKeyStr.value() << (bcTag==TgcDigit::BC_PREVIOUS ? "PriorBC" : "")
                << (bcTag==TgcDigit::BC_NEXT ? "NextBC" : "") << (bcTag==(TgcDigit::BC_NEXT+1) ? "AllBCs" : "");    
@@ -51,7 +49,20 @@ StatusCode MuonPRDCacheCreator::initialize() {
       ATH_MSG_INFO( "Setting next TGC PRD Cache to " << location.str() );
     }
   }
-  ATH_CHECK( m_TgcCacheKeys.initialize( m_tgcPrdCacheKeyStr.value()!="" ) );
+  const bool doTgcCoinCache = not m_tgcCoinCacheKeyStr.empty();
+  if( doTgcCoinCache ) {
+    m_TgcCoinCacheKeys.resize(TgcDigit::BC_NEXT);
+    for(int ibc=0; ibc<TgcDigit::BC_NEXT; ibc++) { 
+      const int bcTag=ibc+1;
+      std::ostringstream location;
+      location << m_tgcCoinCacheKeyStr.value() << (bcTag==TgcDigit::BC_PREVIOUS ? "PriorBC" : "")
+               << (bcTag==TgcDigit::BC_NEXT ? "NextBC" : "") ;
+      m_TgcCoinCacheKeys.at(ibc) = location.str();
+      ATH_MSG_INFO( "Setting next TGC Coin Cache to " << location.str() );
+    }//BC loop
+  }
+  ATH_CHECK( m_TgcCacheKeys.initialize( doTgcPrdCache ) );
+  ATH_CHECK( m_TgcCoinCacheKeys.initialize( doTgcCoinCache ) );
 
   ATH_CHECK(m_idHelperSvc.retrieve());
 
@@ -65,8 +76,8 @@ StatusCode MuonPRDCacheCreator::initialize() {
   if( !m_idHelperSvc->hasRPC() && !m_RpcCacheKey.key().empty() ){
     ATH_MSG_WARNING("RPC ID Helper is not available and RPC PRD cache was requested - This will not be created");
   }
-  if( !m_idHelperSvc->hasTGC() && m_tgcPrdCacheKeyStr.value()!="" ){
-    ATH_MSG_WARNING("TGC ID Helper is not available and TGC PRD cache was requested - This will not be created");
+  if( !m_idHelperSvc->hasTGC() && (doTgcPrdCache || doTgcCoinCache) ){
+    ATH_MSG_WARNING("TGC ID Helper is not available and TGC cache was requested - This will not be created");
   }
   if( !m_idHelperSvc->hasSTgc() && !m_sTgcCacheKey.key().empty() ){
     ATH_MSG_WARNING("STGC ID Helper is not available and STGC PRD cache was requested - This will not be created");
@@ -103,10 +114,12 @@ StatusCode MuonPRDCacheCreator::execute (const EventContext& ctx) const {
 
   // TGC
   if( m_idHelperSvc->hasTGC() ){
-    for(auto tgcCacheKey : m_TgcCacheKeys) {
+    for(const auto& tgcCacheKey : m_TgcCacheKeys) {
       ATH_CHECK(createContainer(tgcCacheKey, m_idHelperSvc->tgcIdHelper().module_hash_max(), ctx));
     }
-    //ATH_CHECK(createContainer(m_TgcCoinCacheKey, m_idHelperSvc->tgcIdHelper().module_hash_max(), ctx));
+    for(const auto& tgcCoinCacheKey : m_TgcCoinCacheKeys) {
+      ATH_CHECK(createContainer(tgcCoinCacheKey, m_idHelperSvc->tgcIdHelper().module_hash_max(), ctx));
+    }
   }
 
   // NSW STGC

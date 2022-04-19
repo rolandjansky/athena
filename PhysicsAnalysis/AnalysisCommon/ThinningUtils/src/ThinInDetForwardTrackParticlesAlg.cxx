@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ThinInDetForwardTrackParticlesAlg.cxx
@@ -46,7 +46,7 @@ m_nTracksThinned(0)
 // Destructor
 ///////////////
 ThinInDetForwardTrackParticlesAlg::~ThinInDetForwardTrackParticlesAlg()
-{}
+= default;
 
 // Athena Algorithm's Hooks
 ////////////////////////////

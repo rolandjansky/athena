@@ -1,6 +1,6 @@
 #!/usr/bin/env pyroot.py 
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #----------------------------------------------
 #
@@ -214,6 +214,30 @@ def main():
     'xAOD::TauTrackContainer_v1',
     'xAOD::TauTrackAuxContainer_v1',
     #'TrigMuonEFIsolation_p2',
+    'xAOD::BTaggingAuxContainer_v2',
+    'xAOD::jFexMETRoI_v1',
+    'xAOD::jFexMETRoIAuxContainer_v1',
+    'xAOD::jFexSumETRoI_v1',
+    'xAOD::jFexSumETRoIAuxContainer_v1',
+    'xAOD::jFexTauRoIAuxContainer_v1',
+    'xAOD::jFexSRJetRoI_v1',
+    'xAOD::jFexSRJetRoIAuxContainer_v1',
+    'xAOD::jFexLRJetRoI_v1',
+    'xAOD::jFexLRJetRoIAuxContainer_v1',
+    'xAOD::eFexTauRoIAuxContainer_v1',
+    'xAOD::gFexGlobalRoI_v1',
+    'xAOD::gFexGlobalRoIAuxContainer_v1',
+    'xAOD::gFexJetRoI_v1',
+    'xAOD::gFexJetRoIAuxContainer_v1',
+    'xAOD::AFPToFHit_v1',
+    'xAOD::AFPVertex_v1',
+    'xAOD::AFPVertexAuxContainer_v1',
+    'xAOD::AFPSiHit_v2',
+    'xAOD::AFPProton_v1',
+    'xAOD::AFPProtonAuxContainer_v1',
+    'xAOD::AFPToFTrack_v1',
+    'xAOD::AFPToFTrackAuxContainer_v1',
+    'xAOD::AFPSiHitsClusterAuxContainer_v1',
   ]
   updated_objects = []
   return update_streamerinfos(objects, updated_objects)

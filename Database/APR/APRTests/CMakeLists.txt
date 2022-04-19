@@ -28,11 +28,6 @@ function( _add_test name )
          StorageSvc AthContainers
          NO_ROOTMAP_MERGE )
    endif()
-   # Set up the test properties based on the optional argument(s):
-   set( properties )
-   if( ARG_DEPENDS )
-     list( APPEND properties PROPERTIES DEPENDS "${ARG_DEPENDS}" )
-   endif()
    # Set up the test:
    atlas_add_test( "${name}_test"
       SOURCES ${name}/*.cpp
@@ -47,7 +42,7 @@ function( _add_test name )
       PROPERTIES TIMEOUT 300
       PRE_EXEC_SCRIPT "rm -f pool*.root *xml"
       LOG_IGNORE_PATTERN "POOL_CATALOG is not defined|using default|New file created|FID|0x[0-9a-f]{4,}"
-      ${properties} )
+      DEPENDS ${ARG_DEPENDS} )
 endfunction( _add_test )
 
 # Declare the test(s) of the package:
@@ -55,26 +50,26 @@ _add_test( FileCatalog_Functionality )
 _add_test( StorageSvc_BasicFunctionality )
 _add_test( StorageSvc_AuxStore
   DICTHEADER StorageSvc_AuxStore/AuxStoreTest.h
-  DEPENDS APRTests_StorageSvc_BasicFunctionality_test_ctest )
+  DEPENDS StorageSvc_BasicFunctionality_test )
 _add_test( StorageSvc_MultipleIterators
-  DEPENDS APRTests_StorageSvc_AuxStore_test_ctest )
+  DEPENDS StorageSvc_AuxStore_test )
 _add_test( StorageSvc_ParallelReadWrite
-  DEPENDS APRTests_StorageSvc_MultipleIterators_test_ctest )
+  DEPENDS StorageSvc_MultipleIterators_test )
 _add_test( StorageSvc_TransientMembers
   DICTHEADER StorageSvc_TransientMembers/TestClassWithTransients.h
-  DEPENDS APRTests_StorageSvc_ParallelReadWrite_test_ctest )
+  DEPENDS StorageSvc_ParallelReadWrite_test )
 
 _add_test( PersistencySvc_Functionality
-  DEPENDS APRTests_StorageSvc_TransientMembers_test_ctest )
+  DEPENDS StorageSvc_TransientMembers_test )
 _add_test( PersistencySvc_FileCatalogOperations
-  DEPENDS APRTests_PersistencySvc_Functionality_test_ctest )
+  DEPENDS PersistencySvc_Functionality_test )
 _add_test( PersistencySvc_FileOpenWithoutCatalog
-  DEPENDS APRTests_PersistencySvc_FileCatalogOperations_test_ctest )
+  DEPENDS PersistencySvc_FileCatalogOperations_test )
 _add_test( PersistencySvc_Parameters
-  DEPENDS APRTests_PersistencySvc_FileOpenWithoutCatalog_test_ctest )
+  DEPENDS PersistencySvc_FileOpenWithoutCatalog_test )
 _add_test( PersistencySvc_NoClassID
   DICTHEADER PersistencySvc_NoClassID/MyTestClass.h
-  DEPENDS APRTests_PersistencySvc_Parameters_test_ctest )
+  DEPENDS PersistencySvc_Parameters_test )
 
 # Clean up:
 unset( _add_test )

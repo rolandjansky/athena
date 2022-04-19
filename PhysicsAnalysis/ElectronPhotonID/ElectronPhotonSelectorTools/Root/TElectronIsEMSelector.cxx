@@ -178,8 +178,7 @@ Root::TElectronIsEMSelector::TElectronIsEMSelector(const char* name) :
 }
 
 Root::TElectronIsEMSelector::~TElectronIsEMSelector()
-{
-}
+= default;
 
 StatusCode Root::TElectronIsEMSelector::initialize()
 {

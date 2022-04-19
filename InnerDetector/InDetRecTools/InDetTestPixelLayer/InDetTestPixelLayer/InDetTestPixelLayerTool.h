@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetTestPixelLayerTool_H
@@ -18,6 +18,9 @@
 
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "InDetTestPixelLayer/PixelIDLayerComp.h"
+
+#include "PixelReadoutGeometry/IPixelReadoutManager.h"
+#include "InDetReadoutGeometry/SiDetectorElementStatus.h"
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -100,7 +103,10 @@ private:
     const;
   double getFracGood(const Trk::TrackParameters* trackpar,
                      double phiRegionSize,
-                     double etaRegionSize) const;
+                     double etaRegionSize,
+                     const InDet::SiDetectorElementStatus *pixelDetElStatus) const;
+
+  SG::ReadHandle<InDet::SiDetectorElementStatus> getPixelDetElStatus() const;
 
   /** Pointer to Extrapolator AlgTool*/
   ToolHandle<Trk::IExtrapolator> m_extrapolator;
@@ -113,6 +119,14 @@ private:
     "Tool to retrieve Pixel Conditions summary"
   };
 
+  /** @brief Optional read handle to get status data to test whether a pixel detector element is good.
+   * If set to e.g. PixelDetectorElementStatus the event data will be used instead of the pixel conditions summary tool.
+   */
+  SG::ReadHandleKey<InDet::SiDetectorElementStatus> m_pixelDetElStatus
+     {this, "PixelDetElStatus", "", "Key of SiDetectorElementStatus for Pixel"};
+
+  ServiceHandle<InDetDD::IPixelReadoutManager> m_pixelReadout
+     {this, "PixelReadoutManager", "PixelReadoutManager", "Pixel readout manager" };
 
   /** detector helper*/
   const AtlasDetectorID* m_idHelper;
@@ -129,6 +143,20 @@ private:
   double m_etaRegionSize;
   double m_goodFracCut;
 };
+
+
+SG::ReadHandle<InDet::SiDetectorElementStatus> InDetTestPixelLayerTool::getPixelDetElStatus() const {
+   SG::ReadHandle<InDet::SiDetectorElementStatus> pixelDetElStatus;
+   if (!m_pixelDetElStatus.empty()) {
+      pixelDetElStatus = SG::ReadHandle<InDet::SiDetectorElementStatus>(m_pixelDetElStatus);
+      if (!pixelDetElStatus.isValid()) {
+         std::stringstream msg;
+         msg << "Failed to get " << m_pixelDetElStatus.key() << " from StoreGate in " << name();
+         throw std::runtime_error(msg.str());
+      }
+   }
+   return pixelDetElStatus;
+}
 
 } // end namespace
 

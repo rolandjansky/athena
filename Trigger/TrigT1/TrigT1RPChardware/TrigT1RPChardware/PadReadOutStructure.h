@@ -18,12 +18,12 @@ public:
 
     void setInit();
     //
-    ubit16 makeHeader(ubit16 *inputData) override final;
-    ubit16 makeBody(ubit16 *inputData) override final { return *inputData; };
+    ubit16 makeHeader(ubit16 *inputData);
+    ubit16 makeBody(ubit16 *inputData) { return *inputData; };
     // ubit16 makeFooter_new(ubit16* errorCode);
-    ubit16 makeSubHeader() override final { return 0; };
-    ubit16 makeFooter(ubit16 errorCode) override final { return errorCode; };
-    ubit16 makeFooter(ubit16 *errorCode) override final;
+    ubit16 makeSubHeader() { return 0; };
+    ubit16 makeFooter(ubit16 errorCode) { return errorCode; };
+    ubit16 makeFooter(ubit16 *errorCode);
 
     //**************************************************//
     // general user methods to decode ReadOut stream    //
@@ -44,9 +44,9 @@ public:
     ubit16 errorCM() const { return m_errorCM; };
     ubit16 errorCMID() const { return m_errorCMID; };
 
-    bool isHeader() override final;
-    bool isBody() override final;
-    bool isFooter() override final;
+    bool isHeader();
+    bool isBody();
+    bool isFooter();
 
     bool isPreFooter();
     bool isSubHeader();

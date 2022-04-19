@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -321,7 +321,7 @@ void PixelGangedAmbiguitiesFinder::execute(
 
 bool PixelGangedAmbiguitiesFinder::isGanged(const Identifier& rdoID,
 					    const InDetDD::SiDetectorElement* element,
-					    Identifier& gangedID) const
+					    Identifier& gangedID) 
 {
   InDetDD::SiCellId cellID = element->cellIdFromIdentifier (rdoID);
   if (element->numberOfConnectedCells (cellID) > 1) {

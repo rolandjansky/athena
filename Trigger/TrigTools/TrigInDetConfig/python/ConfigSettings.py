@@ -79,6 +79,7 @@ class _ConfigSettings_tau( _ConfigSettingsBase ):
       self._etaHalfWidth    = 0.4
       self._phiHalfWidth    = 0.4
       self._doTRT           = True
+      self._electronPID         = True
       # potential change coming up ...
       # self._minNSiHits_vtx = 6
 
@@ -103,6 +104,7 @@ class _ConfigSettings_tauIso( _ConfigSettingsBase ):
       self._adaptiveVertex = True
       self._addSingleTrackVertices = True
       self._vertex         = "HLT_IDVertex_Tau"
+      self._electronPID         = True
       # potential change coming up ...
       # self._minNSiHits_vtx = 6
 
@@ -120,6 +122,7 @@ class _ConfigSettings_bjet( _ConfigSettingsBase ):
       self._name     = "bjet"
       self._suffix   = "Bjet"
       self._roi      = "HLT_Roi_Bjet"
+      self._pTmin    = 0.8*GeV
       self._etaHalfWidth    = 0.4
       self._phiHalfWidth    = 0.4
 

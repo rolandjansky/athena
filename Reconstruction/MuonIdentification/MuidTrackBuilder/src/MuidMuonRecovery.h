@@ -83,9 +83,9 @@ namespace Rec {
         };
 
         // configurable cuts and tolerances
-        double m_minP;
-        double m_minPt;
-        double m_pullCut;
+        Gaudi::Property<double> m_minP{this, "MinP", 10. * Gaudi::Units::GeV};
+        Gaudi::Property<double> m_minPt{this, "MinPt", 5. * Gaudi::Units::GeV};
+        Gaudi::Property<double> m_pullCut{this, "PullCut", 10.};
 
         // counters
         mutable std::atomic<unsigned int> m_recoveryAttempts{0};

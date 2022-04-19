@@ -111,7 +111,7 @@ class SingleProcessThread(object):
         @param log_level  Which level to log at.
         """
         for word in self.__ignore_output:
-            while word in message.decode("utf-8"):
+            while word in message:
                 message = message.replace(word, "")
         getattr(logger, log_level)("{}{}".format(self.__output_prefix, message.strip()))
 

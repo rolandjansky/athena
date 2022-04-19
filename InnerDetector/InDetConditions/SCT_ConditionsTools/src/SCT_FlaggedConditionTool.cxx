@@ -1,11 +1,14 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_FlaggedConditionTool.h"
 
 // Athena
 #include "InDetIdentifier/SCT_ID.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "InDetConditionsSummaryService/IDetectorElementStatusTool.h"
+#include "SCT_DetectorElementStatus.h"
 
 // Constructor
 SCT_FlaggedConditionTool::SCT_FlaggedConditionTool(const std::string& type, const std::string& name, const IInterface* parent):
@@ -68,6 +71,32 @@ bool SCT_FlaggedConditionTool::isGood(const IdentifierHash& hashId, const EventC
 
   return (not badIds->present(hashId));
 }
+
+void SCT_FlaggedConditionTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status, EventIDRange &the_range) const {
+   const IDCInDetBSErrContainer* badIds{getCondData(ctx)};
+   the_range = IDetectorElementStatusTool::getInvalidRange();
+   std::vector<bool> &status = element_status.getElementStatus();
+   if (badIds==nullptr) {
+      if (m_numWarnForFailures<m_maxNumWarnForFailures) {
+         ATH_MSG_WARNING(m_badIds.key() << " cannot be retrieved. (isGood)");
+         m_numWarnForFailures++;
+         if (m_numWarnForFailures==m_maxNumWarnForFailures) {
+            ATH_MSG_WARNING("Disabling this type of messages from " << name());
+         }
+      }
+      status.clear();
+      status.resize(m_sctID->wafer_hash_max(),false);
+      return;
+   }
+   if (status.empty()) {
+      status.resize(m_sctID->wafer_hash_max(),true);
+   }
+
+   for (size_t hash : badIds->getMask()) {
+      status.at(hash)=false;
+   }
+}
+
 
 bool SCT_FlaggedConditionTool::isGood(const IdentifierHash& hashId) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};

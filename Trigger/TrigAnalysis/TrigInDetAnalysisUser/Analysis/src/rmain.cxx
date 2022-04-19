@@ -2147,7 +2147,7 @@ int main(int argc, char** argv)
             /// tracks are filtered by Roi already so some vertices may have 
             /// no tracks in the Roi - ntracks set to 0 by default
               if ( trackcount>=ntracks && trackcount>0 ) {
-                TIDA::Vertex vertex_roi( vx ); 
+                const TIDA::Vertex& vertex_roi( vx ); 
                 vertices_roi.push_back( vertex_roi );
               }
             }

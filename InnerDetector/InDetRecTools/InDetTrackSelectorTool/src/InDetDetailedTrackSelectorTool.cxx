@@ -116,7 +116,7 @@ namespace InDet
 
   // ---------------------------------------------------------------------
   InDetDetailedTrackSelectorTool::~InDetDetailedTrackSelectorTool()
-  {}
+  = default;
   
   // ---------------------------------------------------------------------
   StatusCode  

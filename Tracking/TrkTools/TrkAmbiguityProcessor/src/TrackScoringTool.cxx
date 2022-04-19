@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -51,8 +51,7 @@ Trk::TrackScoringTool::TrackScoringTool(const std::string& t,
 	m_summaryTypeScore[Trk::numberOfRpcEtaHits]	= 10;
 }
 
-Trk::TrackScoringTool::~TrackScoringTool(){
-}
+Trk::TrackScoringTool::~TrackScoringTool()= default;
 
 StatusCode
 Trk::TrackScoringTool::initialize(){

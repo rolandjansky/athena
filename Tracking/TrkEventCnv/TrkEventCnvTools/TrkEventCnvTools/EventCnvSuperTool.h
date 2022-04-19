@@ -59,6 +59,8 @@ class EventCnvSuperTool : public extends<AthAlgTool, IEventCnvSuperTool>
       
       virtual bool noGeometry() const override {return !(m_haveIdCnvTool&&m_haveMuonCnvTool);}
 
+      virtual bool doTrackOverlay() const override {return m_doTrackOverlay;}
+
     private:
       ToolHandle<Trk::ITrkEventCnvTool>   m_idCnvTool {this, "IdCnvTool", "InDet::InDetEventCnvTool/InDetEventCnvTool", "Tool used to handle ID RoTs etc"}; //!< Tool used to handle ID RoTs etc
       ToolHandle<Trk::ITrkEventCnvTool>   m_muonCnvTool {this, "MuonCnvTool", "Muon::MuonEventCnvTool/MuonEventCnvTool", "Tool used to handle Muon RoTs etc"}; //!< Tool used to handle Muon RoTs etc
@@ -69,6 +71,8 @@ class EventCnvSuperTool : public extends<AthAlgTool, IEventCnvSuperTool>
 
       bool                                m_doMuons; //!< Property deciding whether to attempt Muon conversions
       bool                                m_doID;    //!< Property deciding whether to attempt ID conversions
+
+      bool                                m_doTrackOverlay; //!< Property for whether track overlay is being used, in which case different PRD containers are used by the converters
 
       mutable std::atomic_int             m_errCount; //!< Current number of ERROR/WARNING messages sent to output
       int                                 m_maxErrCount; //!< Maximum number of permissable ERROR/WARNING messages sent to output.

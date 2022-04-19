@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -35,7 +35,7 @@ Trk::TrackingGeometrySvc::TrackingGeometrySvc(const std::string& name, ISvcLocat
 }
 
 /** Destructor **/
-Trk::TrackingGeometrySvc::~TrackingGeometrySvc() {}
+Trk::TrackingGeometrySvc::~TrackingGeometrySvc() = default;
 
 /** Initialize Service */
 StatusCode

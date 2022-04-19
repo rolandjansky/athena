@@ -175,8 +175,8 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM4SlimmingHelper = SlimmingHelper("JETM4SlimmingHelper")
 JETM4SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJets",
                                         "InDetTrackParticles", "PrimaryVertices",
-                                        "MET_Reference_AntiKt4EMTopo",
-                                        "MET_Reference_AntiKt4EMPFlow",
+                                        "MET_Baseline_AntiKt4EMTopo",
+                                        "MET_Baseline_AntiKt4EMPFlow",
                                         "AntiKt4EMPFlowJets",
                                         "AntiKt4EMTopoJets",
                                         "AntiKt10TruthJets",

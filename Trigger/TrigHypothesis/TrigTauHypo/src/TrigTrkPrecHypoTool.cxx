@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iterator>
@@ -16,14 +16,6 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "CxxUtils/phihelper.h"
 
-#include "xAODTau/TauJetContainer.h"
-#include "xAODJet/Jet.h"
-#include "xAODJet/JetContainer.h"
-#include "xAODCaloEvent/CaloCluster.h"
-#include "xAODCaloEvent/CaloClusterContainer.h"
-
-#include "xAODTrigger/TrigPassBits.h"
-
 #include "xAODTracking/TrackParticleContainer.h"
 
 #include "AthenaMonitoringKernel/Monitored.h"
@@ -35,8 +27,8 @@
 using namespace TrigCompositeUtils;
 
 TrigTrkPrecHypoTool::TrigTrkPrecHypoTool( const std::string& type,
-                  const std::string& name, 
-                  const IInterface* parent ) 
+					  const std::string& name, 
+					  const IInterface* parent ) 
   : base_class( type, name, parent ),
     m_decisionId( HLT::Identifier::fromToolName( name ) ) 
 {
@@ -48,7 +40,7 @@ TrigTrkPrecHypoTool::~TrigTrkPrecHypoTool()
 
 StatusCode TrigTrkPrecHypoTool::initialize()
 {
-  
+
   ATH_MSG_DEBUG( "in initialize()" );
   
   if ( !m_monTool.empty() ) CHECK( m_monTool.retrieve() );
@@ -81,16 +73,13 @@ bool TrigTrkPrecHypoTool::decide( const ITrigTrkPrecHypoTool::TrackingInfo& inpu
   // Retrieve Input TrackCollection
   auto foundTracks = input.trackparticles;
 
-  if(foundTracks->size()!=0){
-
+  if(!foundTracks->empty()){
     ATH_MSG_DEBUG( " Input track collection has size " << foundTracks->size() );
-
   }
 
   pass = true;
   
-  ATH_MSG_DEBUG( " REGTEST: TE accepted !! " );
-  
+  ATH_MSG_DEBUG( " REGTEST: TE accepted !! " );  
   
   return pass;
 }
@@ -101,7 +90,7 @@ StatusCode TrigTrkPrecHypoTool::decide(  std::vector<TrackingInfo>& input )  con
   for ( auto& i: input ) {
     if ( passed ( m_decisionId.numeric(), i.previousDecisionIDs ) ) {
       if ( decide( i ) ) {
-   addDecisionID( m_decisionId, i.decision );
+	addDecisionID( m_decisionId, i.decision );
       }
     }
   }

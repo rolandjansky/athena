@@ -20,6 +20,7 @@ class SiHit;
 class PixelID;
 class SCT_ID;
 class HGTD_ID;
+class PLR_ID;
 namespace InDetDD {
   class SCT_DetectorManager;
   class PixelDetectorManager;
@@ -51,6 +52,7 @@ class GeoSiHit {
   static const PixelID*                       initPixID();
   static const SCT_ID*                        initSctID();
   static const HGTD_ID*                       initHgtdID();
+  static const PLR_ID*                        initPlrID();
 
   const InDetDD::PixelDetectorManager* pixMgr() const;
   const InDetDD::PixelDetectorManager* plrMgr() const;
@@ -59,6 +61,7 @@ class GeoSiHit {
   const PixelID*                       pixID()  const;
   const SCT_ID*                        sctID()  const;
   const HGTD_ID*                       hgtdID() const;
+  const PLR_ID*                        plrID()  const;
 
   const SiHit                                     *m_hit;
 };

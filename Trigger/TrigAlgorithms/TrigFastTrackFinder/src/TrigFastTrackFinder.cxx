@@ -212,8 +212,7 @@ StatusCode TrigFastTrackFinder::initialize() {
 
   if (m_doZFinder) {
     ATH_CHECK(m_trigZFinder.retrieve());
-  }
-  else {
+  } else {
     m_trigZFinder.disable();
   }
 
@@ -285,10 +284,13 @@ StatusCode TrigFastTrackFinder::initialize() {
 
      ATH_CHECK(m_disTrkFitter.retrieve());
      ATH_MSG_DEBUG("Retrieved tool " << m_disTrkFitter);
+  } else {
+    m_disTrkFitter.disable();
   }
 
   // UTT read/write handles
   ATH_CHECK( m_recJetRoiCollectionKey.initialize(m_doHitDV) );
+  ATH_CHECK( m_hitDVSeedKey.initialize(m_doHitDV) ) ;
   ATH_CHECK( m_hitDVTrkKey.initialize(m_doHitDV) ) ;
   ATH_CHECK( m_hitDVSPKey.initialize(m_doHitDV) );
   ATH_CHECK( m_dEdxTrkKey.initialize(m_dodEdxTrk) );
@@ -515,6 +517,7 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
     ATH_MSG_DEBUG("REGTEST / Found " << mnt_roi_nSPs << " space points.");
     ATH_MSG_DEBUG("REGTEST / Found " << mnt_roi_nSPsPIX << " Pixel space points.");
     ATH_MSG_DEBUG("REGTEST / Found " << mnt_roi_nSPsSCT << " SCT space points.");
+    ATH_MSG_DEBUG("REGTEST / converted space points size = " << convertedSpacePoints.size());
     m_countRoIwithEnoughHits++;
   }
   else {
@@ -626,8 +629,8 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
   bool PIX = true;
   bool SCT = true;
 
-  if( m_doDisappearingTrk ) trackEventData.combinatorialData().setFlagToReturnFailedTrack(true);
   m_trackMaker->newTrigEvent(ctx, trackEventData, PIX, SCT);
+  if( m_doDisappearingTrk ) trackEventData.combinatorialData().setFlagToReturnFailedTrack(true);
 
   std::vector<Trk::Track*> disFailTrks;
   std::vector<Trk::Track*> disCombTrks;
@@ -1484,14 +1487,19 @@ void TrigFastTrackFinder::makeSeedsOnGPU(const TrigCombinatorialSettings& tcs, c
 StatusCode TrigFastTrackFinder::createEmptyUTTEDMs(const EventContext& ctx) const
 {
    if( m_doHitDV ) {
+      SG::WriteHandle<xAOD::TrigCompositeContainer> hitDVSeedHandle(m_hitDVSeedKey, ctx);
+      ATH_CHECK( hitDVSeedHandle.record(std::make_unique<xAOD::TrigCompositeContainer>(), std::make_unique<xAOD::TrigCompositeAuxContainer>()) );
+
       SG::WriteHandle<xAOD::TrigCompositeContainer> hitDVTrkHandle(m_hitDVTrkKey, ctx);
       ATH_CHECK( hitDVTrkHandle.record(std::make_unique<xAOD::TrigCompositeContainer>(), std::make_unique<xAOD::TrigCompositeAuxContainer>()) );
+
       SG::WriteHandle<xAOD::TrigCompositeContainer> hitDVSPHandle(m_hitDVSPKey, ctx);
       ATH_CHECK( hitDVSPHandle.record(std::make_unique<xAOD::TrigCompositeContainer>(), std::make_unique<xAOD::TrigCompositeAuxContainer>()) );
    }
    if( m_dodEdxTrk ) {
       SG::WriteHandle<xAOD::TrigCompositeContainer> dEdxTrkHandle(m_dEdxTrkKey, ctx);
       ATH_CHECK( dEdxTrkHandle.record(std::make_unique<xAOD::TrigCompositeContainer>(), std::make_unique<xAOD::TrigCompositeAuxContainer>()) );
+
       SG::WriteHandle<xAOD::TrigCompositeContainer> dEdxHitHandle(m_dEdxHitKey, ctx);
       ATH_CHECK( dEdxHitHandle.record(std::make_unique<xAOD::TrigCompositeContainer>(), std::make_unique<xAOD::TrigCompositeAuxContainer>()) );
    }
@@ -1505,6 +1513,10 @@ StatusCode TrigFastTrackFinder::createEmptyUTTEDMs(const EventContext& ctx) cons
 StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::vector<TrigSiSpacePointBase>& convertedSpacePoints,
 					  const TrackCollection& outputTracks) const
 {
+   SG::WriteHandle<xAOD::TrigCompositeContainer> hitDVSeedHandle(m_hitDVSeedKey, ctx);
+   ATH_CHECK( hitDVSeedHandle.record(std::make_unique<xAOD::TrigCompositeContainer>(), std::make_unique<xAOD::TrigCompositeAuxContainer>()) );
+   auto hitDVSeedContainer = hitDVSeedHandle.ptr();
+
    SG::WriteHandle<xAOD::TrigCompositeContainer> hitDVTrkHandle(m_hitDVTrkKey, ctx);
    ATH_CHECK( hitDVTrkHandle.record(std::make_unique<xAOD::TrigCompositeContainer>(), std::make_unique<xAOD::TrigCompositeAuxContainer>()) );
    auto hitDVTrkContainer = hitDVTrkHandle.ptr();
@@ -1514,36 +1526,38 @@ StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::ve
    auto hitDVSPContainer = hitDVSPHandle.ptr();
 
    // select good tracks
-   const float  TRKCUT_PT               = 0.5;
-   const float  TRKCUT_A0BEAM           = 2.5;
-   const int    TRKCUT_N_HITS_INNERMOST = 1;
-   const int    TRKCUT_N_HITS_PIX       = 2;
-   const int    TRKCUT_N_HITS           = 4;
-   std::unordered_map<const Trk::PrepRawData*, int> umap_fittedTrack_prd;
+   const float  TRKCUT_PT_GEV       = 0.5;
+   const float  TRKCUT_A0BEAM       = 2.5;
+   const int    TRKCUT_N_HITS_INNER = 1;
+   const int    TRKCUT_N_HITS_PIX   = 2;
+   const int    TRKCUT_N_HITS       = 4;
+   std::unordered_map<Identifier, int> umap_fittedTrack_identifier;
    int fittedTrack_id = -1;
    std::vector<int>   v_dvtrk_id;
    std::vector<float> v_dvtrk_pt;
    std::vector<float> v_dvtrk_eta;
    std::vector<float> v_dvtrk_phi;
-   std::vector<int>   v_dvtrk_n_hits_innermost;
+   std::vector<int>   v_dvtrk_n_hits_inner;
    std::vector<int>   v_dvtrk_n_hits_pix;
    std::vector<int>   v_dvtrk_n_hits_sct;
    std::vector<float> v_dvtrk_a0beam;
    for (auto track : outputTracks) {
-      if ( ! track->perigeeParameters() ) continue;
-      if ( ! track->trackSummary() )      continue;
+      if ( track->perigeeParameters()==nullptr ) continue;
+      if ( track->trackSummary()==nullptr )  continue;
       int n_hits_innermost = track->trackSummary()->get(Trk::SummaryType::numberOfInnermostPixelLayerHits);
-      int n_hits_pix       = track->trackSummary()->get(Trk::SummaryType::numberOfPixelHits);
-      int n_hits_sct       = track->trackSummary()->get(Trk::SummaryType::numberOfSCTHits);
-      if( n_hits_innermost < TRKCUT_N_HITS_INNERMOST )  continue;
-      if( n_hits_pix < TRKCUT_N_HITS_PIX )              continue;
-      if( (n_hits_pix+n_hits_sct) < TRKCUT_N_HITS )     continue;
-      float theta  = track->perigeeParameters()->parameters()[Trk::theta];
-      float qOverP = track->perigeeParameters()->parameters()[Trk::qOverP];
-      if( std::abs(qOverP)<1e-12 ) qOverP = 1e-12;
-      float pt = std::sin(theta)/qOverP;
-      pt /= 1000.0;
-      if( pt < TRKCUT_PT ) continue;
+      int n_hits_next_to_innermost = track->trackSummary()->get(Trk::SummaryType::numberOfNextToInnermostPixelLayerHits);
+      int n_hits_inner = n_hits_innermost + n_hits_next_to_innermost;
+      int n_hits_pix   = track->trackSummary()->get(Trk::SummaryType::numberOfPixelHits);
+      int n_hits_sct   = track->trackSummary()->get(Trk::SummaryType::numberOfSCTHits);
+      if( n_hits_inner < TRKCUT_N_HITS_INNER )      continue;
+      if( n_hits_pix < TRKCUT_N_HITS_PIX )          continue;
+      if( (n_hits_pix+n_hits_sct) < TRKCUT_N_HITS ) continue;
+      float theta     = track->perigeeParameters()->parameters()[Trk::theta];
+      float absqOverP = std::abs(track->perigeeParameters()->parameters()[Trk::qOverP]);
+      if( absqOverP<1e-12 ) absqOverP = 1e-12;
+      float ptGeV = std::sin(theta)/absqOverP;
+      ptGeV /= Gaudi::Units::GeV;
+      if( ptGeV < TRKCUT_PT_GEV ) continue;
       float a0   = track->perigeeParameters()->parameters()[Trk::d0];
       float phi0 = track->perigeeParameters()->parameters()[Trk::phi0];
       float shift_x = 0; float shift_y = 0;
@@ -1553,31 +1567,31 @@ StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::ve
 
       // track is selected
       fittedTrack_id++;
-      ATH_MSG_DEBUG("Selected track pT = " << pt);
+      ATH_MSG_DEBUG("Selected track pT = " << ptGeV << " GeV");
       DataVector<const Trk::MeasurementBase>::const_iterator
 	 m  = track->measurementsOnTrack()->begin(),
 	 me = track->measurementsOnTrack()->end  ();
       for(; m!=me; ++m ) {
 	 const Trk::PrepRawData* prd = ((const Trk::RIO_OnTrack*)(*m))->prepRawData();
 	 if( prd == nullptr ) continue;
-	 if( umap_fittedTrack_prd.find(prd) == umap_fittedTrack_prd.end() ) {
-	    umap_fittedTrack_prd.insert(std::make_pair(prd,fittedTrack_id));
+	 Identifier id_prd = prd->identify();
+	 if( umap_fittedTrack_identifier.find(id_prd) == umap_fittedTrack_identifier.end() ) {
+	    umap_fittedTrack_identifier.insert(std::make_pair(id_prd,fittedTrack_id));
 	 }
       }
-
       float eta = -std::log(std::tan(0.5*theta));
       float phi = track->perigeeParameters()->parameters()[Trk::phi];
       v_dvtrk_id.push_back(fittedTrack_id);
-      v_dvtrk_pt.push_back(pt*1000.0);
+      v_dvtrk_pt.push_back(ptGeV*Gaudi::Units::GeV);
       v_dvtrk_eta.push_back(eta);
       v_dvtrk_phi.push_back(phi);
-      v_dvtrk_n_hits_innermost.push_back(n_hits_innermost);
+      v_dvtrk_n_hits_inner.push_back(n_hits_inner);
       v_dvtrk_n_hits_pix.push_back(n_hits_pix);
       v_dvtrk_n_hits_sct.push_back(n_hits_sct);
       v_dvtrk_a0beam.push_back(a0beam);
    }
-   ATH_MSG_DEBUG("Nr of selected tracks = " << fittedTrack_id);
-   ATH_MSG_DEBUG("Nr of PRDs used by selected tracks = " << umap_fittedTrack_prd.size());
+   ATH_MSG_DEBUG("Nr of selected tracks / all = " << fittedTrack_id << " / " << outputTracks.size());
+   ATH_MSG_DEBUG("Nr of Identifiers used by selected tracks = " << umap_fittedTrack_identifier.size());
 
    // space points
    int n_sp           = 0;
@@ -1590,33 +1604,49 @@ StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::ve
    std::vector<bool>  v_sp_isSct;
    std::vector<int>   v_sp_usedTrkId;
 
-   for(unsigned int iSp=0; iSp<convertedSpacePoints.size(); ++iSp) {
+   std::unordered_map<Identifier, int> umap_sp_identifier;
 
+   for(unsigned int iSp=0; iSp<convertedSpacePoints.size(); ++iSp) {
       bool isPix = convertedSpacePoints[iSp].isPixel();
       bool isSct = convertedSpacePoints[iSp].isSCT();
       if( ! isPix && ! isSct ) continue;
-
       const Trk::SpacePoint* sp = convertedSpacePoints[iSp].offlineSpacePoint();
-      const Amg::Vector3D& pos_sp = sp->globalPosition();
-      float sp_x = pos_sp[Amg::x];
-      float sp_y = pos_sp[Amg::y];
-      float sp_z = pos_sp[Amg::z];
-      TVector3 p3Sp(sp_x,sp_y,sp_z);
-      float sp_eta = p3Sp.Eta();
-      float sp_phi = p3Sp.Phi();
-
-      // whether used by selected tracks
-      const Trk::PrepRawData* prd = sp->clusterList().first;
-      int usedTrack_id = -1;
-      if( prd != nullptr && umap_fittedTrack_prd.find(prd) != umap_fittedTrack_prd.end() ) {
-	 ATH_MSG_DEBUG("prd first is there in umap");
-	 usedTrack_id = umap_fittedTrack_prd[prd];
+      std::vector<const Trk::PrepRawData*> prds;
+      prds.reserve(2);
+      if(sp->clusterList().first !=nullptr)  prds.push_back(sp->clusterList().first);
+      if(sp->clusterList().second!=nullptr)  prds.push_back(sp->clusterList().second);
+      for(const Trk::PrepRawData* prd : prds) {
+	 Identifier id_prd =  prd->identify();
+	 if( umap_sp_identifier.find(id_prd) == umap_sp_identifier.end() ) {
+	    umap_sp_identifier.insert(std::make_pair(id_prd,-1));
+	 }
       }
-      else {
-	 const Trk::PrepRawData* prd = sp->clusterList().second;
-	 if( prd != nullptr && umap_fittedTrack_prd.find(prd) != umap_fittedTrack_prd.end() ) {
-	    ATH_MSG_DEBUG("prd second is there in umap");
-	    usedTrack_id = umap_fittedTrack_prd[prd];
+   }
+   int n_id_usedByTrack = 0;
+   for(auto it=umap_sp_identifier.begin(); it!=umap_sp_identifier.end(); ++it) {
+      Identifier id_sp = it->first;
+      if( umap_fittedTrack_identifier.find(id_sp) != umap_fittedTrack_identifier.end() ) {
+	 umap_sp_identifier[id_sp] = umap_fittedTrack_identifier[id_sp];
+	 ++n_id_usedByTrack;
+      }
+   }
+   ATH_MSG_DEBUG("Nr of SPs / Identifiers (all) / Identifiers (usedByTrack) = " << convertedSpacePoints.size() << " / " << umap_sp_identifier.size() << " / " << n_id_usedByTrack);
+
+   for(unsigned int iSp=0; iSp<convertedSpacePoints.size(); ++iSp) {
+      bool isPix = convertedSpacePoints[iSp].isPixel();
+      bool isSct = convertedSpacePoints[iSp].isSCT();
+      if( ! isPix && ! isSct ) continue;
+      const Trk::SpacePoint* sp = convertedSpacePoints[iSp].offlineSpacePoint();
+      std::vector<const Trk::PrepRawData*> prds;
+      prds.reserve(2);
+      if(sp->clusterList().first !=nullptr)  prds.push_back(sp->clusterList().first);
+      if(sp->clusterList().second!=nullptr)  prds.push_back(sp->clusterList().second);
+      int usedTrack_id = -1;
+      for(const Trk::PrepRawData* prd : prds) {
+	 Identifier id_prd =  prd->identify();
+	 if( umap_sp_identifier.find(id_prd) != umap_sp_identifier.end() ) {
+	    int trkid = umap_sp_identifier[id_prd];
+	    if( trkid != -1 ) usedTrack_id = trkid;
 	 }
       }
 
@@ -1625,6 +1655,14 @@ StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::ve
       if( usedTrack_id != -1 ) n_sp_usedByTrk++;
       int  layer = convertedSpacePoints[iSp].layer();
       float sp_r = convertedSpacePoints[iSp].r();
+
+      const Amg::Vector3D& pos_sp = sp->globalPosition();
+      float sp_x = pos_sp[Amg::x];
+      float sp_y = pos_sp[Amg::y];
+      float sp_z = pos_sp[Amg::z];
+      TVector3 p3Sp(sp_x,sp_y,sp_z);
+      float sp_eta = p3Sp.Eta();
+      float sp_phi = p3Sp.Phi();
 
       v_sp_eta.push_back(sp_eta);
       v_sp_r.push_back(sp_r);
@@ -1637,20 +1675,17 @@ StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::ve
       ATH_MSG_VERBOSE("+++ SP eta / phi / layer / ixPix / usedTrack_id = " << sp_eta << " / " << sp_phi << " / " << layer << " / " << isPix << " / " << usedTrack_id);
 
    }
-   ATH_MSG_VERBOSE("Nr of SPs = " << n_sp);
-   ATH_MSG_VERBOSE("Nr of SPs used by selected tracks = " << n_sp_usedByTrk);
+   ATH_MSG_DEBUG("Nr of SPs / all = " << n_sp << " / " << convertedSpacePoints.size());
+   ATH_MSG_DEBUG("Nr of SPs used by selected tracks = " << n_sp_usedByTrk);
 
    // Seed
-   std::vector<float> v_seeds_eta;
-   std::vector<float> v_seeds_phi;
-
+   std::vector<float>   v_seeds_eta;
+   std::vector<float>   v_seeds_phi;
+   std::vector<int16_t> v_seeds_type;
+   
    if( m_doHitDV_Seeding ) {
 
-      // space-point based (unseeded mode)
-      ATH_CHECK( findSPSeeds(ctx, v_sp_eta, v_sp_phi, v_sp_layer, v_sp_usedTrkId, v_seeds_eta, v_seeds_phi) );
-      ATH_MSG_VERBOSE("Nr of SP seeds = " << v_seeds_eta.size());
-
-      // add J1 J30 seeds
+      // add L1 Jet seeds
       const unsigned int L1JET_ET_CUT = 30;
 
       auto recJetRoiCollectionHandle = SG::makeHandle( m_recJetRoiCollectionKey, ctx );
@@ -1676,11 +1711,36 @@ StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::ve
 	 if( roiPhi > TMath::Pi() ) roiPhi -= 2 * TMath::Pi();
 	 v_seeds_eta.push_back(recRoI->eta());
 	 v_seeds_phi.push_back(roiPhi);
+	 v_seeds_type.push_back(0); // L1_J:0
       }
-      ATH_MSG_VERBOSE("Nr of SP + L1_J30 seeds = " << v_seeds_eta.size());
+      ATH_MSG_DEBUG("Nr of L1_J" << L1JET_ET_CUT << " seeds = " << v_seeds_eta.size());
+
+      // space-point based (unseeded mode)
+      std::vector<float> v_spseeds_eta;
+      std::vector<float> v_spseeds_phi;
+      ATH_CHECK( findSPSeeds(ctx, v_sp_eta, v_sp_phi, v_sp_layer, v_sp_usedTrkId, v_spseeds_eta, v_spseeds_phi) );
+      ATH_MSG_DEBUG("Nr of SP seeds = " << v_spseeds_eta.size());
+      for(size_t idx=0; idx<v_spseeds_eta.size(); ++idx) {
+	 v_seeds_eta.push_back(v_spseeds_eta[idx]);
+	 v_seeds_phi.push_back(v_spseeds_phi[idx]);
+	 v_seeds_type.push_back(1); // SP: 1
+      }
+      ATH_MSG_DEBUG("Nr of SP + L1_J" << L1JET_ET_CUT << " seeds = " << v_seeds_eta.size());
    }
 
    // fill objects
+
+   // seeds
+   const int N_MAX_SEEDS = 200;
+   int n_seeds = std::min(N_MAX_SEEDS,(int)v_seeds_eta.size());
+   hitDVSeedContainer->reserve(n_seeds);
+   for(auto iSeed=0; iSeed < n_seeds; ++iSeed) {
+      xAOD::TrigComposite *hitDVSeed = new xAOD::TrigComposite();
+      hitDVSeedContainer->push_back(hitDVSeed);
+      hitDVSeed->setDetail<float>   ("hitDVSeed_eta",  v_seeds_eta[iSeed]);
+      hitDVSeed->setDetail<float>   ("hitDVSeed_phi",  v_seeds_phi[iSeed]);
+      hitDVSeed->setDetail<int16_t> ("hitDVSeed_type", v_seeds_type[iSeed]);
+   }
 
    // track
    const float TRKCUT_DELTA_R_TO_SEED = 1.0;
@@ -1700,22 +1760,22 @@ StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::ve
       }
       xAOD::TrigComposite *hitDVTrk = new xAOD::TrigComposite();
       hitDVTrkContainer->push_back(hitDVTrk);
-      hitDVTrk->setDetail<int>  ("hitDVTrk_id",  v_dvtrk_id[iTrk]);
-      hitDVTrk->setDetail<float>("hitDVTrk_pt",  v_dvtrk_pt[iTrk]);
-      hitDVTrk->setDetail<float>("hitDVTrk_eta", v_dvtrk_eta[iTrk]);
-      hitDVTrk->setDetail<float>("hitDVTrk_phi", v_dvtrk_phi[iTrk]);
-      hitDVTrk->setDetail<int>  ("hitDVTrk_n_hits_innermost", v_dvtrk_n_hits_innermost[iTrk]);
-      hitDVTrk->setDetail<int>  ("hitDVTrk_n_hits_pix", v_dvtrk_n_hits_pix[iTrk]);
-      hitDVTrk->setDetail<int>  ("hitDVTrk_n_hits_sct", v_dvtrk_n_hits_sct[iTrk]);
-      hitDVTrk->setDetail<float>("hitDVTrk_a0beam",     v_dvtrk_a0beam[iTrk]);
+      hitDVTrk->setDetail<int>    ("hitDVTrk_id",  v_dvtrk_id[iTrk]);
+      hitDVTrk->setDetail<float>  ("hitDVTrk_pt",  v_dvtrk_pt[iTrk]);
+      hitDVTrk->setDetail<float>  ("hitDVTrk_eta", v_dvtrk_eta[iTrk]);
+      hitDVTrk->setDetail<float>  ("hitDVTrk_phi", v_dvtrk_phi[iTrk]);
+      hitDVTrk->setDetail<int16_t>("hitDVTrk_n_hits_inner", v_dvtrk_n_hits_inner[iTrk]);
+      hitDVTrk->setDetail<int16_t>("hitDVTrk_n_hits_pix",   v_dvtrk_n_hits_pix[iTrk]);
+      hitDVTrk->setDetail<int16_t>("hitDVTrk_n_hits_sct",   v_dvtrk_n_hits_sct[iTrk]);
+      hitDVTrk->setDetail<float>  ("hitDVTrk_a0beam",       v_dvtrk_a0beam[iTrk]);
    }
 
    // space points
-   const float SPCUT_DELTA_R_TO_SEED = 0.6;
-   unsigned int n_sp_stored = 0;
-   const unsigned int N_MAX_SP_STORED = 100000;
-
-   hitDVSPContainer->reserve(v_sp_eta.size());
+   const float SPCUT_DELTA_R_TO_SEED = 1.0;
+   int n_sp_stored = 0;
+   const int N_MAX_SP_STORED = 100000;
+   int n_sp_reserve = std::min(N_MAX_SP_STORED,(int)v_sp_eta.size());
+   hitDVSPContainer->reserve(n_sp_reserve);
    for(unsigned int iSp=0; iSp<v_sp_eta.size(); ++iSp) {
       float sp_eta = v_sp_eta[iSp];
       float sp_phi = v_sp_phi[iSp];
@@ -1741,6 +1801,7 @@ StatusCode TrigFastTrackFinder::findHitDV(const EventContext& ctx, const std::ve
       hitDVSP->setDetail<bool>   ("hitDVSP_isSct",     v_sp_isSct[iSp]);
       hitDVSP->setDetail<int16_t>("hitDVSP_usedTrkId", (int16_t)v_sp_usedTrkId[iSp]);
    }
+   ATH_MSG_DEBUG("Nr of SPs stored = " << n_sp_stored);
 
    return StatusCode::SUCCESS;
 }
@@ -1750,9 +1811,6 @@ StatusCode TrigFastTrackFinder::findSPSeeds( const EventContext& ctx,
 					     const std::vector<int>& v_sp_layer, const std::vector<int>& v_sp_usedTrkId,
 					     std::vector<float>& seeds_eta, std::vector<float>& seeds_phi ) const
 {
-   seeds_eta.clear();
-   seeds_phi.clear();
-
    const int   NBINS_ETA = 50;
    const float ETA_MIN   = -2.5;
    const float ETA_MAX   =  2.5;
@@ -2867,7 +2925,54 @@ StatusCode TrigFastTrackFinder::findDisTracks(const EventContext& ctx,
    return StatusCode::SUCCESS;
 }
 
-bool TrigFastTrackFinder::isPreselPassDisTrack(Trk::Track* trk, double d0_wrtVtx, double z0_wrtVtx) const
+bool TrigFastTrackFinder::isPreselPassDisTrackAfterRefit(Trk::Track* trk, Trk::Track* refitTrk, double refit_d0_wrtVtx, double refit_z0_wrtVtx) const
+{
+   const float  PRESEL_PT_GEV            =  5.0;
+   const float  PRESEL_REFIT_PT_GEV_P3S1 = 10.0;
+   const double PRESEL_D0_WRTVTX         =  5.0;
+   const double PRESEL_Z0_WRTVTX         = 50.0;
+
+   // sanity check
+   if( trk == nullptr ) return false;
+   
+   DisTrkCategory cat = getDisTrkCategory(trk);
+   if( cat==DisTrkCategory::Pix4l_Sct1p || cat==DisTrkCategory::Pix3l_Sct1p ) { if( refitTrk == nullptr ) return false; }
+
+   // refit d0
+   if( std::abs(refit_d0_wrtVtx) > PRESEL_D0_WRTVTX ) return false;
+
+   // refit z0
+   if( std::abs(refit_z0_wrtVtx) > PRESEL_Z0_WRTVTX ) return false;
+
+   // pt (either trk or refit trk should have pt beyond cut)
+   std::vector<float>       v_ptGeV;
+   std::vector<Trk::Track*> v_trk;
+   v_trk.push_back(trk);
+   if( refitTrk != nullptr ) v_trk.push_back(refitTrk);
+   for(auto t : v_trk) {
+      float theta  = t->perigeeParameters()->parameters()[Trk::theta];
+      float qOverP = std::abs(t->perigeeParameters()->parameters()[Trk::qOverP]);
+      if ( qOverP < 1e-12 ) qOverP = 1e-12;
+      float ptGeV = sin(theta)/qOverP/Gaudi::Units::GeV;
+      v_ptGeV.push_back(ptGeV);
+   }
+   bool isLowPt = true;
+   for(auto pt : v_ptGeV) {
+      if( pt > PRESEL_PT_GEV ) { isLowPt = false; break; }
+   }
+   if( isLowPt ) return false;
+
+   // refit pt cut for Pix3l_Sct1p which dominates rates
+   if( cat==DisTrkCategory::Pix3l_Sct1p ) {
+      float refitPt = v_ptGeV[1];
+      if( refitPt < PRESEL_REFIT_PT_GEV_P3S1 ) return false;
+   }
+
+   // cut passed
+   return true;
+}
+
+bool TrigFastTrackFinder::isPreselPassDisTrackBeforeRefit(Trk::Track* trk, double d0_wrtVtx, double z0_wrtVtx) const
 {
    const double PRESEL_D0_WRTVTX =  5.0;
    const double PRESEL_Z0_WRTVTX = 50.0;
@@ -2976,7 +3081,7 @@ void TrigFastTrackFinder::fillDisTrkCand(xAOD::TrigComposite* comp, const std::s
 {
    // category
    int category = (trk != nullptr) ? (int)getDisTrkCategory(trk) : -1;
-   if( prefix.find("refit") == std::string::npos ) comp->setDetail<int>(prefix+"_category",category);
+   if( prefix.find("refit") == std::string::npos ) comp->setDetail<int16_t>(prefix+"_category",(int16_t)category);
 
    // track
    float theta=0; float eta=0; float pt=0; float d0=0; float z0=0; float phi=0; float chi2=0; float ndof=0;
@@ -3007,10 +3112,10 @@ void TrigFastTrackFinder::fillDisTrkCand(xAOD::TrigComposite* comp, const std::s
    comp->setDetail<float>(prefix+"_z0",   z0);
    comp->setDetail<float>(prefix+"_chi2", chi2);
    comp->setDetail<float>(prefix+"_ndof", ndof);
-   comp->setDetail<int>  (prefix+"_n_hits_innermost", n_hits_innermost);
-   comp->setDetail<int>  (prefix+"_n_hits_inner",     n_hits_inner);
-   comp->setDetail<int>  (prefix+"_n_hits_pix",       n_hits_pix);
-   comp->setDetail<int>  (prefix+"_n_hits_sct",       n_hits_sct);
+   comp->setDetail<int16_t>(prefix+"_n_hits_innermost", (int16_t)n_hits_innermost);
+   comp->setDetail<int16_t>(prefix+"_n_hits_inner",     (int16_t)n_hits_inner);
+   comp->setDetail<int16_t>(prefix+"_n_hits_pix",       (int16_t)n_hits_pix);
+   comp->setDetail<int16_t>(prefix+"_n_hits_sct",       (int16_t)n_hits_sct);
 
    // extrapolate
    float theta_wrtVtx=0; float eta_wrtVtx=0; float pt_wrtVtx=0; float d0_wrtVtx=0; float z0_wrtVtx=0; float phi_wrtVtx=0;
@@ -3032,24 +3137,7 @@ void TrigFastTrackFinder::fillDisTrkCand(xAOD::TrigComposite* comp, const std::s
 
    // barrel hits
    std::array<OneLayerInfo_t, N_BARREL_LAYERS> barrelInfo{};
-   int n_ibl  =-1; int n_pix1  =-1; int n_pix2  =-1; int n_pix3  =-1; int n_sct1  =-1; int n_sct2  =-1; int n_sct3  =-1; int n_sct4  =-1;
-   int n_ibl_g=-1; int n_pix1_g=-1; int n_pix2_g=-1; int n_pix3_g=-1; int n_sct1_g=-1; int n_sct2_g=-1; int n_sct3_g=-1; int n_sct4_g=-1;
-
    barrelInfo = getTrkBarrelLayerInfo(trk);
-   n_ibl = barrelInfo[0].nHits; n_pix1=barrelInfo[1].nHits; n_pix2=barrelInfo[2].nHits; n_pix3=barrelInfo[3].nHits;
-   n_sct1=barrelInfo[4].nHits; n_sct2=barrelInfo[5].nHits; n_sct3=barrelInfo[6].nHits; n_sct4=barrelInfo[7].nHits;
-   //
-   n_ibl_g =barrelInfo[0].nGood; n_pix1_g=barrelInfo[1].nGood; n_pix2_g=barrelInfo[2].nGood; n_pix3_g=barrelInfo[3].nGood;
-   n_sct1_g=barrelInfo[4].nGood; n_sct2_g=barrelInfo[5].nGood; n_sct3_g=barrelInfo[6].nGood; n_sct4_g=barrelInfo[7].nGood;
-
-   comp->setDetail<int>  (prefix+"_n_brhits_ibl",       n_ibl);
-   comp->setDetail<int>  (prefix+"_n_brhits_pix1",      n_pix1);
-   comp->setDetail<int>  (prefix+"_n_brhits_pix2",      n_pix2);
-   comp->setDetail<int>  (prefix+"_n_brhits_pix3",      n_pix3);
-   comp->setDetail<int>  (prefix+"_n_brhits_sct1",      n_sct1);
-   comp->setDetail<int>  (prefix+"_n_brhits_sct2",      n_sct2);
-   comp->setDetail<int>  (prefix+"_n_brhits_sct3",      n_sct3);
-   comp->setDetail<int>  (prefix+"_n_brhits_sct4",      n_sct4);
    comp->setDetail<float>(prefix+"_chi2sum_br_ibl",     barrelInfo[0].chiSq);
    comp->setDetail<float>(prefix+"_chi2sum_br_pix1",    barrelInfo[1].chiSq);
    comp->setDetail<float>(prefix+"_chi2sum_br_pix2",    barrelInfo[2].chiSq);
@@ -3066,22 +3154,14 @@ void TrigFastTrackFinder::fillDisTrkCand(xAOD::TrigComposite* comp, const std::s
    comp->setDetail<float>(prefix+"_ndofsum_br_sct2",    barrelInfo[5].nDof);
    comp->setDetail<float>(prefix+"_ndofsum_br_sct3",    barrelInfo[6].nDof);
    comp->setDetail<float>(prefix+"_ndofsum_br_sct4",    barrelInfo[7].nDof);
-   comp->setDetail<int>  (prefix+"_n_brhits_good_ibl",  n_ibl_g);
-   comp->setDetail<int>  (prefix+"_n_brhits_good_pix1", n_pix1_g);
-   comp->setDetail<int>  (prefix+"_n_brhits_good_pix2", n_pix2_g);
-   comp->setDetail<int>  (prefix+"_n_brhits_good_pix3", n_pix3_g);
-   comp->setDetail<int>  (prefix+"_n_brhits_good_sct1", n_sct1_g);
-   comp->setDetail<int>  (prefix+"_n_brhits_good_sct2", n_sct2_g);
-   comp->setDetail<int>  (prefix+"_n_brhits_good_sct3", n_sct3_g);
-   comp->setDetail<int>  (prefix+"_n_brhits_good_sct4", n_sct4_g);
 
    // isolation
    if( fillIso ) {
       const float ISOL_CALC_Z0_DIFF_CUT          = 2.5;
       const float ISOL_CALC_DR_CUT_TO_AVOID_ZERO = 0.015;
-      float iso1_dr01=0; float iso1_dr02=0; float iso1_dr04=0;
-      float iso2_dr01=0; float iso2_dr02=0; float iso2_dr04=0;
-      float iso3_dr01=0; float iso3_dr02=0; float iso3_dr04=0;
+      float iso1_dr01=0; float iso1_dr02=0;
+      float iso2_dr01=0; float iso2_dr02=0;
+      float iso3_dr01=0; float iso3_dr02=0;
       for(auto t=tracksForIso.begin(); t!=tracksForIso.end(); t++) {
 	 float z0_t   = (*t)->perigeeParameters()->parameters()[Trk::z0];
 	 if( std::abs(z0_t - z0) <= ISOL_CALC_Z0_DIFF_CUT ) {
@@ -3095,28 +3175,22 @@ void TrigFastTrackFinder::fillDisTrkCand(xAOD::TrigComposite* comp, const std::s
 	    float dphi    = std::abs(phi_t - phi);
 	    if( dphi > CLHEP::pi ) dphi = CLHEP::pi*2 - dphi;
 	    float dr   = std::sqrt(deta*deta + dphi*dphi);
-	    if( dr > ISOL_CALC_DR_CUT_TO_AVOID_ZERO && dr<0.1 && pt_t > 1000.0 ) iso1_dr01 += pt_t;
-	    if( dr > ISOL_CALC_DR_CUT_TO_AVOID_ZERO && dr<0.2 && pt_t > 1000.0 ) iso1_dr02 += pt_t;
-	    if( dr > ISOL_CALC_DR_CUT_TO_AVOID_ZERO && dr<0.4 && pt_t > 1000.0 ) iso1_dr04 += pt_t;
+	    if( dr > ISOL_CALC_DR_CUT_TO_AVOID_ZERO && dr<0.1 && pt_t > 1.0*Gaudi::Units::GeV ) iso1_dr01 += pt_t;
+	    if( dr > ISOL_CALC_DR_CUT_TO_AVOID_ZERO && dr<0.2 && pt_t > 1.0*Gaudi::Units::GeV ) iso1_dr02 += pt_t;
 	    //
-	    if( dr > ISOL_CALC_DR_CUT_TO_AVOID_ZERO && dr<0.1 && pt_t > 2000.0 ) iso2_dr01 += pt_t;
-	    if( dr > ISOL_CALC_DR_CUT_TO_AVOID_ZERO && dr<0.2 && pt_t > 2000.0 ) iso2_dr02 += pt_t;
-	    if( dr > ISOL_CALC_DR_CUT_TO_AVOID_ZERO && dr<0.4 && pt_t > 2000.0 ) iso2_dr04 += pt_t;
+	    if( dr > ISOL_CALC_DR_CUT_TO_AVOID_ZERO && dr<0.1 && pt_t > 2.0*Gaudi::Units::GeV ) iso2_dr01 += pt_t;
+	    if( dr > ISOL_CALC_DR_CUT_TO_AVOID_ZERO && dr<0.2 && pt_t > 2.0*Gaudi::Units::GeV ) iso2_dr02 += pt_t;
 	    //
-	    if( dr > ISOL_CALC_DR_CUT_TO_AVOID_ZERO && dr<0.1 && pt_t > 3000.0 ) iso3_dr01 += pt_t;
-	    if( dr > ISOL_CALC_DR_CUT_TO_AVOID_ZERO && dr<0.2 && pt_t > 3000.0 ) iso3_dr02 += pt_t;
-	    if( dr > ISOL_CALC_DR_CUT_TO_AVOID_ZERO && dr<0.4 && pt_t > 3000.0 ) iso3_dr04 += pt_t;
+	    if( dr > ISOL_CALC_DR_CUT_TO_AVOID_ZERO && dr<0.1 && pt_t > 3.0*Gaudi::Units::GeV ) iso3_dr01 += pt_t;
+	    if( dr > ISOL_CALC_DR_CUT_TO_AVOID_ZERO && dr<0.2 && pt_t > 3.0*Gaudi::Units::GeV ) iso3_dr02 += pt_t;
 	 }
       }
       comp->setDetail<float>(prefix+"_iso1_dr01", iso1_dr01);
       comp->setDetail<float>(prefix+"_iso1_dr02", iso1_dr02);
-      comp->setDetail<float>(prefix+"_iso1_dr04", iso1_dr04);
       comp->setDetail<float>(prefix+"_iso2_dr01", iso2_dr01);
       comp->setDetail<float>(prefix+"_iso2_dr02", iso2_dr02);
-      comp->setDetail<float>(prefix+"_iso2_dr04", iso2_dr04);
       comp->setDetail<float>(prefix+"_iso3_dr01", iso3_dr01);
       comp->setDetail<float>(prefix+"_iso3_dr02", iso3_dr02);
-      comp->setDetail<float>(prefix+"_iso3_dr04", iso3_dr04);
    }
 }
 
@@ -3155,8 +3229,38 @@ int TrigFastTrackFinder::recoAndFillDisTrkCand(const std::string& base_prefix,
 	 ATH_MSG_VERBOSE("z0 : " << z0 << " -> extrapolate -> " << z0_wrtVtx);
       }
 
-      // pre-selection
-      if( ! isPreselPassDisTrack(ptrk,d0_wrtVtx,z0_wrtVtx) ) continue;
+      m_trackSummaryTool->updateTrack(*ptrk);
+
+      // pre-selection before refit
+      if( ! isPreselPassDisTrackBeforeRefit(ptrk,d0_wrtVtx,z0_wrtVtx) ) continue;
+
+      // refit
+      std::unique_ptr<Trk::Track> refit_trk = disTrk_refit(ptrk);
+      if( refit_trk != nullptr ) m_trackSummaryTool->updateTrack(*refit_trk);
+
+      // extrapolate refitted track to vertex
+      double refit_d0 = 0;
+      double refit_z0 = 0;
+      double refit_d0_wrtVtx = 0;
+      double refit_z0_wrtVtx = 0;
+      const Trk::Perigee* refitVertexPerigee = nullptr;
+      if( refit_trk != nullptr ) {
+	 refitVertexPerigee = extrapolateDisTrackToBS(refit_trk.get(),v_xvtx,v_yvtx,v_zvtx);
+	 if( refitVertexPerigee == nullptr ) {
+	    ATH_MSG_VERBOSE("extrapote to BS fails for refit track");
+	 }
+	 else {
+	    refit_d0 = refit_trk.get()->perigeeParameters()->parameters()[Trk::d0];
+	    refit_z0 = refit_trk.get()->perigeeParameters()->parameters()[Trk::z0];
+	    refit_d0_wrtVtx = refitVertexPerigee->parameters()[Trk::d0];
+	    refit_z0_wrtVtx = refitVertexPerigee->parameters()[Trk::z0];
+	    ATH_MSG_VERBOSE("refit trk d0 : " << refit_d0 << " -> extrapolate -> " << refit_d0_wrtVtx);
+	    ATH_MSG_VERBOSE("refit trk z0 : " << refit_z0 << " -> extrapolate -> " << refit_z0_wrtVtx);
+	 }
+      }
+
+      // pre-selection after refit
+      if( ! isPreselPassDisTrackAfterRefit(ptrk,refit_trk.get(),refit_d0_wrtVtx,refit_z0_wrtVtx) ) continue;
 
       // store it!
       n_stored_tracks++;
@@ -3165,36 +3269,13 @@ int TrigFastTrackFinder::recoAndFillDisTrkCand(const std::string& base_prefix,
       comp->makePrivateStore();
       trigCompositeContainer->push_back(comp);
 
-      m_trackSummaryTool->updateTrack(*ptrk);
-
       //
       int is_fail = isFail ? 1 : 0;
-      comp->setDetail<int>(base_prefix+"_is_fail",is_fail);
+      comp->setDetail<int16_t>(base_prefix+"_is_fail",(int16_t)is_fail);
 
       // store trk info
       prefix = base_prefix;
       fillDisTrkCand(comp,prefix,ptrk,vertexPerigee,true,tracksForIso);
-
-      // refit
-      std::unique_ptr<Trk::Track> refit_trk = disTrk_refit(ptrk);
-      if( refit_trk != nullptr ) m_trackSummaryTool->updateTrack(*refit_trk);
-
-      // extrapolate refitted track to vertex
-      const Trk::Perigee* refitVertexPerigee = nullptr;
-      if( refit_trk != nullptr ) {
-	 refitVertexPerigee = extrapolateDisTrackToBS(refit_trk.get(),v_xvtx,v_yvtx,v_zvtx);
-	 if( refitVertexPerigee == nullptr ) {
-	    ATH_MSG_VERBOSE("extrapote to BS fails for refit track");
-	 }
-	 else {
-	    float d0 = refit_trk.get()->perigeeParameters()->parameters()[Trk::d0];
-	    float z0 = refit_trk.get()->perigeeParameters()->parameters()[Trk::z0];
-	    float d0_wrtVtx    = refitVertexPerigee->parameters()[Trk::d0];
-	    float z0_wrtVtx    = refitVertexPerigee->parameters()[Trk::z0];
-	    ATH_MSG_VERBOSE("refit trk d0 : " << d0 << " -> extrapolate -> " << d0_wrtVtx);
-	    ATH_MSG_VERBOSE("refit trk z0 : " << z0 << " -> extrapolate -> " << z0_wrtVtx);
-	 }
-      }
 
       // store refit trk info
       prefix = base_prefix + "_refit";
@@ -3280,7 +3361,7 @@ void TrigFastTrackFinder::print_disTrk(const Trk::Track* t) const
       float qOverP = std::abs(t->perigeeParameters()->parameters()[Trk::qOverP]);
       if ( qOverP < 1e-12 ) qOverP = 1e-12;
       pt = sin(theta)/qOverP;
-      pt /= 1000.0;
+      pt /= Gaudi::Units::GeV;
    }
    ATH_MSG_DEBUG("... pt / theta / phi / d0 / z0 = " << pt << " / " << theta << " / " << phi << " / " << d0 << " / " << z0);
    ATH_MSG_DEBUG("... chi2 / ndof = " << chi2 << " / " << ndof);

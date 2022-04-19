@@ -82,6 +82,9 @@ print (topSeq.ParticleGun)
 # This should only be used when evgen is run in the simulation step
 include('G4AtlasApps/fragment.SimCopyWeights.py')
 
+# Create xAOD::EventInfo from EventInfo
+topSeq += CfgMgr.xAODMaker__EventInfoCnvAlg()
+
 include("G4AtlasApps/G4Atlas.flat.configuration.py")
 
 #from TruthExamples.TruthExamplesConf import DumpMC

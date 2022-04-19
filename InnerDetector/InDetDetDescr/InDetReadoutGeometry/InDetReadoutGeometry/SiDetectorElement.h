@@ -191,6 +191,7 @@ namespace InDetDD {
 
     bool isPixel() const;
     bool isSCT() const;
+    bool isPLR() const;
     bool isDBM() const;
     bool isBarrel() const;
     bool isEndcap() const; // inline
@@ -469,6 +470,8 @@ namespace InDetDD {
     //@{
 
     bool m_isPixel{false};
+    bool m_isSCT{false};
+    bool m_isPLR{false};
     bool m_isDBM{false};
     bool m_isBarrel{false};
     //@}

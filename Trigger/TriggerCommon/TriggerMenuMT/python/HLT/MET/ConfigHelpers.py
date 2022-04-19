@@ -7,7 +7,7 @@ from AthenaCommon.CFElements import seqAND
 from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-from ..Menu.SignatureDicts import METChainParts_Default
+from ..Menu.SignatureDicts import METChainParts_Default, METChainParts
 from ..Config.MenuComponents import (
     RecoFragmentsPool,
     ChainStep,
@@ -17,12 +17,12 @@ from ..Config.MenuComponents import (
     MenuSequenceCA,
 )
 from copy import copy
-from ..CommonSequences.FullScanDefs import caloFSRoI, trkFSRoI
+from ..CommonSequences.FullScanDefs import trkFSRoI
 from AthenaCommon.Logging import logging
 from TrigEFMissingET.TrigEFMissingETConfig import getMETMonTool
 from abc import ABC, abstractmethod
 from string import ascii_uppercase
-from TrigMissingETHypo.TrigMissingETHypoConfig import TrigMETCellHypoToolFromDict
+from TrigMissingETHypo.TrigMissingETHypoConfig import TrigMETHypoToolFromDict
 
 
 def streamer_hypo_tool(chainDict):
@@ -33,8 +33,8 @@ log = logging.getLogger(__name__)
 
 # The keys from the MET chain dict that directly affect reconstruction
 # The order here is important as it also controls the dict -> string conversion
-recoKeys = ["EFrecoAlg", "calib", "constitType", "constitmod", "jetCalib", "addInfo"]
-metFSRoIs = [caloFSRoI, trkFSRoI]
+recoKeys = ["EFrecoAlg", "calib", "constitType", "constitmod", "jetCalib", "nSigma", "addInfo"]
+metFSRoIs = ['', trkFSRoI]
 
 
 def metRecoDictToString(recoDict, skipDefaults=True):
@@ -51,6 +51,20 @@ def metRecoDictToString(recoDict, skipDefaults=True):
         and (not skipDefaults or recoDict[k] != METChainParts_Default[k])
     )
 
+def stringToMETRecoDict(string):
+    """Convert a string to a MET reco dict"""
+    defaults = copy(METChainParts_Default)
+    # Now go through the parts of the string and fill in the dict
+    for part in string.split("_"):
+        for key, values in METChainParts.items():
+            if not isinstance(values, list):
+                continue
+            if part in values:
+                if isinstance(defaults[key], list):
+                    defaults[key].append(part)
+                else:
+                    defaults[key] = part
+    return defaults
 
 class AlgConfig(ABC):
     """Base class to describe algorithm configurations
@@ -140,12 +154,10 @@ class AlgConfig(ABC):
         """ Create the monitoring tool """
         return getMETMonTool()
 
-    def athSequences(self):
-        """ Get the reco sequences (split by step) """
-        if hasattr(self, "_athSequences"):
-            return self._athSequences
-
-        inputMakers = self.inputMakers()
+    def recoAlgorithms(self):
+        """Get the reconstruction algorithms (split by step) without the input makers"""
+        if hasattr(self, "_recoAlgorithms"):
+            return self._recoAlgorithms
         # Retrieve the inputss
         log.verbose("Create inputs for %s", self._suffix)
         steps, inputs = self.inputRegistry.build_steps(
@@ -154,14 +166,24 @@ class AlgConfig(ABC):
         fex = self.make_fex(self.fexName, inputs)
         fex.MonTool = self.getMonTool()
         fex.METContainerKey = self.outputKey
-        sequences = []
+        # Add the FEX to the last list
+        steps[-1] += [fex]
+        self._recoAlgorithms = steps
+        return self._recoAlgorithms
 
-        for idx, algList in enumerate(steps):
-            # Put the input makers at the start
-            algList.insert(0, inputMakers[idx])
-            if idx == len(steps) - 1:
-                algList += [fex]
-            sequences.append(seqAND(f"METAthSeq_step{idx}_{self._suffix}", algList))
+
+    def athSequences(self):
+        """ Get the reco sequences (split by step) """
+        if hasattr(self, "_athSequences"):
+            return self._athSequences
+
+        inputMakers = self.inputMakers()
+        reco = self.recoAlgorithms()
+        # Put the input makers at the start
+        sequences = [
+            seqAND(f"METAthSeq_step{idx}_{self._suffix}",  [inputMakers[idx]] + step)
+            for idx, step in enumerate(reco)
+        ]
         self._athSequences = sequences
         return self._athSequences
 
@@ -177,7 +199,7 @@ class AlgConfig(ABC):
         for idx, seq in enumerate(ath_sequences):
             if idx == len(ath_sequences) - 1:
                 hypo = conf2toConfigurable(self.make_hypo_alg())
-                hypo_tool = TrigMETCellHypoToolFromDict
+                hypo_tool = TrigMETHypoToolFromDict
             else:
                 hypo = conf2toConfigurable(self.make_passthrough_hypo_alg(idx))
                 hypo_tool = streamer_hypo_tool
@@ -239,7 +261,7 @@ class AlgConfig(ABC):
             if step_idx == len(reco_sequences) - 1:
                 # If this is the last step we have to add the hypo alg
                 hypo_alg = self.make_hypo_alg()
-                hypo_tool = TrigMETCellHypoToolFromDict
+                hypo_tool = TrigMETHypoToolFromDict
             else:
                 # Otherwise, we add a passthrough hypo
                 hypo_alg = self.make_passthrough_hypo_alg(step_idx)

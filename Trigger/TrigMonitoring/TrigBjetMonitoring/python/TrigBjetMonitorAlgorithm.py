@@ -62,40 +62,20 @@ def TrigBjetMonConfig(inputFlags):
     # Read in the Bjet trigger chain names
 
     bjet_triglist = []
-
-    monGroup = True  # switch to Mon Groups, otherwise Run2 Menu Aware Monitoring 
-
-    if monGroup:
-
-        # Trigger list from monitoring groups
-
-        from TrigConfigSvc.TriggerConfigAccess import getHLTMonitoringAccess
-        moniAccess=getHLTMonitoringAccess(inputFlags)
-        BjetChainsE=moniAccess.monitoredChains(signatures="bJetMon",monLevels=["t0"])
-        log.info (" ==> bjet_chainlist t0: %s", BjetChainsE)
-        for chain in BjetChainsE:
-            chain = "E_"+chain
-            bjet_triglist.append(chain)
-        BjetChainsS=moniAccess.monitoredChains(signatures="bJetMon",monLevels=["shifter"])
-        log.info (" ==> bjet_chainlist shifter:  %s", BjetChainsS)
-        for chain in BjetChainsS:
-            chain = "S_"+chain
-            bjet_triglist.append(chain)
-        log.info (" ==> bjet_triglist:  %s", bjet_triglist)
-
-    else:
-
-        # Directly from TrigBjetMonitCategory
-        #from TrigBjetMonitoring import TrigBjetMonitCategory
-        #bjet_triglist = TrigBjetMonitCategory.monitoring_bjet
-        #bjet_triglist += TrigBjetMonitCategory.monitoring_mujet
-        #log.info ( " ==> bjet_triglist:  %s", bjet_triglist)
-
-        # From the hltmonList where TrigHLTMonitoring filtered the run type
-        from TrigHLTMonitoring.HLTMonTriggerList import hltmonList
-        bjet_triglist = hltmonList.monitoring_bjet
-        bjet_triglist += hltmonList.monitoring_mujet
-        log.info (" ==> bjet_triglist:  %s", bjet_triglist)
+    # Trigger list from monitoring groups
+    from TrigConfigSvc.TriggerConfigAccess import getHLTMonitoringAccess
+    moniAccess=getHLTMonitoringAccess(inputFlags)
+    BjetChainsE=moniAccess.monitoredChains(signatures="bJetMon",monLevels=["t0"])
+    log.info (" ==> bjet_chainlist t0: %s", BjetChainsE)
+    for chain in BjetChainsE:
+        chain = "E_"+chain
+        bjet_triglist.append(chain)
+    BjetChainsS=moniAccess.monitoredChains(signatures="bJetMon",monLevels=["shifter"])
+    log.info (" ==> bjet_chainlist shifter:  %s", BjetChainsS)
+    for chain in BjetChainsS:
+        chain = "S_"+chain
+        bjet_triglist.append(chain)
+    log.info (" ==> bjet_triglist:  %s", bjet_triglist)
 
     # Check if BeamType is 'collosions'
     # P.Onyisi's suggestion
@@ -431,6 +411,16 @@ def TrigBjetMonConfig(inputFlags):
             if chain[0:1] == "S" :
                 BjetMonGroup.defineHistogram(HistName, title='JF E-fraction distribution;JF E-fraction;Events',
                                              path='Shifter/'+chain[2:],xbins=50,xmin=0.0,xmax=1.0)
+
+
+            HistName = 'JFxSig_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='JF 3d significance distribution;JF 3d significance;Events',
+                                             path='Expert/'+chain[2:],xbins=50,xmin=0.0,xmax=5.0)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='JF 3d significance distribution;JF 3d significance;Events',
+                                             path='Shifter/'+chain[2:],xbins=50,xmin=0.0,xmax=5.0)
+
 
             HistName = 'JFxNVtx_tr_' + chain[2:]
             if chain[0:1] == "E" :

@@ -49,6 +49,7 @@ BOOST_AUTO_TEST_SUITE(SCT_ID_Test)
     IdDictMgr& idd = parser.parse ("IdDictParser/ATLAS_IDS.xml");
     SCT_ID sctId;
     BOOST_TEST(sctId.initialize_from_dictionary (idd) == 0);
+    BOOST_TEST((sctId.helper() == AtlasDetectorID::HelperType::SCT));
     //check valid module identifier
     const auto barrelIdentifier = sctId.module_id(0,3,3,-1);
     BOOST_TEST_MESSAGE("Module (0,3,3,-1) : "<<barrelIdentifier);

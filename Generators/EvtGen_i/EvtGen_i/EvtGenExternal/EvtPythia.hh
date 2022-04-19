@@ -56,12 +56,12 @@ public:
 
 protected:
 
-  EvtAbsExternalGen* m_pythiaEngine;
+  EvtAbsExternalGen* _pythiaEngine;
 
 private:
 
   void fixPolarisations(EvtParticle *p);
-  std::vector<std::string> m_commandList;
+  std::vector<std::string> _commandList;
 
 };
 

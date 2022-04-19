@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -29,18 +29,14 @@ namespace InDet
 
     ATH_CHECK(m_pixelDetEleCollKey.initialize());
 
-    StatusCode sc = m_summaryTool.retrieve();
-    if (sc.isFailure() || !m_summaryTool) {
-      ATH_MSG_WARNING(m_summaryTool.type() << " not found! ");
-      if (m_useModuleMap ) {
-	ATH_MSG_FATAL(m_summaryTool.type() << " is compulsory with this tool configuration");
-	return StatusCode::FAILURE;
-      }
+    ATH_CHECK( m_summaryTool.retrieve( DisableTool{!m_useModuleMap || (!m_pixelDetElStatus.empty() && !VALIDATE_STATUS_ARRAY_ACTIVATED) }));
+
+    ATH_CHECK( m_pixelDetElStatus.initialize( !m_pixelDetElStatus.empty()) );
+    if (!m_pixelDetElStatus.empty()) {
+       ATH_CHECK( m_pixelReadout.retrieve() );
     }
-    else{
-      ATH_MSG_INFO("Retrieved service " <<  m_summaryTool.type());
-    }
-   
+    ATH_CHECK( detStore()->retrieve(m_pixelId, "PixelID") );
+
     return StatusCode::SUCCESS;
   }
 
@@ -56,7 +52,7 @@ namespace InDet
   // The second argument is the pixel module the hit belongs to.  
   bool PixelClusteringToolBase::isGanged(const Identifier& rdoID,
                                   const InDetDD::SiDetectorElement* element,  
-                                  Identifier& gangedID) const
+                                  Identifier& gangedID) 
   {
     // returns true for ganged pixels. If true returns Identifier of pixel
     InDetDD::SiCellId cellID = element->cellIdFromIdentifier (rdoID);
@@ -110,10 +106,5 @@ namespace InDet
     return doClusterization(collection, pixelID, element);
   }
 
-  bool PixelClusteringToolBase::isGoodRDO(const IdentifierHash& moduleID, const Identifier& rdoID) const
-  {
-    return !m_useModuleMap || m_summaryTool->isGood(moduleID, rdoID);
-  }
-      
 
 }

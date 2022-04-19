@@ -491,10 +491,12 @@ def getMvaTESVariableDecorator():
     _name = sPrefix + 'MvaTESVariableDecorator'
     from tauRecTools.tauRecToolsConf import MvaTESVariableDecorator
     MvaTESVariableDecorator = MvaTESVariableDecorator(name = _name,
-                                                      Key_vertexInputContainer=_DefaultVertexContainer,
-                                                      VertexCorrection = True)
+                                                      Key_vertexInputContainer = _DefaultVertexContainer,
+                                                      VertexCorrection = True,
+                                                      EventShapeKey = "Kt4LCTopoOriginEventShape" if not tauFlags.inAOD() else "")
 
     return MvaTESVariableDecorator
+
 
 ########################################################################
 # MvaTESEvaluator
@@ -697,3 +699,31 @@ def getTauAODSelector():
                                       Min0pTauPt = tauFlags.tauRec0pMinPt(),
                                       MinTauPt = tauFlags.tauRecMinPt())
     return myTauAODSelector
+
+########################################################################
+# muon removal tool
+def getTauAODMuonRemovalTool():
+    _name = sPrefix + '_MuonRemoval'
+    from tauRecTools.tauRecToolsConf import TauAODLeptonRemovalTool
+    myMuonRemoval = TauAODLeptonRemovalTool(    name                   = _name,
+                                                Key_MuonInputContainer = 'Muons',
+                                                doMuonTrkRm            = tauFlags.doAODMuonRemoval(),
+                                                doMuonClsRm            = tauFlags.doAODMuonRemoval(),
+                                                muonIDWP               = 'Medium'
+    )
+    return myMuonRemoval
+########################################################################
+
+########################################################################
+# elec removal tool
+def getTauAODElecRemovalTool():
+    _name = sPrefix + '_ElecRemoval'
+    from tauRecTools.tauRecToolsConf import TauAODLeptonRemovalTool
+    myElecRemoval = TauAODLeptonRemovalTool(    name                   = _name,
+                                                Key_ElecInputContainer = 'Electrons',
+                                                doElecTrkRm            = tauFlags.doAODElecRemoval(),
+                                                doElecClsRm            = tauFlags.doAODElecRemoval(),
+                                                elecIDWP               = 'Medium'
+    )
+    return myElecRemoval
+########################################################################

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**   @file SCT_Clusterization.cxx
@@ -40,12 +40,7 @@ namespace InDet {
 
     // Get the conditions summary service (continue anyway, just check the pointer 
     // later and declare everything to be 'good' if it is nullptr)
-    if (m_checkBadModules.value()) {
-      ATH_MSG_INFO("Clusterization has been asked to look at bad module info");
-      ATH_CHECK(m_pSummaryTool.retrieve());
-    } else {
-      m_pSummaryTool.disable();
-    }
+    ATH_CHECK( m_pSummaryTool.retrieve( DisableTool{!m_checkBadModules.value() || (!m_sctDetElStatus.empty() && !VALIDATE_STATUS_ARRAY_ACTIVATED)} ) );
 
     m_clusterContainerLinkKey = m_clusterContainerKey.key();
 
@@ -55,6 +50,8 @@ namespace InDet {
     ATH_CHECK(m_clusterContainerCacheKey.initialize(not m_clusterContainerCacheKey.key().empty()));
     ATH_CHECK(m_flaggedCondDataKey.initialize());
     ATH_CHECK(m_flaggedCondCacheKey.initialize(not m_flaggedCondCacheKey.key().empty()));
+
+    ATH_CHECK(m_sctDetElStatus.initialize( !m_sctDetElStatus.empty() ));
 
     // Get the clustering tool
     ATH_CHECK(m_clusteringTool.retrieve());
@@ -139,6 +136,11 @@ namespace InDet {
         dontDoClusterization = true;
       }
     }
+    SG::ReadHandle<InDet::SiDetectorElementStatus> sctDetElStatus;
+    if (!m_sctDetElStatus.empty()) {
+       sctDetElStatus=SG::ReadHandle<InDet::SiDetectorElementStatus>(m_sctDetElStatus, ctx);
+       ATH_CHECK( sctDetElStatus.isValid() ? StatusCode::SUCCESS : StatusCode::FAILURE);
+    }
 
     if (not dontDoClusterization) {
       if (not m_roiSeeded.value()) { //Full-scan mode
@@ -150,7 +152,9 @@ namespace InDet {
             ATH_MSG_DEBUG("Item already in cache , Hash=" << rd->identifyHash());
             continue;
           }
-          bool goodModule{m_checkBadModules.value() ? m_pSummaryTool->isGood(rd->identifyHash()) : true};
+          bool goodModule{m_checkBadModules.value() ? ( !m_sctDetElStatus.empty() ?  sctDetElStatus->isGood( rd->identifyHash() ) : m_pSummaryTool->isGood(rd->identifyHash())) : true};
+          VALIDATE_STATUS_ARRAY(m_checkBadModules.value()  && !m_sctDetElStatus.empty(), sctDetElStatus->isGood( rd->identifyHash() ), m_pSummaryTool->isGood(rd->identifyHash()));
+
 	  if (!goodModule) ATH_MSG_DEBUG(" module status is bad");
           // Check the RDO is not empty and that the wafer is good according to the conditions
           if ((not rd->empty()) and goodModule) {
@@ -166,7 +170,10 @@ namespace InDet {
               }
             }
             // Use one of the specific clustering AlgTools to make clusters    
-            std::unique_ptr<SCT_ClusterCollection> clusterCollection{m_clusteringTool->clusterize(*rd, *m_idHelper)};
+            std::unique_ptr<SCT_ClusterCollection> clusterCollection{m_clusteringTool->clusterize(*rd, *m_idHelper,
+                                                                                                  !m_sctDetElStatus.empty()
+                                                                                                  ? sctDetElStatus.cptr()
+                                                                                                  : nullptr) };
             if (clusterCollection) {
               if (not clusterCollection->empty()) {
                 const IdentifierHash hash{clusterCollection->identifyHash()};
@@ -199,7 +206,8 @@ namespace InDet {
             bool goodModule;
             {
               Monitored::ScopedTimer time_SummaryTool(mnt_timer_SummaryTool);
-	      goodModule = {m_checkBadModules.value() ? m_pSummaryTool->isGood(id) : true};
+	      goodModule = {m_checkBadModules.value() ? ( !m_sctDetElStatus.empty() ?  sctDetElStatus->isGood( id ) :  m_pSummaryTool->isGood(id)) : true};
+              VALIDATE_STATUS_ARRAY(m_checkBadModules.value() && !m_sctDetElStatus.empty(), sctDetElStatus->isGood( id ), m_pSummaryTool->isGood(id));
 	      if (!goodModule) ATH_MSG_VERBOSE("module status flagged as BAD");
             }
             // Check the RDO is not empty and that the wafer is good according to the conditions
@@ -228,7 +236,10 @@ namespace InDet {
             // Use one of the specific clustering AlgTools to make clusters
             {
               Monitored::ScopedTimer time_Clusterize(mnt_timer_Clusterize);
-              std::unique_ptr<SCT_ClusterCollection> clusterCollection{m_clusteringTool->clusterize(*RDO_Collection, *m_idHelper)};
+              std::unique_ptr<SCT_ClusterCollection> clusterCollection{m_clusteringTool->clusterize(*RDO_Collection, *m_idHelper,
+                                                                                                    !m_sctDetElStatus.empty()
+                                                                                                    ? sctDetElStatus.cptr()
+                                                                                                    : nullptr)};
               if (clusterCollection and (not clusterCollection->empty())) {
                 ATH_MSG_VERBOSE("REGTEST: SCT : clusterCollection contains " << clusterCollection->size() << " clusters");
                 ATH_CHECK(lock.addOrDelete(std::move(clusterCollection)));

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ref. SOS051V07,S0S052V06 
@@ -47,7 +47,7 @@ void TGCWireTripletSB::createSlaveBoardOut()
 
 void TGCWireTripletSB::doCoincidence()
 {
-  TGCHitPattern* pattern[2];
+  const TGCHitPattern* pattern[2];
   // pattern[0] has hit pattern of layer0[36-71].
   // pattern[1] has hit pattern of layer1[0-35] and layer2[36-71] .
   pattern[0] = m_patchPanelOut->getHitPattern(0);

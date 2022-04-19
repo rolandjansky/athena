@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -54,7 +54,7 @@ Trk::Volume::Volume(const Trk::Volume& vol, const Amg::Transform3D& shift)
 {}
 
 // destructor
-Trk::Volume::~Volume() {}
+Trk::Volume::~Volume() = default;
 
 // assignment operator
 Trk::Volume&

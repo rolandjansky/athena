@@ -278,6 +278,10 @@ namespace top {
         m_muon_trigger_sf_config = "HLT_mu26_ivarmedium_OR_HLT_mu50";
       }
 
+      if (m_config->muonForceTrigger() != " "){ 
+        m_muon_trigger_sf_config = m_config->muonForceTrigger();
+      }
+
       ATH_MSG_DEBUG("Muon trigger scale factor config is : " + m_muon_trigger_sf_config);
       ATH_MSG_DEBUG("RunNumber (0 < 2015 < 284484 < 2016 < 324320 < 2017) : ");
       ATH_MSG_DEBUG(runNumber);

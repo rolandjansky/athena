@@ -78,6 +78,8 @@ public:
   TProfile2D * BookTProfile2D(const std::string &name, const std::string &labels, const int nBinsX, double* binsX, const int nBinsY, double* binsY, bool prependDir=true, bool useRMS=false);
   /// Book a (1-D) TEfficiency histogram
   TEfficiency * BookTEfficiency(const std::string &name, const std::string & labels, const int nBinsX, const float xlo, const float xhi, const bool prependDir = true);
+  /// Book a (2-D) TEfficiency histogram
+  TEfficiency * BookTEfficiency(const std::string &name, const std::string & labels, const int nBinsX, const float xlo, const float xhi, const int nBinsy, const float ylo, const float yhi, const bool prependDir = true);
   ///@}
   /// Book a TTree
   TTree* BookTree(const std::string & name, bool prependDir = true);

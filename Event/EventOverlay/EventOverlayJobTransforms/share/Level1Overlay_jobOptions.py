@@ -41,9 +41,9 @@ if DetFlags.overlay.LVL1_on():
     # new L1Calo overlaying
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
     if commonGeoFlags.Run()=="RUN3":
-        from LArL1Sim.LArSCL1Getter import *
+        from LArL1Sim.LArSCL1Getter import LArSCL1Getter
         theLArSCL1Getter = LArSCL1Getter()
-        theLArSCL1Getter.BkgDigitKey="Bkg_LArDigitSCL2"
+        theLArSCL1Getter.LArSCL1Maker().BkgDigitKey="Bkg_LArDigitSCL2"
         from LArROD.LArSCellGetter import LArSCellGetter
         theLArSCellGetter = LArSCellGetter()
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( SCT_ConditionsTools )
@@ -15,7 +15,7 @@ atlas_add_library( SCT_ConditionsToolsLib
                    PUBLIC_HEADERS SCT_ConditionsTools
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    LINK_LIBRARIES GaudiKernel GeoModelInterfaces Identifier InDetByteStreamErrors InDetConditionsSummaryService InDetReadoutGeometry RDBAccessSvcLib SCT_CablingLib SCT_ConditionsData
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel GeoModelUtilities InDetIdentifier SiPropertiesToolLib StoreGateLib )
+                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel GeoModelUtilities InDetIdentifier SiPropertiesToolLib StoreGateLib SCT_ReadoutGeometry)
 
 atlas_add_component ( SCT_ConditionsTools
                       src/components/*.cxx

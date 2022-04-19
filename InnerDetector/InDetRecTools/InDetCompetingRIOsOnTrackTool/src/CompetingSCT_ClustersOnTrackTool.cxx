@@ -56,7 +56,7 @@ InDet::CompetingSCT_ClustersOnTrackTool::CompetingSCT_ClustersOnTrackTool(
 // Destructor
 ///////////////////////////////////////////////////////////////////
 
-InDet::CompetingSCT_ClustersOnTrackTool::~CompetingSCT_ClustersOnTrackTool() {}
+InDet::CompetingSCT_ClustersOnTrackTool::~CompetingSCT_ClustersOnTrackTool() = default;
 
 ///////////////////////////////////////////////////////////////////
 // Initialisation

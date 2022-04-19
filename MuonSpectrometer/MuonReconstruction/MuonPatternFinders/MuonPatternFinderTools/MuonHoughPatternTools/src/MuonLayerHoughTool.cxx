@@ -1671,7 +1671,7 @@ namespace Muon {
         typedef PRD_MultiTruthCollection::const_iterator iprdt;
         std::pair<iprdt, iprdt> range = truthCol.equal_range(id);
         // Loop over particles contributing to this cluster
-        for (iprdt i = range.first; i != range.second; i++) {
+        for (iprdt i = range.first; i != range.second; ++i) {
             if (!i->second.isValid()) {
                 ATH_MSG_WARNING("Unexpected invalid HepMcParticleLink in PRD_MultiTruthCollection");
             } else {

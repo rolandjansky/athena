@@ -30,9 +30,7 @@ egammaMVACalibTool::egammaMVACalibTool(const std::string& name) :
 {
 }
 
-egammaMVACalibTool::~egammaMVACalibTool()
-{
-}
+egammaMVACalibTool::~egammaMVACalibTool() = default;
 
 StatusCode egammaMVACalibTool::initialize()
 {

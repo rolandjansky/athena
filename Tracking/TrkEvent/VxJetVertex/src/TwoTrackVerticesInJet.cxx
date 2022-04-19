@@ -27,7 +27,7 @@
 namespace Trk 
 {
   
-  TwoTrackVerticesInJet::TwoTrackVerticesInJet() {}
+  TwoTrackVerticesInJet::TwoTrackVerticesInJet() = default;
 
   TwoTrackVerticesInJet::TwoTrackVerticesInJet(std::vector<const xAOD::Vertex*> twoTrackVertices,
                                                std::vector<const TrackParticleBase*> neutralTrackOfVertex)

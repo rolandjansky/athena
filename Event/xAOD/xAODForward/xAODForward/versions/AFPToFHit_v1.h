@@ -7,11 +7,7 @@
 
 // EDM include(s):
 #include "AthContainers/AuxElement.h"
-#include "AthLinks/ElementLink.h"
 #include "xAODForward/AFPStationID.h"
-
-// needed for forward declaration
-#include "AthContainers/DataVector.h"
 
 
 namespace xAOD {

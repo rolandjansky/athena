@@ -7,23 +7,6 @@ from AthenaConfiguration.ComponentFactory     import CompFactory
 #
 # -------------------------------------------------------------------------
 
-def ITkDetailedTrackTruthMakerCfg(flags, Tracks, DetailedTruth, name='Maker',**kwargs) :
-    acc = ComponentAccumulator()
-    kwargs.setdefault("TrackCollectionName", Tracks)
-    kwargs.setdefault("DetailedTrackTruthName", DetailedTruth)
-    kwargs.setdefault("TruthNamePixel", 'PRD_MultiTruthITkPixel')
-    kwargs.setdefault("TruthNameSCT", 'PRD_MultiTruthITkStrip')
-    kwargs.setdefault("TruthNameTRT", '')
-
-    # this is how the truth maker gets to know which detector is on ...
-    if (not flags.Detector.EnableITkPixel):
-        kwargs.setdefault("TruthNamePixel", "")
-    if (not flags.Detector.EnableITkStrip):
-        kwargs.setdefault("TruthNameSCT", "")
-
-    acc.addEventAlgo(CompFactory.InDet.InDetDetailedTrackTruthMaker(name = DetailedTruth+name, **kwargs))
-    return acc
-
 def ITkTruthMatchToolCfg(flags, name='ITkTruthMatchTool', **kwargs) :
     acc = ComponentAccumulator()
 
@@ -51,6 +34,7 @@ def ITkTrackTruthCfg(flags, Tracks = "CombinedITkTracks", DetailedTruth = "Combi
     #
     # --- Enable the detailed track truth
     #
+    from InDetConfig.InDetTruthAlgsConfig import ITkDetailedTrackTruthMakerCfg
     acc.merge(ITkDetailedTrackTruthMakerCfg(flags, Tracks, DetailedTruth))
     #
     # --- Detailed to old TrackTruth
@@ -85,7 +69,7 @@ if __name__ == "__main__":
     top_acc.merge(PoolReadCfg(ConfigFlags))
 
     ################## SiliconPreProcessing Configurations ###################
-    from InDetConfig.ITkSiliconPreProcessing import ITkRecPreProcessingSiliconCfg
+    from InDetConfig.SiliconPreProcessing import ITkRecPreProcessingSiliconCfg
     top_acc.merge(ITkRecPreProcessingSiliconCfg(ConfigFlags))
     
     #//// TrackingSiPatternConfig configurations from Temporary location /////

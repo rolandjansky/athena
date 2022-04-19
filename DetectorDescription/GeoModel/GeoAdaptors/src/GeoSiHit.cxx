@@ -39,16 +39,6 @@ const InDetDD::SCT_DetectorManager* GeoSiHit::initSctMgr()
   return sct;
 }
 
-
-const InDetDD::PixelDetectorManager* GeoSiHit::initPlrMgr()
-{
-  ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "GeoSiHit");
-  const InDetDD::PixelDetectorManager* plr = nullptr;
-  detStore->retrieve(plr,"PLR").isFailure();
-  return plr;
-}
-
-
 const HGTD_DetectorManager* GeoSiHit::initHgtdMgr()
 {
   ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "GeoSiHit");
@@ -57,6 +47,13 @@ const HGTD_DetectorManager* GeoSiHit::initHgtdMgr()
   return hgtd;
 }
 
+const InDetDD::PixelDetectorManager* GeoSiHit::initPlrMgr()
+{
+  ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "GeoSiHit");
+  const InDetDD::PixelDetectorManager* plr = nullptr;
+  detStore->retrieve(plr,"PLR").isFailure();
+  return plr;
+}
 
 const PixelID* GeoSiHit::initPixID()
 {
@@ -68,7 +65,6 @@ const PixelID* GeoSiHit::initPixID()
   return pix;
 }
 
-
 const SCT_ID* GeoSiHit::initSctID()
 {
   ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "GeoSiHit");
@@ -78,7 +74,6 @@ const SCT_ID* GeoSiHit::initSctID()
   }
   return sct;
 }
-
 
 const HGTD_ID* GeoSiHit::initHgtdID()
 {
@@ -90,6 +85,15 @@ const HGTD_ID* GeoSiHit::initHgtdID()
   return hgtd;
 }
 
+const PLR_ID* GeoSiHit::initPlrID()
+{
+  ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "GeoSiHit");
+  const PLR_ID* plr = nullptr;
+  if(detStore->retrieve(plr,"PLR_ID").isFailure()) {
+    std::abort();
+  }
+  return plr;
+}
 
 const InDetDD::PixelDetectorManager* GeoSiHit::pixMgr() const
 {
@@ -105,16 +109,16 @@ const InDetDD::SCT_DetectorManager*  GeoSiHit::sctMgr() const
 }
 
 
-const InDetDD::PixelDetectorManager* GeoSiHit::plrMgr() const
+const HGTD_DetectorManager* GeoSiHit::hgtdMgr() const
 {
-  const InDetDD::PixelDetectorManager* const mgr = initPlrMgr();
+  const HGTD_DetectorManager* const mgr = initHgtdMgr();
   return mgr;
 }
 
 
-const HGTD_DetectorManager* GeoSiHit::hgtdMgr() const
+const InDetDD::PixelDetectorManager* GeoSiHit::plrMgr() const
 {
-  const HGTD_DetectorManager* const mgr = initHgtdMgr();
+  const InDetDD::PixelDetectorManager* const mgr = initPlrMgr();
   return mgr;
 }
 
@@ -136,5 +140,12 @@ const SCT_ID* GeoSiHit::sctID() const
 const HGTD_ID* GeoSiHit::hgtdID() const
 {
   const HGTD_ID* const id = initHgtdID();
+  return id;
+}
+
+
+const PLR_ID* GeoSiHit::plrID() const
+{
+  const PLR_ID* const id = initPlrID();
   return id;
 }

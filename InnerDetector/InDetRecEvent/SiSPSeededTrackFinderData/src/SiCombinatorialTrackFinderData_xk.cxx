@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -11,8 +11,7 @@
 
 namespace InDet {
 
-  SiCombinatorialTrackFinderData_xk::SiCombinatorialTrackFinderData_xk() {
-  }
+  SiCombinatorialTrackFinderData_xk::SiCombinatorialTrackFinderData_xk() = default;
 
   void SiCombinatorialTrackFinderData_xk::setTools(const Trk::IPatternParametersPropagator* propTool,
                                                    const Trk::IPatternParametersUpdator* updatorTool,
@@ -158,7 +157,7 @@ namespace InDet {
     return m_simpleTrack;
   }
 
-  bool SiCombinatorialTrackFinderData_xk::flagToReturnFailedTrack() {
+  bool SiCombinatorialTrackFinderData_xk::flagToReturnFailedTrack() const {
     return m_flagToReturnFailedTrack;
   }
 

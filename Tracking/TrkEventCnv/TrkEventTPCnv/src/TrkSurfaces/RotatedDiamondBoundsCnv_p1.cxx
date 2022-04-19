@@ -28,9 +28,15 @@ void RotatedDiamondBoundsCnv_p1 :: persToTrans( const Trk :: RotatedDiamondBound
   transObj->m_alpha2                            = persObj->m_alpha2;  
 }
 
-void RotatedDiamondBoundsCnv_p1 :: transToPers( const Trk :: RotatedDiamondBounds    * /**transObj*/,
-                                               Trk :: RotatedDiamondBounds_p1 * /**persObj*/,
+void RotatedDiamondBoundsCnv_p1 :: transToPers( const Trk :: RotatedDiamondBounds  *transObj,
+                                               Trk :: RotatedDiamondBounds_p1      *persObj,
                                                MsgStream               & )
 {
-  throw std::runtime_error("RotatedDiamondBoundsCnv_p1::transToPers is deprecated!");   
+ persObj->m_minHalfX  = transObj->minHalflengthX();
+ persObj->m_medHalfX  = transObj->medHalflengthX();
+ persObj->m_maxHalfX  = transObj->maxHalflengthX();
+ persObj->m_halfY1    = transObj->halflengthY1();
+ persObj->m_halfY2    = transObj->halflengthY2();
+ persObj->m_alpha1    = transObj->alpha1();
+ persObj->m_alpha2    = transObj->alpha2();
 }

@@ -360,7 +360,7 @@ std::string fullreplace( std::string s, const std::string& s2, const std::string
   return s;
 } 
 
-void print_pad( const std::string s ) { 
+void print_pad( const std::string& s ) { 
   std::cout << "Printing " << s << std::endl;
   gPad->Print( s.c_str() );
 }
@@ -1345,7 +1345,7 @@ int main(int argc, char** argv) {
 
     tc->cd();
 
-    std::string atlaslabel = atlaslabel_tmp;
+    const std::string& atlaslabel = atlaslabel_tmp;
 
     
     if ( multipanel ) { 
@@ -1394,8 +1394,8 @@ int main(int argc, char** argv) {
 	if ( pos!=std::string::npos ) yaxis.replace( pos, xregex.size(), xpattern );  
       }
 
-      AxisInfo xinfo = histo.xaxis(); 
-      AxisInfo yinfo = histo.yaxis(); 
+      const AxisInfo& xinfo = histo.xaxis(); 
+      const AxisInfo& yinfo = histo.yaxis(); 
 
       int npanel = nrowsp*(i/nrowsp) + i%nrowsp + 1 ;
       
@@ -1479,8 +1479,9 @@ int main(int argc, char** argv) {
       if ( ypos>0.5 ) ylo -= Nlines*deltay;
       else            yhi += Nlines*deltay;
       
+      ypositions.reserve(Nlines);
       for ( int ilines=0 ; ilines<Nlines ; ilines++ ) { 
-	ypositions.push_back( yhi - deltay*(ilines+0.5) );
+        ypositions.push_back( yhi - deltay*(ilines+0.5) );
       }
 
       // specify different legends for efficiencies or residuals?
@@ -1563,8 +1564,8 @@ int main(int argc, char** argv) {
 	  h2test->GetXaxis()->SetTitle(xaxis.c_str());
 	  h2test->GetYaxis()->SetTitle(yaxis.c_str());
           
-	  AxisInfo xinfo = histo.xaxis(); 
-	  AxisInfo yinfo = histo.yaxis(); 
+	  const AxisInfo& xinfo = histo.xaxis(); 
+	  const AxisInfo& yinfo = histo.yaxis(); 
 	  
 
 	  std::cout << xinfo << std::endl;

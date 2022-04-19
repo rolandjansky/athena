@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -17,13 +17,12 @@
 
 namespace Analysis
 {
-  
 
-  ElectronConstituent::ElectronConstituent()
-  {  } 
-  
-  ElectronConstituent::ElectronConstituent(NameType& name)
-  { m_name = name; }  
+ElectronConstituent::ElectronConstituent() = default;
+
+ElectronConstituent::ElectronConstituent(NameType& name)
+{
+  m_name = name; }  
   
   
   void ElectronConstituent::setName(NameType& name) {m_name = name;}      

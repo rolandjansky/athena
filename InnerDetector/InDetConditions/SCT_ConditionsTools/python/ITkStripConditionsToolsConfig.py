@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AtlasGeoModel.GeoModelConfig import GeoModelCfg
@@ -21,6 +21,7 @@ def ITkStripConditionsSummaryToolCfg(flags, name="ITkStripConditionsSummaryTool"
         ConditionsTools += [ acc.popToolsAndMerge(ITkStripModuleVetoCfg(flags)) ]
 
     kwargs.setdefault("ConditionsTools", ConditionsTools)
+    kwargs.setdefault("SCTDetEleCollKey", "ITkStripDetectorElementCollection")
     acc.setPrivateTools(CompFactory.SCT_ConditionsSummaryTool(name, **kwargs))
     return acc
 

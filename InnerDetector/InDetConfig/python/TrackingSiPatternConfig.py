@@ -244,9 +244,10 @@ def TrackingSiPatternCfg(flags, InputCollections = None, ResolvedTrackCollection
     # --- get list of already associated hits (always do this, even if no other tracking ran before)
     #
     if (len(InputCollections) > 0) and flags.InDet.Tracking.ActivePass.usePrdAssociationTool:
-        acc.merge(TC.InDetTrackPRD_AssociationCfg(flags,
-                                                  name = 'InDetTrackPRD_Association' + flags.InDet.Tracking.ActivePass.extension,
-                                                  TracksName = list(InputCollections)))
+        from InDetConfig.InDetTrackPRD_AssociationConfig import InDetTrackPRD_AssociationCfg
+        acc.merge(InDetTrackPRD_AssociationCfg(flags,
+                                               name = 'InDetTrackPRD_Association' + flags.InDet.Tracking.ActivePass.extension,
+                                               TracksName = list(InputCollections)))
 
     # ------------------------------------------------------------
     #
