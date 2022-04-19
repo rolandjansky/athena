@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -124,10 +124,11 @@ TileGeoG4CalibSD::TileGeoG4CalibSD(const G4String& name, const std::vector<std::
   m_tile_eep->SetEscapedFlag(false);
   m_tile_eep->SetEnergy5(0.);
   m_tile_eep->SetEscapedEnergy(0.);
+  std::unique_ptr<CaloG4::VEscapedEnergyProcessing> eep(m_tile_eep);
 
   // @UPDATE: this is thread-safe now. EscapedEnergyRegistry is not a singleton in MT mode
   CaloG4::EscapedEnergyRegistry* registry = CaloG4::EscapedEnergyRegistry::GetInstance();
-  registry->AddAndAdoptProcessing("Tile", m_tile_eep);
+  registry->AddAndAdoptProcessing("Tile", std::move(eep));
 
 #ifdef HITSINFO    //added by Sergey
   if (doHitsNTup) {

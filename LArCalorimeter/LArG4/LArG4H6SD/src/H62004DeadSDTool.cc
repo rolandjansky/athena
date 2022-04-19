@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "H62004DeadSDTool.h"
@@ -52,17 +52,14 @@ namespace LArG4
       // I still think we can do better than this, though.
       // UPDATE: this is thread-safe now
       ATH_MSG_DEBUG("Creating EscapedEnergyProcessing and adding to registry");
-      CaloG4::VEscapedEnergyProcessing* eep =
-        new EscapedEnergyProcessing( uninstSD.get() );
+      std::unique_ptr<CaloG4::VEscapedEnergyProcessing> eep(new EscapedEnergyProcessing(uninstSD.get()));
       CaloG4::EscapedEnergyRegistry* registry =
         CaloG4::EscapedEnergyRegistry::GetInstance();
-      registry->AddAndAdoptProcessing( "LAr::", eep );
-      CaloG4::VEscapedEnergyProcessing* eep1 =
-        new EscapedEnergyProcessing( uninstSD.get() );
-      registry->AddAndAdoptProcessing( "LArMgr::", eep1 );
-      CaloG4::VEscapedEnergyProcessing* eep2 =
-        new EscapedEnergyProcessing( uninstSD.get() );
-      registry->AddAndAdoptProcessing( "LAr", eep2 );
+      registry->AddAndAdoptProcessing( "LAr::", std::move(eep) );
+      std::unique_ptr<CaloG4::VEscapedEnergyProcessing> eep1(new EscapedEnergyProcessing(uninstSD.get()));
+      registry->AddAndAdoptProcessing( "LArMgr::", std::move(eep1) );
+      std::unique_ptr<CaloG4::VEscapedEnergyProcessing> eep2(new EscapedEnergyProcessing(uninstSD.get()));
+      registry->AddAndAdoptProcessing( "LAr", std::move(eep2) );
 
       sdWrapper->addSD( std::move(uninstSD) );
     }

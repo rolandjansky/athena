@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArG4H62004DeadSDTool.h"
@@ -48,15 +48,15 @@ StatusCode LArG4H62004DeadSDTool::initializeSD()
   if (m_do_eep){
     std::cout<<"new EscapedEnergyProcessing"<<std::endl;
     // Initialize the escaped energy processing for LAr volumes.
-    CaloG4::VEscapedEnergyProcessing* eep = new EscapedEnergyProcessing(m_uninstSD);
+    std::unique_ptr<CaloG4::VEscapedEnergyProcessing> eep(new EscapedEnergyProcessing(m_uninstSD));
 
     std::cout<<"EER instance"<<std::endl;
     CaloG4::EscapedEnergyRegistry* registry = CaloG4::EscapedEnergyRegistry::GetInstance();
-    registry->AddAndAdoptProcessing( "LAr::", eep );
-    CaloG4::VEscapedEnergyProcessing* eep1 = new EscapedEnergyProcessing(m_uninstSD);
-    registry->AddAndAdoptProcessing( "LArMgr::", eep1 );
-    CaloG4::VEscapedEnergyProcessing* eep2 = new EscapedEnergyProcessing(m_uninstSD);
-    registry->AddAndAdoptProcessing( "LAr", eep2 );
+    registry->AddAndAdoptProcessing( "LAr::", std::move(eep) );
+    std::unique_ptr<CaloG4::VEscapedEnergyProcessing> eep1(new EscapedEnergyProcessing(m_uninstSD));
+    registry->AddAndAdoptProcessing( "LArMgr::", std::move(eep1) );
+    std::unique_ptr<CaloG4::VEscapedEnergyProcessing> eep2(new EscapedEnergyProcessing(m_uninstSD));
+    registry->AddAndAdoptProcessing( "LAr", std::move(eep2) );
   }
 
   return StatusCode::SUCCESS;
