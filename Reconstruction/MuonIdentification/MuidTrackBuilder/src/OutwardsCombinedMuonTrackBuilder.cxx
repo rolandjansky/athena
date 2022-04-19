@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -31,21 +31,7 @@ namespace Rec {
 
     OutwardsCombinedMuonTrackBuilder::OutwardsCombinedMuonTrackBuilder(const std::string& type, const std::string& name,
                                                                        const IInterface* parent) :
-        AthAlgTool(type, name, parent),
-        m_allowCleanerVeto(true),
-        m_cleanCombined(true),
-        m_recoverCombined(false),
-        m_IDMS_xySigma(1. * Gaudi::Units::mm),
-        m_IDMS_rzSigma(1. * Gaudi::Units::mm),
-        m_addIDMSerrors(true) {
-        declareInterface<ICombinedMuonTrackBuilder>(this);
-        declareProperty("AllowCleanerVeto", m_allowCleanerVeto);
-        declareProperty("CleanCombined", m_cleanCombined);
-        declareProperty("RecoverCombined", m_recoverCombined);
-        declareProperty("IDMS_xySigma", m_IDMS_xySigma);
-        declareProperty("IDMS_rzSigma", m_IDMS_rzSigma);
-        declareProperty("AddIDMSerrors", m_addIDMSerrors);
-    }
+        AthAlgTool(type, name, parent) {}
 
     StatusCode OutwardsCombinedMuonTrackBuilder::initialize() {
         ATH_MSG_INFO("Initializing OutwardsCombinedMuonTrackBuilder.");
@@ -83,8 +69,8 @@ namespace Rec {
         ATH_CHECK(m_trackingVolumesSvc.retrieve());
         ATH_MSG_DEBUG("Retrieved Svc " << m_trackingVolumesSvc);
         m_calorimeterVolume =
-            std::make_unique<const Trk::Volume>(m_trackingVolumesSvc->volume(Trk::ITrackingVolumesSvc::MuonSpectrometerEntryLayer));
-        m_indetVolume = std::make_unique<const Trk::Volume>(m_trackingVolumesSvc->volume(Trk::ITrackingVolumesSvc::CalorimeterEntryLayer));
+            std::make_unique<Trk::Volume>(m_trackingVolumesSvc->volume(Trk::ITrackingVolumesSvc::MuonSpectrometerEntryLayer));
+        m_indetVolume = std::make_unique<Trk::Volume>(m_trackingVolumesSvc->volume(Trk::ITrackingVolumesSvc::CalorimeterEntryLayer));
         return StatusCode::SUCCESS;
     }
 
@@ -317,8 +303,7 @@ namespace Rec {
             std::unique_ptr<Trk::Track> cleanTrack = m_cleaner->clean(*fittedTrack, ctx);
             if (!cleanTrack) {
                 ATH_MSG_DEBUG(" cleaner veto ");
-
-                if (m_allowCleanerVeto) { fittedTrack.reset(); }
+                if (m_allowCleanerVeto && normalizedChi2(*fittedTrack)> m_badFitChi2) { fittedTrack.reset(); }
             } else if (!(*cleanTrack->perigeeParameters() == *fittedTrack->perigeeParameters())) {
                 ATH_MSG_VERBOSE(" found and removed spectrometer outlier(s) ");
                 // this will probably never be fixed as the outwards combined
@@ -369,7 +354,7 @@ namespace Rec {
             std::unique_ptr<Trk::Track> cleanTrack = m_cleaner->clean(*fittedTrack, ctx);
             if (!cleanTrack) {
                 ATH_MSG_DEBUG(" cleaner veto ");
-                if (m_allowCleanerVeto) { fittedTrack.reset(); }
+                if (m_allowCleanerVeto && normalizedChi2(*fittedTrack)> m_badFitChi2) { fittedTrack.reset(); }
             } else if (!(*cleanTrack->perigeeParameters() == *fittedTrack->perigeeParameters())) {
                 ATH_MSG_VERBOSE("  found and removed spectrometer outlier(s) ");
                 // this will probably never be fixed as the outwards builder is
@@ -534,7 +519,7 @@ namespace Rec {
         sigmaDeltaPhiIDMS2 *= sigmaDeltaPhiIDMS2;
         sigmaDeltaThetaIDMS2 *= sigmaDeltaThetaIDMS2;
 
-        auto trackStateOnSurfaces = Trk::TrackStates();
+        Trk::TrackStates trackStateOnSurfaces{};
         trackStateOnSurfaces.reserve(track.trackStateOnSurfaces()->size());
 
         t = track.trackStateOnSurfaces()->begin();
@@ -646,5 +631,17 @@ namespace Rec {
         covarianceMatrix = cov.similarity(jacobian);
 
         return std::make_unique<Trk::PseudoMeasurementOnTrack>(localParameters, covarianceMatrix, surface);
+    }
+    double OutwardsCombinedMuonTrackBuilder::normalizedChi2(const Trk::Track& track) const {
+        double chi2 = 999999.;
+        if (track.fitQuality()) {
+            if (track.fitQuality()->numberDoF()) {
+                chi2 = track.fitQuality()->chiSquared() / track.fitQuality()->doubleNumberDoF();
+            } else {
+                chi2 = m_badFitChi2;
+            }
+        }
+
+        return chi2;
     }
 }  // namespace Rec
