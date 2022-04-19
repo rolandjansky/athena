@@ -60,7 +60,7 @@ public:
     enum class HelperType{
       Unimplemented = -1,
       Silicon = 0,
-      Pixel, SCT, TRT, 
+      Pixel, PLR, SCT, TRT, 
       //inherits from CaloIDHelper
       LArEM, LArFCal, LArFCalSuperCell,
       LArHEC, LArHEC_SuperCell, LARMiniFCal, 
