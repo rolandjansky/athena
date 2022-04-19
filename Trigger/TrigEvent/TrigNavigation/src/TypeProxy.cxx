@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TypeProxy.cxx 610817 2014-08-07 18:30:36Z lheinric $
 
 // EDM include(s):
 #include "AthContainersInterfaces/IAuxStore.h"
@@ -11,12 +10,6 @@
 #include "TrigNavigation/TypeProxy.h"
 
 namespace HLTNavDetails {
-
-   ITypeProxy::ITypeProxy()
-      : m_clid( 0 ), m_typeName( "" ), m_key( "" ), m_proxy( 0 ),
-        m_ncPointer( 0 ), m_pointer( 0 ), m_isAuxVectorBase( false ) {
-
-   }
 
    StatusCode ITypeProxy::sync( StoreGateSvc* sg, const std::string& key ) {
 
