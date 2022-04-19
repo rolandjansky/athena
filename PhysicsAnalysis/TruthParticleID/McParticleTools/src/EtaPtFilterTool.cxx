@@ -22,6 +22,7 @@
 
 // McParticleTools includes
 #include "EtaPtFilterTool.h"
+#include "copyBeamParticles.h"
 
 #include "AtlasHepMC/Flow.h"
 /////////////////////////////////////////////////////////////////// 
@@ -141,6 +142,8 @@ StatusCode EtaPtFilterTool::buildMcAod( const McEventCollection* in,McEventColle
       outEvt = 0;
       continue;
     }
+
+    TruthHelper::copyBeamParticles (*inEvt, *outEvt);
 
     out->push_back( outEvt );
   }
