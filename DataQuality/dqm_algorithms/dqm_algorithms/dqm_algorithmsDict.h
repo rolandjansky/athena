@@ -1,9 +1,12 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DQM_ALGORITHMS_DQM_ALGORITHMSDICT_H
 #define DQM_ALGORITHMS_DQM_ALGORITHMSDICT_H
+
+#include "CxxUtils/no_bitwise_op_warning.h"
+#include "CxxUtils/no_sizeof_pointer_div_warning.h"
 
 #include "dqm_algorithms/AddReference.h"
 #include "dqm_algorithms/AddReference_All_Bins_Filled.h"

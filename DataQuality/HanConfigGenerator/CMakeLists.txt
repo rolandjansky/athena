@@ -12,6 +12,6 @@ find_package( ROOT COMPONENTS Graf Gpad Cint Core Tree MathCore Hist RIO pthread
 atlas_add_executable( hcg
                       src/hcg.cxx src/addnode.cxx
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} )
+                      LINK_LIBRARIES CxxUtils ${ROOT_LIBRARIES} )
 
 
