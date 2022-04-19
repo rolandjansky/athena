@@ -7,7 +7,6 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/IChronoStatSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "MuonCondInterface/IMDT_MapConversion.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
@@ -33,8 +32,6 @@ private:
     std::string m_OnlineName;
     Identifier m_OfflineName;
     Identifier m_Online_empty;
-
-    IChronoStatSvc* m_chronoSvc;
 
     std::string m_chrono1;
     std::string m_chrono2;

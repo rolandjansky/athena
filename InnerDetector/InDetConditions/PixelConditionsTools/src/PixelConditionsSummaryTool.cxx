@@ -485,7 +485,7 @@ std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> PixelC
             unsigned int readout_technology_flags = readout_technology_mask & Pixel::makeReadoutTechnologyBit(readout_technology);
 
             // set to false if has one of the considered errors and the readout technology is considered.
-            status.at(element_i) = status.at(element_i) &  not (   readout_technology_flags
+            status.at(element_i) = status.at(element_i) &&  not (   readout_technology_flags
                                                                 &&  ( !active_only
                                                                      ?  isBSError(static_cast<uint64_t>(idcCachePtr->retrieve(element_i)), m_missingErrorInfo, error_mask)
                                                                       : idcCachePtr->retrieve(element_i+element_offset_i)!=1 ));
