@@ -84,9 +84,10 @@ bool
   bool
   SiDetectorElement::isBlayer() const
   {
-    if (isPixel() && isBarrel()) {
-      const PixelID* p_pixelId = dynamic_cast<const PixelID*>(getIdHelper());
-      return (p_pixelId && 0==p_pixelId->layer_disk(m_id));
+    if (const auto pIdHelper= getIdHelper();isPixel() and isBarrel() and 
+      pIdHelper->helper() ==  AtlasDetectorID::HelperType::Pixel) {
+      const PixelID* p_pixelId = static_cast<const PixelID*>(pIdHelper);
+      return (0==p_pixelId->layer_disk(m_id));
     } else {
       return false;
     }
@@ -95,9 +96,10 @@ bool
   bool
   SiDetectorElement::isInnermostPixelLayer() const
   {
-    if (isPixel() && isBarrel()) {
-      const PixelID* p_pixelId = dynamic_cast<const PixelID*>(getIdHelper());
-      return (p_pixelId && 0==p_pixelId->layer_disk(m_id));
+    if (const auto pIdHelper= getIdHelper(); isPixel() and isBarrel()
+     and pIdHelper->helper() ==  AtlasDetectorID::HelperType::Pixel) {
+      const PixelID* p_pixelId = static_cast<const PixelID*>(pIdHelper);
+      return ( 0==p_pixelId->layer_disk(m_id));
     } else {
       return false;
     }
@@ -106,9 +108,10 @@ bool
   bool
   SiDetectorElement::isNextToInnermostPixelLayer() const
   {
-    if (isPixel() && isBarrel()) {
-      const PixelID* p_pixelId = dynamic_cast<const PixelID*>(getIdHelper());
-      return (p_pixelId && 1==p_pixelId->layer_disk(m_id));
+    if (const auto pIdHelper = getIdHelper(); isPixel() and isBarrel() and
+      pIdHelper->helper() ==  AtlasDetectorID::HelperType::Pixel) {
+      const PixelID* p_pixelId = static_cast<const PixelID*>(pIdHelper);
+      return ( 1==p_pixelId->layer_disk(m_id));
     } else {
       return false;
     }
@@ -122,20 +125,21 @@ bool
     // If something fails it returns the id in an invalid state.
 
     if (cellId.isValid()) {
-
+      const auto pAtlasHelper = getIdHelper();
       if (isPixel()) {
-        const PixelID* pixelIdHelper = dynamic_cast<const PixelID*>(getIdHelper());
-        if (pixelIdHelper) {
+        if (pAtlasHelper->helper() ==  AtlasDetectorID::HelperType::Pixel) {
+          const PixelID* pixelIdHelper = static_cast<const PixelID*>(pAtlasHelper);
           id = pixelIdHelper->pixel_id(m_id, cellId.phiIndex(), cellId.etaIndex());
         }
       } else if (isSCT()) {
-        const SCT_ID* sctIdHelper = dynamic_cast<const SCT_ID*>(getIdHelper());
-        if (sctIdHelper) {
+        
+        if (pAtlasHelper->helper() ==  AtlasDetectorID::HelperType::SCT) {
+          const SCT_ID* sctIdHelper = static_cast<const SCT_ID*>(pAtlasHelper);
           id = sctIdHelper->strip_id(m_id, cellId.strip());
         }
       }  else if (isPLR()) {
-        const PLR_ID* plrIdHelper = dynamic_cast<const PLR_ID*>(getIdHelper());
-        if (plrIdHelper) {
+        if (pAtlasHelper->helper() ==  AtlasDetectorID::HelperType::PLR) {
+          const PLR_ID* plrIdHelper = static_cast<const PLR_ID*>(pAtlasHelper);
           id = plrIdHelper->pixel_id(m_id, cellId.phiIndex(), cellId.etaIndex());
         }
       }
@@ -152,33 +156,29 @@ bool
     // If something fails it returns the cellId in an invalid state.
 
     if (identifier.is_valid()) {
-
-      if (isPixel()) {
-        const PixelID* pixelIdHelper = dynamic_cast<const PixelID*>(getIdHelper());
-        if (pixelIdHelper) {
-          cellId = SiCellId(pixelIdHelper->phi_index(identifier), pixelIdHelper->eta_index(identifier));
+      const auto pAtlasHelper = getIdHelper();
+      if (isPixel() and pAtlasHelper->helper() == AtlasDetectorID::HelperType::Pixel) {
+        const auto pixelIdHelper = static_cast<const PixelID*>(pAtlasHelper); 
+        cellId = SiCellId(pixelIdHelper->phi_index(identifier), pixelIdHelper->eta_index(identifier));
+      } else if (isSCT() and pAtlasHelper->helper() == AtlasDetectorID::HelperType::SCT) {
+        const SCT_ID* sctIdHelper = static_cast<const SCT_ID*>(pAtlasHelper);
+        //This adds some extra code for supporting rows, 
+        //but this method is only used in validation-type code
+        //So should not add an overhead in normal running
+        //(although we perhaps still try to avoid this...)
+        int strip = sctIdHelper->strip(identifier);
+        int row = sctIdHelper->row(identifier);
+        if(row>0){
+          auto &sctDesign = *static_cast<const SiDetectorDesign *>(m_siDesign);
+          int strip1D = sctDesign.strip1Dim(strip, row);
+          cellId = SiCellId(strip1D);
+        }else {
+          cellId =  SiCellId(strip);
         }
-      } else if (isSCT()) {
-        const SCT_ID* sctIdHelper = dynamic_cast<const SCT_ID*>(getIdHelper());
-        if (sctIdHelper) {
-  	      //This adds some extra code for supporting rows, 
-  	      //but this method is only used in validation-type code
-	      //So should not add an overhead in normal running
-	      //(although we perhaps still try to avoid this...)
-	      int strip = sctIdHelper->strip(identifier);
-	      int row = sctIdHelper->row(identifier);
-	      if(row>0){
-	        auto &sctDesign = *static_cast<const SiDetectorDesign *>(m_siDesign);
-	        int strip1D = sctDesign.strip1Dim(strip, row);
-	        cellId = SiCellId(strip1D);
-	      }
-	      else cellId =  SiCellId(strip);
-	    }
-      } else if (isPLR()) {
-        const PLR_ID* plrIdHelper = dynamic_cast<const PLR_ID*>(getIdHelper());
-        if (plrIdHelper) {
-          cellId = SiCellId(plrIdHelper->phi_index(identifier), plrIdHelper->eta_index(identifier));
-        }
+        
+      } else if (isPLR() and pAtlasHelper->helper() == AtlasDetectorID::HelperType::PLR) {
+        const PLR_ID* plrIdHelper = static_cast<const PLR_ID*>(pAtlasHelper);
+        cellId = SiCellId(plrIdHelper->phi_index(identifier), plrIdHelper->eta_index(identifier));
       }
     }
 
@@ -391,8 +391,8 @@ bool
     }
 
     // Set m_idHash. Also set m_isBarrel.
-    if (isPixel()) {
-      const PixelID* pixelId = dynamic_cast<const PixelID*>(getIdHelper());
+    if (isPixel() and getIdHelper()->helper() == AtlasDetectorID::HelperType::Pixel) {
+      const PixelID* pixelId = static_cast<const PixelID*>(getIdHelper());
       if (pixelId) {
         m_isBarrel = pixelId->is_barrel(m_id);
         m_idHash = pixelId->wafer_hash(m_id);
@@ -402,14 +402,14 @@ bool
           m_isDBM = true;
         }
       }
-    } else if (isSCT()) {
-      const SCT_ID* sctId = dynamic_cast<const SCT_ID*>(getIdHelper());
+    } else if (isSCT() and getIdHelper()->helper() == AtlasDetectorID::HelperType::SCT) {
+      const SCT_ID* sctId = static_cast<const SCT_ID*>(getIdHelper());
       if (sctId) {
         m_isBarrel = sctId->is_barrel(m_id);
         m_idHash = sctId->wafer_hash(m_id);
       }
-    } else if (isPLR()) {
-      const PLR_ID* plrId = dynamic_cast<const PLR_ID*>(getIdHelper());
+    } else if (isPLR() and getIdHelper()->helper() == AtlasDetectorID::HelperType::PLR) {
+      const PLR_ID* plrId = static_cast<const PLR_ID*>(getIdHelper());
       if (plrId) {
         m_isBarrel = plrId->is_barrel(m_id);
         m_idHash = plrId->wafer_hash(m_id);
@@ -446,12 +446,12 @@ bool
   bool
   SiDetectorElement::determineStereo() const
   {
-    if (isSCT() && m_otherSide) {
+    if (isSCT() and m_otherSide and getIdHelper()->helper() == AtlasDetectorID::HelperType::SCT) {
       double sinStereoThis = std::abs(sinStereoImpl()); // Call the private impl method
       double sinStereoOther = std::abs(m_otherSide->sinStereo());
       if (sinStereoThis == sinStereoOther) {
         // If they happen to be equal then set side0 as axial and side1 as stereo.
-        const SCT_ID* sctId = dynamic_cast<const SCT_ID*>(getIdHelper());
+        const SCT_ID* sctId = static_cast<const SCT_ID*>(getIdHelper());
         if (sctId) {
           int side = sctId->side(m_id);
          return (side == 1);
