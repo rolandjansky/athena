@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // EscapedEnergyRegistry
@@ -24,28 +24,17 @@ EscapedEnergyRegistry* EscapedEnergyRegistry::GetInstance()
   {
 #ifdef G4MULTITHREADED
     auto eer = getEER();
-    if (!eer) //nullpointer if it is not found
+    if (!eer) { //nullpointer if it is not found
       return setEER();
-    else return eer;
+    }
+    else {
+      return eer;
+    }
 #else
     //Standard implementation of a Singleton Pattern
     static EscapedEnergyRegistry instance;
     return &instance;
 #endif
-  }
-    
-  EscapedEnergyRegistry::EscapedEnergyRegistry()
-  {}
-
-  EscapedEnergyRegistry::~EscapedEnergyRegistry()
-  {
-    // Delete all the pointers we've adopted.
-    // TODO: range-based for
-    m_processingMap_ptr_t i;
-    for ( i = m_processingMap.begin(); i != m_processingMap.end(); i++ )
-    {
-      delete (*i).second;
-    }
   }
 
 #ifdef G4MULTITHREADED
@@ -54,9 +43,12 @@ EscapedEnergyRegistry* EscapedEnergyRegistry::GetInstance()
    // Get current thread-ID
    const auto tid = std::this_thread::get_id();
    auto eerPair = m_EERThreadMap.find(tid);
-   if(eerPair == m_EERThreadMap.end())
+   if(eerPair == m_EERThreadMap.end()) {
      return nullptr; //if not found return null pointer
-   else return eerPair->second;
+   }
+   else {
+     return eerPair->second;
+   }
   }
 
   EscapedEnergyRegistry* EscapedEnergyRegistry::setEER()
@@ -69,16 +61,14 @@ EscapedEnergyRegistry* EscapedEnergyRegistry::GetInstance()
 #endif
 
   void EscapedEnergyRegistry::AddAndAdoptProcessing( const G4String& name,
-                                                     VEscapedEnergyProcessing* process )
+                                                     std::unique_ptr<VEscapedEnergyProcessing> process )
   {
     // Don't bother adding a null pointer.
     if ( process == nullptr ) return;
 
     // Check that we're not adding any duplicates.
-    // TODO range-based for
-    m_processingMap_ptr_t i;
-    for ( i = m_processingMap.begin(); i != m_processingMap.end(); i++ ) {
-      if ( name == (*i).first ) {
+    for (const auto& [key, storedProcess] : m_processingMap) {
+      if ( name == key ) {
         G4cout << "CaloG4Sim::EscapedEnergyRegistry::AddAndAdoptProcessing -"
                << G4endl;
         G4cout << "   Trying to add a second VEscapedEnergyProcessing with the name '"
@@ -87,13 +77,13 @@ EscapedEnergyRegistry* EscapedEnergyRegistry::GetInstance()
         G4cout << "   Entry is rejected!" << G4endl;
         return;
       }
-      if ( process == (*i).second ) {
+      if ( process == storedProcess ) {
         G4cout << "CaloG4Sim::EscapedEnergyRegistry::AddAndAdoptProcessing -"
                << G4endl;
         G4cout << "   The key '"
                << name
                << "' has the same VEscapedEnergyProcessing object as the key '"
-               << (*i).first
+               << key
                << "'" << G4endl;
         G4cout << "   Entry is rejected!" << G4endl;
         return;
@@ -101,7 +91,7 @@ EscapedEnergyRegistry* EscapedEnergyRegistry::GetInstance()
     }
 
     // There are no duplicates, so add the entry.
-    m_processingMap[ name ] = process;
+    m_processingMap.emplace(name,std::move(process));
   }
 
   VEscapedEnergyProcessing*
@@ -114,16 +104,10 @@ EscapedEnergyRegistry* EscapedEnergyRegistry::GetInstance()
 
     // Reminder:
     // m_processingMap = consists of pair< G4String, VEscapedEnergyProcessing* >
-    // i = iterator (pointer) to a m_processingMap entry.
-    // (*i) = pair< G4String, VEscapedEnergyProcessing* >
-    // (*i).first = a G4String
-    // (*i).second = a VEscapedEnergyProcessing*
 
-    // TODO - use range-based for
-    m_processingMap_const_ptr_t i;
-    for ( i = m_processingMap.begin(); i != m_processingMap.end(); i++ ) {
-      if ( volumeName.contains( (*i).first ) )
-        return (*i).second;
+    for (auto& [key, storedProcess] : m_processingMap) {
+      if ( volumeName.contains(key) )
+        return storedProcess.get();
     }
 
     // If we get here, then there was no entry in the map that
