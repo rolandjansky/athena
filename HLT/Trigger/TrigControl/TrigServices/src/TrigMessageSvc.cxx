@@ -345,7 +345,7 @@ void TrigMessageSvc::i_reportMessage(const Message& msg, int outputLevel)
     (*m_defaultStream) << *cmsg << std::endl << std::flush;
 
     // ERS forwarding
-    if (passErsFilter(cmsg->getSource(), m_useERS[key])) {
+    if (passErsFilter(cmsg->getSource(), m_useERS[key]) && passErsLimit(*cmsg)) {
       i_reportERS(*cmsg);
     }
   }
@@ -476,4 +476,24 @@ bool TrigMessageSvc::passErsFilter(const std::string& source,
     if ("!" + source == (*it)) return false; // veto specific source
   }
   return pass;
+}
+
+bool TrigMessageSvc::passErsLimit(const Message& msg)
+{
+  if (m_ersEventLimit < 0) return true;
+
+  const EventContext::ContextID_t slot = msg.getEventSlot();
+  const EventContext::ContextEvt_t evt = msg.getEventNumber();
+  // get or create message statistics for this slot
+  auto [itr, inserted] = m_slotMsgCount.insert( {slot, {evt, MsgAry()} } );
+
+  // if new event in slot then reset counters
+  if ( itr->second.first != evt ) {
+    itr->second = {evt, MsgAry()};
+  }
+
+  // increment number of messages for this level and slot
+  const int N = ++itr->second.second.msg[msg.getType()];
+
+  return N <= m_ersEventLimit;
 }
