@@ -159,7 +159,6 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
         ATH_MSG_DEBUG("Container "<< m_l1_gFexJwojMSTComponents_key << " does not exist or is empty");
     }
 
-
     // access HLT met containers
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_cell_met_cont(m_hlt_cell_met_key, ctx);
     if (! hlt_cell_met_cont.isValid() || hlt_cell_met_cont->size()==0 ) {
@@ -452,6 +451,33 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       auto L1_sumEt_log = Monitored::Scalar<float>("L1_gFexJwoj_sumEt_log", static_cast<float>(L1_met_sumEt_log));
       fill(tool, L1_Et, L1_Et_log, L1_sumEt, L1_sumEt_log);
     }
+    
+    if (l1_gFexJwojMETComponents_cont.isValid()) {
+      l1_gmet = l1_gFexJwojMETComponents_cont->at(0);
+      float L1_met_Ex = l1_gmet->METquantityOne()*0.001;
+      float L1_met_Ey = l1_gmet->METquantityTwo()*0.001;
+      auto L1_Ex = Monitored::Scalar<float>("L1_gFexJwoj_Ex", static_cast<float>(L1_met_Ex));
+      auto L1_Ey = Monitored::Scalar<float>("L1_gFexJwoj_Ey", static_cast<float>(L1_met_Ey));
+      fill(tool, L1_Ex, L1_Ey);
+    }
+
+    if (l1_gFexJwojMHTComponents_cont.isValid()) {
+      l1_gmet = l1_gFexJwojMHTComponents_cont->at(0);
+      float L1_met_HT_Ex = l1_gmet->METquantityOne()*0.001;
+      float L1_met_HT_Ey = l1_gmet->METquantityTwo()*0.001;
+      auto L1_HT_Ex = Monitored::Scalar<float>("L1_gFexJwoj_HT_Ex", static_cast<float>(L1_met_HT_Ex));
+      auto L1_HT_Ey = Monitored::Scalar<float>("L1_gFexJwoj_HT_Ey", static_cast<float>(L1_met_HT_Ey));
+      fill(tool, L1_HT_Ex, L1_HT_Ey);
+    }
+
+    if (l1_gFexJwojMSTComponents_cont.isValid()) {
+      l1_gmet = l1_gFexJwojMSTComponents_cont->at(0);
+      float L1_met_ST_Ex = l1_gmet->METquantityOne()*0.001;
+      float L1_met_ST_Ey = l1_gmet->METquantityTwo()*0.001;
+      auto L1_ST_Ex = Monitored::Scalar<float>("L1_gFexJwoj_ST_Ex", static_cast<float>(L1_met_ST_Ex));
+      auto L1_ST_Ey = Monitored::Scalar<float>("L1_gFexJwoj_ST_Ey", static_cast<float>(L1_met_ST_Ey));
+      fill(tool, L1_ST_Ex, L1_ST_Ey);
+    } 
 
     // define TrigMissingET object
     const xAOD::TrigMissingET *hlt_met = 0;
