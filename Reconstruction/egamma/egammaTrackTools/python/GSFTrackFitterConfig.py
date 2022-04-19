@@ -23,19 +23,11 @@ def EMGSFExtrapolatorToolCfg(flags, **kwargs):
         egTrkNavigator = AtlasNavigatorCfg(flags, name="egTrkNavigator")
         kwargs["Navigator"] = acc.popToolsAndMerge(egTrkNavigator)
 
-    if "EnergyLossUpdator" not in kwargs:
-        from TrkConfig.AtlasExtrapolatorToolsConfig import (
-            AtlasEnergyLossUpdatorCfg)
-        ELossUpdator = AtlasEnergyLossUpdatorCfg(flags)
-        kwargs["EnergyLossUpdator"] = acc.popToolsAndMerge(ELossUpdator)
-
     if "ElectronMaterialConvolution" not in kwargs:
         GsfMaterialUpdator = CompFactory.Trk.ElectronMaterialMixtureConvolution(
             name="ElectronMaterialUpdator", MaximumNumberOfComponents=12
         )
         kwargs["GsfMaterialConvolution"] = GsfMaterialUpdator
-
-    kwargs.setdefault("SurfaceBasedMaterialEffects", False)
 
     acc.setPrivateTools(CompFactory.Trk.GsfExtrapolator(**kwargs))
     return acc

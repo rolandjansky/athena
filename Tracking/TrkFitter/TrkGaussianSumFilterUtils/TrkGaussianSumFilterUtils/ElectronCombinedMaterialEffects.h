@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -17,7 +17,6 @@
 #include "TrkGaussianSumFilterUtils/GsfConstants.h"
 #include "TrkGaussianSumFilterUtils/GsfMaterial.h"
 //
-#include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkGeometry/MaterialProperties.h"
 
@@ -34,7 +33,7 @@ public:
     double variance;
   };
   using MixtureParameters =
-    std::array<ComponentValues, GSFConstants::maxNumberofBHComponents>;
+    std::array<ComponentValues, GSFConstants::maxNumberofMatComponents>;
 
   /** Helper struct for construction and evaluation of polynomial */
   struct Polynomial
@@ -58,19 +57,20 @@ public:
 
   // ctor with arguments
   ElectronCombinedMaterialEffects() = default;
-  ElectronCombinedMaterialEffects(const ElectronCombinedMaterialEffects&) = default;
-  ElectronCombinedMaterialEffects(ElectronCombinedMaterialEffects&&) = default;
-  ElectronCombinedMaterialEffects& operator=(const ElectronCombinedMaterialEffects&) =
+  ElectronCombinedMaterialEffects(const ElectronCombinedMaterialEffects&) =
     default;
-  ElectronCombinedMaterialEffects& operator=(ElectronCombinedMaterialEffects&&) = default;
+  ElectronCombinedMaterialEffects(ElectronCombinedMaterialEffects&&) = default;
+  ElectronCombinedMaterialEffects& operator=(
+    const ElectronCombinedMaterialEffects&) = default;
+  ElectronCombinedMaterialEffects& operator=(
+    ElectronCombinedMaterialEffects&&) = default;
   ~ElectronCombinedMaterialEffects() = default;
 
   void compute(GsfMaterial::Combined&,
                const Trk::ComponentParameters&,
                const Trk::MaterialProperties&,
                double,
-               Trk::PropDirection = anyDirection,
-               Trk::ParticleHypothesis = nonInteracting) const;
+               Trk::PropDirection = anyDirection) const;
 
 private:
   // Electron enrrgy loss due to Bremsstrahlung
@@ -79,25 +79,24 @@ private:
     const ComponentParameters& componentParameters,
     const MaterialProperties& materialProperties,
     double pathLenght,
-    PropDirection direction = anyDirection,
-    ParticleHypothesis particleHypothesis = nonInteracting) const;
+    PropDirection direction = anyDirection) const;
 
   int m_BHnumberOfComponents{};
   int m_BHtransformationCode{};
   int m_BHnumberOfComponentsHighX0{};
   int m_BHtransformationCodeHighX0{};
 
-  std::array<Polynomial, GSFConstants::maxNumberofBHComponents>
+  std::array<Polynomial, GSFConstants::maxNumberofMatComponents>
     m_BHpolynomialWeights{};
-  std::array<Polynomial, GSFConstants::maxNumberofBHComponents>
+  std::array<Polynomial, GSFConstants::maxNumberofMatComponents>
     m_BHpolynomialMeans{};
-  std::array<Polynomial, GSFConstants::maxNumberofBHComponents>
+  std::array<Polynomial, GSFConstants::maxNumberofMatComponents>
     m_BHpolynomialVariances{};
-  std::array<Polynomial, GSFConstants::maxNumberofBHComponents>
+  std::array<Polynomial, GSFConstants::maxNumberofMatComponents>
     m_BHpolynomialWeightsHighX0{};
-  std::array<Polynomial, GSFConstants::maxNumberofBHComponents>
+  std::array<Polynomial, GSFConstants::maxNumberofMatComponents>
     m_BHpolynomialMeansHighX0{};
-  std::array<Polynomial, GSFConstants::maxNumberofBHComponents>
+  std::array<Polynomial, GSFConstants::maxNumberofMatComponents>
     m_BHpolynomialVariancesHighX0{};
 };
 

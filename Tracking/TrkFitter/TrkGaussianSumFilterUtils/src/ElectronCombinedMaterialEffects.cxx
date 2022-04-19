@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file ElectronCombinedMaterialEffects.cxx
@@ -63,11 +63,11 @@ correctWeights(BH::MixtureParameters& mixture, const int numberOfComponents)
 
 BH::MixtureParameters
 getTranformedMixtureParameters(
-  const std::array<BH::Polynomial, GSFConstants::maxNumberofBHComponents>&
+  const std::array<BH::Polynomial, GSFConstants::maxNumberofMatComponents>&
     polynomialWeights,
-  const std::array<BH::Polynomial, GSFConstants::maxNumberofBHComponents>&
+  const std::array<BH::Polynomial, GSFConstants::maxNumberofMatComponents>&
     polynomialMeans,
-  const std::array<BH::Polynomial, GSFConstants::maxNumberofBHComponents>&
+  const std::array<BH::Polynomial, GSFConstants::maxNumberofMatComponents>&
     polynomialVariances,
   const double pathlengthInX0,
   const int numberOfComponents)
@@ -86,11 +86,11 @@ getTranformedMixtureParameters(
 
 BH::MixtureParameters
 getMixtureParameters(
-  const std::array<BH::Polynomial, GSFConstants::maxNumberofBHComponents>&
+  const std::array<BH::Polynomial, GSFConstants::maxNumberofMatComponents>&
     polynomialWeights,
-  const std::array<BH::Polynomial, GSFConstants::maxNumberofBHComponents>&
+  const std::array<BH::Polynomial, GSFConstants::maxNumberofMatComponents>&
     polynomialMeans,
-  const std::array<BH::Polynomial, GSFConstants::maxNumberofBHComponents>&
+  const std::array<BH::Polynomial, GSFConstants::maxNumberofMatComponents>&
     polynomialVariances,
   const double pathlengthInX0,
   const int numberOfComponents)
@@ -105,27 +105,6 @@ getMixtureParameters(
                    updatedVariance * updatedVariance };
   }
   return mixture;
-}
-
-// Ioniation energy loss helper calling
-// MaterialInteraction::PDG_energyLoss_ionization
-inline Trk::EnergyLoss
-ionizationEnergyLoss(const Trk::MaterialProperties& mat,
-                     double p,
-                     double pathcorrection,
-                     Trk::PropDirection dir,
-                     Trk::ParticleHypothesis particle)
-{
-  // preparation
-  double sign = (dir == Trk::oppositeMomentum) ? -1. : 1.;
-  double pathLength = pathcorrection * mat.thicknessInX0() * mat.x0();
-  double sigIoni = 0.;
-  double kazL = 0.;
-  const double meanIoni =
-    sign * Trk::MaterialInteraction::PDG_energyLoss_ionization(
-             p, &(mat.material()), particle, sigIoni, kazL, pathLength);
-
-  return {meanIoni, sigIoni, sigIoni, sigIoni};
 }
 
 inline void
@@ -163,46 +142,6 @@ scattering(GsfMaterial::Scattering& cache,
   const double sinTheta = std::sin(trackParameters->parameters()[Trk::theta]);
   cache.deltaThetaCov = angularVariation;
   cache.deltaPhiCov = angularVariation / (sinTheta * sinTheta);
-}
-
-inline void
-energyLoss(GsfMaterial::EnergyLoss& cache,
-           const Trk::ComponentParameters& componentParameters,
-           const Trk::MaterialProperties& materialProperties,
-           double pathLength,
-           Trk::PropDirection direction,
-           Trk::ParticleHypothesis particleHypothesis)
-{
-  cache.numElements = 0;
-  // Request track parameters from component parameters
-  const Trk::TrackParameters* trackParameters = componentParameters.first.get();
-  const AmgSymMatrix(5)* measuredCov = trackParameters->covariance();
-  if (!measuredCov) {
-    return;
-  }
-  double pathcorrection = pathLength / materialProperties.thickness();
-  const Amg::Vector3D& globalMomentum = trackParameters->momentum();
-
-  Trk::EnergyLoss energyLoss = ionizationEnergyLoss(materialProperties,
-                                                    globalMomentum.mag(),
-                                                    pathcorrection,
-                                                    direction,
-                                                    particleHypothesis);
-
-  // update for mean energy loss
-  const double deltaE = energyLoss.deltaE();
-  const double sigmaDeltaE = energyLoss.sigmaDeltaE();
-  // Calculate the pathlength encountered by the track
-  const double p = globalMomentum.mag();
-  const double m = s_particleMasses.mass[particleHypothesis];
-  const double E = sqrt(p * p + m * m);
-  const double beta = p / E;
-
-  // Calculate energy loss values uncertainty
-  const double sigmaQoverP = sigmaDeltaE / pow(beta * p, 2);
-
-  cache.elements[0] = { 1., deltaE, sigmaQoverP * sigmaQoverP };
-  cache.numElements = 1;
 }
 
 // Helper to read in polynomials
@@ -254,10 +193,10 @@ Trk::ElectronCombinedMaterialEffects::ElectronCombinedMaterialEffects(
     fin >> orderPolynomial;
     fin >> m_BHtransformationCode;
     if (not inRange(
-          m_BHnumberOfComponents, 0, GSFConstants::maxNumberofBHComponents)) {
+          m_BHnumberOfComponents, 0, GSFConstants::maxNumberofMatComponents)) {
       std::ostringstream ss;
       ss << "numberOfComponents Parameter out of range 0- "
-         << GSFConstants::maxNumberofBHComponents << " : "
+         << GSFConstants::maxNumberofMatComponents << " : "
          << m_BHnumberOfComponents;
       throw std::logic_error(ss.str());
     }
@@ -311,10 +250,10 @@ Trk::ElectronCombinedMaterialEffects::ElectronCombinedMaterialEffects(
     //
     if (not inRange(m_BHnumberOfComponentsHighX0,
                     0,
-                    GSFConstants::maxNumberofBHComponents)) {
+                    GSFConstants::maxNumberofMatComponents)) {
       std::ostringstream ss;
       ss << "numberOfComponentsHighX0 Parameter out of range 0- "
-         << GSFConstants::maxNumberofBHComponents << " : "
+         << GSFConstants::maxNumberofMatComponents << " : "
          << m_BHnumberOfComponentsHighX0;
       throw std::logic_error(ss.str());
     }
@@ -353,8 +292,7 @@ Trk::ElectronCombinedMaterialEffects::compute(
   const Trk::ComponentParameters& componentParameters,
   const Trk::MaterialProperties& materialProperties,
   double pathLength,
-  Trk::PropDirection direction,
-  Trk::ParticleHypothesis particleHypothesis) const
+  Trk::PropDirection direction) const
 {
   const AmgSymMatrix(5)* measuredCov = componentParameters.first->covariance();
   /*
@@ -367,20 +305,11 @@ Trk::ElectronCombinedMaterialEffects::compute(
    * 2. Retrieve energy loss corrections
    */
   GsfMaterial::EnergyLoss cache_energyLoss;
-  if (particleHypothesis == electron) {
-    this->BetheHeitler(cache_energyLoss,
-                       componentParameters,
-                       materialProperties,
-                       pathLength,
-                       direction);
-  } else if (particleHypothesis != nonInteracting) {
-    energyLoss(cache_energyLoss,
-               componentParameters,
-               materialProperties,
-               pathLength,
-               direction,
-               particleHypothesis);
-  }
+  this->BetheHeitler(cache_energyLoss,
+                     componentParameters,
+                     materialProperties,
+                     pathLength,
+                     direction);
   // Protect if there are no new energy loss
   // components
   // we want at least on dummy to "combine"
@@ -428,8 +357,7 @@ Trk::ElectronCombinedMaterialEffects::BetheHeitler(
   const Trk::ComponentParameters& componentParameters,
   const Trk::MaterialProperties& materialProperties,
   double pathLength,
-  Trk::PropDirection direction,
-  Trk::ParticleHypothesis) const
+  Trk::PropDirection direction) const
 {
   cache.numElements = 0;
 

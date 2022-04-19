@@ -45,8 +45,7 @@ def getGSFTrackFitter(name="EMGSFTrackFitter",
         name='GsfExtrapolator',
         Propagator=egTrkPropagator,
         Navigator=egTrkNavigator,
-        GsfMaterialConvolution=GsfMaterialUpdator,
-        SurfaceBasedMaterialEffects=False)
+        GsfMaterialConvolution=GsfMaterialUpdator)
 
     from TrkGaussianSumFilter.TrkGaussianSumFilterConf import (
         Trk__GaussianSumFitter)

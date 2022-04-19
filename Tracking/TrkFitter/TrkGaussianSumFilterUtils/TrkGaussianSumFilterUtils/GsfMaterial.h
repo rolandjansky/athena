@@ -18,7 +18,7 @@
 
 namespace GsfMaterial {
 
-/* Helper struct for energy loss effects */
+/** Helper struct for energy loss effects, multicomponent description*/
 struct EnergyLoss
 {
   struct element
@@ -27,10 +27,11 @@ struct EnergyLoss
     double deltaP = 0;
     double deltaQOvePCov = 0;
   };
-  std::array<element, GSFConstants::maxNumberofBHComponents> elements = {};
+  std::array<element, GSFConstants::maxNumberofMatComponents> elements = {};
   int numElements = 0;
 };
-/** Helper struct for multiple scattering effects*/
+
+/** Helper struct for multiple scattering effects single component description*/
 struct Scattering
 {
   double deltaThetaCov = 0;
@@ -42,17 +43,17 @@ struct Scattering
   }
 };
 
-/** Helper struct for combined material effects*/
+/** Helper struct for combined material effects, multicomponent  description*/
 struct Combined
 {
-  std::array<double, GSFConstants::maxNumberofBHComponents> weights = {};
-  std::array<double, GSFConstants::maxNumberofBHComponents> deltaPs = {};
+  std::array<double, GSFConstants::maxNumberofMatComponents> weights = {};
+  std::array<double, GSFConstants::maxNumberofMatComponents> deltaPs = {};
   alignas(GSFConstants::alignment) std::array<
     AmgVector(5),
-    GSFConstants::maxNumberofBHComponents> deltaParameters = {};
+    GSFConstants::maxNumberofMatComponents> deltaParameters = {};
   alignas(GSFConstants::alignment) std::array<
     AmgSymMatrix(5),
-    GSFConstants::maxNumberofBHComponents> deltaCovariances = {};
+    GSFConstants::maxNumberofMatComponents> deltaCovariances = {};
 
   size_t numWeights = 0;
   size_t numDeltaPs = 0;

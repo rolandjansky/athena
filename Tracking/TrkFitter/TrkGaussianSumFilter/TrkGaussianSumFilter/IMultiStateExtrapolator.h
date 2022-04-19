@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -28,7 +28,6 @@
 
 namespace Trk {
 
-class IPropagator;
 class Surface;
 class Track;
 class TrackingVolume;
@@ -46,10 +45,9 @@ struct StateAtBoundarySurface
   const TrackParameters* navigationParameters = nullptr;
   const TrackingVolume* trackingVolume = nullptr;
   /** Update State at Boundary Surface Information */
-  void updateBoundaryInformation(
-    const MultiComponentState* boundaryState,
-    const TrackParameters* navParameters,
-    const TrackingVolume* nextVolume)
+  void updateBoundaryInformation(const MultiComponentState* boundaryState,
+                                 const TrackParameters* navParameters,
+                                 const TrackingVolume* nextVolume)
   {
     stateAtBoundary = boundaryState;
     navigationParameters = navParameters;
@@ -57,18 +55,20 @@ struct StateAtBoundarySurface
   }
 };
 
-static const InterfaceID
-  IID_IMultiStateExtrapolator("IMultiStateExtrapolator", 1, 0);
+static const InterfaceID IID_IMultiStateExtrapolator("IMultiStateExtrapolator",
+                                                     1,
+                                                     0);
 
 class IMultiStateExtrapolator : virtual public IAlgTool
 {
 public:
   /** @brief MultiStateExtrapolator cache class.
    *
-   * This object holds information regarding the internal state of the extrpolation
-   * process as well as a large store for  material effects properties.
+   * This object holds information regarding the internal state of the
+   * extrpolation process as well as a large store for  material effects
+   * properties.
    *
-   * It to be passed as argument to extrapolation calls 
+   * It to be passed as argument to extrapolation calls
    */
   struct Cache
   {
@@ -80,21 +80,17 @@ public:
     const Layer* m_recallLayer = nullptr;
     //!< Tracking volume for recall (not owning)
     const TrackingVolume* m_recallTrackingVolume = nullptr;
-    //!< Keep TrackStateOnSurface* used only from ExtrapolateM (otherwise is
-    //!< nullptr)
-    std::unique_ptr<std::vector<const Trk::TrackStateOnSurface*>> m_matstates =
-      nullptr;
     //!< Instance of structure describing the state
     //!< at a boundary of tracking volumes
     StateAtBoundarySurface m_stateAtBoundarySurface;
     // Vector of combined material effects
     std::vector<GsfMaterial::Combined> m_materialEffectsCaches;
-    //!< Garbage bin for MultiComponentState objects,keep track of them
+    //!< Recycle bin for MultiComponentState objects,keep track of them
     //!< and delete at the end
-    std::vector<std::unique_ptr<const MultiComponentState>> m_mcsGarbageBin;
-    //!< Garbage bin for TrackParameter objects, keep track of them 
+    std::vector<std::unique_ptr<const MultiComponentState>> m_mcsRecycleBin;
+    //!< Recycle bin for TrackParameter objects, keep track of them
     //!< and delete at the end
-    std::vector<std::unique_ptr<const TrackParameters>> m_tpGarbageBin;
+    std::vector<std::unique_ptr<const TrackParameters>> m_tpRecycleBin;
 
     Cache() { m_materialEffectsCaches.reserve(12); }
   };
@@ -114,27 +110,18 @@ public:
     Cache&,
     const MultiComponentState&,
     const Surface&,
-    PropDirection direction = anyDirection,
-    const BoundaryCheck& boundaryCheck = true,
-    ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
+    PropDirection direction,
+    const BoundaryCheck& boundaryCheck,
+    ParticleHypothesis particleHypothesis) const = 0;
 
   /** Configured AlgTool extrapolation without material effects method (2) */
   virtual MultiComponentState extrapolateDirectly(
     const EventContext& ctx,
     const MultiComponentState&,
     const Surface&,
-    PropDirection direction = anyDirection,
-    const BoundaryCheck& boundaryCheck = true,
-    ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
-
-  virtual std::unique_ptr<std::vector<const Trk::TrackStateOnSurface*>>
-  extrapolateM(
-    const EventContext& ctx,
-    const MultiComponentState&,
-    const Surface&,
-    PropDirection dir = anyDirection,
-    const BoundaryCheck& bcheck = true,
-    ParticleHypothesis particle = nonInteracting) const = 0;
+    PropDirection direction,
+    const BoundaryCheck& boundaryCheck,
+    ParticleHypothesis particleHypothesis) const = 0;
 };
 
 } // end trk namespace
