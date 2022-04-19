@@ -121,16 +121,20 @@ namespace Rec {
 
         ServiceHandle<Trk::ITrackingVolumesSvc> m_trackingVolumesSvc{this, "TrackingVolumesSvc", "TrackingVolumesSvc/TrackingVolumesSvc"};
 
-        std::unique_ptr<const Trk::Volume> m_calorimeterVolume;
-        std::unique_ptr<const Trk::Volume> m_indetVolume;
+        std::unique_ptr<Trk::Volume> m_calorimeterVolume;
+        std::unique_ptr<Trk::Volume> m_indetVolume;
 
+     
         // other configuration and tolerances
-        bool m_allowCleanerVeto;
-        bool m_cleanCombined;
-        bool m_recoverCombined;
-        double m_IDMS_xySigma;
-        double m_IDMS_rzSigma;
-        bool m_addIDMSerrors;
+        Gaudi::Property<bool> m_allowCleanerVeto{this, "AllowCleanerVeto", true};
+        Gaudi::Property<bool> m_cleanCombined{this, "CleanCombined", true};
+        Gaudi::Property<bool> m_recoverCombined{this, "RecoverCombined", false };
+        Gaudi::Property<double> m_IDMS_xySigma{this,"IDMS_xySigma", 1.* Gaudi::Units::mm};
+        Gaudi::Property<double> m_IDMS_rzSigma{this,"IDMS_rzSigma", 1.* Gaudi::Units::mm};
+        Gaudi::Property<bool> m_addIDMSerrors{this, "AddIDMSerrors", true};
+
+        Gaudi::Property<double> m_badFitChi2{this, "BadFitChi2", 2.5};
+        double normalizedChi2(const Trk::Track& track) const;
 
     };  // end of class OutwardsCombinedMuonTrackBuilder
 
