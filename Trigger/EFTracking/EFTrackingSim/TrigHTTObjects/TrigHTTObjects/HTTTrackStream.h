@@ -16,10 +16,9 @@ class HTTTrackStream {
 
 public:
   HTTTrackStream();
-  HTTTrackStream(const HTTTrackStream&) = delete;
-  HTTTrackStream& operator=(const HTTTrackStream&) = delete;
-
+  HTTTrackStream(const HTTTrackStream &in);
   virtual ~HTTTrackStream();
+  HTTTrackStream & operator = (const HTTTrackStream &s);
 
   const unsigned long& runNumber() const { return m_run_number; }
   const unsigned long& eventNumber() const { return m_event_number; }

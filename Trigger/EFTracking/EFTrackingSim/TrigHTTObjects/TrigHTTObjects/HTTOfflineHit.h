@@ -11,7 +11,7 @@
 
 class HTTOfflineHit : public TObject {
 public:
-  HTTOfflineHit() = default;
+  HTTOfflineHit() {m_locX=0; m_locY=0; m_isPixel = false; m_isBarrel = false; m_layer = -1; m_clustID = -1; m_trackNumber = -1; m_hitType = OfflineHitType::Other;}
 
   void setLocX(float locx) { m_locX = locx; }
   void setLocY(float locy) { m_locY = locy; }
@@ -32,13 +32,13 @@ public:
   OfflineHitType getHitType() const { return m_hitType; }
 
 private:
-  float   m_locX{0};
-  float   m_locY{0};
-  bool    m_isPixel{false};
-  bool    m_isBarrel{false};
-  int     m_layer{0};
-  int     m_clustID{0};
-  int     m_trackNumber{0};
+  float   m_locX;
+  float   m_locY;
+  bool    m_isPixel;
+  bool    m_isBarrel;
+  int     m_layer;
+  int     m_clustID;
+  int     m_trackNumber;
   OfflineHitType   m_hitType;
 
   ClassDef(HTTOfflineHit, 2)

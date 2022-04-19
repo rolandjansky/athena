@@ -25,6 +25,53 @@ HTTTrackStream::HTTTrackStream() :
   m_tracksI = new TClonesArray("HTTTrack", 1000);
 }
 
+HTTTrackStream & HTTTrackStream::operator = (const HTTTrackStream &in)
+{
+  if (this != &in) {
+    m_run_number = in.m_run_number;
+    m_event_number = in.m_event_number;
+    m_ntracks = in.m_ntracks;
+    m_ncombs = in.m_ncombs;
+    m_nfits = in.m_nfits;
+    m_nfits_maj = in.m_nfits_maj;
+    m_nfits_maj_SCT = in.m_nfits_maj_SCT;
+    m_nfits_maj_pix = in.m_nfits_maj_pix;
+    m_nfits_rec = in.m_nfits_rec;
+    m_nfits_addrec = in.m_nfits_addrec;
+    m_nfits_bad = in.m_nfits_bad;
+    m_nfits_rej = in.m_nfits_rej;
+    m_nfits_badmaj = in.m_nfits_badmaj;
+    m_nfits_rejmaj = in.m_nfits_rejmaj;
+    m_ntracksI = in.m_ntracksI;
+    m_ncombsI = in.m_ncombsI;
+    m_nfitsI = in.m_nfitsI;
+    m_nfits_majI = in.m_nfits_majI;
+    m_nfits_majI_SCT = in.m_nfits_majI_SCT;
+    m_nfits_majI_pix = in.m_nfits_majI_pix;
+    m_nfits_recI = in.m_nfits_recI;
+    m_nfits_addrecI = in.m_nfits_addrecI;
+    m_nfits_badI = in.m_nfits_badI;
+    m_nfits_rejI = in.m_nfits_rejI;
+    m_nfits_badmajI = in.m_nfits_badmajI;
+    m_nfits_rejmajI = in.m_nfits_rejmajI;
+    m_nconn = in.m_nconn;
+    m_nextrapolatedTracks = in.m_nextrapolatedTracks;
+    m_tracks = new TClonesArray("HTTTrack", 1000);
+    m_tracksI = new TClonesArray("HTTTrack", 1000);
+    for (int i = 0; i < in.m_ntracks; i++) {
+      HTTTrack* trackP = in.getTrack(i);
+      const HTTTrack track = *trackP;
+      addTrack(track);
+    }
+    for (int i = 0; i < in.m_ntracksI; i++) {
+      HTTTrack* trackP = in.getTrackI(i);
+      const HTTTrack track = *trackP;
+      addTrackI(track);
+    }   
+  }
+
+  return *this;
+}
 
 HTTTrackStream::~HTTTrackStream()
 {
@@ -32,6 +79,50 @@ HTTTrackStream::~HTTTrackStream()
   delete m_tracks;
   m_tracksI->Delete();
   delete m_tracksI;
+}
+
+// copy constructor
+HTTTrackStream::HTTTrackStream(const HTTTrackStream &in) {
+  m_run_number = in.m_run_number;
+  m_event_number = in.m_event_number;
+  m_ntracks = in.m_ntracks;
+  m_ncombs = in.m_ncombs;
+  m_nfits = in.m_nfits;
+  m_nfits_maj = in.m_nfits_maj;
+  m_nfits_maj_SCT = in.m_nfits_maj_SCT;
+  m_nfits_maj_pix = in.m_nfits_maj_pix;
+  m_nfits_rec = in.m_nfits_rec;
+  m_nfits_addrec = in.m_nfits_addrec;
+  m_nfits_bad = in.m_nfits_bad;
+  m_nfits_rej = in.m_nfits_rej;
+  m_nfits_badmaj = in.m_nfits_badmaj;
+  m_nfits_rejmaj = in.m_nfits_rejmaj;
+  m_ntracksI = in.m_ntracksI;
+  m_ncombsI = in.m_ncombsI;
+  m_nfitsI = in.m_nfitsI;
+  m_nfits_majI = in.m_nfits_majI;
+  m_nfits_majI_SCT = in.m_nfits_majI_SCT;
+  m_nfits_majI_pix = in.m_nfits_majI_pix;
+  m_nfits_recI = in.m_nfits_recI;
+  m_nfits_addrecI = in.m_nfits_addrecI;
+  m_nfits_badI = in.m_nfits_badI;
+  m_nfits_rejI = in.m_nfits_rejI;
+  m_nfits_badmajI = in.m_nfits_badmajI;
+  m_nfits_rejmajI = in.m_nfits_rejmajI;
+  m_nconn = in.m_nconn;
+  m_nextrapolatedTracks = in.m_nextrapolatedTracks;
+  m_tracks = new TClonesArray("HTTTrack", 1000);
+  m_tracksI = new TClonesArray("HTTTrack", 1000);
+  for (int i = 0; i < in.m_ntracks; i++) {
+    HTTTrack* trackP = in.getTrack(i);
+    const HTTTrack track = *trackP;
+    addTrack(track);
+  }
+  for (int i = 0; i < in.m_ntracksI; i++) {
+    HTTTrack* trackP = in.getTrackI(i);
+    const HTTTrack track = *trackP;
+    addTrackI(track);
+  }
 }
 
 
