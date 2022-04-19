@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CONDDBOBJECTS_GENERICDBTABLE_H
@@ -283,18 +283,18 @@ class GenericDbTable: public DataObject {
  * @param data is the reference for a variable that will return the value
  * @return an error code
  */
-   int getCell(std::string colName, unsigned int n_row, short int &data) const;
-   int getCell(std::string colName, unsigned int n_row, long int  &data) const;
-   int getCell(std::string colName, unsigned int n_row, int64     &data) const;
-   int getCell(std::string colName, unsigned int n_row, float     &data) const;
-   int getCell(std::string colName, unsigned int n_row, double    &data) const;
-   int getCell(std::string colName, unsigned int n_row, std::string &data) const;
-   int getCell(std::string colName, unsigned int n_row, std::vector<short int> &data) const;
-   int getCell(std::string colName, unsigned int n_row, std::vector<long int> &data) const;
-   int getCell(std::string colName, unsigned int n_row, std::vector<int64> &data) const;
-   int getCell(std::string colName, unsigned int n_row, std::vector<float> &data) const;
-   int getCell(std::string colName, unsigned int n_row, std::vector<double> &data) const;
-   int getCell(std::string colName, unsigned int n_row, std::vector<std::string> &data) const;
+   int getCell(const std::string& colName, unsigned int n_row, short int &data) const;
+   int getCell(const std::string& colName, unsigned int n_row, long int  &data) const;
+   int getCell(const std::string& colName, unsigned int n_row, int64     &data) const;
+   int getCell(const std::string& colName, unsigned int n_row, float     &data) const;
+   int getCell(const std::string& colName, unsigned int n_row, double    &data) const;
+   int getCell(const std::string& colName, unsigned int n_row, std::string &data) const;
+   int getCell(const std::string& colName, unsigned int n_row, std::vector<short int> &data) const;
+   int getCell(const std::string& colName, unsigned int n_row, std::vector<long int> &data) const;
+   int getCell(const std::string& colName, unsigned int n_row, std::vector<int64> &data) const;
+   int getCell(const std::string& colName, unsigned int n_row, std::vector<float> &data) const;
+   int getCell(const std::string& colName, unsigned int n_row, std::vector<double> &data) const;
+   int getCell(const std::string& colName, unsigned int n_row, std::vector<std::string> &data) const;
    
    
 
@@ -352,7 +352,7 @@ class GenericDbTable: public DataObject {
  * @param ndata is the new value to be assigned
  * @return an error code 
 */
-    /* virtual */ int setCell(unsigned n_column, unsigned n_row, const std::string ndata);
+    /* virtual */ int setCell(unsigned n_column, unsigned n_row, const std::string& ndata);
 
 /**
  * This method changes a value from a cell in a column of doubles
@@ -633,7 +633,7 @@ class GenericDbTable: public DataObject {
     * @see getCell(...)
     */
    template <typename T>
-     int __getCellByName(std::string colName, unsigned int n_row, T &data) const;
+     int __getCellByName(const std::string& colName, unsigned int n_row, T &data) const;
    
    
 /**
