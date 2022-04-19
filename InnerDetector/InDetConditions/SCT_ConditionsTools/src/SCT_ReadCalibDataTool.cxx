@@ -132,7 +132,6 @@ void SCT_ReadCalibDataTool::getDetectorElementStatus(const EventContext& ctx, In
    unsigned int element_i=0;
    for( const std::array<bool, SCT_ConditionsData::STRIPS_PER_WAFER> &good_strips : *condDataInfo) {
       IdentifierHash moduleHash(element_i);
-      Identifier module_id(m_id_sct->wafer_id(moduleHash));
       if (status.empty() || status.at(element_i)) {
          std::vector<unsigned short>  &bad_module_strips = bad_strips[element_i];
          unsigned int last_geoemtrical_chip_id=SCT::N_CHIPS_PER_SIDE;
