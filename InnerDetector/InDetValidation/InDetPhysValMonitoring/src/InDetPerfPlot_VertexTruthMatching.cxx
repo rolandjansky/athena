@@ -720,11 +720,12 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::Vertex* recoHardScatter
          // loop over tracks 
          for (size_t i = 0; i < vertex->nTrackParticles(); i++) {
             trackTmp = vertex->trackParticle(i);
-            trackPt = trackTmp->pt();  //  MeV 
-            sumPt = sumPt + trackPt;  // in MeV
-            deltaZ = trackTmp->z0() - vertex->z();
+            
         
             if (trackTmp) {
+                 trackPt = trackTmp->pt();  //  MeV 
+                 sumPt = sumPt + trackPt;  // in MeV
+                 deltaZ = trackTmp->z0() - vertex->z();
                  track_deltaZ.push_back(deltaZ);
                  // get the track weight for each track to get the deltaZ/trk_weight
                  float trk_weight = vertex->trackWeight(i);
