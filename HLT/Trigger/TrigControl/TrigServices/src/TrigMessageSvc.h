@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGSERVICES_TRIGMESSAGESVC_H
 #define TRIGSERVICES_TRIGMESSAGESVC_H
@@ -162,6 +162,9 @@ private:
        {this, "useErsFatal", {}},
        {this, "useErsAlways", {}}}};
 
+  Gaudi::Property<int> m_ersEventLimit{this, "ersPerEventLimit", -1,
+     "Maximum number of messages (per event and level) that are forwarded to ERS (-1: disabled)"};
+
   //////////////////////////////////////////////////////////////////////
   // Private members
   //////////////////////////////////////////////////////////////////////
@@ -179,6 +182,8 @@ private:
   std::map<std::string, MsgAry> m_sourceMap;     ///< counts per source
   std::array<int, MSG::NUM_LEVELS> m_msgCount;   ///< counts per level
   std::map<size_t, unsigned int> m_msgHashCount; ///< counts per message hash
+  std::unordered_map<EventContext::ContextID_t,
+                     std::pair<EventContext::ContextEvt_t, MsgAry>> m_slotMsgCount; ///< counts per slot and level
 
   bool m_doPublish{false};  ///< are we publishing message statistics?
   bool m_doSuppress{false}; ///< is suppression currently enabled?
@@ -195,6 +200,7 @@ private:
   void setupLimits(Gaudi::Details::PropertyBase& prop);
   void setupThreshold(Gaudi::Details::PropertyBase& prop);
   bool passErsFilter(const std::string& source, const std::vector<std::string>& filter) const;
+  bool passErsLimit(const Message& msg);
   void i_reportMessage(const Message& msg, int outputLevel);
   void i_reportERS(const Message& msg) const;
   void asyncReporting();
