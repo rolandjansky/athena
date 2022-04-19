@@ -157,14 +157,15 @@ def getArgumentParser(**kwargs):
 
     import argparse
     parser= argparse.ArgumentParser('Script to find Tile Calorimeter input data files: calibrations, ...', **kwargs)
-    parser.add_argument("-r", "--run", type=int, default=None, help="Run number")
-    parser.add_argument("--inputDirectory", type=str, default=None, help="Input directory")
-    parser.add_argument("-s", "--stream", type=str, default=None, help="Run stream")
-    parser.add_argument("-p", "--project", type=str, default=None, help="Data project")
-    parser.add_argument("-f", "--filter", type=str, default=".", help="Data file filter")
-    parser.add_argument("--suffix", type=str, default=None, help="Directory suffix")
-    parser.add_argument("--skipBadFiles", type=bool, default=True, help="Skip bad data files?")
-    parser.add_argument("-y", "--year", type=int, default=None, help="Year, data taken in")
+    files = parser.add_argument_group('Tile find input files')
+    files.add_argument("-r", "--run", type=int, default=None, help="Run number")
+    files.add_argument("--inputDirectory", type=str, default=None, help="Input directory")
+    files.add_argument("-s", "--stream", type=str, default=None, help="Run stream")
+    files.add_argument("-p", "--project", type=str, default=None, help="Data project")
+    files.add_argument("-f", "--filter", type=str, default=".", help="Data file filter")
+    files.add_argument("--suffix", type=str, default=None, help="Directory suffix")
+    files.add_argument("--skipBadFiles", type=bool, default=True, help="Skip bad data files?")
+    files.add_argument("-y", "--year", type=int, default=None, help="Year, data taken in")
 
     return parser
 
