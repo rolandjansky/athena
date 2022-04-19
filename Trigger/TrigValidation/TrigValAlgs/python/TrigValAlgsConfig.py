@@ -15,7 +15,8 @@ def getEDMAuxList():
     from TrigEDMConfig.TriggerEDM import getTriggerEDMList
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     EDMVersion = ConfigFlags.Trigger.EDMVersion
-    tlist=getTriggerEDMList('AODFULL',EDMVersion)
+    AODEDMSet = ConfigFlags.Trigger.AODEDMSet
+    tlist=getTriggerEDMList(AODEDMSet,EDMVersion)
     objlist=[]
     for t,kset in tlist.items():
         for k in kset:
