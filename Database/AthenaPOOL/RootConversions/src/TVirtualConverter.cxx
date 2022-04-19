@@ -15,7 +15,7 @@
 #include "TClass.h"
 #include "TBaseClass.h"
 #include "TDataMember.h"
-#include "RootUtils/TClassEditRootUtils.h"
+#include "TClassEdit.h"
 #include "TDataType.h"
 #include "TBuffer.h"
 #include "TError.h"
@@ -76,8 +76,14 @@ UInt_t CalculateCheckSum (TClass* cl, const char* name_in)
       int i;
       for (i=0; i<il; i++) id = id*3+name[i];
       type = tdm->GetFullTypeName();
-      if (TClassEdit::IsSTLCont(type) != ROOT::kNotSTL)
-        type = TClassEdit::ShortType( type, TClassEdit::kDropStlDefault );
+      {
+        // Protect against data race inside TClassEdit.
+        // https://github.com/root-project/root/issues/10353
+        // Should be fixed in root 6.26.02.
+        R__WRITE_LOCKGUARD(ROOT::gCoreMutex);
+        if (TClassEdit::IsSTLCont(type) != ROOT::kNotSTL)
+          type = TClassEdit::ShortType( type, TClassEdit::kDropStlDefault );
+      }
 
       il = type.Length();
       for (i=0; i<il; i++) id = id*3+type[i];
@@ -333,7 +339,14 @@ TClass* TVirtualConverter::ToClass (const std::type_info& id)
   if (cl) return cl;
 
   int errorCode = 0;
-  char* demname = TClassEdit::DemangleTypeIdName (id, errorCode);
+  char* demname = nullptr;
+  {
+    // Protect against data race inside TClassEdit.
+    // https://github.com/root-project/root/issues/10353
+    // Should be fixed in root 6.26.02.
+    R__WRITE_LOCKGUARD(ROOT::gCoreMutex);
+    demname = TClassEdit::DemangleTypeIdName (id, errorCode);
+  }
   if (demname) {
     cl = gROOT->GetClass (demname);
     free (demname);
