@@ -57,6 +57,8 @@ egammaLargeClusterMaker::execute(const EventContext& ctx,
 
   const CaloDetDescrManager* calodetdescrmgr = *caloDetDescrMgrHandle;
 
+  DataLink<CaloCellContainer> cellLink (cellcoll.ptr(), ctx);
+
   // The main loop over clusters
   for (const auto* cluster : *inputClusters) {
 
@@ -130,7 +132,7 @@ egammaLargeClusterMaker::execute(const EventContext& ctx,
 
       // create the new cluster
       xAOD::CaloCluster* newCluster =
-        CaloClusterStoreHelper::makeCluster(collection, cellcoll.ptr());
+        CaloClusterStoreHelper::makeCluster(collection, cellLink);
       newCluster->setEta0(etamax);
       newCluster->setPhi0(phimax);
       newCluster->setClusterSize(xAOD::CaloCluster::SW_7_11);
@@ -200,7 +202,7 @@ egammaLargeClusterMaker::execute(const EventContext& ctx,
 
       // create the new cluster
       xAOD::CaloCluster* newCluster =
-        CaloClusterStoreHelper::makeCluster(collection, cellcoll.ptr());
+        CaloClusterStoreHelper::makeCluster(collection, cellLink);
 
       // if In EMEC
       CaloLayerCalculator calc;
