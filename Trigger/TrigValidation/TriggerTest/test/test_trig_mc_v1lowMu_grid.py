@@ -26,7 +26,7 @@ ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'minbias'
 ex.threads = 4
 ex.concurrent_events = 4
-ex.args = '-c "setMenu=\'PhysicsP1_pp_lowMu_run3_v1\';doWriteRDOTrigger=True;"'
+ex.args = '-c "setMenu=\'PhysicsP1_pp_lowMu_run3_v1\';doWriteBS=False;doWriteRDOTrigger=True;"'
 
 test = Test.Test()
 test.art_type = 'grid'
