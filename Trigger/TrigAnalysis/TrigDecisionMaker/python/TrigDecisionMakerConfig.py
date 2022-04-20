@@ -114,7 +114,7 @@ def Run1Run2DecisionMakerCfg(flags):
     from SGComps.AddressRemappingConfig import InputRenameCfg
 
     # Even for Run-1, we only convert the EF result:
-    aodKey = "HLTResult_HLT" if doHLT else "HTLResult_EF"
+    aodKey = "HLTResult_HLT" if doHLT else "HLTResult_EF"
 
     acc.merge(InputRenameCfg("HLT::HLTResult", aodKey, aodKey+"_BS"))
     acc.addEventAlgo( CompFactory.xAODMaker.TrigNavigationCnvAlg('TrigNavigationCnvAlg',
