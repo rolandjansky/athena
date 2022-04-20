@@ -34,6 +34,8 @@
 
 #include "LArHVScaleCorrTool.h"
 
+#include <atomic>
+
 // forward declaration
 class CondAttrListCollection;
 class AthenaAttributeList;
@@ -184,6 +186,9 @@ private:
 
   float HV_nominal(const char *identification,const float eta) const;
   std::vector<int> returnProblem(const float eta, const float phi, const float delta_eta, const float delta_phi);
+
+
+  mutable std::atomic<unsigned> m_nPathologies{0};
 
 };
 

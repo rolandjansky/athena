@@ -208,9 +208,13 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
       writeAffectedHandle.addDependency(pHdl);
       ATH_MSG_DEBUG("Range of HV-Pathology " << pHdl.getRange() << ", intersection: " << writeHandle.getRange());
        const std::vector<LArHVPathologiesDb::LArHVElectPathologyDb> &pathCont = pathologyContainer->getPathology();
-       ATH_MSG_INFO( " Number of HV pathologies found " << pathCont.size());
-       for(unsigned i=0; i<pathologyContainer->getPathology().size(); ++i) {
-           LArHVPathologiesDb::LArHVElectPathologyDb electPath = pathologyContainer->getPathology()[i];
+       const size_t nPathologies=pathCont.size();
+       if (m_nPathologies != nPathologies) {
+	 ATH_MSG_INFO( "Number of HV pathologies found " << nPathologies);
+	 m_nPathologies=nPathologies;
+       }
+       for(unsigned i=0; i<nPathologies; ++i) {
+           LArHVPathologiesDb::LArHVElectPathologyDb electPath = pathCont[i];
            Identifier id(electPath.cellID);
            if (m_larem_id->is_lar_em(id)) {
                IdentifierHash idHash = m_larem_id->channel_hash(id);
@@ -1368,7 +1372,7 @@ StatusCode LArHVCondAlg::searchNonNominalHV_FCAL(CaloAffectedRegionInfoVec *vAff
 }
 //=========================================================================================
 StatusCode LArHVCondAlg::updateMethod(CaloAffectedRegionInfoVec *vAffected, const LArBadFebCont* bfCont, const LArOnOffIdMapping* cabling) const { //store informations on the missing Febs w/ range of eta, phi, layer
-  ATH_MSG_INFO ( "updateMethod()" );
+  ATH_MSG_DEBUG ( "updateMethod()" );
   
   const CaloDetDescrManager* calodetdescrmgr = nullptr;
   ATH_CHECK( detStore()->retrieve(calodetdescrmgr) );
