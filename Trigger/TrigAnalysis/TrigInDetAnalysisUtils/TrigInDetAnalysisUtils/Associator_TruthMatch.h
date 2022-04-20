@@ -5,7 +5,7 @@
  **     @author  mark sutton
  **     @date    Fri 11 Jan 2019 07:06:39 CET 
  **
- **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  **/
 
 
@@ -53,7 +53,7 @@ public:
 
   //Fill reference tracks in matching step
   virtual void match( const std::vector<TIDA::Track*>& refTracks, 
-		      const std::vector<TIDA::Track*>& testTracks) {
+		      const std::vector<TIDA::Track*>& testTracks) override {
 
     //std::cout<<"refTracks.size() "<<refTracks.size()<<" \t testTracks.size() "<<testTracks.size()<<std::endl;
     
