@@ -125,12 +125,11 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   }
   
   const AtlasDetectorID* aid = element->getIdHelper();
-  const PixelID* pid = dynamic_cast<const PixelID*>(aid);
-  if (not pid){
-  	ATH_MSG_ERROR("Dynamic cast failed at "<<__LINE__<<" of ClusterMakerTool.cxx.");
+  if (aid->helper() != AtlasDetectorID::HelperType::Pixel){
+  	ATH_MSG_ERROR("Wrong helper type at "<<__LINE__<<" of ClusterMakerTool.cxx.");
   	return nullptr;
   }
-  
+  const PixelID* pid = static_cast<const PixelID*>(aid);
   if ( errorStrategy==2 && m_forceErrorStrategy1A ) errorStrategy=1;
   // Fill vector of charges
   std::vector<float> chargeList;
@@ -385,11 +384,12 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   double zPitch = width.z()/colRow.y();
   
   const AtlasDetectorID* aid = element->getIdHelper();
-  const PixelID* pid = dynamic_cast<const PixelID*>(aid);
-  if (not pid){
-  	ATH_MSG_ERROR("Dynamic cast failed at "<<__LINE__<<" of ClusterMakerTool.cxx.");
+  
+  if (aid->helper() != AtlasDetectorID::HelperType::Pixel){
+  	ATH_MSG_ERROR("Wrong helper type at "<<__LINE__<<" of ClusterMakerTool.cxx.");
   	return nullptr;
   }
+  const PixelID* pid = static_cast<const PixelID*>(aid);
   int layer = pid->layer_disk(clusterID);
   int phimod = pid->phi_module(clusterID);
   switch (errorStrategy){

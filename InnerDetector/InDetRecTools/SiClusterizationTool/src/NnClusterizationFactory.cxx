@@ -764,11 +764,12 @@ namespace InDet {
       ATH_MSG_ERROR("Could not get ATLASDetectorID");
       return input;
     }
-    const PixelID* pixelIDp=dynamic_cast<const PixelID*>(aid);
-    if (not pixelIDp){
+    
+    if (aid->helper() != AtlasDetectorID::HelperType::Pixel){
       ATH_MSG_ERROR("Could not get PixelID pointer");
       return input;
     }
+    const PixelID* pixelIDp=static_cast<const PixelID*>(aid);
     const PixelID& pixelID = *pixelIDp;
     const InDetDD::PixelModuleDesign* design
         (dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design()));
