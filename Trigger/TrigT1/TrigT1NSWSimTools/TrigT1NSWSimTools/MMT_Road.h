@@ -39,8 +39,8 @@ struct micromegas_t {
 
 class MMT_Road : public AthMessaging {
   public:
-    MMT_Road(const char sector, const MuonGM::MuonDetectorManager* detManager, const micromegas_t mm, int xthr, int uvthr, int iroadx, int iroadu = -1, int iroadv = -1);
-    ~MMT_Road();
+    MMT_Road(const char sector, const MuonGM::MuonDetectorManager* detManager, const micromegas_t &mm, int xthr, int uvthr, int iroadx, int iroadu = -1, int iroadv = -1);
+    ~MMT_Road()=default;
 
     void addHits(std::vector<std::shared_ptr<MMT_Hit> > &hits);
     double avgSofX() const;
@@ -56,6 +56,8 @@ class MMT_Road : public AthMessaging {
     bool horizontalCheck() const;
     void incrementAge(const int &bcwind);
     double getB() const { return m_B; }
+    double getPitch() const { return m_pitch; }
+    const ROOT::Math::XYZVector& getPlaneCoordinate(const unsigned int index) const { return m_planeCoordinates.at(index); }
     int getRoadSize() const { return m_roadSize; }
     int getRoadSizeUpX() const { return m_roadSizeUpX; }
     int getRoadSizeDownX() const { return m_roadSizeDownX; }
@@ -73,7 +75,6 @@ class MMT_Road : public AthMessaging {
     double mxl() const;
     void reset();
     bool stereoCheck() const;
-    micromegas_t getMM() const { return m_micromegas; }
 
   private:
     const MuonGM::MuonDetectorManager* m_detManager{};        //!< MuonDetectorManager
@@ -83,13 +84,13 @@ class MMT_Road : public AthMessaging {
     int m_iroadx;
     int m_iroadu;
     int m_iroadv;
-    micromegas_t m_micromega;
     char m_sector;
     int m_xthr, m_uvthr;
     int m_roadSize, m_roadSizeUpX, m_roadSizeDownX, m_roadSizeUpUV, m_roadSizeDownUV;
+    double m_pitch, m_innerRadiusEta1, m_innerRadiusEta2;
     bool m_trig;
+    std::vector<ROOT::Math::XYZVector> m_planeCoordinates;
 
-    micromegas_t m_micromegas;
     std::vector<MMT_Hit> m_road_hits;
 };
 #endif
