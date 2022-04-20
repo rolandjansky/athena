@@ -1,9 +1,11 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigEgammaAnalysisBaseTool_H
 #define TrigEgammaAnalysisBaseTool_H
+
+#include "GaudiKernel/ITHistSvc.h"
 
 #include "TrigEgammaAnalysisTools/ITrigEgammaAnalysisBaseTool.h"
 #include "AsgTools/AsgTool.h"
@@ -14,7 +16,6 @@
 #include "TrigEgammaAnalysisTools/ITrigEgammaPlotTool.h"
 //#include "TrigEgammaEmulationTool/ITrigEgammaEmulationTool.h"
 //#include "TrigEgammaEmulationTool/TrigEgammaEmulationTool.h"
-#include "TrigHLTMonitoring/IHLTMonTool.h"
 #include "LumiBlockComps/ILumiBlockMuTool.h"
 #include "LumiBlockData/LuminosityCondData.h"
 #include "xAODTruth/TruthParticle.h"
@@ -55,7 +56,6 @@ ASG_TOOL_CLASS(TrigEgammaAnalysisBaseTool, ITrigEgammaAnalysisBaseTool)
   template <class T1, class T2> const T1* closestObject(const std::pair<const xAOD::Egamma *, const HLT::TriggerElement *>, 
                                                         float &, bool usePassbits=true,const std::string key="");
   // Interface class methods needed to pass information to additional tools or to set common tools
-  void setParent(IHLTMonTool *parent)  { m_parent = parent;};
   void setPlotTool(ToolHandle<ITrigEgammaPlotTool> tool)  {m_plot=tool;}
   void setDetail(bool detail)  {m_detailedHists=detail;}
   void setTP(bool tp)  {m_tp=tp;}
@@ -208,7 +208,6 @@ protected:
   // Athena services
   StoreGateSvc * m_storeGate;
   ITHistSvc* m_histsvc;
-  IHLTMonTool *m_parent;
 
   // ToolHandles
   ToolHandleArray<ITrigEgammaAnalysisBaseTool> m_tools;

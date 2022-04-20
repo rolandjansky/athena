@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigEgammaAnalysisTools )
@@ -13,13 +13,13 @@ atlas_add_library( TrigEgammaAnalysisToolsLib
    PUBLIC_HEADERS TrigEgammaAnalysisTools
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools EgammaAnalysisInterfacesLib GaudiKernel LumiBlockCompsLib LumiBlockData PATCoreLib StoreGateLib TrigDecisionToolLib TrigEgammaMatchingToolLib TrigHLTMonitoringLib TrigNavStructure xAODCaloRings xAODEgamma xAODEventInfo xAODJet xAODMissingET xAODTracking xAODTrigCalo xAODTrigger xAODTruth
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools EgammaAnalysisInterfacesLib GaudiKernel LumiBlockCompsLib LumiBlockData PATCoreLib StoreGateLib TrigDecisionToolLib TrigEgammaMatchingToolLib TrigNavStructure xAODCaloRings xAODEgamma xAODEventInfo xAODJet xAODMissingET xAODTracking xAODTrigCalo xAODTrigger xAODTruth
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} AthenaMonitoringLib TrigConfxAODLib TrigSteeringEvent )
 
 atlas_add_component( TrigEgammaAnalysisTools
    src/*.cxx
    src/components/*.cxx
-   LINK_LIBRARIES AsgTools AthenaBaseComps AthenaMonitoringLib TrigEgammaAnalysisToolsLib xAODEgamma )
+   LINK_LIBRARIES AsgTools AthenaBaseComps TrigEgammaAnalysisToolsLib xAODEgamma )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

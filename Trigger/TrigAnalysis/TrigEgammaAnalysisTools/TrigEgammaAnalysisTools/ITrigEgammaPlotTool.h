@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ITrigEgammaPlotTool.h
@@ -8,7 +8,6 @@
 #define ITrigEgammaPlotTool_H
 
 #include "AsgTools/IAsgTool.h"
-#include "TrigHLTMonitoring/IHLTMonTool.h"
 #include "TrigEgammaAnalysisTools/TrigEgammaInfo.h"
 
 #include "TH1.h"
@@ -28,7 +27,6 @@ public:
   virtual StatusCode execute()=0;
   virtual StatusCode finalize()=0;
   virtual StatusCode finalizeShifterHistos(std::map<std::string,TrigInfo>)=0;
-  virtual void setParent(IHLTMonTool *)=0;
   virtual void setDetail(bool)=0;
   virtual void setAltBinning(bool)=0;
   virtual void setTP(bool)=0;

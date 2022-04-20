@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ITrigEgammaAnalysisBaseTool.h
@@ -8,10 +8,16 @@
 #define ITrigEgammaAnalysisBaseTool_H
 
 #include "AsgTools/IAsgTool.h"
-#include "TrigHLTMonitoring/IHLTMonTool.h"
+#include "AsgTools/ToolHandle.h"
 #include "TrigEgammaAnalysisTools/ITrigEgammaPlotTool.h"
-//#include "TrigEgammaEmulationTool/ITrigEgammaEmulationTool.h"
+#include "xAODEgamma/Egamma.h"
 
+#include <utility>
+#include <vector>
+
+namespace HLT {
+  class TriggerElement;
+}
 
 class ITrigEgammaAnalysisBaseTool : virtual public asg::IAsgTool {
   ASG_TOOL_INTERFACE(ITrigEgammaAnalysisBaseTool)
@@ -22,7 +28,6 @@ public:
   virtual StatusCode book()=0;
   virtual StatusCode execute()=0;
   virtual StatusCode finalize()=0;
-  virtual void setParent(IHLTMonTool *)=0;
   virtual void setPlotTool(ToolHandle<ITrigEgammaPlotTool>)=0;
   virtual void setDetail(bool)=0;
   virtual void setTP(bool)=0;

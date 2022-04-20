@@ -1,14 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGEGAMMAANALYSISTOOLS_EGAMMA_H_
 #define TRIGEGAMMAANALYSISTOOLS_EGAMMA_H_
 
+#include "GaudiKernel/ITHistSvc.h"
 
 #include "TrigEgammaAnalysisTools/ITrigEgammaPlotTool.h"
 #include "AsgTools/AsgTool.h"
-#include "TrigHLTMonitoring/IHLTMonTool.h"
+
 class TrigEgammaPlotTool
 : public asg::AsgTool,
   virtual public ITrigEgammaPlotTool {
@@ -23,7 +24,6 @@ class TrigEgammaPlotTool
           StatusCode execute();
           StatusCode finalizeShifterHistos(std::map<std::string,TrigInfo> trigInfo);
           StatusCode finalize();
-          void setParent(IHLTMonTool *parent){ m_parent = parent;};
           void setDetail(bool doDetail){ m_detailedHists = doDetail; }
           void setTP(bool tp){ m_tp = tp; }
           void setEmulation(bool doEmu){ m_doEmulation = doEmu;}
@@ -50,8 +50,7 @@ class TrigEgammaPlotTool
           // Athena services
           StoreGateSvc * m_storeGate;
           ITHistSvc* m_histsvc;
-          IHLTMonTool *m_parent;
-          
+
           // Infra-structure members
           std::string m_file;
           std::set<std::string> m_mongroups; // MonGroups for T0
