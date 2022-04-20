@@ -130,7 +130,7 @@ class TrigEgammaPrecisionElectronHypoToolConfig:
 
     self.__log.debug( 'Electron_Chain     :%s', self.__name )
     self.__log.debug( 'Electron_Threshold :%s', self.__threshold )
-    self.__log.debug( 'Electron_Pidname   :%s', self.__sel )
+    self.__log.debug( 'Electron_Pidname   :%s', self.pidname() )
     self.__log.debug( 'Electron_iso       :%s', self.__iso )
     self.__log.debug( 'Electron_d0        :%s', self.__d0 )
 
