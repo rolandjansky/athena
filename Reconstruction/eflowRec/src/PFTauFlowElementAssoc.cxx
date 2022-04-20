@@ -15,7 +15,7 @@ PFTauFlowElementAssoc::PFTauFlowElementAssoc(const std::string& name,
               ISvcLocator* pSvcLocator): AthReentrantAlgorithm(name, pSvcLocator)
 {}
 
-PFTauFlowElementAssoc::~PFTauFlowElementAssoc() {}
+PFTauFlowElementAssoc::~PFTauFlowElementAssoc() = default;
 
 StatusCode PFTauFlowElementAssoc::initialize() {
 

@@ -27,7 +27,7 @@ StatusCode PFLCNeutralFlowElementCreatorAlgorithm::execute(const EventContext& c
     const xAOD::FlowElement* thisFE = (*neutralFEContainerReadHandle)[counter];
 
     const static SG::AuxElement::Accessor<ElementLink<xAOD::CaloClusterContainer> > accShowerSubtractedClusterLink("FEShowerSubtractedClusterLink");
-    ElementLink<xAOD::CaloClusterContainer> clusElementLink = accShowerSubtractedClusterLink(*thisFE);
+    const ElementLink<xAOD::CaloClusterContainer>& clusElementLink = accShowerSubtractedClusterLink(*thisFE);
 
     xAOD::FlowElement* theCopiedFE = (*neutralFELCContainerWriteHandle)[counter];
     //be careful here - cluster p4 methods do not store sign. Thus -ve energy clusters have +ve pt and hence +ve energy

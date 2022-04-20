@@ -17,7 +17,7 @@ PFTrackPreselAlg::PFTrackPreselAlg(const std::string& name, ISvcLocator* pSvcLoc
 {
 }
 
-PFTrackPreselAlg::~PFTrackPreselAlg() {}
+PFTrackPreselAlg::~PFTrackPreselAlg() = default;
 
 StatusCode PFTrackPreselAlg::initialize()
 {

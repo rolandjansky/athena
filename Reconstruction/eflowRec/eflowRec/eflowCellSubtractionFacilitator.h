@@ -15,8 +15,7 @@ CREATED:  3rd February 2009
 
 ********************************************************************/
 
-#include "AthenaBaseComps/AthMessaging.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AsgMessaging/AsgMessaging.h"
 #include "eflowRec/eflowCellList.h"
 #include "eflowRec/eflowRingSubtractionManager.h"
 #include "xAODCaloEvent/CaloCluster.h"
@@ -33,7 +32,7 @@ CREATED:  3rd February 2009
  are removed one by one in the order they are stored until the summed cell ring
  energy is >= to the expected energy deposit from the track in the calorimeter.
 */
-class eflowCellSubtractionFacilitator : public AthMessaging
+class eflowCellSubtractionFacilitator : public asg::AsgMessaging
 {
 
 public:
@@ -42,21 +41,20 @@ public:
   double subtractCells(eflowRingSubtractionManager& ringSubtractionManager,
                        double trackEnergy,
                        xAOD::CaloCluster* tracksClus,
-                       eflowCellList& orderedCells);
+                       eflowCellList& orderedCells,
+                       bool& annFlag) const;
   double subtractCells(
     eflowRingSubtractionManager& ringSubtractionManager,
     double trackEnergy,
     std::vector<std::pair<xAOD::CaloCluster*, bool>>& tracksClus,
-    eflowCellList& orderedCells);
-  bool annFlag() { return m_annFlag; }
-  void setAnnFlag() { m_annFlag = true; }
+    eflowCellList& orderedCells,
+    bool& annFlag) const;
 
 private:
-  bool m_annFlag;
   static CaloClusterCellLink::iterator getCellIterator(
     xAOD::CaloCluster* thisCluster,
     const CaloCell* thisCell);
- 
+
   static void updateClusterKinematics(
     std::vector<std::pair<xAOD::CaloCluster*, bool>>& tracksClusters);
   static void updateClusterKinematics(xAOD::CaloCluster*);
@@ -74,12 +72,12 @@ private:
     CellIt beginRing,
     CellIt endRing,
     double targetRingEnergy,
-    double eRing);
+    double eRing) const;
 
   void subtractFullRings(
     std::vector<std::pair<xAOD::CaloCluster*, bool>>& tracksClusters,
     CellIt beginRing,
-    CellIt endRing);
+    CellIt endRing) const;
 
   bool subtractRings(
     eflowRingSubtractionManager& ringSubtractionManager,
@@ -87,15 +85,16 @@ private:
     double& eSubtracted,
     const double eExpect,
     eflowCellList& orderedCells,
-    std::vector<std::pair<xAOD::CaloCluster*, bool>>& tracksClusters);
+    std::vector<std::pair<xAOD::CaloCluster*, bool>>& tracksClusters,
+    bool& annFlag) const;
 
   static bool subtractCaloCell(double& eSubtracted,
-                        const double eExpect,
-                        xAOD::CaloCluster* cluster,
-                        const CaloCell* cell);
+                               const double eExpect,
+                               xAOD::CaloCluster* cluster,
+                               const CaloCell* cell);
 
-  void annihilateClusters(
-    std::vector<std::pair<xAOD::CaloCluster*, bool>>& tracksClusters);
+  static void annihilateClusters(
+    std::vector<std::pair<xAOD::CaloCluster*, bool>>& tracksClusters, bool& annFlag) ;
 
   static bool subtractReorderedCells(
     std::vector<std::pair<xAOD::CaloCluster*, bool>>& tracksClusters,
