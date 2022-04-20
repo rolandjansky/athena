@@ -1,6 +1,8 @@
-// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #ifndef L1TopoInterfaces_AlgFactory
 #define L1TopoInterfaces_AlgFactory
+
+#include "CxxUtils/checker_macros.h"
 
 #include <string>
 #include <vector>
@@ -44,8 +46,9 @@ namespace TCS {
       CallMap m_callMap;
 
       AlgMap_t m_algs;
-      
-      static thread_local AlgFactory * fg_instance;
+
+      // This is safe because only filled during initialize (ATR-25362)
+      inline static AlgFactory * fg_instance ATLAS_THREAD_SAFE {nullptr};
    };
    
 }

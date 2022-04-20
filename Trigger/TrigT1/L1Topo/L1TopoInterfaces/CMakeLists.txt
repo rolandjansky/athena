@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( L1TopoInterfaces )
@@ -12,4 +12,4 @@ atlas_add_library( L1TopoInterfaces
                    PUBLIC_HEADERS L1TopoInterfaces
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES}
-                   LINK_LIBRARIES L1TopoCommon L1TopoEvent L1TopoSimulationUtils TrigConfBase TrigConfIO TrigConfData)
+                   LINK_LIBRARIES CxxUtils L1TopoCommon L1TopoEvent L1TopoSimulationUtils TrigConfBase TrigConfIO TrigConfData)
