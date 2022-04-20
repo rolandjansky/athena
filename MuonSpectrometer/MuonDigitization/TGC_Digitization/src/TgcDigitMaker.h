@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
    @class TgcDigitMaker
@@ -148,7 +148,9 @@ class TgcDigitMaker : public AthMessaging {
 
   /** Get energy threshold value for each chamber */
   double getEnergyThreshold(const std::string& stationName, int stationEta, int stationPhi, int gasGap, const TgcSensor sensor) const;
-  void randomCrossTalk(const Identifier elemId, const int gasGap, const TgcSensor sensor, const int channel, const float posInStrip, const double digitTime, CLHEP::HepRandomEngine* rndmEngine, TgcDigitCollection* digits) const;
+  void randomCrossTalk(const Identifier elemId, const int gasGap, const TgcSensor sensor,
+                       const int channel, const float posInStrip, const float digitTime,
+                       const float time_offset, CLHEP::HepRandomEngine* rndmEngine, TgcDigitCollection* digits) const;
   /** Method to check a chamber is dead or active */
   bool isDeadChamber(const std::string& stationName, int stationEta, int stationPhi, int gasGap);
   /** Method to get time window offset */
