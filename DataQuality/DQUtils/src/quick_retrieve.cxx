@@ -27,6 +27,8 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <stdexcept>
+
 using std::cout;
 using std::endl;
 using std::string;
@@ -84,7 +86,7 @@ cool::IRecordSelection* make_fieldselection(
         
     //MAKE_FS(Blob16M,   PyString_AsString)
     //MAKE_FS(Blob64k,   PyString_AsString)
-    throw;
+    throw (std::runtime_error("Unsupported cool type encountered in python conversion"));
 }
 
 vector<const cool::IRecordSelection*> make_selection_vector()
@@ -136,6 +138,7 @@ inline PyObject* payload_fetcher(const IObject& o, const string& name,
     const IField& field = o.payload()[name];
     if (field.isNull())
         Py_RETURN_NONE;
+    //cppcheck-suppress CastIntegerToAddressAtReturn
     return converter_function(field.data<T>());
 }
 
@@ -285,7 +288,7 @@ PyObject* quick_retrieve(const IObjectIteratorPtr& objects,
             {
                 PyObject *py_datetime_module = PyImport_ImportModule("datetime");
                 if (!py_datetime_module)
-                    throw;
+                    throw (std::runtime_error("Could not import python datetime_module"));
                 
                 py_datetime_class = PyObject_GetAttrString(py_datetime_module,
                                                            "datetime"); 
