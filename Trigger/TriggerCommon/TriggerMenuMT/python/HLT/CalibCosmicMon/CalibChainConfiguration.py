@@ -155,7 +155,7 @@ class CalibChainConfiguration(ChainConfigurationBase):
             "LArNoiseBurst": ['getAllTEStep'],
             "LArPSAllEM" : ['getCaloAllEMStep'],
             "LArPSAll" : ['getCaloAllStep'],
-            "IDCalib"  : ['getIDCalibEmpty','getIDCalibFTFReco','getIDCalibTrigger']
+            "IDCalib": ['getIDCalibEmpty', 'getIDCalibEmpty', 'getIDCalibFTFReco', 'getIDCalibTrigger']
         }
         return stepDictionary
 
