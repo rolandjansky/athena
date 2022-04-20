@@ -132,17 +132,17 @@ TrigConf::TrigDBCTPFilesLoader::loadHardwareFiles (unsigned int smk,
       catch(const coral::AttributeException & e) // NULL content
       {}
       try {
-         ctpSmxID = row["L1TM.L1TM_CTP_FILES_ID"].data<unsigned int>();
+         ctpSmxID = row["L1TM.L1TM_CTP_SMX_ID"].data<unsigned int>();
       }
       catch(const coral::AttributeException & e) // NULL content
       {}
       try {
-         muctpiID = row["L1TM.L1TM_CTP_FILES_ID"].data<unsigned int>();
+         muctpiID = row["L1TM.L1TM_MUCTPI_FILES_ID"].data<unsigned int>();
       }
       catch(const coral::AttributeException & e) // NULL content
       {}
       try {
-         tmcSignalsID = row["L1TM.L1TM_CTP_FILES_ID"].data<unsigned int>();
+         tmcSignalsID = row["L1TM.L1TM_TMC_SIGNALS_ID"].data<unsigned int>();
       }
       catch(const coral::AttributeException & e) // NULL content
       {}
