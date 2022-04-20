@@ -188,7 +188,7 @@ class TrackingInputConfig(AlgInputConfig):
         from JetRecConfig.StandardJetContext import jetContextDic
         super().__init__(
             produces=copy.copy(jetContextDic['trackKeys']),
-            step=1,
+            step=2,
         )
 
     def dependencies(self, recoDict):
