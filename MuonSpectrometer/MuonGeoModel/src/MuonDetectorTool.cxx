@@ -299,8 +299,7 @@ StatusCode MuonDetectorTool::createFactory(MuonDetectorFactory001 &theFactory) c
         theFactory.setDBMuonVersion(MuonVersion);
         theFactory.setDBkey(detectorKey);
         theFactory.setDBnode(detectorNode);
-        theFactory.setABLinesAsciiSideA(m_NSWABLinesAsciiSideA);
-        theFactory.setABLinesAsciiSideC(m_NSWABLinesAsciiSideC);
+        theFactory.setNSWABLineAsciiPath(m_NSWABLineAsciiPath);
         theFactory.setMMAsBuiltJsonPath(m_MMAsBuiltJsonPath);
         theFactory.setAmdcDb(isAmdcDb);
         theFactory.setLayout(tempLayout);

@@ -175,8 +175,7 @@ namespace MuonGM {
         void setCacheFillingFlag(int value);
         inline int cacheFillingFlag() const;
 
-        void setNSWABLinesAsciiSideA(const std::string& str);
-        void setNSWABLinesAsciiSideC(const std::string& str);
+        void setNSWABLineAsciiPath(const std::string& str);
 
         void setMinimalGeoFlag(int flag);
         inline int  MinimalGeoFlag() const;
@@ -364,8 +363,7 @@ namespace MuonGM {
         std::string m_geometryVersion{};  // generic name of the Layout
         std::string m_DBMuonVersion{};    // name of the MuonVersion table-collection in Oracle
 
-        std::string m_NSWABLinesAsciiSideA{};
-        std::string m_NSWABLinesAsciiSideC{};
+        std::string m_NSWABLineAsciiPath{};
 
         // pointers to IdHelpers
         const MdtIdHelper* m_mdtIdHelper{nullptr};
