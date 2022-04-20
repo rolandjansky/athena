@@ -588,7 +588,7 @@ void PixelChargeInterpolationValidation::WriteErrorsFile(const std::string& name
 				if (value == 0) value = (k+1)*400/sqrt(12)/1000;
 				parameters->setPixelBarrelEtaError(globalindex,value);
 			}
-	parameters->Print(name.c_str());
+	parameters->Print(name);
 
         delete parameters;
 }
