@@ -19,7 +19,7 @@ def workDir( fileName ):
     if 'ATN_WORK_AREA' in  os.environ:
         workArea = os.environ['ATN_WORK_AREA']
     else:
-        workArea = "/tmp"
+        workArea = "tmp-pythinning"
         pass
     if not os.path.exists(workArea):
         os.makedirs(workArea)
