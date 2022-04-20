@@ -65,9 +65,9 @@ struct dict {
 // In pythonic_coracool.cxx
 
 const cool::RecordSpecification 
-    get_coracool_payload_spec(IDatabasePtr cooldb, string folder);
+    get_coracool_payload_spec(IDatabasePtr cooldb, const string & folder);
 
-PyObject *browse_coracool(IDatabasePtr cooldb, string folder, 
+PyObject *browse_coracool(IDatabasePtr cooldb, const string & folder, 
                           ValidityKey since, ValidityKey until,
                           const ChannelSelection &cs = ChannelSelection::all(), 
                           const char *tag="",
