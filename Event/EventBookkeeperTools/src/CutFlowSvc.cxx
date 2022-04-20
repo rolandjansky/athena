@@ -398,7 +398,7 @@ CutFlowSvc::addEvent( CutIdentifier cutID )
     evtWeight=-1000.;
   } else {
     // Only try to access the mcEventWeight is we are running on Monte Carlo, duhhh!
-    if ( evtInfo->eventType(xAOD::EventInfo::IS_SIMULATION) ) {
+    if ( evtInfo->eventType(xAOD::EventInfo::IS_SIMULATION) || evtInfo->hasMCEventWeights() ) {
       evtWeight = evtInfo->mcEventWeight();
     }
   }
