@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************
@@ -74,8 +74,7 @@ TrigEgammaAnalysisBaseTool( const std::string& myname )
 
     m_storeGate = nullptr;
     m_histsvc = nullptr;
-    m_parent = nullptr;
-    
+
     // just for compile
     HLT::TriggerElement* t = nullptr;
     const xAOD::TrigElectronContainer* a = getFeature<xAOD::TrigElectronContainer>(t);
@@ -158,14 +157,6 @@ StatusCode TrigEgammaAnalysisBaseTool::initialize() {
         return StatusCode::FAILURE;
     }
 
-    //TrigEgammaPlotTool
-    if(m_parent) m_plot->setParent(m_parent);
-    /*sc = m_plot->initialize();
-    if( sc.isFailure() ) {
-        ATH_MSG_ERROR("Unable to locate TrigEgammaPlotTool");
-        return sc;
-    }*/
-    
     try {
         ATH_MSG_DEBUG("child Initialize " << name());
         sc = childInitialize();

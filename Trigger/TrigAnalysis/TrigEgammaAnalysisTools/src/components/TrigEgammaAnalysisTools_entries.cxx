@@ -1,6 +1,4 @@
 #include "TrigEgammaAnalysisTools/TrigEgammaAnalysisBaseTool.h"
-#include "../TrigEgammaMonTool.h"
-#include "../TrigEgammaPhysValMonTool.h"
 #include "TrigEgammaAnalysisTools/TrigEgammaNavBaseTool.h"
 #include "TrigEgammaAnalysisTools/TrigEgammaNavAnalysisTool.h"
 #include "TrigEgammaAnalysisTools/TrigEgammaNavTPBaseTool.h"
@@ -14,8 +12,6 @@
 #include "../TrigEgammaTDToolTest.h"
 
 DECLARE_COMPONENT(TrigEgammaAnalysisBaseTool)
-DECLARE_COMPONENT(TrigEgammaMonTool)
-DECLARE_COMPONENT(TrigEgammaPhysValMonTool)
 DECLARE_COMPONENT(TrigEgammaNavTPBaseTool)
 DECLARE_COMPONENT(TrigEgammaNavAnalysisTool)
 DECLARE_COMPONENT(TrigEgammaNavBaseTool)
