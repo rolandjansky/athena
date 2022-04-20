@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -30,8 +30,7 @@ using namespace std;
 //   eflowEEtaBinnedParameters   //
 ///////////////////////////////////
 
-eflowEEtaBinnedParameters::~eflowEEtaBinnedParameters() {
-}
+eflowEEtaBinnedParameters::~eflowEEtaBinnedParameters() = default;
 
 void eflowEEtaBinnedParameters::initialise(const std::vector<double>& eBinBounds, const std::vector<double>& etaBinBounds, bool useAbsEta) {
   m_useAbsEta = useAbsEta;

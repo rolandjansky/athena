@@ -30,7 +30,7 @@ const std::string& name,
 }
 
 // Class destructor 
-PFEGamFlowElementAssoc::~PFEGamFlowElementAssoc(){}
+PFEGamFlowElementAssoc::~PFEGamFlowElementAssoc()= default;
 
 StatusCode PFEGamFlowElementAssoc::initialize()
 {
