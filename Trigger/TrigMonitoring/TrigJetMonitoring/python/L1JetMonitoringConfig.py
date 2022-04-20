@@ -68,6 +68,8 @@ class L1JetMonAlg():
       alg.TriggerChain = self.triggerChain
       # alg.IsMatched = False
       alg.IsMatched = self.matched
+      alg.MatchedOfflineJets = self.matchedOJ
+      alg.MatchedHLTJets     = self.matchedHLTJ
 
     elif jFexLR or gFexSR or gFexLR:
       alg = monhelper.addAlgorithm(CompFactory.TrigL1FexJetMonitorAlgorithm,
