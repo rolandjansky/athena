@@ -998,8 +998,8 @@ void VP1TrackSystem::tracksFromVertexChanged(QList< std::pair<const SoMaterial*,
     SoMaterial* mat = const_cast<SoMaterial*>(it.first);
     messageVerbose("Number of tracks associated with this vertex= "+QString::number(it.second.size()));
 
-    const Trk::Track* trk;
-    foreach(trk, it.second) {
+    
+    foreach(const Trk::Track* trk, it.second) {
       m_d->vertexMaterialForTrackBases[trk]=mat;
       mat->ref();
 //      messageVerbose("Adding TrackHandleBase with pointer= "+QString::number((unsigned int)handle)+" for trk="+QString::number((unsigned int)trk));
