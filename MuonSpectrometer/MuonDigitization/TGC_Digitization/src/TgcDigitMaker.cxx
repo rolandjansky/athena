@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TgcDigitMaker.h"
@@ -266,7 +266,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
 	  addDigit(newId,bctag, digits.get());
 
 	  if(iwg==iWG[0]) {
-	    randomCrossTalk(elemId, ilyr, sensor, iwg, posInWG[0], wDigitTime, rndmEngine, digits.get());
+	    randomCrossTalk(elemId, ilyr, sensor, iwg, posInWG[0], wDigitTime, wOffset, rndmEngine, digits.get());
 	  }	 
  
 	  ATH_MSG_DEBUG("WireGroup: newid breakdown digitTime x/y/z direcos height_gang bctag: "
@@ -415,7 +415,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
 	  addDigit(newId, bctag, digits.get());
 
 	  if(istr==iStr[0]) {
-	    randomCrossTalk(elemId, ilyr, sensor, iStr[0], posInStr[0], sDigitTime, rndmEngine, digits.get());
+	    randomCrossTalk(elemId, ilyr, sensor, iStr[0], posInStr[0], sDigitTime, sOffset, rndmEngine, digits.get());
 	  }
 
 	  ATH_MSG_DEBUG("Strip: newid breakdown digitTime x/y/z direcos r_center bctag: "
@@ -1122,7 +1122,8 @@ void TgcDigitMaker::randomCrossTalk(const Identifier elemId,
                                     const TgcSensor sensor,
                                     const int channel,
                                     const float posInChan,
-                                    const double digitTime,
+                                    const float digitTime,
+                                    const float time_offset,
                                     CLHEP::HepRandomEngine* rndmEngine,
                                     TgcDigitCollection* digits) const
 {
@@ -1171,9 +1172,9 @@ void TgcDigitMaker::randomCrossTalk(const Identifier elemId,
   if(nCrossTalks_neg==0 && nCrossTalks_pos==0) return; // No cross-talk case 
 
   // No time structure is implemented yet. 
-  double dt = digitTime; 
+  float dt = digitTime; 
   TgcStation station = (stationName > 46) ? kINNER : kOUTER;
-  uint16_t bctag = bcTagging(dt, m_gateTimeWindow[station][sensor], m_timeWindowOffsetSensor[sensor]);
+  uint16_t bctag = bcTagging(dt, m_gateTimeWindow[station][sensor], time_offset);
   // obtain max channel number
   Identifier thisId = m_idHelper->channelID(elemId, gasGap, (int)sensor, channel);
   int maxChannelNumber = m_idHelper->channelMax(thisId);
@@ -1363,8 +1364,8 @@ float TgcDigitMaker::getDistanceToAsdFromSensor(const TgcDigitASDposData* readCd
   }
 
   unsigned int asdNum[TgcSensor::N_SENSOR];
-  asdNum[TgcSensor::kSTRIP] = channel / TgcDigitASDposData::N_CHANNELINPUT_TOASD;
-  asdNum[TgcSensor::kWIRE]  = channel / TgcDigitASDposData::N_CHANNELINPUT_TOASD + TgcDigitASDposData::N_STRIPASDPOS;
+  asdNum[TgcSensor::kSTRIP] = (channel-1) / TgcDigitASDposData::N_CHANNELINPUT_TOASD;
+  asdNum[TgcSensor::kWIRE]  = (channel-1) / TgcDigitASDposData::N_CHANNELINPUT_TOASD + TgcDigitASDposData::N_STRIPASDPOS;
 
   float disToAsd = fabs( position*CLHEP::mm/CLHEP::m - readCdo->asdPos[ asdNum[sensor] ][dbNum] );
 
