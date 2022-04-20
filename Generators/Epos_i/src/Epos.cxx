@@ -217,6 +217,7 @@ StatusCode Epos::fillEvt( HepMC::GenEvent* evt )
     m_runinfo = std::make_shared<HepMC3::GenRunInfo>();
     std::vector<std::string> names = {"Default"};
     m_runinfo->set_weight_names(names);
+    evt->set_run_info(m_runinfo);
 #endif
 
   //correct units, for hepMC printing uncomment lines below
