@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, ConfigurationError
 import os
@@ -71,7 +71,7 @@ def IOVDbSvcCfg(configFlags):
 
     # Get TagInfoMgr
     from EventInfoMgt.TagInfoMgrConfig import TagInfoMgrCfg 
-    result.merge(TagInfoMgrCfg(configFlags)[0])
+    result.merge(TagInfoMgrCfg(configFlags))
     iovDbSvc.Folders.append("/TagInfo<metaOnly/>")
     
     # Set up MetaDataSvc                                                                                             
