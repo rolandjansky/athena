@@ -66,7 +66,8 @@ namespace InDet
     }
   }
 
-  const InDetDD::SiDetectorElement* PixelClusteringToolBase::preClusterizationChecks(const InDetRawDataCollection<PixelRDORawData> &collection) const
+  const InDetDD::SiDetectorElement* PixelClusteringToolBase::preClusterizationChecks(const InDetRawDataCollection<PixelRDORawData> &collection,
+                                                                                     const InDet::SiDetectorElementStatus *pixelDetElStatus) const
   {
     const unsigned int RDO_size = collection.size();
     if ( RDO_size==0) {
@@ -77,7 +78,8 @@ namespace InDet
     IdentifierHash idHash = collection.identifyHash();
 
     // If module is bad, do not create a cluster collection
-    if (m_useModuleMap && !(m_summaryTool->isGood(idHash))) 
+    VALIDATE_STATUS_ARRAY(m_useModuleMap && pixelDetElStatus, pixelDetElStatus->isGood(idHash), m_summaryTool->isGood(idHash));
+    if (m_useModuleMap && ( pixelDetElStatus ? !pixelDetElStatus->isGood(idHash) : !(m_summaryTool->isGood(idHash))))
       return nullptr;
 
     SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
@@ -99,11 +101,12 @@ namespace InDet
 
   PixelClusterCollection* PixelClusteringToolBase::clusterize(const InDetRawDataCollection<PixelRDORawData> &collection, const PixelID& pixelID) const
   {
-    const InDetDD::SiDetectorElement* element = preClusterizationChecks(collection);
+    const InDet::SiDetectorElementStatus *pixelDetElStatus= (!m_pixelDetElStatus.empty() ? getPixelDetElStatus().cptr() : nullptr);
+    const InDetDD::SiDetectorElement* element = preClusterizationChecks(collection, pixelDetElStatus);
     if (not element)
       return nullptr;
 
-    return doClusterization(collection, pixelID, element);
+    return doClusterization(collection, pixelID, element, pixelDetElStatus);
   }
 
 
