@@ -1093,6 +1093,8 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
                 addClusterToCaloCellAOD(egammaKeys.outputClusterKey())
                 addClusterToCaloCellAOD(egammaKeys.outputFwdClusterKey())
                 addClusterToCaloCellAOD(egammaKeys.outputEgammaLargeFWDClustersKey())
+                if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
+                    addClusterToCaloCellAOD('LRT'+egammaKeys.outputClusterKey())
                 if "itemList" in metadata:
                     if ('xAOD::CaloClusterContainer', egammaKeys.EgammaLargeClustersKey()) in metadata["itemList"]:
                         # check first for priority if both keys are in metadata
