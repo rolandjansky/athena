@@ -38,12 +38,6 @@ def EGammaSteeringCfg(flags,
             egammaOutputCfg)
         acc.merge(egammaOutputCfg(flags))
 
-    # Add e/gamma xAOD thinning
-    if flags.Output.doWriteAOD:
-        from egammaConfig.egammaxAODThinningConfig import (
-            egammaxAODThinningCfg)
-        acc.merge(egammaxAODThinningCfg(flags))
-
     # LRT Reconstruction
     if flags.Detector.GeometryID and flags.InDet.Tracking.doR3LargeD0:
         from egammaConfig.egammaLRTReconstructionConfig import (
@@ -55,6 +49,12 @@ def EGammaSteeringCfg(flags,
             from egammaConfig.egammaLRTOutputConfig import (
                 egammaLRTOutputCfg)
             acc.merge(egammaLRTOutputCfg(flags))
+
+    # Add e/gamma xAOD thinning
+    if flags.Output.doWriteAOD:
+        from egammaConfig.egammaxAODThinningConfig import (
+            egammaxAODThinningCfg)
+        acc.merge(egammaxAODThinningCfg(flags))
 
     mlog.info("EGamma Steering done")
     return acc
