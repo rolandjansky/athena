@@ -22,6 +22,9 @@
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "MagFieldElements/AtlasFieldCache.h"
 #include "TrkSpacePoint/SpacePointContainer.h"
+#include "xAODInDetMeasurement/PixelClusterContainer.h"
+#include "xAODInDetMeasurement/StripClusterContainer.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 
 // Handle Keys
 #include "StoreGate/ReadCondHandleKey.h"
@@ -53,11 +56,14 @@ namespace ActsTrk {
     SG::ReadCondHandleKey< InDet::BeamSpotData > m_beamSpotKey{this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot"};
     SG::ReadCondHandleKey< AtlasFieldCacheCondObj > m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj",
         "Name of the Magnetic Field conditions object key"};
+    SG::ReadCondHandleKey< InDetDD::SiDetectorElementCollection > m_detEleCollKey {this, "DetectorElements", "", "Key of input SiDetectorElementCollection"};
 
-    SG::ReadHandleKey< ::SpacePointContainer > m_spacePointKey {this,"InputSpacePoints","","Input Athena Space Points"};
+    SG::ReadHandleKey< xAOD::PixelClusterContainer > m_pixelClusterContainerKey {this, "PixelClusterContainerKey", "ITkPixelClusters", "Key of input pixel clusters"};
+    SG::ReadHandleKey< xAOD::StripClusterContainer > m_stripClusterContainerKey {this, "StripClusterContainerKey", "ITkStripClusters", "Key of input strip clusters"};
+    SG::ReadHandleKey< ActsTrk::SpacePointContainer > m_spacePointKey {this,"InputSpacePoints","","Input Space Points"};
     SG::WriteHandleKey< ActsTrk::SeedContainer > m_seedKey {this,"OutputSeeds","","Output Seeds"};    
-    SG::WriteHandleKey< ActsTrk::SpacePointContainer > m_actsSpacePointKey {this,"OutputSpacePoints","","Output Space Points"};
-    SG::WriteHandleKey< ActsTrk::SpacePointData > m_actsSpacePointDataKey {this,"OutputSpacePointData","","Output Space Points"};
+
+    Gaudi::Property< bool > m_usePixel {this, "UsePixel", true};
   };
   
 } // namespace

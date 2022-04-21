@@ -69,13 +69,11 @@ def ActsTrackingSequenceFromAthenaCfg(ConfigFlags,
     for i_collection in inputCollections:
         o_collection = f"ActsSeeds_{i_collection}"
         
-        # Additional write handle keys used by the Algorithm. This stores Acts space points and data
-        # for later use (i.e. performance-check algorithm)
-        seedingOptions = { 'OutputSpacePoints' : f'ActsSpacePoint_{i_collection}',
-                           'OutputSpacePointData' : f'ActsSpacePointData_{i_collection}',
-                           'TrackingGeometryTool' : geoTool,
+        seedingOptions = { 'TrackingGeometryTool' : geoTool,
                            'ATLASConverterTool' : converterTool,
-                           'TrackParamsEstimationTool' : trackEstimationTool }
+                           'TrackParamsEstimationTool' : trackEstimationTool,
+                           'UsePixel' : 'Pixel' in i_collection,
+                           'DetectorElements' : 'ITkPixelDetectorElementCollection' if 'Pixel' in i_collection else 'ITkStripDetectorElementCollection'}
         seedingOptions.update(options)
         
         acc.merge(ActsTrkSeedingAlgorithmCfg(ConfigFlags,
