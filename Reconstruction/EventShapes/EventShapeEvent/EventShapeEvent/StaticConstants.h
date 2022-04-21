@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENSHAPEINTERFACE_STATICCONSTANTS_H
@@ -11,8 +11,8 @@
 
 namespace EventShapeConstants_Values
 {
-  static double invalidValue(-1.);
-  static double nullValue(0.);
+  static const double invalidValue(-1.);
+  static const double nullValue(0.);
   static const std::string invalidKey("INVALID");
   static const std::string defaultStateKey("CALIBRATED");
 }
