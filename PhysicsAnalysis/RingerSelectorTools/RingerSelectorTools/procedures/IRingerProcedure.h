@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IRingerProcedure.h 694257 2015-09-10 22:45:27Z wsfreund $
 #ifndef RINGERSELECTORTOOLS_PROCEDURES_IPROCEDURE_H
 #define RINGERSELECTORTOOLS_PROCEDURES_IPROCEDURE_H
 
@@ -43,7 +42,7 @@
     template <typename T = const char*>                                        \
     static T procType();                                                       \
                                                                                \
-    virtual const char* name() const = 0;                                      \
+    virtual std::string name() const = 0;                                      \
                                                                                \
     virtual void print(MSG::Level lvl) const = 0;
 
@@ -69,7 +68,7 @@
 
 #define __RINGER_DEFINE_PROCEDURE_STANDARD_METHODS__(self)                     \
                                                                                \
-    virtual const char* name() const                                           \
+    virtual std::string name() const                                           \
       override;                                                                \
     template <typename T = const char*>                                        \
     static T procType();                                                       \
@@ -120,7 +119,7 @@
   RINGER_DEFINE_INTERFACE_DEFAULT_METHODS(self)                                \
                                                                                \
   inline                                                                       \
-  const char* self::name() const                                               \
+  std::string self::name() const                                               \
   {                                                                            \
     return this->procType<const char*>();                                      \
   }
