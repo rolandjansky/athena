@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1Topo_L1TopoSimulation
@@ -17,6 +17,7 @@
 #include "xAODTrigger/L1TopoSimResultsContainer.h"
 #include "xAODTrigger/L1TopoSimResultsAuxContainer.h"
 
+#include "CxxUtils/checker_macros.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
@@ -33,7 +34,7 @@ namespace LVL1 {
    public:
       L1TopoSimulation(const std::string &name, ISvcLocator *pSvcLocator);
 
-      virtual StatusCode initialize() override;
+      virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE() override;
       virtual StatusCode start() override;
       virtual StatusCode execute() override;
       virtual StatusCode finalize() override;

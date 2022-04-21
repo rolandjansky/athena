@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1Topo_LVL1_L1TopoSimulationTest_h
@@ -7,8 +7,8 @@
 
 #include "TrigConfBase/MsgStream.h"
 
-
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -30,7 +30,7 @@ namespace LVL1 {
     L1TopoSimulationTest(const std::string &name, ISvcLocator* pSvcLocator);
     ~L1TopoSimulationTest();
 
-    virtual StatusCode initialize() override;
+    virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE() override;
 
     virtual StatusCode execute() override;
 
