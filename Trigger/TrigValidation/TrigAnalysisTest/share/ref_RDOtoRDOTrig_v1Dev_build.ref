@@ -5729,7 +5729,7 @@ HLT_e30_idperf_loose_lrtloose_nogsf_L1EM22VHI:
     2: 5
     3: 5
     4: 5
-HLT_e30_lhloose_nopix_lrtmedium_nogsf_L1EM22VHI:
+HLT_e30_lhloose_nopix_lrtmedium_L1EM22VHI:
   eventCount: 0
   stepCounts:
     0: 6
@@ -5743,7 +5743,7 @@ HLT_e30_lhloose_nopix_lrtmedium_nogsf_L1EM22VHI:
     2: 2
     3: 2
     4: 2
-HLT_e30_lhloose_nopix_lrtmedium_nogsf_L1eEM26M:
+HLT_e30_lhloose_nopix_lrtmedium_L1eEM26M:
   eventCount: 0
   stepCounts:
     0: 4
@@ -5824,7 +5824,7 @@ HLT_e30_lhvloose_L1eEM26M:
     3: 4
     4: 4
     5: 4
-HLT_e35_lhloose_nopix_lrtmedium_nogsf_L1EM22VHI:
+HLT_e35_lhloose_nopix_lrtmedium_L1EM22VHI:
   eventCount: 0
   stepCounts:
     0: 6
@@ -5838,7 +5838,7 @@ HLT_e35_lhloose_nopix_lrtmedium_nogsf_L1EM22VHI:
     2: 2
     3: 2
     4: 2
-HLT_e35_lhloose_nopix_lrtmedium_nogsf_L1eEM26M:
+HLT_e35_lhloose_nopix_lrtmedium_L1eEM26M:
   eventCount: 0
   stepCounts:
     0: 4

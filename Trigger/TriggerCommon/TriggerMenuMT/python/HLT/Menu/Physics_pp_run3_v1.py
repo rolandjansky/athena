@@ -404,11 +404,10 @@ def setupMenu():
         ChainProp(name='HLT_e24_lhmedium_g12_loose_g12_loose_02dRAB_02dRAC_02dRBC_L1eEM24L_3eEM12L', l1SeedThresholds=['eEM24L','eEM12L','eEM12L'], groups=PrimaryPhIGroup+MultiElectronGroup),
 
         # Electron LRT chains        
-        ChainProp(name='HLT_e30_lhloose_nopix_lrtmedium_nogsf_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e35_lhloose_nopix_lrtmedium_nogsf_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup),
-        
-        ChainProp(name='HLT_e30_lhloose_nopix_lrtmedium_nogsf_L1eEM26M', groups=PrimaryPhIGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e35_lhloose_nopix_lrtmedium_nogsf_L1eEM26M', groups=PrimaryPhIGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e30_lhloose_nopix_lrtmedium_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e35_lhloose_nopix_lrtmedium_L1EM22VHI', groups=PrimaryLegGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e30_lhloose_nopix_lrtmedium_L1eEM26M', groups=PrimaryPhIGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e35_lhloose_nopix_lrtmedium_L1eEM26M', groups=PrimaryPhIGroup+SingleElectronGroup),
 
         # Support
         # T&P chains for displaced electrons

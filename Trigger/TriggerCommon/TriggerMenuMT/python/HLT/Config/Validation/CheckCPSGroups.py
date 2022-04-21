@@ -31,6 +31,7 @@ def checkCPSGroups(chainDicts):
   CPS_OK = True
   for CPS_group, HLT_list in cps_to_chain.items():
     CPS_item = CPS_group.split('CPS_',1)[1]
+    
     # Checks for each CPS item
     if len(HLT_list)<2:
       log.error("CPS group %s contains too few chains %s", CPS_group, [hlt['chainName'] for hlt in HLT_list])
