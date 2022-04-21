@@ -3555,13 +3555,15 @@ HLT_e26_lhtight_e14_etcut_50invmAB130_L1EM22VHI:
     1: 6
     2: 5
     3: 5
-    4: 4
+    4: 5
+    5: 4
   stepFeatures:
     0: 35
     1: 94
     2: 26
     3: 5
     4: 5
+    5: 5
 HLT_e26_lhtight_e14_etcut_50invmAB130_L1eEM26M:
   eventCount: 3
   stepCounts:
@@ -3569,13 +3571,15 @@ HLT_e26_lhtight_e14_etcut_50invmAB130_L1eEM26M:
     1: 4
     2: 4
     3: 4
-    4: 3
+    4: 4
+    5: 3
   stepFeatures:
     0: 36
     1: 95
     2: 21
     3: 4
     4: 4
+    5: 4
 HLT_e26_lhtight_e14_etcut_L1EM22VHI:
   eventCount: 5
   stepCounts:
@@ -3584,12 +3588,14 @@ HLT_e26_lhtight_e14_etcut_L1EM22VHI:
     2: 5
     3: 5
     4: 5
+    5: 5
   stepFeatures:
     0: 35
     1: 94
     2: 26
     3: 5
     4: 5
+    5: 5
 HLT_e26_lhtight_e14_etcut_L1eEM26M:
   eventCount: 4
   stepCounts:
@@ -3598,12 +3604,14 @@ HLT_e26_lhtight_e14_etcut_L1eEM26M:
     2: 4
     3: 4
     4: 4
+    5: 4
   stepFeatures:
     0: 36
     1: 95
     2: 21
     3: 4
     4: 4
+    5: 4
 HLT_e26_lhtight_e14_etcut_idperf_nogsf_probe_50invmAB130_L1EM22VHI:
   eventCount: 4
   stepCounts:
@@ -6125,6 +6133,7 @@ HLT_e5_lhtight_e14_etcut_1invmAB5_L1JPSI-1M5-eEM15:
     1: 4
     2: 3
     3: 3
+    4: 3
   stepFeatures:
     0: 58
     1: 128
@@ -6142,6 +6151,7 @@ HLT_e5_lhtight_e9_etcut_1invmAB5_L1JPSI-1M5-eEM9:
     1: 4
     2: 3
     3: 3
+    4: 3
   stepFeatures:
     0: 66
     1: 164
