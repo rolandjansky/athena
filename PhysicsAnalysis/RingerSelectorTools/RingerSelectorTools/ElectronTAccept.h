@@ -1,14 +1,14 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ElectronTAccept.h 670599 2015-05-28 14:15:35Z wsfreund $
 #ifndef RINGER_STANDALONE
 
 #ifndef RINGERSELECTORTOOLS_ELECTRONTACCEPT_H
 #define RINGERSELECTORTOOLS_ELECTRONTACCEPT_H
 
 // Athena includes:
+#include "CxxUtils/checker_macros.h"
 #include "PATCore/AcceptInfo.h"
 
 // Local includes:
@@ -83,8 +83,8 @@ class ElectronTAccept_v1 {
      **/
     ElectronTAccept_v1();
 
-    /// The TAccept:
-    static asg::AcceptInfo m_accept;
+    /// The AcceptInfo:
+    static asg::AcceptInfo m_accept ATLAS_THREAD_SAFE;  // read-only except for declareBit below
 };
 
 /**
@@ -126,7 +126,7 @@ class BitdefElectron_v1 {
     /**
      * @brief Declare bit to ElectronTAccept_v1 word
      **/
-    static int declareBit(
+    static int declareBit ATLAS_NOT_THREAD_SAFE (
         const char* cutName,
         const char* cutDescr)
     {
@@ -135,7 +135,8 @@ class BitdefElectron_v1 {
       return bit;
     }
 
-    static unsigned m_nUsedBits;
+    // only modified by above "unsafe" method
+    static unsigned m_nUsedBits ATLAS_THREAD_SAFE;
 
     /**
      * @brief Standard ctor (ensure abstract class).
