@@ -240,8 +240,8 @@ namespace CP {
 
         SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this, "EventInfoContName", "EventInfo", "event info key"};
 
-        bool m_expertMode;
-        bool m_expertMode_isData;
+        bool m_expertMode = false;
+        bool m_expertMode_isData = false;
 
         bool m_useExternalSeed;
         int m_externalSeed;
@@ -256,10 +256,10 @@ namespace CP {
         int m_Tdata;
         int m_Trel;
         int m_Talgo;
-        double m_extraRebiasSys;
+        double m_extraRebiasSys = 0.0;
         double m_useNsigmaForICombine;
-        bool m_doDirectCBCalib;
-        bool m_doEtaSagittaSys;
+        bool m_doDirectCBCalib = false;
+        bool m_doEtaSagittaSys = false;
         std::vector<double> m_scale_ID, m_enLoss_MS, m_scale_MS, m_scale_CB;
 
         // sys variations (stat error added in quadrature), one if it's simmetrized, 2 if Up != Dw.
@@ -306,12 +306,12 @@ namespace CP {
         double m_HighPtSystThreshold;
         bool m_useStatComb;
 
-        unsigned int m_sgItersID;
-        unsigned int m_sgItersCB;
-        unsigned int m_sgItersME;
-        bool m_sgIetrsManual;
-        double m_fixedRho;
-        bool m_useFixedRho;
+        unsigned int m_sgItersID = 0U;
+        unsigned int m_sgItersCB = 0U;
+        unsigned int m_sgItersME = 0U;
+        bool m_sgIetrsManual = false;
+        double m_fixedRho = 0.0;
+        bool m_useFixedRho = false;
         double m_sagittaMapUnitConversion;
 
         std::vector<std::unique_ptr<TProfile2D> > m_sagittasCB;
@@ -320,7 +320,7 @@ namespace CP {
 
         bool m_SagittaCorrPhaseSpace;
         bool m_doSagittaCorrection;
-        bool m_doSagittaMCDistortion;
+        bool m_doSagittaMCDistortion = false;
         bool m_doNotUseAMGMATRIXDECOR;
         float m_IterWeight;
 

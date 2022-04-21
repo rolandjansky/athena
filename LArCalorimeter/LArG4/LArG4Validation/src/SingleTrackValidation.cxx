@@ -78,7 +78,7 @@ public:
   IPartPropSvc*      partPropSvc{nullptr};
   ITHistSvc*         histSvc{nullptr};
   const CaloCell_ID* cellId{nullptr};
-  NTuple::Tuple* nt;
+  NTuple::Tuple* nt = nullptr;
 
   NTuple::Item<double> eta;
   NTuple::Item<double> pt;

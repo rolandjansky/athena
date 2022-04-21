@@ -19,9 +19,9 @@ namespace MMCTest {
     private:
         std::string m_Type;
         std::vector<std::string> m_Systs;
-        float m_Pt, m_Eta, m_Phi, m_QoverP, m_Chi2;
+        float m_Pt = 0.0F, m_Eta = 0.0F, m_Phi = 0.0F, m_QoverP = 0.0F, m_Chi2 = 0.0F;
         std::map<std::string, float> m_CalibPt;
-        int m_Charge, m_NDoF;
+        int m_Charge = 0, m_NDoF = 0;
         std::vector<float> m_TrackPars;
         std::vector<float> m_TrackCovMatrix;
 
