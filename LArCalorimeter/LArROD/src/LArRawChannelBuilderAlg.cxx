@@ -2,7 +2,7 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArROD/LArRawChannelBuilderAlg.h" 
+#include "LArRawChannelBuilderAlg.h" 
 #include "GaudiKernel/SystemOfUnits.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "CaloEvent/CaloCellContainer.h"

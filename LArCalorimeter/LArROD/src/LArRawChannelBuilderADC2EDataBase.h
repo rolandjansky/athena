@@ -13,7 +13,7 @@
 
 #include "GaudiKernel/ToolHandle.h"
 
-#include "LArROD/LArRawChannelBuilderADC2EToolBase.h"
+#include "LArRawChannelBuilderADC2EToolBase.h"
 #include "LArRawConditions/LArADC2MeV.h"
 #include "StoreGate/ReadCondHandleKey.h"
 

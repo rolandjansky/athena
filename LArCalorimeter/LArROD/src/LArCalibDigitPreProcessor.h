@@ -40,5 +40,5 @@ private:
   int m_firstSample;
   bool m_pickGain;
 };
-#include "LArROD/LArCalibDigitPreProcessor.icc"
+#include "LArCalibDigitPreProcessor.icc"
 #endif

@@ -12,7 +12,7 @@
 #ifndef LARROD_LARRAWCHANNELBUILDERTOOLAVERAGE_H
 #define LARROD_LARRAWCHANNELBUILDERTOOLAVERAGE_H
 
-#include "LArROD/LArRawChannelBuilderToolBase.h"
+#include "LArRawChannelBuilderToolBase.h"
 
 #include <string>
 

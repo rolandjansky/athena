@@ -11,7 +11,7 @@
 #ifndef LARROD_LARRAWCHANNELBUILDERPEDESTALSAMPLEZERO_H
 #define LARROD_LARRAWCHANNELBUILDERPEDESTALSAMPLEZERO_H
 
-#include "LArROD/LArRawChannelBuilderPedestalToolBase.h"
+#include "LArRawChannelBuilderPedestalToolBase.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 

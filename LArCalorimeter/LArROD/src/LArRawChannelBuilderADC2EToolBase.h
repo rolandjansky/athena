@@ -13,7 +13,7 @@
 
 #include "GaudiKernel/AlgTool.h"
 
-#include "LArROD/LArRawChannelBuilderToolBaseClass.h"
+#include "LArRawChannelBuilderToolBaseClass.h"
 #include "LArROD/ILArRawChannelBuilderADC2EToolBase.h"
 
 #include <string>

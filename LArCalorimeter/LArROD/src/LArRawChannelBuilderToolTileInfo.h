@@ -14,11 +14,12 @@
 
 #include "GaudiKernel/ToolHandle.h"
 
-#include "LArROD/LArRawChannelBuilderToolBase.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include "LArRecUtils/LArOFPeakRecoTool.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "StoreGate/ReadCondHandleKey.h"
+
+#include "LArRawChannelBuilderToolBase.h"
 
 #include <string>
 

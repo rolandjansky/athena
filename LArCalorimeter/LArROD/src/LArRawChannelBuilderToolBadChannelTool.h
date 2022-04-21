@@ -14,7 +14,7 @@
 
 #include "GaudiKernel/ToolHandle.h"
 
-#include "LArROD/LArRawChannelBuilderToolBase.h"
+#include "LArRawChannelBuilderToolBase.h"
 #include "LArRecConditions/LArBadChannelMask.h"
 #include "LArRecConditions/LArBadChannelCont.h"
 #include "StoreGate/ReadCondHandleKey.h"

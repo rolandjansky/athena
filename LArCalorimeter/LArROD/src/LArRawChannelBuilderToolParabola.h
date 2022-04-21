@@ -13,10 +13,9 @@
 #define LARROD_LARRAWCHANNELBUILDERTOOLPARABOLA_H
 
 #include "GaudiKernel/ToolHandle.h"
-
-#include "LArROD/LArRawChannelBuilderToolBase.h"
-
 #include "LArRecUtils/LArParabolaPeakRecoTool.h"
+
+#include "LArRawChannelBuilderToolBase.h"
 
 class LArEM_ID;
 class LArDigit;
