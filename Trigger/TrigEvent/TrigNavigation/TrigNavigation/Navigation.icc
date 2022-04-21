@@ -17,6 +17,7 @@
 
 #include <boost/type_traits.hpp>
 #include "TrigNavigation/Holder.h"
+#include "CxxUtils/checker_macros.h"
 #include "CxxUtils/no_sanitize_undefined.h"
 
 
@@ -28,7 +29,7 @@
 
 template<class T>
 __attribute__((__used__))
-bool HLT::Navigation::attachFeature NO_SANITIZE_UNDEFINED 
+bool HLT::Navigation::attachFeature NO_SANITIZE_UNDEFINED ATLAS_NOT_THREAD_SAFE
                                    ( TriggerElement* te, const T* feature,
 				     MemoryManagement mmanagement, std::string& key,
 				     const std::string& label ) {
@@ -62,7 +63,7 @@ bool HLT::Navigation::attachFeature NO_SANITIZE_UNDEFINED
 
 template<class T>
 __attribute__((__used__))
-bool HLT::Navigation::attachFeature( TriggerElement* te, const ConstDataVector<T>* feature,
+bool HLT::Navigation::attachFeature ATLAS_NOT_THREAD_SAFE ( TriggerElement* te, const ConstDataVector<T>* feature,
 				     MemoryManagement mmanagement, std::string& key,
 				     const std::string& label ) {
   return attachFeature (te, feature->asDataVector(),

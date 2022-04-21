@@ -460,7 +460,7 @@ struct destinationOwnPolicy<STORED, CONTAINER, true> {
 
 /////////////////////////////////////////////////////////////////////////////
 template<class STORED, class CONTAINER>
-HLT::TriggerElement::ObjectIndex HLTNavDetails::HolderImp<STORED, CONTAINER>::add( const STORED* f_in, bool inSG, const std::string& sgKey ) {
+HLT::TriggerElement::ObjectIndex HLTNavDetails::HolderImp<STORED, CONTAINER>::add ATLAS_NOT_THREAD_SAFE ( const STORED* f_in, bool inSG, const std::string& sgKey ) {
   // FIXME:
   // If insertMove is used, then the pointer being recorded cannot be const.
   // Taking this object by const is anyway wrong because it will be modified
