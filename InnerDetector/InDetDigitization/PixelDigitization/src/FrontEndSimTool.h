@@ -28,6 +28,7 @@
 #include "PixelConditionsData/PixelModuleData.h"
 #include "PixelConditionsData/PixelChargeCalibCondData.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include <limits>
 
 static const InterfaceID IID_IFrontEndSimTool("FrontEndSimTool", 1, 0);
 
@@ -143,6 +144,17 @@ public:
         }
         double noiseToTm = bin + 1.5;
         double noiseToT = CLHEP::RandGaussZiggurat::shoot(rndmEngine, noiseToTm, 1.);
+        if (noiseToT<1) { continue; }  // throw away unphysical noise
+
+        // protection to the overflow ToT, that depends on the sensor technology
+        double overflowToT = std::numeric_limits<double>::max();
+        if (p_design->getReadoutTechnology()==InDetDD::PixelReadoutTechnology::FEI4) {
+          overflowToT = moduleData->getFEI4OverflowToT(barrel_ec,layerIndex);
+        }
+        else if (p_design->getReadoutTechnology()==InDetDD::PixelReadoutTechnology::FEI3) {
+          overflowToT = moduleData->getFEI3Latency(barrel_ec,layerIndex);
+        }
+        noiseToT = std::min(noiseToT,overflowToT);
 
         InDetDD::PixelDiodeType type = m_pixelReadout->getDiodeType(noisyID);
         double chargeShape = chargeCalibData->getCharge(type, moduleHash, circuit, noiseToT);
