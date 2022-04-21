@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///@file Tau1P3PExtraDetails.cxx DEPRECATED DO NOT USE
@@ -15,7 +15,6 @@
 ///
 /// Created 2007-01-17
 ///
-/// $Id: Tau1P3PExtraDetails.cxx,v 1.8 2009-01-17 01:34:16 tburgess Exp $
 
 #include "tauEvent/Tau1P3PExtraDetails.h"
 #include "AthenaKernel/ClassName.h"
@@ -61,7 +60,7 @@ namespace Analysis
         return *this;
     }
 
-    std::string Tau1P3PExtraDetails::s_className =
+    const std::string Tau1P3PExtraDetails::s_className =
         ClassName<Tau1P3PExtraDetails>::name();
     const std::string& Tau1P3PExtraDetails::className() const
     {
