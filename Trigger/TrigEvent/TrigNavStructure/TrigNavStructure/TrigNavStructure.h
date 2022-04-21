@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -335,8 +335,7 @@ namespace HLT {
     virtual bool getFeatureAccessors( const TriggerElement* te, class_id_type clid,
 				      const index_or_label_type& index_or_label,
 				      bool only_single_feature,
-			      	      TriggerElement::FeatureVec& features, 
-			              bool with_cache_recording,
+			      	      TriggerElement::FeatureVec& features,
 			              bool travel_backward_recursively,
 			              const TriggerElement*& source = m_unspecifiedTE, 
 			              std::string& sourcelabel  = m_unspecifiedLabel) const;
@@ -346,7 +345,6 @@ namespace HLT {
 					      const index_or_label_type& index_or_label,
 					      bool only_single_feature,
 					      TriggerElement::FeatureVec& features,
-					      bool with_cache_recording,
 					      const TriggerElement*& source,
 					      std::string& sourcelabel ) const ;
     

@@ -15,7 +15,6 @@
 
 #include "TrigNavigation/Holder.h"
 #include "TrigNavigation/Holder.icc"
-#include "TrigNavigation/RoICacheHistory.h"
 #include "CxxUtils/checker_macros.h"
 #include "CxxUtils/no_sanitize_undefined.h"
 
@@ -41,8 +40,8 @@ bool HLT::NavigationCore::getFeatures( const TriggerElement* te,
                 << " label: \"" << label << "\"");
 
   TriggerElement::FeatureVec features_access_helpers;  
-  bool single = false; bool cache_rec = true; bool recursively = false;
-  if (!getFeatureAccessors(te, clid, label, single, features_access_helpers, cache_rec, recursively)) {
+  bool single = false; bool recursively = false;
+  if (!getFeatureAccessors(te, clid, label, single, features_access_helpers, recursively)) {
     return false;
   }
  
@@ -74,8 +73,8 @@ bool HLT::NavigationCore::getFeature NO_SANITIZE_UNDEFINED ( const TriggerElemen
                 << " label: \"" << label << "\"");
 
   TriggerElement::FeatureVec features_access_helpers;  
-  bool single = true; bool cache_rec = true; bool recursively = false;
-  if (!getFeatureAccessors(te, clid, label, single, features_access_helpers, cache_rec, recursively, m_unspecifiedTE, sourcelabel)) {
+  bool single = true; bool recursively = false;
+  if (!getFeatureAccessors(te, clid, label, single, features_access_helpers, recursively, m_unspecifiedTE, sourcelabel)) {
     return false;
   }
   // remove following after testing
@@ -130,8 +129,8 @@ bool HLT::NavigationCore::getFeaturesLinks( const TriggerElement* te, ElementLin
                 << " label: \"" << label << "\"");
 
   TriggerElement::FeatureVec features_access_helpers;
-  bool single = false; bool cache_rec = true; bool recursively = false;
-  if (!getFeatureAccessors(te,clid, label, single, features_access_helpers, cache_rec, recursively)) {
+  bool single = false; bool recursively = false;
+  if (!getFeatureAccessors(te,clid, label, single, features_access_helpers, recursively)) {
     return false;
   }
 
@@ -163,9 +162,9 @@ bool HLT::NavigationCore::getRecentFeatures( const TriggerElement* te,
                 << " label: \"" << label << "\"");
 
   TriggerElement::FeatureVec features_access_helpers;  
-  bool single = false; bool cache_rec = true; bool recursively = true;
+  bool single = false; bool recursively = true;
 
-  if (!getFeatureAccessors(te, clid, label, single, features_access_helpers, cache_rec, recursively)) {
+  if (!getFeatureAccessors(te, clid, label, single, features_access_helpers, recursively)) {
     return false;
   }
 
@@ -201,9 +200,9 @@ bool HLT::NavigationCore::getRecentFeature( const TriggerElement* te,
 	      << " label: \"" << label << "\"");
 
   TriggerElement::FeatureVec features_access_helpers; 
-  bool single = true; bool cache_rec = true; bool recursively = true;
+  bool single = true; bool recursively = true;
  
-  if (!getFeatureAccessors(te, clid, label, single, features_access_helpers, cache_rec, recursively, source, sourcelabel)) {
+  if (!getFeatureAccessors(te, clid, label, single, features_access_helpers, recursively, source, sourcelabel)) {
     return false;
   }
   // remove following after testing
@@ -242,9 +241,9 @@ bool HLT::NavigationCore::getRecentFeaturesLinks( const TriggerElement* te,
                 << " label: \"" << label << "\"");
   
   TriggerElement::FeatureVec features_access_helpers;  
-  bool single = false; bool cache_rec = true; bool recursively = true;
+  bool single = false; bool recursively = true;
 
-  if (!getFeatureAccessors(te, clid, label, single, features_access_helpers, cache_rec, recursively)) {
+  if (!getFeatureAccessors(te, clid, label, single, features_access_helpers, recursively)) {
     return false;
   }
   
@@ -296,8 +295,8 @@ bool HLT::NavigationCore::getRecentFeatureDataOrElementLink( const TriggerElemen
               << " label: \"" << label << "\"");
   
   TriggerElement::FeatureVec features_access_helpers;  
-  bool single = true; bool cache_rec = true; bool recursively = true;
-  if (!getFeatureAccessors(te, clid, label, single, features_access_helpers, cache_rec, recursively, source, sourcelabel)) {
+  bool single = true; bool recursively = true;
+  if (!getFeatureAccessors(te, clid, label, single, features_access_helpers, recursively, source, sourcelabel)) {
     ATH_MSG_INFO("looking for FAs failed. Returning false! Details CLID: " << ClassID_traits<T>::ID() <<
                  "(" << ClassID_traits<T>::typeName() << ")"
                  << " in TE: " << te->getId()  << " label: \"" << label << "\"");
@@ -349,9 +348,9 @@ bool HLT::NavigationCore::getRecentFeatureLink( const TriggerElement* te,
     
 
   TriggerElement::FeatureVec features_access_helpers; 
-  bool single = true; bool cache_rec = true; bool recursively = true;
+  bool single = true; bool recursively = true;
  
-  if (!getFeatureAccessors(te, clid, label, single, features_access_helpers, cache_rec, recursively, source, sourcelabel)) {
+  if (!getFeatureAccessors(te, clid, label, single, features_access_helpers, recursively, source, sourcelabel)) {
     return false;
   }
   // remove following after testing
@@ -575,7 +574,7 @@ TrigFeatureLink HLT::NavigationCore::object2FeatureLink(const TriggerElement* te
     return TrigFeatureLink();
   TriggerElement::FeatureVec features_access_helpers;  
   std::string sourcelabel;
-  if ( getFeatureAccessors(te, ClassID_traits<T>::ID(), label, true, features_access_helpers, false, true, m_unspecifiedTE, sourcelabel ) == false ) {
+  if ( getFeatureAccessors(te, ClassID_traits<T>::ID(), label, true, features_access_helpers, true, m_unspecifiedTE, sourcelabel ) == false ) {
     return TrigFeatureLink();
   }
 
@@ -600,7 +599,7 @@ TrigFeatureLink HLT::NavigationCore::object2FeatureLink(const TriggerElement* te
 
   TriggerElement::FeatureVec features_access_helpers;  
   std::string sourcelabel;
-  if ( getFeatureAccessors(te, ClassID_traits<C>::ID(), label, true, features_access_helpers, false, true, m_unspecifiedTE, sourcelabel ) == false ) {
+  if ( getFeatureAccessors(te, ClassID_traits<C>::ID(), label, true, features_access_helpers, true, m_unspecifiedTE, sourcelabel ) == false ) {
     return TrigFeatureLink();
   }
   // remove following after testing
