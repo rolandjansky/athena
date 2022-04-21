@@ -282,7 +282,7 @@ HION5SlimmingHelper.ExtraVariables.append("Muons.EnergyLoss.energyLossType")
 
 addMETOutputs(HION5SlimmingHelper,met_ptCutList)
 #HION5SlimmingHelper.AllVariables = ["AntiKt2HIJets","AntiKt4HIJets","AntiKt4HITrackJets","HIClusters"]
-HION5SlimmingHelper.AllVariables += ["AntiKt4HITrackJets","BTagging_"+MainJetCollection+"AntiKt4HI",MainJetCollection+"AntiKt4HIJets"]
+HION5SlimmingHelper.AllVariables += ["AntiKt4HITrackJets","BTagging_"+MainJetCollection+"AntiKt4HI",MainJetCollection+"AntiKt4HIJets","AntiKt4HIJets","BTagging_AntiKt4HIJets"]
 if (HasCollection("BTagging_AntiKt4HI") and jobproperties.HIRecExampleFlags.doHIAODFix) : HION5SlimmingHelper.AllVariables+=["BTagging_AntiKt4HI"]
 HION5SlimmingHelper.AllVariables += HIGlobalVars
 if HIDerivationFlags.isPPb(): HION5SlimmingHelper.AllVariables += ["HIEventShape", "ForwardElectrons", "ForwardElectronClusters"]
