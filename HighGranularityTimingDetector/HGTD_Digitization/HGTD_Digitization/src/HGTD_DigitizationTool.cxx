@@ -54,7 +54,7 @@ StatusCode HGTD_DigitizationTool::initialize() {
   ATH_MSG_DEBUG("Input objects in container : '" << m_inputObjectName << "'");
 
   // Initialize ReadHandleKey
-  ATH_CHECK(m_hitsContainerKey.initialize(!m_onlyUseContainerName));
+  ATH_CHECK(m_hitsContainerKey.initialize(true));
 
   return StatusCode::SUCCESS;
 }

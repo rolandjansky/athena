@@ -21,13 +21,6 @@ StatusCode PixelByteStreamErrorDetectorElementStatusTool::initialize()
 }
 
 namespace {
-   inline void andStatus(const std::unordered_map<int, int> &status_map, unsigned int status_mask, std::vector<bool> &module_status) {
-      for (const std::pair<const int, int> &elm : status_map ) {
-         // set modules good if the module status passes the mask.
-         module_status.at(elm.first) = module_status.at(elm.first) && (status_mask & (1<<elm.second));
-      }
-   }
-
    inline constexpr bool isBSError(uint64_t error, uint64_t max_error, uint64_t mask) {
       return error<max_error && (error & mask);
    }
@@ -100,7 +93,7 @@ std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> PixelB
             unsigned int readout_technology_flags = m_readoutTechnologyMask & Pixel::makeReadoutTechnologyBit(readout_technology);
 
             // set to false if has one of the considered errors and the readout technology is considered.
-            status.at(element_i) = status.at(element_i) &  not (   readout_technology_flags
+            status.at(element_i) = status.at(element_i) &&  not (   readout_technology_flags
                                                                 &&  ( !active_only
                                                                      ?  isBSError(static_cast<uint64_t>(idcCachePtr->retrieve(element_i)), missingErrorInfo, error_mask)
                                                                       : idcCachePtr->retrieve(element_i+element_offset_i)!=1 ));

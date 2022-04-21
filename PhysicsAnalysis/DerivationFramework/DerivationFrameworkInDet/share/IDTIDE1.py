@@ -150,6 +150,7 @@ DFTSOS = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFTrackStateO
                                                           IsSimulation = False,
                                                           DecorationPrefix = "",
                                                           StoreTRT   = idDxAOD_doTrt,
+                                                          AddExtraEventInfo = False,  # never decorate EventInfo with TRTPhase, doubt this is useful for IDTIDE
                                                           TRT_ToT_dEdx = TrackingCommon.getInDetTRT_dEdxTool() if idDxAOD_doTrt else "",
                                                           PRDtoTrackMap= "PRDtoTrackMap" + InDetKeys.UnslimmedTracks() if  jobproperties.PrimaryDPDFlags.WriteDAOD_IDTRKVALIDStream.get_Value() else "",
                                                           StoreSCT   = idDxAOD_doSct,

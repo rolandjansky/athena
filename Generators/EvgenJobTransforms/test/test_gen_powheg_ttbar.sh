@@ -7,7 +7,7 @@
 # art-output: log.generate
 ## Any arguments are considered overrides, and will be added at the end
 export TRF_ECHO=True;
-Gen_tf.py --ecmEnergy=13600 --jobConfig=421355 --maxEvents=100 \
+Gen_tf.py --ecmEnergy=13000 --jobConfig=421355 --maxEvents=100 \
     --outputEVNTFile=test_powheg_ttbar.EVNT.pool.root \
 
 echo "art-result: $? generate"

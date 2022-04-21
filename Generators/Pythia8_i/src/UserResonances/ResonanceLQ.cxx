@@ -40,7 +40,11 @@ namespace Pythia8{
       m_kCoup = settingsPtr->parm("LeptoQuark:kCoup");
       
             // make a copy of shared pointer before usage (starting Py8.307 particlePtr is of a type std::weak_ptr<Pythia8::ParticleDataEntry>
+#if PYTHIA_VERSION_INTEGER >= 8307      
       ParticleDataEntryPtr particleSPtr = particlePtr.lock();
+#else
+      ParticleDataEntry* particleSPtr = particlePtr;
+#endif
 
       // Check that flavour info in decay channel is correctly set.
       int id1Now = particleSPtr->channel(0).product(0);

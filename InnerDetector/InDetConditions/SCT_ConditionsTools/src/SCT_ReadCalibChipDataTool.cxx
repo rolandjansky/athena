@@ -133,7 +133,7 @@ SCT_ReadCalibChipDataTool::getDetectorElementStatus(const EventContext& ctx, InD
            }
         }
         const float meanNoiseValue{ nChips>0 ? sum/nChips : 0.f};
-        status.at(element_i) =  status.at(element_i) & (meanNoiseValue < m_noiseLevel);
+        status.at(element_i) =  status.at(element_i) && (meanNoiseValue < m_noiseLevel);
 
         ++element_i;
      }

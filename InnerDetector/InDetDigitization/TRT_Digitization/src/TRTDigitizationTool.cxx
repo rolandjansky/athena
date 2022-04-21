@@ -134,7 +134,7 @@ StatusCode TRTDigitizationTool::initialize()
   ATH_MSG_DEBUG ( "Input hits: " << m_dataObjectName );
 
   // Initialize ReadHandleKey
-  ATH_CHECK(m_hitsContainerKey.initialize(!m_onlyUseContainerName));
+  ATH_CHECK(m_hitsContainerKey.initialize(true));
 
   // Initialize data handle keys
   ATH_CHECK(m_outputRDOCollName.initialize());

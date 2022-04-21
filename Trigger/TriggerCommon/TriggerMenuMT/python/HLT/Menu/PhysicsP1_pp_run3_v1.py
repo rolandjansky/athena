@@ -279,7 +279,7 @@ def addP1Signatures(chains):
 #        ChainProp(name='HLT_noalg_L1MBTS_1_1_UNPAIRED_ISO', l1SeedThresholds=['FSNOSEED'], stream=['MinBias'], groups=MinBiasGroup+['PS:Online']+LowMuGroup+SupportLegGroup),
 
     ]
-    chains['MinBias'] =[
+    chainsP1['MinBias'] =[
         # MBTS
         ChainProp(name='HLT_mb_mbts_all_L1MBTS_A', l1SeedThresholds=['FSNOSEED'], stream=['MinBias'], monGroups=['mbMon:online'], groups=['PS:Online']+MinBiasGroup),
         ChainProp(name='HLT_mb_mbts_all_L1MBTS_C', l1SeedThresholds=['FSNOSEED'], stream=['MinBias'], monGroups=['mbMon:online'], groups=['PS:Online']+MinBiasGroup),

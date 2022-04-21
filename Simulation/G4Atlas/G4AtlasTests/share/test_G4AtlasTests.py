@@ -92,7 +92,7 @@ job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("TGCHitsTestTool", check
 job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("TruthTestTool", checkType=True)]
 
 # Control random number seeds to ensure identical runs from day to day
-from G4AtlasAlg.G4AtlasAlgConf import G4AtlasAlg
+from AtlasGeant4.AtlasGeant4Conf import G4AtlasAlg
 g4AtlasAlg = G4AtlasAlg()
 g4AtlasAlg.RandomGenerator = "athena"
 from AthenaCommon.AppMgr import ServiceMgr

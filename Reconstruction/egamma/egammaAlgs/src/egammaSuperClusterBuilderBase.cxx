@@ -135,7 +135,70 @@ fillPositionsInCalo(xAOD::CaloCluster* cluster, const CaloDetDescrManager& mgr)
   cluster->insertMoment(xAOD::CaloCluster::ETA1CALOFRAME, eta);
   cluster->insertMoment(xAOD::CaloCluster::PHI1CALOFRAME, phi);
 }
+/** Find the size of the cluster in phi using L2 cells.
+ *
+ * @param cp0: the reference position in calo-coordinates
+ * @param cluster: the cluster filled with L2 and L3 cells
+ *
+ * The window is computed using only cells in the second layer.
+ * Asymmetric sizes are computed for barrel and endcap. The size
+ * is the maximum difference in phi between the center of a cell
+ * and the refence, considering separately cells in the barrel
+ * and in the endcap. The computation is done separately for the
+ * cells with phi < reference phi or >=. A cutoff value of 1 is used.
+ */
+egammaSuperClusterBuilderBase::PhiSize
+findPhiSize(const egammaSuperClusterBuilderBase::CentralPosition& cp0,
+            const xAOD::CaloCluster& cluster)
+{
 
+  egammaSuperClusterBuilderBase::PhiSize phiSize;
+  auto cell_itr = cluster.cell_cbegin();
+  auto cell_end = cluster.cell_cend();
+  for (; cell_itr != cell_end; ++cell_itr) {
+
+    const CaloCell* cell = *cell_itr;
+    if (!cell) {
+      continue;
+    }
+
+    const CaloDetDescrElement* dde = cell->caloDDE();
+    if (!dde) {
+      continue;
+    }
+
+    if (cp0.emaxB > 0 && CaloCell_ID::EMB2 == dde->getSampling()) {
+      const float phi0 = cp0.phiB;
+      double cell_phi = proxim(dde->phi_raw(), phi0);
+      if (cell_phi > phi0) {
+        auto diff = cell_phi - phi0;
+        if (diff > phiSize.plusB) {
+          phiSize.plusB = diff;
+        }
+      } else {
+        auto diff = phi0 - cell_phi;
+        if (diff > phiSize.minusB) {
+          phiSize.minusB = diff;
+        }
+      }
+    } else if (cp0.emaxEC > 0 && CaloCell_ID::EME2 == dde->getSampling()) {
+      const float phi0 = cp0.phiEC;
+      double cell_phi = proxim(dde->phi_raw(), phi0);
+      if (cell_phi > phi0) {
+        auto diff = cell_phi - phi0;
+        if (diff > phiSize.plusEC) {
+          phiSize.plusEC = diff;
+        }
+      } else {
+        auto diff = phi0 - cell_phi;
+        if (diff > phiSize.minusEC) {
+          phiSize.minusEC = diff;
+        }
+      }
+    }
+  }
+  return phiSize;
+}
 /** functions to make 1st sampling (strips) specific corrections*/
 void
 makeCorrection1(xAOD::CaloCluster* cluster,
@@ -237,11 +300,9 @@ findCentralPositionEM2(const std::vector<const xAOD::CaloCluster*>& clusters)
 
 } // end of anonymous namespace
 
-//////////////////////////////////////////////////////////////////////////////
-// Athena interfaces.
-//////////////////////////////////////////////////////////////////////////////
-
-// Constructor.
+/*
+ * Gaudi Algorithm implementation
+ */
 egammaSuperClusterBuilderBase::egammaSuperClusterBuilderBase(
   const std::string& name,
   ISvcLocator* pSvcLocator)
@@ -357,6 +418,7 @@ bool
 egammaSuperClusterBuilderBase::createNewCluster(
   const EventContext& ctx,
   const std::vector<const xAOD::CaloCluster*>& clusters,
+  const DataLink<CaloCellContainer>& cellCont,
   const CaloDetDescrManager& mgr,
   xAOD::EgammaParameters::EgammaType egType,
   xAOD::CaloClusterContainer* newClusters,
@@ -370,9 +432,9 @@ egammaSuperClusterBuilderBase::createNewCluster(
   }
 
   // create a new empty cluster
-  // collection will own it if not nullptr
-  xAOD::CaloCluster* newCluster = CaloClusterStoreHelper::makeCluster(
-    newClusters, clusters[0]->getCellLinks()->getCellContainer());
+  // collection will own it if
+  xAOD::CaloCluster* newCluster =
+    CaloClusterStoreHelper::makeCluster(newClusters, cellCont);
 
   if (!newCluster) {
     ATH_MSG_ERROR("CaloClusterStoreHelper::makeCluster failed.");
@@ -763,77 +825,3 @@ egammaSuperClusterBuilderBase::calibrateCluster(
   return StatusCode::SUCCESS;
 }
 
-egammaSuperClusterBuilderBase::PhiSize
-egammaSuperClusterBuilderBase::findPhiSize(
-  const egammaSuperClusterBuilderBase::CentralPosition& cp0,
-  const xAOD::CaloCluster& cluster) const
-{
-
-  PhiSize phiSize;
-  auto cell_itr = cluster.cell_cbegin();
-  auto cell_end = cluster.cell_cend();
-  for (; cell_itr != cell_end; ++cell_itr) {
-
-    const CaloCell* cell = *cell_itr;
-    if (!cell) {
-      continue;
-    }
-
-    const CaloDetDescrElement* dde = cell->caloDDE();
-    if (!dde) {
-      continue;
-    }
-
-    if (cp0.emaxB > 0 && CaloCell_ID::EMB2 == dde->getSampling()) {
-      const float phi0 = cp0.phiB;
-      double cell_phi = proxim(dde->phi_raw(), phi0);
-      if (cell_phi > phi0) {
-        auto diff = cell_phi - phi0;
-        if (diff > phiSize.plusB) {
-          phiSize.plusB = diff;
-        }
-      } else {
-        auto diff = phi0 - cell_phi;
-        if (diff > phiSize.minusB) {
-          phiSize.minusB = diff;
-        }
-      }
-    } else if (cp0.emaxEC > 0 && CaloCell_ID::EME2 == dde->getSampling()) {
-      const float phi0 = cp0.phiEC;
-      double cell_phi = proxim(dde->phi_raw(), phi0);
-      if (cell_phi > phi0) {
-        auto diff = cell_phi - phi0;
-        if (diff > phiSize.plusEC) {
-          phiSize.plusEC = diff;
-        }
-      } else {
-        auto diff = phi0 - cell_phi;
-        if (diff > phiSize.minusEC) {
-          phiSize.minusEC = diff;
-        }
-      }
-    }
-  }
-  // some safety checks
-  if (phiSize.plusB > 1.0) {
-    ATH_MSG_WARNING("phiSizePlusB is large: " << phiSize.plusB
-                                              << ", capping at 1.0");
-    phiSize.plusB = 1.0;
-  }
-  if (phiSize.plusEC > 1.0) {
-    ATH_MSG_WARNING("phiSizePlusEC is large: " << phiSize.plusEC
-                                               << ", capping at 1.0");
-    phiSize.plusEC = 1.0;
-  }
-  if (phiSize.minusB > 1.0) {
-    ATH_MSG_WARNING("phiSizeMinusB is large: " << phiSize.minusB
-                                               << ", capping at 1.0");
-    phiSize.minusB = 1.0;
-  }
-  if (phiSize.minusEC > 1.0) {
-    ATH_MSG_WARNING("phiSizeMinusEC is large: " << phiSize.minusEC
-                                                << ", capping at 1.0");
-    phiSize.minusEC = 1.0;
-  }
-  return phiSize;
-}

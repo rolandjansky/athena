@@ -110,6 +110,8 @@ elif DQMonFlags.monManEnvironment() == 'tier0':
 ## add an AthenaMonManager algorithm to the list of algorithms to be ran
 from AthenaMonitoring.DQMonFlags import DQMonFlags
 from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
+from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
         
 muonOutputLevel=INFO
 if DQMonFlags.doMuonRawMon():
@@ -127,7 +129,8 @@ if DQMonFlags.doMuonRawMon():
             if MuonDQADetFlags.doRPCMon():
                 include ("RpcRawDataMonitoring/RpcRawESD_MonitoringOptions.py")
             if MuonDQADetFlags.doTGCMon() or MuonDQADetFlags.doTGCL1Mon:
-                include ("TgcRawDataMonitoring/TgcRaw_MonitoringOptions.py")
+                from TgcRawDataMonitoring.TgcRawDataMonitorAlgorithm import TgcRawDataMonitoringConfig
+                CAtoGlobalWrapper(TgcRawDataMonitoringConfig, ConfigFlags)
             if MuonDQADetFlags.doCSCMon():
                 include ("CscRawDataMonitoring/CscRawESD_MonitoringOptions.py")
             if MuonDQADetFlags.doMDTRPCMon():

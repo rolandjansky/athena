@@ -42,7 +42,7 @@ StatusCode PixelDigitizationTool::initialize() {
   if (m_onlyUseContainerName) m_inputObjectName = m_hitsContainerKey.key();
   ATH_MSG_DEBUG("Input objects in container : '" << m_inputObjectName << "'");
 
-  ATH_CHECK(m_hitsContainerKey.initialize(!m_onlyUseContainerName));
+  ATH_CHECK(m_hitsContainerKey.initialize(true));
   ATH_CHECK(m_pixelDetEleCollKey.initialize());
   ATH_CHECK(m_rdoContainerKey.initialize());
   ATH_CHECK(m_simDataCollKey.initialize());

@@ -191,6 +191,11 @@ JetChainParts = {
        'preselcHT500',
        'preseljHT600',
        'preselcHT600',
+       #b-jet preselections
+       'presel2c20XX2c20b85',
+       'presel2c20XX2c20b90',
+       'preselj20b95',
+       'preselj20b77',
      ],
     # Hypo information
     #   If hypoScenario is 'simple', then hypo configuration is handled based on the

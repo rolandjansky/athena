@@ -8,11 +8,7 @@
 #include "eflowRec/eflowTrackClusterLink.h"
 #include "eflowRec/IEFlowCellEOverPTool.h"
 #include "eflowRec/PFClusterFiller.h"
-#include "eflowRec/PFSubtractionEnergyRatioCalculator.h"
-#include "eflowRec/PFSubtractionStatusSetter.h"
-#include "eflowRec/eflowSubtractor.h"
 #include "eflowRec/PFTrackFiller.h"
-#include "eflowRec/PFCalcRadialEnergyProfiles.h"
 
 using namespace eflowSubtract;
 
@@ -22,8 +18,7 @@ PFSubtractionTool::PFSubtractionTool(const std::string &type, const std::string 
 }
 
 PFSubtractionTool::~PFSubtractionTool()
-{
-}
+= default;
 
 StatusCode PFSubtractionTool::initialize()
 {
@@ -33,7 +28,7 @@ StatusCode PFSubtractionTool::initialize()
   ATH_CHECK(m_theEOverPTool->fillBinnedParameters(m_binnedParameters.get()));
 
   m_trkpos.reset(dynamic_cast<PFMatch::TrackEtaPhiInFixedLayersProvider *>(PFMatch::TrackPositionFactory::Get("EM2EtaPhi").release()));
-  if (!m_trkpos.get())
+  if (!m_trkpos)
   {
     ATH_MSG_ERROR("Failed to get TrackPositionProvider for cluster preselection!");
     return StatusCode::FAILURE;
@@ -44,6 +39,11 @@ StatusCode PFSubtractionTool::initialize()
   ATH_CHECK(m_theMatchingToolForPull_015.retrieve());
   ATH_CHECK(m_theMatchingToolForPull_02.retrieve());
 
+  //Set the level of the helpers to the same as the tool here
+  m_pfCalc.msg().setLevel(this->msg().level());
+  m_pfSubtractionStatusSetter.msg().setLevel(this->msg().level());
+  m_pfSubtractionEnergyRatioCalculator.msg().setLevel(this->msg().level());
+  m_subtractor.m_facilitator.msg().setLevel(this->msg().level());
   return StatusCode::SUCCESS;
 }
 
@@ -55,12 +55,12 @@ void PFSubtractionTool::execute(eflowCaloObjectContainer *theEflowCaloObjectCont
   PFData data;
   data.caloObjects = theEflowCaloObjectContainer;
   const PFTrackFiller pfTrackFiller;
-  if (!m_recoverSplitShowers) pfTrackFiller.fillTracksToConsider(data, *recTrackContainer);
-  else pfTrackFiller.fillTracksToRecover(data);
+  if (!m_recoverSplitShowers) PFTrackFiller::fillTracksToConsider(data, *recTrackContainer);
+  else PFTrackFiller::fillTracksToRecover(data);
 
   const PFClusterFiller pfClusterFiller;
-  if (!m_recoverSplitShowers) pfClusterFiller.fillClustersToConsider(data, *recClusterContainer);
-  else pfClusterFiller.fillClustersToRecover(data);
+  if (!m_recoverSplitShowers) PFClusterFiller::fillClustersToConsider(data, *recClusterContainer);
+  else PFClusterFiller::fillClustersToRecover(data);
 
   ATH_MSG_DEBUG("This event has " << data.tracks.size() << " tracks " << data.clusters.size() << " clusters ");
 
@@ -73,8 +73,7 @@ void PFSubtractionTool::execute(eflowCaloObjectContainer *theEflowCaloObjectCont
     else performSubtraction(numMatches,data);
   }
   else{
-    PFCalcRadialEnergyProfiles pfCalc;
-    pfCalc.calculate(data);
+    m_pfCalc.calculate(data);
   }
 
 }
@@ -216,15 +215,6 @@ void PFSubtractionTool::performSubtraction(eflowCaloObject& thisEflowCaloObject)
 
   ATH_MSG_DEBUG("In performSubtraction");
 
-  //These are used to set whether a track was subtracted and also to calculate how much energy was subtracted
-  PFSubtractionStatusSetter pfSubtractionStatusSetter;
-  PFSubtractionEnergyRatioCalculator pfSubtractionEnergyRatioCalculator;
-  if (msgLevel(MSG::DEBUG))
-  {
-    pfSubtractionStatusSetter.setLevel(MSG::DEBUG);
-    pfSubtractionEnergyRatioCalculator.setLevel(MSG::DEBUG);
-  }
-
   unsigned int nClusters = thisEflowCaloObject.nClusters();
   unsigned int nTrackMatches = thisEflowCaloObject.nTracks();
 
@@ -288,7 +278,7 @@ void PFSubtractionTool::performSubtraction(eflowCaloObject& thisEflowCaloObject)
         for (auto thisPair : clusterList)
           ATH_MSG_DEBUG("Annihilating cluster with E and eta " << thisPair.first->e() << " and " << thisPair.first->eta());
 
-      pfSubtractionStatusSetter.markAllTracksAnnihStatus(thisEflowCaloObject);
+      m_pfSubtractionStatusSetter.markAllTracksAnnihStatus(thisEflowCaloObject);
       Subtractor::annihilateClusters(clusterList);
 
       if (msgLevel(MSG::DEBUG))
@@ -323,13 +313,23 @@ void PFSubtractionTool::performSubtraction(eflowCaloObject& thisEflowCaloObject)
       /* Get matched cluster via Links */
       std::vector<eflowRecCluster *> matchedClusters;
       std::vector<eflowTrackClusterLink *> links = thisEfRecTrack->getClusterMatches();
-      for (auto *thisEFlowTrackClusterLink : links)
+      matchedClusters.reserve(links.size());
+      for (auto* thisEFlowTrackClusterLink : links)
         matchedClusters.push_back(thisEFlowTrackClusterLink->getCluster());
-      if (m_recoverSplitShowers) std::sort(matchedClusters.begin(), matchedClusters.end(), eflowRecCluster::SortDescendingPt());
+      if (m_recoverSplitShowers)
+        std::sort(matchedClusters.begin(),
+                  matchedClusters.end(),
+                  eflowRecCluster::SortDescendingPt());
 
-      if (msgLvl(MSG::DEBUG)){
-        for (auto *thisClus : matchedClusters)
-          ATH_MSG_DEBUG("Haved matched cluster " << thisClus->getCluster()->index() << " with e,pt, eta and phi of " << thisClus->getCluster()->e() << ", " << thisClus->getCluster()->pt() << ", " << thisClus->getCluster()->eta() << " and " << thisClus->getCluster()->phi() << " will be subtracted");
+      if (msgLvl(MSG::DEBUG)) {
+        for (auto* thisClus : matchedClusters)
+          ATH_MSG_DEBUG(
+            "Haved matched cluster "
+            << thisClus->getCluster()->index() << " with e,pt, eta and phi of "
+            << thisClus->getCluster()->e() << ", "
+            << thisClus->getCluster()->pt() << ", "
+            << thisClus->getCluster()->eta() << " and "
+            << thisClus->getCluster()->phi() << " will be subtracted");
       }
 
       /* Do subtraction */
@@ -361,15 +361,14 @@ void PFSubtractionTool::performSubtraction(eflowCaloObject& thisEflowCaloObject)
         //Now we should mark all of these clusters as being subtracted
         //Now need to mark which clusters were modified in the subtraction procedure
         std::vector<std::pair<float, float>> clusterSubtractedEnergyRatios;
-        pfSubtractionEnergyRatioCalculator.calculateSubtractedEnergyRatiosForAnnih(clusterSubtractionList, clusterEnergyMap, clusterSubtractedEnergyRatios);
-        pfSubtractionStatusSetter.markSubtractionStatus(clusterSubtractionList, clusterSubtractedEnergyRatios, thisEflowCaloObject, trackIndex);
+        m_pfSubtractionEnergyRatioCalculator.calculateSubtractedEnergyRatiosForAnnih(clusterSubtractionList, clusterEnergyMap, clusterSubtractedEnergyRatios);
+        m_pfSubtractionStatusSetter.markSubtractionStatus(clusterSubtractionList, clusterSubtractedEnergyRatios, thisEflowCaloObject, trackIndex);
       }
       else
       {
 
         /* Subtract the track from all matched clusters */
-        const bool debugToggle = msgLvl(MSG::DEBUG);
-        Subtractor::subtractTracksFromClusters(thisEfRecTrack, clusterSubtractionList, debugToggle);
+        m_subtractor.subtractTracksFromClusters(thisEfRecTrack, clusterSubtractionList);
 
         //recalculate total cluster energy from the clusters afer subtraction
         totalClusterEnergy = std::accumulate(clusterSubtractionList.begin(),clusterSubtractionList.end(),0.0,sumClusEnergy);        
@@ -378,19 +377,20 @@ void PFSubtractionTool::performSubtraction(eflowCaloObject& thisEflowCaloObject)
         if (canAnnihilate(0.0,sqrt(thisEfRecTrack->getVarEExpect()), totalClusterEnergy)){
 
           if (msgLevel(MSG::DEBUG))
-          for (auto thisPair : clusterSubtractionList)
+          for (auto thisPair : clusterSubtractionList){
             ATH_MSG_DEBUG("Annihilating remnant cluster with E and eta " << thisPair.first->e() << " and " << thisPair.first->eta());
-          Subtractor::annihilateClusters(clusterSubtractionList);
+          }
+          eflowSubtract::Subtractor::annihilateClusters(clusterSubtractionList);
           //Now we should mark all of these clusters as being subtracted
           std::vector<std::pair<float, float>> clusterSubtractedEnergyRatios;
-          pfSubtractionEnergyRatioCalculator.calculateSubtractedEnergyRatiosForAnnih(clusterSubtractionList, clusterEnergyMap, clusterSubtractedEnergyRatios);
-          pfSubtractionStatusSetter.markSubtractionStatus(clusterSubtractionList, clusterSubtractedEnergyRatios, thisEflowCaloObject, trackIndex);
+          m_pfSubtractionEnergyRatioCalculator.calculateSubtractedEnergyRatiosForAnnih(clusterSubtractionList, clusterEnergyMap, clusterSubtractedEnergyRatios);
+          m_pfSubtractionStatusSetter.markSubtractionStatus(clusterSubtractionList, clusterSubtractedEnergyRatios, thisEflowCaloObject, trackIndex);
         }//if remove the remnant after cell by cell subtraction
         else
         { 
           std::vector<std::pair<float, float>> clusterSubtractedEnergyRatios;
-          pfSubtractionEnergyRatioCalculator.calculateSubtractedEnergyRatios(clusterSubtractionList, clusterEnergyMap, clusterSubtractedEnergyRatios);
-          pfSubtractionStatusSetter.markSubtractionStatus(clusterSubtractionList, clusterSubtractedEnergyRatios, thisEflowCaloObject, trackIndex);
+          m_pfSubtractionEnergyRatioCalculator.calculateSubtractedEnergyRatios(clusterSubtractionList, clusterEnergyMap, clusterSubtractedEnergyRatios);
+          m_pfSubtractionStatusSetter.markSubtractionStatus(clusterSubtractionList, clusterSubtractedEnergyRatios, thisEflowCaloObject, trackIndex);
         }//if don't remove the remnant after cell by cell subtraction
 
       }//if not annihilating, and instead subtracting cell by cell

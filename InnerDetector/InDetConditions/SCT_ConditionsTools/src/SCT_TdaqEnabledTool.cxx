@@ -99,7 +99,7 @@ SCT_TdaqEnabledTool::getDetectorElementStatus(const EventContext& ctx, InDet::Si
         tdaq_enabled.at(id_hash.value())=true;
      }
      for (unsigned int status_i=0; status_i<status.size(); ++status_i) {
-        status[status_i] = status[status_i] & tdaq_enabled.at(status_i);
+        status[status_i] = status[status_i] && tdaq_enabled.at(status_i);
      }
   }
 

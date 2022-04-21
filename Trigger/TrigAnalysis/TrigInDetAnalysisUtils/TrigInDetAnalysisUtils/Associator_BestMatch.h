@@ -7,7 +7,7 @@
  **     @author  mark sutton
  **     @date    Wed 28 Oct 2009 02:23:23 CET 
  **
- **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  **/
 
 
@@ -42,7 +42,7 @@ public:
 
   virtual TrackAssociator* clone() override { return new Associator_DeltaRMatcher(*this); }
 
-  double distance( const TIDA::Track* t0,  const TIDA::Track* t1 ) const {
+  virtual double distance( const TIDA::Track* t0,  const TIDA::Track* t1 ) const override {
     double deta = t0->eta()-t1->eta();
     double dphi = t0->phi()-t1->phi();    
     if ( dphi> M_PI ) dphi-=2*M_PI; 
@@ -67,7 +67,7 @@ public:
 
   virtual TrackAssociator* clone() override { return new Associator_SecondBestpTMatcher(*this); }
 
-  double distance( const TIDA::Track* t0, const TIDA::Track* t1 ) const {
+  virtual double distance( const TIDA::Track* t0, const TIDA::Track* t1 ) const override {
     double dpT = fabs( t0->pT()/1000 - t1->pT()/1000 );
     //std::cout << "pT dist = " << dpT << "    dpT / pT = " << dpT/fabs(t0->pT()/1000) << std::endl;
     return dpT/(fabs(t0->pT()/1000));
@@ -89,7 +89,7 @@ public:
 
   virtual TrackAssociator* clone() override { return new Associator_BestDeltaRMatcher(*this); }
 
-  double distance( const TIDA::Track* t0, const TIDA::Track* t1 ) const {
+  virtual double distance( const TIDA::Track* t0, const TIDA::Track* t1 ) const override {
     double deta = t0->eta()-t1->eta();
     double dphi = t0->phi()-t1->phi();    
     if ( dphi> M_PI ) dphi-=2*M_PI; 
@@ -123,7 +123,7 @@ public:
 
   virtual TrackAssociator* clone() override { return new Associator_BestDeltaRZMatcher(*this); }
 
-  double distance( const TIDA::Track* t0, const TIDA::Track* t1 ) const {
+  virtual double distance( const TIDA::Track* t0, const TIDA::Track* t1 ) const override {
     double deta = t0->eta()-t1->eta();
     double dphi = t0->phi()-t1->phi(); if ( dphi> M_PI ) dphi-=2*M_PI;  if ( dphi<-M_PI ) dphi+=2*M_PI;
     double dzed = t0->z0()-t1->z0();    
@@ -166,7 +166,7 @@ public:
 
   virtual TrackAssociator* clone() override { return new Associator_BestDeltaRZSinThetaMatcher(*this); }
 
-  double distance( const TIDA::Track* t0, const TIDA::Track* t1 ) const {
+  virtual double distance( const TIDA::Track* t0, const TIDA::Track* t1 ) const override {
     double theta = 2*std::atan(std::exp(-t1->eta()));
 
     double deta = t0->eta()-t1->eta();
@@ -208,7 +208,7 @@ public:
 
   virtual TrackAssociator* clone() override { return new Associator_BestSigmaMatcher(*this); }
 
-  double distance( const TIDA::Track* t0, const TIDA::Track* t1 ) const {
+  virtual double distance( const TIDA::Track* t0, const TIDA::Track* t1 ) const override {
     double deta = t1->eta()-t0->eta();
     double dphi = t1->phi()-t0->phi(); 
     if ( dphi> M_PI ) dphi-=2*M_PI;  
@@ -253,7 +253,7 @@ public:
 
   virtual TrackAssociator* clone() override { return new Associator_BestDeltaPhiMatcher(*this); }
 
-  double distance( const TIDA::Track* t0, const TIDA::Track* t1 ) const {
+  virtual double distance( const TIDA::Track* t0, const TIDA::Track* t1 ) const override {
     double dphi = t0->phi()-t1->phi();    
     if ( dphi> M_PI ) dphi-=2*M_PI; 
     if ( dphi<-M_PI ) dphi+=2*M_PI;

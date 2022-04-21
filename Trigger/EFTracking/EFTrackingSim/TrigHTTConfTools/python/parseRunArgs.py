@@ -23,6 +23,7 @@ Usage:
 
 import itertools
 import PyJobTransforms.trfArgClasses as trfArgClasses
+from PyJobTransforms.trfLogger import msg
 
 ###############################################################################
 ## HTTMaps
@@ -235,5 +236,5 @@ def parseHTTArgs(runArgs):
         key = arg[0]
         if hasattr(runArgs, key):
             opts[key] = getattr(runArgs, key)
-    print ("Final pars: ", opts)
+    msg.info("Final pars: ", opts)
     return opts

@@ -124,7 +124,7 @@ void SCT_DCSConditionsTool::getDetectorElementStatus(const EventContext& ctx, In
                                                    m_pHelper->eta_module(moduleId),
                                                    side_i) );
             const IdentifierHash hashId{m_pHelper->wafer_hash(waferId)};
-            status.at(hashId.value() ) = status.at(hashId.value() ) & dcs_state.second.empty();
+            status.at(hashId.value() ) = status.at(hashId.value() ) && dcs_state.second.empty();
             chip_status.at(hashId.value())  = chip_status.at(hashId.value()) & ( dcs_state.second.empty() ? all_flags_set : 0 );
          }
       }

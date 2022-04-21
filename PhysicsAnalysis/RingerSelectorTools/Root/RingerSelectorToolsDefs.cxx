@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RingerSelectorToolsDefs.cxx 670599 2015-05-28 14:15:35Z wsfreund $
 #include "RingerSelectorTools/RingerSelectorToolsDefs.h"
 
 #ifndef RINGER_STANDALONE
@@ -118,7 +117,7 @@ Requirement getType(const char* cStr)
     return Medium_CutID_Pd;
   } else if ( strType=="Tight_CutID_Pd" ) {
     return Tight_CutID_Pd;
-  } else if (strType=="Loose_CutID_Pd"){
+  } else if (strType=="Loose_CutID_Pf"){
     return Loose_CutID_Pf;
   } else if ( strType=="Medium_CutID_Pf" ) {
     return Medium_CutID_Pf;

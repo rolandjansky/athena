@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Plot Tool -- for all your plotting needs
@@ -41,7 +41,6 @@ TrigEgammaPlotTool( const std::string& myname )
     // Coverity
     m_storeGate = nullptr;
     m_histsvc = nullptr;
-    m_parent = nullptr;
     m_nEtbins=0;
     m_nEtabins=0;
     m_ndefaultEtbins=0; 
@@ -397,24 +396,11 @@ void TrigEgammaPlotTool::addHistogram(TH1 *h, const std::string &dir) {
     std::stringstream ss;
     ss << "/" << m_file << "/" << theDir << "/" << h->GetName();
 
-
-    if(m_parent){
-        std::set<std::string>::const_iterator itr = m_mongroups.find( theDir );
-        if ( itr==m_mongroups.end() ) { 
-            m_mongroups.insert( theDir );
-            /// create actual mongroup 
-            m_parent->addMonGroup(new ManagedMonitorToolBase::MonGroup(m_parent,theDir,ManagedMonitorToolBase::run)); //Can be per run or per lumi block
-        }
-        m_parent->addHistogram(h,theDir);
-        ATH_MSG_VERBOSE("IHLTMonTool Booked Histogram in folder " << theDir);
-    }
-    else{
-        ATH_MSG_VERBOSE("Registering histogram with THistSvc");
-        StatusCode sc;
-        sc = m_histsvc->regHist(ss.str(), h);
-        if (sc.isFailure()) {
-            throw ValidationException(std::string("Failure registering histogram ") + ss.str());
-        }
+    ATH_MSG_VERBOSE("Registering histogram with THistSvc");
+    StatusCode sc;
+    sc = m_histsvc->regHist(ss.str(), h);
+    if (sc.isFailure()) {
+      throw ValidationException(std::string("Failure registering histogram ") + ss.str());
     }
 
     ATH_MSG_VERBOSE("Registered histogram " << ss.str());
@@ -439,21 +425,9 @@ void TrigEgammaPlotTool::addHistogram(TH2 *h, const std::string &dir) {
 
     std::stringstream ss;
     ss << "/" << m_file << "/" << theDir << "/" << h->GetName();
-    if(m_parent) {
-        std::set<std::string>::const_iterator itr = m_mongroups.find( theDir );
-        if ( itr==m_mongroups.end() ) { 
-            m_mongroups.insert( theDir );
-            /// create actual mongroup 
-            m_parent->addMonGroup(new ManagedMonitorToolBase::MonGroup(m_parent,theDir,ManagedMonitorToolBase::run)); //Can be per run or per lumi block
-        }
-        m_parent->addHistogram(h,theDir);
-    }
-    else if(!m_parent){
-        StatusCode sc;
-        sc = m_histsvc->regHist(ss.str(), h);
-        if (sc.isFailure()) {
-            throw ValidationException(std::string("Failure registering histogram ") + ss.str());
-        }
+    StatusCode sc = m_histsvc->regHist(ss.str(), h);
+    if (sc.isFailure()) {
+      throw ValidationException(std::string("Failure registering histogram ") + ss.str());
     }
 
     m_hist2.insert(std::pair<std::string, TH2 *>(ss.str(), h));
@@ -479,24 +453,11 @@ void TrigEgammaPlotTool::addTree(TTree *t, const std::string &dir) {
     std::stringstream ss;
     ss << "/" << m_file << "/" << theDir << "/" << t->GetName();
 
-    if(m_parent){    
-      std::set<std::string>::const_iterator itr = m_mongroups.find( theDir );
-      if ( itr==m_mongroups.end() ) { 
-        m_mongroups.insert( theDir );
-        /// create actual mongroup 
-        m_parent->addMonGroup(new ManagedMonitorToolBase::MonGroup(m_parent,theDir,ManagedMonitorToolBase::run)); //Can be per run or per lumi block
-      }
-      m_parent->addTree(t,theDir);
-    
-    }else if(!m_parent){
-        StatusCode sc;
-        sc = m_histsvc->regTree(ss.str(), t);
-        if (sc.isFailure()) {
-            throw ValidationException(std::string("Failure registering tree ") + ss.str());
-        }
+    StatusCode sc = m_histsvc->regTree(ss.str(), t);
+    if (sc.isFailure()) {
+      throw ValidationException(std::string("Failure registering tree ") + ss.str());
     }
-    
-    
+
     m_tree.insert(std::pair<std::string, TTree *>(ss.str(), t));
 }
 

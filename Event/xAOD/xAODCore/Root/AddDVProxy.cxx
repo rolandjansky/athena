@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s):
@@ -67,9 +67,19 @@ TClass* xAODClassGenerator::GetClass(const char* classname, Bool_t load)
   if (m_active) return nullptr;
   for (const std::string& pref : prefs) {
     if (strncmp (classname, pref.c_str(), pref.size()) == 0) {
-      TClassEdit::TSplitType s (classname);
-      if (s.fElements.size() >= 2) {
-        TClass::GetClass (s.fElements[1].c_str(), load);
+      std::string eltName;
+      {
+        // Protect against data race inside TClassEdit.
+        // https://github.com/root-project/root/issues/10353
+        // Should be fixed in root 6.26.02.
+        R__WRITE_LOCKGUARD(ROOT::gCoreMutex);
+        TClassEdit::TSplitType s (classname);
+        if (s.fElements.size() >= 2) {
+          eltName = s.fElements[1];
+        }
+      }
+      if (!eltName.empty()) {
+        TClass::GetClass (eltName.c_str(), load);
         BeActive active;
         return TClass::GetClass (classname, load);
       }

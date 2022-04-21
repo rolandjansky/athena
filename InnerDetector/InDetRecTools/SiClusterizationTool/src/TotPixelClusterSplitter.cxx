@@ -11,6 +11,8 @@
 #include "InDetPrepRawData/PixelCluster.h"
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+#include <algorithm> //minmax_element
+#include <tuple> //std::tuple
 
 InDet::TotPixelClusterSplitter::TotPixelClusterSplitter(const std::string & type, const std::string & name, const IInterface * parent) :
   base_class(type, name, parent),
@@ -32,7 +34,8 @@ StatusCode InDet::TotPixelClusterSplitter::finalize() {
   return StatusCode::SUCCESS;
 }
 
-std::vector<InDet::PixelClusterParts> InDet::TotPixelClusterSplitter::splitCluster( const InDet::PixelCluster & OrigCluster) const {
+std::vector<InDet::PixelClusterParts> 
+InDet::TotPixelClusterSplitter::splitCluster( const InDet::PixelCluster & OrigCluster) const {
 
   std::vector<InDet::PixelClusterParts> Parts;
 
@@ -43,7 +46,10 @@ std::vector<InDet::PixelClusterParts> InDet::TotPixelClusterSplitter::splitClust
   // Check cluster-size bounds.
   if (NumPixels < m_minPixels || NumPixels > m_maxPixels) return Parts;
 
-  InDetDD::SiCellId * CellIds = new InDetDD::SiCellId[NumPixels];
+  std::vector<InDetDD::SiCellId> CellIds(NumPixels); //NumPixels entries of default constructed SiCellId
+  
+  auto getCellId=[Element](const Identifier & i){ return Element->cellIdFromIdentifier(i);};
+  std::transform(Rdos.begin(),Rdos.end(), CellIds.begin(), getCellId);
 
   SG::ReadCondHandle<PixelChargeCalibCondData> calibDataHandle(m_chargeDataKey);
   const PixelChargeCalibCondData *calibData = *calibDataHandle;
@@ -52,37 +58,17 @@ std::vector<InDet::PixelClusterParts> InDet::TotPixelClusterSplitter::splitClust
   // Veto removed on 28-7-2011 by K. Barry - residual-level 
   // studies show RMS improvement when ganged-pixel containing 
   // clusters are split.
-  for (unsigned int i = 0; i < NumPixels; i++)
-  {
-    CellIds[i] = Element->cellIdFromIdentifier(Rdos[i]);
-  }
+  
 
   // Determine maximum and minimum phi and eta indices.
-  int TempVar[4] = { 0, 0, 0, 0 };
-  for (unsigned int i = 0; i < NumPixels; i++)
-  {
-    const int phiIdx = CellIds[i].phiIndex();
-    const int etaIdx = CellIds[i].etaIndex();
-    if (i == 0)
-    {
-      TempVar[0] = phiIdx;
-      TempVar[1] = phiIdx;
-      TempVar[2] = etaIdx;
-      TempVar[3] = etaIdx;
-    }
-    else
-    {
-      if (phiIdx < TempVar[0]) TempVar[0] = phiIdx;
-      else if (phiIdx > TempVar[1]) TempVar[1] = phiIdx;
-
-      if (etaIdx < TempVar[2]) TempVar[2] = etaIdx;
-      else if (etaIdx > TempVar[3]) TempVar[3] = etaIdx;
-    }
-  }
-  const int MinPhiIdx = TempVar[0];
-  const int MaxPhiIdx = TempVar[1];
-  const int MinEtaIdx = TempVar[2];
-  const int MaxEtaIdx = TempVar[3];
+  auto comparePhi=[](const InDetDD::SiCellId & a, const InDetDD::SiCellId & b){ return (a.phiIndex() < b.phiIndex());};
+  auto compareEta=[](const InDetDD::SiCellId & a, const InDetDD::SiCellId & b){ return (a.etaIndex() < b.etaIndex());};
+  const auto [pMinPhi,pMaxPhi] = std::minmax_element(CellIds.begin(), CellIds.end(), comparePhi);
+  const auto [pMinEta,pMaxEta] = std::minmax_element(CellIds.begin(), CellIds.end(), compareEta);
+  const auto & MinPhiIdx = pMinPhi->phiIndex();
+  const auto & MaxPhiIdx = pMaxPhi->phiIndex();
+  const auto & MinEtaIdx = pMinEta->etaIndex();
+  const auto & MaxEtaIdx = pMaxEta->etaIndex();
   const int PhiWidth = MaxPhiIdx - MinPhiIdx + 1;
   const int EtaWidth = MaxEtaIdx - MinEtaIdx + 1;
   
@@ -163,14 +149,12 @@ std::vector<InDet::PixelClusterParts> InDet::TotPixelClusterSplitter::splitClust
   // Now it's time to do the split!
   if (Type == NoSplit)
   {
-    delete [] CellIds;
     return Parts;
   }
   if (Type != PhiSplit && Type != EtaSplit)
   {
     // Should never happen...major bug someplace if it does
     ATH_MSG_ERROR("<InDet::TotPixelClusterSplitter::splitCluster> : Unrecognized SplitType!");
-    delete [] CellIds;
     return Parts;
   }
 
@@ -191,13 +175,14 @@ std::vector<InDet::PixelClusterParts> InDet::TotPixelClusterSplitter::splitClust
   if (aid==nullptr)
   {
     ATH_MSG_ERROR("Could not get ATLASDetectorID");
+    return Parts;
   }
-  const PixelID* pixelIDp=dynamic_cast<const PixelID*>(aid);
-  if (!pixelIDp){
+  
+  if (aid->helper() != AtlasDetectorID::HelperType::Pixel){
     ATH_MSG_ERROR("Could not get PixelID pointer");
-    delete [] CellIds;
     return Parts;
   } 
+  const PixelID* pixelIDp=static_cast<const PixelID*>(aid);
   const PixelID& pixelID = *pixelIDp;
 
   
@@ -237,7 +222,6 @@ std::vector<InDet::PixelClusterParts> InDet::TotPixelClusterSplitter::splitClust
   Parts.emplace_back(SplitRdos[0], Totgroups[0], Lvl1groups[0]);
   Parts.emplace_back(SplitRdos[1], Totgroups[1], Lvl1groups[1]);
     
-  delete [] CellIds;
   return Parts;
 }
 

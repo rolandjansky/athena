@@ -10,8 +10,8 @@ public:
   PFClusterFiller(){};
   ~PFClusterFiller(){};
 
-  void fillClustersToRecover(PFData &data) const;
-  void fillClustersToConsider(PFData &data, eflowRecClusterContainer &recClusterContainer) const;
+  static void fillClustersToRecover(PFData &data) ;
+  static void fillClustersToConsider(PFData &data, eflowRecClusterContainer &recClusterContainer) ;
 
 };
 #endif

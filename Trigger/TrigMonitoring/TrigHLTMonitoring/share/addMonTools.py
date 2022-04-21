@@ -48,14 +48,7 @@ if HLTMonFlags.doGeneral:
 if HLTMonFlags.doMonTier0:
     # HLTEgammaMonTool - Calculates basic efficiencies
     if HLTMonFlags.doEgamma:
-      try:
-       if rec.doCalo and rec.doInDet:
-        from TrigEgammaMonitoring.TrigEgammaMonitoringConfig import TrigEgammaMonitoringTool
-        HLTMonManager.AthenaMonTools += TrigEgammaMonitoringTool()
-      except:
-        log.info("Problems with HLTEgammaTool, tool not enabled")
-        import traceback
-        log.info (traceback.format_exc())
+        log.warning("The HLT legacy e/gamma monitoring is no longer supported")
 
     # HLTCaloTool - Makes basic comparisons between online/offline
     if HLTMonFlags.doCalo:
@@ -106,14 +99,7 @@ if HLTMonFlags.doDump:
 
     # HLTEgammaDumpTool - HLT EDM Egamma Dumper
     if HLTMonFlags.doEgamma:
-      try:
-        from TrigEgammaMonitoring.TrigEgammaMonitoringConfig import HLTEgammaMonitoringDumpTool
-        HLTMonManager.AthenaMonTools += HLTEgammaMonitoringDumpTool()
-      except:
-        log.info("Problems with HLTEgammaDumpTool, tool not enabled")
-        import traceback
-        log.info (traceback.format_exc())
-
+        log.warning("The HLT legacy e/gamma dumper is no longer supported")
 
     #Make the custom tau TTP ntuples.
     if HLTMonFlags.doOfflineTauTTP :

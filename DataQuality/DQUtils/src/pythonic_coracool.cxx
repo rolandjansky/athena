@@ -165,7 +165,7 @@ inline PyObject *apply_function(PyObject *function, PyObject *object)
     return new_object;
 }
 
-CoraCoolFolderPtr fetch_coracool_folder(IDatabasePtr cooldb, string folder)
+CoraCoolFolderPtr fetch_coracool_folder(IDatabasePtr cooldb, const string & folder)
 {
     CoraCoolDatabaseSvc&  corasvc     = CoraCoolDatabaseSvcFactory::
                                         databaseService();
@@ -177,7 +177,7 @@ CoraCoolFolderPtr fetch_coracool_folder(IDatabasePtr cooldb, string folder)
 }
 
 const cool::RecordSpecification 
-    get_coracool_payload_spec(IDatabasePtr cooldb, string folder)
+    get_coracool_payload_spec(IDatabasePtr cooldb, const string & folder)
 {
     return fetch_coracool_folder(cooldb, folder)->payloadSpecification();
 }
@@ -191,7 +191,7 @@ inline PyObject* make_iov_key(PyObject *iovkey_wrapper,
     return PyLong_FromUnsignedLongLong(value);
 }
 
-PyObject *browse_coracool(IDatabasePtr cooldb, string folder, 
+PyObject *browse_coracool(IDatabasePtr cooldb, const string & folder, 
                           ValidityKey since, ValidityKey until,
                           const ChannelSelection &cs = ChannelSelection::all(), 
                           const char *tag="",

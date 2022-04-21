@@ -24,6 +24,10 @@ class PLR_ID: public PixelID
 {
 public:
   PLR_ID();
+   ///This is an PLR_ID helper
+  AtlasDetectorID::HelperType helper() const override{
+    return AtlasDetectorID::HelperType::PLR;
+  }
 
   /// Initialization from the identifier dictionary
   virtual int initialize_from_dictionary(const IdDictMgr& dict_mgr) override;

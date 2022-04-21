@@ -144,7 +144,7 @@ void SCT_MonitorConditionsTool::getDetectorElementStatus(const EventContext& ctx
         status.resize(m_pHelper->wafer_hash_max(),true);
      }
      for (unsigned int hash=0; hash<status.size(); ++hash) {
-        status.at(hash) = status.at(hash) & not (condData->nBadStripsForWafer(hash)>=m_nhits_noisywafer);
+        status.at(hash) = status.at(hash) && not (condData->nBadStripsForWafer(hash)>=m_nhits_noisywafer);
      }
 
      std::vector<InDet::ChipFlags_t> &chip_status = element_status.getElementChipStatus();
@@ -162,7 +162,6 @@ void SCT_MonitorConditionsTool::getDetectorElementStatus(const EventContext& ctx
      std::vector<std::pair<unsigned int, unsigned int> > tmp_bad_strips;
      for (unsigned int module_hash=0; module_hash<status.size(); ++module_hash) {
         IdentifierHash moduleHash(module_hash);
-        Identifier module_id(m_pHelper->wafer_id(moduleHash));
 
         std::vector<unsigned short> &bad_module_strips_out = bad_strips.at(module_hash);
         std::array<unsigned int, SCT::N_CHIPS_PER_SIDE> bad_strip_counts{};

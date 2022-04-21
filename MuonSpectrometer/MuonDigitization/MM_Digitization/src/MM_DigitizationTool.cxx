@@ -143,7 +143,7 @@ StatusCode MM_DigitizationTool::initialize() {
   }
 
   // Initialize ReadHandleKey
-  ATH_CHECK(m_hitsContainerKey.initialize(!m_onlyUseContainerName));
+  ATH_CHECK(m_hitsContainerKey.initialize(true));
 
   // Initialize the output WriteHandleKeys
   ATH_CHECK(m_outputDigitCollectionKey.initialize());

@@ -14,7 +14,10 @@
 #include "eflowRec/PFData.h"
 #include "eflowRec/PFMatchPositions.h"
 #include "eflowRec/PFTrackClusterMatchingTool.h"
-
+#include "eflowRec/PFCalcRadialEnergyProfiles.h"
+#include "eflowRec/PFSubtractionStatusSetter.h"
+#include "eflowRec/PFSubtractionEnergyRatioCalculator.h"
+#include "eflowRec/eflowSubtractor.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODTracking/TrackParticle.h"
 
@@ -86,6 +89,11 @@ private:
   /** Parameter that controls whether to use retain remaining calorimeter energy in track-cluster system, after charged shower subtraction */
   Gaudi::Property<double> m_subtractionSigmaCut{this, "SubtractionSigmaCut", 1.5, "Parameter that controls whether to use retain remaining calorimeter energy in track-cluster system, after charged shower subtraction"};
 
+  //Helpers
+  PFCalcRadialEnergyProfiles m_pfCalc{};
+  PFSubtractionStatusSetter m_pfSubtractionStatusSetter{};
+  PFSubtractionEnergyRatioCalculator m_pfSubtractionEnergyRatioCalculator{};
+  eflowSubtract::Subtractor m_subtractor{};
 };
 
 #endif

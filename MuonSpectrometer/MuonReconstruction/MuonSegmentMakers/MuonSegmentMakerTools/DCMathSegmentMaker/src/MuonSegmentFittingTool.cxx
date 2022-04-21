@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentFittingTool.h"
@@ -14,8 +14,15 @@
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkTrack/Track.h"
 
+namespace {
+    inline double calcChi2 (const Trk::Track& trk) {
+        const Trk::FitQuality* fq = trk.fitQuality();
+        if (!fq) { return FLT_MAX;}
+        return fq->chiSquared() / fq->numberDoF();
+    }
+}
 namespace Muon {
-
+   
     MuonSegmentFittingTool::MuonSegmentFittingTool(const std::string& t, const std::string& n, const IInterface* p) :
         AthAlgTool(t, n, p), m_magFieldProperties(Trk::NoField) {
         declareInterface<IMuonSegmentFittingTool>(this);
@@ -52,7 +59,7 @@ namespace Muon {
 
         // extrapolate segment parameters to first measurements
         const Trk::MeasurementBase* firstMeas = rioVec.front();
-        std::unique_ptr<const Trk::TrackParameters> exPars =
+        std::unique_ptr<Trk::TrackParameters> exPars =
             m_slPropagator->propagate(ctx, segPars, firstMeas->associatedSurface(), Trk::anyDirection, false, m_magFieldProperties);
         if (!exPars) {
             ATH_MSG_DEBUG(" Propagation failed!! ");
@@ -91,35 +98,25 @@ namespace Muon {
             ATH_MSG_VERBOSE("     fit failed ");
             return nullptr;
         }
-
+        constexpr double chi2Cut = 10.;
         std::unique_ptr<Trk::Track> cleanTrack = m_trackCleaner->clean(*newtrack, ctx);
-        if (!cleanTrack && !isCurvedSegment) {
+        if (!cleanTrack && !isCurvedSegment && calcChi2(*newtrack) > chi2Cut) {
             ATH_MSG_VERBOSE("     lost in cleaner ");
             return nullptr;
         }
 
-        if (!(*cleanTrack->perigeeParameters() == *newtrack->perigeeParameters()) && !isCurvedSegment) {
+        if (cleanTrack && !(*cleanTrack->perigeeParameters() == *newtrack->perigeeParameters()) && !isCurvedSegment) {
             // using release until the entire code can be migrated to use smart pointers
             newtrack.swap(cleanTrack);
         }
 
-        const Trk::FitQuality* fq = newtrack->fitQuality();
-        if (!fq) {
-            // no fit quality!!, discard track
-            ATH_MSG_WARNING(" track without fit quality!! ");
-            return nullptr;
-        }
-
-        double reducedChi2 = fq->chiSquared() / fq->numberDoF();
-        constexpr double cut = 10.;
         // reject fit if larger than cut
-        if (reducedChi2 > cut) {
-            ATH_MSG_VERBOSE("     reduced chi2 to large " << reducedChi2 << "  cut  " << cut);
+        if (calcChi2(*newtrack) > chi2Cut) {
+            ATH_MSG_VERBOSE("     reduced chi2 to large " << calcChi2(*newtrack) << "  cut  " << chi2Cut);
             return nullptr;
         }
 
         if (msgLvl(MSG::DEBUG)) {
-            ATH_MSG_DEBUG(std::setprecision(5) << " chi2 " << fq->chiSquared() << " ndof " << fq->numberDoF());
             const Trk::Perigee* pp = newtrack->perigeeParameters();
             if (pp) {
                 ATH_MSG_DEBUG(" pos " << std::setprecision(5) << pp->position() << " phi " << pp->momentum().phi() << " theta "
@@ -144,7 +141,7 @@ namespace Muon {
             return;
         }
 
-        std::unique_ptr<const Trk::TrackParameters> exPars =
+        std::unique_ptr<Trk::TrackParameters> exPars =
             m_slPropagator->propagate(ctx, *pp, surf, Trk::anyDirection, false, m_magFieldProperties);
         if (!exPars) {
             ATH_MSG_WARNING(" extrapolation failed, this should not happen ");

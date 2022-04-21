@@ -184,13 +184,13 @@ def dump_H3V (v, f):
 
 def dump_HLV (v, f):
     m2 = v.e()**2 - v.px()**2 - v.py()**2 - v.pz()**2
+    # Be insensitive to some rounding errors.
+    m2 = fix_neg0 (m2, 1e-3)
     if m2 < 0:
         m = - math_sqrt (-m2)
     else:
         m = math_sqrt (m2)
 
-    # Be insensitive to some rounding errors.
-    m = fix_neg0 (m, 1e-3)
     #if abs(m-int(m)-0.5) < 1e-4: m += 0.01
 
     pt = math_hypot (v.px(), v.py())
@@ -292,7 +292,7 @@ def dump_AmgMatrix (m, f, thresh=1e-38):
     fprint (f, ']')
     return
 
-def dump_AmgVector (m, f, thresh=1e-38):
+def dump_AmgVector (m, f, thresh=1e-38, prec=3):
     if not m:
         fprint (f, '(null vector)')
         return
@@ -300,7 +300,7 @@ def dump_AmgVector (m, f, thresh=1e-38):
     for r in range(m.rows()):
         v = m(r)
         if abs(v) < thresh: v = 0
-        fprint (f, '%#6.3g' % v)
+        fprint (f, '%#6.*g' % (prec, v))
     fprint (f, ']')
     return
 
@@ -1676,7 +1676,7 @@ def dump_CompetingRIOsOnTrack (p, f):
 
 def dump_MuonClusterOnTrack (p, f):
     dump_RIO_OnTrack (p, f)
-    dump_AmgVector (p.globalPosition(), f)
+    dump_AmgVector (p.globalPosition(), f, 1e-12, 4)
     fprint (f, p.positionAlongStrip())
     return
     
@@ -1705,7 +1705,7 @@ def dump_TgcClusterOnTrack (p, f):
     dump_EL (p.prepRawDataLink(), f)
     fprint (f, p.detectorElement().identifyHash().value())
     return
-    
+
 
 def dump_sTgcClusterOnTrack (p, f):
     dump_MuonClusterOnTrack (p, f)
@@ -4088,7 +4088,7 @@ def dump_PrepRawData (p, f):
 
 def dump_MuonCluster (p, f):
     dump_PrepRawData (p, f)
-    dump_AmgVector (p.globalPosition(), f, thresh=1e-8)
+    dump_AmgVector (p.globalPosition(), f, thresh=1e-8, prec=4)
     return
 
 

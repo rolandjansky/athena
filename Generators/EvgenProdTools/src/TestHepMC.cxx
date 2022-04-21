@@ -90,7 +90,7 @@ TestHepMC::TestHepMC(const std::string& name, ISvcLocator* pSvcLocator)
   m_unstablePartNoDecayVtxCheckRate = 0;
   m_undecayedPi0CheckRate = 0;
   m_Status1ShortLifetime  = 0;
-  m_vtxDisplacedMoreThan_1m_CheckRateCnt = 0;
+  m_vtxDisplacedMoreThan_1m_CheckRate = 0;
   m_undisplacedDecayDaughtersOfDisplacedVtxCheckRate = 0;
   m_nonG4_energyCheckRate = 0;
   m_unknownPDGIDCheckRate = 0;
@@ -341,6 +341,7 @@ StatusCode TestHepMC::execute() {
     // Check vertices
     int vtxDisplacedstatuscode12CheckRateCnt=0;
     int vtxDisplacedstatuscodenot12CheckRateCnt=0;
+    int vtxDisplacedMoreThan_1m_CheckRateCnt=0;
 #ifdef HEPMC3
     for (auto vtx: evt->vertices()) {
 #else
@@ -370,7 +371,7 @@ StatusCode TestHepMC::execute() {
       const double dist = std::sqrt(dist2); // in mm
       if (dist2 > m_max_dist*m_max_dist) {
         ATH_MSG_WARNING("Found vertex position displaced by more than " << m_max_dist << "mm: " << dist << "mm");
-        ++m_vtxDisplacedMoreThan_1m_CheckRateCnt;
+        ++vtxDisplacedMoreThan_1m_CheckRateCnt;
         
         if (m_vtxDisplacedTest) {
           filter_pass = false;
@@ -440,6 +441,7 @@ StatusCode TestHepMC::execute() {
     } // Loop over all vertices
     if (vtxDisplacedstatuscode12CheckRateCnt>0) ++m_vtxDisplacedstatuscode12CheckRate;
     if (vtxDisplacedstatuscodenot12CheckRateCnt>0) ++m_vtxDisplacedstatuscodenot12CheckRate;
+    if (vtxDisplacedMoreThan_1m_CheckRateCnt>0) ++m_vtxDisplacedMoreThan_1m_CheckRate;
 
     // Check particles
     for (auto pitr: *evt) {
@@ -778,7 +780,7 @@ StatusCode TestHepMC::finalize() {
   ATH_MSG_INFO(" Event rate with NaN (Not A Number) or inf found in the event record vertex positions = " << m_vtxNANandINFCheckRate*100.0/double(m_nPass + m_nFail) << "%");
   if (!m_vtxNaNTest) ATH_MSG_INFO(" The check for NaN or inf in vtx. record is switched off, so is not included in the final TestHepMC efficiency ");
   ATH_MSG_INFO(" Event rate with vertices displaced more than " << m_max_dist_trans << "~mm in transverse direction for particles with status code other than 1 and 2 = " << m_vtxDisplacedstatuscodenot12CheckRate*100.0/double(m_nPass + m_nFail) << "% (not included in test efficiency)");
-  ATH_MSG_INFO(" Event rate with vertices displaced more than " << m_max_dist << "~mm = " << m_vtxDisplacedMoreThan_1m_CheckRateCnt*100.0/double(m_nPass + m_nFail) << "%");
+  ATH_MSG_INFO(" Event rate with vertices displaced more than " << m_max_dist << "~mm = " << m_vtxDisplacedMoreThan_1m_CheckRate*100.0/double(m_nPass + m_nFail) << "%");
   if (!m_vtxDisplacedTest) ATH_MSG_INFO(" The check for displaced vertices is switched off, so is not included in the final TestHepMC efficiency ");
   ATH_MSG_INFO(" Event rate with NAN (Not A Number) or inf found in particle momentum values = " << m_partMomentumNANandINFCheckRate*100.0/double(m_nPass + m_nFail) << "%");
   if (!m_momNaNTest) ATH_MSG_INFO(" The check for NaN/inf in momentum record is switched off, so is not included in the final TestHepMC efficiency ");

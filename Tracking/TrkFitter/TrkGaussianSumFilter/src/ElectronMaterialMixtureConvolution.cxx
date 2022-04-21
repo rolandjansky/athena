@@ -126,18 +126,9 @@ Trk::ElectronMaterialMixtureConvolution::update(
   Trk::ParticleHypothesis particleHypothesis) const
 {
 
-  const Trk::MaterialProperties* materialProperties =
-    layer.fullUpdateMaterialProperties(*(multiComponentState.begin()->first));
-
-  if (!materialProperties) {
-    ATH_MSG_DEBUG("UPDATE but no material properties!!!");
-  }
-
   Trk::MultiComponentState updatedMergedState = update(
     caches, multiComponentState, layer, direction, particleHypothesis, Normal);
-  ATH_MSG_DEBUG("UPDATE update N in: " << multiComponentState.size()
-                                       << " N out: "
-                                       << updatedMergedState.size());
+  
   if (updatedMergedState.empty()) {
     return {};
   }
@@ -159,11 +150,6 @@ Trk::ElectronMaterialMixtureConvolution::preUpdate(
   Trk::PropDirection direction,
   Trk::ParticleHypothesis particleHypothesis) const
 {
-  const Trk::MaterialProperties* materialProperties =
-    layer.fullUpdateMaterialProperties(*(multiComponentState.begin()->first));
-  if (!materialProperties) {
-    ATH_MSG_DEBUG("PREUPDATE but no material properties!!!");
-  }
   /* -------------------------------------
      Preliminary checks
      ------------------------------------- */
@@ -173,9 +159,6 @@ Trk::ElectronMaterialMixtureConvolution::preUpdate(
                                                        direction,
                                                        particleHypothesis,
                                                        Preupdate);
-  ATH_MSG_DEBUG("PREUPDATE update N in: " << multiComponentState.size()
-                                          << " N out: "
-                                          << updatedMergedState.size());
   if (updatedMergedState.empty()) {
     return {};
   }
@@ -198,11 +181,6 @@ Trk::ElectronMaterialMixtureConvolution::postUpdate(
   Trk::ParticleHypothesis particleHypothesis) const
 {
 
-  const Trk::MaterialProperties* materialProperties =
-    layer.fullUpdateMaterialProperties(*(multiComponentState.begin()->first));
-  if (!materialProperties) {
-    ATH_MSG_DEBUG("POSTUPDATE but no material properties!!!");
-  }
   /* -------------------------------------
      Preliminary checks
      ------------------------------------- */
@@ -214,9 +192,6 @@ Trk::ElectronMaterialMixtureConvolution::postUpdate(
                                                        particleHypothesis,
                                                        Postupdate);
 
-  ATH_MSG_DEBUG("POSTUPDATE update N in: " << multiComponentState.size()
-                                           << " N out: "
-                                           << updatedMergedState.size());
   if (updatedMergedState.empty()) {
     return {};
   }
@@ -232,14 +207,12 @@ Trk::ElectronMaterialMixtureConvolution::update(
   const Trk::MultiComponentState& inputState,
   const Trk::Layer& layer,
   Trk::PropDirection direction,
-  Trk::ParticleHypothesis particleHypothesis,
+  Trk::ParticleHypothesis,
   MaterialUpdateType updateType) const
 {
 
   // Check the multi-component state is populated
   if (inputState.empty()) {
-    ATH_MSG_DEBUG("Multi component state passed to update is "
-                  "not populated... returning 0");
     return {};
   }
 
@@ -248,15 +221,9 @@ Trk::ElectronMaterialMixtureConvolution::update(
   if (updateType == Preupdate) {
     updateFactor =
       layer.preUpdateMaterialFactor(*inputState.front().first, direction);
-    ATH_MSG_DEBUG("Material effects update prior to propagation using layer "
-                  "information and particle hypothesis: "
-                  << particleHypothesis);
   } else if (updateType == Postupdate) {
     updateFactor =
       layer.postUpdateMaterialFactor(*inputState.front().first, direction);
-    ATH_MSG_DEBUG("Material effects update after propagation using layer "
-                  "information and particle hypothesis: "
-                  << particleHypothesis);
   }
 
   if (updateFactor < 0.01) {
@@ -272,7 +239,6 @@ Trk::ElectronMaterialMixtureConvolution::update(
     const AmgSymMatrix(5)* measuredCov = inputState[i].first->covariance();
     // If the momentum is too dont apply material effects
     if (inputState[i].first->momentum().mag() <= m_momentumCut) {
-      ATH_MSG_DEBUG("Ignoring material effects... Momentum too low");
       caches[i].resetAndAddDummyValues();
       caches[i].deltaParameters[0] = inputState[i].first->parameters();
       caches[i].weights[0] = inputState[i].second;
@@ -289,7 +255,6 @@ Trk::ElectronMaterialMixtureConvolution::update(
         inputState[i].first.get(), layer, m_useReferenceMaterial);
 
     if (!matPropPair.first) {
-      ATH_MSG_DEBUG("No material properties .. dont apply material effects");
       caches[i].resetAndAddDummyValues();
       caches[i].deltaParameters[0] = inputState[i].first->parameters();
       caches[i].weights[0] = inputState[i].second;
@@ -307,8 +272,7 @@ Trk::ElectronMaterialMixtureConvolution::update(
                               inputState[i],
                               *matPropPair.first,
                               matPropPair.second,
-                              direction,
-                              particleHypothesis);
+                              direction);
 
     // check vectors have the same size
     if (caches[i].numWeights != caches[i].numDeltaPs) {

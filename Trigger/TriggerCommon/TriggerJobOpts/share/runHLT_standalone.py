@@ -25,6 +25,7 @@ class opt:
     setGlobalTag     = None           # force global conditions tag
     useCONDBR2       = True           # if False, use run-1 conditions DB
     condOverride     = {}             # overwrite conditions folder tags e.g. '{"Folder1":"Tag1", "Folder2":"Tag2"}'
+    autoConfigCond   = False          # auto configure conditions based on input file
     doHLT            = True           # run HLT?
     doID             = True           # ConfigFlags.Trigger.doID
     doCalo           = True           # ConfigFlags.Trigger.doCalo
@@ -143,14 +144,11 @@ if len(athenaCommonFlags.FilesInput())>0:
     if globalflags.DataSource() != 'data' and 'isOnline' not in globals():
         log.info("Setting isOnline = False for MC input")
         opt.isOnline = False
-    # Set geometry and conditions tags
+    # Set geometry
     if opt.setDetDescr is None:
         opt.setDetDescr = af.fileinfos.get('geometry',None)
-    if opt.setGlobalTag is None:
-        if globalflags.DataSource=='data':
-            opt.setGlobalTag = ConfigFlags.Trigger.OnlineCondTag if opt.isOnline else 'CONDBR2-BLKPA-2018-13'
-        else:
-            opt.setGlobalTag = 'OFLCOND-MC16-SDR-RUN2-08-02'
+    if opt.autoConfigCond and opt.setGlobalTag is None:
+        opt.setGlobalTag = af.fileinfos.get('conditions_tag',None)
     TriggerJobOpts.Modifiers._run_number = ConfigFlags.Input.RunNumber[0]
     TriggerJobOpts.Modifiers._lb_number = ConfigFlags.Input.LumiBlockNumber[0]
 
@@ -166,7 +164,7 @@ else:   # athenaHLT
     if '_lb_number' in globals():
         del _lb_number  # noqa, set by athenaHLT
 
-from AthenaConfiguration.Enums import BeamType, Format
+from AthenaConfiguration.Enums import BeamType, Format, LHCPeriod
 ConfigFlags.Input.Format = Format.BS if globalflags.InputFormat == 'bytestream' else Format.POOL
 
 # Load input collection list from POOL metadata
@@ -185,6 +183,16 @@ ConfigFlags.BTagging.forcedCalibrationChannel = 'AntiKt4EMTopo'
 # Set final Cond/Geo tag based on input file, command line or default
 globalflags.DetDescrVersion = opt.setDetDescr or ConfigFlags.Trigger.OnlineGeoTag
 ConfigFlags.GeoModel.AtlasVersion = globalflags.DetDescrVersion()
+#set conditions tag
+if opt.setGlobalTag is None:
+    if globalflags.DataSource=='data':
+        opt.setGlobalTag = ConfigFlags.Trigger.OnlineCondTag if opt.isOnline else 'CONDBR2-BLKPA-2018-13'
+    else:
+        if ConfigFlags.GeoModel.Run == LHCPeriod.Run3:
+            opt.setGlobalTag = 'OFLCOND-MC21-SDR-RUN3-06'
+        else:
+            opt.setGlobalTag = 'OFLCOND-MC16-SDR-RUN2-08-02'
+
 globalflags.ConditionsTag = opt.setGlobalTag or ConfigFlags.Trigger.OnlineCondTag
 ConfigFlags.IOVDb.GlobalTag = globalflags.ConditionsTag()
 

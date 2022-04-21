@@ -6,6 +6,13 @@
 #define TRIGHTTOBJECTS_HTTTYPES_H
 
 #include <iostream>
+#include <cmath>
+
+#define MODULE_BADMODULE -1
+#define SECTOR_NOTFOUND -1
+#define FITTRACKS_OK 0
+#define FITTRACKS_BAD -1
+
 
 typedef int32_t pid_t;      // pattern id
 typedef int32_t module_t;   // module id
@@ -30,5 +37,19 @@ enum class TrackCorrType { None = 0, First = 1, Second = 2 };
 
 std::ostream& operator<<(std::ostream& os, SiliconTech t);
 std::ostream& operator<<(std::ostream& os, DetectorZone t);
+
+// Calculate euclidean norm
+inline double eucnorm(double x, double y, double z)
+{
+  return sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2));
+}
+
+// Calculate opening angle between two vectors in euclidean space
+inline double eucangle(double x, double y, double z, double u, double v, double w)
+{
+  return acos((x * u + y * v + z * w) / (eucnorm(x, y, z) * eucnorm(u, v, w)));
+}
+
+
 
 #endif
