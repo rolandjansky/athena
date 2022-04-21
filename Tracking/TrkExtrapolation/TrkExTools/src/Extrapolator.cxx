@@ -2004,19 +2004,7 @@ Trk::Extrapolator::extrapolateDirectlyImpl(const EventContext& ctx,
 {
   // statistics && sequence output ----------------------------------------
   ++m_extrapolateDirectlyCalls;
-
-  // now du the stuff
-  const Trk::TrackingVolume* currentVolume = m_navigator->highestVolume(ctx);
-
-  // ---------------------------------------------------------------
-  // [?]: cannot increment and display m_methodSequence here, since the cache is not passed here
-  ATH_MSG_DEBUG("P-[?] extrapolateDirectly(...) inside '" << currentVolume->volumeName()
-                                                          << "' to destination surface. ");
-
-  if (currentVolume) {
-    return prop.propagate(ctx, parm, sf, dir, bcheck, m_fieldProperties, particle);
-  }
-  return nullptr;
+  return prop.propagate(ctx, parm, sf, dir, bcheck, m_fieldProperties, particle);
 }
 
 std::unique_ptr<Trk::TrackParameters>
@@ -2247,19 +2235,17 @@ Trk::Extrapolator::extrapolateDirectly(const EventContext& ctx,
                                        const Trk::BoundaryCheck& bcheck,
                                        Trk::ParticleHypothesis particle) const
 {
+  // set propagator to the global one
+  const IPropagator* currentPropagator =
+    !m_subPropagators.empty() ? m_subPropagators[Trk::Global] : nullptr;
 
-  if (m_configurationLevel < 10) {
-    // set propagator to the global one - can be reset inside the next methode (once volume
-    // information is there)
-    const IPropagator* currentPropagator =
-      !m_subPropagators.empty() ? m_subPropagators[Trk::Global] : nullptr;
-    if (currentPropagator) {
-      return extrapolateDirectlyImpl(
-        ctx, (*currentPropagator), parm, sf, dir, bcheck, particle);
-    }
+  if (!currentPropagator) {
+    ATH_MSG_ERROR(
+      "  [!] No default Propagator is configured ! Please check jobOptions.");
+    return nullptr;
   }
-  ATH_MSG_ERROR("  [!] No default Propagator is configured ! Please check jobOptions.");
-  return nullptr;
+  return extrapolateDirectlyImpl(
+    ctx, (*currentPropagator), parm, sf, dir, bcheck, particle);
 }
 
 std::unique_ptr<Trk::TrackParameters>
@@ -4746,83 +4732,6 @@ Trk::Extrapolator::extrapolate(const EventContext& ctx,
     return nullptr;
   }
   return  std::move(cache.m_identifiedParameters);
-}
-
-std::unique_ptr<Trk::TrackParameters>
-Trk::Extrapolator::extrapolateWithPathLimit(const EventContext& ctx,
-                                            const Trk::TrackParameters& parm,
-                                            double& pathLim,
-                                            Trk::PropDirection dir,
-                                            Trk::ParticleHypothesis particle,
-                                            std::vector<Trk::TrackParameters*>*& parmOnSf,
-                                            std::vector<const Trk::TrackStateOnSurface*>*& material,
-                                            const Trk::TrackingVolume* boundaryVol,
-                                            MaterialUpdateMode matupmod) const
-{
-  // extrapolation method intended for simulation of particle decay; collects
-  // intersections with active layers possible outcomes:1/ returns curvilinear
-  // parameters after reaching the maximal path
-  //                   2/ returns parameters at destination volume boundary
-  //                   3/ returns 0 ( particle stopped ) but keeps vector of
-  //                   hits
-  ATH_MSG_DEBUG("M-[" << 1 /* should be ++cache.m_methodSequence but cache not yet created */
-                      << "] extrapolateWithPathLimit(...) " << pathLim << ", from "
-                      << parm.position());
-
-  if (!m_stepPropagator) {
-    // Get the STEP_Propagator AlgTool
-    if (m_stepPropagator.retrieve().isFailure()) {
-      ATH_MSG_ERROR("Failed to retrieve tool " << m_stepPropagator);
-      ATH_MSG_ERROR("Configure STEP Propagator for extrapolation with path limit");
-      return nullptr;
-    }
-  }
-  Cache cache{};
-  // reset the path
-  cache.m_path = 0.;
-  ++cache.m_methodSequence;
-  // initialize parameters vector
-  if (parmOnSf && !parmOnSf->empty()) {
-    throw std::logic_error("Output track paramters vector not empty as supposed to be.");
-  }
-  cache.m_parametersOnDetElements = parmOnSf;
-  cache.m_ownParametersOnDetElements = false;
-  // initialize material collection
-  cache.m_matstates = material;
-  // cleanup
-  cache.m_parametersAtBoundary.resetBoundaryInformation();
-  // Material effect updator cache
-  cache.populateMatEffUpdatorCache(m_subupdaters);
-
-  // if no input volume, define as highest volume
-  // const Trk::TrackingVolume* destVolume = boundaryVol ? boundaryVol :
-  // m_navigator->highestVolume();
-  cache.m_currentStatic = nullptr;
-  if (boundaryVol && !boundaryVol->inside(parm.position(), m_tolerance)) {
-    return nullptr;
-  }
-
-  // for debugging
-  if (pathLim == -5.) {
-    cache.m_robustSampling = true;
-  }
-  if (pathLim == -6.) {
-    cache.m_robustSampling = false;
-  }
-
-  //TODO revisit when objcontainer is streamlined
-  auto cloneInput = std::unique_ptr<Trk::TrackParameters>(parm.clone());
-  // extrapolate to destination volume boundary with path limit
-  ManagedTrackParmPtr returnParms(extrapolateToVolumeWithPathLimit(
-    ctx, cache, cache.manage(std::move(cloneInput)).index(), pathLim, dir, particle, boundaryVol, matupmod));
-
-  // folr debugging
-  cache.m_robustSampling = m_robustSampling;
-
-  // save actual path on output
-  pathLim = cache.m_path;
-
-  return returnParms.to_unique();
 }
 
 Trk::ManagedTrackParmPtr

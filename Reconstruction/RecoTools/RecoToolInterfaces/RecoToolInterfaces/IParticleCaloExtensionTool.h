@@ -22,8 +22,8 @@
  *   the full path inside the calo.
  *
  * - layersCaloExtension : Extrapolate to particular
- *   layers using the configured Propagator in the
- *   Extrapolator. This can be faster but assumes
+ *   layers directly using the configured Propagator in the
+ *   Extrapolator. This is faster but assumes
  *   explicit knowledge of which layer intersection to
  *   target
  *
