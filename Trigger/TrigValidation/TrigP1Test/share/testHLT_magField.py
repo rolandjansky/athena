@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 # Testing job options for magnetic field changes. Can be used e.g. in the
 # "magFieldToggle" test instead of the full menu. Only runs one algorithm
@@ -15,9 +15,9 @@ conddb.setGlobalTag(globalflags.ConditionsTag())
 
 import MagFieldServices.SetupField  # noqa: F401
 
-from MagFieldUtils.MagFieldUtilsConf import MagField__CondReader
+from AthenaConfiguration.ComponentFactory import CompFactory
 topSequence = AlgSequence()
-topSequence += MagField__CondReader("MagFieldCondReader")
+topSequence += CompFactory.getComp("MagField::CondReader")("MagFieldCondReader")
 
 condSeq = AthSequencer('AthCondSeq')
 condSeq.AtlasFieldMapCondAlg.LoadMapOnStart = True
