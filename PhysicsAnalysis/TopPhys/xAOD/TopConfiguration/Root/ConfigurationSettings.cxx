@@ -644,6 +644,9 @@ namespace top {
     registerParameter("LargeJetOverlapRemoval",
                       "Perform overlap removal including large-R jets. True or False (default: False).", "False");
 
+    registerParameter("EleEleOverlapRemoval",
+                      "Apply electron-electron overlap removal. True or False (default: False).", "False");
+
     registerParameter("SaveBootstrapWeights", "Set to true in order to save Poisson bootstrap weights,"
                                               "True or False (default False)", "False");
 

@@ -72,6 +72,7 @@ namespace top {
                               "ORToolDecoration");
 
     OR_flags.doElectrons = m_config->useElectrons();
+    if(m_config->doEleEleOverlapRemoval()) OR_flags.doEleEleOR = true;
     OR_flags.doMuons = m_config->useMuons();
     OR_flags.doJets = m_config->useJets();
     OR_flags.doTaus = m_config->useTaus();
