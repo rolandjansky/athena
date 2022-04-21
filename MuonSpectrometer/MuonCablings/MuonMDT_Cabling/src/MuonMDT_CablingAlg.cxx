@@ -101,7 +101,7 @@ StatusCode MuonMDT_CablingAlg::loadCablingSchema(const EventContext& ctx, EventI
             if (!cabling_map.addMezzanine(map_data, msgStream())) {
                 ATH_MSG_ERROR("Failed to add cabling " << map_data);
                 return StatusCode::FAILURE;
-            }
+            } else ATH_MSG_VERBOSE("Added new cabling channel "<<map_data);
         }
     }  // end of CondAttrListCollection loop
     /// Load manually the BIX7 / BIY7 chambers into the data base if neccessary

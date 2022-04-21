@@ -12,4 +12,10 @@ atlas_add_component( MuonMDT_Cabling
                      src/components/*.cxx
                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
                      LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel StoreGateLib MuonIdHelpersLib 
-                                    MuonCablingData AthenaPoolUtilities MuonCondSvcLib PathResolver SGTools )
+                                    MuonCablingData AthenaPoolUtilities MuonCondSvcLib PathResolver MuonReadoutGeometry SGTools )
+
+
+atlas_install_python_modules( python/*.py )
+atlas_add_test( MdtCabling_Run2Data
+                  SCRIPT python -m MuonMDT_Cabling.MdtCablingTester
+                  POST_EXEC_SCRIPT nopost.sh)
