@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+#
 # skeleton.EVGENtoRDO.py
 # skeleton file for running simulation+digi in one job for FastChain
 # currently using full simulation and digi, will swap in fast components later
@@ -486,12 +488,6 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 if hasattr(runArgs,"AMITag"):
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag":runArgs.AMITag})
-
-### No RDO output to increase file size of
-# Increase max RDO output file size to 10 GB
-
-#from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-#svcMgr.AthenaPoolCnvSvc.MaxFileSizes = [ "10000000000" ] #[ "15000000000" ] #Athena complains that 15GB files are not supported
 
 ## Post-include
 if hasattr(runArgs,"postInclude"):
