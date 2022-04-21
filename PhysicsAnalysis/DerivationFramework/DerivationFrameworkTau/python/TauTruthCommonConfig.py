@@ -56,17 +56,18 @@ def TauTruthToolsCfg(ConfigFlags):
     # Matching
     # Only do if working with AOD
     if "TauJetContainer#TauJets" in ConfigFlags.Input.TypedCollections:    
-        acc.merge(TauTruthMatchingToolCfg(ConfigFlags, 
-                                          name                            = "DFCommonTauTruthMatchingTool",
-                                          WriteTruthTaus                  = True,
-                                          WriteInvisibleFourMomentum      = True,
-                                          WriteVisibleNeutralFourMomentum = True))
-
-        acc.merge(TauTruthMatchingWrapperCfg(ConfigFlags, 
-                                             name                 = "DFCommonTauTruthMatchingWrapper",
-                                             TauTruthMatchingTool = acc.getPublicTool("DFCommonTauTruthMatchingWrapper"),
-                                             TauContainerName     = "TauJets")) 
-        DFCommonTauTruthWrapperTools.append(acc.getPublicTool("DFCommonTauTruthMatchingWrapper"))
+        DFCommonTauTruthMatchingTool = acc.getPrimaryAndMerge(TauTruthMatchingToolCfg(
+            ConfigFlags, 
+            name                            = "DFCommonTauTruthMatchingTool",
+            WriteTruthTaus                  = True,
+            WriteInvisibleFourMomentum      = True,
+            WriteVisibleNeutralFourMomentum = True))
+        DFCommonTauTruthWrapperTool = acc.getPrimaryAndMerge(TauTruthMatchingWrapperCfg(
+            ConfigFlags, 
+            name                 = "DFCommonTauTruthMatchingWrapper",
+            TauTruthMatchingTool = DFCommonTauTruthMatchingTool,
+            TauContainerName     = "TauJets")) 
+        DFCommonTauTruthWrapperTools.append(DFCommonTauTruthWrapperTool)
     else:
         # No reco taus, so just build the truth tau container
         acc.merge(BuildTruthTausCfg(ConfigFlags, 

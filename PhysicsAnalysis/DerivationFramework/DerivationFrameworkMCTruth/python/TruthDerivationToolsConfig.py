@@ -10,9 +10,10 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-# TODO: set as central flag 
-DerivationFrameworkSimBarcodeOffset = int(200e3)
+simBarcodeOffset = ConfigFlags.Sim.SimBarcodeOffset
+
 
 #==============================================================================
 # TruthCollectionMaker instances
@@ -31,7 +32,7 @@ def DFCommonTruthMuonToolCfg():
     return TruthCollectionMakerCfg(name                    = "DFCommonTruthMuonTool",
                                    NewCollectionName       = "TruthMuons",
                                    KeepNavigationInfo      = False,
-                                   ParticleSelectionString = "(abs(TruthParticles.pdgId) == 13) && (TruthParticles.status == 1) && TruthParticles.barcode < "+str(DerivationFrameworkSimBarcodeOffset))
+                                   ParticleSelectionString = "(abs(TruthParticles.pdgId) == 13) && (TruthParticles.status == 1) && TruthParticles.barcode < "+str(simBarcodeOffset))
 
 
 def DFCommonTruthElectronToolCfg():
@@ -39,14 +40,14 @@ def DFCommonTruthElectronToolCfg():
     return TruthCollectionMakerCfg(name                    = "DFCommonTruthElectronTool",
                                    NewCollectionName       = "TruthElectrons",
                                    KeepNavigationInfo      = False,
-                                   ParticleSelectionString = "(abs(TruthParticles.pdgId) == 11) && (TruthParticles.status == 1) && TruthParticles.barcode < "+str(DerivationFrameworkSimBarcodeOffset))
+                                   ParticleSelectionString = "(abs(TruthParticles.pdgId) == 11) && (TruthParticles.status == 1) && TruthParticles.barcode < "+str(simBarcodeOffset))
 
 def DFCommonTruthPhotonToolCfg():
     """Photon truth collection maker"""
     return TruthCollectionMakerCfg(name                    = "DFCommonTruthPhotonTool",
                                    NewCollectionName       = "TruthPhotons",
                                    KeepNavigationInfo      = False,
-                                   ParticleSelectionString = "(abs(TruthParticles.pdgId) == 22) && (TruthParticles.status == 1) && TruthParticles.barcode < "+str(DerivationFrameworkSimBarcodeOffset))   
+                                   ParticleSelectionString = "(abs(TruthParticles.pdgId) == 22) && (TruthParticles.status == 1) && TruthParticles.barcode < "+str(simBarcodeOffset))   
 
 # this tool is needed for making TruthPhotons from sim samples, where extra cuts are needed. Origin 42 (pi0) and 23 (light meson) cut way down uninteresting photons
 def DFCommonTruthPhotonToolSimCfg():
@@ -54,11 +55,11 @@ def DFCommonTruthPhotonToolSimCfg():
     return TruthCollectionMakerCfg(name                    = "DFCommonTruthPhotonToolSim",
                                    NewCollectionName       = "TruthPhotons",
                                    KeepNavigationInfo      = False,
-                                   ParticleSelectionString = "(abs(TruthParticles.pdgId) == 22) && (TruthParticles.status == 1) && ((TruthParticles.classifierParticleOrigin != 42 && TruthParticles.classifierParticleOrigin !=23) || (TruthParticles.pt > 20.0*GeV)) && ( TruthParticles.barcode < "+str(DerivationFrameworkSimBarcodeOffset)+")")   
+                                   ParticleSelectionString = "(abs(TruthParticles.pdgId) == 22) && (TruthParticles.status == 1) && ((TruthParticles.classifierParticleOrigin != 42 && TruthParticles.classifierParticleOrigin !=23) || (TruthParticles.pt > 20.0*GeV)) && ( TruthParticles.barcode < "+str(simBarcodeOffset)+")")   
 
 def DFCommonTruthNeutrinoToolCfg():
     """Neutrino truth collection maker"""
-    neutrinoexpression = "(TruthParticles.isNeutrino && TruthParticles.status == 1) && TruthParticles.barcode < "+str(DerivationFrameworkSimBarcodeOffset)
+    neutrinoexpression = "(TruthParticles.isNeutrino && TruthParticles.status == 1) && TruthParticles.barcode < "+str(simBarcodeOffset)
     return TruthCollectionMakerCfg(name = "DFCommonTruthNeutrinoTool",
                                    NewCollectionName       = "TruthNeutrinos",
                                    KeepNavigationInfo      = False,
@@ -325,3 +326,26 @@ def DFCommonTruthDressedWZQGLabelToolCfg():
     """Configure the QG decoration tool for AntiKt4TruthDressedWZJets"""
     return TruthQGDecorationToolCfg(name          = "DFCommonTruthDressedWZQGLabelTool",
                                     JetCollection = "AntiKt4TruthDressedWZJets")
+
+#==============================================================================
+# Other tools 
+#==============================================================================
+# Truth links on some objects point to the main truth particle container. 
+# This re-points the links from the old container to the new container
+def TruthLinkRepointToolCfg(ConfigFlags, name, **kwargs):
+    """Configure the truth link repointing tool"""
+    acc = ComponentAccumulator()
+    TruthLinkRepointTool = CompFactory.DerivationFramework.TruthLinkRepointTool
+    acc.addPublicTool(TruthLinkRepointTool(name, **kwargs),
+                      primary = True)
+    return acc   
+
+# Makes a small collection of 'primary' vertices, one per event
+# A bit like a collection of 'reconstructable' vertices
+def TruthPVCollectionMakerCfg(ConfigFlags, name, **kwargs):
+    """Configure the truth PV collection maker tool"""
+    acc = ComponentAccumulator()
+    TruthPVCollectionMaker = CompFactory.DerivationFramework.TruthPVCollectionMaker
+    acc.addPublicTool(TruthPVCollectionMaker(name, **kwargs),
+                      primary = True)
+    return acc

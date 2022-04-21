@@ -8,3 +8,4 @@ atlas_subdir( DerivationFrameworkTools )
 atlas_add_component( DerivationFrameworkTools
                      src/*.cxx src/components/*.cxx
                      LINK_LIBRARIES AthenaBaseComps DerivationFrameworkInterfaces ExpressionEvaluationLib GaudiKernel PATCoreLib StoreGateLib TrigDecisionToolLib xAODBase xAODEventInfo )
+atlas_install_python_modules( python/*.py )
