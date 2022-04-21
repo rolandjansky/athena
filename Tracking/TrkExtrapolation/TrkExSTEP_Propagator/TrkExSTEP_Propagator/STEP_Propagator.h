@@ -165,8 +165,8 @@ public:
   /** AlgTool finalize method */
   virtual StatusCode finalize() override final;
 
-  /** Main propagation method NeutralParameters. Use StraightLinePropagator for
-   * neutrals*/
+  /** Main propagation method NeutralParameters.
+   * It is not implmented for STEP propagator.*/
   virtual std::unique_ptr<Trk::NeutralParameters> propagate(
     const Trk::NeutralParameters&,
     const Trk::Surface&,
