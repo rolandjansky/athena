@@ -1,0 +1,33 @@
+
+/*
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+*/
+#ifndef MUONTESTER_MUONTESTERBRANCH_IXX
+#define MUONTESTER_MUONTESTERBRANCH_IXX
+#include <AthenaKernel/getMessageSvc.h>
+#include <GaudiKernel/MsgStream.h>
+#include <MuonTesterTree/MuonTesterBranch.h>
+template <class T> bool MuonTesterBranch::addToTree(T& variable) {
+    if (initialized()) {
+        MsgStream log(Athena::getMessageSvc(), "MuonTesterBranch()");
+        log << MSG::INFO << "init()  -- " << name() << " is already initialized." << endmsg;
+        return true;
+    }
+    std::string bName = eraseWhiteSpaces(name());
+    if (bName.empty() || !m_tree) {
+        MsgStream log(Athena::getMessageSvc(), "MuonTesterBranch()");
+        log << MSG::ERROR << "init()  -- Empty names are forbidden." << endmsg;
+        return false;
+    } else if (m_tree->FindBranch(bName.c_str())) {
+        MsgStream log(Athena::getMessageSvc(), "MuonTesterBranch()");
+        log << MSG::ERROR << "The branch " << name() << " already exists in TTree " << m_tree->GetName() << "." << endmsg;
+        return false;
+    } else if (!m_tree->Branch(bName.c_str(), &variable)) {
+        MsgStream log(Athena::getMessageSvc(), "MuonTesterBranch()");
+        log << MSG::ERROR << "Could not create the branch " << name() << " in TTree " << m_tree->GetName() << "." << endmsg;
+        return false;
+    }
+    m_init = true;
+    return true;
+}
+#endif
