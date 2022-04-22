@@ -154,7 +154,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
            doOvlpRm = False
 
         if 'muoncalib' in self.chainPart['extra']:
-           return self.getStep(1,"mufast", [muFastCalibSequenceCfg], is_probe_leg=is_probe_leg )
+           return self.getStep(1,"mufastcalib", [muFastCalibSequenceCfg], is_probe_leg=is_probe_leg )
         elif 'l2mt' in self.chainPart['l2AlgInfo']:
             return self.getStep(1,"mufastl2mt", [mul2mtSAOvlpRmSequenceCfg], is_probe_leg=is_probe_leg )
         elif doOvlpRm:
