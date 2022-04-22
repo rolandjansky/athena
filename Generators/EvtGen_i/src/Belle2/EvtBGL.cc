@@ -27,16 +27,16 @@
 using std::endl;
 
 EvtBGL::EvtBGL():
-  bglffmodel(0)
-  , calcamp(0)
+  m_bglffmodel(0)
+  , m_calcamp(0)
 {}
 
 EvtBGL::~EvtBGL()
 {
-  delete bglffmodel;
-  bglffmodel = 0;
-  delete calcamp;
-  calcamp = 0;
+  delete m_bglffmodel;
+  m_bglffmodel = 0;
+  delete m_calcamp;
+  m_calcamp = 0;
 }
 
 std::string EvtBGL::getName()
@@ -60,7 +60,7 @@ void EvtBGL::decay(EvtParticle* p)
 {
 
   p->initializePhaseSpace(getNDaug(), getDaugs());
-  calcamp->CalcAmp(p, _amp2, bglffmodel);
+  m_calcamp->CalcAmp(p, _amp2, m_bglffmodel);
 
 }
 
@@ -74,8 +74,8 @@ void EvtBGL::initProbMax()
   lnum = getDaug(1);
   nunum = getDaug(2);
 
-  double mymaxprob = calcamp->CalcMaxProb(parnum, mesnum,
-                                          lnum, nunum, bglffmodel);
+  double mymaxprob = m_calcamp->CalcMaxProb(parnum, mesnum,
+                                          lnum, nunum, m_bglffmodel);
 
   // Leptons
   static EvtId EM = EvtPDL::getId("e-");
@@ -114,8 +114,8 @@ void EvtBGL::init()
   EvtSpinType::spintype d1type = EvtPDL::getSpinType(getDaug(0));
   if (d1type == EvtSpinType::SCALAR) {
     if (getNArg() == 8) {
-      bglffmodel = new EvtBGLFF(getArg(0), getArg(1), getArg(2), getArg(3), getArg(4), getArg(5), getArg(6), getArg(7));
-      calcamp = new EvtSemiLeptonicScalarAmp;
+      m_bglffmodel = new EvtBGLFF(getArg(0), getArg(1), getArg(2), getArg(3), getArg(4), getArg(5), getArg(6), getArg(7));
+      m_calcamp = new EvtSemiLeptonicScalarAmp;
     } else {
       EvtGenReport(EVTGEN_ERROR, "EvtGen") << "BGL (N=3) model for scalar meson daughters needs 8 arguments. Sorry." << endl;
 
@@ -123,8 +123,8 @@ void EvtBGL::init()
     }
   }  else if (d1type == EvtSpinType::VECTOR) {
     if (getNArg() == 6) {
-      bglffmodel = new EvtBGLFF(getArg(0), getArg(1), getArg(2), getArg(3), getArg(4), getArg(5));
-      calcamp = new EvtSemiLeptonicVectorAmp;
+      m_bglffmodel = new EvtBGLFF(getArg(0), getArg(1), getArg(2), getArg(3), getArg(4), getArg(5));
+      m_calcamp = new EvtSemiLeptonicVectorAmp;
     } else {
       EvtGenReport(EVTGEN_ERROR, "EvtGen") << "BGL model for vector meson daughters needs 6 arguments. Sorry." << endl;
       ::abort();

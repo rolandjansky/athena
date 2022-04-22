@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "fastjet/ClusterSequenceArea.hh"
@@ -17,21 +17,9 @@ using namespace FastJetInterface;
 // Constants //
 ///////////////
 
-// dictionaries
-FastJetInterface::algomap_t  
-FastJetInterfaceTool::s_knownAlgorithms = FastJetInterface::algomap_t();
-FastJetInterface::strategymap_t 
-FastJetInterfaceTool::s_knownStrategies = FastJetInterface::strategymap_t();
-FastJetInterface::schememap_t   
-FastJetInterfaceTool::s_knownRecombinationSchemes = FastJetInterface::schememap_t();   
-FastJetInterface::splitMergeScaleMap_t
-FastJetInterfaceTool::s_knownSplitMergeScales = FastJetInterface::splitMergeScaleMap_t();
-FastJetInterface::areamap_t
-FastJetInterfaceTool::s_knownAreas =FastJetInterface::areamap_t();
-
-// process control 
-std::string FastJetInterfaceTool::m_invalidKeyReference = "INVALID_KEY";
-unsigned int FastJetInterfaceTool::m_failedExecCtrMax = 10;
+// process control
+const std::string FastJetInterfaceTool::m_invalidKeyReference = "INVALID_KEY";
+const unsigned int FastJetInterfaceTool::m_failedExecCtrMax = 10;
 
 ////////////////////////
 // Constant Accessors //
@@ -40,100 +28,99 @@ unsigned int FastJetInterfaceTool::m_failedExecCtrMax = 10;
 // jet algorithm dictionary
 const algomap_t& FastJetInterfaceTool::getKnownAlgorithms()
 {
-  if ( s_knownAlgorithms.empty() )
-    {
-      // kt-style algorithms
-      s_knownAlgorithms["default"]   = fastjet::antikt_algorithm;
-      s_knownAlgorithms["kt"]        = fastjet::kt_algorithm;
-      s_knownAlgorithms["anti-kt"]   = fastjet::antikt_algorithm; 
-      s_knownAlgorithms["cambridge"] = fastjet::cambridge_algorithm;
-      s_knownAlgorithms["genkt"]     = fastjet::genkt_algorithm;
-      s_knownAlgorithms["passive cambridge"] = 
-	fastjet::cambridge_for_passive_algorithm;
-      s_knownAlgorithms["passive genkt"] = fastjet::genkt_for_passive_algorithm;
-      // add also ATLAS kt-style
-      s_knownAlgorithms["Kt"]        = fastjet::kt_algorithm;
-      s_knownAlgorithms["AntiKt"]    = fastjet::antikt_algorithm; 
-      s_knownAlgorithms["CamKt"]     = fastjet::cambridge_algorithm;
-      
-      // Plugin algorithms
-      s_knownAlgorithms["CMSCone"]   = fastjet::plugin_algorithm;
-      s_knownAlgorithms["SISCone"]   = fastjet::plugin_algorithm;
-    }
-  return s_knownAlgorithms;
+  /*! @brief Map of jet algorithm keywords and @c fastjet tags */
+  static const FastJetInterface::algomap_t knownAlgorithms = {
+    // kt-style algorithms
+    {"default",           fastjet::antikt_algorithm},
+    {"kt",                fastjet::kt_algorithm},
+    {"anti-kt",           fastjet::antikt_algorithm},
+    {"cambridge",         fastjet::cambridge_algorithm},
+    {"genkt",             fastjet::genkt_algorithm},
+    {"passive cambridge", fastjet::cambridge_for_passive_algorithm},
+    {"passive genkt",     fastjet::genkt_for_passive_algorithm},
+    // add also ATLAS kt-style
+    {"Kt",         fastjet::kt_algorithm},
+    {"AntiKt",     fastjet::antikt_algorithm},
+    {"CamKt",      fastjet::cambridge_algorithm},
+    // Plugin algorithms
+    {"CMSCone",    fastjet::plugin_algorithm},
+    {"SISCone",    fastjet::plugin_algorithm},
+  };
+  return knownAlgorithms;
 }
 
 // jet cluster strategies dictionary
 const strategymap_t& FastJetInterfaceTool::getKnownStrategies()
 {
-  if ( s_knownStrategies.empty() )
-    {
-      s_knownStrategies["default"]         = fastjet::Best;
-      s_knownStrategies["Best"]            = fastjet::Best;
-      s_knownStrategies["N2MinHeapTiled"]  = fastjet::N2MinHeapTiled;
-      s_knownStrategies["N2Tiled"]         = fastjet::N2Tiled;
-      s_knownStrategies["N2PoorTiled"]     = fastjet::N2PoorTiled;
-      s_knownStrategies["N2Plain"]         = fastjet::N2Plain;
-      s_knownStrategies["N3Dumb"]          = fastjet::N3Dumb;
-      s_knownStrategies["NlnN"]            = fastjet::NlnN;
-      s_knownStrategies["NlnN3pi"]         = fastjet::NlnN3pi;
-      s_knownStrategies["NlnN4pi"]         = fastjet::NlnN4pi;
-      s_knownStrategies["NlnNCam4pi"]      = fastjet::NlnNCam4pi;
-      s_knownStrategies["NlnNCam2pi2R"]    = fastjet::NlnNCam2pi2R;
-      s_knownStrategies["NlnNCam"]         = fastjet::NlnNCam;
-      s_knownStrategies["plugin_strategy"] = fastjet::plugin_strategy;
-    }
-  return s_knownStrategies;
+  /*! @brief Map of jet clustering strategy keywords and @c fastjet tags */
+  static const FastJetInterface::strategymap_t knownStrategies = {
+    {"default",         fastjet::Best},
+    {"Best",            fastjet::Best},
+    {"N2MinHeapTiled",  fastjet::N2MinHeapTiled},
+    {"N2Tiled",         fastjet::N2Tiled},
+    {"N2PoorTiled",     fastjet::N2PoorTiled},
+    {"N2Plain",         fastjet::N2Plain},
+    {"N3Dumb",          fastjet::N3Dumb},
+    {"NlnN",            fastjet::NlnN},
+    {"NlnN3pi",         fastjet::NlnN3pi},
+    {"NlnN4pi",         fastjet::NlnN4pi},
+    {"NlnNCam4pi",      fastjet::NlnNCam4pi},
+    {"NlnNCam2pi2R",    fastjet::NlnNCam2pi2R},
+    {"NlnNCam",         fastjet::NlnNCam},
+    {"plugin_strategy", fastjet::plugin_strategy},
+  };
+  return knownStrategies;
 }
 
 // recombination schemes dictionary
 const schememap_t& FastJetInterfaceTool::getKnownRecombinationSchemes()
 {
-  if ( s_knownRecombinationSchemes.empty() )
-    {
-      s_knownRecombinationSchemes["default"] = fastjet::E_scheme;
-      s_knownRecombinationSchemes["E"]       = fastjet::E_scheme;
-      s_knownRecombinationSchemes["pt"]      = fastjet::pt_scheme;
-      s_knownRecombinationSchemes["pt2"]     = fastjet::pt2_scheme;
-      s_knownRecombinationSchemes["Et"]      = fastjet::Et_scheme;
-      s_knownRecombinationSchemes["Et2"]     = fastjet::Et2_scheme;
-      s_knownRecombinationSchemes["BIpt"]    = fastjet::BIpt_scheme;
-      s_knownRecombinationSchemes["BIpt2"]   = fastjet::BIpt2_scheme;
-    }
-  return s_knownRecombinationSchemes;
+  /*! @brief Map of recombination scheme keywords and @c fastjet tags */
+  static const FastJetInterface::schememap_t knownRecombinationSchemes = {
+    {"default", fastjet::E_scheme},
+    {"E",       fastjet::E_scheme},
+    {"pt",      fastjet::pt_scheme},
+    {"pt2",     fastjet::pt2_scheme},
+    {"Et",      fastjet::Et_scheme},
+    {"Et2",     fastjet::Et2_scheme},
+    {"BIpt",    fastjet::BIpt_scheme},
+    {"BIpt2",   fastjet::BIpt2_scheme},
+  };
+  return knownRecombinationSchemes;
 }
 
 // SIS Cone split merge scale dictionary
 const splitMergeScaleMap_t& FastJetInterfaceTool::getKnownSplitMergeScales()
 {
-  if ( s_knownSplitMergeScales.empty() )
-  {
 #ifndef XAOD_STANDALONE
-    s_knownSplitMergeScales["default"] = fastjet::SISConePlugin::SM_pttilde;
-    s_knownSplitMergeScales["pttilde"] = fastjet::SISConePlugin::SM_pttilde;
-    s_knownSplitMergeScales["PtTilde"] = fastjet::SISConePlugin::SM_pttilde;
-    s_knownSplitMergeScales["Pt"]      = fastjet::SISConePlugin::SM_pt;
-    s_knownSplitMergeScales["Et"]      = fastjet::SISConePlugin::SM_Et;
-    s_knownSplitMergeScales["mt"]      = fastjet::SISConePlugin::SM_mt;
+  /*! @brief Map of split merge scale keywords and @c fastjet tags */
+  static const FastJetInterface::splitMergeScaleMap_t knownSplitMergeScales = {
+    {"default", fastjet::SISConePlugin::SM_pttilde},
+    {"pttilde", fastjet::SISConePlugin::SM_pttilde},
+    {"PtTilde", fastjet::SISConePlugin::SM_pttilde},
+    {"Pt",      fastjet::SISConePlugin::SM_pt},
+    {"Et",      fastjet::SISConePlugin::SM_Et},
+    {"mt",      fastjet::SISConePlugin::SM_mt},
+  };
+#else
+  static const FastJetInterface::splitMergeScaleMap_t knownSplitMergeScales;
 #endif
-  }
-  return s_knownSplitMergeScales;
+  return knownSplitMergeScales;
 }
 
 // jet area dictionary
 const areamap_t& FastJetInterfaceTool::getKnownAreas()
 {
-  if ( s_knownAreas.empty() )
-    {
-      s_knownAreas["default"]                 = fastjet::voronoi_area;
-      s_knownAreas["ActiveArea"]              = fastjet::active_area;
-      s_knownAreas["ActiveAreaExplicitGhost"] = 
-	fastjet::active_area_explicit_ghosts;
-      s_knownAreas["PassiveArea"]             = fastjet::passive_area;
-      s_knownAreas["1GhostPassiveArea"]       = fastjet::one_ghost_passive_area;
-      s_knownAreas["VoronoiArea"]             = fastjet::voronoi_area;
-    }
-  return s_knownAreas;
+  /*! @brief Map of jet area keywords and @c fastjet tags */
+  static const FastJetInterface::areamap_t knownAreas = {
+    {"default",    fastjet::voronoi_area},
+    {"ActiveArea", fastjet::active_area},
+    {"ActiveAreaExplicitGhost", fastjet::active_area_explicit_ghosts},
+    {"PassiveArea", fastjet::passive_area},
+    {"1GhostPassiveArea", fastjet::one_ghost_passive_area},
+    {"VoronoiArea", fastjet::voronoi_area},
+  };
+  return knownAreas;
 }
 
 

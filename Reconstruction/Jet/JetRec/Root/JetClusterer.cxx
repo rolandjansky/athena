@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <memory>
@@ -160,7 +160,7 @@ std::pair<std::unique_ptr<xAOD::JetContainer>, std::unique_ptr<SG::IAuxStore> > 
     // -------------------------------------
     // translate to xAOD::Jet
     ATH_MSG_DEBUG("Converting pseudojets to xAOD::Jet");
-    static SG::AuxElement::Accessor<const fastjet::PseudoJet*> pjAccessor("PseudoJet");
+    static const SG::AuxElement::Accessor<const fastjet::PseudoJet*> pjAccessor("PseudoJet");
     PseudoJetTranslator pjTranslator(useArea, useArea);
     for (const fastjet::PseudoJet &  pj: *pjVector ) {
       // create the xAOD::Jet from the PseudoJet, doing the signal & ghost constituents extraction

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1TopoCoreSim_TopoSteering
@@ -10,6 +10,8 @@
 #include <memory>
 #include <vector>
 #include <string>
+
+#include "CxxUtils/checker_macros.h"
 
 #include "TrigConfBase/TrigConfMessaging.h"
 
@@ -47,9 +49,6 @@ namespace TCS {
       // default constructor
       TopoSteering();
      
-      // destructor
-      ~TopoSteering();
-
       const TopoSteeringStructure & structure() const { return m_structure; }
 
       TopoInputEvent & inputEvent() { return m_inputEvent; }
@@ -59,7 +58,7 @@ namespace TCS {
 
       // @brief: build the execution structure and parameterspace from
       // the configuration
-      StatusCode setupFromConfiguration(const TrigConf::L1Menu& l1menu);
+      StatusCode setupFromConfiguration ATLAS_NOT_THREAD_SAFE (const TrigConf::L1Menu& l1menu);
 
       void setUseBitwise(bool useBitwise) { m_useBitwise = useBitwise; }
  

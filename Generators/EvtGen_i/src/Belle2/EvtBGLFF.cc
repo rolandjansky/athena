@@ -22,15 +22,15 @@ EvtBGLFF::EvtBGLFF(double bglap_0, double bglap_1, double bglap_2, double bglap_
                    double bgla0_3)
 {
 
-  ap_0 = bglap_0;
-  ap_1 = bglap_1;
-  ap_2 = bglap_2;
-  ap_3 = bglap_3;
+  m_ap_0 = bglap_0;
+  m_ap_1 = bglap_1;
+  m_ap_2 = bglap_2;
+  m_ap_3 = bglap_3;
 
-  a0_0 = bgla0_0;
-  a0_1 = bgla0_1;
-  a0_2 = bgla0_2;
-  a0_3 = bgla0_3;
+  m_a0_0 = bgla0_0;
+  m_a0_1 = bgla0_1;
+  m_a0_2 = bgla0_2;
+  m_a0_3 = bgla0_3;
 
   return;
 }
@@ -40,14 +40,14 @@ EvtBGLFF::EvtBGLFF(double bglap_0, double bglap_1, double bglap_2, double bglap_
 EvtBGLFF::EvtBGLFF(double bgla_0, double bgla_1, double bglb_0, double bglb_1, double bglc_1, double bglc_2)
 {
 
-  a_0 = bgla_0;
-  a_1 = bgla_1;
+  m_a_0 = bgla_0;
+  m_a_1 = bgla_1;
 
-  b_0 = bglb_0;
-  b_1 = bglb_1;
+  m_b_0 = bglb_0;
+  m_b_1 = bglb_1;
 
-  c_1 = bglc_1;
-  c_2 = bglc_2;
+  m_c_1 = bglc_1;
+  m_c_2 = bglc_2;
 
   return;
 }
@@ -77,9 +77,9 @@ void EvtBGLFF::getscalarff(EvtId parent, EvtId,
   double phi_0 = 0.5299 * (1 + z) * pow(1 - z, 1.5) * pow(phi_sub, -4);
 
 
-  *fp = g_sub * (ap_0 + ap_1 * z + ap_2 * z * z + ap_3 * z * z * z) / (p_i * phi_p);
+  *fp = g_sub * (m_ap_0 + m_ap_1 * z + m_ap_2 * z * z + m_ap_3 * z * z * z) / (p_i * phi_p);
 
-  *f0 = g_sub * (a0_0 + a0_1 * z + a0_2 * z * z + a0_3 * z * z * z) / (p_i * phi_0);
+  *f0 = g_sub * (m_a0_0 + m_a0_1 * z + m_a0_2 * z * z + m_a0_3 * z * z * z) / (p_i * phi_0);
 
   return;
 }
@@ -109,7 +109,7 @@ void EvtBGLFF::getvectorff(EvtId parent, EvtId, double t, double mass, double* a
   const double axialvector_poles[4] = {6.730, 6.736, 7.135, 7.142};
   const double vector_poles[4] = {6.337, 6.899, 7.012, 7.280};
 
-  const double c_0 = (mb - mass) / mb * sqrt(0.5) / (1 + r + 2. * sqrt(r)) * b_0;
+  const double c_0 = (mb - mass) / mb * sqrt(0.5) / (1 + r + 2. * sqrt(r)) * m_b_0;
 
   double phi_g = sqrt(256. * n_i / (3. * M_PI * chiT_plus33)) * r * r * (1. + z) * (1. + z) / sqrt(1. - z) / pow((1. + r) *
                  (1. - z) + 2. * sqrt(r) * (1. + z), 4.);
@@ -130,9 +130,9 @@ void EvtBGLFF::getvectorff(EvtId parent, EvtId, double t, double mass, double* a
     p_f = p_f * (z - z_p2) / (1 - z * z_p2);
   }
 
-  double g = 1. / p_g / phi_g * (a_0 + a_1 * z);
-  double f = 1. / p_f / phi_f * (b_0 + b_1 * z);
-  double F1 = 1. / p_f / phi_F1 * (c_0 + c_1 * z + c_2 * z * z);
+  double g = 1. / p_g / phi_g * (m_a_0 + m_a_1 * z);
+  double f = 1. / p_f / phi_f * (m_b_0 + m_b_1 * z);
+  double F1 = 1. / p_f / phi_F1 * (c_0 + m_c_1 * z + m_c_2 * z * z);
 
   double ha1 = f / sqrt(mb * mass) / (1. + w);
   double r1 = (w + 1.) * mb * mass * g / f;
@@ -141,6 +141,7 @@ void EvtBGLFF::getvectorff(EvtId parent, EvtId, double t, double mass, double* a
   *a1f = (w + 1.) / 2. * rstar * ha1;
   *a2f = (r2 / rstar) * ha1;
   *vf  = (r1 / rstar) * ha1;
+  *a0f = *a0f;
 
   return;
 }

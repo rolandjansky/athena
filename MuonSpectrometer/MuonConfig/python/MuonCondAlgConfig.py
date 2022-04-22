@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ## Configuration Access to OFFLINE DB (COMP200)
 
@@ -68,7 +68,7 @@ def MdtCondDbAlgCfg(flags, **kwargs):
     
     alg = CompFactory.MdtCondDbAlg(**kwargs)
     result.merge( addFolders(flags, folders , detDb="DCS_OFL", className='CondAttrListCollection') )
-    result.addCondAlgo(alg)
+    result.addCondAlgo(alg, primary = True)
     return result
 
 def RpcCondDbAlgCfg(flags, **kwargs):
@@ -177,4 +177,11 @@ def NswCalibDbAlgCfg(flags, **kwargs):
     result.addCondAlgo(alg)
     return result
 
-
+def MuonStationIntersectCondAlgCfg(flags, name='MuonStationIntersectCondAlg',**kwargs):
+    # Has dependency IdHelperTool (which we ignore for now)
+    result = ComponentAccumulator()
+    result.merge(MdtCondDbAlgCfg(flags))
+    if flags.Common.isOnline: kwargs.setdefault("MdtCondKey","")
+    muon_station_intersect_condalg = CompFactory.MuonStationIntersectCondAlg(name=name, **kwargs)
+    result.addCondAlgo(muon_station_intersect_condalg, primary=True)
+    return result

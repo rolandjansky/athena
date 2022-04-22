@@ -1,0 +1,62 @@
+/*
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+*/
+#ifndef MUONTESTER_MUONSCALARBRANCH_IXX
+#define MUONTESTER_MUONSCALARBRANCH_IXX
+#include <AthenaKernel/getMessageSvc.h>
+#include <GaudiKernel/MsgStream.h>
+#include <MuonTesterTree/MuonTesterTree.h>
+#include <MuonTesterTree/ScalarBranch.h>
+
+template <class T> ScalarBranch<T>::ScalarBranch(TTree* tree, const std::string& name) : MuonTesterBranch(tree, name) {}
+template <class T> ScalarBranch<T>::ScalarBranch(MuonTesterTree& tree, const std::string& name) : MuonTesterBranch(tree, name) {}
+template <class T> ScalarBranch<T>::ScalarBranch(TTree* tree, const std::string& name, const T& default_value) : ScalarBranch(tree, name) {
+    setDefault(default_value);
+}
+template <class T>
+ScalarBranch<T>::ScalarBranch(MuonTesterTree& tree, const std::string& name, const T& default_value) : ScalarBranch(tree, name) {
+    setDefault(default_value);
+}
+template <class T> bool ScalarBranch<T>::fill(const EventContext&) {
+    if (!initialized()) {
+        MsgStream log(Athena::getMessageSvc(), "ScalarBranch()");
+        log << MSG::ERROR << "init()  -- The branch " << name() << " is not initialized yet." << endmsg;
+        return false;
+    }
+    if (!m_updated) {
+        if (mustBeUpdated()) {
+            MsgStream log(Athena::getMessageSvc(), "ScalarBranch()");
+            log << MSG::ERROR << "The variable " << name() << " must always be filled between a fill call " << endmsg;
+            return false;
+        } else
+            m_variable = getDefault();
+    }
+    m_updated = false;
+    return true;
+}
+template <class T> bool ScalarBranch<T>::init() { return addToTree(m_variable); }
+template <class T> void ScalarBranch<T>::setValue(const T& value) { this->operator=(value); }
+template <class T> void ScalarBranch<T>::operator=(const T& value) {
+    if (!initialized()) return;
+    m_variable = value;
+    m_updated = true;
+}
+template <class T> void ScalarBranch<T>::setDefault(const T& def) {
+    if (!initialized()) {
+        m_default = def;
+        disableFailing();
+    }
+}
+template <class T> void ScalarBranch<T>::disableFailing() {
+    if (!initialized()) m_failIfNotUpdated = false;
+}
+template <class T> const T& ScalarBranch<T>::getDefault() const { return m_default; }
+template <class T> const T& ScalarBranch<T>::getVariable() const { return m_variable; }
+template <class T> bool ScalarBranch<T>::mustBeUpdated() const { return m_failIfNotUpdated; }
+template <class T> bool ScalarBranch<T>::isUpdated() const { return m_updated; }
+
+template <typename T> std::ostream& operator<<(std::ostream& out, const ScalarBranch<T>& B) {
+    out << B.getVariable();
+    return out;
+}
+#endif

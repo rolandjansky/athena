@@ -21,6 +21,7 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSeq = AlgSequence()
 
 topSeq += CfgMgr.WriteData()
+topSeq += CfgMgr.xAODMaker__EventInfoCnvAlg()
 topSeq += CfgMgr.ReadData(DataProducer = "WriteData")
 
 # setup output level

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetPseudojetCopier.cxx
@@ -18,7 +18,7 @@ using xAOD::JetContainer;
 namespace {
 
   /// Some helpers to sort according to p_T
-  SG::AuxElement::Accessor<float> ptAcc("JetConstitScaleMomentum_pt");
+  const SG::AuxElement::Accessor<float> ptAcc("JetConstitScaleMomentum_pt");
   struct ConstitPtComp {
     bool operator()(const xAOD::Jet* j1, const xAOD::Jet * j2) {
       return ptAcc(*j1) > ptAcc(*j2) ;

@@ -94,55 +94,55 @@ private:
   double kVD2(double w);
 
   /** doubles to store normalization of IW function */
-  double tau_w1{0};
+  double m_tau_w1{0};
 
   /** doubles to slope of IW function */
-  double tau_wp{0};
+  double m_tau_wp{0};
 
   /** doubles to store b quark mass */
-  double mb{0};
+  double m_mb{0};
 
   /** doubles to store b quark mass */
-  double mc{0};
+  double m_mc{0};
 
   /** doubles to store mass differences */
-  double L{0};
+  double m_L{0};
 
   /** doubles to store mass differences */
-  double Ls{0};
+  double m_Ls{0};
 
   /** doubles to store mass differences */
-  double Lp{0};
+  double m_Lp{0};
 
   /** doubles to store normalizations of sub-leading IW functions  */
-  double zeta_1{0};
+  double m_zeta_1{0};
 
   /** doubles to store normalizations of sub-leading IW functions  */
-  double tau_1{0};
+  double m_tau_1{0};
 
   /** doubles to store normalizations of sub-leading IW functions  */
-  double tau_2{0};
+  double m_tau_2{0};
 
   /** doubles to store chromomagnetic terms for narrow states  */
-  double eta_1{0};
+  double m_eta_1{0};
 
   /** doubles to store chromomagnetic terms for narrow states  */
-  double eta_2{0};
+  double m_eta_2{0};
 
   /** doubles to store chromomagnetic terms for narrow states  */
-  double eta_3{0};
+  double m_eta_3{0};
 
   /** doubles to store chromomagnetic terms for narrow states  */
-  double eta_b{0};
+  double m_eta_b{0};
 
   /** doubles to store chromomagnetic terms for broad states  */
-  double chi_1{0};
+  double m_chi_1{0};
 
   /** doubles to store chromomagnetic terms for broad states  */
-  double chi_2{0};
+  double m_chi_2{0};
 
   /** doubles to store chromomagnetic terms for broad states  */
-  double chi_b{0};
+  double m_chi_b{0};
 
 
 };

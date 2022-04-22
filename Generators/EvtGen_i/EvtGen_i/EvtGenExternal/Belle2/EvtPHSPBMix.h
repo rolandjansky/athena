@@ -71,13 +71,13 @@ private:
   EvtComplex Amplitude(const double& t1, const double& t2, bool B1_is_B0, bool B2_is_B0) const;
 
   /** mixing frequency in hbar/mm */
-  double _freq{0};   //
+  double m_freq{0};   //
 
   /** C eigenvalue, 0= incoherent */
-  double _C{0}; //
+  double m_C{0}; //
 
   /** Is BBpipi? */
-  bool _BBpipi{0};
+  bool m_BBpipi{0};
 
 };
 
@@ -114,7 +114,7 @@ public:
 private:
 
   /** mixing frequency in hbar/mm */
-  double _freq{0};
+  double m_freq{0};
 
 };
 

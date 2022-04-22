@@ -7,9 +7,9 @@
 
 #include "GaudiKernel/MsgStream.h"
 
-#include "LArROD/LArRawChannelBuilderToolBaseClass.h"
+#include "LArRawChannelBuilderToolBaseClass.h"
 #include "LArROD/LArRawChannelBuilderStatistics.h"
-#include "LArROD/LArRawChannelBuilderDriver.h"
+#include "LArRawChannelBuilderDriver.h"
 
 #include <iomanip>
 #include <cmath>

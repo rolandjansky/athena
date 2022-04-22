@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -19,7 +19,7 @@
 
 #include "DataModelTestDataCommon/C.h"
 #include "DataModelTestDataCommon/CVec.h"
-#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/WriteDecorHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
@@ -77,7 +77,7 @@ private:
   bool m_doCTrig;
 
   /// Handles for writing decorations.
-  SG::ReadHandleKey<EventInfo> m_eventInfoKey;
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EvtInfo", "EventInfo", "EventInfo name"};
   SG::WriteDecorHandleKey<CVec> m_cvecDecorKey;
   SG::WriteDecorHandleKey<C>    m_cinfoDecorKey;
   SG::WriteDecorHandleKey<SG::AuxElement> m_objDecorKey;

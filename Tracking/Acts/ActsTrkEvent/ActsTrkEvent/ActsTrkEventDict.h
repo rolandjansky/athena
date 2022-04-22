@@ -24,6 +24,7 @@
 
 #include "ActsTrkEvent/Measurement.h"
 #include "ActsTrkEvent/SpacePointData.h"
+#include "ActsTrkEvent/SpacePointMeasurementDetails.h"
 #include "ActsTrkEvent/SpacePoint.h"
 #include "ActsTrkEvent/Seed.h"
 #include "ActsTrkEvent/TrackParameters.h"
@@ -32,6 +33,7 @@
 namespace {
   struct GCCXML_DUMMY_INSTANTIATION_ACTSEDM {
     INSTANTIATE_TYPES( ActsTrk, SpacePointData      )
+    INSTANTIATE_TYPES( ActsTrk, SpacePointMeasurementDetails )
     INSTANTIATE_CONTAINER_TYPES( ActsTrk, MeasurementContainer )
     INSTANTIATE_CONTAINER_TYPES( ActsTrk, SpacePointContainer )
     INSTANTIATE_CONTAINER_TYPES( ActsTrk, SeedContainer )

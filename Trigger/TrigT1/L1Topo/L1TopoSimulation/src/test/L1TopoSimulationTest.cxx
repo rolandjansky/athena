@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./L1TopoSimulationTest.h"
@@ -46,7 +46,7 @@ LVL1::L1TopoSimulationTest::isClonable() const
 
 
 StatusCode
-LVL1::L1TopoSimulationTest::initialize() {
+LVL1::L1TopoSimulationTest::initialize ATLAS_NOT_THREAD_SAFE() {
 
   m_OfftopoSteering->setMsgLevel( TrigConf::MSGTC::Level(m_OfftopoSteeringOutputLevel) );
 

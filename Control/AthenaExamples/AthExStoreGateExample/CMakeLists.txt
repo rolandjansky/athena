@@ -19,7 +19,7 @@ atlas_add_component( SGTutorial
 atlas_add_component( AthExStoreGateExample
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthContainers AthLinks AthenaBaseComps EventInfo PileUpToolsLib SGTools SGTutorialLib TestTools )
+                     LINK_LIBRARIES AthContainers AthLinks AthenaBaseComps xAODEventInfo PileUpToolsLib SGTools SGTutorialLib TestTools )
 
 atlas_add_component( AthExDFlow
                      src_dflow/*.cxx
@@ -32,5 +32,5 @@ atlas_add_dictionary( AthExStoreGateExampleDict
                       LINK_LIBRARIES SGTutorialLib )
 
 # Install files from the package:
-atlas_install_joboptions( share/StoreGateExample_Gen_jobOptions.txt share/StoreGateExample_Gen_jobOptions.py share/StoreGateExample_Del_jobOptions.py share/StoreGateExample_Reentrant_jobOptions.py share/dflow_jobo.py share/StoreGateHiveExample.py share/HandleTest_jobOptions.py )
+atlas_install_joboptions( share/StoreGateExample_Gen_jobOptions.py share/StoreGateExample_Del_jobOptions.py share/StoreGateExample_Reentrant_jobOptions.py share/dflow_jobo.py share/StoreGateHiveExample.py share/HandleTest_jobOptions.py )
 

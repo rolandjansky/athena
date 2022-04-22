@@ -3,7 +3,7 @@
 */
 
 
-#include "LArROD/LArRawChannelBuilderToolParabola.h"
+#include "LArRawChannelBuilderToolParabola.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 

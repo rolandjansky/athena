@@ -24,16 +24,16 @@
  * @author Kunihiro Nagano <kunihiro.nagano@cern.ch> - KEK
  **/
 
-class TrigHitDVHypoAlg : public ::HypoBase 
-{ 
-public: 
+class TrigHitDVHypoAlg : public ::HypoBase
+{
+public:
 
    TrigHitDVHypoAlg( const std::string& name, ISvcLocator* pSvcLocator );
-   
+
    virtual StatusCode  initialize() override;
    virtual StatusCode  execute(const EventContext& context) const override;
-   
-private: 
+
+private:
 
    ToolHandleArray< TrigHitDVHypoTool >   m_hypoTools     {this, "HypoTools", {}, "Tools to perform selection"};
 
@@ -76,7 +76,8 @@ private:
 			   const float&, const int, xAOD::TrigCompositeContainer*, int&) const;
 
    // BDT
-   mutable SG::SlotSpecificObj<std::unique_ptr<TMVA::Reader> > m_tmva_reader ATLAS_THREAD_SAFE;
+   mutable SG::SlotSpecificObj<std::unique_ptr<TMVA::Reader> > m_tmva_reader_0eta1 ATLAS_THREAD_SAFE;
+   mutable SG::SlotSpecificObj<std::unique_ptr<TMVA::Reader> > m_tmva_reader_1eta2 ATLAS_THREAD_SAFE;
    mutable SG::SlotSpecificObj<float> m_tmva_n_track_qual ATLAS_THREAD_SAFE;
    mutable SG::SlotSpecificObj<float> m_tmva_ly0_sp_frac  ATLAS_THREAD_SAFE;
    mutable SG::SlotSpecificObj<float> m_tmva_ly1_sp_frac  ATLAS_THREAD_SAFE;
@@ -86,6 +87,6 @@ private:
    mutable SG::SlotSpecificObj<float> m_tmva_ly5_sp_frac  ATLAS_THREAD_SAFE;
    mutable SG::SlotSpecificObj<float> m_tmva_ly6_sp_frac  ATLAS_THREAD_SAFE;
    mutable SG::SlotSpecificObj<float> m_tmva_ly7_sp_frac  ATLAS_THREAD_SAFE;
-}; 
+};
 
 #endif //> !TRIGLONGLIVEDPARTICLESHYPO_TRIGHITDVHYPOALG_H

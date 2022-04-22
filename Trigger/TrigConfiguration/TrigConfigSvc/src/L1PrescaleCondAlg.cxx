@@ -1,8 +1,9 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */ 
 
 #include "./L1PrescaleCondAlg.h"
+#include "./TrigConfMD5.h"
 #include "TrigConfIO/TrigDBL1PrescalesSetLoader.h"
 #include "TrigConfIO/JsonFileLoader.h"
 #include "TrigConfInterfaces/IJobOptionsSvc.h"
@@ -25,7 +26,8 @@ TrigConf::L1PrescaleCondAlg::createFromFile( const std::string & filename ) cons
    psLoader.setLevel(TrigConf::MSGTC::WARNING); 
    ATH_MSG_DEBUG( "Going to load prescales" );
    if( psLoader.loadFile( filename, *pss) ) {
-      pss->setPSK(m_psk);
+      const uint32_t psk = m_psk == 0 ? TrigConf::truncatedHash(*pss) : m_psk.value();
+      pss->setPSK(psk);
       ATH_MSG_INFO( "L1 prescales set successfully loaded from file " << filename );
    } else {
       ATH_MSG_WARNING( "Failed loading L1 prescales set from file " << filename ); // will be made an error later

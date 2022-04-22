@@ -7,12 +7,16 @@ atlas_subdir( MuonPRDTest )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 find_package( CLHEP )
 
+atlas_add_library (MuonPRDTestLib
+                   MuonPRDTest/*.h Root/*.cxx
+                   PUBLIC_HEADERS MuonPRDTest
+                   LINK_LIBRARIES AthenaKernel MuonReadoutGeometry MuonDigitContainer MuonSimData MuonIdHelpersLib MuonTesterTreeLib StoreGateLib)
 # Component(s) in the package:
 atlas_add_component( MuonPRDTest
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib GaudiKernel AthenaBaseComps AthenaKernel StoreGateLib Identifier 
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib GaudiKernel AthenaBaseComps AthenaKernel StoreGateLib MuonPRDTestLib
 		     xAODEventInfo GeneratorObjects MuonAGDDDescription MuonReadoutGeometry MuonDigitContainer MuonRDO MuonIdHelpersLib MuonPrepRawData MuonRIO_OnTrack MuonCSC_CnvToolsLib
 		     MuonRecToolInterfaces MuonSimData MuonSimEvent TrkGeometry TrkSurfaces TrkParameters TrkExInterfaces TrackRecordLib)
 

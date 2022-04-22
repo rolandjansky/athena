@@ -78,8 +78,10 @@ namespace ActsTrk {
         //@{
         SG::WriteHandleKey<ActsTrk::SpacePointContainer> m_stripSpacePointContainerKey{this, "StripSpacePoints", "ITkStripSpacePoints", "name of the output strip space point container"};
         SG::WriteHandleKey<ActsTrk::SpacePointData> m_stripSpacePointDataKey {this,"StripSpacePointData","ITkStripSpacePointData","name of the output strip space point data"};
+        SG::WriteHandleKey<ActsTrk::SpacePointMeasurementDetails> m_stripSpacePointsDetailsKey {this,"StripSpacePointDetails","ITkStripSpacePointDetails","name of the output strip space point measurement details"};
         SG::WriteHandleKey<ActsTrk::SpacePointContainer> m_stripOverlapSpacePointContainerKey{this, "StripOverlapSpacePoints", "ITkStripOverlapSpacePoints", "name of the strip overlap strip space point container"};
         SG::WriteHandleKey<ActsTrk::SpacePointData> m_stripOverlapSpacePointDataKey {this,"StripOverlapSpacePointData","ITkStripOverlapSpacePointData","name of the output strip overlap space point data"};
+        SG::WriteHandleKey<ActsTrk::SpacePointMeasurementDetails> m_stripOverlapSpacePointsDetailsKey {this,"StripOverlapSpacePointDetails","ITkStripOverlapSpacePointDetails","name of the output strip overlap space point measurement details"};
         //@}
 
         /// @name ToolHandle

@@ -29,16 +29,16 @@
 using std::endl;
 
 EvtHQET3::EvtHQET3():
-  hqetffmodel(0)
-  , calcamp(0)
+  m_hqetffmodel(0)
+  , m_calcamp(0)
 {}
 
 EvtHQET3::~EvtHQET3()
 {
-  delete hqetffmodel;
-  hqetffmodel = 0;
-  delete calcamp;
-  calcamp = 0;
+  delete m_hqetffmodel;
+  m_hqetffmodel = 0;
+  delete m_calcamp;
+  m_calcamp = 0;
 }
 
 std::string EvtHQET3::getName()
@@ -62,7 +62,7 @@ void EvtHQET3::decay(EvtParticle* p)
 {
 
   p->initializePhaseSpace(getNDaug(), getDaugs());
-  calcamp->CalcAmp(p, _amp2, hqetffmodel);
+  m_calcamp->CalcAmp(p, _amp2, m_hqetffmodel);
 
 }
 
@@ -76,8 +76,8 @@ void EvtHQET3::initProbMax()
   lnum = getDaug(1);
   nunum = getDaug(2);
 
-  double mymaxprob = calcamp->CalcMaxProb(parnum, mesnum,
-                                          lnum, nunum, hqetffmodel);
+  double mymaxprob = m_calcamp->CalcMaxProb(parnum, mesnum,
+                                          lnum, nunum, m_hqetffmodel);
 
   // Leptons
   static EvtId EM = EvtPDL::getId("e-");
@@ -116,16 +116,16 @@ void EvtHQET3::init()
   EvtSpinType::spintype d1type = EvtPDL::getSpinType(getDaug(0));
   if (d1type == EvtSpinType::SCALAR) {
     if (getNArg() == 3) {
-      hqetffmodel = new EvtHQET3FF(getArg(0), getArg(1), getArg(2));
-      calcamp = new EvtSemiLeptonicScalarAmp;
+      m_hqetffmodel = new EvtHQET3FF(getArg(0), getArg(1), getArg(2));
+      m_calcamp = new EvtSemiLeptonicScalarAmp;
     } else {
       EvtGenReport(EVTGEN_ERROR, "EvtGen") << "HQET3 model for scalar meson daughters needs 2 arguments. Sorry." << endl;
       ::abort();
     }
   } else if (d1type == EvtSpinType::VECTOR) {
     if (getNArg() == 5) {
-      hqetffmodel = new EvtHQET3FF(getArg(0), getArg(1), getArg(2), getArg(3), getArg(4));
-      calcamp = new EvtSemiLeptonicVectorAmp;
+      m_hqetffmodel = new EvtHQET3FF(getArg(0), getArg(1), getArg(2), getArg(3), getArg(4));
+      m_calcamp = new EvtSemiLeptonicVectorAmp;
     } else  {
       EvtGenReport(EVTGEN_ERROR, "EvtGen") << "HQET3 model for vector meson daughtersneeds 4 arguments. Sorry." << endl;
       ::abort();

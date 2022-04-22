@@ -34,8 +34,10 @@ namespace ActsTrk {
                                                                const Amg::Vector3D& beamSpotVertex,
                                                                ActsTrk::SpacePointContainer& spacePoints,
                                                                ActsTrk::SpacePointData& spacePointData,
+                                                               ActsTrk::SpacePointMeasurementDetails& spacePointDetails,
                                                                ActsTrk::SpacePointContainer& overlapSpacePoints,
                                                                ActsTrk::SpacePointData& overlapSpacePointData,
+                                                               ActsTrk::SpacePointMeasurementDetails& overlapSpacePointDetails,
                                                                bool processOverlaps) const
     {
         /// Production of ActsTrk::SpacePoint from strip clusters
@@ -226,7 +228,8 @@ namespace ActsTrk {
 
                 // producing and filling space points
                 fillStripSpacePoints(neighbourElements, neighbourClusters, overlapExtents, beamSpotVertex,
-                                     spacePoints, spacePointData, overlapSpacePoints, overlapSpacePointData);
+                                     spacePoints, spacePointData, spacePointDetails,
+                                     overlapSpacePoints, overlapSpacePointData, overlapSpacePointDetails);
             }
         }
     }
@@ -238,8 +241,10 @@ namespace ActsTrk {
         const Amg::Vector3D& beamSpotVertex,
         ActsTrk::SpacePointContainer& spacePoints,
         ActsTrk::SpacePointData& spacePointData,
+        ActsTrk::SpacePointMeasurementDetails& spacePointDetails,
         ActsTrk::SpacePointContainer& overlapSpacePoints,
-        ActsTrk::SpacePointData& overlapSpacePointData) const
+        ActsTrk::SpacePointData& overlapSpacePointData,
+        ActsTrk::SpacePointMeasurementDetails& overlapSpacePointDetails ) const
     {
 
         // This function is called once all the needed quantities are collected.
@@ -340,13 +345,13 @@ namespace ActsTrk {
                         // depending on the index you are processing, you save the space point in the correct container
                         if (currentIndex==otherSideIndex) {
                             std::unique_ptr<ActsTrk::SpacePoint>
-                                stripSpacePoint = makeStripSpacePoint(stripInfo, currentStripInfo, isEndcap, limit, slimit, spacePointData);
+                                stripSpacePoint = makeStripSpacePoint(stripInfo, currentStripInfo, isEndcap, limit, slimit, spacePointData, spacePointDetails);
                             if (stripSpacePoint) {
                                 spacePoints.push_back( std::move(stripSpacePoint) );
                             }
                         } else {
                             std::unique_ptr<ActsTrk::SpacePoint>
-                                stripSpacePoint = makeStripSpacePoint(stripInfo, currentStripInfo, isEndcap, limit, slimit, overlapSpacePointData);
+                                stripSpacePoint = makeStripSpacePoint(stripInfo, currentStripInfo, isEndcap, limit, slimit, overlapSpacePointData, overlapSpacePointDetails);
                             if (stripSpacePoint) {
                                 overlapSpacePoints.push_back( std::move(stripSpacePoint) );
                             }
@@ -424,7 +429,7 @@ namespace ActsTrk {
 
                     for(auto& stripInfo : stripPhiInfos) {
                         std::unique_ptr<ActsTrk::SpacePoint>
-                            stripSpacePoint = makeStripSpacePoint(*stripInfo, currentStripInfo, isEndcap, limit, slimit, overlapSpacePointData);
+                            stripSpacePoint = makeStripSpacePoint(*stripInfo, currentStripInfo, isEndcap, limit, slimit, overlapSpacePointData, overlapSpacePointDetails);
                         if (stripSpacePoint) {
                             overlapSpacePoints.push_back( std::move(stripSpacePoint) );
                         }
@@ -453,12 +458,12 @@ namespace ActsTrk {
                     // depending on the index you are processing, you save the space point in the correct container
                     if (currentIndex==otherSideIndex) {
                         std::unique_ptr<ActsTrk::SpacePoint>
-                            stripSpacePoint = makeStripSpacePoint(stripInfo, currentStripInfo, isEndcap, limit, slimit, spacePointData);
+                            stripSpacePoint = makeStripSpacePoint(stripInfo, currentStripInfo, isEndcap, limit, slimit, spacePointData, spacePointDetails);
                         if (stripSpacePoint)
                             spacePoints.push_back( std::move(stripSpacePoint) );
                     } else {
                         std::unique_ptr<ActsTrk::SpacePoint>
-                            stripSpacePoint = makeStripSpacePoint(stripInfo, currentStripInfo, isEndcap, limit, slimit, overlapSpacePointData);
+                            stripSpacePoint = makeStripSpacePoint(stripInfo, currentStripInfo, isEndcap, limit, slimit, overlapSpacePointData, overlapSpacePointDetails);
                         if (stripSpacePoint)
                             overlapSpacePoints.push_back( std::move(stripSpacePoint) );
                     }
@@ -474,7 +479,8 @@ namespace ActsTrk {
         bool isEndcap,
         double limit,
         double slimit,
-        ActsTrk::SpacePointData& data) const
+        ActsTrk::SpacePointData& data,
+        ActsTrk::SpacePointMeasurementDetails& details ) const
     {
         double a  =-firstInfo.trajDirection().dot(secondInfo.normal());
         double b  = firstInfo.stripDirection().dot(secondInfo.normal());
@@ -529,11 +535,28 @@ namespace ActsTrk {
         if ( isEndcap )
             std::swap( variance(0, 0), variance(1, 0) );
 
+        // evaluation of measurement details
+        float bottomHalfStripLength = 0.5*firstInfo.stripDirection().norm();
+        Eigen::Matrix<double, 3, 1> bottomStripDirection = -firstInfo.stripDirection()/(2.*bottomHalfStripLength);
+        Eigen::Matrix<double, 3, 1> bottomStripCenter = 0.5*firstInfo.trajDirection();
+
+        float topHalfStripLength = 0.5*secondInfo.stripDirection().norm();
+        Eigen::Matrix<double, 3, 1> topStripDirection = -secondInfo.stripDirection()/(2.*topHalfStripLength);
+
+        Eigen::Matrix<double, 3, 1> stripCenterDistance = firstInfo.stripCenter()  - secondInfo.stripCenter();
+
         boost::container::static_vector<std::size_t, 2> measIndexes({firstInfo.clusterIndex(), secondInfo.clusterIndex()});
         std::unique_ptr<ActsTrk::SpacePoint> spacePoint =
             std::make_unique<ActsTrk::SpacePoint>( globalPosition,
                                                    variance,
+                                                   topHalfStripLength,
+                                                   topStripDirection,
+                                                   bottomHalfStripLength,
+                                                   bottomStripDirection,
+                                                   stripCenterDistance,
+                                                   bottomStripCenter,
                                                    data,
+                                                   details,
                                                    measIndexes );
         return spacePoint;
     }

@@ -56,6 +56,7 @@ def createITkConfigFlags():
   itkcf.addFlag("ITk.Tracking.doSharedHits", True) # control if the shared hits are recorded in TrackParticles
   itkcf.addFlag("ITk.Tracking.materialInteractions", True)
   itkcf.addFlag("ITk.Tracking.writeSeedValNtuple", False) # Turn writing of seed validation ntuple on and off
+  itkcf.addFlag("ITk.Tracking.writeExtendedPRDInfo", False)
   
   # config flags for tracking geometry configuration
   from InDetConfig.TrackingGeometryFlags import createITkTrackingGeometryFlags

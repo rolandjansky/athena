@@ -22,8 +22,8 @@ public:
   ~HTTSectorMap() = default;
   void SetSector(int, int, int);
   int GetSector(int, int);
-  int LoadFromFile(const char *);
-  int CreateFile(const char *,const char *, const char *);
+  void LoadFromFile(const char *);
+  void CreateFile(const char *,const char *, const char *);
   void Dump();
   static std::map<int,int> makeLookup(const char* fname);
 };
