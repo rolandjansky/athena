@@ -12,6 +12,7 @@
 #include "TrigConfInterfaces/IJobOptionsSvc.h"
 
 #include "HLTConfigSvc.h"
+#include "TrigConfMD5.h"
 
 #include <memory>
 
@@ -37,7 +38,10 @@ StatusCode TrigConf::HLTConfigSvc::writeConfigToDetectorStore()
     fileLoader.setLevel(TrigConf::MSGTC::WARNING);
 
     ATH_CHECK( fileLoader.loadFile(m_hltFileName, *hltmenu) );
-    hltmenu->setSMK(m_smk);  // allow assigning a dummy SMK when running from FILE
+    {
+      const uint32_t smk = m_smk == 0 ? TrigConf::truncatedHash(*hltmenu) : m_smk.value();
+      hltmenu->setSMK(smk);  // allow assigning a specified or hashed SMK when running from FILE
+    }
 
     if (!m_monitoringFileName.empty()) {
       monitoring.reset( new TrigConf::HLTMonitoring() );
@@ -52,6 +56,9 @@ StatusCode TrigConf::HLTConfigSvc::writeConfigToDetectorStore()
             << ", the monitoring collection flagged as non-optional in this job.");
           return StatusCode::FAILURE;
         }
+      } else { // success
+        const uint32_t smk = m_smk == 0 ? TrigConf::truncatedHash(*monitoring) : m_smk.value();
+        monitoring->setSMK(smk);
       }
     }
   }
