@@ -1,0 +1,103 @@
+/*
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+*/
+#ifndef MUONTESTER_ARRAYBRANCH_IXX
+#define MUONTESTER_ARRAYBRANCH_IXX
+
+#include <AthenaKernel/getMessageSvc.h>
+#include <GaudiKernel/MsgStream.h>
+#include <MuonTesterTree/ArrayBranch.h>
+#include <MuonTesterTree/MuonTesterTree.h>
+#include <TString.h>
+
+template <class T>
+ArrayBranch<T>::ArrayBranch(TTree* t, const std::string& b_name, size_t size) :
+    m_tree(t), m_name(b_name), m_size(size), m_data(new T[size]), m_updated(new bool[size]) {
+    reset();
+}
+template <class T>
+ArrayBranch<T>::ArrayBranch(MuonTesterTree& t, const std::string& b_name, size_t size) : ArrayBranch(t.tree(), b_name, size) {
+    m_parent = &t;
+    m_parent->addBranch(this);
+}
+
+template <class T>
+ArrayBranch<T>::ArrayBranch(TTree* tree, const std::string& name, size_t size, const T& def_val) : ArrayBranch(tree, name, size) {
+    setDefault(def_val);
+}
+template <class T>
+ArrayBranch<T>::ArrayBranch(MuonTesterTree& tree, const std::string& name, size_t size, const T& def_val) : ArrayBranch(tree, name, size) {
+    setDefault(def_val);
+}
+template <class T> ArrayBranch<T>::~ArrayBranch() {
+    if (m_parent) m_parent->removeBranch(this);
+}
+template <class T> void ArrayBranch<T>::reset() {
+    for (size_t i = 0; i < size(); ++i) m_updated[i] = false;
+}
+template <class T> std::string ArrayBranch<T>::name() const { return m_name; }
+template <class T> const T& ArrayBranch<T>::operator[](size_t s) const { return get(s); }
+template <class T> void ArrayBranch<T>::set(size_t s, const T& val) {
+    if (s >= size()) { throw std::overflow_error(Form("Index %lu is out of range for %s", s, name().c_str())); }
+    m_updated[s] = true;
+    m_data[s] = val;
+}
+template <class T> const T& ArrayBranch<T>::get(size_t s) const {
+    if (s >= size()) { throw std::overflow_error(Form("Index %lu is out of range for %s", s, name().c_str())); }
+    return m_data[s];
+}
+template <class T> T& ArrayBranch<T>::operator[](size_t s) {
+    if (s >= size()) { throw std::overflow_error(Form("Index %lu is out of range for %s", s, name().c_str())); }
+    m_updated[s] = true;
+    return m_data[s];
+}
+template <class T> size_t ArrayBranch<T>::size() const { return m_size; }
+template <class T> bool ArrayBranch<T>::init() {
+    if (initialized()) {
+        MsgStream log(Athena::getMessageSvc(), "ArrayBranch()");
+        log << MSG::WARNING << "init() -- The branch " << name() << " is already initialized. " << endmsg;
+        return true;
+    }
+    if (name().empty() || !m_tree) {
+        MsgStream log(Athena::getMessageSvc(), "ArrayBranch()");
+        log << MSG::ERROR << "init() -- Empty names are forbidden. " << endmsg;
+        return false;
+    } else if (m_tree->FindBranch(name().c_str())) {
+        MsgStream log(Athena::getMessageSvc(), "ArrayBranch()");
+        log << MSG::ERROR << "init() -- The branch " << name() << " already exists in TTree  " << m_tree->GetName() << "." << endmsg;
+        return false;
+    } else if (!m_tree->Branch(name().c_str(), m_data.get(), Form("%s[%lu]%s", name().c_str(), size(), tree_data_type().c_str()))) {
+        MsgStream log(Athena::getMessageSvc(), "ArrayBranch()");
+        log << MSG::ERROR << "init() -- Could not create branch " << name() << " in TTree " << m_tree->GetName() << endmsg;
+        return false;
+    }
+    m_init = true;
+    return true;
+}
+template <class T> bool ArrayBranch<T>::initialized() const { return m_init; }
+template <class T> bool ArrayBranch<T>::fill(const EventContext&) {
+    if (!initialized()) {
+        MsgStream log(Athena::getMessageSvc(), "ArrayBranch()");
+        log << MSG::ERROR << "init()  -- The branch " << name() << " is not initialized yet." << endmsg;
+        return false;
+    }
+    for (size_t i = 0; i < size(); ++i) {
+        if (!m_updated[i]) {
+            if (m_failIfNotUpdated) {
+                MsgStream log(Athena::getMessageSvc(), "ArrayBranch()");
+                log << MSG::ERROR << "init()  -- The " << i << "-th value is has not been updated. " << endmsg;
+                return false;
+            } else {
+                m_data[i] = m_default;
+            }
+        }
+    }
+    reset();
+    return true;
+}
+template <class T> const T& ArrayBranch<T>::getDefault() const { return m_default; }
+template <class T> void ArrayBranch<T>::setDefault(const T& val) {
+    m_default = val;
+    m_failIfNotUpdated = false;
+}
+#endif

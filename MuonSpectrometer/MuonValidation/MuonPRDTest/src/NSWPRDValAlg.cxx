@@ -1,17 +1,17 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <fstream>
 
 // NSWValAlg inlcudes
 #include "NSWPRDValAlg.h"
+#include <MuonPRDTest/MuonPRDTestDict.h>
 
 #include "EDM_object.h"
 
 // Other NSW includes
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-
+ 
 // Misc includes
 #include "GaudiKernel/ITHistSvc.h"
 #include "EventInfo/EventInfo.h"
@@ -21,12 +21,8 @@
 
 
 NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-    AthAlgorithm(name, pSvcLocator),
-    m_tree(nullptr),
-    m_muonDetMgrDS(nullptr),
-    m_tgcCabling(nullptr),
-    m_thistSvc(nullptr) {
-  // Input properties: Container names
+    AthHistogramAlgorithm(name, pSvcLocator)  {
+  
   
  
  
@@ -34,16 +30,7 @@ NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator) :
 
 StatusCode NSWPRDValAlg::initialize() {
 
-  ATH_MSG_DEBUG("initialize()");
-
-  ATH_CHECK( service("THistSvc", m_thistSvc) );
-
-  m_tree = new TTree("NSWValTree", "Ntuple for NSW EDM Validation");
-  m_tree->Branch("runNumber", &m_runNumber, "runNumber/i");
-  m_tree->Branch("eventNumber", &m_eventNumber, "eventNumber/i");
-
-  ATH_CHECK( m_thistSvc->regTree("/NSWPRDValAlg/NSWValTree", m_tree) );
-
+  ATH_MSG_DEBUG("initialize()"); 
   // MuonDetectorManager from the conditions store
   ATH_CHECK(m_DetectorManagerKey.initialize(m_isData));
 
@@ -54,158 +41,156 @@ StatusCode NSWPRDValAlg::initialize() {
   ATH_CHECK(evtStore().retrieve());
   if (m_doTruth){
      m_testers.emplace_back(std::make_unique<TruthVariables>(evtStore().get(), m_muonDetMgrDS,
-                                                m_tree, m_Truth_ContainerName, msgLevel()));
+                                                m_tree.tree(),m_Truth_ContainerName, msgLevel()));
   }
   
   if (m_doMuEntry){
      m_testers.emplace_back(std::make_unique<MuEntryVariables>(evtStore().get(), m_muonDetMgrDS,
-                                                m_tree, m_MuEntry_ContainerName, msgLevel()));
+                                                m_tree.tree(),m_MuEntry_ContainerName, msgLevel()));
   }
 
   if (m_doSTGCHit){
      m_testers.emplace_back(std::make_unique<sTGCSimHitVariables>(evtStore().get(), m_muonDetMgrDS,
-                                                &m_idHelperSvc->stgcIdHelper(), m_tree, m_NSWsTGC_ContainerName, msgLevel()));
+                                                &m_idHelperSvc->stgcIdHelper(), m_tree.tree(),m_NSWsTGC_ContainerName, msgLevel()));
   }
   
   if (m_doSTGCDigit){
      m_testers.emplace_back( std::make_unique<sTGCDigitVariables>(evtStore().get(), m_muonDetMgrDS,
-                                                &m_idHelperSvc->stgcIdHelper(), m_tree, m_NSWsTGC_DigitContainerName, msgLevel()));
+                                                &m_idHelperSvc->stgcIdHelper(), m_tree.tree(),m_NSWsTGC_DigitContainerName, msgLevel()));
      
       // Take SDO conainer
      m_testers.emplace_back(std::make_unique<sTGCSDOVariables>(evtStore().get(), m_muonDetMgrDS,
-                                                &m_idHelperSvc->stgcIdHelper(), m_tree, m_NSWsTGC_SDOContainerName, msgLevel()));
+                                                &m_idHelperSvc->stgcIdHelper(), m_tree.tree(),m_NSWsTGC_SDOContainerName, msgLevel()));
   }
 
   if (m_doSTGCFastDigit){
       // Take the "fast_SDO" instead of the SDOs from full sim
      m_testers.emplace_back( std::make_unique<sTGCSDOVariables>(evtStore().get(), m_muonDetMgrDS,
-                                                &m_idHelperSvc->stgcIdHelper(), m_tree, "sTGCfast_SDO", msgLevel()));
+                                                &m_idHelperSvc->stgcIdHelper(), m_tree.tree(),"sTGCfast_SDO", msgLevel()));
      // Fast digits = PRD
   }
 
   if (m_doSTGCRDO){
      m_testers.emplace_back(std::make_unique<sTGCRDOVariables>(evtStore().get(), m_muonDetMgrDS,
-                                                &m_idHelperSvc->stgcIdHelper(), m_tree, m_NSWsTGC_RDOContainerName, msgLevel()));
+                                                &m_idHelperSvc->stgcIdHelper(), m_tree.tree(),m_NSWsTGC_RDOContainerName, msgLevel()));
   }
 
   if (m_doSTGCPRD){
      m_testers.emplace_back( std::make_unique<sTGCPRDVariables>(evtStore().get(), m_muonDetMgrDS,
-                                                &m_idHelperSvc->stgcIdHelper(), m_tree, m_NSWsTGC_PRDContainerName, msgLevel()));
+                                                &m_idHelperSvc->stgcIdHelper(), m_tree.tree(),m_NSWsTGC_PRDContainerName, msgLevel()));
   }
 
   if (m_doMMHit) {
      m_testers.emplace_back(std::make_unique<MMSimHitVariables>(evtStore().get(), m_muonDetMgrDS,
-                                                &m_idHelperSvc->mmIdHelper(), m_tree, m_NSWMM_ContainerName, msgLevel()));
+                                                &m_idHelperSvc->mmIdHelper(), m_tree.tree(),m_NSWMM_ContainerName, msgLevel()));
   }
 
   if (m_doMMDigit) {
      m_testers.emplace_back( std::make_unique< MMDigitVariables>(evtStore().get(), m_muonDetMgrDS,
-                                                &m_idHelperSvc->mmIdHelper(), m_tree, m_NSWMM_DigitContainerName, msgLevel()));
+                                                &m_idHelperSvc->mmIdHelper(), m_tree.tree(),m_NSWMM_DigitContainerName, msgLevel()));
   
      // Take SDO conainer
      m_testers.emplace_back(std::make_unique<MMSDOVariables>(evtStore().get(), m_muonDetMgrDS,
-                                                &m_idHelperSvc->mmIdHelper(), m_tree, m_NSWMM_SDOContainerName, msgLevel()));
+                                                &m_idHelperSvc->mmIdHelper(), m_tree.tree(),m_NSWMM_SDOContainerName, msgLevel()));
   }
 
   if (m_doMMFastDigit){
       // Take the "fast_SDO" instead of the SDOs from full sim
      m_testers.emplace_back( std::make_unique<MMSDOVariables>(evtStore().get(), m_muonDetMgrDS,
-                                                &m_idHelperSvc->mmIdHelper(), m_tree, "MMfast_SDO", msgLevel()));
+                                                &m_idHelperSvc->mmIdHelper(), m_tree.tree(),"MMfast_SDO", msgLevel()));
   
   }
 
   if (m_doMMRDO) {
 
     m_testers.emplace_back(std::make_unique<MMRDOVariables>(evtStore().get(), m_muonDetMgrDS,
-                                                &m_idHelperSvc->mmIdHelper(), m_tree, m_NSWMM_RDOContainerName, msgLevel()));
+                                                &m_idHelperSvc->mmIdHelper(), m_tree.tree(),m_NSWMM_RDOContainerName, msgLevel()));
   }
 
  if (m_doMMPRD){
      m_testers.emplace_back( std::make_unique<MMPRDVariables>(evtStore().get(), m_muonDetMgrDS,
-                                                &m_idHelperSvc->mmIdHelper(), m_tree, m_NSWMM_PRDContainerName, msgLevel()));
+                                                &m_idHelperSvc->mmIdHelper(), m_tree.tree(),m_NSWMM_PRDContainerName, msgLevel()));
   }
 
   if (m_doCSCHit){
      m_testers.emplace_back( std::make_unique<CSCSimHitVariables>(evtStore().get(), m_muonDetMgrDS,
-                                             &m_idHelperSvc->cscIdHelper(), m_tree, m_CSC_SimContainerName, msgLevel()));
+                                             &m_idHelperSvc->cscIdHelper(), m_tree.tree(),m_CSC_SimContainerName, msgLevel()));
   }
   if (m_doCSCSDO){
      m_testers.emplace_back(std::make_unique<CscSDOVariables>(evtStore().get(), m_muonDetMgrDS,
-                                                &m_idHelperSvc->cscIdHelper(), m_tree, m_CSC_SDOContainerName, msgLevel()));
+                                                &m_idHelperSvc->cscIdHelper(), m_tree.tree(),m_CSC_SDOContainerName, msgLevel()));
   }
   if (m_doCSCDigit){
      m_testers.emplace_back( std::make_unique<CSCDigitVariables>(evtStore().get(), m_muonDetMgrDS,
-                                                &m_idHelperSvc->cscIdHelper(), m_tree, m_CSC_DigitContainerName, msgLevel()));
+                                                &m_idHelperSvc->cscIdHelper(), m_tree.tree(),m_CSC_DigitContainerName, msgLevel()));
   }
   if (m_doCSCRDO) {
     ATH_CHECK(m_csc_decoder.retrieve());
     m_testers.emplace_back(std::make_unique<CSCRDOVariables>(evtStore().get(), m_muonDetMgrDS,
-                                                &m_idHelperSvc->cscIdHelper(), m_tree, m_CSC_RDOContainerName, msgLevel(),
+                                                &m_idHelperSvc->cscIdHelper(), m_tree.tree(),m_CSC_RDOContainerName, msgLevel(),
                                                 m_csc_decoder.get()));
   }
   if (m_doCSCPRD) {
     m_testers.emplace_back(std::make_unique<CSCPRDVariables>(evtStore().get(), m_muonDetMgrDS,
-                                                &m_idHelperSvc->cscIdHelper(), m_tree, m_CSC_PRDContainerName, msgLevel()));
+                                                &m_idHelperSvc->cscIdHelper(), m_tree.tree(),m_CSC_PRDContainerName, msgLevel()));
   }
 
-  if (m_doMDTHit){
-    m_testers.emplace_back(std::make_unique<MDTSimHitVariables>(evtStore().get(), m_muonDetMgrDS,
-                                             &m_idHelperSvc->mdtIdHelper(), m_tree, m_MDT_SimContainerName, msgLevel()));
+  if (m_doMDTHit){      
+    m_tree.addBranch(std::make_unique<MDTSimHitVariables>(m_tree,m_MDT_SimContainerName.value(),  msgLevel()));
   }
   if (m_doMDTSDO){
-     m_testers.emplace_back(std::make_unique<MdtSDOVariables>(evtStore().get(), m_muonDetMgrDS,
-                                             &m_idHelperSvc->mdtIdHelper(), m_tree, m_MDT_SDOContainerName, msgLevel()));
+    m_tree.addBranch(std::make_unique<MdtSDOVariables>(m_tree,m_MDT_SDOContainerName.value(),  msgLevel()));
+    
   }
   if (m_doMDTDigit){
-     m_testers.emplace_back( std::make_unique<MdtDigitVariables>(evtStore().get(), m_muonDetMgrDS,
-                                             &m_idHelperSvc->mdtIdHelper(), m_tree, m_MDT_DigitContainerName, msgLevel()));
+    m_tree.addBranch(std::make_unique<MdtDigitVariables>(m_tree,m_MDT_DigitContainerName.value(),  msgLevel()));
   }
-
   if (m_doRPCHit){
      m_testers.emplace_back(std::make_unique<RPCSimHitVariables>(evtStore().get(), m_muonDetMgrDS,
-                                             &m_idHelperSvc->rpcIdHelper(), m_tree, m_RPC_SimContainerName, msgLevel()));
+                                             &m_idHelperSvc->rpcIdHelper(), m_tree.tree(),m_RPC_SimContainerName, msgLevel()));
   }
   if (m_doRPCSDO){
     m_testers.emplace_back(std::make_unique<RpcSDOVariables>(evtStore().get(), m_muonDetMgrDS,
-                                             &m_idHelperSvc->rpcIdHelper(), m_tree, m_RPC_SDOContainerName, msgLevel()));
+                                             &m_idHelperSvc->rpcIdHelper(), m_tree.tree(),m_RPC_SDOContainerName, msgLevel()));
   }
   if (m_doRPCDigit){
      m_testers.emplace_back(std::make_unique<RpcDigitVariables>(evtStore().get(), m_muonDetMgrDS,
-                                             &m_idHelperSvc->rpcIdHelper(), m_tree, m_RPC_DigitContainerName, msgLevel()));
+                                             &m_idHelperSvc->rpcIdHelper(), m_tree.tree(),m_RPC_DigitContainerName, msgLevel()));
   }
   
 
   if (m_doTGCHit){
      m_testers.emplace_back(std::make_unique<TGCSimHitVariables>(evtStore().get(), m_muonDetMgrDS,
-                                             &m_idHelperSvc->tgcIdHelper(), m_tree, m_TGC_SimContainerName, msgLevel()));
+                                             &m_idHelperSvc->tgcIdHelper(), m_tree.tree(),m_TGC_SimContainerName, msgLevel()));
   }
   if (m_doTGCSDO) {
     m_testers.emplace_back(std::make_unique<TgcSDOVariables>(evtStore().get(), m_muonDetMgrDS,
-                                                &m_idHelperSvc->tgcIdHelper(), m_tree, m_TGC_SDOContainerName, msgLevel()));
+                                                &m_idHelperSvc->tgcIdHelper(), m_tree.tree(),m_TGC_SDOContainerName, msgLevel()));
   }
   if (m_doTGCDigit){
      m_testers.emplace_back(std::make_unique<TGCDigitVariables>(evtStore().get(), m_muonDetMgrDS,
-                                                &m_idHelperSvc->tgcIdHelper(), m_tree, m_TGC_DigitContainerName, msgLevel()));
+                                                &m_idHelperSvc->tgcIdHelper(), m_tree.tree(),m_TGC_DigitContainerName, msgLevel()));
     
   }
 
   if (m_doTGCRDO) {
-
     const ITGCcablingServerSvc* TgcCabGet = nullptr;
     ATH_CHECK(service("TGCcablingServerSvc", TgcCabGet, true));
     ATH_CHECK(TgcCabGet->giveCabling(m_tgcCabling));
     m_testers.emplace_back( std::make_unique<TGCRDOVariables>(evtStore().get(), m_muonDetMgrDS,
                                                 &m_idHelperSvc->tgcIdHelper(), 
                                                 m_tgcCabling,
-                                                m_tree, m_TGC_RDOContainerName, msgLevel()));
+                                                m_tree.tree(),m_TGC_RDOContainerName, msgLevel()));
   }
   if (m_doTGCPRD) {
     m_testers.emplace_back(std::make_unique<TGCPRDVariables>(evtStore().get(), m_muonDetMgrDS,
-                                                &m_idHelperSvc->tgcIdHelper(), m_tree, m_TGC_PRDContainerName, msgLevel()));
+                                                &m_idHelperSvc->tgcIdHelper(), m_tree.tree(),m_TGC_PRDContainerName, msgLevel()));
   }
   for (std::unique_ptr<ValAlgVariables>& tester : m_testers){
     ATH_CHECK(tester->initializeVariables());
   }
+  
+  ATH_CHECK(m_tree.init(histSvc()));
 
   return StatusCode::SUCCESS;
 }
@@ -214,13 +199,15 @@ StatusCode NSWPRDValAlg::finalize()
 {
   ATH_MSG_DEBUG("NSWPRDValAlg:: Finalize + Matching");
   if (m_doNSWMatching) { ATH_CHECK ( NSWMatchingAlg() );} 
+  ATH_CHECK(m_tree.write());
   return StatusCode::SUCCESS;
 }
 
 StatusCode NSWPRDValAlg::execute()
 {
   ATH_MSG_DEBUG("execute()");
-
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  
   // Event information
   const EventInfo* pevt{nullptr};
   if( evtStore()->retrieve(pevt).isSuccess() ) {
@@ -251,7 +238,7 @@ StatusCode NSWPRDValAlg::execute()
      ATH_CHECK(tester->fillVariables(muonDetMgr));
   }
 
-  m_tree->Fill();
+  if (!m_tree.fill(ctx)) return StatusCode::FAILURE;
   
   return StatusCode::SUCCESS;
 }
