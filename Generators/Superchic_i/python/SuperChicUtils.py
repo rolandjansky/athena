@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 
 import subprocess, os, shlex, re
@@ -95,6 +95,9 @@ class SuperChicConfig:
         self.gamm = 10
         self.mcharg = 100
         self.mneut = 80
+        self.wlp = 'el'
+        self.wlm = 'el'
+
 
     def toFortran(self):
 
@@ -257,6 +260,10 @@ class SuperChicConfig:
         conf+=fortDouble(self.mneut)  + "                                ! [mneut]  : Neutralino mass \n"
         conf+="***********************************************************************************\n"
         conf+="***********************************************************************************\n"
+        conf+="***********************************************************************************\n"
+        conf+=fortStr(self.wlp) + "                                  ! [wlp] : leptonic decay (either 'mu' or 'el') for Wplus \n"
+        conf+=fortStr(self.wlm) + "                                  ! [wlm] : leptonic decay (either 'mu' or 'el') for Wminus \n"
+
 
         return conf 
 

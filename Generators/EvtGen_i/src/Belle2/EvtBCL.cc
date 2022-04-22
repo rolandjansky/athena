@@ -24,14 +24,14 @@
 /** register the model in EvtGen */
 //  B2_EVTGEN_REGISTER_MODEL(EvtBCL);
 
-EvtBCL::EvtBCL() : bclmodel(nullptr), calcamp(nullptr) {}
+EvtBCL::EvtBCL() : m_bclmodel(nullptr), m_calcamp(nullptr) {}
 
 EvtBCL::~EvtBCL()
 {
-  delete bclmodel;
-  bclmodel = nullptr;
-  delete calcamp;
-  calcamp = nullptr;
+  delete m_bclmodel;
+  m_bclmodel = nullptr;
+  delete m_calcamp;
+  m_calcamp = nullptr;
 }
 
 std::string EvtBCL::getName()
@@ -47,7 +47,7 @@ EvtDecayBase* EvtBCL::clone()
 void EvtBCL::decay(EvtParticle* p)
 {
   p->initializePhaseSpace(getNDaug(), getDaugs());
-  calcamp->CalcAmp(p, _amp2, bclmodel);
+  m_calcamp->CalcAmp(p, _amp2, m_bclmodel);
 }
 
 
@@ -61,7 +61,7 @@ void EvtBCL::initProbMax()
   lnum = getDaug(1);
   nunum = getDaug(2);
   
-  double mymaxprob = calcamp->CalcMaxProb(parnum, mesnum, lnum, nunum, bclmodel);
+  double mymaxprob = m_calcamp->CalcMaxProb(parnum, mesnum, lnum, nunum, m_bclmodel);
 
   setProbMax(mymaxprob);
 }
@@ -81,13 +81,13 @@ void EvtBCL::init()
   
   EvtSpinType::spintype mesontype = EvtPDL::getSpinType(getDaug(0));
   
-  bclmodel = new EvtBCLFF(getNArg(), getArgs());
+  m_bclmodel = new EvtBCLFF(getNArg(), getArgs());
   
   if (mesontype == EvtSpinType::SCALAR) {
-    calcamp = new EvtSemiLeptonicScalarAmp;
+    m_calcamp = new EvtSemiLeptonicScalarAmp;
   }
   if (mesontype == EvtSpinType::VECTOR) {
-    calcamp = new EvtSemiLeptonicVectorAmp;
+    m_calcamp = new EvtSemiLeptonicVectorAmp;
   }
   // Tensor Meson implementation is possible here.
   

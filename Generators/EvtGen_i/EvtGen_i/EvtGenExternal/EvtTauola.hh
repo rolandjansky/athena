@@ -43,7 +43,7 @@ public:
 
 protected:
 
-  EvtAbsExternalGen* _tauolaEngine;
+  EvtAbsExternalGen* m_tauolaEngine;
 
 private:
 

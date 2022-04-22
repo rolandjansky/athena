@@ -93,6 +93,9 @@ std::list<EvtDecayBase*> EvtExternalGenList::getListOfModels() {
   EvtPHSPBMix* evtPHSPBMix  = new  EvtPHSPBMix();
   EvtYmSToYnSpipiCLEOboost* evtYmSToYnSpipiCLEOboost  = new EvtYmSToYnSpipiCLEOboost();
 
+  std::list<EvtDecayBase*> extraModels;
+  extraModels.push_back(pythiaModel);
+  extraModels.push_back(tauolaModel);
   extraModels.push_back(evtB0toKsKK);
   extraModels.push_back(evtBCL);
   extraModels.push_back(evtBGL);
@@ -105,11 +108,6 @@ std::list<EvtDecayBase*> EvtExternalGenList::getListOfModels() {
   extraModels.push_back(evtLLSW);
   extraModels.push_back(evtPHSPBMix);
   extraModels.push_back(evtYmSToYnSpipiCLEOboost);
-
-
-  std::list<EvtDecayBase*> extraModels;
-  extraModels.push_back(pythiaModel);
-  extraModels.push_back(tauolaModel);
 
   // Return the list of models
   return extraModels;
