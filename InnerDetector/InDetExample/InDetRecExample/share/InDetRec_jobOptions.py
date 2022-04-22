@@ -582,6 +582,12 @@ else:
         printfunc ("InDetRec_jobOptions: InDetNewTrackingCutsTRTStandalone not set before - import them now")
         from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
         InDetNewTrackingCutsTRTStandalone = ConfiguredNewTrackingCuts("TRTStandalone")
+        from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
+        if geoFlags.Run() == "RUN3":
+            InDetNewTrackingCutsTRTStandalone._ConfiguredNewTrackingCuts__TrkSel_TRTTrksMinTRTHitsThresholds = [   25,    18,    18,   18,   26,   28,   26,   24,   22,    0]
+        else:
+            InDetNewTrackingCutsTRTStandalone._ConfiguredNewTrackingCuts__TrkSel_TRTTrksMinTRTHitsThresholds = [   27,    18,    18,   18,   26,   28,   26,   24,   22,    0]
+
         InDetNewTrackingCutsTRTStandalone.printInfo()
 
       InDetRecTRTStandalone = ConfiguredTRTStandalone ("",
