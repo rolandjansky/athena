@@ -3,6 +3,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType
 import InDetConfig.TrackingCommonConfig as TC
+import AthenaCommon.SystemOfUnits as Units
 
 def TRT_TrackSegmentsMaker_BarrelCosmicsCfg(flags, name='InDetTRTSegmentsMaker', **kwargs) :
     acc = ComponentAccumulator()
@@ -121,9 +122,10 @@ def TRT_TrackSegmentsFinderCfg(flags, name = 'InDetTRT_TrackSegmentsFinder', ext
     kwargs.setdefault("SegmentsLocation", BarrelSegments)
 
     if flags.InDet.Tracking.ActivePass.RoISeededBackTracking:
-        from InDetConfig.InDetCaloClusterROISelectorConfig import CaloClusterROI_SelectorCfg
-        acc.merge(CaloClusterROI_SelectorCfg(flags))
+        from InDetConfig.InDetCaloClusterROISelectorConfig import CaloClusterROIPhiRZContainerMakerCfg
+        acc.merge(CaloClusterROIPhiRZContainerMakerCfg(flags))
         kwargs.setdefault("useCaloSeeds", True)
+        kwargs.setdefault("EMROIPhiRZContainer", "InDetCaloClusterROIPhiRZ%.0fGeVUnordered" % (flags.InDet.Tracking.ActivePass.minRoIClusterEt/Units.GeV))
 
     acc.addEventAlgo(CompFactory.InDet.TRT_TrackSegmentsFinder( name = name, **kwargs))
     return acc

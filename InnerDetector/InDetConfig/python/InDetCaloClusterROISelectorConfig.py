@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 # Configuration of InDetCaloClusterROISelector package
 from AthenaConfiguration.ComponentFactory import CompFactory
+import AthenaCommon.SystemOfUnits as Units
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 def CaloDepthEntranceCfg(flags, name="CaloDepthToolEntrance", **kwargs):
@@ -49,6 +50,13 @@ def CaloClusterROIPhiRZContainerMakerCfg(ConfigFlags, name="CaloClusterROIPhiRZC
         OutputROIContainerName.append('InDetCaloClusterROIPhiRZ3GeV')
         minPt.append(ConfigFlags.InDet.Tracking.ActivePass.minSecondaryPt)
         phiWidth.append(0.3) # must be equal or larger than phiWidth of its clients: TRT_SeededTrackFinder_ATL (phiWidth)
+
+    if ConfigFlags.InDet.Tracking.ActivePass.RoISeededBackTracking :
+        # TRT_TrackSegmentsFinder
+        pt_cut = ConfigFlags.InDet.Tracking.ActivePass.minRoIClusterEt
+        OutputROIContainerName.append('InDetCaloClusterROIPhiRZ%.0fGeVUnordered' % (pt_cut/Units.GeV))
+        minPt.append(pt_cut)
+        phiWidth.append(0.)  # no phi ordering, no Roi duplication close to +- pi
 
     if ConfigFlags.InDet.Tracking.doCaloSeededBrem :
         OutputROIContainerName.append('InDetCaloClusterROIPhiRZ0GeV')

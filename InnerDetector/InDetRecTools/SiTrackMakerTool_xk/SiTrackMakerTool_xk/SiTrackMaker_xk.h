@@ -20,7 +20,7 @@
 #include "InDetRecToolInterfaces/ISeedToTrackConversionTool.h"
 #include "InDetRecToolInterfaces/ISiCombinatorialTrackFinder.h"
 #include "InDetRecToolInterfaces/ISiDetElementsRoadMaker.h"
-#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
+#include "TrkCaloClusterROI/ROIPhiRZContainer.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "SiSPSeededTrackFinderData/SiTrackMakerEventData_xk.h"
 

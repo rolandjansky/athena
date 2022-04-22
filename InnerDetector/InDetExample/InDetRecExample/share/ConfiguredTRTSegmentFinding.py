@@ -138,19 +138,18 @@ class ConfiguredTRTSegmentFinding:
     else:
 
      if InDetFlags.doCaloSeededTRTSegments() or NewTrackingCuts.RoISeededBackTracking():
+      import AthenaCommon.SystemOfUnits as Units
       InDetTRT_TrackSegmentsFinder = InDet__TRT_TrackSegmentsFinder(name              = 'InDetTRT_TrackSegmentsFinder'+extension,
                                                                     SegmentsMakerTool   = InDetTRT_TrackSegmentsMaker,
                                                                     SegmentsLocation    = BarrelSegments,
                                                                     useCaloSeeds        = True,
-                                                                    CaloClusterEt       = NewTrackingCuts.minRoIClusterEt(),
-                                                                    MinNumberDriftCircles = NewTrackingCuts.minSecondaryTRTonTrk(), 
-                                                                    InputClusterContainerName = InDetKeys.CaloClusterROIContainer())
+                                                                    MinNumberDriftCircles = NewTrackingCuts.minSecondaryTRTonTrk(),
+                                                                    EMROIPhiRZContainer = "InDetCaloClusterROIPhiRZ%.0fGeVUnordered" % (NewTrackingCuts.minRoIClusterEt()/Units.GeV))
 
      else:
       InDetTRT_TrackSegmentsFinder = InDet__TRT_TrackSegmentsFinder(name              = 'InDetTRT_TrackSegmentsFinder'+extension,
                                                                     SegmentsMakerTool   = InDetTRT_TrackSegmentsMaker,
-                                                                    SegmentsLocation    = BarrelSegments, 
-                                                                    InputClusterContainerName = "")
+                                                                    SegmentsLocation    = BarrelSegments)
 
      topSequence += InDetTRT_TrackSegmentsFinder
      if (InDetFlags.doPrintConfigurables()):
