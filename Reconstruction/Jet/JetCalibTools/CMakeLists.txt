@@ -1,17 +1,18 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( JetCalibTools )
 
 # External dependencies:
+find_package( Boost )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO Graf Gpad )
 
 # Libraries in the package:
 atlas_add_library( JetCalibToolsLib
    JetCalibTools/*.h Root/*.cxx
    PUBLIC_HEADERS JetCalibTools
-   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODEventShape
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODEventShape
    xAODJet xAODTracking PATInterfaces JetInterface AsgDataHandlesLib
    PRIVATE_LINK_LIBRARIES xAODMuon PathResolver )
 
