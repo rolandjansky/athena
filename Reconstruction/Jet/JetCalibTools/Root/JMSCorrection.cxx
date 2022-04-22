@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -41,7 +41,6 @@ StatusCode JMSCorrection::initialize() {
   m_pTMinCorr = m_config->GetValue("MinpT",180); 
 
   m_pTfixed   = m_config->GetValue("pTfixed",false); //small-R:true, large-R:false
-  m_warning_counter_mTACorr = 0; // if >0 the track assisted mass correction is not applied
 
   if ( m_jetAlgo.EqualTo("") ) { ATH_MSG_FATAL("No jet algorithm specified. Aborting."); return StatusCode::FAILURE; }
 
@@ -656,8 +655,10 @@ StatusCode JMSCorrection::calibrate(xAOD::Jet& jet, JetEventInfo&) const {
       if( !jet.getAttribute<float>(TrackSumMassStr,trackSumMass) ) {
 	if(!m_combination){
 	  //ATH_MSG_WARNING("Failed to retrieve TrackSumMass! Track Assisted Mass Correction will NOT be applied\n\n");
-	  if(m_warning_counter_mTACorr==0) ATH_MSG_WARNING("Failed to retrieve TrackSumMass! Track Assisted Mass Correction will NOT be applied");
-	  m_warning_counter_mTACorr++;
+      [[maybe_unused]] static const bool warnedOnce = [&] {
+        ATH_MSG_WARNING("Failed to retrieve TrackSumMass! Track Assisted Mass Correction will NOT be applied");
+        return true;
+      }();
 	  return StatusCode::SUCCESS;
 	} else{
 	  ATH_MSG_FATAL("Failed to retrieve TrackSumMass! Mass Combination can NOT be performed. Aborting.");
@@ -668,8 +669,10 @@ StatusCode JMSCorrection::calibrate(xAOD::Jet& jet, JetEventInfo&) const {
       if( !jet.getAttribute<float>(TrackSumPtStr,trackSumPt) ) {
 	if(!m_combination){
 	  //ATH_MSG_WARNING("Failed to retrieve TrackSumPt! Track Assisted Mass Correction will NOT be applied\n\n");
-	  if(m_warning_counter_mTACorr==0) ATH_MSG_WARNING("Failed to retrieve TrackSumPt! Track Assisted Mass Correction will NOT be applied");
-	  m_warning_counter_mTACorr++;
+      [[maybe_unused]] static const bool warnedOnce = [&] {
+        ATH_MSG_WARNING("Failed to retrieve TrackSumPt! Track Assisted Mass Correction will NOT be applied");
+        return true;
+      }();
 	  return StatusCode::SUCCESS;
 	} else{
 	  ATH_MSG_FATAL("Failed to retrieve TrackSumPt! Mass Combination can NOT be performed. Aborting.");

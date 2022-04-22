@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETCALIBTOOLS_JMSCORRECTION_H
@@ -68,8 +68,6 @@ class JMSCorrection
   double m_pTMinCorr;
 
   bool m_trackAssistedJetMassCorr;
-
-  mutable int m_warning_counter_mTACorr;
 
   bool m_pTfixed; // false: pT will be corrected (large-R), if true: the energy will be corrected and pT will be fixed (small-R)
 
