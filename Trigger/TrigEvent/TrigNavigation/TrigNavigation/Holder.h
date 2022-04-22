@@ -12,6 +12,7 @@
 
 #include "GaudiKernel/ClassID.h"
 
+#include "CxxUtils/checker_macros.h"
 #include "xAODCore/AuxSelection.h"
 #include "AsgMessaging/AsgMessaging.h"
 #include "AthContainers/OwnershipPolicy.h"
@@ -291,7 +292,7 @@ namespace HLTNavDetails {
     Holder(const std::string& prefix, const std::string& label, uint16_t idx);
     virtual ~Holder();
 
-    virtual HLT::TriggerElement::ObjectIndex add( const STORED* f, bool inSG, const std::string& = "" ) = 0;          //!< saved object in this holder
+    virtual HLT::TriggerElement::ObjectIndex add ATLAS_NOT_THREAD_SAFE ( const STORED* f, bool inSG, const std::string& = "" ) = 0;          //!< saved object in this holder
     virtual bool get(const STORED*& dest, HLT::TriggerElement::ObjectIndex idx) = 0;
 
     template<class CONTAINER2> 
