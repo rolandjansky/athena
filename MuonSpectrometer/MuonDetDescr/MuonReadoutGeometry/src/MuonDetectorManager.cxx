@@ -784,7 +784,7 @@ namespace MuonGM {
         MsgStream log(Athena::getMessageSvc(), "MGM::MuonDetectorManager");
         if (alineData.empty()) {
             if (isData) {
-                log << MSG::WARNING << "Empty temporary A-line container - nothing to do here" << endmsg;
+                log << MSG::INFO << "Empty temporary A-line container - nothing to do here" << endmsg;
             } else {
                 log << MSG::DEBUG << "Got empty A-line container (expected for MC), not applying A-lines..." << endmsg;
             }
@@ -981,7 +981,7 @@ namespace MuonGM {
         
         if (blineData.empty()) {
             if (isData) {
-                log << MSG::WARNING << "Empty temporary B-line container - nothing to do here" << endmsg;
+                log << MSG::INFO << "Empty temporary B-line container - nothing to do here" << endmsg;
             } else {
                 log << MSG::DEBUG << "Got empty B-line container (expected for MC), not applying B-lines..." << endmsg;
             }
