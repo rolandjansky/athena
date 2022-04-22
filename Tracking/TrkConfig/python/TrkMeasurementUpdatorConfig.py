@@ -16,7 +16,6 @@ def KalmanUpdatorCfg(flags, name='KalmanUpdator', **kwargs):
 def InDetUpdatorCfg(flags, name = 'InDetUpdator', **kwargs):
     if flags.Detector.GeometryITk:
         name = name.replace("InDet", "ITk")
-        from InDetConfig.ITkRecToolConfig import ITkUpdatorCfg
         return ITkUpdatorCfg(flags, name, **kwargs)
 
     acc = ComponentAccumulator()

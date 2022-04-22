@@ -83,6 +83,7 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.Tracking.doVtxLumi", False) # Special reconstruction for vertex lumi measurement
   icf.addFlag("InDet.Tracking.doVtxBeamSpot", False) # Special reconstruction for vertex beamspot measurement
   icf.addFlag("InDet.Tracking.doLowMu", False) # Special configuration for low-mu runs
+  icf.addFlag("InDet.Tracking.writeExtendedPRDInfo", False)
 
   from InDetConfig.TrackingPassFlags import createTrackingPassFlags, createHighPileupTrackingPassFlags, \
     createMinBiasTrackingPassFlags, createLargeD0TrackingPassFlags, createR3LargeD0TrackingPassFlags, createLowPtLargeD0TrackingPassFlags, \

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELCALIBALGS_PIXELCHARGETOTCONVERSION_H
@@ -12,6 +12,7 @@
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "PixelConditionsData/PixelModuleData.h"
 #include "PixelConditionsData/PixelChargeCalibCondData.h"
+#include "PixelGeoModel/IBLParameterSvc.h"
 #include "PixelReadoutGeometry/IPixelReadoutManager.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
@@ -19,8 +20,6 @@
 
 #include <string>
 #include <vector>
-
-class IBLParameterSvc;
 
 // FIXME: Modifies data in SG!
 class ATLAS_NOT_THREAD_SAFE PixelChargeToTConversion : public AthAlgorithm{
@@ -34,7 +33,8 @@ class ATLAS_NOT_THREAD_SAFE PixelChargeToTConversion : public AthAlgorithm{
   StatusCode finalize();
   
  private:
-  ServiceHandle<IBLParameterSvc> m_IBLParameterSvc;
+  ServiceHandle<IBLParameterSvc> m_IBLParameterSvc
+  {this, "IBLParameterSvc", "IBLParameterSvc"};
 
   SG::ReadHandleKey<InDet::PixelClusterContainer> m_pixelsClustersKey
   {this, "PixelClusterContainer",  "PixelClusters", ""};
@@ -52,6 +52,9 @@ class ATLAS_NOT_THREAD_SAFE PixelChargeToTConversion : public AthAlgorithm{
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection>
     m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection",
       "Key of SiDetectorElementCollection for Pixel"};
+
+  bool m_doIBL = true; // Properly set in initialize()
+
 };
 
 #endif
