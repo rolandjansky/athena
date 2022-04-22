@@ -22,6 +22,7 @@
 #include <boost/container/static_vector.hpp>
 
 #include "SiSPSeededTrackFinderData/ITkSiSpacePointForSeed.h"
+#include "InDetPrepRawData/PixelClusterContainer.h"
 
 namespace ActsTrk {
   SeedingFromAthenaAlgorithm::SeedingFromAthenaAlgorithm( const std::string &name,
@@ -41,12 +42,14 @@ namespace ActsTrk {
     // Cond
     ATH_CHECK( m_beamSpotKey.initialize() );
     ATH_CHECK( m_fieldCondObjInputKey.initialize() );
-    
-    // Read nd Write handles
+    ATH_CHECK( m_detEleCollKey.initialize() );
+
+    // Read and Write handles
     ATH_CHECK( m_spacePointKey.initialize() );
     ATH_CHECK( m_seedKey.initialize() );
-    ATH_CHECK( m_actsSpacePointKey.initialize() );
-    ATH_CHECK( m_actsSpacePointDataKey.initialize() );
+
+    ATH_CHECK( m_pixelClusterContainerKey.initialize(m_usePixel) );
+    ATH_CHECK( m_stripClusterContainerKey.initialize(not m_usePixel) );
 
     return StatusCode::SUCCESS;
   }
@@ -86,80 +89,38 @@ namespace ActsTrk {
     // ================================================== //
 
     ATH_MSG_DEBUG( "Retrieving Input Collection '" << m_spacePointKey.key() << "' ..." );
-    SG::ReadHandle< ::SpacePointContainer > handle = SG::makeHandle( m_spacePointKey, ctx );
+    SG::ReadHandle< ActsTrk::SpacePointContainer > handle = SG::makeHandle( m_spacePointKey, ctx );
     ATH_CHECK( handle.isValid() );
-    const ::SpacePointContainer *spContainer = handle.get();
-    ATH_MSG_DEBUG( "    \\__ " << spContainer->size() << " elements from input collection!" );
-
-    // Convert to Acts objects
-    std::unique_ptr<ActsTrk::SpacePointContainer> actsSpContainer =
-      std::make_unique<ActsTrk::SpacePointContainer>();
-    std::unique_ptr<ActsTrk::SpacePointData> actsSpData =
-      std::make_unique<ActsTrk::SpacePointData>();
-
-    // Conversion
-    // Supported collections are Pixel and SCT clusters
-    // The following piece of code converts Athena Clusters to Acts Space Points
-    // This is a temporary solution used only for Acts validation purposes
-    //
-    // Counter here would represent the Acts measurement index
-    // In this case it is a simple std::size_t value with no real correspondance 
-    // to an index for retrieving an object in a collection
-    std::size_t counter = 0;
-    ATH_MSG_DEBUG("Retrieved " << spContainer->size() << " space point collections from the container");
+    const ActsTrk::SpacePointContainer *actsSpContainer = handle.get();
+    ATH_MSG_DEBUG( "    \\__ " << actsSpContainer->size() << " elements from input collection!" );
 
 
-    // this is use for a fast retrieval of the space points later
-    std::vector<ITk::SiSpacePointForSeed> sp_storage;
-
-    std::size_t el_index = 0;
-    for ( const SpacePointCollection* sp_collection: *spContainer) {
-      for ( const Trk::SpacePoint* sp: *sp_collection ) {
-	// get inputs
-	const Acts::Vector3 globalPos = sp->globalPosition();
-	float r[3] = { 
-	  static_cast<float>(globalPos[0]),
-	  static_cast<float>(globalPos[1]),
-	  static_cast<float>(globalPos[2])
-	};
-	
-	// add to storage
-	sp_storage.emplace_back(sp, r);
-	auto& point = sp_storage.back();
-
-	// Get position and covariance    
-	Acts::Vector3 position { point.x(), point.y(), point.z() };
-	Acts::Vector2 covariance { point.covr(), point.covz() };
-
-	// This index correspond to the space point in     
-	// the input_space_points collection 
-	// (used later for storing the seed into data)  
-	boost::container::static_vector<std::size_t, 2> indexes( {el_index++} );
-
-	std::unique_ptr<ActsTrk::SpacePoint> toAdd =
-	  std::make_unique<ActsTrk::SpacePoint>( position,
-						 covariance,
-						 *actsSpData.get(),
-						 indexes);
-	actsSpContainer->push_back( std::move(toAdd) );
-      }
+    std::variant < const xAOD::PixelClusterContainer*, const xAOD::StripClusterContainer* > inputClusterContainer;
+    if ( m_usePixel ) {
+      SG::ReadHandle< xAOD::PixelClusterContainer > pixelClusterHandle = SG::makeHandle( m_pixelClusterContainerKey, ctx );
+      ATH_CHECK( pixelClusterHandle.isValid() );
+      inputClusterContainer = pixelClusterHandle.get();
+    } else {
+      SG::ReadHandle<xAOD::StripClusterContainer> stripClusterHandle = SG::makeHandle( m_stripClusterContainerKey, ctx );
+      ATH_CHECK( stripClusterHandle.isValid() );
+      inputClusterContainer = stripClusterHandle.get();
     }
 
-    ATH_MSG_DEBUG( "    \\__ Total of " << counter << " Space Points" );
-      
-      // ================================================== // 
+    SG::ReadCondHandle< InDetDD::SiDetectorElementCollection > detEleHandle( m_detEleCollKey, ctx );
+    ATH_CHECK( detEleHandle.isValid() );
+    const InDetDD::SiDetectorElementCollection* detEle = detEleHandle.retrieve();
+    if ( detEle == nullptr ) {
+      ATH_MSG_FATAL( m_detEleCollKey.fullKey() << " is not available." );
+      return StatusCode::FAILURE;
+    }
+
+    // ================================================== // 
     // ===================== OUTPUTS ==================== //
     // ================================================== // 
     
     SG::WriteHandle< ActsTrk::SeedContainer > seedHandle = SG::makeHandle( m_seedKey, ctx );
     ATH_MSG_DEBUG( "    \\__ Seed Container `" << m_seedKey.key() << "` created ..." );
     std::unique_ptr< ActsTrk::SeedContainer > seedPtrs = std::make_unique< ActsTrk::SeedContainer >();
-
-    SG::WriteHandle< ActsTrk::SpacePointContainer > spacePointHandle = SG::makeHandle( m_actsSpacePointKey, ctx );
-    ATH_MSG_DEBUG( "    \\__ Space Point Container `" << m_actsSpacePointKey.key() << "` created ..." );
-
-    SG::WriteHandle< ActsTrk::SpacePointData > spacePointDataHandle = SG::makeHandle( m_actsSpacePointDataKey, ctx );
-    ATH_MSG_DEBUG( "    \\__ Space Point Data `" << m_actsSpacePointDataKey.key() << "` created ..." );
     
     // ================================================== // 
     // ===================== COMPUTATION ================ //
@@ -167,22 +128,35 @@ namespace ActsTrk {
 
     ATH_MSG_DEBUG("Running Seed Finding ...");    
     ATH_CHECK( m_seedsTool->createSeeds( ctx, 
-					 *actsSpContainer.get(),
+					 *actsSpContainer,
 					 *beamSpotData, 
 					 magFieldContext,
 					 *seedPtrs.get() ) );
     ATH_MSG_DEBUG("    \\__ Created " << seedPtrs->size() << " seeds");
 
+    // ================================================== //   
+    // ================ PARAMS ESTIMATION =============== //  
+    // ================================================== //   
+
+    ATH_MSG_DEBUG( "Estimating Track Parameters from seed ..." );
 
     // Estimate Track Parameters
     auto retrieveSurfaceFunction = 
-      [this, &sp_storage] (const Acts::Seed<ActsTrk::SpacePoint>& seed) -> const Acts::Surface& 
+      [this, &inputClusterContainer, &detEle] (const Acts::Seed<ActsTrk::SpacePoint>& seed) -> const Acts::Surface& 
       { 
 	std::size_t bottom_idx = seed.sp().front()->measurementIndexes()[0];
-	ITk::SiSpacePointForSeed& bottom_sp = sp_storage.at(bottom_idx);
-	const Trk::Surface* atlas_surface = bottom_sp.sur();
-	return this->m_ATLASConverterTool->ATLASSurfaceToActs(*atlas_surface);
+
+	const InDetDD::SiDetectorElement* Element = 
+	std::visit([&bottom_idx, &detEle] (const auto& collection) -> const InDetDD::SiDetectorElement* {
+	    const auto cluster = collection->at(bottom_idx);
+	    const InDetDD::SiDetectorElement* Element = detEle->getDetectorElement(cluster->identifierHash());
+	    return Element;
+	  }, inputClusterContainer);
+
+	const Trk::Surface& atlas_surface = Element->surface();
+	return this->m_ATLASConverterTool->ATLASSurfaceToActs(atlas_surface);
       };
+
     auto geo_context = m_trackingGeometryTool->getNominalGeometryContext();
 
     for (const ActsTrk::Seed* seed : *seedPtrs) {
@@ -193,15 +167,13 @@ namespace ActsTrk {
 						       magFieldContext,
 						       retrieveSurfaceFunction);
     }
-
+    
     // ================================================== //   
     // ===================== STORE OUTPUT =============== //
     // ================================================== //   
     
     ATH_MSG_DEBUG("Storing Output Collections");
     ATH_CHECK( seedHandle.record( std::move( seedPtrs ) ) );
-    ATH_CHECK( spacePointHandle.record( std::move( actsSpContainer ) ) );
-    ATH_CHECK( spacePointDataHandle.record( std::move( actsSpData ) ) );
 
     return StatusCode::SUCCESS;
   }

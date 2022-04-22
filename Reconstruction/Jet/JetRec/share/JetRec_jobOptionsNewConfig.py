@@ -7,7 +7,7 @@
 from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 from JetRecConfig.StandardSmallRJets import AntiKt4EMPFlow, AntiKt4LCTopo, AntiKt4EMTopo, AntiKt4Truth
 from JetRecConfig.StandardLargeRJets import AntiKt10LCTopo_noVR
-from JetRecConfig.JetRecConfig import getJetDefAlgs, reOrderAlgs
+from JetRecConfig.JetRecConfig import getJetAlgs, reOrderAlgs
 
 from JetRecConfig.StandardJetConstits import stdConstitDic
 from JetRecConfig.JetConfigFlags import jetInternalFlags
@@ -20,6 +20,11 @@ jetInternalFlags.isRecoJob = True
 # the Standard list of jets to run :
 jetdefs = [AntiKt4EMTopo, AntiKt4EMPFlow, AntiKt4LCTopo, AntiKt4Truth, AntiKt10LCTopo_noVR]
 
+from JetRec.JetRecFlags import JetContentDetail
+if jetFlags.detailLevel()==JetContentDetail.Trigger:
+    from JetRecConfig.StandardLargeRJets import AntiKt10LCTopoTrimmed_trigger
+    jetdefs += [AntiKt10LCTopoTrimmed_trigger]
+
 # we'll remember the EventDensity collections we create.
 evtDensities = []
 
@@ -28,7 +33,7 @@ evtDensities = []
 #--------------------------------------------------------------
 
 for jd in jetdefs:
-    algs, jetdef_i = getJetDefAlgs(ConfigFlags, jd, True)
+    algs, jetdef_i = getJetAlgs(ConfigFlags, jd, True)
     algs = reOrderAlgs( [a for a in algs if a is not None])
     for a in algs:
         topSequence += conf2toConfigurable(a)

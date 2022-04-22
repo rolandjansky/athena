@@ -32,6 +32,9 @@ def egammaxAODThinningCfg(flags, name="EGammaxAODThinning"):
             allClusters.append(outFlags.ForwardClusters)
             allClusters.append(outFlags.EgammaLargeFWDClusters)
 
+        if flags.Detector.GeometryID and flags.InDet.Tracking.doR3LargeD0:
+            allClusters.append(f"LRT{outFlags.CaloClusters}")
+
         samplings = [
             "TileGap1",
             "TileGap2",

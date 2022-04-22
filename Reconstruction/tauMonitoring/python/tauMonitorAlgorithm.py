@@ -189,11 +189,11 @@ def tauMonitoringConfig(inputFlags):
 
 
             #potentialHigh Pt replacement
-            igroup.defineHistogram(namer('tauEtaEt15,tauPhiEt15','tauPhiVsEta_et15','',postfix), type='TH2F', title='EtaVsEtTitle;Eta;Phi', 
+            igroup.defineHistogram(namer('tauEtaEt15,tauPhiEt15','tauPhiVsEta_et15','',postfix), type='TH2F', title='Eta Vs Et;Eta;Phi', 
                xbins=30,xmin=-2.55,xmax=2.55,ybins=32,ymin=PHIMIN,ymax=PHIMAX)
 
             igroup.defineHistogram(namer('nTauCandidates', 'nTauCandidates',"",postfix), title='Number of tau candidates;Number of Taus per Event', 
-                                   xbins=30, xmin=-0.5, xmax=30.5,path=folder)
+                                   xbins=60, xmin=-0.5, xmax=60.5,path=folder)
 
 
             igroup.defineHistogram(namer('tauCharge','tauCharge','',postfix), title='Charge of tau candidates;Charge;Number of Candidates',
@@ -225,7 +225,7 @@ def tauMonitoringConfig(inputFlags):
             igroup.defineHistogram(namer('tauPhi','tauPhi','',postfix), title='Phi of tau candidates;Phi;Number of Candidates',
                                    xbins=65, xmin=PHIMIN-0.098174/2., xmax=PHIMAX+0.098174/2.,path=folder)
             
-            igroup.defineHistogram(namer('tauEta,tauPhi','tauPhiVsEta','',postfix), type='TH2F', title='PhiVsEtaTitle;Eta;Phi', 
+            igroup.defineHistogram(namer('tauEta,tauPhi','tauPhiVsEta','',postfix), type='TH2F', title='Phi Vs Eta;Eta;Phi', 
                                    xbins=30,xmin=-2.55,xmax=2.55,ybins=32,ymin=PHIMIN,ymax=PHIMAX,path=folder)
 
             
@@ -550,7 +550,7 @@ def tauMonitoringConfig(inputFlags):
 
 
         if postfix == 'Global' or postfix.startswith('TauTrig') or postfix == "EleTrig" or postfix=="JetTrig":
-            igroup.defineHistogram(namer('LB','nTauPerLB','',postfix), title='Total number of tau candidates per LB);Luminosity Block);Number of Candidates', 
+            igroup.defineHistogram(namer('LB','nTauPerLB','',postfix), title='Total number of tau candidates per LB;Luminosity Block);Number of Candidates', 
                     xbins=1000, xmin=0., xmax=1000. ,path=folder)
 
             igroup.defineHistogram(namer('nHighPtTauCandidates','nHightPtTauCandidates','',postfix), title='Number of High Pt tau candidates;Number of Taus per Event', 

@@ -46,7 +46,8 @@ public:
      virtual PixelClusterCollection *doClusterization(
 	  const InDetRawDataCollection<PixelRDORawData>& collection,
 	  const PixelID& pixelID,
-	  const InDetDD::SiDetectorElement* element) const = 0;
+	  const InDetDD::SiDetectorElement* element,
+          const InDet::SiDetectorElementStatus *pixelDetElStatus) const = 0;
 protected:
      // Determines if a pixel cell (whose identifier is the first argument) is 
      // a ganged pixel. If this is the case, the last argument assumes the 
@@ -95,7 +96,8 @@ protected:
      }
 
 private:
-     const InDetDD::SiDetectorElement* preClusterizationChecks(const InDetRawDataCollection<PixelRDORawData> &collection) const;
+     const InDetDD::SiDetectorElement* preClusterizationChecks(const InDetRawDataCollection<PixelRDORawData> &collection,
+                                                               const InDet::SiDetectorElementStatus *pixelDetElStatus) const;
 
 };
 

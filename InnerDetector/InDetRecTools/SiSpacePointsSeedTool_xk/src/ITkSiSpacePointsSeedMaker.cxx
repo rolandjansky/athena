@@ -3745,7 +3745,7 @@ void SiSpacePointsSeedMaker::newOneSeedWithCurvaturesComparisonPPP(EventData &da
         SPmin = SPt;
       }
     } ///< end of loop over top SP candidates
-    if (SPmin && !data.nOneSeeds)
+    if (SPmin && !data.nOneSeedsQ)
       newOneSeed(data, SPb, SP0, SPmin, Zob, Qmin);
     data.ITkCmSp.clear();
   }

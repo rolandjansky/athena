@@ -464,12 +464,12 @@ ParticleCaloExtensionTool::surfaceCaloExtension(
   size_t numSteps = caloSurfaces.size();
   for (size_t i = 0; i < numSteps; ++i) {
     std::unique_ptr<const Trk::TrackParameters> nextImpact =
-      m_extrapolator->extrapolate(ctx,
-                                  *lastImpact,
-                                  *(caloSurfaces[i]),
-                                  alongMomentum,
-                                  false,
-                                  particleType);
+      m_extrapolator->extrapolateDirectly(ctx,
+                                          *lastImpact,
+                                          *(caloSurfaces[i]),
+                                          alongMomentum,
+                                          false,
+                                          particleType);
     if (nextImpact) {
       caloParameters.emplace_back(clusterLayers[i], std::move(nextImpact));
       lastImpact = caloParameters.back().second.get();

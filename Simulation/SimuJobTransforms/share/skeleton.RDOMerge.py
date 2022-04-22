@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 # Skeleton top job options for RDO merging
 #
@@ -186,7 +186,6 @@ MessageSvc.OutputLevel = INFO
 
 StreamRDO.ExtendProvenanceRecord = False
 
-ServiceMgr.AthenaPoolCnvSvc.MaxFileSizes = [ "15000000000" ]
 ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + outputFile + "'; COMPRESSION_ALGORITHM = '2'" ]
 ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + outputFile + "'; COMPRESSION_LEVEL = '1'" ]
 

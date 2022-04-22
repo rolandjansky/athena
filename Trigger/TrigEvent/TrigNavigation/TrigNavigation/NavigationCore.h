@@ -253,7 +253,6 @@ namespace HLT {
      *        nonempty label means exact matching, and noverlty label == "!" means we are specifically looking for empty label
      * @param only_single_feature if true means we are looking for only one last object (i.e. imagine several object of the same type attached to TE)
      * @param features vector of FeatureAccessHelper objects to fill up
-     * @param with_cache_recording record informations for caching 
      * @param travel_backward_recursively if true will doe actual travering TriggerElement structure to find objects, if false search will stop at the TriggerElement te
      * @param source TriggerElement where the object was found (or query stopped)
      * @param sourcelabel is labels which the object had (useful when calling this routine with empty label)
@@ -264,7 +263,6 @@ namespace HLT {
                                       const index_or_label_type& index_or_label,
                                       bool only_single_feature,
                                       TriggerElement::FeatureVec& features,
-                                      bool with_cache_recording,
                                       bool travel_backward_recursively,
                                       const TriggerElement*& source = m_unspecifiedTE,
                                       std::string& sourcelabel  = m_unspecifiedLabel) const;
@@ -274,8 +272,7 @@ namespace HLT {
 					      const index_or_label_type& index_or_label,
 					      bool only_single_feature,
 					      TriggerElement::FeatureVec& features, 
-					      bool with_cache_recording,
-					      const TriggerElement*& source = ::HLT::TrigNavStructure::m_unspecifiedTE, 
+					      const TriggerElement*& source = ::HLT::TrigNavStructure::m_unspecifiedTE,
 					      std::string& sourcelabel  = ::HLT::TrigNavStructure::m_unspecifiedLabel) const;
 
       

@@ -92,6 +92,8 @@ namespace top {
     // do overlap removal also with large-R jets
     // (using whatever procedure is used in the official tools)
     m_doLargeJetOverlapRemoval(false),
+    // do electron-electron overlap removal
+    m_doEleEleOverlapRemoval(false),
     // Dumps the normal non-"*_Loose" trees
     m_doTightEvents(true),
     // Runs Loose selection and dumps the "*_Loose" trees
@@ -1462,6 +1464,11 @@ namespace top {
     // (using whatever procedure is used in the official tools)
     if (settings->value("LargeJetOverlapRemoval") == "True") {
       this->setLargeJetOverlapRemoval();// only usefull in case of MC
+    }
+
+    //do electron-electron overlap removal
+    if (settings->value("EleEleOverlapRemoval") == "True"){
+      this->setEleEleOverlapRemoval();
     }
 
     // In the *_Loose trees, lepton SFs are calculated considering

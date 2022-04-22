@@ -80,7 +80,8 @@ namespace InDet {
     // N.B.: This method is called from the clusterization method of the base class
     PixelClusterCollection* doClusterization(const InDetRawDataCollection<PixelRDORawData>& RDOs,
 					     const PixelID& pixelID,
-					     const InDetDD::SiDetectorElement* element) const override;
+					     const InDetDD::SiDetectorElement* element,
+                                             const InDet::SiDetectorElementStatus *pixelDetElStatus) const override;
 
     // Once the lists of RDOs which makes up the clusters have been found by the
     // clusterize() method, this method is called for each of these lists.

@@ -15,7 +15,6 @@
 #include "TrigConfHLTUtils/HLTUtils.h"
 
 #include "TrigNavigation/TriggerElement.h"
-#include "TrigNavigation/RoICacheHistory.h"
 #include "TrigNavigation/NavigationCore.h"
 
 #include "TrigSerializeResult/StringSerializer.h"
@@ -412,38 +411,24 @@ bool NavigationCore::getFeatureAccessors( const TriggerElement* te, class_id_typ
 					  const index_or_label_type& index_or_label,
 					  bool only_single_feature,
 					  TriggerElement::FeatureVec& features,
-					  bool with_cache_recording,
 					  bool travel_backward_recursively,
 					  const TriggerElement*& source,
 					  std::string& sourcelabel) const {
   
-  //if query was via subindex we don't cache the query (no support yet)
-  //note that the instantiation of this object has side effects (with calls to the caching singleton etc...)
-  HLT::RoICacheHistory::QuestionScope qscope( with_cache_recording && (index_or_label.which() == 1)?
-					      HLT::RoICacheHistory::QuestionScope(te, clid, boost::get<std::string>(index_or_label), this, only_single_feature) :
-					      HLT::RoICacheHistory::QuestionScope() );
-  
-  return TrigNavStructure::getFeatureAccessors(te,clid,index_or_label,only_single_feature,features,with_cache_recording,travel_backward_recursively,source,sourcelabel);
+  return TrigNavStructure::getFeatureAccessors(te,clid,index_or_label,only_single_feature,features,travel_backward_recursively,source,sourcelabel);
 } 
 
 bool NavigationCore::getFeatureAccessorsSingleTE( const TriggerElement* te, CLID clid,
 						  const index_or_label_type& index_or_label,
 						  bool only_single_feature,
 						  TriggerElement::FeatureVec& features,
-						  bool with_cache_recording,
 						  const TriggerElement*& source,
 						  std::string& sourcelabel ) const {
 
-  bool status = TrigNavStructure::getFeatureAccessorsSingleTE(te,clid,index_or_label,only_single_feature, features,with_cache_recording,source,sourcelabel);
+  bool status = TrigNavStructure::getFeatureAccessorsSingleTE(te,clid,index_or_label,only_single_feature,features,source,sourcelabel);
   
   //if query was via subindex we don't cache the query (no support yet)
   if(index_or_label.which() == 0) return status;
-  
-  if ( with_cache_recording ) {
-    for(auto& fea : features){
-      HLT::RoICacheHistory::instance().addAnswer(te, fea);
-    }
-  }
   
   return status;
 }

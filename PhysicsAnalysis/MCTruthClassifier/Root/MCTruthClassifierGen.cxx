@@ -362,91 +362,65 @@ std::tuple<unsigned int, const xAOD::TruthParticle*> MCTruthClassifier::defOrigO
 
   ATH_MSG_DEBUG( "Executing DefOrigOfParticle " );
 
-  int iParticlePDG = std::abs(thePart->pdgId());
-  int iParticleStat = std::abs(thePart->status());
+  const xAOD::TruthParticle *parent_hadron_ptr = nullptr;
+  const int status = thePart->status();
 
-  const xAOD::TruthParticle *parent_hadron_pointer = nullptr;
+  bool uncat = 0, fromHad = 0, fromTau = 0;
+  bool isPhysical = (status == 1 || status == 2);
+  bool isGeant = std::abs(thePart->barcode()) >= m_barcodeG4Shift;
+  bool isBSM = MC::PID::isBSM(thePart->pdgId());
+  bool fromBSM = isBSM; // just to initialise
 
-  unsigned int outputvalue;
-
-  bool fromhad = 0, uncat = 0, isHadTau = 0;
-  bool mybeam = 0, fromTau = 0, fromBSM = 0;
-  bool isGeant = 0, isBSM = 0;
-
-  bool isStable = (iParticleStat == 1 || iParticleStat == 2);
-  if (isStable) {
-    const xAOD::TruthVertex* partOriVert=thePart->hasProdVtx() ? thePart->prodVtx() : nullptr;
-    if (partOriVert) {
-      for (unsigned int ipIn=0; ipIn<partOriVert->nIncomingParticles(); ++ipIn) {
-        const xAOD::TruthParticle* theMother=partOriVert->incomingParticle(ipIn);
-        if (!theMother) continue;
-
-        if (std::abs(thePart->barcode()) >= m_barcodeG4Shift) {
-          isGeant = 1; break;
-        }
-        if (MC::PID::isBSM(iParticlePDG) && abs(iParticleStat) == 1) {
-          isBSM=1;
-        }
-
-        while (!mybeam){
-          const xAOD::TruthVertex* partOriVert=thePart->hasProdVtx() ? thePart->prodVtx():nullptr;
-          if( partOriVert!=nullptr ) {
-            const xAOD::TruthParticle* theMother=partOriVert->incomingParticle(0);
-            if(!theMother) continue;
-            int motherStatus = theMother->status();
-
-            if(std::abs(theMother->pdgId()) == 2212){
-              mybeam = 1; break;
-            }
-            // sometimes Athena replaces status 2 with 10902, see e.g.
-            // PhysicsAnalysis/TruthParticleID/McParticleTools/src/EtaPtFilterTool.cxx#L374
-            // not at all clear why and unfortunately there's no documentation in the code
-            if (MC::PID::isTau(theMother->pdgId()) && (motherStatus == 2 || motherStatus == 10902)) {
-              fromTau = 1; isHadTau =0;
-            }
-            if(isHadron(theMother) && (motherStatus == 2 || motherStatus == 10902)) {
-              fromhad = 1;
-              parent_hadron_pointer = theMother;
-              if(fromTau == 1){
-                isHadTau = 1;
-              }
-            }
-
-            if(MC::PID::isBSM(theMother->pdgId())){
-              fromBSM = 1;
-            }
-            thePart = theMother;
-          }
-          else{break;}
-        }
-      }
-    }
-    else {
-      uncat = 1;
-    }
-    std::bitset<MCTC_bits::totalBits> status;
-
-    status[MCTC_bits::stable] = isStable;
-    status[MCTC_bits::isgeant] = isGeant;
-    status[MCTC_bits::isbsm] = isBSM;
-    status[MCTC_bits::uncat] = uncat;
-    status[MCTC_bits::frombsm] = fromBSM;
-    status[MCTC_bits::hadron] = fromhad;
-    status[MCTC_bits::Tau] = fromTau;
-    status[MCTC_bits::HadTau] = isHadTau;
-
-    outputvalue = static_cast<unsigned int>(status.to_ulong());
+  const xAOD::TruthVertex* prodVtx = thePart->hasProdVtx() ? thePart->prodVtx() : nullptr;
+  if (isPhysical && prodVtx && !isGeant) {
+    fromHad = fromHadron(thePart, parent_hadron_ptr, fromTau, fromBSM); 
   }
-  else {
-    std::bitset<MCTC_bits::totalBits> unclass;
-    unclass[MCTC_bits::stable] = isStable;
+  else  uncat = 1;
 
-    outputvalue = static_cast<unsigned int>(unclass.to_ulong());
-  }
+  std::bitset<MCTC_bits::totalBits> classifier;
+  classifier[MCTC_bits::stable]  = isPhysical;
+  classifier[MCTC_bits::isgeant] = isGeant;
+  classifier[MCTC_bits::isbsm]   = isBSM;
+  classifier[MCTC_bits::uncat]   = uncat;
+  classifier[MCTC_bits::frombsm] = fromBSM;
+  classifier[MCTC_bits::hadron]  = fromHad;
+  classifier[MCTC_bits::Tau]     = fromTau;
+  classifier[MCTC_bits::HadTau]  = fromHad && fromTau;
+  unsigned int outputvalue = static_cast<unsigned int>(classifier.to_ulong());
 
-  return std::make_tuple(outputvalue,parent_hadron_pointer);
+  return std::make_tuple(outputvalue,parent_hadron_ptr);
 }
-
+//-------------------------------------------------------------------------------
+bool MCTruthClassifier::fromHadron(const xAOD::TruthParticle* p, 
+                                   const xAOD::TruthParticle* hadptr, 
+                                   bool &fromTau, bool &fromBSM) {
+//-------------------------------------------------------------------------------
+  if (isHadron(p))  return true; // trivial case
+  const xAOD::TruthVertex* vtx = p->hasProdVtx() ? p->prodVtx() : nullptr;
+  if (!vtx)  return false;
+  bool fromHad = false;
+  for (size_t i = 0; i < vtx->nIncomingParticles(); ++i) {
+    const xAOD::TruthParticle* parent = vtx->incomingParticle(i);
+    if (!parent) continue;
+    // should this really go into parton-level territory?
+    // probably depends where BSM particles are being decayed
+    fromBSM |= MC::PID::isBSM(parent->pdgId());
+    // sometimes Athena replaces status 2 with 10902, see e.g.
+    // PhysicsAnalysis/TruthParticleID/McParticleTools/src/EtaPtFilterTool.cxx#L374
+    // not at all clear why and unfortunately there's no documentation in the code
+    const int st = parent->status();
+    if (st > 2 && st != 10902)  return false;
+    // parental protons are probably beam particles
+    if (parent->pdgId() == 2212)  return false;
+    fromTau |= abs(parent->pdgId()) == 15;
+    if (isHadron(parent)) {
+      if (!hadptr)  hadptr = parent; // assumes linear hadron parentage
+      return true;
+    }
+    fromHad |= fromHadron(parent, hadptr, fromTau, fromBSM);
+  }
+  return fromHad;
+}
 //-------------------------------------------------------------------------------
 ParticleType
 MCTruthClassifier::defTypeOfElectron(ParticleOrigin EleOrig, bool isPrompt) const

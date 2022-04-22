@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///@file Tau1P3PExtraDetails.h  DEPRECATED DO NOT USE
@@ -17,7 +17,6 @@
 ///
 /// Created 2007-01-17
 ///
-/// $Id: Tau1P3PExtraDetails.h,v 1.9 2009-01-17 01:34:16 tburgess Exp $
 
 #ifndef TAU1P3P_EXTRA_DETAILS_ANALYSIS_H
 #define TAU1P3P_EXTRA_DETAILS_ANALYSIS_H
@@ -133,7 +132,7 @@ namespace Analysis
 
 
         private:
-        static std::string s_className;
+        static const std::string s_className;
         std::vector<std::vector<ElementLink<CaloCellContainer> > >
             m_closestEtaTrkVertCell;
         std::vector<std::vector<ElementLink<CaloCellContainer> > >

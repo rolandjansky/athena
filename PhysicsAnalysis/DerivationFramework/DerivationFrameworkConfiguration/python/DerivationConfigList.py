@@ -23,6 +23,11 @@ from DerivationFrameworkMCTruth.TRUTH1 import TRUTH1Cfg
 # TRUTH3 - standard common ATLAS truth for analysis
 from DerivationFrameworkMCTruth.TRUTH3 import TRUTH3Cfg
 
+# Common unskimmed formats for Run 3 physics analysis
+# PHYS - uncalibrated, full slimming list
+from DerivationFrameworkPhys.PHYS import PHYSCfg
+
 # Avoids compilation warnings from Flake8
 __all__ = ['TEST1Cfg','TEST2Cfg','TEST3Cfg','TEST4Cfg','TEST5Cfg','TEST6Cfg',
-           'TRUTH0Cfg','TRUTH1Cfg','TRUTH3Cfg']
+           'TRUTH0Cfg','TRUTH1Cfg','TRUTH3Cfg',
+           'PHYSCfg']

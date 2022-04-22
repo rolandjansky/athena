@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // STL includes:
@@ -732,23 +732,19 @@ StatusCode AsgElectronRingerSelector::beginInputFile()
 //=============================================================================
 unsigned int AsgElectronRingerSelector::getNPrimVertices() const
 {
-  static bool PVExists = true;
   unsigned int nVtx(0);
-  const xAOD::VertexContainer* vxContainer(0);
-  if(PVExists)
+  const xAOD::VertexContainer* vxContainer(nullptr);
+  if ( evtStore()->retrieve( vxContainer, m_primVtxContName ).isFailure() )
   {
-    if ( StatusCode::SUCCESS != evtStore()->retrieve( vxContainer, m_primVtxContName ) )
-    {
-      ATH_MSG_WARNING ( "Vertex container not found with name: " << m_primVtxContName );
-      PVExists = false; // if retrieve failed, don't try to retrieve again
-      return nVtx;
-    }
-    for ( unsigned int i=0; i<vxContainer->size(); i++ )
-    {
-      const xAOD::Vertex* vxcand = vxContainer->at(i);
-      if ( vxcand->nTrackParticles() >= 2 ) nVtx++;
-    }
+    ATH_MSG_WARNING ( "Vertex container not found with name: " << m_primVtxContName );
+    return nVtx;
   }
+  for ( unsigned int i=0; i<vxContainer->size(); i++ )
+  {
+    const xAOD::Vertex* vxcand = vxContainer->at(i);
+    if ( vxcand->nTrackParticles() >= 2 ) nVtx++;
+  }
+
   return nVtx;
 }
 

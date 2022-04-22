@@ -1618,6 +1618,7 @@ LRTegammaClustersAuxDyn.eta_sampl
 LRTegammaClustersAuxDyn.etamax_sampl
 LRTegammaClustersAuxDyn.phi_sampl
 LRTegammaClustersAuxDyn.phimax_sampl
+LRTegammaClusters_links
 LRTegammaTruthParticles
 LRTegammaTruthParticlesAux.
 LRTegammaTruthParticlesAuxDyn.recoElectronLink

@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+
 from __future__ import print_function
 
 #import glob, os, re
@@ -142,8 +144,6 @@ MessageSvc = ServiceMgr.MessageSvc
 MessageSvc.OutputLevel = INFO
 
 StreamHITS.ExtendProvenanceRecord = False
-
-ServiceMgr.AthenaPoolCnvSvc.MaxFileSizes = [ "15000000000" ]
 
 #--------------------------------------------------------------
 # Ensure IOVDbSvc.GlobalTag is configured
