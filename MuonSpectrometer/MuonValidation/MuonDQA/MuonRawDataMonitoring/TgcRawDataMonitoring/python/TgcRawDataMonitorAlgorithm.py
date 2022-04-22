@@ -89,6 +89,7 @@ def TgcRawDataMonitoringConfig(inputFlags):
 
     if not inputFlags.DQ.triggerDataAvailable:
         tgcRawDataMonAlg.MuonRoIContainerName = ''
+        tgcRawDataMonAlg.TagAndProbe = False
 
     if inputFlags.Input.Format is Format.BS or 'TGC_MeasurementsAllBCs' in inputFlags.Input.Collections:
         tgcRawDataMonAlg.AnaTgcPrd=True
