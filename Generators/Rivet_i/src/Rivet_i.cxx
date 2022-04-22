@@ -280,6 +280,14 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event, const E
   std::shared_ptr<HepMC3::GenRunInfo> modRunInfo;
   if (event->run_info()) {
     modRunInfo = std::make_shared<HepMC3::GenRunInfo>(*(event->run_info().get()));
+    try {
+      event->weight_names();
+    }
+    catch (std::runtime_error &e) {
+      // most likely a HepMC2-style GenEvent
+      if (event->weights().size() != 1)  throw e;
+      modRunInfo->set_weight_names({"Default"});
+    }
   }
   else {
     ATH_MSG_DEBUG("No run info, event weights size is " << event->weights().size() );
