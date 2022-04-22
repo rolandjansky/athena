@@ -45,6 +45,10 @@ def CaloClusterROIPhiRZContainerMakerCfg(ConfigFlags, name="CaloClusterROIPhiRZC
     OutputROIContainerName=[]
     minPt=[]
     phiWidth=[]
+    if False : # Set to True if TRT_SeededTrackFinder_ATL.SearchInCaloROI is true @TODO introduce flag or remove support since this does not seem to work?
+        OutputROIContainerName.append('InDetCaloClusterROIPhiRZ3GeV')
+        minPt.append(ConfigFlags.InDet.Tracking.ActivePass.minSecondaryPt)
+        phiWidth.append(0.3) # must be equal or larger than phiWidth of its clients: TRT_SeededTrackFinder_ATL (phiWidth)
 
     if ConfigFlags.InDet.Tracking.doCaloSeededBrem :
         OutputROIContainerName.append('InDetCaloClusterROIPhiRZ0GeV')

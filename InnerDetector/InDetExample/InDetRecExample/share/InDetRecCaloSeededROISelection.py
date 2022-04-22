@@ -68,6 +68,11 @@ def CaloClusterROIPhiRZContainerMaker(name="CaloClusterROIPhiRZContainerMaker", 
         minPt.append(0)
         phiWidth.append(0.3) # must be equal or larger than phiWidth of its clients: InDetSiTrackMaker (NewTrackingCuts.phiWidthBrem())
 
+    if False : # Set to True if TRT_SeededTrackFinder_ATL.SearchInCaloROI is true @TODO introduce flag or remove support since this does not seem to work?
+        OutputROIContainerName.append('InDetCaloClusterROIPhiR12GeV')
+        minPt.append(12000.)  # NewTrackingCuts.minSecondaryPt(); TRT_SeededTrackFinder_ATL
+        phiWidth.append(0.3) # must be equal or larger than phiWidth of its clients: TRT_SeededTrackFinder_ATL (phiWidth)
+
     if InDetFlags.doCaloSeededAmbi() :
         OutputROIContainerName.append('InDetCaloClusterROIPhiRZ10GeV')
         minPt.append(10000)

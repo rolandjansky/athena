@@ -55,11 +55,6 @@
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
 #include "TrkEventPrimitives/FitQuality.h"
 
-
-//To do the search only if clusters are around:
-#include "TrkCaloClusterROI/CaloClusterROI.h"
-#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
-
 //ReadHandle
 #include "StoreGate/ReadHandle.h"
 
@@ -99,7 +94,6 @@ InDet::TRT_SeededTrackFinder_ATL::TRT_SeededTrackFinder_ATL
   m_searchInCaloROI   = false       ;
   m_phiWidth     = .3                 ;
   m_etaWidth     = 4.0                ;
-  m_ClusterEt     = 12000.0                ;
 
 
   declareInterface<ITRT_SeededTrackFinder>(this);
@@ -126,7 +120,6 @@ InDet::TRT_SeededTrackFinder_ATL::TRT_SeededTrackFinder_ATL
   declareProperty("SearchInCaloROI"         ,m_searchInCaloROI);
   declareProperty("phiWidth"                ,m_phiWidth    );
   declareProperty("etaWidth"                ,m_etaWidth    );
-  declareProperty("CaloClusterEt"            ,m_ClusterEt    );
 
 }
 
@@ -204,8 +197,7 @@ StatusCode InDet::TRT_SeededTrackFinder_ATL::initialize()
   if(msgLvl(MSG::DEBUG)){ dumpconditions(msg(MSG::DEBUG));  msg(MSG::DEBUG) << endmsg;}
 
   //initlialize readhandlekey
-  ATH_CHECK(m_inputClusterContainerName.initialize(m_searchInCaloROI));
-
+  ATH_CHECK(m_caloClusterROIKey.initialize(m_searchInCaloROI));
 
   return sc;
 
@@ -331,23 +323,12 @@ InDet::TRT_SeededTrackFinder_ATL::newEvent(const EventContext& ctx, SiCombinator
   //
   if(m_searchInCaloROI ) {
 
-
-    SG::ReadHandle<CaloClusterROI_Collection> calo(m_inputClusterContainerName, ctx);
-
-    if (calo.isValid()) {
-       event_data_p->caloF().reserve( calo->size());
-       event_data_p->caloE().reserve( calo->size());
-
-      for( const Trk::CaloClusterROI* c : *calo) {
-
-        if ( (c->energy()*sin(c->globalPosition().theta())) < m_ClusterEt) {continue;}
-        double x = c->globalPosition().x();
-        double y = c->globalPosition().y();
-        double z = c->globalPosition().z();
-        event_data_p->caloF().push_back(atan2(y,x));
-        event_data_p->caloE().push_back(atan2(1.,z/sqrt(x*x+y*y)));
-      }
+    SG::ReadHandle<ROIPhiRZContainer> calo_rois(m_caloClusterROIKey, ctx);
+    if (!calo_rois.isValid()) {
+       ATH_MSG_FATAL("Failed to get EM Calo cluster collection " << m_caloClusterROIKey );
     }
+    event_data_p->setCaloClusterROIEM(*calo_rois);
+
   }
   return std::unique_ptr<InDet::ITRT_SeededTrackFinder::IEventData>(event_data_p.release());
 }
@@ -1284,35 +1265,16 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::cleanTrack
 ///////////////////////////////////////////////////////////////////
 // Test is it track with calo seed compatible
 ///////////////////////////////////////////////////////////////////
-
 bool InDet::TRT_SeededTrackFinder_ATL::isCaloCompatible(const Trk::TrackParameters& Tp,
                                                         const InDet::TRT_SeededTrackFinder_ATL::EventData &event_data) const
 {
-  const double pi = M_PI, pi2 = 2.*M_PI;
-  if(event_data.caloF().empty()) return false;
+   if(!event_data.caloClusterROIEM()) return false;
 
-  std::vector<double>::const_iterator f = event_data.caloF().begin(), fe = event_data.caloF().end();
-  std::vector<double>::const_iterator e = event_data.caloE().begin();
-
-  const AmgVector(5)& Vp = Tp.parameters();
-
-  double F = Vp[2];
-//    	msg(MSG::WARNING) << "CheckCal dedf \t" << F << "\t" << E << endmsg;
-
-
-  for(; f!=fe; ++f) {
-    double df = fabs(F-(*f));
-    if(df > pi        ) df = fabs(pi2-df);
-  //  	msg(MSG::WARNING) << "CheckCal df \t" << df << endmsg;
-
-    if(df < m_phiWidth) {
-	     return true;
-    }
-    ++e;
-  }
-  return false;
+   const AmgVector(5)& Vp = Tp.parameters();
+   const double F = Vp[2];
+   ROIPhiRZContainer::const_iterator roi_iter = event_data.caloClusterROIEM()->lowerPhiBound( F, m_phiWidth);
+   return roi_iter != event_data.caloClusterROIEM()->end();
 }
-
 
 
 ///////////////////////////////////////////////////////////////////
