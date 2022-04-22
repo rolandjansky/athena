@@ -8,6 +8,7 @@
 #include "AsgDataHandles/ReadDecorHandle.h"
 
 #include <vector>
+#include <iostream>
 
 TrigL1FexJetMonitorAlgorithm::TrigL1FexJetMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
   : AthMonitorAlgorithm(name,pSvcLocator){
@@ -42,43 +43,59 @@ StatusCode TrigL1FexJetMonitorAlgorithm::fillHistograms(const EventContext& ctx)
       fill(groupTool, et, eta, phi);
     }
 
-    /*
-    if (!m_hltMatchedData.empty()){
-      auto sc = fill(groupTool,
-		     m_hltMatchedData[TrigJetMonitoringVarEnum::dpt],
-		     m_hltMatchedData[TrigJetMonitoringVarEnum::dEnergy],
-		     m_hltMatchedData[TrigJetMonitoringVarEnum::dMass],
-		     m_hltMatchedData[TrigJetMonitoringVarEnum::rPt],
-		     m_hltMatchedData[TrigJetMonitoringVarEnum::rEnergy],
-		     m_hltMatchedData[TrigJetMonitoringVarEnum::rMass],
-		     m_hltMatchedData[TrigJetMonitoringVarEnum::ptRef],
-		     m_hltMatchedData[TrigJetMonitoringVarEnum::etaRef]);
-      
-      if (sc.failure()) {
-	ATH_ERR_MSG("Error filling historgrams for hlt matched jets");
-	return  sc;
-      }
+    std::vector<JetMatchData> jetMatchData;
+    sc = filler->getMatchData(ctx,
+			      MatchToEnum::hlt,
+			      jetMatchData);
+    if (sc.isFailure()) {
+      return sc;
     }
 
-		  
-        
-    if (!m_offMatchedData.empty()){
-      auto sc = fill(groupTool,
-		     m_offMatchedData[TrigJetMonitoringVarEnum::dpt],
-		     m_offMatchedData[TrigJetMonitoringVarEnum::dEnergy],
-		     m_offMatchedData[TrigJetMonitoringVarEnum::dMass],
-		     m_offMatchedData[TrigJetMonitoringVarEnum::rPt],
-		     m_offMatchedData[TrigJetMonitoringVarEnum::rEnergy],
-		     m_offMatchedData[TrigJetMonitoringVarEnum::rMass],
-		     m_offMatchedData[TrigJetMonitoringVarEnum::ptRef],
-		     m_offMatchedData[TrigJetMonitoringVarEnum::etaRef]);
-
-      if (sc.failure()) {
-	ATH_ERR_MSG("Error filling historgrams for offline matched jets");
-	return  sc;
-      }
+    
+    std::cerr << "PS DEBUG " << name() << " hlt matchdata size "
+	      << jetMatchData.size() << '\n';
+    
+    for (const auto& jd : jetMatchData) {
+       auto dPt = Monitored::Scalar("hltptdiff", jd.m_dPt);
+       auto dEnergy = Monitored::Scalar("hltenergydiff", jd.m_dEnergy);
+       auto dMass = Monitored::Scalar("hltmassdiff", jd.m_dMass);
+       auto rPt = Monitored::Scalar("hltptresp", jd.m_rPt);
+       auto rEnergy = Monitored::Scalar("hltenergyresp", jd.m_rEnergy);
+       auto rMass = Monitored::Scalar("hltmassresp", jd.m_rMass);
+       auto ptRef = Monitored::Scalar("hltptref", jd.m_ptRef);
+       auto etaRef = Monitored::Scalar("hltetaref", jd.m_etaRef);
+       
+       // fill dies not return a StatusCode object
+       fill(groupTool, dPt, dEnergy, dMass, rPt, rEnergy, rMass, ptRef, etaRef);
     }
-    */
+    
+    
+
+    jetMatchData.clear();
+    sc = filler->getMatchData(ctx,
+			      MatchToEnum::offline,
+			      jetMatchData);
+    if (sc.isFailure()) {
+      return sc;
+    }
+
+    std::cerr << "PS DEBUG " << name() << " offline matchdata size "
+	      << jetMatchData.size() << '\n';
+    
+    for (const auto& jd : jetMatchData) {
+       auto dPt = Monitored::Scalar("offptdiff", jd.m_dPt);
+       auto dEnergy = Monitored::Scalar("offenergydiff", jd.m_dEnergy);
+       auto dMass = Monitored::Scalar("offmassdiff", jd.m_dMass);
+       auto rPt = Monitored::Scalar("offptresp", jd.m_rPt);
+       auto rEnergy = Monitored::Scalar("offenergyresp", jd.m_rEnergy);
+       auto rMass = Monitored::Scalar("offmassresp", jd.m_rMass);
+       auto ptRef = Monitored::Scalar("offptref", jd.m_ptRef);
+       auto etaRef = Monitored::Scalar("offetaref", jd.m_etaRef);
+       
+       // fill dies not return a StatusCode object
+       fill(groupTool, dPt, dEnergy, dMass, rPt, rEnergy, rMass, ptRef, etaRef);
+    }
+    
   }
   return StatusCode::SUCCESS;
 }

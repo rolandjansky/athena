@@ -5,6 +5,20 @@
 #include "TrigL1JFexSRJetMonitorAlgorithm.h"
 #include "AsgDataHandles/ReadDecorHandle.h"
 
+#include <iostream>
+#include <string>
+struct Tracer {
+  Tracer(const std::string& s): m_s(s) {
+    std::cerr << "Tracer creation " <<  m_s << '\n';
+  }
+
+  ~Tracer()  {
+    std::cerr << "Tracer destruction " <<  m_s << '\n';
+  }
+
+  std::string m_s;
+
+};
 
 TrigL1JFexSRJetMonitorAlgorithm::TrigL1JFexSRJetMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
   : AthMonitorAlgorithm(name,pSvcLocator)
@@ -61,6 +75,10 @@ StatusCode TrigL1JFexSRJetMonitorAlgorithm::initialize() {
     ATH_CHECK( m_hltptrefKey.initialize());
     ATH_CHECK( m_hltetarefKey.initialize());
 
+
+    ATH_MSG_INFO("Match hists " <<   m_l1jetContainerkey.key()  << " hlt: " << m_matchedHLTJetContainer
+		 << " offline: " << m_matchedOfflineJetContainer);
+
   } else {
     // declare the keys unused if no matching is configured
 
@@ -86,6 +104,8 @@ StatusCode TrigL1JFexSRJetMonitorAlgorithm::initialize() {
     ATH_CHECK( m_hltptrefKey.initialize(false));
     ATH_CHECK( m_hltetarefKey.initialize(false));
 
+    ATH_MSG_INFO("No Match hists ");
+
   }
     
 
@@ -94,7 +114,7 @@ StatusCode TrigL1JFexSRJetMonitorAlgorithm::initialize() {
 
 
 void TrigL1JFexSRJetMonitorAlgorithm::fillMatchedHistograms(const xAOD::jFexSRJetRoIContainer & jets, const EventContext& ctx) const {
-
+  Tracer t0("PS DEBUG " + name() + " entering fillMAtchedHistogram");
   SG::ReadDecorHandle<xAOD::jFexSRJetRoIContainer, char>  offmatchedHandle(m_offmatchedKey, ctx);
   SG::ReadDecorHandle<xAOD::jFexSRJetRoIContainer, double> offptdiffHandle(m_offptdiffKey, ctx);
   SG::ReadDecorHandle<xAOD::jFexSRJetRoIContainer, double> offenergydiffHandle(m_offenergydiffKey, ctx);
@@ -140,7 +160,9 @@ void TrigL1JFexSRJetMonitorAlgorithm::fillMatchedHistograms(const xAOD::jFexSRJe
   for(const xAOD::jFexSRJetRoI* jet : jets){
     bool offmatched = offmatchedHandle(*jet);
     bool hltmatched = hltmatchedHandle(*jet);
-    if(offmatched){
+    if(offmatched){ 
+      Tracer t1("PS DEBUG " + name() + " offmatched");
+
       offdPt = offptdiffHandle(*jet);
       offdEnergy = offenergydiffHandle(*jet);
       offdMass = offmassdiffHandle(*jet);
@@ -152,6 +174,7 @@ void TrigL1JFexSRJetMonitorAlgorithm::fillMatchedHistograms(const xAOD::jFexSRJe
       fill(tool, offdPt, offdEnergy, offdMass, offrPt, offrEnergy, offrMass, offptRef, offetaRef);
     } 
     if(hltmatched){
+      Tracer t2("PS DEBUG " + name() + " hltmatched");
       hltdPt = hltptdiffHandle(*jet);
       hltdEnergy = hltenergydiffHandle(*jet);
       hltdMass = hltmassdiffHandle(*jet);

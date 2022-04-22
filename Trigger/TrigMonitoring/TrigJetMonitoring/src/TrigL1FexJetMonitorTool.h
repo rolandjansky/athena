@@ -40,8 +40,14 @@ public:
   StatusCode initialize();
   StatusCode finalize();
   
-  virtual StatusCode getData(const EventContext& ctx,
-			     std::vector<JetData>& jetData) const override;
+  virtual StatusCode
+  getData(const EventContext& ctx,
+	  std::vector<JetData>& jetData) const override;
+
+   virtual StatusCode
+   getMatchData(const EventContext& ctx,
+		MatchToEnum, 
+		std::vector<JetMatchData>& jetData) const override;
 
   virtual std::string groupName() const override {return m_groupName;}
   

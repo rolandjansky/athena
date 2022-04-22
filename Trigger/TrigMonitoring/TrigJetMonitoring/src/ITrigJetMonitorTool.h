@@ -14,7 +14,8 @@
 #include <vector>
 #include <string>
 
-/////////////////////////////////////////////////////////////////////////////
+
+enum class MatchToEnum {hlt, offline};
 
 class ITrigJetMonitorTool : virtual public ::IAlgTool {
 public:
@@ -23,7 +24,12 @@ public:
 
   virtual StatusCode getData(const EventContext& ctx,
 			     std::vector<JetData>& jetData) const = 0;
+  
+  virtual StatusCode getMatchData(const EventContext& ctx,
+				  MatchToEnum, 
+				  std::vector<JetMatchData>& ) const = 0;
 
+    
   virtual std::string groupName() const = 0;
 };
 #endif

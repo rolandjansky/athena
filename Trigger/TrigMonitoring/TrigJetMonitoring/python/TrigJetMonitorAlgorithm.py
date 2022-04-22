@@ -40,28 +40,52 @@ L1JetCollections = {
   'L1_jFexSRJetRoI': {'MatchTo': ['AntiKt4EMPFlowJets',
                                   'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf']},
 
-  'L1_jFexLRJetRoI': {'MatchTo': []},
-  'L1_gFexSRJetRoI': {'MatchTo': []},
+  'L1_jFexLRJetRoI': {'MatchTo': ['AntiKt4EMPFlowJets',
+                                  'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf']},
+
+  'L1_gFexSRJetRoI': {'MatchTo': ['AntiKt4EMPFlowJets',
+                                  'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf']},
+
   # 'L1_gFexLRJetRoI': {'MatchTo': []},
 }
+
+try:
+  items = L1JetCollections.items()
+except (AttributeError, TypeError):
+  raise RuntimeError('L1JetCollections is not a mapping type')
+
+for k, d in items:
+  try:
+    d_items = d.items()
+  except (AttributeError, TypeError):
+    raise RuntimeError('L1JetCollections value is not a mapping type')
+
+  if 'MatchTo' not in d:
+    errmsg = 'L1Collections entry %s has no (possibly empty) MatchType list' % (
+      str(k),)
+    raise RuntimeError(errmsg)
 
 # Now seeing new L1 containers of differing types. These types
 # are explicit in the C++ JetMatcher algorithm, and correspond
 # top different attributes of that algorithm.
 #
-# l12MatcherKey allows the setting of the appropriate, which is the
-# value of entries of l12MatcherKey.
+# l1Coll2MatcherKey supplies the python name of
+# C++ component attribute.
+
 l1Coll2MatcherKey = {
   'LVL1JetRoIs': 'L1JetContainerName1',
   'L1_jFexSRJetRoI': 'L1jFexSRJetRoIContainerName',
+  'L1_jFexLRJetRoI': 'L1jFexLRJetRoIContainerName',
+  'L1_gFexSRJetRoI': 'L1gFexJetRoIContainerName',
 }
 
 for k, d in L1JetCollections.items():
-  if d['MatchTo'] and (k not in l1Coll2MatcherKey):
-    logger.error('Requesting matches to an L1 container ',
-                 str(k), 
-                 ' but have not supplied a Matcher ReadHandleKey')
-    
+  if d['MatchTo']:  # exists by previous checks. check if empty.
+    if k not in l1Coll2MatcherKey:
+      errmsg = 'Match(es) to an L1 container requested  entry'\
+      '%s but no C++ MatcherAlg attribute name provided' % (str(k),)
+      raise RuntimeError(errmsg)
+      
 
 # the values of Chain2L1JetCollDict are keys of L1JetCollections.
 # the keys of Chain2L1JetCollDict are used to select events before histograms are filled

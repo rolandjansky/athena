@@ -13,14 +13,14 @@ JetData(float et, float eta, float phi) : m_et{et}, m_eta{eta}, m_phi{phi}{}
   float m_phi;
 };
 
-struct MatchedJetData {
-MatchedJetData(float dPt, float dEnergy, float dMass,
-	       float rPt, float rEnergy, float rMass,
-	       float ptRef, float etRef) :
-    
+struct JetMatchData {
+JetMatchData(float dPt, float dEnergy, float dMass,
+	     float rPt, float rEnergy, float rMass,
+	     float ptRef, float etaRef) :
+  
   m_dPt{dPt}, m_dEnergy{dEnergy}, m_dMass{dMass},
     m_rPt{rPt}, m_rEnergy{rEnergy}, m_rMass{rMass},
-    m_ptRef{ptRef}, m_etRef{etRef}{}
+    m_ptRef{ptRef}, m_etaRef{etaRef}{}
 
   
   float m_dPt;
@@ -30,7 +30,7 @@ MatchedJetData(float dPt, float dEnergy, float dMass,
   float m_rEnergy;
   float m_rMass;
   float m_ptRef;
-  float m_etRef;
+  float m_etaRef;
 };
 
 #endif

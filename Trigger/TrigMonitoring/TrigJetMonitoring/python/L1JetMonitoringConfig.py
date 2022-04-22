@@ -66,7 +66,6 @@ class L1JetMonAlg():
       alg = monhelper.addAlgorithm(algClass, self.name)
       alg.L1JetContainer = self.L1JetContainer
       alg.TriggerChain = self.triggerChain
-      # alg.IsMatched = False
       alg.IsMatched = self.matched
       alg.MatchedOfflineJets = self.matchedOJ
       alg.MatchedHLTJets     = self.matchedHLTJ
@@ -76,7 +75,9 @@ class L1JetMonAlg():
                                    self.name)
       toolClass = getattr(CompFactory, container2tool_class_name())
       tool = toolClass(container2tool_inst_name())
-      tool.do_matching = False
+      tool.do_matching = self.matched
+      tool.offlineJetsToMatch = self.matchedOJ
+      tool.HLTJetsToMatch = self.matchedHLTJ
       tool.l1container = self.L1JetContainer
       tool.group_name = container2_monitorgroup()
       alg.fillers = [tool]
@@ -126,6 +127,9 @@ class L1JetMonAlg():
       alg.IsMatched = self.matched
       alg.L1JetContainer = self.L1JetContainer
       alg.TriggerChain = self.triggerChain
+      if self.matched:
+        alg.MatchedOfflineJets = self.matchedOJ
+        alg.MatchedHLTJets     = self.matchedHLTJ
 
     
     # Add a generic monitoring tool (a "group" in old language). The returned 
@@ -155,14 +159,15 @@ class L1JetMonAlg():
     myGroup.defineHistogram('phi',title='phi',path=Path,xbins=50,xmin=-3.3,xmax=3.3)
 
     # Add histograms for L1 jets matched to offline/online jets
-    if self.matched and not L1Fex:  # PS under development
-      matchedOJ   = self.matchedOJ
-      matchedHLTJ = self.matchedHLTJ
+    # if self.matched and not L1Fex:  # PS under development
+    #  matchedOJ   = self.matchedOJ
+    #  matchedHLTJ = self.matchedHLTJ
 
-      alg.MatchedOfflineJets = matchedOJ
-      alg.MatchedHLTJets     = matchedHLTJ
-        
-      for matchcoll,tag in [ [matchedOJ, 'off'], [matchedHLTJ, 'hlt'] ]:
+    # alg.MatchedOfflineJets = matchedOJ
+    # alg.MatchedHLTJets     = matchedHLTJ
+
+    if self.matched:
+      for matchcoll,tag in [ [self.matchedOJ, 'off'], [self.matchedHLTJ, 'hlt'] ]:
         Path = self.L1JetContainer + '/NoTriggerSelection/MatchedJets_' + matchcoll + '/'
 
         # define which variable difference will be plotted,
@@ -171,7 +176,7 @@ class L1JetMonAlg():
           myGroup.defineHistogram(tag+histname+';'+histname,
                                   title=histname, type="TH1F", path=Path,
                                   xbins=140 , xmin=-120000., xmax=20000. ,)
-          
+        
         for histname in [ 'ptresp', 'energyresp' ]:
           myGroup.defineHistogram(tag+histname+';'+histname,
                                   title=histname,
