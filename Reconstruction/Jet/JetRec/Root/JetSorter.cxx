@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetRec/JetSorter.h"
@@ -10,24 +10,15 @@ bool ptCompare(const xAOD::Jet* j1, const xAOD::Jet* j2){ return j1->pt() > j2->
 
 // A global map for comparison functions
 typedef bool (*compFunc)(const xAOD::Jet*, const xAOD::Jet*);
-std::map<std::string ,  compFunc> g_compFuncMap;
+const std::map<std::string, compFunc> g_compFuncMap = {
+  {"ByPtDown", ptCompare}
+};
 
-// init the global map
-void initFuncMap(){
-  static bool inited = false;
-  if(inited) return;
-  g_compFuncMap["ByPtDown"] = ptCompare;
-}
-/////////////////////////////////////////
-
-  
-JetSorter::JetSorter(const std::string& n) : 
+JetSorter::JetSorter(const std::string& n) :
   asg::AsgTool(n)
   ,m_sortType("ByPtDown")
 {
-  //declareInterface<IJetModifier>(this);
   declareProperty("SortingType", m_sortType);
-  initFuncMap();
 }
 
 StatusCode JetSorter::modify(xAOD::JetContainer& jets) const {
@@ -35,6 +26,11 @@ StatusCode JetSorter::modify(xAOD::JetContainer& jets) const {
   // leave early if empty otherwise sort() throws an exception.
   if(jets.empty() ) return StatusCode::SUCCESS;
 
-  jets.sort( *g_compFuncMap[ m_sortType ] );
+  const auto itr = g_compFuncMap.find(m_sortType);
+  if (itr == g_compFuncMap.end()) {
+    ATH_MSG_ERROR("Unsupported SortingType " << m_sortType);
+    return StatusCode::FAILURE;
+  }
+  jets.sort( *itr->second );
   return StatusCode::SUCCESS;
 }
