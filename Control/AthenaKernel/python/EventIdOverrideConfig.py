@@ -130,7 +130,7 @@ def EvtIdModifierSvcCfg(ConfigFlags, name="EvtIdModifierSvc", **kwargs):
 
     # TODO There must be a better way to do this, but it would require
     # Cfg methods for the EventLoopMgrs which don't exist.
-    if not ConfigFlags.Digitization.PileUp:
+    if ConfigFlags.Common.Project == "AthSimulation" or not ConfigFlags.Digitization.PileUp:
         if ConfigFlags.Concurrency.NumThreads > 0:
             AthenaHiveEventLoopMgr = CompFactory.AthenaHiveEventLoopMgr
             elmgr = AthenaHiveEventLoopMgr()
