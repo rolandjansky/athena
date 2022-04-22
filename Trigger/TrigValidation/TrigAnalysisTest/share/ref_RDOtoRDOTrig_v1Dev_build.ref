@@ -12218,6 +12218,18 @@ HLT_mu22_2mu4noL1_L1MU14FCH:
     1: 5
     2: 4
     3: 4
+HLT_mu22_L1MU14FCH:
+  eventCount: 4
+  stepCounts:
+    0: 6
+    1: 5
+    2: 4
+    3: 4
+  stepFeatures:
+    0: 7
+    1: 5
+    2: 4
+    3: 4
 HLT_mu22_mu10noL1_L1MU14FCH:
   eventCount: 2
   stepCounts:
