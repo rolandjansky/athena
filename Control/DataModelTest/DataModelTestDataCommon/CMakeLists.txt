@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( DataModelTestDataCommon )
@@ -11,7 +11,7 @@ atlas_add_library( DataModelTestDataCommonLib
                    src/*.cxx
                    PUBLIC_HEADERS DataModelTestDataCommon
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthContainers AthContainersInterfaces AthenaPoolUtilities AthLinks AthenaKernel EventInfo GaudiKernel RegistrationServicesLib xAODCore xAODTrigger
+                   LINK_LIBRARIES AthContainers AthContainersInterfaces AthenaPoolUtilities AthLinks AthenaKernel xAODEventInfo GaudiKernel RegistrationServicesLib xAODCore xAODTrigger
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps CxxUtils PersistentDataModel StoreGateLib )
 
 atlas_add_component( DataModelTestDataCommon

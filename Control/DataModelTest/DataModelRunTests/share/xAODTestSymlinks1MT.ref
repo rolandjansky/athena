@@ -69,7 +69,7 @@ AvalancheSchedulerSvc                                        0    INFO Data Depe
     o OUTPUT  ( 'SG::AuxVectorBase' , 'StoreGateSvc+cvec.dtest' ) 
   xAODTestWriteCInfo
     o INPUT   ( 'DMTest::CVec' , 'StoreGateSvc+cvec' ) 
-    o INPUT   ( 'EventInfo' , 'StoreGateSvc+McEventInfo' ) 
+    o INPUT   ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ) 
     o OUTPUT  ( 'DMTest::C' , 'StoreGateSvc+cinfo' ) 
     o OUTPUT  ( 'SG::AuxElement' , 'StoreGateSvc+cinfo' ) 
   xAODTestWriteSymlinks
@@ -100,7 +100,6 @@ AvalancheSchedulerSvc                                        0    INFO Data Depe
 AvalancheSchedulerSvc                                        0    INFO Will attribute the following unmet INPUT dependencies to "SGInputLoader/SGInputLoader" Algorithm
 AvalancheSchedulerSvc                                        0    INFO    o  ( 'EventInfo' , 'StoreGateSvc+McEventInfo' )     required by Algorithm: 
 AvalancheSchedulerSvc                                        0    INFO        * xAODMaker::EventInfoCnvAlg
-AvalancheSchedulerSvc                                        0    INFO        * xAODTestWriteCInfo
 PrecedenceSvc                                                0    INFO Assembling CF and DF task precedence rules
 PrecedenceSvc                                                0    INFO PrecedenceSvc initialized successfully
 AvalancheSchedulerSvc                                        0    INFO Concurrency level information:
