@@ -6,7 +6,7 @@
 #define PseudoJetContainer_H
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -74,7 +74,7 @@ public:
   std::string dumpPseudoJets() const;
 
   bool  debug() const;
-  void  debug(bool b) const;
+  void  debug(bool b);
   friend std::ostream& operator<<(std::ostream&, const PseudoJetContainer&);  
 
 private:
@@ -142,7 +142,7 @@ private:
   // into the jets.
   std::set<std::unique_ptr<const IConstituentExtractor>> m_emptyExtractors;
 
-  mutable bool m_debug{false};
+  bool m_debug{false};
 };
 
 std::ostream& operator << (std::ostream&, const PseudoJetContainer&);

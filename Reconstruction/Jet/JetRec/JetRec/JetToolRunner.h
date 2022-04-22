@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetToolRunner.h
@@ -17,7 +17,6 @@
 #include "AsgTools/AsgTool.h"
 #include "EventShapeInterface/IEventShapeTool.h"
 #include "JetInterface/IJetExecuteTool.h"
-#include "TStopwatch.h"
 
 /// Top-level tool for jet reconstruction.
 /// Properties:
@@ -50,14 +49,6 @@ private:
   // Properties.
   ToolHandleArray<IEventShapeTool> m_evstools {this, "EventShapeTools", {}};
   ToolHandleArray<IJetExecuteTool> m_exetools {this, "Tools", {}};
-  int m_timer;
-
-  // Clocks.
-  mutable unsigned int m_nevt;
-  mutable TStopwatch m_clock;
-  mutable std::vector<TStopwatch> m_evsclocks;
-  mutable std::vector<TStopwatch> m_execlocks;
-
 };
 
 #endif

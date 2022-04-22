@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetDumper.cxx
@@ -22,7 +22,7 @@ typedef JetDumper::NameList NameList;
 //**********************************************************************
 
 JetDumper::JetDumper(std::string myname)
-: AsgTool(myname), m_objtypename("Unknown") {
+: AsgTool(myname) {
   ATH_MSG_INFO("JetDumper::ctor: Declaring properties.");
   declareProperty("ContainerName", m_cname ="");
   declareProperty("Detail", m_detail =1);
@@ -47,7 +47,7 @@ JetDumper::JetDumper(std::string myname)
 
 template<>
 JetDumper::NameList get_moment_keys<Jet, float>(const Jet* pjet) {
-  static NameList empty;
+  static const NameList empty;
   if ( pjet == 0 ) return empty;
   return empty;
 }
@@ -64,34 +64,30 @@ int JetDumper::execute() const {
   ATH_MSG_DEBUG("Looping over collection types...");
   if ( evtStore()->contains<PseudoJetVector>(m_cname) ) {
     ATH_MSG_DEBUG("Collection is pseudojets.");
-    m_objtypename = "Pseudojet";
     const PseudoJetVector* pobjs = nullptr;
     StatusCode sc = evtStore()->retrieve(pobjs, m_cname);
-    if ( !sc.isFailure() && pobjs != nullptr ) return dump_collection(pobjs);
+    if ( !sc.isFailure() && pobjs != nullptr ) return dump_collection(pobjs, "Pseudojet");
   } else if ( evtStore()->contains<xAOD::CaloClusterContainer>(m_cname) ) {
     ATH_MSG_DEBUG("Collection is xAOD clusters.");
-    m_objtypename = "Cluster";
     const xAOD::CaloClusterContainer* pclus = nullptr;
     pclus = evtStore()->retrieve<const xAOD::CaloClusterContainer>(m_cname);
     //StatusCode sc = evtStore()->retrieve(pclus, m_cname);
-    if ( pclus != nullptr ) return dump_collection(pclus);
+    if ( pclus != nullptr ) return dump_collection(pclus, "Cluster");
   } else if ( evtStore()->contains<xAOD::JetContainer>(m_cname) ) {
     ATH_MSG_DEBUG("Collection is xAOD jets.");
-    m_objtypename = "Jet";
     const xAOD::JetContainer* pobjs = nullptr;
     pobjs = evtStore()->retrieve<const xAOD::JetContainer>(m_cname);
     if ( pobjs != nullptr ) {
-      return dump_collection(pobjs);
+      return dump_collection(pobjs, "Jet");
       ATH_MSG_DEBUG("Retrieved xAOD jets.");
     } else {
       ATH_MSG_ERROR("xAOD jet retrieval failed.");
     }
   } else if ( evtStore()->contains<xAOD::MuonSegmentContainer>(m_cname) ) {
     ATH_MSG_DEBUG("Collection is xAOD muon segments.");
-    m_objtypename = "Muon segment";
     const xAOD::MuonSegmentContainer* psegs = nullptr;
     psegs = evtStore()->retrieve<const xAOD::MuonSegmentContainer>(m_cname);
-    if ( psegs != nullptr ) return dump_collection(psegs);
+    if ( psegs != nullptr ) return dump_collection(psegs, "Muon segment");
   }
   ATH_MSG_ERROR("Unable to retrieve input collection: " << m_cname);
   return 2;
@@ -123,7 +119,7 @@ string JetDumper::object_label(const fastjet::PseudoJet& jet, string label) cons
 
 //**********************************************************************
 
-int JetDumper::dump_object_after_prefix(const fastjet::PseudoJet& jet) const {
+int JetDumper::dump_object_after_prefix(const fastjet::PseudoJet& jet, const std::string& /*objtypename*/) const {
   const double mevtogev = 0.001;
   // One line summary.
   std::ostringstream ssjetline;
@@ -144,7 +140,7 @@ int JetDumper::dump_object_after_prefix(const fastjet::PseudoJet& jet) const {
 
 //**********************************************************************
 
-int JetDumper::dump_object_after_prefix(const xAOD::MuonSegment* pseg) const {
+int JetDumper::dump_object_after_prefix(const xAOD::MuonSegment* pseg, const std::string& /*objtypename*/) const {
   if ( pseg == nullptr ) return 1;
   const xAOD::MuonSegment& seg = *pseg;
   const double mmtom = 0.001;

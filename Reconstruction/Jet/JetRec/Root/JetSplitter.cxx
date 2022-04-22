@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetSplitter.cxx
@@ -102,7 +102,7 @@ int JetSplitter::groom(const xAOD::Jet& jin,
   ATH_MSG_DEBUG("      y: " << yfilt);
   if ( msgLvl(MSG::VERBOSE) ) {
     std::vector<PseudoJet> cons = pjfilt.constituents();
-    m_pdmp->dump_collection(&cons);
+    m_pdmp->dump_collection(&cons, "Jet");
   }
 
   // Recluster.
