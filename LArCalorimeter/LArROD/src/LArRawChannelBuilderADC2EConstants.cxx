@@ -3,7 +3,7 @@
 */
 
 
-#include "LArROD/LArRawChannelBuilderADC2EConstants.h"
+#include "LArRawChannelBuilderADC2EConstants.h"
 #include "LArROD/LArRawChannelBuilderStatistics.h"
 
 #include "CaloIdentifier/CaloCell_ID.h"

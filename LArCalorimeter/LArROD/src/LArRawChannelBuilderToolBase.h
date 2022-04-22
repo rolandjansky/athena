@@ -21,9 +21,10 @@
 #include "GaudiKernel/AlgTool.h"
 
 #include "LArRawEvent/LArRawChannelContainer.h"
-#include "LArROD/LArRawChannelBuilderToolBaseClass.h"
 #include "LArROD/ILArRawChannelBuilderToolBase.h"
 #include "LArRawEvent/LArDigit.h"
+
+#include "LArRawChannelBuilderToolBaseClass.h"
 
 class LArRawChannelContainer;
 

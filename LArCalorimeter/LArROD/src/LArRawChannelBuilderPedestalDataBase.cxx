@@ -3,7 +3,7 @@
 */
 
 
-#include "LArROD/LArRawChannelBuilderPedestalDataBase.h"
+#include "LArRawChannelBuilderPedestalDataBase.h"
 
 LArRawChannelBuilderPedestalDataBase::LArRawChannelBuilderPedestalDataBase(const std::string& type,
 									   const std::string& name,

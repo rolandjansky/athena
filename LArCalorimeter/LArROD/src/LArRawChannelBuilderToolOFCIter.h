@@ -15,14 +15,13 @@
 #define LARROD_LARRAWCHANNELBUILDERTOOLOFCITER_H
 
 #include "GaudiKernel/ToolHandle.h"
-#include "LArROD/LArRawChannelBuilderToolBase.h"
 #include "LArRecUtils/LArOFPeakRecoTool.h"
 #include "LArElecCalib/ILArPedestal.h"
 #include "LArElecCalib/ILArNoise.h"
 #include "LArRawEvent/LArOFIterResultsContainer.h"
 #include <vector>
 
-
+#include "LArRawChannelBuilderToolBase.h"
 
 class LArDigit;
 

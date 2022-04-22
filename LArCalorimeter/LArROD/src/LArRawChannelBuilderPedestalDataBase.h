@@ -11,7 +11,7 @@
 #ifndef LARROD_LARRAWCHANNELBUILDERPEDESTALDATABASE_H
 #define LARROD_LARRAWCHANNELBUILDERPEDESTALDATABASE_H
 
-#include "LArROD/LArRawChannelBuilderPedestalToolBase.h"
+#include "LArRawChannelBuilderPedestalToolBase.h"
 #include "StoreGate/DataHandle.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"

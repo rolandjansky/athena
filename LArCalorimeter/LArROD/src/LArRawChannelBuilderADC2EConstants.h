@@ -11,7 +11,7 @@
 #ifndef LARROD_LARRAWCHANNELBUILDERADC2ECONSTANTS_H
 #define LARROD_LARRAWCHANNELBUILDERADC2ECONSTANTS_H
 
-#include "LArROD/LArRawChannelBuilderADC2EToolBase.h"
+#include "LArRawChannelBuilderADC2EToolBase.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 

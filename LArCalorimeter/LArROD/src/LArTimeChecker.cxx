@@ -2,7 +2,7 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArROD/LArTimeChecker.h"
+#include "LArTimeChecker.h"
 #include "LArRawEvent/LArDigitContainer.h"
 #include "TBEvent/TBPhase.h"
 #include "LArElecCalib/ILArPedestal.h"

@@ -12,7 +12,7 @@
 #ifndef LARROD_LARRAWCHANNELBUILDERTOOLCUBIC_H
 #define LARROD_LARRAWCHANNELBUILDERTOOLCUBIC_H
 
-#include "LArROD/LArRawChannelBuilderToolBase.h"
+#include "LArRawChannelBuilderToolBase.h"
 
 class LArDigit;
 class LArFCAL_ID;

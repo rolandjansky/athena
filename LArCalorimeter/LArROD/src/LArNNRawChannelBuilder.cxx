@@ -3,7 +3,7 @@
  */
 
 #include "LArNNRawChannelBuilder.h"
-#include "LArROD/LArRawChannelBuilderAlg.h"
+#include "LArRawChannelBuilderAlg.h"
 
 #include "GaudiKernel/SystemOfUnits.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
