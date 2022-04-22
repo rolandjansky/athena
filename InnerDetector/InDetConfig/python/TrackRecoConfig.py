@@ -431,6 +431,16 @@ def InDetTrackRecoCfg(flags):
         from InDetConfig.VertexFindingConfig import primaryVertexFindingCfg
         result.merge(primaryVertexFindingCfg(flags))
 
+    if flags.InDet.Tracking.writeExtendedPRDInfo:
+        from InDetConfig.InDetPrepRawDataToxAODConfig import InDetPixelPrepDataToxAODCfg, InDetSCT_PrepDataToxAODCfg, InDetTRT_PrepDataToxAODCfg
+        result.merge(InDetPixelPrepDataToxAODCfg(flags, ClusterSplitProbabilityName = ClusterSplitProbContainer))
+        result.merge(InDetSCT_PrepDataToxAODCfg(flags))
+        result.merge(InDetTRT_PrepDataToxAODCfg(flags))
+
+        if flags.Input.isMC:
+            from InDetPhysValMonitoring.InDetPhysValDecorationConfig import InDetPhysHitDecoratorAlgCfg
+            result.merge(InDetPhysHitDecoratorAlgCfg(flags))
+
     # output
     result.merge(InDetTrackRecoOutputCfg(flags))
 
@@ -629,6 +639,16 @@ def InDetTrackRecoOutputCfg(flags):
         if flags.InDet.doTruth:
             toAOD += ["TrackTruthCollection#InDetObservedTrackTruthCollection"]
             toAOD += ["DetailedTrackTruthCollection#ObservedDetailedTracksTruth"]
+
+    if flags.InDet.Tracking.writeExtendedPRDInfo:
+        toAOD += [
+            "xAOD::TrackMeasurementValidationContainer#PixelClusters",
+            "xAOD::TrackMeasurementValidationAuxContainer#PixelClustersAux.",
+            "xAOD::TrackMeasurementValidationContainer#SCT_Clusters",
+            "xAOD::TrackMeasurementValidationAuxContainer#SCT_ClustersAux.",
+            "xAOD::TrackMeasurementValidationContainer#TRT_DriftCircles",
+            "xAOD::TrackMeasurementValidationAuxContainer#TRT_DriftCirclesAux."
+        ]
 
     result = ComponentAccumulator()
     result.merge(addToESD(flags, toESD + toAOD))

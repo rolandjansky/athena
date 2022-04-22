@@ -96,11 +96,13 @@ def InDetPhysHitDecoratorAlgCfg(flags, **kwargs):
     acc = ComponentAccumulator()
 
     from InDetConfig.InDetTrackHoleSearchConfig import InDetTrackHoleSearchToolCfg
-    InDetTrackHoleSearchTool = acc.popToolsAndMerge(InDetTrackHoleSearchToolCfg(flags, name="PhysValMonInDetHoleSearchTool"))
+    InDetTrackHoleSearchTool = acc.popToolsAndMerge(InDetTrackHoleSearchToolCfg(flags))
+    acc.addPublicTool(InDetTrackHoleSearchTool)
     kwargs.setdefault( "InDetTrackHoleSearchTool", InDetTrackHoleSearchTool)
 
     from TrkConfig.TrkMeasurementUpdatorConfig import InDetUpdatorCfg
     Updator = acc.popToolsAndMerge(InDetUpdatorCfg(flags))
+    acc.addPublicTool(Updator)
     kwargs.setdefault( "Updator", Updator )
 
     acc.merge(createExtendNameIfNotDefaultCfg(CompFactory.InDetPhysHitDecoratorAlg,
