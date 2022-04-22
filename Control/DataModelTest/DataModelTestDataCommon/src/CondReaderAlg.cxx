@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file DataModelTestDataCommon/src/CondReaderAlg.cxx
@@ -10,7 +10,6 @@
 
 
 #include "CondReaderAlg.h"
-#include "EventInfo/EventID.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "GaudiKernel/Chrono.h"
@@ -35,7 +34,6 @@ CondReaderAlg::CondReaderAlg (const std::string& name, ISvcLocator *pSvcLocator)
     m_tstestKey ("")
 {
   declareProperty ("ChronoSvc",    m_chronoSvc);
-  declareProperty ("EventInfoKey", m_eventInfoKey = "McEventInfo");
   declareProperty ("AttrListKey",  m_attrListKey);
   declareProperty ("SCondKey",     m_scondKey);
   declareProperty ("S2Key",        m_s2Key);
@@ -72,10 +70,10 @@ StatusCode CondReaderAlg::initialize()
  */
 StatusCode CondReaderAlg::execute (const EventContext& ctx) const
 {
-  SG::ReadHandle<EventInfo> eventInfo (m_eventInfoKey, ctx);
+  SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey, ctx);
 
-  ATH_MSG_INFO ("Event " << eventInfo->event_ID()->event_number() <<
-                " LBN " << eventInfo->event_ID()->lumi_block());
+  ATH_MSG_INFO ("Event " << eventInfo->eventNumber() <<
+                " LBN " << eventInfo->lumiBlock());
 
   SG::ReadCondHandle<AthenaAttributeList> attrList (m_attrListKey, ctx);
   ATH_MSG_INFO ("  xint " << (**attrList)["xint"]);

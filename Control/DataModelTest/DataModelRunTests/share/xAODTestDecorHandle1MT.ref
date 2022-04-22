@@ -55,7 +55,7 @@ AvalancheSchedulerSvc                                        0    INFO Data Depe
     o OUTPUT  ( 'SG::AuxVectorBase' , 'StoreGateSvc+cvec.dtest' ) 
   xAODTestWriteCInfo
     o INPUT   ( 'DMTest::CVec' , 'StoreGateSvc+cvec' ) 
-    o INPUT   ( 'EventInfo' , 'StoreGateSvc+McEventInfo' ) 
+    o INPUT   ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ) 
     o OUTPUT  ( 'DMTest::C' , 'StoreGateSvc+cinfo' ) 
     o OUTPUT  ( 'SG::AuxElement' , 'StoreGateSvc+cinfo' ) 
   xAODTestWrite
@@ -69,8 +69,8 @@ AvalancheSchedulerSvc                                        0    INFO Data Depe
     o INPUT   ( 'DMTest::C' , 'StoreGateSvc+cinfo' ) 
     o INPUT   ( 'DMTest::CVec' , 'StoreGateSvc+ctrig' ) 
     o INPUT   ( 'DMTest::CVec' , 'StoreGateSvc+cvec' ) 
-    o INPUT   ( 'EventInfo' , 'StoreGateSvc+McEventInfo' ) 
-    o INPUT   ( 'SG::AuxElement' , 'StoreGateSvc+cinfo' ) 
+    o INPUT   ( 'SG::AuxElement' , 'StoreGateSvc+cinfo' )
+    o INPUT   ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )  
     o OUTPUT  ( 'DMTest::C' , 'StoreGateSvc+cinfo.dInt1' ) 
     o OUTPUT  ( 'DMTest::CVec' , 'StoreGateSvc+ctrig.dInt1' ) 
     o OUTPUT  ( 'DMTest::CVec' , 'StoreGateSvc+cvec.dInt1' ) 
@@ -114,8 +114,6 @@ AvalancheSchedulerSvc                                        0    INFO Data Depe
 AvalancheSchedulerSvc                                        0    INFO Will attribute the following unmet INPUT dependencies to "SGInputLoader/SGInputLoader" Algorithm
 AvalancheSchedulerSvc                                        0    INFO    o  ( 'EventInfo' , 'StoreGateSvc+McEventInfo' )     required by Algorithm: 
 AvalancheSchedulerSvc                                        0    INFO        * xAODMaker::EventInfoCnvAlg
-AvalancheSchedulerSvc                                        0    INFO        * xAODTestDecor
-AvalancheSchedulerSvc                                        0    INFO        * xAODTestWriteCInfo
 AvalancheSchedulerSvc                                        0    INFO    o  ( 'SG::AuxElement' , 'StoreGateSvc+scopy_cinfo.dInt1Base' )     required by Algorithm: 
 AvalancheSchedulerSvc                                        0    INFO        * xAODTestReadDecorSCopy
 PrecedenceSvc                                                0    INFO Assembling CF and DF task precedence rules

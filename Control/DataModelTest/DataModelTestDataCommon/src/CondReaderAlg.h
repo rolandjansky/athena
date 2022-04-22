@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -19,7 +19,7 @@
 
 #include "DataModelTestDataCommon/S1Cond.h"
 #include "DataModelTestDataCommon/S3Cond.h"
-#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "StoreGate/ReadHandleKey.h"
@@ -57,7 +57,7 @@ public:
 
 private:
   ServiceHandle<IChronoStatSvc> m_chronoSvc;
-  SG::ReadHandleKey<EventInfo> m_eventInfoKey;
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EvtInfo", "EventInfo", "EventInfo name"};
   SG::ReadCondHandleKey<AthenaAttributeList> m_attrListKey;
   SG::ReadCondHandleKey<DMTest::S1> m_scondKey;
   SG::ReadCondHandleKey<DMTest::S1> m_s2Key;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -14,7 +14,6 @@
 
 #include "CondWriterAlg.h"
 #include "DataModelTestDataCommon/S2Cond.h"
-#include "EventInfo/EventID.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaKernel/IOVTime.h"
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
@@ -34,7 +33,6 @@ CondWriterAlg::CondWriterAlg (const std::string &name, ISvcLocator *pSvcLocator)
     m_streamer ("AthenaOutputStreamTool/CondStream", this)
 {
   declareProperty ("Streamer",     m_streamer);
-  declareProperty ("EventInfoKey", m_eventInfoKey = "McEventInfo");
   declareProperty ("AttrListKey",  m_attrListKey = "/DMTest/TestAttrList");
   declareProperty ("S2Key",        m_s2Key       = "/DMTest/S2");
   declareProperty ("RLTestKey",    m_rltestKey   = "/DMTest/RLTest");
@@ -136,8 +134,8 @@ StatusCode CondWriterAlg::writeTSTest (unsigned int count)
  */
 StatusCode CondWriterAlg::execute()
 {
-  SG::ReadHandle<EventInfo> eventInfo (m_eventInfoKey);
-  unsigned int count = eventInfo->event_ID()->event_number();
+  SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey);
+  unsigned int count = eventInfo->eventNumber();
 
   auto attrList = std::make_unique<AthenaAttributeList>();
   attrList->extend ("xint", "int");
