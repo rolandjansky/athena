@@ -334,7 +334,7 @@ namespace HLT {
     /**
      * @brief gets the access proxy
      **/   
-    AccessProxy* getAccessProxy() const{
+    const AccessProxy* getAccessProxy() const {
       return m_storeGate;
     }
 
