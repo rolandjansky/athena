@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 # Script that is used by the build_externals.sh scripts of the individual
 # projects.
@@ -179,6 +179,15 @@ fi
 # Exit with the error count taken into account.
 if [ ${ERROR_COUNT} -ne 0 ]; then
     echo "${ATLAS_EXT_PROJECT_NAME} build encountered ${ERROR_COUNT} error(s)"
+    # Clean out remnants of the externals from the build directory in a CI build
+    # if there was an error. While this does make it harder to diagnose issues
+    # in the CI, it should avoid CI build nodes getting "tainted" because of
+    # infrastructure glitches.
+    if [ "${ATLAS_CI_BUILD}" = "1" ]; then
+        echo "Removing external project artifacts..."
+        rm -rf "${ATLAS_BUILD_DIR}/build/${ATLAS_EXT_PROJECT_NAME}/src"
+        rm -rf "${ATLAS_BUILD_DIR}/build/${ATLAS_EXT_PROJECT_NAME}/External"
+    fi
 else
     cp "${ATLAS_PROJECT_DIR}/externals.txt" "${externals_stamp}"
 fi
