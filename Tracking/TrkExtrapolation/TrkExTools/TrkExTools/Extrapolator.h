@@ -9,43 +9,35 @@
 #ifndef TRKEXTOOLS_EXTRAPOLATOR_H
 #define TRKEXTOOLS_EXTRAPOLATOR_H
 
-// Gaudi/StoreGate
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "AthenaBaseComps/AthCheckedComponent.h"
+#include "LocalExtrapolatorCache.h" //for Trk::Cache
+#include "ObjContainer.h"
+
 #include "TrkExInterfaces/IExtrapolator.h"
-
-#include "GaudiKernel/ToolHandle.h"
-
-
-
+#include "TrkExInterfaces/IMaterialEffectsUpdator.h" // in tool handle array
+#include "TrkExInterfaces/INavigator.h"              //in tool handle
+#include "TrkExInterfaces/IPropagator.h"             //in tool handle
 // Trk
-#include "TrkEventPrimitives/ParticleHypothesis.h" //enum
-#include "TrkEventPrimitives/PropDirection.h" //enum
-
-#include "TrkExInterfaces/IMaterialEffectsUpdator.h"// in tool handle array
-#include "TrkExInterfaces/INavigator.h" //in tool handle
-#include "TrkExInterfaces/IPropagator.h" //in tool handle
-#include "TrkGeometry/MagneticFieldProperties.h" //member
-
+#include "TrkEventPrimitives/ParticleHypothesis.h"  //enum
+#include "TrkEventPrimitives/PropDirection.h"       //enum
+#include "TrkGeometry/MagneticFieldProperties.h"    //member
 #include "TrkNeutralParameters/NeutralParameters.h" //typedef
 #include "TrkParameters/TrackParameters.h" //template parameter in typedef
-#include "TrkSurfaces/BoundaryCheck.h" //template parameter in typedef
-
-#include "LocalExtrapolatorCache.h" //for Trk::Cache
-
+#include "TrkSurfaces/BoundaryCheck.h"     //template parameter in typedef
 // Amg
 #include "EventPrimitives/EventPrimitives.h" //Amg::Vector etc
 // xAOD
 #include "xAODTracking/NeutralParticle.h" //typedef
-#include "xAODTracking/TrackParticle.h" //typedef
-
-#include "ObjContainer.h"
+#include "xAODTracking/TrackParticle.h"   //typedef
+// Gaudi/StoreGate
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "AthenaBaseComps/AthCheckedComponent.h"
+#include "GaudiKernel/ToolHandle.h"
 #include <Gaudi/Accumulators.h>
 // STL
 #include <cstring>
-#include <utility>
-#include <memory>
 #include <map>
+#include <memory>
+#include <utility>
 #include <vector>
 
 class MsgStream;
@@ -77,27 +69,52 @@ using ManagedTrackParmPtr = ObjPtr<Trk::TrackParameters>;
 
 
 /**
-  @class Extrapolator
+@class Extrapolator
 
-  The Extrapolator can be used in different setups:
+@brief  Extrapolation of track parameters and their 
+associated covariances to destination surfaces
 
-  - <b>(Simple) Configured AlgTool</b> usage
+It combines 
+- The mathematical propagation of track 
+parameters to a destination surface via the configured propagators
+RungeKuttaPropagator or STEP_propagator.
 
-  - <b>(Full) Configured AlgTool</b> usage
+- The possible navigation procedure determining the starting
+and destination volume for the extrapolation that provides
+the boundary surfaces to be be intersected.
 
+- The application of material effects either in certain
+points/surfaces via the relevant MaterialEffectsUpdators,
+EnergyLoss and MultipleScattering tools,
+or continuously via the STEP_propagator for dense volumes.
 
-  This design allows external clients to choose their own propagation logic,
-  but also ensures an easy to use AlgTool for users
+There are always one  Navigator
+and one STEP_Propagator (forced for muon like workload inside dense volumes)
 
-  The output level is as follows:
-INFO    : initialize / finalize information
-DEBUG   : Method call sequence
-VERBOSE : Method call sequence with values
+There are also arrays of Propagators, MaterialEffects updators 
+and possible of EnergyLoss and MultipleScattering Updators.
+These must have at least one entry [Global] . 
+The default / Global propagator is a RungeKuttaPropator
+for most typical cases.
+
+Multiple methods are provided for tasks
+of varying complexity.
+
+As an example:
+In one side there
+is ExtrapolateDirectly which is a thinwrapper
+over the [Global] Propagator call (can be replaced completely by a call 
+to it in client code).
+In the other side there is an extrapolate overlaod
+that allows to find and collect all intersections
+for a particle (typically muon) trasversing the 
+ATLAS calorimeters. 
 
 @author Andreas.Salzburger@cern.ch
+@authors (Athena MT) G. Gaycken, S. Roe , C. Anastopoulos
 */
 
-class Extrapolator
+class Extrapolator final
   : public AthCheckedComponent<AthAlgTool>
   , virtual public IExtrapolator
 {
@@ -138,17 +155,6 @@ public:
    * without these. */
   virtual std::unique_ptr<TrackParameters> extrapolateDirectly(
     const EventContext& ctx,
-    const TrackParameters& parm,
-    const Surface& sf,
-    PropDirection dir = anyDirection,
-    const BoundaryCheck& bcheck = true,
-    ParticleHypothesis particle = pion) const override final;
-
-  /** Extrapolate directly: Forwards directly the call to the
-   * passed propagator. No navigation and no material effecs*/
-  virtual std::unique_ptr<TrackParameters> extrapolateDirectly(
-    const EventContext& ctx,
-    const IPropagator& prop,
     const TrackParameters& parm,
     const Surface& sf,
     PropDirection dir = anyDirection,
@@ -239,15 +245,6 @@ public:
               Trk::ParticleHypothesis particle,
               std::vector<const Trk::TrackStateOnSurface*>*& material,
               int destination = 3) const override final;
-
-  /** Extrapolation to the next active layer*/
-  virtual std::pair<std::unique_ptr<TrackParameters>, const Layer*> extrapolateToNextActiveLayer(
-    const EventContext& ctx,
-    const TrackParameters& parm,
-    PropDirection dir = anyDirection,
-    const BoundaryCheck& bcheck = true,
-    ParticleHypothesis particle = pion,
-    MaterialUpdateMode matupmode = addNoise) const override final;
 
   /** Extrapolation to the next active layer with material collection*/
   virtual std::pair<std::unique_ptr<TrackParameters>, const Layer*> extrapolateToNextActiveLayerM(

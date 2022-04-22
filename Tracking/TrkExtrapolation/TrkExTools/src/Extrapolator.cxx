@@ -556,75 +556,6 @@ Trk::Extrapolator::extrapolateStepwiseImpl(const EventContext& ctx,
   }
   return Trk::TrackParametersUVector(tmp.begin(), tmp.end());
 }
-std::pair<std::unique_ptr<Trk::TrackParameters>, const Trk::Layer*>
-Trk::Extrapolator::extrapolateToNextActiveLayerImpl(const EventContext& ctx,
-                                                    const IPropagator& prop,
-                                                    const Trk::TrackParameters& parm,
-                                                    PropDirection dir,
-                                                    const BoundaryCheck& bcheck,
-                                                    ParticleHypothesis particle,
-                                                    MaterialUpdateMode matupmode) const
-{
-
-  Cache cache{};
-  // statistics && sequence output ----------------------------------------
-  ++cache.m_methodSequence;
-  ATH_MSG_DEBUG("M-[" << cache.m_methodSequence << "] extrapolateToNextActiveLayer(...) ");
-  // Material effect updator cache
-  cache.populateMatEffUpdatorCache(m_subupdaters);
-  // initialize the return parameters vector
-  //TODO revisit when objcontainer is streamlined
-  auto cloneInput = std::unique_ptr<Trk::TrackParameters>(parm.clone());
-  ManagedTrackParmPtr currPar(cache.manage(std::move(cloneInput)));
-  const Trk::TrackingVolume* staticVol = nullptr;
-  const Trk::Surface* destSurface = nullptr;
-  const Trk::Layer* assocLayer = nullptr;
-
-  // ------------------------------------------------
-  //
-  while (currPar) {
-    assocLayer = nullptr;
-    ManagedTrackParmPtr nextPar(extrapolateToNextMaterialLayer(
-      ctx, cache, prop, currPar.index(), destSurface, staticVol, dir, bcheck, particle, matupmode));
-    if (nextPar) {
-      if (cache.m_lastMaterialLayer &&
-          cache.m_lastMaterialLayer->surfaceRepresentation().isOnSurface(
-            nextPar->position(), bcheck, m_tolerance, m_tolerance)) {
-        assocLayer = cache.m_lastMaterialLayer;
-      }
-      if (!assocLayer) {
-        ATH_MSG_ERROR("  [!] No associated layer found  -   at "
-                      << positionOutput(nextPar->position()));
-      }
-    } else {
-      // static volume boundary ?
-      if (cache.m_parametersAtBoundary.nextParameters && cache.m_parametersAtBoundary.nextVolume) {
-        if (cache.m_parametersAtBoundary.nextVolume->geometrySignature() == Trk::MS ||
-            (cache.m_parametersAtBoundary.nextVolume->geometrySignature() == Trk::Calo &&
-             m_useDenseVolumeDescription)) {
-          staticVol = cache.m_parametersAtBoundary.nextVolume;
-          nextPar = cache.m_parametersAtBoundary.nextParameters;
-          ATH_MSG_DEBUG("  [+] Static volume boundary: continue loop over active layers in '"
-                        << staticVol->volumeName() << "'.");
-        } else { // MSentrance
-          nextPar = std::move(cache.m_parametersAtBoundary.nextParameters);
-          cache.m_parametersAtBoundary.resetBoundaryInformation();
-          return {nextPar.to_unique(), nullptr};
-        }
-      } else if (cache.m_parametersAtBoundary
-                   .nextParameters) { // outer boundary
-        nextPar = std::move(cache.m_parametersAtBoundary.nextParameters);
-        cache.m_parametersAtBoundary.resetBoundaryInformation();
-        return {nextPar.to_unique(), nullptr};
-      }
-    }
-    currPar = std::move(nextPar);
-    if (currPar && assocLayer && assocLayer->layerType() != 0) {
-      break;
-    }
-  }
-  return {currPar.to_unique(), assocLayer};
-}
 
 std::pair<std::unique_ptr<Trk::TrackParameters>, const Trk::Layer*>
 Trk::Extrapolator::extrapolateToNextActiveLayerMImpl(
@@ -2248,41 +2179,6 @@ Trk::Extrapolator::extrapolateDirectly(const EventContext& ctx,
     ctx, (*currentPropagator), parm, sf, dir, bcheck, particle);
 }
 
-std::unique_ptr<Trk::TrackParameters>
-Trk::Extrapolator::extrapolateDirectly(const EventContext& ctx,
-                                       const IPropagator& prop,
-                                       const Trk::TrackParameters& parm,
-                                       const Trk::Surface& sf,
-                                       Trk::PropDirection dir,
-                                       const Trk::BoundaryCheck& bcheck,
-                                       Trk::ParticleHypothesis particle) const
-{
-
-  return extrapolateDirectlyImpl(ctx, prop, parm, sf, dir, bcheck, particle);
-}
-
-std::pair<std::unique_ptr<Trk::TrackParameters>, const Trk::Layer*>
-Trk::Extrapolator::extrapolateToNextActiveLayer(const EventContext& ctx,
-                                                const TrackParameters& parm,
-                                                PropDirection dir,
-                                                const BoundaryCheck& bcheck,
-                                                ParticleHypothesis particle,
-                                                MaterialUpdateMode matupmode) const
-{
-  if (m_configurationLevel < 10) {
-    // set propagator to the MS one - can be reset inside the next methode (once volume information
-    // is there)
-    const IPropagator* currentPropagator =
-      !m_subPropagators.empty() ? m_subPropagators[Trk::MS] : nullptr;
-    if (currentPropagator) {
-      return extrapolateToNextActiveLayerImpl(
-        ctx, (*currentPropagator), parm, dir, bcheck, particle, matupmode);
-    }
-  }
-  ATH_MSG_ERROR("[!] No default Propagator is configured ! Please check jobOptions.");
-  return { nullptr, nullptr };
-}
-
 std::pair<std::unique_ptr<Trk::TrackParameters>, const Trk::Layer*>
 Trk::Extrapolator::extrapolateToNextActiveLayerM(
   const EventContext& ctx,
@@ -2428,25 +2324,26 @@ Trk::Extrapolator::extrapolateImpl(const EventContext& ctx,
                                    Trk::ParticleHypothesis particle,
                                    MaterialUpdateMode matupmode) const
 {
-  // set the model action of the material effects updaters
-  for (unsigned int imueot = 0; imueot < m_subupdaters.size(); ++imueot) {
-    if(m_subupdaters[imueot]){
-      m_subupdaters[imueot]->modelAction((cache.m_MaterialUpCache[imueot]));
-    }
-  }
 
   // reset the destination surface
   cache.m_destinationSurface = nullptr;
   cache.m_lastValidParameters = ManagedTrackParmPtr();
   ManagedTrackParmPtr parm(cache.manage(parm_ref));
   // skip rest of navigation if particle hypothesis is nonInteracting
-  if (particle == Trk::nonInteracting || int(dir) > 5) {
+  if (particle == Trk::nonInteracting) {
     if (cache.m_methodSequence) {
       ++cache.m_methodSequence; // extrapolateDirectly does not have the cache and cannot increment
                                 // m_methodSequence therefore do it here
     }
     return cache.manage(
       extrapolateDirectlyImpl(ctx, prop, *parm, sf, dir, bcheck, particle));
+  }
+
+  // set the model action of the material effects updaters
+  for (unsigned int imueot = 0; imueot < m_subupdaters.size(); ++imueot) {
+    if(m_subupdaters[imueot]){
+      m_subupdaters[imueot]->modelAction((cache.m_MaterialUpCache[imueot]));
+    }
   }
 
   // statistics && sequence output ----------------------------------------
