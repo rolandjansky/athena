@@ -3,6 +3,7 @@
 evgenConfig.generators += ["EvtGen"]
 
 if hasattr(runArgs,'ecmEnergy') and runArgs.ecmEnergy > 13001.:
+  evgenConfig.auxfiles += ['2022inclusive_BELLE.dec']
   decayfile_str = "2022inclusive_BELLE.dec"  
   evgenConfig.auxfiles += ["2022inclusive_BELLE.dec" ]
 elif "EVTGENVER" in os.environ:

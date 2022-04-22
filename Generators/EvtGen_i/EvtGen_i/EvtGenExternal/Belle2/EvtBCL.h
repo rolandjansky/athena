@@ -46,10 +46,10 @@ class EvtBCL : public EvtDecayAmp {
  private:
 
   /** Pointers needed for FFs */
-  EvtSemiLeptonicFF* bclmodel;
+  EvtSemiLeptonicFF* m_bclmodel;
 
   /** Pointers needed to calculate amplitude */
-  EvtSemiLeptonicAmp* calcamp;
+  EvtSemiLeptonicAmp* m_calcamp;
 
 };
 

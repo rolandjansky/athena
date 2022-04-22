@@ -21,15 +21,15 @@
 EvtLLSWFF::EvtLLSWFF(double _tau_w1, double _tau_wp, double _zeta_1)
 {
 
-  tau_w1 = _tau_w1;
-  tau_wp = _tau_wp;
+  m_tau_w1 = _tau_w1;
+  m_tau_wp = _tau_wp;
 
-  zeta_1 = _zeta_1;
+  m_zeta_1 = _zeta_1;
 
-  mb = 4.2; mc = 1.4; L = 0.40; Lp = 0.80; Ls = 0.76;
+  m_mb = 4.2; m_mc = 1.4; m_L = 0.40; m_Lp = 0.80; m_Ls = 0.76;
 
-  eta_1 = eta_2 = eta_3 = eta_b = 0.;
-  chi_1 = chi_2 = chi_b = 0.;
+  m_eta_1 = m_eta_2 = m_eta_3 = m_eta_b = 0.;
+  m_chi_1 = m_chi_2 = m_chi_b = 0.;
 
   return;
 }
@@ -37,16 +37,16 @@ EvtLLSWFF::EvtLLSWFF(double _tau_w1, double _tau_wp, double _zeta_1)
 EvtLLSWFF::EvtLLSWFF(double _tau_w1, double _tau_wp, double _tau_1, double _tau_2)
 {
 
-  tau_w1 = _tau_w1;
-  tau_wp = _tau_wp;
+  m_tau_w1 = _tau_w1;
+  m_tau_wp = _tau_wp;
 
-  tau_1 = _tau_1;
-  tau_2 = _tau_2;
+  m_tau_1 = _tau_1;
+  m_tau_2 = _tau_2;
 
-  mb = 4.2; mc = 1.4; L = 0.40; Lp = 0.80; Ls = 0.76;
+  m_mb = 4.2; m_mc = 1.4; m_L = 0.40; m_Lp = 0.80; m_Ls = 0.76;
 
-  eta_1 = eta_2 = eta_3 = eta_b = 0.;
-  chi_1 = chi_2 = chi_b = 0.;
+  m_eta_1 = m_eta_2 = m_eta_3 = m_eta_b = 0.;
+  m_chi_1 = m_chi_2 = m_chi_b = 0.;
 
   return;
 }
@@ -166,8 +166,8 @@ double EvtLLSWFF::IsgurWiseFunction(double w)
 
   double value = 0;
 
-  value += tau_w1;
-  value += tau_w1 * (w - 1.) * tau_wp;
+  value += m_tau_w1;
+  value += m_tau_w1 * (w - 1.) * m_tau_wp;
 
   return value;
 
@@ -179,15 +179,15 @@ double EvtLLSWFF::IsgurWiseFunction(double w)
 double EvtLLSWFF::gpD0(double w)
 {
 
-  double ec = 1. / (2.*mc), eb = 1. / (2.*mb);
+  double ec = 1. / (2.*m_mc), eb = 1. / (2.*m_mb);
 
   // Leading IW function values
   double z12 = IsgurWiseFunction(w);
 
   double gp = 0;
 
-  gp += ec * (2.*(w - 1.) * zeta_1 * z12 - 3.*z12 * (w * Ls - L) / (w + 1.));
-  gp += -eb * ((Ls * (2.*w + 1.) - L * (w + 2.)) / (w + 1.) * z12 - 2.*(w - 1.) * zeta_1 * z12);
+  gp += ec * (2.*(w - 1.) * m_zeta_1 * z12 - 3.*z12 * (w * m_Ls - m_L) / (w + 1.));
+  gp += -eb * ((m_Ls * (2.*w + 1.) - m_L * (w + 2.)) / (w + 1.) * z12 - 2.*(w - 1.) * m_zeta_1 * z12);
 
   return gp;
 
@@ -196,7 +196,7 @@ double EvtLLSWFF::gpD0(double w)
 double EvtLLSWFF::gmD0(double w)
 {
 
-  double ec = 1. / (2.*mc), eb = 1. / (2.*mb);
+  double ec = 1. / (2.*m_mc), eb = 1. / (2.*m_mb);
 
   // Leading IW function values
   double z12 = IsgurWiseFunction(w);
@@ -204,8 +204,8 @@ double EvtLLSWFF::gmD0(double w)
   double gm = 0;
 
   gm += z12;
-  gm += ec * (6 * chi_1 - 2 * (w + 1) * chi_2);
-  gm += eb * chi_b;
+  gm += ec * (6 * m_chi_1 - 2 * (w + 1) * m_chi_2);
+  gm += eb * m_chi_b;
 
   return gm;
 }
@@ -217,7 +217,7 @@ double EvtLLSWFF::gmD0(double w)
 double EvtLLSWFF::gV1D1p(double w)
 {
 
-  double ec = 1 / (2 * mc), eb = 1 / (2 * mb);
+  double ec = 1 / (2 * m_mc), eb = 1 / (2 * m_mb);
 
   // Leading IW function values
   double z12 = IsgurWiseFunction(w);
@@ -225,8 +225,8 @@ double EvtLLSWFF::gV1D1p(double w)
   double gv1 = 0;
 
   gv1 += (w - 1.) * z12;
-  gv1 += ec * ((w * Ls - L) * z12 + (w - 1.) * (-2 * chi_1));
-  gv1 -= eb * ((Ls * (2.*w + 1) - L * (w + 2.)) * z12 - 2 * (pow(w, 2.) - 1.) * zeta_1 * z12 - (w - 1.) * chi_b);
+  gv1 += ec * ((w * m_Ls - m_L) * z12 + (w - 1.) * (-2 * m_chi_1));
+  gv1 -= eb * ((m_Ls * (2.*w + 1) - m_L * (w + 2.)) * z12 - 2 * (pow(w, 2.) - 1.) * m_zeta_1 * z12 - (w - 1.) * m_chi_b);
 
   return gv1;
 
@@ -235,14 +235,14 @@ double EvtLLSWFF::gV1D1p(double w)
 double EvtLLSWFF::gV2D1p(double w)
 {
 
-  double ec = 1 / (2 * mc);
+  double ec = 1 / (2 * m_mc);
 
   // Leading IW function values
   double z12 = IsgurWiseFunction(w);
 
   double gv2 = 0;
 
-  gv2 += 2 * ec * (zeta_1 * z12 - chi_2);
+  gv2 += 2 * ec * (m_zeta_1 * z12 - m_chi_2);
 
   return gv2;
 
@@ -251,16 +251,16 @@ double EvtLLSWFF::gV2D1p(double w)
 double EvtLLSWFF::gV3D1p(double w)
 {
 
-  double ec = 1 / (2 * mc), eb = 1 / (2 * mb);
+  double ec = 1 / (2 * m_mc), eb = 1 / (2 * m_mb);
 
   // Leading IW function values
   double z12 = IsgurWiseFunction(w);
 
   double gv3 = 0;
 
-  gv3 += eb * ((Ls * (2.*w + 1) - L * (w + 2.)) / (w + 1.) * z12 - 2 * (w - 1.) * zeta_1 * z12 - chi_b);
+  gv3 += eb * ((m_Ls * (2.*w + 1) - m_L * (w + 2.)) / (w + 1.) * z12 - 2 * (w - 1.) * m_zeta_1 * z12 - m_chi_b);
   gv3 -= z12;
-  gv3 -= ec * ((w * Ls - L) / (w + 1) * z12 + 2.*zeta_1 * z12 - 2 * chi_1 + 2 * chi_2);
+  gv3 -= ec * ((w * m_Ls - m_L) / (w + 1) * z12 + 2.*m_zeta_1 * z12 - 2 * m_chi_1 + 2 * m_chi_2);
 
   return gv3;
 
@@ -270,16 +270,16 @@ double EvtLLSWFF::gV3D1p(double w)
 double EvtLLSWFF::gAD1p(double w)
 {
 
-  double ec = 1 / (2 * mc), eb = 1 / (2 * mb);
+  double ec = 1 / (2 * m_mc), eb = 1 / (2 * m_mb);
 
   // Leading IW function values
   double z12 = IsgurWiseFunction(w);
 
   double ga = 0;
 
-  ga += eb * (2.*(w - 1.) * zeta_1 * z12 - (Ls * (2.*w + 1.) - L * (w + 2.)) / (w + 1.) * z12 + chi_b);
+  ga += eb * (2.*(w - 1.) * m_zeta_1 * z12 - (m_Ls * (2.*w + 1.) - m_L * (w + 2.)) / (w + 1.) * z12 + m_chi_b);
   ga += z12;
-  ga += ec * ((w * Ls - L) / (w + 1.) * z12 - 2 * chi_1);
+  ga += ec * ((w * m_Ls - m_L) / (w + 1.) * z12 - 2 * m_chi_1);
 
   return ga;
 
@@ -291,7 +291,7 @@ double EvtLLSWFF::gAD1p(double w)
 double EvtLLSWFF::fV1D1(double w)
 {
 
-  double ec = 1. / (2.*mc), eb = 1. / (2.*mb);
+  double ec = 1. / (2.*m_mc), eb = 1. / (2.*m_mb);
 
   // Leading IW function values
   double t32 = IsgurWiseFunction(w);
@@ -299,8 +299,8 @@ double EvtLLSWFF::fV1D1(double w)
   double fv1 = 0;
 
   fv1 += (1. - pow(w, 2.)) * t32;
-  fv1 -= eb * (pow(w, 2.) - 1.) * ((Lp + L) * t32 - (2.*w + 1) * tau_1 * t32 - tau_2 * t32 + eta_b);
-  fv1 -= ec * (4.*(w + 1.) * (w * Lp - L) * t32 - (pow(w, 2.) - 1) * (3.*tau_1 * t32 - 3.*tau_2 * t32 + 2 * eta_1 + 3 * eta_3));
+  fv1 -= eb * (pow(w, 2.) - 1.) * ((m_Lp + m_L) * t32 - (2.*w + 1) * m_tau_1 * t32 - m_tau_2 * t32 + m_eta_b);
+  fv1 -= ec * (4.*(w + 1.) * (w * m_Lp - m_L) * t32 - (pow(w, 2.) - 1) * (3.*m_tau_1 * t32 - 3.*m_tau_2 * t32 + 2 * m_eta_1 + 3 * m_eta_3));
 
   fv1 /= sqrt(6);
 
@@ -311,7 +311,7 @@ double EvtLLSWFF::fV1D1(double w)
 double EvtLLSWFF::fV2D1(double w)
 {
 
-  double ec = 1. / (2.*mc), eb = 1. / (2.*mb);
+  double ec = 1. / (2.*m_mc), eb = 1. / (2.*m_mb);
 
   // Leading IW function values
   double t32 = IsgurWiseFunction(w);
@@ -319,8 +319,8 @@ double EvtLLSWFF::fV2D1(double w)
   double fv2 = 0;
 
   fv2 -= 3.*t32;
-  fv2 -= 3 * eb * ((Lp + L) * t32 - (2 * w + 1) * tau_1 * t32 - tau_2 * t32 + eta_b);
-  fv2 -= ec * ((4.*w - 1) * tau_1 * t32 + 5 * tau_2 * t32 + 10 * eta_1 + 4 * (w - 1.) * eta_2 - 5 * eta_3);
+  fv2 -= 3 * eb * ((m_Lp + m_L) * t32 - (2 * w + 1) * m_tau_1 * t32 - m_tau_2 * t32 + m_eta_b);
+  fv2 -= ec * ((4.*w - 1) * m_tau_1 * t32 + 5 * m_tau_2 * t32 + 10 * m_eta_1 + 4 * (w - 1.) * m_eta_2 - 5 * m_eta_3);
 
   fv2 /= sqrt(6);
 
@@ -331,7 +331,7 @@ double EvtLLSWFF::fV2D1(double w)
 double EvtLLSWFF::fV3D1(double w)
 {
 
-  double ec = 1. / (2.*mc), eb = 1. / (2.*mb);
+  double ec = 1. / (2.*m_mc), eb = 1. / (2.*m_mb);
 
   // Leading IW function values
   double t32 = IsgurWiseFunction(w);
@@ -339,9 +339,9 @@ double EvtLLSWFF::fV3D1(double w)
   double fv3 = 0;
 
   fv3 += (w - 2.) * t32;
-  fv3 += eb * ((2. + w) * ((Lp + L) * t32 - (2.*w + 1.) * tau_1 * t32 - tau_2 * t32) - (2. - w) * eta_b);
-  fv3 += ec * (4.*(w * Lp - L) * t32 + (2. + w) * tau_1 * t32 + (2. + 3.*w) * tau_2 * t32 - 2.*(6. + w) * eta_1 - 4.*
-               (w - 1) * eta_2 - (3.*w - 2.) * eta_3);
+  fv3 += eb * ((2. + w) * ((m_Lp + m_L) * t32 - (2.*w + 1.) * m_tau_1 * t32 - m_tau_2 * t32) - (2. - w) * m_eta_b);
+  fv3 += ec * (4.*(w * m_Lp - m_L) * t32 + (2. + w) * m_tau_1 * t32 + (2. + 3.*w) * m_tau_2 * t32 - 2.*(6. + w) * m_eta_1 - 4.*
+               (w - 1) * m_eta_2 - (3.*w - 2.) * m_eta_3);
 
   fv3 /= sqrt(6);
 
@@ -353,7 +353,7 @@ double EvtLLSWFF::fV3D1(double w)
 double EvtLLSWFF::fAD1(double w)
 {
 
-  double ec = 1. / (2.*mc), eb = 1. / (2.*mb);
+  double ec = 1. / (2.*m_mc), eb = 1. / (2.*m_mb);
 
   // Leading IW function values
   double t32 = IsgurWiseFunction(w);
@@ -361,8 +361,9 @@ double EvtLLSWFF::fAD1(double w)
   double fa = 0;
 
   fa += -(w + 1.) * t32;
-  fa -= eb * ((w - 1.) * ((Lp + L) * t32 - (2.*w + 1.) * tau_1 * t32 - tau_2 * t32) + (w + 1.) * eta_b);
-  fa -= ec * (4.*(w * Lp - L) * t32 - 3.*(w - 1.) * (tau_1 * t32 - tau_2 * t32) + (w + 1.) * (-2 * eta_1 - 3 * eta_3));
+  fa -= eb * ((w - 1.) * ((m_Lp + m_L) * t32 - (2.*w + 1.) * m_tau_1 * t32 - m_tau_2 * t32) + (w + 1.) * m_eta_b);
+  fa -= ec * (4.*(w * m_Lp - m_L) 
+* t32 - 3.*(w - 1.) * (m_tau_1 * t32 - m_tau_2 * t32) + (w + 1.) * (-2 * m_eta_1 - 3 * m_eta_3));
 
   fa /= sqrt(6);
 
@@ -376,7 +377,7 @@ double EvtLLSWFF::fAD1(double w)
 double EvtLLSWFF::kA1D2(double w)
 {
 
-  double ec = 1. / (2.*mc), eb = 1. / (2.*mb);
+  double ec = 1. / (2.*m_mc), eb = 1. / (2.*m_mb);
 
   // Leading IW function values
   double t32 = IsgurWiseFunction(w);
@@ -384,8 +385,8 @@ double EvtLLSWFF::kA1D2(double w)
   double ka1 = 0;
 
   ka1 -= (1. + w) * t32;
-  ka1 -= eb * ((w - 1.) * ((Lp + L) * t32 - (2.*w + 1.) * tau_1 * t32 - tau_2 * t32) + (1. + w) * eta_b);
-  ka1 -= ec * ((w - 1.) * (tau_1 * t32 - tau_2 * t32) + (w + 1.) * (-2 * eta_1 + eta_3));
+  ka1 -= eb * ((w - 1.) * ((m_Lp + m_L) * t32 - (2.*w + 1.) * m_tau_1 * t32 - m_tau_2 * t32) + (1. + w) * m_eta_b);
+  ka1 -= ec * ((w - 1.) * (m_tau_1 * t32 - m_tau_2 * t32) + (w + 1.) * (-2 * m_eta_1 + m_eta_3));
 
   return ka1;
 
@@ -394,14 +395,14 @@ double EvtLLSWFF::kA1D2(double w)
 double EvtLLSWFF::kA2D2(double w)
 {
 
-  double ec = 1. / (2.*mc);
+  double ec = 1. / (2.*m_mc);
 
   // Leading IW function values
   double t32 = IsgurWiseFunction(w);
 
   double ka2 = 0;
 
-  ka2 -=  2.*ec * (tau_1 * t32 + eta_2);
+  ka2 -=  2.*ec * (m_tau_1 * t32 + m_eta_2);
 
   return ka2;
 
@@ -410,7 +411,7 @@ double EvtLLSWFF::kA2D2(double w)
 double EvtLLSWFF::kA3D2(double w)
 {
 
-  double ec = 1. / (2.*mc), eb = 1. / (2.*mb);
+  double ec = 1. / (2.*m_mc), eb = 1. / (2.*m_mb);
 
   // Leading IW function values
   double t32 = IsgurWiseFunction(w);
@@ -418,8 +419,8 @@ double EvtLLSWFF::kA3D2(double w)
   double ka3 = 0;
 
   ka3 += t32;
-  ka3 += eb * ((Lp + L) * t32 - (2.*w + 1.) * tau_1 * t32 - tau_2 * t32 + eta_b);
-  ka3 -= ec * (tau_1 * t32 + tau_2 * t32 + 2 * eta_1 - 2 * eta_2 - eta_3);
+  ka3 += eb * ((m_Lp + m_L) * t32 - (2.*w + 1.) * m_tau_1 * t32 - m_tau_2 * t32 + m_eta_b);
+  ka3 -= ec * (m_tau_1 * t32 + m_tau_2 * t32 + 2 * m_eta_1 - 2 * m_eta_2 - m_eta_3);
 
   return ka3;
 
@@ -428,7 +429,7 @@ double EvtLLSWFF::kA3D2(double w)
 double EvtLLSWFF::kVD2(double w)
 {
 
-  double ec = 1. / (2.*mc), eb = 1. / (2.*mb);
+  double ec = 1. / (2.*m_mc), eb = 1. / (2.*m_mb);
 
   // Leading IW function values
   double t32 = IsgurWiseFunction(w);
@@ -436,8 +437,8 @@ double EvtLLSWFF::kVD2(double w)
   double kv = 0;
 
   kv -= t32;
-  kv -= eb * ((Lp + L) * t32 - (2.*w + 1) * tau_1 * t32 - tau_2 * t32 + eta_b);
-  kv -= ec * (tau_1 * t32 - tau_2 * t32 - 2 * eta_1 + eta_3);
+  kv -= eb * ((m_Lp + m_L) * t32 - (2.*w + 1) * m_tau_1 * t32 - m_tau_2 * t32 + m_eta_b);
+  kv -= ec * (m_tau_1 * t32 - m_tau_2 * t32 - 2 * m_eta_1 + m_eta_3);
 
   return kv;
 

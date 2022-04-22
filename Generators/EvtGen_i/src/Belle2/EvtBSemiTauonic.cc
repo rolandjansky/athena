@@ -97,8 +97,8 @@ namespace Belle2 {
       const double rho12 = 0; // not used for D*taunu decays
       const double aS1 = 0; // not used for D*taunu decays
 
-      const double m_b = getArg(4);
-      const double m_c = getArg(5);
+      const double b = getArg(4);
+      const double c = getArg(5);
 
       EvtComplex Coeffs[5];
       Coeffs[0] = EvtComplex(getArg(6) * cos(getArg(7)),   getArg(6) * sin(getArg(7)));
@@ -107,7 +107,7 @@ namespace Belle2 {
       Coeffs[3] = EvtComplex(getArg(12) * cos(getArg(13)), getArg(12) * sin(getArg(13)));
       Coeffs[4] = EvtComplex(getArg(14) * cos(getArg(15)), getArg(14) * sin(getArg(15)));
 
-      m_CalcHelAmp = new EvtBSemiTauonicHelicityAmplitudeCalculator(rho12, rhoa12, R11, R21, aS1, aR3, m_b, m_c,
+      m_CalcHelAmp = new EvtBSemiTauonicHelicityAmplitudeCalculator(rho12, rhoa12, R11, R21, aS1, aR3, b, c,
           Coeffs[0], Coeffs[1], Coeffs[2], Coeffs[3], Coeffs[4],
           EvtPDL::getMeanMass(getParentId()),
           -1, /*dummy for Dmass*/
@@ -124,8 +124,8 @@ namespace Belle2 {
       const double R21 = 0; // not used for Dtaunu decays
       const double aR3 = 0; // not used for Dtaunu decays
 
-      const double m_b = getArg(2);
-      const double m_c = getArg(3);
+      const double b = getArg(2);
+      const double c = getArg(3);
 
       EvtComplex Coeffs[5];
       Coeffs[0] = EvtComplex(getArg(4) * cos(getArg(5)),   getArg(4) * sin(getArg(5)));
@@ -134,7 +134,7 @@ namespace Belle2 {
       Coeffs[3] = EvtComplex(getArg(10) * cos(getArg(11)), getArg(10) * sin(getArg(11)));
       Coeffs[4] = EvtComplex(getArg(12) * cos(getArg(13)), getArg(12) * sin(getArg(13)));
 
-      m_CalcHelAmp = new EvtBSemiTauonicHelicityAmplitudeCalculator(rho12, rhoa12, R11, R21, aS1, aR3, m_b, m_c,
+      m_CalcHelAmp = new EvtBSemiTauonicHelicityAmplitudeCalculator(rho12, rhoa12, R11, R21, aS1, aR3, b, c,
           Coeffs[0], Coeffs[1], Coeffs[2], Coeffs[3], Coeffs[4],
           EvtPDL::getMeanMass(getParentId()),
           EvtPDL::getMeanMass(getDaug(0)),

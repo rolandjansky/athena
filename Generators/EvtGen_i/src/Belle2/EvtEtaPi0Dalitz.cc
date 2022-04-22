@@ -83,14 +83,14 @@ namespace Belle2 {
     EvtVector4R mompi0_1 = p->getDaug(1)->getP4();
     EvtVector4R mompi0_2 = p->getDaug(2)->getP4();
 
-    double m_eta = p->mass();
-    double m_pi0 = p->getDaug(0)->mass();
-    double deltaM = m_eta - 3 * m_pi0;
+    double eta = p->mass();
+    double pi0 = p->getDaug(0)->mass();
+    double deltaM = eta - 3 * pi0;
 
     //The decay amplitude comes from KLOE collab., Phys.Lett. B694 (2011) 16-21
-    double z0 = (3 * mompi0_0.get(0) - m_eta) / deltaM;
-    double z1 = (3 * mompi0_1.get(0) - m_eta) / deltaM;
-    double z2 = (3 * mompi0_2.get(0) - m_eta) / deltaM;
+    double z0 = (3 * mompi0_0.get(0) - eta) / deltaM;
+    double z1 = (3 * mompi0_1.get(0) - eta) / deltaM;
+    double z2 = (3 * mompi0_2.get(0) - eta) / deltaM;
 
     double z = (2. / 3.) * (z0 * z0 + z1 * z1 + z2 * z2) ;
 
