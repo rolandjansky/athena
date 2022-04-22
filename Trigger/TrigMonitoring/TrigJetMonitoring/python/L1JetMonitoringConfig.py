@@ -62,19 +62,6 @@ class L1JetMonAlg():
                'L1_jFexLRJetRoI': 'TrigL1JFexLRJetMonitor',
                'L1_gFexSRJetRoI': 'TrigL1GFexSRJetMonitor',
                'L1_gFexLRJetRoI': 'TrigL1GFexLRJetMonitor',}[self.L1JetContainer]
-      
-
-
-    #    if jFexSR:
-    #      algClass = CompFactory.TrigL1JFexSRJetMonitorAlgorithm
-    #      alg = monhelper.addAlgorithm(algClass, self.name)
-    #      alg.L1JetContainer = self.L1JetContainer
-    #      alg.TriggerChain = self.triggerChain
-    #      alg.IsMatched = self.matched
-    #      alg.MatchedOfflineJets = self.matchedOJ
-    #      alg.MatchedHLTJets     = self.matchedHLTJ
-    #
-    #    elif jFexLR or gFexSR or gFexLR:
     
     if L1Fex:
       alg = monhelper.addAlgorithm(CompFactory.TrigL1FexJetMonitorAlgorithm,

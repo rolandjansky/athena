@@ -8,7 +8,6 @@
 #include "AsgDataHandles/ReadDecorHandle.h"
 
 #include <vector>
-#include <iostream>
 
 TrigL1FexJetMonitorAlgorithm::TrigL1FexJetMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
   : AthMonitorAlgorithm(name,pSvcLocator){
@@ -51,10 +50,6 @@ StatusCode TrigL1FexJetMonitorAlgorithm::fillHistograms(const EventContext& ctx)
       return sc;
     }
 
-    
-    std::cerr << "PS DEBUG " << name() << " hlt matchdata size "
-	      << jetMatchData.size() << '\n';
-    
     for (const auto& jd : jetMatchData) {
        auto dPt = Monitored::Scalar("hltptdiff", jd.m_dPt);
        auto dEnergy = Monitored::Scalar("hltenergydiff", jd.m_dEnergy);
@@ -79,9 +74,6 @@ StatusCode TrigL1FexJetMonitorAlgorithm::fillHistograms(const EventContext& ctx)
       return sc;
     }
 
-    std::cerr << "PS DEBUG " << name() << " offline matchdata size "
-	      << jetMatchData.size() << '\n';
-    
     for (const auto& jd : jetMatchData) {
        auto dPt = Monitored::Scalar("offptdiff", jd.m_dPt);
        auto dEnergy = Monitored::Scalar("offenergydiff", jd.m_dEnergy);

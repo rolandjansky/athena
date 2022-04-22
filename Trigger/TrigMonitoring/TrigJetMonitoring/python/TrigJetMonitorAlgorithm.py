@@ -829,7 +829,7 @@ def jetMonitoringConfig(inputFlags,jetcoll,athenaMT):
    return conf
 
 def l1JetMonitoringConfig(inputFlags,jetcoll,chain='',matched=False):
-  print ('PS DEBUG, in l1JetMonitoringConfig. jetcoll:', jetcoll) 
+
   from TrigJetMonitoring.L1JetMonitoringConfig import L1JetMonAlg
   name = jetcoll if chain=='' else jetcoll+'_'+chain
 
