@@ -28,9 +28,13 @@ class L1JetMonAlg():
     jFexSR = self.L1JetContainer == 'L1_jFexSRJetRoI'
     jFexLR = self.L1JetContainer == 'L1_jFexLRJetRoI'
     gFexSR = self.L1JetContainer == 'L1_gFexSRJetRoI'
-    gFexLR = self.L1JetContainer == 'L1_gFexSRJetRoI'
+    gFexLR = self.L1JetContainer == 'L1_gFexLRJetRoI'
+
+    noFex = self.L1JetContainer == 'LVL1JetRoIs'
 
     L1Fex = jFexSR or jFexLR or gFexSR or gFexLR
+
+    assert L1Fex or noFex, 'unsupported L1Container %s' % self.L1JetContainer
     
     def container2tool_class_name():
 
@@ -61,16 +65,18 @@ class L1JetMonAlg():
       
 
 
-    if jFexSR:
-      algClass = CompFactory.TrigL1JFexSRJetMonitorAlgorithm
-      alg = monhelper.addAlgorithm(algClass, self.name)
-      alg.L1JetContainer = self.L1JetContainer
-      alg.TriggerChain = self.triggerChain
-      alg.IsMatched = self.matched
-      alg.MatchedOfflineJets = self.matchedOJ
-      alg.MatchedHLTJets     = self.matchedHLTJ
-
-    elif jFexLR or gFexSR or gFexLR:
+    #    if jFexSR:
+    #      algClass = CompFactory.TrigL1JFexSRJetMonitorAlgorithm
+    #      alg = monhelper.addAlgorithm(algClass, self.name)
+    #      alg.L1JetContainer = self.L1JetContainer
+    #      alg.TriggerChain = self.triggerChain
+    #      alg.IsMatched = self.matched
+    #      alg.MatchedOfflineJets = self.matchedOJ
+    #      alg.MatchedHLTJets     = self.matchedHLTJ
+    #
+    #    elif jFexLR or gFexSR or gFexLR:
+    
+    if L1Fex:
       alg = monhelper.addAlgorithm(CompFactory.TrigL1FexJetMonitorAlgorithm,
                                    self.name)
       toolClass = getattr(CompFactory, container2tool_class_name())
@@ -81,47 +87,7 @@ class L1JetMonAlg():
       tool.l1container = self.L1JetContainer
       tool.group_name = container2_monitorgroup()
       alg.fillers = [tool]
-      
-      # if jFexSR:
-      #  toolClass = getattr(CompFactory,
-      #                      'TrigL1FexJetMonitorTool<DataVector<xAOD::jFexSRJetRoI_v1, DataModel_detail::NoBase> >')
-      #  tool = toolClass("jFexSRDataRetriever")
-      #  tool.do_matching = False   # PS under development
-      #  tool.l1container = self.L1JetContainer
-      #  tool.group_name = 'TrigL1JFexSRJetMonitor'
-      #  alg.fillers = [tool]
-        
-      # elif jFexLR:
-      
-      # if jFexLR:
-      #  class_name = 'TrigL1FexJetMonitorTool'\
-      #    '<DataVector<xAOD::jFexLRJetRoI_v1, DataModel_detail::NoBase> >'
-      #  toolClass = getattr(CompFactory, )
-
-     #   tool = toolClass("jFexLRDataRetriever")
-      #  tool.do_matching = False   # PS under development
-      #  tool.l1container = self.L1JetContainer
-      #  tool.group_name = 'TrigL1JFexLRJetMonitor'
-      #  alg.fillers = [tool]
-      #elif gFexSR:
-      #   class_name = 'TrigL1FexJetMonitorTool'\
-      #     '<DataVector<xAOD::gFexJetRoI_v1, DataModel_detail::NoBase> >'
-      #  toolClass = getattr(CompFactory, class_name)
-      #  tool = toolClass("gFexDataRetriever")
-      #  tool.do_matching = False   # PS under development
-      #  tool.l1container = self.L1JetContainer
-      #  tool.group_name = 'TrigL1GFexSRJetMonitor'
-      #  alg.fillers = [tool]
-      #elif gFexLR:
-      #  class_name = 'TrigL1FexJetMonitorTool'\
-      #    '<DataVector<xAOD::gFexJetRoI_v1, DataModel_detail::NoBase> >'
-      #  toolClass = getattr(CompFactory,
-      #                      'TrigL1FexJetMonitorTool<DataVector<xAOD::gFexJetRoI_v1, DataModel_detail::NoBase> >')
-      #  tool = toolClass("gFexDataRetriever")
-      #  tool.do_matching = False   # PS under development
-      #  tool.l1container = self.L1JetContainer
-      #  tool.group_name = 'TrigL1GFexLRJetMonitor'
-      #  alg.fillers = [tool]
+ 
     else:
       alg = monhelper.addAlgorithm(CompFactory.TrigL1JetMonitorAlgorithm, self.name)
       alg.IsMatched = self.matched
@@ -157,14 +123,6 @@ class L1JetMonAlg():
       
     myGroup.defineHistogram('eta',title='eta',path=Path,xbins=50,xmin=-5,xmax=5)
     myGroup.defineHistogram('phi',title='phi',path=Path,xbins=50,xmin=-3.3,xmax=3.3)
-
-    # Add histograms for L1 jets matched to offline/online jets
-    # if self.matched and not L1Fex:  # PS under development
-    #  matchedOJ   = self.matchedOJ
-    #  matchedHLTJ = self.matchedHLTJ
-
-    # alg.MatchedOfflineJets = matchedOJ
-    # alg.MatchedHLTJets     = matchedHLTJ
 
     if self.matched:
       for matchcoll,tag in [ [self.matchedOJ, 'off'], [self.matchedHLTJ, 'hlt'] ]:

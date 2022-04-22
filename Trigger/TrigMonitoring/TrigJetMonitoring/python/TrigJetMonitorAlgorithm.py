@@ -30,6 +30,7 @@ OfflineJetCollections = {
 # The MatchedTo list must be either emptu of length 2, and contain the names of an offline collection
 # and an HLT collection. These names can be the empty string.
 
+# the strings in L1JetCollections are jet container names.
 L1JetCollections = {
 
   'LVL1JetRoIs'  : {
@@ -46,7 +47,8 @@ L1JetCollections = {
   'L1_gFexSRJetRoI': {'MatchTo': ['AntiKt4EMPFlowJets',
                                   'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf']},
 
-  # 'L1_gFexLRJetRoI': {'MatchTo': []},
+  'L1_gFexLRJetRoI': {'MatchTo': ['AntiKt4EMPFlowJets',
+                                  'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf']},
 }
 
 try:
@@ -77,12 +79,13 @@ l1Coll2MatcherKey = {
   'L1_jFexSRJetRoI': 'L1jFexSRJetRoIContainerName',
   'L1_jFexLRJetRoI': 'L1jFexLRJetRoIContainerName',
   'L1_gFexSRJetRoI': 'L1gFexJetRoIContainerName',
+  'L1_gFexLRJetRoI': 'L1gFexJetRoIContainerName',
 }
 
 for k, d in L1JetCollections.items():
   if d['MatchTo']:  # exists by previous checks. check if empty.
     if k not in l1Coll2MatcherKey:
-      errmsg = 'Match(es) to an L1 container requested  entry'\
+      errmsg = 'Match(es) to an L1 container requested  entry '\
       '%s but no C++ MatcherAlg attribute name provided' % (str(k),)
       raise RuntimeError(errmsg)
       
