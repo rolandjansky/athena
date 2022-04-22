@@ -14,8 +14,6 @@
 #include "StoreGateExample_ClassDEF.h" /*the CLIDs for the containers*/
 
 #include "GaudiKernel/ISvcLocator.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "AthContainers/DataVector.h"
 
 #include "StoreGate/SGIterator.h"
@@ -51,6 +49,8 @@ StatusCode ReadData::initialize(){
 
   ATH_CHECK( m_dobj3.assign (m_DataProducer) );
   ATH_CHECK( m_dobj3.initialize() );
+  
+  ATH_CHECK( m_eventInfo.initialize() );
   return sc;
 }
 
@@ -295,13 +295,10 @@ StatusCode ReadData::execute() {
   /////////////////////////////////////////////////////////////////////
   // Part 4: Get the event header, print out event and run number
 
-  int event, run;
-  
-  const EventInfo* evt;
-  if (StatusCode::SUCCESS == evtStore()->retrieve(evt))
-  {
-    event = evt->event_ID()->event_number();
-    run = evt->event_ID()->run_number();
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfo);
+  if(eventInfo.isValid()) {
+    int event = eventInfo->eventNumber();
+    int run = eventInfo->runNumber();
     ATH_MSG_INFO (" EventInfo : " 
 		  << " event: " << event 
 		  << " run: " << run);

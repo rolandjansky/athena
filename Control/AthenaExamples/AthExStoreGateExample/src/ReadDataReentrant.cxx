@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -23,8 +23,6 @@
 #include "StoreGateExample_ClassDEF.h" /*the CLIDs for the containers*/
 
 #include "GaudiKernel/ISvcLocator.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "AthContainers/DataVector.h"
 
 #include "StoreGate/SGIterator.h"
@@ -62,6 +60,7 @@ StatusCode ReadDataReentrant::initialize()
   ATH_CHECK( m_pLinkListKey.initialize() );
   ATH_CHECK( m_linkVectorKey.initialize() );
   ATH_CHECK( m_testObjectKey.initialize() );
+  ATH_CHECK( m_eventInfo.initialize() );
   ATH_CHECK( m_dobjKeyArray.initialize() );
 
   return StatusCode::SUCCESS;
@@ -257,14 +256,11 @@ StatusCode ReadDataReentrant::execute (const EventContext& ctx) const
   /////////////////////////////////////////////////////////////////////
   // Part 4: Get the event header, print out event and run number
 
-#if 0  
-  int event, run;
-  
-  const EventInfo* evt;
-  if (StatusCode::SUCCESS == evtStore()->retrieve(evt))
-  {
-    event = evt->event_ID()->event_number();
-    run = evt->event_ID()->run_number();
+#if 0
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfo,ctx);
+  if(eventInfo.isValid()) {
+    int event = eventInfo->eventNumber();
+    int run = eventInfo->runNumber();
     ATH_MSG_INFO (" EventInfo : " 
 		  << " event: " << event 
 		  << " run: " << run);
