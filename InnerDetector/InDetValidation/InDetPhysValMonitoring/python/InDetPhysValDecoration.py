@@ -119,6 +119,7 @@ def getInDetPhysHitDecoratorAlg(**kwargs):
     of the algorithm will be extended by the collection name
     '''
     # @TODO use track particles from ? from InDetRecExample.InDetKeys import InDetKeys
+    from InDetRecExample.TrackingCommon import getPixelLorentzAngleTool
     return createExtendNameIfNotDefault(InDetPhysValMonitoring.InDetPhysValMonitoringConf.InDetPhysHitDecoratorAlg,
                                         'TrackParticleContainerName', 'InDetTrackParticles',
                                         kwargs,
@@ -126,6 +127,7 @@ def getInDetPhysHitDecoratorAlg(**kwargs):
                                             getPhysValMonInDetHoleSearchTool),
                                         Updator='Trk::KalmanUpdator/TrkKalmanUpdator',
                                         ResidualPullCalculator='Trk::ResidualPullCalculator/ResidualPullCalculator',
+                                        LorentzAngleTool=getPixelLorentzAngleTool(),
                                         TrackParticleContainerName='InDetTrackParticles')
 
 
