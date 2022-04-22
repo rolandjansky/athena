@@ -542,6 +542,11 @@ def MuonCombinedReconstructionCfg(flags):
     # Many components need these services, so setup once here.
     result = MuonIdHelperSvcCfg(flags)
 
+    from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
+    result.merge(CaloTopoClusterCfg(flags))
+    from TrackToCalo.CaloExtensionBuilderAlgCfg import CaloExtensionBuilderCfg
+    result.merge(CaloExtensionBuilderCfg(flags))
+
     from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
     result.merge(TrackingGeometryCondAlgCfg(flags))
 
@@ -661,11 +666,6 @@ if __name__ == "__main__":
 
     # "Fixes" to get this working standalone i.e. from ESD
     # Configure topocluster algorithmsm, and associated conditions
-    from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
-    cfg.merge(CaloTopoClusterCfg(ConfigFlags))
-    from TrackToCalo.CaloExtensionBuilderAlgCfg import CaloExtensionBuilderCfg
-    cfg.merge(CaloExtensionBuilderCfg(ConfigFlags))
-
     acc = MuonCombinedReconstructionCfg(ConfigFlags)
     cfg.merge(acc)
 
