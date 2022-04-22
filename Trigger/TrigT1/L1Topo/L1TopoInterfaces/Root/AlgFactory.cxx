@@ -3,98 +3,79 @@
 #include "L1TopoInterfaces/ConfigurableAlg.h"
 #include "L1TopoCommon/Exception.h"
 
-using namespace std;
-
-TCS::AlgFactory&
+const TCS::AlgFactory&
 TCS::AlgFactory::instance()
 {
-   if (!fg_instance) fg_instance = new TCS::AlgFactory();
-   return *fg_instance;
+   static const TCS::AlgFactory factory;
+   return factory;
 }
 
-void
-TCS::AlgFactory::destroy_instance()
+TCS::AlgFactory&
+TCS::AlgFactory::mutable_instance ATLAS_NOT_THREAD_SAFE()
 {
-   delete fg_instance;
-   fg_instance = nullptr;
+   auto nc_instance = const_cast<TCS::AlgFactory*>(&instance());
+   return *nc_instance;
 }
-
-
-
-TCS::AlgFactory::~AlgFactory() {
-   for(auto x: m_algs)
-      delete x.second;
-}
-
 
 TCS::ConfigurableAlg *
-TCS::AlgFactory::create(const std::string & algType, const std::string & algName) {
+TCS::AlgFactory::create(const std::string & algType, const std::string & algName) ATLAS_NOT_THREAD_SAFE {
 
-   if( instance().algorithm(algName) ) {
+   if( algorithm(algName) ) {
       TCS_EXCEPTION("AlgFactory: algorithm " << algName << " already exists. Serious configuration error.")
    }
 
    // find creator function
-   CallMap::const_iterator it = instance().m_callMap.find(algType);
+   const auto& it = m_callMap.find(algType);
    
    // handle unknown algorithm request
-   if (it == instance().m_callMap.end()) {
-      cout << "Registered algorithms are:" << endl;
-      for(const auto & x: instance().m_callMap)
-         cout << "   " << x.first << endl;
+   if (it == m_callMap.end()) {
+      std::cout << "Registered algorithms are:" << std::endl;
+      for(const auto & x: m_callMap)
+         std::cout << "   " << x.first << std::endl;
       TCS_EXCEPTION("AlgFactory: trying to instantiate algorithm of type " << algType << " with name " << algName << ", but it has not been registered.");
    }
 
-   TCS::ConfigurableAlg * createdAlg = (it->second)(algName);
+   auto createdAlg = (it->second)(algName);
+   auto [itr,inserted] = m_algs.emplace(algName, std::move(createdAlg));
 
-   instance().m_algs[algName] = createdAlg;
-
-   return createdAlg;
+   return itr->second.get();
 }
 
 
 bool
-TCS::AlgFactory::Register( const std::string &name, Creator creator ) {
+TCS::AlgFactory::Register( const std::string &algType, Creator creator ) {
+   const auto& [itr, inserted] = m_callMap.emplace(algType, creator);
    // registers a algorithm creator function under the algorithm class name
-   if(m_callMap.find(name) != m_callMap.end()) {
-      TCS_EXCEPTION ("TCS::AlgFactory: registration of algorithm " << name << " failed since it already exists");
-      return false;
+   if (!inserted) {
+      TCS_EXCEPTION ("TCS::AlgFactory: registration of algorithm " << algType << " failed since it already exists");
    }
-   return m_callMap.insert(CallMap::value_type(name, creator)).second;
+   return inserted;
 }
 
-
-bool
-TCS::AlgFactory::Unregister( const std::string &name )
-{
-   // unregisters an algorithm class name
-   return m_callMap.erase(name) == 1;
-}
-
-
-vector<string>
+std::vector<std::string>
 TCS::AlgFactory::getAllClassNames() const {
-   vector<string> classNames; 
+   std::vector<std::string> classNames;
    classNames.reserve(m_callMap.size());
-   for(const auto& x : m_callMap)
-      classNames.push_back(x.first);
+   for (const auto& [key, _] : m_callMap) {
+      classNames.push_back(key);
+   }
    return classNames;
 }
 
 TCS::ConfigurableAlg *
 TCS::AlgFactory::algorithm(const std::string & algName) {
-   AlgMap_t::iterator findRes = m_algs.find(algName);
+   auto findRes = m_algs.find(algName);
 
    if(findRes == m_algs.end())
-      return (TCS::ConfigurableAlg*)0;
+      return nullptr;
 
-   return findRes->second;
+   return findRes->second.get();
 }
 
 
 void
-TCS::AlgFactory::PrintAlgorithmNames() {
-   for(AlgMap_t::value_type entry : instance().m_algs) {
-      cout << entry.first << " --> " << entry.second->fullname() << endl;
+TCS::AlgFactory::printAlgorithmNames() const {
+   for(const auto& [name, alg] : m_algs) {
+      std::cout << name << " --> " << alg->fullname() << std::endl;
    }
 }

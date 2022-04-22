@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <memory>
 
 namespace TCS {
    
@@ -14,81 +15,60 @@ namespace TCS {
    
    class AlgFactory {
    public:
+      /// function type to create an algorithm
+      typedef std::unique_ptr<ConfigurableAlg> (*Creator)(const std::string & methodName);
 
-      /**@brief: destructor
-       * destroys all algorithms
-       */
-      ~AlgFactory();
+      static const AlgFactory& instance();                          //!< read-only access
+      static AlgFactory& mutable_instance ATLAS_NOT_THREAD_SAFE();  //!< non-const access
 
-      // function type to create an algorithm
-      typedef ConfigurableAlg* (*Creator)(const std::string & methodName);
+      /// Register creator function for algorithm type
+      bool Register( const std::string &algType, Creator creator );
 
-      static AlgFactory & instance();
+      /// Create algorithm of given type and name
+      ConfigurableAlg* create(const std::string & algType, const std::string & algName);
 
-      static void destroy_instance();
-
-      static ConfigurableAlg * create(const std::string & algType, const std::string & algName);
-      
-      bool Register( const std::string &name, Creator creator );
-      bool Unregister( const std::string &name );
-
-      ConfigurableAlg * algorithm(const std::string & algName);
+      /// Retrieve algorithm by name
+      ConfigurableAlg* algorithm(const std::string & algName);
 
       std::vector<std::string> getAllClassNames() const;
-
-      static void PrintAlgorithmNames();
+      void printAlgorithmNames() const;
 
    private:
-      typedef std::map<std::string, Creator> CallMap;
+      AlgFactory() = default;   //<! singleton created via instance()
+      AlgFactory(const AlgFactory&) = delete;             //!< no copy
+      AlgFactory& operator=(const AlgFactory&) = delete;  //!< no assign
 
-      typedef std::map<std::string, TCS::ConfigurableAlg*> AlgMap_t;
-
-      CallMap m_callMap;
-
-      AlgMap_t m_algs;
-
-      // This is safe because only filled during initialize (ATR-25362)
-      inline static AlgFactory * fg_instance ATLAS_THREAD_SAFE {nullptr};
+      std::map<std::string, Creator>                               m_callMap;
+      std::map<std::string, std::unique_ptr<TCS::ConfigurableAlg>> m_algs;
    };
    
 }
 
-#define REGISTER_ALG(CLASS) \
-   namespace {                                                          \
-      TCS::ConfigurableAlg* Create##CLASS(const std::string & name) {   \
-         TCS::ConfigurableAlg* alg = (TCS::ConfigurableAlg*) new #CLASS(name); \
-         alg->setClassName(#CLASS);                                     \
-         alg->msg().setName( alg->fullname() );                         \
-         return alg;                                                    \
-      }                                                                 \
-                                                                        \
-      bool success = TCS::AlgFactory::instance().Register(#CLASS, Create##CLASS); \
-   }
-
-
+// Macro to register algorithm in arbitrary namespace
 #define REGISTER_ALG_NS(NS,CLASS)                                       \
    namespace {                                                          \
-      TCS::ConfigurableAlg* Create##CLASS(const std::string & methodName) { \
-         TCS::ConfigurableAlg* alg = (TCS::ConfigurableAlg*) new NS::CLASS(methodName); \
+      std::unique_ptr<TCS::ConfigurableAlg> Create##NS__##CLASS(const std::string & methodName) { \
+         auto alg = std::make_unique<NS::CLASS>(methodName); \
          alg->setClassName( std::string(#NS) + "__" + #CLASS );         \
          alg->msg().setName( alg->fullname() );                         \
          return alg;                                                    \
       }                                                                 \
                                                                         \
-      bool success = TCS::AlgFactory::instance().Register( std::string(#NS) + "__" + #CLASS, Create##CLASS); \
+      const bool success = TCS::AlgFactory::mutable_instance().Register( std::string(#NS) + "__" + #CLASS, Create##NS__##CLASS); \
    }
 
 
+// Macro to register algorithm in TCS namespace
 #define REGISTER_ALG_TCS(CLASS)                                         \
    namespace {                                                          \
-      TCS::ConfigurableAlg* Create##CLASS(const std::string & methodName) { \
-         TCS::ConfigurableAlg* alg = (TCS::ConfigurableAlg*) new TCS::CLASS(methodName); \
+      std::unique_ptr<TCS::ConfigurableAlg> Create##CLASS(const std::string & methodName) { \
+         auto alg = std::make_unique<TCS::CLASS>(methodName); \
          alg->setClassName( #CLASS );                                   \
          alg->msg().setName(  alg->fullname() );                        \
          return alg;                                                    \
       }                                                                 \
                                                                         \
-      bool success = TCS::AlgFactory::instance().Register( #CLASS, Create##CLASS); \
+      const bool success = TCS::AlgFactory::mutable_instance().Register( #CLASS, Create##CLASS); \
    }
 
 

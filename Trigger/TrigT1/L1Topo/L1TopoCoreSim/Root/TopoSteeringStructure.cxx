@@ -121,7 +121,7 @@ TCS::TopoSteeringStructure::printParameters(std::ostream & o) const {
 
 
 TCS::StatusCode
-TCS::TopoSteeringStructure::setupFromMenu(const TrigConf::L1Menu& l1menu, bool legacy, bool debug) {
+TCS::TopoSteeringStructure::setupFromMenu ATLAS_NOT_THREAD_SAFE (const TrigConf::L1Menu& l1menu, bool legacy, bool debug) {
 
    if(debug)
       cout << "/***************************************************************************/" << endl
@@ -326,7 +326,7 @@ TCS::TopoSteeringStructure::setupFromMenu(const TrigConf::L1Menu& l1menu, bool l
 
       if(debug)
          cout << "TopoSteeringStructure: Parameters for algorithm with name " << l1algoName << " going to be configured." << endl;
-      ConfigurableAlg * alg = AlgFactory::instance().algorithm(l1algoName);
+      ConfigurableAlg * alg = AlgFactory::mutable_instance().algorithm(l1algoName);
      
       if(alg->isDecisionAlg())
          ( dynamic_cast<DecisionAlg *>(alg) )->setNumberOutputBits(l1algo.outputs().size());
@@ -387,7 +387,7 @@ TCS::TopoSteeringStructure::setupFromMenu(const TrigConf::L1Menu& l1menu, bool l
       //Temporarily remove the trigger items that rely on EnergyThreshold but are not yet implemented
       if ( (l1algo.klass() == "EnergyThreshold") && (l1algo.inputs().at(0) != "jXE") ) continue;
 
-      ConfigurableAlg * alg = AlgFactory::instance().algorithm(l1algo.name());
+      ConfigurableAlg * alg = AlgFactory::mutable_instance().algorithm(l1algo.name());
 
       // Get L1Threshold object and pass it to CountingAlg, from where it will be propagated to and decoded in each algorithm
       // The output of each algorithm and the threshold name is the same - use output name to retrieve L1Threshold object
@@ -444,7 +444,7 @@ TopoSteeringStructure::linkConnectors() {
 
 
 TCS::StatusCode
-TCS::TopoSteeringStructure::instantiateAlgorithms(bool debug) {
+TCS::TopoSteeringStructure::instantiateAlgorithms ATLAS_NOT_THREAD_SAFE (bool debug) {
 
    for(TCS::Connector* conn: m_connectors) {
 
@@ -457,11 +457,11 @@ TCS::TopoSteeringStructure::instantiateAlgorithms(bool debug) {
       std::string algType(alg, 0, alg.find('/'));
       std::string algName(alg, alg.find('/')+1);
 
-      ConfigurableAlg * algInstance = TCS::AlgFactory::instance().algorithm(algName);
+      ConfigurableAlg * algInstance = TCS::AlgFactory::mutable_instance().algorithm(algName);
       if(algInstance==0) {
          if(debug)
             cout << "Instantiating " << alg << endl;
-         algInstance = TCS::AlgFactory::create(algType, algName);
+         algInstance = TCS::AlgFactory::mutable_instance().create(algType, algName);
       } else {
          if(algInstance->className() != algType) {
             TCS_EXCEPTION("L1 TopoSteering: duplicate algorithm names:  algorithm " << algName << " has already been instantiated but with different type");
