@@ -437,7 +437,7 @@ for chainName in Chains2Monitor['MT']:
     pass
 temp_Phase1_chains.update({
   # Additional Phase I test chains (beyond the duplicated ones)
-  '_noalg_L1jJ80': {'HLTColl': 'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',
+  'HLT_noalg_L1jJ80': {'HLTColl': 'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',
                     'RefChain': 'HLT_j25_pf_ftf_L1RD0_FILLED',
                     'OfflineColl': 'AntiKt4EMPFlowJets'},
   
