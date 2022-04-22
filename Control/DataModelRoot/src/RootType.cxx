@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -8,7 +8,7 @@
 // ROOT  
 #include "TBaseClass.h"
 #include "TClass.h"
-#include "RootUtils/TClassEditRootUtils.h"
+#include "TClassEdit.h"
 #include "TClassTable.h"
 #include "TDataType.h"
 #include "TDataMember.h"
@@ -33,16 +33,31 @@ static const std::string ResolveTypedef( const std::string& tname )
 {
 // Helper; captures common code needed to find the real class name underlying
 // a typedef (if any).
-   std::string tclean = TClassEdit::CleanType( tname.c_str() );
+   std::string tclean;
+   {
+     // Protect against data race inside TClassEdit.
+     // https://github.com/root-project/root/issues/10353
+     // Should be fixed in root 6.26.02.
+     R__WRITE_LOCKGUARD(ROOT::gCoreMutex);
+     tclean = TClassEdit::CleanType( tname.c_str() );
+   }
    
    TDataType* dt = gROOT->GetType( tclean.c_str() );
    if ( dt ) return dt->GetFullTypeName();
 
+   // Protect against data race inside TClassEdit.
+   // https://github.com/root-project/root/issues/10353
+   // Should be fixed in root 6.26.02.
+   R__WRITE_LOCKGUARD(ROOT::gCoreMutex);
    return TClassEdit::ResolveTypedef( tclean.c_str(), true );
 }
 
 static inline const std::string UnqualifiedTypeName( const std::string& name )
 {
+    // Protect against data race inside TClassEdit.
+    // https://github.com/root-project/root/issues/10353
+    // Should be fixed in root 6.26.02.
+    R__WRITE_LOCKGUARD(ROOT::gCoreMutex);
     return TClassEdit::ShortType(
          TClassEdit::CleanType( name.c_str(), 1 ).c_str(), 5 );
 }
@@ -816,6 +831,10 @@ TScopeAdapter TScopeAdapter::TemplateArgumentAt( size_t nth ) const
       }
       if ((c == ',' && tpl_open == 1) || (c == '>' && tpl_open == 0)) {
          if ( argcount++ == nth ) {
+            // Protect against data race inside TClassEdit.
+            // https://github.com/root-project/root/issues/10353
+            // Should be fixed in root 6.26.02.
+            R__WRITE_LOCKGUARD(ROOT::gCoreMutex);
             std::string part = 
                TClassEdit::CleanType( name.substr(last, pos-last).c_str(), 1 );
             return part;

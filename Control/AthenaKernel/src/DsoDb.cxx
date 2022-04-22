@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // DsoDb.cxx 
@@ -34,7 +34,7 @@
 #include <boost/regex.hpp>
 
 // ROOT includes
-#include "RootUtils/TClassEditRootUtils.h"
+#include "TClassEdit.h"
 
 // fwk includes
 #include "GaudiKernel/System.h"
@@ -185,10 +185,16 @@ namespace {
     if (s_cxx_aliases().find(type_name) != s_cxx_aliases().end()) {
       return ::to_rootmap_name(s_cxx_aliases().find(type_name)->second);
     }
-   
-    type_name = TClassEdit::ShortType(type_name.c_str(), 
-                                      TClassEdit::kDropDefaultAlloc|
-                                      TClassEdit::kDropStd);
+
+    // Protect against data race inside TClassEdit.
+    // https://github.com/root-project/root/issues/10353
+    // Should be fixed in root 6.26.02.
+    {
+      R__WRITE_LOCKGUARD(ROOT::gCoreMutex);
+      type_name = TClassEdit::ShortType(type_name.c_str(), 
+                                        TClassEdit::kDropDefaultAlloc|
+                                        TClassEdit::kDropStd);
+    }
     boost::algorithm::replace_all(type_name, "basic_string<char> >", "string>");
     boost::algorithm::replace_all(type_name, "basic_string<char>", "string");
     return type_name;
@@ -211,8 +217,14 @@ namespace {
     if (s_cxx_typedefs().find(type_name) != s_cxx_typedefs().end()) {
       return ::to_rflx_name(s_cxx_typedefs().find(type_name)->second);
     }
-    type_name = TClassEdit::ShortType(type_name.c_str(),
-                                      TClassEdit::kDropDefaultAlloc);
+    {
+      // Protect against data race inside TClassEdit.
+      // https://github.com/root-project/root/issues/10353
+      // Should be fixed in root 6.26.02.
+      R__WRITE_LOCKGUARD(ROOT::gCoreMutex);
+      type_name = TClassEdit::ShortType(type_name.c_str(),
+                                        TClassEdit::kDropDefaultAlloc);
+    }
     // !! order matters !! (at least in C++03. C++11 should be good)
     boost::algorithm::replace_all(type_name, 
                                   "std::string>", 

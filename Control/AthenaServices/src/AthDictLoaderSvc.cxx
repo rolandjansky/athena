@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthDictLoaderSvc.cxx 
@@ -251,42 +251,94 @@ void AthDictLoaderSvc::load_recursive1 (const RootType& typ, Memo_t& memo)
     return;
   }
   if (startsWith (nam, "vector<") || startsWith (nam, "std::vector<")) {
-    TClassEdit::TSplitType split (nam.c_str());
-    if (split.fElements.size() > 1) {
-      load_recursive1 (split.fElements[1], memo);
+    std::string eltclass;
+    {
+      // Protect against data race inside TClassEdit.
+      // https://github.com/root-project/root/issues/10353
+      // Should be fixed in root 6.26.02.
+      R__WRITE_LOCKGUARD(ROOT::gCoreMutex);
+      TClassEdit::TSplitType split (nam.c_str());
+      if (split.fElements.size() > 1) {
+        eltclass = split.fElements[1];
+      }
+    }
+    if (!eltclass.empty()) {
+      load_recursive1 (eltclass, memo);
       return;
     }
+
   }
   else if (startsWith (nam, "DataVector<")) {
-    TClassEdit::TSplitType split (nam.c_str());
-    if (split.fElements.size() > 1) {
-      load_recursive1 (split.fElements[1], memo);
+    std::string eltclass;
+    {
+      // Protect against data race inside TClassEdit.
+      // https://github.com/root-project/root/issues/10353
+      // Should be fixed in root 6.26.02.
+      R__WRITE_LOCKGUARD(ROOT::gCoreMutex);
+      TClassEdit::TSplitType split (nam.c_str());
+      if (split.fElements.size() > 1) {
+        eltclass = split.fElements[1];
+      }
+    }
+    if (!eltclass.empty()) {
+      load_recursive1 (eltclass, memo);
       return;
     }
   }
   else if (startsWith (nam, "pair<") || startsWith (nam, "std::pair<")) {
-    TClassEdit::TSplitType split (nam.c_str());
-    if (split.fElements.size() > 2) {
-      load_recursive1 (split.fElements[1], memo);
-      load_recursive1 (split.fElements[2], memo);
+    std::string pclass1, pclass2;
+    {
+      // Protect against data race inside TClassEdit.
+      // https://github.com/root-project/root/issues/10353
+      // Should be fixed in root 6.26.02.
+      R__WRITE_LOCKGUARD(ROOT::gCoreMutex);
+      TClassEdit::TSplitType split (nam.c_str());
+      if (split.fElements.size() > 2) {
+        pclass1 = split.fElements[1];
+        pclass2 = split.fElements[2];
+      }
+    }
+    if (!pclass1.empty()) {
+      load_recursive1 (pclass1, memo);
+      load_recursive1 (pclass2, memo);
       return;
     }
   }
   else if (startsWith (nam, "map<") || startsWith (nam, "std::map<")) {
-    TClassEdit::TSplitType split (nam.c_str());
-    if (split.fElements.size() > 2) {
-      load_recursive1 (split.fElements[1], memo);
-      load_recursive1 (split.fElements[2], memo);
+    std::string pclass1, pclass2;
+    {
+      // Protect against data race inside TClassEdit.
+      // https://github.com/root-project/root/issues/10353
+      // Should be fixed in root 6.26.02.
+      R__WRITE_LOCKGUARD(ROOT::gCoreMutex);
+      TClassEdit::TSplitType split (nam.c_str());
+      if (split.fElements.size() > 2) {
+        pclass1 = split.fElements[1];
+        pclass2 = split.fElements[2];
+      }
+    }
+    if (!pclass1.empty()) {
+      load_recursive1 (pclass1, memo);
+      load_recursive1 (pclass2, memo);
       // For ROOT persistency.
-      std::string pname = "std::pair<" + split.fElements[1] + "," + split.fElements[2] + ">";
+      std::string pname = "std::pair<" + pclass1 + "," + pclass2 + ">";
       load_type (pname);
       return;
     }
   }
   else if (startsWith (nam, "LArConditionsContainer<")) {
-    TClassEdit::TSplitType split (nam.c_str());
-    if (split.fElements.size() > 1) {
-      std::string pname = "LArConditionsSubset<" + split.fElements[1] + ">";
+    std::string pname;
+    {
+      // Protect against data race inside TClassEdit.
+      // https://github.com/root-project/root/issues/10353
+      // Should be fixed in root 6.26.02.
+      R__WRITE_LOCKGUARD(ROOT::gCoreMutex);
+      TClassEdit::TSplitType split (nam.c_str());
+      if (split.fElements.size() > 1) {
+        pname = "LArConditionsSubset<" + split.fElements[1] + ">";
+      }
+    }
+    if (!pname.empty()) {
       load_recursive1 (pname, memo);
 
       std::unique_ptr<ITPCnvBase> tpcnv = m_tpCnvSvc->t2p_cnv_unique (pname);
