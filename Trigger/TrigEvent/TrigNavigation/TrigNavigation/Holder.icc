@@ -1,7 +1,7 @@
 // Emacs -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iterator>
@@ -16,7 +16,7 @@
 #ifndef TrigNavigation_Holder_icc
 #define TrigNavigation_Holder_icc
 
-#define HOLDERLOG(log,x)   if (log->level()<=MSG::x) *log << MSG::x
+#define HOLDERLOG(logger,x)   if (logger->msgLvl(MSG::x)) logger->msg() << MSG::x
 
 /*
 template<class T>
@@ -116,7 +116,7 @@ HolderImp<STORED, CONTAINER>::~HolderImp() {
 
 /////////////////////////////////////////////////////////////////////////////
 template<class STORED, class CONTAINER>
-HLTNavDetails::IHolder* HLTNavDetails::HolderImp<STORED, CONTAINER>::clone(const std::string& prefix, const std::string& label, uint16_t idx ) {
+HLTNavDetails::IHolder* HLTNavDetails::HolderImp<STORED, CONTAINER>::clone(const std::string& prefix, const std::string& label, uint16_t idx ) const {
   //typedef Holder<STORED> H;
   if ( not m_containerProxy.empty() ) {
     return 0;
@@ -153,9 +153,9 @@ CLID  HLTNavDetails::HolderImp<STORED, CONTAINER>::auxClidOrZero() const {
 
 /////////////////////////////////////////////////////////////////////////////
 template<class STORED, class CONTAINER> 
-void  HLTNavDetails::HolderImp<STORED, CONTAINER>::prepare(MsgStream* log, HLT::AccessProxy* sg, IConversionSvc* conversionSvc, bool readonly){
+void  HLTNavDetails::HolderImp<STORED, CONTAINER>::prepare(const asg::AsgMessaging& logger, HLT::AccessProxy* sg, IConversionSvc* conversionSvc, bool readonly){
   typedef Holder<STORED> H;
-  IHolder::prepare(log,sg,conversionSvc,readonly);
+  IHolder::prepare(logger,sg,conversionSvc,readonly);
   CLID auxCLID = auxCLIDOrZero<typename Container2Aux<CONTAINER>::type>::get();
   if ( auxCLID ) {
 
@@ -164,12 +164,14 @@ void  HLTNavDetails::HolderImp<STORED, CONTAINER>::prepare(MsgStream* log, HLT::
       H::m_aux = new TypelessAuxProxy();
     }
     else{
-      H::m_aux = HLT::TypeMaps::proxies()[auxCLID];
-      if ( H::m_aux == 0 ) {
+
+      const auto itr = HLT::TypeMaps::proxies().find(auxCLID);
+      if ( itr == HLT::TypeMaps::proxies().end() ) {
         ATH_MSG_ERROR("HolderImp::prepare can not find Aux store proxy " << *this);
+        return;
       }
       
-      H::m_aux = H::m_aux->clone();
+      H::m_aux = itr->second->clone();
       if ( H::m_aux == 0 ) {
         ATH_MSG_ERROR("HolderImp::prepare can not clone Aux store proxy " << *this);
       }
@@ -286,7 +288,7 @@ struct transferBetweenContainers;
 // case when the containers can be transfered
 template <class CONTAINER> 
 struct transferBetweenContainers<CONTAINER, true> {
-  static void do_it(CONTAINER *source, CONTAINER* dest, MsgStream* /*log*/) {
+  static void do_it(CONTAINER *source, CONTAINER* dest, const asg::AsgMessaging*) {
     dest->insertMove (dest->end(), *source);
   }
 };
@@ -295,7 +297,7 @@ struct transferBetweenContainers<CONTAINER, true> {
 // case when the containers CAN NOT be transfered
 template <class CONTAINER> 
 struct transferBetweenContainers<CONTAINER, false> {
-  static void do_it(CONTAINER *, CONTAINER* , MsgStream* ) {
+  static void do_it(CONTAINER *, CONTAINER*, const asg::AsgMessaging*) {
     throw std::runtime_error
       ("TrigNavigation: Tried to attach an owning container of type " +
        ClassName<CONTAINER>::name() +
@@ -325,7 +327,7 @@ template<class STORED, class CONTAINER, bool b> struct insert;
 //
 template <class STORED, class CONTAINER>
 struct insert<STORED, CONTAINER, true>{
-  static bool do_it(STORED *source, CONTAINER* dest, bool /*hasAux*/, MsgStream* log) {
+  static bool do_it(STORED *source, CONTAINER* dest, bool /*hasAux*/, const asg::AsgMessaging* log) {
 
     HOLDERLOG(log, VERBOSE ) << "insert::do_it CONTAINER " << ClassID_traits<STORED>::typeName() << endmsg;
     HOLDERLOG(log, VERBOSE ) << "Destination is " << (dest->ownPolicy() == SG::VIEW_ELEMENTS ? "VIEW" : "OWN")
@@ -395,7 +397,7 @@ struct insert<STORED, CONTAINER, true>{
 // implementation if stored and container are distinct
 template <class STORED, class CONTAINER> 
 struct insert <STORED, CONTAINER, false>{
-  static bool do_it(STORED *s, CONTAINER* dest, bool /*hasAux*/, MsgStream* /*msglog*/ ) {
+  static bool do_it(STORED *s, CONTAINER* dest, bool /*hasAux*/, const asg::AsgMessaging*) {
     dest->push_back(s);
     return true;
   }
@@ -405,7 +407,7 @@ struct insert <STORED, CONTAINER, false>{
 template<class STORED, class CONTAINER, bool b> struct remap;
 template<class STORED, class CONTAINER> 
 struct remap<STORED, CONTAINER, false> {
-  static void do_it(const std::string&, const std::string&, STORED *, CONTAINER*, HLT::AccessProxy*,  MsgStream* ) {
+  static void do_it(const std::string&, const std::string&, STORED *, CONTAINER*, HLT::AccessProxy*, const asg::AsgMessaging*) {
     
   }
 };
@@ -413,7 +415,7 @@ struct remap<STORED, CONTAINER, false> {
 /////////////////////////////////////////////////////////////////////////////
 template<class STORED, class CONTAINER>
 struct remap<STORED, CONTAINER, true> {
-  static void do_it(const std::string& storedkey , const std::string& contkey, STORED *s, CONTAINER* cont, HLT::AccessProxy *sg,  MsgStream* log ) {
+  static void do_it(const std::string& storedkey , const std::string& contkey, STORED *s, CONTAINER* cont, HLT::AccessProxy *sg,  const asg::AsgMessaging* log ) {
     std::string skey = storedkey;
     if ( storedkey == "" ) {
       // we can't do it
@@ -486,11 +488,11 @@ HLT::TriggerElement::ObjectIndex HLTNavDetails::HolderImp<STORED, CONTAINER>::ad
 
   if ( inSG ) { //conditions to add remapping
     remap<STORED, CONTAINER,  
-      std::is_same<STORED, CONTAINER>::value>::do_it (thiskey, key(), f, m_containerProxy.data(), H::m_storeGate, H::m_log);
+      std::is_same<STORED, CONTAINER>::value>::do_it (thiskey, key(), f, m_containerProxy.data(), H::m_storeGate, H::m_logger);
   }
 
   bool insertStatus = insert<STORED, CONTAINER, std::is_same<STORED, CONTAINER>::value>
-    ::do_it (f, m_containerProxy.data(), H::m_aux != 0, H::m_log);
+    ::do_it (f, m_containerProxy.data(), H::m_aux != 0, H::m_logger);
   if ( insertStatus == false ) {
     ATH_MSG_WARNING("HolderImp::add  insert failed " );
     return  HLT::TriggerElement::ObjectIndex();
@@ -604,7 +606,7 @@ bool HLTNavDetails::HolderImp<STORED, CONTAINER>::get(const STORED*& dest, HLT::
       return false;
     }
     remap<STORED, CONTAINER, 
-	  std::is_same<STORED, CONTAINER>::value>::do_it (sgKey, key(), tempProxy.data(), m_containerProxy.data(), H::m_storeGate, H::m_log);
+	  std::is_same<STORED, CONTAINER>::value>::do_it (sgKey, key(), tempProxy.data(), m_containerProxy.data(), H::m_storeGate, H::m_logger);
     ATH_MSG_VERBOSE("Added view collection to SG with defined EL remapping to event-wide colection, key: " << sgKey);
   }
   return true;
@@ -619,7 +621,7 @@ template<class STORED, class CONTAINER, bool b> struct isin;
 // check if the container obj is a subcontainer of cont 
 template <class STORED, class CONTAINER> 
 struct isin<STORED, CONTAINER, true> {
-  static bool do_it(const STORED* obj, const CONTAINER* cont, MsgStream* /*msg*/, uint32_t& begin, uint32_t& end) {
+  static bool do_it(const STORED* obj, const CONTAINER* cont, const asg::AsgMessaging*, uint32_t& begin, uint32_t& end) {
     typename CONTAINER::const_iterator it =  std::search(cont->begin(), cont->end(), obj->begin(), obj->end());
     if ( it == cont->end() ) {
       return false;
@@ -634,7 +636,7 @@ struct isin<STORED, CONTAINER, true> {
 // check if the obj is in a container cont
 template <class STORED, class CONTAINER> 
 struct isin<STORED, CONTAINER, false> {
-  static bool do_it(const STORED* obj, const CONTAINER* cont, MsgStream* /*msg*/, uint32_t& begin, uint32_t& end) {
+  static bool do_it(const STORED* obj, const CONTAINER* cont, const asg::AsgMessaging*, uint32_t& begin, uint32_t& end) {
     typename CONTAINER::const_iterator it = std::find(cont->begin(), cont->end(), obj);
     if ( it == cont->end() ) {
       return false;
@@ -647,16 +649,16 @@ struct isin<STORED, CONTAINER, false> {
 };
 
 template<class STORED, class CONTAINER>
-bool HLTNavDetails::HolderImp<STORED, CONTAINER>::contains(const STORED* obj, HLT::TriggerElement::ObjectIndex& idx) const {
+bool HLTNavDetails::HolderImp<STORED, CONTAINER>::contains(const STORED* obj, HLT::TriggerElement::ObjectIndex& idx) {
   typedef Holder<STORED> H;
-  if ( !const_cast<HolderImp<STORED, CONTAINER>* >(this)->syncWithSG() )
+  if ( !syncWithSG() )
     return false;
 
   ATH_MSG_VERBOSE("HolderImp::contains");
   uint32_t begin=0;
   uint32_t end=0;
   bool ok = isin<STORED, CONTAINER, 
-		 std::is_same<STORED, CONTAINER>::value>::do_it (obj, m_containerProxy.data(), H::m_log, begin, end);
+		 std::is_same<STORED, CONTAINER>::value>::do_it (obj, m_containerProxy.data(), H::m_logger, begin, end);
   if ( !ok ) {
     ATH_MSG_VERBOSE("HolderImp::contains object " << obj << " not in the holder" << *this );
     return false;

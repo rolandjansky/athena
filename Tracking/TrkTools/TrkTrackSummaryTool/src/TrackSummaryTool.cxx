@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkTrackSummaryTool/TrackSummaryTool.h"
@@ -58,7 +58,7 @@ Trk::TrackSummaryTool::TrackSummaryTool(const std::string& t,
   declareInterface<ITrackSummaryTool>(this);
 }
 
-Trk::TrackSummaryTool::~TrackSummaryTool() {}
+Trk::TrackSummaryTool::~TrackSummaryTool() = default;
 
 StatusCode
 Trk::TrackSummaryTool::initialize()

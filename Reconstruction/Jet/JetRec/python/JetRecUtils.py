@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import Logging
 jetlog = Logging.logging.getLogger('JetRec_jobOptions')
@@ -52,14 +52,10 @@ def retrieveAODList(enableOutputOverride = False):
     if rec.doTruth():
       l += jetPileUpTruthList
 
-    if jetFlags.detailLevel()==JetContentDetail.Trigger:
-        l += ['xAOD::JetContainer#AntiKt10LCTopoJets',                    'xAOD::JetAuxContainer#AntiKt10LCTopoJetsAux.']
-    elif jetFlags.detailLevel()>=JetContentDetail.Full:
+    if jetFlags.detailLevel()==JetContentDetail.Full:
         l += [
             'xAOD::JetContainer#AntiKt10LCTopoJets',                    'xAOD::JetAuxContainer#AntiKt10LCTopoJetsAux.',
-            'xAOD::JetContainer#AntiKt2PV0TrackJets',                   'xAOD::JetAuxContainer#AntiKt2PV0TrackJetsAux.',
-            'xAOD::JetContainer#AntiKt4PV0TrackJets',                   'xAOD::JetAuxContainer#AntiKt4PV0TrackJetsAux.',
-            #
+
             'xAOD::CaloClusterContainer#EMOriginTopoClusters',          'xAOD::ShallowAuxContainer#EMOriginTopoClustersAux.',
             'xAOD::CaloClusterContainer#LCOriginTopoClusters' ,         'xAOD::ShallowAuxContainer#LCOriginTopoClustersAux.',
             ]
@@ -70,30 +66,12 @@ def retrieveAODList(enableOutputOverride = False):
                 'xAOD::JetContainer#AntiKt10TruthWZJets',               'xAOD::JetAuxContainer#AntiKt10TruthWZJetsAux.',
                 'xAOD::JetContainer#AntiKt4TruthJets',                  'xAOD::JetAuxContainer#AntiKt4TruthJetsAux.',
                 'xAOD::JetContainer#AntiKt4TruthWZJets',                'xAOD::JetAuxContainer#AntiKt4TruthWZJetsAux.',
-                'xAOD::JetContainer#CamKt12TruthJets',                  'xAOD::JetAuxContainer#CamKt12TruthJetsAux.',
-                'xAOD::JetContainer#CamKt12TruthWZJets',                'xAOD::JetAuxContainer#CamKt12TruthWZJetsAux.',                
                 ]
-
-    if jetFlags.detailLevel()>=JetContentDetail.Validation:
-        l += [
-            'xAOD::JetContainer#AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets',
-            'xAOD::JetAuxContainer#AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsAux.',
-            ]
+    elif jetFlags.detailLevel()==JetContentDetail.Trigger or jetFlags.detailLevel()==JetContentDetail.Validation:
+        l += ['xAOD::JetContainer#AntiKt10LCTopoJets',                       'xAOD::JetAuxContainer#AntiKt10LCTopoJetsAux.']
+        l += ['xAOD::JetContainer#AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets', 'xAOD::JetAuxContainer#AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsAux.']
 
     return l
-    ## inputcontent = objKeyStore['inputFile'].list()
-    ## typeToSave = [ 'xAOD::JetContainer', 'xAOD::JetAuxContainer', 'xAOD::JetTrigAuxContainer' , 'xAOD::EventShape', 'xAOD::EventShapeAuxInfo' ]
-
-    ## def saveThisObject(o):
-    ##     # we must not write out any HLT jet containers - writing of those is controlled from trigger software, not offline jet software
-    ##     if  "HLT_" in o:
-    ##         return False
-    ##     # return True if o is of a desired type
-    ##     return any( o.startswith( typ ) for typ in typeToSave )
-
-    ## esdjets = [ o for o in inputcontent if saveThisObject(o) ]
-
-    ## return esdjets
 
 # define the convention that we write R truncating the decimal point
 # if R>=1, then we write R*10

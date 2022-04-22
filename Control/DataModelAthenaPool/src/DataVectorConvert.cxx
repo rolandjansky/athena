@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -13,7 +13,7 @@
 #include "DataModelAthenaPool/DataVectorConvert.h"
 #include "TClass.h"
 #include "TBuffer.h"
-#include "RootUtils/TClassEditRootUtils.h"
+#include "TClassEdit.h"
 #include "CxxUtils/checker_macros.h"
 #include "TMemberStreamer.h"
 #include "TStreamerElement.h"
@@ -220,9 +220,15 @@ TClass* find_class (RootUtils::ILogger* logfn,
                     bool inner = false)
 {
   std::string name2 = name;
-  if (inner)
-    name2 = TClassEdit::ShortType (name2.c_str(), TClassEdit::kInnerClass);
-  name2 = TClassEdit::ShortType (name2.c_str(), TClassEdit::kDropTrailStar);
+  {
+    // Protect against data race inside TClassEdit.
+    // https://github.com/root-project/root/issues/10353
+    // Should be fixed in root 6.26.02.
+    R__WRITE_LOCKGUARD(ROOT::gCoreMutex);
+    if (inner)
+      name2 = TClassEdit::ShortType (name2.c_str(), TClassEdit::kInnerClass);
+    name2 = TClassEdit::ShortType (name2.c_str(), TClassEdit::kDropTrailStar);
+  }
   TClass* cls = gROOT->GetClass (name2.c_str());
   if (cls == 0 && logfn) {
     std::ostringstream ss;
@@ -284,8 +290,19 @@ void diddle_dv_streaminfo (RootUtils::ILogger* logfn,
   // This is the type from which we need to convert.
   // Give up if it ain't a vector.
   std::string vec_name = sie1->GetTypeName();
-  if (std::abs(TClassEdit::IsSTLCont (vec_name.c_str(), 0)) !=
-      TClassEdit::kVector)
+  bool isvec = true;
+  {
+    // Protect against data race inside TClassEdit.
+    // https://github.com/root-project/root/issues/10353
+    // Should be fixed in root 6.26.02.
+    R__WRITE_LOCKGUARD(ROOT::gCoreMutex);
+    if (std::abs(TClassEdit::IsSTLCont (vec_name.c_str(), 0)) !=
+        TClassEdit::kVector)
+    {
+      isvec = false;
+    }
+  }
+  if (!isvec)
   {
     if (logfn) {
       std::ostringstream ss;
@@ -386,9 +403,19 @@ void test_dv (RootUtils::ILogger* logfn,
   // Look up the m_pCont field in the primary shape.
   Int_t offset;
   TStreamerElement* sie0 = si0->GetStreamerElement ("m_pCont", offset);
-  if (sie0 == 0 ||
-      std::abs(TClassEdit::IsSTLCont (sie0->GetTypeName(), 0)) !=
-      TClassEdit::kVector)
+  bool isvec = (sie0 != 0);
+  if (isvec) {
+    // Protect against data race inside TClassEdit.
+    // https://github.com/root-project/root/issues/10353
+    // Should be fixed in root 6.26.02.
+    R__WRITE_LOCKGUARD(ROOT::gCoreMutex);
+    if (std::abs(TClassEdit::IsSTLCont (sie0->GetTypeName(), 0)) !=
+        TClassEdit::kVector)
+    {
+      isvec = false;
+    }
+  }
+  if (!isvec)
   {
     if (logfn) {
       std::ostringstream ss;

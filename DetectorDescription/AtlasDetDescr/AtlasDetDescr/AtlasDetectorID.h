@@ -56,6 +56,32 @@ class AtlasDetectorIDHelper;
 class AtlasDetectorID : public IdHelper
 {
 public:
+    ///enum class for eventual final derived types of this class
+    enum class HelperType{
+      Unimplemented = -1,
+      Silicon = 0,
+      Pixel, PLR, SCT, TRT, 
+      //inherits from CaloIDHelper
+      LArEM, LArFCal, LArFCalSuperCell,
+      LArHEC, LArHEC_SuperCell, LARMiniFCal, 
+      Tile, TileSuperCell,
+      //
+      //inherit from LArOnlineId
+      LArOnline, LArOnlineSuperCell,
+      //
+      LArElectrode, LArHVLine,
+      TileHardware, TileTestbeam, 
+      CaloCell, CaloSuperCell,
+      CaloDM, CaloLvl1,
+      //inherit from JGTowerBase
+      GTower, JTower,
+      //
+      Muon,
+      LUCID, LUCID_Hardware, 
+      Zdc,ZdcHardware,
+      TT
+    };
+    
 
     /// @name strutors
     //@{
@@ -64,6 +90,11 @@ public:
     virtual ~AtlasDetectorID();
     AtlasDetectorID& operator= (const AtlasDetectorID& other);
     //@}
+    
+    ///Type of helper, defaulted to 'Unimplemented'
+    virtual HelperType helper() const {
+      return HelperType::Unimplemented;
+    }
 
     /// @name Detector system ids
     //@{

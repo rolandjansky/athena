@@ -374,7 +374,7 @@ vpermute(VEC& dst, const VEC& src)
 
 /**
  * @brief vpermute2 function.
- * move any element of a vector src
+ * move any element of the vectors src1, src2
  * into any or multiple position inside dst.
  */
 template<size_t... Indices, typename VEC>

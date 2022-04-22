@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 from AthenaCommon.AppMgr import ToolSvc
@@ -59,7 +59,7 @@ def MuonCombinedInDetDetailedTrackSelectorTool_LRT(name='MuonCombinedInDetDetail
     kwargs.setdefault("nHitSi", 4 )
     kwargs.setdefault("nHitTrt", 0 )
     kwargs.setdefault("useTrackQualityInfo", False )
-    kwargs.setdefault("TrackSummaryTool", getPublicTool("AtlasTrackSummaryTool") )
+    kwargs.setdefault("TrackSummaryTool", "" )
     kwargs.setdefault("Extrapolator", getPublicTool("AtlasExtrapolator") )
     return CfgMgr.InDet__InDetDetailedTrackSelectorTool(name,**kwargs)
 

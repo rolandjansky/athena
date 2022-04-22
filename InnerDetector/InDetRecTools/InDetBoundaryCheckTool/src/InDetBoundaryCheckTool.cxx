@@ -1,11 +1,14 @@
 /*
- * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TrkToolInterfaces/IBoundaryCheckTool.h"
 #include "TrkParameters/TrackParameters.h"
 #include "InDetBoundaryCheckTool/InDetBoundaryCheckTool.h"
+#include "SCT_ReadoutGeometry/SCT_ChipUtils.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
+
+#include "InDetIdentifier/SCT_ID.h"
 
 InDet::InDetBoundaryCheckTool::InDetBoundaryCheckTool(
     const std::string& t,
@@ -28,7 +31,11 @@ StatusCode InDet::InDetBoundaryCheckTool::initialize() {
     ATH_CHECK(detStore()->retrieve(m_atlasId, "AtlasID"));
 
     ATH_CHECK(m_pixelLayerTool.retrieve(DisableTool{!m_usePixel.value()}));
-    ATH_CHECK(m_sctCondSummaryTool.retrieve(DisableTool{!m_useSCT.value()}));
+    ATH_CHECK(m_sctCondSummaryTool.retrieve(DisableTool{!m_useSCT.value() || (!m_sctDetElStatus.empty() && !VALIDATE_STATUS_ARRAY_ACTIVATED)}));
+    ATH_CHECK(m_sctDetElStatus.initialize(m_useSCT.value() && !m_sctDetElStatus.empty()) );
+    if (m_useSCT.value() && !m_sctDetElStatus.empty()) {
+       ATH_CHECK( detStore()->retrieve(m_sctID,"SCT_ID") );
+    }
 
     if (m_checkBadSCT.value()) {
         /*
@@ -62,11 +69,12 @@ bool InDet::InDetBoundaryCheckTool::isAliveSCT(
     const InDetDD::SiDetectorElement &element,
     const Trk::TrackParameters &parameters
 ) const {
-    if (m_checkBadSCT.value() && isBadSCTChipStrip(element.identify(), parameters, element)) {
+    SG::ReadHandle<InDet::SiDetectorElementStatus> sctDetElStatus( getSCTDetElStatus());
+    if (m_checkBadSCT.value() && isBadSCTChipStrip(!m_sctDetElStatus.empty() ? sctDetElStatus.cptr() : nullptr, element.identify(), parameters, element)) {
         return false;
     }
-
-    return m_sctCondSummaryTool->isGood(element.identifyHash());
+    VALIDATE_STATUS_ARRAY(!m_sctDetElStatus.empty(),sctDetElStatus->isGood(element.identifyHash()), m_sctCondSummaryTool->isGood(element.identifyHash()));
+    return !m_sctDetElStatus.empty() ? sctDetElStatus->isGood(element.identifyHash()) : m_sctCondSummaryTool->isGood(element.identifyHash());
 }
 
 Trk::BoundaryCheckResult InDet::InDetBoundaryCheckTool::boundaryCheckSiElement(
@@ -241,6 +249,7 @@ Trk::BoundaryCheckResult InDet::InDetBoundaryCheckTool::boundaryCheck(
 }
 
 bool InDet::InDetBoundaryCheckTool::isBadSCTChipStrip(
+    const InDet::SiDetectorElementStatus *sctDetElStatus,
     const Identifier &waferId,
     const Trk::TrackParameters &parameters,
     const InDetDD::SiDetectorElement &siElement
@@ -265,13 +274,24 @@ bool InDet::InDetBoundaryCheckTool::isBadSCTChipStrip(
         return true;
     }
 
-    if (!m_sctCondSummaryTool->isGood(stripIdentifier, InDetConditions::SCT_CHIP)) {
-        // The position is on a bad chip.
-        return true;
-    } else if (!m_sctCondSummaryTool->isGood(stripIdentifier, InDetConditions::SCT_STRIP)) {
-        // The position is on a bad strip. (We may need to check neighboring strips.)
-        return true;
-    }
+    {
+       if (sctDetElStatus) {
+          unsigned int chip_i=SCT::getGeometricalChipID(*m_sctID, stripIdentifier);
 
+          VALIDATE_STATUS_ARRAY(sctDetElStatus,sctDetElStatus->isChipGood(siElement.identifyHash(), chip_i) && sctDetElStatus->isCellGood(siElement.identifyHash(), m_sctID->strip(stripIdentifier) ),m_sctCondSummaryTool->isGood(stripIdentifier, InDetConditions::SCT_CHIP) && m_sctCondSummaryTool->isGood(stripIdentifier, InDetConditions::SCT_STRIP));
+          if (!sctDetElStatus->isChipGood(siElement.identifyHash(), chip_i)) return true;
+
+          return !sctDetElStatus->isCellGood(siElement.identifyHash(), m_sctID->strip(stripIdentifier) );
+       }
+       else {
+          if (!m_sctCondSummaryTool->isGood(stripIdentifier, InDetConditions::SCT_CHIP)) {
+             // The position is on a bad chip.
+             return true;
+          } else if (!m_sctCondSummaryTool->isGood(stripIdentifier, InDetConditions::SCT_STRIP)) {
+             // The position is on a bad strip. (We may need to check neighboring strips.)
+             return true;
+          }
+       }
+    }
     return false;
 }

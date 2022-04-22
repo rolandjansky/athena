@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoModelUtilities/GeoModelExperiment.h"
@@ -236,7 +236,6 @@ StatusCode ALFA_DetectorTool::align(IOVSVC_CALLBACK_ARGS)
 	CondAttrListCollection::const_iterator iterAttr;
 
 	ALIGNPARAMETERS AlignParams;
-	memset(&AlignParams,0,sizeof(ALIGNPARAMETERS));
 
 	if(((eMetrologyType)m_Config.GeometryConfig.eRPMetrologyGeoType)==EMT_SWCORRECTIONS){
 		// debug printout of global positions:
@@ -250,7 +249,7 @@ StatusCode ALFA_DetectorTool::align(IOVSVC_CALLBACK_ARGS)
 		}
 
 		if(detStore()->retrieve(listAttrColl,COOLFOLDER_DETSWCORR )==StatusCode::SUCCESS){
-			for(iterAttr=listAttrColl->begin();iterAttr!=listAttrColl->end();iterAttr++){
+			for(iterAttr=listAttrColl->begin();iterAttr!=listAttrColl->end();++iterAttr){
 				 nChannel=iterAttr->first; //RPot ID
 				 AlignParams.fXOffset[nChannel]=((iterAttr->second)[0]).data<float>();
 				 AlignParams.fTheta[nChannel]=((iterAttr->second)[1]).data<float>();

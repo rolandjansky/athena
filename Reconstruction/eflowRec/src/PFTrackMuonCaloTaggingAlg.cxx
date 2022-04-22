@@ -8,7 +8,7 @@ PFTrackMuonCaloTaggingAlg::PFTrackMuonCaloTaggingAlg(const std::string &name, IS
 {
 }
 
-PFTrackMuonCaloTaggingAlg::~PFTrackMuonCaloTaggingAlg() {}
+PFTrackMuonCaloTaggingAlg::~PFTrackMuonCaloTaggingAlg() = default;
 
 StatusCode PFTrackMuonCaloTaggingAlg::initialize()
 {

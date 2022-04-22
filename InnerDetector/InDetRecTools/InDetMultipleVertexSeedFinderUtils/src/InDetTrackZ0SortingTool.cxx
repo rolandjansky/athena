@@ -40,7 +40,7 @@ namespace InDet
  
 
  InDetTrackZ0SortingTool::~InDetTrackZ0SortingTool()
- {}
+ = default;
  
 
  std::vector<int> InDetTrackZ0SortingTool::sortedIndex(const std::vector<const Trk::Track*>& tracks, const Trk::Vertex * reference )const

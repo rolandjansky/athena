@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // conditions
@@ -57,7 +57,8 @@ StatusCode PixelChargeToTConversion::execute(){
     overflowIBLToT = SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getFEI4OverflowToT(0,0);
   }
 
-  SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey,ctx);
+  SG::ReadCondHandle<PixelChargeCalibCondData> calibDataHandle(m_chargeDataKey, ctx);
+  const PixelChargeCalibCondData *calibData = *calibDataHandle;
 
   typedef InDet::PixelClusterContainer::const_iterator ClusterIter;
   ClusterIter itrCluster;
@@ -106,9 +107,9 @@ StatusCode PixelChargeToTConversion::execute(){
 
     Identifier moduleID = pixelID.wafer_id(pixid);
     IdentifierHash moduleHash = pixelID.wafer_hash(moduleID);
-    int circ = m_pixelReadout->getFE(pixid, moduleID);
+    unsigned int FE = m_pixelReadout->getFE(pixid, moduleID);
     InDetDD::PixelDiodeType type = m_pixelReadout->getDiodeType(pixid);
-    int totInt = (int)calibData->getToT((int)moduleHash, circ, type, Charges[i]);
+    int totInt = calibData->getToT(type, moduleHash, FE, Charges[i]);
 
     if( m_IBLParameterSvc->containsIBL() && pixelID.barrel_ec(pixid) == 0 && pixelID.layer_disk(pixid) == 0 ) {
       int tot0 = totInt;

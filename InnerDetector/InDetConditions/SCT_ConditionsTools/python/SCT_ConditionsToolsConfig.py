@@ -1,9 +1,11 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import Format
 from AtlasGeoModel.GeoModelConfig import GeoModelCfg
 from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline
 from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
+
 
 
 def SCT_ByteStreamErrorsToolCfg(flags, name="SCT_ByteStreamErrorsTool", **kwargs):
@@ -38,12 +40,39 @@ def SCT_ConditionsParameterCfg(flags, name="SCT_ConditionsParameter", **kwargs):
 
     return acc
 
+def SCT_ConditionsSummaryToolBaseCfg(flags, name="InDetSCT_ConditionsSummaryToolAddFlagged", **kwargs):
+    acc = ComponentAccumulator()
+
+    # @TODO what shall be done if SCTDetEleCollKey is overridden ?
+    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConfig import SCT_DetectorElementCondAlgCfg
+    acc.merge(SCT_DetectorElementCondAlgCfg(flags))
+
+    acc.setPrivateTools(CompFactory.SCT_ConditionsSummaryTool(name, **kwargs))
+    return acc
+
+def SCT_DetectorElementStatusAddFlaggedToolCfg(flags, name="InDetSCT_DetectorElementStatusAddFlaggedTool", **kwargs):
+    acc = ComponentAccumulator()
+    if "ConditionsTools" not in kwargs :
+        kwargs.setdefault("ConditionsTools", [ acc.popToolsAndMerge(SCT_FlaggedConditionToolCfg(flags)) ] )
+    kwargs.setdefault("SCTDetElStatusEventDataBaseKey", "SCTDetectorElementStatusWithoutFlagged")
+    acc.setPrivateTools( acc.popToolsAndMerge( SCT_ConditionsSummaryToolBaseCfg( flags, name, **kwargs) ) )
+    return acc
+
+def SCT_DetectorElementStatusAddByteStreamErrorsToolCfg(flags, name="InDetSCT_DetectorElementStatusAddByteStreamErrorsTool", **kwargs):
+    acc = ComponentAccumulator()
+    if not flags.Input.isMC  and flags.Input.Format is Format.BS :
+        if "ConditionsTools" not in kwargs :
+            SCT_ConfigurationConditionsTool = acc.popToolsAndMerge(SCT_ConfigurationConditionsToolCfg(flags))
+            kwargs.setdefault("ConditionsTools", [ acc.popToolsAndMerge(SCT_ByteStreamErrorsToolCfg(flags, **{"ConfigTool" : SCT_ConfigurationConditionsTool})) ])
+    acc.setPrivateTools( acc.popToolsAndMerge( SCT_ConditionsSummaryToolBaseCfg( flags, name, **kwargs) ) )
+    return acc
 
 def SCT_ConditionsSummaryToolCfg(flags, name="InDetSCT_ConditionsSummaryTool", **kwargs):
     acc = ComponentAccumulator()
 
     # Load flagged condition tool
     withFlaggedCondTool = kwargs.pop("withFlaggedCondTool", True)
+    withByteStreamErrorsTool = kwargs.pop("withByteStreamErrorsTool", True)
     withTdaqTool = kwargs.pop("withTdaqTool", True)
 
     ConditionsTools = []
@@ -56,7 +85,7 @@ def SCT_ConditionsSummaryToolCfg(flags, name="InDetSCT_ConditionsSummaryTool", *
         name += "WithoutFlagged"
 
     # Load bytestream errors tool (use default instance without "InDet")
-    if not flags.Input.isMC :
+    if not flags.Input.isMC and withByteStreamErrorsTool :
         ConditionsTools += [ acc.popToolsAndMerge(SCT_ByteStreamErrorsToolCfg(flags, **{"ConfigTool" : SCT_ConfigurationConditionsTool})) ]
 
     if flags.InDet.useSctDCS:
@@ -78,8 +107,10 @@ def SCT_ConditionsSummaryToolCfg(flags, name="InDetSCT_ConditionsSummaryTool", *
         ConditionsTools += [ acc.popToolsAndMerge(SCT_ModuleVetoCfg(flags)) ]
 
     kwargs.setdefault("ConditionsTools", ConditionsTools)
-    acc.setPrivateTools(CompFactory.SCT_ConditionsSummaryTool(name, **kwargs))
+
+    acc.setPrivateTools( acc.popToolsAndMerge( SCT_ConditionsSummaryToolBaseCfg( flags, name, **kwargs) ) )
     return acc
+
 
 
 def SCT_ConfigurationConditionsToolCfg(flags, name="InDetSCT_ConfigurationConditionsTool", **kwargs):

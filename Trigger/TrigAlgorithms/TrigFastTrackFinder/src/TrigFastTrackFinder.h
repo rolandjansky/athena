@@ -164,11 +164,12 @@ protected:
 
   // DataHandles for UTT
   SG::ReadHandleKey<DataVector<LVL1::RecJetRoI>> m_recJetRoiCollectionKey {this, "RecJetRoI", "", ""};
-  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_hitDVTrkKey{this, "HitDVTrk", "", ""};
-  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_hitDVSPKey {this, "HitDVSP",  "", ""};
-  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_dEdxTrkKey {this, "dEdxTrk",  "", ""};
-  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_dEdxHitKey {this, "dEdxHit",  "", ""};
-  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_disTrkCandKey{this, "DisTrkCand", "", ""};
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_hitDVSeedKey {this, "HitDVSeed", "", ""};
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_hitDVTrkKey  {this, "HitDVTrk",  "", ""};
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_hitDVSPKey   {this, "HitDVSP",   "", ""};
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_dEdxTrkKey   {this, "dEdxTrk",   "", ""};
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_dEdxHitKey   {this, "dEdxHit",   "", ""};
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_disTrkCandKey{this, "DisTrkCand","", ""};
 
   // Control flags
 
@@ -273,7 +274,8 @@ protected:
   bool isCleaningPassDisTrack(const TrigInDetTriplet&, Trk::Track*, bool) const;
   double disTrackQuality(const Trk::Track*) const;
   void recoVertexForDisTrack(const EventContext&, TrackCollection&, std::vector<double>&, std::vector<double>&, std::vector<double>&) const;
-  bool isPreselPassDisTrack(Trk::Track*, double, double) const;
+  bool isPreselPassDisTrackBeforeRefit(Trk::Track*, double, double) const;
+  bool isPreselPassDisTrackAfterRefit(Trk::Track*, Trk::Track*, double, double) const;
   bool isGoodForDisTrackVertex(Trk::Track*) const;
   const Trk::Perigee* extrapolateDisTrackToBS(Trk::Track*, const std::vector<double>&, const std::vector<double>&, const std::vector<double>&) const;
   void filterSharedDisTracks(std::vector<std::tuple<bool, double,Trk::Track*>>&) const;

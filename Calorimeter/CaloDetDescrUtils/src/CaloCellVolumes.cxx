@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloCellVolumes.h"
@@ -114,7 +114,7 @@ CaloCellVolumes::CaloCellVolumes(ISvcLocator* svcLocator
     m_cellVolumes.push_back(cellVol);
   }
   
-  if (m_cellVolumes.size()==0) {
+  if (m_cellVolumes.empty()) {
     throw std::runtime_error("CaloCellVolumes error: 0 volumes have been built!");
   }
   
@@ -163,7 +163,7 @@ double CaloCellVolumes::CellVolume(Identifier cell_id)
 
 void CaloCellVolumes::print ()
 {
-  if (m_cellVolumes.size()==0) {
+  if (m_cellVolumes.empty()) {
     std::cerr << "CaloCellVolumes::print(). No cell volumes..." << std::endl;
   }
   else {

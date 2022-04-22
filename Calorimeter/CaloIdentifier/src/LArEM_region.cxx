@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArEM_region.h"
@@ -50,5 +50,4 @@ LArEM_region::LArEM_region(unsigned int& minHash, short int& nbEtaBins, short in
 }
 
 LArEM_region::~LArEM_region()
-{
-}
+= default;

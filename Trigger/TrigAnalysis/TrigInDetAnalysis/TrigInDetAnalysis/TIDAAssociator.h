@@ -35,7 +35,9 @@ public:
   { } 
   
   virtual ~Associator() { } 
-  
+
+  virtual Associator* clone() = 0;
+
   virtual void match(const std::vector<T*>& s1, 
 		     const std::vector<S*>& s2 ) = 0;
   
@@ -62,6 +64,7 @@ public:
 
   // how many items were matched
   unsigned size() const { return mmatched.size(); }
+
 
 protected:
 

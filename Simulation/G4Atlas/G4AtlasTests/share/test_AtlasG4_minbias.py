@@ -69,8 +69,8 @@ ServiceMgr.THistSvc.Output  = ["truth DATAFILE='truth.root' OPT='RECREATE'"];
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 
-from G4AtlasTests.G4AtlasTestsConf import G4TestAlg
-job += G4TestAlg()
+import AthenaCommon.CfgMgr as CfgMgr
+job += CfgMgr.G4TestAlg()
 from AthenaCommon import CfgGetter
 job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("TruthTestTool", checkType=True)]
 #job.G4TestAlg.SimTestTools.['TruthTestTool'].DumpMcEvent=5

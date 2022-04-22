@@ -318,7 +318,7 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std
 
 	// create the new digit
 	TrigL2MuonSA::MdtHitData tmp;
-	tmp.name       = 0;
+	tmp.name       = m_idHelperSvc->mdtIdHelper().stationName(id);
 	tmp.StationEta = StationEta;
 	tmp.StationPhi = StationPhi;
 	tmp.Multilayer = MultiLayer;
@@ -339,8 +339,8 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std
 	tmp.DriftSigma = 0;
 	tmp.Adc        = adc;
 	tmp.OnlineId   = 0;
-	tmp.LeadingCoarseTime  = 0;
-	tmp.LeadingFineTime    = 0;
+	tmp.LeadingCoarseTime  = (drift>>5) & 0xfff;
+	tmp.LeadingFineTime    = drift & 0x1f;
 	tmp.TrailingCoarseTime = 0;
 	tmp.TrailingFineTime   = 0;
 	tmp.Residual  = 0;

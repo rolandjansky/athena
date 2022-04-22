@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  *
  * @file HGTD_FastDigitization/src/HGTD_SmearedDigitizationTool.cxx
  * @author Alexander Leopold <alexander.leopold@cern.ch>
@@ -327,7 +327,7 @@ StatusCode HGTD_SmearedDigitizationTool::digitize(const EventContext& ctx) {
     m_det_element_rio_map->insert(
         std::pair<IdentifierHash, const Cluster_t*>(wafer_id, cluster));
 
-    ATH_CHECK(fillMultiTruthCollection(m_prd_truth_coll, cluster, hit));
+    ATH_CHECK(fillMultiTruthCollection(m_prd_truth_coll, cluster, hit, ctx));
 
   } // END while
   return StatusCode::SUCCESS;
@@ -353,8 +353,7 @@ float HGTD_SmearedDigitizationTool::smearMeanTime(float time, float time_res, CL
   return time + CLHEP::RandGauss::shoot(rndmEngine, 0., time_res);
 }
 
-StatusCode HGTD_SmearedDigitizationTool::fillMultiTruthCollection(
-    PRD_MultiTruthCollection* map, Cluster_t* cluster, TimedHitPtr<SiHit> hit) {
+StatusCode HGTD_SmearedDigitizationTool::fillMultiTruthCollection(PRD_MultiTruthCollection* map, Cluster_t* cluster, TimedHitPtr<SiHit> hit, const EventContext& ctx) {
 
   // FIXME is this a dummy or does this actually mean something>
   EBC_EVCOLL ev_coll = EBC_MAINEVCOLL; // enum from HepMcParticleLink.h, usually
@@ -362,7 +361,7 @@ StatusCode HGTD_SmearedDigitizationTool::fillMultiTruthCollection(
 
   HepMcParticleLink::PositionFlag is_event_index_is_position = (hit.eventId() == 0)? HepMcParticleLink::IS_POSITION : HepMcParticleLink::IS_INDEX;
   HepMcParticleLink trk_link(hit->trackNumber(), hit.eventId(), ev_coll,
-                             is_event_index_is_position);
+                             is_event_index_is_position, ctx);
 
   ATH_MSG_DEBUG("Truth map filling with cluster "
                 << *cluster << " and link = " << trk_link);

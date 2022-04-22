@@ -4,6 +4,7 @@
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/VertexContainer.h"
+#include "xAODTrigger/jFexTauRoIContainer.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 #include "AthContainers/AuxElement.h"
@@ -42,23 +43,15 @@ auto intAccessors = initAccessors<int>(
   "hitDV_seed_type","hitDV_n_track_qual",
   "dEdxTrk_id","dEdxTrk_dedx_n_usedhits",
   "dEdxTrk_n_hits_innermost","dEdxTrk_n_hits_inner","dEdxTrk_n_hits_pix","dEdxTrk_n_hits_sct",
-  "dEdxHit_trkid","dEdxHit_iblovfl","dEdxHit_loc","dEdxHit_layer",
-  "disTrk_category","disTrk_is_fail","disTrk_n_hits_pix","disTrk_n_hits_sct","disTrk_n_hits_innermost",
-  "disTrkCand_category","disTrkCand_is_fail","disTrkCand_n_hits_innermost","disTrkCand_n_hits_inner","disTrkCand_n_hits_pix","disTrkCand_n_hits_sct",
-  "disTrkCand_n_brhits_ibl","disTrkCand_n_brhits_pix1","disTrkCand_n_brhits_pix2","disTrkCand_n_brhits_pix3",
-  "disTrkCand_n_brhits_sct1","disTrkCand_n_brhits_sct2","disTrkCand_n_brhits_sct3","disTrkCand_n_brhits_sct4",
-  "disTrkCand_n_brhits_good_ibl","disTrkCand_n_brhits_good_pix1","disTrkCand_n_brhits_good_pix2","disTrkCand_n_brhits_good_pix3",
-  "disTrkCand_n_brhits_good_sct1","disTrkCand_n_brhits_good_sct2","disTrkCand_n_brhits_good_sct3","disTrkCand_n_brhits_good_sct4",
-  "disTrkCand_refit_n_hits_innermost","disTrkCand_refit_n_hits_inner","disTrkCand_refit_n_hits_pix","disTrkCand_refit_n_hits_sct",
-  "disTrkCand_refit_n_brhits_ibl","disTrkCand_refit_n_brhits_pix1","disTrkCand_refit_n_brhits_pix2","disTrkCand_refit_n_brhits_pix3",
-  "disTrkCand_refit_n_brhits_sct1","disTrkCand_refit_n_brhits_sct2","disTrkCand_refit_n_brhits_sct3","disTrkCand_refit_n_brhits_sct4",
-  "disTrkCand_refit_n_brhits_good_ibl","disTrkCand_refit_n_brhits_good_pix1","disTrkCand_refit_n_brhits_good_pix2","disTrkCand_refit_n_brhits_good_pix3",
-  "disTrkCand_refit_n_brhits_good_sct1","disTrkCand_refit_n_brhits_good_sct2","disTrkCand_refit_n_brhits_good_sct3","disTrkCand_refit_n_brhits_good_sct4");
+  "dEdxHit_trkid","dEdxHit_iblovfl","dEdxHit_loc","dEdxHit_layer");
 
 auto int16Accessors = initAccessors<int16_t>("view",
   "HPtdEdxTrk_n_hdedx_hits_1p45","HPtdEdxTrk_n_hdedx_hits_1p50","HPtdEdxTrk_n_hdedx_hits_1p55","HPtdEdxTrk_n_hdedx_hits_1p60",
   "HPtdEdxTrk_n_hdedx_hits_1p65","HPtdEdxTrk_n_hdedx_hits_1p70","HPtdEdxTrk_n_hdedx_hits_1p75","HPtdEdxTrk_n_hdedx_hits_1p80",
-  "HPtdEdxTrk_n_hits_innermost","HPtdEdxTrk_n_hits_inner","HPtdEdxTrk_n_hits_pix","HPtdEdxTrk_n_hits_sct");
+  "HPtdEdxTrk_n_hits_innermost","HPtdEdxTrk_n_hits_inner","HPtdEdxTrk_n_hits_pix","HPtdEdxTrk_n_hits_sct",
+  "disTrk_category","disTrk_is_fail","disTrk_n_hits_pix","disTrk_n_hits_sct","disTrk_n_hits_innermost",
+  "disTrkCand_category","disTrkCand_is_fail","disTrkCand_n_hits_innermost","disTrkCand_n_hits_inner","disTrkCand_n_hits_pix","disTrkCand_n_hits_sct",
+  "disTrkCand_refit_n_hits_innermost","disTrkCand_refit_n_hits_inner","disTrkCand_refit_n_hits_pix","disTrkCand_refit_n_hits_sct");
 
 auto int32Accessors = initAccessors<int32_t>("roi");
 
@@ -109,6 +102,9 @@ auto floatAccessors = initAccessors<float>(
   "fastDips_pb",
   "fastDips_pc",
   "fastDips_pu",
+  "DL1bb20220331_pb",
+  "DL1bb20220331_pc",
+  "DL1bb20220331_pu",
   "DetectorEta", "DetectorPhi",
   "EMFrac", "HECFrac", "JVFCorr", "seed_eta", "seed_phi", "trk_a0beam",
   "btagIp_d0", "btagIp_d0Uncertainty", "btagIp_z0SinTheta", "btagIp_z0SinThetaUncertainty",
@@ -129,8 +125,7 @@ auto floatAccessors = initAccessors<float>(
   "disTrkCand_chi2sum_br_sct1","disTrkCand_chi2sum_br_sct2","disTrkCand_chi2sum_br_sct3","disTrkCand_chi2sum_br_sct4",
   "disTrkCand_ndofsum_br_ibl","disTrkCand_ndofsum_br_pix1","disTrkCand_ndofsum_br_pix2","disTrkCand_ndofsum_br_pix3",
   "disTrkCand_ndofsum_br_sct1","disTrkCand_ndofsum_br_sct2","disTrkCand_ndofsum_br_sct3","disTrkCand_ndofsum_br_sct4",
-  "disTrkCand_iso1_dr01","disTrkCand_iso1_dr02","disTrkCand_iso1_dr04","disTrkCand_iso2_dr01","disTrkCand_iso2_dr02",
-  "disTrkCand_iso2_dr04","disTrkCand_iso3_dr01","disTrkCand_iso3_dr02","disTrkCand_iso3_dr04",
+  "disTrkCand_iso1_dr01","disTrkCand_iso1_dr02","disTrkCand_iso2_dr01","disTrkCand_iso2_dr02","disTrkCand_iso3_dr01","disTrkCand_iso3_dr02",
   "disTrkCand_refit_pt","disTrkCand_refit_eta","disTrkCand_refit_phi","disTrkCand_refit_d0","disTrkCand_refit_z0",
   "disTrkCand_refit_chi2","disTrkCand_refit_ndof","disTrkCand_refit_pt_wrtVtx","disTrkCand_refit_eta_wrtVtx",
   "disTrkCand_refit_phi_wrtVtx","disTrkCand_refit_d0_wrtVtx","disTrkCand_refit_z0_wrtVtx",
@@ -158,6 +153,8 @@ auto vuintAccessors = initAccessors<std::vector<unsigned>>("robs_history");
 
 auto vuint32Accessors = initAccessors<std::vector<uint32_t>>("robs_id", "robs_size", "PEBROBList", "PEBSubDetList");
 
+auto vuint8Accessors = initAccessors<std::vector<uint8_t>>("parameterPosition");
+
 auto vfloatAccessors = initAccessors<std::vector<float>>(
   "IP2D_weightBofTracks", "IP2D_weightCofTracks", "IP2D_weightUofTracks", "IP2D_sigD0wrtPVofTracks",
   "IP3D_weightBofTracks", "IP3D_weightCofTracks", "IP3D_weightUofTracks", "IP3D_sigD0wrtPVofTracks",
@@ -165,11 +162,13 @@ auto vfloatAccessors = initAccessors<std::vector<float>>(
   "JetFitter_fittedCov", "JetFitter_fittedPosition", "JetFitter_tracksAtPVchi2", "JetFitter_tracksAtPVndf",
   "EnergyPerSampling", "SumPtChargedPFOPt500", "SumPtTrkPt1000", "SumPtTrkPt500", "TrackWidthPt1000",
   "pTcuts", "z0cuts", "vertexZcuts", "btagIp_trackMomentum", "btagIp_trackDisplacement",
-  "vsi_vrtFast_trkd0", "vsi_vrtFast_trkz0");
+  "vsi_vrtFast_trkd0", "vsi_vrtFast_trkz0", "parameterPX", "parameterPY", "parameterPZ");
 
 auto elroiAccessors = initAccessors<ElementLink<TrigRoiDescriptorCollection>>("viewIndex");
 
 auto elbtagAccessors = initAccessors<ElementLink<xAOD::BTaggingContainer>>("btaggingLink");
+
+auto eljtauAccessors = initAccessors<ElementLink<xAOD::jFexTauRoIContainer>>("jTauLink");
 
 auto veltrkpAccessors = initAccessors<std::vector<ElementLink<xAOD::TrackParticleContainer>>>(
   "BTagTrackToJetAssociator", "JetFitter_tracksAtPVlinks", "SV1_badTracksIP");

@@ -83,8 +83,8 @@ if not simFlags.ISFRun:
 
 ## AtlasSimSkeleton._do_external
 from AthenaCommon.AppMgr import ToolSvc,ServiceMgr
-from Geo2G4.Geo2G4Conf import Geo2G4Svc
-geo2G4Svc = Geo2G4Svc()
+import AthenaCommon.CfgMgr as CfgMgr
+geo2G4Svc = CfgMgr.Geo2G4Svc()
 theApp.CreateSvc += ["Geo2G4Svc"]
 ServiceMgr += geo2G4Svc
 ## Enable top transforms for the ATLAS geometry

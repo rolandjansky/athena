@@ -53,11 +53,13 @@
 #include "TileEvent/TileDQstatus.h"
 #include "TileEvent/TileBeamElemContainer.h"
 #include "TileConditions/ITileDCSTool.h"
+#include "TileByteStream/TileROD_Decoder.h"
 
 // Athena includes
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 
 // Gauid includes
 #include "GaudiKernel/ToolHandle.h"
@@ -111,11 +113,11 @@ class TileAANtuple : public AthAlgorithm {
 
     StatusCode storeRawChannels(const EventContext& ctx
                                  , const SG::ReadHandleKey<TileRawChannelContainer>& containerKey
-		  	        , float ene[N_ROS2][N_MODULES][N_CHANS]
-			        , float time[N_ROS2][N_MODULES][N_CHANS]
-			        , float chi2[N_ROS2][N_MODULES][N_CHANS]
-			        , float ped[N_ROS2][N_MODULES][N_CHANS]
-			        , bool fillAll);
+                                , float ene[N_ROS2][N_MODULES][N_CHANS]
+                                , float time[N_ROS2][N_MODULES][N_CHANS]
+                                , float chi2[N_ROS2][N_MODULES][N_CHANS]
+                                , float ped[N_ROS2][N_MODULES][N_CHANS]
+                                , bool fillAll);
                                
     StatusCode storeMFRawChannels(const EventContext& ctx
                                   , const SG::ReadHandleKey<TileRawChannelContainer>& containerKey
@@ -127,9 +129,9 @@ class TileAANtuple : public AthAlgorithm {
 
     StatusCode storeDigits(const EventContext& ctx
                            , const SG::ReadHandleKey<TileDigitsContainer>& containerKey
-			   , short * sample
-			   , short gain[N_ROS2][N_MODULES][N_CHANS]
-		  	   , bool fillAll);
+                           , short * sample
+                           , short gain[N_ROS2][N_MODULES][N_CHANS]
+                           , bool fillAll);
 
     StatusCode storeTMDBDecision(const EventContext& ctx);
     StatusCode storeTMDBDigits(const EventContext& ctx);
@@ -393,7 +395,7 @@ class TileAANtuple : public AthAlgorithm {
     // handle to THistSvc
     ServiceHandle<ITHistSvc> m_thistSvc;
     ServiceHandle<IFileMgr>  m_fileMgr{this,
-	"FileMgr", "FileMgr", "The File manager service" };
+       "FileMgr", "FileMgr", "The File manager service" };
 
     // Identifiers
     const TileID* m_tileID;
@@ -406,8 +408,6 @@ class TileAANtuple : public AthAlgorithm {
     ToolHandle<ITileBadChanTool> m_tileBadChanTool; //!< Tile Bad Channel tool
 
     ToolHandle<TileCondToolEmscale> m_tileToolEmscale; //!< main Tile Calibration tool
-
-    TileBeamElemContByteStreamCnv* m_beamCnv;
 
     ToolHandle<ITileDCSTool> m_tileDCS{this, "TileDCSTool", "TileDCSTool", "Tile DCS tool"};
 
@@ -426,11 +426,19 @@ class TileAANtuple : public AthAlgorithm {
 
     int m_skipEvents;
 
+    std::vector<uint32_t> m_ROBID;
+
     /**
      * @brief Name of Tile cabling service
      */
     ServiceHandle<TileCablingSvc> m_cablingSvc{ this,
        "TileCablingSvc", "TileCablingSvc", "The Tile cabling service" };
+
+    ServiceHandle<IROBDataProviderSvc>  m_robSvc{this,
+       "ROBDataProviderSvc", "ROBDataProviderSvc", "The ROB data provider service" };
+
+    ToolHandle<TileROD_Decoder> m_decoder{this,
+       "TileROD_Decoder", "TileROD_Decoder", "Tile ROD decoder"};
 
     SG::ReadHandleKey<TileDQstatus> m_DQstatusKey{ this,
        "TileDQstatus", "TileDQstatus", "TileDQstatus key" };

@@ -14,38 +14,30 @@ Fitting of tracks using the Gaussian Sum Filter Algorithm
 
 Package allows for fitting using the Gaussian Sum Filter Algorithm. This
 algorithm finds particular application in the case where material effects or
-measurement errors are non-gaussian. The current implementation is limited to
-modelling the energy loss of relativistic electrons through the Bethe-Heitler
+measurement errors are non-gaussian.
+We currently implement and use it for the modelling
+of the energy loss of relativistic electrons through the Bethe-Heitler
 distribution.
 
 The Gaussian Sum Filter can be thought of as a number of Kalman Filters running
-in parallel. As such it uses a number of classes developed for the Kalman
-Filter. The main extension is to allow a track state to be described by a
+in parallel. The main extension is to allow a track state to be described by a
 gaussian sum of track parameters objects, rather than the usual single
-component. The class TrkMultiComponentStateOnSurface handles this at present.
+component.
 
 @section TrkGaussianSumFilter_TrkGsfOverview Class Overview
 
-
-   The following  interfaces are declared
+   The following addtional interfaces are declared
    - Trk::IMultiStateExtrapolator - for extrapolation of
-Trk::MultiComponentState objects
-   - Trk::IMultiStateMaterialEffectsUpdator - for convolution of
-MultiStateMaterialEffects with an existing state
-   - Trk::IMultiStateMaterialEffects - for determining the material effects
-based on a Multi Component State object and material information
-Trk::IMultiStateMaterialEffects - which provides some implementation common to
-all material effects packages).
+     Trk::MultiComponentState objects
+   - IMaterialMixtureConvolution - for convolution of
+     MultiStateMaterialEffects with an existing state
 
 
-   The following implementation of the above Interfaces are provided
+   The following implementations  are provided
    - Trk::GaussianSumFitter (implements Trk::ITrackFitter)
    - Trk::GsfExtrapolator (implements Trk::IMultiStateExtrapolator) for the
-Gaussian Sum Filter extrapolation proceedure
-   - Trk::GsfMaterialEffectsUpdator (implements
-Trk::IMultiStateMaterialEffectsUpdator)
-   - Trk::GsfCombinedMaterialEffects (implements
-Trk::IMultiStateMaterialEffects)
-   - Trk::GsfBetheHeitlerEffects (implements Trk::IMultiStateMaterialEffects)
-for the inclusion of Bethe-Heitler material effects
+                           Gaussian Sum Filter extrapolation proceedure
+   - Trk::ElectronMaterialMixtureConvolution.h (implements
+     Trk::IMultiStateMaterialEffects) for electrons material effects
+     (Bethe-Heitler)
   */

@@ -21,8 +21,8 @@ PixelAthClusterMonAlg::PixelAthClusterMonAlg(const std::string& name, ISvcLocato
   AthMonitorAlgorithm(name, pSvcLocator),
   m_holeSearchTool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool", this),
   m_trackSelTool("InDet::InDetTrackSelectionTool/TrackSelectionTool", this),
-  m_atlasid(nullptr),
-  m_pixelid(nullptr) {
+  m_atlasid(nullptr)
+{
   //jo flags go here, keys and some tools -> in class
   declareProperty("HoleSearchTool", m_holeSearchTool);
   declareProperty("TrackSelectionTool", m_trackSelTool); //needed for cfg in python jo
@@ -39,16 +39,14 @@ PixelAthClusterMonAlg::~PixelAthClusterMonAlg() {}
 
 
 StatusCode PixelAthClusterMonAlg::initialize() {
+  ATH_CHECK( PixelAthMonitoringBase::initialize());
   ATH_CHECK(detStore()->retrieve(m_atlasid, "AtlasID"));
-  ATH_CHECK(detStore()->retrieve(m_pixelid, "PixelID"));
-  ATH_CHECK(m_pixelCondSummaryTool.retrieve());
-  ATH_CHECK(m_pixelReadout.retrieve());
   if (!m_holeSearchTool.empty()) ATH_CHECK(m_holeSearchTool.retrieve());
   if (!m_trackSelTool.empty()) ATH_CHECK(m_trackSelTool.retrieve());
 
   ATH_CHECK(m_tracksKey.initialize());
   ATH_CHECK(m_clustersKey.initialize());
-  return AthMonitorAlgorithm::initialize();
+  return StatusCode::SUCCESS;
 }
 
 StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const {
@@ -80,6 +78,8 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
 
   VecAccumulator2DMap Map_Of_FEs_Status("MapOfFEsStatus");
 
+  SG::ReadHandle<InDet::SiDetectorElementStatus> pixel_active = getPixelDetElStatus(m_pixelDetElStatusActiveOnly,ctx);
+  SG::ReadHandle<InDet::SiDetectorElementStatus> pixel_status = getPixelDetElStatus(m_pixelDetElStatus,ctx);
   for (auto idIt = m_pixelid->wafer_begin(); idIt != m_pixelid->wafer_end(); ++idIt) {
     Identifier waferID = *idIt;
     IdentifierHash id_hash = m_pixelid->wafer_hash(waferID);
@@ -88,9 +88,10 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
     if (pixlayer == 99) continue;
     getPhiEtaMod(m_pixelid, waferID, phiMod, etaMod, copyFEval);
 
-    if (m_pixelCondSummaryTool->isActive(id_hash) == true && m_pixelCondSummaryTool->isGood(id_hash) == true) {
+    bool is_active = isActive( !m_pixelDetElStatusActiveOnly.empty() ? pixel_active.cptr() :  nullptr,  id_hash);
+    if (is_active && isGood( !m_pixelDetElStatus.empty() ? pixel_status.cptr() :  nullptr,  id_hash) ) {
       index = 0;
-    } else if (m_pixelCondSummaryTool->isActive(id_hash) == false) {
+    } else if (!is_active) {
       index = 2;  // inactive or bad modules
       if (pixlayer == PixLayers::kIBL) {
 	int iblsublayer = (m_pixelid->eta_module(waferID) > -7 && m_pixelid->eta_module(waferID) < 6) ? PixLayers::kIBL2D : PixLayers::kIBL3D;
@@ -139,13 +140,15 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
     if (m_doFEPlots) {
       int nFE = getNumberOfFEs(pixlayer, m_pixelid->eta_module(waferID));
       for (int iFE = 0; iFE < nFE; iFE++) {
-        Identifier pixelID = m_pixelReadout->getPixelIdfromHash(id_hash, iFE, 1, 1);
-        if (pixelID.is_valid()) {
-          if (m_pixelCondSummaryTool->isActive(id_hash,
-                                               pixelID) == true &&
-              m_pixelCondSummaryTool->isGood(id_hash, pixelID) == true) {
+         Identifier pixelID = m_pixelReadout->getPixelIdfromHash(id_hash, iFE, 1, 1);
+         if (pixelID.is_valid()) {
+            auto [is_active,is_good ] =isChipGood( !m_pixelDetElStatusActiveOnly.empty() ? pixel_active.cptr() : nullptr,
+                                                   !m_pixelDetElStatus.empty() ? pixel_status.cptr() : nullptr,
+                                                   id_hash,
+                                                   iFE);
+            if (is_active && is_good) {
             index = 0;  // active and good FE
-          } else if (m_pixelCondSummaryTool->isActive(id_hash, pixelID) == false) {
+          } else if (!is_active) {
             index = 2;  // inactive or bad FE
           } else {
             index = 1;  // active and bad FE

@@ -47,6 +47,14 @@ class CaloCondBlobDat : public CaloCondBlobBase
       @param adc The gain index
       @param idx The index of the requested value */
   T getData(const unsigned int channel, const unsigned int adc, const unsigned int idx) const;
+
+  //==================================================================
+  //== Optimized data getter for calibrations independent of gain and ADC
+  //==================================================================
+  /** @brief Returns a single T  belonging to a channel/gain.
+   *  @param channel The channel number
+   */
+  T getData(const unsigned int channel) const;
   
   /** @brief Initializing function.
       @param def A reference to a DefType object, specifying the inital layout and values
@@ -128,6 +136,13 @@ CaloCondBlobDat<T>::getData(const unsigned int channel, const unsigned int adc, 
   if(idx<getObjSizeUint32()){return getAddress(channel,adc)[idx];}
   else{throw CaloCond::IndexOutOfRange("CaloCondBlobDat::getData",idx,getObjVersion());}
 }
+
+
+template<class T> T 
+CaloCondBlobDat<T>::getData(const unsigned int channel) const {
+return (static_cast<const T*>(m_pDataStart))[channel];
+}
+
 
 //
 //______________________________________________________________

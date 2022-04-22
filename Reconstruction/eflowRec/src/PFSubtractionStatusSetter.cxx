@@ -3,12 +3,7 @@
 */
 
 
-#include "GaudiKernel/IMessageSvc.h"
-#include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
-
-#include "AthenaKernel/getMessageSvc.h"
-
 #include "eflowRec/PFSubtractionStatusSetter.h"
 #include "eflowRec/eflowCaloObject.h"
 #include "eflowRec/eflowRecCluster.h"
@@ -16,12 +11,18 @@
 
 #include <numeric>
 
-PFSubtractionStatusSetter::PFSubtractionStatusSetter() : AthMessaging(Gaudi::svcLocator()->service<IMessageSvc>("MessageSvc"),
-                  "PFSubtractionStatusSetter"){}
+PFSubtractionStatusSetter::PFSubtractionStatusSetter() : AsgMessaging("PFSubtractionStatusSetter"){}
 
-void PFSubtractionStatusSetter::markSubtractionStatus(const std::vector<std::pair<xAOD::CaloCluster*, bool> >& clusterList, std::vector<std::pair<float,float> >& clusterSubtractedEnergyRatios, eflowCaloObject& thisEflowCaloObject, unsigned int trackIndex){
-  //An eflowCaloObject may have one cluster and N tracks, and then one would have N eflowTrackClusterLink* for each track-cluster pair
-  //Hence there can be more entries in the track cluster link list due to duplication
+void
+PFSubtractionStatusSetter::markSubtractionStatus(
+  const std::vector<std::pair<xAOD::CaloCluster*, bool>>& clusterList,
+  std::vector<std::pair<float, float>>& clusterSubtractedEnergyRatios,
+  eflowCaloObject& thisEflowCaloObject,
+  unsigned int trackIndex) const
+{
+  // An eflowCaloObject may have one cluster and N tracks, and then one would
+  // have N eflowTrackClusterLink* for each track-cluster pair Hence there can
+  // be more entries in the track cluster link list due to duplication
 
   ATH_MSG_DEBUG("Executing markSubtractionStatus and have clusterList of size " << clusterList.size() << ", clusterSubtractedEnergyRatios of size " << clusterSubtractedEnergyRatios.size() << " and trackIndex of " << trackIndex);  
 
@@ -64,10 +65,12 @@ void PFSubtractionStatusSetter::markSubtractionStatus(const std::vector<std::pai
     }//loop on track cluster link pairs
     clusCounter++;
   }//loop on cluster pair list
-
 }
 
-void PFSubtractionStatusSetter::markAllTracksAnnihStatus(eflowCaloObject& thisEflowCaloObject){
+void
+PFSubtractionStatusSetter::markAllTracksAnnihStatus(
+  eflowCaloObject& thisEflowCaloObject) const
+{
 
   ATH_MSG_DEBUG("Executing markAllTracksAnnihStatus");
 
@@ -86,6 +89,5 @@ void PFSubtractionStatusSetter::markAllTracksAnnihStatus(eflowCaloObject& thisEf
     thisEflowCaloObject.setTrackClusterLinkSubtractionStatus(counter, std::pair(0.0,trackEFraction*thisTrackClusterLinkPair.first->getCluster()->getCluster()->e()));  
     counter++;
   }
-  
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -23,13 +23,16 @@
 #ifndef TRT_SegmentToTrackTool_H
 #define TRT_SegmentToTrackTool_H
 
-#include "GaudiKernel/ToolHandle.h"
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "InDetRecToolInterfaces/ITRT_SegmentToTrackTool.h"
-#include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
-#include "TrkEventPrimitives/TrackScore.h"
+//
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ToolHandle.h"
+//
+#include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
+#include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
 
+#include "TrkEventPrimitives/TrackScore.h"
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // MagField cache
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
@@ -42,22 +45,17 @@ class MsgStream;
 class TRT_ID;
 
 namespace Trk {
-
   class Track;
   class TrackSegment;
-
-  class ITrackFitter;
   class IExtrapolator;
-
   class ITrackScoringTool;
-
 }
 
 namespace InDet {
 
   //class TrackSegment;
 
-  class TRT_SegmentToTrackTool : 
+  class TRT_SegmentToTrackTool final: 
   virtual public ITRT_SegmentToTrackTool,
     public AthAlgTool
     {
@@ -96,13 +94,19 @@ namespace InDet {
       double                             m_sharedFrac         ;  //!< Maximum fraction of shared TRT drift circles
       bool                               m_suppressHoleSearch ;  //!< Suppress hole search during the track summary creation
 
-      ToolHandle<Trk::ITrackFitter>          m_fitterTool    ;  //!< Refitting tool
       ToolHandle<Trk::IExtrapolator>         m_extrapolator  ;  //!< Track extrapolator tool
 
-      ToolHandle<Trk::IPRDtoTrackMapTool>  m_assoTool
-         {this, "AssociationTool", "InDet::InDetPRDtoTrackMapToolGangedPixels" };
-      ToolHandle<Trk::IExtendedTrackSummaryTool> m_trackSummaryTool
-        {this, "TrackSummaryTool", "InDetTrackSummaryToolNoHoleSearch"};
+      ToolHandle<Trk::ITrackFitter> m_fitterTool{ this, "RefitterTool", "" };
+      ToolHandle<Trk::IPRDtoTrackMapTool> m_assoTool{
+        this,
+        "AssociationTool",
+        "InDet::InDetPRDtoTrackMapToolGangedPixels"
+      };
+      ToolHandle<Trk::IExtendedTrackSummaryTool> m_trackSummaryTool{
+        this,
+        "TrackSummaryTool",
+        "InDetTrackSummaryToolNoHoleSearch"
+      };
 
       ToolHandle<Trk::ITrackScoringTool>     m_scoringTool   ;  //!< Track scoring tool
 
@@ -118,7 +122,7 @@ namespace InDet {
 
       /**Tracks that will be passed out of AmbiProcessor.
          Recreated anew each time process() is called*/ 
-      MsgStream&    dumpevent      (MsgStream&    out) const;
+      static MsgStream&    dumpevent      (MsgStream&    out) ;
       MsgStream&    dumpconditions (MsgStream&    out) const;
 
     };

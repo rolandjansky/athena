@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -70,30 +70,10 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize()
     ATH_MSG_INFO("Retrieved tool " << m_riocreator);
   }
 
-  if (m_usePIX) {
-    if ( m_pixelCondSummaryTool.retrieve().isFailure() ) {
-      ATH_MSG_FATAL("Failed to retrieve tool " << m_pixelCondSummaryTool);
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_INFO("Retrieved tool " << m_pixelCondSummaryTool);
-    }
-  } else {
-    m_pixelCondSummaryTool.disable();
-  }
-
-  // Get SctConditionsSummaryTool
+  // disable pixel/SCT conditions summary tool: pixel/SCT are not used, the status event data is used and not being validated
+  ATH_CHECK( m_pixelCondSummaryTool.retrieve( DisableTool{!m_usePIX || (!m_pixelDetElStatus.empty() && !VALIDATE_STATUS_ARRAY_ACTIVATED)} ) );
+  ATH_CHECK( m_sctCondSummaryTool.retrieve(   DisableTool{!m_useSCT || (!m_sctDetElStatus.empty()   && !VALIDATE_STATUS_ARRAY_ACTIVATED)} ) );
   //
-  if (m_useSCT) {
-    if ( m_sctCondSummaryTool.retrieve().isFailure() ) {
-      ATH_MSG_FATAL("Failed to retrieve tool " << m_sctCondSummaryTool);
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_INFO("Retrieved tool " << m_sctCondSummaryTool);
-    }
-  } else {
-    m_sctCondSummaryTool.disable();
-  }
-
   // Get InDetBoundaryCheckTool
   if ( m_boundaryCheckTool.retrieve().isFailure() ) {
       ATH_MSG_FATAL("Failed to retrieve tool " << m_boundaryCheckTool);
@@ -118,12 +98,12 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize()
 
   ATH_CHECK( m_sctcontainerkey.initialize (m_useSCT) );
   ATH_CHECK( m_boundarySCTKey.initialize (m_useSCT) );
-  ATH_CHECK( m_SCTDetEleCollKey.initialize (m_useSCT) );
 
   // initialize conditions object key for field cache
   //
   ATH_CHECK( m_fieldCondObjInputKey.initialize() );
-
+  ATH_CHECK( m_pixelDetElStatus.initialize( !m_pixelDetElStatus.empty() && m_usePIX) );
+  ATH_CHECK( m_sctDetElStatus.initialize( !m_sctDetElStatus.empty() && m_useSCT) );
   return StatusCode::SUCCESS;
 }
 
@@ -1034,10 +1014,18 @@ void InDet::SiCombinatorialTrackFinder_xk::initializeCombinatorialData(const Eve
   data.setTools(&*m_proptool,
                 &*m_updatortool,
                 &*m_riocreator,
-                (m_usePIX ? &*m_pixelCondSummaryTool : nullptr),
-                (m_useSCT ? &*m_sctCondSummaryTool : nullptr),
+                (m_usePIX && (m_pixelDetElStatus.empty() || VALIDATE_STATUS_ARRAY_ACTIVATED)? &*m_pixelCondSummaryTool : nullptr),
+                (m_useSCT && (m_sctDetElStatus.empty()   || VALIDATE_STATUS_ARRAY_ACTIVATED)? &*m_sctCondSummaryTool   : nullptr),
                 &m_fieldprop,
                 &*m_boundaryCheckTool);
+  if (!m_pixelDetElStatus.empty()) {
+     SG::ReadHandle<InDet::SiDetectorElementStatus> pixelDetElStatus( m_pixelDetElStatus, ctx);
+     data.setPixelDetectorElementStatus( pixelDetElStatus.cptr() );
+  }
+  if (!m_sctDetElStatus.empty()) {
+     SG::ReadHandle<InDet::SiDetectorElementStatus> sctDetElStatus( m_sctDetElStatus, ctx);
+     data.setSCTDetectorElementStatus( sctDetElStatus.cptr() );
+  }
 
   data.isITkGeometry() = m_ITkGeometry;
   data.useFastTracking() = m_doFastTracking;

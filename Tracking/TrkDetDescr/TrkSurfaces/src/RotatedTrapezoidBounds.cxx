@@ -64,7 +64,7 @@ Trk::RotatedTrapezoidBounds::inside(const Amg::Vector2D& locpo, double tol1, dou
   if (fabsY > (m_boundValues[RotatedTrapezoidBounds::bv_maxHalfY] + tol2))
     return false;
   // (3) a fast TRUE
-  if (fabsY < (m_boundValues[RotatedTrapezoidBounds::bv_minHalfY] - tol2))
+  if (fabsY < (m_boundValues[RotatedTrapezoidBounds::bv_minHalfY] + tol2))
     return true;
   // (4) it is inside the rectangular shape solve the isBelow
   return (isBelow(locpo[Trk::locX], fabsY, tol1, tol2));

@@ -4,8 +4,6 @@
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
 # Author: Sebastien Binet (binet@cern.ch)
 
-from __future__ import print_function
-
 __version__ = '$Revision: 1.21 $'
 __author__  = """Wim Lavrijsen (WLavrijsen@lbl.gov)
                  Sebastien Binet <binet@cern.ch>

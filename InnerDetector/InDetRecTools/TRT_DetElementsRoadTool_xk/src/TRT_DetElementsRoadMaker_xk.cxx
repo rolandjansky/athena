@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -60,8 +60,7 @@ InDet::TRT_DetElementsRoadMaker_xk::TRT_DetElementsRoadMaker_xk
 ///////////////////////////////////////////////////////////////////
 
 InDet::TRT_DetElementsRoadMaker_xk::~TRT_DetElementsRoadMaker_xk()
-{
-}
+= default;
 
 ///////////////////////////////////////////////////////////////////
 // Initialisation
@@ -252,7 +251,7 @@ MsgStream& InDet::TRT_DetElementsRoadMaker_xk::dumpConditions( MsgStream& out ) 
 // Dumps event information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::TRT_DetElementsRoadMaker_xk::dumpEvent( MsgStream& out, int size_road) const
+MsgStream& InDet::TRT_DetElementsRoadMaker_xk::dumpEvent( MsgStream& out, int size_road) 
 {
   out<<"|--------------------------------------------------------------------|"
      <<std::endl;
@@ -527,7 +526,7 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoadCTB
 ///////////////////////////////////////////////////////////////////
 
 double InDet::TRT_DetElementsRoadMaker_xk::stepToDetElement
-(const InDetDD::TRT_BaseElement*& de,Amg::Vector3D& r,Amg::Vector3D& a) const
+(const InDetDD::TRT_BaseElement*& de,Amg::Vector3D& r,Amg::Vector3D& a) 
 {
   Amg::Vector3D R  = de->center();
   Amg::Vector3D A  = de->normal();

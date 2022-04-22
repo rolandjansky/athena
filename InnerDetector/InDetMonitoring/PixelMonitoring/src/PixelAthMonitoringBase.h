@@ -8,7 +8,13 @@
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
+#include "PixelReadoutGeometry/IPixelReadoutManager.h"
+#include "InDetReadoutGeometry/SiDetectorElementStatus.h"
+
 #include "InDetIdentifier/PixelID.h"
+
+#include <tuple>
 
 class PixelID;
 
@@ -76,6 +82,8 @@ const std::vector<float> iblFEphiUpEdges = { -3.0215, -2.5727, -2.1239, -1.6751,
 
 class PixelAthMonitoringBase: public virtual AthMonitorAlgorithm {
 public:
+  virtual StatusCode initialize() override;
+
   void fill1DProfLumiLayers(const std::string& prof1Dname, int lb, float* weights,
                             int nlayers = PixLayers::COUNT) const;
   void fill2DProfLumiLayers(const std::string& prof2Dname, int lb, float (*weights)[PixLayers::COUNT],
@@ -119,6 +127,108 @@ public:
   };
   void fillFromArrays(const std::string& namePP0, AccumulatorArrays& pixarrays,
                       const std::string& name2DMap = "") const;
+
+protected:
+  ToolHandle<IInDetConditionsTool> m_pixelCondSummaryTool {
+    this, "PixelConditionsSummaryTool", "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"
+  };
+  ServiceHandle<InDetDD::IPixelReadoutManager> m_pixelReadout
+  {
+    this, "PixelReadoutManager", "PixelReadoutManager", "Pixel readout manager"
+  };
+  const PixelID* m_pixelid{};
+
+  /** @brief Optional read handle to get status data to test whether a pixel detector element is good.
+   * If set to e.g. PixelDetectorElementStatus the event data will be used instead of the pixel conditions summary tool.
+   */
+  SG::ReadHandleKey<InDet::SiDetectorElementStatus> m_pixelDetElStatus
+     {this, "PixelDetElStatus", "", "Key of SiDetectorElementStatus for Pixel"};
+
+  /** @brief Optional read handle to get status data to test whether a pixel detector element is active.
+   * The optional event data is used to test whether a pixel detector element is active but not necessarily good.
+   * If set to e.g. PixelDetectorElementStatusActiveOnly the event data will be used instead of the pixel conditions summary tool.
+   */
+  SG::ReadHandleKey<InDet::SiDetectorElementStatus> m_pixelDetElStatusActiveOnly
+     {this, "PixelDetElStatusActiveOnly", "", "Key of SiDetectorElementStatus for Pixel which reflects only whether modules or chips are active rather than delivering good data"};
+
+  SG::ReadHandle<InDet::SiDetectorElementStatus> getPixelDetElStatus(const SG::ReadHandleKey<InDet::SiDetectorElementStatus> &key, const EventContext& ctx) const {
+     SG::ReadHandle<InDet::SiDetectorElementStatus> pixelDetElStatus;
+     if (!key.empty()) {
+        pixelDetElStatus = SG::ReadHandle<InDet::SiDetectorElementStatus>(key, ctx);
+        if (!pixelDetElStatus.isValid()) {
+           std::stringstream msg;
+           msg << "Failed to get " << key.key() << " from StoreGate in " << name();
+           throw std::runtime_error(msg.str());
+        }
+     }
+     return pixelDetElStatus;
+  }
+  bool isActive(const  InDet::SiDetectorElementStatus *element_status,
+                const IdentifierHash &module_hash) const {
+     bool ret  { element_status ? element_status->isGood(module_hash) : m_pixelCondSummaryTool->isActive(module_hash)  };
+     VALIDATE_STATUS_ARRAY(element_status, element_status->isGood(module_hash), m_pixelCondSummaryTool->isActive(module_hash)  );
+     return ret;
+  }
+  bool isGood(const InDet::SiDetectorElementStatus *element_status,
+              const IdentifierHash &module_hash) const {
+     bool ret  ( element_status ? element_status->isGood(module_hash) : m_pixelCondSummaryTool->isGood(module_hash));
+     VALIDATE_STATUS_ARRAY(element_status, element_status->isGood(module_hash), m_pixelCondSummaryTool->isGood(module_hash)  );
+     return ret;
+  }
+  std::tuple<bool,bool> isChipGood(const IdentifierHash &module_hash,
+                                   unsigned int chip_i) const {
+     bool is_active=false;
+     bool is_good=false;
+     Identifier pixelID = m_pixelReadout->getPixelIdfromHash(module_hash, chip_i, 1, 1);
+     if (pixelID.is_valid()) {
+        is_active = m_pixelCondSummaryTool->isActive(module_hash,pixelID);
+        if (is_active) {
+           is_good = m_pixelCondSummaryTool->isGood(module_hash, pixelID);
+        }
+     }
+     return std::make_tuple(is_active,is_good);
+  }
+  bool isChipActive(const IdentifierHash &module_hash,
+                    unsigned int chip_i) const {
+     bool is_active=false;
+     Identifier pixelID = m_pixelReadout->getPixelIdfromHash(module_hash, chip_i, 1, 1);
+     if (pixelID.is_valid()) {
+        is_active = m_pixelCondSummaryTool->isActive(module_hash,pixelID);
+     }
+     return is_active;
+  }
+  std::tuple<bool,bool> isChipGood(const InDet::SiDetectorElementStatus &element_active,
+                                   const InDet::SiDetectorElementStatus &element_status,
+                                   const IdentifierHash &module_hash,
+                                   unsigned int chip_i) const {
+     return std::make_tuple(element_active.isChipGood(module_hash, chip_i), element_status.isChipGood(module_hash, chip_i) );
+  }
+  std::tuple<bool,bool> isChipGood(const InDet::SiDetectorElementStatus *element_active,
+                                   const InDet::SiDetectorElementStatus *element_status,
+                                   const IdentifierHash &module_hash,
+                                   unsigned int chip_i) const {
+     std::tuple<bool,bool> ret( element_active && element_status
+                                ? isChipGood( *element_active, *element_status, module_hash, chip_i)
+                                : isChipGood( module_hash, chip_i) );
+#ifdef DO_VALIDATE_STATUS_ARRAY
+     Identifier pixelID = m_pixelReadout->getPixelIdfromHash(module_hash, chip_i, 1, 1);
+     VALIDATE_STATUS_ARRAY(element_active, element_active->isChipGood(module_hash, chip_i), m_pixelCondSummaryTool->isActive(module_hash,pixelID)  );
+     VALIDATE_STATUS_ARRAY(element_status, element_status->isChipGood(module_hash, chip_i), m_pixelCondSummaryTool->isGood(module_hash,pixelID)  );
+#endif
+     return ret;
+  }
+  bool isChipActive(const InDet::SiDetectorElementStatus *element_active,
+                    const IdentifierHash &module_hash,
+                    unsigned int chip_i) const {
+     bool ret( element_active
+               ? element_active->isChipGood(module_hash, chip_i)
+               : isChipActive( module_hash, chip_i) );
+#ifdef DO_VALIDATE_STATUS_ARRAY
+     Identifier pixelID = m_pixelReadout->getPixelIdfromHash(module_hash, chip_i, 1, 1);
+     VALIDATE_STATUS_ARRAY(element_active, element_active->isChipGood(module_hash, chip_i), m_pixelCondSummaryTool->isActive(module_hash,pixelID)  );
+#endif
+     return ret;
+  }
 };
 
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -47,40 +47,38 @@ namespace Rec {
         virtual StatusCode initialize() override;
 
         /** ICombinedMuonTrackBuilder interface: build and fit combined ID/Calo/MS track */
-        virtual std::unique_ptr<Trk::Track> combinedFit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack,
-                                                        const Trk::Track& spectrometerTrack, const EventContext& ctx) const override;
+        virtual std::unique_ptr<Trk::Track> combinedFit(const EventContext& ctx, const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack,
+                                                        const Trk::Track& spectrometerTrack) const override;
 
         /** ICombinedMuonTrackBuilder interface:
             build and fit indet track extended to include MS Measurement set.
             Adds material effects as appropriate plus calo energy-loss treatment */
-        virtual std::unique_ptr<Trk::Track> indetExtension(const Trk::Track& indetTrack, const Trk::MeasurementSet& spectrometerMeas,
-                                                           const EventContext& ctx, const Trk::TrackParameters* innerParameters,
-                                                           const Trk::TrackParameters* middleParameters,
-                                                           const Trk::TrackParameters* outerParameters) const override;
+        virtual std::unique_ptr<Trk::Track> indetExtension(const EventContext& ctx, const Trk::Track& indetTrack, const Trk::MeasurementSet& spectrometerMeas,
+                                                           std::unique_ptr<Trk::TrackParameters> innerParameters,
+                                                           std::unique_ptr<Trk::TrackParameters> middleParameters,
+                                                           std::unique_ptr<Trk::TrackParameters> outerParameters) const override;
 
         /** ICombinedMuonTrackBuilder interface:
             propagate to perigee adding calo energy-loss and material to MS track */
-        virtual std::unique_ptr<Trk::Track> standaloneFit(const Trk::Track& spectrometerTrack, const EventContext& ctx,
-                                                          const Trk::Vertex* vertex, float bs_x, float bs_y, float bs_z) const override;
+        virtual std::unique_ptr<Trk::Track> standaloneFit(const EventContext& ctx, const Trk::Track& spectrometerTrack,
+                                                          const Amg::Vector3D& bs, const Trk::Vertex* vertex) const override;
 
         /** ICombinedMuonTrackBuilder interface:
             refit a track removing any indet measurements with optional addition of pseudoMeasurements
             according to original extrapolation */
-        virtual std::unique_ptr<Trk::Track> standaloneRefit(const Trk::Track& combinedTrack, const EventContext& ctx, float bs_x,
-                                                            float bs_y, float bs_z) const override;
+        virtual std::unique_ptr<Trk::Track> standaloneRefit( const EventContext& ctx, const Trk::Track& combinedTrack, const Amg::Vector3D& bs) const override;
 
         /** refit a track */
-        virtual std::unique_ptr<Trk::Track> fit(Trk::Track& track, const EventContext& ctx, const Trk::RunOutlierRemoval runOutlier = false,
-                                                const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const override;
+        virtual std::unique_ptr<Trk::Track> fit(const EventContext& ctx, Trk::Track& track, const Trk::RunOutlierRemoval runOutlier,
+                                                const Trk::ParticleHypothesis particleHypothesis) const override;
 
     private:
         /**
             combined muon fit */
-        std::unique_ptr<Trk::Track> fit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack, const EventContext& ctx,
-                                        const Trk::RunOutlierRemoval runOutlier = false,
-                                        const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const;
+        std::unique_ptr<Trk::Track> fit(const EventContext& ctx, const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack, 
+                                        const Trk::RunOutlierRemoval runOutlier, const Trk::ParticleHypothesis particleHypothesis) const;
 
-        Trk::Track* addIDMSerrors(Trk::Track* track) const;
+        std::unique_ptr<Trk::Track> addIDMSerrors(const Trk::Track& track) const;
 
         static std::unique_ptr<Trk::PseudoMeasurementOnTrack> 
         vertexOnTrack(const Trk::TrackParameters* parameters, const Trk::RecVertex& vertex) ;
@@ -123,16 +121,20 @@ namespace Rec {
 
         ServiceHandle<Trk::ITrackingVolumesSvc> m_trackingVolumesSvc{this, "TrackingVolumesSvc", "TrackingVolumesSvc/TrackingVolumesSvc"};
 
-        std::unique_ptr<const Trk::Volume> m_calorimeterVolume;
-        std::unique_ptr<const Trk::Volume> m_indetVolume;
+        std::unique_ptr<Trk::Volume> m_calorimeterVolume;
+        std::unique_ptr<Trk::Volume> m_indetVolume;
 
+     
         // other configuration and tolerances
-        bool m_allowCleanerVeto;
-        bool m_cleanCombined;
-        bool m_recoverCombined;
-        double m_IDMS_xySigma;
-        double m_IDMS_rzSigma;
-        bool m_addIDMSerrors;
+        Gaudi::Property<bool> m_allowCleanerVeto{this, "AllowCleanerVeto", true};
+        Gaudi::Property<bool> m_cleanCombined{this, "CleanCombined", true};
+        Gaudi::Property<bool> m_recoverCombined{this, "RecoverCombined", false };
+        Gaudi::Property<double> m_IDMS_xySigma{this,"IDMS_xySigma", 1.* Gaudi::Units::mm};
+        Gaudi::Property<double> m_IDMS_rzSigma{this,"IDMS_rzSigma", 1.* Gaudi::Units::mm};
+        Gaudi::Property<bool> m_addIDMSerrors{this, "AddIDMSerrors", true};
+
+        Gaudi::Property<double> m_badFitChi2{this, "BadFitChi2", 2.5};
+        double normalizedChi2(const Trk::Track& track) const;
 
     };  // end of class OutwardsCombinedMuonTrackBuilder
 

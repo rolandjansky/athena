@@ -5,8 +5,6 @@
 ## @author Charles Leggett
 ###############################################################
 
-from __future__ import print_function
-
 def _setupAtlasThreadedJob():
     from AthenaCommon.AppMgr import theApp
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -68,10 +66,6 @@ def _setupAtlasThreadedJob():
 
         theApp.EventLoop = "AthenaHiveEventLoopMgr"
 
-    # enable timeline recording
-    from GaudiHive.GaudiHiveConf import TimelineSvc
-    svcMgr += TimelineSvc( RecordTimeline = True, Partial = False )
-    
     #
     ## Setup SGCommitAuditor to sweep new DataObjects at end of Alg execute
     #

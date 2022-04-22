@@ -133,43 +133,44 @@ void LVL1::RecEnergyRoI::construct(unsigned int RoIWord0, unsigned int RoIWord1,
 void LVL1::RecEnergyRoI::construct(const TrigConf::L1Menu *const l1menu)
 {
    // Find which thresholds this RoI passed and copy the values into the maps
-   for (unsigned int xeMapping : etMissThresholdsPassed())
-   {
-      const TrigConf::L1Threshold &thr = l1menu->threshold("XE", xeMapping - 1);
-      auto &caloThr = dynamic_cast<const TrigConf::L1Threshold_Calo &>(thr);
-      m_etMissThresholdValue[xeMapping] = caloThr.thrValueCounts();
+   if ( ! l1menu->thresholds("XE").empty() ) {
+      for (unsigned int xeMapping : etMissThresholdsPassed())
+      {
+         const TrigConf::L1Threshold &thr = l1menu->threshold("XE", xeMapping - 1);
+         auto &caloThr = dynamic_cast<const TrigConf::L1Threshold_Calo &>(thr);
+         m_etMissThresholdValue[xeMapping] = caloThr.thrValueCounts();
+      }
    }
-
-   for (unsigned int teMapping : sumEtThresholdsPassed())
-   {
-      const TrigConf::L1Threshold &thr = l1menu->threshold("TE", teMapping - 1);
-      auto &caloThr = dynamic_cast<const TrigConf::L1Threshold_Calo &>(thr);
-      m_sumEtThresholdValue[teMapping] = caloThr.thrValueCounts();
+   if ( ! l1menu->thresholds("TE").empty() ) {
+      for (unsigned int teMapping : sumEtThresholdsPassed())
+      {
+         const TrigConf::L1Threshold &thr = l1menu->threshold("TE", teMapping - 1);
+         auto &caloThr = dynamic_cast<const TrigConf::L1Threshold_Calo &>(thr);
+         m_sumEtThresholdValue[teMapping] = caloThr.thrValueCounts();
+      }
    }
-
-   for (unsigned int xsMapping : mEtSigThresholdsPassed())
-   {
-      const TrigConf::L1Threshold &thr = l1menu->threshold("XS", xsMapping - 1);
-      auto &caloThr = dynamic_cast<const TrigConf::L1Threshold_Calo &>(thr);
-      m_mEtSigThresholdValue[xsMapping] = caloThr.thrValueCounts();
+   if ( ! l1menu->thresholds("XS").empty() ) {
+      for (unsigned int xsMapping : mEtSigThresholdsPassed())
+      {
+         const TrigConf::L1Threshold &thr = l1menu->threshold("XS", xsMapping - 1);
+         auto &caloThr = dynamic_cast<const TrigConf::L1Threshold_Calo &>(thr);
+         m_mEtSigThresholdValue[xsMapping] = caloThr.thrValueCounts();
+      }
    }
 }
 
 unsigned int LVL1::RecEnergyRoI::roiWord0() const
 {
-
    return m_roiWord0;
 }
 
 unsigned int LVL1::RecEnergyRoI::roiWord1() const
 {
-
    return m_roiWord1;
 }
 
 unsigned int LVL1::RecEnergyRoI::roiWord2() const
 {
-
    return m_roiWord2;
 }
 

@@ -144,7 +144,7 @@ StatusCode RpcDigitizationTool::initialize() {
     ATH_MSG_DEBUG("Input objects in container : '" << m_inputHitCollectionName << "'");
 
     // Initialize ReadHandleKey
-    ATH_CHECK(m_hitsContainerKey.initialize(!m_onlyUseContainerName));
+    ATH_CHECK(m_hitsContainerKey.initialize(true));
 
     // initialize the output WriteHandleKeys
     ATH_CHECK(m_outputDigitCollectionKey.initialize());
@@ -322,7 +322,7 @@ StatusCode RpcDigitizationTool::processBunchXing(int bunchXing, SubEventIterator
     TimedHitCollList::iterator endColl(hitCollList.end());
 
     // Iterating over the list of collections
-    for (; iColl != endColl; iColl++) {
+    for (; iColl != endColl; ++iColl) {
         RPCSimHitCollection* hitCollPtr = new RPCSimHitCollection(*iColl->second);
         PileUpTimeEventIndex timeIndex(iColl->first);
 
@@ -645,7 +645,7 @@ StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigit
 
                 // pack propagation time along strip, bunch time and local hit position
                 long long int packedMCword = PackMCTruth(proptime, bunchTime, pos.y(), pos.z());
-
+                //cppcheck-suppress invalidPointerCast
                 double* b = reinterpret_cast<double*>(&packedMCword);
 
                 //////////////////////////////////////////////////////////////////////////////////
@@ -1830,7 +1830,7 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const EventContext& ctx, con
     float I1 = PhiAndEtaEff + OnlyEtaEff;
     float ITot = PhiAndEtaEff + OnlyEtaEff + OnlyPhiEff;
 
-    float GapEff = PhiAndEtaEff + OnlyEtaEff + OnlyPhiEff;
+    float GapEff = ITot ;
     float PhiEff = PhiAndEtaEff + OnlyPhiEff;
     float EtaEff = PhiAndEtaEff + OnlyEtaEff;
 
@@ -2380,8 +2380,8 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB(const EventContext& ctx) 
                                     FracCS2Phi = readCdo->getFracClusterSize2Map().find(atlasIdPhi)->second;
                                 FracCStailPhi = 1. - FracCS1Phi - FracCS2Phi;
 
-                                if ((ProjectedTracksEta >= m_CutProjectedTracks) && (ProjectedTracksEta < 10000000) &&
-                                    (ProjectedTracksEta >= m_CutProjectedTracks) && (efficiencyEta > 0) && (efficiencyEta <= 1) &&
+                                if ((ProjectedTracksEta >= m_CutProjectedTracks) && (ProjectedTracksEta < 10000000) 
+                                     && (efficiencyEta > 0) && (efficiencyEta <= 1) &&
                                     (efficiencygapEta > 0) && (efficiencygapEta <= 1) && (efficiencyPhi > 0) && (efficiencyPhi <= 1)) {
                                     if (stationEta >= 0) {
                                         COOLDB_PhiAndEtaEff_A[indexSName] =

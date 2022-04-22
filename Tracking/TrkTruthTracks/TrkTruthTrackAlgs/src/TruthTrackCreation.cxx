@@ -38,7 +38,7 @@ Trk::TruthTrackCreation::TruthTrackCreation(const std::string& name, ISvcLocator
 //================ Destructor =================================================
 
 Trk::TruthTrackCreation::~TruthTrackCreation()
-    {}
+    = default;
 
 
 //================ Initialisation =================================================

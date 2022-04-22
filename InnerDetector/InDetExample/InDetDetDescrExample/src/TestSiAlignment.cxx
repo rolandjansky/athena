@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetDetDescrExample/TestSiAlignment.h"
@@ -138,7 +138,8 @@ bool
 TestSiAlignment::testIdentity(const Amg::Transform3D & transform, double errRot,double errTrans) {
   using std::abs;
   const Amg::Transform3D & t1 = transform;
-  const Amg::Transform3D t2; // identity
+  Amg::Transform3D t2;
+  t2.setIdentity();
   // Rotation/Scale
   for (int i=0; i < 3; i++){
     for (int j=0; j < 3; j++){

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackSummaryHelperTool/InDetTrackSummaryHelperTool.h"
@@ -307,8 +307,7 @@ InDet::InDetTrackSummaryHelperTool::analyse(
       }
     }
   }
-  return;
-}
+  }
 
 void
 InDet::InDetTrackSummaryHelperTool::analyse(
@@ -376,8 +375,7 @@ InDet::InDetTrackSummaryHelperTool::searchForHoles(
     }
   }
 
-  return;
-}
+  }
 
 void
 InDet::InDetTrackSummaryHelperTool::updateSharedHitCount(
@@ -474,8 +472,7 @@ InDet::InDetTrackSummaryHelperTool::updateSharedHitCount(
       }
     }
   }
-  return;
-}
+  }
 
 void
 InDet::InDetTrackSummaryHelperTool::updateExpectedHitInfo(
@@ -523,8 +520,7 @@ InDet::InDetTrackSummaryHelperTool::updateExpectedHitInfo(
     }
   }
 
-  return;
-}
+  }
 
 void
 InDet::InDetTrackSummaryHelperTool::updateAdditionalInfo(
@@ -538,8 +534,6 @@ InDet::InDetTrackSummaryHelperTool::updateAdditionalInfo(
   summary.m_dedx = dedx;
   summary.m_nhitsdedx = nclus;
   summary.m_nhitsoverflowdedx = noverflowclus;
-
-  return;
 }
 
 void

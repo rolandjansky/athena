@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /* Athena includes */
@@ -62,8 +62,7 @@ FastCaloSimCaloExtrapolation::FastCaloSimCaloExtrapolation(const std::string& t,
 }
 
 FastCaloSimCaloExtrapolation::~FastCaloSimCaloExtrapolation()
-{
-}
+= default;
 
 StatusCode FastCaloSimCaloExtrapolation::initialize()
 {
@@ -266,31 +265,68 @@ std::unique_ptr<std::vector<Trk::HitInfo>> FastCaloSimCaloExtrapolation::caloHit
 
   ATH_MSG_DEBUG( "[ fastCaloSim transport ] after calo entrance ");
 
-  const Trk::TrackParameters* caloEntry = 0;
+  std::unique_ptr<const Trk::TrackParameters> caloEntry = nullptr;
 
   if(m_caloEntrance && m_caloEntrance->inside(pos, 0.001) && !m_extrapolator->trackingGeometry()->atVolumeBoundary(pos,m_caloEntrance, 0.001)){
-      std::vector<Trk::HitInfo>* dummyHitVector = 0;
-      if(charge==0) caloEntry = m_extrapolator->transportNeutralsWithPathLimit(inputPar,pathLim, timeLim, Trk::alongMomentum, pHypothesis, dummyHitVector, nextGeoID, m_caloEntrance);
-      else caloEntry = m_extrapolator->extrapolateWithPathLimit(inputPar, pathLim, timeLim, Trk::alongMomentum, pHypothesis, dummyHitVector, nextGeoID, m_caloEntrance);    
-  }
-  else caloEntry=&inputPar;
+      std::vector<Trk::HitInfo>* dummyHitVector = nullptr;
+      if (charge == 0){
+        caloEntry =
+          m_extrapolator->transportNeutralsWithPathLimit(inputPar,
+                                                         pathLim,
+                                                         timeLim,
+                                                         Trk::alongMomentum,
+                                                         pHypothesis,
+                                                         dummyHitVector,
+                                                         nextGeoID,
+                                                         m_caloEntrance);
+      }else{
+        caloEntry = m_extrapolator->extrapolateWithPathLimit(inputPar,
+                                                             pathLim,
+                                                             timeLim,
+                                                             Trk::alongMomentum,
+                                                             pHypothesis,
+                                                             dummyHitVector,
+                                                             nextGeoID,
+                                                             m_caloEntrance);
+      }
+  } else
+    caloEntry = inputPar.uniqueClone();
 
   ATH_MSG_DEBUG( "[ fastCaloSim transport ] after calo caloEntry ");
 
   if(caloEntry){
-      const Trk::TrackParameters* eParameters = 0;
+    std::unique_ptr<const Trk::TrackParameters> eParameters = nullptr;
 
       // save Calo entry hit (fallback info)
-      hitVector->push_back(Trk::HitInfo(caloEntry->clone(), timeLim.time, nextGeoID, 0.));
+      hitVector->push_back(Trk::HitInfo(caloEntry->uniqueClone(), timeLim.time, nextGeoID, 0.));
 
-      ATH_MSG_DEBUG( "[ fastCaloSim transport ] starting Calo transport from position eta="<<caloEntry->position().eta()<<" phi="<<caloEntry->position().phi()<<" d="<<caloEntry->position().mag() );
-      
-      std::vector<Trk::HitInfo>* rawHitVector =  hitVector.get();
-      if(charge == 0) eParameters = m_extrapolator->transportNeutralsWithPathLimit(*caloEntry,pathLim,timeLim, Trk::alongMomentum, pHypothesis, rawHitVector, nextGeoID);
-      else eParameters = m_extrapolator->extrapolateWithPathLimit(*caloEntry, pathLim, timeLim, Trk::alongMomentum, pHypothesis, rawHitVector, nextGeoID);
+      ATH_MSG_DEBUG(
+        "[ fastCaloSim transport ] starting Calo transport from position eta="
+        << caloEntry->position().eta() << " phi=" << caloEntry->position().phi()
+        << " d=" << caloEntry->position().mag());
 
+      std::vector<Trk::HitInfo>* rawHitVector = hitVector.get();
+      if (charge == 0){
+        eParameters =
+          m_extrapolator->transportNeutralsWithPathLimit(*caloEntry,
+                                                         pathLim,
+                                                         timeLim,
+                                                         Trk::alongMomentum,
+                                                         pHypothesis,
+                                                         rawHitVector,
+                                                         nextGeoID);
+      }else{
+        eParameters =
+          m_extrapolator->extrapolateWithPathLimit(*caloEntry,
+                                                   pathLim,
+                                                   timeLim,
+                                                   Trk::alongMomentum,
+                                                   pHypothesis,
+                                                   rawHitVector,
+                                                   nextGeoID);
+      }
       // save Calo exit hit (fallback info)
-      if(eParameters) hitVector->push_back(Trk::HitInfo(eParameters, timeLim.time, nextGeoID, 0.));
+      if(eParameters) hitVector->push_back(Trk::HitInfo(std::move(eParameters), timeLim.time, nextGeoID, 0.));
     } //if caloEntry
 
   //used to identify ID-Calo boundary in tracking tools
@@ -417,12 +453,6 @@ void FastCaloSimCaloExtrapolation::extrapolate(TFCSExtrapolationState& result, c
   ATH_MSG_DEBUG("FastCaloSimCaloExtrapolation::extrapolate: Truth extrapolation done");
 
   ATH_MSG_DEBUG("Done FastCaloSimCaloExtrapolation::extrapolate");
-
-  //trackParms needs to be manually deleted as ownership is given to FastCaloSimCaloExtrapolation   
-  for(std::vector<Trk::HitInfo>::iterator it = hitVector.get()->begin(); it != hitVector.get()->end(); ++it) {    
-    auto ptr = (*it).trackParms;    
-    if(ptr) delete ptr;   
-  }
 
 }
 
@@ -874,7 +904,7 @@ int FastCaloSimCaloExtrapolation::circleLineIntersection2D(float circR, Amg::Vec
 // to be inlined here if possible.
 __attribute__ ((flatten))
 #endif
-Amg::Vector3D FastCaloSimCaloExtrapolation::projectOnCylinder(float cylR, float cylZ, Amg::Vector3D& hitPos) const {
+Amg::Vector3D FastCaloSimCaloExtrapolation::projectOnCylinder(float cylR, float cylZ, Amg::Vector3D& hitPos) {
         
   Amg::Vector3D closestPointOnCylinder;
   Amg::Vector3D cylAxis(0, 0, cylZ);
@@ -1032,7 +1062,7 @@ int FastCaloSimCaloExtrapolation::cylinderLineIntersection(float cylR, float cyl
 }
 
 
-bool FastCaloSimCaloExtrapolation::cylinderEndcapIntersection(float cylR, float cylZ, bool positiveEndcap, Amg::Vector3D& pointA, Amg::Vector3D& pointB, Amg::Vector3D& intersection) const{
+bool FastCaloSimCaloExtrapolation::cylinderEndcapIntersection(float cylR, float cylZ, bool positiveEndcap, Amg::Vector3D& pointA, Amg::Vector3D& pointB, Amg::Vector3D& intersection) {
 
   //normal and point on endcap defines the plane
   Amg::Vector3D pointOnEndcap;
@@ -1094,7 +1124,7 @@ int FastCaloSimCaloExtrapolation::whichIntersection(float cylR, float cylZ, Amg:
 // to be inlined here if possible.
 __attribute__ ((flatten))
 #endif
-double FastCaloSimCaloExtrapolation::getPointLineSegmentDistance(Amg::Vector3D& point, Amg::Vector3D& hitPos1, Amg::Vector3D& hitPos2) const{
+double FastCaloSimCaloExtrapolation::getPointLineSegmentDistance(Amg::Vector3D& point, Amg::Vector3D& hitPos1, Amg::Vector3D& hitPos2) {
 
   Amg::Vector3D hitDir = hitPos2 - hitPos1;
   Amg::Vector3D w = point - hitPos1;
@@ -1109,7 +1139,7 @@ double FastCaloSimCaloExtrapolation::getPointLineSegmentDistance(Amg::Vector3D& 
 
 }
 
-enum FastCaloSimCaloExtrapolation::HITPOSITION FastCaloSimCaloExtrapolation::whereOnCylinder(float cylR, float cylZ, Amg::Vector3D& hitPos) const{
+enum FastCaloSimCaloExtrapolation::HITPOSITION FastCaloSimCaloExtrapolation::whereOnCylinder(float cylR, float cylZ, Amg::Vector3D& hitPos) {
   //set a 1mm tolerance within which the hit position is considered to be on the cylinder surface
   //setting this higher can lead to extrapolation failures around truth particle eta ~4
   float tolerance = 1;
@@ -1126,12 +1156,12 @@ enum FastCaloSimCaloExtrapolation::HITPOSITION FastCaloSimCaloExtrapolation::whe
   return HITPOSITION::OUTSIDE;
 }
 
-bool FastCaloSimCaloExtrapolation::doesTravelThroughSurface(float cylR, float cylZ, Amg::Vector3D& hitPos1, Amg::Vector3D& hitPos2) const{
+bool FastCaloSimCaloExtrapolation::doesTravelThroughSurface(float cylR, float cylZ, Amg::Vector3D& hitPos1, Amg::Vector3D& hitPos2) {
   //travel through surface in case one hit position is outside and the other outside of cylinder surface
   return (whereOnCylinder(cylR, cylZ, hitPos1) == INSIDE) ^ (whereOnCylinder(cylR, cylZ, hitPos2) == INSIDE);
 }
 
-bool FastCaloSimCaloExtrapolation::isOnSegment(Amg::Vector3D& point, Amg::Vector3D& hitPos1, Amg::Vector3D& hitPos2) const{
+bool FastCaloSimCaloExtrapolation::isOnSegment(Amg::Vector3D& point, Amg::Vector3D& hitPos1, Amg::Vector3D& hitPos2) {
   return getPointLineSegmentDistance(point, hitPos1, hitPos2) < 0.001;
 }
 

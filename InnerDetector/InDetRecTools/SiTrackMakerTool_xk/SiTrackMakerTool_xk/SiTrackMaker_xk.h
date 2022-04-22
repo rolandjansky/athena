@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -245,23 +245,23 @@ namespace InDet{
                            double* p1,
                            double* p2) const;
       bool globalPosition(const Trk::SpacePoint& sp, const double* dir, double* p) const;
-      void globalDirections(const double* p0, const double* p1, const double* p2, double* d0, double* d1, double* d2) const;
+      static void globalDirections(const double* p0, const double* p1, const double* p2, double* d0, double* d1, double* d2) ;
       InDet::TrackQualityCuts setTrackQualityCuts(bool simpleTrack) const;
-      void detectorElementsSelection(SiTrackMakerEventData_xk& data,
-                                     std::list<const InDetDD::SiDetectorElement*>& DE) const;
+      static void detectorElementsSelection(SiTrackMakerEventData_xk& data,
+                                     std::list<const InDetDD::SiDetectorElement*>& DE) ;
       bool newSeed(SiTrackMakerEventData_xk& data, const std::vector<const Trk::SpacePoint*>& Sp) const;
-      int  kindSeed(const std::vector<const Trk::SpacePoint*>& Sp)  const;
-      int  rapidity(const std::vector<const Trk::SpacePoint*>& Sp) const;
-      bool isNewTrack(SiTrackMakerEventData_xk& data, Trk::Track* Tr) const;
+      static int  kindSeed(const std::vector<const Trk::SpacePoint*>& Sp)  ;
+      static int  rapidity(const std::vector<const Trk::SpacePoint*>& Sp) ;
+      static bool isNewTrack(SiTrackMakerEventData_xk& data, Trk::Track* Tr) ;
       bool isCaloCompatible(SiTrackMakerEventData_xk& data) const;
       bool isHadCaloCompatible(SiTrackMakerEventData_xk& data) const;
-      bool isDBMSeeds(const Trk::SpacePoint* s) const;
-      void clusterTrackMap(SiTrackMakerEventData_xk& data, Trk::Track* Tr) const;
+      static bool isDBMSeeds(const Trk::SpacePoint* s) ;
+      static void clusterTrackMap(SiTrackMakerEventData_xk& data, Trk::Track* Tr) ;
       double pTmin(double eta) const;
 
       MsgStream& dumpStatistics(MsgStream &out) const;
       MsgStream& dumpconditions(MsgStream& out) const;
-      MsgStream& dumpevent(SiTrackMakerEventData_xk& data, MsgStream& out) const;
+      static MsgStream& dumpevent(SiTrackMakerEventData_xk& data, MsgStream& out) ;
 
       /// helper for working with the stat arrays
       template <typename T, size_t N,size_t M> void resetCounter(std::array<std::array<T,M>,N> & a) const{

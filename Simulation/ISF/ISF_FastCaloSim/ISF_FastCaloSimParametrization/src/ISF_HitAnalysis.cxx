@@ -68,7 +68,7 @@
 
 
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 #include <functional>
 #include <iostream>
 
@@ -118,8 +118,7 @@ ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocat
 }
 
 ISF_HitAnalysis::~ISF_HitAnalysis()
-{
-}
+= default;
 
 StatusCode ISF_HitAnalysis::updateMetaData( IOVSVC_CALLBACK_ARGS_P( I, keys ) )
 {
@@ -176,16 +175,16 @@ StatusCode ISF_HitAnalysis::initialize()
   const CaloIdManager* caloIdManager{nullptr};
   ATH_CHECK(detStore()->retrieve(caloIdManager));
   m_larEmID=caloIdManager->getEM_ID();
-  if(m_larEmID==0)
+  if(m_larEmID==nullptr)
     throw std::runtime_error("ISF_HitAnalysis: Invalid LAr EM ID helper");
   m_larFcalID=caloIdManager->getFCAL_ID();
-  if(m_larFcalID==0)
+  if(m_larFcalID==nullptr)
     throw std::runtime_error("ISF_HitAnalysis: Invalid FCAL ID helper");
   m_larHecID=caloIdManager->getHEC_ID();
-  if(m_larHecID==0)
+  if(m_larHecID==nullptr)
     throw std::runtime_error("ISF_HitAnalysis: Invalid HEC ID helper");
   m_tileID=caloIdManager->getTileID();
-  if(m_tileID==0)
+  if(m_tileID==nullptr)
     throw std::runtime_error("ISF_HitAnalysis: Invalid Tile ID helper");
 
   ATH_CHECK( m_fSamplKey.initialize() );
@@ -261,7 +260,7 @@ StatusCode ISF_HitAnalysis::initialize()
   ATH_CHECK(service("PartPropSvc",p_PartPropSvc));
 
   m_particleDataTable = (HepPDT::ParticleDataTable*) p_PartPropSvc->PDT();
-  if(m_particleDataTable == 0)
+  if(m_particleDataTable == nullptr)
     {
       ATH_MSG_ERROR("PDG table not found");
       return StatusCode::FAILURE;
@@ -492,13 +491,13 @@ StatusCode ISF_HitAnalysis::finalize()
 
  /** now add branches and leaves to the tree */
 
- typedef struct
+ using GEOCELL = struct
  {
   Long64_t identifier;
   Int_t calosample;
   float eta,phi,r,eta_raw,phi_raw,r_raw,x,y,z,x_raw,y_raw,z_raw;
   float deta,dphi,dr,dx,dy,dz;
- } GEOCELL;
+ };
 
  static GEOCELL geocell;
 
@@ -645,9 +644,9 @@ StatusCode ISF_HitAnalysis::execute()
  g4hits.clear();
  hits.clear();
 
- FCS_cell   one_cell; //note that this is not extra safe if I don't have a clear method!
- FCS_g4hit  one_g4hit;
- FCS_hit    one_hit;
+ FCS_cell   one_cell{}; //note that this is not extra safe if I don't have a clear method!
+ FCS_g4hit  one_g4hit{};
+ FCS_hit    one_hit{};
  FCS_matchedcell one_matchedcell;
 
  m_oneeventcells->m_vector.clear();
@@ -787,7 +786,7 @@ StatusCode ISF_HitAnalysis::execute()
  } else {
    if(mcEvent) {
      //std::cout<<"ISF_HitAnalysis: MC event size: "<<mcEvent->size()<<std::endl;
-     if(mcEvent->size()) {
+     if(!mcEvent->empty()) {
        int particleIndex=0;
        int loopEnd = m_NtruthParticles;
 #ifdef HEPMC3
@@ -798,7 +797,7 @@ StatusCode ISF_HitAnalysis::execute()
        if(loopEnd==-1) {
          loopEnd = particles_size; //is this the correct thing?
        }
-       for (auto part: *(*mcEvent->begin())) {
+       for (const auto& part: *(*mcEvent->begin())) {
          ATH_MSG_DEBUG("Number truth particles="<<particles_size<<" loopEnd="<<loopEnd);
          particleIndex++;
 
@@ -1000,7 +999,7 @@ StatusCode ISF_HitAnalysis::execute()
   }
 
  //Get reco cells if available
- const CaloCellContainer *cellColl = 0;
+ const CaloCellContainer *cellColl = nullptr;
  sc = evtStore()->retrieve(cellColl, "AllCalo");
 
  if (sc.isFailure())
@@ -1290,7 +1289,7 @@ StatusCode ISF_HitAnalysis::execute()
     one_matchedcell.clear();
     one_matchedcell.cell.cell_identifier = it->first;
     //std::cout <<"This hit didn't exist in cell: "<<it->first<<std::endl;
-    if (it->second.size())
+    if (!it->second.empty())
     {
       one_matchedcell.cell.sampling = (it->second)[0].sampling;
     }
@@ -1327,7 +1326,7 @@ StatusCode ISF_HitAnalysis::execute()
   {
     one_matchedcell.clear(); //maybe not so important
     one_matchedcell.cell.cell_identifier = it->first;
-    if (it->second.size())
+    if (!it->second.empty())
     {
       one_matchedcell.cell.sampling = (it->second)[0].sampling;
     }
@@ -1444,7 +1443,7 @@ std::vector<Trk::HitInfo>* ISF_HitAnalysis::caloHits(const HepMC::GenParticle& p
  // geantinos not handled by PdgToParticleHypothesis - fix there
  if( pdgId == 999 ) pHypothesis = Trk::geantino;
 
- auto  vtx = part.production_vertex();
+ auto   vtx = part.production_vertex();
  Amg::Vector3D pos(0.,0.,0.);    // default
 
  if (vtx)
@@ -1511,44 +1510,66 @@ std::vector<Trk::HitInfo>* ISF_HitAnalysis::caloHits(const HepMC::GenParticle& p
 
  ATH_MSG_DEBUG( "[ fastCaloSim transport ] after calo entrance ");
 
- const Trk::TrackParameters* caloEntry = 0;
+ std::unique_ptr<const Trk::TrackParameters> caloEntry = nullptr;
 
  if(m_caloEntrance && m_caloEntrance->inside(pos,0.001) && !m_extrapolator->trackingGeometry()->atVolumeBoundary(pos,m_caloEntrance,0.001))
  {
-  std::vector<Trk::HitInfo>*     dummyHitVector = 0;
-  if( charge==0 )
-  {
-   caloEntry = m_extrapolator->transportNeutralsWithPathLimit(inputPar,pathLim,timeLim,Trk::alongMomentum,pHypothesis,dummyHitVector,nextGeoID,m_caloEntrance);
+  std::vector<Trk::HitInfo>*     dummyHitVector = nullptr;
+  if (charge == 0) {
+    caloEntry =
+      m_extrapolator->transportNeutralsWithPathLimit(inputPar,
+                                                     pathLim,
+                                                     timeLim,
+                                                     Trk::alongMomentum,
+                                                     pHypothesis,
+                                                     dummyHitVector,
+                                                     nextGeoID,
+                                                     m_caloEntrance);
+  } else {
+    caloEntry = m_extrapolator->extrapolateWithPathLimit(inputPar,
+                                                         pathLim,
+                                                         timeLim,
+                                                         Trk::alongMomentum,
+                                                         pHypothesis,
+                                                         dummyHitVector,
+                                                         nextGeoID,
+                                                         m_caloEntrance);
   }
-  else
-  {
-   caloEntry = m_extrapolator->extrapolateWithPathLimit(inputPar,pathLim,timeLim,Trk::alongMomentum,pHypothesis,dummyHitVector,nextGeoID,m_caloEntrance);
-  }
+ } else{
+   caloEntry = inputPar.uniqueClone();
  }
- else
-  caloEntry=&inputPar;
 
  ATH_MSG_DEBUG( "[ fastCaloSim transport ] after calo caloEntry ");
 
  if(caloEntry)
  {
-  const Trk::TrackParameters* eParameters = 0;
+   std::unique_ptr<const Trk::TrackParameters> eParameters = nullptr;
 
   // save Calo entry hit (fallback info)
-  hitVector->push_back(Trk::HitInfo(caloEntry->clone(),timeLim.time,nextGeoID,0.));
+  hitVector->push_back(Trk::HitInfo(caloEntry->uniqueClone(),timeLim.time,nextGeoID,0.));
 
   ATH_MSG_DEBUG( "[ fastCaloSim transport ] starting Calo transport from position eta="<<caloEntry->position().eta()<<" phi="<<caloEntry->position().phi()<<" d="<<caloEntry->position().mag() );
 
-  if( charge==0 )
-  {
-   eParameters = m_extrapolator->transportNeutralsWithPathLimit(*caloEntry,pathLim,timeLim,Trk::alongMomentum,pHypothesis,hitVector,nextGeoID);
-  }
-  else
-  {
-   eParameters = m_extrapolator->extrapolateWithPathLimit(*caloEntry,pathLim,timeLim,Trk::alongMomentum,pHypothesis,hitVector,nextGeoID);
+  if (charge == 0) {
+    eParameters =
+      m_extrapolator->transportNeutralsWithPathLimit(*caloEntry,
+                                                     pathLim,
+                                                     timeLim,
+                                                     Trk::alongMomentum,
+                                                     pHypothesis,
+                                                     hitVector,
+                                                     nextGeoID);
+  } else {
+    eParameters = m_extrapolator->extrapolateWithPathLimit(*caloEntry,
+                                                           pathLim,
+                                                           timeLim,
+                                                           Trk::alongMomentum,
+                                                           pHypothesis,
+                                                           hitVector,
+                                                           nextGeoID);
   }
   // save Calo exit hit (fallback info)
-  if (eParameters) hitVector->push_back(Trk::HitInfo(eParameters,timeLim.time,nextGeoID,0.));
+  if (eParameters) hitVector->push_back(Trk::HitInfo(std::move(eParameters),timeLim.time,nextGeoID,0.));
   //delete eParameters;   // HitInfo took ownership
  }
 

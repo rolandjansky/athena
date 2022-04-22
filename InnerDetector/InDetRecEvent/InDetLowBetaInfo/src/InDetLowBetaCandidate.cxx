@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -56,7 +56,7 @@ namespace InDet {
   }
 **/
 
-  InDetLowBetaCandidate::~InDetLowBetaCandidate() {}
+  InDetLowBetaCandidate::~InDetLowBetaCandidate() = default;
 
   MsgStream& InDetLowBetaCandidate::dump(MsgStream& sl) const {
 	    sl << "Printing InDet::InDetLowBetaCandidate: " << endmsg;

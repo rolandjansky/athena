@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: $
@@ -26,15 +26,12 @@
 namespace xAODMaker {
 
   /**
-   *  @short Algorithm for creating xAOD::TrigNavigation objects
+   *  @brief Algorithm for creating xAOD::TrigNavigation objects
    *
    *         This algorithm can be used to translate existing
    *         navigation part of HLT::HLTResult objects into xAOD::TrigNavigation ones.
    *
    * @author Tomasz Bold
-   *
-   * $Revision: $
-   * $Date:  $
    */
   class TrigNavigationCnvAlg : public AthReentrantAlgorithm {
 
@@ -49,16 +46,11 @@ namespace xAODMaker {
 
   private:
 
-    Gaudi::Property<bool> m_doL2{this, "doL2", true, "flag whether or not to consider L2 trigger information"};
-    Gaudi::Property<bool> m_doEF{this, "doEF", true, "flag whether or not to consider L3 (EF) trigger information"};
-    Gaudi::Property<bool> m_doHLT{this, "doHLT", true, "flag whether or not to consider merged L2EF=HLT trigger information"};
-
     /// StoreGate key of the input object
-    SG::ReadHandleKey<HLT::HLTResult> m_aodKeyL2{this, "AODKeyL2", "HLTResult_L2", "Input L2 HLTResult"};
-    SG::ReadHandleKey<HLT::HLTResult> m_aodKeyEF{this, "AODKeyEF", "HLTResult_EF", "Input EF HLTResult"};
-    SG::ReadHandleKey<HLT::HLTResult> m_aodKeyHLT{this, "AODKeyHLT", "HLTResult_HLT", "Input HLT (single level) HLTResult"};
+    SG::ReadHandleKey<HLT::HLTResult> m_aodKey{this, "AODKey", "HLTResult_HLT", "HLTResult input key"};
+
     /// StoreGate key for the output object
-    SG::WriteHandleKey<xAOD::TrigNavigation> m_xaodKey{this, "xAODKey", "TrigNavigation", "Input HLT (single level) HLTResult"};
+    SG::WriteHandleKey<xAOD::TrigNavigation> m_xaodKey{this, "xAODKey", "TrigNavigation", "xAOD Navigation output key"};
 
     ToolHandle< ITrigNavigationCnvTool > m_cnvTool{this, "CnvTool", "xAODMaker::TrigNavigationCnvTool/TrigNavigationCnvTool", "Handle to the converter tool"};
 

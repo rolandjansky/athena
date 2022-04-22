@@ -84,13 +84,13 @@ void RD53SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
     Identifier diodeID = chargedDiodes.getId((*i_chargedDiode).first);
     double charge = (*i_chargedDiode).second.charge();
 
-    int circ = m_pixelReadout->getFE(diodeID, moduleID);
+    unsigned int FE = m_pixelReadout->getFE(diodeID, moduleID);
     InDetDD::PixelDiodeType type = m_pixelReadout->getDiodeType(diodeID);
 
     // Apply analogu threshold, timing simulation
-    const int th0 = calibData->getAnalogThreshold(static_cast<int>(moduleHash), circ, type);
-    const int sigma = calibData->getAnalogThresholdSigma(static_cast<int>(moduleHash), circ, type);
-    const int noise = calibData->getAnalogThresholdNoise(static_cast<int>(moduleHash), circ, type); 
+    const int th0 = calibData->getAnalogThreshold(type, moduleHash, FE);
+    const int sigma = calibData->getAnalogThresholdSigma(type, moduleHash, FE);
+    const int noise = calibData->getAnalogThresholdNoise(type, moduleHash, FE); 
     double threshold = th0 +
                        sigma * CLHEP::RandGaussZiggurat::shoot(rndmEngine) +
                        noise * CLHEP::RandGaussZiggurat::shoot(rndmEngine); // This noise check is unaffected by digitizationFlags.doInDetNoise in 21.0 - see PixelCellDiscriminator.cxx in that branch
@@ -115,8 +115,8 @@ void RD53SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
     }
 
     // charge to ToT conversion
-    double tot = calibData->getToT((int) moduleHash, circ, type, charge);
-    double totsig = calibData->getTotRes((int) moduleHash, circ, tot);
+    double tot = calibData->getToT(type, moduleHash, FE, charge);
+    double totsig = calibData->getTotRes(moduleHash, FE, tot);
     int nToT = static_cast<int>(CLHEP::RandGaussZiggurat::shoot(rndmEngine, tot, totsig));
 
     if (nToT < 1) {

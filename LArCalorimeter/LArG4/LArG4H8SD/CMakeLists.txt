@@ -11,11 +11,12 @@ find_package( Geant4 )
 find_package( XercesC )
 
 # Component(s) in the package:
-atlas_add_component( LArG4H8SD
+atlas_add_library( LArG4H8SD
                    src/*.cc
                    src/components/*.cxx
+                   OBJECT
+                   NO_PUBLIC_HEADERS
                    PRIVATE_INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES CaloG4SimLib StoreGateLib
-                   PRIVATE_LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel CaloSimEvent GaudiKernel LArG4Code )
+                   PRIVATE_LINK_LIBRARIES CaloG4SimLib StoreGateLib ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel CaloSimEvent GaudiKernel LArG4Code )
 

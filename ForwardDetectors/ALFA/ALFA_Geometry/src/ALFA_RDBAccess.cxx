@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ALFA_Geometry/ALFA_GeometryReader.h"
@@ -16,7 +16,10 @@ ALFA_RDBAccess::~ALFA_RDBAccess()
 {
 }
 
-bool ALFA_RDBAccess::ReadGeometry(const eRPotName eRPName, eFiberType eFType, std::string element, std::string tag, std::string node)
+bool ALFA_RDBAccess::ReadGeometry(const eRPotName eRPName, eFiberType eFType,
+                                  const std::string& element,
+                                  const std::string& tag,
+                                  const std::string& node)
 {
 	bool bRes = false;
 	

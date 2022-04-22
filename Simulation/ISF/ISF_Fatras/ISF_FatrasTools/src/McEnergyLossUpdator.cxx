@@ -39,7 +39,7 @@ iFatras::McEnergyLossUpdator::McEnergyLossUpdator( const std::string& type, cons
 }
 
 iFatras::McEnergyLossUpdator::~McEnergyLossUpdator()
-{}
+= default;
 
 StatusCode iFatras::McEnergyLossUpdator::initialize()
 {

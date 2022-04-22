@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -42,7 +42,9 @@ public:
   bool filled() const;
   /// Get the number of bad wafers
   long unsigned int size() const;
-  
+
+  const std::set<Identifier> &badWaferIds() const { return  m_badWaferId; }
+
 private:
   std::set<Identifier> m_badWaferId;
   bool m_isFilled;

@@ -77,7 +77,7 @@ namespace InDet
   }
   
 
-  InDetJetFitterUtils::~InDetJetFitterUtils() {}
+  InDetJetFitterUtils::~InDetJetFitterUtils() = default;
   
 
   StatusCode InDetJetFitterUtils::initialize() {
@@ -234,7 +234,7 @@ namespace InDet
         
   double InDetJetFitterUtils::get3DLifetimeSignOfTrack(const Trk::TrackParameters & track,
                                                        const Amg::Vector3D & jetMomentum,
-                                                       const Trk::RecVertex & primaryVertex) const
+                                                       const Trk::RecVertex & primaryVertex) 
   {
     //the formula in the end is VERY simple!
     //(the calculation to get this result a bit harder!!!)
@@ -542,7 +542,7 @@ namespace InDet
 
 
   const Trk::LinkToTrackParticleBase* InDetJetFitterUtils::findNeutralTrackParticleBase(const std::vector<const Trk::LinkToTrackParticleBase*> & /*neutralTracks*/,
-                                                                                        const xAOD::Vertex & /*myVxCandidate*/) const 
+                                                                                        const xAOD::Vertex & /*myVxCandidate*/) 
   {
     //THIS WILL ANYWAY NOT WORK WITH NEW EDM! NEEDS TO BE FIXED!
     /*    
@@ -563,7 +563,7 @@ namespace InDet
   }
   
   bool InDetJetFitterUtils::checkIfTrackIsInVector(const Trk::ITrackLink * trackToCheck,
-                                                   const std::vector<const Trk::ITrackLink*> & vectorOfTracks) const 
+                                                   const std::vector<const Trk::ITrackLink*> & vectorOfTracks) 
   {
     
     std::vector<const Trk::ITrackLink*>::const_iterator vectorOfTracksBegin=vectorOfTracks.begin();
@@ -581,7 +581,7 @@ namespace InDet
   }
   
   bool InDetJetFitterUtils::checkIfTrackIsInVector(const Trk::ITrackLink * trackToCheck,
-                                                   const std::vector<const Trk::LinkToTrackParticleBase*> & vectorOfTracks) const 
+                                                   const std::vector<const Trk::LinkToTrackParticleBase*> & vectorOfTracks) 
   {
     
     std::vector<const Trk::LinkToTrackParticleBase*>::const_iterator vectorOfTracksBegin=vectorOfTracks.begin();
@@ -599,7 +599,7 @@ namespace InDet
   }
 
   bool InDetJetFitterUtils::checkIfTrackIsInNeutralTrackVector(const Trk::ITrackLink * /*trackToCheck*/,
-                                                               const std::vector<const Trk::LinkToTrackParticleBase*> & /*vectorOfNeutrals*/) const
+                                                               const std::vector<const Trk::LinkToTrackParticleBase*> & /*vectorOfNeutrals*/) 
   {
     //W
     /*
@@ -651,7 +651,7 @@ namespace InDet
   
   
   bool InDetJetFitterUtils::checkIfVxCandidateIsInVector(const xAOD::Vertex * vertexToCheck,
-                                                         const std::vector<const xAOD::Vertex*> & vectorOfCandidates) const
+                                                         const std::vector<const xAOD::Vertex*> & vectorOfCandidates) 
   {
 
     std::vector<const xAOD::Vertex*>::const_iterator vectorOfCandidatesBegin=vectorOfCandidates.begin();
@@ -670,7 +670,7 @@ namespace InDet
   }
   
   bool InDetJetFitterUtils::checkIfTrackIsInV0CandidatesVector(const Trk::ITrackLink * trackToCheck,
-                                                               const std::vector<const xAOD::Vertex*> & vectorOfVxCandidates) const 
+                                                               const std::vector<const xAOD::Vertex*> & vectorOfVxCandidates) 
   {
     
     std::vector<const xAOD::Vertex*>::const_iterator verticesToVetoBegin=vectorOfVxCandidates.begin();
@@ -697,7 +697,7 @@ namespace InDet
     
   }
   
-  CLHEP::HepLorentzVector  InDetJetFitterUtils::fourMomentumAtVertex(const Trk::VxVertexOnJetAxis & myVxVertexOnJetAxis) const
+  CLHEP::HepLorentzVector  InDetJetFitterUtils::fourMomentumAtVertex(const Trk::VxVertexOnJetAxis & myVxVertexOnJetAxis) 
   {
     
  

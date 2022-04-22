@@ -95,7 +95,7 @@ StatusCode FastCaloSimParamAlg::execute()
   // TODO would be more efficient to directly write the truncated
   // input collection to the output collection rather than copying it
   // first.
-  for (const auto step: *inputHandle ) {
+  for (const auto *const step: *inputHandle ) {
     auto&& stepCopy = std::make_unique<ISF_FCS_Parametrization::FCS_StepInfo>(*step);
     outputHandle->push_back( stepCopy.release() );
   }

@@ -16,6 +16,7 @@ find_package( XercesC )
 atlas_add_library( G4AtlasToolsLib
                    src/*.cxx
                    src/*.cc
+                   OBJECT
                    PUBLIC_HEADERS G4AtlasTools
                    INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
@@ -23,9 +24,11 @@ atlas_add_library( G4AtlasToolsLib
                    LINK_LIBRARIES ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${TBB_LIBRARIES} AthenaBaseComps G4AtlasInterfaces SubDetectorEnvelopesLib
                    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} CxxUtils GaudiKernel )
 
-atlas_add_component( G4AtlasTools
-                     src/components/*.cxx
-                     LINK_LIBRARIES G4AtlasToolsLib )
+atlas_add_library( G4AtlasTools
+                   src/components/*.cxx
+                   OBJECT
+                   NO_PUBLIC_HEADERS
+                   PRIVATE_LINK_LIBRARIES G4AtlasToolsLib)
 
 #testing just the simulation parts, no forward detectors or region
 atlas_add_test( G4GeometryToolConfig_Simtest

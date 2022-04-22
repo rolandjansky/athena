@@ -108,7 +108,7 @@ Trk::MeasurementVectorNtupleTool::MeasurementVectorNtupleTool(
 }
 
 // destructor
-Trk::MeasurementVectorNtupleTool::~MeasurementVectorNtupleTool() {}
+Trk::MeasurementVectorNtupleTool::~MeasurementVectorNtupleTool() = default;
 
 
 ///////////////////////////////////////

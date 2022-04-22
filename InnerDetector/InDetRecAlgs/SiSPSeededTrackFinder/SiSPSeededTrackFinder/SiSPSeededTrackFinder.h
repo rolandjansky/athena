@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -187,7 +187,7 @@ namespace InDet {
     * A hit will never *reduce* the total score compared to having no hit at all. 
     * @param [in] track Track to evaluate the quality of 
     **/ 
-    double trackQuality(const Trk::Track* track) const;
+    static double trackQuality(const Trk::Track* track) ;
 
     /** \brief cleans up the collection of quality filtered tracks. 
     * 

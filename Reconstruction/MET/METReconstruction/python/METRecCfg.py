@@ -3,46 +3,67 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType
 
-#Configures only the MET algorithms and tools - to be used from RecExCommon to avoid
-#conflicts or if you only want to configure just the MET algorithms and tools
-def METCfg(inputFlags,**kwargs):
+# Configure all MET algorithms for standard reconstruction
+def METCfg(inputFlags):
     result=ComponentAccumulator()
+    outputList = []
 
+    # Calo MET collections (for monitoring)
     from METReconstruction.METCalo_Cfg import METCalo_Cfg
     result.merge(METCalo_Cfg(inputFlags))
+    metDefs = ['EMTopo', 'EMTopoRegions', 'LocHadTopo', 'LocHadTopoRegions', 'Calo']
+    for metDef in metDefs:
+        outputList.append('xAOD::MissingETContainer#MET_'+metDef)
+        outputList.append('xAOD::MissingETAuxContainer#MET_'+metDef+'Aux.')
 
+    # Track MET
     from METReconstruction.METTrack_Cfg import METTrack_Cfg
     result.merge(METTrack_Cfg(inputFlags))
+    outputList.append("xAOD::MissingETContainer#MET_Track")
+    outputList.append("xAOD::MissingETAuxContainer#MET_TrackAux.")
     
+    # Truth MET
     if inputFlags.Input.isMC:
         from METReconstruction.METTruth_Cfg import METTruth_Cfg
         result.merge(METTruth_Cfg(inputFlags))
+        outputList.append("xAOD::MissingETContainer#MET_Truth")
+        outputList.append("xAOD::MissingETAuxContainer#MET_TruthAux.")
+        outputList.append("xAOD::MissingETContainer#MET_TruthRegions")
+        outputList.append("xAOD::MissingETAuxContainer#MET_TruthRegionsAux.")
+        outputList.append('xAOD::MissingETComponentMap#METMap_Truth')
+        outputList.append('xAOD::MissingETAuxComponentMap#METMap_TruthAux.')
 
+    # "Normal" MET collections
     from METReconstruction.METAssociatorCfg import METAssociatorCfg
     from METUtilities.METMakerConfig import getMETMakerAlg
-    result.merge(METAssociatorCfg(inputFlags, "AntiKt4EMTopo"))
-    result.addEventAlgo(getMETMakerAlg('AntiKt4EMTopo'), sequenceName='METAssoc_AntiKt4EMTopo')
-    result.merge(METAssociatorCfg(inputFlags, "AntiKt4LCTopo"))
-    result.addEventAlgo(getMETMakerAlg('AntiKt4LCTopo'), sequenceName='METAssoc_AntiKt4LCTopo')
+    metDefs = ['AntiKt4EMTopo','AntiKt4LCTopo']
     if inputFlags.MET.DoPFlow:
-       result.merge(METAssociatorCfg(inputFlags, "AntiKt4EMPFlow"))
-       result.addEventAlgo(getMETMakerAlg('AntiKt4EMPFlow'), sequenceName='METAssoc_AntiKt4EMPFlow')
-        
+       metDefs.append('AntiKt4EMPFlow')
+    for metDef in metDefs:
+        # Build association maps and core soft terms
+        result.merge(METAssociatorCfg(inputFlags, metDef))
+        outputList.append('xAOD::MissingETAssociationMap#METAssoc_'+metDef)
+        outputList.append('xAOD::MissingETAuxAssociationMap#METAssoc_'+metDef+'Aux.')
+        outputList.append('xAOD::MissingETContainer#MET_Core_'+metDef)
+        outputList.append('xAOD::MissingETAuxContainer#MET_Core_'+metDef+'Aux.')
+        # Build reference MET
+        result.addEventAlgo(getMETMakerAlg(metDef), sequenceName='METAssoc_'+metDef)
+        outputList.append('xAOD::MissingETContainer#MET_Reference_'+metDef)
+        outputList.append('xAOD::MissingETAuxContainer#MET_Reference_'+metDef+'Aux.-ConstitObjectLinks.-ConstitObjectWeights')
+
+    # Add the collections to the output stream
     from OutputStreamAthenaPool.OutputStreamConfig import addToAOD, addToESD
-    toESDAndAOD = ""
-    toESDAndAOD = ["xAOD::MissingETContainer#MET_Track","xAOD::MissingETAuxContainer#MET_TrackAux."]
-    toESDAndAOD += ["xAOD::MissingETContainer#MET_EMTopo","xAOD::MissingETAuxContainer#MET_EMTopoAux."]
-    if inputFlags.MET.DoPFlow:
-        toESDAndAOD += ["xAOD::MissingETContainer#MET_AntiKt4EMPFlow","xAOD::MissingETAuxContainer#MET_AntiKt4EMPFlowAux."]
+    result.merge(addToESD(inputFlags, outputList))
+    if inputFlags.MET.WritetoAOD:
+        result.merge(addToAOD(inputFlags, outputList))
 
-    result.merge(addToESD(inputFlags, toESDAndAOD))
-    result.merge(addToAOD(inputFlags, toESDAndAOD))
-
+    # Check if we're being called from the old-style (Run 2) config and adjust accordingly
     import inspect
     stack = inspect.stack()
     if len(stack) >= 2 and stack[1].function == 'CAtoGlobalWrapper':
         for el in result._allSequences:
             el.name = "TopAlg"
+
     return result
 
 

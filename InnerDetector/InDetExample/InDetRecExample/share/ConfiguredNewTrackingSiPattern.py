@@ -242,7 +242,9 @@ class  ConfiguredNewTrackingSiPattern:
                                                              usePixel              = DetFlags.haveRIO.pixel_on(),
                                                              useSCT                = DetFlags.haveRIO.SCT_on() if not is_dbm else False,
                                                              PixelClusterContainer = InDetKeys.PixelClusters(),
-                                                             SCT_ClusterContainer  = InDetKeys.SCT_Clusters())
+                                                             SCT_ClusterContainer  = InDetKeys.SCT_Clusters(),
+                                                             PixelDetElStatus        = 'PixelDetectorElementStatus' if DetFlags.haveRIO.pixel_on() else '',
+                                                             SCTDetElStatus          = 'SCTDetectorElementStatus'   if DetFlags.haveRIO.SCT_on() and  not is_dbm else '')
          if NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "BLS": 
              track_finder.writeHolesFromPattern = InDetFlags.useHolesFromPattern()
          if is_dbm :

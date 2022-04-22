@@ -38,17 +38,27 @@ private:
    ToolHandleArray< TrigHitDVHypoTool >   m_hypoTools     {this, "HypoTools", {}, "Tools to perform selection"};
 
    // EDMs
-   SG::ReadHandleKey< xAOD::JetContainer >          m_jetsKey     {this, "Jets",     "HLT_AntiKt4EMTopoJets_subjesIS", ""};
-   SG::ReadHandleKey< xAOD::TrigCompositeContainer> m_hitDVTrkKey {this, "HitDVTrk", "HLT_HitDVTrk",  ""};
-   SG::ReadHandleKey< xAOD::TrigCompositeContainer> m_hitDVSPKey  {this, "HitDVSP",  "HLT_HitDVSP",   ""};
-   SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_hitDVKey    {this, "HitDV",    "HLT_HitDV",     ""};
+   SG::ReadHandleKey< xAOD::JetContainer >          m_jetsKey      {this, "Jets",      "HLT_AntiKt4EMTopoJets_subjesIS", ""};
+   SG::ReadHandleKey< xAOD::TrigCompositeContainer> m_hitDVSeedKey {this, "HitDVSeed", "HLT_HitDVSeed", ""};
+   SG::ReadHandleKey< xAOD::TrigCompositeContainer> m_hitDVTrkKey  {this, "HitDVTrk",  "HLT_HitDVTrk",  ""};
+   SG::ReadHandleKey< xAOD::TrigCompositeContainer> m_hitDVSPKey   {this, "HitDVSP",   "HLT_HitDVSP",   ""};
+   SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_hitDVKey     {this, "HitDV",     "HLT_HitDV",     ""};
 
    // Luminosity related
    ToolHandle<ILumiBlockMuTool> m_lumiBlockMuTool;
    // Property: Per-bunch luminosity data (data only) conditions input)
    SG::ReadCondHandleKey<LuminosityCondData> m_lumiDataKey {this, "LuminosityCondDataKey", "LuminosityCondData", ""};
-   // Property; MC flag.
+   // Property: MC flag.
    Gaudi::Property<bool> m_isMC {this, "isMC", false, "Real data or MC"};
+   // Property: jet seed cut
+   Gaudi::Property<float> m_jetSeed_ptMin  {this, "jetSeed_ptMin",  50.0, "Minimum pT  for jet seed"};
+   Gaudi::Property<float> m_jetSeed_etaMax {this, "jetSeed_etaMin",  2.0, "Maximum eta for jet seed"};
+
+   // seed type enum
+   enum SeedType {
+      HLTJet = 2,
+      SP = 4
+   };
 
    // monitoring
    ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool", "", "Monitoring tool" };
@@ -59,6 +69,8 @@ private:
    int        getSPLayer(int, float) const;
    StatusCode findSPSeeds(const EventContext&, const xAOD::TrigCompositeContainer*, std::vector<float>&, std::vector<float>&) const;
    StatusCode findJetSeeds(const xAOD::JetContainer*, const float, const float, std::vector<float>&, std::vector<float>&, std::vector<float>&) const;
+   StatusCode selectSeedsNearby(const xAOD::TrigCompositeContainer* hitDVSeedsContainer,
+				std::vector<float>& jetSeeds_pt, std::vector<float>& jetSeeds_eta, std::vector<float>& jetSeeds_phi) const;
    StatusCode calculateBDT(const EventContext&, const xAOD::TrigCompositeContainer*, const xAOD::TrigCompositeContainer*,
 			   const std::vector<float>&, const std::vector<float>&, const std::vector<float>&,
 			   const float&, const int, xAOD::TrigCompositeContainer*, int&) const;

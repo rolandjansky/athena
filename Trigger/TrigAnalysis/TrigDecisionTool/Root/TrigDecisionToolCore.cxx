@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -13,6 +13,8 @@
  *
  ***********************************************************************************/
 
+#include "CxxUtils/checker_macros.h"
+
 #include "TrigConfHLTData/HLTChainList.h"
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/Menu.h"
@@ -25,20 +27,31 @@ Trig::TrigDecisionToolCore::TrigDecisionToolCore() :
 {
 }
 
-#ifndef XAOD_STANDALONE // AtheAnalysis or full Athena
+#ifndef XAOD_STANDALONE // AthAnalysis or full Athena
 
-Trig::CacheGlobalMemory* Trig::TrigDecisionToolCore::cgm() const { 
+Trig::CacheGlobalMemory* Trig::TrigDecisionToolCore::cgm() {
+  Trig::CacheGlobalMemory* ptr = m_cacheGlobalMemory.get();
+  // A consequence of placing the cache in a slot-specific wrapper
+  ptr->navigation (m_navigation);
+  return ptr;
+}
+
+const Trig::CacheGlobalMemory* Trig::TrigDecisionToolCore::cgm() const {
   const Trig::CacheGlobalMemory* ptr = m_cacheGlobalMemory.get();
   // A consequence of placing the cache in a slot-specific wrapper
-  Trig::CacheGlobalMemory* p = const_cast<Trig::CacheGlobalMemory*>(ptr);
+  Trig::CacheGlobalMemory* p ATLAS_THREAD_SAFE = const_cast<Trig::CacheGlobalMemory*>(ptr);
   p->navigation (m_navigation);
-  return p;
+  return ptr;
 }
 
 #else // AnalysisBase
 
-Trig::CacheGlobalMemory* Trig::TrigDecisionToolCore::cgm() const {
-  return const_cast<Trig::CacheGlobalMemory*>(&m_cacheGlobalMemory);
+Trig::CacheGlobalMemory* Trig::TrigDecisionToolCore::cgm() {
+  return &m_cacheGlobalMemory;
+}
+
+const Trig::CacheGlobalMemory* Trig::TrigDecisionToolCore::cgm() const {
+  return &m_cacheGlobalMemory;
 }
 
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -18,7 +18,7 @@ IOVDbTestAmdbCorrection::~IOVDbTestAmdbCorrection()
 { }
 
 void 
-IOVDbTestAmdbCorrection::set(const HepGeom::Point3D<double>& trans, const HepGeom::Point3D<double>& rot, std::string name)
+IOVDbTestAmdbCorrection::set(const HepGeom::Point3D<double>& trans, const HepGeom::Point3D<double>& rot, const std::string& name)
 {
   m_name        = name;
   m_translation = trans;

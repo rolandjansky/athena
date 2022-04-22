@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CondDBObjects/GenericDbTable.h"
@@ -846,52 +846,52 @@ int GenericDbTable::getCell(unsigned n_column, unsigned n_row, vector<double> &n
 // New access methods
 ///////////////////
 
-int GenericDbTable::getCell(std::string colName, unsigned int n_row, short int &data) const
+int GenericDbTable::getCell(const std::string& colName, unsigned int n_row, short int &data) const
 {
   return __getCellByName(colName,n_row,data);
 } 
  
-int GenericDbTable::getCell(std::string colName, unsigned int n_row, long int  &data) const
+int GenericDbTable::getCell(const std::string& colName, unsigned int n_row, long int  &data) const
 {
 return __getCellByName<long int>(colName, n_row, data);
 }
-int GenericDbTable::getCell(std::string colName, unsigned int n_row, int64     &data) const
+int GenericDbTable::getCell(const std::string& colName, unsigned int n_row, int64     &data) const
 {
   return __getCellByName<int64>(colName, n_row, data);
 }
-int GenericDbTable::getCell(std::string colName, unsigned int n_row, float     &data) const
+int GenericDbTable::getCell(const std::string& colName, unsigned int n_row, float     &data) const
 {
   return __getCellByName<float>(colName,n_row,data);
 }
-int GenericDbTable::getCell(std::string colName, unsigned int n_row, double    &data) const
+int GenericDbTable::getCell(const std::string& colName, unsigned int n_row, double    &data) const
 {
   return __getCellByName<double>(colName, n_row, data);
 }
-int GenericDbTable::getCell(std::string colName, unsigned int n_row, std::string &data) const
+int GenericDbTable::getCell(const std::string& colName, unsigned int n_row, std::string &data) const
 {
   return __getCellByName<std::string>(colName, n_row, data);
 }
-int GenericDbTable::getCell(std::string colName, unsigned int n_row, std::vector<short int> &data) const
+int GenericDbTable::getCell(const std::string& colName, unsigned int n_row, std::vector<short int> &data) const
 {
   return __getCellByName< std::vector<short int> >(colName, n_row, data);
 }
-int GenericDbTable::getCell(std::string colName, unsigned int n_row, std::vector<long int> &data) const
+int GenericDbTable::getCell(const std::string& colName, unsigned int n_row, std::vector<long int> &data) const
 {
   return __getCellByName<std::vector<long int> >(colName, n_row, data);
 }
-int GenericDbTable::getCell(std::string colName, unsigned int n_row, std::vector<int64> &data) const
+int GenericDbTable::getCell(const std::string& colName, unsigned int n_row, std::vector<int64> &data) const
 {
   return __getCellByName<std::vector<int64> >(colName, n_row, data);
 }
-int GenericDbTable::getCell(std::string colName, unsigned int n_row, std::vector<float> &data) const
+int GenericDbTable::getCell(const std::string& colName, unsigned int n_row, std::vector<float> &data) const
 {
   return __getCellByName<std::vector<float> >(colName, n_row, data);
 }
-int GenericDbTable::getCell(std::string colName, unsigned int n_row, std::vector<double> &data) const
+int GenericDbTable::getCell(const std::string& colName, unsigned int n_row, std::vector<double> &data) const
 {
   return __getCellByName<std::vector<double> >(colName, n_row, data);
 }
-int GenericDbTable::getCell(std::string colName, unsigned int n_row, std::vector<string> &data) const
+int GenericDbTable::getCell(const std::string& colName, unsigned int n_row, std::vector<string> &data) const
 {
   return __getCellByName<std::vector<string> >(colName, n_row, data);
 }
@@ -925,7 +925,7 @@ int GenericDbTable::setCell(unsigned n_column, unsigned n_row,const float ndata)
     return __setCell(n_column, n_row, ndata, kFloat, tmpColumn);
 }
 
-int GenericDbTable::setCell(unsigned n_column, unsigned n_row, const string ndata) 
+int GenericDbTable::setCell(unsigned n_column, unsigned n_row, const std::string& ndata) 
 {
 
     if (!m_isInitialized)
@@ -1868,7 +1868,7 @@ int GenericDbTable::__setColumnData(unsigned n_column, T &data, dataTypes type, 
 }
 
 template <typename T>
-int GenericDbTable::__getCellByName(std::string colName, unsigned int n_row, T &data) const
+int GenericDbTable::__getCellByName(const std::string& colName, unsigned int n_row, T &data) const
 {
   for (unsigned int i=0; i< m_conddbtable.size(); i++) {
     if (m_conddbtable[i]->name == colName)

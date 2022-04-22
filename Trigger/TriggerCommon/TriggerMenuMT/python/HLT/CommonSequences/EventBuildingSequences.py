@@ -175,6 +175,20 @@ def pebInfoWriterTool(name, eventBuildType):
         tool.addSubDets([SubDetector.FORWARD_AFP,
                          SubDetector.TDAQ_CTP
         ])
+    elif 'LumiPEB' == eventBuildType:
+        tool = StaticPEBInfoWriterToolCfg(name)
+        tool.addHLTResultToROBList()  # add the main (full) HLT result to the output
+        tool.addSubDets([SubDetector.PIXEL_IBL,
+                         SubDetector.PIXEL_BARREL,
+                         SubDetector.PIXEL_DISK_SIDE,
+                         SubDetector.PIXEL_B_LAYER,
+                         SubDetector.SCT_BARREL_A_SIDE,
+                         SubDetector.SCT_BARREL_C_SIDE,
+                         SubDetector.SCT_ENDCAP_A_SIDE,
+                         SubDetector.SCT_ENDCAP_C_SIDE,
+                         SubDetector.PIXEL_DBM,
+                         SubDetector.TDAQ_CTP # add full CTP data to the output
+        ])
 
     elif eventBuildType in DataScoutingInfo.getAllDataScoutingIdentifiers():
         # Pure DataScouting configuration

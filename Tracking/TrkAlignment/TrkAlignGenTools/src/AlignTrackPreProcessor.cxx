@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkAlignGenTools/AlignTrackPreProcessor.h"
@@ -65,9 +65,7 @@ namespace Trk {
 
   //________________________________________________________________________
   AlignTrackPreProcessor::~AlignTrackPreProcessor()
-  {
-
-  }
+  = default;
 
   //________________________________________________________________________
   StatusCode AlignTrackPreProcessor::initialize()

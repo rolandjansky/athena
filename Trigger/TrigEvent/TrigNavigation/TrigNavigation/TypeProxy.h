@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TypeProxy.h 783046 2016-11-08 17:17:33Z smh $
 #ifndef TRIGNAVIGATION_TYPEPROXY_H
 #define TRIGNAVIGATION_TYPEPROXY_H
 
@@ -35,16 +34,14 @@ namespace HLTNavDetails {
     * @author Tomasz Bold <Tomasz.Bold@cern.ch>
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 783046 $
-    * $Date: 2016-11-08 18:17:33 +0100 (Tue, 08 Nov 2016) $
     */
    class ITypeProxy {
 
    public:
       /// Default constructor
-      ITypeProxy();
+      ITypeProxy() = default;
       /// Virtual destructor, to make vtable happy...
-      virtual ~ITypeProxy() {}
+      virtual ~ITypeProxy() = default;
 
       /// Make a new object
       virtual StatusCode create() = 0;
@@ -91,18 +88,17 @@ namespace HLTNavDetails {
       /// The type name of the object being proxied
       const std::string& typeName() const;
 
-     const void* cptr() const { return m_pointer; }
+      const void* cptr() const { return m_pointer; }
 
    protected:
-      CLID m_clid; ///< The CLID of the type being proxied
+      CLID m_clid{0}; ///< The CLID of the type being proxied
       std::string m_typeName; ///< The type name of the object being proxied
       std::string m_key; ///< StoreGate key of the proxied object
-      SG::DataProxy* m_proxy; ///< StoreGate proxy for the object
-      void* m_ncPointer; ///< Non-const pointer to the proxied object
-      const void* m_pointer; ///< Const pointer to the proxied object
+      SG::DataProxy* m_proxy{nullptr}; ///< StoreGate proxy for the object
+      void* m_ncPointer{nullptr}; ///< Non-const pointer to the proxied object
+      const void* m_pointer{nullptr}; ///< Const pointer to the proxied object
       /// Does the proxied type inherit from SG::AuxVectorBase?
-      bool m_isAuxVectorBase;
-     
+      bool m_isAuxVectorBase{false};
    }; // class ITypeProxy
   
   /*
@@ -114,25 +110,25 @@ namespace HLTNavDetails {
   class TypelessAuxProxy : public ITypeProxy {
   public:
     
-    virtual StatusCode create(){
+    virtual StatusCode create() override {
       REPORT_MESSAGE( MSG::ERROR ) << "read-only aux proxy. it can't create new objects" << endmsg;
       return StatusCode::FAILURE;
     }
-    virtual StatusCode reg( StoreGateSvc* , const std::string&  ){
+    virtual StatusCode reg( StoreGateSvc* , const std::string&  ) override {
       REPORT_MESSAGE( MSG::ERROR ) << "read-only aux proxy. it can't register new objects to SG" << endmsg;
       return StatusCode::FAILURE;
     };
-    virtual StatusCode clear( StoreGateSvc*  ) {
+    virtual StatusCode clear( StoreGateSvc*  ) override {
       REPORT_MESSAGE( MSG::ERROR ) << "read-only aux proxy. it can't delete objects (because it didn't create any)" << endmsg;
       return StatusCode::FAILURE;
     };
     
-    virtual StatusCode sync( StoreGateSvc* sg, const std::string& key ){
+    virtual StatusCode sync( StoreGateSvc* sg, const std::string& key ) override {
       REPORT_MESSAGE( MSG::INFO ) << "syncing a read-only Aux proxy with key " << key << endmsg;
       const SG::IAuxStore* aux = nullptr;
       StatusCode sc = sg->retrieve(aux,key);
       if(!aux or sc.isFailure() ){
-	REPORT_MESSAGE( MSG::ERROR ) << "syncing of read-only Aux proxy failed" << key << endmsg;
+        REPORT_MESSAGE( MSG::ERROR ) << "syncing of read-only Aux proxy failed" << key << endmsg;
         return StatusCode::FAILURE;
       }
       auto nonconstaux = const_cast<SG::IAuxStore*>(aux);
@@ -144,11 +140,11 @@ namespace HLTNavDetails {
       return StatusCode::SUCCESS;
     }
 
-    virtual void syncTypeless(){
+    virtual void syncTypeless() override {
       REPORT_MESSAGE( MSG::ERROR ) << "read-only Aux Proxy, syncing typeless" << endmsg;
     };
     
-    virtual ITypeProxy* clone() const{
+    virtual ITypeProxy* clone() const override {
       REPORT_MESSAGE( MSG::ERROR ) << "read-only Aux Proxy should be created by direct object creation, not via clone of static instance" << endmsg;
       return nullptr;
     };
@@ -181,21 +177,21 @@ namespace HLTNavDetails {
       TypeProxy( pointer_type t );
 
       /// Make a new object
-      virtual StatusCode create();
+      virtual StatusCode create() override;
       /// Save proxied object in DG (record)
-      virtual StatusCode reg( StoreGateSvc* sg, const std::string& key );
+      virtual StatusCode reg( StoreGateSvc* sg, const std::string& key ) override;
       /// SG retrieve, and fill the proxy
-      virtual StatusCode sync( StoreGateSvc* sg, const std::string& key );
+      virtual StatusCode sync( StoreGateSvc* sg, const std::string& key ) override;
       /// Remove the object from SG and make the pointer null
-      virtual StatusCode clear( StoreGateSvc* sg );
+      virtual StatusCode clear( StoreGateSvc* sg ) override;
 
-      virtual void syncTypeless(){
-	m_ncPointer = m_data;
-	m_pointer = m_data;
+      virtual void syncTypeless() override {
+         m_ncPointer = m_data;
+         m_pointer = m_data;
       }
 
       /// This is how typed proxy is obtained
-      virtual ITypeProxy*  clone() const { return new TypeProxy<T>(); }
+      virtual ITypeProxy*  clone() const override { return new TypeProxy<T>(); }
 
       /// Pointer to the exact object type
       pointer_type data() { return m_data; }
@@ -205,14 +201,14 @@ namespace HLTNavDetails {
       pointer_type& data_ref() { return m_data; }
 
    private:
-      pointer_type m_data; ///< Non-const pointer to the proxied object
+      pointer_type m_data{nullptr}; ///< Non-const pointer to the proxied object
 
    }; // class TypeProxy
 
    /// Default constructor
    template< class T >
    TypeProxy< T >::TypeProxy()
-      : ITypeProxy(), m_data( 0 ) {
+      : ITypeProxy() {
 
       // Set the properties of the base class:
       m_clid = ClassID_traits< T >::ID();
@@ -284,10 +280,10 @@ namespace HLTNavDetails {
       CHECK( sg->remove( m_data ) );
 
       // Clear the object:
-      m_data = 0;
-      m_proxy = 0;
-      m_ncPointer = 0;
-      m_pointer = 0;
+      m_data = nullptr;
+      m_proxy = nullptr;
+      m_ncPointer = nullptr;
+      m_pointer = nullptr;
 
       // Return gracefully:
       return StatusCode::SUCCESS;

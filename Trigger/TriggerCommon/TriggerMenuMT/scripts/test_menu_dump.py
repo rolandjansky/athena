@@ -10,8 +10,9 @@ _h_names = "print the names of all chains"
 _h_parse = "parse names to dictionary"
 _h_menu = "name of the menu to dump (default Physics_pp_run3_v1)"
 _h_l1check = "do check of L1 items vs L1 menu"
+_h_stream = "filter by stream"
 
-from argparse import ArgumentParser
+from argparse import ArgumentParser, RawDescriptionHelpFormatter
 import sys
 from AthenaCommon.Logging import logging
 
@@ -22,9 +23,20 @@ from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import dictFromChainName
 
 import importlib
 
+MENU_ALIASES = {
+    'dev': 'Dev_pp_run3_v1',
+    'hi': 'PhysicsP1_HI_run3_v1',
+    'mc': 'MC_pp_run3_v1'
+}
+
 def get_args():
-    parser = ArgumentParser(description=__doc__)
-    parser.add_argument('-m', '--menu', default='Physics_pp_run3_v1', help=_h_menu)
+    aliases = '\n'.join(f'{a} -> {f}' for a, f in MENU_ALIASES.items())
+    epi='menu aliases:\n' + aliases
+    parser = ArgumentParser(description=__doc__, epilog=epi,
+                            formatter_class=RawDescriptionHelpFormatter)
+    parser.add_argument('-m', '--menu',
+                        default='Physics_pp_run3_v1',
+                        help=_h_menu)
     output = parser.add_mutually_exclusive_group()
     output.add_argument('-n', '--names', action='store_true',
                         help=_h_names)
@@ -32,26 +44,37 @@ def get_args():
                         help=_h_parse)
     parser.add_argument('-l', '--check-l1', action='store_true',
                         help=_h_l1check)
+    parser.add_argument('-s', '--stream', const='Main', nargs='?',
+                        help=_h_stream)
     return parser.parse_args()
 
 def run():
     args = get_args()
+    menu_name = MENU_ALIASES.get(args.menu, args.menu)
 
     # The Physics menu (at least) depends on a check of the menu name
     # in order to decide if PS:Online chains should be retained.
     # Should do this in a more explicit way
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    ConfigFlags.Trigger.triggerMenuSetup=args.menu
+    ConfigFlags.Trigger.triggerMenuSetup=menu_name
 
     # Import menu by name
-    menumodule = importlib.import_module(f'TriggerMenuMT.HLT.Menu.{args.menu}')
+    menumodule = importlib.import_module(f'TriggerMenuMT.HLT.Menu.{menu_name}')
     menu = menumodule.setupMenu()
 
     # Can't do L1 check without parsing
     if args.check_l1:
         args.parse_names = True
 
-    chains = chain_iter(menu)
+    # filter chains
+    if args.stream:
+        def filt(chain):
+            return args.stream in chain.stream
+    else:
+        def filt(x):
+            return True
+
+    chains = chain_iter(menu, filt)
     if args.names:
         dump_chains(chains)
     elif args.parse_names:
@@ -70,10 +93,11 @@ def run():
             if missingl1:
                 sys.exit(1)
 
-def chain_iter(menu):
+def chain_iter(menu, filt=lambda x: True):
     for group, chains in menu.items():
         for chain in chains:
-            yield chain
+            if filt(chain):
+                yield chain
 
 def dump_chains(chains):
     try:

@@ -10,6 +10,7 @@ AntiKt4EMPFlowJetsCPContent = [
 "AntiKt4EMPFlowJetsAux.ActiveArea4vec_eta.ActiveArea4vec_m.ActiveArea4vec_phi.ActiveArea4vec_pt.DetectorEta.DetectorY",
 "AntiKt4EMPFlowJetsAux.NumTrkPt500.SumPtTrkPt500.NumChargedPFOPt500.SumPtChargedPFOPt500.NumTrkPt1000.NumChargedPFOPt1000.TrackWidthPt1000.ChargedPFOWidthPt1000",
 "AntiKt4EMPFlowJetsAux.GhostTrack.Jvt.JVFCorr.JvtRpt.GhostMuonSegmentCount.DFCommonJets_fJvt",
+"AntiKt4EMPFlowJetsAux.NNJvt.NNJvtRpt.NNJvtPass",
 "AntiKt4EMPFlowJetsAux.EnergyPerSampling.FracSamplingMax.FracSamplingMaxIndex.Timing",
 "AntiKt4EMPFlowJetsAux.PartonTruthLabelID.ConeTruthLabelID.HadronConeExclExtendedTruthLabelID.HadronConeExclTruthLabelID",
 "PrimaryVertices",

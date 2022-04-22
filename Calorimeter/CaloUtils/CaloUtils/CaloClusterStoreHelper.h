@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -10,6 +10,7 @@
 #include "GaudiKernel/StatusCode.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "StoreGate/WriteHandle.h"
+#include "AthLinks/DataLink.h"
 #include <memory>
 
 class CaloCellContainer;
@@ -28,6 +29,13 @@ public:
    *  @return unique_ptr to a \a CaloCluster object.
    */
   static std::unique_ptr<xAOD::CaloCluster> makeCluster(const CaloCellContainer* cellCont);
+  
+  /** 
+   *  @brief Creates a valid \a CaloCluster with a private Aux-Store and CellLink container 
+   *  @param cellCont link to the underlying CaloCellContainer
+   *  @return unique_ptr to a \a CaloCluster object.
+   */
+  static std::unique_ptr<xAOD::CaloCluster> makeCluster(const DataLink<CaloCellContainer>& cellCont);
   
   /** 
    *  @brief Creates a valid \a CaloCluster with a private Aux-Store and CellLink container 
@@ -52,6 +60,17 @@ public:
 
   static xAOD::CaloCluster* makeCluster(xAOD::CaloClusterContainer* cont, 
 					const CaloCellContainer* cellCont);
+
+
+  /** 
+   *  @brief Creates a valid \a CaloCluster and pushes it into the cluster container
+   *  @param cont ptr to and xAOD::CaloClusterContainer (must be associated with an CaloClusterAuxContainer);
+   *  @param cellCont link to the underlying CaloCellContainer
+   *  @return  Pointer to a \a CaloCluster object
+   */
+
+  static xAOD::CaloCluster* makeCluster(xAOD::CaloClusterContainer* cont, 
+					const DataLink<CaloCellContainer>& cellCont);
 
 
   /** 

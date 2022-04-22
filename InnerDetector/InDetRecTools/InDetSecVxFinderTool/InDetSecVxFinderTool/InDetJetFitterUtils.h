@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -78,9 +78,9 @@ namespace InDet {
     std::pair<double,double> compatibility(const Trk::ParametersBase<5,Trk::Neutral> & measPerigee,
                                            const Trk::RecVertex & vertex) const;
     
-    double get3DLifetimeSignOfTrack(const Trk::TrackParameters & track,
+    static double get3DLifetimeSignOfTrack(const Trk::TrackParameters & track,
                                     const Amg::Vector3D & jetMomentum,
-                                    const Trk::RecVertex & primaryVertex) const;
+                                    const Trk::RecVertex & primaryVertex) ;
 
     int getTwoTrackVtxCharge(const Trk::VxCandidate & myVxCandidate) const;
     int getTwoTrackVtxCharge(const xAOD::Vertex & myVxCandidate) const;
@@ -106,25 +106,25 @@ namespace InDet {
     const Trk::LinkToTrackParticleBase* findNeutralTrackParticleBase(const std::vector<const Trk::LinkToTrackParticleBase*> &,
                                                                      const Trk::VxCandidate &) const;
 
-    const Trk::LinkToTrackParticleBase* findNeutralTrackParticleBase(const std::vector<const Trk::LinkToTrackParticleBase*> &,
-                                                                     const xAOD::Vertex &) const;
+    static const Trk::LinkToTrackParticleBase* findNeutralTrackParticleBase(const std::vector<const Trk::LinkToTrackParticleBase*> &,
+                                                                     const xAOD::Vertex &) ;
 
-    bool checkIfTrackIsInVector(const Trk::ITrackLink * trackToCheck,
-                                const std::vector<const Trk::ITrackLink*> & vectorOfTracks) const;
+    static bool checkIfTrackIsInVector(const Trk::ITrackLink * trackToCheck,
+                                const std::vector<const Trk::ITrackLink*> & vectorOfTracks) ;
     
-    bool checkIfTrackIsInVector(const Trk::ITrackLink * trackToCheck,
-                                const std::vector<const Trk::LinkToTrackParticleBase*> & vectorOfTracks) const;
+    static bool checkIfTrackIsInVector(const Trk::ITrackLink * trackToCheck,
+                                const std::vector<const Trk::LinkToTrackParticleBase*> & vectorOfTracks) ;
 
-    bool checkIfTrackIsInNeutralTrackVector(const Trk::ITrackLink * trackToCheck,
-                                            const std::vector<const Trk::LinkToTrackParticleBase*> & vectorOfNeutrals) const;
+    static bool checkIfTrackIsInNeutralTrackVector(const Trk::ITrackLink * trackToCheck,
+                                            const std::vector<const Trk::LinkToTrackParticleBase*> & vectorOfNeutrals) ;
 
-    bool checkIfTrackIsInV0CandidatesVector(const Trk::ITrackLink * trackToCheck,
-                                            const std::vector<const xAOD::Vertex*> & vectorOfVxCandidates) const;
+    static bool checkIfTrackIsInV0CandidatesVector(const Trk::ITrackLink * trackToCheck,
+                                            const std::vector<const xAOD::Vertex*> & vectorOfVxCandidates) ;
 
-    bool checkIfVxCandidateIsInVector(const xAOD::Vertex * vertexToCheck,
-                                      const std::vector<const xAOD::Vertex*> & vectorOfCandidates) const;
+    static bool checkIfVxCandidateIsInVector(const xAOD::Vertex * vertexToCheck,
+                                      const std::vector<const xAOD::Vertex*> & vectorOfCandidates) ;
 
-    CLHEP::HepLorentzVector fourMomentumAtVertex(const Trk::VxVertexOnJetAxis &) const;
+    static CLHEP::HepLorentzVector fourMomentumAtVertex(const Trk::VxVertexOnJetAxis &) ;
     
     
 

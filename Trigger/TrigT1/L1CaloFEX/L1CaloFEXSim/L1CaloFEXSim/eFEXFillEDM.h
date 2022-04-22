@@ -18,6 +18,7 @@
 #include "xAODTrigger/eFexEMRoIContainer.h"
 #include "xAODTrigger/eFexTauRoI.h"
 #include "xAODTrigger/eFexTauRoIContainer.h"
+#include "L1CaloFEXSim/eFEXegTOB.h"
 
 namespace LVL1 {
 
@@ -45,7 +46,7 @@ namespace LVL1 {
     virtual StatusCode execute() override;
 
     /** Create and fill a new fillEmEDM object (corresponding to this window), and return a pointer to it */
-    virtual void fillEmEDM(std::unique_ptr<xAOD::eFexEMRoIContainer> &container, uint8_t eFEXNumber, uint32_t tobWord) override;
+    virtual void fillEmEDM(std::unique_ptr<xAOD::eFexEMRoIContainer> &container, uint8_t eFEXNumber, const eFEXegTOB& tobObject) override;
     /** Create and fill a new fillTauEDM object (corresponding to this window), and return a pointer to it */
     virtual void fillTauEDM(std::unique_ptr<xAOD::eFexTauRoIContainer> &container, uint8_t eFEXNumber, uint32_t tobWord) override;
 

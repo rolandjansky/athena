@@ -84,6 +84,32 @@ def muFastAlgSequence(ConfigFlags):
     l2muFastSequence = seqAND("l2muFastSequence", [ l2MuViewsMaker, muFastSequence ])
     return (l2muFastSequence, l2MuViewsMaker, sequenceOut)
 
+def muFastCalibAlgSequence(ConfigFlags):
+
+    ### set the EVCreator ###
+    l2MuViewsMaker = EventViewCreatorAlgorithm("IMl2MuCalib")
+    #
+    l2MuViewsMaker.RoIsLink = "initialRoI" # ROI is from L1
+    l2MuViewsMaker.RoITool = ViewCreatorInitialROITool() # ROI is from L1
+    #
+    l2MuViewsMaker.Views = "MUCalibViewRoIs"
+    l2MuViewsMaker.InViewRoIs = "MURoIs"
+    #
+    l2MuViewsMaker.ViewFallThrough = True
+
+    ### get muFast reco sequence ###
+    from .MuonRecoSequences import muFastRecoSequence, muonDecodeCfg
+    viewAlgs_MuonPRD = algorithmCAToGlobalWrapper(muonDecodeCfg,ConfigFlags,RoIs=l2MuViewsMaker.InViewRoIs.path())
+
+    from .MuonRecoSequences  import  isCosmic
+    muFastRecoSeq, sequenceOut = muFastRecoSequence( l2MuViewsMaker.InViewRoIs, doFullScanID= isCosmic(), calib=True )
+
+    muFastSequence = parOR("muFastCalibRecoSequence", [viewAlgs_MuonPRD, muFastRecoSeq])
+    l2MuViewsMaker.ViewNodeName = muFastSequence.name()
+
+    l2muFastSequence = seqAND("l2muFastCalibSequence", [ l2MuViewsMaker, muFastSequence ])
+    return (l2muFastSequence, l2MuViewsMaker, sequenceOut)
+
 def muFastSequence(is_probe_leg=False):
 
     (l2muFastSequence, l2MuViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muFastAlgSequence, ConfigFlags)
@@ -91,6 +117,23 @@ def muFastSequence(is_probe_leg=False):
     ### set up MuFastHypo ###
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMufastHypoAlg
     trigMufastHypo = TrigMufastHypoAlg("TrigL2MufastHypoAlg")
+    trigMufastHypo.MuonL2SAInfoFromMuFastAlg = sequenceOut
+
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMufastHypoToolFromDict
+
+    return MenuSequence( Sequence    = l2muFastSequence,
+                         Maker       = l2MuViewsMaker,
+                         Hypo        = trigMufastHypo,
+                         HypoToolGen = TrigMufastHypoToolFromDict,
+                         IsProbe     = is_probe_leg)
+
+def muFastCalibSequence(is_probe_leg=False):
+
+    (l2muFastSequence, l2MuViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muFastCalibAlgSequence, ConfigFlags)
+
+    ### set up MuFastHypo ###
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMufastHypoAlg
+    trigMufastHypo = TrigMufastHypoAlg("TrigL2MufastCalibHypoAlg")
     trigMufastHypo.MuonL2SAInfoFromMuFastAlg = sequenceOut
 
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMufastHypoToolFromDict

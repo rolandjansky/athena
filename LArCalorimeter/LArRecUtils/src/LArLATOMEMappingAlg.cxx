@@ -70,7 +70,7 @@ StatusCode LArLATOMEMappingAlg::execute() {
     latomeMap->m_sourceID.resize(nLatome);
     for (unsigned i=0;i<nLatome;++i) {
       const unsigned sid=pblobsourceId[i];
-      ATH_MSG_INFO("Latome SID: "<<sid);
+      ATH_MSG_DEBUG("Latome SID: "<<sid);
       latomeMap->m_sourceID[i]=sid;
       latomeMap->m_onlineID[i].resize(N_LATOME_CHANNELS);
       for (unsigned j=0;j<N_LATOME_CHANNELS ;++j) {

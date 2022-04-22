@@ -105,7 +105,8 @@ def makeInDetDFCommon():
                 "InDetPlusPseudoNotFromBTrackParticles",
                 "InDetNoFakesTrackParticles",
                 "InDetNoFakesFromBTrackParticles",
-                "InDetNoFakesNotFromBTrackParticles"
+                "InDetNoFakesNotFromBTrackParticles",
+                "InDetSiSPSeededTracksParticles"
             ]
             PseudoTrackDecorators = []
             for t in PseudoTrackContainers:

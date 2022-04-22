@@ -66,7 +66,7 @@ def fromRunArgs(runArgs):
         cfg.merge(TileGMCfg(ConfigFlags))
 
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    cfg.merge(OutputStreamCfg(ConfigFlags, 'HITS', disableEventTag=True))
+    cfg.merge(OutputStreamCfg(ConfigFlags, 'HITS', disableEventTag="xAOD::EventInfo#EventInfo" not in ConfigFlags.Input.TypedCollections))
     cfg.getEventAlgo('OutputStreamHITS').TakeItemsFromInput = True
 
     # Post-include

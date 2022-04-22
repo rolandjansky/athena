@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -21,8 +21,7 @@ Trk::TrkExUnitTestBase::TrkExUnitTestBase(const std::string& name, ISvcLocator* 
   declareProperty("EnableScanMode", m_scanMode);
 }
 
-Trk::TrkExUnitTestBase::~TrkExUnitTestBase() {
-}
+Trk::TrkExUnitTestBase::~TrkExUnitTestBase() = default;
 
 StatusCode Trk::TrkExUnitTestBase::initialize() {
   ATH_MSG_INFO("Creating random number services, call bookTree() and initializeTest()");

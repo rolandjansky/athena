@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackValidation/InDetSplittedTracksCreator.h"
@@ -28,7 +28,7 @@ m_trackSplitterTool()
   declareProperty("takeLowerSegment"        , m_takeLowerSegment=true);
 }
 
-InDet::InDetSplittedTracksCreator::~InDetSplittedTracksCreator() {}
+InDet::InDetSplittedTracksCreator::~InDetSplittedTracksCreator() = default;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode InDet::InDetSplittedTracksCreator::initialize(){

@@ -210,26 +210,11 @@ def InDetGlobalChi2FitterDBM(name='InDetGlobalChi2FitterDBM', **kwargs) :
                                                           TrackChi2PerNDFCut    = 20,
                                                           Momentum              = 1000.*Units.MeV))
 
-def GaussianSumFitter(name='GaussianSumFitter', **kwargs) :
-    pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
 
-    from InDetRecExample import TrackingCommon as TrackingCommon
-    if 'ToolForROTCreation' not in kwargs :
-        kwargs=setDefaults(kwargs,
-                           ToolForROTCreation           = TrackingCommon.getInDetRotCreator(**pix_cluster_on_track_args))
-
-    if 'ToolForExtrapolation' not in kwargs :
-        kwargs=setDefaults(kwargs, ToolForExtrapolation = TrackingCommon.getInDetGsfExtrapolator())
-
-    if 'MeasurementUpdatorType' not in kwargs :
-        kwargs=setDefaults(kwargs, MeasurementUpdatorType = TrackingCommon.getInDetGsfMeasurementUpdator())
-
-    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GaussianSumFitter
-    return Trk__GaussianSumFitter(name = name, **setDefaults(kwargs,
-                                                                 ReintegrateOutliers     = False,
-                                                                 MakePerigee             = True,
-                                                                 RefitOnMeasurementBase  = True,
-                                                                 DoHitSorting            = True))
+def GaussianSumFitter(name='GaussianSumFitter', **kwargs):
+    import egammaRec.EMCommonRefitter
+    kwargs.setdefault("RefitOnMeasurementBase", True)
+    return egammaRec.EMCommonRefitter.getGSFTrackFitter(name, **kwargs)
 
 def InDetTrackFitter(name='InDetTrackFitter', **kwargs) :
     from InDetRecExample.InDetJobProperties import InDetFlags

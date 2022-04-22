@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 # Script to set $LD_PRELOAD, steered by the following environment variables:
 #
@@ -66,19 +66,25 @@ fi
 # Intel math library
 #
 if [ "$USEIMF" = "1" ] || [ "$USEIMF" = "true" ]; then
-    IMF_LIB1="$ATLASMKLLIBDIR_PRELOAD/libimf.so"
-    IMF_LIB2="$ATLASMKLLIBDIR_PRELOAD/libintlc.so.5"
-    if [ ! -e "$IMF_LIB1" ]; then
-        echo "ERROR: $IMF_LIB1 does not exit"
-        exit 1
-    elif [ ! -e "$IMF_LIB2" ]; then
-        echo "ERROR: $IMF_LIB2 does not exit"
-        exit 1
+    if [ -z "${ATLASMKLLIBDIR_PRELOAD}" ]; then
+        # Be resilient for platforms without Intel math library (ATLINFR-4503)
+        echo "WARNING: Intel math library (ATLASMKLLIBDIR_PRELOAD) is not available for"\
+             "platform ${BINARY_TAG}. Skipping preload."
     else
-        echo "Preloading `basename $IMF_LIB1`"
-        echo "Preloading `basename $IMF_LIB2`"
-        ld_preload "$IMF_LIB1"
-        ld_preload "$IMF_LIB2"
+        IMF_LIB1="$ATLASMKLLIBDIR_PRELOAD/libimf.so"
+        IMF_LIB2="$ATLASMKLLIBDIR_PRELOAD/libintlc.so.5"
+        if [ ! -e "$IMF_LIB1" ]; then
+            echo "ERROR: $IMF_LIB1 does not exit"
+            exit 1
+        elif [ ! -e "$IMF_LIB2" ]; then
+            echo "ERROR: $IMF_LIB2 does not exit"
+            exit 1
+        else
+            echo "Preloading `basename $IMF_LIB1`"
+            echo "Preloading `basename $IMF_LIB2`"
+            ld_preload "$IMF_LIB1"
+            ld_preload "$IMF_LIB2"
+        fi
     fi
 fi
 

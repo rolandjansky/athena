@@ -5,7 +5,7 @@
  **     @author  mark sutton
  **     @date    Fri 11 Jan 2019 07:06:39 CET 
  **
- **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  **/
 
 
@@ -88,6 +88,7 @@ public:
 
   ~TrigTrackSelector() { clear(); }
 
+  virtual TrackSelector* clone() override { return new TrigTrackSelector(*this); }
 
   void setBeamline( double x, double y, double z=0) { m_xBeam = x; m_yBeam = y; m_zBeam=z; }
 
@@ -97,7 +98,7 @@ public:
 
   void correctTracks(bool b=true) { m_correctTrkTracks = b; } 
 
-  virtual void clear() { for ( size_t i=m_tracks.size() ; i-- ; ) delete m_tracks[i]; m_tracks.clear(); }   
+  virtual void clear() override { for ( size_t i=m_tracks.size() ; i-- ; ) delete m_tracks[i]; m_tracks.clear(); }   
 
 
   bool selectTrack( const TrigInDetTrack* track, const TrigInDetTrackTruthMap* truthMap=0 );

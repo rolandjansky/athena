@@ -18,6 +18,7 @@
 #include <boost/type_traits/remove_pointer.hpp>
 #include "AthLinks/ElementLink.h"
 #include "AthLinks/DataLink.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "TrigNavigation/NavigationTraits.h"
 #include "TrigStorageDefinitions/EDM_TypeInfoMethods.h"
@@ -25,7 +26,7 @@
 namespace HLT{  
   template <class FEATURE, class CONTAINER >
   struct FeatureContainerInit {
-    FeatureContainerInit();
+    FeatureContainerInit() ATLAS_CTORDTOR_NOT_THREAD_SAFE;
     void null() const {;}
   };
 
@@ -40,7 +41,7 @@ namespace HLT{
 
   template <class TYPE >
   struct AuxInit {
-    AuxInit();
+    AuxInit() ATLAS_CTORDTOR_NOT_THREAD_SAFE;
     void null() const {;}
   };
 

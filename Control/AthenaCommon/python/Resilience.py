@@ -9,8 +9,6 @@
 #      print "doSomethingIntelligent about this exception"
 #      treatException(" failed to something=wrong. Did something intelligent about it")
 
-from __future__ import print_function
-
 def treatException (desc):
   from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
   if athenaCommonFlags.AllowIgnoreConfigError():

@@ -1,5 +1,5 @@
 /*
-  copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -283,16 +283,16 @@ namespace InDet {
   // or eight-cell (if m_addCorners == true) connectivity
   PixelClusterCollection*  MergedPixelsTool::doClusterization(const InDetRawDataCollection<PixelRDORawData> &collection,
 							      const PixelID& pixelID,
-							      const InDetDD::SiDetectorElement* element) const {
+							      const InDetDD::SiDetectorElement* element,
+							      const InDet::SiDetectorElementStatus *pixelDetElStatus) const {
     const IdentifierHash idHash = collection.identifyHash();
-
     // loop on the rdo collection and save the relevant quantities for each fired pixel
     // rowcolID contains: number of connected pixels, phi/eta pixel indices, tot, lvl1, rdo identifier
     std::vector<rowcolID> collectionID;
     std::unordered_set<Identifier> setOfIdentifiers{};
     for(const auto *const rdo : collection) {
       const Identifier rdoID= rdo->identify();
-      if (!isGoodRDO(idHash, rdoID)) continue;
+      if (!isGoodRDO(pixelDetElStatus, idHash, rdoID)) continue;
       //check for duplication:
       //add to set of existing identifiers. If it fails (.second = false) then skip it.
       if (not setOfIdentifiers.insert(rdoID).second)   continue;
@@ -485,7 +485,7 @@ namespace InDet {
   bool MergedPixelsTool::checkDuplication(const PixelID& pixelID,
                                           const Identifier& rdoID, 
                                           const int& lvl1, 
-                                          std::vector<rowcolID>& collectionID) const {
+                                          std::vector<rowcolID>& collectionID) {
     
     // check if duplicates are found. If that is the case, update the LVL1 
     auto isDuplicate=[pixelID,rdoID](const rowcolID& rc) -> bool {

@@ -93,6 +93,8 @@ def MMMonitoringConfig(inputFlags):
             mmSideGroup.defineHistogram(var, type='TH2F', title=title_MMSummary+"; ;Strip Number", path='Number_of_strips_percluster_perPhiSector', xbins=16, xmin=0, xmax=16, xlabels=thisLabelx11, ybins=5120, ymin=0., ymax=5120.)
             thisLabely=getMMLabelY("y_lab_occ_lb")
             mmSideGroup.defineHistogram('lb_mon,sector_lb_'+iside+'_phi'+str(phi)+';Occupancy_lb_'+iside+'_phi'+str(phi), type='TH2F', title="Occupancy wrt lb sector"+str(phi)+"; LB; PCB", path='Occupancy',  xbins=100, xmin=-0.5, xmax=99.5, opt='kAddBinsDynamically', ybins=64, ymin=0., ymax=64, ylabels=thisLabely)
+            mmSideGroup.defineHistogram('lb_ontrack,sector_lb_'+iside+'_phi'+str(phi)+"_ontrack"+';Occupancy_lb_'+iside+'_phi'+str(phi)+"_ontrack", type='TH2F', title="Occupancy wrt lb sector"+str(phi)+" ontrack"+"; LB; PCB", path='Occupancy',  xbins=100, xmin=-0.5, xmax=99.5, opt='kAddBinsDynamically', ybins=64, ymin=0., ymax=64, ylabels=thisLabely)
+
 
             for eta in etasector:
                 maxpcb=5

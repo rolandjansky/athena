@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -16,6 +16,8 @@
 
 //Athena includes
 #include "InDetIdentifier/SCT_ID.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "SCT_DetectorElementStatus.h"
 
 static const std::string databaseSignature{"database"};
 
@@ -121,6 +123,32 @@ SCT_ModuleVetoTool::isGood(const IdentifierHash& hashId) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   return isGood(hashId, ctx);
 }
+
+void
+SCT_ModuleVetoTool::getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status, EventIDRange &the_range) const {
+   std::vector<bool> &status = element_status.getElementStatus();
+   if (status.empty()) {
+      status.resize(m_pHelper->wafer_hash_max(),true);
+   }
+   for (const Identifier &wafer_id:  m_localCondData.badWaferIds()) {
+      status.at( m_pHelper->wafer_hash(wafer_id) ) = false;
+   }
+   if (m_useDatabase) {
+      SG::ReadCondHandle<SCT_ModuleVetoCondData> condDataHandle{m_condKey, ctx};
+      if (not condDataHandle.isValid()) {
+         ATH_MSG_ERROR("Failed to get " << m_condKey.key());
+         return;
+      }
+      const SCT_ModuleVetoCondData* condData{ condDataHandle.cptr() };
+      the_range = EventIDRange::intersect( the_range, condDataHandle.getRange() );
+      if (condData) {
+         for (const Identifier &wafer_id: condData->badWaferIds()) {
+            status.at( m_pHelper->wafer_hash(wafer_id) ) = false;
+         }
+      }
+   }
+}
+
 
 StatusCode 
 SCT_ModuleVetoTool::fillData() {

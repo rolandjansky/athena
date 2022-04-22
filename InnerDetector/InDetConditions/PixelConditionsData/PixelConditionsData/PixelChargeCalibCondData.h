@@ -1,19 +1,23 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELCHARGECALIBCONDDATA_H
 #define PIXELCHARGECALIBCONDDATA_H
 
-#include "AthenaKernel/CLASS_DEF.h"
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "PixelReadoutDefinitions/PixelReadoutDefinitions.h"
+#include <AthenaKernel/CLASS_DEF.h>
+#include <PixelReadoutDefinitions/PixelReadoutDefinitions.h>
+
 #include <map>
 
-class PixelChargeCalibCondData {
+class PixelChargeCalibCondData
+{
   public:
     PixelChargeCalibCondData();
-    virtual ~PixelChargeCalibCondData();
+
+    static constexpr size_t IBLCalibrationSize{16};
+    using IBLCalibration = std::array<float, IBLCalibrationSize>;
+    using IBLModule = std::vector<IBLCalibration>;
 
     enum class CalibrationStrategy
     {
@@ -23,95 +27,63 @@ class PixelChargeCalibCondData {
     };
 
     // Normal pixel
-    void setAnalogThreshold(const int chanNum, const int value);
-    void setAnalogThresholdSigma(const int chanNum, const int value);
-    void setAnalogThresholdNoise(const int chanNum, const int value);
-    void setInTimeThreshold(const int chanNum, const int value);
+    void setAnalogThreshold(InDetDD::PixelDiodeType type, unsigned int moduleHash, std::vector<int> value);
+    void setAnalogThresholdSigma(InDetDD::PixelDiodeType type, unsigned int moduleHash, std::vector<int> value);
+    void setAnalogThresholdNoise(InDetDD::PixelDiodeType type, unsigned int moduleHash, std::vector<int> value);
+    void setInTimeThreshold(InDetDD::PixelDiodeType type, unsigned int moduleHash, std::vector<int> value);
 
-    void setQ2TotA(const int chanNum, const float value);
-    void setQ2TotE(const int chanNum, const float value);
-    void setQ2TotC(const int chanNum, const float value);
+    void setQ2TotA(InDetDD::PixelDiodeType type, unsigned int moduleHash, std::vector<float> value);
+    void setQ2TotE(InDetDD::PixelDiodeType type, unsigned int moduleHash, std::vector<float> value);
+    void setQ2TotC(InDetDD::PixelDiodeType type, unsigned int moduleHash, std::vector<float> value);
 
-    void setTotRes1(const int chanNum, const float value);
-    void setTotRes2(const int chanNum, const float value);
+    void setTotRes1(unsigned int moduleHash, std::vector<float> value);
+    void setTotRes2(unsigned int moduleHash, std::vector<float> value);
 
-    int getAnalogThreshold(const int chanNum, const int FE, const InDetDD::PixelDiodeType type) const;
-    int getAnalogThresholdSigma(const int chanNum, const int FE, const InDetDD::PixelDiodeType type) const;
-    int getAnalogThresholdNoise(const int chanNum, const int FE, const InDetDD::PixelDiodeType type) const;
-    int getInTimeThreshold(const int chanNum, const int FE, const InDetDD::PixelDiodeType type) const;
+    int getAnalogThreshold(InDetDD::PixelDiodeType type, unsigned int moduleHash, unsigned int FE) const;
+    int getAnalogThresholdSigma(InDetDD::PixelDiodeType type, unsigned int moduleHash, unsigned int FE) const;
+    int getAnalogThresholdNoise(InDetDD::PixelDiodeType type, unsigned int moduleHash, unsigned int FE) const;
+    int getInTimeThreshold(InDetDD::PixelDiodeType type, unsigned int moduleHash, unsigned int FE) const;
 
-    float getQ2TotA(const int chanNum, const int FE, const InDetDD::PixelDiodeType type) const;
-    float getQ2TotE(const int chanNum, const int FE, const InDetDD::PixelDiodeType type) const;
-    float getQ2TotC(const int chanNum, const int FE, const InDetDD::PixelDiodeType type) const;
+    float getQ2TotA(InDetDD::PixelDiodeType type, unsigned int moduleHash, unsigned int FE) const;
+    float getQ2TotE(InDetDD::PixelDiodeType type, unsigned int moduleHash, unsigned int FE) const;
+    float getQ2TotC(InDetDD::PixelDiodeType type, unsigned int moduleHash, unsigned int FE) const;
 
-    float getTotRes(const int chanNum, const int FE, float Q) const;
+    float getTotRes(unsigned int moduleHash, unsigned int FE, float Q) const;
 
-    // Long pixel
-    void setAnalogThresholdLong(const int chanNum, const int value);
-    void setAnalogThresholdSigmaLong(const int chanNum, const int value);
-    void setAnalogThresholdNoiseLong(const int chanNum, const int value);
-    void setInTimeThresholdLong(const int chanNum, const int value);
-
-    void setQ2TotALong(const int chanNum, const float value);
-    void setQ2TotELong(const int chanNum, const float value);
-    void setQ2TotCLong(const int chanNum, const float value);
-
-    // Ganged pixel
-    void setAnalogThresholdGanged(const int chanNum, const int value);
-    void setAnalogThresholdSigmaGanged(const int chanNum, const int value);
-    void setAnalogThresholdNoiseGanged(const int chanNum, const int value);
-    void setInTimeThresholdGanged(const int chanNum, const int value);
-
-    float getToT(const int chanNum, const int FE, const InDetDD::PixelDiodeType type, float Q) const;
-    float getCharge(const int chanNum, const int FE, const InDetDD::PixelDiodeType type, float ToT) const;
+    float getToT(InDetDD::PixelDiodeType type, unsigned int moduleHash, unsigned int FE, float Q) const;
+    float getCharge(InDetDD::PixelDiodeType type, unsigned int moduleHash, unsigned int FE, float ToT) const;
 
     // new IBL calibration
-    void  setCalibrationStrategy(const int chanNum, const CalibrationStrategy strategy);
-    void  setTot2Charges(const int chanNum, const std::array<float,16> charges);
-    const std::array<float,16> getQs(const int chanNum, const int FE) const;
-    CalibrationStrategy getCalibrationStrategy(const int chanNum) const;
-    float getChargeLUTFEI4(const int chanNum, const int FE, float ToT) const;
-    float getToTLUTFEI4(const int chanNum, const int FE, float Q) const;
+    void setCalibrationStrategy(unsigned int moduleHash, CalibrationStrategy strategy);
+    void setTot2Charges(unsigned int moduleHash, IBLModule charges);
+    const IBLCalibration &getTot2Charges(unsigned int moduleHash, unsigned int FE) const;
+    CalibrationStrategy getCalibrationStrategy(unsigned int moduleHash) const;
+    float getChargeLUTFEI4(unsigned int moduleHash, unsigned int FE, unsigned int ToT) const;
+    float getToTLUTFEI4(unsigned int moduleHash, unsigned int FE, float Q) const;
 
     void clear();
 
   private:
-    typedef std::map<int, std::vector<int>> chipThreshold;
-    typedef std::map<int, std::vector<float>> chipCharge;
+    using chipThreshold = std::map<unsigned int, std::vector<int>>;
+    using chipCharge = std::map<unsigned int, std::vector<float>>;
+    using chipThresholdMap = std::map<InDetDD::PixelDiodeType, chipThreshold>;
+    using chipChargeMap = std::map<InDetDD::PixelDiodeType, chipCharge>;
 
-    // Normal pixel
-    chipThreshold m_analogThreshold;
-    chipThreshold m_analogThresholdSigma;
-    chipThreshold m_analogThresholdNoise;
-    chipThreshold m_intimethreshold;
+    chipThresholdMap m_analogThreshold;
+    chipThresholdMap m_analogThresholdSigma;
+    chipThresholdMap m_analogThresholdNoise;
+    chipThresholdMap m_inTimeThreshold;
 
-    chipCharge m_totA;
-    chipCharge m_totE;
-    chipCharge m_totC;
+    chipChargeMap m_totA;
+    chipChargeMap m_totE;
+    chipChargeMap m_totC;
 
     chipCharge m_totRes1;
     chipCharge m_totRes2;
 
-    // Long pixel
-    chipThreshold m_analogThresholdLong;
-    chipThreshold m_analogThresholdSigmaLong;
-    chipThreshold m_analogThresholdNoiseLong;
-    chipThreshold m_intimethresholdLong;
-
-    chipCharge m_totALong;
-    chipCharge m_totELong;
-    chipCharge m_totCLong;
-
-    // Ganged pixel
-    chipThreshold m_analogThresholdGanged;
-    chipThreshold m_analogThresholdSigmaGanged;
-    chipThreshold m_analogThresholdNoiseGanged;
-    chipThreshold m_intimethresholdGanged;
-
     // new IBL calibration
     std::map<int, CalibrationStrategy> m_calibrationStrategy;
-    typedef std::vector<std::array<float,16>> IBLModule;
-    std::map<int, IBLModule> m_tot2chrg;
+    std::map<int, IBLModule> m_tot2Charges;
 
 };
 

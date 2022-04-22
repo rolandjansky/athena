@@ -210,12 +210,11 @@ namespace MuonCombined {
                                                                            const EventContext& ctx) const {
         // if no extrapolation is available
         if (!extrapolatedTrack) extrapolatedTrack = &spectrometerTrack;
-
         // build and fit the combined track
         std::unique_ptr<Trk::Track> combinedTrack;
         double combinedFitChi2 = 9999.;
         if (!m_trackBuilder.empty()) {
-            combinedTrack = m_trackBuilder->combinedFit(indetTrack, *extrapolatedTrack, spectrometerTrack, ctx);
+            combinedTrack = m_trackBuilder->combinedFit(ctx, indetTrack, *extrapolatedTrack, spectrometerTrack);
             if (combinedTrack && combinedTrack->fitQuality()) {
                 combinedTrack->info().addPatternReco(extrapolatedTrack->info());
                 combinedFitChi2 = combinedTrack->fitQuality()->chiSquared() / combinedTrack->fitQuality()->doubleNumberDoF();
@@ -223,7 +222,7 @@ namespace MuonCombined {
         }
         if (combinedFitChi2 > m_badFitChi2 && !m_outwardsBuilder.empty()) {
             std::unique_ptr<Trk::Track> outwardsTrack(
-                m_outwardsBuilder->combinedFit(indetTrack, *extrapolatedTrack, spectrometerTrack, ctx));
+                m_outwardsBuilder->combinedFit(ctx, indetTrack, *extrapolatedTrack, spectrometerTrack));
             if (outwardsTrack &&
                 outwardsTrack->fitQuality()->chiSquared() / outwardsTrack->fitQuality()->doubleNumberDoF() < combinedFitChi2) {
                 ATH_MSG_VERBOSE("buildCombinedTrack: choose outwards track");
@@ -319,10 +318,8 @@ namespace MuonCombined {
         fieldCondObj->getInitializedCache(fieldCache);
         if (!fieldCache.toroidOn()) dorefit = false;
 
-        float bs_x = 0.;
-        float bs_y = 0.;
-        float bs_z = 0.;
-
+        Amg::Vector3D origin{0.,0.,0.};
+        
         const xAOD::Vertex* matchedVertex{nullptr};
         if (!m_vertexKey.empty()) {
             SG::ReadHandle<xAOD::VertexContainer> vertices{m_vertexKey, ctx};
@@ -339,23 +336,23 @@ namespace MuonCombined {
             }
         }
         if (matchedVertex) {
-            bs_x = matchedVertex->x();
-            bs_y = matchedVertex->y();
-            bs_z = matchedVertex->z();
-            ATH_MSG_DEBUG(" found matched vertex  bs_x " << bs_x << " bs_y " << bs_y << " bs_z " << bs_z);
+            origin = Amg::Vector3D{matchedVertex->x(),
+                                   matchedVertex->y(),
+                                   matchedVertex->z()};
+            ATH_MSG_DEBUG(" found matched vertex  bs " << origin);
         } else {
             //    take for beamspot point of closest approach of ID track in  x y z
-            bs_x = -idTrackParticle.d0() * std::sin(idTrackParticle.phi()) + idTrackParticle.vx();
-            bs_y = idTrackParticle.d0() * std::cos(idTrackParticle.phi()) + idTrackParticle.vy();
-            bs_z = idTrackParticle.z0() + idTrackParticle.vz();
-            ATH_MSG_DEBUG(" NO matched vertex  take track perigee  x " << bs_x << " y " << bs_y << " z " << bs_z);
+            origin[Amg::x] = -idTrackParticle.d0() * std::sin(idTrackParticle.phi()) + idTrackParticle.vx();
+            origin[Amg::y] = idTrackParticle.d0() * std::cos(idTrackParticle.phi()) + idTrackParticle.vy();
+            origin[Amg::z] = idTrackParticle.z0() + idTrackParticle.vz();
+            ATH_MSG_DEBUG(" NO matched vertex  take track perigee  " << origin);
         }
 
         ATH_MSG_DEBUG(" refit SA track " << dorefit);
         if (dorefit) {
-            if (!m_trackBuilder.empty()) refittedExtrapolatedTrack = m_trackBuilder->standaloneRefit(*combinedTrack, ctx, bs_x, bs_y, bs_z);
+            if (!m_trackBuilder.empty()) refittedExtrapolatedTrack = m_trackBuilder->standaloneRefit(ctx, *combinedTrack, origin);
             if (!refittedExtrapolatedTrack && !m_outwardsBuilder.empty())
-                refittedExtrapolatedTrack = m_outwardsBuilder->standaloneRefit(*combinedTrack, ctx, bs_x, bs_y, bs_z);
+                refittedExtrapolatedTrack = m_outwardsBuilder->standaloneRefit(ctx, *combinedTrack, origin);
         }
         // include vertex region pseudo for extrapolation failure
         unsigned numberPseudo =

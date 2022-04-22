@@ -119,7 +119,8 @@ def SCTHitEffMonAlgConfig(inputFlags):
                                                      xbins=sctMon.N_REGIONS,
                                                      xmin=0.,
                                                      xmax=sctMon.N_REGIONS,
-                                                     xlabels=subDetName)
+                                                     xlabels=subDetName,
+                                                     opt='kAlwaysCreate')
 
     myMonGroup[sctMon.GENERAL_INDEX].defineHistogram(varname= "isub, eff;" + "SctTotalEffBCID",
                                                      type= "TProfile",
@@ -129,7 +130,8 @@ def SCTHitEffMonAlgConfig(inputFlags):
                                                      xmin=0.,
                                                      xmax=sctMon.N_REGIONS,
                                                      xlabels=subDetName,
-                                                     cutmask="isFirstBCID")
+                                                     cutmask="isFirstBCID",
+                                                     opt='kAlwaysCreate')
 
     myMonGroup[sctMon.GENERAL_INDEX].defineHistogram(varname= "sideHash, eff;" + "effHashCode",
                                                      type= "TProfile",
@@ -137,7 +139,8 @@ def SCTHitEffMonAlgConfig(inputFlags):
                                                      path="eff",
                                                      xbins=sctMon.n_mod[sctMon.GENERAL_INDEX] * 2,
                                                      xmin=-0.5,
-                                                     xmax=sctMon.n_mod[sctMon.GENERAL_INDEX] * 2 -0.5)
+                                                     xmax=sctMon.n_mod[sctMon.GENERAL_INDEX] * 2 -0.5,
+                                                     opt='kAlwaysCreate')
                 
     myMonGroup[sctMon.GENERAL_INDEX].defineHistogram(varname= "LumiBlock, eff;" + "effLumiBlock",
                                                      type= "TProfile",
@@ -145,7 +148,8 @@ def SCTHitEffMonAlgConfig(inputFlags):
                                                      path="eff",
                                                      xbins=sctMon.NBINS_LBs,
                                                      xmin=0.5,
-                                                     xmax=sctMon.NBINS_LBs + 0.5)
+                                                     xmax=sctMon.NBINS_LBs + 0.5,
+                                                     opt='kAlwaysCreate')
 
     ### This histogram should be filled by post processing ###
     # myMonGroup[sctMon.GENERAL_INDEX].defineHistogram(varname= "eff;" + "SctEffDistribution",
@@ -169,7 +173,8 @@ def SCTHitEffMonAlgConfig(inputFlags):
                                          xbins=2*sctMon.n_layers[isub],
                                          xmin=0.,
                                          xmax=sctMon.n_layers[isub],
-                                         xlabels=profileLabels)
+                                         xlabels=profileLabels,
+                                         opt='kAlwaysCreate')
         # Efficiency for first BCIDs
         myMonGroup[isub].defineHistogram(varname= "layerPlusHalfSide, eff;" + sumEff[isub] + "BCID",
                                          type= "TProfile",
@@ -179,7 +184,8 @@ def SCTHitEffMonAlgConfig(inputFlags):
                                          xmin=0.,
                                          xmax=sctMon.n_layers[isub],
                                          xlabels=profileLabels,
-                                         cutmask="isFirstBCID")
+                                         cutmask="isFirstBCID",
+                                         opt='kAlwaysCreate')
         # Efficiency as a function of LB
         myMonGroup[isub].defineHistogram(varname= "LumiBlock, eff;"+"effLumiBlock", #different names for fill
                                          type= "TProfile",
@@ -187,7 +193,8 @@ def SCTHitEffMonAlgConfig(inputFlags):
                                          path="eff",
                                          xbins=sctMon.NBINS_LBs,
                                          xmin=0.5,
-                                         xmax=sctMon.NBINS_LBs + 0.5)
+                                         xmax=sctMon.NBINS_LBs + 0.5,
+                                         opt='kAlwaysCreate')
 
         # Disks for SCTEC and SCTEA and layers for SCTB
         for layer_disk in range(sctMon.n_layers[isub]):
@@ -201,7 +208,8 @@ def SCTHitEffMonAlgConfig(inputFlags):
                                                  title="Hit efficiency of" + sctMon.layerName[isub].Data() + str(layer_disk) + " / side " + str(side) + " in " + subDetName[isub] + ";Index in the direction of #eta;Index in the direction of #phi",
                                                  path="eff",
                                                  xbins=sctMon.n_etabins[isub], xmin=sctMon.f_etabin[isub] - .5, xmax=sctMon.l_etabin[isub] + .5,
-                                                 ybins=sctMon.n_phibins[isub], ymin=sctMon.f_phibin[isub] - .5, ymax=sctMon.l_phibin[isub] + .5)
+                                                 ybins=sctMon.n_phibins[isub], ymin=sctMon.f_phibin[isub] - .5, ymax=sctMon.l_phibin[isub] + .5,
+                                                 opt='kAlwaysCreate')
                 # Efficiency for first BCIDs
                 myMonGroup[isub].defineHistogram(varname="ieta" + etaPhiSuffix + ",iphi" + etaPhiSuffix + ",eff;" + effName + "_bcid",
                                                  type= "TProfile2D",
@@ -209,14 +217,16 @@ def SCTHitEffMonAlgConfig(inputFlags):
                                                  path="eff",
                                                  xbins=sctMon.n_etabins[isub], xmin=sctMon.f_etabin[isub] - .5, xmax=sctMon.l_etabin[isub] + .5,
                                                  ybins=sctMon.n_phibins[isub], ymin=sctMon.f_phibin[isub] - .5, ymax=sctMon.l_phibin[isub] + .5,
-                                                 cutmask="isFirstBCID")
+                                                 cutmask="isFirstBCID",
+                                                 opt='kAlwaysCreate')
                 # Inefficiency
                 myMonGroup[isub].defineHistogram(varname="ieta" + etaPhiSuffix + ",iphi" + etaPhiSuffix  + ",ineff;" + ineffName,
                                                  type= "TProfile2D",
                                                  title="Hit inefficiency of" + sctMon.layerName[isub].Data() + str(layer_disk) + " / side " + str(side) + " in " + subDetName[isub] + ";Index in the direction of #eta;Index in the direction of #phi",
                                                  path="eff",
                                                  xbins=sctMon.n_etabins[isub], xmin=sctMon.f_etabin[isub] - .5, xmax=sctMon.l_etabin[isub] + .5,
-                                                 ybins=sctMon.n_phibins[isub], ymin=sctMon.f_phibin[isub] - .5, ymax=sctMon.l_phibin[isub] + .5)
+                                                 ybins=sctMon.n_phibins[isub], ymin=sctMon.f_phibin[isub] - .5, ymax=sctMon.l_phibin[isub] + .5,
+                                                 opt='kAlwaysCreate')
 
     # Merge with result object and return
     result.merge(helper.result())

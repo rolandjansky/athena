@@ -26,7 +26,7 @@
 #include "AthenaKernel/CLASS_DEF.h"
 
 #include <string>
-#include <assert.h>
+#include <cassert>
 #include <algorithm>
 
 
@@ -77,6 +77,11 @@ public:
   //@{
   PixelID();
   //@}
+  
+  /// THis is a PixelID helper
+  virtual AtlasDetectorID::HelperType helper() const override{ 
+    return AtlasDetectorID::HelperType::Pixel;
+  }
 
   /// @name Creators for wafer ids and pixel ids
   //@{

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////// 
@@ -269,7 +269,19 @@ TruthParticleCnvTool::convert( const McEventCollection * mcCollection,
   /// Create a map to enhance access between GenParticles and TruthParticles
   TruthParticleContainer::Map_t bcToMcPart = container->m_particles;
 
-  for (auto hepMcPart: *evt) {
+  
+#ifdef HEPMC3
+  // Process particles in barcode order.
+  std::vector<HepMC::ConstGenParticlePtr> parts = evt->particles();
+  std::sort (parts.begin(), parts.end(),
+             [] (const HepMC::ConstGenParticlePtr& a,
+                 const HepMC::ConstGenParticlePtr& b)
+             { return HepMC::barcode(a) < HepMC::barcode(b); });
+  for (auto hepMcPart: parts)
+#else
+  for (auto hepMcPart: *evt)
+#endif
+  {
 
     TruthParticle * mcPart = new TruthParticle( hepMcPart, container );
     container->push_back( mcPart );

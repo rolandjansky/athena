@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import AthenaCommon.SystemOfUnits as Units
+from AthenaConfiguration.Enums import LHCPeriod
 
 def createSecVertexingFlags():
     from AthenaConfiguration.AthConfigFlags import AthConfigFlags
@@ -85,7 +86,9 @@ def createEGammaPileUpSecVertexingFlags():
     flags.TrkSel.RatioCut3                  = 0.1    # e-prob for Si conversion tracks (affects 1Si, 2Si, SiTRT): Ntrt > 25
     flags.TrkSel.RatioTRT                   = 0.51    # e-prob cut for TRT conversion tracks (affects 1TRT, 2TRT, SiTRT) (see also below)
     flags.TrkSel.TRTTrksEtaBins             = [  0.7,   0.8,   0.9,  1.2,  1.3,  1.6,  1.7,  1.8,  1.9,  999] # eta bins (10) for eta-dep cuts on TRT conversion tracks
-    flags.TrkSel.TRTTrksBinnedRatioTRT      = [ 0.60,  0.80,  0.90, 0.80, 0.51, 0.51, 0.51, 0.51, 0.51, 0.51] # eta-dep e-prob cut for TRT conversion tracks
+    flags.TrkSel.TRTTrksBinnedRatioTRT      = lambda pcf:\
+                                             [0.51,  0.80,  0.90, 0.80, 0.51, 0.51, 0.51, 0.51, 0.51, 0.51] if pcf.GeoModel.Run is LHCPeriod.Run3 else \
+                                             [0.60,  0.80,  0.90, 0.80, 0.51, 0.51, 0.51, 0.51, 0.51, 0.51] # eta-dep e-prob cut for TRT conversion tracks
     flags.TrkSel.IsConversion               = True
     flags.TrkSel.significanceD0_Si          = -1.    # V0 only cuts
     flags.TrkSel.RatioV0                    = -1.    # V0 only cuts      
@@ -111,7 +114,7 @@ def createEGammaPileUpSecVertexingFlags():
     flags.SingleTrk.MaxBLayerHits              = 0
     flags.SingleTrk.MinInitialHitRadius        = 70.
     flags.SingleTrk.MinInitialHitRadius_noBlay = 120.
-    flags.SingleTrk.MinRatioOfHLhits           = 0.51 # e-prob cut for 1TRT and 1Si converisons
+    flags.SingleTrk.MinRatioOfHLhits           = lambda pcf: 0.40 if pcf.GeoModel.Run is LHCPeriod.Run3 else 0.51 # e-prob cut for 1TRT and 1Si converisons
     #  InDetSecVtxFinderTool 
     flags.Finder.RemoveTrtTracks            = False
     flags.Finder.IsConversion               = True

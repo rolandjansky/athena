@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -28,8 +28,7 @@ HistogramDefinitionSvc::HistogramDefinitionSvc(const std::string& name, ISvcLoca
   declareProperty("DefinitionFormat", m_formatString = "text/plain");
 }
 
-HistogramDefinitionSvc::~HistogramDefinitionSvc() {
-}
+HistogramDefinitionSvc::~HistogramDefinitionSvc() = default;
 
 StatusCode
 HistogramDefinitionSvc::initialize() {

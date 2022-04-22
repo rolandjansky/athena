@@ -241,7 +241,6 @@ Trk::GaussianSumFitter::fit(
       continue;
     }
 
-    // Dynamic cast to a RIO_OnTrack object
     const Trk::RIO_OnTrack* rioOnTrack = nullptr;
     if ((*measurementOnTrack)->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
       rioOnTrack = static_cast<const Trk::RIO_OnTrack*>(*measurementOnTrack);
@@ -279,7 +278,7 @@ Trk::GaussianSumFitter::fit(
   const Trk::RunOutlierRemoval outlierRemoval,
   const Trk::ParticleHypothesis particleHypothesis) const
 {
-  ++m_FitPRD;
+  m_FitPRD.fetch_add(1, std::memory_order_relaxed);
 
   if (outlierRemoval) {
     ATH_MSG_WARNING(
@@ -314,7 +313,7 @@ Trk::GaussianSumFitter::fit(
                                                particleHypothesis);
 
   if (forwardTrajectory.empty()) {
-    ++m_ForwardFailure;
+    m_ForwardFailure.fetch_add(1, std::memory_order_relaxed);
     return nullptr;
   }
 
@@ -324,14 +323,14 @@ Trk::GaussianSumFitter::fit(
 
   // Protect against failed smoother fit
   if (smoothedTrajectory.empty()) {
-    ++m_SmootherFailure;
+    m_SmootherFailure.fetch_add(1, std::memory_order_relaxed);
     return nullptr;
   }
 
   // Outlier m_logic and track finalisation
   std::unique_ptr<FitQuality> fitQuality = buildFitQuality(smoothedTrajectory);
   if (!fitQuality) {
-    ++m_fitQualityFailure;
+    m_fitQualityFailure.fetch_add(1, std::memory_order_relaxed);
     return nullptr;
   }
 
@@ -342,7 +341,7 @@ Trk::GaussianSumFitter::fit(
     if (perigeeMultiStateOnSurface) {
       smoothedTrajectory.push_back(perigeeMultiStateOnSurface);
     } else {
-      ++m_PerigeeFailure;
+      m_PerigeeFailure.fetch_add(1, std::memory_order_relaxed);
       return nullptr;
     }
   }
@@ -354,7 +353,7 @@ Trk::GaussianSumFitter::fit(
   Trk::TrackInfo info(Trk::TrackInfo::GaussianSumFilter, particleHypothesis);
   info.setTrackProperties(TrackInfo::BremFit);
   info.setTrackProperties(TrackInfo::BremFitSuccessful);
-  ++m_fitSuccess;
+  m_fitSuccess.fetch_add(1, std::memory_order_relaxed);
   return std::make_unique<Track>(
     info, std::move(smoothedTrajectory), fitQuality.release());
 }
@@ -376,7 +375,7 @@ Trk::GaussianSumFitter::fit(
       "Outlier removal not yet implemented for the Gaussian Sum Filter");
   }
 
-  ++m_FitMeasurementBase;
+  m_FitMeasurementBase.fetch_add(1, std::memory_order_relaxed);
   // Protect against empty PrepRawDataSet object
   if (measurementSet.empty()) {
     ATH_MSG_FATAL("MeasurementSet for fit is empty... Exiting!");
@@ -405,8 +404,6 @@ Trk::GaussianSumFitter::fit(
     }
   }
 
-  // A const stl container cannot be sorted. This will re-cast it so that it
-  // can.
   Trk::MeasurementSet sortedMeasurementSet =
     MeasurementSet(cleanedMeasurementSet);
 
@@ -432,7 +429,7 @@ Trk::GaussianSumFitter::fit(
                     particleHypothesis);
 
   if (forwardTrajectory.empty()) {
-    ++m_ForwardFailure;
+    m_ForwardFailure.fetch_add(1, std::memory_order_relaxed);
     return nullptr;
   }
 
@@ -443,7 +440,7 @@ Trk::GaussianSumFitter::fit(
 
   // Protect against failed smoother fit
   if (smoothedTrajectory.empty()) {
-    ++m_SmootherFailure;
+    m_SmootherFailure.fetch_add(1, std::memory_order_relaxed);
     return nullptr;
   }
 
@@ -451,7 +448,7 @@ Trk::GaussianSumFitter::fit(
   std::unique_ptr<FitQuality> fitQuality = buildFitQuality(smoothedTrajectory);
 
   if (!fitQuality) {
-    ++m_fitQualityFailure;
+    m_fitQualityFailure.fetch_add(1, std::memory_order_relaxed);
     return nullptr;
   }
 
@@ -462,7 +459,7 @@ Trk::GaussianSumFitter::fit(
     if (perigeeMultiStateOnSurface) {
       smoothedTrajectory.push_back(perigeeMultiStateOnSurface);
     } else {
-      ++m_PerigeeFailure;
+      m_PerigeeFailure.fetch_add(1, std::memory_order_relaxed);
       return nullptr;
     }
   }
@@ -474,7 +471,7 @@ Trk::GaussianSumFitter::fit(
   Trk::TrackInfo info(Trk::TrackInfo::GaussianSumFilter, particleHypothesis);
   info.setTrackProperties(TrackInfo::BremFit);
   info.setTrackProperties(TrackInfo::BremFitSuccessful);
-  ++m_fitSuccess;
+  m_fitSuccess.fetch_add(1, std::memory_order_relaxed);
   return std::make_unique<Track>(
     info, std::move(smoothedTrajectory), fitQuality.release());
 }

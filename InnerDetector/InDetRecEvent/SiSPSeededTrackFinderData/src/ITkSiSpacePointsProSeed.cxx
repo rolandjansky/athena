@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SiSPSeededTrackFinderData/ITkSiSpacePointsProSeed.h"
@@ -53,8 +53,7 @@ namespace ITk
   /////////////////////////////////////////////////////////////////////////////////
 
   SiSpacePointsProSeed::~SiSpacePointsProSeed() 
-  {
-  }
+  = default;
 
   /////////////////////////////////////////////////////////////////////////////////
   // Set 
@@ -87,11 +86,9 @@ namespace ITk
 
   bool SiSpacePointsProSeed::set3(InDet::SiSpacePointsSeed& s)
     {
-      
-      bool pixb = !m_s0->spacepoint->clusterList().second;
       bool pixt = !m_s2->spacepoint->clusterList().second;
       
-      if(pixb!=pixt) {
+      if(pixt) {
 	if(m_q > m_s0->quality() && m_q > m_s1->quality() && m_q > m_s2->quality()) return false;
       }
      
@@ -134,7 +131,7 @@ namespace ITk
       bool pixb = !m_s0->spacepoint->clusterList().second;
       bool pixt = !m_s2->spacepoint->clusterList().second;
       if(pixb==pixt) {
-	m_s0->setQuality(q);
+        m_s0->setQuality(q);
 	m_s1->setQuality(q);
 	m_s2->setQuality(q);
 	return true;

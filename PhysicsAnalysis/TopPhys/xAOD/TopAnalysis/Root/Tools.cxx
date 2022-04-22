@@ -370,6 +370,8 @@ namespace top {
       if (isMC) {
         if (simFlavour == "FullG4") {
           config->setIsAFII(false);
+        } else if (simFlavour == "FullG4_QS") {
+          config->setIsAFII(false);
         } else if (simFlavour == "ATLFASTII") {
           config->setIsAFII(true);
         } else {

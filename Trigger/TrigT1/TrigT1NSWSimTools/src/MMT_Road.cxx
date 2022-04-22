@@ -2,7 +2,7 @@
 #include "AthenaKernel/getMessageSvc.h"
 #include <cmath>
 
-MMT_Road::MMT_Road(const char sector, const MuonGM::MuonDetectorManager* detManager, const micromegas_t mm, int xthr, int uvthr, int iroadx, int iroadu, int iroadv): AthMessaging(Athena::getMessageSvc(), "MMT_Road") {
+MMT_Road::MMT_Road(const char sector, const MuonGM::MuonDetectorManager* detManager, const micromegas_t &mm, int xthr, int uvthr, int iroadx, int iroadu, int iroadv): AthMessaging(Athena::getMessageSvc(), "MMT_Road") {
   m_sector = sector;
   m_iroad  = iroadx;
   m_iroadx = iroadx;
@@ -15,17 +15,16 @@ MMT_Road::MMT_Road(const char sector, const MuonGM::MuonDetectorManager* detMana
   if (iroadu == -1 && iroadv != -1) ATH_MSG_WARNING("iroadu = -1 but iroadv ain't");
   if (iroadu != -1 && iroadv == -1) ATH_MSG_WARNING("iroadv = -1 but iroadu ain't");
   m_detManager = detManager;
-  m_micromegas = mm;
   m_roadSize = mm.roadSize;
   m_roadSizeUpX = mm.nstrip_up_XX;
   m_roadSizeDownX = mm.nstrip_dn_XX;
   m_roadSizeUpUV = mm.nstrip_up_UV;
   m_roadSizeDownUV = mm.nstrip_dn_UV;
+  m_pitch = mm.pitch;
+  m_innerRadiusEta1 = mm.innerRadiusEta1;
+  m_innerRadiusEta2 = mm.innerRadiusEta2;
   m_B = (1./std::tan(1.5/180.*M_PI));
-}
-
-MMT_Road::~MMT_Road() {
-  this->reset();
+  m_planeCoordinates = mm.planeCoordinates;
 }
 
 void MMT_Road::addHits(std::vector<std::shared_ptr<MMT_Hit> > &hits) {
@@ -68,25 +67,24 @@ bool MMT_Road::containsNeighbors(const MMT_Hit &hit) const {
     return false;
   }
 
-  double pitch = this->getMM().pitch;
-  double R = (std::abs(hit.getStationEta()) == 1) ? this->getMM().innerRadiusEta1 : this->getMM().innerRadiusEta2;
+  double R = (std::abs(hit.getStationEta()) == 1) ? m_innerRadiusEta1 : m_innerRadiusEta2;
   double Z = hit.getZ();
 
   double index = std::round((std::abs(hit.getRZSlope())-0.1)/5e-04); // 0.0005 is approx. the step in slope achievable with a road size of 8 strips
   double roundedSlope = 0.1 + index*((0.6 - 0.1)/1000.);
-  double shift = roundedSlope*(this->getMM().planeCoordinates[hit.getPlane()].Z() - this->getMM().planeCoordinates[0].Z());
+  double shift = roundedSlope*(this->getPlaneCoordinate(hit.getPlane()).Z() - this->getPlaneCoordinate(0).Z());
 
   double olow = 0., ohigh = 0.;
   if (hit.isX()) {
-    olow  = this->getRoadSizeDownX()*pitch;
-    ohigh = this->getRoadSizeUpX()*pitch;
+    olow  = this->getRoadSizeDownX()*this->getPitch();
+    ohigh = this->getRoadSizeUpX()*this->getPitch();
   } else {
-    olow  = this->getRoadSizeDownUV()*pitch;
-    ohigh = this->getRoadSizeUpUV()*pitch;
+    olow  = this->getRoadSizeDownUV()*this->getPitch();
+    ohigh = this->getRoadSizeUpUV()*this->getPitch();
   }
 
-  double slow  = (R + (this->getRoadSize()*iroad  )*pitch + shift + pitch/2. - olow)/Z;
-  double shigh = (R + (this->getRoadSize()*(iroad+1))*pitch + shift + pitch/2. + ohigh)/Z;
+  double slow  = (R + (this->getRoadSize()*iroad  )*this->getPitch() + shift + this->getPitch()/2. - olow)/Z;
+  double shigh = (R + (this->getRoadSize()*(iroad+1))*this->getPitch() + shift + this->getPitch()/2. + ohigh)/Z;
 
   double slope = hit.getRZSlope();
   if (this->getSector() != hit.getSector()) {

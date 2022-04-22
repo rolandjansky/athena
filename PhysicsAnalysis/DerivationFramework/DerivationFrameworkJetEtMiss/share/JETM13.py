@@ -81,8 +81,8 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM13SlimmingHelper = SlimmingHelper("JETM13SlimmingHelper")
 JETM13SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJets",
                                          "InDetTrackParticles", "PrimaryVertices",
-                                         "MET_Reference_AntiKt4EMTopo",
-                                         "MET_Reference_AntiKt4EMPFlow",
+                                         "MET_Baseline_AntiKt4EMTopo",
+                                         "MET_Baseline_AntiKt4EMPFlow",
                                          "AntiKt4EMTopoJets","AntiKt4EMPFlowJets",
                                          "AntiKt4TruthJets","AntiKt10TruthJets",
                                         ]

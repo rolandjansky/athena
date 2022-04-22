@@ -79,7 +79,11 @@ public:
   SCT_ID(void);
   virtual ~SCT_ID(void) = default;
   //@}
-
+  
+  ///This is an SCT_ID helper
+  AtlasDetectorID::HelperType helper() const override{
+    return AtlasDetectorID::HelperType::SCT;
+  }
   /// @name Creators for wafer ids and pixel ids
   //@{
   /// For a single crystal
@@ -264,12 +268,12 @@ public:
   /// Create compact id from hash id (return == 0 for OK)
   virtual int get_id(const IdentifierHash& hash_id,
                      Identifier& id,
-                     const IdContext* context = 0) const;
+                     const IdContext* context = 0) const override;
 
   /// Create hash id from compact id (return == 0 for OK)
   virtual int get_hash(const Identifier& id,
                        IdentifierHash& hash_id,
-                       const IdContext* context = 0) const;
+                       const IdContext* context = 0) const override;
   //@}
 
   /// Return the lowest bit position used in the channel id
@@ -295,7 +299,7 @@ public:
                        const IdContext* context = 0) const;
 
   /// Initialization from the identifier dictionary
-  virtual int initialize_from_dictionary(const IdDictMgr& dict_mgr);
+  virtual int initialize_from_dictionary(const IdDictMgr& dict_mgr) override;
 
   //@}
 private:

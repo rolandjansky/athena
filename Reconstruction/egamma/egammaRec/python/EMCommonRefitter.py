@@ -1,15 +1,15 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 from InDetRecExample import TrackingCommon as TrackingCommon
 
-print("EMCommonRefitter.py")
 
-
-def getGSFTrackFitter(doRefitOnMeasurementBase=True):
+def getGSFTrackFitter(name="EMGSFTrackFitter",
+                      RefitOnMeasurementBase=True,
+                      ReintegrateOutliers=True):
 
     egRotCreator = None
-    if not doRefitOnMeasurementBase:
+    if not RefitOnMeasurementBase:
         egRotCreator = TrackingCommon.getInDetRotCreator(
             name='egRotCreator',
             private=True)
@@ -32,9 +32,9 @@ def getGSFTrackFitter(doRefitOnMeasurementBase=True):
 
     # setup the GSF
     from TrkGaussianSumFilter.TrkGaussianSumFilterConf import (
-        Trk__GsfMaterialMixtureConvolution)
+        Trk__ElectronMaterialMixtureConvolution)
 
-    GsfMaterialUpdator = Trk__GsfMaterialMixtureConvolution(
+    GsfMaterialUpdator = Trk__ElectronMaterialMixtureConvolution(
         name='GsfMaterialUpdator',
         MaximumNumberOfComponents=12)
 
@@ -45,18 +45,17 @@ def getGSFTrackFitter(doRefitOnMeasurementBase=True):
         name='GsfExtrapolator',
         Propagator=egTrkPropagator,
         Navigator=egTrkNavigator,
-        GsfMaterialConvolution=GsfMaterialUpdator,
-        SurfaceBasedMaterialEffects=False)
+        GsfMaterialConvolution=GsfMaterialUpdator)
 
     from TrkGaussianSumFilter.TrkGaussianSumFilterConf import (
         Trk__GaussianSumFitter)
 
     GSFTrackFitter = Trk__GaussianSumFitter(
-        name='GSFTrackFitter',
+        name=name,
         ToolForExtrapolation=GsfExtrapolator,
-        ReintegrateOutliers=True,
+        ReintegrateOutliers=ReintegrateOutliers,
         MakePerigee=True,
-        RefitOnMeasurementBase=doRefitOnMeasurementBase,
+        RefitOnMeasurementBase=RefitOnMeasurementBase,
         DoHitSorting=True,
         ToolForROTCreation=egRotCreator)
     # --- end of fitter loading

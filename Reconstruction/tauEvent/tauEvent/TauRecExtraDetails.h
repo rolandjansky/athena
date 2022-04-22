@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///@file TauRecExtraDetails.h  DEPRECATED DO NOTT USE 
@@ -15,7 +15,6 @@
 ///
 /// Created 2007-01-17
 ///
-/// $Id: TauRecExtraDetails.h,v 1.11 2009-01-17 01:34:16 tburgess Exp $
 
 #ifndef TAU_REC_EXTRA_DETAILS_ANALYSIS_H
 #define TAU_REC_EXTRA_DETAILS_ANALYSIS_H
@@ -115,7 +114,7 @@ namespace Analysis
         void setSeedType( TauJetParameters :: SeedTypes type );
 
         private:
-        static std::string s_className;
+        static const std::string s_className;
         tauAnalysisHelperObject *m_analysisHelper;
         TauJetParameters :: SeedTypes m_seedType;
 

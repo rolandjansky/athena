@@ -32,7 +32,7 @@ public:
 private:
   bool applyCut(const Gaudi::Property<int> &threshold, const xAOD::TrigComposite *composit) const;
   HLT::Identifier m_decisionId;
-  Gaudi::Property<bool> m_accptAll{this, "AcceptAll", false, "Accept all events"};
+  Gaudi::Property<bool> m_acceptAll{this, "AcceptAll", false, "Accept all events"};
 
   Gaudi::Property<unsigned int> m_mbtsCounters{this, "MbtsCounters", 2, "The number of MBTS counters required to be above threshold"};
 

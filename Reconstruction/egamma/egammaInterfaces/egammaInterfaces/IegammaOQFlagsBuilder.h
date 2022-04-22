@@ -20,7 +20,6 @@
 #include "GaudiKernel/EventContext.h"
 // Forward declarations
 #include "xAODEgamma/EgammaFwd.h"
-class CaloDetDescrManager;
 static const InterfaceID IID_IegammaOQFlagsBuilder("IegammaOQFlagsBuilder",
                                                    1,
                                                    0);
@@ -37,7 +36,6 @@ public:
 
   /** @brief AlgTool method.*/
   virtual StatusCode execute(const EventContext& ctx,
-                             const CaloDetDescrManager& cmgr,
                              xAOD::Egamma& egamma) const = 0;
 };
 

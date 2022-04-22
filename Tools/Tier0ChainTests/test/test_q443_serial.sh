@@ -8,7 +8,7 @@
 Reco_tf.py \
 --AMI=q443 \
 --maxEvents=100 \
---outputRDOFile=myRDO.pool.root --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root --outputHISTFile=myHIST.root \
+--outputRDOFile=myRDO.pool.root --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root \
 --imf False
 
 rc1=$?

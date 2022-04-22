@@ -28,6 +28,9 @@ def createITkConfigFlags():
                                                          or prevFlags.ITk.Geometry.BCMPrimeLocal
                                                          or prevFlags.ITk.Geometry.PLRLocal))
 
+  itkcf.addFlag("ITk.Conditions.PixelChargeCalibTag", "")
+  itkcf.addFlag("ITk.Conditions.PixelChargeCalibFile", "")
+
   itkcf.addFlag("ITk.doStripModuleVeto", False) # Turn on SCT_ModuleVetoSvc, allowing it to be configured later
   itkcf.addFlag("ITk.checkDeadPixelsOnTrack", True) # Enable check for dead modules and FEs
   itkcf.addFlag("ITk.selectStripIntimeHits", lambda prevFlags: not(prevFlags.Beam.Type is BeamType.Cosmics) ) # defines if the X1X mode is used for the offline or not

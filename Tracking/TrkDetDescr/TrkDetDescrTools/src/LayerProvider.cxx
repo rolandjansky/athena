@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -28,7 +28,7 @@ Trk::LayerProvider::LayerProvider(const std::string& t, const std::string& n, co
 
 // destructor
 Trk::LayerProvider::~LayerProvider()
-{}
+= default;
 
 // initialize
 StatusCode Trk::LayerProvider::initialize()

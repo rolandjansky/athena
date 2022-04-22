@@ -33,6 +33,8 @@ Input   = 'Bphys_JpsiPhi'    # defined in TrigValTools/share/TrigValInputs.json
 
 preinclude_file = 'all:TrigInDetValidation/TIDV_cond_fix.py' #conditions fix for ATR-23982. In future find a more recent RDO  
 
+ExtraAna = " -c 'parentpdgid=531' "
+
 Jobs = [ ( "Truth",       " TIDAdata-run3-larged0.dat                    -o data-hists.root " ),
          ( "Offline",     " TIDAdata-run3-offline-larged0.dat -r Offline -o data-hists-offline.root" ) ]
 

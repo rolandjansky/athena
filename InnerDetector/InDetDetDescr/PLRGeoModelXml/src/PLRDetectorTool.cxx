@@ -28,8 +28,8 @@ StatusCode PLRDetectorTool::create()
 
   GeoModelExperiment *theExpt = nullptr;
   ATH_CHECK(detStore()->retrieve(theExpt, "ATLAS"));
-  const PixelID *idHelper = nullptr;
-  ATH_CHECK(detStore()->retrieve(idHelper, "PixelID"));
+  const PLR_ID *idHelper = nullptr;
+  ATH_CHECK(detStore()->retrieve(idHelper, "PLR_ID"));
 
   m_commonItems = std::make_unique<InDetDD::SiCommonItems>(idHelper);
 

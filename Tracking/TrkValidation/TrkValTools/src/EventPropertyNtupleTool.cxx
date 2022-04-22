@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -50,7 +50,7 @@ Trk::EventPropertyNtupleTool::EventPropertyNtupleTool(
 }
 
 // destructor
-Trk::EventPropertyNtupleTool::~EventPropertyNtupleTool() {}
+Trk::EventPropertyNtupleTool::~EventPropertyNtupleTool() = default;
 
 StatusCode Trk::EventPropertyNtupleTool::initialize() {
   m_trigLvl1TAV = new std::vector<unsigned int>();

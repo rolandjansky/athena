@@ -290,6 +290,7 @@
 + Simulation/Barcode/BarcodeInterfaces
 + Simulation/Barcode/BarcodeServices
 + Simulation/BeamEffects
++ Simulation/AtlasGeant4
 + Simulation/G4Atlas/G4AtlasAlg
 + Simulation/G4Atlas/G4AtlasApps
 + Simulation/G4Atlas/G4AtlasInterfaces

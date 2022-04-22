@@ -9,7 +9,6 @@
 #include "TrkSurfaces/Surface.h"
 
 ///Needed for the track refitter
-#include "TrkFitterInterfaces/ITrackFitter.h"
 //Extrapolator tool
 #include "TrkExInterfaces/IExtrapolator.h"
 //Scoring tool
@@ -27,30 +26,23 @@ namespace InDet {
 							     const IInterface *parent) :
     AthAlgTool(type,name,parent),
     m_fieldUnitConversion(1000.),
-    m_fitterTool("Trk::KalmanFitter/InDetTrackFitter"),
-    m_extrapolator ("Trk::Extrapolator/InDetExtrapolator"),
+    m_extrapolator("Trk::Extrapolator/InDetExtrapolator"),
     m_scoringTool("Trk::TrackScoringTool/TrackScoringTool"),
     m_trtId(nullptr)
   {
     declareInterface<InDet::ITRT_SegmentToTrackTool>( this );
-
     m_doRefit            = false                                ;       //Do a final careful refit of tracks
-
     m_suppressHoleSearch = false                                ;       //Suppress hole search
     m_sharedFrac         = 0.3                                  ;       //Maximum fraction of shared hits !!!!!!!!!!!!!!!!!!!!!! offline 0.3!!!!!!!!!!!!!!!!!!!!!!!
-
     declareProperty("FinalRefit"                 ,m_doRefit           ); //Do a final careful refit of tracks
-
     declareProperty("SuppressHoleSearch"         ,m_suppressHoleSearch); //Suppress hole search during the track summary creation
     declareProperty("MaxSharedHitsFraction"      ,m_sharedFrac        ); //Maximum fraction of shared drift circles
-
-    declareProperty("RefitterTool"               ,m_fitterTool        ); //Track refit tool
     declareProperty("Extrapolator"               ,m_extrapolator      ); //Extrapolator tool
     declareProperty("ScoringTool"                ,m_scoringTool       ); //Track scoring tool
   }
 
   TRT_SegmentToTrackTool::~TRT_SegmentToTrackTool()
-  {}
+  = default;
 
 
   StatusCode TRT_SegmentToTrackTool::initialize() {
@@ -59,22 +51,13 @@ namespace InDet {
 
     ATH_MSG_DEBUG( "Initializing TRT_SegmentToTrackTool" );
 
-    //Get the refitting tool
-    //
-    if(m_doRefit){
-      ATH_CHECK( m_fitterTool.retrieve() );
-      ATH_MSG_INFO( "Retrieved tool " << m_extrapolator );
-    }
+    ATH_CHECK(m_extrapolator.retrieve() );
 
-    ATH_CHECK(  m_extrapolator.retrieve() );
-
-    // Get association tool
-    //
+    ATH_CHECK(m_fitterTool.retrieve(DisableTool{ !m_doRefit }));
     ATH_CHECK(m_assoTool.retrieve( DisableTool{m_assoTool.name().empty()} ));
     ATH_CHECK(m_trackSummaryTool.retrieve( DisableTool{m_trackSummaryTool.name().empty()} ));
 
     // Get the scoring tool
-    //
     ATH_CHECK( m_scoringTool.retrieve() );
 
     ATH_CHECK( detStore()->retrieve(m_trtId, "TRT_ID") );
@@ -133,7 +116,7 @@ namespace InDet {
   ///////////////////////////////////////////////////////////////////
   // Dumps event information into the MsgStream
   ///////////////////////////////////////////////////////////////////
-  MsgStream& InDet::TRT_SegmentToTrackTool::dumpevent( MsgStream& out ) const {
+  MsgStream& InDet::TRT_SegmentToTrackTool::dumpevent( MsgStream& out ) {
     return out;
   }
 
@@ -831,8 +814,7 @@ namespace InDet {
       event_data.m_trackScores.emplace_back(-score, trk );
     }
 
-    return;
-
+    
   }
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -388,7 +388,7 @@ namespace InDet {
   }
   
   // ----------------------------------------------------------------
-  double VertexPointEstimator::areaVar(double xc1, double yc1, double r1, double xc2, double yc2, double r2, double& phi) const
+  double VertexPointEstimator::areaVar(double xc1, double yc1, double r1, double xc2, double yc2, double r2, double& phi) 
   {
     double ret = -999999;
     double xi1, yi1, xi2, yi2;
@@ -416,7 +416,7 @@ namespace InDet {
   }
   
   // ----------------------------------
-  double VertexPointEstimator::areaVar(double xc1, double yc1, double r1, double xc2, double yc2, double r2, double& h, double& hl, double &ddphi) const
+  double VertexPointEstimator::areaVar(double xc1, double yc1, double r1, double xc2, double yc2, double r2, double& h, double& hl, double &ddphi) 
   {
     double ret = -999999;
     double xi1, yi1, xi2, yi2;
@@ -459,7 +459,7 @@ namespace InDet {
   bool VertexPointEstimator::circleIntersection(double xc1, double yc1, double r1, 
 						double xc2, double yc2, double r2, 
 						double& xi1, double& yi1, 
-						double& xi2, double& yi2) const
+						double& xi2, double& yi2) 
   {
     // Calculate the intersection of the two circles:
     //

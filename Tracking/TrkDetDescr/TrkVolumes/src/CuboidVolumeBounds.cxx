@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -46,7 +46,7 @@ Trk::CuboidVolumeBounds::CuboidVolumeBounds(const Trk::CuboidVolumeBounds& bobo)
   , m_objectAccessor(bobo.m_objectAccessor)
 {}
 
-Trk::CuboidVolumeBounds::~CuboidVolumeBounds() {}
+Trk::CuboidVolumeBounds::~CuboidVolumeBounds() = default;
 
 Trk::CuboidVolumeBounds&
 Trk::CuboidVolumeBounds::operator=(const Trk::CuboidVolumeBounds& bobo)

@@ -5,8 +5,6 @@
 ## @author Sebastien Binet <binet@cern.ch>
 ###############################################################
 
-from __future__ import print_function
-
 def _setupAtlasUnixGeneratorJob():
     from AthenaCommon import AtlasUnixStandardJob    # noqa: F401
     from AthenaCommon.AppMgr import theApp

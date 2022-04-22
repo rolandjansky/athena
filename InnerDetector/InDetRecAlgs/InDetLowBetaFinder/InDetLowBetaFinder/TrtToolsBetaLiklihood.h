@@ -73,37 +73,37 @@ public:
   
   
   //user's function for getting the ML estimate of beta from TRT FE info:
-  std::vector<float> TRT_FEbeta(std::vector<int> TRT_bitpattern, std::vector<int> TRT_bec, std::vector<int> TRT_strawlayer, 
+  static std::vector<float> TRT_FEbeta(std::vector<int> TRT_bitpattern, std::vector<int> TRT_bec, std::vector<int> TRT_strawlayer, 
                    std::vector<int> TRT_layer, std::vector<float> TRT_t0, std::vector<float> TRT_estDrift, std::vector<float> TRT_R, 
                    std::vector<float> TRT_R_track, std::vector<float> TrackX, std::vector<float>TrackY, 
                    std::vector<float> TrackZ, float RecPt, float RecEta, std::vector<int> TRT_isTube);
-  float TRT_CorrectFEbeta(float beta, float eta);                                                                 //applies bias correction to extracted FE beta.  
+  static float TRT_CorrectFEbeta(float beta, float eta);                                                                 //applies bias correction to extracted FE beta.  
 
-  void TRT_LoadPriors(const std::string& priorFileName);                                                                 //loads priors, LBitTemplates.root in the run dir
+  static void TRT_LoadPriors(const std::string& priorFileName);                                                                 //loads priors, LBitTemplates.root in the run dir
   
   // Load the default prior values
-  int TRT_LoadDefaultPriors();
+  static int TRT_LoadDefaultPriors();
   // Specify how many prior values are expected
-  unsigned int TRT_NumPriors();
+  static unsigned int TRT_NumPriors();
   // Update a specific prior value
-  void TRT_UpdatePriorValues(int radiusIndex, int etaIndex, int barrelOrEndcap, double* bitValues);
+  static void TRT_UpdatePriorValues(int radiusIndex, int etaIndex, int barrelOrEndcap, const double* bitValues);
 
   //Prior generation - out of date, do not use!
-  void  TRT_SetupPriors();                                                                                        //declare the empty histos for a new batch of priors
-  void  TRT_FillPriors(std::vector<int> TRT_bitpattern, std::vector<int> TRT_bec, std::vector<int> TRT_strawlayer, 
+  static void  TRT_SetupPriors();                                                                                        //declare the empty histos for a new batch of priors
+  static void  TRT_FillPriors(std::vector<int> TRT_bitpattern, std::vector<int> TRT_bec, std::vector<int> TRT_strawlayer, 
                        std::vector<int> TRT_layer, std::vector<float> TRT_t0, std::vector<float> TRT_R,
                        std::vector<float> TRT_R_track, std::vector<float> TrackX, std::vector<float> TrackY, 
                        std::vector<float> TrackZ, float RecPt, float RecEta); 
-  void TRT_SavePriors();
+  static void TRT_SavePriors();
 
 private:
   //internal functions, shouldn't be called except as per TRT_FEbeta:
-  void TRT_SelectFEhits();                                                                                        //chooses decent looking hits to pass on to fitting
-  void TRT_BitPattern(int hitP, int *lowPat, int *highPat, HIT &hit);                                             //parses TRT hits into useful info.  
-  void TRT_PropLenCorr(HIT hit, int *corrLBits, float *corrLBitWeight, int *corrFBits, float *corrFBitWeight);    //fixes reflection in electronics.  
-  void TRT_FEbeta_min ATLAS_NOT_THREAD_SAFE
+  static void TRT_SelectFEhits();                                                                                        //chooses decent looking hits to pass on to fitting
+  static void TRT_BitPattern(int hitP, int *lowPat, int *highPat, HIT &hit);                                             //parses TRT hits into useful info.  
+  static void TRT_PropLenCorr(HIT hit, int *corrLBits, float *corrLBitWeight, int *corrFBits, float *corrFBitWeight);    //fixes reflection in electronics.  
+  static void TRT_FEbeta_min ATLAS_NOT_THREAD_SAFE
     (float &beta, float &betaSigmaLo, float &betaSigmaUp);                                       //handles MINUIT for the TRT FE beta fit. 
-  void TRT_SelectFEpriors(TrtToolBetaLiklihood::HIT hit, int *corrLBits, float *corrLBitWeight);
+  static void TRT_SelectFEpriors(TrtToolBetaLiklihood::HIT hit, int *corrLBits, float *corrLBitWeight);
   //void TRT_solveCubic(float DCrad, float &estDrift);
 };
 

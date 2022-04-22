@@ -154,7 +154,7 @@ InDetV0FinderTool::InDetV0FinderTool(const std::string& t, const std::string& n,
   declareProperty("gamma_probability", m_mDecor_gprob);  
 }
 
-InDetV0FinderTool::~InDetV0FinderTool() {}
+InDetV0FinderTool::~InDetV0FinderTool() = default;
 
 StatusCode InDetV0FinderTool::initialize()
 {
@@ -705,7 +705,6 @@ StatusCode InDetV0FinderTool::finalize()
 void InDetV0FinderTool::SGError(const std::string& errService) const
 {
   msg(MSG::FATAL) << errService << " not found. Exiting !" << endmsg;
-  return;
 }
 
 
@@ -836,7 +835,7 @@ bool InDetV0FinderTool::pointAtVertexColl(xAOD::Vertex* v0, const xAOD::VertexCo
   return pass;
 }
 
-double InDetV0FinderTool::invariantMass(const Trk::TrackParameters* per1, const Trk::TrackParameters* per2, double m1, double m2) const
+double InDetV0FinderTool::invariantMass(const Trk::TrackParameters* per1, const Trk::TrackParameters* per2, double m1, double m2) 
 {
   double e1sq = per1->momentum().mag2() + m1*m1;
   double e1 = (e1sq>0.) ? sqrt(e1sq) : 0.;

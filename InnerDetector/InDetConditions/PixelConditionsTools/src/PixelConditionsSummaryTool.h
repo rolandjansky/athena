@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file PixelConditionsTools/PixelConditionsSummaryTool.h
@@ -11,12 +11,15 @@
 #ifndef PIXELCONDITIONSSERVICES_PIXELCONDITIONSSUMMARYTOOL_H
 #define PIXELCONDITIONSSERVICES_PIXELCONDITIONSSUMMARYTOOL_H
 
-#include <string>
+
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "InDetConditionsSummaryService/IDetectorElementStatusTool.h"
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
+
 #include "GaudiKernel/ServiceHandle.h"
 #include "Gaudi/Property.h"
-#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
+
 #include "AthenaKernel/SlotSpecificObj.h"
 
 #include "InDetByteStreamErrors/IDCInDetBSErrContainer.h"
@@ -28,12 +31,22 @@
 #include "PixelConditionsData/PixelDCSStateData.h"
 #include "PixelConditionsData/PixelDCSStatusData.h"
 #include "PixelConditionsData/PixelTDAQData.h"
-#include "PixelConditionsData/PixelByteStreamErrors.h"
+
 #include "PixelReadoutGeometry/IPixelReadoutManager.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "InDetReadoutGeometry/SiDetectorElementStatus.h"
 
-class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool{
+#include <string>
+#include <mutex>
+#include <tuple>
+#include <memory>
+#include <cstdint>//uint64_t
+#include <vector>
+#include <bitset>
+#include <limits>
+
+class PixelConditionsSummaryTool: public AthAlgTool, virtual public IDetectorElementStatusTool,virtual public IInDetConditionsTool {
   public:
     static InterfaceID& interfaceID();
 
@@ -61,6 +74,8 @@ class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool
     virtual bool isGood(const IdentifierHash& moduleHash, const Identifier& elementId, const EventContext& ctx) const override final;
     virtual double goodFraction(const IdentifierHash & moduleHash, const Identifier & idStart, const Identifier & idEnd, const EventContext& ctx) const override final;
 
+    virtual std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> getDetectorElementStatus(const EventContext& ctx) const override;
+
     virtual bool hasBSError(const IdentifierHash& moduleHash) const override final;
     virtual bool hasBSError(const IdentifierHash& moduleHash, Identifier pixid) const override final;
     virtual bool hasBSError(const IdentifierHash& moduleHash, const EventContext& ctx) const override final;
@@ -73,12 +88,14 @@ class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool
     bool checkChipStatus(IdentifierHash moduleHash, Identifier pixid, const EventContext& ctx) const;
 
   private:
-    const PixelID* m_pixelID;
+    const PixelID* m_pixelID{};
 
     std::vector<std::string> m_isActiveStatus;
     std::vector<std::string> m_isActiveStates;
     std::vector<int> m_activeState;
     std::vector<int> m_activeStatus;
+    unsigned int m_activeStateMask{};  ///< mask in which each state is represented by a bit and for states which are cnsidered active the corresponding bit is set;
+    unsigned int m_activeStatusMask{}; ///< mask in which each status is represented by a bit and for status values which are cnsidered active the corresponding bit is set;
 
     Gaudi::Property<bool> m_useByteStreamFEI4
     {this, "UseByteStreamFEI4", false, "Switch of the ByteStream error for FEI4"};
@@ -109,6 +126,14 @@ class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool
 
     SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey
     {this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
+
+    SG::ReadHandleKey<InDet::SiDetectorElementStatus> m_pixelDetElStatusEventKey
+       {this, "PixelDetElStatusEventDataBaseKey", "", "Optional event data key of an input SiDetectorElementStatus on which the newly created object will be based."};
+    SG::ReadCondHandleKey<InDet::SiDetectorElementStatus> m_pixelDetElStatusCondKey
+       {this, "PixelDetElStatusCondDataBaseKey", "" , "Optional conditions data key of an input SiDetectorElementStatus on which the newly created object will be based."};
+
+    Gaudi::Property< bool> m_activeOnly
+       {this, "ActiveOnly", false, "Module and chip status will only reflect whether the modules or chips are active not necessarily whether the signals are good."};
 
     const uint64_t m_missingErrorInfo{std::numeric_limits<uint64_t>::max()-3000000000};
 
@@ -142,6 +167,11 @@ class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool
      **/
     [[nodiscard]] IDCCacheEntry* getCacheEntry(const EventContext& ctx) const;
 
+   /** Create a new detector element status element container.
+    * Depending on the properties the container may be a copy of an event data or conditions data element status container.
+    */
+    std::tuple<std::unique_ptr<InDet::SiDetectorElementStatus>, EventIDRange> createDetectorElementStatus(const EventContext& ctx) const;
+
 };
 
 inline InterfaceID& PixelConditionsSummaryTool::interfaceID(){
@@ -153,7 +183,8 @@ inline bool PixelConditionsSummaryTool::checkChipStatus(IdentifierHash moduleHas
   std::bitset<16> chipStatus(SG::ReadCondHandle<PixelDeadMapCondData>(m_condDeadMapKey, ctx)->getChipStatus(moduleHash));
   if (chipStatus.any()) {
     Identifier moduleID = m_pixelID->wafer_id(pixid);
-    std::bitset<16> circ; circ.set(m_pixelReadout->getFE(pixid,moduleID));
+    std::bitset<16> circ; 
+    circ.set(m_pixelReadout->getFE(pixid,moduleID));
     if ((chipStatus&circ).any()) { return false; }
   }
   return true;

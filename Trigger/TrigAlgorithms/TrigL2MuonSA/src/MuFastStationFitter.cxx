@@ -95,12 +95,12 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::findSuperPoints(const TrigRoiDescr
 
     if (rpcFitResult.isSuccess) {
       //      itTrack->phiMSDir = rpcFitResult.phiDir;
-      itTrack.phiMSDir = (std::cos(rpcFitResult.phi)!=0)? std::tan(rpcFitResult.phi): 0;
+      itTrack.phiMSDir = (std::abs(std::cos(rpcFitResult.phi)) > ZERO_LIMIT)? std::tan(rpcFitResult.phi): 0;
     } else {
       if ( std::abs(muonRoad.extFtfMiddlePhi) > ZERO_LIMIT ) { //inside-out
-	itTrack.phiMSDir = (std::cos(muonRoad.extFtfMiddlePhi)!=0)? std::tan(muonRoad.extFtfMiddlePhi): 0;
+	itTrack.phiMSDir = (std::abs(std::cos(muonRoad.extFtfMiddlePhi)) > ZERO_LIMIT)? std::tan(muonRoad.extFtfMiddlePhi): 0;
       } else {
-	itTrack.phiMSDir = (std::cos(p_roids->phi())!=0)? std::tan(p_roids->phi()): 0;
+	itTrack.phiMSDir = (std::abs(std::cos(p_roids->phi())) > ZERO_LIMIT)? std::tan(p_roids->phi()): 0;
       }
       itTrack.isRpcFailure = true;
     }
@@ -128,10 +128,10 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::findSuperPointsSimple(const TrigRo
     if (tgcFitResult.isSuccess) {
       itTrack.phiMSDir = tgcFitResult.phiDir;
     } else {
-      if ( std::abs(muonRoad.extFtfMiddlePhi) > ZERO_LIMIT ) { //insideout
-	itTrack.phiMSDir = (std::cos(muonRoad.extFtfMiddlePhi)!=0)? std::tan(muonRoad.extFtfMiddlePhi): 0;
+      if ( std::abs(std::abs(muonRoad.extFtfMiddlePhi)) > ZERO_LIMIT ) { //insideout
+	itTrack.phiMSDir = (std::abs(std::cos(muonRoad.extFtfMiddlePhi)) > ZERO_LIMIT)? std::tan(muonRoad.extFtfMiddlePhi): 0;
       } else {
-	itTrack.phiMSDir = (std::cos(p_roids->phi())!=0)? std::tan(p_roids->phi()): 0;
+	itTrack.phiMSDir = (std::abs(std::cos(p_roids->phi())) > ZERO_LIMIT)? std::tan(p_roids->phi()): 0;
       }
       itTrack.isTgcFailure = true;
     }
@@ -161,7 +161,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::findSuperPoints(const TrigRoiDescr
     if (tgcFitResult.isSuccess) {
       itTrack.phiMSDir = tgcFitResult.phiDir;
     } else {
-      itTrack.phiMSDir = (std::cos(p_roids->phi())!=0)? std::tan(p_roids->phi()): 0;
+      itTrack.phiMSDir = (std::abs(std::cos(p_roids->phi())) > ZERO_LIMIT)? std::tan(p_roids->phi()): 0;
       itTrack.isTgcFailure = true;
     }
 
@@ -179,7 +179,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::findSuperPoints(const TrigRoiDescr
     double exInnerA = fromAlphaPtToInn(tgcFitResult,itTrack);
     double bw = muonRoad.bw[3][0];
     double aw = muonRoad.aw[3][0];
-    if(exInnerA !=0 ) updateInnSP(itTrack, exInnerA, aw,bw);
+    if(std::abs(exInnerA) > ZERO_LIMIT) updateInnSP(itTrack, exInnerA, aw,bw);
 
     if(!m_nswStationFitter.empty())
       ATH_CHECK( m_nswStationFitter->superPointFitter(p_roids, itTrack, stgcHits, mmHits) );
@@ -295,7 +295,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
        
        if (trackPattern.s_address == -1) { // Endcap
 
-         if (pbFitResult.ALIN!=0. ) {
+         if (std::abs(pbFitResult.ALIN) > ZERO_LIMIT) {
            superPoint->Z = rm;
            superPoint->R = (rm-Yor)/pbFitResult.ALIN - pbFitResult.BLIN/pbFitResult.ALIN + Xor;
            superPoint->Alin = 1./pbFitResult.ALIN;
@@ -438,7 +438,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
        
         superPoint->Npoint = pbFitResult.NPOI;
         if (trackPattern.s_address == -1) { // Endcap
-          if (pbFitResult.ALIN!=0. ) {
+          if (std::abs(pbFitResult.ALIN) > ZERO_LIMIT) {
             superPoint->Z = rm;
             superPoint->R = (rm-Yor)/pbFitResult.ALIN - pbFitResult.BLIN/pbFitResult.ALIN + Xor;
             superPoint->Alin = 1./pbFitResult.ALIN;
@@ -947,7 +947,7 @@ void TrigL2MuonSA::MuFastStationFitter::stationSPFit(TrigL2MuonSA::MdtHits*    m
 
     if (s_address == -1) { // Endcap
 
-      if (t_A[0]!=0. ) {
+      if (std::abs(t_A[0]) > ZERO_LIMIT ) {
         superPoint->Z = t_sum_Z[0];
         superPoint->R = t_A[0]*t_sum_Z[0]+t_B[0];
         superPoint->Alin =t_A[0];
@@ -963,7 +963,7 @@ void TrigL2MuonSA::MuFastStationFitter::stationSPFit(TrigL2MuonSA::MdtHits*    m
       for (int i=0;i<pbFitResult.NPOI;i++) superPoint->Residual[i] =  pbFitResult.RESI[i];
 
       for (int cand=0; cand<6; cand++) {
-        if (t_A[cand]!=0. ) {
+        if (std::abs(t_A[cand]) > ZERO_LIMIT ) {
           superPoint->SlopeCand[cand]     = t_A[cand];
           superPoint->InterceptCand[cand] = t_B[cand];
           superPoint->Chi2Cand[cand]      = t_Chi2[cand];
@@ -1011,7 +1011,7 @@ void TrigL2MuonSA::MuFastStationFitter::stationSPFit(TrigL2MuonSA::MdtHits*    m
         superPoint->Chi2   = Maxlayers_Chi2[0];
         superPoint->PChi2  = Maxlayers_PChi2;
         for (int cand=0; cand<6; cand++) {
-          if (Maxlayers_A[cand]!=0. ) {
+          if (std::abs(Maxlayers_A[cand]) > ZERO_LIMIT ) {
             superPoint->SlopeCand[cand]     = Maxlayers_A[cand];
             superPoint->InterceptCand[cand] = Maxlayers_B[cand];
             superPoint->Chi2Cand[cand]      = Maxlayers_Chi2[cand];
@@ -1084,19 +1084,19 @@ void TrigL2MuonSA::MuFastStationFitter::makeReferenceLine(TrigL2MuonSA::TrackPat
   float match_midA = 0.;
   float match_outA = 0.;
 
-  if (A_cand[middle][0] == 0. && A_cand[middle][1] == 0.) {
+  if (std::abs(A_cand[middle][0]) < ZERO_LIMIT && std::abs(A_cand[middle][1]) < ZERO_LIMIT) {
     spZ[middle]    = 0.;
     spR[middle]    = 0.;
     spChi2[middle] = 0.;
   }
 
-  if (A_cand[outer][0] == 0. && A_cand[outer][1] == 0.) {
+  if (std::abs(A_cand[outer][0]) < ZERO_LIMIT && std::abs(A_cand[outer][1]) < ZERO_LIMIT) {
     spZ[outer]    = 0.;
     spR[outer]    = 0.;
     spChi2[outer] = 0.;
   }
 
-  if (A_cand[middle][0] != 0. && A_cand[outer][0] == 0.) {
+  if (std::abs(A_cand[middle][0]) > ZERO_LIMIT && std::abs(A_cand[outer][0]) < ZERO_LIMIT) {
 
     best_diff = 1.e25;
     test_diff = 1.e25;
@@ -1116,16 +1116,16 @@ void TrigL2MuonSA::MuFastStationFitter::makeReferenceLine(TrigL2MuonSA::TrackPat
     }
   }
 
-  if(A_cand[outer][1]  != 0. && A_cand[outer][0]  != 0. && spA[outer] !=0.  && spZ[outer]  !=0. && spR[outer] !=0. &&
-     A_cand[middle][1] != 0. && A_cand[middle][0] != 0. && spA[middle]!=0.  && spZ[middle] !=0. && spR[middle] !=0.){
+  if(std::abs(A_cand[outer][1]) > ZERO_LIMIT && std::abs(A_cand[outer][0]) > ZERO_LIMIT && std::abs(spA[outer]) > ZERO_LIMIT && std::abs(spZ[outer]) > ZERO_LIMIT && std::abs(spR[outer]) > ZERO_LIMIT &&
+     std::abs(A_cand[middle][1]) > ZERO_LIMIT && std::abs(A_cand[middle][0]) > ZERO_LIMIT && std::abs(spA[middle]) > ZERO_LIMIT && std::abs(spZ[middle]) > ZERO_LIMIT && std::abs(spR[middle]) > ZERO_LIMIT){
     
     float sp_line = 0.;
-    if((spZ[outer]-spZ[middle]) !=0.) sp_line = (spR[outer]-spR[middle])/(spZ[outer]-spZ[middle]);
+    if(std::abs(spZ[outer]-spZ[middle]) > ZERO_LIMIT) sp_line = (spR[outer]-spR[middle])/(spZ[outer]-spZ[middle]);
 
     for (int t=0; t<2; ++t) {
       best_diff = 1.e25;
       test_diff = 1.e25;
-      if (sp_line!=0.) {
+      if (std::abs(sp_line)> ZERO_LIMIT) {
         for (int i=0; i<6; ++i) {
           if (t==0) test_diff = std::abs(A_cand[middle][i] - sp_line);
           else if (t==1) test_diff = std::abs(A_cand[outer][i] - sp_line);
@@ -1148,21 +1148,21 @@ void TrigL2MuonSA::MuFastStationFitter::makeReferenceLine(TrigL2MuonSA::TrackPat
     }
   }
 
-  if (spA[middle]!=0.) {
-    if (match_midA != 0.) {
+  if (std::abs(spA[middle]) > ZERO_LIMIT) {
+    if (std::abs(match_midA) > ZERO_LIMIT) {
       spA[middle] = match_midA;
-    } else if (rmatched != 0.) {
+    } else if (std::abs(rmatched) > ZERO_LIMIT) {
       spA[middle] = rmatched;
     }
 
-    if (match_outA != 0.) spA[outer] = match_outA;
+    if (std::abs(match_outA) > ZERO_LIMIT) spA[outer] = match_outA;
 
   }
 
   for (unsigned int i_station=4; i_station<MAX_STATION; i_station++) {
     if (i_station<4 || i_station>5) continue; // only loop for endcap Inner/Middle/Outer
     superPoint = &(trackPattern.superPoints[i_station]);
-    if(spA[i_station]!=0.){
+    if(std::abs(spA[i_station]) > ZERO_LIMIT){
       superPoint->Alin =spA[i_station];
       superPoint->Blin =spB[i_station];
       superPoint->Chi2 =spChi2[i_station];
@@ -1210,9 +1210,9 @@ double TrigL2MuonSA::MuFastStationFitter::fromAlphaPtToInn(TrigL2MuonSA::TgcFitR
   double mdtpT    = std::abs(tgcFitResult.tgcPT);
   double alpha_pt = std::abs(trackPattern.ptEndcapAlpha);
 
-  if (MiddleSlope!=0. && OuterSlope!=0.) {
+  if (std::abs(MiddleSlope) > ZERO_LIMIT && std::abs(OuterSlope) > ZERO_LIMIT) {
     mdtpT = alpha_pt;
-  } else if (std::abs(tgcFitResult.tgcPT)>=8.0 && MiddleSlope != 0.) {
+  } else if (std::abs(tgcFitResult.tgcPT)>=8.0 && std::abs(MiddleSlope) > ZERO_LIMIT) {
     mdtpT = alpha_pt;
   }
 
@@ -1244,7 +1244,7 @@ double TrigL2MuonSA::MuFastStationFitter::fromAlphaPtToInn(TrigL2MuonSA::TgcFitR
 
   delete muonSA;
 
-  if (extrInnerEta != 0.) {
+  if (std::abs(extrInnerEta) > ZERO_LIMIT) {
     theta = std::atan(std::exp(-std::abs(extrInnerEta)))*2.;
     naw = std::tan(theta)*(std::abs(extrInnerEta)/extrInnerEta);
   }
@@ -1582,13 +1582,13 @@ void TrigL2MuonSA::MuFastStationFitter::Circles (int Nmeas,float *XI,float *YI,f
       
   for (j=0;j<Nmeas;j++) {
     if (IG[j]>=1&&(WI[j]>=WIlim||Ngood<=3)) {
-      if (Ksign[0]==-1.) {
+      if (Ksign[0]==-1) {
         Ksign[0] = j;
-      } else if (Ksign[1]==-1.) {
+      } else if (Ksign[1]==-1) {
         Ksign[1] = j;
-      } else if(Ksign[2]==-1.) {
+      } else if(Ksign[2]==-1) {
         Ksign[2] = j;
-      } else if(Ksign[3]==-1.) {
+      } else if(Ksign[3]==-1) {
         Ksign[3] = j;
         Nbest    = 4;
       } else {
@@ -1756,7 +1756,7 @@ void TrigL2MuonSA::MuFastStationFitter::Xline (float *X,float *Y,float *W,int *I
   
     Deter  = S1 * SXX - SX * SX;
   
-    if (Deter!=0.) {
+    if (std::abs(Deter) > ZERO_LIMIT) {
         *A      = (S1 * SXY - SX * SY)  / Deter;
         *B      = (SY * SXX - SX * SXY) / Deter;
         *SAA    =   S1  / Deter;
@@ -1825,13 +1825,13 @@ void TrigL2MuonSA::MuFastStationFitter::Xline (float *X,float *Y,float *W,int *I
   for (j=0;j<Nmeas;j++) {
     if (IG[j]>=1&&(WI[j]>=WIlim||Ngood<=3)) {
 
-      if (Ksign[0]==-1.) {
+      if (Ksign[0]==-1) {
         Ksign[0] = j;
-      } else if (Ksign[1]==-1.) {
+      } else if (Ksign[1]==-1) {
         Ksign[1] = j;
-      } else if (Ksign[2]==-1.) {
+      } else if (Ksign[2]==-1) {
         Ksign[2] = j;
-      } else if(Ksign[3]==-1.) {
+      } else if(Ksign[3]==-1) {
         Ksign[3] = j;
         Nbest    = 4;
       } else {

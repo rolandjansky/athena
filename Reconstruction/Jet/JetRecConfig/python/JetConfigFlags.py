@@ -6,7 +6,7 @@ def createJetConfigFlags():
     flags = AthConfigFlags()
 
     flags.addFlag("Jet.doUpstreamDependencies", False)
-
+    flags.addFlag("Jet.WriteToAOD", False)
 
     return flags
 

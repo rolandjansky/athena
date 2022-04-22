@@ -28,7 +28,7 @@ class ForwardTransportFast: public::AthAlgorithm {
  private:
   
   ServiceHandle<IPartPropSvc>         m_partPropSvc;
-  HepPDT::ParticleDataTable*          m_pdt;
+  HepPDT::ParticleDataTable*          m_pdt = nullptr;
   ServiceHandle<IForwardTransportSvc> m_fwdSvc;
   ForwardTrack                        m_fwdTrack;
 }; 

@@ -26,8 +26,8 @@ class iGeant4:
     svcMgr += G4_DDDBEnvelopeDefSvc
 
     # configure Geant4SimSvc
-    from ISF_Geant4Services.ISF_Geant4ServicesConf import iGeant4__Geant4SimSvc
-    Geant4SimService = iGeant4__Geant4SimSvc(name, **kwargs)
+    from AthenaCommon import CfgMgr
+    Geant4SimService = CfgMgr.iGeant4__Geant4SimSvc(name, **kwargs)
 
     # DEBUG: dump Geant4SimService
     print (Geant4SimService)

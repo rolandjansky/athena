@@ -13,6 +13,7 @@ Reco_tf.py --CA \
   --steering "doRAWtoALL" \
   --outputAODFile myAOD_ca.pool.root \
   --outputESDFile myESD_ca.pool.root \
+  --preExec "all:from AthenaConfiguration.AllConfigFlags import ConfigFlags; ConfigFlags.Jet.WriteToAOD=True; ConfigFlags.MET.WritetoAOD=True" \
   --imf="False" \
   --maxEvents 100
 
@@ -28,6 +29,7 @@ Reco_tf.py \
   --steering "doRAWtoALL" \
   --outputAODFile myAOD_def.pool.root \
   --outputESDFile myESD_def.pool.root \
+  --preExec "all:from JetRec.JetRecFlags import jetFlags; jetFlags.writeJetsToAOD.set_Value_and_Lock(True); from METReconstruction.METRecoFlags import metFlags; metFlags.WriteMETAssocToOutput.set_Value_and_Lock(True);" \
   --imf="False" \
   --maxEvents 100
 

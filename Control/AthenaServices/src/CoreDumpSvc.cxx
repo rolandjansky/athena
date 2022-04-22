@@ -207,6 +207,7 @@ namespace CoreDumpSvcHandler
       }
 
       if (dumpCoreFile) {
+        log() << "Aborting job... " << std::endl;
         // Restore default abort handler that should create a core file
         Athena::Signal::revert (SIGABRT);
         std::abort();
@@ -366,8 +367,12 @@ void CoreDumpSvc::setCoreDumpInfo( const EventContext& ctx, const std::string& n
 //----------------------------------------------------------------------
 void CoreDumpSvc::print ATLAS_NOT_THREAD_SAFE ()
 {
-  ATH_MSG_FATAL("Caught fatal signal. Printing details to " << m_coreDumpStream.value() <<
-                (m_dumpCoreFile ? ". Will try to produce a core dump file on exit." : "."));
+  // Print a FATAL message but don't use the MsgStream anymore once we crashed
+  CoreDumpSvcHandler::log() << name() << "   FATAL Caught fatal signal. Printing details to "
+                            << m_coreDumpStream.value()
+                            << (m_dumpCoreFile ? ". Will try to produce a core dump file on exit." : ".")
+                            << std::endl;
+
   CoreDumpSvcHandler::log() << dump() << std::flush;
 }
 

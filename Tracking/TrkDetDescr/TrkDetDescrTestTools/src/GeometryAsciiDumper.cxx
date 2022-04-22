@@ -34,7 +34,7 @@ Trk::GeometryAsciiDumper::GeometryAsciiDumper(const std::string& t, const std::s
 
 // destructor
 Trk::GeometryAsciiDumper::~GeometryAsciiDumper()
-{}
+= default;
 
 
 StatusCode Trk::GeometryAsciiDumper::initialize()

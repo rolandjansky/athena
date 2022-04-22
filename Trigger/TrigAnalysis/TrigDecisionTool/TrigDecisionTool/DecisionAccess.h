@@ -247,7 +247,8 @@ namespace Trig {
 
   private:
 
-    virtual Trig::CacheGlobalMemory* cgm() const =0; 
+    virtual Trig::CacheGlobalMemory* cgm() = 0;
+    virtual const Trig::CacheGlobalMemory* cgm() const = 0;
 
     //    template<class T> 
     //    const T* getL1RoI(const std::vector<T>& rois, unsigned int id) const;

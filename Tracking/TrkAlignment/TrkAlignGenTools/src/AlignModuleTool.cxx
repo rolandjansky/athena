@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -38,9 +38,7 @@ namespace Trk {
 
   //________________________________________________________________________
   AlignModuleTool::~AlignModuleTool()
-  {
-
-  }
+  = default;
 
   //________________________________________________________________________
   StatusCode AlignModuleTool::initialize()

@@ -5,8 +5,6 @@
 ## @author Sebastien Binet <binet@cern.ch>
 ###############################################################
 
-from __future__ import print_function
-
 def _setupAtlasUnixStandardJob():
     from .AppMgr import theApp
     from .AppMgr import ServiceMgr as svcMgr

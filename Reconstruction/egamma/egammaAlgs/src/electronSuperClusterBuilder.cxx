@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "electronSuperClusterBuilder.h"
@@ -26,7 +26,8 @@ electronSuperClusterBuilder::electronSuperClusterBuilder(
   : egammaSuperClusterBuilderBase(name, pSvcLocator)
   , m_maxDelEta(m_maxDelEtaCells * s_cellEtaSize * 0.5)
   , m_maxDelPhi(m_maxDelPhiCells * s_cellPhiSize * 0.5)
-{}
+{
+}
 
 StatusCode
 electronSuperClusterBuilder::initialize()
@@ -78,12 +79,17 @@ electronSuperClusterBuilder::execute(const EventContext& ctx) const
     m_electronSuperRecCollectionKey, ctx);
   ATH_CHECK(newEgammaRecs.record(std::make_unique<EgammaRecContainer>()));
 
+  size_t inputSize = egammaRecs->size();
+  outputClusterContainer->reserve(inputSize);
+  newEgammaRecs->reserve(inputSize);
+
   std::optional<SG::WriteHandle<xAOD::CaloClusterContainer>> precorrClustersH;
   if (!m_precorrClustersKey.empty()) {
     precorrClustersH.emplace(m_precorrClustersKey, ctx);
     ATH_CHECK(precorrClustersH->record(
       std::make_unique<xAOD::CaloClusterContainer>(),
       std::make_unique<xAOD::CaloClusterAuxContainer>()));
+    precorrClustersH->ptr()->reserve(inputSize);
   }
 
   // The calo Det Descr manager
@@ -93,11 +99,20 @@ electronSuperClusterBuilder::execute(const EventContext& ctx) const
   ATH_CHECK(caloDetDescrMgrHandle.isValid());
   const CaloDetDescrManager* calodetdescrmgr = *caloDetDescrMgrHandle;
 
-  // Reserve a vector to keep track of what is used
-  std::vector<bool> isUsed(egammaRecs->size(), false);
-  std::vector<bool> isUsedRevert(egammaRecs->size(), false);
+  // If no input return
+  if (egammaRecs->empty()) {
+    return StatusCode::SUCCESS;
+  }
+
+  // Figure the cellCont we need to point to
+  const DataLink<CaloCellContainer>& cellCont =
+    (*egammaRecs)[0]->caloCluster()->getCellLinks()->getCellContainerLink();
+
   // Loop over input egammaRec objects, build superclusters.
-  for (std::size_t i = 0; i < egammaRecs->size(); ++i) {
+  size_t numInput = egammaRecs->size();
+  std::vector<bool> isUsed(numInput, false);
+  std::vector<bool> isUsedRevert(numInput, false);
+  for (std::size_t i = 0; i < numInput; ++i) {
 
     if (isUsed[i]) {
       continue;
@@ -135,8 +150,9 @@ electronSuperClusterBuilder::execute(const EventContext& ctx) const
     if (nSiHits < m_numberOfSiHits) {
       continue;
     }
-    // Mark seed as used
-    isUsedRevert = isUsed; // save status in case we fail to create supercluster
+    // save status in case we fail to create supercluster
+    isUsedRevert = isUsed;
+    // Mark seed as used,
     isUsed[i] = true;
 
     // Start accumulating the clusters from the seed
@@ -144,32 +160,32 @@ electronSuperClusterBuilder::execute(const EventContext& ctx) const
     accumulatedClusters.push_back(clus);
 
     // Now we find all the secondary cluster for this seed
+    // and we accumulate them
     const std::vector<std::size_t> secondaryIndices =
       searchForSecondaryClusters(i, egammaRecs.cptr(), isUsed);
-
     for (const auto& secClusIndex : secondaryIndices) {
       const auto* const secRec = (*egammaRecs)[secClusIndex];
       accumulatedClusters.push_back(secRec->caloCluster());
     }
-
     ATH_MSG_DEBUG("Total clusters " << accumulatedClusters.size());
 
-    // Create the new cluster: take the full list of cluster and add their
-    // cells together
+    // Create the new cluster
     bool clusterAdded =
       createNewCluster(ctx,
                        accumulatedClusters,
+                       cellCont,
                        *calodetdescrmgr,
                        xAOD::EgammaParameters::electron,
                        outputClusterContainer.ptr(),
                        precorrClustersH ? precorrClustersH->ptr() : nullptr);
+
+    // If we failed to create a cluster revert isUsed for the cluster
     if (!clusterAdded) {
-      // Revert status of constituent clusters.
       isUsed.swap(isUsedRevert);
       continue;
     }
 
-    // Add the cluster link to the super cluster
+    // Add the cluster links to the super cluster
     ElementLink<xAOD::CaloClusterContainer> clusterLink(
       *outputClusterContainer, outputClusterContainer->size() - 1, ctx);
     std::vector<ElementLink<xAOD::CaloClusterContainer>> elClusters{

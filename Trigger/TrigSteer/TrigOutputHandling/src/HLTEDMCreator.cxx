@@ -106,6 +106,18 @@ StatusCode HLTEDMCreator::initialize()
   INIT_XAOD( AFPProtonContainer );
   INIT_XAOD( AFPVertexContainer );
 
+  // Phase-I L1 RoIs EDM
+  INIT_XAOD( eFexEMRoIContainer );
+  INIT_XAOD( eFexTauRoIContainer );
+  INIT_XAOD( jFexTauRoIContainer );
+  INIT_XAOD( jFexSRJetRoIContainer );
+  INIT_XAOD( jFexLRJetRoIContainer );
+  INIT_XAOD( jFexMETRoIContainer );
+  INIT_XAOD( jFexSumETRoIContainer );
+  INIT_XAOD( gFexJetRoIContainer );
+  INIT_XAOD( gFexGlobalRoIContainer );
+  INIT_XAOD( MuonRoIContainer );
+
 #undef INIT
 #undef INIT_XAOD
 
@@ -408,6 +420,18 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
   CREATE_XAOD( AFPToFTrackContainer, AFPToFTrackAuxContainer );
   CREATE_XAOD( AFPProtonContainer, AFPProtonAuxContainer );
   CREATE_XAOD( AFPVertexContainer, AFPVertexAuxContainer );
+
+  // Phase-I L1 RoIs EDM
+  CREATE_XAOD( eFexEMRoIContainer, eFexEMRoIAuxContainer );
+  CREATE_XAOD( eFexTauRoIContainer, eFexTauRoIAuxContainer );
+  CREATE_XAOD( jFexTauRoIContainer, jFexTauRoIAuxContainer );
+  CREATE_XAOD( jFexSRJetRoIContainer, jFexSRJetRoIAuxContainer );
+  CREATE_XAOD( jFexLRJetRoIContainer, jFexLRJetRoIAuxContainer );
+  CREATE_XAOD( jFexMETRoIContainer, jFexMETRoIAuxContainer );
+  CREATE_XAOD( jFexSumETRoIContainer, jFexSumETRoIAuxContainer );
+  CREATE_XAOD( gFexJetRoIContainer, gFexJetRoIAuxContainer );
+  CREATE_XAOD( gFexGlobalRoIContainer, gFexGlobalRoIAuxContainer);
+  CREATE_XAOD( MuonRoIContainer, MuonRoIAuxContainer );
 
   // After view collections are merged, need to update collection links
   ATH_CHECK( fixLinks() );

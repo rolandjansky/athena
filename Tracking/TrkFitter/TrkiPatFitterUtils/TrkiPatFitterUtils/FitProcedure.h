@@ -116,7 +116,7 @@ public:
                int maxIterations = 25,
                int useStepPropagator = 0);
 
-  ~FitProcedure(void); // destructor
+  ~FitProcedure(void) = default; // destructor
   // forbidden copy constructor
   // forbidden assignment operator
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <sstream>
@@ -812,8 +812,8 @@ TriggerElement::FeatureAccessHelper TrigNavStructure::getFeature(const TriggerEl
 
 
   TriggerElement::FeatureVec features;
-  bool single = true; bool cache_rec = false; bool recursively = false;
-  bool status = getFeatureAccessors(te, clid,index_or_label,single,features,cache_rec, recursively);
+  bool single = true; bool recursively = false;
+  bool status = getFeatureAccessors(te, clid,index_or_label,single,features,recursively);
 
   if(status && !features.empty()){
     return features.front();
@@ -826,8 +826,8 @@ TriggerElement::FeatureAccessHelper TrigNavStructure::getFeatureRecursively(cons
 									    const index_or_label_type& index_or_label, const TriggerElement*& sourceTE) const {  
 
   TriggerElement::FeatureVec features;
-  bool single = true; bool cache_rec = false; bool recursively = true;
-  bool status = getFeatureAccessors(startTE, clid,index_or_label,single,features,cache_rec, recursively,sourceTE);
+  bool single = true; bool recursively = true;
+  bool status = getFeatureAccessors(startTE, clid,index_or_label,single,features,recursively,sourceTE);
 
   if(status && !features.empty()){
     return features.front();
@@ -839,16 +839,12 @@ bool TrigNavStructure::getFeatureAccessorsSingleTE( const TriggerElement* te, cl
 						    const index_or_label_type& index_or_label,
 						    bool only_single_feature,
 						    TriggerElement::FeatureVec& features,
-						    bool with_cache_recording,
 						    const TriggerElement*& source,
 						    std::string& sourcelabel ) const {
 
   // ATH_MSG_VERBOSE("getFeatureAccessorsSingleTE: looking for:" << (only_single_feature ? "one object" : "many objects" ) << " of CLID: " << clid
   // 		  << " label: \"" << label << "\"" << " starting from TE: " << te->getId());
 
-  //remove unused warning
-  (void)(with_cache_recording);
-  
   int size = te->getFeatureAccessHelpers().size();
   
   // loop the feature access helper in order depending of type of request (i.e. if single featyure needed then loop from back, if all then loop from the front)
@@ -875,12 +871,11 @@ bool TrigNavStructure::getFeatureAccessors( const TriggerElement* te, class_id_t
 					    const index_or_label_type& index_or_label,
 					    bool only_single_feature,
 					    TriggerElement::FeatureVec& features,
-					    bool with_cache_recording,
 					    bool travel_backward_recursively,
 					    const TriggerElement*& source,
 					    std::string& sourcelabel ) const {
 
-  bool singleTEstatus = getFeatureAccessorsSingleTE(te,clid,index_or_label,only_single_feature,features,with_cache_recording,source,sourcelabel);
+  bool singleTEstatus = getFeatureAccessorsSingleTE(te,clid,index_or_label,only_single_feature,features,source,sourcelabel);
 
    if(!singleTEstatus){
      // MLOG(WARNING) << "getFeatureAccessorsSingleTE() returned false" << endmsg;
@@ -909,9 +904,9 @@ bool TrigNavStructure::getFeatureAccessors( const TriggerElement* te, class_id_t
     TriggerElement::FeatureVec features_in_branch;
 
     recursion_status = recursion_status && getFeatureAccessors( predecessor, clid, index_or_label,
-								only_single_feature, features_in_branch,
-                                                                with_cache_recording, travel_backward_recursively,
-								source, sourcelabel);
+                                                                only_single_feature, features_in_branch,
+                                                                travel_backward_recursively,
+                                                                source, sourcelabel);
     features.insert(features.end(),  features_in_branch.begin(), features_in_branch.end());
   }
     

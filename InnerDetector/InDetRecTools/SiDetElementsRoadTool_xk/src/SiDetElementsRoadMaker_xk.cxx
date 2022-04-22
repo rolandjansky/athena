@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -516,7 +516,7 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
 }
 
 /// obtain an event usage tracker object 
-void InDet::SiDetElementsRoadMaker_xk::bookUsageTracker(InDet::SiDetElementRoadMakerData_xk & data, const SiDetElementsLayerVectors_xk &layers) const{
+void InDet::SiDetElementsRoadMaker_xk::bookUsageTracker(InDet::SiDetElementRoadMakerData_xk & data, const SiDetElementsLayerVectors_xk &layers) {
 
     /// book sufficient space
     /// module_i: iterate over the detector side 
@@ -756,7 +756,7 @@ void InDet::SiDetElementsRoadMaker_xk::computeBounds()
 ///////////////////////////////////////////////////////////////////
 
 float InDet::SiDetElementsRoadMaker_xk::stepToDetElement
-(const InDetDD::SiDetectorElement*& de, Amg::Vector3D& r, Amg::Vector3D& a) const
+(const InDetDD::SiDetectorElement*& de, Amg::Vector3D& r, Amg::Vector3D& a) 
 {
   Amg::Vector3D R = de->center();
   Amg::Vector3D A = de->normal();

@@ -13,6 +13,7 @@ find_package( XercesC )
 # Component(s) in the package:
 atlas_add_library( MCTruth
                    src/*.cxx
+                   OBJECT
                    PUBLIC_HEADERS MCTruth
                    INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
                    DEFINITIONS ${CLHEP_DEFINITIONS}

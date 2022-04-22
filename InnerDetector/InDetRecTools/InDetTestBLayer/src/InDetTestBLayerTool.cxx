@@ -12,6 +12,7 @@
 #include "InDetTestBLayer/TrackStateOnBLayerInfo.h"
 #include "Particle/TrackParticle.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelFEUtils.h"
 #include "TrkGeometry/Layer.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkSurfaces/CylinderSurface.h"
@@ -50,7 +51,7 @@ InDetTestBLayerTool::InDetTestBLayerTool(const std::string& name,
   declareProperty("GoodFracCut", m_goodFracCut = 0.5);
 }
 
-InDetTestBLayerTool::~InDetTestBLayerTool() {}
+InDetTestBLayerTool::~InDetTestBLayerTool() = default;
 
 StatusCode
 InDetTestBLayerTool::initialize()
@@ -86,16 +87,13 @@ InDetTestBLayerTool::initialize()
   }
 
   // Get PixelConditionsSummaryTool
-  if (m_pixelCondSummaryTool.empty()) {
-    ATH_MSG_INFO("PixelConditionsSummary not configured ");
-    m_configured = false;
-  } else {
-    if (m_pixelCondSummaryTool.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Failed to retrieve tool " << m_pixelCondSummaryTool);
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_INFO("Retrieved tool " << m_pixelCondSummaryTool);
-    }
+  ATH_CHECK( m_pixelCondSummaryTool.retrieve( DisableTool { m_pixelCondSummaryTool.empty() || (!m_pixelDetElStatus.empty() && !VALIDATE_STATUS_ARRAY_ACTIVATED)}) );
+  ATH_CHECK( m_pixelDetElStatus.initialize( !m_pixelDetElStatus.empty()) );
+  if (!m_pixelDetElStatus.empty()) {
+     ATH_CHECK( m_pixelReadout.retrieve() );
+  }
+  if (m_pixelDetElStatus.empty() && m_pixelCondSummaryTool.empty()) {
+     m_configured=false;
   }
 
   if (!m_configured) {
@@ -212,14 +210,17 @@ InDet::InDetTestBLayerTool::expectHitInPixelLayer(
   std::vector<std::unique_ptr<const Trk::TrackParameters>> blayerParam;
   if (!this->getPixelLayerParameters(ctx, trackpar, blayerParam, layer))
     return false;
+  SG::ReadHandle<InDet::SiDetectorElementStatus> pixelDetElStatus(getPixelDetElStatus(ctx));
 
   for (std::unique_ptr<const Trk::TrackParameters>& p : blayerParam) {
 
     Identifier id =
       p->associatedSurface().associatedDetectorElement()->identify();
 
-    if (m_pixelCondSummaryTool->isGood(
-          id, InDetConditions::PIXEL_MODULE, ctx)) {
+    VALIDATE_STATUS_ARRAY(!m_pixelDetElStatus.empty(),pixelDetElStatus->isGood(p->associatedSurface().associatedDetectorElement()->identifyHash()), m_pixelCondSummaryTool->isGood(id, InDetConditions::PIXEL_MODULE, ctx));
+    
+    if (   (!m_pixelDetElStatus.empty() && pixelDetElStatus->isGood(p->associatedSurface().associatedDetectorElement()->identifyHash()))
+        || ( m_pixelDetElStatus.empty() && m_pixelCondSummaryTool->isGood(id, InDetConditions::PIXEL_MODULE, ctx))) {
 
       if (m_checkActiveAreas) {
 
@@ -228,7 +229,7 @@ InDet::InDetTestBLayerTool::expectHitInPixelLayer(
           if (m_checkDeadRegions) {
 
             double fracGood =
-              getFracGood(p.get(), m_phiRegionSize, m_etaRegionSize);
+              getFracGood(p.get(), m_phiRegionSize, m_etaRegionSize, !m_pixelDetElStatus.empty() ? pixelDetElStatus.cptr() : nullptr);
             if (fracGood > m_goodFracCut) {
               ATH_MSG_DEBUG("Condition Summary: " << layer_name << " good");
               expect_hit =
@@ -384,11 +385,13 @@ InDet::InDetTestBLayerTool::getTrackStateOnPixelLayerInfo(
   if (!getPixelLayerParameters(trackpar, blayerParam, layer))
     return false;
 
+  SG::ReadHandle<InDet::SiDetectorElementStatus> pixelDetElStatus(getPixelDetElStatus((Gaudi::Hive::currentContext())));
+  
   for (std::unique_ptr<const Trk::TrackParameters>& trkParam : blayerParam) {
     TrackStateOnBLayerInfo blayerInfo;
 
     double fracGood =
-      getFracGood(trkParam.get(), m_phiRegionSize, m_etaRegionSize);
+      getFracGood(trkParam.get(), m_phiRegionSize, m_etaRegionSize,!m_pixelDetElStatus.empty() ? pixelDetElStatus.cptr() : nullptr);
     blayerInfo.goodFraction(fracGood);
 
     Identifier id;
@@ -446,13 +449,15 @@ InDet::InDetTestBLayerTool::getTrackStateOnPixelLayerInfo(
     blayerInfo.errLocalX(error_locx);
     blayerInfo.errLocalY(error_locy);
 
-    bool isgood =
-      m_pixelCondSummaryTool->isGood(id, InDetConditions::PIXEL_MODULE);
+    VALIDATE_STATUS_ARRAY(!m_pixelDetElStatus.empty(),pixelDetElStatus->isGood(trkParam->associatedSurface().associatedDetectorElement()->identifyHash()), m_pixelCondSummaryTool->isGood(id, InDetConditions::PIXEL_MODULE));
+
+    bool isgood =!m_pixelDetElStatus.empty()
+            ? pixelDetElStatus->isGood(trkParam->associatedSurface().associatedDetectorElement()->identifyHash())
+            : m_pixelCondSummaryTool->isGood(id, InDetConditions::PIXEL_MODULE);
 
     //defaults would be phitol = 2.5, etatol = 5.
     double phitol = 3. * std::sqrt((*trkParam->covariance())(Trk::locX, Trk::locX));
     double etatol = 3. * std::sqrt((*trkParam->covariance())(Trk::locY, Trk::locY));
-    
 
     bool isIn = true;
     if (sielem) {
@@ -533,7 +538,8 @@ InDet::InDetTestBLayerTool::getPixelLayerParameters
 double
 InDet::InDetTestBLayerTool::getFracGood(const Trk::TrackParameters* trkParam,
                                         double phiRegionSize,
-                                        double etaRegionSize) const
+                                        double etaRegionSize,
+                                        const InDet::SiDetectorElementStatus *pixelDetElStatus) const
 {
 
   Identifier moduleid;
@@ -548,7 +554,9 @@ InDet::InDetTestBLayerTool::getFracGood(const Trk::TrackParameters* trkParam,
 
   IdentifierHash id_hash = m_pixelId->wafer_hash(moduleid);
 
-  if (!m_pixelCondSummaryTool->isGood(id_hash)) {
+  VALIDATE_STATUS_ARRAY(pixelDetElStatus, pixelDetElStatus->isGood(id_hash), m_pixelCondSummaryTool->isGood(id_hash));
+
+  if (!(pixelDetElStatus ? pixelDetElStatus->isGood(id_hash) : m_pixelCondSummaryTool->isGood(id_hash))) {
     ATH_MSG_WARNING("Invalid Hash");
     return 0.;
   }
@@ -621,7 +629,12 @@ InDet::InDetTestBLayerTool::getFracGood(const Trk::TrackParameters* trkParam,
       ATH_MSG_WARNING("unvalid identifier: locPos outside module! ");
       return 0.;
     }
-    double frac = m_pixelCondSummaryTool->goodFraction(id_hash, startId, endId);
+
+    double frac = (pixelDetElStatus
+                   ? Pixel::getGoodFraction(*pixelDetElStatus, *m_pixelReadout, *m_pixelId, moduleid, id_hash, startId, endId)
+                   : m_pixelCondSummaryTool->goodFraction(id_hash, startId, endId) );
+    VALIDATE_STATUS_ARRAY(pixelDetElStatus,frac, m_pixelCondSummaryTool->goodFraction(id_hash, startId, endId));
+
     return frac;
   } else {
     ATH_MSG_WARNING(" SiDetectorElement not found in TrackParameters");

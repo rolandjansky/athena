@@ -22,11 +22,13 @@ Trk::EventCnvSuperTool::EventCnvSuperTool(
     m_haveMuonCnvTool(false), // Will be set to true on retrieval
     m_doMuons(true),
     m_doID(true),
+    m_doTrackOverlay(false),
     m_errCount(0),
     m_maxErrCount(10)
 {
     declareProperty("DoMuons",m_doMuons, "If true (default), attempt to retrieve Muon helper tool and convert Muon objects.");
     declareProperty("DoID",m_doID, "If true (default), attempt to retrieve Inner Detector helper tool and convert ID objects.");
+    declareProperty("DoTrackOverlay",m_doTrackOverlay,"If true, ID on-track conversion tools will look for background PRD collections");
     declareProperty("MaxErrorCount", m_maxErrCount, "Maximum number of errors that will be reported");
 }
 
@@ -80,7 +82,7 @@ Trk::EventCnvSuperTool::initialize(){
         msg(MSG::WARNING) << "Failed to retrieve either and InDet or a Muon tool. Will not be able to recreate surfaces / detector elements."<< endmsg;
         m_maxErrCount=0; // No point in further WARNINGs
     }
-    
+
     return StatusCode::SUCCESS;
 }
 
@@ -98,7 +100,6 @@ Trk::EventCnvSuperTool::getCnvTool(const Identifier& id) const {
 
     if(m_detID->is_indet(id))
     {
-        //std::cout<<"Trk::EventCnvSuperTool::getCnvTool = ID"<<std::endl;
         if (m_haveIdCnvTool )
         {
             return &(*m_idCnvTool);
@@ -111,7 +112,6 @@ Trk::EventCnvSuperTool::getCnvTool(const Identifier& id) const {
     }else{
         if(m_detID->is_muon(id) )
         {
-            //std::cout<<"Trk::EventCnvSuperTool::getCnvTool = Muon"<<std::endl;
             if (m_haveMuonCnvTool)
             {
                 return &(*m_muonCnvTool);

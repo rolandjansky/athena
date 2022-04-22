@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @file TauCommonDetails.cxx
@@ -13,7 +13,6 @@
 ///
 ///  Created by Thomas Burgess on 2008-10-20.
 ///
-///  $Id: TauCommonDetails.cxx,v 1.5 2009-05-20 13:10:37 slai Exp $
 
 //TauEvent includes
 #include "tauEvent/TauCmp.h"
@@ -542,7 +541,7 @@ namespace Analysis {
     }
 
     //Class name
-    std::string TauCommonDetails::s_className = ClassName<TauCommonDetails>::name();
+    const std::string TauCommonDetails::s_className = ClassName<TauCommonDetails>::name();
 
     const std::string& TauCommonDetails::className() const
     {

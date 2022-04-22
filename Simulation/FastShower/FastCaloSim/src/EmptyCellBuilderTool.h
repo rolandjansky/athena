@@ -6,17 +6,18 @@
 #define FASTCALOSIM_EMPTYCELLBUILDERTOOL_H
 
 /**
- * @file   CellBuilderTool.cxx
- * @class  CellBuilderTool
+ * @file   EmptyCellBuilderTool.h
+ * @class  EmptyCellBuilderTool
  * @brief  Building Cells objects from Atlfast
  * @author Michael Duehrssen 
  */
 
-#include "FastCaloSim/BasicCellBuilderTool.h"
+#include "CaloInterface/ICaloCellMakerTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
-class EmptyCellBuilderTool: public BasicCellBuilderTool
+class EmptyCellBuilderTool: public extends<AthAlgTool, ICaloCellMakerTool>
 {
 public:    
   EmptyCellBuilderTool(const std::string& type, 

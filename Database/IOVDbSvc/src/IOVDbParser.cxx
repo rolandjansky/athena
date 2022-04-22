@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // IOVDbParser.cxx
@@ -10,7 +10,6 @@
 #include "IOVDbStringFunctions.h"
 
 IOVDbParser::IOVDbParser(std::string_view input, MsgStream& log) :
-  m_msg(log),
   m_valid(true)
 {
   // parse the input string as XML, decode into Key/Value pairs
@@ -34,7 +33,7 @@ IOVDbParser::IOVDbParser(std::string_view input, MsgStream& log) :
       std::string::size_type iofs3=input.find("/>",iofs1);
       bool noClosingTag = (iofs2 == std::string::npos);
       if (noClosingTag){
-        m_msg << MSG::FATAL << 
+        log << MSG::FATAL << 
             "Badly formed XML string, no closing tag in " << input << endmsg;
         m_valid=false;
         iofs=std::string::npos;
@@ -51,7 +50,7 @@ IOVDbParser::IOVDbParser(std::string_view input, MsgStream& log) :
           // advance to the next part of the string, after '>' on closing tag
           iofs=input.find('>',iofs4);
           if (iofs == std::string::npos) {
-            m_msg << MSG::FATAL << 
+            log << MSG::FATAL << 
               "Badly formed XML string, no closing tag in " << input << endmsg;
             m_valid=false;
             iofs=std::string::npos;
@@ -60,7 +59,7 @@ IOVDbParser::IOVDbParser(std::string_view input, MsgStream& log) :
             iofs+=1;
           }          
         } else {
-          m_msg << MSG::FATAL << 
+          log << MSG::FATAL << 
             "Badly formed XML string, no closing tag in " << input << endmsg;
           m_valid=false;
           iofs=std::string::npos;
@@ -83,7 +82,7 @@ IOVDbParser::IOVDbParser(std::string_view input, MsgStream& log) :
         iofs=iofs3+2;
       } else {
         // found a < but no closing >
-        m_msg << MSG::FATAL << "Badly formed XML string, no closing > in input " <<
+        log << MSG::FATAL << "Badly formed XML string, no closing > in input " <<
           input << endmsg;
         iofs=std::string::npos;
         m_valid=false;
@@ -96,10 +95,10 @@ IOVDbParser::IOVDbParser(std::string_view input, MsgStream& log) :
     }
   }
   this->clean(); //rectify obsolete key names
-  if (m_msg.level()<=MSG::VERBOSE) {
-    m_msg << MSG::VERBOSE << "parseXML processed input string: " << input << endmsg;
+  if (log.level()<=MSG::VERBOSE) {
+    log << MSG::VERBOSE << "parseXML processed input string: " << input << endmsg;
     for (KeyValMap::const_iterator itr=m_keys.begin();itr!=m_keys.end();++itr) {
-      m_msg << MSG::VERBOSE << "Key: " << itr->first << " value:" << 
+      log << MSG::VERBOSE << "Key: " << itr->first << " value:" << 
       itr->second << endmsg;
     }
   }
@@ -188,16 +187,16 @@ IOVDbParser::extensible() const{
 
 
 CLID 
-IOVDbParser::classId() const{
+IOVDbParser::classId(MsgStream& msg) const{
   CLID result{};
   auto [addrHeader,foundHeader]=at("addrHeader");
   if (foundHeader) {
     IOVDbNamespace::replaceServiceType71(addrHeader);
-    m_msg << MSG::DEBUG <<"Decode addrHeader "<< addrHeader << endmsg;
-    IOVDbParser addrH(addrHeader,m_msg);
+    msg << MSG::DEBUG <<"Decode addrHeader "<< addrHeader << endmsg;
+    IOVDbParser addrH(addrHeader,msg);
     if (auto addrPair=addrH.at("address_header");addrPair.second) {
       result = IOVDbNamespace::parseClid(addrPair.first);
-      m_msg << MSG::DEBUG << "Got CLID " << result << " from " << addrPair.first << endmsg;
+      msg << MSG::DEBUG << "Got CLID " << result << " from " << addrPair.first << endmsg;
     }
   }
   return result;
@@ -261,19 +260,19 @@ IOVDbParser::operator==(const IOVDbParser& other) const {
 }
 
 bool 
-IOVDbParser::overridesIov() const{
+IOVDbParser::overridesIov(MsgStream& msg) const{
   //no check on folder time unit compatibility
-  return overridesIovImpl(false);
+  return overridesIovImpl(msg, false);
 }
 
 bool 
-IOVDbParser::overridesIov(const bool folderIs_nsOfEpoch) const {
+IOVDbParser::overridesIov(MsgStream& msg, const bool folderIs_nsOfEpoch) const {
   //check folder time unit compatibility
-  return overridesIovImpl(true, folderIs_nsOfEpoch);
+  return overridesIovImpl(msg ,true, folderIs_nsOfEpoch);
 }
 
 bool 
-IOVDbParser::overridesIovImpl(const bool performFolderCheck,const bool folderIs_nsOfEpoch) const{
+IOVDbParser::overridesIovImpl(MsgStream& msg, const bool performFolderCheck,const bool folderIs_nsOfEpoch) const{
   bool overrideIs_nsEpochIov{true};
   const bool overridingTimestamp=(m_keys.find("forceTimestamp")!=m_keys.end());
   const bool overridingRun=(m_keys.find("forceRunNumber")!=m_keys.end());
@@ -281,28 +280,28 @@ IOVDbParser::overridesIovImpl(const bool performFolderCheck,const bool folderIs_
   //check for nonsense scenarios:
   //1. overriding Lumi but not the Run number
   if (overridingLumi and not overridingRun){
-    m_msg << MSG::WARNING<<"Trying to override lumi block without specifying the run"<<endmsg;
+    msg << MSG::WARNING<<"Trying to override lumi block without specifying the run"<<endmsg;
     return false;
   }
   //2. Trying to override both
   if (overridingRun and overridingTimestamp){
-    m_msg << MSG::WARNING<<"Trying to override using both run-lumi and ns timestamp"<<endmsg;
+    msg << MSG::WARNING<<"Trying to override using both run-lumi and ns timestamp"<<endmsg;
     return false;
   }
   // now we are consistent, so set the 'is_ns' variable if it's different from default
   if (overridingRun) overrideIs_nsEpochIov=false;
   //3. Overriding a folder in ns format with a run-lumi IOV, or folder in run-lumi with ns timestamp
   if (performFolderCheck and (overrideIs_nsEpochIov != folderIs_nsOfEpoch)){
-    m_msg << MSG::WARNING<<"Trying to override run-lumi for a ns folder, or ns for a run-lumi folder"<<endmsg;
+    msg << MSG::WARNING<<"Trying to override run-lumi for a ns folder, or ns for a run-lumi folder"<<endmsg;
     return false;
   }
   return (overridingTimestamp or overridingRun);
 }
 
 unsigned long long 
-IOVDbParser::iovOverrideValue() const{
+IOVDbParser::iovOverrideValue(MsgStream& msg) const{
   unsigned long long value{};
-  if (not overridesIov()) return value;
+  if (not overridesIov(msg)) return value;
   auto pTsPair = m_keys.find("forceTimestamp");
   if (pTsPair!=m_keys.end()){
     value = IOVDbNamespace::iovFromTimeString(pTsPair->second);

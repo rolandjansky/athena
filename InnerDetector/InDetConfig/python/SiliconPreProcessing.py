@@ -105,7 +105,7 @@ def ITkRecPreProcessingSiliconCfg(flags, **kwargs):
         #
         # --- Conversion algorithm for InDet clusters to xAOD clusters
         #
-        from InDetConfig.ITkTrackRecoConfig import ITkInDetToXAODClusterConversionCfg
+        from InDetConfig.InDetPrepRawDataFormationConfig import ITkInDetToXAODClusterConversionCfg
         acc.merge(ITkInDetToXAODClusterConversionCfg(flags))
 
     #

@@ -30,7 +30,7 @@ Trk::LayerMaterialProvider::LayerMaterialProvider(const std::string& t, const st
 
 // destructor
 Trk::LayerMaterialProvider::~LayerMaterialProvider()
-{}
+= default;
 
 
 StatusCode Trk::LayerMaterialProvider::initialize()

@@ -7,8 +7,6 @@
 """
 #
 #
-from __future__ import with_statement, print_function
-
 __author__  = 'Charles Leggett'
 __version__="$Revision: 1.0 $"
 __doc__="concurrency flags "

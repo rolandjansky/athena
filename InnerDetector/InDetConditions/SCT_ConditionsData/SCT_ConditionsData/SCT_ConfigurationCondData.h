@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -84,8 +84,10 @@ public:
   /// Clear all bad information
   void clear();
 
-private:
   enum {N_MODULES=4088, N_STRIPS=768, N_SIDES=2};
+  const std::bitset<N_STRIPS> &getBadStripsOfModule(const IdentifierHash& wafer_hash) const { return m_badStripArray.at(wafer_hash.value()); }
+
+private:
 
   std::set<Identifier> m_badStripIds;
   std::array<std::bitset<N_STRIPS>, N_MODULES*N_SIDES> m_badStripArray;

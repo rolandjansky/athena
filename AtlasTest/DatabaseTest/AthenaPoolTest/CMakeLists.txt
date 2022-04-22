@@ -30,7 +30,6 @@ atlas_install_joboptions( share/*.py )
 # Tests in the package:
 function (athenapooltest_run_test testName jo pattern)
   cmake_parse_arguments( ARG "" "" "DEPENDS" ${ARGN} )
-
   atlas_add_test( ${testName}
                   SCRIPT athena.py AthenaPoolTest/${jo}.py
                   LOG_SELECT_PATTERN ${pattern}

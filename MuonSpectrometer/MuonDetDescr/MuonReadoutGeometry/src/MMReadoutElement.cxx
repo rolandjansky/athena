@@ -184,40 +184,32 @@ namespace MuonGM {
             if (chMax < 0) {
                 chMax = 2500;
                 MsgStream log(Athena::getMessageSvc(), "MMReadoutElement");
-                log << MSG::WARNING << "MMReadoutElement -- Max number of strips not a real value" << endmsg;
+                log << MSG::WARNING << "MMReadoutElement -- Max number of strips not a valid value" << endmsg;
             }
 
-            m_etaDesign[il].type = MuonChannelDesign::Type::etaStrip;
-            m_etaDesign[il].detType = MuonChannelDesign::DetType::MM;
-
-            m_etaDesign[il].xSize = 2 * m_halfX;        // radial length (active area)
-            m_etaDesign[il].minYSize = 2 * m_minHalfY;  // bottom length (active area)
-            m_etaDesign[il].maxYSize = 2 * m_maxHalfY;  // top length (active area)
-
-            m_etaDesign[il].inputPitch = pitch;
-            m_etaDesign[il].inputLength = m_etaDesign[il].minYSize;
-            m_etaDesign[il].inputWidth = pitch;  // inputwidth is defined as the pitch
-            m_etaDesign[il].thickness = roParam.gasThickness;
-
-            m_etaDesign[il].nMissedTopEta = roParam.nMissedTopEta;  // #of eta strips that are not connected to any FE board
-            m_etaDesign[il].nMissedBottomEta = roParam.nMissedBottomEta;
-            m_etaDesign[il].nMissedTopStereo = roParam.nMissedTopStereo;  // #of stereo strips that are not connected to any FE board
+            m_etaDesign[il].type                = MuonChannelDesign::ChannelType::etaStrip;
+            m_etaDesign[il].detType             = MuonChannelDesign::DetType::MM;
+            m_etaDesign[il].xSize               = 2 * m_halfX;            // radial length (active area)
+            m_etaDesign[il].minYSize            = 2 * m_minHalfY;         // bottom length (active area)
+            m_etaDesign[il].maxYSize            = 2 * m_maxHalfY;         // top length (active area)
+            m_etaDesign[il].inputPitch          = pitch;
+            m_etaDesign[il].inputLength         = m_etaDesign[il].minYSize;
+            m_etaDesign[il].inputWidth          = pitch;                  // inputwidth is defined as the pitch
+            m_etaDesign[il].thickness           = roParam.gasThickness; 
+            m_etaDesign[il].nMissedTopEta       = roParam.nMissedTopEta;  // #of eta strips that are not connected to any FE board
+            m_etaDesign[il].nMissedBottomEta    = roParam.nMissedBottomEta;
+            m_etaDesign[il].nMissedTopStereo    = roParam.nMissedTopStereo;  // #of stereo strips that are not connected to any FE board
             m_etaDesign[il].nMissedBottomStereo = roParam.nMissedBottomStereo;
-            m_etaDesign[il].nRoutedTop = roParam.nRoutedTop;  // #of stereo strips that are shorter in length (low efficient regions)
-            m_etaDesign[il].nRoutedBottom = roParam.nRoutedBottom;
-            m_etaDesign[il].dlStereoTop =
-                roParam.dlStereoTop;  // the length kept between the intersection point of the first/last active strips (eta,stereo) till
-                                      // the very edge of the first/last active stereo strip
-            m_etaDesign[il].dlStereoBottom = roParam.dlStereoBottom;
-            m_etaDesign[il].minYPhiL =
-                roParam.minYPhiL;  // radial distance kept between the first active strips (eta,stereo) [for the bottom parts two distances
-                                   // are defined at left and right corners as LM1 has not any routed strips]
-            m_etaDesign[il].minYPhiR = roParam.minYPhiR;
-            m_etaDesign[il].maxYPhi = roParam.maxYPhi;
-            m_etaDesign[il].totalStrips = roParam.tStrips;
-            m_etaDesign[il].sAngle = (roParam.stereoAngle).at(il);
-            m_etaDesign[il].ylFrame = ylFrame;
-            m_etaDesign[il].ysFrame = ysFrame;
+            m_etaDesign[il].nRoutedTop          = roParam.nRoutedTop;     // #of stereo strips that are shorter in length (low efficient regions)
+            m_etaDesign[il].nRoutedBottom       = roParam.nRoutedBottom;
+            m_etaDesign[il].dlStereoTop         = roParam.dlStereoTop;    // x-length between edge of the last stereo strip and its intersection with the last eta strip
+            m_etaDesign[il].dlStereoBottom      = roParam.dlStereoBottom; // x-length between edge of the first stereo strip and its intersection with the first eta strip
+            m_etaDesign[il].minYPhiL            = roParam.minYPhiL;       // y-length of the first (routed) stereo strip left  edge from the first eta strip (non zero for LM1)
+            m_etaDesign[il].minYPhiR            = roParam.minYPhiR;       // y-length of the first (routed) stereo strip right edge from the first eta strip
+            m_etaDesign[il].maxYPhi             = roParam.maxYPhi;
+            m_etaDesign[il].totalStrips         = roParam.tStrips;
+            m_etaDesign[il].sAngle              = (roParam.stereoAngle).at(il);
+            m_etaDesign[il].febSide             = (il % 2 == 0) ? 1 : -1; // side of the first MMFE8: 1 for locY>0, -1 for loc Y<0 
 
             if (m_ml < 1 || m_ml > 2) {
                 MsgStream log(Athena::getMessageSvc(), "MMReadoutElement");
@@ -225,35 +217,14 @@ namespace MuonGM {
             }
 
             if (m_etaDesign[il].sAngle == 0.) {  // eta layers
-
+                m_etaDesign[il].nch      = m_etaDesign[il].totalStrips - m_etaDesign[il].nMissedBottomEta - m_etaDesign[il].nMissedTopEta;
                 m_etaDesign[il].firstPos = -0.5 * m_etaDesign[il].xSize + pitch;
-                m_etaDesign[il].signY = 1;
-                m_etaDesign[il].nch = ((int)std::round((m_etaDesign[il].xSize / pitch)));  // Total number of active strips
 
             } else {  // stereo layers
-
-                m_etaDesign[il].signY = il == 2 ? 1 : -1;
-
-                // define the distance from the frame till the point that the first and last active stereo strips cross the center of the
-                // chamber (low_swift & up_swift) in order to derive the total number of active strips for the stereo layer
-
-                double low_swift = (m_minHalfY - m_etaDesign[il].dlStereoBottom) * std::abs(std::tan(m_etaDesign[il].sAngle));
-                double up_swift = (m_maxHalfY - m_etaDesign[il].dlStereoTop) * std::abs(std::tan(m_etaDesign[il].sAngle));
-
-                double lm1_swift = 0;
-                if (sector_l == 'L' && (std::abs(getStationEta())) == 1) {
-                    lm1_swift = (m_etaDesign[il].minYPhiR - m_etaDesign[il].minYPhiL) / 2 + m_etaDesign[il].minYPhiL;
-                    low_swift = 0;
-                }
-
-                double fPos = -0.5 * m_etaDesign[il].xSize - low_swift + lm1_swift;
-                double lPos = 0.5 * m_etaDesign[il].xSize + up_swift;
-
-                m_etaDesign[il].nch = ((int)std::round((lPos - fPos) / pitch));
-                m_etaDesign[il].firstPos =
-                    (-0.5 * m_etaDesign[il].xSize + (m_etaDesign[il].nMissedBottomStereo - m_etaDesign[il].nMissedBottomEta) * pitch) +
-                    pitch;
+                m_etaDesign[il].nch      = m_etaDesign[il].totalStrips - m_etaDesign[il].nMissedBottomStereo - m_etaDesign[il].nMissedTopStereo;
+                m_etaDesign[il].firstPos = -0.5 * m_etaDesign[il].xSize + (1 + m_etaDesign[il].nMissedBottomStereo - m_etaDesign[il].nMissedBottomEta) * pitch;
             }
+       
             m_nStrips.push_back(m_etaDesign[il].totalStrips);
 
             MsgStream log(Athena::getMessageSvc(), "MMReadoutElement");

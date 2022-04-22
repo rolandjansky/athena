@@ -8,6 +8,7 @@
 #include "CxxUtils/CachedUniquePtr.h"
 #include "CxxUtils/CachedValue.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MuonReadoutGeometry/ArrayHelper.h"
 #include "MuonReadoutGeometry/MuonReadoutElement.h"
 #include "TrkDistortedSurfaces/SaggedLineSurface.h"
 
@@ -85,6 +86,7 @@ namespace MuonGM {
         inline double tubePitch() const;
 
         // local(tube frame) to global coord.
+        /// The origin of the coordinate system is the tube layer
         Amg::Vector3D localToGlobalCoords(const Amg::Vector3D& x, const Identifier& id) const;
         Amg::Transform3D localToGlobalTransf(const Identifier& id) const;
         Amg::Transform3D localToGlobalTransf(const int tubeLayer, const int tube) const;
@@ -212,13 +214,13 @@ namespace MuonGM {
         int m_nsteps{-1};
         int m_ntubesinastep{-1};
         double m_tubelenStepSize{-9999.};
-        std::array<double, maxnsteps> m_tubelength{-9999.};
+        std::array<double, maxnsteps> m_tubelength{make_array<double, maxnsteps>(-9999.)};
         double m_cutoutShift{-9999.};
         double m_endpluglength{-9999.};
         double m_deadlength{-9999.};
         bool m_inBarrel{false};
-        std::array<double, maxnlayers> m_firstwire_x{-9999.};
-        std::array<double, maxnlayers> m_firstwire_y{-9999.};
+        std::array<double, maxnlayers> m_firstwire_x{make_array<double, maxnlayers>(-9999.)};
+        std::array<double, maxnlayers> m_firstwire_y{make_array<double, maxnlayers>(-9999.)};
         double m_innerRadius{-9999.};
         double m_tubeWallThickness{-9999.};
         CxxUtils::CachedValue<int> m_zsignRO_tubeFrame;  // comes from AMDB CRO location in the station

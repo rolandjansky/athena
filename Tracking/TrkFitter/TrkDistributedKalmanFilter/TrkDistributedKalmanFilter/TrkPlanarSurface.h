@@ -26,7 +26,7 @@ namespace Trk
     public:
       TrkPlanarSurface(const double Center[3],
 		       const double Normal[3], double Transform[3][3], double, const Surface* pS = 0);
-      ~TrkPlanarSurface();
+      ~TrkPlanarSurface() = default;
       const double* getParameters();
       double getPar(int);
       double radiusVector() const;

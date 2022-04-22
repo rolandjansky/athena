@@ -37,7 +37,7 @@ Trk::MaterialOnTrackValidation::MaterialOnTrackValidation(const std::string& nam
 //================ Destructor =================================================
 
 Trk::MaterialOnTrackValidation::~MaterialOnTrackValidation()
-{}
+= default;
 
 
 //================ Initialisation =================================================

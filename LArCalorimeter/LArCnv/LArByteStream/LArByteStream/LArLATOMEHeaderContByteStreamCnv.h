@@ -30,12 +30,12 @@ public:
   LArLATOMEHeaderContByteStreamCnv(ISvcLocator* svcloc);
   virtual ~LArLATOMEHeaderContByteStreamCnv();
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
   virtual StatusCode createObjConst(IOpaqueAddress* pAddr, DataObject*& pObj) const override; 
   virtual StatusCode createRepConst(DataObject* pObj, IOpaqueAddress*& pAddr) const override;
 
   /// Storage type and class ID
-  virtual long repSvcType() const { return i_repSvcType(); }
+  virtual long repSvcType() const override { return i_repSvcType(); }
   static long storageType()     { return ByteStreamAddress::storageType(); }
   static const CLID& classID();
 

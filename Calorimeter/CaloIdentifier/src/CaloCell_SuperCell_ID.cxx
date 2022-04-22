@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -25,7 +25,6 @@ CaloCell_SuperCell_ID::CaloCell_SuperCell_ID(const LArEM_SuperCell_ID*   em_id,
 
 
 CaloCell_SuperCell_ID::~CaloCell_SuperCell_ID(void) 
-{
-}
+= default;
 
 

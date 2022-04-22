@@ -66,7 +66,7 @@ StatusCode TgcDigitizationTool::initialize()
   ATH_MSG_DEBUG("Input objects in container : '" << m_inputHitCollectionName << "'");
 
   // Initialize Read(Cond)HandleKey
-  ATH_CHECK(m_hitsContainerKey.initialize(!m_onlyUseContainerName));
+  ATH_CHECK(m_hitsContainerKey.initialize(true));
   ATH_CHECK(m_readCondKey_ASDpos.initialize(!m_readCondKey_ASDpos.empty()));
 
   //initialize the output WriteHandleKeys

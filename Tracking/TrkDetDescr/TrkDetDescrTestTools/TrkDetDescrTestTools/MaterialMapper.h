@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -36,6 +36,8 @@ namespace Trk {
     */
 
     struct VolumeTreeObject {
+        VolumeTreeObject (const VolumeTreeObject&) = delete;
+        VolumeTreeObject& operator= (const VolumeTreeObject&) = delete;
 
         float eta;
         float phi;
@@ -64,6 +66,8 @@ namespace Trk {
     };
 
     struct LayerTreeObject {
+        LayerTreeObject (const LayerTreeObject&) = delete;
+        LayerTreeObject& operator= (const LayerTreeObject&) = delete;
 
         // values for the full histo
         float densedHitX;
@@ -140,6 +144,8 @@ namespace Trk {
     -> simple helper struct for reference surfaces
     */
     struct SurfaceTreeObject {
+        SurfaceTreeObject (const SurfaceTreeObject&) = delete;
+        SurfaceTreeObject& operator= (const SurfaceTreeObject&) = delete;
 
         float loc1;
         float loc2;

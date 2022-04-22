@@ -67,7 +67,7 @@ Trk::TrkObserverTool::TrkObserverTool(const std::string& type, const std::string
 
 // Destructor
 ///////////////
-Trk::TrkObserverTool::~TrkObserverTool() {}
+Trk::TrkObserverTool::~TrkObserverTool() = default;
 
 // Athena algtool's Hooks
 ////////////////////////////

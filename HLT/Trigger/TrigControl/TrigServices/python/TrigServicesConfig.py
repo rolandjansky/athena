@@ -36,6 +36,7 @@ def setupMessageSvc():
    # Message forwarding to ERS
    MessageSvc.useErsError = ['*']
    MessageSvc.useErsFatal = ['*']
+   MessageSvc.ersPerEventLimit = 2  # ATR-25214
 
    # set message limit to unlimited when general DEBUG is requested
    if MessageSvc.OutputLevel<=DEBUG :

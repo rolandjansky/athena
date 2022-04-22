@@ -109,7 +109,7 @@ void iFatras::SimHitCreatorID::createHits(const ISF::ISFParticle& isp, const std
    for ( ; plIter != plIterEnd; ++plIter ){
        // decide which HitCreator to take
        // get the informations from the Simulation
-       const Trk::TrackParameters*  hitParameter  = (*plIter).trackParms;
+       const Trk::TrackParameters*  hitParameter  = (*plIter).trackParms.get();
        double time                                = (*plIter).time;
        // -------------------------------------------------------------------------
        const Trk::TrkDetElementBase* hitDetElement =  hitParameter->associatedSurface().associatedDetectorElement();

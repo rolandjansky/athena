@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from JetRecConfig.StandardJetConstits import stdConstitDic as cst
 from .JetDefinition import  JetDefinition
@@ -71,6 +71,11 @@ AntiKt10LCTopoTrimmed = JetTrimming(AntiKt10LCTopo,
                                     modifiers = ("Calib:CombinedMass:mc","Filter:100000")+standardrecomods+substrmods+lctopo_trimmed_mods+truthlabels,
                                     PtFrac = 0.05, RClus = 0.2,                                    
                                     )
+
+AntiKt10LCTopoTrimmed_trigger = JetTrimming(AntiKt10LCTopo_noVR,
+                                            modifiers = ("Calib:CombinedMass:mc","Filter:50000","Sort","ConstitFourMom"),
+                                            PtFrac = 0.05, RClus = 0.2,
+)
 
 AntiKt10LCTopoSoftDrop = JetSoftDrop(AntiKt10LCTopo,
                                      modifiers = standardrecomods+substrmods,

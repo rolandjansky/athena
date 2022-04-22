@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimParametrization/CaloGeometryFromCaloDDM.h"
@@ -14,8 +14,7 @@ CaloGeometryFromCaloDDM::CaloGeometryFromCaloDDM() : CaloGeometry()
 }
 
 CaloGeometryFromCaloDDM::~CaloGeometryFromCaloDDM()
-{
-}
+= default;
 
 bool CaloGeometryFromCaloDDM::LoadGeometryFromCaloDDM(const CaloDetDescrManager* calo_dd_man)
 {

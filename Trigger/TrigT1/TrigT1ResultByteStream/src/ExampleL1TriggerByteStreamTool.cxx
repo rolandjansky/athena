@@ -1,10 +1,18 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
+// Local includes
 #include "ExampleL1TriggerByteStreamTool.h"
+
+// Trigger includes
 #include "xAODTrigger/MuonRoI.h"
 #include "xAODTrigger/MuonRoIAuxContainer.h"
+
+// Athena includes
+#include "CxxUtils/span.h"
+
+// TDAQ includes
 #include "eformat/SourceIdentifier.h"
 #include "eformat/Status.h"
 
@@ -17,13 +25,12 @@ ExampleL1TriggerByteStreamTool::ExampleL1TriggerByteStreamTool(const std::string
 : base_class(type, name, parent) {}
 
 StatusCode ExampleL1TriggerByteStreamTool::initialize() {
-  if (m_roiWriteKey.empty() == m_roiReadKey.empty()) {
-    ATH_MSG_ERROR("Exactly one of the read / write handle keys has to be set and the other has to be empty, "
-                  << "but they are \"" << m_roiReadKey.key() << "\" / \"" << m_roiWriteKey.key() << "\"");
-    return StatusCode::FAILURE;
-  }
-  ATH_CHECK(m_roiWriteKey.initialize(!m_roiWriteKey.empty()));
-  ATH_CHECK(m_roiReadKey.initialize(!m_roiReadKey.empty()));
+  ConversionMode mode = getConversionMode(m_roiReadKey, m_roiWriteKey, msg());
+  ATH_CHECK(mode!=ConversionMode::Undefined);
+  ATH_CHECK(m_roiWriteKey.initialize(mode==ConversionMode::Decoding));
+  ATH_CHECK(m_roiReadKey.initialize(mode==ConversionMode::Encoding));
+  ATH_MSG_DEBUG((mode==ConversionMode::Encoding ? "Encoding" : "Decoding") << " ROB IDs: "
+                << MSG::hex << m_robIds.value() << MSG::dec);
   return StatusCode::SUCCESS;
 }
 
@@ -44,10 +51,11 @@ StatusCode ExampleL1TriggerByteStreamTool::convertFromBS(const std::vector<const
   ATH_MSG_DEBUG("Recorded MuonRoIContainer with key " << m_roiWriteKey.key());
 
   // Find the ROB fragment to decode
-  const eformat::helper::SourceIdentifier sid(eformat::TDAQ_MUON_CTP_INTERFACE, m_muCTPIModuleID.value());
+  const eformat::helper::SourceIdentifier sid(m_robIds.value().at(0));
   auto it = std::find_if(vrobf.begin(), vrobf.end(), [&sid](const ROBF* rob){return rob->rob_source_id() == sid.code();});
   if (it == vrobf.end()) {
-    ATH_MSG_DEBUG("No MUCTPI ROB fragment with ID " << sid.code() << " was found, MuonRoIContainer will be empty");
+    ATH_MSG_DEBUG("No MUCTPI ROB fragment with ID 0x" << std::hex << sid.code() << std::dec
+                  << " was found, MuonRoIContainer will be empty");
     return StatusCode::SUCCESS;
   }
 
@@ -56,12 +64,12 @@ StatusCode ExampleL1TriggerByteStreamTool::convertFromBS(const std::vector<const
   const uint32_t ndata = rob->rod_ndata();
   const uint32_t* data = rob->rod_data();
   ATH_MSG_DEBUG("Starting to decode " << ndata << " ROD words");
-  for (uint32_t i=0; i<ndata; ++i, ++data) {
-    ATH_MSG_DEBUG("Muon RoI raw word: " << *data);
+  for (const uint32_t word : CxxUtils::span{data, ndata}) {
+    ATH_MSG_DEBUG("Muon RoI raw word: 0x" << std::hex << word << std::dec);
     // Here comes the decoding
     // Using some dummy values as this is not real decoding, just an example
     handle->push_back(new xAOD::MuonRoI);
-    handle->back()->initialize(*data, 99, 99, "DummyThreshold", 99);
+    handle->back()->initialize(word, 99, 99, "DummyThreshold", 99);
   }
 
   ATH_MSG_DEBUG("Decoded " << handle->size() << " Muon RoIs");
@@ -86,14 +94,8 @@ StatusCode ExampleL1TriggerByteStreamTool::convertToBS(std::vector<WROBF*>& vrob
   }
 
   // Create ROBFragment containing the ROD words
-  const eformat::helper::SourceIdentifier sid(eformat::TDAQ_MUON_CTP_INTERFACE, m_muCTPIModuleID.value());
-  vrobf.push_back(newRobFragment(
-    eventContext,
-    sid.code(),
-    muonRoIs->size(),
-    data,
-    eformat::STATUS_BACK // status_position is system-specific
-  ));
+  const eformat::helper::SourceIdentifier sid(m_robIds.value().at(0));
+  vrobf.push_back(newRobFragment(eventContext, sid.code(), muonRoIs->size(), data));
 
   return StatusCode::SUCCESS;
 }

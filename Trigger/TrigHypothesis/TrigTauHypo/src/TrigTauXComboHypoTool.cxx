@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigTauXComboHypoTool.h"
@@ -47,7 +47,7 @@ bool TrigTauXComboHypoTool::executeAlg(const std::vector<Combo::LegDecision>& co
 
   //retrieve the elements
   std::vector<ElementLink<xAOD::IParticleContainer>> selected_particles;
-  for (auto el: combination){
+  for (const auto& el: combination){
     auto EL= el.second;    
     auto particleLink = TrigCompositeUtils::findLink<xAOD::IParticleContainer>( *EL, featureString() ).link;
     ATH_MSG_DEBUG(  particleLink.dataID() );

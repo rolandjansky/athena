@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // csc_cosmic_cluster.cxx
@@ -20,6 +20,7 @@
 #include <sstream>
 #include <map>
 #include <vector>
+#include "CxxUtils/no_bitwise_op_warning.h"
 #include "TTree.h"
 #include "TTreeIndex.h"
 #include "SimposAccessor.h"

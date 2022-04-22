@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file InDetVKalVxInJetTool/test/InDetTrkInJetType_test.cxx
@@ -109,20 +109,20 @@ void test1 (InDet::IInDetTrkInJetType& tool)
 
 EventIDBase timestamp (int t)
 {
-  return EventIDBase (EventIDBase::UNDEFNUM,  // run
+  return {EventIDBase::UNDEFNUM,  // run
                       EventIDBase::UNDEFEVT,  // event
-                      t);
+                      static_cast<EventIDBase::number_type>(t)};
 }
 
 
 EventIDBase runlbn (int run,
                     int lbn)
 {
-  return EventIDBase (run,  // run
+  return {static_cast<EventIDBase::number_type>(run),  // run
                       EventIDBase::UNDEFEVT,  // event
                       EventIDBase::UNDEFNUM,  // timestamp
                       0,                      // ns offset
-                      lbn);
+                      static_cast<EventIDBase::number_type>(lbn)};
 }
 
 

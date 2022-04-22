@@ -141,8 +141,7 @@ Trk::DistributedKalmanFilter::DistributedKalmanFilter(const std::string& t,
 }
 
 // destructor
-Trk::DistributedKalmanFilter::~DistributedKalmanFilter() {
-}
+Trk::DistributedKalmanFilter::~DistributedKalmanFilter() = default;
 
 // initialize
 StatusCode Trk::DistributedKalmanFilter::initialize() {

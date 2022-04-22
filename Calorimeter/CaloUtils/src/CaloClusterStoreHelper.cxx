@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloUtils/CaloClusterStoreHelper.h"
@@ -11,6 +11,11 @@
 
 
 std::unique_ptr<xAOD::CaloCluster> CaloClusterStoreHelper::makeCluster(const CaloCellContainer* cellCont) {
+  return makeCluster (DataLink<CaloCellContainer> (cellCont));
+}
+ 
+
+std::unique_ptr<xAOD::CaloCluster> CaloClusterStoreHelper::makeCluster(const DataLink<CaloCellContainer>& cellCont) {
   std::unique_ptr<xAOD::CaloCluster> cluster = std::make_unique<xAOD::CaloCluster>();
   cluster->makePrivateStore();
   if (cellCont) cluster->addCellLink(std::make_unique<CaloClusterCellLink>(cellCont));
@@ -30,7 +35,14 @@ std::unique_ptr<xAOD::CaloCluster> CaloClusterStoreHelper::makeCluster(const Cal
 
 
 xAOD::CaloCluster* CaloClusterStoreHelper::makeCluster(xAOD::CaloClusterContainer* cont, 
-						       const CaloCellContainer* cellCont) {
+						       const CaloCellContainer* cellCont)
+{
+  return makeCluster (cont, DataLink<CaloCellContainer> (cellCont));
+}
+
+
+xAOD::CaloCluster* CaloClusterStoreHelper::makeCluster(xAOD::CaloClusterContainer* cont, 
+						       const DataLink<CaloCellContainer>& cellCont) {
 
   xAOD::CaloCluster* cluster=cont->push_back(std::make_unique<xAOD::CaloCluster>());
   if (cellCont) cluster->addCellLink(std::make_unique<CaloClusterCellLink>(cellCont));

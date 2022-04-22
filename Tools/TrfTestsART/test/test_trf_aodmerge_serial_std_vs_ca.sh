@@ -7,7 +7,7 @@
 # Run the old-style merge
 AODMerge_tf.py \
   --maxEvents 25 \
-  --inputAODFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.AOD.e3601_s3126_r12305/AOD.23662571._000001.pool.root.1 \
+  --inputAODFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc20_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.AOD.e3601_s3681_r13167/AOD.27312826._000061.pool.root.1 \
   --outputAOD_MRGFile std.aod.pool.root
 rc1=$?
 
@@ -15,7 +15,7 @@ rc1=$?
 AODMerge_tf.py \
   --CA \
   --maxEvents 25 \
-  --inputAODFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.AOD.e3601_s3126_r12305/AOD.23662571._000001.pool.root.1 \
+  --inputAODFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc20_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.AOD.e3601_s3681_r13167/AOD.27312826._000061.pool.root.1 \
   --outputAOD_MRGFile ca.aod.pool.root
 rc2=$?
 
@@ -24,7 +24,7 @@ rc3=1
 rc4=1
 if [[ $rc1 -eq 0 ]] && [[ $rc2 -eq 0 ]]; then
   # MetaData
-  meta-diff -x diff std.aod.pool.root ca.aod.pool.root
+  meta-diff -x diff -s std.aod.pool.root ca.aod.pool.root -d file_guid file_size
   rc3=$?
   # EventData
   acmd diff-root --nan-equal std.aod.pool.root ca.aod.pool.root

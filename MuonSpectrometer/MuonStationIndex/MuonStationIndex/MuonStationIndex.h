@@ -30,7 +30,7 @@ namespace Muon {
     /** enum to classify the different phi layers in the muon spectrometer */
     enum PhiIndex {
       PhiUnknown = -1,
-      BM1, BM2, BO1, BO2, T1, T2, T3, T4, CSC, STGC1, STGC2,
+      BI1, BI2, BM1, BM2, BO1, BO2, T1, T2, T3, T4, CSC, STGC1, STGC2,
       PhiIndexMax
     };
 

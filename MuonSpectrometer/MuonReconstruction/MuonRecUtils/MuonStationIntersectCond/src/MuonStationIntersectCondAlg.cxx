@@ -60,7 +60,7 @@ StatusCode MuonStationIntersectCondAlg::execute(const EventContext& ctx) const {
                                                              << " into Conditions Store");
         return StatusCode::FAILURE;
     }
-    ATH_MSG_INFO("Recorded successfully the MuonIntersectionGeoData "<<writeHandle.key()<<" with EventRange "<<rangeIntersection);
+    ATH_MSG_DEBUG("Recorded successfully the MuonIntersectionGeoData "<<writeHandle.key()<<" with EventRange "<<rangeIntersection);
 
     return StatusCode::SUCCESS;
 }

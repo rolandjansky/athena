@@ -42,17 +42,6 @@ or add a script to the [`test/`](test/) folder:
 atlas_add_citest( FastChain
    SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/test/FastChain.sh )
 ```
-**Test dependencies** can be declared via the `DEPENDS` keyword
-```cmake
-atlas_add_citest( Test1 ... )
-atlas_add_citest( Test2 ...
-   DEPENDS Test1
-   [PROPERTIES REQUIRED_FILES ../Test1/myAOD.pool.root]
-)
-```
-The optional `REQUIRED_FILES` property ensures that the test is not even started 
-if the input file is missing. These tests then appear as "Not Run" in the test summary
-(instead of "Failed"). Use a relative path to the other test's working directory.
 
 For **MT/MP-tests**, add the number of required CPU cores (used for job scheduling):
 ```cmake
@@ -62,6 +51,26 @@ atlas_add_citest( ...
 Rather than matching the number of actual cores used, this number should reflect the
 expected system load. E.g. if a job runs with 8 threads but the system load during running is
 significant lower, one can reduce this number to allow other jobs to run in parallel.
+
+
+## Test dependencies
+**Test dependencies** can be declared via the `DEPENDS` (or `DEPENDS_SUCCESS`) keyword 
+(on one or multiple tests):
+```cmake
+atlas_add_citest( Test1 ... )
+atlas_add_citest( Test2 ...
+   DEPENDS Test1...
+)
+```
+Use `DEPENDS_SUCCESS` if the test should only run if the dependee(s) succeeded.
+
+Additional requirements can be specified via e.g.
+```cmake
+   PROPERTIES REQUIRED_FILES ../Test1/stamp.txt
+```
+to only run the test if the specified file is available. These tests then appear as "Not Run" 
+in the test summary (instead of "Failed"). Use a relative path to the other test's working directory.
+
 
 ## Post-processing
 All tests defined with `atlas_add_citest` run a [default post-processing script](cmake/citest_post.sh.in) 

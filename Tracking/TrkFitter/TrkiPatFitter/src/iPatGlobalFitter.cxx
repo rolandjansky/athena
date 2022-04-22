@@ -29,8 +29,7 @@ namespace Trk
     declareProperty("AllParameters", m_allParameters);
   }
 
-  iPatGlobalFitter::~iPatGlobalFitter (void) {
-  }
+  iPatGlobalFitter::~iPatGlobalFitter (void) = default;
 
   Track* iPatGlobalFitter::alignmentFit ( AlignmentCache& alignCache,
   											const Track& trk,

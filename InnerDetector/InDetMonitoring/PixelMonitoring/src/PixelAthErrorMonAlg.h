@@ -9,6 +9,7 @@
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "PixelConditionsData/PixelByteStreamErrors.h"
 #include "PixelReadoutGeometry/IPixelReadoutManager.h"
+#include "InDetByteStreamErrors/IDCInDetBSErrContainer.h"
 
 class PixelID;
 
@@ -151,22 +152,21 @@ public:
   void fillErrorCatRODmod(int servicecode, int payload,
                           int (&nerrors_cat_rodmod)[ErrorCategoryRODMOD::COUNT][nFEIBL2D], int ife) const;
 private:
-  ServiceHandle<InDetDD::IPixelReadoutManager> m_pixelReadout
-  {
-    this, "PixelReadoutManager", "PixelReadoutManager", "Pixel readout manager"
-  };
+  SG::ReadHandleKey<IDCInDetBSErrContainer> m_idcErrContKey
+     {this, "PixelByteStreamErrs", "PixelByteStreamErrs", "PixelByteStreamErrs container key"};
+  Gaudi::Property<bool> m_useByteStreamFEI4
+     {this, "UseByteStreamFEI4", false, "Switch of the ByteStream error for FEI4"};
+  Gaudi::Property<bool> m_useByteStreamFEI3
+     {this, "UseByteStreamFEI3", false, "Switch of the ByteStream error for FEI3"};
+  Gaudi::Property<bool> m_useByteStreamRD53
+     {this, "UseByteStreamRD53", false, "Switch of the ByteStream error for RD53"};
 
-  ToolHandle<IInDetConditionsTool> m_pixelCondSummaryTool {
-    this, "PixelConditionsSummaryTool",
-    "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"
-  };
+  unsigned int  m_readoutTechnologyMask{};
+  bool m_doOnline{};
+  bool m_doLumiBlock{};
+  bool m_doLowOccupancy{};
+  bool m_doHighOccupancy{};
+  bool m_doHeavyIonMon{};
 
-  const PixelID* m_pixelid;
-
-  bool m_doOnline;
-  bool m_doLumiBlock;
-  bool m_doLowOccupancy;
-  bool m_doHighOccupancy;
-  bool m_doHeavyIonMon;
 };
 #endif

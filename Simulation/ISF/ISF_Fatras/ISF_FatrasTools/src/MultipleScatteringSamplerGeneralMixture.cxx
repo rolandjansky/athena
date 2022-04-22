@@ -41,7 +41,7 @@ iFatras::MultipleScatteringSamplerGeneralMixture::MultipleScatteringSamplerGener
 
 // destructor
 iFatras::MultipleScatteringSamplerGeneralMixture::~MultipleScatteringSamplerGeneralMixture()
-{}
+= default;
 
 // Athena standard methods
 // initialize

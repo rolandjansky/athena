@@ -422,6 +422,7 @@ namespace ST {
 
     virtual StatusCode FindSusyHP(const xAOD::TruthEvent *truthE, int& pdgid1, int& pdgid2) const = 0;
 
+    virtual ST::SystInfo getSystInfo(const CP::SystematicVariation& sys) const = 0;
     virtual std::vector<ST::SystInfo> getSystInfoList() const = 0;
 
     virtual std::string TrigSingleLep() const = 0;

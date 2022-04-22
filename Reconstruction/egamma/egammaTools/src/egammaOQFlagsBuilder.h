@@ -62,7 +62,6 @@ public:
   StatusCode initialize();
   /** @brief standard execute method */
   virtual StatusCode execute(const EventContext& ctx,
-                             const CaloDetDescrManager& cmgr,
                              xAOD::Egamma& egamma) const;
   /** @brief finalize method*/
   StatusCode finalize();

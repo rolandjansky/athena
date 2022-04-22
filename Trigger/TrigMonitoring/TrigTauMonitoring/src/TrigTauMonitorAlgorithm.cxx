@@ -188,21 +188,8 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, const s
        offline_for_hlt_tau_vec_all.push_back(pairObj.first);
     }
   }
-  // Offline
-  if( !offline_for_hlt_tau_vec_1p.empty()){
-    fillRNNInputVars( trigger, offline_for_hlt_tau_vec_1p,"1P", false );
-    fillRNNTrack( trigger, offline_for_hlt_tau_vec_1p, false );
-    fillRNNCluster( trigger, offline_for_hlt_tau_vec_1p, false );
-    fillbasicVars( trigger, offline_for_hlt_tau_vec_1p, "1P", false);
-  }
 
-  if( !offline_for_hlt_tau_vec_3p.empty()){ 
-    fillRNNInputVars( trigger, offline_for_hlt_tau_vec_3p,"3P", false );
-    fillRNNTrack( trigger, offline_for_hlt_tau_vec_3p, false );
-    fillRNNCluster( trigger, offline_for_hlt_tau_vec_3p, false );
-    fillbasicVars( trigger, offline_for_hlt_tau_vec_3p, "3P", false);
-  }
-
+  // Online
   std::string tauContainerName = "HLT_TrigTauRecMerged_MVA";
   if(trigger.find("LLP_") != std::string::npos){
      tauContainerName="HLT_TrigTauRecMerged_LLP";
@@ -227,30 +214,6 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, const s
     }else{
       online_tau_vec_mp.push_back(feat);
     }
-  }
-
-  // fill information for online 0 prong taus
-  if(!online_tau_vec_0p.empty()){
-     fillbasicVars( trigger, online_tau_vec_0p, "0P", true);
-     fillRNNInputVars( trigger, online_tau_vec_0p,"0P", true );
-     fillRNNTrack( trigger, online_tau_vec_0p, true );
-     fillRNNCluster( trigger, online_tau_vec_0p, true );
-  }
-
-  // fill information for online 1 prong taus 
-  if(!online_tau_vec_1p.empty()){
-     fillbasicVars( trigger, online_tau_vec_1p, "1P", true);
-     fillRNNInputVars( trigger, online_tau_vec_1p,"1P", true );
-     fillRNNTrack( trigger, online_tau_vec_1p, true );
-     fillRNNCluster( trigger, online_tau_vec_1p, true );
-  }          
- 
-  // fill information for online multiprong prong taus 
-  if(!online_tau_vec_mp.empty()){
-     fillbasicVars( trigger, online_tau_vec_mp, "MP", true);
-     fillRNNInputVars( trigger, online_tau_vec_mp,"MP", true );
-     fillRNNTrack( trigger, online_tau_vec_mp, true );
-     fillRNNCluster( trigger, online_tau_vec_mp, true );
   }
 
   if(info.isDiTau){
@@ -320,7 +283,47 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, const s
       fillTagAndProbeVars(trigger, online_tau_vec, online_muons);
       fillTAndPHLTEfficiencies(ctx, trigger, offMuon_vec, online_muons, offline_for_hlt_tau_vec_all, online_tau_vec_all); 
     }
-  } else {
+  } else { // single leg triggers
+
+    // Offline
+    if( !offline_for_hlt_tau_vec_1p.empty()){
+      fillRNNInputVars( trigger, offline_for_hlt_tau_vec_1p,"1P", false );
+      fillRNNTrack( trigger, offline_for_hlt_tau_vec_1p, false );
+      fillRNNCluster( trigger, offline_for_hlt_tau_vec_1p, false );
+      fillbasicVars( trigger, offline_for_hlt_tau_vec_1p, "1P", false);
+    }
+
+    if( !offline_for_hlt_tau_vec_3p.empty()){
+      fillRNNInputVars( trigger, offline_for_hlt_tau_vec_3p,"3P", false );
+      fillRNNTrack( trigger, offline_for_hlt_tau_vec_3p, false );
+      fillRNNCluster( trigger, offline_for_hlt_tau_vec_3p, false );
+      fillbasicVars( trigger, offline_for_hlt_tau_vec_3p, "3P", false);
+    }
+
+    // fill information for online 0 prong taus
+    if(!online_tau_vec_0p.empty()){
+      fillbasicVars( trigger, online_tau_vec_0p, "0P", true);
+      fillRNNInputVars( trigger, online_tau_vec_0p,"0P", true );
+      fillRNNTrack( trigger, online_tau_vec_0p, true );
+      fillRNNCluster( trigger, online_tau_vec_0p, true );
+    }
+
+    // fill information for online 1 prong taus
+    if(!online_tau_vec_1p.empty()){
+      fillbasicVars( trigger, online_tau_vec_1p, "1P", true);
+      fillRNNInputVars( trigger, online_tau_vec_1p,"1P", true );
+      fillRNNTrack( trigger, online_tau_vec_1p, true );
+      fillRNNCluster( trigger, online_tau_vec_1p, true );
+    }
+
+    // fill information for online multiprong prong taus 
+    if(!online_tau_vec_mp.empty()){
+      fillbasicVars( trigger, online_tau_vec_mp, "MP", true);
+      fillRNNInputVars( trigger, online_tau_vec_mp,"MP", true );
+      fillRNNTrack( trigger, online_tau_vec_mp, true );
+      fillRNNCluster( trigger, online_tau_vec_mp, true );
+    }
+
     fillHLTEfficiencies(ctx, trigger, offline_for_hlt_tau_vec_1p, online_tau_vec_all, "1P");
     fillHLTEfficiencies(ctx, trigger, offline_for_hlt_tau_vec_3p, online_tau_vec_all, "3P");
   }

@@ -22,7 +22,7 @@ find_package( AthenaPoolUtilitiesTest )
 
 if( ATHENAPOOLUTILITIESTEST_FOUND )
   set( TRKEVENTATHENAPOOL_REFERENCE_TAG
-       TrkEventAthenaPoolReference-06-00-00 )
+       TrkEventAthenaPoolReference-06-00-01 )
   run_tpcnv_test( TrkEventTPCnv_14.5.0   AOD-14.5.0-full
                   REQUIRED_LIBRARIES TrackParticleAthenaPoolPoolCnv
                   REFERENCE_TAG ${TRKEVENTATHENAPOOL_REFERENCE_TAG} )

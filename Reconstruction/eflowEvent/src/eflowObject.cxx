@@ -29,8 +29,8 @@ UPDATED:   8th April 2004 (P Loch) implement new navigation scheme
 
 #include "VxVertex/VxCandidate.h"
 
+#include <cmath>
 #include <vector>
-#include <math.h>
 
 #include "Navigation/INavigationToken.h"
 #include "Navigation/NavigationToken.h"
@@ -95,7 +95,7 @@ void eflowObject::initialize(eflowObject* eflowObj, bool useClus)
   this->m_eflowTrack = eflowObj->m_eflowTrack;
 
   //*possibly* add some clusters
-  if (true == useClus) this->m_eflowClus = eflowObj->m_eflowClus;
+  if (useClus) this->m_eflowClus = eflowObj->m_eflowClus;
 
 
 }
@@ -113,14 +113,13 @@ eflowObject::~eflowObject()
 }
 
 bool eflowObject::checkParticleType(ParticleType particleType) const{
-  if (m_eflowObjectType == particleType) return true;
-  else return false;
+  return m_eflowObjectType == particleType;
 }
 
 const Analysis::Muon* eflowObject::muon() const         { 
     if (m_muonElementLink.isValid()) return *m_muonElementLink;
     else{
-      const Analysis::Muon* muon(0);
+      const Analysis::Muon* muon(nullptr);
       return muon;
     }
   }
@@ -217,12 +216,12 @@ void eflowObject::navigateClusters(const cluster_type& theClusters,
   NavigationToken<CaloCluster,double>* weightedToken = 
     dynamic_cast< NavigationToken<CaloCluster,double>* >(&thisToken);
   NavigationToken<CaloCluster>* simpleToken = 
-    weightedToken == 0
+    weightedToken == nullptr
     ? dynamic_cast< NavigationToken<CaloCluster>* >(&thisToken)
-    : 0;
+    : nullptr;
 
   // query can not be honored, check on other types within eflowObject
-  bool isHonored = weightedToken != 0 || simpleToken != 0;
+  bool isHonored = weightedToken != nullptr || simpleToken != nullptr;
   if ( ! isHonored )
     { 
       if ( m_eflowTrack.size() > 0 )
@@ -253,13 +252,13 @@ void eflowObject::navigateClusters(const cluster_type& theClusters,
   // fill token
   else
     {
-      if ( weightedToken != 0 ) 
+      if ( weightedToken != nullptr ) 
 	{
 	  this->
 	    toToken< cluster_type, NavigationToken<CaloCluster,double> >
 	    (theClusters,weightedToken,weight);
 	}
-      else if (simpleToken != 0)
+      else if (simpleToken != nullptr)
 	{
 	  this->
 	    toToken< cluster_type, NavigationToken<CaloCluster> >
@@ -276,14 +275,14 @@ eflowObject::navigateTrackParticles(INavigationToken& thisToken,
   NavigationToken<Rec::TrackParticle,double>* weightedToken = 
     dynamic_cast< NavigationToken<Rec::TrackParticle,double>* >(&thisToken);
   NavigationToken<Rec::TrackParticle>* simpleToken =
-    weightedToken == 0 
+    weightedToken == nullptr 
     ? dynamic_cast< NavigationToken<Rec::TrackParticle>* >(&thisToken)
-    : 0;
-  bool isHonored = weightedToken != 0 || simpleToken != 0;
+    : nullptr;
+  bool isHonored = weightedToken != nullptr || simpleToken != nullptr;
   
   if ( isHonored ) 
     {
-      if ( weightedToken != 0 )
+      if ( weightedToken != nullptr )
 	{
 	  this->toToken< eflowTrack_type, NavigationToken<Rec::TrackParticle,double> >
 	    (m_eflowTrack,weightedToken,weight);
@@ -306,15 +305,15 @@ eflowObject::navigateMuons(INavigationToken& thisToken,
   NavigationToken<Analysis::Muon,double>* weightedToken = 
     dynamic_cast< NavigationToken<Analysis::Muon,double>* >(&thisToken);
   NavigationToken<Analysis::Muon>* simpleToken =
-    weightedToken == 0
+    weightedToken == nullptr
     ? dynamic_cast< NavigationToken<Analysis::Muon>* >(&thisToken)
-    : 0;
+    : nullptr;
   // honored
-  bool isHonored = weightedToken != 0 || simpleToken != 0;
+  bool isHonored = weightedToken != nullptr || simpleToken != nullptr;
 
   if ( isHonored )
     {
-      if ( weightedToken != 0 )
+      if ( weightedToken != nullptr )
 	{
 	  weightedToken->setObject(*m_muonElementLink,weight);
 	}
@@ -335,15 +334,15 @@ eflowObject::navigateConversions(INavigationToken& thisToken,
   NavigationToken<Trk::VxCandidate,double>* weightedToken =
     dynamic_cast< NavigationToken<Trk::VxCandidate,double>* >(&thisToken);
   NavigationToken<Trk::VxCandidate>* simpleToken =
-    weightedToken == 0
+    weightedToken == nullptr
     ? dynamic_cast< NavigationToken<Trk::VxCandidate>* >(&thisToken)
-    : 0;
+    : nullptr;
 
-  bool isHonored = weightedToken != 0 || simpleToken != 0;
+  bool isHonored = weightedToken != nullptr || simpleToken != nullptr;
   
   if ( isHonored )
     {
-      if ( weightedToken != 0 )
+      if ( weightedToken != nullptr )
 	{
 	  weightedToken->setObject(*m_convElementLink,weight);
 	}

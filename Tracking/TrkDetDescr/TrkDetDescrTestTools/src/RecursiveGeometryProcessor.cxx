@@ -25,7 +25,7 @@ Trk::RecursiveGeometryProcessor::RecursiveGeometryProcessor(const std::string& t
 
 // destructor
 Trk::RecursiveGeometryProcessor::~RecursiveGeometryProcessor()
-{}
+= default;
 
 
 // the interface method initialize

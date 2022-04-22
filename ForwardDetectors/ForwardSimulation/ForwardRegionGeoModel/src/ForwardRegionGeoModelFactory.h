@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ForwardRegionGeoModelFactory_h
@@ -80,13 +80,13 @@ class ForwardRegionGeoModelFactory : public GeoVDetectorFactory  {
   void constructElements(GeoPhysVol *fwrPhys, std::vector<std::vector<std::string> > loadedDataFile, int beam);
 
   // Elements
-  GeoPhysVol* insertMagnetEnvelope(std::string name, double x, double y, double z, double rotationAngle, double diameter, double halfL, double dL, GeoPhysVol* fwrPhys);
-  void insertCircularElement(std::string name, double x, double y, double z, double rotationAngle, double xAperture, double yAperture, double halfL, double dL, double tubeThickness, GeoPhysVol* fwrPhys);
-  void insertEllipticalElement(std::string name, double x, double y, double z, double rotationAngle, double xAperture, double yAperture, double halfL, double dL, double tubeThickness, GeoPhysVol* fwrPhys);
-  void insertXRecticircularElement(std::string name, double x, double y, double z, double rotationAngle, double xAperture, double yAperture, double halfL, double dL, double tubeThickness, GeoPhysVol* fwrPhys);
-  void insertYRecticircularElement(std::string name, double x, double y, double z, double rotationAngle, double xAperture, double yAperture, double halfL, double dL, double tubeThickness, GeoPhysVol* fwrPhys);
-  void insertTrousersElement(std::string name, double x, double y, double z, double rotationAngle, GeoPhysVol* fwrPhys);
-  void insertTCLElement(std::string name, double x, double y, double z, GeoPhysVol* fwrPhys, double TCLJawDistO, double TCLJawDistI, bool tungstenInsteadOfCopper = false);
+  GeoPhysVol* insertMagnetEnvelope(const std::string& name, double x, double y, double z, double rotationAngle, double diameter, double halfL, double dL, GeoPhysVol* fwrPhys);
+  void insertCircularElement(const std::string& name, double x, double y, double z, double rotationAngle, double xAperture, double yAperture, double halfL, double dL, double tubeThickness, GeoPhysVol* fwrPhys);
+  void insertEllipticalElement(const std::string& name, double x, double y, double z, double rotationAngle, double xAperture, double yAperture, double halfL, double dL, double tubeThickness, GeoPhysVol* fwrPhys);
+  void insertXRecticircularElement(const std::string& name, double x, double y, double z, double rotationAngle, double xAperture, double yAperture, double halfL, double dL, double tubeThickness, GeoPhysVol* fwrPhys);
+  void insertYRecticircularElement(const std::string& name, double x, double y, double z, double rotationAngle, double xAperture, double yAperture, double halfL, double dL, double tubeThickness, GeoPhysVol* fwrPhys);
+  void insertTrousersElement(const std::string& name, double x, double y, double z, double rotationAngle, GeoPhysVol* fwrPhys);
+  void insertTCLElement(const std::string& name, double x, double y, double z, GeoPhysVol* fwrPhys, double TCLJawDistO, double TCLJawDistI, bool tungstenInsteadOfCopper = false);
 
   // Load data from file into 2D array of strings
   std::vector<std::vector<std::string> > loadDataFile(char * fileName, int cols);

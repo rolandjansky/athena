@@ -32,6 +32,8 @@ public:
   Associator_DeltaEtaPhi(const std::string& name, double deltaEta, double deltaPhi) : TrackAssociator(name), m_deltaEta(deltaEta), m_deltaPhi(deltaPhi)  {} 
   
   ~Associator_DeltaEtaPhi() { } 
+
+  virtual TrackAssociator* clone() override { return new Associator_DeltaEtaPhi(*this); }
   
   virtual void match(const std::vector<TIDA::Track*>& referenceTracks, 
 		     const std::vector<TIDA::Track*>& testTracks) {

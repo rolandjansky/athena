@@ -48,7 +48,8 @@ namespace Trig {
 
     private:
 
-      virtual Trig::CacheGlobalMemory* cgm() const =0; 
+      virtual Trig::CacheGlobalMemory* cgm() = 0;
+      virtual const Trig::CacheGlobalMemory* cgm() const = 0;
       
     };
 }

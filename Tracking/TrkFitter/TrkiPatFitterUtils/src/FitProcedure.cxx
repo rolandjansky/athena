@@ -70,7 +70,7 @@ FitProcedure::FitProcedure(bool constrainedAlignmentEffects,
 {}
 
 // destructor
-FitProcedure::~FitProcedure() {}
+
 
 void
 FitProcedure::clear(FitProcedure::Cache& cache)

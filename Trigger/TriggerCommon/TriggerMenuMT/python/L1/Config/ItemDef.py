@@ -985,6 +985,7 @@ class ItemDef:
         MenuItem('L1_MBTS_1_A'           ).setLogic( MBTS_1_A & physcond ).setTriggerType(TT.minb)
         MenuItem('L1_MBTS_1_C'           ).setLogic( MBTS_1_C & physcond ).setTriggerType(TT.minb)
 
+
         MenuItem('L1_MBTS_1_UNPAIRED_ISO'   ).setLogic( MBTS_1   & unpaired_isocond).setTriggerType(TT.minb)
         MenuItem('L1_MBTS_2_UNPAIRED_ISO'   ).setLogic( MBTS_2   & unpaired_isocond).setTriggerType(TT.minb)
         MenuItem('L1_MBTS_1_1_UNPAIRED_ISO' ).setLogic( MBTS_1_1 & unpaired_isocond).setTriggerType(TT.minb)

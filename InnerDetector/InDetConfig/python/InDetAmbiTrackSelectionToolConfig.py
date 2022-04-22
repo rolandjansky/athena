@@ -27,7 +27,7 @@ def InDetAmbiTrackSelectionToolCfg(flags, name = "InDetAmbiTrackSelectionTool", 
         InDetTRTDriftCircleCut = acc.popToolsAndMerge(InDetTRTDriftCircleCutForPatternRecoCfg(flags))
         kwargs.setdefault("DriftCircleCutTool", InDetTRTDriftCircleCut)
 
-    from InDetConfig.TrackingCommonConfig import InDetPRDtoTrackMapToolGangedPixelsCfg
+    from InDetConfig.InDetAssociationToolsConfig import InDetPRDtoTrackMapToolGangedPixelsCfg
     InDetPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge(InDetPRDtoTrackMapToolGangedPixelsCfg(flags))
 
     kwargs.setdefault("AssociationTool" , InDetPRDtoTrackMapToolGangedPixels)
@@ -84,8 +84,9 @@ def InDetAmbiTrackSelectionToolCfg(flags, name = "InDetAmbiTrackSelectionTool", 
 def InDetTRTAmbiTrackSelectionToolCfg(flags, name = 'InDetTRT_SeededAmbiTrackSelectionTool', **kwargs):
     acc = ComponentAccumulator()
 
-    from InDetConfig.TrackingCommonConfig import InDetTRTDriftCircleCutForPatternRecoCfg, InDetPRDtoTrackMapToolGangedPixelsCfg
+    from InDetConfig.TrackingCommonConfig import InDetTRTDriftCircleCutForPatternRecoCfg
     InDetTRTDriftCircleCut = acc.popToolsAndMerge(InDetTRTDriftCircleCutForPatternRecoCfg(flags))
+    from InDetConfig.InDetAssociationToolsConfig import InDetPRDtoTrackMapToolGangedPixelsCfg
     InDetPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge(InDetPRDtoTrackMapToolGangedPixelsCfg(flags))
 
     kwargs.setdefault("DriftCircleCutTool", InDetTRTDriftCircleCut)
@@ -106,9 +107,9 @@ def InDetTrigTrackSelectionToolCfg(flags, name = 'InDetTrigAmbiTrackSelectionToo
   acc = ComponentAccumulator()
 
   #TODO add configurations fro beamgas and cosmic see: trackSelectionTool_getter
-  from TrigInDetConfig.TrigInDetConfig import InDetPRDtoTrackMapToolGangedPixelsCfg
+  from InDetConfig.InDetAssociationToolsConfig import TrigPRDtoTrackMapToolGangedPixelsCfg
   kwargs.setdefault("DriftCircleCutTool", None)
-  kwargs.setdefault("AssociationTool", acc.getPrimaryAndMerge( InDetPRDtoTrackMapToolGangedPixelsCfg(flags)))
+  kwargs.setdefault("AssociationTool", acc.popToolsAndMerge(TrigPRDtoTrackMapToolGangedPixelsCfg(flags)))
   kwargs.setdefault("minHits", flags.InDet.Tracking.ActivePass.minClusters)
   kwargs.setdefault("minNotShared", flags.InDet.Tracking.ActivePass.minSiNotShared)
   kwargs.setdefault("maxShared", flags.InDet.Tracking.ActivePass.maxShared)
@@ -132,7 +133,7 @@ def ITkAmbiTrackSelectionToolCfg(flags, name = "ITkAmbiTrackSelectionTool", **kw
     # --- load InnerDetector TrackSelectionTool
     #
 
-    from InDetConfig.ITkTrackingCommonConfig import ITkPRDtoTrackMapToolGangedPixelsCfg
+    from InDetConfig.InDetAssociationToolsConfig import ITkPRDtoTrackMapToolGangedPixelsCfg
     ITkPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge(ITkPRDtoTrackMapToolGangedPixelsCfg(flags))
 
     kwargs.setdefault("DriftCircleCutTool", None)
@@ -170,7 +171,7 @@ def ITkAmbiTrackSelectionToolCfg(flags, name = "ITkAmbiTrackSelectionTool", **kw
     kwargs.setdefault("etaWidthEM"                , 0.05)     #Split cluster ROI size
 
     if 'InDetEtaDependentCutsSvc' not in kwargs :
-        from InDetConfig.ITkTrackingCommonConfig import ITkEtaDependentCutsSvcCfg
+        from InDetConfig.InDetEtaDependentCutsConfig import ITkEtaDependentCutsSvcCfg
         acc.merge(ITkEtaDependentCutsSvcCfg(flags))
         kwargs.setdefault("InDetEtaDependentCutsSvc", acc.getService("ITkEtaDependentCutsSvc"+flags.ITk.Tracking.ActivePass.extension))
 

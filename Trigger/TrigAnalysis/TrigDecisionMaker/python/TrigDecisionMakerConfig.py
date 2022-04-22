@@ -112,17 +112,14 @@ def Run1Run2DecisionMakerCfg(flags):
     # to be in serial athena, i.e. it does not run on the modified HLTResult created by
     # TrigBSExtraction. See also ATLASRECTS-6453.
     from SGComps.AddressRemappingConfig import InputRenameCfg
-    if doEF:
-        acc.merge(InputRenameCfg("HLT::HLTResult", "HLTResult_EF", "HLTResult_EF_BS"))
-    elif doHLT:
-        acc.merge(InputRenameCfg("HLT::HLTResult", "HLTResult_HLT", "HLTResult_HLT_BS"))
 
-    acc.addEventAlgo( CompFactory.xAODMaker.TrigNavigationCnvAlg('TrigNavigationCnvAlg', 
-                                                                 doL2 = False,  # even in Run-1 only convert EF
-                                                                 doEF = doEF,
-                                                                 doHLT = doHLT,
-                                                                 AODKeyEF = "HLTResult_EF_BS",
-                                                                 AODKeyHLT = "HLTResult_HLT_BS") )
+    # Even for Run-1, we only convert the EF result:
+    aodKey = "HLTResult_HLT" if doHLT else "HLTResult_EF"
+
+    acc.merge(InputRenameCfg("HLT::HLTResult", aodKey, aodKey+"_BS"))
+    acc.addEventAlgo( CompFactory.xAODMaker.TrigNavigationCnvAlg('TrigNavigationCnvAlg',
+                                                                 AODKey = aodKey,
+                                                                 xAODKey = "TrigNavigation") )
 
     return acc
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -131,7 +131,7 @@ StatusCode Trk::SurfaceIntersectionTest::runTest()
         Trk::VectorNtupleBranch             intersectionBranch;
         intersectionBranch.initForWrite(*currentTree,"Intersection_",3);
 
-        if (sf){
+        {
             for (size_t ist = 0; ist < m_testsPerSurface; ++ist){
             // starting around the perigee
             Amg::Vector3D startPosition;

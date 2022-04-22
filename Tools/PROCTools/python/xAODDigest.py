@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 import sys
@@ -7,29 +7,32 @@ import os
 import ROOT
 import argparse
 
-def safeRetrieve (evt, typ, key):
-    if evt.contains (typ, key):
-        return evt.retrieve (typ, key)
-    print (f'WARNING: Cannot find object {typ}/{key}')
+
+def safeRetrieve(evt, typ, key):
+    if evt.contains(typ, key):
+        return evt.retrieve(typ, key)
+    print(f'WARNING: Cannot find object {typ}/{key}')
     return []
+
 
 def xAODDigest(evt, counter=False, extravars=False):
     result = list()
 
     for i in range(0, evt.getEntries()):
         if (counter and (i % 100) == 0):
-            print("Processing event %s" %i) 
+            print("Processing event %s" % i)
 
         evt.getEntry(i)
         ei = evt.retrieve("xAOD::EventInfo", "EventInfo")
         runnbr = ei.runNumber()
         evtnbr = ei.eventNumber()
 
-        clusters = safeRetrieve (evt, "xAOD::CaloClusterContainer", "CaloCalTopoClusters")
+        clusters = safeRetrieve(
+            evt, "xAOD::CaloClusterContainer", "CaloCalTopoClusters")
         nclus = len(clusters)
 
         idTracks = safeRetrieve(evt,
-            "xAOD::TrackParticleContainer", "InDetTrackParticles")
+                                "xAOD::TrackParticleContainer", "InDetTrackParticles")
         nIdTracks = len(idTracks)
 
         tautracks = safeRetrieve(evt, "xAOD::TauTrackContainer", "TauTracks")
@@ -37,38 +40,57 @@ def xAODDigest(evt, counter=False, extravars=False):
         taus = safeRetrieve(evt, "xAOD::TauJetContainer", "TauJets")
         nTaus = len(taus)
         if taus:
-          tau1pt = taus[0].pt()
-          tau1eta = taus[0].eta()
-          tau1phi = taus[0].phi()
+            tau1pt = taus[0].pt()
+            tau1eta = taus[0].eta()
+            tau1phi = taus[0].phi()
         else:
-          tau1pt = tau1eta = tau1phi = 0
+            tau1pt = tau1eta = tau1phi = 0
 
         muons = safeRetrieve(evt, "xAOD::MuonContainer", "Muons")
         nMuons = len(muons)
         if muons:
-          muon1pt = muons[0].pt()
-          muon1eta = muons[0].eta()
-          muon1phi = muons[0].phi()
+            muon1pt = muons[0].pt()
+            muon1eta = muons[0].eta()
+            muon1phi = muons[0].phi()
         else:
-          muon1pt = muon1eta = muon1phi = 0
+            muon1pt = muon1eta = muon1phi = 0
 
-        electrons = safeRetrieve(evt,"xAOD::ElectronContainer", "Electrons")
+        electrons = safeRetrieve(evt, "xAOD::ElectronContainer", "Electrons")
         nElec = len(electrons)
         if electrons:
-          elec1pt = electrons[0].pt()
-          elec1eta = electrons[0].eta()
-          elec1phi = electrons[0].phi()
+            elec1pt = electrons[0].pt()
+            elec1eta = electrons[0].eta()
+            elec1phi = electrons[0].phi()
         else:
-          elec1pt = elec1eta = elec1phi = 0
+            elec1pt = elec1eta = elec1phi = 0
 
-        photons = safeRetrieve(evt,"xAOD::PhotonContainer", "Photons")
+        photons = safeRetrieve(evt, "xAOD::PhotonContainer", "Photons")
         nPhot = len(photons)
         if photons:
-          phot1pt = photons[0].pt()
-          phot1eta = photons[0].eta()
-          phot1phi = photons[0].phi()
+            phot1pt = photons[0].pt()
+            phot1eta = photons[0].eta()
+            phot1phi = photons[0].phi()
         else:
-          phot1pt = phot1eta = phot1phi = 0
+            phot1pt = phot1eta = phot1phi = 0
+
+        if extravars:
+            jets = safeRetrieve(evt,"xAOD::JetContainer", "AntiKt4EMPFlowJets")
+            nJet = len(jets)
+            if jets:
+                jet1pt = jets[0].pt()
+                jet1eta = jets[0].eta()
+                jet1phi = jets[0].phi()
+            else:
+                jet1pt = jet1eta = jet1phi = 0
+
+            met = safeRetrieve(evt,"xAOD::MissingETContainer", "MET_Reference_AntiKt4EMPFlow")
+            nmet = len(met)
+            if met:
+                metx = met[nmet-1].mpx()
+                mety = met[nmet-1].mpy()
+                sumet = met[nmet-1].sumet()
+            else:
+                metx = mety = sumet = 0
 
         nTrueElectrons = 0
         nTruePhotons = 0
@@ -99,7 +121,8 @@ def xAODDigest(evt, counter=False, extravars=False):
                            nTauTracks, nTaus, tau1pt, tau1eta, tau1phi,
                            nMuons, muon1pt, muon1eta, muon1phi,
                            nElec, elec1pt, elec1eta, elec1phi, nTrueElectrons, nFakeElectrons,
-                           nPhot, phot1pt, phot1eta, phot1phi ,nTruePhotons, nFakePhotons))
+                           nPhot, phot1pt, phot1eta, phot1phi ,nTruePhotons, nFakePhotons,
+                           nJet, jet1pt, jet1eta, jet1phi, nmet, metx, mety, sumet))
         else:
             result.append((runnbr, evtnbr, nclus, nIdTracks, nTauTracks, nTaus, nMuons,
                            nElec, nTrueElectrons, nFakeElectrons,
@@ -114,13 +137,23 @@ def xAODDigest(evt, counter=False, extravars=False):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser = argparse.ArgumentParser(description="Extracts a few basic quantities from the xAOD file and dumps them into a text file")
-    parser.add_argument("xAODFile", nargs='?', type=str, help="xAOD filename", action="store")
-    parser.add_argument("outfilename", nargs='?', help="output text file for results", action="store", default=None)
-    parser.add_argument("--outputfilename", help="output text file for results", action="store", default=None)
-    parser.add_argument("--extravars", help="Extract extra variables: pt/eta/phi", action="store_true", default=False)
-    parser.add_argument("--counter", help="Print event counter mod 100", action="store_true", default=False)
-    parser.add_argument("--inputlist", help="Optional list of xAOD file instead of xAODFile parameter", nargs='+', action="store", default=False)
+    parser = argparse.ArgumentParser(
+        description="Extracts a few basic quantities from the xAOD file and dumps them into a text file")
+    parser.add_argument("xAODFile", nargs='?', type=str,
+                        help="xAOD filename", action="store")
+    parser.add_argument("outfilename", nargs='?',
+                        help="output text file for results", action="store", default=None)
+    parser.add_argument(
+        "--outputfilename", help="output text file for results", action="store", default=None)
+    parser.add_argument("--extravars", help="Extract extra variables: pt/eta/phi",
+                        action="store_true", default=False)
+    parser.add_argument("--counter", help="Print event counter mod 100",
+                        action="store_true", default=False)
+    parser.add_argument("--inputlist", help="Optional list of xAOD file instead of xAODFile parameter",
+                        nargs='+', action="store", default=False)
+    parser.add_argument("--inputisESD", help="Set if input is ESD",
+                        action="store_true", default=False)
+
     args = parser.parse_args()
 
     if len(sys.argv) < 2:
@@ -151,7 +184,8 @@ def main():
         filelist = args.xAODFile
 
     # Setup TEvent object and add inputs
-    evt = ROOT.POOL.TEvent(ROOT.POOL.TEvent.kClassAccess)
+    evt = ROOT.POOL.TEvent(
+        ROOT.POOL.TEvent.kPOOLAccess if args.inputisESD else ROOT.POOL.TEvent.kClassAccess)
     stat = evt.readFrom(filelist)
     if not stat:
         print("ERROR, failed to open file {} with POOL.TEvent".format(
@@ -168,16 +202,17 @@ def main():
 
     if args.extravars:
         header = ("run", "event", "nTopo", "nIdTracks",
-                  "nTauTracks", "nTaus", "tau1pt", "tau1eta", "tau1phi", 
+                  "nTauTracks", "nTaus", "tau1pt", "tau1eta", "tau1phi",
                   "nMuons", "muon1pt", "muon1eta", "muon1phi",
                   "nElec", "elec1pt", "elec1eta", "elec1phi", "nTrueElec", "nFakeElec",
-                  "nPhot", "phot1pt", "phot1eta", "phot1phi", "nTruePhot", "nFakePhot")
+                  "nPhot", "phot1pt", "phot1eta", "phot1phi", "nTruePhot", "nFakePhot",
+                  "nJet", "jet1pt", "jet1eta", "jet1phi", "nmet", "metx", "mety", "sumet" )
         row_format_header = "{:>20}" * len(header)
         row_format_header += os.linesep
         row_format_data = "{:d} {:d} " + "{:20.4f}" * (len(header)-2)
         row_format_data += os.linesep
     else:
-        header = ("run", "event", "nTopo", "nIdTracks", "nTauTracks", "nTaus", "nMuons", 
+        header = ("run", "event", "nTopo", "nIdTracks", "nTauTracks", "nTaus", "nMuons",
                   "nElec", "nTrueElec", "nFakeElec",
                   "nPhot", "nTruePhot", "nFakePhot")
         row_format_header = "{:>12}" * len(header)

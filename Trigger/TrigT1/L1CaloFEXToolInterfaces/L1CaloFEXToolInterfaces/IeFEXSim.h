@@ -17,6 +17,7 @@
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "L1CaloFEXSim/eFEXOutputCollection.h"
+#include "L1CaloFEXSim/eFEXegTOB.h"
 
 namespace LVL1 {
   
@@ -39,7 +40,7 @@ Interface definition for eFEXSim
     virtual void SetTowersAndCells_SG(int tmp[10][18]) = 0;
 
     virtual StatusCode NewExecute(int tmp[10][18], eFEXOutputCollection* inputOutputCollection) = 0;
-    virtual std::vector<uint32_t> getEmTOBs() = 0;
+    virtual std::vector<eFEXegTOB> getEmTOBs() = 0;
     virtual std::vector<uint32_t> getTauTOBs() = 0;
 
   private:

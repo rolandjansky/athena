@@ -20,8 +20,16 @@ ex = ExecStep.ExecStep()
 ex.type = 'athenaHLT'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data_cos'
-ex.max_events = 100
-ex.args = '-c "setMenu=\'Cosmic_run3_v1\';doCosmics=True;doL1Sim=True;rewriteLVL1=True;"'
+ex.max_events = 200
+precommand = ''.join([
+  "setMenu='Cosmic_run3_v1';",
+  "doCosmics=True;",
+  "doL1Sim=True;",
+  "rewriteLVL1=True;",
+  "setDetDescr='ATLAS-R3S-2021-01-00-02';",
+  "condOverride={'/MDT/Onl/T0BLOB':'MDTT0-RUN3-Onl-UPD1-01-BLOB'};"  # TODO: use R3 HLT cond tag when available
+])
+ex.args = f'-c "{precommand}"'
 ex.args += ' -o output'
 ex.args += ' --dump-config-reload'
 

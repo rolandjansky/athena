@@ -534,8 +534,6 @@ protected:
 #endif
 
 
-    //    std::cout << "here " << __LINE__ << std::endl;
-
     /// add the truth particles if needed
 
     if ( m_mcTruth ) {

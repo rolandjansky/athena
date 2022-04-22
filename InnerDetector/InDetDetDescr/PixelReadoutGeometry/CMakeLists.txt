@@ -23,6 +23,14 @@ atlas_add_component( PixelReadoutGeometry
   src/components/*.cxx
   LINK_LIBRARIES AthenaBaseComps Identifier InDetIdentifier PixelReadoutGeometryLib )
 
+if( NOT SIMULATIONBASE )
+  # Executable(s) in the package:
+  atlas_add_executable( ITkPixelIdentifiers
+    utils/ITkPixelIdentifiersDump.cxx
+    LINK_LIBRARIES AthenaBaseComps AthenaKernel AsgMessagingLib GaudiKernel PixelReadoutGeometryLib )
+  atlas_install_joboptions( utils/ITkPixelIdentifiersDumpConfig.txt )
+endif()
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 

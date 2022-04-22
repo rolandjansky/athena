@@ -12,7 +12,6 @@
 #include "TrkEventUtils/TrackStateOnSurfaceComparisonFunction.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkFitterUtils/MeasBaseIndexComparisonFunction.h"
-#include "TrkFitterUtils/ProtoMaterialEffects.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkToolInterfaces/IUpdator.h"
@@ -23,17 +22,14 @@
 
 Trk::TrackFitInputPreparator::TrackFitInputPreparator()
   : m_sortingRefPoint(0., 0., 0.)
-  , m_extrapolator(nullptr)
 {
   m_TP_ComparisonFunction =
     new Trk::TrkParametersComparisonFunction(m_sortingRefPoint);
 }
 
 Trk::TrackFitInputPreparator::TrackFitInputPreparator(
-  const Amg::Vector3D& gp,
-  const IExtrapolator* extrapolator)
+  const Amg::Vector3D& gp)
   : m_sortingRefPoint(gp)
-  , m_extrapolator(extrapolator)
 {
   m_TP_ComparisonFunction =
     new Trk::TrkParametersComparisonFunction(m_sortingRefPoint);

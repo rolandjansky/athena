@@ -27,8 +27,7 @@ if not 'DQMonFlags' in dir():
 # Bphys - Running JpsiFinder
 if HLTMonFlags.doMonTier0:
     if HLTMonFlags.doBphys and rec.doInDet:
-      log.info('Including RunJpsiFinder.py')
-      include( "TrigBphysMonitoring/RunJpsiFinder.py" )
+      log.warning('B-Physics JpsiFinder is no longer supported')
 
 topSequence += AthenaMonManager("HLTMonManager",
         Run=DQMonFlags.monManRun(),
@@ -49,40 +48,15 @@ if HLTMonFlags.doGeneral:
 if HLTMonFlags.doMonTier0:
     # HLTEgammaMonTool - Calculates basic efficiencies
     if HLTMonFlags.doEgamma:
-      try:
-       if rec.doCalo and rec.doInDet:
-        from TrigEgammaMonitoring.TrigEgammaMonitoringConfig import TrigEgammaMonitoringTool
-        HLTMonManager.AthenaMonTools += TrigEgammaMonitoringTool()
-      except:
-        log.info("Problems with HLTEgammaTool, tool not enabled")
-        import traceback
-        log.info (traceback.format_exc())
+        log.warning("The HLT legacy e/gamma monitoring is no longer supported")
 
     # HLTCaloTool - Makes basic comparisons between online/offline
     if HLTMonFlags.doCalo:
-      try:
-       if rec.doCalo and rec.doInDet:
-        from TrigCaloMonitoring.TrigCaloMonitoringConfig import HLTCaloMonitoringTool
-        HLTMonManager.AthenaMonTools+=HLTCaloMonitoringTool()
-      except:
-        log.info("Problems with HLTCaloTool, tool not enabled")
-        import traceback
-        log.info (traceback.format_exc())
+        log.warning("The HLT legacy Calo monitoring is no longer supported")
 
     # HLTMuonMonTool - Multiple Muon algorithms EDM Dumper
     if HLTMonFlags.doMuon:
-      try:
-        from TrigMuonMonitoring.TrigMuonMonitoringConfig import TrigMuonMonitoringTool
-        HLTMonManager.AthenaMonTools += TrigMuonMonitoringTool()
-        HLTMonManager.ExtraInputs += [('xAOD::MuonContainer','StoreGateSvc+Muons')]
-        HLTMonManager.ExtraInputs += [('xAOD::VertexContainer','StoreGateSvc+PrimaryVertices')]
-        HLTMonManager.ExtraInputs += [('xAOD::EventInfo','StoreGateSvc+EventInfo')]
-        HLTMonManager.ExtraInputs += [('TrigOperationalInfoCollection','StoreGateSvc+HLT_TrigOperationalInfoCollection_EXPRESS_OPI_HLT')]
-        HLTMonManager.ExtraInputs += [('xAOD::MuonRoIContainer','StoreGateSvc+LVL1MuonRoIs')]
-      except:
-        log.info("Problems with HLTMuonTool, tool not enabled")
-        import traceback
-        log.info (traceback.format_exc())
+      log.warning("The HLT legacy muon monitoring is no longer supported")
 
     # IDtrk HLTMonTool
     if HLTMonFlags.doIDtrk:
@@ -97,63 +71,27 @@ if HLTMonFlags.doMonTier0:
 
     # MET HLTMonTool
     if HLTMonFlags.doMET:
-      try:
-        from TrigMETMonitoring.TrigMETMonitoringConfig import HLTMETMonitoringTool
-        HLTMonManager.AthenaMonTools += HLTMETMonitoringTool()
-      except:
-        log.info("Problems with HLTMETTool, tool not enabled")
-        import traceback
-        log.info (traceback.format_exc())
+        log.warning("The HLT legacy MET monitoring is no longer supported")
 
     # Tau HLTMonTool
     if HLTMonFlags.doTau:
-      try:
-        from TrigTauMonitoring.TrigTauMonitoringConfig import TrigTauMonitoringTool
-        HLTMonManager.AthenaMonTools += TrigTauMonitoringTool()
-      except:
-        log.info("Problems with HLTTauTool, tool not enabled")
-        import traceback
-        log.info (traceback.format_exc())
+        log.warning("The HLT legacy Tau monitoring is no longer supported")
 
     # Jet HLTMonTool
     if HLTMonFlags.doJet:
-      try:
-        from TrigJetMonitoring.TrigJetMonitoringConfig import TrigJetMonitoringTool
-        HLTMonManager.AthenaMonTools += TrigJetMonitoringTool()
-      except:
-        log.info("Problems with HLTJetTool, tool not enabled")
-        import traceback
-        log.info (traceback.format_exc())
+        log.warning("The HLT legacy jet monitoring is no longer supported")
 
     # b-jet HLTMonTool
     if HLTMonFlags.doBjet and rec.doInDet:
-      try:
-        from TrigBjetMonitoring.TrigBjetMonitoringConfig import TrigBjetMonitoringConfig
-        HLTMonManager.AthenaMonTools += TrigBjetMonitoringConfig()
-      except:
-        log.info("Problems with HLTBjetTool, tool not enabled")
-        import traceback
-        log.info (traceback.format_exc())
+        log.warning("The HLT legacy b-jet monitoring is no longer supported")
 
     # B-phys HLTMonTool
     if HLTMonFlags.doBphys:
-      try:
-        from TrigBphysMonitoring.TrigBphysMonitoringConfig import TrigBphysMonitoringTool
-        HLTMonManager.AthenaMonTools += TrigBphysMonitoringTool()
-      except:
-        log.info("Problems with HLTBphysTool, tool not enabled")
-        import traceback
-        log.info (traceback.format_exc())
+        log.warning("The HLT legacy B-Physics monitoring is no longer supported")
 
     # MinBias HLTMonTool
     if HLTMonFlags.doMinBias:
-      try:
-        from TrigMinBiasMonitoring.TrigMinBiasMonitoringConfig import TrigMinBiasMonitoringTool
-        HLTMonManager.AthenaMonTools += TrigMinBiasMonitoringTool()
-      except:
-        log.info("Problems with HLTMinBiasDumpTool, tool not enabled")
-        import traceback
-        log.info (traceback.format_exc())
+        log.warning("The HLT legacy MinBias monitoring is no longer supported")
 
 ################ Dump Tools ################
 
@@ -161,14 +99,7 @@ if HLTMonFlags.doDump:
 
     # HLTEgammaDumpTool - HLT EDM Egamma Dumper
     if HLTMonFlags.doEgamma:
-      try:
-        from TrigEgammaMonitoring.TrigEgammaMonitoringConfig import HLTEgammaMonitoringDumpTool
-        HLTMonManager.AthenaMonTools += HLTEgammaMonitoringDumpTool()
-      except:
-        log.info("Problems with HLTEgammaDumpTool, tool not enabled")
-        import traceback
-        log.info (traceback.format_exc())
-
+        log.warning("The HLT legacy e/gamma dumper is no longer supported")
 
     #Make the custom tau TTP ntuples.
     if HLTMonFlags.doOfflineTauTTP :

@@ -282,6 +282,15 @@ namespace top {
 
     inline bool doLargeJetOverlapRemoval() const {return m_doLargeJetOverlapRemoval;}
 
+    // do electron-electron overlap removal
+    inline void setEleEleOverlapRemoval() {
+      if (!m_configFixed) {
+        m_doEleEleOverlapRemoval = true;
+      }
+    }
+
+    inline bool doEleEleOverlapRemoval() const {return m_doEleEleOverlapRemoval;}
+
     // In the *_Loose trees, lepton SFs are calculated considering
     // tight ID and isolation instead of loose
     // Only tight leptons are considered in the event SF calculation
@@ -1105,6 +1114,31 @@ namespace top {
         m_muonSFCustomInputFolder = s;
       }
     } 
+    int muonForceYear() const {return m_muonForceYear;}
+    void muonForceYear(int s) {
+      if (!m_configFixed) {
+        m_muonForceYear = s;
+      }
+    }
+    std::string const& muonForcePeriod() const {return m_muonForcePeriod;}
+    void muonForcePeriod(const std::string& s) {
+      if (!m_configFixed) {
+        m_muonForcePeriod = s;
+      }
+    }
+    std::string const& muonForceTrigger() const {return m_muonForceTrigger;}
+    void muonForceTrigger(const std::string& s) {
+      if (!m_configFixed) {
+        m_muonForceTrigger = s;
+      }
+    }
+
+    std::string const& electronForceTrigger() const {return m_electronForceTrigger;}
+    void electronForceTrigger(const std::string& s) {
+      if (!m_configFixed) {
+        m_electronForceTrigger = s;
+      }
+    }
 
     // Soft Muon configuration
     inline virtual void softmuonPtcut(const float pt) {
@@ -1918,6 +1952,9 @@ namespace top {
 
     const std::vector<double>& PileUpCustomScaleFactors() {return m_pileup_reweighting.custom_SF;};
 
+    inline unsigned int forceRandomRunNumber() const {return m_forceRandomRunNumber;}
+    inline void setForceRandomRunNumber(const unsigned int randomRunNumber) {m_forceRandomRunNumber = randomRunNumber;}
+
     inline const std::string& muonTriggerSF() const {return m_muon_trigger_SF;}
 
     inline bool demandPriVtx() const {return m_demandPriVtx;}
@@ -2220,6 +2257,9 @@ namespace top {
     // (using whatever procedure is used in the official tools)
     bool m_doLargeJetOverlapRemoval;
 
+    // do electron-electron overlap removal
+    bool m_doEleEleOverlapRemoval;
+
     // Dumps the normal, non-"*_Loose" trees (on demand)
     bool m_doTightEvents;
     // Dumps the "*_Loose trees (on demand)
@@ -2398,6 +2438,10 @@ namespace top {
     bool m_muonMuonDoExtraSmearingHighPt; //to turn on/off a special correction for the muon with high momenta.
     bool m_muonBreakDownSystematics; //to turn on/off a more complex systematic model
     std::string m_muonSFCustomInputFolder;
+    std::string m_muonForcePeriod;
+    int m_muonForceYear;
+    std::string m_muonForceTrigger;
+    std::string m_electronForceTrigger;
 
     //Soft muon configuration
     float m_softmuonPtcut; // soft muon object selection pT cut
@@ -2736,6 +2780,8 @@ namespace top {
     // Where the sum of event weights
     // before derivation framework is kept
     std::string m_sumOfEventWeightsMetaData;
+
+    unsigned int m_forceRandomRunNumber = 0;
 
     // Object Selector name
     std::string m_objectSelectionName;

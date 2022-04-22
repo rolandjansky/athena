@@ -35,9 +35,9 @@ namespace LVL1 {
     virtual StatusCode initialize() override;
 
 
-    virtual void setAlgoConstant(unsigned int aFPGA_A, unsigned int bFPGA_A,
-                                 unsigned int aFPGA_B, unsigned int bFPGA_B,
-                                 unsigned int aFPGA_C, unsigned int bFPGA_C,
+    virtual void setAlgoConstant(float aFPGA_A, float bFPGA_A,
+                                 float aFPGA_B, float bFPGA_B,
+                                 float aFPGA_C, float bFPGA_C,
                                  int gXE_seedThrA, int gXE_seedThrB, int gXE_seedThrC) override;
 
     virtual std::vector<std::unique_ptr<gFEXJwoJTOB>> jwojAlgo(gTowersCentral Atwr, gTowersCentral Btwr,
@@ -48,22 +48,22 @@ namespace LVL1 {
 
   private:
 
-    int m_aFPGA_A;
-    int m_bFPGA_A;
-    int m_aFPGA_B;
-    int m_bFPGA_B;
-    int m_aFPGA_C;
-    int m_bFPGA_C;
-    int m_gBlockthresholdA;
-    int m_gBlockthresholdB;
-    int m_gBlockthresholdC;
+    float m_aFPGA_A;
+    float m_bFPGA_A;
+    float m_aFPGA_B;
+    float m_bFPGA_B;
+    float m_aFPGA_C;
+    float m_bFPGA_C;
+    float m_gBlockthresholdA;
+    float m_gBlockthresholdB;
+    float m_gBlockthresholdC;
  
     virtual void makeFPGAC(gTowersForward twrsCN, gTowersForward twrsCP, gTowersCentral & twrsC);
 
     virtual void gBlockAB(gTowersCentral twrs, gTowersCentral & gBlkSum);
 
     virtual void metFPGA(gTowersCentral twrs, gTowersCentral & gBlkSum, int gBlockthreshold,
-                           unsigned int aFPGA, unsigned int bFPGA,
+                           float aFPGA, float bFPGA,
                            int & MHT_x, int & MHT_y,
                            int & MST_x, int & MST_y,
                            int & MET_x, int & MET_y);

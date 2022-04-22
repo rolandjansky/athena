@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 
 from ..Config.ChainConfigurationBase import ChainConfigurationBase
 
-from .MuonMenuSequences import muFastSequence, muFastOvlpRmSequence, mul2mtSAOvlpRmSequence, muCombSequence, muCombLRTSequence, muCombOvlpRmSequence, mul2mtCBOvlpRmSequence, mul2IOOvlpRmSequence, muEFSASequence, muEFCBSequence, muEFCBLRTSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, muEFMSIsoSequence, efLateMuRoISequence, efLateMuSequence, muRoiClusterSequence
+from .MuonMenuSequences import muFastSequence, muFastCalibSequence, muFastOvlpRmSequence, mul2mtSAOvlpRmSequence, muCombSequence, muCombLRTSequence, muCombOvlpRmSequence, mul2mtCBOvlpRmSequence, mul2IOOvlpRmSequence, muEFSASequence, muEFCBSequence, muEFCBLRTSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, muEFMSIsoSequence, efLateMuRoISequence, efLateMuSequence, muRoiClusterSequence
 from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFInvMassHypoToolFromDict
 
 
@@ -20,6 +20,9 @@ from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFInvMassHypoToolFromDict
 #--------------------------------------------------------
 def muFastSequenceCfg(flags,is_probe_leg=False):
     return muFastSequence(is_probe_leg=is_probe_leg)
+
+def muFastCalibSequenceCfg(flags,is_probe_leg=False):
+    return muFastCalibSequence(is_probe_leg=is_probe_leg)
 
 def muFastOvlpRmSequenceCfg(flags,is_probe_leg=False):
     return muFastOvlpRmSequence(is_probe_leg=is_probe_leg)
@@ -150,7 +153,9 @@ class MuonChainConfiguration(ChainConfigurationBase):
         else:
            doOvlpRm = False
 
-        if 'l2mt' in self.chainPart['l2AlgInfo']:
+        if 'muoncalib' in self.chainPart['extra']:
+           return self.getStep(1,"mufast", [muFastCalibSequenceCfg], is_probe_leg=is_probe_leg )
+        elif 'l2mt' in self.chainPart['l2AlgInfo']:
             return self.getStep(1,"mufastl2mt", [mul2mtSAOvlpRmSequenceCfg], is_probe_leg=is_probe_leg )
         elif doOvlpRm:
            return self.getStep(1,"mufast", [muFastOvlpRmSequenceCfg], is_probe_leg=is_probe_leg )

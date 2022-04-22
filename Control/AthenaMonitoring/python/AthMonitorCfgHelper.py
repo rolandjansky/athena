@@ -37,7 +37,7 @@ class AthMonitorCfgHelper(object):
             from .TriggerInterface import TrigDecisionToolCfg
             self.resobj.merge(TrigDecisionToolCfg(inputFlags))
 
-    def addAlgorithm(self, algClassOrObj, name = None, *args, **kwargs):
+    def addAlgorithm(self, algClassOrObj, name = None, addFilterTools = [], *args, **kwargs):
         '''
         Instantiate/add a monitoring algorithm
 
@@ -54,6 +54,7 @@ class AthMonitorCfgHelper(object):
         Returns:
         algObj -- an algorithm Configurable object
         '''
+        from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
         from inspect import isclass
         if isclass(algClassOrObj):
             if name is None:
@@ -80,6 +81,19 @@ class AthMonitorCfgHelper(object):
                 self.resobj.merge (TrigLiveFractionCondAlgCfg (self.inputFlags))
         else:
             algObj.EnableLumi = False
+
+        # add some optional filters?
+        for obj in addFilterTools:
+            # accept either ComponentAccumulators or tools (trusting that user has already merged CA)
+            if isinstance(obj, ComponentAccumulator):
+                filter = self.resobj.popToolsAndMerge(obj)
+            elif hasattr(obj, 'getGaudiType') and obj.getGaudiType() == 'AlgTool':
+                filter = obj
+            else:
+                raise ValueError(f'Object {obj} passed to addFilterTools is not a ComponentAccumulator or an AlgTool')
+            algObj.FilterTools += [filter]
+
+
         self.resobj.addEventAlgo(algObj, sequenceName=self.monSeq.name)
         return algObj
 

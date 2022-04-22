@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
@@ -92,6 +92,48 @@ def SCT_DetectorElementCondAlgCfg(flags, name="SCT_DetectorElementCondAlg", **kw
     acc.addCondAlgo(CompFactory.SCT_DetectorElementCondAlg(name, **kwargs))
     return acc
 
+# SCTDetectorElementStatusAlg which creates the status data to be used in the SCT_Clusterization
+def SCT_DetectorElementStatusCondAlgCfg(flags, name="SCTDetectorElementStatusCondAlg",**kwargs) :
+    acc = ComponentAccumulator()
+    if 'ConditionsSummaryTool' not in kwargs :
+        from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_ConditionsSummaryToolCfg
+        kwargs.setdefault("ConditionsSummaryTool", acc.popToolsAndMerge(SCT_ConditionsSummaryToolCfg(flags, withFlaggedCondTool=False, withByteStreamErrorsTool=False)) )
+    kwargs.setdefault("WriteKey", "SCTDetectorElementStatusCondData")
+
+    # not a conditions algorithm since it combines conditions data and data from the bytestream
+    acc.addCondAlgo( CompFactory.InDet.SiDetectorElementStatusCondAlg(name, **kwargs) )
+    return acc
+
+def SCT_DetectorElementStatusAlgWithoutFlaggedCfg(flags, name="SCTDetectorElementStatusAlgWithoutFlagged",**kwargs) :
+    '''
+    Algorithm which just creates event data from conditions data.
+    '''
+    acc = SCT_DetectorElementStatusCondAlgCfg(flags)
+    if 'ConditionsSummaryTool' not in kwargs :
+        from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_DetectorElementStatusAddByteStreamErrorsToolCfg
+        kwargs.setdefault("ConditionsSummaryTool", acc.popToolsAndMerge(SCT_DetectorElementStatusAddByteStreamErrorsToolCfg(
+                                                                           flags,
+                                                                           SCTDetElStatusCondDataBaseKey  = "SCTDetectorElementStatusCondData",
+                                                                           SCTDetElStatusEventDataBaseKey = "")) )
+    kwargs.setdefault("WriteKey",                      "SCTDetectorElementStatusWithoutFlagged")
+
+    # not a conditions algorithm since it combines conditions data and data from the bytestream
+    acc.addEventAlgo( CompFactory.InDet.SiDetectorElementStatusAlg(name, **kwargs) )
+    return acc
+
+# SCTDetectorElementStatusAlg which creates the status data to be used everywhere but the SCT_Clusterization
+def SCT_DetectorElementStatusAlgCfg(flags, name = "SCTDetectorElementStatusAlg", **kwargs) :
+    acc = SCT_DetectorElementStatusAlgWithoutFlaggedCfg(flags)
+    if 'ConditionsSummaryTool' not in kwargs :
+        from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_DetectorElementStatusAddFlaggedToolCfg
+        kwargs.setdefault("ConditionsSummaryTool", acc.popToolsAndMerge(SCT_DetectorElementStatusAddFlaggedToolCfg(
+                                                                           flags,
+                                                                           SCTDetElStatusCondDataBaseKey  = "",
+                                                                           SCTDetElStatusEventDataBaseKey = "SCTDetectorElementStatusWithoutFlagged")) )
+
+    kwargs.setdefault("WriteKey",                      "SCTDetectorElementStatus")
+    acc.merge( SCT_DetectorElementStatusAlgWithoutFlaggedCfg(flags, name, **kwargs) )
+    return acc
 
 if __name__=="__main__":
     from AthenaCommon.Logging import log

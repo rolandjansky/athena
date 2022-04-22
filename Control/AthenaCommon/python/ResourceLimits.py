@@ -6,8 +6,6 @@
 
 """Helper to max soft resource limits to the hard ones."""
 
-from __future__ import print_function
-
 from AthenaCommon.Logging import logging
 import resource
 

@@ -330,7 +330,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	    NameH = "JFxNVtx_tr_"+trigName;
 	    ATH_MSG_DEBUG( " NameH: " << NameH  );
 	    auto jf_n2t = Monitored::Scalar<int>(NameH,0.0);
-	    btag->variable<int>("JetFitter", "NVTX", jf_n2t);
+	    btag->variable<int>("JetFitter", "N2Tpair", jf_n2t);
 	    ATH_MSG_DEBUG("        jf_n2t: " << jf_n2t);
 	    fill("TrigBjetMonitor",jf_n2t);
 	    

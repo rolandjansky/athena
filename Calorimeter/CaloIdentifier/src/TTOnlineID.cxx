@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloIdentifier/TTOnlineID.h"
@@ -37,7 +37,7 @@ TTOnlineID::TTOnlineID(void) :
 
 }
 
-TTOnlineID:: ~TTOnlineID(){}
+TTOnlineID:: ~TTOnlineID()= default;
 
 
 IdContext TTOnlineID::crateContext(void) const

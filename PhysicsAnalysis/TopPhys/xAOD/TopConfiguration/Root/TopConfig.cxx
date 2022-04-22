@@ -92,6 +92,8 @@ namespace top {
     // do overlap removal also with large-R jets
     // (using whatever procedure is used in the official tools)
     m_doLargeJetOverlapRemoval(false),
+    // do electron-electron overlap removal
+    m_doEleEleOverlapRemoval(false),
     // Dumps the normal non-"*_Loose" trees
     m_doTightEvents(true),
     // Runs Loose selection and dumps the "*_Loose" trees
@@ -241,6 +243,10 @@ namespace top {
     m_muonMuonDoExtraSmearingHighPt(false),
     m_muonBreakDownSystematics(false),
     m_muonSFCustomInputFolder(" "),
+    m_muonForcePeriod(" "),
+    m_muonForceYear(-1),
+    m_muonForceTrigger(" "),
+    m_electronForceTrigger(" "),
 
     // Soft Muon configuration
     m_softmuonPtcut(4000.),
@@ -1268,8 +1274,23 @@ namespace top {
       std::string const& customMuonSF = settings->value("MuonSFCustomInputFolder");
       this->muonSFCustomInputFolder(customMuonSF);
     }
-
+    {
+      int customMuonForceYear = std::stoi(settings->value("MuonForceYear"));
+      this->muonForceYear(customMuonForceYear);
+    }
+    {
+      std::string const& customMuonForcePeriod = settings->value("MuonForcePeriod");
+      this->muonForcePeriod(customMuonForcePeriod);
+    }
+    {
+      std::string const& customMuonForceTrigger = settings->value("MuonForceTrigger");
+      this->muonForceTrigger(customMuonForceTrigger);
+    }
     if (settings->value("UseAntiMuons") == "True") this->m_useAntiMuons = true;
+    {
+      std::string const& customElectronForceTrigger = settings->value("ElectronForceTrigger");
+      this->electronForceTrigger(customElectronForceTrigger);
+    }
 
     // Soft Muon configuration
     this->softmuonPtcut(readFloatOption(settings, "SoftMuonPt"));
@@ -1443,6 +1464,11 @@ namespace top {
     // (using whatever procedure is used in the official tools)
     if (settings->value("LargeJetOverlapRemoval") == "True") {
       this->setLargeJetOverlapRemoval();// only usefull in case of MC
+    }
+
+    //do electron-electron overlap removal
+    if (settings->value("EleEleOverlapRemoval") == "True"){
+      this->setEleEleOverlapRemoval();
     }
 
     // In the *_Loose trees, lepton SFs are calculated considering
@@ -1754,6 +1780,23 @@ namespace top {
 
     //Switch off PRW for MC samples with data overlay
     if(m_isDataOverlay) m_pileup_reweighting.apply = false;
+
+    const std::string randomRunNumberSetting = settings->value("ForceRandomRunNumber");
+    if (randomRunNumberSetting != " ") {
+      unsigned int randomRunNumber(0);
+      try {
+        randomRunNumber = std::stoul(randomRunNumberSetting);
+      } catch (...) {
+        throw std::invalid_argument{"ForceRandomRunNumber cannot be converted to an integer"};
+      }
+
+      if (randomRunNumber < 1 || randomRunNumber > 999999) {
+        throw std::invalid_argument{"ForceRandomRunNumber cannot be smaller than 0 or larger than 999999"};
+      }
+      // disable PRW
+      m_pileup_reweighting.apply = false;
+      this->setForceRandomRunNumber(randomRunNumber);
+    }
 
     m_muon_trigger_SF = settings->value("MuonTriggerSF");
 

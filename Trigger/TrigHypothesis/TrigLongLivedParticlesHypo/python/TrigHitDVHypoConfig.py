@@ -21,14 +21,16 @@ def createTrigHitDVHypoAlg(name):
 
     # monioring
     monTool = GenericMonitoringTool("IM_MonTool"+name)
-    monTool.defineHistogram('jet_pt',        type='TH1F', path='EXPERT', title="p_{T}^{jet} [GeV];p_{T}^{jet} [GeV];Nevents", xbins=50, xmin=0, xmax=300) 
-    monTool.defineHistogram('jet_eta',       type='TH1F', path='EXPERT', title="#eta^{jet} (after p_{T}^{jet} cut);#eta^{jet};Nevents", xbins=50, xmin=-5.0, xmax=5.0)
+    monTool.defineHistogram('jet_pt',        type='TH1F', path='EXPERT', title="p_{T}^{jet} [GeV];p_{T}^{jet} [GeV];Nevents", xbins=50, xmin=0, xmax=200) 
+    monTool.defineHistogram('jet_eta',       type='TH1F', path='EXPERT', title="#eta^{jet};#eta^{jet};Nevents", xbins=50, xmin=-5.0, xmax=5.0)
     #
     monTool.defineHistogram('n_dvtrks',      type='TH1F', path='EXPERT', title="Nr of HitDVTrks;N HitDVTrks size;Nevents", xbins=50, xmin=0, xmax=1000) 
-    monTool.defineHistogram('n_dvsps',       type='TH1F', path='EXPERT', title="Nr of HitDVSPs;N HitDVSPs size;Nevents", xbins=50, xmin=0, xmax=110000) 
-    monTool.defineHistogram('n_jetseeds',    type='TH1F', path='EXPERT', title="Nr of Jet Seeds;N jet seeds;Nevents", xbins=50, xmin=0, xmax=100) 
-    monTool.defineHistogram('n_spseeds',     type='TH1F', path='EXPERT', title="Nr of Ly6/Ly7 SP-doublet Seeds;N sp seeds;Nevents", xbins=50, xmin=0, xmax=100) 
-    monTool.defineHistogram('average_mu',    type='TH1F', path='EXPERT', title="Average mu;Average mu;Nevents", xbins=100, xmin=0, xmax=100) 
+    monTool.defineHistogram('n_dvsps',       type='TH1F', path='EXPERT', title="Nr of HitDVSPs;N HitDVSPs size;Nevents", xbins=50, xmin=0, xmax=100000) 
+    monTool.defineHistogram('n_jetseeds',    type='TH1F', path='EXPERT', title="Nr of Jet Seeds;N jet seeds;Nevents", xbins=25, xmin=0, xmax=25) 
+    monTool.defineHistogram('n_jetseedsdel', type='TH1F', path='EXPERT', title="Nr of deleted jet seeds;N jet seeds;Nevents", xbins=25, xmin=0, xmax=25) 
+    monTool.defineHistogram('n_spseeds',     type='TH1F', path='EXPERT', title="Nr of Ly6/Ly7 SP-doublet Seeds;N SP seeds;Nevents", xbins=25, xmin=0, xmax=25) 
+    monTool.defineHistogram('n_spseedsdel',  type='TH1F', path='EXPERT', title="Nr of deleted Ly6/Ly7 SP-doublet seeds;N SP seeds;Nevents", xbins=25, xmin=0, xmax=25) 
+    monTool.defineHistogram('average_mu',    type='TH1F', path='EXPERT', title="Average mu;Average mu;Nevents", xbins=50, xmin=0, xmax=100) 
     #
     monTool.defineHistogram('eta1_ly0_spfr', type='TH1F', path='EXPERT', title="Layer#0 hit fraction (|#eta|<1);Hit fraction;Nevents", xbins=50, xmin=0.0, xmax=1.0) 
     monTool.defineHistogram('eta1_ly1_spfr', type='TH1F', path='EXPERT', title="Layer#1 hit fraction (|#eta|<1);Hit fraction;Nevents", xbins=50, xmin=0.0, xmax=1.0) 

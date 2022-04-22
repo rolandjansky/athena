@@ -72,11 +72,18 @@ simFlags.ReleaseGeoModel = False
 # Debug outputs of user actions
 #CfgGetter.getPublicTool('G4UA::AthenaTrackingActionTool').OutputLevel = DEBUG
 
-include("G4AtlasApps/G4Atlas.flat.configuration.py")
-
-# Setup the algorithm and output sequences
+# Setup the algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence
 topSeq = AlgSequence()
+
+from G4AtlasApps.G4Atlas_Metadata import checkForContainerInInput
+if not checkForContainerInInput("xAOD::EventInfo"):
+    # If xAOD::EventInfo is not present in the input file then it should be created
+    topSeq += CfgMgr.xAODMaker__EventInfoCnvAlg()
+
+include("G4AtlasApps/G4Atlas.flat.configuration.py")
+
+# Setup the output sequence
 from AthenaCommon.AppMgr import theApp
 StreamHITS = theApp.getOutputStream( "StreamHITS" )
 
@@ -86,11 +93,6 @@ CfgMgr.SGInputLoader().Load += [('McEventCollection', 'StoreGateSvc+GEN_EVENT')]
 # Add the beam effects algorithm
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
-
-from G4AtlasApps.G4Atlas_Metadata import checkForContainerInInput
-if not checkForContainerInInput("xAOD::EventInfo"):
-    # If xAOD::EventInfo is not present in the input file then it should be created
-    topSeq += CfgMgr.xAODMaker__EventInfoCnvAlg()
 
 # Add the (python) G4 simulation service.
 # This will kickstart a lot of simulation setup.

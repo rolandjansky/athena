@@ -182,6 +182,7 @@ private:
                                                           Info* info) const;
   //MCTruthPartClassifier::ParticleOrigin
   std::tuple<unsigned int, const xAOD::TruthParticle*> defOrigOfParticle(const xAOD::TruthParticle*) const;
+  static bool fromHadron(const xAOD::TruthParticle* p, const xAOD::TruthParticle *hadptr, bool &fromTau, bool &fromBSM);
 
   //
   MCTruthPartClassifier::ParticleOrigin defHadronType(long);

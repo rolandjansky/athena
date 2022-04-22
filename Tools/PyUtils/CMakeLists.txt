@@ -49,7 +49,7 @@ atlas_add_alias( tree-orderer "tree-orderer.py" )
 # Tests:
 atlas_add_test( RootUtils
    SCRIPT test/test_RootUtils.py
-   PROPERTIES TIMEOUT 300
+   PROPERTIES TIMEOUT 450
    LOG_IGNORE_PATTERN "Ran 1 test in |CheckABICompatibility|standard library|import imp|imp module" )
 
 atlas_add_test( fprint_test

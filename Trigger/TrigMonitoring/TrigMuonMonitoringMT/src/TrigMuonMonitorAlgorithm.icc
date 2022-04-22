@@ -62,4 +62,6 @@ StatusCode TrigMuonMonitorAlgorithm::fillVariableEtaPhi(const EventContext &ctx,
 }
 
 template<class T>
-std::tuple<bool, double, double> TrigMuonMonitorAlgorithm::defaultPosFunc(const T* trig){ return std::forward_as_tuple(true, trig->eta(), trig->phi()); }
+std::tuple<bool, double, double> TrigMuonMonitorAlgorithm::defaultPosFunc(const T* trig){ 
+  return std::abs(trig->pt()) > 0.00001 ? std::forward_as_tuple(true, trig->eta(), trig->phi()) : std::forward_as_tuple(false,0.,0.) ; 
+}

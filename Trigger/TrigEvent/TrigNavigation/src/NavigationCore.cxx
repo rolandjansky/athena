@@ -15,7 +15,6 @@
 #include "TrigConfHLTUtils/HLTUtils.h"
 
 #include "TrigNavigation/TriggerElement.h"
-#include "TrigNavigation/RoICacheHistory.h"
 #include "TrigNavigation/NavigationCore.h"
 
 #include "TrigSerializeResult/StringSerializer.h"
@@ -33,25 +32,15 @@ std::ostream& operator<<( std::ostream& s, const std::vector<T>& v)
   return s;
 }
 
-NavigationCore::NavigationCore(MsgStream& log)
+NavigationCore::NavigationCore(const AthAlgTool& logger)
   : TrigNavStructure(),
     m_serializerSvc(nullptr),
     m_storeGate(nullptr),
     m_objectsKeyPrefix("HLT"),
     m_objectsIndexOffset(0),
     m_holderfactory(nullptr),
-    m_log(log)
+    m_logger(logger)
 {
-}
-
-NavigationCore::~NavigationCore() {
-  ATH_MSG_VERBOSE("~NavigationCore: cleaning static type information");
-
-  for ( auto [clid, proxy] : HLT::TypeMaps::proxies() ) delete proxy;
-  HLT::TypeMaps::proxies().clear();
-
-  for ( auto [clid, holder] : HLT::TypeMaps::holders() ) delete holder;
-  HLT::TypeMaps::holders().clear();
 }
 
 /*****************************************************************************
@@ -295,9 +284,9 @@ void NavigationCore::reset(bool inFinalize) {
   ATH_MSG_DEBUG("Navigation reset done");
 }
 
-uint16_t NavigationCore::nextSubTypeIndex(CLID clid, const std::string& /*label*/) {
+uint16_t NavigationCore::nextSubTypeIndex(CLID clid, const std::string& /*label*/) const {
   std::lock_guard<std::recursive_mutex> lock(getMutex());
-  TrigHolderStructure& holderstorage = getHolderStorage();
+  const TrigHolderStructure& holderstorage = getHolderStorage();
 
   auto holders = holderstorage.getHoldersOfClid(clid);
 
@@ -373,7 +362,7 @@ bool NavigationCore::registerHolder(IHolder* holder) {
   return true;
 }
 
-bool NavigationCore::createHolder( IHolder*& holder,  CLID clid, const std::string& label, uint16_t index) {
+bool NavigationCore::createHolder( IHolder*& holder,  CLID clid, const std::string& label, uint16_t index) const {
   ATH_MSG_DEBUG("createHolder: creating holder for CLID: " << clid  << " label: " << label << " and index: " << index);
   //reset holder
   holder = 0;
@@ -422,38 +411,24 @@ bool NavigationCore::getFeatureAccessors( const TriggerElement* te, class_id_typ
 					  const index_or_label_type& index_or_label,
 					  bool only_single_feature,
 					  TriggerElement::FeatureVec& features,
-					  bool with_cache_recording,
 					  bool travel_backward_recursively,
 					  const TriggerElement*& source,
 					  std::string& sourcelabel) const {
   
-  //if query was via subindex we don't cache the query (no support yet)
-  //note that the instantiation of this object has side effects (with calls to the caching singleton etc...)
-  HLT::RoICacheHistory::QuestionScope qscope( with_cache_recording && (index_or_label.which() == 1)?
-					      HLT::RoICacheHistory::QuestionScope(te, clid, boost::get<std::string>(index_or_label), this, only_single_feature) :
-					      HLT::RoICacheHistory::QuestionScope() );
-  
-  return TrigNavStructure::getFeatureAccessors(te,clid,index_or_label,only_single_feature,features,with_cache_recording,travel_backward_recursively,source,sourcelabel);
+  return TrigNavStructure::getFeatureAccessors(te,clid,index_or_label,only_single_feature,features,travel_backward_recursively,source,sourcelabel);
 } 
 
 bool NavigationCore::getFeatureAccessorsSingleTE( const TriggerElement* te, CLID clid,
 						  const index_or_label_type& index_or_label,
 						  bool only_single_feature,
 						  TriggerElement::FeatureVec& features,
-						  bool with_cache_recording,
 						  const TriggerElement*& source,
 						  std::string& sourcelabel ) const {
 
-  bool status = TrigNavStructure::getFeatureAccessorsSingleTE(te,clid,index_or_label,only_single_feature, features,with_cache_recording,source,sourcelabel);
+  bool status = TrigNavStructure::getFeatureAccessorsSingleTE(te,clid,index_or_label,only_single_feature,features,source,sourcelabel);
   
   //if query was via subindex we don't cache the query (no support yet)
   if(index_or_label.which() == 0) return status;
-  
-  if ( with_cache_recording ) {
-    for(auto& fea : features){
-      HLT::RoICacheHistory::instance().addAnswer(te, fea);
-    }
-  }
   
   return status;
 }

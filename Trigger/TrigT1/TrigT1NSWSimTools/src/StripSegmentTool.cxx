@@ -242,9 +242,9 @@ namespace NSWL1 {
       //do not get confused. this one is trigger phiId
       int phiId=band.second[0].at(0)->phiId();
 
-      float rfar=m_zbounds.second*std::tan(theta_inf);
+      float rfar=m_zbounds.second*std::abs(std::tan(theta_inf));
 
-      if( rfar >= m_rbounds.second || rfar < m_rbounds.first || eta_inf >= m_etabounds.second || eta_inf < m_etabounds.first){
+      if( rfar >= m_rbounds.second || rfar < m_rbounds.first || std::abs(eta_inf) >= m_etabounds.second || std::abs(eta_inf) < m_etabounds.first){
         ATH_MSG_WARNING("measured r/eta is out of detector envelope!");
         return StatusCode::SUCCESS;
       }

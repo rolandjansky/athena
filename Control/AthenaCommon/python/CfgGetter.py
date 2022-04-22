@@ -1,8 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
-from __future__ import print_function
-
 # by default only export the getter functions
 __all__ = [ "getPublicTool", "getPublicToolClone", "getPrivateTool", "getPrivateToolClone",
             "getService", "getServiceClone", "getAlgorithm", "getAlgorithmClone" ]

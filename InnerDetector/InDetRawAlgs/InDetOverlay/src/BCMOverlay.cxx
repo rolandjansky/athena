@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetOverlay/BCMOverlay.h"
@@ -201,7 +201,7 @@ std::unique_ptr<BCM_RawData> BCMOverlay::mergeChannel(const BCM_RawData *bkgRDO,
   unsigned int merged_p2;
   unsigned int merged_w2;
 
-  if (merged_pulses.size() > 0) {
+  if (!merged_pulses.empty()) {
     merged_p1 = merged_pulses.at(0)->p;
     merged_w1 = merged_pulses.at(0)->w;
   } else {
@@ -226,7 +226,7 @@ std::unique_ptr<BCM_RawData> BCMOverlay::mergeChannel(const BCM_RawData *bkgRDO,
                                        bkgRDO->getLVL1ID());
 }
 
-void BCMOverlay::overlayPulses(std::vector<std::unique_ptr<BCM_Pulse>>& merged_pulses) const
+void BCMOverlay::overlayPulses(std::vector<std::unique_ptr<BCM_Pulse>>& merged_pulses) 
 {
 
   constexpr double fullPulseWidth{15.};      // Analogue pulse width
@@ -277,7 +277,7 @@ void BCMOverlay::overlayPulses(std::vector<std::unique_ptr<BCM_Pulse>>& merged_p
 }
 
 std::pair<BCM_Pulse*, BCM_Pulse*> BCMOverlay::timeOrder(BCM_Pulse* pulse1, 
-                                                        BCM_Pulse* pulse2) const
+                                                        BCM_Pulse* pulse2) 
 {
 
   if (pulse2->p > pulse1->p) return std::pair(pulse1,pulse2);

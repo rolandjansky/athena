@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -107,7 +107,7 @@ namespace InDet
       const Trk::Track& track) const override final;
 
     /** Electron probabilities to be returned */
-    std::vector<float> electronProbability_old(const Trk::Track& track);
+    static std::vector<float> electronProbability_old(const Trk::Track& track);
 
     virtual double probHT(const double pTrk,
                           const Trk::ParticleHypothesis hypothesis,

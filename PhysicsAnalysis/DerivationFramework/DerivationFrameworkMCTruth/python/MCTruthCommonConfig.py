@@ -10,10 +10,11 @@ from DerivationFrameworkMCTruth.TruthDerivationToolsConfig import TruthDecayColl
 
 def TruthMetaDataWriterCfg(flags, name):
     acc = ComponentAccumulator()
-    TruthMetaDataWriter =  CompFactory.DerivationFramework.TruthMetaDataWriter
-    acc.addPublicTool(TruthMetaDataWriter(name), primary = True)
-    CommonAugmentationKernel = CompFactory.DerivationFramework.CommonAugmentationKernel
-    acc.addEventAlgo(CommonAugmentationKernel(f"{name}Kernel", AugmentationTools = [TruthMetaDataWriter]))
+    theTruthMetaDataWriter =  CompFactory.DerivationFramework.TruthMetaDataWriter(name)
+    #acc.addPublicTool(TruthMetaDataWriter(name), primary = True)
+    #theTruthMetaDataWriter = acc.getPrimaryAndMerge(TruthMetaDataWriter(name))
+    CommonAugmentation = CompFactory.DerivationFramework.CommonAugmentation
+    acc.addEventAlgo(CommonAugmentation(f"{name}Kernel", AugmentationTools = [theTruthMetaDataWriter]))
     return acc 
 
 def HepMCtoXAODTruthCfg(ConfigFlags):
@@ -25,10 +26,11 @@ def HepMCtoXAODTruthCfg(ConfigFlags):
         raise RuntimeError("Common MC truth building requested for non-MC input")
 
     # Local steering flag to identify EVNT input
-    isEVNT = False
+    # Commented because the block it is needed for isn't working (TruthMetaData)
+    #isEVNT = False
 
     # Ensure EventInfoCnvAlg is scheduled
-    if "EventInfo#EventInfo" not in ConfigFlags.Input.TypedCollections:
+    if ("EventInfo#EventInfo" and "xAOD::EventInfo#EventInfo") not in ConfigFlags.Input.TypedCollections:
         from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
         acc.merge(EventInfoCnvAlgCfg(ConfigFlags, inputKey="McEventInfo", outputKey="EventInfo", disableBeamSpot=True))
 
@@ -37,17 +39,21 @@ def HepMCtoXAODTruthCfg(ConfigFlags):
     from xAODTruthCnv.xAODTruthCnvConfigNew import GEN_EVNT2xAODCfg 
     if "McEventCollection#GEN_EVENT" in ConfigFlags.Input.TypedCollections:                  
         acc.merge(GEN_EVNT2xAODCfg(ConfigFlags,name="GEN_EVNT2xAOD",AODContainerName="GEN_EVENT"))
-        isEVNT = True
+        #isEVNT = True -- temporarily commented until TruthMetaData sorted out
     # Input file is simulation output (HITS)
     elif "McEventCollection#TruthEvent" in ConfigFlags.Input.TypedCollections:
         acc.merge(GEN_EVNT2xAODCfg(name="GEN_EVNT2xAOD",AODContainerName="TruthEvent"))
+    # Input file already has xAOD truth. Don't do anything.
+    elif "xAOD::TruthEventContainer#TruthEvents" in ConfigFlags.Input.TypedCollections:
+        pass
     else:
         raise RuntimeError("No recognised HepMC truth information found in the input")
 
+    # TODO: not working, /TagInfo not available
     # If it isn't available, make a truth meta data object (will hold MC Event Weights)
-    if "TruthMetaDataContainer#TruthMetaData" not in ConfigFlags.Input.TypedCollections and not isEVNT:
-        # If we are going to be making the truth collection (isEVNT) then this will be made elsewhere
-        acc.merge(TruthMetaDataWriterCfg(ConfigFlags, name = 'DFCommonTruthMetaDataWriter'))
+    #if "TruthMetaDataContainer#TruthMetaData" not in ConfigFlags.Input.TypedCollections and not isEVNT:
+    #    # If we are going to be making the truth collection (isEVNT) then this will be made elsewhere
+    #    acc.merge(TruthMetaDataWriterCfg(ConfigFlags, name = 'DFCommonTruthMetaDataWriter'))
 
     return acc
 
@@ -206,7 +212,6 @@ def AddStandardTruthContentsCfg(ConfigFlags,
     # Special collection for hard scatter (matrix element) - save TWO extra generations of particles
     acc.merge(AddHardScatterCollectionCfg(2))
     # Energy density for isolation corrections
-    # TODO: this needs quite major changes
     if isEVNT: acc.merge(AddTruthEnergyDensityCfg())
 
     return acc
@@ -280,46 +285,43 @@ def AddBosonsAndDownstreamParticlesCfg(generations=1,
 #                                           parents=[11,22],
 #                                           prefix='Egamma')
 #
-## Add b/c-hadrons and their downstream particles (immediate and further decay products) in a special collection
-#def addHFAndDownstreamParticles(kernel=None, addB=True, addC=True, generations=-1, prefix=''):
-#    # Ensure that we are adding it to something
-#    if kernel is None:
-#        from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
-#        kernel = DerivationFrameworkJob
-#    if hasattr(kernel,prefix+'MCTruthCommonHFAndDecaysKernel'):
-#        # Already there!  Carry on...
-#        dfcommontruthlog.warning("Attempt to add a duplicate "+prefix+"MCTruthCommonHFAndDecaysKernel. Failing.")
-#        return
-#    # Set up a tool to keep b- and c-quarks and all downstream particles
-#    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthDecayCollectionMaker
-#    DFCommonHFAndDecaysTool = DerivationFramework__TruthDecayCollectionMaker( name=prefix+"DFCommonHFAndDecaysTool",
-#                                                                              NewCollectionName=prefix+"TruthHFWithDecay",
-#                                                                              KeepBHadrons=addB,
-#                                                                              KeepCHadrons=addC,
-#                                                                              Generations=generations)
-#    from AthenaCommon.AppMgr import ToolSvc
-#    ToolSvc += DFCommonHFAndDecaysTool
-#    kernel += CfgMgr.DerivationFramework__CommonAugmentation(prefix+"MCTruthCommonHFAndDecaysKernel",
-#                                                             AugmentationTools = [DFCommonHFAndDecaysTool] )
-#
-## Add a one-vertex-per event "primary vertex" container
-#def addPVCollection(kernel=None):
-#    # Ensure that we are adding it to something
-#    if kernel is None:
-#        from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
-#        kernel = DerivationFrameworkJob
-#    if hasattr(kernel,'MCTruthCommonTruthPVCollKernel'):
-#        # Already there!  Carry on...
-#        dfcommontruthlog.warning("Attempt to add a duplicate MCTruthCommonTruthPVCollKernel. Failing.")
-#        return
-#    # Set up a tool to keep the primary vertices
-#    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthPVCollectionMaker
-#    DFCommonTruthPVCollTool = DerivationFramework__TruthPVCollectionMaker( name="DFCommonTruthPVCollTool",
-#                                                                      NewCollectionName="TruthPrimaryVertices")
-#    from AthenaCommon.AppMgr import ToolSvc
-#    ToolSvc += DFCommonTruthPVCollTool
-#    kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonTruthPVCollKernel",
-#                                                             AugmentationTools = [DFCommonTruthPVCollTool] )
+
+# Add b/c-hadrons and their downstream particles (immediate and further decay products) in a special collection
+def AddHFAndDownstreamParticlesCfg(ConfigFlags, **kwargs):
+    """Add b/c-hadrons and their downstream particles"""
+    kwargs.setdefault("addB",True)
+    kwargs.setdefault("addC",True)
+    kwargs.setdefault("generations",-1)
+    kwargs.setdefault("prefix",'')
+    acc = ComponentAccumulator()
+    # Set up a tool to keep b- and c-quarks and all downstream particles
+    from DerivationFrameworkMCTruth.TruthDerivationToolsConfig import TruthDecayCollectionMakerCfg
+    DFCommonHFAndDecaysTool = acc.getPrimaryAndMerge(TruthDecayCollectionMakerCfg( 
+        name=kwargs['prefix']+"DFCommonHFAndDecaysTool",
+        NewCollectionName=kwargs['prefix']+"TruthHFWithDecay",
+        KeepBHadrons=kwargs['addB'],
+        KeepCHadrons=kwargs['addC'],
+        Generations=kwargs['generations']))
+    acc.addEventAlgo(CompFactory.DerivationFramework.CommonAugmentation(
+        kwargs['prefix']+"MCTruthCommonHFAndDecaysKernel",
+        AugmentationTools = [DFCommonHFAndDecaysTool] ))
+    return acc
+
+
+# Add a one-vertex-per event "primary vertex" container
+def AddPVCollectionCfg(ConfigFlags):
+    """Add a one-vertex-per event "primary vertex" container"""
+    acc = ComponentAccumulator()
+    # Set up a tool to keep the primary vertices
+    from DerivationFrameworkMCTruth.TruthDerivationToolsConfig import TruthPVCollectionMakerCfg
+    DFCommonTruthPVCollTool = acc.getPrimaryAndMerge(TruthPVCollectionMakerCfg( 
+        ConfigFlags,
+        name="DFCommonTruthPVCollTool",
+        NewCollectionName="TruthPrimaryVertices"))
+    acc.addEventAlgo(CompFactory.DerivationFramework.CommonAugmentation(
+        "MCTruthCommonTruthPVCollKernel",
+        AugmentationTools = [DFCommonTruthPVCollTool] ))
+    return acc
 
 # Add a mini-collection for the hard scatter and N subsequent generations
 def AddHardScatterCollectionCfg(generations=1):
@@ -427,39 +429,40 @@ def AddTruthEnergyDensityCfg():
     return acc
 
 
-# Not used currently...
-#def addMiniTruthCollectionLinks(kernel=None, doElectrons=True, doPhotons=True, doMuons=True):
-#    # Sets up modifiers to move pointers to old truth collections to new mini truth collections
-#    # Ensure that we are adding it to something
-#    if kernel is None:
-#        from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
-#        kernel = DerivationFrameworkJob
-#    if hasattr(kernel,'MiniCollectionTruthLinkKernel'):
-#        # Already there!  Carry on...
-#        dfcommontruthlog.warning("Attempt to add a duplicate MiniCollectionTruthLinkKernel. Failing.")
-#        return
-#    # Truth link setup for electrons, photons, and muons
-#    from AthenaCommon.AppMgr import ToolSvc
-#    aug_tools = []
-#    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthLinkRepointTool
-#    if doElectrons:
-#        electron_relink = DerivationFramework__TruthLinkRepointTool("ElMiniCollectionTruthLinkTool",
-#                                                                    RecoCollection="Electrons", TargetCollections=["TruthMuons","TruthPhotons","TruthElectrons"])
-#        ToolSvc += electron_relink
-#        aug_tools += [ electron_relink ]
-#    if doPhotons:
-#        photon_relink = DerivationFramework__TruthLinkRepointTool("PhMiniCollectionTruthLinkTool",
-#                                                                    RecoCollection="Photons", TargetCollections=["TruthMuons","TruthPhotons","TruthElectrons"])
-#        ToolSvc += photon_relink
-#        aug_tools += [ photon_relink ]
-#    if doMuons:
-#        muon_relink = DerivationFramework__TruthLinkRepointTool("MuMiniCollectionTruthLinkTool",
-#                                                                    RecoCollection="Muons", TargetCollections=["TruthMuons","TruthPhotons","TruthElectrons"])
-#        ToolSvc += muon_relink
-#        aug_tools += [ muon_relink ]
-#    kernel +=CfgMgr.DerivationFramework__DerivationKernel("MiniCollectionTruthLinkKernel",
-#                                                          AugmentationTools = aug_tools )
-#
+# Sets up modifiers to move pointers to old truth collections to new mini truth collections
+def AddMiniTruthCollectionLinksCfg(ConfigFlags, **kwargs):
+    """Tool to move pointers to new mini truth collections"""
+    acc = ComponentAccumulator()
+    kwargs.setdefault("doElectrons",True)
+    kwargs.setdefault("doPhotons",True)
+    kwargs.setdefault("doMuons",True) 
+    aug_tools = []
+    from DerivationFrameworkMCTruth.TruthDerivationToolsConfig import TruthLinkRepointToolCfg
+    if kwargs['doElectrons']:
+        electron_relink = acc.getPrimaryAndMerge(TruthLinkRepointToolCfg(
+            ConfigFlags,
+            name="ElMiniCollectionTruthLinkTool",
+            RecoCollection="Electrons", 
+            TargetCollections=["TruthMuons","TruthPhotons","TruthElectrons"]))
+        aug_tools += [ electron_relink ]
+    if kwargs['doPhotons']:
+        photon_relink = acc.getPrimaryAndMerge(TruthLinkRepointToolCfg(
+            ConfigFlags,
+            name="PhMiniCollectionTruthLinkTool",
+            RecoCollection="Photons", 
+            TargetCollections=["TruthMuons","TruthPhotons","TruthElectrons"]))
+        aug_tools += [ photon_relink ]
+    if kwargs['doMuons']:
+        muon_relink = acc.getPrimaryAndMerge(TruthLinkRepointToolCfg(
+            ConfigFlags,
+            name="MuMiniCollectionTruthLinkTool",
+            RecoCollection="Muons", 
+            TargetCollections=["TruthMuons","TruthPhotons","TruthElectrons"]))
+        aug_tools += [ muon_relink ]
+    acc.addEventAlgo(CompFactory.DerivationFramework.DerivationKernel(
+        "MiniCollectionTruthLinkKernel",
+        AugmentationTools = aug_tools ))
+    return acc
 
 def addTruth3ContentToSlimmerTool(slimmer):
     slimmer.AllVariables += [

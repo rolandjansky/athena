@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -23,10 +23,8 @@ Trk::SubtractedDiscSurface::SubtractedDiscSurface()
 
 // copy constructor
 Trk::SubtractedDiscSurface::SubtractedDiscSurface(const SubtractedDiscSurface& psf)
-  : Trk::DiscSurface(psf)
-  , m_subtrVol(psf.m_subtrVol)
-  , m_shared(psf.m_shared)
-{}
+   
+= default;
 
 // copy constructor with shift
 Trk::SubtractedDiscSurface::SubtractedDiscSurface(const SubtractedDiscSurface& psf, const Amg::Transform3D& shift)
@@ -43,7 +41,7 @@ Trk::SubtractedDiscSurface::SubtractedDiscSurface(const Trk::DiscSurface& ps, Ar
 {}
 
 // destructor (will call destructor from base class which deletes objects)
-Trk::SubtractedDiscSurface::~SubtractedDiscSurface() {}
+Trk::SubtractedDiscSurface::~SubtractedDiscSurface() = default;
 
 Trk::SubtractedDiscSurface&
 Trk::SubtractedDiscSurface::operator=(const Trk::SubtractedDiscSurface& psf)

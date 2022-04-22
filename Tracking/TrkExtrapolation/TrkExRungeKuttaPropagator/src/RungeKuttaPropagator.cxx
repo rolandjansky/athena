@@ -6,7 +6,6 @@
 // RungeKuttaPropagator.cxx, (c) ATLAS Detector software
 /////////////////////////////////////////////////////////////////////////////////
 
-#include <cmath>
 
 #include "TrkExRungeKuttaPropagator/RungeKuttaPropagator.h"
 //
@@ -27,6 +26,7 @@
 //
 #include "TrkPatternParameters/PatternTrackParameters.h"
 
+#include "CxxUtils/restrict.h"
 /// enables -ftree-vectorize in gcc
 #include "CxxUtils/vectorize.h"
 ATH_ENABLE_VECTORIZATION;
@@ -953,8 +953,7 @@ globalOneSidePositions(Cache& cache,
                        const double* ATH_RESTRICT P,
                        const Trk::MagneticFieldProperties& M,
                        const Trk::CylinderBounds& CB,
-                       double mS,
-                       Trk::ParticleHypothesis = Trk::pion)
+                       double mS)
 {
   M.magneticFieldMode() == Trk::FastField ? cache.m_solenoid = true : cache.m_solenoid = false;
   M.magneticFieldMode() != Trk::NoField ? cache.m_mcondition = true : cache.m_mcondition = false;
@@ -1106,8 +1105,7 @@ globalTwoSidePositions(Cache& cache,
                        const double* ATH_RESTRICT P,
                        const Trk::MagneticFieldProperties& M,
                        const Trk::CylinderBounds& CB,
-                       double mS,
-                       Trk::ParticleHypothesis = Trk::pion)
+                       double mS)
 {
   M.magneticFieldMode() == Trk::FastField ? cache.m_solenoid = true : cache.m_solenoid = false;
   M.magneticFieldMode() != Trk::NoField ? cache.m_mcondition = true : cache.m_mcondition = false;
@@ -1192,8 +1190,6 @@ Trk::RungeKuttaPropagator::RungeKuttaPropagator(const std::string& p,
   declareProperty("MaxStraightLineStep", m_straightStep);
   declareProperty("IncludeBgradients", m_usegradient);
 }
-
-Trk::RungeKuttaPropagator::~RungeKuttaPropagator() = default;
 
 StatusCode
 Trk::RungeKuttaPropagator::initialize()

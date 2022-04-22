@@ -1,6 +1,8 @@
+/*
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+*/
 #include "../MuonMDT_CablingAlg.h"
-#include "../MdtTestCabling.h"
+#include "../MdtCablingTestAlg.h"
 
-DECLARE_COMPONENT( MuonMDT_CablingAlg )
-DECLARE_COMPONENT( MdtTestCabling )
-
+DECLARE_COMPONENT(MuonMDT_CablingAlg)
+DECLARE_COMPONENT(MdtCablingTestAlg)

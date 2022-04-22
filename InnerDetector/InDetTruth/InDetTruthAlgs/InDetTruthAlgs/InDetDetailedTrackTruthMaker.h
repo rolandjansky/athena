@@ -51,6 +51,11 @@ private:
   // Tool Handle for truth tool
   ToolHandle<Trk::IDetailedTrackTruthBuilder> m_truthTool;
 
+  //ReadHandle for background detailed truth in the track overlay case
+  SG::ReadHandleKey<DetailedTrackTruthCollection> m_trackOverlayDetailedName;
+  //ReadHandle for the background track collection in the track overlay case (will be called Bkg_[name])
+  SG::ReadHandleKey<TrackCollection> m_bkgTrackCollection;
+
 };
 
 

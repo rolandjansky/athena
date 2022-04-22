@@ -9,6 +9,8 @@
 #define XAOD_EGAMMAXAODHELPERS_H
 
 #include "xAODEgamma/EgammaFwd.h"
+#include "xAODPFlow/FlowElement.h"
+#include "xAODPFlow/FlowElementContainer.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
@@ -50,6 +52,14 @@ namespace xAOD {
     
     ///@brief Return a vector of all the topo clusters associated with the egamma cluster
     std::vector<const xAOD::CaloCluster*> getAssociatedTopoClusters(const xAOD::CaloCluster *cluster);
+
+    ///@brief Return a vector of the elementlinks to the flow elements associated with the egamma cluster (neutral for default)
+    std::vector< ElementLink< xAOD::FlowElementContainer > > getAssociatedFlowElementsLinks(const xAOD::Egamma *eg,
+											    bool neutral = true);
+
+    ///@brief Return a vector of the flow elements associated with the egamma cluster (only neutral for default)
+    std::vector<const xAOD::FlowElement*> getAssociatedFlowElements(const xAOD::Egamma *eg,
+								    bool neutral = true, bool charged = false);
 
     ///@brief Return a list of all or only the best TrackParticle associated to the object. 
     ///If useBremAssoc is set, get the original TrackParticle 

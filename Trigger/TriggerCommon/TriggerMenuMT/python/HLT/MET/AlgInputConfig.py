@@ -55,6 +55,7 @@ from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from functools import partial
 
+logging.getLogger().info("Importing %s", __name__)
 log = logging.getLogger(__name__)
 
 
@@ -224,6 +225,7 @@ class InputConfigRegistry:
         except KeyError:
             raise KeyError(f"Requested input {name} not defined")
 
+
         dependencies = config.dependencies(recoDict)
         log.debug("Dependencies are %s", dependencies)
         for dep_name in dependencies:
@@ -261,7 +263,7 @@ class InputConfigRegistry:
 
         log.debug("%s step is %i", name, this_step)
         # Finally, add *our* info
-        if this_step > len(RoIs):
+        if this_step >= len(RoIs):
             raise ValueError(
                 f"Step {this_step} is greater than the number of RoIs ({RoIs})"
             )

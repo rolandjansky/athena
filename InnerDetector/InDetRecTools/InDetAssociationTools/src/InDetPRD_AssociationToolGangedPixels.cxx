@@ -24,7 +24,7 @@ InDet::InDetPRD_AssociationToolGangedPixels::InDetPRD_AssociationToolGangedPixel
 }
 
 InDet::InDetPRD_AssociationToolGangedPixels::~InDetPRD_AssociationToolGangedPixels()
-{}
+= default;
 
 StatusCode InDet::InDetPRD_AssociationToolGangedPixels::initialize()
 {

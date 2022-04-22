@@ -21,6 +21,7 @@
 
 // EDM include(s):
 #include "ElectronEfficiencyCorrection/ElectronChargeEfficiencyCorrectionTool.h"
+#include "ElectronEfficiencyCorrection/ElectronEfficiencyHelpers.h"
 #include "xAODCore/ShallowCopy.h"
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/ElectronContainer.h"
@@ -51,7 +52,6 @@ main(int argc, char* argv[])
   }
 
   double SF_chargeID = 0;
-  //   double SF_chargeMisID=0;
   int SF_nevents = 0;
 
   double n_chargeID = 0;
@@ -118,6 +118,7 @@ main(int argc, char* argv[])
   // Convert into a simple list
   // std::vector<CP::SystematicSet> sysList =
   // CP::make_systematics_vector(recSysts);
+
   std::cout << "==" << std::endl;
 
   // Loop over the events:
@@ -140,17 +141,6 @@ main(int argc, char* argv[])
     const xAOD::ElectronContainer* electrons = 0;
     CHECK(event.retrieve(electrons, "Electrons"));
 
-    // Loop over systematics
-    //   for(const auto& sys : sysList){
-
-    //   if (entry<10)      Info(APP_NAME, "Processing syst: %s",
-    //   sys.name().c_str());
-
-    // Configure the tool for this systematic
-    //        CHECK( myEgCorrections.applySystematicVariation(sys) );
-    //   Info(APP_NAME, "Applied syst: %s",
-    //       myEgCorrections.affectingSystematics().name().c_str());
-
     // Create shallow copy for this systematic
     std::pair<xAOD::ElectronContainer*, xAOD::ShallowAuxContainer*>
       electrons_shallowCopy = xAOD::shallowCopyContainer(*electrons);
@@ -160,32 +150,23 @@ main(int argc, char* argv[])
     xAOD::ElectronContainer::iterator el_it = elsCorr->begin();
     xAOD::ElectronContainer::iterator el_it_last = elsCorr->end();
 
-    // double SF_chargeID=0;
-    // double SF_chargeMisID=0;
-    //       int SF_nevents=0;
-
     unsigned int i = 0;
     double SF = 0;
     for (; el_it != el_it_last; ++el_it, ++i) {
 
       xAOD::Electron* el = *el_it;
-      if (el->pt() < 25000)
+      if (el->pt() < 20000)
         continue; // skip electrons outside of recommendations
 
       bool LHacc{ m_LHToolTight->accept(el) };
       std::cout << "acc:  " << LHacc << std::endl;
       if (!m_LHToolTight->accept(el))
         continue;
-      if (fabs(el->caloCluster()->etaBE(2)) > 2.4)
-        continue; // skip electrons outside of recommendations
-      //      if(!m_LHToolTight->accept(el)) continue;
+      double clusAbsEta = std::abs(el->caloCluster()->etaBE(2));
+      if ( clusAbsEta > 1.37 && (clusAbsEta < 1.52 || clusAbsEta > 2.47) )
+        continue; // skip electrons outside of recommendations (in the crack we fill 1 into the SFs)
 
       SF_nevents++;
-
-      // std::cout << "Electron " << i << std::endl;
-      std::cout << "xAOD/raw pt = " << el->pt()
-                << ", eta: " << std::abs(el->eta()) << " , "
-                << el->caloCluster()->etaBE(2) << std::endl;
 
       Info(APP_NAME, "Electron #%d", i);
 
@@ -201,9 +182,8 @@ main(int argc, char* argv[])
         return EXIT_FAILURE;
       }
 
-      //      Info( APP_NAME, "===>>> Resulting SF (from get function) %f, (from
-      //      apply function) %f",
-      //           SF, el->auxdata< float >("SF"));
+      Info( APP_NAME, "===>>> Resulting SF (from get function) %f, (from apply function) %f",
+	    SF, el->auxdata< float >("SF"));
 
       SF_chargeID = SF_chargeID + SF;
 
@@ -215,29 +195,22 @@ main(int argc, char* argv[])
         //
         if (myEgCorrections.getEfficiencyScaleFactor(*el, systematic) ==
             CP::CorrectionCode::Ok) {
-          std::cout << (sys).name() << "  sys names    "
-                    << (myEgCorrections.affectingSystematics().name())
-                    << std::endl;
           Info(APP_NAME,
                "%f Result %f Systematic value %f ",
                SF,
                systematic,
                systematic - SF);
-          //                     unc.push_back(systematic);
-          //
         }
       }
+      CHECK(myEgCorrections.applySystematicVariation({})); // Empty variation is the nominal
 
-      int truthcharge = (-1) * el->auxdata<int>("firstEgMotherPdgId");
-      if (el->auxdata<int>("truthType")) {
-        std::cout << el->charge() << "  "
-                  << el->auxdata<int>("firstEgMotherPdgId") << std::endl;
-      }
+
+      int truthcharge = false;
+      CHECK(ElectronEfficiencyHelpers::getEleTruthCharge(*el,truthcharge));
       if (el->charge() * truthcharge < 0) {
-        Info(APP_NAME, "===>>> MISID %f ", SF);
-        n_chargeMisID++;
+        n_chargeMisID+=SF;
       } else
-        n_chargeID++;
+        n_chargeID+=SF;
     }
 
     // }

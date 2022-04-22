@@ -518,7 +518,17 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines(const std::string& folderName,
             int stationName = m_idHelperSvc->mdtIdHelper().stationNameIndex(stationType);
             Identifier id;
             ATH_MSG_VERBOSE("stationName  " << stationName);
-            if (stationType.at(0) == 'T') {
+            if (stationType.at(0) == 'M') {
+                // micromegas case
+                id = m_idHelperSvc->mmIdHelper().elementID(stationName, jzz, jff);
+                id = m_idHelperSvc->mmIdHelper().multilayerID(id, job);
+                ATH_MSG_VERBOSE("identifier being assigned is " << m_idHelperSvc->mmIdHelper().show_to_string(id));
+            } else if (stationType.at(0) == 'S') {
+                // sTGC case
+                id = m_idHelperSvc->stgcIdHelper().elementID(stationName, jzz, jff);
+                id = m_idHelperSvc->stgcIdHelper().multilayerID(id, job);
+                ATH_MSG_VERBOSE("identifier being assigned is " << m_idHelperSvc->stgcIdHelper().show_to_string(id)); 
+            } else if (stationType.at(0) == 'T') {
                 // tgc case
                 int stPhi = MuonGM::stationPhiTGC(
                     stationType, jff, jzz, m_geometryVersion);  // !!!!! The stationPhiTGC implementation in this package is NOT used !!!!!

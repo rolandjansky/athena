@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrackVertexAssociationTool/MVAInputEvaluator.h"
@@ -21,8 +21,8 @@ using MiniEvaluator = CP::MVAInputEvaluator::MiniEvaluator;
 
 class Pt final : public MiniEvaluator {
 public:
-  Pt() {};
-  ~Pt() override final {};
+  Pt() = default;
+  ~Pt() override final = default;
   virtual float eval(const xAOD::TrackParticle& trk, const xAOD::Vertex& /*vx*/, const xAOD::EventInfo& /*evt*/) const override final {
     return trk.pt();
   }
@@ -30,8 +30,8 @@ public:
 
 class Eta final: public MiniEvaluator {
 public:
-  Eta() {};
-  ~Eta() override final {};
+  Eta() = default;
+  ~Eta() override final = default;
   virtual float eval(const xAOD::TrackParticle& trk, const xAOD::Vertex& /*vx*/, const xAOD::EventInfo& /*evt*/) const override final {
     return trk.eta();
   }
@@ -39,8 +39,8 @@ public:
 
 class M final: public MiniEvaluator {
 public:
-  M() {};
-  ~M() override final {};
+  M() = default;
+  ~M() override final = default;
   virtual float eval(const xAOD::TrackParticle& trk, const xAOD::Vertex& /*vx*/, const xAOD::EventInfo& /*evt*/) const override final {
     return trk.m();
   }
@@ -48,8 +48,8 @@ public:
 
 class D0 final: public MiniEvaluator {
 public:
-  D0() {};
-  ~D0() override final {};
+  D0() = default;
+  ~D0() override final = default;
   virtual float eval(const xAOD::TrackParticle& trk, const xAOD::Vertex& /*vx*/, const xAOD::EventInfo& /*evt*/) const override final {
     return trk.d0();
   }
@@ -57,8 +57,8 @@ public:
 
 class ErrD0 final: public MiniEvaluator {
 public:
-  ErrD0() {};
-  ~ErrD0() override final {};
+  ErrD0() = default;
+  ~ErrD0() override final = default;
   virtual float eval(const xAOD::TrackParticle& trk, const xAOD::Vertex& /*vx*/, const xAOD::EventInfo& /*evt*/) const override final {
     return std::sqrt(trk.definingParametersCovMatrix()(0, 0));
   }
@@ -66,8 +66,8 @@ public:
 
 class Z0 final : public MiniEvaluator {
 public:
-  Z0() {};
-  ~Z0() override final {};
+  Z0() = default;
+  ~Z0() override final = default;
   virtual float eval(const xAOD::TrackParticle& trk, const xAOD::Vertex& /*vx*/, const xAOD::EventInfo& /*evt*/) const override final {
     return trk.z0();
   }
@@ -75,8 +75,8 @@ public:
 
 class ErrZ0 final : public MiniEvaluator {
 public:
-  ErrZ0() {};
-  ~ErrZ0() override final {};
+  ErrZ0() = default;
+  ~ErrZ0() override final = default;
   virtual float eval(const xAOD::TrackParticle& trk, const xAOD::Vertex& /*vx*/, const xAOD::EventInfo& /*evt*/) const override final {
     return std::sqrt(trk.definingParametersCovMatrix()(1, 1));
   }
@@ -84,8 +84,8 @@ public:
 
 class Phi final : public MiniEvaluator {
 public:
-  Phi() {};
-  ~Phi() override final {};
+  Phi() = default;
+  ~Phi() override final = default;
   virtual float eval(const xAOD::TrackParticle& trk, const xAOD::Vertex& /*vx*/, const xAOD::EventInfo& /*evt*/) const override final {
     return trk.phi();
   }
@@ -93,8 +93,8 @@ public:
 
 class ErrPhi final : public MiniEvaluator {
 public:
-  ErrPhi() {};
-  ~ErrPhi() override final {};
+  ErrPhi() = default;
+  ~ErrPhi() override final = default;
   virtual float eval(const xAOD::TrackParticle& trk, const xAOD::Vertex& /*vx*/, const xAOD::EventInfo& /*evt*/) const override final {
     return std::sqrt(trk.definingParametersCovMatrix()(2, 2));
   }
@@ -102,8 +102,8 @@ public:
 
 class Theta final : public MiniEvaluator {
 public:
-  Theta() {};
-  ~Theta() override final {};
+  Theta() = default;
+  ~Theta() override final = default;
   virtual float eval(const xAOD::TrackParticle& trk, const xAOD::Vertex& /*vx*/, const xAOD::EventInfo& /*evt*/) const override final {
     return trk.theta();
   }
@@ -111,8 +111,8 @@ public:
 
 class ErrTheta final : public MiniEvaluator {
 public:
-  ErrTheta() {};
-  ~ErrTheta() override final {};
+  ErrTheta() = default;
+  ~ErrTheta() override final = default;
   virtual float eval(const xAOD::TrackParticle& trk, const xAOD::Vertex& /*vx*/, const xAOD::EventInfo& /*evt*/) const override final {
     return std::sqrt(trk.definingParametersCovMatrix()(3, 3));
   }
@@ -120,8 +120,8 @@ public:
 
 class QOverP final : public MiniEvaluator {
 public:
-  QOverP() {};
-  ~QOverP() override final {};
+  QOverP() = default;
+  ~QOverP() override final = default;
   virtual float eval(const xAOD::TrackParticle& trk, const xAOD::Vertex& /*vx*/, const xAOD::EventInfo& /*evt*/) const override final {
     return trk.qOverP();
   }
@@ -129,8 +129,8 @@ public:
 
 class ErrQOverP final : public MiniEvaluator {
 public:
-  ErrQOverP() {};
-  ~ErrQOverP() override final {};
+  ErrQOverP() = default;
+  ~ErrQOverP() override final = default;
   virtual float eval(const xAOD::TrackParticle& trk, const xAOD::Vertex& /*vx*/, const xAOD::EventInfo& /*evt*/) const override final {
     return std::sqrt(trk.definingParametersCovMatrix()(4, 4));
   }
@@ -138,8 +138,8 @@ public:
 
 class ChiSq final : public MiniEvaluator {
 public:
-  ChiSq() {};
-  ~ChiSq() override final {};
+  ChiSq() = default;
+  ~ChiSq() override final = default;
   virtual float eval(const xAOD::TrackParticle& trk, const xAOD::Vertex& /*vx*/, const xAOD::EventInfo& /*evt*/) const override final {
     return trk.chiSquared();
   }
@@ -147,8 +147,8 @@ public:
 
 class RedChiSq final : public MiniEvaluator {
 public:
-  RedChiSq() {};
-  ~RedChiSq() override final {};
+  RedChiSq() = default;
+  ~RedChiSq() override final = default;
   virtual float eval(const xAOD::TrackParticle& trk, const xAOD::Vertex& /*vx*/, const xAOD::EventInfo& /*evt*/) const override final {
     return (trk.chiSquared() / trk.numberDoF());
   }
@@ -156,8 +156,8 @@ public:
 
 class D0Sig final : public MiniEvaluator {
 public:
-  D0Sig() {};
-  ~D0Sig() override final {};
+  D0Sig() = default;
+  ~D0Sig() override final = default;
   virtual float eval(const xAOD::TrackParticle& trk, const xAOD::Vertex& /*vx*/, const xAOD::EventInfo& evt) const override final {
     return xAOD::TrackingHelpers::d0significance(&trk, evt.beamPosSigmaX(), evt.beamPosSigmaY(), evt.beamPosSigmaXY());
   }
@@ -165,8 +165,8 @@ public:
 
 class DZ final : public MiniEvaluator {
 public:
-  DZ() {};
-  ~DZ() override final {};
+  DZ() = default;
+  ~DZ() override final = default;
   virtual float eval(const xAOD::TrackParticle& trk, const xAOD::Vertex& vx, const xAOD::EventInfo& /*evt*/) const override final {
     return (trk.z0() + trk.vz() - vx.z());
   }
@@ -174,8 +174,8 @@ public:
 
 class ErrDZ final : public MiniEvaluator {
 public:
-  ErrDZ() {};
-  ~ErrDZ() override final {};
+  ErrDZ() = default;
+  ~ErrDZ() override final = default;
   virtual float eval(const xAOD::TrackParticle& trk, const xAOD::Vertex& vx, const xAOD::EventInfo& /*evt*/) const override final {
     return std::sqrt(trk.definingParametersCovMatrix()(1, 1) + vx.covariancePosition()(2, 2));
   }
@@ -183,8 +183,8 @@ public:
 
 class DZSinTheta final : public MiniEvaluator {
 public:
-  DZSinTheta() {};
-  ~DZSinTheta() override final {};
+  DZSinTheta() = default;
+  ~DZSinTheta() override final = default;
   virtual float eval(const xAOD::TrackParticle& trk, const xAOD::Vertex& vx, const xAOD::EventInfo& /*evt*/) const override final {
     return (trk.z0() + trk.vz() - vx.z()) * std::sin(trk.theta());
   }
@@ -192,8 +192,8 @@ public:
 
 class ErrDZSinTheta final : public MiniEvaluator {
 public:
-  ErrDZSinTheta() {};
-  ~ErrDZSinTheta() override final {};
+  ErrDZSinTheta() = default;
+  ~ErrDZSinTheta() override final = default;
   virtual float eval(const xAOD::TrackParticle& trk, const xAOD::Vertex& vx, const xAOD::EventInfo& /*evt*/) const override final {
     float dz         = (trk.z0() + trk.vz() - vx.z());
     float sinTheta   = std::sin(trk.theta());
@@ -228,8 +228,8 @@ int inVector(const xAOD::TrackParticle* trk, const std::vector<const xAOD::Track
 
 class FitWeight final : public MiniEvaluator {
 public:
-  FitWeight() {};
-  ~FitWeight() override final {};
+  FitWeight() = default;
+  ~FitWeight() override final = default;
   virtual float eval(const xAOD::TrackParticle& trk, const xAOD::Vertex& vx, const xAOD::EventInfo& /*evt*/) const override final {
     std::vector<const xAOD::TrackParticle*> fitTrks = toVector(vx.trackParticleLinks());
     float weight = 0.0;
@@ -243,8 +243,8 @@ public:
 
 class VxX final : public MiniEvaluator {
 public:
-  VxX() {};
-  ~VxX() override final {};
+  VxX() = default;
+  ~VxX() override final = default;
   virtual float eval(const xAOD::TrackParticle& /*trk*/, const xAOD::Vertex& vx, const xAOD::EventInfo& /*evt*/) const override final {
     return vx.x();
   }
@@ -252,8 +252,8 @@ public:
 
 class ErrVxX final : public MiniEvaluator {
 public:
-  ErrVxX() {};
-  ~ErrVxX() override final {};
+  ErrVxX() = default;
+  ~ErrVxX() override final = default;
   virtual float eval(const xAOD::TrackParticle& /*trk*/, const xAOD::Vertex& vx, const xAOD::EventInfo& /*evt*/) const override final {
     return std::sqrt(vx.covariancePosition()(0, 0));
   }
@@ -261,8 +261,8 @@ public:
 
 class VxY final : public MiniEvaluator {
 public:
-  VxY() {};
-  ~VxY() override final {};
+  VxY() = default;
+  ~VxY() override final = default;
   virtual float eval(const xAOD::TrackParticle& /*trk*/, const xAOD::Vertex& vx, const xAOD::EventInfo& /*evt*/) const override final {
     return vx.y();
   }
@@ -270,8 +270,8 @@ public:
 
 class ErrVxY final : public MiniEvaluator {
 public:
-  ErrVxY() {};
-  ~ErrVxY() override final {};
+  ErrVxY() = default;
+  ~ErrVxY() override final = default;
   virtual float eval(const xAOD::TrackParticle& /*trk*/, const xAOD::Vertex& vx, const xAOD::EventInfo& /*evt*/) const override final {
     return std::sqrt(vx.covariancePosition()(1, 1));
   }
@@ -279,8 +279,8 @@ public:
 
 class VxZ final : public MiniEvaluator {
 public:
-  VxZ() {};
-  ~VxZ() override final {};
+  VxZ() = default;
+  ~VxZ() override final = default;
   virtual float eval(const xAOD::TrackParticle& /*trk*/, const xAOD::Vertex& vx, const xAOD::EventInfo& /*evt*/) const override final {
     return vx.z();
   }
@@ -288,8 +288,8 @@ public:
 
 class ErrVxZ final : public MiniEvaluator {
 public:
-  ErrVxZ() {};
-  ~ErrVxZ() override final {};
+  ErrVxZ() = default;
+  ~ErrVxZ() override final = default;
   virtual float eval(const xAOD::TrackParticle& /*trk*/, const xAOD::Vertex& vx, const xAOD::EventInfo& /*evt*/) const override final {
     return std::sqrt(vx.covariancePosition()(2, 2));
   }
@@ -423,28 +423,24 @@ void MVAInputEvaluator::add(const std::string& name, const MVAInputEvaluator::In
       throw std::runtime_error("ERROR in CP::MVAInputEvaluator::add : unknown input enum: " + std::to_string(type));
     }
   }
-  return;
-}
+  }
 
 void MVAInputEvaluator::load(const MVAInputEvaluator::InputSelectionMap& selection) {
   clear();
   for (const auto& kv : selection) {
     add(kv.first, kv.second);
   }
-  return;
-}
+  }
 
 void MVAInputEvaluator::eval(const xAOD::TrackParticle& trk, const xAOD::Vertex& vx, const xAOD::EventInfo& evt, std::map<std::string, double>& input) const {
   input.clear();
   for (const auto& kv : m_evalMap) {
     input[kv.first] = kv.second->eval(trk, vx, evt);
   }
-  return;
-}
+  }
 
 void MVAInputEvaluator::clear() {
   m_evalMap.clear();
-  return;
 }
 
 } // namespace CP

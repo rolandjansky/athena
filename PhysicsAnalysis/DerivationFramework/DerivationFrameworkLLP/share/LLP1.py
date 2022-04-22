@@ -265,7 +265,7 @@ thinningTools.append(LLP1LD0VSITPThinningTool)
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #====================================================================
 # Add the kernel for thinning (requires the objects be defined)
-#from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 SeqLLP1 += CfgMgr.DerivationFramework__DerivationKernel("LLP1Kernel",
                                                         SkimmingTools = skimmingTools,
                                                         ThinningTools = thinningTools)

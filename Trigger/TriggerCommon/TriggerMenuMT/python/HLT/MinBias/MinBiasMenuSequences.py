@@ -9,7 +9,7 @@ from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool
 from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 import AthenaCommon.SystemOfUnits as Units
-
+from TrigMinBias.TrigMinBiasMonitoring import MbtsHypoToolMonitoring
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.AccumulatorCache import AccumulatorCache
@@ -67,6 +67,10 @@ def MbtsHypoToolGen(chainDict):
         hypo.MbtsCounters=2
         hypo.MBTSMode=1
         hypo.Veto=True
+    if '_all_' in chainDict["chainName"]:
+        hypo.AcceptAll = True
+        if "mbMon:online" in chainDict["monGroups"]:
+            hypo.MonTool = MbtsHypoToolMonitoring()
     else:  #default, one counter on each side
         hypo.MbtsCounters=1
     return hypo

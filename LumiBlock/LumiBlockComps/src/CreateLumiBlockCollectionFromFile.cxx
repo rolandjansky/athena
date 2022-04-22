@@ -277,6 +277,8 @@ uint32_t CreateLumiBlockCollectionFromFile::getNEventsFromDb()
 StatusCode CreateLumiBlockCollectionFromFile::io_reinit() {
   ATH_MSG_INFO("I/O reinitialization...");
   m_LumiBlockInfo.clear();
+  m_lastRun = 9999999;
+  m_lastLumiBlock = 9999999;
 
   return StatusCode::SUCCESS;
 }
