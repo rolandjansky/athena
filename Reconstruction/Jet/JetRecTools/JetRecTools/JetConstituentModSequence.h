@@ -1,7 +1,7 @@
 // this file is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //JetConstituentModSequence.h
@@ -43,17 +43,11 @@ class JetConstituentModSequence: public asg::AsgTool, virtual public IJetExecute
   JetConstituentModSequence(const std::string &name); // MEN: constructor 
   StatusCode initialize();
   int execute() const;
-  void setInputClusterCollection(const xAOD::IParticleContainer* cont);
-  xAOD::IParticleContainer* getOutputClusterCollection();
-  
+
 protected:
   Gaudi::Property<std::string> m_inputContainer {this, "InputContainer", "", "The input container for the sequence"};
   Gaudi::Property<std::string> m_outputContainer = {this, "OutputContainer", "", "The output container for the sequence"};
 
-  const xAOD::IParticleContainer* m_trigInputConstits; // used in trigger context only
-  mutable xAOD::IParticleContainer* m_trigOutputConstits;
-  bool m_trigger;
-  
   // P-A : the actual type
   // Define as a basic integer type because Gaudi
   // doesn't support arbitrary property types
@@ -100,12 +94,6 @@ protected:
   StatusCode
   copyModRecord(const SG::ReadHandleKey<T>&,
                 const SG::WriteHandleKey<T>&) const;
-
-  // temporary trigger helper needed until we can
-  // decommission TrigHLTJetRec classes
-  template<class T, class Taux, class Tsingle>
-  StatusCode
-  copyModForTrigger(const T&) const;
 };
 
 template<class T>
@@ -136,30 +124,6 @@ JetConstituentModSequence::copyModRecord(const SG::ReadHandleKey<T>& inKey,
   
   xAOD::setOriginalObjectLink(*inHandle, *handle);
   
-  return StatusCode::SUCCESS;
-}
-
-template<class T, class Taux, class Tsingle>
-StatusCode
-JetConstituentModSequence::copyModForTrigger(const T& originals) const
-{
-    
-  // This is the trigger case, revert to a deep copy of the input container.
-  // Create the new container and its auxiliary store.
-  T* constitCopy = new T();
-  Taux* constitCopyAux = new Taux();
-  constitCopy->setStore( constitCopyAux ); //< Connect the two
-
-  for(const Tsingle* orig_constit : originals) {
-    Tsingle* theconstit = new Tsingle();
-    constitCopy->push_back( theconstit );
-    *theconstit= *orig_constit; // copies auxdata from one auxstore to the other
-  }
-  
-  for (auto t : m_modifiers) {ATH_CHECK(t->process(constitCopy));}
-
-  // Update the output container pointer
-  m_trigOutputConstits = constitCopy;
   return StatusCode::SUCCESS;
 }
 
