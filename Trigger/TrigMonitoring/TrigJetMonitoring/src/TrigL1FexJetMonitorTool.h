@@ -49,17 +49,12 @@ public:
 		MatchToEnum, 
 		std::vector<JetMatchData>& jetData) const override;
 
-  virtual std::string groupName() const override {return m_groupName;}
-  
 private:
 
   // initialisation using an initialise list  ie {...}
   // does not work - sommrthing to do with the template.
   // intstead use declareProperty in the constructor.
   SG::ReadHandleKey<JetContainer> m_l1jetContainerkey;
-  
-  Gaudi::Property<std::string> m_groupName {
-    this, "group_name",  {},  "name of monitoring group"};
   
   // Variables to add matched histograms
   Gaudi::Property<bool> m_doMatching {

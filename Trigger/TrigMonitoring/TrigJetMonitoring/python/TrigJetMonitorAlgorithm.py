@@ -93,12 +93,12 @@ for k, d in L1JetCollections.items():
 # the values of Chain2L1JetCollDict are keys of L1JetCollections.
 # the keys of Chain2L1JetCollDict are used to select events before histograms are filled
 Chain2L1JetCollDict = { # set L1 jet collection name for L1 jet chains
-  'L1_J15'  : 'LVL1JetRoIs',
-  'L1_J20'  : 'LVL1JetRoIs',
-  'L1_J100' : 'LVL1JetRoIs',
-  'L1_jJ40' : 'L1_jFexSRJetRoI',
-  'L1_jJ50' : 'L1_jFexSRJetRoI',
-  'L1_jJ160' : 'L1_jFexSRJetRoI',
+  'L1_J15': ['LVL1JetRoIs'],
+  'L1_J20': ['LVL1JetRoIs'],
+  'L1_J100': ['LVL1JetRoIs'],
+  'L1_jJ40': ['L1_jFexSRJetRoI','L1_jFexLRJetRoI','L1_gFexSRJetRoI','L1_gFexLRJetRoI',],
+  'L1_jJ50': ['L1_jFexSRJetRoI','L1_jFexLRJetRoI','L1_gFexSRJetRoI','L1_gFexLRJetRoI',],
+  'L1_jJ160': ['L1_jFexSRJetRoI','L1_jFexLRJetRoI','L1_gFexSRJetRoI','L1_gFexLRJetRoI',],
 }
 
 Legacy2PhaseIjJThresholdDict = {
@@ -148,10 +148,13 @@ Legacy2PhaseIgLJThresholdDict = {
 # HLT jet collections and chains to monitor
 ############################################
 
-Chains2Monitor  = dict() # set HLT jet collection, reference chain and offline jet collection for turn-on curves, for AT and legacy master HLT jet chains
-JetCollections  = dict() # List of HLT jet collections for AT and legacy master (stating which should be matched and to which offline jet collection
-
 # AthenaMT
+
+# List of HLT jet collections for AT and legacy master (stating
+# which should be matched and to which offline jet collection
+
+JetCollections = dict()
+
 JetCollections['MT'] = {
   'HLT_AntiKt4EMTopoJets_subjesIS'                                : { 'MatchTo' : 'AntiKt4EMPFlowJets'}, # default small-R EM
   'HLT_AntiKt4EMTopoJets_subjesgscIS_ftf'                         : { 'MatchTo' : 'AntiKt4EMPFlowJets'}, # a4 calo jet w/ calo+track GSC
@@ -167,6 +170,11 @@ JetCollections['MT'] = {
   'HLT_AntiKt10EMPFlowCSSKSoftDropBeta100Zcut10Jets_nojcalib_ftf' : { 'MatchTo' : 'NONE'},               # a10sd pflow cssk nojcalib
   'HLT_AntiKt10EMPFlowCSSKSoftDropBeta100Zcut10Jets_jes_ftf'      : { 'MatchTo' : 'NONE'},               # a10sd pflow cssk jes
 }
+
+# set HLT jet collection, reference chain and offline jet collection
+# for turn-on curves, for AT and legacy master HLT jet chains
+Chains2Monitor  = dict()
+
 Chains2Monitor['MT'] = {
   # perf chain (runs no hypo)
   'HLT_j0_perf_L1J12_EMPTY': {'HLTColl': 'HLT_AntiKt4EMTopoJets_subjesIS',
@@ -218,8 +226,6 @@ Chains2Monitor['MT'] = {
                                                                'RefChain': 'HLT_j85_L1J20',
                                                                'OfflineColl': 'AntiKt4EMTopoJets'},
   
-
-  # PS ADD end
   'HLT_j420_L1J100': {'HLTColl': 'HLT_AntiKt4EMTopoJets_subjesIS',
                       'RefChain': 'HLT_j85_L1J20',
                       'OfflineColl': 'AntiKt4EMTopoJets'},
@@ -711,9 +717,10 @@ def TrigJetMonConfig(inputFlags):
     l1jetconf.toAlg(helper)
 
   # Loop over L1 jet chains
-  for chain,jetcoll in Chain2L1JetCollDict.items():
-    l1chainconf = l1JetMonitoringConfig(ConfigFlags,jetcoll,chain)
-    l1chainconf.toAlg(helper)
+  for chain,jetcolls in Chain2L1JetCollDict.items():
+    for jetcoll in jetcolls:
+      l1chainconf = l1JetMonitoringConfig(ConfigFlags,jetcoll,chain)
+      l1chainconf.toAlg(helper)
 
   # Loop over offline jet collections
   for jetcoll in OfflineJetCollections:

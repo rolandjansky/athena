@@ -29,7 +29,5 @@ public:
 				  MatchToEnum, 
 				  std::vector<JetMatchData>& ) const = 0;
 
-    
-  virtual std::string groupName() const = 0;
 };
 #endif

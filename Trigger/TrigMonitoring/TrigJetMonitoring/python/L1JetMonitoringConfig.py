@@ -72,8 +72,9 @@ class L1JetMonAlg():
       tool.offlineJetsToMatch = self.matchedOJ
       tool.HLTJetsToMatch = self.matchedHLTJ
       tool.l1container = self.L1JetContainer
-      tool.group_name = container2_monitorgroup()
-      alg.fillers = [tool]
+      alg.group_name = container2_monitorgroup()
+      alg.filler = tool
+      alg.TriggerChain = self.triggerChain
  
     else:
       alg = monhelper.addAlgorithm(CompFactory.TrigL1JetMonitorAlgorithm, self.name)
@@ -120,22 +121,22 @@ class L1JetMonAlg():
         for histname in [ 'ptdiff', 'energydiff' ]: 
           myGroup.defineHistogram(tag+histname+';'+histname,
                                   title=histname, type="TH1F", path=Path,
-                                  xbins=140 , xmin=-120000., xmax=20000. ,)
+                                  xbins=140 , xmin=-120000., xmax=80000. ,)
         
         for histname in [ 'ptresp', 'energyresp' ]:
           myGroup.defineHistogram(tag+histname+';'+histname,
                                   title=histname,
                                   type="TH1F", path=Path,
-                                  xbins=100 , xmin=-1., xmax=1. ,)
+                                  xbins=100 , xmin=-1., xmax=2. ,)
           
         myGroup.defineHistogram(tag+'ptresp,'+tag+'ptref;ptresp_vs_ptRef',
                                 title='ptresponse vs ptRef', type="TH2F", path=Path,
-                                xbins=10 , xmin=-1., xmax=1.,
+                                xbins=10 , xmin=-1., xmax=2.,
                                 ybins=10, ymin=0., ymax=500000.,)
         
         myGroup.defineHistogram(tag+'ptresp,'+tag+'etaref;ptresp_vs_etaRef',
                                 title='ptresponse vs etaRef', type="TH2F", path=Path,
-                                xbins=10, xmin=-1., xmax=1.,
+                                xbins=10, xmin=-1., xmax=2.,
                                 ybins=10, ymin=-5., ymax=5.,)
 
 

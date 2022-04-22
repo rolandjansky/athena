@@ -31,8 +31,13 @@ public:
   virtual StatusCode fillHistograms(const EventContext& ctx) const override;
   
 private:
-  ToolHandleArray<ITrigJetMonitorTool> m_fillers {
-    this, "fillers", {}, "jet data calculators"};
+  ToolHandle<ITrigJetMonitorTool> m_filler {
+    this, "filler", {}, "jet data calculator"};
+
+  Gaudi::Property<std::string> m_groupName {
+    this, "group_name",  {},  "name of monitoring group"};
+  
+  
    
 };
 #endif
