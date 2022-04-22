@@ -10,6 +10,7 @@
 #include "StripInformationHelper.h"
 #include "ActsTrkEvent/SpacePoint.h"
 #include "ActsTrkEvent/SpacePointData.h"
+#include "ActsTrkEvent/SpacePointMeasurementDetails.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "SiSpacePointFormation/SiElementPropertiesTable.h"
 #include "xAODInDetMeasurement/StripClusterContainer.h"
@@ -53,8 +54,10 @@ namespace ActsTrk {
                                              const Amg::Vector3D& beamSpotVertex,
                                              ActsTrk::SpacePointContainer& spacePoints,
                                              ActsTrk::SpacePointData& spacePointData,
+                                             ActsTrk::SpacePointMeasurementDetails& spacePointDetails,
                                              ActsTrk::SpacePointContainer& overlapSpacePoints,
                                              ActsTrk::SpacePointData& overlapSpacePointData,
+                                             ActsTrk::SpacePointMeasurementDetails& overlapSpacePointDetails,
                                              bool processOverlaps) const override;
         //@}
 
@@ -68,15 +71,18 @@ namespace ActsTrk {
                                   const Amg::Vector3D& beamSpotVertex,
                                   ActsTrk::SpacePointContainer& spacePoints,
                                   ActsTrk::SpacePointData& spacePointData,
+                                  ActsTrk::SpacePointMeasurementDetails& spacePointDetails,
                                   ActsTrk::SpacePointContainer& overlapSpacePoints,
-                                  ActsTrk::SpacePointData& overlapSpacePointData) const;
+                                  ActsTrk::SpacePointData& overlapSpacePointData,
+                                  ActsTrk::SpacePointMeasurementDetails& overlapSpacePointDetails) const;
 
         std::unique_ptr<ActsTrk::SpacePoint> makeStripSpacePoint(const StripInformationHelper& firstInfo,
                                                                  const StripInformationHelper& secondInfo,
                                                                  bool isEndcap,
                                                                  double limit,
                                                                  double slimit,
-                                                                 ActsTrk::SpacePointData& data) const;
+                                                                 ActsTrk::SpacePointData& data,
+                                                                 ActsTrk::SpacePointMeasurementDetails& details) const;
 
         void updateRange(const InDetDD::SiDetectorElement* element1,
                          const InDetDD::SiDetectorElement* element2,

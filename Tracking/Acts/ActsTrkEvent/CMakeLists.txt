@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( ActsTrkEvent )
@@ -23,7 +23,8 @@ atlas_add_dictionary( ActsTrkEventDict
 		      LINK_LIBRARIES xAODCore ActsTrkEvent
 		      DATA_LINKS 
 		      ActsTrk::MeasurementContainer
-		      ActsTrk::SpacePointData 
+		      ActsTrk::SpacePointData
+		      ActsTrk::SpacePointMeasurementDetails
 		      ActsTrk::SpacePointContainer 
 		      ActsTrk::SeedContainer 
 		      ActsTrk::BoundTrackParametersContainer
