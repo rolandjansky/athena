@@ -68,6 +68,11 @@ def CaloClusterROIPhiRZContainerMakerCfg(ConfigFlags, name="CaloClusterROIPhiRZC
         minPt.append(10000)
         phiWidth.append(0.05) # must be equal or larger than phiWidth of its clients: InDetAmbiTrackSelectionTool
 
+    if ConfigFlags.InDet.Tracking.doBremRecovery and ConfigFlags.InDet.Tracking.doCaloSeededBrem and ConfigFlags.Detector.EnableCalo :
+        OutputROIContainerName.append('InDetCaloClusterROIPhiRZ5GeV')
+        minPt.append(5000)
+        phiWidth.append(0.075) # must be equal or larger than phiWidth of its clients: InDetNNScoringTool (phiWidthEM)
+
     kwargs.setdefault("OutputROIContainerName", OutputROIContainerName)
     kwargs.setdefault("minPt", minPt)
     kwargs.setdefault("phiWidth", phiWidth)

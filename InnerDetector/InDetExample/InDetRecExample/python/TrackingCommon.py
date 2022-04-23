@@ -1560,8 +1560,7 @@ def getInDetAmbiScoringToolBase(name='InDetAmbiScoringTool', **kwargs) :
     from AthenaCommon.DetFlags              import DetFlags
     have_calo_rois = InDetFlags.doBremRecovery() and InDetFlags.doCaloSeededBrem() and DetFlags.detdescr.Calo_allOn()
     if have_calo_rois :
-        alg=createAndAddEventAlg(getInDetROIInfoVecCondAlg,"InDetROIInfoVecCondAlg")
-        kwargs=setDefaults(kwargs, CaloROIInfoName = alg.WriteKey )
+        kwargs=setDefaults(kwargs, EMROIPhiRZContainer = "InDetCaloClusterROIPhiRZ5GeV")
     if 'DriftCircleCutTool' not in kwargs :
         kwargs=setDefaults(kwargs,
                            DriftCircleCutTool      = getInDetTRTDriftCircleCutForPatternReco())
@@ -1611,8 +1610,8 @@ def getInDetNNScoringToolBase(name='InDetNNScoringTool', **kwargs) :
     from AthenaCommon.DetFlags              import DetFlags
     have_calo_rois = InDetFlags.doBremRecovery() and InDetFlags.doCaloSeededBrem() and DetFlags.detdescr.Calo_allOn()
     if have_calo_rois :
-        alg=createAndAddEventAlg(getInDetROIInfoVecCondAlg,"InDetROIInfoVecCondAlg")
-        kwargs=setDefaults(kwargs, CaloROIInfoName = alg.WriteKey )
+        kwargs=setDefaults(kwargs, EMROIPhiRZContainer = "InDetCaloClusterROIPhiRZ5GeV")
+
     if 'DriftCircleCutTool' not in kwargs :
         kwargs=setDefaults(kwargs,
                            DriftCircleCutTool      = getInDetTRTDriftCircleCutForPatternReco())
