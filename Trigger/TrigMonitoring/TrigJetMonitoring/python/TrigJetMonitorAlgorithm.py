@@ -97,20 +97,24 @@ Chain2L1JetCollDict = { # set L1 jet collection name for L1 jet chains
   'L1_J20': ['LVL1JetRoIs'],
   'L1_J100': ['LVL1JetRoIs'],
   
-  'L1_jJ40': ['L1_jFexSRJetRoI', 'L1_jFexLRJetRoI'],
+  'L1_jJ40': ['L1_jFexSRJetRoI'],
   'L1_jJ50': ['L1_jFexSRJetRoI'],
-  'L1_jJ80': ['L1_jFexLRJetRoI'],
-  'L1_jJ120': ['L1_jFexLRJetRoI'],
-  'L1_jJ140': ['L1_jFexLRJetRoI'],
   'L1_jJ160': ['L1_jFexSRJetRoI'],
 
-  'L1_gJ20': ['L1_gFexSRJetRoI','L1_gFexLRJetRoI'],
+  'L1_gJ20': ['L1_gFexSRJetRoI'],
   'L1_gJ50': ['L1_gFexSRJetRoI'],
-  'L1_gJ80': ['L1_gFexLRJetRoI'],
   'L1_gJ100': ['L1_gFexSRJetRoI'],
-  'L1_gJ120': ['L1_gFexLRJetRoI'],
-  'L1_gJ140': ['L1_gFexLRJetRoI'],
+
   'L1_gJ160': ['L1_gFexSRJetRoI'],
+
+  'L1_jLJ40': ['L1_jFexLRJetRoI'],
+  'L1_jLJ80': ['L1_jFexLRJetRoI'],
+  'L1_jLJ120': ['L1_jFexLRJetRoI'],
+  'L1_jLJ140': ['L1_jFexLRJetRoI'],
+
+  'L1_gLJ80': ['L1_gFexLRJetRoI'],
+  'L1_gLJ120': ['L1_gFexLRJetRoI'],
+  'L1_gLJ140': ['L1_gFexLRJetRoI'],
 
    'L1_SC111-CjJ40': ['L1_jFexSRJetRoI'],
 }
