@@ -25,13 +25,8 @@ namespace JetTiledMap {
   template<class POINT, class DIST2>
   const DIST2 Tile<POINT, DIST2>::dr2;
   template<class POINT, class DIST2>
-  Tile<POINT, DIST2> Tile<POINT, DIST2>::voidTile;
-
-
-
-
-
-
+  const Tile<POINT, DIST2> Tile<POINT, DIST2>::voidTile =
+    Tile<POINT, DIST2>(POINT(100, 2*M_PI*10)); // unphysical dummy coordinates
 
 
   template<class POINT, class DIST2 >  
@@ -86,8 +81,6 @@ namespace JetTiledMap {
             
           }
         }
-        tile_t::voidTile.center.setX( m_etarange*10 );
-        tile_t::voidTile.center.setY( twopi*10 );
 
     }
 
