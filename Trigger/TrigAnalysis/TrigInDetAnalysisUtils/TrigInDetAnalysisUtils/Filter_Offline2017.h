@@ -8,7 +8,7 @@
  **
  **     @author  mark sutton
  **
- **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  **/
 
 
@@ -89,7 +89,7 @@ public:
     }
     else { 
       std::cerr << "Filter_Offline2017::type: " << m_type << "not recognised" << std::endl;
-      std::exit(-1);
+      std::abort();
     }
 
 
