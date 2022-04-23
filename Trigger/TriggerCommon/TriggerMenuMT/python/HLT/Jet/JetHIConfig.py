@@ -244,8 +244,7 @@ def jetHIRecoSequence(configFlags, clustersKey, towerKey, **jetRecoDict):
 
 def HLTRunTools(toollist, toolName, algoName):
     runner = CompFactory.JetToolRunner(toolName,
-                          Tools=toollist,
-                          Timer=0)
+                          Tools=toollist)
     theAlg = CompFactory.JetAlgorithm(algoName)
     theAlg.Tools = [runner]
    
