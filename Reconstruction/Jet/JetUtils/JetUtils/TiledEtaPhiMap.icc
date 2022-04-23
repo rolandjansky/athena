@@ -1,7 +1,7 @@
 // emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -23,7 +23,7 @@ namespace JetTiledMap {
   }
 
   template<class POINT, class DIST2>
-  DIST2 Tile<POINT, DIST2>::dr2;
+  const DIST2 Tile<POINT, DIST2>::dr2;
   template<class POINT, class DIST2>
   Tile<POINT, DIST2> Tile<POINT, DIST2>::voidTile;
 

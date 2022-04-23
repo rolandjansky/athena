@@ -1,7 +1,7 @@
 // emacs, this file is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <vector>
@@ -14,6 +14,9 @@
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
 #include "TFile.h"
 #include "TTree.h"
+
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 struct ClusterMomentSetter {
   static TTree* tree ;

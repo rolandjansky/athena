@@ -1,7 +1,7 @@
 // emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**  
@@ -66,7 +66,7 @@ namespace JetTiledMap {
     static Tile voidTile;
   public:
     Tile<POINT,DIST2>* m_neighbour[8];
-    static DIST2 dr2;
+    static const DIST2 dr2;
     POINT center;
   };
   
