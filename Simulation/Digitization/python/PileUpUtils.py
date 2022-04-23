@@ -144,12 +144,12 @@ def generatePileUpProfile(flags,
     if maxEvents == -1:
         raise SystemExit("maxEvents = %d is not supported! Please set this to the number of events per file times the number of files per job." % (
             maxEvents,))
-    if not doNotCorrectMaxEvents:
+    if not doNotCorrectMaxEvents and not flags.ExecutorSplitting.TotalSteps > 1:
         # round up to nearest 100 events..
         corrMaxEvents = ceil(float(maxEvents)/100.0)*100.0
     else:
-        logger.warning(
-            "Using the actual number of HITS input events for this job -- not for production use!")
+        if not flags.ExecutorSplitting.TotalSteps > 1:
+            logger.warning("Using the actual number of HITS input events for this job -- not for production use!")
         corrMaxEvents = maxEvents
 
     # We may need to repeat this run for long production jobs.

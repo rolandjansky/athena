@@ -19,13 +19,13 @@ def MC21a(flags):
     # pile-up
     # These numbers are based upon a relative XS scaling of the high-pt slice
     # of 64%, which leads to a relative high-pt / low-pt sampling of
-    # 0.001953314389 / 0.9980466856. Those numbers are then multiplied by 52.
+    # 0.001953314389 / 0.9980466856. Those numbers are then multiplied by 84.5
     # to follow pile-up profile. Only a relevant number of significant digits
     # are kept.
-    flags.Digitization.PU.NumberOfLowPtMinBias = 51.898
-    flags.Digitization.PU.NumberOfHighPtMinBias = 0.102
-    flags.Digitization.PU.BunchStructureConfig = 'RunDependentSimData.BunchStructure_2017'
-    flags.Digitization.PU.ProfileConfig = 'RunDependentSimData.PileUpProfile_run410000_MC21a_SingleBeamspot'
+    flags.Digitization.PU.NumberOfLowPtMinBias = 84.335
+    flags.Digitization.PU.NumberOfHighPtMinBias = 0.165
+    flags.Digitization.PU.BunchStructureConfig = 'RunDependentSimData.BunchStructure_Fill7314_BCMSPattern_Flat'
+    flags.Digitization.PU.ProfileConfig = 'RunDependentSimData.PileUpProfile_run410000_MC21a_MultiBeamspot'
 
     if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         # ensure better randomisation of high-pt minbias events
@@ -37,6 +37,8 @@ def MC21aSingleBeamspot(flags):
     MC21a(flags)
 
     # override only pile-up profile
+    flags.Digitization.PU.NumberOfLowPtMinBias = 51.898
+    flags.Digitization.PU.NumberOfHighPtMinBias = 0.102
     flags.Digitization.PU.ProfileConfig = 'RunDependentSimData.PileUpProfile_run410000_MC21a_SingleBeamspot'
 
 
@@ -56,8 +58,8 @@ def MC21NoPileUp(flags):
 
 def BeamspotSplitMC21a():
     """MC21a beamspot splitting configuration"""
-    substeps = 3
-    event_fractions = [0.3, 0.3, 0.4]
+    substeps = 4
+    event_fractions = [0.14, 0.14, 0.14, 0.58]
 
     return substeps, event_fractions
 
