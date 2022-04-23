@@ -1011,7 +1011,7 @@ namespace LVL1 {
         xAOD::jFexSRJetRoI* my_EDM = new xAOD::jFexSRJetRoI();
         jContainer->push_back( my_EDM );
 
-        my_EDM->initialize(jFexNum, fpgaNumber, tobWord, resolution, eta, phi);
+        my_EDM->initialize(jFexNum, fpgaNumber, tobWord ,1 , resolution, eta, phi);
 
         ATH_MSG_DEBUG(" setting SRJet jFEX Number:  " << +my_EDM->jFexNumber() << " et: " << my_EDM->et() << " eta: " << my_EDM->eta() <<" / "<< eta <<  " phi: " << my_EDM->phi()<<" / "<< phi  );
 
@@ -1025,7 +1025,7 @@ namespace LVL1 {
         xAOD::jFexTauRoI* my_EDM = new xAOD::jFexTauRoI();
         jContainer->push_back( my_EDM );
 
-        my_EDM->initialize(jFexNum, fpgaNumber, tobWord, resolution, eta, phi);
+        my_EDM->initialize(jFexNum, fpgaNumber, tobWord ,1 , resolution, eta, phi);
 
         ATH_MSG_DEBUG(" setting tau jFEX Number:  " << +my_EDM->jFexNumber() << " et: " << my_EDM->et() << " eta: " << my_EDM->eta() <<" / "<< eta <<  " phi: " << my_EDM->phi()<<" / "<< phi  );
 
@@ -1038,7 +1038,7 @@ namespace LVL1 {
         xAOD::jFexLRJetRoI* my_EDM = new xAOD::jFexLRJetRoI();
         jContainer->push_back( my_EDM );
 
-        my_EDM->initialize(jFexNum, fpgaNumber, tobWord, resolution, eta, phi);
+        my_EDM->initialize(jFexNum, fpgaNumber, tobWord ,1 , resolution, eta, phi);
 
         ATH_MSG_DEBUG(" setting LRJet jFEX Number:  " << +my_EDM->jFexNumber() << " et: " << my_EDM->et() << " eta: " << my_EDM->eta() <<" / "<< eta <<  " phi: " << my_EDM->phi()<<" / "<< phi  );
 

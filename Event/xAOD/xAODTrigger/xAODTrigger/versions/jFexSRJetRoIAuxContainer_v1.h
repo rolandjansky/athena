@@ -34,7 +34,8 @@ namespace xAOD{
     std::vector<float>      eta;
     std::vector<float>      phi;
     std::vector<int>        tobEtScale;
-    
+    std::vector< char >     isTOB;
+        
 }; // class jFexSRJetRoIAuxContainer_v1
 
 }//end of namespace xAOD 
