@@ -46,6 +46,11 @@ def CaloClusterROIPhiRZContainerMakerCfg(ConfigFlags, name="CaloClusterROIPhiRZC
     minPt=[]
     phiWidth=[]
 
+    if ConfigFlags.InDet.Tracking.doCaloSeededAmbi and ConfigFlags.Detector.EnableCalo :
+        OutputROIContainerName.append('InDetCaloClusterROIPhiRZ10GeV')
+        minPt.append(10000)
+        phiWidth.append(0.05) # must be equal or larger than phiWidth of its clients: InDetAmbiTrackSelectionTool
+
     kwargs.setdefault("OutputROIContainerName", OutputROIContainerName)
     kwargs.setdefault("minPt", minPt)
     kwargs.setdefault("phiWidth", phiWidth)
@@ -89,6 +94,11 @@ def HadCaloClusterROIPhiRZContainerMakerCfg(ConfigFlags, name="HadCaloClusterROI
     OutputROIContainerName=[]
     minPt=[]
     phiWidth=[]
+
+    if ConfigFlags.InDet.Tracking.doCaloSeededAmbi and ConfigFlags.Detector.EnableCalo :
+        OutputROIContainerName.append("InDetHadCaloClusterROIPhiRZBjet")
+        minPt.append(0)
+        phiWidth.append(0.05) # must be equal or larger than phiWidth of its clients: InDetAmbiTrackSelectionTool
 
     kwargs.setdefault("OutputROIContainerName", OutputROIContainerName)
     kwargs.setdefault("minPt", minPt)

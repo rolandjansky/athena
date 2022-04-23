@@ -19,7 +19,7 @@
 #include "InDetRecToolInterfaces/IInDetEtaDependentCutsSvc.h"
 #include "PixelGeoModel/IBLParameterSvc.h"
 #include "StoreGate/ReadHandleKey.h"
-#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
+#include "TrkCaloClusterROI/ROIPhiRZContainer.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
@@ -68,6 +68,7 @@ namespace InDet
       
     /** standard Athena-Algorithm method */
     virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
     /** 
      * Decide what to do with a candidate track
@@ -350,8 +351,7 @@ namespace InDet
     bool performConversionCheck(const Trk::Track* ptrTrack,
         Trk::PRDtoTrackMap &prd_to_track_map,
         TrackHitDetails& trackHitDetails,
-        TSoS_Details& tsosDetails,
-        CacheEntry* ent) const;
+        TSoS_Details& tsosDetails) const;
 
     /** Specific logic for identifing boosted light particle
      * decays in jet topologies (tau and b), with the goal 
@@ -361,8 +361,7 @@ namespace InDet
     bool performHadDecayCheck(const Trk::Track* ptrTrack,
         Trk::PRDtoTrackMap &prd_to_track_map,
         TrackHitDetails& trackHitDetails,
-        TSoS_Details& tsosDetails,
-        CacheEntry* ent) const;
+        TSoS_Details& tsosDetails) const;
 
     /** Handle update of the shared hit counts if 
      * either a conversion or a dense hadronic decay
@@ -377,13 +376,13 @@ namespace InDet
                                          Trk::ClusterSplitProbabilityContainer &clusterSplitProbMap) const;
       
     /** Does track pass criteria for hadronic ROI? */
-    bool inHadronicROI(const Trk::Track* ptrTrack, CacheEntry* ent) const;
+    bool inHadronicROI(const Trk::Track* ptrTrack) const;
 
     /** Check if the cluster is compatible with a hadronic cluster*/
-    bool isHadCaloCompatible(const Trk::TrackParameters& Tp, CacheEntry* ent) const;
+    bool isHadCaloCompatible(const Trk::TrackParameters& Tp) const;
 
     /** Check if the cluster is compatible with a EM cluster*/
-    bool isEmCaloCompatible(const Trk::TrackParameters& Tp, CacheEntry* ent) const;
+    bool isEmCaloCompatible(const Trk::TrackParameters& Tp) const;
       
     /** Fill hadronic & EM cluster map*/
     void newEvent(CacheEntry* ent) const;
@@ -400,7 +399,6 @@ namespace InDet
                                  int& maxOtherNPixel,
                                  bool& maxOtherHasIBL,
                                  CacheEntry* ent) const;
-
 
     /** Returns the Trackparameters of the two tracks on the n'th TrackStateOnSurface of the first track*/
     std::pair< const Trk::TrackParameters* , const Trk::TrackParameters* > 
@@ -475,14 +473,14 @@ namespace InDet
     FloatProperty m_minPtBjetROI{this, "minPtBjetROI", 15000., "in MeV"};
     FloatProperty m_phiWidth{this, "phiWidth", 0.2};
     FloatProperty m_etaWidth{this, "etaWidth", 0.2};
-    SG::ReadHandleKey<CaloClusterROI_Collection> m_inputHadClusterContainerName{this, "InputHadClusterContainerName", "InDetHadCaloClusterROIs"};
+    SG::ReadHandleKey<ROIPhiRZContainer> m_inputHadClusterContainerName{this, "HadROIPhiRZContainer", ""};
       
     BooleanProperty m_useEmClusSeed{this, "doEmCaloSeed", false};
     FloatProperty m_minPtEm{this, "minPtConv", 10000., "in MeV"};
     FloatProperty m_phiWidthEm{this, "phiWidthEM", 0.05};
     FloatProperty m_etaWidthEm{this, "etaWidthEM", 0.05};
 
-    SG::ReadHandleKey<CaloClusterROI_Collection> m_inputEmClusterContainerName{this, "InputEmClusterContainerName", "InDetCaloClusterROIs"};
+    SG::ReadHandleKey<ROIPhiRZContainer> m_inputEmClusterContainerName{this, "EMROIPhiRZContainer", ""};
 
     //Track Pair Selection
     BooleanProperty m_doPairSelection{this, "doPairSelection", true};
@@ -491,7 +489,6 @@ namespace InDet
     BooleanProperty m_monitorTracks{this, "MonitorAmbiguitySolving", false, "to track observeration/monitoring (default is false)"};
 
     BooleanProperty m_doITk{this, "doITk", false};
-
   }; 
 } // end of namespace
 

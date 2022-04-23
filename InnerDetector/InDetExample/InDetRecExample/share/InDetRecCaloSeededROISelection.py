@@ -64,6 +64,11 @@ def CaloClusterROIPhiRZContainerMaker(name="CaloClusterROIPhiRZContainerMaker", 
     minPt=[]
     phiWidth=[]
 
+    if InDetFlags.doCaloSeededAmbi() :
+        OutputROIContainerName.append('InDetCaloClusterROIPhiRZ10GeV')
+        minPt.append(10000)
+        phiWidth.append(0.05) # must be equal or larger than phiWidth of its clients: InDetAmbiTrackSelectionTool
+
     kwargs.setdefault("OutputROIContainerName", OutputROIContainerName)
     kwargs.setdefault("minPt", minPt)
     kwargs.setdefault("phiWidth", phiWidth)
