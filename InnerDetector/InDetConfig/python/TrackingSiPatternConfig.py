@@ -134,16 +134,16 @@ def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None,
                       and (flags.InDet.Tracking.ActivePass.extension=="" or flags.InDet.Tracking.ActivePass.extension=="BLS") )
     kwargs.setdefault("doCaloSeededBrem", flags.InDet.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo)
     if kwargs["useBremModel"] and kwargs["doCaloSeededBrem"]:
-        from InDetConfig.InDetCaloClusterROISelectorConfig import CaloClusterROI_SelectorCfg
-        acc.merge(CaloClusterROI_SelectorCfg(flags))
+        from InDetConfig.InDetCaloClusterROISelectorConfig import CaloClusterROIPhiRZContainerMakerCfg
+        acc.merge(CaloClusterROIPhiRZContainerMakerCfg(flags))
     kwargs.setdefault("doHadCaloSeedSSS", flags.InDet.Tracking.doHadCaloSeededSSS and flags.Detector.EnableCalo)
     if kwargs["doHadCaloSeedSSS"]:
-        from InDetConfig.InDetCaloClusterROISelectorConfig import HadCaloClusterROI_SelectorCfg
-        acc.merge(HadCaloClusterROI_SelectorCfg(flags))
+        from InDetConfig.InDetCaloClusterROISelectorConfig import HadCaloClusterROIPhiRZContainerMakerCfg
+        acc.merge(HadCaloClusterROIPhiRZContainerMakerCfg(flags))
     kwargs.setdefault("phiWidth", flags.InDet.Tracking.ActivePass.phiWidthBrem)
     kwargs.setdefault("etaWidth", flags.InDet.Tracking.ActivePass.etaWidthBrem)
-    kwargs.setdefault("InputClusterContainerName", 'InDetCaloClusterROIs') # InDetKeys.CaloClusterROIContainer()
-    kwargs.setdefault("InputHadClusterContainerName", 'InDetHadCaloClusterROIs') # InDetKeys.HadCaloClusterROIContainer()
+    kwargs.setdefault("EMROIPhiRZContainer", "InDetCaloClusterROIPhiRZ0GeV")
+    kwargs.setdefault("HadROIPhiRZContainer", "InDetHadCaloClusterROIPhiRZ")
     kwargs.setdefault("UseAssociationTool", (len(InputCollections) > 0) and (flags.InDet.Tracking.ActivePass.usePrdAssociationTool))
 
     if flags.InDet.Tracking.ActivePass.extension == "DBM":

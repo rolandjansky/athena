@@ -284,8 +284,8 @@ class  ConfiguredNewTrackingSiPattern:
                                           doHadCaloSeedSSS          = InDetFlags.doHadCaloSeededSSS(),
                                           phiWidth                  = NewTrackingCuts.phiWidthBrem(),
                                           etaWidth                  = NewTrackingCuts.etaWidthBrem(),
-                                          InputClusterContainerName = InDetKeys.CaloClusterROIContainer(), # "InDetCaloClusterROIs" 
-                                          InputHadClusterContainerName = InDetKeys.HadCaloClusterROIContainer(), # "InDetCaloClusterROIs" 
+                                          EMROIPhiRZContainer       = "InDetCaloClusterROIPhiRZ0GeV",
+                                          HadROIPhiRZContainer      = "InDetHadCaloClusterROIPhiRZ",
                                           UseAssociationTool        = usePrdAssociationTool)
 
          if NewTrackingCuts.mode() == "DBM":

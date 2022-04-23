@@ -63,6 +63,10 @@ def CaloClusterROIPhiRZContainerMaker(name="CaloClusterROIPhiRZContainerMaker", 
     OutputROIContainerName=[]
     minPt=[]
     phiWidth=[]
+    if InDetFlags.doCaloSeededBrem() :
+        OutputROIContainerName.append('InDetCaloClusterROIPhiRZ0GeV')
+        minPt.append(0)
+        phiWidth.append(0.3) # must be equal or larger than phiWidth of its clients: InDetSiTrackMaker (NewTrackingCuts.phiWidthBrem())
 
     if InDetFlags.doCaloSeededAmbi() :
         OutputROIContainerName.append('InDetCaloClusterROIPhiRZ10GeV')

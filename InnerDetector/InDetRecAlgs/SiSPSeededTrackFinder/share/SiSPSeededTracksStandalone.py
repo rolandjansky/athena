@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ###############################################################
 #
@@ -710,8 +710,8 @@ InDetSiTrackMaker = SiTrackMaker(name                      = "InDetSiTrackMaker"
                                  doHadCaloSeedSSS          = InDetFlags.doHadCaloSeededSSS(),
                                  phiWidth                  = NewTrackingCuts.phiWidthBrem(),
                                  etaWidth                  = NewTrackingCuts.etaWidthBrem(),
-                                 InputClusterContainerName = InDetKeys.CaloClusterROIContainer(), # "InDetCaloClusterROIs" 
-                                 InputHadClusterContainerName = InDetKeys.HadCaloClusterROIContainer(), # "InDetCaloClusterROIs" 
+                                 EMROIPhiRZContainer       = "InDetCaloClusterROIPhiRZ0GeV",
+                                 HadROIPhiRZContainer      = "InDetHadCaloClusterROIPhiRZ",
                                  UseAssociationTool        = usePrdAssociationTool)
 InDetSiTrackMaker.TrackPatternRecoInfo = "SiSPSeededFinder"
 if not doBeamSpot:

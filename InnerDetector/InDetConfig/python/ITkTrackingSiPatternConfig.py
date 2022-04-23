@@ -83,12 +83,16 @@ def ITkSiTrackMaker_xkCfg(flags, name="ITkSiTrackMaker", InputCollections = None
     kwargs.setdefault("doCaloSeededBrem", flags.ITk.Tracking.doCaloSeededBrem and flags.Detector.EnableCalo)
     kwargs.setdefault("doHadCaloSeedSSS", flags.ITk.Tracking.doHadCaloSeededSSS and flags.Detector.EnableCalo)
     if kwargs["useBremModel"] and kwargs["doCaloSeededBrem"]:
-        from InDetConfig.InDetCaloClusterROISelectorConfig import CaloClusterROI_SelectorCfg
-        acc.merge(CaloClusterROI_SelectorCfg(flags))
+        from InDetConfig.InDetCaloClusterROISelectorConfig import ITKCaloClusterROIPhiRZContainerMakerCfg
+        acc.merge(ITKCaloClusterROIPhiRZContainerMakerCfg(flags))
+    if kwargs["doHadCaloSeedSSS"]:
+        from InDetConfig.InDetCaloClusterROISelectorConfig import ITKHadCaloClusterROIPhiRZContainerMakerCfg
+        acc.merge(ITKHadCaloClusterROIPhiRZContainerMakerCfg(flags))
     kwargs.setdefault("phiWidth", flags.ITk.Tracking.ActivePass.phiWidthBrem[0])
     kwargs.setdefault("etaWidth", flags.ITk.Tracking.ActivePass.etaWidthBrem[0])
-    kwargs.setdefault("InputClusterContainerName", 'ITkCaloClusterROIs')
-    kwargs.setdefault("InputHadClusterContainerName", 'ITkHadCaloClusterROIs')
+    kwargs.setdefault("EMROIPhiRZContainer", "InDetCaloClusterROIPhiRZ0GeV") # @TODO current the CaloClusterROIPhiRZContainerMaker will always use the prefix InDet
+    kwargs.setdefault("HadROIPhiRZContainer", "InDetHadCaloClusterROIPhiRZ")
+
     kwargs.setdefault("UseAssociationTool", (len(InputCollections) > 0) and (flags.ITk.Tracking.ActivePass.usePrdAssociationTool))
     kwargs.setdefault("ITKGeometry", True)
 

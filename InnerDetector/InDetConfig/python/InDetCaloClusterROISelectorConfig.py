@@ -46,6 +46,11 @@ def CaloClusterROIPhiRZContainerMakerCfg(ConfigFlags, name="CaloClusterROIPhiRZC
     minPt=[]
     phiWidth=[]
 
+    if ConfigFlags.InDet.Tracking.doCaloSeededBrem :
+        OutputROIContainerName.append('InDetCaloClusterROIPhiRZ0GeV')
+        minPt.append(0)
+        phiWidth.append(ConfigFlags.InDet.Tracking.ActivePass.phiWidthBrem) # must be equal or larger than phiWidth of its clients: InDetSiTrackMaker (phiWidt)
+
     if ConfigFlags.InDet.Tracking.doCaloSeededAmbi and ConfigFlags.Detector.EnableCalo :
         OutputROIContainerName.append('InDetCaloClusterROIPhiRZ10GeV')
         minPt.append(10000)
@@ -94,6 +99,11 @@ def HadCaloClusterROIPhiRZContainerMakerCfg(ConfigFlags, name="HadCaloClusterROI
     OutputROIContainerName=[]
     minPt=[]
     phiWidth=[]
+
+    if ConfigFlags.InDet.Tracking.doHadCaloSeededSSS and ConfigFlags.Detector.EnableCalo:
+        OutputROIContainerName.append("InDetHadCaloClusterROIPhiRZ")
+        minPt.append(0)
+        phiWidth.append(ConfigFlags.InDet.Tracking.ActivePass.phiWidthBrem) # must be equal or larger than phiWidth of its clients: InDetSiTrackMaker (phiWidth)
 
     if ConfigFlags.InDet.Tracking.doCaloSeededAmbi and ConfigFlags.Detector.EnableCalo :
         OutputROIContainerName.append("InDetHadCaloClusterROIPhiRZBjet")
