@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetForwardJvtTool.h
@@ -58,14 +58,14 @@
 
     virtual StatusCode decorate(const xAOD::JetContainer& jetCont) const override;
 
-    float getFJVT(const xAOD::Jet *jet) const;
+    float getFJVT(const xAOD::Jet *jet, const std::vector<TVector2>& pileupMomenta, std::size_t pvind) const;
     bool forwardJet(const xAOD::Jet *jet) const;
     bool centralJet(const xAOD::Jet *jet) const;
     float getDrpt(const xAOD::Jet *jet) const;
     int getJetVertex(const xAOD::Jet *jet) const;
 
     StatusCode tagTruth(const xAOD::JetContainer *jets,const xAOD::JetContainer *truthJets);
-    void calculateVertexMomenta(const xAOD::JetContainer *jets) const;
+    std::vector<TVector2> calculateVertexMomenta(const xAOD::JetContainer *jets, std::size_t pvind) const;
     float getCombinedWidth(const xAOD::Jet *jet) const;
 
   private:
@@ -81,10 +81,8 @@
     Gaudi::Property<double> m_jetScaleFactor{this, "JetScaleFactor", 0.4, "Jet scale factor"};
     Gaudi::Property<double> m_fjvtThresh{this, "FjvtThresh", 15e3, "FJVT threshold"}; //15GeV->92%,11GeV->85%
     Gaudi::Property<bool> m_tightOP{this, "UseTightOP", false, "Use tight (true) or loose (false)"};
-    Gaudi::Property<bool> m_recalculateFjvt{this, "RecalculateFjvt", true, "Recalculate Fjvt or use stored value"}; 
-    mutable std::vector<TVector2> m_pileupMomenta;
-    mutable size_t m_pvind = 0UL;
-    void getPV() const;
+    Gaudi::Property<bool> m_recalculateFjvt{this, "RecalculateFjvt", true, "Recalculate Fjvt or use stored value"};
+    std::size_t getPV() const;
 
     /// Default constructor:
     JetForwardJvtTool();

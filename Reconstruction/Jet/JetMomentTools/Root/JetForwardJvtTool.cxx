@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetForwardJvtTool.cxx
@@ -73,20 +73,23 @@
     SG::WriteDecorHandle<xAOD::JetContainer, char> outHandle(m_outKey);
     SG::WriteDecorHandle<xAOD::JetContainer, float> fjvtDecHandle(m_fjvtDecKey);
 
-    getPV();
-    if (m_recalculateFjvt && jetCont.size() > 0) calculateVertexMomenta(&jetCont);
+    std::vector<TVector2> pileupMomenta;
+    const std::size_t pvind = getPV();
+    if (m_recalculateFjvt && jetCont.size() > 0) {
+      pileupMomenta = calculateVertexMomenta(&jetCont, pvind);
+    }
     for(const auto jetF : jetCont) {
       outHandle(*jetF) = 1;
       if(m_recalculateFjvt) fjvtDecHandle(*jetF) = 0;
       if (!forwardJet(jetF)) continue;
-      double fjvt = getFJVT(jetF)/jetF->pt();
+      double fjvt = getFJVT(jetF, pileupMomenta, pvind)/jetF->pt();
       if (fjvt>m_fjvtThresh) outHandle(*jetF) = 0;
       fjvtDecHandle(*jetF) = fjvt;
     }
     return StatusCode::SUCCESS;
   }
 
-  float JetForwardJvtTool::getFJVT(const xAOD::Jet *jet) const {
+  float JetForwardJvtTool::getFJVT(const xAOD::Jet *jet, const std::vector<TVector2>& pileupMomenta, std::size_t pvind) const {
     if(!m_recalculateFjvt){
       SG::WriteDecorHandle<xAOD::JetContainer, float> fjvtDecHandle(m_fjvtDecKey);
       return fjvtDecHandle(*jet);
@@ -94,44 +97,44 @@
 
     TVector2 fjet(-jet->pt()*cos(jet->phi()),-jet->pt()*sin(jet->phi()));
     double fjvt = 0;
-    for (size_t pui = 0; pui < m_pileupMomenta.size(); pui++) {
-      if (pui==m_pvind) continue;
-      double projection = m_pileupMomenta[pui]*fjet/fjet.Mod();
+    for (size_t pui = 0; pui < pileupMomenta.size(); pui++) {
+      if (pui==pvind) continue;
+      double projection = pileupMomenta[pui]*fjet/fjet.Mod();
       if (projection>fjvt) fjvt = projection;
     }
     //fjvt += getCombinedWidth(jet);
     return fjvt;
   }
 
-  void JetForwardJvtTool::calculateVertexMomenta(const xAOD::JetContainer *jets) const {
-    m_pileupMomenta.clear();
+  std::vector<TVector2> JetForwardJvtTool::calculateVertexMomenta(const xAOD::JetContainer *jets, std::size_t pvind) const {
 
     SG::ReadHandle<xAOD::MissingETContainer> trkMetHandle(m_trkMETName);
     SG::ReadHandle<xAOD::VertexContainer> vertexContainerHandle(m_vertexContainerName);
     if( !trkMetHandle.isValid() ) {
       ATH_MSG_WARNING("xAOD::MissingETContainer " << m_trkMETName.key() << " is invalid");
-      return;
+      return {};
     }
     if( !vertexContainerHandle.isValid() ) {
       ATH_MSG_WARNING("xAOD::VertexContainer " << m_vertexContainerName.key() << " is invalid");
-      return;
+      return {};
     }
 
+    std::vector<TVector2> pileupMomenta;
     for(const auto vx : *vertexContainerHandle) {
       if(vx->vertexType()!=xAOD::VxType::PriVtx && vx->vertexType()!=xAOD::VxType::PileUp) continue;
       TString vname = "PVTrack_vx";
       vname += vx->index();
-      m_pileupMomenta.push_back(\
-                                (vx->index()==m_pvind ? \
-                                 0:\
-                                 -(1./m_jetScaleFactor))*TVector2(0.5*(*trkMetHandle)[vname.Data()]->mpx(),0.5*(*trkMetHandle)[vname.Data()]->mpy()));
+      pileupMomenta.push_back((vx->index()==pvind ? 0 : -(1./m_jetScaleFactor)) *
+                              TVector2(0.5*(*trkMetHandle)[vname.Data()]->mpx(),
+                                       0.5*(*trkMetHandle)[vname.Data()]->mpy()));
     }
 
     for (const auto jet : *jets) {
       if (!centralJet(jet)) continue;
       int jetvert = getJetVertex(jet);
-      if (jetvert>=0) m_pileupMomenta[jetvert] += TVector2(0.5*jet->pt()*cos(jet->phi()),0.5*jet->pt()*sin(jet->phi())); 
+      if (jetvert>=0) pileupMomenta[jetvert] += TVector2(0.5*jet->pt()*cos(jet->phi()),0.5*jet->pt()*sin(jet->phi()));
     }
+    return pileupMomenta;
   }
 
   float JetForwardJvtTool::getCombinedWidth(const xAOD::Jet *jet) const {
@@ -201,25 +204,26 @@
     return (max-median)/jet->pt();
   }
 
-  void JetForwardJvtTool::getPV() const {
+  std::size_t JetForwardJvtTool::getPV() const {
 
+    std::size_t pvind = 0;
     auto vertexContainer = SG::makeHandle (m_vertexContainerName);
     if (!vertexContainer.isValid()){
-      ATH_MSG_WARNING("Invalid  xAOD::VertexContainer datahandle");
-      return;
+      ATH_MSG_WARNING("Invalid xAOD::VertexContainer datahandle");
+      return pvind;
     }
     auto vxCont = vertexContainer.cptr();
 
-    m_pvind = 0;
     if(vxCont->empty()) {
       ATH_MSG_WARNING("Event has no primary vertices!");
     } else {
       ATH_MSG_DEBUG("Successfully retrieved primary vertex container");
       for(const auto vx : *vxCont) {
         if(vx->vertexType()==xAOD::VxType::PriVtx)
-          {m_pvind = vx->index(); break;}
+          {pvind = vx->index(); break;}
       }
     }
+    return pvind;
   }
 
   StatusCode JetForwardJvtTool::tagTruth(const xAOD::JetContainer *jets,const xAOD::JetContainer *truthJets) {
