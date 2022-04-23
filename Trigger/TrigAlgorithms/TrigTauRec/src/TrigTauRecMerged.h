@@ -74,12 +74,6 @@ class TrigTauRecMerged: public AthReentrantAlgorithm {
   SG::WriteHandleKey< xAOD::TauJetContainer > m_trigtauRecOutKey {this,"Key_trigTauJetOutputContainer","HLT_taujet","Output taujet container"};
   SG::WriteHandleKey< xAOD::TauTrackContainer > m_trigtauTrkOutKey {this,"Key_trigTauTrackOutputContainer","HLT_tautrack","Output tautrack container"};
 
-  Gaudi::Property< float > m_maxeta         { this, "maxeta", 2.5,"max eta for tau"};
-  Gaudi::Property< float > m_minpt          { this, "minpt", 10000.0, "min pt for tau"};
-  Gaudi::Property< std::string > m_beamType { this, "BeamType", "collisions", "Beam type"};
-  Gaudi::Property< float > m_trkcone        { this, "trkcone", 0.2, "max distance track seed from roi center"};
-  
-
 };
 
   // Function to perform deep copy on container

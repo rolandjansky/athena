@@ -118,12 +118,6 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
 
             self.Tools = tools
 
-            ## add beam type flag
-            from AthenaCommon.BeamFlags import jobproperties
-            self.BeamType = jobproperties.Beam.beamType()
-
-
-
 # this is the newJO fragment
 class TrigTauDefaultsKeys:
     VertexContainer = 'PrimaryVertices'
@@ -167,9 +161,8 @@ def TrigTauRecMergedOnlyMVACfg(flags):
         tool.calibFolder = 'TrigTauRec/00-11-02/'
 
 
-            ## add beam type flag
+    ## add beam type flag
     alg = CompFactory.TrigTauRecMerged("TrigTauRecMergedOnlyMVA",
-                                        BeamType=flags.Beam.Type.value, 
                                         Tools=tools)
 
     alg.Key_trackPartInputContainer = ''
