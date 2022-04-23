@@ -20,6 +20,8 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteDecorHandleKeyArray.h"
 #include "xAODEgamma/EgammaContainer.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODCaloEvent/CaloCluster.h"
 
 namespace DerivationFramework {
 
@@ -65,6 +67,24 @@ private:
     "SG key of electron container"
   };
 
+  /** This should be only for using run 2 reprocessing, which misses the
+      cell link from LRT electron clusters :
+      try to get info from the best matched "regular" egamma cluster */
+  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_SGKey_egammaClusters{
+    this,
+    "SGKey_egammaClusters",
+    "",
+    "SG key of cluster container associated to standard egammas"
+  };
+
+  /** @brief matching cone size*/
+  Gaudi::Property<double> m_dRLRTegClusegClusMax{
+    this,
+    "dRLRTegClusegClusMax",
+    0.05,
+    "Maximum delta R to match LRT egammaCluster to std egammaCluster"
+  };
+
   SG::WriteDecorHandleKeyArray<xAOD::EgammaContainer>
     m_SGKey_photons_decorations{
       this,
@@ -81,7 +101,7 @@ private:
       "SG keys for electrons decorations not really configurable"
     };
 
-  calculation decorateObject(const xAOD::Egamma* egamma,
+  calculation decorateObject(const xAOD::CaloCluster* cluster,
                              const EventContext& ctx) const;
 };
 }

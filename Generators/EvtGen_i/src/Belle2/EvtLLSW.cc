@@ -22,17 +22,17 @@
 //B2_EVTGEN_REGISTER_MODEL(EvtLLSW);
 
 EvtLLSW::EvtLLSW():
-  llswffmodel(0)
-  , calcamp(0)
+  m_llswffmodel(0)
+  , m_calcamp(0)
 {}
 
 
 EvtLLSW::~EvtLLSW()
 {
-  delete llswffmodel;
-  llswffmodel = 0;
-  delete calcamp;
-  calcamp = 0;
+  delete m_llswffmodel;
+  m_llswffmodel = 0;
+  delete m_calcamp;
+  m_calcamp = 0;
 }
 
 std::string EvtLLSW::getName()
@@ -56,7 +56,7 @@ void EvtLLSW::decay(EvtParticle* p)
 
   p->initializePhaseSpace(getNDaug(), getDaugs());
 
-  calcamp->CalcAmp(p, _amp2, llswffmodel);
+  m_calcamp->CalcAmp(p, _amp2, m_llswffmodel);
 
 }
 
@@ -129,18 +129,18 @@ void EvtLLSW::init()
   EvtSpinType::spintype mesontype = EvtPDL::getSpinType(getDaug(0));
 
   if (isNarrow)
-    llswffmodel = new EvtLLSWFF(getArg(0), getArg(1), getNArg() > 2 ? getArg(2) : 0., getNArg() > 3 ? getArg(3) : 0.);
+    m_llswffmodel = new EvtLLSWFF(getArg(0), getArg(1), getNArg() > 2 ? getArg(2) : 0., getNArg() > 3 ? getArg(3) : 0.);
   else
-    llswffmodel = new EvtLLSWFF(getArg(0), getArg(1), getNArg() > 2 ? getArg(2) : 0.);
+    m_llswffmodel = new EvtLLSWFF(getArg(0), getArg(1), getNArg() > 2 ? getArg(2) : 0.);
 
   if (mesontype == EvtSpinType::SCALAR) {
-    calcamp = new EvtSemiLeptonicScalarAmp;
+    m_calcamp = new EvtSemiLeptonicScalarAmp;
   }
   if (mesontype == EvtSpinType::VECTOR) {
-    calcamp = new EvtSemiLeptonicVectorAmp;
+    m_calcamp = new EvtSemiLeptonicVectorAmp;
   }
   if (mesontype == EvtSpinType::TENSOR) {
-    calcamp = new EvtSemiLeptonicTensorAmp;
+    m_calcamp = new EvtSemiLeptonicTensorAmp;
   }
 
 }

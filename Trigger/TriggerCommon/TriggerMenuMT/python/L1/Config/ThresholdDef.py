@@ -1,7 +1,12 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from ..Base.Thresholds import MuonThreshold, eEMThreshold, eEMVarThreshold, jEMThreshold, eTauThreshold, jTauThreshold, cTauThreshold, jJetThreshold, jLJetThreshold, gJetThreshold, gLJetThreshold, XEThreshold, TEThreshold, MBTSThreshold, MBTSSIThreshold, NimThreshold
 from .L1CaloThresholdMapping import get_threshold_cut
+
+# Max thresholds for SPARE triggers, corresponding to maximum value in L1Topo
+# The pass requirement is et >= cut, so these ensure no events can pass
+thrVal_SPARE = 819.1      # == 2^13-1 * 100 MeV
+thrVal_SPAREXE = 104857.5 # == 2^20-1 * 100 MeV
 
 class ThresholdDef:
 
@@ -115,7 +120,7 @@ class ThresholdDef:
 
         # eEM SPARES
         for thrV in range(1,9):
-            eEMThreshold('eEMSPARE%i' % thrV, 'eEM').addThrValue(8191)
+            eEMThreshold('eEMSPARE%i' % thrV, 'eEM').addThrValue(thrVal_SPARE)
 
         # L section (used to be VH in Run2)
         eEM_cuts = [10, 12, 18, 24, 26]
@@ -149,7 +154,7 @@ class ThresholdDef:
 
         # jEM SPARES
         for thrV in range(1,2):
-            jEMThreshold('jEMSPARE%i' % thrV, 'jEM').addThrValue(8191)
+            jEMThreshold('jEMSPARE%i' % thrV, 'jEM').addThrValue(thrVal_SPARE)
 
         # eTAU
         eTAU_cuts = [12, 20, 30, 35, 60, 80, 140]
@@ -164,11 +169,11 @@ class ThresholdDef:
             eTauThreshold('eTAU%iM' % thrV, 'eTAU').setEt(get_threshold_cut('eTAU', thrV)).setIsolation( rCore = "Medium" )
         eTAU_cuts = [40]
         for thrV in eTAU_cuts:
-            eTauThreshold('eTAU%iHM' % thrV, 'eTAU').setEt(get_threshold_cut('eTAU', thrV)).setIsolation( rHad = "HadMedium" )
+            eTauThreshold('eTAU%iHM' % thrV, 'eTAU').setEt(get_threshold_cut('eTAU', thrV)).setIsolation( rHad = "Medium" )
 
         # eTAU SPARES
         for thrV in range(1,11):
-            eTauThreshold('eTAUSPARE%i' % thrV, 'eTAU').setEt(8191)  
+            eTauThreshold('eTAUSPARE%i' % thrV, 'eTAU').setEt(thrVal_SPARE)
 
         # cTAU
         cTAU_cuts = [20, 30, 35]
@@ -177,7 +182,7 @@ class ThresholdDef:
 
         # cTAU SPARES
         for thrV in range(1,3):
-            cTauThreshold('cTAUSPARE%i' % thrV, 'cTAU').setEt(8191)
+            cTauThreshold('cTAUSPARE%i' % thrV, 'cTAU').setEt(thrVal_SPARE)
 
         # jTAU
         jTAU_cuts = [20, 30]
@@ -189,7 +194,7 @@ class ThresholdDef:
 
         # jTAU SPARES
         for thrV in range(1,2):
-            jTauThreshold('jTAUSPARE%i' % thrV, 'jTAU').setEt(8191)
+            jTauThreshold('jTAUSPARE%i' % thrV, 'jTAU').setEt(thrVal_SPARE)
 
         # jJET (default eta range)
         # For correspondence to Run 2, see https://twiki.cern.ch/twiki/bin/viewauth/Atlas/TriggerNamingRun3#New_naming_for_Calo_items
@@ -212,7 +217,7 @@ class ThresholdDef:
 
         # jJET SPARES
         for thrV in range(1,7):
-            jJetThreshold('jJSPARE%i' % thrV, 'jJ').addThrValue(8191)
+            jJetThreshold('jJSPARE%i' % thrV, 'jJ').addThrValue(thrVal_SPARE)
 
         # jLJET (default range)
         for thrV in [60, 80, 100, 120, 140, 160, 180, 200]:
@@ -220,7 +225,7 @@ class ThresholdDef:
 
         # jLJET SPARES
         for thrV in range(1,5):
-            jLJetThreshold('jLJSPARE%i' % thrV, 'jLJ').addThrValue(8191)
+            jLJetThreshold('jLJSPARE%i' % thrV, 'jLJ').addThrValue(thrVal_SPARE)
 
         # gJET (default range)
         for thrV in [20, 30, 40, 50, 100, 160]:
@@ -232,7 +237,7 @@ class ThresholdDef:
 
         # gLJET SPARES
         for thrV in range(1,5):
-            gLJetThreshold('gLJSPARE%i' % thrV, 'gLJ').setEt(8191)
+            gLJetThreshold('gLJSPARE%i' % thrV, 'gLJ').setEt(thrVal_SPARE)
 
         # gXE
         gXE_cuts = [70, 100]
@@ -262,7 +267,7 @@ class ThresholdDef:
 
         # ENERGY SPARES
         for thrV in range(1,30):
-            XEThreshold('jXESPARE%i' % thrV, 'jXE').setXE(1048575)
+            XEThreshold('jXESPARE%i' % thrV, 'jXE').setXE(thrVal_SPAREXE)
 
         jXE_cuts = [100]
         for thrV in jXE_cuts:

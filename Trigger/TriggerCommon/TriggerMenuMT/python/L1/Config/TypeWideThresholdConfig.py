@@ -219,36 +219,26 @@ def getConfig_eTAU():
     rHad_fw_tight = 10 # PLACEHOLDER
     confObj = odict()
     confObj["workingPoints"] = odict()
+    # Working points here translate to cuts on both rCore and rHad
+    # For individual thresholds, rCore and rHad working points are
+    # set independently, so the two variables are not coupled
+    # L1Topo firmware only has 2 bits, allowing None/Loose/Medium/Tight values
     confObj["workingPoints"]["Loose"] = [
         odict([("rCore", eFEXfwToFloatConversion(rCore_fw_loose,bitshift_rCore)), ("rCore_fw", rCore_fw_loose), 
-               ("rHad", 1), ("rHad_fw", 1),
+               ("rHad", eFEXfwToFloatConversion(rHad_fw_loose,bitshift_rHad)), ("rHad_fw", rHad_fw_loose),
               ]), 
     ]
     confObj["workingPoints"]["Medium"] = [
         odict([("rCore", eFEXfwToFloatConversion(rCore_fw_medium,bitshift_rCore)), ("rCore_fw", rCore_fw_medium), 
-               ("rHad", 1), ("rHad_fw", 1), 
+               ("rHad", eFEXfwToFloatConversion(rHad_fw_medium,bitshift_rHad)), ("rHad_fw", rHad_fw_medium), 
              ]),
     ]
     confObj["workingPoints"]["Tight"] = [
         odict([("rCore", eFEXfwToFloatConversion(rCore_fw_tight,bitshift_rCore)), ("rCore_fw", rCore_fw_tight), 
-               ("rHad", 1), ("rHad_fw", 1), 
+               ("rHad", eFEXfwToFloatConversion(rHad_fw_tight,bitshift_rHad)), ("rHad_fw", rHad_fw_tight), 
              ]),
     ]
-    confObj["workingPoints"]["HadLoose"] = [
-        odict([("rCore", 1), ("rCore_fw", 1), 
-               ("rHad", eFEXfwToFloatConversion(rHad_fw_loose,bitshift_rHad)), ("rHad_fw", rHad_fw_loose), 
-             ]),
-    ]
-    confObj["workingPoints"]["HadMedium"] = [
-        odict([("rCore", 1), ("rCore_fw", 1),
-               ("rHad", eFEXfwToFloatConversion(rHad_fw_medium,bitshift_rHad)), ("rHad_fw", rHad_fw_medium),
-             ]),
-    ]
-    confObj["workingPoints"]["HadTight"] = [
-        odict([("rCore", 1), ("rCore_fw", 1),
-               ("rHad", eFEXfwToFloatConversion(rHad_fw_tight,bitshift_rHad)), ("rHad_fw", rHad_fw_tight),
-             ]),
-    ]
+
     confObj["ptMinToTopo"] = 5 # PLACEHOLDER
     confObj["resolutionMeV"] = 100
     confObj["maxEt"] = 50 # PLACEHOLDER

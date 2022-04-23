@@ -26,8 +26,10 @@ namespace ActsTrk {
     ATH_CHECK( m_stripClusterContainerKey.initialize() );
     ATH_CHECK( m_stripSpacePointContainerKey.initialize() );
     ATH_CHECK( m_stripSpacePointDataKey.initialize() );
+    ATH_CHECK( m_stripSpacePointsDetailsKey.initialize() );
     ATH_CHECK( m_stripOverlapSpacePointContainerKey.initialize( m_processOverlapForStrip) );
     ATH_CHECK( m_stripOverlapSpacePointDataKey.initialize( m_processOverlapForStrip) );
+    ATH_CHECK( m_stripOverlapSpacePointsDetailsKey.initialize( m_processOverlapForStrip) );
     ATH_CHECK( m_stripDetEleCollKey.initialize() );
     ATH_CHECK( m_stripPropertiesKey.initialize() );
 
@@ -54,6 +56,9 @@ namespace ActsTrk {
     ATH_MSG_DEBUG( "--- Strip Space Point Container `" << m_stripSpacePointContainerKey.key() << "` created ..." );
     auto stripSpacePointData = SG::WriteHandle<ActsTrk::SpacePointData>( m_stripSpacePointDataKey, ctx );
     ATH_MSG_DEBUG( "--- Strip Space Point Data `" << m_stripSpacePointDataKey.key() << "` created ..." );
+    auto stripSpacePointDetails = SG::WriteHandle<ActsTrk::SpacePointMeasurementDetails>( m_stripSpacePointsDetailsKey, ctx );
+    ATH_MSG_DEBUG( "--- Strip Space Point Measurement Details `" << m_stripSpacePointsDetailsKey.key() << "` created ..." );
+
 
     SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> stripDetEleHandle(m_stripDetEleCollKey, ctx);
     const InDetDD::SiDetectorElementCollection* stripElements(*stripDetEleHandle);
@@ -73,10 +78,14 @@ namespace ActsTrk {
         std::make_unique<ActsTrk::SpacePointContainer>();
     std::unique_ptr<ActsTrk::SpacePointData> spacePointData =
         std::make_unique<ActsTrk::SpacePointData>();
+    std::unique_ptr<ActsTrk::SpacePointMeasurementDetails> spacePointDetails =
+        std::make_unique<ActsTrk::SpacePointMeasurementDetails>();
     std::unique_ptr<ActsTrk::SpacePointContainer> overlapSpacePoints =
         std::make_unique<ActsTrk::SpacePointContainer>();
     std::unique_ptr<ActsTrk::SpacePointData> overlapSpacePointData =
         std::make_unique<ActsTrk::SpacePointData>();
+    std::unique_ptr<ActsTrk::SpacePointMeasurementDetails> overlapSpacePointDetails =
+        std::make_unique<ActsTrk::SpacePointMeasurementDetails>();
 
     SG::ReadHandle<xAOD::StripClusterContainer> inputStripClusterContainer( m_stripClusterContainerKey, ctx );
     if (!inputStripClusterContainer.isValid()){
@@ -89,11 +98,14 @@ namespace ActsTrk {
                                                    *stripElements,
                                                    vertex,
                                                    *spacePoints.get(), *spacePointData.get(),
+                                                   *spacePointDetails.get(),
                                                    *overlapSpacePoints.get(), *overlapSpacePointData.get(),
+                                                   *overlapSpacePointDetails.get(),
                                                    m_processOverlapForStrip);
 
     ATH_CHECK( stripSpacePointContainer.record( std::move( spacePoints ) ) );
     ATH_CHECK( stripSpacePointData.record( std::move( spacePointData ) ) );
+    ATH_CHECK( stripSpacePointDetails.record( std::move( spacePointDetails ) ) );
 
     nReceivedSPsStrip = stripSpacePointContainer->size();
 
@@ -102,8 +114,11 @@ namespace ActsTrk {
       ATH_MSG_DEBUG( "--- Strip Overlap Space Point Container `" << m_stripOverlapSpacePointContainerKey.key() << "` created ..." );
       auto stripOverlapSpacePointData = SG::WriteHandle<ActsTrk::SpacePointData>( m_stripOverlapSpacePointDataKey, ctx );
       ATH_MSG_DEBUG( "--- Strip Overlap Space Point Data `" << m_stripOverlapSpacePointDataKey.key() << "` created ..." );
+      auto stripOverlapSpacePointDetails = SG::WriteHandle<ActsTrk::SpacePointMeasurementDetails>( m_stripOverlapSpacePointsDetailsKey, ctx );
+      ATH_MSG_DEBUG( "--- Strip Overlap Space Point Measurement Details `" << m_stripOverlapSpacePointsDetailsKey.key() << "` created ..." );
       ATH_CHECK( stripOverlapSpacePointContainer.record( std::move( overlapSpacePoints ) ) );
       ATH_CHECK( stripOverlapSpacePointData.record( std::move( overlapSpacePointData ) ) );
+      ATH_CHECK( stripOverlapSpacePointDetails.record( std::move( overlapSpacePointDetails ) ) );
 
       nReceivedSPsStripOverlap = stripOverlapSpacePointContainer->size();
     }

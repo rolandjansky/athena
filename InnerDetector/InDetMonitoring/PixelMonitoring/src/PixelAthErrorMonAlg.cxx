@@ -25,10 +25,10 @@ PixelAthErrorMonAlg::~PixelAthErrorMonAlg() {}
 
 StatusCode PixelAthErrorMonAlg::initialize() {
   ATH_CHECK( PixelAthMonitoringBase::initialize() );
-  ATH_CHECK( m_idcErrContKey.initialize(!m_idcErrContKey.empty()) );
   m_readoutTechnologyMask =   Pixel::makeReadoutTechnologyBit( InDetDD::PixelReadoutTechnology::FEI4, m_useByteStreamFEI4)
                             | Pixel::makeReadoutTechnologyBit( InDetDD::PixelReadoutTechnology::FEI3, m_useByteStreamFEI3)
                             | Pixel::makeReadoutTechnologyBit( InDetDD::PixelReadoutTechnology::RD53, m_useByteStreamRD53);
+  ATH_CHECK( m_idcErrContKey.initialize(m_readoutTechnologyMask) );
   return StatusCode::SUCCESS;
 }
 
@@ -126,7 +126,7 @@ StatusCode PixelAthErrorMonAlg::fillHistograms(const EventContext& ctx) const {
 
   SG::ReadHandle<InDet::SiDetectorElementStatus> pixel_active = getPixelDetElStatus(m_pixelDetElStatusActiveOnly, ctx);
   SG::ReadHandle<IDCInDetBSErrContainer> idcErrCont;
-  if (!m_idcErrContKey.empty())  {
+  if (m_readoutTechnologyMask)  {
      idcErrCont =SG::ReadHandle<IDCInDetBSErrContainer> ( m_idcErrContKey, ctx);
      if (!idcErrCont.isValid()) {
         ATH_MSG_FATAL("Faled to get BS error container" << m_idcErrContKey.key() );
@@ -159,14 +159,14 @@ StatusCode PixelAthErrorMonAlg::fillHistograms(const EventContext& ctx) const {
     // count number of words w/ MCC/FE flags per module
     unsigned int num_femcc_errwords = 0;
 
-    uint64_t mod_errorword = (!m_pixelDetElStatusActiveOnly.empty() && !m_idcErrContKey.empty()
+    uint64_t mod_errorword = (!m_pixelDetElStatusActiveOnly.empty() && m_readoutTechnologyMask
                               ? InDet::getBSErrorWord( *pixel_active,
                                                        *idcErrCont,
                                                        modHash,
                                                        modHash,
                                                        m_readoutTechnologyMask)
                               : m_pixelCondSummaryTool->getBSErrorWord(modHash, ctx) );
-    VALIDATE_STATUS_ARRAY(!m_pixelDetElStatusActiveOnly.empty() && !m_idcErrContKey.empty(), InDet::getBSErrorWord( *pixel_active,*idcErrCont,modHash,modHash,m_readoutTechnologyMask) ,m_pixelCondSummaryTool->getBSErrorWord(modHash, ctx) );
+    VALIDATE_STATUS_ARRAY(!m_pixelDetElStatusActiveOnly.empty() && m_readoutTechnologyMask, InDet::getBSErrorWord( *pixel_active,*idcErrCont,modHash,modHash,m_readoutTechnologyMask) ,m_pixelCondSummaryTool->getBSErrorWord(modHash, ctx) );
 
     // extracting ROB error information
     //
@@ -195,14 +195,14 @@ StatusCode PixelAthErrorMonAlg::fillHistograms(const EventContext& ctx) const {
     for (int iFE = 0; iFE < nFE; iFE++) {
 
       int offsetFE = (1 + iFE) * maxHash + modHash;    // (FE index+1)*2048 + moduleHash
-      uint64_t fe_errorword = (!m_pixelDetElStatusActiveOnly.empty() && !m_idcErrContKey.empty()
+      uint64_t fe_errorword = (!m_pixelDetElStatusActiveOnly.empty() && m_readoutTechnologyMask
                               ? InDet::getBSErrorWord( *pixel_active,
                                                        *idcErrCont,
                                                        modHash,
                                                        offsetFE,
                                                        m_readoutTechnologyMask) 
                                : m_pixelCondSummaryTool->getBSErrorWord(modHash, offsetFE, ctx) );
-      VALIDATE_STATUS_ARRAY(!m_pixelDetElStatusActiveOnly.empty() && !m_idcErrContKey.empty(), InDet::getBSErrorWord( *pixel_active,*idcErrCont,modHash,offsetFE,m_readoutTechnologyMask) ,m_pixelCondSummaryTool->getBSErrorWord(modHash, offsetFE, ctx) );
+      VALIDATE_STATUS_ARRAY(!m_pixelDetElStatusActiveOnly.empty() && m_readoutTechnologyMask, InDet::getBSErrorWord( *pixel_active,*idcErrCont,modHash,offsetFE,m_readoutTechnologyMask) ,m_pixelCondSummaryTool->getBSErrorWord(modHash, offsetFE, ctx) );
 
 
       fillErrorCatRODmod(fe_errorword, is_fei4, nerrors_cat_rodmod, iFE);
@@ -248,14 +248,14 @@ StatusCode PixelAthErrorMonAlg::fillHistograms(const EventContext& ctx) const {
           Identifier pixelIDperFEI4 = m_pixelReadout->getPixelIdfromHash(modHash, iFE, 1, 1);
           // index = offset + (serviceCode)*(#IBL*nFEmax) + (moduleHash-156)*nFEmax + iFE
           int serviceCodeCounterIndex = serviceRecordFieldOffset + serviceCodeOffset + moduleOffset + iFE;
-          uint64_t serviceCodeCounter = (!m_pixelDetElStatusActiveOnly.empty() && !m_idcErrContKey.empty()
+          uint64_t serviceCodeCounter = (!m_pixelDetElStatusActiveOnly.empty() && m_readoutTechnologyMask
                                          ? InDet::getBSErrorWord( *pixel_active,
                                                                   *idcErrCont,
                                                                   modHash,
                                                                   serviceCodeCounterIndex,
                                                                   m_readoutTechnologyMask)
                                          : m_pixelCondSummaryTool->getBSErrorWord(modHash, serviceCodeCounterIndex, ctx) );
-          VALIDATE_STATUS_ARRAY(!m_pixelDetElStatusActiveOnly.empty() && !m_idcErrContKey.empty(), InDet::getBSErrorWord( *pixel_active,*idcErrCont,modHash,serviceCodeCounterIndex,m_readoutTechnologyMask) ,m_pixelCondSummaryTool->getBSErrorWord(modHash, serviceCodeCounterIndex, ctx) );
+          VALIDATE_STATUS_ARRAY(!m_pixelDetElStatusActiveOnly.empty() && m_readoutTechnologyMask, InDet::getBSErrorWord( *pixel_active,*idcErrCont,modHash,serviceCodeCounterIndex,m_readoutTechnologyMask) ,m_pixelCondSummaryTool->getBSErrorWord(modHash, serviceCodeCounterIndex, ctx) );
 
           if (serviceCodeCounter > 0) {
             float payload = serviceCodeCounter; // NB: + 1, as in rel 21, is now added upstream

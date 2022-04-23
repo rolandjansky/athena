@@ -170,9 +170,38 @@ def ITkTrackRecoCfg(flags):
         from InDetConfig.VertexFindingConfig import primaryVertexFindingCfg
         result.merge(primaryVertexFindingCfg(flags))
 
+    if flags.ITk.Tracking.writeExtendedPRDInfo:
+        from InDetConfig.InDetPrepRawDataToxAODConfig import ITkPixelPrepDataToxAODCfg, ITkStripPrepDataToxAODCfg
+        result.merge(ITkPixelPrepDataToxAODCfg(flags, ClusterSplitProbabilityName = ClusterSplitProbContainer))
+        result.merge(ITkStripPrepDataToxAODCfg(flags))
+        if flags.Input.isMC:
+            from InDetPhysValMonitoring.InDetPhysValDecorationConfig import InDetPhysHitDecoratorAlgCfg
+            result.merge(InDetPhysHitDecoratorAlgCfg(flags))
+
+    # output
+    result.merge(ITkTrackRecoOutputCfg(flags))
+
+    return result
+
+def ITkTrackRecoOutputCfg(flags):
     from OutputStreamAthenaPool.OutputStreamConfig import addToESD,addToAOD
-    toAOD = ["xAOD::TrackParticleContainer#InDetTrackParticles", "xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux."]
+    toAOD = []
     toESD = []
+
+    toAOD += [
+        "xAOD::TrackParticleContainer#InDetTrackParticles",
+        "xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux."
+    ]
+
+    if flags.ITk.Tracking.writeExtendedPRDInfo:
+        toAOD += [
+            "xAOD::TrackMeasurementValidationContainer#ITkPixelClusters",
+            "xAOD::TrackMeasurementValidationAuxContainer#ITkPixelClustersAux.",
+            "xAOD::TrackMeasurementValidationContainer#ITkStripClusters",
+            "xAOD::TrackMeasurementValidationAuxContainer#ITkStripClustersAux."
+        ]
+
+    result = ComponentAccumulator()
     result.merge(addToESD(flags, toAOD+toESD))
     result.merge(addToAOD(flags, toAOD))
     return result

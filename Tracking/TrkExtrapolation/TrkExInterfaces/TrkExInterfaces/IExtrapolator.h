@@ -147,20 +147,6 @@ public:
     ParticleHypothesis particle = pion) const = 0;
 
 
-  /** Extrapolate directly: Forwards directly the call to the
-   * passed propagator. No navigation and no material effecs
-   * Same as previous but with propagator arguement (needed by a single client
-   * TRT_TrackExtensionToolCosmics
-   */
-  virtual std::unique_ptr<TrackParameters> extrapolateDirectly(
-    const EventContext& ctx,
-    const IPropagator& prop,
-    const TrackParameters& parm,
-    const Surface& sf,
-    PropDirection dir = anyDirection,
-    const BoundaryCheck& bcheck = true,
-    ParticleHypothesis particle = pion) const = 0;
-
   /** extrapolateBlindly like step-wise extrapolation, but without
    * a destination surface.  Blind inside the given tracking Volume (boundaryVol),
    * if none is given the reference surface for destination is used
@@ -172,16 +158,6 @@ public:
                      const BoundaryCheck& bcheck = true,
                      ParticleHypothesis particle = pion,
                      const Volume* boundaryVol = nullptr) const = 0;
-
-  /** Extrapolation to the next active layer*/
-  virtual std::pair<std::unique_ptr<TrackParameters>, const Trk::Layer*>
-  extrapolateToNextActiveLayer(
-    const EventContext& ctx,
-    const TrackParameters& parm,
-    PropDirection dir = anyDirection,
-    const BoundaryCheck& bcheck = true,
-    ParticleHypothesis particle = pion,
-    MaterialUpdateMode matupmode = addNoise) const = 0;
 
   /** Extrapolation to the next active layer with material collection*/
   virtual std::pair<std::unique_ptr<TrackParameters>, const Trk::Layer*>

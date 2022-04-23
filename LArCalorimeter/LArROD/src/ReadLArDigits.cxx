@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArROD/ReadLArDigits.h"
+#include "ReadLArDigits.h"
 #include "LArRawEvent/LArDigit.h"
 #include <vector>
 // #include "GaudiKernel/IToolSvc.h"

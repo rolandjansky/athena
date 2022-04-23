@@ -28,8 +28,10 @@ namespace ActsTrk {
                                              const Amg::Vector3D& beamSpotVertex,
                                              ActsTrk::SpacePointContainer& spacePoints,
                                              ActsTrk::SpacePointData& spacePointData,
+                                             ActsTrk::SpacePointMeasurementDetails& spacePointDetails,
                                              ActsTrk::SpacePointContainer& overlapSpacePoints,
                                              ActsTrk::SpacePointData& overlapSpacePointData,
+                                             ActsTrk::SpacePointMeasurementDetails& overlapSpacePointDetails,
                                              bool processOverlaps) const = 0;
     };
 

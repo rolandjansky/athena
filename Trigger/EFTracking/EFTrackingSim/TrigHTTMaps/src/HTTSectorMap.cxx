@@ -18,8 +18,8 @@ std::map<int,int> HTTSectorMap::makeLookup(const char* fname)
   ifstream inFile(fname);
 
   if (inFile.is_open()) {
-    ANA_MSG_ERROR("Unable to open file");
-    exit(1); // terminate with error
+    ANA_MSG_FATAL("Unable to open file");
+    return secLookup;
   }
   int evt,reg;
   while (inFile >> evt >> reg) {
@@ -41,29 +41,27 @@ int HTTSectorMap::GetSector(int sec1, int sec2) {
   return -1;
 }
 
-int HTTSectorMap::LoadFromFile(const char *fname) {
+void HTTSectorMap::LoadFromFile(const char *fname) {
 
   ifstream inFile(fname);
   if (inFile.is_open()) {
-    ANA_MSG_ERROR("Unable to open file");
-    exit(1); // terminate with error
+    ANA_MSG_FATAL("Unable to open file");
+    return;
   }    
   ANA_MSG_DEBUG("Reading sector map data: " << fname);
   int sec1,sec2,sec3;
   while(inFile >> sec1 >> sec2 >> sec3) SetSector(sec1,sec2,sec3);
   inFile.close();
-
-  return 0;
 }
 
-int HTTSectorMap::CreateFile(const char *fname4,const char *fname8, const char *fname11) {
+void HTTSectorMap::CreateFile(const char *fname4,const char *fname8, const char *fname11) {
   std::map<int,int> map4=HTTSectorMap::makeLookup(fname4);
   std::map<int,int> map8=HTTSectorMap::makeLookup(fname8);
 
   ifstream inFile(fname11);
   if (inFile.is_open()) {
-    ANA_MSG_ERROR("Unable to open file");
-    exit(1); // terminate with error
+    ANA_MSG_FATAL("Unable to open file");
+    return;
   }    
   int ev11, sec11;
   while(inFile >> ev11 >> sec11) {
@@ -71,8 +69,6 @@ int HTTSectorMap::CreateFile(const char *fname4,const char *fname8, const char *
       SetSector(map4[ev11], map8[ev11], sec11);
   }
   inFile.close();
-
-  return 0;
 }
 
 void HTTSectorMap::Dump() {

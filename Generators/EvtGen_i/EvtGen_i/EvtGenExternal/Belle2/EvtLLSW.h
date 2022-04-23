@@ -47,10 +47,10 @@ public:
 private:
 
   /** Pointers needed for FFs */
-  EvtSemiLeptonicFF* llswffmodel;
+  EvtSemiLeptonicFF* m_llswffmodel;
 
   /** Pointers needed to calculate amplitude */
-  EvtSemiLeptonicAmp* calcamp;
+  EvtSemiLeptonicAmp* m_calcamp;
 
 };
 

@@ -111,20 +111,31 @@ class TileCisDefaultCalibTool: public AthAlgTool
     // pedestal triggers are mixed with CIS triggers
     bool m_removePed;
 
+    // expected maximal ped to set overflow limit (mostly needed for low gain)
+    double m_maxPed;
+
     // phase range for calibration, by default use full range
     double m_phaseMin;
     double m_phaseMax;
 
     // Maximum charge (gain-dependent) for filling dac map: not equivalent to charge range used in linear fit
-    // by default, fill low gain up to 700 pC, high gain up to 12.5 pC
+    // by default, fill low gain up to 800 pC, high gain up to 12.5 pC (25 pC for demonstrator)
     double m_chargeMaxHi;
+    double m_chargeMinHi;
     double m_chargeMaxLo;
+    double m_chargeMinLo;
 
-    // Range for linear fits: by default do high gain fit from 3-12 pC, and low gain from 300 - 700 pC
+    // Range for linear fits: by default do high gain fit from 3-10 pC, and low gain from 300 - 700 pC
     double m_linfitMaxHi;
     double m_linfitMinHi;
     double m_linfitMaxLo;
     double m_linfitMinLo;
+
+    // Range for linear fits for demonstrator: by default do high gain fit from 6-20 pC, and low gain from 300 - 700 pC
+    double m_linfitMaxHiDemo;
+    double m_linfitMinHiDemo;
+    double m_linfitMaxLoDemo;
+    double m_linfitMinLoDemo;
 
     bool m_doSampleChecking;
 
@@ -152,12 +163,17 @@ class TileCisDefaultCalibTool: public AthAlgTool
     // used to count the number of injection samples analyzed for odd bit behavior
     int (*m_numSamp)[Tile::MAX_DRAWER][Tile::MAX_CHAN][Tile::MAX_GAIN];
 
-    //  TList *scanList;  // This is now deprecated and replaced by the map for speed -CT March 09
     TMap* m_scanMap;
     TMap* m_scanMapRMS;
-    
-    double m_dac2ChargeSmall = 0.0;
-    double m_dac2ChargeLarge = 0.0;
+
+    double m_defaultCalib[4] = {0., 0., 0., 0.};
+    double m_dac2Charge[4] = {0., 0., 0., 0.};
+    double m_chargeMin[4] = {0., 0., 0., 0.};
+    double m_chargeMax[4] = {0., 0., 0., 0.};
+    double m_linfitMin[4] = {0., 0., 0., 0.};
+    double m_linfitMax[4] = {0., 0., 0., 0.};
+    double m_maxAmp[4] = {0., 0., 0., 0.};
+    std::vector<int> m_fragIDsDemonstrators;
 
     // TileInfo
     std::string m_infoName;

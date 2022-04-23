@@ -31,6 +31,7 @@ namespace Belle2 {
 
   EvtBSemiTauonic2HDMType2::~EvtBSemiTauonic2HDMType2()
   {
+
     if (m_CalcHelAmp)delete m_CalcHelAmp;
     if (m_CalcAmp)delete m_CalcAmp;
   }
@@ -84,7 +85,7 @@ namespace Belle2 {
     checkSpinDaughter(1, EvtSpinType::DIRAC);
     checkSpinDaughter(2, EvtSpinType::NEUTRINO);
 
-    const double m_tau = EvtPDL::getMeanMass(getDaug(1));
+    const double tau = EvtPDL::getMeanMass(getDaug(1));
 
     EvtSpinType::spintype d1type = EvtPDL::getSpinType(getDaug(0));
 
@@ -102,24 +103,24 @@ namespace Belle2 {
 
       EvtComplex Coeffs[5];
 
-      const double m_b = getArg(4);
-      const double m_c = getArg(5);
+      const double b = getArg(4);
+      const double c = getArg(5);
       const double tanBetaOverMH = getArg(6);
-      //      B2INFO("tan(beta)/m_H+ = " << tanBetaOverMH);
+      //      B2INFO("tan(beta)/_H+ = " << tanBetaOverMH);
 
       Coeffs[0] = 0; // CV1
       Coeffs[1] = 0; // CV2
-      Coeffs[2] = -m_b * m_tau * tanBetaOverMH * tanBetaOverMH; // CS1
+      Coeffs[2] = -b * tau * tanBetaOverMH * tanBetaOverMH; // CS1
       Coeffs[3] = 0; // CS2, neglected by default
       Coeffs[4] = 0; // CT
 
       if (getNArg() == 8) {
-        // if m_H is explicitly given
-        const double m_H = getArg(7);
-        Coeffs[3] = -m_c * m_tau / m_H / m_H; // CS2
+        // if H is explicitly given
+        const double H = getArg(7);
+        Coeffs[3] = -c * tau / H / H; // CS2
       }
 
-      m_CalcHelAmp = new EvtBSemiTauonicHelicityAmplitudeCalculator(rho12, rhoa12, R11, R21, aS1, aR3, m_b, m_c,
+      m_CalcHelAmp = new EvtBSemiTauonicHelicityAmplitudeCalculator(rho12, rhoa12, R11, R21, aS1, aR3, b, c,
           Coeffs[0], Coeffs[1], Coeffs[2], Coeffs[3], Coeffs[4],
           EvtPDL::getMeanMass(getParentId()),
           -1, /*dummy for Dmass*/
@@ -139,24 +140,24 @@ namespace Belle2 {
 
       EvtComplex Coeffs[5];
 
-      const double m_b = getArg(2);
-      const double m_c = getArg(3);
+      const double b = getArg(2);
+      const double c = getArg(3);
       const double tanBetaOverMH = getArg(4);
-      //      B2INFO("tan(beta)/m_H+ = " << tanBetaOverMH);
+      //      B2INFO("tan(beta)/_H+ = " << tanBetaOverMH);
 
       Coeffs[0] = 0; // CV1
       Coeffs[1] = 0; // CV2
-      Coeffs[2] = -m_b * m_tau * tanBetaOverMH * tanBetaOverMH; // CS1
+      Coeffs[2] = -b * tau * tanBetaOverMH * tanBetaOverMH; // CS1
       Coeffs[3] = 0; // CS2, neglected by default
       Coeffs[4] = 0; // CT
 
       if (getNArg() == 6) {
-        // if m_H is explicitly given
-        const double m_H = getArg(5);
-        Coeffs[3] = -m_c * m_tau / m_H / m_H; // CS2
+        // if H is explicitly given
+        const double H = getArg(5);
+        Coeffs[3] = -c * tau / H / H; // CS2
       }
 
-      m_CalcHelAmp = new EvtBSemiTauonicHelicityAmplitudeCalculator(rho12, rhoa12, R11, R21, aS1, aR3, m_b, m_c,
+      m_CalcHelAmp = new EvtBSemiTauonicHelicityAmplitudeCalculator(rho12, rhoa12, R11, R21, aS1, aR3, b, c,
           Coeffs[0], Coeffs[1], Coeffs[2], Coeffs[3], Coeffs[4],
           EvtPDL::getMeanMass(getParentId()),
           EvtPDL::getMeanMass(getDaug(0)),

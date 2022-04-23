@@ -215,7 +215,8 @@ def MooCandidateMatchingToolCfg(flags, name="MooCandidateMatchingTool", doSegmen
 def MuonSegmentRegionRecoveryToolCfg(flags, name="MuonSegmentRegionRecoveryTool", **kwargs):
     Muon__MuonSegmentRegionRecoveryTool=CompFactory.Muon.MuonSegmentRegionRecoveryTool
     from TrkConfig.AtlasExtrapolatorConfig import MuonExtrapolatorCfg
-    from MuonConfig.MuonRecToolsConfig import MuonStationIntersectCondAlgCfg, MuonTrackSummaryToolCfg
+    from MuonConfig.MuonRecToolsConfig import  MuonTrackSummaryToolCfg
+    from MuonConfig.MuonCondAlgConfig import MuonStationIntersectCondAlgCfg
     # Based on https://gitlab.cern.ch/atlas/athena/blob/release/22.0.3/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MooreTools.py#L426
     
     result = ComponentAccumulator()

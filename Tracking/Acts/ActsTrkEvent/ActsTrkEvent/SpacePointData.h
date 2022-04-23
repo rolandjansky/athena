@@ -23,7 +23,7 @@ namespace ActsTrk {
     inline double varianceZ(std::size_t n) const;
 
     std::size_t insert(const Acts::Vector3& position,
-		       const Acts::Vector2& variance);
+                       const Acts::Vector2& variance);
 
     void reserve(std::size_t n);
 
@@ -33,6 +33,7 @@ namespace ActsTrk {
     std::vector< double > m_pos_z;
     std::vector< double > m_cov_r;
     std::vector< double > m_cov_z;
+
   };
 
   inline double SpacePointData::x(std::size_t n) const { return m_pos_x.at(n); }

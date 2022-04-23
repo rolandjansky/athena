@@ -57,78 +57,78 @@ namespace Belle2 {
       exit(1);
     }
 
-    a_f0ks_ =
+    m_a_f0ks_ =
       (1.0 + getArg(3)) * EvtComplex(getArg(1) * cos(getArg(2) * M_PI / 180.0),
                                      getArg(1) * sin(getArg(2) * M_PI / 180.0));
-    a_phiks_ =
+    m_a_phiks_ =
       (1.0 + getArg(7)) * EvtComplex(getArg(5) * cos(getArg(6) * M_PI / 180.0),
                                      getArg(5) * sin(getArg(6) * M_PI / 180.0));
-    a_fxks_ =
+    m_a_fxks_ =
       (1.0 + getArg(11)) * EvtComplex(getArg(9) * cos(getArg(10) * M_PI / 180.0),
                                       getArg(9) * sin(getArg(10) * M_PI / 180.0));
-    a_chic0ks_ =
+    m_a_chic0ks_ =
       (1.0 + getArg(15)) * EvtComplex(getArg(13) * cos(getArg(14) * M_PI / 180.0),
                                       getArg(13) * sin(getArg(14) * M_PI / 180.0));
-    a_kpkmnr_ =
+    m_a_kpkmnr_ =
       (1.0 + getArg(19)) * EvtComplex(getArg(17) * cos(getArg(18) * M_PI / 180.0),
                                       getArg(17) * sin(getArg(18) * M_PI / 180.0));
-    a_kskpnr_ =
+    m_a_kskpnr_ =
       (1.0 + getArg(24)) * EvtComplex(getArg(22) * cos(getArg(23) * M_PI / 180.0),
                                       getArg(22) * sin(getArg(23) * M_PI / 180.0));
-    a_kskmnr_ =
+    m_a_kskmnr_ =
       (1.0 + getArg(29)) * EvtComplex(getArg(27) * cos(getArg(28) * M_PI / 180.0),
                                       getArg(27) * sin(getArg(28) * M_PI / 180.0));
 
-    abar_f0ks_ =
+    m_abar_f0ks_ =
       (1.0 - getArg(3)) * EvtComplex(getArg(1) * cos(getArg(2) * M_PI / 180.0),
                                      getArg(1) * sin(getArg(2) * M_PI / 180.0));
-    abar_phiks_ =
+    m_abar_phiks_ =
       (1.0 - getArg(7)) * EvtComplex(getArg(5) * cos(getArg(6) * M_PI / 180.0),
                                      getArg(5) * sin(getArg(6) * M_PI / 180.0));
-    abar_fxks_ =
+    m_abar_fxks_ =
       (1.0 - getArg(11)) * EvtComplex(getArg(9) * cos(getArg(10) * M_PI / 180.0),
                                       getArg(9) * sin(getArg(10) * M_PI / 180.0));
-    abar_chic0ks_ =
+    m_abar_chic0ks_ =
       (1.0 - getArg(15)) * EvtComplex(getArg(13) * cos(getArg(14) * M_PI / 180.0),
                                       getArg(13) * sin(getArg(14) * M_PI / 180.0));
-    abar_kpkmnr_ =
+    m_abar_kpkmnr_ =
       (1.0 - getArg(19)) * EvtComplex(getArg(17) * cos(getArg(18) * M_PI / 180.0),
                                       getArg(17) * sin(getArg(18) * M_PI / 180.0));
-    abar_kskpnr_ =
+    m_abar_kskpnr_ =
       (1.0 - getArg(24)) * EvtComplex(getArg(22) * cos(getArg(23) * M_PI / 180.0),
                                       getArg(22) * sin(getArg(23) * M_PI / 180.0));
-    abar_kskmnr_ =
+    m_abar_kskmnr_ =
       (1.0 - getArg(29)) * EvtComplex(getArg(27) * cos(getArg(28) * M_PI / 180.0),
                                       getArg(27) * sin(getArg(28) * M_PI / 180.0));
 
-    alpha_kpkmnr = getArg(21);
-    alpha_kskpnr = getArg(26);
-    alpha_kskmnr = getArg(31);
+    m_alpha_kpkmnr = getArg(21);
+    m_alpha_kskpnr = getArg(26);
+    m_alpha_kskmnr = getArg(31);
 
     std::cout << setiosflags(std::ios::left) << std::endl
               << "B0 Channel  " << std::setw(20) << "Relative amplitude" << std::setw(20) << "Relative phase" << std::endl
-              << "f0ks        " << std::setw(20) << real(a_f0ks_)        << std::setw(20) << imag(a_f0ks_)    << std::endl
-              << "phiks       " << std::setw(20) << real(a_phiks_)       << std::setw(20) << imag(a_phiks_)   << std::endl
-              << "fxks        " << std::setw(20) << real(a_fxks_)        << std::setw(20) << imag(a_fxks_)    << std::endl
-              << "chic0ks     " << std::setw(20) << real(a_chic0ks_)     << std::setw(20) << imag(a_chic0ks_) << std::endl
-              << "kpkmnr      " << std::setw(20) << real(a_kpkmnr_)      << std::setw(20) << imag(a_kpkmnr_)  << std::endl
-              << "kskpnr      " << std::setw(20) << real(a_kskpnr_)      << std::setw(20) << imag(a_kskpnr_)  << std::endl
-              << "kskmnr      " << std::setw(20) << real(a_kskmnr_)      << std::setw(20) << imag(a_kskmnr_)  << std::endl
+              << "f0ks        " << std::setw(20) << real(m_a_f0ks_)        << std::setw(20) << imag(m_a_f0ks_)    << std::endl
+              << "phiks       " << std::setw(20) << real(m_a_phiks_)       << std::setw(20) << imag(m_a_phiks_)   << std::endl
+              << "fxks        " << std::setw(20) << real(m_a_fxks_)        << std::setw(20) << imag(m_a_fxks_)    << std::endl
+              << "chic0ks     " << std::setw(20) << real(m_a_chic0ks_)     << std::setw(20) << imag(m_a_chic0ks_) << std::endl
+              << "kpkmnr      " << std::setw(20) << real(m_a_kpkmnr_)      << std::setw(20) << imag(m_a_kpkmnr_)  << std::endl
+              << "kskpnr      " << std::setw(20) << real(m_a_kskpnr_)      << std::setw(20) << imag(m_a_kskpnr_)  << std::endl
+              << "kskmnr      " << std::setw(20) << real(m_a_kskmnr_)      << std::setw(20) << imag(m_a_kskmnr_)  << std::endl
               << std::endl;
 
     std::cout << setiosflags(std::ios::left) << std::endl
               << "B0B Channel " << std::setw(20) << "Relative amplitude" << std::setw(20) << "Relative phase"    << std::endl
-              << "f0ks        " << std::setw(20) << real(abar_f0ks_)     << std::setw(20) << imag(abar_f0ks_)    << std::endl
-              << "phiks       " << std::setw(20) << real(abar_phiks_)    << std::setw(20) << imag(abar_phiks_)   << std::endl
-              << "fxks        " << std::setw(20) << real(abar_fxks_)     << std::setw(20) << imag(abar_fxks_)    << std::endl
-              << "chic0ks     " << std::setw(20) << real(abar_chic0ks_)  << std::setw(20) << imag(abar_chic0ks_) << std::endl
-              << "kpkmnr      " << std::setw(20) << real(abar_kpkmnr_)   << std::setw(20) << imag(abar_kpkmnr_)  << std::endl
-              << "kskpnr      " << std::setw(20) << real(abar_kskpnr_)   << std::setw(20) << imag(abar_kskpnr_)  << std::endl
-              << "kskmnr      " << std::setw(20) << real(abar_kskmnr_)   << std::setw(20) << imag(abar_kskmnr_)  << std::endl
+              << "f0ks        " << std::setw(20) << real(m_abar_f0ks_)     << std::setw(20) << imag(m_abar_f0ks_)    << std::endl
+              << "phiks       " << std::setw(20) << real(m_abar_phiks_)    << std::setw(20) << imag(m_abar_phiks_)   << std::endl
+              << "fxks        " << std::setw(20) << real(m_abar_fxks_)     << std::setw(20) << imag(m_abar_fxks_)    << std::endl
+              << "chic0ks     " << std::setw(20) << real(m_abar_chic0ks_)  << std::setw(20) << imag(m_abar_chic0ks_) << std::endl
+              << "kpkmnr      " << std::setw(20) << real(m_abar_kpkmnr_)   << std::setw(20) << imag(m_abar_kpkmnr_)  << std::endl
+              << "kskpnr      " << std::setw(20) << real(m_abar_kskpnr_)   << std::setw(20) << imag(m_abar_kskpnr_)  << std::endl
+              << "kskmnr      " << std::setw(20) << real(m_abar_kskmnr_)   << std::setw(20) << imag(m_abar_kskmnr_)  << std::endl
               << std::endl;
 
     // Open debugging file
-    debugfile_.open("debug.dat", std::ios::out);
+    m_debugfile_.open("debug.dat", std::ios::out);
   }
 
   void EvtB0toKsKK::initProbMax()
@@ -211,47 +211,47 @@ namespace Belle2 {
     std::cout << t << std::endl;*/
 
     // Relative amplides and phases with direct CP violation
-    a_f0ks_ =
+    m_a_f0ks_ =
       (1.0 + getArg(3)) * EvtComplex(getArg(1) * cos(getArg(2) * M_PI / 180.0),
                                      getArg(1) * sin(getArg(2) * M_PI / 180.0));
-    a_phiks_ =
+    m_a_phiks_ =
       (1.0 + getArg(7)) * EvtComplex(getArg(5) * cos(getArg(6) * M_PI / 180.0),
                                      getArg(5) * sin(getArg(6) * M_PI / 180.0));
-    a_fxks_ =
+    m_a_fxks_ =
       (1.0 + getArg(11)) * EvtComplex(getArg(9) * cos(getArg(10) * M_PI / 180.0),
                                       getArg(9) * sin(getArg(10) * M_PI / 180.0));
-    a_chic0ks_ =
+    m_a_chic0ks_ =
       (1.0 + getArg(15)) * EvtComplex(getArg(13) * cos(getArg(14) * M_PI / 180.0),
                                       getArg(13) * sin(getArg(14) * M_PI / 180.0));
-    a_kpkmnr_ =
+    m_a_kpkmnr_ =
       (1.0 + getArg(19)) * EvtComplex(getArg(17) * cos(getArg(18) * M_PI / 180.0),
                                       getArg(17) * sin(getArg(18) * M_PI / 180.0));
-    a_kskpnr_ =
+    m_a_kskpnr_ =
       (1.0 + getArg(24)) * EvtComplex(getArg(22) * cos(getArg(23) * M_PI / 180.0),
                                       getArg(22) * sin(getArg(23) * M_PI / 180.0));
-    a_kskmnr_ =
+    m_a_kskmnr_ =
       (1.0 + getArg(29)) * EvtComplex(getArg(27) * cos(getArg(28) * M_PI / 180.0),
                                       getArg(27) * sin(getArg(28) * M_PI / 180.0));
 
-    abar_f0ks_ =
+    m_abar_f0ks_ =
       (1.0 - getArg(3)) * EvtComplex(getArg(1) * cos(getArg(2) * M_PI / 180.0),
                                      getArg(1) * sin(getArg(2) * M_PI / 180.0));
-    abar_phiks_ =
+    m_abar_phiks_ =
       (1.0 - getArg(7)) * EvtComplex(getArg(5) * cos(getArg(6) * M_PI / 180.0),
                                      getArg(5) * sin(getArg(6) * M_PI / 180.0));
-    abar_fxks_ =
+    m_abar_fxks_ =
       (1.0 - getArg(11)) * EvtComplex(getArg(9) * cos(getArg(10) * M_PI / 180.0),
                                       getArg(9) * sin(getArg(10) * M_PI / 180.0));
-    abar_chic0ks_ =
+    m_abar_chic0ks_ =
       (1.0 - getArg(15)) * EvtComplex(getArg(13) * cos(getArg(14) * M_PI / 180.0),
                                       getArg(13) * sin(getArg(14) * M_PI / 180.0));
-    abar_kpkmnr_ =
+    m_abar_kpkmnr_ =
       (1.0 - getArg(19)) * EvtComplex(getArg(17) * cos(getArg(18) * M_PI / 180.0),
                                       getArg(17) * sin(getArg(18) * M_PI / 180.0));
-    abar_kskpnr_ =
+    m_abar_kskpnr_ =
       (1.0 - getArg(24)) * EvtComplex(getArg(22) * cos(getArg(23) * M_PI / 180.0),
                                       getArg(22) * sin(getArg(23) * M_PI / 180.0));
-    abar_kskmnr_ =
+    m_abar_kskmnr_ =
       (1.0 - getArg(29)) * EvtComplex(getArg(27) * cos(getArg(28) * M_PI / 180.0),
                                       getArg(27) * sin(getArg(28) * M_PI / 180.0));
 
@@ -265,35 +265,35 @@ namespace Belle2 {
     const double pCP_kskmnr  = getArg(30) * M_PI / 180.0;
 
     if (other_b == B0) {
-      a_f0ks_ *=
+      m_a_f0ks_ *=
         EvtComplex(cos(+2.0 * pCP_f0ks), sin(+2.0 * pCP_f0ks));
-      a_phiks_ *=
+      m_a_phiks_ *=
         EvtComplex(cos(+2.0 * pCP_phiks), sin(+2.0 * pCP_phiks));
-      a_fxks_ *=
+      m_a_fxks_ *=
         EvtComplex(cos(+2.0 * pCP_fxks), sin(+2.0 * pCP_fxks));
-      a_chic0ks_ *=
+      m_a_chic0ks_ *=
         EvtComplex(cos(+2.0 * pCP_chic0ks), sin(+2.0 * pCP_chic0ks));
-      a_kpkmnr_ *=
+      m_a_kpkmnr_ *=
         EvtComplex(cos(+2.0 * pCP_kpkmnr), sin(+2.0 * pCP_kpkmnr));
-      a_kskpnr_ *=
+      m_a_kskpnr_ *=
         EvtComplex(cos(+2.0 * pCP_kskpnr), sin(+2.0 * pCP_kskpnr));
-      a_kskmnr_ *=
+      m_a_kskmnr_ *=
         EvtComplex(cos(+2.0 * pCP_kskmnr), sin(+2.0 * pCP_kskmnr));
     }
     if (other_b == B0B) {
-      abar_f0ks_ *=
+      m_abar_f0ks_ *=
         EvtComplex(cos(-2.0 * pCP_f0ks), sin(-2.0 * pCP_f0ks));
-      abar_phiks_ *=
+      m_abar_phiks_ *=
         EvtComplex(cos(-2.0 * pCP_phiks), sin(-2.0 * pCP_phiks));
-      abar_fxks_ *=
+      m_abar_fxks_ *=
         EvtComplex(cos(-2.0 * pCP_fxks), sin(-2.0 * pCP_fxks));
-      abar_chic0ks_ *=
+      m_abar_chic0ks_ *=
         EvtComplex(cos(-2.0 * pCP_chic0ks), sin(-2.0 * pCP_chic0ks));
-      abar_kpkmnr_ *=
+      m_abar_kpkmnr_ *=
         EvtComplex(cos(-2.0 * pCP_kpkmnr), sin(-2.0 * pCP_kpkmnr));
-      abar_kskpnr_ *=
+      m_abar_kskpnr_ *=
         EvtComplex(cos(-2.0 * pCP_kskpnr), sin(-2.0 * pCP_kskpnr));
-      abar_kskmnr_ *=
+      m_abar_kskmnr_ *=
         EvtComplex(cos(-2.0 * pCP_kskmnr), sin(-2.0 * pCP_kskmnr));
     }
 
@@ -302,35 +302,35 @@ namespace Belle2 {
     EvtComplex Amp_phiks   = A_phiks(p4ks, p4kp, p4km);
     EvtComplex Amp_fxks    = A_fxks(p4ks, p4kp, p4km);
     EvtComplex Amp_chic0ks = A_chic0ks(p4ks, p4kp, p4km);
-    EvtComplex Amp_kpkmnr  = A_kknr(p4kp, p4km, alpha_kpkmnr);
-    EvtComplex Amp_kskpnr  = A_kknr(p4ks, p4kp, alpha_kskpnr);
-    EvtComplex Amp_kskmnr  = A_kknr(p4ks, p4km, alpha_kskmnr);
+    EvtComplex Amp_kpkmnr  = A_kknr(p4kp, p4km, m_alpha_kpkmnr);
+    EvtComplex Amp_kskpnr  = A_kknr(p4ks, p4kp, m_alpha_kskpnr);
+    EvtComplex Amp_kskmnr  = A_kknr(p4ks, p4km, m_alpha_kskmnr);
 
     EvtComplex Ampbar_f0ks    = A_f0ks(p4ks, p4km, p4kp);
     EvtComplex Ampbar_phiks   = A_phiks(p4ks, p4km, p4kp);
     EvtComplex Ampbar_fxks    = A_fxks(p4ks, p4km, p4kp);
     EvtComplex Ampbar_chic0ks = A_chic0ks(p4ks, p4km, p4kp);
-    EvtComplex Ampbar_kpkmnr  = A_kknr(p4km, p4kp, alpha_kpkmnr);
-    EvtComplex Ampbar_kskpnr  = A_kknr(p4ks, p4km, alpha_kskpnr);
-    EvtComplex Ampbar_kskmnr  = A_kknr(p4ks, p4kp, alpha_kskmnr);
+    EvtComplex Ampbar_kpkmnr  = A_kknr(p4km, p4kp, m_alpha_kpkmnr);
+    EvtComplex Ampbar_kskpnr  = A_kknr(p4ks, p4km, m_alpha_kskpnr);
+    EvtComplex Ampbar_kskmnr  = A_kknr(p4ks, p4kp, m_alpha_kskmnr);
 
     const EvtComplex A_B0toKsKK =
-      (a_f0ks_   * Amp_f0ks)    +
-      (a_phiks_  * Amp_phiks)   +
-      (a_fxks_   * Amp_fxks)    +
-      (a_chic0ks_ * Amp_chic0ks) +
-      (a_kpkmnr_ * Amp_kpkmnr)  +
-      (a_kskpnr_ * Amp_kskpnr)  +
-      (a_kskmnr_ * Amp_kskmnr);
+      (m_a_f0ks_   * Amp_f0ks)    +
+      (m_a_phiks_  * Amp_phiks)   +
+      (m_a_fxks_   * Amp_fxks)    +
+      (m_a_chic0ks_ * Amp_chic0ks) +
+      (m_a_kpkmnr_ * Amp_kpkmnr)  +
+      (m_a_kskpnr_ * Amp_kskpnr)  +
+      (m_a_kskmnr_ * Amp_kskmnr);
 
     const EvtComplex Abar_B0toKsKK =
-      (abar_f0ks_   * Ampbar_f0ks)    +
-      (abar_phiks_  * Ampbar_phiks)   +
-      (abar_fxks_   * Ampbar_fxks)    +
-      (abar_chic0ks_ * Ampbar_chic0ks) +
-      (abar_kpkmnr_ * Ampbar_kpkmnr)  +
-      (abar_kskpnr_ * Ampbar_kskpnr)  +
-      (abar_kskmnr_ * Ampbar_kskmnr);
+      (m_abar_f0ks_   * Ampbar_f0ks)    +
+      (m_abar_phiks_  * Ampbar_phiks)   +
+      (m_abar_fxks_   * Ampbar_fxks)    +
+      (m_abar_chic0ks_ * Ampbar_chic0ks) +
+      (m_abar_kpkmnr_ * Ampbar_kpkmnr)  +
+      (m_abar_kskpnr_ * Ampbar_kskpnr)  +
+      (m_abar_kskmnr_ * Ampbar_kskmnr);
 
     // CP asymmetry
     const double dm = getArg(0);
@@ -349,7 +349,7 @@ namespace Belle2 {
     }
 
     if (abs2(amp) > 50000.0)
-      debugfile_ << abs2(amp) << std::endl;
+      m_debugfile_ << abs2(amp) << std::endl;
     vertex(amp);
 
     return;
@@ -600,9 +600,9 @@ namespace Belle2 {
     return q;
   }
 
-  EvtComplex EvtB0toKsKK::Flatte_k(const double& s, const double& m_h)
+  EvtComplex EvtB0toKsKK::Flatte_k(const double& s, const double& h)
   {
-    const double k2 = 1.0 - (4.0 * m_h * m_h / s);
+    const double k2 = 1.0 - (4.0 * h * h / s);
     EvtComplex k;
     if (k2 < 0.0)
       k = EvtComplex(0.0, sqrt(fabs(k2)));

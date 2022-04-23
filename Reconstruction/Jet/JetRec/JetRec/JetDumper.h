@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetDumper.h
@@ -17,9 +17,6 @@
 #include <vector>
 #include <sstream>
 #include <iomanip>
-#ifdef USE_BOOST_FOREACH
-#include <boost/foreach.hpp>
-#endif
 #include "fastjet/PseudoJet.hh"
 #include "AthLinks/ElementLinkVector.h"
 #include "JetInterface/IJetExecuteTool.h"
@@ -78,12 +75,12 @@ public:  // methods
   // Process a jet.
   // Returns 0 for success.
   template<typename T>
-  int dump_object(const T* pjet) const;
+  int dump_object(const T* pjet, const std::string& objtypename="Unknown") const;
 
   // Process a collection of jets.
   // Returns 0 for success.
   template<typename TList>
-  int dump_collection(const TList* pjets) const;
+  int dump_collection(const TList* pjets, const std::string& objtypename="Unknown") const;
 
   // Process the current event.
   int execute() const;
@@ -100,9 +97,9 @@ private:  // methods
 
   // Process a single jet after writing prefix.
   template<typename T>
-  int dump_object_after_prefix(const T* pjet) const;
-  int dump_object_after_prefix(const fastjet::PseudoJet& jet) const;
-  int dump_object_after_prefix(const xAOD::MuonSegment* seg) const;
+  int dump_object_after_prefix(const T* pjet, const std::string& objtypename) const;
+  int dump_object_after_prefix(const fastjet::PseudoJet& jet, const std::string& objtypename) const;
+  int dump_object_after_prefix(const xAOD::MuonSegment* seg, const std::string& objtypename) const;
 
   // Fetch a moment.
   template<typename TObj, typename TMom>
@@ -164,9 +161,6 @@ private:  // data
   NameList m_vimoms;  /// Vector<int> moments
   NameList m_vfmoms;  /// Vector<float> moments
   NameList m_apmoms;  /// Associated particvle moments
-
-  // Object type name.
-  mutable Name m_objtypename;
 };
 
 // Fetch moment keys.
@@ -180,13 +174,13 @@ JetDumper::NameList get_moment_keys<xAOD::Jet, int>(const xAOD::Jet* pjet);
 //**********************************************************************
 
 template<typename T>
-int JetDumper::dump_object(const T* pobj) const {
-  msg() << MSG::INFO << m_objtypename << " ";
-  return dump_object_after_prefix(pobj);
+int JetDumper::dump_object(const T* pobj, const std::string& objtypename) const {
+  msg() << MSG::INFO << objtypename << " ";
+  return dump_object_after_prefix(pobj, objtypename);
 }
 
 template<typename T>
-int JetDumper::dump_object_after_prefix(const T* pjet) const {
+int JetDumper::dump_object_after_prefix(const T* pjet, const std::string& objtypename) const {
   const double mevtogev = 0.001;
   const int wname = 30;
   if ( pjet == 0 ) {
@@ -217,7 +211,7 @@ int JetDumper::dump_object_after_prefix(const T* pjet) const {
     NameList vfnames = m_vfmoms;
     NameList apnames = m_apmoms;
     if ( fnames.size() == 0 ) fnames = get_moment_keys<T,float>(pjet);
-    ATH_MSG_INFO("    " << m_objtypename << " has " << fnames.size() << " float attributes:");
+    ATH_MSG_INFO("    " << objtypename << " has " << fnames.size() << " float attributes:");
     for ( NameList::const_iterator inam=fnames.begin(); inam!=fnames.end(); ++inam ) {
       Name name = *inam;
       float val;
@@ -229,7 +223,7 @@ int JetDumper::dump_object_after_prefix(const T* pjet) const {
       }
     }
     if ( inames.size() == 0 ) inames = get_moment_keys<T,int>(pjet);
-    ATH_MSG_INFO("    " << m_objtypename << " has " << inames.size() << " int attributes:");
+    ATH_MSG_INFO("    " << objtypename << " has " << inames.size() << " int attributes:");
     for ( NameList::const_iterator inam=inames.begin(); inam!=inames.end(); ++inam ) {
       Name name = *inam;
       int ival;
@@ -237,7 +231,7 @@ int JetDumper::dump_object_after_prefix(const T* pjet) const {
       ATH_MSG_INFO(std::setw(wname) << name << ":" << std::setw(12) << std::fixed << std::setprecision(3) << ival);
     }
     if ( bnames.size() == 0 ) bnames = get_moment_keys<T,int>(pjet);
-    ATH_MSG_INFO("    " << m_objtypename << " has " << bnames.size() << " bool attributes:");
+    ATH_MSG_INFO("    " << objtypename << " has " << bnames.size() << " bool attributes:");
     for ( NameList::const_iterator inam=bnames.begin(); inam!=bnames.end(); ++inam ) {
       Name name = *inam;
       bool val;
@@ -246,7 +240,7 @@ int JetDumper::dump_object_after_prefix(const T* pjet) const {
       ATH_MSG_INFO(std::setw(wname) << name << ":" << std::setw(6) << sval);
     }
     if ( cbnames.size() == 0 ) cbnames = get_moment_keys<T,int>(pjet);
-    ATH_MSG_INFO("    " << m_objtypename << " has " << cbnames.size() << " cbool attributes:");
+    ATH_MSG_INFO("    " << objtypename << " has " << cbnames.size() << " cbool attributes:");
     for ( NameList::const_iterator inam=cbnames.begin(); inam!=cbnames.end(); ++inam ) {
       Name name = *inam;
       char val;
@@ -254,14 +248,14 @@ int JetDumper::dump_object_after_prefix(const T* pjet) const {
       std::string sval = val ? "true" : "false";
       ATH_MSG_INFO(std::setw(wname) << name << ":" << std::setw(6) << sval);
     }
-    ATH_MSG_INFO("    " << m_objtypename << " has " << snames.size() << " string attributes:");
+    ATH_MSG_INFO("    " << objtypename << " has " << snames.size() << " string attributes:");
     for ( NameList::const_iterator inam=snames.begin(); inam!=snames.end(); ++inam ) {
       Name name = *inam;
       std::string sval;
       get_moment(pjet, name, sval);
       ATH_MSG_INFO(std::setw(wname) << name << ":" << std::setw(30) << sval);
     }
-    ATH_MSG_INFO("    " << m_objtypename << " has " << vinames.size() << " vector<int> attributes:");
+    ATH_MSG_INFO("    " << objtypename << " has " << vinames.size() << " vector<int> attributes:");
     for ( NameList::const_iterator inam=vinames.begin(); inam!=vinames.end(); ++inam ) {
       Name name = *inam;
       std::vector<int> vals;
@@ -277,7 +271,7 @@ int JetDumper::dump_object_after_prefix(const T* pjet) const {
         }
       }
     }
-    ATH_MSG_INFO("    " << m_objtypename << " has " << vfnames.size() << " vector<float> attributes:");
+    ATH_MSG_INFO("    " << objtypename << " has " << vfnames.size() << " vector<float> attributes:");
     for ( NameList::const_iterator inam=vfnames.begin(); inam!=vfnames.end(); ++inam ) {
       Name name = *inam;
       std::vector<float> vals;
@@ -293,7 +287,7 @@ int JetDumper::dump_object_after_prefix(const T* pjet) const {
         }
       }
     }
-    ATH_MSG_INFO("    " << m_objtypename << " has " << apnames.size() << " associated particle vectors:");
+    ATH_MSG_INFO("    " << objtypename << " has " << apnames.size() << " associated particle vectors:");
     for ( NameList::const_iterator inam=apnames.begin(); inam!=apnames.end(); ++inam ) {
       Name name = *inam;
       if ( name.find("MuonSegment") != std::string::npos ) {
@@ -306,20 +300,11 @@ int JetDumper::dump_object_after_prefix(const T* pjet) const {
         if ( vals.size() > 0 ) slab += ":";
         ATH_MSG_INFO(std::setw(wname) << name << " has " << vals.size() << " " << slab);
         if ( els.size() == vals.size() ) {
-#ifdef USE_BOOST_FOREACH
-          BOOST_FOREACH(const MSEL& el, els) {
-            ElementLink<xAOD::MuonSegmentContainer> newel(el);
-#else
           for (const MSEL& el : els) {
-#endif
             ATH_MSG_INFO(std::setw(wname+2) << "" << el.dataID() << "[" << el.index() << "]");
           }
         } else {
-#ifdef USE_BOOST_FOREACH
-          BOOST_FOREACH(const xAOD::MuonSegment* ppar, vals) {
-#else
           for (auto ppar : vals) {
-#endif
             ATH_MSG_INFO(std::setw(wname+2) << "" << ppar->container() << "[" << ppar->index() << "]");
           }
         }
@@ -334,26 +319,18 @@ int JetDumper::dump_object_after_prefix(const T* pjet) const {
         ATH_MSG_INFO(std::setw(wname) << name << " has " << vals.size() << " " << slab);
         // Show container names if found, otherwise container addresses.
         if ( els.size() == vals.size() ) {
-#ifdef USE_BOOST_FOREACH
-          BOOST_FOREACH(const APEL& el, els) {
-#else
           for (const APEL& el : els) {
-#endif
             ATH_MSG_INFO(std::setw(wname+2) << "" << el.dataID() << "[" << el.index() << "]");
           }
         } else {
-#ifdef USE_BOOST_FOREACH
-          BOOST_FOREACH(const xAOD::IParticle* ppar, vals) {
-#else
           for (auto ppar : vals) {
-#endif
             ATH_MSG_INFO(std::setw(wname+2) << "" << ppar->container() << "[" << ppar->index() << "]");
           }
         }
       }
     }
     if ( fvnames.size() == 0 ) fvnames = get_moment_keys<T,float>(pjet);
-    ATH_MSG_INFO("    " << m_objtypename << " has " << fvnames.size() << " four-vector attributes (pT m eta phi):");
+    ATH_MSG_INFO("    " << objtypename << " has " << fvnames.size() << " four-vector attributes (pT m eta phi):");
     for ( NameList::const_iterator inam=fvnames.begin(); inam!=fvnames.end(); ++inam ) {
       Name name = *inam;
       FourVector val;
@@ -365,7 +342,7 @@ int JetDumper::dump_object_after_prefix(const T* pjet) const {
         << std::setw(12) << std::fixed << std::setprecision(3) << val.Phi()
       );
     }
-    ATH_MSG_INFO("    " << m_objtypename << " has " << elnames.size() << " element-link attributes:");
+    ATH_MSG_INFO("    " << objtypename << " has " << elnames.size() << " element-link attributes:");
     for ( NameList::const_iterator inam=elnames.begin(); inam!=elnames.end(); ++inam ) {
       std::string name = *inam;
       std::string sel = get_moment_as_string(pjet, name);
@@ -389,9 +366,9 @@ template<typename T>
 T* const_cast_ptr(T* pobj) { return const_cast<T*>(pobj); }
 
 template<typename TList>
-int JetDumper::dump_collection(const TList* pjets) const {
+int JetDumper::dump_collection(const TList* pjets, const std::string& objtypename) const {
   int njet = pjets->size();
-  ATH_MSG_INFO("  " << m_objtypename << " multiplicity: " << njet << " [" << m_cname << "]");
+  ATH_MSG_INFO("  " << objtypename << " multiplicity: " << njet << " [" << m_cname << "]");
   std::string line = "-------------------------------------------------------------------------";
   int jstat = 0;
   if ( m_detail > 0 ) {
@@ -403,7 +380,7 @@ int JetDumper::dump_collection(const TList* pjets) const {
     unsigned int wlab = 0;
     for ( unsigned int ijet=0; ijet<njetshow; ++ijet ) {
       TValue pjet = *itjet++;
-      std::string lab = object_label(pjet, m_objtypename);
+      std::string lab = object_label(pjet, objtypename);
       labs.push_back(lab);
       if ( lab.size() > wlab ) wlab = lab.size();
     }
@@ -427,7 +404,7 @@ int JetDumper::dump_collection(const TList* pjets) const {
         msg() << "[" << std::setw(widx) << ijet << "]";
       }
       msg() << ": ";
-      jstat += dump_object_after_prefix(pjet);
+      jstat += dump_object_after_prefix(pjet, objtypename);
       if ( m_detail > 1 ) ATH_MSG_INFO(line);
     }
   }
@@ -453,13 +430,13 @@ void JetDumper::get_moment(TObj*, std::string, std::string& val) const {
 
 template<typename TObj>
 void JetDumper::get_moment(TObj*, std::string, std::vector<int>& val) const {
-  static std::vector<int> empty;
+  static const std::vector<int> empty;
   val = empty;
 }
 
 template<typename TObj>
 void JetDumper::get_moment(TObj*, std::string, std::vector<float>& val) const {
-  static std::vector<float> empty;
+  static const std::vector<float> empty;
   val = empty;
 }
 

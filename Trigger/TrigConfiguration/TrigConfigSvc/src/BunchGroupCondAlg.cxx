@@ -3,6 +3,7 @@
 */ 
 
 #include "./BunchGroupCondAlg.h"
+#include "./TrigConfMD5.h"
 #include "CoolKernel/types.h"
 #include "TrigConfIO/JsonFileLoader.h"
 #include "TrigConfIO/TrigDBL1BunchGroupSetLoader.h"
@@ -57,7 +58,8 @@ TrigConf::BunchGroupCondAlg::createFromFile( const std::string & filename ) cons
    TrigConf::JsonFileLoader psLoader;
    psLoader.setLevel(TrigConf::MSGTC::WARNING); 
    if( psLoader.loadFile( filename, *bgs) ) {
-      bgs->setBGSK(m_bgk);
+      const uint32_t bgk = m_bgk == 0 ? TrigConf::truncatedHash(*bgs) : m_bgk.value();
+      bgs->setBGSK(bgk);
       ATH_MSG_INFO( "L1 BunchGroup set successfully loaded from file " << filename );
    } else {
       ATH_MSG_WARNING( "Failed loading L1 BunchGroup set from file " << filename ); // will be made an error later

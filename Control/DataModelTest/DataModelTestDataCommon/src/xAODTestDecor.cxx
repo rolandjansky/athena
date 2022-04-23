@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -14,7 +14,6 @@
 #include "xAODTestDecor.h"
 #include "DataModelTestDataCommon/C.h"
 #include "DataModelTestDataCommon/CVec.h"
-#include "EventInfo/EventID.h"
 #include "StoreGate/WriteDecorHandle.h"
 #include "AthenaKernel/errorcheck.h"
 
@@ -35,7 +34,6 @@ xAODTestDecor::xAODTestDecor (const std::string &name,
   declareProperty ("DecorName",   m_decorName = "dInt1");
   declareProperty ("Offset",      m_offset = 0);
 
-  declareProperty ("EventInfoKey", m_eventInfoKey = "McEventInfo");
   declareProperty ("CVecDecorKey",  m_cvecDecorKey);
   declareProperty ("CInfoDecorKey", m_cinfoDecorKey);
   declareProperty ("ObjDecorKey",   m_objDecorKey);
@@ -71,8 +69,8 @@ StatusCode xAODTestDecor::initialize()
  */
 StatusCode xAODTestDecor::execute (const EventContext& ctx) const
 {
-  SG::ReadHandle<EventInfo> eventInfo (m_eventInfoKey, ctx);
-  unsigned int count = eventInfo->event_ID()->event_number() + 1;
+  SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey, ctx);
+  unsigned int count = eventInfo->eventNumber() + 1;
 
   if (m_doCInfo) {
     SG::WriteDecorHandle<C, int> cinfoDecor (m_cinfoDecorKey, ctx);

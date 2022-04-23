@@ -55,25 +55,25 @@ public:
 private:
 
   /** Normalization of leading FF */
-  double ha1_1{0};
+  double m_ha1_1{0};
 
   /** CLN slope of leading FF */
-  double rho2{0};
+  double m_rho2{0};
 
   /** Normalization of R0(w=1) */
-  double r0_1{0};
+  double m_r0_1{0};
 
   /** Normalization of R1(w=1) */
-  double r1_1{0};
+  double m_r1_1{0};
 
   /** Normalization of R2(w=1) */
-  double r2_1{0};
+  double m_r2_1{0};
 
   /** Normalization of leading scalar FF */
-  double v1_1{0};
+  double m_v1_1{0};
 
   /** Normalization of scalar FF */
-  double d1_1{0};
+  double m_d1_1{0};
 
 };
 

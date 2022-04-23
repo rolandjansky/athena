@@ -88,23 +88,23 @@ namespace Belle2 {
     EvtVector4R mompim = p->getDaug(1)->getP4();
     EvtVector4R mometa = p->getDaug(2)->getP4();
 
-    double m_etaprime = p->mass();
-    double m_eta = p->getDaug(2)->mass();
-    double m_pi = p->getDaug(1)->mass();
+    double etaprime = p->mass();
+    double eta = p->getDaug(2)->mass();
+    double pi = p->getDaug(1)->mass();
 
     //Q value
-    double deltaM = m_etaprime - 2 * m_pi - m_eta;
+    double deltaM = etaprime - 2 * pi - eta;
 
     //The decay amplitude comes from BESIII collab, Phys.Rev. D92 (2015) 012014
 
     //Kinetic energies T
-    double Tpip = (mompip.get(0) - m_pi);
-    double Tpim = (mompim.get(0) - m_pi);
-    double Teta = (mometa.get(0) - m_eta);
+    double Tpip = (mompip.get(0) - pi);
+    double Tpim = (mompim.get(0) - pi);
+    double Teta = (mometa.get(0) - eta);
 
     //Dalitz variables
     double X = sqrt(3.) * (Tpip - Tpim) / deltaM;
-    double Y = ((m_eta + 2 * m_pi) / m_pi) * Teta / deltaM - 1. ;
+    double Y = ((eta + 2 * pi) / pi) * Teta / deltaM - 1. ;
 
     double amp2 = 1. + a * Y + b * Y * Y + c * X + d * X * X;
 

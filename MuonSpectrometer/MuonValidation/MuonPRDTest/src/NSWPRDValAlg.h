@@ -1,15 +1,17 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef NSWPRDVALALG_H
 #define NSWPRDVALALG_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthHistogramAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "TGCcablingInterface/ITGCcablingSvc.h"
+#include "MuonTesterTree/MuonTesterTree.h"
+
 #include "EDM_object.h"
 
 #include "MMSimHitVariables.h"
@@ -17,9 +19,7 @@
 #include "MMDigitVariables.h"
 #include "MMRDOVariables.h"
 #include "MMPRDVariables.h"
-#include "MDTSimHitVariables.h"
-#include "MDTSDOVariables.h"
-#include "MDTDigitVariables.h"
+
 #include "RPCSimHitVariables.h"
 #include "RPCSDOVariables.h"
 #include "RPCDigitVariables.h"
@@ -48,15 +48,16 @@
 
 class ITHistSvc;
 
-class NSWPRDValAlg: public AthAlgorithm
+class NSWPRDValAlg: public AthHistogramAlgorithm
 {
  public:
   NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator);
 
-  StatusCode initialize();
-  StatusCode finalize();
-  StatusCode execute();
-
+  StatusCode initialize() override;
+  StatusCode finalize()override;
+  StatusCode execute()override;
+  unsigned int cardinality() const override final { return 1; }
+  
   // Matching algorithm
   StatusCode NSWMatchingAlg();  // First set up which object should be matched, given the input used to fill the NSW Ntuple
   StatusCode NSWMatchingAlg (EDM_object data0, EDM_object data1); // This part of the matching algortihm does the actual comparison given two EDM obects
@@ -65,14 +66,12 @@ class NSWPRDValAlg: public AthAlgorithm
  private:
 
   std::vector<std::unique_ptr<ValAlgVariables>> m_testers;
+  MuonTesterTree m_tree{"NSWValTree", "NSWPRDValAlg"};
   
-  TTree* m_tree{nullptr}; // still needed in NSWMatchingAlg during finalize
-
   // MuonDetectorManager from the Detector Store (to be used only at initialize)
-  const MuonGM::MuonDetectorManager* m_muonDetMgrDS;
-  const ITGCcablingSvc* m_tgcCabling;
-  ITHistSvc* m_thistSvc;
-
+  const MuonGM::MuonDetectorManager* m_muonDetMgrDS{nullptr};
+  const ITGCcablingSvc* m_tgcCabling{nullptr};
+  
   // MuonDetectorManager from the conditions store
   SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
       "MuonDetectorManager", 
@@ -80,6 +79,8 @@ class NSWPRDValAlg: public AthAlgorithm
  
    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
    PublicToolHandle<Muon::ICSC_RDO_Decoder> m_csc_decoder{this, "CscRDODecoder", "Muon::CscRDO_Decoder/CSC_RDODecoder"};
+   
+   
    Gaudi::Property<bool>  m_isData{this, "isData", false};             // if false use MuonDetectorManager from detector store everywhere
    Gaudi::Property<bool>  m_doTruth{this, "doTruth", false};            // switch on the output of the MC truth
    Gaudi::Property<bool>  m_doMuEntry{this, "doMuEntry", false};          // switch on the output of the Muon Entry Layer
@@ -110,8 +111,8 @@ class NSWPRDValAlg: public AthAlgorithm
    Gaudi::Property<bool>  m_doTGCRDO{this, "doTGCRDO", false};           // switch on the output of the TGC RDO
    Gaudi::Property<bool>  m_doTGCPRD{this, "doTGCPRD", false};           // switch on the output of the TGC prepdata
 
-  unsigned int m_runNumber{0};
-  unsigned int m_eventNumber{0};
+  ScalarBranch<unsigned int>& m_runNumber{m_tree.newScalar<unsigned int>("runNumber")};
+  ScalarBranch<unsigned int>& m_eventNumber{m_tree.newScalar<unsigned int>("eventNumber")};
 
   Gaudi::Property<std::string> m_Truth_ContainerName{this, "Truth_ContainerName", "TruthEvent"};
   Gaudi::Property<std::string> m_MuEntry_ContainerName{this, "MuonEntryLayer_ContainerName", "MuonEntryLayer"};

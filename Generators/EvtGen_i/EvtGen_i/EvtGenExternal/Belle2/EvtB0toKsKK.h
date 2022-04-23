@@ -22,7 +22,7 @@ namespace Belle2 {
 
     /* Constructor. */
     //EvtB0toKsKK() {}
-    EvtB0toKsKK() : alpha_kpkmnr(0.0), alpha_kskpnr(0.0), alpha_kskmnr(0.0) {};
+    EvtB0toKsKK() : m_alpha_kpkmnr(0.0), m_alpha_kskpnr(0.0), m_alpha_kskmnr(0.0) {};
 
     /* Destructor. */
     virtual ~EvtB0toKsKK();
@@ -77,32 +77,32 @@ namespace Belle2 {
     EvtComplex A_chic0ks(const EvtVector4R& p4ks,
                          const EvtVector4R& p4kp, const EvtVector4R& p4km); /**< A_chic0ks is amplitude of chic0ks */
     EvtComplex A_kknr(const EvtVector4R& p4k1, const EvtVector4R& p4k2,
-                      const double& alpha_kk);    /**< A_kknr is amplitude of kknr */
+                      const double& m_alpha_kk);    /**< A_kknr is amplitude of kknr */
 
   private:
 
     /**<Variable names for form factors*/
-    EvtComplex a_f0ks_;      /**< Variable member  a_f0ks_   */
-    EvtComplex a_phiks_;     /**< Variable member  a_phiks_  */
-    EvtComplex a_fxks_;      /**< Variable member  a_fxks_   */
-    EvtComplex a_chic0ks_;   /**< Variable member  a_chic0ks_*/
-    EvtComplex a_kpkmnr_;    /**< Variable member  a_kpkmnr_ */
-    EvtComplex a_kskpnr_;    /**< Variable member  a_kskpnr_ */
-    EvtComplex a_kskmnr_;    /**< Variable member  a_kskmnr_ */
+    EvtComplex m_a_f0ks_;      /**< Variable member  m_a_f0ks_   */
+    EvtComplex m_a_phiks_;     /**< Variable member  m_a_phiks_  */
+    EvtComplex m_a_fxks_;      /**< Variable member  m_a_fxks_   */
+    EvtComplex m_a_chic0ks_;   /**< Variable member  m_a_chic0ks_*/
+    EvtComplex m_a_kpkmnr_;    /**< Variable member  m_a_kpkmnr_ */
+    EvtComplex m_a_kskpnr_;    /**< Variable member  m_a_kskpnr_ */
+    EvtComplex m_a_kskmnr_;    /**< Variable member  m_a_kskmnr_ */
 
-    EvtComplex abar_f0ks_;    /**< Variable member abar_f0ks_  */
-    EvtComplex abar_phiks_;   /**< Variable member abar_phiks_ */
-    EvtComplex abar_fxks_;    /**< Variable member abar_fxks_  */
-    EvtComplex abar_chic0ks_; /**< Variable member abar_chic0ks_ */
-    EvtComplex abar_kpkmnr_;  /**< Variable member abar_kpkmnr_  */
-    EvtComplex abar_kskpnr_;  /**< Variable member abar_kskpnr_  */
-    EvtComplex abar_kskmnr_;  /**< Variable member abar_kskmnr_  */
+    EvtComplex m_abar_f0ks_;    /**< Variable member m_abar_f0ks_  */
+    EvtComplex m_abar_phiks_;   /**< Variable member m_abar_phiks_ */
+    EvtComplex m_abar_fxks_;    /**< Variable member m_abar_fxks_  */
+    EvtComplex m_abar_chic0ks_; /**< Variable member m_abar_chic0ks_ */
+    EvtComplex m_abar_kpkmnr_;  /**< Variable member m_abar_kpkmnr_  */
+    EvtComplex m_abar_kskpnr_;  /**< Variable member m_abar_kskpnr_  */
+    EvtComplex m_abar_kskmnr_;  /**< Variable member m_abar_kskmnr_  */
 
-    double alpha_kpkmnr;      /**< Variable member alpha_kpkmnr */
-    double alpha_kskpnr;      /**< Variable member alpha_kskpnr */
-    double alpha_kskmnr;      /**< Variable member alpha_kskmnr */
+    double m_alpha_kpkmnr;      /**< Variable member m_alpha_kpkmnr */
+    double m_alpha_kskpnr;      /**< Variable member m_alpha_kskpnr */
+    double m_alpha_kskmnr;      /**< Variable member m_alpha_kskmnr */
 
-    std::ofstream debugfile_; /**< debuging stream */
+    std::ofstream m_debugfile_; /**< debuging stream */
   }; //! end of EvtDecayAmp
 
 } // Belle 2 Namespace

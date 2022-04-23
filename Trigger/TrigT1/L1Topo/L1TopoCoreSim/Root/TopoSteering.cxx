@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "L1TopoInterfaces/AlgFactory.h" 
@@ -42,12 +42,8 @@ TopoSteering::TopoSteering() :
    TrigConfMessaging("TopoSteering")
 {}
 
-TopoSteering::~TopoSteering() {
-   AlgFactory::destroy_instance();
-}
-
 TCS::StatusCode
-TopoSteering::setupFromConfiguration(const TrigConf::L1Menu& l1menu){
+TopoSteering::setupFromConfiguration ATLAS_NOT_THREAD_SAFE (const TrigConf::L1Menu& l1menu){
 
   TCS::StatusCode sc = m_structure.setupFromMenu( l1menu, m_isLegacyTopo );
   

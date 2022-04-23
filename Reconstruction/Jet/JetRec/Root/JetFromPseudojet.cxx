@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetFromPseudojet.cxx
@@ -7,12 +7,6 @@
 #include "JetRec/JetFromPseudojet.h"
 #include "JetRec/PseudoJetContainer.h"
 #include <iomanip>
-#ifdef USE_BOOST_AUTO
-#include <boost/typeof/typeof.hpp>
-#endif
-#ifdef USE_BOOST_FOREACH
-#include <boost/foreach.hpp>
-#endif
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/AreaDefinition.hh"
 #include "fastjet/ClusterSequence.hh"
@@ -44,11 +38,7 @@ JetFromPseudojet::JetFromPseudojet(std::string name)
 
 StatusCode JetFromPseudojet::initialize() {
 
-#ifdef USE_BOOST_FOREACH
-  BOOST_FOREACH(std::string att, m_atts) {
-#else
   for (const std::string & att : m_atts) {
-#endif
     if      ( att == "ActiveArea" )     m_doArea = true;
     else if ( att == "ActiveArea4vec" ) m_doFourVecArea = true;
     else if ( att == "ActiveAreaFourVector" ) m_doFourVecArea = true;

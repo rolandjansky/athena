@@ -136,6 +136,10 @@ TrigConf::L1Threshold_eTAU::load()
    // read the isolation requirements
    m_rCore = Selection::stringToWP(getAttribute_optional<std::string>("rCore").value_or("None"));
    m_rHad  = Selection::stringToWP(getAttribute_optional<std::string>("rHad").value_or("None"));
+   // Correction for older L1 menus which used the HAD WPs that don't fit in L1Topo bits
+   // This will result in no rHad isolation being applied, but there were no
+   // active L1 items (eTAU40HA threshold defined but unused) -- ATR-25329
+   if(m_rHad == Selection::WP::HADMEDIUM) {m_rHad = Selection::WP::MEDIUM;}
 }
 
 void

@@ -3,7 +3,7 @@
 */
 
 
-#include "LArROD/LArRawChannelBuilderToolCubic.h"
+#include "LArRawChannelBuilderToolCubic.h"
 #include "GaudiKernel/MsgStream.h"
 
 #include "CaloIdentifier/CaloCell_ID.h"

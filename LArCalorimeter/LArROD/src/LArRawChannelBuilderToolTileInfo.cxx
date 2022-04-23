@@ -2,8 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArROD/LArRawChannelBuilderToolTileInfo.h"
-#include "LArROD/LArRawChannelBuilderDriver.h"
+#include "LArRawChannelBuilderToolTileInfo.h"
+#include "LArRawChannelBuilderDriver.h"
 #include "GaudiKernel/MsgStream.h"
 #include "CommissionEvent/ComTime.h"
 

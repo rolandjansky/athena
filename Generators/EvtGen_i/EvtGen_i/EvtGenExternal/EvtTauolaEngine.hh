@@ -27,8 +27,8 @@
 #include "EvtGenBase/EvtDecayBase.hh"
 #include "EvtGenBase/EvtVector4R.hh"
 
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include <vector>
 #include <map>
@@ -48,8 +48,8 @@ protected:
 
 private:
 
-  bool _initialised;
-  int _tauPDG, _nTauolaModes;
+  bool m_initialised;
+  int m_tauPDG, m_nTauolaModes;
 
   HepMC::GenParticle* createGenParticle(EvtParticle* theParticle);
 

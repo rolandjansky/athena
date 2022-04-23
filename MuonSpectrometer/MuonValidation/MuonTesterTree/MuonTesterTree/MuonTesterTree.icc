@@ -1,0 +1,39 @@
+/*
+ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+*/
+#ifndef MUONTESTER_MUONTESTERTREE_IXX
+#define MUONTESTER_MUONTESTERTREE_IXX
+#include <MuonTesterTree/MuonTesterTree.h>
+template <typename T> VectorBranch<T>& MuonTesterTree::newVector(const std::string& b_name) {
+    if (!addBranch(std::make_shared<VectorBranch<T>>(tree(), b_name))) {
+        throw std::runtime_error("Failed to create vector branch " + b_name);
+    }
+    std::shared_ptr<VectorBranch<T>> b = get_branch<VectorBranch<T>>(b_name);
+    return *b;
+}
+template <typename T> ScalarBranch<T>& MuonTesterTree::newScalar(const std::string& b_name) {
+    if (!addBranch(std::make_shared<ScalarBranch<T>>(tree(), b_name))) {
+        throw std::runtime_error("Failed to create scalar branch " + b_name);
+    }
+    std::shared_ptr<ScalarBranch<T>> b = get_branch<ScalarBranch<T>>(b_name);
+    return *b;
+}
+template <typename T> MatrixBranch<T>& MuonTesterTree::newMatrix(const std::string& b_name) {
+    if (!addBranch(std::make_shared<MatrixBranch<T>>(tree(), b_name))) {
+        throw std::runtime_error("Failed to create matrix branch " + b_name);
+    }
+    std::shared_ptr<MatrixBranch<T>> b = get_branch<MatrixBranch<T>>(b_name);
+    return *b;
+}
+template <typename T> T& MuonTesterTree::newBranch(std::shared_ptr<T> br) {
+    if (!addBranch(br)) { throw std::runtime_error("Failed to create generic branch " + br->name()); }
+    br = get_branch<T>(br->name());
+    return *br;
+}
+template <class T> std::shared_ptr<T> MuonTesterTree::get_branch(const std::string& br_name) const {
+    for (const auto& br : m_branches) {
+        if (br->name() == br_name) return std::dynamic_pointer_cast<T>(br);
+    }
+    return std::shared_ptr<T>();
+}
+#endif

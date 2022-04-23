@@ -3,7 +3,7 @@
 */
 
 
-#include "LArROD/LArRawChannelBuilderADC2EDataBase.h"
+#include "LArRawChannelBuilderADC2EDataBase.h"
 #include "LArROD/LArRawChannelBuilderStatistics.h"
 
 #include "Identifier/Identifier.h"

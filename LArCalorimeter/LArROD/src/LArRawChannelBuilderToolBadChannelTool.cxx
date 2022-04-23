@@ -3,7 +3,7 @@
 */
 
 
-#include "LArROD/LArRawChannelBuilderToolBadChannelTool.h"
+#include "LArRawChannelBuilderToolBadChannelTool.h"
 #include "GaudiKernel/MsgStream.h"
 
 #include "Identifier/Identifier.h"

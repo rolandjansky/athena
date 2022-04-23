@@ -23,15 +23,15 @@
  **/
 
 class TrigHitDVHypoTool : virtual public ::AthAlgTool
-{ 
-public: 
-   TrigHitDVHypoTool( const std::string& type, 
-		      const std::string& name, 
+{
+public:
+   TrigHitDVHypoTool( const std::string& type,
+		      const std::string& name,
 		      const IInterface* parent );
-   
+
    virtual ~TrigHitDVHypoTool();
    virtual StatusCode initialize() override;
-   
+
    struct HitDVHypoInfo {
       TrigCompositeUtils::Decision*       decision{nullptr};
       bool                                isSPOverflow{false};
@@ -39,7 +39,7 @@ public:
       const xAOD::TrigComposite*          hitDV{nullptr};
       const TrigCompositeUtils::DecisionIDContainer previousDecisionsIDs;
    };
-   
+
    /**
     * @brief decides upon a collection of tracks
     **/
@@ -50,6 +50,7 @@ private:
    HLT::Identifier m_decisionId;
    Gaudi::Property< std::vector<float> >  m_cutJetPtGeV { this, "cutJetPtGeV", { 20.0 }, "Jet pT requirement in GeV" };
    Gaudi::Property< std::vector<float> >  m_cutJetEta   { this, "cutJetEta",   { 2.5 },  "Jet Eta requirement" };
+   Gaudi::Property< std::vector<float> >  m_effBDT      { this, "effBDT",      { 0.7 },  "Efficiency for BDT cut." };
    Gaudi::Property< std::vector<bool>  >  m_doSPseed    { this, "doSPseed",    { true },  "Switch to do SP seeding" };
 
    //
@@ -64,7 +65,9 @@ private:
    StatusCode findJetSeeds(const xAOD::JetContainer*, const float, const float, std::vector<float>&, std::vector<float>&) const;
    StatusCode calculateBDT(const xAOD::TrigCompositeContainer*, const xAOD::TrigCompositeContainer*,
 			   const std::vector<float>&, const std::vector<float>&, const float, const int, xAOD::TrigCompositeContainer*, int&) const;
+   float      getBDTthreshold_0eta1(float,float) const;
+   float      getBDTthreshold_1eta2(float,float) const;
    float      getBDTthreshold(float) const;
-}; 
+};
 
 #endif //> !TRIGLONGLIVEDPARTICLESHYPO_TRIGHITDVHYPOTOOL_H

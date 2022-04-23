@@ -128,7 +128,7 @@ void EvtYmSToYnSpipiCLEOboost::decay(EvtParticle* p)
   s1 = p->getDaug(1);
   s2 = p->getDaug(2);
 
-  double m_pi = s1->getP4().mass();
+  double M_pi = s1->getP4().mass();
   double M_mS = p->getP4().mass();
   double M_nS = v->getP4().mass();
 
@@ -145,9 +145,9 @@ void EvtYmSToYnSpipiCLEOboost::decay(EvtParticle* p)
   while (false == acceptX) {
 
     // Begin by generating a random X mass between the kinematic
-    // boundaries, 2*m_pi and M(mS) - M(nS)
+    // boundaries, 2*M_pi and M(mS) - M(nS)
 
-    double mX = EvtRandom::Flat(2.0 * m_pi, M_mS - M_nS);
+    double mX = EvtRandom::Flat(2.0 * M_pi, M_mS - M_nS);
 
     //   EvtGenReport(EVTGEN_INFO,"EvtYmSToYnSpipiCLEOboost")  << "m_X = " << mX << endl;
 
@@ -212,12 +212,12 @@ void EvtYmSToYnSpipiCLEOboost::decay(EvtParticle* p)
     // in the energy of the two pions allowed for a given mX value.
     //
 
-    double Q    = (mX * mX - 2.0 * m_pi * m_pi);
+    double Q    = (mX * mX - 2.0 * M_pi * M_pi);
 
     double deltaEmax =
       - 2.0 *
       sqrt(P_nS.get(0) * P_nS.get(0) - M_nS * M_nS) *
-      sqrt(0.25 - pow(m_pi / mX, 2.0));
+      sqrt(0.25 - pow(M_pi / mX, 2.0));
 
     double sumE = (M_mS * M_mS - M_nS * M_nS + mX * mX) / (2.0 * M_mS);
 
@@ -235,7 +235,7 @@ void EvtYmSToYnSpipiCLEOboost::decay(EvtParticle* p)
 
     double dPS =
       sqrt((M_mS * M_mS - pow(M_nS + mX, 2.0)) * (M_mS * M_mS - pow(M_nS - mX, 2.0))) * // p(*)_X
-      sqrt(mX * mX - 4 * m_pi * m_pi); // p(X)_{pi}
+      sqrt(mX * mX - 4 * M_pi * M_pi); // p(X)_{pi}
 
     // the double-differential decay rate dG/(dcostheta dmX)
     double dG = M2 * dPS;

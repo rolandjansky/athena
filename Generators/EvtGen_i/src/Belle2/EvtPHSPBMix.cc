@@ -90,13 +90,13 @@ void EvtPHSPBBMix::init()
 
 
 
-  _BBpipi = false;
+  m_BBpipi = false;
 
   if (getNDaug() == 4 && (EvtPDL::chargeConj(getDaug(0)) == getDaug(1)))
-    _BBpipi = true;
+    m_BBpipi = true;
 
 
-  if (!_BBpipi && getNDaug() > 3) {
+  if (!m_BBpipi && getNDaug() > 3) {
     if (!(EvtPDL::chargeConj(getDaug(0)) == getDaug(getNDaug() - 2) && EvtPDL::chargeConj(getDaug(1)) == getDaug(getNDaug() - 1))) {
       EvtGenReport(EVTGEN_ERROR, "EvtGen") << "EvtPHSPBBMix generator expected daughters "
                                            << "to be charge conjugate." << endl
@@ -148,9 +148,9 @@ void EvtPHSPBBMix::init()
   //report(DEBUG,"EvtGen") << "EvtPHSPBBMIX::init point (5)"<<std::endl;
 
   // mixing frequency in hbar/mm
-  _freq = getArg(0) / EvtConst::c;
+  m_freq = getArg(0) / EvtConst::c;
 
-  _C = getArg(1);
+  m_C = getArg(1);
 
   // deltaG
   //double gamma= 1/EvtPDL::getctau(getDaug(0));  // gamma/c (1/mm)
@@ -175,7 +175,7 @@ void EvtPHSPBBMix::init()
       sss << " + " << EvtPDL::name(getDaug(2)).c_str();
       break;
     case 4:
-      if (_BBpipi)
+      if (m_BBpipi)
         sss << " + " << EvtPDL::name(getDaug(2)).c_str() << " + " << EvtPDL::name(getDaug(3)).c_str();
       break;
     default: ;
@@ -185,8 +185,8 @@ void EvtPHSPBBMix::init()
                                       << sss.str() << endl << endl
                                       << "using parameters:" << endl << endl
                                       << "  delta(m)  = " << dm << " hbar/ps" << endl
-                                      << " C (B0-B0b) = " << _C << endl
-                                      << "  _freq     = " << _freq << " hbar/mm" << endl
+                                      << " C (B0-B0b) = " << m_C << endl
+                                      << "  _freq     = " << m_freq << " hbar/mm" << endl
                                       << "  dgog      = "  << 0 << endl
                                       << "  dGamma    = "  << 0 << " hbar/mm" << endl
                                       << "  q/p       = " << 1 << endl
@@ -203,7 +203,7 @@ void EvtPHSPBBMix::init()
 int EvtPHSPBBMix::nRealDaughters()
 {
   if (getNDaug() > 3) {
-    if (_BBpipi)
+    if (m_BBpipi)
       return 4;
     else
       return getNDaug() - 2;
@@ -243,7 +243,7 @@ void EvtPHSPBBMix::decay(EvtParticle* p)
   //  const bool ADaug(getNDaug()==4);//true if aliased Daugthers
   if (pr) prlp(102);
 
-  const bool NCC(getNDaug() >= 4 && !_BBpipi); //true if daughters not charged-conjugated
+  const bool NCC(getNDaug() >= 4 && !m_BBpipi); //true if daughters not charged-conjugated
   //    const bool BBpi(getNDaug()==
   if (pr) prlp(103);
   if (NCC) {
@@ -323,33 +323,33 @@ void EvtPHSPBBMix::decay(EvtParticle* p)
 
 EvtComplex EvtPHSPBBMix::Amplitude(const double& t1, const double& t2, bool B1_is_B0, bool B2_is_B0) const
 {
-  if (_C != 0 && _C != -1 && _C != 1)
+  if (m_C != 0 && m_C != -1 && m_C != 1)
     return EvtComplex(0., 0.);
 
-  const double f(_freq);
+  const double f(m_freq);
   if (B1_is_B0 && !B2_is_B0) {
-    if (_C == 0)
+    if (m_C == 0)
       return EvtComplex(cos(f * t1 / 2.) * cos(f * t2 / 2.), 0.);
     else
-      return EvtComplex(cos(f * (t2 + _C * t1) / 2.) / sqrt(2.), 0.);
+      return EvtComplex(cos(f * (t2 + m_C * t1) / 2.) / sqrt(2.), 0.);
   }
   if (!B1_is_B0 && B2_is_B0) {
-    if (_C == 0)
+    if (m_C == 0)
       return EvtComplex(-sin(f * t1 / 2.) * sin(f * t2 / 2.), 0.);
     else
-      return EvtComplex(cos(f * (t2 + _C * t1) / 2.) * _C / sqrt(2.), 0.);
+      return EvtComplex(cos(f * (t2 + m_C * t1) / 2.) * m_C / sqrt(2.), 0.);
   }
   if (B1_is_B0 && B2_is_B0) {
-    if (_C == 0)
+    if (m_C == 0)
       return EvtComplex(0., -cos(f * t1 / 2.) * sin(f * t2 / 2.));
     else
-      return EvtComplex(0., -sin(f * (t2 + _C * t1) / 2.) / sqrt(2.));
+      return EvtComplex(0., -sin(f * (t2 + m_C * t1) / 2.) / sqrt(2.));
   }
   if (!B1_is_B0 && !B2_is_B0) {
-    if (_C == 0)
+    if (m_C == 0)
       return EvtComplex(0., -sin(f * t1 / 2.) * cos(f * t2 / 2.));
     else
-      return EvtComplex(0., -sin(f * (t2 + _C * t1) / 2.) * _C / sqrt(2.));
+      return EvtComplex(0., -sin(f * (t2 + m_C * t1) / 2.) * m_C / sqrt(2.));
   }
   // no way to reach this but compiler complains without a return statement
   return EvtComplex(0., 0.);
@@ -411,7 +411,7 @@ void EvtPHSPBMix::init()
   }
   //parameters for mixing of particle1
 
-  _freq = getArg(0) / EvtConst::c;
+  m_freq = getArg(0) / EvtConst::c;
 
   //double gamma= 1/EvtPDL::getctau(getDaug(0));  // gamma/c (1/mm)
 
@@ -432,7 +432,7 @@ void EvtPHSPBMix::init()
                                       << sss.str() << endl << endl
                                       << "using parameters:" << endl << endl
                                       << "  delta(m)  = " << dm << " hbar/ps" << endl
-                                      << "  _freq     = " << _freq << " hbar/mm" << endl
+                                      << "  _freq     = " << m_freq << " hbar/mm" << endl
                                       << "  dgog      = "  << 0 << endl
                                       << "  dGamma    = "  << 0 << " hbar/mm" << endl
                                       << "  q/p       = " << 1 << endl
@@ -498,7 +498,7 @@ void EvtPHSPBMix::decay(EvtParticle* p)
 
   // calculate the oscillation amplitude, based on whether this event is mixed or not
   EvtComplex osc_amp(changed_flavor ? EvtComplex(0,
-                                                 -sin(_freq * t1 / 2.)) : EvtComplex(cos(_freq * t1 / 2.))); //Amplitude return <B0(B)|B1>
+                                                 -sin(m_freq * t1 / 2.)) : EvtComplex(cos(m_freq * t1 / 2.))); //Amplitude return <B0(B)|B1>
   if (pr)    std::cout << "decay B_MIX (5)" << std::endl;
   // store the amplitudes for each parent spin basis state
   double norm = 1.0 / p1.d3mag();

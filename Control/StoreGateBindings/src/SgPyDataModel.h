@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATEBINDINGS_SGPYDATAMODEL_H
@@ -25,7 +25,7 @@ extern CLID PyCLID;
 
 // ROOT includes
 #include "TClass.h"
-#include "RootUtils/TClassEditRootUtils.h"
+#include "TClassEdit.h"
 #include "TClassRef.h"
 #include "TROOT.h"
 #include "TMethod.h"
@@ -277,8 +277,15 @@ namespace SG {
       // FIXME: get rid of this massaging when/if ROOT finally
       // standardize on keeping the std:: namespace...
       std::string tpstr = RootUtils::PyGetString(tp).first;
-      std::string tn = TClassEdit::ShortType(tpstr.c_str(),
-                                             TClassEdit::kDropAllDefault);
+      std::string tn;
+      {
+        // Protect against data race inside TClassEdit.
+        // https://github.com/root-project/root/issues/10353
+        // Should be fixed in root 6.26.02.
+        R__WRITE_LOCKGUARD(ROOT::gCoreMutex);
+        tn = TClassEdit::ShortType(tpstr.c_str(),
+                                   TClassEdit::kDropAllDefault);
+      }
       m_clidSvc->getIDOfTypeName(tn, id).ignore();
       if ( id == CLID_NULL ) {
         // try an alias...
@@ -302,8 +309,15 @@ namespace SG {
       // FIXME: get rid of this massaging when/if ROOT finally
       // standardize on keeping the std:: namespace...
       std::string tpstr = RootUtils::PyGetString(tp).first;
-      std::string tn = TClassEdit::ShortType(tpstr.c_str(),
-                                             TClassEdit::kDropAllDefault);
+      std::string tn;
+      {
+        // Protect against data race inside TClassEdit.
+        // https://github.com/root-project/root/issues/10353
+        // Should be fixed in root 6.26.02.
+        R__WRITE_LOCKGUARD(ROOT::gCoreMutex);
+        tn = TClassEdit::ShortType(tpstr.c_str(),
+                                   TClassEdit::kDropAllDefault);
+      }
       m_clidSvc->getIDOfTypeInfoName(tn, id).ignore();
       if ( id == CLID_NULL ) {
         // try an alias...

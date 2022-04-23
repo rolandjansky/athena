@@ -12,6 +12,7 @@
 // Gaudi/Athena include(s):
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/StatusCode.h"
+#include "CxxUtils/checker_macros.h"
 #include "SGTools/DataProxy.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/ClassID_traits.h"
@@ -131,7 +132,10 @@ namespace HLTNavDetails {
         REPORT_MESSAGE( MSG::ERROR ) << "syncing of read-only Aux proxy failed" << key << endmsg;
         return StatusCode::FAILURE;
       }
-      auto nonconstaux = const_cast<SG::IAuxStore*>(aux);
+      // We do need the non-const Aux store pointer as well to be able to fill
+      // it during deserialization. So the comment above that this is read-only
+      // is not quite correct.
+      auto nonconstaux ATLAS_THREAD_SAFE = const_cast<SG::IAuxStore*>(aux);
       m_ncPointer = nonconstaux;
       m_pointer = aux;
 

@@ -28,13 +28,6 @@ StatusCode CaloNoiseCondAlg::initialize() {
     return StatusCode::FAILURE;
   }
 
-  ATH_CHECK( m_hvCorrKey.initialize(m_useHVCorr) );
-
-  const bool doLumiFolderInit = m_lumi0 < 0;
-  if (m_lumiFolderKey.initialize(doLumiFolderInit).isFailure()) {
-      ATH_MSG_ERROR("Luminosity set to < 0 but failed to initialize LumiFolder");
-  }
- 
   ATH_CHECK( m_cablingKey.initialize() );
 
   const std::string& noiseKey=m_outputKey.key();
@@ -45,6 +38,10 @@ StatusCode CaloNoiseCondAlg::initialize() {
   else if (noiseKey=="pileupNoise") {
     ATH_MSG_INFO("Will compute pileup noise");
     m_noiseType=CaloNoise::PILEUP;
+    if (m_useHVCorr) {
+      ATH_MSG_INFO("Disabling HV correction, only pile-up noise");
+    }
+    m_useHVCorr=false;
   }
   else if (noiseKey=="totalNoise") {
     m_noiseType=CaloNoise::TOTAL;
@@ -54,6 +51,15 @@ StatusCode CaloNoiseCondAlg::initialize() {
     ATH_MSG_ERROR("Unexpected noise key given: " <<  noiseKey << ". Expeced 'electronicNoise' or 'pileupNoise' or 'totalNoise'.");
     return StatusCode::FAILURE;
   }
+
+
+  ATH_CHECK( m_hvCorrKey.initialize(m_useHVCorr) );
+
+  const bool doLumiFolderInit = m_lumi0 < 0 && m_noiseType!=CaloNoise::ELEC;
+  if (m_lumiFolderKey.initialize(doLumiFolderInit).isFailure()) {
+      ATH_MSG_ERROR("Luminosity set to < 0 but failed to initialize LumiFolder");
+  }
+
 
   ATH_CHECK(m_outputKey.initialize());
 
@@ -128,7 +134,8 @@ StatusCode CaloNoiseCondAlg::execute(const EventContext& ctx) const {
 
   //Get Luminosity:
   float lumi=m_lumi0;
-  if (m_lumi0<0) {    
+  //if (m_lumi0<0 && m_noiseType!=CaloNoise::ELEC) {    
+  if (not m_lumiFolderKey.empty()) {
     SG::ReadCondHandle<CondAttrListCollection> lumiHdl{m_lumiFolderKey,ctx};
     const CondAttrListCollection* lumiAttrListColl=*lumiHdl;
     writeHandle.addDependency(lumiHdl);
@@ -220,13 +227,31 @@ StatusCode CaloNoiseCondAlg::execute(const EventContext& ctx) const {
     ATH_MSG_ERROR("Unexpected number of COOL channels containing noise-blobs. Got " << nBlobs << " expected 7 (6 LAr, 1 Tile)");
     return StatusCode::FAILURE;
   }
+  
+  
+  switch (m_noiseType){
+  case CaloNoise::ELEC:
+    ATH_MSG_INFO("Calculated electronic noise" << (larHVCorr ? " with " : " without ") << "HV Scale correction");
+    break;
+  case CaloNoise::PILEUP:
+    ATH_MSG_INFO("Calculated pile-up noise for lumi " << lumi);
+    break;
+  case CaloNoise::TOTAL:
+    ATH_MSG_INFO("Calculated total noise for lumi " << lumi<< (larHVCorr ? " with " : " without ") << "HV Scale correction");
+    break;
+  default:
+    break;
+  }
 
-  ATH_MSG_INFO("Calculated noise for lumi " << lumi << (larHVCorr ? " with " : " without ") << "HV Scale correction");
   for (unsigned igain=0;igain<4;++igain) {
-    ATH_MSG_INFO("Gain " << igain << " Nbr of cells: " << cellsPerGain[igain]);
+
     if (igain<3 && cellsPerGain[igain]!=maxCells) {
-      ATH_MSG_ERROR("Expected " << maxCells << " cells for gain " << igain);
+      ATH_MSG_ERROR("Expected " << maxCells << " cells for gain " << igain << ", got " << cellsPerGain[igain]);
     }
+    else {
+      ATH_MSG_DEBUG("Gain " << igain << " Nbr of cells: " << cellsPerGain[igain]);
+    }
+      
   }
 
   //Create output object  

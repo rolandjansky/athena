@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( PixelCalibAlgs )
@@ -13,8 +13,8 @@ atlas_add_library( PixelCalibAlgsLib
    PUBLIC_HEADERS PixelCalibAlgs
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps CxxUtils GaudiKernel InDetConditionsSummaryService 
-   InDetPrepRawData InDetReadoutGeometry PixelReadoutGeometryLib PixelConditionsData StoreGateLib
-   PRIVATE_LINK_LIBRARIES AthenaPoolUtilities EventInfo InDetIdentifier InDetRawData PixelGeoModelLib )
+   InDetPrepRawData InDetReadoutGeometry PixelGeoModelLib PixelReadoutGeometryLib PixelConditionsData StoreGateLib
+   PRIVATE_LINK_LIBRARIES AthenaPoolUtilities EventInfo InDetIdentifier InDetRawData )
 
 atlas_add_component( PixelCalibAlgs
    src/components/*.cxx

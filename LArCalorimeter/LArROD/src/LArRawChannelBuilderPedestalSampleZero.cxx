@@ -3,7 +3,7 @@
 */
 
 
-#include "LArROD/LArRawChannelBuilderPedestalSampleZero.h"
+#include "LArRawChannelBuilderPedestalSampleZero.h"
 
 LArRawChannelBuilderPedestalSampleZero::LArRawChannelBuilderPedestalSampleZero(const std::string& type,
 									       const std::string& name,

@@ -3,7 +3,7 @@
 */
 
 
-#include "LArROD/LArRawChannelBuilderPedestalToolBase.h"
+#include "LArRawChannelBuilderPedestalToolBase.h"
 #include "GaudiKernel/MsgStream.h"
 
 LArRawChannelBuilderPedestalToolBase::LArRawChannelBuilderPedestalToolBase(const std::string& type,
