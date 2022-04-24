@@ -15,6 +15,7 @@
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "TrigBjetBtagHypoTool.h"
+#include "xAODBTagging/BTagging.h"
 
 TrigBjetBtagHypoTool::TrigBjetBtagHypoTool( const std::string& type,
     const std::string& name,
@@ -81,6 +82,7 @@ StatusCode TrigBjetBtagHypoTool::decide( std::vector< TrigBjetBtagHypoToolInfo >
     // -------------------------------------
     // Compute trigger decision
     bool pass = true;
+    bool passbb = true;
 
     if ( vertex->vertexType() != xAOD::VxType::VertexType::PriVtx ) {
       ATH_MSG_DEBUG( "Vertex is not a valid primary vertex!" );
@@ -95,13 +97,14 @@ StatusCode TrigBjetBtagHypoTool::decide( std::vector< TrigBjetBtagHypoToolInfo >
       // search for bb-jet rejection component of tagger
       // really in the future this should be a derived class of the
       // BtagHypoTool.
-      bool pasbb = true;
-      if (m_bbtagger) {
+
+      if (m_bbtagger != "") {
         double pb = -1;
         double pbb = -1;
         
         btagging->pb(m_bbtagger, pb);
-        btagging->pbb(m_bbtagger, pbb);
+        btagging->variable<double>(m_bbtagger, "pbb", pbb);
+
         double bbtaggingWeight = log( pb / pbb );
 
         passbb = bbtaggingWeight > m_bbTaggingCut;
