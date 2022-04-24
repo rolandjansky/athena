@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -37,15 +37,15 @@ namespace DerivationFramework {
     ~FilterCombinationOR();
    
     // Athena algtool's Hooks
-    StatusCode  initialize();
-    StatusCode  finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
    
     /** Check that the current event passes this filter */
-    virtual bool eventPassesFilter() const;
+    virtual bool eventPassesFilter() const override;
    
   private:
-    mutable unsigned int m_ntot;
-    mutable unsigned int m_npass;
+    mutable std::atomic<unsigned int> m_ntot{0};
+    mutable std::atomic<unsigned int> m_npass{0};
     ToolHandleArray<ISkimmingTool> m_filtersToCombine;
    
 
