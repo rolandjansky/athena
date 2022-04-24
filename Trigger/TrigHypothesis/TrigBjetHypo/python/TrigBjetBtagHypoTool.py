@@ -27,12 +27,14 @@ bTaggingWP = \
   , "dl1d90" : -0.465
   , "dl1d95" : -1.616
 
-  , "dl1d85bb77" : 0.806
+  , "offperf" : -999
+  }
+
+bbTaggingWP = \
+  { "dl1d85bb77" : 0.806
   , "dl1d85bb70" : 1.380
   , "dl1d85bb65" : 1.634
   , "dl1d85bb60" : 1.862
-
-  , "offperf" : -999
   }
 
 
@@ -75,17 +77,17 @@ def decodeThreshold( threshold_btag ):
         return None
 
 
-    bbcut = None
-    bbtagger = None
     btagger = "DL1d20211216"
+    bbtagger = "DL1bb20220331"
 
-    if "bb" in threshold_btag:
-        bbcut = bTaggingWP[threshold_btag]
-        bbtagger = "DL1bb20220331"
+    # TODO
+    # is it ok to cut at -999 by default here?
+    bbcut = bbTaggingWP.get(threshold_btag, -999)
 
-        # remove the bb part to get the bcut
-        threshold_btag, _ = threshold_btag.split("bb", maxsplit=1)
+    # remove the bb part to get the b-only cut
+    threshold_btag, _ = threshold_btag.split("bb", maxsplit=1)
 
+    # possibly roll back to dl1r for some chains
     if "dl1r" in threshold_btag : 
         btagger = "DL1r"
 
