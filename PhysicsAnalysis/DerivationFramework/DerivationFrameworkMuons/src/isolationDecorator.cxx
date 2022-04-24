@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DerivationFrameworkMuons/isolationDecorator.h"
@@ -104,12 +104,12 @@ StatusCode DerivationFramework::isolationDecorator::addBranches() const {
 
         /// check flag
         if (m_selFlag != "") {
-            static SG::AuxElement::Decorator<int> dec_trkFlag(m_selFlag);
+            static const SG::AuxElement::Decorator<int> dec_trkFlag(m_selFlag);
             if (dec_trkFlag(*particle) != m_selFlagValue) continue;
         }
 
         /// check if decorated already
-        static SG::AuxElement::Decorator<bool> dec_isoDecoDone(m_prefix + "IsoDecoDone");
+        static const SG::AuxElement::Decorator<bool> dec_isoDecoDone(m_prefix + "IsoDecoDone");
         if (dec_isoDecoDone.isAvailable(*particle) && dec_isoDecoDone(*particle)) continue;
         dec_isoDecoDone(*particle) = true;
 
