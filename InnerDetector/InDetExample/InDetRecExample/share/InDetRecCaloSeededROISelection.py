@@ -78,6 +78,7 @@ def CaloClusterROIPhiRZContainerMaker(name="CaloClusterROIPhiRZContainerMaker", 
     unordered_pt_id=[]
     for tracking_cuts in tracking_cuts_list :
         # TRT_TrackSegmentsFinder
+        # TRT_SeededTrackFinder
         if InDetFlags.doCaloSeededTRTSegments() or tracking_cuts.RoISeededBackTracking():
             pt_cut = tracking_cuts.minRoIClusterEt()
             if pt_cut not in unordered_pt :

@@ -53,6 +53,7 @@ def CaloClusterROIPhiRZContainerMakerCfg(ConfigFlags, name="CaloClusterROIPhiRZC
 
     if ConfigFlags.InDet.Tracking.ActivePass.RoISeededBackTracking :
         # TRT_TrackSegmentsFinder
+        # TRT_SeededTrackFinder
         pt_cut = ConfigFlags.InDet.Tracking.ActivePass.minRoIClusterEt
         OutputROIContainerName.append('InDetCaloClusterROIPhiRZ%.0fGeVUnordered' % (pt_cut/Units.GeV))
         minPt.append(pt_cut)

@@ -154,6 +154,8 @@ class ConfiguredBackTracking:
          from AthenaCommon import CfgGetter
          from TRT_SeededTrackFinder.TRT_SeededTrackFinderConf import InDet__TRT_SeededTrackFinder
          import InDetRecExample.TrackingCommon as TrackingCommon
+         import AthenaCommon.SystemOfUnits as Units
+
          InDetTRT_SeededTrackFinder = InDet__TRT_SeededTrackFinder(name                  = 'InDetTRT_SeededTrackFinder',
                                                                    RefitterTool          = CfgGetter.getPublicTool('InDetTrackFitterBT'),
                                                                    TrackTool             = InDetTRT_SeededTrackTool,
@@ -176,7 +178,9 @@ class ConfiguredBackTracking:
                                                                    OutputSegments        = False,
                                                                    InputSegmentsLocation = InDetKeys.TRT_Segments(),
                                                                    OutputTracksLocation  = self.__TRTSeededTracks,
-                                                                   CaloClusterEt         = NewTrackingCuts.minRoIClusterEt())
+                                                                   CaloClusterEt         = NewTrackingCuts.minRoIClusterEt(),
+                                                                   EMROIPhiRZContainer   = "InDetCaloClusterROIPhiRZ%.0fGeVUnordered" % (NewTrackingCuts.minRoIClusterEt()/Units.GeV)
+                                                                   )
          
          if (NewTrackingCuts.RoISeededBackTracking()):
             from RegionSelector.RegSelToolConfig import makeRegSelTool_SCT
