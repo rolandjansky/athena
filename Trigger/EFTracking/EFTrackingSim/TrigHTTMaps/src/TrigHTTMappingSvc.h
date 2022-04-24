@@ -30,7 +30,7 @@ class TrigHTTMappingSvc : public AthService, virtual public ITrigHTTMappingSvc
         virtual const HTTNNMap* NNMap()                 const override { return m_NNmap.get();    }
 
         static const InterfaceID& interfaceID();
-        virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIf);
+        virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIf) override;
 
     private:
 
