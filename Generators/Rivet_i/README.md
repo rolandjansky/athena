@@ -312,6 +312,10 @@ you will have to set an enviroment variable as e.g.:
 export RIVET_ANALYSIS_PATH=$PWD
 ```
 
+It's worth reading the 
+[physics tips and pitfalls](https://gitlab.com/hepcedar/rivet/-/blob/release-3-1-x/doc/tutorials/tips-pitfalls.md)
+as well.
+
 
 ## How to compile
 
