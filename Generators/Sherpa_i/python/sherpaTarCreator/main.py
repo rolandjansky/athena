@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 import sys,os,glob
 from argparse import ArgumentParser
@@ -38,6 +38,9 @@ def main():
     options.batchSystemModule = importlib.import_module("Sherpa_i.sherpaTarCreator."+options.batchSystem)
 
     for i in range(len(options.jobOptionDir)):
+        if not os.path.isdir(options.jobOptionDir[i]):
+            print ("ERROR: JO folder \"" + options.jobOptionDir[i] + "\" not found.")
+            sys.exit(2)
         options.jobOptionDir[i] = os.path.abspath(options.jobOptionDir[i])
     os.chdir(options.jobOptionDir[0])
 
