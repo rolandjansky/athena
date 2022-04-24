@@ -83,6 +83,7 @@ StatusCode TrigBjetBtagHypoTool::decide( std::vector< TrigBjetBtagHypoToolInfo >
     // Compute trigger decision
     bool pass = true;
     bool passbb = true;
+    bool allok = true;
 
     if ( vertex->vertexType() != xAOD::VxType::VertexType::PriVtx ) {
       ATH_MSG_DEBUG( "Vertex is not a valid primary vertex!" );
@@ -102,8 +103,10 @@ StatusCode TrigBjetBtagHypoTool::decide( std::vector< TrigBjetBtagHypoToolInfo >
         double pb = -1;
         double pbb = -1;
         
-        btagging->pb(m_bbtagger, pb);
-        btagging->variable<double>(m_bbtagger, "pbb", pbb);
+        allok &= btagging->pb(m_bbtagger, pb);
+        allok &= btagging->variable<double>(m_bbtagger, "pbb", pbb);
+
+        if (!allok) return StatusCode::FAILURE;
 
         double bbtaggingWeight = log( pb / pbb );
 
@@ -114,9 +117,11 @@ StatusCode TrigBjetBtagHypoTool::decide( std::vector< TrigBjetBtagHypoToolInfo >
       double pb = -1;
       double pc = -1;
 
-      btagging->pu(m_tagger, pu);
-      btagging->pb(m_tagger, pb);
-      btagging->pc(m_tagger, pc);
+      allok &= btagging->pu(m_tagger, pu);
+      allok &= btagging->pb(m_tagger, pb);
+      allok &= btagging->pc(m_tagger, pc);
+
+      if (!allok) return StatusCode::FAILURE;
 
       btaggingWeight = log( pb / (pu * (1 - m_cFrac) + m_cFrac * pc) );
 
