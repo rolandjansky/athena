@@ -17,8 +17,11 @@ bTaggingWP = \
   , 'dl1r85' : 1.32
 
   , "dl1d40" : 6.957
+  , "dl1d45" : 6.344
   , "dl1d50" : 5.730
+  , "dl1d55" : 5.121
   , "dl1d60" : 4.512
+  , "dl1d65" : 3.882
   , "dl1d70" : 3.251
   , "dl1d75" : 2.489
   , "dl1d77" : 2.157
@@ -85,10 +88,10 @@ def decodeThreshold( threshold_btag ):
     bbcut = bbTaggingWP.get(threshold_btag, -999)
 
     # remove the bb part to get the b-only cut
-    threshold_btag, _ = threshold_btag.split("bb", maxsplit=1)
+    threshold_btag = threshold_btag.split("bb", maxsplit=1)[0]
 
     # possibly roll back to dl1r for some chains
-    if "dl1r" in threshold_btag : 
+    if "dl1r" in threshold_btag: 
         btagger = "DL1r"
 
     bcut = bTaggingWP[threshold_btag]

@@ -102,9 +102,11 @@ StatusCode TrigBjetBtagHypoTool::decide( std::vector< TrigBjetBtagHypoToolInfo >
       if (m_bbtagger != "") {
         double pb = -1;
         double pbb = -1;
+        float tmp = -1;
         
         allok &= btagging->pb(m_bbtagger, pb);
-        allok &= btagging->variable<double>(m_bbtagger, "pbb", pbb);
+        allok &= btagging->variable<float>(m_bbtagger, "pbb", tmp);
+        pbb = tmp;
 
         if (!allok) return StatusCode::FAILURE;
 
