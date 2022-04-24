@@ -31,6 +31,7 @@ TrigBjetBtagHypoTool::TrigBjetBtagHypoTool( const std::string& type,
     ATH_MSG_DEBUG(  "   " << m_bTaggingCut   );
     ATH_MSG_DEBUG(  "   " << m_cFrac   );
     ATH_MSG_DEBUG(  "   " << m_tagger     );
+    ATH_MSG_DEBUG(  "   " << m_bbtagger     );
 
     ATH_MSG_DEBUG( "Tool configured for chain/id: " << m_decisionId  );
 
@@ -90,6 +91,22 @@ StatusCode TrigBjetBtagHypoTool::decide( std::vector< TrigBjetBtagHypoToolInfo >
       const xAOD::BTagging *btagging = *(bTagInfo.btaggingEL);
       double btaggingWeight = -1000;
 
+      // TODO
+      // search for bb-jet rejection component of tagger
+      // really in the future this should be a derived class of the
+      // BtagHypoTool.
+      bool pasbb = true;
+      if (m_bbtagger) {
+        double pb = -1;
+        double pbb = -1;
+        
+        btagging->pb(m_bbtagger, pb);
+        btagging->pbb(m_bbtagger, pbb);
+        double bbtaggingWeight = log( pb / pbb );
+
+        passbb = bbtaggingWeight > m_bbTaggingCut;
+      }
+
       double pu = -1;
       double pb = -1;
       double pc = -1;
@@ -116,7 +133,7 @@ StatusCode TrigBjetBtagHypoTool::decide( std::vector< TrigBjetBtagHypoToolInfo >
     }
 
     // -------------------------------------
-    if ( pass == true ) {
+    if ( pass && passbb ) {
       ATH_MSG_DEBUG( "Selection cut satisfied, accepting the event" );
       TrigCompositeUtils::addDecisionID( getId().numeric(),bTagInfo.decision );
     } else {
@@ -124,6 +141,7 @@ StatusCode TrigBjetBtagHypoTool::decide( std::vector< TrigBjetBtagHypoToolInfo >
     }
 
     ATH_MSG_DEBUG( "b-Tagging decision is " << (pass?"TRUE":"FALSE") );
+    ATH_MSG_DEBUG( "bb-Tagging decision is " << (passbb?"TRUE":"FALSE") );
     ATH_MSG_DEBUG( "PRINTING DECISION" );
     ATH_MSG_DEBUG( *bTagInfo.decision );
   }
