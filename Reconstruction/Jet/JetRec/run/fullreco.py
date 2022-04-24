@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # fullreco.py
 
@@ -45,7 +45,6 @@ from JetRec.JetRecFlags import jetFlags
 #jetFlags.skipTools = ["comshapes"]
 #jetFlags.debug = 3
 #jetFlags.additionalTopoGetters += ["gakt3trackget", "gakt4trackget"]
-jetFlags.timeJetToolRunner = 2
 jetFlags.timeJetRecTool = 2
 
 from InDetRecExample.InDetJobProperties import InDetFlags

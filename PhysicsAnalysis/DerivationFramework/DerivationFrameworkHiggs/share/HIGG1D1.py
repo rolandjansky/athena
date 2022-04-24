@@ -1,5 +1,5 @@
 #==================================================================== 
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #==================================================================== 
 
 #====================================================================
@@ -460,8 +460,7 @@ from JetRec.JetRecConf import JetToolRunner
 from JetRec.JetRecConf import JetAlgorithm
 jtm += JetToolRunner("jetconstitPFlowCustomVtx",
                       EventShapeTools=[],
-                      Tools=ctools,
-                      Timer=jetFlags.timeJetToolRunner() )
+                      Tools=ctools)
 
 SeqHIGG1D1 += JetAlgorithm("jetalgConstituentsCustomVtx",
                     Tools=[jtm.jetconstitPFlowCustomVtx])

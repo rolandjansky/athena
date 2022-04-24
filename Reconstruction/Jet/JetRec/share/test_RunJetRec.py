@@ -72,7 +72,6 @@ jetFlags.debug = 4
 # Timing flags for JetToolRunner and JetRecTool.
 # 0 for none, 1 for some, 2 for detailed
 timelev = 0
-jetFlags.timeJetToolRunner = timelev
 jetFlags.timeJetRecTool = timelev
 
 # Event shape tools (calculate rho).

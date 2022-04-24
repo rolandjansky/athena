@@ -15,7 +15,6 @@ myname = "JetRec_jobOptions.py: "
 jetlog.info( myname + "Begin." )
 from JetRec.JetRecFlags import jetFlags, JetContentDetail
 # jetFlags.separateJetAlgs.set_Value(True)
-# jetFlags.timeJetToolRunner.set_Value(2)
 
 #--------------------------------------------------------------
 # Define the finders and groomers.
