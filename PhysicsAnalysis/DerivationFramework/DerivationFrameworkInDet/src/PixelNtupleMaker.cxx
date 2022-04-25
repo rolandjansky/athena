@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DerivationFrameworkInDet/PixelNtupleMaker.h"
@@ -55,7 +55,7 @@ bool DerivationFramework::PixelNtupleMaker::eventPassesFilter() const {
   }
 
   std::vector<float> tmpCov(15,0.);
-  static SG::AuxElement::ConstAccessor<MeasurementsOnTrack>  acc_MeasurementsOnTrack("msosLink");
+  static const SG::AuxElement::ConstAccessor<MeasurementsOnTrack>  acc_MeasurementsOnTrack("msosLink");
   for (xAOD::TrackParticleContainer::const_iterator trk=tracks->begin(); trk!=tracks->end(); trk++) {
 
     bool passTrack = true;
@@ -253,42 +253,42 @@ bool DerivationFramework::PixelNtupleMaker::eventPassesFilter() const {
         }
       }
 
-      static SG::AuxElement::Decorator<float> d0err("d0err");
-      static SG::AuxElement::Decorator<float> z0err("z0err");
-      static SG::AuxElement::Decorator<std::vector<int>>   HoleIndex("HoleIndex");
-      static SG::AuxElement::Decorator<std::vector<int>>   ClusterLayer("ClusterLayer");
-      static SG::AuxElement::Decorator<std::vector<int>>   ClusterBEC("ClusterBEC");
-      static SG::AuxElement::Decorator<std::vector<int>>   ClusterModulePhi("ClusterModulePhi");
-      static SG::AuxElement::Decorator<std::vector<int>>   ClusterModuleEta("ClusterModuleEta");
-      static SG::AuxElement::Decorator<std::vector<float>> ClusterCharge("ClusterCharge");
-      static SG::AuxElement::Decorator<std::vector<int>>   ClusterToT("ClusterToT");
-      static SG::AuxElement::Decorator<std::vector<int>>   ClusterL1A("ClusterL1A");
-      static SG::AuxElement::Decorator<std::vector<int>>   ClusterIsSplit("ClusterIsSplit");
-      static SG::AuxElement::Decorator<std::vector<int>>   ClusterSize("ClusterSize");
-      static SG::AuxElement::Decorator<std::vector<int>>   ClusterSizePhi("ClusterSizePhi");
-      static SG::AuxElement::Decorator<std::vector<int>>   ClusterSizeZ("ClusterSizeZ");
-      static SG::AuxElement::Decorator<std::vector<bool>>  ClusterIsEdge("ClusterIsEdge");
-      static SG::AuxElement::Decorator<std::vector<bool>>  ClusterIsOverflow("ClusterIsOverflow");
-      static SG::AuxElement::Decorator<std::vector<float>> TrackLocalPhi("TrackLocalPhi");
-      static SG::AuxElement::Decorator<std::vector<float>> TrackLocalTheta("TrackLocalTheta");
-      static SG::AuxElement::Decorator<std::vector<float>> TrackLocalX("TrackLocalX");
-      static SG::AuxElement::Decorator<std::vector<float>> TrackLocalY("TrackLocalY");
-      static SG::AuxElement::Decorator<std::vector<float>> ClusterLocalX("ClusterLocalX");
-      static SG::AuxElement::Decorator<std::vector<float>> ClusterLocalY("ClusterLocalY");
-      static SG::AuxElement::Decorator<std::vector<float>> ClusterGlobalX("ClusterGlobalX");
-      static SG::AuxElement::Decorator<std::vector<float>> ClusterGlobalY("ClusterGlobalY");
-      static SG::AuxElement::Decorator<std::vector<float>> ClusterGlobalZ("ClusterGlobalZ");
-      static SG::AuxElement::Decorator<std::vector<float>> UnbiasedResidualX("UnbiasedResidualX");
-      static SG::AuxElement::Decorator<std::vector<float>> UnbiasedResidualY("UnbiasedResidualY");
-      static SG::AuxElement::Decorator<std::vector<int>>   ClusterIsolation10x2("ClusterIsolation10x2");
-      static SG::AuxElement::Decorator<std::vector<int>>   ClusterIsolation20x4("ClusterIsolation20x4");
-      static SG::AuxElement::Decorator<std::vector<int>>   NumTotalClustersPerModule("NumTotalClustersPerModule");
-      static SG::AuxElement::Decorator<std::vector<int>>   NumTotalPixelsPerModule("NumTotalPixelsPerModule");
-      static SG::AuxElement::Decorator<std::vector<float>> ModuleLorentzShift("ModuleLorentzShift");
-      static SG::AuxElement::Decorator<std::vector<std::vector<int>>>   RdoToT("RdoToT");
-      static SG::AuxElement::Decorator<std::vector<std::vector<float>>> RdoCharge("RdoCharge");
-      static SG::AuxElement::Decorator<std::vector<std::vector<int>>>   RdoPhi("RdoPhi");
-      static SG::AuxElement::Decorator<std::vector<std::vector<int>>>   RdoEta("RdoEta");
+      static const SG::AuxElement::Decorator<float> d0err("d0err");
+      static const SG::AuxElement::Decorator<float> z0err("z0err");
+      static const SG::AuxElement::Decorator<std::vector<int>>   HoleIndex("HoleIndex");
+      static const SG::AuxElement::Decorator<std::vector<int>>   ClusterLayer("ClusterLayer");
+      static const SG::AuxElement::Decorator<std::vector<int>>   ClusterBEC("ClusterBEC");
+      static const SG::AuxElement::Decorator<std::vector<int>>   ClusterModulePhi("ClusterModulePhi");
+      static const SG::AuxElement::Decorator<std::vector<int>>   ClusterModuleEta("ClusterModuleEta");
+      static const SG::AuxElement::Decorator<std::vector<float>> ClusterCharge("ClusterCharge");
+      static const SG::AuxElement::Decorator<std::vector<int>>   ClusterToT("ClusterToT");
+      static const SG::AuxElement::Decorator<std::vector<int>>   ClusterL1A("ClusterL1A");
+      static const SG::AuxElement::Decorator<std::vector<int>>   ClusterIsSplit("ClusterIsSplit");
+      static const SG::AuxElement::Decorator<std::vector<int>>   ClusterSize("ClusterSize");
+      static const SG::AuxElement::Decorator<std::vector<int>>   ClusterSizePhi("ClusterSizePhi");
+      static const SG::AuxElement::Decorator<std::vector<int>>   ClusterSizeZ("ClusterSizeZ");
+      static const SG::AuxElement::Decorator<std::vector<bool>>  ClusterIsEdge("ClusterIsEdge");
+      static const SG::AuxElement::Decorator<std::vector<bool>>  ClusterIsOverflow("ClusterIsOverflow");
+      static const SG::AuxElement::Decorator<std::vector<float>> TrackLocalPhi("TrackLocalPhi");
+      static const SG::AuxElement::Decorator<std::vector<float>> TrackLocalTheta("TrackLocalTheta");
+      static const SG::AuxElement::Decorator<std::vector<float>> TrackLocalX("TrackLocalX");
+      static const SG::AuxElement::Decorator<std::vector<float>> TrackLocalY("TrackLocalY");
+      static const SG::AuxElement::Decorator<std::vector<float>> ClusterLocalX("ClusterLocalX");
+      static const SG::AuxElement::Decorator<std::vector<float>> ClusterLocalY("ClusterLocalY");
+      static const SG::AuxElement::Decorator<std::vector<float>> ClusterGlobalX("ClusterGlobalX");
+      static const SG::AuxElement::Decorator<std::vector<float>> ClusterGlobalY("ClusterGlobalY");
+      static const SG::AuxElement::Decorator<std::vector<float>> ClusterGlobalZ("ClusterGlobalZ");
+      static const SG::AuxElement::Decorator<std::vector<float>> UnbiasedResidualX("UnbiasedResidualX");
+      static const SG::AuxElement::Decorator<std::vector<float>> UnbiasedResidualY("UnbiasedResidualY");
+      static const SG::AuxElement::Decorator<std::vector<int>>   ClusterIsolation10x2("ClusterIsolation10x2");
+      static const SG::AuxElement::Decorator<std::vector<int>>   ClusterIsolation20x4("ClusterIsolation20x4");
+      static const SG::AuxElement::Decorator<std::vector<int>>   NumTotalClustersPerModule("NumTotalClustersPerModule");
+      static const SG::AuxElement::Decorator<std::vector<int>>   NumTotalPixelsPerModule("NumTotalPixelsPerModule");
+      static const SG::AuxElement::Decorator<std::vector<float>> ModuleLorentzShift("ModuleLorentzShift");
+      static const SG::AuxElement::Decorator<std::vector<std::vector<int>>>   RdoToT("RdoToT");
+      static const SG::AuxElement::Decorator<std::vector<std::vector<float>>> RdoCharge("RdoCharge");
+      static const SG::AuxElement::Decorator<std::vector<std::vector<int>>>   RdoPhi("RdoPhi");
+      static const SG::AuxElement::Decorator<std::vector<std::vector<int>>>   RdoEta("RdoEta");
       d0err(*tp)             = (*trk)->definingParametersCovMatrixVec().at(0);
       z0err(*tp)             = (*trk)->definingParametersCovMatrixVec().at(2);
       HoleIndex(*tp)         = std::move(holeIndex);
