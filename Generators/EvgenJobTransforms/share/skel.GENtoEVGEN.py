@@ -213,12 +213,6 @@ def OutputTXTFile():
 ## Main job option include
 ## Only permit one jobConfig argument for evgen: does more than one _ever_ make sense?
 
-if hasattr(runArgs, "inputGeneratorFile") or hasattr(runArgs, "outputTXTFile") or os.path.isfile("events.lhe") :
-    from EvgenProdTools.EvgenProdToolsConf import TestLHE
-    if not hasattr(genSeq, "TestLHE"):
-        genSeq += TestLHE()
-        evgenLog.info("lheFile events.lhe exists in current directory. Will execute TestLHE checks")
-
 if len(runArgs.jobConfig) != 1:
     print "INFO    runArgs.jobConfig = ", runArgs.jobConfig
     evgenLog.error("You must supply one and only one jobConfig file argument")
@@ -591,7 +585,7 @@ def checkPurpleList(relFlavour,cache,generatorName) :
                 return isError
     return isError
 
-## Announce start of JO checkingrelease nimber checking
+## Announce start of JO checking, release number checking
 evgenLog.debug("****************** CHECKING RELEASE IS NOT BLACKLISTED *****************")
 rel = os.popen("echo $AtlasVersion").read()
 rel = rel.strip()
@@ -625,7 +619,15 @@ if hasattr(runArgs, "postExec"):
         evgenLog.info(cmd)
         exec(cmd)
 
-
+##================================================================
+## check if LHE inputs or LHE generators are used, activate TestLHE
+##================================================================
+if ( gens_lhef(evgenConfig.generators) or hasattr(runArgs, "inputGeneratorFile") or hasattr(runArgs, "outputTXTFile") ) :
+    from EvgenProdTools.EvgenProdToolsConf import TestLHE
+    if not hasattr(genSeq, "TestLHE"):
+        genSeq += TestLHE()
+        evgenLog.info("lheFile events.lhe exists in current directory. Will execute TestLHE checks")
+        
 ##==============================================================
 ## Show the algorithm sequences and algs now that config is complete
 ##==============================================================
