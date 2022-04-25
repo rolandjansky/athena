@@ -67,6 +67,11 @@ def setupMenu():
         # LRT
         ChainProp(name='HLT_mu24_LRT_d0medium_L1MU14FCH', groups=DevGroup+SingleMuonGroup),
       
+        # Alternate lrt muon config ATR-25389
+        ChainProp(name='HLT_mu20_LRT_d0loose_L1MU14FCH', groups=DevGroup+SingleMuonGroup),
+        ChainProp(name='HLT_mu20_LRT_d0medium_L1MU14FCH', groups=DevGroup+SingleMuonGroup),
+        ChainProp(name='HLT_mu20_LRT_d0tight_L1MU14FCH', groups=DevGroup+SingleMuonGroup),
+
         # ATR-19452
         ChainProp(name='HLT_2mu4_muonqual_L12MU3V',  groups=DevGroup+MultiMuonGroup),
         ChainProp(name='HLT_2mu6_muonqual_L12MU5VF', groups=DevGroup+MultiMuonGroup),
