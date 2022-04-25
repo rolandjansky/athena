@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -27,16 +27,21 @@ namespace CaloConstitHelpers {
   /// Extract cluster moments when JetConstituents are CaloCluster
   struct CaloClusterExtractor : public CaloConstitExtractor {
     virtual ~CaloClusterExtractor(){}
-    virtual bool valid(JetConstitIterator & it ) {return (dynamic_cast<const xAOD::CaloCluster*>(it->rawConstituent())!=0);}
+    virtual bool valid(JetConstitIterator & it ) const override {
+      return (dynamic_cast<const xAOD::CaloCluster*>(it->rawConstituent())!=0);
+    }
 
-    virtual double moment(JetConstitIterator & it, xAOD::CaloCluster::MomentType momentType){
+    virtual double moment(JetConstitIterator & it, xAOD::CaloCluster::MomentType momentType) const override {
       double m = 0;
       static_cast<const xAOD::CaloCluster*>(it->rawConstituent())->retrieveMoment(momentType,m) ;
       return m;
     }
-    virtual double time(JetConstitIterator & it){return static_cast<const xAOD::CaloCluster*>(it->rawConstituent())->time(); }        
 
-    virtual double energyHEC(JetConstitIterator & it){
+    virtual double time(JetConstitIterator & it) const override {
+      return static_cast<const xAOD::CaloCluster*>(it->rawConstituent())->time();
+    }
+
+    virtual double energyHEC(JetConstitIterator & it) const override {
       const xAOD::CaloCluster* cl = static_cast<const xAOD::CaloCluster*>(it->rawConstituent());
       return cl->eSample( CaloSampling::HEC0) + cl->eSample( CaloSampling::HEC1) + 
         cl->eSample( CaloSampling::HEC2) + cl->eSample( CaloSampling::HEC3);
@@ -50,27 +55,27 @@ namespace CaloConstitHelpers {
   /// Extract cluster moments when JetConstituents are PFO particles.
   struct PFOExtractor : public CaloConstitExtractor {
     virtual ~PFOExtractor(){}
-    virtual bool valid(JetConstitIterator & it ) {
+    virtual bool valid(JetConstitIterator & it ) const override {
       const xAOD::PFO* pfo = dynamic_cast<const xAOD::PFO*>(it->rawConstituent());
       if (pfo!=0) return (!pfo->isCharged());
       return false;
     }
 
-    virtual double moment(JetConstitIterator & it , xAOD::CaloCluster::MomentType momentType){
+    virtual double moment(JetConstitIterator & it , xAOD::CaloCluster::MomentType momentType) const override {
       float m=0.;
       const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>(it->rawConstituent()) ;
       pfo->getClusterMoment(m, momentType );
       return m;      
     }
 
-    virtual double time(JetConstitIterator & it){
+    virtual double time(JetConstitIterator & it) const override {
       float t=0.;
       const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>(it->rawConstituent()) ;
       pfo->attribute( xAOD::PFODetails::eflowRec_TIMING, t);
       return t;
     }        
 
-    virtual double energyHEC(JetConstitIterator & it ){
+    virtual double energyHEC(JetConstitIterator & it ) const override {
       float m=0.;
       const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>(it->rawConstituent()) ;
       pfo->attribute( xAOD::PFODetails::eflowRec_LAYERENERGY_HEC, m);
@@ -85,26 +90,26 @@ namespace CaloConstitHelpers {
   /// Extract cluster moments when JetConstituents are FlowElements.
   struct FlowElementExtractor : public CaloConstitExtractor {
     virtual ~FlowElementExtractor(){}
-    virtual bool valid(JetConstitIterator & it ) {
+    virtual bool valid(JetConstitIterator & it ) const override {
       const xAOD::FlowElement* fe = dynamic_cast<const xAOD::FlowElement*>(it->rawConstituent());
       if (fe != nullptr) return (!fe->isCharged());
       return false;
     }
 
-    virtual double moment(JetConstitIterator & it , xAOD::CaloCluster::MomentType momentType){
+    virtual double moment(JetConstitIterator & it , xAOD::CaloCluster::MomentType momentType) const override {
       float m=0.;
       const xAOD::FlowElement* fe = static_cast<const xAOD::FlowElement*>(it->rawConstituent());
       FEHelpers::getClusterMoment(*fe, momentType, m);
       return m;      
     }
 
-    virtual double time(JetConstitIterator & it){
+    virtual double time(JetConstitIterator & it) const override {
       const xAOD::FlowElement* fe = static_cast<const xAOD::FlowElement*>(it->rawConstituent());
       const static SG::AuxElement::ConstAccessor<float> accTiming("TIMING");
       return accTiming(*fe);
     }        
 
-    virtual double energyHEC(JetConstitIterator & it ){
+    virtual double energyHEC(JetConstitIterator & it ) const override {
       const xAOD::FlowElement* fe = static_cast<const xAOD::FlowElement*>(it->rawConstituent());
       // Add up the four individual HEC layers
       const static SG::AuxElement::ConstAccessor<float> accHEC0("LAYERENERGY_HEC0");
@@ -119,11 +124,11 @@ namespace CaloConstitHelpers {
 
   /// returns a pointer to a CaloConstitExtractor for a given jet. Do not delete the pointer !
   /// WARNING : not entirely safe. Assumes that all jet constituents have the same type as 1st constit.
-  CaloConstitExtractor* extractorForJet(const xAOD::Jet* jet){
-    static CaloConstitExtractor nullEx;
-    static CaloClusterExtractor clusteEx;
-    static PFOExtractor pfoEx;
-    static FlowElementExtractor feEx;
+  const CaloConstitExtractor* extractorForJet(const xAOD::Jet* jet){
+    static const CaloConstitExtractor nullEx;
+    static const CaloClusterExtractor clusteEx;
+    static const PFOExtractor pfoEx;
+    static const FlowElementExtractor feEx;
 
     if(jet->numConstituents() == 0 ) return &nullEx;    
 
@@ -225,7 +230,7 @@ namespace jet {
     }
    
     // retrieve the cluster moment extractor for this jet.
-    CaloConstitHelpers::CaloConstitExtractor * extractor = CaloConstitHelpers::extractorForJet(jet);
+    const CaloConstitHelpers::CaloConstitExtractor * extractor = CaloConstitHelpers::extractorForJet(jet);
     // assign the extractor to the calculators :
     for( JetCaloCalculator* calc : clonedCalc) calc->setExtractor(extractor);
 
