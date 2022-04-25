@@ -105,7 +105,7 @@ private:
   /// Flag to determine whether Rivet init has already happened (in execute())
   bool m_init;
 
-  ///Skip variation weights and only run nominal
+  /// Skip variation weights and only run nominal
   bool m_skipweights;
 
   /// String of weight names (or regex) to select multiweights
@@ -113,6 +113,9 @@ private:
 
   /// String of weight names (or regex) to veto multiweights
   std::string m_unmatchWeights;
+
+  /// String to specify non-standard nominal weight
+  std::string m_nominalWeightName;
 
   ///Weight cap to set allowed maximum for weights 
   double m_weightcap;
