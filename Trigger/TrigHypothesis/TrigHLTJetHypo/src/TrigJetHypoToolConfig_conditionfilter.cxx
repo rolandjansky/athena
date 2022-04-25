@@ -18,7 +18,7 @@ TrigJetHypoToolConfig_conditionfilter::~TrigJetHypoToolConfig_conditionfilter(){
 }
 
 StatusCode TrigJetHypoToolConfig_conditionfilter::initialize() {
-  ATH_MSG_INFO("initialising " << name());
+  ATH_MSG_DEBUG("initialising " << name());
   return StatusCode::SUCCESS;
 }
 

@@ -11,6 +11,7 @@ _h_parse = "parse names to dictionary"
 _h_menu = "name of the menu to dump (default Physics_pp_run3_v1)"
 _h_l1check = "do check of L1 items vs L1 menu"
 _h_stream = "filter by stream"
+_h_dump_dicts = "dump dicts to json"
 
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 import sys
@@ -46,6 +47,8 @@ def get_args():
                         help=_h_l1check)
     parser.add_argument('-s', '--stream', const='Main', nargs='?',
                         help=_h_stream)
+    parser.add_argument('-d', '--dump-dicts', action='store_true',
+                        help=_h_dump_dicts)
     return parser.parse_args()
 
 def run():
@@ -62,8 +65,8 @@ def run():
     menumodule = importlib.import_module(f'TriggerMenuMT.HLT.Menu.{menu_name}')
     menu = menumodule.setupMenu()
 
-    # Can't do L1 check without parsing
-    if args.check_l1:
+    # Can't do these without parsing
+    if args.check_l1 or args.dump_dicts:
         args.parse_names = True
 
     # filter chains
@@ -92,6 +95,8 @@ def run():
                     missingl1.add(chain)
             if missingl1:
                 sys.exit(1)
+        if args.dump_dicts:
+            dump_chain_dicts(chain_to_dict,args.menu)
 
 def chain_iter(menu, filt=lambda x: True):
     for group, chains in menu.items():
@@ -149,6 +154,14 @@ def get_chain_dicts(chains):
     sys.stdout.write(
         f'Passed: {len(passed)}, Known failures: {len(known_failure)}\n')
     return chain_to_dict, new_failure
+
+def dump_chain_dicts(chain_to_dict,menu):
+    import json
+    fname = f'dictdump_{menu}.json'
+    sys.stdout.write(f'Dumping chain dicts to file "{fname}"')
+    fdict = open(fname,'w')
+    json.dump(chain_to_dict,fdict,indent=2)
+    fdict.close()
 
 if __name__ == '__main__':
     run()
