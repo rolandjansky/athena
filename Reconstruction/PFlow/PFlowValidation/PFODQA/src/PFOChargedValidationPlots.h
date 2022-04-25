@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PFOCHARGEDVALIDATIONPLOTS_H
@@ -19,7 +19,7 @@ class PFOChargedValidationPlots : public PlotBase {
  public:
 
   /** Standard Constructor */
-  PFOChargedValidationPlots(PlotBase* pParent, std::string sDir, std::string sFEContainerName);
+  PFOChargedValidationPlots(PlotBase* pParent, const std::string& sDir, const std::string& sFEContainerName);
 
   /** fill the histograms up */  
   void fill(const xAOD::FlowElement& theFE, const xAOD::Vertex* theVertex, const xAOD::EventInfo& eventInfo);
