@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 """Functionality core of the Generate_tf transform"""
 
@@ -162,11 +162,6 @@ if hasattr(runArgs,"inputGeneratorFile") and ',' not in runArgs.inputGeneratorFi
 #in case of multiplu inputs, you will have to check all of them, so
 if hasattr(runArgs,"inputGeneratorFile") and ',' in runArgs.inputGeneratorFile:
     multiInput=runArgs.inputGeneratorFile.count(',')+1
-
-if hasattr(runArgs, "outputTXTFile") or hasattr(runArgs, "inputGeneratorFile") or os.path.isfile("events.lhe"):
-    from EvgenProdTools.EvgenProdToolsConf import TestLHE
-    if not hasattr(genSeq, "TestLHE"):
-        genSeq += TestLHE()
 
 # Main job option include
 # Only permit one jobConfig argument for evgen: does more than one _ever_ make sense?
@@ -568,6 +563,15 @@ if hasattr(runArgs, "postExec"):
         evgenLog.info(cmd)
         exec(cmd)
         
+##================================================================
+## check if LHE inputs or LHE generators are used, activate TestLHE
+##================================================================
+if ( gens_lhef(evgenConfig.generators) or hasattr(runArgs, "inputGeneratorFile") or hasattr(runArgs, "outputTXTFile") ) :
+    from EvgenProdTools.EvgenProdToolsConf import TestLHE
+    if not hasattr(genSeq, "TestLHE"):
+        genSeq += TestLHE()
+        evgenLog.info("lheFile events.lhe exists in current directory. Will execute TestLHE checks")
+
 ##==============================================================
 ## Show the algorithm sequences and algs now that config is complete
 ##==============================================================
