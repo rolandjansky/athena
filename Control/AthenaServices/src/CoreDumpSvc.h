@@ -102,7 +102,7 @@ private:
   
   ///@{ Properties
 
-  Gaudi::Property<std::vector<int>> m_signals{this, "Signals", {SIGSEGV,SIGBUS,SIGILL,SIGFPE}, 
+  Gaudi::Property<std::vector<int>> m_signals{this, "Signals", {SIGSEGV,SIGBUS,SIGILL,SIGFPE,SIGALRM},
       "List of signals to catch"};
 
   Gaudi::Property<bool> m_callOldHandler{this, "CallOldHandler", true,
