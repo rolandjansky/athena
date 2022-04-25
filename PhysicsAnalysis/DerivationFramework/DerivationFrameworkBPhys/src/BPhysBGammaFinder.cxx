@@ -197,13 +197,13 @@ StatusCode BPhysBGammaFinder::addBranches() const {
           trackPair.push_back(trackParticle2);
 
           // Do the vertex fit
-          xAOD::Vertex* convVertexCandidate = m_vertexFitter->fit(trackPair, startingPoint);
+          std::unique_ptr<xAOD::Vertex> convVertexCandidate( m_vertexFitter->fit(trackPair, startingPoint) );
 
           // Check for successful fit
           if (convVertexCandidate) {
             if (convVertexCandidate->chiSquared() / convVertexCandidate->numberDoF() > m_Chi2Cut) continue;
 
-            xAOD::BPhysHelper Photon(convVertexCandidate);
+            xAOD::BPhysHelper Photon(convVertexCandidate.get());
             // set link to the parent Bc+ vertex
             Photon.setPrecedingVertices(precedingVertices, BVtxContainer);
 
@@ -224,11 +224,11 @@ StatusCode BPhysBGammaFinder::addBranches() const {
             nConv_Selected++;
 
             //Get photon momentum 3-vector
-            Amg::Vector3D momentum = m_v0Tools->V0Momentum(convVertexCandidate);
+            Amg::Vector3D momentum = m_v0Tools->V0Momentum(convVertexCandidate.get());
 
             TLorentzVector photon, electron1, electron2, ph;
-            electron1.SetVectM( trackMomentum( convVertexCandidate, 0 ), Trk::electron );
-            electron2.SetVectM( trackMomentum( convVertexCandidate, 1 ), Trk::electron );
+            electron1.SetVectM( trackMomentum( convVertexCandidate.get(), 0 ), Trk::electron );
+            electron2.SetVectM( trackMomentum( convVertexCandidate.get(), 1 ), Trk::electron );
             photon = electron1 + electron2;
             ph.SetXYZM(momentum.x(), momentum.y(), momentum.z(), 0.);
 
@@ -247,14 +247,14 @@ StatusCode BPhysBGammaFinder::addBranches() const {
             const double deltaQ = (m_B + photon).M() - Bc.mass() - 2 * Trk::electron;
             const double mass = photon.M();
 
-            RefTrackPx.push_back(trackMomentum(convVertexCandidate, 0).Px());
-            RefTrackPx.push_back(trackMomentum(convVertexCandidate, 1).Px());
+            RefTrackPx.push_back(trackMomentum(convVertexCandidate.get(), 0).Px());
+            RefTrackPx.push_back(trackMomentum(convVertexCandidate.get(), 1).Px());
 
-            RefTrackPy.push_back(trackMomentum(convVertexCandidate, 0).Py());
-            RefTrackPy.push_back(trackMomentum(convVertexCandidate, 1).Py());
+            RefTrackPy.push_back(trackMomentum(convVertexCandidate.get(), 0).Py());
+            RefTrackPy.push_back(trackMomentum(convVertexCandidate.get(), 1).Py());
 
-            RefTrackPz.push_back(trackMomentum(convVertexCandidate, 0).Pz());
-            RefTrackPz.push_back(trackMomentum(convVertexCandidate, 1).Pz());
+            RefTrackPz.push_back(trackMomentum(convVertexCandidate.get(), 0).Pz());
+            RefTrackPz.push_back(trackMomentum(convVertexCandidate.get(), 1).Pz());
 
             for (size_t i = 0; i < B_Px.size(); i++) {
               RefTrackPx.push_back(B_Px.at(i));
@@ -305,11 +305,11 @@ StatusCode BPhysBGammaFinder::addBranches() const {
 
             convVertexCandidate->auxdata<Char_t>("passed_Gamma") = true; // Used in event skimming
 
-            conversionContainer->push_back( convVertexCandidate );
+            conversionContainer->push_back( convVertexCandidate.release() );
 
             // add cross-link to the original Bc+ vertex
             VertexLink BGammaLink;
-            BGammaLink.setElement(convVertexCandidate);
+            BGammaLink.setElement(conversionContainer->back());
             BGammaLink.setStorableObject(*conversionContainer);
             BGammaLinks(*vertex).push_back(std::move(BGammaLink));
           }
