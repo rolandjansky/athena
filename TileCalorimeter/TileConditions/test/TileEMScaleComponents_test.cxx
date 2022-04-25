@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-, 20212021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-, 20212021,  CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -10,7 +10,7 @@
 #include "TileConditions/TileEMScale.h"
 #include "src/TileEMScaleCondAlg.h"
 #include "TileConditions/TileCondToolEmscale.h"
-#include "TileCablingService_common_test.cxx"
+#include "TileCablingService_common_test.h"
 
 #include "CaloIdentifier/CaloLVL1_ID.h"
 
