@@ -124,6 +124,12 @@ StatusCode InDetToXAODClusterConversion::execute(const EventContext& ctx) const 
             pixelCl->setOmegas(omegaX, omegaY);
             pixelCl->setIsSplit(isSplit);
             pixelCl->setSplitProbabilities(splitProbability1, splitProbability2);
+
+            // Create auxiliary branches accessors
+            const SG::AuxElement::Accessor< ElementLink< InDet::PixelClusterCollection > > pixelLinkAcc("pixelClusterLink");
+            ElementLink<InDet::PixelClusterCollection> pixelLink(theCluster, *clusterCollection);
+            pixelLinkAcc( *pixelCl ) = pixelLink;
+
         }
     }
 
@@ -195,6 +201,11 @@ StatusCode InDetToXAODClusterConversion::execute(const EventContext& ctx) const 
             stripCl->globalPosition() = globalPosition;
             stripCl->setChannelsInPhi(width.colRow()[0]);
             stripCl->setHitsInThirdTimeBin(theCluster->hitsInThirdTimeBin());
+
+            // Create auxiliary branches accessors
+            const SG::AuxElement::Accessor< ElementLink< InDet::SCT_ClusterCollection > > stripLinkAcc("sctClusterLink");
+            ElementLink<InDet::SCT_ClusterCollection> stripLink(theCluster, *clusterCollection);
+            stripLinkAcc( *stripCl ) = stripLink;
         }
     }
 
