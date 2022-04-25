@@ -113,7 +113,7 @@ if rec.doJetMissingETTag() and DetFlags.Calo_on():
     try:
         from JetRec.JetRecFlags import jetFlags
         if jetFlags.Enabled():
-            include( "JetRec/JetRec_jobOptionsNewConfig.py" )
+            include( "JetRec/JetRec_jobOptions.py" )
             jetOK=jetFlags.Enabled()
     except Exception:
         treatException("Could not set up jet reconstruction")
