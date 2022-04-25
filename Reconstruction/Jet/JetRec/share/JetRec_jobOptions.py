@@ -1,122 +1,72 @@
-# JetRec_jobOptions.py
-#
-# David Adams
-# February 2014
-#
-# RecExCommon job options for running jet reconstruction.
-#
-# Run with
-# > athena.py test_RunJetRec.py
-#
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-# Import the jet tool manager.
-from JetRec.JetRecStandard import jtm,jetlog
-myname = "JetRec_jobOptions.py: "
-jetlog.info( myname + "Begin." )
-from JetRec.JetRecFlags import jetFlags, JetContentDetail
-# jetFlags.separateJetAlgs.set_Value(True)
+# jobOption fragment to schedule jetbuilding in a runII config style standard reconstruction,
+# BUT using the new runIII jet config
+
+
+from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
+from JetRecConfig.StandardSmallRJets import AntiKt4EMPFlow, AntiKt4LCTopo, AntiKt4EMTopo, AntiKt4Truth
+from JetRecConfig.StandardLargeRJets import AntiKt10LCTopo_noVR
+from JetRecConfig.JetRecConfig import getJetAlgs, reOrderAlgs
+
+from JetRecConfig.StandardJetConstits import stdConstitDic
+from JetRecConfig.JetConfigFlags import jetInternalFlags
+
+# We're in Reco job : propagate this info to the runIII jet config
+jetInternalFlags.isRecoJob = True
+
+
+
+# the Standard list of jets to run :
+jetdefs = [AntiKt4EMTopo, AntiKt4EMPFlow, AntiKt4LCTopo, AntiKt4Truth, AntiKt10LCTopo_noVR]
+
+from JetRec.JetRecFlags import JetContentDetail
+if jetFlags.detailLevel()==JetContentDetail.Trigger:
+    from JetRecConfig.StandardLargeRJets import AntiKt10LCTopoTrimmed_trigger
+    jetdefs += [AntiKt10LCTopoTrimmed_trigger]
+
+# we'll remember the EventDensity collections we create.
+evtDensities = []
 
 #--------------------------------------------------------------
-# Define the finders and groomers.
-# Each line configures a finder or groomer and its associated jetrec tool.
-# The first argument is the name of the output collection and the jetrec tool.
-# The fifth argument is the list of modifiers.
-# Non-zero ghostArea enables calculation of active area.
+# Create the jet algs from the jet definitions
 #--------------------------------------------------------------
 
-calibopt = "arj"
-if not jetFlags.useVertices():
-  calibopt = "aj"
-  jetlog.info(myname + "No vertices -- switch calibopt to " + calibopt)
+for jd in jetdefs:
+    algs, jetdef_i = getJetAlgs(ConfigFlags, jd, True)
+    algs = reOrderAlgs( [a for a in algs if a is not None])
+    for a in algs:
+        topSequence += conf2toConfigurable(a)
+        if "EventDensityAthAlg" in a.getType():
+            evtDensities.append( str(a.EventDensityTool.OutputContainer) )
 
-ptminFilter_topo = 15000
-ptminFilter_lctopo = 15000
-ptminFilter_pFlow = 10000
-ptmin_lctopo = 5000
-if not jetFlags.useCalibJetThreshold:
-  ptminFilter_topo = 1
-  ptminFilter_lctopo = 1
-  ptminFilter_pFlow = 1
-  jetlog.info(myname + "Switching off the jet pT threshold applied at the calibrated scale")
-#Thresholds for tau reconstruction in r22
-if not jetFlags.useCalibThresholdsLCTopo:
-  ptminFilter_lctopo = 1
-  ptmin_lctopo = 5000
-  jetlog.info(myname + "Switching off the jet pT threshold applied at the calibrated scale specifically for LCTopo jets")
 
-# Finders.
-if jetFlags.detailLevel()==JetContentDetail.Reduced or jetFlags.detailLevel()==JetContentDetail.Trigger:
-  if jetFlags.useTopo():
-    jtm.addJetFinder("AntiKt4EMTopoJets",   "AntiKt", 0.4,   "emtopo_reduced", "emtopo_ungroomed", ghostArea=0.01, ptmin= 5000, ptminFilter=ptminFilter_topo, calibOpt=calibopt)
-    jtm.addJetFinder("AntiKt4LCTopoJets",   "AntiKt", 0.4,   "lctopo_reduced", "lctopo_ungroomed", ghostArea=0.01, ptmin= ptmin_lctopo, ptminFilter=ptminFilter_lctopo, calibOpt=calibopt)
-    jtm.addJetFinder("AntiKt10LCTopoJets",  "AntiKt", 1.0,   "lctopo_reduced", "lctopo_ungroomed", ghostArea=0.01, ptmin= 40000, ptminFilter=50000, calibOpt="none")
-  if jetFlags.usePFlow():
-    jtm.addJetFinder("AntiKt4EMPFlowJets",  "AntiKt", 0.4,   "empflow_reduced", "pflow_ungroomed", ghostArea=0.01, ptmin= 5000, ptminFilter= ptminFilter_pFlow, calibOpt=calibopt+":pflow")
-  if jetFlags.useTruth():
-    jtm.addJetFinder("AntiKt4TruthJets",    "AntiKt", 0.4,    "truth", ptmin= 5000)
-elif jetFlags.detailLevel()>=JetContentDetail.Full:
-  if jetFlags.useTruth():
-    jtm.addJetFinder("AntiKt4TruthJets",    "AntiKt", 0.4,    "truth", ptmin= 5000)
-    jtm.addJetFinder("AntiKt4TruthWZJets",  "AntiKt", 0.4,  "truthwz", ptmin= 5000)
-    jtm.addJetFinder("AntiKt10TruthJets",   "AntiKt", 1.0,    "truth", ptmin=40000)
-    jtm.addJetFinder("AntiKt10TruthWZJets", "AntiKt", 1.0,  "truthwz", ptmin=40000)
-  if jetFlags.useTracks():
-    jtm.addJetFinder("AntiKt2PV0TrackJets", "AntiKt", 0.2, "pv0track", ptmin= 2000)
-    jtm.addJetFinder("AntiKt4PV0TrackJets", "AntiKt", 0.4, "pv0track", ptmin= 2000)
-  if jetFlags.useTopo():
-    jtm.addJetFinder("AntiKt4EMTopoJets",   "AntiKt", 0.4,   "emtopo", "emtopo_ungroomed", ghostArea=0.01, ptmin= 5000, ptminFilter=ptminFilter_topo, calibOpt=calibopt)
-    jtm.addJetFinder("AntiKt4LCTopoJets",   "AntiKt", 0.4,   "lctopo", "lctopo_ungroomed", ghostArea=0.01, ptmin=ptmin_lctopo, ptminFilter=ptminFilter_lctopo, calibOpt=calibopt)
-    jtm.addJetFinder("AntiKt10LCTopoJets",  "AntiKt", 1.0,   "lctopo", "lctopo_ungroomed", ghostArea=0.01, ptmin= 40000, ptminFilter=50000, calibOpt="none")
-  if jetFlags.usePFlow():
-    jtm.addJetFinder("AntiKt4EMPFlowJets",  "AntiKt", 0.4,   "empflow", "pflow_ungroomed", ghostArea=0.01, ptmin= 5000, ptminFilter=ptminFilter_pFlow, calibOpt=calibopt+":pflow")
-if jetFlags.detailLevel()==JetContentDetail.Validation:
-  jtm.addJetTrimmer( "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-                     rclus=0.2, ptfrac=0.05, input="AntiKt10LCTopoJets", modifiersin="lctopo_groomed" )
 
 #--------------------------------------------------------------
 # Build output container list.
 #--------------------------------------------------------------
 
-# Both standard and aux container must be listed explicitly.
-# For release 19, the container version must be explicit.
-
-for jetrec in jtm.jetrecs:
-  jetFlags.jetAODList += [ "xAOD::JetContainer#" + jetrec.name() ]
-  if jetrec.Trigger:
-    jetFlags.jetAODList += [ "xAOD::JetTrigAuxContainer#" + jetrec.name() + "Aux." ]
-  else:
-    jetFlags.jetAODList += [ "xAOD::JetAuxContainer#" + jetrec.name() + "Aux." ]
+for jetdef in jetdefs:
+    jetFlags.jetAODList += [ f"xAOD::JetContainer#{jetdef.fullname()}" ]
+    auxprefix = ""
+    # if jetrec.Trigger:
+    #   auxprefix = "Trig"
+    jetFlags.jetAODList += [ f"xAOD::Jet{auxprefix}AuxContainer#{jetdef.fullname()}Aux." ,
+                             f"xAOD::JetAuxContainer#{jetdef.fullname()}Aux.-PseudoJet"]
+    
 
 if jetFlags.useTracks() and jetFlags.useTopo():
     jetFlags.jetAODList += [ "xAOD::CaloClusterContainer#EMOriginTopoClusters" ,
                              "xAOD::CaloClusterContainer#LCOriginTopoClusters" ,
                              "xAOD::ShallowAuxContainer#LCOriginTopoClustersAux.",
-                             "xAOD::ShallowAuxContainer#EMOriginTopoClustersAux."]
-    jetFlags.jetAODList += [ "xAOD::FlowElementContainer#CHSChargedParticleFlowObjects",
-                             "xAOD::FlowElementContainer#CHSNeutralParticleFlowObjects",
+                             "xAOD::ShallowAuxContainer#EMOriginTopoClustersAux."] 
+    jetFlags.jetAODList += [ "xAOD::PFOContainer#CHSChargedParticleFlowObjects",
+                             "xAOD::PFOContainer#CHSNeutralParticleFlowObjects",
                              "xAOD::ShallowAuxContainer#CHSChargedParticleFlowObjectsAux.",
                              "xAOD::ShallowAuxContainer#CHSNeutralParticleFlowObjectsAux."] 
 
-# For testing. These blocks should not be enabled in production.
-if jetFlags.debug > 0:
-  jetlog.info( myname + "Requested output stream: ")
-  jetlog.info( "%s", jetFlags.jetAODList )
-if jetFlags.debug > 1:
-  jetlog.info( myname + "Setting output level to DEBUG for all jetrecs")
-  for jetrec in jtm.jetrecs:
-    jtm.setOutputLevel(jetrec, DEBUG)
-
-#--------------------------------------------------------------
-# Add jet reco to algorithm sequence.
-#--------------------------------------------------------------
-from JetRec.JetAlgorithm import addJetRecoToAlgSequence
-addJetRecoToAlgSequence()
-
-#--------------------------------------------------------------
 # save event shapes set with the JetAlgorithm
-#--------------------------------------------------------------
-for esTool in jtm.allEDTools:
-    jetFlags.jetAODList += [ "xAOD::EventShape#%s" % esTool.OutputContainer,
-                             "xAOD::EventShapeAuxInfo#%sAux." % esTool.OutputContainer ]
+for edname in evtDensities:
+    jetFlags.jetAODList += [ f"xAOD::EventShape#{edname}", 
+                             f"xAOD::EventShapeAuxInfo#{edname}Aux.",]
 
-jetlog.info( myname + "End." )
