@@ -6,9 +6,6 @@ from TrigHLTJetHypo.HelperConfigToolParams import HelperConfigToolParams
 from TrigHLTJetHypo.ConditionDefaults import defaults
 from TrigHLTJetHypo.make_treevec import make_treevec
 
-from TriggerMenuMT.HLT.Menu.SignatureDicts import (
-    JetChainParts_Default,)
-
 from AthenaCommon.Logging import logging
 from AthenaCommon.Constants import DEBUG
 
@@ -129,41 +126,6 @@ def scenario_simple(chain_parts):
     Each list has one entry per chain part"""
 
     assert chain_parts, 'routing error, module %s: no chain parts' % __name__
-
-
-    # Enforce explicit etaRange in chainPartName for each Jet chain part if:
-    # - More than one Jet chain part AND
-    # - At least one Jet chain part does not use default etaRange AND
-    # - At least one Jet chain part use default etaRange
-    # Abort in such a case if chain part using default etaRange does not
-    # have etaRange in chainPartName
-    
-    jetchain_parts = [ cp['signature'] == 'Jet' for cp in chain_parts ]
-    if sum(jetchain_parts) > 1: # more than one Jet chain part
-        useNonDefault         = 0
-        useNonExplicitDefault = 0
-
-        # collect chain part names which do not follow the naming convention
-        chainPartNames2print  = [] 
-        for cp in chain_parts: # loop over chain parts
-            if cp['signature'] != 'Jet':
-                # only enforce explicit etaRange by looking at only Jet
-                # chain parts
-                continue
-
-            # using non-default etaRange
-            if cp['etaRange'] != JetChainParts_Default['etaRange']: 
-                useNonDefault += 1
-            else: # using default etaRange
-                
-                # etaRange for this chain part not present in chain name
-                if cp['etaRange'] not in cp['chainPartName']: 
-                    useNonExplicitDefault += 1
-                    chainPartNames2print.append(cp['chainPartName'])
-        assert not (useNonDefault > 0 and useNonExplicitDefault > 0),\
-        'Default etaRange should be explicit in the following '\
-            'chain part(s): %s' % [n for n in chainPartNames2print]
-
 
     repcondargs = []
     filterparams = []

@@ -19,7 +19,7 @@ TrigJetHypoToolConfig_passthroughfilter::~TrigJetHypoToolConfig_passthroughfilte
 }
 
 StatusCode TrigJetHypoToolConfig_passthroughfilter::initialize() {
-  ATH_MSG_INFO("initialising " << name());
+  ATH_MSG_DEBUG("initialising " << name());
   return StatusCode::SUCCESS;
 }
 

@@ -5,7 +5,7 @@ log = logging.getLogger(__name__)
 
 import re
 
-from .JetRecoCommon import getJetCalibDefaultString, jetChainParts
+from .JetRecoCommon import getJetCalibDefaultString, jetChainParts, etaRangeAbbrev
 from ..Menu.SignatureDicts import JetChainParts_Default
 from TriggerMenuMT.HLT.Config.ControlFlow.HLTCFTools import NoHypoToolCreated
 
@@ -82,11 +82,7 @@ def _preselJetHypoToolFromDict(mainChainDict, doBJetSel=False):
         mult,region,scenario,cut,bwp=cut_dict['mult'],cut_dict['region'],cut_dict['scenario'],cut_dict['cut'], cut_dict['bwp']
 
         if mult=='': mult='1'
-        etarange = {
-            "j":"0eta320", # default
-            "a":"0eta490",
-            "c":"0eta240",
-            "f":"320eta490"}[region]
+        etarange = etaRangeAbbrev[region]
         if scenario == "HT":
             hyposcenario=f'HT{cut}XX{etarange}'
             threshold='0'
