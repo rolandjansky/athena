@@ -60,13 +60,19 @@ class TrigBmuxState: public ::ITrigBphysState {
   };
   std::vector<Muon> muons;
   std::vector<size_t> trigBphysMuonIndices;
-  StatusCode addTriggerObject(xAOD::TrigBphys* triggerObject, size_t muonIndex) {
-    if (!triggerObject) {
-      return StatusCode::FAILURE;
-    }
-    trigBphysCollection().push_back(triggerObject);
+
+  xAOD::TrigBphys* addTriggerObject(size_t muonIndex) {
+    trigBphysCollection().push_back(new xAOD::TrigBphys());
     trigBphysMuonIndices.push_back(muonIndex);
-    return StatusCode::SUCCESS;
+    return trigBphysCollection().back();
+  }
+
+  std::vector<xAOD::TrigBphys*> addTriggerObjects(size_t n, size_t muonIndex) {
+    std::vector<xAOD::TrigBphys*> triggerObjects(n, nullptr);
+    for (size_t i = 0; i < n; i++) {
+      triggerObjects[i] = addTriggerObject(muonIndex);
+    }
+    return triggerObjects;
   }
 };
 
@@ -90,6 +96,7 @@ class TrigBmuxComboHypo: public ::ComboHypo {
 
   enum Decay : size_t {
     kD0,           // D0 -> K- pi+
+    kDstar,        // D*-(-> anti-D0(-> K+ pi-) pi-)
     kDs,           // D_s+ -> K+ K- pi+
     kDplus,        // D+ -> K- pi+ pi+
     kLambdaC       // Lambda_c+ -> p K- pi+
@@ -104,14 +111,27 @@ class TrigBmuxComboHypo: public ::ComboHypo {
       const std::vector<ElementLink<xAOD::TrackParticleContainer>>& trackParticleLinks,
       Decay decay) const;
 
-  xAOD::TrigBphys* makeTriggerObject(
-      const xAOD::Vertex& vertex,
+  std::unique_ptr<Trk::VxCascadeInfo> fitCascade(
+      const EventContext& context,
+      const std::vector<ElementLink<xAOD::TrackParticleContainer>>& trackParticleLinks,
+      Decay decay) const;
+
+  StatusCode fillTriggerObject(
+      xAOD::TrigBphys& triggerObject,
       xAOD::TrigBphys::pType type,
+      const xAOD::Vertex& vertex,
       const std::vector<double>& trkMass) const;
+
+  StatusCode fillTriggerObjects(
+      std::vector<xAOD::TrigBphys*>& triggerObjects,
+      xAOD::TrigBphys::pType type,
+      const Trk::VxCascadeInfo& vxCascadeInfo,
+      const Amg::Vector3D& beamSpotPosition) const;
 
   bool isIdenticalTracks(const xAOD::TrackParticle* lhs, const xAOD::TrackParticle* rhs) const;
   bool isInMassRange(double mass, const std::pair<double, double>& range) const { return (mass > range.first && mass < range.second); }
   double getTrkImpactParameterZ0(const xAOD::TrackParticle& track, const Amg::Vector3D& vertex) const;
+  double Lxy(const Amg::Vector3D& productionVertex, const Amg::Vector3D& decayVertex, const std::vector<TLorentzVector>& momenta) const;
 
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleContainerKey {this,
     "TrackCollectionKey", "InDetTrackParticles", "input TrackParticle container name"};
@@ -123,6 +143,10 @@ class TrigBmuxComboHypo: public ::ComboHypo {
     m_beamSpotKey {this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot"};
 
   // general properties
+  Gaudi::Property<bool> m_makeCascadeFit {this,
+    "MakeCascadeFit", true, "perform cascade fit of the partially reconstructed decays"};
+  Gaudi::Property<float> m_cascadeChi2 {this,
+    "CascadeChi2", 50., "maximum chi2 of the cascade fit"};
   Gaudi::Property<double> m_deltaR {this,
     "DeltaR", 0.01, "minimum deltaR between same-sign tracks (overlap removal)"};
   Gaudi::Property<double> m_trkZ0 {this,
@@ -222,7 +246,7 @@ class TrigBmuxComboHypo: public ::ComboHypo {
 
   TrigCompositeUtils::DecisionIDContainer m_allowedIDs;
 
-  const static std::vector<std::vector<double>> s_trkMass;
+  const static std::vector<std::vector<std::vector<double>>> s_trkMass;
 };
 
 #endif  // TRIG_TrigBmuxComboHypo_H
