@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PFOHistUtils/PFOAlgPropertyPlots.h"
@@ -39,7 +39,7 @@ namespace PFO {
 
  void PFOAlgPropertyPlots::fill(const xAOD::FlowElement& FE, const xAOD::EventInfo& eventInfo){
 
-   static SG::AuxElement::ConstAccessor<int> acc_IsInDenseEnvironment("IsInDenseEnvironment");
+   static const SG::AuxElement::ConstAccessor<int> acc_IsInDenseEnvironment("IsInDenseEnvironment");
    // dump the "isInDenseEnvironment
    if(acc_IsInDenseEnvironment.isAvailable(FE)){
      int isInDenseEnvironment=acc_IsInDenseEnvironment(FE);
@@ -54,7 +54,7 @@ namespace PFO {
      else if (fabs(FE.eta()) < 2) m_FE_isInDenseEnvironment_etaBinB->Fill(-1.0,eventInfo.beamSpotWeight());
      else m_FE_isInDenseEnvironment_etaBinC->Fill(-1.0,eventInfo.beamSpotWeight());     
    }
-   static SG::AuxElement::ConstAccessor<float> acc_FE_tracksExpectedEnergyDeposit("TracksExpectedEnergyDeposit");
+   static const SG::AuxElement::ConstAccessor<float> acc_FE_tracksExpectedEnergyDeposit("TracksExpectedEnergyDeposit");
    
    if(acc_FE_tracksExpectedEnergyDeposit.isAvailable(FE)){
      float expectedEnergy=acc_FE_tracksExpectedEnergyDeposit(FE);
