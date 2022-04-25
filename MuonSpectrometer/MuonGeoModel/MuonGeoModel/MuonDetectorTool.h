@@ -33,53 +33,55 @@ class MuonDetectorTool final : public GeoModelTool {
     virtual StatusCode clear() override final;
 
   private:
-    std::string m_layout;
-    int m_accessCondDb;
-    int m_asciiCondData;
+
+    Gaudi::Property<std::string> m_layout{this, "LayoutName", "R.08" };
+    Gaudi::Property<bool> m_accessCondDb{this,"UseConditionDb", true};
+    Gaudi::Property<bool> m_asciiCondData{this,"UseAsciiConditionData", false};
     Gaudi::Property<int> m_amdcDb{this, "BuildFromAmdcDb", 0, "Build the geometry from AMDB file (expert only!)"};
-    int m_includeCutouts;
-    int m_includeCutoutsBog;
-    int m_includeCtbBis;
-    int m_fillCache_initTime;
-    bool m_dumpMemoryBreakDown;
-    int m_enableFineClashFixing;
-    bool m_hasCSC;
-    bool m_hasSTgc;
-    bool m_hasMM;
-    double m_testPassivationWidthMM; // temporary to test the effect MM passivation
-    int m_stationSelection;
-    std::vector<std::string> m_selectedStations;
-    std::vector<int> m_selectedStEta;
-    std::vector<int> m_selectedStPhi;
-    int m_controlAlines;
-    bool m_dumpAlines;
-    std::string m_altAsztFile;
-    int m_minimalGeoFlag;
-    bool m_useCscIntAlines;
-    int m_controlCscIntAlines;
-    bool m_dumpCscIntAlines;
-    bool m_useCscIntAlinesFromGM;
-    std::string m_altCscIntAlinesFile;
-    Gaudi::Property<int> m_cachingFlag{this, "CachingFlag", 1, "Turn on/off caching of ReadoutElement surfaces etc. (i.e. for MDTs)"};
+ 
+    Gaudi::Property<bool> m_includeCutouts{this, "IncludeCutouts", false};
+    Gaudi::Property<bool> m_includeCutoutsBog{this, "IncludeCutoutsBog", false };
+    Gaudi::Property<bool> m_includeCtbBis{this, "IncludeCtbBis" , false };
+      
+    Gaudi::Property<bool> m_fillCache_initTime{this, "FillCacheInitTime", false};
+    Gaudi::Property<bool> m_dumpMemoryBreakDown{this, "DumpMemoryBreakDown", false};
+    Gaudi::Property<bool> m_enableFineClashFixing{this, "EnableFineClashFixing", false};
+    Gaudi::Property<bool> m_hasCSC{this,"HasCSC", true};
+    Gaudi::Property<bool> m_hasSTgc{this, "HasSTgc", true};
+    Gaudi::Property<bool> m_hasMM{this, "HasMM", true};
+   
+    /// temporary to test the effect MM passivation
+    Gaudi::Property<double> m_testPassivationWidthMM{this, "passivationWidthMM", 0.}; // temporary to test the effect MM passivation
+  
+    Gaudi::Property<bool> m_stationSelection{this, "StationSelection", false};
+    Gaudi::Property<std::vector<std::string>> m_selectedStations{this, "SelectedStations", {}};
+    Gaudi::Property<std::vector<int>> m_selectedStEta{this,"SelectedStJzz",{}};
+    Gaudi::Property<std::vector<int>> m_selectedStPhi{this,"SelectedStJff",{}};
+    
+   
+    Gaudi::Property<int> m_controlAlines{this, "ControlAlines", 111111, "allowed values are   0 -  111111"};
+    Gaudi::Property<bool> m_dumpAlines{this, "DumpAlines", false};
+    Gaudi::Property<std::string> m_altAsztFile{this, "AlternateASZTFile", "" };
+    Gaudi::Property<int> m_minimalGeoFlag{this, "MinimalGeoFlag", 0};
+
+    Gaudi::Property<bool> m_useCscIntAlines{this, "EnableCscInternalAlignment", false};
+    Gaudi::Property<int> m_controlCscIntAlines{this, "ControlCscInternalAlines", 111111 , "allowed values are 0 - 111111"};
+    Gaudi::Property<bool> m_dumpCscIntAlines{this, "DumpCscInternalAlines", false};
+    Gaudi::Property<bool> m_useCscIntAlinesFromGM{this, "UseIlinesFromGM", true};
+    Gaudi::Property<std::string> m_altCscIntAlinesFile{this, "AlternateCscIntAlignFile", ""};
+    
+    
+    
+    Gaudi::Property<bool> m_cachingFlag{this, "CachingFlag", true, "Turn on/off caching of ReadoutElement surfaces etc. (i.e. for MDTs)"};
     // the following two properties are for local validation, not for production
     Gaudi::Property<std::string> m_NSWABLineAsciiPath{this, "NSWABLineAsciiPath", "", "Pass A/B Lines for NSW from an Ascii file"};
     Gaudi::Property<std::string> m_MMAsBuiltJsonPath{this, "MMAsBuiltJsonPath", "", "Pass AsBuilt Parameters for MM from an external Json file"};
-    int m_enableMdtDeformations;
-    int m_enableMdtAsBuiltParameters;
-    std::string m_altMdtAsBuiltFile;
+    
+    Gaudi::Property<bool> m_enableMdtDeformations{this, "EnableMdtDeformations", true};
+    Gaudi::Property<bool> m_enableMdtAsBuiltParameters{this, "EnableMdtAsBuiltParameters", false};
+    Gaudi::Property<std::string> m_altMdtAsBuiltFile{this, "AlternateAsBuiltParamAlignFile", "" };
 
-    int m_switchOnOff_BUILDINERTMATERIALS;
-    int m_switchOnOff_MINIMALGEO;
-    int m_switchOnOff_BUILDENDCAP;
-    int m_switchOnOff_BUILDCALOSADDLE;
-    int m_switchOnOff_BUILDBARRELTOROID;
-    int m_switchOnOff_BUILDENDCAPTOROID;
-    int m_switchOnOff_BUILDFEET;
-    int m_switchOnOff_BUILDDISKSHIELD;
-    int m_switchOnOff_BUILDTOROIDSHIELD;
-    int m_switchOnOff_BUILDFORWARDSHIELD;
-
-    MuonGM::MuonDetectorManager *m_manager;
+    MuonGM::MuonDetectorManager* m_manager{nullptr};
 };
 
 #endif // GEOMODELEXAMPLES_TOYDETECTORTOOL_H
