@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -410,8 +410,6 @@ bool MCTruthClassifier::fromHadron(const xAOD::TruthParticle* p,
     // not at all clear why and unfortunately there's no documentation in the code
     const int st = parent->status();
     if (st > 2 && st != 10902)  return false;
-    // parental protons are probably beam particles
-    if (parent->pdgId() == 2212)  return false;
     fromTau |= abs(parent->pdgId()) == 15;
     if (isHadron(parent)) {
       if (!hadptr)  hadptr = parent; // assumes linear hadron parentage
