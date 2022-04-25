@@ -60,6 +60,7 @@ def BarrelRD53SimToolCfg(flags, name="BarrelRD53SimTool", **kwargs):
     kwargs.setdefault("PixelModuleData", "ITkPixelModuleData")
     kwargs.setdefault("PixelChargeCalibCondData", "ITkPixelChargeCalibCondData")
     kwargs.setdefault("PixelConditionsSummaryTool", acc.popToolsAndMerge(ITkPixelConditionsSummaryCfg(flags)))
+    kwargs.setdefault("DoTimeWalk", False) #Set this to true to enable Timewalk effects
     RD53SimTool = CompFactory.RD53SimTool
     acc.setPrivateTools(RD53SimTool(name, **kwargs))
     return acc
@@ -76,6 +77,7 @@ def EndcapRD53SimToolCfg(flags, name="EndcapRD53SimTool", **kwargs):
     kwargs.setdefault("PixelModuleData", "ITkPixelModuleData")
     kwargs.setdefault("PixelChargeCalibCondData", "ITkPixelChargeCalibCondData")
     kwargs.setdefault("PixelConditionsSummaryTool", acc.popToolsAndMerge(ITkPixelConditionsSummaryCfg(flags)))
+    kwargs.setdefault("DoTimeWalk", False) #Set this to true to enable Timewalk effects
     RD53SimTool = CompFactory.RD53SimTool
     acc.setPrivateTools(RD53SimTool(name, **kwargs))
     return acc

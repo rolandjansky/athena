@@ -101,6 +101,16 @@ void RD53SimTool::process(SiChargedDiodeCollection& chargedDiodes, PixelRDO_Coll
         bunchSim =
           static_cast<int>(floor((getG4Time((*i_chargedDiode).second.totalCharge()) +
                                   moduleData->getTimeOffset(barrel_ec, layerIndex)) / moduleData->getBunchSpace()));
+	
+	//Timewalk implementation 
+	if(m_doTimeWalk){
+	  if(charge < (threshold + m_overDrive)){
+	    const int timeWalk = 25; // Here it is assumed that the maximum value of timewalk is one bunch crossing (25ns)
+	    bunchSim =
+	      static_cast<int>(floor((getG4Time((*i_chargedDiode).second.totalCharge()) +
+				      moduleData->getTimeOffset(barrel_ec, layerIndex)+ timeWalk) / moduleData->getBunchSpace()));
+	  } 
+	}
       } else {
         bunchSim = CLHEP::RandFlat::shootInt(rndmEngine, moduleData->getNumberOfBCID(barrel_ec, layerIndex));
       }
