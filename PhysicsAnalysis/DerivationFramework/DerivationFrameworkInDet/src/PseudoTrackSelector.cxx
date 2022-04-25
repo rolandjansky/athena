@@ -347,7 +347,7 @@ namespace DerivationFramework {
     if((recoTrackParticleCol && !recoTrackParticleCol->empty())){
       ATH_MSG_DEBUG("Size of reco track particle collection " << recoTrackParticleCol->size());
       int n_saved = 0;
-      static SG::AuxElement::ConstAccessor< float > acc_truthProb("truthMatchProbability");
+      static const SG::AuxElement::ConstAccessor< float > acc_truthProb("truthMatchProbability");
 
       // loop over tracks
       for(const auto *const tp_reco: *recoTrackParticleCol){

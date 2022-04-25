@@ -92,7 +92,7 @@ StatusCode GoodRunsListFilterAlgorithm::execute() {
 
   setFilterPassed(decision);
 
-  static SG::AuxElement::Decorator< char > decEventInfo_passDFGRL("passDFGRL");
+  static const SG::AuxElement::Decorator< char > decEventInfo_passDFGRL("passDFGRL");
   decEventInfo_passDFGRL( *ei ) = decision;
 
   ATH_MSG_VERBOSE("passDFGRL = " << decision);

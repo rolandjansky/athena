@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -37,15 +37,15 @@ namespace DerivationFramework {
     ~SkimmingToolExample();
     
     // Athena algtool's Hooks
-    StatusCode  initialize();
-    StatusCode  finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
     
     /** Check that the current event passes this filter */
     virtual bool eventPassesFilter() const;
     
   private:
-    mutable unsigned int m_ntot;
-    mutable unsigned int m_npass;
+    mutable std::atomic<unsigned int> m_ntot;
+    mutable std::atomic<unsigned int> m_npass;
     std::string m_muonSGKey;
     unsigned int m_nMuons;
     double m_muonPtCut;
