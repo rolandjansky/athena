@@ -4,7 +4,7 @@
  **     @author  mark sutton
  **     @date    Sun  2 Nov 2014 11:10:06 CET 
  **
- **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  **/
 
 
@@ -136,7 +136,7 @@ bool TrigTrackSelector::selectTrack( const Rec::TrackParticle* track ) {
         
     // do the track extraction stuff here....
 
-    static int hpmap[20] = { 0, 1, 2,  7, 8, 9,  3, 4, 5, 6, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 };
+    static const int hpmap[20] = { 0, 1, 2,  7, 8, 9,  3, 4, 5, 6, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 };
 
     if ( track ) { 
 	    
@@ -406,7 +406,7 @@ void TrigTrackSelector::selectTracks( const xAOD::TruthParticleContainer* trutht
     double q = (*trackitr)->charge();
 
     /// fix default (unset) TruthParticle charge
-    static particleType ptype;
+    static const particleType ptype;
     if ( q==-999 ) q = ptype.charge( (*trackitr)->pdgId() );
 
     if (q == 0 || (*trackitr)->status() !=1) continue;
@@ -491,7 +491,7 @@ bool TrigTrackSelector::selectTrack( const xAOD::TruthParticle* track, double x0
     if ( measPer->charge()<0 && pT>0 ) pT *= -1;
     double q = track->charge();
 
-    static particleType ptype;
+    static const particleType ptype;
 
     /// avoid default (unset) TruthParticle charge
     if ( q==-999 ) q = ptype.charge( track->pdgId() );
@@ -651,13 +651,6 @@ TIDA::Track* TrigTrackSelector::makeTrack( const TruthParticle* track, unsigned 
       xp[2] = track->genParticle()->production_vertex()->position().z();
     }
 
-    static bool tfirst = true;
-    if ( tfirst ) {
-      std::cout << "TrigTrackSelector::selectTrack(TruthParticle) beamline " << xp[0] << " " << xp[1] << std::endl;
-      tfirst = false;
-    }
-
-
     // CHANGED BY JK - z0 with respect to (0,0)
     //    double z0 = xp[2];
     double theta = 2*std::atan( exp( (-1)*eta ) );
@@ -711,7 +704,7 @@ TIDA::Track* TrigTrackSelector::makeTrack( const TruthParticle* track, unsigned 
 
     double q = track->charge();
     
-    static particleType ptype;
+    static const particleType ptype;
 
     /// avoid default (unset) TruthParticle charge
     if ( q==-999 ) q = ptype.charge( track->pdgId() );
@@ -831,7 +824,7 @@ bool TrigTrackSelector::selectTrack( const Trk::Track* track ) {
         
     // do the track extraction stuff here....
 
-    static int hpmap[20] = { 0, 1, 2,  7, 8, 9,  3, 4, 5, 6, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 };
+    static const int hpmap[20] = { 0, 1, 2,  7, 8, 9,  3, 4, 5, 6, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 };
     //    std::cout << __FILE__<< " " <<__LINE__<<std::endl;
 
     if ( track ) { 
