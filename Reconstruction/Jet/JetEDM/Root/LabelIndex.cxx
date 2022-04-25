@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // LabelIndex.h
@@ -12,23 +12,6 @@ using jet::LabelIndex;
 typedef std::map<std::string, LabelIndex*> LIMap;
 typedef LabelIndex::Index Index;
 typedef LabelIndex::Label Label;
-
-//**********************************************************************
-
-LabelIndex& LabelIndex::mutable_instance(Label nam) {
-  static LIMap lis;
-  LIMap::iterator ili = lis.find(nam);
-  if ( ili != lis.end() ) return *ili->second;
-  LabelIndex* pli = new LabelIndex(nam);
-  lis[nam] = pli;
-  return *pli;
-}
-  
-//**********************************************************************
-
-const LabelIndex& LabelIndex::instance(Label nam) {
-  return mutable_instance(nam);
-}
 
 //**********************************************************************
 
