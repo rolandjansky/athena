@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # JetToolSupport.py
 #
@@ -398,7 +398,6 @@ class JetToolManager:
       jetrec.JetConsumers = consumers
     self.ptminFilter = ptminSave
     jetrec.Trigger = isTrigger or useTriggerStore
-    jetrec.Timer = jetFlags.timeJetRecTool()
     #jetrec.WarnIfDuplicate = warnIfDuplicate
     #jetrec.Overwrite = overwrite
     self += jetrec
@@ -442,7 +441,6 @@ class JetToolManager:
     jetrec.JetModifiers = self.getModifiers(modifiersin)
     self.autoconfigureModifiers(jetrec.JetModifiers, output)
     jetrec.Trigger = isTrigger or useTriggerStore
-    jetrec.Timer = jetFlags.timeJetRecTool()
     self += jetrec
     if isTrigger:
       self.trigjetrecs += [jetrec]
@@ -477,7 +475,6 @@ class JetToolManager:
     jetrec.JetModifiers = self.getModifiers(modifiersin)
     self.autoconfigureModifiers(jetrec.JetModifiers, output)
     jetrec.Trigger = isTrigger or useTriggerStore
-    jetrec.Timer = jetFlags.timeJetRecTool()
     if pseudojetRetriever in self.tools:
       jetrec.JetPseudojetRetriever = self.tools[pseudojetRetriever]
     else:
@@ -525,7 +522,6 @@ class JetToolManager:
     jetrec.JetModifiers = self.getModifiers(modifiersin)
     self.autoconfigureModifiers(jetrec.JetModifiers, output)
     jetrec.Trigger = isTrigger or useTriggerStore
-    jetrec.Timer = jetFlags.timeJetRecTool()
     self += jetrec
     if isTrigger:
       self.trigjetrecs += [jetrec]
@@ -561,7 +557,6 @@ class JetToolManager:
     jetrec.JetModifiers = self.getModifiers(modifiersin)
     self.autoconfigureModifiers(jetrec.JetModifiers, output)
     jetrec.Trigger = isTrigger or useTriggerStore
-    jetrec.Timer = jetFlags.timeJetRecTool()
     self += jetrec
     if isTrigger:
       self.trigjetrecs += [jetrec]
@@ -598,7 +593,6 @@ class JetToolManager:
     jetrec.JetModifiers = self.getModifiers(modifiersin)
     self.autoconfigureModifiers(jetrec.JetModifiers, output)
     jetrec.Trigger = isTrigger or useTriggerStore
-    jetrec.Timer = jetFlags.timeJetRecTool()
     self += jetrec
     if isTrigger:
       self.trigjetrecs += [jetrec]
@@ -636,7 +630,6 @@ class JetToolManager:
     jetrec.JetModifiers = self.getModifiers(modifiersin)
     self.autoconfigureModifiers(jetrec.JetModifiers, output)
     jetrec.Trigger = isTrigger or useTriggerStore
-    jetrec.Timer = jetFlags.timeJetRecTool()
     self += jetrec
     if isTrigger:
       self.trigjetrecs += [jetrec]
@@ -694,7 +687,6 @@ class JetToolManager:
     if consumers is not None:
       jetrec.JetConsumers = consumers
     jetrec.Trigger = isTrigger or useTriggerStore
-    jetrec.Timer = jetFlags.timeJetRecTool()
     self += jetrec
     if isTrigger:
       self.trigjetrecs += [jetrec]
@@ -725,7 +717,6 @@ class JetToolManager:
     self.autoconfigureModifiers(jetrec.JetModifiers, output)
     self.ptminFilter = ptminSave
     jetrec.Trigger = isTrigger or useTriggerStore
-    jetrec.Timer = jetFlags.timeJetRecTool()
 ###    jetrec.ShallowCopy = shallow
     self += jetrec
     self.jetrecs += [jetrec]

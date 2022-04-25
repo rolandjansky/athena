@@ -21,7 +21,6 @@
 /// Top-level tool for jet reconstruction.
 /// Properties:
 ///   Tools - list of tools to run
-///   Timer - Timing flag 1 for top-level, 2 for each called tool
 
 class JetToolRunner
 : public asg::AsgTool,
