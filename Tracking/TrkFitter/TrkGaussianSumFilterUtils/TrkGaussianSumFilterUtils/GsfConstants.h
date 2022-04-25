@@ -36,7 +36,7 @@ namespace GSFConstants {
  * error (GSF code throws an exception).
  *
  * Furthermore, the  number of coefficients is also
- * constrained in configuration.
+ * fixed and checked during configuration.
  *
  * So here is a list of these constants all in one
  * place.
@@ -48,7 +48,7 @@ constexpr int8_t maxNumberofStateComponents = 12;
 /// Maximum number of Gaussian components for the
 /// material effects description
 constexpr int8_t maxNumberofMatComponents = 6;
-/// Max number of coefficients for the polynomials,
+/// Number of coefficients for the polynomials,
 /// parametrizing the mean,variace, weights of the
 /// Gaussian components describing the material effects.
 constexpr int8_t polynomialCoefficients = 6;
