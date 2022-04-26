@@ -700,7 +700,7 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
 //         tmpPointer->setWeight(1.);
 //         tmpVTAV->push_back( tmpPointer );
 //--xAOD::Vertex--- save VxTrackAtVertex directly 
-         tmpVTAV->push_back( VxTrackAtVertex( m_ich[m_vertexDefinition[iv][it]], measPerigee ) );  
+         tmpVTAV->push_back( VxTrackAtVertex( particleChi2[m_vertexDefinition[iv][it]], measPerigee ) );
        }
 //-------------------------------------------------------------- Trk::VxCandidate creation
 //       Trk::VxCandidate* tmpVx;
