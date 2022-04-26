@@ -6,11 +6,12 @@ atlas_subdir( AthenaIPCTools )
 # External dependencies:
 find_package( Boost )
 find_package( yampl )
+find_package( HDF5 COMPONENTS CXX )
 
 # Component(s) in the package:
 atlas_add_component( AthenaIPCTools 
 		     src/*.cxx 
 		     src/components/*.cxx
-   		     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${YAMPL_INCLUDE_DIRS} 
-		     LINK_LIBRARIES ${Boost_LIBRARIES} ${YAMPL_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel )
+		     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${YAMPL_INCLUDE_DIRS} ${HDF5_CXX_INCLUDE_DIRS}
+		     LINK_LIBRARIES ${Boost_LIBRARIES} ${YAMPL_LIBRARIES} ${HDF5_LIBRARIES} ${HDF5_CXX_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel StorageSvc )
 
