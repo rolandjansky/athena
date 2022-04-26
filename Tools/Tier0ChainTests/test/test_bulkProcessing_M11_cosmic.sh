@@ -10,7 +10,7 @@ export TNS_ADMIN=/cvmfs/atlas.cern.ch/repo/sw/database/DBRelease/current/oracle-
 
 
 Reco_tf.py  \
---AMI f1204  \
+--AMI f1206  \
 --inputBSFile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/TCT_Run3/data22_cos.00412343.physics_Main.daq.RAW._lb0840._SFO-13._0001.data" \
 --outputAODFile="AOD.root" \
 --outputESDFile="ESD.pool.root" \
