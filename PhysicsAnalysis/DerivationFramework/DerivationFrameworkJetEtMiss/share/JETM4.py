@@ -5,10 +5,8 @@
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob, buildFileName
 from DerivationFrameworkJetEtMiss.JetCommon import OutputJets, addJetOutputs
-
-#
 from DerivationFrameworkJetEtMiss.METCommon import addMETTruthMap, scheduleMETAssocAlg, addMETOutputs
-#
+
 if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
@@ -98,10 +96,12 @@ thinningTools.append(JETM4TPThinningTool)
 
 # TrackParticles associated with taus
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
-JETM4TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name            = "JETM4TauTPThinningTool",
-                                                                        StreamName      = streamName,
-                                                                        TauKey          = "TauJets",
-                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
+JETM4TauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name                   = "JETM4TauTPThinningTool",
+                                                                       StreamName             = streamName,
+                                                                       TauKey                 = "TauJets",
+                                                                       InDetTrackParticlesKey = "InDetTrackParticles",
+                                                                       DoTauTracksThinning    = True,
+                                                                       TauTracksKey           = "TauTracks")
 ToolSvc += JETM4TauTPThinningTool
 thinningTools.append(JETM4TauTPThinningTool)
 
