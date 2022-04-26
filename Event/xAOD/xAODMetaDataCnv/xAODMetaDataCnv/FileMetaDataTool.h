@@ -68,7 +68,8 @@ class FileMetaDataTool
   /// @}
 
  private:
-  /// list of keys to propogate from input to output
+  /// (optional) list of keys to propogate from input to output.
+  /// Leaving this empty means the tool will copy all keys. Default: empty
   std::vector< std::string > m_keys;
 
 #ifndef XAOD_STANDALONE
