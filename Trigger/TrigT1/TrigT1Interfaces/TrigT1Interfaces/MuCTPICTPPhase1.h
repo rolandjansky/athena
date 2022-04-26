@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGT1INTERFACES_MUCTPICTPPHASE1_H
 #define TRIGT1INTERFACES_MUCTPICTPPHASE1_H
@@ -23,7 +23,7 @@ namespace LVL1 {
 
    public:
       /* constructor and destructor */
-     MuCTPICTPPhase1( std::vector<unsigned int> words );
+     MuCTPICTPPhase1( const std::vector<unsigned int>& words );
      ~MuCTPICTPPhase1();
 
      /**

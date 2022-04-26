@@ -1,6 +1,6 @@
 // Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGT1INTERFACES_MUCTPIL1TOPOCANDIDATE_H
 #define TRIGT1INTERFACES_MUCTPIL1TOPOCANDIDATE_H
@@ -30,7 +30,7 @@ namespace LVL1 {
      ~MuCTPIL1TopoCandidate() = default;
      
      // set candidate data
-     void setCandidateData(std::string  sectorName, 
+     void setCandidateData(const std::string&  sectorName, 
 			   unsigned int roiID,     
 			   unsigned int bcid,      
 			   unsigned int ptThresholdID,  

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1Interfaces/MuCTPICTP.h"
@@ -11,7 +11,7 @@ namespace LVL1 {
     m_MuCTPICTPWord.push_back(word);
   }
 
-  MuCTPICTP::MuCTPICTP( std::vector<unsigned int> word )
+  MuCTPICTP::MuCTPICTP( const std::vector<unsigned int>& word )
     : m_MuCTPICTPWord(word)
   {
   }
