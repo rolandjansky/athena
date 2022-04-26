@@ -13,7 +13,9 @@ if not hasattr(prefiltSeq, "xAODTruthParticleSlimmerMET"):
   prefiltSeq += xAODTruthParticleSlimmerMET('xAODTruthParticleSlimmerMET')
 
 from GeneratorFilters.GeneratorFiltersConf import xAODMETFilter
-#xAODMissingEtFilter = xAODMissingEtFilter("xAODMissingEtFilter")  
-#filtSeq += xAODMissingEtFilter
+xAODMissingEtFilter = xAODMissingEtFilter("xAODMissingEtFilter")  
+filtSeq += xAODMissingEtFilter
 
-
+# to modiify cuts put into JOs e.g.:
+#filtSeq.xAODMissingEtFilter.METCut = 12000.0
+#filtSeq.xAODMissingEtFilter.UseNeutrinosFromHadrons = False
