@@ -1,6 +1,6 @@
 // -*- c++ -*-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETTRACKSYSTEMATICSTOOLS_INDETTRACKSYSTEMATICS_H
@@ -46,7 +46,7 @@ namespace InDet {
 
   // without getting too crafty with macros, this map needs to be maintained with the enum above
   // using macros to prevent a bug that's popped up twice now, in which the key did not march the target
-  static std::unordered_map< InDet::TrackSystematic, CP::SystematicVariation, std::hash<int> >
+  static const std::unordered_map< InDet::TrackSystematic, CP::SystematicVariation, std::hash<int> >
     TrackSystematicMap = {
 #define DEF_SYST( NAME ) {TRK_##NAME, CP::SystematicVariation("TRK_" #NAME )}
     DEF_SYST( RES_D0_MEAS ),

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackSystematicsTools/InDetTrackTruthOriginTool.h"
@@ -142,7 +142,7 @@ namespace InDet {
     const xAOD::TruthParticle* truth = getTruth( track );
 
     // get track TMP
-    static SG::AuxElement::ConstAccessor< float > tmpAcc( m_truthMatchProbabilityAuxName.data() );
+    static const SG::AuxElement::ConstAccessor< float > tmpAcc( m_truthMatchProbabilityAuxName.data() );
     float truthProb = tmpAcc( *track );
 
     int origin = 0;
