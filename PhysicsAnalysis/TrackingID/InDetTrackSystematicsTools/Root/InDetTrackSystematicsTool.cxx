@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackSystematicsTools/InDetTrackSystematicsTool.h"
@@ -62,8 +62,8 @@ namespace InDet {
 
       // check in here for incompatible systematics
       auto isIn = [&](InDet::TrackSystematic syst) {
-	// helper function to check if a systematic exists in the filtered set
-	return filteredSysts.find( InDet::TrackSystematicMap[ syst ] ) != filteredSysts.end();
+        // helper function to check if a systematic exists in the filtered set
+        return filteredSysts.find( InDet::TrackSystematicMap.at( syst ) ) != filteredSysts.end();
       };
       if ( isIn( TRK_RES_D0_MEAS) + isIn( TRK_RES_D0_MEAS_UP ) + isIn( TRK_RES_D0_MEAS_DOWN ) > 1 ) {
 	// should only have 1 of these options simultantously
@@ -104,7 +104,7 @@ namespace InDet {
       ATH_MSG_DEBUG( "applySystematicsVariation() has not been successfully called." );
       return false;
     }
-    const auto it_syst = m_activeSysts->find(InDet::TrackSystematicMap[syst]);
+    const auto it_syst = m_activeSysts->find(InDet::TrackSystematicMap.at(syst));
     return it_syst != m_activeSysts->end();
   }
 

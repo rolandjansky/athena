@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackSystematicsTools/InDetTrackBiasingTool.h"
@@ -19,9 +19,9 @@ namespace InDet {
 
   static const CP::SystematicSet BiasSystematics = 
     {
-      InDet::TrackSystematicMap[TRK_BIAS_D0_WM],
-      InDet::TrackSystematicMap[TRK_BIAS_Z0_WM],
-      InDet::TrackSystematicMap[TRK_BIAS_QOVERP_SAGITTA_WM],
+      InDet::TrackSystematicMap.at(TRK_BIAS_D0_WM),
+      InDet::TrackSystematicMap.at(TRK_BIAS_Z0_WM),
+      InDet::TrackSystematicMap.at(TRK_BIAS_QOVERP_SAGITTA_WM),
     };
 
   InDetTrackBiasingTool::InDetTrackBiasingTool(const string& name) :
@@ -78,22 +78,21 @@ namespace InDet {
 
   CP::CorrectionCode InDetTrackBiasingTool::applyCorrection(xAOD::TrackParticle& track) {
 
-    float phi = track.phi0();
-    float eta = track.eta();
-
-    static bool firstTime = true;
-    if (firstTime) {
-      firstTime = false; // don't try to do this again
+    [[maybe_unused]] static const bool firstTime = [&]() {
       if ( ! firstCall().isSuccess() ) { // this will check data vs. MC and run number.
-	return CP::CorrectionCode::Error;
+        throw std::runtime_error("Error calling InDetTrackBiasingTool::firstCall");
       }
-    }
+      return false;
+    }();
 
     // declare static accessors to avoid repeating string lookups
-    static SG::AuxElement::Accessor< float > accD0( "d0" );
-    static SG::AuxElement::Accessor< float > accZ0( "z0" );
-    static SG::AuxElement::Accessor< float > accQOverP( "qOverP" );
-    
+    static const SG::AuxElement::Accessor< float > accD0( "d0" );
+    static const SG::AuxElement::Accessor< float > accZ0( "z0" );
+    static const SG::AuxElement::Accessor< float > accQOverP( "qOverP" );
+
+    const float phi = track.phi0();
+    const float eta = track.eta();
+
     // do the biasing
     if ( m_doD0Bias ) {
       bool d0WmActive = isActive( TRK_BIAS_D0_WM );
