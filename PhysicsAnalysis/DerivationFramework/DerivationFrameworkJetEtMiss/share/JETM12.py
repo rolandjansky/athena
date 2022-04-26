@@ -3,9 +3,9 @@
 # reductionConf flag JETM12 in Reco_tf.py   
 #====================================================================
 
-from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo,
-DerivationFrameworkJob, buildFileName
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob, buildFileName
 from DerivationFrameworkJetEtMiss.JetCommon import OutputJets
+from DerivationFrameworkPhys import PhysCommon
 
 #====================================================================
 # SKIMMING TOOL 
@@ -188,22 +188,8 @@ jetm12Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM12Kernel",
                                                          ThinningTools = thinningTools,
                                                          AugmentationTools = AugmentationTools)
 
-#=======================================
-# Re-tag PFlow jets so they have b-tagging info.
-#=======================================
-from DerivationFrameworkFlavourTag.FlavourTagCommon import *
-FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = jetm12Seq)
-
-#=======================================
-# SCHEDULE SMALL-R JETS WITH LOW PT CUT
-#=======================================
 
 OutputJets["JETM12"] = []
-
-#=======================================
-# RESTORE AOD-REDUCED JET COLLECTIONS
-# SCHEDULE CUSTOM MET RECONSTRUCTION
-#=======================================
 
 if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
@@ -219,8 +205,7 @@ JETM12SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJe
                                         "MET_Baseline_AntiKt4EMTopo",
                                         "MET_Baseline__AntiKt4EMPFlow",
                                         "AntiKt4EMTopoJets","AntiKt4EMPFlowJets","AntiKt4TruthJets",
-                                        "BTagging_AntiKt4EMPFlow",
-                                        "BTagging_AntiKt4EMTopo",
+                                        "BTagging_AntiKt4EMPFlow"
                                         ]
 JETM12SlimmingHelper.AllVariables = ["MuonTruthParticles","TruthParticles", "TruthVertices",
                                     "MuonSegments","InDetTrackParticles",

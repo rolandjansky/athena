@@ -188,16 +188,14 @@ if DerivationFrameworkIsMonteCarlo:
         'TruthTopQuarkWithDecayParticles':'xAOD::TruthParticleContainer','TruthTopQuarkWithDecayParticlesAux':'xAOD::TruthParticleAuxContainer',
         'TruthTopQuarkWithDecayVertices':'xAOD::TruthVertexContainer','TruthTopQuarkWithDecayVerticesAux':'xAOD::TruthVertexAuxContainer',
         'TruthParticles':'xAOD::TruthParticleContainer','TruthParticlesAux':'xAOD::TruthParticleAuxContainer',
-        'Kt4EMPFlowNeutEventShape':'xAOD::EventShape',
-        "Kt4EMPFlowNeutEventShapeAux":"xAOD::EventShapeAuxInfo"
+        'Kt4EMPFlowNeutEventShape':'xAOD::EventShape','Kt4EMPFlowNeutEventShapeAux':'xAOD::EventShapeAuxInfo'
     }
     JETM1SlimmingHelper.AllVariables += ["TruthMuons", "TruthElectrons", "TruthPhotons", "TruthTopQuarkWithDecayParticles", "TruthBosonsWithDecayParticles"]
     JETM1SlimmingHelper.AllVariables += ["AntiKt4TruthJets", "InTimeAntiKt4TruthJets", "OutOfTimeAntiKt4TruthJets", "TruthParticles"]
     JETM1SlimmingHelper.SmartCollections += ["AntiKt4TruthWZJets"]
 else:
     JETM1SlimmingHelper.AppendToDictionary = {
-        'Kt4EMPFlowNeutEventShape','xAOD::EventShape',
-        "Kt4EMPFlowNeutEventShapeAux","xAOD::EventShapeAuxInfo"
+        'Kt4EMPFlowNeutEventShape':'xAOD::EventShape','Kt4EMPFlowNeutEventShapeAux':'xAOD::EventShapeAuxInfo'
     }
 
 # Trigger content
