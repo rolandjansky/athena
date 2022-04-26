@@ -48,7 +48,7 @@ doTier0Mon = False
 
 if 'doTIDATier0' in locals():
   doTier0Mon = doTIDATier0
-
+                
 doNewTier0Mon = False
 
 if 'doNewTIDATier0' in locals():
@@ -123,6 +123,7 @@ if ( True ) :
     "Offline",
     "Truth",
     "Vertex",
+    "Vertex:BTagging_AntiKt4EMPFlowSecVtx",
     # "Muons",
     # "Muons:Tight",
     # "Muons:Medium",
@@ -170,11 +171,13 @@ if ( True ) :
     "HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20:key=HLT_IDTrack_Bjet_FTF",
     "HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20:key=HLT_IDTrack_Bjet_IDTrig",
     "HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
+    "HLT_j45_0eta290_020jvt_pf_ftf_boffperf_L1J20:key=HLT_IDTrack_Bjet_IDTrig:roi=HLT_Roi_Bjet:vtx=HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_BTaggingSecVtx",
     # don't use FSJet any longer
     # "HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FSJet",
     "HLT_j45_pf_ftf_preselj20_L1J15:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
     # don't use FSJet any longer
     # "HLT_j45_pf_ftf_preselj20_L1J15:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FSJet",
+    "HLT_j45_0eta290_020jvt_pf_ftf_boffperf_L1J20:key=HLT_IDTrack_Bjet_IDTrig:roi=HLT_Roi_Bjet:vtx=HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_BTaggingSecVtx",
 
     "HLT_unconvtrk.*_fslrt.*:HLT_IDTrack_FSLRT_FTF;DTE",
     "HLT_unconvtrk.*_fslrt.*:HLT_IDTrack_FS_FTF;DTE",
