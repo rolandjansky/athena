@@ -400,8 +400,7 @@ def setupMenu():
 
 
         # bb-rejection test chains
-        ChainProp(name='HLT_j80_020jvt_j55_020jvt_j28_020jvt_j20_020jvt_pf_ftf_SHARED_3j20_pf_ftf_0eta240_020jvt_bdl1d85_preselc60XXc45XXc25XXc20_L1J45p0ETA21_3J15p0ETA25', l1SeedThresholds=['FSNOSEED']*5, stream=[PhysicsStream], groups=PrimaryLegGroup+MultiBjetGroup),
-        ChainProp(name='HLT_j80_020jvt_j55_020jvt_j28_020jvt_j20_020jvt_pf_ftf_SHARED_3j20_pf_ftf_0eta240_020jvt_bdl1d85bb77_preselc60XXc45XXc25XXc20_L1J45p0ETA21_3J15p0ETA25', l1SeedThresholds=['FSNOSEED']*5, stream=[PhysicsStream], groups=PrimaryLegGroup+MultiBjetGroup),
+        ChainProp(name='HLT_j80c_020jvt_j55c_020jvt_j28c_020jvt_j20c_020jvt_SHARED_3j20c_020jvt_bdl1d85bb77_preselc60XXc45XXc25XXc20_pf_ftf_L1J45p0ETA21_3J15p0ETA25', l1SeedThresholds=['FSNOSEED']*5, stream=[PhysicsStream], groups=PrimaryLegGroup+MultiBjetGroup),
 
         # Various multi-b
         ChainProp(name="HLT_j150_2j55_0eta290_020jvt_bdl1r70_pf_ftf_L1J85_3J30", l1SeedThresholds=['FSNOSEED','FSNOSEED'], groups=DevGroup+MultiBjetGroup),
