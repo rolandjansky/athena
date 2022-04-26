@@ -514,8 +514,8 @@ namespace xAOD {
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(TrackParticle_v1, uint8_t,numberOfIBLOverflowsdEdx , setNumberOfIBLOverflowsdEdx)
 
   size_t TrackParticle_v1::numberOfParameters() const{
-    ///@todo - Can we do this in a better way? Not great to force retrieval of one specific parameter - any would do.
-    static const Accessor< std::vector<float>  > acc( "parameterX" );
+    /// number of parameters should be the size of positions we need for them
+    static const Accessor< std::vector<uint8_t>  > acc( "parameterPosition" );
     if(! acc.isAvailable( *this )) return 0;
     return acc(*this).size();
   }
@@ -534,7 +534,6 @@ namespace xAOD {
     static const Accessor< std::vector < float > > acc4( "parameterPX" );
     static const Accessor< std::vector < float > > acc5( "parameterPY" );
     static const Accessor< std::vector < float > > acc6( "parameterPZ" );
-
     static const Accessor< std::vector<uint8_t>  > acc7( "parameterPosition" );
 
     acc1(*this).resize(parameters.size());
@@ -543,7 +542,6 @@ namespace xAOD {
     acc4(*this).resize(parameters.size());
     acc5(*this).resize(parameters.size());
     acc6(*this).resize(parameters.size());
-
     acc7(*this).resize(parameters.size());
 
     unsigned int index=0;
