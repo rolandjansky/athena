@@ -24,6 +24,7 @@ def fillAtlasMetadata(ConfigFlags, dbFiller):
     dbFiller.addSimParam('G4Version', ConfigFlags.Sim.G4Version)
     dbFiller.addSimParam('RunType', 'atlas')
     dbFiller.addSimParam('beamType', ConfigFlags.Beam.Type.value)
+    dbFiller.addSimParam('SimLayout', ConfigFlags.GeoModel.AtlasVersion)
 
     #---------
     ## Simulated detector flags: add each enabled detector to the simulatedDetectors list
