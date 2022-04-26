@@ -1,7 +1,5 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
 from HIJetRec.HIJetRecFlags import HIJetFlags
 import AthenaCommon.SystemOfUnits as Units
 from RecExConfig.RecFlags import rec
@@ -23,4 +21,3 @@ def SetDebugMode():
     HIJetFlags.RecoOutputPtMin.set_Value_and_Lock(8*Units.GeV)
     HIJetFlags.WriteSeeds.set_Value_and_Lock(True)
     jetFlags.debug.set_Value_and_Lock(2)
-    jetFlags.timeJetRecTool.set_Value_and_Lock(2)
