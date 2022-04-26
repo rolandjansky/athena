@@ -138,6 +138,12 @@ def RecoSteering(flags):
         from HIRecConfig.HIRecConfig import HIRecCfg
         acc.merge(HIRecCfg(flags))
         log.info("---------- Configured Heavy Ion reconstruction")
+    
+    # AFP
+    if flags.Reco.EnableAFP:
+        from ForwardRec.AFPRecConfig import AFPRecCfg
+        acc.merge(AFPRecCfg(flags))
+        log.info("---------- Configured AFP reconstruction")
 
     # Setup the final post-processing
     if flags.Reco.EnablePostProcessing:

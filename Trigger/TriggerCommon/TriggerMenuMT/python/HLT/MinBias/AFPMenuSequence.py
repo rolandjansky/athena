@@ -18,6 +18,8 @@ def AFPTrkRecoBaseSequence(ConfigFlags):
     AFPInputMaker.RoIs = "AFPRoIs"
     
     from AthenaCommon.GlobalFlags import globalflags
+    from AthenaCommon.Configurable import Configurable
+    from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 
     if globalflags.InputFormat.is_bytestream():
         # bytestream convertor
@@ -25,24 +27,29 @@ def AFPTrkRecoBaseSequence(ConfigFlags):
 
         # digitalization
         AFP_R2D=CompFactory.AFP_Raw2Digi("AFP_Raw2Digi")
-  
+
+    wasRun3=Configurable.configurableRun3Behavior
+    Configurable.configurableRun3Behavior=1 
+
     #cluster reconstruction
     from AFP_SiClusterTools.AFP_SiClusterTools import AFP_SiClusterTools_HLT
-    AFP_SiCl=AFP_SiClusterTools_HLT()
-  
+    AFP_SiCl=conf2toConfigurable(AFP_SiClusterTools_HLT(ConfigFlags))
+    
     # tracks reconstruction
     from AFP_LocReco.AFP_LocReco import AFP_LocReco_SiD_HLT, AFP_LocReco_TD_HLT
-    AFP_SID=AFP_LocReco_SiD_HLT()
-    AFP_TD=AFP_LocReco_TD_HLT()
+    AFP_SID=conf2toConfigurable(AFP_LocReco_SiD_HLT(ConfigFlags))
+    AFP_TD=conf2toConfigurable(AFP_LocReco_TD_HLT(ConfigFlags))
    
     # protons reconstruction
     from AFP_GlobReco.AFP_GlobReco import AFP_GlobReco_HLT
-    AFP_Pr=AFP_GlobReco_HLT()
+    AFP_Pr=conf2toConfigurable(AFP_GlobReco_HLT(ConfigFlags))
   
     # vertex reconstruction
     from AFP_VertexReco.AFP_VertexReco import AFP_VertexReco_HLT
-    AFP_Vtx=AFP_VertexReco_HLT()
-  
+    AFP_Vtx=conf2toConfigurable(AFP_VertexReco_HLT(ConfigFlags))
+    
+    Configurable.configurableRun3Behavior=wasRun3
+    
     if globalflags.InputFormat.is_bytestream():
         AFPRecoSeq = parOR("AFPRecoSeq", [AFP_Raw, AFP_R2D, AFP_SiCl, AFP_SID, AFP_TD, AFP_Pr, AFP_Vtx])    
     else:

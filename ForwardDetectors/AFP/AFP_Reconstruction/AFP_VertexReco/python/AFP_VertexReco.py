@@ -4,11 +4,12 @@
 # Job options file for the AFP_VertexReco package
 #==============================================================
 
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 # Prepare Vertex reconstruction algorithm tools
-def AFP_VertexReco_Cfg(kwargs={}):
+def AFP_VertexReco_Cfg(flags, kwargs={}):
 
 	TimeOffsetA = [64,45,25,11]
 	TimeSlopeA = [-7.3,-5.0,-4.0,-4.]
@@ -38,11 +39,15 @@ def AFP_VertexReco_Cfg(kwargs={}):
 	vertexRecoTool = CompFactory.AFP_VertexRecoTool("AFP_VertexRecoTool", RecoToolsList=verticesToolsList, AFPVertexContainerList=outputVertexList )
 
 	# actually setup the vertex reco
-	return CompFactory.AFP_VertexReco("AFP_VertexReco", recoTool = vertexRecoTool)
-
-
-def AFP_VertexReco_HLT():
+	acc = ComponentAccumulator()
+	acc.addEventAlgo(CompFactory.AFP_VertexReco("AFP_VertexReco", recoTool = vertexRecoTool))
 	
-	AFP_Vtx = AFP_VertexReco_Cfg({"AFPToFTrackContainerKey": "HLT_AFPToFTrackContainer", "AFPProtonContainerKey": "HLT_AFPProtonContainer", "verticesContainerName": recordable("HLT_AFPVertexContainer")})
+	return acc
+
+
+def AFP_VertexReco_HLT(flags):
+	
+	acc = AFP_VertexReco_Cfg(flags, {"AFPToFTrackContainerKey": "HLT_AFPToFTrackContainer", "AFPProtonContainerKey": "HLT_AFPProtonContainer", "verticesContainerName": recordable("HLT_AFPVertexContainer")})
+	AFP_Vtx = acc.getEventAlgo("AFP_VertexReco")
 	
 	return AFP_Vtx

@@ -4,10 +4,11 @@
 # Job options file for the AFP_GlobReco package
 #==============================================================
 
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
-def AFP_GlobReco_Cfg(kwargs={}):
+def AFP_GlobReco_Cfg(flags, kwargs={}):
 	# side A = 0, side C = 1
 	afpProtonRecoToolA = CompFactory.AFP_ProtonRecoAnalytical("AFP_ProtonRecoAnalyticalA", parametrizationFileName="param_mad_b1_def.txt", side=0, **kwargs)
 	afpProtonRecoToolC = CompFactory.AFP_ProtonRecoAnalytical("AFP_ProtonRecoAnalyticalC", parametrizationFileName="param_mad_b2_def.txt", side=1, **kwargs)
@@ -30,12 +31,18 @@ def AFP_GlobReco_Cfg(kwargs={}):
 	protonRecoTool = CompFactory.AFP_GlobRecoTool("AFP_GlobRecoTool", RecoToolsList=protonsToolsList, AFPProtonContainerList=outputProtonList )
 
 	# actually setup the track reco
-	return CompFactory.AFP_GlobReco("AFP_GlobReco", recoTool = protonRecoTool)
-
-
-def AFP_GlobReco_HLT():
+	acc = ComponentAccumulator()
+	acc.addEventAlgo(CompFactory.AFP_GlobReco("AFP_GlobReco", recoTool = protonRecoTool))
 	
-	AFP_Pr = AFP_GlobReco_Cfg({"AFPTrackContainerKey": "HLT_AFPTrackContainer", "protonsContainerName": recordable("HLT_AFPProtonContainer")})
+	return acc
+	
+	
+
+
+def AFP_GlobReco_HLT(flags):
+	
+	acc = AFP_GlobReco_Cfg(flags, {"AFPTrackContainerKey": "HLT_AFPTrackContainer", "protonsContainerName": recordable("HLT_AFPProtonContainer")})
+	AFP_Pr = acc.getEventAlgo("AFP_GlobReco")
 	
 	return AFP_Pr
 
