@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  *
- * @file HGTD_ClusterMakerTools/SinglePadClusterTool.h
+ * @file SinglePadClusterTool.h
  * @author Alexander Leopold <alexander.leopold@cern.ch>
  * @date August, 2021
  *

@@ -12,8 +12,8 @@
  * https://gitlab.cern.ch/aleopold/memleakhunt/-/blob/master/TrkExtrapolation/TrkExTools/src/TrackTimingExtensionAlg.cxx#L901
  */
 
-#ifndef HGTD_TRUTHTOOLS_CLUSTERTRUTHTOOL_H
-#define HGTD_TRUTHTOOLS_CLUSTERTRUTHTOOL_H
+#ifndef HGTD_RECTOOLS_CLUSTERTRUTHTOOL_H
+#define HGTD_RECTOOLS_CLUSTERTRUTHTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "HGTD_RecToolInterfaces/IHGTD_ClusterTruthTool.h"
@@ -53,4 +53,4 @@ public:
 
 } // namespace HGTD
 
-#endif // HGTD_TRUTHTOOLS_CLUSTERTRUTHTOOL_H
+#endif // HGTD_RECTOOLS_CLUSTERTRUTHTOOL_H
