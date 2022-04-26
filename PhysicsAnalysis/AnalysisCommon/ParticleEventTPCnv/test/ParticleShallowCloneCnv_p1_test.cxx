@@ -19,6 +19,7 @@
 #include "GaudiKernel/ThreadLocalContext.h"
 #include <cassert>
 #include <iostream>
+#include "CxxUtils/checker_macros.h"
 
 
 void compare (const Analysis::ParticleShallowClone& p1,
@@ -52,7 +53,7 @@ void testit (const Analysis::ParticleShallowClone& trans1)
 }
 
 
-void test1()
+void test1 ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test1\n";
   (void)Gaudi::Hive::currentContext();
@@ -78,7 +79,7 @@ void test1()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   SGTest::initTestStore();
   test1();

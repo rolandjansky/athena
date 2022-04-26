@@ -18,7 +18,7 @@
 #include "GaudiKernel/ThreadLocalContext.h"
 #include <cassert>
 #include <iostream>
-
+#include "CxxUtils/checker_macros.h"
 
 void compare (const ParticleEvent::Base& p1,
               const ParticleEvent::Base& p2)
@@ -130,7 +130,7 @@ void test1()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   SGTest::initTestStore();
   test1();

@@ -44,7 +44,7 @@ void ParticleShallowCloneCnv_p1::persToTrans( const ParticleShallowClone_p1* per
 
   // convert the 4Momentum part
   s_momCnv.persToTrans( &pers->m_momentum,
-                        const_cast<P4PxPyPzE*>(&trans->momentumBase()),
+                        &(trans->momentumBase()),
                         msg );
   
   // Convert the ElementLink to the master particle
