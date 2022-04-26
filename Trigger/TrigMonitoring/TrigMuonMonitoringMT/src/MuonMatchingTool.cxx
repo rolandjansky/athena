@@ -174,7 +174,7 @@ const xAOD::TrackParticle* MuonMatchingTool :: SearchEFTrack(const EventContext 
 
     float deta = EFEta - (*it)->eta();
     float dphi = xAOD::P4Helpers::deltaPhi(EFPhi, (*it)->phi() );
-    float dR = sqrt(deta*deta + dphi*dphi);
+    float dR = std::sqrt(deta*deta + dphi*dphi);
 
     if( dR< mindR ){
       mindR = dR;
@@ -255,7 +255,7 @@ const xAOD::L2CombinedMuon* MuonMatchingTool :: matchL2CBReadHandle( const Event
 }
 
 
-const xAOD::MuonRoI* MuonMatchingTool :: matchL1(  const xAOD::Muon *mu, const EventContext& ctx, const std::string& trig, bool &pass) const {
+const xAOD::MuonRoI* MuonMatchingTool :: matchL1( const xAOD::Muon *mu, const EventContext& ctx, const std::string& trig, bool &pass) const {
 
   double refEta = mu->eta();
   double refPhi = mu->phi();
@@ -278,14 +278,14 @@ const xAOD::MuonRoI* MuonMatchingTool :: matchL1(  const xAOD::Muon *mu, const E
   }
 
   for(const auto &roi : *rois){
-    double roiEta = roi->eta();
-    double roiPhi = roi->phi();
-    int roiThr = roi->getThrNumber();
-    int roiSource = roi->getSource();
+  double roiEta = roi->eta();
+  double roiPhi = roi->phi();
+  int roiThr = roi->getThrNumber();
+  int roiSource = roi->getSource();
     
     double deta = refEta - roiEta;
     double dphi = xAOD::P4Helpers::deltaPhi(refPhi, roiPhi);
-    double dR = sqrt(deta*deta + dphi*dphi);
+    double dR = std::sqrt(deta*deta + dphi*dphi);
     ATH_MSG_VERBOSE("L1 muon candidate eta=" << roiEta << " phi=" << roiPhi  << " dR=" << dR);
     if( dR<reqdR && roiThr>=L1ItemStringToInt(trig, roiSource)){
       reqdR = dR;
@@ -298,6 +298,64 @@ const xAOD::MuonRoI* MuonMatchingTool :: matchL1(  const xAOD::Muon *mu, const E
   return closest;
 }
 
+const xAOD::MuonRoI* MuonMatchingTool :: matchL1( double refEta, double refPhi, double reqdR, const std::string& trig, bool &pass) const {
+  ATH_MSG_DEBUG("Chain: " << trig);
+  pass = false;
+  const xAOD::MuonRoI *closest = nullptr;
+  Trig::FeatureRequestDescriptor featureRequestDescriptor(trig,TrigDefs::includeFailedDecisions);
+  auto l2muonFeatures = m_trigDec->features<xAOD::L2StandAloneMuonContainer>(featureRequestDescriptor); 
+  for( auto linkInfo : l2muonFeatures){ // loop on L2 muon features
+    // get L1 muon associated with this L2 muon
+    auto l1muonLinkInfo = TrigCompositeUtils::findLink<xAOD::MuonRoIContainer>(linkInfo.source, "initialRecRoI");
+    auto l1muonLink = l1muonLinkInfo.link;
+    if(!l1muonLink.isValid()){
+      ATH_MSG_ERROR("Invalid link to L1 muon");
+      continue;
+    }
+    const xAOD::MuonRoI* l1muon = *l1muonLink;
+    double l1muonEta = l1muon->eta();
+    double l1muonPhi = l1muon->phi();
+    
+    double deta = refEta - l1muonEta;
+    double dphi = xAOD::P4Helpers::deltaPhi(refPhi, l1muonPhi);
+    double dR = std::sqrt(deta*deta + dphi*dphi);
+    ATH_MSG_DEBUG("L1 muon candidate eta=" << l1muonEta << " phi=" << l1muonPhi << " dR=" << dR);
+    if( dR<reqdR ){
+      reqdR = dR;
+      pass = true;
+      closest = l1muon;
+      ATH_MSG_DEBUG("*** L1 muon eta=" << l1muonEta << " phi=" << l1muonPhi << " dR=" << dR <<  " isPassed=true" ); 
+    }
+    else{
+      ATH_MSG_DEBUG("*** L1 muon eta=" << l1muonEta << " phi=" << l1muonPhi << " dR=" << dR <<  " isPassed=false" );
+    }
+  }
+  return closest;
+}
+
+const xAOD::MuonRoI* MuonMatchingTool :: matchL1( const xAOD::Muon *mu, const std::string& trig, bool &pass) const {
+  double refEta = mu->eta();
+  double refPhi = mu->phi();
+  double reqdR = 0.25;
+
+  if(m_use_extrapolator){
+    reqdR = reqdRL1byPt(mu->pt());
+    const Amg::Vector3D extPos = offlineMuonAtPivot(mu);
+    if(extPos.norm()>ZERO_LIMIT){
+      refEta = extPos.eta();
+      refPhi = extPos.phi();
+    }
+  }
+  return matchL1(refEta, refPhi, reqdR, trig, pass); 
+}
+
+const xAOD::MuonRoI* MuonMatchingTool :: matchL1( const xAOD::TruthParticle *mu, const std::string& trig, bool &pass) const {
+  double refEta = mu->eta();
+  double refPhi = mu->phi();
+  double reqdR = 0.25;
+  return matchL1(refEta, refPhi, reqdR, trig, pass);
+}
+
 
 const xAOD::Muon* MuonMatchingTool :: matchL2SAtoOff( const EventContext& ctx, const xAOD::L2StandAloneMuon* samu) const {
   return matchOff(ctx, samu, m_L2SAreqdR, &MuonMatchingTool::PosForMatchSATrack);
@@ -306,7 +364,6 @@ const xAOD::Muon* MuonMatchingTool :: matchL2SAtoOff( const EventContext& ctx, c
 const xAOD::Muon* MuonMatchingTool :: matchL2CBtoOff( const EventContext& ctx, const xAOD::L2CombinedMuon* cbmu) const {
   return matchOff(ctx, cbmu, m_L2CBreqdR, &MuonMatchingTool::PosForMatchCBTrack);
 }
-
 
 
 bool MuonMatchingTool :: isMatchedL2SA(const xAOD::L2StandAloneMuon* samu, const xAOD::Muon* mu) const{
@@ -330,7 +387,6 @@ bool MuonMatchingTool :: isMatchedL2InsideOut(const xAOD::L2CombinedMuon* cbiomu
   float dR = xAOD::P4Helpers::deltaR(cbiomu, mu, false);
   return dR < m_L2InsideOutreqdR;
 }
-
 
 double MuonMatchingTool :: FermiFunction(double x, double x0, double w) {
   return 1/(1+TMath::Exp(-10*(x-x0)/w));
