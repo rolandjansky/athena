@@ -14,6 +14,8 @@ JetMatcherAlg::JetMatcherAlg( const std::string& name, ISvcLocator* pSvcLocator 
 
   declareProperty("L1JetContainerName1",m_l1jetContainerKey1="NONE");
   declareProperty("L1jFexSRJetRoIContainerName",m_jFexSRJetRoIKey="NONE");
+  declareProperty("L1jFexLRJetRoIContainerName",m_jFexLRJetRoIKey="NONE");
+  declareProperty("L1gFexJetRoIContainerName",m_gFexJetRoIKey="NONE");
 }
 
 //**********************************************************************
@@ -65,7 +67,21 @@ StatusCode JetMatcherAlg::initialize() {
     m_matchType = MatchType::jFexSRJetRoI;
     ATH_MSG_INFO("will match jFexSRJetRoI (L1)  to xAODJet");
   }
+
   
+  if (m_jFexLRJetRoIKey.key() != "NONE") {
+    ++key_count;
+    m_matchType = MatchType::jFexLRJetRoI;
+    ATH_MSG_INFO("will match jFexLRJetRoI (L1)  to xAODJet");
+  }
+
+  
+  if (m_gFexJetRoIKey.key() != "NONE") {
+    ++key_count;
+    m_matchType = MatchType::gFexJetRoI;
+    ATH_MSG_INFO("will match gFexSRJetRoI (L1)  to xAODJet");
+  }
+
   if (key_count != 1) {
     ATH_MSG_ERROR(key_count <<
 		  " containers requested. This should be exactly 1");
@@ -80,7 +96,9 @@ StatusCode JetMatcherAlg::initialize() {
   //
   bool l1_match =  
     m_matchType == MatchType::JetRoI ||
-    m_matchType == MatchType::jFexSRJetRoI;
+    m_matchType == MatchType::jFexSRJetRoI ||
+    m_matchType == MatchType::jFexLRJetRoI ||
+    m_matchType == MatchType::gFexJetRoI;
 
   if (l1_match != m_matchL1) {
     ATH_MSG_ERROR("m_matchL1 is misconfigured");
@@ -92,10 +110,14 @@ StatusCode JetMatcherAlg::initialize() {
   ATH_CHECK( m_jetContainerKey2.initialize() );
   ATH_CHECK( m_l1jetContainerKey1.initialize() );
   ATH_CHECK( m_jFexSRJetRoIKey.initialize() );
+  ATH_CHECK( m_jFexLRJetRoIKey.initialize() );
+  ATH_CHECK( m_gFexJetRoIKey.initialize() );
 
   ATH_CHECK(set_xAODJet_varHandleKeys());
   ATH_CHECK(set_JetRoI_varHandleKeys());
   ATH_CHECK(set_jFexSRJetRoI_varHandleKeys());
+  ATH_CHECK(set_jFexLRJetRoI_varHandleKeys());
+  ATH_CHECK(set_gFexJetRoI_varHandleKeys());
 
   ATH_CHECK(initialize_varHandleKeys());
 
@@ -138,6 +160,20 @@ StatusCode JetMatcherAlg::GetTLV(const xAOD::jFexSRJetRoI* jet, TLorentzVector& 
   tlv.SetPtEtaPhiM(jet->et(),jet->eta(),jet->phi(),0.);
   return StatusCode::SUCCESS;
 }
+
+StatusCode JetMatcherAlg::GetTLV(const xAOD::jFexLRJetRoI* jet, TLorentzVector& tlv) const {
+
+  tlv.SetPtEtaPhiM(jet->et(),jet->eta(),jet->phi(),0.);
+  return StatusCode::SUCCESS;
+}
+
+StatusCode JetMatcherAlg::GetTLV(const xAOD::gFexJetRoI* jet, TLorentzVector& tlv) const {
+
+  tlv.SetPtEtaPhiM(jet->et(),jet->eta(),jet->phi(),0.);
+  return StatusCode::SUCCESS;
+}
+
+
 
 //**********************************************************************
 
@@ -238,6 +274,7 @@ StatusCode JetMatcherAlg::execute(const EventContext& ctx) const {
     ATH_MSG_ERROR("evtStore() does not contain jet Collection with name "<< m_jetContainerKey2);
     return StatusCode::FAILURE;
   }
+  
   if (m_matchType == MatchType::xAODJet) { // perform jet matching for online/offline xAODJet containers
     SG::ReadHandle<xAOD::JetContainer> jets1(m_jetContainerKey1, ctx);
     if (!jets1.isValid() ) {
@@ -245,6 +282,7 @@ StatusCode JetMatcherAlg::execute(const EventContext& ctx) const {
       return StatusCode::FAILURE;
     }
     return jetMatching(jets1, jets2, m_matchedKey, m_jetVarHandleKeys, ctx);
+
   } else if(m_matchType == MatchType::JetRoI) { // perform jet matching for L1 JetRoI container
     SG::ReadHandle<xAOD::JetRoIContainer> jets1(m_l1jetContainerKey1, ctx);
     if (!jets1.isValid() ) {
@@ -252,16 +290,35 @@ StatusCode JetMatcherAlg::execute(const EventContext& ctx) const {
       return StatusCode::FAILURE;
     }
     return jetMatching(jets1, jets2, m_l1matchedKey, m_l1JetVarHandleKeys, ctx);
+
   } else if (m_matchType == MatchType::jFexSRJetRoI) { // perform jet matching for L1 jFexSRJetRoI container
     SG::ReadHandle<xAOD::jFexSRJetRoIContainer> jets1(m_jFexSRJetRoIKey, ctx);
     if (!jets1.isValid() ) {
       ATH_MSG_ERROR("evtStore() does not contain L1 jet Collection with name "<< m_jFexSRJetRoIKey);
       return StatusCode::FAILURE;
-    }
+    } 
     return jetMatching(jets1, jets2, m_l1jFexSRmatchedKey, m_l1jFexSRJetVarHandleKeys, ctx);
+
+    
+  } else if (m_matchType == MatchType::jFexLRJetRoI) { // perform jet matching for L1 jFexLRJetRoI container
+    SG::ReadHandle<xAOD::jFexLRJetRoIContainer> jets1(m_jFexLRJetRoIKey, ctx);
+    if (!jets1.isValid() ) {
+      ATH_MSG_ERROR("evtStore() does not contain L1 jet Collection with name "<< m_jFexSRJetRoIKey);
+      return StatusCode::FAILURE;
+    } 
+    return jetMatching(jets1, jets2, m_l1jFexLRmatchedKey, m_l1jFexLRJetVarHandleKeys, ctx);
+    
+  } else if (m_matchType == MatchType::gFexJetRoI) { // perform jet matching for L1 gFexJetRoI container
+    SG::ReadHandle<xAOD::gFexJetRoIContainer> jets1(m_gFexJetRoIKey, ctx);
+    if (!jets1.isValid() ) {
+      ATH_MSG_ERROR("evtStore() does not contain L1 jet Collection with name "<< m_gFexJetRoIKey);
+      return StatusCode::FAILURE;
+    } 
+    return jetMatching(jets1, jets2, m_l1gFexmatchedKey, m_l1gFexJetVarHandleKeys, ctx);
   }
 
-  return StatusCode::SUCCESS;
+  ATH_MSG_ERROR("unsupported type for jet matching targe");
+  return StatusCode::FAILURE;
 
 }
 
@@ -370,20 +427,102 @@ StatusCode JetMatcherAlg::set_jFexSRJetRoI_varHandleKeys() {
   return StatusCode::SUCCESS;
 }
 
+StatusCode JetMatcherAlg::set_jFexLRJetRoI_varHandleKeys() {
+
+  if (m_matchType == MatchType::jFexLRJetRoI) {
+
+  std::string keyAppendix = m_jetContainerKey2.key();
+  std::string prepend = m_jFexLRJetRoIKey.key();
+  
+  m_l1jFexLRptDiffKey = prepend+".ptdiff_" + keyAppendix;
+  m_l1jFexLRenergyDiffKey = prepend+".energydiff_" + keyAppendix;
+  m_l1jFexLRmassDiffKey = prepend+".massdiff_" + keyAppendix;
+  m_l1jFexLRptRespKey = prepend+".ptresp_" + keyAppendix;
+  m_l1jFexLRenergyRespKey = prepend+".energyresp_" + keyAppendix;
+  m_l1jFexLRmassRespKey = prepend+".massresp_" + keyAppendix;
+  m_l1jFexLRptRefKey = prepend+".ptRef_" + keyAppendix;
+  m_l1jFexLRetaRefKey = prepend+".etaRef_" + keyAppendix;
+  m_l1jFexLRmatchedKey = prepend+".matched_" + keyAppendix;
+  }
+  
+  
+  m_l1jFexLRJetVarHandleKeys = {
+    m_l1jFexLRptDiffKey,
+    m_l1jFexLRenergyDiffKey,
+    m_l1jFexLRmassDiffKey,
+    m_l1jFexLRptRespKey,
+    m_l1jFexLRenergyRespKey,
+    m_l1jFexLRmassRespKey,
+    m_l1jFexLRptRefKey,
+    m_l1jFexLRetaRefKey};
+  
+  return StatusCode::SUCCESS;
+}
+
+StatusCode JetMatcherAlg::set_gFexJetRoI_varHandleKeys() {
+
+  if (m_matchType == MatchType::gFexJetRoI) {
+
+  std::string keyAppendix = m_jetContainerKey2.key();
+  std::string prepend = m_gFexJetRoIKey.key();
+  
+  m_l1gFexptDiffKey = prepend+".ptdiff_" + keyAppendix;
+  m_l1gFexenergyDiffKey = prepend+".energydiff_" + keyAppendix;
+  m_l1gFexmassDiffKey = prepend+".massdiff_" + keyAppendix;
+  m_l1gFexptRespKey = prepend+".ptresp_" + keyAppendix;
+  m_l1gFexenergyRespKey = prepend+".energyresp_" + keyAppendix;
+  m_l1gFexmassRespKey = prepend+".massresp_" + keyAppendix;
+  m_l1gFexptRefKey = prepend+".ptRef_" + keyAppendix;
+  m_l1gFexetaRefKey = prepend+".etaRef_" + keyAppendix;
+  m_l1gFexmatchedKey = prepend+".matched_" + keyAppendix;
+  }
+  
+  
+  m_l1gFexJetVarHandleKeys = {
+    m_l1gFexptDiffKey,
+    m_l1gFexenergyDiffKey,
+    m_l1gFexmassDiffKey,
+    m_l1gFexptRespKey,
+    m_l1gFexenergyRespKey,
+    m_l1gFexmassRespKey,
+    m_l1gFexptRefKey,
+    m_l1gFexetaRefKey};
+  
+  return StatusCode::SUCCESS;
+}
+
 StatusCode JetMatcherAlg::initialize_varHandleKeys(){
 
   if (m_matchType ==  MatchType::xAODJet) {
     ATH_CHECK(initialize_xAODJet_varHandleKeys(true));
     ATH_CHECK(initialize_JetRoI_varHandleKeys(false));
     ATH_CHECK(initialize_jFexSRJetRoI_varHandleKeys(false));
+    ATH_CHECK(initialize_jFexLRJetRoI_varHandleKeys(false));
+    ATH_CHECK(initialize_gFexJetRoI_varHandleKeys(false));
   } else if (m_matchType ==  MatchType::JetRoI) {
     ATH_CHECK(initialize_xAODJet_varHandleKeys(false));
     ATH_CHECK(initialize_JetRoI_varHandleKeys(true));
     ATH_CHECK(initialize_jFexSRJetRoI_varHandleKeys(false));
+    ATH_CHECK(initialize_jFexLRJetRoI_varHandleKeys(false));
+    ATH_CHECK(initialize_gFexJetRoI_varHandleKeys(false));
   } else if (m_matchType ==  MatchType::jFexSRJetRoI) {
     ATH_CHECK(initialize_xAODJet_varHandleKeys(false));
     ATH_CHECK(initialize_JetRoI_varHandleKeys(false));
     ATH_CHECK(initialize_jFexSRJetRoI_varHandleKeys(true));
+    ATH_CHECK(initialize_jFexLRJetRoI_varHandleKeys(false));
+    ATH_CHECK(initialize_gFexJetRoI_varHandleKeys(false));
+  } else if (m_matchType ==  MatchType::jFexLRJetRoI) {
+    ATH_CHECK(initialize_xAODJet_varHandleKeys(false));
+    ATH_CHECK(initialize_JetRoI_varHandleKeys(false));
+    ATH_CHECK(initialize_jFexSRJetRoI_varHandleKeys(false));
+    ATH_CHECK(initialize_jFexLRJetRoI_varHandleKeys(true));
+    ATH_CHECK(initialize_gFexJetRoI_varHandleKeys(false));
+  } else if (m_matchType ==  MatchType::gFexJetRoI) {
+    ATH_CHECK(initialize_xAODJet_varHandleKeys(false));
+    ATH_CHECK(initialize_JetRoI_varHandleKeys(false));
+    ATH_CHECK(initialize_jFexSRJetRoI_varHandleKeys(false));
+    ATH_CHECK(initialize_jFexLRJetRoI_varHandleKeys(false));
+    ATH_CHECK(initialize_gFexJetRoI_varHandleKeys(true));
   } else {
     ATH_MSG_FATAL("uknown match type");
     return  StatusCode::FAILURE;
@@ -416,3 +555,21 @@ StatusCode JetMatcherAlg::initialize_jFexSRJetRoI_varHandleKeys(bool do_it){
  }
   return StatusCode::SUCCESS;
 }
+
+StatusCode JetMatcherAlg::initialize_jFexLRJetRoI_varHandleKeys(bool do_it){
+  for (auto& key : m_l1jFexLRJetVarHandleKeys) {
+    ATH_CHECK(key.get().initialize(do_it));
+    ATH_CHECK(m_l1jFexLRmatchedKey.initialize(do_it));
+ }
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode JetMatcherAlg::initialize_gFexJetRoI_varHandleKeys(bool do_it){
+  for (auto& key : m_l1gFexJetVarHandleKeys) {
+    ATH_CHECK(key.get().initialize(do_it));
+    ATH_CHECK(m_l1gFexmatchedKey.initialize(do_it));
+ }
+  return StatusCode::SUCCESS;
+}
+
