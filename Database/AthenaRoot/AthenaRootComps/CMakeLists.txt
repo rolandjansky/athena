@@ -34,6 +34,7 @@ atlas_add_test( test_athena_ntuple_dumper_multiple
                 SCRIPT athena.py -c"DOWRITE=2" -lERROR AthenaRootComps/test_athena_ntuple_dumper.py
                 ENVIRONMENT ATLAS_REFERENCE_TAG=${_reftag}
                 POST_EXEC_SCRIPT "arc_refcomp.sh ref.d3pd.ascii"
+                PROPERTIES TIMEOUT 600
                 PRIVATE_WORKING_DIRECTORY )
 
 atlas_add_test( test_athena_ntuple_dumper_multiple_diffroot  # diff-root on the test above
@@ -47,18 +48,21 @@ atlas_add_test( test_athena_ntuple_dumper_varhandles_nooutput
                 SCRIPT athena.py -c"DOWRITE=0" -lERROR AthenaRootComps/test_athena_ntuple_dumper.py
                 ENVIRONMENT ATLAS_REFERENCE_TAG=${_reftag}
                 POST_EXEC_SCRIPT "arc_refcomp.sh ref.d3pd.ascii"
+                PROPERTIES TIMEOUT 300
                 PRIVATE_WORKING_DIRECTORY )
 
 atlas_add_test( test_athena_ntuple_dumper_varhandles
                 SCRIPT athena.py -lERROR AthenaRootComps/test_athena_ntuple_dumper.py
                 ENVIRONMENT ATLAS_REFERENCE_TAG=${_reftag}
                 POST_EXEC_SCRIPT "arc_refcomp.sh ref.d3pd.ascii"
+                PROPERTIES TIMEOUT 300
                 PRIVATE_WORKING_DIRECTORY )
 
 atlas_add_test( test_athena_ntuple_dumper_novarhandles
                 SCRIPT athena.py -c"USEVARHANDLE=0" -lERROR AthenaRootComps/test_athena_ntuple_dumper.py
                 ENVIRONMENT ATLAS_REFERENCE_TAG=${_reftag}
                 POST_EXEC_SCRIPT "arc_refcomp.sh ref.d3pd.ascii"
+                PROPERTIES TIMEOUT 300
                 PRIVATE_WORKING_DIRECTORY )
 
 atlas_add_test( test_athena_ntuple_dumper_read
@@ -93,6 +97,7 @@ atlas_add_test( test_athena_multtuple
                 SCRIPT test/test_athena_multtuple.sh
                 ENVIRONMENT ATLAS_REFERENCE_TAG=${_reftag}
                 POST_EXEC_SCRIPT "arc_refcomp.sh ref.d3pd_der.ascii"
+                PROPERTIES TIMEOUT 300
                 PRIVATE_WORKING_DIRECTORY )
                     
 atlas_add_test( test_athena_multtuple_seek
