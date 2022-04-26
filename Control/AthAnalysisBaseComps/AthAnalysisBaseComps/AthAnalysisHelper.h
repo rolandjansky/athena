@@ -382,13 +382,6 @@ public:
   static TFile* getOutputFile(const std::string& streamName);
 
 
-
-
-   ///we keep a static handle to the joboptionsvc, since it's very useful
-   ///can e.g. do: AAH::joSvc->readOptions("myJob.opts","$JOBOPTSEARCHPATH")
-   static ServiceHandle<Gaudi::Interfaces::IOptionsSvc> joSvc;
-
-
 }; //AthAnalysisHelper class
 
 

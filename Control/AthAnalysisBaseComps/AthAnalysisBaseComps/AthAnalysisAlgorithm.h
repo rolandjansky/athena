@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthAnalysisAlgorithm.h 
@@ -45,10 +45,14 @@ class AthAnalysisAlgorithm : public ::AthHistogramAlgorithm, virtual public IInc
   /// @name Functions providing access to the input/output metadata
   /// @{
 
+  /// Const accessor for the input metadata store
+  const ServiceHandle< StoreGateSvc >& inputMetaStore() const { return m_inputMetaStore; }
   /// Accessor for the input metadata store
-  ServiceHandle< StoreGateSvc >& inputMetaStore() const;
+  ServiceHandle< StoreGateSvc >& inputMetaStore() { return m_inputMetaStore; }
+  /// Const accessor for the output metadata store
+  const ServiceHandle< StoreGateSvc >& outputMetaStore() const { return m_outputMetaStore; }
   /// Accessor for the output metadata store
-  ServiceHandle< StoreGateSvc >& outputMetaStore() const;
+  ServiceHandle< StoreGateSvc >& outputMetaStore() { return m_outputMetaStore; }
 
   /// @}
 
@@ -109,11 +113,11 @@ protected:
 
 private:
   /// Object accessing the input metadata store
-  mutable ServiceHandle< StoreGateSvc > m_inputMetaStore;
+  ServiceHandle< StoreGateSvc > m_inputMetaStore;
   /// Object accessing the output metadata store
-  mutable ServiceHandle< StoreGateSvc > m_outputMetaStore;
+  ServiceHandle< StoreGateSvc > m_outputMetaStore;
 
-    TFile* m_currentFile = 0; //used to cache the current file
+  TFile* m_currentFile{nullptr}; //used to cache the current file
 
   bool m_doneFirstEvent{false};
 };
