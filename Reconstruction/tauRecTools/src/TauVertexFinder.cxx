@@ -86,7 +86,7 @@ StatusCode TauVertexFinder::executeVertexFinder(xAOD::TauJet& pTau,
     
     // FIXME: this is kept for consistency but can probably be dropped
     // cases where we would have a non-empty PrimaryVertices container but no vertex of type xAOD::VxType::PriVtx, is that even possible?
-    if(primaryVertex==nullptr && pTau.jetLink().isValid()) {
+    if(primaryVertex==nullptr && pTau.jet()!=nullptr) {
       primaryVertex = tauRecTools::getJetVertex(*pTau.jet());
     }
   }
