@@ -32,7 +32,9 @@ StatusCode HGTD_DigitizationTool::initialize() {
 
   ATH_CHECK(detStore()->retrieve(m_id_helper, "HGTD_ID"));
 
-  ATH_CHECK(m_merge_svc.retrieve());
+  if (m_onlyUseContainerName) {
+    ATH_CHECK(m_merge_svc.retrieve());
+  }
 
   ATH_CHECK(m_rndm_svc.retrieve());
 
@@ -55,6 +57,9 @@ StatusCode HGTD_DigitizationTool::initialize() {
 
   // Initialize ReadHandleKey
   ATH_CHECK(m_hitsContainerKey.initialize(true));
+  ATH_CHECK(m_HGTDDetEleCollKey.initialize());
+  ATH_CHECK(m_output_rdo_cont_key.initialize());
+  ATH_CHECK(m_output_sdo_coll_key.initialize());
 
   return StatusCode::SUCCESS;
 }
