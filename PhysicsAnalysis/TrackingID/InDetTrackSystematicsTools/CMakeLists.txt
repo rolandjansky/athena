@@ -35,7 +35,7 @@ endif()
 atlas_add_executable( graph_to_function
    util/graph_to_function.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} CxxUtils )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

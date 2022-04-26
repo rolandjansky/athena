@@ -27,8 +27,6 @@
 #include "addnode.h"
 #include "spacer.h"
 
-#include "CxxUtils/no_sizeof_pointer_div_warning.h"
-
 #include "TStyle.h"
 #include "TCanvas.h"
 #include "TKey.h"

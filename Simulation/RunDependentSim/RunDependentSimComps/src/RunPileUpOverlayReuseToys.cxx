@@ -1,4 +1,7 @@
-#include "CxxUtils/no_sizeof_pointer_div_warning.h"
+/*
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "../share/RunPileUpOverlayReuseToys.C"
 #include "TRint.h"
 
