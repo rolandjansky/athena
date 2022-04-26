@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfHLTUtils/HLTUtils.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 
 using namespace HLT;
-bool Identifier::s_reportStringIDs = true; // default for now
+std::atomic<bool> Identifier::s_reportStringIDs = true; // default for now
 
 Identifier::Identifier( const std::string& stringID )
   : m_id( TrigConf::HLTUtils::string2hash( stringID, "Identifier" ) ) {}
