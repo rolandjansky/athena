@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 // FrontPanelCTP.h 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 // Header file for class FrontPanelCTP
 // Author: S.Binet<binet@cern.ch>
@@ -60,7 +60,7 @@ public:
    void setCableWord2(unsigned int clock, uint32_t data);
 
    /** @brief set the data that is sent on the optical cables */
-   void setOptCableWord(std::string conn, std::bitset<128> data) { m_optcableWord[conn] = data; }
+   void setOptCableWord(const std::string& conn, const std::bitset<128>& data) { m_optcableWord[conn] = data; }
 
 
 

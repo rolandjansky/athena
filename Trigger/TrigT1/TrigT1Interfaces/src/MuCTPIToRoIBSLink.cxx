@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "TrigT1Interfaces/MuCTPIToRoIBSLink.h"
 
 namespace L1MUINT {
 
-  MuCTPIToRoIBSLink::MuCTPIToRoIBSLink( std::vector<unsigned int> intVec )
+  MuCTPIToRoIBSLink::MuCTPIToRoIBSLink( const std::vector<unsigned int>& intVec )
     : m_MuCTPIToRoIBSLinkVector( intVec ) {
 
   }
