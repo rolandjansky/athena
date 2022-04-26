@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PFOHistUtils/PFOClusterMomentPlots.h"
@@ -150,17 +150,17 @@ namespace PFO {
      float moment_SECOND_LAMBDA = -1.0;
 
      //as opposed to PFO which uses specific functions to grab the cluster moments, the auxdata is used
-     static SG::AuxElement::ConstAccessor<float>acc_FE_moment_SECOND_R("SECOND_R");
-     static SG::AuxElement::ConstAccessor<float>acc_FE_moment_CENTER_LAMBDA("CENTER_LAMBDA");
-     static SG::AuxElement::ConstAccessor<float>acc_FE_moment_ISOLATION("ISOLATION");
-     static SG::AuxElement::ConstAccessor<float>acc_FE_moment_ENG_BAD_CELLS("ENG_BAD_CELLS");
-     static SG::AuxElement::ConstAccessor<float>acc_FE_moment_N_BAD_CELLS("N_BAD_CELLS");
-     static SG::AuxElement::ConstAccessor<float>acc_FE_moment_BADLARQ_FRAC("BADLARQ_FRAC");
-     static SG::AuxElement::ConstAccessor<float>acc_FE_moment_ENG_POS("ENG_POS");
-     static SG::AuxElement::ConstAccessor<float>acc_FE_moment_AVG_LAR_Q("AVG_LAR_Q");
-     static SG::AuxElement::ConstAccessor<float>acc_FE_moment_AVG_TILE_Q("AVG_TILE_Q");
-     static SG::AuxElement::ConstAccessor<float>acc_FE_moment_EM_PROBABILITY("EM_PROBABILITY");
-     static SG::AuxElement::ConstAccessor<float>acc_FE_moment_SECOND_LAMBDA("SECOND_LAMBDA");
+     static const SG::AuxElement::ConstAccessor<float>acc_FE_moment_SECOND_R("SECOND_R");
+     static const SG::AuxElement::ConstAccessor<float>acc_FE_moment_CENTER_LAMBDA("CENTER_LAMBDA");
+     static const SG::AuxElement::ConstAccessor<float>acc_FE_moment_ISOLATION("ISOLATION");
+     static const SG::AuxElement::ConstAccessor<float>acc_FE_moment_ENG_BAD_CELLS("ENG_BAD_CELLS");
+     static const SG::AuxElement::ConstAccessor<float>acc_FE_moment_N_BAD_CELLS("N_BAD_CELLS");
+     static const SG::AuxElement::ConstAccessor<float>acc_FE_moment_BADLARQ_FRAC("BADLARQ_FRAC");
+     static const SG::AuxElement::ConstAccessor<float>acc_FE_moment_ENG_POS("ENG_POS");
+     static const SG::AuxElement::ConstAccessor<float>acc_FE_moment_AVG_LAR_Q("AVG_LAR_Q");
+     static const SG::AuxElement::ConstAccessor<float>acc_FE_moment_AVG_TILE_Q("AVG_TILE_Q");
+     static const SG::AuxElement::ConstAccessor<float>acc_FE_moment_EM_PROBABILITY("EM_PROBABILITY");
+     static const SG::AuxElement::ConstAccessor<float>acc_FE_moment_SECOND_LAMBDA("SECOND_LAMBDA");
      
      //use accessors to retrieve the auxvars
      if(acc_FE_moment_SECOND_R.isAvailable(FE))
