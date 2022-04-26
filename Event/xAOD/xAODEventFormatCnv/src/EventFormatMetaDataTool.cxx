@@ -30,7 +30,12 @@ StatusCode
       ATH_MSG_VERBOSE("Initialising");
       ATH_MSG_VERBOSE("  " << m_inputMetaStore);
       ATH_MSG_VERBOSE("  " << m_outputMetaStore);
-      if (!m_inputKey.empty()) ATH_MSG_VERBOSE("  " << m_inputKey);
+      if (!m_keys.empty()) {
+        ATH_MSG_VERBOSE("Asked to copy EventFormat with keys:");
+        for (const std::string& key : m_keys) {
+          ATH_MSG_VERBOSE("  - " << key);
+        }
+      }
 
       // Connect to the metadata stores:
       ATH_CHECK(m_inputMetaStore.retrieve());
@@ -69,31 +74,23 @@ StatusCode
 StatusCode
     EventFormatMetaDataTool::collectMetaData() {
 
-      std::vector< std::string > keys;
-      if (m_inputKey.empty()) {
+      std::vector< std::string > keys = m_keys;
+      if (keys.empty()) {
         m_inputMetaStore->keys<xAOD::EventFormat>(keys);
-        // remove duplicates - expecting none
-        std::sort(keys.begin(), keys.end());
-        keys.erase(std::unique(keys.begin(), keys.end()), keys.end());
       } else {
-        // copy only the specified key
-        keys.push_back(m_inputKey);
-      }
-
-      bool found = false;
-      for (auto itr = keys.begin(); itr != keys.end();) {
-        if (m_inputMetaStore->contains< xAOD::EventFormat >(*itr)) {
-          found = true;
-          ATH_MSG_VERBOSE("Found xAOD::EventFormat with key " << *itr);
-          ++itr;
-        } else {
-          itr = keys.erase(itr);
-        }
+        // remove keys not in the InputMetaDataStore
+        keys.erase(
+            std::remove_if(
+                keys.begin(), keys.end(),
+                [this](std::string& key) {
+                  return !m_inputMetaStore->contains<xAOD::EventFormat>(key);
+                }),
+            keys.end());
       }
 
       // If the input file doesn't have any event format metadata,
       // then finish right away:
-      if (!found) return StatusCode::SUCCESS;
+      if (keys.empty()) return StatusCode::SUCCESS;
 
       // Retrieve the input container:
       for (const std::string& key : keys) {

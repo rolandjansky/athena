@@ -26,6 +26,7 @@ svcMgr.EventSelector.InputCollections = [
 ToolSvc += CfgMgr.xAODMaker__EventFormatMetaDataTool(
     "EventFormatMetaDataTool",
     OutputLevel=1,
+    Keys=["EventFormattestStream0", "EventFormatAOD", "SomeNotExistentKey"],
 )
 ToolSvc += CfgMgr.xAODMaker__FileMetaDataTool(
     "FileMetaDataTool",
