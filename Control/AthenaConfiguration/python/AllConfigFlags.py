@@ -40,6 +40,8 @@ def _createCfgFlags():
     # Configure EvtIdModifierSvc with a list of dictionaries of the form:
     # {'run': 152166, 'lb': 202, 'starttstamp': 1269948352889940910, 'evts': 1, 'mu': 0.005}
     acf.addFlag("Input.RunAndLumiOverrideList", [])
+    # Job number
+    acf.addFlag("Input.JobNumber", 1)
 
     acf.addFlag('Input.ProjectName', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("project_name", "data17_13TeV")) # former global.ProjectName
     acf.addFlag('Input.TriggerStream', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("stream", "") if prevFlags.Input.Format == Format.BS 

@@ -44,14 +44,14 @@ def getInputCollectionOffset(flags, initialList):
     logger = logging.getLogger("PileUp")
 
     offsetrnd = 0
-    if flags.Digitization.JobNumber >= 0:
+    if flags.Input.JobNumber >= 0:
         nBkgEventsPerFile = getNBkgEventsPerFile(initialList, logger)
 
         # Turn jobNumber into a random number following https://en.wikipedia.org/wiki/Xorshift
         #x ^= x << 13;
         #x ^= x >> 17;
         #x ^= x << 5;
-        offsetrnd = int(flags.Digitization.JobNumber + nBkgEventsPerFile * len(initialList))
+        offsetrnd = int(flags.Input.JobNumber + nBkgEventsPerFile * len(initialList))
         offsetrnd = offsetrnd ^ (offsetrnd << 13)
         offsetrnd = offsetrnd ^ (offsetrnd >> 17)
         offsetrnd = offsetrnd ^ (offsetrnd << 15)
@@ -132,7 +132,7 @@ def generatePileUpProfile(flags,
     logger = logging.getLogger("PileUp")
     logger.info('Doing RunLumiOverride configuration from file.')
 
-    jobNumber = flags.Digitization.JobNumber
+    jobNumber = flags.Input.JobNumber
     maxEvents = flags.Exec.MaxEvents
     totalEvents = flags.Exec.MaxEvents
     skipEvents = flags.Exec.SkipEvents

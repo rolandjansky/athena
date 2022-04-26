@@ -72,7 +72,7 @@ def fromRunArgs(runArgs):
 
     # Setup pile-up profile
     if ConfigFlags.Digitization.PileUp:
-        from Digitization.PileUpUtils import setupPileUpProfile
+        from RunDependentSimComps.PileUpUtils import setupPileUpProfile
         setupPileUpProfile(ConfigFlags)
 
     # TODO not parsed yet:
