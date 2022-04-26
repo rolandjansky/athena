@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -24,11 +24,11 @@ JetSeedBuilder::~JetSeedBuilder() {
 //______________________________________________________________________________
 StatusCode JetSeedBuilder::execute(xAOD::TauJet& pTau) const {
 
-  if (! pTau.jetLink().isValid()) {
+  const xAOD::Jet* jetSeed = pTau.jet();
+  if (jetSeed == nullptr) {
     ATH_MSG_ERROR("Tau jet link is invalid.");
     return StatusCode::FAILURE;
   }
-  const xAOD::Jet* jetSeed = pTau.jet();
 
   ATH_MSG_DEBUG("seed is Jet with"
 		<< " pt=" << jetSeed->pt()

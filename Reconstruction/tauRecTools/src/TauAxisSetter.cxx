@@ -21,11 +21,12 @@ TauRecToolBase(name) {
 
 
 StatusCode TauAxisSetter::execute(xAOD::TauJet& tau) const {
-  if (! tau.jetLink().isValid()) {
+
+  const xAOD::Jet* jetSeed = tau.jet();
+  if (jetSeed == nullptr) {
     ATH_MSG_ERROR("Tau jet link is invalid.");
     return StatusCode::FAILURE;
   }
-  const xAOD::Jet* jetSeed = tau.jet();
 
   // Barycenter is the sum of cluster p4 in the seed jet
   TLorentzVector baryCenter;  

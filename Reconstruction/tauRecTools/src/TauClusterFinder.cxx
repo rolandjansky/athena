@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ATHLYSIS
@@ -22,11 +22,11 @@ TauClusterFinder::TauClusterFinder(const std::string& name) :
 StatusCode TauClusterFinder::execute(xAOD::TauJet& tau) const {
   tau.clearClusterLinks();
     
-  if (! tau.jetLink().isValid()) {
+  const xAOD::Jet* jetSeed = tau.jet();
+  if (jetSeed == nullptr) {
     ATH_MSG_ERROR("Tau jet link is invalid.");
     return StatusCode::FAILURE;
   }
-  const xAOD::Jet* jetSeed = tau.jet();
   
   // Find all the clusters in the JetConstituent
   std::vector<const xAOD::CaloCluster*> clusterList = getClusterList(*jetSeed);
@@ -39,7 +39,7 @@ StatusCode TauClusterFinder::execute(xAOD::TauJet& tau) const {
     
     // Clusters with negative energy will be thinned, and the elementlinks to these
     // clusters will not be valid. 
-    if (m_skipNegativeEnergy && cluster->rawE() <= .0) continue;
+    if (m_skipNegativeEnergy && cluster->rawE() <= 0.) continue;
 
     ElementLink<xAOD::IParticleContainer> linkToCluster;
     linkToCluster.toContainedElement(
