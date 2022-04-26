@@ -12,7 +12,7 @@ atlas_add_component( LArCalibTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities CaloCondBlobObjs CaloDetDescrLib CaloIdentifier EventInfo GaudiKernel LArCOOLConditions LArCablingLib LArElecCalib LArIdentifier LArRawConditions LArRawEvent LArRecConditions LArToolsLib LumiBlockData StoreGateLib TrigDecisionToolLib xAODEventInfo )
+                     LINK_LIBRARIES ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities CaloCondBlobObjs CaloDetDescrLib CaloIdentifier GaudiKernel LArCOOLConditions LArCablingLib LArElecCalib LArIdentifier LArRawConditions LArRawEvent LArRecConditions LArToolsLib LumiBlockData StoreGateLib TrigDecisionToolLib xAODEventInfo )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

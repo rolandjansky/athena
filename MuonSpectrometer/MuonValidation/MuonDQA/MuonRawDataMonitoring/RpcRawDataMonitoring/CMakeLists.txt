@@ -11,7 +11,7 @@ atlas_add_component( RpcRawDataMonitoring
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringKernelLib AthenaMonitoringLib EventInfo FourMomUtils GaudiKernel MuonDQAUtilsLib MuonGeoModelLib MuonIdHelpersLib MuonPrepRawData MuonRDO MuonReadoutGeometry MuonTrigCoinData RPC_CondCablingLib StoreGateLib TrigDecisionToolLib TrkEventPrimitives TrkExInterfaces TrkParameters xAODEventInfo xAODMuon xAODTracking xAODTrigger )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringKernelLib AthenaMonitoringLib FourMomUtils GaudiKernel MuonDQAUtilsLib MuonGeoModelLib MuonIdHelpersLib MuonPrepRawData MuonRDO MuonReadoutGeometry MuonTrigCoinData RPC_CondCablingLib StoreGateLib TrigDecisionToolLib TrkEventPrimitives TrkExInterfaces TrkParameters xAODEventInfo xAODMuon xAODTracking xAODTrigger )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

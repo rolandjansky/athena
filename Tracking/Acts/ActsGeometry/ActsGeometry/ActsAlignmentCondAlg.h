@@ -7,7 +7,6 @@
 
 // ATHENA
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "EventInfo/EventInfo.h" // ReadHandleKey wants complete type
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/WriteCondHandleKey.h"
 
@@ -16,7 +15,6 @@
 // STL
 #include <string>
 
-class EventInfo;
 class ICondSvc;
 class StoreGateSvc;
 class IActsTrackingGeometrySvc;

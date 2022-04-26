@@ -12,7 +12,7 @@ atlas_add_component( TrigOnlineMonitor
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaInterprocess AthenaKernel AthenaMonitoringKernelLib ByteStreamCnvSvcBaseLib ByteStreamData EventInfo GaudiKernel LumiBlockData MagFieldConditions StoreGateLib TrigConfData TrigT1Result TrigT1MuctpiBits )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaInterprocess AthenaKernel AthenaMonitoringKernelLib ByteStreamCnvSvcBaseLib ByteStreamData GaudiKernel LumiBlockData MagFieldConditions StoreGateLib TrigConfData TrigT1Result TrigT1MuctpiBits )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
