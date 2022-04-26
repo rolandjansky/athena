@@ -1054,7 +1054,7 @@ double BTaggingTruthTaggingTool::getTagBinsRW(TRFinfo &trfinf,bool isIncl, unsig
 
   if((!isIncl && trfinf.binsprob_ex.size() == 0) || (isIncl && trfinf.binsprob_in.size() == 0)) {
     ATH_MSG_ERROR("Need to choose quantiles before computing the reweighting");
-    exit(-1);
+    throw std::runtime_error("Error in BTaggingTruthTaggingTool::getTagBinsRW");
   }
 
   double tbw = 0.;
