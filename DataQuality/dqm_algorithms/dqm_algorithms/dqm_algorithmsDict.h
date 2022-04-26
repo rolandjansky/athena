@@ -5,9 +5,6 @@
 #ifndef DQM_ALGORITHMS_DQM_ALGORITHMSDICT_H
 #define DQM_ALGORITHMS_DQM_ALGORITHMSDICT_H
 
-#include "CxxUtils/no_bitwise_op_warning.h"
-#include "CxxUtils/no_sizeof_pointer_div_warning.h"
-
 #include "dqm_algorithms/AddReference.h"
 #include "dqm_algorithms/AddReference_All_Bins_Filled.h"
 #include "dqm_algorithms/AddReference_BinContentComp.h"

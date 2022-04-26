@@ -21,7 +21,7 @@
 #include <map>
 #include <vector>
 #include <cmath>
-#include "CxxUtils/no_bitwise_op_warning.h"
+
 #include "TTree.h"
 #include "TTreeIndex.h"
 #include "SimposAccessor.h"

@@ -20,7 +20,6 @@
 //  Options: -1, any int
 //  if -1 is given, auto_flush for the CollectionTree will be set to the auto flush of the input CollectionTree
 
-#include "CxxUtils/no_bitwise_op_warning.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TKey.h" 

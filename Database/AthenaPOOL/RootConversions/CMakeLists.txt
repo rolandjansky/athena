@@ -17,7 +17,7 @@ atlas_add_dictionary( RootConversionsDict
                       RootConversions/RootConversionsDict.h
                       RootConversions/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} RootConversions CxxUtils )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} RootConversions )
 
 atlas_add_dictionary( TestRootConversions1Dict
                       test/RootConversionsTest1Dict.h

@@ -2,20 +2,10 @@
 Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/no_bitwise_op_warning.h"
 #include "treeCopyOpts.h"
 #include <iostream>
 
-// Suppress a warning from boost.
-// (Binaries apparently include boost with -I rather than -isystem.)
-#ifdef __clang__
-# pragma clang diagnostic push
-# pragma clang diagnostic ignored "-Wc11-extensions"
-#endif
 #include <boost/program_options.hpp>
-#ifdef __clang__
-# pragma clang diagnostic pop
-#endif
 
 namespace H5Utils {
 
