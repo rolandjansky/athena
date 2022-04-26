@@ -130,7 +130,6 @@ private:
   ToolHandleArray<IJetModifier> m_modifiers {this, "JetModifiers", {}};
   ToolHandleArray<IJetConsumer> m_consumers {this, "JetConsumers", {}};
   bool m_trigger;
-  int m_timer;
 
   // Cached state.
   int m_initCount;
