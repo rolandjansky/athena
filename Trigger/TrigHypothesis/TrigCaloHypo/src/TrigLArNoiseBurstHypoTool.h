@@ -24,13 +24,12 @@ class TrigLArNoiseBurstHypoTool : public extends<AthAlgTool, ITrigLArNoiseBurstH
 
   virtual StatusCode initialize() override;
 
-  virtual StatusCode decide( std::vector<ITrigLArNoiseBurstHypoTool::CaloCellNoiseInfo>& input )  const override;
+  virtual StatusCode decide( std::vector<ITrigLArNoiseBurstHypoTool::FlagNoiseInfo>& input )  const override;
 
-  virtual bool decide( const ITrigLArNoiseBurstHypoTool::CaloCellNoiseInfo& i ) const override;
+  virtual bool decide( const ITrigLArNoiseBurstHypoTool::FlagNoiseInfo& i ) const override;
 
 
  private:
-  ToolHandle<ILArNoisyROTool> m_noisyROTool;
   HLT::Identifier m_decisionId;
 
   Gaudi::Property< bool >  m_badFEBFlaggedPartitions         { this, "BadFEBFlaggedPartitions" , true, "flag to be used for NB detection" };
