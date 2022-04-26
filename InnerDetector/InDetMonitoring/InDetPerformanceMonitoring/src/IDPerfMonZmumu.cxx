@@ -6,7 +6,7 @@
 // Include files...
 //==================================================================================
 // This files header
-#include "InDetPerformanceMonitoring/IDPerfMonZmumu.h"
+#include "IDPerfMonZmumu.h"
 // Standard headers
 #include "TTree.h"
 #include "TLorentzVector.h"
@@ -21,10 +21,6 @@
 // ATLAS headers
 #include "GaudiKernel/IInterface.h"
 #include "StoreGate/StoreGateSvc.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
 
 #include "TrkTruthData/TrackTruthCollection.h"
 #include "TrkTruthData/TrackTruthKey.h"
@@ -224,7 +220,8 @@ StatusCode IDPerfMonZmumu::initialize()
   ATH_CHECK( m_extrapolator.retrieve());
   
   ATH_CHECK (m_vertexKey.initialize());
-  
+  ATH_CHECK (m_eventInfoKey.initialize());
+
   ATH_MSG_INFO(" -- IDPerfMonZmumu::initialize() -- m_vertexKey: " << m_vertexKey);
 
   m_xZmm.setDebugMode(false);
@@ -865,16 +862,17 @@ StatusCode IDPerfMonZmumu::execute()
 {
   ATH_MSG_DEBUG("** IDPerfMonZmumu::execute ** START **");
   
-  const EventInfo * eventInfo;
-  if (evtStore()->retrieve(eventInfo).isSuccess()) {
-    m_runNumber = eventInfo->event_ID()->run_number();
-    m_evtNumber = eventInfo->event_ID()->event_number();
-    m_lumi_block = eventInfo->event_ID()->lumi_block();
+  SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey, getContext());
+  if(eventInfo.isValid()) {
+    m_runNumber = eventInfo->runNumber();
+    m_evtNumber = eventInfo->eventNumber();
+    m_lumi_block = eventInfo->lumiBlock();
     m_event_mu = eventInfo->actualInteractionsPerCrossing();
     ATH_MSG_DEBUG(" Execute() starting on --> Run: " << m_runNumber << "  event: " << m_evtNumber << "   Lumiblock: " << m_lumi_block);
   }
   else {
     ATH_MSG_ERROR("** IDPerfMonZmumu::execute ** Could not retrieve event info.");
+    return StatusCode::FAILURE;
   }
 
   /// --  START 4 lepton analysis
