@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAODJet/JetAttributes.h"
@@ -1625,7 +1625,7 @@ bool JetTagMonitoring::passJVTCuts(const xAOD::Jet *jet) {
 
   ATH_MSG_DEBUG("passJVTCuts()");
   
-  static SG::AuxElement::Accessor<float> JVT( "Jvt" ); //JVT > 0.59 (60 GeV)
+  static const SG::AuxElement::Accessor<float> JVT( "Jvt" ); //JVT > 0.59 (60 GeV)
   double jvt = JVT(*jet);
 
   if( !( ((jet->pt()<60000)&&(abs(jet->eta())<2.4)&&(jvt > 0.59))||((jet->pt()<60000)&&(abs(jet->eta())>2.4))||(jet->pt()>60000) ) ) return false;
