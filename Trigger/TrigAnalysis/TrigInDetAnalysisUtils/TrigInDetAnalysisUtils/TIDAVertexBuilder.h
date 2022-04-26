@@ -31,14 +31,17 @@ public:
 
     // select() methods convert containers of xAOD::Vertex into vector of TIDA::Vertex
     // If require_tracks=true, only vertices with at least one track are kept
+    // If useType0 is set to True, vertices of type 0 are added to the collection
     static std::vector<TIDA::Vertex> select( const xAOD::VertexContainer* xAODVertices,
                                              const std::vector<TIDA::Track*>* trackCollection=0,
+                                             bool useType0=false,
                                              bool require_tracks=true );
 
 
     static std::vector<TIDA::Vertex> select( xAOD::VertexContainer::const_iterator itr,
                                              xAOD::VertexContainer::const_iterator enditr,
                                              const std::vector<TIDA::Track*>* trackCollection=0,
+                                             bool useType0=false,
                                              bool require_tracks=true );
  
 private:

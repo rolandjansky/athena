@@ -64,6 +64,7 @@ public:
     m_rawElectrons(),
     m_tauType(),
     m_tauProngs(),
+    m_vertexType(),
     m_doBjets(false),
     m_hasTruthMap(false),
     m_tauEtCutOffline(tauEtCutOffline),
@@ -97,18 +98,21 @@ public:
       //      std::cout << "\t\t\t"                << chain         << std::endl;
 
       if ( chainNames[i]=="Offline" )     m_doOffline     = true;
-      if ( chainNames[i]=="Vertex" )      m_doVertices    = true;
+      if ( chain.head()=="Vertex" ) {
+        m_vertexType.push_back(chain.tail());
+        m_doVertices    = true;
+      }    
       if ( chainNames[i]=="MuonsSP" )     m_doMuonsSP     = true;
       if ( chain.head()=="Muons" )        m_muonType.push_back(chain.tail());
 
       if ( chain.head()=="Electrons" ) { 
- 	 m_electronType.push_back(chain.tail());
-	 m_rawElectrons.push_back(chain.extra());
+        m_electronType.push_back(chain.tail());
+        m_rawElectrons.push_back(chain.extra());
       }
       
       if ( chain.head()=="Taus" ) { 
-	 m_tauType.push_back(chain.tail());
-	 m_tauProngs.push_back(chain.extra());
+        m_tauType.push_back(chain.tail());
+        m_tauProngs.push_back(chain.extra());
       }  
 
       if ( chainNames[i]=="Bjets" )       m_doBjets       = true;
@@ -160,6 +164,8 @@ protected:
 
   std::vector<std::string>  m_tauType;
   std::vector<std::string>  m_tauProngs;
+
+  std::vector<std::string> m_vertexType;
 
   bool m_doBjets;
   bool m_hasTruthMap;
