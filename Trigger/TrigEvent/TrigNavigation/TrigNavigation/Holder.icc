@@ -98,8 +98,9 @@ HLTNavDetails::HolderImp<STORED, CONTAINER>::HolderImp()
 /////////////////////////////////////////////////////////////////////////////
 template<class STORED, class CONTAINER>
 HLTNavDetails::HolderImp<STORED, CONTAINER>::HolderImp(const std::string& prefix, const std::string& label, uint16_t idx) 
-  : Holder<STORED>(prefix, label, idx) {
-  m_key = formatSGkey(prefix, ClassID_traits<CONTAINER>::typeName(), label);
+  : Holder<STORED>(prefix, label, idx),
+    m_key (formatSGkey(prefix, ClassID_traits<CONTAINER>::typeName(), label))
+{
 }
 
 /////////////////////////////////////////////////////////////////////////////
