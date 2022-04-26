@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*! \file Chi2Test_2D.cxx does Chi2Test on a 2D histogram, and also returns the positions of the highest outlying bins; returns dqm_core::Result
@@ -21,11 +21,11 @@
 #include <vector>
 #include <cctype>
 #include <map>
-using namespace std;
-
 
 #include <dqm_core/AlgorithmManager.h>
 static dqm_algorithms::Chi2Test_2D myInstance;
+
+using namespace std;
 
 dqm_algorithms::Chi2Test_2D::Chi2Test_2D()
  {
