@@ -15,7 +15,7 @@ atlas_add_library( ByteStreamCnvSvcLib
    ByteStreamCnvSvc/*.h src/*.cxx
    PUBLIC_HEADERS ByteStreamCnvSvc
    PRIVATE_INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES AthenaBaseComps ByteStreamData EventInfo GaudiKernel
+   LINK_LIBRARIES AthenaBaseComps ByteStreamData GaudiKernel
    ByteStreamCnvSvcBaseLib StoreGateLib rt
    PRIVATE_LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${Boost_LIBRARIES}
    AthenaKernel SGTools CollectionBase FileCatalog

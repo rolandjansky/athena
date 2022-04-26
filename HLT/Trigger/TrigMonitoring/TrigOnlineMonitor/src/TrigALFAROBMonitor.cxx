@@ -8,9 +8,6 @@
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "TrigT1MuctpiBits/MuCTPI_Bits.h"
 
-#include "EventInfo/TriggerInfo.h"
-#include "EventInfo/EventInfo.h"
-
 #include "eformat/eformat.h"
 
 #include <sstream>
@@ -112,10 +109,6 @@ StatusCode TrigALFAROBMonitor::execute (const EventContext& ctx) const {
   }
 
   
-  //ATH_MSG_INFO ("new event");
-  // get EventID
-  //const EventID* p_EventID = p_EventInfo->event_ID();
-
   const EventIDBase p_EventIDBase = ctx.eventID();
   LB = p_EventIDBase.lumi_block();
   ATH_MSG_DEBUG(" Decoded lumi block nb: " <<LB);
