@@ -10,7 +10,6 @@
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "Identifier/HWIdentifier.h"
 
 
 /**
@@ -26,19 +25,14 @@ class ITrigLArNoiseBurstHypoTool
   DeclareInterfaceID(ITrigLArNoiseBurstHypoTool, 1, 0);
   virtual ~ITrigLArNoiseBurstHypoTool(){}
 
-  struct CaloCellNoiseInfo {
-  CaloCellNoiseInfo( TrigCompositeUtils::Decision* d, 
+  struct FlagNoiseInfo {
+  FlagNoiseInfo( TrigCompositeUtils::Decision* d, 
 		     unsigned int& f,
                      const TrigRoiDescriptor* r,
-                     const CaloCellContainer* c,
-                     const std::set<unsigned int>* bf,
-                     const std::vector<HWIdentifier>* MNBfeb,
                      const TrigCompositeUtils::Decision* previousDecision )
   : decision( d ), 
     flag(f),
     roi( r ), 
-    cells(c), 
-    knownBadFEBs(bf), knownMNBFEBs(MNBfeb),
     previousDecisionIDs( TrigCompositeUtils::decisionIDs( previousDecision ).begin(), 
                TrigCompositeUtils::decisionIDs( previousDecision ).end() )
     {}
@@ -46,9 +40,6 @@ class ITrigLArNoiseBurstHypoTool
     TrigCompositeUtils::Decision* decision;
     unsigned int& flag;
     const TrigRoiDescriptor* roi;
-    const CaloCellContainer* cells;
-    const std::set<unsigned int>* knownBadFEBs;
-    const std::vector<HWIdentifier>* knownMNBFEBs;
     const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
   };
   
@@ -59,13 +50,13 @@ class ITrigLArNoiseBurstHypoTool
    * There will be many tools called often to perform this quick operation and we do not want to pay for polymorphism which we do not need to use.
    * Will actually see when N obj hypos will enter the scene
    **/
-  virtual StatusCode decide( std::vector<CaloCellNoiseInfo>& input )  const = 0;
+  virtual StatusCode decide( std::vector<FlagNoiseInfo>& input )  const = 0;
 
   /**
    * @brief Makes a decision for a single object
    * The decision needs to be returned
    **/ 
-  virtual bool decide( const CaloCellNoiseInfo& i ) const = 0;
+  virtual bool decide( const FlagNoiseInfo& i ) const = 0;
 
  protected:
 
