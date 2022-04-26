@@ -48,7 +48,7 @@ class HTTSpacePointsTool_v2 : public extends<AthAlgTool, HTTSpacePointsToolI> {
     unsigned m_spacepts = 0;
     unsigned m_filteredhits = 0;
     unsigned m_diffmodule = 0;
-    TH1I*    m_spacepts_per_hit;
+    TH1I*    m_spacepts_per_hit = nullptr;
 
 };
 

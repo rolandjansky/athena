@@ -22,7 +22,7 @@ TrigJetConditionConfig_repeated::TrigJetConditionConfig_repeated(const std::stri
 
 
 StatusCode TrigJetConditionConfig_repeated::initialize() {
-  ATH_MSG_INFO("initialising " << name());
+  ATH_MSG_DEBUG("initialising " << name());
   return StatusCode::SUCCESS;
 }
 

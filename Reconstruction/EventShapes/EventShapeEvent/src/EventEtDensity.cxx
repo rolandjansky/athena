@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -11,7 +11,7 @@ bool EventEtDensity::copyData(const std::vector<double>& lparm,
 			      size_t                     lindx)
 {
   // check consistency
-  static size_t nn((size_t)MAXINDEX);
+  static const size_t nn((size_t)MAXINDEX);
   if ( (lindx+1) * nn > lparm.size() )
     {
       this->clear();
@@ -29,7 +29,7 @@ bool EventEtDensity::copyData(const std::vector<double>& lparm,
 
 bool EventEtDensity::extractData(std::vector<double>& lparm,size_t lindx) const
 {
-  static size_t nn((size_t)MAXINDEX);
+  static const size_t nn((size_t)MAXINDEX);
   if ( nn*(lindx+1) > lparm.size() ) lparm.resize(nn*(lindx+1));
   lparm[lindx+(size_t)RHOVALUE]     = rhoValue;
   lparm[lindx+(size_t)RHOSIGMA]     = rhoSigma;

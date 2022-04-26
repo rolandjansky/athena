@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CLUSTERVALIDATIONPLOTS_H
@@ -19,7 +19,7 @@ class ClusterValidationPlots : public PlotBase {
  public:
 
   /** Standard Constructor */
-  ClusterValidationPlots(PlotBase* pParent, std::string sDir, SG::ReadHandleKey<xAOD::CaloClusterContainer>& sClusterContainerName);
+  ClusterValidationPlots(PlotBase* pParent, const std::string& sDir, SG::ReadHandleKey<xAOD::CaloClusterContainer>& sClusterContainerName);
 
   /** fill the histograms up */
   void fill(const xAOD::CaloCluster& theCluster, const xAOD::EventInfo& eventInfo);

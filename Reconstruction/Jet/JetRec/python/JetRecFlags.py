@@ -5,9 +5,7 @@
 # David Adams
 # Updated March 2015
 #
-# These are flags for controlling the behavior of jet reconstruction
-# in RecExCommon (which includes JetRec/JetRec_jobOptions.py) and in
-# the example jet reconstruction options RunJetRec.py.
+# These are flags for controlling the behavior of jet reconstruction in RecExCommon
 #
 # Typical usage is
 #   from JetRec.JetRecFlags import jetFlags

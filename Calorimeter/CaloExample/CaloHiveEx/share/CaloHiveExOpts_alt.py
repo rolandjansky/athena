@@ -71,11 +71,6 @@ InDetFlags.doxAOD.set_Value_and_Lock(False)
 
 #---------------------------------------------------------------------------------#
 
-# declare if you want to use jets and if so how many
-#  this needs to be done before data dependencies are declared
-useJets=False
-nJets=25
-
 #
 ## force loading of data. make sure this alg is at the front of the
 ## AlgSequence
@@ -229,10 +224,6 @@ from CaloRec.CaloClusterSWCmbGetter import CaloClusterSWCmbGetter
 CaloClusterSWCmbGetter()
 
 include( "CaloRec/CaloTopoCluster_jobOptions.py" )
-
-if useJets:
-   include( "CaloHiveEx/CaloHiveJets.py" )
-
 
 import AthenaPoolCnvSvc.WriteAthenaPool
 logRecoOutputItemList_jobOptions = logging.getLogger( 'py:RecoOutputItemList_jobOptions' )

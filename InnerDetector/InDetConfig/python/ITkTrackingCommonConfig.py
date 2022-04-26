@@ -136,7 +136,7 @@ def ITkTrackFitterAmbiCfg(flags, name='ITkTrackFitterAmbi', **kwargs) :
     ITkTrackFitter = acc.popToolsAndMerge(ITkTrackFitterCfg(flags, name, **kwargs))
     ClusterSplitProbabilityName = "ITkAmbiguityProcessorSplitProb" + flags.ITk.Tracking.ActivePass.extension
 
-    if flags.ITk.Tracking.trackFitterType in ['KalmanFitter', 'KalmanDNAFitter', 'ReferenceKalmanFitter', 'DistributedKalmanFilter']:
+    if flags.ITk.Tracking.trackFitterType in ['DistributedKalmanFilter']:
         ITkTrackFitter.RecalibratorHandle.BroadPixelClusterOnTrackTool.ClusterSplitProbabilityName = ClusterSplitProbabilityName
 
     elif flags.ITk.Tracking.trackFitterType=='GlobalChi2Fitter':
@@ -191,28 +191,6 @@ def ITkGlobalChi2FitterBaseCfg(flags, name='ITkGlobalChi2FitterBase', **kwargs) 
 
     GlobalChi2Fitter = CompFactory.Trk.GlobalChi2Fitter(name=name, **kwargs)
     acc.setPrivateTools(GlobalChi2Fitter)
-    return acc
-
-def ITkFKFCfg(flags, name='ITkFKF', **kwargs):
-    acc = ComponentAccumulator()
-    kwargs.setdefault("StateChi2PerNDFPreCut", 30.0)
-    PublicFKF = CompFactory.Trk.ForwardKalmanFitter(name = name, **kwargs)
-    acc.setPrivateTools(PublicFKF)
-    return acc
-
-def ITkBKSCfg(flags, name='ITkBKS', **kwargs):
-    acc = ComponentAccumulator()
-    kwargs.setdefault("InitialCovarianceSeedFactor", 200.)
-    PublicBKS = CompFactory.Trk.KalmanSmoother(name = name, **kwargs)
-    acc.setPrivateTools(PublicBKS)
-    return acc
-
-def ITkKOLCfg(flags, name = 'ITkKOL', **kwargs):
-    acc = ComponentAccumulator()
-    kwargs.setdefault("TrackChi2PerNDFCut", 17.0)
-    kwargs.setdefault("StateChi2PerNDFCut", 12.5)
-    PublicKOL = CompFactory.Trk.KalmanOutlierLogic(name = name, **kwargs)
-    acc.setPrivateTools(PublicKOL)
     return acc
 
 #############################################################################################

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetCalibTools/CalibrationMethods/JetPileupCorrection.h"
@@ -217,7 +217,7 @@ StatusCode JetPileupCorrection::calibrate(xAOD::Jet& jet, JetEventInfo& jetEvent
 
       if ( m_doOrigin ) {
         xAOD::JetFourMom_t jetOriginP4;
-        static unsigned int originWarnings = 0;
+        static std::atomic<unsigned int> originWarnings = 0;
         if ( jet.getAttribute<xAOD::JetFourMom_t>(m_originScale.c_str(),jetOriginP4) )
           calibP4 = jetOriginP4*pileup_SF;
         else {
@@ -240,7 +240,7 @@ StatusCode JetPileupCorrection::calibrate(xAOD::Jet& jet, JetEventInfo& jetEvent
       // Apply mu-based calibration
       if ( m_doOrigin ) {
         xAOD::JetFourMom_t jetOriginP4;
-        static unsigned int originWarnings = 0;
+        static std::atomic<unsigned int> originWarnings = 0;
         if ( jet.getAttribute<xAOD::JetFourMom_t>(m_originScale.c_str(),jetOriginP4) )
           calibP4 = jetOriginP4*muSF;
         else {
@@ -279,7 +279,7 @@ StatusCode JetPileupCorrection::calibrate(xAOD::Jet& jet, JetEventInfo& jetEvent
     xAOD::JetFourMom_t calibP4;
     if ( m_doOrigin ) {
       xAOD::JetFourMom_t jetOriginP4;
-      static unsigned int originWarnings = 0;
+      static std::atomic<unsigned int> originWarnings = 0;
       if ( jet.getAttribute<xAOD::JetFourMom_t>(m_originScale.c_str(),jetOriginP4) )
 	calibP4 = jetOriginP4*area_SF;
       else {

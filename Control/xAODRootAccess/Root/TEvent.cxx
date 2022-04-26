@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 // System include(s):
 #include <cassert>
@@ -118,8 +118,8 @@ namespace xAOD {
    // Initialise the static data:
    //
    const ::Int_t TEvent::CACHE_SIZE = -1;
-   const char* TEvent::EVENT_TREE_NAME    = "CollectionTree";
-   const char* TEvent::METADATA_TREE_NAME = "MetaData";
+   const char* const TEvent::EVENT_TREE_NAME    = "CollectionTree";
+   const char* const TEvent::METADATA_TREE_NAME = "MetaData";
 
    /// Helper variable
    static const TEvent::EAuxMode DEFAULT_ACCESS_MODE = TEvent::kClassAccess;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DerivationFrameworkTop/JetMSVAugmentation.h"
@@ -62,18 +62,18 @@ StatusCode JetMSVAugmentation::addBranches() const{
   }
 
 
-  static SG::AuxElement::Decorator<std::vector<float> > dec_vtxmass(m_vtxAlgName+"_vtxmass");
-  static SG::AuxElement::Decorator<std::vector<float> > dec_vtxpt(m_vtxAlgName+"_vtxpt");
-  static SG::AuxElement::Decorator<std::vector<float> > dec_vtxeta(m_vtxAlgName+"_vtxeta");
-  static SG::AuxElement::Decorator<std::vector<float> > dec_vtxphi(m_vtxAlgName+"_vtxphi");
-  static SG::AuxElement::Decorator<std::vector<float> > dec_vtxefrac(m_vtxAlgName+"_vtxefrac");
+  static const SG::AuxElement::Decorator<std::vector<float> > dec_vtxmass(m_vtxAlgName+"_vtxmass");
+  static const SG::AuxElement::Decorator<std::vector<float> > dec_vtxpt(m_vtxAlgName+"_vtxpt");
+  static const SG::AuxElement::Decorator<std::vector<float> > dec_vtxeta(m_vtxAlgName+"_vtxeta");
+  static const SG::AuxElement::Decorator<std::vector<float> > dec_vtxphi(m_vtxAlgName+"_vtxphi");
+  static const SG::AuxElement::Decorator<std::vector<float> > dec_vtxefrac(m_vtxAlgName+"_vtxefrac");
 
-  static SG::AuxElement::Decorator<std::vector<float> > dec_vtxx(m_vtxAlgName+"_vtxx");
-  static SG::AuxElement::Decorator<std::vector<float> > dec_vtxy(m_vtxAlgName+"_vtxy");
-  static SG::AuxElement::Decorator<std::vector<float> > dec_vtxz(m_vtxAlgName+"_vtxz");
+  static const SG::AuxElement::Decorator<std::vector<float> > dec_vtxx(m_vtxAlgName+"_vtxx");
+  static const SG::AuxElement::Decorator<std::vector<float> > dec_vtxy(m_vtxAlgName+"_vtxy");
+  static const SG::AuxElement::Decorator<std::vector<float> > dec_vtxz(m_vtxAlgName+"_vtxz");
 
-  static SG::AuxElement::Decorator<std::vector<int> > dec_vtxntrk(m_vtxAlgName+"_vtxntrk");
-  static SG::AuxElement::Decorator<std::vector<float> > dec_vtxdls(m_vtxAlgName+"_vtxdls");
+  static const SG::AuxElement::Decorator<std::vector<int> > dec_vtxntrk(m_vtxAlgName+"_vtxntrk");
+  static const SG::AuxElement::Decorator<std::vector<float> > dec_vtxdls(m_vtxAlgName+"_vtxdls");
 
 
   for(auto jet : *jets){

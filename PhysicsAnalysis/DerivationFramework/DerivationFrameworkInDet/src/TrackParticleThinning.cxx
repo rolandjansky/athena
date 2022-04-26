@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -265,7 +265,7 @@ void DerivationFramework::TrackParticleThinning::selectTrackHits(const xAOD::Tra
 
     // loop over the TrackStateValidation objects, and add them to the outputStatesMask    
     typedef std::vector<ElementLink< xAOD::TrackStateValidationContainer > > StatesOnTrack;
-    static const char* trackStateNames = "msosLink";
+    static const std::string trackStateNames = "msosLink";
     if( ! trkIt->isAvailable< StatesOnTrack >( trackStateNames ) ) {
       ATH_MSG_DEBUG("Cannot find TrackState link from xAOD::TrackParticle. Skipping track.");
       continue;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*! \file Chi2Test_Scatterplot.cxx computes the chisq/ndf for a scatterplot; returns dqm_core::Result
@@ -23,11 +23,10 @@
 #include <TGraphErrors.h>
 #include <ers/ers.h>
 
-using namespace std;
-
-
 #include <dqm_core/AlgorithmManager.h>
 static dqm_algorithms::Chi2Test_Scatterplot myInstance;
+
+using namespace std;
 
 dqm_algorithms::Chi2Test_Scatterplot::Chi2Test_Scatterplot()
  {

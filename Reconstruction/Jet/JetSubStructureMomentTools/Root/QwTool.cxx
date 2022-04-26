@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetSubStructureMomentTools/QwTool.h"
@@ -16,7 +16,7 @@ int QwTool::modifyJet(xAOD::Jet& injet) const {
   float qw_value = -999;
 
   if (decorate) {
-    static JetSubStructureUtils::Qw qw;
+    static const JetSubStructureUtils::Qw qw;
     qw_value = qw.result(jet);
   }
     

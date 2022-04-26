@@ -27,7 +27,7 @@ def TEST3KernelCfg(flags, name='TEST3Kernel', **kwargs):
 def TEST3Cfg(ConfigFlags):
 
     acc = ComponentAccumulator()
-    acc.merge(TEST3KernelCfg(ConfigFlags, name="TEST3Kernel",StreamName = "OutputStreamDAOD_TEST3"))
+    acc.merge(TEST3KernelCfg(ConfigFlags, name="TEST3Kernel",StreamName = "StreamDAOD_TEST3"))
 
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
     from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper

@@ -1,7 +1,7 @@
 // emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**  
@@ -57,16 +57,17 @@ namespace JetTiledMap {
     typedef typename tilecontainerbase_t::const_iterator const_iterator;
     typedef typename std::vector<POINT> pointvec_t;
     
-    Tile(){this->clear();for(int i=0;i<8;i++) m_neighbour[i]=0;}
+    Tile() = default;
+    Tile(POINT tileCenter) : center(tileCenter) {}
     
     /// Fill a vector of all points from this tile within deltaR of POINT p. (r2 is R *squared*)
     void fillPointsInDr2(POINT &p, double r2, pointvec_t& points ) const;
     
     /// the void tile never contains any point.
-    static Tile voidTile;
+    static const Tile voidTile;
   public:
-    Tile<POINT,DIST2>* m_neighbour[8];
-    static DIST2 dr2;
+    const Tile<POINT,DIST2>* m_neighbour[8] = {nullptr};
+    static const DIST2 dr2;
     POINT center;
   };
   
