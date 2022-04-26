@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*! \file BinsFilledOutRange.cxx compares bins of histogram wrt to reference histogram and counts number of bins N Sigma away from ref; returns dqm_core::Result
@@ -15,11 +15,12 @@
 #include <math.h>
 #include <ers/ers.h>
 
-using namespace std;
 
 
 #include <dqm_core/AlgorithmManager.h>
 static dqm_algorithms::BinsFilledOutRange myInstance;
+
+using namespace std;
 
 
 dqm_algorithms::BinsFilledOutRange::BinsFilledOutRange()

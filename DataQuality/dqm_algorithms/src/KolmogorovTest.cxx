@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*! \file KolmogorovTest.cxx does KolmogorovTest with different options like Norm and/or MaxDist ; returns dqm_core::Result
@@ -14,10 +14,9 @@
 #include <TClass.h>
 #include <ers/ers.h>
 
-using namespace std;
-
-
 #include <dqm_core/AlgorithmManager.h>
+
+using namespace std;
 
 static dqm_algorithms::KolmogorovTest kolmo_Prob( "Prob" );
 static dqm_algorithms::KolmogorovTest kolmo_MaxDist( "MaxDist" );
