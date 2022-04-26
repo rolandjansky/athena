@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -17,6 +17,7 @@
 #include "xAODTrigger/versions/gFexGlobalRoIAuxContainer_v1.h"
 #include "xAODTrigger/gFexGlobalRoIAuxContainer.h"
 #include "xAODTrigger/gFexGlobalRoIContainer.h"
+#include "TestTools/FLOATassert.h"
 
 /// Helper macro for testing the code
 #define SIMPLE_ASSERT( EXP )                                   \
@@ -58,7 +59,7 @@ void testgFexJetRoI() {
    SIMPLE_ASSERT( obj->eta() == static_cast<float>(-3.4) );
    SIMPLE_ASSERT( obj->etaMin() == static_cast<float>(-3.5) );
    SIMPLE_ASSERT( obj->etaMax() == static_cast<float>(-3.3) );
-   SIMPLE_ASSERT( obj->phi_gFex() == static_cast<float>(3*(2*M_PI/16)+(2*M_PI/(16*2))) );
+   SIMPLE_ASSERT( Athena_test::isEqual (obj->phi_gFex(), static_cast<float>(3*(2*M_PI/16)+(2*M_PI/(16*2))) ));
    SIMPLE_ASSERT( obj->phiMin_gFex() == static_cast<float>(3*(2*M_PI/16)) );
    SIMPLE_ASSERT( obj->phiMax_gFex() == static_cast<float>(3*(2*M_PI/16)+(2*M_PI/16)) );
 
