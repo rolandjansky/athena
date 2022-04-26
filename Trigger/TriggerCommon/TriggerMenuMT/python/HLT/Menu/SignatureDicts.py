@@ -199,6 +199,16 @@ JetChainParts = {
        'presel2c20XX2c20b90',
        'preselj20b95',
        'preselj20b77',
+       'presel3j45b95',
+       'presel4j25b95',
+       'presel2j25b85XX2j25',
+       'presel2j25b85XX3j25',
+       'preselj50b85XX3j50',
+       'preselj80XX2j45b90',
+       'preselj140b85XXj45b85',
+       'presel5c25XXc25b85',
+       'presel2a20b90XX2a20',
+       'presela20b85XX3a20',
      ],
     # Hypo information
     #   If hypoScenario is 'simple', then hypo configuration is handled based on the
