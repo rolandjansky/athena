@@ -521,7 +521,7 @@ template<class STORED, class CONTAINER, bool b> struct retrieve;
 // implementation if stored and container are the same
 template <class STORED, class CONTAINER> 
 struct retrieve<STORED, CONTAINER, true>{
-  static bool do_it(STORED*& dest, CONTAINER* src, HLT::TriggerElement::ObjectIndex idx) {
+  static bool do_it(const STORED*& dest, CONTAINER* src, HLT::TriggerElement::ObjectIndex idx) {
     // find 2 iterators
     if ( src->size() < idx.objectsBegin() || src->size() < idx.objectsEnd()) {
       REPORT_MESSAGE_WITH_CONTEXT(MSG::VERBOSE,"Holder") << "either begin index or end index is larger than size";
@@ -534,7 +534,12 @@ struct retrieve<STORED, CONTAINER, true>{
     typename CONTAINER::iterator end = src->begin(); 
     std::advance(beg, idx.objectsBegin());
     std::advance(end, idx.objectsEnd());
-    dest->insert(dest->end(), beg, end);
+
+    // get(Feature) should really not be taking a const reference for the case
+    // where STORED!=CONTAINER as we do have to modify the destination. But the
+    // user is responsible for not filling the same container concurrently anyway.
+    auto nonconst_dest ATLAS_THREAD_SAFE = const_cast<STORED*&>(dest);
+    nonconst_dest->insert(nonconst_dest->end(), beg, end);
     return true;
   }
 };
@@ -543,7 +548,7 @@ struct retrieve<STORED, CONTAINER, true>{
 // implementation if stored and container are distinct
 template <class STORED, class CONTAINER> 
 struct retrieve <STORED, CONTAINER, false>{
-  static bool do_it(STORED*& dest, CONTAINER* src, HLT::TriggerElement::ObjectIndex idx) {
+  static bool do_it(const STORED*& dest, CONTAINER* src, HLT::TriggerElement::ObjectIndex idx) {
 
     if (idx.objectsBegin() <  (*src).size()) {
       dest = src->at(idx.objectsBegin());
@@ -585,17 +590,21 @@ bool HLTNavDetails::HolderImp<STORED, CONTAINER>::get(const STORED*& dest, HLT::
   else{
     ATH_MSG_VERBOSE("HolderImp::get getting object from primary collection " << idx);
   }
-  
+
   if ( ! retrieve<STORED, CONTAINER,  // short circuited .. retrieve will not run if in cache
 		  std::is_same<STORED, CONTAINER>::value>::
-       do_it (const_cast<STORED*&>(dest), m_containerProxy.data(), idx) ) {
+       do_it (dest, m_containerProxy.data(), idx) ) {
     ATH_MSG_WARNING("HolderImp::get getting chunk of the container failed for Holder: " << *this
 		   << " index: " << idx);
     return false;
   }
       
   if ( std::is_same<STORED, CONTAINER>::value ) { // temporary view containers in SG and cache filling
-    FeatureProxy tempProxy( const_cast<STORED*>(dest) );
+
+    // We don't have an implementation of FeatureProxy that takes a const reference.
+    // But this should be safe (modulo the comments in the do_it method above).
+    auto nonconst_dest ATLAS_THREAD_SAFE = const_cast<STORED*&>(dest);
+    FeatureProxy tempProxy( nonconst_dest );
     
     m_memMgr.insert(std::make_pair(idx, MemoryMgr(tempProxy, true)));    // store it in the cache for futher uses
     

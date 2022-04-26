@@ -25,8 +25,8 @@ namespace xAOD {
       /// Default constructor
       jFexSRJetRoI_v1();
 
-      /// In future initialze the xTOB as well, word1
-      void initialize(uint8_t jFexNumber,uint8_t fpgaNumber, uint32_t tobWord, int resolution, float_t eta, float_t phi );
+      /// In future initialze the EDM
+      void initialize(uint8_t jFexNumber, uint8_t fpgaNumber, uint32_t tobWord, char istob, int resolution, float_t eta, float_t phi );
 
       /// The "raw" 32-bit word describing the object candidate
       uint32_t  tobWord()       const;
@@ -41,7 +41,11 @@ namespace xAOD {
       float     eta()           const;
       float     phi()           const;
       int       tobEtScale()    const;
-
+      char      isTOB()         const;
+      
+      /// Set the isTOB variable (TOB or xTOB)
+      void setIsTOB( char value);
+      
       /// Set the "raw" 32-bit words describing the object candidate
       void setTobWord( uint32_t tobWord );
       void setjFexNumber( uint8_t jFexNumber);

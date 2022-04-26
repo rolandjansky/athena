@@ -34,7 +34,7 @@ namespace xAOD {
       : SG::AuxElement() {
    }
 
-   void jFexSRJetRoI_v1::initialize( uint8_t jFexNumber, uint8_t fpgaNumber, uint32_t tobWord, int resolution, float_t eta, float_t phi) {
+   void jFexSRJetRoI_v1::initialize(uint8_t jFexNumber, uint8_t fpgaNumber, uint32_t tobWord, char istob, int resolution, float_t eta, float_t phi ) {
     
     
      setTobWord( tobWord );
@@ -48,14 +48,8 @@ namespace xAOD {
      setGlobalPhi(unpackGlobalPhi()); 
      setEta( eta ); 
      setPhi( phi ); 
-     setResolution( resolution ); 
-          
-   //include in future when xTOB in jFEX has been implemented.
-
-   // If the object is a TOB then the isTOB should be true.
-   // For xTOB default is false, but should be set if a matching TOB is found 
-   // if (type() == TOB) setIsTOB(1);
-   // else               setIsTOB(0);
+     setResolution( resolution );
+     setIsTOB(istob);
 
       return;
    }
@@ -68,6 +62,8 @@ namespace xAOD {
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSRJetRoI_v1, uint8_t , jFexNumber  , setjFexNumber )
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSRJetRoI_v1, uint8_t , fpgaNumber  , setfpgaNumber )
    
+   /// Used to differencite TOBs from xTOBs
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSRJetRoI_v1, char, isTOB, setIsTOB )      
  
    /// Extracted from data words, stored for convenience
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( jFexSRJetRoI_v1, uint16_t, tobEt       , setTobEt    )

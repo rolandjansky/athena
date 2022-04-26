@@ -12,7 +12,7 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 #include "../src/TileDCSCondAlg.h"
 #include "../src/TileDCSTool.h"
 //#include "TileIdentifier/TileHWID.h"
-#include "TileCablingService_common_test.cxx"
+#include "TileCablingService_common_test.h"
 
 #include "CaloIdentifier/CaloLVL1_ID.h"
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 
 def addTruthJetsIfNotExising(truth_jets_name):
@@ -101,9 +101,7 @@ def addTruthJetsIfNotExising(truth_jets_name):
             from JetRec.JetRecConf import JetToolRunner
             jtm += JetToolRunner("jetrun",
                                  Tools=jet_tools,
-                                 EventShapeTools=[],
-                                 # OutputLevel = 1,
-                                 Timer=jetFlags.timeJetToolRunner()
+                                 EventShapeTools=[]
                                  )
 
             # jet_finder_alg = JetAlgorithm(jet_finder_alg_name, jet_tools)

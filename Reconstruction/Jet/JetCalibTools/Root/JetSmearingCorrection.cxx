@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetCalibTools/CalibrationMethods/JetSmearingCorrection.h"
@@ -12,7 +12,6 @@ JetSmearingCorrection::JetSmearingCorrection()
     , m_jetAlgo("")
     , m_calibAreaTag("")
     , m_dev(false)
-    , m_rand()
     , m_jetOutScale("")
     , m_smearType(SmearType::UNKNOWN)
     , m_histType(HistType::UNKNOWN)
@@ -29,7 +28,6 @@ JetSmearingCorrection::JetSmearingCorrection(const std::string& name, TEnv* conf
     , m_jetAlgo(jetAlgo)
     , m_calibAreaTag(calibAreaTag)
     , m_dev(dev)
-    , m_rand()
     , m_jetOutScale("")
     , m_smearType(SmearType::UNKNOWN)
     , m_histType(HistType::UNKNOWN)
@@ -410,7 +408,16 @@ StatusCode JetSmearingCorrection::getNominalResolutionMC(const xAOD::Jet& jet, d
     return getNominalResolution(jet,m_smearResolutionMC.get(),m_cachedProjResMC,resolution);
 }
 
-
+TRandom3* JetSmearingCorrection::getTLSRandomGen(unsigned long seed) const
+{
+  TRandom3* random = m_rand_tls.get();
+  if (!random) {
+    random = new TRandom3();
+    m_rand_tls.reset(random);
+  }
+  random->SetSeed(seed);
+  return random;
+}
 
 StatusCode JetSmearingCorrection::calibrate(xAOD::Jet& jet, JetEventInfo&) const
 {
@@ -425,14 +432,13 @@ StatusCode JetSmearingCorrection::calibrate(xAOD::Jet& jet, JetEventInfo&) const
     unsigned long seed = static_cast<unsigned long>(1.e5*fabs(jet.phi()));
     // SetSeed(0) uses the clock, so avoid this
     if(seed == 0) seed = 45583453; // arbitrary number which the seed couldn't otherwise be
-    m_rand.SetSeed(seed);
 
     // Get the Gaussian-distributed random number
     // Force this to be a positive value
     // Negative values should be extraordinarily rare, but they do exist
     double smearingFactor = -1;
     while (smearingFactor < 0)
-        smearingFactor = m_rand.Gaus(1.,sigmaSmear);
+        smearingFactor = getTLSRandomGen(seed)->Gaus(1.,sigmaSmear);
 
     // Apply the smearing factor to the jet as appropriate
     xAOD::JetFourMom_t calibP4 = jet.jetP4();

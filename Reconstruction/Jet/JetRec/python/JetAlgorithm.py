@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # JetAlgorithm.py
 #
@@ -155,8 +155,7 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
   if len(ctools)>0:
     jtm += JetToolRunner("jetconstit",
                          EventShapeTools=[],
-                         Tools=ctools,
-                         Timer=jetFlags.timeJetToolRunner()
+                         Tools=ctools
                          )
     job += JetAlgorithm("jetalgConstituents",
                         Tools=[jtm.jetconstit])
@@ -185,8 +184,7 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
     from JetRec.JetRecConf import JetToolRunner
     jtm += JetToolRunner("jetrun",
                          EventShapeTools=[],
-                         Tools=jtm.jetrecs,
-                         Timer=jetFlags.timeJetToolRunner()
+                         Tools=jtm.jetrecs
                          )
     runners += [jtm.jetrun]
 

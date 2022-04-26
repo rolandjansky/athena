@@ -11,7 +11,7 @@
 
 #include "StoreGate/setupStoreGate.h"
 
-#include "TileCablingService_common_test.cxx"
+#include "TileCablingService_common_test.h"
 
 
 using Tile = TileCalibUtils;

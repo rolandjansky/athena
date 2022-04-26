@@ -1,7 +1,7 @@
 // emacs, this file is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETUTILS_JETCALOHELPER_H
@@ -30,10 +30,10 @@ namespace CaloConstitHelpers {
   /// 
   struct CaloConstitExtractor {
     virtual ~CaloConstitExtractor(){}
-    virtual bool valid(xAOD::JetConstituentVector::iterator &) {return false;}
-    virtual double moment( xAOD::JetConstituentVector::iterator & , xAOD::CaloCluster::MomentType ) {return 0;};
-    virtual double time(xAOD::JetConstituentVector::iterator & ){return 0.;}
-    virtual double energyHEC(xAOD::JetConstituentVector::iterator & ){return 0.;}
+    virtual bool valid(xAOD::JetConstituentVector::iterator &) const {return false;}
+    virtual double moment( xAOD::JetConstituentVector::iterator & , xAOD::CaloCluster::MomentType ) const {return 0;};
+    virtual double time(xAOD::JetConstituentVector::iterator & ) const {return 0.;}
+    virtual double energyHEC(xAOD::JetConstituentVector::iterator & ) const {return 0.;}
   };  
 }
 
@@ -104,7 +104,7 @@ namespace jet {
     void setName(std::string n){m_name = n;}
 
 
-    void setExtractor(CaloConstitHelpers::CaloConstitExtractor* ex){m_constitExtractor = ex;}
+    void setExtractor(const CaloConstitHelpers::CaloConstitExtractor* ex){m_constitExtractor = ex;}
 
     /// Clone. Base class should not be cloned.
     virtual JetCaloCalculator* clone() const =0;
@@ -112,7 +112,7 @@ namespace jet {
   protected:
     std::string m_name;
     xAOD::JetAttribute::AttributeID m_id{}; // unused for now.
-    CaloConstitHelpers::CaloConstitExtractor *m_constitExtractor{}; // used to retrieve the cluster moment from the constituent (which can be a PFO object or a cluster)
+    const CaloConstitHelpers::CaloConstitExtractor *m_constitExtractor{}; // used to retrieve the cluster moment from the constituent (which can be a PFO object or a cluster)
   };
 
 

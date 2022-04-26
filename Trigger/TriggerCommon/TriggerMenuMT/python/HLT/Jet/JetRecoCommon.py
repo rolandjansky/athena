@@ -8,12 +8,22 @@
 # jet reco code.
 
 from JetRecConfig.JetDefinition import JetInputConstitSeq,JetInputConstit, xAODType, JetDefinition
+from ..Menu.SignatureDicts import JetRecoKeys as recoKeys
 from JetRecConfig import StandardJetContext
 # this is to define trigger specific JetModifiers (ex: ConstitFourMom_copy) : 
 from . import TriggerJetMods
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
+
+##########################################################################################
+### --- Common jet eta ranges --- 
+etaRangeAbbrev = {
+    "j":"0eta320", # default
+    "a":"0eta490",
+    "c":"0eta240",
+    "f":"320eta490"
+}
 
 ##########################################################################################
 ### --- Extracting jet chain parts --- 
@@ -27,8 +37,6 @@ def jetChainParts(chainParts):
 
 ##########################################################################################
 ### --- General reco dict handling --- 
-
-recoKeys = ['recoAlg','constitType','clusterCalib','constitMod','jetCalib','trkopt','ionopt']
 
 # Extract the jet reco dict from the chainDict
 def extractRecoDict(chainParts):

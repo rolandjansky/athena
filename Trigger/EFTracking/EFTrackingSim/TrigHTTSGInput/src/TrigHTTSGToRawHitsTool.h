@@ -85,13 +85,13 @@ private:
 
 
   //internal pointers
-  AtlasDetectorID* m_idHelper;
-  const PixelID* m_pixelId;
-  const SCT_ID* m_sctId;
+  AtlasDetectorID* m_idHelper = nullptr;
+  const PixelID* m_pixelId = nullptr;
+  const SCT_ID* m_sctId = nullptr;
 
-  const InDetDD::SiDetectorManager* m_PIX_mgr;
-  const InDetDD::SiDetectorManager* m_SCT_mgr;
-  const HepPDT::ParticleDataTable* m_particleDataTable;
+  const InDetDD::SiDetectorManager* m_PIX_mgr = nullptr;
+  const InDetDD::SiDetectorManager* m_SCT_mgr = nullptr;
+  const HepPDT::ParticleDataTable* m_particleDataTable = nullptr;
 
   typedef std::map<Identifier, int> HitIndexMap;
   StatusCode readRawSilicon(HitIndexMap& hitIndexMap, HitIndexMap& pixelClusterIndexMap, const EventContext& eventContext); // dump raw silicon data to text file and populate hitIndexMap for rec. track processing

@@ -4,7 +4,6 @@
 
 #include "DQFilledBunchFilterTool.h"
 #include "AthenaKernel/errorcheck.h"
-#include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
 DQFilledBunchFilterTool::DQFilledBunchFilterTool(const std::string& type,const std::string& name,const IInterface* parent)

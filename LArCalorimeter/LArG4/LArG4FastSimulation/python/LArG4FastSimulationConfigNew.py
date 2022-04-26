@@ -11,15 +11,15 @@ def LArG4ShowerLibSvcCfg(ConfigFlags, **kwargs):
     fileNameList = []
     #TODO make this configurable based on ConfigFlags?
     # FCAL1 frozen shower libraries
-    fileNameList += [ "LArG4ShowerLibData/MC21_v1/LArG4ShowerLib.FCAL1.11.root",
-                      "LArG4ShowerLibData/MC21_v1/LArG4ShowerLib.FCAL1.22.root",
-                      "LArG4ShowerLibData/MC21_v1/LArG4ShowerLib.FCAL1.2112.root",
-                      "LArG4ShowerLibData/MC21_v1/LArG4ShowerLib.FCAL1.211.root" ]
+    fileNameList += [ "LArG4ShowerLibData/MC21_v2/LArG4ShowerLib.FCAL1.11.root",
+                      "LArG4ShowerLibData/MC21_v2/LArG4ShowerLib.FCAL1.22.root",
+                      "LArG4ShowerLibData/MC21_v2/LArG4ShowerLib.FCAL1.2112.root",
+                      "LArG4ShowerLibData/MC21_v2/LArG4ShowerLib.FCAL1.211.root" ]
     # FCAL2 frozen shower libraries
-    fileNameList += [ "LArG4ShowerLibData/MC21_v1/LArG4ShowerLib.FCAL2.11.root",
-                      "LArG4ShowerLibData/MC21_v1/LArG4ShowerLib.FCAL2.22.root",
-                      "LArG4ShowerLibData/MC21_v1/LArG4ShowerLib.FCAL2.2112.root",
-                      "LArG4ShowerLibData/MC21_v1/LArG4ShowerLib.FCAL2.211.root" ]
+    fileNameList += [ "LArG4ShowerLibData/MC21_v2/LArG4ShowerLib.FCAL2.11.root",
+                      "LArG4ShowerLibData/MC21_v2/LArG4ShowerLib.FCAL2.22.root",
+                      "LArG4ShowerLibData/MC21_v2/LArG4ShowerLib.FCAL2.2112.root",
+                      "LArG4ShowerLibData/MC21_v2/LArG4ShowerLib.FCAL2.211.root" ]
     kwargs.setdefault("FileNameList", fileNameList)
     result.addService(LArG4ShowerLibSvc(name="LArG4ShowerLibSvc", **kwargs))
     return result

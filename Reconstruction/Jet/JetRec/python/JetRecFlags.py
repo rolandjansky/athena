@@ -5,9 +5,7 @@
 # David Adams
 # Updated March 2015
 #
-# These are flags for controlling the behavior of jet reconstruction
-# in RecExCommon (which includes JetRec/JetRec_jobOptions.py) and in
-# the example jet reconstruction options RunJetRec.py.
+# These are flags for controlling the behavior of jet reconstruction in RecExCommon
 #
 # Typical usage is
 #   from JetRec.JetRecFlags import jetFlags
@@ -207,13 +205,6 @@ class separateJetAlgs(JobProperty):
   allowedTypes = ['bool']  # type
   StoredValue  = True      # default value
 
-class timeJetToolRunner(JobProperty):
-  """ Timing flag for JetToolRunner: 0 for no timing, 1 for some, 2 for detailed
-  """
-  statusOn     = True
-  allowedTypes = ['int']  # type
-  StoredValue  = 0        # default value
-
 class timeJetRecTool(JobProperty):
   """ Timing flag for JetRecTool: 0 for no timing, 1 for some, 2 for detailed
   """
@@ -291,7 +282,6 @@ jobproperties.JetRecFlags.add_JobProperty(useCalibJetThreshold)
 jobproperties.JetRecFlags.add_JobProperty(useCalibThresholdsLCTopo)
 jobproperties.JetRecFlags.add_JobProperty(containerNamePrefix)
 jobproperties.JetRecFlags.add_JobProperty(separateJetAlgs)
-jobproperties.JetRecFlags.add_JobProperty(timeJetToolRunner)
 jobproperties.JetRecFlags.add_JobProperty(timeJetRecTool)
 jobproperties.JetRecFlags.add_JobProperty(useTrackVertexTool)
 jobproperties.JetRecFlags.add_JobProperty(detailLevel)

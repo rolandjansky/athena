@@ -25,6 +25,12 @@ public:
                        CLHEP::HepRandomEngine* rndmEngine);
 private:
   RD53SimTool();
+  Gaudi::Property<bool> m_doTimeWalk {
+    this, "DoTimeWalk",false,"include time-walk effects"
+      };
+  Gaudi::Property<int> m_overDrive {
+    this, "OverDrive",150,"value of overdrive (in-time threshold - absolute threshold) in electrons"
+      };
 };
 
 #endif // PIXELDIGITIZATION_RD53SimTool_H

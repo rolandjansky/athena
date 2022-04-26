@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -109,7 +109,7 @@ StatusCode DerivationFramework::JetLargeD0TrackParticleThinning::doThinning() co
     
     // Set elements in the mask to true if they are matched to a reconstructed object
     // ... jets
-    static SG::AuxElement::ConstAccessor<std::vector<ElementLink<DataVector<xAOD::IParticle> > > > ghostTrackLRT ("GhostTrackLRT");
+    static const SG::AuxElement::ConstAccessor<std::vector<ElementLink<DataVector<xAOD::IParticle> > > > ghostTrackLRT ("GhostTrackLRT");
 
     if (m_selectionString.empty()) { // check all jets as user didn't provide a selection string
         for (xAOD::JetContainer::const_iterator jetIt=importedJets->begin(); jetIt!=importedJets->end(); ++jetIt) {

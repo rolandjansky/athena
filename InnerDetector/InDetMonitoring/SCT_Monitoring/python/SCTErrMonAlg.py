@@ -61,7 +61,8 @@ def SCTErrMonAlgConfig(inputFlags):
                                path = "GENERAL/Conf",
                                xbins = sctMon.NBINS_LBs,
                                xmin = 0.5,
-                               xmax = sctMon.NBINS_LBs+0.5)
+                               xmax = sctMon.NBINS_LBs+0.5,
+                               opt='kAlwaysCreate')
 
     # Filled in fillHistograms
     myMonGroup.defineHistogram(varname = "lumiBlock;NumberOfSCTFlagErrorsVsLB",
@@ -71,7 +72,8 @@ def SCTErrMonAlgConfig(inputFlags):
                                path = "GENERAL/Conf",
                                xbins = sctMon.NBINS_LBs,
                                xmin = 0.5,
-                               xmax = sctMon.NBINS_LBs+0.5)
+                               xmax = sctMon.NBINS_LBs+0.5,
+                               opt='kAlwaysCreate')
 
     # Filled in fillHistograms
     myMonGroup.defineHistogram(varname = "lumiBlock, sctFlag;FractionOfSCTFlagErrorsPerLB",
@@ -80,7 +82,8 @@ def SCTErrMonAlgConfig(inputFlags):
                                path = "GENERAL/Conf",
                                xbins = sctMon.NBINS_LBs,
                                xmin = 0.5,
-                               xmax = sctMon.NBINS_LBs+0.5)
+                               xmax = sctMon.NBINS_LBs+0.5,
+                               opt='kAlwaysCreate')
 
     # Filled in fillConfigurationDetails
     myMonGroup.defineHistogram(varname = "detailedConfBin, nBad;SCTConfDetails",
@@ -90,7 +93,8 @@ def SCTErrMonAlgConfig(inputFlags):
                                xbins = sctMon.ConfbinsDetailed,
                                xmin = -0.5,
                                xmax = sctMon.ConfbinsDetailed-0.5,
-                               xlabels = ["Modules", "Link 0", "Link 1", "Chips", "Strips (10^{2})"])
+                               xlabels = ["Modules", "Link 0", "Link 1", "Chips", "Strips (10^{2})"],
+                               opt='kAlwaysCreate')
 
     # Filled in fillHistograms
     myMonGroup.defineHistogram(varname = "moduleOutBin, moduleOut;SCTConfOutM",
@@ -100,7 +104,8 @@ def SCTErrMonAlgConfig(inputFlags):
                                xbins = 1,
                                xmin = -0.5,
                                xmax = 0.5,
-                               xlabels = ["Mod Out"])
+                               xlabels = ["Mod Out"],
+                               opt='kAlwaysCreate')
 
     # Fiiled in fillByteStreamErrors
     from ROOT import SCT_ByteStreamErrors
@@ -111,7 +116,8 @@ def SCTErrMonAlgConfig(inputFlags):
                                    path = "GENERAL/Conf",
                                    xbins = sctMon.NBINS_LBs,
                                    xmin = 0.5,
-                                   xmax = sctMon.NBINS_LBs+0.5)
+                                   xmax = sctMon.NBINS_LBs+0.5,
+                                   opt='kAlwaysCreate')
 
     # Fiiled in fillByteStreamErrors
     for i in range(sctMon.N_ERRCATEGORY):
@@ -121,7 +127,8 @@ def SCTErrMonAlgConfig(inputFlags):
                                    path = "GENERAL/Conf",
                                    xbins = sctMon.NBINS_LBs,
                                    xmin = 0.5,
-                                   xmax = sctMon.NBINS_LBs+0.5)
+                                   xmax = sctMon.NBINS_LBs+0.5,
+                                   opt='kAlwaysCreate')
 
     # Filled in fillByteStreamErrors
     for errCate in range(sctMon.N_ERRCATEGORY):
@@ -137,7 +144,8 @@ def SCTErrMonAlgConfig(inputFlags):
                                            ybins = sctMon.N_PHI_BINS if region==sctMon.BARREL_INDEX else sctMon.N_PHI_BINS_EC,
                                            ymin = (sctMon.FIRST_PHI_BIN if region==sctMon.BARREL_INDEX else sctMon.FIRST_PHI_BIN_EC)-0.5,
                                            ymax = (sctMon.LAST_PHI_BIN if region==sctMon.BARREL_INDEX else sctMon.LAST_PHI_BIN_EC)+0.5,
-                                           duration = "lb")
+                                           duration = "lb",
+                                           opt='kAlwaysCreate')
 
     # Filled in fillByteStreamErrorsHelper
     myMonGroup.defineHistogram(varname = "maskedLinksBin;Masked Links",
@@ -148,7 +156,8 @@ def SCTErrMonAlgConfig(inputFlags):
                                xbins = sctMon.N_REGIONS_INC_GENERAL,
                                xmin = -0.5,
                                xmax = sctMon.N_REGIONS_INC_GENERAL-0.5,
-                               xlabels = ["EndCapC", "Barrel", "EndCapA", "All"])
+                               xlabels = ["EndCapC", "Barrel", "EndCapA", "All"],
+                               opt='kAlwaysCreate')
 
     # Filled in fillHistograms
     myMonGroup.defineHistogram(varname = "flaggedWafersIndices, nFlaggedWafers;FlaggedWafers",
@@ -158,7 +167,8 @@ def SCTErrMonAlgConfig(inputFlags):
                                xbins = sctMon.N_REGIONS_INC_GENERAL,
                                xmin = -0.5,
                                xmax = sctMon.N_REGIONS_INC_GENERAL-0.5,
-                               xlabels = ["EndCapC", "Barrel", "EndCapA", "All"])
+                               xlabels = ["EndCapC", "Barrel", "EndCapA", "All"],
+                               opt='kAlwaysCreate')
 
     # Filled in fillByteStreamErrors
     coverageTitles = [
@@ -177,7 +187,8 @@ def SCTErrMonAlgConfig(inputFlags):
                                    path = "DetectorCoverage",
                                    xbins = sctMon.NBINS_LBs,
                                    xmin = 0.5,
-                                   xmax = sctMon.NBINS_LBs+0.5)    
+                                   xmax = sctMon.NBINS_LBs+0.5,
+                                   opt='kAlwaysCreate')
 
     # Fiiled in fillByteStreamErrors
     myMonGroup.defineHistogram(varname = "lumiBlock, psTripModules;SCT_ModulesWithPSTripVsLbs",
@@ -186,7 +197,8 @@ def SCTErrMonAlgConfig(inputFlags):
                                path = "DetectorCoverage",
                                xbins = sctMon.NBINS_LBs,
                                xmin = 0.5,
-                               xmax = sctMon.NBINS_LBs+0.5)
+                               xmax = sctMon.NBINS_LBs+0.5,
+                               opt='kAlwaysCreate')
 
     # Filled in fillByteStreamErrorsHelper
     xlabels = [SCT_ByteStreamErrors.ErrorTypeDescription[i] for i in range(SCT_ByteStreamErrors.NUM_ERROR_TYPES)]
@@ -206,7 +218,8 @@ def SCTErrMonAlgConfig(inputFlags):
                                    ymin = -0.5,
                                    ymax = nLayers-0.5,
                                    ylabels = ylabels,
-                                   duration = "lb")
+                                   duration = "lb",
+                                   opt='kAlwaysCreate')
 
     result.merge(helper.result())
     return result

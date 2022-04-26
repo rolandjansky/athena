@@ -53,6 +53,7 @@ Rivet_i::Rivet_i(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty("SkipWeights", m_skipweights=false);
   declareProperty("MatchWeights", m_matchWeights="");
   declareProperty("UnmatchWeights", m_unmatchWeights="");
+  declareProperty("NominalWeightName", m_nominalWeightName="");
   declareProperty("WeightCap", m_weightcap=-1.0);
 }
 
@@ -125,6 +126,7 @@ StatusCode Rivet_i::initialize() {
   m_analysisHandler->skipMultiWeights(m_skipweights); //< Only run on the nominal weight
   m_analysisHandler->selectMultiWeights(m_matchWeights); //< Only run on a subset of the multi-weights
   m_analysisHandler->deselectMultiWeights(m_unmatchWeights); //< Veto a subset of the multi-weights
+  m_analysisHandler->setNominalWeightName(m_nominalWeightName);
   if (m_weightcap>0) m_analysisHandler->setWeightCap(m_weightcap);
 
   // Set Rivet native log level to match Athena

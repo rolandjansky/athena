@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigInDetAnalysisUtils )
@@ -12,7 +12,7 @@ atlas_add_library( TrigInDetAnalysisUtils
    PUBLIC_HEADERS TrigInDetAnalysisUtils
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel McParticleEvent Particle
-   muonEvent egammaEvent tauEvent xAODMuon xAODEgamma xAODTau xAODTruth
-   TrkParameters TrkTrack TrkToolInterfaces TrigDecisionToolLib
+   muonEvent egammaEvent tauEvent xAODMuon xAODEgamma xAODTau xAODTruth xAODTracking
+   TrkParameters TrkTrack TrkToolInterfaces TrkTrackSummary TrigDecisionToolLib
    TrigInDetAnalysis TrigInDetEvent TrigSteeringEvent TrigInDetTruthEvent
    AtlasHepMCLib )

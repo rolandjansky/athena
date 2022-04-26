@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -24,5 +24,3 @@ def SetDebugMode():
     HIJetFlags.WriteSeeds.set_Value_and_Lock(True)
     jetFlags.debug.set_Value_and_Lock(2)
     jetFlags.timeJetRecTool.set_Value_and_Lock(2)
-    jetFlags.timeJetToolRunner.set_Value_and_Lock(2)
-

@@ -106,6 +106,9 @@ TestChainParts_Default = {
 # Jet
 #==========================================================
 AllowedTopos_jet = []
+# List of keys that pertain to jet reconstruction
+# as opposed to the hypo configuration
+JetRecoKeys = ['recoAlg','constitType','clusterCalib','constitMod','jetCalib','trkopt','ionopt']
 # ---- Jet Dictionary of all allowed Values ----
 JetChainParts = {
     # Information common to all signatures
@@ -248,7 +251,11 @@ JetChainParts = {
 
     # Simple hypo configuration. Single property cuts defined as MINvarMAX
     'etaRange'      :
-      ['0eta320', '320eta490', '0eta240', '0eta290', '0eta490', '0eta200', '0eta180', '0eta160'],
+      # These atypical explicit values are allowed to be in chain names.
+      # Otherwise use ['','a','c','f'] ==> [0eta320, 0eta490, 0eta240, 320eta490]
+      # suffix after threshold e.g. j420 == j420_0eta320, 6j55c == 6j55_0eta240
+      ['0eta290', '0eta200', '0eta180', '0eta160']
+      +['320eta490'], # TODO: Kept temporarily for validation
     'jvt'           : # Jet Vertex Tagger pileup discriminant
       ['010jvt', '011jvt', '015jvt', '020jvt', '050jvt', '059jvt'],
     'momCuts'       : # Generic moment cut on single jets

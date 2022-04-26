@@ -151,9 +151,9 @@ def scanLogfile():
         fpeTracing = False
         for line in logFile:
             #Tracing only makes sense for errors
-            if args.errors is True and re.search(tPattern,line):
+            if args.errors is True and re.search(tPattern,line) and not re.search(igLevels,line):
                 tracing = True
-            elif args.errors is True and re.search(fpeStartPattern,line):
+            elif args.errors is True and re.search(fpeStartPattern,line) and not re.search(igLevels,line):
                 fpeTracing = True
             elif line =='\n':
                 tracing = False

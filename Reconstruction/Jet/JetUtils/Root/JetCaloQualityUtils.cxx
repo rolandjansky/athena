@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetUtils/JetCaloQualityUtils.h"
@@ -19,10 +19,10 @@ using xAOD::CaloCluster;
 
 namespace {
 
-int em_calosample[]  = { CaloSampling::PreSamplerB, CaloSampling::EMB1, CaloSampling::EMB2, CaloSampling::EMB3,
+const int em_calosample[]  = { CaloSampling::PreSamplerB, CaloSampling::EMB1, CaloSampling::EMB2, CaloSampling::EMB3,
                            CaloSampling::PreSamplerE, CaloSampling::EME1, CaloSampling::EME2, CaloSampling::EME3,  
                            CaloSampling::FCAL0};
-  int had_calosample[] = { CaloSampling::HEC0, CaloSampling::HEC1, CaloSampling::HEC2, CaloSampling::HEC3,          
+const int had_calosample[] = { CaloSampling::HEC0, CaloSampling::HEC1, CaloSampling::HEC2, CaloSampling::HEC3,
                            CaloSampling::TileBar0, CaloSampling::TileBar1, CaloSampling::TileBar2,
                            CaloSampling::TileGap1, CaloSampling::TileGap2, CaloSampling::TileGap3,    
                            CaloSampling::TileExt0, CaloSampling::TileExt1, CaloSampling::TileExt2,    

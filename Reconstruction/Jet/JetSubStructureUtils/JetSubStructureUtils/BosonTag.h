@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef jetsubstructureutils_bosontag_header
@@ -90,34 +90,34 @@ namespace JetSubStructureUtils {
       std::map<std::string, std::map<std::string, CONFIG>> m_configurations;
 
       // main 4 details for classifying a jet
-      static SG::AuxElement::ConstAccessor<int> s_AlgorithmType;
-      static SG::AuxElement::ConstAccessor<float> s_SizeParameter;
-      static SG::AuxElement::ConstAccessor<int> s_InputType;
-      static SG::AuxElement::ConstAccessor<int> s_TransformType;
+      static const SG::AuxElement::ConstAccessor<int> s_AlgorithmType;
+      static const SG::AuxElement::ConstAccessor<float> s_SizeParameter;
+      static const SG::AuxElement::ConstAccessor<int> s_InputType;
+      static const SG::AuxElement::ConstAccessor<int> s_TransformType;
 
       // for trimming
-      static SG::AuxElement::ConstAccessor<float> s_RClus;
-      static SG::AuxElement::ConstAccessor<float> s_PtFrac;
+      static const SG::AuxElement::ConstAccessor<float> s_RClus;
+      static const SG::AuxElement::ConstAccessor<float> s_PtFrac;
 
       // for pruning
-      static SG::AuxElement::ConstAccessor<float> s_RCut;
-      static SG::AuxElement::ConstAccessor<float> s_ZCut;
+      static const SG::AuxElement::ConstAccessor<float> s_RCut;
+      static const SG::AuxElement::ConstAccessor<float> s_ZCut;
 
       // for splitting
-      // static SG::AuxElement::ConstAccessor<int> NSubjetMax ("NSubjetMax");
-      static SG::AuxElement::ConstAccessor<char> s_BDRS;
+      // static const SG::AuxElement::ConstAccessor<int> NSubjetMax ("NSubjetMax");
+      static const SG::AuxElement::ConstAccessor<char> s_BDRS;
       /* MuMax, YMin, RClus */
-      // static SG::AuxElement::ConstAccessor<float> RClus ("RClus"); // defined above for trimming
-      static SG::AuxElement::ConstAccessor<float> s_YMin;
-      static SG::AuxElement::ConstAccessor<float> s_MuMax;
+      // static const SG::AuxElement::ConstAccessor<float> RClus ("RClus"); // defined above for trimming
+      static const SG::AuxElement::ConstAccessor<float> s_YMin;
+      static const SG::AuxElement::ConstAccessor<float> s_MuMax;
       //    under splitting; for Run-1 tagger
-      static SG::AuxElement::ConstAccessor<float> s_YFilt;
+      static const SG::AuxElement::ConstAccessor<float> s_YFilt;
 
       // for D2
-      static SG::AuxElement::ConstAccessor<float> s_D2;
-      static SG::AuxElement::ConstAccessor<float> s_ECF1;
-      static SG::AuxElement::ConstAccessor<float> s_ECF2;
-      static SG::AuxElement::ConstAccessor<float> s_ECF3;
+      static const SG::AuxElement::ConstAccessor<float> s_D2;
+      static const SG::AuxElement::ConstAccessor<float> s_ECF1;
+      static const SG::AuxElement::ConstAccessor<float> s_ECF2;
+      static const SG::AuxElement::ConstAccessor<float> s_ECF3;
 
   };
 }

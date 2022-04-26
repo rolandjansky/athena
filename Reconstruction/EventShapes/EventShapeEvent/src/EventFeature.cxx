@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -11,48 +11,36 @@
 #include <algorithm>
 #include <cmath>
 
-std::map<EventFeature::FeatureType,std::string> EventFeature::m_featureTags = 
-  std::map<EventFeature::FeatureType,std::string>();
-
-const std::map<EventFeature::FeatureType,std::string>& 
-EventFeature::fillFeatureTags()
-{
-  if ( m_featureTags.empty() )
-    {
-      m_featureTags[ETDENSITY]             = "ETDENSITY";
-      m_featureTags[ETDENSITY_JETAREA]     = "ETDESNSITY_JETAREA";
-      m_featureTags[ETDENSITY_JETAREA_ETA] = "ETDENSITY_JETAREA_ETA";
-      m_featureTags[ETDENSITY_ETA_WINDOWS] = "ETDENSITY_ETA_WINDOWS";
-      m_featureTags[ETDENSITY_USER]        = "ETDENSITY_USER"; 
-      m_featureTags[UNKNOWN]               = "UNKNOWN";
-      m_featureTags[DEFAULT]               = "DEFAULT";
-    }
-  return m_featureTags;
-}
+const std::map<EventFeature::FeatureType,std::string> EventFeature::m_featureTags = {
+  {ETDENSITY,             "ETDENSITY"},
+  {ETDENSITY_JETAREA,     "ETDESNSITY_JETAREA"},
+  {ETDENSITY_JETAREA_ETA, "ETDENSITY_JETAREA_ETA"},
+  {ETDENSITY_ETA_WINDOWS, "ETDENSITY_ETA_WINDOWS"},
+  {ETDENSITY_USER,        "ETDENSITY_USER"},
+  {UNKNOWN,               "UNKNOWN"},
+  {DEFAULT,               "DEFAULT"},
+};
 
 EventFeature::FeatureType EventFeature::featureType()
 { return EventFeature::DEFAULT; }
 
 EventFeature::FeatureType EventFeature::featureType(const std::string& tag)
 {
-  const std::map<FeatureType,std::string>& map = fillFeatureTags();
-  std::map<FeatureType,std::string>::const_iterator fMap(map.begin());
-  std::map<FeatureType,std::string>::const_iterator lMap(map.end());
+  std::map<FeatureType,std::string>::const_iterator fMap(m_featureTags.begin());
+  std::map<FeatureType,std::string>::const_iterator lMap(m_featureTags.end());
   while ( fMap != lMap && tag != fMap->second ) { ++ fMap; }
   return fMap != lMap ? fMap->first : UNKNOWN; 
 }
 
 const std::string& EventFeature::featureTag()
 {
-  const std::map<FeatureType,std::string>& map = fillFeatureTags();
-  return map.find(DEFAULT)->second;
+  return m_featureTags.find(DEFAULT)->second;
 }
 
 const std::string& EventFeature::featureTag(FeatureType type)
 {
-  const std::map<FeatureType,std::string>& map = fillFeatureTags();
-  std::map<FeatureType,std::string>::const_iterator fMap(map.find(type));
-  return fMap != map.end() ? fMap->second : map.find(UNKNOWN)->second;
+  std::map<FeatureType,std::string>::const_iterator fMap(m_featureTags.find(type));
+  return fMap != m_featureTags.end() ? fMap->second : m_featureTags.find(UNKNOWN)->second;
 }
 
 EventFeature::EventFeature() 
@@ -140,7 +128,7 @@ EventFeature& EventFeature::operator=(const EventFeature& feature)
   return *this;
 }
 
-bool EventFeature::dataBlock(size_t blockIdx,std::vector<double>& data) const
+bool EventFeature::dataBlock(size_t blockIdx,std::vector<double>& data)
 {
 
   // get index range
@@ -213,7 +201,7 @@ void EventFeature::setNumberDataBlocks(size_t nBlocks)
     }
 }
 
-void EventFeature::setFeatureStructure(bool updateCache) const
+void EventFeature::setFeatureStructure(bool updateCache)
 {
   if ( updateCache )
     {
@@ -226,7 +214,7 @@ void EventFeature::setFeatureStructure(bool updateCache) const
   this->buildFeatureStructure();
 }
 
-unsigned int EventFeature::buildFeatureStructure() const
+unsigned int EventFeature::buildFeatureStructure()
 {
   m_featureStructure = 
     (m_dataWords&(unsigned int)NDATAWORDS) |
@@ -234,7 +222,7 @@ unsigned int EventFeature::buildFeatureStructure() const
   return m_featureStructure;
 }
 
-bool EventFeature::indexRange(size_t startIdx,index_t& idx) const
+bool EventFeature::indexRange(size_t startIdx,index_t& idx)
 {
   this->setFeatureStructure(false);
   size_t locIdx(startIdx*m_dataWords+m_dataBlocks);

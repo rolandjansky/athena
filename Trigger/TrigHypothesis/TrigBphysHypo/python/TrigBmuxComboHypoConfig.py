@@ -37,6 +37,8 @@ def BmuxComboHypoCfg(name):
         TrigBphysCollectionKey = 'HLT_Bmux',
         MuonCollectionKey = 'HLT_Muons_Bmumux',
         TrackCollectionKey = 'HLT_IDTrack_Bmumux_IDTrig',
+        MakeCascadeFit = True,
+        CascadeChi2 = 50.,
         DeltaR = 0.01,
         TrkZ0 = 10.,
         FitAttemptsWarningThreshold = 200,

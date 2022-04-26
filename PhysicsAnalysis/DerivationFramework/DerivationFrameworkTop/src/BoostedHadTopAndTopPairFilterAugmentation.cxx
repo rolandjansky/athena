@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DerivationFrameworkTop/BoostedHadTopAndTopPairFilterAugmentation.h"
@@ -71,8 +71,8 @@ StatusCode BoostedHadTopAndTopPairFilterAugmentation::addBranches() const{
   }
 
   // call first the tool for high pT values
-  static SG::AuxElement::Decorator<int> decorationttbarSysPt_High("TTbar350");
-  static SG::AuxElement::Decorator<int> decorationHadTopPt_High("HadTop500");
+  static const SG::AuxElement::Decorator<int> decorationttbarSysPt_High("TTbar350");
+  static const SG::AuxElement::Decorator<int> decorationHadTopPt_High("HadTop500");
   
   int filterCode_High = m_filterTool_High->filterFlag(500000.0, 350000.0);
   
@@ -96,8 +96,8 @@ StatusCode BoostedHadTopAndTopPairFilterAugmentation::addBranches() const{
   
 
   // now call tool for low pT values                                                                                                                                                                                             
-  static SG::AuxElement::Decorator<int> decorationttbarSysPt_Low("TTbar150");
-  static SG::AuxElement::Decorator<int> decorationHadTopPt_Low("HadTop200");
+  static const SG::AuxElement::Decorator<int> decorationttbarSysPt_Low("TTbar150");
+  static const SG::AuxElement::Decorator<int> decorationHadTopPt_Low("HadTop200");
 
   int filterCode_Low = m_filterTool_Low->filterFlag(200000.0, 150000.0);
 
