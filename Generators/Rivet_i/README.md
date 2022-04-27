@@ -75,6 +75,9 @@ svcMgr.EventSelector.InputCollections = [ 'EVNT.root' ]
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 
+from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
+job += xAODMaker__EventInfoCnvAlg()
+
 from Rivet_i.Rivet_iConf import Rivet_i
 rivet = Rivet_i()
 import os
@@ -154,6 +157,9 @@ svcMgr.EventSelector.InputCollections = evntfiles
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 
+from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
+job += xAODMaker__EventInfoCnvAlg()
+
 from Rivet_i.Rivet_iConf import Rivet_i
 
 rivet = Rivet_i()
@@ -180,6 +186,9 @@ import AthenaPoolCnvSvc.ReadAthenaPool
 
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
+
+from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
+job += xAODMaker__EventInfoCnvAlg()
 
 from Rivet_i.Rivet_iConf import Rivet_i
 rivet = Rivet_i()
