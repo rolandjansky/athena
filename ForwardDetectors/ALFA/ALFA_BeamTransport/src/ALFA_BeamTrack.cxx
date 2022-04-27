@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "../ALFA_BeamTransport/ALFA_BeamTrack.h"
-//#include "../HepMCAnalysis_i/FileWrite.h"
+#include "ALFA_BeamTrack.h"
 
 //Athena Stuff
 #include "GaudiKernel/MsgStream.h"

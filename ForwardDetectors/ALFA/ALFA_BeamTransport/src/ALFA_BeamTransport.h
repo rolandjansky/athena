@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,6 +15,8 @@
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 #include <string>
 
 
@@ -25,8 +27,8 @@
 #include "FPTracker/Particle.h"
 #include "FPTracker/Point.h"
 
-#include "ALFA_BeamTransport/ALFA_BeamTrack.h"
-#include "ALFA_BeamTransport/ALFA_FPConfig.h"
+#include "ALFA_BeamTrack.h"
+#include "ALFA_FPConfig.h"
 
 #include <iostream>
 
@@ -83,7 +85,7 @@ class ALFA_BeamTransport : public ::AthAlgorithm
     private:
 	  //some storegate variables
 	  std::string m_key; 
-	  std::string m_infokey;
+	  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EvtInfo", "EventInfo", "EventInfo name"};
 	  
 	  	  
 	  //Set FPConfiguration variables
