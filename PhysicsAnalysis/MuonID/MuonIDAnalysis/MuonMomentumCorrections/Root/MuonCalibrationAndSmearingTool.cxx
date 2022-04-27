@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Framework include(s):
@@ -3401,6 +3401,9 @@ namespace CP {
 
         AmgVector(5) parsID;
         AmgVector(5) parsMS;
+        // Suppress gcc12 warnings about use of uninitialized data.
+        parsID.setZero();
+        parsMS.setZero();
         AmgSymMatrix(5) covID;
         AmgSymMatrix(5) covMS;
 
