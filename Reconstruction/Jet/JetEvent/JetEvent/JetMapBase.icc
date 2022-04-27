@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -12,7 +12,7 @@
 
 // -*- C++ -*-
 template<class P>
-typename JetMapBase<P>::data_t JetMapBase<P>::m_nullData = data_t();
+const typename JetMapBase<P>::data_t JetMapBase<P>::m_nullData = data_t();
 
 template<class P>
 inline 
