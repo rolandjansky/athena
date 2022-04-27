@@ -54,11 +54,20 @@ class ExtrapolationCache;
 
    STEP (Simultaneous Track and Error Propagation ) 
    is an algorithm for track parameters propagation through
-   magnetic field with or without the jacobian of the transformation. 
+   magnetic field.
+
+   The algorithm can produce the Jacobian that transports the covariance matrix
+   from one set of track parameters at the initial surface to another set of 
+   track parameters at the destination surface. This is useful for Chi2 
+   fitting.
+
+   One can choose to perform the transport of the parameters only and omit the transport 
+   of the associated covariances (propagateParameters).
+
    The implementation performs the propagation in global coordinates and uses
    Jacobian matrices (see RungeKuttaUtils) for the transformations between the 
    global frame and local surface-attached coordinate systems.
- 
+
    The STEP_Propagator includes material effects in the
    equation of motion and applies corrections to the covariance matrices 
    continuously during the parameter transport.  It is designed for the 
@@ -153,10 +162,11 @@ class STEP_Propagator final
   // Public methods:
   /////////////////////////////////////////////////////////////////////////////////
 public:
-  STEP_Propagator(const std::string&, const std::string&, const IInterface*);
 
   using IPropagator::propagate;
-  using IPropagator::propagateT;
+  
+  STEP_Propagator(const std::string&, const std::string&, const IInterface*);
+
   virtual ~STEP_Propagator();
 
   /** AlgTool initailize method.*/
@@ -166,7 +176,7 @@ public:
   virtual StatusCode finalize() override final;
 
   /** Main propagation method NeutralParameters.
-   * It is not implmented for STEP propagator.*/
+   * It is not implemented for STEP propagator.*/
   virtual std::unique_ptr<Trk::NeutralParameters> propagate(
     const Trk::NeutralParameters&,
     const Trk::Surface&,
@@ -200,7 +210,8 @@ public:
     bool returnCurv = false,
     const Trk::TrackingVolume* tVol = nullptr) const override final;
 
-  /** Propagate parameters and covariance with search of closest surface */
+  /** Propagate parameters and covariance with search of closest surface 
+   * time included*/
   virtual std::unique_ptr<Trk::TrackParameters> propagateT(
     const EventContext& ctx,
     const Trk::TrackParameters& trackParameters,
