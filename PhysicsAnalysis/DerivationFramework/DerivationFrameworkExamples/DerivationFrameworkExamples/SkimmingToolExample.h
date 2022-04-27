@@ -41,7 +41,7 @@ namespace DerivationFramework {
     virtual StatusCode finalize() override;
     
     /** Check that the current event passes this filter */
-    virtual bool eventPassesFilter() const;
+    virtual bool eventPassesFilter() const override;
     
   private:
     mutable std::atomic<unsigned int> m_ntot;
