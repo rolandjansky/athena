@@ -77,9 +77,9 @@ class EventFormatMetaDataTool : public virtual ::IMetaDataTool, public ::AthAlgT
   ServiceHandle< IMetaDataSvc > m_outputMetaStore{this, "MetaDataSvc",
     "MetaDataSvc", name()};
 
-  /// Optional property to specify a single key to copy from input to output
-  Gaudi::Property< std::string > m_inputKey{this, "InputKey", "",
-    "(optional) the xAOD::EventFormat key to propogate."};
+  /// (optional) list of keys to copy, all if empty, default: empty
+  Gaudi::Property<std::vector<std::string> > m_keys{ this, "Keys", {},
+      "(optional) list of keys to copy, all if empty. default: empty"};
 
   /// MetaDataStop need to wait for ongoing writes
   std::mutex m_outputMutex;

@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef IDPERFMON_ZMUMU_H
-#define IDPERFMON_ZMUMU_H
+#ifndef INDETPERFORMANCEMONITORING_IDPERFMONZMUMU_H
+#define INDETPERFORMANCEMONITORING_IDPERFMONZMUMU_H
 
 //==============================================================================
 // Include files...
@@ -39,6 +39,7 @@
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "BeamSpotConditionsData/BeamSpotData.h"
 
+#include "xAODEventInfo/EventInfo.h"
 
 class IegammaTrkRefitterTool;
 
@@ -136,6 +137,9 @@ class IDPerfMonZmumu : public AthAlgorithm
 
   /* vertex */
   SG::ReadHandleKey<xAOD::VertexContainer> m_vertexKey { this, "VertexContainer", "PrimaryVertices", "primary vertex container" };
+
+  /* event info */
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfo", "EventInfo", "EventInfo name"};
 
   //Validation Ntuple variables
   //!< boolean to switch to validation mode

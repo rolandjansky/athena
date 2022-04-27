@@ -95,14 +95,14 @@ if DetFlags.pixel_on():
 
             condSeq += alg
 
-    if not (athenaCommonFlags.isOnline() or conddb.dbdata=='COMP200'):
+    if not conddb.dbdata=='COMP200':
         if not conddb.folderRequested("/PIXEL/PixelModuleFeMask"):
             conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixelModuleFeMask", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
 
     if not hasattr(condSeq, "PixelDeadMapCondAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
         alg = PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
-        if athenaCommonFlags.isOnline() or conddb.dbdata=='COMP200':
+        if conddb.dbdata=='COMP200':
             alg.ReadKey = ''
         condSeq += alg
 

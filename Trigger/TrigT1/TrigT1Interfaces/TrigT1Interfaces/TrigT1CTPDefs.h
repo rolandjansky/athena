@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1INTERFACES_TRIGT1CTPDEFS_H
@@ -47,7 +47,7 @@ namespace LVL1CTP {
   }
 
   //! helper function to dump a vector of numbers in hex format
-  inline const std::string convertToHex(const std::vector<uint32_t> words) 
+  inline const std::string convertToHex(const std::vector<uint32_t>& words) 
   {
     std::ostringstream s;
 

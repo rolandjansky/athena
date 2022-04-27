@@ -3,8 +3,6 @@
 */
 
 #include "LArCalibTools/LArDigits2Ntuple.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "LArRawEvent/LArDigitContainer.h"
 #include "Identifier/HWIdentifier.h"
 #include "LArRawEvent/LArSCDigit.h"

@@ -1670,9 +1670,6 @@ def getInDetTRT_SeededScoringTool(NewTrackingCuts, name='InDetTRT_SeededScoringT
 
 
 def getInDetExtenScoringTool(NewTrackingCuts,name='InDetExtenScoringTool', **kwargs) :
-    from InDetRecExample.InDetJobProperties import InDetFlags
-    if InDetFlags.trackFitterType() in ['KalmanFitter', 'KalmanDNAFitter', 'ReferenceKalmanFitter']:
-        kwargs=setDefaults(kwargs, minTRTPrecisionFraction = 0.2)
     return getInDetAmbiScoringTool(NewTrackingCuts,
                                    name,
                                    **setDefaults(kwargs,

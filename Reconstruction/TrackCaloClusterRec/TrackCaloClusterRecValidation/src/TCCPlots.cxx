@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/SystemOfUnits.h"
@@ -1118,7 +1118,7 @@ void TCCPlots::fillResponse(const xAOD::Jet& jet, const xAOD::Jet& truth) {
   
   fillHisto(m_jet_response_m_pt  , truth.pt()/GeV, jet.m()/truth.m() , m_eventWeight);
     
-  static SG::AuxElement::Accessor<float> accD2("D2");
+  static const SG::AuxElement::Accessor<float> accD2("D2");
   if (accD2.isAvailable(jet) and accD2.isAvailable(truth)) {
     fillHisto(m_jet_response_d2   , accD2(jet)/accD2(truth), m_eventWeight);  
     fillHisto(m_jet_response_d2_pt, truth.pt()/GeV, accD2(jet)/accD2(truth) , m_eventWeight);
@@ -1137,7 +1137,7 @@ void TCCPlots::fillResponseNoPtNoMassCuts(const xAOD::Jet& jet, const xAOD::Jet&
   fillHisto(m_jet_mopt_pt_response_eta   , truth.pt()/GeV, truth.m()/truth.pt(), jet.eta()/truth.eta(), m_eventWeight);
   fillHisto(m_jet_mopt_pt_response_phi   , truth.pt()/GeV, truth.m()/truth.pt(), jet.phi()/truth.phi(), m_eventWeight);
     
-  static SG::AuxElement::Accessor<float> accD2("D2");
+  static const SG::AuxElement::Accessor<float> accD2("D2");
   if (accD2.isAvailable(jet) and accD2.isAvailable(truth))
     fillHisto(m_jet_mopt_pt_response_d2 , truth.pt()/GeV, truth.m()/truth.pt(), accD2(jet)/accD2(truth), m_eventWeight);
 }
@@ -1146,26 +1146,26 @@ void TCCPlots::fillPseudoResponse(const xAOD::Jet& jet, const xAOD::Jet& calo) {
   fillHisto(m_jet_pseudoresponse_m     , jet.m() /calo.m() , m_eventWeight);
   fillHisto(m_jet_pseudoresponse_pt    , jet.pt()/calo.pt(), m_eventWeight);
   
-  static SG::AuxElement::Accessor<float> ptAcc("JetConstitScaleMomentum_pt");
+  static const SG::AuxElement::Accessor<float> ptAcc("JetConstitScaleMomentum_pt");
   if (ptAcc.isAvailable(calo)) {
     fillHisto(m_jet_pseudoresponse_notcalib_pt, jet.pt()/ptAcc(calo), m_eventWeight);
   }
 }
 
 void TCCPlots::fillMoments(const xAOD::Jet& jet) {
-  static SG::AuxElement::Accessor<float> accD2("D2");
+  static const SG::AuxElement::Accessor<float> accD2("D2");
   if (accD2.isAvailable(jet))
     fillHisto(m_jet_d2, accD2(jet), m_eventWeight);
 }
 
 void TCCPlots::fillMomentsWithMassCut(const xAOD::Jet& jet) {
-  static SG::AuxElement::Accessor<float> accD2("D2");
+  static const SG::AuxElement::Accessor<float> accD2("D2");
   if (accD2.isAvailable(jet))
     fillHisto(m_jet_d2_massCut, accD2(jet), m_eventWeight);
 }
 
 void TCCPlots::fillMomentsLeading(const xAOD::Jet& jet) {
-  static SG::AuxElement::Accessor<float> accD2("D2");
+  static const SG::AuxElement::Accessor<float> accD2("D2");
   if (accD2.isAvailable(jet)) {
     fillHisto(m_jet_d2_leading       , accD2(jet), m_eventWeight);
     fillHisto(m_jet_d2_2leadings     , accD2(jet), m_eventWeight);
@@ -1173,7 +1173,7 @@ void TCCPlots::fillMomentsLeading(const xAOD::Jet& jet) {
 }
 
 void TCCPlots::fillMomentsLeadingWithMassCut(const xAOD::Jet& jet) {
-  static SG::AuxElement::Accessor<float> accD2("D2");
+  static const SG::AuxElement::Accessor<float> accD2("D2");
   if (accD2.isAvailable(jet)) {
     fillHisto(m_jet_d2_leading_massCut       , accD2(jet), m_eventWeight);
     fillHisto(m_jet_d2_2leadings_massCut     , accD2(jet), m_eventWeight);
@@ -1181,7 +1181,7 @@ void TCCPlots::fillMomentsLeadingWithMassCut(const xAOD::Jet& jet) {
 }
 
 void TCCPlots::fillMomentsSubLeading(const xAOD::Jet& jet) {
-  static SG::AuxElement::Accessor<float> accD2("D2");
+  static const SG::AuxElement::Accessor<float> accD2("D2");
   if (accD2.isAvailable(jet)) {
     fillHisto(m_jet_d2_subleading    , accD2(jet), m_eventWeight);
     fillHisto(m_jet_d2_2leadings     , accD2(jet), m_eventWeight);
@@ -1189,7 +1189,7 @@ void TCCPlots::fillMomentsSubLeading(const xAOD::Jet& jet) {
 }
 
 void TCCPlots::fillMomentsSubLeadingWithMassCut(const xAOD::Jet& jet) {
-  static SG::AuxElement::Accessor<float> accD2("D2");
+  static const SG::AuxElement::Accessor<float> accD2("D2");
   if (accD2.isAvailable(jet)) {
     fillHisto(m_jet_d2_subleading_massCut    , accD2(jet), m_eventWeight);
     fillHisto(m_jet_d2_2leadings_massCut     , accD2(jet), m_eventWeight);
@@ -1215,7 +1215,7 @@ void TCCPlots::fillResponseLeading(const xAOD::Jet& jet, const xAOD::Jet& truth)
   fillHisto(m_jet_response_m_pt_2leadings  , truth.pt()/GeV, jet.m()/truth.m(), m_eventWeight);
   fillHisto(m_jet_response_m_pt_leading    , truth.pt()/GeV, jet.m()/truth.m(), m_eventWeight);
 
-  static SG::AuxElement::Accessor<float> accD2("D2");
+  static const SG::AuxElement::Accessor<float> accD2("D2");
   if (accD2.isAvailable(jet) and accD2.isAvailable(truth)) {
     fillHisto(m_jet_response_d2_2leadings , accD2(jet)/accD2(truth), m_eventWeight);
     fillHisto(m_jet_response_d2_leading   , accD2(jet)/accD2(truth), m_eventWeight);
@@ -1244,7 +1244,7 @@ void TCCPlots::fillResponseNoPtNoMassCutsLeading(const xAOD::Jet& jet, const xAO
   fillHisto(m_jet_mopt_pt_response_phi_2leadings   , truth.pt()/GeV, truth.m()/truth.pt(), jet.phi()/truth.phi(), m_eventWeight);
   
     
-  static SG::AuxElement::Accessor<float> accD2("D2");
+  static const SG::AuxElement::Accessor<float> accD2("D2");
   if (accD2.isAvailable(jet) and accD2.isAvailable(truth)) {
     fillHisto(m_jet_mopt_pt_response_d2_leading   , truth.pt()/GeV, truth.m()/truth.pt(), accD2(jet)/accD2(truth), m_eventWeight);
     fillHisto(m_jet_mopt_pt_response_d2_2leadings , truth.pt()/GeV, truth.m()/truth.pt(), accD2(jet)/accD2(truth), m_eventWeight);
@@ -1281,7 +1281,7 @@ void TCCPlots::fillResponseSubLeading(const xAOD::Jet& jet, const xAOD::Jet& tru
   fillHisto(m_jet_response_m_pt_2leadings  , truth.pt()/GeV, jet.m()/truth.m(), m_eventWeight);
   fillHisto(m_jet_response_m_pt_subleading , truth.pt()/GeV, jet.m()/truth.m(), m_eventWeight);
 
-  static SG::AuxElement::Accessor<float> accD2("D2");
+  static const SG::AuxElement::Accessor<float> accD2("D2");
   if (accD2.isAvailable(jet) and accD2.isAvailable(truth)) {
     fillHisto(m_jet_response_d2_2leadings    , accD2(jet)/accD2(truth), m_eventWeight);
     fillHisto(m_jet_response_d2_subleading   , accD2(jet)/accD2(truth), m_eventWeight);
@@ -1309,7 +1309,7 @@ void TCCPlots::fillResponseNoPtNoMassCutsSubLeading(const xAOD::Jet& jet, const 
   fillHisto(m_jet_mopt_pt_response_phi_subleading  , truth.pt()/GeV, truth.m()/truth.pt(), jet.phi()/truth.phi(), m_eventWeight);
   fillHisto(m_jet_mopt_pt_response_phi_2leadings   , truth.pt()/GeV, truth.m()/truth.pt(), jet.phi()/truth.phi(), m_eventWeight);
     
-  static SG::AuxElement::Accessor<float> accD2("D2");
+  static const SG::AuxElement::Accessor<float> accD2("D2");
   if (accD2.isAvailable(jet) and accD2.isAvailable(truth)) {
     fillHisto(m_jet_mopt_pt_response_d2_subleading, truth.pt()/GeV, truth.m()/truth.pt(), accD2(jet)/accD2(truth), m_eventWeight);
     fillHisto(m_jet_mopt_pt_response_d2_2leadings , truth.pt()/GeV, truth.m()/truth.pt(), accD2(jet)/accD2(truth), m_eventWeight);
@@ -1333,7 +1333,7 @@ void TCCPlots::fillPseudoResponseLeading(const xAOD::Jet& jet, const xAOD::Jet& 
   fillHisto(m_jet_pseudoresponse_m_2leadings   , jet.m() /calo.m() , m_eventWeight);
   fillHisto(m_jet_pseudoresponse_pt_2leadings  , jet.pt()/calo.pt(), m_eventWeight);
   
-  static SG::AuxElement::Accessor<float> ptAcc("JetConstitScaleMomentum_pt");
+  static const SG::AuxElement::Accessor<float> ptAcc("JetConstitScaleMomentum_pt");
   if (ptAcc.isAvailable(calo)) {
     fillHisto(m_jet_pseudoresponse_notcalib_pt_leading  , jet.pt()/ptAcc(calo), m_eventWeight);
     fillHisto(m_jet_pseudoresponse_notcalib_pt_2leadings, jet.pt()/ptAcc(calo), m_eventWeight);
@@ -1346,7 +1346,7 @@ void TCCPlots::fillPseudoResponseSubLeading(const xAOD::Jet& jet, const xAOD::Je
   fillHisto(m_jet_pseudoresponse_m_2leadings    , jet.m() /calo.m() , m_eventWeight);
   fillHisto(m_jet_pseudoresponse_pt_2leadings   , jet.pt()/calo.pt(), m_eventWeight);
   
-  static SG::AuxElement::Accessor<float> ptAcc("JetConstitScaleMomentum_pt");
+  static const SG::AuxElement::Accessor<float> ptAcc("JetConstitScaleMomentum_pt");
   if (ptAcc.isAvailable(calo)) {
     fillHisto(m_jet_pseudoresponse_notcalib_pt_subleading, jet.pt()/ptAcc(calo), m_eventWeight);
     fillHisto(m_jet_pseudoresponse_notcalib_pt_2leadings , jet.pt()/ptAcc(calo), m_eventWeight);
@@ -1362,9 +1362,9 @@ void TCCPlots::fillTrackParametersAllPt(const xAOD::TrackParticle& track) {
 }
 
 void TCCPlots::fillCaloEntryInfoAllPt(const xAOD::TrackParticle& track) {    
-  static SG::AuxElement::Accessor< float > acc_caloEntryPosEta( "CaloEntryPosEta" );
-  static SG::AuxElement::Accessor< float > acc_caloEntryUncEta( "CaloEntryUncEta" );
-  static SG::AuxElement::Accessor< float > acc_caloEntryUncTheta( "CaloEntryUncTheta" );
+  static const SG::AuxElement::Accessor< float > acc_caloEntryPosEta( "CaloEntryPosEta" );
+  static const SG::AuxElement::Accessor< float > acc_caloEntryUncEta( "CaloEntryUncEta" );
+  static const SG::AuxElement::Accessor< float > acc_caloEntryUncTheta( "CaloEntryUncTheta" );
   if (acc_caloEntryPosEta.isAvailable(track)) {
     float caloEntryEta = acc_caloEntryPosEta(track);
     fillHisto(m_trk_caloEntryEtaOverEta_pt , track.pt()/GeV , caloEntryEta/track.eta(), m_eventWeight);
@@ -1379,8 +1379,8 @@ void TCCPlots::fillCaloEntryInfoAllPt(const xAOD::TrackParticle& track) {
     fillHisto(m_trk_caloEntryUncTheta_pt          , track.pt()/GeV  , caloEntryUncTheta, m_eventWeight);
   }  
   
-  static SG::AuxElement::Accessor< float > acc_caloEntryPosPhi( "CaloEntryPosPhi" );
-  static SG::AuxElement::Accessor< float > acc_caloEntryUncPhi( "CaloEntryUncPhi" );
+  static const SG::AuxElement::Accessor< float > acc_caloEntryPosPhi( "CaloEntryPosPhi" );
+  static const SG::AuxElement::Accessor< float > acc_caloEntryUncPhi( "CaloEntryUncPhi" );
   if (acc_caloEntryPosPhi.isAvailable(track)) {
     float caloEntryPhi = acc_caloEntryPosPhi(track);
     fillHisto(m_trk_caloEntryPhiOverPhi_pt , track.pt()/GeV , caloEntryPhi/track.phi(), m_eventWeight);
@@ -1401,9 +1401,9 @@ void TCCPlots::fillCaloEntryInfoAllPt(const xAOD::TrackParticle& track) {
 
 void TCCPlots::fillPerigeeInfoAllPt(const xAOD::TrackParticle& track) {
   
-  static SG::AuxElement::Accessor< float > acc_perigeePosEta( "PerigeePosEta" );
-  static SG::AuxElement::Accessor< float > acc_perigeeUncEta( "PerigeeUncEta" );
-  static SG::AuxElement::Accessor< float > acc_perigeeUncTheta( "PerigeeUncTheta" );
+  static const SG::AuxElement::Accessor< float > acc_perigeePosEta( "PerigeePosEta" );
+  static const SG::AuxElement::Accessor< float > acc_perigeeUncEta( "PerigeeUncEta" );
+  static const SG::AuxElement::Accessor< float > acc_perigeeUncTheta( "PerigeeUncTheta" );
   if (acc_perigeeUncEta.isAvailable(track)) {
     float perigeeUncEta = acc_perigeeUncEta(track);
     fillHisto(m_trk_perigeeUncEta_pt          , track.pt()/GeV  , perigeeUncEta, m_eventWeight);
@@ -1413,8 +1413,8 @@ void TCCPlots::fillPerigeeInfoAllPt(const xAOD::TrackParticle& track) {
     fillHisto(m_trk_perigeeUncTheta_pt          , track.pt()/GeV  , perigeeUncTheta, m_eventWeight);
   }
   
-  static SG::AuxElement::Accessor< float > acc_perigeePosPhi( "PerigeePosPhi" );
-  static SG::AuxElement::Accessor< float > acc_perigeeUncPhi( "PerigeeUncPhi" );
+  static const SG::AuxElement::Accessor< float > acc_perigeePosPhi( "PerigeePosPhi" );
+  static const SG::AuxElement::Accessor< float > acc_perigeeUncPhi( "PerigeeUncPhi" );
   if (acc_perigeeUncPhi.isAvailable(track)) {
     float perigeeUncPhi = acc_perigeeUncPhi(track);
     fillHisto(m_trk_perigeeUncPhi_pt          , track.pt()/GeV  , perigeeUncPhi, m_eventWeight);
@@ -1429,10 +1429,10 @@ void TCCPlots::fillPerigeeInfoAllPt(const xAOD::TrackParticle& track) {
 }
 
 void TCCPlots::fillPerigeeVsCaloEntryAllPt(const xAOD::TrackParticle& track) {
-  static SG::AuxElement::Accessor< float > acc_perigeeEta( "PerigeePosEta" );
-  static SG::AuxElement::Accessor< float > acc_perigeePhi( "PerigeePosPhi" );
-  static SG::AuxElement::Accessor< float > acc_caloEntryEta( "CaloEntryPosEta" );
-  static SG::AuxElement::Accessor< float > acc_caloEntryPhi( "CaloEntryPosPhi" );
+  static const SG::AuxElement::Accessor< float > acc_perigeeEta( "PerigeePosEta" );
+  static const SG::AuxElement::Accessor< float > acc_perigeePhi( "PerigeePosPhi" );
+  static const SG::AuxElement::Accessor< float > acc_caloEntryEta( "CaloEntryPosEta" );
+  static const SG::AuxElement::Accessor< float > acc_caloEntryPhi( "CaloEntryPosPhi" );
   
   if (acc_perigeeEta.isAvailable(track) and acc_perigeePhi.isAvailable(track) and acc_caloEntryEta.isAvailable(track) and acc_caloEntryPhi.isAvailable(track)) {
     float delta_eta = acc_caloEntryEta(track) - acc_perigeeEta(track);
@@ -1455,9 +1455,9 @@ void TCCPlots::fillPerigeeVsCaloEntryAllPt(const xAOD::TrackParticle& track) {
     fillHisto(m_trk_delta_trackPhi_caloEntryPhi_pt , track.pt()/GeV, delta_phi, m_eventWeight);
   }
   
-  static SG::AuxElement::Accessor< int > acc_caloEntryCorr( "Corrected" );
-  static SG::AuxElement::Accessor< float > acc_caloEntryEtaCorr( "CaloEntryPosEtaCorr" );
-  static SG::AuxElement::Accessor< float > acc_caloEntryPhiCorr( "CaloEntryPosPhiCorr" );
+  static const SG::AuxElement::Accessor< int > acc_caloEntryCorr( "Corrected" );
+  static const SG::AuxElement::Accessor< float > acc_caloEntryEtaCorr( "CaloEntryPosEtaCorr" );
+  static const SG::AuxElement::Accessor< float > acc_caloEntryPhiCorr( "CaloEntryPosPhiCorr" );
   
   if (acc_caloEntryCorr.isAvailable(track) and acc_caloEntryCorr(track)>0) {
     float delta_eta = acc_caloEntryEtaCorr(track) - track.eta();
@@ -1498,9 +1498,9 @@ void TCCPlots::fillTrackParameters(const xAOD::TrackParticle& track) {
 }
 
 void TCCPlots::fillCaloEntryInfo(const xAOD::TrackParticle& track) {    
-  static SG::AuxElement::Accessor< float > acc_caloEntryPosEta( "CaloEntryPosEta" );
-  static SG::AuxElement::Accessor< float > acc_caloEntryUncEta( "CaloEntryUncEta" );
-  static SG::AuxElement::Accessor< float > acc_caloEntryUncTheta( "CaloEntryUncTheta" );
+  static const SG::AuxElement::Accessor< float > acc_caloEntryPosEta( "CaloEntryPosEta" );
+  static const SG::AuxElement::Accessor< float > acc_caloEntryUncEta( "CaloEntryUncEta" );
+  static const SG::AuxElement::Accessor< float > acc_caloEntryUncTheta( "CaloEntryUncTheta" );
   if (acc_caloEntryPosEta.isAvailable(track)) {
     float caloEntryEta = acc_caloEntryPosEta(track);
     fillHisto(m_trk_caloEntryEta           , caloEntryEta , m_eventWeight);
@@ -1518,8 +1518,8 @@ void TCCPlots::fillCaloEntryInfo(const xAOD::TrackParticle& track) {
     fillHisto(m_trk_caloEntryUncTheta_eta         , track.eta()     , caloEntryUncTheta, m_eventWeight);
   }  
   
-  static SG::AuxElement::Accessor< float > acc_caloEntryPosPhi( "CaloEntryPosPhi" );
-  static SG::AuxElement::Accessor< float > acc_caloEntryUncPhi( "CaloEntryUncPhi" );
+  static const SG::AuxElement::Accessor< float > acc_caloEntryPosPhi( "CaloEntryPosPhi" );
+  static const SG::AuxElement::Accessor< float > acc_caloEntryUncPhi( "CaloEntryUncPhi" );
   if (acc_caloEntryPosPhi.isAvailable(track)) {
     float caloEntryPhi = acc_caloEntryPosPhi(track);
     fillHisto(m_trk_caloEntryPhi           , caloEntryPhi, m_eventWeight);
@@ -1538,7 +1538,7 @@ void TCCPlots::fillCaloEntryInfo(const xAOD::TrackParticle& track) {
     float caloEntryUncPhi = acc_caloEntryUncPhi(track);
     float totUnc = sqrt(caloEntryUncEta*caloEntryUncEta+caloEntryUncPhi*caloEntryUncPhi);
     fillHisto(m_trk_caloEntryUncTot_eta         , track.eta() , totUnc, m_eventWeight);
-    static SG::AuxElement::Accessor< float > acc_prodRadius( "ProductionRadius" );
+    static const SG::AuxElement::Accessor< float > acc_prodRadius( "ProductionRadius" );
     if (acc_prodRadius.isAvailable(track)) {
       fillHisto(m_trk_caloEntryUncEta_prodRadius, acc_prodRadius(track), caloEntryUncEta, m_eventWeight);
       fillHisto(m_trk_caloEntryUncPhi_prodRadius, acc_prodRadius(track), caloEntryUncPhi, m_eventWeight);
@@ -1551,9 +1551,9 @@ void TCCPlots::fillCaloEntryInfo(const xAOD::TrackParticle& track) {
 
 void TCCPlots::fillPerigeeInfo(const xAOD::TrackParticle& track) {
   
-  static SG::AuxElement::Accessor< float > acc_perigeePosEta( "PerigeePosEta" );
-  static SG::AuxElement::Accessor< float > acc_perigeeUncEta( "PerigeeUncEta" );
-  static SG::AuxElement::Accessor< float > acc_perigeeUncTheta( "PerigeeUncTheta" );
+  static const SG::AuxElement::Accessor< float > acc_perigeePosEta( "PerigeePosEta" );
+  static const SG::AuxElement::Accessor< float > acc_perigeeUncEta( "PerigeeUncEta" );
+  static const SG::AuxElement::Accessor< float > acc_perigeeUncTheta( "PerigeeUncTheta" );
   if (acc_perigeePosEta.isAvailable(track)) {
     float perigeeEta = acc_perigeePosEta(track);
     fillHisto(m_trk_perigeeEta           , perigeeEta, m_eventWeight);
@@ -1567,8 +1567,8 @@ void TCCPlots::fillPerigeeInfo(const xAOD::TrackParticle& track) {
     fillHisto(m_trk_perigeeUncTheta_eta         , track.eta()     , perigeeUncTheta, m_eventWeight);
   }
   
-  static SG::AuxElement::Accessor< float > acc_perigeePosPhi( "PerigeePosPhi" );
-  static SG::AuxElement::Accessor< float > acc_perigeeUncPhi( "PerigeeUncPhi" );
+  static const SG::AuxElement::Accessor< float > acc_perigeePosPhi( "PerigeePosPhi" );
+  static const SG::AuxElement::Accessor< float > acc_perigeeUncPhi( "PerigeeUncPhi" );
   if (acc_perigeePosPhi.isAvailable(track)) {
     float perigeePhi = acc_perigeePosPhi(track);
     fillHisto(m_trk_perigeePhi           , perigeePhi, m_eventWeight);
@@ -1584,7 +1584,7 @@ void TCCPlots::fillPerigeeInfo(const xAOD::TrackParticle& track) {
     float perigeeUncPhi = acc_perigeeUncPhi(track);
     float totUnc = sqrt(perigeeUncEta*perigeeUncEta+perigeeUncPhi*perigeeUncPhi);
     fillHisto(m_trk_perigeeUncTot_eta         , track.eta() , totUnc, m_eventWeight);
-    static SG::AuxElement::Accessor< float > acc_prodRadius( "ProductionRadius" );
+    static const SG::AuxElement::Accessor< float > acc_prodRadius( "ProductionRadius" );
     if (acc_prodRadius.isAvailable(track)) {
       fillHisto(m_trk_perigeeUncEta_prodRadius, acc_prodRadius(track), perigeeUncEta, m_eventWeight);
       fillHisto(m_trk_perigeeUncPhi_prodRadius, acc_prodRadius(track), perigeeUncPhi, m_eventWeight);
@@ -1597,12 +1597,12 @@ void TCCPlots::fillPerigeeInfo(const xAOD::TrackParticle& track) {
 }
 
 void TCCPlots::fillPerigeeVsCaloEntry(const xAOD::TrackParticle& track) {
-  static SG::AuxElement::Accessor< float > acc_perigeeUncEta( "PerigeeUncEta" );
-  static SG::AuxElement::Accessor< float > acc_perigeeUncTheta( "PerigeeUncTheta" );
-  static SG::AuxElement::Accessor< float > acc_perigeeUncPhi( "PerigeeUncPhi" );
-  static SG::AuxElement::Accessor< float > acc_caloEntryUncEta( "CaloEntryUncEta" );
-  static SG::AuxElement::Accessor< float > acc_caloEntryUncTheta( "CaloEntryUncTheta" );
-  static SG::AuxElement::Accessor< float > acc_caloEntryUncPhi( "CaloEntryUncPhi" );
+  static const SG::AuxElement::Accessor< float > acc_perigeeUncEta( "PerigeeUncEta" );
+  static const SG::AuxElement::Accessor< float > acc_perigeeUncTheta( "PerigeeUncTheta" );
+  static const SG::AuxElement::Accessor< float > acc_perigeeUncPhi( "PerigeeUncPhi" );
+  static const SG::AuxElement::Accessor< float > acc_caloEntryUncEta( "CaloEntryUncEta" );
+  static const SG::AuxElement::Accessor< float > acc_caloEntryUncTheta( "CaloEntryUncTheta" );
+  static const SG::AuxElement::Accessor< float > acc_caloEntryUncPhi( "CaloEntryUncPhi" );
   
   if (acc_perigeeUncEta.isAvailable(track) and acc_perigeeUncPhi.isAvailable(track) and acc_perigeeUncTheta.isAvailable(track) 
       and acc_caloEntryUncEta.isAvailable(track) and acc_caloEntryUncPhi.isAvailable(track) and acc_caloEntryUncTheta.isAvailable(track)) {
@@ -1620,10 +1620,10 @@ void TCCPlots::fillPerigeeVsCaloEntry(const xAOD::TrackParticle& track) {
     fillHisto(m_trk_perigeeUncTot_caloUncTot    , caloTotUnc       , perigeeTotUnc  , m_eventWeight);
   }
   
-  static SG::AuxElement::Accessor< float > acc_perigeeEta( "PerigeePosEta" );
-  static SG::AuxElement::Accessor< float > acc_perigeePhi( "PerigeePosPhi" );
-  static SG::AuxElement::Accessor< float > acc_caloEntryEta( "CaloEntryPosEta" );
-  static SG::AuxElement::Accessor< float > acc_caloEntryPhi( "CaloEntryPosPhi" );
+  static const SG::AuxElement::Accessor< float > acc_perigeeEta( "PerigeePosEta" );
+  static const SG::AuxElement::Accessor< float > acc_perigeePhi( "PerigeePosPhi" );
+  static const SG::AuxElement::Accessor< float > acc_caloEntryEta( "CaloEntryPosEta" );
+  static const SG::AuxElement::Accessor< float > acc_caloEntryPhi( "CaloEntryPosPhi" );
   
   if (acc_perigeeEta.isAvailable(track) and acc_perigeePhi.isAvailable(track) and acc_caloEntryEta.isAvailable(track) and acc_caloEntryPhi.isAvailable(track)) {
     float delta_eta = acc_caloEntryEta(track) - acc_perigeeEta(track);
@@ -1650,9 +1650,9 @@ void TCCPlots::fillPerigeeVsCaloEntry(const xAOD::TrackParticle& track) {
     fillHisto(m_trk_delta_trackPhi_caloEntryPhi_eta, track.eta()   , delta_phi, m_eventWeight);
   }
   
-  static SG::AuxElement::Accessor< int > acc_caloEntryCorr( "Corrected" );
-  static SG::AuxElement::Accessor< float > acc_caloEntryEtaCorr( "CaloEntryPosEtaCorr" );
-  static SG::AuxElement::Accessor< float > acc_caloEntryPhiCorr( "CaloEntryPosPhiCorr" );
+  static const SG::AuxElement::Accessor< int > acc_caloEntryCorr( "Corrected" );
+  static const SG::AuxElement::Accessor< float > acc_caloEntryEtaCorr( "CaloEntryPosEtaCorr" );
+  static const SG::AuxElement::Accessor< float > acc_caloEntryPhiCorr( "CaloEntryPosPhiCorr" );
   
   if (acc_caloEntryCorr.isAvailable(track) and acc_caloEntryCorr(track)>0) {
     float delta_eta = acc_caloEntryEtaCorr(track) - track.eta();
@@ -1685,7 +1685,7 @@ void TCCPlots::fillPerigeeVsCaloEntry(const xAOD::TrackParticle& track) {
 
 void TCCPlots::fillMatching(const xAOD::TrackParticle& track) {
   // I should fill stats for the tracks 
-  static SG::AuxElement::Accessor< int > acc_assTool( "ParticleCaloClusterAssociationTool" );
+  static const SG::AuxElement::Accessor< int > acc_assTool( "ParticleCaloClusterAssociationTool" );
   if (not acc_assTool.isAvailable(track)) return;
   if (acc_assTool(track)==0) return;
   
@@ -1694,21 +1694,21 @@ void TCCPlots::fillMatching(const xAOD::TrackParticle& track) {
   fillHisto(m_trk_total_eta, track.eta()   , m_eventWeight);
   fillHisto(m_trk_total_pt , track.pt()/GeV, m_eventWeight);
       
-  static SG::AuxElement::Accessor< float > acc_caloEntryUncEta( "CaloEntryUncEta" );
-  static SG::AuxElement::Accessor< float > acc_caloEntryUncPhi( "CaloEntryUncPhi" );
-  static SG::AuxElement::Accessor< float > acc_prodRadius( "ProductionRadius" );
+  static const SG::AuxElement::Accessor< float > acc_caloEntryUncEta( "CaloEntryUncEta" );
+  static const SG::AuxElement::Accessor< float > acc_caloEntryUncPhi( "CaloEntryUncPhi" );
+  static const SG::AuxElement::Accessor< float > acc_prodRadius( "ProductionRadius" );
   
   if (acc_caloEntryUncEta.isAvailable(track) and acc_caloEntryUncPhi.isAvailable(track) and acc_prodRadius.isAvailable(track)) {
     float caloEntryUncEta = acc_caloEntryUncEta(track);
     float caloEntryUncPhi = acc_caloEntryUncPhi(track);
     float totUnc = sqrt(caloEntryUncEta*caloEntryUncEta+caloEntryUncPhi*caloEntryUncPhi);
     
-  //   static SG::AuxElement::Accessor< std::vector<int> > acc_matched( "IsMatched" );
-  //   static SG::AuxElement::Accessor< std::vector<int> > acc_mode( "MatchingMode" );
+  //   static const SG::AuxElement::Accessor< std::vector<int> > acc_matched( "IsMatched" );
+  //   static const SG::AuxElement::Accessor< std::vector<int> > acc_mode( "MatchingMode" );
   
-    static SG::AuxElement::Accessor< int > acc_allClusters( "AllClusters" );
-    static SG::AuxElement::Accessor< int > acc_clusters_dr_fix      ( "Match_deltaR_fixed"        );
-    static SG::AuxElement::Accessor< int > acc_clusters_dr_var      ( "Match_deltaR_variable"     );
+    static const SG::AuxElement::Accessor< int > acc_allClusters( "AllClusters" );
+    static const SG::AuxElement::Accessor< int > acc_clusters_dr_fix      ( "Match_deltaR_fixed"        );
+    static const SG::AuxElement::Accessor< int > acc_clusters_dr_var      ( "Match_deltaR_variable"     );
     
     fillHisto(m_trk_total_clusters_eta, track.eta()   , acc_allClusters(track), m_eventWeight);
     fillHisto(m_trk_total_clusters_pt , track.pt()/GeV, acc_allClusters(track), m_eventWeight);
@@ -1766,10 +1766,10 @@ void TCCPlots::fillMatching(const xAOD::TrackParticle& track) {
       fillHisto(m_trk_matching_deltar_onlyvar_pt       , track.pt()/GeV, m_eventWeight);
     }
     
-    static SG::AuxElement::Accessor< int > acc_clusters_dr_or       ( "Match_deltaR"             );
-    static SG::AuxElement::Accessor< int > acc_clusters_dr_and      ( "Match_deltaR_both"        );
-    static SG::AuxElement::Accessor< int > acc_clusters_dr_fix_only ( "Match_deltaR_fixedOnly"   );
-    static SG::AuxElement::Accessor< int > acc_clusters_dr_var_only ( "Match_deltaR_variableOnly");
+    static const SG::AuxElement::Accessor< int > acc_clusters_dr_or       ( "Match_deltaR"             );
+    static const SG::AuxElement::Accessor< int > acc_clusters_dr_and      ( "Match_deltaR_both"        );
+    static const SG::AuxElement::Accessor< int > acc_clusters_dr_fix_only ( "Match_deltaR_fixedOnly"   );
+    static const SG::AuxElement::Accessor< int > acc_clusters_dr_var_only ( "Match_deltaR_variableOnly");
     
     // matching dr fixed or dr variable
     fillHisto(m_trk_matching_deltar_or_clusters_eta , track.eta()   , acc_clusters_dr_or(track), m_eventWeight);
@@ -1792,7 +1792,7 @@ void TCCPlots::fillMatching(const xAOD::TrackParticle& track) {
     fillHisto(m_trk_matching_deltar_var_only_clusters_pt  , track.pt()/GeV, acc_clusters_dr_var_only(track), m_eventWeight);
   }     
   
-  static SG::AuxElement::Accessor< int > acc_trk_PV0 ( "IsPV0Compatible" );
+  static const SG::AuxElement::Accessor< int > acc_trk_PV0 ( "IsPV0Compatible" );
   if (acc_trk_PV0.isAvailable(track) and acc_trk_PV0(track)==1) {
     
     fillHisto(m_trk_pv0_total_eta, track.eta()   , m_eventWeight);
@@ -1821,9 +1821,9 @@ void TCCPlots::fillMatching(const xAOD::TrackParticle& track) {
 
       fillHisto(m_trk_pv0_caloEntryUncTot_rFirstHit, track.radiusOfFirstHit(), totUnc, m_eventWeight); 
                   
-      static SG::AuxElement::Accessor< int > acc_allClusters     ( "AllClusters"           );
-      static SG::AuxElement::Accessor< int > acc_clusters_dr_fix ( "Match_deltaR_fixed"    );
-      static SG::AuxElement::Accessor< int > acc_clusters_dr_var ( "Match_deltaR_variable" );
+      static const SG::AuxElement::Accessor< int > acc_allClusters     ( "AllClusters"           );
+      static const SG::AuxElement::Accessor< int > acc_clusters_dr_fix ( "Match_deltaR_fixed"    );
+      static const SG::AuxElement::Accessor< int > acc_clusters_dr_var ( "Match_deltaR_variable" );
       
       fillHisto(m_trk_pv0_total_clusters_eta, track.eta()   , acc_allClusters(track), m_eventWeight);
       fillHisto(m_trk_pv0_total_clusters_pt , track.pt()/GeV, acc_allClusters(track), m_eventWeight);
@@ -1874,15 +1874,15 @@ void TCCPlots::fillMatching(const xAOD::TrackParticle& track) {
 
 void TCCPlots::fillClusterEtaCut(const xAOD::CaloCluster& cluster) {
   // here I fill the clusters
-  static SG::AuxElement::Accessor< int > acc_assTool( "ParticleCaloClusterAssociationTool" );
+  static const SG::AuxElement::Accessor< int > acc_assTool( "ParticleCaloClusterAssociationTool" );
   if (not acc_assTool.isAvailable(cluster)) return;
   if (acc_assTool(cluster)==0) return;
   
-  static SG::AuxElement::Accessor< float > acc_eta( "ClusterEta" );
-  static SG::AuxElement::Accessor< float > acc_unc( "ClusterUnc" );
+  static const SG::AuxElement::Accessor< float > acc_eta( "ClusterEta" );
+  static const SG::AuxElement::Accessor< float > acc_unc( "ClusterUnc" );
   
-  static SG::AuxElement::Accessor< float > acc_weight( "ClusterWeight" );
-  static SG::AuxElement::Accessor< float > acc_calE( "calE" );
+  static const SG::AuxElement::Accessor< float > acc_weight( "ClusterWeight" );
+  static const SG::AuxElement::Accessor< float > acc_calE( "calE" );
    
   fillHisto(m_clusters_etacut_eta                     , acc_eta(cluster), acc_weight(cluster)*m_eventWeight);
   fillHisto(m_clusters_etacut_abs_eta                 , acc_eta(cluster), m_eventWeight);
@@ -1900,15 +1900,15 @@ void TCCPlots::fillClusterEtaCut(const xAOD::CaloCluster& cluster) {
 
 void TCCPlots::fillCluster(const xAOD::CaloCluster& cluster) {
   // here I fill the clusters
-  static SG::AuxElement::Accessor< int > acc_assTool( "ParticleCaloClusterAssociationTool" );
+  static const SG::AuxElement::Accessor< int > acc_assTool( "ParticleCaloClusterAssociationTool" );
   if (not acc_assTool.isAvailable(cluster)) return;
   if (acc_assTool(cluster)==0) return;
   
-  static SG::AuxElement::Accessor< float > acc_eta( "ClusterEta" );
-  static SG::AuxElement::Accessor< float > acc_unc( "ClusterUnc" );
+  static const SG::AuxElement::Accessor< float > acc_eta( "ClusterEta" );
+  static const SG::AuxElement::Accessor< float > acc_unc( "ClusterUnc" );
   
-  static SG::AuxElement::Accessor< float > acc_weight( "ClusterWeight" );
-  static SG::AuxElement::Accessor< float > acc_calE( "calE" );
+  static const SG::AuxElement::Accessor< float > acc_weight( "ClusterWeight" );
+  static const SG::AuxElement::Accessor< float > acc_calE( "calE" );
    
   fillHisto(m_clusters_eta                     , acc_eta(cluster), acc_weight(cluster)*m_eventWeight);
   fillHisto(m_clusters_abs_eta                 , acc_eta(cluster), m_eventWeight);
@@ -1938,7 +1938,7 @@ void TCCPlots::fillCluster(const xAOD::CaloCluster& cluster) {
     }
   }  
   
-  static SG::AuxElement::Accessor< int > acc_matched( "ClusterMatched" );
+  static const SG::AuxElement::Accessor< int > acc_matched( "ClusterMatched" );
   if (acc_matched(cluster)==1) {
     fillHisto(m_clusters_matched_eta             , acc_eta(cluster), acc_weight(cluster)*m_eventWeight);
     fillHisto(m_clusters_abs_matched_eta         , acc_eta(cluster), m_eventWeight);
@@ -1955,8 +1955,8 @@ void TCCPlots::fillCluster(const xAOD::CaloCluster& cluster) {
     }
   }
   
-  static SG::AuxElement::Accessor< int > acc_dr_fix_match( "ClusterMatchedFixedDeltaR" );
-  static SG::AuxElement::Accessor< int > acc_dr_var_match ( "ClusterMatchedVariableDeltaR" );
+  static const SG::AuxElement::Accessor< int > acc_dr_fix_match( "ClusterMatchedFixedDeltaR" );
+  static const SG::AuxElement::Accessor< int > acc_dr_var_match ( "ClusterMatchedVariableDeltaR" );
   
   
   if (acc_dr_fix_match(cluster)==1 and acc_dr_var_match(cluster)==1) {
@@ -2001,8 +2001,8 @@ void TCCPlots::fillCluster(const xAOD::CaloCluster& cluster) {
   }
   
   // match with tracks from PV0
-  static SG::AuxElement::Accessor< int > acc_dr_fix_PV0( "FixedMatchPV0" );
-  static SG::AuxElement::Accessor< int > acc_dr_var_PV0( "VarMatchPV0"   );
+  static const SG::AuxElement::Accessor< int > acc_dr_fix_PV0( "FixedMatchPV0" );
+  static const SG::AuxElement::Accessor< int > acc_dr_var_PV0( "VarMatchPV0"   );
   
   if (acc_dr_fix_PV0.isAvailable(cluster) and acc_dr_var_PV0.isAvailable(cluster)) {
     bool matchFix = (acc_dr_fix_match(cluster)==1 and acc_dr_fix_PV0(cluster)==1);
@@ -2051,8 +2051,8 @@ void TCCPlots::fillCluster(const xAOD::CaloCluster& cluster) {
   }  
   
   // match with tracks from PVX
-  static SG::AuxElement::Accessor< int > acc_dr_fix_PVX( "FixedMatchPVX" );
-  static SG::AuxElement::Accessor< int > acc_dr_var_PVX( "VarMatchPVX"   );
+  static const SG::AuxElement::Accessor< int > acc_dr_fix_PVX( "FixedMatchPVX" );
+  static const SG::AuxElement::Accessor< int > acc_dr_var_PVX( "VarMatchPVX"   );
   
   if (acc_dr_fix_PVX.isAvailable(cluster) and acc_dr_var_PVX.isAvailable(cluster)
     and acc_dr_fix_PV0.isAvailable(cluster) and acc_dr_var_PV0.isAvailable(cluster)) {
@@ -2101,11 +2101,11 @@ void TCCPlots::fillCluster(const xAOD::CaloCluster& cluster) {
     }
   }  
   
-  static SG::AuxElement::Accessor< int > acc_neutral( "isNeutral" );
-  static SG::AuxElement::Accessor< float > acc_pt_fraction( "ptFraction" );
-  static SG::AuxElement::Accessor< int > acc_rejected( "isRejected" );
-  static SG::AuxElement::Accessor< int > acc_isPV0( "isPV0" );
-  static SG::AuxElement::Accessor< int > acc_isPVX( "isPVX" );
+  static const SG::AuxElement::Accessor< int > acc_neutral( "isNeutral" );
+  static const SG::AuxElement::Accessor< float > acc_pt_fraction( "ptFraction" );
+  static const SG::AuxElement::Accessor< int > acc_rejected( "isRejected" );
+  static const SG::AuxElement::Accessor< int > acc_isPV0( "isPV0" );
+  static const SG::AuxElement::Accessor< int > acc_isPVX( "isPVX" );
   
   if (acc_calE.isAvailable(cluster) and acc_neutral.isAvailable(cluster) and acc_neutral(cluster)==1) {
     fillHisto(m_clusters_pt_fraction_e, cluster.e()/GeV, acc_pt_fraction(cluster), m_eventWeight);
@@ -2173,7 +2173,7 @@ void TCCPlots::fillTCC(const xAOD::TrackCaloCluster& tcc, std::vector<const xAOD
       //- Each of those clusters matches a given number of tracks, M : size of MatchingTracks
       //std::cout << "Size of the cluster vector: "<< tcc.caloClusterLinks().size() << std::endl;    
       
-      static SG::AuxElement::Accessor< float > acc_unc( "ClusterUnc" );
+      static const SG::AuxElement::Accessor< float > acc_unc( "ClusterUnc" );
 
       if (!tcc.caloClusterLinks().empty()) {
 	int N = tcc.caloClusterLinks().size();
@@ -2181,7 +2181,7 @@ void TCCPlots::fillTCC(const xAOD::TrackCaloCluster& tcc, std::vector<const xAOD
 	for (size_t c = 0; c < tcc.caloClusterLinks().size(); ++c) {
 	  const xAOD::CaloCluster* cluster = *(tcc.caloClusterLinks().at(c));
 // 	  std::cout << "cluster " << c << " --> " << cluster->eta() << ", " << cluster->phi() << "   ----   " << acc_unc(*cluster) << std::endl;
-	  static SG::AuxElement::Accessor< std::vector<ElementLink<xAOD::TrackParticleContainer>> > acc_links( "MatchingTracks" );
+	  static const SG::AuxElement::Accessor< std::vector<ElementLink<xAOD::TrackParticleContainer>> > acc_links( "MatchingTracks" );
 	  if (acc_links.isAvailable(*cluster)) {
 	    int M = acc_links(*cluster).size();
 	    //std::cout << "Size of the track vector: "<< acc_links(*cluster).size() << std::endl;  

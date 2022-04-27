@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file MuonEventTPCnv/test/make_dd.icc
@@ -332,6 +332,28 @@ const MuonGM::MuonDetectorManager& make_dd()
   MMDetectorDescription ddmdet ("MM1-dummy", ds);
   ddmdet.Register();
   ddmdet.roParameters.stereoAngle.push_back(0);
+  ddmdet.roParameters.stripPitch = 0;
+  ddmdet.roParameters.gasThickness = 0;
+  ddmdet.roParameters.pcbThickness = 0;
+  ddmdet.roParameters.driftThickness = 0;
+  ddmdet.roParameters.zpos = 0;
+  ddmdet.roParameters.distanceFromZAxis = 0;
+  ddmdet.roParameters.roLength = 0;
+  ddmdet.roParameters.activeBottomLength = 0;
+  ddmdet.roParameters.activeTopLength = 0;
+  ddmdet.roParameters.activeH = 0;
+  ddmdet.roParameters.minYPhiR = 0;
+  ddmdet.roParameters.minYPhiL = 0;
+  ddmdet.roParameters.maxYPhi = 0;
+  ddmdet.roParameters.nMissedTopEta = 0;
+  ddmdet.roParameters.nMissedBottomEta = 0;
+  ddmdet.roParameters.nMissedTopStereo = 0;
+  ddmdet.roParameters.nMissedBottomStereo = 0;
+  ddmdet.roParameters.nRoutedTop = 0;
+  ddmdet.roParameters.nRoutedBottom = 0;
+  ddmdet.roParameters.dlStereoTop = 0;
+  ddmdet.roParameters.dlStereoBottom = 0;
+  ddmdet.roParameters.tStrips = 0;
 
   AGDDDetectorPositioner* mpos2 = new AGDDDetectorPositioner (ps, vs, "pmdum2", xform);
   deleter.add (mpos2);

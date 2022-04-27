@@ -5,7 +5,6 @@
 #include <iostream>
 #include <string>
 
-#include "CxxUtils/no_bitwise_op_warning.h"
 #include "MuonDetDescrUtils/MuonSectorMapping.h"
 #include "TFile.h"
 #include "TTree.h"

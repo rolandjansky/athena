@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ROOT include(s):
@@ -26,25 +26,25 @@ namespace InDet {
 
   static const CP::SystematicSet SmearingSystematics = 
     {
-      InDet::TrackSystematicMap[TRK_RES_D0_MEAS],
-      InDet::TrackSystematicMap[TRK_RES_Z0_MEAS],
-      InDet::TrackSystematicMap[TRK_RES_D0_MEAS_UP],
-      InDet::TrackSystematicMap[TRK_RES_Z0_MEAS_UP],
-      InDet::TrackSystematicMap[TRK_RES_D0_MEAS_DOWN],
-      InDet::TrackSystematicMap[TRK_RES_Z0_MEAS_DOWN],
-      InDet::TrackSystematicMap[TRK_RES_D0Z0Corl_MEAS],
-      InDet::TrackSystematicMap[TRK_RES_D0Z0_MEAS],
-      InDet::TrackSystematicMap[TRK_RES_D0_DEAD],
-      InDet::TrackSystematicMap[TRK_RES_Z0_DEAD]
+      InDet::TrackSystematicMap.at(TRK_RES_D0_MEAS),
+      InDet::TrackSystematicMap.at(TRK_RES_Z0_MEAS),
+      InDet::TrackSystematicMap.at(TRK_RES_D0_MEAS_UP),
+      InDet::TrackSystematicMap.at(TRK_RES_Z0_MEAS_UP),
+      InDet::TrackSystematicMap.at(TRK_RES_D0_MEAS_DOWN),
+      InDet::TrackSystematicMap.at(TRK_RES_Z0_MEAS_DOWN),
+      InDet::TrackSystematicMap.at(TRK_RES_D0Z0Corl_MEAS),
+      InDet::TrackSystematicMap.at(TRK_RES_D0Z0_MEAS),
+      InDet::TrackSystematicMap.at(TRK_RES_D0_DEAD),
+      InDet::TrackSystematicMap.at(TRK_RES_Z0_DEAD)
     };
 
   static const CP::SystematicSet RecommendedSystematics = 
     {
-      InDet::TrackSystematicMap[TRK_RES_D0_MEAS],
-      InDet::TrackSystematicMap[TRK_RES_Z0_MEAS],
+      InDet::TrackSystematicMap.at(TRK_RES_D0_MEAS),
+      InDet::TrackSystematicMap.at(TRK_RES_Z0_MEAS),
       // the TRK_RES_[D|Z]0_MEAS_[UP|DOWN] systematics are for advanced users only, who are using TRK_RES_[D|Z]0_MEAS as the nominal point
-      InDet::TrackSystematicMap[TRK_RES_D0_DEAD],
-      InDet::TrackSystematicMap[TRK_RES_Z0_DEAD]
+      InDet::TrackSystematicMap.at(TRK_RES_D0_DEAD),
+      InDet::TrackSystematicMap.at(TRK_RES_Z0_DEAD)
     };
 
   InDetTrackSmearingTool::InDetTrackSmearingTool( const std::string& name )
@@ -170,8 +170,8 @@ namespace InDet {
     float sigmaD0 = GetSmearD0Sigma( track );
     float sigmaZ0 = GetSmearZ0Sigma( track );
 
-    static SG::AuxElement::Accessor< float > accD0( "d0" );
-    static SG::AuxElement::Accessor< float > accZ0( "z0" );
+    static const SG::AuxElement::Accessor< float > accD0( "d0" );
+    static const SG::AuxElement::Accessor< float > accZ0( "z0" );
 
     //NB: only call the RNG if the widths are greater than 0
 

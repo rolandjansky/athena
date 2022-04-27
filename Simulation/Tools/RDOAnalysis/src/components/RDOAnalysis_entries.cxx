@@ -1,3 +1,4 @@
+#include "../EventInfoRDOAnalysis.h"
 #include "../TRT_RDOAnalysis.h"
 #include "../PixelRDOAnalysis.h"
 #include "../SCT_RDOAnalysis.h"
@@ -14,6 +15,7 @@
 #include "../ITkPixelRDOAnalysis.h"
 #include "../StripRDOAnalysis.h"
 
+DECLARE_COMPONENT( EventInfoRDOAnalysis )
 DECLARE_COMPONENT( TRT_RDOAnalysis )
 DECLARE_COMPONENT( PixelRDOAnalysis )
 DECLARE_COMPONENT( SCT_RDOAnalysis )

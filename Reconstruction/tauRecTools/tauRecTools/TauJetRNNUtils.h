@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAURECTOOLS_TAUJETRNNUTILS_H
@@ -57,9 +57,9 @@ public:
                  std::vector<double> &out) const;
 
     // Methods to insert calculator functions into the lookup table
-    void insert(const std::string &name, ScalarCalc func);
-    void insert(const std::string &name, TrackCalc func);
-    void insert(const std::string &name, ClusterCalc func);
+    void insert(const std::string &name, ScalarCalc func, const std::vector<std::string>& scalar_vars);
+    void insert(const std::string &name, TrackCalc func, const std::vector<std::string>& track_vars);
+    void insert(const std::string &name, ClusterCalc func, const std::vector<std::string>& cluster_vars);
 
 private:
     // Lookup tables
@@ -70,7 +70,9 @@ private:
 
 // Factory function to create a variable calculator populated with default
 // variables
-std::unique_ptr<VarCalc> get_default_calculator();
+std::unique_ptr<VarCalc> get_calculator(const std::vector<std::string>& scalar_vars,
+					const std::vector<std::string>& track_vars,
+					const std::vector<std::string>& cluster_vars);
 
 
 namespace Variables {

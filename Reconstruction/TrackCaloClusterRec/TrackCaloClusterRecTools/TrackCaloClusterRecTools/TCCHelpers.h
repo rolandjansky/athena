@@ -1,6 +1,6 @@
 // this file is -*- C++ -*-
 /*
-  Copyright (C) 2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2020, 2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRACKCALOCLUSTERREC_TRACKCALOCLUSTERRECTOOLS_TCCHELPERS_H
@@ -60,7 +60,7 @@ namespace TCCHelpers {
       for(const xAOD::FlowElement* pfo: *pfos ){
 	if( ! pfo->isCharged() ) continue;
         	
-	static SG::AuxElement::ConstAccessor<int> acc_isInDenseEnvironment("IsInDenseEnvironment");
+	static const SG::AuxElement::ConstAccessor<int> acc_isInDenseEnvironment("IsInDenseEnvironment");
 	if(!acc_isInDenseEnvironment.isAvailable(*pfo)){
 	    asg::msgUserCode::ANA_MSG_ERROR("TCCHelpers.h: Dense environ variable not found, skipping given FE");
 	    continue;

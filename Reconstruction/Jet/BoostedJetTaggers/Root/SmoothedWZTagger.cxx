@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BoostedJetTaggers/SmoothedWZTagger.h"
@@ -268,7 +268,7 @@ StatusCode SmoothedWZTagger::tag( const xAOD::Jet& jet ) const {
     }
 
     if ( validVtx ) {
-      static SG::AuxElement::Accessor<ElementLink<xAOD::JetContainer> > ungroomedLink("Parent");
+      static const SG::AuxElement::Accessor<ElementLink<xAOD::JetContainer> > ungroomedLink("Parent");
       const xAOD::Jet * ungroomedJet = 0;
 
       if ( ungroomedLink.isAvailable(jet) ) {
@@ -276,7 +276,7 @@ StatusCode SmoothedWZTagger::tag( const xAOD::Jet& jet ) const {
         if ( linkToUngroomed.isValid() ) {
           ungroomedJet = *linkToUngroomed;
 
-          static SG::AuxElement::ConstAccessor< std::vector<int> >acc_Ntrk("NumTrkPt500");
+          static const SG::AuxElement::ConstAccessor< std::vector<int> >acc_Ntrk("NumTrkPt500");
 
           if ( acc_Ntrk.isAvailable(*ungroomedJet) ) {
 

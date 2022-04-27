@@ -2,6 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 
 
 def RDOAnalysisOutputCfg(flags, output_name="RDOAnalysis"):
@@ -11,6 +12,21 @@ def RDOAnalysisOutputCfg(flags, output_name="RDOAnalysis"):
                                    Output=[ f"{output_name} DATAFILE='{output_name}.root' OPT='RECREATE'" ])
     result.addService(histsvc)
     
+    return result
+
+
+def EventInfoRDOAnalysisCfg(flags, name="EventInfoRDOAnalysis", **kwargs):
+    result = ComponentAccumulator()
+
+    kwargs.setdefault("NtuplePath", "/RDOAnalysis/ntuples/")
+    kwargs.setdefault("HistPath", "/RDOAnalysis/histos/")
+    if flags.Common.ProductionStep is ProductionStep.PileUpPresampling:
+        kwargs.setdefault("EventInfo", f"{flags.Overlay.BkgPrefix}EventInfo")
+
+    result.addEventAlgo(CompFactory.EventInfoRDOAnalysis(name, **kwargs))
+
+    result.merge(RDOAnalysisOutputCfg(flags))
+
     return result
 
 
@@ -46,6 +62,8 @@ def ITkStripRDOAnalysisCfg(flags, name="ITkStripRDOAnalysis", **kwargs):
 
 def RDOAnalysisCfg(flags):
     acc = ComponentAccumulator()
+
+    acc.merge(EventInfoRDOAnalysisCfg(flags))
 
     if flags.Detector.EnableITkPixel:
         acc.merge(ITkPixelRDOAnalysisCfg(flags))

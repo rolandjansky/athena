@@ -121,16 +121,12 @@ class PixelConditionsServicesSetup:
     #########################
     # Deadmap Setup (RUN-3) #
     #########################
-    if not (conddb.folderRequested("/PIXEL/PixelModuleFeMask") or conddb.folderRequested("/PIXEL/Onl/PixelModuleFeMask")):
-      if not athenaCommonFlags.isOnline():
-        conddb.addFolder("PIXEL_OFL", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
-
     if not hasattr(condSeq, "PixelDeadMapCondAlg"):
+      conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixelModuleFeMask", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
+
       from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
       alg = PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
       if not self.usePixMap:
-        alg.ReadKey = ''
-      if athenaCommonFlags.isOnline():
         alg.ReadKey = ''
       condSeq += alg
 

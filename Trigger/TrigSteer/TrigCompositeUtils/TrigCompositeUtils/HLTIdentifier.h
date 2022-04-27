@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigCompositeUtils_HLTIdentifier_h
@@ -11,7 +11,6 @@
 #include <map>
 
 #include "AsgMessaging/MsgStream.h"
-#include "CxxUtils/checker_macros.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 
 /**
@@ -57,7 +56,7 @@ public:
   bool operator < ( TrigCompositeUtils::DecisionID id ) const { return numeric() < id; } 
 private:
   TrigCompositeUtils::DecisionID m_id;
-  static bool s_reportStringIDs ATLAS_THREAD_SAFE;
+  static std::atomic<bool> s_reportStringIDs;
   
 };
  typedef std::vector<HLT::Identifier> IDVec;

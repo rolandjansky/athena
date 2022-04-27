@@ -32,8 +32,6 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "AthenaMonitoring/DQAtlasReadyFilterTool.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "xAODTrigger/MuonRoIContainer.h"
 #include "xAODMuon/MuonContainer.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"

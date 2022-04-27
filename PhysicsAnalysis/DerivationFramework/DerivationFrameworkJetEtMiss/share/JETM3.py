@@ -101,10 +101,13 @@ thinningTools.append(JETM3PhotonTPThinningTool)
 
 # TrackParticles associated with taus
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
-JETM3TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name                   = "JETM3TauTPThinningTool",
-                                                                        StreamName             = streamName,
-                                                                        TauKey                 = "TauJets",
-                                                                        InDetTrackParticlesKey = "InDetTrackParticles")
+JETM3TauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name                   = "JETM3TauTPThinningTool",
+                                                                      StreamName             = streamName,
+                                                                      TauKey                 = "TauJets",
+                                                                      InDetTrackParticlesKey = "InDetTrackParticles",
+                                                                      DoTauTracksThinning    = True,
+                                                                      TauTracksKey           = "TauTracks")
+
 
 ToolSvc += JETM3TauTPThinningTool
 thinningTools.append(JETM3TauTPThinningTool)

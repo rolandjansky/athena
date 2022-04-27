@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BoostedJetTaggers/JetQGTagger.h"
@@ -153,10 +153,10 @@ namespace CP {
     ANA_CHECK( m_trkTruthFilterTool.setProperty( "trackOriginTool", m_originTool ) );
     ANA_CHECK( m_trkTruthFilterTool.retrieve() );
     CP::SystematicSet systSetTrk = {
-      InDet::TrackSystematicMap[InDet::TRK_EFF_LOOSE_GLOBAL],
-      InDet::TrackSystematicMap[InDet::TRK_EFF_LOOSE_IBL],
-      InDet::TrackSystematicMap[InDet::TRK_EFF_LOOSE_PP0],
-      InDet::TrackSystematicMap[InDet::TRK_EFF_LOOSE_PHYSMODEL]
+      InDet::TrackSystematicMap.at(InDet::TRK_EFF_LOOSE_GLOBAL),
+      InDet::TrackSystematicMap.at(InDet::TRK_EFF_LOOSE_IBL),
+      InDet::TrackSystematicMap.at(InDet::TRK_EFF_LOOSE_PP0),
+      InDet::TrackSystematicMap.at(InDet::TRK_EFF_LOOSE_PHYSMODEL)
     };
     ANA_CHECK( m_trkTruthFilterTool->applySystematicVariation(systSetTrk) );
 
@@ -165,7 +165,7 @@ namespace CP {
     ANA_CHECK( m_trkFakeTool.setProperty( "trackOriginTool", m_originTool ) );
     ANA_CHECK( m_trkFakeTool.retrieve() );
     CP::SystematicSet systSetTrkFake = {
-      InDet::TrackSystematicMap[InDet::TRK_FAKE_RATE_LOOSE]
+      InDet::TrackSystematicMap.at(InDet::TRK_FAKE_RATE_LOOSE)
     };
     ANA_CHECK( m_trkFakeTool->applySystematicVariation(systSetTrkFake) );
 
@@ -174,7 +174,7 @@ namespace CP {
     ANA_CHECK( m_jetTrackFilterTool.setProperty( "trackOriginTool", m_originTool ) ); 
     ANA_CHECK( m_jetTrackFilterTool.retrieve() );
     CP::SystematicSet systSetJet = {
-      InDet::TrackSystematicMap[InDet::TRK_EFF_LOOSE_TIDE]
+      InDet::TrackSystematicMap.at(InDet::TRK_EFF_LOOSE_TIDE)
     };
     ANA_CHECK( m_jetTrackFilterTool->applySystematicVariation(systSetJet) );
 

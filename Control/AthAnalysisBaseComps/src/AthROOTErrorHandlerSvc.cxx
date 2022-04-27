@@ -1,56 +1,64 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthROOTErrorHandlerSvc.h"
 
 #include "TROOT.h"
 
-ErrorHandlerFunc_t AthROOTErrorHandlerSvc::s_oldHandler = 0;
-std::map<std::string, int> AthROOTErrorHandlerSvc::s_throwSources;
-int AthROOTErrorHandlerSvc::s_catchLevel = kFatal+1;
+namespace Handler {
+  AthROOTErrorHandlerSvc* svc;
+  ErrorHandlerFunc_t oldHandler;
+
+  void ErrorHandler ATLAS_NOT_THREAD_SAFE ( Int_t level, Bool_t abort, const char* location, const char* message ) {
+    if (svc) {  // should always be set by now
+      if(svc->m_catchLevel <= level) {
+        std::ostringstream oss;
+        oss << "AthROOTErrorHandlerSvc detected ROOT message >= CatchLevel "
+            << svc->m_catchLevel << " (" << level << "): " << location << " : " << message;
+        throw std::runtime_error(oss.str());
+      }
+      const auto itr = svc->m_throwSources.find(location);
+      if(itr!=svc->m_throwSources.end() && itr->second <= level) {
+        std::ostringstream oss;
+        oss << "AthROOTErrorHandlerSvc detected ROOT message from Throw Sources : "
+            << location << " (level=" << level << ") : " << message;
+        throw std::runtime_error(oss.str());
+      }
+    }
+    //now pass on to old handler
+    if(oldHandler) oldHandler( level, abort, location, message );
+  }
+
+}
+
 
 AthROOTErrorHandlerSvc::AthROOTErrorHandlerSvc(const std::string& name, ISvcLocator *svcLoc) :
-  AthService(name, svcLoc)
-{
-  //default map:
-  //levels are: kPrint, kInfo, kWarning, kError, kBreak, kSysError, kFatal
-  //set in joboptions using: import ROOT ... ROOT.kError
-  s_throwSources["TBranch::GetBasket"] = kError;
-  s_throwSources["TFile::ReadBuffer"] = kError;
-  declareProperty("ThrowSources",s_throwSources,"Map from source to error level. Any message at level or HIGHER will trigger runtime error");
-  //POSSIBLE EXTENSION: declareProperty("IgnoreSources", s_ignoreSources, "Map from source to error level. Any message at level or LOWER will be ignored");
-  declareProperty("CatchLevel",s_catchLevel=kFatal+1,"Throw runtime error for all messages at this level or HIGHER");
+  AthService(name, svcLoc) {
 }
 
-// Destructor
-AthROOTErrorHandlerSvc::~AthROOTErrorHandlerSvc() {}
+AthROOTErrorHandlerSvc::~AthROOTErrorHandlerSvc() {
+}
 
 
-StatusCode AthROOTErrorHandlerSvc::initialize() {
+StatusCode AthROOTErrorHandlerSvc::initialize ATLAS_NOT_THREAD_SAFE() {
+
   ATH_MSG_DEBUG("Replacing ROOT ErrorHandler");
-  ErrorHandlerFunc_t h = ::SetErrorHandler( ErrorHandler );
-  if(h != ErrorHandler) s_oldHandler = h; //if statement protects against double-initialize causing infinite loop in ErrorHandler
+  ErrorHandlerFunc_t h = ::SetErrorHandler( Handler::ErrorHandler );
+  Handler::svc = this;
+
+  // if statement protects against double-initialize causing infinite loop in ErrorHandler
+  if (h != Handler::ErrorHandler) {
+    Handler::oldHandler = h;
+  }
   return StatusCode::SUCCESS;
 }
 
-StatusCode AthROOTErrorHandlerSvc::finalize() {
+StatusCode AthROOTErrorHandlerSvc::finalize ATLAS_NOT_THREAD_SAFE() {
+
   ATH_MSG_DEBUG("Restoring old ROOT ErrorHandler");
-  if(s_oldHandler) ::SetErrorHandler( s_oldHandler );
-  s_oldHandler = 0;
+  Handler::svc = nullptr;
+  if (Handler::oldHandler) ::SetErrorHandler( Handler::oldHandler );
+  Handler::oldHandler = nullptr;
   return StatusCode::SUCCESS;
-}
-
-void AthROOTErrorHandlerSvc::ErrorHandler( Int_t level, Bool_t abort, const char* location, const char* message ) {
-  if(s_catchLevel <= level) {
-    std::ostringstream oss; oss << "AthROOTErrorHandlerSvc detected ROOT message >= CatchLevel " << s_catchLevel << " (" << level << "): " << location << " : " << message;
-    throw std::runtime_error(oss.str());
-  }
-  auto itr = s_throwSources.find(location);
-  if(itr!=s_throwSources.end() && itr->second <= level) {
-    std::ostringstream oss; oss << "AthROOTErrorHandlerSvc detected ROOT message from ThrowSources : " << location << " (level=" << level << ") : " << message;
-    throw std::runtime_error(oss.str());
-  }
-  //now pass on to old handler
-  if(s_oldHandler) s_oldHandler( level, abort, location, message );
 }

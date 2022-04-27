@@ -25,11 +25,6 @@ if __name__=='__main__':
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior = 1
 
-    # Setup logs
-    from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import DEBUG
-    log.setLevel(DEBUG)
-
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     nightly = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/'

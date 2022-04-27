@@ -688,7 +688,10 @@ namespace xAOD {
   static const SG::AuxElement::Accessor< TauJet_v3::JetLink_t > jetAcc( "jetLink" );
 
   const Jet* TauJet_v3::jet() const {
-   return ( *jetAcc( *this ) );
+    if (!jetAcc( *this ).isValid()) {
+      return nullptr;
+    }
+    return ( *jetAcc( *this ) );
   }
 
 

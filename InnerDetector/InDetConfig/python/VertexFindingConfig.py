@@ -1,4 +1,5 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -11,7 +12,7 @@ def primaryVertexFindingCfg(flags, **kwargs):
     else:
         vtxFlags = flags.InDet.PriVertex
 
-    vertexSorter = None
+    vertexWeightTool = None
     if vtxFlags.sortingSetup == 'SumPt2Sorting':
         vertexWeightTool = CompFactory.Trk.SumPtVertexWeightCalculator(
             DoSumPt2Selection=True
@@ -21,7 +22,7 @@ def primaryVertexFindingCfg(flags, **kwargs):
             DoSumPt2Selection=False
         )
     vertexSorter = CompFactory.Trk.VertexCollectionSortingTool(
-            VertexWeightCalculator=vertexWeightTool,
+        VertexWeightCalculator=vertexWeightTool,
     )
     # finder tool
     finderTool = None
@@ -94,7 +95,6 @@ def VtxInDetTrackSelectionCfg(flags, **kwargs):
     ):
         kwargs.setdefault(key, getattr(vtxFlags, key))
 
-    # TODO find out which of the settings below need to be picked from flags
     InDetTrackSelectorTool = CompFactory.InDet.InDetTrackSelectionTool(
         CutLevel="TightPrimary",
         UseTrkTrackTools=False,
@@ -156,7 +156,7 @@ def AdaptiveMultiFindingBaseCfg(flags, doGauss, **kwargs):
     kwargs.setdefault("useBeamConstraint", vtxFlags.useBeamConstraint)
     kwargs.setdefault("selectiontype", 0)
     kwargs.setdefault("TracksMaxZinterval", vtxFlags.maxZinterval)
-    kwargs.setdefault("do3dSplitting", vtxFlags.doPrimaryVertex3DFinding)
+    kwargs.setdefault("do3dSplitting", not vtxFlags.useBeamConstraint)
     kwargs.setdefault("m_useSeedConstraint", False)
     finderTool = CompFactory.InDet.InDetAdaptiveMultiPriVxFinderTool(
         name="InDetAdaptiveMultiPriVxFinderTool",
@@ -252,7 +252,10 @@ def ActsGaussAdaptiveMultiFindingBaseCfg(flags, **kwargs):
         vtxFlags = flags.ITk.PriVertex
     else:
         vtxFlags = flags.InDet.PriVertex
+
+    kwargs.setdefault("useBeamConstraint", vtxFlags.useBeamConstraint)
     kwargs.setdefault("tracksMaxZinterval", vtxFlags.maxZinterval)
+    kwargs.setdefault("do3dSplitting", not vtxFlags.useBeamConstraint)
     finderTool = CompFactory.ActsTrk.AdaptiveMultiPriVtxFinderTool(
         "ActsAdaptiveMultiPriVtxFinderTool",
         **kwargs,

@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
-from AthenaConfiguration.Enums import Format
+from AthenaConfiguration.Enums import Format, LHCPeriod
 
 
 def createRecoConfigFlags():
@@ -44,7 +44,12 @@ def createRecoConfigFlags():
     # enable automatically for HI data
     flags.addFlag("Reco.EnableHI",
                   lambda prevFlags: "_hi" in prevFlags.Input.ProjectName)
-
+    
+    # enable AFP only if running on data
+    flags.addFlag("Reco.EnableAFP",
+                  lambda prevFlags: not prevFlags.Input.isMC and 
+                  prevFlags.GeoModel.Run is not LHCPeriod.Run1)
+    
     # common thinning and other post-processing
     flags.addFlag("Reco.EnablePostProcessing", True)
     flags.addFlag("Reco.PostProcessing.TRTAloneThinning",

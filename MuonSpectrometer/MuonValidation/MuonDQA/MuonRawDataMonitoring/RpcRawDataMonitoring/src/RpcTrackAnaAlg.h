@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef RPCRAWDATAMONITORING_RPCTRACKANAALG_H
 #define RPCRAWDATAMONITORING_RPCTRACKANAALG_H
 
@@ -13,7 +17,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/ReadHandleKey.h"
-#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 
 // ATLAS
 #include "xAODMuon/MuonContainer.h"

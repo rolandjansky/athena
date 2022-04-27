@@ -2,10 +2,11 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "PixelSpacePointFormationTool.h"
-
+#include "TrkSurfaces/Surface.h"
 #include "InDetIdentifier/PixelID.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
+
+#include "PixelSpacePointFormationTool.h"
 
 namespace ActsTrk {
 
@@ -36,6 +37,10 @@ namespace ActsTrk {
             return nullptr;
         }
 
+        // Implementing space point covariance calculation as defined in
+        // InnerDetector/InDetRecEvent/SiSPSeededTrackFinderData/src/ITkSiSpacePointForSeed.cxx
+        // SiSpacePointForSeed::set(const Trk::SpacePoint*const& sp,const float* r)
+
         auto rdoList = cluster.rdoList();
         auto min_max =
           std::minmax_element(rdoList.begin(), rdoList.end(),
@@ -45,8 +50,8 @@ namespace ActsTrk {
 
         // this is the width expressed in mm
         float width =
-        design->widthFromColumnRange(m_pixelId->eta_index(*min_max.first),
-                                     m_pixelId->eta_index(*min_max.second));
+          design->widthFromColumnRange(m_pixelId->eta_index(*min_max.first),
+                                       m_pixelId->eta_index(*min_max.second));
 
         // using width to scale the cluster covariance for space points
         float covTerm = width*width*s_oneOverTwelve;
@@ -54,10 +59,12 @@ namespace ActsTrk {
         if( covTerm < localCov(1, 1) )
             covTerm = localCov(1, 1);
 
-        Eigen::Matrix<double, 2, 1> variance(0.06, 9.*covTerm);
-        // Swap r/z covariance terms for endcap clusters
-        if (not element.isBarrel() )
-            std::swap( variance(0, 0), variance(1, 0) );
+        // use xz, yz, zz terms of rotation matrix to scale the covariance term
+        const Amg::Transform3D &Tp = element.surface().transform();
+        float cov_z = 6.*covTerm*(float(Tp(0, 2))*float(Tp(0, 2))+float(Tp(1, 2))*float(Tp(1, 2)));
+        float cov_r = 6.*covTerm*(float(Tp(2, 2))*float(Tp(2, 2)));
+
+        Eigen::Matrix<double, 2, 1> variance(cov_r, cov_z);
 
         std::unique_ptr<ActsTrk::SpacePoint> spacePoint =
           std::make_unique<ActsTrk::SpacePoint>( cluster.globalPosition().cast <double> (),

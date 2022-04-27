@@ -32,16 +32,44 @@ class MuonMatchingTool : public AthAlgTool {
 
   virtual StatusCode initialize() override;
 
-
   /**
    * @brief Function that searches for a Level 1 muon candidate and judges if it is matched to a given offline muon.
    * @param mu Offline muon around which Level 1 candidates are searched.
    * @param ctx Reference to the @c EventContext needed for accessing the @c LVL1MuonRoIs container.
-   * @param trigger Considered level 1 threshold name, e.g. L1_MU10, etc.
+   * @param l1trigger Considered level 1 threshold name, e.g. L1_MU10, etc.
    * @param pass True if a candidate is found.
    * @return Pointer to the matched candidate. This is @c nullptr when there is no candidate found.
    */
-  const xAOD::MuonRoI* matchL1(const xAOD::Muon *mu, const EventContext& ctx, const std::string& trigger, bool &pass) const;
+  const xAOD::MuonRoI* matchL1(const xAOD::Muon *mu, const EventContext& ctx, const std::string& l1trigger, bool &pass) const;
+
+  /**
+   * @brief Function that searches for a Level 1 muon candidate and judges if it is matched to a given offline muon.
+   * @param mu Offline muon around which Level 1 candidates are searched.
+   * @param trigger Considered chain name, e.g. HLT_mu26_ivarmedium_L1MU20, etc.
+   * @param pass True if a candidate is found.
+   * @return Pointer to the matched candidate. This is @c nullptr when there is no candidate found.
+   */
+  const xAOD::MuonRoI* matchL1(const xAOD::Muon *mu, const std::string& trigger, bool &pass) const;
+
+   /**
+   * @brief Function that searches for a Level 1 truth muon candidate and judges if it is matched to a given offline muon.
+   * @param mu Truth muon around which Level 1 candidates are searched.
+   * @param trigger Considered chain name, e.g. HLT_mu26_ivarmedium_L1MU20, etc.
+   * @param pass True if a candidate is found.
+   * @return Pointer to the matched candidate. This is @c nullptr when there is no candidate found.
+   */
+  const xAOD::MuonRoI* matchL1(const xAOD::TruthParticle *mu, const std::string& trigger, bool &pass) const;
+
+  /**
+   * @brief Function that dR matches L1 muon candidates.
+   * @param eta Eta of muon around which Level 1 candidates are searched.
+   * @param phi Phi of muon around which Level 1 candidates are searched.
+   * @param dR dR limit within which a match is accepted.
+   * @param trigger Considered chain name, e.g. HLT_mu26_ivarmedium_L1MU20, etc.
+   * @param pass True if a candidate is found.
+   * @return Pointer to the matched candidate. This is @c nullptr when there is no candidate found.
+   */
+  const xAOD::MuonRoI* matchL1(double eta, double phi, double dR, const std::string& trigger, bool &pass) const;
 
   /**
    * @brief Function that searches for an L2 standalone muon (L2MuonSA) candidate and judges if it is matched to a given offline muon.
@@ -69,7 +97,7 @@ class MuonMatchingTool : public AthAlgTool {
    * @param mu Offline muon around which L2MuonSA candidates are searched.
    * @return Pointer to the matched candidate. This is @c nullptr when there is no candidate found.
    */
-  const xAOD::L2StandAloneMuon* matchL2SAReadHandle( const EventContext& ctx, const xAOD::Muon *mu) const;
+  const xAOD::L2StandAloneMuon* matchL2SAReadHandle(const EventContext& ctx, const xAOD::Muon *mu) const;
 
   /**
    * @brief Function that searches for an L2 combined muon (L2muComb) candidate and judges if it is matched to a given offline muon.
@@ -97,7 +125,7 @@ class MuonMatchingTool : public AthAlgTool {
    * @param mu Offline muon around which L2muComb candidates are searched.
    * @return Pointer to the matched candidate. This is @c nullptr when there is no candidate found.
    */
-  const xAOD::L2CombinedMuon* matchL2CBReadHandle( const EventContext& ctx, const xAOD::Muon *mu) const;
+  const xAOD::L2CombinedMuon* matchL2CBReadHandle(const EventContext& ctx, const xAOD::Muon *mu) const;
 
   /**
    * @brief Function that searches for an EF standalone muon (EFSA) candidate and judges if it is matched to a given offline muon.
@@ -133,7 +161,7 @@ class MuonMatchingTool : public AthAlgTool {
    * @param mu Offline muon around which EFSA candidates are searched.
    * @return Pointer to the matched candidate. This is @c nullptr when there is no candidate found.
    */
-  const xAOD::Muon* matchEFSAReadHandle( const EventContext& ctx, const xAOD::Muon *mu) const;
+  const xAOD::Muon* matchEFSAReadHandle(const EventContext& ctx, const xAOD::Muon *mu) const;
 
   /**
    * @brief Function that searches for an EF combined muon (EFCB) candidate and judges if it is matched to a given offline muon.
@@ -153,7 +181,7 @@ class MuonMatchingTool : public AthAlgTool {
    * @return Pointer to the matched candidate. This is @c nullptr when there is no candidate found.
    * Important: a valid pointer doesn't mean that it passed the hypothesis, users should check @c pass for the decision.
    */
-  const xAOD::Muon* matchEFCB(  const xAOD::TruthParticle *mu, std::string trig, bool &pass) const;
+  const xAOD::Muon* matchEFCB(const xAOD::TruthParticle *mu, std::string trig, bool &pass) const;
 
   /**
    * @brief Function that searches for an EF combined muon (EFCB) candidate and judges if it is matched to a given track particle.
@@ -169,7 +197,7 @@ class MuonMatchingTool : public AthAlgTool {
    * @param mu Offline muon around which EFCB candidates are searched.
    * @return Pointer to the matched candidate. This is @c nullptr when there is no candidate found.
    */
-  const xAOD::Muon* matchEFCBReadHandle( const EventContext& ctx, const xAOD::Muon *mu) const;
+  const xAOD::Muon* matchEFCBReadHandle(const EventContext& ctx, const xAOD::Muon *mu) const;
 
   /**
    * @brief Function that searches for an EF isolation muon (EFIso) candidate and judges if it is matched to a given offline muon.
@@ -198,7 +226,7 @@ class MuonMatchingTool : public AthAlgTool {
    * @return Pointer to the matched candidate. This is inValid link when there is no candidate found.
    * Important: a valid pointer doesn't mean that it passed the hypothesis, users should check @c pass for the decision.
    */
-  const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> matchEFIsoLinkInfo( const xAOD::Muon *mu, std::string trig) const;
+  const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> matchEFIsoLinkInfo(const xAOD::Muon *mu, std::string trig) const;
 
 
   /**
@@ -217,7 +245,7 @@ class MuonMatchingTool : public AthAlgTool {
    * @param samu the given online muon
    * @return Pointer to the matched offline muon. This is @c nullptr when there is no muon found.
    */
-  const xAOD::Muon* matchL2SAtoOff( const EventContext& ctx, const xAOD::L2StandAloneMuon* samu) const;
+  const xAOD::Muon* matchL2SAtoOff(const EventContext& ctx, const xAOD::L2StandAloneMuon* samu) const;
 
   /**
    * @brief Function that searches for an offline muon matched to L2CB muon
@@ -225,7 +253,7 @@ class MuonMatchingTool : public AthAlgTool {
    * @param cbmu the given online muon
    * @return Pointer to the matched offline muon. This is @c nullptr when there is no muon found.
    */
-  const xAOD::Muon* matchL2CBtoOff( const EventContext& ctx, const xAOD::L2CombinedMuon* cbmu) const;
+  const xAOD::Muon* matchL2CBtoOff(const EventContext& ctx, const xAOD::L2CombinedMuon* cbmu) const;
 
 
   bool isMatchedL2SA(const xAOD::L2StandAloneMuon*, const xAOD::Muon*) const;
