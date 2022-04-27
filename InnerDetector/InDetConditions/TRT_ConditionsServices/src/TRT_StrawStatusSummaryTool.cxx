@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file TRT_StrawStatusSummaryTool.cxx
@@ -11,11 +11,23 @@
 #include "TRT_ConditionsData/ExpandedIdentifier.h"
 #include "TRT_StrawStatusSummaryTool.h"
 #include "InDetIdentifier/TRT_ID.h"
+#include "GaudiKernel/IIncidentSvc.h"
 
 TRT_StrawStatusSummaryTool::TRT_StrawStatusSummaryTool( const std::string& type, const std::string& name, const IInterface* parent)
   : base_class(type, name, parent),
     m_condSvc("CondSvc",name) {}
 
+void TRT_StrawStatusSummaryTool::handle( const Incident& inc ){
+  if (m_optimizeCondAccess){
+    if (inc.type() == "TRTStrawCalib") {
+      const EventContext& ctx = Gaudi::Hive::currentContext();
+      SG::ReadHandle<TRTStrawStatusData> statData(m_statReadDataKey, ctx);
+      SG::ReadHandle<TRTStrawStatusData> statPermData(m_permReadDataKey, ctx);
+      p_statData = statData.get();
+      p_statPermData = statPermData.get();
+    }
+  }
+}
 
 StatusCode TRT_StrawStatusSummaryTool::initialize() 
 {
@@ -27,13 +39,19 @@ StatusCode TRT_StrawStatusSummaryTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  // Read keys in case of normal reconstruction/digitization
-  ATH_CHECK( m_statReadKey.initialize() );
-  ATH_CHECK( m_permReadKey.initialize() );
+  // reconstruction/digitization
+  // Read keys in case of direct conditions access 
+  ATH_CHECK( m_statReadKey.initialize(!m_optimizeCondAccess) );
+  ATH_CHECK( m_permReadKey.initialize(!m_optimizeCondAccess) );
+
+  // Read keys in case of precomputed conditions
+  ATH_CHECK( m_statReadDataKey.initialize(m_optimizeCondAccess) );
+  ATH_CHECK( m_permReadDataKey.initialize(m_optimizeCondAccess) );
 
   // Only require this input if not using G4 sim
   ATH_CHECK( m_statHTReadKey.initialize( !m_isGEANT4 ) );
 
+  // G4sim
   if ( m_isGEANT4 ) {
     // processing GEANT4 simulation - revert to old non-MT style cond access
     if ( StatusCode::SUCCESS!=detStore()->retrieve( m_strawstatusHTG4, m_par_strawstatusHTcontainerkey ) ) {
@@ -41,6 +59,9 @@ StatusCode TRT_StrawStatusSummaryTool::initialize()
       return StatusCode::FAILURE;
     }
   }
+
+  ServiceHandle<IIncidentSvc> p_incSvc("IncidentSvc", this->name());
+  p_incSvc->addListener( this, "TRTStrawCalib" );
 
   ATH_MSG_DEBUG("TRT_StrawStatusSummaryTool initialized successfully  ");
   return StatusCode::SUCCESS;
@@ -56,29 +77,61 @@ StatusCode TRT_StrawStatusSummaryTool::finalize()
 
 
 int TRT_StrawStatusSummaryTool::getStatus(Identifier offlineID, const EventContext& ctx) const{
-  constexpr int level = TRTCond::ExpandedIdentifier::STRAW ;
-  TRTCond::ExpandedIdentifier id=  TRTCond::ExpandedIdentifier( m_trtId->barrel_ec(offlineID),m_trtId->layer_or_wheel(offlineID),
-								       m_trtId->phi_module(offlineID),m_trtId->straw_layer(offlineID),
-								       m_trtId->straw(offlineID),level );
+  int strawStatus = -1;
 
-  SG::ReadCondHandle<StrawStatusContainer> rst(m_statReadKey,ctx);
-  const StrawStatusContainer* strawstatuscontainer(*rst);
+  if (!m_optimizeCondAccess) {
+    constexpr int level = TRTCond::ExpandedIdentifier::STRAW ;
+    TRTCond::ExpandedIdentifier id=  TRTCond::ExpandedIdentifier( m_trtId->barrel_ec(offlineID),m_trtId->layer_or_wheel(offlineID),
+								  m_trtId->phi_module(offlineID),m_trtId->straw_layer(offlineID),
+								  m_trtId->straw(offlineID),level );
+    
+    SG::ReadCondHandle<StrawStatusContainer> rst(m_statReadKey,ctx);
+    const StrawStatusContainer* strawstatuscontainer(*rst);
+    
+    strawStatus = int((*strawstatuscontainer).get(id).getstatus());
+  }
+  else {
+    IdentifierHash hashID = m_trtId->straw_hash(offlineID);
+    if (p_statData){
+      strawStatus = p_statData->findStatus(hashID);
+    } 
+    else {
+      ATH_MSG_ERROR("Cannot access StrawStat calibration data");
+    }
+  }
   
-  return int((*strawstatuscontainer).get(id).getstatus());
+  return strawStatus;
 }
 
 
 
 int TRT_StrawStatusSummaryTool::getStatusPermanent(Identifier offlineID, const EventContext& ctx) const{
-  constexpr int level = TRTCond::ExpandedIdentifier::STRAW ;
-  TRTCond::ExpandedIdentifier id=  TRTCond::ExpandedIdentifier( m_trtId->barrel_ec(offlineID),m_trtId->layer_or_wheel(offlineID),
-								       m_trtId->phi_module(offlineID),m_trtId->straw_layer(offlineID),
-								       m_trtId->straw(offlineID),level );
 
-  SG::ReadCondHandle<StrawStatusContainer> rp(m_permReadKey,ctx);
-  const StrawStatusContainer* strawstatuspermanentcontainer=(*rp);
+  int strawStatus = -1;  
 
-  return int((*strawstatuspermanentcontainer).get(id).getstatus());
+  if (!m_optimizeCondAccess) {
+
+    constexpr int level = TRTCond::ExpandedIdentifier::STRAW ;
+    TRTCond::ExpandedIdentifier id=  TRTCond::ExpandedIdentifier( m_trtId->barrel_ec(offlineID),m_trtId->layer_or_wheel(offlineID),
+								  m_trtId->phi_module(offlineID),m_trtId->straw_layer(offlineID),
+								  m_trtId->straw(offlineID),level );
+    
+    SG::ReadCondHandle<StrawStatusContainer> rp(m_permReadKey,ctx);
+    const StrawStatusContainer* strawstatuspermanentcontainer=(*rp);
+    
+    strawStatus = int((*strawstatuspermanentcontainer).get(id).getstatus());
+  }
+  
+  else {
+    IdentifierHash hashID = m_trtId->straw_hash(offlineID);
+    if (p_statPermData){
+      strawStatus = p_statPermData->findStatus(hashID);
+    }
+    else {
+      ATH_MSG_ERROR("Cannot access StrawStatPerm calibration data");
+    }
+  }
+  return strawStatus;
 }
 
 
@@ -122,16 +175,16 @@ const TRTCond::StrawStatusMultChanContainer* TRT_StrawStatusSummaryTool::getStra
 
 bool TRT_StrawStatusSummaryTool::get_status(Identifier offlineID, const EventContext& ctx) const{
   constexpr unsigned int statusbitmask = 1 << 8;// 0000001 00000000
-  ATH_MSG_VERBOSE("offlineID "<<offlineID<<" "<<getStatus(offlineID)<<" "<<((getStatus(offlineID) & statusbitmask) >> 8));
-  bool st = false, stperm=false;
   const int status=getStatus(offlineID,ctx);
+  const int statusperm=getStatusPermanent(offlineID,ctx);
+  ATH_MSG_VERBOSE("offlineID "<<offlineID<<" "<<status <<" "<< statusperm);
+  
+  bool st = false, stperm=false;
   
   if (status==1) st = true;
   else if (status==0) st = false;
   else {st = bool( (status & statusbitmask) >> 8);};
 
-
-  const int statusperm=getStatusPermanent(offlineID,ctx);
   if (statusperm==1) stperm = true;
   else if (statusperm==0) stperm = false;
   else {stperm = bool( (statusperm & statusbitmask) >> 8);};
@@ -144,7 +197,6 @@ bool TRT_StrawStatusSummaryTool::get_status(Identifier offlineID, const EventCon
 
 bool TRT_StrawStatusSummaryTool::get_statusHT(Identifier offlineID, const EventContext& ctx) const{
   constexpr unsigned int statusbitmask = 1 << 8;// 0000001 00000000
-  ATH_MSG_VERBOSE("offlineID "<<offlineID<<" "<<getStatus(offlineID)<<" "<<((getStatus(offlineID) & statusbitmask) >> 8));
   bool stHT=false;
   const int statusHT=getStatusHT(offlineID,ctx);
 

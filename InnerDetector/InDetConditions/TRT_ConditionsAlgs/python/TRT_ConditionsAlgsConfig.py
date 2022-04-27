@@ -24,6 +24,15 @@ def TRTAlignCondAlgCfg(flags, name="TRTAlignCondAlg", **kwargs):
     return acc
 
 
+def TRTStrawStatusCondAlgCfg(flags, name="TRTStrawStatusCondAlg", **kwargs):
+    """Return a ComponentAccumulator for TRTStrawStatusCondAlg algorithm"""
+    acc = ComponentAccumulator()
+    acc.merge(addFoldersSplitOnline(flags, "TRT", "/TRT/Onl/Cond/Status", "/TRT/Cond/Status", className="TRTCond::StrawStatusMultChanContainer"))
+    acc.merge(addFoldersSplitOnline(flags, "TRT", "/TRT/Onl/Cond/StatusPermanent", "/TRT/Cond/StatusPermanent", className="TRTCond::StrawStatusMultChanContainer"))
+    acc.addCondAlgo(CompFactory.TRTStrawStatusCondAlg(name, **kwargs))
+    return acc
+
+
 def TRTStrawCondAlgCfg(flags, name="TRTStrawCondAlg", **kwargs):
     """Return a ComponentAccumulator for TRTStrawCondAlg algorithm"""
     acc = TRTAlignCondAlgCfg(flags)

@@ -376,6 +376,8 @@ def trigInDetFastTrackingCfg( inflags, roisKey="EMRoIs", signatureName='', in_vi
                                                                     ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTFlaggedCondCacheKey ),
                                                                     ('SpacePointCache', 'PixelSpacePointCache'),
                                                                     ('SpacePointCache', 'SctSpacePointCache'),
+                                                                    ('TRTStrawStatusData' , 'StoreGateSvc+StrawStatusData'),
+                                                                    ('TRTStrawStatusData' , 'StoreGateSvc+StrawStatusPermanentData'),
                                                                     ('xAOD::EventInfo', 'EventInfo'),
                                                                     ('TrigRoiDescriptorCollection', str(roisKey)),
                                                                     ( 'TagInfo' , 'DetectorStore+ProcessingTags' )] )
@@ -635,7 +637,11 @@ def trigInDetPrecisionTrackingCfg( inflags, signatureName, in_view=True ):
                                                                     ('TrigRoiDescriptorCollection', flags.InDet.Tracking.ActivePass.roi),
                                                                     ( 'TagInfo', 'DetectorStore+ProcessingTags' ), 
                                                                     ( 'InDet::PixelGangedClusterAmbiguities' , TrigPixelKeys.PixelClusterAmbiguitiesMap),
-                                                                    ( 'TrackCollection', flags.InDet.Tracking.ActivePass.trkTracks_FTF )] )
+                                                                    ( 'TrackCollection', flags.InDet.Tracking.ActivePass.trkTracks_FTF ),
+                                                                    ('TRTStrawStatusData' , 'StoreGateSvc+StrawStatusData'),
+                                                                    ('TRTStrawStatusData' , 'StoreGateSvc+StrawStatusPermanentData'),
+                                                                    ] 
+                                                     )
 
     if flags.Input.Format is Format.BS:
         verifier.DataObjects += [ ('IDCInDetBSErrContainer' , 'PixelByteStreamErrs'),

@@ -54,6 +54,8 @@ def EFMuonCBViewDataVerifierCfg(flags, name):
     else:
         EFMuonCBViewDataVerifier.DataObjects += [( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates' ),
                                                  ( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+'+flags.Trigger.InDetTracking.Muon.tracks_FTF ),
+                                                 ( 'TRTStrawStatusData' , 'StoreGateSvc+StrawStatusData'),
+                                                 ( 'TRTStrawStatusData' , 'StoreGateSvc+StrawStatusPermanentData'),
                                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData' )]
     if flags.Input.Format is Format.BS:
         EFMuonCBViewDataVerifier.DataObjects += [( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),

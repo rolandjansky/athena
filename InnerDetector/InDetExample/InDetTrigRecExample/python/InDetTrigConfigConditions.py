@@ -636,6 +636,10 @@ class TRTConditionsServicesSetup:
     # Straw status tool (now private, cannot be passed by name)
     from InDetTrigRecExample.InDetTrigCommonTools import InDetTrigTRTStrawStatusSummaryTool
     
+    # straw status  algorithm
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTStrawStatusCondAlg
+    TRTStrawStatusCondAlg = TRTStrawStatusCondAlg(name = "TRTStrawStatusCondAlg")
+
     # Alive straws algorithm
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTStrawCondAlg
     TRTStrawCondAlg = TRTStrawCondAlg(name = "TRTStrawCondAlg",
@@ -656,6 +660,9 @@ class TRTConditionsServicesSetup:
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
 
+    # Condition algorithms for straw status
+    if not hasattr(condSeq, "TRTStrawStatusCondAlg"):
+        condSeq += TRTStrawStatusCondAlg
     # Condition algorithms for straw conditions
     if not hasattr(condSeq, "TRTStrawCondAlg"):
         condSeq += TRTStrawCondAlg

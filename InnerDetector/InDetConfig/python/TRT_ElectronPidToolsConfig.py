@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -15,7 +15,8 @@ def TRT_LocalOccupancyCfg(flags, name="TRT_LocalOccupancy", **kwargs):
     acc.addPublicTool(StrawStatusTool)  # public as it is has many clients to save some memory
     kwargs.setdefault("TRTStrawStatusSummaryTool", StrawStatusTool )
 
-    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTStrawCondAlgCfg
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTStrawStatusCondAlgCfg,TRTStrawCondAlgCfg
+    acc.merge(TRTStrawStatusCondAlgCfg(flags))
     acc.merge(TRTStrawCondAlgCfg(flags))
 
     kwargs.setdefault("isTrigger", False)

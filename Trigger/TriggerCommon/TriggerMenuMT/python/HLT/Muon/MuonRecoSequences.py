@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.Logging import logging
@@ -516,7 +516,14 @@ def muEFCBRecoSequence( RoIs, name ):
     #Need to run tracking for full scan chains
     from TrigInDetConfig.InDetTrigFastTracking import makeInDetTrigFastTracking
     viewAlgs, viewVerify = makeInDetTrigFastTracking(config = IDTrigConfig, rois = RoIs) 
-
+    ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("muonCBIDViewDataVerifierFS")
+    ViewVerifyTrk.DataObjects = [
+      ( 'TRTStrawStatusData' , 'StoreGateSvc+StrawStatusData'),
+      ( 'TRTStrawStatusData' , 'StoreGateSvc+StrawStatusPermanentData'),
+    ]
+      
+    muEFCBRecoSequence += ViewVerifyTrk
+    
     for viewAlg in viewAlgs:
       muEFCBRecoSequence += viewAlg
 
@@ -524,7 +531,10 @@ def muEFCBRecoSequence( RoIs, name ):
     ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("muonCBIDViewDataVerifierLRT")
     ViewVerifyTrk.DataObjects = [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+'+getIDTracks(name) ),
                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
-                                 ( 'xAOD::IParticleContainer' , 'StoreGateSvc+'+ getIDTracks(name) )]
+                                 ( 'xAOD::IParticleContainer' , 'StoreGateSvc+'+ getIDTracks(name) ),
+                                 ( 'TRTStrawStatusData' , 'StoreGateSvc+StrawStatusData'),
+                                 ( 'TRTStrawStatusData' , 'StoreGateSvc+StrawStatusPermanentData'),
+                                 ]
 
     if globalflags.InputFormat.is_bytestream():
       ViewVerifyTrk.DataObjects += [( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
@@ -535,7 +545,10 @@ def muEFCBRecoSequence( RoIs, name ):
     ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("muonCBIDViewDataVerifier")
     ViewVerifyTrk.DataObjects = [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+'+getIDTracks() ),
                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
-                                 ( 'xAOD::IParticleContainer' , 'StoreGateSvc+'+ getIDTracks() )]
+                                 ( 'xAOD::IParticleContainer' , 'StoreGateSvc+'+ getIDTracks() ),
+                                 ( 'TRTStrawStatusData' , 'StoreGateSvc+StrawStatusData'),
+                                 ( 'TRTStrawStatusData' , 'StoreGateSvc+StrawStatusPermanentData'),
+                                 ]
 
     if globalflags.InputFormat.is_bytestream():
       ViewVerifyTrk.DataObjects += [( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
@@ -785,11 +798,19 @@ def efmuisoRecoSequence( RoIs, Muons, doMSiso=False ):
   PTAlgs = [] #List of precision tracking algs
   PTTracks = [] #List of TrackCollectionKeys
   PTTrackParticles = [] #List of TrackParticleKeys
+  import AthenaCommon.CfgMgr as CfgMgr
+  PTViewVerifier = CfgMgr.AthViews__ViewDataVerifier("PTMuonViewVerifier"+name)
+  #this part should be done by makeInDetTrigPrecisionTracking below
+  PTViewVerifier.DataObjects = [
+    ( 'TRTStrawStatusData' , 'StoreGateSvc+StrawStatusData'),
+    ( 'TRTStrawStatusData' , 'StoreGateSvc+StrawStatusPermanentData'),
+  ]
   
   from TrigInDetConfig.InDetTrigPrecisionTracking import makeInDetTrigPrecisionTracking
-  PTTracks, PTTrackParticles, PTAlgs = makeInDetTrigPrecisionTracking( config = IDTrigConfig, rois=RoIs )
+  PTTracks, PTTrackParticles, PTAlgs = makeInDetTrigPrecisionTracking( config = IDTrigConfig, rois=RoIs, 
+                                                                      )
 
-  PTSeq = parOR("precisionTrackingInMuonsIso"+name, PTAlgs  )
+  PTSeq = parOR("precisionTrackingInMuonsIso"+name, PTAlgs+[PTViewVerifier] )
   efmuisoRecoSequence += PTSeq
 
   # set up algs

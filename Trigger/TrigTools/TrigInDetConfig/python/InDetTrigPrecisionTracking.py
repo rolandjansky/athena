@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 #           Setup of precision tracking
 
@@ -57,7 +57,10 @@ def makeInDetTrigPrecisionTracking( config=None, verifier=False, rois='EMViewRoI
     if doTRT:
         # do the TRT extension if requested
         finalTrackCollection = outTrkTracks
-        trtAlgs = trtExtension_builder( signature, config, rois, summaryTool, inputTracks=ambiTrackCollection, outputTracks=outTrkTracks, prefix=prefix ) 
+        trtAlgs = trtExtension_builder( signature, config, rois, summaryTool, inputTracks=ambiTrackCollection, outputTracks=outTrkTracks, prefix=prefix )
+        if verifier:
+            verifier.DataObjects += [('TRTStrawStatusData' , 'StoreGateSvc+StrawStatusData'),
+                                     ('TRTStrawStatusData' , 'StoreGateSvc+StrawStatusPermanentData')]
         ptAlgs.extend( trtAlgs )
   
 
@@ -357,7 +360,13 @@ def trtRIOMaker_builder( signature, config, rois, prefix="InDetTrigMT" ):
 
     from .InDetTrigCollectionKeys import TrigTRTKeys
     from AthenaCommon.GlobalFlags import globalflags
-    
+    import AthenaCommon.CfgMgr as CfgMgr
+    ViewDataVerifier = CfgMgr.AthViews__ViewDataVerifier( "TRTRIOMakerVDV"+signature )
+    ViewDataVerifier.DataObjects = [('TRTStrawStatusData' , 'StoreGateSvc+StrawStatusData'),
+                                    ('TRTStrawStatusData' , 'StoreGateSvc+StrawStatusPermanentData')
+                                    ]
+    algs.append(ViewDataVerifier)
+
     # Only add raw data decoders if we're running over raw data
     if globalflags.InputFormat.is_bytestream():
         #Global keys/names for collections 
