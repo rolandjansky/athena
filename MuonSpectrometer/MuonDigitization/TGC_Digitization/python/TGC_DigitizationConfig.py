@@ -18,7 +18,12 @@ def setupTgcDigitASDposCondAlg():
     condSequence = AthSequencer("AthCondSeq")
     if not hasattr(condSequence, "TgcDigitASDposCondAlg"):
         from IOVDbSvc.CondDB import conddb
-        conddb.addFolder("TGC_OFL", "/TGC/DIGIT/ASDPOS", className='CondAttrListCollection')
+        from Digitization.DigitizationFlags import digitizationFlags
+        if digitizationFlags.UseUpdatedTGCConditions():
+            conddb.addFolder("TGC_OFL", "/TGC/DIGIT/ASDPOS", className='CondAttrListCollection')
+        else:   # since the folder does not exist in the presented global tag, need explicit tag?
+            conddb.addFolder("TGC_OFL", "/TGC/DIGIT/ASDPOS <tag>TgcDigitAsdPos-00-01</tag>", className='CondAttrListCollection', forceMC=True)
+
         condSequence += CfgMgr.TgcDigitASDposCondAlg("TgcDigitASDposCondAlg")
 
 def TgcDigitizationTool(name="TgcDigitizationTool", **kwargs):
@@ -38,10 +43,8 @@ def TgcDigitizationTool(name="TgcDigitizationTool", **kwargs):
     else:
         kwargs.setdefault("OutputSDOName", "TGC_SDO")
 
-    from Digitization.DigitizationFlags import digitizationFlags
-    if digitizationFlags.UseUpdatedTGCConditions():
-        setupTgcDigitASDposCondAlg()
-        kwargs.setdefault("TGCDigitASDposKey", "TGCDigitASDposData")
+    setupTgcDigitASDposCondAlg()
+    kwargs.setdefault("TGCDigitASDposKey", "TGCDigitASDposData")
 
     return CfgMgr.TgcDigitizationTool(name, **kwargs)
 
