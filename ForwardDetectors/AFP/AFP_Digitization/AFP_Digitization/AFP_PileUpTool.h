@@ -141,11 +141,14 @@ private:
   ServiceHandle<IAthRNGSvc> m_randomSvc{this, "RndmSvc", "AthRNGSvc", ""};
   Gaudi::Property<std::string> m_randomStreamName{this, "RandomStreamName", "AFPRndEng", ""};
 
-  Gaudi::Property<std::string> m_TDSimHitCollectionName{this, "TDSimHitCollectionName", "AFP_TDSimHitCollection"};
+  BooleanProperty m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
+  SG::ReadHandleKey<AFP_TDSimHitCollection> m_TDSimHitCollectionKey{this, "TDSimHitCollectionName", "AFP_TDSimHitCollection"};
+  std::string m_TDSimHitCollectionName{""};
   SG::WriteHandleKey<AFP_TDDigiCollection> m_TDDigiCollectionKey{this, "TDDigiCollectionName", "AFP_TDDigiCollection", "Name of the Collection to hold the output from the AFP digitization, TD part"};
   SG::WriteHandleKey<xAOD::AFPToFHitContainer> m_AFPHitsContainerNameToF{this, "AFPHitsContainerNameToF", "AFPToFHitContainer"};
 
-  Gaudi::Property<std::string> m_SIDSimHitCollectionName{this, "SIDSimHitCollectionName", "AFP_SIDSimHitCollection"};
+  SG::ReadHandleKey<AFP_SIDSimHitCollection> m_SIDSimHitCollectionKey{this, "SIDSimHitCollectionName", "AFP_SIDSimHitCollection"};
+  std::string m_SIDSimHitCollectionName{""};
   SG::WriteHandleKey<AFP_SiDigiCollection> m_SiDigiCollectionKey{this, "SiDigiCollectionName", "AFP_SiDigiCollection", "Name of the Collection to hold the output from the AFP digitization, SiD part"};
   SG::WriteHandleKey<xAOD::AFPSiHitContainer> m_AFPSiHitsContainerName{this, "AFPSiHitsContainerName", "AFPSiHitContainer",""};
   
