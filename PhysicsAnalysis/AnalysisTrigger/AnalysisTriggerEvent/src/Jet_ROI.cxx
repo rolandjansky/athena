@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Jet_ROI.cxx,v 1.5 2008-05-08 15:00:11 krasznaa Exp $
 
 // Local include(s):
 #include "AnalysisTriggerEvent/Jet_ROI.h"
+
+#include <algorithm>
 
 /**
  * This is the constructor used by the RoIBResultToAOD algorithm. It shouldn't
@@ -16,8 +17,7 @@ Jet_ROI::Jet_ROI( uint32_t roiWord, float eta, float phi, uint32_t thrPattern )
      m_thresholdNames( 0 ), m_thresholdValues( 0 ),
      m_ET4x4(0),
      m_ET6x6(0),
-     m_ET8x8(0),
-     m_highestThreshold( -1. ) {
+     m_ET8x8(0) {
 
 }
 
@@ -29,8 +29,7 @@ Jet_ROI::Jet_ROI()
      m_thresholdNames( 0 ), m_thresholdValues( 0 ),
      m_ET4x4(0),
      m_ET6x6(0),
-     m_ET8x8(0),
-     m_highestThreshold( -1. ) {
+     m_ET8x8(0) {
 
 }
 
@@ -51,16 +50,6 @@ Jet_ROI::~Jet_ROI() {
  * @return The value of the highest threshold this RoI passed, in MeV/c
  */
 double Jet_ROI::pt() const {
-
-   //
-   // Calculate the pT if it hasn't been done yet:
-   //
-   if( m_highestThreshold < 0 ) {
-      thr_value_type::const_iterator it = m_thresholdValues.begin();
-      for( ; it != m_thresholdValues.end(); ++it ) {
-         if( ( *it ) > m_highestThreshold ) m_highestThreshold = ( *it );
-      }
-   }
-
-   return m_highestThreshold;
+  auto itr = std::max_element(m_thresholdValues.begin(), m_thresholdValues.end());
+  return (itr != m_thresholdValues.end() ? *itr : -1);
 }
