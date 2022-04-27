@@ -7,7 +7,6 @@
 #include "TrigJetCRHypoTool.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
-#include <CaloEvent/CaloConstCellContainer.h>
 
 using namespace TrigCompositeUtils;
 

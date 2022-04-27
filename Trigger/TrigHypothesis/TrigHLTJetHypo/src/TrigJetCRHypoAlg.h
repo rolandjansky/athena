@@ -8,11 +8,10 @@
 
 #include <string>
 
-#include "TrigJetCRHypoAlg.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODTracking/VertexContainer.h"
-#include <CaloEvent/CaloConstCellContainer.h>
+#include "CaloEvent/CaloConstCellContainer.h"
 
 #include "DecisionHandling/HypoBase.h"
 

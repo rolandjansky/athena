@@ -53,7 +53,7 @@ StatusCode TrigJetCRHypoTool::initialize(){
   if (m_visitDebug){
 
     DebugInfoCollector collector(name());
-    CHECK(m_helper->getDescription(collector));
+    ATH_CHECK(m_helper->getDescription(collector));
     auto s = collector.toString();
   
     for(const auto& l : lineSplitter(s)){
