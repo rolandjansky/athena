@@ -2,5 +2,9 @@
 
 from .ActsTrkAnalysisConfig import ActsTrkClusterAnalysisCfg, ActsTrkPixelClusterAnalysisCfg, ActsTrkStripClusterAnalysisCfg
 __all__ = ['ActsTrkClusterAnalysisCfg','ActsTrkPixelClusterAnalysisCfg','ActsTrkStripClusterAnalysisCfg']
-from .ActsTrkAnalysisConfig import ActsTrkSpacePointAnalysisCfg, ActsTrkPixelSpacePointAnalysisCfg, ActsTrkStripSpacePointAnalysisCfg, ActsTrkStripOverlapSpacePointAnalysisCfg
-__all__ += ['ActsTrkSpacePointAnalysisCfg','ActsTrkPixelSpacePointAnalysisCfg','ActsTrkStripSpacePointAnalysisCfg', 'ActsTrkStripOverlapSpacePointAnalysisCfg']
+from .ActsTrkAnalysisConfig import ActsTrkSpacePointAnalysisCfg, ActsTrkBaseSpacePointAnalysisCfg, ActsTrkPixelSpacePointAnalysisCfg, ActsTrkStripSpacePointAnalysisCfg, ActsTrkStripOverlapSpacePointAnalysisCfg
+__all__ += ['ActsTrkSpacePointAnalysisCfg','ActsTrkBaseSpacePointAnalysisCfg','ActsTrkPixelSpacePointAnalysisCfg','ActsTrkStripSpacePointAnalysisCfg','ActsTrkStripOverlapSpacePointAnalysisCfg']
+from .ActsTrkAnalysisConfig import ActsTrkBaseSeedAnalysisCfg, ActsTrkPixelSeedAnalysisCfg, ActsTrkStripSeedAnalysisCfg, ActsTrkSeedAnalysisCfg
+__all__ += ['ActsTrkBaseSeedAnalysisCfg','ActsTrkPixelSeedAnalysisCfg','ActsTrkStripSeedAnalysisCfg','ActsTrkSeedAnalysisCfg']
+from .ActsTrkAnalysisConfig import ActsTrkBaseEstimatedTrackParamsAnalysisCfg, ActsTrkPixelEstimatedTrackParamsAnalysisCfg, ActsTrkStripEstimatedTrackParamsAnalysisCfg, ActsTrkEstimatedTrackParamsAnalysisCfg
+__all__ += ['ActsTrkBaseEstimatedTrackParamsAnalysisCfg','ActsTrkPixelEstimatedTrackParamsAnalysisCfg','ActsTrkStripEstimatedTrackParamsAnalysisCfg','ActsTrkEstimatedTrackParamsAnalysisCfg']

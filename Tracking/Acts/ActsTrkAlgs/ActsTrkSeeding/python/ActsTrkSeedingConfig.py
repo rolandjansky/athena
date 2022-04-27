@@ -67,11 +67,12 @@ def ActsTrackingSequenceFromAthenaCfg(ConfigFlags,
     trackEstimationTool = acc.popToolsAndMerge(TrackParamsEstimationToolCfg(ConfigFlags))
 
     for i_collection in inputCollections:
-        o_collection = f"ActsSeeds_{i_collection}"
-        
+        o_collection = 'ITkPixelSeeds' if 'Pixel' in i_collection else 'ITkStripSeeds'
+
         seedingOptions = { 'TrackingGeometryTool' : geoTool,
                            'ATLASConverterTool' : converterTool,
                            'TrackParamsEstimationTool' : trackEstimationTool,
+                           'OutputEstimatedTrackParameters' : 'ITkPixelEstimatedTrackParams' if 'Pixel' in i_collection else 'ITkStripEstimatedTrackParams',
                            'UsePixel' : 'Pixel' in i_collection,
                            'DetectorElements' : 'ITkPixelDetectorElementCollection' if 'Pixel' in i_collection else 'ITkStripDetectorElementCollection'}
         seedingOptions.update(options)

@@ -47,6 +47,7 @@ namespace ActsTrk {
     // Read and Write handles
     ATH_CHECK( m_spacePointKey.initialize() );
     ATH_CHECK( m_seedKey.initialize() );
+    ATH_CHECK( m_actsTrackParamsKey.initialize() );
 
     ATH_CHECK( m_pixelClusterContainerKey.initialize(m_usePixel) );
     ATH_CHECK( m_stripClusterContainerKey.initialize(not m_usePixel) );
@@ -122,6 +123,10 @@ namespace ActsTrk {
     ATH_MSG_DEBUG( "    \\__ Seed Container `" << m_seedKey.key() << "` created ..." );
     std::unique_ptr< ActsTrk::SeedContainer > seedPtrs = std::make_unique< ActsTrk::SeedContainer >();
     
+    SG::WriteHandle< ActsTrk::BoundTrackParametersContainer > boundTrackParamsHandle = SG::makeHandle( m_actsTrackParamsKey, ctx );
+    ATH_MSG_DEBUG( "    \\__ Track Params Estimated `"<< m_actsTrackParamsKey.key() << "` created ..." );
+    std::unique_ptr< ActsTrk::BoundTrackParametersContainer > trackParams = std::make_unique< ActsTrk::BoundTrackParametersContainer >();
+
     // ================================================== // 
     // ===================== COMPUTATION ================ //
     // ================================================== // 
@@ -166,6 +171,12 @@ namespace ActsTrk {
 						       geo_context.context(),
 						       magFieldContext,
 						       retrieveSurfaceFunction);
+
+      if ( optTrackParams.has_value() ) {
+	Acts::BoundTrackParameters *toAdd = 
+	  new Acts::BoundTrackParameters( optTrackParams.value() );
+	trackParams->push_back( toAdd );
+      }
     }
     
     // ================================================== //   
@@ -174,6 +185,7 @@ namespace ActsTrk {
     
     ATH_MSG_DEBUG("Storing Output Collections");
     ATH_CHECK( seedHandle.record( std::move( seedPtrs ) ) );
+    ATH_CHECK( boundTrackParamsHandle.record( std::move( trackParams ) ) );
 
     return StatusCode::SUCCESS;
   }
