@@ -26,7 +26,7 @@ class TilePulseShape : public TObject{
   
   //=== access to the underlying graph
   TGraph* getGraph(double t0=0., double ped=0., double amp=1.);
-  double  eval(double x, bool useSpline=true);
+  double  eval(double x, bool useSpline=true, bool useUndershoot=false);
 
   //=== modify the pulseshape
   void resetDeformation();
