@@ -38,35 +38,46 @@ def add_modifier(run_nbr=None, evt_nbr=None, time_stamp=None, lbk_nbr=None,
 
 def buildListOfModifiers():
     Modifiers = []
-    from Digitization.DigitizationFlags import digitizationFlags
-    if digitizationFlags.RunAndLumiOverrideList.get_Value():
-        if not digitizationFlags.RunAndLumiOverrideList.is_locked():
-            raise RuntimeError( 'You cannot configure the EvtIdModifierSvc with an unlocked JobProperty.' )
-        pDicts = digitizationFlags.RunAndLumiOverrideList.get_Value()
+    # Check if we are in a simulation job first
+    from G4AtlasApps.SimFlags import simFlags
+    if simFlags.RunAndLumiOverrideList.statusOn:
+        pDicts = simFlags.RunAndLumiOverrideList.get_Value()
         for el in pDicts:
             if 'evt_nbr' in el:
                 Modifiers += add_modifier(run_nbr=el['run'], lbk_nbr=el['lb'], time_stamp=el['starttstamp'], nevts=el['evts'], evt_nbr=el['evt_nbr'])
             else:
                 Modifiers += add_modifier(run_nbr=el['run'], lbk_nbr=el['lb'], time_stamp=el['starttstamp'], nevts=el['evts'])
-    elif digitizationFlags.dataRunNumber.get_Value():
-        if digitizationFlags.dataRunNumber.get_Value() < 0:
-            raise SystemExit("Given a negative Run Number - please use a real run number from data.")
-        #logDigitization_flags.info( 'Overriding run number to be: %s ', digitizationFlags.dataRunNumber.get_Value() )
-        myRunNumber = digitizationFlags.dataRunNumber.get_Value()
-        myFirstLB = 1
-        ## Using event numbers to avoid "some very large number" setting
-        from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-        totalNumber = 1000000
-        if athenaCommonFlags.EvtMax() is not None and athenaCommonFlags.EvtMax()>0: totalNumber = athenaCommonFlags.EvtMax()+1
-        if athenaCommonFlags.SkipEvents() is not None and athenaCommonFlags.SkipEvents()>0: totalNumber += athenaCommonFlags.SkipEvents()
-        try:
-            from RunDependentSimComps.RunDMCFlags import runDMCFlags
-            myInitialTimeStamp = runDMCFlags.RunToTimestampDict.getTimestampForRun(myRunNumber)
-            #print "FOUND TIMESTAMP ", str(myInitialTimeStamp)
-        except KeyError:
-            myInitialTimeStamp = 1
+    if not len(Modifiers):
+        from Digitization.DigitizationFlags import digitizationFlags
+        if digitizationFlags.RunAndLumiOverrideList.get_Value():
+            if not digitizationFlags.RunAndLumiOverrideList.is_locked():
+                raise RuntimeError( 'You cannot configure the EvtIdModifierSvc with an unlocked JobProperty.' )
+            pDicts = digitizationFlags.RunAndLumiOverrideList.get_Value()
+            for el in pDicts:
+                if 'evt_nbr' in el:
+                    Modifiers += add_modifier(run_nbr=el['run'], lbk_nbr=el['lb'], time_stamp=el['starttstamp'], nevts=el['evts'], evt_nbr=el['evt_nbr'])
+                else:
+                    Modifiers += add_modifier(run_nbr=el['run'], lbk_nbr=el['lb'], time_stamp=el['starttstamp'], nevts=el['evts'])
+        elif digitizationFlags.dataRunNumber.get_Value():
+            if digitizationFlags.dataRunNumber.get_Value() < 0:
+                raise SystemExit("Given a negative Run Number - please use a real run number from data.")
+            #logDigitization_flags.info( 'Overriding run number to be: %s ', digitizationFlags.dataRunNumber.get_Value() )
+            myRunNumber = digitizationFlags.dataRunNumber.get_Value()
+            myFirstLB = 1
+            ## Using event numbers to avoid "some very large number" setting
+            from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+            totalNumber = 1000000
+            if athenaCommonFlags.EvtMax() is not None and athenaCommonFlags.EvtMax()>0: totalNumber = athenaCommonFlags.EvtMax()+1
+            if athenaCommonFlags.SkipEvents() is not None and athenaCommonFlags.SkipEvents()>0: totalNumber += athenaCommonFlags.SkipEvents()
+            try:
+                from RunDependentSimComps.RunDMCFlags import runDMCFlags
+                myInitialTimeStamp = runDMCFlags.RunToTimestampDict.getTimestampForRun(myRunNumber)
+                #print "FOUND TIMESTAMP ", str(myInitialTimeStamp)
+            except KeyError:
+                myInitialTimeStamp = 1
 
-        Modifiers += add_modifier(run_nbr=myRunNumber, lbk_nbr=myFirstLB, time_stamp=myInitialTimeStamp, nevts=totalNumber)
+            Modifiers += add_modifier(run_nbr=myRunNumber, lbk_nbr=myFirstLB, time_stamp=myInitialTimeStamp, nevts=totalNumber)
+
     return Modifiers
 
 
