@@ -161,7 +161,7 @@ class JetChainConfiguration(ChainConfigurationBase):
             chainSteps+= [EJsStep]
         elif self.exotHypo != '' and ("calratio" in self.exotHypo):
             CRStep = self.getJetCRChainStep(jetCollectionName, self.chainName, self.exotHypo)
-            chainSteps+= [CRStep]
+            chainSteps+= [self.getEmptyStep(2, 'RoIFTFEmptyStep'), CRStep]
 
         myChain = self.buildChain(chainSteps)
 
