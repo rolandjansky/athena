@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloRingerReaderUtils.icc 786306 2016-11-24 13:40:42Z wsfreund $
 // =====================================================================================
 #include "CaloRingerReaderUtils.h"
 
@@ -41,7 +40,7 @@ StatusCode BuildCaloRingsFctorBase::prepareToLoopFor( std::size_t nParticles ) {
 }
 
 // =====================================================================================
-void BuildCaloRingsFctorBase::checkRelease() const {
+void BuildCaloRingsFctorBase::checkRelease() {
   if ( m_part_counter == m_part_size ) {
     delete m_crContH; m_crContH = nullptr;
     delete m_rsContH; m_rsContH = nullptr;
