@@ -4,7 +4,7 @@
 
 from __future__ import print_function
 
-from Digitization.RunDependentMCTaskIterator import *
+from RunDependentSimComps.RunDependentMCTaskIterator import taskIterator
 import argparse
 
 def findJobForRun(run,task,maxEvents,printq=True):

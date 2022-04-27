@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from math import ceil
 
@@ -177,7 +177,7 @@ def generatePileUpProfile(flags,
     if randomMuSampling:
         logger.info("Mu values will be sampled randomly from the set profile.")
         # Load needed tools
-        from Digitization.RunDependentMCTaskIterator import getRandomlySampledRunLumiInfoFragment
+        from RunDependentSimComps.RunDependentMCTaskIterator import getRandomlySampledRunLumiInfoFragment
         fragment = getRandomlySampledRunLumiInfoFragment(
             jobnumber=(jobNumber-1),
             task=generatedProfile,
@@ -187,7 +187,7 @@ def generatePileUpProfile(flags,
             sequentialEventNumbers=sequentialEventNumbers)
     else:
         # Load needed tools
-        from Digitization.RunDependentMCTaskIterator import getRunLumiInfoFragment
+        from RunDependentSimComps.RunDependentMCTaskIterator import getRunLumiInfoFragment
         fragment = getRunLumiInfoFragment(
             jobnumber=(jobNumber-1),
             task=generatedProfile,
