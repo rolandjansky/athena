@@ -60,12 +60,16 @@ class TrigBjetBtagHypoTool : virtual public ::AthAlgTool {
 
   /** @brief DeclareProperty: if acceptAll flag is set to true, every event is taken. */ 
   Gaudi::Property< bool > m_acceptAll {this,"AcceptAll",false,"if acceptAll flag is set to true, every event is taken"};
+
   /** @brief DeclareProperty: lower bound of the discriminant variable to be selected (if flag acceptAll is set to false) for MV2 tagger. */
+  
   Gaudi::Property< double > m_bTaggingCut {this,"BTaggingCut",-20.,"lower bound of the discriminant variable to be selected for b-tagging"};
+  Gaudi::Property< double > m_bbTaggingCut {this,"BBTaggingCut",-20.,"lower bound of the discriminant variable to be selected for bb-rejection"};
 
   Gaudi::Property< double > m_cFrac {this, "cFraction", -1, "c-fraction for tagger LLR computation"};
 
   Gaudi::Property< std::string > m_tagger {this, "Tagger", "", "tagger to be used for b-jet identification"};
+  Gaudi::Property< std::string > m_bbtagger {this, "BBTagger", "", "tagger to be used for bb-jet rejection"};
 
   /** @brief DeclareProperty: to monitor method used to perform the cut. */
   //  float m_monitorMethod;

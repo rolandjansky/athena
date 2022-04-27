@@ -17,8 +17,11 @@ bTaggingWP = \
   , 'dl1r85' : 1.32
 
   , "dl1d40" : 6.957
+  , "dl1d45" : 6.344
   , "dl1d50" : 5.730
+  , "dl1d55" : 5.121
   , "dl1d60" : 4.512
+  , "dl1d65" : 3.882
   , "dl1d70" : 3.251
   , "dl1d75" : 2.489
   , "dl1d77" : 2.157
@@ -26,6 +29,15 @@ bTaggingWP = \
   , "dl1d85" : 0.634
   , "dl1d90" : -0.465
   , "dl1d95" : -1.616
+
+  , "offperf" : -999
+  }
+
+bbTaggingWP = \
+  { "dl1d85bb77" : 0.806
+  , "dl1d85bb70" : 1.380
+  , "dl1d85bb65" : 1.634
+  , "dl1d85bb60" : 1.862
   }
 
 
@@ -61,21 +73,30 @@ def decodeThreshold( threshold_btag ):
 
     tagger = "offperf" if threshold_btag == "offperf" else re.findall("(.*)[0-9]{2}",threshold_btag)[0]
 
-    allowedTaggers = ["offperf","dl1r", "dl1d"]
+    allowedTaggers = ["offperf", "dl1r", "dl1d", "dl1d85bb"]
     if tagger not in allowedTaggers:
         log.debug("tagger = %s not amidst allowed taggers ",threshold_btag)
         assert False, "Can't recognize tagger during TrigBjetHypoTool configuration. Tagger = "+threshold_btag
         return None
 
 
-    # TODO
-    # do we really need a default for boffperf?
-    tagger = "DL1r"
-    if "dl1d" in threshold_btag : 
-        tagger = "DL1d20211216"
+    btagger = "DL1d20211216"
+    bbtagger = "DL1bb20220331"
 
-    cut = bTaggingWP.get( threshold_btag,-20 )
-    return [tagger,cut]
+    # TODO
+    # is it ok to cut at -999 by default here?
+    bbcut = bbTaggingWP.get(threshold_btag, -999)
+
+    # remove the bb part to get the b-only cut
+    threshold_btag = threshold_btag.split("bb", maxsplit=1)[0]
+
+    # possibly roll back to dl1r for some chains
+    if "dl1r" in threshold_btag: 
+        btagger = "DL1r"
+
+    bcut = bTaggingWP[threshold_btag]
+
+    return [btagger, bcut] , [bbtagger, bbcut]
 
 ####################################################################################################
 
@@ -85,13 +106,15 @@ def getBjetBtagHypoConfiguration( name,conf_dict ):
     tool = TrigBjetBtagHypoTool( name )
 
     # b-tagging
-    [tagger,tb] = decodeThreshold( conf_dict['bTag'] )
+    [btagger, bcut] , [bbtagger, bbcut] = decodeThreshold( conf_dict['bTag'] )
 
     if conf_dict['bTag'] == "offperf" :
         tool.AcceptAll = True
 
-    tool.Tagger = tagger
-    tool.BTaggingCut = tb
+    tool.Tagger = btagger
+    tool.BBTagger = bbtagger
+    tool.BTaggingCut = bcut
+    tool.BBTaggingCut = bbcut
     tool.cFraction = 0.018
 
     return tool

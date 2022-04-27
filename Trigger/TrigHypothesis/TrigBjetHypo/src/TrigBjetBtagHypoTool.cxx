@@ -15,6 +15,7 @@
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "TrigBjetBtagHypoTool.h"
+#include "xAODBTagging/BTagging.h"
 
 TrigBjetBtagHypoTool::TrigBjetBtagHypoTool( const std::string& type,
     const std::string& name,
@@ -31,6 +32,7 @@ TrigBjetBtagHypoTool::TrigBjetBtagHypoTool( const std::string& type,
     ATH_MSG_DEBUG(  "   " << m_bTaggingCut   );
     ATH_MSG_DEBUG(  "   " << m_cFrac   );
     ATH_MSG_DEBUG(  "   " << m_tagger     );
+    ATH_MSG_DEBUG(  "   " << m_bbtagger     );
 
     ATH_MSG_DEBUG( "Tool configured for chain/id: " << m_decisionId  );
 
@@ -80,6 +82,8 @@ StatusCode TrigBjetBtagHypoTool::decide( std::vector< TrigBjetBtagHypoToolInfo >
     // -------------------------------------
     // Compute trigger decision
     bool pass = true;
+    bool passbb = true;
+    bool allok = true;
 
     if ( vertex->vertexType() != xAOD::VxType::VertexType::PriVtx ) {
       ATH_MSG_DEBUG( "Vertex is not a valid primary vertex!" );
@@ -90,13 +94,36 @@ StatusCode TrigBjetBtagHypoTool::decide( std::vector< TrigBjetBtagHypoToolInfo >
       const xAOD::BTagging *btagging = *(bTagInfo.btaggingEL);
       double btaggingWeight = -1000;
 
+      // TODO
+      // search for bb-jet rejection component of tagger
+      // really in the future this should be a derived class of the
+      // BtagHypoTool.
+
+      if (m_bbtagger != "") {
+        double pb = -1;
+        double pbb = -1;
+        float tmp = -1;
+        
+        allok &= btagging->pb(m_bbtagger, pb);
+        allok &= btagging->variable<float>(m_bbtagger, "pbb", tmp);
+        pbb = tmp;
+
+        if (!allok) return StatusCode::FAILURE;
+
+        double bbtaggingWeight = log( pb / pbb );
+
+        passbb = bbtaggingWeight > m_bbTaggingCut;
+      }
+
       double pu = -1;
       double pb = -1;
       double pc = -1;
 
-      btagging->pu(m_tagger, pu);
-      btagging->pb(m_tagger, pb);
-      btagging->pc(m_tagger, pc);
+      allok &= btagging->pu(m_tagger, pu);
+      allok &= btagging->pb(m_tagger, pb);
+      allok &= btagging->pc(m_tagger, pc);
+
+      if (!allok) return StatusCode::FAILURE;
 
       btaggingWeight = log( pb / (pu * (1 - m_cFrac) + m_cFrac * pc) );
 
@@ -116,7 +143,7 @@ StatusCode TrigBjetBtagHypoTool::decide( std::vector< TrigBjetBtagHypoToolInfo >
     }
 
     // -------------------------------------
-    if ( pass == true ) {
+    if ( pass && passbb ) {
       ATH_MSG_DEBUG( "Selection cut satisfied, accepting the event" );
       TrigCompositeUtils::addDecisionID( getId().numeric(),bTagInfo.decision );
     } else {
@@ -124,6 +151,7 @@ StatusCode TrigBjetBtagHypoTool::decide( std::vector< TrigBjetBtagHypoToolInfo >
     }
 
     ATH_MSG_DEBUG( "b-Tagging decision is " << (pass?"TRUE":"FALSE") );
+    ATH_MSG_DEBUG( "bb-Tagging decision is " << (passbb?"TRUE":"FALSE") );
     ATH_MSG_DEBUG( "PRINTING DECISION" );
     ATH_MSG_DEBUG( *bTagInfo.decision );
   }
