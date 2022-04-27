@@ -245,6 +245,7 @@ namespace Analysis
 
     /// access to underlying base type (I4Momentum-like)
     const momentum_type& momentumBase() const;
+    momentum_type& momentumBase();
 
 
 
@@ -420,6 +421,13 @@ const Analysis::ParticleShallowClone::momentum_type& Analysis::ParticleShallowCl
 {
   return *this;
 }
+
+inline
+Analysis::ParticleShallowClone::momentum_type& Analysis::ParticleShallowClone::momentumBase()
+{
+  return *this;
+}
+
 
 
 /*

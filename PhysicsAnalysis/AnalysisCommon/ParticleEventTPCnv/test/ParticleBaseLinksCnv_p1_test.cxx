@@ -18,6 +18,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
+#include "CxxUtils/checker_macros.h"
 
 
 void compare (const ParticleBaseLinks& c1,
@@ -51,7 +52,7 @@ void test1()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE()
 {
   SGTest::initTestStore();
   test1();
