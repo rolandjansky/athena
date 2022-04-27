@@ -1,0 +1,4 @@
+<lcgdict>
+  <enum pattern="TauAnalysisTools::*"/>
+  <struct name="TauAnalysisTools::ROOT6_NamespaceAutoloadHook"/>
+</lcgdict>
