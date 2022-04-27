@@ -5,10 +5,8 @@
 #include <AthenaKernel/getMessageSvc.h>
 #include <MuonPRDTest/PrdTesterModule.h>
 #include <StoreGate/ReadCondHandle.h>
-PrdTesterModule::PrdTesterModule(MuonTesterTree& tree, const std::string& grp_name, bool useCondGeo,
-                                 MSG::Level msglvl) :
-    MuonTesterBranch(tree, grp_name), AthMessaging(Athena::getMessageSvc(), grp_name),
-    m_useCondDetMgr{useCondGeo}{
+PrdTesterModule::PrdTesterModule(MuonTesterTree& tree, const std::string& grp_name, bool useCondGeo, MSG::Level msglvl) :
+    MuonTesterBranch(tree, " prd module " + grp_name), AthMessaging(Athena::getMessageSvc(), grp_name), m_useCondDetMgr{useCondGeo} {
     setLevel(msglvl);
     m_idHelperSvc.retrieve().ignore();
 }
@@ -26,7 +24,7 @@ bool PrdTesterModule::init() {
     if (!m_useCondDetMgr && (!m_detStore.retrieve().isSuccess() || !m_detStore->retrieve(m_detMgr).isSuccess())) return false;
     if (!m_detMgrKey.initialize(m_useCondDetMgr).isSuccess()) return false;
     if (!m_idHelperSvc.retrieve().isSuccess()) return false;
-    
+
     return declare_keys();
 }
 bool PrdTesterModule::declare_keys() { return true; }

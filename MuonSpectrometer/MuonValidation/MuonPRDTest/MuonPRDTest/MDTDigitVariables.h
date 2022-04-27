@@ -19,9 +19,9 @@ public:
 
 private:
     SG::ReadHandleKey<MdtDigitContainer> m_digitKey{};
-    
+
     ScalarBranch<int>& m_MDT_nDigits{parent().newScalar<int>("Digits_MDT_n")};
-    MdtIdentifierBranch m_MDT_digit_id{parent(),"Digits_MDT", idHelperSvc()};
+    MdtIdentifierBranch m_MDT_digit_id{parent(), "Digits_MDT"};
 
     VectorBranch<float>& m_MDT_dig_time{parent().newVector<float>("Digits_MDT_time")};
     VectorBranch<float>& m_MDT_dig_charge{parent().newVector<float>("Digits_MDT_charge")};

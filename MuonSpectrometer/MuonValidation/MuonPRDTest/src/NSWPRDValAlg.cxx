@@ -146,16 +146,13 @@ StatusCode NSWPRDValAlg::initialize() {
     m_tree.addBranch(std::make_unique<MdtDigitVariables>(m_tree,m_MDT_DigitContainerName.value(),  msgLevel()));
   }
   if (m_doRPCHit){
-     m_testers.emplace_back(std::make_unique<RPCSimHitVariables>(evtStore().get(), m_muonDetMgrDS,
-                                             &m_idHelperSvc->rpcIdHelper(), m_tree.tree(),m_RPC_SimContainerName, msgLevel()));
+     m_tree.addBranch(std::make_unique<RPCSimHitVariables>(m_tree, m_RPC_SimContainerName, msgLevel()));
   }
   if (m_doRPCSDO){
-    m_testers.emplace_back(std::make_unique<RpcSDOVariables>(evtStore().get(), m_muonDetMgrDS,
-                                             &m_idHelperSvc->rpcIdHelper(), m_tree.tree(),m_RPC_SDOContainerName, msgLevel()));
+    m_tree.addBranch(std::make_unique<RpcSDOVariables>(m_tree, m_RPC_SDOContainerName, msgLevel()));
   }
   if (m_doRPCDigit){
-     m_testers.emplace_back(std::make_unique<RpcDigitVariables>(evtStore().get(), m_muonDetMgrDS,
-                                             &m_idHelperSvc->rpcIdHelper(), m_tree.tree(),m_RPC_DigitContainerName, msgLevel()));
+     m_tree.addBranch(std::make_unique<RpcDigitVariables>(m_tree, m_RPC_DigitContainerName, msgLevel()));
   }
   
 
@@ -208,18 +205,6 @@ StatusCode NSWPRDValAlg::execute()
   ATH_MSG_DEBUG("execute()");
   const EventContext& ctx = Gaudi::Hive::currentContext();
   
-  // Event information
-  const EventInfo* pevt{nullptr};
-  if( evtStore()->retrieve(pevt).isSuccess() ) {
-    m_runNumber = pevt->event_ID()->run_number();
-    m_eventNumber = pevt->event_ID()->event_number();
-    ATH_MSG_DEBUG("Now processing event number:" << m_eventNumber << ", run number:" << m_runNumber);
-  } else {
-    ATH_MSG_WARNING("Could not retrieve event info!");
-    m_runNumber = -1;
-    m_eventNumber = -1;
-  }
-
   // MuonDetectorManager from the detector store for MC
    const MuonGM::MuonDetectorManager* muonDetMgr = m_muonDetMgrDS;
   // MuonDetectorManager from the conditions store for data
