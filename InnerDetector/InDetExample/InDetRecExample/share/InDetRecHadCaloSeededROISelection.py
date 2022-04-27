@@ -17,29 +17,7 @@ egammaCaloClusterHadROISelector = ToolFactory( egammaCaloToolsConf.egammaCaloClu
                                                name = 'caloClusterHadROISelector',
                                                egammaCheckEnergyDepositTool = "",
                                                ClusterEtCut = 150e3
-                                             ) 
-
-
-#
-# --- get the builder tool
-#
-from InDetCaloClusterROIBuilder.InDetCaloClusterROIBuilderConf import InDet__CaloClusterROI_Builder
-InDetCaloClusterROIBuilder = InDet__CaloClusterROI_Builder(name = "InDetCaloClusterROIBuilder")
-
-if (InDetFlags.doPrintConfigurables()):
-    print (InDetCaloClusterROIBuilder)
-
-
-#
-# --- now load the algorithm
-#
-from InDetCaloClusterROISelector.InDetCaloClusterROISelectorConf import InDet__CaloClusterROI_Selector
-InDetHadCaloClusterROISelector = InDet__CaloClusterROI_Selector ( name                         = "InDetHadCaloClusterROISelector",
-                                                                  InputClusterContainerName    = InDetKeys.HadCaloClusterContainer(),    # "CaloCalTopoClusters
-                                                                  OutputClusterContainerName   = InDetKeys.HadCaloClusterROIContainer()+"Bjet", # "InDetCaloClusterROIs"
-                                                                  CaloClusterROIBuilder        = InDetCaloClusterROIBuilder,
-                                                                  egammaCaloClusterSelector    = egammaCaloClusterHadROISelector()
-                                                                )
+                                              )
 
 def HadCaloClusterROIPhiRZContainerMaker(name="HadCaloClusterROIPhiRZContainerMaker", **kwargs):
 
@@ -74,9 +52,5 @@ def HadCaloClusterROIPhiRZContainerMaker(name="HadCaloClusterROIPhiRZContainerMa
 
 
 if InDetFlags.doCaloSeededAmbi() :
-    topSequence += InDetHadCaloClusterROISelector
     topSequence += HadCaloClusterROIPhiRZContainerMaker()
-
-    if (InDetFlags.doPrintConfigurables()):
-        print (InDetHadCaloClusterROISelector)
 

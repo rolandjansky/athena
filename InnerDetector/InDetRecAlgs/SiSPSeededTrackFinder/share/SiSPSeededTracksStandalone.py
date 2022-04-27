@@ -683,8 +683,6 @@ InDetSiComTrackFinder = InDet__SiCombinatorialTrackFinder_xk(name               
 useBremMode = False ###
 InDetFlags.doCaloSeededBrem.set_Value_and_Lock(False) ###
 InDetFlags.doHadCaloSeededSSS.set_Value_and_Lock(False) ###
-InDetKeys.CaloClusterROIContainer.set_Value_and_Lock("") ###
-InDetKeys.HadCaloClusterROIContainer.set_Value_and_Lock("") ###
 from SiTrackMakerTool_xk.SiTrackMakerTool_xkConf import InDet__SiTrackMaker_xk as SiTrackMaker
 InDetSiTrackMaker = SiTrackMaker(name                      = "InDetSiTrackMaker"+NewTrackingCuts.extension(),
                                  useSCT                    = NewTrackingCuts.useSCT(),

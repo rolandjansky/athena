@@ -7,10 +7,6 @@
 #
 # --- load the tool to check the energy deposits and select clusters
 #
-from InDetCaloClusterROISelector.InDetCaloClusterROISelectorConf import (
-    InDet__CaloClusterROI_Selector)
-from InDetCaloClusterROIBuilder.InDetCaloClusterROIBuilderConf import (
-    InDet__CaloClusterROI_Builder)
 from InDetRecExample.InDetKeys import InDetKeys
 from egammaRec.Factories import ToolFactory
 from egammaCaloTools.egammaCaloToolsFactories import (
@@ -29,35 +25,9 @@ egammaCaloClusterROISelector = ToolFactory(
     RetaCut=0.65,
     HadLeakCut=0.15
 )
-#
-# --- get the builder tool
-#
-InDetCaloClusterROIBuilder = InDet__CaloClusterROI_Builder(
-    name="InDetCaloClusterROIBuilder",
-    EMEnergyOnly=True)
-
-if (InDetFlags.doPrintConfigurables()):
-    printfunc(InDetCaloClusterROIBuilder)
-
-#
-# --- now load the algorithm
-#
-InDetCaloClusterROISelector = InDet__CaloClusterROI_Selector(
-    name="InDetCaloClusterROISelector",
-    InputClusterContainerName=InDetKeys.CaloClusterContainer(),
-    # "InDetCaloClusterROIs"
-    OutputClusterContainerName=InDetKeys.CaloClusterROIContainer(),
-    CaloClusterROIBuilder=InDetCaloClusterROIBuilder,
-    egammaCaloClusterSelector=egammaCaloClusterROISelector()
-)
 
 
 def CaloClusterROIPhiRZContainerMaker(name="CaloClusterROIPhiRZContainerMaker", tracking_cuts_list = [ConfiguredNewTrackingCuts("Offline")], **kwargs):
-
-    # if "CaloSurfaceBuilder" not in kwargs :
-    #    from CaloTrackingGeometry.CaloSurfaceBuilderBase import CaloSurfaceBuilderFactory
-    #    kwargs.setdefault("CaloSurfaceBuilder", CaloSurfaceBuilderFactory( '' ) )
-
     kwargs.setdefault("InputClusterContainerName",  InDetKeys.CaloClusterContainer())
     kwargs.setdefault("EMEnergyOnly", True)
 
@@ -114,7 +84,6 @@ def CaloClusterROIPhiRZContainerMaker(name="CaloClusterROIPhiRZContainerMaker", 
     return InDet__CaloClusterROIPhiRZContainerMaker(name, **kwargs)
 
 
-topSequence += InDetCaloClusterROISelector
 tracking_cuts=[]
 if "InDetNewTrackingCuts" in dir() :
     tracking_cuts.append( InDetNewTrackingCuts )
@@ -123,6 +92,3 @@ else :
     tracking_cuts.append( ConfiguredNewTrackingCuts("Offline") )
 
 topSequence += CaloClusterROIPhiRZContainerMaker(tracking_cuts_list = tracking_cuts )
-
-if (InDetFlags.doPrintConfigurables()):
-    printfunc(InDetCaloClusterROISelector)

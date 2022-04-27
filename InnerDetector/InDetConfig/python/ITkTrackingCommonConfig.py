@@ -201,16 +201,6 @@ def ITkTrackSummaryToolNoHoleSearchCfg(flags, name='ITkTrackSummaryToolNoHoleSea
     kwargs.setdefault('doHolesInDet', False)
     return ITkTrackSummaryToolCfg(flags, name=name, **kwargs)
 
-def ITkROIInfoVecCondAlgCfg(flags, name='ITkROIInfoVecCondAlg', **kwargs) :
-    acc = ComponentAccumulator()
-    from InDetConfig.InDetCaloClusterROISelectorConfig import CaloClusterROI_SelectorCfg
-    acc.merge(CaloClusterROI_SelectorCfg(flags))
-    kwargs.setdefault("InputEmClusterContainerName", "ITkCaloClusterROIs")
-    kwargs.setdefault("WriteKey", kwargs.get("namePrefix","") +"ROIInfoVec"+ kwargs.get("nameSuffix","") )
-    kwargs.setdefault("minPtEM", 5000.0) #in MeV
-    acc.addEventAlgo(CompFactory.ROIInfoVecAlg(name = name,**kwargs), primary=True)
-    return acc
-
 def ITkAmbiScoringToolBaseCfg(flags, name='ITkAmbiScoringTool', **kwargs) :
     acc = ComponentAccumulator()
 

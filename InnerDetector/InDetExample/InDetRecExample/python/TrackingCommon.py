@@ -1541,17 +1541,6 @@ def getTRT_DetElementsRoadCondAlg(**kwargs):
     from TRT_DetElementsRoadTool_xk.TRT_DetElementsRoadTool_xkConf import InDet__TRT_DetElementsRoadCondAlg_xk
     return InDet__TRT_DetElementsRoadCondAlg_xk(the_name, **kwargs)
 
-def getInDetROIInfoVecCondAlg(name='InDetROIInfoVecCondAlg',**kwargs) :
-    the_name = makeName(name, kwargs)
-    from InDetRecExample.InDetKeys import InDetKeys
-    kwargs=setDefaults(kwargs,
-                       InputEmClusterContainerName = InDetKeys.CaloClusterROIContainer(),
-                       WriteKey                    = kwargs.get("namePrefix","")+"ROIInfoVec"+kwargs.get("nameSuffix",""),
-                       minPtEM                     = 5000.  # in MeV
-                       )
-    from InDetTrackScoringTools.InDetTrackScoringToolsConf import ROIInfoVecAlg
-    return ROIInfoVecAlg(the_name,**kwargs)
-
 @makePublicTool
 def getInDetAmbiScoringToolBase(name='InDetAmbiScoringTool', **kwargs) :
     NewTrackingCuts = kwargs.pop("NewTrackingCuts")

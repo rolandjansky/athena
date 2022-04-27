@@ -5,7 +5,6 @@ atlas_subdir( TrkCaloClusterROI )
 
 # Component(s) in the package:
 atlas_add_library( TrkCaloClusterROI
-                   src/*.cxx
+                   INTERFACE
                    PUBLIC_HEADERS TrkCaloClusterROI
-                   LINK_LIBRARIES AthContainers AthenaKernel GeoPrimitives EventPrimitives
-                   PRIVATE_LINK_LIBRARIES TrkSurfaces TrkEventPrimitives )
+                   LINK_LIBRARIES AthContainers AthenaKernel GeoPrimitives)

@@ -660,16 +660,6 @@ def InDetTrackSummaryToolNoHoleSearchCfg(flags, name='InDetTrackSummaryToolNoHol
     acc.setPrivateTools(InDetTrackSummaryTool)
     return acc
 
-def ROIInfoVecAlgCfg(flags, name='InDetROIInfoVecCondAlg', **kwargs) :
-    acc = ComponentAccumulator()
-    from InDetConfig.InDetCaloClusterROISelectorConfig import CaloClusterROI_SelectorCfg
-    acc.merge(CaloClusterROI_SelectorCfg(flags))
-    kwargs.setdefault("InputEmClusterContainerName", "InDetCaloClusterROIs")
-    kwargs.setdefault("WriteKey", kwargs.get("namePrefix","") +"ROIInfoVec"+ kwargs.get("nameSuffix","") )
-    kwargs.setdefault("minPtEM", 5000.0) #in MeV
-    acc.addEventAlgo(CompFactory.ROIInfoVecAlg(name = name,**kwargs), primary=True)
-    return acc
-
 def InDetAmbiScoringToolBaseCfg(flags, name='InDetAmbiScoringTool', **kwargs) :
     acc = ComponentAccumulator()
 
