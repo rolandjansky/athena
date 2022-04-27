@@ -807,7 +807,7 @@ namespace Muon {
 
             if (surf.globalToLocal(exPars->position(), exPars->momentum(), locPos)) {
                 if (m_idHelperSvc->isMM(detElId)) {
-                    inBounds = ((const MuonGM::MMReadoutElement*)detEl)->insideActiveBounds(id, locPos, -100., 100.);
+                    inBounds = ((const MuonGM::MMReadoutElement*)detEl)->insideActiveBounds(id, locPos, -100., -100.);
                 } else {
                     inBounds = surf.insideBounds(locPos, -100., -100.);
                 }
