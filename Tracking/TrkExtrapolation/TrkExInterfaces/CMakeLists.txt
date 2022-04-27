@@ -6,4 +6,5 @@ atlas_subdir( TrkExInterfaces )
 # Component(s) in the package:
 atlas_add_library( TrkExInterfaces
                    PUBLIC_HEADERS TrkExInterfaces
-                   LINK_LIBRARIES GeoPrimitives xAODTracking GaudiKernel TrkDetDescrUtils TrkSurfaces TrkVolumes TrkEventPrimitives TrkMaterialOnTrack TrkNeutralParameters TrkParameters TrkParametersBase TrkExUtils )
+                   LINK_LIBRARIES GeoPrimitives xAODTracking GaudiKernel TrkDetDescrUtils TrkSurfaces TrkVolumes TrkEventPrimitives TrkMaterialOnTrack 
+                   TrkNeutralParameters TrkParameters TrkParametersBase TrkExUtils CxxUtils)

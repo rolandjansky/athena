@@ -24,6 +24,8 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkNeutralParameters/NeutralParameters.h"
 
+#include "CxxUtils/checker_macros.h"
+
 namespace Trk {
 
   class IPropagationEngine;    
@@ -44,7 +46,7 @@ namespace Trk {
     @author Andreas.Salzburger -at- cern.ch
   
   */
-  class StaticEngine : public AthAlgTool, virtual public IExtrapolationEngine {
+  class ATLAS_NOT_THREAD_SAFE StaticEngine : public AthAlgTool, virtual public IExtrapolationEngine {
 
       public:
           

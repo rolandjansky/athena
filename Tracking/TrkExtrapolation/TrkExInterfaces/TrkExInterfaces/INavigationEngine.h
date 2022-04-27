@@ -15,7 +15,7 @@
 #include "TrkExUtils/ExtrapolationCell.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkNeutralParameters/NeutralParameters.h"
- 
+#include "CxxUtils/checker_macros.h" 
 namespace Trk {
 
   class TrackingGeometry;
@@ -34,7 +34,7 @@ namespace Trk {
       @author Andreas Salzburger -at - cern.ch 
   */
   
-  class INavigationEngine : virtual public IAlgTool {
+  class ATLAS_NOT_THREAD_SAFE INavigationEngine : virtual public IAlgTool {
 
     public:
      
