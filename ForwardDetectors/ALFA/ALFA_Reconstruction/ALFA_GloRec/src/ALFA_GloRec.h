@@ -22,8 +22,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/Kernel.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "GeneratorObjects/McEventCollection.h"
 
 
@@ -63,7 +61,7 @@
 #include "TObjArray.h"
 #include "TObjString.h"
 
-#include "ALFA_GloRec/AlfaLocalHits.h"
+#include "AlfaLocalHits.h"
 
 class StoreGateSvc;
 
@@ -81,16 +79,11 @@ public:
 
 private:
 
-    ////////////////////////////
-	// a handle on Store Gate
-    ////////////////////////////
-	StoreGateSvc* m_storeGate;
 
 
     ////////////////////////////////
     //  general members
     ////////////////////////////////
-    uint64_t m_nEvent;
 	ALFA_GloRecEvCollection* m_pGloRecEvCollection;
 
 

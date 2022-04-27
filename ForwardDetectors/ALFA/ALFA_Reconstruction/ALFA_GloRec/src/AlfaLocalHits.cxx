@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #define AlfaLocalHits_cxx
@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "ALFA_GloRec/AlfaLocalHits.h"
+#include "AlfaLocalHits.h"
 #include "ALFA_LocRecEv/ALFA_LocRecEvent.h"
 #include "ALFA_LocRecCorrEv/ALFA_LocRecCorrEvent.h"
 
