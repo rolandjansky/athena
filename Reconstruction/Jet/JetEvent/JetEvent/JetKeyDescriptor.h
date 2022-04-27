@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETEVENT_JETKEYDESCRIPTOR_H
@@ -158,11 +158,11 @@ class JetKeyDescriptorInstance
  private:
   
 
-  static size_t                  m_invalid;
-  static std::string             m_notFound;
-  static std::vector<key_t>      m_invalidKeys;
+  static const size_t                  m_invalid;
+  static const std::string             m_notFound;
+  static const std::vector<key_t>      m_invalidKeys;
   
-  static bool                    m_persistified;
+  static const bool                    m_persistified;
 };
 
 inline bool JetKeyDescriptorInstance::isValid(size_t index) const

@@ -1,7 +1,7 @@
 // emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////                                                        /////////// 
@@ -278,7 +278,7 @@ const TAGINFO* Jet::tagInfo(const mkey_t& key) const
 }
 
 template<class TAGINFO>
-void Jet::addInfo(const TAGINFO* tag) const
+void Jet::addInfo(const TAGINFO* tag)
 {
   this->setTagInfo( tag->infoType(), tag );
 }
@@ -332,7 +332,7 @@ inline void Jet::removeAssociation (const size_t index) const
 /////////////////////////////////////////
 /// constituent and jet signal states ///
 /////////////////////////////////////////
-inline void Jet::setConstituentSignalState( Jet::signalstate_t s ) const
+inline void Jet::setConstituentSignalState( Jet::signalstate_t s )
 {
   m_constituentSigState = s;
 }

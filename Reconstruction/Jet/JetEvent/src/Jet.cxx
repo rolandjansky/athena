@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -67,7 +67,7 @@ const size_t Jet::s_defaultJetAuthor = 0 ;
 
 
 
-double Jet::m_ignoreWeight = 1.0e-06;
+const double Jet::m_ignoreWeight = 1.0e-06;
 
 // Little helper function
 bool jet_component_identity(double p1, double p2, double epsilon = 0.1){
@@ -872,7 +872,7 @@ Jet::shape_t Jet::getShape(const mkey_t& shapeName,bool addIfMissing) const
 
 void Jet::setTagInfo(const mkey_t& key,
 		     const taginfo_t* pTagInfo,
-		     bool /* useLink */ ) const
+		     bool /* useLink */ )
 {
   // use check function
   size_t aInd;
@@ -889,13 +889,13 @@ void Jet::setTagInfo(const mkey_t& key,
     }
 }
 
-void Jet::removeInfo (unsigned int index) const
+void Jet::removeInfo (unsigned int index)
 {
   delete (m_tagInfoStore->operator[])(index);
   (m_tagInfoStore->operator[])(index) = 0;
 }
 
-void Jet::removeInfo(const mkey_t& key ) const
+void Jet::removeInfo(const mkey_t& key )
 {
   if ( bool(m_tagInfoStore) ) {
     size_t aInd;
@@ -983,14 +983,13 @@ bool Jet::finalScaleEqualsEMScale() const {
 ///////////                                                        ///////////
 
 
-const std::vector<double>& Jet::combinedLikelihood() const
+std::vector<double> Jet::combinedLikelihood() const
 { 
-  static std::vector<double> combinedLikelihood;
+  std::vector<double> combinedLikelihood;
   combinedLikelihood.resize(m_num_combinedLikelihood);
-  std::string base="LikeLihood_";
+  const std::string base="LikeLihood_";
   for(unsigned int i=0; i<m_num_combinedLikelihood; i++){
-    std::stringstream s; s<< i; 
-    combinedLikelihood[i] = getShape(base+s.str()) ;
+    combinedLikelihood[i] = getShape(base+std::to_string(i)) ;
   }
 
   return combinedLikelihood;
@@ -999,10 +998,9 @@ const std::vector<double>& Jet::combinedLikelihood() const
 void Jet::setCombinedLikelihood(const std::vector<double>& 
 				       combinedLikelihood)
 { 
-  std::string base="LikeLihood_";
+  const std::string base="LikeLihood_";
   for(unsigned int i=0; i<combinedLikelihood.size(); i++){
-    std::stringstream s; s<< i; 
-    setShape(base+s.str(), combinedLikelihood[i] );
+    setShape(base+std::to_string(i), combinedLikelihood[i] );
   }	
   m_num_combinedLikelihood = combinedLikelihood.size();
 }
