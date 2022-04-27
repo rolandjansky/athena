@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "ALFA_LocRec/ALFA_LocRec.h"
+#include "ALFA_LocRec.h"
 #include "ALFA_Geometry/ALFA_GeometryReader.h"
 
 #include "AthenaKernel/errorcheck.h"
@@ -121,12 +121,9 @@ AthAlgorithm(name, pSvcLocator)
 	m_pLocRecEvent = NULL;
 	m_pLocRecODEvCollection = NULL;
 	m_pLocRecODEvent = NULL;
-//	m_storeGate = NULL;
-//	m_pDetStore = NULL;
 
 	m_eventNum = 0;
 	m_iEvent   = 0;
-	m_iRunNum  = 0;
 
 	ATH_MSG_DEBUG("end ALFA_LocRec::ALFA_LocRec");
 }
@@ -193,6 +190,8 @@ StatusCode ALFA_LocRec::initialize()
 // 		ATH_MSG_DEBUG("m_pGeometryReader is in StoreGate");
 // 	}
 
+	ATH_CHECK(m_eventInfoKey.initialize());
+
 	m_iEvent = 0;
 
 	ATH_MSG_DEBUG("end ALFA_LocRec::initialize()");
@@ -214,19 +213,15 @@ StatusCode ALFA_LocRec::execute()
 	ListODHits.clear();
 
 	m_eventNum = 0;
-	m_iRunNum  = 0;
-	const EventInfo* eventInfo;
-	sc = evtStore()->retrieve( eventInfo );
-	if (sc.isFailure())
-	{
+	SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey);
+	if(!eventInfo.isValid()) {
 		ATH_MSG_ERROR("ALFA_LocRec, Cannot get event info.");
 //		return sc;
 	}
 	else
 	{
 		// current event number
-		m_eventNum = eventInfo->event_ID()->event_number();
-		m_iRunNum = eventInfo->event_ID()->run_number();
+		m_eventNum = eventInfo->eventNumber();
 	}
 
 	//************************************************************
