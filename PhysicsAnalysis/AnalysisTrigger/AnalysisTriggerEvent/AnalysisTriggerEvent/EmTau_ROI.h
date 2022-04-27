@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EmTau_ROI.h,v 1.8 2008-05-16 08:34:32 watsona Exp $
 #ifndef ANALYSISTRIGGEREVENT_EMTAU_ROI_H
 #define ANALYSISTRIGGEREVENT_EMTAU_ROI_H
 
@@ -27,8 +26,6 @@
  *  @author Tadashi Maeno
  *  @author Alan Watson
  *  @author Attila Krasznahorkay
- * @version $Revision: 1.8 $
- *    @date $Date: 2008-05-16 08:34:32 $
  *
  *     @see INavigable4Momentum
  */
@@ -119,8 +116,6 @@ private:
    float m_EMIsol;  //!< EM calorimeter isolation
    float m_HadIsol; //!< Outer Hadron calorimeter isolation
    float m_HadCore; //!< ET of inner hadronic isolation sum
-
-   mutable float m_highestThreshold; //!< return value for inherited pt() accessor
 
 }; // class EmTau_ROI
 
