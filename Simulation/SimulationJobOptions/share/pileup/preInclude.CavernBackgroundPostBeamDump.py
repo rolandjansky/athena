@@ -62,7 +62,7 @@ from AthenaCommon.BeamFlags import jobproperties
 if not 'ScaleTaskLength' in dir():   ScaleTaskLength = 1
 _evts = lambda x: int(ScaleTaskLength * x)
 
-from Digitization.RunDependentMCTaskIterator import getRunLumiInfoFragment
+from RunDependentSimComps.RunDependentMCTaskIterator import getRunLumiInfoFragment
 digilog = logging.getLogger('Digi_trf')
 digilog.info('doing RunLumiOverride configuration from file.')
 JobMaker=[
