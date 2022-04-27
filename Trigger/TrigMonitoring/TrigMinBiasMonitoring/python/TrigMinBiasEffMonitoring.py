@@ -55,7 +55,8 @@ def _TrigEff(flags, triggerAndRef, algname='HLTMinBiasEffMonitoringAlg'):
             # these chains have such form: HLT_mb_excl_1trk5_pt4_L1RD0_FILLED                                  
             whichcounter += '_'+chain.split('_')[4]
 
-
+        if '_pusup' in chain or '_hmt_' in chain:
+            whichcounter = 'nTrkOfflineVtx'
         effGroup.defineHistogram(f'EffPassed,{whichcounter};{chain}_ref_{refchain}', type='TEfficiency',
                                     title=chain+f';Offline Good nTrk {whichcounter};Efficiency', xbins=xbins, xmin=xmin, xmax=xmax)
 
