@@ -26,6 +26,8 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkNeutralParameters/NeutralParameters.h"
 
+#include "CxxUtils/checker_macros.h"
+
 namespace Trk {
 
   class IMaterialEffectsEngine;
@@ -38,7 +40,7 @@ namespace Trk {
     @author sarka.todorova -at- cern.ch
   
   */
-  class StepEngine : public AthAlgTool, virtual public IExtrapolationEngine {
+  class ATLAS_NOT_THREAD_SAFE StepEngine : public AthAlgTool, virtual public IExtrapolationEngine {
 
       public:
           
@@ -108,9 +110,6 @@ namespace Trk {
 
         // local variables
         double                                             m_tolerance;            
-
-        // intersection cache
-        mutable std::vector<Amg::Vector3D>                 m_intersections;
 
         // target surfaces
         mutable TargetSurfaces                             m_targetSurfaces;
