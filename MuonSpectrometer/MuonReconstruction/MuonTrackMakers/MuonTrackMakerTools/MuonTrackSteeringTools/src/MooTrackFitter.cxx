@@ -775,6 +775,8 @@ namespace Muon {
 
             const Trk::Surface *firstphisurf = nullptr, *lastphisurf = nullptr;
             Amg::Vector3D firstphinormal, lastphinormal;
+            firstphinormal.setZero();
+            lastphinormal.setZero();
             if (!fitterData.phiHits.empty()) {
                 firstphisurf = &fitterData.phiHits.front()->associatedSurface();
                 lastphisurf = &fitterData.phiHits.back()->associatedSurface();
