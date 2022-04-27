@@ -42,6 +42,10 @@ atlas_add_dictionary( TauAnalysisToolsDict
    TauAnalysisTools/selection.xml
    LINK_LIBRARIES TauAnalysisToolsLib )
 
+atlas_add_dictionary( TauAnalysisToolsEnumDict
+   TauAnalysisTools/Enums.h
+   TauAnalysisTools/selection-enums.xml )
+
 # Executable(s) in the package:
 if( XAOD_STANDALONE )
    atlas_add_executable( TauAnalysisToolsExample
