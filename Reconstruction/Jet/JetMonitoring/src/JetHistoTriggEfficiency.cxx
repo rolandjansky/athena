@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "JetMonitoring/JetHistoTriggEfficiency.h"
@@ -40,7 +40,7 @@ StatusCode JetHistoTriggEfficiency::processJetContainer(const JetMonitoringAlg& 
   // we assume this tool is invoked in an alg selecting a reference trigger.
   ATH_MSG_DEBUG(" working on "<< m_probeTrigChain);
   // check our probe trigger is enabled 
-  static SG::AuxElement::ConstAccessor< std::vector< std::string > > acc_disabledTriggers("disabledTriggers");
+  static const SG::AuxElement::ConstAccessor< std::vector< std::string > > acc_disabledTriggers("disabledTriggers");
   auto eventInfo = parentAlg.GetEventInfo(ctx);
   if( acc_disabledTriggers.isAvailable( *eventInfo ) ) {
     const std::vector<std::string> & disabledTriggers = acc_disabledTriggers( *eventInfo );
