@@ -228,17 +228,6 @@ if InDetTrigFlags.loadUpdator():
   if (InDetTrigFlags.doPrintConfigurables()):
     print (     InDetTrigUpdator)
 
-  # ---------- control loading of the gsf updator
-  if InDetTrigFlags.trackFitterType() == 'GaussianSumFilter' :
-    # Load the Gsf Measurement Updator
-
-    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMeasurementUpdator
-    InDetTrigGsfMeasurementUpdator = Trk__GsfMeasurementUpdator( name    = 'InDetTrigGsfMeasurementUpdator',
-                                                                 Updator = InDetTrigUpdator )
-    ToolSvc += InDetTrigGsfMeasurementUpdator
-    if (InDetTrigFlags.doPrintConfigurables()):
-      print (     InDetTrigGsfMeasurementUpdator)
-
 #
 # ----------- control loading extrapolation
 #
@@ -439,48 +428,8 @@ if InDetTrigFlags.loadFitter():
       InDetTrigTrackFitterTRT.MaxOutliers=99
             
   elif InDetTrigFlags.trackFitterType() == 'GaussianSumFilter' :
-    #
-    # component Reduction
-    #
-    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__CloseComponentsMultiStateMerger
-    InDetTrigGsfComponentReduction = \
-        Trk__CloseComponentsMultiStateMerger (name = 'InDetTrigGsfComponentReduction',
-                                              MaximumNumberOfComponents = 12)
-    ToolSvc += InDetTrigGsfComponentReduction
-    if (InDetTrigFlags.doPrintConfigurables()):
-      print (     InDetTrigGsfComponentReduction)
-    
-    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolution
-    InDetTrigGsfMaterialUpdator = Trk__GsfMaterialMixtureConvolution (name = 'InDetTrigGsfMaterialUpdator',
-                                                                      MultiComponentStateMerger = InDetTrigGsfComponentReduction)
-    ToolSvc += InDetTrigGsfMaterialUpdator
-    if (InDetTrigFlags.doPrintConfigurables()):
-      print (     InDetTrigGsfMaterialUpdator)
-    #
-    # declare the extrapolator
-    #
-    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfExtrapolator
-    InDetTrigGsfExtrapolator = Trk__GsfExtrapolator(name = 'InDetTrigGsfExtrapolator',
-                                                    Propagators                   = [ InDetTrigPropagator ],
-                                                    SearchLevelClosestParameters  = 10,
-                                                    StickyConfiguration           = True,
-                                                    Navigator                     = InDetTrigNavigator,
-                                                    GsfMaterialConvolution        = InDetTrigGsfMaterialUpdator,
-                                                    SurfaceBasedMaterialEffects   = False )
-    ToolSvc += InDetTrigGsfExtrapolator
-    if (InDetTrigFlags.doPrintConfigurables()):
-      print (     InDetTrigGsfExtrapolator)
-    # load alternative track fitter
-    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GaussianSumFitter
-    InDetTrigTrackFitter = Trk__GaussianSumFitter(name                    = 'InDetTrigTrackFitter',
-                                                  ToolForExtrapolation    = InDetTrigGsfExtrapolator,
-                                                  MeasurementUpdatorType  = InDetTrigGsfMeasurementUpdator,
-                                                  ToolForROTCreation      = InDetTrigRotCreator,
-                                                  ReintegrateOutliers     = False,
-                                                  MakePerigee             = True,
-                                                  RefitOnMeasurementBase  = True,
-                                                  DoHitSorting            = True)
-    
+    import egammaRec.EMCommonRefitter
+    GSFTrackFitter = egammaRec.EMCommonRefitter.getGSFTrackFitter(name = 'InDetTrigTrackFitter')
     
    # --- end of fitter loading
   ToolSvc += InDetTrigTrackFitter

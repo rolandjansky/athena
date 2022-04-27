@@ -5,12 +5,14 @@ from InDetRecExample import TrackingCommon as TrackingCommon
 
 
 def getGSFTrackFitter(name="EMGSFTrackFitter",
-                      RefitOnMeasurementBase=True,
-                      ReintegrateOutliers=True):
+                      **kwargs):
 
-    egRotCreator = None
-    if not RefitOnMeasurementBase:
-        egRotCreator = TrackingCommon.getInDetRotCreator(
+    if "RefitOnMeasurementBase" not in kwargs:
+        kwargs["RefitOnMeasurementBase"] = True
+
+    kwargs["ToolForROTCreation"] = None
+    if not kwargs["RefitOnMeasurementBase"]:
+        kwargs["ToolForROTCreation"] = TrackingCommon.getInDetRotCreator(
             name='egRotCreator',
             private=True)
 
@@ -18,45 +20,41 @@ def getGSFTrackFitter(name="EMGSFTrackFitter",
             TrackingCommon.getRIO_OnTrackErrorScalingCondAlg,
             'RIO_OnTrackErrorScalingCondAlg')
 
-    # setup Rk propagator
-    from TrkExRungeKuttaPropagator.TrkExRungeKuttaPropagatorConf import (
-        Trk__RungeKuttaPropagator as Propagator)
+    if "ToolForExtrapolation" not in kwargs:
+        # setup Rk propagator
+        from TrkExRungeKuttaPropagator.TrkExRungeKuttaPropagatorConf import (
+            Trk__RungeKuttaPropagator as Propagator)
 
-    egTrkPropagator = Propagator(name='egTrkPropagator')
-    egTrkPropagator.AccuracyParameter = 0.0001
+        egTrkPropagator = Propagator(name='egTrkPropagator')
+        egTrkPropagator.AccuracyParameter = 0.0001
 
-    # setup Navigator
-    egTrkNavigator = TrackingCommon.getInDetNavigator(
-        name='egTrkNavigator',
-        private=True)
+        # setup Navigator
+        egTrkNavigator = TrackingCommon.getInDetNavigator(
+            name='egTrkNavigator',
+            private=True)
+
+        from TrkGaussianSumFilter.TrkGaussianSumFilterConf import (
+            Trk__ElectronMaterialMixtureConvolution)
+
+        GsfMaterialUpdator = Trk__ElectronMaterialMixtureConvolution(
+            name='GsfMaterialUpdator',
+            MaximumNumberOfComponents=12)
+
+        from TrkGaussianSumFilter.TrkGaussianSumFilterConf import (
+            Trk__GsfExtrapolator)
+        kwargs["ToolForExtrapolation"] = Trk__GsfExtrapolator(
+            name='GsfExtrapolator',
+            Propagator=egTrkPropagator,
+            Navigator=egTrkNavigator,
+            GsfMaterialConvolution=GsfMaterialUpdator)
 
     # setup the GSF
     from TrkGaussianSumFilter.TrkGaussianSumFilterConf import (
-        Trk__ElectronMaterialMixtureConvolution)
-
-    GsfMaterialUpdator = Trk__ElectronMaterialMixtureConvolution(
-        name='GsfMaterialUpdator',
-        MaximumNumberOfComponents=12)
-
-    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import (
-        Trk__GsfExtrapolator)
-
-    GsfExtrapolator = Trk__GsfExtrapolator(
-        name='GsfExtrapolator',
-        Propagator=egTrkPropagator,
-        Navigator=egTrkNavigator,
-        GsfMaterialConvolution=GsfMaterialUpdator)
-
-    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import (
         Trk__GaussianSumFitter)
+    kwargs.setdefault("ReintegrateOutliers", True)
+    kwargs.setdefault("MakePerigee", True)
+    kwargs.setdefault("DoHitSorting", True)
 
-    GSFTrackFitter = Trk__GaussianSumFitter(
-        name=name,
-        ToolForExtrapolation=GsfExtrapolator,
-        ReintegrateOutliers=ReintegrateOutliers,
-        MakePerigee=True,
-        RefitOnMeasurementBase=RefitOnMeasurementBase,
-        DoHitSorting=True,
-        ToolForROTCreation=egRotCreator)
+    GSFTrackFitter = Trk__GaussianSumFitter(name, **kwargs)
     # --- end of fitter loading
     return GSFTrackFitter

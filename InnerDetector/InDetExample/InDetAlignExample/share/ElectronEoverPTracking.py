@@ -136,48 +136,11 @@ ToolSvc += ElectronTrkExtrapolator
 
 ###############################################################################
 ###############################################################################
-#######                     GSF Realted Packaages                      ########
+#######                     GSF config                                 ########
 ###############################################################################
 ###############################################################################
-from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolution
-GsfMaterialUpdator = Trk__GsfMaterialMixtureConvolution (name = 'GsfMaterialUpdator',
-                                                         MaximumNumberOfComponents = 12)
-
-ToolSvc += GsfMaterialUpdator
-printfunc (GsfMaterialUpdator)
-
-from TrkMeasurementUpdator.TrkMeasurementUpdatorConf import Trk__KalmanUpdator as ConfiguredKalmanUpdator
-ElectronUpdator = ConfiguredKalmanUpdator('ElectronUpdator')
-ToolSvc += ElectronUpdator
-   
-from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMeasurementUpdator
-GsfMeasurementUpdator = Trk__GsfMeasurementUpdator( name    = 'GsfMeasurementUpdator',
-                                                  Updator = ElectronUpdator )
-ToolSvc += GsfMeasurementUpdator
-        
-
-
-from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfExtrapolator
-GsfExtrapolator = Trk__GsfExtrapolator(name                          = 'GsfExtrapolator',
-                                       Propagators                   = [ ElectronTrkPropagator ],
-                                       SearchLevelClosestParameters  = 10,
-                                       StickyConfiguration           = True,
-                                       Navigator                     = ElectronTrkNavigator,
-                                       GsfMaterialConvolution        = GsfMaterialUpdator,
-                                       SurfaceBasedMaterialEffects   = False )
-ToolSvc += GsfExtrapolator
-
-
-from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GaussianSumFitter
-GSFTrackFitter = Trk__GaussianSumFitter(name                    = 'GSFTrackFitter',
-                                          ToolForExtrapolation    = GsfExtrapolator,
-                                          MeasurementUpdatorType  = GsfMeasurementUpdator,
-                                          ToolForROTCreation      = ElectronRotCreator,
-                                          ReintegrateOutliers     = True,
-                                          MakePerigee             = True,
-                                          RefitOnMeasurementBase  = True,
-                                          DoHitSorting            = True,
-                                          OutputLevel = 3)
+import egammaRec.EMCommonRefitter
+GSFTrackFitter = egammaRec.EMCommonRefitter.getGSFTrackFitter(name = 'GSFTrackFitter')
 # --- end of fitter loading
 ToolSvc += GSFTrackFitter
 
