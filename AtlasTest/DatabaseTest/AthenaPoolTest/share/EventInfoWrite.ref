@@ -23,9 +23,6 @@ TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /T
 TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /TILE/OFL02/STATUS/ADC
 TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /TILE/OFL02/TIME/CHANNELOFFSET/PHY
 TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /TILE/ONL01/STATUS/ADC
-TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /CALO/Ofl/Identifier/CaloTTOnAttrIdMapAtlas
-TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /CALO/Ofl/Identifier/CaloTTOnOffIdMapAtlas
-TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /CALO/Ofl/Identifier/CaloTTPpmRxIdMapAtlas
 TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/ElecCalibMC/AutoCorr
 TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/LArCellPositionShift
 TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/ElecCalibMC/DAC2uA
