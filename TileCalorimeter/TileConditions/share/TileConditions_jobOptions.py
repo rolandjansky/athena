@@ -47,6 +47,8 @@ if not 'TileCablingType' in dir():
                 from G4AtlasApps.SimFlags import simFlags
                 if simFlags.RunNumber.statusOn:
                     rn = simFlags.RunNumber()
+                if rn is None and simFlags.RunAndLumiOverrideList.statusOn:
+                    rn = simFlags.RunAndLumiOverrideList.getMinMaxRunNumbers()[0]
             except:
                 msg.info("No SimFlags available - looks like HLT job")
         if rn is None:
