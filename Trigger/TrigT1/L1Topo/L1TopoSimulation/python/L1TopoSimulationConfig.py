@@ -73,7 +73,7 @@ def L1TopoSimulationCfg(flags):
         jetProvider.jFexTERoIKey = ""
         energyProvider.gFexSRJetRoIKey = ""
         energyProvider.gFexLRJetRoIKey = ""
-        energyProvider.gFexXERoIKey = ""
+        energyProvider.gFexXEJWOJRoIKey = ""
         energyProvider.gFexMHTRoIKey = ""
         energyProvider.gFexTERoIKey = ""
 

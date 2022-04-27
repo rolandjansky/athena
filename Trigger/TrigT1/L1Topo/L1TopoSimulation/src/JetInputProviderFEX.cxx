@@ -292,12 +292,12 @@ JetInputProviderFEX::fillLRJet(TCS::TopoInputEvent& inputEvent) const {
     // Avoid the events with 0 Et (events below threshold)
     if (EtTopo==0) continue;
 
-    TCS::jLargeRJetTOB jet( EtTopo, etaTopo, phiTopo );
+    TCS::jLJetTOB jet( EtTopo, etaTopo, phiTopo );
     jet.setEtDouble( static_cast<double>(EtTopo/m_EtDouble_conversion) );
     jet.setEtaDouble( static_cast<double>(etaTopo/m_etaDouble_conversion) );
     jet.setPhiDouble( static_cast<double>(phiTopo/m_phiDouble_conversion) );
 
-    inputEvent.addjLargeRJet( jet );
+    inputEvent.addjLJet( jet );
 
     m_h_jLJetPt->Fill(jet.EtDouble());
     m_h_jLJetPhiEta->Fill(jet.eta(),jet.phi());
@@ -396,7 +396,7 @@ JetInputProviderFEX::fillXE(TCS::TopoInputEvent& inputEvent) const {
   unsigned int Et2Topo = global_ExTopo*global_ExTopo + global_EyTopo*global_EyTopo;
   unsigned int EtTopo =  std::sqrt( Et2Topo );
 
-  TCS::jXETOB jxe( -(global_ExTopo), -(global_EyTopo), EtTopo );
+  TCS::jXETOB jxe( -(global_ExTopo), -(global_EyTopo), EtTopo, TCS::JXE );
 
   jxe.setExDouble( static_cast<double>(-global_ExTopo/m_EtDouble_conversion) );
   jxe.setEyDouble( static_cast<double>(-global_EyTopo/m_EtDouble_conversion) );
@@ -450,7 +450,7 @@ JetInputProviderFEX::fillTE(TCS::TopoInputEvent& inputEvent) const {
                    );
   }
 
-  TCS::jTETOB jte( global_EtTopo );
+  TCS::jTETOB jte( static_cast<unsigned int>(global_EtTopo), TCS::JTE );
 
   jte.setSumEtDouble( static_cast<double>(global_EtTopo/m_sumEtDouble_conversion) );
 

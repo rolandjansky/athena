@@ -4,12 +4,12 @@
 // jLJetNoSort.h
 // TopoCore
 
-#ifndef L1TOPOALGORITHMS_JLARGERJETNOSORT_H
-#define L1TOPOALGORITHMS_JLARGERJETNOSORT_H
+#ifndef L1TOPOALGORITHMS_JLJETNOSORT_H
+#define L1TOPOALGORITHMS_JLJETNOSORT_H
 
 #include "L1TopoInterfaces/SortingAlg.h"
 #include "L1TopoEvent/TOBArray.h"
-#include "L1TopoEvent/jLargeRJetTOB.h"
+#include "L1TopoEvent/jLJetTOB.h"
 
 #include <iostream>
 #include <vector>
@@ -29,7 +29,7 @@ namespace TCS {
     
    private:
    
-      parType_t      m_numberOfjLargeRJets = { 0 };
+      parType_t      m_numberOfjLJets = { 0 };
    
    };
 

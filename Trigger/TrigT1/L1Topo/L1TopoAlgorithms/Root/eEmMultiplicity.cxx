@@ -84,7 +84,7 @@ TCS::eEmMultiplicity::process( const TCS::InputTOBArray & input,
     const GenericTOB gtob(**eem);
 
     // Dividing by 4 standing for converting eta from 0.025 to 0.1 granularity as it is defined in the menu as 0.1 gran.
-    bool passed = gtob.Et() >= eEMThr.thrValue100MeV(gtob.eta()/4);
+    bool passed = gtob.Et() > eEMThr.thrValue100MeV(gtob.eta()/4);
 
     if ( !isocut(TrigConf::Selection::wpToString(eEMThr.reta()), gtob.Reta()) ) {continue;}
     if ( !isocut(TrigConf::Selection::wpToString(eEMThr.rhad()), gtob.Rhad()) ) {continue;}

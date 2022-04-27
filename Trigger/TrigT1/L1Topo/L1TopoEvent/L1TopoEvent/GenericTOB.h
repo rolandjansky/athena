@@ -11,8 +11,8 @@
 #include "L1TopoEvent/gJetTOB.h"
 #include "L1TopoEvent/jTauTOB.h"
 #include "L1TopoEvent/eTauTOB.h"
-#include "L1TopoEvent/jLargeRJetTOB.h"
-#include "L1TopoEvent/gLargeRJetTOB.h"
+#include "L1TopoEvent/jLJetTOB.h"
+#include "L1TopoEvent/gLJetTOB.h"
 #include "L1TopoEvent/jJetTOB.h"
 #include "L1TopoEvent/ClusterTOB.h"
 #include "L1TopoEvent/eEmTOB.h"
@@ -25,7 +25,6 @@
 #include "L1TopoEvent/jXETOB.h"
 #include "L1TopoEvent/jTETOB.h"
 #include "L1TopoEvent/gXETOB.h"
-#include "L1TopoEvent/gMHTTOB.h"
 #include "L1TopoEvent/gTETOB.h"
 
 
@@ -55,10 +54,10 @@ namespace TCS {
       GenericTOB(const jEmTOB & jem);
 
       // constructor from jFEX LJet
-      GenericTOB(const jLargeRJetTOB & jet);
+      GenericTOB(const jLJetTOB & jet);
 
       // constructor from gFEX LJet
-      GenericTOB(const gLargeRJetTOB & jet);
+      GenericTOB(const gLJetTOB & jet);
 
       // constructor from jFEX Jet
       GenericTOB(const jJetTOB & jet);
@@ -98,9 +97,6 @@ namespace TCS {
 
       // constructor from gFEX XE
       GenericTOB(const gXETOB & gxe);
-
-      // constructor from gFEX MHT
-      GenericTOB(const gMHTTOB & gmht);
 
       // constructor from gFEX TE
       GenericTOB(const gTETOB & gte);

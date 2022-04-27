@@ -58,9 +58,9 @@ bool TCS::TopoASCIIReader::getNextEvent() {
     
       if(currentLine == "<end_file>" || currentLine == "</file>") return false;
       if(currentLine == "<end_event>" || currentLine == "</event>") break;
-      if(currentLine == "<cluster>" || currentLine == "<eEm>" || currentLine == "<eTau>" || currentLine == "<jet>" || currentLine == "<jTau>" || currentLine == "<jEm>" || currentLine == "<jLargeRJet>" || currentLine == "<gLargeRJet>" || currentLine == "<jJet>" || currentLine == "<gJet>" || currentLine == "<muon>" || currentLine == "<lateMuon>" || currentLine == "<muonNextBC>" || currentLine == "<tau>" || currentLine == "<met>" || currentLine == "<info>") type = currentLine;
-      if(currentLine == "</cluster>" || currentLine == "</eEm>" || currentLine == "</eTau>" || currentLine == "</jet>" || currentLine == "</jTau>" || currentLine == "</jEm>" || currentLine == "</jLargeRJet>" || currentLine == "</gLargeRJet>" || currentLine == "</jJet>" || currentLine == "</gJet>" || currentLine == "</muon>" || currentLine == "</lateMuon>" || currentLine == "</muonNextBC>" || currentLine == "</tau>" || currentLine == "</met>" || currentLine == "</info>") { type = ""; continue; }
-      if(currentLine == "<begin_file>" || currentLine == "<file>" || currentLine == "<begin_event>" || currentLine == "<event>" || currentLine == "<cluster>" || currentLine == "<eEm>" || currentLine == "<eTau>" || currentLine == "<jet>" || currentLine == "<jTau>" || currentLine == "<jEm>" || currentLine == "<jLargeRJet>" || currentLine == "<gLargeRJet>" || currentLine == "<jJet>" || currentLine == "<gJet>" || currentLine == "<muon>" || currentLine == "<lateMuon>" || currentLine == "<muonNextBC>" || currentLine == "<tau>" || currentLine == "<met>" || currentLine == "<info>") continue;
+      if(currentLine == "<cluster>" || currentLine == "<eEm>" || currentLine == "<eTau>" || currentLine == "<jet>" || currentLine == "<jTau>" || currentLine == "<jEm>" || currentLine == "<jLJet>" || currentLine == "<gLJet>" || currentLine == "<jJet>" || currentLine == "<gJet>" || currentLine == "<muon>" || currentLine == "<lateMuon>" || currentLine == "<muonNextBC>" || currentLine == "<tau>" || currentLine == "<met>" || currentLine == "<info>") type = currentLine;
+      if(currentLine == "</cluster>" || currentLine == "</eEm>" || currentLine == "</eTau>" || currentLine == "</jet>" || currentLine == "</jTau>" || currentLine == "</jEm>" || currentLine == "</jLJet>" || currentLine == "</gLJet>" || currentLine == "</jJet>" || currentLine == "</gJet>" || currentLine == "</muon>" || currentLine == "</lateMuon>" || currentLine == "</muonNextBC>" || currentLine == "</tau>" || currentLine == "</met>" || currentLine == "</info>") { type = ""; continue; }
+      if(currentLine == "<begin_file>" || currentLine == "<file>" || currentLine == "<begin_event>" || currentLine == "<event>" || currentLine == "<cluster>" || currentLine == "<eEm>" || currentLine == "<eTau>" || currentLine == "<jet>" || currentLine == "<jTau>" || currentLine == "<jEm>" || currentLine == "<jLJet>" || currentLine == "<gLJet>" || currentLine == "<jJet>" || currentLine == "<gJet>" || currentLine == "<muon>" || currentLine == "<lateMuon>" || currentLine == "<muonNextBC>" || currentLine == "<tau>" || currentLine == "<met>" || currentLine == "<info>") continue;
     
       // use stream iterators to copy the stream to a vector as whitespace separated strings
       std::stringstream ss(currentLine);
@@ -127,20 +127,20 @@ bool TCS::TopoASCIIReader::getNextEvent() {
             jEm.setPhiDouble(atof(results.at(4).c_str()));
         }
         m_event->addjEm( jEm );
-      } else if(type == "<jLargeRJet>") {
-         TCS::jLargeRJetTOB jet( atoi(results.at(0).c_str()),atoi(results.at(1).c_str()),atoi(results.at(2).c_str()) );
+      } else if(type == "<jLJet>") {
+         TCS::jLJetTOB jet( atoi(results.at(0).c_str()),atoi(results.at(1).c_str()),atoi(results.at(2).c_str()) );
          if(results.size()==5) {
             jet.setEtaDouble( atof(results.at(3).c_str()) );
             jet.setPhiDouble( atof(results.at(4).c_str()) );
          }
-         m_event->addjLargeRJet( jet );
-      } else if(type == "<gLargeRJet>") {
-         TCS::gLargeRJetTOB jet( atoi(results.at(0).c_str()),atoi(results.at(1).c_str()),atoi(results.at(2).c_str()) );
+         m_event->addjLJet( jet );
+      } else if(type == "<gLJet>") {
+         TCS::gLJetTOB jet( atoi(results.at(0).c_str()),atoi(results.at(1).c_str()),atoi(results.at(2).c_str()) );
          if(results.size()==5) {
             jet.setEtaDouble( atof(results.at(3).c_str()) );
             jet.setPhiDouble( atof(results.at(4).c_str()) );
          }
-         m_event->addgLargeRJet( jet );
+         m_event->addgLJet( jet );
       } else if(type == "<jJet>") {
          TCS::jJetTOB jet( atoi(results.at(0).c_str()),atoi(results.at(1).c_str()),atoi(results.at(2).c_str()) );
          if(results.size()==5) {

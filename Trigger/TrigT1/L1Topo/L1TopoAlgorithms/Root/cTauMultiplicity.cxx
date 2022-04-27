@@ -112,7 +112,7 @@ TCS::cTauMultiplicity::process( const TCS::InputTOBArray & input, Count & count 
 
     // Dividing by 4 standing for converting eta from 0.025 to 0.1 granularity                                                                      
     // Requirement on pT based on eTau candidate 
-    accept = accept && (*etauCand)->Et() >= cTauThr.thrValue100MeV((*etauCand)->eta()/4);
+    accept = accept && (*etauCand)->Et() > cTauThr.thrValue100MeV((*etauCand)->eta()/4);
     if (accept) {
       counting++;
       fillHist2D( m_histAccept[0], (*etauCand)->eta(), (*etauCand)->EtDouble() );

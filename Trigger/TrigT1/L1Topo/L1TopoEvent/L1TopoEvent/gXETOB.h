@@ -16,10 +16,11 @@ namespace TCS {
       // default constructor
       gXETOB();
 
-      // constructor with individual values
-      gXETOB(int ex, int ey, unsigned int et);
-
       // constructor with initial values
+      // input TOB type can be gXEJWOJ, gXENC, gXERHO or gMHT
+      gXETOB(int ex, int ey, unsigned int et, inputTOBType_t tobType = NONE);
+
+      // copy constructor
       gXETOB(const gXETOB & gxe);
 
       // destructor
@@ -45,14 +46,17 @@ namespace TCS {
       void setEyDouble(double ey) { m_EyDouble = ey; }
       void setEtDouble(double et) { m_EtDouble = et; }
       
-      inputTOBType_t tobType() const { return GXE; }    
-
       // memory management
       static gXETOB* createOnHeap(const gXETOB& gxe);
       static void clearHeap();
       static const Heap<TCS::gXETOB>& heap() { return fg_heap; }
 
       virtual void print(std::ostream &o) const;
+
+      void setTobType(inputTOBType_t tobType) { m_tobType = tobType; }
+
+      inputTOBType_t tobType() const { return m_tobType; }
+
 
    private:
 
@@ -64,6 +68,8 @@ namespace TCS {
       double m_ExDouble {0};
       double m_EyDouble {0};
       double m_EtDouble {0};
+
+      inputTOBType_t  m_tobType { NONE };
 
       static thread_local Heap<TCS::gXETOB> fg_heap;
    };

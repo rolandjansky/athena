@@ -1,7 +1,7 @@
 // Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-#ifndef JLARGERJETTOB_H
-#define JLARGERJETTOB_H
+#ifndef JLJETTOB_H
+#define JLJETTOB_H
 
 #include <iostream>
 
@@ -13,20 +13,20 @@ namespace TCS {
    
    class GenericTOB;
    
-   class jLargeRJetTOB : public BaseTOB {
+   class jLJetTOB : public BaseTOB {
    public:
       
       // default constructor
-      jLargeRJetTOB(uint32_t roiWord = 0, const std::string& tobName = "jLargeRJetTOB");
+      jLJetTOB(uint32_t roiWord = 0, const std::string& tobName = "jLJetTOB");
 
       // copy constructor
-      jLargeRJetTOB(const jLargeRJetTOB & jet);
+      jLJetTOB(const jLJetTOB & jet);
 
       // constructor with initial values
-      jLargeRJetTOB(unsigned int Et, int eta, unsigned phi, uint32_t roiWord = 0, const std::string& tobName = "jLargeRJetTOB" );
+      jLJetTOB(unsigned int Et, int eta, unsigned phi, uint32_t roiWord = 0, const std::string& tobName = "jLJetTOB" );
 
       // destructor
-      virtual ~jLargeRJetTOB();
+      virtual ~jLJetTOB();
       
       // accessors
       unsigned int Et() const { return m_Et; }
@@ -48,10 +48,10 @@ namespace TCS {
 
       inputTOBType_t tobType() const { return JET; }
 
-      static jLargeRJetTOB* createOnHeap(const jLargeRJetTOB& jet);
+      static jLJetTOB* createOnHeap(const jLJetTOB& jet);
       static void clearHeap();
 
-      static const Heap<TCS::jLargeRJetTOB>& heap() { return fg_heap; }
+      static const Heap<TCS::jLJetTOB>& heap() { return fg_heap; }
 
    private:
 
@@ -70,7 +70,7 @@ namespace TCS {
 
       virtual void print(std::ostream &o) const;
 
-      static thread_local Heap<TCS::jLargeRJetTOB> fg_heap;
+      static thread_local Heap<TCS::jLJetTOB> fg_heap;
    };
    
 }

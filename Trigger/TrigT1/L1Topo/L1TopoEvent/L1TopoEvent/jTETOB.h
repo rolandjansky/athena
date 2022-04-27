@@ -16,27 +16,26 @@ namespace TCS {
       // default constructor
       jTETOB();
 
-      // constructor with individual values
-      jTETOB(int sumEt);
-
       // constructor with initial values
+      // input TOB type can be jTE, jTEC, jTEFWD, jTEFWDA, jTEFWDC
+      jTETOB(unsigned int sumEt, inputTOBType_t tobType = NONE);
+
+      // copy constructor
       jTETOB(const jTETOB & jte);
 
       // destructor
       virtual ~jTETOB();
 
       // accessors
-      int sumEt() const { return m_sumEt; }
+      unsigned int sumEt() const { return m_sumEt; }
 
       double sumEtDouble() const { return m_sumEtDouble; }
       
       // setters
-      void setSumEt(int sumEt) { m_sumEt = sumEt; }
+      void setSumEt(unsigned int sumEt) { m_sumEt = sumEt; }
 
       void setSumEtDouble(double sumEt) { m_sumEtDouble = sumEt; }
       
-      inputTOBType_t tobType() const { return JTE; }    
-
       // memory management
       static jTETOB* createOnHeap(const jTETOB& jte);
       static void clearHeap();
@@ -44,11 +43,17 @@ namespace TCS {
 
       virtual void print(std::ostream &o) const;
 
+      void setTobType(inputTOBType_t tobType) { m_tobType = tobType; }
+
+      inputTOBType_t tobType() const { return m_tobType; }
+
    private:
 
-      int m_sumEt {0};
+      unsigned int m_sumEt {0};
 
       double m_sumEtDouble {0};
+
+      inputTOBType_t  m_tobType { NONE };
 
       static thread_local Heap<TCS::jTETOB> fg_heap;
    };

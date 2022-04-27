@@ -3,11 +3,11 @@
 */
 //  jLJetSelect.cxx
 //  TopoCore
-//  algorithm to create abbreviated jLargeRJet lists
+//  algorithm to create abbreviated jLJet lists
 //
 #include "L1TopoAlgorithms/jLJetSelect.h"
 #include "L1TopoEvent/TOBArray.h"
-#include "L1TopoEvent/jLargeRJetTOBArray.h"
+#include "L1TopoEvent/jLJetTOBArray.h"
 #include "L1TopoEvent/GenericTOB.h"
 #include <algorithm>
 
@@ -45,10 +45,10 @@ TCS::jLJetSelect::initialize() {
 TCS::StatusCode
 TCS::jLJetSelect::sort(const InputTOBArray & input, TOBArray & output) {
 
-  const jLargeRJetTOBArray & jets = dynamic_cast<const jLargeRJetTOBArray&>(input);
+  const jLJetTOBArray & jets = dynamic_cast<const jLJetTOBArray&>(input);
 
   // fill output array with GenericTOBs builds from jets
-  for(jLargeRJetTOBArray::const_iterator jet = jets.begin(); jet!= jets.end(); ++jet ) {
+  for(jLJetTOBArray::const_iterator jet = jets.begin(); jet!= jets.end(); ++jet ) {
     unsigned int Et = parType_t((*jet)->Et()); 
     if( Et <= m_et ) continue; // ET cut
     if ( parType_t(std::abs((*jet)-> eta())) < m_minEta) continue; 

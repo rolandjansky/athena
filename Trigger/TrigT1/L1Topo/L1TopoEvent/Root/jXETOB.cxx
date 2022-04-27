@@ -9,22 +9,17 @@ TCS::jXETOB::jXETOB() : BaseTOB(0,"jXETOB")
 {}
 
 // constructor with initial values
-TCS::jXETOB::jXETOB(int ex, int ey, unsigned int et) : BaseTOB(0,"jXETOB")
+TCS::jXETOB::jXETOB(int ex, int ey, unsigned int et, inputTOBType_t tobType) : BaseTOB(0,"jXETOB")
    , m_Ex( ex )
    , m_Ey( ey )
    , m_Et( et )
+   , m_tobType( tobType )
 {}
 
-// constructor with initial values
-TCS::jXETOB::jXETOB(const jXETOB & jxe) : BaseTOB(0,"jXETOB")
-   , m_Ex( jxe.m_Ex )
-   , m_Ey( jxe.m_Ey )
-   , m_Et( jxe.m_Et )
-   , m_Et2( jxe.m_Et2 )
-   , m_ExDouble( jxe.m_ExDouble )
-   , m_EyDouble( jxe.m_EyDouble )
-   , m_EtDouble( jxe.m_EtDouble ) 
-{}
+
+// copy constructor
+TCS::jXETOB::jXETOB(const TCS::jXETOB & jxe) = default;
+
 
 // destructor
 TCS::jXETOB::~jXETOB() = default;
@@ -40,5 +35,5 @@ TCS::jXETOB::clearHeap() {
 }
 
 void TCS::jXETOB::print(std::ostream &o) const {
-   o << "jXE signed Ex: " << Ex() << ", signed Ey: " << Ey() << ", Et: " << Et();
+   o << "jXE type: " << tobType() << ", signed Ex: " << Ex() << ", signed Ey: " << Ey() << ", Et: " << Et();
 }
