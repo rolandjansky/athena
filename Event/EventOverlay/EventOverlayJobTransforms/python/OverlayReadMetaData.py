@@ -342,12 +342,17 @@ def signalMetaDataCheck(metadatadict):
     ## action which will require hacking the python code.
     if not skipCheck('SimulatedDetectors'):
         if 'SimulatedDetectors' in simkeys:
+            if isinstance(metadatadict['SimulatedDetectors'], str):
+                simulatedDetectors = eval(metadatadict['SimulatedDetectors']) # convert from str to list of str
+            else:
+                simulatedDetectors = metadatadict['SimulatedDetectors']
+            simulatedDetectors[:] = [x.lower() if x == 'Pixel' else x for x in simulatedDetectors] # to cope with CA-based inputs where Pixel rather than pixel is used
             from AthenaCommon.DetFlags import DetFlags
             logOverlayReadMetadata.debug("Switching off subdetectors which were not simulated")
             possibleSubDetectors=['pixel','SCT','TRT','BCM','Lucid','ZDC','ALFA','AFP','FwdRegion','LAr','HGTD','Tile','MDT','CSC','TGC','RPC','Micromegas','sTGC','Truth']
             switchedOffSubDetectors=[]
             for subdet in possibleSubDetectors:
-                if subdet not in metadatadict['SimulatedDetectors']:
+                if subdet not in simulatedDetectors:
                     attrname = subdet+"_setOff"
                     checkfn = getattr(DetFlags, attrname, None)
                     if checkfn is not None:
