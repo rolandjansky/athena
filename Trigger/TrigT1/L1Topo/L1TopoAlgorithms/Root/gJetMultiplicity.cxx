@@ -81,7 +81,7 @@ TCS::gJetMultiplicity::process( const TCS::InputTOBArray & input,
       ++gjet ) {
     
     // Dividing by 4 standing for converting eta from 0.025 to 0.1 granularity as it is defined in the menu as 0.1 gran.
-    bool passed = (*gjet)->Et() >= gJThr.thrValue100MeV((*gjet)->eta()/4);
+    bool passed = (*gjet)->Et() > gJThr.thrValue100MeV((*gjet)->eta()/4);
 
     if (passed) {
       counting++; 

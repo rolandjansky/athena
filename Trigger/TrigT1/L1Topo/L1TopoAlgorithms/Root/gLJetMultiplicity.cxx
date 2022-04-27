@@ -17,7 +17,7 @@
 #include "L1TopoInterfaces/Count.h"
 
 #include "L1TopoEvent/TOBArray.h"
-#include "L1TopoEvent/gLargeRJetTOBArray.h"
+#include "L1TopoEvent/gLJetTOBArray.h"
 
 REGISTER_ALG_TCS(gLJetMultiplicity)
 
@@ -69,17 +69,17 @@ TCS::gLJetMultiplicity::process( const TCS::InputTOBArray & input,
   const auto& gLJThr = dynamic_cast<const TrigConf::L1Threshold_gLJ &>(*m_threshold);
 
   // Grab inputs
-  const gLargeRJetTOBArray & gjets = dynamic_cast<const gLargeRJetTOBArray&>(input);
+  const gLJetTOBArray & gjets = dynamic_cast<const gLJetTOBArray&>(input);
 
   int counting = 0; 
   
   // loop over input TOBs
-  for(gLargeRJetTOBArray::const_iterator gjet = gjets.begin();
+  for(gLJetTOBArray::const_iterator gjet = gjets.begin();
       gjet != gjets.end();
       ++gjet ) {
     
     // Dividing by 4 standing for converting eta from 0.025 to 0.1 granularity as it is defined in the menu as 0.1 gran.
-    bool passed = (*gjet)->Et() >= gLJThr.thrValue100MeV((*gjet)->eta()/4);
+    bool passed = (*gjet)->Et() > gLJThr.thrValue100MeV((*gjet)->eta()/4);
 
     if (passed) {
       counting++; 

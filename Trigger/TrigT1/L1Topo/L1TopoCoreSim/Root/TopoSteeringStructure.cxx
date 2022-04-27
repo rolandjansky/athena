@@ -248,7 +248,9 @@ TCS::TopoSteeringStructure::setupFromMenu ATLAS_NOT_THREAD_SAFE (const TrigConf:
                    && (algo_klass != "gJetMultiplicity") && (algo_klass != "gLJetMultiplicity") ) continue; // Only available multiplicity algorithms so far
          
          //Temporarily remove the trigger items that rely on EnergyThreshold but are not yet implemented
-         if ( (algo_klass == "EnergyThreshold") && (algo.inputs().at(0) != "jXE") ) continue;
+         if ( (algo_klass == "EnergyThreshold") && 
+              (algo.inputs().at(0) != "jXE" && algo.inputs().at(0) != "gXEJWOJ" && algo.inputs().at(0) != "gMHT" &&
+               algo.inputs().at(0) != "jTE" && algo.inputs().at(0) != "gTE") ) continue;
 	      
          auto it = find(storedConn.begin(), storedConn.end(), algo.name());
 	      if (it == storedConn.end()) { // Algorithm/Connector does not exist: create and store it
@@ -385,7 +387,9 @@ TCS::TopoSteeringStructure::setupFromMenu ATLAS_NOT_THREAD_SAFE (const TrigConf:
            && (l1algo.klass() != "gJetMultiplicity") && (l1algo.klass() != "gLJetMultiplicity") ) continue; // Only available multiplicities for now
 
       //Temporarily remove the trigger items that rely on EnergyThreshold but are not yet implemented
-      if ( (l1algo.klass() == "EnergyThreshold") && (l1algo.inputs().at(0) != "jXE") ) continue;
+      if ( (l1algo.klass() == "EnergyThreshold") && 
+           (l1algo.inputs().at(0) != "jXE" && l1algo.inputs().at(0) != "gXEJWOJ" && l1algo.inputs().at(0) != "gMHT" &&
+            l1algo.inputs().at(0) != "jTE" && l1algo.inputs().at(0) != "gTE") ) continue;
 
       ConfigurableAlg * alg = AlgFactory::mutable_instance().algorithm(l1algo.name());
 

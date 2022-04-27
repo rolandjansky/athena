@@ -1,7 +1,7 @@
-// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-#ifndef GLARGERJETTOB_H
-#define GLARGERJETTOB_H
+#ifndef GLJETTOB_H
+#define GLJETTOB_H
 
 #include <iostream>
 
@@ -15,20 +15,20 @@ namespace TCS {
    
    class GenericTOB;
    
-   class gLargeRJetTOB : public BaseTOB {
+   class gLJetTOB : public BaseTOB {
    public:
       
       // default constructor
-      gLargeRJetTOB(uint32_t roiWord = 0, const std::string& tobName = "gLargeRJetTOB");
+      gLJetTOB(uint32_t roiWord = 0, const std::string& tobName = "gLJetTOB");
 
       // copy constructor
-      gLargeRJetTOB(const gLargeRJetTOB & jet);
+      gLJetTOB(const gLJetTOB & jet);
 
       // constructor with initial values
-      gLargeRJetTOB(unsigned int Et, int eta, unsigned phi, uint32_t roiWord = 0, const std::string& tobName = "gLargeRJetTOB" );
+      gLJetTOB(unsigned int Et, int eta, unsigned phi, uint32_t roiWord = 0, const std::string& tobName = "gLJetTOB" );
 
       // destructor
-      virtual ~gLargeRJetTOB();
+      virtual ~gLJetTOB();
       
       // accessors
       unsigned int energy() const { return m_Et; }
@@ -53,10 +53,10 @@ namespace TCS {
 
       inputTOBType_t tobType() const { return JET; }
 
-      static gLargeRJetTOB* createOnHeap(const gLargeRJetTOB& jet);
+      static gLJetTOB* createOnHeap(const gLJetTOB& jet);
       static void clearHeap();
 
-      static const Heap<TCS::gLargeRJetTOB>& heap() { return fg_heap; }
+      static const Heap<TCS::gLJetTOB>& heap() { return fg_heap; }
 
    private:
 
@@ -75,7 +75,7 @@ namespace TCS {
 
       virtual void print(std::ostream &o) const;
 
-      static thread_local Heap<TCS::gLargeRJetTOB> fg_heap;
+      static thread_local Heap<TCS::gLJetTOB> fg_heap;
    };
    
 }

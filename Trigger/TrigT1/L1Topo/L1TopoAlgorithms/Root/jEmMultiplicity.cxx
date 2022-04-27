@@ -81,7 +81,7 @@ TCS::jEmMultiplicity::process( const TCS::InputTOBArray & input,
       ++jem ) {
     
     // Dividing by 4 standing for converting eta from 0.025 to 0.1 granularity as it is defined in the menu as 0.1 gran.
-    bool passed = (*jem)->Et() >= jEMThr.thrValue100MeV((*jem)->eta()/4);
+    bool passed = (*jem)->Et() > jEMThr.thrValue100MeV((*jem)->eta()/4);
 
     if (passed) {
       counting++; 

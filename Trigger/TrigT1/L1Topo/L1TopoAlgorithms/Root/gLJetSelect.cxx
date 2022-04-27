@@ -3,11 +3,11 @@
 */
 //  gLJetSelect.cxx
 //  TopoCore
-//  algorithm to create abbreviated gLargeRJet lists
+//  algorithm to create abbreviated gLJet lists
 //
 #include "L1TopoAlgorithms/gLJetSelect.h"
 #include "L1TopoEvent/TOBArray.h"
-#include "L1TopoEvent/gLargeRJetTOBArray.h"
+#include "L1TopoEvent/gLJetTOBArray.h"
 #include "L1TopoEvent/GenericTOB.h"
 #include <algorithm>
 
@@ -45,10 +45,10 @@ TCS::gLJetSelect::initialize() {
 TCS::StatusCode
 TCS::gLJetSelect::sort(const InputTOBArray & input, TOBArray & output) {
 
-  const gLargeRJetTOBArray & jets = dynamic_cast<const gLargeRJetTOBArray&>(input);
+  const gLJetTOBArray & jets = dynamic_cast<const gLJetTOBArray&>(input);
 
   // fill output array with GenericTOBs builds from jets
-  for(gLargeRJetTOBArray::const_iterator jet = jets.begin(); jet!= jets.end(); ++jet ) {
+  for(gLJetTOBArray::const_iterator jet = jets.begin(); jet!= jets.end(); ++jet ) {
     unsigned int Et = parType_t((*jet)->Et()); 
     if( Et <= m_et ) continue; // ET cut
     if ( parType_t(std::abs((*jet)-> eta())) < m_minEta) continue; 

@@ -9,22 +9,17 @@ TCS::gXETOB::gXETOB() : BaseTOB(0,"gXETOB")
 {}
 
 // constructor with initial values
-TCS::gXETOB::gXETOB(int ex, int ey, unsigned int et) : BaseTOB(0,"gXETOB")
+TCS::gXETOB::gXETOB(int ex, int ey, unsigned int et, inputTOBType_t tobType) : BaseTOB(0,"gXETOB")
    , m_Ex( ex )
    , m_Ey( ey )
    , m_Et( et )
+   , m_tobType( tobType )
 {}
 
-// constructor with initial values
-TCS::gXETOB::gXETOB(const gXETOB & gxe) : BaseTOB(0,"gXETOB")
-   , m_Ex( gxe.m_Ex )
-   , m_Ey( gxe.m_Ey )
-   , m_Et( gxe.m_Et )
-   , m_Et2( gxe.m_Et2 )
-   , m_ExDouble( gxe.m_ExDouble )
-   , m_EyDouble( gxe.m_EyDouble )
-   , m_EtDouble( gxe.m_EtDouble ) 
-{}
+
+// copy constructor
+TCS::gXETOB::gXETOB(const TCS::gXETOB & gxe) = default;
+
 
 // destructor
 TCS::gXETOB::~gXETOB() = default;
@@ -40,5 +35,5 @@ TCS::gXETOB::clearHeap() {
 }
 
 void TCS::gXETOB::print(std::ostream &o) const {
-   o << "gXE signed Ex: " << Ex() << ", signed Ey: " << Ey() << ", Et: " << Et();
+   o << "gXE type: " << tobType() << ",  signed Ex: " << Ex() << ", signed Ey: " << Ey() << ", Et: " << Et();
 }
