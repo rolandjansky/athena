@@ -31,6 +31,8 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
+#include "ActsTrkEvent/TrackParameters.h"
+
 namespace ActsTrk {
 
   class SeedingFromAthenaAlgorithm :
@@ -62,6 +64,7 @@ namespace ActsTrk {
     SG::ReadHandleKey< xAOD::StripClusterContainer > m_stripClusterContainerKey {this, "StripClusterContainerKey", "ITkStripClusters", "Key of input strip clusters"};
     SG::ReadHandleKey< ActsTrk::SpacePointContainer > m_spacePointKey {this,"InputSpacePoints","","Input Space Points"};
     SG::WriteHandleKey< ActsTrk::SeedContainer > m_seedKey {this,"OutputSeeds","","Output Seeds"};    
+    SG::WriteHandleKey< ActsTrk::BoundTrackParametersContainer > m_actsTrackParamsKey {this, "OutputEstimatedTrackParameters", "", ""};
 
     Gaudi::Property< bool > m_usePixel {this, "UsePixel", true};
   };
