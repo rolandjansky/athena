@@ -134,40 +134,26 @@ Trig::TrigDecisionTool::initialize() {
 }
 
 std::vector<uint32_t>* Trig::TrigDecisionTool::getKeys() {
-#ifndef XAOD_STANDALONE // AthAnalysis or full Athena
   return m_configKeysCache.get();
-#else // AnalysisBase
-  return &m_configKeysCache;
-#endif 
 }
 
 void Trig::TrigDecisionTool::setForceConfigUpdate(bool b, bool forceForAllSlots) {
-#ifndef XAOD_STANDALONE // AthAnalysis or full Athena
-  {
+
+  if (forceForAllSlots) {
+    for (std::atomic<bool>& ab : m_forceConfigUpdate) {
+      ab = b;
+    }
+  }
+  else { // only current slot
     std::atomic<bool>* ab = m_forceConfigUpdate.get();
     (*ab) = b;
   }
-  if (forceForAllSlots) {
-    for (size_t dummySlot = 0; dummySlot < SG::getNSlots(); ++dummySlot) {
-      EventContext dummyContext(/*dummyEventNumber*/0, dummySlot);
-      std::atomic<bool>* ab = m_forceConfigUpdate.get(dummyContext);
-      (*ab) = b;
-    }
-  }
-#else // AnalysisBase
-  m_forceConfigUpdate = b;
-  ATH_MSG_VERBOSE("The forceForAllSlots flag not used in AnalysisBase, but to stop a compiler warning, this flag is " << forceForAllSlots);
-#endif 
 }
 
 
 bool Trig::TrigDecisionTool::getForceConfigUpdate() {
-#ifndef XAOD_STANDALONE // AthAnalysis or full Athena
   std::atomic<bool>* ab = m_forceConfigUpdate.get();
   return *ab;
-#else // AnalysisBase
-  return m_forceConfigUpdate;
-#endif 
 }
 
 

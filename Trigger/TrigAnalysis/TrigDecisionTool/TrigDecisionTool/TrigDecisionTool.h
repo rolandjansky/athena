@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigDecision_TrigDecisionTool_h
@@ -22,13 +22,13 @@
 #include "AsgTools/AsgMetadataTool.h"
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/PropertyWrapper.h"
+#include "AsgTools/SlotSpecificObj.h"
 
 #include "TrigConfInterfaces/ITrigConfigTool.h"
 #include "TrigNavStructure/StandaloneNavigation.h"
 
 #ifndef XAOD_STANDALONE
 #include "EventInfo/EventInfo.h"
-#include "AthenaKernel/SlotSpecificObj.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h" 
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -113,6 +113,8 @@ namespace Trig {
     void setForceConfigUpdate(bool b, bool forceForAllSlots = false);
     bool getForceConfigUpdate();
 
+    SG::SlotSpecificObj< std::vector<uint32_t> > m_configKeysCache; //!< cache for config keys. only update CacheGlobalMemory when these change
+    SG::SlotSpecificObj< std::atomic<bool> > m_forceConfigUpdate; //!< Cache for registering new input files.
 
     #if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Athena: Do not set a Config Tool by default (this tool is not thread safe, the service should be used in Athena)
     ToolHandle<TrigConf::ITrigConfigTool> m_configTool{this, "ConfigTool", ""}; 
@@ -120,20 +122,8 @@ namespace Trig {
     ToolHandle<TrigConf::ITrigConfigTool> m_configTool{this, "ConfigTool", "TrigConf::xAODConfigTool/xAODConfigTool"};
     #endif
 
-    // XAOD_STANDALONE is AnalysisBase
-    // XAOD_ANALYSIS is AnalysisBase and AthAnalysis
-    #ifdef XAOD_STANDALONE // AnalysisBase
-
-    std::vector<uint32_t>  m_configKeysCache; //!< cache for config keys. only update CacheGlobalMemory when these change 
-    bool m_forceConfigUpdate; //!< Cache for registering new input files
-
-    #else //AthAnalysis or full Athena
-
+    #ifndef XAOD_STANDALONE
     ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc{this, "TrigConfigSvc", "TrigConf::xAODConfigSvc/xAODConfigSvc"};    //!< trigger configuration service handle
-
-    SG::SlotSpecificObj< std::vector<uint32_t> > m_configKeysCache; //!< cache for config keys. only update CacheGlobalMemory when these change
-    SG::SlotSpecificObj< std::atomic<bool> > m_forceConfigUpdate; //!< Cache for registering new input files.
-
     #endif
 
     ///
