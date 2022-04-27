@@ -5,7 +5,7 @@
  **     @author  mark sutton
  **     @date    Mon 26 Oct 2009 01:22:40 GMT 
  **
- **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  **/
 
 
@@ -137,7 +137,7 @@ public:
 
   TH1F* Hist() { return m_heff; }
 
-  TGraphAsymmErrors* Bayes(double scale=100) const { 
+  TGraphAsymmErrors* Bayes(double scale=100) { 
 
     /// stupid root, told to divide, it skips bins where the 
     /// nukber of entries is 0 (ok) but then complains that
