@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "ALFA_LocRecCorr/ALFA_LocRecCorr.h"
+#include "ALFA_LocRecCorr.h"
 #include "ALFA_Geometry/ALFA_GeometryReader.h"
 
 #include "AthenaKernel/errorcheck.h"

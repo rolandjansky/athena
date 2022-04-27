@@ -213,7 +213,7 @@ StatusCode ALFA_LocRec::execute()
 	ListODHits.clear();
 
 	m_eventNum = 0;
-	SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey);
+	SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey,getContext());
 	if(!eventInfo.isValid()) {
 		ATH_MSG_ERROR("ALFA_LocRec, Cannot get event info.");
 //		return sc;

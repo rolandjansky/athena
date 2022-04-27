@@ -136,7 +136,7 @@ StatusCode ALFA_BeamTransport::execute()
      m_pint=0;
 
      //Load event info
-     SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey);
+     SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey,getContext());
      if(!eventInfo.isValid()) {
        ATH_MSG_ERROR("Could not retrieve EventInfo");
        return StatusCode::FAILURE;
