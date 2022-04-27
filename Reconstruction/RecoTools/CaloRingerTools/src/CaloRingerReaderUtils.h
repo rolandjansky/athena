@@ -16,6 +16,7 @@
 #include "StoreGate/WriteDecorHandle.h"
 #include "StoreGate/WriteDecorHandleKey.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #include "AthContainers/DataVector.h"
 
 // xAOD include:
@@ -29,7 +30,7 @@
 
 // Forward declarations:
 class CaloCellContainer;
-class MsgStream;
+class IMessageSvc;
 
 namespace Ringer {
 
@@ -37,7 +38,7 @@ namespace Ringer {
  * @class BuildCaloRingsFctorBase
  * @brief Interface for CaloRings builder functor.
  **/
-class BuildCaloRingsFctorBase {
+class BuildCaloRingsFctorBase : public AthMessaging {
 
   protected:
     /**
@@ -46,9 +47,10 @@ class BuildCaloRingsFctorBase {
      **/
     BuildCaloRingsFctorBase(
         ToolHandle<ICaloRingsBuilder> &builder,
-        MsgStream &msg):
+        IMessageSvc* msgSvc,
+        const std::string& name):
+          AthMessaging(msgSvc, name),
           m_builder(builder),
-          m_msg(msg),
           m_part_counter(0),
           m_part_size(0),
           m_crContH(nullptr),
@@ -60,8 +62,6 @@ class BuildCaloRingsFctorBase {
     /// @{
     /// @brief CaloRings which will be used
     ToolHandle<ICaloRingsBuilder> &m_builder;
-    /// @brief Message Stream which will be used:
-    MsgStream &m_msg;
     /// @brief Hold number of particles already procesed for this event:
     size_t m_part_counter;
     /// @brief Hold number of particles to be processed:
@@ -117,7 +117,6 @@ class BuildCaloRingsFctor : public BuildCaloRingsFctorBase
     typedef BuildCaloRingsFctorBase base_t;
     // Import base template properties:
     using base_t::m_builder;
-    using base_t::m_msg;
     using base_t::m_part_counter;
     using base_t::m_part_size;
 
@@ -150,11 +149,12 @@ class BuildCaloRingsFctor : public BuildCaloRingsFctorBase
     BuildCaloRingsFctor(
         const std::string &decoContName,
         ToolHandle<ICaloRingsBuilder> &builder,
-        MsgStream &msg,
-	IDataHandleHolder* owningAlg)
+        IMessageSvc* msgSvc,
+        IDataHandleHolder* owningAlg)
     : BuildCaloRingsFctorBase(
         builder,
-        msg),
+        msgSvc,
+        owningAlg->name()),
       m_decorKey( decoContName + "." + xAOD::caloRingsLinksDecorKey() )
          { m_decorKey.setOwner(owningAlg);}
 

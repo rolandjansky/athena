@@ -21,7 +21,7 @@ namespace Ringer {
 
 // =====================================================================================
 StatusCode BuildCaloRingsFctorBase::prepareToLoopFor( std::size_t nParticles ) {
-  m_msg << MSG::DEBUG << " ---------- Preparing to loop for " << nParticles << " particles " << endmsg;
+  ATH_MSG_DEBUG(" ---------- Preparing to loop for " << nParticles << " particles");
   // Reset counters, set number of particles to nParticles:
   m_part_size = nParticles;
   m_part_counter = 0;

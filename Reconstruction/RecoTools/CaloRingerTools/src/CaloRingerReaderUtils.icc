@@ -49,13 +49,13 @@ void BuildCaloRingsFctor<container_t>::checkRelease() {
 // =====================================================================================
 template<typename container_t>
 void BuildCaloRingsFctor<container_t>::displayLoopingMessage() const {
-  if (m_msg.level() <= MSG::DEBUG ){
+  if (msgLvl(MSG::DEBUG)) {
     std::string str = ((m_particle_has_cluster)?"(with cluster access)":
                                                 "(without cluster access)");
-    m_msg << MSG::DEBUG << " ---------- Reading "
-        << m_particle_name << " " << str << " candidate "
-        << this->m_part_counter << "/" << this->m_part_size
-        << " ----------- " << endmsg;
+    msg() << MSG::DEBUG << " ---------- Reading "
+          << m_particle_name << " " << str << " candidate "
+          << this->m_part_counter << "/" << this->m_part_size
+          << " ----------- " << endmsg;
   }
 }
 
@@ -83,8 +83,8 @@ void BuildCaloRingsFctor<container_t>::operator() ( const particle_t *part )
     // Loop over them to build CaloRings:
     for ( const auto& clusLink : clustersLinks) {
 
-      m_msg << MSG::DEBUG << "Reading particle cluster " << ++cl_counter << "/"
-        << clustersLinks.size() << endmsg;
+      ATH_MSG_DEBUG("Reading particle cluster " << ++cl_counter << "/"
+                    << clustersLinks.size());
 
       // This cluster CaloRings:
       ElementLink<xAOD::CaloRingsContainer> ringsEL;
