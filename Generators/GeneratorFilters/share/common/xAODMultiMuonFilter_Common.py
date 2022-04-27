@@ -12,7 +12,10 @@ if not hasattr(prefiltSeq, "xAODTruthParticleSlimmerMuon"):
   prefiltSeq += xAODTruthParticleSlimmerMuon('xAODTruthParticleSlimmerMuon')
 
 from GeneratorFilters.GeneratorFiltersConf import xAODMultiMuonFilter
-#xAODMultiMuonFilter = xAODMultiMuonFilter("xAODMultiMuonFilter")  
-#filtSeq += xAODMultiMuonFilter
+xAODMultiMuonFilter = xAODMultiMuonFilter("xAODMultiMuonFilter")  
+filtSeq += xAODMultiMuonFilter
 
-
+# to modiify cuts put into JOs e.g.:
+#filtSeq.xAODMultiMuonFilter.Ptcut = 12000.0
+#filtSeq.xAODMultiMuonFilter.Etacut = 10.0
+#filtSeq.xAODMultiMuonFilter.NMuons = 2
