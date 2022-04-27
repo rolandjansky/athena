@@ -117,7 +117,6 @@ def TrigEFTauMVHypoToolFromDict( chainDict ):
         currentHypo.method      = 1   
      
         if criteria in [ 'verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN' ]:
-            currentHypo.highptidthr = 280000.
             currentHypo.method      = 1
         elif 'idperf' in criteria: 
             currentHypo.AcceptAll = True
