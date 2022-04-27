@@ -83,8 +83,13 @@ def RDOFilePeeker(runArgs, skeletonLog):
         from AthenaCommon.DetFlags import DetFlags
         # by default everything is off
         DetFlags.all_setOff()
-        skeletonLog.debug("Switching on DetFlags for subdetectors which were simulated")
-        for subdet in eval(metadatadict['DigitizedDetectors']): # convert from str to list of str
+        skeletonLog.debug("Switching on DetFlags for subdetectors which were digitized")
+        if isinstance(metadatadict['DigitizedDetectors'], str):
+            digitizedDetectors = eval(metadatadict['DigitizedDetectors']) # convert from str to list of str
+        else:
+            digitizedDetectors = metadatadict['DigitizedDetectors']
+        digitizedDetectors[:] = [x.lower() if x == 'Pixel' else x for x in digitizedDetectors] # to cope with CA-based inputs where Pixel rather than pixel is used
+        for subdet in digitizedDetectors:
             cmd='DetFlags.%s_setOn()' % subdet
             skeletonLog.debug(cmd)
             try:
