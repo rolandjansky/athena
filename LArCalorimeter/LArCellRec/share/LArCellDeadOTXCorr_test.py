@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
 #
 # File: LArCellRec/share/LArCellDeadOTXCorr_test.py
 # Author: sss
@@ -37,6 +37,7 @@ from IOVDbSvc.IOVDbSvcConf import IOVDbSvc
 IOVDbSvc().GlobalTag = 'OFLCOND-RUN12-SDR-35'
 
 include('LArConditionsCommon/LArConditionsCommon_MC_jobOptions.py')
+include('CaloConditions/CaloTTIdMap_ATLAS_jobOptions.py')
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
