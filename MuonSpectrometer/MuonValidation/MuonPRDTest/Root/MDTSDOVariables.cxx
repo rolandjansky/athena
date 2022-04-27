@@ -5,11 +5,8 @@
 #include <MuonPRDTest/MDTSDOVariables.h>
 #include <StoreGate/ReadHandle.h>
 
-MdtSDOVariables::MdtSDOVariables(MuonTesterTree& tree, const std::string& container_name, 
-                                 MSG::Level msglvl) :
-    PrdTesterModule(tree, "SDO_MDT", false, msglvl),
-    m_sdo_key{container_name}
-     {}
+MdtSDOVariables::MdtSDOVariables(MuonTesterTree& tree, const std::string& container_name, MSG::Level msglvl) :
+    PrdTesterModule(tree, "SDO_MDT", false, msglvl), m_sdo_key{container_name} {}
 
 bool MdtSDOVariables::fill(const EventContext& ctx) {
     const MuonGM::MuonDetectorManager* MuonDetMgr = getDetMgr(ctx);

@@ -2,13 +2,12 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "MuonPRDTest/MDTDigitVariables.h"
+
 #include "MuonDigitContainer/MdtDigit.h"
 #include "MuonDigitContainer/MdtDigitCollection.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
-MdtDigitVariables::MdtDigitVariables(MuonTesterTree& tree, const std::string& container_name, 
-                                     MSG::Level msglvl) :
-    PrdTesterModule(tree, "Digits_MDT", true, msglvl),
-    m_digitKey{container_name}{}
+MdtDigitVariables::MdtDigitVariables(MuonTesterTree& tree, const std::string& container_name, MSG::Level msglvl) :
+    PrdTesterModule(tree, "Digits_MDT", true, msglvl), m_digitKey{container_name} {}
 
 bool MdtDigitVariables::fill(const EventContext& ctx) {
     ATH_MSG_DEBUG("do fillMDTSimHitVariables()");

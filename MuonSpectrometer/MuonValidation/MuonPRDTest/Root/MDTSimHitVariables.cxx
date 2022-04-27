@@ -10,9 +10,7 @@
 #include "MuonSimEvent/MdtHitIdHelper.h"
 
 MDTSimHitVariables::MDTSimHitVariables(MuonTesterTree& tree, const std::string& container_name, MSG::Level msglvl) :
-    PrdTesterModule(tree, "MDT_Sim", false, msglvl),
-    m_simHitKey{container_name}
-    {}
+    PrdTesterModule(tree, "MDT_Sim", false, msglvl), m_simHitKey{container_name} {}
 bool MDTSimHitVariables::fill(const EventContext& ctx) {
     ATH_MSG_DEBUG("do fillMDTSimHitVariables()");
     const MuonGM::MuonDetectorManager* MuonDetMgr = getDetMgr(ctx);

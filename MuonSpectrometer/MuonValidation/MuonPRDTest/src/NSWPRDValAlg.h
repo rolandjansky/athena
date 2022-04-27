@@ -19,10 +19,6 @@
 #include "MMDigitVariables.h"
 #include "MMRDOVariables.h"
 #include "MMPRDVariables.h"
-
-#include "RPCSimHitVariables.h"
-#include "RPCSDOVariables.h"
-#include "RPCDigitVariables.h"
 #include "CSCSimHitVariables.h"
 #include "CSCSDOVariables.h"
 #include "CSCDigitVariables.h"
@@ -110,9 +106,6 @@ class NSWPRDValAlg: public AthHistogramAlgorithm
    Gaudi::Property<bool>  m_doTGCDigit{this, "doTGCDigit", false};         // switch on the output of the TGC digitization
    Gaudi::Property<bool>  m_doTGCRDO{this, "doTGCRDO", false};           // switch on the output of the TGC RDO
    Gaudi::Property<bool>  m_doTGCPRD{this, "doTGCPRD", false};           // switch on the output of the TGC prepdata
-
-  ScalarBranch<unsigned int>& m_runNumber{m_tree.newScalar<unsigned int>("runNumber")};
-  ScalarBranch<unsigned int>& m_eventNumber{m_tree.newScalar<unsigned int>("eventNumber")};
 
   Gaudi::Property<std::string> m_Truth_ContainerName{this, "Truth_ContainerName", "TruthEvent"};
   Gaudi::Property<std::string> m_MuEntry_ContainerName{this, "MuonEntryLayer_ContainerName", "MuonEntryLayer"};

@@ -6,6 +6,7 @@
 #include <MuonPRDTest/MDTDigitVariables.h>
 #include <MuonPRDTest/MDTSDOVariables.h>
 #include <MuonPRDTest/MDTSimHitVariables.h>
-#include <MuonPRDTest/MuonPRDTestDict.h>
-#include <MuonPRDTest/PrdTesterModule.h>
+#include <MuonPRDTest/RPCDigitVariables.h>
+#include <MuonPRDTest/RPCSDOVariables.h>
+#include <MuonPRDTest/RPCSimHitVariables.h>
 #endif

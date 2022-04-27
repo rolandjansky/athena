@@ -10,8 +10,7 @@
 
 class MDTSimHitVariables : public PrdTesterModule {
 public:
-
-    MDTSimHitVariables(MuonTesterTree& tree, const std::string& container_name,  MSG::Level msglvl);
+    MDTSimHitVariables(MuonTesterTree& tree, const std::string& container_name, MSG::Level msglvl);
 
     ~MDTSimHitVariables() = default;
 
@@ -21,11 +20,10 @@ public:
 
 private:
     SG::ReadHandleKey<MDTSimHitCollection> m_simHitKey{};
-    
 
-    MdtIdentifierBranch m_MDT_id{parent(), "MDT_Sim", idHelperSvc()};
+    MdtIdentifierBranch m_MDT_id{parent(), "MDT_Sim"};
     VectorBranch<float>& m_MDT_globalTime{parent().newVector<float>("MDT_Sim_globalTime")};
-    ThreeVectorBranch m_MDT_hitLocalPosition{parent(),"MDT_Sim_hitLocalPosition"} ;
+    ThreeVectorBranch m_MDT_hitLocalPosition{parent(), "MDT_Sim_hitLocalPosition"};
     ThreeVectorBranch m_MDT_hitGlobalPosition{parent(), "MDT_Sim_hitGlobalPosition"};
     ThreeVectorBranch m_MDT_detector_globalPosition{parent(), "MDT_Sim_detGlobalPosition"};
     VectorBranch<float>& m_MDT_driftRadius{parent().newVector<float>("MDT_Sim_driftRadius")};

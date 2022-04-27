@@ -15,7 +15,6 @@
 
 class PrdTesterModule : public MuonTesterBranch, public AthMessaging {
 public:
-    
     PrdTesterModule(MuonTesterTree& tree, const std::string& grp_name, bool useCondGeo, MSG::Level msglvl);
 
     virtual ~PrdTesterModule() = default;
@@ -28,13 +27,11 @@ protected:
     virtual bool declare_keys() = 0;
 
 private:
-
-    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_detMgrKey{"MuonDetectorManager"};    
+    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_detMgrKey{"MuonDetectorManager"};
     ServiceHandle<StoreGateSvc> m_detStore{"StoreGateSvc/DetectorStore", name()};
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{"Muon::MuonIdHelperSvc/MuonIdHelperSvc", name()};
-    const MuonGM::MuonDetectorManager* m_detMgr{nullptr};    
+    const MuonGM::MuonDetectorManager* m_detMgr{nullptr};
     bool m_useCondDetMgr{false};
-
 };
 
 #endif
