@@ -157,7 +157,7 @@ bool TrigEFTauMVHypoTool::decide(const ITrigEFTauMVHypoTool::TauJetInfo& input )
 
     auto local_level = m_level;
     //loosen and turn off ID cut at highpt
-    if(m_highpt && (EFet > m_highptidthr*1e-3) && m_level>1) local_level = 1; //works only for BDT, not llh
+    if(m_highpt && (EFet > m_highptidthr*1e-3) && m_level>1) local_level = 1; 
     if(m_highpt && (EFet > m_highptjetthr*1e-3) ) local_level = -1111;
     if(!m_applyIDon0p && numTrack==0) local_level = -1111;
 
