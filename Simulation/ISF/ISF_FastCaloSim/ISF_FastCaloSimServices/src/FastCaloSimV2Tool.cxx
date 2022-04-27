@@ -182,7 +182,13 @@ StatusCode ISF::FastCaloSimV2Tool::simulate(const ISF::ISFParticle& isfp, ISFPar
                                    ISF::fKillsPrimary);
       m_truthRecordSvc->registerTruthIncident( truth, true );
       for (auto *secondary : *someSecondaries) {
-        secondaries.push_back(secondary);
+        if (secondary->getTruthBinding()) {
+          secondaries.push_back(secondary);
+        }
+        else {
+          ATH_MSG_WARNING("Secondary particle created by PunchThroughTool not written out to truth.\n Parent (" << isfp << ")\n Secondary (" << *secondary <<")");
+          delete secondary;
+        }
       }
       delete someSecondaries;
     }
