@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -35,7 +35,7 @@ namespace Trk {
    @class RungeKuttaPropagator
 
    Trk::RungeKuttaPropagator is an algorithm for track parameters propagation through
-   magnetic field with or without the jacobian of the transformation. 
+   magnetic field.
 
    The implementation performs the propagation in global coordinates and uses
    Jacobian matrices (see RungeKuttaUtils) for the transformations between the 
@@ -43,6 +43,11 @@ namespace Trk {
    
    One can choose to perform the transport of the parameters only and omit the transport 
    of the associated covariances (propagateParameters).
+
+   The algorithm can produce the Jacobian that transports the covariance matrix
+   from one set of track parameters at the initial surface to another set of 
+   track parameters at the destination surface. This is useful for Chi2 
+   fitting.
  
    It does NOT include material effects (unlike the STEP propagator).
    As a result the ParticleHypothesis argument is not really used.
@@ -131,7 +136,6 @@ namespace Trk {
     public:
 
         using IPropagator::propagate;
-        using IPropagator::propagateT;
 
         RungeKuttaPropagator(const std::string&,const std::string&,const IInterface*);
         virtual StatusCode initialize() override final;
