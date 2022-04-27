@@ -224,8 +224,11 @@ bool MuonMDT_CablingMap::getOfflineId(CablingData& cabling_map, MsgStream& log) 
             << static_cast<unsigned>(cabling_map.csm) << MSG::dec << " of MROD: 0x" << MSG::hex << static_cast<unsigned>(cabling_map.mrod)
             << MSG::dec << " subdetector: 0x" << MSG::hex << static_cast<unsigned>(cabling_map.subdetectorId) << MSG::dec << endmsg;
 
-        log << MSG::VERBOSE << "Mapped to: Station: " << cabling_map.stationIndex << " eta: " << cabling_map.eta
-            << " phi: " << cabling_map.phi << " multiLayer: " << cabling_map.multilayer << " layer: " << cabling_map.layer
+        log << MSG::VERBOSE << "Mapped to: Station: " << static_cast<int>(cabling_map.stationIndex)
+            << " eta: " << static_cast<int>(cabling_map.eta)
+            << " phi: " << static_cast<int>(cabling_map.phi)
+            << " multiLayer: " << static_cast<int>(cabling_map.multilayer)
+            << " layer: " << cabling_map.layer
             << " tube: " << cabling_map.tube << endmsg;
     }
     return true;
