@@ -1,7 +1,7 @@
 
 //Dear emacs this is -*-c++-*-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_STRAWSTATUSSUMMARYTOOL_H
@@ -20,18 +20,17 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 //TRT
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h" 
-//#include "TRT_ConditionsServices/ITRT_ConditionsSvc.h"
 #include "InDetIdentifier/TRT_ID.h"
-//#include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 
 #include "TRT_ConditionsData/StrawStatusMultChanContainer.h"
+#include "TRT_ConditionsData/TRTStrawStatusData.h"
 
 #include "CxxUtils/checker_macros.h"
 
 class ATLAS_NOT_THREAD_SAFE TRT_StrawStatusSummaryTool: // This class uses thread-unsafe DataHandle (m_strawstatusHTG4).
 // If bare pointer is used, GeoModelSvc.TRT_DetectorTool.TRT_StrawStatusSummaryTool
 // cannot retrieve folder 'SimStatusHTKey':/TRT/Cond/StatusHT
-  public extends<AthAlgTool, ITRT_StrawStatusSummaryTool>
+  public extends<AthAlgTool, ITRT_StrawStatusSummaryTool>, virtual public IIncidentListener
 {  
  public:
   typedef TRTCond::StrawStatusMultChanContainer StrawStatusContainer;
@@ -79,15 +78,28 @@ class ATLAS_NOT_THREAD_SAFE TRT_StrawStatusSummaryTool: // This class uses threa
 
 
  private:
-
+  virtual void handle( const Incident& inc ) override;
+  bool m_firstCall{true};
+  bool m_firstCallPerm{true};
+  
   const TRT_ID* m_trtId=nullptr;
 
   ServiceHandle<ICondSvc> m_condSvc;
-  //  ReadHandle  keys
+
+  Gaudi::Property<bool> m_optimizeCondAccess {this, "optimizeCondAccess", false};
+
+  //  ReadHandle  keys - original set
   SG::ReadCondHandleKey<StrawStatusContainer> m_statReadKey{this,"StatReadKeyName","/TRT/Cond/Status","StrawStatus in-key"};
   SG::ReadCondHandleKey<StrawStatusContainer> m_permReadKey{this,"PermReadKeyName","/TRT/Cond/StatusPermanent","StrawStatusPermanent in-key"};
+  
+  //ReadHandle keys if precomputed  TRTStrawStatusData is to be used
+  SG::ReadHandleKey<TRTStrawStatusData> m_statReadDataKey{this,"StatReadDataKeyName","StrawStatusData","StrawStatus in-key"};
+  SG::ReadHandleKey<TRTStrawStatusData> m_permReadDataKey{this,"PermReadDataKeyName","StrawStatusPermanentData","StrawStatusPermanent in-key"};
+  const TRTStrawStatusData* p_statData{nullptr};
+  const TRTStrawStatusData* p_statPermData{nullptr};
+  
   SG::ReadCondHandleKey<StrawStatusContainer> m_statHTReadKey{this,"StatHTReadKeyName","/TRT/Cond/StatusHT","StrawStatusHT in-key"};
-
+  
   // Used in simulation (GEANT4) jobs
   Gaudi::Property<bool> m_isGEANT4 {this,"isGEANT4",true};
   Gaudi::Property<std::string> m_par_strawstatusHTcontainerkey{this, "SimStatusHTKey","/TRT/Cond/StatusHT"};

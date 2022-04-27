@@ -610,6 +610,21 @@ if InDetTrigFlags.loadSummaryTool():
   if (InDetTrigFlags.doPrintConfigurables()):
     print (     InDetTrigTrackSummaryHelperTool)
 
+  InDetTrigTrackSummaryHelperToolSi = InDet__InDetTrackSummaryHelperTool(name          = "InDetTrigSummaryHelperSi",
+                                                                         HoleSearch    = InDetTrigHoleSearchTool,
+                                                                         AssoTool      = InDetTrigPrdAssociationTool,
+                                                                         TestBLayerTool = None,
+                                                                         PixelToTPIDTool= InDetTrigPixelToTPIDTool,
+                                                                         DoSharedHits  = False,
+                                                                         TRTStrawSummarySvc=None,
+                                                                         usePixel      = DetFlags.haveRIO.pixel_on(),
+                                                                         useSCT        = DetFlags.haveRIO.SCT_on(),
+                                                                         useTRT        = False)
+
+  ToolSvc += InDetTrigTrackSummaryHelperToolSi
+  if (InDetTrigFlags.doPrintConfigurables()):
+    print (     InDetTrigTrackSummaryHelperToolSi)
+    
   #
   # Configurable version of TRT_ElectronPidTools
   #
@@ -685,6 +700,18 @@ if InDetTrigFlags.loadSummaryTool():
   ToolSvc += InDetTrigTrackSummaryTool
   if (InDetTrigFlags.doPrintConfigurables()):
      print (     InDetTrigTrackSummaryTool)
+
+  InDetTrigTrackSummaryToolSi = Trk__TrackSummaryTool(name = "InDetTrigTrackSummaryToolSi",
+                                                      InDetSummaryHelperTool = InDetTrigTrackSummaryHelperToolSi,
+                                                      doSharedHits           = False,
+                                                      doHolesInDet           = True,
+                                                      #this may be temporary #61512 (and used within egamma later)
+                                                      #TRT_ElectronPidTool    = InDetTrigTRT_ElectronPidTool, 
+                                                      TRT_ElectronPidTool    = None, 
+                                                    )
+  ToolSvc += InDetTrigTrackSummaryToolSi
+  if (InDetTrigFlags.doPrintConfigurables()):
+    print (     InDetTrigTrackSummaryToolSi)
 
 
 
@@ -1002,7 +1029,7 @@ ToolSvc += InDetTrigTRTRodDecoder
 
 from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
 InDetTrigFastTrackSummaryTool = Trk__TrackSummaryTool(name = "InDetTrigFastTrackSummaryTool",
-                                                      InDetSummaryHelperTool = InDetTrigTrackSummaryHelperTool,
+                                                      InDetSummaryHelperTool = InDetTrigTrackSummaryHelperToolSi,
                                                       doHolesInDet           = False,
                                                       doSharedHits           = False,
                                                       TRT_ElectronPidTool    = None
@@ -1014,7 +1041,7 @@ if (InDetTrigFlags.doPrintConfigurables()):
 
 from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigHoleSearchTool
 InDetTrigTrackSummaryToolWithHoleSearch = Trk__TrackSummaryTool(name = "InDetTrigTrackSummaryToolWithHoleSearch",
-                                                                InDetSummaryHelperTool = InDetTrigTrackSummaryHelperTool,
+                                                                InDetSummaryHelperTool = InDetTrigTrackSummaryHelperToolSi,
                                                                 doHolesInDet           = True,
                                                                 doSharedHits           = False,
                                                                 TRT_ElectronPidTool    = None

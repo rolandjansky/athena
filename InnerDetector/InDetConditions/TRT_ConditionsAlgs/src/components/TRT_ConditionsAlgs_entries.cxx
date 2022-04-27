@@ -2,6 +2,7 @@
 #include "TRT_ConditionsAlgs/TRTStrawAlign.h"
 #include "TRT_ConditionsAlgs/TRTStrawStatusWrite.h"
 #include "../TRTAlignCondAlg.h"
+#include "../TRTStrawStatusCondAlg.h"
 #include "../TRTStrawCondAlg.h"
 #include "../TRTHTCondAlg.h"
 #include "../TRTToTCondAlg.h"
@@ -14,6 +15,7 @@ DECLARE_COMPONENT( TRTCondWrite )
 DECLARE_COMPONENT( TRTStrawAlign )
 DECLARE_COMPONENT( TRTStrawStatusWrite )
 DECLARE_COMPONENT( TRTAlignCondAlg )
+DECLARE_COMPONENT( TRTStrawStatusCondAlg )
 DECLARE_COMPONENT( TRTStrawCondAlg )
 DECLARE_COMPONENT( TRTHTCondAlg )
 DECLARE_COMPONENT( TRTToTCondAlg )

@@ -38,8 +38,9 @@ def TRTHitGeneratorSequence(ConfigFlags):
     # view data verifier
     ViewVerify = CfgMgr.AthViews__ViewDataVerifier("TRTHitGeneratorViewDataVerifier")
     ViewVerify.DataObjects = [('TrigRoiDescriptorCollection' , 'StoreGateSvc+TRTHitGenerator'),
-                              #('TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs'),        
-     ]
+                              ( 'TRTStrawStatusData' , 'StoreGateSvc+StrawStatusData'),
+                              ( 'TRTStrawStatusData' , 'StoreGateSvc+StrawStatusPermanentData'),
+                              ]
     if not globalflags.InputFormat.is_bytestream():
         ViewVerify.DataObjects += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
 
