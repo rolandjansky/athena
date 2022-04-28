@@ -12,9 +12,8 @@
 // Gaudi
 #include "GaudiKernel/IAlgTool.h"
 #include "TrkExUtils/ExtrapolationCell.h"
-#include "TrkExInterfaces/IExtrapolationEngine.h"
+#include "TrkExUtils/TargetSurfaces.h"
 #include "ISF_Event/ISFParticleVector.h"
-//#include "TrkExInterfaces/ITimedExtrapolator.h"
 
 namespace Trk{
   class Track;
