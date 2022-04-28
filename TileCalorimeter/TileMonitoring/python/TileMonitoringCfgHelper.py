@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 '''
 @file TileMonitoringHelper.py
@@ -280,7 +280,7 @@ def _parsePostfix(postfix, triggers = [], perPartition = False, perSample = Fals
 def addTile2DHistogramsArray(helper, algorithm, name = '', xvalue = '', yvalue = '', value = '',
                              title = '', path = '', weight = '', xbins = 0, xmin = 0, xmax = 0,
                              ybins = 0, ymin = 0, ymax = 0, type = 'TH2D', run = '', triggers = [],
-                             xlabels = (), ylabels = (), subDirectory = False, perPartition = False,
+                             xlabels = (), ylabels = (), opt = '', subDirectory = False, perPartition = False,
                              perSample = False, perGain = False, allPartitions = False, separator = '_' ):
     '''
     This function configures 2D histograms with Tile monitored value per L1 trigger, partition, sample, gain.
@@ -333,7 +333,8 @@ def addTile2DHistogramsArray(helper, algorithm, name = '', xvalue = '', yvalue =
         tool.defineHistogram( fullName, path = subPath, type = type, title = fullTitle,
                               xlabels = nxlabels, ylabels = nylabels,
                               xbins = xbins, xmin = xmin, xmax = xmax,
-                              ybins = ybins, ymin = ymin, ymax = ymax, weight = weight)
+                              ybins = ybins, ymin = ymin, ymax = ymax,
+                              weight = weight, opt = opt)
 
     return array
 
