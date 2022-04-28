@@ -74,6 +74,12 @@ def CaloClusterROIPhiRZContainerMakerCfg(ConfigFlags, name="CaloClusterROIPhiRZC
         minPt.append(5000)
         phiWidth.append(0.075) # must be equal or larger than phiWidth of its clients: InDetNNScoringTool (phiWidthEM)
 
+    # @TODO to be added if ITkSiSPSeededTrackFinder is used with useITkConvSeeded == True
+    if ConfigFlags.Detector.GeometryITk :
+        OutputROIContainerName.append('InDetCaloClusterROIPhiRZ15GeVUnordered')
+        minPt.append(15000)
+        phiWidth.append(0.) # no phi ordering, no Roi duplication close to +- pi
+
     kwargs.setdefault("OutputROIContainerName", OutputROIContainerName)
     kwargs.setdefault("minPt", minPt)
     kwargs.setdefault("phiWidth", phiWidth)

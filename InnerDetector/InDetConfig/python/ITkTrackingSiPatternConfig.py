@@ -173,15 +173,17 @@ def ITkSiSPSeededTrackFinderCfg(flags, name="ITkSiSpTrackFinder", InputCollectio
     return acc
 
 def ITkSiSPSeededTrackFinderROIConvCfg(flags, name="ITkSiSpTrackFinderROIConv", InputCollections = None, SiSPSeededTrackCollectionKey = None, **kwargs) :
-    from InDetConfig.InDetCaloClusterROISelectorConfig import CaloClusterROI_SelectorCfg
-    acc = CaloClusterROI_SelectorCfg(flags)
+    from InDetConfig.InDetCaloClusterROISelectorConfig import ITKCaloClusterROIPhiRZContainerMakerCfg
+    acc = ITKCaloClusterROIPhiRZContainerMakerCfg(flags)
 
     from RegionSelector.RegSelToolConfig import regSelTool_ITkStrip_Cfg
     RegSelTool_ITkStrip   = acc.popToolsAndMerge(regSelTool_ITkStrip_Cfg(flags))
 
     kwargs.setdefault("RegSelTool_Strip", RegSelTool_ITkStrip)
     kwargs.setdefault("useITkConvSeeded", True)
-    kwargs.setdefault("InputClusterContainerName", "ITkCaloClusterROIs")
+
+    # @TODO need to instruct CaloClusterROIPhiRZContainerMaker to create the output container below
+    kwargs.setdefault("EMROIPhiRZContainer", "InDetCaloClusterROIPhiRZ15GeVUnordered")
 
     acc.merge(ITkSiSPSeededTrackFinderCfg(flags, name = name,
                                           InputCollections = InputCollections,
