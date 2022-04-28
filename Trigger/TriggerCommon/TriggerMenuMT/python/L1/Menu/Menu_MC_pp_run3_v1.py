@@ -128,8 +128,6 @@ def defineMenu():
         'L1_TAU8_EMPTY':'', 
         'L1_TAU8_FIRSTEMPTY':'', 
         'L1_TAU8_UNPAIRED_ISO':'', 
-        'L1_TAU40_EMPTY':'', 
-        'L1_TAU40_UNPAIRED_ISO':'',
 
         # J non-FILLED
         'L1_J12_EMPTY':'',

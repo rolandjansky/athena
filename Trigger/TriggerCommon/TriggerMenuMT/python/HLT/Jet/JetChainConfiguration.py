@@ -159,7 +159,10 @@ class JetChainConfiguration(ChainConfigurationBase):
         if self.exotHypo != '' and ("emerging" in self.exotHypo or "trackless" in self.exotHypo):
             EJsStep = self.getJetEJsChainStep(jetCollectionName, self.chainName, self.exotHypo)
             chainSteps+= [EJsStep]
-        
+        elif self.exotHypo != '' and ("calratio" in self.exotHypo):
+            CRStep = self.getJetCRChainStep(jetCollectionName, self.chainName, self.exotHypo)
+            chainSteps+= [self.getEmptyStep(2, 'RoIFTFEmptyStep'), CRStep]
+
         myChain = self.buildChain(chainSteps)
 
         return myChain
@@ -290,6 +293,25 @@ class JetChainConfiguration(ChainConfigurationBase):
 
         stepName = "EJsStep_"
         jetSeq = RecoFragmentsPool.retrieve( jetEJsMenuSequence, ConfigFlags, jetsin=jetCollectionName, name=thresh)
+        #from TrigGenericAlgs.TrigGenericAlgsConfig import PassthroughComboHypoCfg
+        chainStep = ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])#, comboHypoCfg=PassthroughComboHypoCfg)
+
+        return chainStep
+
+    def getJetCRChainStep(self, jetCollectionName, thresh, exotdictstring):
+        from TriggerMenuMT.HLT.Jet.ExoticJetSequences import jetCRMenuSequence
+        
+        if 'calratio' in exotdictstring:
+            MinjetlogR = 1.2
+            doBIBremoval = int(0)
+        else:
+            log.error('Misconfiguration of trackless exotic jet chain - need calratio selection')
+            exit(1)
+
+        log.debug("Running exotic jets with MinjetlogR: " + str(MinjetlogR) + "\t BIB rm " + str(doBIBremoval) + "\thypo: " + exotdictstring)
+
+        stepName = "CRStep_"+self.chainName
+        jetSeq = RecoFragmentsPool.retrieve( jetCRMenuSequence, ConfigFlags, jetsin=jetCollectionName, name=thresh)
         #from TrigGenericAlgs.TrigGenericAlgsConfig import PassthroughComboHypoCfg
         chainStep = ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])#, comboHypoCfg=PassthroughComboHypoCfg)
 

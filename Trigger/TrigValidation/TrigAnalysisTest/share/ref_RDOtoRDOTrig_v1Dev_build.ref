@@ -9408,6 +9408,42 @@ HLT_j20_0eta290_boffperf_pf_ftf_preselj180_PhysicsTLA_L1J100:
     2: 48
     3: 48
     4: 5
+HLT_j20_CLEANllp_calratio_L1LLP-NOMATCH:
+  eventCount: 0
+HLT_j20_CLEANllp_calratio_L1TAU100:
+  eventCount: 0
+  stepCounts:
+    0: 3
+  stepFeatures:
+    0: 28
+HLT_j20_CLEANllp_calratio_L1TAU40_EMPTY:
+  eventCount: 0
+HLT_j20_CLEANllp_calratio_L1TAU40_UNPAIRED_ISO:
+  eventCount: 0
+HLT_j20_CLEANllp_calratio_L1TAU60:
+  eventCount: 0
+  stepCounts:
+    0: 7
+  stepFeatures:
+    0: 66
+HLT_j20_CLEANllp_calratiormbib_L1LLP-NOMATCH:
+  eventCount: 0
+HLT_j20_CLEANllp_calratiormbib_L1TAU100:
+  eventCount: 0
+  stepCounts:
+    0: 3
+  stepFeatures:
+    0: 28
+HLT_j20_CLEANllp_calratiormbib_L1TAU40_EMPTY:
+  eventCount: 0
+HLT_j20_CLEANllp_calratiormbib_L1TAU40_UNPAIRED_ISO:
+  eventCount: 0
+HLT_j20_CLEANllp_calratiormbib_L1TAU60:
+  eventCount: 0
+  stepCounts:
+    0: 7
+  stepFeatures:
+    0: 66
 HLT_j20_PhysicsTLA_L1HT190-J15s5pETA21:
   eventCount: 5
   stepCounts:
