@@ -34,7 +34,11 @@ def NavConverterCfg(flags):
     types = [ t for t in edm ]
     log.info("Assuming these collections are relevant for trigger: %s", " ".join(types))
     cnvAlg.Collections = types
+    # example of chain collection: comment if all chains are to be processed
+    cnvAlg.Chains = ["HLT_mu4","HLT_mu6","HLT_mu10","HLT_mu6_2mu4","HLT_mu22"]
+    cnvAlg.doCompression = True
     acc.addEventAlgo(cnvAlg)
+
 
     return acc
 
