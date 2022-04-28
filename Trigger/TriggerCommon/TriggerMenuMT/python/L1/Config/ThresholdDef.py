@@ -342,7 +342,15 @@ class ThresholdDef:
         NimThreshold('BCM_Comb', 'BCMCMB')
         NimThreshold('BCM_MCA',  'BCM')
         NimThreshold('BCM_MCC',  'BCM')
-        NimThreshold('BCM_X',    'BCM')
+        NimThreshold('BCM6',    'BCM')
+        NimThreshold('BCM7',    'BCM')
+        NimThreshold('BCM8',    'BCM')
+
+        ## BMA
+        # Phase-II lumi demonstrator system
+        # DO NOT USE FOR CTP OUTPUTS
+        NimThreshold('BMA0',    'NIM') #LUCID?
+        NimThreshold('BMA1',    'NIM') #LUCID?
 
         ## LUCID
 

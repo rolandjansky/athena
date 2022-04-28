@@ -75,7 +75,7 @@ class ItemDef:
         bgrp13cond          = d.BGRP0 & d.BGRP13 #UNPAIREDB1
         bgrp14cond          = d.BGRP0 & d.BGRP14 #UNPAIREDB2
         alfacalib           = d.BGRP0 & d.BGRP10
-        abortgap            = d.BGRP0 & d.BGRP8
+        firstintrain        = d.BGRP0 & d.BGRP8
         physcond_or_unpaired_isocond    = d.BGRP0 & (d.BGRP1 | d.BGRP4)
 
         # partition 1
@@ -674,13 +674,11 @@ class ItemDef:
         MenuItem('L1_J12_UNPAIRED_NONISO' ).setLogic( d.J12 & unpaired_nonisocond).setTriggerType(TT.calo)
         MenuItem('L1_J12_EMPTY'           ).setLogic( d.J12 & cosmiccond ).setTriggerType(TT.calo)
         MenuItem('L1_J12_FIRSTEMPTY'      ).setLogic( d.J12 & firstempty ).setTriggerType(TT.calo)
-        MenuItem('L1_J12_ABORTGAPNOTCALIB').setLogic( d.J12 & abortgap ).setTriggerType(TT.calo)
         MenuItem('L1_J12_UNPAIREDB1'      ).setLogic( d.J12 & bgrp13cond  ).setTriggerType(TT.calo)
         MenuItem('L1_J12_UNPAIREDB2'      ).setLogic( d.J12 & bgrp14cond).setTriggerType(TT.calo)
 
         MenuItem('L1_J50_UNPAIRED_ISO'    ).setLogic( d.J50 & unpaired_isocond   ).setTriggerType(TT.calo)
         MenuItem('L1_J50_UNPAIRED_NONISO' ).setLogic( d.J50 & unpaired_nonisocond).setTriggerType(TT.calo)
-        MenuItem('L1_J50_ABORTGAPNOTCALIB').setLogic( d.J50 & abortgap ).setTriggerType(TT.calo)
 
         MenuItem('L1_J12_BGRP12'        ).setLogic( d.J12 & bgrp12cond ).setTriggerType(TT.calo)
         MenuItem('L1_J30p31ETA49_BGRP12').setLogic( d.J3031ETA49 & bgrp12cond ).setTriggerType(TT.calo)
@@ -1249,10 +1247,6 @@ class ItemDef:
         MenuItem('L1_BCM_AC_UNPAIRED_NONISO'     ).setLogic( d.BCM_AtoC & unpaired_nonisocond).setTriggerType(TT.minb)
         MenuItem('L1_BCM_CA_UNPAIRED_NONISO'     ).setLogic( d.BCM_CtoA & unpaired_nonisocond).setTriggerType(TT.minb)
 
-        MenuItem('L1_BCM_AC_ABORTGAPNOTCALIB'    ).setLogic( d.BCM_AtoC & abortgap).setTriggerType(TT.minb)
-        MenuItem('L1_BCM_CA_ABORTGAPNOTCALIB'    ).setLogic( d.BCM_CtoA & abortgap).setTriggerType(TT.minb)
-        MenuItem('L1_BCM_Wide_ABORTGAPNOTCALIB'  ).setLogic( d.BCM_Wide & abortgap).setTriggerType(TT.minb)
-
         MenuItem('L1_BCM_AC_CALIB'     ).setLogic( d.BCM_AtoC & calibcond).setTriggerType(TT.minb)
         MenuItem('L1_BCM_CA_CALIB'     ).setLogic( d.BCM_CtoA & calibcond).setTriggerType(TT.minb)
         MenuItem('L1_BCM_Wide_CALIB'   ).setLogic( d.BCM_Wide & calibcond).setTriggerType(TT.minb)
@@ -1260,6 +1254,24 @@ class ItemDef:
         MenuItem('L1_BCM_AC_UNPAIREDB1'  ).setLogic( d.BCM_AtoC & bgrp13cond).setTriggerType(TT.minb)
         MenuItem('L1_BCM_CA_UNPAIREDB2'  ).setLogic( d.BCM_CtoA & bgrp14cond).setTriggerType(TT.minb)
 
+        MenuItem('L1_BCM_2A_EMPTY' ).setLogic( d.BCM6 & cosmiccond).setTriggerType(TT.minb)
+        MenuItem('L1_BCM_2C_EMPTY' ).setLogic( d.BCM7 & cosmiccond).setTriggerType(TT.minb)
+
+        MenuItem('L1_BCM_2A_UNPAIREDB1' ).setLogic( d.BCM6 & bgrp13cond).setTriggerType(TT.minb)
+        MenuItem('L1_BCM_2C_UNPAIREDB1' ).setLogic( d.BCM7 & bgrp13cond).setTriggerType(TT.minb)
+        MenuItem('L1_BCM_2A_UNPAIREDB2' ).setLogic( d.BCM6 & bgrp14cond).setTriggerType(TT.minb)
+        MenuItem('L1_BCM_2C_UNPAIREDB2' ).setLogic( d.BCM7 & bgrp14cond).setTriggerType(TT.minb)
+
+        MenuItem('L1_BCM_2A_UNPAIRED_ISO' ).setLogic( d.BCM6 & unpaired_isocond).setTriggerType(TT.minb)
+        MenuItem('L1_BCM_2C_UNPAIRED_ISO' ).setLogic( d.BCM7 & unpaired_isocond).setTriggerType(TT.minb)
+        MenuItem('L1_BCM_2A_UNPAIRED_NONISO' ).setLogic( d.BCM6 & unpaired_nonisocond).setTriggerType(TT.minb)
+        MenuItem('L1_BCM_2C_UNPAIRED_NONISO' ).setLogic( d.BCM7 & unpaired_nonisocond).setTriggerType(TT.minb)
+
+        MenuItem('L1_BCM_2A_CALIB' ).setLogic( d.BCM6 & calibcond).setTriggerType(TT.minb)
+        MenuItem('L1_BCM_2C_CALIB' ).setLogic( d.BCM7 & calibcond).setTriggerType(TT.minb)
+
+        MenuItem('L1_BCM_2A_FIRSTINTRAIN' ).setLogic( d.BCM6 & firstintrain).setTriggerType(TT.minb)
+        MenuItem('L1_BCM_2C_FIRSTINTRAIN' ).setLogic( d.BCM7 & firstintrain).setTriggerType(TT.minb)
 
         # RANDOM
         MenuItem('L1_RD0_FILLED'         ).setLogic( d.RNDM0 & physcond           ).setTriggerType(TT.rand)
@@ -1272,7 +1284,7 @@ class ItemDef:
         MenuItem('L1_RD0_BGRP9'          ).setLogic( d.RNDM0 & bgrp9cond          ).setTriggerType(TT.rand)
         MenuItem('L1_RD0_BGRP10'         ).setLogic( d.RNDM0 & alfacalib          ).setTriggerType(TT.rand)
         MenuItem('L1_RD0_BGRP11'         ).setLogic( d.RNDM0 & bgrp11cond         ).setTriggerType(TT.rand)
-        MenuItem('L1_RD0_ABORTGAPNOTCALIB').setLogic( d.RNDM0 & abortgap          ).setTriggerType(TT.rand)
+        MenuItem('L1_RD0_FIRSTINTRAIN'   ).setLogic( d.RNDM0 & firstintrain       ).setTriggerType(TT.rand)
 
         MenuItem('L1_RD1_FILLED'         ).setLogic( d.RNDM1 & physcond           ).setTriggerType(TT.zerobs) # used to be TT.rand
         MenuItem('L1_RD1_EMPTY'          ).setLogic( d.RNDM1 & cosmiccond         ).setTriggerType(TT.zerobs)
@@ -1569,7 +1581,6 @@ class ItemDef:
         MenuItem('L1_ALFA_ANY_UNPAIRED_ISO').setLogic(ALFA_ANY & unpaired_isocond).setTriggerType(TT.alfa)
         MenuItem('L1_ALFA_ANY_UNPAIRED_NONISO').setLogic(ALFA_ANY & unpaired_nonisocond).setTriggerType(TT.alfa)
         MenuItem('L1_ALFA_ANY_BGRP10').setLogic(ALFA_ANY & alfacalib).setTriggerType(TT.alfa)
-        MenuItem('L1_ALFA_ANY_ABORTGAPNOTCALIB').setLogic( ALFA_ANY & abortgap).setTriggerType(TT.alfa)
         MenuItem('L1_ALFA_ANY_CALIB').setLogic( ALFA_ANY & calibcond).setTriggerType(TT.alfa)
 
         MenuItem('L1_ALFA_ANY_A_EMPTY').setLogic(ALFA_ANY_A & cosmiccond).setTriggerType(TT.alfa)

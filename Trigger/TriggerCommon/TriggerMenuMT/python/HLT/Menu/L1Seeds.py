@@ -45,18 +45,19 @@ def getL1BackgroundSeed(menul1items, menu_name):
         'L1_BCM_AC_CA_BGRP12',
         'L1_BCM_Wide_EMPTY', 'L1_BCM_Wide_UNPAIRED_ISO', 'L1_BCM_Wide_UNPAIRED_NONISO',
         'L1_J30p31ETA49_UNPAIRED_ISO',
-        'L1_J12_UNPAIRED_ISO', 'L1_J12_UNPAIRED_NONISO', 'L1_J12_ABORTGAPNOTCALIB',
+        'L1_J12_UNPAIRED_ISO', 'L1_J12_UNPAIRED_NONISO',
         'L1_BCM_AC_UNPAIRED_ISO', 'L1_BCM_CA_UNPAIRED_ISO',
         'L1_BCM_AC_UNPAIRED_NONISO', 'L1_BCM_CA_UNPAIRED_NONISO',
         'L1_J30p31ETA49_UNPAIRED_NONISO',
-        'L1_BCM_AC_ABORTGAPNOTCALIB', 'L1_BCM_CA_ABORTGAPNOTCALIB',
-        'L1_BCM_Wide_ABORTGAPNOTCALIB',
-        'L1_BCM_AC_CALIB', 'L1_BCM_CA_CALIB',
         'L1_BCM_Wide_CALIB',
-        'L1_J50_UNPAIRED_ISO', 'L1_J50_UNPAIRED_NONISO', 'L1_J50_ABORTGAPNOTCALIB',
+        'L1_J50_UNPAIRED_ISO', 'L1_J50_UNPAIRED_NONISO',
         'L1_J12_EMPTY', 'L1_J12_BGRP12',
-        'L1_BCM_AC_UNPAIREDB1', 'L1_BCM_CA_UNPAIREDB2',
         'L1_J12_UNPAIREDB1', 'L1_J12_UNPAIREDB2',
+        'L1_BCM_2A_EMPTY', 'L1_BCM_2C_EMPTY',
+        'L1_BCM_2A_FIRSTINTRAIN', 'L1_BCM_2C_FIRSTINTRAIN',
+        'L1_BCM_2A_UNPAIRED_ISO', 'L1_BCM_2C_UNPAIRED_ISO', 'L1_BCM_2A_UNPAIRED_NONISO', 'L1_BCM_2C_UNPAIRED_NONISO',
+        # 'L1_BCM_2A_UNPAIREDB1', 'L1_BCM_2C_UNPAIREDB1', 'L1_BCM_2A_UNPAIREDB2', 'L1_BCM_2C_UNPAIREDB2',
+        # 'L1_BCM_2A_CALIB', 'L1_BCM_2C_CALIB',
         ]
             
     # check if all the l1 background seeds given are in the current L1 menu
@@ -216,7 +217,7 @@ def getEBnoL1PSSeed(l1items, l1seedname):
         'L1_BCM_AC_UNPAIRED_NONISO', 'L1_BCM_CA_UNPAIRED_NONISO'
       ]
     elif ('L1_ABORTGAPNOTCALIB' in l1seedname): 
-      l1EBitems = ['L1_J12_ABORTGAPNOTCALIB']
+      l1EBitems = [] # No more items defined in this historical bunchgroup
     else:
       log.error('Do not know how to supply EnhancedBias L1 seeds for %s', l1seedname)
 
