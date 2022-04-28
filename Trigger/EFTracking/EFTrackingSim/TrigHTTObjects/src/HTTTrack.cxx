@@ -130,7 +130,7 @@ float HTTTrack::getPhiCoord(int ilayer) const {
 
 int HTTTrack::getNCoords() const {
   int nCoords = 0;
-  for (auto& hit : m_hits) {
+  for (const auto& hit : m_hits) {
     nCoords += hit.getDim();
   }
   return nCoords;
@@ -252,7 +252,7 @@ ostream& operator<<(ostream& out, const HTTTrack& track)
 
   // print the hits
   int iter = 0;
-  for (auto& hit : track.m_hits) {
+  for (const auto& hit : track.m_hits) {
     out << "Hit " << iter << ": " << hit << "\n";
     iter++;
   }
@@ -272,14 +272,14 @@ void HTTTrack::calculateTruth()
   mtv.reserve(m_hits.size());
 
   // don't loop over coordinates, since we only calculate truth *per hit* and not per coordinate, though hitmap is saved for coordinates, so be careful
-  for (auto& thishit : m_hits)
+  for (const auto& thishit : m_hits)
   {
     if (thishit.isReal())
     {
       HTTMultiTruth this_mt(thishit.getTruth());
       this_mt.assign_equal_normalization();
       if (thishit.isPixel())
-        for (auto& x : this_mt)
+        for ( auto& x : this_mt)
           x.second *= 2;
       mtv.push_back(this_mt);
     }

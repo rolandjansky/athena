@@ -7,7 +7,7 @@
  * @brief See HTTNNMap.h
  */
 
-#include "HTTNNMap.h"
+#include "TrigHTTMaps/HTTNNMap.h"
 
 #include <string>
 #include <sstream>

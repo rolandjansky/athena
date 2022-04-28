@@ -20,7 +20,7 @@ atlas_add_component( TrigHTTConfTools
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-atlas_install_scripts( test/InputTestSetup.sh )
+atlas_install_scripts( test/HTTInputTestSetup.sh )
 
 atlas_install_generic( config/map_file/*
    DESTINATION share/htt_configuration/map_files )
