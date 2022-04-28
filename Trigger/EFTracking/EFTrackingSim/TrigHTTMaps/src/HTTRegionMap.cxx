@@ -9,7 +9,7 @@
  * See header.
  */
 
-#include "HTTRegionMap.h"
+#include "TrigHTTMaps/HTTRegionMap.h"
 #include <AsgMessaging/MessageCheck.h>
 
 #include <cstdlib>

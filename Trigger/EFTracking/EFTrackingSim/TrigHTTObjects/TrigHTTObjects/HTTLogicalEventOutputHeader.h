@@ -18,16 +18,16 @@ public:
     void reset(); //reset per event variables
 
     // First Stage HTT Roads
-    void getHTTRoads_1st(std::vector<HTTRoad*>& roads_1st) { roads_1st.reserve(m_HTTRoads_1st.size()); for (auto& r : m_HTTRoads_1st) roads_1st.push_back(&r); }
+    void getHTTRoads_1st(std::vector<HTTRoad*>& roads_1st) { roads_1st.reserve(m_HTTRoads_1st.size()); for ( auto& r : m_HTTRoads_1st) roads_1st.push_back(&r); }
     size_t nHTTRoads_1st() const { return m_HTTRoads_1st.size(); }
     void reserveHTTRoads_1st(size_t size) { m_HTTRoads_1st.reserve(size); }
-    void addHTTRoads_1st(std::vector<HTTRoad*> const& roads_1st) { for (auto& r : roads_1st) m_HTTRoads_1st.push_back(*r); }
+    void addHTTRoads_1st(std::vector<HTTRoad*> const& roads_1st) { for ( auto& r : roads_1st) m_HTTRoads_1st.push_back(*r); }
 
     // Second Stage HTT Roads
-    void getHTTRoads_2nd(std::vector<HTTRoad*>& roads_2nd) { roads_2nd.reserve(m_HTTRoads_2nd.size()); for (auto& r : m_HTTRoads_2nd) roads_2nd.push_back(&r); }
+    void getHTTRoads_2nd(std::vector<HTTRoad*>& roads_2nd) { roads_2nd.reserve(m_HTTRoads_2nd.size()); for ( auto& r : m_HTTRoads_2nd) roads_2nd.push_back(&r); }
     size_t nHTTRoads_2nd() const { return m_HTTRoads_2nd.size(); }
     void reserveHTTRoads_2nd(size_t size) { m_HTTRoads_2nd.reserve(size); }
-    void addHTTRoads_2nd(std::vector<HTTRoad*> const& roads_2nd) { for (auto& r : roads_2nd) m_HTTRoads_2nd.push_back(*r); }
+    void addHTTRoads_2nd(std::vector<HTTRoad*> const& roads_2nd) { for ( auto& r : roads_2nd) m_HTTRoads_2nd.push_back(*r); }
 
     // First Stage HTT Tracks
     std::vector<HTTTrack> const& getHTTTracks_1st() const { return m_HTTTracks_1st; }

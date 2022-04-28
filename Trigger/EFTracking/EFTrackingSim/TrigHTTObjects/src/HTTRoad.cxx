@@ -18,14 +18,14 @@ using namespace std;
 size_t HTTRoad::getNHits() const
 {
     size_t n = 0;
-    for (auto& l : m_hits) n += l.size();
+    for (const auto& l : m_hits) n += l.size();
     return n;
 }
 
 std::vector<size_t> HTTRoad::getNHits_layer() const
 {
     std::vector<size_t> out;
-    for (auto& l : m_hits) out.push_back(l.size());
+    for (const auto& l : m_hits) out.push_back(l.size());
     return out;
 }
 

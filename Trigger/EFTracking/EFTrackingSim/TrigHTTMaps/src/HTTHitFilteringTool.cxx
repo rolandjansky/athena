@@ -109,9 +109,9 @@ StatusCode HTTHitFilteringTool::initialize()
       ANA_MSG_INFO("using stub cut map (nStrips):");
     else
       ANA_MSG_INFO("using stub cut map (dPhi):");
-    for(auto& zone_map : m_stubCutMap) {
-      for(auto& layer_map : zone_map.second) {
-        for(auto& ring_map : layer_map.second) {
+    for(const auto& zone_map : m_stubCutMap) {
+      for(const auto& layer_map : zone_map.second) {
+        for(const auto& ring_map : layer_map.second) {
           ANA_MSG_INFO("  " << zone_map.first << "  " << layer_map.first 
 		       << "  " << ring_map.first << "  " << ring_map.second.first 
 		       << ", " << ring_map.second.second);
@@ -142,7 +142,7 @@ StatusCode HTTHitFilteringTool::DoRandomRemoval(HTTLogicalEventInputHeader &head
     HTTCLUSTERING::attachTruth(hits);
 
     std::vector<HTTHit> filteredHits;
-    for(auto & hit : hits) {
+    for(const auto & hit : hits) {
       if(hit.isStrip()) {
         if(m_random.Rndm() >= stripFrac)
           filteredHits.push_back(hit);
@@ -154,7 +154,7 @@ StatusCode HTTHitFilteringTool::DoRandomRemoval(HTTLogicalEventInputHeader &head
     }
 
     tower.clearHits();
-    for (auto & hit : filteredHits) {
+    for (const auto & hit : filteredHits) {
       tower.addHit(hit);
     }
 
@@ -198,7 +198,7 @@ StatusCode HTTHitFilteringTool::GetPairedStripPhysLayers(const HTTPlaneMap *plan
   // need both stereo sides
   // for each odd one, need x-1, then odd one is good
   // for each even one, need x+1, then even one is good
-  for(auto& physLayer : all_strip_layers) {
+  for(const auto& physLayer : all_strip_layers) {
     if(physLayer % 2 == 1) {
       if(std::find(all_strip_layers.begin(), all_strip_layers.end(), physLayer-1) != all_strip_layers.end())
         paired_strip_layers.push_back(physLayer);
@@ -236,10 +236,10 @@ StatusCode HTTHitFilteringTool::DoHitFiltering(HTTLogicalEventInputHeader &heade
       // make HTTCluster for monitoring
       HTTCluster cluster;
       if(hit.isPixel()){
-	HTTCLUSTERING::updatePixelCluster(cluster, hit, true);
+	      HTTCLUSTERING::updatePixelCluster(cluster, hit, true);
       }
       if(hit.isStrip()){
-	HTTCLUSTERING::updateStripCluster(cluster, hit, true);
+	      HTTCLUSTERING::updateStripCluster(cluster, hit, true);
       }
       filteredClusters.push_back(cluster);
     }
@@ -285,7 +285,7 @@ void HTTHitFilteringTool::FilterHits(std::vector<HTTHit> &hits,
 
     std::vector< std::pair<HTTHit,unsigned> > filteredHits_ID, hits_to_filter;
     unsigned counter = 0;
-    for (auto &hit : hits) {
+    for (const auto &hit : hits) {
       // assign hit ID
       std::pair<HTTHit,unsigned> hit_ID;
       hit_ID.first = hit;
@@ -316,7 +316,7 @@ void HTTHitFilteringTool::FilterHits(std::vector<HTTHit> &hits,
     // (until I add a friend class, coming soon hopefully)
     // have to use the hit physLayer
 
-    for (auto &hit : hits_to_filter) {
+    for (const auto &hit : hits_to_filter) {
       if (hit.first.getPhysLayer() % 2 == 0)
         hits_to_filter_inner.push_back(hit);
       else
@@ -325,7 +325,7 @@ void HTTHitFilteringTool::FilterHits(std::vector<HTTHit> &hits,
 
     // step 3: do the stub filtering
     std::vector< std::pair<HTTHit,unsigned> > passed_inner_hits, passed_outer_hits;
-    for (auto innerHit : hits_to_filter_inner) {
+    for (const auto &innerHit : hits_to_filter_inner) {
       std::vector<std::pair<HTTHit,unsigned>> nearby_outer_hits;
       fill_nearby_hits(innerHit.first, hits_to_filter_outer, nearby_outer_hits);
 
@@ -333,7 +333,7 @@ void HTTHitFilteringTool::FilterHits(std::vector<HTTHit> &hits,
       float cut_p, cut_m;
       fill_cut_values(innerHit.first, cut_p, cut_m);
 
-      for (auto outerHit : nearby_outer_hits) {
+      for (const auto &outerHit : nearby_outer_hits) {
         bool hitPassed = check_hit_stub(innerHit.first, outerHit.first, cut_p, cut_m);
         if(hitPassed) {
           // will have duplicates. Maybe interesting to count them, so remove later
@@ -345,7 +345,7 @@ void HTTHitFilteringTool::FilterHits(std::vector<HTTHit> &hits,
 
     // step 4: remove duplicates among the passed hits
     std::vector< std::pair<HTTHit,unsigned> > passed_outer_hits_unique;
-    for (auto &hit : passed_outer_hits) {
+    for (const auto &hit : passed_outer_hits) {
       auto it = std::find_if(passed_outer_hits_unique.begin(), passed_outer_hits_unique.end(),
                              [&hit](const std::pair<HTTHit,unsigned>& h) {return h.second == hit.second;} );
       if(it == passed_outer_hits_unique.end()) {
@@ -353,7 +353,7 @@ void HTTHitFilteringTool::FilterHits(std::vector<HTTHit> &hits,
       }
     }
     std::vector< std::pair<HTTHit,unsigned> > passed_inner_hits_unique;
-    for (auto &hit : passed_inner_hits) {
+    for (const auto &hit : passed_inner_hits) {
       auto it = std::find_if(passed_inner_hits_unique.begin(), passed_inner_hits_unique.end(),
                              [&hit](const std::pair<HTTHit,unsigned>& h) {return h.second == hit.second;} );
       if(it == passed_inner_hits_unique.end()) {
@@ -366,7 +366,7 @@ void HTTHitFilteringTool::FilterHits(std::vector<HTTHit> &hits,
     for (auto &hit : passed_inner_hits_unique) {
       filteredHits_ID.push_back(hit);
     }
-    for (auto &hit : passed_outer_hits_unique) {
+    for (const auto &hit : passed_outer_hits_unique) {
       filteredHits_ID.push_back(hit);
     }
     if(true) {
@@ -375,7 +375,7 @@ void HTTHitFilteringTool::FilterHits(std::vector<HTTHit> &hits,
                 [](const std::pair<HTTHit,unsigned> & hit1, const std::pair<HTTHit,unsigned> & hit2){
                   return hit1.second < hit2.second;
                 });
-      for (auto hit_ID : filteredHits_ID) {
+      for (const auto &hit_ID : filteredHits_ID) {
         filteredHits.push_back(hit_ID.first);
       }
     }
@@ -516,7 +516,7 @@ void printHitsFromHeader(HTTLogicalEventInputHeader &header)
         HTTTowerInputHeader &tower = *header.getTower(i);
         std::vector<HTTHit>  hits = tower.hits();
         ANA_MSG_DEBUG("tower " << i << " with " << hits.size() << " hits:");
-        for(auto& hit : hits) {
+        for(const auto& hit : hits) {
           ANA_MSG_DEBUG("  isStrip, side, x, y, z, rho, phi, physLayer, layer, section, phiM, etaM = " << hit.isStrip() << ", " << hit.getPhysLayer()%2 << ", " << hit.getX() << ", " << hit.getY() << ", " << hit.getZ() << ", " << hit.getR() << ", " << hit.getGPhi() << ", " << hit.getPhysLayer() << ", " << hit.getLayer() << ", " << hit.getSection() << ", " << hit.getPhiModule() << ", " << hit.getHTTEtaModule());
         }
     }

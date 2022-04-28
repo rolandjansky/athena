@@ -20,10 +20,6 @@
 
 #include <sstream>
 
-
-///////////////////////////////////////////////////////////////////////////////
-// Constructors / Initialization
-
 HTTFitConstantBank::HTTFitConstantBank(HTTPlaneMap const * pmap, int ncoords, std::string const & fname, bool isFirstStage, int missingPlane) :
     AthMessaging (Athena::getMessageSvc(), "HTTFitConstantBank"),
     m_pmap(pmap),
@@ -292,8 +288,6 @@ void HTTFitConstantBank::prepareInvFitConstants()
 
 ///////////////////////////////////////////////////////////////////////////////
 // Main Interface Functions
-
-
 // This functions takes in hit coordinates from 'track' and does the linear fit
 // to calculate the track parameters, which are populated back into 'track'.
 // Returns true on success.

@@ -13,7 +13,7 @@
 
 #include "TestTools/initGaudi.h"
 #include "AthenaKernel/getMessageSvc.h"
-#include "../src/HTTRegionMap.h"
+#include "TrigHTTMaps/HTTRegionMap.h"
 #include "PathResolver/PathResolver.h"
 
 using namespace std;

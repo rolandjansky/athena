@@ -28,7 +28,7 @@ void HTTMultiTruth::add(const HTTMultiTruth::Barcode& code, const HTTMultiTruth:
 }
 
 void HTTMultiTruth::add(const HTTMultiTruth& rval) {
-  for (auto const& rval_truth : rval.m_truth) {
+  for (auto& rval_truth : rval.m_truth) {
     m_truth[rval_truth.first] += rval_truth.second;
   }
 }
@@ -57,7 +57,7 @@ void HTTMultiTruth::maximize(const HTTMultiTruth& rval)
   // find input barcode with maximum weight;
   Weight maxweight = 0.;
   Barcode maxweight_barcode(-1l, -1l);
-  for (auto const& rval_truth : rval.m_truth)
+  for (const auto & rval_truth : rval.m_truth)
   {
     if (rval_truth.second > maxweight)
     {
@@ -71,7 +71,7 @@ void HTTMultiTruth::maximize(const HTTMultiTruth& rval)
 
 void HTTMultiTruth::assign_equal_normalization()
 {
-  for (auto& truth : m_truth) truth.second = 1. / m_truth.size();
+  for ( auto& truth : m_truth) truth.second = 1. / m_truth.size();
 }
 
 void HTTMultiTruth::display() const
@@ -80,7 +80,7 @@ void HTTMultiTruth::display() const
 
   if (m_truth.empty()) return;
 
-  for (auto const& truth : m_truth)
+  for ( auto& truth : m_truth)
     ANA_MSG_INFO("   " << (truth.first).first << "," << (truth.first).second << " <=> " << truth.second);
 
   ANA_MSG_INFO("      best: ");

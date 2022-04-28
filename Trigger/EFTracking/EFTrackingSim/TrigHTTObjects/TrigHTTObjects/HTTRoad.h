@@ -70,7 +70,7 @@ public:
     std::unordered_set<const HTTHit*> getHits_flat() const
     {
         std::unordered_set<const HTTHit*> hits;
-        for (auto& x : m_hits) hits.insert(x.begin(), x.end());
+        for (const auto& x : m_hits) hits.insert(x.begin(), x.end());
         return hits;
     }
 
