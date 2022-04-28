@@ -32,7 +32,7 @@ int main(void) {
   assert(!pCodeEntry->writable);
   //assert(0 != pCodeEntry->inode);
   if (0 == pCodeEntry->inode) {
-    printf ("Test fail: null inode %0lx-%0lx %u %u %u %u %u %u %u %u %s\n",
+    printf ("Test fail: null inode %0lx-%0lx %u %u %u %u %u %u %u %lu %s\n",
             pCodeEntry->begAddress,
             pCodeEntry->endAddress,
             pCodeEntry->readable,
@@ -42,8 +42,8 @@ int main(void) {
             pCodeEntry->offset,
             pCodeEntry->dev[0],
             pCodeEntry->dev[1],
-            pCodeEntry->inode,
-            pCodeEntry->pathname);
+            static_cast<unsigned long>(pCodeEntry->inode),
+            pCodeEntry->pathname.c_str());
     fflush (stdout);
     std::ifstream f("/proc/self/maps");
     const int LMAX=256;
