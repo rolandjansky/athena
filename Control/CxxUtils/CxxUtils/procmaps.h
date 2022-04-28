@@ -1,12 +1,14 @@
 // dear emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PROCMAPS_H 
 #define PROCMAPS_H 1
 #include <vector>
+#include <string>
+#include <sys/types.h>
 /** @class procmaps 
  * @brief A simple API to access /proc/self/maps info
  *
@@ -25,8 +27,8 @@ public:
     bool isPrivate; ///=true page is private(COW), =false page is shared
     unsigned int offset;
     unsigned int dev[2]; /// dev[0] major, dev[1] minor
-    unsigned int inode;
-    char pathname[32];  ///truncated if needed
+    ino_t inode;
+    std::string pathname;
   };
 
   procmaps(size_t entries=1024);

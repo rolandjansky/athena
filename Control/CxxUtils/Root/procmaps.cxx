@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
@@ -13,20 +13,23 @@ procmaps::Entry::Entry(const char* procMapsLine) :
   offset(0), inode(0)
 {
   dev[0]=0; dev[1]=0;
-  memset(pathname,' ',31);
   char pageProts[5];
   memset(pageProts,' ', 4);
+  uint64_t inode_tmp;
+  char path[2048] = "";
   sscanf(procMapsLine,
-	 "%80lx-%80lx %4s %80x %2x:%2x %80x %31s",
+	 "%80lx-%80lx %4s %80x %4x:%4x %80lu %2047s",
 	 &this->begAddress,
 	 &this->endAddress,
 	 pageProts,
 	 &this->offset,
 	 &this->dev[0],
 	 &this->dev[1],
-	 &this->inode,
-	 this->pathname
+	 &inode_tmp,
+	 path
 	 );
+  this->inode = inode_tmp;
+  this->pathname = std::string (path);
   //printf("pageProts %s pathname <%s> \n", pageProts, pathname);
   this->readable = (pageProts[0] == 'r');
   this->writable = (pageProts[1] == 'w');
