@@ -43,6 +43,9 @@ if __name__ == "__main__":
     cfg.merge(PoolReadCfg(flags))
     cfg.merge(TrigMinBias(flags))
 
+    with open("cfg.pkl", "wb") as f:
+        cfg.store(f)
+
     status = cfg.run()
     if status.isFailure():
         import sys

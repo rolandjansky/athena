@@ -21,6 +21,10 @@ def TrigSPTRK(configFlags, highGranularity=False):
     )
 
     alg.TrackSelectionTool = trkSel
+    ZFinderCollection = 'HLT_vtx_z'
+    if ZFinderCollection in configFlags.Input.Collections:
+        print("Enabled z finder data reading")
+        alg.zFinderDataKey = ZFinderCollection
 
     alg.triggerList = ["HLT_mb_sptrk_L1RD0_FILLED", "HLT_mb_sp_L1RD0_FILLED"]
 
@@ -38,6 +42,13 @@ def TrigSPTRK(configFlags, highGranularity=False):
         mbEffGroup.defineHistogram( "nTrkOnline;nTrkOnlineLowMult", title="Number of tracks reconstructed online;track counts", xbins=50, xmin=-1, xmax=50 )
         nbins = 400 if highGranularity else 100
         mbEffGroup.defineHistogram( "nTrkOnline,nTrkOffline", type="TH2F", title=";N online tracks;N offline tracks", xbins=nbins, xmin=0, xmax=400, ybins=nbins, ymin=0, ymax=400 )
+        mbEffGroup.defineHistogram( "nTrkOfflineVtx,nTrkOffline", type="TH2F", title=";N offline tracks with Vtx cut;N offline tracks", xbins=nbins, xmin=0, xmax=400, ybins=nbins, ymin=0, ymax=400 )
+        mbEffGroup.defineHistogram( "nTrkOnline,zFinderWeight", type="TH2F", title=";N online tracks;ZFinder weight", xbins=nbins, xmin=0, xmax=400, ybins=nbins, ymin=0, ymax=400 )
+        mbEffGroup.defineHistogram( "nTrkOffline,zFinderWeight", type="TH2F", title=";N online tracks;ZFinder weight", xbins=nbins, xmin=0, xmax=400, ybins=nbins, ymin=0, ymax=400 )
+        mbEffGroup.defineHistogram( "nTrkOfflineVtx,zFinderWeight", type="TH2F", title=";N offline tracks with Vtx cut;ZFinder weight", xbins=nbins, xmin=0, xmax=400, ybins=nbins, ymin=0, ymax=400 )
+        mbEffGroup.defineHistogram( "offlineVtxZ,zFinderVtxZ", type="TH2F", title=";offline pri vertex z[mm];ZFinder vertex z[mm]", xbins=nbins, xmin=-200, xmax=200, ybins=nbins, ymin=-200, ymax=200 )
+        mbEffGroup.defineHistogram( "onlineOfflineVtxDelta", title=";(offline - online) vertex z[mm]", xbins=200, xmin=-200, xmax=200 )
+
         mbEffGroup.defineHistogram( "nTrkOnline", title="Number of tracks reconstructed online;track counts", xbins=200, xmin=-1, xmax=400 )
         mbEffGroup.defineHistogram( "nTrkRatio", title="Number of tracks reconstructed online/offline;track counts online/offline", xbins=200, xmin=-1, xmax=4 ) 
         mbEffGroup.defineHistogram( "decision,nTrkOnline", type="TEfficiency", title="Efficiency (step curve);Online nTrk", xbins=400, xmin=0, xmax=400 )
@@ -69,8 +80,8 @@ def TrigSPTRK(configFlags, highGranularity=False):
             mbEffGroup.defineHistogram( "onlTrkD0", title="Online track D0;number of hits", xbins=40, xmin=-20, xmax=20)
 
             mbEffGroup.defineHistogram( "trkD0", cutmask="trkMask", title="Offline selected tracks D0;d_{0} [mm]", xbins=40, xmin=-20, xmax=20)
-            mbEffGroup.defineHistogram( "trkZ0", cutmask="trkMask", title="Offline selected tracks Z0;z_{0}[mm]", xbins=40, xmin=-20, xmax=20)
-            mbEffGroup.defineHistogram( "trkZ0;trackZ0WideRange", cutmask="trkMask", title="Offline selected tracks Z0;z_{0}[mm]", xbins=40, xmin=-200, xmax=200)
+            mbEffGroup.defineHistogram( "trkZ0wrtPV", cutmask="trkMask", title="Offline selected tracks Z0 wrt PV;z_{0}[mm]", xbins=40, xmin=-20, xmax=20)
+            mbEffGroup.defineHistogram( "trkZ0", cutmask="trkMask", title="Offline selected tracks Z0;z_{0}[mm]", xbins=40, xmin=-200, xmax=200)
 
         mbSpGroup = monConfig.addGroup(
             alg,
@@ -129,8 +140,8 @@ if __name__ == "__main__":
     cfg.merge(TrigSPTRK(ConfigFlags, highGranularity=True)) # for local testing have very granular histograms
 
     # If you want to turn on more detailed messages ...
-    from AthenaCommon.Constants import DEBUG
-    cfg.getEventAlgo("HLTMBSPTRKMonAlg").OutputLevel = DEBUG
+    #    from AthenaCommon.Constants import DEBUG
+    #    cfg.getEventAlgo("HLTMBSPTRKMonAlg").OutputLevel = DEBUG
     cfg.printConfig(withDetails=True)  # set True for exhaustive info
     with open("cfg.pkl", "wb") as f:
         cfg.store(f)

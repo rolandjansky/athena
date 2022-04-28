@@ -14,6 +14,7 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #include "GaudiKernel/ToolHandle.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "xAODTrigger/EnergySumRoI.h" 
+#include "xAODTracking/VertexContainer.h"
 
 // STL includes
 #include <string>
@@ -38,11 +39,14 @@ private:
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_onlineTrkKey { this, "OnlineTrkKey", "HLT_IDTrack_MinBias_IDTrig", "Name of track counts info object produced by the HLT track counting FEX algorithm" };
   
   SG::ReadHandleKey<xAOD::EnergySumRoI> m_lvl1EnergySumROIKey { this, "lvl1EnergySumROIKey", "LVL1EnergySumRoI", "Name of Sum of Energy info object produced by the HLT track counting FEX algorithm" };
+  SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_zFinderDataKey { this, "zFinderDataKey", "", "Name of container with online zFinder vertex info" };
+  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexKey { this, "Vertex", "PrimaryVertices", "Offline vertices key"};
 
   Gaudi::Property<std::vector<std::string>> m_triggerList{this, "triggerList",{}, "Add triggers to this to be monitored"};
   ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelectionTool {this, "TrackSelectionTool", "InDetTrackSelectionTool", "Tool for selecting tracks"};
   Gaudi::Property<float> m_minPt{ this, "minPt", 0.0, "Consider offline tracks only if above this threshold (in MeV)"};
-  Gaudi::Property<float> m_z0{ this, "z0", 400.0, "Consider offline tracks only if the point to vertex that is withink this value"};
+  Gaudi::Property<float> m_z0{ this, "z0", 3.0, "Longitudinal DCA"};
+  Gaudi::Property<float> m_d0{ this, "d0", 3.0, "Transverse DCA"};
   
   StatusCode monitorPurities(const EventContext& context) const;
   StatusCode monitorSPCounts(const EventContext& context) const;
