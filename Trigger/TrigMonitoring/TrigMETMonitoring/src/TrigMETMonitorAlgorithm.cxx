@@ -407,7 +407,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     if (l1_jFexMet_cont.isValid()) {
       float L1_met_Ex = 0;
       float L1_met_Ey = 0;
-      for (const auto &l1_jmet: *l1_jFexMet_cont) {
+      for (const auto l1_jmet: *l1_jFexMet_cont) {
         L1_met_Ex += l1_jmet->Ex()*0.001;
         L1_met_Ey += l1_jmet->Ey()*0.001;
       }
@@ -425,7 +425,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     }
     if (l1_jFexSumEt_cont.isValid()) {
       float L1_met_sumEt = 0;
-      for (const auto &l1_jsumEt: *l1_jFexSumEt_cont) {
+      for (const auto l1_jsumEt: *l1_jFexSumEt_cont) {
         L1_met_sumEt += l1_jsumEt->Et_lower()*0.001 + l1_jsumEt->Et_upper()*0.001;
       }
       float L1_met_sumEt_log = signed_log(L1_met_sumEt, epsilon);
