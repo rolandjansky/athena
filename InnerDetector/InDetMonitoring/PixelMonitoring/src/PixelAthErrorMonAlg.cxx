@@ -43,11 +43,22 @@ StatusCode PixelAthErrorMonAlg::fillHistograms(const EventContext& ctx) const {
   // Generate a vector of error maps for all different error states.
   std::vector<VecAccumulator2DMap> error_maps_per_state;
   error_maps_per_state.reserve(kNumErrorStatesFEI3 + kNumErrorStatesFEI4);
+  std::vector<VecAccumulator2DMap> fe_error_maps_per_state;
+  fe_error_maps_per_state.reserve(kNumErrorStatesPerFE);
   for (const auto& state : error_names_stateFEI3) {
     error_maps_per_state.emplace_back(state + std::string("Map"));
+    if (isPerFEI3State(state))
+      {
+	fe_error_maps_per_state.emplace_back(state + std::string("FEMap"));
+      }
   }
   for (const auto& state : error_names_stateFEI4) {
     error_maps_per_state.emplace_back(state + std::string("Map"));
+  }
+  if (error_maps_per_state.size()!=(kNumErrorStatesFEI3 + kNumErrorStatesFEI4) ||
+      fe_error_maps_per_state.size()!=kNumErrorStatesPerFE) {
+    ATH_MSG_ERROR("PixelMonitoring: Mismatch in the definition of the number of error states.");
+    return StatusCode::RECOVERABLE;
   }
   std::vector<VecAccumulator2DMap> error_maps_per_cat_rodmod;
   // only first four rodmod histos are unique, others are covered by
@@ -211,10 +222,16 @@ StatusCode PixelAthErrorMonAlg::fillHistograms(const EventContext& ctx) const {
         std::bitset<kNumErrorStatesFEI3> stateFEI3 = getErrorStateFE(fe_errorword, is_fei4);
         num_errors[pixlayer] += stateFEI3.count();
         if (stateFEI3.any()) num_femcc_errwords++;
+	int perFEI3state(-1);
         for (unsigned int state = 0; state < stateFEI3.size(); ++state) {
+	  if (isPerFEI3State(error_names_stateFEI3[state])) perFEI3state++;
           if (stateFEI3[state]) {
             num_errors_per_state[state][pixlayer]++;
-            error_maps_per_state[state].add(pixlayer, waferID, m_pixelid, 1.0);
+	    if (perFEI3state>=0 && perFEI3state<kNumErrorStatesPerFE) {
+	      fe_error_maps_per_state[perFEI3state].add(pixlayer, waferID, m_pixelid, iFE, 1.0);
+	    } else {
+	      error_maps_per_state[state].add(pixlayer, waferID, m_pixelid, 1.0);
+	    }
           }
         }
       } else {
@@ -335,10 +352,12 @@ StatusCode PixelAthErrorMonAlg::fillHistograms(const EventContext& ctx) const {
       }
     }
   }
-
+  int perFEI3state(0);
   for (unsigned int state = 0; state < kNumErrorStatesFEI3 + kNumErrorStatesFEI4; state++) {
     if (state < kNumErrorStatesFEI3) {
-      fill2DProfLayerAccum(error_maps_per_state[state]);
+      if (isPerFEI3State(error_names_stateFEI3[state]) && perFEI3state<kNumErrorStatesPerFE) 
+	fill2DProfLayerAccum(fe_error_maps_per_state[perFEI3state++]);
+      else fill2DProfLayerAccum(error_maps_per_state[state]);
       fill1DProfLumiLayers(error_names_stateFEI3[state] + std::string(
                              "PerLumi"), lb, num_errors_per_state[state], PixLayers::NFEI3LAYERS);
     } else {
@@ -481,4 +500,10 @@ void PixelAthErrorMonAlg::fillErrorCatRODmod(int sc, int payload,
       sc == 28 || sc == 29 ||                                    // SR28:Bit flip in CMD, SR29:Triple redundant CMD,
       sc == 31)                                                 // SR31:Triple redundant EFUSE)
     nerrors_cat_rodmod[5][ife] += payload;// SEU error
+}
+
+bool PixelAthErrorMonAlg::isPerFEI3State(const std::string& state) const {
+ return (state.find("SEU") != std::string::npos || 
+	 state.find("EOC") != std::string::npos || 
+	 state.find("Warning") != std::string::npos);
 }

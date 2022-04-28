@@ -86,7 +86,7 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
 
     int pixlayer = getPixLayersID(m_pixelid->barrel_ec(waferID), m_pixelid->layer_disk(waferID));
     if (pixlayer == 99) continue;
-    getPhiEtaMod(m_pixelid, waferID, phiMod, etaMod, copyFEval);
+    getPhiEtaMod(waferID, phiMod, etaMod, copyFEval);
 
     bool is_active = isActive( !m_pixelDetElStatusActiveOnly.empty() ? pixel_active.cptr() :  nullptr,  id_hash);
     if (is_active && isGood( !m_pixelDetElStatus.empty() ? pixel_status.cptr() :  nullptr,  id_hash) ) {
@@ -477,7 +477,7 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
       clusID = p_clus->identify();
       int pixlayer = getPixLayersID(m_pixelid->barrel_ec(clusID), m_pixelid->layer_disk(clusID));
       if (pixlayer == 99) continue;
-      getPhiEtaMod(m_pixelid, clusID, phiMod, etaMod, copyFEval);
+      getPhiEtaMod(clusID, phiMod, etaMod, copyFEval);
 
       const InDet::PixelCluster& cluster = *p_clus;
       nclusters++;

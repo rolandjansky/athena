@@ -33,6 +33,9 @@ static const int kNumErrorStatesFEI3 {
 static const int kNumErrorStatesFEI4 {
   27
 };
+static const int kNumErrorStatesPerFE {
+  5
+};
 
 // error states = enumerators of PixelByteStreamErrors and FEI4 SR's we care about
 //
@@ -151,6 +154,7 @@ public:
                           int (&nerrors_cat_rodmod)[ErrorCategoryRODMOD::COUNT][nFEIBL2D], int ife) const;
   void fillErrorCatRODmod(int servicecode, int payload,
                           int (&nerrors_cat_rodmod)[ErrorCategoryRODMOD::COUNT][nFEIBL2D], int ife) const;
+  bool isPerFEI3State(const std::string& state) const;
 private:
   SG::ReadHandleKey<IDCInDetBSErrContainer> m_idcErrContKey
      {this, "PixelByteStreamErrs", "PixelByteStreamErrs", "PixelByteStreamErrs container key"};

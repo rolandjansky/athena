@@ -93,7 +93,7 @@ public:
   bool isIBL2D(int hashID) const;
   bool isIBL3D(int hashID) const;
   int getNumberOfFEs(int pixlayer, int etaMod) const;
-  void getPhiEtaMod(const PixelID* pid, Identifier& id, int& phiMod, int& etaMod, bool& copyFE) const;
+  void getPhiEtaMod(Identifier& id, int& phiMod, int& etaMod, bool& copyFE) const;
   bool isHitOnTrack(Identifier id, std::vector<Identifier> const& RDOIDs) const;
   bool isClusterOnTrack(Identifier id, std::vector<std::pair<Identifier, double> > const& ClusterIDs) const;
   bool isClusterOnTrack(Identifier id, std::vector<std::pair<Identifier, double> > const& ClusterIDs,
