@@ -351,7 +351,7 @@ def adaptiveMultiVertexFinderTool_builder( signature, config ) :
                                                                     VertexFitterTool  = vertexFitterTool,
                                                                     TrackSelector     = trackSelectorTool,
                                                                     useBeamConstraint = True,
-                                                                    m_useSeedConstraint = False,  # default parameter is True sop use ACTS default value
+                                                                    useSeedConstraint = False,  # default parameter is True sop use ACTS default value
                                                                     TracksMaxZinterval  = tracksMaxZinterval,
                                                                     addSingleTrackVertices = singleTrackVertices,
                                                                     selectiontype     = 0, # what is this? - ACTS equivalent ? 

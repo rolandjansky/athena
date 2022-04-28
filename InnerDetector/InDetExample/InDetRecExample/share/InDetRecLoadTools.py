@@ -833,8 +833,8 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                                       TrackSelector     = InDetTrackSelectorTool,
                                                                       useBeamConstraint = InDetFlags.useBeamConstraint(),
                                                                       selectiontype     = 0,
-  								      TracksMaxZinterval = 3,#mm 
-                                                                      m_useSeedConstraint = False, #switching off seed constraint
+                                                                      TracksMaxZinterval = 3,#mm 
+                                                                      useSeedConstraint = False, #switching off seed constraint
                                                                       do3dSplitting     = InDetFlags.doPrimaryVertex3DFinding())
     else:
       from ActsGeometry.ActsTrackingGeometryTool import ActsTrackingGeometryTool
