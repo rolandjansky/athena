@@ -456,12 +456,13 @@ ParticleCaloExtensionTool::surfaceCaloExtension(
   const std::vector<std::unique_ptr<Trk::Surface>>& caloSurfaces,
   ParticleHypothesis particleType) const
 {
-  std::vector<std::pair<CaloSampling::CaloSample,
-                        std::unique_ptr<const Trk::TrackParameters>>>
-    caloParameters{};
   const auto* lastImpact = &startPars;
   // Go into steps from layer to layer
   size_t numSteps = caloSurfaces.size();
+  std::vector<std::pair<CaloSampling::CaloSample,
+                        std::unique_ptr<const Trk::TrackParameters>>>
+    caloParameters{};
+  caloParameters.reserve(numSteps);
   for (size_t i = 0; i < numSteps; ++i) {
     std::unique_ptr<const Trk::TrackParameters> nextImpact =
       m_extrapolator->extrapolateDirectly(ctx,
