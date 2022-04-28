@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "RecBackgroundAlgs/BackgroundWordTest.h"
+#include "BackgroundWordTest.h"
 #include "xAODEventInfo/EventInfo.h"
 #include <algorithm>
 
