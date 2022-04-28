@@ -188,6 +188,7 @@ athAlgSeq = AlgSequence()
 # contain an old EventInfo.
 from PyUtils.MetaReaderPeeker import convert_itemList
 if 'xAOD::EventInfo#EventInfo' not in convert_itemList(layout='#join'):
+    # If xAOD::EventInfo is not present in the input file then it should be created
     if not hasattr( athAlgSeq, "xAODMaker::EventInfoCnvAlg" ):
         athAlgSeq += CfgMgr.xAODMaker__EventInfoCnvAlg(AODKey="McEventInfo")
 

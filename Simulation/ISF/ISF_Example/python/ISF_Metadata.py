@@ -71,11 +71,11 @@ def patch_mc_channel_numberMetadata(addToFile=True):
 
 
 ###
-def checkForContainerInInput(container):
+def checkForContainerInInput(container, streamName='StreamEVGEN'):
     """Check for the presence of a particular container type in the input file"""
     if metadata_full is not None:
         for key in metadata_full.keys():
-            if 'EventStreamInfo' in key and 'StreamEVGEN' in key:
+            if 'EventStreamInfo' in key and streamName in key:
                 for entry in metadata_full[key]['itemList']:
                     if entry[0] == container:
                         simMDlog.info("Input contains: %s", entry)

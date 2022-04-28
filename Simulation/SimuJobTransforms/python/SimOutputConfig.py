@@ -20,13 +20,10 @@ def getStreamHITS_ItemList(ConfigFlags):
     ItemList = ["McEventCollection#TruthEvent",
                 "JetCollection#*"]
 
-    if not ConfigFlags.Sim.ISF.ReSimulation:
-        ItemList+=["xAOD::EventInfo#EventInfo",
-                   "xAOD::EventAuxInfo#EventInfoAux.",
-                   "xAOD::EventInfoContainer#*",
-                   "xAOD::EventInfoAuxContainer#*"]
-    else:
-        ItemList += ["EventInfo#*"] ## TODO: update config so that ReSim can use the same xAOD::EventInfo
+    ItemList+=["xAOD::EventInfo#EventInfo",
+               "xAOD::EventAuxInfo#EventInfoAux.",
+               "xAOD::EventInfoContainer#*",
+               "xAOD::EventInfoAuxContainer#*"]
 
     if ConfigFlags.Sim.IncludeParentsInG4Event:
         ItemList += ["McEventCollection#GEN_EVENT"]
