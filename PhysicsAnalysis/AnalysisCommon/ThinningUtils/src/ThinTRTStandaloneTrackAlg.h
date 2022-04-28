@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
 */
 
 #ifndef THINNINGUTILS_THINTRTSTANDALONETRACKALG_H
@@ -21,7 +21,7 @@
  *
  * Algorithm that thins TRT standalone tracks that are neither used by egamma nor by taus
  */
-class ThinTRTStandaloneTrackAlg : public AthReentrantAlgorithm
+class ThinTRTStandaloneTrackAlg final: public AthReentrantAlgorithm
 {
  public:
 
