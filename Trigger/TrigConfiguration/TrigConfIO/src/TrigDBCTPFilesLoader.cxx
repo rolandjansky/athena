@@ -398,43 +398,46 @@ TrigConf::TrigDBCTPFilesLoader::loadTMC(L1CTPFiles & ctpfiles, std::unique_ptr<c
    }
 
    // read the ctpin map
-   {
-      std::map<std::string, size_t> ctpin;
-      for (size_t slot : {7, 8, 9})
-      {
-         for (size_t conn : {0, 1, 2, 3})
+   std::vector<TrigConf::L1CTPFiles::CTPInCounter> ctpinCounters;
+   for (size_t slot : {7, 8, 9})
+     {
+       for (size_t conn : {0, 1, 2, 3})
          {
-            std::string path = "CTPINs.SLOT" + std::to_string(slot) + ".Monitoring.Cables.CON" + std::to_string(conn);
-            if (auto dv = ds.getObject_optional(path))
-            {
+	   std::string path = "CTPINs.SLOT" + std::to_string(slot) + ".Monitoring.Cables.CON" + std::to_string(conn);
+	   if (auto dv = ds.getObject_optional(path))
+	     {
                if (auto ov = dv->getList_optional("outputs"))
-               {
-                  for (const DataStructure &output : *ov)
-                  {
-                     size_t number = output.getAttribute<size_t>("number");
-                     unsigned int mapping = number + 64 * conn + 256 * (slot - 7);
-                     ctpin[output.getAttribute<std::string>("TriggerCounter")] = mapping;
-                  }
-               }
-            }
+		 {
+		   for (const DataStructure &output : *ov)
+		     {
+		       ctpinCounters.push_back(
+			  TrigConf::L1CTPFiles::CTPInCounter(
+			     output.getAttribute<std::string>("TriggerCounter"), slot, conn, output.getAttribute<size_t>("number")));
+		     }
+		 }
+	     }
          }
-      }
-      TRG_MSG_INFO("Loading ctpin counters " << ctpin.size());
-      ctpfiles.set_Tmc_CtpinCounters(std::move(ctpin));
-   }
-
+     }
+   TRG_MSG_INFO("Loading ctpin counters " << ctpinCounters.size());
+   ctpfiles.set_Tmc_CtpinCounters(std::move(ctpinCounters));
+   
    // read the ctpmon map
-   if( auto dv = ds.getObject_optional("ctpmonMap") ) {
-      std::map<std::string, size_t> ctpmon;
-      for(const std::string & k : dv->getKeys()) {
-         ctpmon[k] = dv->getAttribute<size_t>(k);
-      }
-      ctpfiles.set_Tmc_CtpmonCounters(std::move(ctpmon));
-      TRG_MSG_INFO("Loading ctp mon counters " << ctpmon.size());
+   std::vector<TrigConf::L1CTPFiles::CTPMonCounter> ctpmonCounters;
+   if( auto dv = ds.getObject_optional("CTPMON.Monitoring") ) {
+     if (auto ov = dv->getList_optional("outputs"))
+       {
+	 for (const DataStructure &output : *ov)
+	   {
+	     ctpmonCounters.push_back(
+		TrigConf::L1CTPFiles::CTPMonCounter(
+		   output.getAttribute<std::string>("TriggerCounter"), output.getAttribute<size_t>("number")));
+	   }
+       }
    }
+   TRG_MSG_INFO("Loading ctpmon counters " << ctpmonCounters.size());
+   ctpfiles.set_Tmc_CtpmonCounters(std::move(ctpmonCounters));
 
    ctpfiles.set_Tmc_Data(std::move(ds));
-
    ctpfiles.set_HasCompleteTmcData(true);
 }
 
