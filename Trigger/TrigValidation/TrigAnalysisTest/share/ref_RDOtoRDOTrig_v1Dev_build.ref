@@ -3559,20 +3559,6 @@ HLT_e26_idperf_loose_L1eEM26M:
     2: 4
     3: 4
     4: 4
-HLT_e26_idperf_loose_lrtloose_L1EM22VHI:
-  eventCount: 5
-  stepCounts:
-    0: 6
-    1: 6
-    2: 5
-    3: 5
-    4: 5
-  stepFeatures:
-    0: 6
-    1: 6
-    2: 5
-    3: 5
-    4: 5
 HLT_e26_idperf_loose_lrtloose_L1eEM26M:
   eventCount: 4
   stepCounts:

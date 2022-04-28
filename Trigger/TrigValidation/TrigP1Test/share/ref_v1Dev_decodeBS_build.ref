@@ -1272,8 +1272,6 @@ HLT_e26_idperf_loose_L1EM22VHI:
   eventCount: 0
 HLT_e26_idperf_loose_L1eEM26M:
   eventCount: 0
-HLT_e26_idperf_loose_lrtloose_L1EM22VHI:
-  eventCount: 0
 HLT_e26_idperf_loose_lrtloose_L1eEM26M:
   eventCount: 0
 HLT_e26_idperf_tight_L1EM22VHI:
