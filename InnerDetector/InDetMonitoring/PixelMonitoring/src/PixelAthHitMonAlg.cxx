@@ -66,7 +66,7 @@ StatusCode PixelAthHitMonAlg::fillHistograms(const EventContext& ctx) const {
     int pixlayer = getPixLayersID(m_pixelid->barrel_ec(waferID), m_pixelid->layer_disk(waferID));
     if (pixlayer == 99) continue;
     if (isActive( !m_pixelDetElStatusActiveOnly.empty() ? pixel_active.cptr() : nullptr, id_hash) == false) {
-      getPhiEtaMod(m_pixelid, waferID, phiMod, etaMod, copyFEval);
+      getPhiEtaMod(waferID, phiMod, etaMod, copyFEval);
       switch (pixlayer) {
       case PixLayers::kECA:
         hitsPerEventArray.DA[phiMod][etaMod] = -1;
@@ -180,7 +180,7 @@ StatusCode PixelAthHitMonAlg::fillHistograms(const EventContext& ctx) const {
 
       nhits++;
       hitLvl1a.push_back(p_rdo->getLVL1A());
-      getPhiEtaMod(m_pixelid, rdoID, phiMod, etaMod, copyFEval);
+      getPhiEtaMod(rdoID, phiMod, etaMod, copyFEval);
       switch (pixlayer) {
       case PixLayers::kECA:
         hitsPerEventArray.DA[phiMod][etaMod]++;

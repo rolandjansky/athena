@@ -356,21 +356,21 @@ int PixelAthMonitoringBase::getNumberOfFEs(int pixlayer, int etaMod) const {
 ///
 /// helper function to get eta phi coordinates of per-layer arrays
 ///
-void PixelAthMonitoringBase::getPhiEtaMod(const PixelID* pid, Identifier& id, int& phiMod, int& etaMod,
+void PixelAthMonitoringBase::getPhiEtaMod(Identifier& id, int& phiMod, int& etaMod,
                                           bool& copyFE) const {
-  phiMod = pid->phi_module(id);
+  phiMod = m_pixelid->phi_module(id);
 
-  int layerDisk = pid->layer_disk(id);
+  int layerDisk = m_pixelid->layer_disk(id);
   etaMod = layerDisk;
   copyFE = false;
-  if (pid->barrel_ec(id) == 0) {
-    etaMod = pid->eta_module(id);
+  if (m_pixelid->barrel_ec(id) == 0) {
+    etaMod = m_pixelid->eta_module(id);
     if (layerDisk == 0) {
       if (etaMod < -6) {
         etaMod = etaMod - 6;
       } else if (etaMod > -7 && etaMod < 6) {
         int feid = 0;
-        if (pid->eta_index(id) >= 80) feid = 1;
+        if (m_pixelid->eta_index(id) >= 80) feid = 1;
         etaMod = 2 * etaMod + feid;
         copyFE = true;
       } else {
