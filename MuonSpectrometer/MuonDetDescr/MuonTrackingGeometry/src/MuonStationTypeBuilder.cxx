@@ -163,10 +163,10 @@ Trk::TrackingVolumeArray* Muon::MuonStationTypeBuilder::processBoxStationCompone
             std::vector<const GeoVPhysVol*>::iterator geoIter = compGeo.begin();
             std::vector<Amg::Transform3D>::iterator transfIter = compTransf.begin();
             while (vol->center()[0] >= (*volIter)->center()[0]) {
-                volIter++;
-                nameIter++;
-                geoIter++;
-                transfIter++;
+                ++volIter;
+                ++nameIter;
+                ++geoIter;
+                ++transfIter;
             }
             compVol.insert(volIter, vol);
             compName.insert(nameIter, cname);
@@ -462,10 +462,10 @@ Trk::TrackingVolumeArray* Muon::MuonStationTypeBuilder::processTrdStationCompone
             std::vector<const GeoVPhysVol*>::iterator geoIter = compGeo.begin();
             std::vector<Amg::Transform3D>::iterator transfIter = compTransf.begin();
             while (vol->center()[0] >= (*volIter)->center()[0]) {
-                volIter++;
-                nameIter++;
-                geoIter++;
-                transfIter++;
+                ++volIter;
+                ++nameIter;
+                ++geoIter;
+                ++transfIter;
             }
             compVol.insert(volIter, vol);
             compName.insert(nameIter, cname);
@@ -725,9 +725,9 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processMdtBox(Trk::Volu
                 std::vector<double>::iterator rIter = x_ref.begin();
                 std::vector<int>::iterator aIter = x_active.begin();
                 while (transfc.translation()[0] > *xIter) {
-                    xIter++;
-                    mIter++;
-                    rIter++;
+                    ++xIter;
+                    ++mIter;
+                    ++rIter;
                 }
                 x_array.insert(xIter, transfc.translation()[0]);
                 x_mat.insert(mIter, mdtMat);
@@ -871,9 +871,9 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processMdtTrd(Trk::Volu
                 std::vector<double>::iterator rIter = x_ref.begin();
                 std::vector<int>::iterator aIter = x_active.begin();
                 while (transfc.translation()[0] > *xIter) {
-                    xIter++;
-                    mIter++;
-                    rIter++;
+                    ++xIter;
+                    ++mIter;
+                    ++rIter;
                 }
                 x_array.insert(xIter, transfc.translation()[0]);
                 x_mat.insert(mIter, mdtMat);
@@ -1144,8 +1144,8 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processSpacer(Trk::Volu
             vIter = gv.erase(vIter);
             tIter = transf.erase(tIter);
         } else {
-            vIter++;
-            tIter++;
+            ++vIter;
+            ++tIter;
         }
     }
     // translate into layers
@@ -1340,7 +1340,7 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processSpacer(Trk::Volu
     }
 
     std::vector<const Trk::Layer*>::iterator lIt = layers.begin();
-    for (; lIt != layers.end(); lIt++)
+    for (; lIt != layers.end(); ++lIt)
         if ((*lIt)->thickness() < 0.) lIt = layers.erase(lIt);
 
     std::vector<const Trk::Layer*>* spacerLayers = new std::vector<const Trk::Layer*>(layers);

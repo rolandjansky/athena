@@ -650,7 +650,7 @@ const Trk::Volume* Muon::MuonInertMaterialBuilderCond::createEnvelope(
             ATH_MSG_VERBOSE(" bounds not recognized ");
             return nullptr;
         }
-        sIter++;
+        ++sIter;
     }
 
     double xMin = 13000.;
@@ -855,7 +855,7 @@ std::vector<std::pair<const Trk::Volume*, std::pair<float, float>>> Muon::MuonIn
             }
             sIter = constituents.begin();
         } else {
-            sIter++;
+            ++sIter;
         }
     }
 
