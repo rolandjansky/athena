@@ -4,7 +4,6 @@
 Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 
-from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaConfiguration.Enums import LHCPeriod
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
@@ -30,27 +29,11 @@ from TrigT1CaloSim.TTL1OverlayConfig import LArTTL1OverlayCfg, TileTTL1OverlayCf
 from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoOverlayCfg
 
 
-def OverlayMainServicesCfg(flags):
-    """Configure event loop for overlay"""
-    acc = MainServicesCfg(flags)
-    if not flags.Overlay.DataOverlay:
-        if flags.Concurrency.NumThreads > 0:
-            AthenaHiveEventLoopMgr = CompFactory.AthenaHiveEventLoopMgr
-            elmgr = AthenaHiveEventLoopMgr()
-        else:
-            AthenaEventLoopMgr = CompFactory.AthenaEventLoopMgr
-            elmgr = AthenaEventLoopMgr()
-        elmgr.RequireInputAttributeList = True
-        elmgr.UseSecondaryEventNumber = True
-        acc.addService(elmgr)
-    return acc
-
-
 def OverlayMainCfg(configFlags):
     """Main overlay steering configuration"""
 
     # Construct our accumulator to run
-    acc = OverlayMainServicesCfg(configFlags)
+    acc = MainServicesCfg(configFlags)
     acc.merge(PoolReadCfg(configFlags))
     acc.merge(PoolWriteCfg(configFlags))
 
