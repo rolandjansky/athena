@@ -190,6 +190,8 @@ JetChainParts = {
        'presela60XXa40XX2a25',
        'preseljHT400',
        'preselcHT400',
+       'preseljHT450',
+       'preselcHT450',
        'preseljHT500',
        'preselcHT500',
        'preseljHT600',
