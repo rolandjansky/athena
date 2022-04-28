@@ -1,6 +1,6 @@
 // Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef CALORINGERTOOLS_CALORINGERREADERUTILS_H
 #define CALORINGERTOOLS_CALORINGERREADERUTILS_H
@@ -16,6 +16,7 @@
 #include "StoreGate/WriteDecorHandle.h"
 #include "StoreGate/WriteDecorHandleKey.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #include "AthContainers/DataVector.h"
 
 // xAOD include:
@@ -29,7 +30,7 @@
 
 // Forward declarations:
 class CaloCellContainer;
-class MsgStream;
+class IMessageSvc;
 
 namespace Ringer {
 
@@ -37,7 +38,7 @@ namespace Ringer {
  * @class BuildCaloRingsFctorBase
  * @brief Interface for CaloRings builder functor.
  **/
-class BuildCaloRingsFctorBase {
+class BuildCaloRingsFctorBase : public AthMessaging {
 
   protected:
     /**
@@ -46,9 +47,10 @@ class BuildCaloRingsFctorBase {
      **/
     BuildCaloRingsFctorBase(
         ToolHandle<ICaloRingsBuilder> &builder,
-        MsgStream &msg):
+        IMessageSvc* msgSvc,
+        const std::string& name):
+          AthMessaging(msgSvc, name),
           m_builder(builder),
-          m_msg(msg),
           m_part_counter(0),
           m_part_size(0),
           m_crContH(nullptr),
@@ -60,10 +62,8 @@ class BuildCaloRingsFctorBase {
     /// @{
     /// @brief CaloRings which will be used
     ToolHandle<ICaloRingsBuilder> &m_builder;
-    /// @brief Message Stream which will be used:
-    MsgStream &m_msg;
     /// @brief Hold number of particles already procesed for this event:
-    mutable size_t m_part_counter;
+    size_t m_part_counter;
     /// @brief Hold number of particles to be processed:
     size_t m_part_size;
     /// @}
@@ -78,12 +78,12 @@ class BuildCaloRingsFctorBase {
     /**
      * @brief Increment particle looping counter
      **/
-    void incrementCounter() const { ++m_part_counter; }
+    void incrementCounter() { ++m_part_counter; }
 
     /**
      * @brief Release the handles when finished looping
      **/
-    void checkRelease() const;
+    void checkRelease();
 
     /// @}
     virtual ~BuildCaloRingsFctorBase(){;}
@@ -92,9 +92,9 @@ class BuildCaloRingsFctorBase {
     /// Private Properties
     /// @{
     /// @brief Keep CaloRingsContainer handle in scope until finished looping
-    mutable SG::WriteHandle<xAOD::CaloRingsContainer>* m_crContH;
+    SG::WriteHandle<xAOD::CaloRingsContainer>* m_crContH;
     /// @brief Keep RingSetContainer handle in scope until finished looping
-    mutable SG::WriteHandle<xAOD::RingSetContainer>* m_rsContH;
+    SG::WriteHandle<xAOD::RingSetContainer>* m_rsContH;
     /// @}
 
 };
@@ -117,7 +117,6 @@ class BuildCaloRingsFctor : public BuildCaloRingsFctorBase
     typedef BuildCaloRingsFctorBase base_t;
     // Import base template properties:
     using base_t::m_builder;
-    using base_t::m_msg;
     using base_t::m_part_counter;
     using base_t::m_part_size;
 
@@ -141,7 +140,7 @@ class BuildCaloRingsFctor : public BuildCaloRingsFctorBase
     /**
      * @brief Write decorator handle
      **/
-    mutable decor_t* m_decor{nullptr};
+    decor_t* m_decor{nullptr};
 
   public:
     /**
@@ -150,11 +149,12 @@ class BuildCaloRingsFctor : public BuildCaloRingsFctorBase
     BuildCaloRingsFctor(
         const std::string &decoContName,
         ToolHandle<ICaloRingsBuilder> &builder,
-        MsgStream &msg,
-	IDataHandleHolder* owningAlg)
+        IMessageSvc* msgSvc,
+        IDataHandleHolder* owningAlg)
     : BuildCaloRingsFctorBase(
         builder,
-        msg),
+        msgSvc,
+        owningAlg->name()),
       m_decorKey( decoContName + "." + xAOD::caloRingsLinksDecorKey() )
          { m_decorKey.setOwner(owningAlg);}
 
@@ -163,7 +163,7 @@ class BuildCaloRingsFctor : public BuildCaloRingsFctorBase
     /**
      * @brief Looping functor method when it has access to cluster.
      **/
-    void operator() (const particle_t *part) const;
+    void operator() (const particle_t *part);
 
     /**
      * @brief Initialize the decorator keys
@@ -178,7 +178,7 @@ class BuildCaloRingsFctor : public BuildCaloRingsFctorBase
     /**
      * @brief Release the handles when finished looping
      **/
-    void checkRelease() const;
+    void checkRelease();
     /// @}
 };
 
