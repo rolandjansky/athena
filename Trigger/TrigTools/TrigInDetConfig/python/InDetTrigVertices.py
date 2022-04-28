@@ -391,7 +391,7 @@ def adaptiveMultiVertexFinderTool_builder( signature, config ) :
                                                                   useBeamConstraint  = True,
                                                                   useSeedConstraint  = False, # use explicit ACTS default parameter
                                                                   tracksMaxZinterval = tracksMaxZinterval,
-                                                                  do3dSplitting      = doVtx3DFinding,
+                                                                  do3dSplitting      = False, # disable for ACTS (not doVtx3DFinding)
                                                                   addSingleTrackVertices = singleTrackVertices,
                                                                   TrackingGeometryTool = actsTrackingGeometryTool,
                                                                   ExtrapolationTool  = actsExtrapolationTool )
