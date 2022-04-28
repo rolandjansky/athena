@@ -157,7 +157,7 @@ def AdaptiveMultiFindingBaseCfg(flags, doGauss, **kwargs):
     kwargs.setdefault("selectiontype", 0)
     kwargs.setdefault("TracksMaxZinterval", vtxFlags.maxZinterval)
     kwargs.setdefault("do3dSplitting", not vtxFlags.useBeamConstraint)
-    kwargs.setdefault("m_useSeedConstraint", False)
+    kwargs.setdefault("useSeedConstraint", False)
     finderTool = CompFactory.InDet.InDetAdaptiveMultiPriVxFinderTool(
         name="InDetAdaptiveMultiPriVxFinderTool",
         **kwargs,

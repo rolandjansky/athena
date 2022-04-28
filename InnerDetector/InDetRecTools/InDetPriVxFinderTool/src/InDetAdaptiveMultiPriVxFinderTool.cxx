@@ -68,7 +68,7 @@ InDetAdaptiveMultiPriVxFinderTool::InDetAdaptiveMultiPriVxFinderTool(
   , m_zBfieldApprox(0.60407)
   , m_maximumVertexContamination(0.5)
   , m_tracksMaxSignificance(5.)
-  , m_useSeedConstraint(true)
+  , m_useSeedConstraint(false)
 {
   declareInterface<IVertexFinder>(
     this); // by GP: changed from InDetMultiAdaptivePriVxFinderTool to
@@ -84,7 +84,7 @@ InDetAdaptiveMultiPriVxFinderTool::InDetAdaptiveMultiPriVxFinderTool(
   declareProperty("useBeamConstraint", m_useBeamConstraint);
   declareProperty("addSingleTrackVertices", m_addSingleTrackVertices);
   declareProperty("tracksMaxSignificance", m_tracksMaxSignificance);
-  declareProperty("m_useSeedConstraint", m_useSeedConstraint);
+  declareProperty("useSeedConstraint", m_useSeedConstraint);
   //********* signal vertex selection (for pile up) ****
   declareProperty("selectiontype", m_selectiontype);
   //==0 for sum p_t^2
