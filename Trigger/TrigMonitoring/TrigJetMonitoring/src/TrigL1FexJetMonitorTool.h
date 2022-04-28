@@ -32,13 +32,13 @@ public:
 			  const IInterface*);
   
   // to allow access to the ITrigJetMonitorTool interface
-   StatusCode queryInterface( const InterfaceID& riid, void** ppvIf );
+  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvIf ) override;
   // to resolve possible conflicts with IProperty::interfaceID()
   static const InterfaceID& interfaceID() {
     return ITrigJetMonitorTool::interfaceID();}
   
-  StatusCode initialize();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
   
   virtual StatusCode
   getData(const EventContext& ctx,
