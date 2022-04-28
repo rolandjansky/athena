@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  *
- * @file HGTD_ClusterMakerTools/src/HGTD_ClusterMakerTool.cxx
+ * @file HGTD_RecTools/src/HGTD_ClusterMakerTool.cxx
  * @author Alexander Leopold <alexander.leopold@cern.ch>
  * @date August, 2021
  *
