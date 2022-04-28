@@ -1750,8 +1750,9 @@ StatusCode IDPerfMonZmumu::FillRecParameters(const Trk::Track* track, const xAOD
 	m_pv_x = vertex->x();
 	m_pv_y = vertex->y();
 	m_pv_z = vertex->z();
+	m_nTrkInVtx = vertex->nTrackParticles();
       }
-      m_nTrkInVtx = vertex->nTrackParticles();
+      
     }
   }
     

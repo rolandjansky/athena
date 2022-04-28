@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file TRT_AlignDbSvc.cxx
@@ -9,9 +9,7 @@
 
 #include "TRT_AlignDbSvc.h"
 
-#include <fstream>
-#include <iostream>
-#include <sstream>
+
 
 #include "RegistrationServices/IIOVRegistrationSvc.h"
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
@@ -30,6 +28,9 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 #include "GeoPrimitives/CLHEPtoEigenEulerAnglesConverters.h"
+#include <fstream>
+#include <iostream>
+#include <sstream>
 
 ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // This class uses const_cast and regFcn (callback). Legacy code
 
@@ -265,12 +266,11 @@ StatusCode TRT_AlignDbSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I,keys))
 }
 
 /** write AlignableTransforms to flat text file */
-StatusCode TRT_AlignDbSvc::writeAlignTextFile(std::string file) const
+StatusCode TRT_AlignDbSvc::writeAlignTextFile(const std::string &file) const
 {
-  msg(MSG::DEBUG) << " in writeAlignTextFile " << endmsg;
-  std::ofstream* outfile=nullptr;
-  msg(MSG::INFO) << " Write AlignableTransforms to text file: "<< file << endmsg;
-  outfile=new std::ofstream(file.c_str());
+  ATH_MSG_DEBUG(" in writeAlignTextFile ");
+  ATH_MSG_INFO( " Write AlignableTransforms to text file: "<< file );
+  std::ofstream  outfile(file);
 
   int ntrans=0;
   int nobj=0;
@@ -290,13 +290,13 @@ StatusCode TRT_AlignDbSvc::writeAlignTextFile(std::string file) const
     if (!pat){
       msg(MSG::ERROR) << "Cannot find AlignableTransform for key "<< key << endmsg;
       msg(MSG::ERROR) << "Skipping it. " << endmsg;
-      *outfile << key << std::endl;
+      outfile << key << std::endl;
       continue;
     }
     
     // first record is the name
     msg(MSG::INFO) << " Write folder: " << key << endmsg;
-    *outfile << key << std::endl;
+    outfile << key << std::endl;
     ++nobj;
     
     // loop over all transforms in the AlignableTransform object
@@ -344,7 +344,7 @@ StatusCode TRT_AlignDbSvc::writeAlignTextFile(std::string file) const
 	msg(MSG::INFO) << "   Write member: "
 		       << ident << " " << bec << " " << layer << " " << strawLayer << " "  << key << endmsg; 
 	
-	*outfile << bec << " " << layer << " " << strawLayer << " "
+	outfile << bec << " " << layer << " " << strawLayer << " "
 		 << std::setprecision(10) << " "
 		 << shift.x() << " " << shift.y() << " " << shift.z() << " "
 		 << eulerangles[0] << " " << eulerangles[1] << " " << eulerangles[2]
@@ -362,7 +362,7 @@ StatusCode TRT_AlignDbSvc::writeAlignTextFile(std::string file) const
 	msg(MSG::INFO) << "   Write member: "
 		       << ident << " " << bec << " " << layer << " " << sector << " "  << key << endmsg; 
 	
-	*outfile << bec << " " << layer << " " << sector << " "
+	outfile << bec << " " << layer << " " << sector << " "
 		 << std::setprecision(10) << " "
 		 << shift.x() << " " << shift.y() << " " << shift.z() << " "
 		 << eulerangles[0] << " " << eulerangles[1] << " " << eulerangles[2]
@@ -379,17 +379,16 @@ StatusCode TRT_AlignDbSvc::writeAlignTextFile(std::string file) const
     }
   }
   
-  outfile->close();
-  delete outfile;
+  outfile.close();
   
-  msg(MSG::INFO) << "Written " << nobj << " AlignableTransform objects" << " with " << ntrans 
-		 << " transforms to text file" << endmsg;
+  ATH_MSG_INFO( "Written " << nobj << " AlignableTransform objects" << " with " << ntrans 
+		 << " transforms to text file" );
   
-  msg(MSG::DEBUG) << " leaving writeAlignTextFile " << endmsg;
+  ATH_MSG_DEBUG( " leaving writeAlignTextFile " );
   return StatusCode::SUCCESS;
 }
 
-StatusCode TRT_AlignDbSvc::writeStrawAlignTextFile(std::string file) const
+StatusCode TRT_AlignDbSvc::writeStrawAlignTextFile(const std::string & file) const
 {
   msg(MSG::DEBUG) << " in writeAlignTextFile " << endmsg;
   
@@ -401,9 +400,9 @@ StatusCode TRT_AlignDbSvc::writeStrawAlignTextFile(std::string file) const
 }
 
 /** read AlignableTransforms from text file into TDS */
-StatusCode TRT_AlignDbSvc::readAlignTextFile(std::string file) {
-  msg(MSG::DEBUG) << " In  readAlignTextFile " << endmsg;
-  msg(MSG::INFO) << "Read alignment constants from text file: " << file << endmsg;
+StatusCode TRT_AlignDbSvc::readAlignTextFile(const std::string & file) {
+  ATH_MSG_DEBUG( " In  readAlignTextFile " );
+  ATH_MSG_INFO( "Read alignment constants from text file: " << file );
   std::ifstream infile;
   infile.open(file.c_str());
 
@@ -592,7 +591,7 @@ StatusCode TRT_AlignDbSvc::streamOutAlignObjects() const{
 }
 
 /** register alignment objects with the IoV service */
-StatusCode TRT_AlignDbSvc::registerAlignObjects(std::string tag, int run1, int event1, int run2, int event2) const{
+StatusCode TRT_AlignDbSvc::registerAlignObjects(const std::string & tag, int run1, int event1, int run2, int event2) const{
   
   msg(MSG::INFO) << "registerAlignObjects with IOV " << endmsg;
   msg(MSG::INFO) << "Run/evt1 [" << run1 << "," << event1 << "]" << endmsg;
@@ -1569,25 +1568,24 @@ void TRT_AlignDbSvc::printTransform(const std::string& thisName,  const Amg::Tra
 }
 
 // write global DB to file
-StatusCode TRT_AlignDbSvc::writeGlobalFolderFile( const std::string file)
+StatusCode TRT_AlignDbSvc::writeGlobalFolderFile( const std::string &file)
   const {
-  std::ofstream* outfile=nullptr;
 
   if (m_dynamicDB){
     ATH_MSG_DEBUG( "writeFile: Write GlobalFolder DB in text file: " << file );
-    outfile=new std::ofstream(file.c_str());
+    std::ofstream outfile(file);
     std::vector<std::string> folder_list = {"/TRT/AlignL1/TRT"};
 
     for (std::vector<std::string>::iterator it = folder_list.begin(); it != folder_list.end(); ++it){
 
-      *outfile << *it << std::endl;
+      outfile << *it << std::endl;
       const CondAttrListCollection* atrlistcol=nullptr;
       if (StatusCode::SUCCESS==m_detStore->retrieve(atrlistcol,*it)) {
         // loop over objects in collection
         for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr) {
 
           const coral::AttributeList& atrlist=citr->second;
-          *outfile  << atrlist["bec"].data<int>()
+          outfile  << atrlist["bec"].data<int>()
                     << " "     << atrlist["layer"].data<int>()
                     << " "     << atrlist["sector"].data<int>()
                     << " "     << atrlist["Tx"].data<float>()
@@ -1605,8 +1603,7 @@ StatusCode TRT_AlignDbSvc::writeGlobalFolderFile( const std::string file)
 	}
       }
     }
-    outfile->close();
-    delete outfile;
+
     return StatusCode::SUCCESS;
   }
   else {
