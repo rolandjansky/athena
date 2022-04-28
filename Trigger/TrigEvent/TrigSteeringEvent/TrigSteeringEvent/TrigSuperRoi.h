@@ -1,6 +1,6 @@
 // emacs: this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //
 //   @file    TrigSuperRoi.h        
@@ -65,12 +65,6 @@ public:
   
   // Destructor
  virtual  ~TrigSuperRoi();
-  
-private:
-
-  /// ??? is ths still needed?
-  std::vector<uint32_t> m_serialized;
-
 };
 
 

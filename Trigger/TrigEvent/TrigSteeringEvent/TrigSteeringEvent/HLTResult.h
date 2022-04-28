@@ -303,7 +303,7 @@ namespace HLT {
     std::map<unsigned int, std::set<std::pair<CLID, std::string> > >& getScoutingMap() {return  m_modID_id_name;}
     const std::map<unsigned int, std::set<std::pair<CLID, std::string> > >& getScoutingMap() const {return  m_modID_id_name;}
     
-    void  setScoutingMap(std::map<unsigned int, std::set<std::pair<CLID, std::string> > > map_modid_clid_name) {m_modID_id_name = map_modid_clid_name;}  
+    void  setScoutingMap(const std::map<unsigned int, std::set<std::pair<CLID, std::string> > >& map_modid_clid_name) {m_modID_id_name = map_modid_clid_name;}  
 
     /*
      * @brief Return object representing the extra payload
