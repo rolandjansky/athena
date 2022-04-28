@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGCALOHYPO_TRIGLARNOISEBURSTALGOHYPOTOOL_H
 #define TRIGCALOHYPO_TRIGLARNOISEBURSTALGOHYPOTOOL_H 1
@@ -39,8 +39,6 @@ class TrigLArNoiseBurstHypoTool : public extends<AthAlgTool, ITrigLArNoiseBurstH
   Gaudi::Property< bool >  m_mNBTight_PsVetoFlaggedPartitions{ this, "MNBTight_PsVetoFlaggedPartitions", true, "flag to be used for NB detection" };
 
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
-  unsigned int m_mask = 0U;
-  
 }; 
 
 #endif //> !TRIGCALOHYPO_TRIGLARNOISEBURSTHYPOTOOL_H
