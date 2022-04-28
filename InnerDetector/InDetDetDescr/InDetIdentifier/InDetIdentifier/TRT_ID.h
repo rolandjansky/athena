@@ -80,7 +80,7 @@ class IdDictDictionary;
 **
 */
 
-class TRT_ID: public AtlasDetectorID
+class TRT_ID final: public AtlasDetectorID
 {
 public:
   /// @name public typedefs
@@ -250,12 +250,12 @@ public:
   /// Create compact id from hash id (return == 0 for OK)
   virtual int get_id(const IdentifierHash& hash_id,
                      Identifier& id,
-                     const IdContext* context = 0) const;
+                     const IdContext* context = 0) const override final;
 
   /// Create hash id from compact id (return == 0 for OK)
   virtual int get_hash(const Identifier& id,
                        IdentifierHash& hash_id,
-                       const IdContext* context = 0) const;
+                       const IdContext* context = 0) const override final;
   //@}
 
   /// @name interaction with id dictionary
@@ -268,7 +268,7 @@ public:
 
 
   /// Set the IdDictionary
-  virtual int initialize_from_dictionary(const IdDictMgr& dict_mgr);
+  virtual int initialize_from_dictionary(const IdDictMgr& dict_mgr) override final;
 
   /// Special method for timing tests
   int get_straw_layer_hash_calc(const ExpandedIdentifier& id,

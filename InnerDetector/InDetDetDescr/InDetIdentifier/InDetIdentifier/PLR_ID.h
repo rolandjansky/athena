@@ -20,12 +20,12 @@
 **  subdetector. This class inherits from PixelID.
 **/
 
-class PLR_ID: public PixelID
+class PLR_ID final: public PixelID
 {
 public:
   PLR_ID();
    ///This is an PLR_ID helper
-  AtlasDetectorID::HelperType helper() const override{
+  AtlasDetectorID::HelperType helper() const override final{
     return AtlasDetectorID::HelperType::PLR;
   }
 
