@@ -156,19 +156,19 @@ def ActsTrkBaseSeedAnalysisCfg(flags,
     monitoringGroup.defineHistogram('Nseed', title='Number of Seeds;N;Entries', type='TH1I', path=f'{histoPath}',
                                     xbins=100, xmin=0, xmax=0)
 
-    monitoringGroup.defineHistogram('globalZ_B, perp_B;h_globalZR_B', title='Bottom SP - Z coordinate vs R;z [mm];r [mm]', type='TH2F', path=f'{histoPath}',
+    monitoringGroup.defineHistogram('z1,r1;zr1', title='Bottom SP - Z coordinate vs R;z [mm];r [mm]', type='TH2F', path=f'{histoPath}',
                                     xbins=1500, xmin=-3000, xmax=3000,
                                     ybins=400, ymin=perp_min, ymax=perp_max)
-    monitoringGroup.defineHistogram('globalZ_M, perp_M;h_globalZR_M', title='Middle SP - Z coordinate vs R;z [mm];r [mm]', type='TH2F', path=f'{histoPath}',
+    monitoringGroup.defineHistogram('z2,r2;zr2', title='Middle SP - Z coordinate vs R;z [mm];r [mm]', type='TH2F', path=f'{histoPath}',
                                     xbins=1500, xmin=-3000, xmax=3000,
                                     ybins=400, ymin=perp_min, ymax=perp_max)
-    monitoringGroup.defineHistogram('globalZ_T, perp_T;h_globalZR_T', title='Top SP - Z coordinate vs R;z [mm];r [mm]', type='TH2F', path=f'{histoPath}',
+    monitoringGroup.defineHistogram('z3,r3;zr3', title='Top SP - Z coordinate vs R;z [mm];r [mm]', type='TH2F', path=f'{histoPath}',
                                     xbins=1500, xmin=-3000, xmax=3000,
                                     ybins=400, ymin=perp_min, ymax=perp_max)
 
-    monitoringGroup.defineTree(f'globalX_B,globalY_B,globalZ_B,perp_B,globalX_M,globalY_M,globalZ_M,perp_M,globalX_T,globalY_T,globalZ_T,perp_T;{ntupleName}',
+    monitoringGroup.defineTree(f'x1,y1,z1,r1,x2,y2,z2,r2,x3,y3,z3,r3,pt,theta,eta,d0,dzdr_b,dzdr_t,penalty;{ntupleName}',
                                path='ntuples',
-                               treedef='globalX_B/vector<double>:globalY_B/vector<double>:globalZ_B/vector<double>:perp_B/vector<double>:globalX_M/vector<double>:globalY_M/vector<double>:globalZ_M/vector<double>:perp_M/vector<double>:globalX_T/vector<double>:globalY_T/vector<double>:globalZ_T/vector<double>:perp_T/vector<double>')
+                               treedef='x1/vector<double>:y1/vector<double>:z1/vector<double>:r1/vector<double>:x2/vector<double>:y2/vector<double>:z2/vector<double>:r2/vector<double>:x3/vector<double>:y3/vector<double>:z3/vector<double>:r3/vector<double>:pt/vector<float>:theta/vector<float>:eta/vector<float>:d0/vector<float>:dzdr_b/vector<float>:dzdr_t/vector<float>:penalty/vector<float>')
 
     return helper.result()
 

@@ -6,8 +6,13 @@
 #define ACTSTRKANALYSIS_SEEDANALYSIS_H
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "ActsTrkEvent/Seed.h"
+
+#include "BeamSpotConditionsData/BeamSpotData.h"
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "MagFieldElements/AtlasFieldCache.h"
 
 namespace ActsTrk {
 
@@ -21,6 +26,14 @@ namespace ActsTrk {
     virtual StatusCode fillHistograms(const EventContext& ctx) const override;
 
   private:
+    std::array<float, 7> estimateParameters(const ActsTrk::Seed& seed,
+					    float pTPerHelixRadius) const;
+      
+  private:
+    SG::ReadCondHandleKey< InDet::BeamSpotData > m_beamSpotKey{this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot"};
+    SG::ReadCondHandleKey< AtlasFieldCacheCondObj > m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj",
+        "Name of the Magnetic Field conditions object key"};
+
     SG::ReadHandleKey< ActsTrk::SeedContainer > m_inputSeedColletionKey {this,  "InputSeedCollection", "", ""}; 
   };
 
