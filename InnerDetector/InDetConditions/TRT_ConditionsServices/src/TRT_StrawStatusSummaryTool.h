@@ -79,8 +79,7 @@ class ATLAS_NOT_THREAD_SAFE TRT_StrawStatusSummaryTool: // This class uses threa
 
  private:
   virtual void handle( const Incident& inc ) override;
-  bool m_firstCall{true};
-  bool m_firstCallPerm{true};
+  
   
   const TRT_ID* m_trtId=nullptr;
 
