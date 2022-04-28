@@ -439,7 +439,7 @@ StatusCode TileAANtuple::execute() {
      }
      */
     //"Europe/Zurich","CET","CET","CEST","CEST","+01:00:00","+01:00:00","-1;0;3","+02:00:00","-1;0;10","+03:00:00"
-    static time_zone_ptr gva_tz(new posix_time_zone((std::string)"CET+01CEST01:00:00,M3.5.0/02:00:00,M10.5.0/03:00:00"));
+    static const time_zone_ptr gva_tz(new posix_time_zone((std::string)"CET+01CEST01:00:00,M3.5.0/02:00:00,M10.5.0/03:00:00"));
     local_date_time gva_time(from_time_t(m_evTime),gva_tz);
     
     //std::ostringstream otime;
