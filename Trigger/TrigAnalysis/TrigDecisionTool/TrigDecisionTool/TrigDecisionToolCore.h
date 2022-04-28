@@ -20,6 +20,7 @@
  *
  ***********************************************************************************/
 #include "AsgMessaging/StatusCode.h"
+#include "AsgTools/SlotSpecificObj.h"
 #include "TrigDecisionTool/ChainGroupFunctions.h"
 #include "TrigDecisionTool/Conditions.h"
 #include "TrigDecisionTool/ChainGroup.h"
@@ -64,11 +65,7 @@ namespace Trig {
     
   private:
 
-#if !defined(XAOD_STANDALONE) // AthAnalysis or full Athena
     SG::SlotSpecificObj<Trig::CacheGlobalMemory> m_cacheGlobalMemory;
-#else // Analysis or Standalone
-    Trig::CacheGlobalMemory m_cacheGlobalMemory;
-#endif
 
     Trig::ExpertMethods m_expertMethods;
     TrigDecisionToolCore (const TrigDecisionToolCore&);
