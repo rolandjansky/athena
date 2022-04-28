@@ -157,7 +157,7 @@ def setupCommonServicesEnd():
     svcMgr.CoreDumpSvc.StackTrace = True       # then produce full stacktrace using gdb
     svcMgr.CoreDumpSvc.DumpCoreFile = True     # also produce core file (if allowed by ulimit -c)
     svcMgr.CoreDumpSvc.FatalHandler = 0        # no extra fatal handler
-    svcMgr.CoreDumpSvc.TimeOut = 60000000000   # timeout for stack trace generation changed to 60s (ATR-17112)
+    svcMgr.CoreDumpSvc.TimeOut = 120000000000   # timeout for stack trace generation changed to 120s (ATR-17112,ATR-25404)
 
     svcMgr.IOVSvc.updateInterval = "RUN"
     svcMgr.IOVSvc.preLoadData = True
