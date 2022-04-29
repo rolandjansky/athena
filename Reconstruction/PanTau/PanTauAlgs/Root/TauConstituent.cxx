@@ -263,7 +263,7 @@ int PanTau::TauConstituent::getCharge() const {
 }
 
 
-xAOD::PFO* PanTau::TauConstituent::getPFO() const {
+const xAOD::PFO* PanTau::TauConstituent::getPFO() const {
   return m_PFOLink;
 }
 

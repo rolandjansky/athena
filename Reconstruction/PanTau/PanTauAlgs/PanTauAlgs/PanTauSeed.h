@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PANTAUALGS_PANTAUSEED_H
@@ -130,7 +130,8 @@ namespace PanTau {
 
     std::string                                         getNameInputAlgorithm() const;
     const xAOD::TauJet*                                 getTauJet() const;
-    PanTau::TauFeature*                                 getFeatures() const;
+    const PanTau::TauFeature*                           getFeatures() const;
+    PanTau::TauFeature*                                 getFeatures();
     TLorentzVector                                      getProtoMomentumCore() const;
     TLorentzVector                                      getProtoMomentumWide() const;
 
@@ -228,7 +229,8 @@ namespace PanTau {
 
 inline std::string                                          PanTau::PanTauSeed::getNameInputAlgorithm() const       {return m_NameInputAlgorithm;}
 inline const xAOD::TauJet*                                  PanTau::PanTauSeed::getTauJet() const                   {return m_TauJet;}
-inline PanTau::TauFeature*                                  PanTau::PanTauSeed::getFeatures() const                 {return m_Features;}
+inline const PanTau::TauFeature*                            PanTau::PanTauSeed::getFeatures() const                 {return m_Features;}
+inline PanTau::TauFeature*                                  PanTau::PanTauSeed::getFeatures()                       {return m_Features;}
 inline TLorentzVector                                       PanTau::PanTauSeed::getProtoMomentumWide() const        {return m_ProtoMomentum_Wide;}
 inline TLorentzVector                                       PanTau::PanTauSeed::getProtoMomentumCore() const        {return m_ProtoMomentum_Core;}
 inline std::vector< std::vector<PanTau::TauConstituent*> >  PanTau::PanTauSeed::getConstituents() const             {return m_Constituents;}

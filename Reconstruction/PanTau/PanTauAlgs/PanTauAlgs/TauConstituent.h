@@ -150,7 +150,7 @@ namespace PanTau {
     bool                                    isOfType(TauConstituent::Type aType) const;
     double                                  getBDTValue() const;
     int                                     getCharge() const;
-    xAOD::PFO*                              getPFO() const;
+    const xAOD::PFO*                        getPFO() const;
     
     void                                    addShot(TauConstituent* shot);
     std::vector<TauConstituent*>            getShots();
