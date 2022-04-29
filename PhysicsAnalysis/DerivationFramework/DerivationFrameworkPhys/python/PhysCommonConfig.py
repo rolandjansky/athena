@@ -58,6 +58,7 @@ def PhysCommonAugmentationsCfg(ConfigFlags,**kwargs):
     from DerivationFrameworkInDet.InDetCommonConfig import InDetCommonCfg
     from DerivationFrameworkMuons.MuonsCommonConfig import MuonsCommonCfg
     from DerivationFrameworkEGamma.EGammaCommonConfig import EGammaCommonCfg
+    from DerivationFrameworkJetEtMiss.JetCommonConfig import JetCommonCfg
     # TODO: need to find the new flags equivalent for the missing settings below, then we can
     # drop these kwargs and do everything via the ConfigFlags
     acc.merge(InDetCommonCfg(ConfigFlags,
@@ -69,6 +70,7 @@ def PhysCommonAugmentationsCfg(ConfigFlags,**kwargs):
                              MergeLRT = False)) 
     acc.merge(MuonsCommonCfg(ConfigFlags))
     acc.merge(EGammaCommonCfg(ConfigFlags))
+    acc.merge(JetCommonCfg(ConfigFlags))
 
     # Jets...
     # Tau...
