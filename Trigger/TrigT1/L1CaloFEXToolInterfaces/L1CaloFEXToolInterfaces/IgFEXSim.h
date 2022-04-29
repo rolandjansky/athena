@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -45,6 +45,13 @@ Interface definition for gFEXSim
 
     virtual std::vector<uint32_t> getgMSTComponentsJwojTOBs() const =0;
 
+    virtual std::vector<uint32_t> getgMETComponentsNoiseCutTOBs() const =0;
+
+    virtual std::vector<uint32_t> getgMETComponentsRmsTOBs() const =0;
+
+    virtual std::vector<uint32_t> getgScalarENoiseCutTOBs() const =0;
+
+    virtual std::vector<uint32_t> getgScalarERmsTOBs() const =0;
 
 
   private:

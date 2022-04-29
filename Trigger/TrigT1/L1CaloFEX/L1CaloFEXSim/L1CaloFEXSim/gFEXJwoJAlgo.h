@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //***************************************************************************
 //    gFEXJwoJAlgo - Jets without jets algorithm for gFEX
@@ -42,7 +42,7 @@ namespace LVL1 {
 
     virtual std::vector<std::unique_ptr<gFEXJwoJTOB>> jwojAlgo(gTowersCentral Atwr, gTowersCentral Btwr,
                                                                gTowersForward CNtwr, gTowersForward CPtwr,
-                                                               std::array<uint32_t, 4> & outTOB) override;
+                                                               std::array<uint32_t, 4> & outJwojTOB) override;
 
 
 
@@ -58,28 +58,28 @@ namespace LVL1 {
     float m_gBlockthresholdB;
     float m_gBlockthresholdC;
  
-    virtual void makeFPGAC(gTowersForward twrsCN, gTowersForward twrsCP, gTowersCentral & twrsC);
+    void makeFPGAC(gTowersForward twrsCN, gTowersForward twrsCP, gTowersCentral & twrsC);
 
-    virtual void gBlockAB(gTowersCentral twrs, gTowersCentral & gBlkSum);
+    void gBlockAB(gTowersCentral twrs, gTowersCentral & gBlkSum);
 
-    virtual void metFPGA(gTowersCentral twrs, gTowersCentral & gBlkSum, int gBlockthreshold,
+    void metFPGA(gTowersCentral twrs, gTowersCentral & gBlkSum, int gBlockthreshold,
                            float aFPGA, float bFPGA,
                            int & MHT_x, int & MHT_y,
                            int & MST_x, int & MST_y,
                            int & MET_x, int & MET_y);
 
-    virtual void metTotal(int A_MET_x, int A_MET_y,
+    void metTotal(int A_MET_x, int A_MET_y,
                           int B_MET_x, int B_MET_y,
                           int C_MET_x, int C_MET_y,
                           int & MET_x, int & MET_y, int & MET);
 
-    virtual void sumEtFPGA(gTowersCentral twrs, int & partial_sumEt);
+    void sumEtFPGA(gTowersCentral twrs, int & partial_sumEt);
 
-    virtual void sumEt(int  A_sumEt, int  B_sumEt, int  C_sumEt, int & total_sumEt);
+    void sumEt(int  A_sumEt, int  B_sumEt, int  C_sumEt, int & total_sumEt);
 
-    virtual float sinLUT(unsigned int phiIDX, unsigned int aw);
+    float sinLUT(unsigned int phiIDX, unsigned int aw);
 
-    virtual float cosLUT(unsigned int phiIDX, unsigned int aw);
+    float cosLUT(unsigned int phiIDX, unsigned int aw);
 
 
   };
