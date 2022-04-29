@@ -30,8 +30,6 @@ public:
 
 private:
   Gaudi::Property<std::vector<std::string>> m_triggerList{this, "triggerList", {}, "Add triggers to this to be monitored"};
-  Gaudi::Property<std::vector<std::string>> m_MBTSchannelID{this, "MBTS_channelID", {}, "MBTS channel IDs"};
-
   SG::ReadHandleKey<xAOD::TrigT2MbtsBitsContainer> m_TrigT2MbtsBitsContainerKey{this, "MBTSbitsKey", "HLT_MbtsBitsContainer", "Name of MbtsBitsContainer"};
 };
 
