@@ -35,7 +35,7 @@ def addP1Signatures(chains):
     log.info('[setupMenu] going to add the PhysicsP1 menu chains now')
 
     chainsP1 = ChainStore()
-    
+
     chainsP1['Muon'] = [
         ChainProp(name='HLT_mu50_RPCPEBSecondaryReadout_L1MU14FCH', stream=['RPCSecondaryReadout'], groups=['PS:Online']+SingleMuonGroup), # TODO: Move to Detector slice
 
@@ -170,6 +170,8 @@ def addP1Signatures(chains):
         ChainProp(name='HLT_noalg_SCTPEB_L1RD0_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['SCTNoise'], groups=['PS:Online','RATE:SCTCalibration','BW:Detector']), # HLT_sct_noise
         ChainProp(name='HLT_noalg_laser_TilePEB_L1CALREQ2', l1SeedThresholds=['FSNOSEED'], stream=['Tile'], groups=['PS:Online','RATE:TileCalibration','BW:Detector']), # HLT_tilecalib_laser 
         ChainProp(name='HLT_noalg_CIS_TilePEB_L1CALREQ1', l1SeedThresholds=['FSNOSEED'], stream=['Tile'], groups=['PS:Online','RATE:TileCalibration','BW:Detector']), # HLT_tilecalib_CIS 
+        ChainProp(name='HLT_cosmic_id_L1MU3V_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['IDCosmic'], groups=['PS:Online']+SupportGroup+SingleMuonGroup),
+        ChainProp(name='HLT_cosmic_id_L1MU8VF_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['IDCosmic'], groups=['PS:Online']+SupportGroup+SingleMuonGroup),
     ]
 
     chainsP1['Streaming'] = [
