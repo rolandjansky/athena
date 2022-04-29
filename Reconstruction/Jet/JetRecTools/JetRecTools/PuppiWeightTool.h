@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef PUPPIWeightTool_h
 #define PUPPIWeightTool_h
@@ -41,8 +41,6 @@ class PuppiWeightTool: public JetConstituentModifierBase {
   double m_forwardPTCutOffset;
   double m_forwardPTCutSlope;
   double m_etaBoundary;
-
-  Puppi* m_puppi;
 
   bool m_includeCentralNeutralsInAlpha;
   bool m_applyWeight;
