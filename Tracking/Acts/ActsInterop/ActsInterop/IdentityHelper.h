@@ -3,7 +3,7 @@
 */
 
 #pragma once
-
+#include <variant>
 namespace InDetDD {
   class SiDetectorElement;
 }
@@ -27,7 +27,7 @@ public:
 
 private:
   const InDetDD::SiDetectorElement* m_elem;
-  
+  std::variant<const PixelID*, const SCT_ID*> m_helper;
   const PixelID* getPixelIDHelper() const;
   const SCT_ID* getSCTIDHelper() const;
 
