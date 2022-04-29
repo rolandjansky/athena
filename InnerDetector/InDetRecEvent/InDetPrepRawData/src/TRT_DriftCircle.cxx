@@ -18,66 +18,65 @@
 
 namespace InDet{
 
-
 // Constructor with parameters:
-TRT_DriftCircle::TRT_DriftCircle( 
-	const Identifier &Id, 
-	const Amg::Vector2D& driftRadius,
-	const std::vector<Identifier>& rdoList,
-	const Amg::MatrixX& errDriftRadius,
-	const InDetDD::TRT_BaseElement* detEl,
-  const unsigned int word
-	)
-	:
-	PrepRawData(Id, driftRadius, rdoList, errDriftRadius), //call base class constructor
-	m_detEl(detEl),
-  m_word(word)
+TRT_DriftCircle::TRT_DriftCircle(
+  const Identifier& Id,
+  const Amg::Vector2D& driftRadius,
+  const std::vector<Identifier>& rdoList,
+  const Amg::MatrixX& errDriftRadius,
+  const InDetDD::TRT_BaseElement* detEl,
+  const unsigned int word)
+  : PrepRawData(Id, driftRadius, rdoList, errDriftRadius)
+  , m_detEl(detEl)
+  , m_word(word)
 {
 }
 
-TRT_DriftCircle::TRT_DriftCircle( 
-	const Identifier &Id, 
-	const Amg::Vector2D& driftRadius,
-	const Amg::MatrixX& errDriftRadius,
-	const InDetDD::TRT_BaseElement* detEl,
-  const unsigned int word
-	)
-	:
-	PrepRawData(Id, driftRadius, errDriftRadius), //call base class constructor
-	m_detEl(detEl),
-  m_word(word)
+TRT_DriftCircle::TRT_DriftCircle(
+  const Identifier& Id,
+  const Amg::Vector2D& driftRadius,
+  const Amg::MatrixX& errDriftRadius,
+  const InDetDD::TRT_BaseElement* detEl,
+  const unsigned int word)
+  : PrepRawData(Id, driftRadius, errDriftRadius)
+  , m_detEl(detEl)
+  , m_word(word)
 {
 }
 
-TRT_DriftCircle::TRT_DriftCircle( 
-	const Identifier &Id, 
-	const Amg::Vector2D& driftRadius,
-	std::vector<Identifier>&& rdoList,
-	Amg::MatrixX&& errDriftRadius,
-	const InDetDD::TRT_BaseElement* detEl,
-  const unsigned int word
-	)
-	:
-	PrepRawData(Id, driftRadius,
-                    std::move(rdoList),
-                    std::move(errDriftRadius)), //call base class constructor
-	m_detEl(detEl),
-  m_word(word)
+TRT_DriftCircle::TRT_DriftCircle(
+  const Identifier& Id,
+  const Amg::Vector2D& driftRadius,
+  std::vector<Identifier>&& rdoList,
+  Amg::MatrixX&& errDriftRadius,
+  const InDetDD::TRT_BaseElement* detEl,
+  const unsigned int word)
+  : PrepRawData(Id, driftRadius, std::move(rdoList), std::move(errDriftRadius))
+  , m_detEl(detEl)
+  , m_word(word)
 {
 }
 
+TRT_DriftCircle::TRT_DriftCircle(
+  const Identifier& Id,
+  const Amg::Vector2D& driftRadius,
+  Amg::MatrixX&& errDriftRadius,
+  const InDetDD::TRT_BaseElement* detEl,
+  const unsigned int word)
+  : PrepRawData(Id, driftRadius, std::move(errDriftRadius))
+  , m_detEl(detEl)
+  , m_word(word)
+{
+}
 
 // Default constr
 TRT_DriftCircle::TRT_DriftCircle()
-	:
-	PrepRawData(),
-	m_detEl( nullptr ),
-  m_word( 0)
+  : PrepRawData()
+  , m_detEl(nullptr)
+  , m_word(0)
 
-{ 
+{
 }
-
-
 
 double TRT_DriftCircle::driftTime(bool& valid) const
 {

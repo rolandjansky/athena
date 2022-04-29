@@ -67,6 +67,13 @@ public:
                   const InDetDD::TRT_BaseElement* detEl,
                   const unsigned int word);
 
+  TRT_DriftCircle(const Identifier& clusId,
+                  const Amg::Vector2D& driftRadius,
+                  Amg::MatrixX&& errDriftRadius,
+                  const InDetDD::TRT_BaseElement* detEl,
+                  const unsigned int word = 0);
+
+
   /** Destructor*/
   virtual ~TRT_DriftCircle() = default;
 
