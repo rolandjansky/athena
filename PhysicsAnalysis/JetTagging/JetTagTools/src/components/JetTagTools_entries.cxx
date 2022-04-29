@@ -22,7 +22,6 @@
 #include "JetTagTools/BasicTrackGradeFactory.h"
 #include "JetTagTools/DetailedTrackGradeFactory.h"
 
-#include "JetTagTools/MV1Tag.h"
 #include "JetTagTools/MV2Tag.h"
 
 
@@ -44,6 +43,5 @@ DECLARE_COMPONENT( Analysis::JetFitterInputWriter )
 DECLARE_COMPONENT( Analysis::SVForIPTool )
 DECLARE_COMPONENT( Analysis::BasicTrackGradeFactory )
 DECLARE_COMPONENT( Analysis::DetailedTrackGradeFactory )
-DECLARE_COMPONENT( Analysis::MV1Tag )
 DECLARE_COMPONENT( Analysis::MV2Tag )
 
