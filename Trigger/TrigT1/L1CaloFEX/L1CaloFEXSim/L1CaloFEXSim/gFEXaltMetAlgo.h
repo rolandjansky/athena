@@ -34,9 +34,9 @@ namespace LVL1 {
     virtual StatusCode initialize() override;
 
 
-    virtual void setAlgoConstant(const std::vector<int>& A_thr,
-                         const std::vector<int>& B_thr,
-                         const int& rhoPlusThr) override;
+    virtual void setAlgoConstant(std::vector<int>&& A_thr,
+                         std::vector<int>&& B_thr,
+                         const int rhoPlusThr) override;
                                  
 
     virtual void altMetAlgo(const gTowersCentral &Atwr, const gTowersCentral &Btwr,
@@ -46,31 +46,31 @@ namespace LVL1 {
 
   private:
 
-    std::vector<std::vector<int>> m_etaThr;
+    std::array<std::vector<int>, 2> m_etaThr;
     int m_rhoPlusThr;
     
     
     void metFPGA(const gTowersCentral &twrs, int & MET_x, int & MET_y, const unsigned short FPGA_NO);
 
-    void metTotal(const int &A_MET_x, const int &A_MET_y,
-                  const int &B_MET_x, const int &B_MET_y,
+    void metTotal(const int A_MET_x, const int A_MET_y,
+                  const int B_MET_x, const int B_MET_y,
                   int & MET_x, int & MET_y, int & MET);
 
     int get_rho(const gTowersCentral &twrs);
 
-    int get_sigma(const gTowersCentral &twrs, const int &rho);
+    int get_sigma(const gTowersCentral &twrs, const int rho);
 
-    void rho_MET(const gTowersCentral &twrs, int & MET_x, int & MET_y, const int &rho, const int &sigma);
+    void rho_MET(const gTowersCentral &twrs, int & MET_x, int & MET_y, const int rho, const int sigma);
 
     int sumEtFPGAnc(const gTowersCentral &twrs, const unsigned short FPGA_NO);
 
-    int sumEtFPGArms(const gTowersCentral &twrs, const int &sigma);
+    int sumEtFPGArms(const gTowersCentral &twrs, const int sigma);
 
-    int sumEt(const int &A_sumEt, const int & B_sumEt);
+    int sumEt(const int A_sumEt, const int  B_sumEt);
 
-    float sinLUT(const unsigned int &phiIDX, const unsigned int &aw);
+    float sinLUT(const unsigned int phiIDX, const unsigned int aw);
 
-    float cosLUT(const unsigned int &phiIDX, const unsigned int &aw);
+    float cosLUT(const unsigned int phiIDX, const unsigned int aw);
 
   };
 

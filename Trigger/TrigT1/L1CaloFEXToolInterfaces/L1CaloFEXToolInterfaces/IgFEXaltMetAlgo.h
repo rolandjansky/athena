@@ -23,9 +23,9 @@ Interface definition for eFEXegAlgo
   public:
     static const InterfaceID& interfaceID( ) ;
 
-    virtual void setAlgoConstant(const std::vector<int>& A_thr,
-                                 const std::vector<int>& B_thr,
-                                 const int& rhoPlusThr) = 0;
+    virtual void setAlgoConstant(std::vector<int>&& A_thr,
+                                 std::vector<int>&& B_thr,
+                                 const int rhoPlusThr) = 0;
 
     virtual void altMetAlgo(const gTowersCentral &Atwr, const gTowersCentral &Btwr,
                             std::array<uint32_t, 4> & outTOB) = 0;
