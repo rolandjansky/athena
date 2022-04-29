@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfMuctpi/MuctpiXMLParser.h"
@@ -24,7 +24,9 @@ int main(int argc, char* argv[]) {
   //XMLParser.printConfiguration();
   
   std::filebuf fb;
-  fb.open ("output.xml",std::ios::out);
+  if (fb.open ("output.xml",std::ios::out) == nullptr) {
+    return 1;
+  }
   std::ostream os(&fb);
   XMLParser.getMuCTPiGeometry().writeXML(os);
   fb.close();
