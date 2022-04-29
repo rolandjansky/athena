@@ -84,11 +84,6 @@ StatusCode TRTStrawStatusCondAlg::execute()
   
   for (std::vector<Identifier>::const_iterator it = m_trtId->straw_layer_begin(); it != m_trtId->straw_layer_end(); ++it ) {
     
-    // Make sure it is a straw_layer id                                                                                                                   
-    Identifier strawLayerId = m_trtId->layer_id(*it);
-    //Get hash Id                                                                                                                                         
-    IdentifierHash hashId = m_trtId->straw_layer_hash(strawLayerId);
-    
     unsigned int nstraws = 0;
     nstraws = m_trtId->straw_max( *it) + 1; // There is a difference of 1 between both methods....
 
