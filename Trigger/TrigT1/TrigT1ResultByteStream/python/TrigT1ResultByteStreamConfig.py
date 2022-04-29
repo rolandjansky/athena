@@ -199,3 +199,68 @@ def L1ByteStreamDecodersRecExSetup():
 def L1ByteStreamEncodersRecExSetup():
   # Use new-style config from the above functions and import into old-style JO
   CAtoGlobalWrapper(L1TriggerByteStreamEncoderCfg,ConfigFlags)
+
+if __name__ == '__main__':
+  from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+  from AthenaCommon.Configurable import Configurable
+  from AthenaCommon.Logging import logging
+  from AthenaCommon.Constants import DEBUG
+  import sys
+
+  Configurable.configurableRun3Behavior = 1
+  log = logging.getLogger('TrigT1ResultByteStreamConfig')
+  log.setLevel(DEBUG)
+
+  if len(sys.argv) != 4:
+    log.error('usage: python -m TrigT1ResultByteStream.TrigT1ResultByteStreamConfig subsystem file')
+    sys.exit(1)
+  supportedSubsystems = ['jFex']
+  subsystem = sys.argv[1]
+  filename = sys.argv[2]
+  events = int(sys.argv[3])
+  if subsystem not in supportedSubsystems:
+    log.error(f'subsystem "{subsystem}" not one of supported subsystems: {supportedSubsystems}')
+    sys.exit(1)
+
+  flags.Exec.OutputLevel = DEBUG
+  flags.Exec.MaxEvents = events
+  flags.Input.Files = [filename]
+  flags.Concurrency.NumThreads = 1
+  flags.Concurrency.NumConcurrentEvents = 1
+  flags.Output.AODFileName = 'AOD.pool.root'
+  flags.lock()
+
+  from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+  acc = MainServicesCfg(flags)
+
+  from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
+  acc.merge(ByteStreamReadCfg(flags))
+
+  decoderTools = []
+  outputEDM = []
+
+  def addEDM(edmType, edmName):
+    auxType = edmType.replace('Container','AuxContainer')
+    return [f'{edmType}#{edmName}',
+            f'{auxType}#{edmName}Aux.']
+
+  if subsystem=='jFex':
+    from L1CaloFEXByteStream.L1CaloFEXByteStreamConfig import jFexByteStreamToolCfg
+    jFexTool = jFexByteStreamToolCfg('jFexBSDecoder', flags)
+    decoderTools += [jFexTool]
+    outputEDM += addEDM('xAOD::jFexSRJetRoIContainer', jFexTool.jJRoIContainerWriteKey.Path)
+    outputEDM += addEDM('xAOD::jFexLRJetRoIContainer', jFexTool.jLJRoIContainerWriteKey.Path)
+    outputEDM += addEDM('xAOD::jFexTauRoIContainer'  , jFexTool.jTauRoIContainerWriteKey.Path)
+    outputEDM += addEDM('xAOD::jFexSumETRoIContainer', jFexTool.jTERoIContainerWriteKey.Path)
+    outputEDM += addEDM('xAOD::jFexMETRoIContainer'  , jFexTool.jXERoIContainerWriteKey.Path)
+
+  decoderAlg = CompFactory.L1TriggerByteStreamDecoderAlg(name="L1TriggerByteStreamDecoder",
+                                                         DecoderTools=decoderTools)
+  acc.addEventAlgo(decoderAlg, sequenceName='AthAlgSeq')
+
+  from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+  log.debug('Adding the following output EDM to ItemList: %s', outputEDM)
+  acc.merge(OutputStreamCfg(flags, 'AOD', ItemList=outputEDM))
+
+  if acc.run().isFailure():
+    sys.exit(1)
