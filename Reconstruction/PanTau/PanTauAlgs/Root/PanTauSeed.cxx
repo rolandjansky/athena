@@ -192,7 +192,7 @@ xAOD::Type::ObjectType PanTau::PanTauSeed::type() const {
 
 /** Main constructor to be used */
 PanTau::PanTauSeed::PanTauSeed( std::string                             nameInputAlgorithm,
-				const xAOD::TauJet*                     tauJet,
+				xAOD::TauJet*                           tauJet,
 				std::vector<PanTau::TauConstituent*>    tauConstituents,
 				std::vector<PanTau::TauConstituent*>    tauConstituentsAll,
 				std::vector<int>                        pantauSeed_TechnicalQuality
@@ -284,7 +284,7 @@ PanTau::PanTauSeed::PanTauSeed( std::string                             nameInpu
 
 /** Constructor for invalid seeds */
 PanTau::PanTauSeed::PanTauSeed(std::string nameInputAlgorithm,
-			       const xAOD::TauJet* tauJet,
+			       xAOD::TauJet* tauJet,
 			       std::vector<int> pantauSeed_TechnicalQuality)				  
   :
   IParticle(),
