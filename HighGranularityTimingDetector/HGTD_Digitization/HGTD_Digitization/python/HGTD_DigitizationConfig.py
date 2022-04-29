@@ -42,8 +42,8 @@ def HGTD_DigitizationBasicToolCfg(flags, name="HGTD_DigitizationBasicTool", **kw
     kwargs.setdefault("InputObjectName", "HGTD_Hits")
     kwargs.setdefault("HGTDDetEleCollKey", "HGTD_DetectorElementCollection")
     if flags.Digitization.DoXingByXingPileUp:
-        kwargs.setdefault("FirstXing", HGTD_FirstXing(flags))
-        kwargs.setdefault("LastXing", HGTD_LastXing(flags))
+        kwargs.setdefault("FirstXing", HGTD_FirstXing())
+        kwargs.setdefault("LastXing", HGTD_LastXing())
     from RngComps.RandomServices import AthRNGSvcCfg
     kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)
 
@@ -73,8 +73,8 @@ def HGTD_DigitizationToolCfg(flags, name="HGTD_DigitizationTool", **kwargs):
 
 def HGTD_RangeCfg(flags, name="HGTD_Range", **kwargs):
     """Return a configured PileUpXingFolder tool"""
-    kwargs.setdefault("FirstXing", HGTD_FirstXing(flags))
-    kwargs.setdefault("LastXing", HGTD_LastXing(flags))
+    kwargs.setdefault("FirstXing", HGTD_FirstXing())
+    kwargs.setdefault("LastXing", HGTD_LastXing())
     kwargs.setdefault("CacheRefreshFrequency", 1.0) # default 0 no dataproxy reset
     kwargs.setdefault("ItemList", ["SiHitCollection#HGTD_Hits"])
     return PileUpXingFolderCfg(flags, name, **kwargs)
