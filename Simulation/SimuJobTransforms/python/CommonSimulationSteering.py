@@ -65,8 +65,9 @@ def CommonSimulationCfg(ConfigFlags, log):
             cfg.merge(Input_TrackRecordGeneratorCfg(ConfigFlags))
         if ConfigFlags.Sim.ISF.ReSimulation:
             # Case 4
-            from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
-            cfg.merge(EventInfoCnvAlgCfg(ConfigFlags))
+            if "xAOD::EventInfo#EventInfo" not in ConfigFlags.Input.TypedCollections:
+                from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
+                cfg.merge(EventInfoCnvAlgCfg(ConfigFlags))
             from McEventCollectionFilter.McEventCollectionFilterConfig import TruthResetAlgCfg
             cfg.merge(TruthResetAlgCfg(ConfigFlags))
             cfg.addSequence(CompFactory.AthSequencer('SimSequence'), parentName='AthAlgSeq')
@@ -106,7 +107,7 @@ def CommonSimulationCfg(ConfigFlags, log):
 
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
     from SimuJobTransforms.SimOutputConfig import getStreamHITS_ItemList
-    cfg.merge( OutputStreamCfg(ConfigFlags,"HITS", ItemList=getStreamHITS_ItemList(ConfigFlags), disableEventTag=ConfigFlags.Sim.ISF.ReSimulation, AcceptAlgs=AcceptAlgNames) )## TODO: update config so that ReSim can use the same xAOD::EventInfo
+    cfg.merge( OutputStreamCfg(ConfigFlags,"HITS", ItemList=getStreamHITS_ItemList(ConfigFlags), disableEventTag=False, AcceptAlgs=AcceptAlgNames) )
     if ConfigFlags.Sim.ISF.ReSimulation:
         cfg.getEventAlgo("OutputStreamHITS").TakeItemsFromInput=False
 
