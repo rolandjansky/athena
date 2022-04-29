@@ -421,7 +421,7 @@ StatusCode LArSCL1Maker::execute(const EventContext& context) const
       if ( backGroundIdx<999999 ) { // bkgDigits exist and have compatible sizes
         // assuming compatible sizes, see above
 	const std::vector<short>& bkgSamples = bkgDigitsPtr->at(backGroundIdx)->samples();
-	samplesInt.insert(samplesInt.end(), bkgSamples.begin(), bkgSamples.end() );
+	samplesInt.assign( bkgSamples.begin(), bkgSamples.end() );
       } else {
 	int ped = pedestal->pedestal(id,0); // DB pedestal
 	samplesInt.assign( m_nSamples, ped );
