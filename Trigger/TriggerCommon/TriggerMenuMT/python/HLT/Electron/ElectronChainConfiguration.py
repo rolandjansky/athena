@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
@@ -155,7 +155,7 @@ class ElectronChainConfiguration(ChainConfigurationBase):
             stepNames += ['getFastCalo']
 
 
-        # Now lets do Fst Electron. Possible Flavours:
+        # Now lets do Fast Electron. Possible Flavours:
         # getFastElectron
         # getFastElectron_lrt
 
@@ -169,6 +169,7 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         # getPrecisionCaloElectron
         # getPrecisionCaloElectron_lrt
         # Now, we will add this if there is any IDInfo (i.e. any of dnn* or lh* in the chain name). Otherwise we wont run precision steps
+        
         if not self.chainPart['IDinfo'] and not self.chainPart['isoInfo'] and not self.chainPart['addInfo']: 
             log.debug("No IDInfo, no isoInfo and no addInfo. Returning here up to fastElectron")
             return stepNames
@@ -179,6 +180,7 @@ class ElectronChainConfiguration(ChainConfigurationBase):
             stepNames += ['getPrecisionCaloElectron']
 
         # If its an etcut chain, we will not run precision Tracking Electron. Just precision Calo. So returning here if its an etcut chain unless its an etcut_idperf chaiin:
+        
         if 'etcut' in self.chainPart['addInfo'] and 'idperf' not in self.chainPart['idperfInfo']:
             log.debug("This is an etcut chain. Returning here")
             return stepNames
@@ -186,6 +188,7 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         # After precisionCalo Electron we have to do precision tracking next. Current available variantas are:
         # getPrecisionTracking
         # getPrecisionTracking_lrt
+
         if self.chainPart['lrtInfo']:
             stepNames += ['getPrecisionTracking_lrt']
         else:
@@ -193,12 +196,14 @@ class ElectronChainConfiguration(ChainConfigurationBase):
 
         # Now if a chain is configured to do gsf refitting we need to add another tracking step for the GSF refitting:
         # getPrecisionTrack_GSFRefitted
-        if "gsf" in self.chainPart['gsfInfo']:
+
+        if "" in self.chainPart['gsfInfo']:
             if self.chainPart['lrtInfo']:
                 stepNames += ['getPrecisionTrack_GSFRefitted_lrt']
             else:
                 stepNames += ['getPrecisionTrack_GSFRefitted']
            
+            
         # If its an idperf chain, we will not run precision Electron. Just precision Calo and Precision Tracking so returning here if its an etcut chain
         if 'idperf' in self.chainPart['idperfInfo']:
             log.debug("This is an idperf chain. Returning here")
@@ -210,18 +215,17 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         # getPrecisionGSFElectron
         # getPrecisionElectron_lrt
 
-        if "gsf" in self.chainPart['gsfInfo']:
+        if "nogsf" in self.chainPart['gsfInfo']:
+            if self.chainPart['lrtInfo']:
+                stepNames += ['getPrecisionElectron_lrt']
+            else:
+                stepNames += ['getPrecisionElectron']
+        
+        else:
             if self.chainPart['lrtInfo']:
                 stepNames += ['getPrecisionGSFElectron_lrt']
             else:
                 stepNames += ['getPrecisionGSFElectron']
-        elif self.chainPart['lrtInfo']:
-            if "gsf" in self.chainPart['gsfInfo']:
-               stepNames += ['getPrecisionGSFElectron_lrt']
-            else:
-               stepNames += ['getPrecisionElectron_lrt']
-        else:
-            stepNames += ['getPrecisionElectron']
 
         log.debug("Returning chain with all steps in the sequence")
         return stepNames

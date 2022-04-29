@@ -115,10 +115,10 @@ def setupMenu():
         #ChainProp(name='HLT_e30_etcut_fwd_L1EM22VHI', groups=SingleElectronGroup),
 
         #ATR-22749
-        ChainProp(name='HLT_2e5_lhvloose_bBeeM6000_L12EM3', l1SeedThresholds=['EM3'], stream=['BphysDelayed'], groups=BphysElectronGroup+DevGroup),
-        ChainProp(name='HLT_e9_lhvloose_e5_lhvloose_bBeeM6000_L1BPH-0M9-EM7-EM5', l1SeedThresholds=['EM7','EM3'], stream=['BphysDelayed'], groups=BphysElectronGroup+DevGroup),
-        ChainProp(name='HLT_e5_lhvloose_bBeeM6000_L1BPH-0DR3-EM7J15', l1SeedThresholds=['EM7'], stream=['BphysDelayed'], groups=BphysElectronGroup+DevGroup),
-        ChainProp(name='HLT_e9_lhvloose_bBeeM6000_L1BPH-0DR3-EM7J15', l1SeedThresholds=['EM7'], stream=['BphysDelayed'], groups=BphysElectronGroup+DevGroup),
+        ChainProp(name='HLT_2e5_lhvloose_nogsf_bBeeM6000_L12EM3', l1SeedThresholds=['EM3'], stream=['BphysDelayed'], groups=BphysElectronGroup+DevGroup),
+        ChainProp(name='HLT_e9_lhvloose_e5_lhvloose_nogsf_bBeeM6000_L1BPH-0M9-EM7-EM5', l1SeedThresholds=['EM7','EM3'], stream=['BphysDelayed'], groups=BphysElectronGroup+DevGroup),
+        ChainProp(name='HLT_e5_lhvloose_nogsf_bBeeM6000_L1BPH-0DR3-EM7J15', l1SeedThresholds=['EM7'], stream=['BphysDelayed'], groups=BphysElectronGroup+DevGroup),
+        ChainProp(name='HLT_e9_lhvloose_nogsf_bBeeM6000_L1BPH-0DR3-EM7J15', l1SeedThresholds=['EM7'], stream=['BphysDelayed'], groups=BphysElectronGroup+DevGroup),
 
         # Photon chains for TLA
         ChainProp(name='HLT_g35_loose_PhysicsTLA_L1EM22VHI',stream=['TLA'], groups=SinglePhotonGroup+DevGroup),
@@ -134,23 +134,23 @@ def setupMenu():
         ChainProp(name='HLT_e14_lhtight_e4_etcut_probe_1invmAB5_L1JPSI-1M5-EM12', l1SeedThresholds=['EM12','PROBEEM3'], groups=DevGroup+MultiElectronGroup),
 
         #Photon Ringer Chains ATR-24384
+
         ChainProp(name='HLT_g20_loose_ringer_L1EM15VHI', groups=DevGroup+SinglePhotonGroup),
         ChainProp(name='HLT_g20_medium_ringer_L1EM15VHI', groups=DevGroup+SinglePhotonGroup),
         ChainProp(name='HLT_g20_tight_ringer_L1EM15VHI', groups=DevGroup+SinglePhotonGroup),
         ChainProp(name='HLT_g120_loose_ringer_L1EM22VHI', groups=DevGroup+SinglePhotonGroup),
 
         #LRTGSF test chains
-        ChainProp(name='HLT_e26_lhloose_nopix_lrttight_gsf_L1EM22VHI', groups=DevGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e5_idperf_loose_lrtloose_gsf_L1EM3', groups=DevGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e5_lhloose_nopix_lrtloose_gsf_L1EM3', groups=DevGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e26_lhloose_nopix_lrttight_L1EM22VHI', groups=DevGroup+SingleElectronGroup),
         ChainProp(name='HLT_e5_lhloose_nopix_lrtloose_L1EM3', groups=DevGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e5_lhloose_nopix_lrtloose_nogsf_L1EM3', groups=DevGroup+SingleElectronGroup),
 
         # For ringer validation
         ChainProp(name='HLT_g20_loose_L1EM15VHI',  groups=DevGroup+SinglePhotonGroup),
         ChainProp(name='HLT_g20_medium_L1EM15VHI', groups=DevGroup+SinglePhotonGroup),
 
         # For eFEX validation
-        ChainProp(name='HLT_e26_lhtight_ivarloose_L1EM22VH', groups=DevGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e26_lhtight_ivarloose_nogsf_L1EM22VH', groups=DevGroup+SingleElectronGroup),
     ]
 
     chains['MET'] += [
