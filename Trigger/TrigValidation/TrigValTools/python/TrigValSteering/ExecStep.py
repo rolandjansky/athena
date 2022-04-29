@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -245,7 +245,10 @@ class ExecStep(Step):
             if self.imf:
                 athenaopts += ' --imf'
             if self.perfmon:
-                athenaopts += ' --perfmon'
+                if self.type == 'athenaHLT':
+                    athenaopts += ' --perfmon'
+                else:
+                    athenaopts += ' --pmon=perfmonmt'
             if self.malloc:
                 athenaopts += " --stdcmalloc "
 
