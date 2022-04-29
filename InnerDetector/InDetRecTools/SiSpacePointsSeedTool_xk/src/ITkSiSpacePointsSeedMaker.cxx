@@ -2457,7 +2457,7 @@ void SiSpacePointsSeedMaker::production3SpPPP(EventData &data,
           if (BSquare < 1e-8)
             BSquare = 1e-8;
           if(data.ITkSP[t]->z()<0) meanOneOverTanTheta = -meanOneOverTanTheta;
-          float theta = std::atan(1. / std::sqrt(meanOneOverTanThetaSquare));
+          float theta = std::atan(1. / meanOneOverTanTheta);
           data.ITkSP[t]->setEta(-std::log(std::tan(0.5 * theta)));
           data.ITkSP[t]->setPt(std::sqrt(onePlusAsquare / BSquare) / (1000 * data.K));
 
@@ -2900,7 +2900,7 @@ void SiSpacePointsSeedMaker::production3SpSSS(EventData &data,
           float DR = std::sqrt( xt * xt + yt * yt + zt * zt ); // distance between top and central SP
           data.ITkSP[t]->setDR(DR);
 
-          if (meanOneOverTanTheta < 1e-8)
+          if (std::abs(meanOneOverTanTheta) < 1e-8)
             meanOneOverTanTheta = 1e-8;
           if (BSquare < 1e-8)
             BSquare = 1e-8;

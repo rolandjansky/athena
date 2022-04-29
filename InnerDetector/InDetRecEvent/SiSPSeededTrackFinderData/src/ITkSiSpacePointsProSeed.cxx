@@ -89,7 +89,7 @@ namespace ITk
       bool pixt = !m_s2->spacepoint->clusterList().second;
       
       if(pixt) {
-	if(m_q > m_s0->quality() && m_q > m_s1->quality() && m_q > m_s2->quality()) return false;
+        if(m_q > m_s0->quality() && m_q > m_s1->quality() && m_q > m_s2->quality()) return false;
       }
      
       m_s0->setQuality(m_q);
@@ -128,15 +128,14 @@ namespace ITk
   bool SiSpacePointsProSeed::setQuality(float q)
     {
       m_q = q;
-      bool pixb = !m_s0->spacepoint->clusterList().second;
-      bool pixt = !m_s2->spacepoint->clusterList().second;
-      if(pixb==pixt) {
-        m_s0->setQuality(q);
-	m_s1->setQuality(q);
-	m_s2->setQuality(q);
-	return true;
+
+      if(!m_s2->spacepoint->clusterList().second) {
+        if(q > m_s0->quality() && q > m_s1->quality() && q > m_s2->quality()) return false;
       }
-      return q < m_s0->quality() || q < m_s1->quality() || q < m_s2->quality();
+      m_s0->setQuality(m_q);
+      m_s1->setQuality(m_q);
+      m_s2->setQuality(m_q);
+      return true;
     }
 
 } // end of name space ITk
