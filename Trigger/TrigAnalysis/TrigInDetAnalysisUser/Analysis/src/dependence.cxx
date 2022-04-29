@@ -41,7 +41,7 @@ int usage( const std::string& err_msg="", int status=0 ) {
   s << " - compiled on " << __DATE__ << " at " << __TIME__ << "\n\n";
   s << "Options: \n";
   s << "    -c,  --config   value \t configure which histograms to plot from config file,\n\n";
-  s << "    -f,  --fit            \t fit a pol2 to the efficiencies\n\\n";
+  s << "    -f,  --fit            \t fit a pol2 to the efficiencies\n\n";
   s << "    -lx, --logx           \t drawwith log x axis\n";
   s << "    -as, --atlasstyle    \t usethe atlas style\n\n";
 
