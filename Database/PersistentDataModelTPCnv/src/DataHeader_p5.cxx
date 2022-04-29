@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PersistentDataModelTPCnv/DataHeader_p5.h"
@@ -31,14 +31,13 @@ long long int DataHeaderElement_p5::oid2() const {
 }
 
 
-DataHeaderForm_p5::DataHeaderForm_p5() : m_map(), m_uints(), m_entry(0U) {}
-DataHeaderForm_p5::DataHeaderForm_p5(const DataHeaderForm_p5& rhs) : m_map(rhs.m_map), m_uints(rhs.m_uints), m_entry(0U) {}
+DataHeaderForm_p5::DataHeaderForm_p5() : m_map(), m_uints() {}
+DataHeaderForm_p5::DataHeaderForm_p5(const DataHeaderForm_p5& rhs) : m_map(rhs.m_map), m_uints(rhs.m_uints) {}
 DataHeaderForm_p5::~DataHeaderForm_p5() {}
 DataHeaderForm_p5& DataHeaderForm_p5::operator=(const DataHeaderForm_p5& rhs) {
    if (&rhs != this) {
       m_map = rhs.m_map;
       m_uints = rhs.m_uints;
-      m_entry = 0U;
    }
    return(*this);
 }
@@ -51,27 +50,15 @@ void DataHeaderForm_p5::insertMap(const std::string& element) {
    m_map.push_back(element);
 }
 
-const std::vector<unsigned int>& DataHeaderForm_p5::params() const {
-   return(m_uints[m_entry - 1]);
+const std::vector<unsigned int>& DataHeaderForm_p5::params(unsigned int entry) const {
+   return(m_uints[entry - 1]);
 }
 
-void DataHeaderForm_p5::insertParam(unsigned int param) {
-   m_uints[m_entry - 1].push_back(param);
+void DataHeaderForm_p5::insertParam(unsigned int param, unsigned int entry) {
+   m_uints[entry - 1].push_back(param);
 }
 
-unsigned int DataHeaderForm_p5::entry() const {
-   return(m_entry);
-}
-
-void DataHeaderForm_p5::start() const {
-   m_entry = 1;
-}
-
-void DataHeaderForm_p5::next() const {
-   m_entry++;
-}
-
-unsigned int DataHeaderForm_p5::size() {
+unsigned int DataHeaderForm_p5::size() const {
    return(m_uints.size());
 }
 
@@ -80,19 +67,16 @@ void DataHeaderForm_p5::resize(unsigned int size) {
 }
 
 
-DataHeader_p5::DataHeader_p5() : m_dataHeader(), m_dhForm(0), m_dhFormToken(), m_dhFormMdx() {}
+DataHeader_p5::DataHeader_p5() : m_dataHeader(), m_dhFormToken(), m_dhFormMdx() {}
 DataHeader_p5::DataHeader_p5(const DataHeader_p5& rhs) : m_dataHeader(rhs.m_dataHeader),
-	m_dhForm(0),
 	m_dhFormToken(rhs.m_dhFormToken),
 	m_dhFormMdx(rhs.m_dhFormMdx) {}
 DataHeader_p5::~DataHeader_p5() {
-   delete m_dhForm;
 }
 
 DataHeader_p5& DataHeader_p5::operator=(const DataHeader_p5& rhs) {
    if (this != &rhs) {
       m_dataHeader = rhs.m_dataHeader;
-      m_dhForm = 0;
       m_dhFormToken = rhs.m_dhFormToken;
       m_dhFormMdx = rhs.m_dhFormMdx;
    }
@@ -103,40 +87,30 @@ const std::vector<DataHeaderElement_p5>& DataHeader_p5::elements() const {
    return(m_dataHeader);
 }
 
-const DataHeaderForm_p5* DataHeader_p5::dhForm() const {
-   return(m_dhForm);
-}
-
-void DataHeader_p5::setDhForm(DataHeaderForm_p5* form) {
-   m_dhForm = form;
-}
-
 const std::string& DataHeader_p5::dhFormToken() const {
    return(m_dhFormToken);
 }
 
-void DataHeader_p5::setDhFormToken(const std::string& formToken) {
-   if (m_dhForm) {
-      m_dhFormToken = formToken;
-      std::ostringstream stream;
-      for (std::vector<std::string>::const_iterator iter = m_dhForm->map().begin(),
-		      last = m_dhForm->map().end(); iter != last; ++iter) {
-         stream << *iter << "\n";
-      }
-      for (m_dhForm->start(); m_dhForm->entry() <= m_dhForm->size(); m_dhForm->next()) {
-         for (std::vector<unsigned int>::const_iterator iter = m_dhForm->params().begin(),
-		         last = m_dhForm->params().end(); iter != last; ++iter) {
-            stream << *iter << ",";
-         }
-         stream << "\n";
-      }
-      MD5 checkSum((unsigned char*)stream.str().c_str(), stream.str().size());
-      uuid_t checkSumUuid;
-      checkSum.raw_digest((unsigned char*)(&checkSumUuid));
-      char text[37];
-      uuid_unparse_upper(checkSumUuid, text);
-      m_dhFormMdx = text;
-   }
+void DataHeader_p5::setDhFormToken(const std::string& formToken,
+                                   const DataHeaderForm_p5& dhForm)
+{
+  m_dhFormToken = formToken;
+  std::ostringstream stream;
+  for (const std::string& s : dhForm.map()) {
+    stream << s << "\n";
+  }
+  for (unsigned int entry = 1; entry <= dhForm.size(); ++entry) {
+    for (unsigned int x : dhForm.params(entry)) {
+      stream << x << ",";
+    }
+    stream << "\n";
+  }
+  MD5 checkSum((unsigned char*)stream.str().c_str(), stream.str().size());
+  uuid_t checkSumUuid;
+  checkSum.raw_digest((unsigned char*)(&checkSumUuid));
+  char text[37];
+  uuid_unparse_upper(checkSumUuid, text);
+  m_dhFormMdx = text;
 }
 const std::string& DataHeader_p5::dhFormMdx() const {
    return(m_dhFormMdx);

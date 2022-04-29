@@ -10,9 +10,7 @@
    </class>
    <class name="std::vector<DataHeaderElement_p5>" />
    <class name="DataHeaderElement_p5" />
-   <class name="DataHeaderForm_p5" id="3397D8A3-BBE6-463C-9F8E-4B3DFD8831FE">
-      <field name="m_entry" transient="true" />
-   </class>
+   <class name="DataHeaderForm_p5" id="3397D8A3-BBE6-463C-9F8E-4B3DFD8831FE"/>
    <class name="DataHeaderCnv_p5"/>
 
    <class name="DataHeader_p6" id="4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D">
