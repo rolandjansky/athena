@@ -310,7 +310,7 @@ def adaptiveMultiVertexFinderTool_builder( signature, config ) :
     # tools so create them once and pass them into the builders ...  
     trackSummaryTool = None
     extrapolator     = TrackingCommon.getInDetExtrapolator()
-    doVtx3DFinding   = True # TODO!!!! InDetFlags.doPrimaryVertex3DFinding()
+    doVtx3DFinding   = False # TODO!!!! InDetFlags.doPrimaryVertex3DFinding()
 
     # get the selection cuts use to select the actual tracks in the tool ...
     from InDetTrigRecExample.TrigInDetConfiguredVtxCuts import ConfiguredTrigVtxCuts 
