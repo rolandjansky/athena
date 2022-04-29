@@ -141,7 +141,7 @@ namespace ActsTrk {
 							     return int((layerDisk==1) or (brlEc!=0 and layerDisk==2));
 							   });
     auto monitor_isOverlap = Monitored::Collection("isOverlap", *inputSpacePointCollection, 
-						   [this, &pixelID, &stripID, &mapper] (const auto*) -> int
+						   [this] (const auto*) -> int
 						   {
 						     return this->m_usePixel ? 0 : int(this->m_useOverlap);
 						   });
