@@ -27,7 +27,7 @@ from StripDigitization.StripDigitizationConfig import ITkStripDigitizationCfg
 from HGTD_Digitization.HGTD_DigitizationConfig import HGTD_DigitizationCfg
 from TileSimAlgs.TileDigitizationConfig import TileDigitizationCfg, TileTriggerDigitizationCfg
 from TRT_Digitization.TRT_DigitizationConfigNew import TRT_DigitizationCfg
-from Digitization.PileUpUtils import pileupInputCollections
+from RunDependentSimComps.PileUpUtils import pileupInputCollections
 
 from AthenaCommon.Logging import logging
 logDigiSteering = logging.getLogger('DigitizationSteering')
