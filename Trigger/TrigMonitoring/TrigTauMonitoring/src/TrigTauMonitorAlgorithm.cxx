@@ -1207,7 +1207,7 @@ StatusCode TrigTauMonitorAlgorithm::examineTruthTau(const xAOD::TruthParticle& x
   return StatusCode::SUCCESS;
 }
 
-void TrigTauMonitorAlgorithm::fillEFTauVsTruth(const std::vector<const xAOD::TauJet*>& ef_taus,const std::vector<const xAOD::TruthParticle*>& true_taus, const std::string trigger, const std::string& nProng) const
+void TrigTauMonitorAlgorithm::fillEFTauVsTruth(const std::vector<const xAOD::TauJet*>& ef_taus,const std::vector<const xAOD::TruthParticle*>& true_taus, const std::string& trigger, const std::string& nProng) const
 {
   ATH_MSG_DEBUG ("TrigTauMonitorAlgorithm::fillEFTauVsTruth");
 
@@ -1260,7 +1260,7 @@ void TrigTauMonitorAlgorithm::fillEFTauVsTruth(const std::vector<const xAOD::Tau
 
 }
 
-void TrigTauMonitorAlgorithm::fillTruthEfficiency(const std::vector<const xAOD::TauJet*> online_tau_vec,const std::vector<const xAOD::TruthParticle*> true_taus, const std::string trigger, const std::string& nProng) const
+void TrigTauMonitorAlgorithm::fillTruthEfficiency(const std::vector<const xAOD::TauJet*>& online_tau_vec,const std::vector<const xAOD::TruthParticle*>& true_taus, const std::string& trigger, const std::string& nProng) const
 {
 
   ATH_MSG_DEBUG("Truth Tau Matching to Offline and Online Taus for trigger");
