@@ -6,6 +6,7 @@ atlas_subdir( VP1MCSystems )
 # External dependencies:
 find_package( CLHEP )
 find_package( HepPDT )
+find_package( Qt5 COMPONENTS Core Gui Widgets  )
 
 # Generate UI files automatically:
 set( CMAKE_AUTOUIC TRUE )
