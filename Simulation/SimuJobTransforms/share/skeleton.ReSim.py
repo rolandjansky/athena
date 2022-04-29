@@ -183,8 +183,13 @@ if hasattr(runArgs, "enableLooperKiller") and not runArgs.enableLooperKiller:
 from AthenaCommon.AlgSequence import AlgSequence
 athAlgSeq = AlgSequence()
 
-if not hasattr( athAlgSeq, "xAODMaker::EventInfoCnvAlg" ):
-    athAlgSeq += CfgMgr.xAODMaker__EventInfoCnvAlg(AODKey="McEventInfo")
+# Only try to convert EventInfo->xAOD::EventInfo if there's no xAOD::EventInfo
+# already in the file.  Otherwise, we'll fail if the input file does not
+# contain an old EventInfo.
+from PyUtils.MetaReaderPeeker import convert_itemList
+if 'xAOD::EventInfo#EventInfo' not in convert_itemList(layout='#join'):
+    if not hasattr( athAlgSeq, "xAODMaker::EventInfoCnvAlg" ):
+        athAlgSeq += CfgMgr.xAODMaker__EventInfoCnvAlg(AODKey="McEventInfo")
 
 from McEventCollectionFilter.McEventCollectionFilterConf import TruthResetAlg
 athAlgSeq += TruthResetAlg("TruthResetAlg",InputMcEventCollection="TruthEventOLD", OutputMcEventCollection="BeamTruthEvent")
