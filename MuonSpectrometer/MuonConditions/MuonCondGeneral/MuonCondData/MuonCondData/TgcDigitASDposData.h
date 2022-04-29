@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCDIGITASDPOSDATA_H
@@ -7,23 +7,22 @@
 
 #include "AthenaKernel/BaseInfo.h"
 #include "AthenaKernel/CLASS_DEF.h"
+#include <map>
 #include <vector>
 
- /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- *               Contents of TGC_Digitization_AsdPosition.db                   *
- *  ==================================================================         *
- *                    |1|2|3|4|5|6|7|8|9|10|11|12|13|                          *
- *                                                                             *
- *             1  -- station number(unsigned short) -> 41~48                   *
- *             2  -- station eta(unsigned short) -> 1~5                        *
- *             3  -- station phi(short) -> BW is -99, EI is 1~21, FI is 1~24   *
- *            4~5 -- strip ASD position coordinate(float)                      *
- *           6~13 -- Wire ASD position coordinate(float)                       *
-  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *  stripAsdPos : std::map<ChamberId, std::vector<strip_ASDpos>>             *
+ *  wireAsdPos  : std::map<ChamberId, std::vector<wire_ASDpos>>              *
+ * where                                                                     *
+ *  ChamberId = (station number)<<8 + (station eta)<<5 + (station phi)       *
+ *  station number: 41...48                                                  *
+ *  station eta: 1...5                                                       *
+ *  station phi: 0x1f for BW, 1...21 for EI, 1...24 for FI                   *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 class TgcDigitASDposData
 {
-public:
+ public:
   TgcDigitASDposData();
   virtual ~TgcDigitASDposData() = default;
 
@@ -33,10 +32,8 @@ public:
     N_CHANNELINPUT_TOASD=16
   };
 
-  std::vector<unsigned short> stationNum;
-  std::vector<unsigned short> stationEta;
-  std::vector<short> stationPhi;
-  std::vector<std::vector<float>> asdPos;
+  std::map<uint16_t, std::vector<float>> stripAsdPos;
+  std::map<uint16_t, std::vector<float>> wireAsdPos;
 };
 CLASS_DEF(TgcDigitASDposData, 54799429, 1)
 

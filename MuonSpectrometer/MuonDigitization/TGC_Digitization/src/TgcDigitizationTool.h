@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONDIGITIZATION_TGC_DIGITIZATIONTOOL_H
@@ -23,6 +23,7 @@
 #include "MuonDigitContainer/TgcDigitContainer.h"
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonCondData/TgcDigitASDposData.h"
+#include "MuonCondData/TgcDigitTimeOffsetData.h"
 
 class PileUpMergeSvc;
 class TgcDigitMaker;
@@ -93,6 +94,7 @@ private:
   SG::ReadHandleKey<TGCSimHitCollection> m_hitsContainerKey{this, "InputObjectName", "TGC_Hits", "name of the input object"};
   std::string m_inputHitCollectionName{""};
   SG::ReadCondHandleKey<TgcDigitASDposData> m_readCondKey_ASDpos{this,"TGCDigitASDposKey","","ReadCondHandleKey for TGCDigitASDposData"};
+  SG::ReadCondHandleKey<TgcDigitTimeOffsetData> m_readCondKey_TimeOffset{this,"TGCDigitTimeOffsetKey","","ReadCondHandleKey for TGCDigitTimeOffsetData"};
   SG::WriteHandleKey<TgcDigitContainer> m_outputDigitCollectionKey{this,"OutputObjectName","TGC_DIGITS","WriteHandleKey for Output TgcDigitContainer"}; // name of the output digits
   SG::WriteHandleKey<MuonSimDataCollection> m_outputSDO_CollectionKey{this,"OutputSDOName","TGC_SDO","WriteHandleKey for Output MuonSimDataCollection"}; // name of the output SDOs
 
