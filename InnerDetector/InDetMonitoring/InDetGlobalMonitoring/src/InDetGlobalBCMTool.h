@@ -1,26 +1,27 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-/** @file InDetGlobalBCMTool.h
-* Implementation of inner detector global hits monitoring tool
-*
-* @author Heidi Sandaker <Heidi.Sandaker@cern.ch> @n
-*
-* $Id: InDetGlobalBCMTool.h,v 1.1 2009-01-19 11:07:24 sandaker Exp $
-*
-*********************************************************************************/
+/**
+ * @file InDetGlobalBCMTool.h
+ * Implementation of inner detector global hits monitoring tool
+ *
+ * @author Heidi Sandaker <Heidi.Sandaker@cern.ch> @n
+ *
+ * $Id: InDetGlobalBCMTool.h,v 1.1 2009-01-19 11:07:24 sandaker Exp $
+ *
+ *********************************************************************************/
 
 
-#ifndef InDetGlobalBCMTool_H
-#define InDetGlobalBCMTool_H
+#ifndef INDETGLOBALMONITORING_INDETGLOBALBCMTOOL_H
+#define INDETGLOBALMONITORING_INDETGLOBALBCMTOOL_H
 
 //Local includes
 #include "InDetGlobalMotherMonTool.h"
 //Framework
 #include "StoreGate/ReadHandleKey.h"
 #include "VxVertex/VxContainer.h"
-#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 //Standard c++
 #include <string>
 //Predeclarations
@@ -42,16 +43,16 @@ public:
     virtual ~InDetGlobalBCMTool() {}
 
     ///Initialisation
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     ///@name Book, fill and proc histograms
     ///@{
   
     ///@copydoc InDetGlobalMotherMonTool::bookHistograms()
-    virtual StatusCode bookHistogramsRecurrent(); 	
+    virtual StatusCode bookHistogramsRecurrent() override;
 
     ///@copydoc InDetGlobalMotherMonTool::fillHistograms()
-    virtual StatusCode fillHistograms();
+    virtual StatusCode fillHistograms() override;
 
     ///@} 
     
@@ -60,7 +61,7 @@ private:
     std::string m_detector;
     std::string m_histFolder;
     SG::ReadHandleKey<VxContainer> m_vxContainerName{this, "vxContainerName","VxPrimaryCandidate","Vertex Container for BCM Global Monitoring"};
-    SG::ReadHandleKey<EventInfo> m_eventInfoKey{this, "EventInfoKey","EventInfo","Event Info Key for BCM Global Monitoring"};
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfoKey","EventInfo","Event Info Key for BCM Global Monitoring"};
 
     /// Example histogram
     TH1F*  m_nExamplePlot{};
