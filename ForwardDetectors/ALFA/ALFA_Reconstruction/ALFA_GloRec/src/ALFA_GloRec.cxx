@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////
@@ -60,7 +60,7 @@
 //////////////////////////////////////////////////////////
 
 
-#include "ALFA_GloRec/ALFA_GloRec.h"
+#include "ALFA_GloRec.h"
 #include <algorithm>
 #include <functional>
 
@@ -142,9 +142,6 @@ AthAlgorithm(name, pSvcLocator)
 	m_th1_recxminusextrapxfarpot   = 0;
 	m_th1_recyminusextrapyfarpot   = 0;
 
-	m_storeGate = 0;
-	m_nEvent = 0;
-
 }
 
 /////////////////////////////////////////////////////////
@@ -203,18 +200,6 @@ StatusCode ALFA_GloRec::execute() {
 	LogStream << MSG::DEBUG << "begin ALFA_GloRec::execute()" << endmsg;
 	StatusCode sc = StatusCode::SUCCESS;
 
- 	//////////////////////////
-	// ... get event info 
-	//////////////////////////
-	const EventInfo* eventInfo = nullptr;
-	sc = evtStore()->retrieve(eventInfo);
-	if (sc.isFailure())	{
-		msg(MSG::ERROR) << "ALFA_GloRec cannot get event info." << endmsg;
-		return sc;
-	}
-	m_nEvent = eventInfo->event_ID()->event_number();
-	//m_iRunNum = eventInfo->event_ID()->run_number();
-	//m_iLumiBlock = eventInfo->event_ID()->lumi_block();
 	
 
 

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-	#ifndef ALFA_LOCREC_h
+#ifndef ALFA_LOCREC_h
 #define ALFA_LOCREC_h
 
 #include <iostream>
@@ -14,8 +14,6 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-//#include "GaudiKernel/Algorithm.h"
-//#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ObjectVector.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IToolSvc.h"
@@ -26,8 +24,8 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "StoreGate/ReadHandleKey.h"
 
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
@@ -96,6 +94,8 @@ class ALFA_LocRec : public AthAlgorithm
 
 		ALFA_LocRecODEvCollection*	m_pLocRecODEvCollection;
 		ALFA_LocRecODEvent*			m_pLocRecODEvent;
+		
+		SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EvtInfo", "EventInfo", "EventInfo name"};
 
 	private:
 		std::list<eRPotName> m_ListExistingRPots;

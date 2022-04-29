@@ -16,12 +16,8 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-//#include "GaudiKernel/Algorithm.h"
-//#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
@@ -37,7 +33,7 @@
 #include "ALFA_LocRecEv/ALFA_LocRecODEvCollection.h"
 #include "ALFA_LocRecCorrEv/ALFA_LocRecCorrEvCollection.h"
 #include "ALFA_LocRecCorrEv/ALFA_LocRecCorrODEvCollection.h"
-#include "ALFA_LocRecCorr/ALFA_UserObjects.h"
+#include "ALFA_UserObjects.h"
 
 #define MAXNUMTRACKS 100
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
  #ifndef ALFA_BeamTrack_H
@@ -10,7 +10,7 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-#include "ALFA_BeamTransport/ALFA_FPConfig.h"
+#include "ALFA_FPConfig.h"
 
 //FPTracker stuff
 #include "FPTracker/setupBeamline.h"
