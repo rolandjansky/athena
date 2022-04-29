@@ -118,10 +118,7 @@ SiCluster::SiCluster(const Identifier& RDOId,
 {}
 
 // Destructor:
-SiCluster::~SiCluster()
-{
-  // do not delete m_detEl since owned by DetectorStore
-}
+SiCluster::~SiCluster() = default;
 
 MsgStream&
 SiCluster::dump(MsgStream& stream) const
