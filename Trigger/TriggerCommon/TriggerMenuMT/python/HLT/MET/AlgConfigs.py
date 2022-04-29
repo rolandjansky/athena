@@ -241,7 +241,7 @@ class NNHLTConfig(AlgConfig):
         return "nn"
 
     def __init__(self, **recoDict):
-        self.file_name = "TrigEFMissingET/20220211/NNsingleLayerRed.json"
+        self.file_name = "TrigEFMissingET/20220429/NNsingleLayerRed.json"
         # Locate the file on the calib path
         full_name = find_datafile(self.file_name, os.environ["CALIBPATH"].split(os.pathsep))
         if full_name is None:
