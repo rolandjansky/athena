@@ -57,6 +57,3 @@ atlas_add_executable( dqm_print_summarymakers
                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
                       LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} dqm_algorithms dqm_tools dqm_summaries )
 
-# Aliases:
-atlas_add_alias( dqm_print_algorithms "dqm_print_algorithms.exe" )
-atlas_add_alias( dqm_print_summarymakers "dqm_print_summarymakers.exe" )
