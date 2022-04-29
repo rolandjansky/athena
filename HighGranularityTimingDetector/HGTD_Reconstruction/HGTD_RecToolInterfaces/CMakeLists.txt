@@ -7,4 +7,4 @@ atlas_subdir( HGTD_RecToolInterfaces )
 atlas_add_library( HGTD_RecToolInterfaces
                    PUBLIC_HEADERS HGTD_RecToolInterfaces
                    LINK_LIBRARIES GaudiKernel HGTD_Identifier HGTD_PrepRawData
-                   HGTD_RawData HGTD_ReadoutGeometry TrkTrack xAODTruth AtlasHepMCLib )
+                   HGTD_RawData HGTD_ReadoutGeometry TrkTrack xAODTracking xAODTruth AtlasHepMCLib )
