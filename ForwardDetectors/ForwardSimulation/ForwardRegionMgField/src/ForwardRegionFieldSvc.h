@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -133,9 +133,9 @@ namespace MagField {
 
 //    G4ThreeVector applyDisplacement(G4ThreeVector Point, G4ThreeVector field, int beam) const;
 
-    void writeOutTwiss(std::vector<std::vector<std::string> > loadedTwissFile, int beam, std::string header);
+    void writeOutTwiss(const std::vector<std::vector<std::string>>& loadedTwissFile, int beam, const std::string& header);
     void getMagnetTransformParams(int beam, int magnet, G4ThreeVector Point, HepGeom::Point3D<double> &pointMagStart,HepGeom::Point3D<double> &pointMagEnd, double &rotZ) const;
-    int getMagNumFromName(std::string name) const;
+    int getMagNumFromName(const std::string& name) const;
 
 
   };

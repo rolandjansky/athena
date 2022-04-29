@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARG4BARREL_CurrMap_h
@@ -9,7 +9,7 @@
 
 class CurrMap {
   public:
-    CurrMap(std::string filename, double xnorm);
+    CurrMap(const std::string& filename, double xnorm);
     ~CurrMap();
     int GetNx() const       { return m_nx;}
     float GetXmin() const   { return m_xmin;}

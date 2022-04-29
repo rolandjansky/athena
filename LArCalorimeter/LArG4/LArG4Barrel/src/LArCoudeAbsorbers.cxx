@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCoudeAbsorbers.h"
@@ -17,7 +17,7 @@ LArCoudeAbsorbers*  LArCoudeAbsorbers::GetInstance(const std::string& strDetecto
 }
 
 
-LArCoudeAbsorbers::LArCoudeAbsorbers(std::string strDetector)
+LArCoudeAbsorbers::LArCoudeAbsorbers(const std::string& strDetector)
 {
   if (s_theCoudes==nullptr)
     {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArStraightElectrodes.h"
@@ -20,7 +20,7 @@ LArStraightElectrodes*  LArStraightElectrodes::GetInstance(const std::string& st
   return s_instance;
 }
 
-LArStraightElectrodes::LArStraightElectrodes(std::string strDetector)
+LArStraightElectrodes::LArStraightElectrodes(const std::string& strDetector)
 {
   const LArVG4DetectorParameters* parameters = LArVG4DetectorParameters::GetInstance();
   if (parameters->GetValue("LArEMBPhiAtCurvature",0)>0.)  m_parity=0;  // first wave goes up
