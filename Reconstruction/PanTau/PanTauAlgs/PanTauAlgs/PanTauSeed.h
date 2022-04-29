@@ -161,12 +161,8 @@ namespace PanTau {
 
   private:
 
-    /// Cached 4-momentum object
-    mutable FourMom_t m_p4;
-    ///
- 
-    /// Cache state of the internal 4-momentum (reset from the streamer)
-    mutable bool m_p4Cached;
+    /// 4-momentum object
+    FourMom_t m_p4;
 
   protected:
 
