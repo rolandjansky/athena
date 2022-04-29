@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.CfgGetter import addTool, addService, addAlgorithm
 addService("Digitization.PileUpConfig.getStepArrayBM"                , "StepArrayBM")
@@ -20,10 +20,6 @@ addTool("Digitization.PileUpConfig.getBeamHaloCache"                 , "BeamHalo
 
 addTool("Digitization.DigiAlgConfig.getTestPileUpTool"               , "TestPileUpTool")
 addTool("Digitization.DigiAlgConfig.getTestFilterPileUpTool"         , "TestFilterPileUpTool")
-
-addService("Digitization.RunDependentConfig.getLumiProfileSvc"       , "LumiProfileSvc")
-addService("Digitization.RunDependentConfig.getNoProfileSvc"         , "NoProfileSvc")
-addService("Digitization.RunDependentConfig.getEvtIdModifierSvc"     , "EvtIdModifierSvc")
 
 addService("Digitization.PileUpConfig.getPileUpEventLoopMgr"         , "PileUpEventLoopMgr")
 
