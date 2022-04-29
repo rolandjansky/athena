@@ -10,9 +10,6 @@
 #include "TruthTrackBuilder.h"
 // Trk includes
 #include "TrkTrack/Track.h"
-#include "TrkFitterInterfaces/ITrackFitter.h"
-#include "TrkExInterfaces/IExtrapolator.h"
-#include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkPrepRawData/PrepRawData.h"
@@ -287,7 +284,8 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
    ATH_MSG_DEBUG("Track fit of truth trajectory successful, track created. ");
    // return what you have
    // Before returning, fix the creator
-   refittedtrack2->info().setPatternRecognitionInfo( Trk::TrackInfo::Pseudotracking);
-
+   if (refittedtrack2){
+     refittedtrack2->info().setPatternRecognitionInfo( Trk::TrackInfo::Pseudotracking);
+   }
    return refittedtrack2;
 }
