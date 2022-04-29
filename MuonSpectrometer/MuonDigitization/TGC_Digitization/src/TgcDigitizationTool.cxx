@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TgcDigitizationTool.h"
@@ -68,6 +68,7 @@ StatusCode TgcDigitizationTool::initialize()
   // Initialize Read(Cond)HandleKey
   ATH_CHECK(m_hitsContainerKey.initialize(true));
   ATH_CHECK(m_readCondKey_ASDpos.initialize(!m_readCondKey_ASDpos.empty()));
+  ATH_CHECK(m_readCondKey_TimeOffset.initialize(!m_readCondKey_TimeOffset.empty()));
 
   //initialize the output WriteHandleKeys
   ATH_CHECK(m_outputDigitCollectionKey.initialize());
@@ -289,8 +290,18 @@ StatusCode TgcDigitizationTool::digitizeCore(const EventContext& ctx) {
   if (!m_readCondKey_ASDpos.empty()) {
     SG::ReadCondHandle<TgcDigitASDposData> readHandle_ASDpos{m_readCondKey_ASDpos, ctx};
     ASDpos = readHandle_ASDpos.cptr();
+  } else {
+    ATH_MSG_ERROR("ASD Position parameters /TGC/DIGIT/ASDPOS must be available for TGC_Digitization. Check the configuration!");
   }
-  
+  const TgcDigitTimeOffsetData *TOffset{};
+  if (!m_readCondKey_TimeOffset.empty()) {
+    SG::ReadCondHandle<TgcDigitTimeOffsetData> readHandle_TimeOffset{m_readCondKey_TimeOffset, ctx};
+    TOffset = readHandle_TimeOffset.cptr();
+  } else {
+    ATH_MSG_ERROR("Timing Offset parameters /TGC/DIGIT/TOFFSET must be available for TGC_Digitization. Check the configuration!");
+  }
+
+
   TimedHitCollection<TGCSimHit>::const_iterator i, e; 
   while(m_thpcTGC->nextDetectorElement(i, e)) {
     ATH_MSG_DEBUG("TgcDigitizationTool::digitizeCore next element");
@@ -301,7 +312,7 @@ StatusCode TgcDigitizationTool::digitizeCore(const EventContext& ctx) {
       const TGCSimHit& hit = *phit;
       double globalHitTime = hitTime(phit);
       double tof = phit->globalTime();
-      TgcDigitCollection* digiHits = m_digitizer->executeDigi(&hit, globalHitTime, ASDpos, rndmEngine);
+      TgcDigitCollection* digiHits = m_digitizer->executeDigi(&hit, globalHitTime, ASDpos, TOffset, rndmEngine);
 
       if(!digiHits) continue;
 

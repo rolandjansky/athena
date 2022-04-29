@@ -56,8 +56,6 @@ StatusCode TgcDigitASDposCondAlg::execute(const EventContext& ctx) const
 
   // Fill
   auto outputCdo = std::make_unique<TgcDigitASDposData>();
-  outputCdo->asdPos.assign(TgcDigitASDposData::N_STRIPASDPOS + TgcDigitASDposData::N_WIREASDPOS, std::vector<float>(readHandle_ASDpos->size(), 0));
-  size_t dbLine{};
 
   std::string delimiter{";"};
   for(const auto &[channel, attribute] : *readHandle_ASDpos.cptr()) {
@@ -67,22 +65,29 @@ StatusCode TgcDigitASDposCondAlg::execute(const EventContext& ctx) const
     std::vector<std::string> tokens;
     MuonCalib::MdtStringUtils::tokenize(blobline, tokens, delimiter);
     auto it = std::begin(tokens);
-    outputCdo->stationNum.push_back(stoi(*it));
+    uint16_t station = static_cast<uint16_t>(stoi(*it));
     ++it;
-    outputCdo->stationEta.push_back(stoi(*it));
+    uint16_t eta = static_cast<uint16_t>(stoi(*it));
     ++it;
-    outputCdo->stationPhi.push_back(stoi(*it));
+    uint16_t phi = (stoi(*it) == -99) ? 0x1f : static_cast<uint16_t>(stoi(*it));
+    uint16_t chamberId = (station << 8)  + (eta << 5) + phi;
 
-    for(int i=0;i<TgcDigitASDposData::N_STRIPASDPOS;i++){
+    std::vector<float> strip_pos;
+    strip_pos.assign(TgcDigitASDposData::N_STRIPASDPOS, 0);
+    for (int i=0; i < TgcDigitASDposData::N_STRIPASDPOS; i++) {
       ++it;
-      outputCdo->asdPos[i][dbLine] = stof(*it);
+      strip_pos[i] = stof(*it);
     }
-    for(int i=0;i<TgcDigitASDposData::N_WIREASDPOS;i++){
+    outputCdo->stripAsdPos.insert(std::make_pair(chamberId, strip_pos));
+
+    std::vector<float> wire_pos;
+    wire_pos.assign(TgcDigitASDposData::N_WIREASDPOS, 0);
+    for (int i=0; i < TgcDigitASDposData::N_WIREASDPOS; i++) {
       ++it;
-      outputCdo->asdPos[i + (int)TgcDigitASDposData::N_STRIPASDPOS][dbLine] = stof(*it);
+      wire_pos[i] = stof(*it);
     }
-    dbLine += 1;
-  } // end of for(attrmap)
+    outputCdo->wireAsdPos.insert(std::make_pair(chamberId, wire_pos));
+  }  // end of for(attrmap)
 
   // Record
   if (writeHandle.record(rangeIntersection, std::move(outputCdo)).isFailure()) {

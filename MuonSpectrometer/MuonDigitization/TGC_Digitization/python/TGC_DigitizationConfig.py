@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from Digitization.DigitizationFlags import jobproperties
 from AthenaCommon import CfgMgr
@@ -26,6 +26,15 @@ def setupTgcDigitASDposCondAlg():
 
         condSequence += CfgMgr.TgcDigitASDposCondAlg("TgcDigitASDposCondAlg")
 
+def setupTgcDigitTimeOffsetCondAlg():
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSequence = AthSequencer("AthCondSeq")
+    if not hasattr(condSequence, "TgcDigitTimeOffsetCondAlg"):
+        from IOVDbSvc.CondDB import conddb
+        conddb.addFolder("TGC_OFL", "/TGC/DIGIT/TOFFSET <tag>TgcDigitTimeOffset-00-01</tag>", className='CondAttrListCollection', forceMC=True)   # TODO remove explicit tag
+        condSequence += CfgMgr.TgcDigitTimeOffsetCondAlg("TgcDigitTimeOffsetCondAlg")
+
+
 def TgcDigitizationTool(name="TgcDigitizationTool", **kwargs):
     if jobproperties.Digitization.doXingByXingPileUp(): # PileUpTool approach
         # This should match the range for the TGC in Simulation/Digitization/share/MuonDigitization.py 
@@ -45,6 +54,8 @@ def TgcDigitizationTool(name="TgcDigitizationTool", **kwargs):
 
     setupTgcDigitASDposCondAlg()
     kwargs.setdefault("TGCDigitASDposKey", "TGCDigitASDposData")
+    setupTgcDigitTimeOffsetCondAlg()
+    kwargs.setdefault("TGCDigitTimeOffsetKey", "TGCDigitTimeOffsetData")
 
     return CfgMgr.TgcDigitizationTool(name, **kwargs)
 
@@ -66,11 +77,6 @@ def Tgc_OverlayDigitizationTool(name="Tgc_OverlayDigitizationTool", **kwargs):
         kwargs.setdefault("OutputObjectName",overlayFlags.evtStore()+"+TGC_DIGITS")
         if not overlayFlags.isDataOverlay():
             kwargs.setdefault("OutputSDOName",overlayFlags.evtStore()+"+TGC_SDO")
-
-    from Digitization.DigitizationFlags import digitizationFlags
-    if digitizationFlags.UseUpdatedTGCConditions():
-        setupTgcDigitASDposCondAlg()
-        kwargs.setdefault("TGCDigitASDposKey", "TGCDigitASDposData")    
 
     return TgcDigitizationTool(name,**kwargs)
 
