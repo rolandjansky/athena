@@ -28,7 +28,7 @@ FastChain_tf.py \
     --maxEvents ${maxevent} \
     --skipEvents 0 \
     --geometryVersion default:ATLAS-R2-2016-01-00-01 \
-    --conditionsTag default:OFLCOND-MC16-SDR-16 \
+    --conditionsTag default:OFLCOND-MC16-SDR-RUN2-09 \
     --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True;' \
     --preSimInclude 'Campaigns/MC16a.py' 'Campaigns/PileUpMC16a.py' \
     --postInclude='PyJobTransforms/UseFrontier.py' \
@@ -64,7 +64,7 @@ FastChain_tf.py \
     --maxEvents ${maxevent} \
     --skipEvents 0 \
     --geometryVersion default:ATLAS-R2-2016-01-00-01 \
-    --conditionsTag default:OFLCOND-MC16-SDR-16 \
+    --conditionsTag default:OFLCOND-MC16-SDR-RUN2-09 \
     --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True;' \
     --preSimInclude 'Campaigns/MC16a.py' 'Campaigns/PileUpMC16a.py' \
     --postInclude='PyJobTransforms/UseFrontier.py' \
@@ -96,7 +96,7 @@ FastChain_tf.py \
     --maxEvents ${maxevent} \
     --skipEvents 0 \
     --geometryVersion default:ATLAS-R2-2016-01-00-01 \
-    --conditionsTag default:OFLCOND-MC16-SDR-16 \
+    --conditionsTag default:OFLCOND-MC16-SDR-RUN2-09 \
     --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True;' \
     --preInclude 'Campaigns.MC16a' \
     --postInclude='PyJobTransforms.UseFrontier' \
