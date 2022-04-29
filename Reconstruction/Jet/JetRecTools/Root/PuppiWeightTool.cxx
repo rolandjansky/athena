@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "JetRecTools/PuppiWeightTool.h"
 
@@ -31,8 +31,6 @@ PuppiWeightTool::PuppiWeightTool(const std::string& name) :
 
   declareProperty("ApplyWeight",m_applyWeight=true);
   declareProperty("IncludeCentralNeutralsInAlpha",m_includeCentralNeutralsInAlpha=false);
-  
-  m_puppi = new Puppi(m_R0, m_Rmin, m_beta, m_centralPTCutOffset, m_centralPTCutSlope, m_forwardPTCutOffset, m_forwardPTCutSlope, m_etaBoundary);
 }
 
 //------------------------------------------------------------------------------
@@ -59,8 +57,6 @@ StatusCode PuppiWeightTool::initialize() {
 
 StatusCode PuppiWeightTool::finalize() {
   ATH_MSG_INFO("Finializing tool " << name() << "...");
-
-  delete m_puppi;
 
   return StatusCode::SUCCESS;
 }
@@ -135,7 +131,8 @@ StatusCode PuppiWeightTool::applyPuppiWeights(xAOD::PFOContainer* cont) const{
     ++nPV;
   }
 
-  m_puppi->setParticles(chargedHSVector, chargedPUVector, neutralVector, forwardVector, nPV);
+  Puppi puppi (m_R0, m_Rmin, m_beta, m_centralPTCutOffset, m_centralPTCutSlope, m_forwardPTCutOffset, m_forwardPTCutSlope, m_etaBoundary);
+  puppi.setParticles(chargedHSVector, chargedPUVector, neutralVector, forwardVector, nPV);
 
   for ( xAOD::PFO* ppfo : *cont ) {
     float charge = ppfo->charge();
@@ -144,16 +141,16 @@ StatusCode PuppiWeightTool::applyPuppiWeights(xAOD::PFOContainer* cont) const{
 
     fastjet::PseudoJet pj(ppfo->p4());
 
-    double weight = m_puppi->getWeight(pj);
-    double alpha = m_puppi->getAlpha(pj);
+    double weight = puppi.getWeight(pj);
+    double alpha = puppi.getAlpha(pj);
 
     if ((!isCharged || isForward) && m_applyWeight) ppfo->setP4(weight*ppfo->p4());
     alphaAcc(*ppfo) = alpha;
     weightAcc(*ppfo) = weight;
   }
 
-  ATH_MSG_DEBUG("Median: "<<m_puppi->getMedian());
-  ATH_MSG_DEBUG("RMS: "<<m_puppi->getRMS());
+  ATH_MSG_DEBUG("Median: "<<puppi.getMedian());
+  ATH_MSG_DEBUG("RMS: "<<puppi.getRMS());
 
   return StatusCode::SUCCESS;
 }
@@ -211,23 +208,24 @@ StatusCode PuppiWeightTool::applyPuppiWeights(xAOD::FlowElementContainer* cont) 
     ++nPV;
   }
 
-  m_puppi->setParticles(chargedHSVector, chargedPUVector, neutralVector, forwardVector, nPV);
+  Puppi puppi (m_R0, m_Rmin, m_beta, m_centralPTCutOffset, m_centralPTCutSlope, m_forwardPTCutOffset, m_forwardPTCutSlope, m_etaBoundary);
+  puppi.setParticles(chargedHSVector, chargedPUVector, neutralVector, forwardVector, nPV);
 
   for ( xAOD::FlowElement* pfe : *cont ) {
     bool isForward = (fabs(pfe->eta()) > m_etaBoundary);
 
     fastjet::PseudoJet pj(pfe->p4());
 
-    double weight = m_puppi->getWeight(pj);
-    double alpha = m_puppi->getAlpha(pj);
+    double weight = puppi.getWeight(pj);
+    double alpha = puppi.getAlpha(pj);
 
     if ((!(pfe->isCharged()) || isForward) && m_applyWeight) pfe->setP4(weight*pfe->p4());
     alphaAcc(*pfe) = alpha;
     weightAcc(*pfe) = weight;
   }
 
-  ATH_MSG_DEBUG("Median: "<<m_puppi->getMedian());
-  ATH_MSG_DEBUG("RMS: "<<m_puppi->getRMS());
+  ATH_MSG_DEBUG("Median: "<<puppi.getMedian());
+  ATH_MSG_DEBUG("RMS: "<<puppi.getRMS());
 
   return StatusCode::SUCCESS;
 }
