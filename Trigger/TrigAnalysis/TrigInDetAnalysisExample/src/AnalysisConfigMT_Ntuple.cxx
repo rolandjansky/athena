@@ -367,8 +367,15 @@ void AnalysisConfigMT_Ntuple::loop() {
 		if ( xaodVtxCollection!=0 ) { 
 		
 			m_provider->msg(MSG::DEBUG) << "xAOD vertex container " << vertexType << " found with " << xaodVtxCollection->size() <<  " entries" << endmsg;
-
-			vertices = vertexBuilder.select( xaodVtxCollection, &selectorRef.tracks() );
+			
+			// Vertex types in some secondary vertex collections are not properly set and are all 0, 
+			// allow these vertices if primary vertices are not used
+			if ( vertexType.find("SecVtx") != std::string::npos ) {
+				vertices = vertexBuilder.select( xaodVtxCollection, &selectorRef.tracks(), true );
+			}
+			else {
+				vertices = vertexBuilder.select( xaodVtxCollection, &selectorRef.tracks() );
+			}
 		}
 
 		// now add the offline vertices
@@ -507,7 +514,14 @@ void AnalysisConfigMT_Ntuple::loop() {
 	      m_provider->msg(MSG::DEBUG) << "\txAOD::VertexContainer found with size  " << xaodVtxCollection->size()
 					  << "\t" << vtx_name << endmsg;
 
-		  tidavertices = vertexBuilder.select( xaodVtxCollection );  
+		  // Vertex types in some secondary vertex collections are not properly set and are all 0, 
+	      // allow these vertices if primary vertices are not used
+		  if ( vtx_name.find("SecVtx") != std::string::npos ) {
+		    tidavertices = vertexBuilder.select( xaodVtxCollection, 0, true );
+		  }
+		  else {
+		    tidavertices = vertexBuilder.select( xaodVtxCollection );
+		  }		   
 		}
 
 	  }
@@ -890,10 +904,15 @@ void AnalysisConfigMT_Ntuple::loop() {
 		      m_provider->msg(MSG::DEBUG) << "\txAOD::VertexContainer found with size  " << (vtx_itrpair.second - vtx_itrpair.first) 
 						 << "\t" << vtx_name << endmsg;
 
-			  tidavertices = vertexBuilder.select( vtx_itrpair.first, vtx_itrpair.second, &selectorTest.tracks() );
-		      
+			  // Vertex types in some secondary vertex collections are not properly set and are all 0, 
+			  // allow these vertices if primary vertices are not used
+			  if ( vtx_name.find("SecVtx") != std::string::npos ) {
+				tidavertices = vertexBuilder.select( vtx_itrpair.first, vtx_itrpair.second, &selectorRef.tracks(), true );
+			  }
+			  else {
+				tidavertices = vertexBuilder.select( vtx_itrpair.first, vtx_itrpair.second, &selectorTest.tracks() );
+			  }		      
 			}
-		    
 		  }
 
 #if 0 
