@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file InDetGlobalTrackMonTool.cxx
@@ -29,9 +29,6 @@
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkSurfaces/Surface.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/TriggerInfo.h"
-#include "EventInfo/EventID.h"
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TH2F_LW.h"
 #include "LWHists/TH1I_LW.h"
