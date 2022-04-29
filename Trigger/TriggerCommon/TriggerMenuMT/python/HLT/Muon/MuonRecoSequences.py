@@ -27,8 +27,7 @@ MSextrpTPname = recordable("HLT_MSOnlyExtrapolatedMuons_FSTrackParticles")
 
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
-from AthenaCommon.BeamFlags import jobproperties
-beamFlags = jobproperties.Beam
+from AthenaConfiguration.Enums import BeamType
 
 class muonNames(object):
   def __init__(self):
@@ -66,7 +65,7 @@ muNamesLRT = muonNames().getNames('LRT')
 
 def isCosmic():
   #FIXME: this might not be ideal criteria to determine if this is cosmic chain but used to work in Run2 and will do for now, ATR-22758
-  return (beamFlags.beamType() == 'cosmics')
+  return (ConfigFlags.Beam.Type == BeamType.Cosmics)
 
 def isLRT(name):
   return "LRT" in name
