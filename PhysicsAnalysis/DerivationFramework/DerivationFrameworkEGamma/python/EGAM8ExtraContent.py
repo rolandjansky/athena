@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 
 #Content included in addition to the Smart Slimming Content
@@ -61,10 +61,7 @@ ExtraContentAllTruth=ExtraMuonsTruth+ExtraPhotonsTruth
 ExtraContainersTruth=["TruthEvents", 
                       "TruthParticles",
                       "TruthVertices",
-                      "AntiKt4TruthJets",
                       "egammaTruthParticles"
-                      #,"BTagging_AntiKt4TruthWZ"
-                      #,"AntiKt4TruthWZJets"
                       ]
 
 ExtraContainersElectrons=["Electrons",

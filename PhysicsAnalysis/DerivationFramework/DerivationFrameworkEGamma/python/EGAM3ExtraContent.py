@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #Content included in addition to the Smart Slimming Content
 
@@ -9,7 +9,7 @@ ExtraContentElectrons=[
     ]
 
 # only if DoCellReweighting is ON
-ExtraContentElectrons += ["NewSwElectrons.trackParticleLinks.pt.eta.phi.m.caloClusterLinks.author.OQ.ethad1.ethad.f1.f3.f3core.e233.e237.e277.weta1.weta2.e2tsts1.fracs1.wtots1.emins1.emaxs1.etcone20.ptcone30.deltaEta1.deltaPhi1.deltaPhi2.deltaPhiRescaled2.deltaPhiFromLastMeasurement.Loose.Medium.Tight.LHLoose.DFCommonElectronsLHLoose.DFCommonElectronsLHLooseBL.DFCommonElectronsLHMedium.DFCommonElectronsLHTight.DFCommonElectronsML.ptcone20.ptcone30.ptcone40.ptvarcone20.ptvarcone30.ptvarcone40.topoetcone20.topoetcone30.topoetcone40.charge.Reta.Rphi.Eratio.Rhad.Rhad1.DeltaE.topoetcone20ptCorrection.topoetcone30ptCorrection.topoetcone40ptCorrection.etcone20ptCorrection.etcone30ptCorrection.etcone40ptCorrection.ambiguityLink.truthParticleLink.truthOrigin.truthType.truthPdgId.firstEgMotherTruthType.firstEgMotherTruthOrigin.firstEgMotherTruthParticleLink.firstEgMotherPdgId.lastEgMotherTruthType.lastEgMotherTruthOrigin.lastEgMotherTruthParticleLink.lastEgMotherPdgId.ambiguityType"]
+ExtraContentReweightedElectrons = ["NewSwElectrons.trackParticleLinks.pt.eta.phi.m.caloClusterLinks.author.OQ.ethad1.ethad.f1.f3.f3core.e233.e237.e277.weta1.weta2.e2tsts1.fracs1.wtots1.emins1.emaxs1.etcone20.ptcone30.deltaEta1.deltaPhi1.deltaPhi2.deltaPhiRescaled2.deltaPhiFromLastMeasurement.Loose.Medium.Tight.DFCommonElectronsLHVeryLoose.DFCommonElectronsLHLoose.DFCommonElectronsLHLooseBL.DFCommonElectronsLHMedium.DFCommonElectronsLHTight.ptcone20.ptcone30.ptcone40.ptvarcone20.ptvarcone30.ptvarcone40.topoetcone20.topoetcone30.topoetcone40.charge.Reta.Rphi.Eratio.Rhad.Rhad1.DeltaE.topoetcone20ptCorrection.topoetcone30ptCorrection.topoetcone40ptCorrection.etcone20ptCorrection.etcone30ptCorrection.etcone40ptCorrection.ambiguityLink.truthParticleLink.truthOrigin.truthType.truthPdgId.firstEgMotherTruthType.firstEgMotherTruthOrigin.firstEgMotherTruthParticleLink.firstEgMotherPdgId.lastEgMotherTruthType.lastEgMotherTruthOrigin.lastEgMotherTruthParticleLink.lastEgMotherPdgId.ambiguityType.DFCommonAddAmbiguity"]
 # might need to add extra variables for Min/Max variations... but not for the moment
 
 ExtraElectronsTruth=[
@@ -55,21 +55,6 @@ ExtraContentHLTPhotons=[
         "HLT_xAOD__CaloClusterContainer_TrigEFCaloCalibFex.calE.calEta.calPhi.calM.e_sampl.eta_sampl.etaCalo.phiCalo.ETACALOFRAME.PHICALOFRAME"
 ]
 
-#cells = ("Cells5x5","Cells3x5","Cells3x7","Cells7x11")
-#layers_gains =  (      "_Lr0", "_Lr1", "_Lr2", "_Lr3",
-#                                       "_Lr0_LwG", "_Lr1_LwG", "_Lr2_LwG", "_Lr3_LwG",
-#                                       "_Lr0_LwG", "_Lr1_MdG", "_Lr2_MdG", "_Lr3_MdG",
-#                                       "_Lr0_LwG", "_Lr1_HiG", "_Lr2_HiG", "_Lr3_HiG" )
-#
-#for cell in cells:
-#       ExtraContentPhotons.append("Photons."+cell)
-#       for layer in layers_gains:
-#               ExtraContentPhotons.append("Photons."+cell+layer)
-#
-#for cell in cells:
-#       ExtraContentElectrons.append("Electrons."+cell)
-#       for layer in layers_gains:
-#               ExtraContentElectrons.append("Electrons."+cell+layer)
 from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations
 GainDecoratorTool = GainDecorator()
 ExtraContentPhotons.extend( getGainDecorations(GainDecoratorTool) )
@@ -81,22 +66,15 @@ ExtraContentAllTruth=ExtraElectronsTruth+ExtraMuonsTruth+ExtraPhotonsTruth
 ExtraContainersTruth=["TruthEvents", 
                       "TruthParticles",
                       "TruthVertices",
-                      "AntiKt4TruthJets",
                       "egammaTruthParticles",
                       "MuonTruthParticles"
-                      #,"BTagging_AntiKt4TruthWZ"
-                      #,"AntiKt4TruthWZJets"
                       ]
 
 ExtraContainersPhotons=["Photons",
                         "GSFTrackParticles",
                         "egammaClusters",
                         "ForwardElectrons",
-                        "ForwardElectronClusters",
-                        "NewSwPhotons", # only if DoCellReweighting is ON
-                        "MaxVarSwPhotons", # if variations are ON
-                        "MinVarSwPhotons"  # if variations are ON
-                        ]
+                        "ForwardElectronClusters"]
 
 # for trigger studies
 ExtraContainersTrigger=[

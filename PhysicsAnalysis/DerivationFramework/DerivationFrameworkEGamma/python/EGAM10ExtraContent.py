@@ -52,13 +52,13 @@ ExtraContainers=["CaloCalTopoClusters"]
 ExtraContainersTruth=["TruthEvents",
                       "TruthParticles",
                       "TruthVertices",
-                      "AntiKt4TruthJets",
-                      "AntiKt4TruthWZJets",
                       "TruthMuons",
                       "TruthElectrons",
                       "TruthPhotons",
                       "TruthNeutrinos",
-                      "TruthTaus"]
+                      "TruthTaus",
+                      "AntiKt4TruthJets",
+                      "AntiKt4TruthDressedWZJets"]
 
 ExtraContainersTruthPhotons=["egammaTruthParticles"]
 
