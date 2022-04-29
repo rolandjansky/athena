@@ -5,7 +5,9 @@ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #define MUONTESTER_MUONTHREEVECTORBRANCH_H
 
 #include <GeoPrimitives/GeoPrimitivesHelpers.h>
+#ifndef HEPMC3
 #include <HepMC/SimpleVector.h>
+#endif
 #include <MuonTesterTree/MuonTesterTree.h>
 #include <MuonTesterTree/VectorBranch.h>
 
@@ -23,10 +25,12 @@ public:
     void push_back(const TVector3& vec);
     void operator+=(const TVector3& vec);
     void set(const TVector3& vec, size_t pos);
+#ifndef HEPMC3
 #ifndef XAOD_ANALYSIS
     void push_back(const HepMC::ThreeVector& vec);
     void operator+=(const HepMC::ThreeVector& vec);
     void set(const HepMC::ThreeVector& vec, size_t pos);
+#endif
 #endif
     void push_back(const float x, const float y, const float z);
     void set(const float x, const float y, const float z, size_t pos);
