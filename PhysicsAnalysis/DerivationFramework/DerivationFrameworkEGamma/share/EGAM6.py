@@ -5,25 +5,47 @@
 # author: giovanni.marchiori@cern.ch
 #********************************************************************
 
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
-from DerivationFrameworkInDet.InDetCommon import *
-from DerivationFrameworkMuons.MuonsCommon import *
-from DerivationFrameworkJetEtMiss.JetCommon import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import buildFileName
+from DerivationFrameworkCore.DerivationFrameworkMaster import (
+    DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob)
+from DerivationFrameworkPhys import PhysCommon
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkEGamma.EGAM1ExtraContent import *
+from DerivationFrameworkJetEtMiss.JetCommon import addDAODJets
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import (
+    DerivationFramework__DerivationKernel)
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import (
+    DerivationFramework__xAODStringSkimmingTool)
+from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import (
+    GainDecorator, getGainDecorations, getClusterEnergyPerLayerDecorator,
+    getClusterEnergyPerLayerDecorations)
+from DerivationFrameworkCalo.DerivationFrameworkCaloConf import (
+    DerivationFramework__MaxCellDecorator)
+from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import (
+    DerivationFramework__EGInvariantMassTool)
 
+
+#====================================================================
 # read common DFEGamma settings from egammaDFFlags
+#====================================================================
 from DerivationFrameworkEGamma.egammaDFFlags import jobproperties
 jobproperties.egammaDFFlags.print_JobProperties("full")
-
 
 RecomputeElectronSelectors = True
 #RecomputeElectronSelectors = False
 
 
-# check if we run on data or MC (DataSource = geant4)
-from AthenaCommon.GlobalFlags import globalflags
-print("EGAM6 globalflags.DataSource(): ", globalflags.DataSource())
+#====================================================================
+# check if we run on data or MC
+#====================================================================
+print("DerivationFrameworkIsMonteCarlo: ", DerivationFrameworkIsMonteCarlo)
+
+
+#====================================================================
+# Set up sequence for this format and add to the top sequence
+#====================================================================
+EGAM6Sequence = CfgMgr.AthSequencer("EGAM6Sequence")
+DerivationFrameworkJob += EGAM6Sequence
 
 
 #====================================================================
@@ -32,11 +54,22 @@ print("EGAM6 globalflags.DataSource(): ", globalflags.DataSource())
 streamName = derivationFlags.WriteDAOD_EGAM6Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_EGAM6Stream )
 EGAM6Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+# Only events that pass the filters listed below are written out.
+# Name must match that of the kernel above
+# AcceptAlgs  = logical OR of filters
+# RequireAlgs = logical AND of filters
+EGAM6Stream.AcceptAlgs(["EGAM6Kernel"])
+
+
+### Thinning and augmentation tools lists
+augmentationTools = []
+thinningTools=[]
 
 
 #====================================================================
 # SET UP SKIMMING
 #====================================================================
+
 
 # SELECTION FOR CALIBRATION
 
@@ -56,20 +89,23 @@ else :
     requirement_tag = '(Electrons.LHTight) && Electrons.pt > 24.5*GeV'
     requirement_probe = '(Electrons.LHMedium) && Electrons.pt > 19.5*GeV'
 
-from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGInvariantMassTool
-EGAM6_ZEEMassTool1 = DerivationFramework__EGInvariantMassTool( name = "EGAM6_ZEEMassTool1",
-                                                               Object1Requirements = requirement_tag,
-                                                               Object2Requirements = requirement_probe,
-                                                               StoreGateEntryName = "EGAM6_DiElectronMass",
-                                                               Mass1Hypothesis = 0.511*MeV,
-                                                               Mass2Hypothesis = 0.511*MeV,
-                                                               Container1Name = "Electrons",
-                                                               Container2Name = "Electrons",
-                                                               CheckCharge = True,
-                                                               DoTransverseMass = False,
-                                                               MinDeltaR = 0.0)
+EGAM6_ZEEMassTool1 = DerivationFramework__EGInvariantMassTool(
+    name = "EGAM6_ZEEMassTool1",
+    Object1Requirements = requirement_tag,
+    Object2Requirements = requirement_probe,
+    StoreGateEntryName = "EGAM6_DiElectronMass",
+    Mass1Hypothesis = 0.511*MeV,
+    Mass2Hypothesis = 0.511*MeV,
+    Container1Name = "Electrons",
+    Container2Name = "Electrons",
+    CheckCharge = True,
+    DoTransverseMass = False,
+    MinDeltaR = 0.0)
+
 ToolSvc += EGAM6_ZEEMassTool1
+augmentationTools += [EGAM6_ZEEMassTool1]
 print(EGAM6_ZEEMassTool1)
+
 
 #====================================================================
 # Z->ee selection based on di-electron trigger
@@ -81,18 +117,22 @@ if RecomputeElectronSelectors:
     requirement = '(Electrons.DFCommonElectronsLHLoose || Electrons.DFCommonElectronsLHMedium) && Electrons.pt > 19.5*GeV'
 else:
     requirement = '(Electrons.LHLoose || Electrons.LHMedium) && Electrons.pt > 19.5*GeV'
-EGAM6_ZEEMassTool2 = DerivationFramework__EGInvariantMassTool( name = "EGAM6_ZEEMassTool2",
-                                                               Object1Requirements = requirement,
-                                                               Object2Requirements = requirement,
-                                                               StoreGateEntryName = "EGAM6_DiElectronMass2",
-                                                               Mass1Hypothesis = 0.511*MeV,
-                                                               Mass2Hypothesis = 0.511*MeV,
-                                                               Container1Name = "Electrons",
-                                                               Container2Name = "Electrons",
-                                                               CheckCharge = True,
-                                                               DoTransverseMass = False,
-                                                               MinDeltaR = 0.0)
+
+EGAM6_ZEEMassTool2 = DerivationFramework__EGInvariantMassTool(
+    name = "EGAM6_ZEEMassTool2",
+    Object1Requirements = requirement,
+    Object2Requirements = requirement,
+    StoreGateEntryName = "EGAM6_DiElectronMass2",
+    Mass1Hypothesis = 0.511*MeV,
+    Mass2Hypothesis = 0.511*MeV,
+    Container1Name = "Electrons",
+    Container2Name = "Electrons",
+    CheckCharge = True,
+    DoTransverseMass = False,
+    MinDeltaR = 0.0)
+
 ToolSvc += EGAM6_ZEEMassTool2
+augmentationTools += [EGAM6_ZEEMassTool2]
 print(EGAM6_ZEEMassTool2)
 
 
@@ -113,18 +153,22 @@ else :
 
 # central electrons: collection = Electrons, pt>14.5 GeV
 requirement_probe = 'Electrons.pt > 14.5*GeV'
-EGAM6_ZEEMassTool3 = DerivationFramework__EGInvariantMassTool( name = "EGAM6_ZEEMassTool3",
-                                                               Object1Requirements = requirement_tag,
-                                                               Object2Requirements = requirement_probe,
-                                                               StoreGateEntryName = "EGAM6_DiElectronMass3",
-                                                               Mass1Hypothesis = 0.511*MeV,
-                                                               Mass2Hypothesis = 0.511*MeV,
-                                                               Container1Name = "Electrons",
-                                                               Container2Name = "Electrons",
-                                                               CheckCharge = False,
-                                                               DoTransverseMass = False,
-                                                               MinDeltaR = 0.0)
+
+EGAM6_ZEEMassTool3 = DerivationFramework__EGInvariantMassTool(
+    name = "EGAM6_ZEEMassTool3",
+    Object1Requirements = requirement_tag,
+    Object2Requirements = requirement_probe,
+    StoreGateEntryName = "EGAM6_DiElectronMass3",
+    Mass1Hypothesis = 0.511*MeV,
+    Mass2Hypothesis = 0.511*MeV,
+    Container1Name = "Electrons",
+    Container2Name = "Electrons",
+    CheckCharge = False,
+    DoTransverseMass = False,
+    MinDeltaR = 0.0)
+
 ToolSvc += EGAM6_ZEEMassTool3
+augmentationTools += [EGAM6_ZEEMassTool3]
 print(EGAM6_ZEEMassTool3)
 
 
@@ -141,26 +185,30 @@ if RecomputeElectronSelectors:
 else:
     requirement_tag = '(Electrons.LHLoose || Electrons.LHMedium) && Electrons.pt > 24.5*GeV'
 requirement_probe = 'DFCommonPhotons_et > 14.5*GeV'
-EGAM6_ZEGMassTool = DerivationFramework__EGInvariantMassTool( name = "EGAM6_ZEGMassTool",
-                                                              Object1Requirements = requirement_tag,
-                                                              Object2Requirements = requirement_probe,
-                                                              StoreGateEntryName = "EGAM6_ElectronPhotonMass",
-                                                              Mass1Hypothesis = 0.511*MeV,
-                                                              Mass2Hypothesis = 0.511*MeV,
-                                                              Container1Name = "Electrons",
-                                                              Container2Name = "Photons",
-                                                              Pt2BranchName = "DFCommonPhotons_et",
-                                                              Eta2BranchName = "DFCommonPhotons_eta",
-                                                              Phi2BranchName = "DFCommonPhotons_phi",
-                                                              CheckCharge = False,
-                                                              DoTransverseMass = False,
-                                                              MinDeltaR = 0.0)
+
+EGAM6_ZEGMassTool = DerivationFramework__EGInvariantMassTool(
+    name = "EGAM6_ZEGMassTool",
+    Object1Requirements = requirement_tag,
+    Object2Requirements = requirement_probe,
+    StoreGateEntryName = "EGAM6_ElectronPhotonMass",
+    Mass1Hypothesis = 0.511*MeV,
+    Mass2Hypothesis = 0.511*MeV,
+    Container1Name = "Electrons",
+    Container2Name = "Photons",
+    Pt2BranchName = "DFCommonPhotons_et",
+    Eta2BranchName = "DFCommonPhotons_eta",
+    Phi2BranchName = "DFCommonPhotons_phi",
+    CheckCharge = False,
+    DoTransverseMass = False,
+    MinDeltaR = 0.0)
+
 ToolSvc += EGAM6_ZEGMassTool
+augmentationTools += [EGAM6_ZEGMassTool]
 print(EGAM6_ZEGMassTool)
+
 
 # Skimming criteria
 expression = 'count(EGAM6_DiElectronMass > 60.0*GeV)>=1 || count(EGAM6_DiElectronMass2 > 60.0*GeV)>=1 || count(EGAM6_DiElectronMass3 > 60.0*GeV)>=1 ||  count (EGAM6_ElectronPhotonMass > 60.0*GeV)>=1'
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 EGAM6_SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM6_SkimmingTool",
                                                                  expression = expression)
 ToolSvc += EGAM6_SkimmingTool
@@ -176,24 +224,25 @@ print("EGAM6 skimming tool:", EGAM6_SkimmingTool)
 #====================================================================
 # Gain and cluster energies per layer decoration tool
 #====================================================================
-from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations, getClusterEnergyPerLayerDecorator, getClusterEnergyPerLayerDecorations
 EGAM6_GainDecoratorTool = GainDecorator()
 ToolSvc += EGAM6_GainDecoratorTool
+augmentationTools += [EGAM6_GainDecoratorTool]
 
 cluster_sizes = (3,5), (5,7), (7,7), (7,11)
 EGAM6_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta, nphi)() for neta, nphi in cluster_sizes]
+augmentationTools += EGAM6_ClusterEnergyPerLayerDecorators
 
 
-#====================================================================                                                                              
+#====================================================================
 # Max Cell sum decoration tool
 #====================================================================                                                        
-
-from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__MaxCellDecorator
-EGAM6_MaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name                    = "EGAM6_MaxCellDecoratorTool",
-                                                                    SGKey_electrons         = "Electrons",
-                                                                    SGKey_photons           = "Photons",
-                                                                    )
+EGAM6_MaxCellDecoratorTool = DerivationFramework__MaxCellDecorator(
+    name                    = "EGAM6_MaxCellDecoratorTool",
+    SGKey_electrons         = "Electrons",
+    SGKey_photons           = "Photons",
+)
 ToolSvc += EGAM6_MaxCellDecoratorTool
+augmentationTools += [EGAM6_MaxCellDecoratorTool]
 
 
 #====================================================================
@@ -205,8 +254,6 @@ print('WARNING, Thinning of trigger navigation has to be properly implemented in
 #EGAM6ThinningHelper = ThinningHelper( "EGAM6ThinningHelper" )
 #EGAM6ThinningHelper.TriggerChains = '(^(?!.*_[0-9]*(mu|j|xe|tau|ht|xs|te))(?!HLT_[eg].*_[0-9]*[eg][0-9].*)(?!HLT_eb.*)(?!.*larpeb.*)(?!HLT_.*_AFP_.*)(HLT_[eg].*))|HLT_e.*_Zee.*'
 #EGAM6ThinningHelper.AppendToStream( EGAM6Stream, ExtraContainersTrigger )
-
-thinningTools=[]
 
 if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
 
@@ -312,7 +359,7 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
 
 
 # Truth thinning
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo:
     truth_cond_WZH = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))" # W, Z and Higgs
     truth_cond_lep = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16))" # Leptons
     truth_cond_top = "((abs(TruthParticles.pdgId) ==  6))"                                     # Top quark
@@ -335,48 +382,36 @@ if globalflags.DataSource()=='geant4':
 print("EGAM6 thinningTools: ", thinningTools)
 
 
-#=======================================
-# CREATE PRIVATE SEQUENCE
-#=======================================
-egam6Seq = CfgMgr.AthSequencer("EGAM6Sequence")
-DerivationFrameworkJob += egam6Seq
-
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
-
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-egam6Seq += CfgMgr.DerivationFramework__DerivationKernel("EGAM6Kernel",
-                                                                       AugmentationTools = [EGAM6_ZEEMassTool1, EGAM6_ZEEMassTool2, EGAM6_ZEEMassTool3, EGAM6_ZEGMassTool, EGAM6_GainDecoratorTool, EGAM6_MaxCellDecoratorTool] + EGAM6_ClusterEnergyPerLayerDecorators,
-                                                                       SkimmingTools = [EGAM6_SkimmingTool],
-                                                                       ThinningTools = thinningTools
-                                                                       )
+print("EGAM6 skimming tools: ", [EGAM6_SkimmingTool])
+print("EGAM6 thinning tools: ", thinningTools)
+print("EGAM6 augmentation tools: ", augmentationTools)
+EGAM6Sequence += CfgMgr.DerivationFramework__DerivationKernel(
+    "EGAM6Kernel",
+    AugmentationTools = augmentationTools,
+    SkimmingTools = [EGAM6_SkimmingTool],
+    ThinningTools = thinningTools
+)
 
 
 #====================================================================
 # JET/MET
 #====================================================================
-from DerivationFrameworkJetEtMiss.JetCommon import addDAODJets
-from JetRecConfig.StandardSmallRJets import AntiKt4Truth
-addDAODJets([AntiKt4Truth], EGAM6Sequence)
+from JetRecConfig.StandardSmallRJets import AntiKt4Truth,AntiKt4TruthDressedWZ
+jetList = []
+if DerivationFrameworkIsMonteCarlo:
+    jetList += [AntiKt4Truth, AntiKt4TruthDressedWZ]
+addDAODJets(jetList, EGAM6Sequence)
 
 
 #====================================================================
 # FLAVOUR TAGGING   
 #====================================================================
 from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollection
-FtagJetCollection('AntiKt4EMPFlowJets',egam6Seq)
-
-
-#====================================================================
-# SET UP STREAM SELECTION
-#====================================================================
-# Only events that pass the filters listed below are written out.
-# Name must match that of the kernel above
-# AcceptAlgs  = logical OR of filters
-# RequireAlgs = logical AND of filters
-EGAM6Stream.AcceptAlgs(["EGAM6Kernel"])
+FtagJetCollection('AntiKt4EMPFlowJets',EGAM6Sequence)
 
 
 #====================================================================
@@ -397,6 +432,10 @@ EGAM6SlimmingHelper.SmartCollections = [
                                         "PrimaryVertices"
                                         ]
 
+if DerivationFrameworkIsMonteCarlo:
+    EGAM6SlimmingHelper.SmartCollections += ["AntiKt4TruthJets",
+                                             "AntiKt4TruthDressedWZJets"]
+	
 # Add egamma trigger objects
 EGAM6SlimmingHelper.IncludeEGammaTriggerContent = True
 
@@ -404,10 +443,10 @@ EGAM6SlimmingHelper.IncludeEGammaTriggerContent = True
 EGAM6SlimmingHelper.ExtraVariables = ExtraContentAll
 EGAM6SlimmingHelper.AllVariables = ExtraContainersElectrons
 EGAM6SlimmingHelper.AllVariables += ExtraContainersTrigger
-if globalflags.DataSource()!='geant4':
+if not DerivationFrameworkIsMonteCarlo:
     EGAM6SlimmingHelper.AllVariables += ExtraContainersTriggerDataOnly
 
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo:
     EGAM6SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     EGAM6SlimmingHelper.AllVariables += ExtraContainersTruth
 
@@ -415,14 +454,14 @@ if globalflags.DataSource()=='geant4':
 for tool in EGAM6_ClusterEnergyPerLayerDecorators:
     EGAM6SlimmingHelper.ExtraVariables.extend( getClusterEnergyPerLayerDecorations( tool ) )
 
-# This line must come after we have finished configuring EGAM6SlimmingHelper
-EGAM6SlimmingHelper.AppendContentToStream(EGAM6Stream)
-
 # Add event info
 if jobproperties.egammaDFFlags.doEGammaEventInfoSlimming:
     EGAM6SlimmingHelper.SmartCollections.append("EventInfo")
 else:
     EGAM6SlimmingHelper.AllVariables += ["EventInfo"]
+
+# This line must come after we have finished configuring EGAM6SlimmingHelper
+EGAM6SlimmingHelper.AppendContentToStream(EGAM6Stream)
 
 # Add Derived Egamma CellContainer
 # from DerivationFrameworkEGamma.EGammaCellCommon import CellCommonThinning

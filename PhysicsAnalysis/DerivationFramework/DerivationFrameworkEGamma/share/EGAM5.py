@@ -6,7 +6,8 @@
 #********************************************************************
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import buildFileName
-from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob
+from DerivationFrameworkCore.DerivationFrameworkMaster import (
+    DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob)
 from DerivationFrameworkPhys import PhysCommon
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkEGamma.EGAM5ExtraContent import *
@@ -24,11 +25,10 @@ RecomputeElectronSelectors = True
 
 
 #====================================================================
-# check if we run on data or MC (DataSource = geant4)
+# check if we run on data or MC
 #====================================================================
-from AthenaCommon.GlobalFlags import globalflags
-print("EGAM5 globalflags.DataSource(): ", globalflags.DataSource())
-if globalflags.DataSource()!='geant4':
+print("DerivationFrameworkIsMonteCarlo: ", DerivationFrameworkIsMonteCarlo)
+if not DerivationFrameworkIsMonteCarlo:
     ExtraContainersTrigger += ExtraContainersTriggerDataOnly
 
 
@@ -72,14 +72,15 @@ else :
     requirement_el = '(Electrons.LHTight) && Electrons.pt > 24.5*GeV'
 
 from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGTransverseMassTool
-EGAM5_MTTool = DerivationFramework__EGTransverseMassTool( name = "EGAM5_MTTool",
-                                                          ObjectRequirements = requirement_el,
-                                                          METmin = 25*GeV,
-                                                          StoreGateEntryName = "WENU_TransverseMass",
-                                                          ObjectMassHypothesis = 0.511*MeV,
-                                                          ObjectContainerName = "Electrons",
-                                                          METContainerName = "MET_Core_AntiKt4EMPFlow",
-                                                          )
+EGAM5_MTTool = DerivationFramework__EGTransverseMassTool(
+    name = "EGAM5_MTTool",
+    ObjectRequirements = requirement_el,
+    METmin = 25*GeV,
+    StoreGateEntryName = "WENU_TransverseMass",
+    ObjectMassHypothesis = 0.511*MeV,
+    ObjectContainerName = "Electrons",
+    METContainerName = "MET_Core_AntiKt4EMPFlow",
+)
 ToolSvc += EGAM5_MTTool
 print(EGAM5_MTTool)
 augmentationTools += [EGAM5_MTTool]
@@ -134,10 +135,11 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
     # Tracks associated with Jets
     if (TrackThinningKeepJetTracks) : 
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
-        EGAM5JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name                    = "EGAM5JetTPThinningTool",
-                                                                                StreamName              = streamName,
-                                                                                JetKey                  = "AntiKt4EMPFlowJets",
-                                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
+        EGAM5JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(
+            name                    = "EGAM5JetTPThinningTool",
+            StreamName              = streamName,
+            JetKey                  = "AntiKt4EMPFlowJets",
+            InDetTrackParticlesKey  = "InDetTrackParticles")
         ToolSvc += EGAM5JetTPThinningTool
         print(EGAM5JetTPThinningTool)
         thinningTools.append(EGAM5JetTPThinningTool)
@@ -145,10 +147,11 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
     # Tracks associated with Muons
     if (TrackThinningKeepMuonTracks) :
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
-        EGAM5MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning( name                    = "EGAM5MuonTPThinningTool",
-                                                                                  StreamName              = streamName,
-                                                                                  MuonKey                 = "Muons",
-                                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
+        EGAM5MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(
+            name                    = "EGAM5MuonTPThinningTool",
+            StreamName              = streamName,
+            MuonKey                 = "Muons",
+            InDetTrackParticlesKey  = "InDetTrackParticles")
         ToolSvc += EGAM5MuonTPThinningTool
         print(EGAM5MuonTPThinningTool)
         thinningTools.append(EGAM5MuonTPThinningTool)
@@ -156,14 +159,15 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
     # Tracks associated with Electrons
     if (TrackThinningKeepElectronTracks) : 
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
-        EGAM5ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( name                    = "EGAM5ElectronTPThinningTool",
-                                                                                        StreamName              = streamName,
-                                                                                        SGKey                   = "Electrons",
-                                                                                        GSFTrackParticlesKey    = "GSFTrackParticles",        
-                                                                                        InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                                        SelectionString         = "Electrons.pt > 0*GeV",
-                                                                                        BestMatchOnly = True,
-                                                                                        ConeSize = 0.3)
+        EGAM5ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(
+            name                    = "EGAM5ElectronTPThinningTool",
+            StreamName              = streamName,
+            SGKey                   = "Electrons",
+            GSFTrackParticlesKey    = "GSFTrackParticles",        
+            InDetTrackParticlesKey  = "InDetTrackParticles",
+            SelectionString         = "Electrons.pt > 0*GeV",
+            BestMatchOnly = True,
+            ConeSize = 0.3)
         ToolSvc += EGAM5ElectronTPThinningTool
         print(EGAM5ElectronTPThinningTool)
         thinningTools.append(EGAM5ElectronTPThinningTool)
@@ -171,14 +175,15 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
     # Tracks associated with Photons
     if (TrackThinningKeepPhotonTracks) : 
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
-        EGAM5PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( name                    = "EGAM5PhotonTPThinningTool",
-                                                                                      StreamName              = streamName,
-                                                                                      SGKey                   = "Photons",
-                                                                                      GSFTrackParticlesKey    = "GSFTrackParticles",        
-                                                                                      InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                                      SelectionString         = "Photons.pt > 0*GeV",
-                                                                                      BestMatchOnly = True,
-                                                                                      ConeSize = 0.3)
+        EGAM5PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(
+            name                    = "EGAM5PhotonTPThinningTool",
+            StreamName              = streamName,
+            SGKey                   = "Photons",
+            GSFTrackParticlesKey    = "GSFTrackParticles",        
+            InDetTrackParticlesKey  = "InDetTrackParticles",
+            SelectionString         = "Photons.pt > 0*GeV",
+            BestMatchOnly = True,
+            ConeSize = 0.3)
         
         ToolSvc += EGAM5PhotonTPThinningTool
         print(EGAM5PhotonTPThinningTool)
@@ -187,11 +192,12 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
     # Tracks associated with Taus
     if (TrackThinningKeepTauTracks) : 
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
-        EGAM5TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name                    = "EGAM5TauTPThinningTool",
-                                                                                StreamName              = streamName,
-                                                                                TauKey                  = "TauJets",
-                                                                                ConeSize                = 0.6,
-                                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
+        EGAM5TauTPThinningTool = DerivationFramework__TauTrackParticleThinning(
+            name                    = "EGAM5TauTPThinningTool",
+            StreamName              = streamName,
+            TauKey                  = "TauJets",
+            ConeSize                = 0.6,
+            InDetTrackParticlesKey  = "InDetTrackParticles")
         ToolSvc += EGAM5TauTPThinningTool
         print(EGAM5TauTPThinningTool)
         thinningTools.append(EGAM5TauTPThinningTool)
@@ -200,10 +206,11 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
     thinning_expression = "InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV)*sin(InDetTrackParticles.theta) < 3.0*mm && InDetTrackParticles.pt > 10*GeV"
     if (TrackThinningKeepPVTracks) :
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-        EGAM5TPThinningTool = DerivationFramework__TrackParticleThinning( name                    = "EGAM5TPThinningTool",
-                                                                          StreamName              = streamName,
-                                                                          SelectionString         = thinning_expression,
-                                                                          InDetTrackParticlesKey  = "InDetTrackParticles")
+        EGAM5TPThinningTool = DerivationFramework__TrackParticleThinning(
+            name                    = "EGAM5TPThinningTool",
+            StreamName              = streamName,
+            SelectionString         = thinning_expression,
+            InDetTrackParticlesKey  = "InDetTrackParticles")
         ToolSvc += EGAM5TPThinningTool
         print(EGAM5TPThinningTool)
         thinningTools.append(EGAM5TPThinningTool)
@@ -375,8 +382,11 @@ EGAM5Sequence += CfgMgr.DerivationFramework__DerivationKernel("EGAM5Kernel",
 # JET/MET
 #====================================================================
 from DerivationFrameworkJetEtMiss.JetCommon import addDAODJets
-from JetRecConfig.StandardSmallRJets import AntiKt4Truth
-addDAODJets([AntiKt4Truth], EGAM5Sequence)
+from JetRecConfig.StandardSmallRJets import AntiKt4Truth, AntiKt4TruthDressedWZ
+jetList=[]
+if DerivationFrameworkIsMonteCarlo:
+    jetList += [AntiKt4Truth, AntiKt4TruthDressedWZ]
+addDAODJets(jetList, EGAM5Sequence)
 
 
 #====================================================================
@@ -393,6 +403,9 @@ EGAM5SlimmingHelper.SmartCollections = ["Electrons",
                                         "BTagging_AntiKt4EMPFlow",
                                         "InDetTrackParticles",
                                         "PrimaryVertices" ]
+if DerivationFrameworkIsMonteCarlo:
+    EGAM5SlimmingHelper.SmartCollections += ["AntiKt4TruthJets",
+                                             "AntiKt4TruthDressedWZJets"]
 
 # Add egamma trigger objects
 EGAM5SlimmingHelper.IncludeEGammaTriggerContent = True
@@ -402,7 +415,7 @@ EGAM5SlimmingHelper.ExtraVariables = ExtraContentAll
 EGAM5SlimmingHelper.AllVariables = ExtraContainersElectrons
 EGAM5SlimmingHelper.AllVariables += ExtraContainersTrigger
 
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo:
     EGAM5SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     EGAM5SlimmingHelper.AllVariables += ExtraContainersTruth
 else:

@@ -9,7 +9,7 @@ from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 from DerivationFrameworkJetEtMiss.JetCommon import addDAODJets
-from JetRecConfig.StandardSmallRJets import AntiKt4Truth,AntiKt4PV0Track
+from JetRecConfig.StandardSmallRJets import AntiKt4Truth,AntiKt4TruthDressedWZ,AntiKt4PV0Track
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import (
     DerivationFramework__DerivationKernel)
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import (
@@ -23,7 +23,6 @@ from DerivationFrameworkCalo.DerivationFrameworkCaloConf import (
     DerivationFramework__MaxCellDecorator)
 from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import (
     DerivationFramework__EGInvariantMassTool)
-from AthenaCommon.GlobalFlags import globalflags
 from DerivationFrameworkCore.DerivationFrameworkMaster import buildFileName
 from DerivationFrameworkCore.DerivationFrameworkMaster import (
     DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob)
@@ -55,10 +54,10 @@ DoCellReweightingVariations = jobproperties.egammaDFFlags.doEGammaCellReweightin
 
 
 # ====================================================================
-# check if we run on data or MC (DataSource = geant4)
+# check if we run on data or MC
 # ====================================================================
-print("EGAM1 globalflags.DataSource(): ", globalflags.DataSource())
-if globalflags.DataSource() != 'geant4':
+print("DerivationFrameworkIsMonteCarlo: ", DerivationFrameworkIsMonteCarlo)
+if not DerivationFrameworkIsMonteCarlo:
     DoCellReweighting = False
     DoCellReweightingVariations = False
 
@@ -122,6 +121,7 @@ EGAM1_ZEEMassTool1 = DerivationFramework__EGInvariantMassTool(
     CheckCharge=True,
     DoTransverseMass=False,
     MinDeltaR=0.0)
+
 ToolSvc += EGAM1_ZEEMassTool1
 augmentationTools += [EGAM1_ZEEMassTool1]
 print(EGAM1_ZEEMassTool1)
@@ -140,6 +140,7 @@ if RecomputeElectronSelectors:
     requirement = '(Electrons.DFCommonElectronsLHMedium) && (Electrons.pt > 19.5*GeV)'
 else:
     requirement = '(Electrons.LHMedium) && (Electrons.pt > 19.5*GeV)'
+
 EGAM1_ZEEMassTool2 = DerivationFramework__EGInvariantMassTool(
     name="EGAM1_ZEEMassTool2",
     Object1Requirements=requirement,
@@ -152,6 +153,7 @@ EGAM1_ZEEMassTool2 = DerivationFramework__EGInvariantMassTool(
     CheckCharge=True,
     DoTransverseMass=False,
     MinDeltaR=0.0)
+
 ToolSvc += EGAM1_ZEEMassTool2
 augmentationTools += [EGAM1_ZEEMassTool2]
 print(EGAM1_ZEEMassTool2)
@@ -173,6 +175,7 @@ if RecomputeElectronSelectors:
 else:
     requirement_tag = '(Electrons.LHMedium) && (Electrons.pt > 24.5*GeV)'
 requirement_probe = 'Electrons.pt > 4*GeV'
+
 EGAM1_ZEEMassTool3 = DerivationFramework__EGInvariantMassTool(
     name="EGAM1_ZEEMassTool3",
     Object1Requirements=requirement_tag,
@@ -185,6 +188,7 @@ EGAM1_ZEEMassTool3 = DerivationFramework__EGInvariantMassTool(
     CheckCharge=False,
     DoTransverseMass=False,
     MinDeltaR=0.0)
+
 ToolSvc += EGAM1_ZEEMassTool3
 augmentationTools += [EGAM1_ZEEMassTool3]
 print(EGAM1_ZEEMassTool3)
@@ -206,6 +210,7 @@ if RecomputeElectronSelectors:
 else:
     requirement_tag = '(Electrons.LHMedium) && (Electrons.pt > 24.5*GeV)'
 requirement_probe = 'DFCommonPhotons_et > 14.5*GeV'
+
 EGAM1_ZEGMassTool = DerivationFramework__EGInvariantMassTool(
     name="EGAM1_ZEGMassTool",
     Object1Requirements=requirement_tag,
@@ -221,6 +226,7 @@ EGAM1_ZEGMassTool = DerivationFramework__EGInvariantMassTool(
     CheckCharge=False,
     DoTransverseMass=False,
     MinDeltaR=0.0)
+
 ToolSvc += EGAM1_ZEGMassTool
 augmentationTools += [EGAM1_ZEGMassTool]
 print(EGAM1_ZEGMassTool)
@@ -233,6 +239,7 @@ EGAM1_MaxCellDecoratorTool = DerivationFramework__MaxCellDecorator(
     name="EGAM1_MaxCellDecoratorTool",
     SGKey_electrons="Electrons",
     SGKey_photons="Photons")
+
 ToolSvc += EGAM1_MaxCellDecoratorTool
 augmentationTools += [EGAM1_MaxCellDecoratorTool]
 
@@ -267,6 +274,7 @@ if DoCellReweighting:
         SGKey_caloCells="NewCellContainer",
         SGKey_electrons="Electrons",
         SGKey_photons="Photons")
+
     print(EGAM1_ClusterDecoratorTool)
     ToolSvc += EGAM1_ClusterDecoratorTool
     augmentationTools += [EGAM1_ClusterDecoratorTool]
@@ -584,7 +592,7 @@ thinningTools.append(EGAM1CCTCThinningTool)
 
 
 # Truth thinning
-if globalflags.DataSource() == 'geant4':
+if DerivationFrameworkIsMonteCarlo:
     # W, Z and Higgs
     truth_cond_WZH = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))"
     # Leptons
@@ -640,7 +648,9 @@ EGAM1Sequence += CfgMgr.DerivationFramework__DerivationKernel(
 # ====================================================================
 # JET/MET
 # ====================================================================
-jetList = [AntiKt4Truth,AntiKt4PV0Track]
+jetList = [AntiKt4PV0Track]
+if DerivationFrameworkIsMonteCarlo:
+    jetList += [AntiKt4Truth, AntiKt4TruthDressedWZ]
 addDAODJets(jetList, EGAM1Sequence)
 
 
@@ -667,6 +677,9 @@ EGAM1SlimmingHelper.SmartCollections = ["Electrons",
                                         "BTagging_AntiKt4EMPFlow",
                                         "InDetTrackParticles",
                                         "PrimaryVertices"]
+if DerivationFrameworkIsMonteCarlo:
+    EGAM1SlimmingHelper.SmartCollections += ["AntiKt4TruthJets",
+                                             "AntiKt4TruthDressedWZJets"]
 
 # Add egamma trigger objects
 EGAM1SlimmingHelper.IncludeEGammaTriggerContent = True
@@ -675,13 +688,15 @@ EGAM1SlimmingHelper.IncludeEGammaTriggerContent = True
 if DoCellReweighting:
     EGAM1SlimmingHelper.AppendToDictionary = {
         "NewSwElectrons": "xAOD::ElectronContainer",
-        "NewSwElectronsAux": "xAOD::ElectronAuxContainer"}
+        "NewSwElectronsAux": "xAOD::ElectronAuxContainer"
+    }
     if DoCellReweightingVariations:
-        EGAM1SlimmingHelper.AppendToDictionary.update(
-            {"MaxVarSwElectrons": "xAOD::ElectronContainer",
-             "MaxVarSwElectronsAux": "xAOD::ElectronAuxContainer",
-             "MinVarSwElectrons": "xAOD::ElectronContainer",
-             "MinVarSwElectronsAux": "xAOD::ElectronAuxContainer"})
+        EGAM1SlimmingHelper.AppendToDictionary.update({
+            "MaxVarSwElectrons": "xAOD::ElectronContainer",
+            "MaxVarSwElectronsAux": "xAOD::ElectronAuxContainer",
+            "MinVarSwElectrons": "xAOD::ElectronContainer",
+            "MinVarSwElectronsAux": "xAOD::ElectronAuxContainer"
+        })
 
 # Extra variables
 EGAM1SlimmingHelper.ExtraVariables = ExtraContentAll
@@ -690,8 +705,10 @@ EGAM1SlimmingHelper.ExtraVariables = ExtraContentAll
 # EGAM1SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 EGAM1SlimmingHelper.AllVariables = ExtraContainersElectrons
 EGAM1SlimmingHelper.AllVariables += ExtraContainersTrigger
+if DoCellReweighting:
+    EGAM1SlimmingHelper.AllVariables = ExtraContainersReweightedElectrons
 
-if globalflags.DataSource() == 'geant4':
+if DerivationFrameworkIsMonteCarlo:
     EGAM1SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     EGAM1SlimmingHelper.AllVariables += ExtraContainersTruth
 else:
