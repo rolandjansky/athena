@@ -1186,6 +1186,11 @@ namespace Muon {
 
     const sTgcPrepDataCollection* MuonChamberHoleRecoveryTool::findStgcPrdCollection(const Identifier& detElId,
                                                                                      const EventContext& ctx) const {
+
+        if (m_key_stgc.key().empty()) {
+	  ATH_MSG_DEBUG("no sTGC collection");
+	  return nullptr;
+	}
         SG::ReadHandle<Muon::sTgcPrepDataContainer> h_stgcPrdCont(m_key_stgc, ctx);
         const Muon::sTgcPrepDataContainer* stgcPrdContainer{nullptr};
         if (h_stgcPrdCont.isValid()) {
@@ -1206,6 +1211,11 @@ namespace Muon {
     }
 
     const MMPrepDataCollection* MuonChamberHoleRecoveryTool::findMmPrdCollection(const Identifier& detElId, const EventContext& ctx) const {
+
+        if (m_key_mm.key().empty()) {
+	  ATH_MSG_DEBUG("no MM collection");
+	  return nullptr;
+        }
         SG::ReadHandle<Muon::MMPrepDataContainer> h_mmPrdCont(m_key_mm, ctx);
         const Muon::MMPrepDataContainer* mmPrdContainer{nullptr};
         if (h_mmPrdCont.isValid()) {
