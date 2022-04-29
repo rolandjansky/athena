@@ -3,9 +3,6 @@
 /*
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ProxyMap.h,v 1.17 2009-05-02 05:01:28 ssnyder Exp $
-
 /**
  * @file AthenaROOTAccess/ProxyMap.h
  * @author scott snyder
@@ -36,6 +33,7 @@ class TTree;
 class DataHeader_p3;
 class DataHeader_p4;
 class DataHeader_p5;
+class DataHeaderForm_p5;
 namespace SG {
   class DataProxy;
 }
@@ -288,7 +286,7 @@ private:
    *              -1 means to use the current entry.
    * @return The data header, or 0 on failure.
    */
-  DataHeader_p5* findDH5 (Long64_t entry);
+  std::pair<DataHeader_p5*, DataHeaderForm_p5*> findDH5 (Long64_t entry);
 
 
   /**

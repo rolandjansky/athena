@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PERSISTENTDATAMODELTPCNV_DATAHEADER_P5_H
@@ -22,12 +22,11 @@ class DataHeaderElement_p5 {
 public: // Constructor and Destructor
    DataHeaderElement_p5();
    DataHeaderElement_p5(const DataHeaderElement_p5& rhs);
-   virtual ~DataHeaderElement_p5();
+   ~DataHeaderElement_p5();
 
    DataHeaderElement_p5& operator=(const DataHeaderElement_p5& rhs);
 
-friend class DataHeaderCnv_p5;
-friend class DataHeaderElementCnv_p5;
+   friend class DataHeaderElementCnv_p5;
 
    const std::string& token() const;
    long long int oid2() const;
@@ -44,28 +43,22 @@ class  DataHeaderForm_p5 {
 public: // Constructor and Destructor
    DataHeaderForm_p5();
    DataHeaderForm_p5(const DataHeaderForm_p5& rhs);
-   virtual ~DataHeaderForm_p5();
+   ~DataHeaderForm_p5();
 
    DataHeaderForm_p5& operator=(const DataHeaderForm_p5& rhs);
-
-friend class DataHeaderCnv_p5;
 
    const std::vector<std::string>& map() const;
    void insertMap(const std::string& element);
 
-   const std::vector<unsigned int>& params() const;
-   void insertParam(unsigned int param);
+   const std::vector<unsigned int>& params(unsigned int entry) const;
+   void insertParam(unsigned int param, unsigned int entry);
 
-   unsigned int entry() const;
-   void start() const;
-   void next() const;
-   unsigned int size();
+   unsigned int size() const;
    void resize(unsigned int size);
 
 private:
    std::vector<std::string> m_map;
    std::vector<std::vector<unsigned int> > m_uints;
-   mutable unsigned int m_entry;
 };
 
 /** @class DataHeader_p5
@@ -75,22 +68,20 @@ class  DataHeader_p5 {
 public: // Constructor and Destructor
    DataHeader_p5();
    DataHeader_p5(const DataHeader_p5& rhs);
-   virtual ~DataHeader_p5();
+   ~DataHeader_p5();
 
    DataHeader_p5& operator=(const DataHeader_p5& rhs);
 
-friend class DataHeaderCnv_p5;
+   friend class DataHeaderCnv_p5;
 
    const std::vector<DataHeaderElement_p5>& elements() const;
-   const DataHeaderForm_p5* dhForm() const;
-   void setDhForm(DataHeaderForm_p5* form);
    const std::string& dhFormToken() const;
-   void setDhFormToken(const std::string& formToken);
+   void setDhFormToken(const std::string& formToken,
+                       const DataHeaderForm_p5& dhForm);
    const std::string& dhFormMdx() const;
 
 private:
    std::vector<DataHeaderElement_p5> m_dataHeader;
-   mutable DataHeaderForm_p5* m_dhForm;
    std::string m_dhFormToken;
    std::string m_dhFormMdx;
 };
