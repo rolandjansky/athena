@@ -28,6 +28,9 @@ def createRecoConfigFlags():
     flags.addFlag("Reco.EnableTracking",
                   lambda prevFlags: prevFlags.Detector.EnableID or
                   prevFlags.Detector.EnableITk)
+    flags.addFlag("Reco.EnableHGTDExtension",
+                  lambda prevFlags: prevFlags.Reco.EnableTracking and
+                  prevFlags.Detector.EnableHGTD)
     flags.addFlag("Reco.EnableCaloExtension", lambda prevFlags: (
         (
             prevFlags.Reco.EnablePFlow

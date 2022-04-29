@@ -54,13 +54,19 @@ def RecoSteering(flags):
             from ThinningUtils.ThinNegativeEnergyCaloClustersConfig import (
                 ThinNegativeEnergyCaloClustersCfg)
             acc.merge(ThinNegativeEnergyCaloClustersCfg(flags))
-    log.info("---------- Configured calorimeter reconstruction")
+        log.info("---------- Configured calorimeter reconstruction")
 
     # ID / ITk
     if flags.Reco.EnableTracking:
         from InDetConfig.TrackRecoConfig import InDetTrackRecoCfg
         acc.merge(InDetTrackRecoCfg(flags))
         log.info("---------- Configured tracking")
+
+    # HGTD
+    if flags.Reco.EnableHGTDExtension:
+        from HGTD_Config.HGTD_RecoConfig import HGTD_RecoCfg
+        acc.merge(HGTD_RecoCfg(flags))
+        log.info("---------- Configured HGTD track extension")
 
     # Muon
     if flags.Detector.EnableMuon:
