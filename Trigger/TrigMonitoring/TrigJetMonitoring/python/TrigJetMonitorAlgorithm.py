@@ -803,6 +803,10 @@ def jetMonitoringConfig(inputFlags,jetcoll,athenaMT):
          if 'PF' in jetcoll: # dedicated histograms for online PFlow jets
            conf.appendHistos("SumPtChargedPFOPt500[0]")
            conf.appendHistos("fCharged")
+       if jetcoll == "HLT_AntiKt4EMTopoJets_subjesIS": # only for presel calo jets
+         for f in "cub":
+           fastDipsHistSpec = HistoSpec(f"fastDips_p{f}", (70, -0.2, 1.2), title=f"fastDips_p{f};fastDips_p{f};Entries")
+           conf.appendHistos(fastDipsHistSpec)
      else:
        for hist in ExtraLargeROnlineHists: conf.appendHistos(hist)
      # Add matched jets plots
