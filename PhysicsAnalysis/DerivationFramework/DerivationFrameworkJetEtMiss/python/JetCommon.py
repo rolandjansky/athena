@@ -594,7 +594,7 @@ def addDistanceInTrain(sequence=DerivationFrameworkJob):
         dfjetlog.warning( "DistanceInTrainAugmentation: DistanceInTrainAugmentation already scheduled on sequence"+sequence.name )
     else:
         isMC = False
-        if DerivationFrameworkHasTruth:
+        if DerivationFrameworkHasTruth and not DerivationFrameworkIsDataOverlay:
           isMC = True
 
         distanceintrainaug = CfgMgr.DerivationFramework__CommonAugmentation("DistanceInTrainAugmentation")
