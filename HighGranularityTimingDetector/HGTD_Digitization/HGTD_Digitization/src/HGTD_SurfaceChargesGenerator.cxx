@@ -18,6 +18,7 @@
 #include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Units/SystemOfUnits.h"
+#include "GaudiKernel/PhysicalConstants.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "GeneratorObjects/McEventCollectionHelper.h"
 #include "ReadoutGeometryBase/DetectorDesign.h"
@@ -26,12 +27,19 @@
 #include "SiDigitization/SiChargedDiodeCollection.h"
 
 HGTD_SurfaceChargesGenerator::HGTD_SurfaceChargesGenerator(
-    const std::string &type, const std::string &name, const IInterface *parent)
-    : AthAlgTool(type, name, parent), m_small_step_length(1),
-      m_diffusion_constant(.007), m_smear_meantime(true),
-      m_integrated_luminosity(0), m_needs_mc_evt_coll_helper(false) {
+    const std::string& type, const std::string& name, const IInterface* parent)
+    : AthAlgTool(type, name, parent),
+      m_small_step_length(1),
+      m_diffusion_constant(.007),
+      m_smear_meantime(true),
+      m_integrated_luminosity(0),
+      m_active_window(1.25),
+      m_needs_mc_evt_coll_helper(false) {
   declareProperty("SmallStepLength", m_small_step_length = 1);
   declareProperty("DiffusionConstant", m_diffusion_constant);
+  declareProperty("SmearTime", m_smear_meantime);
+  declareProperty("IntegratedLumi", m_integrated_luminosity);
+  declareProperty("ActiveWindow", m_active_window);
   declareProperty("UseMcEventCollectionHelper",
                   m_needs_mc_evt_coll_helper = false);
 }
@@ -50,23 +58,42 @@ inline void HGTD_SurfaceChargesGenerator::createTimingResolutionTool() {
 }
 
 void HGTD_SurfaceChargesGenerator::createSurfaceChargesFromHit(
-    const TimedHitPtr<SiHit> &timed_hit_ptr,
-    SiChargedDiodeCollection *diode_coll,
-    const InDetDD::SolidStateDetectorElementBase *element,
-    CLHEP::HepRandomEngine *rndm_engine) const {
+    const TimedHitPtr<SiHit>& timed_hit_ptr,
+    SiChargedDiodeCollection* diode_coll,
+    const InDetDD::SolidStateDetectorElementBase* element,
+    CLHEP::HepRandomEngine* rndm_engine) const {
 
-  const SiHit &hit = *timed_hit_ptr;
+  const SiHit& hit = *timed_hit_ptr;
+
+  float time_of_flight = timed_hit_ptr.eventTime() + hit.meanTime();
+
+  //NB this "expected time" will change once we need to follow the beamspot!!
+  float tof_expected = element->center().norm() / Gaudi::Units::c_light;
+
+  ATH_MSG_DEBUG("event time = " << timed_hit_ptr.eventTime() << ", mean time ="
+                                << hit.meanTime() << ", tof =" << time_of_flight
+                                << ", tof exp =" << tof_expected);
+
+  // the ALTIROC ASIC has an active window of 2.5ns around the expected TOA, all
+  // hits ourside that window are ignored (modulo some early hits with large
+  // TOT that spill over ). So ignore hits outside of this time window
+  if (std::abs(time_of_flight - tof_expected) > m_active_window) {
+    return;
+  }
 
   // check the status of truth information for this SiHit
   // some Truth information is cut for pile up events
   EBC_EVCOLL evColl = EBC_MAINEVCOLL;
   if (m_needs_mc_evt_coll_helper) {
-    evColl = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(timed_hit_ptr.pileupType(), &msg());
+    evColl =
+        McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(
+            timed_hit_ptr.pileupType(), &msg());
   }
 
   const unsigned int evtIndex = timed_hit_ptr.eventId();
-  const bool isEventIndexIsPosition = (evtIndex==0);
-  HepMcParticleLink trklink(hit.trackNumber(), evtIndex, evColl, isEventIndexIsPosition);
+  const bool isEventIndexIsPosition = (evtIndex == 0);
+  HepMcParticleLink trklink(hit.trackNumber(), evtIndex, evColl,
+                            isEventIndexIsPosition);
 
   SiCharge::Process hitproc(SiCharge::track);
   if (hit.trackNumber() != 0) {
@@ -98,8 +125,8 @@ void HGTD_SurfaceChargesGenerator::createSurfaceChargesFromHit(
   CLHEP::Hep3Vector direction = end_pos - start_pos;
   float deposit_length = direction.mag();
   int n_steps = deposit_length / m_small_step_length + 1;
-  //the start and end pos can sit at the same position. Resizing the zero-length
-  //Hep3Vector would cause an error, so this we protect agains
+  // the start and end pos can sit at the same position. Resizing the
+  // zero-length Hep3Vector would cause an error, so this we protect agains
   if (deposit_length > 1.e-10) {
     direction.setMag(deposit_length / static_cast<float>(n_steps));
   }
@@ -116,10 +143,9 @@ void HGTD_SurfaceChargesGenerator::createSurfaceChargesFromHit(
                 << timed_hit_ptr.eventTime() << ", " << hit.meanTime() << ", "
                 << tot_eloss << ", " << element_r);
 
-  float time_of_flight = timed_hit_ptr.eventTime() + hit.meanTime();
   if (m_smear_meantime) {
-    // Smearing based on radius and luminosity, and substract the time shift due
-    // to pulse leading edge (0.4 ns)
+    // Smearing based on radius and luminosity, and substract the time shift
+    // due to pulse leading edge (0.4 ns)
     time_of_flight = m_hgtd_timing_resolution_tool->calculateTime(
                          time_of_flight, tot_eloss, element_r, rndm_engine) -
                      0.4;
