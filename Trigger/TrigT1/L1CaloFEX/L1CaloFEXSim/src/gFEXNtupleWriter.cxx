@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //***************************************************************************
 //    gFEXOutputCollection
@@ -14,6 +14,7 @@
 #include "L1CaloFEXSim/gFEXJetAlgo.h"
 #include "L1CaloFEXSim/gFEXJwoJTOB.h"
 #include "L1CaloFEXSim/gFEXJwoJAlgo.h"
+#include "L1CaloFEXSim/gFEXaltMetAlgo.h"
 #include "L1CaloFEXSim/gFEXOutputCollection.h"
 #include <vector>
 #include "TTree.h"
@@ -50,15 +51,20 @@ StatusCode LVL1::gFEXNtupleWriter::initialize () {
   ATH_CHECK( m_gMHTComponentsJwojOutKey.initialize() );
   ATH_CHECK( m_gMSTComponentsJwojOutKey.initialize() );
 
+  ATH_CHECK( m_gMETComponentsNoiseCutOutKey.initialize() );
+  ATH_CHECK( m_gMETComponentsRmsOutKey.initialize() );
+  ATH_CHECK( m_gScalarENoiseCutOutKey.initialize() );
+  ATH_CHECK( m_gScalarERmsOutKey.initialize() );
+
   ATH_CHECK( m_scellsCollectionSGKey.initialize() );
 
   ATH_CHECK( m_gFEXOutputCollectionSGKey.initialize() );
   
   m_valiTree = new TTree("valiTree","valiTree");
   CHECK( histSvc->regTree("/ANALYSIS/valiTree",m_valiTree) );
-  m_valiTree->Branch ("SC_eta", &m_SC_eta);
-  m_valiTree->Branch ("SC_phi", &m_SC_phi);
-  m_valiTree->Branch ("SC_et", &m_SC_et);
+  m_valiTree->Branch ("SC_eta", &m_sc_eta);
+  m_valiTree->Branch ("SC_phi", &m_sc_phi);
+  m_valiTree->Branch ("SC_et", &m_sc_et);
   m_valiTree->Branch ("gtower_eta", &m_gtower_eta);
   m_valiTree->Branch ("gtower_phi", &m_gtower_phi);
   m_valiTree->Branch ("gtower_et", &m_gtower_et);
@@ -94,14 +100,24 @@ StatusCode LVL1::gFEXNtupleWriter::initialize () {
   m_valiTree->Branch ("gLJ_etMeV", &m_gLJ_etMeV);
   m_valiTree->Branch ("gLJ_scaleMeV", &m_gLJ_etScale);
 
-  m_valiTree->Branch ("gGlobal_MET", &m_gGlobal_MET);  
-  m_valiTree->Branch ("gGlobal_SumET", &m_gGlobal_SumET);  
-  m_valiTree->Branch ("gGlobal_METx", &m_gGlobal_METx);  
-  m_valiTree->Branch ("gGlobal_METy", &m_gGlobal_METy);  
-  m_valiTree->Branch ("gGlobal_MHTx", &m_gGlobal_MHTx);  
-  m_valiTree->Branch ("gGlobal_MHTy", &m_gGlobal_MHTy);  
-  m_valiTree->Branch ("gGlobal_MSTx", &m_gGlobal_MSTx);  
-  m_valiTree->Branch ("gGlobal_MSTy", &m_gGlobal_MSTy); 
+  m_valiTree->Branch ("gJwoj_MET", &m_gJwoJ_MET);  
+  m_valiTree->Branch ("gJwoj_SumET", &m_gJwoJ_SumET);  
+  m_valiTree->Branch ("gJwoj_METx", &m_gJwoJ_METx);  
+  m_valiTree->Branch ("gJwoj_METy", &m_gJwoJ_METy);  
+  m_valiTree->Branch ("gJwoj_MHTx", &m_gJwoJ_MHTx);  
+  m_valiTree->Branch ("gJwoj_MHTy", &m_gJwoJ_MHTy);  
+  m_valiTree->Branch ("gJwoj_MSTx", &m_gJwoJ_MSTx);  
+  m_valiTree->Branch ("gJwoj_MSTy", &m_gJwoJ_MSTy);
+
+  m_valiTree->Branch ("gNoiseCut_METx", &m_gNoiseCut_METx);  
+  m_valiTree->Branch ("gNoiseCut_METy", &m_gNoiseCut_METy);
+  m_valiTree->Branch ("gRms_METx", &m_gRms_METx);  
+  m_valiTree->Branch ("gRms_METy", &m_gRms_METy);
+  m_valiTree->Branch ("gNoiseCut_MET", &m_gNoiseCut_MET);  
+  m_valiTree->Branch ("gNoiseCut_SumET", &m_gNoiseCut_SumET);  
+  m_valiTree->Branch ("gRms_MET", &m_gRms_MET);  
+  m_valiTree->Branch ("gRms_SumET", &m_gRms_SumET);  
+
   m_valiTree->Branch ("gGlobal_scaleMeV1", &m_gGlobal_etScale1); 
   m_valiTree->Branch ("gGlobal_scaleMeV2", &m_gGlobal_etScale2); 
 
@@ -136,67 +152,91 @@ StatusCode LVL1::gFEXNtupleWriter::initialize () {
 
 StatusCode LVL1::gFEXNtupleWriter::execute () { 
 
-  SG::ReadHandle<CaloCellContainer> SCCollection =SG::ReadHandle<CaloCellContainer>(m_scellsCollectionSGKey);
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
+  SG::ReadHandle<CaloCellContainer> SCCollection =SG::ReadHandle<CaloCellContainer>(m_scellsCollectionSGKey,ctx);
   if(!SCCollection.isValid()){
     ATH_MSG_FATAL("Could not retrieve SCCollection " << m_scellsCollectionSGKey.key() );
     return StatusCode::FAILURE;
   }
 
-  SG::ReadHandle<LVL1::gTowerContainer> gTowersHandle = SG::ReadHandle<LVL1::gTowerContainer>(m_gTowerContainerSGKey);
+  SG::ReadHandle<LVL1::gTowerContainer> gTowersHandle = SG::ReadHandle<LVL1::gTowerContainer>(m_gTowerContainerSGKey,ctx);
     if(!gTowersHandle.isValid()){
       ATH_MSG_FATAL("Could not retrieve gTowerContainer " << m_gTowerContainerSGKey.key());
       return StatusCode::FAILURE;
   }
    
   //Read objects from gFEX JetContainer
-  SG::ReadHandle<xAOD::gFexJetRoIContainer> gRhoHandle = SG::ReadHandle<xAOD::gFexJetRoIContainer>(m_gFexRhoOutKey);
+  SG::ReadHandle<xAOD::gFexJetRoIContainer> gRhoHandle = SG::ReadHandle<xAOD::gFexJetRoIContainer>(m_gFexRhoOutKey,ctx);
     if(!gRhoHandle.isValid()){
       ATH_MSG_FATAL("Could not retrieve gRhoContainer " << m_gFexRhoOutKey.key());
       return StatusCode::FAILURE;
   }
 
-  SG::ReadHandle<xAOD::gFexJetRoIContainer> gBlockHandle = SG::ReadHandle<xAOD::gFexJetRoIContainer>(m_gFexBlockOutKey);
+  SG::ReadHandle<xAOD::gFexJetRoIContainer> gBlockHandle = SG::ReadHandle<xAOD::gFexJetRoIContainer>(m_gFexBlockOutKey,ctx);
     if(!gBlockHandle.isValid()){
       ATH_MSG_FATAL("Could not retrieve gBlockContainer " << m_gFexBlockOutKey.key());
       return StatusCode::FAILURE;
   }
   
-  SG::ReadHandle<xAOD::gFexJetRoIContainer> gJetHandle = SG::ReadHandle<xAOD::gFexJetRoIContainer>(m_gFexJetOutKey);
+  SG::ReadHandle<xAOD::gFexJetRoIContainer> gJetHandle = SG::ReadHandle<xAOD::gFexJetRoIContainer>(m_gFexJetOutKey,ctx);
     if(!gJetHandle.isValid()){
-      ATH_MSG_FATAL("Could not retrieve gBlockContainer " << m_gFexJetOutKey.key());
+      ATH_MSG_FATAL("Could not retrieve gJetContainer " << m_gFexJetOutKey.key());
       return StatusCode::FAILURE;
   }
 
   //Read objects from gFEX GlobalContainer
-  SG::ReadHandle<xAOD::gFexGlobalRoIContainer> gScalarEHandle = SG::ReadHandle<xAOD::gFexGlobalRoIContainer>(m_gScalarEJwojOutKey);
-    if(!gScalarEHandle.isValid()){
-      ATH_MSG_FATAL("Could not retrieve gBlockContainer " << m_gScalarEJwojOutKey.key());
+  SG::ReadHandle<xAOD::gFexGlobalRoIContainer> gScalarEJwojHandle = SG::ReadHandle<xAOD::gFexGlobalRoIContainer>(m_gScalarEJwojOutKey, ctx);
+    if(!gScalarEJwojHandle.isValid()){
+      ATH_MSG_FATAL("Could not retrieve gScalarJwojContainer " << m_gScalarEJwojOutKey.key());
       return StatusCode::FAILURE;
   }
 
-  SG::ReadHandle<xAOD::gFexGlobalRoIContainer> gMETHandle = SG::ReadHandle<xAOD::gFexGlobalRoIContainer>(m_gMETComponentsJwojOutKey);
-    if(!gMETHandle.isValid()){
-      ATH_MSG_FATAL("Could not retrieve gBlockContainer " << m_gMETComponentsJwojOutKey.key());
+  SG::ReadHandle<xAOD::gFexGlobalRoIContainer> gMETJwojHandle = SG::ReadHandle<xAOD::gFexGlobalRoIContainer>(m_gMETComponentsJwojOutKey, ctx);
+    if(!gMETJwojHandle.isValid()){
+      ATH_MSG_FATAL("Could not retrieve gMETJwojContainer " << m_gMETComponentsJwojOutKey.key());
       return StatusCode::FAILURE;
   }
 
-  SG::ReadHandle<xAOD::gFexGlobalRoIContainer> gMHTHandle = SG::ReadHandle<xAOD::gFexGlobalRoIContainer>(m_gMHTComponentsJwojOutKey);
-    if(!gMHTHandle.isValid()){
-      ATH_MSG_FATAL("Could not retrieve gBlockContainer " << m_gMHTComponentsJwojOutKey.key());
+  SG::ReadHandle<xAOD::gFexGlobalRoIContainer> gMHTJwojHandle = SG::ReadHandle<xAOD::gFexGlobalRoIContainer>(m_gMHTComponentsJwojOutKey, ctx);
+    if(!gMHTJwojHandle.isValid()){
+      ATH_MSG_FATAL("Could not retrieve gMHTJwojContainer " << m_gMHTComponentsJwojOutKey.key());
       return StatusCode::FAILURE;
   }
 
-  SG::ReadHandle<xAOD::gFexGlobalRoIContainer> gMSTHandle = SG::ReadHandle<xAOD::gFexGlobalRoIContainer>(m_gMSTComponentsJwojOutKey);
-    if(!gMSTHandle.isValid()){
-      ATH_MSG_FATAL("Could not retrieve gBlockContainer " << m_gMSTComponentsJwojOutKey.key());
+  SG::ReadHandle<xAOD::gFexGlobalRoIContainer> gMSTJwojHandle = SG::ReadHandle<xAOD::gFexGlobalRoIContainer>(m_gMSTComponentsJwojOutKey, ctx);
+    if(!gMSTJwojHandle.isValid()){
+      ATH_MSG_FATAL("Could not retrieve gMSTJwojContainer " << m_gMSTComponentsJwojOutKey.key());
       return StatusCode::FAILURE;
   }
 
-  
+  SG::ReadHandle<xAOD::gFexGlobalRoIContainer> gMETNoiseCutHandle = SG::ReadHandle<xAOD::gFexGlobalRoIContainer>(m_gMETComponentsNoiseCutOutKey, ctx);
+    if(!gMETNoiseCutHandle.isValid()){
+      ATH_MSG_FATAL("Could not retrieve gMETNoiseCutContainer " << m_gMETComponentsNoiseCutOutKey.key());
+      return StatusCode::FAILURE;
+  }  
 
-  m_SC_eta.clear();
-  m_SC_phi.clear();
-  m_SC_et.clear();
+  SG::ReadHandle<xAOD::gFexGlobalRoIContainer> gMETRmsHandle = SG::ReadHandle<xAOD::gFexGlobalRoIContainer>(m_gMETComponentsRmsOutKey, ctx);
+    if(!gMETRmsHandle.isValid()){
+      ATH_MSG_FATAL("Could not retrieve gMETRmsContainer " << m_gMETComponentsRmsOutKey.key());
+      return StatusCode::FAILURE;
+  }  
+
+  SG::ReadHandle<xAOD::gFexGlobalRoIContainer> gScalarENoiseCutHandle = SG::ReadHandle<xAOD::gFexGlobalRoIContainer>(m_gScalarENoiseCutOutKey, ctx);
+    if(!gScalarENoiseCutHandle.isValid()){
+      ATH_MSG_FATAL("Could not retrieve gScalarENoiseCutContainer " << m_gScalarENoiseCutOutKey.key());
+      return StatusCode::FAILURE;
+  }
+
+  SG::ReadHandle<xAOD::gFexGlobalRoIContainer> gScalarERmsHandle = SG::ReadHandle<xAOD::gFexGlobalRoIContainer>(m_gScalarERmsOutKey, ctx);
+    if(!gScalarERmsHandle.isValid()){
+      ATH_MSG_FATAL("Could not retrieve gScalarERmsContainer " << m_gScalarERmsOutKey.key());
+      return StatusCode::FAILURE;
+  }
+
+  m_sc_eta.clear();
+  m_sc_phi.clear();
+  m_sc_et.clear();
   m_gtower_eta.clear();
   m_gtower_phi.clear();
   m_gtower_et.clear();
@@ -233,26 +273,36 @@ StatusCode LVL1::gFEXNtupleWriter::execute () {
   m_gLJ_etScale.clear();  
   
 
-  m_gGlobal_MET.clear();
-  m_gGlobal_SumET.clear();
-  m_gGlobal_METx.clear();
-  m_gGlobal_METy.clear();
-  m_gGlobal_MHTx.clear();
-  m_gGlobal_MHTy.clear();
-  m_gGlobal_MSTx.clear();
-  m_gGlobal_MSTy.clear();
+  m_gJwoJ_MET.clear();
+  m_gJwoJ_SumET.clear();
+  m_gJwoJ_METx.clear();
+  m_gJwoJ_METy.clear();
+  m_gJwoJ_MHTx.clear();
+  m_gJwoJ_MHTy.clear();
+  m_gJwoJ_MSTx.clear();
+  m_gJwoJ_MSTy.clear();
+
+  m_gNoiseCut_METx.clear();
+  m_gNoiseCut_METy.clear();
+  m_gRms_METx.clear();
+  m_gRms_METy.clear();
+  m_gNoiseCut_MET.clear();
+  m_gNoiseCut_SumET.clear();
+  m_gRms_MET.clear();
+  m_gRms_SumET.clear();
+
   m_gGlobal_etScale1.clear();  
   m_gGlobal_etScale2.clear();  
   
 
 
   for (const auto& cell : * SCCollection){
-    m_SC_eta.push_back((cell)->eta());
-    m_SC_phi.push_back((cell)->phi());
-    m_SC_et.push_back((cell)->energy()/cosh((cell)->eta()));
+    m_sc_eta.push_back((cell)->eta());
+    m_sc_phi.push_back((cell)->phi());
+    m_sc_et.push_back((cell)->energy()/cosh((cell)->eta()));
   }
 
-  for (auto const gTower : *gTowersHandle) {
+  for (const auto& gTower : *gTowersHandle) {
     m_gtower_eta.push_back(gTower->eta());
     m_gtower_phi.push_back(gTower->phi());
     m_gtower_et.push_back(gTower->getET());
@@ -263,7 +313,7 @@ StatusCode LVL1::gFEXNtupleWriter::execute () {
     m_posneg.push_back(gTower->getPosNeg());
   }
 
-  for (auto const gRho : *gRhoHandle) {
+  for (const auto& gRho : *gRhoHandle) {
     m_gRho_eta.push_back(gRho->iEta());
     m_gRho_phi.push_back(gRho->iPhi());
     m_gRho_tobEt.push_back(gRho->gFexTobEt());
@@ -271,7 +321,7 @@ StatusCode LVL1::gFEXNtupleWriter::execute () {
     m_gRho_etScale.push_back(gRho->tobEtScale());
   }
 
-  for (auto const gSJ : *gBlockHandle) {
+  for (const auto& gSJ : *gBlockHandle) {
     m_gSJ_iEta.push_back(gSJ->iEta());
     m_gSJ_iPhi.push_back(gSJ->iPhi());
     m_gSJ_eta.push_back(gSJ->eta());
@@ -284,7 +334,7 @@ StatusCode LVL1::gFEXNtupleWriter::execute () {
 
   }
 
-  for (auto const gLJ : *gJetHandle) {
+  for (const auto& gLJ : *gJetHandle) {
     m_gLJ_iEta.push_back(gLJ->iEta());
     m_gLJ_iPhi.push_back(gLJ->iPhi());
     m_gLJ_eta.push_back(gLJ->eta());
@@ -297,29 +347,50 @@ StatusCode LVL1::gFEXNtupleWriter::execute () {
 
   }
 
-  for (auto const gScalarE : *gScalarEHandle) {
-    m_gGlobal_MET.push_back(gScalarE->METquantityOne());
-    m_gGlobal_SumET.push_back(gScalarE->METquantityTwo());
-    m_gGlobal_etScale1.push_back(gScalarE->tobEtScaleOne());
-    m_gGlobal_etScale2.push_back(gScalarE->tobEtScaleTwo());
+  for (const auto& gScalarEJwoj : *gScalarEJwojHandle) {
+    m_gJwoJ_MET.push_back(gScalarEJwoj->METquantityOne());
+    m_gJwoJ_SumET.push_back(gScalarEJwoj->METquantityTwo());
+    m_gGlobal_etScale1.push_back(gScalarEJwoj->tobEtScaleOne());
+    m_gGlobal_etScale2.push_back(gScalarEJwoj->tobEtScaleTwo());
   }
 
-  for (auto const gMET : *gMETHandle) {
-    m_gGlobal_METx.push_back(gMET->METquantityOne());
-    m_gGlobal_METy.push_back(gMET->METquantityTwo());
+  for (const auto& gMETJwoj : *gMETJwojHandle) {
+    m_gJwoJ_METx.push_back(gMETJwoj->METquantityOne());
+    m_gJwoJ_METy.push_back(gMETJwoj->METquantityTwo());
   }
 
-  for (auto const gMHT : *gMHTHandle) {
-    m_gGlobal_MHTx.push_back(gMHT->METquantityOne());
-    m_gGlobal_MHTy.push_back(gMHT->METquantityTwo());
+  for (const auto& gMHTJwoj : *gMHTJwojHandle) {
+    m_gJwoJ_MHTx.push_back(gMHTJwoj->METquantityOne());
+    m_gJwoJ_MHTy.push_back(gMHTJwoj->METquantityTwo());
   }
 
-  for (auto const gMST : *gMSTHandle) {
-    m_gGlobal_MSTx.push_back(gMST->METquantityOne());
-    m_gGlobal_MSTy.push_back(gMST->METquantityTwo());
+  for (const auto& gMSTJwoj : *gMSTJwojHandle) {
+    m_gJwoJ_MSTx.push_back(gMSTJwoj->METquantityOne());
+    m_gJwoJ_MSTy.push_back(gMSTJwoj->METquantityTwo());
   }
 
-  SG::ReadHandle<LVL1::gFEXOutputCollection> gFEXOutputCollectionobj = SG::ReadHandle<LVL1::gFEXOutputCollection>(m_gFEXOutputCollectionSGKey);
+  for (const auto& gMETNoiseCut : *gMETNoiseCutHandle) {
+    m_gNoiseCut_METx.push_back(gMETNoiseCut->METquantityOne());
+    m_gNoiseCut_METy.push_back(gMETNoiseCut->METquantityTwo());
+  }
+
+  for (const auto& gMETRms : *gMETRmsHandle) {
+    m_gRms_METx.push_back(gMETRms->METquantityOne());
+    m_gRms_METy.push_back(gMETRms->METquantityTwo());
+  }
+
+  for (const auto& gScalarENoiseCut : *gScalarENoiseCutHandle) {
+    m_gNoiseCut_MET.push_back(gScalarENoiseCut->METquantityOne());
+    m_gNoiseCut_SumET.push_back(gScalarENoiseCut->METquantityTwo());
+  }
+
+  for (const auto& gScalarERms : *gScalarERmsHandle) {
+    m_gRms_MET.push_back(gScalarERms->METquantityOne());
+    m_gRms_SumET.push_back(gScalarERms->METquantityTwo());
+  }
+
+
+  SG::ReadHandle<LVL1::gFEXOutputCollection> gFEXOutputCollectionobj = SG::ReadHandle<LVL1::gFEXOutputCollection>(m_gFEXOutputCollectionSGKey, ctx);
     if(!gFEXOutputCollectionobj.isValid()){
       ATH_MSG_FATAL("Could not retrieve gFEXOutputCollection " << m_gFEXOutputCollectionSGKey.key());
       return StatusCode::FAILURE;

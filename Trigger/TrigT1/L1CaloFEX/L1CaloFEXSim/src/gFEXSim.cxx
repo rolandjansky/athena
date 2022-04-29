@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //***************************************************************************
 //    gFEXSim - Simulation of the gFEX module
@@ -49,6 +49,7 @@ namespace LVL1 {
       ATH_CHECK( m_gFEXFPGA_Tool.retrieve() );
       ATH_CHECK( m_gFEXJetAlgoTool.retrieve() );
       ATH_CHECK( m_gFEXJwoJAlgoTool.retrieve() );
+      ATH_CHECK( m_gFEXaltMetAlgoTool.retrieve() );
       ATH_CHECK(m_l1MenuKey.initialize());
       return StatusCode::SUCCESS;
    }
@@ -233,9 +234,10 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset, gFEXOutputC
 
 
    // Use the gFEXJetAlgoTool
-   std::array<uint32_t, 4> outTOB = {0};
+   std::array<uint32_t, 4> outJwojTOB = {0};
+   std::array<uint32_t, 4> outAltMetTOB = {0};
 
-   //Parameters related to gXE (JwoJ MET objects)
+   //Parameters related to gXE (MET objects, both JwoJ and alternative MET calculation)
    auto & thr_gXE = l1Menu->thrExtraInfo().gXE();
    int gXE_seedThrA = 0;
    int gXE_seedThrB = 0;
@@ -262,12 +264,13 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset, gFEXOutputC
    bFPGA_C = thr_gXE.JWOJ_param('C','b') / (pow(2, 10)-1);
 
 
+   //Set constants for JwoJ and run the algorithm
    m_gFEXJwoJAlgoTool->setAlgoConstant(aFPGA_A, bFPGA_A,
                                        aFPGA_B, bFPGA_B,
                                        aFPGA_C, bFPGA_C,
                                        gXE_seedThrA, gXE_seedThrB, gXE_seedThrC);
 
-   auto global_tobs = m_gFEXJwoJAlgoTool->jwojAlgo(Atwr, Btwr, CNtwr, CPtwr, outTOB);
+   auto global_tobs = m_gFEXJwoJAlgoTool->jwojAlgo(Atwr, Btwr, CNtwr, CPtwr, outJwojTOB);
 
    m_gScalarEJwojTobWords.resize(1);
    m_gMETComponentsJwojTobWords.resize(1);
@@ -276,12 +279,32 @@ StatusCode gFEXSim::executegFEXSim(gTowersIDs tmp_gTowersIDs_subset, gFEXOutputC
 
 
    //Placing the global TOBs into a dedicated array
-   m_gScalarEJwojTobWords[0] = outTOB[0];//
-   m_gMETComponentsJwojTobWords[0] = outTOB[1];//
-   m_gMHTComponentsJwojTobWords[0] = outTOB[2];//
-   m_gMSTComponentsJwojTobWords[0] = outTOB[3];//
+   m_gScalarEJwojTobWords[0] = outJwojTOB[0];//
+   m_gMETComponentsJwojTobWords[0] = outJwojTOB[1];//
+   m_gMHTComponentsJwojTobWords[0] = outJwojTOB[2];//
+   m_gMSTComponentsJwojTobWords[0] = outJwojTOB[3];//
 
 
+   //Set constants for noise cut and rho+RMS and run the algorithms
+   std::vector<int> thr_A = {0};//To be retrieved from COOL database in the future
+   std::vector<int> thr_B = {0};//To be retrieved from COOL database in the future
+
+   m_gFEXaltMetAlgoTool->setAlgoConstant(thr_A , thr_B, 10000/200);
+      
+   m_gFEXaltMetAlgoTool->altMetAlgo(Atwr, Btwr, outAltMetTOB);
+
+   m_gMETComponentsNoiseCutTobWords.resize(1);
+   m_gMETComponentsRmsTobWords.resize(1);
+   m_gScalarENoiseCutTobWords.resize(1);
+   m_gScalarERmsTobWords.resize(1);
+
+
+   //Placing the global TOBs into a dedicated array
+   m_gMETComponentsNoiseCutTobWords[0] = outAltMetTOB[0];//
+   m_gMETComponentsRmsTobWords[0] = outAltMetTOB[1];//
+   m_gScalarENoiseCutTobWords[0] = outAltMetTOB[2];//
+   m_gScalarERmsTobWords[0] = outAltMetTOB[3];//
+   
    for (int i = 0; i <14; i++){
      gFEXOutputs->addJetTob(tobs_v[i]->getWord());
      gFEXOutputs->addValueJet("EtaJet", tobs_v[i]->getEta());
@@ -345,6 +368,25 @@ std::vector<uint32_t> gFEXSim::getgMSTComponentsJwojTOBs() const
   return m_gMSTComponentsJwojTobWords;
 }
 
+std::vector<uint32_t> gFEXSim::getgMETComponentsNoiseCutTOBs() const
+{
+  return m_gMETComponentsNoiseCutTobWords;
+}
+
+std::vector<uint32_t> gFEXSim::getgMETComponentsRmsTOBs() const
+{
+  return m_gMETComponentsRmsTobWords;
+}
+
+std::vector<uint32_t> gFEXSim::getgScalarENoiseCutTOBs() const
+{
+  return m_gScalarENoiseCutTobWords;
+}
+
+std::vector<uint32_t> gFEXSim::getgScalarERmsTOBs() const
+{
+  return m_gScalarERmsTobWords;
+}
 
 
 } // end of namespace bracket
