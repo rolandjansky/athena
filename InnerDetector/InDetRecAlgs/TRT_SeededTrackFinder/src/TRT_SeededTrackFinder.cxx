@@ -38,7 +38,7 @@ using namespace std;
 
 InDet::TRT_SeededTrackFinder::TRT_SeededTrackFinder
 (const std::string& name, ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator),
+  : AthReentrantAlgorithm(name, pSvcLocator),
     m_nprint(0),
     m_ntracks(0),
     m_trackmaker("InDet::TRT_SeededTrackFinderTool"),
@@ -152,12 +152,8 @@ namespace InDet {
 ///////////////////////////////////////////////////////////////////
 // Execute
 ///////////////////////////////////////////////////////////////////
-StatusCode InDet::TRT_SeededTrackFinder::execute() {
-   return execute_r( Gaudi::Hive::currentContext() );
-}
-
 StatusCode 
-InDet::TRT_SeededTrackFinder::execute_r (const EventContext& ctx) const{
+InDet::TRT_SeededTrackFinder::execute(const EventContext& ctx) const{
   //Counters. See the include file for definitions
   Stat_t ev_stat;
   // counter
