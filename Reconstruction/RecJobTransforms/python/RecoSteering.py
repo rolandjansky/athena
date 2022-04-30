@@ -63,10 +63,10 @@ def RecoSteering(flags):
         log.info("---------- Configured tracking")
 
     # HGTD
-    if flags.Reco.EnableHGTDExtension:
-        from HGTD_Config.HGTD_RecoConfig import HGTD_RecoCfg
-        acc.merge(HGTD_RecoCfg(flags))
-        log.info("---------- Configured HGTD track extension")
+    # if flags.Reco.EnableHGTDExtension:
+    #     from HGTD_Config.HGTD_RecoConfig import HGTD_RecoCfg
+    #     acc.merge(HGTD_RecoCfg(flags))
+    #     log.info("---------- Configured HGTD track extension")
 
     # Muon
     if flags.Detector.EnableMuon:
