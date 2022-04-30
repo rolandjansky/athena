@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <string>
@@ -132,7 +132,7 @@ void PanTau::Tool_DetailsArranger::addPanTauDetailToTauJet(PanTauSeed*          
                                                            PanTauDetailsType                      detailType) const {
 
   bool isValid;
-  PanTau::TauFeature* features        = inSeed->getFeatures();
+  const PanTau::TauFeature* features  = inSeed->getFeatures();
   std::string         fullFeatName    = inSeed->getNameInputAlgorithm() + "_" + featName;
 
   double theValue = features->value(fullFeatName, isValid);

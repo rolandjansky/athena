@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PanTauAlgs/TauConstituent.h"
 
 PanTau::TauConstituent::TauConstituent() :
   IParticle(),
-  m_p4(), m_p4Cached( false ),
+  m_p4(),
   m_TypeFlags(),
   m_BDTValue(PanTau::TauConstituent::DefaultBDTValue()),
   m_Charge(PanTau::TauConstituent::DefaultCharge()),
@@ -23,7 +23,7 @@ PanTau::TauConstituent::TauConstituent(TLorentzVector   itsMomentum,
 				       double           itsBDTValue,
 				       xAOD::PFO*       itsPFO) :
   IParticle(),
-  m_p4(itsMomentum), m_p4Cached(true),
+  m_p4(itsMomentum),
   m_TypeFlags(itsType),
   m_BDTValue(itsBDTValue),
   m_Charge(itsCharge),
@@ -36,7 +36,7 @@ PanTau::TauConstituent::TauConstituent(TLorentzVector   itsMomentum,
 
 PanTau::TauConstituent::TauConstituent(const PanTau::TauConstituent& rhs) :
   IParticle(rhs),
-  m_p4(rhs.m_p4), m_p4Cached(rhs.m_p4Cached),
+  m_p4(rhs.m_p4),
   m_TypeFlags(rhs.m_TypeFlags),
   m_BDTValue(rhs.m_BDTValue),
   m_Charge(rhs.m_Charge),
@@ -66,7 +66,6 @@ PanTau::TauConstituent& PanTau::TauConstituent::operator=(const PanTau::TauConst
     }
     this->IParticle::operator=( tauConst );
     this->m_p4 = tauConst.m_p4;
-    this->m_p4Cached = tauConst.m_p4Cached;
     m_TypeFlags = tauConst.m_TypeFlags;
     m_BDTValue  = tauConst.m_BDTValue;
     m_Charge    = tauConst.m_Charge;
@@ -107,10 +106,6 @@ double PanTau::TauConstituent::rapidity() const {
 }
 
 PanTau::TauConstituent::FourMom_t PanTau::TauConstituent::p4() const {
-  if( ! m_p4Cached ) {
-    m_p4.SetPtEtaPhiM( pt(), eta(), phi(),m()); 
-    m_p4Cached=true;
-  }
   return m_p4;
 }
 
@@ -123,36 +118,36 @@ void PanTau::TauConstituent::setP4(float pt, float eta, float phi, float m){
   acc3( *this ) = phi;
   static const Accessor< float > acc4( "m" );
   acc4( *this ) = m;
-  //Need to recalculate m_p4 if requested after update
-  m_p4Cached=false;
+  //Need to recalculate m_p4
+  m_p4.SetPtEtaPhiM( pt, eta, phi, m);
 }
 
 void PanTau::TauConstituent::setPt(float pt){
   static const Accessor< float > acc( "pt" );
   acc( *this ) = pt;
-  //Need to recalculate m_p4 if requested after update
-  m_p4Cached=false;
+  //Need to recalculate m_p4
+  m_p4.SetPtEtaPhiM( pt, eta(), phi(), m());
 }
 
 void PanTau::TauConstituent::setEta(float eta){
   static const Accessor< float > acc( "eta" );
   acc( *this ) = eta;
-  //Need to recalculate m_p4 if requested after update
-  m_p4Cached=false;
+  //Need to recalculate m_p4
+  m_p4.SetPtEtaPhiM( pt(), eta, phi(), m());
 }
 
 void PanTau::TauConstituent::setPhi(float phi){
   static const Accessor< float > acc( "phi" );
   acc( *this ) = phi;
-  //Need to recalculate m_p4 if requested after update
-  m_p4Cached=false;
+  //Need to recalculate m_p4
+  m_p4.SetPtEtaPhiM( pt(), eta(), phi, m());
 }
 
 void PanTau::TauConstituent::setM(float m){
   static const Accessor< float > acc( "m" );
   acc( *this ) = m;
-  //Need to recalculate m_p4 if requested after update
-  m_p4Cached=false;
+  //Need to recalculate m_p4
+  m_p4.SetPtEtaPhiM( pt(), eta(), phi(), m);
 }
 
 
@@ -263,7 +258,7 @@ int PanTau::TauConstituent::getCharge() const {
 }
 
 
-xAOD::PFO* PanTau::TauConstituent::getPFO() const {
+const xAOD::PFO* PanTau::TauConstituent::getPFO() const {
   return m_PFOLink;
 }
 

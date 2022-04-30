@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -150,7 +150,7 @@ namespace PanTau {
     bool                                    isOfType(TauConstituent::Type aType) const;
     double                                  getBDTValue() const;
     int                                     getCharge() const;
-    xAOD::PFO*                              getPFO() const;
+    const xAOD::PFO*                        getPFO() const;
     
     void                                    addShot(TauConstituent* shot);
     std::vector<TauConstituent*>            getShots();
@@ -161,13 +161,8 @@ namespace PanTau {
 
   private:
 
-     /// Cached 4-momentum object
-     mutable FourMom_t m_p4;
-     ///
- 
-     /// Cache state of the internal 4-momentum (reset from the streamer)
-     mutable bool m_p4Cached;
-
+     /// 4-momentum object
+     FourMom_t m_p4;
 
 
   protected:
