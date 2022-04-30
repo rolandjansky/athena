@@ -50,7 +50,9 @@ def createInDetConfigFlags():
     icf.addFlag("InDet.Tracking.holeSearchInGX2Fit", True)
     # control which fitter to be used: ('DistributedKalmanFilter', 'GlobalChi2Fitter', 'GaussianSumFilter')
     icf.addFlag("InDet.Tracking.trackFitterType", "GlobalChi2Fitter")
-    # control which updator to load for KalmanFitter ("None"/"fast"/"smatrix"/"weight"/"amg")
+    # control which measurement updator to load as InDetUpdator
+    # ("None"/"fast"/"smatrix"/"weight"/"amg")
+    # "None" loads the default KalmanUpdator
     icf.addFlag("InDet.Tracking.kalmanUpdator", "smatrix")
     # control which propagator to use ('RungeKutta'/'STEP')
     icf.addFlag("InDet.Tracking.propagatorType", "RungeKutta")
