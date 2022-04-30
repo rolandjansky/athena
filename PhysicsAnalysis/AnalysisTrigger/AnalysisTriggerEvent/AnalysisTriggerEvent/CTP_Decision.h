@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CTP_Decision.h,v 1.10 2008-05-20 16:59:50 efeld Exp $
@@ -80,7 +80,7 @@ public:
    void setItem( const items_type::value_type &item ) { m_items.push_back(item); }
 
    /// Set vector of CTP trigger words 
-   void setWords( const std::vector< uint32_t > words ) { m_CTPResultWord = words; }
+   void setWords( const std::vector< uint32_t >& words ) { m_CTPResultWord = words; }
    /// Set one CTP trigger word 
    void setWord( const unsigned int i, const uint32_t word ) { 
       if( m_CTPResultWord.size() <= i ) m_CTPResultWord.resize( i + 1 );
