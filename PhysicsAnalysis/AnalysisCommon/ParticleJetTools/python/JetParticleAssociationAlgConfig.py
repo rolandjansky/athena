@@ -2,6 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from math import inf
 
 # this function is only used below
 def JetParticleAssociationCfg(ConfigFlags, jetCollName, partcollname, assocname, **options):
@@ -29,6 +30,26 @@ def JetParticleAssociationAlgCfg(ConfigFlags, JetCollection="", InputParticleCol
 
     options['JetContainer'] = jetcol
     options['Decorators'] = [acc.popToolsAndMerge(JetParticleAssociationCfg(ConfigFlags, jetcol, InputParticleCollection, OutputParticleDecoration))]
+    options['name'] = (jetcol + "_" + OutputParticleDecoration + "_assoc").lower()
+
+    # -- create the association algorithm
+    acc.addEventAlgo(CompFactory.JetDecorationAlg(**options))
+
+    return acc
+
+def JetParticleFixedConeAssociationAlgCfg(ConfigFlags, fixedConeRadius, JetCollection="", InputParticleCollection="", OutputParticleDecoration="", **options):
+
+    acc=ComponentAccumulator()
+    jetcol = JetCollection.replace("Track", "PV0Track")
+
+    options['JetContainer'] = jetcol
+    options['Decorators'] = [CompFactory.JetParticleShrinkingConeAssociation(
+                                                                             InputParticleContainer=InputParticleCollection,
+                                                                             OutputDecoration=OutputParticleDecoration,
+                                                                             coneSizeFitPar1=fixedConeRadius,
+                                                                             coneSizeFitPar2=-inf,
+                                                                             coneSizeFitPar3=0,
+                                                                             **options)]
     options['name'] = (jetcol + "_" + OutputParticleDecoration + "_assoc").lower()
 
     # -- create the association algorithm
