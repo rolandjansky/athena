@@ -30,7 +30,7 @@ namespace Trk {
    @author Andreas.Salzburger@cern.ch
    */
       
-  class LineSaggingDescriptor : public DistortionDescriptor {
+  class LineSaggingDescriptor final : public DistortionDescriptor {
 
     public:
 
@@ -48,11 +48,11 @@ namespace Trk {
       LineSaggingDescriptor(const LineSaggingDescriptor& lsd);
 
       /**Destructor*/
-       ~LineSaggingDescriptor(){}
+       ~LineSaggingDescriptor() = default;
 
       /** clone() method to make deep copy in Surface copy constructor and for assigment operator
         of the Surface class.*/
-      LineSaggingDescriptor* clone() const;
+      virtual LineSaggingDescriptor* clone() const override final;
 
       /** Assignment operator */
       LineSaggingDescriptor& operator=(const LineSaggingDescriptor& lsd);
@@ -64,10 +64,10 @@ namespace Trk {
                                                   double cosFi=0.) const;
 
       /** Output Method for MsgStream, to be overloaded by child classes */
-      MsgStream& dump(MsgStream& sl) const;
+      MsgStream& dump(MsgStream& sl) const override final;
 
       /** Output Method for std::ostream, to be overloaded by child classes */
-      std::ostream& dump(std::ostream& sl) const;
+      std::ostream& dump(std::ostream& sl) const override final;
 
     protected:
      //!< the wire end positions 

@@ -23,17 +23,16 @@ namespace Trk {
   /** 
    @class SaggedLineSurface
 
-   The base class of all distorted surfaces
-   in the Tracking realm.
-
    The distorted surface itself is the nominal surface
    + a distortion description.
 
    @author Andreas.Salzburger@cern.ch 
   */
   
-  class SaggedLineSurface : public StraightLineSurface, virtual public DistortedSurface {
-
+  class SaggedLineSurface final
+    : public StraightLineSurface
+    , virtual public DistortedSurface
+  {
     public:
      /** Default Constructor - needed for pool and inherited classes */
      SaggedLineSurface();
@@ -61,18 +60,18 @@ namespace Trk {
      SaggedLineSurface(const SaggedLineSurface& sls);
 
      /** Destructor */
-     ~SaggedLineSurface();
+     virtual ~SaggedLineSurface();
 
      Trk::SaggedLineSurface& operator=(const Trk::SaggedLineSurface& sls);
 
      /** Get the Surface representation */
-     const StraightLineSurface& surfaceRepresentation() const;
+     virtual const StraightLineSurface& surfaceRepresentation() const override final;
 
      /** Get the Distortion descriptor  */
-     const LineSaggingDescriptor& distortionDescriptor() const;
+     virtual const LineSaggingDescriptor& distortionDescriptor() const override final;
    
      /** Get the NEW corrected surface - this is a factory (the user has to delete the surface) */
-     StraightLineSurface* correctedSurface(const Amg::Vector2D& lp) const;
+     virtual StraightLineSurface* correctedSurface(const Amg::Vector2D& lp) const override final;
 
 
    protected:
