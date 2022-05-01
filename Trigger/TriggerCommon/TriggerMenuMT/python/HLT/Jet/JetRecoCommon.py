@@ -160,6 +160,8 @@ def getJetCalibDefaultString(recoDict):
         return 'subjes'
     elif recoDict['recoAlg'] == 'a10t':
         return 'jes'
+    elif recoDict['recoAlg'] == 'a10sd':
+        return 'jes'
     elif recoDict['recoAlg'] == 'a10r':
         return 'subjesIS' # calibration for the small-R jets used to reconstruct the reclustered jets
     else:

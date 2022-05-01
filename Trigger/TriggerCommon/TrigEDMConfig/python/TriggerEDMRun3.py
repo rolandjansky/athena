@@ -61,12 +61,13 @@ AllowedOutputFormats.extend(DataScoutingInfo.getAllDataScoutingIdentifiers())
 
 
 JetVarsToKeep = ['ActiveArea', 'ActiveArea4vec_eta', 'ActiveArea4vec_m', 'ActiveArea4vec_phi', 'ActiveArea4vec_pt', 'AlgorithmType',
-                 'DetectorEta', 'DetectorPhi', 'EMFrac', 'EnergyPerSampling', 'GhostTrack', 'HECFrac', 'InputType',
+                 'DetectorEta', 'DetectorPhi', 'EMFrac', 'EnergyPerSampling', 'GhostTrack_ftf', 'HECFrac', 'InputType',
                  'JetConstitScaleMomentum_eta', 'JetConstitScaleMomentum_m', 'JetConstitScaleMomentum_phi', 'JetConstitScaleMomentum_pt',
                  'JetPileupScaleMomentum_eta', 'JetPileupScaleMomentum_m', 'JetPileupScaleMomentum_phi', 'JetPileupScaleMomentum_pt',
                  'JetEtaJESScaleMomentum_eta', 'JetEtaJESScaleMomentum_m', 'JetEtaJESScaleMomentum_phi', 'JetEtaJESScaleMomentum_pt',
                  'JetGSCScaleMomentum_eta', 'JetGSCScaleMomentum_m', 'JetGSCScaleMomentum_phi', 'JetGSCScaleMomentum_pt',
-                 'Jvt', 'JVFCorr', 'JvtRpt', 'NumTrkPt500', 'NumTrkPt1000', 'SizeParameter', 'SumPtTrkPt500', 'SumPtTrkPt1000', 'TrackWidthPt1000', 'SumPtChargedPFOPt500','Timing'
+                 'Jvt', 'JVFCorr', 'JvtRpt', 'NumTrkPt500', 'NumTrkPt1000', 'SizeParameter', 'SumPtChargedPFOPt500', 'SumPtTrkPt500', 'SumPtTrkPt1000','Timing','TrackWidthPt1000',
+                 'TracksForMinimalJetTag'
 ]
 JetVarsToKeep += [f'fastDips_p{x}' for x in 'cub']
 JetVars = '.'.join(JetVarsToKeep)
@@ -75,9 +76,17 @@ JetCopyVarsToKeep = ['pt', 'eta', 'phi', 'm',
                      'JetPileupScaleMomentum_eta', 'JetPileupScaleMomentum_m', 'JetPileupScaleMomentum_phi', 'JetPileupScaleMomentum_pt',
                      'JetEtaJESScaleMomentum_eta', 'JetEtaJESScaleMomentum_m', 'JetEtaJESScaleMomentum_phi', 'JetEtaJESScaleMomentum_pt',
                      'JetGSCScaleMomentum_eta', 'JetGSCScaleMomentum_m', 'JetGSCScaleMomentum_phi', 'JetGSCScaleMomentum_pt',
-                     'Jvt', 'JvtRpt','Timing'
-                 ]
+                     'Jvt', 'JvtRpt','Timing',
+                     'GhostTrack_ftf','TracksForMinimalJetTag'
+]
+JetCopyVarsToKeep += [f'fastDips_p{x}' for x in 'cub']
+JetCopyVarsToKeep += [f'dips20211116_p{x}' for x in 'cub']
+JetCopyVarsToKeep += [f'fastDIPS20211215_p{x}' for x in 'cub']
 JetCopyVars = '.'.join(JetCopyVarsToKeep)
+
+# Create a (temporary) list of TLAJetVars as the union of JetVars and JetCopyVars
+TLAJetVarsToKeep = list(set(JetVarsToKeep+JetCopyVarsToKeep))
+TLAJetVars='.'.join(TLAJetVarsToKeep)
 
 ElToKeep = ['ptcone20', 'ptvarcone20']
 ElVars = '.'.join(ElToKeep)
@@ -695,10 +704,10 @@ TriggerHLTListRun3 = [
     # TLA jets
 
     ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_subjesIS_TLA',                      'BS PhysicsTLA ESD', 'Jet'),
-    ('xAOD::JetAuxContainer#HLT_AntiKt4EMTopoJets_subjesIS_TLAAux.'+JetVars,       'BS PhysicsTLA ESD', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt4EMTopoJets_subjesIS_TLAAux.'+TLAJetVars,       'BS PhysicsTLA ESD', 'Jet'),
 
     ('xAOD::JetContainer#HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_TLA',                      'BS PhysicsTLA ESD', 'Jet'),
-    ('xAOD::JetAuxContainer#HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_TLAAux.'+JetVars,       'BS PhysicsTLA ESD', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf_TLAAux.'+TLAJetVars,       'BS PhysicsTLA ESD', 'Jet'),
 
 
     # TLA Photons

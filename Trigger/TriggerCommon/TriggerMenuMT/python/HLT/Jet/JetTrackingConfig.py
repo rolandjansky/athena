@@ -2,19 +2,14 @@
 #  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
-from AthenaCommon.CFElements import parOR, findAllAlgorithms
+from AthenaCommon.CFElements import parOR
 
 from JetRecTools import JetRecToolsConfig as jrtcfg
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, conf2toConfigurable, appendCAtoAthena
-from AthenaCommon.Configurable import ConfigurableRun3Behavior
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, conf2toConfigurable
 from TrigInDetConfig.InDetTrigVertices import makeInDetTrigVertices
 from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 
-# this code uses CA internally, needs to be in this context manager,
-# at least until ATLASRECTS-6635 is closed
-with ConfigurableRun3Behavior():
-    from ..Bjet.BjetFlavourTaggingConfiguration import getFastFlavourTagging
 
 from AthenaConfiguration.AccumulatorCache import AccumulatorCache
 
@@ -105,27 +100,17 @@ def JetRoITrackingSequence(dummyFlags,jetsIn,trkopt,RoIs):
     IDTrigConfig = getInDetTrigConfig('jetSuper')
     tracksIn = IDTrigConfig.tracks_FTF()
 
-    with ConfigurableRun3Behavior():
-        ca_ft_algs = getFastFlavourTagging( dummyFlags, jetsIn, "", tracksIn)
+    #importing here getFastFlavourTaggingSequence to avoid breaking newJO
+    from .JetRecoSequences import getFastFlavourTaggingSequence
 
-    # Conversion of flavour-tagging algorithms from new to old-style
-    # 1) We need to do the algorithms manually and then remove them from the CA
-    #
-    # Please see the discussion on
-    # https://gitlab.cern.ch/atlas/athena/-/merge_requests/46951#note_4854474
-    # and the description in that merge request.
-    ft_algs = [conf2toConfigurable(alg) for alg in findAllAlgorithms(ca_ft_algs._sequence)]
-
-    jetTrkSeq = parOR( f"JetRoITracking_{trkopt}_RecoSequence", viewAlgs + ft_algs)
-
-    # you can't use accumulator.wasMerged() here because the above
-    # code only merged the algorithms. Instead we rely on this hacky
-    # looking construct.
-    ca_ft_algs._sequence = []
-    # 2) the rest is done by the generic helper
-    # this part is needed to accomodate parts of flavor tagging that
-    # aren't algorithms, e.g. JetTagCalibration.
-    appendCAtoAthena(ca_ft_algs)
+    jetTrkSeq=getFastFlavourTaggingSequence(
+        dummyFlags,
+        f"JetRoITracking_{trkopt}_RecoSequence",
+        jetsIn,
+        "",
+        tracksIn,
+        addAlgs=viewAlgs,
+    )
 
     return jetTrkSeq
 

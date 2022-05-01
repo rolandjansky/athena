@@ -105,6 +105,12 @@ auto floatAccessors = initAccessors<float>(
   "DL1bb20220331_pb",
   "DL1bb20220331_pc",
   "DL1bb20220331_pu",
+  "dips20211116_pb",
+  "dips20211116_pc",
+  "dips20211116_pu",
+  "fastDIPS20211215_pb",
+  "fastDIPS20211215_pc",
+  "fastDIPS20211215_pu",
   "DetectorEta", "DetectorPhi",
   "EMFrac", "HECFrac", "JVFCorr", "seed_eta", "seed_phi", "trk_a0beam",
   "btagIp_d0", "btagIp_d0Uncertainty", "btagIp_z0SinTheta", "btagIp_z0SinThetaUncertainty",
@@ -179,6 +185,6 @@ auto velmuAccessors = initAccessors<std::vector<ElementLink<xAOD::MuonContainer>
 
 auto velvtxAccessors = initAccessors<std::vector<ElementLink<xAOD::VertexContainer>>>("SV1_vertices");
 
-auto velipAccessors = initAccessors<std::vector<ElementLink<xAOD::IParticleContainer>>>("GhostTrack", "HLT_HIClusters_DR8Assoc");
+auto velipAccessors = initAccessors<std::vector<ElementLink<xAOD::IParticleContainer>>>("GhostTrack_ftf","TracksForMinimalJetTag", "HLT_HIClusters_DR8Assoc");
 
 } // namespace TriggerEDMAuxAccessors
