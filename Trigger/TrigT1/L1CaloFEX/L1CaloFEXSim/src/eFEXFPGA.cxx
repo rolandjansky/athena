@@ -99,6 +99,20 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
   auto & thr_eEM = l1Menu->thrExtraInfo().eEM();
   auto & thr_eTAU = l1Menu->thrExtraInfo().eTAU();
 
+  // Define eta range to consider extra towers in edge cases
+  int min_eta;
+  int overflow_eta;
+  if ((m_efexid%3 == 0) && (m_id == 0)) {
+    min_eta = 0;
+  } else {
+    min_eta = 1;
+  }
+  if ((m_efexid%3 == 2) && (m_id == 3)) {
+    overflow_eta = 6;
+  } else {
+    overflow_eta = 5;
+  }
+  
   for(int ieta = 1; ieta < 5; ieta++) {
     for(int iphi = 1; iphi < 9; iphi++) {
       int tobtable[3][3]={
@@ -222,7 +236,7 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
   }
 
   // --------------- TAU -------------
-  for(int ieta = 1; ieta < 5; ieta++)
+  for(int ieta = min_eta; ieta < overflow_eta; ieta++)
   {
     for(int iphi = 1; iphi < 9; iphi++)
     {
@@ -233,7 +247,7 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
       };
       
       ATH_CHECK( m_eFEXtauAlgoTool->safetyTest() );
-      m_eFEXtauAlgoTool->setup(tobtable);
+      m_eFEXtauAlgoTool->setup(tobtable, m_efexid, m_id, ieta);
 
       if (!m_eFEXtauAlgoTool->isCentralTowerSeed()){ continue; }
 
@@ -306,6 +320,11 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
         inputOutputCollection->addValue_tau("Eta", ieta);
         inputOutputCollection->addValue_tau("Phi", iphi);
         const LVL1::eTower * centerTower = eTowerContainer->findTower(m_eTowersIDs[iphi][ieta]);
+        const LVL1::eTower * oneOffEtaTower = eTowerContainer->findTower(m_eTowersIDs[iphi][ieta+1]);
+        const LVL1::eTower * oneBelowEtaTower = eTowerContainer->findTower(m_eTowersIDs[iphi][ieta-1]);
+        inputOutputCollection->addValue_tau("CenterTowerEt", centerTower->getTotalET());
+        inputOutputCollection->addValue_tau("OneOffEtaTowerEt", oneOffEtaTower->getTotalET());
+        inputOutputCollection->addValue_tau("OneBelowEtaTowerEt", oneBelowEtaTower->getTotalET());
         inputOutputCollection->addValue_tau("FloatEta", centerTower->eta() * centerTower->getPosNeg());
         inputOutputCollection->addValue_tau("FloatPhi", centerTower->phi());
         inputOutputCollection->addValue_tau("RCoreCore", rCoreVec[0]);
@@ -318,6 +337,9 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
         inputOutputCollection->addValue_tau("RHadWP", rHadWP);
         inputOutputCollection->addValue_tau("Seed", seed);
         inputOutputCollection->addValue_tau("UnD", und);
+        inputOutputCollection->addValue_tau("eFEXID", m_efexid);
+        inputOutputCollection->addValue_tau("FPGAID", m_id);
+
         
         inputOutputCollection->fill_tau();
       }

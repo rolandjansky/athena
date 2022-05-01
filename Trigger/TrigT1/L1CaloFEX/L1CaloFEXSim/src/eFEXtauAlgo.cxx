@@ -44,11 +44,11 @@ StatusCode LVL1::eFEXtauAlgo::safetyTest(){
 
 }
 
-void LVL1::eFEXtauAlgo::setup(int inputTable[3][3]){
+void LVL1::eFEXtauAlgo::setup(int inputTable[3][3], int efex_id, int fpga_id, int central_eta){
 
   std::copy(&inputTable[0][0], &inputTable[0][0] + 9, &m_eFexalgoTowerID[0][0]);
 
-  buildLayers();
+  buildLayers(efex_id, fpga_id, central_eta);
   setSupercellSeed();
   setUnDAndOffPhi();
 
@@ -66,7 +66,7 @@ LVL1::eFEXtauTOB *LVL1::eFEXtauAlgo::getTauTOB()
 }
 
 // Build arrays holding cell ETs for each layer plus entire tower
-void LVL1::eFEXtauAlgo::buildLayers()
+void LVL1::eFEXtauAlgo::buildLayers(int efex_id, int fpga_id, int central_eta)
 {
 
   SG::ReadHandle<eTowerContainer> eTowerContainer(m_eTowerContainerKey/*,ctx*/);
@@ -75,15 +75,30 @@ void LVL1::eFEXtauAlgo::buildLayers()
   {
     for(unsigned int iphi = 0; iphi < 3; iphi++)
     {
-	  const LVL1::eTower * tmpTower = eTowerContainer->findTower(m_eFexalgoTowerID[iphi][ieta]);
-	  m_twrcells[ieta][iphi] = tmpTower->getTotalET();
-	  m_em0cells[ieta][iphi] = tmpTower->getLayerTotalET(0);
-	  m_em3cells[ieta][iphi] = tmpTower->getLayerTotalET(3);
-	  m_hadcells[ieta][iphi] = tmpTower->getLayerTotalET(4);
-	  for(unsigned int i = 0; i < 4; i++)
+      if (((efex_id%3 == 0) && (fpga_id == 0) && (central_eta == 0) && (ieta == 0)) || ((efex_id%3 == 2) && (fpga_id == 3) && (central_eta == 5) && (ieta == 2))) 
+      {
+	      m_twrcells[ieta][iphi] = 0;
+	      m_em0cells[ieta][iphi] = 0;
+	      m_em3cells[ieta][iphi] = 0;
+	      m_hadcells[ieta][iphi] = 0;
+	      for(unsigned int i = 0; i < 4; i++)
+        {  
+	        m_em1cells[4 * ieta + i][iphi] = 0;
+	        m_em2cells[4 * ieta + i][iphi] = 0;
+        }
+      } 
+      else 
       {  
-	    m_em1cells[4 * ieta + i][iphi] = tmpTower->getET(1, i);
-	    m_em2cells[4 * ieta + i][iphi] = tmpTower->getET(2, i);
+	      const LVL1::eTower * tmpTower = eTowerContainer->findTower(m_eFexalgoTowerID[iphi][ieta]);
+	      m_twrcells[ieta][iphi] = tmpTower->getTotalET();
+	      m_em0cells[ieta][iphi] = tmpTower->getLayerTotalET(0);
+	      m_em3cells[ieta][iphi] = tmpTower->getLayerTotalET(3);
+	      m_hadcells[ieta][iphi] = tmpTower->getLayerTotalET(4);
+	      for(unsigned int i = 0; i < 4; i++)
+        {  
+	        m_em1cells[4 * ieta + i][iphi] = tmpTower->getET(1, i);
+	        m_em2cells[4 * ieta + i][iphi] = tmpTower->getET(2, i);
+        }
       }
     }
   }
