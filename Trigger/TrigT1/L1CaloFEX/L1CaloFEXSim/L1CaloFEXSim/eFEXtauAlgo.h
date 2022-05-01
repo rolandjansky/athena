@@ -38,7 +38,7 @@ namespace LVL1 {
     virtual ~eFEXtauAlgo();
 
     virtual StatusCode safetyTest() override;
-    virtual void setup(int inputTable[3][3]) override;
+    virtual void setup(int inputTable[3][3], int efex_id, int fpga_id, int central_eta) override;
 
     /** standard Athena-Algorithm method */
     //virtual StatusCode initialize();
@@ -64,7 +64,7 @@ namespace LVL1 {
   private:
     int m_eFexalgoTowerID[3][3];
 
-    void buildLayers();
+    void buildLayers(int efex_id, int fpga_id, int central_eta);
     void setSupercellSeed();
     void setUnDAndOffPhi();
     virtual bool getUnD() override;

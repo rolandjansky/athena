@@ -29,7 +29,7 @@ Interface definition for eFEXtauAlgo
     static const InterfaceID& interfaceID( ) ;
 
     virtual StatusCode safetyTest() = 0;
-    virtual void setup(int inputTable[3][3]) = 0;
+    virtual void setup(int inputTable[3][3], int efex_id, int fpga_id, int central_eta) = 0;
     
     virtual bool isCentralTowerSeed() = 0;
     virtual eFEXtauTOB* getTauTOB() = 0;
