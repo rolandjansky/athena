@@ -771,11 +771,8 @@ def MuonSegmentFindingCfg(flags, cardinality=1):
     
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg 
     result.merge( MuonGeoModelCfg(flags) )
-
-    Muon__MuonEDMHelperSvc=CompFactory.Muon.MuonEDMHelperSvc
-    muon_edm_helper_svc = Muon__MuonEDMHelperSvc("MuonEDMHelperSvc")
-    result.addService( muon_edm_helper_svc )
-    
+    from MuonConfig.MuonRecToolsConfig import MuonEDMHelperSvcCfg
+    result.merge(MuonEDMHelperSvcCfg(flags))
     if flags.Input.Format is Format.BS:
         from MuonConfig.MuonBytestreamDecodeConfig import MuonByteStreamDecodersCfg
         result.merge( MuonByteStreamDecodersCfg(flags) )
