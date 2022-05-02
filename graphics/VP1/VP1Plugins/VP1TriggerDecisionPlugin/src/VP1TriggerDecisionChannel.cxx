@@ -27,14 +27,18 @@ VP1TriggerDecisionChannel::VP1TriggerDecisionChannel()
 {
 }
 
+VP1TriggerDecisionChannel::~VP1TriggerDecisionChannel()
+{
+}
+
 //_________________________________________________________
 void VP1TriggerDecisionChannel::init()
 {
-  m_trigdecsystem = new VP1TriggerDecisionSystem();
-  registerSystem(m_trigdecsystem);
+  m_trigdecsystem.reset (new VP1TriggerDecisionSystem());
+  registerSystem(m_trigdecsystem.get());
 
-  connect(m_trigdecsystem,SIGNAL(entriesChanged(const QStringList&,const QStringList&)),
-      this, SLOT(  entriesChanged(const QStringList&,const QStringList&)) );
+  connect(m_trigdecsystem.get(),SIGNAL(entriesChanged(const QStringList&,const QStringList&)),
+	  this, SLOT(  entriesChanged(const QStringList&,const QStringList&)) );
 }
 
 //_________________________________________________________
