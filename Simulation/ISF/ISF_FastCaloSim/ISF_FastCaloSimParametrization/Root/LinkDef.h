@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifdef __CINT__
@@ -15,9 +15,6 @@
 #pragma link C++ struct FCS_matchedcell+;
 #pragma link C++ struct std::vector<FCS_matchedcell>+;
 #pragma link C++ struct FCS_matchedcellvector+;
-#pragma link C++ class std::vector<Float_t>+;
-#pragma link C++ class std::vector<std::vector<float> >+;
-#pragma link C++ class std::vector<std::vector<Long64_t> >+;
 #ifndef CaloGeometryFromFile_h
 #pragma link C++ class CaloGeometryLookup;
 #pragma link C++ class CaloGeometry;
