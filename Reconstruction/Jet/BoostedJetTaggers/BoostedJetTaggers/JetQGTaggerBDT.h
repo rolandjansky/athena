@@ -1,11 +1,13 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETQGTAGGERBDT_H_
 #define JETQGTAGGERBDT_H_
 
+#include "AsgTools/SlotSpecificObj.h"
 #include "BoostedJetTaggers/JSSTaggerBase.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "TMVA/Tools.h"
 #include "TMVA/Reader.h"
@@ -46,8 +48,17 @@ namespace CP {
 
         bool isCorrectNumberOfTracks( int expectedNTracks, int nTracksFromGhostTracks ) const;
 
-        /// TMVA tools
-        std::unique_ptr<TMVA::Reader> m_bdtTagger;
+        /// Slot-specific TMVA tool and associated variables
+        struct Tagger {
+          std::unique_ptr<TMVA::Reader> tmva;
+          float pt;
+          float eta;
+          float ntracks;
+          float trackwidth;
+          float trackC1;
+        };
+
+        mutable SG::SlotSpecificObj<Tagger> m_bdtTagger ATLAS_THREAD_SAFE;
         std::string m_BDTmethod;
 
         asg::AnaToolHandle<InDet::IInDetTrackSelectionTool> m_trkSelectionTool;
@@ -55,13 +66,6 @@ namespace CP {
         // inclusive config file
         std::string m_tmvaConfigFileName;
         std::string m_tmvaConfigFilePath;
-
-        // variables for TMVA
-        mutable float m_pt;
-        mutable float m_eta;
-        mutable float m_ntracks;
-        mutable float m_trackwidth;
-        mutable float m_trackC1;
 
         int m_mode;
 

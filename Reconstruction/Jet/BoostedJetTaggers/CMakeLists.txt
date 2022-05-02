@@ -33,7 +33,7 @@ atlas_add_library( BoostedJetTaggersLib
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES}
    ${LWTNN_LIBRARIES}
-   AsgTools 
+   AsgTools CxxUtils
    xAODBase xAODJet xAODTruth xAODTracking JetInterface JetRecLib JetEDM JetSelectorToolsLib JetCalibToolsLib  JetUncertaintiesLib ParticleJetToolsLib PathResolver
    MuonSelectorToolsLib MuonMomentumCorrectionsLib PATCoreLib PATInterfaces FlavorTagDiscriminants
    JetAnalysisInterfacesLib InDetTrackSelectionToolLib InDetTrackSystematicsToolsLib 
