@@ -393,7 +393,7 @@ def muEFSARecoSequence( RoIs, name ):
 
   from AthenaCommon import CfgMgr
   from AthenaCommon.CFElements import parOR
-  from MuonRecExample.MuonStandalone import MooSegmentFinderAlg, MuonStandaloneTrackParticleCnvAlg, MuonSegmentFinderAlg, MuonStationsInterSectAlg
+  from MuonRecExample.MuonStandalone import MooSegmentFinderAlg, MuonStandaloneTrackParticleCnvAlg, MuonSegmentFinderAlg, MuonStationsInterSectAlg, MuonLayerHoughAlg
   from MuonCombinedRecExample.MuonCombinedAlgs import MuonCombinedMuonCandidateAlg, MuonCreatorAlg
   from MuonCombinedAlgs.MuonCombinedAlgsMonitoring import MuonCreatorAlgMonitoring
 
@@ -419,9 +419,7 @@ def muEFSARecoSequence( RoIs, name ):
 
   MuonStationsInterSectAlg()
   if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
-      theMuonLayerHough = CfgMgr.MuonLayerHoughAlg( "MuonLayerHoughAlg",  CscPrepDataContainer = ("CSC_Clusters" if MuonGeometryFlags.hasCSC() else ""),
-                                                    sTgcPrepDataContainer = ("STGC_Measurements" if MuonGeometryFlags.hasSTGC() else ""),
-                                                    MMPrepDataContainer = ("MM_Measurements" if MuonGeometryFlags.hasMM() else ""))
+      theMuonLayerHough = MuonLayerHoughAlg("TrigMuonLayerHoughAlg")
       efAlgs.append(theMuonLayerHough)
 
       theSegmentFinderAlg = MuonSegmentFinderAlg("TrigMuonSegmentMaker_"+name)
