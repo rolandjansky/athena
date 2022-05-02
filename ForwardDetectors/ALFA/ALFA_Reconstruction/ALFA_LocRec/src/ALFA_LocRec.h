@@ -101,7 +101,6 @@ class ALFA_LocRec : public AthAlgorithm
 		std::list<eRPotName> m_ListExistingRPots;
 
 		UInt_t m_eventNum;					// real event number
-		Int_t m_iRunNum;
 		Int_t m_iDataType;					// data type (simulation or real data) using in the local reconstruction
 		Int_t m_iEvent;						// event number from zero value
 		Int_t m_iMultiplicityCutMD;			// for Main Detector
