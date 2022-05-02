@@ -28,7 +28,7 @@ ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data'
 ex.threads = 4
 ex.concurrent_events = 4
-ex.args = '-c "setMenu=\'Dev_pp_run3_v1\';doL1Sim=False;"'  
+ex.args = '-c "setMenu=\'Dev_pp_run3_v1\';doL1Sim=False;enableL1MuonPhase1=False;"'  
 ex.args += ' --dump-config-reload'
 
 test = Test.Test()

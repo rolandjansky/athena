@@ -23,7 +23,7 @@ def createTriggerFlags():
     flags.addFlag("Trigger.HLTSeeding.forceEnableAllChains", False)
 
     # Enable Run-3 LVL1 muon decoding
-    flags.addFlag('Trigger.enableL1MuonPhase1', False)
+    flags.addFlag('Trigger.enableL1MuonPhase1', lambda prevFlags: prevFlags.Trigger.EDMVersion >= 3 or prevFlags.Detector.EnableMM or prevFlags.Detector.EnablesTGC)
 
     # Enable Run-3 LVL1 calo simulation and/or decoding
     flags.addFlag('Trigger.enableL1CaloPhase1', False)

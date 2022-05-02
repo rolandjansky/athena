@@ -14,7 +14,7 @@ ex = ExecStep.ExecStep()
 ex.type = 'athenaHLT'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data'
-ex.args = '-i -M -ul -c "setMenu=\'PhysicsP1_pp_run3_v1\';forceEnableAllChains=True;enableCostMonitoring=False;"'
+ex.args = '-i -M -ul -c "setMenu=\'PhysicsP1_pp_run3_v1\';enableL1MuonPhase1=False;forceEnableAllChains=True;enableCostMonitoring=False;"'
 ex.perfmon = False # perfmon currently not fully supported with athenaHLT -M
 
 # Pass the transitions file into athenaHLT -i
