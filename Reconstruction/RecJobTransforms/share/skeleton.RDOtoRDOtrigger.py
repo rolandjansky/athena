@@ -9,6 +9,9 @@ from AthenaCommon.Include import include
 from AthenaCommon.Logging import logging
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+from PerfMonComps.PerfMonCompsConfig import PerfMonMTSvcCfg
+from PerfMonComps.PerfMonConfigHelpers import setPerfmonFlagsFromRunArgs
 
 log = logging.getLogger('skeleton.RDOtoRDOtrigger')
 
@@ -55,6 +58,9 @@ athenaCommonFlags.SkipEvents = skipEvents
 setGlobalTag = getFromRunArgs("conditionsTag", False)
 setDetDescr = getFromRunArgs("geometryVersion", False)
 
+# PerfMon setup (ATR-25439)
+setPerfmonFlagsFromRunArgs(ConfigFlags, ra)
+
 ##################################################
 # Parse preExec / preInclude
 ##################################################
@@ -75,6 +81,11 @@ if preInclude:
 # Include the main job options
 ##################################################
 include("TriggerJobOpts/runHLT_standalone.py")
+
+##################################################
+# Include PerfMon configuration (ATR-25439)
+##################################################
+CAtoGlobalWrapper(PerfMonMTSvcCfg, ConfigFlags)
 
 ##################################################
 # Parse postExec / postInclude
