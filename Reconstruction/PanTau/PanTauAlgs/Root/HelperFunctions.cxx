@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PanTauAlgs/HelperFunctions.h"
@@ -13,9 +13,9 @@
 #include <cmath>
 
 
-PanTau::TauConstituent* PanTau::HelperFunctions::getNeutralConstWithLargestAngle(TLorentzVector charged, 
-										  std::vector<PanTau::TauConstituent*> neutral) {
-  if(neutral.size() == 0) return 0;
+PanTau::TauConstituent* PanTau::HelperFunctions::getNeutralConstWithLargestAngle(const TLorentzVector& charged,
+										 const std::vector<PanTau::TauConstituent*>& neutral) {
+  if(neutral.empty()) return 0;
   //loop through neutrals to find the one with largest angle
   unsigned int    idx_Neutral = -1;
   double          angle_Neutral  = -1.;
@@ -39,7 +39,7 @@ std::string PanTau::HelperFunctions::convertNumberToString(double x) const {
 }
 
 
-int PanTau::HelperFunctions::getBinIndex(std::vector<double> binEdges, double value) const {
+int PanTau::HelperFunctions::getBinIndex(const std::vector<double>& binEdges, double value) const {
   int resBin = -1;
   for(unsigned int i=0; i<binEdges.size()-1; i++) {
     double lowerEdge = binEdges[i];
