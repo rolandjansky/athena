@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation file for class CutFlowSvc
@@ -236,7 +236,7 @@ void CutFlowSvc::handle( const Incident& inc )
     // Look up input stream name from FileMetaData
     std::string inputstream = "";
     if (m_inMetaDataStore->contains<xAOD::FileMetaData>("FileMetaData")) {
-      const xAOD::FileMetaData* fmd;
+      const xAOD::FileMetaData* fmd = nullptr;
       if (m_inMetaDataStore->retrieve(fmd).isFailure()) {
         ATH_MSG_ERROR("Failed to retrieve input FileMetaData");
       } else if (fmd &&
