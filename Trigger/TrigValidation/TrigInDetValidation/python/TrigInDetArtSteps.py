@@ -258,7 +258,6 @@ class TrigTZReco(ExecStep):
             "from AthenaConfiguration.AllConfigFlags import ConfigFlags;",
             "ConfigFlags.Trigger.triggerMenuSetup=\'Cosmic_run3_v1\';",
             "ConfigFlags.Trigger.AODEDMSet=\'AODFULL\';",
-            "ConfigFlags.Trigger.enableL1MuonPhase1=True;",
             "ConfigFlags.Trigger.enableL1CaloPhase1=True;",
             ])
         self.threads = 1

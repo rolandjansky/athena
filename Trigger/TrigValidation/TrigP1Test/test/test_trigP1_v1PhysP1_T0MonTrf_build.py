@@ -30,7 +30,6 @@ tzrecoPreExec = ' '.join([
  "from AthenaConfiguration.AllConfigFlags import ConfigFlags;",
  "ConfigFlags.Trigger.triggerMenuSetup=\'PhysicsP1_pp_run3_v1\';",
  "ConfigFlags.Trigger.AODEDMSet=\'AODFULL\';",
- "ConfigFlags.Trigger.enableL1MuonPhase1=True;",
  "ConfigFlags.Trigger.enableL1CaloPhase1=True;",
 ])
 

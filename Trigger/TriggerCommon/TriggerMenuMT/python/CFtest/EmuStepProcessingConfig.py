@@ -358,8 +358,8 @@ def emulateHLTSeedingCfg(flags, seqName = None):
     acc = ComponentAccumulator()
     
     decoderAlg = CompFactory.HLTSeeding()
-    decoderAlg.RoIBResult = "RoIBResult" if flags.Trigger.enableL1CaloLegacy or not flags.Trigger.enableL1MuonPhase1 else ""
-    decoderAlg.L1TriggerResult = "L1TriggerResult" if flags.Trigger.enableL1MuonPhase1 or flags.Trigger.enableL1CaloPhase1 else ""
+    decoderAlg.RoIBResult = "RoIBResult"  # emulation based on legacy L1 data flow
+    decoderAlg.L1TriggerResult = ""  # emulation based on legacy L1 data flow
     decoderAlg.HLTSeedingSummaryKey = "HLTSeedingSummary" # Transient, consumed by DecisionSummaryMakerAlg
     ## emulate CTP:
     decoderAlg.ctpUnpacker = CompFactory.CTPUnpackingEmulationTool( ForceEnableAllChains=False , InputFilename="ctp.dat" )

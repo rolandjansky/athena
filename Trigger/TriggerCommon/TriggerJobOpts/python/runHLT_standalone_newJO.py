@@ -39,7 +39,6 @@ flags.Common.isOnline = lambda f: not f.Input.isMC
 flags.IOVDb.GlobalTag = lambda f: ('OFLCOND-MC16-SDR-RUN2-08-02' if f.GeoModel.Run is LHCPeriod.Run2 else 'OFLCOND-MC21-SDR-RUN3-06') if f.Input.isMC else "CONDBR2-HLTP-2018-03"
 flags.Common.MsgSourceLength=70
 flags.Trigger.doLVL1=True # run L1 sim also on data
-flags.Trigger.enableL1MuonPhase1=True
 flags.Trigger.enableL1CaloPhase1=False
 flags.Trigger.enableL1CaloLegacy=True
 flags.Concurrency.NumThreads = 1
