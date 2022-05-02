@@ -67,3 +67,7 @@ Rmatch = 0.05;
 
 // VertexSelection    = 0;
 // VertexSelectionRec = 0;
+
+UseVertexTracks = 1;
+
+

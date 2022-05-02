@@ -5,14 +5,14 @@ panels = { vtx_eff_panel, vtx_res_panel, vtx_kin_panel, vtx_beam_panel, vtx_pos_
 
 vtx_eff_panel = {
 
-  "ntrax_eff",     "Tracks efficiency",           "xaxis:lin:0:200",      "Number of tracks",                  "yaxis:auto:lin:80:102",       "Vertex finding efficiency" ,
+  "ntrax_eff",     "Tracks efficiency",           "xaxis:lin:auto:0:20",      "Number of tracks",                  "yaxis:auto:lin:80:102",       "Vertex finding efficiency" ,
   "zed_eff",       "Efficiency z",                "xaxis:lin:-175:175",  "Offline vertex z [mm]",             "yaxis:auto:lin:80:102",       "Vertex finding efficiency" ,
   "mu_eff",        "efficiency vs mu",            "xaxis:lin:auto",      "pileup <#mu>",                      "yaxis:auto:lin:80:102",        "Efficiency"  ,
 
   //  "nvtx_eff",      "Vertices efficiency",         "xaxis:lin:auto",     "Number of vertices",                 "yaxis:lin:auto:0.5:1.05",   "Vertex finding efficiency" ,                                  
   //  "lb_eff",       "Efficiency lb",                "xaxis:lin:auto",     "luminosity block",                  "yaxis:lin:auto:0.50:1.05",       "Vertex finding efficiency" ,                              
 
-  "ntrax",        "Number of tracks",    "xaxis:lin:auto",              "Offline track multiplcicty",    "yaxis:log:autow",          "Entries"  ,
+  "ntrax",        "Number of tracks",    "xaxis:lin:auto:0:20",              "Offline track multiplcicty",    "yaxis:log:autow",          "Entries"  ,
   "zed",          "Vertex z position",   "xaxis:lin:auto:-175:175",     "Offline vertex z [mm]",         "yaxis:log:auto",           "Entries"  ,
   "mu",            "mu",                 "xaxis:lin:auto",              "pileup <#mu>",                  "yaxis:lin:auto",           "Entries"	
 
