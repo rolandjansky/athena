@@ -28,6 +28,8 @@ StatusCode TrackTimeExtensionAlg::initialize() {
 
   ATH_CHECK(m_extension_tool.retrieve());
 
+  ATH_CHECK(m_truth_tool.retrieve());
+
   ATH_CHECK(m_clustercont_rh_key.initialize());
   ATH_CHECK(m_sdo_coll_rh_key.initialize());
   ATH_CHECK(m_mc_coll_rh_key.initialize());

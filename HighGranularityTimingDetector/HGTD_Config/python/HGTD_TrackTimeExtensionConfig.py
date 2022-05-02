@@ -27,6 +27,7 @@ def HGTD_IterativeExtensionToolCfg(flags, name = "HGTD_IterativeExtensionTool", 
     from TrkConfig.TrkMeasurementUpdatorConfig import ITkUpdatorCfg
     kwargs.setdefault("UpdatorTool", acc.popToolsAndMerge(ITkUpdatorCfg(flags)))
 
+    kwargs.setdefault("ClusterTruthTool", acc.popToolsAndMerge(ClusterTruthToolCfg(flags)))
     kwargs.setdefault("TOFCorrTool", acc.popToolsAndMerge(StraightLineTOFcorrectionToolCfg(flags)))
     kwargs.setdefault("Chi2Cut", 5.0)
     acc.setPrivateTools(CompFactory.HGTD_IterativeExtensionTool(name, **kwargs))
