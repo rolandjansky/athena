@@ -37,6 +37,10 @@ StatusCode HGTD_IterativeExtensionTool::initialize() {
 
   ATH_CHECK(m_updator.retrieve());
 
+  ATH_CHECK(m_tof_corr_tool.retrieve());
+
+  ATH_CHECK(m_truth_tool.retrieve());
+
   // get HGTD Detector Description Manager and HGTD Helper
   ATH_CHECK(detStore()->retrieve(m_hgtd_det_mgr, "HGTD"));
   ATH_CHECK(detStore()->retrieve(m_hgtd_id_helper, "HGTD_ID"));

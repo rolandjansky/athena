@@ -147,7 +147,7 @@ private:
 
   ToolHandle<IHGTD_TOFcorrectionTool> m_tof_corr_tool{this, "TOFCorrTool", "StraightLineTOFcorrectionTool", "Tool for correcting for time of flight"};
 
-  ToolHandle<IHGTD_ClusterTruthTool> m_truth_tool{this, "ClusterTruthTool", "ClusterTruthTool/ClusterTruthTool", "Tool for classifying HGTD clusters with truth information"};
+  ToolHandle<IHGTD_ClusterTruthTool> m_truth_tool{this, "ClusterTruthTool", "HGTD::ClusterTruthTool/ClusterTruthTool", "Tool for classifying HGTD clusters with truth information"};
 
   // keep a pointer to the currently used track, but does not own it!
   // FIXME: this is needed for the TOF correction. Maybe there is a smarter way
