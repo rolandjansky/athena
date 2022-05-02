@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
   * Trigger Hypo Tool, that is aimed at triggering displaced vertex
   * author Kunihiro Nagano <kunihiro.nagano@cern.ch> - KEK
@@ -52,42 +52,36 @@ StatusCode TrigHitDVHypoAlg::initialize()
 
    if ( !m_monTool.empty() ) CHECK( m_monTool.retrieve() );
 
-   for (size_t slot = 0; slot < SG::getNSlots(); ++slot) {
-      EventContext dummyContext(/*dummyEventNumber*/0, slot);
-      m_tmva_reader_0eta1.get(dummyContext)->reset( new TMVA::Reader( "!Color:!Silent" ) );
-      (**m_tmva_reader_0eta1.get(dummyContext)).AddVariable("n_track_qual", m_tmva_n_track_qual.get(dummyContext));
-      (**m_tmva_reader_0eta1.get(dummyContext)).AddVariable("ly0_sp_frac",  m_tmva_ly0_sp_frac.get(dummyContext));
-      (**m_tmva_reader_0eta1.get(dummyContext)).AddVariable("ly1_sp_frac",  m_tmva_ly1_sp_frac.get(dummyContext));
-      (**m_tmva_reader_0eta1.get(dummyContext)).AddVariable("ly2_sp_frac",  m_tmva_ly2_sp_frac.get(dummyContext));
-      (**m_tmva_reader_0eta1.get(dummyContext)).AddVariable("ly3_sp_frac",  m_tmva_ly3_sp_frac.get(dummyContext));
-      (**m_tmva_reader_0eta1.get(dummyContext)).AddVariable("ly4_sp_frac",  m_tmva_ly4_sp_frac.get(dummyContext));
-      (**m_tmva_reader_0eta1.get(dummyContext)).AddVariable("ly5_sp_frac",  m_tmva_ly5_sp_frac.get(dummyContext));
-      (**m_tmva_reader_0eta1.get(dummyContext)).AddVariable("ly6_sp_frac",  m_tmva_ly6_sp_frac.get(dummyContext));
-      (**m_tmva_reader_0eta1.get(dummyContext)).AddVariable("ly7_sp_frac",  m_tmva_ly7_sp_frac.get(dummyContext));
+   for (auto& reader : m_tmva_reader) {
+      // Create two instances with same variables
+      auto tmva = std::array{std::make_unique<TMVA::Reader>( "!Color:!Silent" ),
+                             std::make_unique<TMVA::Reader>( "!Color:!Silent" )};
+      for (auto& t : tmva) {
+         t->AddVariable("n_track_qual", &reader.n_track_qual);
+         t->AddVariable("ly0_sp_frac",  &reader.ly0_sp_frac);
+         t->AddVariable("ly1_sp_frac",  &reader.ly1_sp_frac);
+         t->AddVariable("ly2_sp_frac",  &reader.ly2_sp_frac);
+         t->AddVariable("ly3_sp_frac",  &reader.ly3_sp_frac);
+         t->AddVariable("ly4_sp_frac",  &reader.ly4_sp_frac);
+         t->AddVariable("ly5_sp_frac",  &reader.ly5_sp_frac);
+         t->AddVariable("ly6_sp_frac",  &reader.ly6_sp_frac);
+         t->AddVariable("ly7_sp_frac",  &reader.ly7_sp_frac);
+      };
+      reader.tmva_0eta1 = std::move(tmva[0]);
+      reader.tmva_1eta2 = std::move(tmva[1]);
 
-      m_tmva_reader_1eta2.get(dummyContext)->reset( new TMVA::Reader( "!Color:!Silent" ) );
-      (**m_tmva_reader_1eta2.get(dummyContext)).AddVariable("n_track_qual", m_tmva_n_track_qual.get(dummyContext));
-      (**m_tmva_reader_1eta2.get(dummyContext)).AddVariable("ly0_sp_frac",  m_tmva_ly0_sp_frac.get(dummyContext));
-      (**m_tmva_reader_1eta2.get(dummyContext)).AddVariable("ly1_sp_frac",  m_tmva_ly1_sp_frac.get(dummyContext));
-      (**m_tmva_reader_1eta2.get(dummyContext)).AddVariable("ly2_sp_frac",  m_tmva_ly2_sp_frac.get(dummyContext));
-      (**m_tmva_reader_1eta2.get(dummyContext)).AddVariable("ly3_sp_frac",  m_tmva_ly3_sp_frac.get(dummyContext));
-      (**m_tmva_reader_1eta2.get(dummyContext)).AddVariable("ly4_sp_frac",  m_tmva_ly4_sp_frac.get(dummyContext));
-      (**m_tmva_reader_1eta2.get(dummyContext)).AddVariable("ly5_sp_frac",  m_tmva_ly5_sp_frac.get(dummyContext));
-      (**m_tmva_reader_1eta2.get(dummyContext)).AddVariable("ly6_sp_frac",  m_tmva_ly6_sp_frac.get(dummyContext));
-      (**m_tmva_reader_1eta2.get(dummyContext)).AddVariable("ly7_sp_frac",  m_tmva_ly7_sp_frac.get(dummyContext));
-
-      // --- Book the MVA methods
+      // --- Book the MVA methods specific to eta range
       const std::string tuningVer  = "v22a"; // "v21a";
       const std::string methodName = "BDT method";
 
-      std::string file_0eta1 = "TrigHitDVHypo/HitDV.BDT.weights.0eta1." + tuningVer + ".xml";
-      std::string file_1eta2 = "TrigHitDVHypo/HitDV.BDT.weights.1eta2." + tuningVer + ".xml";
-      std::string weightfile_0eta1 = PathResolver::find_calib_file(file_0eta1.c_str());
-      std::string weightfile_1eta2 = PathResolver::find_calib_file(file_1eta2.c_str());
+      const std::string weightfile_0eta1 = PathResolver::find_calib_file(
+         "TrigHitDVHypo/HitDV.BDT.weights.0eta1." + tuningVer + ".xml");
+      const std::string weightfile_1eta2 = PathResolver::find_calib_file(
+         "TrigHitDVHypo/HitDV.BDT.weights.1eta2." + tuningVer + ".xml");
       ATH_MSG_DEBUG("opening weightfile = " << weightfile_0eta1);
       ATH_MSG_DEBUG("opening weightfile = " << weightfile_1eta2);
-      (**m_tmva_reader_0eta1.get(dummyContext)).BookMVA(methodName, weightfile_0eta1);
-      (**m_tmva_reader_1eta2.get(dummyContext)).BookMVA(methodName, weightfile_1eta2);
+      reader.tmva_0eta1->BookMVA(methodName, weightfile_0eta1);
+      reader.tmva_1eta2->BookMVA(methodName, weightfile_1eta2);
    }
 
    return StatusCode::SUCCESS;
@@ -616,20 +610,21 @@ StatusCode TrigHitDVHypoAlg::calculateBDT(const EventContext& context,
       }
       float bdt_score = -2.0;
       if( ! isSeedOutOfRange ) {
-         *m_tmva_n_track_qual.get(context) = static_cast<float>(n_qtrk_injet);
-         *m_tmva_ly0_sp_frac.get(context)  = v_ly_sp_frac[0];
-         *m_tmva_ly1_sp_frac.get(context)  = v_ly_sp_frac[1];
-         *m_tmva_ly2_sp_frac.get(context)  = v_ly_sp_frac[2];
-         *m_tmva_ly3_sp_frac.get(context)  = v_ly_sp_frac[3];
-         *m_tmva_ly4_sp_frac.get(context)  = v_ly_sp_frac[4];
-         *m_tmva_ly5_sp_frac.get(context)  = v_ly_sp_frac[5];
-         *m_tmva_ly6_sp_frac.get(context)  = v_ly_sp_frac[6];
-         *m_tmva_ly7_sp_frac.get(context)  = v_ly_sp_frac[7];
+         auto& reader = *m_tmva_reader.get(context);
+         reader.n_track_qual = static_cast<float>(n_qtrk_injet);
+         reader.ly0_sp_frac  = v_ly_sp_frac[0];
+         reader.ly1_sp_frac  = v_ly_sp_frac[1];
+         reader.ly2_sp_frac  = v_ly_sp_frac[2];
+         reader.ly3_sp_frac  = v_ly_sp_frac[3];
+         reader.ly4_sp_frac  = v_ly_sp_frac[4];
+         reader.ly5_sp_frac  = v_ly_sp_frac[5];
+         reader.ly6_sp_frac  = v_ly_sp_frac[6];
+         reader.ly7_sp_frac  = v_ly_sp_frac[7];
 
          if ( std::abs(seed_eta) < 1 ) {
-            bdt_score = (**m_tmva_reader_0eta1.get(context)).EvaluateMVA("BDT method");
+            bdt_score = reader.tmva_0eta1->EvaluateMVA("BDT method");
          } else if ( std::abs(seed_eta) < 2 ) {
-            bdt_score = (**m_tmva_reader_1eta2.get(context)).EvaluateMVA("BDT method");
+            bdt_score = reader.tmva_1eta2->EvaluateMVA("BDT method");
          }
       }
 
