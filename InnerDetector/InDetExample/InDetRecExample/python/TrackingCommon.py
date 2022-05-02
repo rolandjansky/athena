@@ -1033,7 +1033,12 @@ def getInDetSCT_DetectorElementStatusAddByteStreamErrorsTool(name ='InDetSCT_Det
     from SCT_ConditionsTools.SCT_ConditionsToolsHelper import getSCT_ByteStreamErrorsTool
 
     if "ConditionsTools" not in kwargs :
-        kwargs = setDefaults(kwargs, ConditionsTools = [getSCT_ByteStreamErrorsTool()])
+        from RecExConfig.AutoConfiguration import IsInInputFile
+        has_bytestream_errors= globalflags.DataSource=='data' \
+                               and (IsInInputFile('IDCInDetBSErrContainer','SCT_ByteStreamErrs')
+                                    or globalflags.InputFormat() == 'bytestream' )
+
+        kwargs = setDefaults(kwargs, ConditionsTools = [getSCT_ByteStreamErrorsTool()] if has_bytestream_errors else [])
 
     kwargs = setDefaults(kwargs,
                          SCTDetEleCollKey               = "SCT_DetectorElementCollection")
