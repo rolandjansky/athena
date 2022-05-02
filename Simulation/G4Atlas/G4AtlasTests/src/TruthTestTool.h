@@ -1,11 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef G4AT_TRUTHTESTTOOL
-#define G4AT_TRUTHTESTTOOL
+#ifndef G4ATLASTESTS_TRUTHTESTTOOL_H
+#define G4ATLASTESTS_TRUTHTESTTOOL_H
 
 #include "SimTestToolBase.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 
 
 class TruthTestTool : public SimTestToolBase {
@@ -15,10 +17,12 @@ public:
 
   TruthTestTool(const std::string& type, const std::string& name, const IInterface* parent);
 
-  StatusCode initialize();
-  StatusCode processEvent();
+  virtual StatusCode initialize() override;
+  virtual StatusCode processEvent() override;
 
 private:
+  /// SG key for Event Info
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfo", "EventInfo", "EventInfo name"};
 
   // histograms
   TH1 *m_n_vert, *m_n_part;
