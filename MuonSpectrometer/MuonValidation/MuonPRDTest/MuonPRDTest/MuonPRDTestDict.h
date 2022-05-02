@@ -9,4 +9,5 @@
 #include <MuonPRDTest/RPCDigitVariables.h>
 #include <MuonPRDTest/RPCSDOVariables.h>
 #include <MuonPRDTest/RPCSimHitVariables.h>
+#include <MuonPRDTest/TruthVariables.h>
 #endif
