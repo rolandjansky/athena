@@ -132,7 +132,7 @@ else:
 
         # Set geometry version
         if (not "DetDescrVersion" in dir()):
-            DetDescrVersion = "ATLAS-GEO-10-00-02"
+            DetDescrVersion = "ATLAS-R2-2016-01-00-01" # default Run 2 geometry
         globalflags.DetDescrVersion = DetDescrVersion
             
         # Set conditions tag
