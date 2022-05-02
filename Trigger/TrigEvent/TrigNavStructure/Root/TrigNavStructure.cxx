@@ -7,10 +7,6 @@
 #include <algorithm>
 #include <iterator> // need it for advance
 
-
-
-//#include <boost/cstdint.hpp>
-//#include <stdint.h>
 #include <boost/lexical_cast.hpp>
 
 #include "TrigNavStructure/TypelessHolder.h"
@@ -34,15 +30,7 @@ std::recursive_mutex TrigNavStructure::s_rmutex;
 
 
 TrigNavStructure::~TrigNavStructure() {
-#ifndef XAOD_STANDALONE
-  for (size_t dummySlot = 0; dummySlot < SG::getNSlots(); ++dummySlot) {
-    EventContext dummyContext(/*dummyEventNumber*/0, dummySlot);
-    m_factory.get(dummyContext)->reset();
-  }
-#else
-  m_factory.reset();
-#endif
-
+  for (auto& factory : m_factory) factory.reset();
 }
 
 /*****************************************************************************
@@ -769,27 +757,13 @@ unsigned int TrigNavStructure::copyAllFeatures( const TriggerElement* sourceTE, 
  *****************************************************************************/
 void TrigNavStructure::reset(bool inFinalize) {
   std::lock_guard<std::recursive_mutex> lock(getMutex());
-#ifndef XAOD_STANDALONE
   if (inFinalize) {
-    for (size_t dummySlot = 0; dummySlot < SG::getNSlots(); ++dummySlot) {
-      EventContext dummyContext(/*dummyEventNumber*/0, dummySlot);
-      m_factory.get(dummyContext)->reset();
-      m_holderstorage.get(dummyContext)->reset();
-    }
+    for (auto& factory : m_factory) factory.reset();
+    for (auto& holder : m_holderstorage) holder.reset();
   } else {
     getFactory().reset();
     getHolderStorage().reset();
   }
-#else
-  //  std::cerr << "resetting" << std::endl;
-  if (inFinalize) { // Note: Makes no difference for analysis base
-    m_factory.reset();
-    m_holderstorage.reset();
-  } else {
-    m_factory.reset();
-    m_holderstorage.reset(); 
-  }
-#endif
 }
 
 
@@ -953,50 +927,4 @@ const BaseHolder* TrigNavStructure::getHolder(const TriggerElement::FeatureAcces
   const TrigHolderStructure& holderstorage = getHolderStorage();
 
   return holderstorage.getHolderForFeature(fea);
-}
-
-
-TriggerElementFactory& TrigNavStructure::getFactory() {
-#ifndef XAOD_STANDALONE
-  return *(m_factory.get());
-#else
-  return m_factory;
-#endif
-}
-
-
-const TriggerElementFactory& TrigNavStructure::getFactory() const {
-#ifndef XAOD_STANDALONE
-  return *(m_factory.get());
-#else
-  return m_factory;
-#endif
-}
-
-
-TrigHolderStructure& TrigNavStructure::getHolderStorage() {
-#ifndef XAOD_STANDALONE
-  return *(m_holderstorage.get());
-#else
-  return m_holderstorage;
-#endif
-}
-
-
-const TrigHolderStructure& TrigNavStructure::getHolderStorage() const {
-#ifndef XAOD_STANDALONE
-  return *(m_holderstorage.get());
-#else
-  return m_holderstorage;
-#endif
-}
-
-
-std::recursive_mutex& TrigNavStructure::getMutex() {
-  return s_rmutex;
-}
-
-
-std::recursive_mutex& TrigNavStructure::getMutex() const {
-  return s_rmutex; // Note: Mutable
 }

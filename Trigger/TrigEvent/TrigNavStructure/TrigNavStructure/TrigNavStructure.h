@@ -11,10 +11,7 @@
 #include <vector>
 #include <mutex>
 
-#ifndef XAOD_STANDALONE
-#include "AthenaKernel/SlotSpecificObj.h"
-#endif
-
+#include "AsgTools/SlotSpecificObj.h"
 #include "CxxUtils/checker_macros.h"
 #include "TrigNavStructure/TriggerElement.h"
 #include "TrigNavStructure/TriggerElementFactory.h"
@@ -369,30 +366,21 @@ namespace HLT {
                      unsigned int maxResults = 1000, bool onlyActive = 1);
 
 
-    TriggerElementFactory& getFactory();
+    TriggerElementFactory& getFactory() { return *m_factory; }
+    TrigHolderStructure& getHolderStorage() { return *m_holderstorage; }
+    std::recursive_mutex& getMutex() { return s_rmutex; }
 
-    TrigHolderStructure& getHolderStorage();
-
-    std::recursive_mutex& getMutex();
-
-    const TriggerElementFactory& getFactory() const;
-
-    const TrigHolderStructure& getHolderStorage() const;  
-
-    std::recursive_mutex& getMutex() const;
+    const TriggerElementFactory& getFactory() const { return *m_factory; }
+    const TrigHolderStructure& getHolderStorage() const { return *m_holderstorage; }
+    std::recursive_mutex& getMutex() const { return s_rmutex; }
 
     static const TriggerElement* m_unspecifiedTE ATLAS_THREAD_SAFE;
     static std::string m_unspecifiedLabel ATLAS_THREAD_SAFE;
 
   private:
 
-#ifndef XAOD_STANDALONE
     SG::SlotSpecificObj<TriggerElementFactory> m_factory;                     //!< factory of trigger elements (one per processing slot)
     SG::SlotSpecificObj<TrigHolderStructure> m_holderstorage;                 //!< structure for feature holders (one per processing slot)
-#else
-    TriggerElementFactory m_factory;                     //!< factory of trigger elements 
-    TrigHolderStructure m_holderstorage;                 //!< structure for feature holders
-#endif
 
     static std::recursive_mutex s_rmutex;
 
