@@ -748,6 +748,8 @@ TriggerHLTListRun3 = [
     ('xAOD::VertexAuxContainer#HLT_TrigVSIVertexAux.'+VSIVars, 'BS ESD AODFULL', 'Jet'),
     ('xAOD::VertexContainer#HLT_TrigVSITrkPair',                'BS ESD AODFULL', 'Jet'),
     ('xAOD::VertexAuxContainer#HLT_TrigVSITrkPairAux.'+VSIVars, 'BS ESD AODFULL', 'Jet'),
+    ('xAOD::TrigCompositeContainer#HLT_TrigVSI_VtxCount',                                               'BS ESD AODFULL', 'Jet'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_TrigVSI_VtxCountAux.vsiHypo_nVtx.vsiHypo_pTcut.vsiHypo_rCut.vsiHypo_nTrkCut.vsiHypo_counts',  'BS ESD AODFULL', 'Jet'),
 
     # HI event shape
     ('xAOD::HIEventShapeContainer#HLT_HIEventShapeEG',          'BS ESD AODFULL',   'Egamma'),
