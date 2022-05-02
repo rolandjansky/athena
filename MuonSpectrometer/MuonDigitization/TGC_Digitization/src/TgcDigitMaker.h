@@ -184,8 +184,6 @@ class TgcDigitMaker : public AthMessaging {
 
   /** Position of Strip Channel (Longer base or Shorter base) */
   float m_StripPos[N_STATIONNAME][N_ABSSTATIONETA][N_STRIPCHANNEL]{};
-  /** max channel for ASD */
-  float m_maxch[N_STATIONNAME][N_STATIONETA][N_ISSTRIP][N_ASDNUM]{};
 
   std::vector<std::vector<float> > m_vecAngle_Time;
 
