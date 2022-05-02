@@ -13,6 +13,8 @@
 #include "TrkGaussianSumFilterUtils/GsfMeasurementUpdator.h"
 #include "TrkGaussianSumFilterUtils/QuickCloseComponentsMultiStateMerger.h"
 //
+#include "TrkMultiComponentStateOnSurface/MultiComponentStateOnSurface.h"
+//
 #include "TrkCaloCluster_OnTrack/CaloCluster_OnTrack.h"
 #include "TrkDetElementBase/TrkDetElementBase.h"
 #include "TrkEventPrimitives/PropDirection.h"
@@ -57,7 +59,7 @@ public:
   virtual std::unique_ptr<Track> fit(
     const EventContext& ctx,
     const Track&,
-    const RunOutlierRemoval outlierRemoval = false,
+    const RunOutlierRemoval /*Not used*/,
     const ParticleHypothesis particleHypothesis =
       nonInteracting) const override final;
 
@@ -68,7 +70,7 @@ public:
     const EventContext& ctx,
     const PrepRawDataSet&,
     const TrackParameters&,
-    const RunOutlierRemoval outlierRemoval = false,
+    const RunOutlierRemoval /*Not used*/,
     const ParticleHypothesis particleHypothesis =
       nonInteracting) const override final;
 
@@ -79,7 +81,7 @@ public:
     const EventContext& ctx,
     const MeasurementSet&,
     const TrackParameters&,
-    const RunOutlierRemoval outlierRemoval = false,
+    const RunOutlierRemoval /*Not used*/,
     const ParticleHypothesis particleHypothesis =
       nonInteracting) const override final;
 
@@ -88,15 +90,15 @@ public:
     const EventContext& ctx,
     const Track&,
     const PrepRawDataSet&,
-    const RunOutlierRemoval runOutlier = false,
+    const RunOutlierRemoval /*Not used*/,
     const ParticleHypothesis matEffects = nonInteracting) const override final;
 
-  /** Refit a track adding a RIO_OnTrack set*/
+  /** Refit a track adding a measurement base set*/
   virtual std::unique_ptr<Track> fit(
     const EventContext& ctx,
     const Track&,
     const MeasurementSet&,
-    const RunOutlierRemoval runOutlier = false,
+    const RunOutlierRemoval /*Not used*/,
     const ParticleHypothesis matEffects = nonInteracting) const override final;
 
   /** Combine two tracks by refitting */
@@ -104,39 +106,39 @@ public:
     const EventContext& ctx,
     const Track&,
     const Track&,
-    const RunOutlierRemoval runOutlier = false,
+    const RunOutlierRemoval /*Not used*/,
     const ParticleHypothesis matEffects = nonInteracting) const override final;
 
 private:
+  using MultiTrajectory = DataVector<const Trk::MultiComponentStateOnSurface>;
   /** Produces a perigee from a smoothed trajectory */
-  const MultiComponentStateOnSurface* makePerigee(
+  std::unique_ptr<MultiComponentStateOnSurface> makePerigee(
     const EventContext& ctx,
     Trk::IMultiStateExtrapolator::Cache&,
-    const SmoothedTrajectory&,
+    const MultiTrajectory&,
     const ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** Gsf smoothe trajectory*/
-  SmoothedTrajectory fit(
+  MultiTrajectory fit(
     const EventContext& ctx,
     Trk::IMultiStateExtrapolator::Cache&,
-    const ForwardTrajectory&,
+    const MultiTrajectory&,
     const ParticleHypothesis particleHypothesis = nonInteracting,
     const CaloCluster_OnTrack* ccot = nullptr) const;
 
   /** Method for combining the forwards fitted state and the smoothed state */
-  MultiComponentState combine(
-    const MultiComponentState&,
-    const MultiComponentState&) const;
+  MultiComponentState combine(const MultiComponentState&,
+                              const MultiComponentState&) const;
 
   /** Methof to add the CaloCluster onto the track */
   MultiComponentState addCCOT(
     const EventContext& ctx,
-    const Trk::TrackStateOnSurface* currentState,
+    const Trk::MultiComponentStateOnSurface* currentState,
     const Trk::CaloCluster_OnTrack* ccot,
-    Trk::SmoothedTrajectory& smoothedTrajectory) const;
+    MultiTrajectory& smoothedTrajectory) const;
 
   /** Forward GSF fit using PrepRawData */
-  ForwardTrajectory fitPRD(
+  MultiTrajectory fitPRD(
     const EventContext& ctx,
     IMultiStateExtrapolator::Cache&,
     const PrepRawDataSet&,
@@ -144,7 +146,7 @@ private:
     const ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** Forward GSF fit using MeasurementSet */
-  ForwardTrajectory fitMeasurements(
+  MultiTrajectory fitMeasurements(
     const EventContext& ctx,
     IMultiStateExtrapolator::Cache&,
     const MeasurementSet&,
@@ -155,7 +157,7 @@ private:
   bool stepForwardFit(
     const EventContext& ctx,
     IMultiStateExtrapolator::Cache&,
-    ForwardTrajectory&,
+    MultiTrajectory&,
     const PrepRawData*,
     const MeasurementBase*,
     const Surface&,
@@ -210,7 +212,6 @@ private:
     "Combine with forwards state during Smoothing"
   };
 
-
   PropDirection m_directionToPerigee;
 
   TrkParametersComparisonFunction m_trkParametersComparisonFunction;
@@ -219,26 +220,25 @@ private:
   std::vector<double> m_sortingReferencePoint;
 
   // For the forward fit part
-  double m_cutChiSquaredPerNumberDOF;
-  int m_overideMaterialEffects;
+  double m_cutChiSquaredPerNumberDOF = 0.0;
+  int m_overideMaterialEffects = 0;
   ParticleHypothesis m_overideParticleHypothesis;
-  bool m_overideMaterialEffectsSwitch;
 
   // Counters for fit statistics
   // Number of Fit PrepRawData Calls
-  mutable std::atomic<unsigned long int> m_FitPRD;
+  mutable std::atomic<unsigned long int> m_FitPRD{};
   // Number of Fit MeasurementBase Calls
-  mutable std::atomic<unsigned long int> m_FitMeasurementBase;
+  mutable std::atomic<unsigned long int> m_FitMeasurementBase{};
   // Number of Foward Fit Failures
-  mutable std::atomic<unsigned long int> m_ForwardFailure;
+  mutable std::atomic<unsigned long int> m_ForwardFailure{};
   // Number of Smoother Failures
-  mutable std::atomic<unsigned long int> m_SmootherFailure;
+  mutable std::atomic<unsigned long int> m_SmootherFailure{};
   // Number of MakePerigee Failures
-  mutable std::atomic<unsigned long int> m_PerigeeFailure;
+  mutable std::atomic<unsigned long int> m_PerigeeFailure{};
   // Number of Tracks that fail fit Quailty test
-  mutable std::atomic<unsigned long int> m_fitQualityFailure;
+  mutable std::atomic<unsigned long int> m_fitQualityFailure{};
   // Number of Tracks that are successfull
-  mutable std::atomic<unsigned long int> m_fitSuccess;
+  mutable std::atomic<unsigned long int> m_fitSuccess{};
 };
 
 } // end Trk namespace
