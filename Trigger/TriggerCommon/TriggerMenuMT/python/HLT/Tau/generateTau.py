@@ -4,6 +4,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import getChainMultFromDict
 
 from AthenaConfiguration.AccumulatorCache import AccumulatorCache
+from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 def generateChains( flags, chainDict ):
     flags = flags.cloneAndReplace('Tau', 'Trigger.Offline.Tau') # use from now on trigger variant of flags
@@ -45,8 +46,12 @@ def generateChains( flags, chainDict ):
 
     @AccumulatorCache
     def __ftfCoreSeq(flags):                                                                                                                                                                 
-        selAcc=SelectionCA('tauCoreFTF')                                                                                                                                      
-        newRoITool   = CompFactory.ViewCreatorFetchFromViewROITool(RoisWriteHandleKey = 'HLT_Roi_TauCore',
+        selAcc=SelectionCA('tauCoreFTF')                                                                                                                                    
+        from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+  
+        config = getInDetTrigConfig( "tauCore" )
+
+        newRoITool   = CompFactory.ViewCreatorFetchFromViewROITool( RoisWriteHandleKey = recordable( config.roi ),
                                                                            InViewRoIs = 'UpdatedCaloRoI')                                                                                                                                                      
 
         from TrigInDetConfig.TrigInDetConfig import trigInDetFastTrackingCfg                                                                                                   
@@ -87,7 +92,12 @@ def generateChains( flags, chainDict ):
     @AccumulatorCache
     def __ftfIsoSeq(flags):
         selAcc=SelectionCA('tauIsoFTF')
-        newRoITool   = CompFactory.ViewCreatorFetchFromViewROITool(RoisWriteHandleKey = 'HLT_Roi_TauIso',
+
+        from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+  
+        config = getInDetTrigConfig( "tauIso" )
+
+        newRoITool   = CompFactory.ViewCreatorFetchFromViewROITool(RoisWriteHandleKey = recordable(config.roi),
                                                                            InViewRoIs = 'UpdatedTrackRoI')                                                                                                                        
 
         from TrigInDetConfig.TrigInDetConfig import trigInDetFastTrackingCfg
@@ -121,8 +131,13 @@ def generateChains( flags, chainDict ):
     @AccumulatorCache
     def __ftfIsoBDTSeq(flags):
         selAcc=SelectionCA('tauIsoBDTFTF')
-        newRoITool   = CompFactory.ViewCreatorFetchFromViewROITool(RoisWriteHandleKey = 'HLT_Roi_TauIsoBDT',
-                                                                           InViewRoIs = 'UpdatedTrackBDTRoI')                                                                                                 
+
+        from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+  
+        config = getInDetTrigConfig( "tauIsoBDT" )
+
+        newRoITool   = CompFactory.ViewCreatorFetchFromViewROITool(RoisWriteHandleKey = recordable( config.roi ),
+                                                                   InViewRoIs = 'UpdatedTrackBDTRoI')
 
         from TrigInDetConfig.TrigInDetConfig import trigInDetFastTrackingCfg
         fastInDetReco = InViewRecoCA('FastTauIsoBDT',   RoITool           = newRoITool,

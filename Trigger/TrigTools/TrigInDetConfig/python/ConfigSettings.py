@@ -97,7 +97,7 @@ class _ConfigSettings_tauIso( _ConfigSettingsBase ):
       _ConfigSettingsBase.__init__(self)
       self._name     = "tauIso"
       self._suffix   = "TauIso"
-      self._roi      = "RoiForTauIso"
+      self._roi      = "HLT_Roi_TauIso"
       self._etaHalfWidth   = 0.4
       self._phiHalfWidth   = 0.4
       self._zedHalfWidth   = 7.0
@@ -114,6 +114,13 @@ class _ConfigSettings_tauIso( _ConfigSettingsBase ):
       else:
          return 'HLT_IDTrack_Tau_IDTrig'
 
+
+# inherit everythiong from the tauIso instance - only 
+# the Roi name is changed to protect the innocent
+class _ConfigSettings_tauIsoBDT( _ConfigSettings_tauIso ):
+   def __init__( self ):
+      _ConfigSettings_tauIso.__init__(self)
+      self._roi      = "HLT_Roi_TauIsoBDT"
 
 
 class _ConfigSettings_bjet( _ConfigSettingsBase ):
@@ -134,6 +141,8 @@ class _ConfigSettings_jetSuper( _ConfigSettingsBase ):
       self._suffix   = "JetSuper"
       self._vertex   = "HLT_IDVertex_JetSuper"
       self._adaptiveVertex = True
+      # still not for some reason
+      # self._actsVertex     = True
       self._addSingleTrackVertices = True
       self._roi      = "HLT_Roi_JetSuper"
       self._etaHalfWidth = 0.3
@@ -191,7 +200,7 @@ class _ConfigSettings_fullScan( _ConfigSettingsBase ):
       self._roi      = "HLT_Roi_FS"
       self._vertex              = "HLT_IDVertex_FS"
       self._adaptiveVertex      = True
-      # not just yet, still hoping to validate
+      # not just yet 
       # self._actsVertex          = True
       # these are being evaluated and may be added
       # self._addSingleTrackVertices = True
@@ -249,6 +258,8 @@ class _ConfigSettings_fullScanUTT( _ConfigSettingsBase ):
       self._RoadWidth       = 5
       self._UseTrigSeedML   = 4
       self._vertex          = "HLT_IDVertex_FS"
+      # not yet
+      # self._actsVertex      = True
 
 
 class _ConfigSettings_cosmics( _ConfigSettingsBase ):
@@ -490,7 +501,7 @@ _ConfigSettings = {
     "tauTau"      : _ConfigSettings_tau(),
     "tauCore"     : _ConfigSettings_tauCore(),
     "tauIso"      : _ConfigSettings_tauIso(),
-    "tauIsoBDT"   : _ConfigSettings_tauIso(),
+    "tauIsoBDT"   : _ConfigSettings_tauIsoBDT(),
 
     "bjet"        : _ConfigSettings_bjet(),
     "Bjet"        : _ConfigSettings_bjet(),
