@@ -36,6 +36,14 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
     CoinFlagQ=4,CoinFlagF,CoinFlagC,CoinFlagH,CoinFlagEI,CoinFlagTile,CoinFlagRPC,CoinFlagNSW,
     CoinFlags = CoinFlagF, InnerCoinFlags = CoinFlagEI
   };
+  struct MyMuonRoI{
+    int timing{}; // -2,-1,0(current BC),+1,+2
+    const xAOD::MuonRoI* muonRoI{};
+    MyMuonRoI(const xAOD::MuonRoI* muonroi, int bcid = 0){
+      timing = bcid;
+      muonRoI = muonroi;
+    }
+  };
   struct MyMuon{
     const xAOD::Muon* muon{};
     std::vector<double> extPosZ;
@@ -142,6 +150,10 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
 
   SG::ReadHandleKey<xAOD::MuonContainer> m_MuonContainerKey{this,"MuonContainerName","Muons","Offline muon track container"};
   SG::ReadHandleKey<xAOD::MuonRoIContainer> m_MuonRoIContainerKey{this,"MuonRoIContainerName","LVL1MuonRoIs","L1 muon RoI container"};
+  SG::ReadHandleKey<xAOD::MuonRoIContainer> m_MuonRoIContainerBCm2Key{this,"MuonRoIContainerBCm2Name","LVL1MuonRoIsBCm2","L1 muon RoI container at -2BC"};
+  SG::ReadHandleKey<xAOD::MuonRoIContainer> m_MuonRoIContainerBCm1Key{this,"MuonRoIContainerBCm1Name","LVL1MuonRoIsBCm1","L1 muon RoI container at -1BC"};
+  SG::ReadHandleKey<xAOD::MuonRoIContainer> m_MuonRoIContainerBCp1Key{this,"MuonRoIContainerBCp1Name","LVL1MuonRoIsBCp1","L1 muon RoI container at +1BC"};
+  SG::ReadHandleKey<xAOD::MuonRoIContainer> m_MuonRoIContainerBCp2Key{this,"MuonRoIContainerBCp2Name","LVL1MuonRoIsBCp2","L1 muon RoI container at +2BC"};
   
   SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_TgcPrepDataContainerKey{this,"TgcPrepDataContainerName","TGC_MeasurementsAllBCs","current BC TGC PRD"};
   SG::ReadHandleKey<Muon::TgcCoinDataContainer> m_TgcCoinDataContainerCurrBCKey{this,"TgcCoinDataContainerCurrBCName","TrigT1CoinDataCollection","TGC Coin Data Container CurrBC"};
