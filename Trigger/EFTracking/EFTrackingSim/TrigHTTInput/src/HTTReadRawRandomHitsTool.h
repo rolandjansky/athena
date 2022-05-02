@@ -31,7 +31,7 @@ class HTTReadRawRandomHitsTool : public extends<AthAlgTool, IHTTEventInputHeader
   StringProperty m_inpath {this, "InFileName", "httsim_smartwrapper.root", "input path"};
 
   // Internal pointers       
-  unsigned int m_nEntries;
+  unsigned int m_nEntries = 0U;
   unsigned m_entry = 0;
 };
 

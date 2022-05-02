@@ -28,7 +28,7 @@ private:
   ToolHandle<IHTTEventOutputHeaderTool>    m_writeOutputTool { this, "OutputTool", "HTTOutputHeaderTool/WriteOutputHeaderTool", "Output Tool" };
   
   // histograms
-  TH2F*   m_hits_r_vs_z;
+  TH2F*   m_hits_r_vs_z = nullptr;
 };
 
 #endif // HTT_DUMPOUTPUTSTATALG_H

@@ -46,9 +46,9 @@ private:
   Gaudi::Property<bool>        m_dumpAllModules    {this, "dumpAllModules", false};
 
 
-  const InDetDD::SiDetectorManager*  m_PIX_mgr;
-  const PixelID*   m_pixelId;
-  const SCT_ID*    m_sctId;
+  const InDetDD::SiDetectorManager*  m_PIX_mgr = nullptr;
+  const PixelID*   m_pixelId = nullptr;
+  const SCT_ID*    m_sctId = nullptr;
 
 };
 

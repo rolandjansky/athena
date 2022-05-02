@@ -22,8 +22,7 @@ private:
 
   ToolHandle<IHTTEventOutputHeaderTool> m_readOutputTool {this, "InputTool", "HTTOutputHeaderTool/HTTOutputHeaderTool"};
   
-  unsigned int m_event;
-  unsigned int m_totevent;
+  unsigned int m_event = 0U;
   
 };
 
