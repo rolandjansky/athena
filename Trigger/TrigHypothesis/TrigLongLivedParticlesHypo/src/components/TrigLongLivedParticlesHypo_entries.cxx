@@ -6,6 +6,8 @@
 #include "../TrigdEdxTrackHypoTool.h"
 #include "../TrigHitDVHypoAlg.h"
 #include "../TrigHitDVHypoTool.h"
+#include "../TrigVSIHypoAlg.h"
+#include "../TrigVSIHypoTool.h"
 #include "../TrigDisappearingTrackHypoAlg.h"
 #include "../TrigDisappearingTrackHypoTool.h"
 
@@ -31,6 +33,8 @@ DECLARE_COMPONENT( TrigIsoHPtTrackTriggerHypoAlg )
 DECLARE_COMPONENT( TrigIsoHPtTrackTriggerHypoTool )
 DECLARE_COMPONENT( FastTrackFinderLRTHypoTool )
 DECLARE_COMPONENT( FastTrackFinderLRTHypoAlg )
+DECLARE_COMPONENT( TrigVSIHypoAlg )
+DECLARE_COMPONENT( TrigVSIHypoTool )
 
 DECLARE_COMPONENT( DisplacedJetDispHypoAlg )
 DECLARE_COMPONENT( DisplacedJetDispHypoTool )
