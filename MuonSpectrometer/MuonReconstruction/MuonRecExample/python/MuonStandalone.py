@@ -182,7 +182,18 @@ def MuonStationsInterSectAlg(**kwargs):
     if athenaCommonFlags.isOnline:
         kwargs.setdefault("MdtCondKey", "")
     condSequence += MuonStationIntersectCondAlg("MuonStationIntersectCondAlg",**kwargs)
- 
+
+def MuonLayerHoughAlg(name="MuonLayerHoughAlg", **kwargs):
+    reco_stgc = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
+    reco_mircomegas = muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()
+    reco_cscs = muonRecFlags.doCSCs() and MuonGeometryFlags.hasCSC()
+    return CfgMgr.MuonLayerHoughAlg(name,
+                             MuonLayerScanTool =  getPublicTool("MuonLayerHoughTool"),
+                             PrintSummary = muonStandaloneFlags.printSummary(),
+                             CscPrepDataContainer = ("CSC_Clusters" if reco_cscs else ""),
+                             sTgcPrepDataContainer = ("STGC_Measurements" if reco_stgc else ""),
+                             MMPrepDataContainer = ("MM_Measurements" if reco_mircomegas else ""),
+                             TgcPrepDataContainer = 'TGC_MeasurementsAllBCs' if not muonRecFlags.useTGCPriorNextBC else 'TGC_Measurements'  )
 #
 # The top level configurator
 #
@@ -205,13 +216,7 @@ class MuonStandalone(ConfiguredMuonRec):
         
         MuonStationsInterSectAlg()
 
-        self.addAlg( CfgMgr.MuonLayerHoughAlg( "MuonLayerHoughAlg",
-            MuonLayerScanTool =  getPublicTool("MuonLayerHoughTool"),
-            PrintSummary = muonStandaloneFlags.printSummary(),
-            CscPrepDataContainer = ("CSC_Clusters" if reco_cscs else ""),
-            sTgcPrepDataContainer = ("STGC_Measurements" if reco_stgc else ""),
-            MMPrepDataContainer = ("MM_Measurements" if reco_mircomegas else ""),
-            TgcPrepDataContainer = 'TGC_MeasurementsAllBCs' if not muonRecFlags.useTGCPriorNextBC else 'TGC_Measurements'  ) )
+        self.addAlg( MuonLayerHoughAlg("MuonLayerHoughAlg"))
         if not muonStandaloneFlags.patternsOnly():
             self.addAlg( MuonSegmentFinderAlg("MuonSegmentMaker" ))
             if reco_cscs:
