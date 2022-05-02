@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
   * Trigger Hypo Tool, that is aimed at triggering disappearing tracks
   * author Kunihiro Nagano <kunihiro.nagano@cern.ch> 
@@ -44,103 +44,102 @@ StatusCode TrigDisappearingTrackHypoAlg::initialize()
 
    if ( !m_monTool.empty() ) CHECK( m_monTool.retrieve() );
 
-   for (size_t slot = 0; slot < SG::getNSlots(); ++slot) {
-      EventContext dummyContext(/*dummyEventNumber*/0, slot);
+   // --- declare variables to the reader
+   const std::string methodName = "BDT method";
 
-      m_tmva_pix4l_sct0_reader.get(dummyContext)->reset( new TMVA::Reader( "!Color:!Silent" ));
-      m_tmva_pix4l_sct1p_reader.get(dummyContext)->reset(new TMVA::Reader( "!Color:!Silent" ));
-      m_tmva_pix3l_sct0_reader.get(dummyContext)->reset( new TMVA::Reader( "!Color:!Silent" ));
-      m_tmva_pix3l_sct1p_reader.get(dummyContext)->reset(new TMVA::Reader( "!Color:!Silent" ));
+   // pix4l_sct0
+   for (auto& reader : m_tmva_pix4l_sct0_reader) {
+      reader.tmva = std::make_unique<TMVA::Reader>( "!Color:!Silent" );
+      reader.tmva->AddVariable("pt",             &reader.pt);
+      reader.tmva->AddVariable("z0",             &reader.z0);
+      reader.tmva->AddVariable("d0",             &reader.d0);
+      reader.tmva->AddVariable("trkiso3_dr01",   &reader.trkiso3_dr01);
+      reader.tmva->AddVariable("trkiso3_dr0201", &reader.trkiso3_dr0201);
+      reader.tmva->AddVariable("chi2ndof",       &reader.chi2ndof);
+      reader.tmva->AddVariable("chi2ndof_pix",   &reader.chi2ndof_pix);
+      reader.tmva->AddVariable("refit_pt",       &reader.refit_pt);
+      reader.tmva->AddVariable("n_pix",          &reader.n_pix);
+      reader.tmva->AddVariable("refit_ptratio",  &reader.refit_ptratio);
+      reader.tmva->AddVariable("refit_chi2ndof", &reader.refit_chi2ndof);
+      reader.tmva->AddVariable("n_bl",           &reader.n_bl);
 
-      // --- declare variables to the reader
-      // pix4l_sct0
-      (**m_tmva_pix4l_sct0_reader.get(dummyContext)).AddVariable("pt",             m_tmva_pix4l_sct0_pt.get(dummyContext));
-      (**m_tmva_pix4l_sct0_reader.get(dummyContext)).AddVariable("z0",             m_tmva_pix4l_sct0_z0.get(dummyContext));
-      (**m_tmva_pix4l_sct0_reader.get(dummyContext)).AddVariable("d0",             m_tmva_pix4l_sct0_d0.get(dummyContext));
-      (**m_tmva_pix4l_sct0_reader.get(dummyContext)).AddVariable("trkiso3_dr01",   m_tmva_pix4l_sct0_trkiso3_dr01.get(dummyContext));
-      (**m_tmva_pix4l_sct0_reader.get(dummyContext)).AddVariable("trkiso3_dr0201", m_tmva_pix4l_sct0_trkiso3_dr0201.get(dummyContext));
-      (**m_tmva_pix4l_sct0_reader.get(dummyContext)).AddVariable("chi2ndof",       m_tmva_pix4l_sct0_chi2ndof.get(dummyContext));
-      (**m_tmva_pix4l_sct0_reader.get(dummyContext)).AddVariable("chi2ndof_pix",   m_tmva_pix4l_sct0_chi2ndof_pix.get(dummyContext));
-      (**m_tmva_pix4l_sct0_reader.get(dummyContext)).AddVariable("refit_pt",       m_tmva_pix4l_sct0_refit_pt.get(dummyContext));
-      (**m_tmva_pix4l_sct0_reader.get(dummyContext)).AddVariable("n_pix",          m_tmva_pix4l_sct0_n_pix.get(dummyContext));
-      (**m_tmva_pix4l_sct0_reader.get(dummyContext)).AddVariable("refit_ptratio",  m_tmva_pix4l_sct0_refit_ptratio.get(dummyContext));
-      (**m_tmva_pix4l_sct0_reader.get(dummyContext)).AddVariable("refit_chi2ndof", m_tmva_pix4l_sct0_refit_chi2ndof.get(dummyContext));
-      (**m_tmva_pix4l_sct0_reader.get(dummyContext)).AddVariable("n_bl",           m_tmva_pix4l_sct0_n_bl.get(dummyContext));
-
-      // pix4l_sct1p
-      (**m_tmva_pix4l_sct1p_reader.get(dummyContext)).AddVariable("pt",                   m_tmva_pix4l_sct1p_pt.get(dummyContext));
-      (**m_tmva_pix4l_sct1p_reader.get(dummyContext)).AddVariable("refit_pt",             m_tmva_pix4l_sct1p_refit_pt.get(dummyContext));
-      (**m_tmva_pix4l_sct1p_reader.get(dummyContext)).AddVariable("refit_z0",             m_tmva_pix4l_sct1p_refit_z0.get(dummyContext));
-      (**m_tmva_pix4l_sct1p_reader.get(dummyContext)).AddVariable("refit_d0",             m_tmva_pix4l_sct1p_refit_d0.get(dummyContext));
-      (**m_tmva_pix4l_sct1p_reader.get(dummyContext)).AddVariable("n_sct",                m_tmva_pix4l_sct1p_n_sct.get(dummyContext));
-      (**m_tmva_pix4l_sct1p_reader.get(dummyContext)).AddVariable("refit_ptratio",        m_tmva_pix4l_sct1p_refit_ptratio.get(dummyContext));
-      (**m_tmva_pix4l_sct1p_reader.get(dummyContext)).AddVariable("refit_chi2ndof_ratio", m_tmva_pix4l_sct1p_refit_chi2ndof_ratio.get(dummyContext));
-      (**m_tmva_pix4l_sct1p_reader.get(dummyContext)).AddVariable("trkiso3_dr01",         m_tmva_pix4l_sct1p_trkiso3_dr01.get(dummyContext));
-      (**m_tmva_pix4l_sct1p_reader.get(dummyContext)).AddVariable("trkiso3_dr0201",       m_tmva_pix4l_sct1p_trkiso3_dr0201.get(dummyContext));
-      (**m_tmva_pix4l_sct1p_reader.get(dummyContext)).AddVariable("is_fail",              m_tmva_pix4l_sct1p_is_fail.get(dummyContext));
-      (**m_tmva_pix4l_sct1p_reader.get(dummyContext)).AddVariable("chi2ndof_pix",         m_tmva_pix4l_sct1p_chi2ndof_pix.get(dummyContext));
-      (**m_tmva_pix4l_sct1p_reader.get(dummyContext)).AddVariable("n_pix",                m_tmva_pix4l_sct1p_n_pix.get(dummyContext));
-
-      // pix3l_sct0
-      (**m_tmva_pix3l_sct0_reader.get(dummyContext)).AddVariable("pt",             m_tmva_pix3l_sct0_pt.get(dummyContext));
-      (**m_tmva_pix3l_sct0_reader.get(dummyContext)).AddVariable("z0",             m_tmva_pix3l_sct0_z0.get(dummyContext));
-      (**m_tmva_pix3l_sct0_reader.get(dummyContext)).AddVariable("d0",             m_tmva_pix3l_sct0_d0.get(dummyContext));
-      (**m_tmva_pix3l_sct0_reader.get(dummyContext)).AddVariable("chi2ndof",       m_tmva_pix3l_sct0_chi2ndof.get(dummyContext));
-      (**m_tmva_pix3l_sct0_reader.get(dummyContext)).AddVariable("chi2ndof_pix",   m_tmva_pix3l_sct0_chi2ndof_pix.get(dummyContext));
-      (**m_tmva_pix3l_sct0_reader.get(dummyContext)).AddVariable("trkiso3_dr01",   m_tmva_pix3l_sct0_trkiso3_dr01.get(dummyContext));
-      (**m_tmva_pix3l_sct0_reader.get(dummyContext)).AddVariable("trkiso3_dr0201", m_tmva_pix3l_sct0_trkiso3_dr0201.get(dummyContext));
-      (**m_tmva_pix3l_sct0_reader.get(dummyContext)).AddVariable("refit_pt",       m_tmva_pix3l_sct0_refit_pt.get(dummyContext));
-      (**m_tmva_pix3l_sct0_reader.get(dummyContext)).AddVariable("refit_z0",       m_tmva_pix3l_sct0_refit_z0.get(dummyContext));
-      (**m_tmva_pix3l_sct0_reader.get(dummyContext)).AddVariable("refit_d0",       m_tmva_pix3l_sct0_refit_d0.get(dummyContext));
-      (**m_tmva_pix3l_sct0_reader.get(dummyContext)).AddVariable("n_pix",          m_tmva_pix4l_sct0_n_pix.get(dummyContext));
-      (**m_tmva_pix3l_sct0_reader.get(dummyContext)).AddVariable("n_bl",           m_tmva_pix3l_sct0_n_bl.get(dummyContext));
-
-      // pix3l_sct1p
-      (**m_tmva_pix3l_sct1p_reader.get(dummyContext)).AddVariable("pt",             m_tmva_pix3l_sct1p_pt.get(dummyContext));
-      (**m_tmva_pix3l_sct1p_reader.get(dummyContext)).AddVariable("z0",             m_tmva_pix3l_sct1p_z0.get(dummyContext));
-      (**m_tmva_pix3l_sct1p_reader.get(dummyContext)).AddVariable("d0",             m_tmva_pix3l_sct1p_d0.get(dummyContext));
-      (**m_tmva_pix3l_sct1p_reader.get(dummyContext)).AddVariable("refit_pt",       m_tmva_pix3l_sct1p_refit_pt.get(dummyContext));
-      (**m_tmva_pix3l_sct1p_reader.get(dummyContext)).AddVariable("refit_z0",       m_tmva_pix3l_sct1p_refit_z0.get(dummyContext));
-      (**m_tmva_pix3l_sct1p_reader.get(dummyContext)).AddVariable("refit_d0",       m_tmva_pix3l_sct1p_refit_d0.get(dummyContext));
-      (**m_tmva_pix3l_sct1p_reader.get(dummyContext)).AddVariable("n_pix",          m_tmva_pix3l_sct1p_n_pix.get(dummyContext));
-      (**m_tmva_pix3l_sct1p_reader.get(dummyContext)).AddVariable("n_sct",          m_tmva_pix3l_sct1p_n_sct.get(dummyContext));
-      (**m_tmva_pix3l_sct1p_reader.get(dummyContext)).AddVariable("refit_ptratio",  m_tmva_pix3l_sct1p_refit_ptratio.get(dummyContext));
-      (**m_tmva_pix3l_sct1p_reader.get(dummyContext)).AddVariable("is_fail",        m_tmva_pix3l_sct1p_is_fail.get(dummyContext));
-      (**m_tmva_pix3l_sct1p_reader.get(dummyContext)).AddVariable("n_bl",           m_tmva_pix3l_sct1p_n_bl.get(dummyContext));
-      (**m_tmva_pix3l_sct1p_reader.get(dummyContext)).AddVariable("chi2ndof",       m_tmva_pix3l_sct1p_chi2ndof.get(dummyContext));
-      (**m_tmva_pix3l_sct1p_reader.get(dummyContext)).AddVariable("trkiso3_dr01",   m_tmva_pix3l_sct1p_trkiso3_dr01.get(dummyContext));
-      (**m_tmva_pix3l_sct1p_reader.get(dummyContext)).AddVariable("trkiso3_dr0201", m_tmva_pix3l_sct1p_trkiso3_dr0201.get(dummyContext));
-      (**m_tmva_pix3l_sct1p_reader.get(dummyContext)).AddVariable("refit_chi2ndof", m_tmva_pix3l_sct1p_refit_chi2ndof.get(dummyContext));
-
-      // --- Book the MVA methods
-      std::string file;
-      std::string weightfile;
-      std::string tuningVer;
-      const std::string methodName = "BDT method";
-      //
-      tuningVer  = "v21a";
-      file = "TrigDisappearingTrackTriggerHypo/pix4l_sct0.BDT.weights." + tuningVer + ".xml";
-      weightfile = PathResolver::find_calib_file(file.c_str());
+      const std::string tuningVer  = "v21a";
+      const std::string weightfile = PathResolver::find_calib_file(
+         "TrigDisappearingTrackTriggerHypo/pix4l_sct0.BDT.weights." + tuningVer + ".xml");
       ATH_MSG_INFO( "opening weightfile for Pix4l_SCT0 = " << weightfile );
-      (**m_tmva_pix4l_sct0_reader.get(dummyContext)).BookMVA(methodName, weightfile); 
-      //
-      tuningVer  = "v21b"; // "b" only for this category
-      file = "TrigDisappearingTrackTriggerHypo/pix4l_sct1p.BDT.weights." + tuningVer + ".xml";
-      weightfile = PathResolver::find_calib_file(file.c_str());
+      reader.tmva->BookMVA(methodName, weightfile);
+   }
+
+   // pix4l_sct1p
+   for (auto& reader : m_tmva_pix4l_sct1p_reader) {
+      reader.tmva = std::make_unique<TMVA::Reader>( "!Color:!Silent" );
+      reader.tmva->AddVariable("pt",                   &reader.pt);
+      reader.tmva->AddVariable("refit_pt",             &reader.refit_pt);
+      reader.tmva->AddVariable("refit_z0",             &reader.refit_z0);
+      reader.tmva->AddVariable("refit_d0",             &reader.refit_d0);
+      reader.tmva->AddVariable("n_sct",                &reader.n_sct);
+      reader.tmva->AddVariable("refit_ptratio",        &reader.refit_ptratio);
+      reader.tmva->AddVariable("refit_chi2ndof_ratio", &reader.refit_chi2ndof_ratio);
+      reader.tmva->AddVariable("trkiso3_dr01",         &reader.trkiso3_dr01);
+      reader.tmva->AddVariable("trkiso3_dr0201",       &reader.trkiso3_dr0201);
+      reader.tmva->AddVariable("is_fail",              &reader.is_fail);
+      reader.tmva->AddVariable("chi2ndof_pix",         &reader.chi2ndof_pix);
+      reader.tmva->AddVariable("n_pix",                &reader.n_pix);
+
+      const std::string tuningVer  = "v21b"; // "b" only for this category
+      const std::string weightfile = PathResolver::find_calib_file(
+         "TrigDisappearingTrackTriggerHypo/pix4l_sct1p.BDT.weights." + tuningVer + ".xml");
       ATH_MSG_INFO( "opening weightfile for Pix4l_SCT1p = " << weightfile );
-      (**m_tmva_pix4l_sct1p_reader.get(dummyContext)).BookMVA(methodName, weightfile); 
-      //
-      tuningVer  = "v21a";
-      file = "TrigDisappearingTrackTriggerHypo/pix3l_sct0.BDT.weights." + tuningVer + ".xml";
-      weightfile = PathResolver::find_calib_file(file.c_str());
+      reader.tmva->BookMVA(methodName, weightfile);
+   }
+
+   // pix3l_sct0
+   for (auto& reader : m_tmva_pix3l_sct0_reader) {
+      reader.tmva = std::make_unique<TMVA::Reader>( "!Color:!Silent" );
+      reader.tmva->AddVariable("pt",             &reader.pt);
+      reader.tmva->AddVariable("z0",             &reader.z0);
+      reader.tmva->AddVariable("d0",             &reader.d0);
+      reader.tmva->AddVariable("chi2ndof",       &reader.chi2ndof);
+      reader.tmva->AddVariable("chi2ndof_pix",   &reader.chi2ndof_pix);
+      reader.tmva->AddVariable("trkiso3_dr01",   &reader.trkiso3_dr01);
+      reader.tmva->AddVariable("trkiso3_dr0201", &reader.trkiso3_dr0201);
+      reader.tmva->AddVariable("refit_pt",       &reader.refit_pt);
+      reader.tmva->AddVariable("refit_z0",       &reader.refit_z0);
+      reader.tmva->AddVariable("refit_d0",       &reader.refit_d0);
+      reader.tmva->AddVariable("n_pix",          &reader.n_pix);
+      reader.tmva->AddVariable("n_bl",           &reader.n_bl);
+
+      const std::string tuningVer  = "v21a";
+      const std::string weightfile = PathResolver::find_calib_file(
+         "TrigDisappearingTrackTriggerHypo/pix3l_sct0.BDT.weights." + tuningVer + ".xml");
       ATH_MSG_INFO( "opening weightfile for Pix3l_SCT0 = " << weightfile );
-      (**m_tmva_pix3l_sct0_reader.get(dummyContext)).BookMVA(methodName, weightfile); 
-      //
-      tuningVer  = "v21a";
-      file = "TrigDisappearingTrackTriggerHypo/pix3l_sct1p.BDT.weights." + tuningVer + ".xml";
-      weightfile = PathResolver::find_calib_file(file.c_str());
+      reader.tmva->BookMVA(methodName, weightfile);
+   }
+
+   // pix3l_sct1p
+   for (auto& reader : m_tmva_pix3l_sct1p_reader) {
+      reader.tmva = std::make_unique<TMVA::Reader>( "!Color:!Silent" );
+      reader.tmva->AddVariable("pt",             &reader.pt);
+      reader.tmva->AddVariable("z0",             &reader.z0);
+      reader.tmva->AddVariable("d0",             &reader.d0);
+      reader.tmva->AddVariable("refit_pt",       &reader.refit_pt);
+      reader.tmva->AddVariable("refit_z0",       &reader.refit_z0);
+      reader.tmva->AddVariable("refit_d0",       &reader.refit_d0);
+      reader.tmva->AddVariable("n_pix",          &reader.n_pix);
+      reader.tmva->AddVariable("n_sct",          &reader.n_sct);
+      reader.tmva->AddVariable("refit_ptratio",  &reader.refit_ptratio);
+      reader.tmva->AddVariable("is_fail",        &reader.is_fail);
+      reader.tmva->AddVariable("n_bl",           &reader.n_bl);
+      reader.tmva->AddVariable("chi2ndof",       &reader.chi2ndof);
+      reader.tmva->AddVariable("trkiso3_dr01",   &reader.trkiso3_dr01);
+      reader.tmva->AddVariable("trkiso3_dr0201", &reader.trkiso3_dr0201);
+      reader.tmva->AddVariable("refit_chi2ndof", &reader.refit_chi2ndof);
+
+      const std::string tuningVer  = "v21a";
+      const std::string weightfile = PathResolver::find_calib_file(
+         "TrigDisappearingTrackTriggerHypo/pix3l_sct1p.BDT.weights." + tuningVer + ".xml");
       ATH_MSG_INFO( "opening weightfile for Pix3l_SCT1p = " << weightfile );
-      (**m_tmva_pix3l_sct1p_reader.get(dummyContext)).BookMVA(methodName, weightfile); 
+      reader.tmva->BookMVA(methodName, weightfile);
    }
 
    return StatusCode::SUCCESS;
@@ -552,20 +551,21 @@ float TrigDisappearingTrackHypoAlg::bdt_eval_pix4l_sct0
  float pt, float z0, float d0, float trkiso3_dr01, float trkiso3_dr0201, float chi2ndof, float chi2ndof_pix,
  float refit_pt, int n_pix, float refit_ptratio, float refit_chi2ndof, int n_bl) const
 {
-   *m_tmva_pix4l_sct0_pt.get(context)             = BDTinput(pt);
-   *m_tmva_pix4l_sct0_z0.get(context)             = BDTinput(z0);
-   *m_tmva_pix4l_sct0_d0.get(context)             = BDTinput(d0);
-   *m_tmva_pix4l_sct0_trkiso3_dr01.get(context)   = BDTinput(trkiso3_dr01);
-   *m_tmva_pix4l_sct0_trkiso3_dr0201.get(context) = BDTinput(trkiso3_dr0201);
-   *m_tmva_pix4l_sct0_chi2ndof.get(context)       = BDTinput(chi2ndof);
-   *m_tmva_pix4l_sct0_chi2ndof_pix.get(context)   = BDTinput(chi2ndof_pix);
-   *m_tmva_pix4l_sct0_refit_pt.get(context)       = BDTinput(refit_pt);
-   *m_tmva_pix4l_sct0_n_pix.get(context)          = BDTinput((float)n_pix);
-   *m_tmva_pix4l_sct0_refit_ptratio.get(context)  = BDTinput(refit_ptratio);
-   *m_tmva_pix4l_sct0_refit_chi2ndof.get(context) = BDTinput(refit_chi2ndof);
-   *m_tmva_pix4l_sct0_n_bl.get(context)           = BDTinput((float)n_bl);
-   //
-   return (**m_tmva_pix4l_sct0_reader.get(context)).EvaluateMVA("BDT method");
+   auto& reader = *m_tmva_pix4l_sct0_reader.get(context);
+   reader.pt             = BDTinput(pt);
+   reader.z0             = BDTinput(z0);
+   reader.d0             = BDTinput(d0);
+   reader.trkiso3_dr01   = BDTinput(trkiso3_dr01);
+   reader.trkiso3_dr0201 = BDTinput(trkiso3_dr0201);
+   reader.chi2ndof       = BDTinput(chi2ndof);
+   reader.chi2ndof_pix   = BDTinput(chi2ndof_pix);
+   reader.refit_pt       = BDTinput(refit_pt);
+   reader.n_pix          = BDTinput((float)n_pix);
+   reader.refit_ptratio  = BDTinput(refit_ptratio);
+   reader.refit_chi2ndof = BDTinput(refit_chi2ndof);
+   reader.n_bl           = BDTinput((float)n_bl);
+
+   return reader.tmva->EvaluateMVA("BDT method");
 }
 
 float TrigDisappearingTrackHypoAlg::bdt_eval_pix4l_sct1p
@@ -573,20 +573,21 @@ float TrigDisappearingTrackHypoAlg::bdt_eval_pix4l_sct1p
  float pt, float refit_pt, float refit_z0, float refit_d0, int n_sct, float refit_ptratio,
  float refit_chi2ndof_ratio, float trkiso3_dr01, float trkiso3_dr0201, int is_fail, float chi2ndof_pix, int n_pix) const
 {
-   *m_tmva_pix4l_sct1p_pt.get(context)                   = BDTinput(pt);
-   *m_tmva_pix4l_sct1p_refit_pt.get(context)             = BDTinput(refit_pt);
-   *m_tmva_pix4l_sct1p_refit_z0.get(context)             = BDTinput(refit_z0);
-   *m_tmva_pix4l_sct1p_refit_d0.get(context)             = BDTinput(refit_d0);
-   *m_tmva_pix4l_sct1p_n_sct.get(context)                = BDTinput((float)n_sct);
-   *m_tmva_pix4l_sct1p_refit_ptratio.get(context)        = BDTinput(refit_ptratio);
-   *m_tmva_pix4l_sct1p_refit_chi2ndof_ratio.get(context) = BDTinput(refit_chi2ndof_ratio);
-   *m_tmva_pix4l_sct1p_trkiso3_dr01.get(context)         = BDTinput(trkiso3_dr01);
-   *m_tmva_pix4l_sct1p_trkiso3_dr0201.get(context)       = BDTinput(trkiso3_dr0201);
-   *m_tmva_pix4l_sct1p_is_fail.get(context)              = BDTinput((float)is_fail);
-   *m_tmva_pix4l_sct1p_chi2ndof_pix.get(context)         = BDTinput(chi2ndof_pix);
-   *m_tmva_pix4l_sct1p_n_pix.get(context)                = BDTinput((float)n_pix);
+   auto& reader = *m_tmva_pix4l_sct1p_reader.get(context);
+   reader.pt                   = BDTinput(pt);
+   reader.refit_pt             = BDTinput(refit_pt);
+   reader.refit_z0             = BDTinput(refit_z0);
+   reader.refit_d0             = BDTinput(refit_d0);
+   reader.n_sct                = BDTinput((float)n_sct);
+   reader.refit_ptratio        = BDTinput(refit_ptratio);
+   reader.refit_chi2ndof_ratio = BDTinput(refit_chi2ndof_ratio);
+   reader.trkiso3_dr01         = BDTinput(trkiso3_dr01);
+   reader.trkiso3_dr0201       = BDTinput(trkiso3_dr0201);
+   reader.is_fail              = BDTinput((float)is_fail);
+   reader.chi2ndof_pix         = BDTinput(chi2ndof_pix);
+   reader.n_pix                = BDTinput((float)n_pix);
 
-   return (**m_tmva_pix4l_sct1p_reader.get(context)).EvaluateMVA("BDT method");
+   return reader.tmva->EvaluateMVA("BDT method");
 }
 
 float TrigDisappearingTrackHypoAlg::bdt_eval_pix3l_sct0
@@ -594,20 +595,21 @@ float TrigDisappearingTrackHypoAlg::bdt_eval_pix3l_sct0
  float pt, float z0, float d0, float chi2ndof, float chi2ndof_pix, float trkiso3_dr01, float trkiso3_dr0201,
  float refit_pt, float refit_z0, float refit_d0, int n_pix, int n_bl) const
 {
-   *m_tmva_pix3l_sct0_pt.get(context)             = BDTinput(pt);
-   *m_tmva_pix3l_sct0_z0.get(context)             = BDTinput(z0);
-   *m_tmva_pix3l_sct0_d0.get(context)             = BDTinput(d0);
-   *m_tmva_pix3l_sct0_chi2ndof.get(context)       = BDTinput(chi2ndof);
-   *m_tmva_pix3l_sct0_chi2ndof_pix.get(context)   = BDTinput(chi2ndof_pix);
-   *m_tmva_pix3l_sct0_trkiso3_dr01.get(context)   = BDTinput(trkiso3_dr01);
-   *m_tmva_pix3l_sct0_trkiso3_dr0201.get(context) = BDTinput(trkiso3_dr0201);
-   *m_tmva_pix3l_sct0_refit_pt.get(context)       = BDTinput(refit_pt);
-   *m_tmva_pix3l_sct0_refit_z0.get(context)       = BDTinput(refit_z0);
-   *m_tmva_pix3l_sct0_refit_d0.get(context)       = BDTinput(refit_d0);
-   *m_tmva_pix3l_sct0_n_pix.get(context)          = BDTinput((float)n_pix);
-   *m_tmva_pix3l_sct0_n_bl.get(context)           = BDTinput((float)n_bl);
+   auto& reader = *m_tmva_pix3l_sct0_reader.get(context);
+   reader.pt             = BDTinput(pt);
+   reader.z0             = BDTinput(z0);
+   reader.d0             = BDTinput(d0);
+   reader.chi2ndof       = BDTinput(chi2ndof);
+   reader.chi2ndof_pix   = BDTinput(chi2ndof_pix);
+   reader.trkiso3_dr01   = BDTinput(trkiso3_dr01);
+   reader.trkiso3_dr0201 = BDTinput(trkiso3_dr0201);
+   reader.refit_pt       = BDTinput(refit_pt);
+   reader.refit_z0       = BDTinput(refit_z0);
+   reader.refit_d0       = BDTinput(refit_d0);
+   reader.n_pix          = BDTinput((float)n_pix);
+   reader.n_bl           = BDTinput((float)n_bl);
 
-   return (**m_tmva_pix3l_sct0_reader.get(context)).EvaluateMVA("BDT method");
+   return reader.tmva->EvaluateMVA("BDT method");
 }
 
 float TrigDisappearingTrackHypoAlg::bdt_eval_pix3l_sct1p
@@ -616,23 +618,24 @@ float TrigDisappearingTrackHypoAlg::bdt_eval_pix3l_sct1p
  int n_pix, int n_sct, float refit_ptratio, int is_fail, int n_bl,
  float chi2ndof, float trkiso3_dr01, float trkiso3_dr0201, float refit_chi2ndof) const
 {
-   *m_tmva_pix3l_sct1p_pt.get(context)             = BDTinput(pt);
-   *m_tmva_pix3l_sct1p_z0.get(context)             = BDTinput(z0);
-   *m_tmva_pix3l_sct1p_d0.get(context)             = BDTinput(d0);
-   *m_tmva_pix3l_sct1p_refit_pt.get(context)       = BDTinput(refit_pt);
-   *m_tmva_pix3l_sct1p_refit_z0.get(context)       = BDTinput(refit_z0);
-   *m_tmva_pix3l_sct1p_refit_d0.get(context)       = BDTinput(refit_d0);
-   *m_tmva_pix3l_sct1p_n_pix.get(context)          = BDTinput((float)n_pix);
-   *m_tmva_pix3l_sct1p_n_sct.get(context)          = BDTinput((float)n_sct);
-   *m_tmva_pix3l_sct1p_refit_ptratio.get(context)  = BDTinput(refit_ptratio);
-   *m_tmva_pix3l_sct1p_is_fail.get(context)        = BDTinput((float)is_fail);
-   *m_tmva_pix3l_sct1p_n_bl.get(context)           = BDTinput((float)n_bl);
-   *m_tmva_pix3l_sct1p_chi2ndof.get(context)       = BDTinput(chi2ndof);
-   *m_tmva_pix3l_sct1p_trkiso3_dr01.get(context)   = BDTinput(trkiso3_dr01);
-   *m_tmva_pix3l_sct1p_trkiso3_dr0201.get(context) = BDTinput(trkiso3_dr0201);
-   *m_tmva_pix3l_sct1p_refit_chi2ndof.get(context) = BDTinput(refit_chi2ndof);
+   auto& reader = *m_tmva_pix3l_sct1p_reader.get(context);
+   reader.pt             = BDTinput(pt);
+   reader.z0             = BDTinput(z0);
+   reader.d0             = BDTinput(d0);
+   reader.refit_pt       = BDTinput(refit_pt);
+   reader.refit_z0       = BDTinput(refit_z0);
+   reader.refit_d0       = BDTinput(refit_d0);
+   reader.n_pix          = BDTinput((float)n_pix);
+   reader.n_sct          = BDTinput((float)n_sct);
+   reader.refit_ptratio  = BDTinput(refit_ptratio);
+   reader.is_fail        = BDTinput((float)is_fail);
+   reader.n_bl           = BDTinput((float)n_bl);
+   reader.chi2ndof       = BDTinput(chi2ndof);
+   reader.trkiso3_dr01   = BDTinput(trkiso3_dr01);
+   reader.trkiso3_dr0201 = BDTinput(trkiso3_dr0201);
+   reader.refit_chi2ndof = BDTinput(refit_chi2ndof);
 
-   return (**m_tmva_pix3l_sct1p_reader.get(context)).EvaluateMVA("BDT method");
+   return reader.tmva->EvaluateMVA("BDT method");
 }
 
 // ------------------------------------------------------------------------------------------------
