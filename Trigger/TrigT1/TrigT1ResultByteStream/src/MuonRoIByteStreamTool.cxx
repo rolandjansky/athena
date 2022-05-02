@@ -156,6 +156,11 @@ StatusCode MuonRoIByteStreamTool::convertFromBS(const std::vector<const ROBF*>& 
       }
       case LVL1::MuCTPIBits::WordType::Candidate: {
         ATH_MSG_DEBUG("This is a RoI candidate word");
+        if (roiSlices.empty()) {
+          ATH_MSG_ERROR("Unexpected data format - found candidate word before any timeslice header");
+          Monitored::Group(m_monTool, monNumWords, monWordType, monWordTypeCount, monBCIDOffsetsWrtROB);
+          return StatusCode::FAILURE;
+        }
         // advance slice edges
         std::pair<size_t,size_t>& slice = roiSlices.back();
         if (slice.first==0) slice.first = iWord;
