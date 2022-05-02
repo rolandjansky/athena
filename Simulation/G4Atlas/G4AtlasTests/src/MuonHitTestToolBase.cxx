@@ -1,11 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHitTestToolBase.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
@@ -35,10 +33,10 @@ MuonHitTestToolBase::MuonHitTestToolBase(const std::string& type, const std::str
 
 StatusCode MuonHitTestToolBase::executeCheckEventInfo()
 {
-  const EventInfo* pevt;
-  CHECK(evtStore()->retrieve(pevt));
-  uint64_t evt = pevt->event_ID()->event_number();
-  int numrun = pevt->event_ID()->run_number();
+  SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey,Gaudi::Hive::currentContext());
+  ATH_CHECK(eventInfo.isValid());
+  uint64_t evt = eventInfo->eventNumber();
+  int numrun = eventInfo->runNumber();
   ATH_MSG_VERBOSE("Processing EventInfo event #"<< evt<< " run: " << numrun);
   m_muonevnt->Fill(evt);
   m_muonrun->Fill(numrun);
@@ -112,6 +110,7 @@ StatusCode  MuonHitTestToolBase::executeFillHistos(const Amg::Vector3D & u) {
 StatusCode MuonHitTestToolBase::initialize() {
 
   CHECK(detStore()->retrieve(m_pMuonMgr));
+  ATH_CHECK (m_eventInfoKey.initialize());
 
   //MuonSpectrometer
   /** Generic Muon part, these histograms are filled from
