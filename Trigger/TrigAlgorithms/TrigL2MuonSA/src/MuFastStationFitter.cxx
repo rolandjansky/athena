@@ -128,7 +128,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::findSuperPointsSimple(const TrigRo
     if (tgcFitResult.isSuccess) {
       itTrack.phiMSDir = tgcFitResult.phiDir;
     } else {
-      if ( std::abs(std::abs(muonRoad.extFtfMiddlePhi)) > ZERO_LIMIT ) { //insideout
+      if ( std::abs(muonRoad.extFtfMiddlePhi) > ZERO_LIMIT ) { //insideout
 	itTrack.phiMSDir = (std::abs(std::cos(muonRoad.extFtfMiddlePhi)) > ZERO_LIMIT)? std::tan(muonRoad.extFtfMiddlePhi): 0;
       } else {
 	itTrack.phiMSDir = (std::abs(std::cos(p_roids->phi())) > ZERO_LIMIT)? std::tan(p_roids->phi()): 0;
@@ -1755,23 +1755,34 @@ void TrigL2MuonSA::MuFastStationFitter::Xline (float *X,float *Y,float *W,int *I
     }
   
     Deter  = S1 * SXX - SX * SX;
-  
+
     if (std::abs(Deter) > ZERO_LIMIT) {
         *A      = (S1 * SXY - SX * SY)  / Deter;
         *B      = (SY * SXX - SX * SXY) / Deter;
         *SAA    =   S1  / Deter;
         *SBB    =   SXX / Deter;
         *SAB    = - SX  / Deter;
-    
-        *Square = 0.;
-        for(j=0;j<NP;j++) {
-            if(IG[j]>=1) {
-                DY =(Y[j] - *A * X[j] - *B)/std::sqrt(1 + *A * *A);
-                //printf("Punto n.=%d , DY = %12.6f\n",j,DY);
-                *Square = *Square + W[j] * DY * DY;
-            }
-        }
     }
+    else {
+      if(S1 * SXY - SX * SY > 0.) {
+        *A      = 9.e+5;
+      } else {
+        *A      = -9.e+5;
+      }
+        *B      = SY/S1 - SX/S1 * *A;
+        *SAA    =   *A;
+        *SBB    =   *A;
+        *SAB    = - *A;
+    }
+    *Square = 0.;
+    for(j=0;j<NP;j++) {
+      if(IG[j]>=1) {
+	DY =(Y[j] - *A * X[j] - *B)/std::sqrt(1 + *A * *A);
+	//printf("Punto n.=%d , DY = %12.6f\n",j,DY);
+	*Square = *Square + W[j] * DY * DY;
+      }
+    }
+
 }
 
 // --------------------------------------------------------------------------------
