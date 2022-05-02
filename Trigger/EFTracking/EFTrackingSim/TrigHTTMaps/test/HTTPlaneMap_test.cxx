@@ -15,7 +15,6 @@
 #include "TestTools/initGaudi.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "TrigHTTMaps/HTTPlaneMap.h"
-#include "PathResolver/PathResolver.h"
 
 using namespace std;
 
@@ -51,16 +50,8 @@ int main(int, char**)
         return 1;
     }
 
-    // remove local file since filesystem copy overwrite doesn't always work if there is a duplicate, even with flags
-    std::filesystem::remove("./step3_01eta03_03phi05_plane.pmap");
-
-    // find the file
-    std::string pmap_path = PathResolver::find_file("step3_01eta03_03phi05.pmap","DATAPATH", PathResolver::RecursiveSearch);
-
-    //copy it over
-    std::filesystem::copy(pmap_path,"./step3_01eta03_03phi05_plane.pmap",std::filesystem::copy_options::overwrite_existing);
-
-    HTTPlaneMap pmap("./step3_01eta03_03phi05_plane.pmap", 0, 1);
+    string pmap_path="/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/HTT/TrigHTTMaps/V1/map_file/step3_01eta03_03phi05.pmap";
+    HTTPlaneMap pmap(pmap_path, 0, 1);
 
     test(pmap);
 
