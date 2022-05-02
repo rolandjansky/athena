@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -16,9 +16,6 @@
 #include "EventInfoWriter.h"
 
 // Event includes
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventType.h"
 #include "EventInfoMgt/ITagInfoMgr.h"
 
 // Constructor with parameters:
@@ -69,6 +66,8 @@ StatusCode EventInfoWriter::initialize()
 	ATH_MSG_DEBUG("Called fillTagInfo");
     }
 
+    ATH_CHECK (m_eventInfoKey.initialize());
+
     return StatusCode::SUCCESS;
 }
 
@@ -78,25 +77,22 @@ StatusCode EventInfoWriter::execute()
     // Get the messaging service, print where you are
     ATH_MSG_DEBUG("EventInfoWriter::execute()");
 
-    const EventInfo * evt = nullptr;
-    if (evtStore()->retrieve( evt ).isFailure() ) {
+    SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey, getContext());
+    if(!eventInfo.isValid()) {
  	ATH_MSG_ERROR("  Could not get event info");      
  	return StatusCode::FAILURE;
     }
     else {
  	ATH_MSG_DEBUG("Event ID: ["
- 	    << evt->event_ID()->run_number()   << ","
-            << evt->event_ID()->event_number() << ":"
- 	    << evt->event_ID()->time_stamp() << "] "
- 	   );
- 	ATH_MSG_DEBUG("Event type: user type "
- 	    << evt->event_type()->user_type()
- 	   );
+		      << eventInfo->runNumber()   << ","
+		      << eventInfo->eventNumber() << ":"
+		      << eventInfo->timeStamp() << "] "
+		      );
     }
  
     // Set new dummy tags only at the first event of run 2
     static bool setDummyTags = false; // flag to set tags only once
-    if (!setDummyTags && evt->event_ID()->run_number() == 2 && m_createDummyOverrideTags) {
+    if (!setDummyTags && eventInfo->runNumber() == 2 && m_createDummyOverrideTags) {
         setDummyTags = true;
         ATH_MSG_DEBUG("Create dummy tags, A2-D2");
 	// New/different tags

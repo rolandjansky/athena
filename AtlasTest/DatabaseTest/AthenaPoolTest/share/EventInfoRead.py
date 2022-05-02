@@ -73,6 +73,9 @@ import EventInfoMgt.EventInfoMgtInit
 # Application: AthenaPoolTest options
 #--------------------------------------------------------------
 
+from xAODEventInfoCnv.xAODEventInfoCnvAlgDefault import xAODEventInfoCnvAlgDefault
+xAODEventInfoCnvAlgDefault (sequence = topSequence)
+
 # Load "user algorithm" top algorithms to be run, and the libraries that house them
 from AthenaPoolTest.AthenaPoolTestConf import EventInfoReader
 topSequence += EventInfoReader( "EventInfoReader" )
