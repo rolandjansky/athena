@@ -58,6 +58,8 @@ if os.path.exists('./PoolFileCatalog.xml') :
 
 ConfigFlags.Input.isMC             = True
 
+ConfigFlags.Input.Files = []
+
 if args.localgeo:
   ConfigFlags.ITk.Geometry.AllLocal = True
   
