@@ -22,16 +22,31 @@ def JetParticleAssociationCfg(ConfigFlags, jetCollName, partcollname, assocname,
     return acc
 
 
-def JetParticleAssociationAlgCfg(ConfigFlags, JetCollection="", InputParticleCollection="", OutputParticleDecoration="", **options):
+def JetParticleAssociationAlgCfg(ConfigFlags, JetCollection="", InputParticleCollection="", OutputParticleDecoration="", MinimumJetPt=0.0):
 
     acc=ComponentAccumulator()
     jetcol = JetCollection.replace("Track", "PV0Track")
-
-    options['JetContainer'] = jetcol
-    options['Decorators'] = [acc.popToolsAndMerge(JetParticleAssociationCfg(ConfigFlags, jetcol, InputParticleCollection, OutputParticleDecoration))]
-    options['name'] = (jetcol + "_" + OutputParticleDecoration + "_assoc").lower()
+    name=(jetcol + "_" + OutputParticleDecoration + "_assoc").lower()
+    if MinimumJetPt > 0.0:
+        ptflag = f'{OutputParticleDecoration}OverPtThreshold'
+    else:
+        ptflag = ''
 
     # -- create the association algorithm
-    acc.addEventAlgo(CompFactory.JetDecorationAlg(**options))
+    acc.addEventAlgo(CompFactory.JetDecorationAlg(
+        name=name,
+        JetContainer=jetcol,
+        Decorators=[
+            acc.popToolsAndMerge(
+                JetParticleAssociationCfg(
+                    ConfigFlags,
+                    jetcol,
+                    InputParticleCollection,
+                    OutputParticleDecoration,
+                    MinimumJetPt=MinimumJetPt,
+                    PassPtFlag=ptflag,
+                ))
+        ]
+    ))
 
     return acc
