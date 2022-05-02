@@ -55,6 +55,8 @@ StatusCode AFPSiClusterTool::initialize()
   // retrieve tools
   CHECK( m_clusterAlgToolHandle.retrieve() );
   CHECK( m_rowColToLocalCSToolHandle.retrieve() );
+  CHECK( m_siLocAlignDBTool.retrieve() );
+  CHECK( m_siGlobAlignDBTool.retrieve() );
   
   // monitoring
   if (!(m_monTool.name().empty())) {
@@ -124,7 +126,7 @@ StatusCode AFPSiClusterTool::fillLayersWithHits(std::vector< std::vector<AFPSiCl
 
   SG::ReadHandle<xAOD::AFPSiHitContainer> siHitContainer( m_AFPSiHitContainerKey, ctx );
   if(!siHitContainer.isValid()) {
-     ATH_MSG_WARNING("AFPSiClusterTool failed to retrieve siHitContainer, exiting gracefully");
+     ATH_MSG_WARNING("AFPSiClusterTool failed to retrieve siHitContainer, "<<m_AFPSiHitContainerKey<<", exiting gracefully");
      // unexpected absence of Si hits ?
      return StatusCode::SUCCESS;
   }
@@ -177,12 +179,20 @@ StatusCode AFPSiClusterTool::saveToXAOD(std::unique_ptr<xAOD::AFPSiHitsClusterCo
   // fill xAOD container
   for (std::vector<AFPSiClusterLayerBasicObj>& station : my_layers)
     for (AFPSiClusterLayerBasicObj& layer : station) {
+      if(layer.clusters().empty()) continue;
+      
       const int stationID = layer.stationID();
       const int layerID = layer.layerID();
+      
+      const AFP::SiLocAlignData LA=m_siLocAlignDBTool->alignment(ctx, stationID, layerID);
+      const AFP::SiGlobAlignData GA=m_siGlobAlignDBTool->alignment(ctx, stationID);
+      
       for (const AFPSiClusterBasicObj& theCluster : layer.clusters()) {
         // create xAOD object and set cluster coordinates and errors
-        xAOD::AFPSiHitsCluster* xAODCluster = m_rowColToLocalCSToolHandle->newXAODLocal(stationID, layerID, theCluster, clusterContainer);
-
+        xAOD::AFPSiHitsCluster* xAODCluster = m_rowColToLocalCSToolHandle->newXAODLocal(stationID, layerID, LA, GA, theCluster, clusterContainer);
+        
+        ATH_MSG_DEBUG("have xAODCluster: pixelLayerID "<<xAODCluster->pixelLayerID()<<", xLocal "<<xAODCluster->xLocal()<<", yLocal "<<xAODCluster->yLocal()<<", zLocal "<<xAODCluster->zLocal()<<", nHits "<<xAODCluster->nHits());
+        
         // add links to hits
         for (const xAOD::AFPSiHit* theHit : theCluster.hits()) {
           ElementLink< xAOD::AFPSiHitContainer >* hitLink = new ElementLink< xAOD::AFPSiHitContainer >; // will be taken over by the xAODCluster and deleted

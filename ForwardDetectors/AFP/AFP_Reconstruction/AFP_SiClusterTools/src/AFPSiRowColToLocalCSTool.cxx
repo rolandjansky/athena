@@ -14,17 +14,10 @@
 // STL includes
 #include <list>
 
-#include "CLHEP/Geometry/Point3D.h"
-#include "TVector3.h"
-
 #include "xAODForward/AFPSiHit.h"
 #include "xAODForward/AFPSiHitContainer.h"
 
-#include "AFP_Geometry/AFP_Geometry.h"
-#include "AFP_Geometry/AFP_ConfigParams.h"
-
 #include "AFP_SiClusterTools/AFPSiRowColToLocalCSTool.h"
-#include "AFP_SiClusterTools/IAFPSiRowColToLocalCSTool.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
@@ -34,6 +27,7 @@ AFPSiRowColToLocalCSTool::AFPSiRowColToLocalCSTool(const std::string &type,
     : base_class(type, name, parent)
 {
 }
+
 
 void AFPSiRowColToLocalCSTool::initTransformationMatricesSize (std::list<std::vector< std::vector<ROOT::Math::Transform3D> >* >& matrices, const std::vector<int>& layersInStations)
 {
@@ -53,13 +47,7 @@ void AFPSiRowColToLocalCSTool::initTransformationMatricesSize (std::list<std::ve
 }
 
 StatusCode AFPSiRowColToLocalCSTool::initialize() 
-{
-
-  // set default geometry configuration
-  CHECK( m_geometry.retrieve(EnableTool{true}) );
-  m_geoConfig.clear();
-  m_geometry->SetCfgParams(&m_geoConfig);
-
+{  
   typedef std::vector< std::vector<ROOT::Math::Transform3D> >  TransformVec_t;
 
   std::list<TransformVec_t*> matricesForLayersInit;
@@ -98,32 +86,28 @@ StatusCode AFPSiRowColToLocalCSTool::initialize()
         useDefualtTransformation = false;
       }
       else
-        ATH_MSG_WARNING("Incorrect number of elements in transformationErr vector in job options. Should be "<<totalLayersN<<"x4x3="<<totalLayersN*4*3<<". Is "<<m_transformationsErrInit.size()<<".");
+        ATH_MSG_WARNING("Incorrect number of elements in transformationErr vector in job options. Should be "<<totalLayersN<<"x4x3="<<totalLayersN*4*3<<". Is "<<m_transformationsErrInit.size()<<". Will use default transformation.");
     } // close if (m_transformationsInit.size() == totalLayersN*4*3)
     else
-      ATH_MSG_WARNING("Incorrect number of elements in transformation vector in job options. Should be "<<totalLayersN<<"x4x3="<<totalLayersN*4*3<<". Is "<<m_transformationsInit.size()<<".");
+      ATH_MSG_WARNING("Incorrect number of elements in transformation vector in job options. Should be "<<totalLayersN<<"x4x3="<<totalLayersN*4*3<<". Is "<<m_transformationsInit.size()<<". Will use default transformation.");
   } // close if (m_transformationsInit.size() && m_transformationsErrInit.size())
   else
     ATH_MSG_INFO("In job options m_transformationsInit and m_transformationsErrInit are not defined simultaneously, so default transformations will be used.");
 
   // if there were problems with job options scaling or none was defined use default values
   if (useDefualtTransformation) {
-
-    const ROOT::Math::Transform3D rotationA(ROOT::Math::RotationY(+0.2443461*CLHEP::rad)); // should be + and Y, but AFPToolbox has + and X
-    const ROOT::Math::Transform3D rotationC(ROOT::Math::RotationY(-0.2443461*CLHEP::rad)); // should be - and Y, but AFPToolbox has + and X 
-
-    const float layerSpacingZ = 9.*CLHEP::mm;
+    const ROOT::Math::Transform3D rotationA(ROOT::Math::RotationY(m_afpconstants.SiT_Plate_rot_xz)); // rotate by +14 degrees
+    const ROOT::Math::Transform3D rotationC(ROOT::Math::RotationY(-1.*m_afpconstants.SiT_Plate_rot_xz)); // rotate by -14 degrees
     
     const ROOT::Math::Translation3D translationA0(0, 0, 0.);
-    const ROOT::Math::Translation3D translationA1(0, 0, 1.*layerSpacingZ);
-    const ROOT::Math::Translation3D translationA2(0, 0, 2.*layerSpacingZ);
-    const ROOT::Math::Translation3D translationA3(0, 0, 3.*layerSpacingZ);
+    const ROOT::Math::Translation3D translationA1(0, 0, 1.*m_afpconstants.SiT_Plate_zsep);
+    const ROOT::Math::Translation3D translationA2(0, 0, 2.*m_afpconstants.SiT_Plate_zsep);
+    const ROOT::Math::Translation3D translationA3(0, 0, 3.*m_afpconstants.SiT_Plate_zsep);
     
     const ROOT::Math::Translation3D translationC0(0, 0, 0.);
-    const ROOT::Math::Translation3D translationC1(0, 0,-1.*layerSpacingZ); // should be -, but AFPToolbox has +
-    const ROOT::Math::Translation3D translationC2(0, 0,-2.*layerSpacingZ);
-    const ROOT::Math::Translation3D translationC3(0, 0,-3.*layerSpacingZ);
-
+    const ROOT::Math::Translation3D translationC1(0, 0,-1.*m_afpconstants.SiT_Plate_zsep);
+    const ROOT::Math::Translation3D translationC2(0, 0,-2.*m_afpconstants.SiT_Plate_zsep);
+    const ROOT::Math::Translation3D translationC3(0, 0,-3.*m_afpconstants.SiT_Plate_zsep);
     
     // station 0
     m_transformationsErr[0][0] = rotationA;
@@ -136,7 +120,6 @@ StatusCode AFPSiRowColToLocalCSTool::initialize()
     m_transformations[0][2] = translationA2*m_transformationsErr[0][2];
     m_transformations[0][3] = translationA3*m_transformationsErr[0][3];
 
-
     // station 1
     m_transformationsErr[1][0] = rotationA;
     m_transformationsErr[1][1] = rotationA;
@@ -148,7 +131,6 @@ StatusCode AFPSiRowColToLocalCSTool::initialize()
     m_transformations[1][2] = translationA2*m_transformationsErr[1][2];
     m_transformations[1][3] = translationA3*m_transformationsErr[1][3];
 
-
     // station 2
     m_transformationsErr[2][0] = rotationC;
     m_transformationsErr[2][1] = rotationC;
@@ -159,7 +141,6 @@ StatusCode AFPSiRowColToLocalCSTool::initialize()
     m_transformations[2][1] = translationC1*m_transformationsErr[2][1];
     m_transformations[2][2] = translationC2*m_transformationsErr[2][2];
     m_transformations[2][3] = translationC3*m_transformationsErr[2][3];
-
 
     // station 3
     m_transformationsErr[3][0] = rotationC;
@@ -198,62 +179,39 @@ StatusCode AFPSiRowColToLocalCSTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-
-TVector3 AFPSiRowColToLocalCSTool::localToGlobalCS(const double localX, const double localY, const double localZ, const int stationID, const int layerID) const
-{
-  const HepGeom::Point3D<double> localPoint (localX, localY, localZ);
-  HepGeom::Point3D<double> globalPoint;
-
-  if (m_geometry->getPointInSIDSensorGlobalCS(stationID, layerID, localPoint, globalPoint).isSuccess()) {
-    // if transformation was successful return new coordinates corrected for the offset
-    return TVector3(globalPoint.x(), globalPoint.y(), globalPoint.z());
-  }
-  else {
-    // if transformation failed print warning message and return local position
-    ATH_MSG_WARNING ("Error occurred when calling m_geometry->GetPointInSIDSensorGlobalCS(). Returning local coordinates.");
-    return TVector3(localX, localY, localZ);
-  }
-}
-
-
 void AFPSiRowColToLocalCSTool::fillXAOD (const int stationID, const int layerID, const ROOT::Math::XYZPoint& position, const ROOT::Math::XYZPoint& positionError, xAOD::AFPSiHitsCluster* xAODCluster) const
 {
-    float correction_x = -2.485;
-    float correction_y[4] = {10.38,10.38,-10.38,-10.38};
-
     xAODCluster->setStationID(stationID);
     xAODCluster->setPixelLayerID(layerID);
 
-    xAODCluster->setXLocal(position.x()+correction_x);
+    xAODCluster->setXLocal(position.x());
     xAODCluster->setXLocalErr(positionError.x());
 
-    xAODCluster->setYLocal(position.y()+correction_y[stationID]);
+    xAODCluster->setYLocal(position.y());
     xAODCluster->setYLocalErr(positionError.y());
 
     xAODCluster->setZLocal(position.z());
     xAODCluster->setZLocalErr(positionError.z());
 }
 
-xAOD::AFPSiHitsCluster* AFPSiRowColToLocalCSTool::newXAODLocal (const int stationID, const int layerID, const AFPSiClusterBasicObj& cluster, std::unique_ptr<xAOD::AFPSiHitsClusterContainer>& xAODContainer) const
+xAOD::AFPSiHitsCluster* AFPSiRowColToLocalCSTool::newXAODLocal (const int stationID, const int layerID, const AFP::SiLocAlignData& LA, const AFP::SiGlobAlignData& GA, const AFPSiClusterBasicObj& cluster, std::unique_ptr<xAOD::AFPSiHitsClusterContainer>& xAODContainer) const
 {
-  const int halfColumns = 168;
-//   const int halfRows = 0; 
-
   float flipAC = (stationID<2 ? -1. : +1.);
+  
+  ROOT::Math::XYZPoint horizVertID ((cluster.horizID()-m_afpconstants.SiT_Pixel_amount_x)*m_pixelHorizSize, flipAC*cluster.vertID()*m_pixelVertSize, 0);
+  ROOT::Math::XYZPoint horizVertIDErr (cluster.horizIDErr()*m_pixelHorizSize, cluster.vertIDErr()*m_pixelVertSize, 0);
 
-  ROOT::Math::XYZPoint horizVertID (-1.*(2*halfColumns-cluster.horizID())*m_pixelHorizSize, flipAC*cluster.vertID()*m_pixelVertSize, 0); // ATLAS coord.
-  ROOT::Math::XYZPoint horizVertIDErr ( cluster.vertIDErr()*m_pixelVertSize, cluster.horizIDErr()*m_pixelHorizSize, 0); // for both
-
-// AFPToolBox coordinates
-//  ROOT::Math::XYZPoint horizVertID ((cluster.horizID()-halfColumns)*m_pixelHorizSize, (cluster.vertID() - halfRows)*m_pixelVertSize, 0);
-//  ROOT::Math::XYZPoint horizVertIDErr (cluster.horizIDErr()*m_pixelHorizSize, cluster.vertIDErr()*m_pixelVertSize, 0);
-
-  try {  
-    ROOT::Math::XYZPoint localCS = m_transformations.at(stationID).at(layerID)*horizVertID;
-    ROOT::Math::XYZPoint localCSError = m_transformationsErr.at(stationID).at(layerID)*horizVertIDErr;
+  try {
+    // these horrible things are needed in order to have compatibility with AFPAnalysisToolbox
+    const ROOT::Math::RotationZYX locRotation(flipAC*LA.alpha(), -1.*flipAC*LA.gamma(), LA.beta()); // ATLAS coord.
+    const ROOT::Math::Translation3D locTranslation(-1.*LA.yShift(), flipAC*LA.xShift(), flipAC*LA.zShift()); // ATLAS coord.
+    const ROOT::Math::Translation3D globTranslation(GA.xShift(), flipAC*GA.yShift(), GA.zShift()); // ATLAS coord.
+    
+    ROOT::Math::XYZPoint localCS = globTranslation*locTranslation*locRotation*m_transformations.at(stationID).at(layerID)*horizVertID;
+	ROOT::Math::XYZPoint localCSError = locRotation*m_transformationsErr.at(stationID).at(layerID)*horizVertIDErr;
 
     auto xAODCluster = xAODContainer->push_back(std::make_unique<xAOD::AFPSiHitsCluster>());
-    
+
     fillXAOD (stationID, layerID, localCS, localCSError, xAODCluster);
     xAODCluster->setDepositedCharge(cluster.charge());
     xAODCluster->setNHits(cluster.hits().size());
