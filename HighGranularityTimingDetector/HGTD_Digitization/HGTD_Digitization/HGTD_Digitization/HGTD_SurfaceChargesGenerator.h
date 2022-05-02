@@ -66,6 +66,7 @@ private:
   float m_diffusion_constant;
   bool m_smear_meantime;
   float m_integrated_luminosity;
+  float m_active_window;
   // TODO what does the BooleanProperty allow to do?
   BooleanProperty m_needs_mc_evt_coll_helper{false};
 };
