@@ -30,48 +30,45 @@ private:
 
 
   // internal pointers
-  HTTEventInputHeader* m_eventHeader;
+  HTTEventInputHeader* m_eventHeader = nullptr;
   int m_ntowers = 1;
 
   // Tree structure
-  TFile *m_outfile; // ROOT file descriptor
-  TTree *m_hittree; // TTree for the hit storage
-  TTree *m_evtinfo; /** TTree with general event information */
-  TTree *m_trackstree;
-  TTree *m_offline_cluster_tree;
+  TFile *m_outfile = nullptr; // ROOT file descriptor
+  TTree *m_hittree = nullptr; // TTree for the hit storage
+  TTree *m_evtinfo = nullptr; /** TTree with general event information */
+  TTree *m_trackstree = nullptr;
+  TTree *m_offline_cluster_tree = nullptr;
 
    // Event Info: Add this to an header ?
-  int m_run_number; /** event's run number */
-  int m_event_number; /** event number */
-  float m_averageInteractionsPerCrossing;
-  float m_actualInteractionsPerCrossing;
-  int m_LB;
-  int m_BCID;
-  unsigned int m_extendedLevel1ID;
-  unsigned int m_level1TriggerType;
+  int m_run_number = 0; /** event's run number */
+  int m_event_number = 0; /** event number */
+  float m_averageInteractionsPerCrossing = 0.0F;
+  float m_actualInteractionsPerCrossing = 0.0F;
+  int m_LB = 0;
+  int m_BCID = 0;
+  unsigned int m_extendedLevel1ID = 0U;
+  unsigned int m_level1TriggerType = 0U;
   std::vector<unsigned int> m_level1TriggerInfo;
-  std::vector<HTTHit> *m_original_hits; // variables related to the HTTHit storage
+  std::vector<HTTHit> *m_original_hits = nullptr; // variables related to the HTTHit storage
   std::vector<HTTTruthTrack> m_truth_tracks;
  //offline clusters
-  std::vector<float>   *m_offline_locX;
-  std::vector<float>   *m_offline_locY;
-  std::vector<int>     *m_offline_isPixel;
-  std::vector<int>     *m_offline_isBarrel;
-  std::vector<int>     *m_offline_layer;
-  std::vector<int>     *m_offline_resAssociatedTrack;
-  std::vector<int>     *m_offline_clustID;
-  std::vector<int>     *m_offline_trackNumber;
+  std::vector<float>   *m_offline_locX = nullptr;
+  std::vector<float>   *m_offline_locY = nullptr;
+  std::vector<int>     *m_offline_isPixel = nullptr;
+  std::vector<int>     *m_offline_isBarrel = nullptr;
+  std::vector<int>     *m_offline_layer = nullptr;
+  std::vector<int>     *m_offline_clustID = nullptr;
+  std::vector<int>     *m_offline_trackNumber = nullptr;
 
   //offline tracks
-  std::vector<float>   *m_offline_pt;
-  std::vector<float>   *m_offline_eta;
-  std::vector<float>   *m_offline_phi;
-  std::vector<float>   *m_offline_d0;
-  std::vector<float>   *m_offline_z0;
-  std::vector<float>   *m_offline_q;
-  std::vector<float>   *m_offline_qoverpt;
-  std::vector<int>     *m_offline_barcode;
-  std::vector<float>   *m_offline_barcode_frac;
+  std::vector<float>   *m_offline_eta = nullptr;
+  std::vector<float>   *m_offline_phi = nullptr;
+  std::vector<float>   *m_offline_d0 = nullptr;
+  std::vector<float>   *m_offline_z0 = nullptr;
+  std::vector<float>   *m_offline_qoverpt = nullptr;
+  std::vector<int>     *m_offline_barcode = nullptr;
+  std::vector<float>   *m_offline_barcode_frac = nullptr;
 };
 
 #endif // HTTSGRORAWHITSWRAPPERALG_h

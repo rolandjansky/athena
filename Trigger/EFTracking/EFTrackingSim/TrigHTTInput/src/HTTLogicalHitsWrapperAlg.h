@@ -36,20 +36,18 @@ private:
   Gaudi::Property<bool>  m_Clustering   {this, "Clustering", false, "flag to enable the clustering"};
   Gaudi::Property<bool>  m_Monitor      {this, "Monitor",    false, "flag to enable internal monitor"};
  
-  // internal variables
-  int m_ntowers;
 
   // some histograms for internal monitor
-  TH1F*   m_hits_barrelEC;
-  TH2F*   m_hits_r_vs_z;
+  TH1F*   m_hits_barrelEC = nullptr;
+  TH2F*   m_hits_r_vs_z = nullptr;
 
-  TH1F*   m_nMissedHit;
-  TH1F*   m_nMissedHitFrac;
-  TH1F*   m_MissedHit_eta ;
-  TH1F*   m_MissedHit_phi;
-  TH1F*   m_MissedHit_type;
-  TH1F*   m_MissedHit_barrelEC;
-  TH1F*   m_MissedHit_layer;
+  TH1F*   m_nMissedHit = nullptr;
+  TH1F*   m_nMissedHitFrac = nullptr;
+  TH1F*   m_MissedHit_eta = nullptr ;
+  TH1F*   m_MissedHit_phi = nullptr;
+  TH1F*   m_MissedHit_type = nullptr;
+  TH1F*   m_MissedHit_barrelEC = nullptr;
+  TH1F*   m_MissedHit_layer = nullptr;
 
 };
 
