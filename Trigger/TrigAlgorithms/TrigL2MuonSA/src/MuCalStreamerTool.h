@@ -11,11 +11,9 @@
 #include "MdtData.h"
 #include "RpcData.h"
 #include "TgcData.h"
-#include "CscData.h"
 #include "TrackData.h"
 #include "MuCalCircClient.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
-#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "RPC_CondCabling/RpcCablingCondData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "IRegionSelector/IRegSelTool.h"
@@ -40,7 +38,6 @@ namespace LVL2_MUON_CALIBRATION {
   class MdtCalibFragment;
   class RpcCalibFragment;
   class TgcCalibFragment;
-  class CscCalibFragment;
 }
 
 class RpcPad;
@@ -110,15 +107,17 @@ namespace TrigL2MuonSA {
     // output file 
     std::ofstream m_outputFile;
 
+
+
     // the region selector
-    ToolHandle<IRegSelTool> m_regSel_MDT{this, "RegionSelectorTool", "RegSelTool/RegSelTool_MDT", "MDT Region Selector Tool"};
-    ToolHandle<IRegSelTool> m_regSel_CSC{this, "RegionSelectorTool", "RegSelTool/RegSelTool_CSC", "CSC Region Selector Tool"};
-    ToolHandle<IRegSelTool> m_regSel_TGC{this, "RegionSelectorTool", "RegSelTool/RegSelTool_TGC", "TGC Region Selector Tool"};
+
+    ToolHandle<IRegSelTool> m_regSel_MDT{this, "RegSel_MDT", "RegSelTool/RegSelTool_MDT", "MDT Region Selector Tool"};
+    ToolHandle<IRegSelTool> m_regSel_TGC{this, "RegSel_TGC", "RegSelTool/RegSelTool_TGC", "TGC Region Selector Tool"};
+    
+
 
     SG::ReadCondHandleKey<RpcCablingCondData> m_readKey{this, "ReadKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
 
-    // ROB DataProvider
-    ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
 
 
     // local buffer for the TrigComposite object
@@ -139,10 +138,7 @@ namespace TrigL2MuonSA {
     // create the TGC fragment
     StatusCode createTgcFragment(std::vector<uint32_t>& tgcRobIdList,
 				 LVL2_MUON_CALIBRATION::TgcCalibFragment& tgcFragment) const;
-    //
-    //
-    StatusCode createCscFragment(std::vector<uint32_t>& cscRobIdList, 
-    				 LVL2_MUON_CALIBRATION::CscCalibFragment& cscFragment) const;
+
 
 
     TrigL2MuonSA::MuCalCircClient *m_circ = nullptr;

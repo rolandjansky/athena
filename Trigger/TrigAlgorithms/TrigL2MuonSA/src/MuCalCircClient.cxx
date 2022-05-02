@@ -40,15 +40,14 @@ bool TrigL2MuonSA::MuCalCircClient::dumpToCirc (LVL2_MUON_CALIBRATION::CalibEven
   char *ptr;
   bool success = false;
   uint16_t event_size = event.size ();
-
+  
   if (m_cid>=0){
     if ((ptr = CircReserve_t (m_cid, event_size )) != (char *) -1)
       {
-	
 	uint8_t *buff = reinterpret_cast <uint8_t *> (ptr);
-	event.dumpWords (buff, event_size);
-	
-	(void) CircValidate_t (m_cid, ptr, event_size);
+	int bufsize = event.dumpWords (buff, event_size);
+
+	(void) CircValidate_t (m_cid, ptr, bufsize);
 	success = true;
       }
   }
