@@ -549,9 +549,9 @@ def MuonCombinedReconstructionCfg(flags):
 
     from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
     result.merge(TrackingGeometryCondAlgCfg(flags))
-
-    result.addService(CompFactory.Muon.MuonEDMHelperSvc("MuonEDMHelperSvc"))
-
+    from MuonConfig.MuonRecToolsConfig import MuonEDMHelperSvcCfg
+    result.merge(MuonEDMHelperSvcCfg(flags))
+    
     # Set up to read Tracks.
     from TrkConfig.TrackCollectionReadConfig import TrackCollectionReadCfg
     result.merge(TrackCollectionReadCfg(flags, 'Tracks'))

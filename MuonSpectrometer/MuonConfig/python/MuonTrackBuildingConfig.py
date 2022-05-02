@@ -522,10 +522,8 @@ def MuonTrackBuildingCfg(flags, name = "MuPatTrackBuilder", **kwargs):
     #Arguably this should be somewhere deeper - not quite sure where yet though. FIXME
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg 
     result.merge( MuonGeoModelCfg(flags) )
-    
-    Muon__MuonEDMHelperSvc=CompFactory.Muon.MuonEDMHelperSvc
-    muon_edm_helper_svc = Muon__MuonEDMHelperSvc("MuonEDMHelperSvc")
-    result.addService( muon_edm_helper_svc )
+    from MuonConfig.MuonRecToolsConfig import MuonEDMHelperSvcCfg
+    result.merge(MuonEDMHelperSvcCfg(flags))
     
     
 

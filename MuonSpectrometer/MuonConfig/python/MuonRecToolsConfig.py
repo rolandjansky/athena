@@ -7,13 +7,21 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType
 
 
-def MuonEDMPrinterToolCfg(flags, name="MuonEDMPrinterTool", **kwargs):
-    result = ComponentAccumulator()    
+def MuonEDMPrinterToolCfg(flags, name="MuonEDMHelperSvc", **kwargs):
+    result = ComponentAccumulator()  
     kwargs.setdefault('TgcPrdCollection', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
     the_tool = CompFactory.Muon.MuonEDMPrinterTool(name, **kwargs)
     result.setPrivateTools(the_tool)
+    result.merge(MuonEDMHelperSvcCfg(flags))
+    from MuonConfig.MuonGeometryConfig import MuonIdHelperSvcCfg   
+    result.merge(MuonIdHelperSvcCfg(flags))
     return result
-
+def MuonEDMHelperSvcCfg(flags, name = "MuonEDMHelperSvc"):
+    result = ComponentAccumulator()
+    flags.Beam.Type ### Dummy call
+    result.addService(CompFactory.Muon.MuonEDMHelperSvc(name), primary = True)
+    return result
+       
 def MuonTrackToSegmentToolCfg(flags,name="MuonTrackToSegmentTool", **kwargs):
     Muon__MuonTrackToSegmentTool=CompFactory.Muon.MuonTrackToSegmentTool
     #MDT conditions information not available online
@@ -33,7 +41,6 @@ def MuonTrackToSegmentToolCfg(flags,name="MuonTrackToSegmentTool", **kwargs):
 
 def MuonHitSummaryToolCfg(flags, name="MuonHitSummaryTool", **kwargs):
     result = MuonTrackSummaryHelperToolCfg(flags)   
-    # No need to configure MuonIdHelperSvc or MuonEDMHelperSvc
     kwargs.setdefault('MuonTrackSummaryHelperTool', result.getPrimary())
     kwargs.setdefault('Printer', result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags)))
     the_tool = CompFactory.Muon.MuonHitSummaryTool(name, **kwargs)

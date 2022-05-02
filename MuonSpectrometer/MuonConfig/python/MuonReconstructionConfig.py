@@ -132,11 +132,12 @@ def MuonReconstructionCfg(flags):
     from MuonConfig.MuonPrepDataConvConfig import MuonPrepDataConvCfg
     from MuonConfig.MuonRecToolsConfig import MuonTrackScoringToolCfg, MuonTrackSummaryToolCfg
     from MuonConfig.MuonGeometryConfig import MuonIdHelperSvcCfg
+    from MuonConfig.MuonRecToolsConfig import MuonEDMHelperSvcCfg
 
     # Many components need these services, so setup once here.
     result=MuonIdHelperSvcCfg(flags)
-    result.addService( CompFactory.Muon.MuonEDMHelperSvc(name="MuonEDMHelperSvc") )
-
+    result.merge(MuonEDMHelperSvcCfg(flags))
+  
     # Now setup reconstruction steps
     result.merge(MuonPrepDataConvCfg(flags))
     result.merge( MuonSegmentFindingCfg(flags))
