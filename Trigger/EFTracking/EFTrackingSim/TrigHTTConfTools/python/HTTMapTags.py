@@ -67,12 +67,12 @@ HTTMapTags = {
             'withPU':       False,
             # Files
             'mappingType':  'FILE',
-            'pmap':         'htt_configuration/map_files/step3_01eta03_03phi05.pmap',
-            'rmap':         'htt_configuration/map_files/rmaps/{regionName}_ATLAS-P2-ITK-23-00-01.rmap',
-            'subrmap':      'htt_configuration/zslicemaps/ATLAS-P2-ITK-23-00-01/{regionName}_KeyLayer-strip_barrel_2_extra03_trim_0_001_NSlices-6.rmap',
-            'modulemap':    'htt_configuration/map_files/ITk.global-to-local.moduleidmap',
-            'slices':       'htt_configuration/map_files/slices_v01_Jan21.txt',
-            'NNmap':        'htt_configuration/map_files/NN_DNN_Region_0p1_0p3_HTTFake_HTTTrueMu_SingleP_8L_Nom_v6.json',
+            'pmap':         '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/HTT/TrigHTTMaps/V1/map_file/step3_01eta03_03phi05.pmap',
+            'rmap':         '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/HTT/TrigHTTMaps/V1/map_file/rmaps/{regionName}_ATLAS-P2-ITK-23-00-01.rmap',
+            'subrmap':      '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/HTT/TrigHTTMaps/V1/zslicemaps/ATLAS-P2-ITK-23-00-01/{regionName}_KeyLayer-strip_barrel_2_extra03_trim_0_001_NSlices-6.rmap',
+            'modulemap':    '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/HTT/TrigHTTMaps/V1/map_file/ITk.global-to-local.moduleidmap',
+            'slices':       '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/HTT/TrigHTTMaps/V1/map_file/slices_v01_Jan21.txt',
+            'NNmap':        '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/HTT/TrigHTTMaps/V1/map_file/NN_DNN_Region_0p1_0p3_HTTFake_HTTTrueMu_SingleP_8L_Nom_v6.json',
             'sampleType':   'singleMuons',
 
             # Layer
@@ -96,12 +96,12 @@ HTTMapTags = {
             'withPU':       False,
             # Files
             'mappingType':  'FILE',
-            'pmap':         'htt_configuration/map_files/ATLAS-P2-ITK-22-02-00.pmap',
-            'rmap':         'htt_configuration/map_files/rmaps/{regionName}_ATLAS-P2-ITK-22-02-00.rmap',
-            'subrmap':      'htt_configuration/zslicemaps/ATLAS-P2-ITK-22-02-00/{regionName}_KeyLayer-strip_barrel_2_extra03_trim_0_001_NSlices-6.rmap',
-            'modulemap':    'htt_configuration/map_files/ITk.global-to-local.moduleidmap',
-            'slices':       'htt_configuration/map_files/slices_v01_Jan21.txt',
-            'NNmap':        'htt_configuration/map_files/NN_DNN_Region_0p1_0p3_HTTFake_HTTTrueMu_SingleP_8L_Nom_v6.json',
+            'pmap':         '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/HTT/TrigHTTMaps/V1/map_file/ATLAS-P2-ITK-22-02-00.pmap',
+            'rmap':         '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/HTT/TrigHTTMaps/V1/map_file/rmaps/{regionName}_ATLAS-P2-ITK-22-02-00.rmap',
+            'subrmap':      '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/HTT/TrigHTTMaps/V1/zslicemaps/ATLAS-P2-ITK-22-02-00/{regionName}_KeyLayer-strip_barrel_2_extra03_trim_0_001_NSlices-6.rmap',
+            'modulemap':    '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/HTT/TrigHTTMaps/V1/map_file/ITk.global-to-local.moduleidmap',
+            'slices':       '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/HTT/TrigHTTMaps/V1/map_file/slices_v01_Jan21.txt',
+            'NNmap':        '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/HTT/TrigHTTMaps/V1/map_file/NN_DNN_Region_0p1_0p3_HTTFake_HTTTrueMu_SingleP_8L_Nom_v6.json',
             'sampleType':   'singleMuons',
 
             # Layer
@@ -137,12 +137,12 @@ HTTMapTags = {
             'withPU':       False,
             # Files
             'mappingType':  'FILE',
-            'pmap':         'htt_configuration/map_files/step3_01eta03_03phi05.pmap',
-            'rmap':         'htt_configuration/map_files/rmaps/eta0103phi0305_ATLAS-P2-ITK-23-00-01.rmap',
-            'subrmap':      'htt_configuration/zslicemaps/ATLAS-P2-ITK-23-00-01/eta0103phi0305_KeyLayer-strip_barrel_2_extra03_trim_0_001_NSlices-6.rmap',
-            'modulemap':    'htt_configuration/map_files/ITk.global-to-local.moduleidmap',
-            'slices':       'htt_configuration/map_files/slices_v01_Jan21.txt',
-            'NNmap':        'htt_configuration/map_files/NN_DNN_Region_0p1_0p3_HTTFake_HTTTrueMu_SingleP_8L_Nom_v6.json',
+            'pmap':         '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/HTT/TrigHTTMaps/V1/map_file/step3_01eta03_03phi05.pmap',
+            'rmap':         '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/HTT/TrigHTTMaps/V1/map_file/rmaps/eta0103phi0305_ATLAS-P2-ITK-23-00-01.rmap',
+            'subrmap':      '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/HTT/TrigHTTMaps/V1/zslicemaps/ATLAS-P2-ITK-23-00-01/eta0103phi0305_KeyLayer-strip_barrel_2_extra03_trim_0_001_NSlices-6.rmap',
+            'modulemap':    '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/HTT/TrigHTTMaps/V1/map_file/ITk.global-to-local.moduleidmap',
+            'slices':       '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/HTT/TrigHTTMaps/V1/map_file/slices_v01_Jan21.txt',
+            'NNmap':        '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/HTT/TrigHTTMaps/V1/map_file/NN_DNN_Region_0p1_0p3_HTTFake_HTTTrueMu_SingleP_8L_Nom_v6.json',
             'sampleType':   'singleMuons',
 
             # Layer
