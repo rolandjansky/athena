@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VP1AlgsEventProd/VP1EventProd.h"
@@ -8,6 +8,8 @@
 
 #include "StorageSvc/DbType.h"
 #include "PathResolver/PathResolver.h"
+
+#include "AthenaBaseComps/AthMsgStreamMacros.h" // ATH_MSG_* macros
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IEvtSelector.h"
@@ -47,7 +49,7 @@ VP1EventProd::~VP1EventProd()
 
 StatusCode VP1EventProd::initialize()
 {
-  msg(MSG::INFO) << " in initialize() " << endmsg;
+  ATH_MSG_INFO(" in initialize() ");
 
   StatusCode result = StatusCode::SUCCESS;
 
@@ -56,7 +58,7 @@ StatusCode VP1EventProd::initialize()
   StatusCode status = service("IncidentSvc", incsvc, true);
 
   if(status.isFailure() || incsvc==0)
-    msg(MSG::WARNING) << "Unable to get IncidentSvc!" << endmsg;
+    ATH_MSG_WARNING("Unable to get IncidentSvc!");
   else
     incsvc->addListener(this, "BeginEvent", 0);
 
@@ -65,76 +67,89 @@ StatusCode VP1EventProd::initialize()
 
 StatusCode VP1EventProd::execute()
 {
-  msg(MSG::DEBUG) <<" in execute() " << endmsg;
+  ATH_MSG_DEBUG(" in execute(). Nothing to do here...");
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode VP1EventProd::finalize()
 {
-  msg(MSG::INFO) <<"in finalize() " << endmsg;
+  ATH_MSG_INFO("in finalize() ");
 
   // handle the output of the last event
   if(m_nEvent) {
 
-    msg(MSG::INFO) << "--> Input POOL file: " << m_inputPoolFile << endmsg;
+    --m_nEvent; // since we don't use another call to handle() to process the last event, we need to revert the counter by one, otherwise the wrong file is looked for
+
+    ATH_MSG_INFO("--> Input POOL file: " << m_inputPoolFile);
 
     std::ostringstream ostri;
     ostri << m_inputPoolFile << "._" << std::setw(4) << std::setfill('0') << m_nEvent;
 
+    std::string inputFileName = ostri.str();
+    ATH_MSG_DEBUG("copying the input file: '"<< inputFileName << "'...");
+    
     try {
 
-    	/* clean the output directory if m_maxProducedFiles == 0
-    	 * or keep up to 'm_maxProducedFiles' output files
-    	 */
-    	VP1FileUtilities fileUtil(".", m_maxProducedFiles, m_destinationDir, m_createDestinationDir, m_removeTempInputFiles); // inputDir, fileLimit, outputDir, forceMakeOutputDir, removeInputFile
+        /* clean the output directory if m_maxProducedFiles == 0
+         * or keep up to 'm_maxProducedFiles' output files
+         */
+        VP1FileUtilities fileUtil(".", m_maxProducedFiles, m_destinationDir, m_createDestinationDir, m_removeTempInputFiles); // inputDir, fileLimit, outputDir, forceMakeOutputDir, removeInputFile
 
-    	if (m_outputFileType != "")
-    		fileUtil.produceNewFile(ostri.str(), m_runNumber, m_eventNumber, m_timeStamp, m_humanTimestamp+"."+m_outputFileType);
-    	else
-    		fileUtil.produceNewFile(ostri.str(), m_runNumber, m_eventNumber, m_timeStamp, m_humanTimestamp);
+        if (m_outputFileType != "")
+            fileUtil.produceNewFile(inputFileName, m_runNumber, m_eventNumber, m_timeStamp, m_humanTimestamp+"."+m_outputFileType); // with UNIX and human-readable timestamp
+        else
+            fileUtil.produceNewFile(inputFileName, m_runNumber, m_eventNumber, m_timeStamp, m_humanTimestamp); // with UNIX timestamp
     }
     catch(std::runtime_error& err) {
-      msg(MSG::WARNING) << "Exception caught: " << err.what() << endmsg;
-      msg(MSG::WARNING) << "Unable to produce new VP1 event file" << endmsg;
+      ATH_MSG_WARNING("Exception caught: " << err.what());
+      ATH_MSG_WARNING("In finalize() -- Unable to produce new VP1 event file");
     }
   }
-
+  
   return StatusCode::SUCCESS;
 }
 
+
+
 void VP1EventProd::handle(const Incident& inc) 
 {
-  msg(MSG::INFO) << "Handling incident '" << inc.type() << "'" <<  endmsg;
+  ATH_MSG_INFO("in handle()... ");
+  ATH_MSG_INFO("Handling incident '" << inc.type() << "'");
 
   // Let VP1FileUtilities handle the output of the previous event.
   // Skip this if m_nEvent == 0,
-  // because the processing of the event is not done yet
-  // and the input file is not made at this stage.
+  // because the processing of the event is not completed, yet;
+  // and the input file is not created at this stage, yet.
   // Basically we run the code below while in event_2, to get the processed file for event_1
   if(m_nEvent) {
 
-    msg(MSG::INFO) << "--> Input POOL file: " << m_inputPoolFile << endmsg;
+   unsigned  int nLastFile = m_nEvent - 1; // we copy the file produced while processing the previous event, so we need a file number of (current - 1)
+
+    ATH_MSG_INFO("--> Input POOL file: " << m_inputPoolFile);
 
     std::ostringstream ostri;
-    ostri << m_inputPoolFile << "._" << std::setw(4) << std::setfill('0') << m_nEvent;
+    ostri << m_inputPoolFile << "._" << std::setw(4) << std::setfill('0') << nLastFile;
+
+    std::string inputFileName = ostri.str();
+    ATH_MSG_DEBUG("copying the input file: '"<< inputFileName << "'...");
 
     try {
 
-    	/* clean the output directory if m_maxProducedFiles == 0
-    	 * or keep up to 'm_maxProducedFiles' output files
-    	 */
-    	VP1FileUtilities fileUtil(".", m_maxProducedFiles, m_destinationDir, m_createDestinationDir, m_removeTempInputFiles); // inputDir, fileLimit, outputDir, forceMakeOutputDir, removeInputFile
+        /* clean the output directory if m_maxProducedFiles == 0
+         * or keep up to 'm_maxProducedFiles' output files
+         */
+        VP1FileUtilities fileUtil(".", m_maxProducedFiles, m_destinationDir, m_createDestinationDir, m_removeTempInputFiles); // inputDir, fileLimit, outputDir, forceMakeOutputDir, removeInputFile
 
-    	if (m_outputFileType != "")
-    		fileUtil.produceNewFile(ostri.str(), m_runNumber, m_eventNumber, m_timeStamp, m_humanTimestamp+"."+m_outputFileType); // with UNIX and human-readable timestamp
-    	else
-    		fileUtil.produceNewFile(ostri.str(), m_runNumber, m_eventNumber, m_timeStamp, m_humanTimestamp); // with UNIX and human-readable timestamp
+        if (m_outputFileType != "")
+            fileUtil.produceNewFile(ostri.str(), m_runNumber, m_eventNumber, m_timeStamp, m_humanTimestamp+"."+m_outputFileType); // with UNIX and human-readable timestamp
+        else
+            fileUtil.produceNewFile(ostri.str(), m_runNumber, m_eventNumber, m_timeStamp, m_humanTimestamp); // with UNIX timestamp
 
     }
     catch(std::runtime_error& err) {
-      msg(MSG::WARNING) << "Exception caught: " << err.what() << endmsg;
-      msg(MSG::WARNING) << "Unable to produce new VP1 event file" << endmsg;
+      ATH_MSG_WARNING("Exception caught: " << err.what());
+      ATH_MSG_WARNING("In handle() -- Unable to produce new VP1 event file");
     }
   }
 
@@ -143,7 +158,7 @@ void VP1EventProd::handle(const Incident& inc)
    * -------------------------------------------------------------------
    * === NOTE!!! ===
    *
-   * AFTER having processed the file from previous event,
+   * AFTER having processed the file from the previous event,
    * we now update the run number and event number for the current event
    * --------------------------------------------------------------------
    */
@@ -157,72 +172,28 @@ void VP1EventProd::handle(const Incident& inc)
   m_runNumber = context.eventID().run_number();
   m_timeStamp = context.eventID().time_stamp();
 
-  msg(MSG::DEBUG) << " Got run number = " << m_runNumber
-		  << ", event number = " << m_eventNumber
-		  << ", UNIX timestamp = " << m_timeStamp << endmsg;
+  ATH_MSG_DEBUG(" Got run number = " << m_runNumber
+          << ", event number = " << m_eventNumber
+          << ", UNIX timestamp = " << m_timeStamp);
 
   time_t t_timestamp = m_timeStamp;
   tm *ltm = localtime(&t_timestamp);
 
   // print various components of tm structure.
-  msg(MSG::DEBUG) << "Year: "<< 1900 + ltm->tm_year
-		  << " - " << "Month: "<< 1 + ltm->tm_mon<< " - "  // tm_mon is in the range [0, 11], so 1 must be added to get real months
-		  << "Day: "<<  ltm->tm_mday
-		  << " - " "Time: "<< ltm->tm_hour << ":" << ltm->tm_min << ":" << ltm->tm_sec << "CEST"
-		  << endmsg;
+  ATH_MSG_DEBUG("Year: "<< 1900 + ltm->tm_year
+          << " - " << "Month: "<< 1 + ltm->tm_mon<< " - "  // tm_mon is in the range [0, 11], so 1 must be added to get real months
+          << "Day: "<<  ltm->tm_mday
+          << " - " "Time: "<< ltm->tm_hour << ":" << ltm->tm_min << ":" << ltm->tm_sec << "CEST"
+         );
 
   std::ostringstream ostri;
   ostri  << 1900 + ltm->tm_year
-		  << "-" << 1 + ltm->tm_mon  // tm_mon is in the range [0, 11], so 1 must be added to get real months
-		  << "-" << ltm->tm_mday
-		  << "T" << ltm->tm_hour << "-" << ltm->tm_min << "-" << ltm->tm_sec << "CEST";
+          << "-" << 1 + ltm->tm_mon  // tm_mon is in the range [0, 11], so 1 must be added to get real months
+          << "-" << ltm->tm_mday
+          << "T" << ltm->tm_hour << "-" << ltm->tm_min << "-" << ltm->tm_sec << "CEST";
 
   m_humanTimestamp = ostri.str();
-  msg(MSG::DEBUG) << "'human readable' timestamp: " << m_humanTimestamp << endmsg;
-
-
-
-// OLD CODE
-//
-//  const EventInfo*  _evt = 0; // pointer for the event
-//  StatusCode status = evtStore()->retrieve(_evt); // retrieve the pointer to the event
-//
-//  if(status.isSuccess() && _evt!=0) {
-//
-//    m_eventNumber = _evt->event_ID()->event_number(); // from EventInfo/EventID.h
-//    m_runNumber = _evt->event_ID()->run_number();
-//    m_timeStamp = _evt->event_ID()->time_stamp();
-//
-//    msg(MSG::DEBUG) << " Got run number = " << m_runNumber
-//		    << ", event number = " << m_eventNumber
-//		    << ", UNIX timestamp = " << m_timeStamp << endmsg;
-//
-//    time_t t_timestamp = m_timeStamp;
-//    tm *ltm = localtime(&t_timestamp);
-//
-//    // print various components of tm structure.
-//    msg(MSG::DEBUG) << "Year: "<< 1900 + ltm->tm_year
-//		    << " - " << "Month: "<< 1 + ltm->tm_mon<< " - "  // tm_mon is in the range [0, 11], so 1 must be added to get real months
-//		    << "Day: "<<  ltm->tm_mday
-//		    << " - " "Time: "<< ltm->tm_hour << ":" << ltm->tm_min << ":" << ltm->tm_sec << "CEST"
-//		    << endmsg;
-//
-//    std::ostringstream ostri;
-//    ostri  << 1900 + ltm->tm_year
-//	   << "-" << 1 + ltm->tm_mon  // tm_mon is in the range [0, 11], so 1 must be added to get real months
-//	   << "-" << ltm->tm_mday
-//	   << "T" << ltm->tm_hour << "-" << ltm->tm_min << "-" << ltm->tm_sec << "CEST";
-//
-//    m_humanTimestamp = ostri.str();
-//    msg(MSG::DEBUG) << "'human readable' timestamp: " << m_humanTimestamp << endmsg;
-//
-//  }
-//  else {
-//    msg(MSG::ERROR) << " Unable to retrieve EventInfo from StoreGate" << endmsg;
-//    m_eventNumber = 0;
-//    m_runNumber = 0;
-//    m_timeStamp = 0;
-//  }
+  ATH_MSG_DEBUG("'human readable' timestamp: " << m_humanTimestamp);
 
 }
 
