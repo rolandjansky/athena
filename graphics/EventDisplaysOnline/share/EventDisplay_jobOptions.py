@@ -32,15 +32,15 @@ isOfflineTest     = False
 #for the time being, running over file is not possible ONLINE (please see RecExOnline_File_Offline.py) 
 useEmon           = True
 #The number of machines per single monitoring task we run with helpfully labelled "keycount"
-keycount          = 30
-buffersize        = 10
+keycount          = 10 # equal or greater than the number of DCMs for beam splashes
+buffersize        = 10 # three times of keycount for beam splashes
 updateperiod      = 200
-timeout           = 600000
+timeout           = 600000 # 144000000 (40 hrs) for beam splashes
 
 keyname           = 'dcm'
 
 #Blank to read all
-streamName          = ''
+streamName          = '' # 'MinBias' for beam splashes
 
 #Read Physics
 streamType        = 'physics'          #Progonal Does not specify  these
@@ -60,6 +60,17 @@ publishName     = 'EventDisplays'
 
 if (partitionName == 'ATLAS'):
     evtMax            = -1
+    # from Pavol in 2021 beam splashes
+    # for beam plashes when LAr running in 32 samples mode, provide the current run number to LAr config
+    import ispy
+    from ispy import ISObject
+    obj = ispy.ISObject(ispy.IPCPartition(partitionName), 'RunParams.RunParams', 'RunParams')
+    obj.checkout()
+    # setting run number from IS, some configs need it
+    from RecExConfig.RecFlags import rec
+    rec.RunNumber.set_Value_and_Lock(obj.run_number)
+
+
 
 #Don't flood if you are running on a test loop
 if (partitionName != 'ATLAS'):
@@ -76,9 +87,9 @@ InputFormat       = 'bytestream'
 fileName          = './0.data'
 
 #COND tag
-ConditionsTag     = 'CONDBR2-HLTP-2018-01'
+ConditionsTag     = 'CONDBR2-HLTP-2022-01'
 #Current DetDesc
-DetDescrVersion   = 'ATLAS-R2-2016-01-00-01'
+DetDescrVersion   = 'ATLAS-R3S-2021-02-00-00'
 
 doESD             = True
 writeESD          = True # False - Jiggins_12Feb_v2 working version switch 
@@ -92,7 +103,7 @@ doInDet     = doAllReco
 doMuon      = doAllReco
 doLArg      = doAllReco
 doTile      = doAllReco
-doTrigger   = doAllReco 
+doTrigger   = False # lshi 29 Apr 2022 need AthenaMT to turn on trigger reco again
 doHist      = False
 doJiveXML   = False
 doEgammaTau = doAllReco # lshi Feb 18 2022 enable this to get rid of Electron error
@@ -114,6 +125,8 @@ if not 'OutputDirectory' in dir():
 
 from AthenaCommon.GlobalFlags import globalflags
 globalflags.ConditionsTag.set_Value_and_Lock(ConditionsTag)
+# set geometry tag before including RecExOnline. Otherwise something will initialize based on the default geometry tag which is Run2. lshi Apr 2022
+globalflags.DetDescrVersion.set_Value_and_Lock(DetDescrVersion)
 
 ## Setup unique output files (so that multiple Athenas on the same machine don't interfere)
 jobId = os.environ.get('TDAQ_APPLICATION_NAME', '').split(':')
@@ -162,6 +175,11 @@ if (partitionName != 'ATLAS'): # Can't get some information from the test partit
 include ("RecExOnline/RecExOnline_jobOptions.py")
 
 ToolSvc.InDetPixelRodDecoder.OutputLevel = ERROR
+
+topSequence.LArRawDataReadingAlg.FailOnCorruption=False
+
+# lshi from 2021 Pilot Beam: disable SCT in tracking for beam splashes
+#topSequence.InDetSiTrackerSpacePointFinder.ProcessSCTs     = False
 
 include ("EventDisplaysOnline/JiveXMLServer_jobOptions.py")
 include ("EventDisplaysOnline/Atlantis_jobOptions.py")
