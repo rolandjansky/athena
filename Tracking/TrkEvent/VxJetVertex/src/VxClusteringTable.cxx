@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -28,17 +28,6 @@ namespace Trk {
 
   VxClusteringTable::~VxClusteringTable() = default;
 
-  VxClusteringTable & VxClusteringTable::operator= (const VxClusteringTable & rhs) {
-    if (this!=&rhs) {
-      m_compatibilityPairOfVertices=rhs.m_compatibilityPairOfVertices;
-    }
-    return *this;
-  }
-  
-  VxClusteringTable::VxClusteringTable(const VxClusteringTable& rhs) {
-    m_compatibilityPairOfVertices=rhs.m_compatibilityPairOfVertices;
-  }
-  
   MsgStream& VxClusteringTable::dump(MsgStream& sl) const {
     sl << "Trk::VxClusteringTable:" << endmsg;
     if (m_compatibilityPairOfVertices.empty()) {
