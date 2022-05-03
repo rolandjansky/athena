@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // McEventCollectionCnv_p1.cxx
@@ -64,7 +64,7 @@ void McEventCollectionCnv_p1::persToTrans( const McEventCollection_p1* persObj,
   datapool.part.reserve( 1000 );
 
   // create a T/P converter for the GenEvent class
-  static GenEventCnv_p1 genEvtCnv;
+  GenEventCnv_p1 genEvtCnv;
   genEvtCnv.setDataPool( &datapool );
 
   const std::size_t nEvts = persObj->size();
