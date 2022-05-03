@@ -72,11 +72,6 @@ class TrackingGeometry
   // gives ownership over MuonTG constituents
   friend class Muon::MuonTrackingGeometryBuilderCond;
 
-  // give access to private members to allow the  class below to mirror a
-  // TrackingGeometry. This is needed for a temporary workaround to allow using
-  // the TrackingGeometryCondAlg and TrackingGeometrySvc at the same time.
-  // @TODO revert once the TrackingGeometrySvc is completly replaced
-  friend class TrackingGeometryMirror;
 
 public:
   /** Constructor */
@@ -144,6 +139,10 @@ public:
    * geometrySignature */
   void indexStaticLayers ATLAS_NOT_THREAD_SAFE(GeometrySignature geosit,
                                                int offset = 0);
+  
+  
+  
+  void dump(MsgStream &out, const std::string &head) const;
 
 private:
   /** Geometry Builder busineess:
@@ -183,6 +182,10 @@ private:
                               const TrackingVolume& tvol,
                               int lvl) const;
 
+  static void dumpLayer(MsgStream &out, const std::string &head, const Layer *layer);
+
+  
+  
   /** The known world - and the beam */
   TrackingVolume* m_world;
 
