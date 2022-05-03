@@ -293,7 +293,7 @@ Trk::ElectronMaterialMixtureConvolution::update(
       // make sure update is good.
       if (!updateP(caches[i].deltaParameters[j][Trk::qOverP],
                    caches[i].deltaPs[j])) {
-        ATH_MSG_ERROR("Cannot update state vector momentum!!! return nullptr");
+        ATH_MSG_ERROR("Cannot update state vector momentum!!!");
         return {};
       }
       // Store component weight

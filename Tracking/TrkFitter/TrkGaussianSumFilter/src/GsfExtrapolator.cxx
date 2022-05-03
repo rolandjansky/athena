@@ -105,7 +105,7 @@ multiStatePropagate(
   propagatedState.reserve(multiComponentState.size());
   Trk::MultiComponentState::const_iterator component =
     multiComponentState.begin();
-  double sumw(0); // HACK variable to avoid propagation errors
+  double sumw(0); //sum of the weights of the propagated parameters
   for (; component != multiComponentState.end(); ++component) {
     const Trk::TrackParameters* currentParameters = component->first.get();
     if (!currentParameters) {
@@ -126,10 +126,9 @@ multiStatePropagate(
     propagatedState.emplace_back(std::move(propagatedParameters),
                                  component->second);
   }
-
-  // Protect against empty propagation
-  if (propagatedState.empty() || sumw < 0.1) {
-    return {};
+  // Protect low weight propagation
+  if (sumw < 0.1) {
+    propagatedState.clear();
   }
   return propagatedState;
 }
@@ -479,9 +478,6 @@ Trk::GsfExtrapolator::extrapolateImpl(
                           boundaryCheck,
                           particleHypothesis);
 
-    if (bailOutState.empty()) {
-      return {};
-    }
     emptyRecycleBins(cache);
     return bailOutState;
   }
@@ -522,10 +518,6 @@ Trk::GsfExtrapolator::extrapolateImpl(
                                            particleHypothesis);
   }
   emptyRecycleBins(cache);
-  if (destinationState.empty()) {
-    return {};
-  }
-  // After successful extrapolation return the state
   return destinationState;
 }
 
@@ -668,9 +660,7 @@ Trk::GsfExtrapolator::extrapolateToVolumeBoundary(
     resetRecallInformation(cache);
   }
 
-  // !< TODO check the material on the boundary
   if (useBoundaryMaterialUpdate) {
-
     // Check for two things:
     // 1. If the next volume was found
     // 2. If there is material associated with the boundary layer.
