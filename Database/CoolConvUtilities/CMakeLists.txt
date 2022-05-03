@@ -24,4 +24,5 @@ atlas_install_scripts( share/AtlCoolConsole.py share/coolIOVToTimeStamp.py share
 
 atlas_add_test( AtlCoolCopy_test
                 SCRIPT share/AtlCoolCopy_test.sh
+                LOG_IGNORE_PATTERN "Cannot find plugin for connection string .oracle"
                 PROPERTIES TIMEOUT 300 )
