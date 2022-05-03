@@ -340,6 +340,9 @@ def createTrackingPassFlags():
     icf.addFlag("TrkSel.TRTTrksMinTRTHitsThresholds"    , [  0,   0,   0,   0,   0,   0,   0,   0,   0,   0])  # eta-dep nTRT for TRT conversion tracks (> 15 is applied elsewhere)
     icf.addFlag("TrkSel.TRTTrksMinTRTHitsMuDependencies", [  0,   0,   0,   0,   0,   0,   0,   0,   0,   0])  # eta-dep nTRT, mu dependence for TRT conversion tracks
 
+    # --- Pixel and TRT particle ID during particle creation
+    icf.addFlag("RunPixelPID", True)
+    icf.addFlag("RunTRTPID", True)
     return icf
 
 ### RobustReco mode ####################
@@ -420,6 +423,10 @@ def createITkTrackingPassFlags():
     icf.addFlag("minPTBrem"               , [1000.0 * Units.mm])
     icf.addFlag("phiWidthBrem"            , [0.3])
     icf.addFlag("etaWidthBrem"            , [0.2])
+
+    # --- Pixel and TRT particle ID during particle creation
+    icf.addFlag("RunPixelPID", False)
+    icf.addFlag("RunTRTPID",   False)
 
     return icf
 
@@ -507,6 +514,8 @@ def createITkLargeD0FastTrackingPassFlags():
     icf.maxZImpactSeed     = 200. * Units.mm
     icf.radMax             = 400. * Units.mm
 
+    icf.RunPixelPID        = False
+    icf.RunTRTPID          = False
     return icf
 
 ### HighPileUP mode ####################
@@ -564,6 +573,9 @@ def createLargeD0TrackingPassFlags():
     icf.seedFilterLevel    = 1
     icf.maxTracksPerSharedPRD = 2
 
+    icf.RunPixelPID             = False
+    icf.RunTRTPID               = False
+
     return icf
 
 
@@ -602,6 +614,9 @@ def createR3LargeD0TrackingPassFlags():
     icf.keepAllConfirmedStripSeeds = True
     icf.maxSeedsPerSP_Strips = 1
 
+    icf.RunPixelPID        = False
+    icf.RunTRTPID          = False
+
     return icf
 
 ## LowPtLargeD0 mode ########################
@@ -630,6 +645,9 @@ def createLowPtLargeD0TrackingPassFlags():
     icf.nHolesGapMax       = icf.maxHoles
     icf.seedFilterLevel    = 1
     icf.maxTracksPerSharedPRD = 2
+
+    icf.RunPixelPID        = False
+    icf.RunTRTPID          = False
 
     return icf
 
@@ -737,6 +755,9 @@ def createForwardTracksTrackingPassFlags():
     icf.nHolesGapMax     = icf.maxHoles
     icf.radMax           = 600. * Units.mm
     icf.useTRT           = False # no TRT for forward tracks
+
+    icf.RunPixelPID      = False
+    icf.RunTRTPID        = False
 
     return icf
 
@@ -907,6 +928,8 @@ def createPixelTrackingPassFlags():
     icf.Xi2maxNoAdd      = lambda pcf: 100.0  if pcf.Beam.Type is BeamType.Cosmics else Xi2maxNoAdd_ranges( pcf )
     icf.nWeightedClustersMin = 6
 
+    icf.RunPixelPID      = False
+    icf.RunTRTPID        = False
     return icf
 
 ########## Disappearing mode ######################
@@ -974,6 +997,8 @@ def createSCTTrackingPassFlags():
     icf.minClusters      = lambda pcf: 4 if pcf.InDet.Tracking.doInnerDetectorCommissioning and pcf.Beam.Type is BeamType.Cosmics else minClusters_ranges( pcf )
     icf.minSiNotShared   = lambda pcf: 4 if pcf.InDet.Tracking.doInnerDetectorCommissioning and pcf.Beam.Type is BeamType.Cosmics else 5
     
+    icf.RunPixelPID      = False
+    icf.RunTRTPID        = False
     return icf
 
 ########## TRT subdetector tracklet cuts  ##########
@@ -986,6 +1011,8 @@ def createTRTTrackingPassFlags():
     icf.minTRTonly              = 15
     icf.maxTRTonlyShared        = 0.7
 
+    icf.RunPixelPID             = False
+    icf.RunTRTPID               = False
     return icf
 
 
@@ -1037,6 +1064,9 @@ def createDBMTrackingPassFlags():
     icf.useTRT           = False
     icf.useSCT           = False
     icf.usePixel         = True
+
+    icf.RunPixelPID      = False
+    icf.RunTRTPID        = False
 
     return icf
 

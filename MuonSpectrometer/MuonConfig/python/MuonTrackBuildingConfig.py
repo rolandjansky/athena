@@ -457,6 +457,8 @@ def MuonStandaloneTrackParticleCnvAlgCfg(flags, name = "MuonStandaloneTrackParti
     muon_hit_summary_tool = result.popToolsAndMerge(MuonHitSummaryToolCfg(flags))
     muon_particle_creator_tool = result.getPrimaryAndMerge( TrackParticleCreatorToolCfg(flags, name="MuonParticleCreatorTool", 
                                                                     TrackSummaryTool=track_summary_tool, 
+                                                                    TRT_ElectronPidTool=None,
+                                                                    PixelToTPIDTool=None,
                                                                     KeepAllPerigee=True,
                                                                     MuonSummaryTool= muon_hit_summary_tool,
                                                                     PerigeeExpression="Origin"  ) )

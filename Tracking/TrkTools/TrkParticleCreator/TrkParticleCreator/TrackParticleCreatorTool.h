@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -28,6 +28,8 @@ changes : 11.02.04 added docu
 #include "TrkParameters/TrackParameters.h"
 #include "TrkParticleBase/TrackParticleBase.h" // for TrackParticleOrigin enum
 #include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
+#include "TrkToolInterfaces/IPixelToTPIDTool.h" //template parameter to tool handle
+#include "TrkToolInterfaces/ITRT_ElectronPidTool.h" //template parameter to tool handle
 #include "TrkTrack/TrackInfo.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
 #include "TrkTrackSummary/TrackSummary.h"
@@ -144,6 +146,13 @@ public:
   void setTrackSummary(xAOD::TrackParticle& tp,
                        const TrackSummary& summary) const;
 
+  /** Add Pixel and TRT PID information to the track particle.
+   * @param ctx the current event context
+   * @param track a valid track or nullptr to set all PID values to the default value.
+   * @param tp the trackparticle in which the PID values are set.
+   */
+   void addPIDInformation(const EventContext& ctx, const Track *track, xAOD::TrackParticle& tp) const;
+
   /** Method to set Defining parameters of a xAOD::TrackParticle */
   void setDefiningParameters(xAOD::TrackParticle& tp,
                              const Perigee& perigee) const;
@@ -169,6 +178,20 @@ public:
   {
     return s_trtdEdxUsedHitsDecorationName;
   }
+
+protected:
+  /** create a xAOD::TrackParticle out of constituents */
+  xAOD::TrackParticle* createParticle(
+    const EventContext& ctx,
+    const Perigee* perigee,
+    const FitQuality* fq,
+    const TrackInfo* trackInfo,
+    const TrackSummary* summary,
+    const std::vector<const Trk::TrackParameters*>& parameters,
+    const std::vector<xAOD::ParameterPosition>& positions,
+    xAOD::ParticleHypothesis prtOrigin,
+    xAOD::TrackParticleContainer* container,
+    const Trk::Track *track) const;
 
 private:
   void compare(const Rec::TrackParticle& tp,
@@ -208,6 +231,14 @@ private:
     "fieldCondObj",
     "Name of the Magnetic Field conditions object key"
   };
+
+   /**tool to calculate electron probabilities*/
+  ToolHandle<ITRT_ElectronPidTool> m_eProbabilityTool{ this,
+                                                       "TRT_ElectronPidTool",
+                                                       "",
+                                                       "" };
+  /**tool to calculate dE/dx using pixel clusters*/
+  ToolHandle<IPixelToTPIDTool> m_dedxtool{ this, "PixelToTPIDTool", "", "" };
 
   /** Configurable to set the eProbabilities and extra track summary types which
    * are to be copied from the track summary.*/

@@ -13,20 +13,6 @@ def GSFTrackSummaryToolCfg(flags,
 
     acc = ComponentAccumulator()
 
-    if "PixelToTPIDTool" not in kwargs:
-        if flags.Detector.EnablePixel:
-            kwargs["PixelToTPIDTool"] = CompFactory.InDet.PixelToTPIDTool(
-                name="GSFBuildPixelToTPIDTool")
-        else:
-            kwargs["PixelToTPIDTool"] = None
-
-    # TODO what happens to
-    # ClusterSplitProbabilityName=
-    # TrackingCommon.combinedClusterSplitProbName() ?
-    # It is "InDetTRT_SeededAmbiguityProcessorSplitProb" in run-2 config
-    #         (because backTrk and TRTSA are run)
-    # It might be "AmbiguityProcessorSplitProb" in run-3 config
-    # (only one existing till now)
     if "InDetSummaryHelperTool" not in kwargs:
         testBLTool = None
         if flags.Detector.EnablePixel:
@@ -45,22 +31,9 @@ def GSFTrackSummaryToolCfg(flags,
                 name="GSFBuildTrackSummaryHelperTool",
                 HoleSearch=None,
                 AssoTool=None,
-                PixelToTPIDTool=kwargs["PixelToTPIDTool"],
+                PixelToTPIDTool=None,
                 TestBLayerTool=testBLTool
             ))
-
-    if "TRT_ElectronPidTool" not in kwargs:
-        if flags.Detector.EnableTRT:
-            from InDetConfig.TRT_ElectronPidToolsConfig import (
-                TRT_ElectronPidToolCfg)
-            kwargs["TRT_ElectronPidTool"] = acc.popToolsAndMerge(
-                TRT_ElectronPidToolCfg(
-                    flags,
-                    name="GSFBuildTRT_ElectronPidTool",
-                    CalculateNNPid=(flags.GeoModel.Run is LHCPeriod.Run3),
-                    MinimumTrackPtForNNPid=0.))
-        else:
-            kwargs["TRT_ElectronPidTool"] = None
 
     kwargs.setdefault("doSharedHits", False)
     kwargs.setdefault("doHolesInDet", False)
@@ -90,13 +63,26 @@ def EMBremCollectionBuilderCfg(flags,
 
     if "TrackParticleCreatorTool" not in kwargs:
         from InDetConfig.TrackRecoConfig import TrackToVertexCfg
-        trackSummaryTool = acc.getPrimaryAndMerge(
-            GSFTrackSummaryToolCfg(flags))
+
+        from InDetConfig.TRT_ElectronPidToolsConfig import (
+            TRT_ElectronPidToolCfg)
+
         gsfTrackParticleCreatorTool = CompFactory.Trk.TrackParticleCreatorTool(
             name="GSFBuildInDetParticleCreatorTool",
             KeepParameters=True,
             TrackToVertex=acc.popToolsAndMerge(TrackToVertexCfg(flags)),
-            TrackSummaryTool=trackSummaryTool,
+            TrackSummaryTool=acc.getPrimaryAndMerge(
+                GSFTrackSummaryToolCfg(flags)),
+            PixelToTPIDTool=(CompFactory.InDet.PixelToTPIDTool(
+                name="GSFBuildPixelToTPIDTool")
+                if flags.GeoModel.Run < LHCPeriod.Run4 else None),
+            TRT_ElectronPidTool=(acc.popToolsAndMerge(
+                TRT_ElectronPidToolCfg(
+                    flags,
+                    name="GSFBuildTRT_ElectronPidTool",
+                    CalculateNNPid=(flags.GeoModel.Run is LHCPeriod.Run3),
+                    MinimumTrackPtForNNPid=0.))
+                if flags.Detector.EnableTRT else None),
             BadClusterID=0,
             IBLParameterSvc=(
                 "IBLParameterSvc" if flags.Detector.GeometryID else "")
@@ -111,9 +97,11 @@ def EMBremCollectionBuilderCfg(flags,
         kwargs["TrackSlimmingTool"] = slimmingTool
 
     kwargs.setdefault(
-        "usePixel", flags.Detector.EnablePixel or flags.Detector.EnableITkPixel)
+        "usePixel",
+        flags.Detector.EnablePixel or flags.Detector.EnableITkPixel)
     kwargs.setdefault(
-        "useSCT", flags.Detector.EnableSCT or flags.Detector.EnableITkStrip)
+        "useSCT",
+        flags.Detector.EnableSCT or flags.Detector.EnableITkStrip)
     kwargs.setdefault("useTRT", flags.Detector.EnableTRT)
     kwargs.setdefault("DoTruth", flags.Input.isMC)
 

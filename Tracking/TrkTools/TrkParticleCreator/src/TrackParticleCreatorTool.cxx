@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -259,6 +259,9 @@ TrackParticleCreatorTool::initialize()
       sc = StatusCode::FAILURE;
     }
   }
+
+  ATH_CHECK(  m_eProbabilityTool.retrieve( DisableTool{m_eProbabilityTool.empty()} ) );
+  ATH_CHECK(  m_dedxtool.retrieve( DisableTool{m_dedxtool.empty()} ) );
 
   ATH_MSG_VERBOSE(" initialize successful.");
   return sc;
@@ -574,7 +577,8 @@ TrackParticleCreatorTool::createParticle(const EventContext& ctx,
                                                       parameters,
                                                       parameterPositions,
                                                       prtOrigin,
-                                                      container);
+                                                      container,
+                                                      &track);
 
   static const SG::AuxElement::Accessor<int> nbCmeas("nBC_meas");
   switch (m_badclusterID) {
@@ -635,7 +639,8 @@ TrackParticleCreatorTool::createParticle(const EventContext& ctx,
                    trackParticle.trackParameters(),
                    positions,
                    static_cast<xAOD::ParticleHypothesis>(trackParticle.info().particleHypothesis()),
-                   container);
+                   container,
+                   nullptr);
 
   if (!trackparticle) {
     ATH_MSG_WARNING("WARNING: Problem creating TrackParticle - Returning 0");
@@ -672,6 +677,19 @@ TrackParticleCreatorTool::createParticle(const EventContext& ctx,
   return trackparticle;
 }
 
+inline xAOD::TrackParticle* TrackParticleCreatorTool::createParticle(
+                      const EventContext& ctx,
+                      const Perigee* perigee,
+                      const FitQuality* fq,
+                      const TrackInfo* trackInfo,
+                      const TrackSummary* summary,
+                      const std::vector<const Trk::TrackParameters*>& parameters,
+                      const std::vector<xAOD::ParameterPosition>& positions,
+                      xAOD::ParticleHypothesis prtOrigin,
+                      xAOD::TrackParticleContainer* container) const {
+   return createParticle(ctx,perigee, fq, trackInfo, summary, parameters,  positions, prtOrigin, container, nullptr);
+}
+
 xAOD::TrackParticle*
 TrackParticleCreatorTool::createParticle(const EventContext& ctx,
                                          const Perigee* perigee,
@@ -681,7 +699,8 @@ TrackParticleCreatorTool::createParticle(const EventContext& ctx,
                                          const std::vector<const Trk::TrackParameters*>& parameters,
                                          const std::vector<xAOD::ParameterPosition>& positions,
                                          xAOD::ParticleHypothesis prtOrigin,
-                                         xAOD::TrackParticleContainer* container) const
+                                         xAOD::TrackParticleContainer* container,
+                                         const Trk::Track *track) const
 {
 
   xAOD::TrackParticle* trackparticle = new xAOD::TrackParticle;
@@ -716,6 +735,7 @@ TrackParticleCreatorTool::createParticle(const EventContext& ctx,
     setHitPattern(*trackparticle, summary->getHitPattern());
     setNumberOfUsedHits(*trackparticle, summary->numberOfUsedHitsdEdx());
     setNumberOfOverflowHits(*trackparticle, summary->numberOfOverflowHitsdEdx());
+    addPIDInformation(ctx, track, *trackparticle);
   }
   const auto* beamspot = CacheBeamSpotData(ctx);
   if (beamspot) {
@@ -941,7 +961,52 @@ TrackParticleCreatorTool::setTrackSummary(xAOD::TrackParticle& tp, const TrackSu
     tp.setSummaryValue(numberOfTriggerEtaLayers, xAOD::numberOfTriggerEtaLayers);
     tp.setSummaryValue(numberOfTriggerEtaHoleLayers, xAOD::numberOfTriggerEtaHoleLayers);
   }
+
 }
+
+void
+TrackParticleCreatorTool::addPIDInformation(const EventContext& ctx, const Trk::Track *track, xAOD::TrackParticle& tp) const
+{
+  // TRT PID information
+  {
+     static const std::vector<float> eProbabilityDefault(numberOfeProbabilityTypes,0.5);
+     constexpr int initialValue{-1};
+     std::vector<float> eProbability_tmp;
+     const std::vector<float> &eProbability ( track && !m_eProbabilityTool.empty() ? eProbability_tmp = m_eProbabilityTool->electronProbability(ctx,*track)  : eProbabilityDefault);
+     int nHits = track && !m_eProbabilityTool.empty() ? eProbability[Trk::eProbabilityNumberOfTRTHitsUsedFordEdx] : initialValue;
+     for (const Trk::eProbabilityType& copy : m_copyEProbabilities) {
+        float eProbability_value = eProbability.at(copy);
+        tp.setSummaryValue(eProbability_value, static_cast<xAOD::SummaryType>(copy + xAOD::eProbabilityComb));
+     }
+     for (const std::pair<SG::AuxElement::Accessor<float>, Trk::eProbabilityType>& decoration :
+             m_decorateEProbabilities) {
+        float fvalue = eProbability.at(decoration.second);
+        decoration.first(tp) = fvalue;
+     }
+     // now the extra summary types
+     for (const std::pair<SG::AuxElement::Accessor<uint8_t>, Trk::SummaryType>& decoration :
+             m_decorateSummaryTypes) {
+        uint8_t summary_value = nHits;
+        decoration.first(tp) = summary_value;
+     }
+
+  }
+
+  // PixelPID
+  {
+     const int initialValue{-1};
+     float dedx = initialValue;
+     int nHitsUsed_dEdx = initialValue;
+     int nOverflowHits_dEdx = initialValue;
+     if (track && !m_dedxtool.empty() && track->info().trackFitter() != TrackInfo::Unknown) {
+        dedx = m_dedxtool->dEdx(ctx, *track, nHitsUsed_dEdx, nOverflowHits_dEdx);
+     }
+     tp.setNumberOfUsedHitsdEdx(nHitsUsed_dEdx);
+     tp.setNumberOfIBLOverflowsdEdx(nOverflowHits_dEdx);
+     tp.setSummaryValue(dedx, static_cast<xAOD::SummaryType>(51));
+  }
+}
+
 
 const InDet::BeamSpotData*
 TrackParticleCreatorTool::CacheBeamSpotData(const EventContext& ctx) const

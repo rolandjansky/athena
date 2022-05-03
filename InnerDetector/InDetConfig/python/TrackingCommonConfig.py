@@ -204,12 +204,10 @@ def InDetTrackSummaryToolSharedHitsCfg(flags, name='InDetTrackSummaryToolSharedH
         if not flags.Detector.EnableTRT or flags.InDet.Tracking.doHighPileup:
             kwargs.setdefault("TRT_ElectronPidTool", None)
         else:
-            from InDetConfig.TRT_ElectronPidToolsConfig import TRT_ElectronPidToolCfg
-            kwargs.setdefault("TRT_ElectronPidTool", acc.popToolsAndMerge(TRT_ElectronPidToolCfg(flags, name="InDetTRT_ElectronPidTool")))
+            kwargs.setdefault("TRT_ElectronPidTool", None )
 
     if 'PixelToTPIDTool' not in kwargs:
-        InDetPixelToTPIDTool = acc.popToolsAndMerge(InDetPixelToTPIDToolCfg(flags))
-        kwargs.setdefault( "PixelToTPIDTool", InDetPixelToTPIDTool)
+        kwargs.setdefault( "PixelToTPIDTool", None )
 
     kwargs.setdefault( "doSharedHits", flags.InDet.Tracking.doSharedHits)
 

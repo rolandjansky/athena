@@ -123,6 +123,11 @@ def MuonCombinedParticleCreatorCfg(flags, name="MuonCombinedParticleCreator", **
         kwargs.setdefault('TrackToVertex', result.popToolsAndMerge(
             MuonTrackToVertexCfg(flags)))
 
+    # if "PixelToTPIDTool" not in kwargs and not flags.Muon.MuonTrigger and flags.GeoModel.Run < LHCPeriod.Run4:
+    #    from InDetConfig.TrackingCommonConfig import InDetPixelToTPIDToolCfg
+    #    kwargs.setdefault("PixelToTPIDTool", result.popToolsAndMerge(
+    #        InDetPixelToTPIDToolCfg(flags)))
+
     kwargs.setdefault("KeepAllPerigee", True)
     kwargs.setdefault("MuonSummaryTool", result.popToolsAndMerge(
         MuonHitSummaryToolCfg(flags)))
@@ -305,6 +310,10 @@ def MuonCreatorToolCfg(flags, name="MuonCreatorTool", **kwargs):
     else:
         kwargs.setdefault("TrackSummaryTool", result.popToolsAndMerge(
             MuonCombinedTrackSummaryToolCfg(flags)))
+
+    # kwargs.setdefault("CopyFloatSummaryKeys",[])
+    kwargs.setdefault("CopyUInt8SummaryKeys",[]),
+
 
     if flags.Muon.MuonTrigger:
         kwargs.setdefault("MuonSelectionTool", "")

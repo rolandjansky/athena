@@ -45,8 +45,7 @@ def InDetSummaryHelperSharedHitsCfg(flags, name='InDetSummaryHelperSharedHits', 
 
   if 'PixelToTPIDTool' not in kwargs :
     from InDetConfig.TrackingCommonConfig import InDetPixelToTPIDToolCfg
-    InDetPixelToTPIDTool = acc.popToolsAndMerge(InDetPixelToTPIDToolCfg(flags))
-    kwargs.setdefault("PixelToTPIDTool", InDetPixelToTPIDTool)
+    kwargs.setdefault("PixelToTPIDTool", acc.popToolsAndMerge(InDetPixelToTPIDToolCfg(flags)) )
 
   if 'TestBLayerTool' not in kwargs and flags.Detector.EnablePixel:
     from InDetConfig.TrackingCommonConfig import InDetRecTestBLayerToolCfg

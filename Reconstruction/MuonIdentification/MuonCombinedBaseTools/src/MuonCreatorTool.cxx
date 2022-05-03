@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -101,6 +101,14 @@ namespace MuonCombined {
         ATH_CHECK(m_cellContainerName.initialize(m_useCaloCells));
         ATH_CHECK(m_trackSummaryTool.retrieve());
 
+        m_copyFloatSummaryAccessors.reserve( m_copyFloatSummaryKeys.size() );
+        for (const std::string &a_key : m_copyFloatSummaryKeys ) {
+           m_copyFloatSummaryAccessors.push_back(std::make_unique< SG::AuxElement::Accessor<float> >(a_key));
+        }
+        m_copyCharSummaryAccessors.reserve( m_copyCharSummaryKeys.size() );
+        for (const std::string &a_key : m_copyCharSummaryKeys ) {
+           m_copyCharSummaryAccessors.push_back(std::make_unique< SG::AuxElement::Accessor<uint8_t> >(a_key));
+        }
         return StatusCode::SUCCESS;
     }
     void MuonCreatorTool::create(const EventContext& ctx, const MuonCandidateCollection* muonCandidates,
@@ -448,6 +456,15 @@ namespace MuonCombined {
                     std::bitset<xAOD::NumberOfTrackRecoInfo> pattern;
                     pattern.set(xAOD::STACO);
                     tp->setPatternRecognitionInfo(pattern);
+
+                    const xAOD::TrackParticle &id_track_particle = candidate->indetTrackParticle();
+                    for (const std::unique_ptr< SG::AuxElement::Accessor<float> > &accessor  : m_copyFloatSummaryAccessors ) {
+                       (*accessor)( *tp ) = (*accessor)( id_track_particle );
+                    }
+                    for (const std::unique_ptr< SG::AuxElement::Accessor<uint8_t> > &accessor  : m_copyCharSummaryAccessors ) {
+                       (*accessor)( *tp ) = (*accessor)( id_track_particle );
+                    }
+
                 }
             }  // endif outputData.combinedTrackParticleContainer
         }
