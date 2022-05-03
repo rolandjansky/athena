@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /////////////////////////////////////////////////////////////////
 // MuPlusDpstCascade.cxx, (c) ATLAS Detector software
@@ -141,6 +141,9 @@ namespace DerivationFramework {
       SG::AuxElement::Decorator<float> ChargePi_s_decor("Pi_s_charge");
       SG::AuxElement::Decorator<float> Chi2Mu_decor("Mu_chi2");
       SG::AuxElement::Decorator<float> nDoFMu_decor("Mu_nDoF");
+      //muon contribution to chi2 of the cascade fit
+      SG::AuxElement::Decorator<float> MuChi2B_decor("Mu_chi2_B");
+      SG::AuxElement::Decorator<float> MunDoFB_decor("Mu_nDoF_B");
 
 
       // Get mu+pi container and identify the input mu+pi
@@ -259,6 +262,10 @@ namespace DerivationFramework {
         ndof_decor(*mainVertex) = x->nDoF();
         Chi2Mu_decor(*mainVertex) = cascadeVertices[1]->trackParticle(0)->chiSquared();
         nDoFMu_decor(*mainVertex) = cascadeVertices[1]->trackParticle(0)->numberDoF();
+        // track contribution to chi2 of cascasde fit
+        std::vector< Trk::VxTrackAtVertex > trkAtB = cascadeVertices[1]->vxTrackAtVertex();
+        MuChi2B_decor(*mainVertex) = trkAtB.at(0).trackQuality().chiSquared();
+        MunDoFB_decor(*mainVertex) = trkAtB.at(0).trackQuality().numberDoF();
 
         float massMuPi = 0.;
         if (MuPiVertex) {
@@ -447,7 +454,7 @@ namespace DerivationFramework {
        declareProperty("DstMassUpperCutAft",        m_DstMassUpperAft); //mass cut after cascade fit
        declareProperty("MassLowerCut",              m_MassLower);
        declareProperty("MassUpperCut",              m_MassUpper);
-       declareProperty("HypothesisName",            m_hypoName               = "Bc");
+       declareProperty("HypothesisName",            m_hypoName               = "B");
        declareProperty("Vtx0MassHypo",              m_vtx0MassHypo);
        declareProperty("Vtx1MassHypo",              m_vtx1MassHypo);
        declareProperty("Vtx0Daug1MassHypo",         m_vtx0Daug1MassHypo);
@@ -492,7 +499,6 @@ namespace DerivationFramework {
         double mass_d0 = m_vtx1MassHypo;
         std::vector<const xAOD::TrackParticle*> tracksMuPi;
         std::vector<const xAOD::TrackParticle*> tracksD0;
-        //std::vector<const xAOD::TrackParticle*> tracksBc;
         std::vector<double> massesMuPi;
         massesMuPi.push_back(m_vtx0Daug1MassHypo); //mass mu
         massesMuPi.push_back(m_vtx0Daug2MassHypo); //mass pi
@@ -633,11 +639,6 @@ namespace DerivationFramework {
               //ATH_MSG_INFO("CUSTOM:: "<<*(trackAcc(*d0Itr)).at(0));
               //ATH_MSG_INFO("CUSTOM2:: "<<tracksD0.at(0));             //-> gives the same result
 
-              //tracksBc.clear(); //size = 4
-              //for( unsigned int it=0; it<MuPiTrkNum; it++) tracksBc.push_back(MuPiItr->trackParticle(it));
-              //for( unsigned int it=0; it<d0TrkNum; it++) tracksBc.push_back(d0Itr->trackParticle(it));
-              
-
               // Apply the user's settings to the fitter
               // Reset
               m_iVertexFitter->setDefault();
@@ -706,8 +707,8 @@ namespace DerivationFramework {
                   } else {
                     ATH_MSG_DEBUG("Candidate rejected by the mass cut: mass = "
                                   << mass << " != (" << m_MassLower << ", " << m_MassUpper << ")" );
-                  }
-                }
+                  } //mass Upper/Lower
+                } //chi2CutPassed
               } //if (result != nullptr)
 
            } //Iterate over D0 vertices

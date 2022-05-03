@@ -177,6 +177,9 @@ namespace DerivationFramework {
       SG::AuxElement::Decorator<float> MuEta_decor("Mu_eta");
       SG::AuxElement::Decorator<float> MuChi2_decor("Mu_chi2");
       SG::AuxElement::Decorator<float> MunDoF_decor("Mu_nDoF");
+      //muon contribution to chi2 of the cascade fit
+      SG::AuxElement::Decorator<float> MuChi2B_decor("Mu_chi2_B");
+      SG::AuxElement::Decorator<float> MunDoFB_decor("Mu_nDoF_B");
 
       SG::AuxElement::Decorator<float> ChargeK_decor("K_charge");
       SG::AuxElement::Decorator<float> ChargeX1_decor("X_charge"); // K (Ds+) or pi (D+, Lambda_c+)
@@ -354,6 +357,11 @@ namespace DerivationFramework {
         ChargeMu_decor(*mainVertex) = selectedMuons.at(0)->charge();
         MuChi2_decor(*mainVertex) = cascadeVertices[1]->trackParticle(0)->chiSquared();
         MunDoF_decor(*mainVertex) = cascadeVertices[1]->trackParticle(0)->numberDoF();
+        
+        // track contribution to chi2 of cascasde fit
+        std::vector< Trk::VxTrackAtVertex > trkAtB = cascadeVertices[1]->vxTrackAtVertex();
+        MuChi2B_decor(*mainVertex) = trkAtB.at(0).trackQuality().chiSquared();
+        MunDoFB_decor(*mainVertex) = trkAtB.at(0).trackQuality().numberDoF();
           
         //--------------------- Dx / Lambda_c
         //tagDp = true by default, for Ds+/-, D+ and Lambda_c+
@@ -533,7 +541,7 @@ namespace DerivationFramework {
        declareProperty("DxMassUpperCut",            m_DxMassUpper);
        declareProperty("MassLowerCut",              m_MassLower);
        declareProperty("MassUpperCut",              m_MassUpper);
-       declareProperty("HypothesisName",            m_hypoName               = "Bc");
+       declareProperty("HypothesisName",            m_hypoName               = "B");
        declareProperty("Vtx0MassHypo",              m_vtx0MassHypo);
        declareProperty("Vtx1MassHypo",              m_vtx1MassHypo);
        declareProperty("Vtx0Daug1MassHypo",         m_vtx0Daug1MassHypo);
@@ -578,7 +586,6 @@ namespace DerivationFramework {
         double mass_d = m_vtx1MassHypo; 
         std::vector<const xAOD::TrackParticle*> tracksMu;
         std::vector<const xAOD::TrackParticle*> tracksDx;
-        //std::vector<const xAOD::TrackParticle*> tracksBc;
         std::vector<double> massesMu;
         massesMu.push_back(m_vtx0Daug1MassHypo); // µ
         std::vector<double> massesDx;
@@ -750,11 +757,7 @@ namespace DerivationFramework {
               if(std::find(tracksDx.cbegin(), tracksDx.cend(), TrkMuon) != tracksDx.cend()) continue; //looking for the muons in the D+ tracks
                
               ATH_MSG_DEBUG("Using tracks" << tracksMu[0] << ", " << tracksDx[0] << ", " << tracksDx[1] << ", " << tracksDx[2]);
-              //tracksBc.clear();
-              //tracksBc.push_back(TrkMuon);
-              //for( unsigned int it=0; it<dxTrkNum; it++) tracksBc.push_back(dxItr->trackParticle(it));
-                
-              // Apply the user's settings to the fitter
+               // Apply the user's settings to the fitter
               // Reset
               m_iVertexFitter->setDefault();
               // Robustness
@@ -836,7 +839,6 @@ namespace DerivationFramework {
                         continue;
                     }
                 }
-
 
                 double mass = m_CascadeTools->invariantMass(moms[1]);
                 if(chi2CutPassed) {
