@@ -236,7 +236,13 @@ StatusCode Trk::CETmaterial::execute()
                                                                                                     false,
                                                                                                     (Trk::ParticleHypothesis)m_particleType);
             ATH_MSG_INFO ( "material scan:backward:" );
-            if (peri) ATH_MSG_DEBUG ("trPar vector size:" << peri->size() );
+            if (peri){
+              ATH_MSG_DEBUG ("trPar vector size:" << peri->size() );
+            } else {
+              ATH_MSG_ERROR ("Perigee pointer is null in CETmaterial.cxx");
+              delete msEntry;
+              return StatusCode::FAILURE;
+            }
             for (unsigned int i=0; i< peri->size(); i++)
                 if ((*peri)[i] && (*peri)[i]->trackParameters())
                     ATH_MSG_DEBUG( "position:eloss:" << i << "," << (*peri)[i]->trackParameters()->position() << ":"
