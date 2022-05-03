@@ -16,8 +16,6 @@ from ..Electron.PrecisionElectronMenuSequences_GSF import precisionElectronMenuS
 from ..Electron.PrecisionTrackingMenuSequences     import precisionTrackingMenuSequence, precisionTrackingMenuSequence_LRT
 from ..Electron.PrecisionTracks_GSFRefittedMenuSequences   import precisionTracks_GSFRefittedMenuSequence, precisionTracks_GSFRefittedMenuSequence_LRT
 
-from TrigBphysHypo.TrigMultiTrkComboHypoConfig import StreamerNoMuonDiElecFastComboHypoCfg, NoMuonDiElecPrecisionComboHypoCfg, StreamerDiElecFastComboHypoCfg, DiElecPrecisionComboHypoCfg, TrigMultiTrkComboHypoToolFromDict
-
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 #----------------------------------------------------------------
 # fragments generating configuration will be functions in New JO,
@@ -263,6 +261,7 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         return self.getStep(1,stepName,[ fastCaloCfg], is_probe_leg=is_probe_leg)
 
     def getFastElectron(self,is_probe_leg=False):
+        from TrigBphysHypo.TrigMultiTrkComboHypoConfig import StreamerNoMuonDiElecFastComboHypoCfg, StreamerDiElecFastComboHypoCfg
         if "bBeeM6000" in self.chainDict['topo'] and 'BPH-0DR3-EM7J15' not in self.chainDict['L1item']:
             signatures = self.chainDict['signatures']
             if signatures.count(signatures[0]) == len(signatures):
@@ -333,6 +332,7 @@ class ElectronChainConfiguration(ChainConfigurationBase):
             stepName = "precision_electron_Heg"+str(isocut)
             return self.getStep(5,stepName,sequenceCfgArray=[precisionElectronSequenceCfg], comboTools=[diEgammaHegMassComboHypoToolFromDict], is_probe_leg=is_probe_leg)
         elif "bBeeM6000" in  self.chainDict['topo']:
+            from TrigBphysHypo.TrigMultiTrkComboHypoConfig import NoMuonDiElecPrecisionComboHypoCfg, DiElecPrecisionComboHypoCfg, TrigMultiTrkComboHypoToolFromDict
             signatures = self.chainDict['signatures']
             if signatures.count(signatures[0]) == len(signatures):
                 stepName = "noMuon_precision_electron_bBee"+str(isocut)
@@ -358,6 +358,15 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         elif "Jpsiee" in  self.chainDict['topo']:
             stepName = "precision_topoelectron_Jpsiee_GSF"+str(isocut)
             return self.getStep(6,stepName,sequenceCfgArray=[precisionGSFElectronSequenceCfg], comboTools=[diElectronJpsieeMassComboHypoToolFromDict], is_probe_leg=is_probe_leg)
+        elif "bBeeM6000" in  self.chainDict['topo']:
+            from TrigBphysHypo.TrigMultiTrkComboHypoConfig import NoMuonDiElecPrecisionGSFComboHypoCfg, DiElecPrecisionGSFComboHypoCfg, TrigMultiTrkComboHypoToolFromDict
+            signatures = self.chainDict['signatures']
+            if signatures.count(signatures[0]) == len(signatures):
+                stepName = "noMuon_precision_electron_bBee_GSF"+str(isocut)
+                return self.getStep(6,stepName,sequenceCfgArray=[precisionElectronSequenceCfg], comboHypoCfg=NoMuonDiElecPrecisionGSFComboHypoCfg, comboTools=[TrigMultiTrkComboHypoToolFromDict], is_probe_leg=is_probe_leg)
+            else:
+                stepName = "precision_electron_bBee_GSF"+str(isocut)
+                return self.getStep(6,stepName,sequenceCfgArray=[precisionElectronSequenceCfg], comboHypoCfg=DiElecPrecisionGSFComboHypoCfg, comboTools=[TrigMultiTrkComboHypoToolFromDict], is_probe_leg=is_probe_leg)
         else:
             stepName = "precision_electron_GSF"+str(isocut)
             return self.getStep(6,stepName,[ precisionGSFElectronSequenceCfg], is_probe_leg=is_probe_leg)
