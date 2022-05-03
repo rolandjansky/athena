@@ -8,7 +8,7 @@ import TrigEgammaMonitoring.TrigEgammaMonitCategory as egamma
 import TrigJetMonitoring.TrigJetMonitCategory as jets
 import TrigMETMonitoring.TrigMETMonitCategory as met
 import TrigMinBiasMonitoring.TrigMinBiasMonitCategory as minbias
-import TrigMuonMonitoringMT.TrigMuonMonitCategory as muon
+import TrigMuonMonitoring.TrigMuonMonitCategory as muon
 import TrigTauMonitoring.TrigTauMonitCategory as tau
 
 if 'DQMonFlags' not in dir():
