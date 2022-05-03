@@ -4,6 +4,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import ProductionStep
 from AtlasGeoModel.GeoModelConfig import GeoModelCfg
+from AthenaConfiguration.Enums import LHCPeriod
 
 def MuonIdHelperSvcCfg(flags):
     acc = ComponentAccumulator()
@@ -60,12 +61,14 @@ def MuonDetectorToolCfg(flags):
         # here define if As-Built (MDT chamber alignment) are enabled
         if flags.Muon.Align.UseAsBuilt:
             if flags.IOVDb.DatabaseInstance == 'COMP200' or \
-                    'HLT' in flags.IOVDb.GlobalTag or flags.Common.isOnline :
+                    'HLT' in flags.IOVDb.GlobalTag or flags.Common.isOnline or flags.Input.isMC:
                 #logMuon.info("No MDT As-Built parameters applied.")
                 detTool.EnableMdtAsBuiltParameters = 0
+                detTool.EnableNswAsBuiltParameters = 0
             else :
                 #logMuon.info("Reading As-Built parameters from conditions database")
                 detTool.EnableMdtAsBuiltParameters = 1
+                detTool.EnableNswAsBuiltParameters = 1 if flags.GeoModel.Run>=LHCPeriod.Run3 else 0
                 pass
 
     else:
@@ -148,8 +151,12 @@ def MuonAlignmentCondAlgCfg(flags):
             pass
         else :
             #logMuon.info("Reading As-Built parameters from conditions database")
-            acc.merge(addFolders( flags, '/MUONALIGN/MDT/ASBUILTPARAMS', 'MUONALIGN_OFL', className='CondAttrListCollection'))
+            acc.merge(addFolders( flags, '/MUONALIGN/MDT/ASBUILTPARAMS' , 'MUONALIGN_OFL', className='CondAttrListCollection'))
             MuonAlign.ParlineFolders += ["/MUONALIGN/MDT/ASBUILTPARAMS"]
+            if flags.GeoModel.Run>=LHCPeriod.Run3: 
+                acc.merge(addFolders( flags, '/MUONALIGN/ASBUILTPARAMS/MM'  , 'MUONALIGN_OFL', className='CondAttrListCollection'))
+                acc.merge(addFolders( flags, '/MUONALIGN/ASBUILTPARAMS/STGC', 'MUONALIGN_OFL', className='CondAttrListCollection'))
+                MuonAlign.ParlineFolders += ['/MUONALIGN/ASBUILTPARAMS/MM', '/MUONALIGN/ASBUILTPARAMS/STGC']
             pass
 
     acc.addCondAlgo(MuonAlign)

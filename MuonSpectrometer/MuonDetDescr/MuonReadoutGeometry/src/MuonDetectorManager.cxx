@@ -1295,7 +1295,7 @@ namespace MuonGM {
 
         return StatusCode::SUCCESS;
     }
-    StatusCode MuonDetectorManager::updateAsBuiltParams(const MdtAsBuiltMapContainer& asbuiltData) {
+    StatusCode MuonDetectorManager::updateMdtAsBuiltParams(const MdtAsBuiltMapContainer& asbuiltData) {
         MsgStream log(Athena::getMessageSvc(), "MGM::MuonDetectorManager");
         if (asbuiltData.empty()) {
             log << MSG::WARNING << "Empty temporary As-Built container - nothing to do here" << endmsg;
@@ -1416,24 +1416,19 @@ namespace MuonGM {
         return &iter->second;
     }
 
-    void MuonDetectorManager::setMMAsBuiltCalculator(const std::string& jsonPath) {
+    void MuonDetectorManager::setMMAsBuiltCalculator(const NswAsBuiltDbData* nswAsBuiltData) {
 #ifndef SIMULATIONBASE
-        // for the moment we can only read as-built conditions from an external json file
         m_MMAsBuiltCalculator.reset();  // unset any previous instance
-        if (jsonPath.empty()) return;
-
-        std::ifstream json_in(jsonPath.c_str());
-        if (!json_in.is_open()) {
-            MsgStream log(Athena::getMessageSvc(), "MGM::MuonDetectorManager");
-            log << MSG::WARNING << "Unable to open Json file " << jsonPath << "for NswAsBuilt::StripCalculator" << endmsg;
-        }
-
         m_MMAsBuiltCalculator = std::make_unique<NswAsBuilt::StripCalculator>();
-        m_MMAsBuiltCalculator->parseJSON(json_in);
-        json_in.close();
+        std::string mmJson="";
+        if(!nswAsBuiltData->getMmData(mmJson)){
+           MsgStream log(Athena::getMessageSvc(), "MGM::MuonDetectorManager");
+           log << MSG::WARNING << " Cannot retrieve MM as-built conditions data from detector store!" << endmsg;
+        }
+        m_MMAsBuiltCalculator->parseJSON(mmJson);
 #else
         // just to silence the warning about an unused parameter
-        (void)jsonPath;
+        (void)nswAsBuiltData;
 #endif
     }
 
