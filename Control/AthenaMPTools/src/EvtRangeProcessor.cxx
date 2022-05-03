@@ -28,17 +28,6 @@
 
 #include "yampl/SocketFactory.h"
 
-#include <ctime>
-void getLocalTime(char * buffer)
-{
-  std::time_t rawtime;
-  std::tm* timeinfo;
-
-  std::time(&rawtime);
-  timeinfo = std::localtime(&rawtime);
-
-  std::strftime(buffer,80,"%Y-%m-%d %H:%M:%S",timeinfo);
-}
 
 EvtRangeProcessor::EvtRangeProcessor(const std::string& type
 				     , const std::string& name
@@ -414,7 +403,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::bootstrap_
   // TODO: this "worker_" can be made configurable too
 
   if(mkdir(worker_rundir.string().c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH)==-1) {
-    ATH_MSG_ERROR("Unable to make worker run directory: " << worker_rundir.string() << ". " << strerror(errno));
+    ATH_MSG_ERROR("Unable to make worker run directory: " << worker_rundir.string() << ". " << fmterror(errno));
     return outwork;
   }
 

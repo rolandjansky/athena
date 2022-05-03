@@ -186,7 +186,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedWriterTool::bootstrap_f
   writer_rundir /= boost::filesystem::path(m_subprocDirPrefix+workerIndex.str());
 
   if(mkdir(writer_rundir.string().c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH)==-1) {
-    ATH_MSG_ERROR("Unable to make writer run directory: " << writer_rundir.string() << ". " << strerror(errno));
+    ATH_MSG_ERROR("Unable to make writer run directory: " << writer_rundir.string() << ". " << fmterror(errno));
     return outwork;
   }
 

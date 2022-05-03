@@ -128,7 +128,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::bootstrap_
   reader_rundir /= boost::filesystem::path(m_subprocDirPrefix);
 
   if(mkdir(reader_rundir.string().c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH)==-1) {
-    ATH_MSG_ERROR("Unable to make reader run directory: " << reader_rundir.string() << ". " << strerror(errno));
+    ATH_MSG_ERROR("Unable to make reader run directory: " << reader_rundir.string() << ". " << fmterror(errno));
     return outwork;
   }
 

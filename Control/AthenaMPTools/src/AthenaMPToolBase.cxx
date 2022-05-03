@@ -22,7 +22,7 @@
 #include <iterator>
 
 namespace AthenaMPToolBase_d {
-  bool sig_done = false;
+  std::atomic<bool> sig_done = false;
   void pauseForDebug(int /*sig*/) {
     sig_done = true;
   }
@@ -281,18 +281,18 @@ int AthenaMPToolBase::redirectLog(const std::string& rundir, bool addTimeStamp)
 
   int newout = open(std::string(rundir+"/AthenaMP.log").c_str(),O_CREAT | O_RDWR, S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH);
   if(newout==-1) {
-    ATH_MSG_ERROR("Unable to open log file in the run directory. " << strerror(errno));
+    ATH_MSG_ERROR("Unable to open log file in the run directory. " << fmterror(errno));
     return -1;
   }
   dup2result1 = dup2(newout, STDOUT_FILENO);
   dup2result2 = dup2(newout, STDERR_FILENO);
   TEMP_FAILURE_RETRY(close(newout));
   if(dup2result1==-1) {
-    ATH_MSG_ERROR("Unable to redirect standard output. " << strerror(errno));
+    ATH_MSG_ERROR("Unable to redirect standard output. " << fmterror(errno));
     return -1;
   }
   if(dup2result2==-1) {
-    ATH_MSG_ERROR("Unable to redirect standard error. " << strerror(errno));
+    ATH_MSG_ERROR("Unable to redirect standard error. " << fmterror(errno));
     return -1;
   }
 
@@ -356,6 +356,13 @@ int AthenaMPToolBase::updateIoReg(const std::string& rundir)
   }
 
   return 0;
+}
+
+std::string AthenaMPToolBase::fmterror(int errnum)
+{
+  char buf[256];
+  strerror_r(errnum, buf, sizeof(buf));
+  return std::string(buf);
 }
 
 int AthenaMPToolBase::reopenFds()
@@ -463,29 +470,29 @@ int AthenaMPToolBase::reopenFd(int fd, const std::string& name)
       ATH_MSG_WARNING("Dealing with PIPE. Skipping ... (FIXME!)");
     }
     else {
-      ATH_MSG_ERROR("When re-opening file descriptors lseek failed on " << name << ". " << strerror(errno));
+      ATH_MSG_ERROR("When re-opening file descriptors lseek failed on " << name << ". " << fmterror(errno));
       return -1;
     }
   }
   else {
     Io::Fd newfd = open(name.c_str(),old_openflags);
     if(newfd==-1) {
-      ATH_MSG_ERROR("When re-opening file descriptors unable to open " << name << " for reading. " << strerror(errno));
+      ATH_MSG_ERROR("When re-opening file descriptors unable to open " << name << " for reading. " << fmterror(errno));
       return -1;
     }
     if(lseek(newfd,oldpos,SEEK_SET)==-1){
-      ATH_MSG_ERROR("When re-opening file descriptors lseek failed on the newly opened " << name << ". " << strerror(errno));
+      ATH_MSG_ERROR("When re-opening file descriptors lseek failed on the newly opened " << name << ". " << fmterror(errno));
       TEMP_FAILURE_RETRY(close(newfd));
       return -1;
     }
     TEMP_FAILURE_RETRY(close(fd));
     if(dup2(newfd,fd)==-1) {
-      ATH_MSG_ERROR("When re-opening file descriptors unable to duplicate descriptor for " << name << ". " << strerror(errno));
+      ATH_MSG_ERROR("When re-opening file descriptors unable to duplicate descriptor for " << name << ". " << fmterror(errno));
       TEMP_FAILURE_RETRY(close(newfd));
       return -1;
     }
     if(fcntl(fd,F_SETFD,old_descflags)==-1) {
-      ATH_MSG_ERROR("When re-opening file descriptors unable to set descriptor flags for " << name << ". " << strerror(errno));
+      ATH_MSG_ERROR("When re-opening file descriptors unable to set descriptor flags for " << name << ". " << fmterror(errno));
       TEMP_FAILURE_RETRY(close(newfd));
       return -1;
     }
