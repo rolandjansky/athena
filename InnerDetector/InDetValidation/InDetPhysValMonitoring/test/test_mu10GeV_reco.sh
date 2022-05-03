@@ -87,7 +87,7 @@ case $ArtProcess in
       InDetPhysValFlags.doValidateGSFTracks.set_Value_and_Lock(False); \
       InDetPhysValFlags.doExpertOutput.set_Value_and_Lock(True); \
       rec.doDumpProperties=True; rec.doCalo=True; rec.doEgamma=True; \
-      rec.doForwardDet=False; rec.doInDet=True; rec.doJetMissingETTag=True; \
+      rec.doForwardDet=False; rec.doInDet=True; rec.doJetMissingETTag=False; \
       rec.doLArg=True; rec.doLucid=True; rec.doMuon=True; rec.doMuonCombined=True; \
       rec.doSemiDetailedPerfMon=True; rec.doTau=True; rec.doTile=True; \
       from ParticleBuilderOptions.AODFlags import AODFlags; \
