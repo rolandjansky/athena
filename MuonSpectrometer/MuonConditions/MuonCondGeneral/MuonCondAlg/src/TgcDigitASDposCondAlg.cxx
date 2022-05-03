@@ -61,7 +61,7 @@ StatusCode TgcDigitASDposCondAlg::execute(const EventContext& ctx) const
   for(const auto &[channel, attribute] : *readHandle_ASDpos.cptr()) {
     const coral::Blob& blob = attribute["bASDPos"].data<coral::Blob>();
     const char *blobCStr = reinterpret_cast<const char *>(blob.startingAddress());
-    std::string blobline(blobCStr);
+    std::string blobline(blobCStr,blob.size()/sizeof(char));
     std::vector<std::string> tokens;
     MuonCalib::MdtStringUtils::tokenize(blobline, tokens, delimiter);
     auto it = std::begin(tokens);
