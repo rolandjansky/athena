@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef PANTAUALGS_TOOL_INPUTCONVERTER
-#define PANTAUALGS_TOOL_INPUTCONVERTER
+#ifndef PANTAUALGS_TOOL_INPUTCONVERTER_H
+#define PANTAUALGS_TOOL_INPUTCONVERTER_H
 
 #include <map>
 #include <vector>
@@ -51,7 +51,7 @@ namespace PanTau {
         ToolHandle<PanTau::ITool_InformationStore>   m_Tool_InformationStore;
 	std::string m_Tool_InformationStoreName;//optional
         
-        virtual bool       passesPreselectionEnergy(double itsEnergy) const;
+        virtual bool passesPreselectionEnergy(double energy) const;
         
         int     m_Config_UsePionMass;
         int     m_Config_TauConstituents_UseShrinkingCone;
@@ -67,10 +67,10 @@ namespace PanTau {
   public:
 	inline bool isInitialized(){return m_init;}
 
-    }; //end class ConstituentGetter
+    }; //end class Tool_InputConverter
 
 
-}//end namespace PanTau
+} //end namespace PanTau
 
 
-#endif // PANTAUALGS_TOOL_INPUTCONVERTER
+#endif // PANTAUALGS_TOOL_INPUTCONVERTER_H

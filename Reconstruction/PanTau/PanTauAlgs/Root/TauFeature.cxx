@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PanTauAlgs/TauFeature.h"
@@ -21,15 +21,13 @@ PanTau::TauFeature::~TauFeature()
 }
 
 
-double PanTau::TauFeature::value(const std::string& ItsName, bool& isValid) const
+double PanTau::TauFeature::value(const std::string& name, bool& isValid) const
 {
-  FeatureMapConstIter iter = m_featureMap.find(ItsName);
-  if(m_featureMap.end() == iter)
-    {
-      isValid=false;
-      return -999999.;
-    }
-  // entry found, return value
+  FeatureMapConstIter iter = m_featureMap.find(name);
+  if (m_featureMap.end() == iter) {
+    isValid=false;
+    return -999999.;
+  }
   isValid=true;
   return (*iter).second; 
 }
@@ -37,16 +35,14 @@ double PanTau::TauFeature::value(const std::string& ItsName, bool& isValid) cons
 
 const std::vector<double>& PanTau::TauFeature::vecValue(const std::string& name) const {
   VectorFeatureMapConstIter iter = m_vecFeatureMap.find(name);
-  if(m_vecFeatureMap.end() == iter)
-    {
-      return s_defaultVec;
-    }
+  if (m_vecFeatureMap.end() == iter) {
+    return s_defaultVec;
+  }
   return (*iter).second;
 }
 
 
-bool PanTau::TauFeature::addFeature(const std::string& name,
-				     const double& value) {
+bool PanTau::TauFeature::addFeature(const std::string& name, const double value) {
 
   if (std::isnan(value)) {
     throw std::runtime_error("TauFeature::addFeature: Given " + name + " value is NaN!");
@@ -60,7 +56,7 @@ bool PanTau::TauFeature::addFeature(const std::string& name,
 
 
 bool PanTau::TauFeature::addVecFeature(const std::string& name,
-					const std::vector<double>& value) {
+				       const std::vector<double>& value) {
   std::pair<VectorFeatureMapConstIter, bool> result = m_vecFeatureMap.insert(make_pair(name, value));
   return result.second;
 }
@@ -75,43 +71,28 @@ int PanTau::TauFeature::nVecValues() const {
   return m_vecFeatureMap.size();
 }
 
-
+// FIXME: use StatusCode instead of throwing exceptions
 void PanTau::TauFeature::add(PanTau::TauFeature* otherFeatures) {
     
   //add the scalar features
   FeatureMapIter itScalar = otherFeatures->m_featureMap.begin();
-  for(; itScalar != otherFeatures->m_featureMap.end(); itScalar++) {
+  for (; itScalar != otherFeatures->m_featureMap.end(); itScalar++) {
     std::string key = itScalar->first;
     double      val = itScalar->second;
     bool        isOK = this->addFeature(key, val);
-    if(isOK == false) {
+    if (!isOK) {
       throw std::runtime_error("PanTau::TauFeature::add( PanTau::TauFeature* ): Error when adding scalar feature " + key);
     }
   }
     
   //add the vector features
   VectorFeatureMapIter itVector = otherFeatures->m_vecFeatureMap.begin();
-  for(; itVector != otherFeatures->m_vecFeatureMap.end(); itVector++) {
+  for (; itVector != otherFeatures->m_vecFeatureMap.end(); itVector++) {
     std::string         key = itVector->first;
     std::vector<double> val = itVector->second;
     bool        isOK = this->addVecFeature(key, val);
-    if(isOK == false) {
+    if (!isOK) {
       throw std::runtime_error("PanTau::TauFeature::add( PanTau::TauFeature* ): Error when adding vector feature " + key);
     }
   }    
-}
-
-
-void PanTau::TauFeature::addFeaturesFromMap(std::map<std::string, double> otherMap, std::string prefix = "") {
-    
-  FeatureMapConstIter iter    = otherMap.begin();
-  FeatureMapConstIter iterEnd = otherMap.end();
-    
-  for(; iter != iterEnd; iter++) {
-    std::string oKey = prefix + iter->first;
-    double      oVal = iter->second;
-    addFeature(oKey, oVal);
-  }
-    
-  return;
 }
