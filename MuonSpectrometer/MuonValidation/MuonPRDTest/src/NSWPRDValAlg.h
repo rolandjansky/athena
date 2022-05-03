@@ -9,11 +9,8 @@
 #include <vector>
 
 #include "AthenaBaseComps/AthHistogramAlgorithm.h"
-#include "CSCDigitVariables.h"
 #include "CSCPRDVariables.h"
 #include "CSCRDOVariables.h"
-#include "CSCSDOVariables.h"
-#include "CSCSimHitVariables.h"
 #include "EDM_object.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "MMDigitVariables.h"
@@ -25,11 +22,8 @@
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonTesterTree/MuonTesterTree.h"
-#include "TGCDigitVariables.h"
 #include "TGCPRDVariables.h"
 #include "TGCRDOVariables.h"
-#include "TGCSDOVariables.h"
-#include "TGCSimHitVariables.h"
 #include "TGCcablingInterface/ITGCcablingSvc.h"
 #include "TTree.h"
 #include "sTGCDigitVariables.h"

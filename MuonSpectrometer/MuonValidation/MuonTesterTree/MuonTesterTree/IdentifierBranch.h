@@ -61,4 +61,31 @@ private:
     VectorBranch<bool>& m_measuresPhi{parent().newVector<bool>(name() + "_measuresPhi")};
 };
 
+/// Branch to store all information of the CscIdentifier
+class CscIdentifierBranch : public MuonIdentifierBranch {
+public:
+    CscIdentifierBranch(MuonTesterTree& tree, const std::string& grp_name);
+
+    void push_back(const Identifier& id) override final;
+
+private:
+    VectorBranch<uint8_t>& m_chamberLayer{parent().newVector<uint8_t>(name() + "_chamberLayer")};
+    VectorBranch<uint8_t>& m_wireLayer{parent().newVector<uint8_t>(name() + "_wireLayer")};
+    VectorBranch<bool>& m_measuresPhi{parent().newVector<bool>(name() + "_measuresPhi")};
+    VectorBranch<uint8_t>& m_strip{parent().newVector<uint8_t>(name() + "_strip")};
+};
+
+/// Branch to store all information of the TgcIdentifier
+class TgcIdentifierBranch : public MuonIdentifierBranch {
+public:
+    TgcIdentifierBranch(MuonTesterTree& tree, const std::string& grp_name);
+
+    void push_back(const Identifier& id) override final;
+
+private:
+    VectorBranch<uint8_t>& m_gasgap{parent().newVector<uint8_t>(name() + "_GasGap")};
+    VectorBranch<bool>& m_measuresPhi{parent().newVector<bool>(name() + "_measuresPhi")};
+    VectorBranch<uint8_t>& m_channel{parent().newVector<uint8_t>(name() + "_channel")};
+};
+
 #endif
