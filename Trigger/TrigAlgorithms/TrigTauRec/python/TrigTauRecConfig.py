@@ -15,7 +15,6 @@ class TrigTauRecMerged_TauCaloOnlyMVA (TrigTauRecMerged) :
 
             taualgs.setPrefix("TrigTauCaloOnlyMVA_")
 
-
             # Only include tools needed for calo pre-selection
 
             # Set seedcalo energy scale (Full RoI)
@@ -31,15 +30,16 @@ class TrigTauRecMerged_TauCaloOnlyMVA (TrigTauRecMerged) :
             tools.append(taualgs.getMvaTESVariableDecorator())
             tools.append(taualgs.getMvaTESEvaluator())
 
+            from TrigTauRec.TrigTauFlags import TrigTauFlags
             for tool in tools:
                 tool.inTrigger = True
-                tool.calibFolder = 'TrigTauRec/00-11-02/'
+                tool.calibFolder = TrigTauFlags.CalibPath()
 
             self.Tools = tools
 
 class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
 
-        def __init__(self, name = "TrigTauRecMerged_TauPrecisionMVA", doTrackBDT=False, doRNN=False, doLLP=False):
+        def __init__(self, name = "TrigTauRecMerged_TauPrecisionMVA", doTrackBDT=False, doLLP=False):
         
             super( TrigTauRecMerged_TauPrecisionMVA , self ).__init__( name )
             self.MonTool = tauMonitoringPrecisionMVA()
@@ -85,36 +85,15 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
             # Cluster-based sub-structure, with dRMax also
             tools.append(taualgs.getTauSubstructure())
 
-            #Run either nominal or LLP RNN ID, not both 
-            if doLLP and doRNN:
-               log.warning( "WARNING doLLP and doRNN flags both set to True -> will set doRNN to False")
-               doRNN = False
-               
-            if doLLP:
-                # RNN tau ID for displaced tau signatures (placeholder configs)
-                tools.append(taualgs.getTauJetRNNEvaluator(NetworkFile0P="llpdev/net_experimental_llz_0p.json",
-                                                           NetworkFile1P="llpdev/net_experimental_llz_1p.json",
-                                                           NetworkFile3P="llpdev/net_experimental_llz_mp.json",
-                                                           MaxTracks=10,
-                                                           MaxClusters=6,
-                                                           MaxClusterDR=1.0,
-                                                           suffix = "_LLP"))
-                # flattened RNN score and WP
-                tools.append(taualgs.getTauWPDecoratorJetLLP())       
-            elif doRNN:
-                # RNN tau ID
-                tools.append(taualgs.getTauJetRNNEvaluator(NetworkFile0P="rnnid_config_0p_v3.json",
-                                                           NetworkFile1P="rnnid_config_1p_v3.json",
-                                                           NetworkFile3P="rnnid_config_mp_v3.json",
-                                                           MaxTracks=10, 
-                                                           MaxClusters=6,
-                                                           MaxClusterDR=1.0))
-                # flattened RNN score and WP
-                tools.append(taualgs.getTauWPDecoratorJetRNN())
+            # RNN tau ID, either nominal or LLP
+            tools.append(taualgs.getTauJetRNNEvaluator(LLP = doLLP))
+            # flattened RNN score and WP
+            tools.append(taualgs.getTauWPDecoratorJetRNN(LLP = doLLP))
 
+            from TrigTauRec.TrigTauFlags import TrigTauFlags
             for tool in tools:
                 tool.inTrigger = True
-                tool.calibFolder = 'TrigTauRec/00-11-02/'
+                tool.calibFolder = TrigTauFlags.CalibPath()
 
             self.Tools = tools
 

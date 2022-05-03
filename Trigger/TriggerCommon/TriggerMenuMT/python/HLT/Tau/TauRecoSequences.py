@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.CFElements import parOR, seqAND
@@ -79,6 +79,7 @@ def _algoTauTrackBDTRoiUpdater(inputRoIs, tracks):
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
     config = getInDetTrigConfig("tauIso")
     from TrigTauHypo.TrigTauHypoConf import TrigTauTrackRoiUpdater
+    from TrigTauRec.TrigTauFlags import TrigTauFlags
     algo                               = TrigTauTrackRoiUpdater("TrackRoiUpdaterBDT")
     algo.etaHalfWidth                  = config.etaHalfWidth
     algo.phiHalfWidth                  = config.phiHalfWidth
@@ -86,7 +87,7 @@ def _algoTauTrackBDTRoiUpdater(inputRoIs, tracks):
     algo.RoIInputKey                   = inputRoIs
     algo.RoIOutputKey                  = "UpdatedTrackBDTRoI"
     algo.fastTracksKey                 = tracks
-    algo.useBDT                        = True
+    algo.BDTweights                    = f"{TrigTauFlags.CalibPath()}/{TrigTauFlags.FTFTauCoreBDTConfig()}"
     algo.Key_trigTauJetInputContainer  = "HLT_TrigTauRecMerged_CaloMVAOnly"
     return algo
 
@@ -95,11 +96,11 @@ def _algoTauPrecision(name, inputRoIs, tracks):
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 
     if "MVA" in name:
-      algo                                 = TrigTauRecMerged_TauPrecisionMVA(name= "TrigTauRecMerged_TauPrecision_PrecisionMVA", doTrackBDT=False, doRNN=True, doLLP=False) 
+      algo                                 = TrigTauRecMerged_TauPrecisionMVA(name= "TrigTauRecMerged_TauPrecision_PrecisionMVA", doTrackBDT=False, doLLP=False)
       algo.Key_trigTauJetOutputContainer   = recordable("HLT_TrigTauRecMerged_MVA")
       algo.Key_trigTauTrackOutputContainer = recordable("HLT_tautrack_MVA")
     elif "LLP" in name:
-      algo                                 = TrigTauRecMerged_TauPrecisionMVA(name= "TrigTauRecMerged_TauPrecision_PrecisionLLP", doTrackBDT=False, doRNN=False,doLLP=True)
+      algo                                 = TrigTauRecMerged_TauPrecisionMVA(name= "TrigTauRecMerged_TauPrecision_PrecisionLLP", doTrackBDT=False, doLLP=True)
       algo.Key_trigTauJetOutputContainer   = recordable("HLT_TrigTauRecMerged_LLP")
       algo.Key_trigTauTrackOutputContainer = recordable("HLT_tautrack_LLP")
     else:
