@@ -60,7 +60,8 @@ StatusCode Trk::TrackingGeometryCondAlg::execute(){
                       << (*gpIter));
     }
   }
+  if (m_dumpGeo) trackingGeometry->dump(msgStream(), "TrackingGeometryCondAlg");
   ATH_CHECK(writeHandle.record(trackingGeometryPair.first, trackingGeometry));
-
+  
   return StatusCode::SUCCESS;
 }
