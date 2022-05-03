@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -9,29 +9,31 @@
 
 // Error parameters
 
-#define ERR_NOERR      0
-#define ERR_ARGS      -1
-#define ERR_GENERIC   -2
+static const int ERR_NOERR   =  0;
+static const int ERR_ARGS    = -1;
+static const int ERR_GENERIC = -2;
 
 // Global parameters
 
-uint32_t detector_id;
-uint16_t vmm_number;
-uint16_t vmm_channel;
+struct Params {
+  uint32_t detector_id;
+  uint16_t vmm_number;
+  uint16_t vmm_channel;
+};
 
 void test_nsw_online2offline_help (char *progname)
 {
   std::cout << "Usage: " << progname << " detector_id vmm_number vmm_channel" << std::endl;
 }
 
-int test_nsw_online2offline_opt (int argc, char **argv)
+int test_nsw_online2offline_opt (int argc, char **argv, Params& params)
 {
   int errcode = ERR_NOERR;
 
   if (argc < 4)
   {
     test_nsw_online2offline_help (argv[0]);
-    exit (ERR_ARGS);
+    return ERR_ARGS;
   }
   else if (argv[1][0] == '-')
   {
@@ -39,17 +41,17 @@ int test_nsw_online2offline_opt (int argc, char **argv)
     {
       case 'h':
 	test_nsw_online2offline_help (argv[0]);
-	exit (ERR_NOERR);
+	return ERR_NOERR;
       default:
 	test_nsw_online2offline_help (argv[0]);
-	exit (ERR_ARGS);
+	return ERR_ARGS;
     }
   }
   else
   {
-      detector_id = atoi (argv[1]);
-      vmm_number  = atoi (argv[2]);
-      vmm_channel = atoi (argv[3]);
+      params.detector_id = atoi (argv[1]);
+      params.vmm_number  = atoi (argv[2]);
+      params.vmm_channel = atoi (argv[3]);
   }
 
   return errcode;
@@ -67,12 +69,12 @@ int test_nsw_online2offline_end ()
   return errcode;
 }
 
-int test_nsw_online2offline_loop ()
+int test_nsw_online2offline_loop (const Params& params)
 {
   int errcode = ERR_NOERR;
 
-  Muon::nsw::NSWResourceId res_id (detector_id);
-  Muon::nsw::helper::NSWOfflineHelper helper (&res_id, vmm_number, vmm_channel);
+  Muon::nsw::NSWResourceId res_id (params.detector_id);
+  Muon::nsw::helper::NSWOfflineHelper helper (&res_id, params.vmm_number, params.vmm_channel);
 
   std::string station_name;
 
@@ -102,13 +104,14 @@ int main (int argc, char **argv)
 {
   int err = ERR_NOERR;
 
-  if ((err = test_nsw_online2offline_opt (argc, argv)) != ERR_NOERR)
+  Params params;
+  if ((err = test_nsw_online2offline_opt (argc, argv, params)) != ERR_NOERR)
     return err;
 
   if ((err = test_nsw_online2offline_init ()) != ERR_NOERR)
     return err;
 
-  if ((err = test_nsw_online2offline_loop ()) != ERR_NOERR)
+  if ((err = test_nsw_online2offline_loop (params)) != ERR_NOERR)
     return err;
 
   if ((err = test_nsw_online2offline_end ()) != ERR_NOERR)

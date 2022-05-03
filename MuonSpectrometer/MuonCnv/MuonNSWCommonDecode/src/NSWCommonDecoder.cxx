@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "ers/ers.h"
 #include "eformat/eformat.h"
@@ -16,7 +16,7 @@ Muon::nsw::NSWCommonDecoder::NSWCommonDecoder (const eformat::read::ROBFragment 
 
   uint32_t nw = robFrag.rod_ndata ();
   const uint32_t *bs = robFrag.rod_data (); // point directly to the first data element
-  uint32_t *current_data_pointer = const_cast <uint32_t *> (bs);
+  const uint32_t * current_data_pointer = const_cast <uint32_t *> (bs);
 
   uint32_t wcount(0); // data-element (32-bit word) counter
 

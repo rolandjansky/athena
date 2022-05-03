@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef _MUON_NSW_ELINK_H_
 #define _MUON_NSW_ELINK_H_
@@ -21,7 +21,7 @@ namespace Muon
     {
      public:
       //NSWElink (); to be implemented for simulation
-      NSWElink (uint32_t *bs);
+      NSWElink (const uint32_t *bs);
       virtual ~NSWElink ();
 
       const std::vector <Muon::nsw::VMMChannel *> &get_channels () const {return m_channels;};
@@ -32,7 +32,8 @@ namespace Muon
  
       // Detector Logical ID and components
       uint32_t elinkWord  () const {return m_elinkWord;};
-      Muon::nsw::NSWResourceId *elinkId () const {return m_elinkId;};
+      const Muon::nsw::NSWResourceId *elinkId () const {return m_elinkId;};
+      Muon::nsw::NSWResourceId *elinkId () {return m_elinkId;};
 
       // ROC header
       bool isNull () const {return m_isNull;};
@@ -54,7 +55,7 @@ namespace Muon
       uint16_t flagMiss   () const {return m_flagMiss;};
 
      private:
-      unsigned int test_checksum (uint8_t *buffer, unsigned int buflen);
+      unsigned int test_checksum (const uint8_t *buffer, unsigned int buflen);
 
      private:
       unsigned int m_wordCount;
@@ -84,9 +85,9 @@ namespace Muon
   }
 }
 
-inline unsigned int Muon::nsw::NSWElink::test_checksum (uint8_t *buffer, unsigned int buflen)
+inline unsigned int Muon::nsw::NSWElink::test_checksum (const uint8_t *buffer, unsigned int buflen)
 {
-  uint8_t *p = buffer;
+  const uint8_t *p = buffer;
   unsigned int running_checksum = 0;
 
   for (unsigned int i = 0; i < buflen; ++i, ++p)
