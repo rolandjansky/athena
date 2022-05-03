@@ -21,6 +21,13 @@ def HGTD_LastXing():
     return 25
 # NOTE: related to 3BC mode?
 
+def HGTD_TimingResolutionCfg(flags, name="HGTD_TimingResolution", **kwargs):
+    acc = ComponentAccumulator()
+
+    kwargs.setdefault("IntegratedLuminosity", 0.)
+    acc.setPrivateTools(CompFactory.HGTD_TimingResolution(name, **kwargs))
+    return acc
+
 def HGTD_FrontEndToolCfg(flags, name="HGTD_FrontEndTool", **kwargs):
     acc = ComponentAccumulator()
 
@@ -30,6 +37,9 @@ def HGTD_FrontEndToolCfg(flags, name="HGTD_FrontEndTool", **kwargs):
 def HGTD_SurfaceChargesGeneratorCfg(flags, name="HGTD_SurfaceChargesGenerator", **kwargs):
     acc = ComponentAccumulator()
 
+    kwargs.setdefault("ActiveTimeWindow", 1.25)
+    kwargs.setdefault("SmearMeanTime", True)
+    kwargs.setdefault("TimingResolutionTool", acc.popToolsAndMerge(HGTD_TimingResolutionCfg(flags)))
     acc.setPrivateTools(CompFactory.HGTD_SurfaceChargesGenerator(name, **kwargs))
     return acc
 

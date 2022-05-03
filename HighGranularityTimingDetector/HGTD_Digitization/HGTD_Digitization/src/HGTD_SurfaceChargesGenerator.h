@@ -48,21 +48,13 @@ public:
       CLHEP::HepRandomEngine *rndm_engine,
       const EventContext& ctx) const override final;
 
-  inline void setIntegratedLuminosity(float integrated_luminosity) override final {
-    m_integrated_luminosity = integrated_luminosity;
-  }
-
-  inline void setSmearingTime(bool smear_meantime=true) override final {
-    m_smear_meantime = smear_meantime;
-  }
-
 private:
   // TODO: where do we get this from?
   FloatProperty m_small_step_length{this, "SmallStepLength", 1, ""}; /*um*/
-  ToolHandle<HGTD_TimingResolution> m_hgtd_timing_resolution_tool{this, "TimingResolutionTool", "HGTD_TimingResolution", "Tool for smearing LGAD timing based on integrated luminosity and radius"};
   FloatProperty m_diffusion_constant{this, "DiffusionConstant", .007, ""};
-  bool m_smear_meantime{true};
-  float m_integrated_luminosity{0};
+  FloatProperty m_active_time_window{this, "ActiveTimeWindow", 1.25, "Hits within this time window are used for digitization, the rest are discarded (Given in ns)."};
+  BooleanProperty m_smear_meantime{this, "SmearMeanTime", true, "Smear mean time based on radius and luminosity"};
+  ToolHandle<HGTD_TimingResolution> m_hgtd_timing_resolution_tool{this, "TimingResolutionTool", "HGTD_TimingResolution", "Tool for smearing LGAD timing based on integrated luminosity and radius"};
 };
 
 #endif // HGTD_DIGITZATION_HGTD_SURFACECHARGESGENERATOR_H
