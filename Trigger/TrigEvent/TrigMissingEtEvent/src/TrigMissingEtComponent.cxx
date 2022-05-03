@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -18,8 +18,9 @@
 #include <math.h>
 #include <stdio.h>
 
-TrigMissingEtComponent::TrigMissingEtComponent(){
-  m_name = "empty";
+TrigMissingEtComponent::TrigMissingEtComponent()
+  : m_name ("empty")
+{
   reset();
 }
 
