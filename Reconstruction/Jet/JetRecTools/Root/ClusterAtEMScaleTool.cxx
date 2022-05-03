@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <vector>
@@ -22,7 +22,7 @@ StatusCode ClusterAtEMScaleTool::initialize() {
 }
 
 StatusCode ClusterAtEMScaleTool::setClustersToEMScale(xAOD::CaloClusterContainer& cont) const {
-  for(const auto& cl : cont ) {
+  for(xAOD::CaloCluster* cl : cont ) {
 		cl->setCalE( cl->rawE() );
 		cl->setCalPhi( cl->rawPhi() );
 		cl->setCalEta( cl->rawEta() );
