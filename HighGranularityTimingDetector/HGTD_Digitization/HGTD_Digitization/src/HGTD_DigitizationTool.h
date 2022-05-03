@@ -103,11 +103,6 @@ private:
 
   //////////////////////////////////////////////////////////////////////////////
 
-  FloatProperty m_integrated_luminosity{this, "IntegratedLuminosity", 0, "Integrated Luminosity"};
-  BooleanProperty m_smear_meantime{this, "SmearMeanTime", true, "Smear mean time based on radius and luminosity"};
-  /** @brief Only SiHits within the defined time window are processed in the
-   * digitization procedure, the rest is discarded. Given in ns.*/
-  FloatProperty m_active_time_window{this, "ActiveTimeWindow", 10000, "Hits within this time window are used for digitization"};
   FloatProperty m_charge_threshold{this, "ChargeThreshold", 625., "Minimum charge threshold in ASIC"};
 
   BooleanProperty m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};

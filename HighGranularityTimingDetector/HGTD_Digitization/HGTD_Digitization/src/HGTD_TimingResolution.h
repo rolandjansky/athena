@@ -28,25 +28,6 @@ public:
   /** AlgTool initialize */
   virtual StatusCode initialize() override final;
 
-  // checks
-  bool radiusInRange(float) const;
-  bool etaInRange(float) const;
-
-  // methods
-  StatusCode setIntegratedLuminosity(float integratedLumi);
-
-  float hitTimingResolution(float radius) const;
-
-  float resolution(float) const;
-  float gain(float) const;
-  float sensorResolution() const;
-
-  float translateR2Eta(float) const;
-  float translateEta2R(float) const;
-
-  void radToResolution();
-  void radToGain();
-  void computeDose(float lumi);
   void print();
 
   /** Return simulated CFD time */
@@ -58,13 +39,41 @@ public:
   constexpr static float HGTDFinalLuminosity = 4000.0;
 
 private:
+
+  // checks
+  bool radiusInRange(float) const;
+  bool etaInRange(float) const;
+
+  // methods
+  float hitTimingResolution(float radius) const;
+
+  float resolution(float) const;
+  float gain(float) const;
+  float sensorResolution() const;
+
+  float translateR2Eta(float) const;
+  float translateEta2R(float) const;
+
+  void radToResolution();
+  void radToGain();
+  void computeDose();
+
+  StatusCode propagateDamage();
+
+  /** Simulate a new pulse that can be acess using the PulseShape method */
+  void simulatePulse(CLHEP::HepRandomEngine* rndm_engine) const;
+
+  /** Calculate the pulse as a vector of float (400 points) */
+  void calculatePulse(std::map<int, std::pair<float, float>> &pulsebin,
+                      float t, float E, float *max, CLHEP::HepRandomEngine* rndm_engine) const;
+
   std::string m_version{""};
 
   float m_Rmin{120.};
   float m_Rmax{670.};
-
   float m_z{3500.};
-  float m_integratedLumi{0.0};
+
+  FloatProperty m_integratedLumi{this, "IntegratedLuminosity", 0., "Integrated Luminosity for smearing of LGAD timing based on amount of radiation"};
 
   float m_sensorResolution{};
 
@@ -89,13 +98,6 @@ private:
                                // extracted (default: 50%)
 
   float mutable m_pulseWaveform[400] = {0}; // Signal Pulse
-
-  /** Simulate a new pulse that can be acess using the PulseShape method */
-  void simulatePulse(CLHEP::HepRandomEngine* rndm_engine) const;
-
-  /** Calculate the pulse as a vector of float (400 points) */
-  void calculatePulse(std::map<int, std::pair<float, float>> &pulsebin,
-                      float t, float E, float *max, CLHEP::HepRandomEngine* rndm_engine) const;
 
 };
 

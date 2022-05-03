@@ -39,8 +39,6 @@ StatusCode HGTD_DigitizationTool::initialize() {
   ATH_CHECK(m_rndm_svc.retrieve());
 
   ATH_CHECK(m_hgtd_surf_charge_gen.retrieve());
-  m_hgtd_surf_charge_gen->setIntegratedLuminosity(m_integrated_luminosity);
-  m_hgtd_surf_charge_gen->setSmearingTime(m_smear_meantime);
 
   ATH_CHECK(m_hgtd_front_end_tool.retrieve());
 
@@ -277,14 +275,12 @@ StatusCode HGTD_DigitizationTool::digitizeHitsPerDetectorElement(const EventCont
 
       const TimedHitPtr<SiHit> &current_hit = *coll_itr;
 
-      // skip hits that are far away in time
-      if (std::abs(current_hit->meanTime()) >
-          m_active_time_window * CLHEP::ns) {
-        continue;
-      }
-
       // use the surface charge generator to produce the charged diode
       // and add it to the charged diode collection
+      // 
+      // hits that are too far away in time to be captured by the ASICs
+      // are handled internally by the surface charge generator
+      // 
       m_hgtd_surf_charge_gen->createSurfaceChargesFromHit(
           current_hit, charged_diode_coll.get(), det_elem, rndmEngine, ctx);
 
