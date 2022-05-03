@@ -85,7 +85,7 @@ JetCopyVarsToKeep += [f'fastDIPS20211215_p{x}' for x in 'cub']
 JetCopyVars = '.'.join(JetCopyVarsToKeep)
 
 # Create a (temporary) list of TLAJetVars as the union of JetVars and JetCopyVars
-TLAJetVarsToKeep = list(set(JetVarsToKeep+JetCopyVarsToKeep))
+TLAJetVarsToKeep = sorted(list(set(JetVarsToKeep+JetCopyVarsToKeep)))
 TLAJetVars='.'.join(TLAJetVarsToKeep)
 
 ElToKeep = ['ptcone20', 'ptvarcone20']
