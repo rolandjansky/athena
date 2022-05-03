@@ -1,9 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigMissingEtEvent/TrigMissingET.h"
 #include "TrigMissingEtEvent/TrigMissingEtComponent.h"
+#include "CxxUtils/StrFormat.h"
 
 #include <string>
 #include <stdio.h>
@@ -290,20 +291,21 @@ bool operator== ( const TrigMissingET& a, const TrigMissingET& b ) {
 
 std::string str (const TrigMissingET& a){
   std::string s="";
-  char buff[1024];
 
-  std::sprintf(buff,"MEx   = %10.2f MeV\n", a.ex());    s += buff;
-  std::sprintf(buff,"MEy   = %10.2f MeV\n", a.ey());    s += buff;
-  std::sprintf(buff,"MEz   = %10.2f MeV\n", a.ez());    s += buff;
+  using CxxUtils::strformat;
+
+  s += strformat("MEx   = %10.2f MeV\n", a.ex());
+  s += strformat("MEy   = %10.2f MeV\n", a.ey());
+  s += strformat("MEz   = %10.2f MeV\n", a.ez());
 
   float et = std::sqrt(a.ex()*a.ex()+a.ey()*a.ey());
-  std::sprintf(buff,"MEt   = %10.2f MeV\n", et);        s += buff;
-  std::sprintf(buff,"SumEt = %10.2f MeV\n", a.sumEt()); s += buff;
-  std::sprintf(buff,"SumE  = %10.2f MeV\n", a.sumE());  s += buff;
+  s += strformat("MEt   = %10.2f MeV\n", et);
+  s += strformat("SumEt = %10.2f MeV\n", a.sumEt());
+  s += strformat("SumE  = %10.2f MeV\n", a.sumE());
 
-  std::sprintf(buff,"Event status = 0x%08x\n", (unsigned)a.getFlag());  s += buff;
+  s += strformat("Event status = 0x%08x\n", (unsigned)a.getFlag());
   unsigned int N = a.getNumOfComponents();
-  std::sprintf(buff,"Auxiliary components = %4d\n", N); s += buff;
+  s += strformat("Auxiliary components = %4u\n", N);
 
   if (N==0) return s; // basic info only
 
@@ -312,7 +314,7 @@ std::string str (const TrigMissingET& a){
   s += "/MeV___Ex/MeV_____Ey/MeV_____Ez/MeV___SumE/MeV__SumEt/MeV\n";
 
   for (unsigned int i=0; i<N; ++i){
-    std::sprintf(buff,
+    s += strformat(
       "%10s 0x%04x %8d %11d %7.2f %8.2f %10.2f %10.2f %10.2f %10.2f %10.2f\n", 
 		 a.getNameOfComponent(i).c_str(), 
 		 (unsigned)a.getStatus(i),
@@ -325,7 +327,6 @@ std::string str (const TrigMissingET& a){
 		 a.getEzComponent(i),
 		 a.getSumEComponent(i),
 		 a.getSumEtComponent(i));
-    s += buff;
   }
 
   return s;
@@ -384,8 +385,7 @@ void diff(const TrigMissingET& a, const TrigMissingET& b,
      variableChange[ "sumE" ] = aSumE - bSumE;
 
   for (unsigned u=0; u<a.getNumOfComponents(); ++u) {
-    char num[4];
-    std::sprintf(num, "%02d", u);
+    std::string num = CxxUtils::strformat("%02u", u);
     std::string key;
 
     if( a.getNameOfComponent(u) != b.getNameOfComponent(u) ) {
