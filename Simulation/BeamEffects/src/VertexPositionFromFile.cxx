@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // class header include
@@ -9,9 +9,6 @@
 #include "AtlasHepMC/GenEvent.h"
 // CLHEP includes
 #include "CLHEP/Vector/LorentzVector.h"
-// EventInfo
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 // Athena headers
 #include "StoreGate/ReadHandle.h"
 
@@ -175,12 +172,11 @@ namespace Simulation
     // use run/event numbers from EventInfo class in storegate
     else {
       ATH_MSG_DEBUG("Retrieving event info from SG");
-      SG::ReadHandle<EventInfo> eventInfo(m_eventInfoKey);
+      SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey,Gaudi::Hive::currentContext());
       if (eventInfo.isValid()) {
         // read out run/event number
-        const EventID *curEventID = eventInfo->event_ID();
-        runNumber   = curEventID->run_number();
-        eventNumber = curEventID->event_number();
+        runNumber   = eventInfo->runNumber();
+        eventNumber = eventInfo->eventNumber();
       }
       else {
         ATH_MSG_ERROR("Could not retrieve event info from SG");
