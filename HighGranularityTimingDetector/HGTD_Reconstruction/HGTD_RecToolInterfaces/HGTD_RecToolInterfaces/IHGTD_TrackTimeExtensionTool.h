@@ -24,6 +24,7 @@
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "xAODTracking/TrackParticle.h"
+#include "AtlasHepMC/GenEvent.h"
 #include <memory>
 
 namespace HGTD {
@@ -41,10 +42,6 @@ struct ExtensionObject {
 };
 
 } // namespace HGTD
-
-namespace HepMC {
-  class GenEvent;
-}
 
 class IHGTD_TrackTimeExtensionTool : virtual public IAlgTool {
 
