@@ -189,6 +189,7 @@ StatusCode MuonDetectorTool::createFactory(MuonDetectorFactory001 &theFactory) c
         ATH_MSG_INFO("    ControlCscIntAlines   reset to " << tempControlCscIntAlines);
     ATH_MSG_INFO("    EnableMdtDeformations          " << m_enableMdtDeformations);
     ATH_MSG_INFO("    EnableMdtAsBuiltParameters     " << m_enableMdtAsBuiltParameters);
+    ATH_MSG_INFO("    EnableNswAsBuiltParameters     " << m_enableNswAsBuiltParameters);
 
     if (m_stationSelection > 0) {
         StationSelector::SetSelectionType(m_stationSelection);
@@ -240,7 +241,6 @@ StatusCode MuonDetectorTool::createFactory(MuonDetectorFactory001 &theFactory) c
         theFactory.setDBkey(detectorKey);
         theFactory.setDBnode(detectorNode);
         theFactory.setNSWABLineAsciiPath(m_NSWABLineAsciiPath);
-        theFactory.setMMAsBuiltJsonPath(m_MMAsBuiltJsonPath);
         theFactory.setAmdcDb(isAmdcDb);
         theFactory.setLayout(tempLayout);
         theFactory.setCutoutsFlag(m_includeCutouts);
@@ -256,6 +256,7 @@ StatusCode MuonDetectorTool::createFactory(MuonDetectorFactory001 &theFactory) c
         theFactory.setCacheFillingFlag(m_fillCache_initTime);
         theFactory.setMdtDeformationFlag(m_enableMdtDeformations);
         theFactory.setMdtAsBuiltParaFlag(m_enableMdtAsBuiltParameters);
+        theFactory.setNswAsBuiltParaFlag(m_enableNswAsBuiltParameters);
         theFactory.setFineClashFixingFlag(m_enableFineClashFixing);
         theFactory.hasCSC(m_hasCSC);
         theFactory.hasSTgc(m_hasSTgc);

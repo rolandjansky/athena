@@ -8,6 +8,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonAlignmentData/CorrContainer.h"
+#include "MuonAlignmentData/NswAsBuiltDbData.h"
 #include "MuonGeoModel/MuonDetectorTool.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -35,7 +36,8 @@ class MuonDetectorCondAlg : public AthAlgorithm {
     SG::ReadCondHandleKey<BLineMapContainer> m_readBLineKey{this, "ReadBLineKey", "BLineMapContainer", "Key of input muon alignment BLine condition data"};
     SG::ReadCondHandleKey<CscInternalAlignmentMapContainer> m_readILineKey{this, "ReadILineKey", "CscInternalAlignmentMapContainer",
                                                                            "Key of input muon alignment CSC/ILine condition data"};
-    SG::ReadCondHandleKey<MdtAsBuiltMapContainer> m_readAsBuiltKey{this, "ReadAsBuiltKey", "MdtAsBuiltMapContainer", "Key of output muon alignment MDT/AsBuilt condition data"};
+    SG::ReadCondHandleKey<MdtAsBuiltMapContainer> m_readMdtAsBuiltKey{this, "ReadMdtAsBuiltKey", "MdtAsBuiltMapContainer", "Key of output muon alignment MDT/AsBuilt condition data"};
+    SG::ReadCondHandleKey<NswAsBuiltDbData> m_readNswAsBuiltKey{this, "ReadNswAsBuiltKey", "NswAsBuiltDbData", "Key of NswAsBuiltDbData object containing conditions data for NSW as-built params!"};
 
     // Write Handle
     SG::WriteCondHandleKey<MuonGM::MuonDetectorManager> m_writeDetectorManagerKey{this, "WriteDetectorManagerKey", "MuonDetectorManager",
