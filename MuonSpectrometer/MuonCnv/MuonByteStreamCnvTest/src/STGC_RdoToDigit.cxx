@@ -57,7 +57,7 @@ StatusCode STGC_RdoToDigit::decodeSTGC( const Muon::STGC_RawDataCollection * rdo
     // retrieve/create digit collection, and insert digit into collection
     for (const Muon::STGC_RawData * data : *rdoColl) {
       sTgcDigit * newDigit = m_stgcRdoDecoderTool->getDigit(data);
-      newDigit->set_time(newDigit->time() - 100.0); //place holder calibration for tdo->time conversion
+      newDigit->set_time(newDigit->time() - Muon::STGC_RawData::s_timeTdoShift); //place holder calibration for tdo->time conversion
       if (!newDigit) {
         ATH_MSG_ERROR( "Error in sTGC RDO decoder"  );
         continue;
