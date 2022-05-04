@@ -113,7 +113,7 @@ def createLegacyCaloRoIUnpackers():
     jUnpacker = CompFactory.JRoIsUnpackingTool(Decisions = mapThresholdToL1DecisionCollection("J"),
                                                OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("J")) )
 
-    jUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="J", maxCount=30 )
+    jUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="J", maxCount=30, maxEta=5 )
 
     return [emUnpacker, metUnpacker, tauUnpacker, jUnpacker ]
 
@@ -156,25 +156,25 @@ def createCaloRoIUnpackers():
         OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("jJ")),
         RoIHalfWidthEta = 0.1,
         RoIHalfWidthPhi = 0.1,
-        MonTool = RoIsUnpackingMonitoring(prefix="jJ", maxCount=maxRoICount_jFex))
+        MonTool = RoIsUnpackingMonitoring(prefix="jJ", maxCount=maxRoICount_jFex, maxEta=5))
     gFexLRJetUnpacker = CompFactory.gFexLRJetRoIsUnpackingTool(
         Decisions = mapThresholdToL1DecisionCollection("jLJ"),
         OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("jLJ")),
         RoIHalfWidthEta = 0.1,
         RoIHalfWidthPhi = 0.1,
-        MonTool = RoIsUnpackingMonitoring(prefix="jLJ", maxCount=maxRoICount_gFex))
+        MonTool = RoIsUnpackingMonitoring(prefix="jLJ", maxCount=maxRoICount_gFex, maxEta=5))
     gFexSRJetUnpacker = CompFactory.gFexSRJetRoIsUnpackingTool(
         Decisions = mapThresholdToL1DecisionCollection("gJ"),
         OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("gJ")),
         RoIHalfWidthEta = 0.1,
         RoIHalfWidthPhi = 0.1,
-        MonTool = RoIsUnpackingMonitoring(prefix="gJ", maxCount=maxRoICount_gFex))
+        MonTool = RoIsUnpackingMonitoring(prefix="gJ", maxCount=maxRoICount_gFex, maxEta=5))
     jFexLRJetUnpacker = CompFactory.jFexLRJetRoIsUnpackingTool(
         Decisions = mapThresholdToL1DecisionCollection("gLJ"),
         OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("gLJ")),
         RoIHalfWidthEta = 0.1,
         RoIHalfWidthPhi = 0.1,
-        MonTool = RoIsUnpackingMonitoring(prefix="gLJ", maxCount=maxRoICount_jFex))
+        MonTool = RoIsUnpackingMonitoring(prefix="gLJ", maxCount=maxRoICount_jFex, maxEta=5))
 
     return [eFexEMUnpacker, eFexTauUnpacker, jFexTauUnpacker, cTauUnpacker,
             jFexSRJetUnpacker, gFexLRJetUnpacker, gFexSRJetUnpacker, jFexLRJetUnpacker]

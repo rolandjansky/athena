@@ -21,11 +21,11 @@ def RoIsUnpackingMonitoring(prefix, maxCount, maxEta=3.):
     tool.defineHistogram('count', path='EXPERT', type='TH1F', title=f'Number of {prefix} RoIs;N RoIs;N Events',
                          xbins=maxCount, xmin=0, xmax=maxCount),
     tool.defineHistogram('eta', path='EXPERT', type='TH1F', title=f'{prefix} RoIs eta;eta;N RoIs',
-                         xbins=60, xmin=-maxEta, xmax=maxEta),
+                         xbins=int(20*maxEta), xmin=-maxEta, xmax=maxEta),
     tool.defineHistogram('phi', path='EXPERT', type='TH1F', title=f'{prefix} RoIs phi;phi;N RoIs',
                          xbins=64, xmin=-(math.pi+0.1), xmax=math.pi+0.1),
     tool.defineHistogram('eta,phi', path='EXPERT', type='TH2F', title=f'{prefix} RoIs eta-phi;eta;phi;N RoIs',
-                         xbins=30, xmin=-maxEta, xmax=maxEta,
+                         xbins=int(10*maxEta), xmin=-maxEta, xmax=maxEta,
                          ybins=32, ymin=-(math.pi+0.1), ymax=math.pi+0.1)
     return tool
 
