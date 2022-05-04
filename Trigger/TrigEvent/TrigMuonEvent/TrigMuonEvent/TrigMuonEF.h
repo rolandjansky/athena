@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMUONEVENT_TRIGMUONEF_H
@@ -33,10 +33,10 @@ public:
    TrigMuonEF( double theIPt, double theCotTh, double thePhi, double theM );
 
    /** Copy constructor */
-   TrigMuonEF( const TrigMuonEF& rhs );
+   TrigMuonEF( const TrigMuonEF& rhs ) = delete;
 
-   /** Assignement operator */
-   TrigMuonEF& operator=( const TrigMuonEF& rhs );
+   /** Assignment operator */
+   TrigMuonEF& operator=( const TrigMuonEF& rhs ) = delete;
 
    /** Destructor */
    ~TrigMuonEF();
@@ -46,7 +46,7 @@ public:
    void set_muonCode( int theMuonCode );
 
    /** Set RoINum */
-   void set_RoINum( std::string theRoINum );
+   void set_RoINum( const std::string& theRoINum );
 
    /** Set Charge */
    void set_Charge( double theCharge );
