@@ -31,7 +31,7 @@ class MdtCalibrationShiftMapBase
   ~MdtCalibrationShiftMapBase()=default;
 
   /* get shift value, override from IShiftMapTools */
-  float getValue(const Identifier& id) override;
+  float getValue(const Identifier& id) const override;
 
   virtual StatusCode initialize() override;
 
@@ -40,7 +40,7 @@ class MdtCalibrationShiftMapBase
    * special function required
    * we need the cabling service to be ready first
    */
-  virtual StatusCode initializeMap();
+  virtual StatusCode initializeMap() = 0;
 
   /* dump the map in binary file, given a path */
   StatusCode dumpMapAsFile();
@@ -55,7 +55,7 @@ class MdtCalibrationShiftMapBase
   Gaudi::Property<bool> m_forceMapRecreate{this,"ForceMapRecreate",false};
 
   std::map<Identifier, float> m_shiftValues;
-  bool m_mapIsInitialized;
+  bool m_mapIsInitialized{false};
 
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   SG::ReadCondHandleKey<MuonMDT_CablingMap> m_mdtCab {this, "MdtCabling", "MuonMDT_CablingMap"};
