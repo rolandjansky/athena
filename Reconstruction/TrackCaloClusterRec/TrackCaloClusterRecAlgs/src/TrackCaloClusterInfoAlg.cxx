@@ -172,7 +172,7 @@ StatusCode TrackCaloClusterInfoUFOAlg::fillInfo(SG::WriteHandle<TrackCaloCluster
 
 
   SG::ReadHandle<xAOD::FlowElementContainer> pfos(m_inputPFOHandle);
-
+  SG::ReadDecorHandle<xAOD::TrackParticleContainer, std::vector<ElementLink<xAOD::CaloClusterContainer>> > clusterLinks(m_assoClustersKey);
 
   ATH_MSG_VERBOSE("GOT FE");
   // We use a dedicated helper to collect the weights mapping tracks to FlowElement.  
@@ -181,7 +181,11 @@ StatusCode TrackCaloClusterInfoUFOAlg::fillInfo(SG::WriteHandle<TrackCaloCluster
   ATH_MSG_VERBOSE("GOT ORIG PFO");
  
   wcoll.m_clustersLinkK="AssoClustersUFO"; //removing the container name from the assoClustersKey is required for the accessor to work. hardcode until a better solution is available
+  ATH_MSG_VERBOSE("ReadDecorHandle's default container: "<<clusterLinks.key());
+  ATH_MSG_VERBOSE("is ReadDecorHandle available? " <<clusterLinks.isAvailable());
+  ATH_MSG_VERBOSE("ReadDecorHandleKey: "<<clusterLinks.decorKey());
 
+  wcoll.m_linkdecorkey=&m_assoClustersKey;
   wcoll.m_trackVertexAssoTool = m_trackVertexAssoTool.get();
   wcoll.m_clusterEcut = m_clusterEcut;
   wcoll.m_useEnergy = m_useEnergy;
