@@ -376,9 +376,7 @@ def MuonTrackSteeringCfg(flags, name="MuonTrackSteering", **kwargs):
     kwargs.setdefault("HoleRecoveryTool",       muon_eo_recovery_tool)
     kwargs.setdefault("SegSeedQCut", 2)
     kwargs.setdefault("Seg2ndQCut", 1)
-    
-    kwargs.setdefault("OutputSingleStationTracks", True) # default is False
-
+   
     if "TrackBuilderTool" not in kwargs:
         #Old config had: kwargs["TrackBuilderTool"] = getPublicToolClone("MooMuonTrackBuilder", "MooTrackBuilderTemplate",
         #                                                extraFlags=extraFlags)
