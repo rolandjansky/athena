@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file TileTPCnv/test/TileBeamElemContainerCnv_p1_test.cxx
@@ -22,15 +22,10 @@
 #include <iostream>
 
 
-TileHWID hwid;
-TileTBID tbid;
-TileID   tileid;
-
 class TileCablingSvc
 {
 public:
-  static
-  void init_idhelpers ATLAS_NOT_THREAD_SAFE (IdDictParser& parser)
+  TileCablingSvc (IdDictParser& parser) ATLAS_NOT_THREAD_SAFE
   {
     tileid.set_do_neighbours (false);
     IdDictMgr& idd = parser.parse ("IdDictParser/ATLAS_IDS.xml");
@@ -45,6 +40,10 @@ public:
     svc->setTileTBID (&tbid);
     svc->setTileID (&tileid);
   }
+
+  TileHWID hwid;
+  TileTBID tbid;
+  TileID   tileid;
 };
 
 
@@ -106,7 +105,7 @@ void testit (const TileBeamElemContainer& trans1)
 
 
 std::unique_ptr<const TileBeamElemContainer>
-makecont()
+makecont (const TileID& tileid)
 {
   auto cont = std::make_unique<TileBeamElemContainer> (false,
                                                        TileFragHash::Default,
@@ -158,22 +157,22 @@ makecont()
 }
 
 
-void test1()
+void test1 ATLAS_NOT_THREAD_SAFE (const TileID& tileid)
 {
   std::cout << "test1\n";
   Athena_test::Leakcheck check;
 
-  std::unique_ptr<const TileBeamElemContainer> trans1 = makecont();
+  std::unique_ptr<const TileBeamElemContainer> trans1 = makecont (tileid);
 
   testit (*trans1);
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "TileTPCnv/TileBeamElemContainerCnv_p1_test\n";
   IdDictParser parser;
-  TileCablingSvc::init_idhelpers(parser);
-  test1();
+  TileCablingSvc helpers(parser);
+  test1 (helpers.tileid);
   return 0;
 }
