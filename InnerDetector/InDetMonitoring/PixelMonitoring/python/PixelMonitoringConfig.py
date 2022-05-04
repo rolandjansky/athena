@@ -39,7 +39,7 @@ def PixelMonitoringConfig(flags):
                             'doLumiBlock'     : not isOnline     #Turn on/off histograms stored every 1(20) lumi block(s)
         }
 
-        kwargsMVAMonAlg = { 'calibFolder'     : '20220314',
+        kwargsMVAMonAlg = { 'calibFolder'     : '20220503',
                             'RDOName'         : InDetKeys.PixelRDOs(),      #'PixelRDOs'
                             'ClusterName'     : InDetKeys.PixelClusters(),  #'PixelClusters'
                             'TrackName'       : InDetKeys.Tracks()          #'Tracks'
