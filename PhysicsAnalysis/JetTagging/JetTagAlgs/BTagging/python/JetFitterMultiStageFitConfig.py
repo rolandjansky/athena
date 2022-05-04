@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -6,9 +6,6 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.InDetJetFitterUtilsConfig import InDetJetFitterUtilsCfg
 from BTagging.ImprovedJetFitterInitializationHelperConfig import ImprovedJetFitterInitializationHelperCfg
 from BTagging.ImprovedJetFitterRoutinesConfig import ImprovedJetFitterRoutinesCfg
-
-# import the InDetDetailedTrackSelectorTool configurable
-InDet__JetFitterMultiStageFit = CompFactory.InDet.JetFitterMultiStageFit
 
 def InDetJetFitterMultiStageFitCfg(flags, name, suffix="", useBTagFlagsDefaults = True, **options):
     """Sets up a JetFitterMultiStageFit  tool and returns it.
@@ -66,7 +63,7 @@ def InDetJetFitterMultiStageFitCfg(flags, name, suffix="", useBTagFlagsDefaults 
             options.setdefault(option, defaults[option])
 
     options['name'] = name
-    acc.setPrivateTools( InDet__JetFitterMultiStageFit(**options) )
+    acc.setPrivateTools( CompFactory.InDet.JetFitterMultiStageFit(**options) )
     return acc
 
 

@@ -1,12 +1,10 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.ImprovedJetFitterInitializationHelperConfig import ImprovedJetFitterInitializationHelperCfg
 from BTagging.TrkDistanceFinderNeutralNeutralConfig import TrkDistanceFinderNeutralNeutralCfg
 from BTagging.TrkDistanceFinderNeutralChargedConfig import TrkDistanceFinderNeutralChargedCfg
-
-Trk__JetFitterRoutines=CompFactory.Trk.JetFitterRoutines
 
 def ImprovedJetFitterRoutinesCfg(name, useBTagFlagsDefaults = True, **options):
     """Sets up a ImprovedJetFitterRoutines tool and returns it.
@@ -39,6 +37,6 @@ def ImprovedJetFitterRoutinesCfg(name, useBTagFlagsDefaults = True, **options):
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name
-    acc.setPrivateTools(Trk__JetFitterRoutines(**options))
+    acc.setPrivateTools(CompFactory.Trk.JetFitterRoutines(**options))
 
     return acc
