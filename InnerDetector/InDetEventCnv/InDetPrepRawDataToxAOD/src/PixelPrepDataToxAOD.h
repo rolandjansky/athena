@@ -114,6 +114,7 @@ private:
   bool  m_writeSiHits;
   bool  m_writeNNinformation;
   bool  m_writeRDOinformation;
+  bool  m_writeExtendedPRDinformation;
   bool m_useSiHitsGeometryMatching;
 
   ServiceHandle<InDetDD::IPixelReadoutManager> m_pixelReadout

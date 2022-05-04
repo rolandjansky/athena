@@ -437,6 +437,10 @@ def InDetTrackRecoCfg(flags):
         result.merge(InDetSCT_PrepDataToxAODCfg(flags))
         result.merge(InDetTRT_PrepDataToxAODCfg(flags))
 
+        from DerivationFrameworkInDet.InDetToolsConfig import TrackStateOnSurfaceDecoratorCfg
+        TrackStateOnSurfaceDecorator = result.getPrimaryAndMerge(TrackStateOnSurfaceDecoratorCfg(flags, name="TrackStateOnSurfaceDecorator"))
+        result.addEventAlgo(CompFactory.DerivationFramework.CommonAugmentation("InDetCommonKernel", AugmentationTools = [TrackStateOnSurfaceDecorator]))
+
         if flags.Input.isMC:
             from InDetPhysValMonitoring.InDetPhysValDecorationConfig import InDetPhysHitDecoratorAlgCfg
             result.merge(InDetPhysHitDecoratorAlgCfg(flags))
@@ -469,7 +473,9 @@ def InDetTrackRecoOutputCfg(flags):
     excludedAuxData += '.-TTVA_AMVFVertices.-TTVA_AMVFWeights'
 
     # exclude IDTIDE/IDTRKVALID decorations
-    excludedAuxData += '.-TrkBLX.-TrkBLY.-TrkBLZ.-TrkIBLX.-TrkIBLY.-TrkIBLZ.-TrkL1X.-TrkL1Y.-TrkL1Z.-TrkL2X.-TrkL2Y.-TrkL2Z.-msosLink'
+    excludedAuxData += '.-TrkBLX.-TrkBLY.-TrkBLZ.-TrkIBLX.-TrkIBLY.-TrkIBLZ.-TrkL1X.-TrkL1Y.-TrkL1Z.-TrkL2X.-TrkL2Y.-TrkL2Z'
+    if not flags.InDet.Tracking.writeExtendedPRDInfo:
+        excludedAuxData += '.-msosLink'
 
     # exclude IDTIDE decorations
     excludedAuxData += ('.-IDTIDE1_biased_PVd0Sigma.-IDTIDE1_biased_PVz0Sigma.-IDTIDE1_biased_PVz0SigmaSinTheta.-IDTIDE1_biased_d0.-IDTIDE1_biased_d0Sigma'
@@ -647,7 +653,13 @@ def InDetTrackRecoOutputCfg(flags):
             "xAOD::TrackMeasurementValidationContainer#SCT_Clusters",
             "xAOD::TrackMeasurementValidationAuxContainer#SCT_ClustersAux.",
             "xAOD::TrackMeasurementValidationContainer#TRT_DriftCircles",
-            "xAOD::TrackMeasurementValidationAuxContainer#TRT_DriftCirclesAux."
+            "xAOD::TrackMeasurementValidationAuxContainer#TRT_DriftCirclesAux.",
+            "xAOD::TrackStateValidationContainer#PixelMSOSs",
+            "xAOD::TrackStateValidationAuxContainer#PixelMSOSsAux.",
+            "xAOD::TrackStateValidationContainer#SCT_MSOSs",
+            "xAOD::TrackStateValidationAuxContainer#SCT_MSOSsAux.",
+            "xAOD::TrackStateValidationContainer#TRT_MSOSs",
+            "xAOD::TrackStateValidationAuxContainer#TRT_MSOSsAux."
         ]
 
     result = ComponentAccumulator()
