@@ -111,7 +111,8 @@ if HLTMonFlags.doDump:
 ########## Menu-aware Monitoring ###########
 
 if HLTMonFlags.doMaM == True:
-    include( "TrigHLTMonitoring/runMaM.py" )
+    log.warning("The legacy MaM is no longer supported")
+
 
 ############################################
 

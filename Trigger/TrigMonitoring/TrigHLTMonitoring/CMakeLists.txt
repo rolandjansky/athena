@@ -22,11 +22,4 @@ atlas_add_component( TrigHLTMonitoring
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
-<<<<<<< HEAD
-atlas_install_scripts( python/scripts/*.py python/scripts/*.sh java/TrigMaMGUI_TRIGGERDBREPR.sh )
-=======
->>>>>>> be7a2e0c2f5... fix
 atlas_install_runtime( run/TrigHLTMon_tf.py )
-atlas_install_generic( java/GUI/TrigMaMGUI.java
-                       DESTINATION java/
-                       TYPEANAME JavaGUI )
