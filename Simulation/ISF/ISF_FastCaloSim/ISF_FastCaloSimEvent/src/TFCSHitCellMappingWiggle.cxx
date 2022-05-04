@@ -26,6 +26,9 @@ TFCSHitCellMappingWiggle::TFCSHitCellMappingWiggle(const char* name, const char*
 TFCSHitCellMappingWiggle::~TFCSHitCellMappingWiggle()
 {
   for(auto function : m_functions) delete function;
+#ifdef USE_GPU
+delete m_LdFH;
+#endif
 }
 
 void TFCSHitCellMappingWiggle::initialize(TFCS1DFunction* func)
@@ -216,3 +219,34 @@ void TFCSHitCellMappingWiggle::unit_test(TFCSSimulationState* simulstate,TFCSTru
 #endif
 
 }
+
+#ifdef USE_GPU
+//copy the hist functions to GPU
+void TFCSHitCellMappingWiggle::LoadHistFuncs() {
+
+  if ( m_LdFH ) {
+    return;
+  }
+  m_LdFH  = new LoadGpuFuncHist();
+  FHs fhs;
+
+  fhs.s_MaxValue = TFCS1DFunctionInt32Histogram::s_MaxValue;
+  fhs.nhist      = m_functions.size();
+  fhs.low_edge   = &( m_bin_low_edge[0] );
+  fhs.h_szs      = (unsigned int*)malloc( fhs.nhist * sizeof( unsigned int ) );
+  fhs.h_contents = (uint32_t**)malloc( fhs.nhist * sizeof( uint32_t* ) );
+  fhs.h_borders  = (float**)malloc( fhs.nhist * sizeof( float* ) );
+
+  for ( size_t i = 0; i < fhs.nhist; ++i ) {
+    fhs.h_szs[i]      = ( (TFCS1DFunctionInt32Histogram*)    ( m_functions[i] ) )->get_HistoContents().size();
+    fhs.h_contents[i] = &( ( (TFCS1DFunctionInt32Histogram*)( m_functions[i] ) )->get_HistoContents()[0] );
+    fhs.h_borders[i]  = &( ( (TFCS1DFunctionInt32Histogram*)( m_functions[i] ) )->get_HistoBordersx()[0] );
+    fhs.mxsz = std::max(fhs.mxsz, fhs.h_szs[i]);
+  }
+
+  m_LdFH->set_hf( &fhs );
+  m_LdFH->LD();
+
+  return;
+}
+#endif

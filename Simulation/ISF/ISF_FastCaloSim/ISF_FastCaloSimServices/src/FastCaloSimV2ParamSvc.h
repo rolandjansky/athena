@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMV2PARAMSVC_H
@@ -10,6 +10,9 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "ISF_FastCaloSimParametrization/CaloGeometryFromCaloDDM.h"
+#ifdef USE_GPU
+#include "ISF_FastCaloGpu/GeoLoadGpu.h"
+#endif
 
 //forward declarations
 class TFCSParametrizationBase;
@@ -32,6 +35,17 @@ namespace ISF {
 
   private:
 
+#ifdef USE_GPU
+    // for FCS-GPU
+    //construct the geometry with GPU EDM
+    bool convert_cellmap(t_cellmap* cellmap, t_cellmap_Gpu* newcellmap);
+    void region_data_cpy( CaloGeometryLookup* glkup, GeoRegion* gr ) ;
+    GeoLoadGpu* m_gl;
+    GeoLoadGpu m_glg;
+    void* m_rd4h;
+    t_cellmap_Gpu*    m_cellmap;
+    t_cellmap_Gpu    m_cellmap_gpu;
+#endif
     /** @brief The standard @c StoreGateSvc/DetectorStore
      * Returns (kind of) a pointer to the @c StoreGateSvc
      */
@@ -49,6 +63,7 @@ namespace ISF {
 
     bool m_printParametrization{false};
     bool m_CompressMemory{true};
+    bool m_runOnGPU{true};
   };
 
 }

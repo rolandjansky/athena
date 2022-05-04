@@ -9,12 +9,27 @@ atlas_subdir( ISF_FastCaloSimServices )
 find_package( CLHEP )
 find_package(lwtnn)
 
-# Component(s) in the package:
-atlas_add_component( ISF_FastCaloSimServices
-                     src/*.cxx
-                     src/components/*.cxx
-                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}  ${LWTNN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib ${LWTNN_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel IdDictParser ISF_InterfacesLib TrkEventPrimitives TrkExInterfaces CaloEvent StoreGateLib NavFourMom GeneratorObjects FastCaloSimLib ISF_Event ISF_FastCaloSimEvent ISF_FastCaloSimInterfaces ISF_FastCaloSimParametrizationLib PathResolver)
+# add an option switch on the GPU
+#option(USE_GPU "whehter to run FCS on GPU or not" OFF)
+
+message("use_gpu is ${USE_GPU}")
+if(USE_GPU)
+  add_definitions(-DUSE_GPU)
+  message("using GPU in service")
+  # Component(s) in the package:
+  atlas_add_component( ISF_FastCaloSimServices
+    src/*.cxx
+    src/components/*.cxx
+    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}  ${LWTNN_INCLUDE_DIRS}
+    LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib ${LWTNN_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel IdDictParser ISF_InterfacesLib TrkEventPrimitives TrkExInterfaces CaloEvent StoreGateLib NavFourMom GeneratorObjects FastCaloSimLib ISF_Event ISF_FastCaloSimEvent ISF_FastCaloSimInterfaces ISF_FastCaloSimParametrizationLib PathResolver ISF_FastCaloGpuLib AthCUDACoreLib)
+else()
+  # Component(s) in the package:
+  atlas_add_component( ISF_FastCaloSimServices
+    src/*.cxx
+    src/components/*.cxx
+    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}  ${LWTNN_INCLUDE_DIRS}
+    LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib ${LWTNN_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel IdDictParser ISF_InterfacesLib TrkEventPrimitives TrkExInterfaces CaloEvent StoreGateLib NavFourMom GeneratorObjects FastCaloSimLib ISF_Event ISF_FastCaloSimEvent ISF_FastCaloSimInterfaces ISF_FastCaloSimParametrizationLib PathResolver)
+endif()
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
