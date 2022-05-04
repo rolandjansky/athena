@@ -47,16 +47,13 @@ namespace Analysis {
     m_jetFitterInstance("JetFitterTag"),
     m_addNegativeTracksToPrimaryVertex(false),
     m_usePtCorrectedEnergy(false),
-    m_useSingleTracksAlsoForMass(false),
-    m_revertFromPositiveToNegativeTags(false)
+    m_useSingleTracksAlsoForMass(false)
   {
     declareProperty("secVxFinderName",m_secVxFinderName);
     declareProperty("JetFitterInstance",m_jetFitterInstance);
     declareProperty("addNegativeTracksToPrimaryVertex",m_addNegativeTracksToPrimaryVertex);
     declareProperty("usePtCorrectedEnergy",m_usePtCorrectedEnergy);
     declareProperty("useSingleTracksAlsoForMass",m_useSingleTracksAlsoForMass);
-    declareProperty("revertFromPositiveToNegativeTags",m_revertFromPositiveToNegativeTags);
-    
     declareInterface<IJetFitterVariablesFactory>(this);
   }  
 
@@ -79,9 +76,7 @@ StatusCode JetFitterVariablesFactory::finalize() {
   StatusCode JetFitterVariablesFactory::fillJetFitterVariables(const xAOD::Jet &myJet, xAOD::BTagging* BTag, const Trk::VxJetFitterVertexInfo* myJetFitterInfo, std::string basename) const{
 
     //VALERIO NASTY HACK!!!!
-    if ( basename.find("Flip")!=std::string::npos) m_revertFromPositiveToNegativeTags=true;
-    else m_revertFromPositiveToNegativeTags=false;
-    
+    bool nastyVsRevertPosToNeg = (basename.find("Flip")!=std::string::npos);
     int nVTX(0);
     int nTracksAtVtx(0);
     int nSingleTracks(0);
@@ -227,7 +222,7 @@ StatusCode JetFitterVariablesFactory::finalize() {
       
       int vertexSize=tracksOfVertex.size();
       int ntrack=(*vectorOfClustersOfTrackIter)->getNumVertex()+5;//gets the right component (should add EDM method which does 
-      if (!m_revertFromPositiveToNegativeTags)
+      if (!nastyVsRevertPosToNeg)
       {
         if (vertexPosition[ntrack]>0) {     
           if (vertexSize>1) {
@@ -265,7 +260,7 @@ StatusCode JetFitterVariablesFactory::finalize() {
       // this nasty little addition of 5...)
 
 
-      if ((vertexPosition[ntrack]<0 && (!m_revertFromPositiveToNegativeTags))||(vertexPosition[ntrack]>=0 && m_revertFromPositiveToNegativeTags)) {      
+      if ((vertexPosition[ntrack]<0 && (!nastyVsRevertPosToNeg))||(vertexPosition[ntrack]>=0 && nastyVsRevertPosToNeg)) {      
         if (m_addNegativeTracksToPrimaryVertex) 
         {
           for (std::vector<Trk::VxTrackAtVertex*>::const_iterator clustersOfTrackIter=clustersOfTrackBegin;

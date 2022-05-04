@@ -3,8 +3,6 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-Analysis__JetFitterVariablesFactory=CompFactory.Analysis.JetFitterVariablesFactory
-
 def JetFitterVariablesFactoryCfg(name, useBTagFlagsDefaults = True, **options):
     """Sets up a NewJetFitterVariablesFactory tool and returns it.
 
@@ -24,6 +22,6 @@ def JetFitterVariablesFactoryCfg(name, useBTagFlagsDefaults = True, **options):
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name
-    acc.setPrivateTools(Analysis__JetFitterVariablesFactory(**options))
+    acc.setPrivateTools(CompFactory.Analysis.JetFitterVariablesFactory(**options))
 
     return acc
