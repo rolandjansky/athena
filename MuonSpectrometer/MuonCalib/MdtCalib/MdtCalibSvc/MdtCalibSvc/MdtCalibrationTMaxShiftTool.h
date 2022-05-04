@@ -24,7 +24,7 @@ public:
    * initalization of map cannot happen before first event
    * special function required
    */
-  StatusCode initializeMap() override;
+  StatusCode initializeMap() override final;
 
   StatusCode setTUpper(const float tUpper);
   float getTUpper() const { return m_tUpper; }
