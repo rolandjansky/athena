@@ -115,9 +115,6 @@ def RecoSteering(flags):
 
     # btagging
     if flags.Reco.EnableBTagging:
-        # hack to prevent btagging fragments to rename top sequence
-        from AthenaCommon.ConcurrencyFlags import jobproperties
-        jobproperties.ConcurrencyFlags.NumThreads = flags.Concurrency.NumThreads
         from BTagging.BTagRun3Config import BTagRecoSplitCfg
         acc.merge(BTagRecoSplitCfg(flags))
         log.info("---------- Configured btagging")
