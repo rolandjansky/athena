@@ -358,9 +358,9 @@ StatusCode UFOTool::initialize(){
 StatusCode UFOTool::fillTCC(xAOD::FlowElementContainer* tccContainer, const TrackCaloClusterInfo & tccInfo ) const {
 
   SG::ReadHandle<xAOD::FlowElementContainer> pfos(m_inputPFOHandle);
-
-  SG::ReadDecorHandle<xAOD::FlowElementContainer, ElementLink<xAOD::FlowElementContainer> > orig_pfo(m_orig_pfo);
-  SG::ReadDecorHandle<xAOD::TrackParticleContainer, std::vector<ElementLink<xAOD::CaloClusterContainer>> > clusterLinksH(m_assoClustersKey);
+  const EventContext& ctx=Gaudi::Hive::currentContext(); 
+  SG::ReadDecorHandle<xAOD::FlowElementContainer, ElementLink<xAOD::FlowElementContainer> > orig_pfo(m_orig_pfo,ctx);
+  SG::ReadDecorHandle<xAOD::TrackParticleContainer, std::vector<ElementLink<xAOD::CaloClusterContainer>> > clusterLinksH(m_assoClustersKey,ctx);
 
   // We use a dedicated helper to build the combined UFO. Initialize it :  
   TCCHelpers::UFOBuilder ufoB;
@@ -374,6 +374,7 @@ StatusCode UFOTool::fillTCC(xAOD::FlowElementContainer* tccContainer, const Trac
   ufoB.m_tccInfo = &tccInfo;
   ufoB.m_tccContainer = tccContainer;
   // create a combined UFO for each track matched to some PFO 
+  ufoB.m_linkdecorkey=&m_assoClustersKey;
   ufoB.combinedUFOLoop(&tccInfo, pfos.cptr());
   
   
