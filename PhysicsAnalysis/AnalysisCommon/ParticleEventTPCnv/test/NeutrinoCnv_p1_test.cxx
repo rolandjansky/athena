@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file ParticleEventTPCnv/test/NeutrinoCnv_p1_test.cxx
@@ -13,11 +13,11 @@
 #include "TestTools/leakcheck.h"
 #include "ParticleEvent/Neutrino.h"
 #include "SGTools/TestStore.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 #include <cassert>
 #include <iostream>
-#include "CxxUtils/checker_macros.h"
 
 
 void compare (const ParticleEvent::Base& p1,
@@ -67,7 +67,7 @@ void testit (const Neutrino& trans1)
 }
 
 
-void test1()
+void test1 ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test1\n";
   (void)Gaudi::Hive::currentContext();
