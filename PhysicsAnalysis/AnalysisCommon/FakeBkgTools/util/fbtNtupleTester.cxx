@@ -2,6 +2,9 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <AsgMessaging/MessageCheck.h>
+#include <AsgTools/StandaloneToolHandle.h>
+
 #include <iostream>
 #include <sstream>
 #include <memory>
@@ -16,28 +19,41 @@
 #include <TString.h>
 #include <TSystem.h>
 
-#include <FakeBkgTools/ApplyFakeFactor.h>
+#ifdef XAOD_STANDALONE
+#include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
 #include "xAODRootAccess/TStore.h"
+#endif
+
+#include "AsgTools/AnaToolHandle.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventAuxInfo.h"
 #include "xAODBase/IParticle.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODMuon/Muon.h"
-
+#include "FakeBkgTools/ApplyFakeFactor.h"
 
 #ifndef READ_TREE_ADDRESSES
-#define READ_TREE_ADDRESSES(typeName, name) \
+#define READ_TREE_ADDRESSES(typeName, name)			\
   typeName name = 0; chain->SetBranchAddress(#name, &name)
 #endif
 
 #ifndef READ_TREE_ADDRESSES_VEC
-#define READ_TREE_ADDRESSES_VEC(typeName, name) \
+#define READ_TREE_ADDRESSES_VEC(typeName, name)			\
   typeName* name = 0; chain->SetBranchAddress(#name, &name)
 #endif
 
+
+
+// messaging
+ANA_MSG_HEADER(Test)
+ANA_MSG_SOURCE(Test, "fbtNtupleTester")
+using namespace Test;
+
 // an example input file is /afs/cern.ch/user/j/jreicher/public/fbtTestData.root
-int main(int argc, char* argv[]){
+int main(int argc, char* argv[])
+{
+  ANA_CHECK_SET_TYPE (int); // makes ANA_CHECK return ints if exiting function
 
   if(argc < 2){
     std::cerr << "No input file specified! Exiting." << std::endl;
@@ -67,21 +83,17 @@ int main(int argc, char* argv[]){
   // Path to the file of FF histograms
   std::vector<std::string> ff_file = { "FakeBkgTools/testValuesFF.root" };
 
-  ffTool->setProperty("InputFiles", ff_file);
-  ffTool->setProperty("EnergyUnit", "GeV");
-  ffTool->setProperty("SkipUncertainties", true);
-  ffTool->setProperty("OutputLevel", MSG::FATAL); // just to suppress the warnings due to SkipUncertainties
+  ANA_CHECK( ffTool->setProperty("InputFiles", ff_file) );
+  ANA_CHECK( ffTool->setProperty("EnergyUnit", "GeV") );
+  ANA_CHECK( ffTool->setProperty("SkipUncertainties", true) );
+  ANA_CHECK( ffTool->setProperty("OutputLevel", MSG::FATAL) );
 
   // ntuple values are in GeV, but xAOD::IParticles that 
   // we create will be in MeV
   float convertToMeV = 1000.;
 
   // Initialize tools
-  if(!ffTool->initialize().isSuccess()){
-    std::cout << "init failed" << std::endl;
-    return EXIT_FAILURE;
-  }
-
+  ANA_CHECK( ffTool->initialize() );
   TChain* chain = new TChain("chain");
   std::vector<TString> datasets = {};
 
@@ -166,20 +178,19 @@ int main(int argc, char* argv[]){
   std::unique_ptr<xAOD::EventAuxInfo> eventAuxInfo = std::make_unique<xAOD::EventAuxInfo>();
 
   eventInfo->setStore(eventAuxInfo.get());
-
-  ffTool->evtStore()->record(eventInfo.get(), "EventInfo");
-  ffTool->evtStore()->record(eventAuxInfo.get(), "EventInfoAux.");
+  ANA_CHECK( ffTool->evtStore()->record(eventInfo.get(),    "EventInfo") );
+  ANA_CHECK( ffTool->evtStore()->record(eventAuxInfo.get(), "EventInfoAux.") );;
 
   // we can clear this vector in each loop, rather than allocate
   // the memory for each event
   xAOD::IParticleContainer particles;
 
   // Loop over events!
-  int nEventsProcessed = 0;
-  int nEventsPassed = 0;
+  int nEventsProcessed(0);
+  int nEventsPassed(0);
 
   Long64_t nentries = chain->GetEntries();
-  for(Long64_t i = 0; i < nentries; ++i){
+  for(Long64_t i(0); i < nentries; ++i){
     std::cout << "processed " << nEventsProcessed << " events" << std::endl;
     ++nEventsProcessed;
 
@@ -318,10 +329,8 @@ int main(int argc, char* argv[]){
 
     // Now actually compute the weight!
     float fbtWeight;
-    ffTool->addEvent(particles);
-    if(ffTool->getEventWeight(fbtWeight, "3T", ">=1F[T]") != StatusCode::SUCCESS){
-      std::cerr << "getEventWeightAndUncertainties failed!" << std::endl;
-    }
+    ANA_CHECK( ffTool->addEvent(particles) );;
+    ANA_CHECK( ffTool->getEventWeight(fbtWeight, "3T", ">=1F[T]") );
 
     // FIXME note that the relevant MC events will need their 
     // FFWeight to be multiplied by -1 here, since these are used
