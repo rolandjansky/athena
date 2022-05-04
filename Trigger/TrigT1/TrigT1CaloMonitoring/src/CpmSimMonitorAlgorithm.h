@@ -30,6 +30,8 @@
 
 #include "TrigConfData/L1Menu.h"
 
+#include <mutex>
+
 class IL1CPCMXTools;
 class IL1CPMTools;
 class ITrigT1CaloMonErrorTool; 
@@ -172,6 +174,13 @@ class CpmSimMonitorAlgorithm : public AthMonitorAlgorithm {
 			 Monitored::Scalar<int> &witem,
 			 int x, int val, int nThresh,
 			 int nBits, int offset = 0) const;
+
+  // count number of error events per lumiblock across threads for each type of error
+  mutable std::mutex m_mutex{};
+  mutable std::map<uint32_t, int> m_errorLB_tt_counter ATLAS_THREAD_SAFE; 
+  mutable std::map<uint32_t, int> m_errorLB_roi_counter ATLAS_THREAD_SAFE; 
+  mutable std::map<uint32_t, int> m_errorLB_tob_counter ATLAS_THREAD_SAFE; 
+  mutable std::map<uint32_t, int> m_errorLB_thresh_counter ATLAS_THREAD_SAFE; 
 
 };
 #endif
