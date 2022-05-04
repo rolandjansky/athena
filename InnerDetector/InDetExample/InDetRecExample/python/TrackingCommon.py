@@ -807,8 +807,12 @@ def getPixelActiveDetectorElementStatusTool(name = "PixelActiveDetectorElementSt
 def getPixelByteStreamErrorDetectorElementStatusTool(name = "PixelByteStreamErrorDetectorElementStatusTool",**kwargs) :
     the_name = makeName( name, kwargs)
     from RecExConfig.AutoConfiguration import IsInInputFile
-    has_bytestream_errors= globalflags.DataSource=='data' and (IsInInputFile('IDCInDetBSErrContainer','PixelByteStreamErrs')
-                                                                   or globalflags.InputFormat() == 'bytestream' )
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+
+    has_bytestream_errors= globalflags.DataSource=='data' \
+                           and not (globalflags.isOverlay() and  overlayFlags.isDataOverlay()) \
+                           and (IsInInputFile('IDCInDetBSErrContainer','PixelByteStreamErrs')
+                                              or globalflags.InputFormat() == 'bytestream' )
     if has_bytestream_errors :
         from PixelConditionsTools.PixelConditionsToolsConf import PixelByteStreamErrorDetectorElementStatusTool
         return PixelByteStreamErrorDetectorElementStatusTool(the_name, **setDefaults(kwargs,
