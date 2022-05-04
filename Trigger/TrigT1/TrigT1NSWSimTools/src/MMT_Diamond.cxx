@@ -94,8 +94,7 @@ void MMT_Diamond::createRoads_fillHits(const unsigned int iterator, std::vector<
       entry.ev_hits.push_back(myhit);
     }
   }
-  entry.side = (std::all_of(entry.ev_hits.begin(), entry.ev_hits.end(), [] (const auto hit) { return hit->getStationEta() < 0; })) ? 'C' : '-';
-  entry.side = (std::all_of(entry.ev_hits.begin(), entry.ev_hits.end(), [] (const auto hit) { return hit->getStationEta() > 0; })) ? 'A' : '-';
+  entry.side = (std::all_of(entry.ev_hits.begin(), entry.ev_hits.end(), [] (const auto hit) { return hit->getStationEta() < 0; })) ? 'C' : 'A';
 
   std::vector<std::shared_ptr<MMT_Road> > temp_roads;
   for (int i = 0; i < nroad; i++) {
