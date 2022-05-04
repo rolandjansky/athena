@@ -37,13 +37,7 @@ HLTMonManager = topSequence.HLTMonManager
 
 #Global HLTMonTool
 if HLTMonFlags.doGeneral:
-    try:
-        from TrigHLTMonitoring.TrigHLTMonitoringConfig import HLTGeneralTool
-        HLTMonManager.AthenaMonTools += HLTGeneralTool()
-    except:
-         log.info("Problems with the general HLTMonTool, tool not enabled")
-         import traceback
-         log.info (traceback.format_exc())
+    log.warning("The HLT legacy monitoring is no longer supported")
 
 if HLTMonFlags.doMonTier0:
     # HLTEgammaMonTool - Calculates basic efficiencies
