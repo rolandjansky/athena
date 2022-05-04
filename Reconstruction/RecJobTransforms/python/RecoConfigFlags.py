@@ -39,6 +39,9 @@ def createRecoConfigFlags():
         )
         and prevFlags.Detector.EnableCalo
         and prevFlags.Reco.EnableTracking))
+    flags.addFlag("Reco.EnableTrackCellAssociation",
+                  lambda prevFlags: prevFlags.Detector.EnableCalo and
+                  prevFlags.Reco.EnableTracking)
 
     # this flags enables trigger data decoding (not trigger simulation)
     flags.addFlag("Reco.EnableTrigger",
