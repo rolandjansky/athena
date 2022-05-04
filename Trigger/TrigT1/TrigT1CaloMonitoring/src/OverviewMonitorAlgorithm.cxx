@@ -40,107 +40,125 @@ StatusCode OverviewMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
   const ErrorVector *errTES = 0;
 
   // CPM and CPM CMX Error data
-  errTES = 0;
-  if (evtStore()->contains<ErrorVector>(m_cpmErrorLocation)) {
-    sc = evtStore()->retrieve(errTES, m_cpmErrorLocation);
-  } else
-    sc = StatusCode::FAILURE;
-  if (sc.isFailure() || !errTES || errTES->size() != size_t(cpmCrates)) {
-    ATH_MSG_INFO("No CPM error vector of expected size");
-  } else {
-    for (int crate = 0; crate < cpmCrates; ++crate) {
-      const int err = (*errTES)[crate];
-      if (err == 0)
-        continue;
-      const int cr = crate + ppmCrates;
+  {
+    std::lock_guard<std::mutex> lock(m_mutex);  
+    errTES = 0;
+    if (evtStore()->contains<ErrorVector>(m_cpmErrorLocation)) {
+      sc = evtStore()->retrieve(errTES, m_cpmErrorLocation);
+    } else
+      sc = StatusCode::FAILURE;
 
-      if ((err >> CPMStatus) & 0x1){
-	globalOverviewX=SubStatus;
-	globalOverviewY=cr;
-	fill(m_packageName,globalOverviewX,globalOverviewY);
-	err_per_LB+=1;
-      }
-      if (((err >> CPMEMParity) & 0x1) || ((err >> CPMHadParity) & 0x1)) {
-	globalOverviewX=Parity;
-	globalOverviewY=cr;
-	fill(m_packageName,globalOverviewX,globalOverviewY);
-	err_per_LB+=1;
-      }
-      if (((err >> CPMEMLink) & 0x1) || ((err >> CPMHadLink) & 0x1)) {
-	globalOverviewX=LinkDown;
-	globalOverviewY=cr;
-	fill(m_packageName,globalOverviewX,globalOverviewY);
-	err_per_LB+=1;
-      }
-      if ((err >> CMXCPTobParity) & 0x1) {
-	globalOverviewX=GbCMXParity;
-	globalOverviewY=cr;
-	fill(m_packageName,globalOverviewX,globalOverviewY);
-	err_per_LB+=1;
-      }
-      if ((err >> CMXCPSumParity) & 0x1) {
-	globalOverviewX=GbCMXParity;
-	globalOverviewY=cr;
-	fill(m_packageName,globalOverviewX,globalOverviewY);
-	err_per_LB+=1;
-      }
-      if ((err >> CMXCPStatus) & 0x1) {
-	globalOverviewX=CMXSubStatus;
-	globalOverviewY=cr;
-	fill(m_packageName,globalOverviewX,globalOverviewY);
-	err_per_LB+=1;
-      }
+    if (sc.isFailure() || !errTES || errTES->size() != size_t(cpmCrates)) {
+      ATH_MSG_INFO("No CPM error vector of expected size");
+    } else {
+      for (int crate = 0; crate < cpmCrates; ++crate) {
+	const int err = (*errTES)[crate];
+	if (err == 0)
+	  continue;
+	const int cr = crate + ppmCrates;
+
+	if ((err >> CPMStatus) & 0x1){
+	  globalOverviewX=SubStatus;
+	  globalOverviewY=cr;
+	  fill(m_packageName,globalOverviewX,globalOverviewY);
+	  err_per_LB+=1;
+	}
+	if (((err >> CPMEMParity) & 0x1) || ((err >> CPMHadParity) & 0x1)) {
+	  globalOverviewX=Parity;
+	  globalOverviewY=cr;
+	  fill(m_packageName,globalOverviewX,globalOverviewY);
+	  err_per_LB+=1;
+	}
+	if (((err >> CPMEMLink) & 0x1) || ((err >> CPMHadLink) & 0x1)) {
+	  globalOverviewX=LinkDown;
+	  globalOverviewY=cr;
+	  fill(m_packageName,globalOverviewX,globalOverviewY);
+	  err_per_LB+=1;
+	}
+	if ((err >> CMXCPTobParity) & 0x1) {
+	  globalOverviewX=GbCMXParity;
+	  globalOverviewY=cr;
+	  fill(m_packageName,globalOverviewX,globalOverviewY);
+	  err_per_LB+=1;
+	}
+	if ((err >> CMXCPSumParity) & 0x1) {
+	  globalOverviewX=GbCMXParity;
+	  globalOverviewY=cr;
+	  fill(m_packageName,globalOverviewX,globalOverviewY);
+	  err_per_LB+=1;
+	}
+	if ((err >> CMXCPStatus) & 0x1) {
+	  globalOverviewX=CMXSubStatus;
+	  globalOverviewY=cr;
+	  fill(m_packageName,globalOverviewX,globalOverviewY);
+	  err_per_LB+=1;
+	}
+      } // crates
+    }
+  } 
+
+  // CPM and CMX Simulation Mismatch data
+  {
+    std::lock_guard<std::mutex> lock(m_mutex);  
+    if (evtStore()->contains<ErrorVector>(m_cpmMismatchLocation)) {
+      errTES = 0;
+      sc = evtStore()->retrieve(errTES, m_cpmMismatchLocation);     
+    } else {
+      sc = StatusCode::FAILURE;
+    }
+    if (sc.isFailure() || !errTES || errTES->size() != size_t(cpmCrates)) {
+      ATH_MSG_INFO("No CPM mismatch vector of expected size");
+    } else {
+      for (int crate = 0; crate < cpmCrates; ++crate) {
+	const int err = (*errTES)[crate];
+	if (err == 0)
+	  continue;
+	const int cr = crate + ppmCrates;
+	if (((err >> EMTowerMismatch) & 0x1) || ((err >> HadTowerMismatch) & 0x1)) {
+	  globalOverviewX=Transmission;
+	  globalOverviewY=cr;
+	  fill(m_packageName,globalOverviewX,globalOverviewY);
+	  err_per_LB+=1;
+	}
+	if (((err >> EMRoIMismatch) & 0x1) || ((err >> TauRoIMismatch) & 0x1)) {
+	  globalOverviewX=Simulation;
+	  globalOverviewY=cr;
+	  fill(m_packageName,globalOverviewX,globalOverviewY);
+	  err_per_LB+=1;
+	}
+	if (((err >> LeftCMXTobMismatch) & 0x1) ||
+	    ((err >> RightCMXTobMismatch) & 0x1) ||
+	    ((err >> RemoteSumMismatch) & 0x1)) {
+	  globalOverviewX=CMXTransmission;
+	  globalOverviewY=cr;
+	  fill(m_packageName,globalOverviewX,globalOverviewY);
+	  err_per_LB+=1;
+	}
+	if (((err >> LocalSumMismatch) & 0x1) ||
+	    ((err >> TotalSumMismatch) &
+	     0x1)) {
+	  globalOverviewX=CMXSimulation;
+	  globalOverviewY=cr;
+	  fill(m_packageName,globalOverviewX,globalOverviewY);
+	  err_per_LB+=1;
+	}
+      } // crates
     }
   }
 
-  // CPM Mismatch data
-  errTES = 0;
-  if (evtStore()->contains<ErrorVector>(m_cpmMismatchLocation)) {
-    sc = evtStore()->retrieve(errTES, m_cpmMismatchLocation);
-  } else
-    sc = StatusCode::FAILURE;
-  if (sc.isFailure() || !errTES || errTES->size() != size_t(cpmCrates)) {
-    ATH_MSG_INFO("No CPM mismatch vector of expected size");
-  } else {
-    for (int crate = 0; crate < cpmCrates; ++crate) {
-      const int err = (*errTES)[crate];
-      if (err == 0)
-        continue;
-      const int cr = crate + ppmCrates;
-      if (((err >> EMTowerMismatch) & 0x1) || ((err >> HadTowerMismatch) & 0x1)) {
-	globalOverviewX=Transmission;
-	globalOverviewY=cr;
-	fill(m_packageName,globalOverviewX,globalOverviewY);
-	err_per_LB+=1;
-      }
-      if (((err >> EMRoIMismatch) & 0x1) || ((err >> TauRoIMismatch) & 0x1)) {
-	globalOverviewX=Simulation;
-	globalOverviewY=cr;
-	fill(m_packageName,globalOverviewX,globalOverviewY);
-	err_per_LB+=1;
-      }
-      if (((err >> LeftCMXTobMismatch) & 0x1) ||
-          ((err >> RightCMXTobMismatch) & 0x1) ||
-          ((err >> RemoteSumMismatch) & 0x1)) {
-	globalOverviewX=CMXTransmission;
-	globalOverviewY=cr;
-	fill(m_packageName,globalOverviewX,globalOverviewY);
-	err_per_LB+=1;
-      }
-      if (((err >> LocalSumMismatch) & 0x1) ||
-          ((err >> TotalSumMismatch) &
-           0x1)) {
-	globalOverviewX=CMXSimulation;
-	globalOverviewY=cr;
-	fill(m_packageName,globalOverviewX,globalOverviewY);
-	err_per_LB+=1;
-      }
-    }
+  // errors per lumiblock and events processed
+  auto lb = GetEventInfo(ctx)->lumiBlock();
+
+  auto n_processed  = Monitored::Scalar<int>("n_processed",0);
+  auto lb_errors  = Monitored::Scalar<int>("lb_errors",lb);
+  auto n_lb_errors  = Monitored::Scalar<int>("n_lb_errors",err_per_LB);
+
+  variables.push_back(n_processed);
+  if (err_per_LB>0) {
+    variables.push_back(lb_errors);
+    variables.push_back(n_lb_errors);
   }
 
-  // errors per lumiblock
-  auto lb_errors  = Monitored::Scalar<int>("lb_errors", err_per_LB);
-  
   fill(m_packageName,variables);
   variables.clear();
   return StatusCode::SUCCESS;

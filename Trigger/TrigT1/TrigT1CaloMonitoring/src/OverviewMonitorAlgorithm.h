@@ -7,7 +7,8 @@
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "StoreGate/ReadHandleKey.h"
-//#include "TrigT1Interfaces/TrigT1CaloDefs.h"
+
+#include <mutex>
 
 class OverviewMonitorAlgorithm : public AthMonitorAlgorithm {
 public:OverviewMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator );
@@ -134,6 +135,8 @@ private:
     Unpacking,
     NumberOfGlobalErrors
   };
+
+  mutable std::mutex m_mutex{};
 
 };
 #endif
