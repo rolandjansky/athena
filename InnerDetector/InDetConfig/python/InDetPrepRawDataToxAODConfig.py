@@ -3,7 +3,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-def InDetPixelPrepDataToxAODCfg(flags, name='InDetPixelPrepDataToxAOD', ClusterSplitProbabilityName='', **kwargs):
+def InDetPixelPrepDataToxAODCfg(flags, name='InDetPixelPrepDataToxAOD', **kwargs):
     from PixelGeoModel.PixelGeoModelConfig import PixelReadoutGeometryCfg
     acc = PixelReadoutGeometryCfg(flags)
 
@@ -26,12 +26,12 @@ def InDetPixelPrepDataToxAODCfg(flags, name='InDetPixelPrepDataToxAOD', ClusterS
         kwargs.setdefault("LorentzAngleTool", acc.popToolsAndMerge(PixelLorentzAngleToolCfg(flags)))
 
     kwargs.setdefault("UseTruthInfo", flags.Input.isMC)
-    kwargs.setdefault("ClusterSplitProbabilityName", ClusterSplitProbabilityName)
+    kwargs.setdefault("WriteExtendedPRDinformation", True)
 
     acc.addEventAlgo(CompFactory.PixelPrepDataToxAOD(name, **kwargs))
     return acc
 
-def ITkPixelPrepDataToxAODCfg(flags, name='ITkPixelPrepDataToxAOD', ClusterSplitProbabilityName='', **kwargs):
+def ITkPixelPrepDataToxAODCfg(flags, name='ITkPixelPrepDataToxAOD', **kwargs):
     from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg
     acc = ITkPixelReadoutGeometryCfg(flags)
 
@@ -54,7 +54,7 @@ def ITkPixelPrepDataToxAODCfg(flags, name='ITkPixelPrepDataToxAOD', ClusterSplit
         kwargs.setdefault("LorentzAngleTool", acc.popToolsAndMerge(ITkPixelLorentzAngleToolCfg(flags)))
 
     kwargs.setdefault("UseTruthInfo", flags.Input.isMC)
-    kwargs.setdefault("ClusterSplitProbabilityName", ClusterSplitProbabilityName)
+    kwargs.setdefault("WriteExtendedPRDinformation", True)
     kwargs.setdefault("PixelReadoutManager", "ITkPixelReadoutManager")
     kwargs.setdefault("PixelChargeCalibCondData", "ITkPixelChargeCalibCondData")
     kwargs.setdefault("PixelDCSStateCondData", "ITkPixelDCSStateCondData")
