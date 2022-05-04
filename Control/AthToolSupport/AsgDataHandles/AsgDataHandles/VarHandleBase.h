@@ -20,6 +20,7 @@
 #else
 
 // STL includes
+#include <memory>
 #include <string>
 
 // #include "AsgDataHandles/VarHandleKey.h"
@@ -48,6 +49,14 @@ namespace SG {
      * The handle will not be usable until a non-blank key is assigned.
      */
     VarHandleBase() = default;
+
+
+    /**
+     * @brief Constructor with full arguments.
+     * @param sgkey StoreGate key of the referenced object.
+     */
+    explicit VarHandleBase(const std::string& sgkey);
+
 
     /**
      * @brief Constructor from a VarHandleKey.
@@ -138,6 +147,11 @@ namespace SG {
 
 
   private:
+    /// An owned @c VarHandleKey.
+    /// This is set in the case where a @c VarHandle is _not_ initialized
+    /// from a key object.
+    std::unique_ptr<VarHandleKey> m_ownedKey;
+
     /// The associated key object.
     const VarHandleKey* m_key {nullptr};
 
