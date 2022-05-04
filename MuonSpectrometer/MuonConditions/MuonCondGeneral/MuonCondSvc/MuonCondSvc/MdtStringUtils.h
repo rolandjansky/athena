@@ -17,6 +17,7 @@ class MdtStringUtils {
   static std::vector<std::string_view> tokenize(std::string_view str,
                        char delimiters = ' ');
   static int atoi(std::string_view);
+  static int stoi(std::string_view str) { return atoi(str); }
   static float stof(std::string_view);
   static int atoi(char a) noexcept { return ((int)a) - ((int)'0'); }
 }; 

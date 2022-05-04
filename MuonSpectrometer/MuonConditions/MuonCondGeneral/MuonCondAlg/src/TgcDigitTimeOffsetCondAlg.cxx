@@ -7,6 +7,7 @@
 #include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/WriteCondHandle.h"
 #include "CoralBase/Blob.h"
+#include <string_view>
 
 TgcDigitTimeOffsetCondAlg::TgcDigitTimeOffsetCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
 : AthReentrantAlgorithm(name, pSvcLocator) {
@@ -51,42 +52,41 @@ StatusCode TgcDigitTimeOffsetCondAlg::execute(const EventContext& ctx) const {
     ATH_MSG_ERROR("Invalid intersection range: " << rangeIntersection);
     return StatusCode::FAILURE;
   }
-
+  using namespace MuonCalib;
   // Fill
   auto outputCdo = std::make_unique<TgcDigitTimeOffsetData>();
-  std::string delimiter{";"};
+  char delimiter{';'};
   for (const auto &[channel, attribute] : *readHandle_TOffset.cptr()) {
     const coral::Blob& blob_strip = attribute["bTimeOffset_strip"].data<coral::Blob>();
     const char* charstrip = reinterpret_cast<const char*>(blob_strip.startingAddress());
-    std::string strstrip(charstrip);
+    std::string_view strstrip(charstrip);
 
-    std::vector<std::string> tokens;
-    MuonCalib::MdtStringUtils::tokenize(strstrip, tokens, delimiter);
+    std::vector<std::string_view> tokens = MdtStringUtils::tokenize(strstrip, delimiter);
     auto it = std::begin(tokens);
-    uint16_t station_number = stoi(*it);
+    uint16_t station_number = MdtStringUtils::stoi(*it);
     ++it;
-    uint16_t station_eta = stoi(*it);
+    uint16_t station_eta = MdtStringUtils::stoi(*it);
     ++it;
-    float offset_strip = stof(*it);
+    float offset_strip = MdtStringUtils::stof(*it);
     ++it;
     uint16_t chamberId = (station_number << 3) + station_eta;
-    outputCdo->stripOffset.insert(std::make_pair(chamberId, offset_strip));
+    outputCdo->stripOffset.emplace(chamberId, offset_strip);
 
     const coral::Blob& blob_wire = attribute["bTimeOffset_wire"].data<coral::Blob>();
     const char* charwire = reinterpret_cast<const char*>(blob_wire.startingAddress());
-    std::string strwire(charwire);
+    std::string_view strwire(charwire);
 
     tokens.clear();
-    MuonCalib::MdtStringUtils::tokenize(strwire, tokens, delimiter);
+    tokens = MuonCalib::MdtStringUtils::tokenize(strwire, delimiter);
     it = std::begin(tokens);
-    station_number = stoi(*it);
+    station_number = MdtStringUtils::stoi(*it);
     ++it;
-    station_eta = stoi(*it);
+    station_eta = MdtStringUtils::stoi(*it);
     ++it;
-    float offset_wire = stof(*it);
+    float offset_wire = MdtStringUtils::stof(*it);
     ++it;
     chamberId = (station_number << 3) + station_eta;
-    outputCdo->wireOffset.insert(std::make_pair(chamberId, offset_wire));
+    outputCdo->wireOffset.emplace(chamberId, offset_wire);
   }  // end of for(attrmap)
 
   // Record
