@@ -1,11 +1,8 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from JetTagTools.MV2TagConfig import MV2TagCfg
-
-# import the MultivariateTagManager configurable
-Analysis__MultivariateTagManager=CompFactory.Analysis.MultivariateTagManager
 
 def MultivariateTagManagerCfg(flags, name = 'MultivariateTagManager', TaggerList = ['DL1', 'DL1rnn', 'DL1mu', 'MV2c10'], scheme = '', useBTagFlagsDefaults = True, **options):
     """Sets up a MultivariateTagManager tool and returns it.
@@ -56,5 +53,5 @@ def MultivariateTagManagerCfg(flags, name = 'MultivariateTagManager', TaggerList
     for option in defaults:
         options.setdefault(option, defaults[option])
     options['name'] = name
-    acc.setPrivateTools(Analysis__MultivariateTagManager(**options))
+    acc.setPrivateTools(CompFactory.Analysis.MultivariateTagManager(**options))
     return acc

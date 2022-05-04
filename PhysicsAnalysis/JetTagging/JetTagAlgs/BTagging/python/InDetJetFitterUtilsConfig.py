@@ -1,12 +1,9 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from JetTagTools.BTagFullLinearizedTrackFactoryConfig import BTagFullLinearizedTrackFactoryCfg
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
-
-# importi the FullLinearizedTrackFactory configurable
-InDet__InDetJetFitterUtils=CompFactory.InDet.InDetJetFitterUtils
 
 
 def InDetJetFitterUtilsCfg(flags, name = 'InDetJFUtils', useBTagFlagsDefaults = True, options = {}):
@@ -27,6 +24,6 @@ def InDetJetFitterUtilsCfg(flags, name = 'InDetJFUtils', useBTagFlagsDefaults = 
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name
-    acc.setPrivateTools(InDet__InDetJetFitterUtils(**options))
+    acc.setPrivateTools(CompFactory.InDet.InDetJetFitterUtils(**options))
 
     return acc

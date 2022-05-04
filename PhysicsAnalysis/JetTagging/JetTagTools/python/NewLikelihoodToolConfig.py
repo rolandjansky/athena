@@ -1,10 +1,7 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-
-# import the NewLikelihoodTool configurable
-Analysis__NewLikelihoodTool=CompFactory.Analysis.NewLikelihoodTool
 
 def NewLikelihoodToolCfg( flags, name = 'NewLikelihoodTool', taggername = 'IP2D', scheme = '', useBTagFlagsDefaults = True, **options):
     """Sets up a NewLikelihoodTool tool and returns it.
@@ -33,7 +30,7 @@ def NewLikelihoodToolCfg( flags, name = 'NewLikelihoodTool', taggername = 'IP2D'
     options['name'] = name
     if scheme == 'Trig':
         options['HistosKey'] = 'JetTagTrigCalibHistosKey'
-    acc.setPrivateTools(Analysis__NewLikelihoodTool(**options))
+    acc.setPrivateTools(CompFactory.Analysis.NewLikelihoodTool(**options))
 
     return acc
 

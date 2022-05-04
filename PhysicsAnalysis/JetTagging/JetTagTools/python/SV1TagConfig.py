@@ -1,11 +1,8 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from JetTagTools.NewLikelihoodToolConfig import NewLikelihoodToolCfg
-
-# import the SVTag configurable
-Analysis__SVTag=CompFactory.Analysis.SVTag
 
 def SV1TagCfg( flags, name = 'SV1Tag', scheme = '', useBTagFlagsDefaults = True, **options ):
     """Sets up a SV1Tag tool and returns it.
@@ -40,7 +37,7 @@ def SV1TagCfg( flags, name = 'SV1Tag', scheme = '', useBTagFlagsDefaults = True,
                      'LikelihoodTool'                   : likelihood }
         for option in defaults:
             options.setdefault(option, defaults[option])
-    acc.setPrivateTools(Analysis__SVTag(**options))
+    acc.setPrivateTools(CompFactory.Analysis.SVTag(**options))
 
     return acc
 

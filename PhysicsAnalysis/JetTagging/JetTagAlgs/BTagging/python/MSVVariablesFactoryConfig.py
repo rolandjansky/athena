@@ -1,10 +1,7 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-
-# import the MSVVariablesFactory configurable
-Analysis__MSVVariablesFactory=CompFactory.Analysis.MSVVariablesFactory
 
 def MSVVariablesFactoryCfg(name, **options):
     """Sets up a MSVVariablesFactory tool and returns it.
@@ -18,6 +15,6 @@ def MSVVariablesFactoryCfg(name, **options):
     that this tool also needs to be added to the main B-tagging tool."""
     acc = ComponentAccumulator()
     options['name'] = name
-    acc.setPrivateTools(Analysis__MSVVariablesFactory(**options))
+    acc.setPrivateTools(CompFactory.Analysis.MSVVariablesFactory(**options))
 
     return acc
