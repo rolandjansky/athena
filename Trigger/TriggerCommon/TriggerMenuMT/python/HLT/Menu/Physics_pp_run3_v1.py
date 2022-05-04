@@ -156,6 +156,7 @@ def setupMenu():
         ChainProp(name='HLT_mu24_idperf_L1MU14FCH', stream=[PhysicsStream,'express'], groups=SupportGroup+SingleMuonGroup+['RATE:CPS_MU14FCH']),
         ChainProp(name='HLT_mu24_LRT_idperf_L1MU14FCH', stream=[PhysicsStream,'express'],   groups=SupportGroup+SingleMuonGroup+['RATE:CPS_MU14FCH']),
         ChainProp(name='HLT_mu26_ivarperf_L1MU14FCH', stream=[PhysicsStream,'express'], groups=SupportGroup+SingleMuonGroup+['RATE:CPS_MU14FCH']), # ATR-21905
+        ChainProp(name='HLT_mu40_idperf_L1MU14FCH', stream=[PhysicsStream,'express'], groups=SupportGroup+SingleMuonGroup+['RATE:CPS_MU14FCH']),
 
         # Support and ES, ATR-24367
         ChainProp(name='HLT_mu22_L1MU14FCH', stream=[PhysicsStream,'express'], groups=SupportGroup+SingleMuonGroup+['RATE:CPS_MU14FCH']),
@@ -1246,6 +1247,8 @@ def setupMenu():
         ChainProp(name="HLT_tau35_idperf_tracktwoMVABDT_L1cTAU30M", stream=[PhysicsStream], groups=SupportPhIGroup+SingleTauGroup, monGroups=['tauMon:t0']),
         ChainProp(name="HLT_tau35_perf_tracktwoMVABDT_L1cTAU30M", groups=SupportPhIGroup+SingleTauGroup, monGroups=['tauMon:t0']),
         ChainProp(name="HLT_tau35_mediumRNN_tracktwoMVABDT_L1cTAU30M", groups=SupportPhIGroup+SingleTauGroup, monGroups=['tauMon:t0']),
+
+        ChainProp(name="HLT_tau80_idperf_tracktwoMVABDT_L1eTAU60", stream=[PhysicsStream,'express'], groups=SingleTauGroup+SupportPhIGroup),
 
     ]
 

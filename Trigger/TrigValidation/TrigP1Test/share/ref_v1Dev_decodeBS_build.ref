@@ -4947,6 +4947,14 @@ HLT_mu28_ivarmedium_L1MU14FCH:
     0: 1
 HLT_mu3vtx_L12MU8F:
   eventCount: 0
+HLT_mu40_idperf_L1MU14FCH:
+  eventCount: 0
+  stepCounts:
+    0: 1
+    1: 1
+  stepFeatures:
+    0: 1
+    1: 1
 HLT_mu4_L1MU3V:
   eventCount: 2
   stepCounts:
@@ -6836,6 +6844,20 @@ HLT_tau60_mediumRNN_tracktwoMVA_probe_xe65_cell_xe90_pfopufit_L1jXE100:
 HLT_tau60_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_xe50_cell_03dRAB_L1TAU40_2TAU12IM_XE40:
   eventCount: 0
 HLT_tau80_idperf_tracktwoMVABDT_L1TAU60:
+  eventCount: 1
+  stepCounts:
+    0: 1
+    1: 1
+    2: 1
+    3: 1
+    4: 1
+  stepFeatures:
+    0: 1
+    1: 1
+    2: 1
+    3: 1
+    4: 1
+HLT_tau80_idperf_tracktwoMVABDT_L1eTAU60:
   eventCount: 1
   stepCounts:
     0: 1
