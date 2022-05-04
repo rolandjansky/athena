@@ -57,7 +57,22 @@ class TFCSSimulationState:public TObject
     double get_SF() {return getAuxInfo<double>("SF"_FCShash);}
 
     void clear();
+
+#ifdef USE_GPU
+    //for FastCaloSim-GPU
+    void * get_gpu_rand(){ return m_gpu_rand; };
+    void set_gpu_rand(void * rand ){ m_gpu_rand=rand ; } ;
+    void * get_geold() { return m_geold; };
+    void set_geold(void * geold ){ m_geold=geold ; } ;
+#endif
+
   private:
+
+#ifdef USE_GPU
+    void * m_gpu_rand ;
+    void * m_geold ;
+#endif
+
     CLHEP::HepRandomEngine* m_randomEngine;
       
     int    m_Ebin;
