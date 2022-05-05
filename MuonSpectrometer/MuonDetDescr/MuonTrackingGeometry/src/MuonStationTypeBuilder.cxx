@@ -1361,14 +1361,14 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processSpacer(Trk::Volu
     return spacer;
 }
 
-const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processNSW(const MuonGM::MuonDetectorManager* muonDetMgr,
-                                                                    const std::vector<const Trk::Layer*>& layers) const {
+Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processNSW(const MuonGM::MuonDetectorManager* muonDetMgr,
+                                                              const std::vector<const Trk::Layer*>& layers) const {
     ATH_MSG_DEBUG(name() << " processing NSW station components " << layers.size());
     ///////////////////////////////////////////////////////////////////////////////////////////////////
 
     // double tolerance = 0.0001;
 
-    const Trk::TrackingVolume* trVol = nullptr;
+    Trk::TrackingVolume* trVol = nullptr;
 
     Amg::Transform3D transf = layers[0]->surfaceRepresentation().transform();
 

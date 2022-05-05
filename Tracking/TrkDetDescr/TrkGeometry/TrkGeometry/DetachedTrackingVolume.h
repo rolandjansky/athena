@@ -47,10 +47,11 @@ class DetachedTrackingVolume {
   DetachedTrackingVolume();
 
   /**Constructor with name */
-  DetachedTrackingVolume(std::string name, const TrackingVolume* vol);
+  DetachedTrackingVolume(std::string name, TrackingVolume* vol);
 
   /**Constructor with name & layer representation*/
-  DetachedTrackingVolume(std::string name, const TrackingVolume* vol,
+  DetachedTrackingVolume(std::string name,
+                         TrackingVolume* vol,
                          const Layer* layer,
                          const std::vector<const Layer*>* multilayer = nullptr);
 
@@ -103,7 +104,7 @@ class DetachedTrackingVolume {
   void compactify ATLAS_NOT_THREAD_SAFE(size_t& cSurfaces,
                                         size_t& tSurfaces) const;
 
-  const TrackingVolume* m_trkVolume;
+  TrackingVolume* m_trkVolume;
   const std::string m_name;
   const Layer* m_layerRepresentation;
   const std::vector<const Layer*>* m_multilayerRepresentation;
