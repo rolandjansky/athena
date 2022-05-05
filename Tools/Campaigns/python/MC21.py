@@ -39,6 +39,7 @@ def MC21aSingleBeamspot(flags):
     # override only pile-up profile
     flags.Digitization.PU.NumberOfLowPtMinBias = 51.898
     flags.Digitization.PU.NumberOfHighPtMinBias = 0.102
+    flags.Digitization.PU.BunchStructureConfig = 'RunDependentSimData.BunchStructure_2017'
     flags.Digitization.PU.ProfileConfig = 'RunDependentSimData.PileUpProfile_run410000_MC21a_SingleBeamspot'
 
 
