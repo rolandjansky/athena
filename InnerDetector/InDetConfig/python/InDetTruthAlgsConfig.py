@@ -151,3 +151,34 @@ def ITkDetailedTrackTruthMakerCfg(flags, Tracks, DetailedTruth, name='Maker',**k
 
     acc.addEventAlgo(CompFactory.InDet.InDetDetailedTrackTruthMaker(name = DetailedTruth+name, **kwargs))
     return acc
+
+def InDetTruthTrackCreationCfg(flags, name='InDetTruthTrackCreation', **kwargs):
+    acc = ComponentAccumulator()
+
+    from InDetConfig.InDetTruthToolsConfig import InDetPRD_TruthTrajectoryBuilderCfg,InDetTruthTrackBuilderCfg
+    InDetPRD_TruthTrajectoryBuilder = acc.popToolsAndMerge(InDetPRD_TruthTrajectoryBuilderCfg(flags))
+    acc.addPublicTool(InDetPRD_TruthTrajectoryBuilder)
+    kwargs.setdefault('PRD_TruthTrajectoryBuilder', InDetPRD_TruthTrajectoryBuilder)
+
+    InDetTruthTrackBuilder = acc.popToolsAndMerge(InDetTruthTrackBuilderCfg(flags))
+    acc.addPublicTool(InDetTruthTrackBuilder)
+    kwargs.setdefault('TruthTrackBuilder', InDetTruthTrackBuilder)
+    kwargs.setdefault('OutputTrackCollection', 'InDetPseudoTracks')
+    
+    from InDetConfig.InDetAssociationToolsConfig import InDetPRDtoTrackMapToolGangedPixelsCfg
+    InDetPRDtoTrackMapToolGangedPixels = acc.popToolsAndMerge(InDetPRDtoTrackMapToolGangedPixelsCfg(flags))
+    kwargs.setdefault('AssociationTool', InDetPRDtoTrackMapToolGangedPixels)
+
+    from InDetConfig.TrackingCommonConfig import InDetTrackSummaryToolSharedHitsCfg
+    TrackSummaryTool = acc.getPrimaryAndMerge(InDetTrackSummaryToolSharedHitsCfg(flags, name='InDetTruthTrackCreationSummaryToolSharedHits'))
+    kwargs.setdefault('TrackSummaryTool', TrackSummaryTool)
+
+    trajectoryselectors = []
+    if not flags.InDet.Tracking.doIdealPseudoTracking:
+        from InDetConfig.InDetTruthToolsConfig import InDetPRD_TruthTrajectorySelectorCfg
+        TruthTrajectorySelector = acc.popToolsAndMerge(InDetPRD_TruthTrajectorySelectorCfg())
+        trajectoryselectors.append(TruthTrajectorySelector)
+    kwargs.setdefault('PRD_TruthTrajectorySelectors', trajectoryselectors)
+
+    acc.addEventAlgo(CompFactory.Trk.TruthTrackCreation(name, **kwargs))
+    return acc

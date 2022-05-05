@@ -404,9 +404,22 @@ def InDetTrackRecoCfg(flags):
                 ClusterSplitProbContainer = "InDetTRT_SeededAmbiguityProcessorSplitProb"
                 InputCombinedInDetTracks += ["ResolvedTRTSeededTracks"]
                 InputExtendedInDetTracks += ["ResolvedTRTSeededTracks"]
+
+            if flags.InDet.doTruth and (flags.InDet.Tracking.doPseudoTracking or flags.InDet.Tracking.doIdealPseudoTracking): ## Do we need the dotruth flags...?
+                from InDetConfig.TruthTrackingConfig import TruthTrackingCfg
+                result.merge(TruthTrackingCfg(flags))
+
+                ## Old config only scheduled InDetTrackTruth for IdealPseudoTracking, while the TrackParticleCnvAlg requires it if "doTruth" is enabled
+                if flags.InDet.doTruth: ## needed if flag above is removed
+                    from InDetConfig.TrackTruthConfig import InDetTrackTruthCfg
+                    result.merge(InDetTrackTruthCfg(flags, 'InDetPseudoTracks', 'InDetPseudoTracksTruthCollection', 'InDetPseudoTracksTruthCollection'))
+
+                result.merge(TrackParticleCnvAlgCfg(current_flags,
+                                                    name = "PseudoTrackParticleCnvAlg",
+                                                    TrackContainerName = "InDetPseudoTracks",
+                                                    OutputTrackParticleContainer = "InDetPseudoTrackParticles"))
+
             isPrimaryPass = False
-
-
 
 
     result.merge(TrackCollectionMergerAlgCfg(flags,
@@ -543,7 +556,7 @@ def InDetTrackRecoOutputCfg(flags):
                 toESD += ["TrackTruthCollection#StandaloneTRTTracksTruthCollection"]
                 toESD += ["DetailedTrackTruthCollection#StandaloneTRTTracksDetailedTruth"]
 
-        if special:  # flags.InDet.doPseudoTracking:
+        if flags.InDet.Tracking.doPseudoTracking:
             toESD += ["TrackCollection#InDetPseudoTracks"]
             if flags.InDet.doTruth:
                 toESD += ["TrackTruthCollection#InDetPseudoTracksTruthCollection"]
@@ -633,7 +646,7 @@ def InDetTrackRecoOutputCfg(flags):
         if flags.InDet.doTruth:
             toAOD += ["TrackTruthCollection#ResolvedDBMTracksTruthCollection"] 
             toAOD += ["DetailedTrackTruthCollection#ResolvedDBMTracksDetailedTruth"] 
-    if special:  # flags.InDet.doPseudoTracking:
+    if flags.InDet.Tracking.doPseudoTracking:
         toAOD += ["xAOD::TrackParticleContainer#InDetPseudoTrackParticles"]
         toAOD += [f"xAOD::TrackParticleAuxContainer#InDetPseudoTrackParticlesAux.{excludedAuxData}"]
         if flags.InDet.doTruth:
