@@ -85,7 +85,7 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks, BTagName,
 
     return acc
 
-def getFastFlavourTagging( flags, inputJets, inputVertex, inputTracks, isPFlow=False):
+def getFastFlavourTagging( flags, inputJets, inputVertex, inputTracks, isPFlow=False, fastDipsMinimumPt=None):
     """
     This function tags jets directly: there is no  b-tagging object
     """
@@ -116,12 +116,15 @@ def getFastFlavourTagging( flags, inputJets, inputVertex, inputTracks, isPFlow=F
     # now we associate the tracks to the jet
     ## JetParticleAssociationAlgCfg uses a shrinking cone.
     tracksOnJetDecoratorName = "TracksForMinimalJetTag"
+    pass_flag = 'fastDips_isValid'
     ca.merge(
         JetParticleAssociationAlgCfg(
             flags,
             JetCollection=jet_name,
             InputParticleCollection=inputTracks,
             OutputParticleDecoration=tracksOnJetDecoratorName,
+            MinimumJetPt=fastDipsMinimumPt,
+            MinimumJetPtFlag=pass_flag
         )
     )
 
@@ -166,7 +169,7 @@ def getFastFlavourTagging( flags, inputJets, inputVertex, inputTracks, isPFlow=F
         nnAlgoKey = nnFile.replace('/','_').split('.')[0]
 
         ca.addEventAlgo(
-            CompFactory.FlavorTagDiscriminants.JetTagDecoratorAlg(
+            CompFactory.FlavorTagDiscriminants.JetTagConditionalDecoratorAlg(
                 name='_'.join([
                     'simpleJetTagAlg',
                     jet_name,
@@ -176,6 +179,7 @@ def getFastFlavourTagging( flags, inputJets, inputVertex, inputTracks, isPFlow=F
                 container=jet_name,
                 constituentContainer=inputTracks,
                 undeclaredReadDecorKeys=missingKeys,
+                tagFlag=pass_flag,
                 decorator=CompFactory.FlavorTagDiscriminants.DL2Tool(
                     name='_'.join([
                         'simpleDipsToJet',

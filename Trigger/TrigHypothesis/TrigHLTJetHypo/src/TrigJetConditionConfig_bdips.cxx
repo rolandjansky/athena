@@ -24,7 +24,13 @@ StatusCode TrigJetConditionConfig_bdips::initialize() {
 
 Condition TrigJetConditionConfig_bdips::getCondition() const {
   auto a2d = ArgStrToDouble();
-  return std::make_unique<DipsCondition>(a2d(m_min));
+  return std::make_unique<DipsCondition>(
+    a2d(m_min),
+    a2d(m_cfrac),
+    m_name_pb,
+    m_name_pc,
+    m_name_pu,
+    m_name_valid);
 }
 
  
