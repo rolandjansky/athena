@@ -219,11 +219,6 @@ def main():
     'xAOD::jFexMETRoIAuxContainer_v1',
     'xAOD::jFexSumETRoI_v1',
     'xAOD::jFexSumETRoIAuxContainer_v1',
-    'xAOD::jFexTauRoIAuxContainer_v1',
-    'xAOD::jFexSRJetRoI_v1',
-    'xAOD::jFexSRJetRoIAuxContainer_v1',
-    'xAOD::jFexLRJetRoI_v1',
-    'xAOD::jFexLRJetRoIAuxContainer_v1',
     'xAOD::eFexTauRoIAuxContainer_v1',
     'xAOD::gFexGlobalRoI_v1',
     'xAOD::gFexGlobalRoIAuxContainer_v1',
@@ -238,6 +233,11 @@ def main():
     'xAOD::AFPToFTrack_v1',
     'xAOD::AFPToFTrackAuxContainer_v1',
     'xAOD::AFPSiHitsClusterAuxContainer_v1',
+    'xAOD::jFexTauRoIAuxContainer_v1',
+    'xAOD::jFexSRJetRoI_v1',
+    'xAOD::jFexSRJetRoIAuxContainer_v1',
+    'xAOD::jFexLRJetRoI_v1',
+    'xAOD::jFexLRJetRoIAuxContainer_v1',
   ]
   updated_objects = []
   return update_streamerinfos(objects, updated_objects)
