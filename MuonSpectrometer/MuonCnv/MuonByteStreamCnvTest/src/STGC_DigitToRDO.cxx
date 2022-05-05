@@ -52,7 +52,7 @@ StatusCode STGC_DigitToRDO::execute(const EventContext& ctx) const
       for (const sTgcDigit* digit : *digitColl ) {
         Identifier id = digit->identify();
         uint16_t bcTag = digit->bcTag();
-        float time   = digit->time() + 100.0; //place holder time calibration
+        float time = digit->time() + STGC_RawData::s_timeTdoShift; //place holder time calibration
         unsigned int tdo = static_cast<unsigned int>(time); //place holder time->tdo conversion
         // 10bit charge conversion to PDO is done in sTGC_digitization as a quick fix for now, it will be corrected once the calibration is in place
 	      unsigned int charge = static_cast<unsigned int>(digit->charge()); //place holder for charge->pdo from calibration
