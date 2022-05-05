@@ -15,31 +15,36 @@
 #include "TrkGeometry/TrackingVolume.h"
 
 Trk::DetachedTrackingVolume::DetachedTrackingVolume()
-    : m_trkVolume(),
-      m_name("undefined"),
-      m_layerRepresentation(nullptr),
-      m_multilayerRepresentation(nullptr),
-      m_baseTransform(nullptr),
-      m_constituents(nullptr) {}
+  : m_trkVolume()
+  , m_name("undefined")
+  , m_layerRepresentation(nullptr)
+  , m_multilayerRepresentation(nullptr)
+  , m_baseTransform(nullptr)
+  , m_constituents(nullptr)
+{}
+
+Trk::DetachedTrackingVolume::DetachedTrackingVolume(std::string name,
+                                                    Trk::TrackingVolume* volume)
+  : m_trkVolume(volume)
+  , m_name(std::move(name))
+  , m_layerRepresentation(nullptr)
+  , m_multilayerRepresentation(nullptr)
+  , m_baseTransform(nullptr)
+  , m_constituents(nullptr)
+{}
 
 Trk::DetachedTrackingVolume::DetachedTrackingVolume(
-    std::string name, const Trk::TrackingVolume* volume)
-    : m_trkVolume(volume),
-      m_name(std::move(name)),
-      m_layerRepresentation(nullptr),
-      m_multilayerRepresentation(nullptr),
-      m_baseTransform(nullptr),
-      m_constituents(nullptr) {}
-
-Trk::DetachedTrackingVolume::DetachedTrackingVolume(
-    std::string name, const Trk::TrackingVolume* volume, const Trk::Layer* lay,
-    const std::vector<const Trk::Layer*>* multilay)
-    : m_trkVolume(volume),
-      m_name(std::move(name)),
-      m_layerRepresentation(lay),
-      m_multilayerRepresentation(multilay),
-      m_baseTransform(nullptr),
-      m_constituents(nullptr) {}
+  std::string name,
+  Trk::TrackingVolume* volume,
+  const Trk::Layer* lay,
+  const std::vector<const Trk::Layer*>* multilay)
+  : m_trkVolume(volume)
+  , m_name(std::move(name))
+  , m_layerRepresentation(lay)
+  , m_multilayerRepresentation(multilay)
+  , m_baseTransform(nullptr)
+  , m_constituents(nullptr)
+{}
 
 Trk::DetachedTrackingVolume::~DetachedTrackingVolume() {
   delete m_trkVolume;
