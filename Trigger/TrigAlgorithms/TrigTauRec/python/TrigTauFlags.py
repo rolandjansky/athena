@@ -16,6 +16,14 @@ class MvaTESConfig(JobProperty):
     allowedTypes=['string']
     StoredValue='OnlineMvaTES_BRT_v1.weights.root'
 
+# temporary
+class UseEMoverLC(JobProperty):
+    """ switch to enable ptEM/ptLC in MvaTESEvaluator
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
 class JetRNNIDConfig(JobProperty):
     """ config files for TauJetRNNEvaluator jet ID
     """
@@ -60,7 +68,7 @@ class TrigTauRecFlags(JobPropertyContainer):
 jobproperties.add_Container(TrigTauRecFlags)
 
 # register the flags
-for j in [CalibPath, MvaTESConfig, JetRNNIDConfig, JetRNNIDWPConfig, JetRNNIDConfigLLP, JetRNNIDWPConfigLLP, FTFTauCoreBDTConfig]:
+for j in [CalibPath, MvaTESConfig, UseEMoverLC, JetRNNIDConfig, JetRNNIDWPConfig, JetRNNIDConfigLLP, JetRNNIDWPConfigLLP, FTFTauCoreBDTConfig]:
     jobproperties.TrigTauRecFlags.add_JobProperty(j)
 
 TrigTauFlags = jobproperties.TrigTauRecFlags
