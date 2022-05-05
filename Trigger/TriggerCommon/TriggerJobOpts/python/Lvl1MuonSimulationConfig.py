@@ -144,7 +144,7 @@ def MuonRdo2PrdConfig(flags):
                                                           DecodingTool = MdtRdoToMdtPrepDataTool)
     acc.addEventAlgo(MdtRdoToMdtPrepData)
     ### RPC RDO data ###
-    RpcRdoToRpcPrepDataTool = CompFactory.Muon.RpcRdoToPrepDataToolMT(name = "RpcRdoToPrepDataToolMT" + postFix, RDOContainer = "RPCPAD_L1")
+    RpcRdoToRpcPrepDataTool = CompFactory.Muon.RpcRdoToPrepDataToolMT(name = "RpcRdoToPrepDataToolMT" + postFix, OutputCollection = "RPCPAD_L1")
     RpcRdoToRpcPrepData = CompFactory.RpcRdoToRpcPrepData(name = "RpcRdoToRpcPrepData" + postFix,
                                                           DecodingTool = RpcRdoToRpcPrepDataTool)
     acc.addEventAlgo(RpcRdoToRpcPrepData)
