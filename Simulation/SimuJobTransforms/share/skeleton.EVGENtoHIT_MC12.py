@@ -198,6 +198,8 @@ if hasattr(runArgs,"DataRunNumber"):
     if runArgs.DataRunNumber>0:
         atlasG4log.info( 'Overriding run number to be: %s ' % runArgs.DataRunNumber )
         simFlags.RunNumber=runArgs.DataRunNumber
+elif simFlags.RunAndLumiOverrideList.statusOn:
+    atlasG4log.info( 'Overriding run number using simFlags.RunAndLumiOverrideList')
 elif hasattr(runArgs,'jobNumber'):
     if runArgs.jobNumber>=0:
         atlasG4log.info( 'Using job number '+str(runArgs.jobNumber)+' to derive run number.' )
