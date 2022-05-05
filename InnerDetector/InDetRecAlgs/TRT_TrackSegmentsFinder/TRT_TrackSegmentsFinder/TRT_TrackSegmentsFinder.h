@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_TrackSegmentsFinder_H
@@ -15,7 +15,7 @@
 #include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "TrkSegment/SegmentCollection.h"
-#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
+#include "TrkCaloClusterROI/ROIPhiRZContainer.h"
 // MagField cache
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "MagFieldElements/AtlasFieldCache.h"
@@ -53,11 +53,8 @@ namespace InDet {
       Gaudi::Property<int>                          m_minNumberDCs
        {this, "MinNumberDriftCircles", 15,      "Minimum number of DriftCircles for a TRT segment."};
 
-      Gaudi::Property<double>                       m_ClusterEt
-       {this, "CaloClusterEt",         6000.0, "Minimum ET of calo clusters in MeV too seed the TRT segment finder."};
-
-      SG::ReadHandleKey<CaloClusterROI_Collection>  m_caloKey
-       {this, "InputClusterContainerName", "InDetCaloClusterROIs", "Location of the optional Calo cluster seeds."};
+      SG::ReadHandleKey<ROIPhiRZContainer>         m_caloClusterROIKey
+       {this, "EMROIPhiRZContainer", "", "Name of the calo ROI container in which the ROIs are parametrised by phi, r and z."};
 
       SG::WriteHandleKey<Trk::SegmentCollection>    m_foundSegmentsKey
        {this, "SegmentsLocation", "TRTSegments", "Storegate key of the found TRT segments."};

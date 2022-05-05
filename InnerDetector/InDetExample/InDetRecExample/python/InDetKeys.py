@@ -876,12 +876,6 @@ class CaloCellContainer(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'AllCalo'
 
-class CaloClusterROIContainer(JobProperty):
-    """Brem Reco: Container of calo cluster ROIs"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'InDetCaloClusterROIs'
-
 class HadCaloClusterContainer(JobProperty):
     """Brem Reco: Container of EM clusters"""
     statusOn     = True
@@ -895,12 +889,6 @@ class HadCaloCellContainer(JobProperty):
     statusOn     = True
     allowedTypes = ['str']
     StoredValue  = 'AllCalo'
-
-class HadCaloClusterROIContainer(JobProperty):
-    """Brem Reco: Container of calo cluster ROIs"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'InDetHadCaloClusterROIs'
 
 class xAODTrackParticleContainer(JobProperty):
     """xAOD TrackParticle"""
@@ -1156,10 +1144,8 @@ jobproperties.InDetContainerKeys.add_JobProperty(OutputAODFileName)
 jobproperties.InDetContainerKeys.add_JobProperty(McEventCollection)
 jobproperties.InDetContainerKeys.add_JobProperty(CaloClusterContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(CaloCellContainer)
-jobproperties.InDetContainerKeys.add_JobProperty(CaloClusterROIContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(HadCaloClusterContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(HadCaloCellContainer)
-jobproperties.InDetContainerKeys.add_JobProperty(HadCaloClusterROIContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODVertexContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODV0VertexContainer)

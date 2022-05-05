@@ -284,8 +284,8 @@ class  ConfiguredNewTrackingSiPattern:
                                           doHadCaloSeedSSS          = InDetFlags.doHadCaloSeededSSS(),
                                           phiWidth                  = NewTrackingCuts.phiWidthBrem(),
                                           etaWidth                  = NewTrackingCuts.etaWidthBrem(),
-                                          InputClusterContainerName = InDetKeys.CaloClusterROIContainer(), # "InDetCaloClusterROIs" 
-                                          InputHadClusterContainerName = InDetKeys.HadCaloClusterROIContainer(), # "InDetCaloClusterROIs" 
+                                          EMROIPhiRZContainer       = "InDetCaloClusterROIPhiRZ0GeV",
+                                          HadROIPhiRZContainer      = "InDetHadCaloClusterROIPhiRZ",
                                           UseAssociationTool        = usePrdAssociationTool)
 
          if NewTrackingCuts.mode() == "DBM":
@@ -448,7 +448,7 @@ class  ConfiguredNewTrackingSiPattern:
            InDetAmbiTrackSelectionTool.minSiHitsToAllowSplitting = nhitsToAllowSplitting
            InDetAmbiTrackSelectionTool.minUniqueSCTHits          = 4
            InDetAmbiTrackSelectionTool.minTrackChi2ForSharedHits = 3
-           InDetAmbiTrackSelectionTool.InputHadClusterContainerName = InDetKeys.HadCaloClusterROIContainer()+"Bjet"
+           InDetAmbiTrackSelectionTool.HadROIPhiRZContainer      = "InDetHadCaloClusterROIPhiRZBjet"
            InDetAmbiTrackSelectionTool.doHadCaloSeed             = InDetFlags.doCaloSeededAmbi()   #Do special cuts in region of interest
            InDetAmbiTrackSelectionTool.minPtSplit                = InDetFlags.pixelClusterSplitMinPt()       #Only allow split clusters on track withe pt greater than this MeV
            InDetAmbiTrackSelectionTool.maxSharedModulesInROI     = 3     #Maximum number of shared modules for tracks in ROI
@@ -456,7 +456,7 @@ class  ConfiguredNewTrackingSiPattern:
            InDetAmbiTrackSelectionTool.minSiHitsToAllowSplittingInROI = 8  #Minimum number of Si hits to allow splittings for tracks in ROI
            InDetAmbiTrackSelectionTool.phiWidth                  = 0.05     #Split cluster ROI size
            InDetAmbiTrackSelectionTool.etaWidth                  = 0.05     #Split cluster ROI size
-           InDetAmbiTrackSelectionTool.InputEmClusterContainerName = InDetKeys.CaloClusterROIContainer()
+           InDetAmbiTrackSelectionTool.EMROIPhiRZContainer       = "InDetCaloClusterROIPhiRZ10GeV"
            InDetAmbiTrackSelectionTool.minPtBjetROI              = 10000
            InDetAmbiTrackSelectionTool.doEmCaloSeed              = InDetFlags.doCaloSeededAmbi()   #Only split in cluster in region of interest
            InDetAmbiTrackSelectionTool.minPtConv                 = 10000   #Only allow split clusters on track withe pt greater than this MeV

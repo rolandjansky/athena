@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -53,9 +53,6 @@
 //
 #include "StoreGate/ReadHandleKey.h"
 
-//ClusterCaloROI Collection
-//
-#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
 class MsgStream;
 class TRT_ID   ;
 
@@ -137,6 +134,8 @@ namespace InDet{
 
           InDet::ITRT_SeededSpacePointFinder::IEventData &spacePointFinderEventData(){ return *m_spacePointFinderEventData; }
           std::multimap<const Trk::PrepRawData*,const Trk::Track*> &clusterTrack() { return m_clusterTrack; }
+          void setCaloClusterROIEM(const ROIPhiRZContainer &rois)   { m_caloClusterROIEM  = &rois; }
+          const ROIPhiRZContainer *caloClusterROIEM() const         { return m_caloClusterROIEM; }
           std::vector<double>&                                      caloF()        { return m_caloF; }
           std::vector<double>&                                      caloE()        { return m_caloE; }
           const std::vector<double>&                                caloF()  const { return m_caloF; }
@@ -148,6 +147,7 @@ namespace InDet{
           SiCombinatorialTrackFinderData_xk                              *m_combinaatorialData;
           std::unique_ptr<InDet::ITRT_SeededSpacePointFinder::IEventData> m_spacePointFinderEventData;
           std::multimap<const Trk::PrepRawData*,const Trk::Track*> m_clusterTrack  ; /** Multimap of tracks and associated PRDs  */
+          const ROIPhiRZContainer        *m_caloClusterROIEM {};
           std::vector<double>              m_caloF         ;
           std::vector<double>              m_caloE         ;
 
@@ -194,7 +194,8 @@ namespace InDet{
       std::vector<double>                                      m_errorScale    ; /** Optional error scaling of track parameters  */
       double                                                   m_outlierCut    ; /** Outlier chi2 cut when propagating through the seed */
       bool                                                     m_searchInCaloROI; /** Outlier chi2 cut when propagating through the seed */
-      SG::ReadHandleKey<CaloClusterROI_Collection> m_inputClusterContainerName {this,"InputClusterContainerName","InDetCaloClusterROIs", "RHK for CaloClusterROI_Collection"};
+      SG::ReadHandleKey<ROIPhiRZContainer> m_caloClusterROIKey{this, "EMROIPhiRZContainer", ""};
+
 
       ///////////////////////////////////////////////////////////////////
       /** Private Methods                                              */
@@ -253,7 +254,6 @@ namespace InDet{
       bool isCaloCompatible(const Trk::TrackParameters&, const InDet::TRT_SeededTrackFinder_ATL::EventData &event_data) const;
       double m_phiWidth                              ;
       double m_etaWidth                              ;
-      double m_ClusterEt				                     ;
 
       MsgStream&    dumpconditions(MsgStream&    out) const;
 
