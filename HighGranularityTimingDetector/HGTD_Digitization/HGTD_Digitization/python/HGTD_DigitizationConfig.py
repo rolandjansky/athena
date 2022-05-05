@@ -14,11 +14,11 @@ from HGTD_GeoModel.HGTD_GeoModelConfig import HGTD_ReadoutGeometryCfg
 # The earliest bunch crossing time for which interactions will be sent
 # to the HGTD Digitization code.
 def HGTD_FirstXing():
-    return -50
+    return 0
 # The latest bunch crossing time for which interactions will be sent
 # to the HGTD Digitization code.
 def HGTD_LastXing():
-    return 25
+    return 0
 # NOTE: related to 3BC mode?
 
 def HGTD_TimingResolutionCfg(flags, name="HGTD_TimingResolution", **kwargs):
