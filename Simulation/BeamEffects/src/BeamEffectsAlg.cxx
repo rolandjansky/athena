@@ -36,6 +36,7 @@ namespace Simulation
     // properly by job configuration.
     ATH_CHECK( m_inputMcEventCollection.initialize() );
     ATH_CHECK( m_outputMcEventCollection.initialize() );
+    ATH_CHECK( m_eventInfoKey.initialize() );
     return StatusCode::SUCCESS;
   }
 
