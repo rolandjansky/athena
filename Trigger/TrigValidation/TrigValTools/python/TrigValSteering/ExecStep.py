@@ -237,7 +237,13 @@ class ExecStep(Step):
             self.prmon = False
 
         # Disable perfmon for multi-fork jobs as it cannot deal well with them
-        if self.forks and self.forks > 1:
+        if self.forks and self.forks > 1 and self.perfmon:
+            self.log.debug('Disabling perfmon because forks=%d > 1', self.forks)
+            self.perfmon = False
+        # Disable perfmon for transforms (Reco_tf enables it itself, Trig_reco_tf would need special handling
+        # depending on whether it runs athena or athenaHLT)
+        if self.type.endswith('_tf') and self.perfmon:
+            self.log.debug('Disabling perfmon for the transform step type %s', self.type)
             self.perfmon = False
 
         # Append imf/perfmon
@@ -247,7 +253,7 @@ class ExecStep(Step):
             if self.perfmon:
                 if self.type == 'athenaHLT':
                     athenaopts += ' --perfmon'
-                else:
+                elif self.type == 'athena':
                     athenaopts += ' --pmon=perfmonmt'
             if self.malloc:
                 athenaopts += " --stdcmalloc "

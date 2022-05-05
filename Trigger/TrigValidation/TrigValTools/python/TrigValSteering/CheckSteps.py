@@ -800,9 +800,6 @@ def default_check_steps(test):
         tail.log_file = log_to_check
     check_steps.append(tail)
 
-    # PerfMon
-    check_steps.append(PerfMonStep())
-
     # Histogram-based steps
     check_steps.append(RootCompStep())
     check_steps.append(ChainDumpStep())
