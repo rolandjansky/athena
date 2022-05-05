@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( CaloSamplingFractionAnalysis )
@@ -12,7 +12,7 @@ atlas_add_component( CaloSamplingFractionAnalysis
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AtlasHepMCLib CaloDetDescrLib CaloEvent CaloIdentifier CaloSimEvent EventInfo GaudiKernel GeneratorObjects Identifier LArElecCalib LArG4RunControl LArReadoutGeometry LArSimEvent StoreGateLib TileConditionsLib TileSimEvent )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AtlasHepMCLib CaloDetDescrLib CaloEvent CaloIdentifier CaloSimEvent xAODEventInfo GaudiKernel GeneratorObjects Identifier LArElecCalib LArG4RunControl LArReadoutGeometry LArSimEvent StoreGateLib TileConditionsLib TileSimEvent )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
