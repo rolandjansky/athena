@@ -298,6 +298,8 @@ if __name__=='__main__':
         from TileRecUtils.TileRawChannelMakerConfig import TileRawChannelMakerCfg
         cfg.merge( TileRawChannelMakerCfg(ConfigFlags) )
         rawChMaker = cfg.getEventAlgo('TileRChMaker')
+        if args.threads > 1:
+            rawChMaker.Cardinality = args.threads
         for builderTool in rawChMaker.TileRawChannelBuilder:
             builderTool.UseDSPCorrection = not biGainRun
 
@@ -307,6 +309,8 @@ if __name__=='__main__':
         from TileRec.TileAANtupleConfig import TileAANtupleCfg
         cfg.merge( TileAANtupleCfg(ConfigFlags, outputFile=ntupleFile) )
         tileNtuple = cfg.getEventAlgo('TileNtuple')
+        # CompressionSettings: algorithm * 100 + level
+        tileNtuple.CompressionSettings = 204
         tileNtuple.SkipEvents = 4 if ConfigFlags.Tile.RunType == 'LAS' else 0
         tileNtuple.TileRawChannelContainerOpt = "TileRawChannelOpt2" if ConfigFlags.Tile.doOpt2 else ""
         tileNtuple.TileRawChannelContainerDsp = "" if biGainRun else "TileRawChannelCnt"
@@ -330,6 +334,11 @@ if __name__=='__main__':
             from TileMonitoring.TileDigitsMonitorAlgorithm import TileDigitsMonitoringConfig
             cfg.merge(TileDigitsMonitoringConfig(ConfigFlags))
             setOnlineEnvironment(cfg.getEventAlgo('TileDigitsMonAlg'))
+
+        if args.channel_mon:
+            from TileRawChannelMonitorAlgorithm import TileRawChannelMonitoringConfig
+            cfg.merge(TileRawChannelMonitoringConfig(ConfigFlags))
+            setOnlineEnvironment(cfg.getEventAlgo('TileRawChannelMonAlg'))
 
         if args.channel_time_mon:
             from TileMonitoring.TileRawChannelTimeMonitorAlgorithm import TileRawChannelTimeMonitoringConfig
@@ -358,7 +367,8 @@ if __name__=='__main__':
             if any([args.tmdb_digits_mon, args.tmdb_mon]):
                 configurations += [os.path.join(dataPath, 'TileTMDBPostProc.yaml')]
 
-            configurations += [os.path.join(dataPath, 'TileDigitsPostProc.yaml')]
+            if args.digits_mon:
+                configurations += [os.path.join(dataPath, 'TileDigitsPostProc.yaml')]
 
             from DataQualityUtils.DQPostProcessingAlg import DQPostProcessingAlg
             class TileMonPostProcessingAlg(DQPostProcessingAlg):
