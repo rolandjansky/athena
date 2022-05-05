@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ActsGeometry/ActsExtrapolationAlg.h"
@@ -62,8 +62,6 @@ StatusCode ActsExtrapolationAlg::initialize() {
   if (m_writeMaterialTracks) {
   ATH_CHECK( m_materialTrackWriterSvc.retrieve() );
   }
-
-  m_objOut = std::make_unique<std::ofstream>("steps.obj");
 
   return StatusCode::SUCCESS;
 }
@@ -143,13 +141,13 @@ StatusCode ActsExtrapolationAlg::execute(const EventContext &ctx) const {
   return StatusCode::SUCCESS;
 }
 
-StatusCode ActsExtrapolationAlg::finalize() { return StatusCode::SUCCESS; }
 
 void ActsExtrapolationAlg::writeStepsObj(
     std::vector<Acts::detail::Step> steps) const {
+
   std::lock_guard<std::mutex> lock(m_writeMutex);
 
-  std::ofstream &out = *m_objOut;
+  static std::ofstream out ATLAS_THREAD_SAFE ("steps.obj");
   std::stringstream lstr;
   lstr << "l";
   for (const auto &step : steps) {
