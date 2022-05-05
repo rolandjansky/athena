@@ -7,15 +7,14 @@
 namespace FlavorTagDiscriminants {
   JetTagConditionalDecoratorAlg::JetTagConditionalDecoratorAlg(
     const std::string& name, ISvcLocator* svcloc):
-    detail::JetTag_t(name, svcloc)
+    detail::JetCondTag_t(name, svcloc)
   {
   }
 
   StatusCode JetTagConditionalDecoratorAlg::initialize() {
-    ATH_CHECK(detail::JetTag_t::initialize());
-    m_tagFlagReadDecor = SG::ReadDecorHandleKey<xAOD::JetContainer>(
-      this, m_tagFlag, m_containerKey.key() + "." + m_tagFlag, "");
+    m_tagFlagReadDecor = m_containerKey.key() + "." + m_tagFlag;
     ATH_CHECK(m_tagFlagReadDecor.initialize());
+    ATH_CHECK(detail::JetCondTag_t::initialize());
     return StatusCode::SUCCESS;
   }
 

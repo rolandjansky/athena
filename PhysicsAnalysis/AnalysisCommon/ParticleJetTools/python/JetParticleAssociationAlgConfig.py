@@ -23,13 +23,23 @@ def JetParticleAssociationCfg(ConfigFlags, jetCollName, partcollname, assocname,
     return acc
 
 
-def JetParticleAssociationAlgCfg(ConfigFlags, JetCollection="", InputParticleCollection="", OutputParticleDecoration="", MinimumJetPt=0.0):
+def JetParticleAssociationAlgCfg(
+        ConfigFlags,
+        JetCollection,
+        InputParticleCollection,
+        OutputParticleDecoration,
+        MinimumJetPt=None,
+        MinimumJetPtFlag=None):
 
     acc=ComponentAccumulator()
     jetcol = JetCollection.replace("Track", "PV0Track")
     name=(jetcol + "_" + OutputParticleDecoration + "_assoc").lower()
-    if MinimumJetPt > 0.0:
+    if MinimumJetPt is None:
+        MinimumJetPt = ConfigFlags.BTagging.minimumJetPtForTrackAssociation
+    if MinimumJetPt > 0.0 and MinimumJetPtFlag is None:
         ptflag = f'{OutputParticleDecoration}OverPtThreshold'
+    elif MinimumJetPtFlag is not None:
+        ptflag = MinimumJetPtFlag
     else:
         ptflag = ''
 

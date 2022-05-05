@@ -12,7 +12,7 @@
 #include "xAODTracking/TrackParticleContainer.h"
 
 namespace detail {
-  using JetTag_t = FlavorTagDiscriminants::DecoratorAlg<
+  using JetCondTag_t = FlavorTagDiscriminants::DecoratorAlg<
     xAOD::JetContainer,
     IJetTagConditionalDecorator,
     xAOD::TrackParticleContainer
@@ -20,7 +20,7 @@ namespace detail {
 }
 
 namespace FlavorTagDiscriminants {
-  class JetTagConditionalDecoratorAlg : public detail::JetTag_t
+  class JetTagConditionalDecoratorAlg : public detail::JetCondTag_t
   {
   public:
     JetTagConditionalDecoratorAlg(const std::string& name,
@@ -31,7 +31,8 @@ namespace FlavorTagDiscriminants {
     Gaudi::Property<std::string>  m_tagFlag {
       this, "tagFlag", "", "Jet variable to flag a jet for tagging"
     };
-    SG::ReadDecorHandleKey<xAOD::JetContainer> m_tagFlagReadDecor;
+    SG::ReadDecorHandleKey<xAOD::JetContainer> m_tagFlagReadDecor{
+      this, "fullTagFlag", "", "filled internally"};
   };
 }
 

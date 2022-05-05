@@ -48,6 +48,9 @@ def createBTaggingConfigFlags():
     btagcf.addFlag("BTagging.calibrationChannelAliases",
                    calibrationChannelAliases)
     btagcf.addFlag("BTagging.forcedCalibrationChannel", "")
+    # the track association minimum is set to 4 GeV because of track
+    # jets in offline reconstruction.
+    btagcf.addFlag("BTagging.minimumJetPtForTrackAssociation", 4e3)
     # Disable JetVertexCharge ATLASRECTS-4506
     btagcf.addFlag("BTagging.RunModus", "analysis") # reference mode used in FlavourTagPerformanceFramework (RetagFragment.py)
     btagcf.addFlag("BTagging.ReferenceType", "ALL") # reference type for IP and SV taggers (B, UDSG, ALL)

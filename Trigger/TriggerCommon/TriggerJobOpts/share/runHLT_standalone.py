@@ -179,6 +179,9 @@ ConfigFlags.Trigger.EDMVersion = 3
 # Some legacy b-tagging configuration is trigger specific
 ConfigFlags.BTagging.databaseScheme = 'Trig'
 ConfigFlags.BTagging.forcedCalibrationChannel = 'AntiKt4EMTopo'
+# track association for trigger b-tagging might be inconsistent with
+# offline, override the default for now
+ConfigFlags.BTagging.minimumJetPtForTrackAssociation = 5e3
 
 # Set final Cond/Geo tag based on input file, command line or default
 globalflags.DetDescrVersion = opt.setDetDescr or ConfigFlags.Trigger.OnlineGeoTag
