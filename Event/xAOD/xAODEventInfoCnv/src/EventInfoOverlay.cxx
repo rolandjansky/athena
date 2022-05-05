@@ -57,15 +57,9 @@ StatusCode EventInfoOverlay::execute(const EventContext& ctx) const
   }
   ATH_MSG_DEBUG("Found signal xAOD::EventInfo " << signalEvent.name() << " in store " << signalEvent.store());
 
-  // Creating output timings container
-  SG::WriteHandle<xAOD::EventInfo> outputEvent(m_outputKey, ctx);
-  ATH_CHECK(outputEvent.record(std::make_unique<xAOD::EventInfo>(), std::make_unique<xAOD::EventAuxInfo>()));
-  if (!outputEvent.isValid()) {
-    ATH_MSG_ERROR("Could not record output xAOD::EventInfo " << outputEvent.name() << " to store " << outputEvent.store());
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_DEBUG("Recorded output xAOD::EventInfo " << outputEvent.name() << " in store " << outputEvent.store());
-
+  auto outputEvent = std::make_unique<xAOD::EventInfo>();
+  auto outputEventAux = std::make_unique<xAOD::EventAuxInfo>();
+  outputEvent->setStore (outputEventAux.get());
 
   // Copy the eventInfo data from background event
   *outputEvent = *bkgEvent;
@@ -112,6 +106,12 @@ StatusCode EventInfoOverlay::execute(const EventContext& ctx) const
   outputEvent->setBeamTiltYZ( beamSpotHandle->beamTilt( 1 ) );
   outputEvent->setBeamStatus( beamSpotHandle->beamStatus() );
 #endif
+
+  // Creating output timings container
+  SG::WriteHandle<xAOD::EventInfo> outputEventH(m_outputKey, ctx);
+  ATH_CHECK(outputEventH.record(std::move(outputEvent), std::move(outputEventAux)));
+  ATH_MSG_DEBUG("Recorded output xAOD::EventInfo " << outputEventH.name() << " in store " << outputEventH.store());
+
 
   ATH_MSG_DEBUG("execute() end");
   return StatusCode::SUCCESS;
