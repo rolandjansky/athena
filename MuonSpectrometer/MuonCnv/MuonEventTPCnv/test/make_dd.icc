@@ -47,6 +47,7 @@
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "AthenaKernel/IRCUSvc.h"
 #include "AthenaKernel/CondCont.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/EventContext.h"
@@ -274,7 +275,7 @@ MuonGM::MuonDetectorManager&  init_cs (GeoFullPhysVol& pvol)
 }
 
 
-const MuonGM::MuonDetectorManager& make_dd()
+const MuonGM::MuonDetectorManager& make_dd ATLAS_NOT_THREAD_SAFE ()
 {
   ISvcLocator* svcLoc = Gaudi::svcLocator();
   StoreGateSvc* sg = 0;
