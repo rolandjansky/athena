@@ -135,7 +135,7 @@ StatusCode jFexByteStreamTool::convertFromBS(const std::vector<const ROBF*>& vro
         
         
         //ATH_MSG_DEBUG("Starting to decode " << ndata << " ROD words from ROB 0x" << std::hex << rob->rob_source_id() << std::dec);
-        //std::cout<< "Starting to decode " << ndata << " ROD words from ROB 0x" << std::hex << rob->rob_source_id() << std::dec << std::endl;
+        //std::cout<< "Starting to decode " << rob->rod_ndata() << " ROD words from ROB 0x" << std::hex << rob->rob_source_id() << std::dec << std::endl;
         
         const auto dataArray = CxxUtils::span{rob->rod_data(), rob->rod_ndata()};
         std::vector<uint32_t> vec_words(dataArray.begin(),dataArray.end());
@@ -152,8 +152,8 @@ StatusCode jFexByteStreamTool::convertFromBS(const std::vector<const ROBF*>& vro
         
         // Starting to loop over the different jFEX blocks
         bool READ_TOBS = true;
-        // jFEX to ROD trailer position after the ROD trailer 
-        unsigned int trailers_pos = rob->rod_ndata() - 2;
+        // jFEX to ROD trailer position after the ROD trailer
+        unsigned int trailers_pos = rob->rod_ndata() - jBits::ROD_WORDS;
         
         while(READ_TOBS){
             
@@ -170,54 +170,54 @@ StatusCode jFexByteStreamTool::convertFromBS(const std::vector<const ROBF*>& vro
             unsigned int total_tobs = n_xjJ + n_xjLJ + n_xjTau + n_xjEM + n_jJ + n_jLJ + n_jTau + n_jEM + n_jTE + n_jXE;
             unsigned int paddingWord = 0;
             if(total_tobs % 2){
-                //printf("Odd number of TOBs + xTOBs: %4d, there is a padding word! CAREFUL!",total_tobs);
+                //printf("Odd number of TOBs + xTOBs: %4d, there is a padding word! CAREFUL!\n",total_tobs);
                 paddingWord = 1;
             }
             
             //removing jFEX to ROD, TOB and xTOB Trailers from trailers_pos (4 positions), possible padding word added on the data to get even number of 32bit words
-            unsigned int tobIndex = trailers_pos - (4+paddingWord);
+            unsigned int tobIndex = trailers_pos - (jBits::jFEX2ROD_WORDS + jBits::TOB_TRAILERS + paddingWord);
 
 
             /************************************************** DECODING xTOBS **************************************************/
             //saving xjEM into the EDM container
-            //std::cout<<tobIndex<<"  "<<tobIndex-n_xjEM<<std::endl;
-            for(unsigned int i=tobIndex; i>tobIndex-n_xjEM; i--){
-                //printf("**** n_xjEM:  %3d  ****\n",i);
+            //printf("**** %7s:  %3d  ****\n","n_xjEM",n_xjEM);
+/*            for(unsigned int i=tobIndex; i>tobIndex-n_xjEM; i--){
+                //printf(" N.:%3d raw word: 0x%08x with index:%3d\n",tobIndex-i,vec_words.at(i-1),i);
             }
-            //removing xjEM counter from TOBs
+*/            //removing xjEM counter from TOBs
             tobIndex -= n_xjEM;
             
             //saving xjTau into the EDM container
-            //std::cout<<tobIndex<<"  "<<tobIndex-n_xjTau<<std::endl;
+            //printf("**** %7s:  %3d  ****\n","n_xjTau",n_xjTau);
             for(unsigned int i=tobIndex; i>tobIndex-n_xjTau; i--){
                 
-                //printf("**** n_xjTau:  %3d  ****\n",i);
+                //printf(" N.:%3d raw word: 0x%08x with index:%3d\n",tobIndex-i,vec_words.at(i-1),i);
                 jTauContainer->push_back( std::make_unique<xAOD::jFexTauRoI>() );
-                jTauContainer->back()->initialize(jfex, fpga, vec_words.at(i) ,0 , 200, -99, -99);
+                jTauContainer->back()->initialize(jfex, fpga, vec_words.at(i-1) ,0 , 200, -99, -99);
                                 
             }
             //removing xjTau counter from TOBs
             tobIndex -= n_xjTau;
             
             //saving xjLJ into the EDM container
-            //std::cout<<tobIndex<<"  "<<tobIndex-n_xjLJ<<std::endl;
+            //printf("**** %7s:  %3d  ****\n","n_xjLJ",n_xjLJ);
             for(unsigned int i=tobIndex; i>tobIndex-n_xjLJ; i--){
                 
-                //printf("**** n_xjLJ:  %3d  ****\n",i);
+                //printf(" N.:%3d raw word: 0x%08x with index:%3d\n",tobIndex-i,vec_words.at(i-1),i);
                 jLJContainer->push_back( std::make_unique<xAOD::jFexLRJetRoI>() );
-                jLJContainer->back()->initialize(jfex, fpga, vec_words.at(i) ,0 , 200, -99, -99);                
+                jLJContainer->back()->initialize(jfex, fpga, vec_words.at(i-1) ,0 , 200, -99, -99);                
                                 
             }
             //removing xjLJ counter from TOBs
             tobIndex -= n_xjLJ;
             
             //saving xjJ into the EDM container 
-            //std::cout<<tobIndex<<"  "<<tobIndex-n_xjJ<<std::endl;
+            //printf("**** %7s:  %3d  ****\n","n_xjJ",n_xjJ);
             for(unsigned int i=tobIndex; i>tobIndex-n_xjJ; i--){
                 
-                //printf("**** n_xjJ:  %3d  ****\n",i); 
+                //printf(" N.:%3d raw word: 0x%08x with index:%3d\n",tobIndex-i,vec_words.at(i-1),i);
                 jJContainer->push_back( std::make_unique<xAOD::jFexSRJetRoI>() );
-                jJContainer->back()->initialize(jfex, fpga, vec_words.at(i) ,0 , 200, -99, -99);                                  
+                jJContainer->back()->initialize(jfex, fpga, vec_words.at(i-1) ,0 , 200, -99, -99);                                  
                 
             }
             //removing xjJ counter from TOBs
@@ -227,68 +227,68 @@ StatusCode jFexByteStreamTool::convertFromBS(const std::vector<const ROBF*>& vro
             /************************************************** DECODING TOBS **************************************************/
             
             //saving jXE into the EDM container
-            //std::cout<<tobIndex<<"  "<<tobIndex-n_jXE<<std::endl;
-            for(unsigned int i=tobIndex; i>trailers_pos-n_jXE; i--){
+            //printf("**** %7s:  %3d  ****\n","n_jXE",n_jXE);
+            for(unsigned int i=tobIndex; i>tobIndex-n_jXE; i--){
                                 
-                //printf("**** n_jXE:  %3d  ****\n",i);
+                //printf(" N.:%3d raw word: 0x%08x with index:%3d\n",tobIndex-i,vec_words.at(i-1),i);
                 jXEContainer->push_back( std::make_unique<xAOD::jFexMETRoI>() );
-                jXEContainer->back()->initialize(jfex, fpga, vec_words.at(i), 200);                  
+                jXEContainer->back()->initialize(jfex, fpga, vec_words.at(i-1), 200);                  
                 
             }
             //removing jXE counter from TOBs
             tobIndex -= n_jXE;
             
             //saving jTE into the EDM container
-            //std::cout<<tobIndex<<"  "<<tobIndex-n_jTE<<std::endl;
+            //printf("**** %7s:  %3d  ****\n","n_jTE",n_jTE);
             for(unsigned int i=tobIndex; i>tobIndex-n_jTE; i--){
                                 
-                //printf("**** n_jTE:  %3d  ****\n",i);
+                //printf(" N.:%3d raw word: 0x%08x with index:%3d\n",tobIndex-i,vec_words.at(i-1),i);
                 jTEContainer->push_back( std::make_unique<xAOD::jFexSumETRoI>() );
-                jTEContainer->back()->initialize(jfex, fpga, vec_words.at(i), 200); 
+                jTEContainer->back()->initialize(jfex, fpga, vec_words.at(i-1), 200); 
                                 
             }
             //removing jTE counter from TOBs
             tobIndex -= n_jTE;
             
             //saving jEM into the EDM container
-            //std::cout<<tobIndex<<"  "<<tobIndex-n_jEM<<std::endl;
-            for(unsigned int i=tobIndex; i>trailers_pos-n_jEM; i--){
-                //printf("**** n_jEM:  %3d  ****\n",i);
+            //printf("**** %7s:  %3d  ****\n","n_jEM",n_jEM);
+/*            for(unsigned int i=tobIndex; i>tobIndex-n_jEM; i--){
+                //printf(" N.:%3d raw word: 0x%08x with index:%3d\n",tobIndex-i,vec_words.at(i-1),i);
             }
-            //removing jEM counter from TOBs
+*/            //removing jEM counter from TOBs
             tobIndex -= n_jEM;
             
             //saving jTau into the EDM container
-            //std::cout<<tobIndex<<"  "<<tobIndex-n_jTau<<std::endl;
+            //printf("**** %7s:  %3d  ****\n","n_jTau",n_jTau);
             for(unsigned int i=tobIndex; i>tobIndex-n_jTau; i--){
                 
-                //printf("**** n_xjTau:  %3d  ****\n",i);
+                //printf(" N.:%3d raw word: 0x%08x with index:%3d\n",tobIndex-i,vec_words.at(i-1),i);
                 jTauContainer->push_back( std::make_unique<xAOD::jFexTauRoI>() );
-                jTauContainer->back()->initialize(jfex, fpga, vec_words.at(i) ,1 , 200, -99, -99);                
+                jTauContainer->back()->initialize(jfex, fpga, vec_words.at(i-1) ,1 , 200, -99, -99);                
                 
             }
             //removing jTau counter from TOBs
             tobIndex -= n_jTau;
             
             //saving jLJ into the EDM container
-            //std::cout<<tobIndex<<"  "<<tobIndex-n_jLJ<<std::endl;
+            //printf("**** %7s:  %3d  ****\n","n_jLJ",n_jLJ);
             for(unsigned int i=tobIndex; i>tobIndex-n_jLJ; i--){
                 
-                //printf("**** n_xjLJ:  %3d  ****\n",i);                
+                //printf(" N.:%3d raw word: 0x%08x with index:%3d\n",tobIndex-i,vec_words.at(i-1),i);
                 jLJContainer->push_back( std::make_unique<xAOD::jFexLRJetRoI>() );
-                jLJContainer->back()->initialize(jfex, fpga, vec_words.at(i) ,1 , 200, -99, -99); 
+                jLJContainer->back()->initialize(jfex, fpga, vec_words.at(i-1) ,1 , 200, -99, -99); 
                 
             }
             //removing jLJ counter from TOBs
             tobIndex -= n_jLJ;
             
             //saving jJ into the EDM container
-            //std::cout<<tobIndex<<"  "<<tobIndex-n_jJ<<std::endl;
+            //printf("**** %7s:  %3d  ****\n","n_jJ",n_jJ);
             for(unsigned int i=tobIndex; i>tobIndex-n_jJ; i--){
                 
-                //printf("**** n_xjJ:  %3d  ****\n",i);                
+                //printf(" N.:%3d raw word: 0x%08x with index:%3d\n",tobIndex-i,vec_words.at(i-1),i);
                 jJContainer->push_back( std::make_unique<xAOD::jFexSRJetRoI>() );
-                jJContainer->back()->initialize(jfex, fpga, vec_words.at(i) ,1 , 200, -99, -99);  
+                jJContainer->back()->initialize(jfex, fpga, vec_words.at(i-1) ,1 , 200, -99, -99);  
                 
             }
             //removing jJ counter from TOBs
@@ -319,24 +319,14 @@ StatusCode jFexByteStreamTool::convertFromBS(const std::vector<const ROBF*>& vro
 // Unpack number of TOBs in Trailer "TOB,XTOB Counter Trailer"
 std::array<uint32_t,6> jFexByteStreamTool::TOBCounterTrailer (uint32_t word) const {
     
-    //printf("TOBCounterTrailer: 0x%08x \n",word);
-    
     uint32_t jJ    = ((word >> jBits::jJ_TOB_COUNTS  ) & jBits::TOB_COUNTS_6b);
     uint32_t jLJ   = ((word >> jBits::jLJ_TOB_COUNTS ) & jBits::TOB_COUNTS_6b);
     uint32_t jTau  = ((word >> jBits::jTau_TOB_COUNTS) & jBits::TOB_COUNTS_6b);
     uint32_t jEM   = ((word >> jBits::jEM_TOB_COUNTS ) & jBits::TOB_COUNTS_6b);
     uint32_t jTE   = ((word >> jBits::jTE_TOB_COUNTS ) & jBits::TOB_COUNTS_1b);
     uint32_t jXE   = ((word >> jBits::jXE_TOB_COUNTS ) & jBits::TOB_COUNTS_1b);
-    
-       
-    //std::cout << "\tTSM           : " <<  ((word                          ) & jBits::TOB_COUNTS_1b) << std::endl;
-    //std::cout << "\tNumber of jJ  : " << jJ   << std::endl;
-    //std::cout << "\tNumber of jLJ : " << jLJ  << std::endl;
-    //std::cout << "\tNumber of jTau: " << jTau << std::endl;
-    //std::cout << "\tNumber of jEM : " << jEM  << std::endl;
-    //std::cout << "\tNumber of jTE : " << jTE  << std::endl;
-    //std::cout << "\tNumber of jXE : " << jXE  << std::endl << std::endl;
-    
+    //uint32_t TSM   = ((word                          ) & jBits::TOB_COUNTS_1b); // Trigger Safe Mode. Not used for now, maybe is needed in the future
+          
     return {jJ,jLJ,jTau,jEM,jTE,jXE};
         
 }
@@ -344,18 +334,10 @@ std::array<uint32_t,6> jFexByteStreamTool::TOBCounterTrailer (uint32_t word) con
 // Unpack number of xTOBs in Trailer "TOB,XTOB Counter Trailer"
 std::array<uint32_t,4> jFexByteStreamTool::xTOBCounterTrailer (uint32_t word) const {
     
-    //printf("xTOBCounterTrailer: 0x%08x \n",word);
-    
     uint32_t xjJ    = ((word >> jBits::jJ_TOB_COUNTS  ) & jBits::TOB_COUNTS_6b);
     uint32_t xjLJ   = ((word >> jBits::jLJ_TOB_COUNTS ) & jBits::TOB_COUNTS_6b);
     uint32_t xjTau  = ((word >> jBits::jTau_TOB_COUNTS) & jBits::TOB_COUNTS_6b);
     uint32_t xjEM   = ((word >> jBits::jEM_TOB_COUNTS ) & jBits::TOB_COUNTS_6b);
-    
-    
-    //std::cout << "\tNumber of xjJ  : " << xjJ   << std::endl;
-    //std::cout << "\tNumber of xjLJ : " << xjLJ  << std::endl;
-    //std::cout << "\tNumber of xjTau: " << xjTau << std::endl;
-    //std::cout << "\tNumber of xjEM : " << xjEM  << std::endl << std::endl;
     
     return {xjJ,xjLJ,xjTau,xjEM};
     
