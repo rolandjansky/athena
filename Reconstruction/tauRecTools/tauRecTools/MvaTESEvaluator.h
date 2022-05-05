@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAURECTOOLS_MVATESEVALUATOR_H
@@ -67,6 +67,7 @@ class MvaTESEvaluator
   // Configurable properties
   std::string m_sWeightFileName;
   std::string m_sWeightFileName0p;
+  bool m_useEMoverLC;
 };
 
 #endif // TAURECTOOLS_MVATESEVALUATOR_H
