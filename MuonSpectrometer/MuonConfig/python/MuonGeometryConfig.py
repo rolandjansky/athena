@@ -68,7 +68,9 @@ def MuonDetectorToolCfg(flags):
             else :
                 #logMuon.info("Reading As-Built parameters from conditions database")
                 detTool.EnableMdtAsBuiltParameters = 1
-                detTool.EnableNswAsBuiltParameters = 1 if flags.GeoModel.Run>=LHCPeriod.Run3 else 0
+                ## disable for now, otherwise standard tests crash (ATLASRECTS-7017)
+                detTool.EnableNswAsBuiltParameters = 0
+                #detTool.EnableNswAsBuiltParameters = 1 if flags.GeoModel.Run>=LHCPeriod.Run3 else 0
                 pass
 
     else:
@@ -154,9 +156,11 @@ def MuonAlignmentCondAlgCfg(flags):
             acc.merge(addFolders( flags, '/MUONALIGN/MDT/ASBUILTPARAMS' , 'MUONALIGN_OFL', className='CondAttrListCollection'))
             MuonAlign.ParlineFolders += ["/MUONALIGN/MDT/ASBUILTPARAMS"]
             if flags.GeoModel.Run>=LHCPeriod.Run3: 
-                acc.merge(addFolders( flags, '/MUONALIGN/ASBUILTPARAMS/MM'  , 'MUONALIGN_OFL', className='CondAttrListCollection'))
-                acc.merge(addFolders( flags, '/MUONALIGN/ASBUILTPARAMS/STGC', 'MUONALIGN_OFL', className='CondAttrListCollection'))
-                MuonAlign.ParlineFolders += ['/MUONALIGN/ASBUILTPARAMS/MM', '/MUONALIGN/ASBUILTPARAMS/STGC']
+                pass
+                ## disable for now, otherwise standard tests crash (ATLASRECTS-7017)
+                #acc.merge(addFolders( flags, '/MUONALIGN/ASBUILTPARAMS/MM'  , 'MUONALIGN_OFL', className='CondAttrListCollection'))
+                #acc.merge(addFolders( flags, '/MUONALIGN/ASBUILTPARAMS/STGC', 'MUONALIGN_OFL', className='CondAttrListCollection'))
+                #MuonAlign.ParlineFolders += ['/MUONALIGN/ASBUILTPARAMS/MM', '/MUONALIGN/ASBUILTPARAMS/STGC']
             pass
 
     acc.addCondAlgo(MuonAlign)
