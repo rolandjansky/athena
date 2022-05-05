@@ -23,7 +23,7 @@ def createCaloConfigFlags():
     ccf.addFlag("Calo.TopoCluster.doTimeCut", False)
     ccf.addFlag("Calo.TopoCluster.extendTimeCut", False)
     ccf.addFlag("Calo.TopoCluster.useUpperLimitForTimeCut", False)
-
+    ccf.addFlag("Calo.TopoCluster.writeExtendedClusterMoments",True)
     #### Cluster correction flags:
     # If true, then reweight cells to prevent double-counting between clusters.
     ccf.addFlag ('Calo.ClusterCorrection.doSlidingWindowCellWeights', False)
