@@ -182,6 +182,15 @@ def MuonCombinedAlg_LRT( name="MuonCombinedAlg_LRT",**kwargs ):
     kwargs.setdefault("MuidMETracksLocation", "MuidMETracks_LRT")    
     return CfgMgr.MuonCombinedAlg(name,**kwargs)
 
+def MuonCombinedAlg_EMEO(name="MuonCombinedAlg_EMEO", **kwargs):
+    kwargs.setdefault("MuonCombinedTool",getPublicTool("MuonCombinedTool_EMEO"))
+    kwargs.setdefault("CombinedTagMaps", [
+                      "muidcoTagMap_EMEO", "stacoTagMap_EMEO"])
+    kwargs.setdefault("MuidCombinedTracksLocation", "MuidCombinedTracks_EMEO")
+    kwargs.setdefault("MuidMETracksLocation", "MuidMETracks_EMEO")
+    kwargs.setdefault("MuonCandidateLocation", "MuonCandidates_EMEO")
+    return CfgMgr.MuonCombinedAlg(name,**kwargs)
+
 def recordMuonCreatorAlgObjs (kw):
     Alg = CfgMgr.MuonCreatorAlg
     def val (prop):
@@ -228,7 +237,7 @@ def MuonCreatorAlg( name="MuonCreatorAlg",**kwargs ):
 def MuonCreatorAlg_EMEO(name = "MuonCreatorAlg_EMEO", **kwargs):
     kwargs.setdefault("MuonCreatorTool",getPublicTool("MuonCreatorTool"))
     muon_maps = ["MuonCandidates_EMEO"]
-    combined_maps = []
+    combined_maps = [ "muidcoTagMap_EMEO", "stacoTagMap_EMEO"]
     kwargs.setdefault("TagMaps", combined_maps)
     kwargs.setdefault("MuonCandidateLocation", muon_maps)
     kwargs.setdefault("MuonContainerLocation", "EMEO_Muons")
@@ -354,6 +363,7 @@ class MuonCombinedReconstruction(ConfiguredMuonRec):
         if InDetFlags.doR3LargeD0(): topSequence += getAlgorithm("MuonCreatorAlg_LRT")
         # Commissioning chain
         if muonRecFlags.runCommissioningChain(): 
+            topSequence += getAlgorithm("MuonCombinedAlg_EMEO")
             topSequence += getAlgorithm("MuonCreatorAlg_EMEO") 
             topSequence.MuonCreatorAlg_EMEO.MuonCreatorTool.ParticleCaloExtensionTool.StartFromPerigee=True
 

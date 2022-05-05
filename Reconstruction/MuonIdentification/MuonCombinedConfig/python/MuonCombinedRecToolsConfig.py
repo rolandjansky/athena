@@ -412,16 +412,12 @@ def MuonCombinedToolCfg(flags, name="MuonCombinedTool", **kwargs):
         MuonEDMPrinterToolCfg(flags)))
 
     if flags.MuonCombined.doCombinedFit:
-        acc = MuonCombinedFitTagToolCfg(flags)
-        tool = acc.popPrivateTools()
+        tool = result.popToolsAndMerge(MuonCombinedFitTagToolCfg(flags)) 
         tools.append(tool)
-        result.merge(acc)
     if flags.MuonCombined.doStatisticalCombination and flags.Beam.Type is not BeamType.Cosmics:
-        acc = MuonCombinedStacoTagToolCfg(flags)
-        tool = acc.popPrivateTools()
+        tool = result.popToolsAndMerge(MuonCombinedStacoTagToolCfg(flags))
         tools.append(tool)
-        result.merge(acc)
-
+       
     kwargs.setdefault("MuonCombinedTagTools", tools)
     kwargs.setdefault("MuonCombinedDebuggerTool", result.popToolsAndMerge(
         MuonCombinedDebuggerToolCfg(flags)))
@@ -442,29 +438,58 @@ def MuonCombinedFitTagToolCfg(flags, name="MuonCombinedFitTagTool", **kwargs):
     if flags.Muon.MuonTrigger:
         kwargs.setdefault("VertexContainer", "")
 
-    result = CombinedMuonTrackBuilderCfg(flags)
-    tool = result.popPrivateTools()
-    kwargs.setdefault("TrackBuilder",  tool)
+    result = ComponentAccumulator() 
+    kwargs.setdefault("TrackBuilder",  result.popToolsAndMerge(CombinedMuonTrackBuilderCfg(flags)))
 
     kwargs.setdefault("Printer", result.getPrimaryAndMerge(
         MuonEDMPrinterToolCfg(flags)))
 
-    kwargs.setdefault("TrackQuery",   result.popToolsAndMerge(
-        MuonTrackQueryCfg(flags)))
-
-    acc = MuonMatchQualityCfg(flags)
-    kwargs.setdefault("MatchQuality",           acc.popPrivateTools())
-    result.merge(acc)
-
+    kwargs.setdefault("TrackQuery",   result.popToolsAndMerge(MuonTrackQueryCfg(flags)))
+    kwargs.setdefault("MatchQuality",  result.popToolsAndMerge(MuonMatchQualityCfg(flags)))
+   
     from MuonConfig.MuonRecToolsConfig import MuonTrackScoringToolCfg
-    acc = MuonTrackScoringToolCfg(flags)
-    kwargs.setdefault("TrackScoringTool", acc.popPrivateTools())
-    result.merge(acc)
-
+    kwargs.setdefault("TrackScoringTool", result.popToolsAndMerge(MuonTrackScoringToolCfg(flags)))
+    
     tool = CompFactory.MuonCombined.MuonCombinedFitTagTool(name, **kwargs)
     result.setPrivateTools(tool)
     return result
 
+def EMEO_MuonCombinedFitTagToolCfg(flags, name = "MuonCombinedFitTagTool_EMEO", **kwargs):
+    result = ComponentAccumulator()
+    track_builder = result.popToolsAndMerge(EMEO_CombinedMuonTrackBuilderCfg(flags))
+    fit_tag_tool = result.popToolsAndMerge(MuonCombinedFitTagToolCfg(flags, name = name, 
+                                            TrackBuilder = track_builder,
+                                            **kwargs))
+    result.setPrivateTools(fit_tag_tool)
+    return result
+
+def EMEO_MuonCombinedToolCfg(flags, name="MuonCombinedTool_EMEO", **kwargs):
+    tools = []
+    result = ComponentAccumulator()
+    kwargs.setdefault("Printer", result.getPrimaryAndMerge(
+        MuonEDMPrinterToolCfg(flags)))
+
+    if flags.MuonCombined.doCombinedFit:
+        tool = result.popToolsAndMerge(EMEO_MuonCombinedFitTagToolCfg(flags)) 
+        tools.append(tool)
+    if flags.MuonCombined.doStatisticalCombination:
+        tool = result.popToolsAndMerge(MuonCombinedStacoTagToolCfg(flags))
+        tools.append(tool)
+       
+    kwargs.setdefault("MuonCombinedTagTools", tools)
+    kwargs.setdefault("MuonCombinedDebuggerTool", result.popToolsAndMerge(
+        MuonCombinedDebuggerToolCfg(flags)))
+
+    acc = MuonAlignmentUncertToolThetaCfg(flags)
+    result.merge(acc)
+    kwargs.setdefault("AlignmentUncertTool", result.getPublicTool(
+        'MuonAlignmentUncertToolTheta'))
+
+    kwargs.setdefault("DeltaEtaPreSelection", 0.2)
+    kwargs.setdefault("DeltaPhiPreSelection", 0.2)
+    tool = CompFactory.MuonCombined.MuonCombinedTool(name, **kwargs)
+    result.setPrivateTools(tool)
+    return result
 
 def MuonCombinedStacoTagToolCfg(flags, name="MuonCombinedStacoTagTool", **kwargs):
 
