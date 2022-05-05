@@ -143,7 +143,7 @@ def setupMenu():
         #LRTGSF test chains
         ChainProp(name='HLT_e26_lhloose_nopix_lrttight_L1EM22VHI', groups=DevGroup+SingleElectronGroup),
         ChainProp(name='HLT_e5_lhloose_nopix_lrtloose_L1EM3', groups=DevGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e5_lhloose_nopix_lrtloose_nogsf_L1EM3', groups=DevGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e5_lhloose_nopix_lrtloose_nogsf_L1EM3', groups=DevGroup+SingleElectronGroup, monGroups=['idMon:shifter']),
 
         # For ringer validation
         ChainProp(name='HLT_g20_loose_L1EM15VHI',  groups=DevGroup+SinglePhotonGroup),
