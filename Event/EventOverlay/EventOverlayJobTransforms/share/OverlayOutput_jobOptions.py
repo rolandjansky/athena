@@ -150,6 +150,7 @@ if overlayFlags.doTrackOverlay():
     outStream.ItemList += [ 'TrackCollection#Bkg_CombinedInDetTracks' ]
     outStream.ItemList += [ 'TrackCollection#Bkg_DisappearingTracks' ]
     outStream.ItemList += [ 'TrackCollection#Bkg_ResolvedForwardTracks' ]
+    outStream.ItemList += [ 'TrackCollection#Bkg_ResolvedLargeD0Tracks' ]
     outStream.ItemList += [ 'InDet::TRT_DriftCircleContainer#Bkg_TRT_DriftCircles' ]
     outStream.ItemList += [ 'InDet::PixelClusterContainer#Bkg_PixelClusters' ]
     outStream.ItemList += [ 'InDet::SCT_ClusterContainer#Bkg_SCT_Clusters' ]
@@ -160,6 +161,7 @@ if overlayFlags.doTrackOverlay():
         outStream.ItemList += [ 'DetailedTrackTruthCollection#Bkg_DisappearingTracksDetailedTruth' ]
         outStream.ItemList += [ 'DetailedTrackTruthCollection#Bkg_ResolvedForwardTracksDetailedTruth' ]
         outStream.ItemList += [ 'DetailedTrackTruthCollection#Bkg_CombinedInDetTracksDetailedTruth' ]
+        outStream.ItemList += [ 'DetailedTrackTruthCollection#Bkg_ResolvedLargeD0TracksDetailedTruth' ]
 
 # Temporary to ensure the output is stored
 outStream.TransientItems = outStream.ItemList

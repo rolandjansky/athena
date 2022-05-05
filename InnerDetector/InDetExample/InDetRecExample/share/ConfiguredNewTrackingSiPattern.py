@@ -17,7 +17,8 @@ class  ConfiguredNewTrackingSiPattern:
                 NewTrackingCuts = None,
                 TrackCollectionKeys=[] ,
                 TrackCollectionTruthKeys=[],
-                ClusterSplitProbContainer=''):
+                ClusterSplitProbContainer='',
+                doTrackOverlay=False):
 
       from InDetRecExample.InDetJobProperties import InDetFlags
       from InDetRecExample.InDetKeys          import InDetKeys
@@ -630,8 +631,11 @@ class  ConfiguredNewTrackingSiPattern:
          # --- set input and output collection
          #
          InputTrackCollection     = self.__SiTrackCollection
+         from OverlayCommonAlgs.OverlayFlags import overlayFlags
          self.__SiTrackCollection = ResolvedTrackCollectionKey
-
+         #if track overlay, this isn't the final track collection
+         if doTrackOverlay:
+            self.__SiTrackCollection = overlayFlags.sigPrefix()+self.__SiTrackCollection
          #
          # --- configure Ambiguity (score) solver
          #
@@ -660,6 +664,24 @@ class  ConfiguredNewTrackingSiPattern:
          topSequence += InDetAmbiguitySolver
          if (InDetFlags.doPrintConfigurables()):
             printfunc (InDetAmbiguitySolver)
+
+         if doTrackOverlay:
+            MergingTrackCollections=[self.__SiTrackCollection, overlayFlags.bkgPrefix()+ResolvedTrackCollectionKey]
+            merger_track_summary_tool = TrackingCommon.getInDetTrackSummaryToolSharedHits(namePrefix                 = NewTrackingCuts.extension()+'SplitProb',
+                                                                                          ClusterSplitProbabilityName= 'InDetAmbiguityProcessorSplitProb'+NewTrackingCuts.extension())
+            from InDetRecExample.TrackingCommon                        import getInDetPRDtoTrackMapToolGangedPixels
+            from TrkTrackCollectionMerger.TrkTrackCollectionMergerConf import Trk__TrackCollectionMerger
+            TrkTrackCollectionMerger = Trk__TrackCollectionMerger(name                    = "InDetTrackCollectionMerger_"+NewTrackingCuts.extension(),
+                                                                  TracksLocation          = MergingTrackCollections,
+                                                                  OutputTracksLocation    = ResolvedTrackCollectionKey,
+                                                                  AssociationTool         = getInDetPRDtoTrackMapToolGangedPixels(),
+                                                                  UpdateSharedHits        = True,
+                                                                  UpdateAdditionalInfo    = True,
+                                                                  DoTrackOverlay          = True,
+                                                                  SummaryTool             = merger_track_summary_tool)
+            topSequence += TrkTrackCollectionMerger
+            self.__SiTrackCollection = ResolvedTrackCollectionKey
+            
 
          #
          # --- Delete Silicon Sp-Seeded tracks
@@ -693,8 +715,9 @@ class  ConfiguredNewTrackingSiPattern:
            # add truth and trackParticles
            include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
            InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.ObservedTracks(),
-                                                           InDetKeys.ObservedDetailedTracksTruth(),
-                                                           InDetKeys.ObservedTracksTruth())
+                                                        InDetKeys.ObservedDetailedTracksTruth(),
+                                                        InDetKeys.ObservedTracksTruth(),
+                                                        doTrackOverlay)
            include ("InDetRecExample/ConfiguredxAODTrackParticleCreation.py")
            InDetxAOD = ConfiguredxAODTrackParticleCreation(InDetKeys.ObservedTracks(),
                                                            InDetKeys.ObservedTracksTruth(),

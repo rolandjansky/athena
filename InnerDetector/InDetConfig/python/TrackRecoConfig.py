@@ -326,9 +326,14 @@ def InDetTrackRecoCfg(flags):
             continue # Skip rest of config for the TRTStandalone pass
 
         ResolvedTracks = "Resolved" + extension + "Tracks"
+        #for track overlay, save resolved track name for final merged track collection
+        if flags.Overlay.doTrackOverlay and current_flags.InDet.Tracking.ActivePass.storeSeparateContainer:
+            ResolvedTracks = flags.Overlay.sigPrefix + ResolvedTracks
         # Tweak to match old config key
         if "LargeD0" in extension:
             ResolvedTracks = "ResolvedLargeD0Tracks"
+            if flags.Overlay.doTrackOverlay:
+                ResolvedTracks = flags.Overlay.sigPrefix + "ResolvedLargeD0Tracks"
         SiSPSeededTracks = "SiSPSeeded" + extension + "Tracks" # Old config had inconsistent "SiSPSeeded" vs "SiSpSeeded" keys
 
         result.merge(TrackingSiPatternCfg(current_flags,
@@ -338,6 +343,10 @@ def InDetTrackRecoCfg(flags):
                                           ClusterSplitProbContainer = ClusterSplitProbContainer))
 
         TrackContainer = ResolvedTracks
+        if flags.Overlay.doTrackOverlay and current_flags.InDet.Tracking.ActivePass.storeSeparateContainer:
+            TrackContainer = "Resolved" + extension + "Tracks"
+            if "LargeD0" in extension:
+                TrackContainer = "ResolvedLargeD0Tracks"
 
         if current_flags.InDet.Tracking.ActivePass.useTRTExtension:
             ExtendedTracks = "Extended" + extension + "Tracks"
@@ -357,17 +366,24 @@ def InDetTrackRecoCfg(flags):
             TrackContainer = ExtendedTracks
 
         if current_flags.InDet.Tracking.ActivePass.storeSeparateContainer:
-
             # Dummy Merger to fill additional info for PRD-associated pixel tracklets
             # Can also run on all separate collections like R3LargeD0 but kept consistent with legacy config
             if extension=="Disappearing":
-                InputTracks = TrackContainer
+                InputTracks = [TrackContainer]
+                if flags.Overlay.doTrackOverlay:
+                    InputTracks += [flags.Overlay.bkgPrefix+extension+"Tracks"]
                 TrackContainer = extension+"Tracks"
                 result.merge(TrackCollectionMergerAlgCfg(current_flags, name = "InDetTrackCollectionMerger"+extension,
-                                                         InputCombinedTracks = [InputTracks],
+                                                         InputCombinedTracks = InputTracks,
                                                          OutputCombinedTracks = TrackContainer,
                                                          CombinedInDetClusterSplitProbContainer = "InDetAmbiguityProcessorSplitProb" + extension))
-
+            elif flags.Overlay.doTrackOverlay:
+                #schedule merger to combine signal and background tracks
+                InputTracks=[flags.Overlay.sigPrefix+TrackContainer,flags.Overlay.bkgPrefix+TrackContainer]
+                result.merge(TrackCollectionMergerAlgCfg(current_flags, name = "InDetTrackCollectionMerger"+extension,
+                                                         InputCombinedTracks = InputTracks,
+                                                         OutputCombinedTracks = "Resolved" + extension + "Tracks",
+                                                         CombinedInDetClusterSplitProbContainer = "InDetAmbiguityProcessorSplitProb" + extension))
             if flags.InDet.doTruth:
                 result.merge(InDetTrackTruthCfg(current_flags,
                                                 Tracks = TrackContainer,
@@ -408,7 +424,8 @@ def InDetTrackRecoCfg(flags):
 
 
 
-
+    if flags.Overlay.doTrackOverlay:
+        InputCombinedInDetTracks += [flags.Overlay.bkgPrefix+"CombinedInDetTracks"]
     result.merge(TrackCollectionMergerAlgCfg(flags,
                                              InputCombinedTracks = InputCombinedInDetTracks,
                                              OutputCombinedTracks = "CombinedInDetTracks",

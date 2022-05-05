@@ -463,12 +463,13 @@ else:
       if InDetFlags.useExistingTracksAsInput():
           InputCombinedInDetTracks += [ InDetKeys.ProcessedESDTracks() ]
       InDetLargeD0SiPattern = ConfiguredNewTrackingSiPattern(InputCombinedInDetTracks,
-                                                            InDetKeys.ResolvedLargeD0Tracks(),
-                                                            InDetKeys.SiSpSeededLargeD0Tracks(),
-                                                            InDetNewTrackingCutsLargeD0,
-                                                            TrackCollectionKeys,
-                                                            TrackCollectionTruthKeys,
-                                                            ClusterSplitProbContainer)
+                                                             InDetKeys.ResolvedLargeD0Tracks(),
+                                                             InDetKeys.SiSpSeededLargeD0Tracks(),
+                                                             InDetNewTrackingCutsLargeD0,
+                                                             TrackCollectionKeys,
+                                                             TrackCollectionTruthKeys,
+                                                             ClusterSplitProbContainer,
+                                                             overlayFlags.doTrackOverlay())
       ClusterSplitProbContainerLargeD0 = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsLargeD0.extension()
       #
       # --- do the TRT pattern
@@ -668,7 +669,8 @@ else:
                                                                    InDetNewTrackingCutsForwardTracks,
                                                                    TrackCollectionKeys,
                                                                    TrackCollectionTruthKeys,
-                                                                   ClusterSplitProbContainer)
+                                                                   ClusterSplitProbContainer,
+                                                                   overlayFlags.doTrackOverlay())
       ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsForwardTracks.extension()
       # --- do not add into list for combination
       # CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer
@@ -1035,7 +1037,6 @@ else:
           # set up the truth info for this container
           #
           include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
-          from OverlayCommonAlgs.OverlayFlags import overlayFlags
           InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.UnslimmedTracks(),
                                                        InDetKeys.UnslimmedDetailedTracksTruth(),
                                                        InDetKeys.UnslimmedTracksTruth(),
