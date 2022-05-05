@@ -105,7 +105,7 @@ DataObject* L1CaloPprDisabledChannelContainer::makePersistent() const {
 */
 }
 
-void L1CaloPprDisabledChannelContainer::makeTransient(const std::map<std::string, CondAttrListCollection*>& condAttrListCollectionMap) {
+void L1CaloPprDisabledChannelContainer::makeTransient(const std::map<std::string, const CondAttrListCollection*>& condAttrListCollectionMap) {
 
   CondAttrListCollection::const_iterator it_attr;
   CondAttrListCollection::const_iterator it_attrE;
@@ -117,7 +117,7 @@ void L1CaloPprDisabledChannelContainer::makeTransient(const std::map<std::string
   for (const auto& [name, coll] : condAttrListCollectionMap) {
     if (name.find("PpmDeadChannels")!=std::string::npos){
       auto it_deadChannelsAttrListCollection = condAttrListCollectionMap.find(name);
-      CondAttrListCollection* deadChannelsAttrListCollection = it_deadChannelsAttrListCollection->second;
+      const CondAttrListCollection* deadChannelsAttrListCollection = it_deadChannelsAttrListCollection->second;
 
       
       //Dead channel
@@ -151,7 +151,7 @@ void L1CaloPprDisabledChannelContainer::makeTransient(const std::map<std::string
     
     if(name.find("PprChanCalib")!=std::string::npos){
       auto it_calibChannelsAttrListCollection = condAttrListCollectionMap.find(name);
-      CondAttrListCollection* calibChannelsAttrListCollection =  it_calibChannelsAttrListCollection->second;
+      const CondAttrListCollection* calibChannelsAttrListCollection =  it_calibChannelsAttrListCollection->second;
 
 
       
@@ -184,7 +184,7 @@ void L1CaloPprDisabledChannelContainer::makeTransient(const std::map<std::string
 
     if(name.find("DisabledTowers")!=std::string::npos){
       auto it_disabledTowersAttrListCollection = condAttrListCollectionMap.find(name);
-      CondAttrListCollection* disabledTowersAttrListCollection = it_disabledTowersAttrListCollection->second;
+      const CondAttrListCollection* disabledTowersAttrListCollection = it_disabledTowersAttrListCollection->second;
       
       // disabled towers
       it_attr  = disabledTowersAttrListCollection->begin();

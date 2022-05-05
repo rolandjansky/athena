@@ -15,6 +15,9 @@
 
 #include <iostream>
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // obsolete, replaced by L1CaloCondAlg
+
 template <typename T>
 StatusCode L1CaloCondSvc::store(const T*& pobj, const std::string& key, const std::string& folder, const std::string& tag) const {
   /*  ======================================================================

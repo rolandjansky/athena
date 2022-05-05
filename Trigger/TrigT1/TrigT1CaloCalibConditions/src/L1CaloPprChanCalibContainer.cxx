@@ -111,7 +111,7 @@ DataObject* L1CaloPprChanCalibContainer::makePersistent() const
   return static_cast<DataObject*>(attrListCollection.release());
 }
 
-void L1CaloPprChanCalibContainer::makeTransient(const std::map<std::string, CondAttrListCollection*>& condAttrListCollectionMap)
+void L1CaloPprChanCalibContainer::makeTransient(const std::map<std::string, const CondAttrListCollection*>& condAttrListCollectionMap)
 {
   clear();
   

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOCALIBCONDITIONS_IL1CALOPERSISTENCECAPABLE_H
@@ -22,16 +22,13 @@ class IL1CaloPersistenceCapable {
 public:
 	virtual ~IL1CaloPersistenceCapable() {};
 
-	// Used by L1CondSvc to create persistent collection (CondAttrListCollection) out of the transient container
+	// Create persistent collection (CondAttrListCollection) out of the transient container
 	virtual DataObject* makePersistent() const = 0;
 
-	// Used by L1CondSvc to create transient container from persistent collections retrieved from the DB
-	//virtual void makeTransient(const CondAttrListCollection*& condAttrListCollection) = 0;
-	virtual void makeTransient(const std::map<std::string, CondAttrListCollection*>& condAttrListCollectionMap) = 0;
-	//virtual void makeTransient(const AthenaAttributeList*& condAttributeList) = 0;
-	virtual void makeTransient(const std::map<std::string, AthenaAttributeList*>& condAttributeList) = 0;
+	// Create transient container from persistent collections retrieved from the DB
+	virtual void makeTransient(const std::map<std::string, const CondAttrListCollection*>& condAttrListCollectionMap) = 0;
+	virtual void makeTransient(const std::map<std::string, const AthenaAttributeList*>& condAttributeList) = 0;
 	virtual std::string conditionType() const = 0;
-	//virtual std::string storeGateKey() const = 0; //to be supressed
 
 	virtual std::vector<std::string> coolInputKeys() const = 0;
 	virtual std::string coolOutputKey() const = 0;

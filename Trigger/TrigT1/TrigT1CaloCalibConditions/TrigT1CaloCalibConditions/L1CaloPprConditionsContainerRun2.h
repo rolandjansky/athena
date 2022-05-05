@@ -51,7 +51,7 @@ public:
   // IL1CaloPersistenceCapable interface
   virtual DataObject* makePersistent() const;
   using AbstractL1CaloPersistentCondition::makeTransient; // to unhide the default implementation of makeTransient
-  virtual void makeTransient(const std::map<std::string, CondAttrListCollection*>& condAttrListCollectionMap);
+  virtual void makeTransient(const std::map<std::string, const CondAttrListCollection*>& condAttrListCollectionMap);
 
   const L1CaloPprConditionsRun2* pprConditions(unsigned int channelId) const;
   const L1CaloPprConditionsRun2* pprConditions(const L1CaloCoolChannelId& channelId) const;

@@ -176,7 +176,7 @@ DataObject* L1CaloPprConditionsContainerRun2::makePersistent() const {
   return 0;
 }
 
-void L1CaloPprConditionsContainerRun2::makeTransient(const std::map<std::string, CondAttrListCollection*>& condAttrListCollectionMap) {
+void L1CaloPprConditionsContainerRun2::makeTransient(const std::map<std::string, const CondAttrListCollection*>& condAttrListCollectionMap) {
   this->clear();
   // --------------------------------------------------------------------------
   // Folder names
@@ -252,7 +252,7 @@ void L1CaloPprConditionsContainerRun2::makeTransient(const std::map<std::string,
     }
   }
   // --------------------------------------------------------------------------
-  CondAttrListCollection* chanCalibAttrListCollection =
+  const CondAttrListCollection* chanCalibAttrListCollection =
       it_pprChanCalibAttrListCollection->second;
 
 
@@ -265,7 +265,7 @@ void L1CaloPprConditionsContainerRun2::makeTransient(const std::map<std::string,
     return;
   }
   // --------------------------------------------------------------------------
-  CondAttrListCollection* chanDefaultsAttrListCollection =
+  const CondAttrListCollection* chanDefaultsAttrListCollection =
       it_pprChanDefaultsAttrListCollection->second;
 
   // There should be only one channel (channel#1) in the Default folder
@@ -434,7 +434,7 @@ void L1CaloPprConditionsContainerRun2::makeTransient(const std::map<std::string,
   // --------------------------------------------------------------------------
   if (isUseStrategy){
     // ------------------------------------------------------------------------
-    CondAttrListCollection* chanCalibAttrListCollection =
+    const CondAttrListCollection* chanCalibAttrListCollection =
       it_pprChanCalibStrategyAttrListCollection->second; 
     auto it_AttrListColl = chanCalibAttrListCollection->begin();
     auto it_AttrListCollE = chanCalibAttrListCollection->end();

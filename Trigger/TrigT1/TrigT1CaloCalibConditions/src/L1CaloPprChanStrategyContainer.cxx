@@ -51,7 +51,7 @@ DataObject* L1CaloPprChanStrategyContainer::makePersistent() const
   return static_cast<DataObject*>(attrListCollection.release());
 }
 
-void L1CaloPprChanStrategyContainer::makeTransient(const std::map<std::string, CondAttrListCollection*>& condAttrListCollectionMap)
+void L1CaloPprChanStrategyContainer::makeTransient(const std::map<std::string, const CondAttrListCollection*>& condAttrListCollectionMap)
 {
   clear();
 

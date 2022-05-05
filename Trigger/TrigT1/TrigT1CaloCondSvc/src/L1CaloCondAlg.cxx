@@ -133,10 +133,10 @@ StatusCode  L1CaloCondAlg:: execute ()
 
   auto writeCdoDerRunPars = std::make_unique<L1CaloDerivedRunParsContainer>();
   
-  std::map<std::string, CondAttrListCollection*> condAttrListCollectionMapDerRunPars;
+  std::map<std::string, const CondAttrListCollection*> condAttrListCollectionMapDerRunPars;
   if (readCdo_DerRunPars) {
      ATH_MSG_DEBUG("AttrListCollection for Derivated Run Parameters= "<<readCdo_DerRunPars);
-     condAttrListCollectionMapDerRunPars[ m_derivedRunPars.key() ] = (CondAttrListCollection*) readCdo_DerRunPars;
+     condAttrListCollectionMapDerRunPars[ m_derivedRunPars.key() ] = readCdo_DerRunPars;
      writeCdoDerRunPars->makeTransient(condAttrListCollectionMapDerRunPars);
 
    }
@@ -163,10 +163,10 @@ StatusCode  L1CaloCondAlg:: execute ()
   }
   auto writeCdoPprChanStrategy = std::make_unique<L1CaloPprChanStrategyContainer>();
 
-  std::map<std::string, CondAttrListCollection*> condAttrListCollectionMapPprChanStrategy;
+  std::map<std::string, const CondAttrListCollection*> condAttrListCollectionMapPprChanStrategy;
   if (readCdo_PprChanStrategy) {
     ATH_MSG_DEBUG("AttrListCollection for Ppr Chan Strategy= "<<readCdo_PprChanStrategy);
-    condAttrListCollectionMapPprChanStrategy[ m_pprChanStrategy.key() ] = (CondAttrListCollection*) readCdo_PprChanStrategy;
+    condAttrListCollectionMapPprChanStrategy[ m_pprChanStrategy.key() ] = readCdo_PprChanStrategy;
     writeCdoPprChanStrategy->makeTransient(condAttrListCollectionMapPprChanStrategy);
     
   }
@@ -303,18 +303,18 @@ StatusCode  L1CaloCondAlg:: execute ()
   
 
    // Filling the condition container
-   std::map<std::string, CondAttrListCollection*> condAttrListCollectionMapDisTowers;
+   std::map<std::string, const CondAttrListCollection*> condAttrListCollectionMapDisTowers;
    if (readCdo_DisTowers) {
      ATH_MSG_DEBUG("AttrListCollection for Disabled Towers= "<<readCdo_DisTowers);
-     condAttrListCollectionMapDisTowers[ m_disabledTowers.key() ] = (CondAttrListCollection*) readCdo_DisTowers;
+     condAttrListCollectionMapDisTowers[ m_disabledTowers.key() ] = readCdo_DisTowers;
      writeCdoDisTowers->makeTransient(condAttrListCollectionMapDisTowers);
    }
 
    
-   std::map<std::string, CondAttrListCollection*> condAttrListCollectionMapPprChanCalib;
+   std::map<std::string, const CondAttrListCollection*> condAttrListCollectionMapPprChanCalib;
    if (readCdo_PprChanCalib) {
      ATH_MSG_DEBUG("AttrListCollection for Ppr Channel Calib = "<<readCdo_PprChanCalib);
-     condAttrListCollectionMapPprChanCalib[keyPprChanCalib] = (CondAttrListCollection*) readCdo_PprChanCalib;
+     condAttrListCollectionMapPprChanCalib[keyPprChanCalib] = readCdo_PprChanCalib;
      writeCdoPprChanCalib->makeTransient(condAttrListCollectionMapPprChanCalib);
      
    }
@@ -322,62 +322,62 @@ StatusCode  L1CaloCondAlg:: execute ()
 
 
 
-   std::map<std::string, CondAttrListCollection*> condAttrListCollectionMapPprChanDefaults;
+   std::map<std::string, const CondAttrListCollection*> condAttrListCollectionMapPprChanDefaults;
    if (readCdo_PprChanDefaults) {
      ATH_MSG_DEBUG("AttrListCollection for Ppr Channel Defaults = "<<readCdo_PprChanDefaults);
-     condAttrListCollectionMapPprChanDefaults[ m_pprChanDefaults.key() ] = (CondAttrListCollection*) readCdo_PprChanDefaults;
+     condAttrListCollectionMapPprChanDefaults[ m_pprChanDefaults.key() ] = readCdo_PprChanDefaults;
      writeCdoPprChanDefaults->makeTransient(condAttrListCollectionMapPprChanDefaults);
 
    }
 
 
-   std::map<std::string, CondAttrListCollection*> condAttrListCollectionMapPpmFineTimeRefs;
+   std::map<std::string, const CondAttrListCollection*> condAttrListCollectionMapPpmFineTimeRefs;
    if (readCdo_PpmFineTimeRefs) {
      ATH_MSG_DEBUG("AttrListCollection for Ppm FineTime Refs = "<<readCdo_PpmFineTimeRefs);
-     condAttrListCollectionMapPpmFineTimeRefs[ m_ppmFineTimeRefs.key() ] = (CondAttrListCollection*) readCdo_PpmFineTimeRefs;
+     condAttrListCollectionMapPpmFineTimeRefs[ m_ppmFineTimeRefs.key() ] = readCdo_PpmFineTimeRefs;
      writeCdoPpmFineTimeRefs->makeTransient(condAttrListCollectionMapPpmFineTimeRefs);
 
    }
 
    
-  std::map<std::string, CondAttrListCollection*> condAttrListCollectionMapRunParameters;
+  std::map<std::string, const CondAttrListCollection*> condAttrListCollectionMapRunParameters;
   if (readCdo_RunParameters) {
      ATH_MSG_DEBUG("AttrListCollection for Run Parameters = "<<readCdo_RunParameters);
-     condAttrListCollectionMapRunParameters[ m_runParameters.key() ] = (CondAttrListCollection*) readCdo_RunParameters;
+     condAttrListCollectionMapRunParameters[ m_runParameters.key() ] = readCdo_RunParameters;
      writeCdoRunParameters->makeTransient(condAttrListCollectionMapRunParameters);
 
    }
 
    
-   std::map<std::string, CondAttrListCollection*> condAttrListCollectionMapPpmDeadChannels;
+   std::map<std::string, const CondAttrListCollection*> condAttrListCollectionMapPpmDeadChannels;
    if (readCdo_PpmDeadChannels) {
      ATH_MSG_DEBUG("AttrListCollection for Ppm Dead Channels= "<<readCdo_PpmDeadChannels);
-     condAttrListCollectionMapPpmDeadChannels[ m_ppmDeadChannels.key() ] = (CondAttrListCollection*) readCdo_PpmDeadChannels;
+     condAttrListCollectionMapPpmDeadChannels[ m_ppmDeadChannels.key() ] = readCdo_PpmDeadChannels;
      writeCdoPpmDeadChannels->makeTransient(condAttrListCollectionMapPpmDeadChannels);
 
    }
 
-   std::map<std::string, CondAttrListCollection*> condAttrListCollectionMapReadoutConfig;
+   std::map<std::string, const CondAttrListCollection*> condAttrListCollectionMapReadoutConfig;
    if (readCdo_ReadoutConfig) {
      ATH_MSG_DEBUG("AttrListCollection for ReadoutConfig= "<<readCdo_ReadoutConfig);
-     condAttrListCollectionMapReadoutConfig[  m_readoutConfig.key() ] = (CondAttrListCollection*) readCdo_ReadoutConfig;
+     condAttrListCollectionMapReadoutConfig[  m_readoutConfig.key() ] = readCdo_ReadoutConfig;
      writeCdoReadoutConfig->makeTransient(condAttrListCollectionMapReadoutConfig);
 
    }
 
-   std::map<std::string, CondAttrListCollection*> condAttrListCollectionMapReadoutConfigJSON;
+   std::map<std::string, const CondAttrListCollection*> condAttrListCollectionMapReadoutConfigJSON;
    if (readCdo_ReadoutConfigJSON) {
      ATH_MSG_DEBUG("AttrListCollection for ReadoutConfigJSON= "<<readCdo_ReadoutConfigJSON);
-     condAttrListCollectionMapReadoutConfigJSON[ m_readoutConfigJSON.key() ] = (CondAttrListCollection*) readCdo_ReadoutConfigJSON;
+     condAttrListCollectionMapReadoutConfigJSON[ m_readoutConfigJSON.key() ] = readCdo_ReadoutConfigJSON;
      writeCdoReadoutConfigJSON->makeTransient(condAttrListCollectionMapReadoutConfigJSON);
 
    }
    
    // Filling DisableChannels Contianer 
-   std::map<std::string, CondAttrListCollection*> condAttrListCollectionMapDisableChannels;
-   condAttrListCollectionMapDisableChannels[keyPprChanCalib] = (CondAttrListCollection*) readCdo_PprChanCalib;
-   condAttrListCollectionMapDisableChannels[ m_disabledTowers.key() ] = (CondAttrListCollection*) readCdo_DisTowers;
-   condAttrListCollectionMapDisableChannels[ m_ppmDeadChannels.key() ] = (CondAttrListCollection*) readCdo_PpmDeadChannels;
+   std::map<std::string, const CondAttrListCollection*> condAttrListCollectionMapDisableChannels;
+   condAttrListCollectionMapDisableChannels[keyPprChanCalib] = readCdo_PprChanCalib;
+   condAttrListCollectionMapDisableChannels[ m_disabledTowers.key() ] = readCdo_DisTowers;
+   condAttrListCollectionMapDisableChannels[ m_ppmDeadChannels.key() ] = readCdo_PpmDeadChannels;
    writeCdoPprDisabledChannel->makeTransient(condAttrListCollectionMapDisableChannels);
 
 
@@ -583,7 +583,7 @@ StatusCode  L1CaloCondAlg:: execute ()
    // Saving L1CaloConditionContianerRun2 depending on the strategy selected (to read FIR coefficients)
    
    
-   std::map<std::string, CondAttrListCollection*> condAttrListCollectionMapCond;
+   std::map<std::string, const CondAttrListCollection*> condAttrListCollectionMapCond;
    if (!strategy.empty()){
      
 
@@ -624,9 +624,9 @@ StatusCode  L1CaloCondAlg:: execute ()
       ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandlePprChanCommon.fullKey() << " readCdo_PprChanCommon->size()= " <<  readCdo_PprChanCommon->size());
       ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandlePprChanStrategy.fullKey() << " readCdo_PprChanMu->size()= " <<  readCdo_PprChanStrategy->size());
 
-      condAttrListCollectionMapCond[ keyPprChanCommon ] = (CondAttrListCollection*) readCdo_PprChanCommon;
-      condAttrListCollectionMapCond[ keyPprChanStrategy ] = (CondAttrListCollection*) readCdo_PprChanStrategy;
-      condAttrListCollectionMapCond[ m_pprChanDefaults.key() ] = (CondAttrListCollection*) readCdo_PprChanDefaults;
+      condAttrListCollectionMapCond[ keyPprChanCommon ] = readCdo_PprChanCommon;
+      condAttrListCollectionMapCond[ keyPprChanStrategy ] = readCdo_PprChanStrategy;
+      condAttrListCollectionMapCond[ m_pprChanDefaults.key() ] = readCdo_PprChanDefaults;
       
       writeCdoPprConditions->makeTransient(condAttrListCollectionMapCond);
       
@@ -658,8 +658,8 @@ StatusCode  L1CaloCondAlg:: execute ()
       
     
 
-      condAttrListCollectionMapCond[ keyPprChanCalib ] = (CondAttrListCollection*) readCdo_PprChanCalib;
-      condAttrListCollectionMapCond[ m_pprChanDefaults.key() ] = (CondAttrListCollection*) readCdo_PprChanDefaults;
+      condAttrListCollectionMapCond[ keyPprChanCalib ] = readCdo_PprChanCalib;
+      condAttrListCollectionMapCond[ m_pprChanDefaults.key() ] = readCdo_PprChanDefaults;
       writeCdoPprConditions->makeTransient(condAttrListCollectionMapCond);
       writeHandlePprConditions.addDependency(range_PprChanCalib);
       

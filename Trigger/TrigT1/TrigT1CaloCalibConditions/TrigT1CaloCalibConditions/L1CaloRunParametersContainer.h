@@ -33,7 +33,7 @@ public:
 
   // interface of AbstractL1CaloPersistentCondition
   using AbstractL1CaloPersistentCondition::makeTransient;
-  virtual void makeTransient(const std::map<std::string, CondAttrListCollection*>&);
+  virtual void makeTransient(const std::map<std::string, const CondAttrListCollection*>&);
   virtual DataObject* makePersistent() const;
   virtual std::vector<std::string> coolInputKeys() const { return {m_coolFolderKey}; }
   virtual std::string coolOutputKey() const { return m_coolFolderKey; }

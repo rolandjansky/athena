@@ -35,7 +35,7 @@ public:
 
   // interface of AbstractL1CaloPersistentCondition
   using AbstractL1CaloPersistentCondition::makeTransient;
-  virtual void makeTransient(const std::map<std::string, CondAttrListCollection*>&) override;
+  virtual void makeTransient(const std::map<std::string, const CondAttrListCollection*>&) override;
   virtual DataObject* makePersistent() const override;
   virtual void clear() override { m_readoutConfigsJSON.clear(); }
 
