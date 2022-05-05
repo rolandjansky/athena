@@ -66,8 +66,7 @@ StatusCode
 EMBremCollectionBuilder::execute(const EventContext& ctx) const
 {
   // Read the inputs
-
-  // all the track particles
+  // The input track particles
   SG::ReadHandle<xAOD::TrackParticleContainer> trackTES(
     m_trackParticleContainerKey, ctx);
   if (!trackTES.isValid()) {
@@ -76,27 +75,26 @@ EMBremCollectionBuilder::execute(const EventContext& ctx) const
     return StatusCode::FAILURE;
   }
 
-  // selected track particles
-  SG::ReadHandle<xAOD::TrackParticleContainer> selectedTracks(
+  // The input selected track particles (subset of "all" input
+  // read above).
+  SG::ReadHandle<xAOD::TrackParticleContainer> selectedTrackParticles(
     m_selectedTrackParticleContainerKey, ctx);
-  if (!selectedTracks.isValid()) {
+  if (!selectedTrackParticles.isValid()) {
     ATH_MSG_FATAL("Failed to retrieve TrackParticle container: "
                   << m_selectedTrackParticleContainerKey.key());
     return StatusCode::FAILURE;
   }
 
   // Create the final containers to be written out
-  // track particles
+  // 1. Track particles
   SG::WriteHandle<xAOD::TrackParticleContainer> finalTrkPartContainer(
     m_OutputTrkPartContainerKey, ctx);
-
   ATH_CHECK(finalTrkPartContainer.record(
     std::make_unique<xAOD::TrackParticleContainer>(),
     std::make_unique<xAOD::TrackParticleAuxContainer>()));
-
   xAOD::TrackParticleContainer* cPtrTrkPart = finalTrkPartContainer.ptr();
 
-  // tracks
+  // 2. Trk::Tracks
   SG::WriteHandle<TrackCollection> finalTracks(m_OutputTrackContainerKey, ctx);
   ATH_CHECK(finalTracks.record(std::make_unique<TrackCollection>()));
   TrackCollection* cPtrTracks = finalTracks.ptr();
@@ -109,30 +107,29 @@ EMBremCollectionBuilder::execute(const EventContext& ctx) const
   siliconTrkTracks.reserve(16);
   std::vector<TrackWithIndex> trtAloneTrkTracks;
   trtAloneTrkTracks.reserve(8);
-  for (const xAOD::TrackParticle* track : *selectedTracks) {
+
+  for (const xAOD::TrackParticle* trackParticle : *selectedTrackParticles) {
     const Trk::Track* trktrack{ nullptr };
-    if (track->trackLink().isValid()) {
-      trktrack = track->track();
+    if (trackParticle->trackLink().isValid()) {
+      trktrack = trackParticle->track();
     } else {
       ATH_MSG_ERROR("TrackParticle has not Track --  are you running on AOD?");
       return StatusCode::FAILURE;
     }
     int nSiliconHits_trk = 0;
     uint8_t dummy(0);
-    if (track->summaryValue(dummy, xAOD::numberOfSCTHits)) {
+    if (trackParticle->summaryValue(dummy, xAOD::numberOfSCTHits)) {
       nSiliconHits_trk += dummy;
     }
-    if (track->summaryValue(dummy, xAOD::numberOfPixelHits)) {
+    if (trackParticle->summaryValue(dummy, xAOD::numberOfPixelHits)) {
       nSiliconHits_trk += dummy;
     }
-    ATH_MSG_DEBUG("Number of Silicon hits " << nSiliconHits_trk);
-
     if (nSiliconHits_trk >= m_MinNoSiHits) {
-      siliconTrkTracks.push_back(track);
+      siliconTrkTracks.push_back(trackParticle);
     } else {
-      // copy Trk::Track and keep also the index of the original TrackParticle
+      // copy Trk::Track
       trtAloneTrkTracks.emplace_back(std::make_unique<Trk::Track>(*trktrack),
-                                     track->index());
+                                     trackParticle->index());
     }
   }
 
@@ -142,11 +139,11 @@ EMBremCollectionBuilder::execute(const EventContext& ctx) const
   std::vector<TrackWithIndex> failedfit; // refit failure
 
   // Do the GSF refit. Note that the output is  two collections
-  // (for fit success pr failure) of TrackWithIndex.
+  // (for fit success or failure) of TrackWithIndex.
   // TrackWithIndex means a Trk::::Track
-  // and the index to the original Trk::Track Collection .
+  // and the index to the original TrackParticle Collection .
   // Note that altough the input is a xAOD::TrackParticle
-  // what we really refit is a Trk::Track.
+  // what we really refit is the corresponding Trk::Track.
   ATH_CHECK(refitTracks(ctx, siliconTrkTracks, refitted, failedfit));
 
   const size_t refittedCount = refitted.size();
@@ -154,7 +151,7 @@ EMBremCollectionBuilder::execute(const EventContext& ctx) const
   const size_t trtCount = trtAloneTrkTracks.size();
   const size_t totalCount = refittedCount + failedCount + trtCount;
 
-  //reserve as we know how many we will create
+  // reserve as we know how many we will create
   cPtrTracks->reserve(totalCount);
   cPtrTrkPart->reserve(totalCount);
   // Fill the final collections
@@ -185,11 +182,9 @@ EMBremCollectionBuilder::refitTracks(
     IegammaTrkRefitterTool::Cache cache{};
     StatusCode status = m_trkRefitTool->refitTrack(ctx, track, cache);
     if (status == StatusCode::SUCCESS) {
-      ATH_MSG_DEBUG("FIT SUCCESS ");
       // this is new track
       refitted.emplace_back(std::move(cache.refittedTrack), in->index());
     } else {
-      ATH_MSG_DEBUG("FIT FAILED ");
       // This is copy ctor
       failedfit.emplace_back(std::make_unique<Trk::Track>(*track), in->index());
     }
@@ -205,29 +200,40 @@ EMBremCollectionBuilder::createCollections(
   std::vector<TrackWithIndex>& trtAlone,
   TrackCollection* finalTracks,
   xAOD::TrackParticleContainer* finalTrkPartContainer,
-  const xAOD::TrackParticleContainer* AllTracks) const
+  const xAOD::TrackParticleContainer* inputTrkPartContainer) const
 {
   /*
-   * Refitted are new tracks (not copied/cloned)
-   * so need to update the summary
+   * Refitted are new tracks
+   * so need to create/update their summary
    */
   for (auto& trk : refitted) {
-    updateGSFTrack(ctx, trk, AllTracks);
+    updateGSFTrack(ctx, trk, inputTrkPartContainer);
   }
-  // No we can create new Trk::Tracks and TrackParticles.
+
+  // Now we can create the final ouput
+  // 1. Add the refitted
   for (auto& trk : refitted) {
-    ATH_CHECK(
-      createNew(ctx, trk, finalTracks, finalTrkPartContainer, AllTracks));
+    ATH_CHECK(createNew(ctx,
+                        trk,
+                        finalTracks,
+                        finalTrkPartContainer,
+                        inputTrkPartContainer));
   }
-
+  // 2. Add the failed fit
   for (auto& trk : failedfit) {
-    ATH_CHECK(
-      createNew(ctx, trk, finalTracks, finalTrkPartContainer, AllTracks));
+    ATH_CHECK(createNew(ctx,
+                        trk,
+                        finalTracks,
+                        finalTrkPartContainer,
+                        inputTrkPartContainer));
   }
-
+  // 3. Add the TRT alone
   for (auto& trk : trtAlone) {
-    ATH_CHECK(
-      createNew(ctx, trk, finalTracks, finalTrkPartContainer, AllTracks));
+    ATH_CHECK(createNew(ctx,
+                        trk,
+                        finalTracks,
+                        finalTrkPartContainer,
+                        inputTrkPartContainer));
   }
   return StatusCode::SUCCESS;
 }
@@ -238,30 +244,38 @@ EMBremCollectionBuilder::createNew(
   TrackWithIndex& trk_info,
   TrackCollection* finalTracks,
   xAOD::TrackParticleContainer* finalTrkPartContainer,
-  const xAOD::TrackParticleContainer* AllTracks) const
+  const xAOD::TrackParticleContainer* inputTrkPartContainer) const
 {
 
   size_t origIndex = trk_info.origIndex;
-  const xAOD::TrackParticle* original = AllTracks->at(origIndex);
-  /*
-   * Create TrackParticle it should be now owned by finalTrkPartContainer
-   */
+  const xAOD::TrackParticle* original = inputTrkPartContainer->at(origIndex);
+
+  // Create new TrackParticle owned by finalTrkPartContainer
   xAOD::TrackParticle* aParticle = m_particleCreatorTool->createParticle(
     ctx, *(trk_info.track), finalTrkPartContainer, nullptr, xAOD::electron);
-
-  if (!aParticle) {
-    ATH_MSG_WARNING(
-      "Could not create TrackParticle!!! for Track: " << *(trk_info.track));
-    return StatusCode::SUCCESS;
-  }
 
   // Add an element link back to original Track Particle collection
   static const SG::AuxElement::Accessor<
     ElementLink<xAOD::TrackParticleContainer>>
     tP("originalTrackParticle");
   ElementLink<xAOD::TrackParticleContainer> linkToOriginal(
-    *AllTracks, origIndex, ctx);
+    *inputTrkPartContainer, origIndex, ctx);
   tP(*aParticle) = linkToOriginal;
+  // Add qoverP from the last measurement
+  float QoverPLast(0);
+  auto rtsos = trk_info.track->trackStateOnSurfaces()->rbegin();
+  for (; rtsos != trk_info.track->trackStateOnSurfaces()->rend(); ++rtsos) {
+    if ((*rtsos)->type(Trk::TrackStateOnSurface::Measurement) &&
+        (*rtsos)->trackParameters() != nullptr &&
+        (*rtsos)->measurementOnTrack() != nullptr &&
+        !(*rtsos)->measurementOnTrack()->type(
+          Trk::MeasurementBaseType::PseudoMeasurementOnTrack)) {
+      QoverPLast = (*rtsos)->trackParameters()->parameters()[Trk::qOverP];
+      break;
+    }
+  }
+  static const SG::AuxElement::Accessor<float> QoverPLM("QoverPLM");
+  QoverPLM(*aParticle) = QoverPLast;
 
   // Add Truth decorations. Copy from the original.
   if (m_doTruth) {
@@ -269,7 +283,8 @@ EMBremCollectionBuilder::createNew(
       ElementLink<xAOD::TruthParticleContainer>>
       tPL("truthParticleLink");
     if (tPL.isAvailable(*original)) {
-      const ElementLink<xAOD::TruthParticleContainer>& linkToTruth = tPL(*original);
+      const ElementLink<xAOD::TruthParticleContainer>& linkToTruth =
+        tPL(*original);
       tPL(*aParticle) = linkToTruth;
     }
     static const SG::AuxElement::Accessor<float> tMP("truthMatchProbability");
@@ -287,25 +302,11 @@ EMBremCollectionBuilder::createNew(
       int truthOrigin = tO(*original);
       tO(*aParticle) = truthOrigin;
     }
-  } // End truth
-
-  // Add qoverP from the last measurement
-  float QoverPLast(0);
-  auto rtsos = trk_info.track->trackStateOnSurfaces()->rbegin();
-  for (; rtsos != trk_info.track->trackStateOnSurfaces()->rend(); ++rtsos) {
-    if ((*rtsos)->type(Trk::TrackStateOnSurface::Measurement) &&
-        (*rtsos)->trackParameters() != nullptr &&
-        (*rtsos)->measurementOnTrack() != nullptr &&
-        !(*rtsos)->measurementOnTrack()->type(
-          Trk::MeasurementBaseType::PseudoMeasurementOnTrack)) {
-      QoverPLast = (*rtsos)->trackParameters()->parameters()[Trk::qOverP];
-      break;
-    }
   }
 
-  static const SG::AuxElement::Accessor<float> QoverPLM("QoverPLM");
-  QoverPLM(*aParticle) = QoverPLast;
-
+  // Slim the Trk::Track, store to the new
+  // Trk::Track collection and make the Track
+  // Particle point to it
   if (m_doSlimTrkTracks) {
     m_slimTool->slimTrack(*(trk_info.track));
   }
@@ -320,16 +321,18 @@ void
 EMBremCollectionBuilder::updateGSFTrack(
   const EventContext& ctx,
   const TrackWithIndex& trk_info,
-  const xAOD::TrackParticleContainer* AllTracks) const
+  const xAOD::TrackParticleContainer* inputTrkPartContainer) const
 {
 
   // update the summary of the non-const track without hole search
   m_summaryTool->updateTrackSummary(ctx, *(trk_info.track));
-  // Get the summary so as to add info to it
-  Trk::TrackSummary* summary = trk_info.track->trackSummary();
 
+  // Get the summary so as to add info to it
+  // i.e we copy the hole/dead from the original
+  // before refit
+  Trk::TrackSummary* summary = trk_info.track->trackSummary();
   size_t origIndex = trk_info.origIndex;
-  const xAOD::TrackParticle* original = AllTracks->at(origIndex);
+  const xAOD::TrackParticle* original = inputTrkPartContainer->at(origIndex);
 
   uint8_t dummy(0);
   if (m_doPix) {
@@ -375,16 +378,19 @@ EMBremCollectionBuilder::updateGSFTrack(
                       nSCTOutliersOriginal - nSCTOutliersRefitted -
                       nSCTHitsRefitted);
   }
-  int nTRTHitsRefitted = summary->get(Trk::numberOfTRTHits);
-  int nTRTOutliersRefitted = summary->get(Trk::numberOfTRTOutliers);
-  int nTRTHitsOriginal =
-    original->summaryValue(dummy, xAOD::numberOfTRTHits) ? dummy : -1;
-  int nTRTHolesOriginal =
-    original->summaryValue(dummy, xAOD::numberOfTRTHoles) ? dummy : -1;
-  int nTRTOutliersOriginal =
-    original->summaryValue(dummy, xAOD::numberOfTRTOutliers) ? dummy : -1;
+  if (m_doTRT) {
+    int nTRTHitsRefitted = summary->get(Trk::numberOfTRTHits);
+    int nTRTOutliersRefitted = summary->get(Trk::numberOfTRTOutliers);
+    int nTRTHitsOriginal =
+      original->summaryValue(dummy, xAOD::numberOfTRTHits) ? dummy : -1;
+    int nTRTHolesOriginal =
+      original->summaryValue(dummy, xAOD::numberOfTRTHoles) ? dummy : -1;
+    int nTRTOutliersOriginal =
+      original->summaryValue(dummy, xAOD::numberOfTRTOutliers) ? dummy : -1;
 
-  summary->update(Trk::numberOfTRTHoles,
-                  nTRTHitsOriginal + nTRTHolesOriginal + nTRTOutliersOriginal -
-                    nTRTOutliersRefitted - nTRTHitsRefitted);
+    summary->update(Trk::numberOfTRTHoles,
+                    nTRTHitsOriginal + nTRTHolesOriginal +
+                      nTRTOutliersOriginal - nTRTOutliersRefitted -
+                      nTRTHitsRefitted);
+  }
 }
