@@ -1,13 +1,11 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.Include import include
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger("InDetTrigFastTracking")
-
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags # noqa: F401
 
 include("InDetTrigRecExample/InDetTrigRec_jobOptions.py")
 
@@ -23,7 +21,7 @@ def makeInDetTrigFastTracking( config = None, rois = 'EMViewRoIs', doFTF = True,
   #Add suffix to the algorithms
   signature =  '_{}'.format( config.input_name )
 
-  log.info( "Fast tracking using new configuration: {} {}".format( config.input_name, config.name ) )
+  log.info( "Fast tracking using new configuration: %s %s", config.input_name, config.name )
 
   #Global keys/names for Trigger collections
   from .InDetTrigCollectionKeys import  TrigPixelKeys, TrigSCTKeys
@@ -198,7 +196,6 @@ def makeInDetTrigFastTracking( config = None, rois = 'EMViewRoIs', doFTF = True,
   from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
   sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup("InDetSCT_ConditionsSummaryTool_" + signature)
   sct_ConditionsSummaryToolSetup.setup()
-  InDetSCT_ConditionsSummaryTool = sct_ConditionsSummaryToolSetup.getTool() # noqa: F841
   sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup("InDetSCT_ConditionsSummaryToolWithoutFlagged_" + signature)
   sct_ConditionsSummaryToolSetupWithoutFlagged.setup()
   InDetSCT_ConditionsSummaryToolWithoutFlagged = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()
