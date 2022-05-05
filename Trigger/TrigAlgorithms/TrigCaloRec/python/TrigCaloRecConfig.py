@@ -1,17 +1,11 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from TrigCaloRec.TrigCaloRecConf import (TrigCaloClusterMaker,
                                          TrigCaloTowerMaker,
                                          TrigCaloClusterCalibrator)
 
-#from CaloRec.CaloRecConf import (CaloCellContainerCorrectorTool,
-#                                 CaloCellContainerFinalizerTool,
-#                                 CaloCellContainerCheckerTool)
-
-# MT stuff
 from TrigCaloRec.TrigCaloRecConf import HLTCaloCellMaker as _HLTCaloCellMaker
 
-from AthenaCommon.Constants import ERROR
 from AthenaCommon.SystemOfUnits import GeV, MeV, deg
 
 from AthenaCommon.Logging import logging
@@ -27,8 +21,6 @@ def AddFolderCheck(folder, tag):
             found=True
     if ( not found ):
         conddb.addFolder("CALO","/CALO/HadCalibration/"+folder+tag)
-
-# MT classes
 
 class TrigCaloTowerMakerBase (TrigCaloTowerMaker):
     __slots__ = []
@@ -75,14 +67,10 @@ class TrigCaloTowerMaker_eGamma (TrigCaloTowerMakerBase):
         super(TrigCaloTowerMaker_eGamma, self).__init__(name)
 
         from LArRecUtils.LArRecUtilsConf import LArTowerBuilderTool
-        lartowerbuilder = LArTowerBuilderTool("LArTowerBuilder",  # noqa: ATL900 (OutputLevel)
+        lartowerbuilder = LArTowerBuilderTool("LArTowerBuilder",
                                               CellContainerName = "RoIEMCalo",
-                                              IncludedCalos     = [ "LAREM" ],
-                                              OutputLevel=ERROR
+                                              IncludedCalos     = [ "LAREM" ]
                                               )
-        #lartowerbuilder.CellContainerName = "RoIEMCalo" #useless
-        #lartowerbuilder.IncludedCalos     = [ "LAREM" ]
-        #lartowerbuilder.OutputLevel=ERROR
         self +=lartowerbuilder
         self.TowerMakerTools=[ lartowerbuilder.getFullName() ]
         self.NumberOfPhiTowers=256
@@ -102,25 +90,15 @@ class TrigCaloTowerMaker_jet (TrigCaloTowerMakerBase):
         # input to LArTowerBuilder:  cells in LArEM and LARHEC 
         from LArRecUtils.LArRecUtilsConf import LArTowerBuilderTool,LArFCalTowerBuilderTool
 
-        larcmbtwrbldr = LArTowerBuilderTool("LArCmbTwrBldr", # noqa: ATL900 (OutputLevel)
+        larcmbtwrbldr = LArTowerBuilderTool("LArCmbTwrBldr",
                                             CellContainerName = "RoIEMCalo",
-                                            IncludedCalos     = [ "LAREM", "LARHEC" ],
-                                            OutputLevel=ERROR
+                                            IncludedCalos     = [ "LAREM", "LARHEC" ]
                                             )
 
-        #larcmbtwrbldr.CellContainerName = "RoIEMCalo"
-        #larcmbtwrbldr.IncludedCalos     = [ "LAREM", "LARHEC" ]
-        #larcmbtwrbldr.OutputLevel=ERROR
-        
-        fcalcmbtwrbldr = LArFCalTowerBuilderTool("FCalCmbTwrBldr",  # noqa: ATL900 (OutputLevel)
+        fcalcmbtwrbldr = LArFCalTowerBuilderTool("FCalCmbTwrBldr",
                                                  CellContainerName = "RoIEMCalo",
                                                  MinimumEt         = 0.*MeV,
-                                                 OutputLevel=ERROR
                                                  )
-
-        #fcalcmbtwrbldr.CellContainerName = "RoIEMCalo"
-        #fcalcmbtwrbldr.MinimumEt         = 0.*MeV
-        #fcalcmbtwrbldr.OutputLevel=ERROR
 
         #input to  TileTowerBuilder:  cells in TILE
         from TileRecUtils.TileRecUtilsConf import TileTowerBuilderTool
@@ -129,11 +107,6 @@ class TrigCaloTowerMaker_jet (TrigCaloTowerMakerBase):
                                               DumpTowers        = False,
                                               DumpWeightMap     = False
                                               )
-        #tilecmbtwrbldr.CellContainerName = "RoIEMCalo"
-        #tilecmbtwrbldr.DumpTowers        = FALSE
-        #tilecmbtwrbldr.DumpWeightMap     = FALSE
-
-        
         self +=larcmbtwrbldr
         self +=fcalcmbtwrbldr
         self +=tilecmbtwrbldr
@@ -153,15 +126,10 @@ class TrigCaloTowerMaker_tau (TrigCaloTowerMakerBase):
 
         #input to  LArTowerMBuilder:  Cells in LArEM 
         from LArRecUtils.LArRecUtilsConf import LArTowerBuilderTool
-        lartowerbuilder = LArTowerBuilderTool("LArTowerBuilder",  # noqa: ATL900 (OutputLevel)
+        lartowerbuilder = LArTowerBuilderTool("LArTowerBuilder",
                                               CellContainerName = "RoIEMCalo",
                                               IncludedCalos     = [ "LAREM" ],
-                                              OutputLevel=ERROR     
                                               )
-
-        #lartowerbuilder.CellContainerName = "RoIEMCalo"
-        #lartowerbuilder.IncludedCalos     = [ "LAREM" ]
-        #lartowerbuilder.OutputLevel=ERROR
 
         self +=lartowerbuilder
         self.NumberOfPhiTowers=256
@@ -414,9 +382,6 @@ class TrigCaloClusterMaker_topo (TrigCaloClusterMakerBase):
 
 
         # cluster maker
-        #TrigCaloTopoCluster = CaloClusterMaker ("TrigCaloTopoCluster")
-        #TrigCaloTopoCluster.ClustersOutputName="CaloCalTopoCluster"
-        #TrigCaloTopoCluster.ClusterMakerTools = [
 
         if not doMoments:
           self.ClusterMakerTools = [ TrigTopoMaker.getFullName(), TrigTopoSplitter.getFullName()]
@@ -428,13 +393,10 @@ class TrigCaloClusterMaker_topo (TrigCaloClusterMakerBase):
         #self.ClusterCorrectionTools += [TrigBadChannelListCorr.getFullName()]
         
         self += TrigTopoMaker
-        self.TrigTopoMaker.OutputLevel=ERROR  # noqa: ATL900
         self += TrigTopoSplitter
-        self.TrigTopoSplitter.OutputLevel=ERROR  # noqa: ATL900
         #self += TrigBadChannelListCorr
         if doMoments:
           self += TrigTopoMoments
-          self.TrigTopoMoments.OutputLevel=ERROR  # noqa: ATL900
 
         self.ClusterCorrectionTools = [  ]
         #self.ClusterCorrectionTools = [ TrigLockVariables.getFullName() ]
@@ -892,16 +854,14 @@ class TrigCaloTowerMaker_hijet (TrigCaloTowerMakerBase):
         # input to LArTowerBuilder:  cells in LArEM and LARHEC 
         from LArRecUtils.LArRecUtilsConf import LArTowerBuilderTool,LArFCalTowerBuilderTool
 
-        larcmbtwrbldr = LArTowerBuilderTool("LArCmbTwrBldr", # noqa: ATL900 (OutputLevel)
+        larcmbtwrbldr = LArTowerBuilderTool("LArCmbTwrBldr",
                                             CellContainerName = "AllCalo",
-                                            IncludedCalos     = [ "LAREM", "LARHEC" ],
-                                            OutputLevel=ERROR
+                                            IncludedCalos     = [ "LAREM", "LARHEC" ]
                                             )
         
-        fcalcmbtwrbldr = LArFCalTowerBuilderTool("FCalCmbTwrBldr",  # noqa: ATL900 (OutputLevel)
+        fcalcmbtwrbldr = LArFCalTowerBuilderTool("FCalCmbTwrBldr",
                                                  CellContainerName = "AllCalo",
-                                                 MinimumEt         = 0.*MeV,
-                                                 OutputLevel=ERROR
+                                                 MinimumEt         = 0.*MeV
                                                  )
 
         #input to  TileTowerBuilder:  cells in TILE
