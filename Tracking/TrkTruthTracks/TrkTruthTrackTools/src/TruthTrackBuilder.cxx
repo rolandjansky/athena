@@ -27,33 +27,11 @@
 /** Constructor **/
 Trk::TruthTrackBuilder::TruthTrackBuilder(const std::string& t, const std::string& n, const IInterface* p) : 
   AthAlgTool(t,n,p),
-  m_trackFitter(""),
-  m_extrapolator(""),
-  m_rotcreator(""),
-  m_rotcreatorbroad(""),
   m_DetID(nullptr),
   m_particlePropSvc("PartPropSvc",n),
-  m_particleDataTable(nullptr),
-  m_minNdof(6),
-  m_onlyPrimaries(false),
-  m_primaryBarcodeCutOff(100000),
-  m_minSiHits(7),
-  m_minSiHitsForward(m_minSiHits),
-  m_forwardBoundary(2.5)
+  m_particleDataTable(nullptr)
 {
     declareInterface<Trk::ITruthTrackBuilder>(this);
-    // TrackFitter
-    declareProperty("TrackFitter",                       m_trackFitter);
-    declareProperty("ExtrapolationTool",                 m_extrapolator);
-    declareProperty("RotCreatorTool",                    m_rotcreator);
-    declareProperty("BroadRotCreatorTool",               m_rotcreatorbroad);
-    declareProperty("MinDegreesOfFreedom",               m_minNdof);
-    declareProperty("OnlyPrimaries",                     m_onlyPrimaries); 
-    declareProperty("PrimaryBarcodeCutOff",              m_primaryBarcodeCutOff);
-    declareProperty("MinSiHits",                         m_minSiHits);
-    declareProperty("MinSiHitsForward",                  m_minSiHitsForward);
-    declareProperty("ForwardBoundary",                   m_forwardBoundary);
-
 }
 
 
@@ -76,13 +54,13 @@ StatusCode  Trk::TruthTrackBuilder::initialize()
         ATH_MSG_ERROR("Could not retrieve " << m_trackFitter << ". Aborting ...");
         return StatusCode::FAILURE;
     }
-    
+
     // extrapolator
     if (m_extrapolator.retrieve().isFailure()){
         ATH_MSG_ERROR("Could not retrieve " << m_extrapolator << ". Aborting ...");
         return StatusCode::FAILURE;
     }
-        
+
     // particle property service
     if (m_particlePropSvc.retrieve().isFailure())
     {
@@ -289,3 +267,4 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
    }
    return refittedtrack2;
 }
+

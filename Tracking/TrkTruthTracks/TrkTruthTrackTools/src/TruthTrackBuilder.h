@@ -52,21 +52,21 @@ namespace Trk {
        Track* createTrack(const PRD_TruthTrajectory& prdTraj, SegmentCollection* segs = 0 ) const;
 
      private:
-        ToolHandle<ITrackFitter>                    m_trackFitter;               //!< fits the PRDs
-        ToolHandle<IExtrapolator>                   m_extrapolator;              //!< extrapolator
-        ToolHandle< IRIO_OnTrackCreator >           m_rotcreator;
-        ToolHandle< IRIO_OnTrackCreator >           m_rotcreatorbroad;
+        ToolHandle<ITrackFitter>                    m_trackFitter{this, "TrackFitter", ""};               //!< fits the PRDs
+        ToolHandle<IExtrapolator>                   m_extrapolator{this, "ExtrapolationTool", ""};              //!< extrapolator
+        ToolHandle< IRIO_OnTrackCreator >           m_rotcreator{this, "RotCreatorTool", ""};
+        ToolHandle< IRIO_OnTrackCreator >           m_rotcreatorbroad{this, "BroadRotCreatorTool", ""};
         
         const AtlasDetectorID                       *m_DetID;
         ServiceHandle<IPartPropSvc>                 m_particlePropSvc;           //!< Pointer to the particle properties svc */        
         const HepPDT::ParticleDataTable*            m_particleDataTable;         //!< ParticleDataTable needed to get connection pdg_code <-> charge */
         
-        size_t                                      m_minNdof;                   //!< checks min degrees of freedom if bigger -1
-        bool                                        m_onlyPrimaries;             //!< restrict track creation to primaries
-        int                                         m_primaryBarcodeCutOff;      //!< primary barcode cut off
-        unsigned int                                m_minSiHits;                 //!< min number of Si hits for refit
-        unsigned int                                m_minSiHitsForward;          //!< min number of Si hits for refit in forward region (ITk specific)
-        float                                       m_forwardBoundary;           //!< Boundary eta value defining the forward region
+        Gaudi::Property<size_t>                     m_minNdof{this, "MinDegreesOfFreedom", 6};                   //!< checks min degrees of freedom if bigger -1
+        Gaudi::Property<bool>                       m_onlyPrimaries{this, "OnlyPrimaries", false};             //!< restrict track creation to primaries
+        Gaudi::Property<int>                        m_primaryBarcodeCutOff{this, "PrimaryBarcodeCutOff", 100000};      //!< primary barcode cut off
+        Gaudi::Property<unsigned int>               m_minSiHits{this, "MinSiHits", 7};                 //!< min number of Si hits for refit
+        Gaudi::Property<unsigned int>               m_minSiHitsForward{this, "MinSiHitsForward", 7};          //!< min number of Si hits for refit in forward region (ITk specific)
+        Gaudi::Property<float>                      m_forwardBoundary{this, "ForwardBoundary", 2.5};           //!< Boundary eta value defining the forward region
         
         Gaudi::Property<int> m_matEffects {this, "MatEffects", 3,
                 "Type of material interaction in extrapolation (Default Pion)"}; 
@@ -75,3 +75,4 @@ namespace Trk {
 } // end of namespace
 
 #endif // TRK_TRUTHTRACKTOOLS_TRUTHTRACKBUILDER_H
+

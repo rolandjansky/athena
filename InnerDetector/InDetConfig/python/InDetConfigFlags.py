@@ -189,6 +189,11 @@ def createInDetConfigFlags():
     # Special configuration for low-mu runs
     icf.addFlag("InDet.Tracking.doLowMu", False)
     icf.addFlag("InDet.Tracking.writeExtendedPRDInfo", False)
+    # Special pass using truth information for pattern recognition, runs in parallel to/instead of the first pass
+    icf.addFlag("InDet.Tracking.doPseudoTracking", False)
+    # Special pass using truth information for pattern recognition, removes assumed in-efficencies applied to PseudoTracking
+    icf.addFlag("InDet.Tracking.doIdealPseudoTracking", False)
+
 
     from InDetConfig.TrackingPassFlags import (
         createTrackingPassFlags, createHighPileupTrackingPassFlags,
