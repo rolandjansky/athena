@@ -38,9 +38,6 @@
 
 #include "ISF_FastCaloSimEvent/FCS_StepInfoCollection.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
 #include "TTree.h"
 #include "TFile.h"
 #include "TString.h"
