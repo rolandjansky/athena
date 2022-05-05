@@ -128,7 +128,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::bootstrap_
   reader_rundir /= boost::filesystem::path(m_subprocDirPrefix);
 
   if(mkdir(reader_rundir.string().c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH)==-1) {
-    ATH_MSG_ERROR("Unable to make reader run directory: " << reader_rundir.string() << ". " << strerror(errno));
+    ATH_MSG_ERROR("Unable to make reader run directory: " << reader_rundir.string() << ". " << fmterror(errno));
     return outwork;
   }
 
@@ -193,7 +193,8 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::exec_func(
 
   yampl::ISocketFactory* socketFactory = new yampl::SocketFactory();
   // Create a socket to communicate with the Pilot
-  yampl::ISocket* socket2Pilot = socketFactory->createClientSocket(yampl::Channel(m_eventRangeChannel.value(),yampl::LOCAL),yampl::MOVE_DATA);
+  std::string socketName = "";  // to avoid thread-checker warnings
+  yampl::ISocket* socket2Pilot = socketFactory->createClientSocket(yampl::Channel(m_eventRangeChannel.value(),yampl::LOCAL),yampl::MOVE_DATA,yampl::defaultDeallocator,socketName);
   ATH_MSG_INFO("Created CLIENT socket for communicating Event Ranges with the Pilot");
   // Create a socket to communicate with EvtRangeProcessors
   std::string socket2ProcessorName = m_processorChannel.value() + std::string("_") + m_randStr;
@@ -240,7 +241,8 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::exec_func(
     memcpy(ready_message,strReady.data(),strReady.size());
     socket2Pilot->send(ready_message,strReady.size());
     void* eventRangeMessage;
-    ssize_t eventRangeSize = socket2Pilot->recv(eventRangeMessage);
+    std::string socketName = "";  // to avoid thread-checker warnings
+    ssize_t eventRangeSize = socket2Pilot->recv(eventRangeMessage, socketName);
     std::string eventRange((const char*)eventRangeMessage,eventRangeSize);
     size_t carRet = eventRange.find('\n');
     if(carRet!=std::string::npos)
@@ -477,7 +479,8 @@ std::string EvtRangeScatterer::getNewRangeRequest(yampl::ISocket* socket2Process
 					       , int& procReportPending)
 {
   void* processor_request(0);
-  ssize_t processorRequestSize = socket2Processor->tryRecv(processor_request);
+  std::string socketName = "";  // to avoid thread-checker warnings
+  ssize_t processorRequestSize = socket2Processor->tryRecv(processor_request, /*timeout*/0, socketName);
 
   if(processorRequestSize==-1) return std::string("");
   if(processorRequestSize==sizeof(pid_t)+sizeof(AthenaMPToolBase::ESRange_Status)) {
