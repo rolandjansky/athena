@@ -95,6 +95,12 @@ def RecoSteering(flags):
         acc.merge(MuonCombinedReconstructionCfg(flags))
         log.info("---------- Configured combined muon reconstruction")
 
+    # TrackParticleCellAssociation = add cells crossed by high pt ID tracks
+    if flags.Reco.EnableTrackCellAssociation:
+        from TrackParticleAssociationAlgs.TrackParticleAssociationAlgsConfig import TrackParticleCellAssociationAlgCfg
+        acc.merge(TrackParticleCellAssociationAlgCfg(flags))
+        log.info("---------- Configured track particle-cell association")
+
     # PFlow
     if flags.Reco.EnablePFlow:
         from eflowRec.PFRun3Config import PFCfg
