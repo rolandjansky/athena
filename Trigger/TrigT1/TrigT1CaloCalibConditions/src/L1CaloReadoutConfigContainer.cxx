@@ -140,7 +140,7 @@ DataObject* L1CaloReadoutConfigContainer::makePersistent() const
   return static_cast<DataObject*>(attrListCollection.release());
 }
 
-void L1CaloReadoutConfigContainer::makeTransient(const std::map<std::string, CondAttrListCollection*>& condAttrListCollectionMap)
+void L1CaloReadoutConfigContainer::makeTransient(const std::map<std::string, const CondAttrListCollection*>& condAttrListCollectionMap)
 {
   clear();
 

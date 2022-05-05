@@ -11,7 +11,7 @@ atlas_add_library( TrigT1CaloCondSvcLib
    TrigT1CaloCondSvc/*.h TrigT1CaloCondSvc/*.icc src/*.cxx 
    PUBLIC_HEADERS TrigT1CaloCondSvc
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities RegistrationServicesLib StoreGateLib TrigT1CaloCalibConditions xAODTrigL1Calo )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities CxxUtils RegistrationServicesLib StoreGateLib TrigT1CaloCalibConditions xAODTrigL1Calo )
 
 atlas_add_component( TrigT1CaloCondSvc
    src/components/*.cxx
