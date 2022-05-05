@@ -69,7 +69,8 @@ def StandaloneMuonOutputCfg(flags):
         aod_items += [ "xAOD::TrackMeasurementValidationAuxContainer#RPC_RDO_MeasurementsAux."] 
 
     # ESD list includes all AOD items
-    esd_items = aod_items
+    esd_items = []
+    esd_items += aod_items
 
     #PRDs
     if flags.Detector.EnableMM: esd_items+=["Muon::MMPrepDataContainer#MM_Measurements"]
