@@ -173,7 +173,7 @@ def RecoSteering(flags):
         log.info("---------- Configured ESD writing")
 
     if flags.Output.doWriteAOD:
-        log.info("ESD ItemList: %s", acc.getEventAlgo(
+        log.info("AOD ItemList: %s", acc.getEventAlgo(
             "OutputStreamAOD").ItemList)
         log.info("---------- Configured AOD writing")
 
