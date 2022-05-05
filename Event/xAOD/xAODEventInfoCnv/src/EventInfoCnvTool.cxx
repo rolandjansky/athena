@@ -102,7 +102,7 @@ namespace xAODMaker {
                                          xAOD::EventInfo* xaod,
                                          bool pileUpInfo,
                                          bool copyPileUpLinks,
-                                         const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
+                                         [[maybe_unused]] const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
    {
 
       if( ! aod ) {
@@ -125,6 +125,7 @@ namespace xAODMaker {
       }
 
       // Copy the event type properties:
+      std::vector< float > eventWeights;
       if( aod->event_type() ) {
          EventType::NameTagPairVec detDescrTags;
          aod->event_type()->get_detdescr_tags( detDescrTags );
@@ -144,13 +145,11 @@ namespace xAODMaker {
          if( xaod->eventType( xAOD::EventInfo::IS_SIMULATION ) ) {
             xaod->setMCChannelNumber( aod->event_type()->mc_channel_number() );
             xaod->setMCEventNumber( aod->event_type()->mc_event_number() );
-            std::vector< float >
-               eventWeights( aod->event_type()->n_mc_event_weights(), 0.0 );
+            eventWeights.resize( aod->event_type()->n_mc_event_weights(), 0.0 );
             for( unsigned int i = 0; i < aod->event_type()->n_mc_event_weights();
                  ++i ) {
                eventWeights[ i ] = aod->event_type()->mc_event_weight( i );
             }
-            xaod->setMCEventWeights( eventWeights );
          }
       }
 
@@ -302,9 +301,16 @@ namespace xAODMaker {
          xaod->setBeamTiltYZ( beamSpotHandle->beamTilt( 1 ) );
          xaod->setBeamStatus( beamSpotHandle->beamStatus() );
       }
-#else
-      (void)ctx; // silence "unused" compiler warnings
 #endif // not XAOD_ANALYSIS or GENERATIONBASE
+
+      if (!eventWeights.empty()) {
+        if (xaod->getStore()) {
+          // Ensure that this gets added as a decoration.
+          xaod->getStore()->lock();
+        }
+        static const xAOD::EventInfo::Decorator<std::vector<float> > ew ("mcEventWeights");
+        ew (*xaod) = std::move (eventWeights);
+      }
 
       // Finish with some printout:
       ATH_MSG_DEBUG( "Finished conversion EventInfo="<<aod<<" xAOD::EventInfo="<<xaod<<" content=" << *xaod );
