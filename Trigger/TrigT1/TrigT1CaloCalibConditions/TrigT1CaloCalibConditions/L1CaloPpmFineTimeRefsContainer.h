@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOCALIBCONDITIONS_L1CALOPPMFINETIMEREFSCONTAINER_H
@@ -69,6 +69,7 @@ private:
 
 };
 
-CLASS_DEF(L1CaloPpmFineTimeRefsContainer , 1107733553 , 1 ) //number taken from $ clid -m "L1CaloPpmFineTimeRefsContainer"
 
+#include "AthenaKernel/CondCont.h"
+CONDCONT_DEF(L1CaloPpmFineTimeRefsContainer ,1290241871);
 #endif

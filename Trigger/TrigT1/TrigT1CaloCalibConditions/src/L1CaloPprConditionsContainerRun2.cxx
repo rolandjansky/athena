@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibConditions/L1CaloPprConditionsContainerRun2.h"
@@ -11,7 +11,6 @@
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
 #include "TrigT1CaloCalibConditions/L1CaloCoolChannelId.h"
-#include "TrigT1CaloCalibConditions/L1CaloPprConditionsRun2.h"
 
 const unsigned int L1CaloPprConditionsContainerRun2::s_vectorSize;
 
@@ -177,17 +176,14 @@ DataObject* L1CaloPprConditionsContainerRun2::makePersistent() const {
   return 0;
 }
 
-void L1CaloPprConditionsContainerRun2::makeTransient(const std::map<
-    std::string, CondAttrListCollection*>& condAttrListCollectionMap) {
+void L1CaloPprConditionsContainerRun2::makeTransient(const std::map<std::string, CondAttrListCollection*>& condAttrListCollectionMap) {
   this->clear();
   // --------------------------------------------------------------------------
   // Folder names
-  std::string chanCalibFolderKey =
-      this->coolFolderKey(L1CaloPprConditionsContainerRun2::ePprChanCalib);
-  std::string chanCalibCommonFolderKey = this->coolFolderKey(
-      L1CaloPprConditionsContainerRun2::ePprChanCalibCommon);
-  std::string chanCalibStrategyFolderKey = this->coolFolderKey(
-      L1CaloPprConditionsContainerRun2::ePprChanCalibStrategy);
+  std::string chanCalibFolderKey;
+  std::string chanCalibCommonFolderKey;
+  std::string chanCalibStrategyFolderKey;
+  std::string chanDefaultsFolderKey; 
 
   // cppcheck-suppress duplicateAssignExpression
   auto it_pprChanCalibAttrListCollection = condAttrListCollectionMap.end();
@@ -195,26 +191,47 @@ void L1CaloPprConditionsContainerRun2::makeTransient(const std::map<
   auto it_pprChanCalibStrategyAttrListCollection = condAttrListCollectionMap.end();
 
   // --------------------------------------------------------------------------
-  bool isUseStrategy = false;
+  
+  if (condAttrListCollectionMap.empty()) return;
+ 
+  // Reading cool paths
+  for (const auto& [name, coll] : condAttrListCollectionMap) {
+    if (name.find("PprChanDefaults")!=std::string::npos){
+      chanDefaultsFolderKey=name;}
+    if(name.find("PprChanCalib")!=std::string::npos){
+      chanCalibFolderKey=name;
+    }
+    if(name.find("PprChanCommon")!=std::string::npos){
+      chanCalibCommonFolderKey=name;
+    }
+    if(name.find("Mu")!=std::string::npos){
+      chanCalibStrategyFolderKey=name;
+    }
+  }
+    
+
   // Check that folders exist
+  bool isUseStrategy = false;
   if (!chanCalibFolderKey.empty()) {
     it_pprChanCalibAttrListCollection =
-        condAttrListCollectionMap.find(chanCalibFolderKey);
-  } else {
-    isUseStrategy = true;
-    it_pprChanCalibAttrListCollection =
-        condAttrListCollectionMap.find(chanCalibCommonFolderKey);
-    
-    it_pprChanCalibStrategyAttrListCollection =
-        condAttrListCollectionMap.find(chanCalibStrategyFolderKey);
+      condAttrListCollectionMap.find(chanCalibFolderKey);
   }
+  else {
+    isUseStrategy = true;
+    it_pprChanCalibAttrListCollection =    condAttrListCollectionMap.find(chanCalibCommonFolderKey);
+    it_pprChanCalibStrategyAttrListCollection = condAttrListCollectionMap.find(chanCalibStrategyFolderKey);
+  }
+    
+
+
+  
   // --------------------------------------------------------------------------
   if (isUseStrategy) {
     // Check that strategy folder exists
     if (it_pprChanCalibStrategyAttrListCollection ==
         condAttrListCollectionMap.end()) {
       std::cout << "L1CaloPprConditionsContainerRun2 : Could not find "
-                   "requested CondAttrListCollection "
+                   "requested CondAttrListCollection"
                 << chanCalibStrategyFolderKey << std::endl;
       return;
     }
@@ -226,10 +243,10 @@ void L1CaloPprConditionsContainerRun2::makeTransient(const std::map<
                 << chanCalibCommonFolderKey << std::endl;
       return;
     }
-  } else {
+  } else{
     if (it_pprChanCalibAttrListCollection == condAttrListCollectionMap.end()) {
       std::cout << "L1CaloPprConditionsContainerRun2 : Could not find "
-                   "requested CondAttrListCollection "
+                   "requested CondAttrListCollection"
                 << chanCalibCommonFolderKey << std::endl;
       return;
     }
@@ -238,13 +255,12 @@ void L1CaloPprConditionsContainerRun2::makeTransient(const std::map<
   CondAttrListCollection* chanCalibAttrListCollection =
       it_pprChanCalibAttrListCollection->second;
 
-  std::string chanDefaultsFolderKey(
-      this->coolFolderKey(L1CaloPprConditionsContainerRun2::ePprChanDefaults));
+
   auto it_pprChanDefaultsAttrListCollection =
       condAttrListCollectionMap.find(chanDefaultsFolderKey);
   if (it_pprChanDefaultsAttrListCollection == condAttrListCollectionMap.end()) {
     std::cout << "L1CaloPprConditionsContainerRun2 : Could not find requested "
-                 "CondAttrListCollection " << chanDefaultsFolderKey
+                 "CondAttrListCollection" << chanDefaultsFolderKey
               << std::endl;
     return;
   }

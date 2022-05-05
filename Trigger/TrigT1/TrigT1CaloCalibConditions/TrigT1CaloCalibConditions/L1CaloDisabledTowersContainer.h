@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOCALIBCONDITIONS_L1CALODISABLEDTOWERSCONTAINER_H
@@ -55,9 +55,10 @@ public:
 
 private:
   std::vector<L1CaloDisabledTowers> m_disabledTowerss;
-  std::string m_coolFolderKey = "/TRIGGER/L1Calo/V2/Conditions/DisabledTowers";
+  std::string m_coolFolderKey = "/TRIGGER/L1Calo/V1/Conditions/DisabledTowers";
 };
 
-CLASS_DEF( L1CaloDisabledTowersContainer, 1100693700, 1 )
+#include "AthenaKernel/CondCont.h"
+CONDCONT_DEF( L1CaloDisabledTowersContainer,  1338619614);
 
 #endif // TRIGT1CALOCALIBCONDITIONS_L1CALODISABLEDTOWERSCONTAINER_H

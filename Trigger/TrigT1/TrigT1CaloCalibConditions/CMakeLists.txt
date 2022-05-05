@@ -11,7 +11,7 @@ atlas_add_library( TrigT1CaloCalibConditions
                    src/*.cxx
                    PUBLIC_HEADERS TrigT1CaloCalibConditions
                    INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${CORAL_LIBRARIES} AthContainers AthenaKernel AthenaPoolUtilities GaudiKernel )
+                   LINK_LIBRARIES ${CORAL_INCLUDE_DIRS} AthContainers AthenaKernel AthenaPoolUtilities GaudiKernel )
 
 atlas_add_dictionary( TrigT1CaloCalibConditionsDict
                       TrigT1CaloCalibConditions/TrigT1CaloCalibConditionsDict.h

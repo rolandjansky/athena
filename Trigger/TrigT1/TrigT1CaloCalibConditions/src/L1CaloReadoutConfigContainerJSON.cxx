@@ -1,7 +1,7 @@
 /*
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-#include "TrigT1CaloCalibConditions/L1CaloReadoutConfigContainer.h"
+#include "TrigT1CaloCalibConditions/L1CaloReadoutConfigContainerJSON.h"
 
 #include <algorithm>
 #include <memory>
@@ -10,11 +10,15 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
+#include "TrigT1CaloCalibConditions/L1CaloReadoutConfigJSON.h"
+#include "nlohmann/json.hpp"
+#include "CoralBase/Blob.h"
 
-L1CaloReadoutConfigContainer::L1CaloReadoutConfigContainer()
+
+
+L1CaloReadoutConfigContainerJSON::L1CaloReadoutConfigContainerJSON()
   : AbstractL1CaloPersistentCondition("CondAttrListCollection") 
 {
-  this->addSpecification(edescription, "description", "string");
   this->addSpecification(ebaselinePointer, "baselinePointer", "unsigned int");
   this->addSpecification(enumFadcSlices, "numFadcSlices", "unsigned int");
   this->addSpecification(el1aFadcSlice, "l1aFadcSlice", "unsigned int");
@@ -24,6 +28,8 @@ L1CaloReadoutConfigContainer::L1CaloReadoutConfigContainer()
   this->addSpecification(el1aProcSlice, "l1aProcSlice", "unsigned int");
   this->addSpecification(enumTopoSlices, "numTopoSlices", "unsigned int");
   this->addSpecification(el1aTopoSlice, "l1aTopoSlice", "unsigned int");
+  this->addSpecification(enumFexSlices, "numFexSlices", "unsigned int");
+  this->addSpecification(el1aFexSlice, "l1aFexSlice", "unsigned int");
   this->addSpecification(elatencyPpmFadc, "latencyPpmFadc", "unsigned int");
   this->addSpecification(elatencyPpmLut, "latencyPpmLut", "unsigned int");
   this->addSpecification(elatencyCpmInput, "latencyCpmInput", "unsigned int");
@@ -63,29 +69,26 @@ L1CaloReadoutConfigContainer::L1CaloReadoutConfigContainer()
   this->addSpecification(ecompressionThresholdTopo, "compressionThresholdTopo", "unsigned int");
   this->addSpecification(ecompressionBaselinePpm, "compressionBaselinePpm", "unsigned int");
   this->addSpecification(ereadout80ModePpm, "readout80ModePpm", "unsigned int");
+  this->addSpecification(einputReadoutModeFex, "inputReadoutModeFex", "string");
+  this->addSpecification(ereadoutOffsetEfex, "readoutOffsetEfex", "unsigned int");
+  this->addSpecification(ereadoutOffsetGfex, "readoutOffsetGfex", "unsigned int");
+  this->addSpecification(ereadoutOffsetJfex, "readoutOffsetJfex", "unsigned int");
+  this->addSpecification(ereadoutOffsetPh1Topo, "readoutOffsetPh1Topo", "unsigned int");
+
+
 }
 
-L1CaloReadoutConfigContainer::L1CaloReadoutConfigContainer(const std::string& folderKey)
-  : L1CaloReadoutConfigContainer() // delegating constructor
+
+
+DataObject* L1CaloReadoutConfigContainerJSON::makePersistent() const
 {
-  // cppcheck-suppress useInitializationList
-  m_coolFolderKey = folderKey;
-}
-
-
-DataObject* L1CaloReadoutConfigContainer::makePersistent() const
-{
-  using std::make_unique;
-
-  if(m_coolFolderKey.empty()) return nullptr;
 
   auto* attrSpecification = this->createAttributeListSpecification();
   if(!attrSpecification || !attrSpecification->size()) return nullptr;
 
-  auto attrListCollection = make_unique<CondAttrListCollection>(true);
-  for(const auto& item : m_readoutConfigs) {
+  auto attrListCollection = std::make_unique<CondAttrListCollection>(true);
+  for(const auto& item : m_readoutConfigsJSON) {
     AthenaAttributeList attrList(*attrSpecification);
-    attrList[specificationName(edescription)].setValue(item.description());
     attrList[specificationName(ebaselinePointer)].setValue(item.baselinePointer());
     attrList[specificationName(enumFadcSlices)].setValue(item.numFadcSlices());
     attrList[specificationName(el1aFadcSlice)].setValue(item.l1aFadcSlice());
@@ -95,6 +98,8 @@ DataObject* L1CaloReadoutConfigContainer::makePersistent() const
     attrList[specificationName(el1aProcSlice)].setValue(item.l1aProcSlice());
     attrList[specificationName(enumTopoSlices)].setValue(item.numTopoSlices());
     attrList[specificationName(el1aTopoSlice)].setValue(item.l1aTopoSlice());
+    attrList[specificationName(enumFexSlices)].setValue(item.numFexSlices());
+    attrList[specificationName(el1aFexSlice)].setValue(item.l1aFexSlice());
     attrList[specificationName(elatencyPpmFadc)].setValue(item.latencyPpmFadc());
     attrList[specificationName(elatencyPpmLut)].setValue(item.latencyPpmLut());
     attrList[specificationName(elatencyCpmInput)].setValue(item.latencyCpmInput());
@@ -134,98 +139,121 @@ DataObject* L1CaloReadoutConfigContainer::makePersistent() const
     attrList[specificationName(ecompressionThresholdTopo)].setValue(item.compressionThresholdTopo());
     attrList[specificationName(ecompressionBaselinePpm)].setValue(item.compressionBaselinePpm());
     attrList[specificationName(ereadout80ModePpm)].setValue(item.readout80ModePpm());
-    
+    attrList[specificationName(einputReadoutModeFex)].setValue(item.inputReadoutModeFex());
+    attrList[specificationName(ereadoutOffsetEfex)].setValue(item.readoutOffsetEfex());
+    attrList[specificationName(ereadoutOffsetGfex)].setValue(item.readoutOffsetGfex());
+    attrList[specificationName(ereadoutOffsetJfex)].setValue(item.readoutOffsetJfex());
+    attrList[specificationName(ereadoutOffsetPh1Topo)].setValue(item.readoutOffsetPh1Topo());
+
     attrListCollection->add(item.channelId(), attrList);
   }
   return static_cast<DataObject*>(attrListCollection.release());
 }
 
-void L1CaloReadoutConfigContainer::makeTransient(const std::map<std::string, CondAttrListCollection*>& condAttrListCollectionMap)
+void L1CaloReadoutConfigContainerJSON::makeTransient(const std::map<std::string, CondAttrListCollection*>& condAttrListCollectionMap)
 {
   clear();
 
-  auto it = condAttrListCollectionMap.find(m_coolFolderKey);
-  if(it == std::end(condAttrListCollectionMap)) return;
+  
+  if (condAttrListCollectionMap.empty()) return;  
+  auto it = condAttrListCollectionMap.rbegin(); 
+  
+    
 
   auto attrListCollection = it->second;
-  for(const auto& item : *attrListCollection) {
-    auto chanNum = item.first;
-    const auto& attrList = item.second;
+  for(const auto& [chanNum, attrListAux] : *attrListCollection) {
     
-    auto description = attrList[specificationName(edescription)].data<std::string>();
-    auto baselinePointer = attrList[specificationName(ebaselinePointer)].data<unsigned int>();
-    auto numFadcSlices = attrList[specificationName(enumFadcSlices)].data<unsigned int>();
-    auto l1aFadcSlice = attrList[specificationName(el1aFadcSlice)].data<unsigned int>();
-    auto numLutSlices = attrList[specificationName(enumLutSlices)].data<unsigned int>();
-    auto l1aLutSlice = attrList[specificationName(el1aLutSlice)].data<unsigned int>();
-    auto numProcSlices = attrList[specificationName(enumProcSlices)].data<unsigned int>();
-    auto l1aProcSlice = attrList[specificationName(el1aProcSlice)].data<unsigned int>();
-    auto numTopoSlices = attrList[specificationName(enumTopoSlices)].data<unsigned int>();
-    auto l1aTopoSlice = attrList[specificationName(el1aTopoSlice)].data<unsigned int>();
-    auto latencyPpmFadc = attrList[specificationName(elatencyPpmFadc)].data<unsigned int>();
-    auto latencyPpmLut = attrList[specificationName(elatencyPpmLut)].data<unsigned int>();
-    auto latencyCpmInput = attrList[specificationName(elatencyCpmInput)].data<unsigned int>();
-    auto latencyCpmHits = attrList[specificationName(elatencyCpmHits)].data<unsigned int>();
-    auto latencyCpmRoi = attrList[specificationName(elatencyCpmRoi)].data<unsigned int>();
-    auto latencyJemInput = attrList[specificationName(elatencyJemInput)].data<unsigned int>();
-    auto latencyJemRoi = attrList[specificationName(elatencyJemRoi)].data<unsigned int>();
-    auto latencyCpCmxBackplane = attrList[specificationName(elatencyCpCmxBackplane)].data<unsigned int>();
-    auto latencyCpCmxLocal = attrList[specificationName(elatencyCpCmxLocal)].data<unsigned int>();
-    auto latencyCpCmxCable = attrList[specificationName(elatencyCpCmxCable)].data<unsigned int>();
-    auto latencyCpCmxSystem = attrList[specificationName(elatencyCpCmxSystem)].data<unsigned int>();
-    auto latencyCpCmxInfo = attrList[specificationName(elatencyCpCmxInfo)].data<unsigned int>();
-    auto latencyJetCmxBackplane = attrList[specificationName(elatencyJetCmxBackplane)].data<unsigned int>();
-    auto latencyJetCmxLocal = attrList[specificationName(elatencyJetCmxLocal)].data<unsigned int>();
-    auto latencyJetCmxCable = attrList[specificationName(elatencyJetCmxCable)].data<unsigned int>();
-    auto latencyJetCmxSystem = attrList[specificationName(elatencyJetCmxSystem)].data<unsigned int>();
-    auto latencyJetCmxInfo = attrList[specificationName(elatencyJetCmxInfo)].data<unsigned int>();
-    auto latencyJetCmxRoi = attrList[specificationName(elatencyJetCmxRoi)].data<unsigned int>();
-    auto latencyEnergyCmxBackplane = attrList[specificationName(elatencyEnergyCmxBackplane)].data<unsigned int>();
-    auto latencyEnergyCmxLocal = attrList[specificationName(elatencyEnergyCmxLocal)].data<unsigned int>();
-    auto latencyEnergyCmxCable = attrList[specificationName(elatencyEnergyCmxCable)].data<unsigned int>();
-    auto latencyEnergyCmxSystem = attrList[specificationName(elatencyEnergyCmxSystem)].data<unsigned int>();
-    auto latencyEnergyCmxInfo = attrList[specificationName(elatencyEnergyCmxInfo)].data<unsigned int>();
-    auto latencyEnergyCmxRoi = attrList[specificationName(elatencyEnergyCmxRoi)].data<unsigned int>();
-    auto latencyTopo = attrList[specificationName(elatencyTopo)].data<unsigned int>();
-    auto internalLatencyJemJet = attrList[specificationName(einternalLatencyJemJet)].data<unsigned int>();
-    auto internalLatencyJemSum = attrList[specificationName(einternalLatencyJemSum)].data<unsigned int>();
-    auto bcOffsetJemJet = attrList[specificationName(ebcOffsetJemJet)].data<unsigned int>();
-    auto bcOffsetJemSum = attrList[specificationName(ebcOffsetJemSum)].data<unsigned int>();
-    auto bcOffsetCmx = attrList[specificationName(ebcOffsetCmx)].data<int>();
-    auto bcOffsetTopo = attrList[specificationName(ebcOffsetTopo)].data<int>();
-    auto formatTypePpm = attrList[specificationName(eformatTypePpm)].data<std::string>();
-    auto formatTypeCpJep = attrList[specificationName(eformatTypeCpJep)].data<std::string>();
-    auto formatTypeTopo = attrList[specificationName(eformatTypeTopo)].data<std::string>();
-    auto compressionThresholdPpm = attrList[specificationName(ecompressionThresholdPpm)].data<unsigned int>();
-    auto compressionThresholdCpJep = attrList[specificationName(ecompressionThresholdCpJep)].data<unsigned int>();
-    auto compressionThresholdTopo = attrList[specificationName(ecompressionThresholdTopo)].data<unsigned int>();
-    auto compressionBaselinePpm = attrList[specificationName(ecompressionBaselinePpm)].data<unsigned int>();
-    auto readout80ModePpm = attrList[specificationName(ereadout80ModePpm)].data<unsigned int>();
+    const coral::Blob& blob=attrListAux["json"].data<coral::Blob>();
+    std::string s((char*)blob.startingAddress(),blob.size());       
+    nlohmann::json attrList = nlohmann::json::parse(s);
 
-    addReadoutConfig(L1CaloReadoutConfig(chanNum, description, baselinePointer, numFadcSlices, l1aFadcSlice, numLutSlices, l1aLutSlice, numProcSlices, l1aProcSlice, numTopoSlices, l1aTopoSlice, latencyPpmFadc, latencyPpmLut, latencyCpmInput, latencyCpmHits, latencyCpmRoi, latencyJemInput, latencyJemRoi, latencyCpCmxBackplane, latencyCpCmxLocal, latencyCpCmxCable, latencyCpCmxSystem, latencyCpCmxInfo, latencyJetCmxBackplane, latencyJetCmxLocal, latencyJetCmxCable, latencyJetCmxSystem, latencyJetCmxInfo, latencyJetCmxRoi, latencyEnergyCmxBackplane, latencyEnergyCmxLocal, latencyEnergyCmxCable, latencyEnergyCmxSystem, latencyEnergyCmxInfo, latencyEnergyCmxRoi, latencyTopo, internalLatencyJemJet, internalLatencyJemSum, bcOffsetJemJet, bcOffsetJemSum, bcOffsetCmx, bcOffsetTopo, formatTypePpm, formatTypeCpJep, formatTypeTopo, compressionThresholdPpm, compressionThresholdCpJep, compressionThresholdTopo, compressionBaselinePpm, readout80ModePpm));
-  }
-}
 
-const L1CaloReadoutConfig* L1CaloReadoutConfigContainer::readoutConfig(unsigned int channelId) const
+    try {
+
+      auto baselinePointer = attrList[specificationName(ebaselinePointer)];
+      auto numFadcSlices = attrList[specificationName(enumFadcSlices)];
+      auto l1aFadcSlice = attrList[specificationName(el1aFadcSlice)];
+      auto numLutSlices = attrList[specificationName(enumLutSlices)];
+      auto l1aLutSlice = attrList[specificationName(el1aLutSlice)];
+      auto numProcSlices = attrList[specificationName(enumProcSlices)];
+      auto l1aProcSlice = attrList[specificationName(el1aProcSlice)];
+      auto numTopoSlices = attrList[specificationName(enumTopoSlices)];
+      auto l1aTopoSlice = attrList[specificationName(el1aTopoSlice)];
+      auto numFexSlices =  attrList[specificationName(enumFexSlices)];
+      auto l1aFexSlice = attrList[specificationName(el1aFexSlice)];
+      auto latencyPpmFadc = attrList[specificationName(elatencyPpmFadc)];
+      auto latencyPpmLut = attrList[specificationName(elatencyPpmLut)];
+      auto latencyCpmInput = attrList[specificationName(elatencyCpmInput)];
+      auto latencyCpmHits = attrList[specificationName(elatencyCpmHits)];
+      auto latencyCpmRoi = attrList[specificationName(elatencyCpmRoi)];
+      auto latencyJemInput = attrList[specificationName(elatencyJemInput)];
+      auto latencyJemRoi = attrList[specificationName(elatencyJemRoi)];
+      auto latencyCpCmxBackplane = attrList[specificationName(elatencyCpCmxBackplane)];
+      auto latencyCpCmxLocal = attrList[specificationName(elatencyCpCmxLocal)];
+      auto latencyCpCmxCable = attrList[specificationName(elatencyCpCmxCable)];
+      auto latencyCpCmxSystem = attrList[specificationName(elatencyCpCmxSystem)];
+      auto latencyCpCmxInfo = attrList[specificationName(elatencyCpCmxInfo)];
+      auto latencyJetCmxBackplane = attrList[specificationName(elatencyJetCmxBackplane)];
+      auto latencyJetCmxLocal = attrList[specificationName(elatencyJetCmxLocal)];
+      auto latencyJetCmxCable = attrList[specificationName(elatencyJetCmxCable)];
+      auto latencyJetCmxSystem = attrList[specificationName(elatencyJetCmxSystem)];
+      auto latencyJetCmxInfo = attrList[specificationName(elatencyJetCmxInfo)];
+      auto latencyJetCmxRoi = attrList[specificationName(elatencyJetCmxRoi)];
+      auto latencyEnergyCmxBackplane = attrList[specificationName(elatencyEnergyCmxBackplane)];
+      auto latencyEnergyCmxLocal = attrList[specificationName(elatencyEnergyCmxLocal)];
+      auto latencyEnergyCmxCable = attrList[specificationName(elatencyEnergyCmxCable)];
+      auto latencyEnergyCmxSystem = attrList[specificationName(elatencyEnergyCmxSystem)];
+      auto latencyEnergyCmxInfo = attrList[specificationName(elatencyEnergyCmxInfo)];
+      auto latencyEnergyCmxRoi = attrList[specificationName(elatencyEnergyCmxRoi)];
+      auto latencyTopo = attrList[specificationName(elatencyTopo)];
+      auto internalLatencyJemJet = attrList[specificationName(einternalLatencyJemJet)];
+      auto internalLatencyJemSum = attrList[specificationName(einternalLatencyJemSum)];
+      auto bcOffsetJemJet = attrList[specificationName(ebcOffsetJemJet)];
+      auto bcOffsetJemSum = attrList[specificationName(ebcOffsetJemSum)];
+      auto bcOffsetCmx = attrList[specificationName(ebcOffsetCmx)];
+      auto bcOffsetTopo = attrList[specificationName(ebcOffsetTopo)];
+      auto formatTypePpm = attrList[specificationName(eformatTypePpm)];
+      auto formatTypeCpJep = attrList[specificationName(eformatTypeCpJep)];
+      auto formatTypeTopo = attrList[specificationName(eformatTypeTopo)];
+      auto compressionThresholdPpm = attrList[specificationName(ecompressionThresholdPpm)];
+      auto compressionThresholdCpJep = attrList[specificationName(ecompressionThresholdCpJep)];
+      auto compressionThresholdTopo = attrList[specificationName(ecompressionThresholdTopo)];
+      auto compressionBaselinePpm = attrList[specificationName(ecompressionBaselinePpm)];
+      auto readout80ModePpm = attrList[specificationName(ereadout80ModePpm)];
+      auto inputReadoutModeFex  = attrList[specificationName(einputReadoutModeFex)];
+      auto readoutOffsetEfex = attrList[specificationName(ereadoutOffsetEfex)];
+      auto readoutOffsetGfex = attrList[specificationName(ereadoutOffsetGfex)];
+      auto readoutOffsetJfex = attrList[specificationName(ereadoutOffsetJfex)];
+      auto readoutOffsetPh1Topo  = attrList[specificationName(ereadoutOffsetPh1Topo)];
+
+
+      addReadoutConfigJSON(L1CaloReadoutConfigJSON(chanNum, baselinePointer, numFadcSlices, l1aFadcSlice, numLutSlices, l1aLutSlice, numProcSlices, l1aProcSlice, numTopoSlices, l1aTopoSlice, numFexSlices, l1aFexSlice, latencyPpmFadc, latencyPpmLut, latencyCpmInput, latencyCpmHits, latencyCpmRoi, latencyJemInput, latencyJemRoi, latencyCpCmxBackplane, latencyCpCmxLocal, latencyCpCmxCable, latencyCpCmxSystem, latencyCpCmxInfo, latencyJetCmxBackplane, latencyJetCmxLocal, latencyJetCmxCable, latencyJetCmxSystem, latencyJetCmxInfo, latencyJetCmxRoi, latencyEnergyCmxBackplane, latencyEnergyCmxLocal, latencyEnergyCmxCable, latencyEnergyCmxSystem, latencyEnergyCmxInfo, latencyEnergyCmxRoi, latencyTopo, internalLatencyJemJet, internalLatencyJemSum, bcOffsetJemJet, bcOffsetJemSum, bcOffsetCmx, bcOffsetTopo, formatTypePpm, formatTypeCpJep, formatTypeTopo, compressionThresholdPpm, compressionThresholdCpJep, compressionThresholdTopo, compressionBaselinePpm, readout80ModePpm, inputReadoutModeFex,  readoutOffsetEfex, readoutOffsetGfex, readoutOffsetJfex, readoutOffsetPh1Topo));
+    } 
+    catch(const std::exception& e) {     std::cout << "ERROR - Caught exception during creation of AthenaAttributeList object from ReadoutConfigJSON " << e.what() <<std::endl; }
+
+   
+  }}
+
+const L1CaloReadoutConfigJSON* L1CaloReadoutConfigContainerJSON::readoutConfigJSON(unsigned int channelId) const
 {
-  auto it = std::lower_bound(std::begin(m_readoutConfigs),
-                            std::end(m_readoutConfigs),
+  auto it = std::lower_bound(std::begin(m_readoutConfigsJSON),
+                            std::end(m_readoutConfigsJSON),
                             channelId,
-                            [](const L1CaloReadoutConfig& el, unsigned int val) -> bool {
+                            [](const L1CaloReadoutConfigJSON& el, unsigned int val) -> bool {
                               return el.channelId() < val;
                             });
-  if(it == std::end(m_readoutConfigs)) return nullptr;
+  if(it == std::end(m_readoutConfigsJSON)) return nullptr;
   return &(*it);
 }
 
-void L1CaloReadoutConfigContainer::addReadoutConfig(const L1CaloReadoutConfig& readoutConfig)
+void L1CaloReadoutConfigContainerJSON::addReadoutConfigJSON(const L1CaloReadoutConfigJSON& readoutConfigJSON)
 {
   // insert into the correct position mainting the sorted vector
-  m_readoutConfigs.insert(std::lower_bound(std::begin(m_readoutConfigs),
-                                           std::end(m_readoutConfigs),
-                                           readoutConfig.channelId(),
-                                           [](const L1CaloReadoutConfig& el, unsigned int va) -> bool {
+  m_readoutConfigsJSON.insert(std::lower_bound(std::begin(m_readoutConfigsJSON),
+                                           std::end(m_readoutConfigsJSON),
+                                           readoutConfigJSON.channelId(),
+                                           [](const L1CaloReadoutConfigJSON& el, unsigned int va) -> bool {
                                              return el.channelId() < va;
                                            }),
-                          readoutConfig);
+                          readoutConfigJSON);
 }

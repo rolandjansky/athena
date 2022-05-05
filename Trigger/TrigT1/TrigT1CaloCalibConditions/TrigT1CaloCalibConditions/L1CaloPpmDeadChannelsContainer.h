@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOCALIBCONDITIONS_L1CALOPPMDEADCHANNELSCONTAINER_H
@@ -55,9 +55,10 @@ public:
 
 private:
   std::vector<L1CaloPpmDeadChannels> m_ppmDeadChannelss;
-  std::string m_coolFolderKey = "/TRIGGER/L1Calo/V2/Calibration/PpmDeadChannels";
+  std::string m_coolFolderKey = "/TRIGGER/L1Calo/V1/Calibration/PpmDeadChannels";
 };
 
-CLASS_DEF( L1CaloPpmDeadChannelsContainer, 1134360424, 1 )
+#include "AthenaKernel/CondCont.h"
+CONDCONT_DEF( L1CaloPpmDeadChannelsContainer, 1082931680);
 
 #endif // TRIGT1CALOCALIBCONDITIONS_L1CALOPPMDEADCHANNELSCONTAINER_H

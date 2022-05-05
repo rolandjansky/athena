@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include "TrigT1CaloCalibConditions/L1CaloPprChanStrategyContainer.h"
 
@@ -10,7 +10,7 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
-#include "TrigT1CaloCalibConditions/L1CaloPprChanStrategy.h"
+//#include "TrigT1CaloCalibConditions/L1CaloPprChanStrategy.h"
 
 L1CaloPprChanStrategyContainer::L1CaloPprChanStrategyContainer()
   : AbstractL1CaloPersistentCondition("CondAttrListCollection") 
