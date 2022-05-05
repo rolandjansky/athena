@@ -81,6 +81,7 @@ class TrigInDetReco(ExecStep):
                 chains += "'HLT_mu24_LRT_idperf_L1MU14FCH',"
                 chains += "'HLT_mu6_LRT_idperf_L1MU5VF',"
                 chains += "'HLT_mu6_idperf_L1MU5VF',"
+                chains += "'HLT_mu24_idperf_L1MU14FCH',"
                 flags += 'doMuonSlice=True;'
             if (i=='FSLRT') :
                 chains += "'HLT_unconvtrk0_fslrt_L1J100',"
