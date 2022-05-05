@@ -184,6 +184,24 @@ def MuonCombinedFitTagTool(name="MuonCombinedFitTagTool",**kwargs):
     kwargs.setdefault("MatchQuality",         getPublicTool("MuonMatchQuality") )
     return CfgMgr.MuonCombined__MuonCombinedFitTagTool(name,**kwargs)
 
+def MuonCombinedFitTagTool_EMEO(name="MuonCombinedFitTagTool_EMEO",**kwargs):
+    return MuonCombinedFitTagTool(name = name,
+                                  TrackBuilder= getPublicTool("CombinedMuonTrackBuilder_EMEO"),
+                                  **kwargs)
+
+def MuonCombinedTool_EMEO(name="MuonCombinedTool_EMEO",**kwargs):
+    tools = []
+    if muonCombinedRecFlags.doCombinedFit():
+        tools.append(getPublicTool("MuonCombinedFitTagTool_EMEO"))
+    if muonCombinedRecFlags.doStatisticalCombination():
+        tools.append(getPublicTool("MuonCombinedStacoTagTool"))
+    kwargs.setdefault("MuonCombinedTagTools", tools )
+    ### Retune the angular selection for the muons
+    kwargs.setdefault("AlignmentUncertTool", getPublicTool("MuonAlignmentUncertToolTheta"))
+    kwargs.setdefault("DeltaEtaPreSelection", 0.2)
+    kwargs.setdefault("DeltaPhiPreSelection", 0.2)    
+    return CfgMgr.MuonCombined__MuonCombinedTool(name,**kwargs)
+
 def MuonCombinedStacoTagTool(name="MuonCombinedStacoTagTool",**kwargs):
     from MuonCombinedRecExample.MuonCombinedFitTools import CombinedMuonTagTestTool
     kwargs.setdefault("TagTool", CombinedMuonTagTestTool())
