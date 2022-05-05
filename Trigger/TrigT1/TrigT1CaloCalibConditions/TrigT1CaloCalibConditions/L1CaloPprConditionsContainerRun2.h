@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOCALIBCONDITIONS_L1CALOPPRCONDITIONSCONTAINERRUN2_H
@@ -10,15 +10,16 @@
 #include "AthenaKernel/CLASS_DEF.h"
 
 #include "GaudiKernel/DataObject.h"
-
 #include "TrigT1CaloCalibConditions/AbstractL1CaloPersistentCondition.h"
+#include "TrigT1CaloCalibConditions/L1CaloPprConditionsRun2.h"
+
+
 
 #include <map>
 #include <string>
 #include <vector>
 
 class L1CaloCoolChannelId;
-class L1CaloPprConditionsRun2;
 /**
  *  Container of L1CaloPprConditions objects, inherit
  *  from the abstract base class AbstractL1CaloConditionContainer.
@@ -91,6 +92,6 @@ private:
   static const unsigned int s_vectorSize = 8192;
 };
 
-CLASS_DEF( L1CaloPprConditionsContainerRun2 , 1152931916 , 1 )
-
+#include "AthenaKernel/CondCont.h"
+CONDCONT_DEF( L1CaloPprConditionsContainerRun2 ,1225320220 );
 #endif

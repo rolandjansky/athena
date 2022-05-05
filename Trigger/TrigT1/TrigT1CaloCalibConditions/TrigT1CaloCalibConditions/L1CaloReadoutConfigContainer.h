@@ -1,7 +1,7 @@
 // -*- C++ -*-
 #ifndef TRIGT1CALOCALIBCONDITIONS_L1CALOREADOUTCONFIGCONTAINER_H
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #define TRIGT1CALOCALIBCONDITIONS_L1CALOREADOUTCONFIGCONTAINER_H
 
@@ -12,9 +12,9 @@
 #include "GaudiKernel/DataObject.h"
 #include "TrigT1CaloCalibConditions/AbstractL1CaloPersistentCondition.h"
 #include "TrigT1CaloCalibConditions/L1CaloCoolChannelId.h"
+#include "TrigT1CaloCalibConditions/L1CaloReadoutConfig.h"
 
 class CondAttrListCollection;
-class L1CaloReadoutConfig;
 
 /***
 * Container of L1CaloReadoutConfig objects. Automatically created using:
@@ -56,6 +56,7 @@ private:
   std::string m_coolFolderKey = "/TRIGGER/L1Calo/V2/Configuration/ReadoutConfig";
 };
 
-CLASS_DEF( L1CaloReadoutConfigContainer, 1122647625, 1 )
+#include "AthenaKernel/CondCont.h"
+CONDCONT_DEF(L1CaloReadoutConfigContainer, 1269713155 );
 
 #endif // TRIGT1CALOCALIBCONDITIONS_L1CALOREADOUTCONFIGCONTAINER_H

@@ -12,7 +12,6 @@
 #include "TrigT1CaloCalibConditions/AbstractL1CaloPersistentCondition.h"
 #include "TrigT1CaloCalibConditions/L1CaloPprConditions.h"
 #include "TrigT1CaloCalibConditions/L1CaloCoolChannelId.h"
-
 #include <map>
 #include <string>
 #include <vector>
@@ -88,5 +87,4 @@ private:
 };
 
 CLASS_DEF(L1CaloPprConditionsContainer ,  1190452919 , 1 )
-
 #endif

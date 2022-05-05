@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibConditions/L1CaloPprChanCalibContainer.h"
@@ -10,7 +10,6 @@
 #include "CoralBase/AttributeListSpecification.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
-
 #include "TrigT1CaloCalibConditions/L1CaloPprChanCalib.h"
 
 L1CaloPprChanCalibContainer::L1CaloPprChanCalibContainer()
