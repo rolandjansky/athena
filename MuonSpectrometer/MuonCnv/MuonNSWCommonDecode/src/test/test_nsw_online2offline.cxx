@@ -11,7 +11,6 @@
 
 static const int ERR_NOERR   =  0;
 static const int ERR_ARGS    = -1;
-static const int ERR_GENERIC = -2;
 
 // Global parameters
 
