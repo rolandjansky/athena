@@ -118,8 +118,10 @@ include( "RecExCond/AllDet_detDescr.py" )
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Print()
 
-## TGCcablingServerSvc Hack
-import MuonCnvExample.MuonCablingConfig
+# muon ID
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperSvc
+ServiceMgr += Muon__MuonIdHelperSvc("MuonIdHelperSvc", HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=MuonGeometryFlags.hasSTGC(), HasMM=MuonGeometryFlags.hasMM())
 
 # PixelLorentzAngleSvc and SCTLorentzAngleSvc
 from InDetRecExample.InDetJobProperties import InDetFlags
