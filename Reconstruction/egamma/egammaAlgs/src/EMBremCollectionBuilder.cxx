@@ -254,6 +254,11 @@ EMBremCollectionBuilder::createNew(
   xAOD::TrackParticle* aParticle = m_particleCreatorTool->createParticle(
     ctx, *(trk_info.track), finalTrkPartContainer, nullptr, xAOD::electron);
 
+  if (!aParticle) {
+    ATH_MSG_WARNING("Could not create TrackParticle!!! for Track: " << *(trk_info.track));
+    return StatusCode::SUCCESS;
+  }
+
   // Add an element link back to original Track Particle collection
   static const SG::AuxElement::Accessor<
     ElementLink<xAOD::TrackParticleContainer>>
