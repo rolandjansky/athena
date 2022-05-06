@@ -29,6 +29,7 @@
 // Handle Keys
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadHandleKeyArray.h"
 #include "StoreGate/WriteHandleKey.h"
 
 #include "ActsTrkEvent/TrackParameters.h"
@@ -62,7 +63,7 @@ namespace ActsTrk {
 
     SG::ReadHandleKey< xAOD::PixelClusterContainer > m_pixelClusterContainerKey {this, "PixelClusterContainerKey", "ITkPixelClusters", "Key of input pixel clusters"};
     SG::ReadHandleKey< xAOD::StripClusterContainer > m_stripClusterContainerKey {this, "StripClusterContainerKey", "ITkStripClusters", "Key of input strip clusters"};
-    SG::ReadHandleKey< ActsTrk::SpacePointContainer > m_spacePointKey {this,"InputSpacePoints","","Input Space Points"};
+    SG::ReadHandleKeyArray< ActsTrk::SpacePointContainer > m_spacePointKey {this,"InputSpacePoints",{},"Input Space Points"};
     SG::WriteHandleKey< ActsTrk::SeedContainer > m_seedKey {this,"OutputSeeds","","Output Seeds"};    
     SG::WriteHandleKey< ActsTrk::BoundTrackParametersContainer > m_actsTrackParamsKey {this, "OutputEstimatedTrackParameters", "", ""};
 
