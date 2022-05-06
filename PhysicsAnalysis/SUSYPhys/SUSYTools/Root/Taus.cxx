@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // This source file implements all of the functions related to TauJets
@@ -74,7 +74,7 @@ StatusCode SUSYObjDef_xAOD::FillTau(xAOD::TauJet& input) {
   ATH_MSG_VERBOSE( "TAU pT before smearing " << input.pt()/1000 << " GeV");
 
   // do truth matching first (required unless already done in AOD->DAOD and truth matching info kept in DAOD)
-  if(m_tauDoTTM && !isData()) m_tauTruthMatch->getTruth(input);
+  if (m_tauDoTTM && !isData()) m_tauTruthMatch->getTruth(input);
   ATH_MSG_VERBOSE("Tau truth matching done");
 
   // apply the calibration to data as well (not needed in R22, unless MVA TES gets updated)
@@ -94,8 +94,8 @@ StatusCode SUSYObjDef_xAOD::FillTau(xAOD::TauJet& input) {
   else {
     dec_baseline(input) = false;
   }
-  if(acc_baseline(input)) dec_selected(input) = 2;
-  else                    dec_selected(input) = 0;
+  if (acc_baseline(input)) dec_selected(input) = 2;
+  else                     dec_selected(input) = 0;
 
   if (acc_baseline(input)) ATH_MSG_VERBOSE("FillTau: passed baseline selection");
   else ATH_MSG_VERBOSE("FillTau: failed baseline selection");
@@ -128,22 +128,21 @@ double SUSYObjDef_xAOD::GetSignalTauSF(const xAOD::TauJet& tau,
 {
   double sf(1.);
 
-  if(idSF){
-    if (acc_baseline(tau)) {
+  if (acc_signal(tau)) {
+    if (idSF) {
       if (m_tauEffTool->getEfficiencyScaleFactor(tau, sf) != CP::CorrectionCode::Ok) {
         ATH_MSG_WARNING("Failed to retrieve tau efficiency scale factor.");
       }
       ATH_MSG_VERBOSE(" Retrieved tau SF  " << sf);
     }
-  }
 
-  if(triggerSF){
-    double trig_sf(1.);
-    trig_sf = GetTauTriggerEfficiencySF(tau, trigExpr);
-
-    if(trig_sf > -90){
-      sf *= trig_sf;
-      ATH_MSG_VERBOSE(" Retrieved tau trig SF  " << trig_sf);
+    if (triggerSF) {
+      double trig_sf = GetTauTriggerEfficiencySF(tau, trigExpr);
+      
+      if (trig_sf > -90) {
+	sf *= trig_sf;
+	ATH_MSG_VERBOSE(" Retrieved tau trig SF  " << trig_sf);
+      }
     }
   }
 
@@ -164,7 +163,7 @@ double SUSYObjDef_xAOD::GetSignalTauSFsys(const xAOD::TauJet& tau,
   StatusCode ret = m_tauEffTool->applySystematicVariation(systConfig);
   if (ret != StatusCode::SUCCESS) { ATH_MSG_ERROR("Cannot configure TauEfficiencyCorrectionsTool for systematic var. " << systConfig.name() ); }
 
-  for(auto& tool : m_tauTrigEffTool) {
+  for (auto& tool : m_tauTrigEffTool) {
     ret = tool->applySystematicVariation(systConfig);
     if (ret != StatusCode::SUCCESS) { ATH_MSG_ERROR("Cannot configure " << tool->name() << " for systematic var. " << systConfig.name()); }
   }
@@ -175,7 +174,7 @@ double SUSYObjDef_xAOD::GetSignalTauSFsys(const xAOD::TauJet& tau,
   ret = m_tauEffTool->applySystematicVariation(m_currentSyst);
   if (ret != StatusCode::SUCCESS) { ATH_MSG_ERROR("Cannot configure TauEfficiencyCorrectionsTool back to default"); }
 
-  for(auto& tool : m_tauTrigEffTool) {
+  for (auto& tool : m_tauTrigEffTool) {
     ret = tool->applySystematicVariation(m_currentSyst);
     if (ret != StatusCode::SUCCESS) { ATH_MSG_ERROR("Cannot configure " << tool->name() << " back to default"); }
   }
@@ -191,7 +190,7 @@ double SUSYObjDef_xAOD::GetTauTriggerEfficiencySF(const xAOD::TauJet& tau, const
   double eff(1.);
 
   auto map_it = m_tau_trig_support.find(trigExpr); 
-  if(map_it == m_tau_trig_support.end()) {
+  if (map_it == m_tau_trig_support.end()) {
     ATH_MSG_WARNING("The trigger item requested ("  << trigExpr << ") is not supported! Please check. Setting SF to 1.");
     return eff;
   }
@@ -200,18 +199,18 @@ double SUSYObjDef_xAOD::GetTauTriggerEfficiencySF(const xAOD::TauJet& tau, const
   std::vector<std::string> chains;
   boost::split(chains, map_it->second, [](char c){return c == ',';});
   bool match = false;
-  for(const std::string& chain : chains)
-    if(m_trigMatchingTool->match({&tau}, chain, 0.2)) {
+  for (const std::string& chain : chains)
+    if (m_trigMatchingTool->match({&tau}, chain, 0.2)) {
       match = true;
       break;
     }
-  if(!match) {
+  if (!match) {
     ATH_MSG_VERBOSE("Tau did not match trigger " << trigExpr);
     return eff;
   }
 
   int trigIdx = std::distance(std::begin(m_tau_trig_support), map_it);
-  if(m_tauTrigEffTool.at(trigIdx)->getEfficiencyScaleFactor(tau, eff) != CP::CorrectionCode::Ok) {
+  if (m_tauTrigEffTool.at(trigIdx)->getEfficiencyScaleFactor(tau, eff) != CP::CorrectionCode::Ok) {
     ATH_MSG_ERROR("Some problem found to retrieve SF for trigger item  requested ("  << trigExpr << ")");
     eff = -99;
   }
@@ -225,6 +224,12 @@ double SUSYObjDef_xAOD::GetTotalTauSF(const xAOD::TauJetContainer& taus, const b
   double sf(1.);
 
   for (const xAOD::TauJet* tau : taus) {
+    // check existence of OR information
+    if (!acc_passOR.isAvailable(*tau)) { 
+      ATH_MSG_WARNING("Tau does not have Overlap Removal decision set. You should only call GetTotalTauSF with taus that have been passed through OR. SF will NOT be applied!");
+      break;
+    }
+
     // Call this for all taus, which will add the decoration
     double tmpSF = GetSignalTauSF(*tau, idSF, triggerSF, trigExpr);
     if (acc_signal(*tau) && acc_passOR(*tau)) {
@@ -243,7 +248,7 @@ double SUSYObjDef_xAOD::GetTotalTauSFsys(const xAOD::TauJetContainer& taus, cons
   StatusCode ret = m_tauEffTool->applySystematicVariation(systConfig);
   if (ret != StatusCode::SUCCESS) { ATH_MSG_ERROR("Cannot configure TauEfficiencyCorrectionsTool for systematic var. " << systConfig.name() ); }
 
-  for(auto& tool : m_tauTrigEffTool) {
+  for (auto& tool : m_tauTrigEffTool) {
     ret = tool->applySystematicVariation(systConfig);
     if (ret != StatusCode::SUCCESS) { ATH_MSG_ERROR("Cannot configure " << tool->name() << " for systematic var. " << systConfig.name()); }
   }
@@ -254,7 +259,7 @@ double SUSYObjDef_xAOD::GetTotalTauSFsys(const xAOD::TauJetContainer& taus, cons
   ret = m_tauEffTool->applySystematicVariation(m_currentSyst);
   if (ret != StatusCode::SUCCESS) { ATH_MSG_ERROR("Cannot configure TauEfficiencyCorrectionsTool back to default"); }
 
-  for(auto& tool : m_tauTrigEffTool) {
+  for (auto& tool : m_tauTrigEffTool) {
     ret = tool->applySystematicVariation(m_currentSyst);
     if (ret != StatusCode::SUCCESS) { ATH_MSG_ERROR("Cannot configure " << tool->name() << " back to default"); }
   }
