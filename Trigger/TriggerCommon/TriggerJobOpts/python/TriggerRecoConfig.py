@@ -110,11 +110,8 @@ def TriggerEDMCfg(flags):
 
     # RoIs
     if flags.Output.doWriteAOD and flags.Trigger.EDMVersion == 2:
-        roiWriter = CompFactory.RoiWriter( ExtraInputs = [("TrigBSExtractionOutput", "StoreGateSvc+TrigBSExtractionOutput"),]) 
-        acc.addEventAlgo(roiWriter)
-
-        from TrigEDMConfig.TriggerEDMRun2 import TriggerRoiList
-        acc.merge(addToAOD(flags, TriggerRoiList))
+        from TrigRoiConversion.TrigRoiConversionConfig import RoiWriterCfg
+        acc.merge(RoiWriterCfg(flags))
 
     return acc
 
