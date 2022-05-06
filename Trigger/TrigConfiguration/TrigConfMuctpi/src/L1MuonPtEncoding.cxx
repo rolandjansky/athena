@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfMuctpi/MioctROIGeometry.h"
@@ -8,12 +8,6 @@
 
 using namespace std;
 
-L1MuonPtEncoding::L1MuonPtEncoding() {
-   for(auto & x : m_encoding) {
-      x.ptCode = 0;
-      x.thresholdValue = 0;
-   }
-}
 
 void
 L1MuonPtEncoding::setCodingInfo(unsigned int idx, unsigned int ptCode, unsigned int thresholdValue ) {
