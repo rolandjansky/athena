@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-# art-description: athenaHLT test of the Dev_pp_run3_v1 menu
+# art-description: athenaHLT test of the PhysicsP1_pp_run3_v1 menu
 # art-type: grid
 # art-include: master/Athena
 # art-athena-mt: 4
@@ -28,7 +28,14 @@ ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data'
 ex.threads = 4
 ex.concurrent_events = 4
-ex.args = '-c "setMenu=\'Dev_pp_run3_v1\';doL1Sim=False;enableL1MuonPhase1=False;forceEnableAllChains=True;"'  
+precommand = ''.join([
+  "setMenu='PhysicsP1_pp_run3_v1';",
+  "doL1Sim=False;",
+  "enableL1MuonPhase1=False;",
+  "forceEnableAllChains=True;",
+  "disableChains=['HLT_cosmic_id_L1MU3V_EMPTY','HLT_cosmic_id_L1MU8VF_EMPTY']", # Temporary workaround for ATR-25459
+])
+ex.args = f'-c "{precommand}"'  
 ex.args += ' --dump-config-reload'
 
 test = Test.Test()
