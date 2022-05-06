@@ -16,10 +16,6 @@
 
 #include "FourMomUtils/xAODP4Helpers.h"
 
-using std::map;
-using std::vector;
-using std::string;
-
 MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetectorManager* detManager, const MmIdHelper* idhelper):
    AthMessaging(Athena::getMessageSvc(), "MMLoadVariables") {
       m_evtStore = evtStore;
@@ -31,7 +27,7 @@ StatusCode MMLoadVariables::getMMDigitsInfo(const McEventCollection *truthContai
                                             const TrackRecordCollection* trackRecordCollection,
                                             const MmDigitContainer *nsw_MmDigitContainer,
                                             std::map<std::pair<int,unsigned int>,std::vector<digitWrapper> >& entries,
-                                            std::map<std::pair<int,unsigned int>,map<hitData_key,hitData_entry> >& Hits_Data_Set_Time,
+                                            std::map<std::pair<int,unsigned int>,std::map<hitData_key,hitData_entry> >& Hits_Data_Set_Time,
                                             std::map<std::pair<int,unsigned int>,evInf_entry>& Event_Info,
                                             std::map<std::string, std::shared_ptr<MMT_Parameters> > &pars) {
       //*******Following MuonPRD code to access all the variables**********
@@ -259,8 +255,8 @@ StatusCode MMLoadVariables::getMMDigitsInfo(const McEventCollection *truthContai
         std::string station = it->second[0].stName;
         bool uvxxmod=(pars[station]->setup.compare("xxuvuvxx")==0);
 
-        map<hitData_key,hitData_entry> hit_info;
-        vector<hitData_key> keys;
+        std::map<hitData_key,hitData_entry> hit_info;
+        std::vector<hitData_key> keys;
 
         //Now we need to loop on digits
         for (const auto &dW : it->second) {
@@ -328,9 +324,9 @@ StatusCode MMLoadVariables::getMMDigitsInfo(const McEventCollection *truthContai
         }
 
         int xhit=0,uvhit=0;
-        vector<bool>plane_hit(pars[station]->setup.size(),false);
+        std::vector<bool>plane_hit(pars[station]->setup.size(),false);
 
-        for(map<hitData_key,hitData_entry>::iterator it=hit_info.begin(); it!=hit_info.end(); ++it){
+        for(std::map<hitData_key,hitData_entry>::iterator it=hit_info.begin(); it!=hit_info.end(); ++it){
           int plane=it->second.plane;
           plane_hit[plane]=true;
           if (tru_it != Event_Info.end()) tru_it->second.N_hits_postVMM++;

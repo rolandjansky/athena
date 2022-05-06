@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MMLOADVARIABLES_H
@@ -64,25 +64,6 @@ namespace MuonGM {
         std::vector< std::vector<double> > NSWMM_dig_stripGposX;
         std::vector< std::vector<double> > NSWMM_dig_stripGposY;
         std::vector< std::vector<double> > NSWMM_dig_stripGposZ;
-        std::vector< std::vector<float> >  NSWMM_dig_sr_time;
-        std::vector< std::vector<float> >  NSWMM_dig_sr_charge;
-        std::vector< std::vector<int> >    NSWMM_dig_sr_stripPosition;
-        std::vector< std::vector<double> > NSWMM_dig_sr_stripLposX;
-        std::vector< std::vector<double> > NSWMM_dig_sr_stripLposY;
-        std::vector< std::vector<double> > NSWMM_dig_sr_stripGposX;
-        std::vector< std::vector<double> > NSWMM_dig_sr_stripGposY;
-        std::vector< std::vector<double> > NSWMM_dig_sr_stripGposZ;
-
-        std::vector< int    > NSWMM_dig_truth_barcode;
-        std::vector< double > NSWMM_dig_truth_localPosX;
-        std::vector< double > NSWMM_dig_truth_localPosY;
-        std::vector< double > NSWMM_dig_truth_globalPosX;
-        std::vector< double > NSWMM_dig_truth_globalPosY;
-        std::vector< double > NSWMM_dig_truth_globalPosZ;
-        std::vector< float  > NSWMM_dig_truth_XZ_angle;
-
-        std::vector<int>   NSWMM_dig_stripForTrigger;
-        std::vector<float> NSWMM_dig_stripTimeForTrigger;
     };
     histogramVariables histVars;
 
