@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- //////////////////////////////////////////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header file for class ICutFlowSvc                                                                  //
@@ -15,6 +15,8 @@
 #include <string>
 #include <map>
 #include <stdint.h> // for uint32_t
+
+#include "CxxUtils/checker_macros.h"
 
 //<<<<<< FORWARD DECLARATIONS                                           >>>>>>
 class INamedInterface;
@@ -53,7 +55,7 @@ public:
   /// Tells CutFlowSvc that a filter is used directly by an outputStream with
   /// a given logical context. The only foreseen client should the DecisionSvc,
   /// with its Accept/Require/Veto.
-  virtual CutIdentifier registerTopFilter( const std::string& name,
+  virtual CutIdentifier registerTopFilter ATLAS_NOT_THREAD_SAFE ( const std::string& name,
                                            const std::string& description,
                                            unsigned int logic,
                                            const std::string& outputStream,
