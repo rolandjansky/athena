@@ -11,9 +11,6 @@ msg = logging.getLogger( 'TileSamplingFraction_jobOptions.py' )
 from TileConditions.TileInfoConfigurator import TileInfoConfigurator
 tileInfoConfigurator = TileInfoConfigurator()
 tileInfoConfigurator.setupCOOLSFR()
-# Temporary solution (this folder is only here)
-conddb.blockFolder('/TILE/OFL02/CALIB/SFR')
-conddb.addFolderWithTag('TILE_OFL','/TILE/OFL02/CALIB/SFR','TileOfl02CalibSfr-SIM-02',force=True,forceMC=True,className='CondAttrListCollection')
 
 try:
     from Digitization.DigitizationFlags import jobproperties
