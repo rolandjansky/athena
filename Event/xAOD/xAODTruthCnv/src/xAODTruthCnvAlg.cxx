@@ -301,7 +301,7 @@ namespace xAODMaker {
                 
 	  // Check signal process vertex
 	  // If this is a disconnected vertex, add it manually or won't be added from the loop over particles below.
-	   auto disconnectedSignalProcessVtx = HepMC::signal_process_vertex((HepMC::GenEvent*)genEvt); // Get the signal process vertex
+	   auto disconnectedSignalProcessVtx = HepMC::signal_process_vertex(genEvt); // Get the signal process vertex
 	  if (disconnectedSignalProcessVtx) {
 #ifdef HEPMC3
 	    if (disconnectedSignalProcessVtx->particles_in().size() == 0 &&
@@ -318,10 +318,10 @@ namespace xAODMaker {
 	  }
                 
 	  // Get the beam particles
-	  pair<HepMC::GenParticlePtr,HepMC::GenParticlePtr> beamParticles;
+	  pair<HepMC::ConstGenParticlePtr,HepMC::ConstGenParticlePtr> beamParticles;
 	  bool genEvt_valid_beam_particles=false;
 #ifdef HEPMC3
-	  auto beamParticles_vec = ((HepMC::GenEvent*)genEvt)->beams();
+	  auto beamParticles_vec = genEvt->beams();
 	  genEvt_valid_beam_particles=(beamParticles_vec.size()>1);
 	  if (genEvt_valid_beam_particles){beamParticles.first=beamParticles_vec[0]; beamParticles.second=beamParticles_vec[1]; }
 #else	  
