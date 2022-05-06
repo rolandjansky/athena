@@ -490,6 +490,11 @@ def CombinedMuonOutputCfg(flags):
         aod_items += ["xAOD::CaloClusterContainer#MuonClusterCollection"]
         aod_items += ["xAOD::CaloClusterAuxContainer#MuonClusterCollectionAux."]
         aod_items += ["CaloClusterCellLinkContainer#MuonClusterCollection_links"]
+        from CaloRec.CaloThinCellsByClusterAlgConfig import CaloThinCellsByClusterAlgCfg
+        result.merge(CaloThinCellsByClusterAlgCfg(flags,streamName="StreamAOD",
+                                                  clusters="MuonClusterCollection",
+                                                  samplings=["TileGap1", "TileGap2", "TileGap3", "TileBar0","TileExt0", "HEC0"]))
+
 
     # Adding the xAOD content by default
     excludedAuxData = '-clusterAssociation'
@@ -531,7 +536,7 @@ def CombinedMuonOutputCfg(flags):
 
     esd_items += aod_items
 
-    result = addToESD(flags, esd_items)
+    result.merge(addToESD(flags, esd_items))
     result.merge(addToAOD(flags, aod_items))
 
     # Leaving in for the moment, because we might still need this. Will remove once it's confirmed we don't
