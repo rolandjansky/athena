@@ -14,7 +14,7 @@ atlas_add_library( ActsTrkEvent
                    LINK_LIBRARIES ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} 
 		   AthenaBaseComps GaudiKernel AtlasDetDescr CxxUtils 
 		   xAODCore ActsCore ActsFatras ActsGeometryLib BeamSpotConditionsData
-		   MagFieldConditions MagFieldElements SiSPSeededTrackFinderData InDetRawData GeoPrimitives InDetPrepRawData
+		   MagFieldConditions MagFieldElements GeoPrimitives
 		   )
 
 atlas_add_dictionary( ActsTrkEventDict

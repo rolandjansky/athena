@@ -95,6 +95,12 @@ namespace ActsTrk {
     const ActsTrk::SpacePointContainer *actsSpContainer = handle.get();
     ATH_MSG_DEBUG( "    \\__ " << actsSpContainer->size() << " elements from input collection!" );
 
+    // TODO: Write some lines to check which SPs you want to use from the input container
+    // At the time being we fill a vector with all SPs available.
+    std::vector<const ActsTrk::SpacePoint*> selectedSpacePoints = {};
+    selectedSpacePoints.reserve(actsSpContainer->size());
+    for (auto sp : *actsSpContainer)
+      selectedSpacePoints.push_back(sp);
 
     std::variant < const xAOD::PixelClusterContainer*, const xAOD::StripClusterContainer* > inputClusterContainer;
     if ( m_usePixel ) {
@@ -133,7 +139,7 @@ namespace ActsTrk {
 
     ATH_MSG_DEBUG("Running Seed Finding ...");    
     ATH_CHECK( m_seedsTool->createSeeds( ctx, 
-					 *actsSpContainer,
+					 selectedSpacePoints,
 					 *beamSpotData, 
 					 magFieldContext,
 					 *seedPtrs.get() ) );

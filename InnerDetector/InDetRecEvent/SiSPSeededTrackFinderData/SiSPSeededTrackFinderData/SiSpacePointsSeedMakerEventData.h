@@ -17,6 +17,8 @@
 #include "SiSPSeededTrackFinderData/SiSpacePointsProSeed.h"
 #include "SiSPSeededTrackFinderData/ITkSiSpacePointsProSeed.h"
 
+#include "ActsTrkEvent/SpacePoint.h"
+
 #include <list>
 #include <map>
 #include <vector>
@@ -172,6 +174,8 @@ namespace InDet {
     std::list<InDet::SiSpacePointForSeed>::iterator i_spforseed;    //<! keep track of an iterator over the seed list. Frequently used to keep track of where to add the next SP
     std::list<ITk::SiSpacePointForSeed> l_ITkSpacePointForSeed;
     std::list<ITk::SiSpacePointForSeed>::iterator i_ITkSpacePointForSeed;
+
+    std::vector<const ActsTrk::SpacePoint*> v_ActsSpacePointForSeed;  //<! list of acts space points considered for seed building.
 
     std::list<InDet::SiSpacePointsSeed> l_seeds;
     std::list<InDet::SiSpacePointsSeed>::iterator i_seed;

@@ -122,6 +122,12 @@ def  ActsTrkSiSpacePointsSeedMakerCfg(ConfigFlags,
     options.setdefault('usePixel', True)
     options.setdefault('useStrip', True)
     options.setdefault('useOverlapSpCollection', True)
+    options.setdefault('doSpacePointConversion', not (ConfigFlags.ITk.Tracking.convertInDetClusters and ConfigFlags.ITk.Tracking.produceNewSpacePointContainer))
+    options.setdefault('ActsTrkSpacePointsPixelName'    , "ITkPixelSpacePoints")
+    options.setdefault('ActsTrkSpacePointsStripName'    , "ITkStripSpacePoints")
+    options.setdefault('ActsTrkSpacePointsOverlapName'  , "ITkStripOverlapSpacePoints")
+    options.setdefault('PixelClusterContainerKey', "ITkPixelClusters")
+    options.setdefault('StripClusterContainerKey', "ITkStripClusters")
 
     if len(InputCollections) > 0 and ConfigFlags.ITk.Tracking.ActivePass.usePrdAssociationTool:
         # not all classes have that property !!!
