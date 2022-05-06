@@ -20,6 +20,8 @@ atlas_add_component( ActsTrkSeedingTool
                      CxxUtils
                      InDetRecToolInterfaces
                      MagFieldConditions
+                     SiSpacePoint
+                     xAODInDetMeasurement
                      )
 
 # Install files from the package:

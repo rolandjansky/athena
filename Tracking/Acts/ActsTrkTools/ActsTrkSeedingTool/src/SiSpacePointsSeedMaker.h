@@ -18,15 +18,19 @@
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "MagFieldElements/AtlasFieldCache.h"
 
+#include "ActsTrkEvent/SpacePoint.h"
 #include "TrkSpacePoint/SpacePointContainer.h" 
 #include "TrkSpacePoint/SpacePointOverlapCollection.h"
+
+#include "xAODInDetMeasurement/PixelClusterContainer.h"
+#include "xAODInDetMeasurement/StripClusterContainer.h"
+
 #include "TrkEventUtils/PRDtoTrackMap.h"
 
 //for validation
 #include "GaudiKernel/ITHistSvc.h"
 #include "TFile.h"
 #include "TTree.h"
-
 
 namespace ActsTrk {
 
@@ -139,11 +143,16 @@ namespace ActsTrk {
     void
       newSpacePoint(InDet::SiSpacePointsSeedMakerEventData& data,
 		    const Trk::SpacePoint* const& sp) const;
+    void
+      newSpacePoint(InDet::SiSpacePointsSeedMakerEventData& data,
+		    const ActsTrk::SpacePoint* const& sp) const;
     static void pixInform(const Trk::SpacePoint* const& sp,
 			  float* r) ;
     static void stripInform(InDet::SiSpacePointsSeedMakerEventData& data,
 			    const Trk::SpacePoint* const& sp,
 			    float* r) ;
+
+    const InDet::SiSpacePointsSeed* getSeed(ITk::SiSpacePointsProSeed& proSeed) const;
     
     // Retrieve
     StatusCode retrievePixel(const EventContext& ctx,
@@ -182,6 +191,12 @@ namespace ActsTrk {
     SG::ReadHandleKey< ::SpacePointOverlapCollection > m_spacepointsOverlap {this, "SpacePointsOverlapName", "OverlapSpacePoints"};
     SG::ReadHandleKey< Trk::PRDtoTrackMap > m_prdToTrackMap {this, "PRDtoTrackMap", "", "option PRD-to-track association"};
 
+    SG::ReadHandleKey< ActsTrk::SpacePointContainer > m_actsSpacepointsPixel {this, "ActsTrkSpacePointsPixelName", "ITkPixelSpacePoints", "Pixel space points container"};
+    SG::ReadHandleKey< ActsTrk::SpacePointContainer > m_actsSpacepointsStrip {this, "ActsTrkSpacePointsStripName", "ITkStripSpacePoints", "Strip space points container"};
+    SG::ReadHandleKey< ActsTrk::SpacePointContainer > m_actsSpacepointsOverlap {this, "ActsTrkSpacePointsOverlapName", "ITkStripOverlapSpacePoints", "Strip overlap space points container"};
+    SG::ReadHandleKey< xAOD::PixelClusterContainer > m_pixelClusterContainerKey {this, "PixelClusterContainerKey", "ITkPixelClusters", "Key of input pixel clusters"};
+    SG::ReadHandleKey< xAOD::StripClusterContainer > m_stripClusterContainerKey {this, "StripClusterContainerKey", "ITkStripClusters", "Key of input strip clusters"};
+
     SG::ReadCondHandleKey< InDet::BeamSpotData > m_beamSpotKey{this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot"};
     SG::ReadCondHandleKey< AtlasFieldCacheCondObj > m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj",
         "Name of the Magnetic Field conditions object key"};
@@ -190,6 +205,7 @@ namespace ActsTrk {
     Gaudi::Property< bool > m_strip {this, "useStrip", true };
     Gaudi::Property< bool > m_useOverlap {this, "useOverlapSpCollection", true};
     Gaudi::Property< bool > m_fastTracking {this, "useFastTracking", false};
+    Gaudi::Property< bool > m_doSpacePointConversion {this, "doSpacePointConversion", true, "Convert Trk::SpacePoint container into ActsTrk::SpacePoint container"};
 
   private:
     // Validation

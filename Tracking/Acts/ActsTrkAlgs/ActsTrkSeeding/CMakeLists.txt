@@ -16,7 +16,8 @@ atlas_add_component( ActsTrkSeeding
                      ActsTrkEvent
                      ActsTrkToolInterfacesLib
                      MagFieldConditions
-		     ActsGeometryInterfacesLib
+                     ActsGeometryInterfacesLib
+                     SiSPSeededTrackFinderData
                      )
 
 # Install files from the package:

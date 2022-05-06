@@ -47,7 +47,7 @@ namespace ActsTrk {
     // Interface
     virtual StatusCode
       createSeeds(const EventContext& ctx,
-		  const ActsTrk::SpacePointContainer& spContainer,
+		  const std::vector<const ActsTrk::SpacePoint*>& spContainer,
 		  const InDet::BeamSpotData& beamSpotData,
 		  const Acts::MagneticFieldContext& magFieldContext,
 		  ActsTrk::SeedContainer& seedContainer ) const override;
