@@ -59,6 +59,9 @@ StatusCode TrigL2MuonSA::PtFromRadius::setPt(TrigL2MuonSA::TrackPattern& trackPa
     if(phibin<=-1) phibin = 0;
     if(phibin>=lut.NbinPhi[add]) phibin = lut.NbinPhi[add]-1;
 
+    trackPattern.etaBin = etabin;
+    trackPattern.phiBin = phibin;
+
     disteta = trackPattern.etaMap - (etabin*lut.EtaStep[add] +
         lut.EtaStep[add]/2. + lut.EtaMin[add]);
     distphi = trackPattern.phiMap - (phibin*lut.PhiStep[add] + 

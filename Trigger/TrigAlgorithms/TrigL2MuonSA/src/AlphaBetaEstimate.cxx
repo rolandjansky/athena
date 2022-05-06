@@ -193,14 +193,14 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const TrigRoiDescriptor
     
   }
 
-  if (MiddleZ && OuterZ) {
+  if (!isZero(MiddleZ) && !isZero(OuterZ)) {
     double slope = (OuterR-MiddleR)/(OuterZ-MiddleZ);
     double inter = MiddleR - slope*MiddleZ;    
     
     trackPattern.endcapAlpha = (*m_ptEndcapLUT)->alpha(MiddleZ,MiddleR,OuterZ,OuterR);
     trackPattern.slope       = slope; 
     trackPattern.intercept   = inter;    
-    if (InnerR) {
+    if (!isZero(InnerR)) {
       trackPattern.endcapBeta   = std::abs( std::atan(InnerSlope) - std::atan(slope) ); 
       trackPattern.deltaR       = slope * InnerZ + MiddleIntercept - InnerR;
       double sign               = trackPattern.deltaR / std::abs(trackPattern.deltaR);
@@ -208,7 +208,7 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const TrigRoiDescriptor
 		                              slope,      MiddleR, MiddleZ,
 					      sign);
     } 
-    if (CSCZ) {
+    if (!isZero(CSCZ)) {
       if(trackPattern.large_dPhidZ && (6==trackPattern.phiBin || 7==trackPattern.phiBin) ){
 	trackPattern.cscGamma = std::abs( std::atan( (MiddleR-CSCR)/(MiddleZ-CSCZ) ) - std::atan(MiddleSlope) );
       }else{     
@@ -220,7 +220,7 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const TrigRoiDescriptor
     }
   } else {    
     if( trackPattern.pt >= 8. || !tgcFitResult.isSuccess) {
-      if(MiddleZ) {
+      if(!isZero(MiddleZ)) {
 	double Ze = MiddleZ+(std::abs(MiddleZ)/MiddleZ)*1000.;
 	double Re = MiddleSlope*(Ze) + MiddleIntercept;
 	
@@ -230,7 +230,7 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const TrigRoiDescriptor
       }      
     } 
     
-    if (MiddleZ && InnerZ) {
+    if (!isZero(MiddleZ) && !isZero(InnerZ)) {
       trackPattern.endcapBeta   = std::abs( std::atan(InnerSlope) - std::atan(MiddleSlope) );
       trackPattern.deltaR       = MiddleSlope*InnerZ + MiddleIntercept - InnerR;
       double sign               = trackPattern.deltaR / std::abs(trackPattern.deltaR);
@@ -238,20 +238,20 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const TrigRoiDescriptor
 						MiddleSlope, MiddleR, MiddleZ,
 						sign);
     }
-    if(MiddleZ && CSCZ){
+    if(!isZero(MiddleZ) && !isZero(CSCZ)){
       trackPattern.cscGamma = std::abs( std::atan( (MiddleR-CSCR)/(MiddleZ-CSCZ) ) - std::atan(MiddleSlope) );
     }
   }
 
   double distance=9999;//distance between track and IP
   if (std::abs(EEZ)>10000 && std::abs(EEZ)<10600){//Small
-      if ( (EBIZ && EEZ) && MiddleZ ){
+      if ( (!isZero(EBIZ) && !isZero(EEZ)) && !isZero(MiddleZ) ){
         trackPattern.endcapRadius3P = computeRadius3Points(EBIZ, EBIR, EEZ, EER, MiddleZ, MiddleR);
         distance = calcDistance(EBIZ, EBIR, EEZ, EER, MiddleZ, MiddleR);
       }
     }
   if (std::abs(EEZ)>10600 && std::abs(EEZ)<12000){//Large
-    if ( (InnerZ && EEZ) && MiddleZ ){
+    if ( (!isZero(InnerZ) && !isZero(EEZ)) && !isZero(MiddleZ) ){
       trackPattern.endcapRadius3P = computeRadius3Points(InnerZ, InnerR, EEZ, EER, MiddleZ, MiddleR);
       distance = calcDistance(InnerZ, InnerR, EEZ, EER, MiddleZ, MiddleR);
     }
