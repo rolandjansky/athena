@@ -21,6 +21,9 @@ def RecoSteering(flags):
     if flags.Input.Format is Format.BS:
         from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
         acc.merge(ByteStreamReadCfg(flags))
+        # Decorate EventInfo obj with Beam Spot information
+        from xAODEventInfoCnv.EventInfoBeamSpotDecoratorAlgConfig import EventInfoBeamSpotDecoratorAlgCfg
+        acc.merge(EventInfoBeamSpotDecoratorAlgCfg(flags))
         log.info("---------- Configured BS reading")
     else:
         from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
