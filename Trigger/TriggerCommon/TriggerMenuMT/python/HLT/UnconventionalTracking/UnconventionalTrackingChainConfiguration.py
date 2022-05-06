@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
@@ -104,11 +104,13 @@ class UnconventionalTrackingChainConfiguration(ChainConfigurationBase):
         return self.getStep(4,'VSITrigger',[VSITriggerCfg])
 
     def getDJ1(self):
-        return self.getStep(4,'DJTrigger1',[DJStep1])
+        return self.getStep(3,'DJTrigger1',[DJStep1])
+
     def getDJ2(self):
-        return self.getStep(5,'DJTrigger2',[DJStep2])
+        return self.getStep(4,'DJTrigger2',[DJStep2])
+
     def getDJ3(self):
-        return self.getStep(6,'DJTrigger3',[DJStep3])
+        return self.getStep(5,'DJTrigger3',[DJStep3])
 
 
 def IsoHPtTrackTriggerCfg(flags):
