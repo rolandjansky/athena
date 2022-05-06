@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TruthHelper/PileUpType.h"
@@ -20,7 +20,7 @@ McEventCollection::const_iterator PileUpType::in_time_minimum_bias_event_begin()
    McEventCollection::const_iterator ibegin = m_particleList->begin();
    McEventCollection::const_iterator iend = m_particleList->end();
    if ( (ibegin!=iend) && (m_particleList->size()>1) ) {
-     ibegin++;
+     ++ibegin;
      return ibegin;
    }
    else return iend;

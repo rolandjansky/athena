@@ -35,7 +35,7 @@ namespace TruthHelper {
     }
     const McEventCollection& mcColl = *firstMEC;
     int icount = 0;
-    for ( ; firstMEC!= lastMEC; firstMEC++) icount++;
+    for ( ; firstMEC!= lastMEC; ++firstMEC) icount++;
     log << MSG::DEBUG << "Number of McEventCollections=  "<< icount << endmsg;
 
     // If there is more than one then do the retrieve with the key
