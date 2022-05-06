@@ -733,8 +733,6 @@ TrackParticleCreatorTool::createParticle(const EventContext& ctx,
   if (summary) {
     setTrackSummary(*trackparticle, *summary);
     setHitPattern(*trackparticle, summary->getHitPattern());
-    setNumberOfUsedHits(*trackparticle, summary->numberOfUsedHitsdEdx());
-    setNumberOfOverflowHits(*trackparticle, summary->numberOfOverflowHitsdEdx());
     addPIDInformation(ctx, track, *trackparticle);
   }
   const auto* beamspot = CacheBeamSpotData(ctx);
@@ -918,30 +916,6 @@ TrackParticleCreatorTool::setTrackSummary(xAOD::TrackParticle& tp, const TrackSu
       tp.setSummaryValue(uvalue, static_cast<xAOD::SummaryType>(i));
     }
   }
-
-  // first eProbabilities which are set in the xAOD track summary
-  for (const Trk::eProbabilityType& copy : m_copyEProbabilities) {
-    float fvalue = summary.getPID(copy);
-    tp.setSummaryValue(fvalue, static_cast<xAOD::SummaryType>(copy + xAOD::eProbabilityComb));
-  }
-
-  // now the eProbabilities which are set as a decoration.
-  for (const std::pair<SG::AuxElement::Accessor<float>, Trk::eProbabilityType>& decoration :
-       m_decorateEProbabilities) {
-    float fvalue = summary.getPID(decoration.second);
-    decoration.first(tp) = fvalue;
-  }
-
-  // now the extra summary types
-  for (const std::pair<SG::AuxElement::Accessor<uint8_t>, Trk::SummaryType>& decoration :
-       m_decorateSummaryTypes) {
-    uint8_t summary_value = summary.get(decoration.second);
-    decoration.first(tp) = summary_value;
-  }
-
-  // this one is "special" so gets a different treatment...
-  float fvalue = summary.getPixeldEdx();
-  tp.setSummaryValue(fvalue, static_cast<xAOD::SummaryType>(51));
 
   // muon hit info
   if (!m_hitSummaryTool.empty()) {

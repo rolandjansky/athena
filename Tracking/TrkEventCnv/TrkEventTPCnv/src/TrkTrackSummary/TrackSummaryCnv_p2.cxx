@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkTrackSummary/TrackSummary.h"
@@ -17,18 +17,6 @@ void TrackSummaryCnv_p2::dbgPrint( const Trk::TrackSummary *t){
     std::cout << " std::vector m_information size: "<< t->m_information.size() <<std::endl;
     for (std::vector<int>::const_iterator i=t->m_information.begin();i!=t->m_information.end();++i) std::cout<<"\t "<<(*i);
     std::cout<<std::endl;
-
-    std::cout << " std::vector m_eProbability size: "<< t->m_eProbability.size() <<std::endl;
-    for (std::vector<float>::const_iterator i=t->m_eProbability.begin();i!=t->m_eProbability.end();++i) std::cout<<"\t "<<(*i);
-    std::cout<<std::endl;
-
-    if(t->m_indetTrackSummary){
-        std::cout << " m_indetTrackSummary->m_massdedx: "<< t->m_indetTrackSummary->massPixeldEdx();
-        std::cout << " std::vector m_indetTrackSummary->m_likelihoodspixeldedx size: "<< t->m_indetTrackSummary->likelihoodsPixeldEdx().size() <<std::endl;
-        for (float x : t->m_indetTrackSummary->likelihoodsPixeldEdx())
-           std::cout<<"\t "<<x;
-        std::cout<<std::endl;
-    }
 
     if(t->m_muonTrackSummary){
         std::cout << " m_muonTrackSummary->m_nscatterers: "<< t->m_muonTrackSummary->nscatterers() <<std::endl;
@@ -73,23 +61,8 @@ void TrackSummaryCnv_p2::persToTrans( const Trk::TrackSummary_p2 *persObj, Trk::
 
 
     transObj->m_idHitPattern      = persObj->m_idHitPattern;
-    transObj->m_eProbability      = persObj->m_eProbability;
-    transObj->m_dedx              = persObj->m_pixeldEdx;
-    transObj->m_nhitsdedx         = persObj->m_nhitsfordEdx;
 
-    size_t s = persObj->m_indetTrackSummary.size();
-    if (s){ // INDET TRACK SUMMARIES
-        Trk::InDetTrackSummary *ts=new Trk::InDetTrackSummary();
-        ts->m_massdedx = persObj->m_indetTrackSummary.back();
-        ts->m_likelihoodspixeldedx.resize(s-1);
-        for(size_t i = 0; i < (s-1); ++i)
-            ts->m_likelihoodspixeldedx[i]=persObj->m_indetTrackSummary[i];
-
-        transObj->m_indetTrackSummary.reset(ts);
-    }
-
-
-    s = persObj->m_muonTrackSummary.size();
+    std::size_t s = persObj->m_muonTrackSummary.size();
     if(s){  // MUON TRACK SUMMARY
         Trk::MuonTrackSummary *ts= new Trk::MuonTrackSummary();
         std::vector<unsigned int>::const_iterator i = persObj->m_muonTrackSummary.begin();
@@ -128,19 +101,6 @@ void TrackSummaryCnv_p2::transToPers( const Trk::TrackSummary    *transObj, Trk:
 
     persObj->m_information       = transObj->m_information;
     persObj->m_idHitPattern      = transObj->m_idHitPattern;
-    persObj->m_eProbability      = transObj->m_eProbability;
-    persObj->m_pixeldEdx         = transObj->m_dedx;
-    persObj->m_nhitsfordEdx      = transObj->m_nhitsdedx;
-
-    if(transObj->m_indetTrackSummary){       // INDET TRACK SUMMARY
-        size_t s = (transObj->m_indetTrackSummary->m_likelihoodspixeldedx).size();
-        persObj->m_indetTrackSummary.reserve(s+1);
-        for(size_t i = 0; i < s; ++i)
-            persObj->m_indetTrackSummary.push_back(transObj->m_indetTrackSummary->m_likelihoodspixeldedx[i]);
-
-        persObj->m_indetTrackSummary.push_back(transObj->m_indetTrackSummary->m_massdedx);
-    }
-
 
     if(transObj->m_muonTrackSummary){  // MUON TRACK SUMMARY
 

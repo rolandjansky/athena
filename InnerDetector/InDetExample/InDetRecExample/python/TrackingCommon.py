@@ -1282,9 +1282,7 @@ def getInDetSummaryHelper(name='InDetSummaryHelper',**kwargs) :
     from InDetRecExample.InDetJobProperties import InDetFlags
     from AthenaCommon.DetFlags              import DetFlags
     kwargs = setDefaults( kwargs,
-                          PixelToTPIDTool = None,         # we don't want to use those tools during pattern
                           TestBLayerTool  = None,         # we don't want to use those tools during pattern
-                          # PixelToTPIDTool = InDetPixelToTPIDTool,
                           # TestBLayerTool  = InDetRecTestBLayerTool,
                           RunningTIDE_Ambi = InDetFlags.doTIDE_Ambi(),
                           DoSharedHits    = False,
@@ -1302,9 +1300,6 @@ def getInDetSummaryHelperNoHoleSearch(name='InDetSummaryHelperNoHoleSearch',**kw
 
 
 def getInDetSummaryHelperSharedHits(name='InDetSummaryHelperSharedHits',**kwargs) :
-
-    if 'PixelToTPIDTool' not in kwargs :
-        kwargs = setDefaults( kwargs,          PixelToTPIDTool = getInDetPixelToTPIDTool())
 
     if 'TestBLayerTool' not in kwargs :
         kwargs = setDefaults( kwargs,          TestBLayerTool  = getInDetRecTestBLayerTool())
@@ -1339,9 +1334,7 @@ def getInDetTrackSummaryTool(name='InDetTrackSummaryTool',**kwargs) :
     #
     kwargs = setDefaults(kwargs,
                          doSharedHits           = False,
-                         doHolesInDet           = do_holes,
-                         TRT_ElectronPidTool    = None,         # we don't want to use those tools during pattern
-                         PixelToTPIDTool        = None)         # we don't want to use those tools during pattern
+                         doHolesInDet           = do_holes)         # we don't want to use those tools during pattern
     from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
     return Trk__TrackSummaryTool(name = the_name, **kwargs)
 
@@ -1358,12 +1351,6 @@ def getInDetTrackSummaryToolSharedHits(name='InDetTrackSummaryToolSharedHits',**
         id_helper_args = copyArgs(kwargs,copy_args) if 'ClusterSplitProbabilityName' in kwargs else {}
         kwargs.pop('ClusterSplitProbabilityName',None)
         kwargs = setDefaults( kwargs, InDetSummaryHelperTool = getInDetSummaryHelperSharedHits(**id_helper_args))
-
-    if 'TRT_ElectronPidTool' not in kwargs :
-        kwargs = setDefaults( kwargs, TRT_ElectronPidTool    = None )
-
-    if 'PixelToTPIDTool' not in kwargs :
-        kwargs = setDefaults( kwargs, PixelToTPIDTool        = None )
 
     from InDetRecExample.InDetJobProperties import InDetFlags
     kwargs = setDefaults(kwargs,

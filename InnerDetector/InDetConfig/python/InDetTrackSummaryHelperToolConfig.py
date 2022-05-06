@@ -25,7 +25,6 @@ def InDetTrackSummaryHelperToolCfg(flags, name='InDetSummaryHelper', **kwargs):
   if not flags.Detector.EnableTRT:
     kwargs.setdefault("TRTStrawSummarySvc", "")
 
-  kwargs.setdefault("PixelToTPIDTool", None)
   kwargs.setdefault("TestBLayerTool", None)
   kwargs.setdefault("RunningTIDE_Ambi", flags.InDet.Tracking.doTIDE_Ambi)
   kwargs.setdefault("DoSharedHits", False)
@@ -42,10 +41,6 @@ def InDetSummaryHelperNoHoleSearchCfg(flags, name='InDetSummaryHelperNoHoleSearc
 
 def InDetSummaryHelperSharedHitsCfg(flags, name='InDetSummaryHelperSharedHits', **kwargs):
   acc = ComponentAccumulator()
-
-  if 'PixelToTPIDTool' not in kwargs :
-    from InDetConfig.TrackingCommonConfig import InDetPixelToTPIDToolCfg
-    kwargs.setdefault("PixelToTPIDTool", acc.popToolsAndMerge(InDetPixelToTPIDToolCfg(flags)) )
 
   if 'TestBLayerTool' not in kwargs and flags.Detector.EnablePixel:
     from InDetConfig.TrackingCommonConfig import InDetRecTestBLayerToolCfg
@@ -89,7 +84,6 @@ def TrigTrackSummaryHelperToolCfg(flags, name="InDetTrigSummaryHelper", **kwargs
     TestBlayerTool = result.popToolsAndMerge(TestBlayerToolCfg(flags))
     kwargs.setdefault("TestBLayerTool", TestBlayerTool)
 
-  kwargs.setdefault("PixelToTPIDTool", None)
   kwargs.setdefault("DoSharedHits", True)
   kwargs.setdefault("usePixel", flags.Detector.EnablePixel)
   kwargs.setdefault("useSCT", flags.Detector.EnableSCT)
@@ -114,7 +108,6 @@ def ITkTrackSummaryHelperToolCfg(flags, name='ITkSummaryHelper', **kwargs):
     kwargs.setdefault("HoleSearch", ITkTrackHoleSearchTool)
 
   kwargs.setdefault("TRTStrawSummarySvc", "")
-  kwargs.setdefault("PixelToTPIDTool", None)
   kwargs.setdefault("TestBLayerTool", None)
   kwargs.setdefault("RunningTIDE_Ambi", True)
   kwargs.setdefault("DoSharedHits", False)
@@ -130,7 +123,6 @@ def ITkSummaryHelperNoHoleSearchCfg(flags, name='ITkSummaryHelperNoHoleSearch', 
   return ITkTrackSummaryHelperToolCfg(flags, name, **kwargs)
 
 def ITkSummaryHelperSharedHitsCfg(flags, name='ITkSummaryHelperSharedHits', **kwargs):
-  kwargs.setdefault("PixelToTPIDTool", None)
   kwargs.setdefault("TestBLayerTool", None)
   kwargs.setdefault("DoSharedHits", flags.ITk.Tracking.doSharedHits)
   return ITkTrackSummaryHelperToolCfg(flags, name = name, **kwargs)

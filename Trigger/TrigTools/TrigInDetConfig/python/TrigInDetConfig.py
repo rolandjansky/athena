@@ -64,8 +64,6 @@ def TrackSummaryToolCfg(flags, name="InDetTrigTrackSummaryTool", summaryHelperTo
                                           doSharedHits           = True,
                                           doHolesInDet           = True,
                                           #this may be temporary #61512 (and used within egamma later)
-                                          #TRT_ElectronPidTool    = InDetTrigTRT_ElectronPidTool,
-                                          TRT_ElectronPidTool    = None
                                           )
   if makePublic:
     acc.addPublicTool( tool, primary=True )

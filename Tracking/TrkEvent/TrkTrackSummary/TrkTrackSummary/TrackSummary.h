@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /***************************************************************************
 Summary.h  -  description
@@ -359,14 +359,14 @@ public:
   available in the Track, or (more likely) Trk::TrkTrackSummaryTool is not
   filling it yet)*/
   // Troels.Petersen@cern.ch:
-  float getPID(const eProbabilityType& PIDtype) const;
+  [[deprecated]] float getPID(const eProbabilityType& PIDtype) const;
 
   /** returns the dE/dx estimate, calculated using the pixel clusters */
-  float getPixeldEdx() const;
+  [[deprecated]] float getPixeldEdx() const;
 
-  int numberOfUsedHitsdEdx() const;
+  [[deprecated]] int numberOfUsedHitsdEdx() const;
 
-  int numberOfOverflowHitsdEdx() const;
+  [[deprecated]] int numberOfOverflowHitsdEdx() const;
 
   unsigned long getHitPattern() const;
 
@@ -377,11 +377,11 @@ public:
   bool isHit(const DetectorType& type) const;
 
   /** returns a const pointer to the InDetTrackSummary if available */
-  const InDetTrackSummary* indetTrackSummary() const;
+  [[deprecated]] const InDetTrackSummary* indetTrackSummary() const;
 
   /** returns a pointer to a modifiable (non-const)  InDetTrackSummary if
    * available */
-  InDetTrackSummary* indetTrackSummary();
+  [[deprecated]] InDetTrackSummary* indetTrackSummary();
 
   /** returns a pointer to the MuonTrackSummary if available */
   const MuonTrackSummary* muonTrackSummary() const;

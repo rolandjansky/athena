@@ -70,12 +70,6 @@ Trk::TrackSummaryTool::initialize()
   if (not m_idTool.empty()) {
     ATH_CHECK(m_idTool.retrieve());
   }
-  if (not m_eProbabilityTool.empty()) {
-    ATH_CHECK(m_eProbabilityTool.retrieve());
-  }
-  if (not m_dedxtool.empty()) {
-    ATH_CHECK(m_dedxtool.retrieve());
-  }
   if (not m_muonTool.empty()) {
     ATH_CHECK(m_muonTool.retrieve());
   }
@@ -238,11 +232,6 @@ Trk::TrackSummaryTool::fillSummary(const EventContext& ctx,
       setTheseElements(information, atPixelIndices, toZero);
       information[Trk::numberOfDBMHits] = 0;
 
-      // calculate  dedx
-      if (track.info().trackFitter() != TrackInfo::Unknown &&
-          !m_dedxtool.empty()) {
-        dedx = m_dedxtool->dEdx(ctx, track, nHitsUsed_dEdx, nOverflowHits_dEdx);
-      }
     }
     // SCT and TRT counters set to 0
     constexpr size_t numberOfSctOrTrtCounters{ 11 };
@@ -260,16 +249,8 @@ Trk::TrackSummaryTool::fillSummary(const EventContext& ctx,
       numberOfTRTSharedHits
     };
     setTheseElements(information, atSctOrTrtIndices, toZero);
-
-    // Calculate the  electron probability
-    if (!m_eProbabilityTool.empty()) {
-      eProbability = m_eProbabilityTool->electronProbability(ctx, track);
-      information[Trk::numberOfTRTHitsUsedFordEdx] = static_cast<int>(
-        eProbability[Trk::eProbabilityNumberOfTRTHitsUsedFordEdx]);
-    }
   }
-  // set electron probability and dedx
-  ts.m_eProbability = eProbability;
+
   ts.m_dedx = dedx;
   ts.m_nhitsdedx = nHitsUsed_dEdx;
   ts.m_nhitsoverflowdedx = nOverflowHits_dEdx;
@@ -346,10 +327,6 @@ Trk::TrackSummaryTool::fillSummary(const EventContext& ctx,
     searchHolesStepWise(track, information, doHolesInDet, doHolesMuon);
   }
 
-  // add detailed summary for indet
-  if (m_addInDetDetailedSummary && !m_idTool.empty()) {
-    m_idTool->addDetailedTrackSummary(ctx, track, ts);
-  }
   //Add Expected Hits info
   if (m_addExpectedHits && !m_idTool.empty()) {
     m_idTool->updateExpectedHitInfo(ctx,track,ts);
@@ -383,31 +360,14 @@ Trk::TrackSummaryTool::updateAdditionalInfo(const Track& track,
                                             bool initialiseToZero) const
 {
   std::vector<float> eProbability = Trk::eProbabilityDefault;
-  if (!m_eProbabilityTool.empty()) {
-    eProbability = m_eProbabilityTool->electronProbability(track);
-    int nHits = eProbability[Trk::eProbabilityNumberOfTRTHitsUsedFordEdx];
-    if (!summary.update(Trk::numberOfTRTHitsUsedFordEdx,
-                        static_cast<uint8_t>(std::max(nHits, 0)))) {
-      ATH_MSG_WARNING("Attempt to update numberOfTRTHitsUsedFordEdx but this "
-                      "summary information is "
-                      "already set. numberOfTRTHitsUsedFordEdx is:"
-                      << summary.get(numberOfTRTHitsUsedFordEdx)
-                      << " =?= should:" << nHits);
-    }
-  }
   const int initialValue(initialiseToZero ? 0 : -1);
   float dedx = initialValue;
   int nHitsUsed_dEdx = initialValue;
   int nOverflowHits_dEdx = initialValue;
-  if (track.info().trackFitter() != TrackInfo::Unknown && !m_dedxtool.empty()) {
-    dedx = m_dedxtool->dEdx(track, nHitsUsed_dEdx, nOverflowHits_dEdx);
-  }
   if (m_idTool) {
     m_idTool->updateAdditionalInfo(
       summary, eProbability, dedx, nHitsUsed_dEdx, nOverflowHits_dEdx);
     m_idTool->updateExpectedHitInfo(track, summary);
-    if (m_addInDetDetailedSummary)
-      m_idTool->addDetailedTrackSummary(track, summary);
   } else {
     ATH_MSG_INFO(
       "No updates attempted, as the SummaryHelperTool is not defined.");

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRK_INDETTRACKSUMMARY_H
@@ -28,22 +28,22 @@ public:
   friend class ::TrackSummaryCnv_p2;
 
   /** default constructor */
-  InDetTrackSummary();
-  InDetTrackSummary(const InDetTrackSummary&) = default;
-  InDetTrackSummary(InDetTrackSummary&&) = default;
-  InDetTrackSummary& operator=(const InDetTrackSummary&) = default;
-  InDetTrackSummary& operator=(InDetTrackSummary&&) = default;
+  [[deprecated]]   InDetTrackSummary();
+  [[deprecated]]   InDetTrackSummary(const InDetTrackSummary&) = default;
+  [[deprecated]]   InDetTrackSummary(InDetTrackSummary&&) = default;
+  [[deprecated]]   InDetTrackSummary& operator=(const InDetTrackSummary&) = default;
+  [[deprecated]]   InDetTrackSummary& operator=(InDetTrackSummary&&) = default;
   /** destructor */
   ~InDetTrackSummary() = default;
 
   /** access to the vector of likelihoods (pion/kaon/proton) */
-  const std::vector<float>& likelihoodsPixeldEdx() const
+  [[deprecated]] const std::vector<float>& likelihoodsPixeldEdx() const
   {
     return m_likelihoodspixeldedx;
   }
 
   /** access to mass calculated using pixel dEdx */
-  float massPixeldEdx() const { return m_massdedx; }
+  [[deprecated]] float massPixeldEdx() const { return m_massdedx; }
 
 private:
   std::vector<float> m_likelihoodspixeldedx; //<! vector with likelihoods
@@ -51,11 +51,11 @@ private:
 };
 
 /**output. This dumps the values of each of the possible summary enums*/
-MsgStream&
+[[deprecated]] MsgStream&
 operator<<(MsgStream& out, const InDetTrackSummary& trackSum);
 
 /**output. This dumps the values of each of the possible summary enums*/
-std::ostream&
+[[deprecated]] std::ostream&
 operator<<(std::ostream& out, const InDetTrackSummary& trackSum);
 
 }

@@ -31,7 +31,6 @@ def GSFTrackSummaryToolCfg(flags,
                 name="GSFBuildTrackSummaryHelperTool",
                 HoleSearch=None,
                 AssoTool=None,
-                PixelToTPIDTool=None,
                 TestBLayerTool=testBLTool
             ))
 

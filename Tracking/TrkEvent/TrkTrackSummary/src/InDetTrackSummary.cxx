@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkTrackSummary/InDetTrackSummary.h"
@@ -14,25 +14,13 @@ Trk::InDetTrackSummary::InDetTrackSummary()
 
 
 std::ostream&
-Trk::operator<<(std::ostream& out, const InDetTrackSummary& trackSum)
+Trk::operator<<(std::ostream&out, const InDetTrackSummary&)
 {
-  out << "InDetTrackSummary: likelihoods from pixel dEdx (pion/kaon/proton): "
-      << trackSum.likelihoodsPixeldEdx()[0] << " "
-      << trackSum.likelihoodsPixeldEdx()[1] << " "
-      << trackSum.likelihoodsPixeldEdx()[2] << std::endl;
-  out << "InDetTrackSummary: mass calculated using pixel dEdx: "
-      << trackSum.massPixeldEdx() << std::endl;
   return out;
 }
 
 MsgStream&
-Trk::operator<<(MsgStream& out, const InDetTrackSummary& trackSum)
+Trk::operator<<(MsgStream&out, const InDetTrackSummary&)
 {
-  out << "InDetTrackSummary: likelihoods from pixel dEdx (pion/kaon/proton): "
-      << trackSum.likelihoodsPixeldEdx()[0] << " "
-      << trackSum.likelihoodsPixeldEdx()[1] << " "
-      << trackSum.likelihoodsPixeldEdx()[2] << endmsg;
-  out << "InDetTrackSummary: mass calculated using pixel dEdx: "
-      << trackSum.massPixeldEdx() << endmsg;
   return out;
 }

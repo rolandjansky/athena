@@ -22,8 +22,6 @@ def ITkTrackSummaryToolCfg(flags, name='ITkTrackSummaryTool', **kwargs):
     #
     kwargs.setdefault("doSharedHits", False)
     kwargs.setdefault("doHolesInDet", do_holes)
-    kwargs.setdefault("TRT_ElectronPidTool", None) # we don't want to use those tools during pattern
-    kwargs.setdefault("PixelToTPIDTool", None) # we don't want to use those tools during pattern
     acc.addPublicTool(CompFactory.Trk.TrackSummaryTool(name, **kwargs), primary=True)
     return acc
 
@@ -47,7 +45,6 @@ def ITkTrackSummaryToolSharedHitsCfg(flags, name='ITkTrackSummaryToolSharedHits'
         ITkSummaryHelperSharedHits = acc.popToolsAndMerge(ITkSummaryHelperSharedHitsCfg(flags))
         kwargs.setdefault("InDetSummaryHelperTool", ITkSummaryHelperSharedHits)
 
-    kwargs.setdefault( "PixelToTPIDTool", None)
     kwargs.setdefault( "doSharedHits", flags.ITk.Tracking.doSharedHits)
 
     ITkTrackSummaryTool = acc.getPrimaryAndMerge(ITkTrackSummaryToolCfg(flags, name, **kwargs))

@@ -59,7 +59,6 @@ InDet::InDetTrackSummaryHelperTool::initialize()
 
   ATH_CHECK(
     m_assoTool.retrieve(DisableTool{ !m_doSharedHits || m_assoTool.empty() }));
-  ATH_CHECK(m_pixeldedxtool.retrieve(DisableTool{ m_pixeldedxtool.empty() }));
   ATH_CHECK(m_holeSearchTool.retrieve(DisableTool{ m_holeSearchTool.empty() }));
   ATH_CHECK(m_testBLayerTool.retrieve(DisableTool{ m_testBLayerTool.empty() }));
   ATH_CHECK(m_TRTStrawSummaryTool.retrieve(
@@ -523,60 +522,11 @@ InDet::InDetTrackSummaryHelperTool::updateExpectedHitInfo(
   }
 
 void
-InDet::InDetTrackSummaryHelperTool::updateAdditionalInfo(
-  Trk::TrackSummary& summary,
-  std::vector<float>& eprob,
-  float& dedx,
-  int& nclus,
-  int& noverflowclus) const
-{
-  summary.m_eProbability = eprob;
-  summary.m_dedx = dedx;
-  summary.m_nhitsdedx = nclus;
-  summary.m_nhitsoverflowdedx = noverflowclus;
-}
-
-void
 InDet::InDetTrackSummaryHelperTool::addDetailedTrackSummary(
-  const EventContext& ctx,
-  const Trk::Track& track,
-  Trk::TrackSummary& summary) const
+  const EventContext&,
+  const Trk::Track&,
+  Trk::TrackSummary&) const
 {
-  if (summary.m_indetTrackSummary and not m_overwriteidsummary) {
-    ATH_MSG_DEBUG("TrackSummary already has detailed indet track summary, not "
-                  "adding a new one");
-    return;
-  }
-  if (not m_usePixel) {
-    ATH_MSG_DEBUG(
-      "Pixels are off, so no need for an detailed indet track summary");
-    return;
-  }
-  ATH_MSG_DEBUG("Adding detailed indet track summary");
-  summary.m_indetTrackSummary.reset();
-  Trk::InDetTrackSummary* indetTrackSummary = new Trk::InDetTrackSummary();
-  Trk::InDetTrackSummary& trackSummary = *indetTrackSummary;
-  if (m_usePixel and not m_pixeldedxtool.empty() and
-      (track.perigeeParameters() or not track.trackParameters()->empty())) {
-    const Trk::TrackParameters* par = track.perigeeParameters();
-
-    if (par == nullptr) {
-      par = *track.trackParameters()->begin();
-    }
-    double p = (par->parameters()[Trk::qOverP] != 0)
-                 ? 1. / par->parameters()[Trk::qOverP]
-                 : 1.e15;
-    double dedx = summary.getPixeldEdx();
-    int ngoodhits = summary.numberOfUsedHitsdEdx();
-    if (ngoodhits > 0 and dedx > 0 and
-        track.info().trackFitter() != Trk::TrackInfo::Unknown and p < 1.e15) {
-      trackSummary.m_likelihoodspixeldedx =
-        m_pixeldedxtool->getLikelihoods(ctx, dedx, p, ngoodhits);
-      trackSummary.m_massdedx =
-        m_pixeldedxtool->getMass(ctx, dedx, p, ngoodhits);
-    }
-  }
-  summary.m_indetTrackSummary.reset(indetTrackSummary);
 }
 
 StatusCode

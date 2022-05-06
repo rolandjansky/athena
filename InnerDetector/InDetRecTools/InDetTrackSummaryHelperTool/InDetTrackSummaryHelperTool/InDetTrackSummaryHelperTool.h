@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETTRACKSUMMARYHELPERTOOL_H
@@ -114,14 +114,6 @@ public:
     const Trk::Track& track,
     const Trk::PRDtoTrackMap* prd_to_track_map,
     Trk::TrackSummary& summary) const override final;
-
-  /** this method simply updaes the electron PID content - it is
-   * designed/optimised for track collection merging */
-  virtual void updateAdditionalInfo(Trk::TrackSummary& summary,
-                                    std::vector<float>& eprob,
-                                    float& dedx,
-                                    int& nclus,
-                                    int& noverflowclus) const override final;
 
 private:
   const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo&

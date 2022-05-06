@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKTRACKSUMMARYTOOL_H
@@ -227,13 +227,6 @@ private:
   /**tool to decipher ID RoTs*/
   ToolHandle<IExtendedTrackSummaryHelperTool>
     m_idTool{ this, "InDetSummaryHelperTool", "", "" };
-  /**tool to calculate electron probabilities*/
-  ToolHandle<ITRT_ElectronPidTool> m_eProbabilityTool{ this,
-                                                       "TRT_ElectronPidTool",
-                                                       "",
-                                                       "" };
-  /**tool to calculate dE/dx using pixel clusters*/
-  ToolHandle<IPixelToTPIDTool> m_dedxtool{ this, "PixelToTPIDTool", "", "" };
   /**tool to decipher muon RoTs*/
   ToolHandle<IExtendedTrackSummaryHelperTool>
     m_muonTool{ this, "MuonSummaryHelperTool", "", "" };
@@ -252,11 +245,6 @@ private:
                                            "AddExpectedHits",
                                            false,
                                            "" };
-  /** controls whether the detailed summary is added for the indet */
-  Gaudi::Property<bool> m_addInDetDetailedSummary{ this,
-                                                   "AddDetailedInDetSummary",
-                                                   true,
-                                                   "" };
   /** controls whether the detailed summary is added for the muons */
   Gaudi::Property<bool> m_addMuonDetailedSummary{ this,
                                                   "AddDetailedMuonSummary",
