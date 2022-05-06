@@ -32,6 +32,7 @@ using namespace ST;
 #include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
+#include "EgammaAnalysisInterfaces/IAsgDeadHVCellRemovalTool.h"
 #include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"
 #include "EgammaAnalysisInterfaces/IEGammaAmbiguityTool.h"
 #include "EgammaAnalysisInterfaces/IAsgPhotonEfficiencyCorrectionTool.h"
@@ -843,6 +844,16 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       ATH_CHECK( m_photonSelIsEMBaseline.setProperty("OutputLevel", this->msg().level()) );
       ATH_CHECK( m_photonSelIsEMBaseline.retrieve() );
     } else  ATH_CHECK( m_photonSelIsEMBaseline.retrieve() );
+  }
+
+  if (m_slices["ele"]||m_slices["pho"]) {
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    // Initialise DeadHVCellRemovalTool
+    // https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/EGammaIdentificationRun2#Removal_of_Electron_Photon_clust
+
+    ATH_MSG_DEBUG("Setup AsgDeadHVCellRemovalTool/deadHVTool");
+    m_deadHVTool.setTypeAndName("AsgDeadHVCellRemovalTool/deadHVTool");
+    ATH_CHECK(m_deadHVTool.retrieve());
   }
 
   if (m_slices["ele"]) {
