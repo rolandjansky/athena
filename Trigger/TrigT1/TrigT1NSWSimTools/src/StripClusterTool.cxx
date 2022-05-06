@@ -208,7 +208,7 @@ namespace NSWL1 {
       float locx=-999999;
       float locy=-999999;
       if (this_cl->empty()){
-        ATH_MSG_INFO("Zero size cluster!!");
+        ATH_MSG_WARNING("Zero size cluster!!");
         continue;
       }
 

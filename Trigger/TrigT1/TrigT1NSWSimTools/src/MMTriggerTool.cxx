@@ -2,30 +2,7 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// local includes
 #include "TrigT1NSWSimTools/MMTriggerTool.h"
-#include "TrigT1NSWSimTools/MMT_Finder.h"
-#include "TrigT1NSWSimTools/MMT_Fitter.h"
-// Athena/Gaudi includes
-#include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/IIncidentSvc.h"
-#include "MuonIdHelpers/MmIdHelper.h"
-
-//Muon software includes
-#include "MuonDigitContainer/MmDigit.h"
-
-// ROOT includes
-#include "TTree.h"
-
-
-using std::vector;
-using std::map;
-using std::pair;
-using std::string;
-using std::ios;
-using std::setfill;
-using std::setw;
-
 
 namespace NSWL1 {
 
@@ -38,18 +15,14 @@ namespace NSWL1 {
     declareInterface<NSWL1::IMMTriggerTool>(this);
   }
 
-  MMTriggerTool::~MMTriggerTool() {
-
-  }
-
   StatusCode MMTriggerTool::initialize() {
 
     ATH_MSG_DEBUG( "initializing -- " << name() );
 
     ATH_MSG_DEBUG( name() << " configuration:");
-    ATH_MSG_DEBUG(" " << setw(32) << setfill('.') << setiosflags(ios::left) << m_mmDigitContainer.name() << m_mmDigitContainer.value());
-    ATH_MSG_DEBUG(" " << setw(32) << setfill('.') << setiosflags(ios::left) << m_doNtuple.name() << ((m_doNtuple)? "[True]":"[False]")
-                     << setfill(' ') << setiosflags(ios::right) );
+    ATH_MSG_DEBUG(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_mmDigitContainer.name() << m_mmDigitContainer.value());
+    ATH_MSG_DEBUG(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_doNtuple.name() << ((m_doNtuple)? "[True]":"[False]")
+                      << std::setfill(' ') << std::setiosflags(std::ios::right) );
 
     ATH_CHECK(m_keyMcEventCollection.initialize(m_isMC));
     ATH_CHECK(m_keyMuonEntryLayer.initialize(m_isMC));
@@ -286,35 +259,50 @@ namespace NSWL1 {
                       // Phi-id
                       uint8_t phi_id = 0;
                       if (slope.phiShf*M_PI/180.0 > m_phiMax || slope.phiShf*M_PI/180.0 < m_phiMin) trigRawDataSegment->setPhiIndex(phi_id);
-                      uint8_t nPhi = (1<<m_phiBits) -2; // To accomodate the new phi-id encoding prescription around 0
-                      float phiSteps = (m_phiMax - m_phiMin)/nPhi;
-                      for (uint8_t i=0; i<nPhi; i++) {
-                        if ((slope.phiShf*M_PI/180.0) < (m_phiMin+i*phiSteps)) phi_id = i;
+                      else {
+                        uint8_t nPhi = (1<<m_phiBits) -2; // To accomodate the new phi-id encoding prescription around 0
+                        float phiSteps = (m_phiMax - m_phiMin)/nPhi;
+                        for (uint8_t i=0; i<nPhi; i++) {
+                          if ((slope.phiShf*M_PI/180.0) < (m_phiMin+i*phiSteps)) {
+                            phi_id = i;
+                            break;
+                          }
+                        }
+                        trigRawDataSegment->setPhiIndex(phi_id);
                       }
-                      trigRawDataSegment->setPhiIndex(phi_id);
                       if (m_doNtuple) m_trigger_diamond_TP_phi_id->push_back(phi_id);
 
                       // R-id
                       double extrapolatedR = slope.mx*7824.46; // The Z plane is a fixed value, taken from SL-TP documentation
                       uint8_t R_id = 0;
                       if (extrapolatedR > m_rMax || extrapolatedR < m_rMin) trigRawDataSegment->setRIndex(R_id);
-                      uint8_t nR = (1<<m_rBits) -1;
-                      float Rsteps = (m_rMax - m_rMin)/nR;
-                      for (uint8_t j=0; j<nR; j++) {
-                        if (extrapolatedR < (m_rMin+j*Rsteps)) R_id = j;
+                      else {
+                        uint8_t nR = (1<<m_rBits) -1;
+                        float Rsteps = (m_rMax - m_rMin)/nR;
+                        for (uint8_t j=0; j<nR; j++) {
+                          if (extrapolatedR < (m_rMin+j*Rsteps)) {
+                            R_id = j;
+                            break;
+                          }
+                        }
+                        trigRawDataSegment->setRIndex(R_id);
                       }
-                      trigRawDataSegment->setRIndex(R_id);
                       if (m_doNtuple) m_trigger_diamond_TP_R_id->push_back(R_id);
 
                       // DeltaTheta-id
                       uint8_t dTheta_id = 0;
                       if (slope.dtheta*M_PI/180.0 > m_dThetaMax || slope.dtheta*M_PI/180.0 < m_dThetaMin) trigRawDataSegment->setDeltaTheta(dTheta_id);
-                      uint8_t ndTheta = (1<<m_dThetaBits) -1;
-                      float dThetaSteps = (m_dThetaMax - m_dThetaMin)/ndTheta;
-                      for (uint8_t k=0; k<ndTheta; k++) {
-                        if ((slope.dtheta*M_PI/180.0) < (m_dThetaMin+k*dThetaSteps)) dTheta_id = k;
+                      else {
+                        uint8_t ndTheta = (1<<m_dThetaBits) -1;
+                        float dThetaSteps = (m_dThetaMax - m_dThetaMin)/ndTheta;
+                        for (uint8_t k=0; k<ndTheta; k++) {
+                          if ((slope.dtheta*M_PI/180.0) < (m_dThetaMin+k*dThetaSteps)) {
+                            dTheta_id = k;
+                            break;
+                          }
+                        }
+                        trigRawDataSegment->setDeltaTheta(dTheta_id);
                       }
-                      trigRawDataSegment->setDeltaTheta(dTheta_id);
                       if (m_doNtuple) m_trigger_diamond_TP_dTheta_id->push_back(dTheta_id);
 
                       // Low R-resolution bit
@@ -339,7 +327,7 @@ namespace NSWL1 {
             auto find = std::make_unique<MMT_Finder>(pars[station], 1);
             ATH_MSG_DEBUG(  "Number of Roads Configured " <<  find->get_roads()  );
 
-            std::map<pair<int,int>,finder_entry> hitBuffer;
+            std::map<std::pair<int,int>,finder_entry> hitBuffer;
             for (const auto &hit_it : reco_it->second) {
               find->fillHitBuffer( hitBuffer, hit_it.second.entry_hit(pars[station]), pars[station] ); // Hit object, Map (road,plane) -> Finder entry
   
@@ -378,18 +366,18 @@ namespace NSWL1 {
             const int nfit_max = 1;  //MOVE THIS EVENTUALLY
             int nRoads = find->get_roads();
 
-            vector<evFit_entry> road_fits = vector<evFit_entry>(nRoads,evFit_entry());
+            std::vector<evFit_entry> road_fits = std::vector<evFit_entry>(nRoads,evFit_entry());
 
             //Variables saved for Alex T. for hardware validation
             double mxl;
             double fillmxl = -999;
             double muGlobal;
             double mvGlobal;
-            vector<pair<double,double> > mxmy;
+            std::vector<std::pair<double,double> > mxmy;
 
             for (int iRoad = 0; iRoad < nRoads; iRoad++) {
-              vector<bool> plane_is_hit;
-              vector<Hit> track;
+              std::vector<bool> plane_is_hit;
+              std::vector<Hit> track;
 
               //Check if there are hits in the buffer
               find->checkBufferForHits(  plane_is_hit, // Empty, To be filled by function.
