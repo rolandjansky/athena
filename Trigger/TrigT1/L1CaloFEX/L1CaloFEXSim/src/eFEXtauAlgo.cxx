@@ -59,6 +59,10 @@ LVL1::eFEXtauTOB *LVL1::eFEXtauAlgo::getTauTOB()
   eFEXtauTOB *tob = new eFEXtauTOB();
   unsigned int et = getEt();
   tob->setEt(et);
+  tob->setRcoreCore(rCoreCore());
+  tob->setRcoreEnv(rCoreEnv());
+  tob->setRhadCore(rHadCore());
+  tob->setRhadEnv(rHadEnv());
   tob->setBitwiseEt(getBitwiseEt());
   tob->setIso(getRealRCore());
   tob->setSeedUnD(getUnD());

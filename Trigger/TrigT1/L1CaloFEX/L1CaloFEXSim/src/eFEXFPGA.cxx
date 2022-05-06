@@ -84,7 +84,7 @@ void eFEXFPGA::reset(){
 
 StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
   m_emTobObjects.clear();
-  m_tauTobwords.clear();
+  m_tauTobObjects.clear();
 
   SG::ReadHandle<eTowerContainer> eTowerContainer(m_eTowerContainerKey/*,ctx*/);
   if(!eTowerContainer.isValid()){
@@ -309,9 +309,17 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
 
       int eta_ind = ieta; // No need to offset eta index with new 0-5 convention
       int phi_ind = iphi - 1;
-      
+
+      // Form the tau tob word
       uint32_t tobword = m_eFEXFormTOBsTool->formTauTOBWord(m_id, eta_ind, phi_ind, eTauTobEt, rHadWP, rCoreWP, seed, und, ptTauMinToTopoCounts);
-      if ( tobword != 0 ) m_tauTobwords.push_back(tobword);
+      eFEXtauTOB* tmp_tau_tob = m_eFEXtauAlgoTool->getTauTOB();
+      tmp_tau_tob->setFPGAID(m_id);
+      tmp_tau_tob->seteFEXID(m_efexid);
+      tmp_tau_tob->setEta(ieta);
+      tmp_tau_tob->setPhi(iphi);
+      tmp_tau_tob->setTobword(tobword);
+
+      if ( tobword != 0 ) m_tauTobObjects.push_back(*tmp_tau_tob);
 
       // for plotting
       if ((inputOutputCollection->getdooutput()) && ( tobword != 0 )) {
@@ -359,7 +367,7 @@ std::vector<eFEXegTOB> eFEXFPGA::getEmTOBs()
   ATH_MSG_DEBUG("number of tobs: " <<tobsSort.size() << " in FPGA: " << m_id << " before truncation");
 
   // sort tobs by their et (last 12 bits of the 32 bit tob word)
-  std::sort (tobsSort.begin(), tobsSort.end(), TOBetSort);
+  std::sort (tobsSort.begin(), tobsSort.end(), TOBetSort<eFEXegTOB>);
 
   // return the top 6 highest ET TOBs from the FPGA
   if (tobsSort.size() > 6) tobsSort.resize(6);
@@ -367,14 +375,14 @@ std::vector<eFEXegTOB> eFEXFPGA::getEmTOBs()
 
 }
 
-std::vector<uint32_t> eFEXFPGA::getTauTOBs()
+std::vector<eFEXtauTOB> eFEXFPGA::getTauTOBs()
 {
-  auto tobsSort = m_tauTobwords;
+  auto tobsSort = m_tauTobObjects;
 
   ATH_MSG_DEBUG("number of tobs: " <<tobsSort.size() << " in FPGA: " << m_id << " before truncation");
 
   // sort tobs by their et (last 12 bits of the 32 bit tob word)
-  std::sort (tobsSort.begin(), tobsSort.end(), etSort);
+  std::sort (tobsSort.begin(), tobsSort.end(), TOBetSort<eFEXtauTOB>);
 
   // return the top 6 highest ET TOBs from the FPGA
   if (tobsSort.size() > 6) tobsSort.resize(6);

@@ -77,7 +77,7 @@ namespace LVL1 {
 
 StatusCode eFEXSim::NewExecute(int tmp_eTowersIDs_subset[10][18], eFEXOutputCollection* inputOutputCollection){
   m_emTobObjects.clear();
-  m_tauTobWords.clear();
+  m_tauTobObjects.clear();
 
   std::copy(&tmp_eTowersIDs_subset[0][0], &tmp_eTowersIDs_subset[0][0]+(10*18),&m_eTowersIDs[0][0]);
 
@@ -95,7 +95,7 @@ StatusCode eFEXSim::NewExecute(int tmp_eTowersIDs_subset[10][18], eFEXOutputColl
   m_eFEXFPGATool->SetTowersAndCells_SG(tmp_eTowersIDs_subset_FPGA);
   ATH_CHECK(m_eFEXFPGATool->execute(inputOutputCollection));
   m_emTobObjects.push_back(m_eFEXFPGATool->getEmTOBs());
-  m_tauTobWords.push_back(m_eFEXFPGATool->getTauTOBs());
+  m_tauTobObjects.push_back(m_eFEXFPGATool->getTauTOBs());
   m_eFEXFPGATool->reset();
   //FPGA 0----------------------------------------------------------------------------------------------------------------------------------------------
   
@@ -110,7 +110,7 @@ StatusCode eFEXSim::NewExecute(int tmp_eTowersIDs_subset[10][18], eFEXOutputColl
   m_eFEXFPGATool->SetTowersAndCells_SG(tmp_eTowersIDs_subset_FPGA);
   ATH_CHECK(m_eFEXFPGATool->execute(inputOutputCollection));
   m_emTobObjects.push_back(m_eFEXFPGATool->getEmTOBs());
-  m_tauTobWords.push_back(m_eFEXFPGATool->getTauTOBs());
+  m_tauTobObjects.push_back(m_eFEXFPGATool->getTauTOBs());
   m_eFEXFPGATool->reset();
   //FPGA 1----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -126,7 +126,7 @@ StatusCode eFEXSim::NewExecute(int tmp_eTowersIDs_subset[10][18], eFEXOutputColl
   m_eFEXFPGATool->SetTowersAndCells_SG(tmp_eTowersIDs_subset_FPGA);
   ATH_CHECK(m_eFEXFPGATool->execute(inputOutputCollection));
   m_emTobObjects.push_back(m_eFEXFPGATool->getEmTOBs());
-  m_tauTobWords.push_back(m_eFEXFPGATool->getTauTOBs());
+  m_tauTobObjects.push_back(m_eFEXFPGATool->getTauTOBs());
   m_eFEXFPGATool->reset();
   //FPGA 2----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -141,7 +141,7 @@ StatusCode eFEXSim::NewExecute(int tmp_eTowersIDs_subset[10][18], eFEXOutputColl
   m_eFEXFPGATool->SetTowersAndCells_SG(tmp_eTowersIDs_subset_FPGA);
   ATH_CHECK(m_eFEXFPGATool->execute(inputOutputCollection));
   m_emTobObjects.push_back(m_eFEXFPGATool->getEmTOBs());
-  m_tauTobWords.push_back(m_eFEXFPGATool->getTauTOBs());
+  m_tauTobObjects.push_back(m_eFEXFPGATool->getTauTOBs());
   m_eFEXFPGATool->reset();
   //FPGA 3----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -167,7 +167,7 @@ std::vector<eFEXegTOB> eFEXSim::getEmTOBs()
   ATH_MSG_DEBUG("number of tobs: " <<tobsSort.size() << " in eFEX: " << m_id);
 
   // sort the tobs from the fpgas by their et (last 12 bits of 32 bit word)
-  std::sort (tobsSort.begin(), tobsSort.end(), TOBetSort);
+  std::sort (tobsSort.begin(), tobsSort.end(), TOBetSort<eFEXegTOB>);
 
   // return the 6 highest ET TOBs from the efex
   if (tobsSort.size() > 6) tobsSort.resize(6);
@@ -175,15 +175,15 @@ std::vector<eFEXegTOB> eFEXSim::getEmTOBs()
 }
 
 
-std::vector<uint32_t> eFEXSim::getTauTOBs()
+std::vector<eFEXtauTOB> eFEXSim::getTauTOBs()
 {
 
-  std::vector<uint32_t> tobsSort;
+  std::vector<eFEXtauTOB> tobsSort;
   tobsSort.clear();
   bool first = true;
 
   // concatenate tobs from the fpgas
-  for( auto &j : m_tauTobWords ){
+  for( auto &j : m_tauTobObjects ){
     if (first) tobsSort = j;
     else tobsSort.insert(tobsSort.end(), j.begin(), j.end());
     first = false;
@@ -192,7 +192,7 @@ std::vector<uint32_t> eFEXSim::getTauTOBs()
   ATH_MSG_DEBUG("number of tau tobs: " << tobsSort.size() << " in eFEX: " << m_id);
 
   // sort the tobs from the fpgas by their et (last 12 bits of 32 bit word)
-  std::sort( tobsSort.begin(), tobsSort.end(), etSort);
+  std::sort( tobsSort.begin(), tobsSort.end(), TOBetSort<eFEXtauTOB>);
 
   // return the tob 6 highest ET TOBs from the efex
   if (tobsSort.size() > 6) tobsSort.resize(6);

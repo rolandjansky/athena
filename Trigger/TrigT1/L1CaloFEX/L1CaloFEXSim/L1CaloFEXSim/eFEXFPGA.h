@@ -23,6 +23,7 @@
 #include "L1CaloFEXSim/eFEXOutputCollection.h"
 #include "TrigConfData/L1Menu.h"
 #include "L1CaloFEXSim/eFEXegTOB.h"
+#include "L1CaloFEXSim/eFEXtauTOB.h"
 
 #include <vector>
 
@@ -55,18 +56,17 @@ namespace LVL1 {
     virtual void SetIsoWP(std::vector<unsigned int> &, std::vector<unsigned int> &, unsigned int &, unsigned int &) override ;
 
     virtual std::vector <eFEXegTOB> getEmTOBs() override ;
-    virtual std::vector <uint32_t> getTauTOBs() override ;
+    virtual std::vector <eFEXtauTOB> getTauTOBs() override ;
 
     /** Internal data */
   private:
     const unsigned int m_eFexStep = 25;
 
-    static bool etSort (uint32_t i,uint32_t j) { return (((i >> 0 ) & 0xfff)>((j >> 0 ) & 0xfff)); }
-    static bool TOBetSort(const eFEXegTOB& i, const eFEXegTOB& j ) {return (((i.getTobword() >> 0 ) & 0xfff)>((j.getTobword() >> 0 ) & 0xfff)); }
+    template <class TOBObjectClass> static bool TOBetSort(const TOBObjectClass& i, const TOBObjectClass& j ) {return (((i.getTobword() >> 0 ) & 0xfff)>((j.getTobword() >> 0 ) & 0xfff)); }
     int m_id;
     int m_efexid;
     std::vector< eFEXegTOB > m_emTobObjects;
-    std::vector< uint32_t > m_tauTobwords;
+    std::vector< eFEXtauTOB > m_tauTobObjects;
     int m_eTowersIDs [10][6];
 
     SG::ReadHandleKey<TrigConf::L1Menu> m_l1MenuKey{
