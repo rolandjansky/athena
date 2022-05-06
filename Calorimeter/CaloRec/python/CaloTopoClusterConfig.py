@@ -398,12 +398,13 @@ def CaloTopoClusterCfg(configFlags, cellsname="AllCalo", clustersname=None):
 
     from OutputStreamAthenaPool.OutputStreamConfig import addToAOD, addToESD
     toESD = [f"xAOD::CaloClusterContainer#{CaloTopoCluster.ClustersOutputName}", 
-            f"xAOD::CaloClusterAuxContainer#{CaloTopoCluster.ClustersOutputName}Aux.",
-            "CaloClusterCellLinkContainer#CaloCalTopoClusters_links"]
-    toAOD = [f"xAOD::CaloClusterContainer#{CaloTopoCluster.ClustersOutputName}", "CaloClusterCellLinkContainer#CaloCalTopoClusters_links"]
-    auxItems=f"xAOD::CaloClusterAuxContainer#{CaloTopoCluster.ClustersOutputName}Aux.CellLink"
+             f"xAOD::CaloClusterAuxContainer#{CaloTopoCluster.ClustersOutputName}Aux.",
+             f"CaloClusterCellLinkContainer#{CaloTopoCluster.ClustersOutputName}_links"]
+    toAOD = [f"xAOD::CaloClusterContainer#{CaloTopoCluster.ClustersOutputName}",]
+    auxItems=f"xAOD::CaloClusterAuxContainer#{CaloTopoCluster.ClustersOutputName}Aux"
     for mom in AODMoments:
         auxItems+="."+mom
+
 
     toAOD.append(auxItems)
  

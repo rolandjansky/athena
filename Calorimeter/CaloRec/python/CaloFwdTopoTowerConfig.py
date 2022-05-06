@@ -141,6 +141,31 @@ def CaloFwdTopoTowerCfg(flags,**kwargs):
     caloTowerMerger.TopoSignalContainerKey  = 'CaloCalTopoSignals'
     
     result.addEventAlgo(caloTowerMerger)
+
+    #Output Config: 
+    from OutputStreamAthenaPool.OutputStreamConfig import  addToAOD, addToESD
+    toESD=[f"xAOD::CaloClusterContainer#{towerContainerKey}", 
+           f"xAOD::CaloClusterAuxContainer#{towerContainerKey}Aux.",
+           f"CaloClusterCellLinkContainer#{towerContainerKey}_links"]
+
+
+    AODAuxItems=f"xAOD::CaloClusterAuxContainer#{towerContainerKey}Aux."
+    for mom in  ("CENTER_LAMBDA", 
+                 #"CENTER_MAG",
+                 "LONGITUDINAL",
+                 #"FIRST_ENG_DENS",
+                 #"ENG_FRAC_MAX",
+                 "ENG_FRAC_EM",
+                 #"PTD",
+                 "SIGNIFICANCE",
+                 "ENG_POS"):
+        AODAuxItems+="."+mom
+
+    toAOD=[f"xAOD::CaloClusterContainer#{towerContainerKey}",AODAuxItems]
+
+    result.merge(addToESD(flags, toESD))
+    result.merge(addToAOD(flags, toAOD))
+
     return result
 
 
