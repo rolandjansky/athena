@@ -314,23 +314,21 @@ def TrigEgammaPrecisionElectronDNNSelectorCfg(name='TrigEgammaPrecisionElectronD
 #
 # Electron LH Selectors
 #
-def TrigEgammaPrecisionElectronLHSelectorCfg( name='TrigEgammaPrecisionElectronLHSelector', ConfigFilePath=None):
+def TrigEgammaPrecisionElectronLHSelectorCfg( name='TrigEgammaPrecisionElectronLHSelector', ConfigFilePath=None, ConfigFileNoPixPath=None):
 
     # Configure the LH selectors
     acc = ComponentAccumulator()
     if not ConfigFilePath:
-        ConfigFilePath = ConfigFlags.Trigger.egamma.pidVersion
-
+        ConfigFilePath = ConfigFlags.Trigger.egamma.electronPidVersion
+    if not ConfigFileNoPixPath:
+        ConfigFileNoPixPath = ConfigFlags.Trigger.egamma.electronNoPixPidVersion
+    
     import collections.abc
     SelectorNames = collections.OrderedDict({
           'lhtight'       :'AsgElectronLHTightSelector',
           'lhmedium'      :'AsgElectronLHMediumSelector',
           'lhloose'       :'AsgElectronLHLooseSelector',
           'lhvloose'      :'AsgElectronLHVLooseSelector',
-          'lhtight_nopix' :'AsgElectronLHTightSelectorNoPix',
-          'lhmedium_nopix':'AsgElectronLHMediumSelectorNoPix',
-          'lhloose_nopix' :'AsgElectronLHLooseSelectorNoPix',
-          'lhvloose_nopix':'AsgElectronLHVLooseSelectorNoPix',
           })
      
     ElectronToolConfigFile = collections.OrderedDict({
@@ -338,6 +336,15 @@ def TrigEgammaPrecisionElectronLHSelectorCfg( name='TrigEgammaPrecisionElectronL
           'lhmedium'        :'ElectronLikelihoodMediumTriggerConfig.conf',
           'lhloose'         :'ElectronLikelihoodLooseTriggerConfig.conf',
           'lhvloose'        :'ElectronLikelihoodVeryLooseTriggerConfig.conf',
+          })
+    SelectorNoPixNames = collections.OrderedDict({
+          'lhtight_nopix' :'AsgElectronLHTightSelectorNoPix',
+          'lhmedium_nopix':'AsgElectronLHMediumSelectorNoPix',
+          'lhloose_nopix' :'AsgElectronLHLooseSelectorNoPix',
+          'lhvloose_nopix':'AsgElectronLHVLooseSelectorNoPix',
+          })
+     
+    ElectronNoPixToolConfigFile = collections.OrderedDict({
           'lhtight_nopix'   :'ElectronLikelihoodTightTriggerConfig_NoPix.conf',
           'lhmedium_nopix'  :'ElectronLikelihoodMediumTriggerConfig_NoPix.conf',
           'lhloose_nopix'   :'ElectronLikelihoodLooseTriggerConfig_NoPix.conf',
@@ -347,6 +354,13 @@ def TrigEgammaPrecisionElectronLHSelectorCfg( name='TrigEgammaPrecisionElectronL
     for pidname, name in SelectorNames.items():
       SelectorTool = CompFactory.AsgElectronLikelihoodTool(name)
       SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[pidname]
+      SelectorTool.usePVContainer = False 
+      SelectorTool.skipDeltaPoverP = True
+      acc.addPublicTool(SelectorTool)
+
+    for pidname, name in SelectorNoPixNames.items():
+      SelectorTool = CompFactory.AsgElectronLikelihoodTool(name)
+      SelectorTool.ConfigFile = ConfigFileNoPixPath + '/' + ElectronNoPixToolConfigFile[pidname]
       SelectorTool.usePVContainer = False 
       SelectorTool.skipDeltaPoverP = True
       acc.addPublicTool(SelectorTool)
@@ -381,7 +395,7 @@ def TrigEgammaPrecisionElectronCBSelectorCfg(name='TrigEgammaPrecisionElectronCB
     )
 
     if not ConfigFilePath:
-        ConfigFilePath = ConfigFlags.Trigger.egamma.pidVersion
+        ConfigFilePath = ConfigFlags.Trigger.egamma.electronPidVersion
 
     from collections import OrderedDict
     SelectorNames = OrderedDict({

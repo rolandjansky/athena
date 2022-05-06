@@ -185,7 +185,7 @@ def createTrigEgammaPrecisionPhotonSelectors(ConfigFilePath=None):
     from ElectronPhotonSelectorTools.ConfiguredAsgPhotonIsEMSelectors import ConfiguredAsgPhotonIsEMSelector
 
     if not ConfigFilePath:
-      ConfigFilePath = ConfigFlags.Trigger.egamma.pidVersion
+      ConfigFilePath = ConfigFlags.Trigger.egamma.photonPidVersion
 
     import collections.abc
     # Configure the IsEM selectors
