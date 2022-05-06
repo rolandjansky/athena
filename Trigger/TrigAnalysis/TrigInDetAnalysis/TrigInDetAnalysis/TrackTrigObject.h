@@ -5,7 +5,7 @@
  **     @author  mark sutton
  **     @date    Mon  5 Nov 2012 00:07:15 GMT 
  **
- **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  **/
 
 
@@ -52,9 +52,8 @@ private:
   double m_phi;
   double m_pt;
   double m_z0;
-  double m_d0;
 
-  /// generaic type information
+  /// generic type information
   int    m_type;
 
   /// identifier
