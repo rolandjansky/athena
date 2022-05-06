@@ -158,7 +158,6 @@ def TrigMETMonConfig(inputFlags):
                  "gFexJwoj"]
     algsHLT = ["cell", 
                "tcpufit", 
-               "trkmht", 
                "mht", 
                "tc_em", 
                "pfsum", 
@@ -167,11 +166,12 @@ def TrigMETMonConfig(inputFlags):
                "pfopufit", 
                "cvfpufit", 
                "mhtpufit_pf", 
-               "mhtpufit_em"]
+               "mhtpufit_em",
+               "met_nn"]
     algsHLT2d = ["cell", 
                  "tcpufit", 
                  "pfopufit"]
-    algsHLTExpert = ["tc"]
+    algsHLTExpert = ["trkmht"]
     ## pass algorithmss to TrigMETMonAlg
     TrigMETMonAlg.algsL1 = algsL1
     TrigMETMonAlg.algsHLT = algsHLT
