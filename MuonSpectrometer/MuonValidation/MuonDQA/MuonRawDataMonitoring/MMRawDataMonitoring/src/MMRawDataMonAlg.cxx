@@ -392,10 +392,11 @@ StatusCode MMRawDataMonAlg::fillMMHistograms( const Muon::MMPrepData* ) const{
 
 void MMRawDataMonAlg::clusterFromTrack(const xAOD::TrackParticleContainer*  muonContainer, int lb) const
 {
-	MMSummaryHistogramStruct summaryPlots[2][2][4];
-	MMSummaryHistogramStruct summaryPlots_full[2][16][2][2][4];
+	MMSummaryHistogramStruct summaryPlots[2][2][4]; // side, multilayer, gas gap
+	MMSummaryHistogramStruct summaryPlots_full[2][16][2][2][4]; // side, phi, eta, multilayer, gas gap
+	MMSummaryHistogramStruct sumPlots[2][16][2][2][4]; // side, phi, eta, multilayer, gas gap
 	MMOverviewHistogramStruct overviewPlots;
-	MMByPhiStruct occupancyPlots[16][2];
+	MMByPhiStruct occupancyPlots[16][2]; // sector, side
 
 	for(const xAOD::TrackParticle* meTP : *muonContainer) {
 		
@@ -427,13 +428,37 @@ void MMRawDataMonAlg::clusterFromTrack(const xAOD::TrackParticleContainer*  muon
 
 			// MMS and MML phi sectors
 			//				int phisec = (stNumber%2==0) ? 1 : 0;
-			int sectorPhi = get_sectorPhi_from_stationPhi_stName(stPhi,stName);
+			int sectorPhi = get_sectorPhi_from_stationPhi_stName(stPhi,stName); // 1->16
 			int PCB = get_PCB_from_channel(ch);
 			int iside = (stEta > 0) ? 1 : 0;
 
 			auto& vects = overviewPlots;
-
 			auto& thisSect = occupancyPlots[sectorPhi-1][iside];
+			auto& vect = sumPlots[iside][sectorPhi-1][std::abs(stEta)-1][multi-1][gap-1];
+
+			const Muon::MMPrepData* prd = cluster->prepRawData();
+			const std::vector<Identifier>& stripIds = prd->rdoList();
+			unsigned int csize = stripIds.size();
+			const std::vector<uint16_t>& stripNumbers = prd->stripNumbers();
+			float charge = prd->charge()*conversion_charge;
+			std::vector<short int> s_times = prd->stripTimes();
+
+			vects.numberofstrips_percluster.push_back(csize);
+			vects.charge_all.push_back(charge);
+
+			float c_time = 0;
+			for(unsigned int sIdx=0; sIdx<stripIds.size(); ++sIdx)
+			{
+				vects.strp_times.push_back(s_times.at(sIdx));
+				vect.strip_number.push_back(stripNumbers[sIdx]);
+				vect.strp_times.push_back(s_times.at(sIdx));
+				c_time += s_times.at(sIdx);
+			}
+			c_time /= s_times.size();
+			vects.cl_times.push_back(c_time);
+			vect.cl_times.push_back(c_time);
+			vect.charge.push_back(charge);
+
 			const int pcb_counter = 5; // index for the PCBs from 1 to 8 as done globally for the two detector components (abs(eta)=1 and abs(eta)=2)
 			int PCBeta12 = (std::abs(stEta) == 2) ? (PCB + pcb_counter) : PCB;
 			thisSect.sector_lb_ontrack.push_back(get_bin_for_occ_lb_pcb_hist(multi,gap,PCBeta12));
@@ -473,10 +498,9 @@ void MMRawDataMonAlg::clusterFromTrack(const xAOD::TrackParticleContainer*  muon
 
 				if( (trk_stPhi == stPhi) && (trk_stEta == stEta) && (trk_multi == multi) && (trk_gap == gap)) {
 					double x_trk = trkState->trackParameters()->parameters()[Trk::loc1];
-					int stPhi16 = (stName == "MML") ? (2*stPhi-1) : (2*stPhi);
+					int sectorPhi = get_sectorPhi_from_stationPhi_stName(trk_stPhi,stName); // 1->16
 					int side 	= (stEta > 0) ? 1 : 0;
 					float res_stereo = (x - x_trk);
-
 					if(m_do_stereoCorrection) {
 						float stereo_angle = ((multi == 1 && gap < 3) || (multi == 2 && gap > 2)) ? 0 : 0.02618;
 						double y_trk = trkState->trackParameters()->parameters()[Trk::locY];
@@ -484,10 +508,10 @@ void MMRawDataMonAlg::clusterFromTrack(const xAOD::TrackParticleContainer*  muon
 						res_stereo = (x - x_trk)*std::cos(stereo_angle) - stereo_correction;
 					}
 					auto residual_mon = Monitored::Scalar<float>("residual", res_stereo);
-					auto stPhi_mon = Monitored::Scalar<float>("stPhi_mon",stPhi16);
+					auto stPhi_mon = Monitored::Scalar<float>("stPhi_mon",sectorPhi);
 					fill("mmMonitor", residual_mon, eta_trk, phi_trk, stPhi_mon);
-					int abs_stEta = get_sectorEta_from_stationEta(stEta);
-					auto& vectors = summaryPlots_full[side][stPhi16-1][abs_stEta-1][multi-1][gap-1];
+					int abs_stEta = get_sectorEta_from_stationEta(stEta); // 0 or 1
+					auto& vectors = summaryPlots_full[side][sectorPhi-1][abs_stEta][multi-1][gap-1];
 					vectors.residuals.push_back(res_stereo);
 				}
 			}
@@ -538,18 +562,38 @@ void MMRawDataMonAlg::clusterFromTrack(const xAOD::TrackParticleContainer*  muon
 	auto sector_CSide_eta2_ontrack = Monitored::Collection("sector_CSide_eta2_ontrack",vects.sector_CSide_eta2_ontrack);                                                                  
 	auto sector_CSide_eta1_ontrack = Monitored::Collection("sector_CSide_eta1_ontrack",vects.sector_CSide_eta1_ontrack);   
 	auto lb_ontrack = Monitored::Scalar<int>("lb_ontrack", lb);
-
-	fill("mmMonitor", stationPhi_CSide_eta1_ontrack, stationPhi_CSide_eta2_ontrack, stationPhi_ASide_eta1_ontrack, stationPhi_ASide_eta2_ontrack, sector_CSide_eta1_ontrack, sector_CSide_eta2_ontrack, sector_ASide_eta1_ontrack,sector_ASide_eta2_ontrack, lb_ontrack);
+	auto csize = Monitored::Collection("nstrips_ontrack", vects.numberofstrips_percluster);
+	auto charge = Monitored::Collection("charge_ontrack", vects.charge_all);
+	auto stime = Monitored::Collection("strip_time_on_track", vects.strp_times);
+	auto ctime = Monitored::Collection("cluster_time_on_track", vects.cl_times);
+	fill("mmMonitor", csize, charge, stime, ctime, stationPhi_CSide_eta1_ontrack, stationPhi_CSide_eta2_ontrack, stationPhi_ASide_eta1_ontrack, stationPhi_ASide_eta2_ontrack, sector_CSide_eta1_ontrack, sector_CSide_eta2_ontrack, sector_ASide_eta1_ontrack,sector_ASide_eta2_ontrack, lb_ontrack);
 
 	for(int iside = 0; iside < 2; ++iside) {
 		std::string MM_sideGroup = "MM_sideGroup" + MM_Side[iside];
-		for(int statPhi=0; statPhi<16; ++statPhi) {
-		  auto& occ_lb = occupancyPlots[statPhi][iside];
-		  auto sector_lb_ontrack = Monitored::Collection("sector_lb_"+MM_Side[iside]+"_phi"+std::to_string(statPhi+1)+"_ontrack",occ_lb.sector_lb_ontrack);
-		  fill(MM_sideGroup, lb_ontrack, sector_lb_ontrack);
+		for(int statPhi = 0; statPhi < 16; ++statPhi) {
+			for(int statEta = 0; statEta < 2; ++statEta) {
+				for(int multiplet = 0; multiplet < 2; ++multiplet) {
+					for(int gas_gap = 0; gas_gap < 4; ++gas_gap) {
+						auto& vects = sumPlots[iside][statPhi][statEta][multiplet][gas_gap];
+						auto strip_number = Monitored::Collection("strip_number_ontrack_" + MM_Side[iside] + "_phi" +std::to_string(statPhi+1), vects.strip_number);
+						if(!vects.strip_number.empty())
+						{
+							auto clus_size = Monitored::Scalar("cluster_size_ontrack_" + MM_Side[iside] + "_phi" + std::to_string(statPhi+1) + "_eta" + std::to_string(statEta+1) + "_ml" + std::to_string(multiplet+1) + "_gap" + std::to_string(gas_gap+1), vects.strip_number.size());
+							auto strip_times = Monitored::Collection("strp_time_ontrack_" + MM_Side[iside] + "_phi" + std::to_string(statPhi+1) + "_eta" + std::to_string(statEta+1) + "_ml" + std::to_string(multiplet+1) + "_gap" + std::to_string(gas_gap+1), vects.strp_times);
+							auto cluster_time = Monitored::Collection("cluster_time_ontrack_" + MM_Side[iside] + "_phi" + std::to_string(statPhi+1) + "_eta" + std::to_string(statEta+1) + "_ml" + std::to_string(multiplet+1) + "_gap" + std::to_string(gas_gap+1), vects.cl_times);
+							auto charge_perPCB = Monitored::Collection("charge_perPCB_ontrack_" + MM_Side[iside] + "_phi" + std::to_string(statPhi+1) + "_eta" + std::to_string(statEta+1) + "_ml" + std::to_string(multiplet+1) + "_gap" + std::to_string(gas_gap+1), vects.charge);
+							auto pcb_mon = Monitored::Scalar("pcb_mon_ontrack_" + MM_Side[iside] + "_phi" + std::to_string(statPhi+1) + "_eta" + std::to_string(statEta+1) + "_ml" + std::to_string(multiplet+1) + "_gap" + std::to_string(gas_gap+1), get_PCB_from_channel(vects.strip_number.at(0)));
+							fill(MM_sideGroup, clus_size, strip_times, cluster_time, charge_perPCB, pcb_mon);
+						}
+					}
+				}
+			}
+			auto& occ_lb = occupancyPlots[statPhi][iside];
+			auto sector_lb_ontrack = Monitored::Collection("sector_lb_"+MM_Side[iside]+"_phi"+std::to_string(statPhi+1)+"_ontrack",occ_lb.sector_lb_ontrack);
+			fill(MM_sideGroup, lb_ontrack, sector_lb_ontrack);
 		}
-		for(int multiplet=0; multiplet < 2; ++multiplet) {
-			for(int gas_gap = 0; gas_gap < 4; ++gas_gap) {
+		for(int multiplet=0; multiplet<2; ++multiplet) {
+			for(int gas_gap=0; gas_gap<4; ++gas_gap) {
 				auto& Vectors = summaryPlots[iside][multiplet][gas_gap];
 				auto x_ontrack = Monitored::Collection("x_"+MM_Side[iside]+"_multiplet"+std::to_string(multiplet+1)+"_gas_gap_"+std::to_string(gas_gap+1)+"_ontrack", Vectors.x_ontrack);
 				auto y_ontrack = Monitored::Collection("y_"+MM_Side[iside]+"_multiplet"+std::to_string(multiplet+1)+"_gas_gap_"+std::to_string(gas_gap+1)+"_ontrack", Vectors.y_ontrack);
@@ -557,6 +601,7 @@ void MMRawDataMonAlg::clusterFromTrack(const xAOD::TrackParticleContainer*  muon
 			}
 		}
 	}
+
 }
 
 void MMRawDataMonAlg::MMEfficiency( const xAOD::TrackParticleContainer*  muonContainer) const
