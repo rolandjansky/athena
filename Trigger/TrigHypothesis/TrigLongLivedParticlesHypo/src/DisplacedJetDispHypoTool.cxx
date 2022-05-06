@@ -1,12 +1,11 @@
 
 /*
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "AthenaMonitoringKernel/Monitored.h"
-
 #include "DisplacedJetDispHypoTool.h"
 #include "xAODTracking/TrackParticlexAODHelpers.h"
 using namespace TrigCompositeUtils;
@@ -52,10 +51,19 @@ StatusCode DisplacedJetDispHypoTool::decide(  Info& info )  const {
 		  	}
 		}else{
 			//candidate displaced
-			double d0sig = xAOD::TrackingHelpers::d0significance(trk); //need to look into beamspot information in the trigger
+			double d0sig = 0.0;
+
+			if(m_usebeamspot){
+				d0sig = std::abs(xAOD::TrackingHelpers::d0significance(trk, info.beamspot.sigmaX(), info.beamspot.sigmaY(), info.beamspot.sigmaXY()));
+			}else{
+				d0sig = std::abs(xAOD::TrackingHelpers::d0significance(trk));
+			}
 
 			if(d0sig >= m_d0sigcut){
 				track_class = 2; //displaced
+				ATH_MSG_DEBUG("disp_trk in jet "<<info.jet->pt()/Gaudi::Units::GeV<<" accepted pT: "<<trk->pt()/Gaudi::Units::GeV<<" d0: "<<std::abs(trk->d0())<< " d0sig: "<<d0sig);
+			}else{
+				ATH_MSG_DEBUG("disp_trk in jet "<<info.jet->pt()/Gaudi::Units::GeV<<" dropped for d0sig pT: "<<trk->pt()/Gaudi::Units::GeV<<" d0: "<<std::abs(trk->d0())<< " d0sig: "<<d0sig);
 			}
 		}
 
@@ -80,12 +88,6 @@ StatusCode DisplacedJetDispHypoTool::decide(  Info& info )  const {
 	mon_ndisp = ndisp;
 	mon_nprompt = nprompt;
 	mon_frac_other = nother_frac;
-
-	if(ndisp >= m_mindisp_c3 && nprompt <= m_maxprompt_c3 && nother_frac <= m_nother_frac_c3 && info.jet->pt()/Gaudi::Units::GeV >= m_c3_min_jet_pt){
-		info.info->setDetail<int>("c3_pass_"+m_cutname, 1);
-	}else{
-		info.info->setDetail<int>("c3_pass_"+m_cutname, 0);
-	}
 
 
 	if(ndisp >= m_mindisp_c2 && nprompt <= m_maxprompt_c2 && nother_frac <= m_nother_frac_c2){

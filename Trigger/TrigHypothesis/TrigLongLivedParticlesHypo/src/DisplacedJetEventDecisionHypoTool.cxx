@@ -1,6 +1,6 @@
 
 /*
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -24,7 +24,12 @@ StatusCode DisplacedJetEventDecisionHypoTool::decide( std::vector<DecisionTuple>
 	std::vector<const xAOD::Jet*> jets_with_previous;
 	std::map<const xAOD::Jet*, const xAOD::TrigComposite*> jet_info;
 	std::vector<TrigCompositeUtils::Decision*> jet_decisions;
-	int c3_total_jets = -1;
+
+	auto mon_nc2 = Monitored::Scalar<int>("n_c2", 0);
+	auto mon_nc1 = Monitored::Scalar<int>("n_c1", 0);
+	auto mon_flags = Monitored::Scalar<int>("flags", 0);
+  	Monitored::Group mon_group(m_monTool, mon_nc2, mon_nc1, mon_flags);
+
 	for(auto dec: decs){
 		if(dec.previousDecisionIDs.count(m_decisionId.numeric()) == 0){
 			//this jet has not passed this chain
@@ -35,36 +40,10 @@ StatusCode DisplacedJetEventDecisionHypoTool::decide( std::vector<DecisionTuple>
 		jets_with_previous.push_back(dec.jet);
 		jet_decisions.push_back(dec.outDecision);
 		jet_info[dec.jet] = dec.info;
-
-		c3_total_jets = dec.counts->getDetail<int>("c3_total_jets_"+m_cutname);
 	}
 
-	bool pass_single_jet = false;
-
-	if(m_c3_total_jets > 0){
-		//this cut is to be applied
-		if(c3_total_jets == m_c3_total_jets){
-			//all jets must pass the c3 mode
-			for(auto j: jets_with_previous){
-				auto i = jet_info[j];
-
-				if(!i->hasDetail<int>("c3_pass_"+m_cutname)){
-					pass_single_jet = false;
-					break;
-				}
-
-				if(i->getDetail<int>("c3_pass_"+m_cutname) == 1){
-					pass_single_jet = true;
-				}else{
-					pass_single_jet = false;
-					break;
-				}
-			}
-		}
-	}
-
-	int n_h_jets = 0;
-	int n_l_jets = 0;
+	int n_c2_jets = 0;
+	int n_c1_jets = 0;
 
 	for(auto j: jets_with_previous){
 		if(!jet_info[j]->hasDetail<int>("djtrig_jet_class_"+m_cutname)){
@@ -77,15 +56,34 @@ StatusCode DisplacedJetEventDecisionHypoTool::decide( std::vector<DecisionTuple>
 		ATH_MSG_DEBUG("djtrig event decision has jet pT = "<<j->pt()/Gaudi::Units::GeV<<" class= "<<jet_class);
 
 		if(jet_class == 2){
-			n_h_jets += 1;
+			n_c2_jets += 1;
 		}
 
 		if(jet_class == 1){
-			n_l_jets += 1;
+			n_c1_jets += 1;
 		}
 	}
 
-	if((n_h_jets >= m_min_h_jets && (n_l_jets + (n_h_jets - m_min_h_jets)) >= m_min_l_jets) || pass_single_jet){
+	mon_nc2 = n_c2_jets;
+	mon_nc1 = n_c1_jets;
+
+	int flags = 0;
+
+	if(n_c2_jets > 0){
+		flags |= (1<<1);
+	}
+
+	if(n_c1_jets > 0){
+		flags |= 1;
+	}
+
+	if(n_c2_jets >= (m_min_h_jets + m_min_l_jets)){
+		flags |= (1<<2);
+	}
+
+	mon_flags = flags;
+
+	if((n_c2_jets >= m_min_h_jets && (n_c1_jets + (n_c2_jets - m_min_h_jets)) >= m_min_l_jets)){
 		//accept the event
 		for(auto d: jet_decisions){
 			addDecisionID( m_decisionId.numeric(), d );

@@ -3159,6 +3159,14 @@ HLT_j175f_L1J50p31ETA49:
   eventCount: 0
 HLT_j175f_L1jJ90p31ETA49:
   eventCount: 0
+HLT_j180_unconvtrk0_dispj_1jet_L1J100:
+  eventCount: 0
+HLT_j180_unconvtrk0_dispj_1jetperf_L1J100:
+  eventCount: 0
+HLT_j180_unconvtrk0_dispj_2jet_L1J100:
+  eventCount: 0
+HLT_j180_unconvtrk0_dispj_2jetperf_L1J100:
+  eventCount: 0
 HLT_j200_0eta290_020jvt_boffperf_pf_ftf_preselj140_L1J100:
   eventCount: 0
 HLT_j200_0eta290_020jvt_boffperf_pf_ftf_preselj140_L1jJ160:
@@ -6984,8 +6992,6 @@ HLT_tau80_tightRNN_tracktwoLLP_tau60_tightRNN_tracktwoLLP_03dRAB_L1TAU60_2TAU40:
     2: 3
     3: 3
 HLT_tau80_tightRNN_tracktwoLLP_tau60_tightRNN_tracktwoLLP_03dRAB_L1eTAU80_2eTAU60:
-  eventCount: 0
-HLT_unconvtrk0_dispj_L1J100:
   eventCount: 0
 HLT_unconvtrk0_fslrt_L14J15:
   eventCount: 0
