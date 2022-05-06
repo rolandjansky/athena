@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file MuonEventAthenaPool/test/make_dd.icc
@@ -42,7 +42,6 @@ void make_dd()
 
   auto rpc_id = std::make_unique<RpcIdHelper>();
   rpc_id->initialize_from_dictionary (idd);
-  RDOindex::setRpcIdHelper (rpc_id.get());
   assert ( sg->record (std::move (rpc_id), "RPCIDHELPER") );
 
 }

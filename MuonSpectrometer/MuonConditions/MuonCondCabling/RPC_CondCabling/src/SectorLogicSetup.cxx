@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPC_CondCabling/SectorLogicSetup.h"
@@ -9,7 +9,6 @@
 #include <iomanip>
 
 using namespace RPC_CondCabling;
-const std::map<std::string, std::string>* RPC_CondCabling::SectorLogicSetup::s_trigroads = nullptr;
 
 SectorLogicSetup::SectorLogicSetup(int type, const std::string& database, const std::string& layout, bool conf) :
     BaseObject(Logic, "Sector Logic Map"), m_positive_sector(""), m_negative_sector(""), m_sector_type(type) {
@@ -833,4 +832,4 @@ HalfType SectorLogicSetup::side() const {
     return NoHalf;
 }
 
-void SectorLogicSetup::SetPtoTrigRoads(const std::map<std::string, std::string>* RPC_trigroads) { s_trigroads = RPC_trigroads; }
+void SectorLogicSetup::SetPtoTrigRoads(const std::map<std::string, std::string>* RPC_trigroads) { m_trigroads = RPC_trigroads; }

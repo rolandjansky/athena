@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CMAPARAMETERS_H
@@ -57,10 +57,9 @@ public:
 
 private:
     defineParams m_params{};
-    static int s_Layer;
 
-    void showDt(std::ostream&) const;
-    void showMt(char[][90], int, TrigType) const;
+    void showDt(std::ostream&, int layer) const;
+    void showMt(char[][90], int, TrigType, int layer) const;
 
     void reset_pivot_cabling();
     void reset_lowPt_cabling();
@@ -69,8 +68,6 @@ private:
 public:
     static constexpr int pivot_channels = 32;
     static constexpr int confirm_channels = 64;
-
-    static void setLayerToShow(int Layer);
 
 protected:
     std::unique_ptr<CMAidentity> m_id;  // Indexes that identifies this matrix
@@ -184,7 +181,8 @@ public:
     unsigned int first_highPt_channel() const;
     unsigned int last_highPt_channel() const;
 
-    void Print(std::ostream&, bool) const;
+    virtual void Print(std::ostream&, bool) const override;
+    void Print(std::ostream&, bool, int layer) const;
 
     bool isAtlas() const;
 
