@@ -15,9 +15,9 @@ static const int ERR_ARGS    = -1;
 // Global parameters
 
 struct Params {
-  uint32_t detector_id;
-  uint16_t vmm_number;
-  uint16_t vmm_channel;
+  uint32_t detector_id = 0;
+  uint16_t vmm_number = 0;
+  uint16_t vmm_channel = 0;
 };
 
 void test_nsw_online2offline_help (char *progname)
