@@ -973,6 +973,7 @@ def MuidMuonRecoveryCfg(flags, name='MuidMuonRecovery', **kwargs):
 def MuonCombinedTrackFitterCfg(flags, name="MuonCombinedTrackFitter", **kwargs ):
     from TrkConfig.TrkRIO_OnTrackCreatorConfig import MuonRotCreatorCfg
     from TrkConfig.TrkExRungeKuttaPropagatorConfig import MuonCombinedPropagatorCfg
+    from TrkConfig.TrkMeasurementUpdatorConfig import KalmanUpdatorCfg
 
     result = AtlasExtrapolatorCfg(flags)
     kwargs.setdefault("ExtrapolationTool", result.popPrivateTools())
@@ -984,10 +985,8 @@ def MuonCombinedTrackFitterCfg(flags, name="MuonCombinedTrackFitter", **kwargs )
         MuonRotCreatorCfg(flags)))
     kwargs.setdefault("EnergyLossTool", result.popToolsAndMerge(
         AtlasEnergyLossUpdatorCfg(flags)))
-
     kwargs.setdefault("MeasurementUpdateTool",
-                      CompFactory.Trk.KalmanUpdator(name="MuonMeasUpdator"))
-    # FIXME? Shouldn't this be configured? Was MuonMeasUpdator
+                      result.popToolsAndMerge(KalmanUpdatorCfg(flags, name="MuonMeasUpdator")))
 
     from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
     result.merge(TrackingGeometryCondAlgCfg(flags))
@@ -1238,7 +1237,7 @@ def MdtDriftCircleOnTrackCreatorStauCfg(flags, name="MdtDriftCircleOnTrackCreato
     from MuonConfig.MuonRIO_OnTrackCreatorToolConfig import MdtDriftCircleOnTrackCreatorCfg, MdtCalibWindowNumber
     kwargs.setdefault("TimingMode", 3 )
     kwargs.setdefault("TimeWindowSetting", MdtCalibWindowNumber('Collision_t0fit') )
-    return MdtDriftCircleOnTrackCreatorCfg(name,**kwargs)
+    return MdtDriftCircleOnTrackCreatorCfg(flags,name,**kwargs)
 
 def MuonStauRecoToolCfg(flags,  name="MuonStauRecoTool", **kwargs):
     # In the old configuration this was split over several functions. But since these Stau tools are only used here,
@@ -1280,7 +1279,7 @@ def MuonStauRecoToolCfg(flags,  name="MuonStauRecoTool", **kwargs):
     # Rest
     kwargs.setdefault("TrackAmbiguityProcessor",
                       result.popToolsAndMerge(MuonAmbiProcessorCfg(flags)))
-    kwargs.setdefault("CalibrationDbTool", result.popToolsAndMerge(
+    kwargs.setdefault("MdtCalibrationDbTool", result.popToolsAndMerge(
         MdtCalibrationDbToolCfg(flags)))
 
     tool = CompFactory.MuonCombined.MuonStauRecoTool(name, **kwargs)
