@@ -152,17 +152,6 @@ def ITkBroadRotCreatorCfg(flags, name='ITkBroadRotCreator', **kwargs) :
     acc.setPrivateTools(ITkRotCreator)
     return acc
 
-def ITkRotCreatorDigitalCfg(flags, name='ITkRotCreatorDigital', **kwargs) :
-    acc = ComponentAccumulator()
-    if 'ToolPixelCluster' not in kwargs:
-        from InDetConfig.SiClusterOnTrackTool_PixelConfig import ITkPixelClusterOnTrackToolDigitalCfg
-        ToolPixelCluster = acc.popToolsAndMerge(ITkPixelClusterOnTrackToolDigitalCfg(flags))
-        kwargs.setdefault('ToolPixelCluster', ToolPixelCluster)
-
-    ITkRotCreator = acc.popToolsAndMerge(ITkRotCreatorCfg(flags, name=name, **kwargs))
-    acc.addPublicTool(ITkRotCreator, primary=True)
-    return acc
-
 def MuonRotCreatorCfg(flags, name="MuonRotCreator", **kwargs):
     result=ComponentAccumulator()
 
