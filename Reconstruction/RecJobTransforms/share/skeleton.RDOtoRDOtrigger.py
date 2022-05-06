@@ -85,7 +85,14 @@ include("TriggerJobOpts/runHLT_standalone.py")
 ##################################################
 # Include PerfMon configuration (ATR-25439)
 ##################################################
-CAtoGlobalWrapper(PerfMonMTSvcCfg, ConfigFlags)
+# Translate old concurrency flags to new for PerfMon
+# - do that only here as runHLT_standalone must be independent of these flags
+flagsForPerfMon = ConfigFlags.clone()
+flagsForPerfMon.Concurrency.NumProcs = cfjp.ConcurrencyFlags.NumProcs()
+flagsForPerfMon.Concurrency.NumThreads = cfjp.ConcurrencyFlags.NumThreads()
+flagsForPerfMon.Concurrency.NumConcurrentEvents = cfjp.ConcurrencyFlags.NumConcurrentEvents()
+flagsForPerfMon.lock()
+CAtoGlobalWrapper(PerfMonMTSvcCfg, flagsForPerfMon)
 
 ##################################################
 # Parse postExec / postInclude
