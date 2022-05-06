@@ -53,13 +53,28 @@ StatusCode PLRDetectorTool::create()
 
   InDetDD::PLRGmxInterface gmxInterface(manager, m_commonItems.get(), &m_moduleTree);
 
+  if(m_containingDetectorName!=""){
+      const GeoVPhysVol * topVol = createTopVolume(world, gmxInterface, node, table, m_containingDetectorName, m_envelopeVolumeName); 
+      if(topVol){
+       manager->addTreeTop(topVol);
+       manager->initNeighbours();
+      }
+      else{
+       ATH_MSG_FATAL("Could not find the Top Volume!!!");
+       return StatusCode::FAILURE;
+      }
+  }
+  else {
   // Load the geometry, create the volume,
   // and then find the volume index within the world to allow it to be added
   // last two arguments are the location in the DB to look for the clob
   // (may want to make those configurables)
   int childIndex = createTopVolume(world, gmxInterface, node, table);
   if (childIndex != -1) { //-1 represents an error state from the above method
-    manager->addTreeTop(&*world->getChildVol(childIndex));
+    GeoPhysVol * worldVol = &*world;
+    const GeoVPhysVol * topVol = &*(worldVol->getChildVol(childIndex));
+    //manager->addTreeTop(&*world->getChildVol(childIndex));
+    manager->addTreeTop(topVol);
     // if it were implemented, we would do Numerology here
     // doNumerology(manager);
     manager->initNeighbours();
@@ -67,7 +82,7 @@ StatusCode PLRDetectorTool::create()
     ATH_MSG_FATAL("Could not find the Top Volume!!!");
     return StatusCode::FAILURE;
   }
-
+  }
   // set the manager
   m_detManager = manager;
 

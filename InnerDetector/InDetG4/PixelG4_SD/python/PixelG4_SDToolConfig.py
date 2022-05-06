@@ -79,7 +79,11 @@ def PLRSensorSDCfg(ConfigFlags, name="PLRSensorSD", **kwargs):
                                                     region)
     # Ensure we create a Gmx sensor 
     kwargs.setdefault("GmxSensor",True)
-    kwargs.setdefault("LogicalVolumeNames", ["PLR::PLR_Sensor"])
+    if ConfigFlags.Detector.GeometryITkPixel:
+       # If ITkPixel has been built, the PLR will be inside an envelope volume within it
+       kwargs.setdefault("LogicalVolumeNames", ["ITkPixel::PLR_Sensor"]) 
+    else:
+        kwargs.setdefault("LogicalVolumeNames", ["PLR::PLR_Sensor"])
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
 
     result = ComponentAccumulator()
