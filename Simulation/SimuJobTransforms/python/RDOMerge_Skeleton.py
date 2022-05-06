@@ -95,9 +95,6 @@ def fromRunArgs(runArgs):
     if ConfigFlags.Detector.EnableMuon:
         from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
         cfg.merge(MuonGeoModelCfg(ConfigFlags))
-        if ConfigFlags.Detector.EnableRPC:
-            from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg
-            cfg.merge(RPCCablingConfigCfg(ConfigFlags))
 
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
     cfg.merge(OutputStreamCfg(ConfigFlags, 'RDO'))
