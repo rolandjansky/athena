@@ -1,13 +1,11 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.Logging import logging
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
 
 from RecExConfig.Configured import Configured
 from RecExConfig.RecFlags import rec
-
-from TrigRoiConversion.TrigRoiConversionConf import RoiWriter
-from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
 
 
 class ByteStreamUnpackGetter(Configured):
@@ -66,8 +64,6 @@ class HLTTriggerResultGetter(Configured):
         log = logging.getLogger("HLTTriggerResultGetter.py")
         from RecExConfig.ObjKeyStore import objKeyStore
 
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
         log.info("BS unpacking (ConfigFlags.Trigger.readBS): %d", ConfigFlags.Trigger.readBS )
         if ConfigFlags.Trigger.readBS:
             if ConfigFlags.Trigger.EDMVersion == 1 or \
@@ -97,14 +93,13 @@ class HLTTriggerResultGetter(Configured):
         if rec.doWriteAOD():
             objKeyStore.addStreamAOD("JetKeyDescriptor","JetKeyMap")
             objKeyStore.addStreamAOD("JetMomentMap","TrigJetRecMomentMap")
-                    
+
+        # schedule the RoiDescriptorStore conversion
         if rec.doAOD() or rec.doWriteAOD():
-            # schedule the RoiDescriptorStore conversion
-            roiWriter = RoiWriter()
-            # Add fictional input to ensure data dependency in AthenaMT
-            roiWriter.ExtraInputs += [("TrigBSExtractionOutput", "StoreGateSvc+TrigBSExtractionOutput")]
-            topSequence += roiWriter
-            # write out the RoiDescriptorStores
+            from TrigRoiConversion.TrigRoiConversionConfig import RoiWriterCfg
+            CAtoGlobalWrapper(RoiWriterCfg, ConfigFlags)
+
+            # output needs to be configured explicitly even if done in CA already
             from TrigEDMConfig.TriggerEDMRun2 import TriggerRoiList
             objKeyStore.addManyTypesStreamAOD( TriggerRoiList )
 
