@@ -79,7 +79,7 @@ StatusCode LArFCalSamplingFraction::initialize()
     CHECK(histSvc.retrieve());
     ATH_MSG_DEBUG(" retrieved THistSvc");
 
-    const CaloIdManager *caloIdManager;
+    const CaloIdManager *caloIdManager = nullptr;
     ATH_CHECK(detStore()->retrieve(caloIdManager));
 
     // Use just for now for Calibration... change later to GeoCalibHit
