@@ -39,7 +39,6 @@ public:
   virtual ~L1CaloPprDisabledChannelContainerRun2() {};
 
   using L1CaloPprDisabledChannelContainer::makePersistent;
-  using AbstractL1CaloPersistentCondition::makeTransient;
   using L1CaloPprDisabledChannelContainer::makeTransient;
 
   using L1CaloPprDisabledChannelContainer::pprDisabledChannel;
