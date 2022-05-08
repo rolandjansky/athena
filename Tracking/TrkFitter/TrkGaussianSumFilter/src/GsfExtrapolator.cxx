@@ -12,6 +12,7 @@
 #include "TrkGaussianSumFilter/GsfExtrapolator.h"
 
 #include "TrkGaussianSumFilter/IMaterialMixtureConvolution.h"
+#include "TrkGaussianSumFilterUtils/GsfConstants.h"
 
 #include "TrkGeometry/Layer.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
@@ -24,9 +25,7 @@
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
 
 #include "TrkParameters/TrackParameters.h"
-
 #include "TrkSurfaces/Surface.h"
-
 #include "TrkTrack/TrackStateOnSurface.h"
 
 #include <utility>
@@ -105,7 +104,7 @@ multiStatePropagate(
   propagatedState.reserve(multiComponentState.size());
   Trk::MultiComponentState::const_iterator component =
     multiComponentState.begin();
-  double sumw(0); //sum of the weights of the propagated parameters
+  double sumw(0); // sum of the weights of the propagated parameters
   for (; component != multiComponentState.end(); ++component) {
     const Trk::TrackParameters* currentParameters = component->first.get();
     if (!currentParameters) {
@@ -127,7 +126,11 @@ multiStatePropagate(
                                  component->second);
   }
   // Protect low weight propagation
-  if (sumw < 0.1) {
+  // We want at least  1./(max number of states)
+  // to have been propagated.
+  constexpr double minPropWeight =
+    1. / GSFConstants::maxNumberofStateComponents;
+  if (sumw < minPropWeight) {
     propagatedState.clear();
   }
   return propagatedState;
