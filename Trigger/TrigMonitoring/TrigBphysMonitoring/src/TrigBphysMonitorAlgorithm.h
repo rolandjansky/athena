@@ -56,18 +56,18 @@ private:
   StatusCode fillBmumuxChainHists(const EventContext& ctx, const std::string& chainName) const;
   StatusCode fillDielectronChainHists(const EventContext& ctx, const std::string& chainName) const;
   StatusCode fillChainGenericHists(const EventContext& /*ctx*/, const ToolHandle<GenericMonitoringTool>& currentMonGroup, const std::string& chainName) const;
-  StatusCode fillBphysObjectHists(const ToolHandle<GenericMonitoringTool>& currentMonGroup, const ElementLink<xAOD::TrigBphysContainer> bphysLink, const std::string& objStr) const;
-  StatusCode fillTrigLeptonHists(const ToolHandle<GenericMonitoringTool>& currentMonGroup, const ElementLink<xAOD::TrigBphysContainer> bphysLink, const std::string name_prefix) const;
+  StatusCode fillBphysObjectHists(const ToolHandle<GenericMonitoringTool>& currentMonGroup, const ElementLink<xAOD::TrigBphysContainer>& bphysLink, const std::string& objStr) const;
+  StatusCode fillTrigLeptonHists(const ToolHandle<GenericMonitoringTool>& currentMonGroup, const ElementLink<xAOD::TrigBphysContainer>& bphysLink, const std::string& name_prefix) const;
   StatusCode fillTrigBmumuxTrkHists(const ToolHandle<GenericMonitoringTool>& currentMonGroup, const ElementLink<xAOD::TrigBphysContainer>& bphysLink, UInt_t tracksStartFrom = 2) const;
   StatusCode fillDiTracksHists(const ToolHandle<GenericMonitoringTool>& currentMonGroup, 
                                const std::vector<ElementLink<xAOD::TrackParticleContainer> >& tpLinkVector,
-                               const std::string name_prefix) const;
+                               const std::string& name_prefix) const;
   StatusCode fillTracksHists(const ToolHandle<GenericMonitoringTool>& currentMonGroup, 
                            const std::vector<ElementLink<xAOD::TrackParticleContainer> >& tpLinkVector, 
-                           const std::string prefix, 
+                           const std::string& prefix, 
                            bool separateHists = false, 
                            UInt_t offsetIndex = 0) const;
-  StatusCode fillTrkHists(const ToolHandle<GenericMonitoringTool>& currentMonGroup, const xAOD::TrackParticle* trk, const std::string name_prefix) const;
+  StatusCode fillTrkHists(const ToolHandle<GenericMonitoringTool>& currentMonGroup, const xAOD::TrackParticle* trk, const std::string& name_prefix) const;
   
   StatusCode fillOfflineDimuons(const EventContext& ctx, const std::vector<std::unique_ptr<xAOD::Vertex>>& dimuonContainer) const;
   StatusCode fillOfflineDimuonHists(const EventContext& /*ctx*/, const std::string& dimuonMonGroupName, const std::vector<std::unique_ptr<xAOD::Vertex>>& dimuonContainer) const;

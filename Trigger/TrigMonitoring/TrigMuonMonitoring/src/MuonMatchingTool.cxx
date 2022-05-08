@@ -83,7 +83,7 @@ const xAOD::Muon* MuonMatchingTool :: matchEFSA(const xAOD::Muon *mu, std::strin
 
 const xAOD::Muon* MuonMatchingTool :: matchEFSA(const xAOD::TruthParticle *mu, std::string trig, bool &pass) const {
   ATH_MSG_DEBUG("MuonMonitoring::matchEFSA() for truth particle");
-  return mu ? match<xAOD::Muon>(mu, trig, m_EFreqdR, pass, "HLT_Muons_.*", &MuonMatchingTool::trigPosForMatchSATrack) : nullptr;
+  return mu ? match<xAOD::Muon>(mu, std::move(trig), m_EFreqdR, pass, "HLT_Muons_.*", &MuonMatchingTool::trigPosForMatchSATrack) : nullptr;
 }
 
 const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> MuonMatchingTool :: matchEFSALinkInfo(const xAOD::Muon *mu, std::string trig) const {
@@ -120,7 +120,7 @@ const xAOD::Muon* MuonMatchingTool :: matchEFSAReadHandle( const EventContext& c
 
 const xAOD::Muon* MuonMatchingTool :: matchEFCB(  const xAOD::TruthParticle *mu, std::string trig, bool &pass) const {
   ATH_MSG_DEBUG("MuonMonitoring::matchEFCB() for TruthParticle");
-  return mu ? match<xAOD::Muon>( mu, trig, m_EFreqdR, pass, "HLT_MuonsCB.*", &MuonMatchingTool::trigPosForMatchCBTrack) : nullptr;
+  return mu ? match<xAOD::Muon>( mu, std::move(trig), m_EFreqdR, pass, "HLT_MuonsCB.*", &MuonMatchingTool::trigPosForMatchCBTrack) : nullptr;
 }
 
 const xAOD::Muon* MuonMatchingTool :: matchEFCB(  const xAOD::Muon *mu, std::string trig, bool &pass) const {
@@ -152,7 +152,7 @@ const xAOD::Muon* MuonMatchingTool :: matchEFIso( const xAOD::Muon *mu, std::str
 
 const xAOD::Muon* MuonMatchingTool :: matchEFIso( const xAOD::TruthParticle *mu, std::string trig, bool &pass) const {
   ATH_MSG_DEBUG("MuonMonitoring::matchEFIso() for truth particle");
-  return mu ? match<xAOD::Muon>( mu, trig, m_EFreqdR, pass, "HLT_MuonsIso", &MuonMatchingTool::trigPosForMatchCBTrack) : nullptr;
+  return mu ? match<xAOD::Muon>( mu, std::move(trig), m_EFreqdR, pass, "HLT_MuonsIso", &MuonMatchingTool::trigPosForMatchCBTrack) : nullptr;
 }
 
 
@@ -304,7 +304,7 @@ const xAOD::MuonRoI* MuonMatchingTool :: matchL1( double refEta, double refPhi, 
   const xAOD::MuonRoI *closest = nullptr;
   Trig::FeatureRequestDescriptor featureRequestDescriptor(trig,TrigDefs::includeFailedDecisions);
   auto l2muonFeatures = m_trigDec->features<xAOD::L2StandAloneMuonContainer>(featureRequestDescriptor); 
-  for( auto linkInfo : l2muonFeatures){ // loop on L2 muon features
+  for( const auto& linkInfo : l2muonFeatures){ // loop on L2 muon features
     // get L1 muon associated with this L2 muon
     auto l1muonLinkInfo = TrigCompositeUtils::findLink<xAOD::MuonRoIContainer>(linkInfo.source, "initialRecRoI");
     auto l1muonLink = l1muonLinkInfo.link;

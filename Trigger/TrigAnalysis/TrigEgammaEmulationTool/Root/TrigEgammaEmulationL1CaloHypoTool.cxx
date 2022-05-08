@@ -1,5 +1,7 @@
 
  
+#include <utility>
+
 #include "TrigEgammaEmulationTool/TrigEgammaEmulationL1CaloHypoTool.h"
 #include "boost/algorithm/string.hpp"
 #include "GaudiKernel/SystemOfUnits.h"
@@ -113,12 +115,12 @@ bool TrigEgammaEmulationL1CaloHypoTool::isolationL1(float min, float offset, flo
 // (V) Variable Et cut
 bool TrigEgammaEmulationL1CaloHypoTool::variableEtL1(std::string L1item, float l1energy, float l1eta) const
 {
-  float cut = emulationL1V(L1item,l1eta);
+  float cut = emulationL1V(std::move(L1item),l1eta);
   return l1energy>cut;
 }
 //!==========================================================================
 // Eta dependant cuts for (V)
-float TrigEgammaEmulationL1CaloHypoTool::emulationL1V(std::string L1item, float l1eta) const
+float TrigEgammaEmulationL1CaloHypoTool::emulationL1V(const std::string& L1item, float l1eta) const
 {
  // Values updated from TriggerMenu-00-13-26
  // Now they all look symmetric in negative and positive eta

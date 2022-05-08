@@ -22,7 +22,7 @@ TrigBphysMonitorAlgorithm::~TrigBphysMonitorAlgorithm() {}
 
 StatusCode TrigBphysMonitorAlgorithm::initialize() {
   
-  for(auto MonitoredContainerName : m_ContainerNames) {
+  for(const auto& MonitoredContainerName : m_ContainerNames) {
     SG::ReadHandleKey<xAOD::TrigBphysContainer> BphysContainerKey(MonitoredContainerName);
     ATH_CHECK( BphysContainerKey.initialize() );
     m_TrigBphysContainerKeys.push_back(BphysContainerKey);
@@ -231,7 +231,7 @@ StatusCode TrigBphysMonitorAlgorithm::fillChainGenericHists(const EventContext& 
 
 
 // Function to fill per-object hists (e.g. for dimuon, B from Bmumux, or X from Bmumux)
-StatusCode TrigBphysMonitorAlgorithm::fillBphysObjectHists(const ToolHandle<GenericMonitoringTool>& currentMonGroup, const ElementLink<xAOD::TrigBphysContainer> bphysLink, const std::string& objStr) const {
+StatusCode TrigBphysMonitorAlgorithm::fillBphysObjectHists(const ToolHandle<GenericMonitoringTool>& currentMonGroup, const ElementLink<xAOD::TrigBphysContainer>& bphysLink, const std::string& objStr) const {
   
   auto dimu_mass = Monitored::Scalar<float>(objStr+"_mass",-999.);
   auto dimu_fitmass = Monitored::Scalar<float>(objStr+"_fitmass",-999.);
@@ -252,7 +252,7 @@ StatusCode TrigBphysMonitorAlgorithm::fillBphysObjectHists(const ToolHandle<Gene
 
 
 // Function to fill per-muon hists, assuming that the passed object is a dimuon
-StatusCode TrigBphysMonitorAlgorithm::fillTrigLeptonHists(const ToolHandle<GenericMonitoringTool>& currentMonGroup, const ElementLink<xAOD::TrigBphysContainer> bphysLink, const std::string name_prefix) const {
+StatusCode TrigBphysMonitorAlgorithm::fillTrigLeptonHists(const ToolHandle<GenericMonitoringTool>& currentMonGroup, const ElementLink<xAOD::TrigBphysContainer>& bphysLink, const std::string& name_prefix) const {
   
   const std::vector<ElementLink<xAOD::TrackParticleContainer> > trackVector = (*bphysLink)->trackParticleLinks();
   ATH_MSG_DEBUG("fillTrigLeptonHists: number of lepton tracks: " << trackVector.size());
@@ -287,7 +287,7 @@ StatusCode TrigBphysMonitorAlgorithm::fillTrigBmumuxTrkHists(const ToolHandle<Ge
 
 StatusCode TrigBphysMonitorAlgorithm::fillTracksHists(const ToolHandle<GenericMonitoringTool>& currentMonGroup, 
                                                       const std::vector<ElementLink<xAOD::TrackParticleContainer> >& tpLinkVector, 
-                                                      const std::string prefix, 
+                                                      const std::string& prefix, 
                                                       bool separateHists, 
                                                       UInt_t offsetIndex) const {
   for(UInt_t i = offsetIndex; i < tpLinkVector.size(); ++i) {
@@ -305,7 +305,7 @@ StatusCode TrigBphysMonitorAlgorithm::fillTracksHists(const ToolHandle<GenericMo
 
 StatusCode TrigBphysMonitorAlgorithm::fillDiTracksHists(const ToolHandle<GenericMonitoringTool>& currentMonGroup, 
                                                         const std::vector<ElementLink<xAOD::TrackParticleContainer> >& tpLinkVector,
-                                                        const std::string name_prefix) const {
+                                                        const std::string& name_prefix) const {
   // Use first two tracks
   if (tpLinkVector.size() <2) {
       ATH_MSG_ERROR("Unexpected number of tracks in a dimuon: " << tpLinkVector.size());
@@ -330,7 +330,7 @@ StatusCode TrigBphysMonitorAlgorithm::fillDiTracksHists(const ToolHandle<Generic
 }
 
 // Generic function to fill track hists
-StatusCode TrigBphysMonitorAlgorithm::fillTrkHists(const ToolHandle<GenericMonitoringTool>& currentMonGroup, const xAOD::TrackParticle* trk, const std::string name_prefix) const {
+StatusCode TrigBphysMonitorAlgorithm::fillTrkHists(const ToolHandle<GenericMonitoringTool>& currentMonGroup, const xAOD::TrackParticle* trk, const std::string& name_prefix) const {
   if (!trk) {
     ATH_MSG_ERROR("Null pointer for a track");
     return StatusCode::FAILURE;

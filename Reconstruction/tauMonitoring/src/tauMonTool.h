@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUMONTOOL_H
@@ -32,8 +32,8 @@ public:
 	StatusCode bookHistograms() override;
 	StatusCode fillHistograms() override;
 	StatusCode procHistograms() override;
-	StatusCode Book1DHist(TH1 ** hist, MonGroup * monName, std::string histName, std::string histTitle, int NBins, double lowBin, double highBin);
-	StatusCode Book2DHist(TH2 ** hist, MonGroup * monName, std::string histName, std::string histTitle, int NXBins, double lowXBin, double highXBin, int NYBins, double lowYBin, double highYBin);
+	StatusCode Book1DHist(TH1 ** hist, MonGroup * monName, const std::string& histName, const std::string& histTitle, int NBins, double lowBin, double highBin);
+	StatusCode Book2DHist(TH2 ** hist, MonGroup * monName, const std::string& histName, const std::string& histTitle, int NXBins, double lowXBin, double highXBin, int NYBins, double lowYBin, double highYBin);
 
 protected:
 	SG::ReadHandleKey<xAOD::TauJetContainer> m_tauJetKey{this, "tauJetKey", "TauJets"};
@@ -194,10 +194,10 @@ private:
         bool m_Trigged = false, m_doLS = false ;
         std::vector< std::vector< std::string > > m_trigItems ;
 
-	StatusCode bookBasicPlots(s_basicPlots& trigPlots, MonGroup &aGroup, std::string preffix);
+	StatusCode bookBasicPlots(s_basicPlots& trigPlots, MonGroup &aGroup, const std::string& preffix);
 	void fillBasicPlots(s_basicPlots& someBasicPlots, const xAOD::TauJet* tau);
 
-	StatusCode bookHistos(s_mainFolder& mainFolder, std::string folderName, Interval_t interval);
+	StatusCode bookHistos(s_mainFolder& mainFolder, const std::string& folderName, Interval_t interval);
 	StatusCode bookKinHistos(s_kinFolder& folder,  MonGroup &aGroup);
 	StatusCode bookIDHistos(s_idFolder& folder,std::string folderName, Interval_t interval) ;
 	StatusCode bookTrackHistos(s_trkFolder& folder,std::string folderName, Interval_t interval);
