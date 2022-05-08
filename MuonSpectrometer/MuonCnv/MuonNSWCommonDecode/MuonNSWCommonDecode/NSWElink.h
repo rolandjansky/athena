@@ -6,6 +6,7 @@
 
 #include <stdint.h>
 #include <vector>
+#include <exception>
 
 #include "MuonNSWCommonDecode/NSWDecodeBitmaps.h"
 #include "MuonNSWCommonDecode/NSWDecodeHelper.h"
@@ -17,11 +18,37 @@ namespace Muon
     class VMMChannel;
     class NSWResourceId;
 
+    class NSWElinkException: public std::exception
+    {
+     public:
+      explicit NSWElinkException (const char *s)
+	: m_description (s) {};
+
+      virtual const char *what () const throw () {return m_description.c_str ();};
+
+     private:
+      std::string m_description;
+    };
+
+    class NSWElinkROCHeaderException: public NSWElinkException
+    {
+     public:
+      explicit NSWElinkROCHeaderException (const char *s)
+	: NSWElinkException (s) {};
+    };
+
+    class NSWElinkFelixHeaderException: public NSWElinkException
+    {
+     public:
+      explicit NSWElinkFelixHeaderException (const char *s)
+	: NSWElinkException (s) {};
+    };
+
     class NSWElink
     {
      public:
       //NSWElink (); to be implemented for simulation
-      NSWElink (const uint32_t *bs);
+      NSWElink (const uint32_t *bs, uint32_t remaining);
       virtual ~NSWElink ();
 
       const std::vector <Muon::nsw::VMMChannel *> &get_channels () const {return m_channels;};
@@ -81,6 +108,8 @@ namespace Muon
       uint32_t m_elinkWord;
       Muon::nsw::NSWResourceId *m_elinkId;
       std::vector <Muon::nsw::VMMChannel *> m_channels;
+
+      static const unsigned int s_null_packet_length = 10;
     };
   }
 }
