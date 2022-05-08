@@ -54,7 +54,7 @@ XML file(s) must be provided with the structure detailed [here](./import_xml.md)
 #
 ```xml
 <ROOT source="data/fakeEff_electron.root">
-  <electron input="central_value">
+  <electron type="fake-efficiency" input="central_value">
     <TH1 nbjets="[0,2]" X="pt> h_El_Pt_nBjets0to1 </TH1>
     <TH1 nbjets="[2,inf]" X="pt> h_El_Pt_nBjets2 </TH1>
   </electron>
@@ -64,7 +64,7 @@ XML file(s) must be provided with the structure detailed [here](./import_xml.md)
 #
 ```xml
 <ROOT source="data/fakeEff_electron.root">
-  <electron input="central_value">
+  <electron type="fake-efficiency" input="central_value">
     <TH1 nbjets="[0,2]" X="pt" Y="|eta|"> h_El_Pt_Eta_nBjets0to1 </TH1>
     <TH1 nbjets="[2,inf]" X="pt" Y="|eta|"> h_El_Pt_Eta_nBjets2 </TH1>
   </electron>
