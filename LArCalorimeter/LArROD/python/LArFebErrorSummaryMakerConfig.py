@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentFactory import CompFactory
 LArFebErrorSummaryMaker=CompFactory.LArFebErrorSummaryMaker
 from LArBadChannelTool.LArBadChannelConfig import LArBadFebCfg
@@ -8,13 +8,13 @@ from AthenaCommon.Logging import logging
 def LArFebErrorSummaryMakerCfg(configFlags):
 
     log = logging.getLogger('LArFebErrorSummaryMakerConfig')
-    febSummaryMaker =LArFebErrorSummaryMaker()
     projectName=configFlags.Input.ProjectName
 
+    bCheckAllFEB=True
     streamName=configFlags.Input.ProcessingTags
     if len(streamName) > 0 and len(streamName[0])>4 and streamName[0].endswith("PEB"):
         log.info("StreamName %s suggests partial event building. Do not check for FEB completeness",str(streamName))
-        febSummaryMaker.CheckAllFEB=False
+        bCheckAllFEB=False
 
 
     if projectName == "data_test":
@@ -30,19 +30,22 @@ def LArFebErrorSummaryMakerCfg(configFlags):
             log.warning("Failed to extract year from project tag "+ projectName+". Guessing %d",yearNumber)
 
     if yearNumber > 20:
-       febSummaryMaker.MaskFebScacStatus = [0x38680000,0x38720000]
-       febSummaryMaker.MaskFebEvtId      = [0x38680000]
+       lMaskFebScacStatus = [0x38680000,0x38720000]
+       lMaskFebEvtId      = [0x38680000]
     else:
-       febSummaryMaker.MaskFebScacStatus = [0x38080000]
-       febSummaryMaker.MaskFebEvtId      = [0x38080000]   
-    febSummaryMaker.WriteKey="StoreGateSvc+LArFebErrorSummary"
+       lMaskFebScacStatus = [0x38080000]
+       lMaskFebEvtId      = [0x38080000]   
     # needed only if it is not in DB.
-    #febSummaryMaker.MaskFebZeroSample = [0x39618000,0x39930000,0x3b1b0000,0x38db0000,0x38f60000,0x39ae8000,0x3bb90000]
+    #lMaskFebZeroSample = [0x39618000,0x39930000,0x3b1b0000,0x38db0000,0x38f60000,0x39ae8000,0x3bb90000]
 
-    #from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = LArBadFebCfg(configFlags)
 
-    acc.addEventAlgo(febSummaryMaker)
+    acc.addEventAlgo(CompFactory.LArFebErrorSummaryMaker("LArFebErrorSummaryMaker",CheckAllFEB=bCheckAllFEB,
+                                         WriteKey="StoreGateSvc+LArFebErrorSummary",
+                                         MaskFebScacStatus = lMaskFebScacStatus, MaskFebEvtId = lMaskFebEvtId
+                                         #MaskFebZeroSample = lMaskFebZeroSample,
+                                         )
+                    )
 
     return acc
 

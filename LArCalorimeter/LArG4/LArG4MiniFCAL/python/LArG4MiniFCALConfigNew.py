@@ -1,13 +1,10 @@
 # Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-MiniFCALCalculator=CompFactory.MiniFCALCalculator
-LArG4__MiniFCAL__MiniFCALCalibrationCalculator=CompFactory.LArG4.MiniFCAL.MiniFCALCalibrationCalculator
-
 
 def MiniFCALCalibrationCalculatorCfg(ConfigFlags, name="MiniFCALCalibrationCalculator", **kwargs):
     result = ComponentAccumulator()
-    result.addService(LArG4__MiniFCAL__MiniFCALCalibrationCalculator(name, **kwargs), primary = True)
+    result.addService(CompFactory.LArG4.MiniFCAL.MiniFCALCalibrationCalculator(name, **kwargs), primary = True)
     return result
 
 def MiniFCALActiveCalibrationCalculatorCfg(ConfigFlags, name="MiniFCALActiveCalibrationCalculator", **kwargs):
@@ -23,5 +20,5 @@ def MiniFCALDeadCalibrationCalculatorCfg(ConfigFlags, name="MiniFCALDeadCalibrat
     return MiniFCALCalibrationCalculatorCfg(ConfigFlags, name, **kwargs)
 
 def MiniFCALCalculatorCfg(ConfigFlags, name="MiniFCALCalculator", **kwargs):
-    return MiniFCALCalculator(name, **kwargs)
+    return CompFactory.MiniFCALCalculator(name, **kwargs)
 

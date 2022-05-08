@@ -1,7 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 from AthenaConfiguration.ComponentFactory import CompFactory
-LArFEBConfigCondAlg=CompFactory.LArFEBConfigCondAlg
 
 def LArFebConfigCondAlgCfg(flags, name="LArFEBConfigCondAlg", **kwargs): 
     """Return ComponentAccumulator with configured LArFEBConfigCondAlg"""
@@ -28,6 +27,6 @@ def LArFebConfigCondAlgCfg(flags, name="LArFEBConfigCondAlg", **kwargs):
     LArFebConfigFolders = kwargs.setdefault("ListOfFolders", defaultFolders)
     kwargs.setdefault("keyOutput", "LArFebConfig")
     acc = addFolders(flags, LArFebConfigFolders, "LAR_ONL", "CondAttrListCollection")
-    acc.addCondAlgo(LArFEBConfigCondAlg(name, **kwargs))
+    acc.addCondAlgo(CompFactory.LArFEBConfigCondAlg(name, **kwargs))
     return acc
 
