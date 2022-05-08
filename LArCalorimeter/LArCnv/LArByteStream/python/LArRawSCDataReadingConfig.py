@@ -1,11 +1,9 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
-LArRawSCDataReadingAlg=CompFactory.LArRawSCDataReadingAlg
-LArLATOMEDecoder=CompFactory.LArLATOMEDecoder
 
 def LArRawSCDataReadingCfg(configFlags, **kwargs):
     acc=ComponentAccumulator()
@@ -15,10 +13,10 @@ def LArRawSCDataReadingCfg(configFlags, **kwargs):
     from LArCabling.LArCablingConfig import LArLATOMEMappingCfg
     acc.merge(LArLATOMEMappingCfg(configFlags))
 
-    LArRawSCDataReadingAlg1 = LArRawSCDataReadingAlg(**kwargs)
-    LArRawSCDataReadingAlg1.LATOMEDecoder = LArLATOMEDecoder("LArLATOMEDecoder")
-    LArRawSCDataReadingAlg1.LATOMEDecoder.ProtectSourceId = True
-    acc.addEventAlgo(LArRawSCDataReadingAlg1)
+    acc.addEventAlgo(CompFactory.LArRawSCDataReadingAlg("LArRawSCDataReadingAlg",
+                     LATOMEDecoder = CompFactory.LArLATOMEDecoder("LArLATOMEDecoder",ProtectSourceId = True), 
+                     **kwargs)
+                    )
     return acc
 
 

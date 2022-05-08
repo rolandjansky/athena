@@ -6,7 +6,6 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.Logging import logging
 from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg
-LArMCSymCondAlg=CompFactory.LArMCSymCondAlg
 from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg
 
 
@@ -14,7 +13,7 @@ def LArMCSymCondAlgCfg(flags, name="LArMCSymCondAlg", **kwargs):
     """Return ComponentAccumulator with configured LArMCSymCondAlg"""
     acc = ComponentAccumulator()
     kwargs.setdefault("ReadKey", "LArOnOffIdMap")
-    acc.addCondAlgo(LArMCSymCondAlg(name, **kwargs))
+    acc.addCondAlgo(CompFactory.LArMCSymCondAlg(name, **kwargs))
     return acc
 
 
