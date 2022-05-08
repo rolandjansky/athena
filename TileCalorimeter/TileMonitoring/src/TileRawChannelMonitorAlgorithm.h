@@ -154,7 +154,6 @@ class TileRawChannelMonitorAlgorithm : public AthMonitorAlgorithm {
 
     // TileInfo
     const TileInfo* m_tileInfo{nullptr};
-    float m_ADCmaxMinusEpsilon;
     double m_dac2Charge[2] = {};
     bool m_runTypeIsNotCIS{true};
 };
