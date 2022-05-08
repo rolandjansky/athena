@@ -927,7 +927,7 @@ StatusCode L2MuonSAIOMon :: chooseBestMuon( std::vector< const xAOD::L2CombinedM
 }
 
 
-bool L2MuonSAIOMon :: muCombHypo_TDTworkaround( const std::string &chain, std::vector< const xAOD::L2CombinedMuon* > Trig_L2IOobjects, std::vector< bool > &pass_muCombHypo ) const{
+bool L2MuonSAIOMon :: muCombHypo_TDTworkaround( const std::string &chain, const std::vector< const xAOD::L2CombinedMuon* >& Trig_L2IOobjects, std::vector< bool > &pass_muCombHypo ) const{
 
   bool pass_muCombHypo_evt = false;
 
@@ -1024,7 +1024,7 @@ std::tuple<float,float,float> L2MuonSAIOMon :: L2ORPosForMatchFunc(const xAOD::L
 }
 
 
-const xAOD::L2CombinedMuon* L2MuonSAIOMon :: searchL2InsideOut( const EventContext &ctx, const xAOD::Muon *mu, std::string trig) const {
+const xAOD::L2CombinedMuon* L2MuonSAIOMon :: searchL2InsideOut( const EventContext &ctx, const xAOD::Muon *mu, const std::string& trig) const {
   ATH_MSG_DEBUG("MuonMonitoring::searchL2InsideOut()");
 
   float reqdR = 1000.;

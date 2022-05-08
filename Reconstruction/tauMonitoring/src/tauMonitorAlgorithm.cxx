@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "tauMonitorAlgorithm.h"
@@ -557,7 +557,7 @@ StatusCode tauMonitorAlgorithm::fillHistograms(const EventContext &ctx) const {
       }
 
       double moment;
-      for (auto vertexedCluster : clusters) {
+      for (const auto& vertexedCluster : clusters) {
         const xAOD::CaloCluster &cluster = vertexedCluster.clust();
 
         clusterLogEt = std::log10(vertexedCluster.p4().Et());
