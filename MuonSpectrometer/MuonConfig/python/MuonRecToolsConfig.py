@@ -7,7 +7,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType
 
 
-def MuonEDMPrinterToolCfg(flags, name="MuonEDMHelperSvc", **kwargs):
+def MuonEDMPrinterToolCfg(flags, name="MuonEDMPrinterTool", **kwargs):
     result = ComponentAccumulator()  
     kwargs.setdefault('TgcPrdCollection', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
     the_tool = CompFactory.Muon.MuonEDMPrinterTool(name, **kwargs)
@@ -16,6 +16,7 @@ def MuonEDMPrinterToolCfg(flags, name="MuonEDMHelperSvc", **kwargs):
     from MuonConfig.MuonGeometryConfig import MuonIdHelperSvcCfg   
     result.merge(MuonIdHelperSvcCfg(flags))
     return result
+    
 def MuonEDMHelperSvcCfg(flags, name = "MuonEDMHelperSvc"):
     result = ComponentAccumulator()
     flags.Beam.Type ### Dummy call
@@ -140,6 +141,7 @@ def MuonAmbiProcessorCfg(flags, name="MuonAmbiProcessor", **kwargs):
     kwargs.setdefault('ScoringTool', scoring_tool )
     result.addPublicTool(scoring_tool)
     muon_edm_printer = result.getPrimaryAndMerge(MuonEDMPrinterToolCfg( flags ))
+    # muon_edm_printer = result.getPrimaryAndMerge(MuonEDMPrinterToolCfg( flags, TgcPrdCollection="TGC_Measurements" )) # FIXME Hack to get wrapping working. Keep in for now, to aid debugging
 
     muon_ami_selection_tool = CompFactory.Muon.MuonAmbiTrackSelectionTool(name="MuonAmbiSelectionTool", Printer=muon_edm_printer)
     result.addPublicTool(muon_ami_selection_tool)
@@ -172,6 +174,7 @@ def MuonTrackCleanerCfg(flags, name="MuonTrackCleaner", **kwargs):
     kwargs.setdefault("Fitter", fitter)
 
     kwargs.setdefault("Printer", result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags)) )
+    # kwargs.setdefault("Printer", result.getPrimaryAndMerge(MuonEDMPrinterToolCfg(flags, TgcPrdCollection="TGC_Measurements" )) ) # FIXME Hack to get wrapping working. Keep in for now, to aid debugging
 
     kwargs.setdefault("MaxAvePullSumPerChamber", 6)
     kwargs.setdefault("Chi2Cut", flags.Muon.Chi2NDofCut)
@@ -194,8 +197,8 @@ def MuonChi2TrackFitterCfg(flags, name='MuonChi2TrackFitter', **kwargs):
     from TrkConfig.TrkRIO_OnTrackCreatorConfig import MuonRotCreatorCfg
     rotcreator=result.popToolsAndMerge(MuonRotCreatorCfg(flags))
     
-    from TrkConfig.TrkMeasurementUpdatorConfig import KalmanUpdator_xkCfg
-    measurement_updater = result.popToolsAndMerge(KalmanUpdator_xkCfg(flags, name="MuonMeasUpdator"))
+    from TrkConfig.TrkMeasurementUpdatorConfig import KalmanUpdatorCfg
+    measurement_updater = result.popToolsAndMerge(KalmanUpdatorCfg(flags, name="MuonMeasUpdator"))
     
 
     kwargs.setdefault("ExtrapolationTool"    , extrapolator)
@@ -207,9 +210,9 @@ def MuonChi2TrackFitterCfg(flags, name='MuonChi2TrackFitter', **kwargs):
     kwargs.setdefault("RejectLargeNScat"     , True)
 
     # take propagator and navigator from the extrapolator
-    kwargs.setdefault("PropagatorTool", extrapolator.Propagators[0])
+    kwargs.setdefault("PropagatorTool", extrapolator.Propagators[0] if len(extrapolator.Propagators)>0 else "")
     kwargs.setdefault("NavigatorTool",  extrapolator.Navigator)
-    kwargs.setdefault("EnergyLossTool", extrapolator.EnergyLossUpdators[0])
+    kwargs.setdefault("EnergyLossTool", extrapolator.EnergyLossUpdators[0] if len(extrapolator.EnergyLossUpdators)>0 else "" )
     ### We need to include the tracking geometry conditions 
     from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
     geom_cond_key = result.getPrimaryAndMerge(TrackingGeometryCondAlgCfg(flags)).TrackingGeometryWriteKey
