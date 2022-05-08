@@ -105,9 +105,9 @@ In one side there
 is ExtrapolateDirectly which is a thinwrapper
 over the [Global] Propagator call (can be replaced completely by a call 
 to it in client code).
-In the other side there is an extrapolate overlaod
+In the other side there is an extrapolate overload
 that allows to find and collect all intersections
-for a particle (typically muon) trasversing the 
+for a particle (typically muon) traversing the
 ATLAS calorimeters. 
 
 @author Andreas.Salzburger@cern.ch
@@ -235,7 +235,7 @@ public:
   /** Extrapolation method collecting intersections with subdetector
    * boundaries and active volumes/layers. Destination
    * (subdetector boundary) : geoID (+ entry, -exit) ( default MS exit )
-   * Employs the STEP propagator, used in the ParticleCaloExtension
+   * Employs the STEP_propagator, used to create ParticleCaloExtensions
    * mainly for muons and Particle Flow.
    */
   virtual std::unique_ptr<
