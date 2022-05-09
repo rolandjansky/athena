@@ -65,7 +65,7 @@ class PowhegRES(PowhegBase):
             "pwg*xgrid*.dat",
             "pwgfullgrid*.dat",
             "pwggrid*.dat",
-            "pwgubound*.dat"
+            "pwgubound*.dat",
             "pwg*stat.dat",
         ]
 
