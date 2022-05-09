@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FORWARDTRACKER_COLLIMATOR_H
@@ -45,8 +45,8 @@ namespace ForwardTracker {
     double         m_rearFace;
     Point          m_position;
     double         m_xaperture;
-    mutable double m_xouter;
-    mutable double m_xinner;
+    double m_xouter;
+    double m_xinner;
     
     bool isOutOfAperture(const TransversePoint& p) const { return (p.x() > m_xouter or p.x() < m_xinner); }
   };
