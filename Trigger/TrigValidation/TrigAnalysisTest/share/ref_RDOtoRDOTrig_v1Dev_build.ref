@@ -1454,6 +1454,10 @@ HLT_2mu4_l2io_invmDimu_L12MU3VF:
     1: 9
     2: 10
     3: 6
+HLT_2mu4_l2io_invmDimu_L1BPH-2M9-0DR15-2MU3V:
+  eventCount: 0
+HLT_2mu4_l2io_invmDimu_L1BPH-2M9-0DR15-2MU3VF:
+  eventCount: 0
 HLT_2mu4_l2mt_L1MU4BOM:
   eventCount: 0
 HLT_2mu4_muonqual_L12MU3V:
