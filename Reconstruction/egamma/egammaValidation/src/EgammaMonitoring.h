@@ -32,6 +32,8 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+
 #include "PATCore/AcceptData.h"
 
 #include "ClusterHistograms.h"
@@ -223,6 +225,44 @@ private:
     this,
     "MCTruthClassifier",
     "MCTruthClassifier/MCTruthClassifier",
+    ""
+  };
+
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{ this,
+                                                     "EventInfoKey",
+                                                     "EventInfo",
+                                                     "" };
+
+  SG::ReadHandleKey<xAOD::TruthParticleContainer> m_egTruthParticlesKey{
+    this,
+    "egammaTruthParticlesKey",
+    "egammaTruthParticles",
+    ""
+  };
+
+  SG::ReadHandleKey<xAOD::TruthParticleContainer>
+    m_truthParticlesKey{ this, "truthParticlesKey", "TruthParticles", "" };
+
+  SG::ReadHandleKey<xAOD::ElectronContainer> m_ElectronsKey{ this,
+                                                             "ElectronsKey",
+                                                             "Electrons",
+                                                             "" };
+
+  SG::ReadHandleKey<xAOD::PhotonContainer> m_PhotonsKey{ this,
+                                                         "PhotonsKey",
+                                                         "Photons",
+                                                         "" };
+
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_InDetTrackParticlesKey{
+    this,
+    "InDetTrackParticlesKey",
+    "InDetTrackParticles",
+    ""
+  };
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_GSFTrackParticlesKey{
+    this,
+    "GSFTrackParticlesKey",
+    "GSFTrackParticles",
     ""
   };
 
