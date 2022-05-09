@@ -5,7 +5,7 @@
  **     @author  mark sutton
  **     @date    Thu 10 Jan 2019 20:41:57 CET 
  **
- **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  **/
 
 #ifndef TRIGTRACKSELECTOR_H
@@ -44,7 +44,6 @@
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrackSummary/TrackSummary.h"
-#include "TrkTrackSummary/InDetTrackSummary.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "GaudiKernel/ToolHandle.h" 
 #include "TMath.h"
