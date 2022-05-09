@@ -35,6 +35,11 @@ public:
     std::string name() const;
     /// file_stream of the analysis to which the tree belongs
     std::string file_stream() const;
+    /// sub directory in the TFile
+    std::string path() const;
+    
+    /// Save the TTree in a subfolder of the TFile
+    void set_path(const std::string& new_path);
 
     /// Initialze the tree with the output file. The stream corresponds to the stream
     /// of the file e.g MDTTester HighEtaTester
@@ -87,6 +92,7 @@ public:
 private:
     std::unique_ptr<TTree> m_tree{nullptr};
     std::string m_stream{};
+    std::string m_path{};
     bool m_init{false};
     // List of branches which are owned by the tree. They will be deleted if the object is destructed
     std::vector<std::shared_ptr<IMuonTesterBranch>> m_branches{};
