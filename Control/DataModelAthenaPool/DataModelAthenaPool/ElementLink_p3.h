@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DATAMODELATHENAPOOL_ELEMENTLINK_P3_H
@@ -21,17 +21,11 @@ template <class INDEXTYPE>
 class ElementLink_p3 {
 public:
 
-  ElementLink_p3() : m_SGKeyHash(0) { }
+  ElementLink_p3() = default;
   
-  INDEXTYPE	m_elementIndex;
-  uint32_t      m_SGKeyHash; 
+  INDEXTYPE m_elementIndex{};
+  uint32_t  m_SGKeyHash{0};
 };
-
-
-// Specialize the constructor so <int> index type is initialized with 0
-template<> inline ElementLink_p3<uint32_t>::ElementLink_p3()
-      : m_elementIndex(0), m_SGKeyHash(0)
-{ }
 
 
 // If you define more ElementLink_pN types, remember to add template instantiations to the Dict file
