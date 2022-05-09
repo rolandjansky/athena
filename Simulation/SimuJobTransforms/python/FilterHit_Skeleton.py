@@ -25,7 +25,7 @@ def getStreamHITS_ItemList(ConfigFlags):
 
     #PLR
     if ConfigFlags.Detector.EnablePLR:
-        ItemList += ["SiHitCollection#PLRHits"]
+        ItemList += ["SiHitCollection#PLR_Hits"]
     #BCM
     if ConfigFlags.Detector.EnableBCM:
         ItemList += ["SiHitCollection#BCMHits"]

@@ -101,10 +101,10 @@ def ITkStripHitsTruthRelinkCfg(flags, **kwargs):
 def PLR_HitsTruthRelinkCfg(flags, **kwargs):
     acc = ComponentAccumulator()
 
-    acc.merge(InputRenameCfg("SiHitCollection", "PLRHits", "PLRHitsOLD"))
+    acc.merge(InputRenameCfg("SiHitCollection", "PLR_Hits", "PLR_HitsOLD"))
 
-    kwargs.setdefault("InputHits", "PLRHitsOLD")
-    kwargs.setdefault("OutputHits", "PLRHits")
+    kwargs.setdefault("InputHits", "PLR_HitsOLD")
+    kwargs.setdefault("OutputHits", "PLR_Hits")
 
     acc.addEventAlgo(CompFactory.SiliconHitsTruthRelink(name="PLR_HitsTruthRelink", **kwargs))
     return acc
