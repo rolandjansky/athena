@@ -27,7 +27,8 @@
 EMBremCollectionBuilder::EMBremCollectionBuilder(const std::string& name,
                                                  ISvcLocator* pSvcLocator)
   : AthReentrantAlgorithm(name, pSvcLocator)
-{}
+{
+}
 
 StatusCode
 EMBremCollectionBuilder::initialize()
@@ -44,8 +45,6 @@ EMBremCollectionBuilder::initialize()
   ATH_CHECK(m_particleCreatorTool.retrieve());
   /* Get the track slimming tool */
   ATH_CHECK(m_slimTool.retrieve());
-  /* Get the track summary tool */
-  ATH_CHECK(m_summaryTool.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -202,14 +201,6 @@ EMBremCollectionBuilder::createCollections(
   xAOD::TrackParticleContainer* finalTrkPartContainer,
   const xAOD::TrackParticleContainer* inputTrkPartContainer) const
 {
-  /*
-   * Refitted are new tracks
-   * so need to create/update their summary
-   */
-  for (auto& trk : refitted) {
-    updateGSFTrack(ctx, trk, inputTrkPartContainer);
-  }
-
   // Now we can create the final ouput
   // 1. Add the refitted
   for (auto& trk : refitted) {
@@ -217,7 +208,8 @@ EMBremCollectionBuilder::createCollections(
                         trk,
                         finalTracks,
                         finalTrkPartContainer,
-                        inputTrkPartContainer));
+                        inputTrkPartContainer,
+                        true));
   }
   // 2. Add the failed fit
   for (auto& trk : failedfit) {
@@ -225,7 +217,8 @@ EMBremCollectionBuilder::createCollections(
                         trk,
                         finalTracks,
                         finalTrkPartContainer,
-                        inputTrkPartContainer));
+                        inputTrkPartContainer,
+                        false));
   }
   // 3. Add the TRT alone
   for (auto& trk : trtAlone) {
@@ -233,7 +226,8 @@ EMBremCollectionBuilder::createCollections(
                         trk,
                         finalTracks,
                         finalTrkPartContainer,
-                        inputTrkPartContainer));
+                        inputTrkPartContainer,
+                        false));
   }
   return StatusCode::SUCCESS;
 }
@@ -244,20 +238,21 @@ EMBremCollectionBuilder::createNew(
   TrackWithIndex& trk_info,
   TrackCollection* finalTracks,
   xAOD::TrackParticleContainer* finalTrkPartContainer,
-  const xAOD::TrackParticleContainer* inputTrkPartContainer) const
+  const xAOD::TrackParticleContainer* inputTrkPartContainer,
+  bool isRefitted) const
 {
-
-  size_t origIndex = trk_info.origIndex;
-  const xAOD::TrackParticle* original = inputTrkPartContainer->at(origIndex);
 
   // Create new TrackParticle owned by finalTrkPartContainer
   xAOD::TrackParticle* aParticle = m_particleCreatorTool->createParticle(
     ctx, *(trk_info.track), finalTrkPartContainer, nullptr, xAOD::electron);
 
   if (!aParticle) {
-    ATH_MSG_WARNING("Could not create TrackParticle!!! for Track: " << *(trk_info.track));
+    ATH_MSG_WARNING(
+      "Could not create TrackParticle!!! for Track: " << *(trk_info.track));
     return StatusCode::SUCCESS;
   }
+  size_t origIndex = trk_info.origIndex;
+  const xAOD::TrackParticle* original = inputTrkPartContainer->at(origIndex);
 
   // Add an element link back to original Track Particle collection
   static const SG::AuxElement::Accessor<
@@ -282,33 +277,7 @@ EMBremCollectionBuilder::createNew(
   static const SG::AuxElement::Accessor<float> QoverPLM("QoverPLM");
   QoverPLM(*aParticle) = QoverPLast;
 
-  // Add Truth decorations. Copy from the original.
-  if (m_doTruth) {
-    static const SG::AuxElement::Accessor<
-      ElementLink<xAOD::TruthParticleContainer>>
-      tPL("truthParticleLink");
-    if (tPL.isAvailable(*original)) {
-      const ElementLink<xAOD::TruthParticleContainer>& linkToTruth =
-        tPL(*original);
-      tPL(*aParticle) = linkToTruth;
-    }
-    static const SG::AuxElement::Accessor<float> tMP("truthMatchProbability");
-    if (tMP.isAvailable(*original)) {
-      float originalProbability = tMP(*original);
-      tMP(*aParticle) = originalProbability;
-    }
-    static const SG::AuxElement::Accessor<int> tT("truthType");
-    if (tT.isAvailable(*original)) {
-      int truthType = tT(*original);
-      tT(*aParticle) = truthType;
-    }
-    static const SG::AuxElement::Accessor<int> tO("truthOrigin");
-    if (tO.isAvailable(*original)) {
-      int truthOrigin = tO(*original);
-      tO(*aParticle) = truthOrigin;
-    }
-  }
-
+  copyOverInfo(*aParticle, *original, isRefitted);
   // Slim the Trk::Track, store to the new
   // Trk::Track collection and make the Track
   // Particle point to it
@@ -323,79 +292,104 @@ EMBremCollectionBuilder::createNew(
 }
 
 void
-EMBremCollectionBuilder::updateGSFTrack(
-  const EventContext& ctx,
-  const TrackWithIndex& trk_info,
-  const xAOD::TrackParticleContainer* inputTrkPartContainer) const
+EMBremCollectionBuilder::copyOverInfo(xAOD::TrackParticle& created,
+                                      const xAOD::TrackParticle& original,
+                                      bool isRefitted) const
 {
-
-  // update the summary of the non-const track without hole search
-  m_summaryTool->updateTrackSummary(ctx, *(trk_info.track));
-
-  // Get the summary so as to add info to it
-  // i.e we copy the hole/dead from the original
-  // before refit
-  Trk::TrackSummary* summary = trk_info.track->trackSummary();
-  size_t origIndex = trk_info.origIndex;
-  const xAOD::TrackParticle* original = inputTrkPartContainer->at(origIndex);
-
-  uint8_t dummy(0);
-  if (m_doPix) {
-    // copy over dead sensors
-    uint8_t deadPixel =
-      original->summaryValue(dummy, xAOD::numberOfPixelDeadSensors) ? dummy : 0;
-    summary->update(Trk::numberOfPixelDeadSensors, deadPixel);
-
-    int nPixHitsRefitted = summary->get(Trk::numberOfPixelHits);
-    int nPixOutliersRefitted = summary->get(Trk::numberOfPixelOutliers);
-    int nPixHitsOriginal =
-      original->summaryValue(dummy, xAOD::numberOfPixelHits) ? dummy : -1;
-    int nPixHolesOriginal =
-      original->summaryValue(dummy, xAOD::numberOfPixelHoles) ? dummy : -1;
-
-    int nPixOutliersOriginal =
-      original->summaryValue(dummy, xAOD::numberOfPixelOutliers) ? dummy : -1;
-    summary->update(Trk::numberOfPixelHoles,
-                    nPixHitsOriginal + nPixHolesOriginal +
-                      nPixOutliersOriginal - nPixOutliersRefitted -
-                      nPixHitsRefitted);
+  // Add Truth decorations. Copy from the original.
+  if (m_doTruth) {
+    static const SG::AuxElement::Accessor<
+      ElementLink<xAOD::TruthParticleContainer>>
+      tPL("truthParticleLink");
+    if (tPL.isAvailable(original)) {
+      const ElementLink<xAOD::TruthParticleContainer>& linkToTruth =
+        tPL(original);
+      tPL(created) = linkToTruth;
+    }
+    static const SG::AuxElement::Accessor<float> tMP("truthMatchProbability");
+    if (tMP.isAvailable(original)) {
+      float originalProbability = tMP(original);
+      tMP(created) = originalProbability;
+    }
+    static const SG::AuxElement::Accessor<int> tT("truthType");
+    if (tT.isAvailable(original)) {
+      int truthType = tT(original);
+      tT(created) = truthType;
+    }
+    static const SG::AuxElement::Accessor<int> tO("truthOrigin");
+    if (tO.isAvailable(original)) {
+      int truthOrigin = tO(original);
+      tO(created) = truthOrigin;
+    }
   }
-  if (m_doSCT) {
-    uint8_t deadSCT =
-      original->summaryValue(dummy, xAOD::numberOfSCTDeadSensors) ? dummy : 0;
-    summary->update(Trk::numberOfSCTDeadSensors, deadSCT);
 
-    uint8_t SCTDoubleHoles =
-      original->summaryValue(dummy, xAOD::numberOfSCTDoubleHoles) ? dummy : 0;
-    summary->update(Trk::numberOfSCTDoubleHoles, SCTDoubleHoles);
+  if (isRefitted) {
+    uint8_t dummy(0);
+    if (m_doPix) {
+      // copy over dead sensors
+      uint8_t deadPixel =
+        original.summaryValue(dummy, xAOD::numberOfPixelDeadSensors) ? dummy
+                                                                     : 0;
+      created.setSummaryValue(deadPixel, xAOD::numberOfPixelDeadSensors);
 
-    int nSCTHitsRefitted = summary->get(Trk::numberOfSCTHits);
-    int nSCTOutliersRefitted = summary->get(Trk::numberOfSCTOutliers);
-    int nSCTHitsOriginal =
-      original->summaryValue(dummy, xAOD::numberOfSCTHits) ? dummy : -1;
-    int nSCTHolesOriginal =
-      original->summaryValue(dummy, xAOD::numberOfSCTHoles) ? dummy : -1;
-    int nSCTOutliersOriginal =
-      original->summaryValue(dummy, xAOD::numberOfSCTOutliers) ? dummy : -1;
+      // Figure the new number of holes
+      int nPixHitsRefitted =
+        created.summaryValue(dummy, xAOD::numberOfPixelHits) ? dummy : -1;
+      int nPixOutliersRefitted =
+        created.summaryValue(dummy, xAOD::numberOfPixelOutliers) ? dummy : -1;
+      //
+      int nPixHitsOriginal =
+        original.summaryValue(dummy, xAOD::numberOfPixelHits) ? dummy : -1;
+      int nPixOutliersOriginal =
+        original.summaryValue(dummy, xAOD::numberOfPixelOutliers) ? dummy : -1;
+      int nPixHolesOriginal =
+        original.summaryValue(dummy, xAOD::numberOfPixelHoles) ? dummy : -1;
+      uint8_t nPixHolesRefitted = nPixHitsOriginal + nPixHolesOriginal +
+                                  nPixOutliersOriginal - nPixOutliersRefitted -
+                                  nPixHitsRefitted;
+      created.setSummaryValue(nPixHolesRefitted, xAOD::numberOfPixelHoles);
+    }
+    if (m_doSCT) {
+      // Copy over dead and double holes
+      uint8_t deadSCT =
+        original.summaryValue(dummy, xAOD::numberOfSCTDeadSensors) ? dummy : 0;
+      created.setSummaryValue(deadSCT, xAOD::numberOfSCTDeadSensors);
+      uint8_t SCTDoubleHoles =
+        original.summaryValue(dummy, xAOD::numberOfSCTDoubleHoles) ? dummy : 0;
+      created.setSummaryValue(SCTDoubleHoles, xAOD::numberOfSCTDoubleHoles);
 
-    summary->update(Trk::numberOfSCTHoles,
-                    nSCTHitsOriginal + nSCTHolesOriginal +
-                      nSCTOutliersOriginal - nSCTOutliersRefitted -
-                      nSCTHitsRefitted);
-  }
-  if (m_doTRT) {
-    int nTRTHitsRefitted = summary->get(Trk::numberOfTRTHits);
-    int nTRTOutliersRefitted = summary->get(Trk::numberOfTRTOutliers);
-    int nTRTHitsOriginal =
-      original->summaryValue(dummy, xAOD::numberOfTRTHits) ? dummy : -1;
-    int nTRTHolesOriginal =
-      original->summaryValue(dummy, xAOD::numberOfTRTHoles) ? dummy : -1;
-    int nTRTOutliersOriginal =
-      original->summaryValue(dummy, xAOD::numberOfTRTOutliers) ? dummy : -1;
+      int nSCTHitsRefitted =
+        created.summaryValue(dummy, xAOD::numberOfSCTHits) ? dummy : -1;
+      int nSCTOutliersRefitted =
+        created.summaryValue(dummy, xAOD::numberOfSCTOutliers) ? dummy : -1;
+      int nSCTHitsOriginal =
+        original.summaryValue(dummy, xAOD::numberOfSCTHits) ? dummy : -1;
+      int nSCTHolesOriginal =
+        original.summaryValue(dummy, xAOD::numberOfSCTHoles) ? dummy : -1;
+      int nSCTOutliersOriginal =
+        original.summaryValue(dummy, xAOD::numberOfSCTOutliers) ? dummy : -1;
 
-    summary->update(Trk::numberOfTRTHoles,
-                    nTRTHitsOriginal + nTRTHolesOriginal +
-                      nTRTOutliersOriginal - nTRTOutliersRefitted -
-                      nTRTHitsRefitted);
+      uint8_t nSCTHolesRefitted = nSCTHitsOriginal + nSCTHolesOriginal +
+                                  nSCTOutliersOriginal - nSCTOutliersRefitted -
+                                  nSCTHitsRefitted;
+      created.setSummaryValue(nSCTHolesRefitted, xAOD::numberOfSCTHoles);
+    }
+    if (m_doTRT) {
+      int nTRTHitsRefitted =
+        created.summaryValue(dummy, xAOD::numberOfTRTHits) ? dummy : -1;
+      int nTRTOutliersRefitted =
+        created.summaryValue(dummy, xAOD::numberOfTRTOutliers) ? dummy : -1;
+      int nTRTHitsOriginal =
+        original.summaryValue(dummy, xAOD::numberOfTRTHits) ? dummy : -1;
+      int nTRTHolesOriginal =
+        original.summaryValue(dummy, xAOD::numberOfTRTHoles) ? dummy : -1;
+      int nTRTOutliersOriginal =
+        original.summaryValue(dummy, xAOD::numberOfTRTOutliers) ? dummy : -1;
+      uint8_t nTRTHolesRefitted = nTRTHitsOriginal + nTRTHolesOriginal +
+                                  nTRTOutliersOriginal - nTRTOutliersRefitted -
+                                  nTRTHitsRefitted;
+
+      created.setSummaryValue(nTRTHolesRefitted, xAOD::numberOfTRTHoles);
+    }
   }
 }

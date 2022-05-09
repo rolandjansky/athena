@@ -92,7 +92,7 @@ StatusCode MuonTesterTree::init(ServiceHandle<ITHistSvc> hist_svc) {
     }
     if (!initialized()) {
         /// push back the ds id index
-        std::string full_path = Form("/%s/%s", file_stream().c_str(), name().c_str());
+        std::string full_path = Form("/%s/%s%s%s", file_stream().c_str(), path().c_str(), path().empty() ? "" : "/", name().c_str());
         if (!hist_svc->regTree(full_path, tree()).isSuccess()) { return StatusCode::FAILURE; }
         m_directory = m_tree->GetDirectory();
         if (!m_directory) {
@@ -128,7 +128,8 @@ StatusCode MuonTesterTree::init(ServiceHandle<ITHistSvc> hist_svc) {
 StatusCode MuonTesterTree::write() {
     if (!initialized() || !m_tree) { return StatusCode::SUCCESS; }
     if (!m_hist_svc->deReg(tree()).isSuccess()) {
-        Error("write()", "Failed to put the tree out of the HistService");
+        MsgStream log(Athena::getMessageSvc(), "MuonTesterTree");
+        log << MSG::ERROR<< " write() --- Failed to put the tree out of the HistService"<<endmsg;
         return StatusCode::FAILURE;
     }
     m_directory->WriteObject(tree(), tree()->GetName(), "overwrite");
@@ -145,8 +146,9 @@ void MuonTesterTree::disableBranch(const std::vector<std::string>& br_names) {
 }
 std::string MuonTesterTree::file_stream() const { return m_stream; }
 bool MuonTesterTree::is_active(const IMuonTesterBranch* branch) const {
-    if (!branch) {
-        Error("MuonTesterTree()", "Nullptr given");
+    if (!branch) {        
+        MsgStream log(Athena::getMessageSvc(), "MuonTesterTree");
+        log << MSG::ERROR<<"Nullptr was given."<<endmsg;        
         return false;
     }
     if (std::find_if(m_branches_to_init.begin(), m_branches_to_init.end(), [&branch](const IMuonTesterBranch* known) {
@@ -155,7 +157,8 @@ bool MuonTesterTree::is_active(const IMuonTesterBranch* branch) const {
         return true;
     return false;
 }
-
+void MuonTesterTree::set_path(const std::string& new_path) { m_path = new_path;}
+std::string MuonTesterTree::path() const { return m_path; }
 void MuonTesterTree::set_evt_info(const xAOD::EventInfo* ev_info) { m_ev_info = ev_info; }
 const xAOD::EventInfo* MuonTesterTree::evt_info() const { return m_ev_info; }
 void MuonTesterTree::set_mc_evt_info(const xAOD::TruthEvent* ev_info) { m_mc_ev_info = ev_info; }

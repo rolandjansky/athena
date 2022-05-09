@@ -67,9 +67,9 @@ def ITkPixelSensorSDCfg(ConfigFlags, name="ITkPixelSensorSD", **kwargs):
     return result
 
 def PLRSensorSDCfg(ConfigFlags, name="PLRSensorSD", **kwargs):
-    bare_collection_name = "PLRHits"
+    bare_collection_name = "PLR_Hits"
     mergeable_collection_suffix = "_G4"
-    merger_input_property = "PLRHits"
+    merger_input_property = "PLR_Hits"
     region = "ITk"
 
     acc, hits_collection_name = CollectionMergerCfg(ConfigFlags,

@@ -350,6 +350,10 @@ Trk::TrackSummaryTool::fillSummary(const EventContext& ctx,
   if (m_addInDetDetailedSummary && !m_idTool.empty()) {
     m_idTool->addDetailedTrackSummary(ctx, track, ts);
   }
+  //Add Expected Hits info
+  if (m_addExpectedHits && !m_idTool.empty()) {
+    m_idTool->updateExpectedHitInfo(ctx,track,ts);
+  }
   // add detailed summary for muons
   if (m_addMuonDetailedSummary && !m_muonTool.empty()) {
     m_muonTool->addDetailedTrackSummary(ctx, track, ts);

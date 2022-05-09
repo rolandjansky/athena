@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -60,7 +60,7 @@ private:
   // look-up table and related variables
   std::array<std::vector<int>, 2> m_LUT;
   std::array<double, 2> m_invUnit; // inverse unit size in the LUT
-  int m_zoff;
+  int m_zoff{0};
 };
 
 #include "MagFieldElements/BFieldMeshZR.icc"
