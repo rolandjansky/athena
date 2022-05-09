@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -47,7 +47,6 @@ The TrkValTools package contains the following classes:
  - Trk::PerigeeParametersNtupleTool : Tool to fill a track/trackparticle's parameters and error matrix at the origin, includes possibility to write corresponding truth parameters and pulls.
  - Trk::TrackInformationNtupleTool : Tool to fill a track/trackparticle's basic information
  - Trk::MeasurementVectorNtupleTool : Tool to fill a track/trackparticle's hit pattern and parameter trajectory.
- - Trk::TrackSummaryNtupleTool : Tool to fill a track/trackparticle's track summary information, including particle ID.
  - Trk::ResidualValidationNtupleHelper : Helper tool for Trk::BasicValidationNtupleTool
    which writes residual and pull information for Pixels, SCT and TRT using the
    Trk::ResidualPullCalculator.
