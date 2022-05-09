@@ -114,14 +114,12 @@ class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
                 InDetSummaryHelperTool=GSFBuildTrackSummaryHelperTool,
                 doSharedHits=False,
                 doHolesInDet=False,
+                AddExpectedHits=True,
                 TRT_ElectronPidTool=GSFBuildTRT_ElectronPidTool,
-                PixelToTPIDTool=GSFBuildPixelToTPIDTool,
-                private=True)
+                PixelToTPIDTool=GSFBuildPixelToTPIDTool)
         )
-
         #
         #  Track Particle Creator tool (private not in ToolSvc)
-        #  But needs a public extrapolator
         #
         from TrkParticleCreator.TrkParticleCreatorConf import (
             Trk__TrackParticleCreatorTool)
@@ -129,7 +127,7 @@ class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
         GSFBuildInDetParticleCreatorTool = Trk__TrackParticleCreatorTool(
             name="GSFBuildInDetParticleCreatorTool",
             KeepParameters=True,
-            TrackSummaryTool="")
+            TrackSummaryTool=GSFBuildInDetTrigTrackSummaryTool)
         #
         #  Track slimming (private not in ToolSvc)
         #
@@ -145,8 +143,6 @@ class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
         self.TrackRefitTool = GSFRefitterTool
         self.TrackParticleCreatorTool = GSFBuildInDetParticleCreatorTool
         self.TrackSlimmingTool = GSFBuildInDetTrkSlimmingTool
-        self.TrackSummaryTool = GSFBuildInDetTrigTrackSummaryTool
-
 
 
 """ This is an instance of GSF fitter tool will be used on track particles """
