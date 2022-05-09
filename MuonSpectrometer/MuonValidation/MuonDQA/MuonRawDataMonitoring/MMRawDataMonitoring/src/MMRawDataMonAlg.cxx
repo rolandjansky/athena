@@ -26,6 +26,8 @@
 #include "MuonRIO_OnTrack/MMClusterOnTrack.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "MuonPrepRawData/MMPrepData.h"
+#include "MuonSegment/MuonSegment.h"
+
 
 namespace {
 
@@ -39,52 +41,63 @@ namespace {
 
 	struct MMOverviewHistogramStruct {
 
-		std::vector<int> statEta_strip;
-		std::vector<int> charge_all;
-		std::vector<int> strp_times;
-		std::vector<float> cl_times;
-		std::vector<int> strip_number;
-		std::vector<int> numberofstrips_percluster;
-		std::vector<float> mu_TPC_angle;
-		std::vector<float> mu_TPC_chi2;
-		std::vector<float> R_mon;
-		std::vector<float> z_mon;
-		std::vector<float> x_mon;
-		std::vector<float> y_mon;
-		std::vector<int> stationPhi_ASide_eta1_ontrack;
-		std::vector<int> stationPhi_ASide_eta2_ontrack;
-		std::vector<int> stationPhi_CSide_eta1_ontrack;
-		std::vector<int> stationPhi_CSide_eta2_ontrack;
-		std::vector<int> sector_ASide_eta2_ontrack;
-		std::vector<int> sector_CSide_eta1_ontrack;
-		std::vector<int> sector_ASide_eta1_ontrack;
-		std::vector<int> sector_CSide_eta2_ontrack;
-		std::vector<int> stationPhi_ASide_eta1;
-		std::vector<int> stationPhi_ASide_eta2;
-		std::vector<int> stationPhi_CSide_eta1;
-		std::vector<int> stationPhi_CSide_eta2;
-		std::vector<int> sector_CSide_eta2;
-		std::vector<int> sector_ASide_eta2;
-		std::vector<int> sector_CSide_eta1;
-		std::vector<int> sector_ASide_eta1;
+	  std::vector<int> statEta_strip;
+	  std::vector<int> charge_all;
+	  std::vector<int> strp_times;
+	  std::vector<float> cl_times;
+	  std::vector<int> strip_number;
+	  std::vector<int> numberofstrips_percluster;
+	  std::vector<float> mu_TPC_angle;
+	  std::vector<float> mu_TPC_chi2;
+	  std::vector<float> R_mon;
+	  std::vector<float> z_mon;
+	  std::vector<float> x_mon;
+	  std::vector<float> y_mon;
+	  std::vector<int> stationPhi_ASide_eta1_ontrack;
+	  std::vector<int> stationPhi_ASide_eta2_ontrack;
+	  std::vector<int> stationPhi_CSide_eta1_ontrack;
+	  std::vector<int> stationPhi_CSide_eta2_ontrack;
+	  std::vector<int> sector_ASide_eta2_ontrack;
+	  std::vector<int> sector_CSide_eta1_ontrack;
+	  std::vector<int> sector_ASide_eta1_ontrack;
+	  std::vector<int> sector_CSide_eta2_ontrack;
+	  std::vector<int> stationPhi_ASide_eta1;
+	  std::vector<int> stationPhi_ASide_eta2;
+	  std::vector<int> stationPhi_CSide_eta1;
+	  std::vector<int> stationPhi_CSide_eta2;
+	  std::vector<int> sector_CSide_eta2;
+	  std::vector<int> sector_ASide_eta2;
+	  std::vector<int> sector_CSide_eta1;
+	  std::vector<int> sector_ASide_eta1;
+	  std::vector<int> stationPhi_ASide_eta1_onseg;
+	  std::vector<int> stationPhi_ASide_eta2_onseg;
+	  std::vector<int> stationPhi_CSide_eta1_onseg;
+	  std::vector<int> stationPhi_CSide_eta2_onseg;
+	  std::vector<int> sector_ASide_eta2_onseg;
+	  std::vector<int> sector_CSide_eta1_onseg;
+	  std::vector<int> sector_ASide_eta1_onseg;
+	  std::vector<int> sector_CSide_eta2_onseg;
+
 	};
 
 	struct MMByPhiStruct {
-		std::vector<int> sector_lb;
-		std::vector<int> sector_lb_ontrack;
+	  std::vector<int> sector_lb;
+	  std::vector<int> sector_lb_ontrack;
+	  std::vector<int> sector_lb_onseg;
 	};
 
 	struct MMSummaryHistogramStruct {
-
-		std::vector<int> strip_number;
-		std::vector<int> sector_strip;
-		std::vector<int> charge;
-		std::vector<int> strp_times;
-		std::vector<float> cl_times;
-		std::vector<float> mu_TPC_angle;
-		std::vector<float> x_ontrack;
-		std::vector<float> y_ontrack;
-		std::vector<float> residuals;
+	  std::vector<int> cl_size;
+	  std::vector<int> pcb;
+	  std::vector<int> strip_number;
+	  std::vector<int> sector_strip;
+	  std::vector<int> charge;
+	  std::vector<int> strp_times;
+	  std::vector<float> cl_times;
+	  std::vector<float> mu_TPC_angle;
+	  std::vector<float> x_ontrack;
+	  std::vector<float> y_ontrack;
+	  std::vector<float> residuals;
 	};
 
 	struct MMEfficiencyHistogramStruct {
@@ -122,6 +135,7 @@ StatusCode MMRawDataMonAlg::initialize()
 	ATH_CHECK(m_muonKey.initialize());
 	ATH_CHECK(m_MMContainerKey.initialize());
 	ATH_CHECK(m_meTrkKey.initialize());
+	ATH_CHECK(m_segm_type.initialize());
 
 	ATH_MSG_DEBUG(" end of initialize " );
 	ATH_MSG_INFO("MMRawDataMonAlg initialization DONE " );
@@ -163,6 +177,12 @@ StatusCode MMRawDataMonAlg::fillHistograms(const EventContext& ctx) const
 		}
 		clusterFromTrack(meTPContainer.cptr(),lumiblock);
 		MMEfficiency(meTPContainer.cptr());
+		SG::ReadHandle<Trk::SegmentCollection> segms(m_segm_type, ctx);
+                if (!segms.isValid()) {
+                  ATH_MSG_ERROR("evtStore() does not contain mdt segms Collection with name " << m_segm_type);
+                  return StatusCode::FAILURE;
+                }
+                clusterFromSegments(segms.cptr(),lumiblock);
 	}
 
 	return StatusCode::SUCCESS;
@@ -514,7 +534,7 @@ void MMRawDataMonAlg::clusterFromTrack(const xAOD::TrackParticleContainer*  muon
 					auto& vectors = summaryPlots_full[side][sectorPhi-1][abs_stEta][multi-1][gap-1];
 					vectors.residuals.push_back(res_stereo);
 				}
-			}
+			}//TrackStates
 
 		} // loop on meas
 
@@ -674,4 +694,139 @@ void MMRawDataMonAlg::MMEfficiency( const xAOD::TrackParticleContainer*  muonCon
 			}
 		}
 	}
+}
+
+
+void MMRawDataMonAlg::clusterFromSegments(const Trk::SegmentCollection* segms, int lb) const
+{
+
+  MMOverviewHistogramStruct overviewPlots;
+  MMByPhiStruct occupancyPlots[16][2];
+  MMSummaryHistogramStruct summaryPlots[2][16][2][2][4];
+
+  for (Trk::SegmentCollection::const_iterator s = segms->begin(); s != segms->end(); ++s) {
+    const Muon::MuonSegment* segment = dynamic_cast<const Muon::MuonSegment*>(*s);
+    if (segment == nullptr) {
+      ATH_MSG_DEBUG("no pointer to segment!!!");
+      break;
+    }
+    for(unsigned int irot=0;irot<segment->numberOfContainedROTs();irot++){
+      const Trk::RIO_OnTrack* rot = segment->rioOnTrack(irot);
+      if(!rot) continue;
+      Identifier rot_id = rot->identify();
+      if(!m_idHelperSvc->isMM(rot_id)) continue;
+      const Muon::MMClusterOnTrack* cluster = dynamic_cast<const Muon::MMClusterOnTrack*>(rot);
+      if(!cluster) continue;
+
+
+      std::string stName = m_idHelperSvc->mmIdHelper().stationNameString(m_idHelperSvc->mmIdHelper().stationName(rot_id));
+      int stEta          = m_idHelperSvc->mmIdHelper().stationEta(rot_id);
+      int stPhi          = m_idHelperSvc->mmIdHelper().stationPhi(rot_id);
+      int multi          = m_idHelperSvc->mmIdHelper().multilayer(rot_id);
+      int gap            = m_idHelperSvc->mmIdHelper().gasGap(rot_id);
+      int ch             = m_idHelperSvc->mmIdHelper().channel(rot_id);
+
+      // MMS and MML phi sectors                                                                                                                                                                                                  
+      int sectorPhi = get_sectorPhi_from_stationPhi_stName(stPhi,stName);
+      int PCB = get_PCB_from_channel(ch);
+      int iside = (stEta > 0) ? 1 : 0;
+
+      const Muon::MMPrepData* prd = cluster->prepRawData();
+      const std::vector<Identifier>& stripIds = prd->rdoList();
+      unsigned int csize = stripIds.size();
+      const std::vector<uint16_t>& stripNumbers = prd->stripNumbers();
+
+
+      auto& pcb_vects = summaryPlots[iside][sectorPhi-1][std::abs(stEta)-1][multi-1][gap-1];
+      //pcb_vects.pcb.push_back( get_PCB_from_channel(stripNumbers[0]));                                                                                                                                                          
+      pcb_vects.cl_size.push_back(csize);
+
+      std::vector<short int> s_times = prd->stripTimes();
+      float c_time = 0;
+      for(unsigned int sIdx=0; sIdx<csize; ++sIdx){
+	pcb_vects.strp_times.push_back(s_times.at(sIdx));
+	pcb_vects.pcb.push_back( get_PCB_from_channel(stripNumbers[sIdx]));
+	c_time += s_times.at(sIdx);
+      }
+
+
+      c_time /= s_times.size();
+      pcb_vects.cl_times.push_back(c_time);
+
+      float charge = prd->charge()*conversion_charge;
+      pcb_vects.charge.push_back(charge);
+
+      auto& vects = overviewPlots;
+
+      auto& thisSect = occupancyPlots[sectorPhi-1][iside];
+      const int pcb_counter = 5; // index for the PCBs from 1 to 8 as done globally for the two detector components (abs(eta)=1 and abs(eta)=2)                                                                                   
+      int PCBeta12 = (std::abs(stEta) == 2) ? (PCB + pcb_counter) : PCB;
+      thisSect.sector_lb_onseg.push_back(get_bin_for_occ_lb_pcb_hist(multi,gap,PCBeta12));
+
+      // Filling Vectors for stationEta=-1 - cluster on track                                                                                                                                                                     
+      if(stEta==-1) {
+	vects.stationPhi_CSide_eta1_onseg.push_back(sectorPhi);
+	vects.sector_CSide_eta1_onseg.push_back(get_bin_for_occ_CSide_pcb_eta1_hist(stEta, multi, gap, PCB));
+      }
+      // Filling Vectors for stationEta=-2 - cluster on track                                                                                                                                                         
+      else if(stEta==-2) {
+	vects.stationPhi_CSide_eta2_onseg.push_back(sectorPhi);
+	vects.sector_CSide_eta2_onseg.push_back(get_bin_for_occ_CSide_pcb_eta2_hist(stEta,multi,gap,PCB));
+      }
+      // Filling Vectors for stationEta=1 - cluster on track                                                                                                                                                                      
+      else if(stEta==1) {
+	vects.stationPhi_ASide_eta1_onseg.push_back(sectorPhi);
+	vects.sector_ASide_eta1_onseg.push_back(get_bin_for_occ_ASide_pcb_eta1_hist(stEta,multi,gap,PCB));
+      }
+      // Filling Vectors for stationEta=2 - cluster on track                                                                                                                                                                      
+      else {
+	vects.stationPhi_ASide_eta2_onseg.push_back(sectorPhi);
+	vects.sector_ASide_eta2_onseg.push_back(get_bin_for_occ_ASide_pcb_eta2_hist(stEta,multi,gap,PCB));
+      }
+
+    } // loop on meas                                                                                                                                                                                                             
+
+  } // loop on muonContainer                                                                                                                                                                                                      
+
+  auto& vects = overviewPlots;
+  auto stationPhi_CSide_eta1_onseg = Monitored::Collection("stationPhi_CSide_eta1_onseg",vects.stationPhi_CSide_eta1_onseg);
+  auto stationPhi_CSide_eta2_onseg = Monitored::Collection("stationPhi_CSide_eta2_onseg",vects.stationPhi_CSide_eta2_onseg);
+  auto stationPhi_ASide_eta1_onseg = Monitored::Collection("stationPhi_ASide_eta1_onseg",vects.stationPhi_ASide_eta1_onseg);
+  auto stationPhi_ASide_eta2_onseg = Monitored::Collection("stationPhi_ASide_eta2_onseg",vects.stationPhi_ASide_eta2_onseg);
+  auto sector_ASide_eta1_onseg = Monitored::Collection("sector_ASide_eta1_onseg",vects.sector_ASide_eta1_onseg);
+  auto sector_ASide_eta2_onseg = Monitored::Collection("sector_ASide_eta2_onseg",vects.sector_ASide_eta2_onseg);
+  auto sector_CSide_eta2_onseg = Monitored::Collection("sector_CSide_eta2_onseg",vects.sector_CSide_eta2_onseg);
+  auto sector_CSide_eta1_onseg = Monitored::Collection("sector_CSide_eta1_onseg",vects.sector_CSide_eta1_onseg);
+  auto lb_onseg = Monitored::Scalar<int>("lb_onseg", lb);
+
+  fill("mmMonitor", stationPhi_CSide_eta1_onseg, stationPhi_CSide_eta2_onseg, stationPhi_ASide_eta1_onseg, stationPhi_ASide_eta2_onseg, sector_CSide_eta1_onseg, sector_CSide_eta2_onseg, sector_ASide_eta1_onseg, sector_ASide_eta2_onseg, lb_onseg);
+
+
+  for(int iside = 0; iside < 2; ++iside) {
+    std::string MM_sideGroup = "MM_sideGroup" + MM_Side[iside];
+    for(int statPhi=0; statPhi<16; ++statPhi) {
+      auto& occ_lb = occupancyPlots[statPhi][iside];
+      auto sector_lb_onseg = Monitored::Collection("sector_lb_"+MM_Side[iside]+"_phi"+std::to_string(statPhi+1)+"_onseg",occ_lb.sector_lb_onseg);
+      fill(MM_sideGroup, lb_onseg, sector_lb_onseg);
+
+      for(int statEta = 0; statEta < 2; ++statEta) {
+	for(int multiplet = 0; multiplet < 2; ++multiplet) {
+	  for(int gas_gap = 0; gas_gap < 4; ++gas_gap) {
+	    auto& pcb_vects = summaryPlots[iside][statPhi][statEta][multiplet][gas_gap];
+
+	    if(pcb_vects.pcb.empty()) continue;
+
+	    auto pcb_mon = Monitored::Collection("pcb_mon_onseg_" + MM_Side[iside] + "_phi" + std::to_string(statPhi+1) + "_eta" + std::to_string(statEta+1) + "_ml" + std::to_string(multiplet+1) + "_gap" + std::to_string(gas_gap+1), pcb_vects.pcb);
+	    auto pcb_clu_mon = Monitored::Scalar("pcb_mon_clu_onseg_" + MM_Side[iside] + "_phi" + std::to_string(statPhi+1) + "_eta" + std::to_string(statEta+1) + "_ml" + std::to_string(multiplet+1) + "_gap" + std::to_string(gas_gap+1), pcb_vects.pcb.at(0));
+	    auto strip_times = Monitored::Collection("strp_time_onseg_" + MM_Side[iside] + "_phi" + std::to_string(statPhi+1) + "_eta" + std::to_string(statEta+1) + "_ml" + std::to_string(multiplet+1) + "_gap" + std::to_string(gas_gap+1), pcb_vects.strp_times);
+	    auto cluster_time = Monitored::Collection("cluster_time_onseg_" + MM_Side[iside] + "_phi" + std::to_string(statPhi+1) + "_eta" + std::to_string(statEta+1) + "_ml" + std::to_string(multiplet+1) + "_gap" + std::to_string(gas_gap+1), pcb_vects.cl_times);
+	    auto clus_size = Monitored::Collection("cluster_size_onseg_" + MM_Side[iside] + "_phi" + std::to_string(statPhi+1) + "_eta" + std::to_string(statEta+1) + "_ml" + std::to_string(multiplet+1) + "_gap" + std::to_string(gas_gap+1), pcb_vects.cl_size);
+	    auto charge_perPCB = Monitored::Collection("charge_perPCB_onseg_" + MM_Side[iside] + "_phi" + std::to_string(statPhi+1) + "_eta" + std::to_string(statEta+1) + "_ml" + std::to_string(multiplet+1) + "_gap" + std::to_string(gas_gap+1), pcb_vects.charge);
+	    fill(MM_sideGroup, clus_size, strip_times, charge_perPCB, cluster_time, pcb_mon, pcb_clu_mon);
+	  }
+	}
+      }
+
+    }
+  }
 }
