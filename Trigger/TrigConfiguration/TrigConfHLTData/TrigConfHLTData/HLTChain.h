@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_HLTChain
@@ -192,8 +192,8 @@ namespace TrigConf {
       
       // temporary object to store the merge information
       struct {
-         unsigned int l2;
-         unsigned int ef;
+         unsigned int l2{0};
+         unsigned int ef{0};
       } mergeCounter;
    };
 
