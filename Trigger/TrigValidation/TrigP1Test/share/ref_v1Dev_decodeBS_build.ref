@@ -4459,18 +4459,20 @@ HLT_mu20_LRT_d0loose_L1MU14FCH:
     0: 1
   stepFeatures:
     0: 1
-HLT_mu20_LRT_d0medium_L1MU14FCH:
-  eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 1
 HLT_mu20_LRT_d0tight_L1MU14FCH:
   eventCount: 0
   stepCounts:
     0: 1
   stepFeatures:
     0: 1
+HLT_mu20_LRT_idperf_L1MU14FCH:
+  eventCount: 0
+  stepCounts:
+    0: 1
+    1: 1
+  stepFeatures:
+    0: 1
+    1: 1
 HLT_mu20_bBmux_BdmuDpX_L1MU14FCH:
   eventCount: 0
   stepCounts:
@@ -4583,32 +4585,6 @@ HLT_mu24_L1MU14FCH:
     0: 1
   stepFeatures:
     0: 1
-HLT_mu24_LRT_d0loose_L1MU14FCH:
-  eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 1
-HLT_mu24_LRT_d0medium_L1MU14FCH:
-  eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 1
-HLT_mu24_LRT_d0tight_L1MU14FCH:
-  eventCount: 0
-  stepCounts:
-    0: 1
-  stepFeatures:
-    0: 1
-HLT_mu24_LRT_idperf_L1MU14FCH:
-  eventCount: 0
-  stepCounts:
-    0: 1
-    1: 1
-  stepFeatures:
-    0: 1
-    1: 1
 HLT_mu24_idperf_L1MU14FCH:
   eventCount: 0
   stepCounts:
