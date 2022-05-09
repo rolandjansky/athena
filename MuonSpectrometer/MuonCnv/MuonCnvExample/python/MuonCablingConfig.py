@@ -125,11 +125,11 @@ if DetFlags.readRDOBS.MDT_on() or DetFlags.readRDOPool.MDT_on()  or DetFlags.rea
       if globalflags.DataSource()=='data': 
           conddb.addFolder("MDT","/MDT/CABLING/MAP_SCHEMA",className='CondAttrListCollection') 
           conddb.addFolder("MDT","/MDT/CABLING/MEZZANINE_SCHEMA",className='CondAttrListCollection') 
-          MuonMDT_CablingAlg.MapFolders = "/MDT/CABLING/MAP_SCHEMA" 
-          MuonMDT_CablingAlg.MezzanineFolders    = "/MDT/CABLING/MEZZANINE_SCHEMA" 
+          condSequence.MuonMDT_CablingAlg.MapFolders = "/MDT/CABLING/MAP_SCHEMA" 
+          condSequence.MuonMDT_CablingAlg.MezzanineFolders    = "/MDT/CABLING/MEZZANINE_SCHEMA" 
       else: 
           conddb.addFolder("MDT_OFL","/MDT/Ofl/CABLING/MAP_SCHEMA",className='CondAttrListCollection') 
           conddb.addFolder("MDT_OFL","/MDT/Ofl/CABLING/MEZZANINE_SCHEMA",className='CondAttrListCollection')    
-          MuonMDT_CablingAlg.MapFolders = "/MDT/Ofl/CABLING/MAP_SCHEMA" 
-          MuonMDT_CablingAlg.MezzanineFolders    = "/MDT/Ofl/CABLING/MEZZANINE_SCHEMA"
+          condSequence.MuonMDT_CablingAlg.MapFolders = "/MDT/Ofl/CABLING/MAP_SCHEMA" 
+          condSequence.MuonMDT_CablingAlg.MezzanineFolders    = "/MDT/Ofl/CABLING/MEZZANINE_SCHEMA"
        
