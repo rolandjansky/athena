@@ -93,6 +93,19 @@ def AddRun3TrigNavSlimmingCollectionsToEDM(stream):
   #
   stream.AddItem("TrigRoiDescriptorCollection#HLTNav_RepackedROIs")
 
+# Same as the above but adds the branches to the slimming helper. 
+# This is the component accumulator version
+def AddRun3TrigNavSlimmingCollectionsToSlimmingHelper(slimmingHelper):
+  slimmingHelper.AppendToDictionary = {'HLTNav_Summary_DAODSlimmed':'xAOD::TrigCompositeContainer','HLTNav_Summary_DAODSlimmedAux':'xAOD::TrigCompositeAuxContainer',
+                                       'HLTNav_RepackedFeatures_Particle':'xAOD::ParticleContainer','HLTNav_RepackedFeatures_ParticleAux':'xAOD::ParticleAuxContainer',
+                                       'HLTNav_RepackedFeatures_MET':'xAOD::TrigMissingETContainer','HLTNav_RepackedFeatures_METAux':'xAOD::TrigMissingETAuxContainer',
+                                       'HLTNav_RepackedROIs':'TrigRoiDescriptorCollection'}
+
+  slimmingHelper.AllVariables += ['HLTNav_Summary_DAODSlimmed',
+                                  'HLTNav_RepackedFeatures_Particle',
+                                  'HLTNav_RepackedFeatures_MET',
+                                  'HLTNav_RepackedROIs']
+
 #
 # Return an ComponentAccumulator which configures trigger navigation slimming during 
 # RAW->ALL, RAW->ESD or ESD->AOD (and MC equivalents)

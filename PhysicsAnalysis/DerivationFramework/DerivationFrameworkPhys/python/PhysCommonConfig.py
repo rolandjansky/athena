@@ -54,7 +54,7 @@ def PhysCommonAugmentationsCfg(ConfigFlags,**kwargs):
 
 
 
-    # InDet, Muon and Egamma common augmentations
+    # InDet, Muon, Egamma and jet common augmentations
     from DerivationFrameworkInDet.InDetCommonConfig import InDetCommonCfg
     from DerivationFrameworkMuons.MuonsCommonConfig import MuonsCommonCfg
     from DerivationFrameworkEGamma.EGammaCommonConfig import EGammaCommonCfg
@@ -71,12 +71,26 @@ def PhysCommonAugmentationsCfg(ConfigFlags,**kwargs):
     acc.merge(MuonsCommonCfg(ConfigFlags))
     acc.merge(EGammaCommonCfg(ConfigFlags))
     acc.merge(JetCommonCfg(ConfigFlags))
+    # Trigger matching
+    from DerivationFrameworkPhys.TriggerMatchingCommonConfig import TriggerMatchingCommonRun2Cfg
+    from DerivationFrameworkPhys.TriggerMatchingCommonConfig import TriggerMatchingCommonRun3Cfg
+    # requires some wrangling due to the difference between run 2 and 3
+    triggerListsHelper = kwargs['TriggerListsHelper']
+    if ConfigFlags.Trigger.EDMVersion == 2:
+        acc.merge(TriggerMatchingCommonRun2Cfg(ConfigFlags, 
+                                               name = "PhysCommonTrigMatchNoTau", 
+                                               OutputContainerPrefix = "PhysCommonNoTau", 
+                                               TriggerList = triggerListsHelper.Run2TriggerNamesNoTau))
+        acc.merge(TriggerMatchingCommonRun2Cfg(ConfigFlags, 
+                                               name = "PhysCommonTrigMatchTau", 
+                                               OutputContainerPrefix = "PhysCommonTau", 
+                                               TriggerList = triggerListsHelper.Run2TriggerNamesTau, 
+                                               DRThreshold = 0.2))
+    if ConfigFlags.Trigger.EDMVersion == 3:
+        acc.merge(TriggerMatchingCommonRun3Cfg(ConfigFlags, TriggerList = triggerListsHelper.Run3TriggerNames))
 
-    # Jets...
     # Tau...
     # Flavour tagging...
-    # Truth...
-    # Trigger
 
     return acc
 
