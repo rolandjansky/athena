@@ -12,10 +12,9 @@ find_package(lwtnn)
 # add an option switch on the GPU
 #option(USE_GPU "whehter to run FCS on GPU or not" OFF)
 
-message("use_gpu is ${USE_GPU}")
-if(USE_GPU)
+if(USE_GPU AND CMAKE_CUDA_COMPILER)
   add_definitions(-DUSE_GPU)
-  message("using GPU in service")
+  message("compiling the ISF_FastCaloSimServices with cuda")
   # Component(s) in the package:
   atlas_add_component( ISF_FastCaloSimServices
     src/*.cxx

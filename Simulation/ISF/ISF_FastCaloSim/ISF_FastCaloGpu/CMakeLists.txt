@@ -3,9 +3,15 @@
 # Set the name of the package.
 atlas_subdir( ISF_FastCaloGpu )
 
-enable_language( CUDA )
+# As long as this CUDA code can't be interpreted by a C++ compiler as well,
+# this package is not to be built.
+if( NOT CMAKE_CUDA_COMPILER )
+  message( STATUS "CUDA not found, ISF_FastCaloGpu is not built" )
+  return()
+endif()
+
+
 find_package( CUDAToolkit )
-#set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode arch=compute_30,code=sm_30")
 # Add a component library that has some CUDA code in it.
 atlas_add_library( ISF_FastCaloGpuLib
   src/gpuQ.cu src/CaloGpuGeneral.cxx src/KernelWrapper.cu src/Rand4Hits.cu
