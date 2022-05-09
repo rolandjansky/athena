@@ -49,13 +49,13 @@ Trig::TrigDecisionTool::initialize() {
 
 
 #ifndef XAOD_ANALYSIS // Full Athena only
-   ATH_CHECK(m_oldDecisionKey.initialize( m_useRun1DecisionFormat ) );
+   ATH_CHECK(m_oldDecisionKey.initialize( m_useOldAODDecisionInput ) ); // Read TrigDec::TrigDecision
    ATH_CHECK(m_oldEventInfoKey.initialize( m_useOldEventInfoDecisionFormat ) );
 #endif
 
    ATH_CHECK(m_HLTSummaryKeyIn.initialize(m_navigationFormat == "TrigComposite"));
    ATH_CHECK(m_navigationKey.initialize(m_navigationFormat == "TriggerElement"));
-   ATH_CHECK(m_decisionKey.initialize());
+   ATH_CHECK(m_decisionKey.initialize( !m_useOldAODDecisionInput )); // Read xAOD::TrigDecision. Mutually exclusive with reading TrigDec::TrigDecision
 
    ++s_instances;
    if ( s_instances > 1) {
