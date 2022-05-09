@@ -1,11 +1,13 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "AthenaKernel/getMessageSvc.h"
 #include "ALFA_LocRec/ALFA_MDOverlap.h"
 using namespace std;
 
-ALFA_MDOverlap::ALFA_MDOverlap()
+ALFA_MDOverlap::ALFA_MDOverlap() :
+    AthMessaging(Athena::getMessageSvc(), "ALFA_MDOverlap")
 {
 	m_histU_PT = NULL;
 	m_histV_PT = NULL;
@@ -90,7 +92,6 @@ StatusCode ALFA_MDOverlap::Initialize(const eRPotName &eRPName, const std::list<
 StatusCode ALFA_MDOverlap::Execute()
 {
 	StatusCode sc;
-	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDOverlap::Execute()");
 
   // SELECT CANDIDATE HITS
 	sc = SelectHitInLayer();

@@ -9,9 +9,8 @@
 using namespace std;
 
 ALFA_LocRec::ALFA_LocRec(const std::string& name, ISvcLocator* pSvcLocator) :
-AthAlgorithm(name, pSvcLocator)
+    AthAlgorithm(name, pSvcLocator)
 {
-	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::ALFA_LocRec");
 	ATH_MSG_DEBUG("begin ALFA_LocRec::ALFA_LocRec");
 
 	m_pGeometryReader = new ALFA_GeometryReader();
@@ -130,7 +129,6 @@ AthAlgorithm(name, pSvcLocator)
 
 ALFA_LocRec::~ALFA_LocRec()
 {
-	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::~ALFA_LocRec");
 	ATH_MSG_DEBUG("begin ALFA_LocRec::~ALFA_LocRec");
 
 // 	if(m_pGeometryReader!=NULL)
@@ -144,7 +142,6 @@ ALFA_LocRec::~ALFA_LocRec()
 
 StatusCode ALFA_LocRec::initialize()
 {
-	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::initialize()");
 	ATH_MSG_DEBUG("begin ALFA_LocRec::initialize()");
 
 	StatusCode sc;
@@ -200,7 +197,6 @@ StatusCode ALFA_LocRec::initialize()
 
 StatusCode ALFA_LocRec::execute()
 {
-	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::execute()");
 	ATH_MSG_DEBUG("begin ALFA_LocRec::execute()");
 
 	StatusCode sc;
@@ -327,7 +323,6 @@ StatusCode ALFA_LocRec::execute()
 
 StatusCode ALFA_LocRec::finalize()
 {
-	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::finalize()");
 	ATH_MSG_DEBUG("begin ALFA_LocRec::finalize()");
 
 
@@ -338,7 +333,6 @@ StatusCode ALFA_LocRec::finalize()
 
 void ALFA_LocRec::ClearGeometry()
 {
-	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::ClearGeometry()");
 	ATH_MSG_DEBUG("begin ALFA_LocRec::ClearGeometry()");
 
 	memset(&m_faMD, 0, sizeof(m_faMD));
@@ -355,7 +349,6 @@ StatusCode ALFA_LocRec::ALFACollectionReading(std::list<MDHIT> &ListMDHits, std:
 {
 	StatusCode sc;
 
-	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::ALFACollectionReading()");
 	ATH_MSG_DEBUG("begin ALFA_LocRec::ALFACollectionReading()");
 
 	ODHIT ODHit;
@@ -414,7 +407,6 @@ StatusCode ALFA_LocRec::ALFACollectionReading(std::list<MDHIT> &ListMDHits, std:
 
 bool ALFA_LocRec::ReadGeometryDetCS()
 {
-	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::ReadGeometryDetCS()");
 	ATH_MSG_DEBUG("begin ALFA_LocRec::ReadGeometryDetCS()");
 
 	Int_t nPlateID, nFiberID;
@@ -557,7 +549,6 @@ bool ALFA_LocRec::ReadGeometryDetCS()
 
 bool ALFA_LocRec::StoreReconstructionGeometry(const eRPotName eRPName, const eFiberType eFType, const char* szDataDestination)
 {
-	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::StoreReconstructionGeometry()");
 	ATH_MSG_DEBUG("begin ALFA_LocRec::StoreReconstructionGeometry()");
 
 	Int_t iLayer, iFiber, iPlate, iSide;
@@ -609,7 +600,6 @@ bool ALFA_LocRec::StoreReconstructionGeometry(const eRPotName eRPName, const eFi
 
 void ALFA_LocRec::SaveGeometry()
 {
-	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::SaveGeometry()");
 	ATH_MSG_DEBUG("begin ALFA_LocRec::SaveGeometry()");
 
 
@@ -673,7 +663,6 @@ void ALFA_LocRec::SaveGeometry()
 
 StatusCode ALFA_LocRec::ExecuteRecoMethod(const std::string strAlgo, const eRPotName eRPName, const std::list<MDHIT> &ListMDHits, const std::list<ODHIT> &ListODHits)
 {
-	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::ExecuteRecoMethod()");
 	ATH_MSG_DEBUG("begin ALFA_LocRec::ExecuteRecoMethod()");
 
 	StatusCode sc = StatusCode::SUCCESS;
@@ -1015,7 +1004,6 @@ StatusCode ALFA_LocRec::ExecuteRecoMethod(const std::string strAlgo, const eRPot
 
 StatusCode ALFA_LocRec::RecordCollection()
 {
-	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::RecordCollection()");
 	ATH_MSG_DEBUG("begin ALFA_LocRec::RecordCollection()");
 
 	StatusCode sc = StatusCode::SUCCESS;
@@ -1040,7 +1028,6 @@ StatusCode ALFA_LocRec::RecordCollection()
 
 StatusCode ALFA_LocRec::RecordODCollection()
 {
-	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::RecordODCollection()");
 	ATH_MSG_DEBUG("begin ALFA_LocRec::RecordODCollection()");
 
 	StatusCode sc = StatusCode::SUCCESS;
