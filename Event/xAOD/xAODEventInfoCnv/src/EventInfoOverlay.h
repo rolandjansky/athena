@@ -44,6 +44,7 @@ private:
   SG::WriteHandleKey<xAOD::EventInfo> m_outputKey{ this, "OutputKey", "EventInfo", "WriteHandleKey for Output xAOD::EventInfo" };
 
   Gaudi::Property<bool> m_dataOverlay{ this, "DataOverlay", false, "True if running data overlay" };
+  Gaudi::Property<bool> m_validateBeamSpot{ this, "ValidateBeamSpot", false, "validate input beamspot size" };
 };
 
 } // namespace xAODMaker
