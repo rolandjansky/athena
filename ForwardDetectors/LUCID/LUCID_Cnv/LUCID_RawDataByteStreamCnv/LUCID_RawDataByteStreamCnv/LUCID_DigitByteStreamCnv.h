@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // *************************************************************************
@@ -31,9 +31,8 @@
 #include "GaudiKernel/IRegistry.h"
 #include "GaudiKernel/IToolSvc.h"
 
+#include "AthenaBaseComps/AthMessaging.h"
 #include "StoreGate/StoreGateSvc.h"
-
-#include "AthenaKernel/MsgStreamMember.h"
 
 #include "ByteStreamCnvSvcBase/FullEventAssembler.h" 
 #include "ByteStreamCnvSvcBase/SrcIdMap.h"
@@ -43,7 +42,7 @@
 
 typedef std::map<uint32_t, LUCID_RodEncoder> LucidRodEncoder_map;
 
-class LUCID_DigitByteStreamCnv: public Converter {
+class LUCID_DigitByteStreamCnv: public Converter, public AthMessaging {
 
  public:
 
@@ -65,17 +64,11 @@ class LUCID_DigitByteStreamCnv: public Converter {
   
   unsigned int getSourceID() { return 0x00820000; }
 
-  MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
-
-  bool msgLevel (MSG::Level lvl){ return m_msg.get().level() <= lvl; }
-
-private: 
+private:
   
   IByteStreamEventAccess* m_ByteStreamEventAccess;
   StoreGateSvc* m_StoreGate;
 
-  mutable Athena::MsgStreamMember m_msg;
-  
   FullEventAssembler<SrcIdMap> m_fea;
   unsigned short m_RodBlockVersion;
   int            m_BCs_per_LVL1ID;
