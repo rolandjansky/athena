@@ -190,7 +190,8 @@ def map_per_PCB(inputs, histo_name, start_index, proctype):
 		xbin,ybin = getXYbins(nPCB, int(iphi), False, histos_sorted[ihisto].GetName(), list_of_all_histos)
 		for ipcb in range(nPCB):
 			histo_tmp = histos_sorted[ihisto].ProjectionY(histos_sorted[ihisto].GetName()+"_py_"+str(ipcb+1),ipcb+1,ipcb+1)
-			if histo_tmp.GetEntries()==0:
+			if (histo_tmp.GetEntries()==0):
+				xbin+=1
 				continue
 			else:
 				if proctype=='mean':
