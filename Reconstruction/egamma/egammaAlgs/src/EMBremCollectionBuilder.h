@@ -52,18 +52,14 @@
  * the IegammaTrkRefitterTool interface, configured with the TrackRefitTool
  * property (by default ElectronRefitterTool).
  *
- * The summary of the refitted tracks (which are new
- * track objects) are updated with the a tool implementing the ITrackSummaryTool
- * interface, configured with the TrackSummaryTool property (by default
- * InDetTrackSummaryTool).
- * During the above summary creation we prefer to avoid the so called
- * hole-search so we copy over this information for Pixel, SCT, TRT
- * according to the property usePixel, useSCT, useTRT.
  *
  * The final track particles are created from  the Trk::Tracks (refitted or
  * copied) with a tool implementing the Trk::ITrackParticleCreatorTool interface
  * configured with the property TrackParticleCreatorTool (by default
  * TrackParticleCreatorTool).
+ * During the above summary creation we prefer to avoid the so called
+ * hole-search so we copy over this information for Pixel, SCT, TRT
+ * according to the property usePixel, useSCT, useTRT.
  *
  * Truth information is copied from the original
  * xAOD::TrackParticle. The Trk::Tracks (refitted or copied) are saved after
@@ -123,12 +119,12 @@ private:
     TrackWithIndex& Info,
     TrackCollection* finalTracks,
     xAOD::TrackParticleContainer* finalTrkPartContainer,
-    const xAOD::TrackParticleContainer* inputTrkPartContainer) const;
+    const xAOD::TrackParticleContainer* inputTrkPartContainer,
+    bool isRefitted) const;
 
-  void updateGSFTrack(
-    const EventContext& ctx,
-    const TrackWithIndex& Info,
-    const xAOD::TrackParticleContainer* inputTrkPartContainer) const;
+  void copyOverInfo(xAOD::TrackParticle& created,
+                    const xAOD::TrackParticle& original,
+                    bool isRefitted) const;
 
   /** @brief Option to do truth*/
   Gaudi::Property<bool> m_doTruth{ this, "DoTruth", false, "do truth" };
@@ -174,12 +170,6 @@ private:
                                                   "TrackSlimmingTool",
                                                   "TrkTrackSlimmingTool",
                                                   "Track slimming tool" };
-
-  /** @brief Tool for Track summary  */
-  ToolHandle<Trk::ITrackSummaryTool> m_summaryTool{ this,
-                                                    "TrackSummaryTool",
-                                                    "InDetTrackSummaryTool",
-                                                    "Track summary tool" };
 
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleContainerKey{
     this,
