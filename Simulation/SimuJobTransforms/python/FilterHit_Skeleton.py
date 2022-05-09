@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 import sys
 from PyJobTransforms.CommonRunArgsToFlags import commonRunArgsToFlags
@@ -187,6 +187,9 @@ def fromRunArgs(runArgs):
         if ConfigFlags.Detector.EnableITkPixel:
             from McEventCollectionFilter.McEventCollectionFilterConfig import ITkPixelHitsTruthRelinkCfg
             cfg.merge(ITkPixelHitsTruthRelinkCfg(ConfigFlags))
+        if ConfigFlags.Detector.EnablePLR:
+            from McEventCollectionFilter.McEventCollectionFilterConfig import PLR_HitsTruthRelinkCfg
+            cfg.merge(PLR_HitsTruthRelinkCfg(ConfigFlags))
         # HGTD
         if ConfigFlags.Detector.EnableHGTD:
             from McEventCollectionFilter.McEventCollectionFilterConfig import HGTD_HitsTruthRelinkCfg
