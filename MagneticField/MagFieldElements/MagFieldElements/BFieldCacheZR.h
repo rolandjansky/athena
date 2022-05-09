@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -21,8 +21,6 @@
 class BFieldCacheZR
 {
 public:
-  // default constructor sets unphysical boundaries, so that inside() will fail
-  BFieldCacheZR();
   // invalidate this cache, so that inside() will fail
   void invalidate();
   // set the z, r range that defines the bin
@@ -40,9 +38,10 @@ public:
             double* ATH_RESTRICT deriv = nullptr) const;
 
 private:
-  double m_zmin, m_zmax; // bin range in z
-  double m_rmin, m_rmax; // bin range in r
-  double m_invz, m_invr;  // 1/(bin size) in z, r
+  // default unphysical boundaries, so that inside() will fail
+  double m_zmin{0}, m_zmax{-1};   // bin range in z
+  double m_rmin{0}, m_rmax{-1};   // bin range in r
+  double m_invz{-1}, m_invr{-1};  // 1/(bin size) in z, r
   double m_field[2][4];   // (Bz,Br) at 4 corners of the bin
 };
 #include "MagFieldElements/BFieldCacheZR.icc"
