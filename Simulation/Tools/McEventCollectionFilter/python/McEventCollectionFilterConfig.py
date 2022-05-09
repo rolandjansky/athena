@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # utilities
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -95,6 +95,18 @@ def ITkStripHitsTruthRelinkCfg(flags, **kwargs):
     kwargs.setdefault("OutputHits", "ITkStripHits")
 
     acc.addEventAlgo(CompFactory.SiliconHitsTruthRelink(name="ITkStripHitsTruthRelink", **kwargs))
+    return acc
+
+
+def PLR_HitsTruthRelinkCfg(flags, **kwargs):
+    acc = ComponentAccumulator()
+
+    acc.merge(InputRenameCfg("SiHitCollection", "PLRHits", "PLRHitsOLD"))
+
+    kwargs.setdefault("InputHits", "PLRHitsOLD")
+    kwargs.setdefault("OutputHits", "PLRHits")
+
+    acc.addEventAlgo(CompFactory.SiliconHitsTruthRelink(name="PLR_HitsTruthRelink", **kwargs))
     return acc
 
 
