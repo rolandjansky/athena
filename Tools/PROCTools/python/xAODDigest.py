@@ -136,7 +136,6 @@ def xAODDigest(evt, counter=False, extravars=False):
 
 
 def main():
-    parser = argparse.ArgumentParser()
     parser = argparse.ArgumentParser(
         description="Extracts a few basic quantities from the xAOD file and dumps them into a text file")
     parser.add_argument("xAODFile", nargs='?', type=str,
@@ -158,12 +157,12 @@ def main():
 
     if len(sys.argv) < 2:
         parser.print_help()
-        sys.exit(-1)
+        sys.exit(1)
 
     # Check input file existance
     if not args.inputlist and not os.access(args.xAODFile, os.R_OK):
         print("ERROR, can't access file {}".format(args.xAODFile))
-        sys.exit(-1)
+        sys.exit(1)
 
     # Check output file ...
     outfilename = ''
@@ -190,7 +189,7 @@ def main():
     if not stat:
         print("ERROR, failed to open file {} with POOL.TEvent".format(
             args.xAODFile))
-        sys.exit(-1)
+        sys.exit(1)
         pass
 
     digest = xAODDigest(evt, args.counter, args.extravars)
