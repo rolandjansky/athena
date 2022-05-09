@@ -14,6 +14,9 @@ from FlavorTagDiscriminants.BTagMuonAugmenterAlgConfig import (
     BTagMuonAugmenterAlgCfg)
 from BTagging.HighLevelBTagAlgConfig import HighLevelBTagAlgCfg
 from JetTagCalibration.JetTagCalibConfig import JetTagCalibCfg
+from BTagging.BTaggingFlags import BTaggingFlags
+from BTagging.BTaggingConfiguration import getConfiguration
+from OutputStreamAthenaPool.OutputStreamConfig import addToESD, addToAOD
 
 
 def RetagRenameInputContainerCfg(suffix, JetCollectionShort, tracksKey = 'InDetTrackParticles'):
@@ -97,6 +100,15 @@ def BTagRecoSplitCfg(inputFlags, JetCollection=['AntiKt4EMTopo','AntiKt4EMPFlow'
     if len(stack) >= 2 and stack[1].function == 'CAtoGlobalWrapper':
         for el in result._allSequences:
             el.name = "TopAlg"
+
+    # By default, in Run3 we don't write out BTagging containers in AOD or ESD
+    # following allows to write them out when using Reco_tf.py --CA run 3 style configuration
+
+    if inputFlags.Output.doWriteAOD and inputFlags.Jet.WriteToAOD:
+     result.merge(addBTagToOutput(inputFlags, JetCollection, toAOD=True, toESD=False))
+
+    if inputFlags.Output.doWriteESD:
+     result.merge(addBTagToOutput(inputFlags, JetCollection, toAOD=False, toESD=True))
 
     return result
 
@@ -240,3 +252,32 @@ def _get_flip_config(nn_path):
         return []
     if 'rnnip' in nn_path or 'dips' in nn_path:
         return ['NEGATIVE_IP_ONLY']
+
+
+def addBTagToOutput(inputFlags, JetCollectionList, toAOD=True, toESD=True):
+    """Write out the BTagging containers as defined by JetCollectionList
+    In Run3 we don't write out BTagging in AOD or ESD : this function is for convenience and testing purpose.
+    """
+    result = ComponentAccumulator()
+
+    BTaggingAODList =  BTaggingFlags.btaggingAODList
+
+    BTagConf = getConfiguration()
+    for coll in JetCollectionList:
+      BTagConf.RegisterOutputContainersForJetCollection(coll)
+
+    BTaggingAODList = BTaggingFlags.btaggingAODList if toAOD else []
+    BTaggingESDList = BTaggingFlags.btaggingESDList if toESD else []
+
+    if BTaggingFlags.DoJetHitAssociation:
+        BTaggingAODList += ['xAOD::TrackMeasurementValidationContainer#JetAssociatedPixelClusters',
+                            'xAOD::TrackMeasurementValidationAuxContainer#JetAssociatedPixelClustersAux.']
+        BTaggingAODList += ['xAOD::TrackMeasurementValidationContainer#JetAssociatedSCTClusters',
+                            'xAOD::TrackMeasurementValidationAuxContainer#JetAssociatedSCTClustersAux.']
+
+    if toESD:
+        result.merge(addToESD(inputFlags, BTaggingESDList))
+    if toAOD:
+        result.merge(addToAOD(inputFlags, BTaggingAODList))
+
+    return result
