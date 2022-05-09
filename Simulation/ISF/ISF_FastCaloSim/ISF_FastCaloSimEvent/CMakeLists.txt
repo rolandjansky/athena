@@ -12,11 +12,6 @@ find_package( LibXml2 )
 
 option(USE_GPU "whehter to run FCS on GPU or not" OFF)
 
-message("USE_GPU is ${USE_GPU}")
-if(USE_GPU)
-  add_definitions( -DUSE_GPU)
-endif()
-
 # Remove the --as-needed linker flags:
 atlas_disable_as_needed()
 
@@ -90,9 +85,9 @@ atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
 			   EXTERNAL_PACKAGES HepPDT)
 
 			 #			 set( USE_GPU FALSE CACHE BOOL "Flag specifying that this is a simulation release build" )
-if(USE_GPU)
+if(USE_GPU AND CMAKE_CUDA_COMPILER)
   add_definitions( -DUSE_GPU)
-  message("using GPU in event")
+  message("compiling ISF_FastCaoSimEvent using cuda")
   atlas_add_library( ISF_FastCaloSimEvent
     ISF_FastCaloSimEvent/*.h ${_dictSource} src/*.cxx
     PUBLIC_HEADERS ISF_FastCaloSimEvent
