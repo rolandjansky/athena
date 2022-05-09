@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STGCHITSTRUTHRELINK_H
@@ -20,8 +20,8 @@ public:
   virtual StatusCode execute(const EventContext &ctx) const override;
 
 private:
-  SG::ReadHandleKey<sTGCSimHitCollection> m_inputHitsKey {this, "InputHits", "sTGCSensitiveDetectorOLD", "Input TGC hits name"};
-  SG::WriteHandleKey<sTGCSimHitCollection> m_outputHitsKey {this, "OutputHits", "sTGCSensitiveDetector", "Output TGC hits name"};
+  SG::ReadHandleKey<sTGCSimHitCollection> m_inputHitsKey {this, "InputHits", "sTGC_HitsOLD", "Input TGC hits name"};
+  SG::WriteHandleKey<sTGCSimHitCollection> m_outputHitsKey {this, "OutputHits", "sTGC_Hits", "Output TGC hits name"};
 };
 
 #endif

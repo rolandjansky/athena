@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """Configuration of tools for Moore muon reconstruction"""
 
@@ -323,7 +323,7 @@ def MCTBSLFitterMaterialFromTrack(name="MCTBSLFitterMaterialFromTrack", **kwargs
 def MuonSeededSegmentFinder(name="MuonSeededSegmentFinder",**kwargs):
     reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
     reco_stgcs = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
-    reco_mm =  muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()  
+    reco_mm =  muonRecFlags.doMMs() and MuonGeometryFlags.hasMM()  
     if "SegmentMaker" not in kwargs or "SegmentMakerNoHoles" not in kwargs:
         if beamFlags.beamType() == 'collisions':
           
@@ -397,7 +397,7 @@ def MuonChamberHoleRecoveryTool(name="MuonChamberHoleRecoveryTool",extraFlags=No
         kwargs.setdefault("AddMeasurements", False)
     reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
     reco_stgcs = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
-    reco_mm =  muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()  
+    reco_mm =  muonRecFlags.doMMs() and MuonGeometryFlags.hasMM()  
     
     if reco_cscs:
         if muonRecFlags.enableErrorTuning() or globalflags.DataSource() == 'data':
@@ -433,7 +433,7 @@ class MuonSegmentRegionRecoveryTool(CfgMgr.Muon__MuonSegmentRegionRecoveryTool,C
       kwargs.setdefault("TGCRegionSelector", makeRegSelTool_TGC())
       reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
       reco_stgcs = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
-      reco_mm =  muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()  
+      reco_mm =  muonRecFlags.doMMs() and MuonGeometryFlags.hasMM()  
   
       if reco_cscs:
           from RegionSelector.RegSelToolConfig import makeRegSelTool_CSC

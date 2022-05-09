@@ -73,10 +73,10 @@ def getStreamHITS_ItemList(ConfigFlags):
         ItemList+=["TGCSimHitCollection#TGC_Hits"]
     #STGC
     if ConfigFlags.Detector.EnablesTGC:
-        ItemList+=["sTGCSimHitCollection#sTGCSensitiveDetector"]
+        ItemList+=["sTGCSimHitCollection#sTGC_Hits"]
     #MM
     if ConfigFlags.Detector.EnableMM:
-        ItemList+=["MMSimHitCollection#MicromegasSensitiveDetector"]
+        ItemList+=["MMSimHitCollection#MM_Hits"]
     return ItemList
 
 

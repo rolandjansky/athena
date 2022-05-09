@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # -------------------------------------
 # Common data and MC overlay skeleton
@@ -160,7 +160,7 @@ if not MuonGeometryFlags.hasCSC():
 if not MuonGeometryFlags.hasSTGC():
     DetFlags.sTGC_setOff()
 if not MuonGeometryFlags.hasMM():
-    DetFlags.Micromegas_setOff()
+    DetFlags.MM_setOff()
 
 # TODO: need to do it better
 # DetFlags.makeRIO.all_setOff() # needed for MT TRT conditions
@@ -227,7 +227,7 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
 if DetFlags.overlay.LAr_on() or DetFlags.overlay.Tile_on():
     include('EventOverlayJobTransforms/CaloOverlay_jobOptions.py')  # noqa F821
 
-if (MuonGeometryFlags.hasCSC() and DetFlags.overlay.CSC_on()) or DetFlags.overlay.MDT_on() or DetFlags.overlay.RPC_on() or DetFlags.overlay.TGC_on() or (MuonGeometryFlags.hasSTGC() and DetFlags.overlay.sTGC_on()) or (MuonGeometryFlags.hasMM() and DetFlags.overlay.Micromegas_on()):
+if (MuonGeometryFlags.hasCSC() and DetFlags.overlay.CSC_on()) or DetFlags.overlay.MDT_on() or DetFlags.overlay.RPC_on() or DetFlags.overlay.TGC_on() or (MuonGeometryFlags.hasSTGC() and DetFlags.overlay.sTGC_on()) or (MuonGeometryFlags.hasMM() and DetFlags.overlay.MM_on()):
     include('EventOverlayJobTransforms/MuonOverlay_jobOptions.py')  # noqa F821
 
 if DetFlags.overlay.LVL1_on():

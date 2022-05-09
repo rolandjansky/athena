@@ -45,7 +45,6 @@ DetFlags.ID_setOff()
 DetFlags.Calo_setOff()
 DetFlags.Muon_setOff()
 DetFlags.LVL1_setOff()
-#DetFlags.sTGCMicromegas_setOff()
 
 DetFlags.Tile_setOn()
 # - MCTruth

@@ -55,7 +55,7 @@ def getNewConfigFlags():
 
     #Geometry - Muon
     geom_flag_map.update({ 'CSC':'CSC', 'MDT':'MDT', 'RPC':'RPC', 'TGC':'TGC'})
-    geom_flag_map.update({ 'MM':'Micromegas', 'sTGC':'sTGC'})
+    geom_flag_map.update({ 'MM':'MM', 'sTGC':'sTGC'})
 
     # Geometry - Forward
     geom_flag_map.update({'Lucid':'Lucid', 'ZDC':'ZDC', 'ALFA':'ALFA', 'AFP':'AFP'})

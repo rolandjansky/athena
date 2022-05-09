@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 
@@ -21,6 +21,8 @@ def getCollectionMerger(name="ISF_CollectionMerger", **kwargs):
     kwargs.setdefault( "InputMDTHits",              [ ] )
     kwargs.setdefault( "InputRPCHits",              [ ] )
     kwargs.setdefault( "InputTGCHits",              [ ] )
+    kwargs.setdefault( "InputsTGCHits",             [ ] )
+    kwargs.setdefault( "InputMMHits",               [ ] )
     from AthenaCommon.DetFlags import DetFlags
     from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
     hardscatterSG = ""
@@ -40,10 +42,16 @@ def getCollectionMerger(name="ISF_CollectionMerger", **kwargs):
     kwargs.setdefault( "OutputTileHits",            hardscatterSG+"TileHitVec"          )
     kwargs.setdefault( "OutputMBTSHits",            hardscatterSG+"MBTSHits"            )
 
-    kwargs.setdefault( "OutputCSCHits",             hardscatterSG+"CSC_Hits"            )
+    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+    if MuonGeometryFlags.hasCSC() and DetFlags.simulate.CSC_on():
+        kwargs.setdefault( "OutputCSCHits",             hardscatterSG+"CSC_Hits"            )
     kwargs.setdefault( "OutputMDTHits",             hardscatterSG+"MDT_Hits"            )
     kwargs.setdefault( "OutputRPCHits",             hardscatterSG+"RPC_Hits"            )
     kwargs.setdefault( "OutputTGCHits",             hardscatterSG+"TGC_Hits"            )
+    if MuonGeometryFlags.hasSTGC() and DetFlags.simulate.sTGC_on():
+        kwargs.setdefault( "OutputTGCHits",             hardscatterSG+"sTGC_Hits"           )
+    if MuonGeometryFlags.hasMM() and DetFlags.simulate.MM_on():
+        kwargs.setdefault( "OutputTGCHits",             hardscatterSG+"MM_Hits"             )
     return CfgMgr.ISF__CollectionMerger(name, **kwargs)
 
 def getSimHitTreeCreator(name="ISF_SimHitTreeCreator", **kwargs):
@@ -130,11 +138,11 @@ def getRenameHitCollections(name="RenameHitCollections", **kwargs):
     if DetFlags.simulate.TGC_on():
         kwargs.setdefault( "InputTGCHits",              "TGC_HitsOLD" )
         kwargs.setdefault( "OutputTGCHits",             "TGC_Hits"            )
-    if MuonGeometryFlags.hasMM() and DetFlags.simulate.Micromegas_on():
-        kwargs.setdefault( "InputMMHits",              "MicromegasSensitiveDetectorOLD" )
-        kwargs.setdefault( "OutputMMHits",              "MicromegasSensitiveDetector"  )
+    if MuonGeometryFlags.hasMM() and DetFlags.simulate.MM_on():
+        kwargs.setdefault( "InputMMHits",               "MM_HitsOLD" )
+        kwargs.setdefault( "OutputMMHits",              "MM_Hits"  )
     if MuonGeometryFlags.hasSTGC() and DetFlags.simulate.sTGC_on():
-        kwargs.setdefault( "InputsTGCHits",              "sTGCSensitiveDetectorOLD" )
-        kwargs.setdefault( "OutputsTGCHits",           "sTGCSensitiveDetector"           )
+        kwargs.setdefault( "InputsTGCHits",             "sTGC_HitsOLD" )
+        kwargs.setdefault( "OutputsTGCHits",            "sTGC_Hits"           )
 
     return CfgMgr.ISF__RenameHitCollectionsAlg(name, **kwargs)

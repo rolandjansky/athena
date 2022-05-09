@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """Configuration of Muon Spectrometer Standalone muon reconstruction"""
 
@@ -184,7 +184,7 @@ def MuonStationsInterSectAlg(**kwargs):
 
 def MuonLayerHoughAlg(name="MuonLayerHoughAlg", **kwargs):
     reco_stgc = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
-    reco_mircomegas = muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()
+    reco_mircomegas = muonRecFlags.doMMs() and MuonGeometryFlags.hasMM()
     reco_cscs = muonRecFlags.doCSCs() and MuonGeometryFlags.hasCSC()
     return CfgMgr.MuonLayerHoughAlg(name,
                              MuonLayerScanTool =  getPublicTool("MuonLayerHoughTool"),
@@ -210,7 +210,7 @@ class MuonStandalone(ConfiguredMuonRec):
         if not self.isEnabled(): return        
         # do the following in case of (at least one) NSW
         reco_stgc = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
-        reco_mircomegas = muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()
+        reco_mircomegas = muonRecFlags.doMMs() and MuonGeometryFlags.hasMM()
         reco_cscs = muonRecFlags.doCSCs() and MuonGeometryFlags.hasCSC()
         
         MuonStationsInterSectAlg()

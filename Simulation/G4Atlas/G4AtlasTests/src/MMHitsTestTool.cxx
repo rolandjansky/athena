@@ -41,7 +41,7 @@ StatusCode MMHitsTestTool::processEvent() {
 
   if (m_DoMMTest) {
     const DataHandle<MMSimHitCollection> p_collection;
-    CHECK(evtStore()->retrieve(p_collection,"MicromegasSensitiveDetector"));
+    CHECK(evtStore()->retrieve(p_collection,"MM_Hits"));
     for (MMSimHitCollection::const_iterator i_hit = p_collection->begin(); i_hit != p_collection->end(); ++i_hit) {
       Amg::Vector3D u = (*i_hit).globalPosition();
       CHECK(executeFillHistos(u));

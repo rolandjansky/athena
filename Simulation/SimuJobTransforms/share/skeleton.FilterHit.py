@@ -204,10 +204,10 @@ Stream1.ItemList+=["RPCSimHitCollection#RPC_Hits"]
 Stream1.ItemList+=["TGCSimHitCollection#TGC_Hits"]
 #STGC
 if DetFlags.detdescr.sTGC_on():
-    Stream1.ItemList+=["sTGCSimHitCollection#sTGCSensitiveDetector"]
+    Stream1.ItemList+=["sTGCSimHitCollection#sTGC_Hits"]
 #MM
-if DetFlags.detdescr.Micromegas_on():
-    Stream1.ItemList+=["MMSimHitCollection#MicromegasSensitiveDetector"]
+if DetFlags.detdescr.MM_on():
+    Stream1.ItemList+=["MMSimHitCollection#MM_Hits"]
 
 
 #--------------------------------------------------------------
@@ -257,8 +257,8 @@ if hasattr(runArgs,'TruthReductionScheme'):
         AddressRemappingSvc.addInputRename("MDTSimHitCollection","MDT_Hits","MDT_HitsOLD")
         AddressRemappingSvc.addInputRename("RPCSimHitCollection","RPC_Hits","RPC_HitsOLD")
         AddressRemappingSvc.addInputRename("TGCSimHitCollection","TGC_Hits","TGC_HitsOLD")
-        AddressRemappingSvc.addInputRename("sTGCSimHitCollection","sTGCSensitiveDetector","sTGCSensitiveDetectorOLD")
-        AddressRemappingSvc.addInputRename("MMSimHitCollection","MicromegasSensitiveDetector","MicromegasSensitiveDetectorOLD")
+        AddressRemappingSvc.addInputRename("sTGCSimHitCollection","sTGC_Hits","sTGC_HitsOLD")
+        AddressRemappingSvc.addInputRename("MMSimHitCollection","MM_Hits","MM_HitsOLD")
     except:
         pass
 
@@ -333,7 +333,7 @@ if hasattr(runArgs,'TruthReductionScheme'):
             topSequence += sTGC_HitsTruthRelink("sTGC_HitsTruthRelink")
         except:
             filterHitLog.error('Failed to add sTGC Hits to McEventCollectionFilter - job will fail.')
-    if DetFlags.detdescr.Micromegas_on():
+    if DetFlags.detdescr.MM_on():
         try:
             from McEventCollectionFilter.McEventCollectionFilterConf import MM_HitsTruthRelink
             topSequence += MM_HitsTruthRelink("MM_HitsTruthRelink")

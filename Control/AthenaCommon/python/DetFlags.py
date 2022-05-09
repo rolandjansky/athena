@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # DetFlags : Author Tadashi Maeno
 #            Mods: David Rousseau, Paolo Calafiura, M. Gallas ( more flags and 
@@ -7,7 +7,7 @@
 #             Forward = Lucid ZDC ALFA AFP FwdRegion
 #             LAr = em HEC FCal 
 #             Calo = em HEC FCal Tile
-#             Muon = MDT CSC TGC RPC sTGC Micromegas
+#             Muon = MDT CSC TGC RPC sTGC MM
 #             Truth
 #             BField
 #             FTK
@@ -86,7 +86,7 @@ class DetFlags:
             self._flag_CSC   = False
             self._flag_TGC   = False
             self._flag_RPC   = False
-            self._flag_Micromegas = False
+            self._flag_MM    = False
             self._flag_sTGC  = False
             # LVL1
             self._flag_LVL1   = False            
@@ -173,14 +173,14 @@ class DetFlags:
             self.CSC_setOn()
             self.TGC_setOn()
             self.RPC_setOn()
-            self.Micromegas_setOn()
+            self.MM_setOn()
             self.sTGC_setOn()
         def Muon_setOff (self):
             self.MDT_setOff()
             self.CSC_setOff()
             self.TGC_setOff()
             self.RPC_setOff()
-            self.Micromegas_setOff()
+            self.MM_setOff()
             self.sTGC_setOff()
 
         # set on/off all detectors            
@@ -220,9 +220,9 @@ class DetFlags:
         def Calo_allOn (self):
             return self.LAr_allOn() & self.Tile_on()
         def Muon_on (self):
-            return self.MDT_on() | self.CSC_on() | self.TGC_on() | self.RPC_on() | self.sTGC_on() | self.Micromegas_on()
+            return self.MDT_on() | self.CSC_on() | self.TGC_on() | self.RPC_on() | self.sTGC_on() | self.MM_on()
         def Muon_allOn (self):
-            return self.MDT_on() & self.CSC_on() & self.TGC_on() & self.RPC_on() & self.sTGC_on() & self.Micromegas_on()
+            return self.MDT_on() & self.CSC_on() & self.TGC_on() & self.RPC_on() & self.sTGC_on() & self.MM_on()
 
         def any_on (self):
             return self.ID_on() | self.Calo_on() | self.Muon_on() | self.Forward_on() | self.Truth_on() | self.BField_on() | self.FTK_on()
@@ -400,10 +400,10 @@ class DetFlags:
         cls._setAllTask('sTGC','setOn')
     def sTGC_setOff (cls):
         cls._setAllTask('sTGC','setOff')
-    def Micromegas_setOn (cls):
-        cls._setAllTask('Micromegas','setOn')
-    def Micromegas_setOff (cls):
-        cls._setAllTask('Micromegas','setOff')
+    def MM_setOn (cls):
+        cls._setAllTask('MM','setOn')
+    def MM_setOff (cls):
+        cls._setAllTask('MM','setOff')
 
     def Truth_setOn (cls):
         cls._setAllTask('Truth','setOn')
@@ -504,8 +504,8 @@ class DetFlags:
         return cls._anyTask_on('RPC')
     def sTGC_on (cls):
         return cls._anyTask_on('sTGC')
-    def Micromegas_on (cls):
-        return cls._anyTask_on('Micromegas')
+    def MM_on (cls):
+        return cls._anyTask_on('MM')
 
     def Truth_on (cls):
         return cls._anyTask_on('Truth')
@@ -539,7 +539,7 @@ class DetFlags:
         id  =["bpipe","pixel","SCT","TRT","BCM","DBM"]
         forward=["Lucid", "ZDC", "ALFA", "AFP", "FwdRegion"]
         calo=["em","HEC","FCal","Tile"]
-        muon=["MDT","CSC","TGC","RPC","sTGC","Micromegas"]
+        muon=["MDT","CSC","TGC","RPC","sTGC","MM"]
         truth=["Truth"]
         l1=["LVL1"]
         bf=["BField"]
@@ -615,8 +615,8 @@ class DetFlags:
     RPC_setOff   = classmethod(RPC_setOff)
     sTGC_setOn   = classmethod(sTGC_setOn)
     sTGC_setOff  = classmethod(sTGC_setOff)
-    Micromegas_setOn    = classmethod(Micromegas_setOn)
-    Micromegas_setOff   = classmethod(Micromegas_setOff)
+    MM_setOn     = classmethod(MM_setOn)
+    MM_setOff    = classmethod(MM_setOff)
     Truth_setOn  = classmethod(Truth_setOn)
     Truth_setOff = classmethod(Truth_setOff)
     BField_setOn = classmethod(BField_setOn)
@@ -659,7 +659,7 @@ class DetFlags:
     TGC_on       = classmethod(TGC_on)
     RPC_on       = classmethod(RPC_on)
     sTGC_on      = classmethod(sTGC_on)
-    Micromegas_on= classmethod(Micromegas_on)
+    MM_on        = classmethod(MM_on)
 
     Truth_on     = classmethod(Truth_on)
     BField_on    = classmethod(BField_on)

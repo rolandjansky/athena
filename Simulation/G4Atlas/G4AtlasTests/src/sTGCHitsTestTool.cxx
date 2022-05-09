@@ -41,7 +41,7 @@ StatusCode sTGCHitsTestTool::processEvent() {
 
    if (m_DosTGCTest) {
     const DataHandle<sTGCSimHitCollection> p_collection;
-    CHECK(evtStore()->retrieve(p_collection,"sTGCSensitiveDetector"));
+    CHECK(evtStore()->retrieve(p_collection,"sTGC_Hits"));
     for (sTGCSimHitCollection::const_iterator i_hit = p_collection->begin(); i_hit != p_collection->end(); ++i_hit) { 
       Amg::Vector3D u = (*i_hit).globalPosition();
       CHECK(executeFillHistos(u));

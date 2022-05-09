@@ -29,7 +29,10 @@ def MM_RangeCfg(flags, name="MMRange", **kwargs):
     kwargs.setdefault("FirstXing", MM_FirstXing())
     kwargs.setdefault("LastXing", MM_LastXing())
     kwargs.setdefault("CacheRefreshFrequency", 1.0)
-    kwargs.setdefault("ItemList", ["MMSimHitCollection#MicromegasSensitiveDetector"])
+    if 'MMSimHitCollection#MicromegasSensitiveDetector' in flags.Input.TypedCollections:
+        kwargs.setdefault("ItemList", ["MMSimHitCollection#MicromegasSensitiveDetector"])
+    else:
+        kwargs.setdefault("ItemList", ["MMSimHitCollection#MM_Hits"])
     return PileUpXingFolderCfg(flags, name, **kwargs)
 
 
@@ -49,7 +52,10 @@ def MM_DigitizationToolCfg(flags, name="MM_DigitizationTool", **kwargs):
         kwargs.setdefault("MergeSvc", '')
     kwargs.setdefault("OnlyUseContainerName", flags.Digitization.PileUp)
     kwargs.setdefault("CheckSimHits", True)
-    kwargs.setdefault("InputObjectName", "MicromegasSensitiveDetector")
+    if 'MMSimHitCollection#MicromegasSensitiveDetector' in flags.Input.TypedCollections:
+        kwargs.setdefault("InputObjectName", "MicromegasSensitiveDetector")
+    else:
+        kwargs.setdefault("InputObjectName", "MM_Hits")
     kwargs.setdefault("OutputObjectName", "MM_DIGITS")
     if flags.Common.ProductionStep == ProductionStep.PileUpPresampling:
         kwargs.setdefault("OutputSDOName", flags.Overlay.BkgPrefix + "MM_SDO")
@@ -66,6 +72,10 @@ def MM_OverlayDigitizationToolCfg(flags, name="MM_OverlayDigitizationTool", **kw
     acc = MagneticFieldSvcCfg(flags)
     kwargs.setdefault("CheckSimHits", True)
     kwargs.setdefault("OnlyUseContainerName", False)
+    if 'MMSimHitCollection#MicromegasSensitiveDetector' in flags.Input.SecondaryTypedCollections:
+        kwargs.setdefault("InputObjectName", "MicromegasSensitiveDetector")
+    else:
+        kwargs.setdefault("InputObjectName", "MM_Hits")
     kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "MM_DIGITS")
     kwargs.setdefault("OutputSDOName", flags.Overlay.SigPrefix + "MM_SDO")
     from RngComps.RandomServices import AthRNGSvcCfg

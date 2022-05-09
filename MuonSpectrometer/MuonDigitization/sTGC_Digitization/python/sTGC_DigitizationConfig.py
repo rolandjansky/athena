@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #
 # Import sTGC_Digitization job properties
@@ -24,7 +24,10 @@ def sTgcDigitizationTool(name="sTgcDigitizationTool",**kwargs):
     if not DetFlags.pileup.any_on():
         kwargs.setdefault("MergeSvc", '')
         kwargs.setdefault("OnlyUseContainerName", False)
-    kwargs.setdefault("InputObjectName", "sTGCSensitiveDetector")
+    if 'LegacyNSWContainers' in jobproperties.Digitization.experimentalDigi():
+        kwargs.setdefault("InputObjectName", "sTGCSensitiveDetector")
+    else:
+        kwargs.setdefault("InputObjectName", "sTGC_Hits")
     kwargs.setdefault("OutputObjectName", "sTGC_DIGITS")
     if jobproperties.Digitization.PileUpPresampling and 'LegacyOverlay' not in jobproperties.Digitization.experimentalDigi():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
@@ -45,7 +48,10 @@ def getSTGCRange(name="sTgcRange", **kwargs):
     kwargs.setdefault('FirstXing', sTGC_FirstXing() ) 
     kwargs.setdefault('LastXing',  sTGC_LastXing() ) 
     kwargs.setdefault('CacheRefreshFrequency', 1.0 ) #default 0 no dataproxy reset 
-    kwargs.setdefault('ItemList', ["sTGCSimHitCollection#sTGCSensitiveDetector"] ) 
+    if 'LegacyNSWContainers' in jobproperties.Digitization.experimentalDigi():
+        kwargs.setdefault('ItemList', ["sTGCSimHitCollection#sTGCSensitiveDetector"] )
+    else:
+        kwargs.setdefault('ItemList', ["sTGCSimHitCollection#sTGC_Hits"] ) 
     return CfgMgr.PileUpXingFolder(name, **kwargs)
 
 def STGC_OverlayDigitizationTool(name="STGC_OverlayDigitizationTool",**kwargs):

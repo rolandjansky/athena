@@ -661,7 +661,7 @@ def MuonLayerHoughAlgCfg(flags, name = "MuonLayerHoughAlg", **kwargs):
     kwargs.setdefault("CscPrepDataContainer", "CSC_Clusters" if flags.Muon.doCSCs else "")
     kwargs.setdefault("sTgcPrepDataContainer", "STGC_Measurements" if flags.Muon.dosTGCs else "")
     kwargs.setdefault('TgcPrepDataContainer', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
-    kwargs.setdefault("MMPrepDataContainer", "MM_Measurements" if flags.Muon.doMicromegas else "")
+    kwargs.setdefault("MMPrepDataContainer", "MM_Measurements" if flags.Muon.doMMs else "")
     kwargs.setdefault("PrintSummary", flags.Muon.printSummary)
     acc = MuonLayerHoughToolCfg(flags,name = "MuonLayerHoughTool")
     hough_tool = acc.getPrimary()
@@ -796,7 +796,7 @@ def MuonSegmentFindingCfg(flags, cardinality=1):
 
     result.addEventAlgo(CompFactory.xAODMaker.MuonSegmentCnvAlg("MuonSegmentCnvAlg"))
 
-    if flags.Muon.doMicromegas or flags.Muon.dosTGCs:
+    if flags.Muon.doMMs or flags.Muon.dosTGCs:
         result.addEventAlgo(CompFactory.xAODMaker.MuonSegmentCnvAlg("QuadNSW_MuonSegmentCnvAlg",
                                                                     SegmentContainerName="TrackMuonNSWSegments",
                                                                     xAODContainerName="xAODNSWSegments"))
