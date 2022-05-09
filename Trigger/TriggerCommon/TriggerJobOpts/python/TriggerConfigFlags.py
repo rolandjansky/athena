@@ -116,10 +116,7 @@ def createTriggerFlags():
     flags.addFlag('Trigger.EDMVersion', lambda prevFlags: EDMVersion(prevFlags))
     flags.addFlag('Trigger.doEDMVersionConversion', False)
 
-    # Unpack trigger bytestream
-    flags.addFlag('Trigger.readBS', False)
-
-    # Flag to control the scheduling of online Run 3 trigger navigation compactification into a single collection (uses slimming framework). 
+    # Flag to control the scheduling of online Run 3 trigger navigation compactification into a single collection (uses slimming framework).
     flags.addFlag('Trigger.doOnlineNavigationCompactification', True) 
 
     # Flag to control the scheduling of offline Run 3 trigger navigation slimming in RAWtoESD, RAWtoAOD, AODtoDAOD or RAWtoALL transforms.

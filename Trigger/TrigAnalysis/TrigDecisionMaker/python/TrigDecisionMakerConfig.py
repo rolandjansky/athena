@@ -2,6 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import Format
 from AthenaCommon.Logging import logging
 
 
@@ -126,7 +127,7 @@ def Run1Run2DecisionMakerCfg(flags):
 def Run3DecisionMakerCfg(flags):
     acc = ComponentAccumulator()
     tdm = CompFactory.TrigDec.TrigDecisionMakerMT()
-    if not flags.Trigger.readBS:
+    if flags.Input.Format is not Format.BS:
         # Construct trigger bits from HLTNav_summary instead of reading from BS
         tdm.BitsMakerTool = CompFactory.TriggerBitsMakerTool()
     acc.addEventAlgo( tdm )

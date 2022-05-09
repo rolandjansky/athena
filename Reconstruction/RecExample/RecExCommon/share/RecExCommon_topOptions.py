@@ -410,10 +410,6 @@ if rec.doTruth():
 from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
 ConfigFlags = getNewConfigFlags()
 
-# Apply additional changes to the ConfigFlags:
-if rec.doTrigger and globalflags.DataSource() == 'data' and globalflags.InputFormat == 'bytestream':
-    ConfigFlags.Trigger.readBS = True
-
 # For cosmics runs, we need to turn off doTIDE_Ambi to be consistent
 # with the settings in InDetJobProperties.py.
 # We used to do that there, but that doesn't work anymore
