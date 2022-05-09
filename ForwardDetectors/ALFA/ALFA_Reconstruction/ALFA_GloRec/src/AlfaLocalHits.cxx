@@ -63,8 +63,7 @@ void AlfaLocalHit::SetHit(const ALFA_LocRecCorrEvent * LocRecCorrHit){
 
 void AlfaLocalHit::AssignZ(){
   if(m_pot < 0) {
-	cout << "AlfaLocalHit::AssignZ() m_pot not assigned" << endl;
-    exit(0);
+    throw std::runtime_error("AlfaLocalHit::AssignZ() m_pot not assigned");
   }
   m_z = 1.e10;
   if(m_potname.Contains("B7L1U")) m_z = 241528.;
@@ -76,8 +75,7 @@ void AlfaLocalHit::AssignZ(){
   if(m_potname.Contains("B7R1L")) m_z = -241538.;
   if(m_potname.Contains("A7R1L")) m_z = -237398.;
   if(!(m_z < 1.e10)){
-	cout << "AlfaLocalHit::AssignZ: z coordinate was not assigned for the hit" << endl;
-    exit(0);
+	throw std::runtime_error("AlfaLocalHit::AssignZ: z coordinate was not assigned for the hit");
   }
 }
 
@@ -99,8 +97,7 @@ int AlfaLocalHit::GetMDindex(const char * name){
     if(n.Contains("A7R1L")) return 5;
     if(n.Contains("B7R1U")) return 6;
     if(n.Contains("B7R1L")) return 7;
-	cout << "AlfaLocalHit::GetMDindex ... Not recognised detector name: " << n.Data() << endl;
-    exit(0);
+	throw std::runtime_error("AlfaLocalHit::GetMDindex ... Not recognised detector name: " + n);
 }
 TString AlfaLocalHit::GetMDname(int i){
   if(i == 0) return TString("B7L1U");
@@ -111,8 +108,7 @@ TString AlfaLocalHit::GetMDname(int i){
   if(i == 5) return TString("A7R1L");
   if(i == 6) return TString("B7R1U");
   if(i == 7) return TString("B7R1L");
-  cout << "AlfaLocalHit::GetMDname ... Not recognised detector number: " << i << endl;
-  exit(0);
+  throw std::runtime_error("AlfaLocalHit::GetMDname ... Not recognised detector number: " + std::to_string(i));
 }
 
 
@@ -155,8 +151,7 @@ void AlfaLocalHits::ResetPaths(){
 // .. size
 int AlfaLocalHits::size(){
   if(m_nhits != (int) m_hits.size()){
-	cout << "Class AlfaLocalHits: m_nhits != m_hits.size() !!! " << endl;
-    exit(0);
+    throw std::runtime_error("Class AlfaLocalHits: m_nhits != m_hits.size() !!! ");
   }
   return m_nhits;
 }
@@ -192,8 +187,7 @@ void AlfaLocalHits::ApplyPathPattern(const char * pattern){
   TObjArray toa_tokenized_pattern(4,0);
   toa_tokenized_pattern = * ts_pattern.Tokenize("_");
   if(toa_tokenized_pattern.GetEntries() != 4){
-	cout << "AlfaLocalHits: Pattern of wrong length!!! " << ts_pattern.Data() << endl;
-    exit(0);
+    std::runtime_error("AlfaLocalHits: Pattern of wrong length!!! " + ts_pattern);
   }
   TString patternitem("");
   AlfaLocalHits alh_tmp;
@@ -254,8 +248,7 @@ void AlfaLocalHits::SetPathPattern(const char * pattern){
 
 AlfaLocalHits * AlfaLocalHits::GetPathHits(int ipath) {
   if(ipath >= m_npaths){
-	cout << "Requesting path with overflow index" << endl;
-    exit(0);
+	throw std::runtime_error("Requesting path with overflow index");
   }
   return &(m_paths.at(ipath));
 }
@@ -263,8 +256,7 @@ AlfaLocalHits * AlfaLocalHits::GetPathHits(int ipath) {
 
 AlfaLocalHit * AlfaLocalHits::GetHit(int ihit) {
   if(ihit >= m_nhits){
-	cout << "Requesting hit with overflow index" << endl;
-    exit(0);
+	throw std::runtime_error("Requesting hit with overflow index");
   }
   return &(m_hits.at(ihit));
 }
@@ -399,8 +391,7 @@ void AlfaTrackCand::CalcTrack(){
       }else if(AlfaTrackCand::IsUpperArmTrack()){
         m_arm = 1;
       }else{
-		cout << "AlfaTrackCand::CalcTrack() ... track is in left but unknown upper/lower arm" << endl;
-        exit(0);  
+		throw std::runtime_error("AlfaTrackCand::CalcTrack() ... track is in left but unknown upper/lower arm");
       }
     }else if(AlfaTrackCand::IsRightTrack()){
       if(m_trackcandhits->GetHit(i)->GetPotName().Contains("B7")){
@@ -419,12 +410,10 @@ void AlfaTrackCand::CalcTrack(){
       }else if(AlfaTrackCand::IsUpperArmTrack()){
         m_arm = 3;
       }else{
-		cout << "AlfaTrackCand::CalcTrack() ... track is in right but unknown upper/lower arm" << endl;
-        exit(0);  
+        std::runtime_error("AlfaTrackCand::CalcTrack() ... track is in right but unknown upper/lower arm");
       }
     }else{
-	  cout << "AlfaTrackCand::CalcTrack() ... track must be left or right" << endl;
-      exit(0);
+      std::runtime_error("AlfaTrackCand::CalcTrack() ... track must be left or right");
     }
   }
 
