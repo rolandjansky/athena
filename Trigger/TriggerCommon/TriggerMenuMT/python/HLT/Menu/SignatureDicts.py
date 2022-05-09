@@ -286,11 +286,13 @@ JetChainParts = {
     # Setup for alternative data stream readout
     # B-tagging information
     'bTag'         : ['boffperf'  ,
-                      'bdl1r60','bdl1r70','bdl1r77','bdl1r85',
-                      'bdl1d60', 'bdl1d65','bdl1d70','bdl1d77',
-                      'bdl1d80', 'bdl1d85',
-                      'bdl1d85bb77', 'bdl1d85bb70', 'bdl1d85bb65',
-                      'bdl1d85bb60' ],
+                      'bdl1r60', 'bdl1r70', 'bdl1r77', 'bdl1r85',
+                      'bdl1d60',  'bdl1d65', 'bdl1d70', 'bdl1d72',
+                      'bdl1d75', 'bdl1d77', 'bdl1d80', 'bdl1d82',
+                      'bdl1d85',
+                      'bdl1d85bb60', 'bdl1d85bb65', 'bdl1d85bb70',
+                      'bdl1d85bb72', 'bdl1d85bb75', 'bdl1d85bb77',
+                      'bdl1d85bb80', 'bdl1d85bb82' ],
     'bTracking'    : [],
     'bConfig'      : ['split',],
     'bMatching'    : ['antimatchdr05mu'],
