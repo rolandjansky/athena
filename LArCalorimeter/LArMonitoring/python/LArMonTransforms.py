@@ -10,7 +10,7 @@
 #
 
 
-from ROOT import TMath, TH2F, TProfile
+from ROOT import TMath, TH1F, TH2F, TProfile
 import cppyy
 
 def setMaxMin(inputs,maxVal=0,minVal=0,useMax=True,useMin=True):
@@ -210,10 +210,18 @@ def normToBinAndSetMinMax(inputs,bin_norm=0,minVal=0,maxVal=0,useMax=False, titl
     assert len(inputs) == 1 , len(inputs)
     assert len(inputs[0][1]) == 1 , len(inputs[0][1])
 
-    cl = inputs[0][1][0].Clone()
+    inh=inputs[0][1][0]
+    cl=TH1F(inh.GetName()+"Yield",inh.GetTitle(),inh.GetNbinsX(),inh.GetBinLowEdge(1),inh.GetBinLowEdge(inh.GetNbinsX()))
+    clx=cl.GetXaxis()
+    clx.SetTitle(inh.GetXaxis().GetTitle())
+    for i in range(0,inh.GetNbinsX()+1):
+       clx.SetBinLabel(i,inh.GetXaxis().GetBinLabel(i))
+    cl.GetYaxis().SetTitle(inh.GetYaxis().GetTitle())
+
     Nen = inputs[0][1][0].GetBinContent(bin_norm)
     if Nen!=0:
-        cl.Scale(100./Nen)
+        for ibin in range(0,inh.GetNbinsX()+1):
+          cl.SetBinContent(ibin,100.*inh.GetBinContent(ibin)/Nen)
         pass
 
     cl.SetMinimum(minVal)
