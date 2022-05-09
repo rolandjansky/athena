@@ -60,13 +60,13 @@ class MuonAmbiTrackSelectionTool : virtual public Trk::IAmbiTrackSelectionTool, 
     };
 
     /** maximum hit overlap fraction between two track, if higher track will be rejected*/
-    double m_maxOverlapFraction;
+    Gaudi::Property<double> m_maxOverlapFraction{this, "MaxOverlapFraction", 0.1};
 
     /** flag to keep partial overlaps */
-    bool m_keepPartial;
+    Gaudi::Property<bool> m_keepPartial{this, "KeepPartialOverlaps", true};
 
     /** flag to keep overlaps which share more than one presicion layer */
-    bool m_keepMoreThanOne;
+    Gaudi::Property<bool> m_keepMoreThanOne{this, "KeepMoreThanOneShare", true};
 };
 }  // namespace Muon
 

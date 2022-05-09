@@ -39,6 +39,7 @@ def MC21aSingleBeamspot(flags):
     # override only pile-up profile
     flags.Digitization.PU.NumberOfLowPtMinBias = 51.898
     flags.Digitization.PU.NumberOfHighPtMinBias = 0.102
+    flags.Digitization.PU.BunchStructureConfig = 'RunDependentSimData.BunchStructure_2017'
     flags.Digitization.PU.ProfileConfig = 'RunDependentSimData.PileUpProfile_run410000_MC21a_SingleBeamspot'
 
 
@@ -64,14 +65,10 @@ def BeamspotSplitMC21a():
     return substeps, event_fractions
 
 
-def MC21Simulation(flags):
-    """MC21 flags for simulation"""
+def MC21SimulationBase(flags):
+    """MC21 base flags for simulation"""
     flags.Sim.PhysicsList = 'FTFP_BERT_ATL'
     flags.Sim.TruthStrategy = TruthStrategy.MC15aPlus
-
-    flags.Input.RunNumber = [410000]
-    flags.Input.OverrideRunNumber = True
-    flags.Input.LumiBlockNumber = [1] # dummy value
 
     flags.Sim.TRTRangeCut = 30.0
     flags.Sim.TightMuonStepping = True
@@ -84,3 +81,23 @@ def MC21Simulation(flags):
         pass
     from SimuJobTransforms.G4Optimizations import enableG4Optimizations
     enableG4Optimizations(flags)
+
+
+def MC21Simulation(flags):
+    """MC21 flags for simulation"""
+    MC21SimulationBase(flags)
+
+    flags.Input.RunNumber = [410000]
+    flags.Input.OverrideRunNumber = True
+    flags.Input.LumiBlockNumber = [1] # dummy value
+
+
+def MC21SimulationMultiBeamSpot(flags):
+    """MC21 flags for simulation"""
+    MC21SimulationBase(flags)
+
+    flags.Input.OverrideRunNumber = True
+
+    from RunDependentSimComps.PileUpUtils import generateRunAndLumiProfile
+    generateRunAndLumiProfile(flags,
+                              profile= 'RunDependentSimData.PileUpProfile_run410000_MC21a_MultiBeamspot')

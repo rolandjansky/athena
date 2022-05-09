@@ -224,9 +224,8 @@ def LRT_MuonCombinedInDetCandidateAlgCfg(flags, name="MuonCombinedInDetCandidate
 
 def MuonCombinedAlgCfg(flags, name="MuonCombinedAlg", **kwargs):
     from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCombinedToolCfg
-
-    result = MuonCombinedToolCfg(flags)
-    kwargs.setdefault("MuonCombinedTool", result.popPrivateTools())
+    result = ComponentAccumulator()
+    kwargs.setdefault("MuonCombinedTool", result.popToolsAndMerge(MuonCombinedToolCfg(flags)))
     tagmaps = []
     # CombinedTagMaps must be in a 1-1 correspondence
     # with MuonCombinedTagTools.
@@ -240,6 +239,18 @@ def MuonCombinedAlgCfg(flags, name="MuonCombinedAlg", **kwargs):
     result.addEventAlgo(alg, primary=True)
     return result
 
+def EMEO_MuonCombinedAlgCfg(flags, name="MuonCombinedAlg_EMEO", **kwargs):
+    from MuonCombinedConfig.MuonCombinedRecToolsConfig import EMEO_MuonCombinedToolCfg
+    result = ComponentAccumulator()
+    kwargs.setdefault("MuonCombinedTool", result.popToolsAndMerge(EMEO_MuonCombinedToolCfg(flags)))
+    kwargs.setdefault("CombinedTagMaps", [
+                      "muidcoTagMap_EMEO", "stacoTagMap_EMEO"])
+    kwargs.setdefault("MuidCombinedTracksLocation", "MuidCombinedTracks_EMEO")
+    kwargs.setdefault("MuidMETracksLocation", "MuidMETracks_EMEO")
+    kwargs.setdefault("MuonCandidateLocation", "MuonCandidates_EMEO")
+    alg = CompFactory.MuonCombinedAlg(name, **kwargs)
+    result.addEventAlgo(alg, primary=True)
+    return result
 
 def LRT_MuonCombinedAlgCfg(flags, name="MuonCombinedAlg_LRT", **kwargs):
     kwargs.setdefault("InDetCandidateLocation", "TrackParticleCandidateLRT")
@@ -330,7 +341,7 @@ def LRT_MuonCreatorAlgCfg(flags, name="MuonCreatorAlg_LRT", **kwargs):
 
 def EMEO_MuonCreatorAlgCfg(flags, name="MuonCreatorAlg_EMEO", **kwargs):
     muon_maps = ["MuonCandidates_EMEO"]
-    combined_maps = []
+    combined_maps = ["muidcoTagMap_EMEO", "stacoTagMap_EMEO"]
     kwargs.setdefault("TagMaps", combined_maps)
     kwargs.setdefault("MuonCandidateLocation", muon_maps)
     kwargs.setdefault("MuonContainerLocation", "EMEO_Muons")
@@ -479,6 +490,11 @@ def CombinedMuonOutputCfg(flags):
         aod_items += ["xAOD::CaloClusterContainer#MuonClusterCollection"]
         aod_items += ["xAOD::CaloClusterAuxContainer#MuonClusterCollectionAux."]
         aod_items += ["CaloClusterCellLinkContainer#MuonClusterCollection_links"]
+        from CaloRec.CaloThinCellsByClusterAlgConfig import CaloThinCellsByClusterAlgCfg
+        result.merge(CaloThinCellsByClusterAlgCfg(flags,streamName="StreamAOD",
+                                                  clusters="MuonClusterCollection",
+                                                  samplings=["TileGap1", "TileGap2", "TileGap3", "TileBar0","TileExt0", "HEC0"]))
+
 
     # Adding the xAOD content by default
     excludedAuxData = '-clusterAssociation'
@@ -520,7 +536,7 @@ def CombinedMuonOutputCfg(flags):
 
     esd_items += aod_items
 
-    result = addToESD(flags, esd_items)
+    result.merge(addToESD(flags, esd_items))
     result.merge(addToAOD(flags, aod_items))
 
     # Leaving in for the moment, because we might still need this. Will remove once it's confirmed we don't
@@ -597,6 +613,7 @@ def MuonCombinedReconstructionCfg(flags):
 
     if flags.Muon.runCommissioningChain:
         result.merge(EMEO_MuonCombinedMuonCandidateAlgCfg(flags))
+        result.merge(EMEO_MuonCombinedAlgCfg(flags))
         result.merge(EMEO_MuonCreatorAlgCfg(flags))
 
     # runs over outputs and create xAODMuon collection

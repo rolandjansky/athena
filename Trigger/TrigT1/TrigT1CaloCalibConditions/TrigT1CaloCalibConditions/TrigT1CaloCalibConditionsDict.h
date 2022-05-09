@@ -34,6 +34,9 @@
 #include "TrigT1CaloCalibConditions/L1CaloDerivedRunPars.h"
 #include "TrigT1CaloCalibConditions/L1CaloReadoutConfigContainer.h"
 #include "TrigT1CaloCalibConditions/L1CaloReadoutConfig.h"
+#include "TrigT1CaloCalibConditions/L1CaloReadoutConfigContainerJSON.h"
+#include "TrigT1CaloCalibConditions/L1CaloReadoutConfigJSON.h"
+
 
 #include "TrigT1CaloCalibConditions/L1CaloRunParametersContainer.h"
 #include "TrigT1CaloCalibConditions/L1CaloRunParameters.h"
@@ -62,6 +65,7 @@ struct TrigT1CaloCalibConditions_DUMMY_Instantiation {
   L1CaloPprChanStrategyContainer::const_iterator L1CaloPprChanStrategyContainerConstInterator;
   L1CaloDerivedRunParsContainer::const_iterator L1CaloDerivedRunParsContainerConstInterator;
   L1CaloReadoutConfigContainer::const_iterator L1CaloReadoutConfigContainerConstInterator;
+  L1CaloReadoutConfigContainerJSON::const_iterator L1CaloReadoutConfigContainerJSONConstInterator;
   L1CaloRunParametersContainer::const_iterator L1CaloRunParametersContainerConstInterator;
 
 };

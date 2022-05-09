@@ -64,14 +64,6 @@ def setupMenu():
 
         ChainProp(name='HLT_mu6_ivarmedium_L1MU5VF', groups=DevGroup+SingleMuonGroup),
 
-        # LRT
-        ChainProp(name='HLT_mu24_LRT_d0medium_L1MU14FCH', groups=DevGroup+SingleMuonGroup),
-
-        # Alternate lrt muon config ATR-25389
-        ChainProp(name='HLT_mu20_LRT_d0loose_L1MU14FCH', groups=DevGroup+SingleMuonGroup),
-        ChainProp(name='HLT_mu20_LRT_d0medium_L1MU14FCH', groups=DevGroup+SingleMuonGroup),
-        ChainProp(name='HLT_mu20_LRT_d0tight_L1MU14FCH', groups=DevGroup+SingleMuonGroup),
-
         # ATR-19452
         ChainProp(name='HLT_2mu4_muonqual_L12MU3V',  groups=DevGroup+MultiMuonGroup),
         ChainProp(name='HLT_2mu6_muonqual_L12MU5VF', groups=DevGroup+MultiMuonGroup),
@@ -143,7 +135,7 @@ def setupMenu():
         #LRTGSF test chains
         ChainProp(name='HLT_e26_lhloose_nopix_lrttight_L1EM22VHI', groups=DevGroup+SingleElectronGroup),
         ChainProp(name='HLT_e5_lhloose_nopix_lrtloose_L1EM3', groups=DevGroup+SingleElectronGroup),
-        ChainProp(name='HLT_e5_lhloose_nopix_lrtloose_nogsf_L1EM3', groups=DevGroup+SingleElectronGroup),
+        ChainProp(name='HLT_e5_lhloose_nopix_lrtloose_nogsf_L1EM3', groups=DevGroup+SingleElectronGroup, monGroups=['idMon:shifter']),
 
         # For ringer validation
         ChainProp(name='HLT_g20_loose_L1EM15VHI',  groups=DevGroup+SinglePhotonGroup),
@@ -705,6 +697,11 @@ def setupMenu():
         # TEST CHAINS WITH ROIFTF PRESEL
         ######################################################################################################################################################################################################################################################
 
+        #ATR-23732 Displaced Jet Trigger
+        ChainProp(name='HLT_j180_unconvtrk0_dispj_2jet_L1J100', groups=SingleJetGroup, l1SeedThresholds=['FSNOSEED', 'FSNOSEED']),
+        ChainProp(name='HLT_j180_unconvtrk0_dispj_1jet_L1J100', groups=SingleJetGroup, l1SeedThresholds=['FSNOSEED', 'FSNOSEED']),
+        ChainProp(name='HLT_j180_unconvtrk0_dispj_2jetperf_L1J100', groups=SingleJetGroup, l1SeedThresholds=['FSNOSEED', 'FSNOSEED']),
+        ChainProp(name='HLT_j180_unconvtrk0_dispj_1jetperf_L1J100', groups=SingleJetGroup, l1SeedThresholds=['FSNOSEED', 'FSNOSEED']),
     ]
 
     chains['Beamspot'] += [
@@ -740,8 +737,6 @@ def setupMenu():
         ChainProp(name='HLT_unconvtrk0_fslrt_L1J100', groups=SingleJetGroup, l1SeedThresholds=['FSNOSEED']),
         ChainProp(name='HLT_unconvtrk0_fslrt_L14J15', groups=MultiJetGroup, l1SeedThresholds=['FSNOSEED']),
         ChainProp(name='HLT_unconvtrk0_fslrt_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['FSNOSEED']),
-
-        ChainProp(name='HLT_unconvtrk0_dispj_L1J100', groups=SingleJetGroup, l1SeedThresholds=['FSNOSEED'], monGroups=['DJTrigMon:online']),
 
         # TrigVSI
         ChainProp(name='HLT_unconvtrk0_fsvsi_L1XE50', groups=PrimaryLegGroup+UnconvTrkGroup, l1SeedThresholds=['FSNOSEED']),

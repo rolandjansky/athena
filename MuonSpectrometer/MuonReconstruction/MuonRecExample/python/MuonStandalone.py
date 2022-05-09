@@ -48,7 +48,6 @@ def MuonTrackSteering(name="MuonTrackSteering", extraFlags=None, **kwargs):
         kwargs.setdefault("StrategyList", MoorelikeStrategy)  
 
     kwargs.setdefault("DoSummary", extraFlags.printSummary)
-    kwargs.setdefault("OutputSingleStationTracks", True)
     kwargs.setdefault("HoleRecoveryTool",getPublicTool("MuonEORecoveryTool"))
     if "TrackBuilderTool" not in kwargs:
         extraFlags.setFlagDefault('UseTrackingHistory',True)

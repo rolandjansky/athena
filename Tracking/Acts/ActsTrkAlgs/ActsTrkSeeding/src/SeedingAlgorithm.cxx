@@ -73,11 +73,32 @@ namespace ActsTrk {
     // ===================== INPUTS ===================== // 
     // ================================================== //
 
-    ATH_MSG_DEBUG( "Retrieving Input Collection '" << m_spacePointKey.key() << "' ..." );
-    SG::ReadHandle< ActsTrk::SpacePointContainer > handle = SG::makeHandle( m_spacePointKey, ctx );
-    ATH_CHECK( handle.isValid() );
-    const ActsTrk::SpacePointContainer *spContainer = handle.get();
-    ATH_MSG_DEBUG( "    \\__ " << spContainer->size() << " elements from input collection!" );
+    ATH_MSG_DEBUG( "Retrieving elements from " << m_spacePointKey.size() << " input collections...");
+    std::vector<const ActsTrk::SpacePointContainer *> all_input_collections;
+    all_input_collections.reserve(m_spacePointKey.size());
+
+    std::size_t number_input_space_points = 0;
+    for (auto& spacePointKey : m_spacePointKey) {
+      ATH_MSG_DEBUG( "Retrieving from Input Collection '" << spacePointKey.key() << "' ..." );
+      SG::ReadHandle< ActsTrk::SpacePointContainer > handle = SG::makeHandle( spacePointKey, ctx );
+      ATH_CHECK( handle.isValid() );
+      all_input_collections.push_back(handle.cptr());
+      ATH_MSG_DEBUG( "    \\__ " << handle->size() << " elements!");
+      number_input_space_points += handle->size();
+    }
+
+    // TODO: Write some lines to check which SPs you want to use from the input container
+    // At the time being we fill a vector with all SPs available.
+    std::vector<const ActsTrk::SpacePoint*> selectedSpacePoints;
+    selectedSpacePoints.reserve(number_input_space_points);
+
+    for (const auto* collection : all_input_collections) {
+      for (const auto* sp : *collection) {
+	selectedSpacePoints.push_back( sp );
+      }
+    }
+
+    ATH_MSG_DEBUG( "    \\__ Total input space points: " << selectedSpacePoints.size());
 
     // ================================================== // 
     // ===================== OUTPUTS ==================== //
@@ -93,7 +114,7 @@ namespace ActsTrk {
 
     ATH_MSG_DEBUG("Running Seed Finding ...");    
     ATH_CHECK( m_seedsTool->createSeeds( ctx, 
-					 *spContainer,
+					 selectedSpacePoints,
 					 *beamSpotData, 
 					 magFieldContext,
 					 *seedPtrs.get() ) );

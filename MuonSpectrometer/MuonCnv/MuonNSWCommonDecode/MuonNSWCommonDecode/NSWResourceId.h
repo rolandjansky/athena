@@ -4,6 +4,7 @@
 #ifndef _MUON_NSW_RESOURCE_ID_H_
 #define _MUON_NSW_RESOURCE_ID_H_
 
+#include <iostream>
 #include "eformat/SourceIdentifier.h"
 
 #include "MuonNSWCommonDecode/NSWDecodeBitmaps.h"

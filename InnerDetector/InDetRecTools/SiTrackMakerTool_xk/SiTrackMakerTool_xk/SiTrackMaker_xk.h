@@ -20,7 +20,7 @@
 #include "InDetRecToolInterfaces/ISeedToTrackConversionTool.h"
 #include "InDetRecToolInterfaces/ISiCombinatorialTrackFinder.h"
 #include "InDetRecToolInterfaces/ISiDetElementsRoadMaker.h"
-#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
+#include "TrkCaloClusterROI/ROIPhiRZContainer.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "SiSPSeededTrackFinderData/SiTrackMakerEventData_xk.h"
 
@@ -127,8 +127,8 @@ namespace InDet{
       //@{
       SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey{this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot"};
       SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
-      SG::ReadHandleKey<CaloClusterROI_Collection> m_caloCluster{this, "InputClusterContainerName", "InDetCaloClusterROIs"};
-      SG::ReadHandleKey<CaloClusterROI_Collection> m_caloHad{this, "InputHadClusterContainerName", "InDetHadCaloClusterROIs"};
+      SG::ReadHandleKey<ROIPhiRZContainer> m_caloCluster{this, "EMROIPhiRZContainer", ""};
+      SG::ReadHandleKey<ROIPhiRZContainer> m_caloHad{this, "HadROIPhiRZContainer", ""};
       //@}
 
       /// @name Properties

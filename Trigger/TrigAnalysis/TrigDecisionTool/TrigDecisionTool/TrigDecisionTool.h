@@ -139,12 +139,13 @@ namespace Trig {
     SG::ReadHandleKey<TrigDec::TrigDecision> m_oldDecisionKey {this, "OldTrigDecisionKey", "TrigDecision",
       "Storegate key of old pre-xAOD Decision object"};
 
-    Gaudi::Property<bool> m_useRun1DecisionFormat {this, "UseAODDecision", false,
-      "For use when reading old ESD/AOD with only a TrigDec::TrigDecision and no xAOD::TrigDecision"};
-
     ToolHandle<HLT::Navigation> m_fullNavigation{this, "Navigation", "HLT::Navigation/Navigation"};
 
     #endif
+
+    Gaudi::Property<bool> m_useOldAODDecisionInput {this, "UseAODDecision", false,
+      "For use when reading old ESD/AOD with only a TrigDec::TrigDecision and no xAOD::TrigDecision "
+      "or Run 1 / Run 2 RAW data where an initial TrigDec::TrigDecision needs to be converted via the TDT into xAOD"};
 
     HLT::StandaloneNavigation m_standaloneNavigation;
 

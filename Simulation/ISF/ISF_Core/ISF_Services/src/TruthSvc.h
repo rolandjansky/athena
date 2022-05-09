@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ISF_SERVICES_HEPMC_TRUTHSVC_H
-#define ISF_SERVICES_HEPMC_TRUTHSVC_H 1
+#ifndef ISF_SERVICES_TRUTHSVC_H
+#define ISF_SERVICES_TRUTHSVC_H 1
 
 // STL includes
 #include <string>
@@ -15,11 +15,13 @@
 
 // ISF include
 #include "ISF_Interfaces/ITruthSvc.h"
+#include "ISF_HepMC_Interfaces/ITruthStrategy.h"
 
 // DetectorDescription
 #include "AtlasDetDescr/AtlasRegion.h"
 
 // Barcode
+#include "BarcodeInterfaces/IBarcodeSvc.h"
 #include "BarcodeEvent/Barcode.h"
 
 // McEventCollection
@@ -27,10 +29,6 @@
 
 // forward declarations
 class StoreGateSvc;
-
-namespace Barcode {
-  class IBarcodeSvc;
-}
 
 #include "AtlasHepMC/GenEvent_fwd.h"
 #include "AtlasHepMC/GenVertex.h"
@@ -40,9 +38,6 @@ namespace ISFTesting {
 }
 
 namespace ISF {
-
-  class ITruthStrategy;
-  typedef ToolHandleArray<ITruthStrategy>     TruthStrategyArray;
 
   /** @class TruthSvc
 
@@ -63,7 +58,7 @@ namespace ISF {
     TruthSvc( const std::string& name, ISvcLocator* pSvcLocator );
 
     /** Destructor */
-    virtual ~TruthSvc();
+    virtual ~TruthSvc() = default;
 
     /** Athena algorithm's interface method initialize() */
     StatusCode  initialize() override;
@@ -84,7 +79,7 @@ namespace ISF {
     void recordIncidentToMCTruth( ITruthIncident& truthincident, bool passWholeVertex) const;
     /** Record and end vertex to the MC Truth for the parent particle */
     HepMC::GenVertexPtr  createGenVertexFromTruthIncident( ITruthIncident& truthincident,
-                                                        bool replaceExistingGenVertex=false) const;
+                                                           bool replaceExistingGenVertex=false) const;
 
     /** Set shared barcode for child particles */
     void setSharedChildParticleBarcode( ITruthIncident& truthincident) const;
@@ -98,30 +93,30 @@ namespace ISF {
     /** Helper function to determine the largest vertex barcode set by the generator */
     int maxGeneratedVertexBarcode(HepMC::GenEvent *genEvent) const;
 
-    ServiceHandle<Barcode::IBarcodeSvc>       m_barcodeSvc;           //!< The Barcode service
+    ServiceHandle<Barcode::IBarcodeSvc> m_barcodeSvc{this, "BarcodeSvc", "", ""};           //!< The Barcode service
 
     /** the truth strategies applied (as AthenaToolHandle Array) */
-    TruthStrategyArray                        m_truthStrategies;
+    ToolHandleArray<ITruthStrategy> m_truthStrategies{this, "TruthStrategies", {}, ""};
     /** for faster access: using an internal pointer to the actual ITruthStrategy instances */
-    ITruthStrategy**                          m_geoStrategies[AtlasDetDescr::fNumAtlasRegions];
-    unsigned short                            m_numStrategies[AtlasDetDescr::fNumAtlasRegions];
+    ITruthStrategy**              m_geoStrategies[AtlasDetDescr::fNumAtlasRegions];
+    unsigned short                 m_numStrategies[AtlasDetDescr::fNumAtlasRegions];
 
     /** MCTruth steering */
-    bool                                      m_skipIfNoChildren;       //!< do not record incident if numChildren==0
-    bool                                      m_skipIfNoParentBarcode;  //!< do not record if parentBarcode==fUndefinedBarcode
-    bool                                      m_ignoreUndefinedBarcodes;//!< do/don't abort if retrieve an undefined barcode
+    Gaudi::Property<bool>   m_skipIfNoChildren{this, "SkipIfNoChildren", true, ""};       //!< do not record incident if numChildren==0
+    Gaudi::Property<bool>   m_skipIfNoParentBarcode{this, "SkipIfNoParentBarcode", true, ""};  //!< do not record if parentBarcode==fUndefinedBarcode
+    Gaudi::Property<bool>   m_ignoreUndefinedBarcodes{this, "IgnoreUndefinedBarcodes",  false, ""};//!< do/don't abort if retrieve an undefined barcode
 
-    bool                                      m_passWholeVertex;
+    Gaudi::Property<bool>   m_passWholeVertex{this, "PassWholeVertices", true, ""};
 
-    std::vector<bool>                         m_forceEndVtxRegionsVec; //!< property containing AtlasRegions for which
-                                                                              //   to write end-vtx
-    bool                                      m_forceEndVtx[AtlasDetDescr::fNumAtlasRegions]; //!< attach end vertex to
-                                                                                                     //   all parent particles if they die
+    Gaudi::Property<std::vector<unsigned int> >  m_forceEndVtxRegionsVec{this, "ForceEndVtxInRegions", {}, ""}; //!< property containing AtlasRegions for which
+    //   to write end-vtx
+    std::array<bool, AtlasDetDescr::fNumAtlasRegions> m_forceEndVtx; //!< attach end vertex to
+    //   all parent particles if they die
 
-    bool                                      m_quasiStableParticlesIncluded; //!< does this job simulate quasi-stable particles.
+    Gaudi::Property<bool>   m_quasiStableParticlesIncluded{this, "QuasiStableParticlesIncluded", false, ""}; //!< does this job simulate quasi-stable particles.
 
   };
 }
 
 
-#endif //> !ISF_SERVICES_HEPMC_TRUTHSVC_H
+#endif //> !ISF_SERVICES_TRUTHSVC_H

@@ -36,6 +36,8 @@ if not conddb.folderRequested('/MUONALIGN/Onl/TGC/SIDEA') and not conddb.folderR
     conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/TGC/SIDEA','/MUONALIGN/TGC/SIDEA',className='CondAttrListCollection')
     conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/TGC/SIDEC','/MUONALIGN/TGC/SIDEC',className='CondAttrListCollection')
 
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+
 from AtlasGeoModel.MuonGM import GeoModelSvc
 MuonDetectorTool = GeoModelSvc.DetectorTools[ "MuonDetectorTool" ]
 condSequence = AthSequencer("AthCondSeq")
@@ -85,14 +87,23 @@ if muonAlignFlags.UseIlines and MuonGeometryFlags.hasCSC():
 # here define if As-Built (MDT chamber alignment) are enabled
 if muonAlignFlags.UseAsBuilt:
     if conddb.dbdata == 'COMP200' or conddb.dbmc == 'COMP200' or \
-       'HLT' in globalflags.ConditionsTag() or conddb.isOnline :
+       'HLT' in globalflags.ConditionsTag() or conddb.isOnline or conddb.isMC:
         logMuon.info("No MDT As-Built parameters applied.")
         MuonDetectorTool.EnableMdtAsBuiltParameters = 0
+        MuonDetectorTool.EnableNswAsBuiltParameters = 0
     else :
         logMuon.info("Reading As-Built parameters from conditions database")
         MuonDetectorTool.EnableMdtAsBuiltParameters = 1
-        conddb.addFolder('MUONALIGN_OFL','/MUONALIGN/MDT/ASBUILTPARAMS',className='CondAttrListCollection')
+        MuonDetectorTool.EnableNswAsBuiltParameters = 0
+        conddb.addFolder('MUONALIGN_OFL','/MUONALIGN/MDT/ASBUILTPARAMS' ,className='CondAttrListCollection')
         MuonAlignAlg.ParlineFolders += ["/MUONALIGN/MDT/ASBUILTPARAMS"]
+        if CommonGeometryFlags.Run not in ["RUN1","RUN2"]: 
+            MuonDetectorTool.EnableNswAsBuiltParameters = 0
+            ## disable for now, otherwise standard tests crash (ATLASRECTS-7017)
+            #MuonDetectorTool.EnableNswAsBuiltParameters = 1
+            #conddb.addFolder('MUONALIGN_OFL','/MUONALIGN/ASBUILTPARAMS/MM'  ,className='CondAttrListCollection')
+            #conddb.addFolder('MUONALIGN_OFL','/MUONALIGN/ASBUILTPARAMS/STGC',className='CondAttrListCollection')
+            #MuonAlignAlg.ParlineFolders += ['/MUONALIGN/ASBUILTPARAMS/MM','/MUONALIGN/ASBUILTPARAMS/STGC']
 
 # nuisance parameter used during track fit to account for alignment uncertainty
 if conddb.dbdata != 'COMP200' and conddb.dbmc != 'COMP200' and \

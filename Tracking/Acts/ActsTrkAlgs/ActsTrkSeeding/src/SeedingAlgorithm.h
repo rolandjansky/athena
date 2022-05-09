@@ -21,7 +21,7 @@
 
 // Handle Keys
 #include "StoreGate/ReadCondHandleKey.h"
-#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadHandleKeyArray.h"
 #include "StoreGate/WriteHandleKey.h"
 
 namespace ActsTrk {
@@ -47,7 +47,7 @@ namespace ActsTrk {
     SG::ReadCondHandleKey< AtlasFieldCacheCondObj > m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj",
         "Name of the Magnetic Field conditions object key"};
 
-    SG::ReadHandleKey< ActsTrk::SpacePointContainer > m_spacePointKey {this,"InputSpacePoints","","Input Acts Space Points"};
+    SG::ReadHandleKeyArray< ActsTrk::SpacePointContainer > m_spacePointKey {this,"InputSpacePoints",{},"Input Acts Space Points"};
     SG::WriteHandleKey< ActsTrk::SeedContainer > m_seedKey {this,"OutputSeeds","","Output Seeds"};    
   };
   

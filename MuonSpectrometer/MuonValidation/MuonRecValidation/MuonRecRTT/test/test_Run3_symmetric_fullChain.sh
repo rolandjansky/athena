@@ -32,7 +32,7 @@
 
 cond_tag="default:OFLCOND-MC21-SDR-RUN3-05"
 Sim_tf.py --inputEVNTFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayTests/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.merge.EVNT.e3601_e5984/EVNT.12228944._002158.pool.root.1 \
-          --geometryVersion 'default:ATLAS-R3S-2021-01-00-02_VALIDATION' \
+          --geometryVersion 'default:ATLAS-R3S-2021-03-00-00' \
           --conditionsTag "${cond_tag}" \
           --preInclude "EVNTtoHITS:SimulationJobOptions/preInclude.G4Optimizations.py,SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py" \
           --postInclude "EVNTtoHITS:SimulationJobOptions/postInclude.G4Optimizations.py,MuonPRDTest/NSWPRDValAlg.sim.py" \

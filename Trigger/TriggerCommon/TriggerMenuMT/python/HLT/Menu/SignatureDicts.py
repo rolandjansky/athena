@@ -1088,6 +1088,7 @@ UnconventionalTrackingChainParts = {
     'isoInfo'        : ['iaggrmedium','iaggrloose','imedium','iloose'],
     'extra'          : ["isohpttrack", "fslrt", "dedx", "hitdv", "fsvsi", "distrk", "dispj"],
     'addInfo'        : [],
+    'dispjVariant'   : ['2jet','1jet', '2jetperf', '1jetperf'],
     'sigFolder'     : ['UnconventionalTracking'],
     'subSigs'       : ['UnconventionalTracking'],
     'chainPartIndex': list(range(0,10))
@@ -1105,6 +1106,7 @@ UnconventionalTrackingChainParts_Default = {
     'threshold'      : '',
     'extra'          : '',
     'addInfo'        : '',
+    'dispjVariant'   : '',
     'sigFolder'     : ['UnconventionalTracking'],
     'subSigs'       : ['UnconventionalTracking'],
     'chainPartIndex': 0

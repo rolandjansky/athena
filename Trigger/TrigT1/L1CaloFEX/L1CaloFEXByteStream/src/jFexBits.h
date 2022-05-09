@@ -11,6 +11,12 @@
 #include <cstdint>
 
 namespace LVL1::jFEXBits {
+/************     Words in Trailers     ************/   
+    ///Number of jFEX to ROD trailer words
+    static constexpr uint32_t ROD_WORDS      = 2;
+    static constexpr uint32_t jFEX2ROD_WORDS = 2;
+    static constexpr uint32_t TOB_TRAILERS   = 2;
+
 
 /************     TOB,XTOB Counter Trailer     ************/
 
@@ -23,8 +29,8 @@ namespace LVL1::jFEXBits {
     static constexpr uint32_t jLJ_TOB_COUNTS  = 7;
     static constexpr uint32_t jTau_TOB_COUNTS = 13;
     static constexpr uint32_t jEM_TOB_COUNTS  = 19;
-    static constexpr uint32_t jTE_TOB_COUNTS  = 26;
-    static constexpr uint32_t jXE_TOB_COUNTS  = 27;
+    static constexpr uint32_t jTE_TOB_COUNTS  = 25;
+    static constexpr uint32_t jXE_TOB_COUNTS  = 26;
 
 /************     jFEX to ROD Header     ************/
 

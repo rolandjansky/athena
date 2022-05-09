@@ -40,6 +40,18 @@ namespace SG {
 
 
 /**
+ * @brief Constructor with full arguments.
+ * @param sgkey StoreGate key of the referenced object.
+ */
+template <class T>
+inline
+ReadHandle<T>::ReadHandle(const std::string& sgkey)
+  : VarHandleBase (sgkey)
+{
+}
+
+
+/**
  * @brief Constructor from a ReadHandleKey.
  * @param key The key object holding the clid/key/store.
  *

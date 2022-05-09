@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file ParticleEventTPCnv/test/ParticleBaseLinksCnv_p1_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -15,10 +13,10 @@
 #include "TestTools/leakcheck.h"
 #include "ParticleEvent/ParticleBaseLinks.h"
 #include "SGTools/TestStore.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
-#include "CxxUtils/checker_macros.h"
 
 
 void compare (const ParticleBaseLinks& c1,
@@ -30,7 +28,7 @@ void compare (const ParticleBaseLinks& c1,
 }
 
 
-void test1()
+void test1 ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test1\n";
   MsgStream log (0, "test");

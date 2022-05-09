@@ -209,6 +209,94 @@ def generatePileUpProfile(flags,
     flags.Input.RunAndLumiOverrideList = fragment
 
 
+def generateRunAndLumiProfile(flags,
+                          profile,
+                          sequentialEventNumbers=False,
+                          doNotCorrectMaxEvents=False):
+    """Generate RunAndLumiOverrideList """
+    logger = logging.getLogger("PileUp")
+    logger.info('Doing RunLumiOverride configuration from file.')
+
+    jobNumber = flags.Input.JobNumber
+    maxEvents = flags.Exec.MaxEvents
+    totalEvents = flags.Exec.MaxEvents
+    skipEvents = flags.Exec.SkipEvents
+
+    # executor splitting
+    if flags.ExecutorSplitting.TotalSteps > 1:
+        totalEvents = flags.ExecutorSplitting.TotalEvents
+
+    if maxEvents == -1:
+        raise SystemExit("maxEvents = %d is not supported! Please set this to the number of events per file times the number of files per job." % (
+            maxEvents,))
+    if not doNotCorrectMaxEvents and not flags.ExecutorSplitting.TotalSteps > 1:
+        # round up to nearest 25 events...
+        corrMaxEvents = ceil(float(maxEvents)/25.0)*25.0
+    else:
+        logger.warning(
+            "Using the actual number of EVNT input events for this job -- not for production use!")
+        corrMaxEvents = maxEvents
+
+    # We may need to repeat this run for long production jobs.
+    # NB: unlike vanilla variable-mu jobs, it's possible to waste
+    #  up to trfMaxEvents-1 events per complete run in prodsys if
+    #  the number of events specified by this run is not evenly
+    #  divisible by trfMaxEvents.
+    tempProfile = loadPileUpProfile(flags, profile)
+    profileTotalEvents=sum(lb['evts'] for lb in tempProfile)
+    corrTotalEvents = max(maxEvents,50)
+    scaleTaskLengthSim = float(corrTotalEvents)/float(profileTotalEvents)
+
+
+    generatedProfile = []
+    step = -1
+    cacheElement=None
+
+    def simEvts(x):
+        return int(scaleTaskLengthSim * x)
+
+    for el in tempProfile:
+        if el['step'] != step:
+            if cacheElement is not None:
+                cacheElement['evts'] =  simEvts(cacheElement['evts'])
+                generatedProfile += [cacheElement]
+            cacheElement = el
+            step = el['step']
+        else:
+            cacheElement['evts'] += el['evts']
+    cacheElement['evts'] =  simEvts(cacheElement['evts'])
+    generatedProfile += [cacheElement]
+
+    runMaxEvents = sum(lb["evts"] for lb in generatedProfile)
+    logger.info("There are %d events in this run.", runMaxEvents)
+    jobsPerRun = int(ceil(float(runMaxEvents)/corrMaxEvents))
+    logger.info("Assuming there are usually %d events per job. (Based on %d events in this job.)",
+                corrMaxEvents, maxEvents)
+    logger.info("There must be %d jobs per run.", jobsPerRun)
+
+    # Override event numbers with sequential ones if requested
+    if sequentialEventNumbers:
+        logger.info("All event numbers will be sequential.")
+
+    # Load needed tools
+    from RunDependentSimComps.RunDependentMCTaskIterator import getRunLumiInfoFragment
+    fragment = getRunLumiInfoFragment(
+    jobnumber=(jobNumber-1),
+        task=generatedProfile,
+        maxEvents=maxEvents,
+        totalEvents=totalEvents,
+        skipEvents=skipEvents,
+        sequentialEventNumbers=sequentialEventNumbers)
+
+    # Remove lumiblocks with no events
+    for element in fragment:
+        if element['evts'] == 0:
+            logger.warning('Found lumiblock with no events!  This lumiblock will not be used:\n (' + element.__str__() + ')' )
+    fragment = [x for x in fragment if x['evts'] != 0]
+
+    flags.Input.RunAndLumiOverrideList = fragment
+
+
 def scaleNumberOfCollisions(flags):
     """Scale the number of events per crossing to the largest value in job.
     

@@ -15,7 +15,6 @@
 #include "../IParticleLinksCollectionGetterTool.h"
 #include "../SkimDecisionFillerTool.h"
 #include "../SkimDecisionVectorFillerTool.h"
-#include "../LumiBlockLengthFillerTool.h"
 #include "../LeadingPtAssociationTool.h"
 
 
@@ -37,6 +36,4 @@ DECLARE_COMPONENT( D3PD::LBMetadataTool )
 DECLARE_COMPONENT( D3PD::IParticleLinksCollectionGetterTool )
 DECLARE_COMPONENT( D3PD::SkimDecisionFillerTool )
 DECLARE_COMPONENT( D3PD::SkimDecisionVectorFillerTool )
-DECLARE_COMPONENT( D3PD::LumiBlockLengthFillerTool )
 DECLARE_COMPONENT( D3PD::LeadingPtAssociationTool )
-

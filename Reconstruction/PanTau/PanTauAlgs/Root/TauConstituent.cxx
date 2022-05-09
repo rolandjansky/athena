@@ -264,7 +264,7 @@ const xAOD::PFO* PanTau::TauConstituent::getPFO() const {
 
 
 void PanTau::TauConstituent::addShot(TauConstituent* shot) {
-  if(shot != 0) m_Shots.push_back(shot);
+  if(shot != nullptr) m_Shots.push_back(shot);
 }
 
 
@@ -273,7 +273,7 @@ std::vector<PanTau::TauConstituent*> PanTau::TauConstituent::getShots() {
 }
 
 
-unsigned int PanTau::TauConstituent::getNShots() {
+unsigned int PanTau::TauConstituent::getNShots() const {
   return m_Shots.size();
 }
 
@@ -283,6 +283,6 @@ void PanTau::TauConstituent::setNPhotonsInShot(int nPhotons) {
 }
 
 
-int PanTau::TauConstituent::getNPhotonsInShot() {
+int PanTau::TauConstituent::getNPhotonsInShot() const {
   return m_nPhotonsInShot;
 }

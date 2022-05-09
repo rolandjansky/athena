@@ -7,6 +7,8 @@
 #include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/WriteCondHandle.h"
 #include "CoralBase/Blob.h"
+#include <string_view>
+
 
 TgcDigitASDposCondAlg::TgcDigitASDposCondAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthReentrantAlgorithm(name, pSvcLocator)
@@ -56,37 +58,36 @@ StatusCode TgcDigitASDposCondAlg::execute(const EventContext& ctx) const
 
   // Fill
   auto outputCdo = std::make_unique<TgcDigitASDposData>();
-
-  std::string delimiter{";"};
+  using namespace MuonCalib;
+  char delimiter{';'};
   for(const auto &[channel, attribute] : *readHandle_ASDpos.cptr()) {
     const coral::Blob& blob = attribute["bASDPos"].data<coral::Blob>();
     const char *blobCStr = reinterpret_cast<const char *>(blob.startingAddress());
-    std::string blobline(blobCStr);
-    std::vector<std::string> tokens;
-    MuonCalib::MdtStringUtils::tokenize(blobline, tokens, delimiter);
+    std::string_view blobline(blobCStr, blob.size()/sizeof(char));
+    std::vector<std::string_view> tokens = MuonCalib::MdtStringUtils::tokenize(blobline, delimiter);
     auto it = std::begin(tokens);
-    uint16_t station = static_cast<uint16_t>(stoi(*it));
+    uint16_t station = static_cast<uint16_t>(MdtStringUtils::stoi(*it));
     ++it;
-    uint16_t eta = static_cast<uint16_t>(stoi(*it));
+    uint16_t eta = static_cast<uint16_t>(MdtStringUtils::stoi(*it));
     ++it;
-    uint16_t phi = (stoi(*it) == -99) ? 0x1f : static_cast<uint16_t>(stoi(*it));
+    uint16_t phi = (MdtStringUtils::stoi(*it) == -99) ? 0x1f : static_cast<uint16_t>(MdtStringUtils::stoi(*it));
     uint16_t chamberId = (station << 8)  + (eta << 5) + phi;
 
-    std::vector<float> strip_pos;
-    strip_pos.assign(TgcDigitASDposData::N_STRIPASDPOS, 0);
+    std::vector<float> strip_pos(TgcDigitASDposData::N_STRIPASDPOS, 0);
+    //strip_pos initialized to size N_STRIPASDPOS
     for (int i=0; i < TgcDigitASDposData::N_STRIPASDPOS; i++) {
       ++it;
-      strip_pos[i] = stof(*it);
+      strip_pos[i] = MdtStringUtils::stof(*it);
     }
-    outputCdo->stripAsdPos.insert(std::make_pair(chamberId, strip_pos));
+    outputCdo->stripAsdPos.emplace(chamberId, std::move(strip_pos));
 
-    std::vector<float> wire_pos;
-    wire_pos.assign(TgcDigitASDposData::N_WIREASDPOS, 0);
+    std::vector<float> wire_pos(TgcDigitASDposData::N_WIREASDPOS, 0);
+    //TgcDigitASDposData initialized to size N_WIREASDPOS
     for (int i=0; i < TgcDigitASDposData::N_WIREASDPOS; i++) {
       ++it;
-      wire_pos[i] = stof(*it);
+      wire_pos[i] = MdtStringUtils::stof(*it);
     }
-    outputCdo->wireAsdPos.insert(std::make_pair(chamberId, wire_pos));
+    outputCdo->wireAsdPos.emplace(chamberId, std::move(wire_pos));
   }  // end of for(attrmap)
 
   // Record

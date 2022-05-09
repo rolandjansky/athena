@@ -1,14 +1,18 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 # Configuration of PixelCalibAlgs package
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import LHCPeriod
 
 def PixelChargeToTConversionCfg(flags, name='InDetPixelChargeToTConversion', **kwargs):
     from PixelReadoutGeometry.PixelReadoutGeometryConfig import PixelReadoutManagerCfg
     acc = PixelReadoutManagerCfg(flags)
 
-    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelConfigCondAlgCfg, PixelChargeCalibCondAlgCfg
+    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelConfigCondAlgCfg, PixelChargeLUTCalibCondAlgCfg, PixelChargeCalibCondAlgCfg
     acc.merge(PixelConfigCondAlgCfg(flags))
-    acc.merge(PixelChargeCalibCondAlgCfg(flags))
+    if flags.GeoModel.Run is LHCPeriod.Run3:
+        acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
+    else:
+        acc.merge(PixelChargeCalibCondAlgCfg(flags))
     
     acc.addEventAlgo(CompFactory.PixelChargeToTConversion(name, **kwargs))
     return acc

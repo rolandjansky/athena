@@ -101,6 +101,8 @@ def ITkPixelChargeLUTCalibCondAlgCfg(flags, name="ITkPixelChargeLUTCalibCondAlg"
     acc = ComponentAccumulator()
     acc.merge(ITkPixelModuleConfigCondAlgCfg(flags))
     acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection"))
+    from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg
+    acc.merge(ITkPixelReadoutGeometryCfg(flags))
     kwargs.setdefault("PixelDetEleCollKey", "ITkPixelDetectorElementCollection")
     kwargs.setdefault("PixelModuleData", "ITkPixelModuleData")
     kwargs.setdefault("ReadKey", "/PIXEL/ChargeCalibration")

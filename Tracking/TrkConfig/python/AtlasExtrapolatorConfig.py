@@ -258,7 +258,7 @@ def InDetExtrapolatorCfg(flags, name='InDetExtrapolator', **kwargs):
 def MuonExtrapolatorCfg(flags,name = "MuonExtrapolator", **kwargs):
     result = ComponentAccumulator()
 
-    AtlasMaterialEffectsUpdator = result.popToolsAndMerge(TC.AtlasMaterialEffectsUpdatorCfg(flags))
+    AtlasMaterialEffectsUpdator = result.popToolsAndMerge(TC.AtlasMaterialEffectsUpdatorCfg(flags, name="MuonMaterialEffectsUpdator"))
     kwargs.setdefault("MaterialEffectsUpdators", [AtlasMaterialEffectsUpdator])
 
     AtlasNavigator = result.popToolsAndMerge(TC.AtlasNavigatorCfg(flags))

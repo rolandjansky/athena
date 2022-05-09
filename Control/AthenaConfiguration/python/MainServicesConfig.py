@@ -149,6 +149,7 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
         elmgr = AthenaHiveEventLoopMgr()
         elmgr.WhiteboardSvc = "EventDataSvc"
         elmgr.SchedulerSvc = scheduler.getName()
+        elmgr.OutStreamType = 'AthenaOutputStream'
         cfg.addService( elmgr )
 
         #

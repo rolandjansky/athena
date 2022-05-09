@@ -110,7 +110,8 @@ def getMvaTESEvaluator():
     from tauRecTools.tauRecToolsConf import MvaTESEvaluator
     from TrigTauRec.TrigTauFlags import TrigTauFlags
     MvaTESEvaluator = MvaTESEvaluator(name = _name,
-                                      WeightFileName = TrigTauFlags.MvaTESConfig())
+                                      WeightFileName = TrigTauFlags.MvaTESConfig(),
+                                      UseEMoverLC = TrigTauFlags.UseEMoverLC())
 
     ToolSvc += MvaTESEvaluator
     cached_instances[_name] = MvaTESEvaluator

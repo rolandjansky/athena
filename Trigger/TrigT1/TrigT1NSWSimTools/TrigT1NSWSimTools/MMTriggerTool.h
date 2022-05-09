@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MMTRIGGERTOOL_H
@@ -9,19 +9,20 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "Gaudi/Property.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "GaudiKernel/ITHistSvc.h"
+#include "GaudiKernel/IIncidentSvc.h"
+#include "MuonIdHelpers/MmIdHelper.h"
 
 //local includes
 #include "TrigT1NSWSimTools/IMMTriggerTool.h"
-#include "MMT_Diamond.h"
+#include "TrigT1NSWSimTools/MMLoadVariables.h"
+#include "TrigT1NSWSimTools/MMT_Finder.h"
+#include "TrigT1NSWSimTools/MMT_Fitter.h"
+#include "TrigT1NSWSimTools/MMT_Diamond.h"
+#include "TTree.h"
 
-//forward declarations
-class IIncidentSvc;
-class MmIdHelper;
-class MmDigit;
-class TTree;
-
-#include "MMLoadVariables.h"
 #include "MuonDigitContainer/MmDigitContainer.h"
+#include "MuonDigitContainer/MmDigit.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include "TrackRecord/TrackRecordCollection.h"
 
@@ -47,7 +48,7 @@ namespace NSWL1 {
 
     MMTriggerTool(const std::string& type, const std::string& name, const IInterface* parent);
 
-    virtual ~MMTriggerTool();
+    virtual ~MMTriggerTool()=default;
 
     virtual StatusCode initialize();
 
@@ -198,73 +199,6 @@ namespace NSWL1 {
     std::vector< std::vector<double> > *m_NSWMM_dig_stripGposX;
     std::vector< std::vector<double> > *m_NSWMM_dig_stripGposY;
     std::vector< std::vector<double> > *m_NSWMM_dig_stripGposZ;
-    std::vector< std::vector<float> >  *m_NSWMM_dig_sr_time;
-    std::vector< std::vector<float> >  *m_NSWMM_dig_sr_charge;
-    std::vector< std::vector<int> >    *m_NSWMM_dig_sr_stripPosition;
-    std::vector< std::vector<double> > *m_NSWMM_dig_sr_stripLposX;
-    std::vector< std::vector<double> > *m_NSWMM_dig_sr_stripLposY;
-    std::vector< std::vector<double> > *m_NSWMM_dig_sr_stripGposX;
-    std::vector< std::vector<double> > *m_NSWMM_dig_sr_stripGposY;
-    std::vector< std::vector<double> > *m_NSWMM_dig_sr_stripGposZ;
-
-    std::vector< int    > *m_NSWMM_dig_truth_barcode;
-    std::vector< double > *m_NSWMM_dig_truth_localPosX;
-    std::vector< double > *m_NSWMM_dig_truth_localPosY;
-    std::vector< double > *m_NSWMM_dig_truth_globalPosX;
-    std::vector< double > *m_NSWMM_dig_truth_globalPosY;
-    std::vector< double > *m_NSWMM_dig_truth_globalPosZ;
-    std::vector< float  > *m_NSWMM_dig_truth_XZ_angle;
-
-    std::vector<int>   *m_NSWMM_dig_stripForTrigger;
-    std::vector<float> *m_NSWMM_dig_stripTimeForTrigger;
-
-
-    std::vector<int>    *m_NSWMM_trackId;
-    std::vector<int>    *m_NSWMM_truthEl;
-    std::vector<double> *m_NSWMM_globalTime;
-    std::vector<double> *m_NSWMM_hitGlobalPositionX;
-    std::vector<double> *m_NSWMM_hitGlobalPositionY;
-    std::vector<double> *m_NSWMM_hitGlobalPositionZ;
-    std::vector<double> *m_NSWMM_hitGlobalPositionR;
-    std::vector<double> *m_NSWMM_hitGlobalPositionP;
-    std::vector<double> *m_NSWMM_hitGlobalDirectionX;
-    std::vector<double> *m_NSWMM_hitGlobalDirectionY;
-    std::vector<double> *m_NSWMM_hitGlobalDirectionZ;
-
-
-    std::vector<double> *m_NSWMM_detector_globalPositionX;
-    std::vector<double> *m_NSWMM_detector_globalPositionY;
-    std::vector<double> *m_NSWMM_detector_globalPositionZ;
-    std::vector<double> *m_NSWMM_detector_globalPositionR;
-    std::vector<double> *m_NSWMM_detector_globalPositionP;
-
-    std::vector<double> *m_NSWMM_hitToDsurfacePositionX;
-    std::vector<double> *m_NSWMM_hitToDsurfacePositionY;
-    std::vector<double> *m_NSWMM_hitToDsurfacePositionZ;
-
-    std::vector<double> *m_NSWMM_hitToRsurfacePositionX;
-    std::vector<double> *m_NSWMM_hitToRsurfacePositionY;
-    std::vector<double> *m_NSWMM_hitToRsurfacePositionZ;
-
-
-    std::vector<int> *m_NSWMM_particleEncoding;
-    std::vector<double> *m_NSWMM_kineticEnergy;
-    std::vector<double> *m_NSWMM_depositEnergy;
-
-    std::vector<std::string> *m_NSWMM_sim_stationName;
-    std::vector<int> *m_NSWMM_sim_stationEta;
-    std::vector<int> *m_NSWMM_sim_stationPhi;
-    std::vector<int> *m_NSWMM_sim_multilayer;
-    std::vector<int> *m_NSWMM_sim_layer;
-    std::vector<int> *m_NSWMM_sim_side;
-
-    std::vector<std::string> *m_NSWMM_off_stationName;
-    std::vector<int> *m_NSWMM_off_stationEta;
-    std::vector<int> *m_NSWMM_off_stationPhi;
-    std::vector<int> *m_NSWMM_off_multiplet;
-    std::vector<int> *m_NSWMM_off_gas_gap;
-    std::vector<int> *m_NSWMM_off_channel;
-
   };  // end of MMTriggerTool class
 
 } // namespace NSWL1

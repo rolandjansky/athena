@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ForwardRegionProperties.h"
@@ -75,7 +75,7 @@ PFWDMg_CONFIGURATION ForwardRegionProperties::getConf() {
     return &m_Config;
 }
 
-void ForwardRegionProperties::getMagTransforms(std::string name, int beam, HepGeom::Point3D<double> & pointMagStart, HepGeom::Point3D<double> & pointMagEnd, double & rotAxis, bool twiss)
+void ForwardRegionProperties::getMagTransforms(const std::string& name, int beam, HepGeom::Point3D<double> & pointMagStart, HepGeom::Point3D<double> & pointMagEnd, double & rotAxis, bool twiss)
 {
     if(name.find("MagQ1") != std::string::npos || (twiss && name.find("MQXA.1") != std::string::npos))
     {
@@ -181,7 +181,7 @@ void ForwardRegionProperties::getMagTransforms(std::string name, int beam, HepGe
     }
 }
 
-void ForwardRegionProperties::getMagTransforms(std::string name, int beam, HepGeom::Point3D<double> & pointMagStart, HepGeom::Point3D<double> & pointMagEnd, bool twiss)
+void ForwardRegionProperties::getMagTransforms(const std::string& name, int beam, HepGeom::Point3D<double> & pointMagStart, HepGeom::Point3D<double> & pointMagEnd, bool twiss)
 {
     double dummy;
     getMagTransforms(name, beam, pointMagStart, pointMagEnd, dummy, twiss);

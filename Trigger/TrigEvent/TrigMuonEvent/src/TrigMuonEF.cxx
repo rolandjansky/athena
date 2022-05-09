@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*****************************************************************************
@@ -38,34 +38,13 @@ TrigMuonEF::TrigMuonEF(double theIPt, double theCotTh, double thePhi, double the
   m_muonCode(0){
 }
 
-TrigMuonEF::TrigMuonEF( const TrigMuonEF& rhs ) :
-  I4Momentum(rhs),
-  P4IPtCotThPhiMBase( rhs ),
-  INavigable(rhs),
-  IAthenaBarCode(rhs),
-  INavigable4Momentum(rhs),
-  P4IPtCotThPhiM( rhs ),
-  NavigableTerminalNode(),
-  m_muonCode( rhs.m_muonCode )
-{ }
-
-/** Assignement operator */
-TrigMuonEF& TrigMuonEF::operator=( const TrigMuonEF& rhs )
-{
-  if ( this != &rhs ) {
-    P4IPtCotThPhiM::operator=( rhs );
-    m_muonCode                    = rhs.m_muonCode;
-  }
-  return *this;
-}
-
 /** set data member */
 void TrigMuonEF::set_muonCode(int theMuonCode){
   m_muonCode = theMuonCode; 
 }
 
 /** set data member */
-void TrigMuonEF::set_RoINum(std::string theRoINum){
+void TrigMuonEF::set_RoINum(const std::string& theRoINum){
   m_roi = theRoINum; 
 }
 

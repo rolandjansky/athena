@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+
 include.block('RunDependentSimData/configCommon.py')
 from Digitization.DigitizationFlags import jobproperties
 if not 'logging' in dir(): import logging

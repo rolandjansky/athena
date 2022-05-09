@@ -13,7 +13,8 @@ atlas_add_library( ActsGeometryInterfacesLib
                    PUBLIC_HEADERS ActsGeometryInterfaces
                    LINK_LIBRARIES
                    AthenaBaseComps
+                   AthenaKernel
+                   GeoModelUtilities
                    ActsCore
-                   ActsGeometryLib
                    GaudiKernel
                    TrkGeometry )

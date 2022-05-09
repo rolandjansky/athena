@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BEAMEFFECTS_VERTEXPOSITIONFROMFILE_H
@@ -15,21 +15,23 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "StoreGate/ReadHandleKey.h"
 // EventInfo
-#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "HepMC_Interfaces/ILorentzVectorGenerator.h"
 
 namespace Simulation {
 
-  /** @class VertexPositionFromFile
+  /**
+   *  @class VertexPositionFromFile
+   *
+   *  Returns a VertexShift based on what is given in the input file.
+   *
+   *  based on:
+   *  https://svnweb.cern.ch/trac/atlasoff/browser/Simulation/G4Atlas/G4AtlasUtilities/trunk/src/VertexPositioner.cxx
+   *
+   *  @author Elmar.Ritsch -at- cern.ch
+   */
 
-      Returns a VertexShift based on what is given in the input file.
-
-      based on:
-      https://svnweb.cern.ch/trac/atlasoff/browser/Simulation/G4Atlas/G4AtlasUtilities/trunk/src/VertexPositioner.cxx
-
-      @author Elmar.Ritsch -at- cern.ch
-     */
   class VertexPositionFromFile : public extends<AthAlgTool, ILorentzVectorGenerator> {
 
     public:
@@ -65,10 +67,10 @@ namespace Simulation {
       /** run and event number overrides according to file
           (to be used optionally in combination with 'set vertex by file') */
       Gaudi::Property<std::string>                     m_runEventNumbersFile{this, "RunAndEventNumbersFile", ""};       //!< Name of file containing event info overrides for pos overrides
-    mutable unsigned int            m_runEventNumbersIndex{0};      //!< current index in EventNum/RunNum vectors
+      mutable unsigned int            m_runEventNumbersIndex{0};      //!< current index in EventNum/RunNum vectors
       std::vector<int>                m_vertexPositionRunNum{};      //!< run number override vector
       std::vector<int>                m_vertexPositionEventNum{};    //!< event number override vector
-      SG::ReadHandleKey<EventInfo>    m_eventInfoKey{this, "EventInfoKey", "McEventInfo"};              //!< Name of the EventInfo object in StoreGate
+      SG::ReadHandleKey<xAOD::EventInfo>    m_eventInfoKey{this, "EventInfoKey", "EventInfo"};              //!< Name of the EventInfo object in StoreGate
   };
 
 }

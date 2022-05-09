@@ -285,7 +285,7 @@ Muon::MuonStationBuilderCond::buildDetachedTrackingVolumes(const EventContext& c
             }  // end new object
 
             // create station prototypes
-            const Trk::TrackingVolume* newTypeL = m_muonStationTypeBuilder->processNSW(muonMgr, sectorL);
+            Trk::TrackingVolume* newTypeL = m_muonStationTypeBuilder->processNSW(muonMgr, sectorL);
             // create layer representation
             std::pair<const Trk::Layer*, const std::vector<const Trk::Layer*>*> layerReprL =
                 m_muonStationTypeBuilder->createLayerRepresentation(newTypeL);
@@ -293,7 +293,7 @@ Muon::MuonStationBuilderCond::buildDetachedTrackingVolumes(const EventContext& c
             std::unique_ptr<const Trk::DetachedTrackingVolume> typeL{
                 newTypeL ? new Trk::DetachedTrackingVolume("NSWL", newTypeL, layerReprL.first, layerReprL.second) : nullptr};
             // objs.push_back(std::pair<const Trk::DetachedTrackingVolume*,std::vector<Amg::Transform3D> >(typeStat,vols[ish].second));
-            const Trk::TrackingVolume* newTypeS = m_muonStationTypeBuilder->processNSW(muonMgr, sectorS);
+            Trk::TrackingVolume* newTypeS = m_muonStationTypeBuilder->processNSW(muonMgr, sectorS);
             // create layer representation
             std::pair<const Trk::Layer*, const std::vector<const Trk::Layer*>*> layerReprS =
                 m_muonStationTypeBuilder->createLayerRepresentation(newTypeS);
@@ -771,7 +771,7 @@ std::vector<std::unique_ptr<Trk::DetachedTrackingVolume>> Muon::MuonStationBuild
 
                             if (envelope) {
                                 // ready to build the station prototype
-                                const Trk::TrackingVolume* newType = new Trk::TrackingVolume(
+                                Trk::TrackingVolume* newType = new Trk::TrackingVolume(
                                     *envelope, m_muonMaterial, nullptr, confinedVolumes,
                                     name);  // this pointer is passed to typeStat below, which in turn is kept in vector stations.                               
 

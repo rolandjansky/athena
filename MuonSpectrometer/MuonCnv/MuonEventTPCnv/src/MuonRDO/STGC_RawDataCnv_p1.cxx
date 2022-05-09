@@ -22,7 +22,7 @@ Muon::STGC_RawData* Muon::STGC_RawDataCnv_p1::createTransient(const Muon::STGC_R
   Muon::STGC_RawData*  trans = new STGC_RawData( Identifier (persObj->m_id),
 						 persObj->m_bcTag,
 						 persObj->m_time,
-             static_cast<unsigned int>(100.0+persObj->m_time), // place holder for time->tdo from calibration
+             static_cast<unsigned int>(persObj->m_time + Muon::STGC_RawData::s_timeTdoShift), // place holder for time->tdo from calibration
 						 persObj->m_charge, 
 						 persObj->m_isDead,
 						 false); // all RDOs produced with this persisten version have the time and the charge in physical units, pscholer March 2022 

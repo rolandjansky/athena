@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -14,7 +14,6 @@
  * @author Francesca Bucci  <F.Bucci@cern.ch>          - U. Geneva
  *
  * File and Version Information:
- * $Id: TrigSpacePointCounts_p1.h,v 1.2 2009-04-01 22:08:44 salvator Exp $
  **********************************************************************************/
 #ifndef TRIGINDETEVENTTPCNV_TRIGSPACEPOINTCOUNTS_P1_H
 #define TRIGINDETEVENTTPCNV_TRIGSPACEPOINTCOUNTS_P1_H
@@ -26,23 +25,21 @@ class TrigSpacePointCounts_p1
 
  public:
   
-  TrigSpacePointCounts_p1() {}
+  TrigSpacePointCounts_p1() = default;
   virtual ~TrigSpacePointCounts_p1() = default;
   
-  //protected:
+  int m_pixSPcnt{0};
+  int m_pixCL1cnt{0};
+  int m_pixCL2cnt{0};
+  int m_pixCLmin3cnt{0};
+  int m_SPpixBarr_cnt{0};
+  int m_SPpixECAcnt{0};
+  int m_SPpixECCcnt{0};
 
-  int m_pixSPcnt; 
-  int m_pixCL1cnt;
-  int m_pixCL2cnt;
-  int m_pixCLmin3cnt;
-  int m_SPpixBarr_cnt;
-  int m_SPpixECAcnt;
-  int m_SPpixECCcnt;
-
-  int m_sctSPcnt;
-  int m_SPsctBarr_cnt;
-  int m_SPsctECAcnt;
-  int m_SPsctECCcnt;
+  int m_sctSPcnt{0};
+  int m_SPsctBarr_cnt{0};
+  int m_SPsctECAcnt{0};
+  int m_SPsctECCcnt{0};
 
 };
 

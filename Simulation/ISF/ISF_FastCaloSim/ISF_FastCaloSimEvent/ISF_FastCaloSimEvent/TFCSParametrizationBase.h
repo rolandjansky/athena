@@ -164,6 +164,10 @@ public:
   void RemoveDuplicates();
   void RemoveNameTitle();
 
+#ifdef USE_GPU
+  void Copy2GPU();
+#endif
+
 protected:
   static constexpr double init_Ekin_nominal=0;//! Do not persistify!
   static constexpr double init_Ekin_min=0;//! Do not persistify!

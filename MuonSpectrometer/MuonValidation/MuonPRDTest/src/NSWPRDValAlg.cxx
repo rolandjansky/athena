@@ -17,7 +17,7 @@
 #include "EventInfo/EventInfo.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "TGCcablingInterface/ITGCcablingServerSvc.h"
-
+using namespace MuonPRDTest;
 NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator) : AthHistogramAlgorithm(name, pSvcLocator) {}
 
 StatusCode NSWPRDValAlg::initialize() {
@@ -99,18 +99,9 @@ StatusCode NSWPRDValAlg::initialize() {
                                                                 m_tree.tree(), m_NSWMM_PRDContainerName, msgLevel()));
     }
 
-    if (m_doCSCHit) {
-        m_testers.emplace_back(std::make_unique<CSCSimHitVariables>(evtStore().get(), m_muonDetMgrDS, &m_idHelperSvc->cscIdHelper(),
-                                                                    m_tree.tree(), m_CSC_SimContainerName, msgLevel()));
-    }
-    if (m_doCSCSDO) {
-        m_testers.emplace_back(std::make_unique<CscSDOVariables>(evtStore().get(), m_muonDetMgrDS, &m_idHelperSvc->cscIdHelper(),
-                                                                 m_tree.tree(), m_CSC_SDOContainerName, msgLevel()));
-    }
-    if (m_doCSCDigit) {
-        m_testers.emplace_back(std::make_unique<CSCDigitVariables>(evtStore().get(), m_muonDetMgrDS, &m_idHelperSvc->cscIdHelper(),
-                                                                   m_tree.tree(), m_CSC_DigitContainerName, msgLevel()));
-    }
+    if (m_doCSCHit) { m_tree.addBranch(std::make_unique<CSCSimHitVariables>(m_tree, m_CSC_SimContainerName.value(), msgLevel())); }
+    if (m_doCSCSDO) { m_tree.addBranch(std::make_unique<CscSDOVariables>(m_tree, m_CSC_SDOContainerName.value(), msgLevel())); }
+    if (m_doCSCDigit) { m_tree.addBranch(std::make_unique<CscDigitVariables>(m_tree, m_CSC_DigitContainerName.value(), msgLevel())); }
     if (m_doCSCRDO) {
         ATH_CHECK(m_csc_decoder.retrieve());
         m_testers.emplace_back(std::make_unique<CSCRDOVariables>(evtStore().get(), m_muonDetMgrDS, &m_idHelperSvc->cscIdHelper(),
@@ -127,20 +118,9 @@ StatusCode NSWPRDValAlg::initialize() {
     if (m_doRPCHit) { m_tree.addBranch(std::make_unique<RPCSimHitVariables>(m_tree, m_RPC_SimContainerName, msgLevel())); }
     if (m_doRPCSDO) { m_tree.addBranch(std::make_unique<RpcSDOVariables>(m_tree, m_RPC_SDOContainerName, msgLevel())); }
     if (m_doRPCDigit) { m_tree.addBranch(std::make_unique<RpcDigitVariables>(m_tree, m_RPC_DigitContainerName, msgLevel())); }
-
-    if (m_doTGCHit) {
-        m_testers.emplace_back(std::make_unique<TGCSimHitVariables>(evtStore().get(), m_muonDetMgrDS, &m_idHelperSvc->tgcIdHelper(),
-                                                                    m_tree.tree(), m_TGC_SimContainerName, msgLevel()));
-    }
-    if (m_doTGCSDO) {
-        m_testers.emplace_back(std::make_unique<TgcSDOVariables>(evtStore().get(), m_muonDetMgrDS, &m_idHelperSvc->tgcIdHelper(),
-                                                                 m_tree.tree(), m_TGC_SDOContainerName, msgLevel()));
-    }
-    if (m_doTGCDigit) {
-        m_testers.emplace_back(std::make_unique<TGCDigitVariables>(evtStore().get(), m_muonDetMgrDS, &m_idHelperSvc->tgcIdHelper(),
-                                                                   m_tree.tree(), m_TGC_DigitContainerName, msgLevel()));
-    }
-
+    if (m_doTGCHit) { m_tree.addBranch(std::make_unique<TGCSimHitVariables>(m_tree, m_TGC_SimContainerName.value(), msgLevel())); }
+    if (m_doTGCSDO) { m_tree.addBranch(std::make_unique<TgcSDOVariables>(m_tree, m_TGC_SDOContainerName.value(), msgLevel())); }
+    if (m_doTGCDigit) { m_tree.addBranch(std::make_unique<TgcDigitVariables>(m_tree, m_TGC_DigitContainerName.value(), msgLevel())); }
     if (m_doTGCRDO) {
         const ITGCcablingServerSvc* TgcCabGet = nullptr;
         ATH_CHECK(service("TGCcablingServerSvc", TgcCabGet, true));

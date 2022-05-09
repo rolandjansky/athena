@@ -31,7 +31,6 @@ namespace Trk {
   */
 
   struct MatrixNtupleBranch {
-    MatrixNtupleBranch() : m_nrows(-1),m_ncols(-1) {}
 
     /** initialize class for writing */
     bool initForWrite(TTree& tree, const std::string& varname, int ncol, int nrow, const std::string& prefix = ""  );
@@ -48,9 +47,9 @@ namespace Trk {
     /** data */
     static const int COLMAX = 10;
     static const int ROWMAX = 10;
-    int m_nrows;
-    int m_ncols;
-    float  m_matrix[COLMAX][ROWMAX]; 
+    int m_nrows{-1};
+    int m_ncols{-1};
+    float  m_matrix[COLMAX][ROWMAX]{}; 
   };   
 
 }

@@ -18,6 +18,8 @@ def getNewConfigFlags():
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
     from AthenaMonitoring.DQMonFlags import DQMonFlags
     from RecExConfig.RecFlags import rec
+    from RecExConfig.RecAlgsFlags import recAlgs
+    from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 
     # Files and conditions
     if jobproperties.Global.InputFormat() == 'bytestream':
@@ -96,6 +98,9 @@ def getNewConfigFlags():
     ConfigFlags.LAr.ROD.UseDelta=larRODFlags.UseDelta()
     ConfigFlags.LAr.ROD.forceIter=larRODFlags.forceIter()
 
+    # Muon reco flags
+    ConfigFlags.MuonCombined.doMuGirl = recAlgs.doMuGirl()
+    ConfigFlags.MuonCombined.doMuGirlLowBeta = muonCombinedRecFlags.doMuGirlLowBeta()
 
     # data overlay
     from AthenaCommon.GlobalFlags import globalflags

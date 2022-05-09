@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // local include(s)
@@ -14,6 +14,7 @@ MvaTESEvaluator::MvaTESEvaluator(const std::string& name)
   : TauRecToolBase(name) {
   declareProperty("WeightFileName", m_sWeightFileName = "");
   declareProperty("WeightFileName0p", m_sWeightFileName0p = "");
+  declareProperty("UseEMoverLC", m_useEMoverLC = false);
 }
 
 //_____________________________________________________________________________
@@ -27,7 +28,7 @@ StatusCode MvaTESEvaluator::initialize(){
   m_bdtHelper = std::make_unique<tauRecTools::BDTHelper>();
   ATH_CHECK(m_bdtHelper->initialize(weightFile));
 
-  if(!m_sWeightFileName0p.empty()) {
+  if (!m_sWeightFileName0p.empty()) {
     const std::string weightFile0p = find_file(m_sWeightFileName0p);
     m_bdtHelper0p = std::make_unique<tauRecTools::BDTHelper>();
     ATH_CHECK(m_bdtHelper0p->initialize(weightFile0p));
@@ -43,7 +44,7 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau) const {
   MvaInputVariables vars;
 
   // Declare input variables to the reader
-  if(!inTrigger()) {
+  if (!inTrigger()) {
     availableVars.insert( std::make_pair("TauJetsAuxDyn.mu", &vars.mu) );
     availableVars.insert( std::make_pair("TauJetsAuxDyn.nVtxPU", &vars.nVtxPU) );
     availableVars.insert( std::make_pair("TauJetsAuxDyn.rho", &vars.rho) );
@@ -55,7 +56,7 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau) const {
     availableVars.insert( std::make_pair("TauJetsAuxDyn.ptIntermediateAxisEM/TauJetsAuxDyn.ptIntermediateAxis", &vars.ptEM_D_ptLC) );
     availableVars.insert( std::make_pair("TauJetsAuxDyn.ptIntermediateAxis/TauJetsAuxDyn.ptCombined", &vars.ptLC_D_ptCombined) );
     availableVars.insert( std::make_pair("TauJetsAuxDyn.etaPanTauCellBased", &vars.etaConstituent) );
-    if(m_bdtHelper0p && xTau.nTracks()==0) {
+    if (m_bdtHelper0p && xTau.nTracks()==0) {
       availableVars.insert( std::make_pair("log(TauJetsAuxDyn.ptCombined)", &vars.logPtCombined) );
       availableVars.insert( std::make_pair("TauJetsAuxDyn.LeadClusterFrac", &vars.lead_cluster_frac) );
       availableVars.insert( std::make_pair("TauJetsAuxDyn.centFrac", &vars.centFrac) );
@@ -83,6 +84,10 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau) const {
     availableVars.insert( std::make_pair("TrigTauJetsAuxDyn.UpsilonCluster", &vars.upsilon_cluster) );
     availableVars.insert( std::make_pair("TrigTauJetsAuxDyn.ptDetectorAxis", &vars.ptDetectorAxis) );
     availableVars.insert( std::make_pair("TrigTauJetsAuxDyn.etaDetectorAxis", &vars.etaDetectorAxis) );
+    if (m_useEMoverLC) {
+      // in trigger mode, ptIntermediateAxisEM actually means ptDetectorAxisEM, i.e. no vertex correction and EM scale
+      availableVars.insert( std::make_pair("TrigTauJetsAuxDyn.ptIntermediateAxisEM/TrigTauJetsAuxDyn.ptDetectorAxis", &vars.ptEM_D_ptLC) );
+    }
   }
 
   // Retrieve average pileup
@@ -96,11 +101,14 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau) const {
   xTau.detail(xAOD::TauJetParameters::ClustersMeanSecondLambda, vars.second_lambda);
   xTau.detail(xAOD::TauJetParameters::ClustersMeanPresamplerFrac, vars.presampler_frac);
 
-  if(!inTrigger()) {
+  static const SG::AuxElement::ConstAccessor<float> acc_ptIntermediateAxisEM("ptIntermediateAxisEM");
+  float ptEM = acc_ptIntermediateAxisEM(xTau);
+
+  if (!inTrigger()) {
     static const SG::AuxElement::ConstAccessor<float> acc_ptCombined("ptCombined");
     float ptCombined = acc_ptCombined(xTau);
 
-    if(ptCombined==0.) {
+    if (ptCombined==0.) {
       xTau.setP4(xAOD::TauJetParameters::FinalCalib, 1., xTau.etaPanTauCellBased(), xTau.phiPanTauCellBased(), 0.);
       // apply MVA calibration as default
       xTau.setP4(1., xTau.etaPanTauCellBased(), xTau.phiPanTauCellBased(), 0.);
@@ -113,9 +121,6 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau) const {
     static const SG::AuxElement::ConstAccessor<float> acc_rho("rho");
     vars.rho = acc_rho(xTau);
     
-    static const SG::AuxElement::ConstAccessor<float> acc_ptIntermediateAxisEM("ptIntermediateAxisEM");
-    float ptEM = acc_ptIntermediateAxisEM(xTau);
-
     float ptLC = xTau.ptIntermediateAxis();
 
     float ptConstituent = xTau.ptPanTauCellBased();
@@ -126,7 +131,7 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau) const {
 
     float ptMVA = 0.;
 
-    if(m_bdtHelper0p && xTau.nTracks()==0) {
+    if (m_bdtHelper0p && xTau.nTracks()==0) {
       vars.logPtCombined = std::log(ptCombined);
       vars.ptSeed_D_ptCombined = xTau.ptJetSeed() / ptCombined;
 
@@ -158,7 +163,7 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau) const {
       ptMVA = float( ptCombined * m_bdtHelper->getResponse(availableVars) );
     }
 
-    if(ptMVA<1.) ptMVA=1.;
+    if (ptMVA<1.) ptMVA=1.;
     xTau.setP4(xAOD::TauJetParameters::FinalCalib, ptMVA, vars.etaConstituent, xTau.phiPanTauCellBased(), 0.);
     // apply MVA calibration as default
     xTau.setP4(ptMVA, vars.etaConstituent, xTau.phiPanTauCellBased(), 0.);
@@ -167,14 +172,15 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau) const {
 
     vars.ptDetectorAxis = xTau.ptDetectorAxis();
     vars.etaDetectorAxis = xTau.etaDetectorAxis();
+    vars.ptEM_D_ptLC = (vars.ptDetectorAxis != 0.) ? ptEM / vars.ptDetectorAxis : 0.;
 
     static const SG::AuxElement::ConstAccessor<float> acc_UpsilonCluster("UpsilonCluster");
     static const SG::AuxElement::ConstAccessor<float> acc_LeadClusterFrac("LeadClusterFrac");
     vars.upsilon_cluster = acc_UpsilonCluster(xTau);
     vars.lead_cluster_frac = acc_LeadClusterFrac(xTau);
-
+ 
     float ptMVA = float( vars.ptDetectorAxis * m_bdtHelper->getResponse(availableVars) );
-    if(ptMVA<1.) ptMVA=1.;
+    if (ptMVA<1.) ptMVA=1.;
 
     // this may have to be changed if we apply a calo-only MVA calibration first, followed by a calo+track MVA calibration
     // in which case, the calo-only would be TauJetParameters::TrigCaloOnly, and the final one TauJetParameters::FinalCalib

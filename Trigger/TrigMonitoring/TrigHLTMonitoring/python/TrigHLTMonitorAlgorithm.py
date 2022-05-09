@@ -86,7 +86,7 @@ def TrigHLTMonTopConfig(inputFlags):
             result.merge(TrigMinBias(inputFlags))
 
         if inputFlags.DQ.Steering.HLT.doMuon:
-            from TrigMuonMonitoringMT.TrigMuonMonitoringMTConfig import TrigMuonMonConfig
+            from TrigMuonMonitoring.TrigMuonMonitoringConfig import TrigMuonMonConfig
             result.merge(TrigMuonMonConfig(inputFlags))
 
         if inputFlags.DQ.Steering.HLT.doTau:

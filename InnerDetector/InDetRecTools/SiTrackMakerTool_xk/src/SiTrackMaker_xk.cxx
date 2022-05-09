@@ -15,7 +15,6 @@
 
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "SiSPSeededTrackFinderData/SiTrackMakerEventData_xk.h"
-#include "TrkCaloClusterROI/CaloClusterROI.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 
 #include <iomanip>
@@ -515,43 +514,20 @@ void InDet::SiTrackMaker_xk::newEvent(const EventContext& ctx, SiTrackMakerEvent
 
   /// retrieve calo seeds for brem fit
   if (m_useBremModel && m_useCaloSeeds) {
-
-    /// reset old event data entries if any
-    data.caloF().clear();
-    data.caloR().clear();
-    data.caloZ().clear();
-
-    if (!m_caloCluster.key().empty()) {
-      SG::ReadHandle<CaloClusterROI_Collection> calo_cluster(m_caloCluster, ctx);
-      if (calo_cluster.isValid()) {
-        /// loop over the cluster ROIs and write them into the event data
-        for (const Trk::CaloClusterROI *c : * calo_cluster) {
-          data.caloF().push_back( c->globalPosition().phi ());
-          data.caloR().push_back( c->globalPosition().perp());
-          data.caloZ().push_back( c->globalPosition().z   ());
-        }
-      }
-    }
+     SG::ReadHandle<ROIPhiRZContainer> calo_rois(m_caloCluster, ctx);
+     if (!calo_rois.isValid()) {
+        ATH_MSG_FATAL("Failed to get EM Calo cluster collection " << m_caloCluster );
+     }
+     data.setCaloClusterROIEM(*calo_rois);
   }
 
   /// retrieve hadronic seeds for SSS seed filter
   if (!m_useSSSfilter && m_useHClusSeed) {
-    /// reset old event data entries if any
-    data.hadF().clear();
-    data.hadR().clear();
-    data.hadZ().clear();
-
-    if (!m_caloHad.key().empty()) {
-      SG::ReadHandle<CaloClusterROI_Collection> calo_had(m_caloHad, ctx);
-      if (calo_had.isValid()) {
-        for (const Trk::CaloClusterROI *c : * calo_had) {
-        /// loop over the cluster ROIs and write them into the event data
-          data.hadF().push_back( c->globalPosition().phi ());
-          data.hadR().push_back( c->globalPosition().perp());
-          data.hadZ().push_back( c->globalPosition().z   ());
-        }
-      }
-    }
+       SG::ReadHandle<ROIPhiRZContainer> calo_rois(m_caloHad, ctx);
+       if (!calo_rois.isValid()) {
+          ATH_MSG_FATAL("Failed to get Had Calo cluster collection " << m_caloHad );
+       }
+       data.setCaloClusterROIHad(*calo_rois);
   }
   /// if we want to write out the seeds, also call newEvent for the seed-to-track converter
   if (m_seedsegmentsWrite) m_seedtrack->newEvent(data.conversionData(), m_trackinfo, m_patternName);
@@ -1446,30 +1422,14 @@ bool InDet::SiTrackMaker_xk::globalPosition
 
 bool InDet::SiTrackMaker_xk::isCaloCompatible(SiTrackMakerEventData_xk& data) const
 {
-  const double pi = M_PI, pi2 = 2.*M_PI;
+  if (!data.caloClusterROIEM()) return false;
 
-  if (data.caloF().empty()) return false;
-
-  std::list<double>::const_iterator f = data.caloF().begin(), fe = data.caloF().end();
-  std::list<double>::const_iterator r = data.caloR().begin();
-  std::list<double>::const_iterator z = data.caloZ().begin();
 
   double F = data.par()[2]                           ;
   double E = -log(tan(.5*data.par()[3]))             ;
   double R = sqrt(data.par()[6]*data.par()[6]+data.par()[7]*data.par()[7]);
   double Z = data.par()[8]                           ;
-
-  for (; f!=fe; ++f) {
-    double df = fabs(F-(*f));
-    if (df > pi) df = fabs(pi2-df);
-    if (df < m_phiWidth) {
-      double dR = (*r)-R;
-      double dZ = (*z)-Z;
-      if (fabs(E-atanh(dZ/sqrt(dR*dR+dZ*dZ)) ) < m_etaWidth) return true;
-    }
-    ++r; ++z;
-  }
-  return false;
+  return data.caloClusterROIEM()->hasMatchingROI(F, E,  R, Z, m_phiWidth, m_etaWidth);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -1478,31 +1438,14 @@ bool InDet::SiTrackMaker_xk::isCaloCompatible(SiTrackMakerEventData_xk& data) co
 
 bool InDet::SiTrackMaker_xk::isHadCaloCompatible(SiTrackMakerEventData_xk& data) const
 {
-  const double pi = M_PI, pi2 = 2.*M_PI;
-
-  if (data.hadF().empty() || fabs(data.par()[5])*m_pTminSSS > 1.) return false;
-
-  std::list<double>::const_iterator f = data.hadF().begin(), fe = data.hadF().end();
-  std::list<double>::const_iterator r = data.hadR().begin();
-  std::list<double>::const_iterator z = data.hadZ().begin();
+  if (!data.caloClusterROIHad()) return false;
 
   double F = data.par()[2]                           ;
   double E = -log(tan(.5*data.par()[3]))             ;
   double R = sqrt(data.par()[6]*data.par()[6]+data.par()[7]*data.par()[7]);
   double Z = data.par()[8]                           ;
 
-  for (; f!=fe; ++f) {
-    double df = fabs(F-(*f));
-    if (df > pi) df = fabs(pi2-df);
-    if (df < m_phiWidth) {
-      double dR = (*r)-R;
-      double dZ = (*z)-Z;
-      if (fabs(E-atanh(dZ/sqrt(dR*dR+dZ*dZ))) < m_etaWidth) return true;
-    }
-    ++r;
-    ++z;
-  }
-  return false;
+  return data.caloClusterROIHad()->hasMatchingROI(F, E,  R, Z, m_phiWidth, m_etaWidth);
 }
 
 ///////////////////////////////////////////////////////////////////

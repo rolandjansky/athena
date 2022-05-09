@@ -110,6 +110,7 @@ def EMBremCollectionBuilderCfg(flags,
 
     kwargs.setdefault("usePixel", flags.Detector.EnablePixel or flags.Detector.EnableITkPixel)
     kwargs.setdefault("useSCT", flags.Detector.EnableSCT or flags.Detector.EnableITkStrip)
+    kwargs.setdefault("useTRT", flags.Detector.EnableTRT)
     kwargs.setdefault("DoTruth", flags.Input.isMC)
 
     # P->T conversion extra dependencies

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file MuonEventTPCnv/test/CscPrepDataContainerCnv_p2_test.cxx
@@ -10,6 +10,7 @@
 
 #undef NDEBUG
 #include "MuonEventTPCnv/MuonPrepRawData/CscPrepDataContainerCnv_p2.h"
+#include "CxxUtils/checker_macros.h"
 #include "TestTools/leakcheck.h"
 #include "TestTools/initGaudi.h"
 #include "GaudiKernel/MsgStream.h"
@@ -130,7 +131,7 @@ makeclusts (const MuonGM::MuonDetectorManager& muo_dd)
 }
 
 
-void test1 (const MuonGM::MuonDetectorManager& muo_dd)
+void test1 ATLAS_NOT_THREAD_SAFE (const MuonGM::MuonDetectorManager& muo_dd)
 {
   std::cout << "test1\n";
 
@@ -145,7 +146,7 @@ void test1 (const MuonGM::MuonDetectorManager& muo_dd)
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   ISvcLocator* pSvcLoc;
   if (!Athena_test::initGaudi("MuonEventTPCnv/MuonEventTPCnv_test.txt", pSvcLoc))

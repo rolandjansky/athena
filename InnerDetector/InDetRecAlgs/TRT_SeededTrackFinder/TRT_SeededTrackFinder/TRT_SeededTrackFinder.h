@@ -39,7 +39,7 @@
 #include "CxxUtils/checker_macros.h"
 
 #include "IRegionSelector/IRegSelTool.h"
-#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
+#include "TrkCaloClusterROI/ROIPhiRZContainer.h"
 
 class MsgStream;
 
@@ -51,7 +51,6 @@ namespace InDet {
 InDet::TRT_SeededTrackFinde is an algorithm which produces tracks
 moving outside-in in the Inner Detector.
 */
-
 class TRT_SeededTrackFinder : public AthReentrantAlgorithm
 {
 
@@ -130,11 +129,11 @@ protected:
   double m_maxZImp;       //!< maximal z impact parameter cut
 
   bool m_caloSeededRoI;
-  SG::ReadHandleKey<CaloClusterROI_Collection> m_caloKey{
+  SG::ReadHandleKey<ROIPhiRZContainer> m_caloClusterROIKey{
     this,
-    "InputClusterContainerName",
-    "InDetCaloClusterROIs",
-    "Location of the optional Calo cluster seeds."
+    "EMROIPhiRZContainer",
+    "",
+    "Name of the calo cluster ROIs in Phi,R,Z parameterization"
   };
 
   ToolHandle<IRegSelTool> m_regionSelector{

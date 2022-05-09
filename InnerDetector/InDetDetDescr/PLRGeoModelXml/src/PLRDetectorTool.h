@@ -40,6 +40,12 @@ private:
   Gaudi::Property<bool> m_alignable{this, "Alignable", false, ""};
   // This should be changed to an ITk-specific one in future, once available
   Gaudi::Property<std::string> m_alignmentFolderName{this, "AlignmentFolderName", "/Indet/Align", ""};
+   
+  // If the PLR should be built inside the pixel, it should use a different entry point
+  // in the geometry via the GeoModelXml "envelope" mechanism 
+  Gaudi::Property<std::string> m_containingDetectorName{this, "ContainingDetector", "", "Containing detector name"};
+  Gaudi::Property<std::string> m_envelopeVolumeName{this, "EnvelopeVolume", "ITkPixelDetector", "Envelope volume name"};
+
   // Print out how many of each layer/eta/phi etc. have been set up.
   // Not yet implemented here... may not be necessary in the end?
   void doNumerology();

@@ -1,11 +1,8 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
-
-Trk__FullLinearizedTrackFactory=CompFactory.Trk.FullLinearizedTrackFactory
-
 
 def JetFitterFullLinearizedTrackFactoryCfg(name, useBTagFlagsDefaults = True, **options):
     """Sets up a JetFitterFullLinearizedTrackFactory tool and returns it.
@@ -29,6 +26,6 @@ def JetFitterFullLinearizedTrackFactoryCfg(name, useBTagFlagsDefaults = True, **
         acc.addPublicTool(extrapolator)
         options.setdefault('Extrapolator', extrapolator)
 
-    acc.setPrivateTools(Trk__FullLinearizedTrackFactory(**options))
+    acc.setPrivateTools(CompFactory.Trk.FullLinearizedTrackFactory(**options))
 
     return acc

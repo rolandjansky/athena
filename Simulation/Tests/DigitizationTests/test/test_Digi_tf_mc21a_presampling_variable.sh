@@ -4,15 +4,15 @@
 # art-type: grid
 # art-architecture:  '#x86_64-intel'
 # art-include: master/Athena
-# art-output: mc21a_presampling.CG.RDO.pool.root
-# art-output: mc21a_presampling.CA.RDO.pool.root
+# art-output: mc21a_presampling.VarBS.CG.RDO.pool.root
+# art-output: mc21a_presampling.VarBS.CA.RDO.pool.root
 # art-output: log.*
 # art-output: legacy.*
 # art-output: DigiPUConfig*
 
 Events=50
-DigiOutFileNameCG="mc21a_presampling.CG.RDO.pool.root"
-DigiOutFileNameCA="mc21a_presampling.CA.RDO.pool.root"
+DigiOutFileNameCG="mc21a_presampling.VarBS.CG.RDO.pool.root"
+DigiOutFileNameCA="mc21a_presampling.VarBS.CA.RDO.pool.root"
 HSHitsFile="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/NSW/mc21_13p6TeV.900149.PG_single_nu_Pt50.simul.HITS.e8442_e8447_s3822/*"
 HighPtMinbiasHitsFiles1="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/NSW/mc21_13p6TeV.800831.Py8EG_minbias_inelastic_highjetphotonlepton.merge.HITS.e8341_s3775_s3787/*"
 HighPtMinbiasHitsFiles2="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/NSW/mc21_13p6TeV.800831.Py8EG_minbias_inelastic_highjetphotonlepton.merge.HITS.e8341_s3782_s3787/*"

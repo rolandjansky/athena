@@ -37,7 +37,7 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
   /// optional PRD to track association map
   ATH_CHECK( m_prdToTrackMap.initialize( !m_prdToTrackMap.key().empty() ) );
 
-  ATH_CHECK( m_caloKey.initialize(m_useITkConvSeeded) );
+  ATH_CHECK( m_caloClusterROIKey.initialize(m_useITkConvSeeded) );
 
   /// Get tool for space points seed maker
   ATH_CHECK( m_seedsmaker.retrieve() );
@@ -510,20 +510,21 @@ StatusCode InDet::SiSPSeededTrackFinder::itkConvStrategy(const EventContext& ctx
 
   SiSpacePointsSeedMakerEventData seedEventData;
 
-  SG::ReadHandle calo(m_caloKey,ctx);
+  SG::ReadHandle<ROIPhiRZContainer> calo_rois(m_caloClusterROIKey, ctx);
   std::unique_ptr<RoiDescriptor> roiComp = std::make_unique<RoiDescriptor>(true);
 
-  if(calo.isValid()) {
+  if(calo_rois.isValid()) {
     RoiDescriptor * roi =nullptr;
     SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle{m_beamSpotKey, ctx};
     double beamZ = beamSpotHandle->beamVtx().position().z();
     roiComp->clear();
     roiComp->setComposite();
 
-    for( const Trk::CaloClusterROI* ccROI : *calo) {
-      if ( ccROI->energy() > m_ClusterE)  {
-        double eta = ccROI->globalPosition().eta();
-        double phi = ccROI->globalPosition().phi();
+    const ROIPhiRZContainer &calo_rois_ref=*calo_rois;
+    for (const ROIPhiRZ &calo_roi : calo_rois_ref) {
+        double phi = calo_roi.phi();
+        if (std::abs(phi)>=M_PI && phi!=-M_PI) continue; // skip duplicates < -pi and >pi
+        double eta = calo_roi.eta();
         double z = beamZ;
         double roiPhiMin = phi - m_deltaPhi;
         double roiPhiMax = phi + m_deltaPhi;
@@ -533,7 +534,6 @@ StatusCode InDet::SiSPSeededTrackFinder::itkConvStrategy(const EventContext& ctx
         double roiZMax = beamZ + m_deltaZ;
         roi = new RoiDescriptor( eta, roiEtaMin, roiEtaMax,phi, roiPhiMin ,roiPhiMax,z,roiZMin,roiZMax);
         roiComp->push_back(roi);
-      }
     }
   }
   else return StatusCode::FAILURE;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IForwardRegionProperties_H
@@ -150,8 +150,8 @@ public:
   DeclareInterfaceID(IForwardRegionProperties, 1, 0);
 
   virtual PFWDMg_CONFIGURATION getConf()=0;
-  virtual void getMagTransforms(std::string, int, HepGeom::Point3D<double>&, HepGeom::Point3D<double>&, double&, bool twiss = false)=0;
-  virtual void getMagTransforms(std::string, int, HepGeom::Point3D<double>&, HepGeom::Point3D<double>&, bool twiss = false)=0;
+  virtual void getMagTransforms(const std::string&, int, HepGeom::Point3D<double>&, HepGeom::Point3D<double>&, double&, bool twiss = false)=0;
+  virtual void getMagTransforms(const std::string&, int, HepGeom::Point3D<double>&, HepGeom::Point3D<double>&, bool twiss = false)=0;
 };
 
 #endif

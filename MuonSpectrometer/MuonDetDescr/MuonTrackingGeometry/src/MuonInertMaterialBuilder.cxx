@@ -279,8 +279,8 @@ Muon::MuonInertMaterialBuilder::buildDetachedTrackingVolumeTypes(bool blend) {
 
                 if (trObject) {
                     Trk::Material mat = m_materialConverter->convert(vols[ish].first->getMaterial());
-                    const Trk::TrackingVolume* newType = new Trk::TrackingVolume(*trObject, mat, nullptr, nullptr, protoName);
-                    const Trk::TrackingVolume* simType = simplifyShape(newType, blend);
+                    Trk::TrackingVolume* newType = new Trk::TrackingVolume(*trObject, mat, nullptr, nullptr, protoName);
+                    Trk::TrackingVolume* simType = simplifyShape(newType, blend);
                     Trk::DetachedTrackingVolume* typeStat = new Trk::DetachedTrackingVolume(protoName, simType);
                     if (blend) typeStat->saveConstituents(&(m_constituents.back()));
                     objs.emplace_back(typeStat, vols[ish].second);
@@ -306,12 +306,12 @@ Muon::MuonInertMaterialBuilder::buildDetachedTrackingVolumeTypes(bool blend) {
         Trk::TrackingVolumeArray* dummyVolumes = nullptr;
         Trk::VolumeBounds* extraBounds1 = new Trk::CylinderVolumeBounds(850., 13000., 5.);
         Trk::TrackingVolume* mextra1 = new Trk::TrackingVolume(nullptr, extraBounds1, mat1, dummyLayers, dummyVolumes, "extraMat1");
-        const Trk::TrackingVolume* simType1 = simplifyShape(mextra1, blend);
+        Trk::TrackingVolume* simType1 = simplifyShape(mextra1, blend);
         Trk::DetachedTrackingVolume* eVol1 = new Trk::DetachedTrackingVolume("extraTGCmat1", simType1);
         if (blend) eVol1->saveConstituents(&(m_constituents.back()));
         Trk::VolumeBounds* extraBounds2 = new Trk::CylinderVolumeBounds(850., 13000., 5.);
         Trk::TrackingVolume* mextra2 = new Trk::TrackingVolume(nullptr, extraBounds2, mat2, dummyLayers, dummyVolumes, "extraMat2");
-        const Trk::TrackingVolume* simType2 = simplifyShape(mextra2, blend);
+        Trk::TrackingVolume* simType2 = simplifyShape(mextra2, blend);
         Trk::DetachedTrackingVolume* eVol2 = new Trk::DetachedTrackingVolume("extraTGCmat2", simType2);
         if (blend) eVol2->saveConstituents(&(m_constituents.back()));
         std::vector<Amg::Transform3D> pos1;
@@ -376,7 +376,7 @@ void Muon::MuonInertMaterialBuilder::printChildren(const GeoVPhysVol* pv) const 
     }
 }
 
-const Trk::TrackingVolume* Muon::MuonInertMaterialBuilder::simplifyShape(const Trk::TrackingVolume* trVol, bool blend) {
+Trk::TrackingVolume* Muon::MuonInertMaterialBuilder::simplifyShape(Trk::TrackingVolume* trVol, bool blend) {
     // envelope
     const Trk::Volume* envelope = nullptr;
     // resolve composed volumes (returns constituents with material fraction accounting for subtractions & overlaps)
@@ -401,7 +401,7 @@ const Trk::TrackingVolume* Muon::MuonInertMaterialBuilder::simplifyShape(const T
 
     // simplification
 
-    const Trk::TrackingVolume* newVol = nullptr;
+    Trk::TrackingVolume* newVol = nullptr;
     std::vector<const Trk::TrackingVolume*>* confinedVols = new std::vector<const Trk::TrackingVolume*>;
 
     std::string envName = trVol->volumeName();

@@ -100,7 +100,7 @@ CutIdentifier CutFlowSvc::registerFilter( const std::string& name,
 
 
 // This method is probably only called by the DecionsSvc
-CutIdentifier CutFlowSvc::registerTopFilter( const std::string& name,
+CutIdentifier CutFlowSvc::registerTopFilter ATLAS_NOT_THREAD_SAFE ( const std::string& name,
                                              const std::string& description,
                                              unsigned int logic,
                                              const std::string& outputStream,

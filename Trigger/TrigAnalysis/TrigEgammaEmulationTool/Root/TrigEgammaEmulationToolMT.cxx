@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  *   */
 
 #include "boost/algorithm/string.hpp"
@@ -54,7 +54,7 @@ StatusCode TrigEgammaEmulationToolMT::initialize()
 //**********************************************************************
 
 asg::AcceptData TrigEgammaEmulationToolMT::emulate(const TrigCompositeUtils::Decision *roi,
-                                                   std::string trigger, bool &valid) const
+                                                   const std::string& trigger, bool &valid) const
 {
   asg::AcceptData acceptData (&m_accept);
   valid=false;
@@ -258,7 +258,7 @@ bool TrigEgammaEmulationToolMT::match( const TrigCompositeUtils::Decision *roi,
 
 
 
-TrigData::TrigData( std::string name )
+TrigData::TrigData( const std::string& name )
 {
     this->signature = "electron"; // default
     if(boost::contains(name,"HLT_e")) this->signature = "electron";
@@ -293,7 +293,7 @@ bool TrigData::isValid() const
 }
 
 
-bool TrigData::isPassed( const xAOD::Photon *ph , std::string pidname ) const
+bool TrigData::isPassed( const xAOD::Photon *ph , const std::string& pidname ) const
 {
   if (pidname=="tight"){
     return (bool)this->egammaPhotonCBTools[0]->accept(ph);
@@ -306,7 +306,7 @@ bool TrigData::isPassed( const xAOD::Photon *ph , std::string pidname ) const
   }
 }
 
-bool TrigData::isPassed( const xAOD::Electron *el , float avgmu, std::string pidname ) const
+bool TrigData::isPassed( const xAOD::Electron *el , float avgmu, const std::string& pidname ) const
 {
   if (pidname=="lhtight"){
     return (bool)this->egammaElectronLHTools[0]->accept(Gaudi::Hive::currentContext(),el,avgmu );
@@ -336,7 +336,7 @@ bool TrigData::isPassed( const xAOD::Electron *el , float avgmu, std::string pid
 }
 
 
-bool TrigData::isPassed( const xAOD::TrigRingerRings *cl , float avgmu, std::string pidname ) const
+bool TrigData::isPassed( const xAOD::TrigRingerRings *cl , float avgmu, const std::string& pidname ) const
 {
   if (pidname=="tight"){
     float output = this->ringerTools[0]->predict(cl);

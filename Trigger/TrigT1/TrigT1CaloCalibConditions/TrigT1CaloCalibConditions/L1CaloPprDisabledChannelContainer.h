@@ -1,18 +1,16 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOCALIBCONDITIONS_L1CALOPPRDISABLEDCHANNELCONTAINER_H
 #define TRIGT1CALOCALIBCONDITIONS_L1CALOPPRDISABLEDCHANNELCONTAINER_H
 
-#include "AthenaKernel/CLASS_DEF.h"
 
 #include "GaudiKernel/DataObject.h"
 
 #include "TrigT1CaloCalibConditions/AbstractL1CaloPersistentCondition.h"
 #include "TrigT1CaloCalibConditions/L1CaloPprDisabledChannel.h"
 #include "TrigT1CaloCalibConditions/L1CaloCoolChannelId.h"
-
 #include <map>
 #include <string>
 
@@ -43,7 +41,7 @@ public:
 
 	// IL1CaloPersistenceCapable interface
 	using AbstractL1CaloPersistentCondition::makeTransient; // to unhide the default implementation of makeTransient
-	virtual void makeTransient(const std::map<std::string, CondAttrListCollection*>& condAttrListCollectionMap);
+	virtual void makeTransient(const std::map<std::string, const CondAttrListCollection*>& condAttrListCollectionMap);
 
 	const L1CaloPprDisabledChannel* pprDisabledChannel(unsigned int channelId) const;
 	const L1CaloPprDisabledChannel* pprDisabledChannel(const L1CaloCoolChannelId& channelId) const;
@@ -68,6 +66,6 @@ private:
 
 };
 
-CLASS_DEF(L1CaloPprDisabledChannelContainer , 1341715947 , 1 )
-
+#include "AthenaKernel/CondCont.h"
+CONDCONT_DEF(L1CaloPprDisabledChannelContainer ,201127142);
 #endif

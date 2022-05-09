@@ -12,17 +12,20 @@ def primaryVertexFindingCfg(flags, **kwargs):
     else:
         vtxFlags = flags.InDet.PriVertex
 
-    vertexWeightTool = None
     if vtxFlags.sortingSetup == 'SumPt2Sorting':
         vertexWeightTool = CompFactory.Trk.SumPtVertexWeightCalculator(
             DoSumPt2Selection=True
         )
+        decorName = "sumPt2"
     elif vtxFlags.sortingSetup == "SumPtSorting":
         vertexWeightTool = CompFactory.Trk.SumPtVertexWeightCalculator(
             DoSumPt2Selection=False
         )
+        decorName = "sumPt"
+
     vertexSorter = CompFactory.Trk.VertexCollectionSortingTool(
         VertexWeightCalculator=vertexWeightTool,
+        decorationName=decorName,
     )
     # finder tool
     finderTool = None

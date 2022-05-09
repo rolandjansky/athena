@@ -1402,7 +1402,7 @@ StatusCode LVL1TGCTrigger::fillBIS78(){
     }
     const Muon::RpcBis78_TrigRawDataContainer* bis78_TrigRawDataContainer = readBIS78_TrigRawDataContainer.cptr();
     for(const Muon::RpcBis78_TrigRawData* bis78_sector : *bis78_TrigRawDataContainer){
-      if ( bis78_sector->sideId() != 0 ) continue; // BIS78 is only in A side!
+      if ( bis78_sector->sideId() != 1 ) continue; // BIS78 is only in A side!
       for(const Muon::RpcBis78_TrigRawDataSegment* bis78_hit : *bis78_sector){
 	  bis78->setOutput(bis78_sector->sectorId(),
 			   bis78_hit->etaIndex(),      // Eta-index

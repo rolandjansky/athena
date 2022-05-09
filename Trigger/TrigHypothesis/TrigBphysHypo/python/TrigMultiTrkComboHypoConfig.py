@@ -121,7 +121,7 @@ def DiElecPrecisionComboHypoCfg(name):
         trigLevel = 'EF',
         doElectrons = True,
         outputTrigBphysCollection = 'HLT_DiElecPrecision')
-    hypo.mergedElectronChains = ['BPH-0DR3-EM7J15','HLT_e5_lhvloose_bBeeM6000_L1EM22VHI','HLT_e5_lhvloose_bBeeM6000_L14J15','HLT_e5_lhvloose_bBeeM6000_L1BKeePrimary','HLT_e5_lhvloose_bBeeM6000_L1BKeePrescaled','HLT_e5_lhvloose_bBeeM6000_L1All']
+    hypo.mergedElectronChains = [ 'BPH-0DR3-EM7J15', 'HLT_e5_lhvloose_bBeeM6000_L1EM22VHI', 'HLT_e5_lhvloose_bBeeM6000_L14J15', 'HLT_e5_lhvloose_bBeeM6000_L1BKeePrimary', 'HLT_e5_lhvloose_bBeeM6000_L1BKeePrescaled', 'HLT_e5_lhvloose_bBeeM6000_L1All' ]
     return hypo
 
 def NoMuonDiElecPrecisionComboHypoCfg(name):
@@ -134,7 +134,33 @@ def NoMuonDiElecPrecisionComboHypoCfg(name):
         trigLevel = 'EF',
         doElectrons = True,
         outputTrigBphysCollection = 'HLT_NoMuonDiElecPrecision')
-    hypo.mergedElectronChains = ['BPH-0DR3-EM7J15','HLT_e5_lhvloose_bBeeM6000_L1EM22VHI','HLT_e5_lhvloose_bBeeM6000_L14J15']
+    hypo.mergedElectronChains = [ 'BPH-0DR3-EM7J15', 'HLT_e5_lhvloose_bBeeM6000_L1EM22VHI', 'HLT_e5_lhvloose_bBeeM6000_L14J15', 'HLT_e5_lhvloose_bBeeM6000_L1BKeePrimary', 'HLT_e5_lhvloose_bBeeM6000_L1BKeePrescaled', 'HLT_e5_lhvloose_bBeeM6000_L1All' ]
+    return hypo
+
+def DiElecPrecisionGSFComboHypoCfg(name):
+    log.debug('DiElecPrecisionGSFComboHypoCfg.name = %s ', name)
+
+    config = TrigMultiTrkComboHypoConfig()
+    hypo = config.ConfigurationComboHypo(
+        isStreamer = False,
+        trigSequenceName = 'DiElecPrecisionGSF',
+        trigLevel = 'EF',
+        doElectrons = True,
+        outputTrigBphysCollection = 'HLT_DiElecPrecisionGSF')
+    hypo.mergedElectronChains = [ 'BPH-0DR3-EM7J15', 'HLT_e5_lhvloose_bBeeM6000_L1EM22VHI', 'HLT_e5_lhvloose_bBeeM6000_L14J15', 'HLT_e5_lhvloose_bBeeM6000_L1BKeePrimary', 'HLT_e5_lhvloose_bBeeM6000_L1BKeePrescaled', 'HLT_e5_lhvloose_bBeeM6000_L1All' ]
+    return hypo
+
+def NoMuonDiElecPrecisionGSFComboHypoCfg(name):
+    log.debug('NoMuonDiElecPrecisionGSFComboHypoCfg.name = %s ', name)
+
+    config = TrigMultiTrkComboHypoConfig()
+    hypo = config.ConfigurationComboHypo(
+        isStreamer = False,
+        trigSequenceName = 'NoMuonDiElecPrecisionGSF',
+        trigLevel = 'EF',
+        doElectrons = True,
+        outputTrigBphysCollection = 'HLT_NoMuonDiElecPrecisionGSF')
+    hypo.mergedElectronChains = [ 'BPH-0DR3-EM7J15', 'HLT_e5_lhvloose_bBeeM6000_L1EM22VHI', 'HLT_e5_lhvloose_bBeeM6000_L14J15', 'HLT_e5_lhvloose_bBeeM6000_L1BKeePrimary', 'HLT_e5_lhvloose_bBeeM6000_L1BKeePrescaled', 'HLT_e5_lhvloose_bBeeM6000_L1All' ]
     return hypo
 
 def BmutrkComboHypoCfg(name):

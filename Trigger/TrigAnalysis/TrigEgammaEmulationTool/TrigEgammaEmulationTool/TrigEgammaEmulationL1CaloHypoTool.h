@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  *   */
 
 
@@ -37,7 +37,7 @@ namespace Trig{
         bool decide(  const Trig::TrigData &input ) const;
         bool isolationL1(float min, float offset, float slope, float energy, float emE) const;
         bool variableEtL1(std::string L1item, float l1energy, float l1eta) const;
-        float emulationL1V(std::string L1item, float l1eta) const;
+        float emulationL1V(const std::string& L1item, float l1eta) const;
 
         // L1 configuration parameters
         Gaudi::Property<std::string>  m_l1item{this, "L1Item", "", "" }; 

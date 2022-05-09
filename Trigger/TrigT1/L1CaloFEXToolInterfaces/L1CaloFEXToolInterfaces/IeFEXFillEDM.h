@@ -18,7 +18,7 @@
 #include "xAODTrigger/eFexTauRoI.h"
 #include "xAODTrigger/eFexTauRoIContainer.h"
 #include "L1CaloFEXSim/eFEXegTOB.h"
-#include "L1CaloFEXSim/eFEXegTOB.h"
+#include "L1CaloFEXSim/eFEXtauTOB.h"
 
 namespace LVL1 {
   
@@ -36,7 +36,7 @@ Interface definition for eFEXFillEDM
     virtual StatusCode finalize() = 0;
     virtual StatusCode execute() = 0;
     virtual void fillEmEDM(std::unique_ptr<xAOD::eFexEMRoIContainer> &container, uint8_t eFEXNumber, const eFEXegTOB& tobObject) = 0;
-    virtual void fillTauEDM(std::unique_ptr<xAOD::eFexTauRoIContainer> &container, uint8_t eFEXNumber, uint32_t tobWord) = 0;
+    virtual void fillTauEDM(std::unique_ptr<xAOD::eFexTauRoIContainer> &container, uint8_t eFEXNumber, const eFEXtauTOB& tobObject) = 0;
 
   private:
 

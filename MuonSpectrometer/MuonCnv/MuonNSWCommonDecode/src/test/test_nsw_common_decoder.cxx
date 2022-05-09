@@ -163,6 +163,9 @@ int test_nsw_common_decoder_event (eformat::read::FullEventFragment &f, const Pa
       if (nchan != nsw_decoder.get_channels ().size ())
         ers::error (eformat::InconsistentChannelNumber (ERS_HERE, nchan, nsw_decoder.get_channels ().size ()));
 
+      if (params.printout_level > 2)
+	std::cout << "Hit number = " << nchan << std::endl;
+
       // How to access information about detector elements and channels using the tree view
 
       if (params.tree_view)

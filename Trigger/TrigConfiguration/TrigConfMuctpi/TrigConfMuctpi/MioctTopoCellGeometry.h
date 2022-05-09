@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_MioctTopoCellGeometry
@@ -14,7 +14,7 @@
 
 class MioctTopoCellGeometry {
    public:
-      MioctTopoCellGeometry();
+      MioctTopoCellGeometry() = default;
       virtual ~MioctTopoCellGeometry() = default;
      
       // getters
@@ -45,16 +45,16 @@ class MioctTopoCellGeometry {
     virtual void writeXML(std::ostream & xmlfile, int indentLevel=0, int indentWidth=2) const;
     
    private:
-     float        m_eta;
-     float        m_phi;
-     int          m_ieta;
-     int          m_iphi;
-     unsigned int m_etacode;
-     unsigned int m_phicode;
-     float        m_etamin;
-     float        m_etamax;
-     float        m_phimin;
-     float        m_phimax;
+     float        m_eta{0};
+     float        m_phi{0};
+     int          m_ieta{0};
+     int          m_iphi{0};
+     unsigned int m_etacode{0};
+     unsigned int m_phicode{0};
+     float        m_etamin{0};
+     float        m_etamax{0};
+     float        m_phimin{0};
+     float        m_phimax{0};
 
 };
 

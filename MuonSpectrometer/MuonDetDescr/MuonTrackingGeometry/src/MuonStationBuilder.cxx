@@ -277,7 +277,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
             }  // end new object
 
             // create station prototypes
-            const Trk::TrackingVolume* newTypeL = m_muonStationTypeBuilder->processNSW(m_muonMgr, sectorL);
+            Trk::TrackingVolume* newTypeL = m_muonStationTypeBuilder->processNSW(m_muonMgr, sectorL);
             // create layer representation
             std::pair<const Trk::Layer*, const std::vector<const Trk::Layer*>*> layerReprL =
                 m_muonStationTypeBuilder->createLayerRepresentation(newTypeL);
@@ -285,7 +285,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
             const Trk::DetachedTrackingVolume* typeL =
                 newTypeL ? new Trk::DetachedTrackingVolume("NSWL", newTypeL, layerReprL.first, layerReprL.second) : nullptr;
             // objs.push_back(std::pair<const Trk::DetachedTrackingVolume*,std::vector<Amg::Transform3D> >(typeStat,vols[ish].second));
-            const Trk::TrackingVolume* newTypeS = m_muonStationTypeBuilder->processNSW(m_muonMgr, sectorS);
+            Trk::TrackingVolume* newTypeS = m_muonStationTypeBuilder->processNSW(m_muonMgr, sectorS);
             // create layer representation
             std::pair<const Trk::Layer*, const std::vector<const Trk::Layer*>*> layerReprS =
                 m_muonStationTypeBuilder->createLayerRepresentation(newTypeS);
@@ -762,7 +762,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 
                             if (envelope) {
                                 // ready to build the station prototype
-                                const Trk::TrackingVolume* newType = new Trk::TrackingVolume(
+                                Trk::TrackingVolume* newType = new Trk::TrackingVolume(
                                     *envelope, m_muonMaterial, nullptr, confinedVolumes,
                                     name);  // this pointer is passed to typeStat below, which in turn is kept in vector stations.
                                 

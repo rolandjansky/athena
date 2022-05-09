@@ -26,7 +26,6 @@
 #include <memory>
 
 #include "TrigHLTMonitoring/IHLTMonTool.h"
-#include "TrigHLTMonitoring/HLTMonException.h"
 #include "GaudiKernel/GaudiException.h"
 
 #include "LumiCalc/CoolQuery.h"   

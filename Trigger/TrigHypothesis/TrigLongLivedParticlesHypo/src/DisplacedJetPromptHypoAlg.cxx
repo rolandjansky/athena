@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DisplacedJetPromptHypoAlg.h"
@@ -31,6 +31,7 @@ StatusCode DisplacedJetPromptHypoAlg::initialize()
   ATH_CHECK(m_stdTracksKey.initialize());
   ATH_CHECK(m_vtxKey.initialize());
   ATH_CHECK(m_countsKey.initialize());
+  ATH_CHECK(m_beamSpotKey.initialize());
 
   ATH_CHECK(m_hypoTools.retrieve());
   if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
@@ -73,11 +74,14 @@ StatusCode DisplacedJetPromptHypoAlg::execute(const EventContext& context) const
   auto jetsHandle = SG::makeHandle(m_jetContainerKey, context);
   auto stdHandle = SG::makeHandle(m_stdTracksKey, context);
   auto vtxHandle = SG::makeHandle(m_vtxKey, context);
+
   SG::WriteHandle<xAOD::TrigCompositeContainer> countsHandle(m_countsKey, context);
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, context };
 
   ATH_CHECK( jetsHandle.isValid() );
   ATH_CHECK( stdHandle.isValid() );
   ATH_CHECK( vtxHandle.isValid() );
+  ATH_CHECK( beamSpotHandle.isValid());
 
   const xAOD::TrackParticleContainer* stdTracks = stdHandle.get();
   const xAOD::JetContainer* jets = jetsHandle.get();
@@ -180,13 +184,13 @@ StatusCode DisplacedJetPromptHypoAlg::execute(const EventContext& context) const
       }
     }
 
-    if(best_dr <= 0.4){
+    if(best_dr <= m_drcut){
       //associate track to jet
       jets_to_tracks[best_jet].push_back(track);
     }
   }
 
-  DisplacedJetPromptHypoTool::Info info{prev,jet_decisions, jets, jets_to_tracks, primary_vertex, jet_counts};
+  DisplacedJetPromptHypoTool::Info info{prev,jet_decisions, jets, jets_to_tracks, primary_vertex, jet_counts, DisplacedJetBeamspotInfo(beamSpotHandle.retrieve())};
 
   for(auto &tool:m_hypoTools)
   {

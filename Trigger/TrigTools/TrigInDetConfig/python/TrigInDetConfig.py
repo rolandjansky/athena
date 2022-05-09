@@ -543,7 +543,6 @@ def ambiguityScoringToolCfg(flags):
                                                 useSCT = flags.InDet.Tracking.ActivePass.useSCT,
                                                 doEmCaloSeed =  False #TODO understand and set appropriately, however current setting is probably a correct one
   )
-  # TODO if brem recovery is needed CaloROIInfoName info should be set
   
   acc.addPublicTool(tool, primary=True)
   return acc

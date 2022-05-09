@@ -1,12 +1,9 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 from BTagging.JetFitterSequentialVertexFitterConfig import JetFitterSequentialVertexFitterCfg
-
-# import the InDetDetailedTrackSelectorTool configurable
-InDet__JetFitterTwoTrackVtxFinderTool=CompFactory.InDet.JetFitterTwoTrackVtxFinderTool
 
 def InDetJetFitterTwoTrackVtxFinderToolCfg(name, suffix="", useBTagFlagsDefaults = True, **options):
 
@@ -36,7 +33,7 @@ def InDetJetFitterTwoTrackVtxFinderToolCfg(name, suffix="", useBTagFlagsDefaults
             options.setdefault(option, defaults[option])
 
     options['name'] = name
-    acc.setPrivateTools( InDet__JetFitterTwoTrackVtxFinderTool(**options) )
+    acc.setPrivateTools( CompFactory.InDet.JetFitterTwoTrackVtxFinderTool(**options) )
     return acc
 
 

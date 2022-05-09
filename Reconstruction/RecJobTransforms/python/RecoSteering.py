@@ -21,6 +21,9 @@ def RecoSteering(flags):
     if flags.Input.Format is Format.BS:
         from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
         acc.merge(ByteStreamReadCfg(flags))
+        # Decorate EventInfo obj with Beam Spot information
+        from xAODEventInfoCnv.EventInfoBeamSpotDecoratorAlgConfig import EventInfoBeamSpotDecoratorAlgCfg
+        acc.merge(EventInfoBeamSpotDecoratorAlgCfg(flags))
         log.info("---------- Configured BS reading")
     else:
         from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
@@ -95,6 +98,12 @@ def RecoSteering(flags):
         acc.merge(MuonCombinedReconstructionCfg(flags))
         log.info("---------- Configured combined muon reconstruction")
 
+    # TrackParticleCellAssociation = add cells crossed by high pt ID tracks
+    if flags.Reco.EnableTrackCellAssociation:
+        from TrackParticleAssociationAlgs.TrackParticleAssociationAlgsConfig import TrackParticleCellAssociationAlgCfg
+        acc.merge(TrackParticleCellAssociationAlgCfg(flags))
+        log.info("---------- Configured track particle-cell association")
+
     # PFlow
     if flags.Reco.EnablePFlow:
         from eflowRec.PFRun3Config import PFCfg
@@ -115,9 +124,6 @@ def RecoSteering(flags):
 
     # btagging
     if flags.Reco.EnableBTagging:
-        # hack to prevent btagging fragments to rename top sequence
-        from AthenaCommon.ConcurrencyFlags import jobproperties
-        jobproperties.ConcurrencyFlags.NumThreads = flags.Concurrency.NumThreads
         from BTagging.BTagRun3Config import BTagRecoSplitCfg
         acc.merge(BTagRecoSplitCfg(flags))
         log.info("---------- Configured btagging")
@@ -128,16 +134,16 @@ def RecoSteering(flags):
         acc.merge(TauReconstructionCfg(flags))
         log.info("---------- Configured tau reconstruction")
 
+    if flags.Reco.EnablePFlow:
+        from eflowRec.PFRun3Config import PFTauFELinkCfg
+        acc.merge(PFTauFELinkCfg(flags))
+        log.info("---------- Configured particle flow tau FE linking")
+
     # MET
     if flags.Reco.EnableMet:
         from METReconstruction.METRecCfg import METCfg
         acc.merge(METCfg(flags))
         log.info("---------- Configured MET")
-
-    if flags.Reco.EnablePFlow:
-        from eflowRec.PFRun3Config import PFTauFELinkCfg
-        acc.merge(PFTauFELinkCfg(flags))
-        log.info("---------- Configured particle flow tau FE linking")
 
     # HI
     if flags.Reco.EnableHI:
@@ -170,7 +176,7 @@ def RecoSteering(flags):
         log.info("---------- Configured ESD writing")
 
     if flags.Output.doWriteAOD:
-        log.info("ESD ItemList: %s", acc.getEventAlgo(
+        log.info("AOD ItemList: %s", acc.getEventAlgo(
             "OutputStreamAOD").ItemList)
         log.info("---------- Configured AOD writing")
 

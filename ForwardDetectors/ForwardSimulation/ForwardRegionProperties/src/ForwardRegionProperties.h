@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ForwardRegionProperties_H
@@ -19,8 +19,8 @@ public:
 
     virtual PFWDMg_CONFIGURATION getConf() override final;
 
-    void getMagTransforms(std::string, int, HepGeom::Point3D<double>&, HepGeom::Point3D<double>&, double&, bool twiss = false) override final;
-    void getMagTransforms(std::string, int, HepGeom::Point3D<double>&, HepGeom::Point3D<double>&, bool twiss = false) override final;
+    void getMagTransforms(const std::string&, int, HepGeom::Point3D<double>&, HepGeom::Point3D<double>&, double&, bool twiss = false) override final;
+    void getMagTransforms(const std::string&, int, HepGeom::Point3D<double>&, HepGeom::Point3D<double>&, bool twiss = false) override final;
 
 private:
     // property configuration

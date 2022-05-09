@@ -75,10 +75,10 @@ class MuonDetectorTool final : public GeoModelTool {
     Gaudi::Property<bool> m_cachingFlag{this, "CachingFlag", true, "Turn on/off caching of ReadoutElement surfaces etc. (i.e. for MDTs)"};
     // the following two properties are for local validation, not for production
     Gaudi::Property<std::string> m_NSWABLineAsciiPath{this, "NSWABLineAsciiPath", "", "Pass A/B Lines for NSW from an Ascii file"};
-    Gaudi::Property<std::string> m_MMAsBuiltJsonPath{this, "MMAsBuiltJsonPath", "", "Pass AsBuilt Parameters for MM from an external Json file"};
     
     Gaudi::Property<bool> m_enableMdtDeformations{this, "EnableMdtDeformations", true};
     Gaudi::Property<bool> m_enableMdtAsBuiltParameters{this, "EnableMdtAsBuiltParameters", false};
+    Gaudi::Property<bool> m_enableNswAsBuiltParameters{this, "EnableNswAsBuiltParameters", false};
     Gaudi::Property<std::string> m_altMdtAsBuiltFile{this, "AlternateAsBuiltParamAlignFile", "" };
 
     MuonGM::MuonDetectorManager* m_manager{nullptr};

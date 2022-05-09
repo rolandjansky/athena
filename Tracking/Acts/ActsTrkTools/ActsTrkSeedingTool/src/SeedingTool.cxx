@@ -96,7 +96,7 @@ namespace ActsTrk {
   
   StatusCode
   SeedingTool::createSeeds(const EventContext& /*ctx*/,
-                           const ActsTrk::SpacePointContainer& spContainer,
+                           const std::vector<const ActsTrk::SpacePoint*>& spContainer,
                            const InDet::BeamSpotData& beamSpotData,
                            const Acts::MagneticFieldContext& magFieldContext,
                            ActsTrk::SeedContainer& seedContainer ) const
@@ -139,8 +139,10 @@ namespace ActsTrk {
       return seeds;
     
     // Beam Spot Position
-    Acts::Vector2 beamPos( beamSpotData.beamPos()[ Amg::x ] * Acts::UnitConstants::mm,
-			   beamSpotData.beamPos()[ Amg::y ] * Acts::UnitConstants::mm );
+    const Acts::Vector3& cb = beamSpotData.beamPos();
+
+    Acts::Vector2 beamPos( cb[Amg::x] * Acts::UnitConstants::mm,
+                           cb[Amg::y] * Acts::UnitConstants::mm);
     
     // Magnetic Field
     ATLASMagneticFieldWrapper magneticField;
@@ -148,14 +150,15 @@ namespace ActsTrk {
     Acts::Vector3 bField = *magneticField.getField( Acts::Vector3(beamPos.x(), beamPos.y(), 0),
 						    magFieldCache );
     
-    auto Configs = prepareConfiguration< external_spacepoint_t >( beamPos,bField );
+    auto Configs = prepareConfiguration< external_spacepoint_t >( beamPos, bField );
     auto gridCfg = Configs.first;
     auto finderCfg = Configs.second;
     
     
-    auto extractCovariance = [=](const external_spacepoint_t& sp, float, float,
+    auto extractCovariance = [cb](const external_spacepoint_t& sp, float, float,
                                  float) -> std::pair<Acts::Vector3, Acts::Vector2> {
-      Acts::Vector3 position(sp.x(), sp.y(), sp.z());
+      /// Convert coordinates w.r.t. beam spot
+      Acts::Vector3 position(sp.x() - cb[Amg::x], sp.y() - cb[Amg::y], sp.z() - cb[Amg::z]);
       Acts::Vector2 covariance(sp.varianceR(), sp.varianceZ());
       return std::make_pair(position, covariance);
     };
@@ -178,7 +181,7 @@ namespace ActsTrk {
 
     for(auto it = spBegin; it!=spEnd; ++it) {
       const auto& sp = *it;
-      rRangeSPExtent.check({sp->x(), sp->y(), sp->z()}); 
+      rRangeSPExtent.check({sp->x(), sp->y(), sp->z()});
     }
 
     auto group = spacePointsGrouping.begin();

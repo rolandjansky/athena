@@ -17,6 +17,7 @@
 #include "xAODTrigger/eFexEMRoI.h"
 #include "L1CaloFEXSim/eFEXOutputCollection.h"
 #include "L1CaloFEXSim/eFEXegTOB.h"
+#include "L1CaloFEXSim/eFEXtauTOB.h"
 
 namespace LVL1 {
   
@@ -44,7 +45,7 @@ Interface definition for eFEXFPGA
 
     virtual std::vector<eFEXegTOB> getEmTOBs() = 0; 
 
-    virtual std::vector<uint32_t> getTauTOBs() = 0; 
+    virtual std::vector<eFEXtauTOB> getTauTOBs() = 0; 
 
     // static virtual bool etSort(uint32_t &, uint32_t &) = 0;
 

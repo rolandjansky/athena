@@ -23,6 +23,13 @@ def CaloThinCellsByClusterAlgCfg (flags, streamName, clusters,
                                      Cells = cells)
     result.addEventAlgo (alg)
 
+    if "AOD" in streamName:
+        #Add cell-container and cluster links to AOD:
+        from OutputStreamAthenaPool.OutputStreamConfig import addToAOD
+        toAOD=[f'CaloCellContainer#{cells}',
+               f"xAOD::CaloClusterAuxContainer#{clusters}Aux.CellLink",
+               f"CaloClusterCellLinkContainer#{clusters}_links"]
+        result.merge(addToAOD(flags, toAOD))
     return result
 
 

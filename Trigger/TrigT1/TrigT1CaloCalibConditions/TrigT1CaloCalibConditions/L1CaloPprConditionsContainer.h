@@ -12,7 +12,6 @@
 #include "TrigT1CaloCalibConditions/AbstractL1CaloPersistentCondition.h"
 #include "TrigT1CaloCalibConditions/L1CaloPprConditions.h"
 #include "TrigT1CaloCalibConditions/L1CaloCoolChannelId.h"
-
 #include <map>
 #include <string>
 #include <vector>
@@ -45,7 +44,7 @@ public:
 
 	// IL1CaloPersistenceCapable interface
 	using AbstractL1CaloPersistentCondition::makeTransient; // to unhide the default implementation of makeTransient
-	virtual void makeTransient(const std::map<std::string, CondAttrListCollection*>& condAttrListCollectionMap);
+	virtual void makeTransient(const std::map<std::string, const CondAttrListCollection*>& condAttrListCollectionMap);
 
 	const L1CaloPprConditions* pprConditions(unsigned int channelId) const;
 	const L1CaloPprConditions* pprConditions(const L1CaloCoolChannelId& channelId) const;
@@ -88,5 +87,4 @@ private:
 };
 
 CLASS_DEF(L1CaloPprConditionsContainer ,  1190452919 , 1 )
-
 #endif

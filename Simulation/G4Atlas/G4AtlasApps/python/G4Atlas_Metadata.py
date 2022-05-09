@@ -274,7 +274,37 @@ def configureRunNumberOverrides():
     myFirstLB = 1
     myInitialTimeStamp = 0
     from G4AtlasApps.SimFlags import simFlags
-    if hasattr(simFlags, "RunNumber") and simFlags.RunNumber.statusOn:
+    if simFlags.RunAndLumiOverrideList.statusOn:
+        myRunNumber = simFlags.RunAndLumiOverrideList.getMinMaxRunNumbers()[0]
+        myFirstLB = simFlags.RunAndLumiOverrideList.getFirstLumiBlock(myRunNumber)
+        try:
+          from RunDependentSimComps.RunDMCFlags import runDMCFlags
+          myInitialTimeStamp = runDMCFlags.RunToTimestampDict.getTimestampForRun(myRunNumber)
+          #print "FOUND TIMESTAMP ", str(myInitialTimeStamp)
+        except Exception:
+          myInitialTimeStamp = 1
+        ######update the run/event info for each event
+        from AthenaCommon.AppMgr import ServiceMgr
+        from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
+        if concurrencyProps.ConcurrencyFlags.NumThreads() > 0:
+            if not hasattr(ServiceMgr, 'AthenaHiveEventLoopMgr'):
+                from AthenaServices.AthenaServicesConf import AthenaHiveEventLoopMgr
+                ServiceMgr += AthenaHiveEventLoopMgr()
+            ServiceMgr.AthenaHiveEventLoopMgr.EvtIdModifierSvc = "EvtIdModifierSvc"
+        else:
+            if not hasattr(ServiceMgr, 'AthenaEventLoopMgr'):
+                from AthenaServices.AthenaServicesConf import AthenaEventLoopMgr
+                ServiceMgr += AthenaEventLoopMgr()
+        if not hasattr(ServiceMgr,'EvtIdModifierSvc'):
+            from AthenaCommon.CfgGetter import getService
+            getService("EvtIdModifierSvc")
+        #fix iov metadata
+        if not hasattr(ServiceMgr.ToolSvc, 'IOVDbMetaDataTool'):
+            from AthenaCommon import CfgMgr
+            ServiceMgr.ToolSvc += CfgMgr.IOVDbMetaDataTool()
+        ServiceMgr.ToolSvc.IOVDbMetaDataTool.MinMaxRunNumbers = [myRunNumber, 2147483647]
+        ## FIXME need to use maxRunNumber = 2147483647 for now to keep overlay working but in the future this should be set properly.
+    elif hasattr(simFlags, "RunNumber") and simFlags.RunNumber.statusOn:
         myRunNumber = simFlags.RunNumber.get_Value()
         simMDlog.info('Found run number %d in sim flags.', myRunNumber)
         ## Set event selector details based on evgen metadata
@@ -318,36 +348,6 @@ def configureRunNumberOverrides():
           myInitialTimeStamp = 1
         ServiceMgr.EvtIdModifierSvc.add_modifier(run_nbr=myRunNumber, lbk_nbr=myFirstLB, time_stamp=myInitialTimeStamp, nevts=totalNumber)
         if hasattr(ServiceMgr.EventSelector,'OverrideRunNumberFromInput'): ServiceMgr.EventSelector.OverrideRunNumberFromInput = True
-    elif simFlags.RunAndLumiOverrideList.statusOn:
-        myRunNumber = simFlags.RunAndLumiOverrideList.getMinMaxRunNumbers()
-        myFirstLB = simFlags.RunAndLumiOverrideList.getFirstLumiBlock(myRunNumber)
-        try:
-          from RunDependentSimComps.RunDMCFlags import runDMCFlags
-          myInitialTimeStamp = runDMCFlags.RunToTimestampDict.getTimestampForRun(myRunNumber)
-          #print "FOUND TIMESTAMP ", str(myInitialTimeStamp)
-        except Exception:
-          myInitialTimeStamp = 1
-        ######update the run/event info for each event
-        from AthenaCommon.AppMgr import ServiceMgr
-        from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
-        if concurrencyProps.ConcurrencyFlags.NumThreads() > 0:
-            if not hasattr(ServiceMgr, 'AthenaHiveEventLoopMgr'):
-                from AthenaServices.AthenaServicesConf import AthenaHiveEventLoopMgr
-                ServiceMgr += AthenaHiveEventLoopMgr()
-            ServiceMgr.AthenaHiveEventLoopMgr.EvtIdModifierSvc = "EvtIdModifierSvc"
-        else:
-            if not hasattr(ServiceMgr, 'AthenaEventLoopMgr'):
-                from AthenaServices.AthenaServicesConf import AthenaEventLoopMgr
-                ServiceMgr += AthenaEventLoopMgr()
-        if not hasattr(ServiceMgr,'EvtIdModifierSvc'):
-            from AthenaCommon.CfgGetter import getService
-            getService("EvtIdModifierSvc")
-        #fix iov metadata
-        if not hasattr(ServiceMgr.ToolSvc, 'IOVDbMetaDataTool'):
-            from AthenaCommon import CfgMgr
-            ServiceMgr.ToolSvc += CfgMgr.IOVDbMetaDataTool()
-        ServiceMgr.ToolSvc.IOVDbMetaDataTool.MinMaxRunNumbers = [myRunNumber, 2147483647]
-        ## FIXME need to use maxRunNumber = 2147483647 for now to keep overlay working but in the future this should be set properly.
     elif metadata_lite is not None:
         # Get evgen run number and lumi block
         if len(metadata_lite['runNumbers']) > 0:

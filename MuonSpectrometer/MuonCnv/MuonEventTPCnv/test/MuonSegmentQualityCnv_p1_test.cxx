@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file MuonEventTPCnv/test/MuonSegmentQualityCnv_p1_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -13,6 +11,7 @@
 #undef NDEBUG
 #include "MuonEventTPCnv/MuonSegment/MuonSegmentQualityCnv_p1.h"
 #include "TrkEventTPCnv/TrackCollectionCnv_tlp5.h"
+#include "CxxUtils/checker_macros.h"
 #include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
@@ -51,7 +50,7 @@ void testit (const Muon::MuonSegmentQuality& trans1)
 }
 
 
-void test1()
+void test1 ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test1\n";
   Athena_test::Leakcheck check;
@@ -68,7 +67,7 @@ void test1()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   test1();
   return 0;

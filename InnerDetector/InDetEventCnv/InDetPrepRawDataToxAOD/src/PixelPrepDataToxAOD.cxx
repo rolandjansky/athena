@@ -62,6 +62,7 @@ PixelPrepDataToxAOD::PixelPrepDataToxAOD(const std::string &name, ISvcLocator *p
   declareProperty("WriteSiHits", m_writeSiHits = true);
   declareProperty("WriteNNinformation", m_writeNNinformation = true);
   declareProperty("WriteRDOinformation", m_writeRDOinformation = true);
+  declareProperty("WriteExtendedPRDinformation", m_writeExtendedPRDinformation = false);
 
   // --- Configuration keys
   declareProperty("SiClusterContainer",  m_clustercontainer_key = "PixelClusters");
@@ -259,9 +260,17 @@ StatusCode PixelPrepDataToxAOD::execute()
       // Set vector of hit identifiers
       std::vector< uint64_t > rdoIdentifierList;
       rdoIdentifierList.reserve(prd->rdoList().size());
+      int rowmin=9999; int rowmax=-9999;
+      int colmin=9999; int colmax=-9999;
       for( const auto &hitIdentifier : prd->rdoList() ){
         rdoIdentifierList.push_back( hitIdentifier.get_compact() );
         //May want to addinformation about the individual hits here
+	int row = m_PixelHelper->phi_index(hitIdentifier);
+	int col = m_PixelHelper->eta_index(hitIdentifier);
+	if(rowmin > row) rowmin = row;
+	if(rowmax < row) rowmax = row;
+	if(colmin > col) colmin = col;
+	if(colmax < col) colmax = col;
       }
       xprd->setRdoIdentifierList(rdoIdentifierList);
 
@@ -273,8 +282,6 @@ StatusCode PixelPrepDataToxAOD::execute()
       AUXDATA(xprd,int,layer)        =   the_layer ;
       AUXDATA(xprd,int,phi_module)   =   the_phi ;
       AUXDATA(xprd,int,eta_module)   =   the_eta ;
-      //AUXDATA(xprd,int,col)         =  m_PixelHelper->eta_index(clusterId);
-      //AUXDATA(xprd,int,row)         =  m_PixelHelper->phi_index(clusterId);
       AUXDATA(xprd,int,eta_pixel_index)         =  m_PixelHelper->eta_index(clusterId);
       AUXDATA(xprd,int,phi_pixel_index)         =  m_PixelHelper->phi_index(clusterId);
 
@@ -328,6 +335,23 @@ StatusCode PixelPrepDataToxAOD::execute()
         }
       }
       AUXDATA(xprd,uint64_t,detectorElementID) = detElementId;
+
+      if(m_writeExtendedPRDinformation){
+	AUXDATA(xprd,int,waferID) = m_PixelHelper->wafer_hash(de->identify());
+
+	const InDetDD::PixelModuleDesign* design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&de->design());
+	InDetDD::SiLocalPosition pos1 = design->positionFromColumnRow(colmin,rowmin);
+	InDetDD::SiLocalPosition pos2 = design->positionFromColumnRow(colmax,rowmin);
+	InDetDD::SiLocalPosition pos3 = design->positionFromColumnRow(colmin,rowmax);
+	InDetDD::SiLocalPosition pos4 = design->positionFromColumnRow(colmax,rowmax);
+	InDetDD::SiLocalPosition centroid = 0.25*(pos1+pos2+pos3+pos4);
+
+	AUXDATA(xprd,float,centroid_xphi) = centroid.xPhi();
+	AUXDATA(xprd,float,centroid_xeta) = centroid.xEta();
+
+	AUXDATA(xprd,float,omegax) = prd->omegax();
+	AUXDATA(xprd,float,omegay) = prd->omegay();
+      }
       
       // Use the MultiTruth Collection to get a list of all true particle contributing to the cluster
       if (prdmtColl) {

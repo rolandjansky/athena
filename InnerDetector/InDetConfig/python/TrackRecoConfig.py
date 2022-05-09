@@ -326,9 +326,14 @@ def InDetTrackRecoCfg(flags):
             continue # Skip rest of config for the TRTStandalone pass
 
         ResolvedTracks = "Resolved" + extension + "Tracks"
+        #for track overlay, save resolved track name for final merged track collection
+        if flags.Overlay.doTrackOverlay and current_flags.InDet.Tracking.ActivePass.storeSeparateContainer:
+            ResolvedTracks = flags.Overlay.sigPrefix + ResolvedTracks
         # Tweak to match old config key
         if "LargeD0" in extension:
             ResolvedTracks = "ResolvedLargeD0Tracks"
+            if flags.Overlay.doTrackOverlay:
+                ResolvedTracks = flags.Overlay.sigPrefix + "ResolvedLargeD0Tracks"
         SiSPSeededTracks = "SiSPSeeded" + extension + "Tracks" # Old config had inconsistent "SiSPSeeded" vs "SiSpSeeded" keys
 
         result.merge(TrackingSiPatternCfg(current_flags,
@@ -338,6 +343,10 @@ def InDetTrackRecoCfg(flags):
                                           ClusterSplitProbContainer = ClusterSplitProbContainer))
 
         TrackContainer = ResolvedTracks
+        if flags.Overlay.doTrackOverlay and current_flags.InDet.Tracking.ActivePass.storeSeparateContainer:
+            TrackContainer = "Resolved" + extension + "Tracks"
+            if "LargeD0" in extension:
+                TrackContainer = "ResolvedLargeD0Tracks"
 
         if current_flags.InDet.Tracking.ActivePass.useTRTExtension:
             ExtendedTracks = "Extended" + extension + "Tracks"
@@ -357,17 +366,24 @@ def InDetTrackRecoCfg(flags):
             TrackContainer = ExtendedTracks
 
         if current_flags.InDet.Tracking.ActivePass.storeSeparateContainer:
-
             # Dummy Merger to fill additional info for PRD-associated pixel tracklets
             # Can also run on all separate collections like R3LargeD0 but kept consistent with legacy config
             if extension=="Disappearing":
-                InputTracks = TrackContainer
+                InputTracks = [TrackContainer]
+                if flags.Overlay.doTrackOverlay:
+                    InputTracks += [flags.Overlay.bkgPrefix+extension+"Tracks"]
                 TrackContainer = extension+"Tracks"
                 result.merge(TrackCollectionMergerAlgCfg(current_flags, name = "InDetTrackCollectionMerger"+extension,
-                                                         InputCombinedTracks = [InputTracks],
+                                                         InputCombinedTracks = InputTracks,
                                                          OutputCombinedTracks = TrackContainer,
                                                          CombinedInDetClusterSplitProbContainer = "InDetAmbiguityProcessorSplitProb" + extension))
-
+            elif flags.Overlay.doTrackOverlay:
+                #schedule merger to combine signal and background tracks
+                InputTracks=[flags.Overlay.sigPrefix+TrackContainer,flags.Overlay.bkgPrefix+TrackContainer]
+                result.merge(TrackCollectionMergerAlgCfg(current_flags, name = "InDetTrackCollectionMerger"+extension,
+                                                         InputCombinedTracks = InputTracks,
+                                                         OutputCombinedTracks = "Resolved" + extension + "Tracks",
+                                                         CombinedInDetClusterSplitProbContainer = "InDetAmbiguityProcessorSplitProb" + extension))
             if flags.InDet.doTruth:
                 result.merge(InDetTrackTruthCfg(current_flags,
                                                 Tracks = TrackContainer,
@@ -404,11 +420,25 @@ def InDetTrackRecoCfg(flags):
                 ClusterSplitProbContainer = "InDetTRT_SeededAmbiguityProcessorSplitProb"
                 InputCombinedInDetTracks += ["ResolvedTRTSeededTracks"]
                 InputExtendedInDetTracks += ["ResolvedTRTSeededTracks"]
+
+            if flags.InDet.doTruth and (flags.InDet.Tracking.doPseudoTracking or flags.InDet.Tracking.doIdealPseudoTracking): ## Do we need the dotruth flags...?
+                from InDetConfig.TruthTrackingConfig import TruthTrackingCfg
+                result.merge(TruthTrackingCfg(flags))
+
+                ## Old config only scheduled InDetTrackTruth for IdealPseudoTracking, while the TrackParticleCnvAlg requires it if "doTruth" is enabled
+                if flags.InDet.doTruth: ## needed if flag above is removed
+                    from InDetConfig.TrackTruthConfig import InDetTrackTruthCfg
+                    result.merge(InDetTrackTruthCfg(flags, 'InDetPseudoTracks', 'InDetPseudoTracksTruthCollection', 'InDetPseudoTracksTruthCollection'))
+
+                result.merge(TrackParticleCnvAlgCfg(current_flags,
+                                                    name = "PseudoTrackParticleCnvAlg",
+                                                    TrackContainerName = "InDetPseudoTracks",
+                                                    OutputTrackParticleContainer = "InDetPseudoTrackParticles"))
+
             isPrimaryPass = False
 
-
-
-
+    if flags.Overlay.doTrackOverlay:
+        InputCombinedInDetTracks += [flags.Overlay.bkgPrefix+"CombinedInDetTracks"]
     result.merge(TrackCollectionMergerAlgCfg(flags,
                                              InputCombinedTracks = InputCombinedInDetTracks,
                                              OutputCombinedTracks = "CombinedInDetTracks",
@@ -436,6 +466,10 @@ def InDetTrackRecoCfg(flags):
         result.merge(InDetPixelPrepDataToxAODCfg(flags, ClusterSplitProbabilityName = ClusterSplitProbContainer))
         result.merge(InDetSCT_PrepDataToxAODCfg(flags))
         result.merge(InDetTRT_PrepDataToxAODCfg(flags))
+
+        from DerivationFrameworkInDet.InDetToolsConfig import TrackStateOnSurfaceDecoratorCfg
+        TrackStateOnSurfaceDecorator = result.getPrimaryAndMerge(TrackStateOnSurfaceDecoratorCfg(flags, name="TrackStateOnSurfaceDecorator"))
+        result.addEventAlgo(CompFactory.DerivationFramework.CommonAugmentation("InDetCommonKernel", AugmentationTools = [TrackStateOnSurfaceDecorator]))
 
         if flags.Input.isMC:
             from InDetPhysValMonitoring.InDetPhysValDecorationConfig import InDetPhysHitDecoratorAlgCfg
@@ -469,7 +503,9 @@ def InDetTrackRecoOutputCfg(flags):
     excludedAuxData += '.-TTVA_AMVFVertices.-TTVA_AMVFWeights'
 
     # exclude IDTIDE/IDTRKVALID decorations
-    excludedAuxData += '.-TrkBLX.-TrkBLY.-TrkBLZ.-TrkIBLX.-TrkIBLY.-TrkIBLZ.-TrkL1X.-TrkL1Y.-TrkL1Z.-TrkL2X.-TrkL2Y.-TrkL2Z.-msosLink'
+    excludedAuxData += '.-TrkBLX.-TrkBLY.-TrkBLZ.-TrkIBLX.-TrkIBLY.-TrkIBLZ.-TrkL1X.-TrkL1Y.-TrkL1Z.-TrkL2X.-TrkL2Y.-TrkL2Z'
+    if not flags.InDet.Tracking.writeExtendedPRDInfo:
+        excludedAuxData += '.-msosLink'
 
     # exclude IDTIDE decorations
     excludedAuxData += ('.-IDTIDE1_biased_PVd0Sigma.-IDTIDE1_biased_PVz0Sigma.-IDTIDE1_biased_PVz0SigmaSinTheta.-IDTIDE1_biased_d0.-IDTIDE1_biased_d0Sigma'
@@ -537,7 +573,7 @@ def InDetTrackRecoOutputCfg(flags):
                 toESD += ["TrackTruthCollection#StandaloneTRTTracksTruthCollection"]
                 toESD += ["DetailedTrackTruthCollection#StandaloneTRTTracksDetailedTruth"]
 
-        if special:  # flags.InDet.doPseudoTracking:
+        if flags.InDet.Tracking.doPseudoTracking:
             toESD += ["TrackCollection#InDetPseudoTracks"]
             if flags.InDet.doTruth:
                 toESD += ["TrackTruthCollection#InDetPseudoTracksTruthCollection"]
@@ -627,7 +663,7 @@ def InDetTrackRecoOutputCfg(flags):
         if flags.InDet.doTruth:
             toAOD += ["TrackTruthCollection#ResolvedDBMTracksTruthCollection"] 
             toAOD += ["DetailedTrackTruthCollection#ResolvedDBMTracksDetailedTruth"] 
-    if special:  # flags.InDet.doPseudoTracking:
+    if flags.InDet.Tracking.doPseudoTracking:
         toAOD += ["xAOD::TrackParticleContainer#InDetPseudoTrackParticles"]
         toAOD += [f"xAOD::TrackParticleAuxContainer#InDetPseudoTrackParticlesAux.{excludedAuxData}"]
         if flags.InDet.doTruth:
@@ -647,7 +683,13 @@ def InDetTrackRecoOutputCfg(flags):
             "xAOD::TrackMeasurementValidationContainer#SCT_Clusters",
             "xAOD::TrackMeasurementValidationAuxContainer#SCT_ClustersAux.",
             "xAOD::TrackMeasurementValidationContainer#TRT_DriftCircles",
-            "xAOD::TrackMeasurementValidationAuxContainer#TRT_DriftCirclesAux."
+            "xAOD::TrackMeasurementValidationAuxContainer#TRT_DriftCirclesAux.",
+            "xAOD::TrackStateValidationContainer#PixelMSOSs",
+            "xAOD::TrackStateValidationAuxContainer#PixelMSOSsAux.",
+            "xAOD::TrackStateValidationContainer#SCT_MSOSs",
+            "xAOD::TrackStateValidationAuxContainer#SCT_MSOSsAux.",
+            "xAOD::TrackStateValidationContainer#TRT_MSOSs",
+            "xAOD::TrackStateValidationAuxContainer#TRT_MSOSsAux."
         ]
 
     result = ComponentAccumulator()

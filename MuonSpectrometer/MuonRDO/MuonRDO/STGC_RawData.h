@@ -55,6 +55,13 @@ class STGC_RawData {
    bool isDead() const {return m_isDead;}
    bool timeAndChargeInCounts() const {return m_timeAndChargeInCounts;}
 
+  // A Simple constant to convert time to TDC counts in the absence of time calibration.
+  // This constant should be used only to preserve backward compatibility, since it doesn't have 
+  // physical meaning and the value is arbitrary. The value is chosen to be greater than 
+  // 25 ns plus the absolute value of the time corresponding to the first bunch crossing defined in
+  // sTGC_Digitization/python/sTGC_DigitizationConfig.py, which is -100ns as of 2022-05-01.
+  // Therefore, after time-tdo conversion, the resulting TDC count is positive.
+  static constexpr int s_timeTdoShift{200};
 };
 }
 

@@ -47,7 +47,7 @@ class L1CaloRxLayersContainer: public DataObject,
 #ifndef __REFLEX__
     // IL1CaloPersistenceCapable interface
     using AbstractL1CaloPersistentCondition::makeTransient; // to unhide the default implementation of makeTransient
-    virtual void makeTransient(const std::map<std::string, CondAttrListCollection*>& condAttrListCollectionMap);
+    virtual void makeTransient(const std::map<std::string, const CondAttrListCollection*>& condAttrListCollectionMap);
 #endif
     
     const L1CaloRxLayers* rxLayers(unsigned int channelId) const;

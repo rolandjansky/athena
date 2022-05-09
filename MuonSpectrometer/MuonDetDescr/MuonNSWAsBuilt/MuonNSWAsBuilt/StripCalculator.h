@@ -6,6 +6,7 @@
 #define MUONNSWASBUILT_STRIPCALCULATOR_H
 
 #include <vector>
+#include <string>
 #include <unordered_map>
 #include <functional>
 #include <memory>
@@ -66,7 +67,7 @@ namespace NswAsBuilt {
       position_t getPositionAlongStrip(ParameterClass iclass, stripIdentifier_t strip_id, double sx, double sy) const;
 
      /* Parses a std::istream with JSON-formatted configuration of the as-built parameters */
-      void parseJSON(std::istream& in);
+      void parseJSON(std::string& in);
 
     private:
 

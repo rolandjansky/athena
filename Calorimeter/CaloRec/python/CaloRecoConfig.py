@@ -73,6 +73,12 @@ def CaloRecoCfg(configFlags, clustersname=None):
         from TileRecAlgs.MBTSTimeDiffEventInfoAlgConfig import MBTSTimeDiffEventInfoAlgCfg
         result.merge(MBTSTimeDiffEventInfoAlgCfg(configFlags))
 
+
+    #Configure AOD Cell-Thinning based on samplings:
+    from CaloRec.CaloThinCellsBySamplingAlgConfig import CaloThinCellsBySamplingAlgCfg
+    result.merge(CaloThinCellsBySamplingAlgCfg(configFlags,'StreamAOD', ['TileGap3']))
+    
+
     return result
 
 

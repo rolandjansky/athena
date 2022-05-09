@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file ParticleEventTPCnv/test/ParticleAssocsCnv_p1_test.cxx
@@ -13,11 +13,11 @@
 #include "TestTools/leakcheck.h"
 #include "ParticleEvent/TrackParticleAssocs.h"
 #include "SGTools/TestStore.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 #include <cassert>
 #include <iostream>
-#include "CxxUtils/checker_macros.h"
 
 
 void compare (const TrackParticleAssocs& a1,
