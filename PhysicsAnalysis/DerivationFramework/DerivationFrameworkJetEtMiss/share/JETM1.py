@@ -78,7 +78,7 @@ JETM1ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(n
 ToolSvc += JETM1ElectronTPThinningTool
 thinningTools.append(JETM1ElectronTPThinningTool)
 
-thinning_expression = "InDetTrackParticles.JETM1DFLoose && ( abs(InDetTrackParticles.d0) < 3.0 ) && ( abs(DFCommonInDetTrackZ0AtPV*sin(InDetTrackParticles.theta)) < 4.0 )"
+thinning_expression = "InDetTrackParticles.JETM1DFLoose && ( abs(InDetTrackParticles.d0) < 5.0*mm ) && ( abs(DFCommonInDetTrackZ0AtPV*sin(InDetTrackParticles.theta)) < 5.0*mm )"
 
 # TrackParticles associated with small-R jets
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning

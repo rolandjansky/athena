@@ -114,7 +114,7 @@ from ThinningUtils.ThinningUtilsConf import DeltaRThinningTool
 # to the size of the jet, there is no guarantee that all ghost-associated tracks will
 # be picked up
 
-JETM6BaselineTrack = "(InDetTrackParticles.JETM6DFLoose) && (InDetTrackParticles.pt > 0.5*GeV) && (abs(DFCommonInDetTrackZ0AtPV)*sin(InDetTrackParticles.theta) < 3.0*mm) && (InDetTrackParticles.d0 < 2.0*mm)"
+JETM6BaselineTrack = "(InDetTrackParticles.JETM6DFLoose) && (InDetTrackParticles.pt > 0.5*GeV) && (abs(DFCommonInDetTrackZ0AtPV)*sin(InDetTrackParticles.theta) < 5.0*mm) && (InDetTrackParticles.d0 < 5.0*mm)"
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 JETM6TrackParticleThinningTool = DerivationFramework__TrackParticleThinning(name            = "JETM6TrackParticleThinningTool",
@@ -262,7 +262,8 @@ if DerivationFrameworkIsMonteCarlo:
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM6SlimmingHelper = SlimmingHelper("JETM6SlimmingHelper")
-JETM6SlimmingHelper.SmartCollections = ["Electrons",
+JETM6SlimmingHelper.SmartCollections = ["EventInfo",
+                                        "Electrons",
                                         "Photons",
                                         "Muons",
                                         "TauJets",

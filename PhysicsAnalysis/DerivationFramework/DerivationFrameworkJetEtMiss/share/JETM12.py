@@ -16,9 +16,9 @@ metTriggers = TriggerLists.MET_Trig()
 muTriggers = TriggerLists.single_mu_Trig()
 orstr  = ' || '
 andstr = ' && '
-trackRequirements = '(InDetTrackParticles.pt > 10.*GeV && InDetTrackParticles.TrkIsoPt1000_ptcone20 < 0.12*InDetTrackParticles.pt && InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV) < 3.0*mm )'
-trackRequirementsMu = '(InDetTrackParticles.pt > 70.*GeV && InDetTrackParticles.TrkIsoPt1000_ptcone20 < 0.12*InDetTrackParticles.pt && InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV) < 3.0*mm )'
-trackRequirementsTtbar = '(InDetTrackParticles.pt > 25.*GeV && InDetTrackParticles.TrkIsoPt1000_ptcone20 < 0.12*InDetTrackParticles.pt && InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV) < 3.0*mm )'
+trackRequirements = '(InDetTrackParticles.pt > 10.*GeV && InDetTrackParticles.TrkIsoPt1000_ptcone20 < 0.12*InDetTrackParticles.pt && InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV) < 5.0*mm )'
+trackRequirementsMu = '(InDetTrackParticles.pt > 70.*GeV && InDetTrackParticles.TrkIsoPt1000_ptcone20 < 0.12*InDetTrackParticles.pt && InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV) < 5.0*mm )'
+trackRequirementsTtbar = '(InDetTrackParticles.pt > 25.*GeV && InDetTrackParticles.TrkIsoPt1000_ptcone20 < 0.12*InDetTrackParticles.pt && InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV) < 5.0*mm )'
 jetRequirementsTtbar = '( AntiKt4EMTopoJets.pt > 20*GeV && BTagging_AntiKt4EMTopo.MV2c10_discriminant > 0.11 )'
 expressionW = '( (' + orstr.join(metTriggers) + ' )' + andstr + '( count('+trackRequirements+') >=1 ) )'
 expressionMu = '( (' + orstr.join(muTriggers) + ' )' + andstr + '( count('+trackRequirementsMu+') >=1 ) )'
@@ -97,7 +97,7 @@ AugmentationTools.append(Pt500IsoTrackDecorator)
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 JETM12TPThinningTool = DerivationFramework__TrackParticleThinning(name = "JETM12TPThinningTool",
                                                                  StreamName              = streamName,
-                                                                 SelectionString         = "( InDetTrackParticles.pt > 10*GeV && InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV) < 3.0*mm )",
+                                                                 SelectionString         = "( InDetTrackParticles.pt > 10*GeV && InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV) < 5.0*mm )",
                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM12TPThinningTool
 thinningTools.append(JETM12TPThinningTool)
@@ -144,7 +144,7 @@ JETM12CaloClusterThinning  = DerivationFramework__CaloClusterThinning(name      
                                                                        StreamName            = streamName,
                                                                        SGKey                 = "InDetTrackParticles",
                                                                        TopoClCollectionSGKey = "CaloCalTopoClusters",
-                                                                       SelectionString = "( InDetTrackParticles.pt > 10*GeV && InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV) < 3.0*mm )",
+                                                                       SelectionString = "( InDetTrackParticles.pt > 10*GeV && InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV) < 5.0*mm )",
                                                                        ConeSize = 0.6,
                                                                        )
 ToolSvc += JETM12CaloClusterThinning
@@ -200,18 +200,20 @@ if DerivationFrameworkIsMonteCarlo:
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM12SlimmingHelper = SlimmingHelper("JETM12SlimmingHelper")
-JETM12SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJets",
-                                        "InDetTrackParticles", "PrimaryVertices",
-                                        "MET_Baseline_AntiKt4EMTopo",
-                                        "MET_Baseline__AntiKt4EMPFlow",
-                                        "AntiKt4EMTopoJets","AntiKt4EMPFlowJets","AntiKt4TruthJets",
-                                        "BTagging_AntiKt4EMPFlow"
-                                        ]
+JETM12SlimmingHelper.SmartCollections = ["EventInfo",
+                                         "Electrons", "Photons", "Muons", "TauJets",
+                                         "InDetTrackParticles", "PrimaryVertices",
+                                         "MET_Baseline_AntiKt4EMTopo",
+                                         "MET_Baseline_AntiKt4EMPFlow",
+                                         "AntiKt4EMTopoJets","AntiKt4EMPFlowJets","AntiKt4TruthJets",
+                                         "BTagging_AntiKt4EMPFlow"]
+
 JETM12SlimmingHelper.AllVariables = ["MuonTruthParticles","TruthParticles", "TruthVertices",
-                                    "MuonSegments","InDetTrackParticles",
-                                    "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape","MET_Truth","CaloCalTopoClusters",
-                                    "TruthMuons","TruthElectrons","TruthPhotons","TruthTaus","TruthNeutrinos",
+                                     "MuonSegments","InDetTrackParticles",
+                                     "Kt4EMTopoOriginEventShape","Kt4EMPFlowEventShape","MET_Truth","CaloCalTopoClusters",
+                                     "TruthMuons","TruthElectrons","TruthPhotons","TruthTaus","TruthNeutrinos",
                                     ]
+
 JETM12SlimmingHelper.ExtraVariables = ["InDetTrackParticles.TrkIsoPt1000_ptcone40.TrkIsoPt1000_ptcone30.TrkIsoPt1000_ptcone20.TrkIsoPt500_ptcone40.TrkIsoPt500_ptcone30.TrkIsoPt500_ptcone20"]
 
 JETM12SlimmingHelper.AppendContentToStream(JETM12Stream)

@@ -166,7 +166,8 @@ evtStream = augStream.GetEventStream()
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM8SlimmingHelper = SlimmingHelper("JETM8SlimmingHelper")
-JETM8SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons",
+JETM8SlimmingHelper.SmartCollections = ["EventInfo",
+                                        "Electrons", "Photons", "Muons",
                                         "InDetTrackParticles", "PrimaryVertices",
                                         "AntiKt2TruthJets",
                                         "AntiKt2LCTopoJets",

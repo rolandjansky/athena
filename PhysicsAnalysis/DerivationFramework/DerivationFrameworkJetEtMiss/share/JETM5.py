@@ -125,7 +125,8 @@ getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=jetm5Seq, algname='JetForwardPFlow
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM5SlimmingHelper = SlimmingHelper("JETM5SlimmingHelper")
-JETM5SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJets",
+JETM5SlimmingHelper.SmartCollections = ["EventInfo",
+                                        "Electrons", "Photons", "Muons", "TauJets",
                                         "InDetTrackParticles", "PrimaryVertices",
                                         "MET_Baseline_AntiKt4EMTopo",
                                         "MET_Baseline_AntiKt4EMPFlow",
