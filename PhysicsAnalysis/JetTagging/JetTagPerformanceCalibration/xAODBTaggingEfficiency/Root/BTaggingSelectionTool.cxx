@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAODBTaggingEfficiency/BTaggingSelectionTool.h"
@@ -487,8 +487,8 @@ asg::AcceptData BTaggingSelectionTool::accept(double pT, double eta, double weig
       }
 
   }else if(m_tagger.constcut != nullptr && m_tagger.spline == nullptr) {
-    cutvalueA = m_tagger.constcut[0](0);
-    cutvalueB = m_tagger.constcut[0](1);
+    cutvalueA = std::as_const(m_tagger.constcut)[0](0);
+    cutvalueB = std::as_const(m_tagger.constcut)[0](1);
 
     ATH_MSG_VERBOSE( "Cut values " << cutvalueA << " " << cutvalueB );
 
