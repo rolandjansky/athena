@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """
           Instantiate the Egamma related xAOD Thinning
@@ -51,8 +51,9 @@ def egammaxAODThinningCfg(flags, name="EGammaxAODThinning"):
                 flags,
                 streamName="StreamAOD",
                 clusters=clus,
-                samplings=samplings)
-            )
+                samplings=samplings,
+                addLinksToAOD=False,
+            ))
 
     mlog.info("EGamma xAOD Thinning configured")
     return acc
