@@ -78,8 +78,8 @@ class TCPufitConfig(AlgConfig):
         )
         if nSigma == "default":
             nSigma = "sig50"
-        # Strip off the 'sig' part of the string, convert the end to and int, then divide by 10
-        self.n_sigma = int(nSigma[3:]) / 10.0
+        # Strip off the 'sig' part of the string, convert the end to a float, then divide by 10
+        self.n_sigma = float(nSigma[3:]) / 10.0
 
     def make_fex_accumulator(self, flags, name, inputs):
         return CompFactory.getComp("HLT::MET::TCPufitFex")(
@@ -157,8 +157,8 @@ class PFOPufitConfig(AlgConfig):
         )
         if nSigma == "default":
             nSigma = "sig50"
-        # Strip off the 'sig' part of the string, convert the end to and int, then divide by 10
-        self.n_sigma = int(nSigma[3:]) / 10.0
+        # Strip off the 'sig' part of the string, convert the end to a float, then divide by 10
+        self.n_sigma = float(nSigma[3:]) / 10.0
 
     def make_fex_accumulator(self, flags, name, inputs):
         return CompFactory.getComp("HLT::MET::PUSplitPufitFex")(
