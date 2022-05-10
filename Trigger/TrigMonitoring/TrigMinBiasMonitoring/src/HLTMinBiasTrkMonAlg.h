@@ -42,7 +42,9 @@ private:
   SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_zFinderDataKey { this, "zFinderDataKey", "", "Name of container with online zFinder vertex info" };
   SG::ReadHandleKey<xAOD::VertexContainer> m_vertexKey { this, "Vertex", "PrimaryVertices", "Offline vertices key"};
 
-  Gaudi::Property<std::vector<std::string>> m_triggerList{this, "triggerList",{}, "Add triggers to this to be monitored"};
+  Gaudi::Property<std::vector<std::string>> m_triggerListSpacePointsMon{this, "triggerListSpacePointsMon",{}, "Add triggers to this to be monitored"};
+  Gaudi::Property<std::vector<std::string>> m_triggerListTrackingMon{this, "triggerListTrackingMon",{}, "Add triggers to this to be monitored"};
+
   ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelectionTool {this, "TrackSelectionTool", "InDetTrackSelectionTool", "Tool for selecting tracks"};
   Gaudi::Property<float> m_minPt{ this, "minPt", 0.0, "Consider offline tracks only if above this threshold (in MeV)"};
   Gaudi::Property<float> m_z0{ this, "z0", 3.0, "Longitudinal DCA"};
