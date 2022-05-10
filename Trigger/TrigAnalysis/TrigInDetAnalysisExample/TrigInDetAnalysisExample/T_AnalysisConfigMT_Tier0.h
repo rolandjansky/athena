@@ -241,11 +241,11 @@ protected:
 	  std::string selectChain;
 	  
 	  if ( chainName.tail()!="" )    selectChain += ":key="+chainName.tail();
-	  if ( chainName.extra()!="" )   selectChain += ":extra="+chainName.extra();
 	  if ( chainName.element()!="" ) continue;
 	  if ( chainName.roi()!="" )     continue;
 	  if ( chainName.vtx()!="" )     selectChain += ":vtx="+chainName.vtx();
 	  if ( !chainName.passed() )     continue;
+	  if ( chainName.extra()!="" )   selectChain += ":extra="+chainName.extra();
 	  if ( chainName.postcount() )   selectChain += ":post:"+chainName.post();
 
 	  chains.push_back( ChainString(selectChain) );
@@ -259,10 +259,10 @@ protected:
 	  for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
 	    
 	    if ( chainName.tail()!="" )    selectChains[iselected] += ":key="+chainName.tail();
-	    if ( chainName.extra()!="" )   selectChains[iselected] += ":extra="+chainName.extra();
-	    if ( chainName.element()!="" ) selectChains[iselected] += ":te="+chainName.element();
 	    if ( chainName.roi()!="" )     selectChains[iselected] += ":roi="+chainName.roi();
 	    if ( chainName.vtx()!="" )     selectChains[iselected] += ":vtx="+chainName.vtx();
+	    if ( chainName.element()!="" ) selectChains[iselected] += ":te="+chainName.element();
+	    if ( chainName.extra()!="" )   selectChains[iselected] += ":extra="+chainName.extra();
 	    if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
 	    if ( chainName.postcount() )   selectChains[iselected] += ":post:"+chainName.post();
 	    
@@ -819,10 +819,6 @@ protected:
 
 	  std::string roi_key = chainConfig.roi();
 	
-	  //	if ( roi_key=="" ) roi_key = "forID";
-	  //	if ( roi_key=="" ) roi_key = "";
-
-
 	  unsigned feature_type =TrigDefs::lastFeatureOfType;
 
 	  if ( roi_key!="" ) feature_type= TrigDefs::allFeaturesOfType;

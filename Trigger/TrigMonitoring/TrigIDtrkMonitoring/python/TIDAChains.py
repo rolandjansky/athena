@@ -56,9 +56,7 @@ def getconfiguredchains( regex, monlevel=None ):
 
 _chains = None
 
-def _getconfiguredchains( regex, monlevel=None ):
-
-#   print ("getconfiguredchains: ", regex )
+def _getconfiguredchains( regex ):
 
     global _chains
 
@@ -88,7 +86,6 @@ def _getconfiguredchains( regex, monlevel=None ):
 
 def _getmonchains( regex, monlevel=None ):
 
-    #   print ("getconfiguredchains: ", regex )                                                                                                                                                        
     chains = []
 
     if monlevel is None: 
@@ -118,10 +115,9 @@ def _getmonchains( regex, monlevel=None ):
         moniAccess = getHLTMonitoringAccess(ConfigFlags)
         _monchains = moniAccess.monitoredChains( signatures=sig, monLevels=levels )
 
-#       print( datetime.now(), "configured chains: ", len(_chains) )
+#       print( datetime.now(), "configured chains: ", len(_monchains) )
 
     for c in _monchains:
-        # print( c )
         chain = re.findall( regex, c )
         for a in chain:
             if a is not None and c == a :
