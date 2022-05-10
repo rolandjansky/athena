@@ -117,7 +117,8 @@ namespace met {
     ATH_CHECK( m_EventInfoKey.initialize() );
 
 
-    const char lastchar = m_configPrefix.back();
+    const auto lastchar = m_configPrefix.back();
+    //cppcheck-suppress invalidFunctionArgStr
     if(std::strncmp(&lastchar,"/",1)!=0) {
       m_configPrefix.append("/");
     }
