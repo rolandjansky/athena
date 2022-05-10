@@ -362,7 +362,7 @@ StatusCode DecisionSvc::start()
   //            ^ FIXME: Should really mark start() as ATLAS_NOT_THREAD_SAFE but that is currently
   //              not possible with the thread-checker.
 
-  return StatusCode::SUCCESS;
+  return sc;
 }
 
 StatusCode DecisionSvc::DeclareToCutFlowSvc ATLAS_NOT_THREAD_SAFE ()
