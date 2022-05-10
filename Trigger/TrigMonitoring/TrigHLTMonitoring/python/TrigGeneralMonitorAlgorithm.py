@@ -167,7 +167,8 @@ def TrigGeneralMonConfig(inputFlags):
         HLT_names_signature_sorted = sorted(HLT_names_signature)
         ListOf_HLT_names_sorted.append(list(HLT_names_signature_sorted))
         for chain in HLT_names_signature_sorted:
-            log_trighlt.debug('sorted chain: %s',chain)
+            ## Print sorted HLT chain list 
+            log_trighlt.debug('sorted HLT chain: %s',chain)
 
     #########################
     ## The L1 items
@@ -182,6 +183,9 @@ def TrigGeneralMonConfig(inputFlags):
     #Sort L1 names alphabetically, to make the L1 histograms have the same 
     #x axes for different runs and reprocessings
     L1_names_sorted = sorted(L1_names)
+    #Print the L1 items in the menu
+    for item_name in L1_names_sorted:
+        log_trighlt.debug('L1 item: = %s',item_name)
 
 
     ##### L1 summary histogram ################################
@@ -201,16 +205,21 @@ def TrigGeneralMonConfig(inputFlags):
 
         ### Events
         titlename = sig+";;"+"Events" 
+        HLT_names_signature_sorted.clear()
+        HLT_names_signature_sorted = ListOf_HLT_names_sorted[i]
+        log_trighlt.debug('Number of chains = %i', len(HLT_names_signature_sorted)) 
+        Xmax=len(HLT_names_signature_sorted)
+        if Xmax<1:
+            Xmax = 1 #Avoid error messages if there are no chains in this signature
+        log_trighlt.debug('Xmax= %i', Xmax)
+
         for trigstatus in triggerstatus: #loop over RAW/PS
             histname = sig+trigstatus
-            log_trighlt.debug('Histname = %s', histname)
-            HLT_names_signature_sorted.clear()
-            HLT_names_signature_sorted = ListOf_HLT_names_sorted[i]
-            log_trighlt.debug('Number of chains = %i', len(HLT_names_signature_sorted))
+            log_trighlt.debug('Histname = %s', histname) 
             hltGroup.defineHistogram(histname,title=titlename,
                                      path=sig,xbins=len(HLT_names_signature_sorted),
-                                     xmin=0,xmax=len(HLT_names_signature_sorted), 
-                                     xlabels=HLT_names_signature_sorted)
+                                     xmin=0,xmax=Xmax, 
+                                     xlabels=HLT_names_signature_sorted,opt='kAlwaysCreate')
 
  
     ### RoIs, one per signature
@@ -259,7 +268,7 @@ if __name__=='__main__':
     cfg.merge(trigHLTMonitorAcc)
 
     # If you want to turn on more detailed messages ...
-    #trigHLTMonitorAcc.getEventAlgo('TrigHLTMonAlg').OutputLevel = 2 # DEBUG
+    #trigHLTMonitorAcc.getEventAlgo('TrigHLTMonAlg').OutputLevel = 2 # DEBUG 
     cfg.printConfig(withDetails=True) # set True for exhaustive info
 
     cfg.run() #use cfg.run(20) to only run on first 20 events
