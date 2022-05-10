@@ -249,10 +249,10 @@ inline const Jet::tagstore_t Jet::jetTagInfoVector(void) const
   //  taginfos are filled for every event. Need to return a copy
   //  of the TagInfoStore with all zeros removed
   if ( bool(m_tagInfoStore) )
-    for ( tagstore_t::iterator itr = m_tagInfoStore->begin();
-  	  itr != m_tagInfoStore->end(); ++itr )
-      if ( bool(*itr) )
-  	store.push_back( (*itr) );
+    for (const taginfo_t* tag : std::as_const(*m_tagInfoStore)) {
+      if ( tag != nullptr )
+  	store.push_back( tag );
+    }
   return store;
 
 }
