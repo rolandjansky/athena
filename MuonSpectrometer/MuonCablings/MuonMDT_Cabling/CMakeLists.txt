@@ -18,4 +18,5 @@ atlas_add_component( MuonMDT_Cabling
 atlas_install_python_modules( python/*.py )
 atlas_add_test( MdtCabling_Run2Data
                   SCRIPT python -m MuonMDT_Cabling.MdtCablingTester
+                  PROPERTIES TIMEOUT 600
                   POST_EXEC_SCRIPT nopost.sh)
