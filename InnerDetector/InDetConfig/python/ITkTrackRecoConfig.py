@@ -202,7 +202,7 @@ def ITkTrackRecoOutputCfg(flags):
 
     # exclude IDTIDE/IDTRKVALID decorations
     excludedAuxData += '.-TrkBLX.-TrkBLY.-TrkBLZ.-TrkIBLX.-TrkIBLY.-TrkIBLZ.-TrkL1X.-TrkL1Y.-TrkL1Z.-TrkL2X.-TrkL2Y.-TrkL2Z'
-    if not flags.InDet.Tracking.writeExtendedPRDInfo:
+    if not flags.ITk.Tracking.writeExtendedPRDInfo:
         excludedAuxData += '.-msosLink'
 
     toAOD += ["xAOD::TrackParticleContainer#InDetTrackParticles"]
