@@ -77,7 +77,7 @@ StatusCode DisplacedJetEventDecisionHypoTool::decide( std::vector<DecisionTuple>
 		flags |= 1;
 	}
 
-	if(n_c2_jets >= (m_min_h_jets + m_min_l_jets)){
+	if(n_c2_jets >= (m_min_h_jets.value() + m_min_l_jets.value())){
 		flags |= (1<<2);
 	}
 
