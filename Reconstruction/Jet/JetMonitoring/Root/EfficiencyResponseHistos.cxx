@@ -75,6 +75,7 @@ int EfficiencyResponseHistos::fillHistosFromContainer(const xAOD::JetContainer &
       double dr2 = jet::JetDistances::deltaR2(*(*it),*refjet);
       if(dr2 < dr2min) { dr2min = dr2; itmin = it ;}
     }
+    //cppcheck-suppress derefInvalidIterator
     const xAOD::Jet* matched = *itmin;
     listJets.erase(itmin);
     
