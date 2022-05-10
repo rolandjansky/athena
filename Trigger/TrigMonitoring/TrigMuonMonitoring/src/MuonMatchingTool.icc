@@ -1,5 +1,5 @@
 /* -*- mode:c++ -*-
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -123,7 +123,7 @@ const xAOD::Muon* MuonMatchingTool :: matchOff(const EventContext& ctx, const T*
   const auto [trigstatus, trigEta, trigPhi] = trigPosForMatchFunc(trig);
   if(!trigstatus) return muon;
 
-  for(const auto &mu : *muons){
+  for(const auto mu : *muons){
     const auto [offstatus, offEta, offPhi] = offlinePosForMatchFunc(mu);
     if(!offstatus) continue;
     float deta = offEta - trigEta;
