@@ -42,8 +42,7 @@ def AFP_GlobReco_Cfg(flags, kwargs={}):
 def AFP_GlobReco_HLT(flags):
 	
 	acc = AFP_GlobReco_Cfg(flags, {"AFPTrackContainerKey": "HLT_AFPTrackContainer", "protonsContainerName": recordable("HLT_AFPProtonContainer")})
-	AFP_Pr = acc.getEventAlgo("AFP_GlobReco")
 	
-	return AFP_Pr
+	return acc
 
 

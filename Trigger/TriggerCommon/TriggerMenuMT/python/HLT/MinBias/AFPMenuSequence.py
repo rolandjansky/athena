@@ -2,7 +2,7 @@
 #  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration 
 #
 from AthenaConfiguration.AllConfigFlags import ConfigFlags 
-from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequence
+from TriggerMenuMT.HLT.Config.MenuComponents import MenuSequence,algorithmCAToGlobalWrapper
 from AthenaCommon.CFElements import parOR, seqAND
 from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -19,7 +19,6 @@ def AFPTrkRecoBaseSequence(ConfigFlags):
     
     from AthenaCommon.GlobalFlags import globalflags
     from AthenaCommon.Configurable import Configurable
-    from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 
     if globalflags.InputFormat.is_bytestream():
         # bytestream convertor
@@ -32,21 +31,23 @@ def AFPTrkRecoBaseSequence(ConfigFlags):
     Configurable.configurableRun3Behavior=1 
 
     #cluster reconstruction
+
     from AFP_SiClusterTools.AFP_SiClusterTools import AFP_SiClusterTools_HLT
-    AFP_SiCl=conf2toConfigurable(AFP_SiClusterTools_HLT(ConfigFlags))
+    AFP_SiCl= algorithmCAToGlobalWrapper(AFP_SiClusterTools_HLT,ConfigFlags)
     
     # tracks reconstruction
     from AFP_LocReco.AFP_LocReco import AFP_LocReco_SiD_HLT, AFP_LocReco_TD_HLT
-    AFP_SID=conf2toConfigurable(AFP_LocReco_SiD_HLT(ConfigFlags))
-    AFP_TD=conf2toConfigurable(AFP_LocReco_TD_HLT(ConfigFlags))
-   
+    AFP_SID = algorithmCAToGlobalWrapper(AFP_LocReco_SiD_HLT,ConfigFlags)
+    AFP_TD  = algorithmCAToGlobalWrapper( AFP_LocReco_TD_HLT,ConfigFlags)
+
+    
     # protons reconstruction
     from AFP_GlobReco.AFP_GlobReco import AFP_GlobReco_HLT
-    AFP_Pr=conf2toConfigurable(AFP_GlobReco_HLT(ConfigFlags))
+    AFP_Pr= algorithmCAToGlobalWrapper(AFP_GlobReco_HLT,ConfigFlags)
   
     # vertex reconstruction
     from AFP_VertexReco.AFP_VertexReco import AFP_VertexReco_HLT
-    AFP_Vtx=conf2toConfigurable(AFP_VertexReco_HLT(ConfigFlags))
+    AFP_Vtx=algorithmCAToGlobalWrapper(AFP_VertexReco_HLT,ConfigFlags)
     
     Configurable.configurableRun3Behavior=wasRun3
     
