@@ -241,6 +241,7 @@ JETM15SlimmingHelper.AppendToDictionary = {
 }
 
 JETM15SlimmingHelper.SmartCollections = [
+  "EventInfo",
   "Electrons", 
   "Muons",
   "InDetTrackParticles",
@@ -308,15 +309,15 @@ JETM15SlimmingHelper.AppendToDictionary["CSSKNeutralParticleFlowObjects"]='xAOD:
 JETM15SlimmingHelper.AppendToDictionary["CSSKNeutralParticleFlowObjectsAux"]='xAOD::ShallowAuxContainer'
 JETM15SlimmingHelper.ExtraVariables.append('CSSKNeutralParticleFlowObjects.pt.eta.phi.m.e.charge')
 
-JETM15SlimmingHelper.AppendToDictionary["CHSChargedParticleFlowObjects"]='xAOD::PFOContainer'
-JETM15SlimmingHelper.AppendToDictionary["CHSChargedParticleFlowObjectsAux"]='xAOD::ShallowAuxContainer'
-JETM15SlimmingHelper.ExtraVariables.append('CHSChargedParticleFlowObjects.pt.eta.phi.m.e.charge.matchedToPV')
+JETM15SlimmingHelper.AppendToDictionary["CHSGChargedParticleFlowObjects"]='xAOD::PFOContainer'
+JETM15SlimmingHelper.AppendToDictionary["CHSGChargedParticleFlowObjectsAux"]='xAOD::ShallowAuxContainer'
+JETM15SlimmingHelper.ExtraVariables.append('CHSGChargedParticleFlowObjects.pt.eta.phi.m.e.charge.matchedToPV')
 
-JETM15SlimmingHelper.AppendToDictionary["CHSNeutralParticleFlowObjects"]='xAOD::PFOContainer'
-JETM15SlimmingHelper.AppendToDictionary["CHSNeutralParticleFlowObjectsAux"]='xAOD::ShallowAuxContainer'
-JETM15SlimmingHelper.ExtraVariables.append('CHSNeutralParticleFlowObjects.pt.eta.phi.m.e.charge')
+JETM15SlimmingHelper.AppendToDictionary["CHSGNeutralParticleFlowObjects"]='xAOD::PFOContainer'
+JETM15SlimmingHelper.AppendToDictionary["CHSGNeutralParticleFlowObjectsAux"]='xAOD::ShallowAuxContainer'
+JETM15SlimmingHelper.ExtraVariables.append('CHSGNeutralParticleFlowObjects.pt.eta.phi.m.e.charge')
 
-JETM15SlimmingHelper.AllVariables  += ["LCOriginTopoClusters", "LCOriginCSSKTopoClusters", "CSSKNeutralParticleFlowObjects", "CSSKChargedParticleFlowObjects", "TrackCaloClustersCombinedAndNeutral", "CHSChargedParticleFlowObjects", "CHSNeutralParticleFlowObjects"]
+JETM15SlimmingHelper.AllVariables  += ["LCOriginTopoClusters", "LCOriginCSSKTopoClusters", "CSSKNeutralParticleFlowObjects", "CSSKChargedParticleFlowObjects", "TrackCaloClustersCombinedAndNeutral", "CHSGChargedParticleFlowObjects", "CHSGNeutralParticleFlowObjects"]
 
 # Check if we need truth muon collection
 for truthc in [
