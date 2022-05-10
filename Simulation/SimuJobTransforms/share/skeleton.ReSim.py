@@ -267,10 +267,10 @@ if DetFlags.Muon_on():
         AddressRemappingSvc.addInputRename("RPCSimHitCollection", "RPC_Hits", "RPC_HitsOLD")
     if DetFlags.TGC_on():
         AddressRemappingSvc.addInputRename("TGCSimHitCollection", "TGC_Hits", "TGC_HitsOLD")
-    if MuonGeometryFlags.hasMM() and DetFlags.Micromegas_on():
-        AddressRemappingSvc.addInputRename("MMSimHitCollection", "MicromegasSensitiveDetector", "MicromegasSensitiveDetectorOLD")
+    if MuonGeometryFlags.hasMM() and DetFlags.MM_on():
+        AddressRemappingSvc.addInputRename("MMSimHitCollection", "MM_Hits", "MM_HitsOLD")
     if MuonGeometryFlags.hasSTGC() and DetFlags.sTGC_on():
-        AddressRemappingSvc.addInputRename("sTGCSimHitCollection", "sTGCSensitiveDetector", "sTGCSensitiveDetectorOLD")
+        AddressRemappingSvc.addInputRename("sTGCSimHitCollection", "sTGC_Hits", "sTGC_HitsOLD")
     AddressRemappingSvc.addInputRename("TrackRecordCollection", "MuonExitLayer", "MuonExitLayerOLD")
 
 #FIXME Add Renaming for Fwd Detector sim hits

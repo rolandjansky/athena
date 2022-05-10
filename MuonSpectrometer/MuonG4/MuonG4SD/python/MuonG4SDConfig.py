@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 
@@ -68,8 +68,16 @@ def getMDTSensitiveDetector(name="MDTSensitiveDetector", **kwargs):
 
 
 def getMicromegasSensitiveDetector(name="MicromegasSensitiveDetector", **kwargs):
+    bare_collection_name = "MM_Hits"
+    mergeable_collection_suffix = "_G4"
+    merger_input_property = "MMHits"
+    region = "MUON"
+    hits_collection_name = generate_mergeable_collection_name(bare_collection_name,
+                                                              mergeable_collection_suffix,
+                                                              merger_input_property,
+                                                              region)
     kwargs.setdefault("LogicalVolumeNames", ["Muon::MM_Sensitive"])
-    kwargs.setdefault("OutputCollectionNames", ["MicromegasSensitiveDetector"])
+    kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
     return CfgMgr.MicromegasSensitiveDetectorTool(name, **kwargs)
 
 
@@ -130,6 +138,14 @@ def getTGCSensitiveDetector(name="TGCSensitiveDetector", **kwargs):
 
 
 def getsTGCSensitiveDetector(name="sTGCSensitiveDetector", **kwargs):
+    bare_collection_name = "sTGC_Hits"
+    mergeable_collection_suffix = "_G4"
+    merger_input_property = "sTGCHits"
+    region = "MUON"
+    hits_collection_name = generate_mergeable_collection_name(bare_collection_name,
+                                                              mergeable_collection_suffix,
+                                                              merger_input_property,
+                                                              region)
     kwargs.setdefault("LogicalVolumeNames", ["Muon::sTGC_Sensitive"])
-    kwargs.setdefault("OutputCollectionNames", ["sTGCSensitiveDetector"])
+    kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
     return CfgMgr.sTGCSensitiveDetectorTool(name, **kwargs)

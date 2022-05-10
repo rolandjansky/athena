@@ -39,7 +39,7 @@ def createMuonConfigFlags():
     mcf.addFlag("Muon.doTGCs",True)
     mcf.addFlag("Muon.doRPCs",True)
     mcf.addFlag("Muon.doCSCs",lambda prevFlags : DetDescrInfo(prevFlags.GeoModel.AtlasVersion)['Muon']['HasCSC'])
-    mcf.addFlag("Muon.doMicromegas",lambda prevFlags : DetDescrInfo(prevFlags.GeoModel.AtlasVersion)['Muon']['HasMM'])
+    mcf.addFlag("Muon.doMMs",lambda prevFlags : DetDescrInfo(prevFlags.GeoModel.AtlasVersion)['Muon']['HasMM'])
     mcf.addFlag("Muon.dosTGCs",lambda prevFlags : DetDescrInfo(prevFlags.GeoModel.AtlasVersion)['Muon']['HasSTGC'])
     
     # stages of processing
@@ -83,7 +83,7 @@ def createMuonConfigFlags():
     
     mcf.addFlag("Muon.useSegmentMatching", lambda prevFlags : prevFlags.Beam.Type is BeamType.Collisions) # Do not use for cosmics or singlebeam 
     mcf.addFlag("Muon.useTrackSegmentMatching", True )
-    mcf.addFlag("Muon.runCommissioningChain", lambda prevFlags: ( (prevFlags.Muon.doMicromegas or prevFlags.Muon.dosTGCs) \
+    mcf.addFlag("Muon.runCommissioningChain", lambda prevFlags: ( (prevFlags.Muon.doMMs or prevFlags.Muon.dosTGCs) \
                                                                  and prevFlags.Beam.Type is BeamType.Collisions) )
     # CalibFlags
     mcf.addFlag("Muon.Calib.readMDTCalibFromBlob", True)  # Read mdt tube calibration from blob-folders

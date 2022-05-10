@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
@@ -58,9 +58,9 @@ def RenameHitCollectionsOnReadCfg(ConfigFlags):
         if ConfigFlags.Detector.EnableTGC:
             result.merge(InputRenameCfg("TGCSimHitCollection","TGC_Hits","TGC_HitsOLD"))
         if ConfigFlags.Detector.EnablesTGC:
-            result.merge(InputRenameCfg("sTGCSimHitCollection", "sTGCSensitiveDetector" "sTGCSensitiveDetectorOLD"))
+            result.merge(InputRenameCfg("sTGCSimHitCollection","sTGC_Hits", "sTGC_HitsOLD"))
         if ConfigFlags.Detector.EnableMM:
-            result.merge(InputRenameCfg("MMSimHitCollection", "MicromegasSensitiveDetector", "MicromegasSensitiveDetectorOLD"))
+            result.merge(InputRenameCfg("MMSimHitCollection","MM_Hits", "MM_HitsOLD"))
         result.merge(InputRenameCfg("TrackRecordCollection","MuonExitLayer","MuonExitLayerOLD"))
 
     #FIXME Add Renaming for Fwd Detector sim hits

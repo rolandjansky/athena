@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MergeGenericMuonSimHitCollTool.h"
@@ -21,8 +21,8 @@ StatusCode MergeGenericMuonSimHitCollTool::initialize() {
   // list of CaloCalibrationHit containers
   if (m_SimHitContainerNamesProp.value().empty()) {
     m_SimHitContainerNames.reserve(2);
-    m_SimHitContainerNames.push_back("MicromegasSensitiveDetector");
-    m_SimHitContainerNames.push_back("sTGCSensitiveDetector");
+    m_SimHitContainerNames.push_back("MM_Hits");
+    m_SimHitContainerNames.push_back("sTGC_Hits");
   }
   else {
     m_SimHitContainerNames = m_SimHitContainerNamesProp.value();

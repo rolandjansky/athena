@@ -255,16 +255,16 @@ class dosTGCs(JobProperty):
         muonRecFlags.sync_DetFlags("sTGC")
 
 ## Use MMs in reconstruction
-class doMicromegas(JobProperty):
+class doMMs(JobProperty):
     statusOn=True
     allowedTypes=['bool']
     StoredValue=True
 
     def _do_action(self):
-        muonRecFlags.sync_DetFlags("Micromegas")
+        muonRecFlags.sync_DetFlags("MM")
 
     def _undo_action(self):
-        muonRecFlags.sync_DetFlags("Micromegas")
+        muonRecFlags.sync_DetFlags("MM")
 
 ## @brief Use TGC measurements from Prior and Next Bunch Crossings.
 #
@@ -410,7 +410,7 @@ class MuonRec(JobPropertyContainer):
         setDefault(self.doTGCs,True)
         setDefault(self.doCSCs, True)
         setDefault(self.dosTGCs, True)
-        setDefault(self.doMicromegas, True)
+        setDefault(self.doMMs, True)
         setDefault(self.doMSVertex,True)
         setDefault(self.useWireSagCorrections,False)
         setDefault(self.enableErrorTuning,True)
@@ -474,7 +474,7 @@ class MuonRec(JobPropertyContainer):
     ## @brief Synchronise Muon DetFlags with MuonRecFlags and RecFlags
     ##
     ## @arg @c technologies is string with comma separated list of technologies to include in the update. Default="MDT,RPC,CSC,TGC"
-    def sync_DetFlags(self,technologies="MDT,RPC,CSC,TGC,sTGC,Micromegas"):
+    def sync_DetFlags(self,technologies="MDT,RPC,CSC,TGC,sTGC,MM"):
         self.setDefaults()
         global rec
         from AthenaCommon.DetFlags import DetFlags
@@ -560,7 +560,7 @@ class MuonRec(JobPropertyContainer):
         CSC_on = self.doCSCs()                # noqa: F841
         TGC_on = self.doTGCs()                # noqa: F841
         sTGC_on = self.dosTGCs()              # noqa: F841
-        Micromegas_on = self.doMicromegas()   # noqa: F841
+        MM_on = self.doMMs()                  # noqa: F841
         techList = technologies.split(',')
         for f in flagsOn:
             for tech in techList:

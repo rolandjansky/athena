@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Core configuration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -29,7 +29,7 @@ def StandaloneMuonOutputCfg(flags):
         aod_items+=[ "xAOD::TrackParticleContainer#EMEO_MuonSpectrometerTrackParticles" ]
         aod_items+=[ "xAOD::TrackParticleAuxContainer#EMEO_MuonSpectrometerTrackParticlesAux." ]
         
-    if flags.Muon.doMicromegas or flags.Muon.dosTGCs:
+    if flags.Muon.doMMs or flags.Muon.dosTGCs:
          aod_items+=[ "xAOD::MuonSegmentContainer#xAODNSWSegments" ]
          aod_items+=[ "xAOD::MuonSegmentAuxContainer#xAODNSWSegmentsAux." ]
 

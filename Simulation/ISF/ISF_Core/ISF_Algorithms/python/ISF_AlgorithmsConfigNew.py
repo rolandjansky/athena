@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -104,11 +104,11 @@ def RenameHitCollectionsCfg(flags, name="RenameHitCollections", sequenceName='Co
         kwargs.setdefault( "InputTGCHits",              "TGC_HitsOLD" )
         kwargs.setdefault( "OutputTGCHits",             "TGC_Hits"            )
     if flags.Detector.EnableMM:
-        kwargs.setdefault( "InputMMHits",              "MicromegasSensitiveDetectorOLD" )
-        kwargs.setdefault( "OutputMMHits",              "MicromegasSensitiveDetector"  )
+        kwargs.setdefault( "InputMMHits",               "MM_HitsOLD" )
+        kwargs.setdefault( "OutputMMHits",              "MM_Hits"             )
     if flags.Detector.EnablesTGC:
-        kwargs.setdefault( "InputsTGCHits",              "sTGCSensitiveDetectorOLD" )
-        kwargs.setdefault( "OutputsTGCHits",           "sTGCSensitiveDetector"           )
+        kwargs.setdefault( "InputsTGCHits",             "sTGC_HitsOLD" )
+        kwargs.setdefault( "OutputsTGCHits",            "sTGC_Hits"           )
 
     result.addEventAlgo(CompFactory.ISF.RenameHitCollectionsAlg(name, **kwargs), sequenceName) # TODO Need to ensure that sequence has been created
     return result

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "sTGCHitAnalysis.h"
@@ -125,7 +125,7 @@ StatusCode sTGCHitAnalysis::execute() {
   ATH_MSG_DEBUG( "In sTGCHitAnalysis::execute()" );
 
   const DataHandle<sTGCSimHitCollection> p_collection;;
-  if ((evtStore()->retrieve(p_collection,"sTGCSensitiveDetector"))==StatusCode::SUCCESS) {
+  if ((evtStore()->retrieve(p_collection,"sTGC_Hits"))==StatusCode::SUCCESS) {
     for (sTGCSimHitCollection::const_iterator i_hit = p_collection->begin(); i_hit != p_collection->end(); ++i_hit){
 
       Amg::Vector3D p = (*i_hit).globalPosition();

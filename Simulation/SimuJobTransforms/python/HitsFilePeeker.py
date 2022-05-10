@@ -1,6 +1,6 @@
 from past.builtins import basestring
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 def hitColls2SimulatedDetectors(inputlist):
     """Build a dictionary from the list of containers in the metadata"""
@@ -9,9 +9,10 @@ def hitColls2SimulatedDetectors(inputlist):
                            'BCMHits': 'BCM', 'LucidSimHitsVector': 'Lucid', 'LArHitEMB': 'LAr',
                            'LArHitEMEC': 'LAr', 'LArHitFCAL': 'LAr', 'LArHitHEC': 'LAr', 'LArHitHGTD': 'HGTD',
                            'MBTSHits': 'Tile', 'TileHitVec': 'Tile', 'MDT_Hits': 'MDT',
-                           'MicromegasSensitiveDetector': 'Micromegas',
-                           'sTGCSensitiveDetector': 'sTGC',
+                           'MicromegasSensitiveDetector': 'MM',  # TODO: remove after MC21a
+                           'sTGCSensitiveDetector': 'sTGC',  # TODO: remove after MC21a
                            'CSC_Hits': 'CSC', 'TGC_Hits': 'TGC', 'RPC_Hits': 'RPC',
+                           'sTGC_Hits': 'sTGC', 'MM_Hits': 'MM',
                            'TruthEvent': 'Truth'} #'': 'ALFA', '': 'ZDC',
     for entry in inputlist:
         if entry[1] in simulatedDictionary:

@@ -865,7 +865,7 @@ if __name__=='__main__':
 
     ConfigFlags.Detector.GeometryRPC=False
     ConfigFlags.Detector.GeometryMDT=True
-    ConfigFlags.Muon.doMicromegas = False
+    ConfigFlags.Muon.doMMs = False
     ConfigFlags.Muon.Align.UseILines = False
     ConfigFlags.Muon.Align.UseALines = False
     ConfigFlags.Muon.Align.UseBLines = False

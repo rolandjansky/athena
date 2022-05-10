@@ -198,7 +198,7 @@ if __name__=='__main__':
     ConfigFlags.Output.HISTFileName = 'monitor.root'
 
     ConfigFlags.Detector.GeometryMM=True
-    ConfigFlags.Muon.doMicromegas = True
+    ConfigFlags.Muon.doMMs = True
     ConfigFlags.DQ.useTrigger=False
 
     ConfigFlags.lock()

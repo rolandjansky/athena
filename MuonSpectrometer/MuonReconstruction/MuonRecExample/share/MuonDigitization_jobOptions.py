@@ -19,7 +19,7 @@ if DetFlags.digitize.TGC_on():
 if DetFlags.digitize.RPC_on():
     include( "RPC_Digitization/RPC_Digitization_jobOptions.py" )
 
-if DetFlags.digitize.Micromegas_on():
+if DetFlags.digitize.MM_on():
     CfgGetter.getAlgorithm("MM_FastDigitizer/MM_FastDigitizer",tryDefaultConfigurable=True)
 
 

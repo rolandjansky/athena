@@ -7,7 +7,7 @@
 #
 #   @date    Sun  8 Mar 2020 03:27:57 GMT
 #                 
-#   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration#                 
+#   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration#                 
 #
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory # CompFactory creates old or new configs depending on the enva
@@ -147,7 +147,7 @@ def makeRegSelTool_MM() :
     from AthenaCommon.DetFlags import DetFlags
     enabled = False
     if MuonGeometryFlags.hasMM() :
-        enabled = DetFlags.detdescr.Micromegas_on()
+        enabled = DetFlags.detdescr.MM_on()
     from MuonRegionSelector.MuonRegionSelectorConf import MM_RegSelCondAlg
     return _makeRegSelTool( "MM", enabled, MM_RegSelCondAlg )
 

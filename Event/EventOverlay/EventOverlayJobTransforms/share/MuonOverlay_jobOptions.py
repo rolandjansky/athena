@@ -8,7 +8,7 @@ from OverlayCommonAlgs.OverlayFlags import overlayFlags
 from AthenaCommon import CfgGetter
 from RecExConfig.RecFlags import rec as recFlags
 
-if DetFlags.overlay.MDT_on() or DetFlags.overlay.CSC_on() or DetFlags.overlay.RPC_on() or DetFlags.overlay.TGC_on() or DetFlags.overlay.sTGC_on() or DetFlags.overlay.Micromegas_on():
+if DetFlags.overlay.MDT_on() or DetFlags.overlay.CSC_on() or DetFlags.overlay.RPC_on() or DetFlags.overlay.TGC_on() or DetFlags.overlay.sTGC_on() or DetFlags.overlay.MM_on():
 
     include( "MuonEventAthenaPool/MuonEventAthenaPool_joboptions.py" )
 
@@ -54,7 +54,7 @@ if DetFlags.overlay.MDT_on() or DetFlags.overlay.CSC_on() or DetFlags.overlay.RP
             job += CfgGetter.getAlgorithm("STGC_TruthOverlay")
         job += CfgGetter.getAlgorithm("STGC_DigitToRDO")
 
-    if DetFlags.overlay.Micromegas_on():
+    if DetFlags.overlay.MM_on():
         job += CfgGetter.getAlgorithm("MM_RdoToDigitAlg")
         job += CfgGetter.getAlgorithm("MM_OverlayDigitizer")
         job += CfgGetter.getAlgorithm("MM_Overlay")

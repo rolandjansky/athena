@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 from AthenaCommon.CfgGetter import getPublicTool, getPrivateTool, getAlgorithm
@@ -50,7 +50,7 @@ def MuonSegmentTagAlg_LRT( name="MuonSegmentTagAlg_LRT", **kwargs ):
 def MuonInsideOutRecoAlg( name="MuonInsideOutRecoAlg", **kwargs ):
     reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
     reco_stgcs = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
-    reco_mm =  muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()  
+    reco_mm =  muonRecFlags.doMMs() and MuonGeometryFlags.hasMM()  
     tools = [getPublicTool("MuonInsideOutRecoTool") ]
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
     kwargs.setdefault("usePRDs",True)
@@ -68,7 +68,7 @@ def MuonInsideOutRecoAlg( name="MuonInsideOutRecoAlg", **kwargs ):
 def MuGirlAlg_LRT( name="MuGirlAlg_LRT", **kwargs ):
     reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
     reco_stgcs = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
-    reco_mm =  muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()  
+    reco_mm =  muonRecFlags.doMMs() and MuonGeometryFlags.hasMM()  
     tools = [getPublicTool("MuonInsideOutRecoTool") ]
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
     kwargs.setdefault("usePRDs",True)
@@ -89,7 +89,7 @@ def MuGirlAlg_LRT( name="MuGirlAlg_LRT", **kwargs ):
 def MuGirlStauAlg(name="MuGirlStauAlg",**kwargs):
     reco_cscs = MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()
     reco_stgcs = muonRecFlags.dosTGCs() and MuonGeometryFlags.hasSTGC()
-    reco_mm =  muonRecFlags.doMicromegas() and MuonGeometryFlags.hasMM()  
+    reco_mm =  muonRecFlags.doMMs() and MuonGeometryFlags.hasMM()  
     tools = [getPublicTool("MuonStauRecoTool")]
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
     kwargs.setdefault("TagMap","stauTagMap")

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ### This module contains functions which may need to peek at the input file metadata
 
@@ -154,7 +154,7 @@ def fillAtlasMetadata(dbFiller):
     ## Simulated detector flags: add each enabled detector to the simulatedDetectors list
     from AthenaCommon.DetFlags import DetFlags
     simDets = []
-    for det in ['pixel','SCT','TRT','BCM','DBM','Lucid','FwdRegion','ZDC','ALFA','AFP','LAr','HGTD','Tile','MDT','CSC','TGC','RPC','Micromegas','sTGC','Truth']:
+    for det in ['pixel','SCT','TRT','BCM','DBM','Lucid','FwdRegion','ZDC','ALFA','AFP','LAr','HGTD','Tile','MDT','CSC','TGC','RPC','MM','sTGC','Truth']:
         attrname = det+"_on"
         checkfn = getattr(DetFlags.geometry, attrname, None)
         if checkfn is None:

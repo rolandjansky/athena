@@ -99,13 +99,13 @@ private:
     Gaudi::Property<std::string> m_Truth_ContainerName{this, "Truth_ContainerName", "TruthEvent"};
     Gaudi::Property<std::string> m_MuEntry_ContainerName{this, "MuonEntryLayer_ContainerName", "MuonEntryLayer"};
 
-    Gaudi::Property<std::string> m_NSWsTGC_ContainerName{this, "NSWsTGC_ContainerName", "sTGCSensitiveDetector"};
+    Gaudi::Property<std::string> m_NSWsTGC_ContainerName{this, "NSWsTGC_ContainerName", "sTGC_Hits"};
     Gaudi::Property<std::string> m_NSWsTGC_SDOContainerName{this, "NSWsTGC_SDOContainerName", "sTGC_SDO"};
     Gaudi::Property<std::string> m_NSWsTGC_DigitContainerName{this, "NSWsTGC_DigitContainerName", "sTGC_DIGITS"};
     Gaudi::Property<std::string> m_NSWsTGC_RDOContainerName{this, "NSWsTGC_RDOContainerName", "sTGCRDO"};
     Gaudi::Property<std::string> m_NSWsTGC_PRDContainerName{this, "NSWsTGC_PRDContainerName", "STGC_Measurements"};
 
-    Gaudi::Property<std::string> m_NSWMM_ContainerName{this, "NSWMM_ContainerName", "MicromegasSensitiveDetector"};
+    Gaudi::Property<std::string> m_NSWMM_ContainerName{this, "NSWMM_ContainerName", "MM_Hits"};
     Gaudi::Property<std::string> m_NSWMM_SDOContainerName{this, "NSWMM_SDOContainerName", "MM_SDO"};
     Gaudi::Property<std::string> m_NSWMM_DigitContainerName{this, "NSWMM_DigitContainerName", "MM_DIGITS"};
     Gaudi::Property<std::string> m_NSWMM_RDOContainerName{this, "NSWMM_RDOContainerName", "MMRDO"};
