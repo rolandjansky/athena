@@ -69,7 +69,7 @@ public:
   void firstCall() override { 
     Gaudi::Hive::setCurrentContext (m_context);
     if ( m_roi.isFullscan() ) {
-      struct timeval t1,t2;
+      struct timeval t1{},t2{};
       gettimeofday(&t1,NULL);
       m_statusRef = request( *m_colRef );
       m_statusRef.ignore(); 
@@ -88,7 +88,7 @@ public:
       
     } else {
       
-      struct timeval t1,t2;
+      struct timeval t1{},t2{};
       gettimeofday(&t1,NULL);
       m_statusRef = request( m_selRef );
       m_statusRef.ignore();
@@ -314,7 +314,7 @@ StatusCode TestCaloDataAccess::execute( const EventContext& context ) const {
   if ( m_emulateFixedRoIs ) emulateFixedRoIs ( context, allRoIs );
 
     
-  timeval ti1,ti2;
+  timeval ti1{},ti2{};
   gettimeofday(&ti1,NULL);
   bool result = ParallelCallTest::launchTests( 2, allRoIs);
   gettimeofday(&ti2,NULL);

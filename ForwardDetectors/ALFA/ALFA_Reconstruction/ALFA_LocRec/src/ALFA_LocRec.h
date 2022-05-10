@@ -149,7 +149,7 @@ class ALFA_LocRec : public AthAlgorithm
 
 		StatusCode RecordCollection();
 		StatusCode RecordODCollection();
-		StatusCode ExecuteRecoMethod(const std::string strAlgo, const eRPotName eRPName, const std::list<MDHIT> &ListMDHits, const std::list<ODHIT> &ListODHits);
+		StatusCode ExecuteRecoMethod(const std::string& strAlgo, const eRPotName eRPName, const std::list<MDHIT> &ListMDHits, const std::list<ODHIT> &ListODHits);
 };
 
 #endif	//ALFA_LOCREC_h

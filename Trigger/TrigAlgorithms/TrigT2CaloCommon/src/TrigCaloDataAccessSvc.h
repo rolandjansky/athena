@@ -184,7 +184,7 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
   std::vector<uint32_t> m_vrodid32fullDet;
   std::vector<uint32_t> m_vrodid32tile;
   std::vector<unsigned int> m_mbts_add_rods;
-  const std::vector<unsigned int>* m_mbts_rods;
+  const std::vector<unsigned int>* m_mbts_rods = nullptr;
   std::vector<IdentifierHash> m_rIdstile;
   std::vector<std::vector<uint32_t> > m_vrodid32fullDetHG;
   size_t m_nSlots;

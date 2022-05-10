@@ -13,6 +13,7 @@
 // *********************************************************************
 #include <iostream>
 #include <math.h>
+#include <utility>
 
 #include "muCombUtil.h"
 #include "TrigMuonEvent/MuonFeature.h"
@@ -197,11 +198,11 @@ int whichECRegion( const float eta, const float phi ) {
     double AbsEta   = fabs(eta_id);
 
     std::vector<double> vec;
-    if (AbsEta < 1.05) vec = barrelvec;
-    else if (AbsEta>=1.05 && AbsEta<1.35) vec = ec1vec;
-    else if (AbsEta>=1.35 && AbsEta<1.65) vec = ec2vec;
-    else if (AbsEta>=1.65 && AbsEta<2.0)  vec = ec3vec;
-    else vec = ec4vec;
+    if (AbsEta < 1.05) vec = std::move(barrelvec);
+    else if (AbsEta>=1.05 && AbsEta<1.35) vec = std::move(ec1vec);
+    else if (AbsEta>=1.35 && AbsEta<1.65) vec = std::move(ec2vec);
+    else if (AbsEta>=1.65 && AbsEta<2.0)  vec = std::move(ec3vec);
+    else vec = std::move(ec4vec);
 
     return vec[0]*AbsPtInv+vec[1]/1000.;
   }
