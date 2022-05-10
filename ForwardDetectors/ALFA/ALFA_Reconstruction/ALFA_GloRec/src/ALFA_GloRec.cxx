@@ -448,8 +448,8 @@ void ALFA_GloRec::FillTrackCandHistos(AlfaTrackCand * trkcand){
 			py_g = m_py_g_neg;
 			pz_g = m_pz_g_neg;
 		}else{
-			msg(MSG::DEBUG) << "ALFA_GloRec::FillTrackCandHistos : Track candidate neither left nor right !!!" << endmsg;
-			exit(0);
+            ATH_MSG_ERROR("ALFA_GloRec::FillTrackCandHistos : Track candidate neither left nor right !!!");
+			return;
 		}
 		m_th1_xnearuppotresiduals -> Fill(trkcand->GetNearImpactPoint()->x()-trkcand->GetNearLocalHit()->GetX(),1.);
 		m_th1_ynearuppotresiduals -> Fill(trkcand->GetNearImpactPoint()->y()-trkcand->GetNearLocalHit()->GetY(),1.);

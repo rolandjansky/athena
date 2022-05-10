@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ALFA_CENTERGRAVITY_H
@@ -9,12 +9,9 @@
 #include <math.h>
 #include <list>
 
-#include "AthenaKernel/MsgStreamMember.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
 #include "GaudiKernel/StatusCode.h"
-
-#include "AthenaKernel/getMessageSvc.h"
 
 #include "TH1.h"
 #include "TH2.h"
@@ -24,7 +21,7 @@
 #include "ALFA_LocRec/ALFA_UserObjects.h"
 
 
-class ALFA_CenterGravity
+class ALFA_CenterGravity : public AthMessaging
 {
 	public:
 		ALFA_CenterGravity();
@@ -87,15 +84,6 @@ class ALFA_CenterGravity
 		StatusCode Finalize(Float_t &fRecXPos, Float_t &fRecYPos);
 
 		void GetData(Int_t (&iFibSel)[ALFALAYERSCNT*ALFAPLATESCNT]);
-
-public:
-	/// Log a message using the Athena controlled logging system
-	MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-	/// Check whether the logging system is active at the provided verbosity level
-	bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
-private:
-	/// Private message stream member
-	mutable Athena::MsgStreamMember m_msg;
 
 };
 #endif // ALFA_CENTERGRAVITY_H

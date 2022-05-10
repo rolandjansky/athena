@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
  
 
@@ -29,7 +29,7 @@ public:
   void book ();
 
   /// Returns the profile object #m_profile.
-  TProfile* profile () const {return m_profile;}
+  TProfile* profile () {return m_profile;}
 
 protected:
   /// The summary distribution. TProfile ensures proper merging of mean values.

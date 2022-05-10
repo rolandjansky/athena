@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -64,7 +64,6 @@ private:
   int          m_saturation; // saturation level (absolute ADC)
   float        m_pedestalValue; // pedestal value (set to 100)
 
-  static int s_ppmChannel;
   const ZdcID* m_zdcId{};
 
 };

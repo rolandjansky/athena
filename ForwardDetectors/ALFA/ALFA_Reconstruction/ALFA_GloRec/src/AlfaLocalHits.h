@@ -124,8 +124,8 @@ class AlfaTrackCand {
 		float GetYslope(){return m_yslope;};
 		AlfaLocalHit * GetNearLocalHit(){return m_nearlocalhit;};
 		AlfaLocalHit * GetFarLocalHit() {return m_farlocalhit; };
-		ALFA_LocRecCorrEvent * GetNearLocRecCorr(){return (ALFA_LocRecCorrEvent*)(m_nearlocalhit->GetLocRecCorr());};
-		ALFA_LocRecCorrEvent * GetFarLocRecCorr() {return (ALFA_LocRecCorrEvent*)(m_farlocalhit->GetLocRecCorr());};
+		const ALFA_LocRecCorrEvent * GetNearLocRecCorr() const {return m_nearlocalhit->GetLocRecCorr();};
+		const ALFA_LocRecCorrEvent * GetFarLocRecCorr() const {return m_farlocalhit->GetLocRecCorr();}
 		void CalcImpactPoints();
 		HepGeom::Point3D<double> * GetNearImpactPoint(){return &m_nearimpactpoint;};
 		HepGeom::Point3D<double> * GetFarImpactPoint(){return &m_farimpactpoint;};

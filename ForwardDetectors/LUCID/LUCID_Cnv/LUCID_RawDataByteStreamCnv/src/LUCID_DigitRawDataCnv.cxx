@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -52,7 +52,7 @@ StatusCode LUCID_DigitRawDataCnv::execute() {
   
   std::vector<uint32_t> data_block;
   
-  m_rodEncoder.encode(data_block);
+  m_rodEncoder.encode(data_block, msg());
 
   data_block.push_back(0); // add status word
   

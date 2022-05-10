@@ -1,12 +1,13 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-
+#include "AthenaKernel/getMessageSvc.h"
 #include "LUCID_RawDataByteStreamCnv/LUCID_DigitByteStreamCnv.h"
 
 LUCID_DigitByteStreamCnv::LUCID_DigitByteStreamCnv(ISvcLocator* svcloc) : 
   Converter(storageType(), classID(), svcloc),
+  AthMessaging(Athena::getMessageSvc(), "LUCID_DigitByteStreamCnv"),
   m_RodBlockVersion      (0),
   m_BCs_per_LVL1ID       (1)
 {
@@ -16,18 +17,10 @@ LUCID_DigitByteStreamCnv::LUCID_DigitByteStreamCnv(ISvcLocator* svcloc) :
 
 StatusCode LUCID_DigitByteStreamCnv::initialize() {
 
-  StatusCode sc = Converter::initialize(); 
-  
-  if (StatusCode::SUCCESS != sc) return sc; 
-  
-  if (StatusCode::SUCCESS != service("ByteStreamCnvSvc", m_ByteStreamEventAccess) || !m_ByteStreamEventAccess) {
+  ATH_CHECK( Converter::initialize() );
+  ATH_CHECK( service("ByteStreamCnvSvc", m_ByteStreamEventAccess) );
     
-    if (msgLevel(MSG::FATAL)) msg(MSG::FATAL) << "Can't get ByteStreamEventAccess interface" << endmsg;
-    
-    return StatusCode::FAILURE;
-  }
-  
-  return StatusCode::SUCCESS; 
+  return StatusCode::SUCCESS;
 }
 
 const CLID& LUCID_DigitByteStreamCnv::classID() {
@@ -42,7 +35,7 @@ long LUCID_DigitByteStreamCnv::storageType() {
 
 StatusCode LUCID_DigitByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr) {
   
-  if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << " LUCID_DigitByteStreamCnv::createRep" << endmsg;
+   ATH_MSG_DEBUG(" LUCID_DigitByteStreamCnv::createRep");
 
    RawEventWrite*        re = m_ByteStreamEventAccess->getRawEvent();
    LUCID_DigitContainer* RDO_container = nullptr;
@@ -52,7 +45,7 @@ StatusCode LUCID_DigitByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*
 
    if (!RDO_container) {
 
-     if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Can not cast to LUCID_DigitContainer" << endmsg;
+     ATH_MSG_ERROR("Can not cast to LUCID_DigitContainer");
      
      return StatusCode::RECOVERABLE;
    }
@@ -69,7 +62,7 @@ StatusCode LUCID_DigitByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*
    
    if (sc.isFailure()){
 
-     if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << " Could not convert RawData with to ByteStream " << endmsg;
+     ATH_MSG_ERROR(" Could not convert RawData with to ByteStream ");
      
      return StatusCode::RECOVERABLE;
    }
@@ -84,7 +77,7 @@ StatusCode LUCID_DigitByteStreamCnv::fillFEA(LUCID_DigitContainer* RDO_container
   FullEventAssembler<SrcIdMap>::RODDATA* theROD;
 
   m_fea.setRodMinorVersion(RodBlockVersion());
-  if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "Setting ROD Minor Version Number to: " << m_RodBlockVersion << endmsg;
+  ATH_MSG_DEBUG("Setting ROD Minor Version Number to: " << m_RodBlockVersion);
 
   LucidRodEncoder_map RDOEncoder_map;
 
@@ -99,7 +92,7 @@ StatusCode LUCID_DigitByteStreamCnv::fillFEA(LUCID_DigitContainer* RDO_container
       
       RDOEncoder_map[rodId].addDigit((*it_cont));
     } 
-    else if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << " Digit is empty, skipping digit." << endmsg;
+    else ATH_MSG_WARNING(" Digit is empty, skipping digit.");
   }
 
   LucidRodEncoder_map::iterator it_map     = RDOEncoder_map.begin();
@@ -111,7 +104,7 @@ StatusCode LUCID_DigitByteStreamCnv::fillFEA(LUCID_DigitContainer* RDO_container
     
     theROD = m_fea.getRodData((*it_map).first);
     
-    ((*it_map).second).encode(*theROD);
+    ((*it_map).second).encode(*theROD, msg());
 
     (*theROD).push_back(0); // add status word
   
