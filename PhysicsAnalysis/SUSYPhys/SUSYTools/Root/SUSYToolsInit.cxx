@@ -1558,12 +1558,16 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     
   
     // Set MCshowerType for FTAG MC/MC SFs
-    std::string MCshowerID = "410470";                 // Powheg+Pythia8 (default)
-    if (m_showerType == 1) MCshowerID = "410558";      // Powheg+Herwig7
-    else if (m_showerType == 2) MCshowerID = "426131"; // Sherpa 2.1
-    else if (m_showerType == 3) MCshowerID = "410250"; // Sherpa 2.2
-    else if (m_showerType == 4) MCshowerID = "410464"; // aMC@NLO+Pythia8
-  
+    // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BTagCalibrationRecommendationsRelease21#MC_MC_Scale_Factors_for_Analysis
+    std::string MCshowerID = "410470";                 // Powheg+Pythia8 (default)  - PhPy8EG_A14
+    if (m_showerType == 1) MCshowerID = "410558";      // Powheg+Herwig 7.0.4       - PowhegHerwig7EvtGen_H7UE
+    else if (m_showerType == 2) MCshowerID = "426131"; // Sherpa 2.1                - Sherpa_CT10
+    else if (m_showerType == 3) MCshowerID = "410250"; // Sherpa 2.2.1 or 2.2.2     - Sherpa_221
+    else if (m_showerType == 4) MCshowerID = "410464"; // aMC@NLO+Pythia8           - aMcAtNloPy8EvtGen_MEN30NLO_A14N23LO
+    else if (m_showerType == 5) MCshowerID = "421152"; // Sherpa 2.2.8              - Sh_N30NNLO
+    else if (m_showerType == 6) MCshowerID = "700122"; // Sherpa 2.2.10             - Sh_2210
+
+
     // btagEfficiencyTool
     if (m_useBtagging && !m_btagEffTool.isUserConfigured() && !m_BtagWP.empty()) {
       if (jetcoll != "AntiKt4EMTopoJets" && jetcoll != "AntiKt4EMPFlowJets") {
@@ -1575,6 +1579,11 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       if (jetcollBTag == "AntiKt4EMPFlowJets" && MCshowerID == "426131") { // sherpa 2.1 isn't available
         ATH_MSG_WARNING ("MC/MC SFs for AntiKt4EMPFlowJets are not available yet! Falling back to AntiKt4EMTopoJets for the SFs.");
         jetcollBTag = "AntiKt4EMTopoJets";
+      } 
+
+      if (jetcollBTag == "AntiKt4EMTopoJets" && (MCshowerID == "421152" || MCshowerID == "700122")) { // Sherpa 2.2.8, 2.2.10 isn't available
+        ATH_MSG_WARNING ("MC/MC SFs for AntiKt4EMTopoJets are not available yet! Falling back to Sherpa 2.2.1 for the SFs.");
+        MCshowerID == "410250";
       }
 
       toolName = "BTagSF_" + jetcollBTag + m_BtagTagger + m_BtagWP;
