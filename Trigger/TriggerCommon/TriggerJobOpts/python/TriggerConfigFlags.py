@@ -223,18 +223,8 @@ def createTriggerFlags():
     # enables the correction for pileup in cell energy calibration (should it be moved to some place where other calo flags are defined?)
     flags.addFlag('Trigger.calo.doOffsetCorrection', True )
 
-    # Particle ID tune
-    flags.addFlag('Trigger.egamma.electronPidVersion', 'ElectronPhotonSelectorTools/trigger/rel22_20210611/')
-    flags.addFlag('Trigger.egamma.electronNoPixPidVersion', 'ElectronPhotonSelectorTools/trigger/rel22_20210611/')
-    flags.addFlag('Trigger.egamma.photonPidVersion', 'ElectronPhotonSelectorTools/trigger/rel22_20210611/')
-    flags.addFlag('Trigger.egamma.dnnVersion', 'ElectronPhotonSelectorTools/trigger/rel21_20220421/')
-    flags.addFlag('Trigger.egamma.ringerVersion', 'RingerSelectorTools/TrigL2_20210702_r4/')
-
-    # cluster correction version, allowed value is: None or v12phiflip_noecorrnogap
-    flags.addFlag('Trigger.egamma.clusterCorrectionVersion', 'v12phiflip_noecorrnogap')
-
-    # tune of MVA
-    flags.addFlag('Trigger.egamma.calibMVAVersion', 'egammaMVACalib/online/v6')
+    from TriggerMenuMT.HLT.Egamma.TrigEgammaConfigFlags import createTrigEgammaConfigFlags
+    flags.addFlagsCategory('Trigger.egamma', createTrigEgammaConfigFlags)
 
     # muon offline reco flags varaint for trigger
     def __muonSA():
