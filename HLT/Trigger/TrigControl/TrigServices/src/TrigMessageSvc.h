@@ -180,7 +180,7 @@ private:
   };
 
   std::map<std::string, MsgAry> m_sourceMap;     ///< counts per source
-  std::array<int, MSG::NUM_LEVELS> m_msgCount;   ///< counts per level
+  std::array<int, MSG::NUM_LEVELS> m_msgCount{};   ///< counts per level
   std::map<size_t, unsigned int> m_msgHashCount; ///< counts per message hash
   std::unordered_map<EventContext::ContextID_t,
                      std::pair<EventContext::ContextEvt_t, MsgAry>> m_slotMsgCount; ///< counts per slot and level

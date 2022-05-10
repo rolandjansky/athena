@@ -84,8 +84,8 @@ public:
     void merge();
 
     /*Verify if POWHEG event has Higgs off-mass shell */
-    bool isPHevent(TLorentzVector higgs,
-                   TLorentzVector sum_daugh_rest_init);
+    bool isPHevent(const TLorentzVector& higgs,
+                   const TLorentzVector& sum_daugh_rest_init);
 
     /* Set Particles Mass */
     double setParticleMass(int id) const;

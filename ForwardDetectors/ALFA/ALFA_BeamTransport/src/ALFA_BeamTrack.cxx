@@ -28,6 +28,7 @@
 
 
 #include <iostream>
+#include <utility>
 
 //constructor
 ALFA_BeamTrack::ALFA_BeamTrack()
@@ -143,7 +144,7 @@ int ALFA_BeamTrack::initialize(const FPConfig &ConfigValues){
 //calculates Position and Momentum at RP
 int ALFA_BeamTrack::CalculatePosRP(FPTracker::Particle particle){
   
-	FPTracker::Particle Particle=particle;
+	FPTracker::Particle Particle=std::move(particle);
 	FPTracker::Point lost_markerMom(-99,-99,-99); 
 	
 

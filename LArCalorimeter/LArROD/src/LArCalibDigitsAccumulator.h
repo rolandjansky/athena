@@ -121,7 +121,7 @@ private:
    * @brief Event counter
    * */
   unsigned int m_event_counter;
-  unsigned int m_eventNb;
+  unsigned int m_eventNb = 0U;
 
   // Information to remove certain readings if needed
   std::map<std::string, std::map<int,std::vector<int>*>*>           m_readingsMap;

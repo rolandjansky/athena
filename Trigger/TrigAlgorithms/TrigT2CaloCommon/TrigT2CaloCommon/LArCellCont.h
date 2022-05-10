@@ -114,7 +114,7 @@ private:
 	/** A tool to help mask cells */
 	//const ILArBadChannelMasker  *m_masker;
 	/** A tool to help mask febs */
-	const ILArBadFebMasker *m_badFebMasker;
+	const ILArBadFebMasker *m_badFebMasker = nullptr;
 	/** List of Missing ROBs to be disabled at the RS */
 	std::vector<uint32_t> m_MissingROBs;
 	/** hash references to BCID */

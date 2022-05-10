@@ -661,7 +661,7 @@ void ALFA_LocRec::SaveGeometry()
 	ATH_MSG_DEBUG("end ALFA_LocRec::SaveGeometry()");
 }
 
-StatusCode ALFA_LocRec::ExecuteRecoMethod(const std::string strAlgo, const eRPotName eRPName, const std::list<MDHIT> &ListMDHits, const std::list<ODHIT> &ListODHits)
+StatusCode ALFA_LocRec::ExecuteRecoMethod(const std::string& strAlgo, const eRPotName eRPName, const std::list<MDHIT> &ListMDHits, const std::list<ODHIT> &ListODHits)
 {
 	ATH_MSG_DEBUG("begin ALFA_LocRec::ExecuteRecoMethod()");
 

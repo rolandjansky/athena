@@ -104,8 +104,8 @@ class ALFA_BeamTransport : public ::AthAlgorithm
 	  FPTracker::Point m_MomRP1;
 	  FPTracker::Point m_MomRP3;
 	  
-	  double m_EnergyRP1;
-	  double m_EnergyRP3;
+	  double m_EnergyRP1 = 0.0;
+	  double m_EnergyRP3 = 0.0;
 	  
 	  std::string m_FPOutputBeam1;
 	  std::string m_FPOutputBeam2;
@@ -114,9 +114,9 @@ class ALFA_BeamTransport : public ::AthAlgorithm
 	  //The two counters have to be set zero at the beginning at each execute run since 
 	  //for every new call of the execute() funktion they have to be zero
 	  //counter for particles marked as outgoing in event record
-	  int m_pcount;
+	  int m_pcount = 0;
 	  //counter for particles marked as incomming in event record
-	  int m_pint;
+	  int m_pint = 0;
 
 	  double m_EtaCut;
 	  double m_XiCut;
