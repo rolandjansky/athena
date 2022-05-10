@@ -150,10 +150,6 @@ if __name__=='__main__':
 
 
     ConfigFlags.Output.HISTFileName = 'CscRDOMonitorOutput.root'
-    ConfigFlags.Muon.doCSCs = True
-    ConfigFlags.Muon.doRPCs = False
-    ConfigFlags.Muon.doTGCs = False
-    ConfigFlags.Muon.doMMs = False
     ConfigFlags.Detector.GeometryMuon=False
     ConfigFlags.Detector.GeometryCSC=True
     ConfigFlags.Detector.GeometryRPC=False

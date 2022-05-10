@@ -856,16 +856,15 @@ if __name__=='__main__':
     #ConfigFlags.IOVDb.DatabaseInstance=""
     #ConfigFlags.GeoModel.AtlasVersion = "ATLAS-R2-2016-01-00-01  "
 
+    ConfigFlags.Detector.GeometryMuon = False
+    ConfigFlags.Detector.GeometryCSC = False
+    ConfigFlags.Detector.GeometryRPC = False
+    ConfigFlags.Detector.GeometryTGC = False
+    ConfigFlags.Detector.GeometrysTGC = False
+    ConfigFlags.Detector.GeometryMM = False
 
-    ConfigFlags.Muon.doCSCs = False
-    ConfigFlags.Muon.doRPCs = False
-    ConfigFlags.Muon.doTGCs = False
-    ConfigFlags.Detector.GeometryMuon=False
-    ConfigFlags.Detector.GeometryCSC=False
+    ConfigFlags.Detector.GeometryMDT = True
 
-    ConfigFlags.Detector.GeometryRPC=False
-    ConfigFlags.Detector.GeometryMDT=True
-    ConfigFlags.Muon.doMMs = False
     ConfigFlags.Muon.Align.UseILines = False
     ConfigFlags.Muon.Align.UseALines = False
     ConfigFlags.Muon.Align.UseBLines = False
