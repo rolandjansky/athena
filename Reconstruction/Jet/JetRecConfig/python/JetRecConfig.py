@@ -690,7 +690,7 @@ def removeComponentFailingConditions(jetdef, configflags=None, raiseOnFailure=Tr
                 
                 nOut+=1
                 jetlog.info(f"{fullname} : removing {compType}  {comp}  reason={reason}")
-                if fullkey in jetdef._prereqOrder: 
+                if fullkey in jetdef._prereqOrder:
                     jetdef._prereqOrder.remove(fullkey)
                 if compType=='ghost':
                     removeFromList(jetdef._prereqOrder, 'input:'+comp)
@@ -749,6 +749,18 @@ def removeGroomModifFailingConditions(groomdef, configflags, raiseOnFailure=True
 
     groomdef.modifiers = mods_filtered
 
+    for prereq in groomdef._prereqDic:
+        cInstance = groomdef._prereqDic[prereq]
+        ok, reason = isComponentPassingConditions(cInstance, configflags, groomdef._prereqDic)
+
+        if not ok :
+            if raiseOnFailure:
+                raise Exception("JetGrooming {} can NOT be scheduled. Failure  of {} {}  reason={}".format(
+                    groomdef, 'prereq', prereq, reason) )
+
+                jetlog.info(f"{groomdef.fullname()} : removing prerequisite {prereq}  reason={reason}")
+
+            removeFromList(groomdef._prereqOrder, prereq)
 
 def isComponentPassingConditions(component, configflags, prereqDic):
     """Test if component is compatible with configflags.
