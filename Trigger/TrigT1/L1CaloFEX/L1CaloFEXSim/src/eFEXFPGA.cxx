@@ -113,7 +113,7 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
     overflow_eta = 5;
   }
   
-  for(int ieta = 1; ieta < 5; ieta++) {
+  for(int ieta = min_eta; ieta < overflow_eta; ieta++) {
     for(int iphi = 1; iphi < 9; iphi++) {
       int tobtable[3][3]={
         {m_eTowersIDs[iphi-1][ieta-1], m_eTowersIDs[iphi-1][ieta], m_eTowersIDs[iphi-1][ieta+1]},
@@ -122,7 +122,7 @@ StatusCode eFEXFPGA::execute(eFEXOutputCollection* inputOutputCollection){
       };
 
       ATH_CHECK( m_eFEXegAlgoTool->safetyTest() );
-      m_eFEXegAlgoTool->setup(tobtable);
+      m_eFEXegAlgoTool->setup(tobtable, m_efexid, m_id, ieta);
 
       // ignore any tobs without a seed, move on to the next window
       if (m_eFEXegAlgoTool->hasSeed() == false) continue;
