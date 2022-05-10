@@ -5,7 +5,7 @@ atlas_subdir( JetTagTools )
 
 # External dependencies:
 find_package( CLHEP )
-find_package( ROOT COMPONENTS TMVA Core Tree MathCore Hist RIO pthread
+find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread
     MathMore Minuit Minuit2 Matrix Physics HistPainter Rint RooFitCore RooFit )
 
 # Component(s) in the package:
