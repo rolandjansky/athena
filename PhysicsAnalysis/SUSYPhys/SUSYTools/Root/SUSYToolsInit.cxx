@@ -1451,44 +1451,12 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   ///////////////////////////////////////////////////////////////////////////////////////////
   // Initialise B-tagging tools
   
-    // Warnings for invalid timestamps, or timestamped containers with old CDI file & vice versa
-    int cdiYear = atoi(m_bTaggingCalibrationFilePath.substr(m_bTaggingCalibrationFilePath.find("13TeV/")+6,4).c_str());
-    // Regular Jets
-    if (m_useBtagging && (!m_BtagTimeStamp.empty() && !(m_BtagTimeStamp.compare("201810")==0||m_BtagTimeStamp.compare("201903")==0))) {
-      ATH_MSG_ERROR("Only 201810 & 201903 are valid BTag container timestamps. Current = " << m_BtagTimeStamp);
-      return StatusCode::FAILURE;
-    }
-    if (m_useBtagging && (!m_BtagTimeStamp.empty() && cdiYear<2019)) {
-      ATH_MSG_ERROR("Shouldn't use timestamped Jet collection (" << m_BtagTimeStamp << ") with older CDI file (" << m_bTaggingCalibrationFilePath << ")");
-      return StatusCode::FAILURE;
-    }
-    if (m_useBtagging && (m_BtagTimeStamp.empty() && cdiYear>2017)) {
-       ATH_MSG_ERROR("Should provide a BTag container timestamp (default = Btag.TimeStamp: 201810) to use with Jets and newer CDI files (" << m_bTaggingCalibrationFilePath << ")");
-       return StatusCode::FAILURE;
-    }
-    if (m_slices["tjet"]) {
-      // TrackJets
-      if (m_useBtagging_trkJet && (!m_BtagTimeStamp_trkJet.empty() && !(m_BtagTimeStamp_trkJet.compare("201810")==0||m_BtagTimeStamp_trkJet.compare("201903")==0))) {
-        ATH_MSG_ERROR("Only 201810 & 201903 are valid BTag container timestamps for TrackJets. Current = " << m_BtagTimeStamp_trkJet);
-        return StatusCode::FAILURE;
-      }
-      if (m_useBtagging_trkJet && (!m_BtagTimeStamp_trkJet.empty() && cdiYear<2020)) {
-        ATH_MSG_ERROR("Shouldn't use timestamped TrackJet collection (" << m_BtagTimeStamp_trkJet << ") with older CDI file (" << m_bTaggingCalibrationFilePath << ")");
-        return StatusCode::FAILURE;
-      }
-      if (m_useBtagging_trkJet && (m_BtagTimeStamp_trkJet.empty() && cdiYear>2019)) {
-         ATH_MSG_ERROR("Should provide a BTag container timestamp (default = Btag.TimeStamp_trkJet: 201903) to use with TrackJets and newer CDI files (" << m_bTaggingCalibrationFilePath << ")");
-         return StatusCode::FAILURE;
-      }
-    }
-
     // btagSelectionTool
     std::string jetcollBTag = jetcoll;
     if (jetcoll == "AntiKt4LCTopoJets") {
       ATH_MSG_WARNING("  *** HACK *** Treating LCTopoJets jets as EMTopo -- use at your own risk!");
       jetcollBTag = "AntiKt4EMTopoJets";
     }
-    if (!m_BtagTimeStamp.empty()) jetcollBTag += "_BTagging" + m_BtagTimeStamp;
   
     if (m_useBtagging && !m_btagSelTool.isUserConfigured() && !m_BtagWP.empty()) {
       if (jetcollBTag.find("AntiKt4EMTopoJets") == std::string::npos && jetcollBTag.find("AntiKt4EMPFlowJets")==std::string::npos) {
@@ -1534,7 +1502,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
          m_useBtagging_trkJet = false;
          ATH_MSG_INFO("TrackJet collection set to None: disabling btagging for TrackJets.");
       }
-      if (!m_BtagTimeStamp_trkJet.empty()) BTagColl_TrkJet += "_BTagging"+m_BtagTimeStamp_trkJet;
 
       if (m_useBtagging_trkJet && !m_btagSelTool_trkJet.isUserConfigured() && !m_BtagWP_trkJet.empty()) {
         if (trkjetcoll.find("AntiKt2PV0TrackJets")==std::string::npos && trkjetcoll.find("AntiKtVR30Rmax4Rmin02TrackJets")==std::string::npos) {

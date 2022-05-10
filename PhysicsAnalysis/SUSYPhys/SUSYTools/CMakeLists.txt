@@ -95,13 +95,13 @@ set (extra_patterns "  (Entire loop|Excluding first event|First event).*ms|cvmfs
 # Test(s) in the package:
 if( XAOD_STANDALONE )
    atlas_add_test( ut_SUSYToolsTester_data
-      SCRIPT SUSYToolsTester /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/DAOD_PHYS.data18_13TeV.358031.data18_p4631-iso.PHYS.pool.root
+      SCRIPT SUSYToolsTester /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/DAOD_PHYS.data18_13TeV.358031.data18_p5057.PHYS.pool.root
              maxEvents=500 isData=1 isAtlfast=0 Debug=0
       LOG_IGNORE_PATTERN ${extra_patterns}
       PROPERTIES TIMEOUT 300
    )
    atlas_add_test( ut_SUSYToolsTester_mc
-      SCRIPT SUSYToolsTester /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/DAOD_PHYS.mc16_13TeV.410470.FS_mc16e_p4631-iso.PHYS.pool.root
+      SCRIPT SUSYToolsTester /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/DAOD_PHYS.mc20_13TeV.410470.FS_mc20e_p5057.PHYS.pool.root
              maxEvents=100 isData=0 isAtlfast=0 Debug=0 NoSyst=0
              PRWFile=dev/PileupReweighting/mc16_13TeV/pileup_mc16e_dsid410470_FS.root
              ilumicalcFile=GoodRunsLists/data18_13TeV/20190318/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-010.root

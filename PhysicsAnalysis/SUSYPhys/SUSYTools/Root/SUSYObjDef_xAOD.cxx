@@ -183,13 +183,11 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_BtagWP(""),
     m_BtagTagger(""),
     m_BtagMinPt(-99.),
-    m_BtagTimeStamp(""),
     m_BtagKeyOverride(""),
     m_BtagSystStrategy(""),
     m_BtagWP_trkJet(""),
     m_BtagTagger_trkJet(""),
     m_BtagMinPt_trkJet(-99.),
-    m_BtagTimeStamp_trkJet(""),
     //configurable cuts here
     m_eleBaselinePt(-99.),
     m_eleBaselineEta(-99.),
@@ -493,13 +491,11 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "BtagWPOR", m_orBtagWP); //the one used in the Overlap Removal
   declareProperty( "BtagWP", m_BtagWP);     //the one used in FillJet() afterwards
   declareProperty( "BtagMinPt", m_BtagMinPt);    // minimum jetPt cut (MR31061) >=20 GeV EM jets & >=10 GeV TrackJets (not calibrated below)
-  declareProperty( "BtagTimeStamp", m_BtagTimeStamp); /// Time stamp of the b-tagging containers introduced in p3954
   declareProperty( "BtagKeyOverride", m_BtagKeyOverride); /// Override for the b-tagging jet collection
   declareProperty( "BtagCalibPath", m_bTaggingCalibrationFilePath);
   declareProperty( "BtagTaggerTrkJet", m_BtagTagger_trkJet);
   declareProperty( "BtagMinPtTrkJet", m_BtagMinPt_trkJet);    // minimum jetPt cut (MR31061) >=20 GeV EM jets & >=10 GeV TrackJets (not calibrated below)
   declareProperty( "BtagWPTrkJet", m_BtagWP_trkJet);  //the one used in FillTrackJet() afterwards
-  declareProperty( "BtagTimeStampTrkJet", m_BtagTimeStamp_trkJet);  //the one used in FillTrackJet() afterwards
   //ELECTRONS
   declareProperty( "EleBaselinePt", m_eleBaselinePt);
   declareProperty( "ElePt", m_elePt);
@@ -1428,19 +1424,17 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_JMScalib, "Jet.JMSCalib", rEnv, false);
   //
   configFromFile(m_useBtagging, "Btag.enable", rEnv, true);
-  configFromFile(m_BtagTagger, "Btag.Tagger", rEnv, "DL1");
+  configFromFile(m_BtagTagger, "Btag.Tagger", rEnv, "DL1r");
   configFromFile(m_BtagWP, "Btag.WP", rEnv, "FixedCutBEff_77");
   configFromFile(m_BtagMinPt, "Btag.MinPt", rEnv, -1.); // Not calibrated below 20
-  configFromFile(m_BtagTimeStamp, "Btag.TimeStamp", rEnv, "201810", true);
   
-  configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2020-21-13TeV-MC16-CDI-2020-03-11_v3.root");
+  configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2021-22-13TeV-MC16-CDI-2021-12-02_v2.root");
   configFromFile(m_BtagSystStrategy, "Btag.SystStrategy", rEnv, "Envelope");
 
   configFromFile(m_useBtagging_trkJet, "BtagTrkJet.enable", rEnv, true);
-  configFromFile(m_BtagTagger_trkJet, "BtagTrkJet.Tagger", rEnv, "MV2c10");
+  configFromFile(m_BtagTagger_trkJet, "BtagTrkJet.Tagger", rEnv, "DL1r");
   configFromFile(m_BtagWP_trkJet, "BtagTrkJet.WP", rEnv, "FixedCutBEff_77");
   configFromFile(m_BtagMinPt_trkJet, "BtagTrkJet.MinPt", rEnv, -1.); // Not calibrated below 10
-  configFromFile(m_BtagTimeStamp_trkJet, "BtagTrkJet.TimeStamp", rEnv, "201810", true);
   configFromFile(m_BtagKeyOverride, "Btag.KeyOverride", rEnv, "", true);
   //
   configFromFile(m_orDoBoostedElectron, "OR.DoBoostedElectron", rEnv, true);
