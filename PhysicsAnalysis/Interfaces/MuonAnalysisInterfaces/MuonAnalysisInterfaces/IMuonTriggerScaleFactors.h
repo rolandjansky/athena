@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef IMUONTRIGGERSCALEFACTORS_H_
@@ -18,10 +18,10 @@
 namespace TrigMuonEff {
 
     /**
-     *  strcuture to hold variables to configure behaviour of the tool
+     *  structure to hold variables to configure behaviour of the tool
      */
     struct Configuration {
-        mutable bool isData;
+        bool isData;
         int replicaIndex; /**<  index of replicated histograms to access */
 
         Configuration(const bool isData_ = true, const int replicaIndex_ = -1) : isData(isData_), replicaIndex(replicaIndex_) {}
