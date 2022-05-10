@@ -75,7 +75,6 @@ namespace ST {
 
     ATH_MSG_DEBUG("Default jetkey:           " << m_defaultJets);
     ATH_MSG_DEBUG("Function argument jetkey: " << jetkey);
-    ATH_MSG_DEBUG("Config Btag.TimeStamp:    " << m_BtagTimeStamp);
 
     // load default regular & btag jet keys
     std::string jetkey_tmp = m_defaultJets;                                           // use default for regular jetkey_tmp

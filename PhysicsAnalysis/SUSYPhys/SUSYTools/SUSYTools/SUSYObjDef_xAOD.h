@@ -598,13 +598,11 @@ namespace ST {
     std::string m_BtagWP;
     std::string m_BtagTagger;
     double m_BtagMinPt;
-    std::string m_BtagTimeStamp;
     std::string m_BtagKeyOverride;
     std::string m_BtagSystStrategy;
     std::string m_BtagWP_trkJet;
     std::string m_BtagTagger_trkJet;
     double m_BtagMinPt_trkJet;
-    std::string m_BtagTimeStamp_trkJet;
 
     //configurable cuts here
     double m_eleBaselinePt;
