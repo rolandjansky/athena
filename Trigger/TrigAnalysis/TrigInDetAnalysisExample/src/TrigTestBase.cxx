@@ -143,7 +143,7 @@ StatusCode TrigTestBase::init() {
 #if 0
   std::cout << "TrigTestBase::name              = " << name()     << std::endl;
   std::cout << "TrigTestBase::SliceTag          = " << m_sliceTag << std::endl;
-  std::cout << "TrigTestBAse::AnalysisConfig    = " << m_analysis_config << std::endl;
+  std::cout << "TrigTestBase::AnalysisConfig    = " << m_analysis_config << std::endl;
   std::cout << "TrigTestBase::Legacy            = " << m_legacy   << std::endl;
 #endif
 
@@ -324,10 +324,10 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 
 	  for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
 	    if ( chainName.tail()!="" )    selectChains[iselected] += ":key="+chainName.tail();
-            if ( chainName.extra()!="" )   selectChains[iselected] += ":extra="+chainName.extra();
-            if ( chainName.element()!="" ) selectChains[iselected] += ":te="+chainName.element();
 	    if ( chainName.roi()!="" )     selectChains[iselected] += ":roi="+chainName.roi();
 	    if ( chainName.vtx()!="" )     selectChains[iselected] += ":vtx="+chainName.vtx();
+            if ( chainName.element()!="" ) selectChains[iselected] += ":te="+chainName.element();
+            if ( chainName.extra()!="" )   selectChains[iselected] += ":extra="+chainName.extra();
             if ( !chainName.passed() )     selectChains[iselected] += ":DTE"; 
 
 	    if ( chainName.postcount() )     selectChains[iselected] += ":post:"+chainName.post();
