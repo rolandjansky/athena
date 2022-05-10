@@ -37,14 +37,14 @@ StatusCode HLTMinBiasEffMonitoringAlg::fillHistograms(const EventContext& contex
 
   auto vertexHandle = SG::makeHandle(m_vertexKey, context);
   const xAOD::Vertex* priVtx = nullptr;
-  for (auto vtx : *vertexHandle) {
-    if (vtx->vertexType() == xAOD::VxType::PriVtx) {
-      priVtx = vtx;
-      break;
+  if(vertexHandle.isValid()){
+    for (auto vtx : *vertexHandle) {
+      if (vtx->vertexType() == xAOD::VxType::PriVtx) {
+	priVtx = vtx;
+	break;
+      }
     }
   }
-
-
 
   auto offlineTrkHandle = SG::makeHandle(m_offlineTrkKey, context);
   int countPassing = 0;
