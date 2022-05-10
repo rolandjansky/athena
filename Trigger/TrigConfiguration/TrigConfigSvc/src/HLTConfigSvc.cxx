@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ServiceHandle.h"
@@ -39,7 +39,7 @@ StatusCode TrigConf::HLTConfigSvc::writeConfigToDetectorStore()
 
     ATH_CHECK( fileLoader.loadFile(m_hltFileName, *hltmenu) );
     {
-      const uint32_t smk = m_smk == 0 ? TrigConf::truncatedHash(*hltmenu) : m_smk.value();
+      const uint32_t smk = m_smk == 0u ? TrigConf::truncatedHash(*hltmenu) : m_smk.value();
       hltmenu->setSMK(smk);  // allow assigning a specified or hashed SMK when running from FILE
     }
 
@@ -57,7 +57,7 @@ StatusCode TrigConf::HLTConfigSvc::writeConfigToDetectorStore()
           return StatusCode::FAILURE;
         }
       } else { // success
-        const uint32_t smk = m_smk == 0 ? TrigConf::truncatedHash(*monitoring) : m_smk.value();
+        const uint32_t smk = m_smk == 0u ? TrigConf::truncatedHash(*monitoring) : m_smk.value();
         monitoring->setSMK(smk);
       }
     }
