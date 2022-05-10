@@ -45,20 +45,20 @@ def poi(histo_name, side, eta):
 	poi = ''
 	if histo_name=='Charge_vs_PCB':
 		poi = f'{side}: MPV of Landau Fit to Cluster charge {eta}'
-	if histo_name=='Charge_vs_PCB_ontrack':
+	elif histo_name=='Charge_vs_PCB_ontrack':
 		poi = f'{side}: MPV of Landau Fit to Cluster charge {eta} ontrack'
-	if histo_name=='Charge_vs_PCB_onseg':
+	elif histo_name=='Charge_vs_PCB_onseg':
 		poi = f'{side}: MPV of Landau Fit to Cluster charge {eta} onseg'
-	if histo_name=='Cluster_size_vs_PCB':
+	elif histo_name=='Cluster_size_vs_PCB':
 		poi = f'Cluster size {side} {eta} per PCB'
-	if histo_name=='Cluster_size_vs_PCB_ontrack':
+	elif histo_name=='Cluster_size_vs_PCB_ontrack':
 		poi = f'Cluster size {side} {eta} ontrack per PCB'
-	if histo_name=='Cluster_size_vs_PCB_onseg':
+	elif histo_name=='Cluster_size_vs_PCB_onseg':
 		poi = f'Cluster size {side} {eta} onseg per PCB'
-	if histo_name=='Cluster_time_vs_PCB':
+	elif histo_name=='Cluster_time_vs_PCB':
 		poi = f'Cluster time {side} {eta} per PCB'
-	if histo_name=='Cluster_time_ontrack_vs_PCB':
+	elif histo_name=='Cluster_time_ontrack_vs_PCB':
 		poi = f'Cluster time {side} {eta} ontrack per PCB'
-	if histo_name=='Cluster_time_onseg_vs_PCB':
+	elif histo_name=='Cluster_time_onseg_vs_PCB':
 		poi = f'Cluster time {side} {eta} on seg per PCB'
 	return(poi)
