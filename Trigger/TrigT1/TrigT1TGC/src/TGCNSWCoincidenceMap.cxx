@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -9,6 +9,7 @@
 #include <string>
 #include <iomanip>
 
+#include "AthenaKernel/getMessageSvc.h"
 #include "TrigT1TGC/TGCNSWCoincidenceMap.h"
 #include "TrigT1TGC/NSWTrigOut.h"
 #include "TrigT1TGC/TGCDatabaseManager.h"
@@ -16,18 +17,14 @@
 
 #include "MuonCondInterface/ITGCTriggerDbTool.h"
 
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
-
 #include "TrigT1TGC/TGCArguments.h"
 
 namespace LVL1TGCTrigger {
 
 
   TGCNSWCoincidenceMap::TGCNSWCoincidenceMap(TGCArguments* tgcargs,const std::string& version,int side,int oct,int mod)
-    :m_verName(version),
+    :AthMessaging(Athena::getMessageSvc(), "TGCNSWCoincidenceMap"),
+     m_verName(version),
      m_side(side),
      m_octant(oct),
      m_module(mod),
@@ -35,8 +32,7 @@ namespace LVL1TGCTrigger {
      m_tgcArgs(tgcargs)
   {
 
-    m_msg = Athena::MsgStreamMember("LVL1TGCTrigger::TGCNSWCoincidenceMap::TGCNSWCoincidenceMap");
-    m_msg.get().setLevel(tgcArgs()->MSGLEVEL());
+    setLevel(tgcArgs()->MSGLEVEL());
 
     if(!tgcArgs()->USE_NSW()){return;}
 
@@ -86,14 +82,6 @@ namespace LVL1TGCTrigger {
     }
 
   }
-
-  TGCNSWCoincidenceMap::TGCNSWCoincidenceMap(){ }
-
-
-  TGCNSWCoincidenceMap::~TGCNSWCoincidenceMap()
-  {
-  }
-
 
 
   bool TGCNSWCoincidenceMap::isForward( int mod ){

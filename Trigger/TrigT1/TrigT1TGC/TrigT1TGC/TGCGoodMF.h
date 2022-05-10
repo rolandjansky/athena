@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCGoodMF_h
@@ -7,9 +7,6 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/ReadCondHandleKey.h"
-
-#include "AthenaKernel/MsgStreamMember.h"
-#include "GaudiKernel/MsgStream.h"
 
 #include <map>
 
