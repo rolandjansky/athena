@@ -74,16 +74,16 @@ def AFP_LocReco_TD_Cfg(flags, kwargs={}):
                        1500, 1500, 1500, 1500]
         basicTool3 = CompFactory.getComp("AFPTDBasicTool")("AFPTDBasicTool3", stationID=3, maxAllowedLength=1500, TimeOffset=TimeOffset3, BarWeight=BarWeight, **kwargs)
 
+        acc = ComponentAccumulator()
+
         if flags.Input.Format is Format.POOL:
                 if "AFPToFHitContainer" not in flags.Input.Collections:
                         basicTool0.AFPToFHitContainerKey=""
                         basicTool3.AFPToFHitContainerKey=""
                 else:
-                        from AthenaCommon.AlgSequence import AlgSequence
-                        topSequence = AlgSequence()
-                        if hasattr(topSequence,'SGInputLoader'):
-                                topSequence.SGInputLoader.Load += [('xAOD::AFPToFHitContainer' , 'StoreGateSvc+AFPToFHitContainer')]
-
+                        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+                        acc.merge(SGInputLoaderCfg(flags, Load=[('xAOD::AFPToFHitContainer' , 'StoreGateSvc+AFPToFHitContainer')]))
+                        
         basicToolsList=[basicTool0, basicTool3]
 
         # collect all output names and make a list with unique names for write handle keys; if this goes wrong AFP_SIDLocRecoTool::initialize() will complain
@@ -102,15 +102,15 @@ def AFP_LocReco_TD_Cfg(flags, kwargs={}):
         ToFtrackRecoTool = CompFactory.AFP_TDLocRecoTool("AFP_TDLocRecoTool", RecoToolsList=basicToolsList, AFPToFTrackContainerList=outputBasicList )
 
         # actually setup the ToF track reco
-        acc = ComponentAccumulator()
         acc.addEventAlgo(CompFactory.AFP_TDLocReco("AFP_TDLocReco", recoTool=ToFtrackRecoTool))
         
         return acc
 
 
 def AFP_LocReco_SiD_HLT(flags):
-
-        acc = AFP_LocReco_SiD_Cfg(flags, {"tracksContainerName": recordable("HLT_AFPTrackContainer"), "AFPSiHitsClusterContainerKey": "HLT_AFPSiHitsClusterContainer"})
+        from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+        acc = ComponentAccumulator()
+        acc.merge(AFP_LocReco_SiD_Cfg(flags, {"tracksContainerName": recordable("HLT_AFPTrackContainer"), "AFPSiHitsClusterContainerKey": "HLT_AFPSiHitsClusterContainer"}))
         AFP_SID = acc.getEventAlgo("AFP_SIDLocReco")
 
         from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
@@ -134,15 +134,15 @@ def AFP_LocReco_SiD_HLT(flags):
 
                AFP_SID.recoTool.RecoToolsList[i].MonTool = monTool_AFP_BasicKalman	
 
-        return AFP_SID
+        return acc
 
 def AFP_LocReco_TD_HLT(flags):
+        from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+        acc = ComponentAccumulator()
 
-        acc = AFP_LocReco_TD_Cfg(flags, {"tracksContainerName": recordable("HLT_AFPToFTrackContainer")})
-        AFP_TD = acc.getEventAlgo("AFP_TDLocReco")
+        acc.merge(AFP_LocReco_TD_Cfg(flags, {"tracksContainerName": recordable("HLT_AFPToFTrackContainer")}))
 
-        return AFP_TD
-
+        return acc
 
 #-- SiAlignDBTester part ------------------------------------------------------------
 # this is a setup for ReadCondHandle (see AFP_DBTools/SiAlignDBTester)

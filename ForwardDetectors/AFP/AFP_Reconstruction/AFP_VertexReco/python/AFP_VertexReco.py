@@ -48,6 +48,6 @@ def AFP_VertexReco_Cfg(flags, kwargs={}):
 def AFP_VertexReco_HLT(flags):
 	
 	acc = AFP_VertexReco_Cfg(flags, {"AFPToFTrackContainerKey": "HLT_AFPToFTrackContainer", "AFPProtonContainerKey": "HLT_AFPProtonContainer", "verticesContainerName": recordable("HLT_AFPVertexContainer")})
-	AFP_Vtx = acc.getEventAlgo("AFP_VertexReco")
 	
-	return AFP_Vtx
+	return acc
+

@@ -46,7 +46,8 @@ def AFP_SiClusterTools_Cfg(flags, kwargs={}):
                 if "AFPSiHitContainer" not in flags.Input.Collections:
                         clusterTool.AFPSiHitsContainerName=""
                 else:
-                        acc.addEventAlgo(CompFactory.SGInputLoader(Load=[('xAOD::AFPSiHitContainer','StoreGateSvc+AFPSiHitContainer')]))
+                        from SGComps.SGInputLoaderConfig import SGInputLoaderCfg
+                        acc.merge(SGInputLoaderCfg(flags,Load=[('xAOD::AFPSiHitContainer','StoreGateSvc+AFPSiHitContainer')]))
         
         acc.addEventAlgo(CompFactory.AFPSiCluster("AFPSiCluster", clusterRecoTool = clusterTool, **kwargs))
         
@@ -55,7 +56,9 @@ def AFP_SiClusterTools_Cfg(flags, kwargs={}):
 
 def AFP_SiClusterTools_HLT(flags):
 
-        acc = AFP_SiClusterTools_Cfg(flags,{"AFPSiHitsClusterContainerKey": recordable("HLT_AFPSiHitsClusterContainer")})
+        from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+        acc = ComponentAccumulator()
+        acc.merge(AFP_SiClusterTools_Cfg(flags,{"AFPSiHitsClusterContainerKey": recordable("HLT_AFPSiHitsClusterContainer")}))
         
         from IOVDbSvc.CondDB import conddb
         if flags.Input.isMC:
@@ -78,5 +81,5 @@ def AFP_SiClusterTools_HLT(flags):
         monTool_AFP_SiClusterTool.defineHistogram( 'ClusterSize', path='EXPERT', type='TH1F', title='SID cluster size',xbins=50, xmin=0, xmax=50 )
         AFP_SiCl.clusterRecoTool.MonTool = monTool_AFP_SiClusterTool
 
-        return AFP_SiCl
+        return acc
 
