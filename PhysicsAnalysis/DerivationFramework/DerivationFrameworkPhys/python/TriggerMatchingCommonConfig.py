@@ -52,9 +52,6 @@ def AddRun2TriggerMatchingToSlimmingHelper(**kwargs):
 def TriggerMatchingCommonRun2Cfg(ConfigFlags, name, **kwargs):
     """Configure the common trigger matching for run 2 DAODs"""
 
-    if ConfigFlags.Trigger.EDMVersion != 2:
-        raise ValueError('This configuration can only be used for Run 2 trigger navigation')
-    
     triggerList = kwargs['TriggerList']
     outputContainerPrefix = kwargs['OutputContainerPrefix']
     kwargs.setdefault('DRThreshold', None) 

@@ -3,7 +3,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-def R3IParticleRetrievalToolCfg(ConfigFlags):
+def IParticleRetrievalToolCfg(ConfigFlags):
     """Configure the IParticle retrieval tool, depends on R1/R2 or R3 trigger"""
     acc = ComponentAccumulator()
     from TrigDecisionTool.TrigDecisionToolConfig import TrigDecisionToolCfg
@@ -19,7 +19,7 @@ def R3IParticleRetrievalToolCfg(ConfigFlags):
 def TriggerMatchingToolCfg(ConfigFlags, name, **kwargs):
     """Config fragment for the trigger matching tool used in DAOD production"""
     acc = ComponentAccumulator()
-    OnlineParticleTool = acc.getPrimaryAndMerge(R3IParticleRetrievalToolCfg(ConfigFlags))
+    OnlineParticleTool = acc.getPrimaryAndMerge(IParticleRetrievalToolCfg(ConfigFlags))
     kwargs['OnlineParticleTool'] = OnlineParticleTool
     TriggerMatchingTool = CompFactory.DerivationFramework.TriggerMatchingTool
     acc.addPublicTool(TriggerMatchingTool(name, **kwargs),

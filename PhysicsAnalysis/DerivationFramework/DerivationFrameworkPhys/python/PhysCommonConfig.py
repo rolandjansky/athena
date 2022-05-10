@@ -88,6 +88,16 @@ def PhysCommonAugmentationsCfg(ConfigFlags,**kwargs):
                                                DRThreshold = 0.2))
     if ConfigFlags.Trigger.EDMVersion == 3:
         acc.merge(TriggerMatchingCommonRun3Cfg(ConfigFlags, TriggerList = triggerListsHelper.Run3TriggerNames))
+        # This is here temporarily for testing/comparison/debugging purposes
+        acc.merge(TriggerMatchingCommonRun2Cfg(ConfigFlags, 
+                                               name = "PhysCommonTrigMatchNoTau", 
+                                               OutputContainerPrefix = "PhysCommonNoTau", 
+                                               TriggerList = triggerListsHelper.Run3TriggerNamesNoTau))
+        acc.merge(TriggerMatchingCommonRun2Cfg(ConfigFlags, 
+                                               name = "PhysCommonTrigMatchTau", 
+                                               OutputContainerPrefix = "PhysCommonTau", 
+                                               TriggerList = triggerListsHelper.Run3TriggerNamesTau, 
+                                               DRThreshold = 0.2))
 
     # Tau...
     # Flavour tagging...
