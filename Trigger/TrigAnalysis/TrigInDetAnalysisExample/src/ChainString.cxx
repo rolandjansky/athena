@@ -36,13 +36,13 @@ ChainString::ChainString( const ChainString& s ) :
 void ChainString::parse() { parse( *this ); }
 
 /// parse the full specification string
-void ChainString::parse( std::string _s ) { 
+void ChainString::parse( std::string s ) { 
 
     std::vector<std::string> fields;
 
-    while ( _s.find_first_of(":;")!=std::string::npos ) fields.push_back( chop( _s, ":" ) );
+    while ( s.find_first_of(":;")!=std::string::npos ) fields.push_back( chop( s, ":" ) );
     
-    fields.push_back(_s);
+    fields.push_back(s);
 
     bool postkeys = false;
 
@@ -64,11 +64,11 @@ void ChainString::parse( std::string _s ) {
     
     if ( fields.size() ) m_head = fields[0];
 
-    std::string tags[5] = { "collection=", "extra=", "roi=", "vtx=", "te=" };
-    std::string  alt[5] = {        "key=",   "ind=",     "",     "",    "" };
-    bool      tagged[5] = {         false,    false,  false,  false, false };    
+    std::string tags[5] = { "key=", "roi=", "vtx=", "te=", "extra=" };
+    std::string  alt[5] = { "key=",     "",     "",    "",   "ind=" };
+    bool      tagged[5] = {  false,  false,  false, false,    false };    
  
-    std::string* _values[5] = { &m_tail, &m_extra, &m_roi, &m_vtx, &m_element };
+    std::string* values[5] = { &m_tail, &m_roi, &m_vtx, &m_element, &m_extra };
 
     
     /// get collection, index and roi if not tagged with a label
@@ -76,7 +76,7 @@ void ChainString::parse( std::string _s ) {
     unsigned first_tag = 1;
     for ( unsigned i=1 ; i<fields.size() && i<4 ; i++ ) {
       if ( fields[i].find("=")==std::string::npos ) {
-	*_values[i-1] = fields[i];
+	*values[i-1] = fields[i];
 	first_tag = i+1;
 	tagged[i-1] = true;
       }
@@ -99,7 +99,7 @@ void ChainString::parse( std::string _s ) {
 
 	if ( tagged[itag] ) { 
 	  if ( lowfield.find(tags[itag])==0 || ( alt[itag]!="" && lowfield.find(alt[itag])==0 ) ) { 
-	    std::cerr << "tag already allocated : " << fields[i] << " with value " << *_values[itag] << std::endl;
+	    std::cerr << "tag already allocated : " << fields[i] << " with value " << *values[itag] << std::endl;
 	  }
 	  continue;
 	}
@@ -108,7 +108,7 @@ void ChainString::parse( std::string _s ) {
 	if ( lowfield.find(tags[itag])==0 ) { 
 	  tagged[itag] = true;
 	  fields[i].erase( 0, tags[itag].size() );
-	  *_values[itag] = fields[i];
+	  *values[itag] = fields[i];
 	  //	  if ( itag<2 ) usetags   = true;
 	  //  else           useroitag = true; 
 	  break;
@@ -116,7 +116,7 @@ void ChainString::parse( std::string _s ) {
 	else if ( alt[itag]!="" && lowfield.find(alt[itag])==0 ) {  
 	  tagged[itag] = true;
 	  fields[i].erase( 0, alt[itag].size() );
-	  *_values[itag] = fields[i];
+	  *values[itag] = fields[i];
 	  //  if ( itag<2 ) usetags   = true;
 	  //  else           useroitag = true; 
 	  break;
@@ -131,17 +131,17 @@ void ChainString::parse( std::string _s ) {
     if ( !usetags ) { 
       //      std::cout << "fields.size() " << fields.size() << std::endl;
       for ( unsigned i=first_tag ; i<5 ; i++ ) {
-	if ( (i+1)<fields.size() ) *_values[i] = fields[i+1];
+	if ( (i+1)<fields.size() ) *values[i] = fields[i+1];
       }
     }      
 
 #if 0
     std::cout << "head:  " << m_head    << std::endl;
     std::cout << "key:   " << m_tail    << std::endl;
-    std::cout << "ind:   " << m_extra   << std::endl;
-    std::cout << "te:    " << m_element << std::endl;
     std::cout << "roi:   " << m_roi     << std::endl;
     std::cout << "vtx:   " << m_vtx     << std::endl;
+    std::cout << "ind:   " << m_extra   << std::endl;
+    std::cout << "te:    " << m_element << std::endl;
     std::cout << "pass:  " << m_passed  << std::endl;
 #endif   
     
@@ -149,11 +149,19 @@ void ChainString::parse( std::string _s ) {
     /// to a root directory name etc
     
     std::string raw = m_head;
-    for ( int i=0 ; i<5 ; i++ ) if ( *_values[i]!="" ) raw += ":" + *_values[i];
+    for ( int i=0 ; i<5 ; i++ ) if ( *values[i]!="" ) raw += ":" + *values[i];
     if ( !m_passed ) raw += ";DTE";
   
     /// overwrite with the parsed string 
     *(std::string*)(this) = raw;
 
+    raw = m_head;
+    for ( int i=0 ; i<5 ; i++ ) if ( *values[i]!="" ) raw += ":" + tags[i] + *values[i];
+    if ( !m_passed ) raw += ";DTE";
+
+    if ( postcount() ) raw += ":post:" + m_post; 
+
+    m_raw = raw;
 }
+
 
