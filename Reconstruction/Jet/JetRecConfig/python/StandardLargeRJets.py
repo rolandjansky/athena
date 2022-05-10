@@ -52,7 +52,7 @@ lctopo_trimmed_mods = ("planarflow","angularity","comshapes","ktdr","TrackSumMom
 
 AntiKt10LCTopo = JetDefinition("AntiKt",1.0,cst.LCTopoOrigin,
                                ghostdefs = standardghosts+flavourghosts+["AntiKtVR30Rmax4Rmin02PV0TrackJets"] ,
-                               modifiers = ("Sort", "Filter:50000","TrackMoments"),
+                               modifiers = ("Sort", "Filter:50000","TrackMoments","JetGhostLabel"),
                                standardRecoMode = True,                               
                                lock = True
 )
