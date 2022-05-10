@@ -40,6 +40,17 @@ StatusCode TrigSignatureMoni::start() {
   m_groupToChainMap.clear();
   m_streamToChainMap.clear();
   m_chainIDToBunchMap.clear();
+
+  std::unordered_map<std::string,std::string> mapStrNameToTypeName; // e.g. {Main -> physics_Main}
+  try {
+    for (const TrigConf::DataStructure& stream : hltMenuHandle->streams()) {
+      mapStrNameToTypeName.insert({stream.getAttribute("name"), stream.getAttribute("type")+"_"+stream.getAttribute("name")});
+    }
+  } catch (const std::exception& ex) {
+    ATH_MSG_ERROR("Exception reading stream tag configuration from the HLT menu: " << ex.what());
+    return StatusCode::FAILURE;
+  }
+
   for (const TrigConf::Chain& chain : *hltMenuHandle) {
     for (const std::string& group : chain.groups()) {
       // Save chains per RATE group
@@ -49,8 +60,14 @@ StatusCode TrigSignatureMoni::start() {
     }
 
     // Save chain to stream map
-    for (const std::string& stream : chain.streams()){
-      m_streamToChainMap[stream].insert(HLT::Identifier(chain.name()));
+    for (const std::string& streamName : chain.streams()){
+      const auto it = mapStrNameToTypeName.find(streamName);
+      if (it==mapStrNameToTypeName.cend()) {
+        ATH_MSG_ERROR("Stream name " << streamName << " assigned to chain " << chain.name()
+                      << " is missing from menu streams definition");
+        return StatusCode::FAILURE;
+      }
+      m_streamToChainMap[it->second].insert(HLT::Identifier(chain.name()));
     }
   }
 
