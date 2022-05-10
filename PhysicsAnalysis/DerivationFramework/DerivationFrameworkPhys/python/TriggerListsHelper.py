@@ -73,6 +73,8 @@ class TriggerListsHelper:
             trigger_names_notau = set(trigger_names_notau) - set(trigger_names_tau)
             trigger_names_notau = list(trigger_names_notau)
             self.Run3TriggerNames = trigger_names_all
+            self.Run3TriggerNamesNoTau = trigger_names_notau
+            self.Run3TriggerNamesTau = trigger_names_tau
         else:
         # Note: ['TriggerMenu']['HLTChains'] python access is maintained for compatibility with Run 2 MC
         # POOL inputs (containing xAOD::TriggerMenu).
