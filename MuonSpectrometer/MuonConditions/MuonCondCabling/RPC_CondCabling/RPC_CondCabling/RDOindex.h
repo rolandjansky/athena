@@ -116,7 +116,7 @@ public:
     RDOindex(const RDOindex&) = default;
     ~RDOindex() = default;
 
-    RDOindex& operator=(const RDOindex&) = default;
+    RDOindex& operator=(const RDOindex&) = delete;
     operator bool() const;
     bool operator!() const;
 
