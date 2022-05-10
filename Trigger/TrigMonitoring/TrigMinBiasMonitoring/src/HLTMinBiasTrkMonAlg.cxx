@@ -65,7 +65,7 @@ StatusCode HLTMinBiasTrkMonAlg::monitorSPCounts(const EventContext& context) con
   using namespace Monitored;
   const auto& trigDecTool = getTrigDecisionTool();
 
-  for (auto& trig : m_triggerList)
+  for (auto& trig : m_triggerListSpacePointsMon)
   {
     if (trigDecTool->isPassed(trig, TrigDefs::requireDecision))
     {
@@ -208,7 +208,7 @@ StatusCode HLTMinBiasTrkMonAlg::monitorTrkCounts(const EventContext& context) co
     return StatusCode::SUCCESS;
   }
   ATH_CHECK(spCountsHandle->size() == 1); // if object is present then it should have size == 1
-  for (auto& trig : m_triggerList)
+  for (auto& trig : m_triggerListTrackingMon)
   {
     if (trigDecTool->isPassed(trig, TrigDefs::requireDecision))
     {
