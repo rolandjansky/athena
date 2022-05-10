@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -21,10 +21,10 @@ public:
     sTgcSimDigitData(const MuonSimData& hit, const sTgcDigit& digit);
 
     /// set SimData
-    void setSimData(MuonSimData hit) { m_sTGCSimData = hit; }
+    void setSimData(const MuonSimData& hit) { m_sTGCSimData = hit; }
 
     /// Set sTGC digit
-    void setSTGCDigit(sTgcDigit digit) { m_sTGCDigit = digit; }
+    void setSTGCDigit(const sTgcDigit& digit) { m_sTGCDigit = digit; }
 
     /// Get the SimData
     const MuonSimData& getSimData() const { return m_sTGCSimData; }
