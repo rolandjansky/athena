@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /*********************************
  * L1TopoDataTypes.h
@@ -12,14 +12,14 @@
 #define L1TopoSimulationUtils_L1TOPODATATYPES_H
 #include <string>
 #include <iostream>
+#include <stdint.h>
 
 /* Setting maximal number of bits to 32. */
 #ifndef MAXBITS 
-#define MAXBITS 32
+#define MAXBITS 64
 #endif 
 
 
-namespace {
 /// Return a bit mask with the lower @a n bits set.
 template <class T>
 inline
@@ -29,13 +29,11 @@ T ones (unsigned int n)
     return ~static_cast<T>(0);
   return (static_cast<T>(1) << n) - 1;
 }
-}
-
 
 namespace TSU {
 
-    typedef unsigned int T;
-    T convert(const unsigned int& v, const unsigned& in_p, const unsigned int& in_f, 
+    typedef unsigned long long T;
+    T convert(const unsigned long long& v, const unsigned& in_p, const unsigned int& in_f, 
                                 const unsigned int& out_p, const unsigned int& out_f);
 
 /*********************************
@@ -70,6 +68,10 @@ namespace TSU {
           m_tvalue = i*(1<<F);
        }
 
+       L1TopoDataTypes(unsigned i) : m_tvalue(i) {
+          m_tvalue = i*(1<<F);
+       }
+
        // converts number from one set of template parameters to another
        template<unsigned P1, unsigned F1> operator L1TopoDataTypes<P1,F1>(){
           return L1TopoDataTypes<P1,F1>(convert(m_tvalue,PREC,F,P1,F1));
@@ -80,6 +82,18 @@ namespace TSU {
        }
 
        operator int(){
+           return ones<T>(PREC-F)&((m_tvalue>>F));
+       }
+
+       operator unsigned(){
+           return ones<T>(PREC-F)&((m_tvalue>>F));
+       }
+
+       operator int64_t(){
+           return ones<T>(PREC-F)&((m_tvalue>>F));
+       }
+
+       operator unsigned long long(){
            return ones<T>(PREC-F)&((m_tvalue>>F));
        }
 
@@ -177,10 +191,12 @@ namespace TSU {
     
        // return float representation
        float to_float() const {
+	  // To be compatible with 64 bit unsigned, use same
+	  unsigned long long one = 1;
           // Find sign
-          float res = ((m_tvalue>>(PREC-1))&1) ? -(1<<(PREC-F)) : 0.;
+          float res = ((m_tvalue>>(PREC-one))&one) ? -(one<<(PREC-F)) : 0.;
           // Get integer part
-          res += (m_tvalue>>F)&((1<<(PREC-F))-1) ? float((m_tvalue>>F)&((1<<(PREC-F))-1)) : 0;
+          res += (m_tvalue>>F)&((one<<(PREC-F))-one) ? float((m_tvalue>>F)&((one<<(PREC-F))-one)) : 0;
           // Do the fractional part
           if (F > 0) {
             unsigned frac = m_tvalue & ( (1<<F)-1 );

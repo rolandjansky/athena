@@ -27,7 +27,7 @@ namespace TSU {
 	static unsigned int calcDeltaPhiBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);		
 	static unsigned int calcDeltaEtaBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
 
-	static unsigned int calcInvMassBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
+	static unsigned long long calcInvMassBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
 	static unsigned int calcTMassBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
 	static unsigned int calcDeltaR2BW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
 	static unsigned int calcXi1(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
