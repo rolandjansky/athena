@@ -116,24 +116,38 @@ StatusCode PixelAthHitMonAlg::fillHistograms(const EventContext& ctx) const {
   PixelID::const_id_iterator idItEnd = m_pixelid->wafer_end();
   for (; idIt != idItEnd; ++idIt) {
     Identifier waferID = *idIt;
-    IdentifierHash id_hash = m_pixelid->wafer_hash(waferID);
+    IdentifierHash modHash = m_pixelid->wafer_hash(waferID);
     int pixlayer = getPixLayersID(m_pixelid->barrel_ec(waferID), m_pixelid->layer_disk(waferID));
     if (pixlayer == 99) continue;
 
-    if (isActive( !m_pixelDetElStatusActiveOnly.empty() ? pixel_active.cptr() : nullptr, id_hash) == true) {
-      if (pixlayer == PixLayers::kIBL) {
-	if (m_pixelid->eta_module(waferID) > -7 &&
-	    m_pixelid->eta_module(waferID) < 6) nActive_layer[PixLayers::kIBL2D] += 2;
-	else nActive_layer[PixLayers::kIBL3D]++;
-      } else nActive_layer[pixlayer]++;
-      if (isGood( !m_pixelDetElStatus.empty() ? pixel_status.cptr() : nullptr, id_hash) == true) {
-        if (pixlayer == PixLayers::kIBL) {
-	  if (m_pixelid->eta_module(waferID) > -7 &&
-	      m_pixelid->eta_module(waferID) < 6) nGood_layer[PixLayers::kIBL2D] += 2;
-	  else nGood_layer[PixLayers::kIBL3D]++;
-        } else nGood_layer[pixlayer]++;
+    if (pixlayer == PixLayers::kIBL)
+      {
+	// normalization per FE for IBL
+	//
+	int nFE = getNumberOfFEs(pixlayer, m_pixelid->eta_module(waferID));
+	int iblsublayer = (m_pixelid->eta_module(waferID) > -7 && m_pixelid->eta_module(waferID) < 6) ? PixLayers::kIBL2D : PixLayers::kIBL3D;
+	for (int iFE=0; iFE<nFE; iFE++) {
+	  Identifier pixID = m_pixelReadout->getPixelIdfromHash(modHash, iFE, 1, 1);
+	  if (not pixID.is_valid()) continue;
+	  auto [is_active,is_good] = isChipGood( !m_pixelDetElStatusActiveOnly.empty() ? pixel_active.cptr() : nullptr,
+						 !m_pixelDetElStatus.empty() ? pixel_status.cptr() : nullptr,
+						 modHash, iFE);
+	  if (not is_active) continue;
+	  nActive_layer[iblsublayer]++;
+	  if (is_good) nGood_layer[iblsublayer]++;
+	}
       }
-    }
+    else
+      {
+	// normalization per module for the old pixel layers
+	//
+	bool is_active = isActive( !m_pixelDetElStatusActiveOnly.empty() ? pixel_active.cptr() :  nullptr, modHash);
+	bool is_good   = isGood( !m_pixelDetElStatus.empty() ? pixel_status.cptr() :  nullptr, modHash);
+	if (is_active) {
+	  nActive_layer[pixlayer]++;
+	  if (is_good) nGood_layer[pixlayer]++;
+	}
+      }
   }
 
   const int nChannels_mod[PixLayers::COUNT] = {
