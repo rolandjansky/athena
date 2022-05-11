@@ -110,6 +110,9 @@ namespace NSWL1 {
     // hidden variables
     Gaudi::Property<bool> m_doNtuple{this, "DoNtuple", false, "Input StripTds branches into the analysis ntuple"};
 
+    // activate MC-only processes
+    Gaudi::Property<bool>         m_isMC            {this, "IsMC",                  true,       "This is MC"};
+
     // analysis ntuple
     TTree* m_tree;                                          //!< ntuple for analysis
 

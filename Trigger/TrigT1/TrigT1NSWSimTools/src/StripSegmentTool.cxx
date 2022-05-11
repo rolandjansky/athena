@@ -201,6 +201,7 @@ namespace NSWL1 {
         gly1+=cl->globY()*cl->charge();
         charge1+=cl->charge();
         sectorID = (cl->isSmall()) ? 2*cl->sectorId() : 2*cl->sectorId() -1;
+	sectorID--; // ID should start from zero
         sectorSide = (cl->sideId() == 0) ? 'C' : 'A';
         bcID = cl->BCID();
       }
@@ -214,6 +215,7 @@ namespace NSWL1 {
         gly2+=cl->globY()*cl->charge();
         charge2+=cl->charge();
         sectorID = (cl->isSmall()) ? 2*cl->sectorId() : 2*cl->sectorId() -1;
+	sectorID--; // ID should start from zero
         sectorSide = (cl->sideId() == 0) ? 'C' : 'A';
         bcID = cl->BCID();
         if (( sectorID != trgRawData->sectorId() ) ||
