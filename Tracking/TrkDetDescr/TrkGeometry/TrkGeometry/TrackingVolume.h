@@ -33,7 +33,6 @@
 #include <string>
 // ATH_MSG macros
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "AthenaKernel/MsgStreamMember.h"
 
 #include "CxxUtils/CachedUniquePtr.h"
 #include "CxxUtils/checker_macros.h"

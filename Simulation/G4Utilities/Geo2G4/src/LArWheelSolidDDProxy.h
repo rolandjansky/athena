@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArWheelSolidDDProxy
@@ -9,7 +9,6 @@
 #ifndef GEO2G4_LARWHEELSOLIDDDPROXY_H
 #define GEO2G4_LARWHEELSOLIDDDPROXY_H
 
-// #include "AthenaKernel/MsgStreamMember.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include "AthenaKernel/CLASS_DEF.h"
 

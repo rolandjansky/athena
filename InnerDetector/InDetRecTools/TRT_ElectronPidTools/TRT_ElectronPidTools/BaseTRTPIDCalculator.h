@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -9,11 +9,7 @@
 #ifndef INDETTRT_BASETRTPIDCALCULATOR_H
 #define INDETTRT_BASETRTPIDCALCULATOR_H
 
-// #include "GaudiKernel/AlgTool.h"           // Exchange OUT
-// #include "GaudiKernel/MsgStream.h"         // Exchange OUT
-#include "AthenaBaseComps/AthAlgTool.h"       // Exchange IN
-#include "AthenaKernel/MsgStreamMember.h"
-//#include "TRT_ElectronPidTools/TRT_ElectronPidTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 #include <vector>
 #include <string>
