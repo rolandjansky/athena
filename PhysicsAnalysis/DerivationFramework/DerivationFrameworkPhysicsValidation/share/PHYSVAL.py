@@ -189,12 +189,10 @@ PHYSVALSlimmingHelper.SmartCollections = ["Electrons",
                                        "BTagging_AntiKt4EMPFlow",
                                        "BTagging_AntiKt4EMTopo",
                                        "BTagging_AntiKtVR30Rmax4Rmin02Track",
-<<<<<<< PhysicsAnalysis/DerivationFramework/DerivationFrameworkPhysicsValidation/share/PHYSVAL.py
                                        "BTagging_AntiKt4EMPFlow_expert",
                                        "BTagging_AntiKtVR30Rmax4Rmin02Track_expert",
                                        "MET_Baseline_AntiKt4EMTopo",
                                        "MET_Baseline_AntiKt4EMPFlow",
->>>>>>> PhysicsAnalysis/DerivationFramework/DerivationFrameworkPhysicsValidation/share/PHYSVAL.py
                                        "TauJets",
                                        "DiTauJets",
                                        "DiTauJetsLowPt",
