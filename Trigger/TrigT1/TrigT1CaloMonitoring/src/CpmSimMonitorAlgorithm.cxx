@@ -263,16 +263,16 @@ StatusCode CpmSimMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
 	    {
 	      std::lock_guard<std::mutex> lock(m_mutex);
 	      m_errorLB_tt_counter[lb]+=1;
-	    }
-	    if (m_errorLB_tt_counter[lb]<=maxErrorsPerLB) {
-	      if (err==0) {
-		auto em_tt_evtstr = Monitored::Scalar<std::string>("em_tt_evtstr", std::to_string(eventNumber));
-		em_tt_y=loc;
-		fill(m_packageName,em_tt_evtstr,em_tt_y);
-	      } else {
-		auto had_tt_evtstr = Monitored::Scalar<std::string>("had_tt_evtstr", std::to_string(eventNumber));
-		had_tt_y=loc;
-		fill(m_packageName,had_tt_evtstr,had_tt_y);
+	      if (m_errorLB_tt_counter[lb]<=maxErrorsPerLB) {
+		if (err==0) {
+		  auto em_tt_evtstr = Monitored::Scalar<std::string>("em_tt_evtstr", std::to_string(eventNumber));
+		  em_tt_y=loc;
+		  fill(m_packageName,em_tt_evtstr,em_tt_y);
+		} else {
+		  auto had_tt_evtstr = Monitored::Scalar<std::string>("had_tt_evtstr", std::to_string(eventNumber));
+		  had_tt_y=loc;
+		  fill(m_packageName,had_tt_evtstr,had_tt_y);
+		}
 	      }
 	    }
 	  } else if (err==2 || err==3) {
@@ -280,16 +280,16 @@ StatusCode CpmSimMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
 	    {
 	      std::lock_guard<std::mutex> lock(m_mutex);
 	      m_errorLB_roi_counter[lb]+=1;
-	    }
-	    if (m_errorLB_roi_counter[lb]<=maxErrorsPerLB) {
-	      if (err==2) {
-		auto em_roi_evtstr = Monitored::Scalar<std::string>("em_roi_evtstr", std::to_string(eventNumber));
-		em_roi_y=loc;
-		fill(m_packageName,em_roi_evtstr,em_roi_y);
-	      } else {
-		auto tau_roi_evtstr = Monitored::Scalar<std::string>("tau_roi_evtstr", std::to_string(eventNumber));
-		tau_roi_y=loc;
-		fill(m_packageName,tau_roi_evtstr,tau_roi_y);
+	      if (m_errorLB_roi_counter[lb]<=maxErrorsPerLB) {
+		if (err==2) {
+		  auto em_roi_evtstr = Monitored::Scalar<std::string>("em_roi_evtstr", std::to_string(eventNumber));
+		  em_roi_y=loc;
+		  fill(m_packageName,em_roi_evtstr,em_roi_y);
+		} else {
+		  auto tau_roi_evtstr = Monitored::Scalar<std::string>("tau_roi_evtstr", std::to_string(eventNumber));
+		  tau_roi_y=loc;
+		  fill(m_packageName,tau_roi_evtstr,tau_roi_y);
+		}
 	      }
 	    }
 	  } else if (err==4 || err==5) {
@@ -297,16 +297,16 @@ StatusCode CpmSimMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
 	    {
 	      std::lock_guard<std::mutex> lock(m_mutex);
 	      m_errorLB_tob_counter[lb]+=1;
-	    }
-	    if(m_errorLB_tob_counter[lb]<=maxErrorsPerLB) {
-	      if (err==4) {
-		auto cmx_tob_left_evtstr = Monitored::Scalar<std::string>("cmx_tob_left_evtstr", std::to_string(eventNumber));
-		cmx_tob_left_y=loc;
-		fill(m_packageName,cmx_tob_left_evtstr,cmx_tob_left_y);
-	      } else {
-		auto cmx_tob_right_evtstr = Monitored::Scalar<std::string>("cmx_tob_right_evtstr", std::to_string(eventNumber));
-		cmx_tob_right_y=loc;
-		fill(m_packageName,cmx_tob_right_evtstr,cmx_tob_right_y);
+	      if(m_errorLB_tob_counter[lb]<=maxErrorsPerLB) {
+		if (err==4) {
+		  auto cmx_tob_left_evtstr = Monitored::Scalar<std::string>("cmx_tob_left_evtstr", std::to_string(eventNumber));
+		  cmx_tob_left_y=loc;
+		  fill(m_packageName,cmx_tob_left_evtstr,cmx_tob_left_y);
+		} else {
+		  auto cmx_tob_right_evtstr = Monitored::Scalar<std::string>("cmx_tob_right_evtstr", std::to_string(eventNumber));
+		  cmx_tob_right_y=loc;
+		  fill(m_packageName,cmx_tob_right_evtstr,cmx_tob_right_y);
+		}
 	      }
 	    }
 	  }
@@ -336,11 +336,11 @@ StatusCode CpmSimMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
 	  {
 	    std::lock_guard<std::mutex> lock(m_mutex);
 	    m_errorLB_thresh_counter[lb]+=1;
-	  }
-	  if(m_errorLB_thresh_counter[lb]<=maxErrorsPerLB) {
-	    auto cmx_thresh_evtstr = Monitored::Scalar<std::string>("cmx_thresh_evtstr", std::to_string(eventNumber));
-	    cmx_thresh_y=loc+offset;
-	    fill(m_packageName,cmx_thresh_evtstr,cmx_thresh_y);
+	    if(m_errorLB_thresh_counter[lb]<=maxErrorsPerLB) {
+	      auto cmx_thresh_evtstr = Monitored::Scalar<std::string>("cmx_thresh_evtstr", std::to_string(eventNumber));
+	      cmx_thresh_y=loc+offset;
+	      fill(m_packageName,cmx_thresh_evtstr,cmx_thresh_y);
+	    }
 	  }
         } 
       }

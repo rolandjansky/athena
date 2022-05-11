@@ -53,7 +53,6 @@ def PprMonitoringConfig(inputFlags):
     groupTimeslice     = helper.addGroup(PprMonAlg, 'groupTimeslice', mainDir)
     groupErrors_EM     = helper.addGroup(PprMonAlg, 'groupErrors_EM', mainDir)
     groupErrors_HAD    = helper.addGroup(PprMonAlg, 'groupErrors_HAD', mainDir)
-   
 
     # Trigger tower plots: eta-phi granularity
     etabins = [-4.9,-4.475,-4.050,-3.625,-3.2,-3.1,-2.9,
@@ -144,10 +143,10 @@ def PprMonitoringConfig(inputFlags):
     for layer in layers:
         for i in iThresh:
             groupLUTCP_LB = helper.addGroup(PprMonAlg, 'groupLUTCP_{0}_{1}_LB'.format(layer, threshVec[i]), mainDir)
-            groupLUTCP_LB.defineHistogram('etaTT_2D,phiTT_2D;ppm_{0}_2d_etaPhi_tt_lutcp_Threshold_0{1}'.format(layer.lower(), i), 
+            groupLUTCP_LB.defineHistogram('etaTT_2D,phiTT_2D;ppm_{0}_2d_etaPhi_tt_lutcp_Threshold0{1}'.format(layer.lower(), i), 
                                            title='#eta - #phi map of {0} LUT-CP > {1} GeV/2'.format(layer, threshVec[i]), 
                                            type='TH2D', path=histPath, xbins=etabins, ybins=phibins, ymin=phimin, ymax=phimax_2d, 
-                                           opt='kLBNHistoryDepth=10,kAlwaysCreate' if isOnline else 'kAlwaysCreate', 
+                                           opt='kAlwaysCreate', 
                                            duration='' if isOnline else 'lb')
                   
 
@@ -206,10 +205,10 @@ def PprMonitoringConfig(inputFlags):
     for layer in layers:
         for i in iThresh:
             groupLUTJEP_LB = helper.addGroup(PprMonAlg, 'groupLUTJEP_{0}_{1}_LB'.format(layer, threshVec[i]), mainDir) 
-            groupLUTJEP_LB.defineHistogram('etaTT_2D,phiTT_2D;ppm_{0}_2d_etaPhi_tt_lutjep_Threshold_0{1}'.format(layer.lower(), i), 
+            groupLUTJEP_LB.defineHistogram('etaTT_2D,phiTT_2D;ppm_{0}_2d_etaPhi_tt_lutjep_Threshold0{1}'.format(layer.lower(), i), 
                                             title='#eta - #phi map of {0} LUT-JEP > {1} GeV'.format(layer, threshVec[i]), 
                                             type='TH2D', path=histPath, xbins=etabins, ybins=phibins, ymin=phimin, ymax=phimax_2d, 
-                                            opt='kLBNHistoryDepth=10,kAlwaysCreate' if isOnline else 'kAlwaysCreate', 
+                                            opt='kAlwaysCreate', 
                                             duration='' if isOnline else 'lb') 
 
 
@@ -323,7 +322,6 @@ def PprMonitoringConfig(inputFlags):
                                      cutmask='mask_PedCorrUnderflow', 
                                      opt='kAlwaysCreate') 
     
-     
 
     # Finish up
 
@@ -375,4 +373,3 @@ if __name__=='__main__':
     if status.isFailure():
         import sys
         sys.exit(-1)
-
