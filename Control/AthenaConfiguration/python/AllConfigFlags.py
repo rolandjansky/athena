@@ -281,7 +281,7 @@ def _createCfgFlags():
     _addFlagsCategory(acf,"PF",__pflow, 'eflowRec')
 
     def __btagging():
-        from BTagging.BTaggingConfigFlags import createBTaggingConfigFlags
+        from JetTagConfig.BTaggingConfigFlags import createBTaggingConfigFlags
         return createBTaggingConfigFlags()
     _addFlagsCategory(acf,"BTagging",__btagging, 'BTagging')
 
