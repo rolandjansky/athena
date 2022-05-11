@@ -73,6 +73,8 @@ public:
 
   size_t postcount() const { return m_postcount; }
 
+  std::string subs( std::string s ) const; 
+
 public:   
 
   // chop tokens off the front of a string

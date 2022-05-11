@@ -250,15 +250,7 @@ StatusCode TrigR3Mon::bookHistograms() {
             
       if ( chainName.head() == "" ) { 
 	
-	std::string selectChain = "";
-	
-	if ( chainName.tail()!="" )    selectChain += ":key="+chainName.tail();
-	if ( chainName.roi()!="" )     selectChain += ":roi="+chainName.roi();
-	if ( chainName.vtx()!="" )     selectChain += ":vtx="+chainName.vtx();
-	
-	if ( chainName.element()!="" ) selectChain += ":te="+chainName.element();
-	if ( chainName.extra()!="" )   selectChain += ":ex="+chainName.extra();
-	if ( !chainName.passed() )     selectChain += ";DTE";
+	std::string selectChain = chainName.raw();
 
 	//	if ( chainName.postcount() )   selectChain += ":post:"+chainName.post();
 	
@@ -302,15 +294,8 @@ StatusCode TrigR3Mon::bookHistograms() {
 	if ( chainName.extra()!="" )    mchain += "_"+chainName.extra();
 	if ( !chainName.passed() )      mchain += "_DTE";
 	
-	if ( chainName.tail()!="" )    selectChain += ":key="+chainName.tail();
-	if ( chainName.roi()!="" )     selectChain += ":roi="+chainName.roi();
-	if ( chainName.vtx()!="" )     selectChain += ":vtx="+chainName.vtx();
-	if ( chainName.element()!="" ) selectChain += ":te="+chainName.element();
-	if ( chainName.extra()!="" )   selectChain += ":extra="+chainName.extra();
-	if ( !chainName.passed() )     selectChain += ":DTE";
-	  
-	if ( chainName.postcount() )   selectChain += ":post:"+chainName.post();
-	  
+	selectChain = chainName.subs( selectChain );
+
 #if 0
 	std::cout << "\nTrigR3Mon::chain specification: " << chainName << "\t" << chainName.raw() << std::endl;
 	std::cout << "\tchain: " << chainName.head()    << std::endl;

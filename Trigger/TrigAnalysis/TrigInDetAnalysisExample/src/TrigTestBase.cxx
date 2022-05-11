@@ -282,18 +282,9 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 
 	if ( chainName.head() == "" ) { 
 	  
-	  std::string selectChain = "";
-
-	  if ( chainName.tail()!="" )    selectChain += ":key="+chainName.tail();
-	  if ( chainName.vtx()!="" )     selectChain += ":vtx="+chainName.vtx();
-	  if ( chainName.postcount() )   selectChain += ":post:"+chainName.post();
+	  std::string selectChain = chainName.raw();
 	  
-	  if ( chainName.extra()!="" )   continue;
-	  if ( chainName.element()!="" ) continue;
-	  if ( chainName.roi()!="" )     continue;
-	  //            if ( !chainName.passed() )     continue;
-	  
-	  if (std::find(chains.begin(), chains.end(), selectChain) == chains.end()) { // deduplicate
+	  if ( std::find(chains.begin(), chains.end(), selectChain) == chains.end()) { // deduplicate
 	    chains.push_back( selectChain );
 	  }
 	  
@@ -323,14 +314,8 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 	  //	  std::cout << "^[[91;1m" << "\tChain count matched\tchain input " << chainName.head() << "  :  " << chainName.tail() << "^[[m"<< std::endl;
 
 	  for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
-	    if ( chainName.tail()!="" )    selectChains[iselected] += ":key="+chainName.tail();
-	    if ( chainName.roi()!="" )     selectChains[iselected] += ":roi="+chainName.roi();
-	    if ( chainName.vtx()!="" )     selectChains[iselected] += ":vtx="+chainName.vtx();
-            if ( chainName.element()!="" ) selectChains[iselected] += ":te="+chainName.element();
-            if ( chainName.extra()!="" )   selectChains[iselected] += ":extra="+chainName.extra();
-            if ( !chainName.passed() )     selectChains[iselected] += ":DTE"; 
 
-	    if ( chainName.postcount() )     selectChains[iselected] += ":post:"+chainName.post();
+	    selectChains[iselected] = chainName.subs( selectChains[iselected] );
 	    
 #if 0
 	    std::cout << "\nTrigTestBase::chain specification: " << chainName << "\t" << chainName.raw() << std::endl;
