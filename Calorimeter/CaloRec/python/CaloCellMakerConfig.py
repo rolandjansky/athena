@@ -51,14 +51,18 @@ def CaloCellMakerCfg(configFlags):
 
     print(cellMakerTools)
 
-    cellAlgo=CompFactory.CaloCellMaker(CaloCellMakerToolNames=cellMakerTools,
-                                       CaloCellsOutputName="AllCalo")
+    cellAlgo = CompFactory.CaloCellMaker(CaloCellMakerToolNames=cellMakerTools,
+                                         CaloCellsOutputName="AllCalo")
 
-    result.addEventAlgo(cellAlgo,primary=True)
+    result.addEventAlgo(cellAlgo, primary=True)
     from OutputStreamAthenaPool.OutputStreamConfig import addToESD, addToAOD
-    result.merge(addToESD(configFlags,["CaloCellContainer#AllCalo","TileCellContainer#MBTSContainer"]))
-    result.merge(addToAOD(configFlags,"TileCellContainer#MBTSContainer"))
-    
+    result.merge(addToESD(configFlags, ["CaloCellContainer#AllCalo",
+                                        "TileCellContainer#MBTSContainer",
+                                        "TileCellContainer#E4prContainer"]))
+    result.merge(addToAOD(configFlags,
+                          ["TileCellContainer#MBTSContainer",
+                           "TileCellContainer#E4prContainer"]))
+
     return result
 
  
