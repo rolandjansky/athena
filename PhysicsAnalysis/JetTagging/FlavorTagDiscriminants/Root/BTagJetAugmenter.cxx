@@ -403,7 +403,7 @@ void BTagJetAugmenter::augment(const xAOD::BTagging &btag) const {
     // D meson reconstruction
     m_DMeson_m(btag) = m;
     m_DMeson_isDefaults(btag) = 1; // 1 for failing reconstruction; 0 for passing reconstruction
-    double tempM_forDmeson = getDmesonMass(secondaryVtx_track_number, secondaryVtx_charge, secondaryVtx_4momentum_vector,secondaryVtx_charge_vector);
+    double tempM_forDmeson = getDmesonMass(secondaryVtx_track_number, secondaryVtx_charge, secondaryVtx_4momentum_vector,secondaryVtx_charge_vector, track_mass, track_kaon);
 
     if(tempM_forDmeson>-98){
       m_DMeson_m(btag) = tempM_forDmeson;
@@ -447,11 +447,9 @@ bool BTagJetAugmenter::jfIsDefaults(const xAOD::BTagging& btag) const {
   return !(m_jf_vertices(btag).size() > 0 && (m_jf_nVtx(btag) > 0 || m_jf_nSingleTracks(btag) > 0));
 }
 
-double BTagJetAugmenter::getDmesonMass(int secondaryVtx_track_number, float secondaryVtx_charge, std::vector<TLorentzVector> secondaryVtx_4momentum_vector, std::vector<float> secondaryVtx_charge_vector) const {
+double BTagJetAugmenter::getDmesonMass(int secondaryVtx_track_number, float secondaryVtx_charge, std::vector<TLorentzVector> secondaryVtx_4momentum_vector, std::vector<float> secondaryVtx_charge_vector, const float track_mass, const float track_kaon) const {
 
   double DmesonMass = -99.0;
-  const float track_mass = 139.57; // assume pion mass for all tracks
-  const float track_kaon = 493.677; // kaon mass
   const float Dmeson_reference = 1864.83;
   const float Dmeson_upper = 2200.0;
   const float Dmeson_lower = 1000.0;
