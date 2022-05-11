@@ -87,11 +87,19 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
     if (pixlayer == 99) continue;
     getPhiEtaMod(waferID, phiMod, etaMod, copyFEval);
 
-    bool is_active = isActive( !m_pixelDetElStatusActiveOnly.empty() ? pixel_active.cptr() :  nullptr,  id_hash);
-    if (is_active && isGood( !m_pixelDetElStatus.empty() ? pixel_status.cptr() :  nullptr,  id_hash) ) {
-      index = 0;
-    } else if (!is_active) {
-      index = 2;  // inactive or bad modules
+    if (isActive( !m_pixelDetElStatusActiveOnly.empty() ? pixel_active.cptr() :  nullptr,  id_hash) )
+      {
+	if (isGood( !m_pixelDetElStatus.empty() ? pixel_status.cptr() :  nullptr,  id_hash) ) index = 0;
+	else {
+	  index = 1;  // active but bad modules
+	  if (pixlayer == PixLayers::kIBL) {
+	    int iblsublayer = (m_pixelid->eta_module(waferID) > -7 && m_pixelid->eta_module(waferID) < 6) ? PixLayers::kIBL2D : PixLayers::kIBL3D;
+	    nBadMod[iblsublayer] += inv_nmod_per_layer[iblsublayer];
+	  } else nBadMod[pixlayer] += inv_nmod_per_layer[pixlayer];
+	}
+      }
+    else {
+      index = 2;  // inactive (disabled) modules
       if (pixlayer == PixLayers::kIBL) {
 	int iblsublayer = (m_pixelid->eta_module(waferID) > -7 && m_pixelid->eta_module(waferID) < 6) ? PixLayers::kIBL2D : PixLayers::kIBL3D;
 	nDisabledMod[iblsublayer] += inv_nmod_per_layer[iblsublayer];
@@ -122,12 +130,6 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
         if (copyFEval) clusPerEventArray.IBL[phiMod][++etaMod] = -1;
         break;
       }
-    } else {
-      index = 1;  // bad but active modules
-      if (pixlayer == PixLayers::kIBL) {
-	int iblsublayer = (m_pixelid->eta_module(waferID) > -7 && m_pixelid->eta_module(waferID) < 6) ? PixLayers::kIBL2D : PixLayers::kIBL3D;
-	nBadMod[iblsublayer] += inv_nmod_per_layer[iblsublayer];
-      } else nBadMod[pixlayer] += inv_nmod_per_layer[pixlayer];
     }
 
     Map_Of_Modules_Status.add(pixlayer, waferID, index);
@@ -138,24 +140,18 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
       int nFE = getNumberOfFEs(pixlayer, m_pixelid->eta_module(waferID));
       for (int iFE = 0; iFE < nFE; iFE++) {
          Identifier pixelID = m_pixelReadout->getPixelIdfromHash(id_hash, iFE, 1, 1);
-         if (pixelID.is_valid()) {
-            auto [is_active,is_good ] =isChipGood( !m_pixelDetElStatusActiveOnly.empty() ? pixel_active.cptr() : nullptr,
-                                                   !m_pixelDetElStatus.empty() ? pixel_status.cptr() : nullptr,
-                                                   id_hash,
-                                                   iFE);
-            if (is_active && is_good) {
-            index = 0;  // active and good FE
-          } else if (!is_active) {
-            index = 2;  // inactive or bad FE
-          } else {
-            index = 1;  // active and bad FE
-          }
-          Map_Of_FEs_Status.add(pixlayer, waferID, iFE, index);
-        } else {
-          ATH_MSG_ERROR(
-            "PixelMonitoring: got invalid pixelID " << pixelID << " from id_hash " << id_hash << " with FE#" << iFE <<
-              ".");
-        }
+	 if (not pixelID.is_valid()) continue;
+	 auto [is_active,is_good ] =isChipGood( !m_pixelDetElStatusActiveOnly.empty() ? pixel_active.cptr() : nullptr,
+						!m_pixelDetElStatus.empty() ? pixel_status.cptr() : nullptr,
+						id_hash,
+						iFE);
+	 if (is_active)
+	   {
+	     if (is_good) index = 0;
+	     else index = 1;
+	   } 
+	 else index = 2;
+	 Map_Of_FEs_Status.add(pixlayer, waferID, iFE, index);
       }
     }
   }  // end of pixelid wafer loop
