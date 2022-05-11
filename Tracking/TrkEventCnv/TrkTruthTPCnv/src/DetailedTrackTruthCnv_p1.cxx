@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // T/P converter for DetailedTrackTruth.
@@ -17,22 +17,21 @@
 #include <stdexcept>
 
 namespace {
-  SubDetHitStatisticsCnv_p0 subDetHitStatConverter;
-  TruthTrajectoryCnv_p1 truthTrajConverter;
+  const SubDetHitStatisticsCnv_p0 subDetHitStatConverter;
+  const TruthTrajectoryCnv_p1 truthTrajConverter;
 }
 
 
 void DetailedTrackTruthCnv_p1::persToTrans( const Trk::DetailedTrackTruth_p1* pers,
 					    DetailedTrackTruth* trans, 
-					    MsgStream& msg ) 
+					    MsgStream& msg ) const
 {
   msg<<MSG::DEBUG<<"DetailedTrackTruthCnv_p1::persToTrans()"<<endmsg;
 
-  static bool s_firsttime = true;
-  if(s_firsttime) {
-    s_firsttime = false;
+  static std::once_flag first_flag;
+  std::call_once (first_flag, [&]() {
     msg<<MSG::WARNING<<"Reading DetailedTrackTruth in the old format, statsTruth() info will not be available."<<endmsg;
-  }
+  });
   
   subDetHitStatConverter.persToTrans(&pers->m_hitsCommon, &TrackTruthCollectionAccessor::statsCommon(trans), msg);
   subDetHitStatConverter.persToTrans(&pers->m_hitsTrack, &TrackTruthCollectionAccessor::statsTrack(trans), msg);
@@ -43,7 +42,7 @@ void DetailedTrackTruthCnv_p1::persToTrans( const Trk::DetailedTrackTruth_p1* pe
 
 void DetailedTrackTruthCnv_p1::transToPers( const DetailedTrackTruth*,
 					    Trk::DetailedTrackTruth_p1*, 
-					    MsgStream& msg ) 
+					    MsgStream& msg ) const
 {
   const char *info = "DetailedTrackTruthCnv_p1::transToPers(): THIS OLD CONVERTER SHOLD NOT GET CALLED!";
   msg<<MSG::FATAL<<info<<endmsg;

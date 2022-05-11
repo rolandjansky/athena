@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // T/P converter for SubDetHitStatistics.
@@ -20,7 +20,7 @@
 
 void SubDetHitStatisticsCnv_p0::persToTrans( const Trk::SubDetHitStatistics_p0* pers,
 					     SubDetHitStatistics* trans, 
-					     MsgStream& /*msg*/ ) 
+					     MsgStream& /*msg*/ ) const
 {
   unsigned char *phits(TrackTruthCollectionAccessor::numPRDs(trans));
   unsigned char* p = 
@@ -33,7 +33,7 @@ void SubDetHitStatisticsCnv_p0::persToTrans( const Trk::SubDetHitStatistics_p0* 
 
 void SubDetHitStatisticsCnv_p0::transToPers( const SubDetHitStatistics* trans, 
 					     Trk::SubDetHitStatistics_p0* pers, 
-					     MsgStream& /*msg*/ ) 
+					     MsgStream& /*msg*/ ) const
 {
   const unsigned char *phits(TrackTruthCollectionAccessor::numPRDs(trans));
   unsigned char* p = 
