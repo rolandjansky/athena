@@ -100,6 +100,9 @@ def _createCfgFlags():
     acf.addFlag('Common.MsgSourceLength',50) #Length of the source-field in the format str of MessageSvc
     acf.addFlag('Common.isOnline', False ) #  Job runs in an online environment (access only to resources available at P1) # former global.isOnline
     acf.addFlag('Common.useOnlineLumi', lambda prevFlags : prevFlags.Common.isOnline ) #  Use online version of luminosity. ??? Should just use isOnline?
+    acf.addFlag('Common.isOverlay', lambda prevFlags: (prevFlags.Common.ProductionStep == ProductionStep.Overlay or
+                                                       (prevFlags.Common.ProductionStep == ProductionStep.FastChain and
+                                                        prevFlags.Overlay.FastChain)))  # Enable Overlay
     acf.addFlag('Common.doExpressProcessing', False)
     acf.addFlag('Common.ProductionStep', ProductionStep.Default, enum=ProductionStep)
 
