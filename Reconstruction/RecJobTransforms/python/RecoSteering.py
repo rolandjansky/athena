@@ -22,7 +22,8 @@ def RecoSteering(flags):
         from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
         acc.merge(ByteStreamReadCfg(flags))
         # Decorate EventInfo obj with Beam Spot information
-        from xAODEventInfoCnv.EventInfoBeamSpotDecoratorAlgConfig import EventInfoBeamSpotDecoratorAlgCfg
+        from xAODEventInfoCnv.EventInfoBeamSpotDecoratorAlgConfig import (
+            EventInfoBeamSpotDecoratorAlgCfg)
         acc.merge(EventInfoBeamSpotDecoratorAlgCfg(flags))
         log.info("---------- Configured BS reading")
     else:
@@ -100,7 +101,8 @@ def RecoSteering(flags):
 
     # TrackParticleCellAssociation = add cells crossed by high pt ID tracks
     if flags.Reco.EnableTrackCellAssociation:
-        from TrackParticleAssociationAlgs.TrackParticleAssociationAlgsConfig import TrackParticleCellAssociationAlgCfg
+        from TrackParticleAssociationAlgs.TrackParticleAssociationAlgsConfig import (
+            TrackParticleCellAssociationAlgCfg)
         acc.merge(TrackParticleCellAssociationAlgCfg(flags))
         log.info("---------- Configured track particle-cell association")
 
@@ -150,7 +152,7 @@ def RecoSteering(flags):
         from HIRecConfig.HIRecConfig import HIRecCfg
         acc.merge(HIRecCfg(flags))
         log.info("---------- Configured Heavy Ion reconstruction")
-    
+
     # AFP
     if flags.Reco.EnableAFP:
         from ForwardRec.AFPRecConfig import AFPRecCfg
@@ -171,6 +173,11 @@ def RecoSteering(flags):
         log.info("setup POOL format writing")
 
     if flags.Output.doWriteESD:
+        # Needed for Trk::Tracks TPCnv/
+        # Assumes we write Trk::Track on ESD
+        from TrkEventCnvTools.TrkEventCnvToolsConfigCA import (
+            TrkEventCnvSuperToolCfg)
+        acc.merge(TrkEventCnvSuperToolCfg(flags))
         log.info("ESD ItemList: %s", acc.getEventAlgo(
             "OutputStreamESD").ItemList)
         log.info("---------- Configured ESD writing")
