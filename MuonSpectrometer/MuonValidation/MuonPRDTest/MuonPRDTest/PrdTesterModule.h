@@ -6,8 +6,6 @@
 #define PRDTESTER_PrdTesterModule_H
 
 #include "AthenaBaseComps/AthMessaging.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "AthenaKernel/MsgStreamMember.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonTesterTree/MuonTesterTreeDict.h"
