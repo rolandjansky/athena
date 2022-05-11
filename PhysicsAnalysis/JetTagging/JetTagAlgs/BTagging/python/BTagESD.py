@@ -7,7 +7,7 @@ from BTagging.BTagTrackAugmenterAlgConfig import BTagTrackAugmenterAlgCfg
 from FlavorTagDiscriminants.BTagJetAugmenterAlgConfig import (
     BTagJetAugmenterAlgCfg)
 
-from BTagging.HighLevelBTagAlgConfig import HighLevelBTagAlgCfg
+from FlavorTagDiscriminants.FlavorTagNNConfig import FlavorTagNNCfg
 
 def RenameInputContainerCfg(suffix):
     acc=ComponentAccumulator()
@@ -77,7 +77,7 @@ def RunHighLevelTaggersCfg(inputFlags, jet, tracks, Associator, taggers):
     BTagCollection = inputFlags.BTagging.OutputFiles.Prefix+JetCollection
     result.merge(BTagJetAugmenterAlgCfg(inputFlags, JetCollection=jet, BTagCollection=BTagCollection, Associator=Associator, TrackCollection=tracks) )
     for dl2 in taggers:
-        result.merge(HighLevelBTagAlgCfg(inputFlags, BTagCollection, TrackCollection=tracks, NNFile=dl2) )
+        result.merge(FlavorTagNNCfg(inputFlags, BTagCollection, TrackCollection=tracks, NNFile=dl2) )
 
     return result
 
