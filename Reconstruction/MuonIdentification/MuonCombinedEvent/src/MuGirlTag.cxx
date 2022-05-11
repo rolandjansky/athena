@@ -45,6 +45,5 @@ namespace MuonCombined {
     }
     void MuGirlTag::setCommissioning(bool b) { m_isCommissioning = b; }
     bool MuGirlTag::isCommissioning() const { return m_isCommissioning; }
-   
 
 }  // namespace MuonCombined

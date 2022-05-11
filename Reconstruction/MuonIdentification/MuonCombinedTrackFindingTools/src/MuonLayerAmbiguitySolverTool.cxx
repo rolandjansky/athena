@@ -64,9 +64,8 @@ namespace Muon {
                 for (const auto& candidate : candidates) {
                     for (const auto& layer : candidate.layerIntersections) { usedSegments.insert(layer.segment.get()); }
                 }
-                resolvedCandidates.insert(resolvedCandidates.end(), std::make_move_iterator(candidates.begin()), 
-                                                                    std::make_move_iterator(candidates.end()));
-
+                resolvedCandidates.insert(resolvedCandidates.end(), std::make_move_iterator(candidates.begin()),
+                                          std::make_move_iterator(candidates.end()));
             }
             ++nseeds;
         }
@@ -105,8 +104,8 @@ namespace Muon {
                             candidate.layerIntersections.push_back(layerIntersection);
                         } else {
                             MuonCandidate newCandidate = candidate;
-                            /// replace the last intersection on the original candidate                            
-                            newCandidate.layerIntersections.back() = layerIntersection;  
+                            /// replace the last intersection on the original candidate
+                            newCandidate.layerIntersections.back() = layerIntersection;
                             newCandidates.emplace_back(std::move(newCandidate));
                         }
                         ++selectedSegmentsInLayer;
@@ -115,9 +114,9 @@ namespace Muon {
             }
             // add new candidates to list
             if (!newCandidates.empty()) {
-                ATH_MSG_VERBOSE("Found multiple solutions, add new candidates " << newCandidates.size());               
-                candidates.insert(candidates.end(), std::make_move_iterator(newCandidates.begin()), 
-                                                    std::make_move_iterator(newCandidates.end()));
+                ATH_MSG_VERBOSE("Found multiple solutions, add new candidates " << newCandidates.size());
+                candidates.insert(candidates.end(), std::make_move_iterator(newCandidates.begin()),
+                                  std::make_move_iterator(newCandidates.end()));
             }
         }
 
@@ -147,15 +146,12 @@ namespace Muon {
         for (; rit != rit_end; ++rit) {
             // loop over segments and find the next 'good' one that was not used yet
             for (const MuonLayerIntersection& muonLayerIntersection : muonLayerDataHashVec[*rit]) {
-                
                 /// select segment
                 if (muonLayerIntersection.quality < m_seedQualityThreshold) continue;
                 // only consider once
                 const MuonSegment* segment = muonLayerIntersection.segment.get();
                 if (usedSegments.count(segment)) continue;
                 usedSegments.insert(segment);
-
-               
 
                 // return result
                 layerIntersection = muonLayerIntersection;
@@ -198,10 +194,9 @@ namespace Muon {
             }
 
             // finally sort the segments
-            std::stable_sort(muonLayerDataHashVec[stIndex].begin(), muonLayerDataHashVec[stIndex].end(),
-                             [](const Muon::MuonLayerIntersection& a, const  Muon::MuonLayerIntersection& b){
-                                     return a.quality > b.quality;
-                             });
+            std::stable_sort(
+                muonLayerDataHashVec[stIndex].begin(), muonLayerDataHashVec[stIndex].end(),
+                [](const Muon::MuonLayerIntersection& a, const Muon::MuonLayerIntersection& b) { return a.quality > b.quality; });
         }
 
         if (msgLvl(MSG::DEBUG)) {
@@ -259,7 +254,8 @@ namespace Muon {
                 // check that quality of the combined segment is not worse that the original ones
                 int qualitynew = m_segmentSelector->quality(*newseg);
                 if (qualitynew < layerIntersection1.quality || qualitynew < layerIntersection2.quality) {
-                    ATH_MSG_DEBUG("Quality got worse after combination: new " << qualitynew << " q1 " << layerIntersection1.quality << " q2 " << layerIntersection2.quality);
+                    ATH_MSG_DEBUG("Quality got worse after combination: new " << qualitynew << " q1 " << layerIntersection1.quality
+                                                                              << " q2 " << layerIntersection2.quality);
                     continue;
                 }
 
@@ -295,11 +291,10 @@ namespace Muon {
         };
         // do the insertion and swap the new vector with the existingLayerIntersections
         combinedIntersections.reserve(existingLayerIntersections.size() + newLayerIntersections.size());
-        std::copy_if(std::make_move_iterator(existingLayerIntersections.begin()), 
-                     std::make_move_iterator(existingLayerIntersections.end()), std::back_inserter(combinedIntersections),
-                     insert_intersection);
-        std::copy_if(std::make_move_iterator(newLayerIntersections.begin()), std::make_move_iterator(newLayerIntersections.end()), std::back_inserter(combinedIntersections),
-                     insert_intersection);
+        std::copy_if(std::make_move_iterator(existingLayerIntersections.begin()), std::make_move_iterator(existingLayerIntersections.end()),
+                     std::back_inserter(combinedIntersections), insert_intersection);
+        std::copy_if(std::make_move_iterator(newLayerIntersections.begin()), std::make_move_iterator(newLayerIntersections.end()),
+                     std::back_inserter(combinedIntersections), insert_intersection);
         existingLayerIntersections = std::move(combinedIntersections);
     }
 }  // namespace Muon

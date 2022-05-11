@@ -6,8 +6,8 @@
 #include "../MuonCombinedInDetExtensionAlg.h"
 #include "../MuonCombinedMuonCandidateAlg.h"
 #include "../MuonCreatorAlg.h"
-#include "../MuonSegmentTagAlg.h"
 #include "../MuonInDetToMuonSystemExtensionAlg.h"
+#include "../MuonSegmentTagAlg.h"
 
 DECLARE_COMPONENT(MuonCombinedInDetCandidateAlg)
 DECLARE_COMPONENT(MuonCombinedMuonCandidateAlg)

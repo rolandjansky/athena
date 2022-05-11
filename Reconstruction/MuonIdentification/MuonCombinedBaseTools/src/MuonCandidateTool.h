@@ -10,16 +10,15 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
 #include "MuonCombinedToolInterfaces/IMuonCandidateTool.h"
+#include "MuonCombinedToolInterfaces/IMuonTrackToSegmentAssociationTool.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecToolInterfaces/IMuonTrackExtrapolationTool.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
 #include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
-#include "xAODTracking/TrackParticleContainer.h"
 #include "xAODMuon/MuonSegmentContainer.h"
-#include "MuonCombinedToolInterfaces/IMuonTrackToSegmentAssociationTool.h"
-
+#include "xAODTracking/TrackParticleContainer.h"
 
 namespace MuonCombined {
 
@@ -48,15 +47,14 @@ namespace MuonCombined {
         SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey{this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot"};
 
         /// Retrieve the segment container to perform the segment association offline
-        SG::ReadHandleKey<xAOD::MuonSegmentContainer> m_segmentKey{this, "SegmentContainer", "" };
+        SG::ReadHandleKey<xAOD::MuonSegmentContainer> m_segmentKey{this, "SegmentContainer", ""};
         PublicToolHandle<MuonCombined::IMuonTrackToSegmentAssociationTool> m_trackSegmentAssociationTool{
             this, "TrackSegmentAssociationTool", "MuonCombined::TrackSegmentAssociationTool/TrackSegmentAssociationTool"};
-
 
         Gaudi::Property<unsigned int> m_extrapolationStrategy{this, "ExtrapolationStrategy", 0};
 
         Gaudi::Property<bool> m_commissioning{this, "Commissioning", false,
-                                             "Flag deciding whether the candidate belongs to the comissioning."};
+                                              "Flag deciding whether the candidate belongs to the comissioning."};
     };
 
 }  // namespace MuonCombined

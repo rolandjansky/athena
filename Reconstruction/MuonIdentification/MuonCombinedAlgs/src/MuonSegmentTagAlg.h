@@ -21,7 +21,7 @@ public:
 
     ~MuonSegmentTagAlg() = default;
 
-    virtual StatusCode initialize()override;
+    virtual StatusCode initialize() override;
     virtual StatusCode execute(const EventContext& ctx) const override;
 
 private:

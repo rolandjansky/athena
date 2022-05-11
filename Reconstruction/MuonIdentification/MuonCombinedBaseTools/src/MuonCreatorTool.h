@@ -20,6 +20,7 @@
 #include "MuonCombinedToolInterfaces/IMuonMomentumBalanceSignificance.h"
 #include "MuonCombinedToolInterfaces/IMuonPrintingTool.h"
 #include "MuonCombinedToolInterfaces/IMuonScatteringAngleSignificance.h"
+#include "MuonCombinedToolInterfaces/IMuonTrackToSegmentAssociationTool.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
@@ -27,7 +28,6 @@
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
-#include "MuonCombinedToolInterfaces/IMuonTrackToSegmentAssociationTool.h"
 #include "TrackToCalo/CaloCellCollector.h"
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
@@ -117,14 +117,12 @@ namespace MuonCombined {
                                                                              Trk::SegmentCollection* muonSegmentCollection = 0) const;
 
     private:
-
         void resolveOverlaps(const EventContext& ctx, const MuonCandidateCollection* muonCandidates,
                              const std::vector<const InDetCandidateToTagMap*>& tagMaps, InDetCandidateTagsMap& resolvedInDetCandidates,
                              std::vector<const MuonCombined::MuonCandidate*>& resolvedMuonCandidates,
                              bool select_comissioning = false) const;
 
-        void selectStaus(InDetCandidateTagsMap& resolvedInDetCandidates,
-                         const std::vector<const InDetCandidateToTagMap*>& tagMaps) const;
+        void selectStaus(InDetCandidateTagsMap& resolvedInDetCandidates, const std::vector<const InDetCandidateToTagMap*>& tagMaps) const;
 
         std::unique_ptr<Trk::Track> createDummyTrack(const EventContext& ctx, const std::vector<const Muon::MuonSegment*>& segments,
                                                      const Trk::Track& indetTrack) const;
@@ -138,12 +136,11 @@ namespace MuonCombined {
 
         void setP4(xAOD::Muon& muon, const xAOD::TrackParticle& tp) const;
 
-        void collectCells(const EventContext& ctx, 
-                          xAOD::Muon& muon, xAOD::CaloClusterContainer* clusterContainer, 
+        void collectCells(const EventContext& ctx, xAOD::Muon& muon, xAOD::CaloClusterContainer* clusterContainer,
                           const Trk::CaloExtension* inputCaloExt = nullptr) const;
 
         void addSegmentsOnTrack(xAOD::Muon& muon, const xAOD::MuonSegmentContainer* segments) const;
-      
+
         ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
         ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc{this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
                                                               "Handle to the service providing the IMuonEDMHelperSvc interface"};
@@ -171,7 +168,7 @@ namespace MuonCombined {
                                                                   "Rec::MuonMeanMDTdADCFillerTool/MuonMeanMDTdADCFillerTool"};
         ToolHandle<Trk::ITrkMaterialProviderTool> m_caloMaterialProvider{this, "CaloMaterialProvider",
                                                                          "Trk::TrkMaterialProviderTool/TrkMaterialProviderTool"};
-        
+
         PublicToolHandle<MuonCombined::IMuonTrackToSegmentAssociationTool> m_trackSegmentAssociationTool{
             this, "TrackSegmentAssociationTool", "MuonCombined::TrackSegmentAssociationTool/TrackSegmentAssociationTool"};
 
@@ -186,7 +183,7 @@ namespace MuonCombined {
         Gaudi::Property<bool> m_buildStauContainer{this, "BuildStauContainer", false, "flag to decide whether to build stau or not"};
         Gaudi::Property<bool> m_fillEnergyLossFromTrack{this, "FillEnergyLossFromTrack", true,
                                                         "Decide whether to try to extract the calo energy loss from tracks "};
-       
+
         Gaudi::Property<bool> m_fillExtraELossInfo{this, "FillExtraELossInfo", true,
                                                    "Can enabled this for debugging - will add extra information not for "
                                                    "production"};
@@ -204,8 +201,8 @@ namespace MuonCombined {
 
         Gaudi::Property<float> m_sigmaCaloNoiseCut{this, "SigmaCaloNoiseCut", 3.4};
 
-        SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"};
-    };    
+        SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this, "CaloDetDescrManager", "CaloDetDescrManager"};
+    };
 
 }  // namespace MuonCombined
 

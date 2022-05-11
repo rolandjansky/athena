@@ -30,13 +30,15 @@ private:
     SG::ReadHandleKeyArray<xAOD::TrackParticleContainer> m_indetTrackParticleLocation{
         this, "TrackParticleLocation", {"InDetTrackParticles"}};
     SG::ReadHandleKeyArray<CaloExtensionCollection> m_caloExtensionLocation{
-        this, "CaloExtensionLocation", {},
+        this,
+        "CaloExtensionLocation",
+        {},
     };
     SG::ReadHandleKey<xAOD::TrackParticleContainer> m_indetForwardTrackParticleLocation{this, "ForwardParticleLocation",
                                                                                         "InDetForwardTrackParticles"};
 
     SG::ReadHandleKey<CaloExtensionCollection> m_caloFwdExtensionLocation{this, "CaloFwdExtensionLocation", ""};
-    
+
     SG::WriteHandleKey<InDetCandidateCollection> m_candidateCollectionName{this, "InDetCandidateLocation", "InDetCandidates"};
 
     ToolHandle<Trk::ITrackSelectorTool> m_trackSelector{
@@ -44,8 +46,7 @@ private:
     ToolHandle<Trk::ITrackSelectorTool> m_forwardTrackSelector{
         this, "InDetForwardTrackSelector", "InDet::InDetDetailedTrackSelectorTool/MuonCombinedInDetDetailedForwardTrackSelectorTool",
         "Forward track selector tool"};
-    ToolHandle<Muon::IMuonSystemExtensionTool> m_muonSystemExtensionTool{
-        this, "MuonSystemExtensionTool", "", "Muon system extension tool"};
+    ToolHandle<Muon::IMuonSystemExtensionTool> m_muonSystemExtensionTool{this, "MuonSystemExtensionTool", "", "Muon system extension tool"};
 
     struct InDetCandidateCache {
         /// Track particle container
@@ -75,7 +76,7 @@ private:
     /// Shall ordinary ID tracks  be equiped with a muon system extension used by MuGirl later
     Gaudi::Property<bool> m_extendBulk{this, "ExtendBulk", true};
     /// Reject muon candidates without a muon system extension -- only effective if the candidate shall actually be extended
-    Gaudi::Property<bool> m_requireExtension{this,"RequireExtension", true};
+    Gaudi::Property<bool> m_requireExtension{this, "RequireExtension", true};
 };
 
 #endif

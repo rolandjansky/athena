@@ -3,11 +3,11 @@
 */
 
 #include "MuonCombinedEvent/CombinedFitTag.h"
-#include "MuonCombinedEvent/MuonCandidate.h"
-#include <iostream>
-#include "TrkTrack/Track.h"
-#include "MuonSegment/MuonSegment.h"
 
+#include <iostream>
+
+#include "MuonCombinedEvent/MuonCandidate.h"
+#include "MuonSegment/MuonSegment.h"
 #include "TrkTrack/Track.h"
 
 namespace MuonCombined {
@@ -53,9 +53,9 @@ namespace MuonCombined {
         for (const ElementLink<xAOD::MuonSegmentContainer>& seg_link : muonCandidate().getSegments()) {
             if (!seg_link.isValid()) continue;
             const xAOD::MuonSegment* seg = (*seg_link);
-            const Trk::Segment* trk_seg =*seg->muonSegment();
+            const Trk::Segment* trk_seg = *seg->muonSegment();
             const Muon::MuonSegment* muon_seg = dynamic_cast<const Muon::MuonSegment*>(trk_seg);
-            if (muon_seg) assoc_seg.push_back(muon_seg);             
+            if (muon_seg) assoc_seg.push_back(muon_seg);
         }
         return assoc_seg;
     }

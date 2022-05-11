@@ -13,20 +13,19 @@
 
 namespace {
     using SegLink_t = ElementLink<xAOD::MuonSegmentContainer>;
-    
+
     struct MatchResult {
         SegLink_t link;
         Muon::MuonSegmentKey key;
         unsigned int numberOfMatchedMeasurements;
         bool isSelected{true};
-        MatchResult(const SegLink_t& link_, const Muon::MuonSegmentKey& key_,
-                    unsigned int numberOfMatchedMeasurements_) :
+        MatchResult(const SegLink_t& link_, const Muon::MuonSegmentKey& key_, unsigned int numberOfMatchedMeasurements_) :
             link(link_), key(key_), numberOfMatchedMeasurements(numberOfMatchedMeasurements_) {}
     };
-}
+}  // namespace
 
 namespace MuonCombined {
-    
+
     TrackSegmentAssociationTool::TrackSegmentAssociationTool(const std::string& t, const std::string& n, const IInterface* p) :
         AthAlgTool(t, n, p) {
         declareInterface<IMuonTrackToSegmentAssociationTool>(this);
@@ -40,8 +39,7 @@ namespace MuonCombined {
 
     /** Returns a list of segments that match with the input Muon. */
     bool TrackSegmentAssociationTool::associatedSegments(const xAOD::Muon& muon, const xAOD::MuonSegmentContainer* segments,
-                                                         std::vector<SegLink_t >& assoc_segments) const {
-
+                                                         std::vector<SegLink_t>& assoc_segments) const {
         /// only fill if the primary track particle is not equal to the ID track particle and
         /// it has an associated track with track states
         const xAOD::TrackParticle* tp = muon.primaryTrackParticle();
@@ -51,9 +49,8 @@ namespace MuonCombined {
         return associatedSegments(*tp->track(), segments, assoc_segments);
     }
 
-    
     bool TrackSegmentAssociationTool::associatedSegments(const Trk::Track& track, const xAOD::MuonSegmentContainer* segments,
-                                std::vector<SegLink_t >& assoc_segments) const  {
+                                                         std::vector<SegLink_t>& assoc_segments) const {
         if (!segments) {
             ATH_MSG_DEBUG("no segment container passed, returning");
             return false;
@@ -92,7 +89,6 @@ namespace MuonCombined {
 
         // refined selection
         for (unsigned int i = 0; i < matched_segs.size(); i++) {
-            
             MatchResult& result_i = matched_segs[i];
             if (!result_i.isSelected) continue;
 
@@ -132,30 +128,30 @@ namespace MuonCombined {
             }
         }
 
-        for (MatchResult& matches  : matched_segs) {
+        for (MatchResult& matches : matched_segs) {
             if (matches.isSelected) { assoc_segments.push_back(std::move(matches.link)); }
         }
-        std::sort(assoc_segments.begin(),assoc_segments.end(),[](const SegLink_t& a, const SegLink_t& b) ->bool{
+        std::sort(assoc_segments.begin(), assoc_segments.end(), [](const SegLink_t& a, const SegLink_t& b) -> bool {
             using chamIdx = Muon::MuonStationIndex::ChIndex;
             chamIdx ch_a = (*a)->chamberIndex();
             chamIdx ch_b = (*b)->chamberIndex();
-            Muon::MuonStationIndex::StIndex st_a = Muon::MuonStationIndex::toStationIndex(ch_a);  
+            Muon::MuonStationIndex::StIndex st_a = Muon::MuonStationIndex::toStationIndex(ch_a);
             Muon::MuonStationIndex::StIndex st_b = Muon::MuonStationIndex::toStationIndex(ch_b);
             if (st_a != st_b) return st_a < st_b;
             /// Sort the CSC segments at the first giving priority to the small sectors
-            if (ch_a == chamIdx::CSL || ch_a == chamIdx::CSS || ch_b == chamIdx::CSS || ch_b == chamIdx::CSL) 
-                return (ch_a == chamIdx::CSL) + 2*(ch_a == chamIdx::CSS) > (ch_b == chamIdx::CSL) + 2*(ch_b == chamIdx::CSS);
+            if (ch_a == chamIdx::CSL || ch_a == chamIdx::CSS || ch_b == chamIdx::CSS || ch_b == chamIdx::CSL)
+                return (ch_a == chamIdx::CSL) + 2 * (ch_a == chamIdx::CSS) > (ch_b == chamIdx::CSL) + 2 * (ch_b == chamIdx::CSS);
             return ch_a < ch_b;
         });
-        if (msgLevel(MSG::DEBUG)){
+        if (msgLevel(MSG::DEBUG)) {
             std::stringstream sstr;
-            for (const SegLink_t& seg : assoc_segments){
-                sstr<<Muon::MuonStationIndex::chName( (*seg)->chamberIndex())
-                    <<"  ("<<Muon::MuonStationIndex::technologyName( (*seg)->technology())<<"), ";
+            for (const SegLink_t& seg : assoc_segments) {
+                sstr << Muon::MuonStationIndex::chName((*seg)->chamberIndex()) << "  ("
+                     << Muon::MuonStationIndex::technologyName((*seg)->technology()) << "), ";
             }
-            ATH_MSG_DEBUG("Selected segments " << assoc_segments.size()<<" "<<sstr.str());  
+            ATH_MSG_DEBUG("Selected segments " << assoc_segments.size() << " " << sstr.str());
         }
         return true;
     }
 
-}  // namespace Muon
+}  // namespace MuonCombined

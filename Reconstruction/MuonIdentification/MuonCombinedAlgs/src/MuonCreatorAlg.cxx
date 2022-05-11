@@ -73,7 +73,6 @@ StatusCode MuonCreatorAlg::initialize() {
 }
 
 StatusCode MuonCreatorAlg::execute(const EventContext& ctx) const {
-    
     std::vector<const MuonCombined::InDetCandidateToTagMap*> tagMaps;
     tagMaps.reserve(m_tagMaps.size());
     if (!m_doSA) {

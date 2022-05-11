@@ -28,7 +28,6 @@ namespace MuonCombined {
         virtual void create(const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection,
                             TrackCollection& outputTracks, const EventContext& ctx) const = 0;
 
-       
         virtual ~IMuonCandidateTool() = default;
     };
 

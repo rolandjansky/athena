@@ -110,15 +110,13 @@ namespace MuonCombined {
         return StatusCode::SUCCESS;
     }
     void MuonCreatorTool::create(const EventContext& ctx, const MuonCandidateCollection* muonCandidates,
-                                 const std::vector<const InDetCandidateToTagMap*>& tagMaps,
-                                 OutputData& outputData) const {
+                                 const std::vector<const InDetCandidateToTagMap*>& tagMaps, OutputData& outputData) const {
         create(ctx, muonCandidates, tagMaps, outputData, false);
-        create(ctx, muonCandidates, tagMaps, outputData, true); 
+        create(ctx, muonCandidates, tagMaps, outputData, true);
     }
     void MuonCreatorTool::create(const EventContext& ctx, const MuonCandidateCollection* muonCandidates,
-                                 const std::vector<const InDetCandidateToTagMap*>& tagMaps,
-                                 OutputData& outputData, bool select_commissioning) const {
-       
+                                 const std::vector<const InDetCandidateToTagMap*>& tagMaps, OutputData& outputData,
+                                 bool select_commissioning) const {
         // Create containers for resolved candidates (always of type VIEW_ELEMENTS)
         InDetCandidateTagsMap resolvedInDetCandidates;
         // std::vector<const MuonCombined::InDetCandidate*> resolvedInDetCandidates;
@@ -126,8 +124,7 @@ namespace MuonCombined {
 
         // Resolve Overlap
         if (!m_buildStauContainer)
-            resolveOverlaps(ctx, muonCandidates, tagMaps, resolvedInDetCandidates, resolvedMuonCandidates,
-                            select_commissioning);
+            resolveOverlaps(ctx, muonCandidates, tagMaps, resolvedInDetCandidates, resolvedMuonCandidates, select_commissioning);
         else if (!select_commissioning)
             selectStaus(resolvedInDetCandidates, tagMaps);
 
@@ -257,7 +254,7 @@ namespace MuonCombined {
         if (candidate.second.empty()) {
             ATH_MSG_DEBUG("MuonCreatorTool::create(...) - InDetCandidate with empty combinedDataTags. Aborting. Will not create Muon.");
             return nullptr;
-        }       
+        }
         const std::vector<const TagBase*>& tags = candidate.second;
         if (tags.size() == 1 && !m_buildStauContainer) {
             const MuGirlLowBetaTag* muGirlLowBetaTag = dynamic_cast<const MuGirlLowBetaTag*>(tags[0]);
@@ -686,7 +683,8 @@ namespace MuonCombined {
                 if (!foundseg) {  // add parameters for the first segment
                     muon.setParameter(static_cast<float>(info.dtheta), xAOD::Muon::segmentDeltaEta);
                     muon.setParameter(static_cast<float>(info.dphi), xAOD::Muon::segmentDeltaPhi);
-                    muon.setParameter(static_cast<float>(info.segment->fitQuality()->chiSquared() / info.segment->fitQuality()->numberDoF()),
+                    muon.setParameter(
+                        static_cast<float>(info.segment->fitQuality()->chiSquared() / info.segment->fitQuality()->numberDoF()),
                         xAOD::Muon::segmentChi2OverDoF);
                     foundseg = true;
                 } else if (muon.author() != xAOD::Muon::MuTagIMO)
@@ -716,7 +714,8 @@ namespace MuonCombined {
             return;
         }
 
-        ATH_MSG_DEBUG("Adding Calo Muon with author " << tag->author() << ", type " << tag->type() << ", CaloMuonScore " << tag->caloMuonScore());
+        ATH_MSG_DEBUG("Adding Calo Muon with author " << tag->author() << ", type " << tag->type() << ", CaloMuonScore "
+                                                      << tag->caloMuonScore());
         mu.setParameter(static_cast<float>(tag->caloMuonScore()), xAOD::Muon::CaloMuonScore);
         mu.setParameter(static_cast<int>(tag->caloMuonIdTag()), xAOD::Muon::CaloMuonIDTag);
 
@@ -919,14 +918,12 @@ namespace MuonCombined {
     void MuonCreatorTool::selectStaus(InDetCandidateTagsMap& resolvedInDetCandidates,
                                       const std::vector<const InDetCandidateToTagMap*>& tagMaps) const {
         resolvedInDetCandidates.clear();
-        for (const InDetCandidateToTagMap* tag_map: tagMaps){
+        for (const InDetCandidateToTagMap* tag_map : tagMaps) {
             if (!tag_map) continue;
-            for (const auto& combined_tag : *tag_map){
+            for (const auto& combined_tag : *tag_map) {
                 const TagBase* tag = combined_tag.second.get();
                 const MuGirlLowBetaTag* muGirlLowBetaTag = dynamic_cast<const MuGirlLowBetaTag*>(tag);
-                if (muGirlLowBetaTag) {
-                    resolvedInDetCandidates.emplace_back(combined_tag.first,  std::vector<const TagBase*> {tag});                    
-                }
+                if (muGirlLowBetaTag) { resolvedInDetCandidates.emplace_back(combined_tag.first, std::vector<const TagBase*>{tag}); }
             }
             break;
         }
@@ -941,26 +938,22 @@ namespace MuonCombined {
         // tag_map above is keyed on a pointer.
         // So we need to sort in order to get reproducible results.
         std::stable_sort(resolvedInDetCandidates.begin(), resolvedInDetCandidates.end(),
-                         [] (const InDetCandidateTags& a,
-                             const InDetCandidateTags& b)
-                         { return a.first->indetTrackParticle().pt() >
-                                  b.first->indetTrackParticle().pt(); });
+                         [](const InDetCandidateTags& a, const InDetCandidateTags& b) {
+                             return a.first->indetTrackParticle().pt() > b.first->indetTrackParticle().pt();
+                         });
     }
 
-    void MuonCreatorTool::resolveOverlaps(const EventContext& ctx ,
-                                          const MuonCandidateCollection* muonCandidates,
+    void MuonCreatorTool::resolveOverlaps(const EventContext& ctx, const MuonCandidateCollection* muonCandidates,
                                           const std::vector<const InDetCandidateToTagMap*>& tagMaps,
                                           InDetCandidateTagsMap& resolvedInDetCandidates,
                                           std::vector<const MuonCombined::MuonCandidate*>& resolvedMuonCandidates,
                                           bool select_commissioning) const {
-        
         resolvedMuonCandidates.clear();
         resolvedInDetCandidates.clear();
-        
+
         std::unique_ptr<const TrackCollection> resolvedTracks;
         std::vector<std::unique_ptr<Trk::Track>> garbage_collection;
-             
-       
+
         /// Find all InDetCandidate -- Combined tag combinations
         /// Be aware that different InDetCandidateMaps could have different
         /// InDetCandidate objects but the underlying tracks are always the same
@@ -970,18 +963,19 @@ namespace MuonCombined {
             for (const auto& comb_tag : *tag_map) {
                 const TagBase* tag = comb_tag.second.get();
                 /// Check whether the author arises from the comissioning chain
-                /// The maps are filled in dedicated algorithim. So all tags will 
+                /// The maps are filled in dedicated algorithim. So all tags will
                 /// fail / satisfy this condition
                 if (tag->isCommissioning() != select_commissioning) break;
-                InDetCandidateTagsMap::iterator itr = std::find_if(inDetCandidateMap.begin(),inDetCandidateMap.end(), 
-                                        [&comb_tag](const InDetCandidateTags& to_test) {
-                                            return (*to_test.first) == (*comb_tag.first);
-                                        });
-                if (itr != inDetCandidateMap.end()) itr->second.emplace_back(tag);
-                else inDetCandidateMap.emplace_back(std::make_pair(comb_tag.first, std::vector<const TagBase*>{tag}));
-            }            
-        }        
-        
+                InDetCandidateTagsMap::iterator itr =
+                    std::find_if(inDetCandidateMap.begin(), inDetCandidateMap.end(),
+                                 [&comb_tag](const InDetCandidateTags& to_test) { return (*to_test.first) == (*comb_tag.first); });
+                if (itr != inDetCandidateMap.end())
+                    itr->second.emplace_back(tag);
+                else
+                    inDetCandidateMap.emplace_back(std::make_pair(comb_tag.first, std::vector<const TagBase*>{tag}));
+            }
+        }
+
         // Each InDetCandidate corresponds to a different ID track.
         // Resolve overlap among InDetCandidates for cases where different
         // ID tracks are tagged by the same MS info (track or segment)
@@ -992,26 +986,27 @@ namespace MuonCombined {
 
             // first loop over ID candidates and select all candidates that have a tag
             resolvedInDetCandidates.reserve(inDetCandidateMap.size());
-            caloMuons.reserve(inDetCandidateMap.size());            
+            caloMuons.reserve(inDetCandidateMap.size());
             for (InDetCandidateTags& comb_tag : inDetCandidateMap) {
                 std::stable_sort(comb_tag.second.begin(), comb_tag.second.end(), SortTagBasePtr());
                 if (comb_tag.second.size() == 1 && comb_tag.second.front()->type() == xAOD::Muon::CaloTagged) {
                     caloMuons.emplace_back(std::move(comb_tag));
-                } else resolvedInDetCandidates.emplace_back(std::move(comb_tag));
-
+                } else
+                    resolvedInDetCandidates.emplace_back(std::move(comb_tag));
             }
             inDetCandidateMap.clear();
             // now sort the selected ID candidates
             std::stable_sort(resolvedInDetCandidates.begin(), resolvedInDetCandidates.end(), SortInDetCandidates());
             if (msgLvl(MSG::DEBUG)) {
-                ATH_MSG_DEBUG("Found " << resolvedInDetCandidates.size()<<" inner detector tags in event "<<ctx.eventID().event_number());
+                ATH_MSG_DEBUG("Found " << resolvedInDetCandidates.size() << " inner detector tags in event "
+                                       << ctx.eventID().event_number());
                 for (const InDetCandidateTags& candidate : resolvedInDetCandidates) {
                     std::stringstream tags;
-                    for (const TagBase* tag : candidate.second) tags<<"  "<<tag->toString();
-                    ATH_MSG_DEBUG("ID candidate:  " << candidate.first->toString()<<" "<<tags.str());
+                    for (const TagBase* tag : candidate.second) tags << "  " << tag->toString();
+                    ATH_MSG_DEBUG("ID candidate:  " << candidate.first->toString() << " " << tags.str());
                 }
             }
-            
+
             ConstDataVector<TrackCollection> to_resolve{SG::VIEW_ELEMENTS};
 
             to_resolve.reserve(resolvedInDetCandidates.size());
@@ -1020,13 +1015,13 @@ namespace MuonCombined {
             // a dummy track for segment tagged candidates to be used in the overlap
             // check
             std::map<const Trk::Track*, InDetCandidateTags> trackInDetCandLinks;
-           
+
             for (InDetCandidateTags& candidate : resolvedInDetCandidates) {
                 // retrieve the primary tag
                 const TagBase* primaryTag = candidate.second[0];
-             
+
                 // check if a track is available
-                if (primaryTag->primaryTrack()) {                    
+                if (primaryTag->primaryTrack()) {
                     /// Add the track for the ambiguity reprocessing
                     to_resolve.push_back(primaryTag->primaryTrack());
                     // create a track summary for this track
@@ -1039,7 +1034,7 @@ namespace MuonCombined {
                     if (!segments.empty()) {
                         /// Create firs the dummy track
                         garbage_collection.emplace_back(
-                            createDummyTrack(ctx, primaryTag->associatedSegments(), *(candidate.first->indetTrackParticle().track())));                        
+                            createDummyTrack(ctx, primaryTag->associatedSegments(), *(candidate.first->indetTrackParticle().track())));
                         /// Add it to the list piped to ambiguity solving
                         to_resolve.push_back(garbage_collection.back().get());
                         /// Move the candidate into the map to find the resolved tracks
@@ -1050,8 +1045,8 @@ namespace MuonCombined {
             resolvedInDetCandidates.clear();
 
             // Resolve ambiguity between muon tracks
-           resolvedTracks.reset(m_ambiguityProcessor->process(to_resolve.asDataVector()));
-          
+            resolvedTracks.reset(m_ambiguityProcessor->process(to_resolve.asDataVector()));
+
             // link back to InDet candidates and fill the resolved container
             for (const Trk::Track* track : *resolvedTracks) {
                 std::map<const Trk::Track*, InDetCandidateTags>::iterator trackCandLink = trackInDetCandLinks.find(track);
@@ -1061,35 +1056,29 @@ namespace MuonCombined {
                 }
                 resolvedInDetCandidates.push_back(std::move(trackCandLink->second));
             }
-                 
+
             // print-out
             if (msgLvl(MSG::VERBOSE)) {
-                ATH_MSG_DEBUG("ID candidates after ambiguity solving " << resolvedInDetCandidates.size()
-                        <<" trackCandLinks: "<<trackInDetCandLinks.size()
-                        <<" to_resolve: "<<to_resolve.size()
-                        <<" resolvedTracks: "<<resolvedTracks->size());
+                ATH_MSG_DEBUG("ID candidates after ambiguity solving "
+                              << resolvedInDetCandidates.size() << " trackCandLinks: " << trackInDetCandLinks.size()
+                              << " to_resolve: " << to_resolve.size() << " resolvedTracks: " << resolvedTracks->size());
                 for (const InDetCandidateTags& candidate : resolvedInDetCandidates) {
-                    ATH_MSG_DEBUG("ID candidate:  " << candidate.first->toString()<<" "<<candidate.second[0]->toString());             
+                    ATH_MSG_DEBUG("ID candidate:  " << candidate.first->toString() << " " << candidate.second[0]->toString());
                 }
                 ATH_MSG_DEBUG("Calo muons after ambiguity solving: ");
                 for (const InDetCandidateTags& candidate : caloMuons) {
-                    ATH_MSG_DEBUG("ID candidate:  " << candidate.first->toString()<<" "<<candidate.second[0]->toString());             
-                }                
+                    ATH_MSG_DEBUG("ID candidate:  " << candidate.first->toString() << " " << candidate.second[0]->toString());
+                }
             }
             // add muons only found by calo tagger
-            resolvedInDetCandidates.insert(resolvedInDetCandidates.end(), 
-                                           caloMuons.begin(), 
-                                           caloMuons.end()); 
+            resolvedInDetCandidates.insert(resolvedInDetCandidates.end(), caloMuons.begin(), caloMuons.end());
 
             // now sort the selected ID candidates
             std::stable_sort(resolvedInDetCandidates.begin(), resolvedInDetCandidates.end(),
-                             [] (const InDetCandidateTags& a,
-                                 const InDetCandidateTags& b)
-                             { return a.first->indetTrackParticle().pt() >
-                                      b.first->indetTrackParticle().pt(); });
+                             [](const InDetCandidateTags& a, const InDetCandidateTags& b) {
+                                 return a.first->indetTrackParticle().pt() > b.first->indetTrackParticle().pt();
+                             });
         }
-
-        
 
         // MuonCandidateCollection contains all muon tracks (SA extrapolated or not)
         // Resolve overlap with InDetCandidate collection
@@ -1097,9 +1086,7 @@ namespace MuonCombined {
 
         if (msgLvl(MSG::DEBUG)) {
             ATH_MSG_DEBUG("Muon candidates:  " << muonCandidates->size());
-            for (const MuonCandidate* candidate : *muonCandidates) {
-                ATH_MSG_DEBUG("Muon candidate:  " << candidate->toString());
-            }
+            for (const MuonCandidate* candidate : *muonCandidates) { ATH_MSG_DEBUG("Muon candidate:  " << candidate->toString()); }
         }
 
         ConstDataVector<TrackCollection> resolvedTracks2{SG::VIEW_ELEMENTS};
@@ -1108,9 +1095,9 @@ namespace MuonCombined {
         std::set<const MuonCandidate*> used_candidates;
         for (const InDetCandidateTags& indet_cand : resolvedInDetCandidates) {
             for (const TagBase* tag : indet_cand.second) {
-                /// In principle we can include here STACO as well but that is lower ranked as MuidSA 
+                /// In principle we can include here STACO as well but that is lower ranked as MuidSA
                 if (tag->author() == xAOD::Muon::MuidCo) {
-                    const CombinedFitTag* cmb_tag  = dynamic_cast<const CombinedFitTag*>(tag);
+                    const CombinedFitTag* cmb_tag = dynamic_cast<const CombinedFitTag*>(tag);
                     used_candidates.insert(&cmb_tag->muonCandidate());
                 } else if (indet_cand.second.size() == 1 && tag->author() == xAOD::Muon::STACO) {
                     const StacoTag* staco_tag = dynamic_cast<const StacoTag*>(tag);
@@ -1145,17 +1132,16 @@ namespace MuonCombined {
 
         // print-out
         if (msgLvl(MSG::DEBUG)) {
-            ATH_MSG_DEBUG("Muon candidates:  " << muonCandidates->size() << "  after ambiguity solving "
-                                                << resolvedMuonCandidates.size());
+            ATH_MSG_DEBUG("Muon candidates:  " << muonCandidates->size() << "  after ambiguity solving " << resolvedMuonCandidates.size());
             for (const MuonCandidate* candidate : resolvedMuonCandidates) {
                 msg(MSG::DEBUG) << "Muon candidate:  " << candidate->toString() << endmsg;
             }
-        }        
+        }
     }
 
     std::unique_ptr<Trk::Track> MuonCreatorTool::createDummyTrack(const EventContext& ctx,
-                                                  const std::vector<const Muon::MuonSegment*>& segments,
-                                                  const Trk::Track& indetTrack) const {
+                                                                  const std::vector<const Muon::MuonSegment*>& segments,
+                                                                  const Trk::Track& indetTrack) const {
         ATH_MSG_VERBOSE("Creating dummy tracks from segments...");
 
         Trk::TrackStates trackStateOnSurfaces{};
@@ -1199,14 +1185,14 @@ namespace MuonCombined {
         setP4(muon, *primary);
         const float qOverP = primary->qOverP();
         if (qOverP != 0.0) {
-            muon.setCharge(qOverP >0 ? 1. : -1.);
+            muon.setCharge(qOverP > 0 ? 1. : -1.);
         } else {
             ATH_MSG_WARNING("MuonCreatorTool::dressMuon - trying to set qOverP, but value from muon.primaryTrackParticle ["
-                    << muon.primaryTrackParticleLink().dataID()
-                    << "] is zero. Setting charge=0.0. The eta/phi of the muon is: " << muon.eta() << "/" << muon.phi());
+                            << muon.primaryTrackParticleLink().dataID()
+                            << "] is zero. Setting charge=0.0. The eta/phi of the muon is: " << muon.eta() << "/" << muon.phi());
             muon.setCharge(0.0);
         }
-    
+
         // add hit summary
         m_muonDressingTool->addMuonHitSummary(muon);
 
@@ -1246,7 +1232,9 @@ namespace MuonCombined {
 
         if (m_fillEnergyLossFromTrack) {
             const Trk::Track* trk = nullptr;
-            if (muon.trackParticle(xAOD::Muon::CombinedTrackParticle)) { trk = muon.trackParticle(xAOD::Muon::CombinedTrackParticle)->track(); }
+            if (muon.trackParticle(xAOD::Muon::CombinedTrackParticle)) {
+                trk = muon.trackParticle(xAOD::Muon::CombinedTrackParticle)->track();
+            }
             if (!trk && muon.trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle)) {
                 trk = muon.trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle)->track();
             }
@@ -1257,7 +1245,7 @@ namespace MuonCombined {
                 ATH_MSG_VERBOSE("Couldn't find matching track which might have energy loss.");
             }
         }
-    
+
         addSegmentsOnTrack(muon, segments);
         return true;
     }
@@ -1266,11 +1254,10 @@ namespace MuonCombined {
         if (!m_trackSegmentAssociationTool.empty() && !muon.nMuonSegments()) {
             std::vector<ElementLink<xAOD::MuonSegmentContainer>> associatedSegments;
             if (m_trackSegmentAssociationTool->associatedSegments(muon, segments, associatedSegments)) {
-                 muon.setMuonSegmentLinks(associatedSegments);
-             }            
+                muon.setMuonSegmentLinks(associatedSegments);
+            }
         }
-        if (!muon.nMuonSegments() || muon.isAuthor(xAOD::Muon::Author::MuTagIMO)
-           || muon.muonType() != xAOD::Muon::Combined) return;    
+        if (!muon.nMuonSegments() || muon.isAuthor(xAOD::Muon::Author::MuTagIMO) || muon.muonType() != xAOD::Muon::Combined) return;
     }
 
     void MuonCreatorTool::addEnergyLossToMuon(xAOD::Muon& muon) const {
@@ -1366,10 +1353,8 @@ namespace MuonCombined {
         if (problem) ATH_MSG_VERBOSE("Dumping problematic muon: " << m_muonPrinter->print(muon));
     }
 
-    void MuonCreatorTool::collectCells(const EventContext& ctx,
-                                       xAOD::Muon& muon, xAOD::CaloClusterContainer* clusterContainer,
+    void MuonCreatorTool::collectCells(const EventContext& ctx, xAOD::Muon& muon, xAOD::CaloClusterContainer* clusterContainer,
                                        const Trk::CaloExtension* inputCaloExt) const {
-    
         const xAOD::TrackParticle* tp = muon.primaryTrackParticle();
         if (!tp || !clusterContainer) {
             if (!tp) ATH_MSG_WARNING("Can not get primary track.");

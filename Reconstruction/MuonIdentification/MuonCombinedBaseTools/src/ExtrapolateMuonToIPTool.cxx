@@ -61,12 +61,8 @@ std::unique_ptr<TrackCollection> ExtrapolateMuonToIPTool::extrapolate(const Trac
     return extrapolateTracks;
 }
 
-std::unique_ptr<Trk::Track>
-ExtrapolateMuonToIPTool::extrapolate(const Trk::Track& track,
-                                     const EventContext& ctx) const
-{
-
-  const Trk::TrackInfo& trackInfo = track.info();
+std::unique_ptr<Trk::Track> ExtrapolateMuonToIPTool::extrapolate(const Trk::Track& track, const EventContext& ctx) const {
+    const Trk::TrackInfo& trackInfo = track.info();
     auto particleType = trackInfo.trackProperties(Trk::TrackInfo::StraightTrack) ? Trk::nonInteracting : Trk::muon;
     const Trk::TrackParameters* closestPars = findMeasuredParametersClosestToIP(track);
     ATH_MSG_DEBUG("Extrapolating track " << m_printer->print(track) << " type " << particleType << std::endl
@@ -107,7 +103,7 @@ ExtrapolateMuonToIPTool::extrapolate(const Trk::Track& track,
     if (!ipPars) {
         // if extrapolation failed go in other direction
         propDir = (propDir == Trk::alongMomentum) ? Trk::oppositeMomentum : Trk::alongMomentum;
-        ipPars = m_extrapolator->extrapolate(ctx,*closestPars, perigeeSurface, propDir, false, particleType);
+        ipPars = m_extrapolator->extrapolate(ctx, *closestPars, perigeeSurface, propDir, false, particleType);
 
         if (propDir == Trk::alongMomentum) {
             ATH_MSG_DEBUG(" retrying opposite momentum extrapolating "
@@ -162,7 +158,8 @@ ExtrapolateMuonToIPTool::extrapolate(const Trk::Track& track,
             if (distanceOfPerigeeToCurrent > 0.) {
                 std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
                 typePattern.set(Trk::TrackStateOnSurface::Perigee);
-                trackStateOnSurfaces.push_back(new Trk::TrackStateOnSurface(nullptr, ipPerigee->uniqueClone(), nullptr, nullptr, typePattern));
+                trackStateOnSurfaces.push_back(
+                    new Trk::TrackStateOnSurface(nullptr, ipPerigee->uniqueClone(), nullptr, nullptr, typePattern));
             }
         }
 
@@ -180,10 +177,8 @@ ExtrapolateMuonToIPTool::extrapolate(const Trk::Track& track,
     Trk::TrackInfo info(track.info().trackFitter(), track.info().particleHypothesis());
     info.setPatternRecognitionInfo(Trk::TrackInfo::MuidStandAlone);
     // create new track
-    std::unique_ptr<Trk::Track> extrapolateTrack = std::make_unique<Trk::Track>(
-      info,
-      std::move(trackStateOnSurfaces),
-      track.fitQuality() ? track.fitQuality()->clone() : nullptr);
+    std::unique_ptr<Trk::Track> extrapolateTrack =
+        std::make_unique<Trk::Track>(info, std::move(trackStateOnSurfaces), track.fitQuality() ? track.fitQuality()->clone() : nullptr);
     // create track summary
     m_trackSummary->updateTrack(ctx, *extrapolateTrack);
     return extrapolateTrack;

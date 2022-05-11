@@ -17,7 +17,7 @@ StatusCode MuonSegmentTagAlg::initialize() {
     return StatusCode::SUCCESS;
 }
 
-StatusCode MuonSegmentTagAlg::execute(const EventContext& ctx) const  {
+StatusCode MuonSegmentTagAlg::execute(const EventContext& ctx) const {
     SG::ReadHandle<InDetCandidateCollection> indetCandidateCollection(m_indetCandidateCollectionName, ctx);
     if (!indetCandidateCollection.isValid()) {
         ATH_MSG_ERROR("Could not read " << m_indetCandidateCollectionName);

@@ -191,7 +191,7 @@ namespace MuonCombined {
                                        const Muon::MuonCandidate& candidate, std::unique_ptr<Trk::Track>& selectedTrack,
                                        TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments) const {
         const xAOD::TrackParticle& idTrackParticle = indetCandidate.indetTrackParticle();
-        Amg::Vector3D origin{0.,0.,0.};
+        Amg::Vector3D origin{0., 0., 0.};
 
         const xAOD::Vertex* matchedVertex = nullptr;
         if (!m_vertexKey.empty()) {
@@ -212,12 +212,12 @@ namespace MuonCombined {
         }
         if (matchedVertex) {
             origin = Amg::Vector3D{matchedVertex->x(), matchedVertex->y(), matchedVertex->z()};
-            ATH_MSG_DEBUG(" found matched vertex "<<origin);
+            ATH_MSG_DEBUG(" found matched vertex " << origin);
         } else {
-           origin = Amg::Vector3D{-idTrackParticle.d0() * std::sin(idTrackParticle.phi()) + idTrackParticle.vx(),
-                                  idTrackParticle.d0() * std::cos(idTrackParticle.phi()) + idTrackParticle.vy(),
-                                  idTrackParticle.z0() + idTrackParticle.vz()};
-            ATH_MSG_DEBUG(" NO matched vertex  take track perigee "<<origin);
+            origin = Amg::Vector3D{-idTrackParticle.d0() * std::sin(idTrackParticle.phi()) + idTrackParticle.vx(),
+                                   idTrackParticle.d0() * std::cos(idTrackParticle.phi()) + idTrackParticle.vy(),
+                                   idTrackParticle.z0() + idTrackParticle.vz()};
+            ATH_MSG_DEBUG(" NO matched vertex  take track perigee " << origin);
         }
 
         ATH_MSG_VERBOSE("selectedTrack:");

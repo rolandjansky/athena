@@ -6,12 +6,12 @@
 #define MUONCOMBINEDEVENT_INDETCANDIDATE_H
 
 #include <vector>
+
 #include "AthLinks/ElementLink.h"
 #include "MuonLayerEvent/MuonSystemExtension.h"
+#include "TrkCaloExtension/CaloExtension.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
-#include "TrkCaloExtension/CaloExtension.h"
-
 
 namespace MuonCombined {
 
@@ -29,8 +29,7 @@ namespace MuonCombined {
          */
         InDetCandidate(const ElementLink<xAOD::TrackParticleContainer>& idTrackLink);
         /** Define two InDetCandidates to be equal if they are built from the same track */
-        bool operator==(const InDetCandidate& other ) const;
-        
+        bool operator==(const InDetCandidate& other) const;
 
         /** destructor */
         ~InDetCandidate();
@@ -77,6 +76,5 @@ namespace MuonCombined {
     };
 
 }  // namespace MuonCombined
-
 
 #endif

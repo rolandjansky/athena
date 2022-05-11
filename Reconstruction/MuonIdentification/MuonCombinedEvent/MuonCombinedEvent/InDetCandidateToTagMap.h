@@ -5,37 +5,37 @@
 #ifndef MUONCOMBINEDEVENT_INDETCANDIDATETOTAGMAP_H
 #define MUONCOMBINEDEVENT_INDETCANDIDATETOTAGMAP_H
 
-#include "MuonCombinedEvent/TagBase.h"
-#include "MuonCombinedEvent/InDetCandidate.h"
 #include <map>
 
-namespace MuonCombined{
+#include "MuonCombinedEvent/InDetCandidate.h"
+#include "MuonCombinedEvent/TagBase.h"
 
-  class InDetCandidateToTagMap{
-  public:
-    using tagMap = std::map<const InDetCandidate*,std::unique_ptr<TagBase> >;
-    
-    InDetCandidateToTagMap() = default;
-    InDetCandidateToTagMap(InDetCandidateToTagMap&& oldMap) = default;
-    ~InDetCandidateToTagMap() = default;
-    
-    void addEntry(const InDetCandidate* idcand, TagBase* tag);
-    const TagBase* getTag(const InDetCandidate* idcand) const;
-    unsigned int size() const;
-    bool empty() const;
-    
-    tagMap::iterator begin();
-    tagMap::iterator end();
-    tagMap::const_iterator begin() const;
-    tagMap::const_iterator end() const;
+namespace MuonCombined {
 
-  private:
-    tagMap m_tagMap;
+    class InDetCandidateToTagMap {
+    public:
+        using tagMap = std::map<const InDetCandidate*, std::unique_ptr<TagBase> >;
 
-  };
-}
+        InDetCandidateToTagMap() = default;
+        InDetCandidateToTagMap(InDetCandidateToTagMap&& oldMap) = default;
+        ~InDetCandidateToTagMap() = default;
+
+        void addEntry(const InDetCandidate* idcand, TagBase* tag);
+        const TagBase* getTag(const InDetCandidate* idcand) const;
+        unsigned int size() const;
+        bool empty() const;
+
+        tagMap::iterator begin();
+        tagMap::iterator end();
+        tagMap::const_iterator begin() const;
+        tagMap::const_iterator end() const;
+
+    private:
+        tagMap m_tagMap;
+    };
+}  // namespace MuonCombined
 
 #include "AthenaKernel/CLASS_DEF.h"
-CLASS_DEF(MuonCombined::InDetCandidateToTagMap,68903047,1)
+CLASS_DEF(MuonCombined::InDetCandidateToTagMap, 68903047, 1)
 
 #endif

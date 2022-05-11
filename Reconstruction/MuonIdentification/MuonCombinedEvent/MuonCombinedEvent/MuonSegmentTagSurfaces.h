@@ -4,12 +4,13 @@
 #ifndef MUONCOMBINEDEVENT_MUONSEGMENTTAGSURFACES_H
 #define MUONCOMBINEDEVENT_MUONSEGMENTTAGSURFACES_H
 
+#include <array>
 #include <memory>
 #include <string>
 #include <vector>
-#include <array>
-#include "TrkSurfaces/Surface.h"
+
 #include "MuonStationIndex/MuonStationIndex.h"
+#include "TrkSurfaces/Surface.h"
 
 /*
     Helper class defining a super simple model of the MS consisting of cylinders to represent the barrels
@@ -22,11 +23,11 @@ namespace MuonCombined {
         enum SurfDef {
             BI = 0,
             BM = 1,
-            BO = 2,           
+            BO = 2,
             EIA = 3,
             EMA = 4,
             EOA = 5,
-            EEA = 6, 
+            EEA = 6,
             EIC = 7,
             EMC = 8,
             EOC = 9,
@@ -36,10 +37,10 @@ namespace MuonCombined {
         /// Transforms the Muon Station index to a SurfDef index. For the endcap
         /// external information is required whether the object is on positive or negative eta site
         static int stIdxToSurfDef(Muon::MuonStationIndex::StIndex st_idx, bool pos_eta);
-        
-        using SurfaceVec = std::array<std::unique_ptr<Trk::Surface>, SurfDef::NumSurf> ;
-        using SurfaceStations = std::array<std::string, SurfDef::NumSurf> ;
-        
+
+        using SurfaceVec = std::array<std::unique_ptr<Trk::Surface>, SurfDef::NumSurf>;
+        using SurfaceStations = std::array<std::string, SurfDef::NumSurf>;
+
         MuonSegmentTagSurfaces();
         ~MuonSegmentTagSurfaces() = default;
 
@@ -72,7 +73,6 @@ namespace MuonCombined {
         SurfaceStations m_station{};
     };
 
-}
-
+}  // namespace MuonCombined
 
 #endif  //

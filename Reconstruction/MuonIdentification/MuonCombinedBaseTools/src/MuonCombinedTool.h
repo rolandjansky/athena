@@ -8,6 +8,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "MuidInterfaces/IMuonAlignmentUncertTool.h"
 #include "MuonCombinedDebuggerTool.h"
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
 #include "MuonCombinedEvent/InDetCandidateToTagMap.h"
@@ -15,7 +16,6 @@
 #include "MuonCombinedToolInterfaces/IMuonCombinedTagTool.h"
 #include "MuonCombinedToolInterfaces/IMuonCombinedTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuidInterfaces/IMuonAlignmentUncertTool.h"
 
 ATLAS_CHECK_FILE_THREAD_SAFETY;
 namespace MuonCombined {
@@ -44,10 +44,10 @@ namespace MuonCombined {
         ToolHandleArray<MuonCombined::IMuonCombinedTagTool> m_muonCombinedTagTools{this, "MuonCombinedTagTools", {}};
         ToolHandle<MuonCombinedDebuggerTool> m_muonCombDebugger{this, "MuonCombinedDebuggerTool",
                                                                 "MuonCombined::MuonCombinedDebuggerTool/MuonCombinedDebuggerTool"};
-        
+
         /// Use this tool to retrieve the last and first measurments of the ID and MS, respectively.
         PublicToolHandle<Muon::IMuonAlignmentUncertTool> m_alignUncertTool{this, "AlignmentUncertTool", ""};
-  
+
         Gaudi::Property<float> m_deltaEtaPreSelection{this, "DeltaEtaPreSelection", 0.5};
         Gaudi::Property<float> m_deltaPhiPreSelection{this, "DeltaPhiPreSelection", 1};
         Gaudi::Property<float> m_ptBalance{this, "PtBalancePreSelection", -1.};

@@ -10,26 +10,23 @@
 namespace MuonCombined {
 
     MuonCandidate::MuonCandidate(const ElementLink<xAOD::TrackParticleContainer>& trackLink) :
-         m_muonSpectrometerTrackLink(trackLink),
-          m_muonSpectrometerTrack((*m_muonSpectrometerTrackLink)->track()){}
+        m_muonSpectrometerTrackLink(trackLink), m_muonSpectrometerTrack((*m_muonSpectrometerTrackLink)->track()) {}
     MuonCandidate::MuonCandidate(const ElementLink<xAOD::TrackParticleContainer>& trackLink,
-                                 const ElementLink<TrackCollection>& saTrackLink,
-                                 size_t container_idx) :
+                                 const ElementLink<TrackCollection>& saTrackLink, size_t container_idx) :
         m_muonSpectrometerTrackLink(trackLink),
         m_extrapolatedTrackLink(saTrackLink),
         m_muonSpectrometerTrack((*m_muonSpectrometerTrackLink)->track()),
         m_extContIdx(container_idx) {}
 
-    MuonCandidate::MuonCandidate(const MuonCandidate& oldCandidate,
-                                 const ElementLink<xAOD::TrackParticleContainer>& msoeTrackLink):
+    MuonCandidate::MuonCandidate(const MuonCandidate& oldCandidate, const ElementLink<xAOD::TrackParticleContainer>& msoeTrackLink) :
         m_muonSpectrometerTrackLink{oldCandidate.m_muonSpectrometerTrackLink},
         m_extrapolatedParticleLink{msoeTrackLink},
         m_extrapolatedTrackLink{(*msoeTrackLink)->trackLink()},
         m_muonSpectrometerTrack{oldCandidate.m_muonSpectrometerTrack},
         m_isCommissioning{oldCandidate.m_isCommissioning},
         m_assoc_segments{oldCandidate.m_assoc_segments},
-        m_extContIdx{oldCandidate.m_extContIdx} {}        
-    
+        m_extContIdx{oldCandidate.m_extContIdx} {}
+
     MuonCandidate::~MuonCandidate() = default;
 
     std::string MuonCandidate::toString() const {
@@ -58,13 +55,14 @@ namespace MuonCombined {
     }
 
     const ElementLink<TrackCollection>& MuonCandidate::extrapolatedTrackLink() const { return m_extrapolatedTrackLink; }
-    size_t MuonCandidate::extrapolatedElementID() const {return m_extrapolatedTrackLink.isValid() ? m_extContIdx : -1;}
+    size_t MuonCandidate::extrapolatedElementID() const { return m_extrapolatedTrackLink.isValid() ? m_extContIdx : -1; }
     void MuonCandidate::setCommissioning(bool b) { m_isCommissioning = b; }
     bool MuonCandidate::isCommissioning() const { return m_isCommissioning; }
 
-    void MuonCandidate::setSegments(std::vector<ElementLink<xAOD::MuonSegmentContainer>>&& segments) { m_assoc_segments = std::move(segments);}
+    void MuonCandidate::setSegments(std::vector<ElementLink<xAOD::MuonSegmentContainer>>&& segments) {
+        m_assoc_segments = std::move(segments);
+    }
     const std::vector<ElementLink<xAOD::MuonSegmentContainer>>& MuonCandidate::getSegments() const { return m_assoc_segments; }
-    const ElementLink<xAOD::TrackParticleContainer>& MuonCandidate::extrapolatedParticleLink() const {return m_extrapolatedParticleLink;}
-        
+    const ElementLink<xAOD::TrackParticleContainer>& MuonCandidate::extrapolatedParticleLink() const { return m_extrapolatedParticleLink; }
 
 }  // namespace MuonCombined
