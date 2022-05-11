@@ -13187,13 +13187,12 @@ HLT_mu20_bBmux_BdmuDstarX_L1MU14FCH:
     3: 4
     4: 4
 HLT_mu20_bBmux_BpmuD0X_L1MU14FCH:
-  eventCount: 1
+  eventCount: 0
   stepCounts:
     0: 6
     1: 5
     2: 5
     3: 4
-    4: 1
   stepFeatures:
     0: 7
     1: 5
