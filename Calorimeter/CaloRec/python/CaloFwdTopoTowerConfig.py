@@ -149,7 +149,7 @@ def CaloFwdTopoTowerCfg(flags,**kwargs):
            f"CaloClusterCellLinkContainer#{towerContainerKey}_links"]
 
 
-    AODAuxItems=f"xAOD::CaloClusterAuxContainer#{towerContainerKey}Aux."
+    AODAuxItems=f"xAOD::CaloClusterAuxContainer#{towerContainerKey}Aux"
     for mom in  ("CENTER_LAMBDA", 
                  #"CENTER_MAG",
                  "LONGITUDINAL",
