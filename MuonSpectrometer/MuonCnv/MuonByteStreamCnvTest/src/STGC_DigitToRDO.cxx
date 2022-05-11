@@ -50,6 +50,11 @@ StatusCode STGC_DigitToRDO::execute(const EventContext& ctx) const
       }
 
       for (const sTgcDigit* digit : *digitColl ) {
+        // Set proper data time window in simulated sTGC RDOs
+        // BC0 has t = [-12.5, +12.5]
+        // and data will use BC = [-3,+4]
+        // totaling digits within t = [-87.5, 112.5]
+        if (digit->time() < -87.5 || digit->time() > 112.5) continue;
         Identifier id = digit->identify();
         uint16_t bcTag = digit->bcTag();
         float time = digit->time() + STGC_RawData::s_timeTdoShift; //place holder time calibration
