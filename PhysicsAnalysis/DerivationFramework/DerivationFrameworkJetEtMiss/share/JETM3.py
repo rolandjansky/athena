@@ -26,6 +26,17 @@ from DerivationFrameworkJetEtMiss import TriggerLists
 electronTriggers = TriggerLists.single_el_Trig()
 muonTriggers = TriggerLists.single_mu_Trig()
 
+#Special triggers needed for low mu runs in 2017 and 2018
+lowMu_2017 = [341294, 341312, 341419, 341534, 341615, 341649]
+lowMu_2018 = [354396, 355331, 355389, 355416, 355468]
+
+from RecExConfig.InputFilePeeker import inputFileSummary
+if 'run_number' in inputFileSummary:
+  if inputFileSummary['run_number'][0] in lowMu_2018 or inputFileSummary['run_number'][0] in lowMu_2017:
+    electronTriggers.append('HLT_e17_lhloose_nod0')
+    electronTriggers.append('HLT_e15_lhloose_nod0_L1EM12')
+    muonTriggers.append('HLT_mu14')
+
 orstr  = ' || '
 andstr = ' && '
 eltrigsel = '(EventInfo.eventTypeBitmask==1) || '+orstr.join(electronTriggers)
