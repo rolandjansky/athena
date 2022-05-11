@@ -534,7 +534,7 @@ void TScopeAdapter::Init( const std::string& name, Bool_t load, Bool_t quiet )
    // now check if GetClass failed because of lack of dictionary or it is maybe not a class at all
    if( gROOT->GetType(name.c_str()) ) {
          fIsFundamental = true;
-   } else if( TEnum::GetEnum(name.c_str()) ) {
+   } else if( TEnum::GetEnum(name.c_str(), load ? TEnum::kALoadAndInterpLookup :  TEnum::kNone) ) { 
       // MN: enum, or anonymous type that could be an enum.  for the moment mark it as fundamental
       fIsFundamental = true;
    }
