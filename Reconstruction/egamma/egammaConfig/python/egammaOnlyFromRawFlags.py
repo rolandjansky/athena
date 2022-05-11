@@ -9,3 +9,6 @@ def egammaOnlyFromRaw(flags):
     flags.Reco.EnableTau = False
     flags.Reco.EnableJet = False
     flags.Reco.EnableBTagging = False
+    flags.Reco.PostProcessing.GeantTruthThinning = False
+    flags.Egamma.doTrackThinning = False
+    flags.Reco.PostProcessing.TRTAloneThinning = False
