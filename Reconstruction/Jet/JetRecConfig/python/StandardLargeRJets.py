@@ -83,6 +83,21 @@ AntiKt10LCTopoSoftDrop = JetSoftDrop(AntiKt10LCTopo,
                                      )
 
 
+
+
+AntiKt10UFOCSSK = JetDefinition("AntiKt",1.0,cst.UFOCSSK,
+                                ghostdefs = standardghosts+flavourghosts+["AntiKtVR30Rmax4Rmin02PV0TrackJets"] ,
+                                modifiers = ("Sort", "Filter:50000","TrackMoments", "JetGhostLabel"),
+                                standardRecoMode = True,                               
+                                )                                   
+AntiKt10UFOCSSKSoftDrop = JetSoftDrop(AntiKt10UFOCSSK,
+                                      modifiers = standardrecomods+substrmods+("JetGhostLabel",),
+                                      Beta = 1., ZCut= 0.1,
+                                      )
+
+
+
+
 AntiKt10Truth = JetDefinition("AntiKt",1.0,cst.Truth,
                                ghostdefs = flavourghosts , 
                                modifiers = ("Sort", "Filter:50000","ktsplitter"),

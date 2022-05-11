@@ -136,10 +136,8 @@ StatusCode TrackCaloClusterInfoUFOAlg::initialize() {
   ATH_CHECK(m_inputPFOHandle.initialize() );
   ATH_MSG_DEBUG("TCC_INFO_UFO_ALG_INIT");
   //ATH_MSG_INFO(m_trackVertexAssoTool.get()->name());
-  ATH_CHECK(m_orig_pfo.initialize());
-  // ATH_CHECK(m_clusterECut.initialize());
   ATH_MSG_DEBUG("END INIT BLOCK");
-  ATH_MSG_DEBUG("m_orig_pfo "+m_orig_pfo.key());
+  ATH_MSG_DEBUG("m_orig_pfo "+m_orig_pfo);
   ATH_MSG_DEBUG("m_inputPFOHandle"+m_inputPFOHandle.key());
   ATH_MSG_DEBUG("m_trackVertexAssoTool "+m_trackVertexAssoTool.name());
   ATH_MSG_DEBUG(m_clusterEcut);
@@ -172,12 +170,16 @@ StatusCode TrackCaloClusterInfoUFOAlg::fillInfo(SG::WriteHandle<TrackCaloCluster
 
 
   SG::ReadHandle<xAOD::FlowElementContainer> pfos(m_inputPFOHandle);
+  if(!pfos.isValid() ){
+     ATH_MSG_ERROR("Can't retrieve FlowElementContainer "<< m_inputPFOHandle.key() ); return StatusCode::FAILURE;
+  }
+  
   SG::ReadDecorHandle<xAOD::TrackParticleContainer, std::vector<ElementLink<xAOD::CaloClusterContainer>> > clusterLinks(m_assoClustersKey);
 
   ATH_MSG_VERBOSE("GOT FE");
   // We use a dedicated helper to collect the weights mapping tracks to FlowElement.  
   TCCHelpers::WeightsCollector wcoll;
-  wcoll.m_orig_pfoK = m_orig_pfo.key();
+  wcoll.m_orig_pfoK = m_orig_pfo;
   ATH_MSG_VERBOSE("GOT ORIG PFO");
  
   wcoll.m_clustersLinkK="AssoClustersUFO"; //removing the container name from the assoClustersKey is required for the accessor to work. hardcode until a better solution is available

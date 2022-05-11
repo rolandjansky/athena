@@ -327,7 +327,7 @@ def getInputAlgs(jetOrConstitdef, configFlags=None, context="default", monTool=N
         if isInInput( inputInstance ):
             jetlog.info(f"Input container for {inputInstance} already in input file.")
             continue
-
+        
         # Get the input or external alg
         if isinstance(inputInstance, JetInputConstit):
             alg = getConstitModAlg(jetdef, inputInstance, monTool=monTool)
