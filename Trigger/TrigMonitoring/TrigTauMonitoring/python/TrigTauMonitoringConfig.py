@@ -81,7 +81,7 @@ class TrigTauMonAlgBuilder:
         l1seed = ''
         splits = self.chain().split("_")
         for split in splits:
-            if split.startswith('L1TAU') or split.startswith('L1eTAU') or split.startswith('L1cTAU'):
+            if split.startswith('L1TAU') or split.startswith('L1eTAU') or split.startswith('L1jTAU') or split.startswith('L1cTAU'):
                 l1seed = split
         return l1seed
 
@@ -423,7 +423,7 @@ class TrigTauMonAlgBuilder:
     monGroup.defineHistogram('L1RoIEt', title='L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI',xbins=30,xmin=0,xmax=150)
     monGroup.defineHistogram('L1RoIRCore', title='L1 RoI RCore isolation; rCore isolation; N RoI',xbins=20,xmin=0,xmax=2)
     monGroup.defineHistogram('L1RoIRHad' , title='L1 RoI RHAD isolation; rHad isolation; N RoI'  ,xbins=20,xmin=0,xmax=2)
-
+    monGroup.defineHistogram('L1RoIIso', title='L1 RoI isolation; isolation [GeV]; N RoI'  ,xbins=15,xmin=0,xmax=30)
                              
   #
   # Book RNN Variables
