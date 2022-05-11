@@ -35,7 +35,7 @@ namespace NSWL1 {
                        << std::setfill(' ') << std::setiosflags(std::ios::right) );
 
     ATH_CHECK(m_sTgcDigitContainer.initialize());
-    ATH_CHECK(m_sTgcSdoContainer.initialize());
+    ATH_CHECK(m_sTgcSdoContainer.initialize(m_isMC));
 
       const IInterface* parent = this->parent();
       const INamedInterface* pnamed = dynamic_cast<const INamedInterface*>(parent);
@@ -175,9 +175,11 @@ namespace NSWL1 {
     StatusCode StripTdsOfflineTool::fill_strip_cache( const std::vector<std::unique_ptr<PadTrigger>>& padTriggers, std::vector<std::unique_ptr<StripData>> &strip_cache) {
       ATH_MSG_DEBUG( "fill_strip_cache: start filling the cache for STRIP hits" );
 
-      SG::ReadHandle<MuonSimDataCollection> sdo_container(m_sTgcSdoContainer);
-      if(!sdo_container.isValid()){
-        ATH_MSG_WARNING("could not retrieve the sTGC SDO container: it will not be possible to associate the MC truth");
+      if(m_isMC){
+	SG::ReadHandle<MuonSimDataCollection> sdo_container(m_sTgcSdoContainer);
+	if(!sdo_container.isValid()){
+	  ATH_MSG_WARNING("could not retrieve the sTGC SDO container: it will not be possible to associate the MC truth");
+	}
       }
 
       SG::ReadHandle<sTgcDigitContainer> digit_container(m_sTgcDigitContainer);
