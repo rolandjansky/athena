@@ -73,7 +73,7 @@ namespace TCS {
       unsigned long quadraticSumBW(int i1, int i2);
       unsigned int calcDeltaPhi(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
       unsigned int calcDeltaEta(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
-      unsigned long long calcInvMass(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
+      unsigned int calcInvMass(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
       unsigned int calcTMass(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
       unsigned int calcDeltaR2(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2);
 

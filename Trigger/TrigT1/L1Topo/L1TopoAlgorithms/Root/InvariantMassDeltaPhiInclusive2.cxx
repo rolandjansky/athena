@@ -148,7 +148,7 @@ TCS::InvariantMassDeltaPhiInclusive2::processBitCorrect( const std::vector<TCS::
                  tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2;
                  ++tob2) {
                 // Inv Mass calculation
-                auto invmass2 = calcInvMassBW( *tob1, *tob2 );
+                unsigned int invmass2 = calcInvMassBW( *tob1, *tob2 );
 		// test DeltaPhiMin, DeltaPhiMax                                       
 		unsigned int deltaPhi = calcDeltaPhiBW( *tob1, *tob2 );
                 const int eta1 = (*tob1)->eta();

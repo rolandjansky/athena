@@ -177,7 +177,7 @@ ConfigurableAlg::calcDeltaEta(const TCS::GenericTOB* tob1, const TCS::GenericTOB
     {return TSU::Kinematics::calcDeltaEta(tob1,tob2);}
 }
 
-unsigned long long
+unsigned int
 ConfigurableAlg::calcInvMass(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
   return TSU::Kinematics::calcInvMass(tob1,tob2);
 }
