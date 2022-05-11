@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETSERVMATGEOMODEL_TRT_SERVMATFACTORYFS_H
 #define INDETSERVMATGEOMODEL_TRT_SERVMATFACTORYFS_H
 
-#include "AthenaKernel/MsgStreamMember.h"
-#include "CxxUtils/checker_macros.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 class StoreGateSvc;
@@ -18,7 +17,7 @@ class IRDBAccessSvc;
 #include <string>
 
 // TRT service material factory fro Frozen Showers
-class TRT_ServMatFactoryFS   {
+class TRT_ServMatFactoryFS : public AthMessaging  {
 
  public:
   
@@ -31,8 +30,6 @@ class TRT_ServMatFactoryFS   {
   // Creation of geometry:
   void create(GeoPhysVol *motherP, GeoPhysVol *motherM);
 
-  MsgStream& msg (MSG::Level lvl) { return m_msg << lvl; }
-
  private:
 
   // Illegal operations:
@@ -43,7 +40,6 @@ class TRT_ServMatFactoryFS   {
   StoreGateSvc                    *m_detStore;
   ServiceHandle<IRDBAccessSvc>     m_rdbAccess;
   std::unique_ptr<InDetMaterialManager> m_materialManager;
-  Athena::MsgStreamMember  m_msg;
 };
 
 #endif 

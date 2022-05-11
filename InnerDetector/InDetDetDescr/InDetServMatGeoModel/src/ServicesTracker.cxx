@@ -2,12 +2,12 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "AthenaKernel/getMessageSvc.h"
 #include "InDetServMatGeoModel/ServicesTracker.h"
 
 #include "InDetServMatGeoModel/ServicesLayer.h"
 #include "InDetServMatGeoModel/Routing2.h"
 #include "InDetServMatGeoModel/ServicesStave.h"
-//#include "InDetServMatGeoModel/LinearService.h"
 
 #include "InDetServMatGeoModel/ComputeStaveServices.h"
 #include "InDetServMatGeoModel/ConvertStaveServices.h"
@@ -17,9 +17,9 @@
 #include <iostream>  // for DEBUG only
 using namespace std;
 
-ServicesTracker::ServicesTracker(const Athena::MsgStreamMember& msg):
-  m_geoMgr(nullptr),
-  m_msg(msg)
+ServicesTracker::ServicesTracker():
+  AthMessaging(Athena::getMessageSvc(), "ServicesTracker"),
+  m_geoMgr(nullptr)
 {
   m_barrelLayers.clear();
   m_barrelPixelLayers.clear();
@@ -69,7 +69,7 @@ void ServicesTracker::constructEndcapLayer( double zpos, double rmin, double rma
 
 void ServicesTracker::computeServicesPerLayer()
 {
-  Routing2 routing(msgStream());
+  Routing2 routing;
   routing.createRoutingVolumes(*this);
 }
 
@@ -97,8 +97,7 @@ void ServicesTracker::finaliseServices()
       if (iMat !=  layerMaterial.end()) layerMat = iMat->second;
       else {
 	StaveServices sserv = staveComputer.compute( layer.type(), layer.part(), layer.number(),
-						     layer.modulesPerStave(), layer.chipsPerModule(),
-                                                     msgStream().get());
+						     layer.modulesPerStave(), layer.chipsPerModule(), msg());
 	layerMat = staveConverter.convertStaveServices( sserv);
 
 	layerMat.multiply( layer.nStaves()); // scale from one stave to full layer

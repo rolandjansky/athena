@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/TRT_ServMatFactoryFS.h"
@@ -21,11 +21,11 @@
 // StoreGate includes
 #include "StoreGate/StoreGateSvc.h"
 
+#include "AthenaKernel/getMessageSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
-#include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
 #include <iostream>
@@ -34,9 +34,9 @@
 
 
 TRT_ServMatFactoryFS::TRT_ServMatFactoryFS(StoreGateSvc *detStore,ServiceHandle<IRDBAccessSvc> pRDBAccess) :
+  AthMessaging(Athena::getMessageSvc(), "TRT_ServMatFactoryFS"),
   m_detStore(detStore),
-  m_rdbAccess(std::move(pRDBAccess)),
-  m_msg("TRT_ServMatFactoryFS")
+  m_rdbAccess(std::move(pRDBAccess))
 {
   
 }
@@ -52,7 +52,7 @@ TRT_ServMatFactoryFS::~TRT_ServMatFactoryFS()
 void TRT_ServMatFactoryFS::create(GeoPhysVol *motherP, GeoPhysVol *motherM)
 {
 
-  msg(MSG::DEBUG) << "Building TRT Service Material" << endmsg;
+  ATH_MSG_DEBUG("Building TRT Service Material");
 
   //double epsilon = 0.002;
   

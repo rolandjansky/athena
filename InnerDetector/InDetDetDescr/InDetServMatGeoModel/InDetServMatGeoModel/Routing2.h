@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef Routing2_H
@@ -10,15 +10,15 @@
 #include "InDetServMatGeoModel/VRoute.h"
 #include "InDetServMatGeoModel/HRoute.h"
 
-#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #include <vector>
 
-class Routing2 {
+class Routing2 : public AthMessaging {
 public:
 
   typedef ServicesTracker::LayerContainer    LayerContainer;
 
-  Routing2(const Athena::MsgStreamMember&);
+  Routing2();
 
   void createRoutingVolumes(ServicesTracker& tracker);
 
@@ -90,13 +90,6 @@ private:
   void connectRoutes( Route& in, Route& out);
   void dumpRoute( const Route& route);
   std::string nextVolumeName( const Route& route) const;
-
-  // the message stream (same for all derived classes)
-  Athena::MsgStreamMember m_msg;
-  MsgStream& msg (MSG::Level lvl) { return m_msg << lvl; }
-  Athena::MsgStreamMember& msgStream() {return m_msg;}
-  //Declaring the Method providing Verbosity Level
-  bool msgLvl (MSG::Level lvl) { return m_msg.get().level() <= lvl; }
 };
 
 #endif

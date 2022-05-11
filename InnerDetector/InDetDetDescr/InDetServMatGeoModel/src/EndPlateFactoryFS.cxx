@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/EndPlateFactoryFS.h"
@@ -18,12 +18,11 @@
 // StoreGate includes
 #include "StoreGate/StoreGateSvc.h"
 
+#include "AthenaKernel/getMessageSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
-#include "GaudiKernel/Bootstrap.h"
-
 #include "GaudiKernel/SystemOfUnits.h"
 
 #include <iostream>
@@ -33,9 +32,9 @@
 
 EndPlateFactoryFS::EndPlateFactoryFS(StoreGateSvc *detStore,
 				     ServiceHandle<IRDBAccessSvc> pRDBAccess) :
+  AthMessaging(Athena::getMessageSvc(), "EndPlateFactoryFS"),
   m_detStore(detStore),
-  m_rdbAccess(std::move(pRDBAccess)),
-  m_msg("EndPlateFactoryFS")
+  m_rdbAccess(std::move(pRDBAccess))
 {
   
 }
@@ -55,7 +54,7 @@ void EndPlateFactoryFS::create(GeoPhysVol *motherP, GeoPhysVol *motherM)
   
   const StoredMaterialManager* materialManager;
   StatusCode sc = m_detStore->retrieve(materialManager, std::string("MATERIALS"));
-  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate Material Manager" << endmsg;
+  if (sc.isFailure()) ATH_MSG_FATAL("Could not locate Material Manager");
   
   // Get the SvcLocator 
   DecodeVersionKey indetVersionKey("InnerDetector");

@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef Route_H
 #define Route_H
 
-#include "AthenaKernel/MsgStreamMember.h"
+#include "GaudiKernel/MsgStream.h"
 
 #include <vector>
 #include <string>
@@ -17,9 +17,9 @@ public:
 
   typedef std::vector<ServiceVolume*>   VolumeContainer;
 
-  virtual ServiceVolume* entryVolume( double pos, bool ascending, Athena::MsgStreamMember& msg) const ;
+  virtual ServiceVolume* entryVolume( double pos, bool ascending, MsgStream& msg) const ;
 
-  virtual ServiceVolume* exitVolume( bool ascending, Athena::MsgStreamMember& msg) const ;
+  virtual ServiceVolume* exitVolume( bool ascending, MsgStream& msg) const ;
 
   
   Route(): m_exitVolume(0) {}
