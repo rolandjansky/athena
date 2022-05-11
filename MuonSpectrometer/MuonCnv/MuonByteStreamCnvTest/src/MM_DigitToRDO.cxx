@@ -62,6 +62,11 @@ StatusCode MM_DigitToRDO::execute(const EventContext& ctx) const
 
         for ( unsigned int i=0 ; i<nstrips ; ++i ) {
 
+          // Set proper data time window in simulated MM RDOs
+          // 8BC range starting at t=200 due to peaking time
+          // totaling digits within t = [200, 400]
+          if (digit->stripResponseTime().at(i) < 200. || digit->stripResponseTime().at(i) > 400.) continue;
+
           ///
           /// set the rdo id to a value consistent with the channel number
           ///
