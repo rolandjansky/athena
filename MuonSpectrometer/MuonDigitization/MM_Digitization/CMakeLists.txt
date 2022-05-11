@@ -1,28 +1,20 @@
-################################################################################
-# Package: MM_Digitization
-################################################################################
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( MM_Digitization )
 
 # External dependencies:
-find_package( AIDA )
 find_package( CLHEP )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
-
-# tag ROOTBasicLibs was not recognized in automatic conversion in cmt2cmake
-
-# tag ROOTSTLDictLibs was not recognized in automatic conversion in cmt2cmake
+find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO Graf )
 
 # Component(s) in the package:
 atlas_add_library( MM_DigitizationLib
                    src/*.cxx
                    PUBLIC_HEADERS MM_Digitization
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                   PRIVATE_INCLUDE_DIRS ${AIDA_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives Identifier GaudiKernel MagFieldInterfaces MuonSimEvent HitManagement PileUpToolsLib StoreGateLib MuonIdHelpersLib NSWCalibToolsLib MagFieldElements MagFieldConditions MuonReadoutGeometry MuonSimData MuonDigitContainer MuonDigToolInterfacesLib
-                   PRIVATE_LINK_LIBRARIES AtlasHepMCLib GeneratorObjects MuonAGDDDescription AtlasCLHEP_RandomGenerators PathResolver TrkDetDescrUtils TrkSurfaces TrkEventPrimitives )
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel GeoPrimitives HitManagement Identifier MagFieldConditions MagFieldElements MuonDigitContainer MuonIdHelpersLib MuonSimData MuonSimEvent NSWCalibToolsLib PileUpToolsLib xAODEventInfo
+                   PRIVATE_LINK_LIBRARIES AtlasHepMCLib GeneratorObjects MuonAGDDDescription MuonReadoutGeometry PathResolver TrkDetDescrUtils TrkEventPrimitives TrkSurfaces )
 
 atlas_add_component( MM_Digitization
                      src/components/*.cxx

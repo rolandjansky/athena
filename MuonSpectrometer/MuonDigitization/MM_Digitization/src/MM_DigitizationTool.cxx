@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -37,7 +37,6 @@
 #include "TrkDetDescrUtils/GeometryStatics.h"
 #include "TrkEventPrimitives/LocalDirection.h"
 #include "PathResolver/PathResolver.h"
-#include "AIDA/IHistogram1D.h"
 #include "TrkSurfaces/Surface.h"
 
 //Truth
