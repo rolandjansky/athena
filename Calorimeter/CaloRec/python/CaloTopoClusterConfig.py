@@ -395,17 +395,17 @@ def CaloTopoClusterCfg(configFlags, cellsname="AllCalo", clustersname=None):
                        ,"MASS"]
 
 
-
     from OutputStreamAthenaPool.OutputStreamConfig import addToAOD, addToESD
-    toESD = [f"xAOD::CaloClusterContainer#{CaloTopoCluster.ClustersOutputName}", 
+    toESD = [f"xAOD::CaloClusterContainer#{CaloTopoCluster.ClustersOutputName}",
              f"xAOD::CaloClusterAuxContainer#{CaloTopoCluster.ClustersOutputName}Aux.",
              f"CaloClusterCellLinkContainer#{CaloTopoCluster.ClustersOutputName}_links"]
-    toAOD = [f"xAOD::CaloClusterContainer#{CaloTopoCluster.ClustersOutputName}",]
-    auxItems=f"xAOD::CaloClusterAuxContainer#{CaloTopoCluster.ClustersOutputName}Aux"
+    toAOD = [f"xAOD::CaloClusterContainer#{CaloTopoCluster.ClustersOutputName}",
+             f"CaloClusterCellLinkContainer#{CaloTopoCluster.ClustersOutputName}_links"]
+    auxItems = f"xAOD::CaloClusterAuxContainer#{CaloTopoCluster.ClustersOutputName}Aux"
     for mom in AODMoments:
-        auxItems+="."+mom
+        auxItems += "."+mom
 
-
+    auxItems += ".CellLink"
     toAOD.append(auxItems)
  
     result.merge(addToESD(configFlags, toESD))
