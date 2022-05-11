@@ -12,7 +12,7 @@ from FlavorTagDiscriminants.BTagJetAugmenterAlgConfig import (
     BTagJetAugmenterAlgCfg)
 from FlavorTagDiscriminants.BTagMuonAugmenterAlgConfig import (
     BTagMuonAugmenterAlgCfg)
-from BTagging.HighLevelBTagAlgConfig import HighLevelBTagAlgCfg
+from FlavorTagDiscriminants.FlavorTagNNConfig import FlavorTagNNCfg
 from JetTagCalibration.JetTagCalibConfig import JetTagCalibCfg
 from BTagging.BTaggingFlags import BTaggingFlags
 from BTagging.BTaggingConfiguration import getConfiguration
@@ -214,7 +214,7 @@ def BTagAlgsCfg(inputFlags,
     # Add the final taggers based on neural networks
     for dl2 in nnList:
         result.merge(
-            HighLevelBTagAlgCfg(
+            FlavorTagNNCfg(
                 inputFlags,
                 BTagCollection,
                 TrackCollection=trackCollection,
@@ -224,7 +224,7 @@ def BTagAlgsCfg(inputFlags,
         if inputFlags.BTagging.RunFlipTaggers:
             for flip_config in _get_flip_config(dl2):
                 result.merge(
-                    HighLevelBTagAlgCfg(
+                    FlavorTagNNCfg(
                         inputFlags,
                         BTaggingCollection=BTagCollection,
                         TrackCollection=trackCollection,

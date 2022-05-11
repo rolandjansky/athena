@@ -11,7 +11,7 @@ from BTagging.BTagRun3Config import BTagAlgsCfg
 from JetTagCalibration.JetTagCalibConfig import JetTagCalibCfg
 
 # fast btagging
-from BTagging.HighLevelBTagAlgConfig import getStaticTrackVars
+from FlavorTagDiscriminants.FlavorTagNNConfig import getStaticTrackVars
 from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
 
 def getFlavourTagging( inputJets, inputVertex, inputTracks, BTagName,

@@ -100,7 +100,7 @@ def getUndeclaredBtagVars(BTaggingCollection):
     ]
     return [f'{BTaggingCollection}.{x}' for x in undeclared_btag]
 
-def HighLevelBTagAlgCfg(ConfigFlags, BTaggingCollection, TrackCollection, NNFile = "", FlipConfig="STANDARD" , **options):
+def FlavorTagNNCfg(ConfigFlags, BTaggingCollection, TrackCollection, NNFile = "", FlipConfig="STANDARD" , **options):
 
     acc = ComponentAccumulator()
 
@@ -112,7 +112,7 @@ def HighLevelBTagAlgCfg(ConfigFlags, BTaggingCollection, TrackCollection, NNFile
         nn_name = NNFile.replace("/", "_").replace(".onnx", "")
         decorator = acc.popToolsAndMerge(GNNToolCfg(ConfigFlags, NNFile, **options))
     else:
-        raise ValueError("HighLevelBTagAlgCfg: Wrong NNFile extension. Please check the NNFile argument")
+        raise ValueError("FlavorTagNNCfg: Wrong NNFile extension. Please check the NNFile argument")
 
     name = '_'.join([nn_name.lower(), BTaggingCollection])
 
