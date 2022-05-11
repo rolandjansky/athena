@@ -495,7 +495,7 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
   // compute BDT weights
   //
   std::vector<float> bdtweights(MAXHASH*2);
-  VecAccumulator2DMap BDT_Weights("BDTWeights");
+  VecAccumulator2DMap BDT_Weights(*this, "BDTWeights");
 
   for (int ih=12; ih<MAXHASH-12; ++ih) 
     {
@@ -554,7 +554,7 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
 	}
 	
 	int idx = ih+MAXHASH*iFE;
-	if ( status[idx]==2 ) BDT_Weights.add(pixlayer, pixID, m_pixelid, 0);
+	if ( status[idx]==2 ) BDT_Weights.add(pixlayer, pixID, 0);
 	if ( status[idx]!=0 || (measurements[idx]+holes[idx]+outliers[idx]==0) ) continue;
 	
 	std::vector<float> bdtVars;
@@ -570,7 +570,7 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
 		      trkchi2byndf[idx], trknpixdead[idx] };
 	}
 	bdtweights[idx] = m_classBDT.at(partitionLabel)->GetClassification(bdtVars);
-	BDT_Weights.add(pixlayer, pixID, m_pixelid, bdtweights[idx]);
+	BDT_Weights.add(pixlayer, pixID, bdtweights[idx]);
       }
     }
   fill2DProfLayerAccum( BDT_Weights );
