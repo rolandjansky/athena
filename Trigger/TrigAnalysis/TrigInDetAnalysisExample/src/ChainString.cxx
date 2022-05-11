@@ -165,3 +165,16 @@ void ChainString::parse( std::string s ) {
 }
 
 
+std::string ChainString::subs( std::string s ) const { 
+
+  std::string tags[5] = { "key=", "roi=", "vtx=", "te=", "extra=" };
+ 
+  const std::string* values[5] = { &m_tail, &m_roi, &m_vtx, &m_element, &m_extra };
+
+  for ( int i=0 ; i<5 ; i++ ) if ( *values[i]!="" ) s += ":" + tags[i] + *values[i];
+  if ( !m_passed ) s += ";DTE";
+  
+  if ( postcount() ) s += ":post:" + m_post;
+  
+  return s;
+}

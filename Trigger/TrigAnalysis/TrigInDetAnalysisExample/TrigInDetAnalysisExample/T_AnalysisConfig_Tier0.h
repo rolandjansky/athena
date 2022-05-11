@@ -228,15 +228,7 @@ protected:
 
 	if ( chainName.head() == "" ) { 
 	  
-	  std::string selectChain;
-	  
-	  if ( chainName.tail()!="" )    selectChain += ":key="+chainName.tail();
-	  if ( chainName.element()!="" ) continue;
-	  if ( chainName.roi()!="" )     continue;
-	  if ( chainName.vtx()!="" )     selectChain += ":vtx="+chainName.vtx();
-	  if ( chainName.extra()!="" )   selectChain += ":extra="+chainName.extra();
-	  if ( !chainName.passed() )     continue;
-	  if ( chainName.postcount() )   selectChain += ":post:"+chainName.post();
+	  std::string selectChain = chainName.raw();
 
 	  chains.push_back( ChainString(selectChain) );
 	    
@@ -253,14 +245,8 @@ protected:
 	  
 	  for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
 	    
-	    if ( chainName.tail()!="" )    selectChains[iselected] += ":key="+chainName.tail();
-	    if ( chainName.roi()!="" )     selectChains[iselected] += ":roi="+chainName.roi();
-	    if ( chainName.vtx()!="" )     selectChains[iselected] += ":vtx="+chainName.vtx();
-	    if ( chainName.element()!="" ) selectChains[iselected] += ":te="+chainName.element();
-	    if ( chainName.extra()!="" )   selectChains[iselected] += ":extra="+chainName.extra();
-	    if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
-	    if ( chainName.postcount() )   selectChains[iselected] += ":post:"+chainName.post();
-	    
+	    selectChains[iselected] = chainName.subs( selectChains[iselected] );
+
 #if 0
 	    std::cout << "sorting:: chain specification: " << chainName << "\traw:" << chainName.raw() << std::endl;
 	    std::cout << "\tchain: " << chainName.head()    << std::endl;
@@ -1251,17 +1237,8 @@ protected:
 
       if ( chainName.head() == "" ) {
 	
-	std::string selectChain = "";
-	
-	if ( chainName.tail()!="" )    selectChain += ":key="+chainName.tail();
-	if ( chainName.extra()!="" )   selectChain += ":ind="+chainName.extra();
-	if ( chainName.roi()!="" )     continue;
-	if ( chainName.vtx()!="" )     selectChain += ":vtx="+chainName.vtx();
-	if ( chainName.element()!="" ) continue;
-	if ( !chainName.passed() )     continue;
-	if ( chainName.postcount() )   selectChain += ":post:"+chainName.post();
-	
-	
+	std::string selectChain = chainName.raw();
+		    
 	/// replace wildcard with actual matching chains ...
 	chains.push_back( selectChain );
 
@@ -1277,15 +1254,8 @@ protected:
 	
 	for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
 	  
-	  if ( chainName.tail()!="" )    selectChains[iselected] += ":key="+chainName.tail();
-	  if ( chainName.extra()!="" )   selectChains[iselected] += ":ind="+chainName.extra();
-	  if ( chainName.roi()!="" )     selectChains[iselected] += ":roi="+chainName.roi();
-	  if ( chainName.vtx()!="" )     selectChains[iselected] += ":vtx="+chainName.vtx();
-	  if ( chainName.element()!="" ) selectChains[iselected] += ":te="+chainName.element();
-	  if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
-	  if ( chainName.postcount() )   selectChains[iselected] += ":post:"+chainName.post();
-	  
-	  
+	  selectChains[iselected] = chainName.subs( selectChains[iselected] );
+
 	  /// replace wildcard with actual matching chains ...
 	  chains.push_back( selectChains[iselected] );
 	  
