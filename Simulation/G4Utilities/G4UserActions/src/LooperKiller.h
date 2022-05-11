@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4USERACTIONS_G4UA_LOOPERKILLER_H
@@ -8,7 +8,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 // Infrastructure includes
-#include "AthenaKernel/MsgStreamMember.h"
 #include "G4UserSteppingAction.hh"
 #include "AthenaBaseComps/AthMessaging.h"
 
