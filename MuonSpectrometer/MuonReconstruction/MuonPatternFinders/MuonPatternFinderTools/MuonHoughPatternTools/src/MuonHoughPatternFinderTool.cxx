@@ -9,6 +9,7 @@
 #include <set>
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
+#include "GaudiKernel/ConcurrencyFlags.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "MuonHoughPatternEvent/MuonHoughHitContainer.h"
 #include "MuonPrepRawData/MdtDriftCircleStatus.h"
@@ -24,11 +25,29 @@
 #include "TrkDriftCircleMath/MatchDCWithLine.h"
 #include "TrkDriftCircleMath/TangentToCircles.h"
 #include "TrkSurfaces/Surface.h"
-#include "GaudiKernel/ConcurrencyFlags.h"
 
 using namespace TrkDriftCircleMath;
 
 namespace Muon {
+    struct SegmentData {
+        /// Index
+        unsigned int index{0};
+        const Muon::MdtPrepData* prd{nullptr};
+        inline Identifier id() const { return prd->identify(); };  /// Identifier of the PRD
+        inline double radius() const { return prd->localPosition()[0]; }
+        inline double errradius() const { return Amg::error(prd->localCovariance(), 0); }
+        double weights{1.};
+        double prob{1.};  // artificial probability that hit belongs to true muon
+
+        bool onsegment{false};  // non-zero if on segment, int indicates how many hits in same
+                                // layer are on segment (used in weighting)
+        double psi{0.};
+
+        double weighted_trigger{0.};
+        bool tr_confirmation{false};
+
+        int layer_number{0};  // layer_number ranges from 0..5/7
+    };
 
     MuonHoughPatternFinderTool::MuonHoughPatternFinderTool(const std::string& t, const std::string& n, const IInterface* p) :
         AthAlgTool(t, n, p), m_weight_csc_on_segment(2.) {
@@ -38,8 +57,8 @@ namespace Muon {
     StatusCode MuonHoughPatternFinderTool::initialize() {
         if (m_use_histos) {
             if (Gaudi::Concurrency::ConcurrencyFlags::numThreads() > 1) {
-              ATH_MSG_FATAL("Filling histograms not supported in MT jobs.");
-              return StatusCode::FAILURE;
+                ATH_MSG_FATAL("Filling histograms not supported in MT jobs.");
+                return StatusCode::FAILURE;
             }
 
             m_h = std::make_unique<Hists>();
@@ -59,10 +78,16 @@ namespace Muon {
         ATH_MSG_VERBOSE("found Service muonHoughPatternTool: " << m_muonHoughPatternTool);
 
         ATH_CHECK(m_idHelperSvc.retrieve());
-        ATH_MSG_DEBUG("Retrieved " << m_idHelperSvc);
+
+        m_RpcToMdtOuterStDict[m_idHelperSvc->rpcIdHelper().stationNameIndex("BOL")] = m_idHelperSvc->mdtIdHelper().stationNameIndex("BOS");
+        m_RpcToMdtOuterStDict[m_idHelperSvc->rpcIdHelper().stationNameIndex("BOS")] = m_idHelperSvc->mdtIdHelper().stationNameIndex("BOL");
+        m_RpcToMdtOuterStDict[m_idHelperSvc->rpcIdHelper().stationNameIndex("BMS")] = m_idHelperSvc->mdtIdHelper().stationNameIndex("BML");
+        m_RpcToMdtOuterStDict[m_idHelperSvc->rpcIdHelper().stationNameIndex("BML")] = m_idHelperSvc->mdtIdHelper().stationNameIndex("BMS");
+
+        m_RpcToMdtInnerStDict[m_idHelperSvc->rpcIdHelper().stationNameIndex("BMS")] = m_idHelperSvc->mdtIdHelper().stationNameIndex("BIS");
+        m_RpcToMdtInnerStDict[m_idHelperSvc->rpcIdHelper().stationNameIndex("BML")] = m_idHelperSvc->mdtIdHelper().stationNameIndex("BIL");
 
         ATH_CHECK(m_printer.retrieve());
-        ATH_MSG_DEBUG("Retrieved " << m_printer);
 
         if (m_hit_reweights) { ATH_MSG_DEBUG("Hit Reweighting " << m_hit_reweights); }
 
@@ -335,9 +360,9 @@ namespace Muon {
 
                 hitcontainer->addHit(hit);
                 if (m_use_histos) {
-                  Hists& h = getHists();
-                  h.m_weighthistogram->Fill(weight);
-                  h.m_weighthistogramcsc->Fill(weight);
+                    Hists& h = getHists();
+                    h.m_weighthistogram->Fill(weight);
+                    h.m_weighthistogramcsc->Fill(weight);
                 }
             }
         }  // use_csc_segments
@@ -513,9 +538,9 @@ namespace Muon {
             ATH_MSG_DEBUG(m_printer->print(*prd) << " NEW weight " << weight);
 
             if (m_use_histos) {
-              Hists& h = getHists();
-              h.m_weighthistogram->Fill(weight);
-              h.m_weighthistogramrpc->Fill(weight);
+                Hists& h = getHists();
+                h.m_weighthistogram->Fill(weight);
+                h.m_weighthistogramrpc->Fill(weight);
             }
         }
 
@@ -635,9 +660,9 @@ namespace Muon {
                 hitcontainer.addHit(hit);
                 ATH_MSG_DEBUG(m_printer->print(*prd) << " NEW weight " << weight);
                 if (m_use_histos) {
-                  Hists& h = getHists();
-                  h.m_weighthistogram->Fill(weight);
-                  h.m_weighthistogramtgc->Fill(weight);
+                    Hists& h = getHists();
+                    h.m_weighthistogram->Fill(weight);
+                    h.m_weighthistogramtgc->Fill(weight);
                 }
             }
         }
@@ -702,36 +727,8 @@ namespace Muon {
         std::map<int, int> number_of_hots_per_layer;  // number of trigger confirmed or hits on segment
                                                       // within layer (key)
 
-        std::vector<double> radius;
-        std::vector<double> errradius;
-        std::vector<double> weights;
-        std::vector<double> prob;  // artificial probability that hit belongs to true muon
-        std::vector<int> multilayer;
-        std::vector<int> tubelayer;
-        std::vector<int> tubes;
-        std::vector<int> onsegment;  // non-zero if on segment, int indicates how many hits in same
-                                     // layer are on segment (used in weighting)
-        std::vector<double> psi;
-        std::vector<double> weight_trigger;
-        std::vector<int> tr_confirmation;  // 1 if confirmation from trigger hits else 0
-        std::vector<Identifier> ids;
-        std::vector<int> layers;
-        std::vector<const Muon::MdtPrepData*> prd;
-
-        radius.reserve(size);
-        errradius.reserve(size);
-        weights.reserve(size);
-        prob.reserve(size);
-        multilayer.reserve(size);
-        tubelayer.reserve(size);
-        tubes.reserve(size);
-        onsegment.reserve(size);
-        psi.reserve(size);
-        weight_trigger.reserve(size);
-        tr_confirmation.reserve(size);
-        ids.reserve(size);
-        layers.reserve(size);
-        prd.reserve(size);
+        std::vector<SegmentData> collected_data{};
+        collected_data.reserve(size);
 
         std::vector<double> tubecount(m_idHelperSvc->mdtIdHelper().tubeMax() + 2);
 
@@ -740,48 +737,36 @@ namespace Muon {
             if (m_mdt_tdc_cut && mdt->status() != Muon::MdtStatusDriftTime) continue;
 
             if ((m_mdt_adc_cut && (mdt->adc() > m_mdt_adc_min)) || !m_mdt_adc_cut) {
-                Identifier id = mdt->identify();
+                SegmentData prd_data{};
+                prd_data.index = collected_data.size();
+                prd_data.prd = mdt;
 
-                prd.push_back(mdt);
+                const int tube = m_idHelperSvc->mdtIdHelper().tube(prd_data.id());
+                const int multi_layer = m_idHelperSvc->mdtIdHelper().multilayer(prd_data.id());
+                const int tube_layer = m_idHelperSvc->mdtIdHelper().tubeLayer(prd_data.id());
 
-                radius.push_back(mdt->localPosition()[0]);
-                errradius.push_back(Amg::error(mdt->localCovariance(), 0));
-                weights.push_back(1.);
-                prob.push_back(1.);
-                const int tube = m_idHelperSvc->mdtIdHelper().tube(id);
-                tubes.push_back(tube);
-                onsegment.push_back(0);
-                psi.push_back(0.);
-                weight_trigger.push_back(0.);
-                tr_confirmation.push_back(0);
-                ids.push_back(id);
-
-                const int multi_layer = m_idHelperSvc->mdtIdHelper().multilayer(id);
-                const int tube_layer = m_idHelperSvc->mdtIdHelper().tubeLayer(id);
-                multilayer.push_back(multi_layer);
-                tubelayer.push_back(tube_layer);
-
-                int layer_number =
+                prd_data.layer_number =
                     (multi_layer - 1) * m_idHelperSvc->mdtIdHelper().tubeLayerMax() + (tube_layer - 1);  // layer_number ranges from 0..5/7
-                layers.push_back(layer_number);
 
                 tubecount[tube] += 1.;
                 tubecount[tube - 1] += 0.5;
                 tubecount[tube + 1] += 0.5;
 
-                ATH_MSG_VERBOSE(" layer_number: " << layer_number << " multi_layer: " << multi_layer << " tube_layer: " << tube_layer);
+                ATH_MSG_VERBOSE(" layer_number: " << prd_data.layer_number << " multi_layer: " << multi_layer
+                                                  << " tube_layer: " << tube_layer);
+                collected_data.push_back(std::move(prd_data));
 
             }  // adc cut
         }
 
-        const unsigned int prdsize = prd.size();
+        const unsigned int prdsize = collected_data.size();
 
         if (!prdsize) return;
 
         if (!m_hit_reweights) {
-            for (const Muon::MdtPrepData* mdt_hit : prd) {
-                ATH_MSG_DEBUG(m_printer->print(*mdt_hit));
-                hitcontainer.addHit(new_mdt_hit(mdt_hit, 1., 1.));
+            for (const SegmentData& mdt_hit : collected_data) {
+                ATH_MSG_DEBUG(m_printer->print(*mdt_hit.prd));
+                hitcontainer.addHit(new_mdt_hit(mdt_hit.prd, 1., 1.));
             }
             return;
         }
@@ -791,13 +776,13 @@ namespace Muon {
         // allweights 0
         if (tubem < 2.01) {
             ATH_MSG_VERBOSE(" TOO SMALL tubem : " << tubem);
-            for (const Muon::MdtPrepData* mdt_hit : prd) {
-                ATH_MSG_DEBUG(m_printer->print(*mdt_hit) << " weight " << 0 << " adc: " << mdt_hit->adc());
-                hitcontainer.addHit(new_mdt_hit(mdt_hit, 0., 0.));
+            for (const SegmentData& mdt_hit : collected_data) {
+                ATH_MSG_DEBUG(m_printer->print(*mdt_hit.prd) << " weight " << 0 << " adc: " << mdt_hit.prd->adc());
+                hitcontainer.addHit(new_mdt_hit(mdt_hit.prd, 0., 0.));
                 if (m_use_histos) {
-                  Hists& h = getHists();
-                  h.m_weighthistogram->Fill(0);
-                  h.m_weighthistogrammdt->Fill(0);
+                    Hists& h = getHists();
+                    h.m_weighthistogram->Fill(0);
+                    h.m_weighthistogrammdt->Fill(0);
                 }
 
             }  // collection
@@ -806,11 +791,12 @@ namespace Muon {
 
         // fast segment search:
 
-        for (unsigned int i = 0; i < prdsize; i++) {
-            if (tubecount[tubes[i]] > 1) ++number_of_hits_per_layer[layers[i]];
+        for (SegmentData& mdt_hit : collected_data) {
+            const int tube = m_idHelperSvc->mdtIdHelper().tube(mdt_hit.id());
+            if (tubecount[tube] > 1) ++number_of_hits_per_layer[mdt_hit.layer_number];
 
             // KILL 1 hit cases
-            if (tubecount[tubes[i]] <= 1) prob[i] = 0;
+            if (tubecount[tube] <= 1.) mdt_hit.prob = 0.;
         }  // end hit loop i
 
         int ml1{0}, ml2{0};
@@ -824,31 +810,31 @@ namespace Muon {
         // allweights = 0
         if (ml1 + ml2 < 2.01) {
             ATH_MSG_VERBOSE(" TOO SMALL ml1 + ml2 : " << ml1 << " ml2 " << ml2);
-            for (const Muon::MdtPrepData* mdt_hit : prd) {
-                ATH_MSG_DEBUG(m_printer->print(*mdt_hit) << " weight " << 0);
-                hitcontainer.addHit(new_mdt_hit(mdt_hit, 0., 0.));
+            for (const SegmentData& mdt_hit : collected_data) {
+                ATH_MSG_DEBUG(m_printer->print(*mdt_hit.prd) << " weight " << 0);
+                hitcontainer.addHit(new_mdt_hit(mdt_hit.prd, 0., 0.));
                 if (m_use_histos) {
-                  Hists& h = getHists();
-                  h.m_weighthistogram->Fill(0);
-                  h.m_weighthistogrammdt->Fill(0);
+                    Hists& h = getHists();
+                    h.m_weighthistogram->Fill(0);
+                    h.m_weighthistogrammdt->Fill(0);
                 }
             }  // collection
             return;
         }
 
-        bool barrel = m_idHelperSvc->mdtIdHelper().isBarrel(ids[0]);
-
         DCVec dcs;
         dcs.reserve(prdsize);
+        for (const SegmentData& mdt_hit : collected_data) {
+            if (mdt_hit.prob < 0.01) continue;
 
-        for (unsigned int i = 0; i < prdsize; ++i) {
-            if (prob[i] < 0.01) continue;
-            // create identifier
-            TrkDriftCircleMath::MdtId mdtid(barrel, multilayer[i] - 1, tubelayer[i] - 1, tubes[i] - 1);
             // create new DriftCircircleMath::DriftCircle::DriftState
-            const Amg::Vector3D& globalpos = prd[i]->globalPosition();
-            TrkDriftCircleMath::DriftCircle dc(TrkDriftCircleMath::LocVec2D(globalpos.perp(), globalpos.z()), radius[i], errradius[i],
-                                               TrkDriftCircleMath::DriftCircle::InTime, mdtid, i);
+            const Amg::Vector3D& globalpos = mdt_hit.prd->globalPosition();
+            const MdtIdHelper& mdtHelper = m_idHelperSvc->mdtIdHelper();
+            const Identifier hitId = mdt_hit.id();
+            TrkDriftCircleMath::MdtId mdtid(mdtHelper.isBarrel(hitId), mdtHelper.multilayer(hitId) - 1, mdtHelper.tubeLayer(hitId) - 1,
+                                            mdtHelper.tube(hitId) - 1);
+            TrkDriftCircleMath::DriftCircle dc(TrkDriftCircleMath::LocVec2D(globalpos.perp(), globalpos.z()), mdt_hit.radius(),
+                                               mdt_hit.errradius(), TrkDriftCircleMath::DriftCircle::InTime, mdtid, mdt_hit.index);
             dcs.emplace_back(std::move(dc));
         }
 
@@ -863,11 +849,11 @@ namespace Muon {
                 int removed_hits = 0;  // keeps track of number of removed hits
                 for (unsigned int i = 0; i < sel.size(); ++i) {
                     if (sel[i] != 0) {
-                        unsigned int j = (unsigned int)dcs[i - removed_hits].index();  // index of position in prd vec
-                        onsegment[j] = 1;
-                        psi[j] = angleDif;
-
-                        ++number_of_hots_per_layer[layers[j]];
+                        unsigned int j = dcs[i - removed_hits].index();  // index of position in prd vec
+                        SegmentData& mdt_hit = collected_data[j];
+                        mdt_hit.onsegment = 1;
+                        mdt_hit.psi = angleDif;
+                        ++number_of_hots_per_layer[mdt_hit.layer_number];
 
                         // remove hit from dcs container for next iteration!!
                         dcs.erase(dcs.begin() + i - removed_hits);
@@ -881,8 +867,8 @@ namespace Muon {
 
         // trigger confirmation checks:
 
-        int stationcode = stationCode(ids[0]);
-
+        int stationcode = stationCode(collected_data[0].id());
+        const bool barrel = m_idHelperSvc->mdtIdHelper().isBarrel(collected_data[0].id());
         // rpc:
 
         std::map<int, std::vector<std::pair<int, int>>>::const_iterator stationmap_it = rpcmdtstationmap.find(stationcode);
@@ -896,29 +882,26 @@ namespace Muon {
                 for (int j = stationhits[i].first; j < stationhits[i].second; j++) {
                     const MuonHoughHit* rpchit = hitcontainer.getHit(j);
                     if (rpchit->getWeight() < 0.01) continue;
-
-                    const double rpcx = hitcontainer.getHitx(j);
-                    const double rpcy = hitcontainer.getHity(j);
-                    const double rpcz = hitcontainer.getHitz(j);
-                    const double rpc_radius = std::hypot(rpcx, rpcy);
-                    const double rpc_rz_ratio = rpc_radius / rpcz;
+                    const Amg::Vector3D& rpcPos = rpchit->getPosition();
+                    const double rpc_radius = rpcPos.perp();
+                    const double rpc_rz_ratio = rpc_radius / rpcPos.z();
                     const double rpc_inv_rz_ratio = 1. / rpc_rz_ratio;
 
-                    for (unsigned int k = 0; k < prdsize; k++) {
+                    for (SegmentData& mdt_hit : collected_data) {
                         // Mdt hit loop
                         double dis = 0.;
-                        const Amg::Vector3D& globalpos = prd[k]->globalPosition();
+                        const Amg::Vector3D& globalpos = mdt_hit.prd->globalPosition();
                         if (barrel) {
                             dis = globalpos[Amg::AxisDefs::z] - globalpos.perp() * rpc_inv_rz_ratio;
                         } else {  // can that happen?
                             dis = globalpos.perp() - rpc_rz_ratio * globalpos[Amg::AxisDefs::z];
                         }
 
-                        if (weight_trigger[k] < 0.1) { weight_trigger[k] = 1.; }
+                        if (mdt_hit.weighted_trigger < 0.1) { mdt_hit.weighted_trigger = 1.; }
 
                         if (std::abs(dis) < 250.) {
                             double wnew = 1.5 + (250. - std::abs(dis)) / 251.;
-                            if (wnew > weight_trigger[k]) { weight_trigger[k] = wnew; }
+                            mdt_hit.weighted_trigger = std::max(mdt_hit.weighted_trigger, wnew);
                         }
                     }
                 }
@@ -937,23 +920,18 @@ namespace Muon {
                 // tgc hit loop
                 for (int j = stationhits[i].first; j < stationhits[i].second; j++) {
                     const MuonHoughHit* tgchit = hitcontainer.getHit(j);
-                    if (tgchit) {
-                        if (tgchit->getWeight() < 0.01) continue;
+                    if (!tgchit || tgchit->getWeight() < 0.01) continue;
+                    const Amg::Vector3D& tgcPos = tgchit->getPosition();
+                    const double tgc_rz_ratio = tgcPos.perp() / tgcPos.z();
 
-                        const double tgcx = tgchit->getHitx();
-                        const double tgcy = tgchit->getHity();
-                        const double tgcz = tgchit->getHitz();
-                        const double tgc_rz_ratio = std::hypot(tgcx, tgcy) / tgcz;
-
-                        for (unsigned int k = 0; k < prdsize; k++) {
-                            // Mdt hit loop
-                            if (weight_trigger[k] < 0.1) weight_trigger[k] = 3.;
-                            const Amg::Vector3D& globalpos = prd[k]->globalPosition();
-                            double dis = globalpos.perp() - tgc_rz_ratio * globalpos[Amg::AxisDefs::z];  // only endcap extrapolation
-                            if (std::abs(dis) < 250.) {
-                                double wnew = 3.5 + (250. - std::abs(dis)) / 251.;
-                                if (wnew > weight_trigger[k]) weight_trigger[k] = wnew;
-                            }
+                    for (SegmentData& mdt_hit : collected_data) {
+                        // Mdt hit loop
+                        if (mdt_hit.weighted_trigger < 0.1) mdt_hit.weighted_trigger = 3.;
+                        const Amg::Vector3D& globalpos = mdt_hit.prd->globalPosition();
+                        double dis = globalpos.perp() - tgc_rz_ratio * globalpos.z();  // only endcap extrapolation
+                        if (std::abs(dis) < 250.) {
+                            double wnew = 3.5 + (250. - std::abs(dis)) / 251.;
+                            mdt_hit.weighted_trigger = std::max(mdt_hit.weighted_trigger, wnew);
                         }
                     }
                 }
@@ -962,40 +940,38 @@ namespace Muon {
 
         // define trigger confirmation:
 
-        for (unsigned int i = 0; i < prdsize; i++) {
+        for (SegmentData& mdt_hit : collected_data) {
             // for MDTs require trigger chamber confirmation
             //                  or segment with selected hits
 
-            if (weight_trigger[i] > 1.5 && weight_trigger[i] < 2.55) tr_confirmation[i] = 1;
-            if (weight_trigger[i] > 3.5 && weight_trigger[i] < 4.55) tr_confirmation[i] = 1;
+            mdt_hit.tr_confirmation = (mdt_hit.weighted_trigger > 1.5 && mdt_hit.weighted_trigger < 2.55) ||
+                                      (mdt_hit.weighted_trigger > 3.5 && mdt_hit.weighted_trigger < 4.55);
 
             // add confirmed hits to hots layer count:
-            if (tr_confirmation[i] == 1 && onsegment[i] == 0) {  // else already added
-                ++number_of_hots_per_layer[layers[i]];
+            if (mdt_hit.tr_confirmation && !mdt_hit.onsegment) {  // else already added
+                ++number_of_hots_per_layer[mdt_hit.layer_number];
             }
         }
 
         // calculate final weights:
 
-        for (unsigned int i = 0; i < prdsize; i++) {
-            if (prob[i] < 0.01) {
-                weights[i] = 0;
+        for (SegmentData& mdt_hit : collected_data) {
+            if (mdt_hit.prob < 0.01) {
+                mdt_hit.weights = 0;
                 continue;
             }  // throw away hits that are not significant
 
             // correct for several number of hits in layer:
-            std::map<int, int>::const_iterator map_it = number_of_hits_per_layer.find(layers[i]);
+            std::map<int, int>::const_iterator map_it = number_of_hits_per_layer.find(mdt_hit.layer_number);
             if (map_it != number_of_hits_per_layer.end()) {
                 int layerhits = (*map_it).second;
                 double layer_weight = 1. / (0.25 * layerhits + 0.75 * std::sqrt(layerhits));
 
-                if (0 == tr_confirmation[i] && onsegment[i] == 0) {
+                if (!mdt_hit.tr_confirmation && !mdt_hit.onsegment) {
                     // downweighting for non-confirmed hits:
-                    prob[i] = prob[i] - 0.2;
-                    if (prob[i] < 0) prob[i] = 0.;
-
+                    mdt_hit.prob = std::max(0., mdt_hit.prob - 0.2);
                     // correct for several number of hits in layer:
-                    weights[i] = prob[i] * layer_weight;
+                    mdt_hit.weights = mdt_hit.prob * layer_weight;
                 }
 
                 else {
@@ -1003,44 +979,43 @@ namespace Muon {
                     double rej = 1. / (1. - layer_weight + 0.10);
                     double rej0 = 1.;  // irrevelant value
 
-                    if (onsegment[i] != 0 && tr_confirmation[i] != 0) {
+                    if (mdt_hit.onsegment && mdt_hit.tr_confirmation) {
                         rej0 = 30;
-                    } else if (onsegment[i] != 0) {
-                        rej0 = 1.75 / (psi[i] + 0.05);
+                    } else if (mdt_hit.onsegment) {
+                        rej0 = 1.75 / (mdt_hit.psi + 0.05);
                     }  // 1.75 = 5*0.35
-                    else if (tr_confirmation[i] != 0) {
+                    else if (mdt_hit.tr_confirmation) {
                         rej0 = 8;
                     }
 
                     double rej_total = rej * rej0;
-                    prob[i] = rej_total / (1. + rej_total);
+                    mdt_hit.prob = rej_total / (1. + rej_total);
 
                     // correct for several number of confirmed hits in layer:
-                    map_it = number_of_hots_per_layer.find(layers[i]);
+                    map_it = number_of_hots_per_layer.find(mdt_hit.layer_number);
                     if (map_it != number_of_hots_per_layer.end()) {
                         int layerhits_conf = (*map_it).second;
-                        weights[i] = prob[i] / (0.25 * layerhits_conf + 0.75 * std::sqrt(layerhits_conf));
+                        mdt_hit.weights = mdt_hit.prob / (0.25 * layerhits_conf + 0.75 * std::sqrt(layerhits_conf));
                     } else {
                         ATH_MSG_INFO("Entry not in map! This should not happen");
-                        weights[i] = prob[i];
+                        mdt_hit.weights = mdt_hit.prob;
                     }
                 }
             } else {
                 ATH_MSG_INFO("Entry not in map! This should not happen");
-                weights[i] = prob[i];
+                mdt_hit.weights = mdt_hit.prob;
             }
-        }
 
-        // and finally add hits to container:
+            /// and finally add hits to container:
 
-        for (unsigned int i = 0; i < prdsize; i++) {
-            ATH_MSG_DEBUG(m_printer->print(*prd[i]) << " trigger weight " << weight_trigger[i] << " on segment " << onsegment[i] << " psi "
-                                                    << psi[i] << " prob " << prob[i] << " weight " << weights[i]);
-            hitcontainer.addHit(new_mdt_hit(prd[i], prob[i], weights[i]));
+            ATH_MSG_DEBUG(m_printer->print(*mdt_hit.prd)
+                          << " trigger weight " << mdt_hit.weighted_trigger << " on segment " << mdt_hit.onsegment << " psi " << mdt_hit.psi
+                          << " prob " << mdt_hit.prob << " weight " << mdt_hit.weights);
+            hitcontainer.addHit(new_mdt_hit(mdt_hit.prd, mdt_hit.prob, mdt_hit.weights));
             if (m_use_histos) {
                 Hists& h = getHists();
-                h.m_weighthistogram->Fill(weights[i]);
-                h.m_weighthistogrammdt->Fill(weights[i]);
+                h.m_weighthistogram->Fill(mdt_hit.weights);
+                h.m_weighthistogrammdt->Fill(mdt_hit.weights);
             }
 
         }  // collection
@@ -1138,10 +1113,8 @@ namespace Muon {
         //
         // called once per rpc collection/station
 
-        std::string st = m_idHelperSvc->rpcIdHelper().stationNameString(m_idHelperSvc->rpcIdHelper().stationName(rpcid));
-        ATH_MSG_VERBOSE("updateRpcMdtStationMap" << st);
-        if (st[0] != 'B') return;  // no rpc for endcap chambers
-
+        ATH_MSG_VERBOSE("updateRpcMdtStationMap" << m_idHelperSvc->toString(rpcid));
+        if (!m_idHelperSvc->isRpc(rpcid)) return;
         std::map<int, std::vector<std::pair<int, int>>>::iterator it;
         int stationcode = stationCode(rpcid);
 
@@ -1157,20 +1130,11 @@ namespace Muon {
         int idphi2 = idphi + 1;
         if (idphi2 > 8) idphi2 = 1;
 
-        std::string station;
-        if (st == "BOL") {
-            station = "BOS";
-        } else if (st == "BOS") {
-            station = "BOL";
-        } else if (st == "BMS") {
-            station = "BML";
-        } else if (st == "BML") {
-            station = "BMS";
-        } else
-            return;
+        std::map<int, int>::const_iterator station_itr = m_RpcToMdtOuterStDict.find(m_idHelperSvc->rpcIdHelper().stationName(rpcid));
+        if (station_itr == m_RpcToMdtOuterStDict.end()) return;
 
         // store Neighbouring station codes
-        int stationNameMDT = m_idHelperSvc->mdtIdHelper().stationNameIndex(station);
+        int stationNameMDT = station_itr->second;
 
         stationcode = stationCode(stationNameMDT, idphi1, ideta);
         addToStationMap(rpcmdtstationmap, it, stationcode, hit_begin, hit_end);
@@ -1180,14 +1144,10 @@ namespace Muon {
 
         //  Also look into Inner station
 
-        if (st == "BMS") {
-            station = "BIS";
-        } else if (st == "BML") {
-            station = "BIL";
-        } else
-            return;
-
-        stationNameMDT = m_idHelperSvc->mdtIdHelper().stationNameIndex(station);
+        // std::map<int, int> m_RpcToMdtInnerStDict{};
+        station_itr = m_RpcToMdtInnerStDict.find(m_idHelperSvc->rpcIdHelper().stationName(rpcid));
+        if (station_itr == m_RpcToMdtInnerStDict.end()) return;
+        stationNameMDT = station_itr->second;
         stationcode = stationCode(stationNameMDT, idphi, ideta);
         addToStationMap(rpcmdtstationmap, it, stationcode, hit_begin, hit_end);
     }
@@ -1201,30 +1161,10 @@ namespace Muon {
         std::string st = m_idHelperSvc->tgcIdHelper().stationNameString(m_idHelperSvc->tgcIdHelper().stationName(tgcid));
         if (st[0] != 'T') return;
 
-        std::vector<int> T31(5);
-        T31[0] = 2;
-        T31[1] = 3;
-        T31[2] = 3;
-        T31[3] = 4;
-        T31[4] = 4;
-        std::vector<int> T32(5);
-        T32[0] = 3;
-        T32[1] = 4;
-        T32[2] = 4;
-        T32[3] = 5;
-        T32[4] = 5;
-        std::vector<int> T11(5);
-        T11[0] = 2;
-        T11[1] = 3;
-        T11[2] = 4;
-        T11[3] = 4;
-        T11[4] = 4;
-        std::vector<int> T12(5);
-        T12[0] = 3;
-        T12[1] = 4;
-        T12[2] = 5;
-        T12[3] = 5;
-        T12[4] = 5;
+        constexpr std::array<int, 5> T31{2, 3, 3, 4, 4};
+        constexpr std::array<int, 5> T32{3, 4, 4, 5, 5};
+        constexpr std::array<int, 5> T11{2, 3, 4, 4, 4};
+        constexpr std::array<int, 5> T12{3, 4, 5, 5, 5};
 
         std::map<int, std::vector<std::pair<int, int>>>::iterator it;
 
@@ -1337,9 +1277,9 @@ namespace Muon {
         }
     }
 
-    int MuonHoughPatternFinderTool::stationCode(Identifier id) const {
-        return 10000000 * m_idHelperSvc->mdtIdHelper().stationName(id) + 100000 * m_idHelperSvc->mdtIdHelper().stationPhi(id) +
-               1000 * (m_idHelperSvc->mdtIdHelper().stationEta(id) + 10);
+    int MuonHoughPatternFinderTool::stationCode(const Identifier& id) const {
+        return stationCode(m_idHelperSvc->mdtIdHelper().stationName(id), m_idHelperSvc->mdtIdHelper().stationPhi(id),
+                           m_idHelperSvc->mdtIdHelper().stationEta(id));
     }
 
     int MuonHoughPatternFinderTool::stationCode(int stationname, int phi, int eta) {
@@ -1436,7 +1376,7 @@ namespace Muon {
                         // Second seed selected
                         double hitx = (*itj).x();
                         double hity = (*itj).y();
-                        double norm = std::sqrt(hitx * hitx + hity * hity);
+                        double norm = std::hypot(hitx, hity);
                         double cphi = hitx / norm;
                         double sphi = hity / norm;
                         TrkDriftCircleMath::TangentToCircles::LineVec lines = tanCreator.tangentLines(*iti, *itj);
@@ -1505,14 +1445,10 @@ namespace Muon {
         }
     }
 
-
-    MuonHoughPatternFinderTool::Hists&
-    MuonHoughPatternFinderTool::getHists() const
-    {
-      // We earlier checked that no more than one thread is being used.
-      Hists* h ATLAS_THREAD_SAFE = m_h.get();
-      return *h;
+    MuonHoughPatternFinderTool::Hists& MuonHoughPatternFinderTool::getHists() const {
+        // We earlier checked that no more than one thread is being used.
+        Hists* h ATLAS_THREAD_SAFE = m_h.get();
+        return *h;
     }
-
 
 }  // namespace Muon

@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 __author__ = "Mark Sutton, Matous Vozak"
 __doc__    = "ConfigSettingsBase"
@@ -394,50 +394,50 @@ class _ConfigSettingsBase() :
       from AthenaCommon.Logging import logging
       log = logging.getLogger("InDetTrigConfig: ")
 
-      log.info( " {} :".format( self._name ) )                               # noqa: ATL901
-      log.info( " {} :".format( self._input_name ) )                         # noqa: ATL901
-      log.info( "   pTmin                 : {}".format( self._pTmin ) )                 # noqa: ATL901
-      log.info( "   TripletDoPPS          : {}".format( self._TripletDoPPS ) )          # noqa: ATL901
-      log.info( "   Triplet_D0Max         : {}".format( self._Triplet_D0Max ) )         # noqa: ATL901
-      log.info( "   Triplet_D0_PPS_Max    : {}".format( self._Triplet_D0_PPS_Max ) )    # noqa: ATL901
-      log.info( "   doZFinder             : {}".format( self._doZFinder ) )             # noqa: ATL901
-      log.info( "   doResMon              : {}".format( self._doResMon ) )              # noqa: ATL901
-      log.info( "   DoPhiFiltering        : {}".format( self._DoPhiFiltering ) )        # noqa: ATL901
-      log.info( "   doCloneRemoval        : {}".format( self._doCloneRemoval ) )        # noqa: ATL901
-      log.info( "   doSeedRedundancyCheck : {}".format( self._doSeedRedundancyCheck ) ) # noqa: ATL901
-      log.info( "   DoubletDR_Max         : {}".format( self._DoubletDR_Max ) )         # noqa: ATL901
-      log.info( "   SeedRadBinWidth       : {}".format( self._SeedRadBinWidth ) )       # noqa: ATL901
-      log.info( "   etaHalfWidth          : {}".format( self._etaHalfWidth ) )          # noqa: ATL901
-      log.info( "   phiHalfWidth          : {}".format( self._phiHalfWidth ) )          # noqa: ATL901
-      log.info( "   doFullScan            : {}".format( self._doFullScan ) )            # noqa: ATL901
-      log.info( "   monPS                 : {}".format( self._monPS ) )                 # noqa: ATL901
-      log.info( "   monPtMin              : {}".format( self._monPtMin ) )              # noqa: ATL901
-      log.info( "   doTRT                 : {}".format( self._doTRT ) )
-      log.info( "   keepTrackParameters   : {}".format( self._keepTrackParameters ) )
-      log.info( "   UsePixelSpacePoints   : {}".format( self._UsePixelSpacePoints ) )
-      log.info( "   TrackInitialD0Max     : {}".format( self._TrackInitialD0Max ) )
-      log.info( "   TrackZ0Max            : {}".format( self._TrackZ0Max ) )
-      log.info( "   adaptiveVertex        : {}".format( self._adaptiveVertex ) )
-      log.info( "   isLRT                 : {}".format( self._isLRT ) )
-      log.info( "   LRTD0Min              : {}".format( self._LRTD0Min ) )
-      log.info( "   LRTHardPtmin          : {}".format( self._LRTHardPtMin ) )
-      log.info( "   doHitDV               : {}".format( self._doHitDV ) )
-      log.info( "   nClustersMin          : {}".format( self._nClustersMin ) )
-      log.info( "   useBremModel          : {}".format( self._useBremModel ) )
-      log.info( "   suffix                : {}".format( self._suffix ) )
-      log.info( "   record                : {}".format( self._record ) )
-      log.info( "   Roi                   : {}".format( self._Roi ) )
-      log.info( "   addSingleTrackVertices: {}".format( self._addSingleTrackVertices ) )
-      log.info( "   maxRPhiImpact         : {}".format( self._maxRPhiImpactPT ) )
-      log.info( "   maxZImpact            : {}".format( self._maxZImpactPT ) )
-      log.info( "   maxEta                : {}".format( self._maxEtaPT ) )
-      log.info( "   maxSiHoles            : {}".format( self._maxSiHolesPT ) )
-      log.info( "   maxPixelHoles         : {}".format( self._maxPixelHolesPT ) )
-      log.info( "   maxSCTHoles           : {}".format( self._maxSCTHolesPT ) )
-      log.info( "   maxDoubleHoles        : {}".format( self._maxDoubleHolesPT ) )
-      log.info( "   usePixel              : {}".format( self._usePixelPT ) )
-      log.info( "   useSCT                : {}".format( self._useSCTPT ) )
-      log.info( "   doEmCaloSeed          : {}".format( self._doEmCaloSeedPT ) )
-      log.info( "   minTRTonTrk           : {}".format( self._minTRTonTrkPT ) )
-      log.info( "   BeamSpotForRoiZwidth  : {}".format( self._useBeamSpotForRoiZwidth ) )
-      log.info( "   useSiSPSeededTrackFinder : {}".format( self._useSiSPSeededTrackFinder ) )
+      log.info( " %s :", self._name )
+      log.info( " %s :", self._input_name )
+      log.info( "   pTmin                 : %s", self._pTmin )
+      log.info( "   TripletDoPPS          : %s", self._TripletDoPPS )
+      log.info( "   Triplet_D0Max         : %s", self._Triplet_D0Max )
+      log.info( "   Triplet_D0_PPS_Max    : %s", self._Triplet_D0_PPS_Max )
+      log.info( "   doZFinder             : %s", self._doZFinder )
+      log.info( "   doResMon              : %s", self._doResMon )
+      log.info( "   DoPhiFiltering        : %s", self._DoPhiFiltering )
+      log.info( "   doCloneRemoval        : %s", self._doCloneRemoval )
+      log.info( "   doSeedRedundancyCheck : %s", self._doSeedRedundancyCheck )
+      log.info( "   DoubletDR_Max         : %s", self._DoubletDR_Max )
+      log.info( "   SeedRadBinWidth       : %s", self._SeedRadBinWidth )
+      log.info( "   etaHalfWidth          : %s", self._etaHalfWidth )
+      log.info( "   phiHalfWidth          : %s", self._phiHalfWidth )
+      log.info( "   doFullScan            : %s", self._doFullScan )
+      log.info( "   monPS                 : %s", self._monPS )
+      log.info( "   monPtMin              : %s", self._monPtMin )
+      log.info( "   doTRT                 : %s", self._doTRT )
+      log.info( "   keepTrackParameters   : %s", self._keepTrackParameters )
+      log.info( "   UsePixelSpacePoints   : %s", self._UsePixelSpacePoints )
+      log.info( "   TrackInitialD0Max     : %s", self._TrackInitialD0Max )
+      log.info( "   TrackZ0Max            : %s", self._TrackZ0Max )
+      log.info( "   adaptiveVertex        : %s", self._adaptiveVertex )
+      log.info( "   isLRT                 : %s", self._isLRT )
+      log.info( "   LRTD0Min              : %s", self._LRTD0Min )
+      log.info( "   LRTHardPtmin          : %s", self._LRTHardPtMin )
+      log.info( "   doHitDV               : %s", self._doHitDV )
+      log.info( "   nClustersMin          : %s", self._nClustersMin )
+      log.info( "   useBremModel          : %s", self._useBremModel )
+      log.info( "   suffix                : %s", self._suffix )
+      log.info( "   record                : %s", self._record )
+      log.info( "   Roi                   : %s", self._Roi )
+      log.info( "   addSingleTrackVertices: %s", self._addSingleTrackVertices )
+      log.info( "   maxRPhiImpact         : %s", self._maxRPhiImpactPT )
+      log.info( "   maxZImpact            : %s", self._maxZImpactPT )
+      log.info( "   maxEta                : %s", self._maxEtaPT )
+      log.info( "   maxSiHoles            : %s", self._maxSiHolesPT )
+      log.info( "   maxPixelHoles         : %s", self._maxPixelHolesPT )
+      log.info( "   maxSCTHoles           : %s", self._maxSCTHolesPT )
+      log.info( "   maxDoubleHoles        : %s", self._maxDoubleHolesPT )
+      log.info( "   usePixel              : %s", self._usePixelPT )
+      log.info( "   useSCT                : %s", self._useSCTPT )
+      log.info( "   doEmCaloSeed          : %s", self._doEmCaloSeedPT )
+      log.info( "   minTRTonTrk           : %s", self._minTRTonTrkPT )
+      log.info( "   BeamSpotForRoiZwidth  : %s", self._useBeamSpotForRoiZwidth )
+      log.info( "   useSiSPSeededTrackFinder : %s", self._useSiSPSeededTrackFinder )

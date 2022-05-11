@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloRingerPhotonsReader.cxx 752568 2016-06-03 16:03:21Z ssnyder $
 // =============================================================================
+#include "AthenaKernel/getMessageSvc.h"
 #include "CaloRingerPhotonsReader.h"
 #include "StoreGate/ReadHandle.h"
 
@@ -45,8 +45,8 @@ StatusCode CaloRingerPhotonsReader::initialize()
       new BuildCaloRingsFctor<xAOD::PhotonContainer>(
           m_inputPhotonContainerKey.key(),
           m_crBuilder,
-          msg(),
-	  this);
+          Athena::getMessageSvc(),
+          this);
       ATH_CHECK( m_clRingsBuilderPhotonFctor->initialize() );
   }
 

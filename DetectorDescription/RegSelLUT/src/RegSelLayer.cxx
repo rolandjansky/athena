@@ -39,7 +39,7 @@ void RegSelLayer::reset() {
   m_modules.clear();
   m_disabled.clear();
   std::vector<std::vector<const RegSelModule*> >::iterator itr(m_phimaps.begin()) ; 
-  for ( ; itr!=m_phimaps.end() ; itr++ ) (*itr).clear();
+  for ( ; itr!=m_phimaps.end() ; ++itr ) (*itr).clear();
   m_set = false;
 }
 
@@ -168,7 +168,7 @@ void RegSelLayer::setupDisabledModuleList() {
   m_disabled.clear();
   //  std::cout << "RegSelLayer::setupDisabledModuleList() going into loop m_modules.size()=" << m_modules.size() << std::endl;
   std::vector<const RegSelModule*>::const_iterator mptr(m_modules.begin());
-  for ( ; mptr!=m_modules.end() ; mptr++ ) { 
+  for ( ; mptr!=m_modules.end() ; ++mptr ) { 
     if ( !(*mptr)->enabled() ) m_disabled.push_back(*mptr);
   }
   //  std::cout << "RegSelLayer::setupDisabledModuleList() disabled " << m_disabled.size() << " modules" << std::endl;
@@ -280,7 +280,7 @@ void RegSelLayer::getModules(const RegSelRoI& roi, std::vector<const RegSelModul
     for ( int i=firstbin ; i<m_Nphi ; i++ ) { 
       std::vector<const RegSelModule*>::const_iterator mptr(m_phimaps[i].begin());  
       std::vector<const RegSelModule*>::const_iterator eptr(m_phimaps[i].end());  
-      for ( ; mptr!=eptr ; mptr++ ) {
+      for ( ; mptr!=eptr ; ++mptr ) {
 	if ( (*mptr)->enabled() && (*mptr)->inRoI(roi) )  modules.push_back(*mptr); 
       }
     }
@@ -295,7 +295,7 @@ void RegSelLayer::getModules(const RegSelRoI& roi, std::vector<const RegSelModul
 void RegSelLayer::getModules( std::vector<const RegSelModule*>& modules) const { 
   std::vector<const RegSelModule*>::const_iterator mptr(m_modules.begin());  
   std::vector<const RegSelModule*>::const_iterator eptr(m_modules.end());  
-  for ( ; mptr!=eptr ; mptr++ ) if ( (*mptr)->enabled() ) modules.push_back(*mptr); 
+  for ( ; mptr!=eptr ; ++mptr ) if ( (*mptr)->enabled() ) modules.push_back(*mptr); 
 }
 
 
@@ -319,7 +319,7 @@ void RegSelLayer::getDisabledModules(const RegSelRoI& roi, std::vector<const Reg
   std::vector<const RegSelModule*>::const_iterator mptr(m_disabled.begin());
   //  std::vector<const RegSelModule*>::const_iterator mptr(m_modules.begin());
 
-  for ( ; mptr!=m_disabled.end() ; mptr++ ) { 
+  for ( ; mptr!=m_disabled.end() ; ++mptr ) { 
     // is the module inside the RoI ???
     if ( (*mptr)->enabled()==false && (*mptr)->inRoI(roi) ) {
       // then add them to the list 
@@ -354,7 +354,7 @@ void RegSelLayer::createMaps() {
   double trmax = 0;
 
   std::vector<const RegSelModule*>::const_iterator mptr(m_modules.begin());
-  for ( ; mptr!=m_modules.end() ; mptr++ ) {
+  for ( ; mptr!=m_modules.end() ; ++mptr ) {
     
     double phicent = 0.5*((*mptr)->phiMax()+(*mptr)->phiMin());
     

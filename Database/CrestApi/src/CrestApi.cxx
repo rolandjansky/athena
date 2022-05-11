@@ -2666,7 +2666,7 @@ namespace Crest {
     return js;
   }
 
-  void CrestClient::getTagDataInfo(std::string tagname) {
+  void CrestClient::getTagDataInfo(const std::string& tagname) {
     std::cout << std::endl << "test: getTagDataInfo" << std::endl;
 
     try {

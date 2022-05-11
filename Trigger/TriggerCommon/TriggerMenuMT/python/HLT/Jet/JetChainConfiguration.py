@@ -1,10 +1,9 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
+import re
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger(__name__)
-
-import re
 
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
@@ -124,15 +123,6 @@ class JetChainConfiguration(ChainConfigurationBase):
         if self.recoDict["ionopt"]=="ion":
             jetCollectionName, jetDef, jetHICaloHypoStep = self.getJetHICaloHypoChainStep()
             chainSteps.append( jetHICaloHypoStep )
-        elif self.recoDict["trkopt"]=="ftf":
-            if self.trkpresel=="nopresel":
-                clustersKey, caloRecoStep = self.getJetCaloRecoChainStep()
-                chainSteps.append( caloRecoStep )
-            else:
-                clustersKey, preselJetDef, jetPreselStep = self.getJetCaloPreselChainStep()
-                chainSteps.append( jetPreselStep )
-            jetCollectionName, jetDef, jetFSTrackingHypoStep = self.getJetFSTrackingHypoChainStep(clustersKey)
-            chainSteps.append( jetFSTrackingHypoStep )
         elif self.recoDict["trkopt"]=="roiftf":
             # Can't work w/o presel jets to seed RoIs
             if self.trkpresel=="nopresel":
@@ -144,9 +134,23 @@ class JetChainConfiguration(ChainConfigurationBase):
             # Later we should convert this to a preselection-style hypo
             jetRoITrackingHypoStep = self.getJetRoITrackingHypoChainStep(preselJetDef.fullname())
             chainSteps.append( jetRoITrackingHypoStep )
-            # For later
-            # jetCollectionName, jetDef, jetFSTrackingHypoStep = self.getJetFSTrackingHypoChainStep(clustersKey)
-            # chainSteps.append( jetFSTrackingHypoStep )
+        elif self.recoDict["trkopt"]=="ftf":
+            if self.trkpresel=="nopresel":
+                clustersKey, caloRecoStep = self.getJetCaloRecoChainStep()
+                chainSteps.append( caloRecoStep )
+                #Add empty step to align with preselection step
+                roitrkPreselStep = self.getEmptyStep(2, 'RoIFTFEmptyStep')
+                chainSteps.append( roitrkPreselStep )
+            else:
+                clustersKey, preselJetDef, jetPreselStep = self.getJetCaloPreselChainStep()
+                chainSteps.append( jetPreselStep )
+                if re.match(r'.*b\d+', self.trkpresel):
+                    roitrkPreselStep = self.getJetRoiPreselChainStep(preselJetDef.fullname())
+                else:
+                    roitrkPreselStep=self.getEmptyStep(2, 'RoIFTFEmptyStep')
+                chainSteps.append(roitrkPreselStep)
+            jetCollectionName, jetDef, jetFSTrackingHypoStep = self.getJetFSTrackingHypoChainStep(clustersKey)
+            chainSteps.append( jetFSTrackingHypoStep )
         else:
             jetCollectionName, jetDef, jetCaloHypoStep = self.getJetCaloHypoChainStep()
             chainSteps.append( jetCaloHypoStep )
@@ -155,7 +159,10 @@ class JetChainConfiguration(ChainConfigurationBase):
         if self.exotHypo != '' and ("emerging" in self.exotHypo or "trackless" in self.exotHypo):
             EJsStep = self.getJetEJsChainStep(jetCollectionName, self.chainName, self.exotHypo)
             chainSteps+= [EJsStep]
-        
+        elif self.exotHypo != '' and ("calratio" in self.exotHypo):
+            CRStep = self.getJetCRChainStep(jetCollectionName, self.chainName, self.exotHypo)
+            chainSteps+= [self.getEmptyStep(2, 'RoIFTFEmptyStep'), CRStep]
+
         myChain = self.buildChain(chainSteps)
 
         return myChain
@@ -187,10 +194,10 @@ class JetChainConfiguration(ChainConfigurationBase):
     def getJetRoITrackingHypoChainStep(self, jetsInKey):
         jetDefStr = JetRecoCommon.jetRecoDictToString(self.recoDict)
 
-        stepName = "RoIFTFStep_jet_"+jetDefStr
+        stepName = "RoIFTFStep_jet_sel_"+jetDefStr
         from TriggerMenuMT.HLT.Jet.JetMenuSequences import jetRoITrackingHypoMenuSequence
         jetSeq = RecoFragmentsPool.retrieve( jetRoITrackingHypoMenuSequence,
-                                             ConfigFlags, jetsIn=jetsInKey, **self.recoDict )
+                                             ConfigFlags, isPresel=False, jetsIn=jetsInKey, **self.recoDict )
         return ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
 
     def getJetFSTrackingHypoChainStep(self, clustersKey):
@@ -214,10 +221,11 @@ class JetChainConfiguration(ChainConfigurationBase):
         return str(clustersKey), ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
 
     def getJetCaloPreselChainStep(self):
+
         #Find if a a4 or a10 calo jet needs to be used in the pre-selection from the last chain dict
         assert 'recoAlg' in self.trkpresel_parsed_reco.keys(), "Impossible to find \'recoAlg\' key in last chain dictionary for preselection"
         #Want to match now only a4 and a10 in the original reco algorithm. We don't want to use a10sd or a10t in the preselection
-        matched_reco = re.match(r'^a\d?\d?',self.trkpresel_parsed_reco['recoAlg'])
+        matched_reco = re.match(r'^a\d?\d?', self.trkpresel_parsed_reco['recoAlg'])
         assert matched_reco is not None, "Impossible to get matched reco algorithm for jet trigger preselection The reco expression {0} seems to be impossible to be parsed.".format(self.trkpresel_parsed_reco['recoAlg'])
 
         #Getting the outcome of the regex reco option (it should correspond to a4 or a10 depending by which chain you are configuring)
@@ -232,6 +240,30 @@ class JetChainConfiguration(ChainConfigurationBase):
 
         return str(clustersKey), jetDef, ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
 
+    def getJetRoiPreselChainStep(self, jetsInKey):
+
+        #Find if a a4 or a10 calo jet needs to be used in the pre-selection from the last chain dict
+        assert 'recoAlg' in self.trkpresel_parsed_reco.keys(
+        ), "Impossible to find \'recoAlg\' key in last chain dictionary for preselection"
+        #Want to match now only a4 and a10 in the original reco algorithm. We don't want to use a10sd or a10t in the preselection
+        matched_reco = re.match(
+            r'^a\d?\d?', self.trkpresel_parsed_reco['recoAlg'])
+        assert matched_reco is not None, "Impossible to get matched reco algorithm for jet trigger preselection The reco expression {0} seems to be impossible to be parsed.".format(
+            self.trkpresel_parsed_reco['recoAlg'])
+
+        #Getting the outcome of the regex reco option (it should correspond to a4 or a10 depending by which chain you are configuring)
+        preselRecoDict = JetPresel.getPreselRecoDict(matched_reco.group(),roiftf=True)
+
+        assert preselRecoDict['trkopt'] == 'roiftf', 'getJetRoiPreselChainStep: you requested a RoI tracking preselection but the reco dictionary has \'trkopt\' set to {0}'.format(preselRecoDict['trkopt'])
+
+        jetDefStr = JetRecoCommon.jetRecoDictToString(preselRecoDict)
+
+        stepName = "RoIFTFStep_jet_"+jetDefStr
+        from TriggerMenuMT.HLT.Jet.JetMenuSequences import jetRoITrackingHypoMenuSequence
+        jetSeq = RecoFragmentsPool.retrieve(jetRoITrackingHypoMenuSequence,
+                                            ConfigFlags, jetsIn=jetsInKey, isPresel=True, **preselRecoDict)
+
+        return ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
 
     def getJetEJsChainStep(self, jetCollectionName, thresh, exotdictstring):
         from TriggerMenuMT.HLT.Jet.ExoticJetSequences import jetEJsMenuSequence
@@ -261,6 +293,25 @@ class JetChainConfiguration(ChainConfigurationBase):
 
         stepName = "EJsStep_"
         jetSeq = RecoFragmentsPool.retrieve( jetEJsMenuSequence, ConfigFlags, jetsin=jetCollectionName, name=thresh)
+        #from TrigGenericAlgs.TrigGenericAlgsConfig import PassthroughComboHypoCfg
+        chainStep = ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])#, comboHypoCfg=PassthroughComboHypoCfg)
+
+        return chainStep
+
+    def getJetCRChainStep(self, jetCollectionName, thresh, exotdictstring):
+        from TriggerMenuMT.HLT.Jet.ExoticJetSequences import jetCRMenuSequence
+        
+        if 'calratio' in exotdictstring:
+            MinjetlogR = 1.2
+            doBIBremoval = int(0)
+        else:
+            log.error('Misconfiguration of trackless exotic jet chain - need calratio selection')
+            exit(1)
+
+        log.debug("Running exotic jets with MinjetlogR: " + str(MinjetlogR) + "\t BIB rm " + str(doBIBremoval) + "\thypo: " + exotdictstring)
+
+        stepName = "CRStep_"+self.chainName
+        jetSeq = RecoFragmentsPool.retrieve( jetCRMenuSequence, ConfigFlags, jetsin=jetCollectionName, name=thresh)
         #from TrigGenericAlgs.TrigGenericAlgsConfig import PassthroughComboHypoCfg
         chainStep = ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])#, comboHypoCfg=PassthroughComboHypoCfg)
 

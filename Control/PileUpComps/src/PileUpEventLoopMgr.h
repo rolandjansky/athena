@@ -14,7 +14,7 @@
 #include "GaudiKernel/MinimalEventLoopMgr.h"
 
 // Athena headers
-#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #include "PileUpTools/PileUpStream.h"
 
 // Gaudi headers
@@ -33,13 +33,17 @@ class IIncidentSvc;
 class PileUpMergeSvc;
 class StoreGateSvc;
 class EventContext;
+class EventID;
+class IEvtIdModifierSvc;
 
 /** @class PileUpEventLoopMgr
     @brief The ATLAS event loop for pile-up applications.
 */
 
 class PileUpEventLoopMgr : virtual public IEventSeek,
-                           public MinimalEventLoopMgr   {
+                           public MinimalEventLoopMgr,
+                           public AthMessaging
+{
 public:
 
   /// Standard Constructor
@@ -64,13 +68,14 @@ public:
   /// Return the current event count
   virtual int curEvent() const;
 
+  virtual void modifyEventContext(EventContext& ctx, const EventID& eID, bool consume_modifier_stream);
+
   virtual StatusCode queryInterface(const InterfaceID& riid,
                                     void** ppvInterface);
 
-  /// Log a message using the Athena controlled logging system
-  MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-  /// Check whether the logging system is active at the provided verbosity level
-  bool msgLvl( MSG::Level lvl ) { return m_msg.get().level() <= lvl; }
+  using AthMessaging::msg;
+  using AthMessaging::msgLvl;
+
 
 private:
   /// Reference to the Algorithm Execution State Svc
@@ -99,6 +104,10 @@ private:
 
   /// output store
   ServiceHandle<StoreGateSvc> m_evtStore;              // overlaid (output) event store
+  
+  typedef ServiceHandle<IEvtIdModifierSvc> IEvtIdModifierSvc_t;
+  /// @property Reference to the EventID modifier Service
+  IEvtIdModifierSvc_t m_evtIdModSvc;
 
   //unsigned int m_nInputs;
   //unsigned int m_nStores;
@@ -145,9 +154,6 @@ private:
   /// current run number
   uint32_t m_currentRun;
   bool m_firstRun;
-
-  /// Private message stream member
-  mutable Athena::MsgStreamMember m_msg;
 
   /// max bunch crossings per orbit
   unsigned int m_maxBunchCrossingPerOrbit;

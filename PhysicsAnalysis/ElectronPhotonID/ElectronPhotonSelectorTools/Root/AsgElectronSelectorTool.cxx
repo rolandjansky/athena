@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -78,8 +78,7 @@ AsgElectronSelectorTool::AsgElectronSelectorTool( const std::string& myname ) :
 // Standard destructor
 //=============================================================================
 AsgElectronSelectorTool::~AsgElectronSelectorTool()
-{
-}
+= default;
 
 
 //=============================================================================
@@ -353,9 +352,9 @@ asg::AcceptData AsgElectronSelectorTool::accept( const EventContext& ctx, const 
     notFoundList += "ambiguityType ";
   }
 
-  nSiHitsPlusDeadSensors = ElectronSelectorHelpers::numberOfSiliconHitsAndDeadSensors(track);
-  nPixHitsPlusDeadSensors = ElectronSelectorHelpers::numberOfPixelHitsAndDeadSensors(track);
-  passBLayerRequirement = ElectronSelectorHelpers::passBLayerRequirement(track);
+  nSiHitsPlusDeadSensors = ElectronSelectorHelpers::numberOfSiliconHitsAndDeadSensors(*track);
+  nPixHitsPlusDeadSensors = ElectronSelectorHelpers::numberOfPixelHitsAndDeadSensors(*track);
+  passBLayerRequirement = ElectronSelectorHelpers::passBLayerRequirement(*track);
 
   // calculate the output of the selector tool
   double mvaScore = calculate(ctx, eg, mu);
@@ -582,8 +581,8 @@ std::vector<float> AsgElectronSelectorTool::calculateMultipleOutputs(const Event
 
   EoverP =  energy * std::abs(trackqoverp);
 
-  nPixHitsPlusDeadSensors = ElectronSelectorHelpers::numberOfPixelHitsAndDeadSensors(track);
-  nSCTHitsPlusDeadSensors = ElectronSelectorHelpers::numberOfSCTHitsAndDeadSensors(track);
+  nPixHitsPlusDeadSensors = ElectronSelectorHelpers::numberOfPixelHitsAndDeadSensors(*track);
+  nSCTHitsPlusDeadSensors = ElectronSelectorHelpers::numberOfSCTHitsAndDeadSensors(*track);
 
   // retrieve Calorimeter variables
   // reta = e237/e277
@@ -692,7 +691,8 @@ std::vector<float> AsgElectronSelectorTool::calculateMultipleOutputs(const Event
 
   // Return a vector of all outputs of the MVA
   std::vector<float> mvaOutputs;
-  for (int i = 0; i < mvaScores.rows(); i++){
+  mvaOutputs.reserve(mvaScores.rows());
+  for (int i = 0; i < mvaScores.rows(); i++) {
     mvaOutputs.push_back(mvaScores(i, 0));
   }
 
@@ -841,7 +841,7 @@ double AsgElectronSelectorTool::combineOutputs( const std::vector<float>& mvaSco
 
 
 // Gets the Discriminant Eta bin [0,s_fnDiscEtaBins-1] given the eta
-unsigned int AsgElectronSelectorTool::getDiscEtaBin( double eta ) const
+unsigned int AsgElectronSelectorTool::getDiscEtaBin( double eta ) 
 {
   const unsigned int nEtaBins = s_fnDiscEtaBins;
   const double etaBins[nEtaBins] = {0.1, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47};
@@ -852,7 +852,7 @@ unsigned int AsgElectronSelectorTool::getDiscEtaBin( double eta ) const
 }
 
 // Gets the Discriminant Et bin (MeV) [0,s_fnDiscEtBins-1]
-unsigned int AsgElectronSelectorTool::getDiscEtBin( double et ) const
+unsigned int AsgElectronSelectorTool::getDiscEtBin( double et ) 
 {
   static const double GeV = 1000;
   const unsigned int nEtBins = s_fnDiscEtBins;
@@ -866,7 +866,7 @@ unsigned int AsgElectronSelectorTool::getDiscEtBin( double et ) const
 
 // Note that this will only perform the cut interpolation up to ~45 GeV, so
 // no smoothing is done above this for the high ET LH binning yet
-double AsgElectronSelectorTool::interpolateCuts( const std::vector<double>& cuts,double et,double eta ) const
+double AsgElectronSelectorTool::interpolateCuts( const std::vector<double>& cuts,double et,double eta ) 
 {
   const int etbin = getDiscEtBin(et);
   const int etabin = getDiscEtaBin(eta);

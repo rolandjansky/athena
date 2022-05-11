@@ -54,8 +54,7 @@ InDet::TRT_TrackExtensionToolCosmics::TRT_TrackExtensionToolCosmics
 ///////////////////////////////////////////////////////////////////
 
 InDet::TRT_TrackExtensionToolCosmics::~TRT_TrackExtensionToolCosmics()
-{
-}
+= default;
 
 ///////////////////////////////////////////////////////////////////
 // Initialisation
@@ -495,7 +494,6 @@ InDet::TRT_TrackExtensionToolCosmics::findBoundarySurface(const Trk::TrackParame
 
   const EventContext& ctx = Gaudi::Hive::currentContext();
   const Trk::TrackParameters* test=m_extrapolator->extrapolateDirectly(ctx,
-                                                                       *m_propagator,
                                                                        par,
                                                                        *event_data.m_trtcylinder,
                                                                        dir,true,Trk::muon).release();
@@ -505,7 +503,6 @@ InDet::TRT_TrackExtensionToolCosmics::findBoundarySurface(const Trk::TrackParame
   }
 
   test=m_extrapolator->extrapolateDirectly(ctx,
-                                           *m_propagator,
                                            par,
                                            *event_data.m_trtdiscA,dir,true,Trk::muon).release();
   if(test){
@@ -513,8 +510,7 @@ InDet::TRT_TrackExtensionToolCosmics::findBoundarySurface(const Trk::TrackParame
     return event_data.m_trtdiscA;
   }
 
-  test=m_extrapolator->extrapolateDirectly(ctx,*
-                                           m_propagator,
+  test=m_extrapolator->extrapolateDirectly(ctx,
                                            par,
                                            *event_data.m_trtdiscC,dir,true,Trk::muon).release();
   if(test){

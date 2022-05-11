@@ -18,6 +18,9 @@ namespace MuonGM {
         int nlayers;
         double gasThickness;
         double pcbThickness;
+        double pcbThickness150;
+        double pcbThickness200;
+        double coverThickness;
         double f4Thickness;
         double f5Thickness;
         double f6Thickness;
@@ -32,7 +35,7 @@ namespace MuonGM {
     };
 
     sTGC_Technology::sTGC_Technology(std::string s)
-        : Technology(s), thickness(0.), nlayers(0), gasThickness(0.), pcbThickness(0.), f4Thickness(0.), f5Thickness(0.), f6Thickness(0.), geoLevel(0) {}
+        : Technology(s), thickness(0.), nlayers(0), gasThickness(0.), pcbThickness(0.), pcb150Thickness(0.), pcb200Thickness(0.), coverThickness(0.), f4Thickness(0.), f5Thickness(0.), f6Thickness(0.), geoLevel(0) {}
 
     double sTGC_Technology::Thickness() {
         // thickness=nlayers*(gasThickness+pcbThickness) + pcbThickness;

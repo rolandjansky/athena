@@ -78,7 +78,7 @@ MuonDetectorTool = GeoModelSvc.DetectorTools[ "MuonDetectorTool" ]
 MuonDetectorTool.UseConditionDb = 1
 MuonDetectorTool.OutputLevel=VERBOSE
 
-from AthenaServices.AthenaServicesConf import AtRanluxGenSvc
+from RngComps.RngCompsConf import AtRanluxGenSvc
 ServiceMgr += AtRanluxGenSvc()
 ServiceMgr.AtRanluxGenSvc.Seeds = ["SINGLE 2040160768 443921183"]
 

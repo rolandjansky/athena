@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PtFromAlphaBeta.h"
@@ -31,7 +31,7 @@ StatusCode TrigL2MuonSA::PtFromAlphaBeta::initialize()
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-void TrigL2MuonSA::PtFromAlphaBeta::setMCFlag(BooleanProperty use_mcLUT,
+void TrigL2MuonSA::PtFromAlphaBeta::setMCFlag(const BooleanProperty& use_mcLUT,
 					      const TrigL2MuonSA::PtEndcapLUTSvc* ptEndcapLUTSvc)
 {
   m_use_mcLUT = use_mcLUT;

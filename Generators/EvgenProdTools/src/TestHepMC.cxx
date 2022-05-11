@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef XAOD_ANALYSIS
 
@@ -90,7 +90,7 @@ TestHepMC::TestHepMC(const std::string& name, ISvcLocator* pSvcLocator)
   m_unstablePartNoDecayVtxCheckRate = 0;
   m_undecayedPi0CheckRate = 0;
   m_Status1ShortLifetime  = 0;
-  m_vtxDisplacedMoreThan_1m_CheckRateCnt = 0;
+  m_vtxDisplacedMoreThan_1m_CheckRate = 0;
   m_undisplacedDecayDaughtersOfDisplacedVtxCheckRate = 0;
   m_nonG4_energyCheckRate = 0;
   m_unknownPDGIDCheckRate = 0;
@@ -266,11 +266,7 @@ StatusCode TestHepMC::execute() {
   bool filter_pass = true;
 
   // Loop over all events in McEventCollection
-  /// @todo Use C++ for(:)
-  for (McEventCollection::const_iterator itr = events_const()->begin(); itr != events_const()->end(); ++itr) {
-    //const HepMC::GenEvent* evt = *itr;
-    HepMC::GenEvent* evt = const_cast<HepMC::GenEvent*>(*itr);
-
+  for(const HepMC::GenEvent* evt : *events_const()) {
     double totalPx = 0;
     double totalPy = 0;
     double totalPz = 0;
@@ -292,7 +288,8 @@ StatusCode TestHepMC::execute() {
         // for debugging purposes only -> set a dummy cross-section to make TestHepMC happy
         std::shared_ptr<HepMC3::GenCrossSection> dummy_xsec = std::make_shared<HepMC3::GenCrossSection>();
         dummy_xsec->set_cross_section(1.0,0.0);
-        evt->set_cross_section(dummy_xsec);
+	HepMC::GenEvent* evt_nonconst = const_cast<HepMC::GenEvent*>(evt);
+        evt_nonconst->set_cross_section(dummy_xsec);
       }
       else {
         ATH_MSG_WARNING("-> Will report this as failure.");
@@ -344,6 +341,7 @@ StatusCode TestHepMC::execute() {
     // Check vertices
     int vtxDisplacedstatuscode12CheckRateCnt=0;
     int vtxDisplacedstatuscodenot12CheckRateCnt=0;
+    int vtxDisplacedMoreThan_1m_CheckRateCnt=0;
 #ifdef HEPMC3
     for (auto vtx: evt->vertices()) {
 #else
@@ -359,7 +357,7 @@ StatusCode TestHepMC::execute() {
         ATH_MSG_WARNING("NaN (Not A Number) or inf found in the event record vertex positions");
         
         ++m_vtxNANandINFCheckRate;
-        if (m_dumpEvent) HepMC::Print::line(std::cout,**itr);
+        if (m_dumpEvent) HepMC::Print::line(std::cout,*evt);
         if (m_vtxNaNTest) {
           filter_pass = false;
         }
@@ -373,7 +371,7 @@ StatusCode TestHepMC::execute() {
       const double dist = std::sqrt(dist2); // in mm
       if (dist2 > m_max_dist*m_max_dist) {
         ATH_MSG_WARNING("Found vertex position displaced by more than " << m_max_dist << "mm: " << dist << "mm");
-        ++m_vtxDisplacedMoreThan_1m_CheckRateCnt;
+        ++vtxDisplacedMoreThan_1m_CheckRateCnt;
         
         if (m_vtxDisplacedTest) {
           filter_pass = false;
@@ -443,6 +441,7 @@ StatusCode TestHepMC::execute() {
     } // Loop over all vertices
     if (vtxDisplacedstatuscode12CheckRateCnt>0) ++m_vtxDisplacedstatuscode12CheckRate;
     if (vtxDisplacedstatuscodenot12CheckRateCnt>0) ++m_vtxDisplacedstatuscodenot12CheckRate;
+    if (vtxDisplacedMoreThan_1m_CheckRateCnt>0) ++m_vtxDisplacedMoreThan_1m_CheckRate;
 
     // Check particles
     for (auto pitr: *evt) {
@@ -583,7 +582,7 @@ StatusCode TestHepMC::execute() {
                             << "Event #" << evt->event_number() << ", "
                             << "Barcode of the original particle = " << pbarcode);
             ++m_decayCheckRate;
-            if (m_dumpEvent) HepMC::Print::line(std::cout,**itr);
+            if (m_dumpEvent) HepMC::Print::line(std::cout,*evt);
           }
           //most taus should not decay immediately
           const HepMC::FourVector tau_decaypos = vtx->position();
@@ -593,7 +592,7 @@ StatusCode TestHepMC::execute() {
         } else {
           ATH_MSG_WARNING("UNDECAYED PARTICLE WITH PDG_ID = " << m_pdg);
           ++m_decayCheckRate;
-          if (m_dumpEvent) HepMC::Print::line(std::cout,**itr);
+          if (m_dumpEvent) HepMC::Print::line(std::cout,*evt);
         }
       } // End of checks for specific particle (tau by default)
 
@@ -652,7 +651,7 @@ StatusCode TestHepMC::execute() {
       if (m_doHist){
         m_h_energyImbalance->Fill(lostE*1.E-03);
       }
-      if (m_dumpEvent) HepMC::Print::line(std::cout,**itr);
+      if (m_dumpEvent) HepMC::Print::line(std::cout,*evt);
       if (m_energyImbalanceTest) {
         filter_pass = false;
       }
@@ -667,7 +666,7 @@ StatusCode TestHepMC::execute() {
         m_h_momentumImbalance_py->Fill(std::abs(totalPy)*1.E-03);
         m_h_momentumImbalance_pz->Fill(std::abs(totalPz)*1.E-03);
       }
-      if (m_dumpEvent) HepMC::Print::line(std::cout,**itr);
+      if (m_dumpEvent) HepMC::Print::line(std::cout,*evt);
       if (m_momImbalanceTest) {
         filter_pass = false;
       }
@@ -682,7 +681,7 @@ StatusCode TestHepMC::execute() {
         ss << " " << *b;
       }
       ATH_MSG_WARNING(ss.str());
-      if (m_dumpEvent) HepMC::Print::line(std::cout,**itr);
+      if (m_dumpEvent) HepMC::Print::line(std::cout,*evt);
       if (m_negativeEnergyTest) {
         filter_pass = false;
       }
@@ -697,7 +696,7 @@ StatusCode TestHepMC::execute() {
         ss << " " << *b;
       }
       ATH_MSG_WARNING(ss.str());
-      if (m_dumpEvent) HepMC::Print::line(std::cout,**itr);
+      if (m_dumpEvent) HepMC::Print::line(std::cout,*evt);
       if (m_tachyonsTest) {
         filter_pass = false;
       }
@@ -712,7 +711,7 @@ StatusCode TestHepMC::execute() {
         ss << " " << *b;
       }
       ATH_MSG_WARNING(ss.str());
-      if (m_dumpEvent) HepMC::Print::line(std::cout,**itr);
+      if (m_dumpEvent) HepMC::Print::line(std::cout,*evt);
       if (m_unstableNoVtxTest) {
         filter_pass = false;
       }
@@ -727,7 +726,7 @@ StatusCode TestHepMC::execute() {
         ss << " " << *b;
       }
       ATH_MSG_WARNING(ss.str());
-      if (m_dumpEvent) HepMC::Print::line(std::cout,**itr);
+      if (m_dumpEvent) HepMC::Print::line(std::cout,*evt);
       if (m_pi0NoVtxTest) {
         filter_pass = false;
       }
@@ -742,7 +741,7 @@ StatusCode TestHepMC::execute() {
         ss << " " << *b;
       }
       ATH_MSG_WARNING(ss.str());
-      if (m_dumpEvent) HepMC::Print::line(std::cout,**itr);
+      if (m_dumpEvent) HepMC::Print::line(std::cout,*evt);
       if (m_undisplacedDaughtersTest) {
         filter_pass = false;
       }
@@ -781,7 +780,7 @@ StatusCode TestHepMC::finalize() {
   ATH_MSG_INFO(" Event rate with NaN (Not A Number) or inf found in the event record vertex positions = " << m_vtxNANandINFCheckRate*100.0/double(m_nPass + m_nFail) << "%");
   if (!m_vtxNaNTest) ATH_MSG_INFO(" The check for NaN or inf in vtx. record is switched off, so is not included in the final TestHepMC efficiency ");
   ATH_MSG_INFO(" Event rate with vertices displaced more than " << m_max_dist_trans << "~mm in transverse direction for particles with status code other than 1 and 2 = " << m_vtxDisplacedstatuscodenot12CheckRate*100.0/double(m_nPass + m_nFail) << "% (not included in test efficiency)");
-  ATH_MSG_INFO(" Event rate with vertices displaced more than " << m_max_dist << "~mm = " << m_vtxDisplacedMoreThan_1m_CheckRateCnt*100.0/double(m_nPass + m_nFail) << "%");
+  ATH_MSG_INFO(" Event rate with vertices displaced more than " << m_max_dist << "~mm = " << m_vtxDisplacedMoreThan_1m_CheckRate*100.0/double(m_nPass + m_nFail) << "%");
   if (!m_vtxDisplacedTest) ATH_MSG_INFO(" The check for displaced vertices is switched off, so is not included in the final TestHepMC efficiency ");
   ATH_MSG_INFO(" Event rate with NAN (Not A Number) or inf found in particle momentum values = " << m_partMomentumNANandINFCheckRate*100.0/double(m_nPass + m_nFail) << "%");
   if (!m_momNaNTest) ATH_MSG_INFO(" The check for NaN/inf in momentum record is switched off, so is not included in the final TestHepMC efficiency ");

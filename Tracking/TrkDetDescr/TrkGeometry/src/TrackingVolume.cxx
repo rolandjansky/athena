@@ -43,6 +43,7 @@
 #include "TrkDetDescrUtils/NavBinnedArray1D.h"
 // CLHEP
 #include "GeoPrimitives/GeoPrimitives.h"
+#include <utility>
 
 Trk::TrackingVolume::TrackingVolume()
   : Volume()
@@ -929,7 +930,7 @@ Trk::TrackingVolume::boundarySurfaces() const
 const Trk::BoundarySurface<Trk::TrackingVolume>*
 Trk::TrackingVolume::boundarySurface(const ObjectAccessor::value_type& oa) const
 {
-  return (m_boundarySurfaces->operator[](oa)).get();
+  return (std::as_const(*m_boundarySurfaces)[oa]).get();
 }
 
 void
@@ -1169,8 +1170,7 @@ Trk::TrackingVolume::moveVolume(Amg::Transform3D& shift)
     std::make_unique<Amg::Vector3D>(m_transform->translation()));
 }
 
-Trk::TrackingVolume* Trk::TrackingVolume::cloneTV
-ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& transform) const
+Trk::TrackingVolume* Trk::TrackingVolume::cloneTV (Amg::Transform3D& transform) const
 {
   // clone the mother volume
   Trk::Volume* vol = Trk::Volume::clone();
@@ -1322,38 +1322,42 @@ Trk::TrackingVolume::closest(const Amg::Vector3D& pos,
 }
 
 void Trk::TrackingVolume::moveTV
-ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& transform) const
+ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& transform)
 {
 
-  const_cast<Trk::TrackingVolume*>(this)->moveVolume(transform);
+  this->moveVolume(transform);
 
   // confined 'ordered' layers
-  const Trk::BinnedArray<Trk::Layer>* confLayers = confinedLayers();
+  Trk::BinnedArray<Trk::Layer>* confLayers = confinedLayers();
   if (confLayers)
-    for (const Trk::Layer* clayIter : confLayers->arrayObjects())
-      (const_cast<Trk::Layer*>(clayIter))->moveLayer(transform);
+    for (Trk::Layer* clayIter : confLayers->arrayObjects()){
+      clayIter->moveLayer(transform);
+    }
 
   // confined 'unordered' layers
   const std::vector<const Trk::Layer*>* confArbLayers =
     confinedArbitraryLayers();
   if (confArbLayers)
-    for (const Trk::Layer* calayIter : (*confArbLayers))
+    for (const Trk::Layer* calayIter : (*confArbLayers)){
       (const_cast<Trk::Layer*>(calayIter))->moveLayer(transform);
+    }
 
   // confined volumes
-  const Trk::BinnedArray<const Trk::TrackingVolume>* confVolumes = confinedVolumes();
+  Trk::BinnedArray<const Trk::TrackingVolume>* confVolumes = confinedVolumes();
   if (confVolumes)
     // retrieve array objects and apply the transform
-    for (const auto& cVolumesIter : confVolumes->arrayObjects())
-      cVolumesIter->moveTV(transform);
+    for (const Trk::TrackingVolume* cVolumesIter : confVolumes->arrayObjects()){
+      (const_cast<Trk::TrackingVolume*>(cVolumesIter))->moveTV(transform);
+    }
 
   // confined unordered volumes
   const std::vector<const Trk::TrackingVolume*>* confDenseVolumes =
     confinedDenseVolumes();
   if (confDenseVolumes)
     // retrieve array objects and apply the transform
-    for (const auto& cVolumesIter : (*confDenseVolumes))
-      cVolumesIter->moveTV(transform);
+    for (const Trk::TrackingVolume* cVolumesIter : (*confDenseVolumes)){
+      (const_cast<Trk::TrackingVolume*>(cVolumesIter))->moveTV(transform);
+    }
 }
 
 void Trk::TrackingVolume::synchronizeLayers

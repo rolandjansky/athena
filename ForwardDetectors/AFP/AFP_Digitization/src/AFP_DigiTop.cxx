@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AFP_Digitization/AFP_DigiTop.h"
@@ -14,12 +14,14 @@ StatusCode AFP_DigiTop::initialize()
 {
   // intitialize store gate active store
   ATH_CHECK(m_digTool.retrieve());
-  ATH_MSG_DEBUG ( "Retrieved AFP_PileUpTool." );
+  ATH_MSG_INFO ( "Retrieved AFP_PileUpTool." );
   return StatusCode::SUCCESS;
 }
 
 StatusCode AFP_DigiTop::execute()
 {
   ATH_MSG_DEBUG ( "AFP_DigiTop::execute" );
-  return m_digTool->processAllSubEvents(Gaudi::Hive::currentContext());
+  CHECK ( m_digTool->processAllSubEvents(Gaudi::Hive::currentContext()) );
+  return StatusCode::SUCCESS;
+
 }

@@ -30,7 +30,7 @@ namespace TRTCond
       bool operator==(const StrawStatus& rhs) const {
       	return m_status==rhs.m_status; }
       /** print status */
-      void print() const { std::cout << "dummy print from StrawStatus.h " << std::endl ; }
+      void print() const { std::cout << "dummy print from StrawStatus.h " << m_status << std::endl ; }
     } ;
     
 }

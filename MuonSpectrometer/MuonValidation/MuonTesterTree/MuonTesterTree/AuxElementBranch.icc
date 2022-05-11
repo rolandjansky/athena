@@ -1,0 +1,74 @@
+/*
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef MUONTESTER_AUXELEMENTBRANCH_IXX
+#define MUONTESTER_AUXELEMENTBRANCH_IXX
+
+#include <MuonTesterTree/AuxElementBranch.h>
+//########################################################################################
+//                      AuxElementBranch
+//########################################################################################
+template <class T> void AuxElementBranch<T>::setAccessor(const std::string& name) {
+    if (!initialized()) m_acc = SG::AuxElement::ConstAccessor<T>(name);
+}
+template <class T> void AuxElementBranch<T>::push_back(const SG::AuxElement* p) {
+    if (p != nullptr) push_back(*p);
+}
+template <class T> void AuxElementBranch<T>::operator+=(const SG::AuxElement& p) { push_back(p); }
+template <class T> void AuxElementBranch<T>::operator+=(const SG::AuxElement* p) { push_back(p); }
+template <class T> void AuxElementBranch<T>::setDefault(const T& val) {
+    VectorBranch<T>::setDefault(val);
+    m_hasDefault = true;
+}
+template <class T> void AuxElementBranch<T>::push_back(const SG::AuxElement& p) {
+    if (m_acc.isAvailable(p))
+        VectorBranch<T>::push_back(m_acc(p));
+    else if (m_hasDefault) {
+        VectorBranch<T>::push_back(getDefault());
+    } else {
+        throw std::runtime_error("Decoration is not available to fill " + name());
+    }
+}
+template <class T>
+AuxElementBranch<T>::AuxElementBranch(TTree* t, const std::string& var_name, const std::string& acc) :
+    VectorBranch<T>(t, var_name), m_acc(acc.empty() ? var_name : acc), m_hasDefault(false) {}
+template <class T>
+AuxElementBranch<T>::AuxElementBranch(MuonTesterTree& t, const std::string& var_name, const std::string& acc) :
+    VectorBranch<T>(t, var_name), m_acc(acc.empty() ? var_name : acc), m_hasDefault(false) {}
+
+//########################################################################################
+//                      ParticleVariableBranch
+//########################################################################################
+template <class T>
+ParticleVariableBranch<T>::ParticleVariableBranch(TTree* t, const std::string& var_name, const std::string& acc) :
+    AuxElementBranch<T>(t, var_name, acc) {}
+template <class T>
+ParticleVariableBranch<T>::ParticleVariableBranch(MuonTesterTree& t, const std::string& var_name, const std::string& acc) :
+    AuxElementBranch<T>(t, var_name, acc) {}
+template <class T> void ParticleVariableBranch<T>::push_back(const xAOD::IParticle* p) { AuxElementBranch<T>::push_back(p); }
+template <class T> void ParticleVariableBranch<T>::push_back(const xAOD::IParticle& p) { AuxElementBranch<T>::push_back(p); }
+template <class T> void ParticleVariableBranch<T>::operator+=(const xAOD::IParticle* p) { AuxElementBranch<T>::push_back(p); }
+template <class T> void ParticleVariableBranch<T>::operator+=(const xAOD::IParticle& p) { AuxElementBranch<T>::push_back(p); }
+
+//########################################################################################
+//                      ParticleVariableBranchGeV
+//########################################################################################
+template <class T>
+ParticleVariableBranchGeV<T>::ParticleVariableBranchGeV(TTree* t, const std::string& var_name, const std::string& acc) :
+    ParticleVariableBranch<T>(t, var_name, acc) {}
+
+template <class T>
+ParticleVariableBranchGeV<T>::ParticleVariableBranchGeV(MuonTesterTree& t, const std::string& var_name, const std::string& acc) :
+    ParticleVariableBranch<T>(t, var_name, acc) {}
+
+template <class T> void ParticleVariableBranchGeV<T>::push_back(const xAOD::IParticle* p) {
+    if (p) push_back(*p);
+}
+template <class T> void ParticleVariableBranchGeV<T>::push_back(const xAOD::IParticle& p) {
+    size_t s = size();
+    ParticleVariableBranch<T>::push_back(p);
+    constexpr double MeVtoGeV = 1.e-3;
+    get(s) *= MeVtoGeV;
+}
+#endif

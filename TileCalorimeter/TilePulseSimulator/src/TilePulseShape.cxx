@@ -89,7 +89,7 @@ void TilePulseShape::setPulseShape(const std::vector<double>& shapevec)
 //
 //_________________________________________________________________________
 // This function gives a pulse shaper for the 3-in-1 FEB
-double TilePulseShape::eval(double x, bool useSpline)
+double TilePulseShape::eval(double x, bool useSpline, bool useUndershoot)
 {
 
   //=== make sure pulseshape is available
@@ -113,8 +113,13 @@ double TilePulseShape::eval(double x, bool useSpline)
   else if(idx>=n-1){
     //=== right out of bounds, return rightmost value
 //    y = (_deformedShape->GetY())[n-1]; 
-    y = 0;
-    (*m_log) << MSG::DEBUG << "Right out of bounds. Replacing y = " << (m_deformedShape->GetY())[0] << " with y = 0. (idx = " << idx << ", x = " << x << ")" << endmsg;
+    if(useUndershoot){
+      y = 0.00196 * (1 - exp(- x / 20664.59) ) - 0.00217;
+    }
+    else{
+      y = 0;
+      (*m_log) << MSG::DEBUG << "Right out of bounds. Replacing y = " << (m_deformedShape->GetY())[0] << " with y = 0. (idx = " << idx << ", x = " << x << ")" << endmsg;
+    }
   }
   else{
     //=== linear interpolation

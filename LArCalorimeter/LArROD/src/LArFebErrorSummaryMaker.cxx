@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArROD/LArFebErrorSummaryMaker.h"
+#include "LArFebErrorSummaryMaker.h"
 
 #include "LArRawEvent/LArFebErrorSummary.h" 
 #include "LArIdentifier/LArOnlineID.h" 
@@ -193,16 +193,16 @@ StatusCode LArFebErrorSummaryMaker::execute(const EventContext& ctx) const
       if (rodstatusbits[6])
 	errw = errw | (1<< LArFebErrorSummary::Parity);
 	
-      if( rodstatusbits[2] | rodstatusbits[7])
+      if( rodstatusbits[2] || rodstatusbits[7])
 	errw = errw | (1<< LArFebErrorSummary::BCID);
 	
-      if(rodstatusbits[3] | rodstatusbits[8])
+      if(rodstatusbits[3] || rodstatusbits[8])
 	errw = errw | (1<< LArFebErrorSummary::SampleHeader);
 	
-      if( ( rodstatusbits[1] | rodstatusbits[9] ) && ! masked(int_id, m_knownEvtId) )
+      if( ( rodstatusbits[1] || rodstatusbits[9] ) && ! masked(int_id, m_knownEvtId) )
 	errw = errw | (1<< LArFebErrorSummary::EVTID);
 
-      if( ( rodstatusbits[4] | rodstatusbits[11] | rodstatusbits[12]) && ! masked(int_id, m_knownSCACStatus) )
+      if( ( rodstatusbits[4] || rodstatusbits[11] || rodstatusbits[12]) && ! masked(int_id, m_knownSCACStatus) )
 	errw = errw | (1<< LArFebErrorSummary::ScacStatus);
 
       if (scaOutOfRange)

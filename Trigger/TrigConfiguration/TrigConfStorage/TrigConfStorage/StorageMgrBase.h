@@ -43,10 +43,10 @@ namespace TrigConf {
       StorageMgrBase();
      
       /** @brief destructor */
-      virtual ~StorageMgrBase();
+      virtual ~StorageMgrBase() override;
 
       // setting log level of all loaders
-      virtual void setLevel(MSGTC::Level lvl) = 0;
+      virtual void setLevel(MSGTC::Level lvl) override = 0;
 
    protected:
 

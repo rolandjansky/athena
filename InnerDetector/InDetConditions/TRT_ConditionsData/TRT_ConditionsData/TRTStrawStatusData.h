@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////
@@ -12,7 +12,8 @@
 
 #include "AthenaKernel/CLASS_DEF.h"
 #include "Identifier/Identifier.h"
-#include <map>
+#include "Identifier/IdentifierHash.h"
+#include <vector>
 
 class TRTStrawStatusData{
 
@@ -23,19 +24,14 @@ public:
   //destructor
   virtual ~TRTStrawStatusData();
 
-   void setStatus(const Identifier, const int);
-  int findStatus(const Identifier) const;
-  //should return vector of masked/noisy/dead channels according to 
-  //the status selected (int status is, masked/noisy/dead = 1/2/3)
-
-  std::vector<Identifier> scan_entries(int ) const;
+  void setStatus(const IdentifierHash& hashID, const int);
+  int  findStatus(const IdentifierHash& hashID) const;
+  int  size() const { return m_status.size();}
 
 private:
 
-  typedef std::map<Identifier, int> statusMap;
- statusMap m_statMap;
-
-
+  std::vector<int> m_status;
+  
 };
 
 CLASS_DEF( TRTStrawStatusData , 247680275 , 1 )

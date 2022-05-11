@@ -31,7 +31,7 @@ class  TileWienerFilterWeights {
 
   //variables
   int  m_Luminosity;
-  int  m_NSamples_Phys;
+  int  m_NSamples_Phys = 0;
   bool m_loaded;
   TileWienerFilterWeightsStruct * m_weights;
 

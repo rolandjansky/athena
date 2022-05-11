@@ -26,20 +26,24 @@
 #include "AthContainers/AuxElement.h"
 
 #include "Math/GenVector/VectorUtil.h"
+#include "Math/Vector2D.h"
 
 
 using TrigCompositeUtils::Decision;
 using TrigCompositeUtils::DecisionContainer;
 using TrigCompositeUtils::DecisionID;
 using TrigCompositeUtils::DecisionIDContainer;
+using ROOT::Math::XYVector;
 
 
-const std::vector<std::vector<double>> TrigBmuxComboHypo::s_trkMass{
-  {PDG::mKaon,   PDG::mPion},                          // {D0.K-, D0.pi+}
-  {PDG::mKaon,   PDG::mKaon, PDG::mPion},              // {D_s+.K+, D_s+.K-, D_s+.pi+}
-  {PDG::mKaon,   PDG::mPion, PDG::mPion},              // {D+.K-, D+.pi+, D+.pi+}
-  {PDG::mProton, PDG::mKaon, PDG::mPion}               // {Lambda_c+.p, Lambda_c+.K-, Lambda_c+.pi+}
+const std::vector<std::vector<std::vector<double>>> TrigBmuxComboHypo::s_trkMass{
+  {{PDG::mMuon}, {PDG::mKaon, PDG::mPion}},               // {mu-}, {D0.K-, D0.pi+}
+  {{PDG::mMuon, PDG::mPion}, {PDG::mKaon, PDG::mPion}},   // {mu-, D*+.pi+}, {D*+.D0.K-, D*+.D0.pi+}
+  {{PDG::mMuon}, {PDG::mKaon, PDG::mKaon, PDG::mPion}},   // {mu-}, {D_s+.K+, D_s+.K-, D_s+.pi+}
+  {{PDG::mMuon}, {PDG::mKaon, PDG::mPion, PDG::mPion}},   // {mu-}, {D+.K-, D+.pi+, D+.pi+}
+  {{PDG::mMuon}, {PDG::mProton, PDG::mKaon, PDG::mPion}}  // {mu-}, {Lambda_c+.p, Lambda_c+.K-, Lambda_c+.pi+}
 };
+
 
 TrigBmuxComboHypo::TrigBmuxComboHypo(const std::string& name, ISvcLocator* pSvcLocator)
     : ::ComboHypo(name, pSvcLocator) {}
@@ -55,6 +59,7 @@ StatusCode TrigBmuxComboHypo::initialize() {
   ATH_CHECK( m_trackParticleContainerKey.initialize() );
   renounce(m_trackParticleContainerKey);
   ATH_CHECK( m_trigBphysContainerKey.initialize() );
+  ATH_CHECK( m_beamSpotKey.initialize() );
 
   ATH_CHECK( m_vertexFitter.retrieve() );
   ATH_CHECK( m_vertexPointEstimator.retrieve() );
@@ -104,7 +109,10 @@ StatusCode TrigBmuxComboHypo::execute(const EventContext& context) const {
   ATH_CHECK( trigBphysHandle.record(std::make_unique<xAOD::TrigBphysContainer>(),
                                     std::make_unique<xAOD::TrigBphysAuxContainer>()) );
 
-  auto state = std::make_unique<TrigBmuxState>(context, *previousDecisionsHandle, *outputDecisionsHandle, trigBphysHandle.ptr());
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle {m_beamSpotKey, context};
+  ATH_CHECK( beamSpotHandle.isValid() );
+
+  auto state = std::make_unique<TrigBmuxState>(context, *previousDecisionsHandle, *outputDecisionsHandle, trigBphysHandle.ptr(), *beamSpotHandle);
 
   ATH_CHECK( findBmuxCandidates(*state) );
   ATH_CHECK( createDecisionObjects(*state) );
@@ -140,11 +148,13 @@ StatusCode TrigBmuxComboHypo::findBmuxCandidates(TrigBmuxState& state) const {
     const auto muonInDetTrack = muon->trackParticle(xAOD::Muon::TrackParticleType::InnerDetectorTrackParticle);
     auto p_mu = muonInDetTrack->genvecP4();
     p_mu.SetM(PDG::mMuon);
+    double z0_mu = (m_trkZ0 > 0. ? getTrkImpactParameterZ0(*muonInDetTrack, state.beamSpotPosition()) : -1.);
     mon_nMuon++;
 
     // add muon from decision to state.leptons
     DecisionIDContainer decisionIDs;
     TrigCompositeUtils::decisionIDs(decision, decisionIDs);
+    size_t muonIndex = muons.size();
     muons.push_back({muonEL, decisionEL, decisionIDs});
 
     ATH_MSG_DEBUG( "Found muon (CombinedTrackParticle) pt/eta/phi/q: " << muon->pt() << " / " << muon->eta() << " / " << muon->phi() << " / " << muon->charge() );
@@ -161,7 +171,7 @@ StatusCode TrigBmuxComboHypo::findBmuxCandidates(TrigBmuxState& state) const {
     tracks.reserve(tracksHandle->size());
     for (size_t idx = 0; idx < tracksHandle->size(); ++idx) {
       const auto track = tracksHandle->get(idx);
-      if (track->definingParametersCovMatrixVec().empty() || isIdenticalTracks(track, muonInDetTrack)) continue;
+      if (track->definingParametersCovMatrixVec().empty() || isIdenticalTracks(track, muonInDetTrack) || (m_trkZ0 > 0. && std::abs(getTrkImpactParameterZ0(*track, state.beamSpotPosition()) - z0_mu) > m_trkZ0)) continue;
       tracks.emplace_back(ViewHelper::makeLink<xAOD::TrackParticleContainer>(view, tracksHandle, idx));
     }
     nTrk.push_back(tracks.size());
@@ -197,6 +207,7 @@ StatusCode TrigBmuxComboHypo::findBmuxCandidates(TrigBmuxState& state) const {
             charge1 * charge2 < 0. &&
             p_trk1.Pt() > m_BToD0_minD0KaonPt &&
             p_trk2.Pt() > m_BToD0_minD0PionPt &&
+            (p_trk1 + p_trk2).Pt() > m_BToD0_minD0Pt &&
             isInMassRange((p_trk1.SetM(PDG::mKaon) + p_trk2.SetM(PDG::mPion)).M(), m_BToD0_D0MassRange) &&
             isInMassRange((p_mu + p_trk1.SetM(PDG::mKaon) + p_trk2.SetM(PDG::mPion)).M(), m_BToD0_massRange)) {
           vtx_D0 = fit(state.context(), {muon->inDetTrackParticleLink(), tracks[itrk1], tracks[itrk2]}, kD0);
@@ -204,12 +215,30 @@ StatusCode TrigBmuxComboHypo::findBmuxCandidates(TrigBmuxState& state) const {
 
           if (vtx_D0 && vtx_D0->chiSquared() < m_BToD0_chi2) {
             ATH_MSG_DEBUG( "Partially reconstructed B+ -> mu+ nu_mu anti-D0(-> K+ pi-) candidate has been created from { " << itrk1 << ", " << itrk2 << " }" );
-            xAOD::TrigBphys* triggerObject = makeTriggerObject(*vtx_D0, xAOD::TrigBphys::B2D0MUX, s_trkMass[kD0]);
-            p_D0 = ROOT::Math::PtEtaPhiMVector(triggerObject->pt(), triggerObject->eta(), triggerObject->phi(), triggerObject->fitmass());
-            triggerObject->setMass((p_mu + p_D0).M());
-            D0 = ElementLink<xAOD::TrigBphysContainer>(state.trigBphysCollection(), state.trigBphysCollection().size());
-            ATH_CHECK( state.addTriggerObject(triggerObject, muons.size() - 1) );
-            mon_nBPhysObject++;
+            if (m_makeCascadeFit) {
+              auto result = fitCascade(state.context(), {muon->inDetTrackParticleLink(), tracks[itrk1], tracks[itrk2]}, kD0);
+              if (result &&
+                  result->fitChi2() < m_cascadeChi2 && result->nDoF() == 2 &&
+                  Lxy(state.beamSpotPosition(), result->vertices()[1]->position(), result->getParticleMoms()[1]) > 0. &&
+                  Lxy(result->vertices()[1]->position(), result->vertices()[0]->position(), result->getParticleMoms()[0]) > 0.) {
+
+                std::vector<xAOD::TrigBphys*> triggerObjects = state.addTriggerObjects(2, muonIndex);
+                ATH_CHECK( fillTriggerObjects(triggerObjects, xAOD::TrigBphys::B2D0MUX, *result, state.beamSpotPosition()) );
+                p_D0 = ROOT::Math::PtEtaPhiMVector(triggerObjects[0]->pt(), triggerObjects[0]->eta(), triggerObjects[0]->phi(), triggerObjects[0]->fitmass());
+                D0 = ElementLink<xAOD::TrigBphysContainer>(m_trigBphysContainerKey.key(), state.trigBphysCollection().size() - 1);
+                ATH_CHECK( D0.isValid() );
+                mon_nBPhysObject++;
+              }
+            }
+            else {
+              xAOD::TrigBphys* triggerObject = state.addTriggerObject(muonIndex);
+              ATH_CHECK( fillTriggerObject(*triggerObject, xAOD::TrigBphys::B2D0MUX, *vtx_D0, s_trkMass[kD0][1]) );
+              p_D0 = ROOT::Math::PtEtaPhiMVector(triggerObject->pt(), triggerObject->eta(), triggerObject->phi(), triggerObject->fitmass());
+              triggerObject->setMass((p_mu + p_D0).M());
+              D0 = ElementLink<xAOD::TrigBphysContainer>(m_trigBphysContainerKey.key(), state.trigBphysCollection().size() - 1);
+              ATH_CHECK( D0.isValid() );
+              mon_nBPhysObject++;
+            }
           }
         }  // end of D0
 
@@ -219,40 +248,56 @@ StatusCode TrigBmuxComboHypo::findBmuxCandidates(TrigBmuxState& state) const {
           auto p_trk3 = trk3->genvecP4();
           auto charge3 = trk3->charge();
 
+          std::vector<ElementLink<xAOD::TrackParticleContainer>> trackParticleLinks = {muon->inDetTrackParticleLink(), tracks[itrk1], tracks[itrk2], tracks[itrk3]};
+
           // D*-(-> anti-D0(-> K+ pi-) pi-)
           if (m_BToD0_makeDstar && D0.isValid() &&
               p_trk3.Pt() > m_BToD0_minDstarPionPt &&
+              (p_trk1 + p_trk2 + p_trk3).Pt() > m_BToD0_minDstarPt &&
               isInMassRange((p_D0 + p_trk3.SetM(PDG::mPion)).M() - p_D0.M() + PDG::mD0, m_BToD0_DstarMassRange)) {
 
             bool makeDstar = true;
             if (m_BToD0_maxDstarPionZ0 > 0.) {
               std::unique_ptr<const Trk::Perigee> perigee(m_trackToVertexTool->perigeeAtVertex(*trk3, vtx_D0->position()));
-              if (fabs(perigee->parameters()[Trk::z0]) > m_BToD0_maxDstarPionZ0) makeDstar = false;
+              if (std::abs(perigee->parameters()[Trk::z0]) > m_BToD0_maxDstarPionZ0) makeDstar = false;
             }
 
             if (makeDstar) {
-              xAOD::TrackParticle::GenVecFourMom_t p_Dstar = p_D0 + p_trk3;
-              auto Dstar = new xAOD::TrigBphys();
-              Dstar->makePrivateStore();
-              Dstar->initialise(0, p_Dstar.Eta(), p_Dstar.Phi(), p_Dstar.Pt(), xAOD::TrigBphys::BD2DSTMUX, (p_mu + p_Dstar).M(), xAOD::TrigBphys::EF);
-              Dstar->setFitmass((p_D0 + p_trk3).M() - p_D0.M() + PDG::mD0);
-              Dstar->setTrackParticleLinks({muon->inDetTrackParticleLink(), tracks[itrk1], tracks[itrk2], tracks[itrk3]});
-              Dstar->setLowerChainLink(D0);
+              if (m_makeCascadeFit) {
+                auto result = fitCascade(state.context(), trackParticleLinks, kDstar);
+                if (result &&
+                    result->fitChi2() < m_cascadeChi2 && result->nDoF() == 4 &&
+                    Lxy(state.beamSpotPosition(), result->vertices()[1]->position(), result->getParticleMoms()[1]) > 0. &&
+                    Lxy(result->vertices()[1]->position(), result->vertices()[0]->position(), result->getParticleMoms()[0]) > 0.) {
 
-              ATH_MSG_DEBUG(
-                "TrigBphys object:\n\t  " <<
-                "roiId:         " << Dstar->roiId()  << "\n\t  " <<
-                "particleType:  " << Dstar->particleType() << "\n\t  " <<
-                "level:         " << Dstar->level() << "\n\t  " <<
-                "eta:           " << Dstar->eta() << "\n\t  " <<
-                "phi:           " << Dstar->phi() << "\n\t  " <<
-                "mass:          " << Dstar->mass() << "\n\t  " <<
-                "fitmass:       " << Dstar->fitmass() << "\n\t  " <<
-                "chi2/NDF:      " << Dstar->fitchi2() << " / " << Dstar->fitndof() << "\n\t  " <<
-                "vertex:        (" << Dstar->fitx() << ", " << Dstar->fity() << ", " << Dstar->fitz() << ")" );
+                  std::vector<xAOD::TrigBphys*> triggerObjects = state.addTriggerObjects(2, muonIndex);
+                  ATH_CHECK( fillTriggerObjects(triggerObjects, xAOD::TrigBphys::BD2DSTMUX, *result, state.beamSpotPosition()) );
+                  triggerObjects[1]->setSecondaryDecayLink(D0);
+                  mon_nBPhysObject++;
+                }
+              }
+              else {
+                xAOD::TrackParticle::GenVecFourMom_t p_Dstar = p_D0 + p_trk3.SetM(PDG::mPion);
+                xAOD::TrigBphys* Dstar = state.addTriggerObject(muonIndex);
+                Dstar->initialise(0, p_Dstar.Eta(), p_Dstar.Phi(), p_Dstar.Pt(), xAOD::TrigBphys::BD2DSTMUX, (p_mu + p_Dstar).M(), xAOD::TrigBphys::EF);
+                Dstar->setFitmass((p_D0 + p_trk3).M() - p_D0.M() + PDG::mD0);
+                Dstar->setTrackParticleLinks(trackParticleLinks);
+                Dstar->setLowerChainLink(D0);
 
-              ATH_CHECK( state.addTriggerObject(Dstar, muons.size() - 1) );
-              mon_nBPhysObject++;
+                ATH_MSG_DEBUG(
+                  "TrigBphys object:\n\t  " <<
+                  "roiId:         " << Dstar->roiId()  << "\n\t  " <<
+                  "particleType:  " << Dstar->particleType() << "\n\t  " <<
+                  "level:         " << Dstar->level() << "\n\t  " <<
+                  "eta:           " << Dstar->eta() << "\n\t  " <<
+                  "phi:           " << Dstar->phi() << "\n\t  " <<
+                  "mass:          " << Dstar->mass() << "\n\t  " <<
+                  "fitmass:       " << Dstar->fitmass() << "\n\t  " <<
+                  "chi2/NDF:      " << Dstar->fitchi2() << " / " << Dstar->fitndof() << "\n\t  " <<
+                  "vertex:        (" << Dstar->fitx() << ", " << Dstar->fity() << ", " << Dstar->fitz() << ")" );
+
+                mon_nBPhysObject++;
+              }
             }
           }  // end of D*-
 
@@ -263,18 +308,33 @@ StatusCode TrigBmuxComboHypo::findBmuxCandidates(TrigBmuxState& state) const {
               p_trk1.Pt() > m_BdToD_minKaonPt &&
               p_trk2.Pt() > m_BdToD_minPionPt &&
               p_trk3.Pt() > m_BdToD_minPionPt &&
+              (p_trk1 + p_trk2 + p_trk3).Pt() > m_BdToD_minDPt &&
               isInMassRange((p_trk1.SetM(PDG::mKaon) + p_trk2.SetM(PDG::mPion) + p_trk3.SetM(PDG::mPion)).M(), m_BdToD_DMassRange) &&
               isInMassRange((p_mu + p_trk1.SetM(PDG::mKaon) + p_trk2.SetM(PDG::mPion) + p_trk3.SetM(PDG::mPion)).M(), m_BdToD_massRange)) {
-            auto vtx_D = fit(state.context(), {muon->inDetTrackParticleLink(), tracks[itrk1], tracks[itrk2], tracks[itrk3]}, kDplus);
+            auto vtx_D = fit(state.context(), trackParticleLinks, kDplus);
             ++iterations;
 
             if (vtx_D && vtx_D->chiSquared() < m_BdToD_chi2) {
               ATH_MSG_DEBUG( "Partially reconstructed B0 -> mu+ nu_mu D-(-> K+ pi- pi-) candidate has been created from { " << itrk1 << ", " << itrk2 << ", " << itrk3 << " }" );
-              xAOD::TrigBphys* triggerObject = makeTriggerObject(*vtx_D, xAOD::TrigBphys::BD2DMMUX, s_trkMass[kDplus]);
-              xAOD::TrackParticle::GenVecFourMom_t p_D(ROOT::Math::PtEtaPhiMVector(triggerObject->pt(), triggerObject->eta(), triggerObject->phi(), triggerObject->fitmass()));
-              triggerObject->setMass((p_mu + p_D).M());
-              ATH_CHECK( state.addTriggerObject(triggerObject, muons.size() - 1) );
-              mon_nBPhysObject++;
+              if (m_makeCascadeFit) {
+                auto result = fitCascade(state.context(), trackParticleLinks, kDplus);
+                if (result &&
+                    result->fitChi2() < m_cascadeChi2 && result->nDoF() == 4 &&
+                    Lxy(state.beamSpotPosition(), result->vertices()[1]->position(), result->getParticleMoms()[1]) > 0. &&
+                    Lxy(result->vertices()[1]->position(), result->vertices()[0]->position(), result->getParticleMoms()[0]) > 0.) {
+
+                  std::vector<xAOD::TrigBphys*> triggerObjects = state.addTriggerObjects(2, muonIndex);
+                  ATH_CHECK( fillTriggerObjects(triggerObjects, xAOD::TrigBphys::BD2DMMUX, *result, state.beamSpotPosition()) );
+                  mon_nBPhysObject++;
+                }
+              }
+              else {
+                xAOD::TrigBphys* triggerObject = state.addTriggerObject(muonIndex);
+                ATH_CHECK( fillTriggerObject(*triggerObject, xAOD::TrigBphys::BD2DMMUX, *vtx_D, s_trkMass[kDplus][1]) );
+                xAOD::TrackParticle::GenVecFourMom_t p_D(ROOT::Math::PtEtaPhiMVector(triggerObject->pt(), triggerObject->eta(), triggerObject->phi(), triggerObject->fitmass()));
+                triggerObject->setMass((p_mu + p_D).M());
+                mon_nBPhysObject++;
+              }
             }
           }  // end of B0
 
@@ -285,19 +345,34 @@ StatusCode TrigBmuxComboHypo::findBmuxCandidates(TrigBmuxState& state) const {
               p_trk1.Pt() > m_BsToDs_minKaonPt &&
               p_trk2.Pt() > m_BsToDs_minKaonPt &&
               p_trk3.Pt() > m_BsToDs_minPionPt &&
+              (p_trk1 + p_trk2 + p_trk3).Pt() > m_BsToDs_minDsPt &&
               isInMassRange((p_trk1.SetM(PDG::mKaon) + p_trk2.SetM(PDG::mKaon)).M(), m_BsToDs_phiMassRange) &&
               isInMassRange((p_trk1.SetM(PDG::mKaon) + p_trk2.SetM(PDG::mKaon) + p_trk3.SetM(PDG::mPion)).M(), m_BsToDs_DsMassRange) &&
               isInMassRange((p_mu + p_trk1.SetM(PDG::mKaon) + p_trk2.SetM(PDG::mKaon) + p_trk3.SetM(PDG::mPion)).M(), m_BsToDs_massRange)) {
-            auto vtx_Ds = fit(state.context(), {muon->inDetTrackParticleLink(), tracks[itrk1], tracks[itrk2], tracks[itrk3]}, kDs);
+            auto vtx_Ds = fit(state.context(), trackParticleLinks, kDs);
             ++iterations;
 
             if (vtx_Ds && vtx_Ds->chiSquared() < m_BsToDs_chi2) {
               ATH_MSG_DEBUG( "Partially reconstructed B_s0 -> mu+ nu_mu D_s-(->phi(-> K+ K-) pi-) candidate has been created from { " << itrk1 << ", " << itrk2 << ", " << itrk3 << " }" );
-              xAOD::TrigBphys* triggerObject = makeTriggerObject(*vtx_Ds, xAOD::TrigBphys::BS2DSMUX, s_trkMass[kDs]);
-              xAOD::TrackParticle::GenVecFourMom_t p_Ds(ROOT::Math::PtEtaPhiMVector(triggerObject->pt(), triggerObject->eta(), triggerObject->phi(), triggerObject->fitmass()));
-              triggerObject->setMass((p_mu + p_Ds).M());
-              ATH_CHECK( state.addTriggerObject(triggerObject, muons.size() - 1) );
-              mon_nBPhysObject++;
+              if (m_makeCascadeFit) {
+                auto result = fitCascade(state.context(), trackParticleLinks, kDs);
+                if (result &&
+                    result->fitChi2() < m_cascadeChi2 && result->nDoF() == 4 &&
+                    Lxy(state.beamSpotPosition(), result->vertices()[1]->position(), result->getParticleMoms()[1]) > 0. &&
+                    Lxy(result->vertices()[1]->position(), result->vertices()[0]->position(), result->getParticleMoms()[0]) > 0.) {
+
+                  std::vector<xAOD::TrigBphys*> triggerObjects = state.addTriggerObjects(2, muonIndex);
+                  ATH_CHECK( fillTriggerObjects(triggerObjects, xAOD::TrigBphys::BS2DSMUX, *result, state.beamSpotPosition()) );
+                  mon_nBPhysObject++;
+                }
+              }
+              else {
+                xAOD::TrigBphys* triggerObject = state.addTriggerObject(muonIndex);
+                ATH_CHECK( fillTriggerObject(*triggerObject, xAOD::TrigBphys::BS2DSMUX, *vtx_Ds, s_trkMass[kDs][1]) );
+                xAOD::TrackParticle::GenVecFourMom_t p_Ds(ROOT::Math::PtEtaPhiMVector(triggerObject->pt(), triggerObject->eta(), triggerObject->phi(), triggerObject->fitmass()));
+                triggerObject->setMass((p_mu + p_Ds).M());
+                mon_nBPhysObject++;
+              }
             }
           }  // end of B_s0
 
@@ -307,18 +382,33 @@ StatusCode TrigBmuxComboHypo::findBmuxCandidates(TrigBmuxState& state) const {
               p_trk1.Pt() > m_LambdaBToLambdaC_minProtonPt &&
               p_trk2.Pt() > m_LambdaBToLambdaC_minKaonPt &&
               p_trk3.Pt() > m_LambdaBToLambdaC_minPionPt &&
+              (p_trk1 + p_trk2 + p_trk3).Pt() > m_LambdaBToLambdaC_minLambdaCPt &&
               isInMassRange((p_trk1.SetM(PDG::mProton) + p_trk2.SetM(PDG::mKaon) + p_trk3.SetM(PDG::mPion)).M(), m_LambdaBToLambdaC_LambdaCMassRange) &&
               isInMassRange((p_mu + p_trk1.SetM(PDG::mProton) + p_trk2.SetM(PDG::mKaon) + p_trk3.SetM(PDG::mPion)).M(), m_LambdaBToLambdaC_massRange)) {
-            auto vtx_LambdaC = fit(state.context(), {muon->inDetTrackParticleLink(), tracks[itrk1], tracks[itrk2], tracks[itrk3]}, kLambdaC);
+            auto vtx_LambdaC = fit(state.context(), trackParticleLinks, kLambdaC);
             ++iterations;
 
             if (vtx_LambdaC && vtx_LambdaC->chiSquared() < m_LambdaBToLambdaC_chi2) {
               ATH_MSG_DEBUG( "Partially reconstructed Lambda_b0 -> mu+ nu_mu anti-Lambda_c-(-> anti-p K+ pi-) candidate has been created from { " << itrk1 << ", " << itrk2 << ", " << itrk3 << " }" );
-              xAOD::TrigBphys* triggerObject = makeTriggerObject(*vtx_LambdaC, xAOD::TrigBphys::LB2LCMUX, s_trkMass[kLambdaC]);
-              xAOD::TrackParticle::GenVecFourMom_t p_LambdaC(ROOT::Math::PtEtaPhiMVector(triggerObject->pt(), triggerObject->eta(), triggerObject->phi(), triggerObject->fitmass()));
-              triggerObject->setMass((p_mu + p_LambdaC).M());
-              ATH_CHECK( state.addTriggerObject(triggerObject, muons.size() - 1) );
-              mon_nBPhysObject++;
+              if (m_makeCascadeFit) {
+                auto result = fitCascade(state.context(), trackParticleLinks, kLambdaC);
+                if (result &&
+                    result->fitChi2() < m_cascadeChi2 && result->nDoF() == 4 &&
+                    Lxy(state.beamSpotPosition(), result->vertices()[1]->position(), result->getParticleMoms()[1]) > 0. &&
+                    Lxy(result->vertices()[1]->position(), result->vertices()[0]->position(), result->getParticleMoms()[0]) > 0.) {
+
+                  std::vector<xAOD::TrigBphys*> triggerObjects = state.addTriggerObjects(2, muonIndex);
+                  ATH_CHECK( fillTriggerObjects(triggerObjects, xAOD::TrigBphys::LB2LCMUX, *result, state.beamSpotPosition()) );
+                  mon_nBPhysObject++;
+                }
+              }
+              else {
+                xAOD::TrigBphys* triggerObject = state.addTriggerObject(muonIndex);
+                ATH_CHECK( fillTriggerObject(*triggerObject, xAOD::TrigBphys::LB2LCMUX, *vtx_LambdaC, s_trkMass[kLambdaC][1]) );
+                xAOD::TrackParticle::GenVecFourMom_t p_LambdaC(ROOT::Math::PtEtaPhiMVector(triggerObject->pt(), triggerObject->eta(), triggerObject->phi(), triggerObject->fitmass()));
+                triggerObject->setMass((p_mu + p_LambdaC).M());
+                mon_nBPhysObject++;
+              }
             }
           }  // end of Lambda_b0
 
@@ -345,6 +435,8 @@ StatusCode TrigBmuxComboHypo::createDecisionObjects(TrigBmuxState& state) const 
 
   size_t idx = 0;
   for (const xAOD::TrigBphys* triggerObject : state.trigBphysCollection()) {
+    if (triggerObject->particleType() == xAOD::TrigBphys::UNKNOWNPTYPE) continue;
+
     ATH_MSG_DEBUG( "Found xAOD::TrigBphys object: mass = " << triggerObject->mass() );
 
     auto triggerObjectEL = ElementLink<xAOD::TrigBphysContainer>(state.trigBphysCollection(), triggerObject->index());
@@ -382,7 +474,7 @@ std::unique_ptr<xAOD::Vertex> TrigBmuxComboHypo::fit(
 
   if (trackParticleLinks.size() < 3) {
     ATH_MSG_WARNING( "At least muon and two tracks should be given to the vertex fitter" );
-    return nullptr;
+    return std::unique_ptr<xAOD::Vertex>(nullptr);
   }
 
   std::vector<const xAOD::TrackParticle*> tracklist(trackParticleLinks.size() - 1, nullptr);
@@ -399,7 +491,7 @@ std::unique_ptr<xAOD::Vertex> TrigBmuxComboHypo::fit(
   ATH_MSG_DEBUG( "Starting point: (" << startingPoint(0) << ", " << startingPoint(1) << ", " << startingPoint(2) << ")" );
 
   auto fitterState = m_vertexFitter->makeState(context);
-  m_vertexFitter->setMassInputParticles(s_trkMass[static_cast<size_t>(decay)], *fitterState);
+  m_vertexFitter->setMassInputParticles(s_trkMass[static_cast<size_t>(decay)][1], *fitterState);
 
   std::unique_ptr<xAOD::Vertex> vertex(m_vertexFitter->fit(tracklist, startingPoint, *fitterState));
   if (!vertex) {
@@ -421,51 +513,158 @@ std::unique_ptr<xAOD::Vertex> TrigBmuxComboHypo::fit(
 }
 
 
-xAOD::TrigBphys* TrigBmuxComboHypo::makeTriggerObject(
-    const xAOD::Vertex& vertex,
+std::unique_ptr<Trk::VxCascadeInfo> TrigBmuxComboHypo::fitCascade(
+    const EventContext& context,
+    const std::vector<ElementLink<xAOD::TrackParticleContainer>>& trackParticleLinks,
+    Decay decay) const {
+
+  if (trackParticleLinks.size() != (decay == kD0 ? 3 : 4)) {
+    ATH_MSG_WARNING( "fitCascade(): " << (decay == kD0 ? 3 : 4) << " tracks required for decay " << decay << ", but trackParticleLinks size = " << trackParticleLinks.size() );
+    return std::unique_ptr<Trk::VxCascadeInfo>(nullptr);
+  }
+  std::vector<const xAOD::TrackParticle*> tracks(trackParticleLinks.size(), nullptr);
+  std::transform(trackParticleLinks.begin(), trackParticleLinks.end(), tracks.begin(),
+                 [](const ElementLink<xAOD::TrackParticleContainer>& link){ return *link; });
+
+  std::vector<const xAOD::TrackParticle*> vtx1_tracks, vtx2_tracks;
+
+  switch (decay) {
+
+    case kD0:           // B+ -> mu+ nu_mu anti-D0(-> K+ pi-)
+      vtx1_tracks = {tracks[1], tracks[2]};
+      vtx2_tracks = {tracks[0]};
+      break;
+
+    case kDstar:        // B0 -> mu+ nu_mu D*-(-> anti-D0(-> K+ pi-) pi-)
+      vtx1_tracks = {tracks[1], tracks[2]};
+      vtx2_tracks = {tracks[0], tracks[3]};
+      break;
+
+    case kDs:           // B_s0 -> mu+ nu_mu D_s-(->phi(-> K+ K-) pi-)
+    case kDplus:        // B0 -> mu+ nu_mu D-(-> K+ pi- pi-)
+    case kLambdaC:      // anti-Lambda_b0 -> mu+ nu_mu anti-Lambda_c-(-> anti-p K+ pi-)
+      vtx1_tracks = {tracks[1], tracks[2], tracks[3]};
+      vtx2_tracks = {tracks[0]};
+      break;
+
+    default:
+      ATH_MSG_WARNING( "fitCascade(): decay " << decay << " has not been defined in McTopologyTool" );
+      return std::unique_ptr<Trk::VxCascadeInfo>(nullptr);
+      break;
+  }
+
+  auto state = m_vertexFitter->makeState(context);
+  m_vertexFitter->setRobustness(0, *state);
+
+  std::vector<Trk::VertexID> vtx2_precedingVertices(1, m_vertexFitter->startVertex(vtx1_tracks, s_trkMass[static_cast<size_t>(decay)][1], *state));
+  m_vertexFitter->nextVertex(vtx2_tracks, s_trkMass[static_cast<size_t>(decay)][0], vtx2_precedingVertices, *state);
+  std::unique_ptr<Trk::VxCascadeInfo> result(m_vertexFitter->fitCascade(*state));
+
+  if (result) {
+    ATH_MSG_DEBUG( "Cascade fit is successful: chi2 = " << result->fitChi2() << "; NDF = " << result->nDoF() );
+    result->setSVOwnership(true);
+  }
+
+  return result;
+}
+
+
+StatusCode TrigBmuxComboHypo::fillTriggerObject(
+    xAOD::TrigBphys& triggerObject,
     xAOD::TrigBphys::pType type,
+    const xAOD::Vertex& vertex,
     const std::vector<double>& trkMass) const {
 
   // refitted track momentum as a 4-vector for mass hypothesis defined by the given decay value
   xAOD::TrackParticle::GenVecFourMom_t momentum;
   std::vector<xAOD::TrackParticle::GenVecFourMom_t> momenta;
-  if (!vertex.vxTrackAtVertexAvailable()) return nullptr;
+  ATH_CHECK( vertex.vxTrackAtVertexAvailable() );
+  ATH_CHECK( vertex.vxTrackAtVertex().size() == trkMass.size() );
   for (size_t i = 0; i < vertex.vxTrackAtVertex().size(); ++i) {
     const Trk::TrackParameters* perigee = vertex.vxTrackAtVertex()[i].perigeeAtVertex();
-    if (!perigee) return nullptr;
+    ATH_CHECK( perigee != nullptr );
     const Amg::Vector3D& p = perigee->momentum();
     momenta.emplace_back(p.x(), p.y(), p.z(), trkMass[i]);
     momentum += momenta.back();
   }
 
-  auto result = new xAOD::TrigBphys();
-  result->makePrivateStore();
+  triggerObject.initialise(0, momentum.Eta(), momentum.Phi(), momentum.Pt(), type, momentum.M(), xAOD::TrigBphys::EF);
 
-  result->initialise(0, momentum.Eta(), momentum.Phi(), momentum.Pt(), type, momentum.M(), xAOD::TrigBphys::EF);
-
-  result->setFitmass(momentum.M());
-  result->setFitx(vertex.x());
-  result->setFity(vertex.y());
-  result->setFitz(vertex.z());
-  result->setFitchi2(vertex.chiSquared());
-  result->setFitndof(vertex.numberDoF());
+  triggerObject.setFitmass(momentum.M());
+  triggerObject.setFitx(vertex.x());
+  triggerObject.setFity(vertex.y());
+  triggerObject.setFitz(vertex.z());
+  triggerObject.setFitchi2(vertex.chiSquared());
+  triggerObject.setFitndof(vertex.numberDoF());
 
   // set all the particles associated with the decay
-  result->setTrackParticleLinks(vertex.trackParticleLinks());
+  triggerObject.setTrackParticleLinks(vertex.trackParticleLinks());
 
   ATH_MSG_DEBUG(
     "TrigBphys object:\n\t  " <<
-    "roiId:         " << result->roiId()  << "\n\t  " <<
-    "particleType:  " << result->particleType() << "\n\t  " <<
-    "level:         " << result->level() << "\n\t  " <<
-    "eta:           " << result->eta() << "\n\t  " <<
-    "phi:           " << result->phi() << "\n\t  " <<
-    "mass:          " << result->mass() << "\n\t  " <<
-    "fitmass:       " << result->fitmass() << "\n\t  " <<
-    "chi2/NDF:      " << result->fitchi2() << " / " << result->fitndof() << "\n\t  " <<
-    "vertex:        (" << result->fitx() << ", " << result->fity() << ", " << result->fitz() << ")" );
+    "roiId:         " << triggerObject.roiId()  << "\n\t  " <<
+    "particleType:  " << triggerObject.particleType() << "\n\t  " <<
+    "level:         " << triggerObject.level() << "\n\t  " <<
+    "eta:           " << triggerObject.eta() << "\n\t  " <<
+    "phi:           " << triggerObject.phi() << "\n\t  " <<
+    "mass:          " << triggerObject.mass() << "\n\t  " <<
+    "fitmass:       " << triggerObject.fitmass() << "\n\t  " <<
+    "chi2/NDF:      " << triggerObject.fitchi2() << " / " << triggerObject.fitndof() << "\n\t  " <<
+    "vertex:        (" << triggerObject.fitx() << ", " << triggerObject.fity() << ", " << triggerObject.fitz() << ")" );
 
-  return result;
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode TrigBmuxComboHypo::fillTriggerObjects(
+    std::vector<xAOD::TrigBphys*>& triggerObjects,
+    xAOD::TrigBphys::pType type,
+    const Trk::VxCascadeInfo& vxCascadeInfo,
+    const Amg::Vector3D& beamSpotPosition) const {
+
+  const std::vector<xAOD::Vertex*>& vertices = vxCascadeInfo.vertices();
+  const std::vector<std::vector<TLorentzVector>>& momenta = vxCascadeInfo.getParticleMoms();
+  ATH_CHECK( triggerObjects.size() == vertices.size() );
+
+  for (size_t i = 0; i < vertices.size(); ++i) {
+    const xAOD::Vertex* vertex = vertices[i];
+    TLorentzVector momentum = std::accumulate(momenta[i].begin(), momenta[i].end(), TLorentzVector());
+    xAOD::TrigBphys* triggerObject = triggerObjects[i];
+    triggerObject->initialise(0, momentum.Eta(), momentum.Phi(), momentum.Pt(), xAOD::TrigBphys::UNKNOWNPTYPE, momentum.M(), xAOD::TrigBphys::EF);
+    triggerObject->setFitmass(momentum.M());
+    triggerObject->setFitx(vertex->x());
+    triggerObject->setFity(vertex->y());
+    triggerObject->setFitz(vertex->z());
+    triggerObject->setTrackParticleLinks(vertex->trackParticleLinks());
+  }
+
+  // D0/D(*)-/D_s-/Lambda_c+
+  triggerObjects[0]->setLxy(Lxy(vertices[1]->position(), vertices[0]->position(), momenta[0]));
+  triggerObjects[0]->setSecondaryDecayLink(ElementLink<xAOD::TrigBphysContainer>(m_trigBphysContainerKey.key(), triggerObjects[1]->index()));
+  ATH_CHECK( triggerObjects[0]->secondaryDecayLink().isValid() );
+
+  // B+/B0/B_s0/Lambda_b0
+  triggerObjects[1]->setParticleType(type);
+  triggerObjects[1]->setFitchi2(vxCascadeInfo.fitChi2());
+  triggerObjects[1]->setFitndof(vxCascadeInfo.nDoF());
+  triggerObjects[1]->setLxy(Lxy(beamSpotPosition, vertices[1]->position(), momenta[1]));
+  triggerObjects[1]->setLowerChainLink(ElementLink<xAOD::TrigBphysContainer>(m_trigBphysContainerKey.key(), triggerObjects[0]->index()));
+  ATH_CHECK( triggerObjects[1]->lowerChainLink().isValid() );
+
+  if (msgLvl(MSG::DEBUG)) {
+    const xAOD::TrigBphys* vtx0 = triggerObjects[0];
+    const xAOD::TrigBphys* vtx1 = triggerObjects[1];
+    ATH_MSG_DEBUG(
+      "TrigBphys object:\n\t  " <<
+      "particleType:  " << vtx1->particleType() << "\n\t  " <<
+      "chi2/NDF:      " << vtx1->fitchi2() << " / " << vtx1->fitndof() << "\n\t  " <<
+      "vertex0:       (" << vtx0->fitx() << ", " << vtx0->fity() << ", " << vtx0->fitz() << ")\n\t  " <<
+      "vertex1:       (" << vtx1->fitx() << ", " << vtx1->fity() << ", " << vtx1->fitz() << ")\n\t  " <<
+      "Lxy(B):        " << vtx1->lxy() << "\n\t  " <<
+      "Lxy(D):        " << vtx0->lxy() );
+  }
+
+  return StatusCode::SUCCESS;
 }
 
 
@@ -473,4 +672,23 @@ bool TrigBmuxComboHypo::isIdenticalTracks(const xAOD::TrackParticle* lhs, const 
 
   if (lhs->charge() * rhs->charge() < 0.) return false;
   return (ROOT::Math::VectorUtil::DeltaR(lhs->genvecP4(), rhs->genvecP4()) < m_deltaR);
+}
+
+
+double TrigBmuxComboHypo::getTrkImpactParameterZ0(const xAOD::TrackParticle& track, const Amg::Vector3D& vertex) const {
+
+  std::unique_ptr<const Trk::Perigee> perigee(m_trackToVertexTool->perigeeAtVertex(track, vertex));
+  double z0 = perigee->parameters()[Trk::z0];
+  return z0;
+}
+
+
+double TrigBmuxComboHypo::Lxy(const Amg::Vector3D& productionVertex, const Amg::Vector3D& decayVertex, const std::vector<TLorentzVector>& momenta) const {
+
+  XYVector R(decayVertex.x() - productionVertex.x(), decayVertex.y() - productionVertex.y());
+  XYVector pT;
+  for (const auto& p : momenta) {
+    pT += XYVector(p.Px(), p.Py());
+  }
+  return R.Dot(pT.unit());
 }

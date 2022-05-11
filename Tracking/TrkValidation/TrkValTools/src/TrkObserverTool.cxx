@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-	Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+	Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // TrkObserverTool.cxx 
@@ -67,7 +67,7 @@ Trk::TrkObserverTool::TrkObserverTool(const std::string& type, const std::string
 
 // Destructor
 ///////////////
-Trk::TrkObserverTool::~TrkObserverTool() {}
+Trk::TrkObserverTool::~TrkObserverTool() = default;
 
 // Athena algtool's Hooks
 ////////////////////////////
@@ -383,7 +383,7 @@ void Trk::TrkObserverTool::dumpTrackMap(const ObservedTrackMap* trk_map) const {
 	ATH_MSG_DEBUG("Number of RejectionReason = acceptedTrack (should equal final tracks): " << getNFinalTracks(trk_map));
 }
 
-std::string Trk::TrkObserverTool::dumpRejection(xAOD::RejectionStep rejectStep, xAOD::RejectionReason rejectReason) const {
+std::string Trk::TrkObserverTool::dumpRejection(xAOD::RejectionStep rejectStep, xAOD::RejectionReason rejectReason) {
 	// Generate rejection description
 	std::string rejection_step = "";
 	std::string rejection_reason = "";
@@ -408,7 +408,7 @@ std::string Trk::TrkObserverTool::dumpRejection(xAOD::RejectionStep rejectStep, 
 	return rejection_description;
 }
 
-int Trk::TrkObserverTool::getNFinalTracks(const ObservedTrackMap* trk_map) const {
+int Trk::TrkObserverTool::getNFinalTracks(const ObservedTrackMap* trk_map) {
 	// counts the tracks which did not get rejected (this number should equal finalTracks)
 	int nFinalTracks = 0;
 	for (auto& itrMap : *trk_map) {
@@ -417,7 +417,7 @@ int Trk::TrkObserverTool::getNFinalTracks(const ObservedTrackMap* trk_map) const
 	return nFinalTracks;
 }
 
-int Trk::TrkObserverTool::getNObservedTracks(const ObservedTrackMap* trk_map) const {
+int Trk::TrkObserverTool::getNObservedTracks(const ObservedTrackMap* trk_map) {
 	// check the number of tracks in the observer tool map
 	return trk_map->size();
 }

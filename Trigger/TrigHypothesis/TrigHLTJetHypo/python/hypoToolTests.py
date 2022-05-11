@@ -36,7 +36,7 @@ class HypoToolStructure(unittest.TestCase):
              },
             
             {'prop':
-             ChainProp(name='HLT_j260_320eta490_L1J75_31ETA49',
+             ChainProp(name='HLT_j260f_L1J75_31ETA49',
                        groups=SingleJetGroup),
              'connections': dict(((0, [1]),
                                   (1, [2, 10]),
@@ -86,21 +86,20 @@ class HypoToolStructure(unittest.TestCase):
 
         {
             'prop':  ChainProp(
-                name='HLT_j70_0eta320_1j50_0eta490_j0_DIJET70j12etXX1000djmassXXdjdphi200XX400djdeta__L1MJJ-500-NFF',
+                name='HLT_j70_1j50a_j0_DIJET70j12etXX1000djmassXXdjdphi200XX400djdeta_L1MJJ-500-NFF',
                 l1SeedThresholds=['FSNOSEED']*3,
                 groups=MultiJetGroup),
             
             'connections': dict(((0, [1]),
-                                 (1, [2, 14, 31]),
+                                 (1, [2, 14, 27]),
                                  (2, [3, 5, 8, 11, 12, 13]),
                                  (3, [4]),
                                  (5, [6, 7]),
                                  (8, [9, 10]),
-                                 (14, [15, 17, 21, 24, 27, 28, 29, 30]),
+                                 (14, [15, 17, 21, 24, 25, 26]),
                                  (15, [16]),
                                  (17, [18, 19, 20]),
-                                 (21, [22, 23]),
-                                 (24, [25, 26]))),
+                                 (21, [22, 23]),)),
              'values': []
         },
 
@@ -137,7 +136,7 @@ class HypoToolStructure(unittest.TestCase):
             },
             
             {
-                'prop': ChainProp(name='HLT_j40_0eta320_j0_HT50XX10etXX0eta320_L1J20',
+                'prop': ChainProp(name='HLT_j40_j0_HT50XX10etXX0eta320_L1J20',
                                   l1SeedThresholds=['FSNOSEED']*2,
                                   groups=MultiJetGroup),
         
@@ -206,19 +205,17 @@ class HypoToolStructure(unittest.TestCase):
         
         
                 'connections': dict(((0, [1]),
-                                     (1, [2, 17]),
-                                     (2, [3, 5, 7, 10, 13, 14, 15, 16]),
+                                     (1, [2, 13]),
+                                     (2, [3, 5, 7, 10, 11, 12]),
                                      (3, [4]),
                                      (5, [6]),
-                                     (7, [8, 9]),
-                                     (10, [11, 12]))),
+                                     (7, [8, 9]))),
 
                 'values': [{'nodeid': 6, 'min': '700000.0', 'max': 'inf'},
+                           
+                           {'nodeid': 7, 'multiplicity': 2},
                            {'nodeid': 8, 'min': '80000.0', 'max': 'inf'},
                            {'nodeid': 9, 'min': '0.0', 'max': '2.4'},
-                           {'nodeid': 11, 'min': '80000.0', 'max': 'inf'},
-                           {'nodeid': 12, 'min': '0.0', 'max': '2.4'},
-
                            ]
 
             }, 
@@ -235,8 +232,9 @@ class HypoToolStructure(unittest.TestCase):
                 cpi += 1
             chain_name = chain_dict['chainName']
             tool = hypotool_from_chaindict(chain_dict)
-            
+           
             analyser = HypoToolAnalyser(tool)
+
             self.assertTrue(analyser.connections == td['connections'],
                             'fail for case %s expected %s; saw %s' %(
                                 chain_name,

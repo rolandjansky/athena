@@ -23,7 +23,7 @@ public:
    */
   double evaluate(double x) const;
 private:
-  int m_numCoefficients;
+  int m_numCoefficients = 0;
   double m_coefficients[10];
 };
 

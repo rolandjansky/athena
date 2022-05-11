@@ -92,8 +92,8 @@ namespace MuonCombined {
         /** access to associated segments, empty vector if non available */
         std::vector<const Muon::MuonSegment*> associatedSegments() const override;
         
-         /** Returns whether the muon belongs to the comissioning chain **/
-        bool isComissioning() const override;
+         /** Returns whether the muon belongs to the commissioning chain **/
+        bool isCommissioning() const override;
 
 
     private:

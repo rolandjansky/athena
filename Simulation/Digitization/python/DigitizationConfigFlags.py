@@ -60,8 +60,6 @@ def createDigitizationCfgFlags():
     flags.addFlag("Digitization.RandomSeedOffset", 0)
     # Digitization extra input dependencies
     flags.addFlag("Digitization.ExtraInputs", [("xAOD::EventInfo", "EventInfo")])
-    # Job number
-    flags.addFlag("Digitization.JobNumber", 1)
     # Beam spot reweighting (-1 disables it)
     flags.addFlag("Digitization.InputBeamSigmaZ", -1)
 
@@ -138,7 +136,7 @@ def digitizationRunArgsToFlags(runArgs, flags):
 
     # from SimDigi
     if hasattr(runArgs, "jobNumber"):
-        flags.Digitization.JobNumber = runArgs.jobNumber
+        flags.Input.JobNumber = runArgs.jobNumber
 
     if hasattr(runArgs, "PileUpPresampling"):
         flags.Common.ProductionStep = ProductionStep.PileUpPresampling
@@ -152,11 +150,14 @@ def digitizationRunArgsToFlags(runArgs, flags):
     if hasattr(runArgs, "AddCaloDigi"):
         flags.Digitization.AddCaloDigi = runArgs.AddCaloDigi
 
-    flags.Digitization.RandomSeedOffset = 0
-    if hasattr(runArgs,"digiSeedOffset1"):
-        flags.Digitization.RandomSeedOffset += int(runArgs.digiSeedOffset1)
-    if hasattr(runArgs,"digiSeedOffset2"):
-        flags.Digitization.RandomSeedOffset += int(runArgs.digiSeedOffset2)
+    if hasattr(runArgs, "digiSeedOffset1") or hasattr(runArgs, "digiSeedOffset2"):
+        flags.Digitization.RandomSeedOffset = 0
+        if hasattr(runArgs, "digiSeedOffset1"):
+            flags.Digitization.RandomSeedOffset += int(runArgs.digiSeedOffset1)
+        if hasattr(runArgs, "digiSeedOffset2"):
+            flags.Digitization.RandomSeedOffset += int(runArgs.digiSeedOffset2)
+    else:
+        flags.Digitization.RandomSeedOffset = 3  # for legacy compatibility
 
     if hasattr(runArgs, "digiSteeringConf"):
         flags.Digitization.DigiSteeringConf = runArgs.digiSteeringConf + "PileUpToolsAlg"
@@ -197,13 +198,13 @@ def pileupRunArgsToFlags(runArgs, flags):
         raise ValueError("Initial bunch crossing should not be larger than the final one")
 
     if hasattr(runArgs, "inputLowPtMinbiasHitsFile"):
-        from Digitization.PileUpUtils import generateBackgroundInputCollections
+        from RunDependentSimComps.PileUpUtils import generateBackgroundInputCollections
         flags.Digitization.PU.LowPtMinBiasInputCols = \
             generateBackgroundInputCollections(flags, runArgs.inputLowPtMinbiasHitsFile,
                                                flags.Digitization.PU.NumberOfLowPtMinBias, True)
 
     if hasattr(runArgs, "inputHighPtMinbiasHitsFile"):
-        from Digitization.PileUpUtils import getInputCollectionOffset, generateBackgroundInputCollections
+        from RunDependentSimComps.PileUpUtils import getInputCollectionOffset, generateBackgroundInputCollections
         if flags.Digitization.PU.HighPtMinBiasInputColOffset < 0:
             # Calculate a pseudo random offset into the collection from the jobNumber
             flags.Digitization.PU.HighPtMinBiasInputColOffset = getInputCollectionOffset(flags, runArgs.inputHighPtMinbiasHitsFile)
@@ -213,19 +214,19 @@ def pileupRunArgsToFlags(runArgs, flags):
                                                flags.Digitization.PU.NumberOfHighPtMinBias, True)
 
     if hasattr(runArgs, "inputCavernHitsFile"):
-        from Digitization.PileUpUtils import generateBackgroundInputCollections
+        from RunDependentSimComps.PileUpUtils import generateBackgroundInputCollections
         flags.Digitization.PU.CavernInputCols = \
             generateBackgroundInputCollections(flags, runArgs.inputCavernHitsFile,
                                                flags.Digitization.PU.NumberOfCavern, True)  # TODO: ignore?
 
     if hasattr(runArgs, "inputBeamHaloHitsFile"):
-        from Digitization.PileUpUtils import generateBackgroundInputCollections
+        from RunDependentSimComps.PileUpUtils import generateBackgroundInputCollections
         flags.Digitization.PU.BeamHaloInputCols = \
             generateBackgroundInputCollections(flags, runArgs.inputBeamHaloHitsFile,
                                                flags.Digitization.PU.NumberOfBeamHalo, True)
 
     if hasattr(runArgs, "inputBeamGasHitsFile"):
-        from Digitization.PileUpUtils import generateBackgroundInputCollections
+        from RunDependentSimComps.PileUpUtils import generateBackgroundInputCollections
         flags.Digitization.PU.BeamGasInputCols = \
             generateBackgroundInputCollections(flags, runArgs.inputBeamGasHitsFile,
                                                flags.Digitization.PU.NumberOfBeamGas, True)

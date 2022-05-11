@@ -27,4 +27,3 @@ ToolSvc.Navigation.ClassesToPreregister = {"TestA#EverEmptyButPresent", "TestA#A
 
 ToolSvc.Navigation.OutputLevel=1;
 Holder_test.OutputLevel=1;
-RoICache_test.OutputLevel=3;

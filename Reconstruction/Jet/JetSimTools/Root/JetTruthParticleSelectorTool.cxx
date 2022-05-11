@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetSimTools/JetTruthParticleSelectorTool.h"
@@ -199,7 +199,7 @@ JetTruthParticleSelectorTool::JetTruthParticleSelectorTool(const std::string& n)
 JetTruthParticleSelectorTool::~JetTruthParticleSelectorTool()
 { }
 
-void JetTruthParticleSelectorTool::setupEvent() const {
+void JetTruthParticleSelectorTool::setupEvent() {
   m_wzLeptons.clear();
 }
   
@@ -249,7 +249,7 @@ bool JetTruthParticleSelectorTool::passKinematics(const xAOD::TruthParticle* tru
   return true;
 }
 
-bool JetTruthParticleSelectorTool::selector(const xAOD::TruthParticle* truthPart) const {
+bool JetTruthParticleSelectorTool::selector(const xAOD::TruthParticle* truthPart) {
 
   bool result = false;
   if ( abs(truthPart->pdgId()) == 999) return false; // protect against unexpected geantinos

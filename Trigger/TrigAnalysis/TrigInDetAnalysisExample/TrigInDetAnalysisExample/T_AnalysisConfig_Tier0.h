@@ -231,10 +231,10 @@ protected:
 	  std::string selectChain;
 	  
 	  if ( chainName.tail()!="" )    selectChain += ":key="+chainName.tail();
-	  if ( chainName.extra()!="" )   selectChain += ":extra="+chainName.extra();
 	  if ( chainName.element()!="" ) continue;
 	  if ( chainName.roi()!="" )     continue;
 	  if ( chainName.vtx()!="" )     selectChain += ":vtx="+chainName.vtx();
+	  if ( chainName.extra()!="" )   selectChain += ":extra="+chainName.extra();
 	  if ( !chainName.passed() )     continue;
 	  if ( chainName.postcount() )   selectChain += ":post:"+chainName.post();
 
@@ -254,10 +254,10 @@ protected:
 	  for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
 	    
 	    if ( chainName.tail()!="" )    selectChains[iselected] += ":key="+chainName.tail();
-	    if ( chainName.extra()!="" )   selectChains[iselected] += ":extra="+chainName.extra();
-	    if ( chainName.element()!="" ) selectChains[iselected] += ":te="+chainName.element();
 	    if ( chainName.roi()!="" )     selectChains[iselected] += ":roi="+chainName.roi();
 	    if ( chainName.vtx()!="" )     selectChains[iselected] += ":vtx="+chainName.vtx();
+	    if ( chainName.element()!="" ) selectChains[iselected] += ":te="+chainName.element();
+	    if ( chainName.extra()!="" )   selectChains[iselected] += ":extra="+chainName.extra();
 	    if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
 	    if ( chainName.postcount() )   selectChains[iselected] += ":post:"+chainName.post();
 	    
@@ -265,10 +265,10 @@ protected:
 	    std::cout << "sorting:: chain specification: " << chainName << "\traw:" << chainName.raw() << std::endl;
 	    std::cout << "\tchain: " << chainName.head()    << std::endl;
 	    std::cout << "\tkey:   " << chainName.tail()    << std::endl;
-	    std::cout << "\tind:   " << chainName.extra()   << std::endl;
 	    std::cout << "\troi:   " << chainName.roi()     << std::endl;
 	    std::cout << "\tvtx:   " << chainName.vtx()     << std::endl;
 	    std::cout << "\tte:    " << chainName.element() << std::endl;
+	    std::cout << "\tind:   " << chainName.extra()   << std::endl;
 #endif
 	    
 	    /// replace wildcard with actual matching chains ...
@@ -533,8 +533,6 @@ protected:
 
 #endif
 
-
-    //    std::cout << "here " << __LINE__ << std::endl;
 
     /// add the truth particles if needed
 

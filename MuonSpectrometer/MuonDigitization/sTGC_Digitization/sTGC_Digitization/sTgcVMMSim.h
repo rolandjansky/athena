@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /* This class is a simulation of the sTGC VMM behavior.  It is intended to be used as a module controlling
@@ -19,33 +19,22 @@
 
 #include <iosfwd>
 #include <inttypes.h>
+#include "AthenaKernel/getMessageSvc.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #include "MuonDigitContainer/MuonDigit.h"
 #include "MuonDigitContainer/sTgcDigitContainer.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/MsgStream.h"
-#include "AthenaKernel/MsgStreamMember.h"
 #include "PathResolver/PathResolver.h"
 #include "GaudiKernel/IToolSvc.h"
 
-class sTgcVMMSim
+class sTgcVMMSim : public AthMessaging
 {
 
 public:
     // functions
     sTgcVMMSim()
-        : m_deadtimeStart(-9999)
-        , m_readtimeStart(-9999)
-        , m_currentState(READY)
-        , m_vmmTime(0)
-        , m_readtimeWindow(0)
-        , m_deadtimeWindow(0)
-        , m_produceDeadDigits(false)
-        , m_channelType(0)
-        , m_readoutTick(1)
-        , m_mode_neighborOn(false)
-        , m_mainThreshold(1)
-        , m_neighborThreshold(1)
+        : sTgcVMMSim({}, 0, 0, 0, false, 0)
     {
         readVMMConfig();
     }
@@ -57,7 +46,8 @@ public:
         float readWindow,
         bool readDeadDigits,
         int typeOfChannel)
-        : m_deadtimeStart(-9999)
+        : AthMessaging(Athena::getMessageSvc(), "sTgcVMMSim")
+        , m_deadtimeStart(-9999)
         , m_readtimeStart(-9999)
         , m_digitsIn(std::move(inputDigits))
         , m_currentState(READY)
@@ -72,8 +62,9 @@ public:
         , m_neighborThreshold(1)
     {
         readVMMConfig();
-        
+
     }
+
     // //**********************************************************************
 
     bool tick() // advance the m_vmmTime, buffer digits, return live signal
@@ -163,21 +154,6 @@ public:
             ATH_MSG_VERBOSE("Neighbor trigger failed: neighborON mode is turned off");
     }
 
-    // Declaring the Message method for further use
-    MsgStream& msg(const MSG::Level lvl) const
-    {
-        return m_msg << lvl;
-    }
-    bool msgLvl(const MSG::Level lvl) const
-    {
-        return m_msg.get().level() <= lvl;
-    }
-    void setMessageLevel(const MSG::Level lvl) const
-    {
-        m_msg.get().setLevel(lvl);
-        
-        return;
-    }
     void initialReport() {
         ATH_MSG_VERBOSE(m_digitsIn.size() << " digits pased to the VMM");
         for(unsigned int i = 0; i<m_digitsIn.size(); i++){
@@ -244,7 +220,7 @@ private: // data
     //**********************************************************************
     void readVMMConfig() // Read config parameters in from the VMM config file
     {
-        const char* const fileName = "sTGC_Digitization_VMM.config"; // Located in the share folder of the package
+        const std::string fileName = "sTGC_Digitization_VMM.config"; // Located in the share folder of the package
         std::string fileWithPath = PathResolver::find_file(fileName, "DATAPATH");
 
         ATH_MSG_DEBUG("Reading VMM config file");
@@ -253,13 +229,11 @@ private: // data
         if(fileWithPath != "") {
             ifs.open(fileWithPath.c_str(), std::ios::in);
         } else {
-            ATH_MSG_FATAL("readDeadtimeConfig(): Could not find file " << fileName);
-            exit(-1);
+            throw std::runtime_error("readDeadtimeConfig(): Could not find file " + fileName);
         }
 
         if(ifs.bad()) {
-            ATH_MSG_FATAL("readDeadtimeConfig(): Could not open file " << fileName);
-            exit(-1);
+            throw std::runtime_error("readDeadtimeConfig(): Could not open file " + fileName);
         }
 
         std::string var;
@@ -293,9 +267,6 @@ private: // data
         ifs.close();
     }
 
-protected:
-    // Declaring private message stream member.
-    mutable Athena::MsgStreamMember m_msg = Athena::MsgStreamMember("sTgcVMMSim");
 };
 
 #endif

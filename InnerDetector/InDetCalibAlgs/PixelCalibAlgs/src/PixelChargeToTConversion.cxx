@@ -1,19 +1,17 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // conditions
 #include "PixelCalibAlgs/PixelChargeToTConversion.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h" 
 #include "CxxUtils/checker_macros.h"
-#include "PixelGeoModel/IBLParameterSvc.h" 
 #include "InDetIdentifier/PixelID.h"
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
 PixelChargeToTConversion::PixelChargeToTConversion(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
-  m_IBLParameterSvc("IBLParameterSvc",name)
+  AthAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -27,11 +25,15 @@ StatusCode PixelChargeToTConversion::initialize(){
 
   ATH_MSG_INFO( "Initializing PixelChargeToTConversion" );
 
-  if (m_IBLParameterSvc.retrieve().isFailure()) { 
+  if (!m_IBLParameterSvc.empty()) {
+    if (m_IBLParameterSvc.retrieve().isFailure()) {
       ATH_MSG_FATAL("Could not retrieve IBLParameterSvc"); 
       return StatusCode::FAILURE; 
-  } else  
+    } else
       ATH_MSG_INFO("Retrieved service " << m_IBLParameterSvc); 
+  }
+
+  m_doIBL = !m_IBLParameterSvc.empty() && m_IBLParameterSvc->containsIBL();
 
   ATH_CHECK(m_pixelReadout.retrieve());
   ATH_CHECK(m_moduleDataKey.initialize());
@@ -53,11 +55,12 @@ StatusCode PixelChargeToTConversion::execute(){
   ATH_MSG_DEBUG( "Pixel Cluster container found:  " << pixel_container->size() << " collections" );
 
   int overflowIBLToT=0;
-  if( m_IBLParameterSvc->containsIBL()) {
+  if(m_doIBL) {
     overflowIBLToT = SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getFEI4OverflowToT(0,0);
   }
 
-  SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey,ctx);
+  SG::ReadCondHandle<PixelChargeCalibCondData> calibDataHandle(m_chargeDataKey, ctx);
+  const PixelChargeCalibCondData *calibData = *calibDataHandle;
 
   typedef InDet::PixelClusterContainer::const_iterator ClusterIter;
   ClusterIter itrCluster;
@@ -100,28 +103,29 @@ StatusCode PixelChargeToTConversion::execute(){
 	//
 	int sumToT = 0;
 	std::vector<int> totList;
-  for (int i=0; i<nRDO; i++) {
-    Identifier pixid=RDOs[i];
-    int Charge=Charges[i];
 
-    Identifier moduleID = pixelID.wafer_id(pixid);
-    IdentifierHash moduleHash = pixelID.wafer_hash(moduleID);
-    int circ = m_pixelReadout->getFE(pixid, moduleID);
-    InDetDD::PixelDiodeType type = m_pixelReadout->getDiodeType(pixid);
-    int totInt = (int)calibData->getToT((int)moduleHash, circ, type, Charges[i]);
+	for (int i=0; i<nRDO; i++) {
+	  Identifier pixid=RDOs[i];
+	  int Charge=Charges[i];
 
-    if( m_IBLParameterSvc->containsIBL() && pixelID.barrel_ec(pixid) == 0 && pixelID.layer_disk(pixid) == 0 ) {
-      int tot0 = totInt;
-      if ( totInt >= overflowIBLToT ) totInt = overflowIBLToT;
-      msg(MSG::DEBUG) << "barrel_ec = " << pixelID.barrel_ec(pixid) << " layer_disque = " <<  pixelID.layer_disk(pixid) << " ToT = " << tot0 << " Real ToT = " << totInt << endmsg;
-    }
+	  Identifier moduleID = pixelID.wafer_id(pixid);
+	  IdentifierHash moduleHash = pixelID.wafer_hash(moduleID);
+	  unsigned int FE = m_pixelReadout->getFE(pixid, moduleID);
+	  InDetDD::PixelDiodeType type = m_pixelReadout->getDiodeType(pixid);
+	  int totInt = calibData->getToT(type, moduleHash, FE, Charges[i]);
 
-    totList.push_back( totInt ) ; // Fudge to make sure we round to the correct number
-    ATH_MSG_DEBUG( "from Charge --> ToT   " << Charge <<"  "<< totInt);
-    sumToT += totInt;
-  }
-  ATH_MSG_DEBUG( "sumToT   " << sumToT);
-  theNonConstCluster->setToTList (std::move (totList));
+	  if( m_doIBL && pixelID.barrel_ec(pixid) == 0 && pixelID.layer_disk(pixid) == 0 ) {
+	    int tot0 = totInt;
+	    if ( totInt >= overflowIBLToT ) totInt = overflowIBLToT;
+	    msg(MSG::DEBUG) << "barrel_ec = " << pixelID.barrel_ec(pixid) << " layer_disque = " <<  pixelID.layer_disk(pixid) << " ToT = " << tot0 << " Real ToT = " << totInt << endmsg;
+	  }
+
+	  totList.push_back( totInt ) ; // Fudge to make sure we round to the correct number
+	  ATH_MSG_DEBUG( "from Charge --> ToT   " << Charge <<"  "<< totInt);
+	  sumToT += totInt;
+	}
+	ATH_MSG_DEBUG( "sumToT   " << sumToT);
+	theNonConstCluster->setToTList (std::move (totList));
       }
 
     }//loop over clusters

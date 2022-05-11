@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALODMDETDESCR_CALODMDESCRAREA_H
@@ -48,7 +48,7 @@ class CaloDmDescrArea
     };
 
     CaloDmDescrArea();
-    ~CaloDmDescrArea();
+    ~CaloDmDescrArea() = default;
 
     static int getArea(const int &dmkey, const float &eta);
 };

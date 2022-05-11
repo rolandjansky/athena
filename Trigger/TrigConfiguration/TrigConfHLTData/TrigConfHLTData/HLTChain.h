@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_HLTChain
@@ -65,7 +65,7 @@ namespace TrigConf {
       HLTChain( const HLTChain& ch );
 
       /**@brief destructor*/
-      ~HLTChain();
+      virtual ~HLTChain() override;
 
 
       // getters
@@ -154,14 +154,14 @@ namespace TrigConf {
       void createSignatureLabels();
 
       /**@brief print the chain*/
-      void print(const std::string& indent="", unsigned int detail=1) const;
+      void print(const std::string& indent="", unsigned int detail=1) const override;
 
       void writeXML(std::ofstream & xmlfile);
 
       DiffStruct* compareTo(const HLTChain* o) const;
 
       // for python
-      std::string __str__() const;
+      std::string __str__() const override;
 
 
    private:
@@ -192,8 +192,8 @@ namespace TrigConf {
       
       // temporary object to store the merge information
       struct {
-         unsigned int l2;
-         unsigned int ef;
+         unsigned int l2{0};
+         unsigned int ef{0};
       } mergeCounter;
    };
 

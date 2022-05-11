@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef BEAMSPOT_CONDITIONSALGS_BEAMSPOTCONDALG_H
 #define BEAMSPOT_CONDITIONSALGS_BEAMSPOTCONDALG_H 1
@@ -9,8 +9,7 @@
 #include "StoreGate/WriteCondHandleKey.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
-#include "GaudiKernel/ICondSvc.h"
-#include "GaudiKernel/EventIDRange.h" 
+#include "GaudiKernel/EventIDRange.h"
 #include <limits>
 
 #include "BeamSpotConditionsData/BeamSpotData.h"
@@ -34,8 +33,6 @@ class BeamSpotCondAlg : public AthReentrantAlgorithm
 
   SG::WriteCondHandleKey<InDet::BeamSpotData> m_writeKey { this, "BeamSpotDataKey", "BeamSpotData",
                                                            "Key for derived conditions in conditions store" };
-
-  ServiceHandle<ICondSvc> m_condSvc { this, "ConditionsService", "CondSvc", "name of conditions service" };
 
   Gaudi::Property<bool>  m_useDB   { this, "useDB",   true,  "read beam spot from conditions DB" };
   Gaudi::Property<int>   m_status  { this, "status",  1,     "default status" };

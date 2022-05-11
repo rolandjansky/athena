@@ -128,120 +128,15 @@ private:
   double m_sig_rad = 0;   // sigma for radiation
   double m_length = 0;    // 3D length of material
 };
-
-inline EnergyLoss*
-EnergyLoss::clone() const
-{
-  return new EnergyLoss(*this);
-}
-
-inline double
-EnergyLoss::deltaE() const
-{
-  return m_deltaE;
-}
-
-inline double
-EnergyLoss::sigmaDeltaE() const
-{
-  return m_sigmaDeltaE;
-}
-
-inline double
-EnergyLoss::sigmaMinusDeltaE() const
-{
-  return m_sigmaMinusDeltaE;
-}
-
-inline double
-EnergyLoss::sigmaPlusDeltaE() const
-{
-  return m_sigmaPlusDeltaE;
-}
-
-inline double
-EnergyLoss::meanIoni() const
-{
-  return m_mean_ioni;
-}
-
-inline double
-EnergyLoss::sigmaIoni() const
-{
-  return m_sig_ioni;
-}
-
-inline double
-EnergyLoss::meanRad() const
-{
-  return m_mean_rad;
-}
-
-inline double
-EnergyLoss::sigmaRad() const
-{
-  return m_sig_rad;
-}
-
-inline double
-EnergyLoss::length() const
-{
-  return m_length;
-} // length can be positive and negative like Eloss depending on (back)tracking
-
-inline void
-EnergyLoss::update(double ioni, double sigi, double rad, double sigr, bool mpv)
-{
-  m_mean_ioni += ioni;
-  m_mean_rad += rad;
-  m_sig_ioni += sigi;
-  m_sig_rad += sigr;
-  m_deltaE += mpv ? 0.9 * ioni + 0.15 * rad : ioni + rad;
-  m_sigmaDeltaE = std::sqrt(m_sig_ioni * m_sig_ioni + m_sig_rad * m_sig_rad);
-}
-
-inline void
-EnergyLoss::update(const EnergyLoss& eloss, bool mpv)
-{
-  m_mean_ioni += eloss.meanIoni();
-  m_mean_rad += eloss.meanRad();
-  m_sig_ioni += eloss.sigmaIoni();
-  m_sig_rad += eloss.sigmaRad();
-  m_deltaE += mpv ? 0.9 * eloss.meanIoni() + 0.15 * eloss.meanRad()
-                  : eloss.meanIoni() + eloss.meanRad();
-  m_sigmaDeltaE = std::sqrt(m_sig_ioni * m_sig_ioni + m_sig_rad * m_sig_rad);
-}
-
-inline void
-EnergyLoss::set(double eloss,
-                double sigde,
-                double ioni,
-                double sigi,
-                double rad,
-                double sigr)
-{
-  m_mean_ioni = ioni;
-  m_mean_rad = rad;
-  m_sig_ioni = sigi;
-  m_sig_rad = sigr;
-  m_deltaE = ioni + rad + 0 * eloss;
-  m_sigmaDeltaE = std::sqrt(m_sig_ioni * m_sig_ioni + m_sig_rad * m_sig_rad +
-                            0 * sigde * sigde);
-}
-
 //! Overload of << operator for MsgStream for debug output
-inline MsgStream&
-operator<<(MsgStream& sl, const EnergyLoss& eloss)
-{
-  return eloss.dump(sl);
-}
-//! Overload of << operator for std::ostream for debug output
-inline std::ostream&
-operator<<(std::ostream& sl, const EnergyLoss& eloss)
-{
-  return eloss.dump(sl);
-}
+MsgStream&
+operator<<(MsgStream& sl, const EnergyLoss& eloss);
+
+//! Overload of << operator for std::ostream for debug outputstd::ostream&
+std::ostream&
+operator<<(std::ostream& sl, const EnergyLoss& eloss);
 
 } // end ns
 
-#endif // TRKMATERIALONTRACK_MATERIALEFFECTSONTRACK_H
+#include "TrkMaterialOnTrack/EnergyLoss.icc"
+#endif // TRKMATERIALONTRACK_ENERGYLOSS_H

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthLinks )
@@ -25,7 +25,8 @@ atlas_add_dictionary( AthLinksDict
 function( _add_test name )
    atlas_add_test( ${name}
                    SOURCES test/${name}.cxx
-                   LINK_LIBRARIES AthLinks TestTools )
+                   LINK_LIBRARIES AthLinks TestTools
+                   LOG_IGNORE_PATTERN "this proxy 0x" )
 endfunction( _add_test )
 
 _add_test( exceptions_test )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // CscReadWriteCoolStr.cxx - simple example of algorithm demonstrating 
@@ -7,7 +7,7 @@
 // author lampen@physics.arizona.edu
 // Update: Apr 10, 2007. No longer reads - Caleb Parnell-Lampen <lampen@physics.arizona.edu>
 
-#include "MuonCondCool/CscReadWriteCoolStr.h"
+#include "CscReadWriteCoolStr.h"
 
 #include "GaudiKernel/ISvcLocator.h"
 #include "MuonCondData/CscCondParType.h"
@@ -80,23 +80,21 @@ namespace MuonCalib {
   StatusCode CscReadWriteCoolStr::readFiles() {
     StatusCode sc = StatusCode::SUCCESS;
     ATH_MSG_DEBUG("About to insert files");
-    std::vector<std::string>::const_iterator fItr = m_ifiles.begin();
-    std::vector<std::string>::const_iterator fEnd = m_ifiles.end();
-    for(;fItr != fEnd; fItr++)
+    for (const std::string& f : m_ifiles)
     {
-      std::ifstream ifile(fItr->c_str());
+      std::ifstream ifile(f.c_str());
       if(ifile.is_open() && ifile.good())
       {
         if(!procInputStream(/*dynamic_cast<istream*>(ifile)*/ifile).isSuccess())
         {
           sc = StatusCode::RECOVERABLE;
-          ATH_MSG_ERROR("Failed processing " << *fItr);
+          ATH_MSG_ERROR("Failed processing " << f);
         }
       }
       else
       {
         sc = StatusCode::RECOVERABLE;
-        ATH_MSG_ERROR("Failed opening " << *fItr);
+        ATH_MSG_ERROR("Failed opening " << f);
       }
     }
 
@@ -360,16 +358,13 @@ namespace MuonCalib {
       outFile << m_outFileType << " <END_HEADER>\n";
     }
 
-    std::vector<std::string>::const_iterator parNameItr = m_outParameters.begin();
-    std::vector<std::string>::const_iterator parNameEnd = m_outParameters.end();
-    for(;parNameItr != parNameEnd; parNameItr++) {
-
-      ATH_MSG_DEBUG("Storing " << *parNameItr);
+    for (const std::string& par : m_outParameters) {
+      ATH_MSG_DEBUG("Storing " << par);
 
       unsigned int numIndx = 0;
-      if(!m_cscCoolStrSvc->getParNumHashes(*parNameItr,numIndx).isSuccess()) {
+      if(!m_cscCoolStrSvc->getParNumHashes(par,numIndx).isSuccess()) {
         ATH_MSG_ERROR("Failed getting num hashes for " 
-          << *parNameItr);
+          << par);
         return StatusCode::RECOVERABLE;
       }
 
@@ -377,8 +372,8 @@ namespace MuonCalib {
 
 
       std::string cat;
-      if(!m_cscCoolStrSvc->getParCat(*parNameItr,cat).isSuccess() ){
-        ATH_MSG_ERROR("Failed getting category for " << *parNameItr);
+      if(!m_cscCoolStrSvc->getParCat(par,cat).isSuccess() ){
+        ATH_MSG_ERROR("Failed getting category for " << par);
       }
 
       ATH_MSG_DEBUG("Category is " << cat << " and maximum index is " <<numIndx-1 
@@ -386,24 +381,24 @@ namespace MuonCalib {
 
       if(m_forceChanCat)
       {
-        ATH_MSG_WARNING(*parNameItr << " of category " << cat << " is being forced to be read as category CHANNEL");
+        ATH_MSG_WARNING(par << " of category " << cat << " is being forced to be read as category CHANNEL");
         cat = "CHANNEL";
       }
 
-      if(!m_cscCoolStrSvc->getParDataType(*parNameItr, dataType)){
-        ATH_MSG_ERROR("Failed getting data type for " << *parNameItr);
+      if(!m_cscCoolStrSvc->getParDataType(par, dataType)){
+        ATH_MSG_ERROR("Failed getting data type for " << par);
         return StatusCode::RECOVERABLE;
       }
 
       ATH_MSG_DEBUG("datatype is " << dataType);
       if(m_outFileType == "04-00" || m_outFileType == "04-01"){
-        outFile << "<PARAMETER>\n" << *parNameItr << "\n<DATA>\n";
+        outFile << "<PARAMETER>\n" << par << "\n<DATA>\n";
         if(cat == "CHANNEL"){
           for(unsigned int indxItr =0; indxItr < numIndx; indxItr++)
           {
             //make sure the database has this value in a way that won't
             //cause any errors
-            if(!m_cscCoolStrSvc->checkIndex(*parNameItr, indxItr)) {
+            if(!m_cscCoolStrSvc->checkIndex(par, indxItr)) {
               ATH_MSG_VERBOSE("nothing at index " << indxItr);
               continue;
             }
@@ -420,7 +415,7 @@ namespace MuonCalib {
             int sector = (phi*2 - size + 50)*eta;
 
 
-            std::string data =  RetrieveDataAsString( *parNameItr, indxItr, dataType);
+            std::string data =  RetrieveDataAsString( par, indxItr, dataType);
             if(data == "" ){
               ATH_MSG_ERROR("Failed to retrieve data!");
               return StatusCode::RECOVERABLE;
@@ -463,7 +458,7 @@ namespace MuonCalib {
                   chamberLayer, layerSince, measuresPhi, stripSince);
               IdentifierHash hash;
               m_idHelperSvc->cscIdHelper().get_channel_hash(chanId, hash);
-              std::string data = RetrieveDataAsString(*parNameItr, (int)hash, dataType);
+              std::string data = RetrieveDataAsString(par, (int)hash, dataType);
 
               //update file
               outFile << sector << " ASM" << asmNum << " " << data << "\n";
@@ -478,12 +473,12 @@ namespace MuonCalib {
         outFile << "</DATA>\n</PARAMETER>\n";
       }
       else{
-        outFile <<"<NEW_PAR> " << *parNameItr << "\n";
+        outFile <<"<NEW_PAR> " << par << "\n";
         for(unsigned int indxItr =0; indxItr < numIndx; indxItr++)
         {
           //make sure the database has this value in a way that won't
           //cause any errors
-          if(!m_cscCoolStrSvc->checkIndex(*parNameItr, indxItr)) {
+          if(!m_cscCoolStrSvc->checkIndex(par, indxItr)) {
             ATH_MSG_VERBOSE("nothing at index " << indxItr);
             continue;
           }
@@ -492,7 +487,7 @@ namespace MuonCalib {
           if(m_outFileType == "03-00"|| m_outFileType== "03-01") {
             if(!m_cscCoolStrSvc->indexToStringId(indxItr,cat,stringId)) {
               ATH_MSG_ERROR("Failed getting string Id from indxItr " 
-                << indxItr << " for parameter " << *parNameItr);
+                << indxItr << " for parameter " << par);
               return StatusCode::RECOVERABLE;
             }
           }
@@ -515,7 +510,7 @@ namespace MuonCalib {
 
           outFile << stringId << " ";
 
-          std::string data =  RetrieveDataAsString( *parNameItr, indxItr, dataType) ;
+          std::string data =  RetrieveDataAsString( par, indxItr, dataType) ;
           if(data == ""){
             ATH_MSG_ERROR("Failed to to retrieve data!");
             return StatusCode::RECOVERABLE;

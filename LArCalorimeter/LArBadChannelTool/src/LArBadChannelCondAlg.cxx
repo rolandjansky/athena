@@ -10,18 +10,11 @@
 
 
 StatusCode LArBadChannelCondAlg::initialize() {
-  // CondSvc
-  ATH_CHECK( m_condSvc.retrieve() );
   // Read Handles
-  if(!m_BCInputKey.key().empty()) ATH_CHECK( m_BCInputKey.initialize() );
+  ATH_CHECK( m_BCInputKey.initialize(SG::AllowEmpty) );
   ATH_CHECK( m_BCOutputKey.initialize() );
   ATH_CHECK(m_cablingKey.initialize());
  
-  // Register write handle
-  if (m_condSvc->regHandle(this, m_BCOutputKey).isFailure()) {
-    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_BCOutputKey.fullKey() << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
   return StatusCode::SUCCESS;
 }
 
@@ -87,8 +80,8 @@ StatusCode LArBadChannelCondAlg::execute() {
 	ATH_CHECK(detStore()->retrieve(onlID,"LArOnlineID"));
 	onlineID=onlID;
      }
-     LArBadChannelDecoder decoder(&(*onlineID), msg());
-     std::vector<std::pair<HWIdentifier,LArBadChannel> > bcVec = decoder.readASCII(m_inputFileName,LArBadChannelState::MAXCOOLCHAN);
+     LArBadChannelDecoder decoder(&(*onlineID));
+     std::vector<std::pair<HWIdentifier,LArBadChannel> > bcVec = decoder.readASCII(m_inputFileName,LArBadChannelState::MAXCOOLCHAN, msg());
      for (auto& idBC : bcVec) {
        badChannelCont->add(idBC.first,idBC.second);
      }

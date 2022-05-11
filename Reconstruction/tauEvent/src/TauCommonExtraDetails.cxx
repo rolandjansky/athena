@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///@file TauCommonExtraDetails.cxx
@@ -164,7 +164,7 @@ namespace Analysis {
     }
 
     //Class name
-    std::string TauCommonExtraDetails::s_className =
+    const std::string TauCommonExtraDetails::s_className =
         ClassName<TauCommonExtraDetails>::name();
 
     const std::string& TauCommonExtraDetails::className() const

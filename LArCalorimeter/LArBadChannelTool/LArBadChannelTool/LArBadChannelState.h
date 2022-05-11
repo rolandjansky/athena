@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LArBadChannelState_H
@@ -104,8 +104,9 @@ class LArBadChannelState {
 
   /// Returns true if all cool channels are empty
   bool empty() const {
-    for (std::vector< CoolChannelData>::const_iterator i=m_DataVec.begin();
-	 i != m_DataVec.end(); i++) if (!i->empty()) return false;
+    for (const CoolChannelData& cd : m_DataVec) {
+      if (!cd.empty()) return false;
+    }
     return true;
   }
 

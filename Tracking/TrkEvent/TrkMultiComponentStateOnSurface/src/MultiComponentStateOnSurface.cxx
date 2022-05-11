@@ -128,7 +128,7 @@ Trk::MultiComponentStateOnSurface::operator=(
   return *this;
 }
 
-Trk::TrackStateOnSurface*
+Trk::MultiComponentStateOnSurface*
 Trk::MultiComponentStateOnSurface::clone() const
 {
   return new MultiComponentStateOnSurface(*this);

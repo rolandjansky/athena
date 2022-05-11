@@ -4,7 +4,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import LHCPeriod
 from JetTagTools.BTagTrackToVertexToolConfig import BTagTrackToVertexToolCfg
-from JetTagTools.InDetEtaDependentCutsSvcConfig import IDEtaDependentCuts_IPXD_SvcCfg
+from InDetConfig.InDetEtaDependentCutsConfig import IDEtaDependentCuts_IPXD_SvcCfg
 
 
 def IPTrackSelectorCfg(flags, name = 'IPTrackSelector', useBTagFlagsDefaults = True, **options ):
@@ -31,7 +31,7 @@ def IPTrackSelectorCfg(flags, name = 'IPTrackSelector', useBTagFlagsDefaults = T
         for option in defaults:
             options.setdefault(option, defaults[option])
 
-        if flags.GeoModel.Run not in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3]:
+        if flags.GeoModel.Run >= LHCPeriod.Run4:
             acc.merge(IDEtaDependentCuts_IPXD_SvcCfg(flags, name="IDEtaDepCutsSvc_" + name))
             options.setdefault("InDetEtaDependentCutsSvc", acc.getService("IDEtaDepCutsSvc_" + name))
 

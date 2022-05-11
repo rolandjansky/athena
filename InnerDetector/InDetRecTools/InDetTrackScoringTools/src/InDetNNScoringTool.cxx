@@ -15,8 +15,6 @@
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "TrkCaloClusterROI/CaloClusterROI.h"
-#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 
@@ -113,8 +111,7 @@ InDet::InDetNNScoringTool::InDetNNScoringTool(const std::string& t,
 //---------------------------------------------------------------------------------------------------------------------
 
 InDet::InDetNNScoringTool::~InDetNNScoringTool()
-{
-}
+= default;
 
 //---------------------------------------------------------------------------------------------------------------------
 
@@ -170,7 +167,7 @@ StatusCode InDet::InDetNNScoringTool::initialize()
       inFile.close();
   }
 
-  ATH_CHECK( m_caloROIInfoKey.initialize(m_useEmClusSeed) );
+  ATH_CHECK( m_caloClusterROIKey.initialize(m_useEmClusSeed) );
   
   return StatusCode::SUCCESS;
 }
@@ -341,7 +338,7 @@ Trk::TrackScore InDet::InDetNNScoringTool::simpleScore( const Trk::Track& track,
 
   double maxD0 = m_maxRPhiImp;
   if(m_useEmClusSeed) {
-     if (isEmCaloCompatible( track ) ) {
+     if (isEmCaloCompatible( track, ctx ) ) {
         maxD0 = m_maxRPhiImpEM;
      }
   }
@@ -851,7 +848,7 @@ void InDet::InDetNNScoringTool::setupScoreModifiers()
 
 }
 
-bool InDet::InDetNNScoringTool::isEmCaloCompatible(const Trk::Track& track) const
+bool InDet::InDetNNScoringTool::isEmCaloCompatible(const Trk::Track& track, const EventContext& ctx) const
 {
   const Trk::TrackParameters * Tp = track.trackParameters()->front();
 
@@ -870,29 +867,13 @@ bool InDet::InDetNNScoringTool::isEmCaloCompatible(const Trk::Track& track) cons
     }
   }
 
-  const double pi = M_PI, pi2 = 2.*M_PI;
-
   double F = Tp->momentum().phi();
   double E = Tp->momentum().eta();
   double R = Tp->position().perp();
   double Z = Tp->position().z();
 
-  SG::ReadHandle<InDet::ROIInfoVec> calo(m_caloROIInfoKey);
-  for( const InDet::ROIInfo &ccROI : *calo) {
-
-    double df = fabs(F-ccROI.emF);
-    if(df > pi        ) df = fabs(pi2-df);
-    if(df < m_phiWidthEm) {
-      //Correct eta of cluster to take into account the z postion of the track
-      double newZ   = ccROI.emZ - Z;
-      double newR   = ccROI.emR - R;
-      double newEta =  atanh( newZ / sqrt( newR*newR + newZ*newZ ) );
-      double de = fabs(E-newEta);
-
-      if(de < m_etaWidthEm) return true;
-    }
-  }
-  return false;
+  SG::ReadHandle<ROIPhiRZContainer> calo(m_caloClusterROIKey, ctx);
+  return calo->hasMatchingROI(F, E,  R, Z, m_phiWidthEm, m_etaWidthEm);
 }
 
 Trk::TrackScore InDet::InDetNNScoringTool::calcNnScore(const Trk::Track &track, const Trk::TrackSummary &trackSummary, const Trk::Perigee *extrapolatedPerigee) const 

@@ -1,10 +1,12 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #include <iostream>
 #include <vector>
 #include <memory>
 #include <stdint.h>
+
+#include "CxxUtils/checker_macros.h"
 
 #include "TrigConfBase/TrigConfMessaging.h"
 #include "TrigConfIO/JsonFileLoader.h"
@@ -37,7 +39,7 @@ int printHelp(const char * exeName) {
    return 1;
 }
 
-int run(int argc, const char* argv[]) {
+int run ATLAS_NOT_THREAD_SAFE (int argc, const char* argv[]) {
 
    if(argc<3) {
       return printHelp(argv[0]);
@@ -192,7 +194,7 @@ int run(int argc, const char* argv[]) {
 }
 
 
-int main(int argc, const char * argv[]) {
+int main ATLAS_NOT_THREAD_SAFE (int argc, const char * argv[]) {
    try {
       return run(argc, argv);
    }

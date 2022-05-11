@@ -19,3 +19,5 @@ atlas_add_dictionary( InDetHardScatterSelectionToolDict
     InDetHardScatterSelectionTool/InDetHardScatterSelectionToolDict.h
     InDetHardScatterSelectionTool/selection.xml
     LINK_LIBRARIES InDetHardScatterSelectionToolLib )
+
+atlas_install_python_modules( python/*.py ) 

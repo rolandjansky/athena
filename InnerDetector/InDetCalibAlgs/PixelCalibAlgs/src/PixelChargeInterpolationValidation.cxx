@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelChargeInterpolationValidation_C
@@ -65,7 +65,8 @@ PixelChargeInterpolationValidation::PixelChargeInterpolationValidation(const std
 	int ntot = 9;
 	double start = 0.1;
 	double end = 10E3;
-	for(int i  = 0; i < ntot+1; i++){
+	ptbins_Layer.reserve(ntot+1);
+for(int i  = 0; i < ntot+1; i++){
 		ptbins_Layer.push_back( start * pow( end/start, double(i)/double(ntot) ) );
 	}
 
@@ -587,7 +588,7 @@ void PixelChargeInterpolationValidation::WriteErrorsFile(const std::string& name
 				if (value == 0) value = (k+1)*400/sqrt(12)/1000;
 				parameters->setPixelBarrelEtaError(globalindex,value);
 			}
-	parameters->Print(name.c_str());
+	parameters->Print(name);
 
         delete parameters;
 }

@@ -1,13 +1,44 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
-from BTagging.BTagRun3Config import RenameHLTaggerCfg
-from BTagging.BTagRun3Config import RunHighLevelTaggersCfg
-from BTagging.BTagRun3Config import RenameInputContainerCfg
-from BTagging.BTagRun3Config import JetBTaggerSplitAlgsCfg
 from BTagging.BTagTrackAugmenterAlgConfig import BTagTrackAugmenterAlgCfg
-from JetTagCalibration.JetTagCalibConfig import JetTagCalibCfg
+from FlavorTagDiscriminants.BTagJetAugmenterAlgConfig import (
+    BTagJetAugmenterAlgCfg)
+
+from FlavorTagDiscriminants.FlavorTagNNConfig import FlavorTagNNCfg
+
+def RenameInputContainerCfg(suffix):
+    acc=ComponentAccumulator()
+
+    #Delete BTagging container read from input ESD
+    AddressRemappingSvc, ProxyProviderSvc=CompFactory.getComps("AddressRemappingSvc","ProxyProviderSvc",)
+    AddressRemappingSvc = AddressRemappingSvc("AddressRemappingSvc")
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::JetAuxContainer#AntiKt4EMTopoJets.btaggingLink->AntiKt4EMTopoJets.btaggingLink_' + suffix]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::BTaggingContainer#BTagging_AntiKt4EMTopo->BTagging_AntiKt4EMTopo_' + suffix]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::BTaggingAuxContainer#BTagging_AntiKt4EMTopoAux.->BTagging_AntiKt4EMTopo_' + suffix+"Aux."]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::VertexContainer#BTagging_AntiKt4EMTopoSecVtx->BTagging_AntiKt4EMTopoSecVtx_' + suffix]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::VertexAuxContainer#BTagging_AntiKt4EMTopoSecVtxAux.->BTagging_AntiKt4EMTopoSecVtx_' + suffix+"Aux."]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::BTagVertexContainer#BTagging_AntiKt4EMTopoJFVtx->BTagging_AntiKt4EMTopoJFVtx_' + suffix]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::BTagVertexAuxContainer#BTagging_AntiKt4EMTopoJFVtxAux.->BTagging_AntiKt4EMTopoJFVtx_' + suffix+"Aux."]
+    acc.addService(AddressRemappingSvc)
+    acc.addService(ProxyProviderSvc(ProviderNames = [ "AddressRemappingSvc" ]))
+
+    return acc
+
+def RenameHLTaggerCfg(JetCollection, Tagger, suffix):
+    acc=ComponentAccumulator()
+    AddressRemappingSvc, ProxyProviderSvc=CompFactory.getComps("AddressRemappingSvc","ProxyProviderSvc",)
+    AddressRemappingSvc = AddressRemappingSvc("AddressRemappingSvc")
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::BTaggingAuxContainer#BTagging_' + JetCollection + '.' + Tagger + '_pu->BTagging_' + JetCollection + '.'+ Tagger + '_pu' + suffix]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::BTaggingAuxContainer#BTagging_' + JetCollection + '.' + Tagger + '_pc->BTagging_' + JetCollection + '.'+ Tagger + '_pc' + suffix]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::BTaggingAuxContainer#BTagging_' + JetCollection + '.' + Tagger + '_pb->BTagging_' + JetCollection + '.'+ Tagger + '_pb' + suffix]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::BTaggingAuxContainer#BTagging_' + JetCollection + '.' + Tagger + '_ptau->BTagging_' + JetCollection + '.'+ Tagger + '_ptau' + suffix]
+    acc.addService(AddressRemappingSvc)
+    acc.addService(ProxyProviderSvc(ProviderNames = [ "AddressRemappingSvc" ]))
+
+    return acc
 
 
 def BTagHLTaggersCfg(inputFlags, JetCollection = []):
@@ -38,6 +69,17 @@ def BTagHLTaggersCfg(inputFlags, JetCollection = []):
             acc.merge(RunHighLevelTaggersCfg(cfgFlags, jet, 'BTagTrackToJetAssociator', postTagDL2JetToTrainingMap[jet], ""))
 
     return acc
+
+
+def RunHighLevelTaggersCfg(inputFlags, jet, tracks, Associator, taggers):
+    result = ComponentAccumulator()
+
+    BTagCollection = inputFlags.BTagging.OutputFiles.Prefix+JetCollection
+    result.merge(BTagJetAugmenterAlgCfg(inputFlags, JetCollection=jet, BTagCollection=BTagCollection, Associator=Associator, TrackCollection=tracks) )
+    for dl2 in taggers:
+        result.merge(FlavorTagNNCfg(inputFlags, BTagCollection, TrackCollection=tracks, NNFile=dl2) )
+
+    return result
 
 
 def str2bool(v):
@@ -76,21 +118,18 @@ def BTagRedoESDCfg(flags, jet, extraContainers=[]):
 
     #Register input ESD container in output
     ESDItemList = registerOutputBTaggingContainers(flags, jet)
-    ESDItemList += registerJetCollectionEL(flags, jet, [''])
+    ESDItemList += registerJetCollectionEL(flags, jet)
     print(ESDItemList)
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
     acc.merge(OutputStreamCfg(flags,"ESD", ItemList=ESDItemList+extraContainers))
 
     return acc
 
-
-def registerJetCollectionEL(flags, JetCollection, TimeStamp):
+def registerJetCollectionEL(flags, JetCollection):
     ItemList = []
     # btaggingLink
-    suffix = ".".join(['btaggingLink'+ ts for ts in TimeStamp])
     ItemList.append('xAOD::JetContainer#'+JetCollection+'Jets')
-    ItemList.append('xAOD::JetAuxContainer#'+JetCollection+'JetsAux.'+ suffix)
-
+    ItemList.append('xAOD::JetAuxContainer#'+JetCollection+'JetsAux.btaggingLink')
     return ItemList
 
 def registerOutputBTaggingContainers(flags, JetCollection, suffix = ''):
@@ -126,46 +165,6 @@ def registerOutputBTaggingContainers(flags, JetCollection, suffix = ''):
       #ItemList.append(OutputFilesBaseAuxName + author + 'Aux.-BTagTrackToJetAssociatorBB')
 
       return ItemList
-
-def BTagCfg(inputFlags, JetCollection = [], **kwargs):
-
-    #This is monolithic for now. 
-    #Once a first complete example runs, this will be split into small modular chunks.
-    result=ComponentAccumulator()
-
-    TrainedTaggers = inputFlags.BTagging.run2TaggersList + ['MultiSVbb1','MultiSVbb2']
-    result.merge(JetTagCalibCfg(inputFlags, TaggerList = TrainedTaggers, **kwargs))
-
-    for jet in JetCollection:
-        taggerList = inputFlags.BTagging.run2TaggersList
-        taggerList += ['MultiSVbb1','MultiSVbb2']
-
-        extraCont = []
-        extraCont.append("xAOD::VertexContainer#PrimaryVertices")
-        extraCont.append("xAOD::VertexAuxContainer#PrimaryVerticesAux.")
-        extraCont.append("xAOD::TrackParticleContainer#InDetTrackParticles")
-        extraCont.append("xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux.")
-
-        JFSecVtx = "xAOD::BTagVertexContainer#"
-        AuxJFSecVtx= "xAOD::BTagVertexAuxContainer#"
-        SecVtx = "xAOD::VertexContainer#"
-        AuxSecVtx = "xAOD::VertexAuxContainer#"
-        author = inputFlags.BTagging.OutputFiles.Prefix + jet
-        extraCont.append(JFSecVtx + author + 'JFVtxMT')
-        extraCont.append(AuxJFSecVtx + author + 'JFVtxMTAux.')
-        extraCont.append(SecVtx + author + 'SecVtxMT')
-        extraCont.append(AuxSecVtx + author + 'SecVtxMTAux.-vxTrackAtVertex')
-        extraCont.append(SecVtx + author + 'MSVMT')
-        extraCont.append(AuxSecVtx + author + 'MSVMTAux.-vxTrackAtVertex')
-        extraCont.append("xAOD::BTaggingContainer#" + author + 'MT')
-        extraCont.append("xAOD::BTaggingAuxContainer#" + author + 'MTAux.')
-        result.merge(BTagRedoESDCfg(inputFlags, jet, extraCont))
-
-        secVertexingAndAssociators = {'JetFitter':'BTagTrackToJetAssociator','SV1':'BTagTrackToJetAssociator'}
-
-        result.merge(JetBTaggerSplitAlgsCfg(inputFlags, JetCollection = jet, TaggerList = taggerList, SecVertexingAndAssociators = secVertexingAndAssociators, **kwargs))
-
-    return result
 
 if __name__=="__main__":
 

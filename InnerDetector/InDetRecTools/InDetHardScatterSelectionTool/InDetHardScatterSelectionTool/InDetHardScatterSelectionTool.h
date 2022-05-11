@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETHARDSCATTERSELECTIONTOOL_INDETHARDSCATTERSELECTIONTOOL_H
@@ -127,7 +127,7 @@ namespace InDet {
     std::unique_ptr<Sum> m_sum;
 
     /// A flag which will be true if an InDetTrackSelectionTool was provided
-    bool m_doTrkSelection;
+    bool m_doTrkSelection = false;
 
     /// xAOD::EventInfo ReadHandleKey
     SG::ReadHandleKey<xAOD::EventInfo> m_evtInfoKey {this, "EventInfo", "EventInfo", "EventInfo key"};

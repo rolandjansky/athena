@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGT2DJTRIG_PROMPT_HYPOTOOL_H
 #define TRIGT2DJTRIG_PROMPT_HYPOTOOL_H
@@ -12,6 +12,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #include "xAODTracking/TrackParticle.h"
 #include "xAODJet/Jet.h"
 #include "AthenaMonitoringKernel/Monitored.h"
+#include "DisplacedJetBeamspotInfo.h"
 
 class DisplacedJetPromptHypoTool : virtual public ::AthAlgTool
 {
@@ -30,6 +31,8 @@ public:
       const xAOD::JetContainer* jets;
       std::map<const xAOD::Jet_v1*, std::vector<const xAOD::TrackParticle_v1*>> jets_to_tracks;
       const xAOD::Vertex* primary_vertex;
+      std::map<const xAOD::Jet*, xAOD::TrigComposite*> counts;
+      DisplacedJetBeamspotInfo beamspot;
     };
 
     StatusCode decide( Info& info ) const;
@@ -46,6 +49,10 @@ public:
     Gaudi::Property<unsigned int> m_rankcut{this, "max_jet_rank",{4}, "Maximum jet rank which will be processed"};
     Gaudi::Property<int> m_minnjets{this, "min_njets",{2}, "Minimum number of jets left for it to be worth processing the event"};
     Gaudi::Property<std::string> m_cutname{this, "cut_name",{""}, "Name of cuts, used for decoration names"};
+    Gaudi::Property<int> m_maxjets{this, "max_jets",{0}, "Max jets allowed in an event after ranking"};
+
+    Gaudi::Property<bool> m_usebeamspot{this, "use_beamspot",{true}, "Use beamspot info"};
+
 
     ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
   };

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -235,7 +235,7 @@ LArCoherentNoisefractionMon::fillHistograms()
 
     bool passBCID=false;
     if(!m_trigDecTool.empty()) {
-      for(auto trig_chain : m_triggers) {
+      for(const auto& trig_chain : m_triggers) {
 	passBCID = ((trig_chain == "HLT_noalg_cosmiccalo_L1RD1_EMPTY")?(thisEvent->bcid() >= ABORT_GAP_START && thisEvent->bcid() <= ABORT_GAP_END):true);
 	passTrig=(passTrig || (passBCID && m_trigDecTool->isPassed(trig_chain)));
       }

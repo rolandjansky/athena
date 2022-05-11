@@ -422,13 +422,6 @@ PerfMonSvc::io_reinit()
   stream_name = m_workerDir + "/" + my_basename(orig_stream_name);
 
   ATH_MSG_INFO("reopening [" << stream_name << "]...");
-  fflush(NULL); //> flushes all output streams...
-  int close_sc = close(m_stream);
-  if (close_sc < 0) {
-    ATH_MSG_ERROR("could not close previously open fd [" << m_stream << "]: "
-                  << strerror(errno));
-    return StatusCode::FAILURE;
-  }
 
   // re-open the previous file
   int old_stream = open(orig_stream_name.c_str(), O_RDONLY);
@@ -454,11 +447,32 @@ PerfMonSvc::io_reinit()
       write(m_stream, line, bytes);
   }
   // close the old stream
-  close_sc = close(old_stream);
+  int close_sc = close(old_stream);
   if (close_sc < 0) {
     ATH_MSG_INFO("could not close the re-open old pmon.stream file");
   }
   ATH_MSG_INFO("reopening [" << stream_name << "]... [ok]");
+  return StatusCode::SUCCESS;
+}
+//@}
+
+/// @c IIoComponent interface
+//@{
+/** @brief callback method to finalize the internal state of
+ *         the component for I/O purposes (e.g. upon @c fork(2))
+ */
+StatusCode
+PerfMonSvc::io_finalize()
+{
+  ATH_MSG_INFO("closing previously open fd [" << m_stream << "] for the pmon stream...");
+  fflush(NULL); //> flushes all output streams...
+  int close_sc = close(m_stream);
+  if (close_sc < 0) {
+    ATH_MSG_ERROR("could not close previously open fd [" << m_stream << "]: "
+                  << strerror(errno));
+    return StatusCode::FAILURE;
+  }
+  m_stream = -1; // reset the fd
   return StatusCode::SUCCESS;
 }
 //@}
@@ -1239,6 +1253,23 @@ PerfMonSvc::comp_startAud(const std::string& stepName,
      ((unsigned long)c.mem.nmall[0]),
      ((unsigned long)c.mem.nfree[0])
      );
+  // In AthenaMP, we need to re-open the pmon stream
+  // before we write the results that come from the
+  // finalization of the mother process. Otherwise,
+  // we shouldn't be going into this block...
+  if (m_stream<0) {
+    const std::string stream_name = m_outFileName.value()+".pmon.stream";
+
+    PMON_INFO("re-opening pmon-stream file [" << stream_name << "]...");
+    m_stream = open(stream_name.c_str(),
+                  O_WRONLY | O_APPEND,
+                  S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+
+    if (m_stream<0) {
+      PMON_ERROR("could not re-open pmon-stream file ["
+          << stream_name << "] !");
+    }
+  }
   write(m_stream, buf, buf_sz);
   free(buf);
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // implementation of TauPi0Details
@@ -107,7 +107,7 @@ namespace Analysis {
   }
 
   //Class name
-  std::string TauPi0Details::s_className = ClassName<TauPi0Details>::name();
+  const std::string TauPi0Details::s_className = ClassName<TauPi0Details>::name();
   
   const std::string& TauPi0Details::className() const
   {

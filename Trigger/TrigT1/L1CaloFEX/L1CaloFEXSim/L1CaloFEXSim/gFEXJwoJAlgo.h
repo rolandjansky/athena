@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //***************************************************************************
 //    gFEXJwoJAlgo - Jets without jets algorithm for gFEX
@@ -35,43 +35,51 @@ namespace LVL1 {
     virtual StatusCode initialize() override;
 
 
-    virtual void setAlgoConstant(unsigned int aFPGA_A, unsigned int bFPGA_A,
-                                 unsigned int aFPGA_B, unsigned int bFPGA_B,
-                                 int gXE_seedThrA, int gXE_seedThrB) override;
+    virtual void setAlgoConstant(float aFPGA_A, float bFPGA_A,
+                                 float aFPGA_B, float bFPGA_B,
+                                 float aFPGA_C, float bFPGA_C,
+                                 int gXE_seedThrA, int gXE_seedThrB, int gXE_seedThrC) override;
 
     virtual std::vector<std::unique_ptr<gFEXJwoJTOB>> jwojAlgo(gTowersCentral Atwr, gTowersCentral Btwr,
-                                                               std::array<uint32_t, 4> & outTOB) override;
+                                                               gTowersForward CNtwr, gTowersForward CPtwr,
+                                                               std::array<uint32_t, 4> & outJwojTOB) override;
 
 
 
   private:
 
-    unsigned int m_aFPGA_A;
-    unsigned int m_bFPGA_A;
-    unsigned int m_aFPGA_B;
-    unsigned int m_bFPGA_B;
-    int m_gBlockthresholdA;
-    int m_gBlockthresholdB;
+    float m_aFPGA_A;
+    float m_bFPGA_A;
+    float m_aFPGA_B;
+    float m_bFPGA_B;
+    float m_aFPGA_C;
+    float m_bFPGA_C;
+    float m_gBlockthresholdA;
+    float m_gBlockthresholdB;
+    float m_gBlockthresholdC;
+ 
+    void makeFPGAC(gTowersForward twrsCN, gTowersForward twrsCP, gTowersCentral & twrsC);
 
+    void gBlockAB(gTowersCentral twrs, gTowersCentral & gBlkSum);
 
-    virtual void gBlockAB(gTowersCentral twrs, gTowersCentral & gBlkSum);
+    void metFPGA(gTowersCentral twrs, gTowersCentral & gBlkSum, int gBlockthreshold,
+                           float aFPGA, float bFPGA,
+                           int & MHT_x, int & MHT_y,
+                           int & MST_x, int & MST_y,
+                           int & MET_x, int & MET_y);
 
-    virtual void metFPGA(gTowersCentral twrs, gTowersCentral & gBlkSum, int gBlockthreshold,
-                           unsigned int & MHT_x, unsigned int & MHT_y,
-                           unsigned int & MST_x, unsigned int & MST_y,
-                           unsigned int & MET_x, unsigned int & MET_y);
+    void metTotal(int A_MET_x, int A_MET_y,
+                          int B_MET_x, int B_MET_y,
+                          int C_MET_x, int C_MET_y,
+                          int & MET_x, int & MET_y, int & MET);
 
-    virtual void metTotal(unsigned int A_MET_x, unsigned int A_MET_y,
-                          unsigned int B_MET_x, unsigned int B_MET_y,
-                          unsigned int & MET_x, unsigned int & MET_y, unsigned int & MET);
+    void sumEtFPGA(gTowersCentral twrs, int & partial_sumEt);
 
-    virtual void sumEtFPGA(gTowersCentral twrs, unsigned int & partial_sumEt);
+    void sumEt(int  A_sumEt, int  B_sumEt, int  C_sumEt, int & total_sumEt);
 
-    virtual void sumEt(unsigned int  A_sumEt, unsigned int  B_sumEt, unsigned int & total_sumEt);
+    float sinLUT(unsigned int phiIDX, unsigned int aw);
 
-    virtual unsigned int sinLUT(unsigned int phiIDX, unsigned int aw, unsigned int dw);
-
-    virtual unsigned int cosLUT(unsigned int phiIDX, unsigned int aw, unsigned int dw);
+    float cosLUT(unsigned int phiIDX, unsigned int aw);
 
 
   };

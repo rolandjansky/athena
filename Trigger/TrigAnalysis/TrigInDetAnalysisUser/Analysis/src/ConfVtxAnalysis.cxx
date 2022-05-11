@@ -4,7 +4,7 @@
  **     @author  mark sutton
  **     @date    Sun  9 Aug 2015 21:53:46 CEST 
  **
- **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  **/
 
 
@@ -100,6 +100,8 @@ void ConfVtxAnalysis::initialise() {
   
   hnvtx   = new TH1F( "nvtx", ";number of vertices",   101, -0.5,  100.5   );
   hzed    = new TH1F( "zed",   ";vtx z [mm]",          200, -300,   300   );
+  hx      = new TH1F( "x",     ";vtx x [mm]",          800, -1,    1   );
+  hy      = new TH1F( "y",     ";vtx y [mm]",          800, -1,    1   );
   //  hntrax  = new TH1F( "ntrax", ";number of tracks", 201,   -0.5, 200.5 );
   hntrax  = new TH1F( "ntrax", ";number of tracks", 80,  vnbins );
   hmu     = new TH1F( "mu",    ";<mu>",         81, -0.5, 80.5   );
@@ -108,9 +110,13 @@ void ConfVtxAnalysis::initialise() {
 
   hnvtx_rec  = new TH1F( "nvtx_rec",  ";number of vertices",  101, -0.5,  100.5   );
   hzed_rec   = new TH1F( "zed_rec",   ";vtx z [mm]",          200, -300,   300   );
+  hx_rec     = new TH1F( "x_rec",     ";vtx x [mm]",          800, -1,    1   );
+  hy_rec     = new TH1F( "y_rec",     ";vtx y [mm]",          800, -1,    1   );
   hntrax_rec = new TH1F( "ntrax_rec", ";number of tracks",     80, vnbins );
 
   hzed_res = new TH1F( "zed_res", "Delta z [mm]", 400, -10, 10 );
+  hx_res   = new TH1F( "x_res",   "Delta x [mm]", 200, -0.1, 0.1 );
+  hy_res   = new TH1F( "y_res",   "Delta y [mm]", 200, -0.1, 0.1 );
 
   rdz_vs_zed    = new Resplot( "rdz_vs_zed",   100, -300,    300,    1600, -20, 20 ); 
   rdz_vs_ntrax  = new Resplot( "rdz_vs_ntrax", 201,   -0.5,  200.5,  1600, -20, 20 ); 
@@ -118,6 +124,8 @@ void ConfVtxAnalysis::initialise() {
   rdz_vs_mu     = new Resplot( "rdz_vs_mu",    30,     0,     30,    1600, -20, 20 ); 
 
   eff_zed   = new Efficiency( hzed,   "zed_eff" );
+  eff_x     = new Efficiency( hx,     "x_eff" );
+  eff_y     = new Efficiency( hy,     "y_eff" );
   eff_ntrax = new Efficiency( hntrax, "ntrax_eff" );
   eff_nvtx  = new Efficiency( hnvtx,  "nvtx_eff" );
   eff_mu    = new Efficiency( hmu, "mu_eff" );
@@ -165,46 +173,21 @@ void ConfVtxAnalysis::execute( const std::vector<TIDA::Vertex*>& vtx0,
     std::cout << "\ttest: " << vtx1 << std::endl;
 #endif
 
-  VertexMatcher m( "vtx_matcher", 3 );
-  execute_internal<TIDA::Vertex, VertexMatcher>(vtx0, vtx1, m, tevt);
-
-}
-
-
-void ConfVtxAnalysis::execute( const std::vector<TIDA::VertexNew*>& vtx0,
-			       const std::vector<TIDA::VertexNew*>& vtx1,
-			       const TIDA::Event* tevt ) { 
-
-  if ( !m_initialised ) return;
-
-#if 0
-    std::cout << "ConfVtxAnalysis::execute() " << name()
-	      << "\tvtx0.size() " << vtx0.size()
-	      << "\tvtx1.size() " << vtx1.size()
-	      << std::endl;
-
-    std::cout << "\tref:  " << vtx0 << std::endl;
-    std::cout << "\ttest: " << vtx1 << std::endl;
-#endif
-
   // use new matcher if tracks included
   if ( vtx0[0]->tracks().size() > 0 ) {
     VertexNewMatcher m( "vtx_matcher", 0.5 );
-    execute_internal<TIDA::VertexNew, VertexNewMatcher>(vtx0, vtx1, m, tevt);
-  } 
+    execute_internal<VertexNewMatcher>(vtx0, vtx1, m, tevt);
+  }
   else {
-    VertexMatcher m("vtx_matcher", 3 );
-    // m.match() requires std::vector<TIDA::Vertex*>
-    std::vector<TIDA::Vertex*> vtx0_(vtx0.begin(), vtx0.end());
-    std::vector<TIDA::Vertex*> vtx1_(vtx1.begin(), vtx1.end());
-    execute_internal<TIDA::Vertex, VertexMatcher>(vtx0_, vtx1_, m, tevt);
+    VertexMatcher m( "vtx_matcher", 3 );
+    execute_internal<VertexMatcher>(vtx0, vtx1, m, tevt);
   }
 }
 
 
-template<typename Vertex, typename Matcher>
-void ConfVtxAnalysis::execute_internal( const std::vector<Vertex*>& vtx0,
-			       const std::vector<Vertex*>& vtx1,
+template<typename Matcher>
+void ConfVtxAnalysis::execute_internal( const std::vector<TIDA::Vertex*>& vtx0,
+			       const std::vector<TIDA::Vertex*>& vtx1,
              Matcher& m, 
 			       const TIDA::Event* tevt ) {
   
@@ -230,6 +213,8 @@ void ConfVtxAnalysis::execute_internal( const std::vector<Vertex*>& vtx0,
     if ( vtx0[i]->Ntracks() == 0 ) continue;
 
 
+    hx->Fill( vtx0[i]->x() );
+    hy->Fill( vtx0[i]->y() );
     hzed->Fill( vtx0[i]->z() );
     hntrax->Fill( vtx0[i]->Ntracks() );
 
@@ -237,7 +222,7 @@ void ConfVtxAnalysis::execute_internal( const std::vector<Vertex*>& vtx0,
     hlb->Fill( lb );
     hmu->Fill( mu );
     
-    const Vertex* mv = m.matched( vtx0[i] ); 
+    const TIDA::Vertex* mv = m.matched( vtx0[i] ); 
     
     //      std::cout << "\tvtx match: " << i << " " << mv << std::endl;
     if ( mv ) { 
@@ -245,9 +230,13 @@ void ConfVtxAnalysis::execute_internal( const std::vector<Vertex*>& vtx0,
           
       /// ah ha ! can fill some silly old histograms here 
       /// ...
+      hx_rec->Fill( mv->x() );
+      hy_rec->Fill( mv->y() );
       hzed_rec->Fill( mv->z() );
       hntrax_rec->Fill( mv->Ntracks() );
 
+      hx_res->Fill( mv->x() - vtx0[i]->x() );
+      hy_res->Fill( mv->y() - vtx0[i]->y() );
       hzed_res->Fill( mv->z() - vtx0[i]->z() );
 
           
@@ -257,6 +246,11 @@ void ConfVtxAnalysis::execute_internal( const std::vector<Vertex*>& vtx0,
       rdz_vs_mu->Fill( mu,  mv->z() - vtx0[i]->z() ); /// this isn't really legitimate
 
       eff_zed->Fill( vtx0[i]->z() );
+      eff_x->Fill( vtx0[i]->x() );
+      eff_y->Fill( vtx0[i]->y() );
+
+
+
       eff_ntrax->Fill( vtx0[i]->Ntracks() );
       eff_nvtx->Fill( vtx0.size() );
 
@@ -300,7 +294,10 @@ void ConfVtxAnalysis::execute_internal( const std::vector<Vertex*>& vtx0,
 #endif
 
 
+      eff_x->FillDenom( vtx0[i]->x() );
+      eff_y->FillDenom( vtx0[i]->y() );
       eff_zed->FillDenom( vtx0[i]->z() );
+
       eff_ntrax->FillDenom( vtx0[i]->Ntracks() );
       eff_nvtx->FillDenom( vtx0.size() );
 
@@ -346,6 +343,9 @@ void ConfVtxAnalysis::finalise() {
   rnvtxrec_nvtx->Finalise( Resplot::FitNull95 );    rnvtxrec_nvtx->Write();
 
   eff_zed->finalise();   eff_zed->Bayes()->Write( (eff_zed->name()+"_tg").c_str() );
+  eff_x->finalise();     eff_x->Bayes()->Write( (eff_x->name()+"_tg").c_str() );
+  eff_y->finalise();     eff_y->Bayes()->Write( (eff_y->name()+"_tg").c_str() );
+
   eff_ntrax->finalise(); eff_ntrax->Bayes()->Write( (eff_ntrax->name()+"_tg").c_str() );
   eff_nvtx->finalise();  eff_nvtx->Bayes()->Write( (eff_nvtx->name()+"_tg").c_str() );
 

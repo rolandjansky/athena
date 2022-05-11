@@ -14,7 +14,7 @@
 
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
 
-#include "TileMonitoring/TileRODMonTool.h"
+#include "TileRODMonTool.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h" 
 #include "TileConditions/ITileBadChanTool.h"
 #include "TileConditions/TileCondToolEmscale.h"

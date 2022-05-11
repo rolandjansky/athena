@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -31,50 +31,9 @@
 //<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
 AtlasDetectorID::AtlasDetectorID()
-        :
-        m_do_checks(false),
-        m_do_neighbours(true),
-        m_msgSvc(0),
-        m_quiet(false),
-        m_is_initialized_from_dict(false),
-        m_DET_INDEX(999),
-        m_SUBDET_INDEX(999),
-        m_MUON_SUBDET_INDEX(999),
-        m_INDET_ID(2),
-        m_LAR_ID(4),
-        m_TILE_ID(5),
-        m_MUON_ID(7),
-        m_CALO_ID(10),
-        m_PIXEL_ID(1),
-        m_SCT_ID(2),
-        m_TRT_ID(3),
-        m_HGTD_ID(4),
-        m_LAR_EM_ID(1),
-        m_LAR_HEC_ID(2),
-        m_LAR_FCAL_ID(3),
-        m_LAR_FCAL_MODULE_INDEX(999),
-        m_MDT_ID(0),
-        m_CSC_ID(1),
-        m_RPC_ID(2),
-        m_TGC_ID(3),
-        m_STGC_ID(4),
-        m_MM_ID(5),
-        m_FWD_ID(13),
-        m_ALFA_ID(1),
-        m_BCM_ID(3),
-        m_LUCID_ID(5),
-        m_ZDC_ID(7),
-        m_atlas_dict(0),
-        m_indet_dict(0),
-        m_lar_dict(0),
-        m_tile_dict(0),
-        m_muon_dict(0),
-        m_calo_dict(0),
-        m_fwd_dict(0),
-        m_helper(0)
 {}
 
-AtlasDetectorID::~AtlasDetectorID(void)
+AtlasDetectorID::~AtlasDetectorID()
 {
     delete m_helper;
 }
@@ -100,6 +59,8 @@ AtlasDetectorID::AtlasDetectorID(const AtlasDetectorID& other)
         m_SCT_ID                  (other.m_SCT_ID),
         m_TRT_ID                  (other.m_TRT_ID),
         m_HGTD_ID                 (other.m_HGTD_ID),
+        m_LUMI_ID                 (other.m_LUMI_ID),
+        m_LUMI_PLR_ID             (other.m_LUMI_PLR_ID),
         m_LAR_EM_ID               (other.m_LAR_EM_ID),
         m_LAR_HEC_ID              (other.m_LAR_HEC_ID),
         m_LAR_FCAL_ID             (other.m_LAR_FCAL_ID),
@@ -127,7 +88,6 @@ AtlasDetectorID::AtlasDetectorID(const AtlasDetectorID& other)
         m_muon_dict               (other.m_muon_dict),
         m_calo_dict               (other.m_calo_dict),
         m_fwd_dict                (other.m_fwd_dict),
-        m_helper                  (0),
         m_det_impl                (other.m_det_impl),
         m_indet_part_impl         (other.m_indet_part_impl),
         m_calo_side_impl          (other.m_calo_side_impl),
@@ -167,6 +127,8 @@ AtlasDetectorID::operator= (const AtlasDetectorID& other)
         m_SCT_ID                = other.m_SCT_ID;
         m_TRT_ID                = other.m_TRT_ID;
         m_HGTD_ID               = other.m_HGTD_ID;
+        m_LUMI_ID               = other.m_LUMI_ID;
+        m_LUMI_PLR_ID           = other.m_LUMI_PLR_ID;
         m_LAR_EM_ID             = other.m_LAR_EM_ID;
         m_LAR_HEC_ID            = other.m_LAR_HEC_ID;
         m_LAR_FCAL_ID           = other.m_LAR_FCAL_ID;
@@ -299,6 +261,16 @@ AtlasDetectorID::hgtd        (void) const
     // Pack field
     m_det_impl.pack       (indet_field_value(), result);
     m_indet_part_impl.pack(m_HGTD_ID, result);
+    return (result);
+}
+
+Identifier
+AtlasDetectorID::lumi        (void) const
+{
+    Identifier result((Identifier::value_type)0);
+    // Pack field
+    m_det_impl.pack       (indet_field_value(), result);
+    m_indet_part_impl.pack(m_LUMI_ID, result);
     return (result);
 }
 
@@ -541,7 +513,7 @@ AtlasDetectorID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
         std::cout << " AtlasDetectorID::initialize_from_dictionary - OK " << std::endl;
       }
     }
-    
+
     return (0);
 }
 
@@ -638,6 +610,26 @@ AtlasDetectorID::is_hgtd        (const ExpandedIdentifier& id) const
     bool result = false;
     if ( is_indet(id) && id.fields() > 1 ){
         if ( id[1] == m_HGTD_ID) result = true;
+    }
+    return result;
+}
+
+bool
+AtlasDetectorID::is_lumi        (const ExpandedIdentifier& id) const
+{
+    bool result = false;
+    if ( is_indet(id) && id.fields() > 1 ){
+        if ( id[1] == m_LUMI_ID) result = true;
+    }
+    return result;
+}
+
+bool
+AtlasDetectorID::is_plr         (const ExpandedIdentifier& id) const
+{
+    bool result = false;
+    if ( is_lumi(id) ){
+        if ( id[2] == m_LUMI_PLR_ID) result = true;
     }
     return result;
 }
@@ -798,7 +790,7 @@ AtlasDetectorID::show_to_string (Identifier id,
     else if (is_forward(id)) {
         dict = m_fwd_dict;
     }
-    
+
 
 
     if (!dict) return (result);
@@ -1163,6 +1155,39 @@ AtlasDetectorID::initLevelsFromDict(const IdDictMgr& dict_mgr)
             }
         }
         if(m_isHighLuminosityLHC) {
+            if(versionString.find("PLR") != std::string::npos) { // do not look for this unless using ITKHGTDPLR dictionary which contains "LuminosityDetectors"
+                label = field->find_label("LuminosityDetectors");
+                if (label) {
+                    if (label->m_valued) {
+                        m_LUMI_ID = label->m_value;
+                    }
+                    else {
+                        if(m_msgSvc) {
+                            MsgStream log(m_msgSvc, "AtlasDetectorID" );
+                            log << MSG::ERROR << "initLevelsFromDict - label LuminosityDetectors does NOT have a value "
+                                << endmsg;
+                        }
+                        else {
+                            std::cout << "AtlasDetectorID::initLevelsFromDict - label LuminosityDetectors does NOT have a value "
+                                      << std::endl;
+                        }
+                        return (1);
+                    }
+                }
+                else {
+                    if(m_msgSvc) {
+                  MsgStream log(m_msgSvc, "AtlasDetectorID" );
+                  log << MSG::ERROR << "initLevelsFromDict - unable to find 'LuminosityDetectors' label "
+                  << endmsg;
+                    }
+                    else {
+                    std::cout << "AtlasDetectorID::initLevelsFromDict - unable to find 'LuminosityDetectors' label "
+                    << std::endl;
+                    }
+                    return (1);
+                }
+            }
+
             label = field->find_label("HGTD");
             if (label) {
                 if (label->m_valued) {
@@ -2313,8 +2338,8 @@ AtlasDetectorID::initLevelsFromDict(const IdDictMgr& dict_mgr)
         if(m_det_impl.ored_field().get_mode() != Range::field::enumerated) {
             if(m_msgSvc) {
                 MsgStream log(m_msgSvc, "AtlasDetectorID" );
-                log << MSG::ERROR << "initLevelsFromDict - ERROR det implementation is not enumerated: " 
-                    << m_det_impl.show_to_string() 
+                log << MSG::ERROR << "initLevelsFromDict - ERROR det implementation is not enumerated: "
+                    << m_det_impl.show_to_string()
                     << endmsg;
             }
             else {
@@ -2357,7 +2382,7 @@ AtlasDetectorID::initLevelsFromDict(const IdDictMgr& dict_mgr)
 
     // LAr part
     region_index = m_helper->lar_fcal_region_index();
-    if (m_lar_dict && AtlasDetectorIDHelper::UNDEFINED != region_index && 
+    if (m_lar_dict && AtlasDetectorIDHelper::UNDEFINED != region_index &&
         m_LAR_FCAL_MODULE_INDEX != 999) {
         region = m_lar_dict->m_regions[region_index];
         m_lar_fcal_module_impl = region->m_implementation[m_LAR_FCAL_MODULE_INDEX];

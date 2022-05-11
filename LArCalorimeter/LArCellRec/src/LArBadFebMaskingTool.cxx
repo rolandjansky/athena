@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -21,53 +21,11 @@ PURPOSE:
 #include "Identifier/IdentifierHash.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "LArRawEvent/LArFebErrorSummary.h" 
 #include "LArIdentifier/LArOnlineID.h" 
 #include "LArRecConditions/LArBadFeb.h"
 #include "LArRecEvent/LArEventBitInfo.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "GaudiKernel/ThreadLocalContext.h"
-
-using xAOD::EventInfo;
-
-/////////////////////////////////////////////////////////////////////
-// CONSTRUCTOR:
-/////////////////////////////////////////////////////////////////////
-
-LArBadFebMaskingTool::LArBadFebMaskingTool(
-			     const std::string& type, 
-			     const std::string& name, 
-			     const IInterface* parent)
-  :base_class(type, name, parent),
-   m_maskParity(true),m_maskSampleHeader(true),m_maskEVTID(true),m_maskScacStatus(true),
-   m_maskScaOutOfRange(true),m_maskGainMismatch(true),m_maskTypeMismatch(true),m_maskNumOfSamples(true),
-   m_maskEmptyDataBlock(true),m_maskDspBlockSize(true),m_maskCheckSum(true),m_maskMissingHeader(true),
-   m_maskBadGain(true),m_minFebsInError(1),
-   m_larFebErrorSummaryKey("LArFebErrorSummary"),
-   m_errorToMask(0),
-   m_calo_id(nullptr),
-   m_onlineID(nullptr),
-   m_evt(0),
-   m_mask(0)
-{ 
-  declareProperty("maskParity",m_maskParity);
-  declareProperty("maskSampleHeader",m_maskSampleHeader);
-  declareProperty("maskEVTID",m_maskEVTID);
-  declareProperty("maskScacStatus",m_maskScacStatus);
-  declareProperty("maskScaOutOfRange",m_maskScaOutOfRange);
-  declareProperty("maskGainMismatch",m_maskGainMismatch);
-  declareProperty("maskTypeMismatch",m_maskTypeMismatch);
-  declareProperty("maskNumOfSamples",m_maskNumOfSamples);
-  declareProperty("maskEmptyDataBlock",m_maskEmptyDataBlock);
-  declareProperty("maskDspBlockSize",m_maskDspBlockSize);
-  declareProperty("maskCheckSum",m_maskCheckSum);
-  declareProperty("maskMissingHeader",m_maskMissingHeader);
-  declareProperty("maskBadGain",m_maskBadGain);
-  declareProperty("minFebInError",m_minFebsInError); // Minimum number of FEBs in error to trigger EventInfo::LArError (1 by default/bulk, 4 in online/express).
-  declareProperty("larFebErrorSummaryKey",m_larFebErrorSummaryKey);
-  declareProperty("eventInfoKey", m_eventInfoKey = "EventInfo");
-}
-
 
 /////////////////////////////////////////////////////////////////////
 // INITIALIZE:
@@ -96,17 +54,15 @@ StatusCode LArBadFebMaskingTool::initialize()
 
   ATH_MSG_INFO (" bit mask for errors to mask " << m_errorToMask);
 
-  // initialize read handle key
+  // initialize read handle keys
   ATH_CHECK(m_larFebErrorSummaryKey.initialize());
   ATH_CHECK(m_eventInfoKey.initialize());
-
-  const  CaloIdManager* caloIdMgr = 0;
-  ATH_CHECK( detStore()->retrieve( caloIdMgr ) );
-  m_calo_id = caloIdMgr->getCaloCell_ID();
-
   ATH_CHECK( m_badFebKey.initialize());
   ATH_CHECK( m_cablingKey.initialize());
+
+  // retrieve identifier helpers
   ATH_CHECK( detStore()->retrieve(m_onlineID, "LArOnlineID") );
+  ATH_CHECK( detStore()->retrieve(m_calo_id,"CaloCell_ID") );
 
   return StatusCode::SUCCESS;
 
@@ -130,12 +86,10 @@ StatusCode LArBadFebMaskingTool::process (CaloCellContainer* theCont,
   m_evt++;
 
 
-  ATH_MSG_DEBUG (" in  LArBadFebMaskingTool::process ");
-  //const LArFebErrorSummary* larFebErrorSummary;
-  //StatusCode sc = evtStore()->retrieve(larFebErrorSummary,m_larFebErrorSummaryKey);
+  ATH_MSG_DEBUG (" in LArBadFebMaskingTool::process ");
   SG::ReadHandle<LArFebErrorSummary>larFebErrorSummary(m_larFebErrorSummaryKey, ctx);
   if (!larFebErrorSummary.isValid()) {
-    ATH_MSG_WARNING (" cannot retrieve Feb error summary.  Skip  LArBadFebMaskingTool::process ");
+    ATH_MSG_WARNING ("Cannot retrieve Feb error summary with key " << m_larFebErrorSummaryKey.key() <<". Skip LArBadFebMaskingTool::process ");
     return StatusCode::SUCCESS;
   }
 
@@ -186,7 +140,7 @@ StatusCode LArBadFebMaskingTool::process (CaloCellContainer* theCont,
 
       LArBadFeb febstatus = badFebs->status(febId);
       inError = febstatus.inError();
-      isDead = ( febstatus.deadReadout() | febstatus.deadAll() );
+      isDead = ( febstatus.deadReadout() || febstatus.deadAll() );
       ATH_MSG_DEBUG (" inError, isDead "  << inError << " " << isDead);
       
 
@@ -227,10 +181,10 @@ StatusCode LArBadFebMaskingTool::process (CaloCellContainer* theCont,
 
   if (flagBadEvent) {
     ATH_MSG_DEBUG (" set error bit for LAr for this event ");
-    if (!eventInfo->updateErrorState(EventInfo::LAr,EventInfo::Error)) {
+    if (!eventInfo->updateErrorState(xAOD::EventInfo::LAr,xAOD::EventInfo::Error)) {
       ATH_MSG_WARNING (" cannot set error state for LAr ");
     }
-    if (!eventInfo->updateEventFlagBit(EventInfo::LAr,LArEventBitInfo::DATACORRUPTED)) {
+    if (!eventInfo->updateEventFlagBit(xAOD::EventInfo::LAr,LArEventBitInfo::DATACORRUPTED)) {
       ATH_MSG_WARNING (" cannot set event bit info for LAr ");
     }
   }

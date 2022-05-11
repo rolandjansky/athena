@@ -36,21 +36,10 @@
 #include "xAODTrigger/TrigDecision.h"
 
 
-#ifndef XAOD_STANDALONE // AthAnalysis or Full Athena
-
-Trig::ExpertMethods::ExpertMethods(SG::SlotSpecificObj<Trig::CacheGlobalMemory>* cgm) 
+Trig::ExpertMethods::ExpertMethods(SG::SlotSpecificObj<Trig::CacheGlobalMemory>* cgm)
   : m_cacheGlobalMemory(cgm)
 {
 }
-
-#else // AnalysisBase
-
-Trig::ExpertMethods::ExpertMethods(Trig::CacheGlobalMemory* cgm) 
-  : m_cacheGlobalMemory(cgm)
-{
-}
-
-#endif
 
 Trig::ExpertMethods::~ExpertMethods() {}
 
@@ -75,16 +64,16 @@ const LVL1CTP::Lvl1Item* Trig::ExpertMethods::getItemDetails(const std::string& 
   return cgm()->item(chain);
 }
 
-#ifndef XAOD_STANDALONE // AthAnalysis or full Athena
-
 Trig::CacheGlobalMemory* Trig::ExpertMethods::cgm(bool onlyConfig) const {
   if ( ! onlyConfig ) {
-    if ( !const_cast<Trig::CacheGlobalMemory*>(m_cacheGlobalMemory->get())->assert_decision() ) {
+    if ( !m_cacheGlobalMemory->get()->assert_decision() ) {
       ATH_MSG_WARNING("TDT has not ben able to unpack trigger decision");    
     } 
   } 
   return m_cacheGlobalMemory->get(); 
 }
+
+#ifndef XAOD_STANDALONE // AthAnalysis or full Athena
 
 // NOTE: Nested ifndef
 #ifndef XAOD_ANALYSIS // Full Athena only sub-part 
@@ -108,15 +97,6 @@ const HLT::TrigNavStructure* Trig::ExpertMethods::getNavigation() const
 const HLT::TrigNavStructure* Trig::ExpertMethods::getNavigation() const
 {
   return cgm()->navigation();
-}
-
-Trig::CacheGlobalMemory* Trig::ExpertMethods::cgm(bool onlyConfig) const {
-  if ( ! onlyConfig ) {
-    if ( !const_cast<Trig::CacheGlobalMemory*>(m_cacheGlobalMemory)->assert_decision() ) {
-      ATH_MSG_WARNING("TDT has not ben able to unpack trigger decision");    
-    } 
-  } 
-  return m_cacheGlobalMemory; 
 }
 
 #endif

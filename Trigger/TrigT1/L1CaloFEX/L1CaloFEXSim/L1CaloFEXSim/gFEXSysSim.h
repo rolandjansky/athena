@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //***************************************************************************
 //    gFEXSysSim - Overall gFEX simulation
@@ -24,6 +24,7 @@
 #include "xAODTrigger/gFexGlobalRoIContainer.h"
 #include "xAODTrigger/gFexGlobalRoIAuxContainer.h"
 #include "L1CaloFEXSim/FEXAlgoSpaceDefs.h"
+#include "TrigConfData/L1Menu.h"
 
 namespace LVL1 {
 
@@ -55,19 +56,27 @@ namespace LVL1 {
     virtual int calcTowerID(int eta, int phi, int nphi, int mod) override ;
 
     /**Create and fill a new gFexJetRoI object, and return a pointer to it*/
-    virtual StatusCode fillgRhoEDM(uint32_t tobWord) override ;
+    virtual StatusCode fillgRhoEDM(uint32_t tobWord, int scale) override ;
 
-    virtual StatusCode fillgBlockEDM(uint32_t tobWord) override ;
+    virtual StatusCode fillgBlockEDM(uint32_t tobWord, int scale) override ;
 
-    virtual StatusCode fillgJetEDM(uint32_t tobWord) override ;
+    virtual StatusCode fillgJetEDM(uint32_t tobWord, int scale) override ;
 
-    virtual StatusCode fillgScalarEJwojEDM(uint32_t tobWord) override ;
+    virtual StatusCode fillgScalarEJwojEDM(uint32_t tobWord, int scale1, int scale2) override ;
 
-    virtual StatusCode fillgMETComponentsJwojEDM(uint32_t tobWord) override ;
+    virtual StatusCode fillgMETComponentsJwojEDM(uint32_t tobWord, int scale1, int scale2) override ;
 
-    virtual StatusCode fillgMHTComponentsJwojEDM(uint32_t tobWord) override ;
+    virtual StatusCode fillgMHTComponentsJwojEDM(uint32_t tobWord, int scale1, int scale2) override ;
 
-    virtual StatusCode fillgMSTComponentsJwojEDM(uint32_t tobWord) override ;
+    virtual StatusCode fillgMSTComponentsJwojEDM(uint32_t tobWord, int scale1, int scale2) override ;
+
+    virtual StatusCode fillgMETComponentsNoiseCutEDM(uint32_t tobWord, int scale1, int scale2) override ;
+  
+    virtual StatusCode fillgMETComponentsRmsEDM(uint32_t tobWord, int scale1, int scale2) override ;
+
+    virtual StatusCode fillgScalarENoiseCutEDM(uint32_t tobWord, int scale1, int scale2) override ;
+ 
+    virtual StatusCode fillgScalarERmsEDM(uint32_t tobWord, int scale1, int scale2) override ;
 
 
     /** Internal data */
@@ -93,6 +102,18 @@ namespace LVL1 {
     std::unique_ptr< xAOD::gFexGlobalRoIContainer > m_gMSTComponentsJwojContainer;
     std::unique_ptr< xAOD::gFexGlobalRoIAuxContainer > m_gMSTComponentsJwojAuxContainer;
 
+    std::unique_ptr< xAOD::gFexGlobalRoIContainer > m_gMETComponentsNoiseCutContainer;
+    std::unique_ptr< xAOD::gFexGlobalRoIAuxContainer > m_gMETComponentsNoiseCutAuxContainer;
+
+    std::unique_ptr< xAOD::gFexGlobalRoIContainer > m_gMETComponentsRmsContainer;
+    std::unique_ptr< xAOD::gFexGlobalRoIAuxContainer > m_gMETComponentsRmsAuxContainer;
+
+    std::unique_ptr< xAOD::gFexGlobalRoIContainer > m_gScalarENoiseCutContainer;
+    std::unique_ptr< xAOD::gFexGlobalRoIAuxContainer > m_gScalarENoiseCutAuxContainer;
+
+    std::unique_ptr< xAOD::gFexGlobalRoIContainer > m_gScalarERmsContainer;
+    std::unique_ptr< xAOD::gFexGlobalRoIAuxContainer > m_gScalarERmsAuxContainer;
+
 
     std::vector<gFEXSim*> m_gFEXCollection;
 
@@ -109,7 +130,12 @@ namespace LVL1 {
     SG::WriteHandleKey< xAOD::gFexGlobalRoIContainer > m_gMHTComponentsJwojOutKey {this,"Key_gMHTComponentsJwojOutputContainer","L1_gMHTComponentsJwoj","Output hard MET components (from Jets without Jets algo) container"};
     SG::WriteHandleKey< xAOD::gFexGlobalRoIContainer > m_gMSTComponentsJwojOutKey {this,"Key_gMSTComponentsJwojOutputContainer","L1_gMSTComponentsJwoj","Output soft MET components (from Jets without Jets algo) container"};
 
+    SG::WriteHandleKey< xAOD::gFexGlobalRoIContainer > m_gMETComponentsNoiseCutOutKey {this,"Key_gMETComponentsNoiseCutOutputContainer","L1_gMETComponentsNoiseCut","Output total MET components (from Noise Cut algo) container"};
+    SG::WriteHandleKey< xAOD::gFexGlobalRoIContainer > m_gMETComponentsRmsOutKey {this,"Key_gMETComponentsRmsOutputContainer","L1_gMETComponentsRms","Output total MET components (from RMS algo) container"};
+    SG::WriteHandleKey< xAOD::gFexGlobalRoIContainer > m_gScalarENoiseCutOutKey {this,"Key_gScalarENoiseCutOutputContainer","L1_gScalarENoiseCut","Output Scalar MET and SumET (from Noise Cut algo) container"};
+    SG::WriteHandleKey< xAOD::gFexGlobalRoIContainer > m_gScalarERmsOutKey {this,"Key_gScalarERmsOutputContainer","L1_gScalarERms","Output Scalar MET and SumET (from RMS algo) container"};
 
+    SG::ReadHandleKey<TrigConf::L1Menu> m_l1MenuKey{this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu","Name of the L1Menu object to read configuration from"}; 
 
     std::vector<uint32_t>  m_allgRhoTobs;
     std::vector<uint32_t>  m_allgBlockTobs;
@@ -119,6 +145,12 @@ namespace LVL1 {
     std::vector<uint32_t>  m_allgMETComponentsJwojTobs;
     std::vector<uint32_t>  m_allgMHTComponentsJwojTobs;
     std::vector<uint32_t>  m_allgMSTComponentsJwojTobs;
+
+    std::vector<uint32_t>  m_allgMETComponentsNoiseCutTobs;
+    std::vector<uint32_t>  m_allgMETComponentsRmsTobs;
+    std::vector<uint32_t>  m_allgScalarENoiseCutTobs;
+    std::vector<uint32_t>  m_allgScalarERmsTobs;
+
 
   };
 

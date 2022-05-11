@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUFASTSTEERING_H
@@ -8,7 +8,6 @@
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "TrigTimeAlgs/ITrigTimerSvc.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
@@ -36,9 +35,13 @@
 #include "xAODTrigger/MuonRoIContainer.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
+#include "GaudiKernel/IIncidentListener.h"
+
+class IIncidentSvc;
+
 enum ECRegions{ Bulk, WeakBFieldA, WeakBFieldB };
 
-class MuFastSteering : public AthReentrantAlgorithm
+class MuFastSteering : public AthReentrantAlgorithm , public IIncidentListener
 {
  public:
   enum {
@@ -51,13 +54,14 @@ class MuFastSteering : public AthReentrantAlgorithm
     ITIMER_TOTAL_PROCESSING
   };
 
+
  public:
 
   /** Constructor */
   MuFastSteering(const std::string& name, ISvcLocator* svc);
 
   virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override;
+  virtual StatusCode stop() override;
 
   /** execute(), main code of the algorithm for AthenaMT*/
   virtual StatusCode execute(const EventContext& ctx) const override;
@@ -82,16 +86,16 @@ class MuFastSteering : public AthReentrantAlgorithm
 
   /** findMuonSignatureIO(), includes reconstract algorithms for inside-out mode **/
   StatusCode findMuonSignatureIO(const xAOD::TrackParticleContainer&            idtracks,
-				 const std::vector<const TrigRoiDescriptor*>    roids,
-				 const std::vector<const LVL1::RecMuonRoI*>     muonRoIs,
+				 const std::vector<const TrigRoiDescriptor*>&    roids,
+				 const std::vector<const LVL1::RecMuonRoI*>&     muonRoIs,
 				 DataVector<xAOD::L2CombinedMuon>&              outputCBs,
 				 DataVector<xAOD::L2StandAloneMuon>&            outputSAs,
 				 const bool                                     dynamicDeltaRpc,
 				 const EventContext&                            ctx ) const;
 
   StatusCode findMuonSignatureIO(const xAOD::TrackParticleContainer&            idtracks,
-				 const std::vector<const TrigRoiDescriptor*>    roids,
-				 const std::vector<const xAOD::MuonRoI*>        muonRoIs,
+				 const std::vector<const TrigRoiDescriptor*>&    roids,
+				 const std::vector<const xAOD::MuonRoI*>&        muonRoIs,
 				 DataVector<xAOD::L2CombinedMuon>&              outputCBs,
 				 DataVector<xAOD::L2StandAloneMuon>&            outputSAs,
 				 const bool                                     dynamicDeltaRpc,
@@ -111,6 +115,8 @@ class MuFastSteering : public AthReentrantAlgorithm
                                      const EventContext&                                ctx) const;
 
   int L2MuonAlgoMap(const std::string& name) const;
+
+  virtual void handle(const Incident& incident) override;
 
  protected:
 
@@ -211,14 +217,6 @@ class MuFastSteering : public AthReentrantAlgorithm
 
  protected:
 
-  // Services
-
-
-
-  /** Timers */
-  ServiceHandle<ITrigTimerSvc> m_timerSvc;
-  std::vector<TrigTimer*> m_timingTimers;
-
   // Tools
   ToolHandle<TrigL2MuonSA::MuFastDataPreparator>     m_dataPreparator {
 	this, "DataPreparator", "TrigL2MuonSA::MuFastDataPreparator", "data preparator" };
@@ -251,16 +249,18 @@ class MuFastSteering : public AthReentrantAlgorithm
 
  private:
 
-
+  ServiceHandle< IIncidentSvc > m_incidentSvc{this, "IncidentSvc", "IncidentSvc"};      
+  ServiceHandle<Gaudi::Interfaces::IOptionsSvc> m_jobOptionsSvc {this, "JobOptionsSvc", "JobOptionsSvc",    "Job options service to retrieve DataFlowConfig"   };
   // Property
   Gaudi::Property< float > m_scaleRoadBarrelInner { this, "Scale_Road_BarrelInner", 1 };
   Gaudi::Property< float > m_scaleRoadBarrelMiddle { this, "Scale_Road_BarrelMiddle", 1 };
   Gaudi::Property< float > m_scaleRoadBarrelOuter { this, "Scale_Road_BarrelOuter", 1 };
 
-  Gaudi::Property< bool > m_use_timer { this, "Timing", false };
   Gaudi::Property< bool > m_use_mcLUT { this, "UseLUTForMC", true};
   Gaudi::Property< bool > m_use_new_segmentfit { this, "USE_NEW_SEGMENTFIT", true};
   Gaudi::Property< bool > m_use_rpc { this, "USE_RPC", true};
+  Gaudi::Property< bool > m_use_stgc { this, "USE_STGC", true};
+  Gaudi::Property< bool > m_use_mm { this, "USE_MM", true};
   Gaudi::Property< bool > m_use_RoIBasedDataAccess_MDT  { this, "USE_ROIBASEDACCESS_MDT",  true};
   Gaudi::Property< bool > m_use_RoIBasedDataAccess_RPC  { this, "USE_ROIBASEDACCESS_RPC",  true};
   Gaudi::Property< bool > m_use_RoIBasedDataAccess_TGC  { this, "USE_ROIBASEDACCESS_TGC",  true};
@@ -345,6 +345,9 @@ class MuFastSteering : public AthReentrantAlgorithm
 
   // Monitor system
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
+
+
+
 };
 
 #endif // MUFASTSTEERING_H

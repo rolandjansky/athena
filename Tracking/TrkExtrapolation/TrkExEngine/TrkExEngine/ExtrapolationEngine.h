@@ -29,6 +29,7 @@
 #ifdef LEGACY_TRKGEOM
 #include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 #endif
+#include "CxxUtils/checker_macros.h"
 
 namespace Trk {
   
@@ -48,7 +49,7 @@ namespace Trk {
   
       @author Andreas.Salzburger -at- cern.ch 
   */
-  class ExtrapolationEngine : public AthCheckedComponent<AthAlgTool>, virtual public IExtrapolationEngine {
+  class ATLAS_NOT_THREAD_SAFE ExtrapolationEngine : public AthCheckedComponent<AthAlgTool>, virtual public IExtrapolationEngine {
       
       friend class NavigationInitTest;
       

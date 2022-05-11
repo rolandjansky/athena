@@ -17,6 +17,99 @@
 #include "CxxUtils/vec.h"
 #include "CxxUtils/features.h"
 
+namespace{
+
+/**
+ * @Helper method to perform the calculation 
+ * for a given set of per-bunch luminosities.
+ * It seems to be a way out for having function
+ * multiversioning for both gcc and clang
+ */
+#if defined(__x86_64__) && HAVE_TARGET_CLONES && HAVE_VECTOR_SIZE_ATTRIBUTE
+// If we have function multiversioning, compile specialized versions
+// for different architectures.
+// ... But including avx causes a crash at least with gcc 8.3.0.
+//     It works ok with gcc 10.  (Not tested with 9.)
+#if __GNUC__ == 8
+[[gnu::target_clones(("default,sse2"))]]
+#else
+[[gnu::target_clones("default,sse2,avx,avx2")]]
+#endif
+#endif
+inline
+void calcImpl  (const float* lumi,
+                const unsigned ncell,
+                const unsigned ncoeff,
+                const unsigned int nshapes,
+                const unsigned int npad,
+                const CxxUtils::vec_aligned_vector<float>& coeffs,
+                CxxUtils::vec_aligned_vector<float>& out)
+{
+  // Vector type.
+  typedef CxxUtils::vec<float, CaloBCIDCoeffs::CHUNKSIZE> vf;
+
+  // Broadcast the luminosity values to all vector lanes.
+  CxxUtils::vec_aligned_vector<vf> llv (ncoeff);
+  for (size_t i = 0; i < ncoeff; i++) {
+    CxxUtils::vbroadcast (llv[i], lumi[i - (nshapes-1)]);
+  }
+
+  // Size the output array, including padding to make it a multiple
+  // of CHUNKSIZE.
+  out.resize(ncell + npad);
+
+  // Pointers iterating through the coefficients and the output.
+  const vf* cpos = reinterpret_cast<const vf*> (coeffs.data());
+  vf* opos = reinterpret_cast<vf*> (out.data());
+
+  // Loop over cells in groups of CHUNKSIZE.
+  for (size_t icell = 0; icell < ncell; icell += CaloBCIDCoeffs::CHUNKSIZE) {
+
+    // Loop over coefficients and calculate the dot product.
+    // It is more efficient to keep three separate accumulators
+    // and add them together at the end --- probably because that
+    // allows memory accesses to overlap with calculations.
+    // There was no significant observed benefit to using
+    // more than three accumulators.
+
+    // Prepare to loop through luminosity values.
+    vf* ll = llv.data();
+
+    // Initialize three accumulators.
+    vf sum1 = {0};
+    vf sum2 = {0};
+    vf sum3 = {0};
+
+    // Loop accumulating the dot product in three pieces.
+    int i = ncoeff;
+    for (; i >= 3; i -= 3) {
+      sum1 += *cpos++ * *ll++;
+      sum2 += *cpos++ * *ll++;
+      sum3 += *cpos++ * *ll++;
+    }
+
+    // Handle any trailing values if the number of coefficients is not
+    // divisible by three.  (Would not usually be executed as we expect
+    // to usually have 36 coefficients.)
+    switch (i) {
+    case 2:
+      sum1 += *cpos++ * *ll++;
+      [[fallthrough]];
+    case 1:
+      sum2 += *cpos++ * *ll++;
+      break;
+    default:
+      break;
+    }
+
+    // Sum the three accumulators and write CHUNKSIZE cells to the output.
+    *opos++ = sum1 + sum2 + sum3;
+  }
+  // Remove padding from the end of the output vector.
+  out.resize(ncell);
+}
+
+} //end anonymous namespace
 
 /** 
  * @brief Constructor.
@@ -165,85 +258,11 @@ void CaloBCIDCoeffs::findCellCoeffs (const float* ofcs,
  *            inclusive.
  * @param out Output per-cell offsets.
  */
-#if defined(__x86_64__) && HAVE_TARGET_CLONES && HAVE_VECTOR_SIZE_ATTRIBUTE
-// If we have function multiversioning, compile specialized versions
-// for different architectures.
-// ... But including avx causes a crash at least with gcc 8.3.0.
-//     It works ok with gcc 10.  (Not tested with 9.)
-#if __GNUC__ == 8
-__attribute__ ((target_clones ("default,sse2"))) 
-#else
-__attribute__ ((target_clones ("default,sse2,avx,avx2"))) 
-#endif
-#endif
 void CaloBCIDCoeffs::calc  (const float* lumi,
                             CxxUtils::vec_aligned_vector<float>& out) const
 {
-  // Vector type.
-  typedef CxxUtils::vec<float, CHUNKSIZE> vf;
 
-  const unsigned ncell = m_ncell;
-  const unsigned ncoeff = m_ncoeff;
-  const unsigned int nshapes = m_nshapes;
-
-  // Broadcast the luminosity values to all vector lanes.
-  CxxUtils::vec_aligned_vector<vf> llv (ncoeff);
-  for (size_t i = 0; i < ncoeff; i++) {
-    CxxUtils::vbroadcast (llv[i], lumi[i - (nshapes-1)]);
-  }
-
-  // Size the output array, including padding to make it a multiple
-  // of CHUNKSIZE.
-  out.resize (ncell + m_npad);
-
-  // Pointers iterating through the coefficients and the output.
-  const vf* cpos = reinterpret_cast<const vf*> (m_coeffs.data());
-  vf* opos = reinterpret_cast<vf*> (out.data());
-
-  // Loop over cells in groups of CHUNKSIZE.
-  for (size_t icell = 0; icell < ncell; icell += CHUNKSIZE) {
-
-    // Loop over coefficients and calculate the dot product.
-    // It is more efficient to keep three separate accumulators
-    // and add them together at the end --- probably because that
-    // allows memory accesses to overlap with calculations.
-    // There was no significant observed benefit to using
-    // more than three accumulators.
-
-    // Prepare to loop through luminosity values.
-    vf* ll = llv.data();
-
-    // Initialize three accumulators.
-    vf sum1 = {0};
-    vf sum2 = {0};
-    vf sum3 = {0};
-
-    // Loop accumulating the dot product in three pieces.
-    int i = ncoeff;
-    for (; i >= 3; i -= 3) {
-      sum1 += *cpos++ * *ll++;
-      sum2 += *cpos++ * *ll++;
-      sum3 += *cpos++ * *ll++;
-    }
-
-    // Handle any trailing values if the number of coefficients is not
-    // divisible by three.  (Would not usually be executed as we expect
-    // to usually have 36 coefficients.)
-    switch (i) {
-    case 2:
-      sum1 += *cpos++ * *ll++;
-      [[fallthrough]];
-    case 1:
-      sum2 += *cpos++ * *ll++;
-      break;
-    default:
-      break;
-    }
-
-    // Sum the three accumulators and write CHUNKSIZE cells to the output.
-    *opos++ = sum1 + sum2 + sum3;
-  }
-
-  // Remove padding from the end of the output vector.
-  out.resize (ncell);
+ //call the implementation method
+  calcImpl(lumi, m_ncell, m_ncoeff, m_nshapes, m_npad, m_coeffs, out);
+  
 }

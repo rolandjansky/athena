@@ -34,11 +34,16 @@ protected:
   SG::WriteHandleKey<CscStripPrepDataCollection_Cache>  m_CscStripCacheKey;
   SG::WriteHandleKey<MdtPrepDataCollection_Cache>       m_MdtCacheKey;
   SG::WriteHandleKey<RpcPrepDataCollection_Cache>       m_RpcCacheKey;
-  SG::WriteHandleKey<TgcPrepDataCollection_Cache>       m_TgcCacheKey;
+  SG::WriteHandleKeyArray<TgcPrepDataCollection_Cache>  m_TgcCacheKeys;
   SG::WriteHandleKey<sTgcPrepDataCollection_Cache>      m_sTgcCacheKey;
   SG::WriteHandleKey<MMPrepDataCollection_Cache>        m_MmCacheKey;
   SG::WriteHandleKey<RpcCoinDataCollection_Cache>       m_RpcCoinCacheKey;
-  SG::WriteHandleKey<TgcCoinDataCollection_Cache>       m_TgcCoinCacheKey;
+  SG::WriteHandleKeyArray<TgcCoinDataCollection_Cache>  m_TgcCoinCacheKeys;
+
+  /// Name for the TGC PRD cache containers
+  Gaudi::Property<std::string> m_tgcPrdCacheKeyStr {this, "TgcCacheStr", "", "Prefix for names of TGC PRD Cache collections"};
+  /// Name for the TGC Coin cache containers
+  Gaudi::Property<std::string> m_tgcCoinCacheKeyStr {this, "TgcCoinCacheStr", "", "Prefix for names of TGC Coin Cache collections"};
 
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 

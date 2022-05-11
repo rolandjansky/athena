@@ -8,9 +8,6 @@
 /*
   author: Dirk Duschinger
   mail: dirk.duschinger@cern.ch
-  documentation in: ../README.rst
-		    or
-                    https://gitlab.cern.ch/atlas/athena/-/blob/master/PhysicsAnalysis/TauID/TauAnalysisTools/README.rst
 */
 
 // Framework include(s):
@@ -147,7 +144,7 @@ protected:
   int m_iJetIDLevel;
   int m_iEleIDLevel;
 
-  e_TruthMatchedParticleType m_eCheckTruth;
+  TruthMatchedParticleType m_eCheckTruth;
 
   bool m_bSFIsAvailable;
   bool m_bSFIsAvailableChecked;

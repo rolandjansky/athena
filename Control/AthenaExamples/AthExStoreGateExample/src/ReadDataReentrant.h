@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -22,6 +22,7 @@
 #include "StoreGateExample_ClassDEF.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/UpdateHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 
 
 
@@ -40,6 +41,7 @@ private:
   SG::ReadHandleKey<std::list<ElementLink<std::vector<float> > > > m_pLinkListKey;
   SG::ReadHandleKey<std::vector<ElementLink<MapStringFloat> > > m_linkVectorKey;
   SG::ReadHandleKey<TestDataObject> m_testObjectKey;
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this, "EvtInfo", "EventInfo", "EventInfo name"};
   SG::ReadHandleKeyArray<MyDataObj> m_dobjKeyArray;
 };
 

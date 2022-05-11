@@ -44,7 +44,7 @@ svcMgr.EventSelector.RunNumber = 12345
 # Algorithms Private Options
 #--------------------------------------------------------------
 if not hasattr(svcMgr, 'AtRndmGenSvc'):
-    from AthenaServices.AthenaServicesConf import AtRndmGenSvc
+    from RngComps.RngCompsConf import AtRndmGenSvc
     svcMgr += AtRndmGenSvc()
     
 svcMgr.AtRndmGenSvc.Seeds = ["HIJING 4789899 989240512", "HIJING_INIT 889223465 78782321"]

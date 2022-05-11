@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( VP1MCSystems )
@@ -6,6 +6,7 @@ atlas_subdir( VP1MCSystems )
 # External dependencies:
 find_package( CLHEP )
 find_package( HepPDT )
+find_package( Qt5 COMPONENTS Core Gui Widgets  )
 
 # Generate UI files automatically:
 set( CMAKE_AUTOUIC TRUE )

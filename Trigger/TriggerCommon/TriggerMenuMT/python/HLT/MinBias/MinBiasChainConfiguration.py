@@ -106,11 +106,7 @@ class MinBiasChainConfig(ChainConfigurationBase):
             steps.append(self.getMinBiasSpStep())
 
         if self.chainPart['recoAlg'][0] in ['sptrk', 'hmt', 'excl']:
-            if self.chainPart['pileupInfo']:
-                steps.append(self.getMinBiasZFindStep())
-            else:
-                steps.append(self.getMinBiasEmptyZFindStep())
-
+            steps.append(self.getMinBiasZFindStep())
             steps.append(self.getMinBiasTrkStep())
 
         if "_alfaperf" in self.chainName:

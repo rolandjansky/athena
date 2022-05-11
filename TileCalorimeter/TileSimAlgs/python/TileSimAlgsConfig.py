@@ -27,7 +27,6 @@ def TileHitVecToCntTool(name="TileHitVecToCntTool", **kwargs):
     protectedInclude( "CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py" )
     protectedInclude( "TileConditions/TileConditions_jobOptions.py" )
     kwargs.setdefault("TileHitVectors", ["TileHitVec" , "MBTSHits" ])
-    kwargs.setdefault("TileInfoName", "TileInfo")
     kwargs.setdefault("TileHitContainer", "TileHitCnt")
     kwargs.setdefault("TileHitContainer_DigiHSTruth", "TileHitCnt_DigiHSTruth")
     kwargs.setdefault("DoHSTruthReconstruction", digitizationFlags.doDigiTruth())

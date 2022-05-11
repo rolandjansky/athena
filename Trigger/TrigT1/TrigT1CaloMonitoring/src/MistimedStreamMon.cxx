@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cmath>
@@ -170,7 +170,7 @@ void MistimedStreamMon::fillEtaPhiMap(TH2F* hist, double eta, double phi, double
 
 
 /*---------------------------------------------------------*/
-TH2F* MistimedStreamMon::createEtaPhiMap(std::string name, std::string title, bool isHADLayer, bool shrinkEtaBins) 
+TH2F* MistimedStreamMon::createEtaPhiMap(const std::string& name, const std::string& title, bool isHADLayer, bool shrinkEtaBins) 
 /*---------------------------------------------------------*/
 {
   // construct ppmEtaPhi Histo (modified from TrigT1CaloLWHistogramTool, but without the booking

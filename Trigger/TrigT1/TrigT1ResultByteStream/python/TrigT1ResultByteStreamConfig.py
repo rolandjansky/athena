@@ -5,6 +5,7 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, CAtoGlobalWrapper
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import Format
+from TrigEDMConfig.TriggerEDMRun3 import recordable
 from libpyeformat_helper import SourceIdentifier, SubDetector
 
 #Muon RecRoiTools
@@ -48,7 +49,6 @@ def ExampleL1TriggerByteStreamToolCfg(name, writeBS=False):
   tool = CompFactory.ExampleL1TriggerByteStreamTool(name)
   muctpi_moduleid = 0
   muctpi_robid = int(SourceIdentifier(SubDetector.TDAQ_MUON_CTP_INTERFACE, muctpi_moduleid))
-  tool.MUCTPIModuleId = muctpi_moduleid
   tool.ROBIDs = [muctpi_robid]
   if writeBS:
     # write BS == read xAOD
@@ -57,25 +57,35 @@ def ExampleL1TriggerByteStreamToolCfg(name, writeBS=False):
   else:
     # read BS == write xAOD
     tool.MuonRoIContainerReadKey=""
-    tool.MuonRoIContainerWriteKey="LVL1MuonRoIs"
+    tool.MuonRoIContainerWriteKey=recordable("LVL1MuonRoIs")
   return tool
 
 def MuonRoIByteStreamToolCfg(name, flags, writeBS=False):
   tool = CompFactory.MuonRoIByteStreamTool(name)
   muctpi_moduleid = 0  # No RoIB in Run 3, we always read the DAQ ROB
-  muctpi_robid = int(SourceIdentifier(SubDetector.TDAQ_MUON_CTP_INTERFACE, muctpi_moduleid))
-  tool.MUCTPIModuleId = muctpi_moduleid
+  muctpi_robid = int(SourceIdentifier(SubDetector.TDAQ_MUON_CTP_INTERFACE, muctpi_moduleid)) # 0x760000
   tool.ROBIDs = [muctpi_robid]
+
+  from TrigT1ResultByteStream.TrigT1ResultByteStreamMonitoring import L1MuonBSConverterMonitoring
+  tool.MonTool = L1MuonBSConverterMonitoring(name, writeBS)
+
+  # Build container names for each bunch crossing in the maximum readout window (size 5)
+  containerBaseName = "LVL1MuonRoIs"
+  containerNames = [
+    containerBaseName + "BCm2",
+    containerBaseName + "BCm1",
+    containerBaseName,
+    containerBaseName + "BCp1",
+    containerBaseName + "BCp2",
+  ]
+
   if writeBS:
     # write BS == read xAOD
-    tool.MuonRoIContainerReadKey="LVL1MuonRoIs"
-    tool.MuonRoIContainerWriteKey=""
+    tool.MuonRoIContainerReadKeys += containerNames
   else:
     # read BS == write xAOD
-    tool.MuonRoIContainerReadKey=""
-    tool.MuonRoIContainerWriteKey="LVL1MuonRoIs"
+    tool.MuonRoIContainerWriteKeys += [recordable(c) for c in containerNames]
 
-  tool.UseRun3Config = flags.Trigger.enableL1MuonPhase1
   tool.RPCRecRoiTool = getRun3RPCRecRoiTool(name="RPCRecRoiTool",useRun3Config=flags.Trigger.enableL1MuonPhase1)
   tool.TGCRecRoiTool = getRun3TGCRecRoiTool(name="TGCRecRoiTool",useRun3Config=flags.Trigger.enableL1MuonPhase1)
   tool.TrigThresholdDecisionTool = getTrigThresholdDecisionTool(name="TrigThresholdDecisionTool")
@@ -133,7 +143,7 @@ def L1TriggerByteStreamDecoderCfg(flags):
           maybeMissingRobs.append(int(SourceIdentifier(SubDetector.TDAQ_CALO_CLUSTER_PROC_ROI, module_id)))
 
   # Run-3 L1Muon decoding (only when running HLT - offline we read it from HLT result)
-  if flags.Trigger.enableL1MuonPhase1 and flags.Trigger.doHLT:
+  if flags.Trigger.L1.doMuon and flags.Trigger.enableL1MuonPhase1 and flags.Trigger.doHLT:
     muonRoiTool = MuonRoIByteStreamToolCfg(name="L1MuonBSDecoderTool",
                                            flags=flags,
                                            writeBS=False)
@@ -189,3 +199,68 @@ def L1ByteStreamDecodersRecExSetup():
 def L1ByteStreamEncodersRecExSetup():
   # Use new-style config from the above functions and import into old-style JO
   CAtoGlobalWrapper(L1TriggerByteStreamEncoderCfg,ConfigFlags)
+
+if __name__ == '__main__':
+  from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+  from AthenaCommon.Configurable import Configurable
+  from AthenaCommon.Logging import logging
+  from AthenaCommon.Constants import DEBUG
+  import sys
+
+  Configurable.configurableRun3Behavior = 1
+  log = logging.getLogger('TrigT1ResultByteStreamConfig')
+  log.setLevel(DEBUG)
+
+  if len(sys.argv) != 4:
+    log.error('usage: python -m TrigT1ResultByteStream.TrigT1ResultByteStreamConfig subsystem file')
+    sys.exit(1)
+  supportedSubsystems = ['jFex']
+  subsystem = sys.argv[1]
+  filename = sys.argv[2]
+  events = int(sys.argv[3])
+  if subsystem not in supportedSubsystems:
+    log.error(f'subsystem "{subsystem}" not one of supported subsystems: {supportedSubsystems}')
+    sys.exit(1)
+
+  flags.Exec.OutputLevel = DEBUG
+  flags.Exec.MaxEvents = events
+  flags.Input.Files = [filename]
+  flags.Concurrency.NumThreads = 1
+  flags.Concurrency.NumConcurrentEvents = 1
+  flags.Output.AODFileName = 'AOD.pool.root'
+  flags.lock()
+
+  from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+  acc = MainServicesCfg(flags)
+
+  from TriggerJobOpts.TriggerByteStreamConfig import ByteStreamReadCfg
+  acc.merge(ByteStreamReadCfg(flags))
+
+  decoderTools = []
+  outputEDM = []
+
+  def addEDM(edmType, edmName):
+    auxType = edmType.replace('Container','AuxContainer')
+    return [f'{edmType}#{edmName}',
+            f'{auxType}#{edmName}Aux.']
+
+  if subsystem=='jFex':
+    from L1CaloFEXByteStream.L1CaloFEXByteStreamConfig import jFexByteStreamToolCfg
+    jFexTool = jFexByteStreamToolCfg('jFexBSDecoder', flags)
+    decoderTools += [jFexTool]
+    outputEDM += addEDM('xAOD::jFexSRJetRoIContainer', jFexTool.jJRoIContainerWriteKey.Path)
+    outputEDM += addEDM('xAOD::jFexLRJetRoIContainer', jFexTool.jLJRoIContainerWriteKey.Path)
+    outputEDM += addEDM('xAOD::jFexTauRoIContainer'  , jFexTool.jTauRoIContainerWriteKey.Path)
+    outputEDM += addEDM('xAOD::jFexSumETRoIContainer', jFexTool.jTERoIContainerWriteKey.Path)
+    outputEDM += addEDM('xAOD::jFexMETRoIContainer'  , jFexTool.jXERoIContainerWriteKey.Path)
+
+  decoderAlg = CompFactory.L1TriggerByteStreamDecoderAlg(name="L1TriggerByteStreamDecoder",
+                                                         DecoderTools=decoderTools)
+  acc.addEventAlgo(decoderAlg, sequenceName='AthAlgSeq')
+
+  from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+  log.debug('Adding the following output EDM to ItemList: %s', outputEDM)
+  acc.merge(OutputStreamCfg(flags, 'AOD', ItemList=outputEDM))
+
+  if acc.run().isFailure():
+    sys.exit(1)

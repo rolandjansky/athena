@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TruthHitAnalysis.h"
@@ -7,8 +7,6 @@
 // Section of includes for Truth tests
 #include "AtlasHepMC/GenEvent.h"
 #include "GeneratorObjects/McEventCollection.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 #include "TH1.h"
 #include "TTree.h"
@@ -240,9 +238,6 @@ StatusCode TruthHitAnalysis::execute() {
   m_status->clear();
   m_pdgid->clear();
   
-  const DataHandle<EventInfo> event;
-  if (!evtStore()->retrieve(event, "McEventInfo" ).isSuccess()) 
-    return StatusCode::FAILURE;
   const DataHandle<McEventCollection> mcCollection;
   if (evtStore()->retrieve(mcCollection,"TruthEvent") == StatusCode::SUCCESS) {
     McEventCollection::const_iterator currentGenEventIter = mcCollection->begin(); 

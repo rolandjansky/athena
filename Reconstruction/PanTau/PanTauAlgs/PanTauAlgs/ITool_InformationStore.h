@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PANTAUALGS_ITOOL_INFORMATIONSTORE_H
@@ -12,17 +12,17 @@
 namespace PanTau {
 
 
-    /** @class ITool_InformationStore
-        @brief Interface for Tool_InformationStore
-        @author Christian Limbach (limbach@physik.uni-bonn.de)
-    */
+  /** @class ITool_InformationStore
+      @brief Interface for Tool_InformationStore
+      @author Christian Limbach (limbach@physik.uni-bonn.de)
+  */
 
 
-    class ITool_InformationStore : virtual public asg::IAsgTool {
-        ASG_TOOL_INTERFACE(ITool_InformationStore)
+  class ITool_InformationStore : virtual public asg::IAsgTool {
+    ASG_TOOL_INTERFACE(ITool_InformationStore)
 
 
-        public:
+      public:
 
     virtual bool isInitialized() = 0;
 
@@ -40,12 +40,12 @@ namespace PanTau {
     virtual inline void setMapVecDouble( MapVecDouble &v ) = 0 ;
 #endif
 
-            virtual StatusCode getInfo_Int(std::string varName,     int& value) = 0;
-            virtual StatusCode getInfo_Double(std::string varName,  double& value) = 0;
-            virtual StatusCode getInfo_VecDouble(std::string varName,  std::vector<double>& value) = 0;
-            virtual StatusCode getInfo_String(std::string varName,  std::string& value) = 0;
-            virtual StatusCode getInfo_VecString(std::string varName,  std::vector<std::string>& value) = 0;
-    };
+    virtual StatusCode getInfo_Int(const std::string& varName, int& value) = 0;
+    virtual StatusCode getInfo_Double(const std::string& varName, double& value) = 0;
+    virtual StatusCode getInfo_VecDouble(const std::string& varName, std::vector<double>& value) = 0;
+    virtual StatusCode getInfo_String(const std::string& varName, std::string& value) = 0;
+    virtual StatusCode getInfo_VecString(const std::string& varName, std::vector<std::string>& value) = 0;
+  };
     
 }
 #endif //PANTAUALGS_ITOOL_INFORMATIONSTORE_H

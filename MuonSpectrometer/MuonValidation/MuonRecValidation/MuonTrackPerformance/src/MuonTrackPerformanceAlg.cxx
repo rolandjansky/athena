@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonTrackPerformance/MuonTrackPerformanceAlg.h"
+#include "MuonTrackPerformanceAlg.h"
 
 #include <fstream>
 #include <iostream>
@@ -396,14 +396,14 @@ bool MuonTrackPerformanceAlg::handleTrackTruth(const TrackCollection& trackColle
         trackData->truthTrack = new TrackRecord(*mit->first);
         if (truthTrack.truthTrajectory) {
             trackData->truthTrajectory = new TruthTrajectory(*truthTrack.truthTrajectory);
-            const HepMC::GenParticle* mother = getMother(*truthTrack.truthTrajectory);
+            HepMC::ConstGenParticlePtr mother = getMother(*truthTrack.truthTrajectory);
             if (mother) {
                 trackData->motherPdg = mother->pdg_id();
                 if (mother->end_vertex())
                     trackData->productionVertex = new Amg::Vector3D(
                         mother->end_vertex()->position().x(), mother->end_vertex()->position().y(), mother->end_vertex()->position().z());
             }
-            const HepMC::GenParticle* original = getInitialState(*truthTrack.truthTrajectory);
+            HepMC::ConstGenParticlePtr original = getInitialState(*truthTrack.truthTrajectory);
             if (original) {
                 trackData->momentumAtProduction =
                     new Amg::Vector3D(original->momentum().x(), original->momentum().y(), original->momentum().z());
@@ -477,14 +477,14 @@ bool MuonTrackPerformanceAlg::handleTrackTruth(const TrackCollection& trackColle
         trackData->truthTrack = new TrackRecord(*tit->second.truthTrack);
         if (tit->second.truthTrajectory) {
             trackData->truthTrajectory = new TruthTrajectory(*tit->second.truthTrajectory);
-            const HepMC::GenParticle* mother = getMother(*tit->second.truthTrajectory);
+            HepMC::ConstGenParticlePtr mother = getMother(*tit->second.truthTrajectory);
             if (mother) {
                 trackData->motherPdg = mother->pdg_id();
                 if (mother->end_vertex())
                     trackData->productionVertex = new Amg::Vector3D(
                         mother->end_vertex()->position().x(), mother->end_vertex()->position().y(), mother->end_vertex()->position().z());
             }
-            const HepMC::GenParticle* original = getInitialState(*tit->second.truthTrajectory);
+            HepMC::ConstGenParticlePtr original = getInitialState(*tit->second.truthTrajectory);
             if (original) {
                 trackData->momentumAtProduction =
                     new Amg::Vector3D(original->momentum().x(), original->momentum().y(), original->momentum().z());
@@ -741,7 +741,7 @@ std::string MuonTrackPerformanceAlg::print(const Muon::IMuonTrackTruthTool::Trut
     if (std::abs(trackRecord.GetPDGCode()) != 13) sout << " pdg " << trackRecord.GetPDGCode();
 
     if (trackTruth.truthTrajectory) {
-        const HepMC::GenParticle* mother = getMother(*trackTruth.truthTrajectory);
+        HepMC::ConstGenParticlePtr mother = getMother(*trackTruth.truthTrajectory);
         if (mother) { sout << " mother " << mother->pdg_id(); }
     }
 
@@ -1398,7 +1398,7 @@ void MuonTrackPerformanceAlg::clearEvent(MuonTrackPerformanceAlg::EventData& eve
     clearTracks(event.fakeTracksSL);
 }
 
-const HepMC::GenParticle* MuonTrackPerformanceAlg::getMother(const TruthTrajectory& traj) const {
+HepMC::ConstGenParticlePtr MuonTrackPerformanceAlg::getMother(const TruthTrajectory& traj) const {
     std::vector<HepMcParticleLink>::const_reverse_iterator pit = traj.rbegin();
     std::vector<HepMcParticleLink>::const_reverse_iterator pit_end = traj.rend();
     for (; pit != pit_end; ++pit) {
@@ -1407,7 +1407,7 @@ const HepMC::GenParticle* MuonTrackPerformanceAlg::getMother(const TruthTrajecto
     return nullptr;
 }
 
-const HepMC::GenParticle* MuonTrackPerformanceAlg::getInitialState(const TruthTrajectory& traj) const {
+HepMC::ConstGenParticlePtr MuonTrackPerformanceAlg::getInitialState(const TruthTrajectory& traj) const {
     std::vector<HepMcParticleLink>::const_reverse_iterator pit = traj.rbegin();
     std::vector<HepMcParticleLink>::const_reverse_iterator pit_end = traj.rend();
     for (; pit != pit_end; ++pit) {
@@ -1433,7 +1433,7 @@ bool MuonTrackPerformanceAlg::isSecondary(const Muon::IMuonTrackTruthTool::Truth
 }
 
 bool MuonTrackPerformanceAlg::isSecondary(const TruthTrajectory& truthTrajectory) const {
-    const HepMC::GenParticle* mother = getMother(truthTrajectory);
+    HepMC::ConstGenParticlePtr mother = getMother(truthTrajectory);
     if (mother && mother->end_vertex() && mother->end_vertex()->position().perp() > 100.) return true;
     return false;
 }

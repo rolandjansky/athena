@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cmath>
@@ -36,15 +36,14 @@ StatusCode TrigTauTrackRoiUpdater::initialize()
   ATH_MSG_INFO( "phiHalfWidth " << m_phiHalfWidth );
   ATH_MSG_INFO( "nHitPix      " << m_nHitPix );
   ATH_MSG_INFO( "nSiHoles     " << m_nSiHoles );
-  ATH_MSG_INFO( "useBDT       " << m_useBDT );
 
   if(m_z0HalfWidth<0. || m_etaHalfWidth<0. || m_phiHalfWidth<0.) {
     ATH_MSG_ERROR( "Incorrect parameters." );
     return StatusCode::FAILURE;
   }
 
-  if(m_useBDT) {
-    ATH_MSG_INFO( "BDTweights " << m_BDTweights );
+  if (!m_BDTweights.empty()) {
+    ATH_MSG_INFO( "Using BDT with calibration file " << m_BDTweights );
     std::string inputWeightsPath = PathResolverFindCalibFile(m_BDTweights);
     ATH_MSG_INFO( "InputWeightsPath: " << inputWeightsPath );
     m_reader = std::make_unique<tauRecTools::BDTHelper>();
@@ -80,13 +79,13 @@ StatusCode TrigTauTrackRoiUpdater::execute(const EventContext& ctx) const
   const Trk::TrackSummary* summary = nullptr;
   double trkPtMax = 0.;
   
-  // if useBDT=true, the track with the highest BDT score is used to define the updated ROI
+  // when using the BDT, the track with the highest BDT score is used to define the updated ROI
   // else, the highest-pt track satisfying quality cuts is used
   // if no track is found, the input ROI is used
   if(!foundTracks->empty()) {
 
     // Find the track with the highest BDT score
-    if(m_useBDT) {
+    if(!m_BDTweights.empty()) {
       // retrieve TauJet from TrigTauRecCaloOnlyMVASequence
       SG::ReadHandle< xAOD::TauJetContainer > tauJetHandle = SG::makeHandle( m_tauJetKey,ctx );
       const xAOD::TauJetContainer *foundTaus = tauJetHandle.get();
@@ -210,7 +209,7 @@ double TrigTauTrackRoiUpdater::getBDTscore(const xAOD::TauJet* tau, const Trk::T
   int nPixHole = trkSummary->get(Trk::numberOfPixelHoles);
   int nSCTHole = trkSummary->get(Trk::numberOfSCTHoles);
 
-  float ratio_pt = (tau->ptTrigCaloOnly()>0.) ? trkPerigee->pT()/tau->ptTrigCaloOnly() : 0.;
+  float ratio_pt = (tau->pt()>0.) ? trkPerigee->pT()/tau->pt() : 0.;
 
   float dEta = tau->eta() - trkPerigee->eta();
   float dPhi = CxxUtils::wrapToPi(tau->phi() - trkPerigee->parameters()[Trk::phi0]);

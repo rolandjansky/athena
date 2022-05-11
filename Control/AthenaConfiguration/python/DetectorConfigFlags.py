@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from AthenaConfiguration.AutoConfigFlags import getDefaultDetectors
@@ -10,7 +10,7 @@ from AthenaConfiguration.AutoConfigFlags import getDefaultDetectors
 #             Forward = Lucid ZDC ALFA AFP FwdRegion
 #             LAr = em HEC FCal
 #             Calo = em HEC FCal Tile
-#             Muon = MDT CSC TGC RPC sTGC Micromegas
+#             Muon = MDT CSC TGC RPC sTGC MM
 #             Truth
 #             BField
 #             FTK

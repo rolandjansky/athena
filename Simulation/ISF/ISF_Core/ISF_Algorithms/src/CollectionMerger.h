@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_ALGS_COLLECTIONMERGER_H
@@ -29,6 +29,8 @@
 #include "MuonSimEvent/MDTSimHitCollection.h"
 #include "MuonSimEvent/RPCSimHitCollection.h"
 #include "MuonSimEvent/TGCSimHitCollection.h"
+#include "MuonSimEvent/sTGCSimHitCollection.h"
+#include "MuonSimEvent/MMSimHitCollection.h"
 
 // forward declarations
 namespace ISFTesting {
@@ -78,7 +80,6 @@ namespace ISF {
       void insertCopy(HitType_t * const hit, OutputType_t& outputHandle) const;
 
     /** Input collection ReadHandleKeys */
-    SG::ReadHandleKeyArray<SiHitCollection>              m_inputPLRHits{this, "InputPLRHits", {}, ""};
     SG::ReadHandleKeyArray<SiHitCollection>              m_inputBCMHits{this, "InputBCMHits", {}, ""};
     SG::ReadHandleKeyArray<SiHitCollection>              m_inputBLMHits{this, "InputBLMHits", {}, ""};
     SG::ReadHandleKeyArray<SiHitCollection>              m_inputPixelHits{this, "InputPixelHits", {}, ""};
@@ -87,6 +88,7 @@ namespace ISF {
 
     SG::ReadHandleKeyArray<SiHitCollection>              m_inputITkPixelHits{this, "InputITkPixelHits", {}, ""};
     SG::ReadHandleKeyArray<SiHitCollection>              m_inputITkStripHits{this, "InputITkStripHits", {}, ""};
+    SG::ReadHandleKeyArray<SiHitCollection>              m_inputPLRHits{this, "InputPLRHits", {}, ""};
     SG::ReadHandleKeyArray<SiHitCollection>              m_inputHGTDHits{this, "InputHGTDHits", {}, ""};
 
     SG::ReadHandleKeyArray<LArHitContainer>              m_inputLArEMBHits{this, "InputLArEMBHits", {}, ""};
@@ -101,9 +103,10 @@ namespace ISF {
     SG::ReadHandleKeyArray<MDTSimHitCollection>          m_inputMDTHits{this, "InputMDTHits", {}, ""};
     SG::ReadHandleKeyArray<RPCSimHitCollection>          m_inputRPCHits{this, "InputRPCHits", {}, ""};
     SG::ReadHandleKeyArray<TGCSimHitCollection>          m_inputTGCHits{this, "InputTGCHits", {}, ""};
+    SG::ReadHandleKeyArray<sTGCSimHitCollection>         m_inputsTGCHits{this, "InputsTGCHits", {}, ""};
+    SG::ReadHandleKeyArray<MMSimHitCollection>           m_inputMMHits{this, "InputMMHits", {}, ""};
 
     /** Output collection WriteHandleKeys */
-    SG::WriteHandleKey<SiHitCollection>                 m_outputPLRHits{this, "OutputPLRHits", "", ""};
     SG::WriteHandleKey<SiHitCollection>                 m_outputBCMHits{this, "OutputBCMHits", "", ""};
     SG::WriteHandleKey<SiHitCollection>                 m_outputBLMHits{this, "OutputBLMHits", "", ""};
     SG::WriteHandleKey<SiHitCollection>                 m_outputPixelHits{this, "OutputPixelHits", "", ""};
@@ -112,6 +115,7 @@ namespace ISF {
 
     SG::WriteHandleKey<SiHitCollection>                 m_outputITkPixelHits{this, "OutputITkPixelHits", "", ""};
     SG::WriteHandleKey<SiHitCollection>                 m_outputITkStripHits{this, "OutputITkStripHits", "", ""};
+    SG::WriteHandleKey<SiHitCollection>                 m_outputPLRHits{this, "OutputPLRHits", "", ""};
     SG::WriteHandleKey<SiHitCollection>                 m_outputHGTDHits{this, "OutputHGTDHits", "", ""};
 
     SG::WriteHandleKey<LArHitContainer>                 m_outputLArEMBHits{this, "OutputLArEMBHits", "", ""};
@@ -126,6 +130,8 @@ namespace ISF {
     SG::WriteHandleKey<MDTSimHitCollection>             m_outputMDTHits{this, "OutputMDTHits", "", ""};
     SG::WriteHandleKey<RPCSimHitCollection>             m_outputRPCHits{this, "OutputRPCHits", "", ""};
     SG::WriteHandleKey<TGCSimHitCollection>             m_outputTGCHits{this, "OutputTGCHits", "", ""};
+    SG::WriteHandleKey<sTGCSimHitCollection>            m_outputsTGCHits{this, "OutputsTGCHits", "", ""};
+    SG::WriteHandleKey<MMSimHitCollection>              m_outputMMHits{this, "OutputMMHits", "", ""};
   };
 
 

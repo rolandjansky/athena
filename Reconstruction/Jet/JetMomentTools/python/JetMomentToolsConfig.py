@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 """
                                                                       
@@ -72,7 +72,7 @@ def getConstitFourMomTool(jetdef, modspec=""):
             cfourmom.AltJetScales = [""]
     # Drop the LC-calibrated four-mom for EMTopo jets as we only wanted it as a possibility
     # in MET CST calculations but never used it
-    elif "EMPFlow" in jetdef.basename:
+    elif "PFlow" in jetdef.basename:
         cfourmom.JetScaleNames = ["DetectorEtaPhi"]
         cfourmom.AltConstitColls = [""]
         cfourmom.AltConstitScales = [0]
@@ -97,7 +97,7 @@ def getJVFTool(jetdef, modspec):
     return jvf
 
 
-# Jet vertex fraction with selection.
+# Jet vertex tagger with selection.
 def getJVTTool(jetdef, modspec):
     jvt = CompFactory.JetVertexTaggerTool(
         "jvt",
@@ -105,6 +105,15 @@ def getJVTTool(jetdef, modspec):
         SuppressInputDependence = True
     )
     return jvt
+
+# Jet vertex tagger with neural network.
+def getNNJvtTool(jetdef, modspec):
+    nnjvt = CompFactory.getComp("JetPileupTag::JetVertexNNTagger")(
+        "nnjvt",
+        VertexContainer = jetContextDic[modspec or jetdef.context]["Vertices"],
+        SuppressInputDependence = True
+    )
+    return nnjvt
 
 
 def getTrackMomentsTool(jetdef, modspec):
@@ -147,3 +156,53 @@ def getOriginCorrVxTool(jetdef, modspec):
       OnlyAssignPV = True,
     )
     return origin_setpv
+
+
+def getJetPtAssociationTool(jetdef, modspec):
+
+    from JetRecConfig.JetDefinition import buildJetAlgName
+
+    truthJetAlg = buildJetAlgName(jetdef.algorithm, jetdef.radius)+'Truth'+str(modspec)+'Jets'
+
+    jetPtAssociation = CompFactory.JetPtAssociationTool('jetPtAssociation',
+                                                        MatchingJetContainer = truthJetAlg,
+                                                        AssociationName = "GhostTruth")
+
+    return jetPtAssociation
+
+
+def getQGTaggingTool(jetdef, modspec):
+
+    jettrackselloose = JetRecToolsConfig.getTrackSelTool(modspec or jetdef.context)
+
+    trackingKeys = jetContextDic[modspec or jetdef.context]
+
+    qgtagging = CompFactory.JetQGTaggerVariableTool('qgtagging',
+                                                    VertexContainer = trackingKeys["Vertices"],
+                                                    TrackVertexAssociation = trackingKeys["TVA"],
+                                                    TrackSelector = jettrackselloose
+                                                   )
+
+    return qgtagging
+
+
+def getPFlowfJVTTool(jetdef, modspec):
+
+    from JetCalibTools import JetCalibToolsConfig
+    jetCalibrationTool = JetCalibToolsConfig.getJetCalibToolFromString(jetdef, "AnalysisLatest:mc:JetArea_Residual_EtaJES")
+
+    wPFOTool = CompFactory.getComp('CP::WeightPFOTool')("fJVT__wPFO")
+
+    trackingKeys = jetContextDic[modspec or jetdef.context]
+
+    fJVTTool = CompFactory.JetForwardPFlowJvtTool('fJVT',
+                                                  verticesName = trackingKeys["Vertices"],
+                                                  TrackVertexAssociation = trackingKeys["TVA"],
+                                                  WeightPFOTool = wPFOTool,
+                                                  JetCalibrationTool = jetCalibrationTool,
+                                                  FEName = jetdef.inputdef.containername,
+                                                  ORName = "",
+                                                  FjvtRawName = 'DFCommonJets_fJvt',
+                                                  includePV = True)
+
+    return fJVTTool

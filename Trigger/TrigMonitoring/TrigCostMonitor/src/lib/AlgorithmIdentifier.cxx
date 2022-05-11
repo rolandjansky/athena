@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthViews/View.h"
@@ -13,7 +13,6 @@
 AlgorithmIdentifier::AlgorithmIdentifier() :
   m_realSlot(),
   m_slotToSaveInto(),
-  m_msg(nullptr),
   m_caller(""), 
   m_store(""),
   m_viewID(0),
@@ -22,10 +21,9 @@ AlgorithmIdentifier::AlgorithmIdentifier() :
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-AlgorithmIdentifier::AlgorithmIdentifier(const size_t realSlot, const size_t saveSlot, const std::string& caller, const std::string& storeName, MsgStream& msg, const int16_t viewID) :
+AlgorithmIdentifier::AlgorithmIdentifier(const size_t realSlot, const size_t saveSlot, const std::string& caller, const std::string& storeName, const int16_t viewID) :
   m_realSlot(realSlot),
   m_slotToSaveInto(saveSlot),
-  m_msg(&msg),
   m_caller(caller), 
   m_store(storeName),
   m_viewID(viewID),
@@ -34,22 +32,22 @@ AlgorithmIdentifier::AlgorithmIdentifier(const size_t realSlot, const size_t sav
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-TrigConf::HLTHash AlgorithmIdentifier::callerHash() const {
+TrigConf::HLTHash AlgorithmIdentifier::callerHash (MsgStream& msg) const {
   try {
     return TrigConf::HLTUtils::string2hash(m_caller, "ALG");
   } catch (const std::exception& ex) {
-    *m_msg << MSG::DEBUG << "Caught " << typeid(ex).name() << ": " << ex.what() << endmsg;
+    msg << MSG::DEBUG << "Caught " << typeid(ex).name() << ": " << ex.what() << endmsg;
   }
   return 0;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-TrigConf::HLTHash AlgorithmIdentifier::storeHash() const {
+TrigConf::HLTHash AlgorithmIdentifier::storeHash (MsgStream& msg) const {
   try {
     return TrigConf::HLTUtils::string2hash(m_store, "STORE");
   } catch (const std::exception& ex) {
-    *m_msg << MSG::DEBUG << "Caught " << typeid(ex).name() << ": " << ex.what() << endmsg;
+    msg << MSG::DEBUG << "Caught " << typeid(ex).name() << ": " << ex.what() << endmsg;
   }
   return 0;
 }
@@ -57,7 +55,7 @@ TrigConf::HLTHash AlgorithmIdentifier::storeHash() const {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 StatusCode AlgorithmIdentifier::isValid() const {
-  if (m_caller == "" || m_store == "" || !m_msg || !m_hash) {
+  if (m_caller == "" || m_store == "" || !m_hash) {
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -65,20 +63,20 @@ StatusCode AlgorithmIdentifier::isValid() const {
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-void AlgorithmIdentifier::dump() {
-  TrigConf::HLTHash theCallerHash = callerHash();
-  TrigConf::HLTHash theStoreHash = storeHash();
+void AlgorithmIdentifier::dump (MsgStream& msg) {
+  TrigConf::HLTHash theCallerHash = callerHash(msg);
+  TrigConf::HLTHash theStoreHash = storeHash(msg);
 
-  *m_msg << MSG::INFO << "----------" << endmsg;
-  *m_msg << "Valid? " << (isValid() ? "YES" : "NO") << endmsg;
-  *m_msg << "Real Slot:" << m_realSlot << endmsg;
-  *m_msg << "Slot Save Overrride:" << m_slotToSaveInto << endmsg;
-  *m_msg << "Caller:'" << m_caller << "'" << endmsg;
-  *m_msg << "Caller Hash:" << theCallerHash << endmsg;
-  *m_msg << "Store:'" << m_store << "'" << endmsg;
-  *m_msg << "Store Hash:" << theStoreHash << endmsg;
-  *m_msg << "View ID:" << m_viewID << endmsg;
-  *m_msg << "AI Hash:" << m_hash << endmsg;
+  msg << MSG::INFO << "----------" << endmsg;
+  msg << "Valid? " << (isValid() ? "YES" : "NO") << endmsg;
+  msg << "Real Slot:" << m_realSlot << endmsg;
+  msg << "Slot Save Overrride:" << m_slotToSaveInto << endmsg;
+  msg << "Caller:'" << m_caller << "'" << endmsg;
+  msg << "Caller Hash:" << theCallerHash << endmsg;
+  msg << "Store:'" << m_store << "'" << endmsg;
+  msg << "Store Hash:" << theStoreHash << endmsg;
+  msg << "View ID:" << m_viewID << endmsg;
+  msg << "AI Hash:" << m_hash << endmsg;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -96,7 +94,7 @@ AlgorithmIdentifier AlgorithmIdentifierMaker::make(const EventContext& context, 
   }
   const int16_t viewID = (view == nullptr ? AlgorithmIdentifier::s_noView : view->viewID());
   const size_t saveSlot = (slotOverride >= 0 ? slotOverride : context.slot());
-  return AlgorithmIdentifier(context.slot(), saveSlot, caller, proxy->name(), msg, viewID);
+  return AlgorithmIdentifier(context.slot(), saveSlot, caller, proxy->name(), viewID);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Gaudi includes
@@ -16,7 +16,7 @@
 #include "CaloDetDescr/CaloDetDescrElement.h"
 
 // Tile includes
-#include "TileCalibAlgs/TileInfoDump.h"
+#include "TileInfoDump.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileIdentifier/TileTrigType.h"
 #include "TileIdentifier/TileFragHash.h"
@@ -34,15 +34,15 @@
 
 TileInfoDump::TileInfoDump(const std::string& name, ISvcLocator* pSvcLocator)
     : AthAlgorithm(name, pSvcLocator)
-    , m_thistSvc(0)
-    , m_tileHWID(0)
-    , m_tileID(0)
-    , m_h_badCellA(0)
-    , m_h_badCellBC(0)
-    , m_h_badCellD(0)
-    , m_h_badCellGap(0)
-    , m_h_badCell(0)
-    , m_tileInfo(0)
+    , m_thistSvc(nullptr)
+    , m_tileHWID(nullptr)
+    , m_tileID(nullptr)
+    , m_h_badCellA(nullptr)
+    , m_h_badCellBC(nullptr)
+    , m_h_badCellD(nullptr)
+    , m_h_badCellGap(nullptr)
+    , m_h_badCell(nullptr)
+    , m_tileInfo(nullptr)
 
 {
   declareProperty("AthenaIsOnline", m_isOnline = false, "Availability of COOL folders depends on Athena mode");
@@ -595,7 +595,7 @@ void TileInfoDump::printBadChannels() {
   //=== Print summary
   sSum << std::endl;
   sSum << ">>> Summary of BAD channels/ADCs per drawer (in LBA, LBC, EBA, EBC) <<<<" << std::endl;
-  if (vmod.size() == 0)
+  if (vmod.empty())
     sSum << "There are no bad ADCs in LBA, LBC, EBA and EBC" << std::endl;
   else {
     unsigned int totchn = 0;

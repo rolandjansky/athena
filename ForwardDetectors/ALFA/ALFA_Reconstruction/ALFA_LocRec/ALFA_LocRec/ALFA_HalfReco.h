@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ALFA_HALFRECO_H
@@ -8,12 +8,9 @@
 #include <iostream>
 #include <vector>
 
-#include "AthenaKernel/MsgStreamMember.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
-//#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
-#include "AthenaKernel/getMessageSvc.h"
 
 #include "Rtypes.h"
 #include "TMath.h"
@@ -23,7 +20,7 @@
 #include "ALFA_LocRec/ALFA_UserObjects.h"
 #include "ALFA_Geometry/ALFA_constants.h"
 
-class ALFA_HalfReco
+class ALFA_HalfReco : public AthMessaging
 {
 	public:
 		ALFA_HalfReco();
@@ -61,14 +58,6 @@ class ALFA_HalfReco
 		void OverLap();
 		void SetData(Int_t iNumU, Int_t iNumV, Float_t fOvU, Float_t fOvV);
 
-public:
-	/// Log a message using the Athena controlled logging system
-	MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-	/// Check whether the logging system is active at the provided verbosity level
-	bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
-private:
-	/// Private message stream member
-	mutable Athena::MsgStreamMember m_msg;
 };
 
 #endif // ALFA_HALFRECO_H

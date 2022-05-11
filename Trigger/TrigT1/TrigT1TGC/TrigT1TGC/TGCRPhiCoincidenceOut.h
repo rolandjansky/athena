@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCRPhiCoincidenceOut_hh
@@ -10,7 +10,7 @@ namespace LVL1TGCTrigger {
 
 class TGCRPhiCoincidenceOut {
  public:
-  TGCRPhiCoincidenceOut();
+  TGCRPhiCoincidenceOut() = default;
   ~TGCRPhiCoincidenceOut() = default;
 
   int  getPhi() const { return m_phi; }
@@ -48,18 +48,18 @@ class TGCRPhiCoincidenceOut {
   bool isSuperior(const TGCRPhiCoincidenceOut* right) const;
 
  private:
-  int m_idSSC;
-  int m_pT;
-  int m_phi;
-  int m_r;
-  int m_dR;
-  int m_dPhi;
-  bool m_innerVeto;
-  int m_RoI;
-  int m_charge;
-  bool m_coincidenceTypeFlag;
-  bool m_goodMFFlag;
-  bool m_innerCoincidenceFlag;
+  int m_idSSC{-1};
+  int m_pT{0};
+  int m_phi{-1};
+  int m_r{-1};
+  int m_dR{0};
+  int m_dPhi{0};
+  bool m_innerVeto{false};
+  int m_RoI{0};
+  int m_charge{0};
+  bool m_coincidenceTypeFlag{false};
+  bool m_goodMFFlag{false};
+  bool m_innerCoincidenceFlag{false};
 };
 
 

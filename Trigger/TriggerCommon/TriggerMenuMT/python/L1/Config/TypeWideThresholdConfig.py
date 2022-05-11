@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from collections import OrderedDict as odict
 
@@ -219,36 +219,26 @@ def getConfig_eTAU():
     rHad_fw_tight = 10 # PLACEHOLDER
     confObj = odict()
     confObj["workingPoints"] = odict()
+    # Working points here translate to cuts on both rCore and rHad
+    # For individual thresholds, rCore and rHad working points are
+    # set independently, so the two variables are not coupled
+    # L1Topo firmware only has 2 bits, allowing None/Loose/Medium/Tight values
     confObj["workingPoints"]["Loose"] = [
         odict([("rCore", eFEXfwToFloatConversion(rCore_fw_loose,bitshift_rCore)), ("rCore_fw", rCore_fw_loose), 
-               ("rHad", 1), ("rHad_fw", 1),
+               ("rHad", eFEXfwToFloatConversion(rHad_fw_loose,bitshift_rHad)), ("rHad_fw", rHad_fw_loose),
               ]), 
     ]
     confObj["workingPoints"]["Medium"] = [
         odict([("rCore", eFEXfwToFloatConversion(rCore_fw_medium,bitshift_rCore)), ("rCore_fw", rCore_fw_medium), 
-               ("rHad", 1), ("rHad_fw", 1), 
+               ("rHad", eFEXfwToFloatConversion(rHad_fw_medium,bitshift_rHad)), ("rHad_fw", rHad_fw_medium), 
              ]),
     ]
     confObj["workingPoints"]["Tight"] = [
         odict([("rCore", eFEXfwToFloatConversion(rCore_fw_tight,bitshift_rCore)), ("rCore_fw", rCore_fw_tight), 
-               ("rHad", 1), ("rHad_fw", 1), 
+               ("rHad", eFEXfwToFloatConversion(rHad_fw_tight,bitshift_rHad)), ("rHad_fw", rHad_fw_tight), 
              ]),
     ]
-    confObj["workingPoints"]["HadLoose"] = [
-        odict([("rCore", 1), ("rCore_fw", 1), 
-               ("rHad", eFEXfwToFloatConversion(rHad_fw_loose,bitshift_rHad)), ("rHad_fw", rHad_fw_loose), 
-             ]),
-    ]
-    confObj["workingPoints"]["HadMedium"] = [
-        odict([("rCore", 1), ("rCore_fw", 1),
-               ("rHad", eFEXfwToFloatConversion(rHad_fw_medium,bitshift_rHad)), ("rHad_fw", rHad_fw_medium),
-             ]),
-    ]
-    confObj["workingPoints"]["HadTight"] = [
-        odict([("rCore", 1), ("rCore_fw", 1),
-               ("rHad", eFEXfwToFloatConversion(rHad_fw_tight,bitshift_rHad)), ("rHad_fw", rHad_fw_tight),
-             ]),
-    ]
+
     confObj["ptMinToTopo"] = 5 # PLACEHOLDER
     confObj["resolutionMeV"] = 100
     confObj["maxEt"] = 50 # PLACEHOLDER
@@ -362,12 +352,12 @@ def getConfig_gLJ():
     confObj["seedThrA"] = 3 
     confObj["seedThrB"] = 3 
     confObj["seedThrC"] = 3 
-    confObj["rhoTowerMinA"] = 0.25 
-    confObj["rhoTowerMinB"] = 0.25 
-    confObj["rhoTowerMinC"] = 0.25 
-    confObj["rhoTowerMaxA"] = -9.6 
-    confObj["rhoTowerMaxB"] = -9.6 
-    confObj["rhoTowerMaxC"] = -9.6 
+    confObj["rhoTowerMinA"] = -9.6 
+    confObj["rhoTowerMinB"] = -9.6 
+    confObj["rhoTowerMinC"] = -9.6 
+    confObj["rhoTowerMaxA"] = 0.25 
+    confObj["rhoTowerMaxB"] = 0.25 
+    confObj["rhoTowerMaxC"] = 0.25 
     confObj["resolutionMeV"] = 200
 
     # Check that all values are integers in MeV
@@ -412,21 +402,21 @@ def getConfig_jTE():
 
 def getConfig_gXE():
     confObj = odict()
-    confObj["seedThrA"] = 1 
-    confObj["seedThrB"] = 1 
-    confObj["seedThrC"] = 1 
+    confObj["seedThrA"] = 25 
+    confObj["seedThrB"] = 25 
+    confObj["seedThrC"] = 25 
     confObj["XERHO_sigmaPosA"] = 3 
     confObj["XERHO_sigmaPosB"] = 3 
     confObj["XERHO_sigmaPosC"] = 3 
     confObj["XERHO_sigmaNegA"] = 8 
     confObj["XERHO_sigmaNegB"] = 8 
     confObj["XERHO_sigmaNegC"] = 8 
-    confObj["XEJWOJ_a_A"] = 48 
-    confObj["XEJWOJ_a_B"] = 48 
-    confObj["XEJWOJ_a_C"] = 48 
-    confObj["XEJWOJ_b_A"] = 52 
-    confObj["XEJWOJ_b_B"] = 52 
-    confObj["XEJWOJ_b_C"] = 52 
+    confObj["XEJWOJ_a_A"] = 1003 
+    confObj["XEJWOJ_a_B"] = 1003 
+    confObj["XEJWOJ_a_C"] = 1003 
+    confObj["XEJWOJ_b_A"] = 409 
+    confObj["XEJWOJ_b_B"] = 409 
+    confObj["XEJWOJ_b_C"] = 409 
     confObj["XEJWOJ_c_A"] = 0 
     confObj["XEJWOJ_c_B"] = 0 
     confObj["XEJWOJ_c_C"] = 0 
@@ -435,7 +425,7 @@ def getConfig_gXE():
 
 def getConfig_gTE():
     confObj = odict()
-    confObj["resolutionMeV"] = 200
+    confObj["resolutionMeV"] = 800
     return confObj
 
 
@@ -457,7 +447,7 @@ def getConfig_EM():
         odict([ ("etamax", 49), ("etamin", -49), ("isobit", 1), ("mincut",  0), ("offset",   0), ("priority", 0), ("slope",  0), ("upperlimit",  0)]),
         odict([ ("etamax", 49), ("etamin", -49), ("isobit", 2), ("mincut", 20), ("offset", -18), ("priority", 0), ("slope", 80), ("upperlimit", 50)]),
         odict([ ("etamax", 49), ("etamin", -49), ("isobit", 3), ("mincut", 20), ("offset", -18), ("priority", 0), ("slope", 80), ("upperlimit", 50)]),
-        odict([ ("etamax", 49), ("etamin", -49), ("isobit", 4), ("mincut", 20), ("offset", -18), ("priority", 0), ("slope", 80), ("upperlimit", 50)]),
+        odict([ ("etamax", 49), ("etamin", -49), ("isobit", 4), ("mincut", 10), ("offset", -20), ("priority", 0), ("slope", 80), ("upperlimit", 50)]),
         odict([ ("etamax", 49), ("etamin", -49), ("isobit", 5), ("mincut", 20), ("offset", -18), ("priority", 0), ("slope", 80), ("upperlimit", 50)]),
     ]
     confObj["ptMinToTopo"] = 3

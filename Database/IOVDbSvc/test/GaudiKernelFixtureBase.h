@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -17,21 +17,25 @@
 #include "TestTools/initGaudi.h"
 #include "TInterpreter.h"
 #include "CxxUtils/ubsan_suppress.h"
+#include "CxxUtils/checker_macros.h"
 #include <string>
+#include <mutex>
 
 struct GaudiKernelFixtureBase{
-  ISvcLocator* svcLoc{};
-  static bool gaudiIsInitialised;
+  static ISvcLocator* svcLoc ATLAS_THREAD_SAFE;
+  static std::mutex m;
   const std::string jobOpts{};
   GaudiKernelFixtureBase(const std::string & jobOptionFile = "IOVDbSvc_BoostTest.txt"):jobOpts(jobOptionFile){
     CxxUtils::ubsan_suppress ([]() { TInterpreter::Instance(); } );
-    if (not gaudiIsInitialised){
+    std::scoped_lock lock (m);
+    if (svcLoc==nullptr){
       std::string fullJobOptsName="IOVDbSvc/" + jobOpts;
-      gaudiIsInitialised=Athena_test::initGaudi(fullJobOptsName, svcLoc);
+      Athena_test::initGaudi(fullJobOptsName, svcLoc);
     }
   }
 };
 
-bool GaudiKernelFixtureBase::gaudiIsInitialised=false;
+ISvcLocator* GaudiKernelFixtureBase::svcLoc = nullptr;
+std::mutex GaudiKernelFixtureBase::m;
 
 #endif

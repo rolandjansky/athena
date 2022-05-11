@@ -41,43 +41,16 @@ StatusCode MdtCalibrationTMaxShiftTool::initializeMap() {
     return StatusCode::FAILURE;
   }
 
-  const MuonMDT_CablingMap::MapOfItems *listOfSubdet;
-
-  MuonMDT_CablingMap::MapOfItems::const_iterator it_sub;
-
-  const MdtSubdetectorMap::MapOfItems *listOfROD;
-  MdtSubdetectorMap::MapOfItems::const_iterator it_rod;
-
-  const MdtRODMap::MapOfItems *listOfCsm;
-  MdtRODMap::MapOfItems::const_iterator it_csm;
-
-  const MdtCsmMap::MapOfItems *listOfAmt;
-  MdtCsmMap::MapOfItems::const_iterator it_amt;
-  MsgStream& msg(msgStream() );
-  listOfSubdet = mdtCabling->getListOfElements();
-
-  MuonMDT_CablingMap::CablingData cabling_data{};  
-  for (it_sub = listOfSubdet->begin(); it_sub != listOfSubdet->end();
-       ++it_sub) {
-    cabling_data.subdetectorId = it_sub->first;
-    listOfROD = it_sub->second->getListOfElements();
-
-    for (it_rod = listOfROD->begin(); it_rod != listOfROD->end(); ++it_rod) {
-      cabling_data.mrod = it_rod->first;
-      listOfCsm = it_rod->second->getListOfElements();
-
-      for (it_csm = listOfCsm->begin(); it_csm != listOfCsm->end(); ++it_csm) {
-        cabling_data.csm = it_csm->first;
-        listOfAmt = it_csm->second->getListOfElements();
-
-        for (it_amt = listOfAmt->begin(); it_amt != listOfAmt->end();
-             ++it_amt) {
-          cabling_data.tdcId = it_amt->first;
-          cabling_data.tdcId = it_amt->second->moduleId();
-
-          for (cabling_data.channelId = 0; cabling_data.channelId  < 24; ++cabling_data.channelId ) {
-            /* Get the offline ID, given the current detector element */
-            if (!mdtCabling->getOfflineId(cabling_data, msg)) {
+  for (const auto& onl_cab : mdtCabling->getOnlineConvMap()) {
+      MuonMDT_CablingMap::CablingData cabling_data{};
+      cabling_data.MdtCablingOnData::operator=(onl_cab.first);
+      /// Loop over all tdc channels
+      for (const auto& tdc : onl_cab.second) {
+          if (!tdc) continue;          
+          cabling_data.tdcId = tdc->moduleId();
+          for (cabling_data.channelId = 0; cabling_data.channelId < 24; ++cabling_data.channelId) {
+             /* Get the offline ID, given the current detector element */
+            if (!mdtCabling->getOfflineId(cabling_data, msgStream())) {
               ATH_MSG_WARNING(cabling_data);
               continue;
             }
@@ -106,9 +79,8 @@ StatusCode MdtCalibrationTMaxShiftTool::initializeMap() {
             m_shiftValues[channelIdentifier] = shift;
           }
         }
-      }
-    }
   }
+
 
   /* initalization was successful */
   m_mapIsInitialized = true;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4AtlasInterfaces_IParallelWorldTool_H
@@ -23,7 +23,7 @@ class G4VPhysicalVolume;
 
 class IParallelWorldTool : public G4VUserParallelWorld, virtual public IAlgTool {
  public:
-  IParallelWorldTool(std::string n):G4VUserParallelWorld(n) {;}
+  IParallelWorldTool(const std::string& n):G4VUserParallelWorld(n) {;}
  
   /// Creates the InterfaceID and interfaceID() method
   DeclareInterfaceID(IParallelWorldTool, 1, 0);

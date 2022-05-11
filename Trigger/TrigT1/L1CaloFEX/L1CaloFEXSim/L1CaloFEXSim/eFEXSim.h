@@ -21,6 +21,7 @@
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "L1CaloFEXSim/eFEXOutputCollection.h"
+#include "L1CaloFEXSim/eFEXegTOB.h"
 
 namespace LVL1 {
   
@@ -58,21 +59,21 @@ namespace LVL1 {
 
     virtual StatusCode NewExecute(int tmp[10][18], eFEXOutputCollection* inputOutputCollection) override;
 
-    virtual std::vector<uint32_t> getEmTOBs() override;
-    virtual std::vector<uint32_t> getTauTOBs() override;
+    virtual std::vector<eFEXegTOB> getEmTOBs() override;
+    virtual std::vector<eFEXtauTOB> getTauTOBs() override;
 
     /** Internal data */
   private:
-    static bool etSort (uint32_t i,uint32_t j) { return (((i >> 0 ) & 0xfff)>((j >> 0 ) & 0xfff)); }
-
+    template <class TOBObjectClass> static bool TOBetSort(const TOBObjectClass& i, const TOBObjectClass& j ) {return (((i.getTobword() >> 0 ) & 0xfff)>((j.getTobword() >> 0 ) & 0xfff)); }
+    
     int m_id;
     int m_eTowersIDs [10][18];
     //std::map<int,eTower> m_eTowersColl;
     CaloCellContainer m_sCellsCollection;
     std::vector<eFEXFPGA*> m_eFEXFPGACollection;
 
-    std::vector<std::vector<uint32_t> > m_emTobWords;
-    std::vector<std::vector<uint32_t> > m_tauTobWords;
+    std::vector<std::vector<eFEXegTOB> > m_emTobObjects;
+    std::vector<std::vector<eFEXtauTOB> > m_tauTobObjects;
 
     ToolHandle<IeFEXFPGA> m_eFEXFPGATool {this, "eFEXFPGATool", "LVL1::eFEXFPGA", "Tool that simulates the FPGA hardware"};
 

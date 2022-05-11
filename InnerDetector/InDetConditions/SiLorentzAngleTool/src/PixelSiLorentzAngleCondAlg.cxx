@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelSiLorentzAngleCondAlg.h"
@@ -11,8 +11,7 @@
 #include "SiPropertiesTool/SiliconProperties.h"
 
 PixelSiLorentzAngleCondAlg::PixelSiLorentzAngleCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  ::AthReentrantAlgorithm(name, pSvcLocator),
-  m_condSvc("CondSvc", name)
+  ::AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -23,21 +22,15 @@ StatusCode PixelSiLorentzAngleCondAlg::initialize() {
   ATH_CHECK(detStore()->retrieve(idHelper,"PixelID"));
   m_maxHash = idHelper->wafer_hash_max();
 
-  ATH_CHECK(m_condSvc.retrieve());
-
   ATH_CHECK(m_moduleDataKey.initialize());
   ATH_CHECK(m_readKeyTemp.initialize());
   ATH_CHECK(m_readKeyHV.initialize());
   ATH_CHECK(m_writeKey.initialize());
-  if (m_condSvc->regHandle(this, m_writeKey).isFailure()) {
-    ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
 
   ATH_CHECK(m_siPropertiesTool.retrieve());
 
   ATH_CHECK(m_fieldCondObjInputKey.initialize( m_useMagFieldCache ));
-  ATH_CHECK(m_readKeyBFieldSensor.initialize( m_useMagFieldCache & m_useMagFieldDcs ));
+  ATH_CHECK(m_readKeyBFieldSensor.initialize( m_useMagFieldCache && m_useMagFieldDcs ));
 
   ATH_CHECK(m_pixelDetEleCollKey.initialize());
   
@@ -57,7 +50,8 @@ PixelSiLorentzAngleCondAlg::execute(const EventContext& ctx) const {
     return StatusCode::SUCCESS;
   }
 
-  SG::ReadCondHandle<PixelModuleData>moduleData(m_moduleDataKey, ctx);
+  SG::ReadCondHandle<PixelModuleData> moduleDataHandle(m_moduleDataKey, ctx);
+  const PixelModuleData *moduleData = *moduleDataHandle;
 
   // Read Cond Handle (temperature)
   SG::ReadCondHandle<PixelDCSTempData> readHandleTemp(m_readKeyTemp, ctx);

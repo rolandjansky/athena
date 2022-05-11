@@ -122,12 +122,13 @@ std::vector<InDet::PixelClusterParts> InDet::NnPixelClusterSplitter::splitCluste
       ATH_MSG_WARNING("Could not get ATLASDetectorID");
       return {};
     }
-    const PixelID* pixelIDp=dynamic_cast<const PixelID*>(aid);
-    if (!pixelIDp)
+    
+    if (aid->helper() != AtlasDetectorID::HelperType::Pixel)
     {
-      ATH_MSG_WARNING("Could not get PixelID pointer");
+      ATH_MSG_WARNING("Not a PixelID helper");
       return {};
     } 
+    const PixelID* pixelIDp=static_cast<const PixelID*>(aid);
     //check if original pixel is on b-layer and if yes continue, otherwise interrupt...
     Identifier pixelId = origCluster.identify();
     if (!pixelIDp->is_blayer(pixelId))

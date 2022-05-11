@@ -21,4 +21,5 @@ if (DGeo == "ctbh8"):
 else:
     include( "CaloConditions/LArTTCellMap_ATLAS_jobOptions.py")
     # TT online-offline & online-attributes maps (maintained by D. Prieur)
-    include( "CaloConditions/CaloTTIdMap_ATLAS_jobOptions.py")
+    #Apr 2022, W.L.: Apparently the following file is obsolete
+    #include( "CaloConditions/CaloTTIdMap_ATLAS_jobOptions.py")

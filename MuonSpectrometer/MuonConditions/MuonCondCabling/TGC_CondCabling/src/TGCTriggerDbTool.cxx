@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TGC_CondCabling/TGCTriggerDbTool.h" 
+#include "TGCTriggerDbTool.h" 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "CoolKernel/IObject.h"
 

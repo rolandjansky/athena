@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -30,6 +30,8 @@
 //
 #include "CoolKernel/RecordSpecification.h"
 #include "CoolKernel/Record.h"
+
+#include "CxxUtils/checker_macros.h"
 
 #include <istream>
 #include <string>
@@ -92,18 +94,18 @@ BOOST_AUTO_TEST_SUITE(Json2CoolTest)
     cool::Record reference(*referenceSpec);
     BOOST_CHECK(record.size() == reference.size());
     //
-    auto & att0=const_cast<coral::Attribute&>(reference.attributeList()[0]);
+    auto & att0 ATLAS_THREAD_SAFE = const_cast<coral::Attribute&>(reference.attributeList()[0]);
     unsigned char set0(1);
     att0.setValue<unsigned char>(set0);
     //
-    auto & att1=const_cast<coral::Attribute&>(reference.attributeList()[1]);
+    auto & att1 ATLAS_THREAD_SAFE = const_cast<coral::Attribute&>(reference.attributeList()[1]);
     att1.setValue<int>(2);
     //
-    auto & att2=const_cast<coral::Attribute&>(reference.attributeList()[2]);
+    auto & att2 ATLAS_THREAD_SAFE = const_cast<coral::Attribute&>(reference.attributeList()[2]);
     short set2(3);
     att2.setValue<short>(set2);
     //
-    auto & att3=const_cast<coral::Attribute&>(reference.attributeList()[3]);
+    auto & att3 ATLAS_THREAD_SAFE = const_cast<coral::Attribute&>(reference.attributeList()[3]);
     att3.setValue<std::string>("purple");
     //
     BOOST_CHECK(reference == record);

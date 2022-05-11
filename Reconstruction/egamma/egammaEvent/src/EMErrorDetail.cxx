@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaEvent/EMErrorDetail.h"
@@ -24,7 +24,7 @@
 
 EMErrorDetail::EMErrorDetail() : egDetail() { }
 
-EMErrorDetail::~EMErrorDetail() { }
+EMErrorDetail::~EMErrorDetail() = default;
 
 /** interfaces */
 const std::string EMErrorDetail::s_className = ClassName<EMErrorDetail>::name();
@@ -37,7 +37,7 @@ const std::string& EMErrorDetail::className() const {
 int EMErrorDetail::intParameter(egammaParameters::ParamDef key) const {
 
 
-  typedef std::pair<egammaParameters::ParamDef,int> elParams;
+  using elParams = std::pair<egammaParameters::ParamDef, int>;
 
   int result = (int)egammaParameters::EgParamUndefined;
   std::vector<elParams>::const_iterator p = m_parametersInt.begin();

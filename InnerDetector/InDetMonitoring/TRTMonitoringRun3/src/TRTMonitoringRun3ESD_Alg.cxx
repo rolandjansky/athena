@@ -207,7 +207,7 @@ StatusCode TRTMonitoringRun3ESD_Alg::initialize() {
     ATH_CHECK( m_trackCollectionKey.initialize() );
     ATH_CHECK( m_xAODEventInfoKey.initialize() );
     ATH_CHECK( m_TRT_BCIDCollectionKey.initialize() );
-    ATH_CHECK( m_comTimeObjectKey.initialize() );
+    ATH_CHECK( m_comTimeObjectKey.initialize(!m_comTimeObjectKey.empty() && m_doTracksMon) );
     ATH_CHECK( m_trigDecisionKey.initialize(SG::AllowEmpty) );
 
     return StatusCode::SUCCESS;
@@ -1502,8 +1502,6 @@ StatusCode TRTMonitoringRun3ESD_Alg::fillHistograms( const EventContext& ctx ) c
     SG::ReadHandle<xAOD::TrackParticleContainer> trackCollection(m_trackCollectionKey, ctx);
     SG::ReadHandle<xAOD::EventInfo>     xAODEventInfo(m_xAODEventInfoKey, ctx);
     SG::ReadHandle<InDetTimeCollection> trtBCIDCollection(m_TRT_BCIDCollectionKey, ctx);
-    SG::ReadHandle<ComTime>             comTimeObject(m_comTimeObjectKey, ctx);
-    const xAOD::TrigDecision* trigDecision = nullptr;
 
     if (!xAODEventInfo.isValid()) {
         ATH_MSG_ERROR("Could not find event info object " << m_xAODEventInfoKey.key() <<
@@ -1517,6 +1515,7 @@ StatusCode TRTMonitoringRun3ESD_Alg::fillHistograms( const EventContext& ctx ) c
                           " in store");
             return StatusCode::FAILURE;
         }
+        const xAOD::TrigDecision* trigDecision = nullptr;
         if (! m_trigDecisionKey.empty()) {
             trigDecision = SG::get(m_trigDecisionKey, ctx);
             if (!trigDecision) {
@@ -1524,12 +1523,18 @@ StatusCode TRTMonitoringRun3ESD_Alg::fillHistograms( const EventContext& ctx ) c
                               " in store");
             }
         }
-        // NOTE: failing to retrieve ComTime from store for some reason
-        if (!comTimeObject.isValid()) {
-            ATH_MSG_DEBUG("Could not find com time object " << m_comTimeObjectKey.key() <<
-                         " in store");
+        const ComTime *comTimeObject=nullptr;
+        if (!m_comTimeObjectKey.empty()) {
+           SG::ReadHandle<ComTime> tmp_comTimeObject(m_comTimeObjectKey, ctx);
+           if (!tmp_comTimeObject.isValid()) {
+              // NOTE: failing to retrieve ComTime from store for some reason
+              ATH_MSG_DEBUG("Could not find com time object " << m_comTimeObjectKey.key() << " in store" );
+           }
+           else {
+              comTimeObject = tmp_comTimeObject.cptr();
+           }
         }
-        ATH_CHECK( fillTRTTracks(*trackCollection, trigDecision, comTimeObject.isValid() ? comTimeObject.cptr() :  nullptr, *xAODEventInfo) );
+        ATH_CHECK( fillTRTTracks(*trackCollection, trigDecision, comTimeObject, *xAODEventInfo) );
     }
 
     if (!m_doTracksMon) {

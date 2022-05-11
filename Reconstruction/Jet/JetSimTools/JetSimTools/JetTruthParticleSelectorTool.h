@@ -1,7 +1,7 @@
 // emacs this file is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETSIMTOOLS_JETTRUTHPARTICLESELECTORTOOL_H
@@ -30,18 +30,18 @@ class JetTruthParticleSelectorTool : public asg::AsgTool
   
   virtual ~JetTruthParticleSelectorTool();
   
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
   
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override;
 
 
   /// alias 'selector' to operator(const IN4M*)
-  bool operator()(const xAOD::TruthParticle* truth) const { return this->selector(truth);}
+  bool operator()(const xAOD::TruthParticle* truth) { return this->selector(truth);}
 
   
-  bool selector(const xAOD::TruthParticle* truth) const ;
+  bool selector(const xAOD::TruthParticle* truth);
 
-  void setupEvent() const ;
+  void setupEvent();
 
   static const InterfaceID& interfaceID( ){return IID_JetTruthParticleSelectorTool;}
 
@@ -80,21 +80,21 @@ protected:
   // TruthHelper::IsGenStable      isStable;
   
   typedef std::map< int, long long >  PDGList;
-  mutable PDGList m_pdgList;
+  PDGList m_pdgList;
   
   typedef std::map< int, double >     Average;
-  mutable Average m_avP;
-  mutable Average m_av2P;
-  mutable Average m_avPt;
-  mutable Average m_av2Pt;
-  mutable Average m_avEta;
-  mutable Average m_av2Eta;
-  mutable Average m_avPhi;
-  mutable Average m_av2Phi;
-  mutable Average m_avM;
-  mutable Average m_av2M;
+  Average m_avP;
+  Average m_av2P;
+  Average m_avPt;
+  Average m_av2Pt;
+  Average m_avEta;
+  Average m_av2Eta;
+  Average m_avPhi;
+  Average m_av2Phi;
+  Average m_avM;
+  Average m_av2M;
 
-  mutable std::vector<const xAOD::TruthParticle*> m_wzLeptons;
+  std::vector<const xAOD::TruthParticle*> m_wzLeptons;
 };
 #endif 
 

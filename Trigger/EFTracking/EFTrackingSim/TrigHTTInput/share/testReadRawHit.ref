@@ -1,0 +1,41 @@
+HTTRawHitsWrapp...   INFO HTTRawHitsWrapperAlg::initialize()
+HTTRawHitsWrapp...   INFO HTTInputHeaderTool::initialize()
+HTTRawHitsWrapp...   INFO Getting branch and set EventHeader
+HTTRawHitsWrapp...  DEBUG Initialized in READ MODE
+HTTRawHitsWrapp...   INFO End of Tool initialize
+HTTRawHitsWrapp...   INFO HTTInputHeaderTool::initialize()
+HTTRawHitsWrapp...   INFO Creating empty brnaches in output file
+HTTRawHitsWrapp...   INFO End of Tool initialize
+HTTRawHitsWrapp...  DEBUG Finished initialize
+HTTRawHitsWrapp...  DEBUG Adding private ToolHandle tool HTTRawHitsWrapperAlg.HTTReadInput (HTTInputHeaderTool)
+HTTRawHitsWrapp...  DEBUG Adding private ToolHandle tool HTTRawHitsWrapperAlg.HTTWriteInput (HTTInputHeaderTool)
+HTTRawHitsWrapp...  DEBUG Running on event 
+HTTRawHitsWrapp...  DEBUG Asked Event 0 in this file; current total is 0
+HTTRawHitsWrapp...   INFO 0
+HTTRawHitsWrapp...  DEBUG Reading event  Event 1 	Run 242000
+HTTRawHitsWrapp...  DEBUG Event: Event 1 	Run 242000	Optional: nOfflineClusters: 13, nOfflineTracks: 1, nTruthTracks: 1
+HTTRawHitsWrapp...  DEBUG Wrote Event 0 in header event Event 1 	Run 242000
+HTTRawHitsWrapp...  DEBUG Running on event 
+HTTRawHitsWrapp...  DEBUG Asked Event 1 in this file; current total is 1
+HTTRawHitsWrapp...   INFO 1
+HTTRawHitsWrapp...  DEBUG Reading event  Event 14 	Run 242000
+HTTRawHitsWrapp...  DEBUG Event: Event 14 	Run 242000	Optional: nOfflineClusters: 27, nOfflineTracks: 0, nTruthTracks: 1
+HTTRawHitsWrapp...  DEBUG Wrote Event 1 in header event Event 14 	Run 242000
+HTTRawHitsWrapp...  DEBUG Running on event 
+HTTRawHitsWrapp...  DEBUG Asked Event 2 in this file; current total is 2
+HTTRawHitsWrapp...   INFO 2
+HTTRawHitsWrapp...  DEBUG Reading event  Event 48 	Run 242000
+HTTRawHitsWrapp...  DEBUG Event: Event 48 	Run 242000	Optional: nOfflineClusters: 14, nOfflineTracks: 1, nTruthTracks: 1
+HTTRawHitsWrapp...  DEBUG Wrote Event 2 in header event Event 48 	Run 242000
+HTTRawHitsWrapp...  DEBUG Running on event 
+HTTRawHitsWrapp...  DEBUG Asked Event 3 in this file; current total is 3
+HTTRawHitsWrapp...   INFO 3
+HTTRawHitsWrapp...  DEBUG Reading event  Event 55 	Run 242000
+HTTRawHitsWrapp...  DEBUG Event: Event 55 	Run 242000	Optional: nOfflineClusters: 14, nOfflineTracks: 1, nTruthTracks: 1
+HTTRawHitsWrapp...  DEBUG Wrote Event 3 in header event Event 55 	Run 242000
+HTTRawHitsWrapp...  DEBUG Running on event 
+HTTRawHitsWrapp...  DEBUG Asked Event 4 in this file; current total is 4
+HTTRawHitsWrapp...   INFO 4
+HTTRawHitsWrapp...  DEBUG Reading event  Event 63 	Run 242000
+HTTRawHitsWrapp...  DEBUG Event: Event 63 	Run 242000	Optional: nOfflineClusters: 18, nOfflineTracks: 1, nTruthTracks: 1
+HTTRawHitsWrapp...  DEBUG Wrote Event 4 in header event Event 63 	Run 242000

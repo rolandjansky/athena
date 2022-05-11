@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DQFilledBunchFilterTool.h"
 #include "AthenaKernel/errorcheck.h"
-#include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
 DQFilledBunchFilterTool::DQFilledBunchFilterTool(const std::string& type,const std::string& name,const IInterface* parent)
@@ -31,7 +30,7 @@ bool DQFilledBunchFilterTool::accept() const {
   if (m_alwaysReturnTrue) {
     return true;
   } else {
-    const EventContext ctx = Gaudi::Hive::currentContext();
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     EventID::number_type bcid = ctx.eventID().bunch_crossing_id();
     SG::ReadCondHandle<BunchCrossingCondData> bcData(m_bcDataKey, ctx);
     bool value = bcData->isFilled(bcid) ^ m_invert;

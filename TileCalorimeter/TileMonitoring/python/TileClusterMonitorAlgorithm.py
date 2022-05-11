@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 '''
 @file TileClusterMonitorAlgorithm.py
@@ -158,7 +158,7 @@ def TileClusterMonitoringConfig(flags, **kwargs):
     if fillTimingHistograms:
         # ) Configure histograms with Tile partition time vs lumiBlock per partition
         titlePartitionTime = 'Tile partition time vs luminosity block;LumiBlock;t[ns]'
-        addTile1DHistogramsArray(helper, tileClusterMonAlg, name = 'TilePartitionTimeLB',
+        addTile1DHistogramsArray(helper, tileClusterMonAlg, name = 'TilePartitionTimeLB', opt = 'kAddBinsDynamically',
                                  xvalue = 'lumiBlock', value = 'time', title = titlePartitionTime, path = 'Tile/Cluster',
                                  xbins = 1000, xmin = -0.5, xmax = 999.5, type='TProfile', run = run, triggers = [],
                                  subDirectory = False, perPartition = True, perSample = False, perGain = False, allPartitions = True)

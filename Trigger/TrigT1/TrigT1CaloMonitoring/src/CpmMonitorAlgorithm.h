@@ -34,7 +34,6 @@ class CpmMonitorAlgorithm : public AthMonitorAlgorithm {
     // errors
     bool emParityError{};
     bool emLinkDownError{};
-    bool emGLinkParityError[8]{}; 
     bool hadParityError{};
     bool hadLinkDownError{};   
   };
@@ -83,7 +82,10 @@ private:
   Gaudi::Property<int> m_thresholds{this,"s_thresholds", 16, "Number of EM/Tau threshold bits"};
   Gaudi::Property<int> m_maxTobsPerCmx{this,"MaxTOBsPerCMX", 70,  "Maximum number of TOBs per CMX plotted"};
 
-  /// Error summary plot bins
+  // Error vector StoreGate key
+  StringProperty m_errorLocation{this,"ErrorLocation","L1CaloCPMErrorVector","Error vector name"};
+
+  // Error summary plot bins
   enum SummaryErrors { EMParity, EMLink, HadParity, HadLink, CPMStatus,
                        TOBParity, SumParity, CMXStatus, NumberOfSummaryBins };
 

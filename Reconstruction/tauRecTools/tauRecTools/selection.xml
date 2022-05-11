@@ -18,5 +18,6 @@
    <class name="TauJetRNNEvaluator" />
    <class name="TauDecayModeNNClassifier" />
    <class name="TauAODSelector" />
+   <class name="TauAODLeptonRemovalTool" />
 
 </lcgdict>

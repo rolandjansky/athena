@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_DCSConditionsStatCondAlg.h"
@@ -18,9 +18,6 @@ StatusCode SCT_DCSConditionsStatCondAlg::initialize() {
 
   m_doState = ((m_readAllDBFolders and m_returnHVTemp) or (not m_readAllDBFolders and not m_returnHVTemp));
 
-  // CondSvc
-  ATH_CHECK(m_condSvc.retrieve());
-
   // Read Cond Handle (HV)
   ATH_CHECK(m_readKeyHV.initialize(m_returnHVTemp));
 
@@ -28,10 +25,6 @@ StatusCode SCT_DCSConditionsStatCondAlg::initialize() {
   ATH_CHECK(m_readKeyState.initialize(m_doState));
   // Write Cond Handle
   ATH_CHECK(m_writeKeyState.initialize(m_doState));
-  if (m_doState and m_condSvc->regHandle(this, m_writeKeyState).isFailure()) {
-    ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKeyState.fullKey() << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
 
   if (m_useDefaultHV) {
     m_hvLowLimit = m_useHVLowLimit;

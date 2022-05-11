@@ -115,6 +115,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                                   title='# of readout FEB/DSP header',
                                   type='TH1I',
                                   path=summary_hist_path,
+                                  opt='kAlwaysCreate',
                                   xbins=lArDQGlobals.N_FEB+11, xmin=-0.5, xmax=lArDQGlobals.N_FEB+10+0.5)
     Group.defineHistogram('nbFEBpart,part;NbOfEvts2d', 
                                   title='# of readout FEB/DSP header;Num. FEBs;Partition',
@@ -165,12 +166,6 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.EvtRej_Bins, xmin=lArDQGlobals.EvtRej_Min, xmax=lArDQGlobals.EvtRej_Max,
                                   xlabels=lArDQGlobals.EvtRej_labels)
-    Group.defineHistogram('EvtRej,EvtRejYield1D;EventsRejectedYield', 
-                                  title='Data corruption yield;Corruption type;Yield(%)',
-                                  type='TProfile',
-                                  path=summary_hist_path,
-                                  xbins=lArDQGlobals.EvtRej_Bins-1, xmin=lArDQGlobals.EvtRej_Min, xmax=lArDQGlobals.EvtRej_Max-1,
-                                  xlabels=lArDQGlobals.EvtRejYield_labels)
     Group.defineHistogram('LB0,EvtRejYield;RAW_YieldOfRejectedEventsVsLB', 
                                   title='Yield of corrupted events (DATACORRUPTED);Luminosity Block;Yield(%)',
                                   type='TProfile',
@@ -241,7 +236,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
        ft_up  = lArDQGlobals.FEB_Feedthrough[lArDQGlobals.Partitions[subdet*2]][1] + 0.5
        ft_n = int(ft_up - ft_low)
 
-       darray = helper.addArray([lArDQGlobals.Partitions[2*subdet:2*subdet+2]],larFEBMonAlg,lArDQGlobals.SubDet[subdet])
+       darray = helper.addArray([lArDQGlobals.Partitions[2*subdet:2*subdet+2]],larFEBMonAlg,lArDQGlobals.SubDet[subdet],topPath='/')
 
        darray.defineHistogram('slotPar,FTPar;RAW_Parity',
                               title='Parity error;Slot;FT',
@@ -355,6 +350,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                               title='Nb of events (DSP header check only) ;Slot;FT',
                               type='TH2I',
                               path=hist_path,
+                              opt='kAlwaysCreate',
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
@@ -362,6 +358,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                               title='Average # of cells with (qfactor+time) readout ;Slot;FT',
                               type='TProfile2D',
                               path=hist_path,
+                              opt='kAlwaysCreate',
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
@@ -369,6 +366,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                               title='Average # of cells with samples readout ;Slot;FT',
                               type='TProfile2D',
                               path=hist_path,
+                              opt='kAlwaysCreate',
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
@@ -397,6 +395,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                                 title='% of events rejected in current LB (online only)',
                                 type='TProfile',
                                 path=hist_path,
+                                opt='kAlwaysCreate',
                                 xbins=1, xmin=0, xmax=1, xlabels=['% of events'])
           darray.defineHistogram('LB,streamBin,LArEvSizePart;eventSizeStreamVsLB',
                                 title='LAr event size per stream per LB (w/o ROS headers)',

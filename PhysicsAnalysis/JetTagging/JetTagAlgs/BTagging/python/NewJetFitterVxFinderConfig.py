@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -10,9 +10,6 @@ from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
 from BTagging.JetFitterMode3dTo1dFinderConfig import JetFitterMode3dTo1dFinderCfg
 from BTagging.InDetImprovedJetFitterTrackSelectorToolConfig import InDetImprovedJetFitterTrackSelectorToolCfg
 from BTagging.ImprovedJetFitterInitializationHelperConfig import ImprovedJetFitterInitializationHelperCfg
-
-# import the InDetImprovedJetFitterVxFinder configurable
-InDet__InDetImprovedJetFitterVxFinder=CompFactory.InDet.InDetImprovedJetFitterVxFinder
 
 # define the class
 def NewJetFitterVxFinderCfg(flags, name = 'JFVxFinder', suffix = "", useBTagFlagsDefaults = True, options = {}):
@@ -56,6 +53,6 @@ def NewJetFitterVxFinderCfg(flags, name = 'JFVxFinder', suffix = "", useBTagFlag
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name + suffix
-    acc.setPrivateTools(InDet__InDetImprovedJetFitterVxFinder(**options))
+    acc.setPrivateTools(CompFactory.InDet.InDetImprovedJetFitterVxFinder(**options))
 
     return acc

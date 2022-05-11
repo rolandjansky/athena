@@ -15,6 +15,8 @@
 #ifndef TRIGBJETHYPO_TRIGBJETHYPOTOOL_H
 #define TRIGBJETHYPO_TRIGBJETHYPOTOOL_H 1
 
+#include "IBJetHypoDiscriminantCheck.h"
+
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
 
@@ -28,6 +30,8 @@
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
+#include "BeamSpotConditionsData/BeamSpotData.h"
+
 class TrigBjetBtagHypoTool : virtual public ::AthAlgTool {
 
  public:
@@ -36,6 +40,7 @@ class TrigBjetBtagHypoTool : virtual public ::AthAlgTool {
     ElementLink< xAOD::BTaggingContainer > btaggingEL;
     ElementLink< xAOD::VertexContainer > vertexEL;
     TrigCompositeUtils::Decision* decision;
+    const InDet::BeamSpotData* beamSpot;
   };
 
 
@@ -58,18 +63,19 @@ class TrigBjetBtagHypoTool : virtual public ::AthAlgTool {
  private:
   HLT::Identifier m_decisionId;
 
-  /** @brief DeclareProperty: if acceptAll flag is set to true, every event is taken. */ 
-  Gaudi::Property< bool > m_acceptAll {this,"AcceptAll",false,"if acceptAll flag is set to true, every event is taken"};
-  /** @brief DeclareProperty: lower bound of the discriminant variable to be selected (if flag acceptAll is set to false) for MV2 tagger. */
-  Gaudi::Property< double > m_bTaggingCut {this,"BTaggingCut",-20.,"lower bound of the discriminant variable to be selected for b-tagging"};
-
-  Gaudi::Property< double > m_cFrac {this, "cFraction", -1, "c-fraction for tagger LLR computation"};
-
-  Gaudi::Property< std::string > m_tagger {this, "Tagger", "", "tagger to be used for b-jet identification"};
+  ToolHandleArray<IBJetHypoDiscriminantCheck> m_checks {this, "checks", {},
+      "List of checks to run for one chain"};
 
   /** @brief DeclareProperty: to monitor method used to perform the cut. */
-  //  float m_monitorMethod;
-  ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" }; // Temporary commenting this out
+  ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "",
+    "Monitoring tool" };
+
+  Gaudi::Property<std::map<std::string, std::string>> m_monMap {this,
+      "monitoredFloats", {}, "(EDM name, monitoring name) pairs"};
+  std::vector<std::pair<SG::AuxElement::ConstAccessor<float>, std::string>> m_monPairs;
+
+  Gaudi::Property<bool> m_vetoBadBeamspot {this, "vetoBadBeamspot", true,
+    "Veto btagging if the beamspot is bad"};
 
 };
 

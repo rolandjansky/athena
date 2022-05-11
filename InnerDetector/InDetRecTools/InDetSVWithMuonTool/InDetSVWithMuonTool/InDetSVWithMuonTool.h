@@ -168,9 +168,9 @@ namespace InDet {
 
       StatusCode CutTrk(double,double, double , double , double , 
                           long int ,long int ,long int , long int ) const;
-      double ConeDist(const AmgVector(5) & , const TLorentzVector & ) const;
+      static double ConeDist(const AmgVector(5) & , const TLorentzVector & ) ;
 //
-      int FindMaxAfterFirst( std::vector<double>& Chi2PerTrk) const;
+      static int FindMaxAfterFirst( std::vector<double>& Chi2PerTrk) ;
 
       void  SelGoodTrkParticle( const std::vector<const xAOD::TrackParticle*>& InpTrk,
                                 const xAOD::Vertex                           & PrimVrt,
@@ -178,8 +178,8 @@ namespace InDet {
                                 std::vector<const xAOD::TrackParticle*>& SelectedTracks) const;
 
 
-      double VrtVrtDist(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
-                                  const std::vector<double>& VrtErr,double& Signif ) const;
+      static double VrtVrtDist(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
+                                  const std::vector<double>& VrtErr,double& Signif ) ;
  
 
       double FitCommonVrt(std::vector<const xAOD::TrackParticle*>& ListSecondTracks,
@@ -196,8 +196,8 @@ namespace InDet {
       template <class Trk>
       void RemoveDoubleEntries(std::vector<const Trk*>& ) const;
 
-      TLorentzVector TotalMom(const std::vector<const xAOD::TrackParticle*>& InpTrk) const;
-      double pTvsDir(const Amg::Vector3D &Dir, const std::vector< double >& InpTrk) const; 
+      static TLorentzVector TotalMom(const std::vector<const xAOD::TrackParticle*>& InpTrk) ;
+      static double pTvsDir(const Amg::Vector3D &Dir, const std::vector< double >& InpTrk) ; 
 
 
 

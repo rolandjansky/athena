@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // PhotonCnv_p5.cxx 
@@ -40,11 +40,6 @@ void PhotonCnv_p5::persToTrans( const Photon_p5* pers,
 
   // base class
   m_egammaCnv.persToTrans( &pers->m_egamma, trans, msg );
-
-//   msg << MSG::DEBUG << "Loaded Photon from persistent state [OK]"
-//       << endmsg;
-
-  return;
 }
 
 void PhotonCnv_p5::transToPers( const Analysis::Photon* trans, 
@@ -56,8 +51,4 @@ void PhotonCnv_p5::transToPers( const Analysis::Photon* trans,
 
   // base class
   m_egammaCnv.transToPers( trans, &pers->m_egamma, msg );
-
-//   msg << MSG::DEBUG << "Created persistent state of Photon [OK]"
-//       << endmsg;
-  return;
 }

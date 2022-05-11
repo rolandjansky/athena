@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TruthUtils )
@@ -18,7 +18,7 @@ endif()
 atlas_add_library( TruthUtils
    TruthUtils/*.h Root/*.cxx
    PUBLIC_HEADERS TruthUtils
-   INCLUDE_DIRS ${HEPUTILS_INCLUDE_DIR} ${MCUTILS_INCLUDE_DIR}
+   INCLUDE_DIRS ${HEPUTILS_INCLUDE_DIRS} ${MCUTILS_INCLUDE_DIRS}
    LINK_LIBRARIES ${HEPUTILS_LIBRARIES} ${MCUTILS_LIBRARIES} ${extra_libs}
    PRIVATE_LINK_LIBRARIES CxxUtils )
 

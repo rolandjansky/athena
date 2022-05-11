@@ -166,21 +166,21 @@ std::unordered_map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::FcalJets
                         }
                         
                         // cast float to int to avoid misbehaviours
-                        int DeltaR = std::round(std::sqrt(std::pow((centreTT_eta - TT_eta)/0.1,2) + std::pow((centreTT_phi - TT_phi)/m_TT_Size_phi,2))*10);
+                        int DeltaR = std::round( (std::pow((centreTT_eta - TT_eta),2) + std::pow((centreTT_phi - TT_phi),2)) * 1e5   );
 
-                        if(DeltaR < 20 ) {
+                        if(DeltaR < m_Edge_dR2 ) {
                             //STEP 9.0: fill TTID in seed
                             TriggerTowerInformation.includeTTinSeed(auxTTID);
                             //STEP 10.0: add ET value to seed
                             TriggerTowerInformation.addToSeedET(TT_Et);
                         }
-                        else if(DeltaR < 40 ) {
+                        else if(DeltaR < m_Edge_dR4 ) {
                             TriggerTowerInformation.addToFirstEnergyRingET(TT_Et);
                             if(m_storeEnergyRingTTIDs) {
                                 TriggerTowerInformation.includeTTIDinFirstER(auxTTID);
                             }
                         }
-                        else if(DeltaR < 80){
+                        else if(DeltaR < m_Edge_dR8 ){
                             TriggerTowerInformation.addToSecondEnergyRingET(TT_Et);
                             if(m_storeEnergyRingTTIDs) {
                                 TriggerTowerInformation.includeTTIDinSecondER(auxTTID);
@@ -188,7 +188,7 @@ std::unordered_map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::FcalJets
                         }
                         
                         
-                        if(DeltaR < 30 ) {
+                        if(DeltaR < m_Edge_dR3 ) {
                             //STEP 9.1: fill TTID in search window
                             TriggerTowerInformation.includeTTinSearchWindow(auxTTID);
                             //STEP 10.1: add ET value to seed
@@ -277,8 +277,8 @@ std::unordered_map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::isSeedLo
                         }
                         
                         // cast float to int to avoid misbehaviours
-                        int DeltaR = std::round(std::sqrt(std::pow((seed_eta - TT_eta)/0.1,2) + std::pow((seed_phi - TT_phi)/m_TT_Size_phi,2))*10);
-                        if(DeltaR < 20 ) {
+                        int DeltaR = std::round( (std::pow((seed_eta - TT_eta),2) + std::pow((seed_phi - TT_phi),2)) * 1e5   );
+                        if(DeltaR < m_Edge_dR2 ) {
                             seed_energy+=TT_Et;
                         }
                     }
@@ -296,6 +296,7 @@ std::unordered_map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::isSeedLo
                 }
             }
         }
+
         //if it is a local maxima, we save the TT ID
         if((isLocalMaxima == TTinSW.size()-1) && (isLocalMaxima !=0)) {
             localMaximaList[myTTKey] = myFCALJetInfoClass;
@@ -342,18 +343,18 @@ std::unordered_map<int, jFEXForwardJetsInfo> LVL1::jFEXForwardJetsAlgo::calculat
                 }
                 
                 // cast float to int to avoid misbehaviours
-                int DeltaR = std::round(std::sqrt(std::pow((centreTT_eta - TT_eta)/0.1,2) + std::pow((centreTT_phi - TT_phi)/m_TT_Size_phi,2))*10); 
-                if(DeltaR < 20 ) {
+                int DeltaR = std::round( (std::pow((centreTT_eta - TT_eta),2) + std::pow((centreTT_phi - TT_phi),2)) * 1e5   );
+                if(DeltaR < m_Edge_dR2 ) {
                     myFCALJetInfoClass.addToSeedET(TT_Et);
                     myFCALJetInfoClass.includeTTinSeed(auxTTID);
                 }
-                else if(DeltaR < 40 ) {
+                else if(DeltaR < m_Edge_dR4 ) {
                     myFCALJetInfoClass.addToFirstEnergyRingET(TT_Et);
                     if(m_storeEnergyRingTTIDs) {
                         myFCALJetInfoClass.includeTTIDinFirstER(auxTTID);
                     }
                 }
-                else if(DeltaR < 80) {
+                else if(DeltaR < m_Edge_dR8) {
                     myFCALJetInfoClass.addToSecondEnergyRingET(TT_Et);
                     if(m_storeEnergyRingTTIDs) {
                         myFCALJetInfoClass.includeTTIDinSecondER(auxTTID);

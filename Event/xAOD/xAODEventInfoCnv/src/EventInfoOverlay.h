@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -18,7 +18,7 @@
 #include <AthenaBaseComps/AthReentrantAlgorithm.h>
 #include <xAODEventInfo/EventInfo.h>
 
-#if !defined(XAOD_ANALYSIS) && !defined(SIMULATIONBASE) && !defined(GENERATIONBASE)
+#if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE)
 #include <StoreGate/ReadCondHandleKey.h>
 #include <BeamSpotConditionsData/BeamSpotData.h>
 #endif
@@ -35,7 +35,7 @@ public:
   virtual StatusCode execute(const EventContext& ctx) const override;
 
 private:
-#if !defined(XAOD_ANALYSIS) && !defined(SIMULATIONBASE) && !defined(GENERATIONBASE)
+#if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE)
   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 #endif
 
@@ -44,6 +44,7 @@ private:
   SG::WriteHandleKey<xAOD::EventInfo> m_outputKey{ this, "OutputKey", "EventInfo", "WriteHandleKey for Output xAOD::EventInfo" };
 
   Gaudi::Property<bool> m_dataOverlay{ this, "DataOverlay", false, "True if running data overlay" };
+  Gaudi::Property<bool> m_validateBeamSpot{ this, "ValidateBeamSpot", false, "validate input beamspot size" };
 };
 
 } // namespace xAODMaker

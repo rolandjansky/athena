@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ## Configuration Access to OFFLINE DB (COMP200)
 
@@ -68,7 +68,7 @@ def MdtCondDbAlgCfg(flags, **kwargs):
     
     alg = CompFactory.MdtCondDbAlg(**kwargs)
     result.merge( addFolders(flags, folders , detDb="DCS_OFL", className='CondAttrListCollection') )
-    result.addCondAlgo(alg)
+    result.addCondAlgo(alg, primary = True)
     return result
 
 def RpcCondDbAlgCfg(flags, **kwargs):
@@ -152,7 +152,20 @@ def CscCondDbAlgCfg(flags, **kwargs):
 def TgcDigitASDposCondAlgCfg(flags):
     result  = ComponentAccumulator()
     result.addCondAlgo(CompFactory.TgcDigitASDposCondAlg())
-    result.merge(addFolders(flags, ["/TGC/DIGIT/ASDPOS"] , detDb="TGC_OFL", className="CondAttrListCollection"))
+    if flags.Digitization.UseUpdatedTGCConditions:
+        result.merge(addFolders(flags, ["/TGC/DIGIT/ASDPOS"], detDb="TGC_OFL", className="CondAttrListCollection"))
+    else:  # Since the folder new and not defined at the presented global tag, it needs an explicit tag
+        result.merge(addFolders(flags, ["/TGC/DIGIT/ASDPOS"], tag='TgcDigitAsdPos-00-01', detDb="TGC_OFL", db="OFLP200", className="CondAttrListCollection"))
+    return result
+
+def TgcDigitTimeOffsetCondAlgCfg(flags):
+    result = ComponentAccumulator()
+    result.addCondAlgo(CompFactory.TgcDigitTimeOffsetCondAlg())
+
+    if flags.Digitization.UseUpdatedTGCConditions:
+        result.merge(addFolders(flags, ["/TGC/DIGIT/TOFFSET"], tag='TgcDigitTimeOffset-00-01', detDb="TGC_OFL", db="OFLP200", className="CondAttrListCollection"))   # TODO The explicit tag will be removed, once this is available in the global tag.
+    else:  # Since the folder new and not defined at the presented global tag, it needs an explicit tag
+        result.merge(addFolders(flags, ["/TGC/DIGIT/TOFFSET"], tag='TgcDigitTimeOffset-00-01', detDb="TGC_OFL", db="OFLP200", className="CondAttrListCollection"))
     return result
 
 def NswCalibDbAlgCfg(flags, **kwargs):
@@ -177,4 +190,11 @@ def NswCalibDbAlgCfg(flags, **kwargs):
     result.addCondAlgo(alg)
     return result
 
-
+def MuonStationIntersectCondAlgCfg(flags, name='MuonStationIntersectCondAlg',**kwargs):
+    # Has dependency IdHelperTool (which we ignore for now)
+    result = ComponentAccumulator()
+    result.merge(MdtCondDbAlgCfg(flags))
+    if flags.Common.isOnline: kwargs.setdefault("MdtCondKey","")
+    muon_station_intersect_condalg = CompFactory.MuonStationIntersectCondAlg(name=name, **kwargs)
+    result.addCondAlgo(muon_station_intersect_condalg, primary=True)
+    return result

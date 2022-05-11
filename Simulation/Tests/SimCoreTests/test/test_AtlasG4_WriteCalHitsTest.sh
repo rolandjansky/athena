@@ -3,6 +3,7 @@
 # art-description: Reading in single particle gen events, writing out full CaloCalibrationHit information, using 2015 geometry and conditions
 # art-include: master/Athena
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-output: *.HITS.pool.root
 # art-output: log.*
 # art-output: Config*.pkl

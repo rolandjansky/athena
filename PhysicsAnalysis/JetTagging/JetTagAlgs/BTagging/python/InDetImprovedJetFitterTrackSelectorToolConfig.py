@@ -5,8 +5,6 @@ from AthenaConfiguration.Enums import LHCPeriod
 from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
 # from TrkConfig.AtlasTrackSummaryToolConfig import AtlasTrackSummaryToolCfg
 # import the InDetDetailedTrackSelectorTool configurable
-InDet__InDetDetailedTrackSelectorTool=CompFactory.InDet.InDetDetailedTrackSelectorTool
-
 
 def InDetImprovedJetFitterTrackSelectorToolCfg(flags, name, useBTagFlagsDefaults = True, **options):
     """Sets up a InDetImprovedJetFitterTrackSelectorTool tool and returns it.
@@ -44,7 +42,7 @@ def InDetImprovedJetFitterTrackSelectorToolCfg(flags, name, useBTagFlagsDefaults
                      'useTrackSummaryInfo'          : True,
                      'nHitBLayer'                   : 0,
                      'nHitPix'                      : 1,
-                     'nHitSct'                      : 4 if flags.GeoModel.Run in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3] else 0,
+                     'nHitSct'                      : 4 if flags.GeoModel.Run < LHCPeriod.Run4 else 0,
                      'nHitSi'                       : 7,
                      'nHitTrt'                      : 0,
                      'useSharedHitInfo'             : False,
@@ -63,6 +61,6 @@ def InDetImprovedJetFitterTrackSelectorToolCfg(flags, name, useBTagFlagsDefaults
     # FIXME! 
     # options.setdefault("TrackSummaryTool", acc.popToolsAndMerge(AtlasTrackSummaryToolCfg(flags)) )
 
-    acc.setPrivateTools(InDet__InDetDetailedTrackSelectorTool(**options))
+    acc.setPrivateTools(CompFactory.InDet.InDetDetailedTrackSelectorTool(**options))
 
     return acc

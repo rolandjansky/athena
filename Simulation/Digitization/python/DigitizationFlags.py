@@ -473,7 +473,7 @@ class SimG4VersionUsed(JobProperty):
 #
 class RunAndLumiOverrideList(JobProperty):
     """This is used to pass a list of dictionaries of the form
-    {'run':152166, 'lb':202, 'starttstamp':1269948352889940910, 'dt':104.496, 'evts':1, 'mu':0.005, 'force_new':False}
+    {'run':152166, 'lb':202, 'starttstamp':1269948352889940910, 'evts':1, 'mu':0.005}
     to the EvtIdModifierSvc.
     Once it is a locked property, it can be used to configure the services.
     """
@@ -481,7 +481,7 @@ class RunAndLumiOverrideList(JobProperty):
     allowedTypes=['list']
     StoredValue=[]
     def __setattr__(self, name, n_value):
-        KeysRequired=('run','lb','starttstamp','evts','mu','force_new')
+        KeysRequired=('run','lb','starttstamp','evts','mu')
         if name=='StoredValue' and not(self._locked):
             def noEventsInLumiBlock(element):
                 return element['evts'] == 0

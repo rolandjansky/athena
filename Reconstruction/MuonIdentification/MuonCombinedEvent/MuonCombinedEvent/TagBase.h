@@ -72,8 +72,8 @@ namespace MuonCombined {
         /** access to associated segments, empty vector if non available */
         virtual std::vector<const Muon::MuonSegment*> associatedSegments() const;
 
-        /** Returns whether the muon belongs to the comissioning chain **/
-        virtual bool isComissioning() const;
+        /** Returns whether the muon belongs to the commissioning chain **/
+        virtual bool isCommissioning() const;
 
     protected:
         /** protected base class to be called by concrete implementations */
@@ -86,7 +86,7 @@ namespace MuonCombined {
  
     };
 
-    inline bool TagBase::isComissioning() const { return false; }
+    inline bool TagBase::isCommissioning() const { return false; }
     inline const Trk::Track* TagBase::primaryTrack() const { return nullptr; }
 
     inline std::vector<const Muon::MuonSegment*> TagBase::associatedSegments() const { return {}; }

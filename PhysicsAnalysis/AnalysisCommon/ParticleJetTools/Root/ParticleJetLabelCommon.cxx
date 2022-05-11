@@ -96,31 +96,46 @@ namespace ParticleJetTools {
                     const Particles& particles,
                     const LabelNames& names) {
 
-    // we also want to save the maximum pt of the labeling partons
-    auto maxPt = [](const auto& container) -> float {
-      if (container.size() == 0) return NAN;
+    // we also want to save information about the maximum pt particle of the labeling partons
+    auto getMaxPtPart = [](const auto& container) -> const xAOD::TruthParticle* {
+      if (container.size() == 0) return nullptr;
       auto itr = std::max_element(container.begin(), container.end(),
                                   [](auto* p1, auto* p2) {
                                     return p1->pt() < p2->pt();
                                   });
-      return (*itr)->pt();
-
+      return *itr;
+    };
+    auto partPt = [](const auto& part) -> float {
+      if (!part) return NAN;
+      return part->pt();
+    };
+    auto partLxy = [](const auto& part) -> float {
+      if (!part) return NAN;
+      if ( part->decayVtx() ) { return part->decayVtx()->perp(); }
+      else return INFINITY;
     };
 
     // set truth label for jets above pt threshold
     // hierarchy: b > c > tau > light
     if (particles.b.size()) {
       jet.setAttribute<int>(names.singleint, 5);
-      jet.setAttribute<float>(names.pt, maxPt(particles.b));
+      const auto maxPtPart = getMaxPtPart(particles.b);
+      jet.setAttribute<float>(names.pt, partPt(maxPtPart));
+      jet.setAttribute<float>(names.Lxy, partLxy(maxPtPart));
     } else if (particles.c.size()) {
       jet.setAttribute<int>(names.singleint, 4);
-      jet.setAttribute<float>(names.pt, maxPt(particles.c));
+      const auto maxPtPart = getMaxPtPart(particles.c);
+      jet.setAttribute<float>(names.pt, partPt(maxPtPart));
+      jet.setAttribute<float>(names.Lxy, partLxy(maxPtPart));
     } else if (particles.tau.size()) {
       jet.setAttribute<int>(names.singleint, 15);
-      jet.setAttribute<float>(names.pt, maxPt(particles.tau));
+      const auto maxPtPart = getMaxPtPart(particles.tau);
+      jet.setAttribute<float>(names.pt, partPt(maxPtPart));
+      jet.setAttribute<float>(names.Lxy, partLxy(maxPtPart));
     } else {
       jet.setAttribute<int>(names.singleint, 0);
       jet.setAttribute<float>(names.pt, NAN);
+      jet.setAttribute<float>(names.Lxy, NAN);
     }
 
     if (particles.b.size()) {

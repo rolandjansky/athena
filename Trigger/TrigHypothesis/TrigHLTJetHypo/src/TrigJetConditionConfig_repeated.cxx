@@ -22,7 +22,7 @@ TrigJetConditionConfig_repeated::TrigJetConditionConfig_repeated(const std::stri
 
 
 StatusCode TrigJetConditionConfig_repeated::initialize() {
-  ATH_MSG_INFO("initialising " << name());
+  ATH_MSG_DEBUG("initialising " << name());
   return StatusCode::SUCCESS;
 }
 
@@ -48,6 +48,7 @@ TrigJetConditionConfig_repeated::getRepeatedCondition() const {
   return
     std::make_unique<RepeatedCondition>(getCompoundCondition(),
 					m_multiplicity,
+					m_clique,
 					m_chainPartInd,
 					m_invert);
 }

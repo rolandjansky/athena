@@ -36,7 +36,7 @@ namespace TrigConf {
       
    public:
       CaloInfo();
-      virtual ~CaloInfo() = default;
+      virtual ~CaloInfo() override = default;
 
       // getters
       double                             globalScale() const { return m_GlobalScale; }
@@ -80,7 +80,7 @@ namespace TrigConf {
       void setJetWindowSizeLarge(unsigned int window) { m_JetWindowSizeLarge = window; }
 
       
-      virtual void print(const std::string& indent="", unsigned int detail=1) const;
+      virtual void print(const std::string& indent="", unsigned int detail=1) const override;
       void writeXML(std::ostream & xmlfile, int indentLevel=0, int indentWidth=2) const;
 
       void clear();

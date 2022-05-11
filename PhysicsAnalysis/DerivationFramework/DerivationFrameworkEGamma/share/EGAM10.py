@@ -11,6 +11,8 @@ from DerivationFrameworkPhys import PhysCommon
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkEGamma.EGAM10ExtraContent import *
 
+from DerivationFrameworkEGamma import EGammaIso
+pflowIsoVar,densityList,densityDict = EGammaIso.makeEGammaCommonIso()
 
 #====================================================================
 # read common DFEGamma settings from egammaDFFlags
@@ -406,8 +408,8 @@ EGAM10Sequence += CfgMgr.DerivationFramework__DerivationKernel("EGAM10Kernel",
 # JET/MET
 #====================================================================
 from DerivationFrameworkJetEtMiss.JetCommon import addDAODJets
-from JetRecConfig.StandardSmallRJets import AntiKt4Truth,AntiKt4TruthWZ,AntiKt4PV0Track
-jetList = [AntiKt4Truth,AntiKt4TruthWZ,AntiKt4PV0Track]
+from JetRecConfig.StandardSmallRJets import AntiKt4Truth,AntiKt4TruthDressedWZ,AntiKt4PV0Track
+jetList = [AntiKt4Truth,AntiKt4TruthDressedWZ,AntiKt4PV0Track]
 addDAODJets(jetList, EGAM10Sequence)
 
 
@@ -420,12 +422,15 @@ EGAM10SlimmingHelper.SmartCollections = ["Electrons",
                                          "Photons",
                                          "AntiKt4EMPFlowJets",
                                          "InDetTrackParticles",
-                                         "PrimaryVertices",
+                                         "PrimaryVertices"
 ]
 EGAM10SlimmingHelper.IncludeEGammaTriggerContent = True
 
 # Extra variables
 EGAM10SlimmingHelper.ExtraVariables = ExtraContentElectrons + ExtraContentPhotons + ExtraContentVtx + ExtraContentTrk + ExtraContentJets + ExtraContentEventShape
+
+EGAM10SlimmingHelper.AppendToDictionary.update(densityDict)
+EGAM10SlimmingHelper.ExtraVariables += densityList + [f'Photons{pflowIsoVar}']
 
 EGAM10SlimmingHelper.AllVariables += ExtraContainers
 
@@ -439,15 +444,12 @@ else:
 from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
 EGAM10SlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
 
-# add new TTVA isolation variables
-EGAM10SlimmingHelper.ExtraVariables += ["Photons.ptcone20_Nonprompt_All_MaxWeightTTVA_pt1000.ptcone20_Nonprompt_All_MaxWeightTTVA_pt500.ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt1000.ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt500"]
-
 # additional truth-level variables
 if DerivationFrameworkIsMonteCarlo:
     EGAM10SlimmingHelper.ExtraVariables += ExtraElectronsTruth+ExtraPhotonsTruth
     EGAM10SlimmingHelper.AllVariables   += ExtraContainersTruth+ExtraContainersTruthPhotons
     EGAM10SlimmingHelper.AllVariables   += ["TruthIsoCentralEventShape", "TruthIsoForwardEventShape"]
-    EGAM10SlimmingHelper.AppendToDictionary = ExtraDictionary
+    EGAM10SlimmingHelper.AppendToDictionary.update(ExtraDictionary)
 
 # This line must come after we have finished configuring EGAM1SlimmingHelper
 EGAM10SlimmingHelper.AppendContentToStream(EGAM10Stream)

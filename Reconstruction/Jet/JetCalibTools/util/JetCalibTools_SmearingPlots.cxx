@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetCalibTools/JetCalibrationTool.h"
@@ -150,17 +150,17 @@ int main (int argc, char* argv[])
             // Make a new calibration tool each time
             JetCalibrationTool* jetCalibTool = new JetCalibrationTool(Form("mytool_%d",numTest));
             if (jetCalibTool->setProperty("JetCollection",jetAlgo.Data()).isFailure())
-                exit(1);
+                return 1;
             if (jetCalibTool->setProperty("ConfigFile",config.Data()).isFailure())
-                exit(1);
+                return 1;
             if (jetCalibTool->setProperty("CalibSequence",calibSeq.Data()).isFailure())
-                exit(1);
+                return 1;
             if (jetCalibTool->setProperty("IsData",isData).isFailure())
-                exit(1);
+                return 1;
             if (isDevMode && jetCalibTool->setProperty("DEVmode",isDevMode).isFailure())
-                exit(1);
+                return 1;
             if (jetCalibTool->initialize().isFailure())
-                exit(1);
+                return 1;
 
             clock_t startTime = clock();
             for (int numIter = 0; numIter < maxNumIter; ++numIter)
@@ -170,7 +170,7 @@ int main (int argc, char* argv[])
                 startingScale.setAttribute(*jet,fourvec);
                 // Apply calibration
                 if(jetCalibTool->modify(*jets).isFailure())
-                  exit(1);
+                  return 1;
             }
             delete jetCalibTool;
             printf("Iteration %d: %f seconds\n",numTest+1,(clock()-startTime)/((double)CLOCKS_PER_SEC));
@@ -199,13 +199,13 @@ int main (int argc, char* argv[])
 
             // Jet kinematics set, now apply the smearing correction
             if(calibTool->modify(*jets).isFailure())
-              exit(1);
+              return 1;
 
             // Ensure the expected scale was written (within 1 MeV, for floating point differences)
             if (fabs(endingScale(*jet).pt() - jet->pt()) > 1.e-3)
             {
                 printf("ERROR: mismatch between ending scale (%.3f) and jet pT (%.3f)\n",endingScale(*jet).pt(),jet->pt());
-                exit(1);
+                return 1;
             }
             if (endingScale(*jet).pt() == startingScale(*jet).pt())
             {
@@ -236,13 +236,13 @@ int main (int argc, char* argv[])
         if (calibTool->getNominalResolutionData(*jet,resolution).isFailure())
         {
             printf("ERROR: Failed to get nominal data resolution\n");
-            exit(1);
+            return 1;
         }
         nominalResData.SetBinContent(binX,resolution);
         if (calibTool->getNominalResolutionMC(*jet,resolution).isFailure())
         {
             printf("ERROR: Failed to get nominal MC resolution\n");
-            exit(1);
+            return 1;
         }
         nominalResMC.SetBinContent(binX,resolution);
     }

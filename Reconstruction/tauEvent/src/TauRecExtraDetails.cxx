@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///@file TauRecExtraDetails.cxx  DEPRECATED DO NOT USE
@@ -15,7 +15,6 @@
 ///
 /// Created 2007-01-17
 ///
-/// $Id: TauRecExtraDetails.cxx,v 1.8 2009-01-17 11:16:25 tburgess Exp $
 
 #include "tauEvent/TauRecExtraDetails.h"
 #include "AthenaKernel/ClassName.h"
@@ -74,7 +73,7 @@ namespace Analysis
         delete m_analysisHelper;
     }
 
-    std::string TauRecExtraDetails::s_className=
+    const std::string TauRecExtraDetails::s_className=
         ClassName<TauRecExtraDetails>::name();
     const std::string& TauRecExtraDetails::className() const
     {

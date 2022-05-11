@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name.
 atlas_subdir( xAODTrigger )
@@ -52,7 +52,7 @@ atlas_add_test( ut_xaodtrigger_bytestreamauxcontainer_v1_test
 
 atlas_add_test( ut_xaodtrigger_gFexEDM_test 
   SOURCES test/ut_xaodtrigger_gFexEDM_test.cxx
-  LINK_LIBRARIES AthContainers xAODTrigger)
+  LINK_LIBRARIES AthContainers xAODTrigger TestTools )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_test( ut_xaodtrigger_trigcomposite_test

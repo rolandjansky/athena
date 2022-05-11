@@ -30,8 +30,12 @@
 #include "AFP_SiClusterTools/IAFPSiClusterAlgTool.h"
 #include "AFP_SiClusterTools/AFPSiClusterLayerBasicObj.h"
 #include "AFP_SiClusterTools/IAFPSiRowColToLocalCSTool.h"
+#include "AFP_DBTools/ISiLocAlignDBTool.h"
+#include "AFP_DBTools/ISiGlobAlignDBTool.h"
 #include "AFP_DigiEv/AFP_SiDigiCollection.h"
 
+#include "AFP_DBTools/SiLocAlignData.h"
+#include "AFP_DBTools/SiGlobAlignData.h"
 #include "xAODForward/AFPSiHit.h"
 #include "xAODForward/AFPSiHitContainer.h"
 #include "xAODForward/AFPSiHitsCluster.h"
@@ -72,6 +76,13 @@ private:
   
   /// @ brief Monitoring tool
   ToolHandle<GenericMonitoringTool> m_monTool {this, "MonTool", "", "Monitoring tool"};
+  
+  
+  /// @ brief Tool for accessing DB to get the local alignment constants
+  ToolHandle<AFP::ISiLocAlignDBTool> m_siLocAlignDBTool {this, "siLocAlignDBTool", "AFP__SiLocAlignDBTool", "Tool to access DB to get the local alignment constants"};
+  
+  /// @ brief Tool for accessing DB to get the global alignment constants
+  ToolHandle<AFP::ISiGlobAlignDBTool> m_siGlobAlignDBTool {this, "siGlobAlignDBTool", "AFP__SiGlobAlignDBTool", "Tool to access DB to get the global alignment constants"};
   
   /// @brief Array defining number of stations and layers in each station
   ///

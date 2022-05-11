@@ -16,9 +16,6 @@ TrigConf::L1Menu::L1Menu(const boost::property_tree::ptree & data)
    load();
 }
 
-TrigConf::L1Menu::~L1Menu()
-{}
-
 void
 TrigConf::L1Menu::load()
 {

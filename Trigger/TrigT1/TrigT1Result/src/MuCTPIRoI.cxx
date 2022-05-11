@@ -1,13 +1,13 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-
-// TrigT1 include(s):
-#include "TrigT1Interfaces/BitOp.h"
 
 // Local include(s):
 #include "TrigT1Result/MuCTPIRoI.h"
+
+// TrigT1 include(s):
+#include "TrigT1Interfaces/BitOp.h"
+#include "TrigT1MuctpiBits/MuCTPI_Bits.h"
 
 namespace ROIB {
 
@@ -50,8 +50,8 @@ namespace ROIB {
    * @return The 3-bit threshold number of the candidate
    */
   unsigned int MuCTPIRoI::pt() const {
-    return ((m_roIWord >> MuCTPI_RDO::CAND_PT_SHIFT) &
-	    MuCTPI_RDO::CAND_PT_MASK);
+    return ((m_roIWord >> LVL1::MuCTPIBits::CAND_PT_SHIFT) &
+	    LVL1::MuCTPIBits::CAND_PT_MASK);
   }
 
   /**
@@ -65,7 +65,7 @@ namespace ROIB {
    */
   unsigned int MuCTPIRoI::getSectorAddress() const {
     return ((m_roIWord >> MuCTPIRoI::ROI_CAND_SECTOR_ADDRESS_SHIFT) &
-	    MuCTPI_RDO::CAND_SECTOR_ADDRESS_MASK);
+	    LVL1::MuCTPIBits::CAND_SECTOR_ADDRESS_MASK);
   }
 
   /**
@@ -74,7 +74,7 @@ namespace ROIB {
    * @return 1 if the candidate has eta > 0, 0 if eta < 0.
    */
   uint16_t MuCTPIRoI::getHemisphere() const {
-    return (getSectorAddress() & MuCTPI_RDO::SECTOR_HEMISPHERE_MASK);
+    return (getSectorAddress() & LVL1::MuCTPIBits::SECTOR_HEMISPHERE_MASK);
   }
 
   /**
@@ -85,8 +85,8 @@ namespace ROIB {
    * @return 1 if the overflow bit was set, 0 otherwise
    */
   uint16_t MuCTPIRoI::getSectorOverflow() const {
-    return ((m_roIWord >> MuCTPI_RDO::CAND_OVERFLOW_SHIFT) &
-	    MuCTPI_RDO::CAND_OVERFLOW_MASK);
+    return ((m_roIWord >> LVL1::MuCTPIBits::CAND_OVERFLOW_SHIFT) &
+	    LVL1::MuCTPIBits::CAND_OVERFLOW_MASK);
   }
 
   /**
@@ -98,8 +98,8 @@ namespace ROIB {
    * @return 1 if the overflow bit was set, 0 otherwise
    */
   uint16_t MuCTPIRoI::getRoiOverflow() const {
-    return ((m_roIWord >> MuCTPI_RDO::ROI_OVERFLOW_SHIFT) &
-	    MuCTPI_RDO::ROI_OVERFLOW_MASK);
+    return ((m_roIWord >> LVL1::MuCTPIBits::ROI_OVERFLOW_SHIFT) &
+	    LVL1::MuCTPIBits::ROI_OVERFLOW_MASK);
   }
 
   /**
@@ -117,13 +117,13 @@ namespace ROIB {
     uint16_t roi = 0;
     switch ( getSectorLocation() ) {
     case MuCTPI_RDO::ENDCAP:
-      roi = (m_roIWord >> MuCTPI_RDO::ROI_SHIFT) & MuCTPI_RDO::ENDCAP_ROI_MASK;
+      roi = (m_roIWord >> LVL1::MuCTPIBits::ROI_SHIFT) & LVL1::MuCTPIBits::ENDCAP_ROI_MASK;
       break;
     case MuCTPI_RDO::FORWARD:
-      roi = (m_roIWord >> MuCTPI_RDO::ROI_SHIFT) & MuCTPI_RDO::FORWARD_ROI_MASK;
+      roi = (m_roIWord >> LVL1::MuCTPIBits::ROI_SHIFT) & LVL1::MuCTPIBits::FORWARD_ROI_MASK;
       break;
     case MuCTPI_RDO::BARREL:
-      roi = (m_roIWord >> MuCTPI_RDO::ROI_SHIFT) & MuCTPI_RDO::BARREL_ROI_MASK;
+      roi = (m_roIWord >> LVL1::MuCTPIBits::ROI_SHIFT) & LVL1::MuCTPIBits::BARREL_ROI_MASK;
       break;
     default:
       roi = 99;
@@ -155,13 +155,13 @@ namespace ROIB {
     uint16_t ol = 0;
     switch( getSectorLocation() ) {
     case MuCTPI_RDO::ENDCAP:
-      ol = (m_roIWord >> MuCTPI_RDO::ENDCAP_OL_SHIFT) & MuCTPI_RDO::ENDCAP_OL_MASK;
+      ol = (m_roIWord >> LVL1::MuCTPIBits::ENDCAP_OL_SHIFT) & LVL1::MuCTPIBits::ENDCAP_OL_MASK;
       break;
     case MuCTPI_RDO::FORWARD:
       ol = 0;
       break;
     case MuCTPI_RDO::BARREL:
-      ol = (m_roIWord >> MuCTPI_RDO::BARREL_OL_SHIFT) & MuCTPI_RDO::BARREL_OL_MASK;
+      ol = (m_roIWord >> LVL1::MuCTPIBits::BARREL_OL_SHIFT) & LVL1::MuCTPIBits::BARREL_OL_MASK;
       break;
     default:
       ol = 99;
@@ -179,9 +179,9 @@ namespace ROIB {
    */
   MuCTPI_RDO::SectorLocation MuCTPIRoI::getSectorLocation() const {
 
-    if( getSectorAddress() & MuCTPI_RDO::ENDCAP_ADDRESS_MASK ) {
+    if( getSectorAddress() & LVL1::MuCTPIBits::ENDCAP_ADDRESS_MASK ) {
       return MuCTPI_RDO::ENDCAP;
-    } else if(getSectorAddress() & MuCTPI_RDO::FORWARD_ADDRESS_MASK) {
+    } else if(getSectorAddress() & LVL1::MuCTPIBits::FORWARD_ADDRESS_MASK) {
       return MuCTPI_RDO::FORWARD;
     } else {
       return MuCTPI_RDO::BARREL;
@@ -200,9 +200,9 @@ namespace ROIB {
   uint16_t MuCTPIRoI::getSectorID() const {
 
     if( getSectorLocation() == MuCTPI_RDO::ENDCAP ) {
-      return ((getSectorAddress() >> 1) & MuCTPI_RDO::ENDCAP_SECTORID_MASK);
+      return ((getSectorAddress() >> 1) & LVL1::MuCTPIBits::ENDCAP_SECTORID_MASK);
     } else {
-      return ((getSectorAddress() >> 1) & MuCTPI_RDO::BARREL_SECTORID_MASK);
+      return ((getSectorAddress() >> 1) & LVL1::MuCTPIBits::BARREL_SECTORID_MASK);
     }
     return 0;
   }
@@ -216,7 +216,7 @@ namespace ROIB {
    */
   uint16_t MuCTPIRoI::getCandidateIsHighestPt() const {
     return ((m_roIWord >> MuCTPIRoI::ROI_CAND_HIGHEST_PT_SHIFT) &
-	    MuCTPI_RDO::CAND_HIGHEST_PT_MASK);
+	    LVL1::MuCTPIBits::CAND_HIGHEST_PT_MASK);
   }
 
 } // namespace ROIB

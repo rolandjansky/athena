@@ -16,9 +16,6 @@ TrigConf::HLTMenu::HLTMenu(const boost::property_tree::ptree & data)
    load();
 }
 
-TrigConf::HLTMenu::~HLTMenu()
-{}
-
 void
 TrigConf::HLTMenu::load()
 {

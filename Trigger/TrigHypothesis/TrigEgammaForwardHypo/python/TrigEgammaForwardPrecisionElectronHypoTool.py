@@ -133,7 +133,3 @@ def TrigEgammaForwardPrecisionElectronHypoToolFromDict( d ):
     return _IncTool( name, __th( cparts[0]),  __sel( cparts[0] ), __iso ( cparts[0])  )
                    
     
-def TrigEgammaForwardPrecisionElectronHypoToolFromName(name, conf):
-    from TriggerMenuMT.HLT.Config.Utility.DictFromChainName import dictFromChainName
-    decodedDict = dictFromChainName(conf)
-    return  TrigEgammaForwardPrecisionElectronHypoToolFromDict( decodedDict )

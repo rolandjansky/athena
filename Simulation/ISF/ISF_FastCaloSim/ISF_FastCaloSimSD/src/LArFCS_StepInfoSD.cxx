@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // class header
@@ -37,6 +37,10 @@ G4bool LArFCS_StepInfoSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
   if(a_step->GetTotalEnergyDeposit() <= 0.) { return result; }
 
   if (m_calculator) {
+    if(!m_calo_dd_man.get()) {
+      getCaloDDManager();
+    }
+
     const double StepLength = a_step->GetStepLength()/ CLHEP::mm;
     const G4ThreeVector preStepPosition = a_step->GetPreStepPoint()->GetPosition(); //pre step is the position we're interested in
     const G4ThreeVector postStepPosition = a_step->GetPostStepPoint()->GetPosition();
@@ -148,7 +152,7 @@ G4bool LArFCS_StepInfoSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
       }
       //Identifier for the subhit with max energy
       Identifier maxEnergyIdentifier = this->ConvertID(processedHits[maxSubHitEnergyindex].id);
-      const CaloDetDescrElement *maxEnergyCell = m_calo_dd_man->get_element(maxEnergyIdentifier);
+      const CaloDetDescrElement *maxEnergyCell = m_calo_dd_man.get()->get_element(maxEnergyIdentifier);
 
       Identifier invalidIdentifier;
       //for (size_t i=0; i<numberOfProcessedHits; ++i) {
@@ -190,11 +194,11 @@ G4bool LArFCS_StepInfoSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
                 G4cout << this->GetName()<<" VERBOSE ProcessHits: shifting subhits: largest energy subhit index is "<<maxSubHitEnergyindex<<" E: "<<maxSubHitEnergy<<" identifier: "<<maxEnergyIdentifier.getString()<<G4endl;
               }
               //from identifier
-              const CaloDetDescrElement *thiscell = m_calo_dd_man->get_element(id);
+              const CaloDetDescrElement *thiscell = m_calo_dd_man.get()->get_element(id);
               if (!maxEnergyCell) {
                 //How often does this happen? Do not shift.
                 G4cout << this->GetName()<<" WARNING ProcessHits: maxEnergyCell failed: "<<maxEnergyIdentifier.getString()<<G4endl
-                       <<"          "<<m_calo_dd_man->get_element(id)->getSampling()<<G4endl
+                       <<"          "<<m_calo_dd_man.get()->get_element(id)->getSampling()<<G4endl
                        <<"          "<<originalStepPosition.eta()<<G4endl
                        <<"          "<< originalStepPosition.phi()<<G4endl;
                 stepPosition = originalStepPosition;
@@ -213,7 +217,7 @@ G4bool LArFCS_StepInfoSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
                 G4ThreeVector diff(thiscell->x()-maxEnergyCell->x(), thiscell->y()-maxEnergyCell->y(), thiscell->z()-maxEnergyCell->z());
                 stepPosition = originalStepPosition+diff;
                 if(m_config.verboseLevel > 9) {
-                  const CaloDetDescrElement *bestcell = m_calo_dd_man->get_element(m_calo_dd_man->get_element(id)->getSampling(),originalStepPosition.eta(), originalStepPosition.phi());
+                  const CaloDetDescrElement *bestcell = m_calo_dd_man.get()->get_element(m_calo_dd_man.get()->get_element(id)->getSampling(),originalStepPosition.eta(), originalStepPosition.phi());
                   G4cout << this->GetName()<<" VERBOSE ProcessHits: Original step position: "<<originalStepPosition.x()<<" "<<originalStepPosition.y()<<" "<<originalStepPosition.z()<<G4endl
                   <<"          "<<"This cell: "<<thiscell->x()<<" "<<thiscell->y()<<" "<<thiscell->z()<<G4endl
                   <<"          "<<"Highest E cell: "<<maxEnergyCell->x()<<" "<<maxEnergyCell->y()<<" "<<maxEnergyCell->z()<<G4endl
@@ -229,14 +233,14 @@ G4bool LArFCS_StepInfoSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
         double time = larhit.time;
         double energy = larhit.energy/CLHEP::MeV;
         // Drop any hits that don't have a good identifier attached
-        if (!m_calo_dd_man->get_element(id)) {
+        if (!m_calo_dd_man.get()->get_element(id)) {
           if(m_config.verboseLevel > 4) {
             G4cout<<this->GetName()<<" DEBUG update_map: bad identifier: "<<id.getString()<<" skipping this hit."<<G4endl;
           }
           continue;
         }
         // Get the appropriate merging limits
-        const CaloCell_ID::CaloSample& layer = m_calo_dd_man->get_element(id)->getSampling();
+        const CaloCell_ID::CaloSample& layer = m_calo_dd_man.get()->get_element(id)->getSampling();
         const double timeWindow(m_config.m_maxTime);
         const double distanceWindow((layer == CaloCell_ID::EMB1 || layer == CaloCell_ID::EME1) ? m_config.m_maxRadiusFine : m_config.m_maxRadius); //Default 1mm merging in layers 1 & 5, 5mm merging elsewhere
         this->update_map(stepPosition, id, energy, time, true, numberOfProcessedHits, timeWindow, distanceWindow); //store numberOfProcessedHits as info

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ## @file TriggerUnixStandardSetup.py
 ## @brief py-module to configure the Athena AppMgr for trigger
@@ -152,11 +152,12 @@ def setupCommonServicesEnd():
     enableCOOLFolderUpdates()
 
     svcMgr.CoreDumpSvc.CoreDumpStream = "stdout"
-    svcMgr.CoreDumpSvc.CallOldHandler = False
-    svcMgr.CoreDumpSvc.StackTrace = True
-    svcMgr.CoreDumpSvc.FastStackTrace = True
-    svcMgr.CoreDumpSvc.FatalHandler = 0   # no extra fatal handler
-    svcMgr.CoreDumpSvc.TimeOut = 60000000000        # timeout for stack trace generation changed to 60s (ATR-17112)
+    svcMgr.CoreDumpSvc.CallOldHandler = False  # avoid calling e.g. ROOT signal handler
+    svcMgr.CoreDumpSvc.FastStackTrace = True   # first produce a fast stacktrace
+    svcMgr.CoreDumpSvc.StackTrace = True       # then produce full stacktrace using gdb
+    svcMgr.CoreDumpSvc.DumpCoreFile = True     # also produce core file (if allowed by ulimit -c)
+    svcMgr.CoreDumpSvc.FatalHandler = 0        # no extra fatal handler
+    svcMgr.CoreDumpSvc.TimeOut = 120000000000   # timeout for stack trace generation changed to 120s (ATR-17112,ATR-25404)
 
     svcMgr.IOVSvc.updateInterval = "RUN"
     svcMgr.IOVSvc.preLoadData = True

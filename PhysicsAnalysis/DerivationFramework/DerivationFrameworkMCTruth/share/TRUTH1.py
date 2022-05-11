@@ -62,7 +62,6 @@ addTruth3ContentToSlimmerTool(TRUTH1SlimmingHelper)
 
 TRUTH1SlimmingHelper.AppendContentToStream(TRUTH1Stream)
 # Add the event info, in its entirety
-TRUTH1Stream.AddItem("xAOD::EventInfo#McEventInfo")
 TRUTH1Stream.AddItem("xAOD::EventInfo#EventInfo")
 TRUTH1Stream.AddItem("xAOD::EventAuxInfo#EventInfoAux.")
 # Add the entirety of the truth event

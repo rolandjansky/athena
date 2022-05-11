@@ -1,0 +1,160 @@
+Sherpa_225_NNPDF30_NNLO:
+ components:
+  - Sherpa_PDF261000_Nominal
+  - Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+  - Sherpa_ME_PDF25300
+  - Sherpa_ME_PDF13000
+  - Sherpa_ME_PDF261000_var
+  - Sherpa_ME_PDF261000_scale
+  - Sherpa_Other
+ combination: QuadSum(Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO,
+                      Envelope(Sherpa_ME_PDF261000_var,
+                               Central(Sherpa_ME_PDF13000),Central(Sherpa_ME_PDF25300),
+                               Sherpa_PDF261000_Nominal),
+                      Sherpa_ME_PDF261000_scale)
+
+Sherpa_225_NNPDF30_NNLO_withNorm:
+ components:
+  - Sherpa_PDF261000_Nominal
+  - Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO
+  - Sherpa_ME_PDF25300
+  - Sherpa_ME_PDF13000
+  - Sherpa_ME_PDF261000_var
+  - Sherpa_ME_PDF261000_scale
+  - Sherpa_Other
+  - Normalization
+ combination: QuadSum(Sherpa_ME_PDF261000_alphaS_NNPDF_NNLO,
+                      Normalization,
+                      Envelope(Sherpa_ME_PDF261000_var,
+                               Central(Sherpa_ME_PDF13000),Central(Sherpa_ME_PDF25300),
+                               Sherpa_PDF261000_Nominal),
+                      Sherpa_ME_PDF261000_scale)
+
+PhPy8EG_A14:
+#The evaluation of PDF uncertainties is much improved when using Powheg+Pythia8 as the nominal top MC. The default PDF is NNPDF3.0 which is one of the component PDFs used in PDF4LHC15. As such, it is sufficient to check the PDF4LHC15 error set on this MC. As the new MC uses Powheg v2, PDF uncertainties are now provided using the internal reweighting mechanism inside Powheg. The following PDF weights are available in the Powheg samples with the weight ordering shown.
+
+ components:
+  - Powheg_ME_PDF13191_scale  #CT14nlo_NF4 #Alternative PDF, *not needed for combination*
+  - Powheg_ME_PDF25410_scale   #MMHT2014nlo68cl_nf4 # *not needed for combination*
+  - Powheg_ME_PDF260400_scale  #NNPDF30_nlo_as_0118_nf_4 #SCALE
+  - Powheg_ME_PDF260400_var  #NNPDF30_nlo_as_0118_nf_4 # PDFVariations for NNPDF, *not needed for combination*
+  - Powheg_ME_PDF92000 #PDF4LHC15_nlo_nf4_30 # Central value for LHAPDF, *not needed for combination*
+  - Powheg_ME_PDF92000_scale     #PDF4LHC15_nlo_nf4_30 #PDF4LHC Scale?
+  - Powheg_ME_PDF92000_var #PDF4LHC15_nlo_nf4_30  #PDF UNCERTAINTIES
+  - Powheg_PDF260400_Nominal  #NNPDF30_nlo_as_0118_nf_4 #NOMINAL
+  - Pythia8_PDF260400_ISR_FSR_alphaS  #NNPDF30_nlo_as_0118_nf_4 #ISR/FSR 
+  - Pythia8_PDF260400_ISR_PDF  #NNPDF30_nlo_as_0118_nf_4 # Not used? 
+  - Pythia8_PDF260400_Var3c_alphaS  #NNPDF30_nlo_as_0118_nf_4 # RadHi/Lo need to multiply by muR2muF2, muR0.5muF0.5 respectively
+  - Pythia8_PDF260400_non_singular  #NNPDF30_nlo_as_0118_nf_4 # What is This? Needed for combination?
+ user_defined_components:
+   Powheg_ME_PDF13191: 
+      combination: Central(Powheg_ME_PDF13191_scale)
+      type: altPDF
+   Powheg_ME_PDF25410: 
+      combination: Central(Powheg_ME_PDF25410_scale) 
+      type: altPDF
+   Powheg_ME_PDF260400_rad: 
+      combination: DownUpNominal(
+                      Product(
+                        Var3cDown,
+                        " muR = 0.50, muF = 0.50 ",
+                        Inverse(Powheg_PDF260400_Nominal)
+                        ),
+                      Product(
+                        Var3cUp,
+                        " muR = 2.00, muF = 2.00 ",
+                        Inverse(Powheg_PDF260400_Nominal)
+                        ),
+                      Powheg_PDF260400_Nominal
+                   )
+      type: Radiation
+ combination: QuadSum(Powheg_ME_PDF260400_rad,
+                      Pythia8_PDF260400_Var3c_alphaS,
+                      Envelope(Powheg_ME_PDF92000_var,
+                               Powheg_ME_PDF13191,
+                               Powheg_ME_PDF25410,
+                               Powheg_PDF260400_Nominal),
+                      Powheg_ME_PDF260400_scale,
+                      Powheg_PDF260400_Nominal
+                      )
+
+PhPy8EG_A14_ttbar:
+ 
+ components:
+  - Powheg_ME_PDF13165_scale #CT14nlo_as_0118
+  - Powheg_ME_PDF25200_scale #MMHT2014nlo68clas118
+  - Powheg_ME_PDF260000_alphaS_NNPDF_NLO #NNPDF30_nlo_as_0118
+  - Powheg_ME_PDF260000_scale #NNPDF30_nlo_as_0118
+  - Powheg_ME_PDF260000_var #NNPDF30_nlo_as_0118
+  - Powheg_ME_PDF265000_scale #NNPDF30_nlo_as_0117
+  - Powheg_ME_PDF266000_scale #NNPDF30_nlo_as_0119
+  - Powheg_ME_PDF303400_scale #NNPDF31_nlo_as_0118
+  - Powheg_ME_PDF90900_Hessian #PDF4LHC15_nlo_30
+  - Powheg_ME_PDF90900_scale #PDF4LHC15_nlo_30
+  - Powheg_PDF260000_Nominal ##NNPDF30_nlo_as_0118
+  - Pythia8_PDF260000_ISR_FSR_alphaS #NNPDF30_nlo_as_0118
+  - Pythia8_PDF260000_Var3c_alphaS #NNPDF30_nlo_as_0118
+  - Pythia8_PDF260000_non_singular #NNPDF30_nlo_as_0118
+ user_defined_components:
+   Powheg_ME_PDF13165: 
+      combination: Central(Powheg_ME_PDF13165_scale)
+      type: altPDF
+   Powheg_ME_PDF25200: 
+      combination: Central(Powheg_ME_PDF25200_scale) 
+      type: altPDF
+   Powheg_ME_PDF260000_rad: 
+      combination: DownUpNominal(
+                      Product(
+                        Var3cDown,
+                        " muR = 0.5, muF = 0.5 ",
+                        Inverse(Powheg_PDF260000_Nominal)
+                        ),
+                      Product(
+                        Var3cUp,
+                        " muR = 2.0, muF = 2.0 ",
+                        Inverse(Powheg_PDF260000_Nominal)
+                        ),
+                      Powheg_PDF260000_Nominal
+                   )
+      type: Radiation
+   Powheg_ME_PDF25200: 
+      combination: Central(Powheg_ME_PDF25200_scale) 
+      type: altPDF
+ 
+ combination: QuadSum(Powheg_ME_PDF260000_rad,
+                      Powheg_ME_PDF260000_alphaS_NNPDF_NLO,
+                      Envelope(Powheg_ME_PDF90900_Hessian,
+                               Powheg_ME_PDF13165,
+                               Powheg_ME_PDF25200,
+                               Powheg_PDF260000_Nominal),
+                      Powheg_ME_PDF260000_scale,
+                      Powheg_PDF260000_Nominal
+                      )
+
+PhPy8EG_A14_ttbar_type2:
+ 
+ components:
+  - Powheg_ME_PDF13165_scale #CT14nlo_as_0118
+  - Powheg_ME_PDF25200_scale #MMHT2014nlo68clas118
+  - Powheg_ME_PDF260000_scale #NNPDF30_nlo_as_0118
+  - Powheg_ME_PDF260000_var #NNPDF30_nlo_as_0118
+  - Powheg_ME_PDF90900_Hessian #PDF4LHC15_nlo_30
+  - Powheg_ME_PDF90900_scale_type2
+  - Powheg_PDF260000_Nominal ##NNPDF30_nlo_as_0118
+ user_defined_components:
+   Powheg_ME_PDF13165: 
+      combination: Central(Powheg_ME_PDF13165_scale)
+      type: altPDF
+   Powheg_ME_PDF25200: 
+      combination: Central(Powheg_ME_PDF25200_scale) 
+      type: altPDF
+ 
+ combination: QuadSum(
+                      Envelope(Powheg_ME_PDF90900_Hessian,
+                               Powheg_ME_PDF13165,
+                               Powheg_ME_PDF25200,
+                               Powheg_PDF260000_Nominal),
+                      Powheg_ME_PDF260000_scale,
+                      Powheg_PDF260000_Nominal
+                      )
+

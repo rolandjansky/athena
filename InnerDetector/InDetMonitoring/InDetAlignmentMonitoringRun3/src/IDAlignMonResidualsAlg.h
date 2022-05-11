@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -85,7 +85,6 @@ class IDAlignMonResidualsAlg :  public AthMonitorAlgorithm {
 
   SG::ReadHandleKey<TrackCollection> m_tracksKey {this,"TrackName", "CombinedInDetTracks", "track data key"};
   SG::ReadHandleKey<TrackCollection> m_tracksName {this,"TrackName2","CombinedInDetTracks", "track data key"};
-  SG::ReadHandleKey<ComTime> m_comTimeObjectName    {this, "ComTimeObjectName", "TRT_Phase"};
 
   ToolHandle<ITRT_CalDbTool> m_trtcaldbTool;
   ToolHandle<Trk::IUpdator>             m_iUpdator;

@@ -235,7 +235,7 @@ namespace TrkDriftCircleMath {
           const DriftCircle* ds  = & dcs[i];
           if(std::abs(ds->r()-ds->rot()->driftRadius())>m_dRTol) ATH_MSG_DEBUG("Different radii on dc " << ds->r() << " rot " << ds->rot()->driftRadius());
           
-          DriftCircle dc_keep(ds->position(), ds->rot()->driftRadius(), ds->dr(), ds->drPrecise(), ds->state(), ds->id(), ds->index(),ds->rot() );
+          DriftCircle dc_keep(ds->position(), ds->rot()->driftRadius(), ds->dr(), ds->drPrecise(), ds->driftState(), ds->id(), ds->index(),ds->rot() );
           DCOnTrack dc_new(dc_keep, 0., 0.);
           
           dc_new.state(dcs[i].state());
@@ -457,10 +457,10 @@ namespace TrkDriftCircleMath {
       for(int i=0; it!=it_end; ++it, ++i ){
 	const DriftCircle* ds  = & dcs[i];
         if(std::abs(ds->r()-ds->rot()->driftRadius())>m_dRTol) ATH_MSG_DEBUG("Different radii on dc " << ds->r() << " rot " << ds->rot()->driftRadius());
-	DriftCircle dc_keep(ds->position(), ds->rot()->driftRadius(), ds->dr(), ds->drPrecise(), ds->state(), ds->id(), ds->index(),ds->rot() );
-	DCOnTrack dc_new(dc_keep, 0., 0.);
-	dc_new.state(dcs[i].state());
-	dcs_new.push_back( dc_new );
+        DriftCircle dc_keep(ds->position(), ds->rot()->driftRadius(), ds->dr(), ds->drPrecise(), ds->driftState(), ds->id(), ds->index(),ds->rot() );
+        DCOnTrack dc_new(dc_keep, 0., 0.);
+        dc_new.state(dcs[i].state());
+        dcs_new.push_back( dc_new );
         if( selection[i] == 0 ){
           double t = ds->rot()->driftTime();
           const MuonCalib::MdtRtRelation *rtInfo = m_calibrationDbTool->getRtCalibration(ds->rot()->identify());
@@ -621,7 +621,7 @@ namespace TrkDriftCircleMath {
       const DriftCircle* ds  = & dcs_keep[i];
       if (m_propagateErrors) drad = dr[i];
       
-      DriftCircle dc_newrad(dcs_keep[i].position(), rad, drad, ds->state(), dcs_keep[i].id(), dcs_keep[i].index(),ds->rot() );
+      DriftCircle dc_newrad(dcs_keep[i].position(), rad, drad, ds->driftState(), dcs_keep[i].id(), dcs_keep[i].index(),ds->rot() );
       DCOnTrack dc_new(dc_newrad, residuals, covsq);
       dc_new.state(dcs_keep[i].state());
 

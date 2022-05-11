@@ -36,7 +36,7 @@ Trk::LayerArrayCreator::LayerArrayCreator(const std::string& t, const std::strin
 
 // destructor
 Trk::LayerArrayCreator::~LayerArrayCreator()
-{}
+= default;
 
 
 Trk::LayerArray* Trk::LayerArrayCreator::cylinderLayerArray(const std::vector<Trk::CylinderLayer*>& cylLayersInput,

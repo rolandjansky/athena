@@ -28,8 +28,6 @@
 /**
    @class MuTagMatchingTool
 
-@author Zdenko.van.Kesteren@cern.ch
-
 */
 
 namespace Trk {
@@ -42,67 +40,74 @@ public:
     MuTagMatchingTool(const std::string& t, const std::string& n, const IInterface* p);
     virtual ~MuTagMatchingTool() = default;
 
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;   
 
-    std::string segmentStationString(const Muon::MuonSegment* segment) const;
+   
 
-    void testExtrapolation(const Trk::Surface* pSurface, const Trk::Track* pTrack) const;
+    bool match(const Trk::TrackParameters& atSurface, const Muon::MuonSegment& segment, int surfaceName) const override;
 
-    bool match(const Trk::TrackParameters* atSurface, const Muon::MuonSegment* segment, const std::string& surfaceName) const;
+    bool surfaceMatch(const Muon::MuonSegment& segment, int surfaceName) const override;
 
-    bool surfaceMatch(const Trk::TrackParameters* atSurface, const Muon::MuonSegment* segment, const std::string& surfaceName) const;
+    bool phiMatch(const Trk::TrackParameters& atSurface, const Muon::MuonSegment& segment) const override;
 
-    bool phiMatch(const Trk::TrackParameters* atSurface, const Muon::MuonSegment* segment, const std::string& surfaceName) const;
+    bool thetaMatch(const Trk::TrackParameters& atSurface, const Muon::MuonSegment& segment) const override;
 
-    bool thetaMatch(const Trk::TrackParameters* atSurface, const Muon::MuonSegment* segment) const;
-
-    bool rMatch(const Trk::TrackParameters* atSurface, const Muon::MuonSegment* segment) const;
+    bool rMatch(const Trk::TrackParameters& atSurface, const Muon::MuonSegment& segment) const override;
 
     /** Get extrapolation at MS entrance level*/
-    std::unique_ptr<const Trk::TrackParameters> ExtrapolateTrktoMSEntrance(const EventContext& ctx, const Trk::Track* pTrack,
-                                                                           Trk::PropDirection direction) const;
+    std::unique_ptr<Trk::TrackParameters> ExtrapolateTrktoMSEntrance(const EventContext& ctx, const Trk::Track& pTrack,
+                                                                           Trk::PropDirection direction) const override;
 
     /** Get extrapolation at MSSurface level*/
-    std::unique_ptr<const Trk::TrackParameters> ExtrapolateTrktoMSSurface(const EventContext& ctx, const Trk::Surface* surface,
-                                                                          const Trk::TrackParameters* pTrack,
-                                                                          Trk::PropDirection direction) const;
+    std::unique_ptr<Trk::TrackParameters> ExtrapolateTrktoMSSurface(const EventContext& ctx, const Trk::Surface& surface,
+                                                                          const Trk::TrackParameters& pTrack,
+                                                                          Trk::PropDirection direction) const override;
 
     /** Get extrapolation at Segment Plane Surface level*/
-    std::unique_ptr<const Trk::AtaPlane> ExtrapolateTrktoSegmentSurface(const EventContext& ctx, const Muon::MuonSegment* segment,
-                                                                        const Trk::TrackParameters* pTrack,
-                                                                        Trk::PropDirection direction) const;
-    bool hasPhi(const Muon::MuonSegment* seg) const;
+    std::shared_ptr<Trk::AtaPlane> ExtrapolateTrktoSegmentSurface(const EventContext& ctx, const Muon::MuonSegment& segment,
+                                                                        const Trk::TrackParameters& pTrack,
+                                                                        Trk::PropDirection direction) const override;
+  
+
+    bool matchSegmentPosition(const MuonCombined::MuonSegmentInfo& info, bool idHasEtaHits) const override;
+
+    bool matchSegmentDirection(const MuonCombined::MuonSegmentInfo& info, bool idHasEtaHits) const override;
+
+    bool matchPtDependentPull(const MuonCombined::MuonSegmentInfo& info, const Trk::Track& trk) const override;
+
+    bool matchDistance(const MuonCombined::MuonSegmentInfo& info) const override;
+
+    bool matchCombinedPull(const MuonCombined::MuonSegmentInfo& info) const override;
+
+   
+  
+
+    MuonCombined::MuonSegmentInfo muTagSegmentInfo(const EventContext& ctx, const Trk::Track* track, const Muon::MuonSegment& segment,
+                                                   std::shared_ptr<const Trk::AtaPlane> exTrack) const override;
+
+  
+
+private:
+
+     void testExtrapolation(const Trk::Surface& pSurface, const Trk::Track& pTrack) const;
+    ///////////////////////////////////
+    bool isCscSegment(const Muon::MuonSegment& seg) const;
+    unsigned int cscHits(const Muon::MuonSegment& seg) const;
+
+    void nrTriggerHits(const Muon::MuonSegment& seg, int& nRPC, int& nTGC) const;
+    
+    bool hasPhi(const Muon::MuonSegment& seg) const;
 
     double errorProtection(double exTrk_Err, bool isAngle) const;
 
-    bool matchSegmentPosition(MuonCombined::MuonSegmentInfo* info, bool idHasEtaHits) const;
-
-    bool matchSegmentDirection(MuonCombined::MuonSegmentInfo* info, bool idHasEtaHits) const;
-
-    bool matchPtDependentPull(MuonCombined::MuonSegmentInfo* info, const Trk::Track* trk) const;
-
-    bool matchDistance(MuonCombined::MuonSegmentInfo* info) const;
-
-    bool matchCombinedPull(MuonCombined::MuonSegmentInfo* info) const;
-
-    void nrTriggerHits(const Muon::MuonSegment* seg, int& nRPC, int& nTGC) const;
-
-    std::unique_ptr<const Trk::Perigee> flipDirection(const Trk::Perigee* inputPars) const;
-
-    MuonCombined::MuonSegmentInfo muTagSegmentInfo(const Trk::Track* track, const Muon::MuonSegment* segment,
-                                                   const Trk::AtaPlane* exTrack) const;
-
-    void calculateLocalAngleErrors(const Trk::AtaPlane* expPars, double& exTrkErrXZ, double& exTrkErrYZ, double& covLocYYZ) const;
-
-    void calculateLocalAngleErrors(const Muon::MuonSegment* segment, double& exTrkErrXZ, double& exTrkErrYZ) const;
-
-private:
-    ///////////////////////////////////
-    bool isCscSegment(const Muon::MuonSegment* seg) const;
-    unsigned int cscHits(const Muon::MuonSegment* seg) const;
+    std::unique_ptr<Trk::Perigee> flipDirection(const Trk::Perigee& inputPars) const ;
 
     // exploit correlation between residual in position and angle
     double matchingDistanceCorrection(double resPos, double resAngle);
+
+    void calculateLocalAngleErrors(const Trk::AtaPlane& expPars, double& exTrkErrXZ, double& exTrkErrYZ, double& covLocYYZ) const;
+
+    void calculateLocalAngleErrors(const Muon::MuonSegment& segment, double& exTrkErrXZ, double& exTrkErrYZ) const;
 
     ToolHandle<Trk::IExtrapolator> m_IExtrapolator{
         this,

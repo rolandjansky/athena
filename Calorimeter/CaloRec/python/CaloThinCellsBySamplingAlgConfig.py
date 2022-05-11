@@ -21,6 +21,12 @@ def CaloThinCellsBySamplingAlgCfg (flags, streamName,
                                      Cells = cells)
     result.addEventAlgo (alg)
 
+    if "AOD" in streamName:
+        #Add cell-container to AOD:
+        from OutputStreamAthenaPool.OutputStreamConfig import addToAOD
+        toAOD=[f'CaloCellContainer#{cells}',]
+        result.merge(addToAOD(flags, toAOD))
+
     return result
 
 

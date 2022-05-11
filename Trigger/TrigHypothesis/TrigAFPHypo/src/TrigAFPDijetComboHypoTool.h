@@ -55,9 +55,9 @@ private:
   float m_totalEnergy = 2*m_beamEnergy;      ///< beams centre-of-mass energy 2*#m_beamEnergy
 
   ///Shift in x position between parameterization and measurements
-  Gaudi::Property<float> m_protonPosShift_x{this,"protonPosShift_x",-97.0,"Expected difference in x position between measured and predicted proton"};
+  Gaudi::Property<float> m_protonPosShift_x{this,"protonPosShift_x",0.0,"Expected difference in x position between measured and predicted proton"};
   ///Shif in y position between parameterization and measurements
-  Gaudi::Property<float> m_protonPosShift_y{this,"protonPosShift_y",5.0,"Expected difference in y position between measured and predicted proton"};
+  Gaudi::Property<float> m_protonPosShift_y{this,"protonPosShift_y",0.0,"Expected difference in y position between measured and predicted proton"};
 
   ///Beam alignment corrections in the x position of ATLAS A side
   Gaudi::Property<float> m_alignmentCorrection_nearA{this,"alignmentCorrection_nearA",0.0,"Shift due to alignment in x for protons in near station A"};

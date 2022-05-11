@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PanTauAlgs/PanTauSeed.h"
@@ -10,7 +10,7 @@
 PanTau::PanTauSeed::PanTauSeed()
   :
   IParticle(),
-  m_p4(), m_p4Cached( false ),
+  m_p4(),
   m_IsValidSeed(false),
   m_TechnicalQuality(),
   m_NameInputAlgorithm("InvalidAlg"),
@@ -58,7 +58,7 @@ PanTau::PanTauSeed::~PanTauSeed()
 PanTau::PanTauSeed::PanTauSeed(const PanTau::PanTauSeed& rhs)
   :
   IParticle(rhs),
-  m_p4(rhs.m_p4), m_p4Cached(rhs.m_p4Cached),
+  m_p4(rhs.m_p4),
   m_IsValidSeed(rhs.m_IsValidSeed),
   m_TechnicalQuality(rhs.m_TechnicalQuality),
   m_NameInputAlgorithm(rhs.m_NameInputAlgorithm),
@@ -87,7 +87,6 @@ PanTau::PanTauSeed& PanTau::PanTauSeed::operator=(const PanTau::PanTauSeed& seed
     }
     this->IParticle::operator=( seed );
     this->m_p4 = seed.m_p4;
-    this->m_p4Cached = seed.m_p4Cached;
     m_IsValidSeed           = seed.m_IsValidSeed;
     m_TechnicalQuality      = seed.m_TechnicalQuality;
     m_NameInputAlgorithm    = seed.m_NameInputAlgorithm;
@@ -140,10 +139,6 @@ double PanTau::PanTauSeed::rapidity() const {
 }
 
 PanTau::PanTauSeed::FourMom_t PanTau::PanTauSeed::p4() const {
-  if( ! m_p4Cached ) {
-    m_p4.SetPtEtaPhiM( pt(), eta(), phi(),m()); 
-    m_p4Cached=true;
-  }
   return m_p4;
 }
 
@@ -156,37 +151,36 @@ void PanTau::PanTauSeed::setP4(float pt, float eta, float phi, float m){
   acc3( *this ) = phi;
   static const Accessor< float > acc4( "m" );
   acc4( *this ) = m;
-  //Need to recalculate m_p4 if requested after update
-  m_p4Cached=false;
-
+  //Need to recalculate m_p4
+  m_p4.SetPtEtaPhiM( pt, eta, phi, m);
 }
 
 void PanTau::PanTauSeed::setPt(float pt){
   static const Accessor< float > acc( "pt" );
   acc( *this ) = pt;
-  //Need to recalculate m_p4 if requested after update
-  m_p4Cached=false;
+  //Need to recalculate m_p4
+  m_p4.SetPtEtaPhiM( pt, eta(), phi(), m());
 }
 
 void PanTau::PanTauSeed::setEta(float eta){
   static const Accessor< float > acc( "eta" );
   acc( *this ) = eta;
-  //Need to recalculate m_p4 if requested after update
-  m_p4Cached=false;  
+  //Need to recalculate m_p4
+  m_p4.SetPtEtaPhiM( pt(), eta, phi(), m());
 }
 
 void PanTau::PanTauSeed::setPhi(float phi){
   static const Accessor< float > acc( "phi" );
   acc( *this ) = phi;
-  //Need to recalculate m_p4 if requested after update
-  m_p4Cached=false;
+  //Need to recalculate m_p4
+  m_p4.SetPtEtaPhiM( pt(), eta(), phi, m());
 }
 
 void PanTau::PanTauSeed::setM(float m){
   static const Accessor< float > acc( "m" );
   acc( *this ) = m;
-  //Need to recalculate m_p4 if requested after update
-  m_p4Cached=false;
+  //Need to recalculate m_p4
+  m_p4.SetPtEtaPhiM( pt(), eta(), phi(), m);
 }
 
 
@@ -198,7 +192,7 @@ xAOD::Type::ObjectType PanTau::PanTauSeed::type() const {
 
 /** Main constructor to be used */
 PanTau::PanTauSeed::PanTauSeed( std::string                             nameInputAlgorithm,
-				const xAOD::TauJet*                     tauJet,
+				xAOD::TauJet*                           tauJet,
 				std::vector<PanTau::TauConstituent*>    tauConstituents,
 				std::vector<PanTau::TauConstituent*>    tauConstituentsAll,
 				std::vector<int>                        pantauSeed_TechnicalQuality
@@ -210,7 +204,6 @@ PanTau::PanTauSeed::PanTauSeed( std::string                             nameInpu
   // *This may be a bug!!! change to Set*Pt*EtaPhiM?? ***
   // PanTau::SetP4EEtaPhiM( m_p4, tauJet->ptIntermediateAxis() * cosh( tauJet->etaIntermediateAxis() ), tauJet->etaIntermediateAxis(), tauJet->phiIntermediateAxis(), tauJet->mIntermediateAxis() );
   m_p4.SetPtEtaPhiM(tauJet->ptIntermediateAxis(), tauJet->etaIntermediateAxis(), tauJet->phiIntermediateAxis(), tauJet->mIntermediateAxis() );
-  m_p4Cached=true;
   m_IsValidSeed           = true;
   m_TechnicalQuality      = pantauSeed_TechnicalQuality;
   m_NameInputAlgorithm    = nameInputAlgorithm;
@@ -291,7 +284,7 @@ PanTau::PanTauSeed::PanTauSeed( std::string                             nameInpu
 
 /** Constructor for invalid seeds */
 PanTau::PanTauSeed::PanTauSeed(std::string nameInputAlgorithm,
-			       const xAOD::TauJet* tauJet,
+			       xAOD::TauJet* tauJet,
 			       std::vector<int> pantauSeed_TechnicalQuality)				  
   :
   IParticle(),
@@ -306,7 +299,6 @@ PanTau::PanTauSeed::PanTauSeed(std::string nameInputAlgorithm,
   // *This may be a bug!!! change to Set*Pt*EtaPhiM?? ***
   //  PanTau::SetP4EEtaPhiM( m_p4, tauJet->ptIntermediateAxis() * cosh( tauJet->etaIntermediateAxis() ), tauJet->etaIntermediateAxis(), tauJet->phiIntermediateAxis(), tauJet->mIntermediateAxis() );
   m_p4.SetPtEtaPhiM(tauJet->ptIntermediateAxis(), tauJet->etaIntermediateAxis(), tauJet->phiIntermediateAxis(), tauJet->mIntermediateAxis() );
-  m_p4Cached=true;
   m_IsValidSeed           = false;
   m_TechnicalQuality      = pantauSeed_TechnicalQuality;
   m_NameInputAlgorithm    = nameInputAlgorithm;

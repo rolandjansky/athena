@@ -19,11 +19,9 @@
 
 #include "AthenaKernel/IAthenaIPCTool.h"
 #include "AthenaKernel/IMetaDataSvc.h"
-#include "EventInfo/EventInfo.h"
 
 // EventInfoAttributeList includes
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
-#include "EventInfo/TriggerInfo.h"
 #include "PersistentDataModel/DataHeader.h"
 #include "eformat/StreamTag.h"
 

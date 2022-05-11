@@ -8,19 +8,26 @@
 #include "TrkParameters/TrackParameters.h"
 
 namespace Trk {
-struct HitInfo 
+struct HitInfo
 {
-  const Trk::TrackParameters*  trackParms;    // intersection
-  float time;       // timing  
-  int   detID;      // sensitive detector id
-  float deposit;    // interaction energy deposit (secondaries subtracted)   
+  std::unique_ptr<const Trk::TrackParameters> trackParms; // intersection
+  float time;                                             // timing
+  int detID;     // sensitive detector id
+  float deposit; // interaction energy deposit (secondaries subtracted)
 
   /**
    * Constructor
    */
-  HitInfo( const Trk::TrackParameters* parms, float time, int id, float deposit ) :
-    trackParms(parms), time(time), detID(id), deposit(deposit) 
-  {} 
+  HitInfo(std::unique_ptr<const Trk::TrackParameters> parms,
+          float time,
+          int id,
+          float deposit)
+    : trackParms(std::move(parms))
+    , time(time)
+    , detID(id)
+    , deposit(deposit)
+  {
+  }
 };
 
 struct PathLimit 

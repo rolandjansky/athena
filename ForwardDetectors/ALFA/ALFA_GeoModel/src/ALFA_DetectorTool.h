@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ALFA_DETECTORTOOL_H
@@ -10,6 +10,7 @@
 #include "AthenaKernel/IIOVDbSvc.h"
 #include "AthenaKernel/IIOVSvc.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "CxxUtils/checker_macros.h"
 
 #define COOLFOLDER_DETSWCORR "/FWD/ALFA/position_calibration"
 
@@ -22,7 +23,8 @@ typedef struct _USERTRANSFORM
 } USERTRANSFORM, *PUSERTRANSFORM;
 
 
-class ALFA_DetectorTool final : public GeoModelTool 
+// Not thread-safe due to conditions callbacks.
+class ATLAS_NOT_THREAD_SAFE ALFA_DetectorTool final : public GeoModelTool 
 {
 	private:
 		CONFIGURATION m_Config;

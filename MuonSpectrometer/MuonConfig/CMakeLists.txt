@@ -6,7 +6,7 @@
 atlas_subdir( MuonConfig )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py test/MdtRdoToPrepDataTool_test.py test/MdtIntersectGeometry_test.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
+atlas_install_python_modules( python/*.py test/MdtRdoToPrepDataTool_test.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_data( share/*.ref )
 
 if( NOT SIMULATIONBASE )
@@ -15,11 +15,7 @@ if( NOT SIMULATIONBASE )
      SCRIPT python -m MuonConfig.MdtRdoToPrepDataTool_test
      PROPERTIES TIMEOUT 600
      LOG_SELECT_PATTERN "dead tube" )
-
-   atlas_add_test( MdtIntersectGeometry_test
-     SCRIPT python -m MuonConfig.MdtIntersectGeometry_test
-     PROPERTIES TIMEOUT 600
-     LOG_SELECT_PATTERN "dead tube" )
+  
 
    # Configure unit tests
    # Cache alignment will change depending on whether FRONTIER_SERVER is defined.

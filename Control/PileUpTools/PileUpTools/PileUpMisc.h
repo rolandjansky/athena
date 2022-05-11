@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PILEUPTOOLS_PILEUPMISC_H
@@ -15,16 +15,18 @@ const std::string       c_pileUpEventInfoObjName =  "EventInfo";
 const std::string       c_pileUpEventInfoContName =  "PileUpEventInfo";
 
 
-void addSubEvent( xAOD::EventInfo* targetEv,
+xAOD::EventInfo* addSubEvent( xAOD::EventInfo* targetEv,
                   const xAOD::EventInfo::SubEvent& subev,
                   xAOD::EventInfoContainer* eiContainer,
-                  const std::string& eiContKey );
+                  const std::string& eiContKey,
+                  StoreGateSvc* subev_store = nullptr );
 
-void addSubEvent( xAOD::EventInfo* targetEv,
+xAOD::EventInfo* addSubEvent( xAOD::EventInfo* targetEv,
                   const xAOD::EventInfo* ev2add,
                   int16_t subev_time,
                   xAOD::EventInfo::PileUpType subev_type,
                   xAOD::EventInfoContainer* eiContainer,
-                  const std::string& eiContKey );
+                  const std::string& eiContKey,
+                  StoreGateSvc* ev2add_store = nullptr );
 
 #endif

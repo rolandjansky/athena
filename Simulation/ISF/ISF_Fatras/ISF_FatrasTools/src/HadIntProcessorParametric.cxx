@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -97,7 +97,7 @@ iFatras::HadIntProcessorParametric::HadIntProcessorParametric(const std::string&
 
 // destructor
 iFatras::HadIntProcessorParametric::~HadIntProcessorParametric()
-{}
+= default;
 
 // Athena standard methods
 // initialize
@@ -239,7 +239,7 @@ bool iFatras::HadIntProcessorParametric::hadronicInteraction(const Amg::Vector3D
 
 /** absorption length */
 double iFatras::HadIntProcessorParametric::absorptionLength(const Trk::MaterialProperties* mat,
-							    double p, double, Trk::ParticleHypothesis particle) const {
+							    double p, double, Trk::ParticleHypothesis particle) {
   double al = mat->l0();
 
   /* // these parametrization comes from comparison with G4 sampler, but give too many interactions

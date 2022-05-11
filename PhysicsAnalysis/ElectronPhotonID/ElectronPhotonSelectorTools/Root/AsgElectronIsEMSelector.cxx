@@ -473,11 +473,11 @@ AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
 
   // Track quality cuts
   uint8_t nSiHitsPlusDeadSensors =
-    ElectronSelectorHelpers::numberOfSiliconHitsAndDeadSensors(t);
+    ElectronSelectorHelpers::numberOfSiliconHitsAndDeadSensors(*t);
   uint8_t nPixHitsPlusDeadSensors =
-    ElectronSelectorHelpers::numberOfPixelHitsAndDeadSensors(t);
+    ElectronSelectorHelpers::numberOfPixelHitsAndDeadSensors(*t);
   bool passBLayerRequirement =
-    ElectronSelectorHelpers::passBLayerRequirement(t);
+    ElectronSelectorHelpers::passBLayerRequirement(*t);
 
   // TRT information
   uint8_t nTRThigh = 0;

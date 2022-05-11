@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( CoraCoolTest )
@@ -11,6 +11,6 @@ find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 atlas_add_executable( CoraCoolExample
                       src/CoraCoolExample.cxx
                       INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${COOL_LIBRARIES} ${CORAL_LIBRARIES} CoraCool )
+                      LINK_LIBRARIES ${COOL_LIBRARIES} ${CORAL_LIBRARIES} CoraCool CxxUtils )
 
 atlas_install_scripts( share/CoraCoolExample_SQLite.sh )

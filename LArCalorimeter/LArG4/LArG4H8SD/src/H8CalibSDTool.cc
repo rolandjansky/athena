@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "H8CalibSDTool.h"
@@ -7,19 +7,9 @@
 // LArG4 includes
 #include "LArG4Code/SDWrapper.h"
 #include "LArG4Code/ILArCalibCalculatorSvc.h"
-//#include "LArG4Code/VCalibrationCalculator.h"
 #include "LArG4Code/EscapedEnergyProcessing.h"
-//#include "LArG4Code/CalibrationDefaultCalculator.h"
 
-//#include "CaloG4Sim/VEscapedEnergyProcessing.h"
 #include "CaloG4Sim/EscapedEnergyRegistry.h"
-
-// #include "LArG4Barrel/PresamplerCalibrationCalculator.h"
-// #include "LArG4Barrel/LArBarrelCalibrationCalculator.h"
-
-// // Local includes
-// #include "LArTBCryostatCalibrationCalculator.h"
-// #include "H8CalibrationDefaultCalculator.h"
 
 namespace LArG4
 {
@@ -86,21 +76,19 @@ StatusCode H8CalibSDTool::initializeCalculators()
     //                  );
 
     sdWrapper->addSD(
-                     makeOneSD("LAr::TBBarrel::Inactive", &*m_barcalc, m_barInVolumes)
-                     );
+		     makeOneSD("LAr::TBBarrel::Inactive", &*m_barcalc, m_barInVolumes)
+		     );
 
     sdWrapper->addSD(
                      makeOneSD("LAr::TBBarrel::Dead", &*m_barcalc, m_barDeadVolumes)
                      );
 
     std::vector<std::string> emptyStringVec;
-    auto uninstSD =
-      makeOneSD("Default::Dead::Uninstrumented::Calibration::Region", &*m_h8defaultcalc, emptyStringVec);
-    // UPDATE: This is thread-safe now
-    CaloG4::VEscapedEnergyProcessing* eep =
-      new EscapedEnergyProcessing( uninstSD.get() );
+    auto uninstSD = makeOneSD("Default::Dead::Uninstrumented::Calibration::Region", &*m_h8defaultcalc, emptyStringVec);
+
+    std::unique_ptr<CaloG4::VEscapedEnergyProcessing> eep(new EscapedEnergyProcessing(uninstSD.get()));
     auto registry = CaloG4::EscapedEnergyRegistry::GetInstance();
-    registry->AddAndAdoptProcessing("LAr::", eep);
+    registry->AddAndAdoptProcessing("LAr::", std::move(eep));
     sdWrapper->addSD( std::move(uninstSD) );
 
     return sdWrapper;

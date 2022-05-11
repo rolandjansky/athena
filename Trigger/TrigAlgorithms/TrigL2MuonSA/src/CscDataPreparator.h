@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_CSCDATAPREPARATOR_H
@@ -52,7 +52,7 @@ namespace TrigL2MuonSA {
     //If we don't do the decoding in the algorithm, we need to read in the cluster container
     SG::ReadHandleKey<Muon::CscPrepDataContainer> m_cscPrepContainerKey{ this, "CSCPrepDataContainer", "CSC_Clusters", "Name of the CSCContainer to read in"};
 
-    bool m_use_RoIBasedDataAccess;
+    bool m_use_RoIBasedDataAccess = false;
   };
 
 } // namespace TrigL2MuonSA

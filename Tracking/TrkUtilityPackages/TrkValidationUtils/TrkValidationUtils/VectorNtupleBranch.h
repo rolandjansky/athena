@@ -32,7 +32,6 @@ namespace Trk {
      }
   */
   struct VectorNtupleBranch {
-    VectorNtupleBranch() : m_nrows(-1) {}
 
     /** initialize class for writing */
     bool initForWrite(TTree& tree, const std::string& varname, int nrow, const std::string& prefix = ""  );
@@ -57,8 +56,8 @@ namespace Trk {
 
     /** maximum size of the vector */
     static const int ROWMAX = 10;
-    int m_nrows;
-    float  m_vector[ROWMAX]; 
+    int m_nrows {-1};
+    float  m_vector[ROWMAX]{}; 
   };   
 
 }

@@ -133,6 +133,8 @@ namespace Muon {
         mutable std::atomic<unsigned int> m_failedExtrapolationMuonEntry{0};
 
         std::unique_ptr<const Trk::Perigee> createPerigee(const Trk::TrackParameters& pars, const EventContext& ctx) const;
+
+        int m_BME_station{0};
     };
 }  // namespace Muon
 

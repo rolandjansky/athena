@@ -87,7 +87,7 @@ namespace TrkDriftCircleMath {
         double drPrecise() const { return m_drPrecise; }
 
         /** access to drift state */
-        const DriftState& state() const { return m_state; }
+        const DriftState& driftState() const { return m_state; }
 
         /** access to index */
         int index() const { return m_index; }
@@ -101,7 +101,7 @@ namespace TrkDriftCircleMath {
             m_dr = dr;
         }
 
-    protected:
+    private:
         LocVec2D m_pos{0., 0.};
         double m_r{0.};
         double m_dr{0.};

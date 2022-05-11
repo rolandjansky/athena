@@ -9,7 +9,7 @@
 // Gaudi Units
 #include "GaudiKernel/SystemOfUnits.h"
 //TrkDetDescr Algs, Interfaces, Utils
-#include "TrkDetDescrAlgs/MaterialMapping.h"
+#include "MaterialMapping.h"
 #include "TrkDetDescrUtils/GeometryStatics.h"
 #include "TrkDetDescrUtils/LayerIndex.h"
 #include "TrkDetDescrUtils/BinUtility.h"
@@ -82,7 +82,7 @@ Trk::MaterialMapping::MaterialMapping(const std::string& name, ISvcLocator* pSvc
 }
 
 Trk::MaterialMapping::~MaterialMapping()
-{}
+= default;
 
 
 StatusCode Trk::MaterialMapping::initialize()
@@ -555,8 +555,8 @@ void Trk::MaterialMapping::registerVolume(const Trk::TrackingVolume& tvol, int l
              std::cout << " ";
          std::cout << "- found : "<< layers.size() << "confined Layers"<< std::endl;
          // loop over and fill them
-         auto clIter  = layers.begin();
-         auto clIterE = layers.end();
+         const auto *clIter  = layers.begin();
+         const auto *clIterE = layers.end();
          for ( ; clIter != clIterE; ++clIter ) {
             // only take layers with MaterialProperties defined and which are within the mapping volume
             const Amg::Vector3D& sReferencePoint = (*clIter)->surfaceRepresentation().globalReferencePoint(); 
@@ -579,7 +579,7 @@ void Trk::MaterialMapping::registerVolume(const Trk::TrackingVolume& tvol, int l
             std::cout << " ";
         std::cout << "- found : "<< volumes.size() << "confined TrackingVolumes"<< std::endl;
         // loop over the confined volumes
-        auto volumesIter = volumes.begin();
+        const auto *volumesIter = volumes.begin();
         for (; volumesIter != volumes.end(); ++volumesIter)
             if (*volumesIter) {
                 registerVolume(**volumesIter, sublevel);

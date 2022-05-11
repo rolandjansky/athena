@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUCALSTREAMERTOOL_H
@@ -11,17 +11,17 @@
 #include "MdtData.h"
 #include "RpcData.h"
 #include "TgcData.h"
-#include "CscData.h"
 #include "TrackData.h"
 #include "MuCalCircClient.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
-#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "RPC_CondCabling/RpcCablingCondData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "IRegionSelector/IRegSelTool.h"
 #include "MuonRDO/TgcRdoContainer.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODTrigger/MuonRoI.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "MuonRDO/RpcPadContainer.h"
 
 #include <fstream>
 #include <string>
@@ -38,7 +38,6 @@ namespace LVL2_MUON_CALIBRATION {
   class MdtCalibFragment;
   class RpcCalibFragment;
   class TgcCalibFragment;
-  class CscCalibFragment;
 }
 
 class RpcPad;
@@ -79,6 +78,8 @@ namespace TrigL2MuonSA {
     //
     // finalize and close the stream
     StatusCode closeStream();
+
+    bool isStreamOpen();
     
     //
     // create the fragment corresponding to an roi
@@ -95,6 +96,8 @@ namespace TrigL2MuonSA {
 
     Gaudi::Property< bool > m_writeToFile { this, "WriteToFile", false, "" };
     SG::ReadHandleKey<TgcRdoContainer> m_tgcRdoKey{this, "TgcRdoContainer", "TGCRDO", "Tgc RDO Input"};
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{ this, "EventInfoKey", "EventInfo", "" };
+    SG::ReadHandleKey<RpcPadContainer> m_rpcPadKey{this, "RpcPadContainerKey", "RPCPAD", "RpcPad container fro MuCalStreamerTool"};
 
     // name of the calibration buffer or of the 
     // output file
@@ -104,21 +107,21 @@ namespace TrigL2MuonSA {
     // output file 
     std::ofstream m_outputFile;
 
+
+
     // the region selector
-    ToolHandle<IRegSelTool> m_regSel_MDT{this, "RegionSelectorTool", "RegSelTool/RegSelTool_MDT", "MDT Region Selector Tool"};
-    ToolHandle<IRegSelTool> m_regSel_CSC{this, "RegionSelectorTool", "RegSelTool/RegSelTool_CSC", "CSC Region Selector Tool"};
-    ToolHandle<IRegSelTool> m_regSel_TGC{this, "RegionSelectorTool", "RegSelTool/RegSelTool_TGC", "TGC Region Selector Tool"};
+
+    ToolHandle<IRegSelTool> m_regSel_MDT{this, "RegSel_MDT", "RegSelTool/RegSelTool_MDT", "MDT Region Selector Tool"};
+    ToolHandle<IRegSelTool> m_regSel_TGC{this, "RegSel_TGC", "RegSelTool/RegSelTool_TGC", "TGC Region Selector Tool"};
+    
+
 
     SG::ReadCondHandleKey<RpcCablingCondData> m_readKey{this, "ReadKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
 
-    // ROB DataProvider
-    ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
 
-    // id of the circular buffer
-    int m_cid {-1};
 
     // local buffer for the TrigComposite object
-    int m_localBufferSize;
+    int m_localBufferSize = 0;
     std::vector<int> m_localBuffer;
 
     //
@@ -135,13 +138,10 @@ namespace TrigL2MuonSA {
     // create the TGC fragment
     StatusCode createTgcFragment(std::vector<uint32_t>& tgcRobIdList,
 				 LVL2_MUON_CALIBRATION::TgcCalibFragment& tgcFragment) const;
-    //
-    //
-    StatusCode createCscFragment(std::vector<uint32_t>& cscRobIdList, 
-    				 LVL2_MUON_CALIBRATION::CscCalibFragment& cscFragment) const;
 
 
-    TrigL2MuonSA::MuCalCircClient *m_circ;
+
+    TrigL2MuonSA::MuCalCircClient *m_circ = nullptr;
 
   };
   

@@ -3,19 +3,17 @@
 # reductionConf flag JETM13 in Reco_tf.py
 #====================================================================
 
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
-from DerivationFrameworkJetEtMiss.JetCommon import *
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
-from DerivationFrameworkJetEtMiss.METCommon import *
-from DerivationFrameworkEGamma.EGammaCommon import *
-from DerivationFrameworkMuons.MuonsCommon import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob, buildFileName
+from DerivationFrameworkJetEtMiss.JetCommon import OutputJets, addJetOutputs
+from DerivationFrameworkJetEtMiss.METCommon import addMETOutputs
 
-#
 if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth import MCTruthCommon
   MCTruthCommon.addStandardTruthContents()
   MCTruthCommon.addBosonsAndDownstreamParticles(generations=4,rejectHadronChildren=True)
   MCTruthCommon.addTopQuarkAndDownstreamParticles(generations=4,rejectHadronChildren=True)
+
+from DerivationFrameworkPhys import PhysCommon
 
 #====================================================================
 # SET UP STREAM
@@ -67,33 +65,10 @@ if DerivationFrameworkIsMonteCarlo:
 jetm13Seq = CfgMgr.AthSequencer("JETM13Sequence")
 DerivationFrameworkJob += jetm13Seq
 
-
-from TrackCaloClusterRecTools.TrackCaloClusterConfig import runTCCReconstruction
-runTCCReconstruction(jetm13Seq,ToolSvc, "LCOriginTopoClusters", outputTCCName="TrackCaloClustersCombinedAndNeutral")
-
-
-# Add the necessary constituents for UFOs
-from JetRecTools.ConstModHelpers import getConstModSeq, xAOD
-addCHSPFlowObjects()
-pflowCSSKSeq = getConstModSeq(["CS","SK"], "EMPFlow")
-
-# add the pflow cssk sequence to the main jetalg if not already there :
-if pflowCSSKSeq.getFullName() not in [t.getFullName() for t in DerivationFrameworkJob.jetalg.Tools]:
-  DerivationFrameworkJob.jetalg.Tools += [pflowCSSKSeq]
-
-# Finally we can run the UFO building taking our unified PFlow container as input
-from TrackCaloClusterRecTools.TrackCaloClusterConfig import runUFOReconstruction
-emufoAlg = runUFOReconstruction(jetm13Seq,ToolSvc, PFOPrefix="CHS",caloClusterName="LCOriginTopoClusters")
-emcsskufoAlg = runUFOReconstruction(jetm13Seq,ToolSvc, PFOPrefix="CSSK",caloClusterName="LCOriginTopoClusters")
-
-
 #=======================================
 # RESTORE AOD-REDUCED JET COLLECTIONS
 #=======================================
 OutputJets["JETM13"] = []
-reducedJetList = ["AntiKt4TruthJets","AntiKt10TruthJets",]
-replaceAODReducedJets(reducedJetList,jetm13Seq,"JETM13")
-
 jetm13Seq += CfgMgr.DerivationFramework__DerivationKernel( name = "JETM13MainKernel",
                                                           SkimmingTools = [],
                                                           ThinningTools = jetm13thin)
@@ -103,31 +78,37 @@ jetm13Seq += CfgMgr.DerivationFramework__DerivationKernel( name = "JETM13MainKer
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM13SlimmingHelper = SlimmingHelper("JETM13SlimmingHelper")
-JETM13SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJets",
-                                        "InDetTrackParticles", "PrimaryVertices",
-                                        "MET_Reference_AntiKt4EMTopo",
-                                        "MET_Reference_AntiKt4EMPFlow",
-                                        "AntiKt4EMTopoJets","AntiKt4EMPFlowJets",
+JETM13SlimmingHelper.SmartCollections = ["EventInfo",
+                                         "Electrons", "Photons", "Muons", "TauJets",
+                                         "InDetTrackParticles", "PrimaryVertices",
+                                         "MET_Baseline_AntiKt4EMTopo",
+                                         "MET_Baseline_AntiKt4EMPFlow",
+                                         "AntiKt4EMTopoJets","AntiKt4EMPFlowJets",
+                                         "AntiKt4TruthJets","AntiKt10TruthJets",
                                         ]
+
 JETM13SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
-                                     "TrackCaloClustersCombinedAndNeutral",
-                                     "JetETMissChargedParticleFlowObjects",
-                                     "JetETMissNeutralParticleFlowObjects",
-                                     "Kt4EMTopoOriginEventShape","Kt4EMPFlowEventShape",
+                                     "GlobalChargedParticleFlowObjects", "GlobalNeutralParticleFlowObjects",
+                                     "CHSGChargedParticleFlowObjects","CHSGNeutralParticleFlowObjects",
+                                     "Kt4EMTopoOriginEventShape","Kt4EMPFlowEventShape","Kt4EMPFlowPUSBEventShape","Kt4EMPFlowNeutEventShape",
                                      "TruthParticles",
                                      "TruthVertices",
                                      "TruthEvents",
-                                     ]
+                                    ]
+
 JETM13SlimmingHelper.ExtraVariables = [
   "InDetTrackParticles.particleHypothesis.vx.vy.vz",
   "GSFTrackParticles.particleHypothesis.vx.vy.vz",
   "PrimaryVertices.x.y.z",
   "TauJets.clusterLinks",
   "Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus.clusterLinks.FSR_CandidateEnergy",
-  "MuonSegments.x.y.z.px.py.pz",
-  "AntiKt4LCTopoJets.pt.eta.phi.m",
-  ]
+  "MuonSegments.x.y.z.px.py.pz"]
 
+JETM13SlimmingHelper.AppendToDictionary = {'GlobalChargedParticleFlowObjects':'xAOD::FlowElementContainer','GlobalChargedParticleFlowObjectsAux':'xAOD::FlowElementAuxContainer',
+                                           'GlobalNeutralParticleFlowObjects':'xAOD::FlowElementContainer', 'GlobalNeutralParticleFlowObjectsAux':'xAOD::FlowElementAuxContainer',
+                                           'CHSGChargedParticleFlowObjects':'xAOD::FlowElementContainer','CHSGChargedParticleFlowObjectsAux':'xAOD::ShallowAuxContainer',
+                                           'CHSGNeutralParticleFlowObjects':'xAOD::FlowElementContainer','CHSGNeutralParticleFlowObjectsAux':'xAOD::ShallowAuxContainer',
+                                           'Kt4EMPFlowNeutEventShape':'xAOD::EventShape','Kt4EMPFlowNeutEventShapeAux':'xAOD::EventShapeAuxInfo'}
 
 JETM13SlimmingHelper.AppendToDictionary["CHSUFO"] = 'xAOD::TrackCaloClusterContainer'
 JETM13SlimmingHelper.AppendToDictionary['CHSUFOAux'] = 'xAOD::TrackCaloClusterAuxContainer'

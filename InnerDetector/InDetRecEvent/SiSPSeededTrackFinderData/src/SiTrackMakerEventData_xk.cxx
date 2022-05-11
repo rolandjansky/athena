@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -18,8 +18,7 @@
 namespace InDet {
 
   // Constructor
-  SiTrackMakerEventData_xk::SiTrackMakerEventData_xk() {
-  }
+  SiTrackMakerEventData_xk::SiTrackMakerEventData_xk() = default;
   
   // Get methods
   int& SiTrackMakerEventData_xk::inputseeds() {
@@ -64,30 +63,6 @@ namespace InDet {
 
   bool& SiTrackMakerEventData_xk::dbm() {
     return m_dbm;
-  }
-
-  std::list<double>& SiTrackMakerEventData_xk::caloF() {
-    return m_caloF;
-  }
-
-  std::list<double>& SiTrackMakerEventData_xk::caloR() {
-    return m_caloR;
-  }
-
-  std::list<double>& SiTrackMakerEventData_xk::caloZ() {
-    return m_caloZ;
-  }
-
-  std::list<double>& SiTrackMakerEventData_xk::hadF() {
-    return m_hadF;
-  }
-
-  std::list<double>& SiTrackMakerEventData_xk::hadR() {
-    return m_hadR;
-  }
-
-  std::list<double>& SiTrackMakerEventData_xk::hadZ() {
-    return m_hadZ;
   }
 
   std::array<double, 2>& SiTrackMakerEventData_xk::xybeam() {

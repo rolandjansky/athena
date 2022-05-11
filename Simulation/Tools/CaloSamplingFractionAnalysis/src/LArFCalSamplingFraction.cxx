@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArFCalSamplingFraction.h"
@@ -15,12 +15,6 @@
 
 // ATLAS Software
 #include "GaudiKernel/IToolSvc.h"
-
-// Event Info
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventType.h"
-#include "EventInfo/TriggerInfo.h"
 #include "GaudiKernel/ITHistSvc.h"
 
 // ID classes
@@ -85,7 +79,7 @@ StatusCode LArFCalSamplingFraction::initialize()
     CHECK(histSvc.retrieve());
     ATH_MSG_DEBUG(" retrieved THistSvc");
 
-    const CaloIdManager *caloIdManager;
+    const CaloIdManager *caloIdManager = nullptr;
     ATH_CHECK(detStore()->retrieve(caloIdManager));
 
     // Use just for now for Calibration... change later to GeoCalibHit
@@ -101,6 +95,7 @@ StatusCode LArFCalSamplingFraction::initialize()
         throw GaudiException("Invalid Calo Cell ID helper", "LArHitAnalysis", StatusCode::FAILURE);
 
     ATH_CHECK(m_caloMgrKey.initialize());
+    ATH_CHECK(m_eventInfoKey.initialize());
 
     m_pdg_id = new std::vector<int>; // particle id
 
@@ -821,18 +816,10 @@ StatusCode LArFCalSamplingFraction::doFCal()
 
     // ACCESSING EVENT INFORMATION
     // Get the basic event information (run number, event number).
-
-    const EventInfo *eventInfo = 0;
-    sc = evtStore()->retrieve(eventInfo);
-
-    if (sc.isFailure()) {
-        ATH_MSG_ERROR("Could not fetch event information");
-        return sc;
-    }
-
-    const EventID *eventID = eventInfo->event_ID();
-    m_runNumber = eventID->run_number();
-    m_eventNumber = eventID->event_number();
+    SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey,getContext());
+    ATH_CHECK(eventInfo.isValid());
+    m_runNumber = eventInfo->runNumber();
+    m_eventNumber = eventInfo->eventNumber();
 
     ATH_MSG_INFO("Run " << m_runNumber << ", event " << m_eventNumber);
 
@@ -1018,31 +1005,17 @@ StatusCode LArFCalSamplingFraction::addEventInfo()
     // I have the actual EventNumber, but skipped the sequential count of event #
 
     // Get EventInfo for run and event number
-    const EventInfo *eventInfo;
-    StatusCode sc = evtStore()->retrieve(eventInfo);
+    SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey,getContext());
+    ATH_CHECK(eventInfo.isValid());
+    m_runNumber = eventInfo->runNumber();
+    m_eventNumber = eventInfo->eventNumber();
 
-    if (sc.isFailure()) {
-        ATH_MSG_WARNING("Could not retrieve event info");
-        return sc;
-    }
-
-    const EventID *myEventID = eventInfo->event_ID();
-
-    m_runNumber = myEventID->run_number();
-    m_eventNumber = myEventID->event_number();
     ATH_MSG_DEBUG("event " << m_eventNumber);
 
-    m_eventTime = myEventID->time_stamp();
-    m_lumiBlock = myEventID->lumi_block();
-    m_bCID = myEventID->bunch_crossing_id();
-
-    const EventType *myEventType = eventInfo->event_type();
-
-    if (myEventType != 0)
-        m_eventWeight = myEventType->mc_event_weight();
-
-    else
-        m_eventWeight = -999;
+    m_eventTime = eventInfo->timeStamp();
+    m_lumiBlock = eventInfo->lumiBlock();
+    m_bCID = eventInfo->bcid();
+    m_eventWeight = eventInfo->mcEventWeight();
 
     return StatusCode::SUCCESS;
 }

@@ -77,32 +77,6 @@ def getTauAxis():
     return TauAxisSetter
 
 ########################################################################
-# Tau energy calibration
-def getEnergyCalibrationLC(caloOnly=False):
- 
-    _name = sPrefix +'EnergyCalibrationLC'
-    
-    if _name in cached_instances:
-        return cached_instances[_name]
-
-    calibFileName = "TES2016_LC_online.root"
-    if caloOnly:
-        calibFileName = "TES2016_LC_online_inc.root"
-    
-    from tauRecTools.tauRecToolsConf import TauCalibrateLC
-    TauCalibrateLC = TauCalibrateLC(name = _name,
-                                    calibrationFile = calibFileName,
-                                    doPtResponse = False,
-                                    VertexCorrection = doVertexCorrection)
-
-    TauCalibrateLC.isCaloOnly = caloOnly
-    #Need to empty the vertex key collection in the trigger case
-    TauCalibrateLC.Key_vertexInputContainer = ""
-
-    cached_instances[_name] = TauCalibrateLC                
-    return TauCalibrateLC
-
-########################################################################
 # MvaTESVariableDecorator
 def getMvaTESVariableDecorator():
 
@@ -134,8 +108,10 @@ def getMvaTESEvaluator():
 
     from AthenaCommon.AppMgr import ToolSvc
     from tauRecTools.tauRecToolsConf import MvaTESEvaluator
+    from TrigTauRec.TrigTauFlags import TrigTauFlags
     MvaTESEvaluator = MvaTESEvaluator(name = _name,
-                                      WeightFileName = 'OnlineMvaTES_BRT_v1.weights.root')
+                                      WeightFileName = TrigTauFlags.MvaTESConfig(),
+                                      UseEMoverLC = TrigTauFlags.UseEMoverLC())
 
     ToolSvc += MvaTESEvaluator
     cached_instances[_name] = MvaTESEvaluator
@@ -418,7 +394,6 @@ def getTauTrackFinder(applyZ0cut=False, maxDeltaZ0=2, noSelector = False, prefix
     
     if _name in cached_instances:
         return cached_instances[_name] 
-
  
     from tauRecTools.tauRecToolsConf import TauTrackFinder
     TauTrackFinder = TauTrackFinder(name = _name,
@@ -491,17 +466,28 @@ def getTauIDVarCalculator():
     cached_instances[_name] = TauIDVarCalculator
     return TauIDVarCalculator
 
+
 ########################################################################
 # TauJetRNNEvaluator
-def getTauJetRNNEvaluator(NetworkFile0P="", NetworkFile1P="", NetworkFile3P="", OutputVarname="RNNJetScore", 
+def getTauJetRNNEvaluator(LLP=False, OutputVarname="RNNJetScore", 
                           MaxTracks=10, MaxClusters=6, MaxClusterDR=1.0, TrackClassification=False,
                           InputLayerScalar="scalar", InputLayerTracks="tracks", InputLayerClusters="clusters", 
-                          OutputLayer="rnnid_output", OutputNode="sig_prob", suffix=""):
+                          OutputLayer="rnnid_output", OutputNode="sig_prob"):
 
-    _name = sPrefix + 'TauJetRNNEvaluator' + suffix
+    _name = sPrefix + 'TauJetRNNEvaluator' + ('_LLP' if LLP else '')
 
     if _name in cached_instances:
         return cached_instances[_name]
+
+    from TrigTauRec.TrigTauFlags import TrigTauFlags
+    if not LLP:
+        NetworkFile0P = TrigTauFlags.JetRNNIDConfig()[0]
+        NetworkFile1P = TrigTauFlags.JetRNNIDConfig()[1]
+        NetworkFile3P = TrigTauFlags.JetRNNIDConfig()[2]
+    else:
+        NetworkFile0P = TrigTauFlags.JetRNNIDConfigLLP()[0]
+        NetworkFile1P = TrigTauFlags.JetRNNIDConfigLLP()[1]
+        NetworkFile3P = TrigTauFlags.JetRNNIDConfigLLP()[2]
 
     from AthenaCommon.AppMgr import ToolSvc
     from tauRecTools.tauRecToolsConf import TauJetRNNEvaluator
@@ -527,43 +513,9 @@ def getTauJetRNNEvaluator(NetworkFile0P="", NetworkFile1P="", NetworkFile3P="", 
 
 ########################################################################
 # TauWPDecoratorJetRNN
-def getTauWPDecoratorJetRNN():
+def getTauWPDecoratorJetRNN(LLP=False):
 
-    _name = sPrefix + 'TauWPDecoratorJetRNN'
-
-    if _name in cached_instances:
-        return cached_instances[_name]
-
-    import PyUtils.RootUtils as ru
-    ROOT = ru.import_root()
-    import cppyy
-    cppyy.load_library('libxAODTau_cDict')
-
-    from AthenaCommon.AppMgr import ToolSvc
-    from tauRecTools.tauRecToolsConf import TauWPDecorator
-    TauWPDecorator = TauWPDecorator( name=_name,
-                                     flatteningFile0Prong = "rnnid_flat_0p_v4.root",
-                                     flatteningFile1Prong = "rnnid_flat_1p_v4.root",
-                                     flatteningFile3Prong = "rnnid_flat_mp_v4.root",
-                                     CutEnumVals =
-                                     [ ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigVeryLoose, ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigLoose,
-                                       ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigMedium, ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigTight ],
-                                     SigEff0P = [0.98, 0.90, 0.65, 0.50],
-                                     SigEff1P = [0.992, 0.99, 0.965, 0.94],
-                                     SigEff3P = [0.99, 0.98, 0.865, 0.80],
-                                     ScoreName = "RNNJetScore",
-                                     NewScoreName = "RNNJetScoreSigTrans",
-                                     DefineWPs = True )
-
-    ToolSvc += TauWPDecorator
-    cached_instances[_name] = TauWPDecorator
-    return TauWPDecorator
-
-########################################################################
-# TauWPDecoratorJetRNN
-def getTauWPDecoratorJetLLP():
-
-    _name = sPrefix + 'TauWPDecoratorJetLLP'
+    _name = sPrefix + 'TauWPDecoratorJetRNN' + ('_LLP' if LLP else '')
 
     if _name in cached_instances:
         return cached_instances[_name]
@@ -575,10 +527,23 @@ def getTauWPDecoratorJetLLP():
 
     from AthenaCommon.AppMgr import ToolSvc
     from tauRecTools.tauRecToolsConf import TauWPDecorator
+    from TrigTauRec.TrigTauFlags import TrigTauFlags
+    
+    # currently the target efficiencies are the same for regular tau ID and LLP tau ID
+    # if we need different WPs, we can define new flags
+    if not LLP:        
+        flatteningFile0Prong = TrigTauFlags.JetRNNIDWPConfig()[0]
+        flatteningFile1Prong = TrigTauFlags.JetRNNIDWPConfig()[1]
+        flatteningFile3Prong = TrigTauFlags.JetRNNIDWPConfig()[2]
+    else:
+        flatteningFile0Prong = TrigTauFlags.JetRNNIDWPConfigLLP()[0]
+        flatteningFile1Prong = TrigTauFlags.JetRNNIDWPConfigLLP()[1]
+        flatteningFile3Prong = TrigTauFlags.JetRNNIDWPConfigLLP()[2]
+
     TauWPDecorator = TauWPDecorator( name=_name,
-                                     flatteningFile0Prong = "llpdev/rnnid_flat_llp_llz0p_050621-v1.root",
-                                     flatteningFile1Prong = "llpdev/rnnid_flat_llp_llz1p_050621-v1.root",
-                                     flatteningFile3Prong = "llpdev/rnnid_flat_llp_llzmp_050621-v1.root",
+                                     flatteningFile0Prong = flatteningFile0Prong,
+                                     flatteningFile1Prong = flatteningFile1Prong,
+                                     flatteningFile3Prong = flatteningFile3Prong,
                                      CutEnumVals =
                                      [ ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigVeryLoose, ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigLoose,
                                        ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigMedium, ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigTight ],
@@ -610,5 +575,3 @@ def getParticleCaloExtensionTool():
     ToolSvc += tauParticleCaloExtensionTool  
     cached_instances[_name] = tauParticleCaloExtensionTool
     return tauParticleCaloExtensionTool   
-
-

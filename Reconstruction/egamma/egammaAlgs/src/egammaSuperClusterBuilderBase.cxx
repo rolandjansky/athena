@@ -135,7 +135,70 @@ fillPositionsInCalo(xAOD::CaloCluster* cluster, const CaloDetDescrManager& mgr)
   cluster->insertMoment(xAOD::CaloCluster::ETA1CALOFRAME, eta);
   cluster->insertMoment(xAOD::CaloCluster::PHI1CALOFRAME, phi);
 }
+/** Find the size of the cluster in phi using L2 cells.
+ *
+ * @param cp0: the reference position in calo-coordinates
+ * @param cluster: the cluster filled with L2 and L3 cells
+ *
+ * The window is computed using only cells in the second layer.
+ * Asymmetric sizes are computed for barrel and endcap. The size
+ * is the maximum difference in phi between the center of a cell
+ * and the refence, considering separately cells in the barrel
+ * and in the endcap. The computation is done separately for the
+ * cells with phi < reference phi or >=. A cutoff value of 1 is used.
+ */
+egammaSuperClusterBuilderBase::PhiSize
+findPhiSize(const egammaSuperClusterBuilderBase::CentralPosition& cp0,
+            const xAOD::CaloCluster& cluster)
+{
 
+  egammaSuperClusterBuilderBase::PhiSize phiSize;
+  auto cell_itr = cluster.cell_cbegin();
+  auto cell_end = cluster.cell_cend();
+  for (; cell_itr != cell_end; ++cell_itr) {
+
+    const CaloCell* cell = *cell_itr;
+    if (!cell) {
+      continue;
+    }
+
+    const CaloDetDescrElement* dde = cell->caloDDE();
+    if (!dde) {
+      continue;
+    }
+
+    if (cp0.emaxB > 0 && CaloCell_ID::EMB2 == dde->getSampling()) {
+      const float phi0 = cp0.phiB;
+      double cell_phi = proxim(dde->phi_raw(), phi0);
+      if (cell_phi > phi0) {
+        auto diff = cell_phi - phi0;
+        if (diff > phiSize.plusB) {
+          phiSize.plusB = diff;
+        }
+      } else {
+        auto diff = phi0 - cell_phi;
+        if (diff > phiSize.minusB) {
+          phiSize.minusB = diff;
+        }
+      }
+    } else if (cp0.emaxEC > 0 && CaloCell_ID::EME2 == dde->getSampling()) {
+      const float phi0 = cp0.phiEC;
+      double cell_phi = proxim(dde->phi_raw(), phi0);
+      if (cell_phi > phi0) {
+        auto diff = cell_phi - phi0;
+        if (diff > phiSize.plusEC) {
+          phiSize.plusEC = diff;
+        }
+      } else {
+        auto diff = phi0 - cell_phi;
+        if (diff > phiSize.minusEC) {
+          phiSize.minusEC = diff;
+        }
+      }
+    }
+  }
+  return phiSize;
+}
 /** functions to make 1st sampling (strips) specific corrections*/
 void
 makeCorrection1(xAOD::CaloCluster* cluster,
@@ -237,11 +300,9 @@ findCentralPositionEM2(const std::vector<const xAOD::CaloCluster*>& clusters)
 
 } // end of anonymous namespace
 
-//////////////////////////////////////////////////////////////////////////////
-// Athena interfaces.
-//////////////////////////////////////////////////////////////////////////////
-
-// Constructor.
+/*
+ * Gaudi Algorithm implementation
+ */
 egammaSuperClusterBuilderBase::egammaSuperClusterBuilderBase(
   const std::string& name,
   ISvcLocator* pSvcLocator)
@@ -357,6 +418,7 @@ bool
 egammaSuperClusterBuilderBase::createNewCluster(
   const EventContext& ctx,
   const std::vector<const xAOD::CaloCluster*>& clusters,
+  const DataLink<CaloCellContainer>& cellCont,
   const CaloDetDescrManager& mgr,
   xAOD::EgammaParameters::EgammaType egType,
   xAOD::CaloClusterContainer* newClusters,
@@ -370,9 +432,9 @@ egammaSuperClusterBuilderBase::createNewCluster(
   }
 
   // create a new empty cluster
-  // collection will own it if not nullptr
-  xAOD::CaloCluster* newCluster = CaloClusterStoreHelper::makeCluster(
-    newClusters, clusters[0]->getCellLinks()->getCellContainer());
+  // collection will own it if
+  xAOD::CaloCluster* newCluster =
+    CaloClusterStoreHelper::makeCluster(newClusters, cellCont);
 
   if (!newCluster) {
     ATH_MSG_ERROR("CaloClusterStoreHelper::makeCluster failed.");
@@ -426,11 +488,19 @@ egammaSuperClusterBuilderBase::createNewCluster(
     return false;
   }
   // Apply SW-style summation of TileGap3 cells (if necessary).
-  if (addTileGap3CellsinWindow(*newCluster, mgr).isFailure()) {
-    ATH_MSG_ERROR(
-      "Problem with the input cluster when running AddTileGap3CellsinWindow?");
-    newClusters->pop_back();
-    return false;
+  float eta0 = std::abs(newCluster->eta0());
+  // In Run2, we did not impose restriction to include TG3 cells at this level.
+  // It should have been [1.37,1.63]. It has no impact on performance as TG3 was
+  // only used in energy calibration BDT in [1.4,1.6].
+  // In Run three we restrict to [1.37,1.75]
+  if (!m_useExtendedTG3 ||
+      (eta0 > s_ClEtaMinForTG3cell && eta0 < s_ClEtaMaxForTG3cell)) {
+    if (addTileGap3CellsinWindow(*newCluster, mgr).isFailure()) {
+      ATH_MSG_ERROR("Problem with the input cluster when running "
+                    "AddTileGap3CellsinWindow?");
+      newClusters->pop_back();
+      return false;
+    }
   }
   /// Calculate the kinematics of the new cluster, after all cells are added
   CaloClusterKineHelper::calculateKine(newCluster, true, true);
@@ -459,7 +529,6 @@ egammaSuperClusterBuilderBase::createNewCluster(
 
   // Avoid negative energy clusters
   if (newCluster->et() < 0) {
-    ATH_MSG_DEBUG("Negative et after calibration/corrections");
     newClusters->pop_back();
     return false;
   }
@@ -467,7 +536,8 @@ egammaSuperClusterBuilderBase::createNewCluster(
   if (m_linkToConstituents) {
     // EDM vector to constituent clusters
     std::vector<ElementLink<xAOD::CaloClusterContainer>> constituentLinks;
-    static const SG::AuxElement::Accessor<ElementLink<xAOD::CaloClusterContainer>>
+    static const SG::AuxElement::Accessor<
+      ElementLink<xAOD::CaloClusterContainer>>
       sisterCluster("SisterCluster");
     for (size_t i = 0; i < acSize; i++) {
       // Set the element Link to the constitents
@@ -590,7 +660,7 @@ egammaSuperClusterBuilderBase::fillClusterConstrained(
   if (tofill.size() == 0) {
     return StatusCode::FAILURE;
   }
-  // Now calculate the cluster size in 2nd layes
+  // Now calculate the cluster size in 2nd layer
   // use that for constraining the L0/L1 cells we add
   const PhiSize phiSize = findPhiSize(cp0, tofill);
   const float phiPlusB = cp0.phiB + phiSize.plusB + m_extraL0L1PhiSize;
@@ -671,7 +741,7 @@ egammaSuperClusterBuilderBase::addTileGap3CellsinWindow(
   const CaloDetDescrManager& mgr) const
 {
 
-  constexpr double searchWindowEta = 0.2;
+  double searchWindowEta = m_useExtendedTG3 ? 0.35 : 0.2;
   constexpr double searchWindowPhi = 2 * M_PI / 64.0 + M_PI / 64; // ~ 0.15 rad
   std::vector<const CaloCell*> cells;
   cells.reserve(16);
@@ -688,6 +758,7 @@ egammaSuperClusterBuilderBase::addTileGap3CellsinWindow(
   const std::vector<CaloSampling::CaloSample> samples = {
     CaloSampling::TileGap3
   };
+
   for (auto samp : samples) {
     // quite slow
     myList.select(
@@ -704,8 +775,18 @@ egammaSuperClusterBuilderBase::addTileGap3CellsinWindow(
       continue;
     }
 
-    if ((CaloCell_ID::TileGap3 == dde->getSampling()) &&
-        (std::abs(dde->eta_raw()) > 1.4 && std::abs(dde->eta_raw()) < 1.6)) {
+    float maxEta = s_TG3Run2E4cellEtaMax;
+    float minEta = s_TG3Run2E4cellEtaMin;
+    if (m_useExtendedTG3) {
+      minEta = s_TG3Run3E3cellEtaMin;
+      // if |eta2| < 1.56, keep only E3, else keep E3+E4.
+      // |eta2| uses as the eta of the highest energy cell in layer 2 as proxy
+      if (std::abs(tofill.eta0()) > 1.56) {
+        maxEta = s_TG3Run3E4cellEtaMax;
+      }
+    }
+    float cellaEtaRaw = std::abs(dde->eta_raw());
+    if (cellaEtaRaw >= minEta && cellaEtaRaw <= maxEta) {
       int index = inputcells->findIndex(dde->calo_hash());
       tofill.addCell(index, 1.);
     }
@@ -744,77 +825,3 @@ egammaSuperClusterBuilderBase::calibrateCluster(
   return StatusCode::SUCCESS;
 }
 
-egammaSuperClusterBuilderBase::PhiSize
-egammaSuperClusterBuilderBase::findPhiSize(
-  const egammaSuperClusterBuilderBase::CentralPosition& cp0,
-  const xAOD::CaloCluster& cluster) const
-{
-
-  PhiSize phiSize;
-  auto cell_itr = cluster.cell_cbegin();
-  auto cell_end = cluster.cell_cend();
-  for (; cell_itr != cell_end; ++cell_itr) {
-
-    const CaloCell* cell = *cell_itr;
-    if (!cell) {
-      continue;
-    }
-
-    const CaloDetDescrElement* dde = cell->caloDDE();
-    if (!dde) {
-      continue;
-    }
-
-    if (cp0.emaxB > 0 && CaloCell_ID::EMB2 == dde->getSampling()) {
-      const float phi0 = cp0.phiB;
-      double cell_phi = proxim(dde->phi_raw(), phi0);
-      if (cell_phi > phi0) {
-        auto diff = cell_phi - phi0;
-        if (diff > phiSize.plusB) {
-          phiSize.plusB = diff;
-        }
-      } else {
-        auto diff = phi0 - cell_phi;
-        if (diff > phiSize.minusB) {
-          phiSize.minusB = diff;
-        }
-      }
-    } else if (cp0.emaxEC > 0 && CaloCell_ID::EME2 == dde->getSampling()) {
-      const float phi0 = cp0.phiEC;
-      double cell_phi = proxim(dde->phi_raw(), phi0);
-      if (cell_phi > phi0) {
-        auto diff = cell_phi - phi0;
-        if (diff > phiSize.plusEC) {
-          phiSize.plusEC = diff;
-        }
-      } else {
-        auto diff = phi0 - cell_phi;
-        if (diff > phiSize.minusEC) {
-          phiSize.minusEC = diff;
-        }
-      }
-    }
-  }
-  // some safety checks
-  if (phiSize.plusB > 1.0) {
-    ATH_MSG_WARNING("phiSizePlusB is large: " << phiSize.plusB
-                                              << ", capping at 1.0");
-    phiSize.plusB = 1.0;
-  }
-  if (phiSize.plusEC > 1.0) {
-    ATH_MSG_WARNING("phiSizePlusEC is large: " << phiSize.plusEC
-                                               << ", capping at 1.0");
-    phiSize.plusEC = 1.0;
-  }
-  if (phiSize.minusB > 1.0) {
-    ATH_MSG_WARNING("phiSizeMinusB is large: " << phiSize.minusB
-                                               << ", capping at 1.0");
-    phiSize.minusB = 1.0;
-  }
-  if (phiSize.minusEC > 1.0) {
-    ATH_MSG_WARNING("phiSizeMinusEC is large: " << phiSize.minusEC
-                                                << ", capping at 1.0");
-    phiSize.minusEC = 1.0;
-  }
-  return phiSize;
-}

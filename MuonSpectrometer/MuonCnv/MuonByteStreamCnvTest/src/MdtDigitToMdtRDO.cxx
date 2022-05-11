@@ -26,9 +26,6 @@ namespace {
    // the first tube read out by the 2nd CSM is (offline!) tube 43
    constexpr int BME_1st_tube_2nd_CSM = 43;
    
-   
-   /// Print one-time warnings about the missing BIS78 cabling
-   std::atomic<bool> bisWarningPrinted = false;
    /// Print one-time warings about cases where the BMGs are part of the
    /// geometry but not implemented in the cabling. That should only happen in
    /// mc16a like setups.
@@ -81,11 +78,7 @@ StatusCode MdtDigitToMdtRDO::initialize()
 
 
 StatusCode MdtDigitToMdtRDO::execute(const EventContext& ctx) const {
-
-  ATH_MSG_DEBUG( "in execute()"  );
-
   ATH_CHECK(fill_MDTdata(ctx));
-
   return StatusCode::SUCCESS;
 }
  std::unique_ptr<MdtCsm> MdtDigitToMdtRDO::make_csm(const MuonMDT_CablingMap* cabling_ptr, const Identifier module_id, IdentifierHash module_hash, bool need_second) const{
@@ -151,7 +144,6 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata(const EventContext& ctx) const {
   for ( const MdtDigitCollection* mdtCollection : *container) {
       IdentifierHash moduleHash = mdtCollection->identifierHash();
       Identifier moduleId = mdtCollection->identify();
-      
       // Get the online ID of the MDT module
       Identifier chid1, chid2;
       if ( m_BMEpresent ){
@@ -212,13 +204,11 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata(const EventContext& ctx) const {
           // as long as there is no BIS sMDT cabling, to avoid a hard crash, replace the tubeNumber
           // of tubes not covered in the cabling by 1
           if (m_idHelperSvc->mdtIdHelper().stationName(channelId)== m_BIS_station_name && m_idHelperSvc->issMdt(channelId)) {
-                 if (!bisWarningPrinted) {
-                    ATH_MSG_WARNING("Found BIS sMDT with tubeLayer="<<cabling_data.layer<<" and tubeNumber="<<cabling_data.tube<<". Setting to "<<cabling_data.layer<<",1 until a proper cabling is implemented, cf. ATLASRECTS-5804");
-                    bisWarningPrinted = true;
-                 }
-               cabling_data.layer =  std::min(cabling_data.layer, 3);
-               cabling_data.tube = 1;
-               cabling = cabling_ptr->getOnlineId(cabling_data, msg);
+                ATH_MSG_WARNING("Found BIS sMDT with tubeLayer="<<cabling_data.layer<<" and tubeNumber="<<cabling_data.tube
+                                <<". Setting to "<<cabling_data.layer<<",1. This should only happen in the Phase-II geometry.");
+                continue;
+             
+
           }
           if (!cabling) {
                 ATH_MSG_ERROR( "MDTcabling can't return an online ID for the channel : "<<cabling_data );

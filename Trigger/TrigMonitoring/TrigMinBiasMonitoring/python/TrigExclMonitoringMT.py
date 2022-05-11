@@ -26,15 +26,9 @@ def TrigExcl(configFlags):
         for chain in alg.triggerList:
             # Efficiencies
             mbRefTrigGroup = monConfig.addGroup(alg, f'{ref}_{chain}', topPath=f'HLT/MinBiasMon/{chain}/{ref}/')
-            mbRefTrigGroup.defineHistogram(f'passedRefTrig,evtPileUp;eff_any_pileup_{chain}_vs_{ref}', type='TEfficiency', title=f'{chain}_eff_vs_{ref};pileup;Efficiency', xbins=50, xmin=0, xmax=10)
-            mbRefTrigGroup.defineHistogram(f'passedRefTrig,leadingPtOffline;eff_any_leadingPt_{chain}_vs_{ref}', type='TEfficiency', title=f'{chain}_eff_vs_{ref};leading offline track pT [GeV];Efficiency', xbins=50, xmin=0, xmax=10)
-            mbRefTrigGroup.defineHistogram(f'passedRefTrig,leadingPtOnline;eff_any_leadingPtOn_{chain}_vs_{ref}', type='TEfficiency', title=f'{chain}_eff_vs_{ref};leading online track pT [GeV];Efficiency', xbins=50, xmin=0, xmax=10)
-
-            for pt in [1, 2, 4, 6]:
-                mbRefTrigGroup = monConfig.addGroup(alg, f'{ref}_{chain}_Pt{pt}', topPath=f'HLT/MinBiasMon/{chain}/{ref}/')
-                mbRefTrigGroup.defineHistogram(f'passedRefTrig,evtPileUp;eff_pt{pt}_pileup_{chain}_vs_{ref}', type='TEfficiency', title=f'{chain}_eff_vs_{ref};pileup;Efficiency, pT > {pt} GeV', xbins=50, xmin=0, xmax=10)
-                mbRefTrigGroup.defineHistogram(f'passedRefTrig,leadingPtOffline;eff_pt{pt}_leadingPt_{chain}_vs_{ref}', type='TEfficiency', title=f'{chain}_eff_vs_{ref};leading offline track pT [GeV];Efficiency, pT > {pt} GeV', xbins=50, xmin=0, xmax=10)
-                mbRefTrigGroup.defineHistogram(f'passedRefTrig,leadingPtOnline;eff_pt{pt}_leadingPtOn_{chain}_vs_{ref}', type='TEfficiency', title=f'{chain}_eff_vs_{ref};leading online track pT [GeV];Efficiency, pT > {pt} GeV', xbins=50, xmin=0, xmax=10)
+            mbRefTrigGroup.defineHistogram(f'passedRefTrig,evtPileUp;eff_pileup_{chain}_vs_{ref}', type='TEfficiency', title=f'Efficiency: {chain} vs {ref};pileup;Efficiency', xbins=50, xmin=0, xmax=10)
+            mbRefTrigGroup.defineHistogram(f'passedRefTrig,leadingPtOffline;eff_leadingPt_{chain}_vs_{ref}', type='TEfficiency', title=f'Efficiency: {chain} vs {ref};leading offline track pT [GeV];Efficiency', xbins=50, xmin=0, xmax=10)
+            mbRefTrigGroup.defineHistogram(f'passedRefTrig,leadingPtOnline;eff_leadingPtOn_{chain}_vs_{ref}', type='TEfficiency', title=f'Efficiency: {chain} vs {ref};leading online track pT [GeV];Efficiency', xbins=50, xmin=0, xmax=10)
 
             mbRefTrigGroup = monConfig.addGroup(alg, f'{ref}_{chain}_passed', topPath=f'HLT/MinBiasMon/{chain}/{ref}/')
 

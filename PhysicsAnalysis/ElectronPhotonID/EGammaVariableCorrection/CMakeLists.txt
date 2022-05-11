@@ -52,3 +52,6 @@ atlas_add_executable( Test_ElectronPhotonVariableCorrectionTool_DictionaryToolHa
 
 # Install files from the package:
 atlas_install_data( data/*.conf )
+
+# Install python modules
+atlas_install_python_modules( python/*.py )

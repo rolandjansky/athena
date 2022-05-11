@@ -12,7 +12,7 @@ from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCf
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from SCT_ConditionsTools.SCT_ConditionsToolsConfig import SCT_ReadCalibChipDataCfg, SCT_SiliconConditionsCfg
 from SCT_GeoModel.SCT_GeoModelConfig import SCT_ReadoutGeometryCfg
-from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
+from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleToolCfg
 from SiPropertiesTool.SCT_SiPropertiesConfig import SCT_SiPropertiesCfg
 
 import AthenaCommon.SystemOfUnits as Units
@@ -111,6 +111,7 @@ def SCT_OverlayDigitizationToolCfg(flags, name="SCT_OverlayDigitizationTool",**k
     kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "SCT_RDOs")
     kwargs.setdefault("OutputSDOName", flags.Overlay.SigPrefix + "SCT_SDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 0)
+    kwargs.setdefault("MergeSvc", '')
     tool = acc.popToolsAndMerge(SCT_DigitizationCommonCfg(flags, name, **kwargs))
     acc.setPrivateTools(tool)
     return acc
@@ -177,7 +178,7 @@ def SCT_SurfaceChargesGeneratorCfg(flags, name="SCT_SurfaceChargesGenerator", **
     tool.RadDamageSummaryTool = SCT_RadDamageSummaryTool()
     tool.SiConditionsTool = acc.popToolsAndMerge(SCT_SiliconConditionsCfg(flags))
     tool.SiPropertiesTool = acc.popToolsAndMerge(SCT_SiPropertiesCfg(flags, SiConditionsTool=tool.SiConditionsTool))
-    tool.LorentzAngleTool = acc.popToolsAndMerge(SCT_LorentzAngleCfg(flags, SiConditionsTool=tool.SiConditionsTool))
+    tool.LorentzAngleTool = acc.popToolsAndMerge(SCT_LorentzAngleToolCfg(flags))
     acc.setPrivateTools(tool)
     return acc
 

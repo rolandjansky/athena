@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibConditions/AbstractL1CaloPersistentCondition.h"
@@ -13,13 +13,13 @@ DataObject* AbstractL1CaloPersistentCondition::makePersistent() const {
 	return 0;
 }
 
-void AbstractL1CaloPersistentCondition::makeTransient(const std::map<std::string, CondAttrListCollection*>& /* condAttrListCollectionMap */) {
-    std::cout << "ERROR - The makeTransient(const map<std::string, CondAttrListCollection*>) method you are calling is not implemented by the current class !" << std::endl;
+void AbstractL1CaloPersistentCondition::makeTransient(const std::map<std::string, const CondAttrListCollection*>& /* condAttrListCollectionMap */) {
+    std::cout << "ERROR - The makeTransient(const map<std::string, const CondAttrListCollection*>) method you are calling is not implemented by the current class !" << std::endl;
 	return;
 }
 
-void AbstractL1CaloPersistentCondition::makeTransient(const std::map<std::string, AthenaAttributeList*>& /* athenaAttributeList */) {
-    std::cout << "ERROR - The makeTransient(const map<std::string, AthenaAttributeList*>) method you are calling is not implemented by the current class !" << std::endl;
+void AbstractL1CaloPersistentCondition::makeTransient(const std::map<std::string, const AthenaAttributeList*>& /* athenaAttributeList */) {
+    std::cout << "ERROR - The makeTransient(const map<std::string, const AthenaAttributeList*>) method you are calling is not implemented by the current class !" << std::endl;
 	return;
 }
 

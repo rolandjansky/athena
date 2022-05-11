@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -57,6 +57,7 @@ public:
   ///is it good?, using wafer hash
   virtual bool isGood(const IdentifierHash& hashId) const override;
   virtual bool isGood(const IdentifierHash& hashId, const EventContext& ctx) const override;
+  virtual void getDetectorElementStatus(const EventContext& ctx, InDet::SiDetectorElementStatus &element_status, EventIDRange &the_range) const override;
 
 private:
 
@@ -64,7 +65,7 @@ private:
 
   // The vector of bad rods should be kept in a threadsafe way so it can 
   // be called and read safely.
-  SG::ReadHandleKey<IdentifierSet> m_badModuleIds{this, "BadModuleIds", "BadSCTModuleIds_RODVeto", "Read key for bad module identifiers"};
+  SG::ReadCondHandleKey<IdentifierSet> m_badModuleIds{this, "BadModuleIds", "BadSCTModuleIds_RODVeto", "Read key for bad module identifiers"};
 
   const SCT_ID* m_pHelper{nullptr};
 };

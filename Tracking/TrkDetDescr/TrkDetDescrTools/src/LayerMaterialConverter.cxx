@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -21,7 +21,7 @@ Trk::LayerMaterialConverter::LayerMaterialConverter(const std::string& t, const 
 
 // destructor
 Trk::LayerMaterialConverter::~LayerMaterialConverter()
-{}
+= default;
 
 
 // the AthAlgTool interface methods

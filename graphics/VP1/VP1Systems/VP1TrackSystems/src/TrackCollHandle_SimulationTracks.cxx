@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -69,7 +69,7 @@ public:
   bool cut_excludeNeutrals = false;
 
   bool displayAscObjs = false;
-  void updateVisibleAssociatedObjects();
+  void updateVisibleAssociatedObjects() const;
 
   static const int maxPdgCode = 1000000000;
 
@@ -167,7 +167,7 @@ void TrackCollHandle_SimulationTracks::Imp::addHitCollections(std::map<SimBarCod
 	    l.push_back(std::pair<double,SimHitHandleBase*>(handle->hitTime(),handle));
 	    hitLists[trackID] = l;
 	  } else {
-	    itHitList->second.push_back(std::pair<double,SimHitHandleBase*>(handle->hitTime(),handle));
+	    itHitList->second.emplace_back(handle->hitTime(),handle);
 	  }
 	  ++iadded;
     }
@@ -272,10 +272,7 @@ bool TrackCollHandle_SimulationTracks::cut(TrackHandleBase* handle)
     return false;
 
   TrackHandle_SimulationTrack * truthhandle = static_cast<TrackHandle_SimulationTrack *>(handle);
-  if (m_d->cut_excludeBarcodeZero && truthhandle->hasBarCodeZero())
-    return false;
-
-  return true;
+  return !(m_d->cut_excludeBarcodeZero && truthhandle->hasBarCodeZero());
 }
 
 //____________________________________________________________________
@@ -307,7 +304,7 @@ void TrackCollHandle_SimulationTracks::setCutExcludeNeutrals(bool b)
 //mom should be decreasing
 
 //____________________________________________________________________
-void TrackCollHandle_SimulationTracks::Imp::updateVisibleAssociatedObjects()
+void TrackCollHandle_SimulationTracks::Imp::updateVisibleAssociatedObjects() const
 {
       
   theclass->message("updateVisibleAssociatedObjects");//fixme

@@ -250,7 +250,7 @@ namespace Trig {
 
       
 	link_type link;
-	bool new_result = const_cast<HLT::NavigationCore*>(m_navigation)->getRecentFeatureDataOrElementLink( m_te, link, m_label, *m_sourceTE, sourceLabel );
+	bool new_result = m_navigation->getRecentFeatureDataOrElementLink( m_te, link, m_label, *m_sourceTE, sourceLabel );
 
 	if (new_result) {
 	  if (m_teName == "" || m_teName == Trig::getTEName(**m_sourceTE)) {

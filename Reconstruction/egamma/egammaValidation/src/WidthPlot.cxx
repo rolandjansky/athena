@@ -32,19 +32,22 @@ namespace egammaMonitoring {
 
   StatusCode WidthPlot::fill( IHistograms *input) {
 
-    gROOT->ForceStyle();
-    gStyle->SetOptStat(0);
 
     TruthPhotonHistograms *histograms = dynamic_cast<TruthPhotonHistograms*>(input);
 
     for ( const auto &p : histograms->histo2DMap ) {
-      TH1D *hist68 = new TH1D(Form("%s_%s",m_name.c_str(),p.first.c_str()), Form("; %s ; resolution", p.second->GetXaxis()->GetTitle()), p.second->GetXaxis()->GetNbins(), p.second->GetXaxis()->GetXmin(), p.second->GetXaxis()->GetXmax());
-
+      TH1D* hist68 =
+        new TH1D(Form("%s_%s", m_name.c_str(), p.first.c_str()),
+                 Form("; %s ; resolution", p.second->GetXaxis()->GetTitle()),
+                 p.second->GetXaxis()->GetNbins(),
+                 p.second->GetXaxis()->GetXmin(),
+                 p.second->GetXaxis()->GetXmax());
 
       for (int bin = 1; bin <= p.second->GetXaxis()->GetNbins(); bin++) {
         TH1D *proj = p.second->ProjectionY(Form("%s_%d_projection", p.first.c_str(), bin), bin, bin+1);
 
         double s68 = binned::s68(proj);
+        hist68->SetStats(0);
         hist68->SetBinContent(bin, s68);
 
       }

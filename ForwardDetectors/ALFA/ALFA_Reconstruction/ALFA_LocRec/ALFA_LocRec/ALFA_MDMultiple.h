@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ALFA_MDMULTIPLE_H
@@ -10,12 +10,9 @@
 #include <map>
 #include <algorithm>
 
-#include "AthenaKernel/MsgStreamMember.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
-//#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
-#include "AthenaKernel/getMessageSvc.h"
 
 #include "Rtypes.h"
 #include "TMath.h"
@@ -27,7 +24,7 @@
 
 #define MAXTRACKNUM 10
 
-class ALFA_MDMultiple
+class ALFA_MDMultiple : public AthMessaging
 {
 	public:
 		ALFA_MDMultiple();
@@ -85,15 +82,6 @@ class ALFA_MDMultiple
 						std::vector<int> &Num_p, std::vector<int> &Num_n,
 						std::vector<int> (&FSel_n)[ALFAPLATESCNT], std::vector<int> (&FSel_p)[ALFAPLATESCNT],
 						std::vector<int> (&Track_match)[2]);
-
-public:
-	/// Log a message using the Athena controlled logging system
-	MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-	/// Check whether the logging system is active at the provided verbosity level
-	bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
-private:
-	/// Private message stream member
-	mutable Athena::MsgStreamMember m_msg;
 
 };
 #endif // ALFA_MDMULTIPLE_H

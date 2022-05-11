@@ -26,9 +26,10 @@ private:
   ToolHandleArray< TrackCountHypoTool > m_hypoTools {this, "HypoTools", {}, "Tools that perform actual selection"};
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_tracksKey{this, "tracksKey", "Undefined", ""};
   SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_trackCountKey{this, "trackCountKey", "Undefined", ""};
-  Gaudi::Property<std::vector<float>> m_minPt{this, "minPt", {100, 200, 500, 1000, 2000, 4000, 6000, 8000}, "Accept events with momentum higher than this limit in MeV"};
-  Gaudi::Property<std::vector<float>> m_maxZ0{this, "maxZ0", {401, 401, 401, 401, 401, 401, 401, 401}, "Accept events with absolute value of vertex z position lower \
-      than this limit in mm; this vector has to be of the same size as minPt vector, repetition of cut values are allowed if that makes the number of elements the same"};
+  Gaudi::Property<std::vector<float>> m_minPt{this, "minPt", {100, 200, 200, 500, 1000, 2000, 4000, 6000, 8000}, "Accept events with momentum higher than this limit in MeV"};
+  Gaudi::Property<std::vector<float>> m_maxZ0{this, "maxZ0", {401, 401, 401, 401, 401, 401, 401, 401, 401}, "Accept events with absolute value of z position of track passing beamline lower than this limit in mm"};
+  Gaudi::Property<std::vector<float>> m_vertexZ{this, "vertexZ", {803, 803, 10, 803, 803, 803, 803, 803, 803}, "Accept events with distance to vertex z position lower than this limit in mm"};
+
   ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool", "", "Monitoring tool"};
 };
 

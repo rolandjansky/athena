@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 ///////////////////////////////////////////////////////////////////
 // L1TriggerTowerTool.h, 
@@ -138,7 +138,7 @@ namespace LVL1
       /** Get extra noise cut with disabled channel */
       bool disabledChannel(const L1CaloCoolChannelId& channelId, unsigned int& noiseCut);
 
-      bool              m_debug;
+      bool              m_debug = false;
 
       /// Id managers
       const CaloIdManager* m_caloMgr;
@@ -158,9 +158,9 @@ namespace LVL1
       // one of L1CaloPprConditionsContainer{,Run2}*
       
       /// For Run2 strategy (LowMu, HighMu)
-      L1CaloPprChanStrategyContainer* m_strategyContainer;
-      L1CaloDerivedRunParsContainer* m_derivedRunParsContainer;
-      L1CaloRunParametersContainer* m_runParametersContainer;
+      L1CaloPprChanStrategyContainer* m_strategyContainer = nullptr;
+      L1CaloDerivedRunParsContainer* m_derivedRunParsContainer = nullptr;
+      L1CaloRunParametersContainer* m_runParametersContainer = nullptr;
       
       boost::any m_conditionsContainer;
       // one of L1CaloPprDisabledChannelContainer{,Run2}*

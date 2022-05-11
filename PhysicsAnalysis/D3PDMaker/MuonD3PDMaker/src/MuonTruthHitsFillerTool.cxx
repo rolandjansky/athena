@@ -35,7 +35,7 @@ MuonTruthHitsFillerTool::MuonTruthHitsFillerTool (const std::string& type,
   m_PRD_TruthNames.push_back("MM_TruthMap");
   m_PRD_TruthNames.push_back("STGC_TruthMap");
 
-  book().ignore(); // Avoid coverity warnings.
+ 
 }
 
 
@@ -44,6 +44,7 @@ MuonTruthHitsFillerTool::MuonTruthHitsFillerTool (const std::string& type,
  */
 StatusCode MuonTruthHitsFillerTool::initialize()
 {
+  CHECK(book());  
   CHECK( m_idHelperSvc.retrieve() );
   return StatusCode::SUCCESS;
 }

@@ -1,6 +1,9 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
+
+#include "CxxUtils/checker_macros.h"
+
 #include "L1TopoCommon/StatusCode.h"
 
 #include "TrigConfData/L1Menu.h"
@@ -32,7 +35,7 @@ namespace TCS {
 
       ~TopoSteeringStructure();
 
-      StatusCode setupFromMenu(const TrigConf::L1Menu& l1menu, bool legacy = false, bool debug = false);
+      StatusCode setupFromMenu ATLAS_NOT_THREAD_SAFE (const TrigConf::L1Menu& l1menu, bool legacy = false, bool debug = false);
 
       // accessors
       bool isConfigured() const { return m_isConfigured; }
@@ -69,7 +72,7 @@ namespace TCS {
 
       StatusCode linkConnectors();
 
-      StatusCode instantiateAlgorithms(bool debug);
+      StatusCode instantiateAlgorithms ATLAS_NOT_THREAD_SAFE (bool debug);
 
    private:
 

@@ -1,22 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUANALYSISTOOLS_TAUANALYSISTOOLSDICT_H
 #define TAUANALYSISTOOLS_TAUANALYSISTOOLSDICT_H
-
-
-
-
-/*
-  author: Dirk Duschinger
-  mail: dirk.duschinger@cern.ch
-  documentation in: ../README.rst
-                    or
-                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-<tag>/README.rst
-		    or
-                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/README.rst
-*/
 
 #if defined(__GCCXML__) and not defined(EIGEN_DONT_VECTORIZE)
 #define EIGEN_DONT_VECTORIZE

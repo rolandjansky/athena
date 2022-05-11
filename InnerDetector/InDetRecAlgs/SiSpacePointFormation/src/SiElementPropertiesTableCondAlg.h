@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SiElementPropertiesTableCondAlg_h
@@ -11,8 +11,6 @@
 
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "SiSpacePointFormation/SiElementPropertiesTable.h"
-
-#include "GaudiKernel/ICondSvc.h"
 
 class SCT_ID;
 
@@ -65,13 +63,6 @@ namespace InDet {
      */
     //@{
     FloatProperty m_epsWidth{this, "EpsWidth", 0.02, "Safety margin for half-widths, in cm"};
-    //@}
-
-    /**
-     * @name Service
-     */
-    //@{
-    ServiceHandle<ICondSvc> m_condSvc; //!< For SG::WriteCondHandle
     //@}
 
     /**

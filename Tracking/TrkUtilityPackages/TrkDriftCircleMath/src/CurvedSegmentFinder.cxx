@@ -33,69 +33,51 @@ namespace TrkDriftCircleMath {
                       << " ML2 segments" << std::endl;
         for (SegIt ml1 = ml1segs.begin(); ml1 != ml1segs.end(); ++ml1) {
             // bool foundCurvedSeg = false;
+            const double tanML1 = std::tan(ml1->line().phi());
+            const double mid1 = (chamberMidPtY - ml1->line().position().y()) / tanML1 + ml1->line().position().x();
+            const double y01 = ml1->line().position().y() - ml1->line().position().x() * tanML1;
             for (SegIt ml2 = ml2segs.begin(); ml2 != ml2segs.end(); ++ml2) {
                 // angle between the 2 segments
-                double deltaAlpha = ml1->line().phi() - ml2->line().phi();
+                const double deltaAlpha = ml1->line().phi() - ml2->line().phi();
                 // distance of closest approach between the 2 segments at the middle of chamber
-                double mid1 = (chamberMidPtY - ml1->line().position().y()) / tan(ml1->line().phi()) + ml1->line().position().x();
-                double mid2 = (chamberMidPtY - ml2->line().position().y()) / tan(ml2->line().phi()) + ml2->line().position().x();
-                double y01 = ml1->line().position().y() - ml1->line().position().x() * tan(ml1->line().phi());
-                double y02 = ml2->line().position().y() - ml2->line().position().x() * tan(ml2->line().phi());
-                double deltab = (mid2 * tan(ml1->line().phi()) - chamberMidPtY + y01) / (sqrt(1 + sq(tan(ml1->line().phi()))));
-                double deltab2 = (mid1 * tan(ml2->line().phi()) - chamberMidPtY + y02) / (sqrt(1 + sq(tan(ml2->line().phi()))));
-                if (fabs(deltab2) < fabs(deltab)) deltab = deltab2;
-                if (fabs(deltaAlpha) < m_maxDeltaAlpha && fabs(deltab) < m_maxDeltab) {
-                    nCurved++;
-                    // foundCurvedSeg = true;
-                    if (m_debugLevel >= 10)
-                        std::cout << "CurvedSegment combination found with parameters (DeltaAlpha,Deltab) = (" << deltaAlpha << ", "
-                                  << deltab << ")" << std::endl;
-                    // build the curved segment
-                    DCOnTrackVec dcs = ml1->dcs();
-                    DCOnTrackVec dcs2 = ml2->dcs();
-                    DCOnTrackIt ml2dcsIt = dcs2.begin();
-                    for (; ml2dcsIt != dcs2.end(); ++ml2dcsIt) dcs.push_back((*ml2dcsIt));
-                    double segChi2 = ml1->chi2() + ml2->chi2();
-                    double segNDoF = ml1->ndof() + ml2->ndof();
-                    Segment seg(ml1->line(), dcs, segChi2, segNDoF, ml1->dtheta(), ml1->dy0());
-                    // find the x coordinate of at the middle of the chamber for ml2 segment
-                    float xb = ml2->line().position().x() - (ml2->line().position().y() - chamberMidPtY) / tan(ml2->line().phi());
-                    // set the curvature parameters
-                    seg.setCurvatureParameters(deltaAlpha, xb);
-                    // hit information
-                    seg.deltas(ml1->deltas() + ml2->deltas());
-                    seg.hitsOutOfTime(ml1->hitsOutOfTime() + ml2->hitsOutOfTime());
-                    seg.hitsOnTrack(ml1->hitsOnTrack() + ml2->hitsOnTrack());
-                    seg.hitsPerMl(ml1->hitsMl1(), ml2->hitsMl2());
-                    seg.closeHits(ml1->closeHits() + ml2->closeHits());
-                    // associated clusters
-                    CLVec clusters;
-                    double Ml1y = ml1->line().position().y();
-                    double Ml2y = ml2->line().position().y();
-                    if (Ml1y < Ml2y) {
-                        for (CLVec::const_iterator it = ml1->clusters().begin(); it != ml1->clusters().end(); ++it) {
-                            if (it->y() < Ml1y) clusters.push_back((*it));
-                        }
-                        for (CLVec::const_iterator it = ml2->clusters().begin(); it != ml2->clusters().end(); ++it) {
-                            if (it->y() > Ml2y) clusters.push_back((*it));
-                        }
-                    } else {
-                        for (CLVec::const_iterator it = ml1->clusters().begin(); it != ml1->clusters().end(); ++it) {
-                            if (it->y() > Ml1y) clusters.push_back((*it));
-                        }
-                        for (CLVec::const_iterator it = ml2->clusters().begin(); it != ml2->clusters().end(); ++it) {
-                            if (it->y() < Ml2y) clusters.push_back((*it));
-                        }
-                    }
-
-                    // store the new segment
-                    segs.push_back(seg);
-                    // remove the ML2 segment from the list
-                    // ml2segs.erase( ml2 );
-                    // break;
-                }
-            }  // end loop on ml2
-        }      // end loop on ml1
+                                const double tanML2 = std::tan(ml2->line().phi());
+                
+                const double mid2 = (chamberMidPtY - ml2->line().position().y()) / tanML2 + ml2->line().position().x();
+                const double y02 = ml2->line().position().y() - ml2->line().position().x() * tanML2;
+                double deltab =  (mid2 * tanML1 - chamberMidPtY + y01) / std::hypot(1, tanML1);
+                const double deltab2 = (mid1 * tanML2 - chamberMidPtY + y02) / std::hypot(1, tanML2);
+                if (std::abs(deltab2) < std::abs(deltab)) deltab = deltab2;
+                if (std::abs(deltaAlpha) >= m_maxDeltaAlpha  ||  std::abs(deltab) >= m_maxDeltab) continue;
+                ++nCurved;
+                
+                // foundCurvedSeg = true;
+                if (m_debugLevel >= 10)
+                    std::cout << "CurvedSegment combination found with parameters (DeltaAlpha,Deltab) = (" << deltaAlpha << ", "
+                                << deltab << ")" << std::endl;
+                // build the curved segment
+                DCOnTrackVec dcs = ml1->dcs();
+                dcs.insert(dcs.end(), ml2->dcs().begin(), ml2->dcs().end());
+                double segChi2 = ml1->chi2() + ml2->chi2();
+                double segNDoF = ml1->ndof() + ml2->ndof();
+                Segment seg(ml1->line(), dcs, segChi2, segNDoF, ml1->dtheta(), ml1->dy0());
+                // find the x coordinate of at the middle of the chamber for ml2 segment
+                const double xb = ml2->line().position().x() - (ml2->line().position().y() - chamberMidPtY) / tan(ml2->line().phi());
+                // set the curvature parameters
+                seg.setCurvatureParameters(deltaAlpha, xb);
+                // hit information
+                seg.deltas(ml1->deltas() + ml2->deltas());
+                seg.hitsOutOfTime(ml1->hitsOutOfTime() + ml2->hitsOutOfTime());
+                seg.hitsOnTrack(ml1->hitsOnTrack() + ml2->hitsOnTrack());
+                seg.hitsPerMl(ml1->hitsMl1(), ml2->hitsMl2());
+                seg.closeHits(ml1->closeHits() + ml2->closeHits());
+                
+                // store the new segment
+                segs.push_back(seg);
+                // remove the ML2 segment from the list
+                // ml2segs.erase( ml2 );
+                // break;
+            }
+        }  // end loop on ml2
         if (m_debugLevel >= 5) std::cout << "Finished CurvedSegments Finding, and found " << nCurved << " CurvedSegments" << std::endl;
    }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -104,7 +104,7 @@ Trk::TrackValidationNtupleWriter::TrackValidationNtupleWriter(const std::string&
     declareProperty("doTrackParticle", m_doTrackParticle, "Swith to record Rec:TrackParticle Trees");
 }
 
-Trk::TrackValidationNtupleWriter::~TrackValidationNtupleWriter() {}
+Trk::TrackValidationNtupleWriter::~TrackValidationNtupleWriter() = default;
 
 StatusCode Trk::TrackValidationNtupleWriter::initialize() {
 
@@ -417,7 +417,7 @@ StatusCode Trk::TrackValidationNtupleWriter::execute() {
    
     // get vertex collection so that the track selector is able to make a correct d0, z0 cut
     const VxContainer* primaryVertexContainer = nullptr;
-    if (!m_trackSelector.empty() && m_inputPrimaryVertexCollection != "") {
+    if (!m_trackSelector.empty() && !m_inputPrimaryVertexCollection.empty()) {
         sc = evtStore()->retrieve(primaryVertexContainer, m_inputPrimaryVertexCollection);
         if ( !primaryVertexContainer || sc.isFailure() ) {
             ATH_MSG_ERROR( " Primary Vertex container (" << m_inputPrimaryVertexCollection << ") not found in StoreGate" );
@@ -427,7 +427,7 @@ StatusCode Trk::TrackValidationNtupleWriter::execute() {
     }
     const Trk::Vertex* vertex = nullptr;
     if (primaryVertexContainer) {
-        if (primaryVertexContainer->size() > 0) vertex = &((*primaryVertexContainer)[0]->recVertex());
+        if (!primaryVertexContainer->empty()) vertex = &((*primaryVertexContainer)[0]->recVertex());
     }
     
     // fill the track trees for each track collection
@@ -485,7 +485,7 @@ StatusCode Trk::TrackValidationNtupleWriter::execute() {
            itrMcJet < genParticleJets->end() ; ++itrMcJet) {
 
         std::vector<int> indices = (*itrMcJet).getIndicesInEvent();
-        if (indices.size()!=0)
+        if (!indices.empty())
 		  for (std::vector<int>::const_iterator k =indices.begin(); k != indices.end(); ++k) {
             if (*k >= 0 && *k <= (int)selecParticles->size() ) {
               truthData[*k].truthToJetIndex = nJetTruthTreeRecordsAtCurrentEvent
@@ -530,7 +530,7 @@ StatusCode Trk::TrackValidationNtupleWriter::writeTrackData(unsigned int trackCo
     StatusCode sc = StatusCode::SUCCESS; if (sc.isFailure()) { /* mute sc*/ }
     // retrieve reconstructed tracks
     const TrackCollection* tracks = nullptr;
-    if (m_inputTrackCollection[trackColIndex] != "" && evtStore()->contains<TrackCollection>(m_inputTrackCollection[trackColIndex])) {
+    if (!m_inputTrackCollection[trackColIndex].empty() && evtStore()->contains<TrackCollection>(m_inputTrackCollection[trackColIndex])) {
         sc = evtStore()->retrieve(tracks, m_inputTrackCollection[trackColIndex]);
         if (sc.isFailure()) {
             msg(MSG::WARNING) <<"Tracks not found:  " << m_inputTrackCollection[trackColIndex] << endmsg;
@@ -546,7 +546,7 @@ StatusCode Trk::TrackValidationNtupleWriter::writeTrackData(unsigned int trackCo
     const TrackTruthCollection* trackTruthCollection = nullptr;
     if (m_doTruth) {
         // retrieve track truth collection
-        if (m_trackTruthCollectionName[trackColIndex] != "" && evtStore()->contains<TrackTruthCollection>(m_trackTruthCollectionName[trackColIndex])) {
+        if (!m_trackTruthCollectionName[trackColIndex].empty() && evtStore()->contains<TrackTruthCollection>(m_trackTruthCollectionName[trackColIndex])) {
             sc = evtStore()->retrieve(trackTruthCollection, m_trackTruthCollectionName[trackColIndex]);
             if (sc.isFailure()) {
                 msg(MSG::WARNING) <<"TrackTruthCollection not found:  " << m_trackTruthCollectionName[trackColIndex] << endmsg;
@@ -683,7 +683,7 @@ StatusCode Trk::TrackValidationNtupleWriter::writeTrackParticleData(unsigned int
   // retrieve Trk::TrackParticleBaseCollection from the SG
  const Trk::TrackParticleBaseCollection* trackParticles = nullptr;
 
- if (m_inputTrackParticleCollection[trackParticleColIndex] != "" && 
+ if (!m_inputTrackParticleCollection[trackParticleColIndex].empty() && 
      evtStore()->contains<Trk::TrackParticleBaseCollection>(m_inputTrackParticleCollection[trackParticleColIndex])) {
             if (evtStore()->retrieve(trackParticles, m_inputTrackParticleCollection[trackParticleColIndex]).isFailure()) {
                                     msg(MSG::WARNING) <<"Trk::TrackParticleBasesContainer not found:" << m_inputTrackParticleCollection[trackParticleColIndex] << endmsg;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file CaloRec/src/CaloBCIDLumiCondAlg.cxx
@@ -12,7 +12,6 @@
 #include "CaloBCIDLumiCondAlg.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/WriteCondHandle.h"
-#include "GaudiKernel/ICondSvc.h"
 
 
 /**
@@ -24,10 +23,6 @@ StatusCode CaloBCIDLumiCondAlg::initialize()
   ATH_CHECK( m_outputLumiKey.initialize() );
   ATH_CHECK( m_bcDataKey.initialize(m_isMC) );
   ATH_CHECK( m_lumiDataKey.initialize(!m_isMC) );
-
-  ServiceHandle<ICondSvc> condSvc ("CondSvc", name());
-  ATH_CHECK( condSvc.retrieve() );
-  ATH_CHECK( condSvc->regHandle (this, m_outputLumiKey) );
 
   return StatusCode::SUCCESS;
 }

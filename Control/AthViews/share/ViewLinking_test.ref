@@ -11,7 +11,6 @@ HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
 ClassIDSvc           INFO  getRegistryEntries: read 811 CLIDRegistry entries for module ALL
-ViewLinking_test     INFO SG pointer: 0xdab760
 ClassIDSvc           INFO  getRegistryEntries: read 400 CLIDRegistry entries for module ALL
 ViewLinking_test     INFO Views that are not linked behave correctly
 ViewLinking_test     INFO Views that are linked behave correctly

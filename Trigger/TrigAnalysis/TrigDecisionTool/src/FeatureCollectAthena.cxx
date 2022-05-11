@@ -24,7 +24,7 @@ namespace Trig{
 
       const TrigPassBits* bits(0);
 
-      if ( const_cast<HLT::NavigationCore*>(navigation)->getFeature(te, bits, "passbits" ) ){
+      if ( navigation->getFeature(te, bits, "passbits" ) ){
 	// We have to apply (vague) verification if there are any bits and that they match the feature container
 	// this is if there are any bits, 
 	// if so that they come from the same TE
@@ -40,8 +40,8 @@ namespace Trig{
       if(size==0) return 0;
 
       const TrigPassFlags* flags(0);
-      if(const_cast<HLT::NavigationCore*>(navigation)->getFeature(te, flags, label) && flags && flags->size()==size)
-	return flags;
+      if(navigation->getFeature(te, flags, label) && flags && flags->size()==size)
+        return flags;
 
       return 0;
     }

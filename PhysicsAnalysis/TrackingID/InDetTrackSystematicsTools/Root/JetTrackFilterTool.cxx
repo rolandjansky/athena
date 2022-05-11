@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackSystematicsTools/JetTrackFilterTool.h"
@@ -17,7 +17,7 @@ namespace InDet {
 
   static const CP::SystematicSet FilterSystematics = 
     {
-      InDet::TrackSystematicMap[TRK_EFF_LOOSE_TIDE]
+      InDet::TrackSystematicMap.at(TRK_EFF_LOOSE_TIDE)
     };
 
   JetTrackFilterTool::JetTrackFilterTool(const std::string& name) :

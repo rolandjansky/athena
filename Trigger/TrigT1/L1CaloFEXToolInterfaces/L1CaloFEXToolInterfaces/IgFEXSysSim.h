@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -28,20 +28,27 @@ Interface definition for gFEXSysSim
 
     virtual int calcTowerID(int eta, int phi, int nphi, int mod) = 0 ;
 
-    virtual StatusCode fillgRhoEDM(uint32_t tobWord) = 0;
+    virtual StatusCode fillgRhoEDM(uint32_t tobWord, int scale) = 0;
 
-    virtual StatusCode fillgBlockEDM(uint32_t tobWord) = 0;
+    virtual StatusCode fillgBlockEDM(uint32_t tobWord, int scale) = 0;
 
-    virtual StatusCode fillgJetEDM(uint32_t tobWord) = 0;
+    virtual StatusCode fillgJetEDM(uint32_t tobWord, int scale) = 0;
 
-    virtual StatusCode fillgScalarEJwojEDM(uint32_t tobWord) = 0;
+    virtual StatusCode fillgScalarEJwojEDM(uint32_t tobWord, int scale1, int scale2) = 0;
 
-    virtual StatusCode fillgMETComponentsJwojEDM(uint32_t tobWord) = 0;
+    virtual StatusCode fillgMETComponentsJwojEDM(uint32_t tobWord, int scale1, int scale2) = 0;
 
-    virtual StatusCode fillgMHTComponentsJwojEDM(uint32_t tobWord) = 0;
+    virtual StatusCode fillgMHTComponentsJwojEDM(uint32_t tobWord, int scale1, int scale2) = 0;
 
-    virtual StatusCode fillgMSTComponentsJwojEDM(uint32_t tobWord) = 0;
+    virtual StatusCode fillgMSTComponentsJwojEDM(uint32_t tobWord, int scale1, int scale2) = 0;
 
+    virtual StatusCode fillgMETComponentsNoiseCutEDM(uint32_t tobWord, int scale1, int scale2) = 0;
+
+    virtual StatusCode fillgMETComponentsRmsEDM(uint32_t tobWord, int scale1, int scale2) = 0;
+
+    virtual StatusCode fillgScalarENoiseCutEDM(uint32_t tobWord, int scale1, int scale2) = 0;
+
+    virtual StatusCode fillgScalarERmsEDM(uint32_t tobWord, int scale1, int scale2) = 0;
 
 
   private:

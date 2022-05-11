@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // METTauAssociator.cxx
@@ -123,7 +123,7 @@ namespace met {
   {
     const TauJet* tau = static_cast<const TauJet*>(obj);
     TLorentzVector tauAxis = tauRecTools::getTauAxis(*tau);
-    const xAOD::Vertex* tauVertex = tauRecTools::getTauVertex(*tau);
+    const xAOD::Vertex* tauVertex = tau->vertex();
 
     auto clusterList = tau->clusters();
     for (const xAOD::IParticle* particle : clusterList) {
@@ -210,7 +210,6 @@ namespace met {
                                             std::map<const IParticle*,MissingETBase::Types::constvec_t> &/*momenta*/) const
   {
     const TauJet* tau = static_cast<const TauJet*>(obj);
-
     if (m_useFETauLinks) { 
       ATH_CHECK( extractFEsFromLinks(tau, felist,constits) );
     } 
@@ -289,7 +288,7 @@ namespace met {
       bool match = false;
       if (!pfo->isCharged()) {
         if(xAOD::P4Helpers::isInDeltaR(*seedjet,*pfo,0.2,m_useRapidity) && pfo->e()>0) {
-          ATH_MSG_VERBOSE("Found nPFO with dR " << seedjet->p4().DeltaR(pfo->p4()));
+          ATH_MSG_VERBOSE("Found nPFO with dR " << seedjet->p4().DeltaR(pfo->p4())); 
           match = true;
         }
       }
@@ -298,7 +297,7 @@ namespace met {
         for( const xAOD::TauTrack* ttrk : tau->tracks(xAOD::TauJetParameters::coreTrack) ){//all tracks <0.2, no quality
           const TrackParticle* tautrk = ttrk->track();
           if(tautrk==pfotrk) {
-            ATH_MSG_VERBOSE("Found cPFO with dR " << seedjet->p4().DeltaR(ttrk->p4()));
+            ATH_MSG_VERBOSE("Found cPFO with dR " << seedjet->p4().DeltaR(ttrk->p4())); 
             // We set a small -ve pt for cPFOs that were rejected
             // by the ChargedHadronSubtractionTool
             const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");        

@@ -64,7 +64,7 @@ protected:
   TF1 m_totToChargeTransformation;	
 
   /// Method that creates a new AFPToFHit and sets it valus according to #data
-  void newXAODHitToF (xAOD::AFPToFHitContainer* tofHitContainer, const AFP_ToFRawCollection& collection, const AFP_ToFRawData& data) const;
+  void newXAODHitToF (xAOD::AFPToFHitContainer* tofHitContainer, const AFP_ToFRawCollection& collection, const AFP_ToFRawData& data, const EventContext& ctx) const;
   
   /// Method that creates a new AFPSiHit and sets it valus according to #data
   void newXAODHitSi (xAOD::AFPSiHitContainer* xAODSiHit, const AFP_SiRawCollection& collection, const AFP_SiRawData& data) const;
@@ -74,6 +74,6 @@ protected:
   /// The method requires that hptdcID and hptdcChannel are set in the
   /// tofHit passed as argument.  Mapping is implemented according to
   /// https://twiki.cern.ch/twiki/bin/view/Atlas/AFPHPTDC#Channel_Mapping
-  void setBarAndTrainID(xAOD::AFPToFHit* tofHit) const;
+  void setBarAndTrainID(xAOD::AFPToFHit* tofHit, const EventContext& ctx) const;
 };
 #endif 

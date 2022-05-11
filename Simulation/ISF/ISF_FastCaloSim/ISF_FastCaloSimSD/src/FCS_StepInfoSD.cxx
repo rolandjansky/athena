@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FCS_StepInfoSD.h"
@@ -11,8 +11,10 @@
 #include "CaloIdentifier/LArHEC_ID.h"
 #include "CaloIdentifier/LArMiniFCAL_ID.h"
 #include "CaloIdentifier/TileID.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
+
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/ReadCondHandle.h"
 
 #include "G4Step.hh"
 #include "G4ThreeVector.hh"
@@ -20,17 +22,7 @@
 FCS_StepInfoSD::FCS_StepInfoSD(G4String a_name, const FCS_Param::Config& config)
   : G4VSensitiveDetector(a_name)
   , m_config(config)
-  , m_larEmID(nullptr)
-  , m_larFcalID(nullptr)
-  , m_larHecID(nullptr)
-  , m_larMiniFcalID(nullptr)
-  , m_tileID(nullptr)
   , m_calo_dd_man(nullptr)
-{
-  m_calo_dd_man  = CaloDetDescrManager::instance(); //FIXME Move somewhere else!!
-}
-
-FCS_StepInfoSD::~FCS_StepInfoSD()
 {
 }
 
@@ -149,6 +141,19 @@ inline double FCS_StepInfoSD::getMaxDeltaPhi(const CaloCell_ID::CaloSample& laye
 }
 
 
+void FCS_StepInfoSD::getCaloDDManager()
+{
+  SG::ReadCondHandleKey<CaloDetDescrManager> caloMgrKey{"CaloDetDescrManager"};
+  if(caloMgrKey.initialize().isFailure()) {
+    G4ExceptionDescription description;
+    description << "Failed to get CaloDetDescrManager!";
+    G4Exception("FCS_StepInfoSD", "FCSBadCall", FatalException, description);
+    abort();
+  }
+  SG::ReadCondHandle<CaloDetDescrManager> caloMgr(caloMgrKey,Gaudi::Hive::currentContext());
+  m_calo_dd_man.set(*caloMgr);
+}
+
 void FCS_StepInfoSD::update_map(const CLHEP::Hep3Vector & l_vec, const Identifier & l_identifier, double l_energy, double l_time, bool l_valid, int l_detector, double timeWindow, double distanceWindow)
 {
   // NB l_identifier refers to:
@@ -156,7 +161,7 @@ void FCS_StepInfoSD::update_map(const CLHEP::Hep3Vector & l_vec, const Identifie
   // - the PMT identifier for Tile
 
   // Drop any hits that don't have a good identifier attached
-  if (!m_calo_dd_man->get_element(l_identifier)) {
+  if (!m_calo_dd_man.get()->get_element(l_identifier)) {
     if(m_config.verboseLevel > 4) {
       G4cout<<this->GetName()<<" DEBUG update_map: bad identifier: "<<l_identifier.getString()<<" skipping this hit."<<G4endl;
     }
@@ -172,12 +177,8 @@ void FCS_StepInfoSD::update_map(const CLHEP::Hep3Vector & l_vec, const Identifie
   else {
 
     // Get the appropriate merging limits
-    const CaloCell_ID::CaloSample& layer = m_calo_dd_man->get_element(l_identifier)->getSampling();
+    const CaloCell_ID::CaloSample& layer = m_calo_dd_man.get()->get_element(l_identifier)->getSampling();
     const double tsame(this->getMaxTime(layer));
-    const double maxRadius(this->getMaxRadius(layer));
-    const double maxDeltaR(this->getMaxDeltaR(layer));
-    const double maxDeltaEta(this->getMaxDeltaEta(layer));
-    const double maxDeltaPhi(this->getMaxDeltaPhi(layer));
     bool match = false;
     for (auto map_it : * map_item->second) {
       // Time check ... both a global flag and a check on the layer
@@ -190,29 +191,7 @@ void FCS_StepInfoSD::update_map(const CLHEP::Hep3Vector & l_vec, const Identifie
       const double hit_diff2 = currentPosition.diff2( l_vec );
       // Global distance check
       if ( hit_diff2 >= distanceWindow ) { continue; }
-
-      // Overall merging scheme
-      if (layer >= CaloCell_ID::PreSamplerB && layer <= CaloCell_ID::EME3) {
-        // Customized merging scheme for LAr barrel and endcap, use only if we're not changing maxRadiusLAr value
-        if(m_config.m_maxRadiusLAr == 25) {
-          const CLHEP::Hep3Vector a_diff = l_vec - currentPosition;
-          const double a_diffmag(a_diff.mag());
-          const double a_inv_length = 1./a_diffmag;
-          const double delta_r = std::fabs(a_diff.dot( l_vec ) * a_inv_length);
-          if (delta_r >= maxDeltaR) { continue; }
-          const double delta_eta = std::fabs(std::sin(l_vec.theta()-currentPosition.theta())*a_diffmag);
-          if (delta_eta >= maxDeltaEta) { continue; }
-          const double delta_phi = std::fabs(std::sin(l_vec.phi()-currentPosition.phi())*a_diffmag);
-          if (delta_phi >= maxDeltaPhi) { continue; }
-
-	  if (delta_phi <= 0.00025 ) { continue; }
-        }
-        else {
-          if ( hit_diff2 >= maxRadius ) { continue; }
-        }
-      }
-      else if ( hit_diff2 >= maxRadius ) { continue; }
-
+     
       // Found a match.  Make a temporary that will be deleted!
       const ISF_FCS_Parametrization::FCS_StepInfo my_info( l_vec , l_identifier , l_energy , l_time , l_valid , l_detector );
       *map_it += my_info;

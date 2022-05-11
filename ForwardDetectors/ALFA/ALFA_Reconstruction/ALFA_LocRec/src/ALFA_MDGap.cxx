@@ -1,10 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "AthenaKernel/getMessageSvc.h"
 #include "ALFA_LocRec/ALFA_MDGap.h"
 
-ALFA_MDGap::ALFA_MDGap()
+ALFA_MDGap::ALFA_MDGap() :
+    AthMessaging(Athena::getMessageSvc(), "ALFA_MDGap")
 {
 	memset(&m_faMD, 0, sizeof(m_faMD));
 	memset(&m_fbMD, 0, sizeof(m_fbMD));
@@ -62,7 +64,6 @@ StatusCode ALFA_MDGap::Initialize(Int_t iRPot, Float_t faMD[RPOTSCNT][ALFALAYERS
 
 StatusCode ALFA_MDGap::Execute(const std::list<MDHIT> &ListMDHits)
 {
-	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDGap::Execute()");
 	ATH_MSG_DEBUG("ALFA_MDGap::Execute()");
 
 	FIBERS structFibers;

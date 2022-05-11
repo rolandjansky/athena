@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LUCID_RDBAaccess.h"
@@ -69,7 +69,7 @@ void LUCID_RDBAccess::SetParameters() {
     
   IRDBRecordset::const_iterator AccessSvc_iter;
   
-  for(AccessSvc_iter = m_lucidParams->begin(); AccessSvc_iter != m_lucidParams->end(); AccessSvc_iter++) {
+  for(AccessSvc_iter = m_lucidParams->begin(); AccessSvc_iter != m_lucidParams->end(); ++AccessSvc_iter) {
     
     distanceToIP                  = (*AccessSvc_iter)->getDouble("DISTANCETOIP")*Gaudi::Units::mm;
     VJdistanceToIP                = (*AccessSvc_iter)->getDouble("VJDISTANCETOIP")*Gaudi::Units::mm;

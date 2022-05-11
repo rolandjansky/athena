@@ -12,7 +12,7 @@
 // July 2006	
 // ********************************************************************
 
-#include "TileMonitoring/TilePaterMonTool.h"
+#include "TilePaterMonTool.h"
 
 #include "CaloIdentifier/TileID.h"
 #include "CaloIdentifier/TileTBID.h"
@@ -90,6 +90,7 @@ TilePaterMonTool::TilePaterMonTool(const std::string & type, const std::string &
   declareProperty("saveSvg",m_saveSvg=false);
 
   declareProperty("FragIDsToIgnoreDMUErrors", m_fragIDsToIgnoreDMUerrors, "List of Tile frag IDs for which ignore DMU errors");
+  declareProperty("FragIDsDemonstrators", m_fragIDsDemonstrators, "List of Tile frag IDs of demonstrators, which have different CIS circuits than the legacy ones");
 
   m_path = "/Tile";
 
@@ -110,16 +111,44 @@ StatusCode TilePaterMonTool:: initialize()
   CHECK( detStore()->retrieve(m_tileHWID) );
   CHECK( detStore()->retrieve(m_tileTBID) );
 
-  std::sort(m_fragIDsToIgnoreDMUerrors.begin(), m_fragIDsToIgnoreDMUerrors.end());
-
   m_cabling = TileCablingService::getInstance();
+  int runPeriod = m_cabling->runPeriod();
 
-  std::ostringstream os;
-  for (int fragID : m_fragIDsToIgnoreDMUerrors) {
-    os << " 0x" << std::hex << fragID << std::dec;
+  if (runPeriod==3) {
+    std::vector<int> v = { 0x10d }; // LBA14 is demonstrator in RUN3
+
+    if ( m_fragIDsToIgnoreDMUerrors.size() == 0) {
+      m_fragIDsToIgnoreDMUerrors = v;
+    }
+
+    if ( m_fragIDsDemonstrators.size() == 0) {
+      m_fragIDsDemonstrators = v;
+    }
   }
 
-  ATH_MSG_INFO("Tile DMU errors will be ignored in drawers (frag IDs):" << os.str());
+  if ( m_fragIDsToIgnoreDMUerrors.size() != 0) {
+
+    std::sort(m_fragIDsToIgnoreDMUerrors.begin(),m_fragIDsToIgnoreDMUerrors.end());
+
+    std::ostringstream os;
+    for (int fragID : m_fragIDsToIgnoreDMUerrors) {
+      os << " 0x" << std::hex << fragID << std::dec;
+    }
+
+    ATH_MSG_INFO("Tile DMU errors will be ignored in drawers (frag IDs):" << os.str());
+  }
+
+  if ( m_fragIDsDemonstrators.size() != 0) {
+
+    std::sort(m_fragIDsDemonstrators.begin(),m_fragIDsDemonstrators.end());
+
+    std::ostringstream os;
+    for (int fragID : m_fragIDsDemonstrators) {
+      os << " 0x" << std::hex << fragID << std::dec;
+    }
+
+    ATH_MSG_INFO("Special settings in histograms for demonstrator modules (frag IDs):" << os.str());
+  }
 
   //ToolRootHistSvc();
   //SetBookStatus(false);

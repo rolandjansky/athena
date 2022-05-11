@@ -22,26 +22,26 @@ namespace Muon {
         return StatusCode::SUCCESS;
     }
 
-    bool MuonLayerSegmentMatchingTool::match(const MuonSystemExtension::Intersection& intersection, const MuonSegment& segment) const {
-        const EventContext& ctx = Gaudi::Hive::currentContext();
+    bool MuonLayerSegmentMatchingTool::match(const EventContext& ctx, const MuonSystemExtension::Intersection& intersection,
+                                             const MuonSegment& segment) const {
         if (msgLvl(MSG::VERBOSE)) {
-            const Trk::TrackParameters* pars = intersection.trackParameters.get();
+            std::shared_ptr<const Trk::TrackParameters> pars = intersection.trackParameters;
             msg(MSG::VERBOSE) << " startPars: phi " << pars->position().phi() << " r " << pars->position().perp() << " z "
                               << pars->position().z() << " local " << pars->parameters()[Trk::locX] << " " << pars->parameters()[Trk::locY];
             if (pars->covariance())
                 msg(MSG::VERBOSE) << " err " << Amg::error(*pars->covariance(), Trk::locX) << " "
                                   << Amg::error(*pars->covariance(), Trk::locY);
             msg(MSG::VERBOSE) << endmsg;
-        }
+        }      
 
-        std::unique_ptr<const Trk::TrackParameters> exPars(
-            m_extrapolator->extrapolate(ctx,*intersection.trackParameters, segment.associatedSurface(), Trk::anyDirection, false, Trk::muon));
+        std::shared_ptr<Trk::TrackParameters> exPars(m_extrapolator->extrapolate(
+            ctx, *intersection.trackParameters, segment.associatedSurface(), Trk::anyDirection, false, Trk::muon));
         if (!exPars) {
             ATH_MSG_VERBOSE(" extrapolation failed ");
             return false;
         }
 
-        const Trk::AtaPlane* ataPlane = dynamic_cast<const Trk::AtaPlane*>(exPars.get());
+        std::shared_ptr<Trk::AtaPlane> ataPlane = std::dynamic_pointer_cast<Trk::AtaPlane>(exPars);
         if (!ataPlane) {
             ATH_MSG_WARNING(" dynamic_cast<> failed ");
             return false;
@@ -58,32 +58,33 @@ namespace Muon {
             msg(MSG::VERBOSE) << endmsg;
         }
 
-        MuonCombined::MuonSegmentInfo segmentInfo = m_matchingTool->muTagSegmentInfo(nullptr, &segment, ataPlane);
-        if (!m_matchingTool->matchSegmentPosition(&segmentInfo, true)) {
+        MuonCombined::MuonSegmentInfo segmentInfo = m_matchingTool->muTagSegmentInfo(ctx, nullptr, segment, ataPlane);
+        if (!m_matchingTool->matchSegmentPosition(segmentInfo, true)) {
             ATH_MSG_DEBUG(" position match failed ");
             return false;
         }
-        if (!m_matchingTool->matchSegmentDirection(&segmentInfo, true)) {
+        if (!m_matchingTool->matchSegmentDirection(segmentInfo, true)) {
             ATH_MSG_DEBUG(" direction match failed ");
             return false;
         }
-        if (!m_matchingTool->matchDistance(&segmentInfo)) {
+        if (!m_matchingTool->matchDistance(segmentInfo)) {
             ATH_MSG_DEBUG(" distance match failed ");
             return false;
         }
-        if (!m_matchingTool->matchCombinedPull(&segmentInfo)) {
+        if (!m_matchingTool->matchCombinedPull(segmentInfo)) {
             ATH_MSG_DEBUG(" combined pull match failed ");
             return false;
         }
         return true;
     }
 
-    void MuonLayerSegmentMatchingTool::select(const MuonSystemExtension::Intersection& intersection,
+    void MuonLayerSegmentMatchingTool::select(const EventContext& ctx,
+                                              const MuonSystemExtension::Intersection& intersection,
                                               const std::vector<std::shared_ptr<const Muon::MuonSegment> >& segments,
                                               std::vector<std::shared_ptr<const Muon::MuonSegment> >& selectedSegments) const {
         // loop over segments and match them to the intersection
-        for (const auto& segment : segments) {
-            if (match(intersection, *segment)) { selectedSegments.push_back(segment); }
+        for (const std::shared_ptr<const Muon::MuonSegment>& segment : segments) {
+            if (match(ctx, intersection, *segment)) { selectedSegments.push_back(segment); }
         }
         ATH_MSG_DEBUG("Selected segments: " << selectedSegments.size());
     }

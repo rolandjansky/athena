@@ -14,6 +14,7 @@ namespace Muon {
 class STGC_RawData {
  friend class STGC_RawDataCnv_p1;
  friend class STGC_RawDataCnv_p2;
+ friend class STGC_RawDataCnv_p3;
  
  private:
 
@@ -28,6 +29,7 @@ class STGC_RawData {
    uint16_t m_bcTag;
    
    bool m_isDead;
+   bool m_timeAndChargeInCounts;
    
 
  public:
@@ -35,10 +37,10 @@ class STGC_RawData {
    STGC_RawData () {} //!< TODO remove this. Currently have problems with convertor if I do though.
 
    STGC_RawData (const Identifier id, const uint16_t bcTag, const float time, const unsigned int charge, 
-		 const bool isDead );
+		 const bool isDead, const bool timeAndChargeInCounts);
  
    STGC_RawData (const Identifier id, const uint16_t bcTag, const float time, const unsigned int tdo, 
-                 const unsigned int charge, const bool isDead );
+                 const unsigned int charge, const bool isDead, const bool timeAndChargeInCounts );
 
    virtual ~STGC_RawData() {}
 
@@ -51,7 +53,15 @@ class STGC_RawData {
    uint16_t bcTag() const {return m_bcTag;}
 
    bool isDead() const {return m_isDead;}
+   bool timeAndChargeInCounts() const {return m_timeAndChargeInCounts;}
 
+  // A Simple constant to convert time to TDC counts in the absence of time calibration.
+  // This constant should be used only to preserve backward compatibility, since it doesn't have 
+  // physical meaning and the value is arbitrary. The value is chosen to be greater than 
+  // 25 ns plus the absolute value of the time corresponding to the first bunch crossing defined in
+  // sTGC_Digitization/python/sTGC_DigitizationConfig.py, which is -100ns as of 2022-05-01.
+  // Therefore, after time-tdo conversion, the resulting TDC count is positive.
+  static constexpr int s_timeTdoShift{200};
 };
 }
 

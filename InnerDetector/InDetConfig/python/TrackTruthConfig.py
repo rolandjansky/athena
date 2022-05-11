@@ -1,33 +1,12 @@
 # Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.Enums import BeamType
 
 # -------------------------------------------------------------------------
 #
 # ------- fragment to handle track truth association
 #
 # -------------------------------------------------------------------------
-
-def InDetDetailedTrackTruthMakerCfg(flags, Tracks, DetailedTruth, name='Maker',**kwargs) :
-    acc = ComponentAccumulator()
-    kwargs.setdefault("TrackCollectionName", Tracks)
-    kwargs.setdefault("DetailedTrackTruthName", DetailedTruth)
-    kwargs.setdefault("TruthNamePixel", 'PRD_MultiTruthPixel')
-    kwargs.setdefault("TruthNameSCT", 'PRD_MultiTruthSCT')
-    kwargs.setdefault("TruthNameTRT", 'PRD_MultiTruthTRT')
-
-    # this is how the truth maker gets to know which detector is on ...
-    if (not flags.Detector.EnablePixel):
-        kwargs.setdefault("TruthNamePixel", "")
-    if (not flags.Detector.EnableSCT):
-        kwargs.setdefault("TruthNameSCT", "")
-    # for cosmics, at the stage of SiPatternRecognition, the TRT truth information is not yet available
-    if ((not flags.Detector.EnableTRT) or (flags.Beam.Type is BeamType.Cosmics and (DetailedTruth == "SiSPSeededTracksDetailedTruth" or DetailedTruth == "ResolvedTracksDetailedTruth"))):
-        kwargs.setdefault("TruthNameTRT", "")
-
-    acc.addEventAlgo(CompFactory.InDet.InDetDetailedTrackTruthMaker(name = DetailedTruth+name, **kwargs))
-    return acc
 
 def InDetTruthMatchToolCfg(flags, name='InDetTruthMatchTool', **kwargs) :
     acc = ComponentAccumulator()
@@ -57,6 +36,7 @@ def InDetTrackTruthCfg(flags, Tracks="CombinedInDetTracks", DetailedTruth="Combi
     #
     # --- Enable the detailed track truth
     #
+    from InDetConfig.InDetTruthAlgsConfig import InDetDetailedTrackTruthMakerCfg
     acc.merge(InDetDetailedTrackTruthMakerCfg(flags, Tracks, DetailedTruth))
     #
     # --- Detailed to old TrackTruth

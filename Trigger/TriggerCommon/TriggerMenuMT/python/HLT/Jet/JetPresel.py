@@ -5,16 +5,16 @@ log = logging.getLogger(__name__)
 
 import re
 
-from .JetRecoCommon import getJetCalibDefaultString, jetChainParts
+from .JetRecoCommon import getJetCalibDefaultString, jetChainParts, etaRangeAbbrev
 from ..Menu.SignatureDicts import JetChainParts_Default
-from ..Config.MenuComponents import NoHypoToolCreated
+from TriggerMenuMT.HLT.Config.ControlFlow.HLTCFTools import NoHypoToolCreated
 
 
 from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetHypoToolFromDict
 
 # Extract preselection reco dictionary
 # This is 1:1 based on the main (tracking/PF) jet collection
-def getPreselRecoDict(reco):
+def getPreselRecoDict(reco,roiftf=False):
 
     # Define a fixed preselection dictionary for prototyping -- we may expand the options
     preselRecoDict = {
@@ -31,6 +31,9 @@ def getPreselRecoDict(reco):
         preselRecoDict['clusterCalib']='lcw'
     '''
     preselRecoDict.update({'jetCalib':getJetCalibDefaultString(preselRecoDict) if preselRecoDict['recoAlg']=='a4' else 'nojcalib'}) #Adding default calibration for corresponding chain
+    
+    # Overwriting tracking option to roiftf tracking
+    if roiftf: preselRecoDict['trkopt'] = 'roiftf'
 
     return preselRecoDict
 
@@ -45,6 +48,15 @@ def extractPreselection(fullChainDict):
 # that is only seen by the standard hypo tool generator, and used to return a configured
 # hypo tool for the preselection step
 def caloPreselJetHypoToolFromDict(mainChainDict):
+    return _preselJetHypoToolFromDict(mainChainDict)
+    
+
+def roiPreselJetHypoToolFromDict(mainChainDict):
+    return _preselJetHypoToolFromDict(mainChainDict,doBJetSel=True)
+
+
+def _preselJetHypoToolFromDict(mainChainDict, doBJetSel=False):
+
     preselChainDict = dict(mainChainDict)
     preselChainDict['chainParts']=[]
     trkpresel = extractPreselection(mainChainDict)
@@ -58,15 +70,19 @@ def caloPreselJetHypoToolFromDict(mainChainDict):
     preselCommonJetParts = dict(JetChainParts_Default)
 
     for ip,p in enumerate(presel_cut_str.split('XX')):
-        matched = re.match(r'(?P<mult>\d?\d?)(?P<region>[jacf])(?P<scenario>(HT)?)(?P<cut>\d+)', p)
+        if not doBJetSel:  # Removing b-jet parts if b-jet presel is not requested
+            p = re.sub(r'b\d+', '', p)
+        hasBjetSel = bool(re.match(r'.*b\d+', p))
+        assert not (hasBjetSel and not doBJetSel), "Your jet preselection has a b-jet part but a calo-only preselection was requested instead. This should not be possible. Please investigate."
+
+        matched = re.match(r'(?P<mult>\d?\d?)(?P<region>[jacf])(?P<scenario>(HT)?)(?P<cut>\d+)'+(r'b(?P<bwp>\d+)' if hasBjetSel else ''), p)
         assert matched is not None, "Impossible to extract preselection cut for \'{0}\' substring. Please investigate.".format(p)
         cut_dict = matched.groupdict()
-        mult,region,scenario,cut=cut_dict['mult'],cut_dict['region'],cut_dict['scenario'],cut_dict['cut']
-        etarange = {
-            "j":"0eta320", # default
-            "a":"0eta490",
-            "c":"0eta240",
-            "f":"320eta490"}[region]
+        if 'bwp' not in cut_dict.keys(): cut_dict['bwp'] = ''
+        mult,region,scenario,cut,bwp=cut_dict['mult'],cut_dict['region'],cut_dict['scenario'],cut_dict['cut'], cut_dict['bwp']
+
+        if mult=='': mult='1'
+        etarange = etaRangeAbbrev[region]
         if scenario == "HT":
             hyposcenario=f'HT{cut}XX{etarange}'
             threshold='0'
@@ -75,7 +91,6 @@ def caloPreselJetHypoToolFromDict(mainChainDict):
             hyposcenario='simple'
             threshold=cut
             chainPartName=f'{mult}j{cut}_{etarange}'
-        if mult=='': mult='1'
 
         tmpChainDict = dict(preselCommonJetParts)
         tmpChainDict.update(
@@ -85,6 +100,7 @@ def caloPreselJetHypoToolFromDict(mainChainDict):
             'threshold': threshold,
             'etaRange':etarange,
             'jvt':'',
+            'bdips': '' if bwp == '' else f'{bwp}bdips',
             'chainPartIndex': ip,
             'hypoScenario': hyposcenario,
             }

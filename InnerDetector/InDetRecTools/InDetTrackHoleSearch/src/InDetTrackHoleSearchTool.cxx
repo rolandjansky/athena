@@ -48,8 +48,7 @@ InDet::InDetTrackHoleSearchTool::InDetTrackHoleSearchTool(const std::string& t,
 }
 
 //================ Destructor =================================================
-InDet::InDetTrackHoleSearchTool::~InDetTrackHoleSearchTool() {
-}
+InDet::InDetTrackHoleSearchTool::~InDetTrackHoleSearchTool() = default;
 
 //================ Initialisation =================================================
 StatusCode InDet::InDetTrackHoleSearchTool::initialize() {
@@ -90,8 +89,7 @@ void InDet::InDetTrackHoleSearchTool::countHoles(const Trk::Track& track,
     delete listOfHoles;
     listOfHoles = nullptr;
   }
-  return;
-}
+  }
 
 //============================================================================================
 const DataVector<const Trk::TrackStateOnSurface>* InDet::InDetTrackHoleSearchTool::getHolesOnTrack(const Trk::Track& track,
@@ -177,8 +175,7 @@ void InDet::InDetTrackHoleSearchTool::searchForHoles(const Trk::Track& track,
     (it->second).first = nullptr;
   }
 
-  return;
-}
+  }
 
 // ====================================================================================================================
 bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const EventContext& ctx,
@@ -710,8 +707,7 @@ void InDet::InDetTrackHoleSearchTool::performHoleSearchStepWise(std::map<const I
     (*information)[Trk::numberOfSCTDeadSensors]   = SctDead;
   }
 
-  return;
-}
+  }
 
 // ====================================================================================================================
 const Trk::TrackStateOnSurface* InDet::InDetTrackHoleSearchTool::createHoleTSOS(const Trk::TrackParameters* trackPar) {

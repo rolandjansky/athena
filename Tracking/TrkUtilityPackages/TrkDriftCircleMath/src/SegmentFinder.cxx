@@ -289,7 +289,7 @@ namespace TrkDriftCircleMath {
                 // add new seeds
                 for (; it_start_serie != it + 1; ++it_start_serie) {
                     // only fill hits that are "in time"
-                    if (it_start_serie->state() == DriftCircle::InTime) { seeds.push_back(*it_start_serie); }
+                    if (it_start_serie->driftState() == DriftCircle::InTime) { seeds.push_back(*it_start_serie); }
                 }
             }
             // all other combinations are not taken into account

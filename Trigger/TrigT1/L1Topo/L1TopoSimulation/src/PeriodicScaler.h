@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -12,7 +12,6 @@
  * @author Nicolas Berger  <Nicolas.Berger@cern.ch>  - CERN
  *
  * File and Version Information:
- * $Id: PeriodicScaler.h,v 1.5 2008-05-06 09:19:19 tbold Exp $
  **********************************************************************************/
 
 #ifndef TRIGSTEERING_PeriodicScaler_H
@@ -46,7 +45,7 @@ namespace LVL1 {
 
       /** @brief Reset scaler to initial state.
        */
-      virtual void reset();
+      void reset();
     
    protected:
       unsigned int m_counter; //!< event counter
@@ -70,7 +69,7 @@ namespace LVL1 {
           @param factor take every [factor] event
           @return true if event is taken
       */
-      virtual bool decision(float factor);
+      virtual bool decision(float factor) override;
    };
   
 }

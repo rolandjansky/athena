@@ -48,7 +48,9 @@ def ITkStripSensorSDCfg(ConfigFlags, name="ITkStripSensorSD", **kwargs):
     kwargs.setdefault("GmxSensor", True)
     kwargs.setdefault("LogicalVolumeNames", ["ITkStrip::BRLSensorSS","ITkStrip::BRLSensorMS",
                                              "ITkStrip::ECSensor0","ITkStrip::ECSensor1","ITkStrip::ECSensor2",
-                                             "ITkStrip::ECSensor3","ITkStrip::ECSensor4","ITkStrip::ECSensor5"])
+                                             "ITkStrip::ECSensor3","ITkStrip::ECSensor4","ITkStrip::ECSensor5",
+                                             "ITkStrip::ECSensorBack0","ITkStrip::ECSensorBack1","ITkStrip::ECSensorBack2",
+                                             "ITkStrip::ECSensorBack3","ITkStrip::ECSensorBack4","ITkStrip::ECSensorBack5"])
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
 
     result = ComponentAccumulator()

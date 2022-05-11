@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBDetDescrLoader_H
@@ -14,15 +14,15 @@ class TBDetDescrManager;
 class TBDetDescrLoader : public AthAlgorithm {
 public:
     //Constructor
-    TBDetDescrLoader(std::string name, ISvcLocator* pSvcLocator);
+    TBDetDescrLoader(const std::string& name, ISvcLocator* pSvcLocator);
 
     //Destructor 
     virtual ~TBDetDescrLoader();                         
     
     //Gaudi Hooks
-    StatusCode initialize();    
-    StatusCode execute();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute() override;
+    virtual StatusCode finalize() override;
 
 private:
 

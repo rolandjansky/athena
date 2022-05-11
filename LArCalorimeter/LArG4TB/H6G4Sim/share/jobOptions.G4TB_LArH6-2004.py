@@ -84,7 +84,7 @@ SimFlags.CalibrationRun='LAr'
 SimFlags.EventFilter.set_Off()
 
 #--- Generator flags ------------------------------------------
-from AthenaServices.AthenaServicesConf import AtRanluxGenSvc
+from RngComps.RngCompsConf import AtRanluxGenSvc
 ServiceMgr += AtRanluxGenSvc()
 ServiceMgr.AtRanluxGenSvc.Seeds = ["SINGLE 2000160768 643921183"]
 

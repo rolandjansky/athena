@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -62,7 +62,7 @@ Trk::GenericGeometryBuilder::GenericGeometryBuilder(const std::string& t, const 
 
 // destructor
 Trk::GenericGeometryBuilder::~GenericGeometryBuilder()
-{}
+= default;
 
 // Athena standard methods - initialize
 StatusCode Trk::GenericGeometryBuilder::initialize()

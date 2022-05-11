@@ -3,6 +3,7 @@
 # art-description: Run cosmics simulation outside ISF, generating events on-the-fly, using 2015 geometry and conditions
 # art-include: master/Athena
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-output: *.HITS.pool.root
 # art-output: *.TR.pool.root
 # art-output: log.*

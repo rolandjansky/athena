@@ -1,11 +1,8 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.JetFitterFullLinearizedTrackFactoryConfig import JetFitterFullLinearizedTrackFactoryCfg
-
-# import the SequentialVertexFitter configurable
-Trk__VxCandidateXAODVertex=CompFactory.Trk.VxCandidateXAODVertex
 
 
 def VxInternalEdmFactoryCfg(name, useBTagFlagsDefaults = True, **options):
@@ -25,6 +22,6 @@ def VxInternalEdmFactoryCfg(name, useBTagFlagsDefaults = True, **options):
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name
-    acc.setPrivateTools(Trk__VxCandidateXAODVertex(**options))
+    acc.setPrivateTools(CompFactory.Trk.VxCandidateXAODVertex(**options))
 
     return acc

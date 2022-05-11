@@ -144,22 +144,39 @@ def renameComps(dic, args) -> Dict:
             [e.strip() for e in element.split("=")] for element in compsToRename
         ]
     })
+    for f,t in componentRenamingDict.items():
+        logger.info("Renaming from: %s to %s", f, t)
 
     def rename_comps(comp_name):
         """Renames component if it is in the dict or, when name fragment is in the dict
         The later is for cases like: ToolSvc.ToolA.X.Y is renamed to ToolSvc.ToolB.X.Y
         """
-        renamed = componentRenamingDict.get(comp_name, comp_name) # get new name or default to original when no renaming for that name
-        if renamed != comp_name: 
-            return renamed
+        logger.debug("Trying renaming on, %s", comp_name)
         for k,v in componentRenamingDict.items():
-            if f"{k}." in comp_name or f".{k}" in comp_name:
-                return v.replace(k, v)
+            if k == comp_name:
+#                logger.debug("Renamed comp %s to %s", k, v)
+                return v
+
+            old = f".{k}."
+            if old in comp_name:
+                return comp_name.replace(old, f".{v}.")
+
+            old = f"{k}."
+            if comp_name.startswith(old):
+                return comp_name.replace(old, f"{v}.")
+
+
+            old = f".{k}"
+            if comp_name.endswith(old):
+                return comp_name.replace(old, f".{k}")
         return comp_name
 
     conf = {}
-    for (key, value) in dic.items():
-        conf[rename_comps(key)] = value
+    for (key, value) in dic.items():        
+        renamed = rename_comps(key)
+        if renamed != key:
+             logger.debug("Renamed comp %s to %s", key, renamed)
+        conf[renamed] = value
     return conf
 
 def ignoreDefaults(allconf, args) -> Dict:

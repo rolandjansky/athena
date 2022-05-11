@@ -172,7 +172,7 @@ CaloTopoClusterTowerMerger::makeDeepCopy(const xAOD::CaloCluster& rClus,
 }
 
 StatusCode CaloTopoClusterTowerMerger::addContainerWriteHandle(whandle_t& signalHandle) const
-{ return CaloClusterStoreHelper::AddContainerWriteHandle(&(*evtStore()),signalHandle,msg()); }
+{ return CaloClusterStoreHelper::AddContainerWriteHandle(signalHandle); }
 //   // get a new signal handle
 //   signalHandle = std::unique_ptr<xAOD::CaloClusterContainer>(new xAOD::CaloClusterContainer());
 //   if ( !signalHandle.isValid() ) { return StatusCode::FAILURE; }

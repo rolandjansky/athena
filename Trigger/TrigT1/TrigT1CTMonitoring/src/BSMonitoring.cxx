@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Package includes
@@ -7,6 +7,7 @@
 #include "TrigT1Result/MuCTPI_DataWord_Decoder.h"
 #include "TrigT1Result/MuCTPI_MultiplicityWord_Decoder.h"
 #include "TrigT1Result/CTP_Decoder.h"
+#include "TrigT1MuctpiBits/MuCTPI_Bits.h"
 
 // TrigConf includes
 #include "TrigConfData/L1Menu.h"
@@ -677,7 +678,7 @@ TrigT1CTMonitoring::BSMonitoring::doMuctpi(const MuCTPI_RDO* theMuCTPI_RDO, cons
   if (numberCandidates > 0) ++m_filledEventCount;
   nCandidates->Fill(numberCandidates);
 
-  for ( unsigned int i(0); i < MuCTPI_RDO::MULT_THRESH_NUM; ++i ) {
+  for ( unsigned int i(0); i < LVL1::MuCTPIBits::MULT_THRESH_NUM; ++i ) {
     nCandidatesPt->Fill(i+1u,multWord.getMultiplicity(i));
   }
 
@@ -793,7 +794,7 @@ TrigT1CTMonitoring::BSMonitoring::doMuctpi(const MuCTPI_RDO* theMuCTPI_RDO, cons
   /*
    * pT thresholds of the MIOCT candidate words 
    */
-  std::vector<Int_t> MioctPtCount(MuCTPI_RDO::MULT_THRESH_NUM, 0);
+  std::vector<Int_t> MioctPtCount(LVL1::MuCTPIBits::MULT_THRESH_NUM, 0);
   std::vector<uint32_t>::const_iterator it = vDataWords.begin();
   std::vector<uint32_t>::const_iterator end = vDataWords.end();
 
@@ -819,7 +820,7 @@ TrigT1CTMonitoring::BSMonitoring::doMuctpi(const MuCTPI_RDO* theMuCTPI_RDO, cons
     if ( ! dataWord.getVetoed() ) {
       uint16_t candPt = dataWord.getPt();
       pt->Fill(candPt);
-      if (0 < candPt && candPt <= MuCTPI_RDO::MULT_THRESH_NUM) {
+      if (0 < candPt && candPt <= LVL1::MuCTPIBits::MULT_THRESH_NUM) {
         if (m_inclusiveTriggerThresholds) {
           for ( uint16_t i(0); i < candPt; ++i )
             if (MioctPtCount[i] < 7) {
@@ -859,7 +860,7 @@ TrigT1CTMonitoring::BSMonitoring::doMuctpi(const MuCTPI_RDO* theMuCTPI_RDO, cons
    * Consistency check: MICTP vs MIOCT multiplicity 
    */
   bool anyMismatch = false;
-  for ( uint16_t i = 0; i < MuCTPI_RDO::MULT_THRESH_NUM; ++i ) {
+  for ( uint16_t i = 0; i < LVL1::MuCTPIBits::MULT_THRESH_NUM; ++i ) {
     if ( multWord.getMultiplicity(i) != MioctPtCount[i] ) {
       anyMismatch = true;
       ATH_MSG_WARNING( "pT threshold " << i+1 << ": MICTP multiplicity (" << multWord.getMultiplicity(i)

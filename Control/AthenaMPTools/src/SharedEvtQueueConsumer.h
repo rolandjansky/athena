@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAMPTOOLS_SHAREDEVTQUEUECONSUMER_H
@@ -56,7 +56,6 @@ class SharedEvtQueueConsumer final : public AthenaMPToolBase
   // Properties
   bool m_useSharedReader; // Work in pair with a SharedReader
   bool m_useSharedWriter; // Work in pair with a SharedWriter
-  bool m_isPileup;        // Are we doing pile-up digitization?
   bool m_isRoundRobin;    // Are we running in the "reproducible mode"?
   int  m_nEventsBeforeFork;
   int  m_nSkipEvents;

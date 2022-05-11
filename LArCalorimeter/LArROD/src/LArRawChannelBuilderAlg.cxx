@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArROD/LArRawChannelBuilderAlg.h" 
+#include "LArRawChannelBuilderAlg.h" 
 #include "GaudiKernel/SystemOfUnits.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "CaloEvent/CaloCellContainer.h"
@@ -163,7 +163,9 @@ StatusCode LArRawChannelBuilderAlg::execute(const EventContext& ctx) const {
 
 
     //Apply OFCs to get amplitude
-    float A=0;
+    // Evaluate sums in double-precision to get consistent results
+    // across platforms.
+    double A=0;
     bool saturated=false;
     unsigned int init=0;
     bool passBCIDmax=false;
@@ -175,20 +177,20 @@ StatusCode LArRawChannelBuilderAlg::execute(const EventContext& ctx) const {
     }
     if (!m_isSC){
       for (size_t i=0;i<len;++i) {
-        A+=(samp_no_ped[i])*ofca[i];
+        A+=static_cast<double>(samp_no_ped[i])*ofca[i];
       }
     } else {
       init=1;
       for (size_t i=0;i<len;++i) {
-        A+=(samp_no_ped[i+init])*ofca[i];
+        A+=static_cast<double>(samp_no_ped[i+init])*ofca[i];
       }
-      float Am1=0.;
+      double Am1=0.;
       for (size_t i=0;i<len;++i) {
-        Am1+=(samp_no_ped[i])*ofca[i];
+        Am1+=static_cast<double>(samp_no_ped[i])*ofca[i];
       }
-      float AM1=0.;
+      double AM1=0.;
       for (size_t i=0;i<len;++i) {
-        AM1+=(samp_no_ped[i+2])*ofca[i];
+        AM1+=static_cast<double>(samp_no_ped[i+2])*ofca[i];
       }
       if ( (A>Am1) && (A>AM1) ) passBCIDmax=true;
     } // end of m_isSC 
@@ -226,9 +228,9 @@ StatusCode LArRawChannelBuilderAlg::execute(const EventContext& ctx) const {
 
       //Get time by applying OFC-b coefficients:
       const auto& ofcb=ofcs->OFC_b(id,gain);
-      float At=0;
+      double At=0;
       for (size_t i=0;i<len;++i) {
-	At+=(samp_no_ped[i+init])*ofcb[i];
+	At+=static_cast<double>(samp_no_ped[i+init])*ofcb[i];
       }
       //Divide A*t/A to get time
       tau=(std::fabs(A)>0.1) ? At/A : 0.0;
@@ -254,7 +256,7 @@ StatusCode LArRawChannelBuilderAlg::execute(const EventContext& ctx) const {
 
       const float* shape=&*fullShape.begin()+firstSample;
 
-      float q=0;
+      double q=0;
       if (m_useShapeDer) {
 	const auto& fullshapeDer=shapes->ShapeDer(id,gain);
 	if (ATH_UNLIKELY(fullshapeDer.size()<nSamples+firstSample)) {

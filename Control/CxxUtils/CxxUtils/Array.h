@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -388,25 +388,12 @@ std::ostream& operator<< (std::ostream& s, const Array<N>& a);
  */
 template <unsigned int N>
 class ArrayIterator
-  : public std::iterator<std::random_access_iterator_tag, const Array<N-1> >
 {
 public:
-  // Typedefs.
-  /// Shorthand for the base class.
-  typedef std::iterator<std::random_access_iterator_tag, const Array<N-1> >
-             base_iterator;
-
-  /// Standard @c iterator_category typedef, from the base class.
-  typedef typename base_iterator::iterator_category iterator_category;
-
-  /// Standard @c value_type typedef, from the base class.
-  typedef typename base_iterator::value_type        value_type;
-
-  /// Standard @c difference typedef, from the base class.
-  typedef typename base_iterator::difference_type   difference_type;
-
-  /// Standard @c reference typedef, from the base class.
-  typedef typename base_iterator::reference         reference;
+  using iterator_category = std::random_access_iterator_tag;
+  using value_type = const Array<N-1>;
+  using difference_type = std::ptrdiff_t;
+  using reference = value_type&;
 
 
   /**

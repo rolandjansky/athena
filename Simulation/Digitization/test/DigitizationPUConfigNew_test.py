@@ -10,7 +10,7 @@ from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 from Digitization.DigitizationSteering import DigitizationMainCfg, DigitizationMessageSvcCfg, DigitizationTestingPostInclude
-from Digitization.PileUpUtils import generateBackgroundInputCollections, setupPileUpFlags
+from RunDependentSimComps.PileUpUtils import generateBackgroundInputCollections, setupPileUpFlags
 
 # Set up logging and new style config
 log.setLevel(DEBUG)

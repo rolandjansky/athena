@@ -972,7 +972,7 @@ namespace MuonCombined {
                 /// Check whether the author arises from the comissioning chain
                 /// The maps are filled in dedicated algorithim. So all tags will 
                 /// fail / satisfy this condition
-                if (tag->isComissioning() != select_commissioning) break;
+                if (tag->isCommissioning() != select_commissioning) break;
                 InDetCandidateTagsMap::iterator itr = std::find_if(inDetCandidateMap.begin(),inDetCandidateMap.end(), 
                                         [&comb_tag](const InDetCandidateTags& to_test) {
                                             return (*to_test.first) == (*comb_tag.first);
@@ -1123,7 +1123,7 @@ namespace MuonCombined {
         // and muon candidates
         std::map<const Trk::Track*, const MuonCandidate*> trackMuonCandLinks;
         for (const MuonCandidate* candidate : *muonCandidates) {
-            if (candidate->isComissioning() != select_commissioning) continue;
+            if (candidate->isCommissioning() != select_commissioning) continue;
             const Trk::Track* track = candidate->primaryTrack();
             if (used_candidates.count(candidate)) {
                 ATH_MSG_DEBUG("Duplicate MS track " << m_printer->print(*track));

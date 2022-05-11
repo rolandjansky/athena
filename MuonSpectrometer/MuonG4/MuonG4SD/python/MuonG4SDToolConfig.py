@@ -1,10 +1,9 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from ISF_Algorithms.CollectionMergerConfig import CollectionMergerCfg
 
-CSCSensitiveDetectorCosmicsTool,CSCSensitiveDetectorTool, GenericMuonSensitiveDetectorTool,MDTSensitiveDetectorCosmicsTool, MDTSensitiveDetectorTool, MicromegasSensitiveDetectorTool, RPCSensitiveDetectorCosmicsTool, RPCSensitiveDetectorTool, TGCSensitiveDetectorCosmicsTool, TGCSensitiveDetectorTool, sTGCSensitiveDetectorTool=CompFactory.getComps("CSCSensitiveDetectorCosmicsTool","CSCSensitiveDetectorTool","GenericMuonSensitiveDetectorTool","MDTSensitiveDetectorCosmicsTool","MDTSensitiveDetectorTool","MicromegasSensitiveDetectorTool","RPCSensitiveDetectorCosmicsTool","RPCSensitiveDetectorTool","TGCSensitiveDetectorCosmicsTool","TGCSensitiveDetectorTool","sTGCSensitiveDetectorTool",)
 
 def CSCSensitiveDetectorCosmicsCfg(ConfigFlags, name="CSCSensitiveDetectorCosmics", **kwargs):
     bare_collection_name = "CSC_Hits"
@@ -19,7 +18,7 @@ def CSCSensitiveDetectorCosmicsCfg(ConfigFlags, name="CSCSensitiveDetectorCosmic
     kwargs.setdefault("LogicalVolumeNames", ["Muon::CscArCO2"])
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
 
-    result.setPrivateTools( CSCSensitiveDetectorCosmicsTool(name, **kwargs) )
+    result.setPrivateTools( CompFactory.CSCSensitiveDetectorCosmicsTool(name, **kwargs) )
     return result
 def CSCSensitiveDetectorCfg(ConfigFlags, name="CSCSensitiveDetector", **kwargs):
     bare_collection_name = "CSC_Hits"
@@ -34,7 +33,7 @@ def CSCSensitiveDetectorCfg(ConfigFlags, name="CSCSensitiveDetector", **kwargs):
     kwargs.setdefault("LogicalVolumeNames", ["Muon::CscArCO2"])
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
 
-    result.setPrivateTools( CSCSensitiveDetectorTool(name, **kwargs) )
+    result.setPrivateTools( CompFactory.CSCSensitiveDetectorTool(name, **kwargs) )
     return result
 
 
@@ -42,7 +41,7 @@ def GenericMuonSensitiveDetectorCfg(ConfigFlags, name="GenericMuonSensitiveDetec
     kwargs.setdefault("LogicalVolumeNames", ["GenericSenitiveVolume"])
     kwargs.setdefault("OutputCollectionNames", ["GenericMuonSensitiveDetector"])
     result=ComponentAccumulator()
-    result.setPrivateTools( GenericMuonSensitiveDetectorTool(name, **kwargs) )
+    result.setPrivateTools( CompFactory.GenericMuonSensitiveDetectorTool(name, **kwargs) )
     return result
 
 
@@ -59,7 +58,7 @@ def MDTSensitiveDetectorCosmicsCfg(ConfigFlags, name="MDTSensitiveDetectorCosmic
     kwargs.setdefault("LogicalVolumeNames", ["Muon::SensitiveGas"])
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
 
-    result.setPrivateTools( MDTSensitiveDetectorCosmicsTool(name, **kwargs) )
+    result.setPrivateTools( CompFactory.MDTSensitiveDetectorCosmicsTool(name, **kwargs) )
     return result
 
 
@@ -76,16 +75,24 @@ def MDTSensitiveDetectorCfg(ConfigFlags, name="MDTSensitiveDetector", **kwargs):
     kwargs.setdefault("LogicalVolumeNames", ["Muon::SensitiveGas"])
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
 
-    result.setPrivateTools( MDTSensitiveDetectorTool(name, **kwargs) )
+    result.setPrivateTools( CompFactory.MDTSensitiveDetectorTool(name, **kwargs) )
     return result
 
 
 def MicromegasSensitiveDetectorCfg(ConfigFlags, name="MicromegasSensitiveDetector", **kwargs):
+    bare_collection_name = "MM_Hits"
+    mergeable_collection_suffix = "_G4"
+    merger_input_property = "MMHits"
+    region = "MUON"
+    result, hits_collection_name = CollectionMergerCfg(ConfigFlags,
+                                                       bare_collection_name,
+                                                       mergeable_collection_suffix,
+                                                       merger_input_property,
+                                                       region)
     kwargs.setdefault("LogicalVolumeNames", ["Muon::MM_Sensitive"])
-    kwargs.setdefault("OutputCollectionNames", ["MicromegasSensitiveDetector"])
-    # TODO add support for Micromegas to ISF_CollectionMerger
-    result=ComponentAccumulator()
-    result.setPrivateTools( MicromegasSensitiveDetectorTool(name, **kwargs) )
+    kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
+
+    result.setPrivateTools( CompFactory.MicromegasSensitiveDetectorTool(name, **kwargs) )
     return result
 
 
@@ -102,7 +109,7 @@ def RPCSensitiveDetectorCosmicsCfg(ConfigFlags, name="RPCSensitiveDetectorCosmic
     kwargs.setdefault("LogicalVolumeNames", ["Muon::gazGap"])
     kwargs.setdefault("OutputCollectionNames", [bare_collection_name]) #is this correct?
 
-    result.setPrivateTools( RPCSensitiveDetectorCosmicsTool(name, **kwargs) )
+    result.setPrivateTools( CompFactory.RPCSensitiveDetectorCosmicsTool(name, **kwargs) )
     return result
 
 
@@ -119,7 +126,7 @@ def RPCSensitiveDetectorCfg(ConfigFlags, name="RPCSensitiveDetector", **kwargs):
     kwargs.setdefault("LogicalVolumeNames", ["Muon::gazGap"])
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
 
-    result.setPrivateTools( RPCSensitiveDetectorTool(name, **kwargs) )
+    result.setPrivateTools( CompFactory.RPCSensitiveDetectorTool(name, **kwargs) )
     return result
 
 
@@ -136,7 +143,7 @@ def TGCSensitiveDetectorCosmicsCfg(ConfigFlags, name="TGCSensitiveDetectorCosmic
     kwargs.setdefault("LogicalVolumeNames", ["Muon::muo::TGCGas"])
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
 
-    result.setPrivateTools( TGCSensitiveDetectorCosmicsTool(name, **kwargs) )
+    result.setPrivateTools( CompFactory.TGCSensitiveDetectorCosmicsTool(name, **kwargs) )
     return result
 
 
@@ -153,14 +160,22 @@ def TGCSensitiveDetectorCfg(ConfigFlags, name="TGCSensitiveDetector", **kwargs):
     kwargs.setdefault("LogicalVolumeNames", ["Muon::muo::TGCGas"])
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
 
-    result.setPrivateTools( TGCSensitiveDetectorTool(name, **kwargs) )
+    result.setPrivateTools( CompFactory.TGCSensitiveDetectorTool(name, **kwargs) )
     return result
 
 
 def sTGCSensitiveDetectorCfg(ConfigFlags, name="sTGCSensitiveDetector", **kwargs):
+    bare_collection_name = "sTGC_Hits"
+    mergeable_collection_suffix = "_G4"
+    merger_input_property = "sTGCHits"
+    region = "MUON"
+    result, hits_collection_name = CollectionMergerCfg(ConfigFlags,
+                                                       bare_collection_name,
+                                                       mergeable_collection_suffix,
+                                                       merger_input_property,
+                                                       region)
     kwargs.setdefault("LogicalVolumeNames", ["Muon::sTGC_Sensitive"])
-    kwargs.setdefault("OutputCollectionNames", ["sTGCSensitiveDetector"])
-    # TODO add support for Micromegas to ISF_CollectionMerger
-    result=ComponentAccumulator()
-    result.setPrivateTools( sTGCSensitiveDetectorTool(name, **kwargs) )
+    kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
+
+    result.setPrivateTools( CompFactory.sTGCSensitiveDetectorTool(name, **kwargs) )
     return result

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -95,8 +95,8 @@ namespace iFatras {
  
    private:
       /** interface for calculation of absorption length */
-      double absorptionLength(const Trk::MaterialProperties* mat,
-            double p, double q, Trk::ParticleHypothesis particle=Trk::pion) const;
+      static double absorptionLength(const Trk::MaterialProperties* mat,
+            double p, double q, Trk::ParticleHypothesis particle=Trk::pion) ;
 
       /** collect secondaries for layer material update */                           
       ISF::ISFParticleVector getHadState(const ISF::ISFParticle* parent,

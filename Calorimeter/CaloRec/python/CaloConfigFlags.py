@@ -6,24 +6,24 @@ def createCaloConfigFlags():
     ccf=AthConfigFlags()
 
     #CaloNoise Flags     
-    ccf.addFlag("Calo.Noise.fixedLumiForNoise",-1)     
-    ccf.addFlag("Calo.Noise.useCaloNoiseLumi",True) 
+    ccf.addFlag("Calo.Noise.fixedLumiForNoise", -1) 
+    ccf.addFlag("Calo.Noise.useCaloNoiseLumi", True)
 
     #CaloCell flags     
-    ccf.addFlag("Calo.Cell.doPileupOffsetBCIDCorr", True)     
-    ccf.addFlag("Calo.Cell.doDeadCellCorr",True)     
+    ccf.addFlag("Calo.Cell.doPileupOffsetBCIDCorr", True)  
+    ccf.addFlag("Calo.Cell.doDeadCellCorr", True)
     ccf.addFlag("Calo.Cell.doPedestaCorr", lambda prevFlags: not prevFlags.Input.isMC)
     ccf.addFlag("Calo.Cell.doEnergyCorr",lambda prevFlags: not prevFlags.Input.isMC and not prevFlags.Common.isOnline)
     ccf.addFlag("Calo.Cell.doTimeCorr", lambda prevFlags: not prevFlags.Input.isMC and not prevFlags.Common.isOnline)
 
     #TopoCluster Flags:     
-    ccf.addFlag("Calo.TopoCluster.doTwoGaussianNoise",True)     
-    ccf.addFlag("Calo.TopoCluster.doTreatEnergyCutAsAbsolute",False)     
-    ccf.addFlag("Calo.TopoCluster.doTopoClusterLocalCalib",True)
-    ccf.addFlag("Calo.TopoCluster.doTimeCut",False)
-    ccf.addFlag("Calo.TopoCluster.extendTimeCut",False)
-    ccf.addFlag("Calo.TopoCluster.useUpperLimitForTimeCut",False)
-
+    ccf.addFlag("Calo.TopoCluster.doTwoGaussianNoise", True)
+    ccf.addFlag("Calo.TopoCluster.doTreatEnergyCutAsAbsolute", False)
+    ccf.addFlag("Calo.TopoCluster.doTopoClusterLocalCalib", True)
+    ccf.addFlag("Calo.TopoCluster.doTimeCut", False)
+    ccf.addFlag("Calo.TopoCluster.extendTimeCut", False)
+    ccf.addFlag("Calo.TopoCluster.useUpperLimitForTimeCut", False)
+    ccf.addFlag("Calo.TopoCluster.writeExtendedClusterMoments",True)
     #### Cluster correction flags:
     # If true, then reweight cells to prevent double-counting between clusters.
     ccf.addFlag ('Calo.ClusterCorrection.doSlidingWindowCellWeights', False)
@@ -78,9 +78,10 @@ def createCaloConfigFlags():
     ccf.addFlag ('Calo.ClusterCorrection.dbSubdetName', {None : 'CALO'})
 
     # Flags from Forward Towers:
-    ccf.addFlag('Calo.FwdTower.prepareLCW',True)
-    ccf.addFlag('Calo.FwdTower.clusterRange',2.5)
-
+    ccf.addFlag('Calo.FwdTower.prepareLCW', True)
+    ccf.addFlag('Calo.FwdTower.clusterRange', 2.5)
     
+    # Flag for thinning negative energy clusters
+    ccf.addFlag('Calo.Thin.NegativeEnergyCaloClusters', True)
     
     return ccf

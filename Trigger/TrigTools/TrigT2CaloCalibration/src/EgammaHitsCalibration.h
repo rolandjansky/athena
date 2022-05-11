@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT2CALOCALIBRATION_EGAMMAHITSCALIBRATION
@@ -43,7 +43,6 @@ class EgammaHitsCalibration  :
 	virtual void makeCorrection(xAOD::TrigEMCluster*, const void* v=nullptr) const override;
 
 	private:
-	MsgStream* m_log;
 	// Correction Variables
         Constant<CxxUtils::Array<3> >  m_correction { this, "correction" };
         Constant<CxxUtils::Array<2> >  m_sampling_depth { this, "sampling_depth" };

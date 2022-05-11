@@ -596,6 +596,15 @@ int main(int argc, char** argv) {
                       << " TO USE DEFAULT MODEL, REMOVE 'EGammaCalibrationModel' FROM CONFIG FILE \n"
                       << "*************************************************************************\n\n");
     }
+    if (topConfig->printEIDFileWarning()) {
+      ATH_MSG_WARNING(
+          "\n*************************************************************************\n"
+          << "       YOU ARE USING THIS CUSTOM PATH TO THE ELECTRON ID SF FILE:        \n\n"
+          << topConfig->electronIDSFFilePath() << "\n\n" 
+          << "               INSTEAD OF THE MOST RECENT RECOMMENDED MAP                \n"
+          << "       YOU MANY NOT BE USING THE LATEST ELECTRON ID RECOMMENDATIONS      \n"
+          << "*************************************************************************\n\n");
+    }
 
     const unsigned int entries = xaodEvent.getEntries();
     totalEventsInFiles += entries;
@@ -685,6 +694,9 @@ int main(int argc, char** argv) {
         const xAOD::EventInfo* ei(nullptr);
         top::check(xaodEvent.retrieve(ei, topConfig->sgKeyEventInfo()),
                    "Failed to retrieve LHE3 weights from EventInfo");
+        if (topConfig->isMC() && topConfig->forceRandomRunNumber() > 0) {  
+          ei->auxdecor<unsigned int>("RandomRunNumber") = topConfig->forceRandomRunNumber();
+        }
         
         if(recalculateNominalWeightSum)
         {

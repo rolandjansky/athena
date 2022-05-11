@@ -21,10 +21,8 @@
 
 template <class SURFACE>
 SURFACE* SurfaceCnv_p2<SURFACE>::createTransient( const Trk::Surface_p2 * persObj,MsgStream& ){
-  //Trk::Surface::SurfaceType type = static_cast<Trk::Surface::SurfaceType>(persObj->m_surfaceType);
-  // std::cout<<"SurfaceCnv_p2<SURFACE>::createTransient for type="<<type<<", persId= "<<persObj->m_associatedDetElementId<<std::endl;
   SURFACE* surface=nullptr;
-  if (!persObj->m_transform.size()) {
+  if (persObj->m_transform.empty()) {
     // det element surface
     Identifier id =  Identifier32(persObj->m_associatedDetElementId);
     const SURFACE* detSurf =  static_cast<const SURFACE*>(m_eventCnvTool->getSurface(id));
@@ -39,9 +37,6 @@ SURFACE* SurfaceCnv_p2<SURFACE>::createTransient( const Trk::Surface_p2 * persOb
     Amg::Transform3D transform;
     EigenHelpers::vectorToEigenTransform3D( persObj->m_transform, transform );
     surface=new SURFACE(transform);
-    // std::cout<<"SurfaceCnv_p2<SURFACE>::createTransient with vector=[";
-    // for (auto v : persObj->m_transform)
-    //     std::cout << v << ' ';
   }  
   return surface;
 }
@@ -49,6 +44,8 @@ SURFACE* SurfaceCnv_p2<SURFACE>::createTransient( const Trk::Surface_p2 * persOb
 template <class SURFACE>
 void SurfaceCnv_p2<SURFACE>::persToTrans( const Trk::Surface_p2 * , SURFACE * , MsgStream &) {
   throw std::runtime_error("SurfaceCnv_p2::persToTrans shouldn't be called any more!");
+  // The reason for this is that persToTrans relies on an object being created already. 
+  // But for det element surfaces, we will return one which already exists and belongs to the detector elements.
 }
 
 template <class	SURFACE>
@@ -56,7 +53,6 @@ void SurfaceCnv_p2<SURFACE>::transToPers( const SURFACE         * transObj,
                                        Trk::Surface_p2 * persObj,
                                        MsgStream & log)
 {
-  // std::cout<<"SurfaceCnv_p2<SURFACE>::transToPers - surf="<<transObj<<std::endl;
   if (not transObj){
     log<<MSG::WARNING<<"SurfaceCnv_p2<SURFACE>::transToPers - null pointer for transient object."<<endmsg;
     return;
@@ -67,14 +63,7 @@ void SurfaceCnv_p2<SURFACE>::transToPers( const SURFACE         * transObj,
     // - otherwise we're relying on the fact that the Identifier is there (and valid!) to reconstruct it on reading
     EigenHelpers::eigenTransform3DToVector( *transObj->cachedTransform(),persObj->m_transform );
     
-    // std::cout<<"SurfaceCnv_p2<SURFACE>::transToPers free surface with pers vector=[";
-    // for (auto v : persObj->m_transform)
-    //     std::cout << v << ' ';
-    // std::cout<<"]"<<std::endl;
   } else {
-    // std::cout<<"Non-free surface, with id="<<transObj->m_associatedDetElementId<<std::endl;
-    // std::cout<<*transObj<<std::endl;
-    //assert(transObj->m_associatedDetElementId.is_valid());
     if (!transObj->associatedDetectorElementIdentifier().is_valid()) {
        log<<MSG::WARNING<<"SurfaceCnv_p2<SURFACE>::transToPers - invalid detector element for non-free surface: "<<*transObj<<endmsg;
     }

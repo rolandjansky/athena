@@ -7,6 +7,7 @@
 
 // EDM include(s).
 #include "xAODEventFormat/EventFormat.h"
+#include "xAODMetaData/FileMetaData.h"
 
 #include "StoreGate/ReadHandle.h"
 
@@ -25,14 +26,22 @@ namespace xAODMakerTest {
    }
 
    StatusCode EventFormatPrinterAlg::execute() {
-      // Read and print the event format object.
-      const xAOD::EventFormat * ef =
-          m_metaDataStore->tryConstRetrieve< xAOD::EventFormat >(m_eventFormatKey);
-      if (ef) ATH_MSG_INFO( "Event format:\n" << *ef );
-      else return StatusCode::FAILURE;
+     // determine the EventFormat key
+     auto fmd =
+         m_metaDataStore->tryConstRetrieve<xAOD::FileMetaData>("FileMetaData");
+     std::string streamName = "";
+     if (fmd && fmd->value(xAOD::FileMetaData::dataType, streamName)) {
+       // Read and print the event format object.
+       std::string key = "EventFormat" + streamName;
+       auto ef = m_metaDataStore->tryConstRetrieve<xAOD::EventFormat>(key);
+       if (ef)
+         ATH_MSG_INFO("Event format:\n" << *ef);
+       else
+         return StatusCode::FAILURE;
+     }
 
-      // Return gracefully.
-      return StatusCode::SUCCESS;
+     // Return gracefully.
+     return StatusCode::SUCCESS;
    }
 
 } // namespace xAODMakerTest

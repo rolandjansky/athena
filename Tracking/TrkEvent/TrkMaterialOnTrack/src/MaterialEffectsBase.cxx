@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,22 +11,6 @@
 #include "TrkSurfaces/Surface.h"
 #include <ostream>
 #include <string>
-
-Trk::MaterialEffectsBase::MaterialEffectsBase()
-  : SurfacePtrHolderDetEl(nullptr)
-  , m_tInX0(0.0)
-  , m_typeFlags(0)
-{}
-
-Trk::MaterialEffectsBase::MaterialEffectsBase(
-  double tInX0,
-  const Surface& sf,
-  const std::bitset<Trk::MaterialEffectsBase::NumberOfMaterialEffectsTypes>&
-    typePattern)
-  : SurfacePtrHolderDetEl(sf)
-  , m_tInX0(tInX0)
-  , m_typeFlags(typePattern.to_ulong())
-{}
 
 std::string
 Trk::MaterialEffectsBase::dumpType() const
@@ -60,6 +44,20 @@ Trk::MaterialEffectsBase::dumpType() const
     }
   }
   return type;
+}
+
+//! Overload of << operator for MsgStream for debug output
+MsgStream&
+Trk::operator<<(MsgStream& sl, const MaterialEffectsBase& meb)
+{
+  return meb.dump(sl);
+}
+
+//! Overload of << operator for std::ostream for debug output
+std::ostream&
+Trk::operator<<(std::ostream& sl, const MaterialEffectsBase& meb)
+{
+  return meb.dump(sl);
 }
 
 // Overload of << operator for MsgStream for debug output

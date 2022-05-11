@@ -25,6 +25,7 @@ class opt:
     setGlobalTag     = None           # force global conditions tag
     useCONDBR2       = True           # if False, use run-1 conditions DB
     condOverride     = {}             # overwrite conditions folder tags e.g. '{"Folder1":"Tag1", "Folder2":"Tag2"}'
+    autoConfigCond   = False          # auto configure conditions based on input file
     doHLT            = True           # run HLT?
     doID             = True           # ConfigFlags.Trigger.doID
     doCalo           = True           # ConfigFlags.Trigger.doCalo
@@ -37,16 +38,16 @@ class opt:
     doEmptyMenu      = False          # Disable all chains, except those re-enabled by specific slices
     createHLTMenuExternally = False   # Set to True if the menu is build manually outside runHLT_standalone.py
     endJobAfterGenerate = False       # Finish job after menu generation
-    strictDependencies = False        # Sets SGInputLoader.FailIfNoProxy=True and AlgScheduler.DataLoaderAlg=""
+    strictDependencies = True         # Sets SGInputLoader.FailIfNoProxy=True and AlgScheduler.DataLoaderAlg=""
     forceEnableAllChains = False      # if True, all HLT chains will run even if the L1 item is false
-    enableL1MuonPhase1   = False          # Enable Run-3 LVL1 muon simulation and/or decoding
-    enableL1CaloPhase1   = False          # Enable Run-3 LVL1 calo simulation and/or decoding
+    enableL1MuonPhase1   = None       # option to overwrite flags.Trigger.enableL1MuonPhase1
+    enableL1CaloPhase1   = False      # Enable Run-3 LVL1 calo simulation and/or decoding
     enableL1CaloLegacy = True         # Enable Run-2 L1Calo simulation and/or decoding (possible even if enablePhase1 is True)
     enableL1TopoDump = False          # Enable L1Topo simulation to write inputs to txt
     enableL1NSWEmulation = False      # Enable TGC-NSW coincidence emulator : ConfigFlags.Trigger.L1MuonSim.EmulateNSW
-    enableL1NSWVetoMode = False       # Enable TGC-NSW coincidence veto mode: ConfigFlags.Trigger.L1MuonSim.NSWVetoMode
-    enableL1NSWMMTrigger = False      # Enable MM trigger for TGC-NSW coincidence : ConfigFlags.Trigger.L1MuonSim.doMMTrigger
-    enableL1NSWPadTrigger = False     # Enable sTGC Pad trigger for TGC-NSW coincidence : ConfigFlags.Trigger.L1MuonSim.doPadTrigger
+    enableL1NSWVetoMode = True        # Enable TGC-NSW coincidence veto mode: ConfigFlags.Trigger.L1MuonSim.NSWVetoMode
+    enableL1NSWMMTrigger = True       # Enable MM trigger for TGC-NSW coincidence : ConfigFlags.Trigger.L1MuonSim.doMMTrigger
+    enableL1NSWPadTrigger = True      # Enable sTGC Pad trigger for TGC-NSW coincidence : ConfigFlags.Trigger.L1MuonSim.doPadTrigger
     enableL1NSWStripTrigger = False   # Enable sTGC Strip trigger for TGC-NSW coincidence : ConfigFlags.Trigger.L1MuonSim.doStripTrigger
     enableL1RPCBIS78    = False       # Enable TGC-RPC BIS78 coincidence : ConfigFlags.Trigger.L1MuonSim.doBIS78
 #Individual slice flags
@@ -143,14 +144,11 @@ if len(athenaCommonFlags.FilesInput())>0:
     if globalflags.DataSource() != 'data' and 'isOnline' not in globals():
         log.info("Setting isOnline = False for MC input")
         opt.isOnline = False
-    # Set geometry and conditions tags
+    # Set geometry
     if opt.setDetDescr is None:
         opt.setDetDescr = af.fileinfos.get('geometry',None)
-    if opt.setGlobalTag is None:
-        if globalflags.DataSource=='data':
-            opt.setGlobalTag = ConfigFlags.Trigger.OnlineCondTag if opt.isOnline else 'CONDBR2-BLKPA-2018-13'
-        else:
-            opt.setGlobalTag = 'OFLCOND-MC16-SDR-RUN2-08-02'
+    if opt.autoConfigCond and opt.setGlobalTag is None:
+        opt.setGlobalTag = af.fileinfos.get('conditions_tag',None)
     TriggerJobOpts.Modifiers._run_number = ConfigFlags.Input.RunNumber[0]
     TriggerJobOpts.Modifiers._lb_number = ConfigFlags.Input.LumiBlockNumber[0]
 
@@ -166,7 +164,7 @@ else:   # athenaHLT
     if '_lb_number' in globals():
         del _lb_number  # noqa, set by athenaHLT
 
-from AthenaConfiguration.Enums import BeamType, Format
+from AthenaConfiguration.Enums import BeamType, Format, LHCPeriod
 ConfigFlags.Input.Format = Format.BS if globalflags.InputFormat == 'bytestream' else Format.POOL
 
 # Load input collection list from POOL metadata
@@ -178,9 +176,26 @@ if ConfigFlags.Input.Format is Format.POOL:
 # Run-3 Trigger produces Run-3 EDM
 ConfigFlags.Trigger.EDMVersion = 3
 
+# Some legacy b-tagging configuration is trigger specific
+ConfigFlags.BTagging.databaseScheme = 'Trig'
+ConfigFlags.BTagging.forcedCalibrationChannel = 'AntiKt4EMTopo'
+# track association for trigger b-tagging might be inconsistent with
+# offline, override the default for now
+ConfigFlags.BTagging.minimumJetPtForTrackAssociation = 5e3
+
 # Set final Cond/Geo tag based on input file, command line or default
 globalflags.DetDescrVersion = opt.setDetDescr or ConfigFlags.Trigger.OnlineGeoTag
 ConfigFlags.GeoModel.AtlasVersion = globalflags.DetDescrVersion()
+#set conditions tag
+if opt.setGlobalTag is None:
+    if globalflags.DataSource=='data':
+        opt.setGlobalTag = ConfigFlags.Trigger.OnlineCondTag if opt.isOnline else 'CONDBR2-BLKPA-2018-13'
+    else:
+        if ConfigFlags.GeoModel.Run == LHCPeriod.Run3:
+            opt.setGlobalTag = 'OFLCOND-MC21-SDR-RUN3-06'
+        else:
+            opt.setGlobalTag = 'OFLCOND-MC16-SDR-RUN2-08-02'
+
 globalflags.ConditionsTag = opt.setGlobalTag or ConfigFlags.Trigger.OnlineCondTag
 ConfigFlags.IOVDb.GlobalTag = globalflags.ConditionsTag()
 
@@ -195,10 +210,6 @@ ConfigFlags.Common.isOnline = athenaCommonFlags.isOnline()
 
 log.info('Configured the following global flags:')
 globalflags.print_JobProperties()
-
-# Enable strict dependency checking for data by default
-if 'strictDependencies' not in globals():
-    opt.strictDependencies = not ConfigFlags.Input.isMC
 
 # Set default doL1Sim option depending on input type (if not set explicitly)
 if 'doL1Sim' not in globals():
@@ -218,17 +229,13 @@ if 'enableL1CaloPhase1' not in globals():
                  'are%s available in the input file',
                  opt.enableL1CaloPhase1, ConfigFlags.Input.Format, ('' if scell_available else ' not'))
 
-# Set default enableL1MuonPhase1 option to True if running L1Sim (ATR-23973)
-if 'enableL1MuonPhase1' not in globals():
-    opt.enableL1MuonPhase1 = opt.doL1Sim
-    log.info('Setting default enableL1MuonPhase1=%s because doL1Sim=%s', opt.enableL1MuonPhase1, opt.doL1Sim)
-
 if ConfigFlags.Input.Format is Format.BS or opt.doL1Sim:
     ConfigFlags.Trigger.HLTSeeding.forceEnableAllChains = opt.forceEnableAllChains
 
 # Translate a few other flags
 ConfigFlags.Trigger.doLVL1 = opt.doL1Sim
-ConfigFlags.Trigger.enableL1MuonPhase1 = opt.enableL1MuonPhase1
+if opt.enableL1MuonPhase1 is not None:
+    ConfigFlags.Trigger.enableL1MuonPhase1 = opt.enableL1MuonPhase1
 ConfigFlags.Trigger.enableL1CaloPhase1 = opt.enableL1CaloPhase1
 ConfigFlags.Trigger.enableL1CaloLegacy = opt.enableL1CaloLegacy
 ConfigFlags.Trigger.enableL1TopoDump = opt.enableL1TopoDump
@@ -270,7 +277,6 @@ else:           # More data modifiers
                      #Set muComb/muIso Backextrapolator tuned for real data
                      #Monitoring for L1 muon group
                      #Monitoring L1Topo at ROB level
-                     'forceTileRODMap',
                      'enableSchedulerMon'
     ]
 

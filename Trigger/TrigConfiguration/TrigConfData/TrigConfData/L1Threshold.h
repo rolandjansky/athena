@@ -18,7 +18,7 @@ namespace TrigConf {
    public:
       L1Threshold_EM( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
          L1Threshold_Calo(name, type, extraInfo, data) { load(); }
-      virtual ~L1Threshold_EM() = default;
+      virtual ~L1Threshold_EM() override = default;
       // class name
       virtual std::string className() const override { return "L1Threshold_EM"; }
       uint16_t isolationMask(int eta) const { return m_isolationMask.at(eta); }
@@ -38,7 +38,7 @@ namespace TrigConf {
    public:
       L1Threshold_TAU( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
          L1Threshold_Calo(name, type, extraInfo, data) { load(); }
-      virtual ~L1Threshold_TAU() = default;
+      virtual ~L1Threshold_TAU() override = default;
       virtual std::string className() const override { return "L1Threshold_TAU"; }
       // access functions
       uint16_t isolationMask() const { return m_isolationMask; }
@@ -56,7 +56,7 @@ namespace TrigConf {
    public:
       L1Threshold_JET( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
          L1Threshold_Calo(name, type, extraInfo, data) { load(); };
-      virtual ~L1Threshold_JET() = default;
+      virtual ~L1Threshold_JET() override = default;
       virtual std::string className() const override { return "L1Threshold_JET"; }
       unsigned int window(int eta = 0) const;
    protected:
@@ -73,7 +73,7 @@ namespace TrigConf {
    public:
       L1Threshold_XE( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
          L1Threshold_Calo(name, type, extraInfo, data) {};
-      virtual ~L1Threshold_XE() = default;
+      virtual ~L1Threshold_XE() override = default;
       virtual std::string className() const override { return "L1Threshold_XE"; }
    };
 
@@ -81,7 +81,7 @@ namespace TrigConf {
    public:
       L1Threshold_XS( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
          L1Threshold_Calo(name, type, extraInfo, data) {};
-      virtual ~L1Threshold_XS() = default;
+      virtual ~L1Threshold_XS() override = default;
       virtual std::string className() const override { return "L1Threshold_XS"; }
    };
 
@@ -89,7 +89,7 @@ namespace TrigConf {
    public:
       L1Threshold_TE( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
          L1Threshold_Calo(name, type, extraInfo, data) {};
-      virtual ~L1Threshold_TE() = default;
+      virtual ~L1Threshold_TE() override = default;
       virtual std::string className() const override { return "L1Threshold_TE"; }
    };
 
@@ -102,7 +102,7 @@ namespace TrigConf {
    public:
       L1Threshold_ZB( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
          L1Threshold(name, type, extraInfo, data) { load(); };
-      virtual ~L1Threshold_ZB() = default;
+      virtual ~L1Threshold_ZB() override = default;
       virtual std::string className() const override { return "L1Threshold_ZB"; }
       const std::string & seed() const { return m_seed; }
       unsigned int seedBcdelay() const { return m_seedBcdelay; }
@@ -120,7 +120,7 @@ namespace TrigConf {
    public:
       L1Threshold_NIM( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
          L1Threshold(name, type, extraInfo, data) {};
-      virtual ~L1Threshold_NIM() = default;
+      virtual ~L1Threshold_NIM() override = default;
       virtual std::string className() const override { return "L1Threshold_NIM"; }
    };
 
@@ -128,7 +128,7 @@ namespace TrigConf {
    public:
       L1Threshold_internal( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
          L1Threshold(name, type, extraInfo, data) {};
-      virtual ~L1Threshold_internal() = default;
+      virtual ~L1Threshold_internal() override = default;
       virtual std::string className() const override { return "L1Threshold_internal"; }
    };
 
@@ -141,7 +141,7 @@ namespace TrigConf {
    public:
       L1Threshold_eEM( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
          L1Threshold_Calo(name, type, extraInfo, data) { load(); }
-      virtual ~L1Threshold_eEM() = default;
+      virtual ~L1Threshold_eEM() override = default;
       virtual std::string className() const override { return "L1Threshold_eEM"; }
       // access functions
       Selection::WP reta() const { return m_reta; }
@@ -164,7 +164,7 @@ namespace TrigConf {
    public:
       L1Threshold_jEM( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
          L1Threshold_Calo(name, type, extraInfo, data) { load(); }
-      virtual ~L1Threshold_jEM() = default;
+      virtual ~L1Threshold_jEM() override = default;
       virtual std::string className() const override { return "L1Threshold_jEM"; }
       // access functions
       Selection::WP iso() const { return m_iso; }
@@ -187,7 +187,7 @@ namespace TrigConf {
    public:
       L1Threshold_eTAU( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
          L1Threshold_Calo(name, type, extraInfo, data) { load(); }
-      virtual ~L1Threshold_eTAU() = default;
+      virtual ~L1Threshold_eTAU() override = default;
       virtual std::string className() const override { return "L1Threshold_eTAU"; }
       // access functions
       Selection::WP rCore() const { return m_rCore; }
@@ -208,7 +208,7 @@ namespace TrigConf {
    public:
       L1Threshold_jTAU( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
          L1Threshold_Calo(name, type, extraInfo, data) { load(); }
-      virtual ~L1Threshold_jTAU() = default;
+      virtual ~L1Threshold_jTAU() override = default;
       virtual std::string className() const override { return "L1Threshold_jTAU"; }
       // access functions
       Selection::WP isolation() const { return m_isolation; }
@@ -227,7 +227,7 @@ namespace TrigConf {
    public:
       L1Threshold_cTAU( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
          L1Threshold_Calo(name, type, extraInfo, data) { load(); }
-      virtual ~L1Threshold_cTAU() = default;
+      virtual ~L1Threshold_cTAU() override = default;
       virtual std::string className() const override { return "L1Threshold_cTAU"; }
       // access functions
       Selection::WP isolation() const { return m_isolation; }
@@ -246,7 +246,7 @@ namespace TrigConf {
    public:
       L1Threshold_jJ( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
          L1Threshold_Calo(name, type, extraInfo, data) { load(); }
-      virtual ~L1Threshold_jJ() = default;
+      virtual ~L1Threshold_jJ() override = default;
       virtual std::string className() const override { return "L1Threshold_jJ"; }
    protected:
       virtual void update() override {
@@ -261,7 +261,7 @@ namespace TrigConf {
    public:
       L1Threshold_jLJ( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
          L1Threshold_Calo(name, type, extraInfo, data) { load(); }
-      virtual ~L1Threshold_jLJ() = default;
+      virtual ~L1Threshold_jLJ() override = default;
       virtual std::string className() const override { return "L1Threshold_jLJ"; }
    protected:
       virtual void update() override {
@@ -276,7 +276,7 @@ namespace TrigConf {
    public:
       L1Threshold_gJ( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
          L1Threshold_Calo(name, type, extraInfo, data) { load(); }
-      virtual ~L1Threshold_gJ() = default;
+      virtual ~L1Threshold_gJ() override = default;
       virtual std::string className() const override { return "L1Threshold_gJ"; }
    protected:
       virtual void update() override {
@@ -291,7 +291,7 @@ namespace TrigConf {
    public:
       L1Threshold_gLJ( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
          L1Threshold_Calo(name, type, extraInfo, data) { load(); }
-      virtual ~L1Threshold_gLJ() = default;
+      virtual ~L1Threshold_gLJ() override = default;
       virtual std::string className() const override { return "L1Threshold_gLJ"; }
    protected:
       virtual void update() override {
@@ -306,7 +306,7 @@ namespace TrigConf {
    public:
       L1Threshold_jXE( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
          L1Threshold_Calo(name, type, extraInfo, data) { load(); }
-      virtual ~L1Threshold_jXE() = default;
+      virtual ~L1Threshold_jXE() override = default;
       virtual std::string className() const override { return "L1Threshold_jXE"; }
    protected:
       virtual void update() override {
@@ -321,7 +321,7 @@ namespace TrigConf {
    public:
       L1Threshold_jTE( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
          L1Threshold_Calo(name, type, extraInfo, data) { load(); }
-      virtual ~L1Threshold_jTE() = default;
+      virtual ~L1Threshold_jTE() override = default;
       virtual std::string className() const override { return "L1Threshold_jTE"; }
    protected:
       virtual void update() override {
@@ -336,7 +336,7 @@ namespace TrigConf {
    public:
       L1Threshold_gXE( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
          L1Threshold_Calo(name, type, extraInfo, data) { load(); }
-      virtual ~L1Threshold_gXE() = default;
+      virtual ~L1Threshold_gXE() override = default;
       virtual std::string className() const override { return "L1Threshold_gXE"; }
    protected:
       virtual void update() override { 
@@ -351,7 +351,7 @@ namespace TrigConf {
    public:
       L1Threshold_gTE( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
          L1Threshold_Calo(name, type, extraInfo, data) { load(); }
-      virtual ~L1Threshold_gTE() = default;
+      virtual ~L1Threshold_gTE() override = default;
       virtual std::string className() const override { return "L1Threshold_gTE"; }
    protected:
       virtual void update() override {
@@ -371,7 +371,7 @@ namespace TrigConf {
    public:
       L1Threshold_MU( const std::string & name, const std::string & type, std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data) :
          L1Threshold(name, type, extraInfo, data) { load(); }
-      virtual ~L1Threshold_MU() = default;
+      virtual ~L1Threshold_MU() override = default;
       virtual std::string className() const override { return "L1Threshold_MU"; }
 
       float thrValue(int eta = 0) const override;

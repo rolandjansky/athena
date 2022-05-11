@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.CfgGetter import addTool, addToolClone, addService, addAlgorithm, addNamesToSkipIfNotAvailable, addTypesOnlyToSkip
 from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags  # noqa: F401
@@ -10,7 +10,7 @@ addTypesOnlyToSkip( "ICaloNoiseTool" )
 
 setup_cscs = muonRecFlags.doCSCs() and MuonGeometryFlags.hasCSC()
 setup_stgcs =   MuonGeometryFlags.hasSTGC() and   muonRecFlags.dosTGCs()
-setup_mm =  MuonGeometryFlags.hasMM() and muonRecFlags.doMicromegas()
+setup_mm =  MuonGeometryFlags.hasMM() and muonRecFlags.doMMs()
 
 ################################################################################
 # Tools from other packages

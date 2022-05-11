@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -417,7 +417,7 @@ namespace ISFTesting {
 
 
   TEST_F(TruthSvc_test, registerTruthIncident_noStrat_ForceEndVtx) {
-    bool forceEndVtx[AtlasDetDescr::fNumAtlasRegions] = {true, true, true, true, true, true};
+    unsigned int forceEndVtx[AtlasDetDescr::fNumAtlasRegions] = {1,2,3,4,5};
     ASSERT_TRUE( m_svc->setProperty( "ForceEndVtxInRegions", forceEndVtx ).isSuccess() );
     ASSERT_TRUE( m_svc->initialize().isSuccess() );
     /// Create dummy GenEvent
@@ -484,7 +484,7 @@ namespace ISFTesting {
 
 
   TEST_F(TruthSvc_test, registerTruthIncident_failMockStrat_ForceEndVtx) {
-    bool forceEndVtx[AtlasDetDescr::fNumAtlasRegions] = {true, true, true, true, true, true};
+    unsigned int forceEndVtx[AtlasDetDescr::fNumAtlasRegions] = {1,2,3,4,5};
     ASSERT_TRUE( m_svc->setProperty( "ForceEndVtxInRegions", forceEndVtx ).isSuccess() );
     ASSERT_TRUE( m_svc->setProperty("TruthStrategies", "['ISFTesting::MockTruthStrategy/DummyTruthStrategy']").isSuccess() );
 

@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 '''
 @file TileRawChannelTimeMonitorAlgorithm.py
@@ -37,6 +37,9 @@ def TileRawChannelTimeMonitoringConfig(flags, **kwargs):
     partitionPairs = [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3]]
     kwargs.setdefault('PartitionTimeDiffferncePairs', partitionPairs)
 
+    if flags.Input.RunNumber[0] > 400000: # Update partition time corrections for Run 3
+        kwargs.setdefault('PartitionTimeCorrections', [-28.65, -45.2, 25.24, 24.94])
+
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools
     from AthenaMonitoring import AthMonitorCfgHelper
@@ -71,7 +74,7 @@ def TileRawChannelTimeMonitoringConfig(flags, **kwargs):
     # 3) Configure histograms with Tile partition average time vs luminosity block per partition
     addTile2DHistogramsArray(helper, tileRawChanTimeMonAlg, name = 'TileAverageTimeLB',
                              xvalue = 'lumiBlock', yvalue = 'time', type='TH2D',
-                             title = 'Tile Average time vs LumiBlock;LumiBlock;t [ns]',
+                             title = 'Tile Average time vs LumiBlock;LumiBlock;t [ns]', opt = 'kAddBinsDynamically',
                              path = 'Tile/RawChannelTime/Summary', run = run, perPartition = True,
                              xbins = 3000, xmin = -0.5, xmax = 2999.5, ybins = 149, ymin = -74.5, ymax = 74.5)
 

@@ -27,6 +27,7 @@
 #include "G4AtlasInterfaces/IPhysicsListSvc.h"
 #include "G4AtlasInterfaces/IUserLimitsSvc.h"
 #include "GeneratorObjects/McEventCollection.h"
+#include "xAODEventInfo/EventInfo.h"
 
 // ISF includes
 #include "ISF_Interfaces/ITruthSvc.h"
@@ -98,6 +99,8 @@ private:
   Gaudi::Property<bool> m_flagAbortedEvents{this, "FlagAbortedEvents", false, ""};
   SG::ReadHandleKey<McEventCollection>    m_inputTruthCollectionKey{this, "InputTruthCollection", "BeamTruthEvent", "Input hard scatter collection"}; //!< input hard scatter collection
   SG::WriteHandleKey<McEventCollection>   m_outputTruthCollectionKey{this, "OutputTruthCollection", "TruthEvent", "Output hard scatter truth collection"};//!< output hard scatter truth collection
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfo", "EventInfo", "EventInfo key"};
+
   /// Central Truth Service
   ServiceHandle<ISF::ITruthSvc> m_truthRecordSvc{this, "TruthRecordService", "ISF_TruthRecordSvc", ""};
   /// Geo ID Service

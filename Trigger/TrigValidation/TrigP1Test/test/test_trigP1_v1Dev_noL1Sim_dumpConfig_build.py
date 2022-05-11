@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # art-description: athenaHLT test of the Dev_pp_run3_v1 menu only dumping options for SMK generation
 # art-type: build
@@ -10,7 +10,7 @@ from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 ex = ExecStep.ExecStep()
 ex.type = 'athenaHLT'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
-ex.input = 'data'
+ex.input = ''  # No input file needed to generate config
 ex.args = '-c "setMenu=\'Dev_pp_run3_v1\';"'  
 ex.args += ' -M --dump-config-exit'
 ex.perfmon = False  # Cannot use PerfMon with -M
@@ -21,7 +21,10 @@ test.art_type = 'build'
 test.exec_steps = [ex]
 # Only keep relevant checks from the defaults
 test.check_steps = [chk for chk in CheckSteps.default_check_steps(test)
-                    if type(chk) in (CheckSteps.LogMergeStep, CheckSteps.CheckLogStep)]
+                    if type(chk) is CheckSteps.CheckLogStep]
+# No log merging because we don't fork - force checking only the mother log
+for chk in test.check_steps:
+    chk.log_file = 'athenaHLT.log'
 
 import sys
 sys.exit(test.run())

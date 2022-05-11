@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_ALIGNDBSVC_H
@@ -20,7 +20,7 @@
  * The 'level-1' transform is a transform per module.
  */
 
-#include <vector>
+
 #include "AthenaBaseComps/AthService.h"
 #include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -30,7 +30,7 @@
 #include "DetDescrConditions/AlignableTransformContainer.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
-
+#include <vector>
 ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // This class uses const_cast. Legacy code
 
 namespace InDetDD {
@@ -66,18 +66,18 @@ class TRT_AlignDbSvc: public AthService, virtual public ITRT_AlignDbSvc
   StatusCode IOVCallBack(IOVSVC_CALLBACK_ARGS);
 
   /** write AlignableTransforms to flat text file */
-  StatusCode writeAlignTextFile(std::string file) const;
-  StatusCode writeStrawAlignTextFile(std::string file) const;
-  StatusCode writeGlobalFolderFile(std::string file) const;  
+  StatusCode writeAlignTextFile(const std::string & file) const;
+  StatusCode writeStrawAlignTextFile(const std::string & file) const;
+  StatusCode writeGlobalFolderFile(const std::string & file) const;  
 
   /** read AlignableTransforms from text file into TDS */
-  StatusCode readAlignTextFile(std::string file);
+  StatusCode readAlignTextFile(const std::string & file);
 
   /** write the alignment objects to output */
   StatusCode streamOutAlignObjects() const;
   
   /** register alignment objects with the IoV service */
-  StatusCode registerAlignObjects(std::string tag, int run1, int event1, int run2, int event2) const;
+  StatusCode registerAlignObjects(const std::string & tag, int run1, int event1, int run2, int event2) const;
     
   /** set AlignableTransform for an identifier */
   StatusCode setAlignTransform(Identifier ident, Amg::Transform3D trans, unsigned int level);

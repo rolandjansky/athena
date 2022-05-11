@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonCurvedSegmentCombiner/MCSCSegmentInfo.h"
+#include "MCSCSegmentInfo.h"
 
 #include <algorithm>
 #include <cmath>

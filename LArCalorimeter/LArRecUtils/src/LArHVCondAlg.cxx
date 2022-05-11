@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./LArHVCondAlg.h" 
@@ -77,22 +77,7 @@ StatusCode LArHVCondAlg::initialize(){
   ATH_CHECK(m_outputHVScaleCorrKey.initialize());
   ATH_CHECK(m_affectedKey.initialize());
 
-  if(m_doHV || m_doAffectedHV) {
-    if (m_condSvc->regHandle(this, m_outputHVScaleCorrKey).isFailure()) {
-      ATH_MSG_ERROR("unable to register WriteCondHandle " << m_outputHVScaleCorrKey.fullKey() << " with CondSvc");
-      return StatusCode::FAILURE;
-    }
-  }
-  if(m_doAffected) {
-     if (m_condSvc->regHandle(this, m_affectedKey).isFailure()) {
-       ATH_MSG_ERROR("unable to register WriteCondHandle " << m_affectedKey.fullKey() << " with CondSvc");
-       return StatusCode::FAILURE;
-     }
-  }
-
-  ATH_CHECK( m_condSvc.retrieve() );
-
-  m_scaleTool=std::make_unique<LArHVScaleCorrTool>(m_calocellID,msg(),m_fixHVStrings); 
+  m_scaleTool=std::make_unique<LArHVScaleCorrTool>(m_calocellID,msg(),m_fixHVStrings);
 
   ATH_MSG_DEBUG("Configured with doHV " << m_doHV << " doAffected " << m_doAffected << " doAffectedHV " << m_doAffectedHV);
 
@@ -223,9 +208,13 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
       writeAffectedHandle.addDependency(pHdl);
       ATH_MSG_DEBUG("Range of HV-Pathology " << pHdl.getRange() << ", intersection: " << writeHandle.getRange());
        const std::vector<LArHVPathologiesDb::LArHVElectPathologyDb> &pathCont = pathologyContainer->getPathology();
-       ATH_MSG_INFO( " Number of HV pathologies found " << pathCont.size());
-       for(unsigned i=0; i<pathologyContainer->getPathology().size(); ++i) {
-           LArHVPathologiesDb::LArHVElectPathologyDb electPath = pathologyContainer->getPathology()[i];
+       const size_t nPathologies=pathCont.size();
+       if (m_nPathologies != nPathologies) {
+	 ATH_MSG_INFO( "Number of HV pathologies found " << nPathologies);
+	 m_nPathologies=nPathologies;
+       }
+       for(unsigned i=0; i<nPathologies; ++i) {
+           LArHVPathologiesDb::LArHVElectPathologyDb electPath = pathCont[i];
            Identifier id(electPath.cellID);
            if (m_larem_id->is_lar_em(id)) {
                IdentifierHash idHash = m_larem_id->channel_hash(id);
@@ -1383,7 +1372,7 @@ StatusCode LArHVCondAlg::searchNonNominalHV_FCAL(CaloAffectedRegionInfoVec *vAff
 }
 //=========================================================================================
 StatusCode LArHVCondAlg::updateMethod(CaloAffectedRegionInfoVec *vAffected, const LArBadFebCont* bfCont, const LArOnOffIdMapping* cabling) const { //store informations on the missing Febs w/ range of eta, phi, layer
-  ATH_MSG_INFO ( "updateMethod()" );
+  ATH_MSG_DEBUG ( "updateMethod()" );
   
   const CaloDetDescrManager* calodetdescrmgr = nullptr;
   ATH_CHECK( detStore()->retrieve(calodetdescrmgr) );

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/IChronoStatSvc.h"
@@ -49,9 +49,7 @@ ISF::FastCaloTool::FastCaloTool(const std::string& type, const std::string& name
                   "Run the FastShowerCellBuilders on the McTruth at the end of the event" );
 }
 
-ISF::FastCaloTool::~FastCaloTool() {
-
-}
+ISF::FastCaloTool::~FastCaloTool() = default;
 
 StatusCode ISF::FastCaloTool::initialize() {
 
@@ -112,7 +110,7 @@ StatusCode ISF::FastCaloTool::setupEventST()
     }
 
     // also symLink as INavigable4MomentumCollection!
-    INavigable4MomentumCollection* theNav4Coll = 0;
+    INavigable4MomentumCollection* theNav4Coll = nullptr;
     sc = evtStore()->symLink(m_theContainer,theNav4Coll);
 
     if (sc.isFailure()) {
@@ -126,7 +124,7 @@ StatusCode ISF::FastCaloTool::setupEventST()
 
     StatusCode sc=StatusCode::SUCCESS;
     sc=evtStore()->retrieve(theConstContainer,m_caloCellsOutputName);
-    if (sc.isFailure() || theConstContainer==0)
+    if (sc.isFailure() || theConstContainer==nullptr)
       {
         ATH_MSG_FATAL( "Could not retrieve CaloCellContainer " << m_caloCellsOutputName );
         return StatusCode::FAILURE;
@@ -182,7 +180,7 @@ StatusCode ISF::FastCaloTool::commonSetup()
   for ( const ToolHandle<ICaloCellMakerTool>& tool : m_caloCellMakerTools_simulate) {
     const FastShowerCellBuilderTool* fcs=dynamic_cast< const FastShowerCellBuilderTool* >(tool.get());
     if(fcs) {
-      if(fcs->setupEvent(ctx, *m_rndm.get(ctx)).isFailure()) {
+      if(fcs->setupEvent(ctx, *m_rndm).isFailure()) {
         ATH_MSG_ERROR( "Error executing tool " << tool->name() << " in setupEvent");
         return StatusCode::FAILURE;
       }
@@ -223,7 +221,7 @@ StatusCode ISF::FastCaloTool::processOneParticle( const ISF::ISFParticle& isfp) 
 
   std::vector<Trk::HitInfo>* hitVector= caloHits(isfp);
 
-  if (!hitVector || !hitVector->size()) {
+  if (!hitVector || hitVector->empty()) {
     ATH_MSG_WARNING ( "ISF_FastCaloSim: no hits in calo");
     return StatusCode::FAILURE;
   }
@@ -257,12 +255,6 @@ StatusCode ISF::FastCaloTool::processOneParticle( const ISF::ISFParticle& isfp) 
   } //end of for-loop
 
   if(hitVector) {
-    for(std::vector<Trk::HitInfo>::iterator it = hitVector->begin();it < hitVector->end();++it)  {
-      if((*it).trackParms) {
-        delete (*it).trackParms;
-        (*it).trackParms=0;
-      }
-    }
     delete hitVector;
   }
 
@@ -332,9 +324,9 @@ std::vector<Trk::HitInfo>* ISF::FastCaloTool::caloHits(const ISF::ISFParticle& i
   Trk::GeometrySignature nextGeoID = static_cast<Trk::GeometrySignature>(isp.nextGeoID());
 
   // save Calo entry hit (fallback info)
-  hitVector->push_back(Trk::HitInfo(inputPar.clone(),isp.timeStamp(),nextGeoID,0.));
+  hitVector->push_back(Trk::HitInfo(inputPar.uniqueClone(),isp.timeStamp(),nextGeoID,0.));
 
-  const Trk::TrackParameters* eParameters = 0;
+  std::unique_ptr<const Trk::TrackParameters> eParameters = nullptr;
 
   if ( !charged ) {
 
@@ -346,7 +338,7 @@ std::vector<Trk::HitInfo>* ISF::FastCaloTool::caloHits(const ISF::ISFParticle& i
 
   }
   // save Calo exit hit (fallback info)
-  if (eParameters) hitVector->push_back(Trk::HitInfo(eParameters,timeLim.time,nextGeoID,0.));
+  if (eParameters) hitVector->push_back(Trk::HitInfo(std::move(eParameters),timeLim.time,nextGeoID,0.));
 
   ATH_MSG_VERBOSE( "[ fastCaloSim transport ] number of intersections "<< hitVector->size());
 

@@ -69,9 +69,11 @@ namespace top {
 
     ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_calibrationPeriodTool;
     ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_calibrationTool2017;
-
+    
     // the following is needed to make sure all muons for which d0sig is calculated are at least Loose
-    ToolHandle<CP::IMuonSelectionTool> m_muonSelectionToolVeryLooseVeto;
+    
+    ToolHandle<CP::IMuonSelectionTool> m_muonSelectionToolVeryLooseVeto,m_softmuonSelectionTool;
+    
   };
 } // namespace
 #endif

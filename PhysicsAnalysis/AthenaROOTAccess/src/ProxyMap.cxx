@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ProxyMap.cxx,v 1.29 2009-05-02 05:01:29 ssnyder Exp $
 /**
  * @file AthenaROOTAccess/src/ProxyMap.cxx
  * @author scott snyder
@@ -550,14 +548,15 @@ DataHeader_p4* ProxyMap::findDH4 (Long64_t entry)
  *              -1 means to use the current entry.
  * @return The data header, or 0 on failure.
  */
-DataHeader_p5* ProxyMap::findDH5 (Long64_t entry)
+std::pair<DataHeader_p5*, DataHeaderForm_p5*>
+ProxyMap::findDH5 (Long64_t entry)
 {
   // Get the address.
   if (m_dh_ver != 0 && m_dh_ver != 5)
-    return 0;
+    return std::make_pair (nullptr, nullptr);
   void* addr = findDHCommon (entry);
   if (!addr || m_dh_ver != 5)
-    return 0;
+    return std::make_pair (nullptr, nullptr);
 
   // Convert to a data header.
   DataHeader_p5* dh = reinterpret_cast<DataHeader_p5*>(addr);
@@ -575,7 +574,7 @@ DataHeader_p5* ProxyMap::findDH5 (Long64_t entry)
   {
     ::Error ("Proxymap", "Bad token format %s",
              token.toString().c_str());
-    return 0;
+    return std::make_pair (nullptr, nullptr);
   }
 
   TTree* form_tree =
@@ -584,7 +583,7 @@ DataHeader_p5* ProxyMap::findDH5 (Long64_t entry)
   if (!form_tree) {
     ::Error ("Proxymap", "Cannot find DataHeaderForm tree named %s",
              tree_name.c_str());
-    return 0;
+    return std::make_pair (nullptr, nullptr);
   }
 
   TBranch* form_br = form_tree->GetBranch (branch_name.c_str());
@@ -593,15 +592,14 @@ DataHeader_p5* ProxyMap::findDH5 (Long64_t entry)
   if (!form_br) {
     ::Error ("Proxymap", "Cannot find DataHeaderForm branch %s",
              branch_name.c_str());
-    return 0;
+    return std::make_pair (nullptr, nullptr);
   }
   form_br->GetEntry(0);
 
   DataHeaderForm_p5* form =
     *reinterpret_cast<DataHeaderForm_p5**> (form_br->GetAddress());
-  dh->setDhForm (form);
 
-  return dh;
+  return std::make_pair (dh, form);
 }
 
 
@@ -622,10 +620,11 @@ Long64_t ProxyMap::poolContainerEntry (Long64_t entry,
                                        unsigned int pclid)
 {
   // Search for the target class id/key.
-  if (DataHeader_p5* dh = findDH5 (entry)) {
+  std::pair<DataHeader_p5*, DataHeaderForm_p5*> dhp = findDH5 (entry);
+  if (dhp.first) {
     DataHeader tdh;
     DataHeaderCnv_p5 cnv;
-    cnv.persToTrans (dh, &tdh);
+    cnv.persToTrans (*dhp.first, tdh, *dhp.second);
     std::vector<DataHeaderElement>::const_iterator it = tdh.begin();
     std::vector<DataHeaderElement>::const_iterator end = tdh.end();
     for (; it != end; ++it) {
@@ -694,10 +693,11 @@ bool ProxyMap::maybeFillProxyMap (Long64_t entry)
 void ProxyMap::fillProxyMap (Long64_t entry)
 {
   // Get the data header.
-  if (DataHeader_p5* dh = findDH5 (entry)) {
+  std::pair<DataHeader_p5*, DataHeaderForm_p5*> dhp = findDH5 (entry);
+  if (dhp.first) {
     DataHeader tdh;
     DataHeaderCnv_p5 cnv;
-    cnv.persToTrans (dh, &tdh);
+    cnv.persToTrans (*dhp.first, tdh, *dhp.second);
     std::vector<DataHeaderElement>::const_iterator it = tdh.begin();
     std::vector<DataHeaderElement>::const_iterator end = tdh.end();
     for (; it != end; ++it) {

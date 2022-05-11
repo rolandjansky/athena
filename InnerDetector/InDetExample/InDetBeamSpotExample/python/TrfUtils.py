@@ -32,18 +32,27 @@ def writeJSON(fname, data):
 
 def getDataSetName(name, sep='#'):
     """Extract dataset name from a qualified file name."""
-    if sep in name:
-        return name.split(sep)[0]
-    else:
-        return None
-
+    if isinstance(name, str) :
+        """Old format of ds/file """
+        if sep in name:
+            return name.split(sep)[0]
+        else:
+            return None
+    elif isinstance(name, dict) :
+        """New format of ds/file """
+        return name['dsn']
 
 def getFileName(name, sep='#'):
     """Extract file name from a qualified file name."""
-    if sep in name:
-        return name.split(sep)[1]
-    else:
-        return name
+    if isinstance(name, str) :
+        """Old format of ds/file """
+        if sep in name:
+            return name.split(sep)[1]
+        else:
+            return name
+    elif isinstance(name, dict) :
+        """New format of ds/file """
+        return name['lfn']
 
 
 def parseQualifiedFileNames(inputList, sep='#'):

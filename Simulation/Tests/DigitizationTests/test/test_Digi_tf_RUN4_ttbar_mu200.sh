@@ -2,6 +2,7 @@
 #
 # art-description: Run 4 digitization of a ttbar sample with pile-up
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-include: master/Athena
 # art-output: RUN4_ttbar.mu200.RDO.pool.root
 
@@ -23,7 +24,7 @@ Digi_tf.py \
 --jobNumber 568 \
 --maxEvents ${Events} \
 --outputRDOFile ${DigiOutFileName} \
---preInclude 'HITtoRDO:Campaigns.PhaseIIPileUp' \
+--preInclude 'HITtoRDO:Campaigns.PhaseIIPileUp200' \
 --postInclude 'PyJobTransforms.UseFrontier' \
 --skipEvents 0
 

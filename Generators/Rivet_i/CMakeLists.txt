@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( Rivet_i )
@@ -20,7 +20,7 @@ atlas_add_component( Rivet_i
     ${RIVET_INCLUDE_DIRS} ${YODA_INCLUDE_DIRS}
    LINK_LIBRARIES ${FASTJET_LIBRARIES} ${ROOT_LIBRARIES} AtlasHepMCLib
    ${RIVET_LIBRARIES} ${YODA_LIBRARIES} AthenaBaseComps GaudiKernel
-   AthenaKernel GeneratorObjects PathResolver EventInfo )
+   AthenaKernel GeneratorObjects PathResolver xAODEventInfo )
 
 # Install file(s) from the package.
 atlas_install_scripts( share/setup* )

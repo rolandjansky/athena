@@ -178,8 +178,8 @@ namespace ITk
     BooleanProperty m_pixel{this, "usePixel", true};
     BooleanProperty m_strip{this, "useStrip", true};
     BooleanProperty m_useOverlap{this, "useOverlapSpCollection", true};
-    IntegerProperty m_maxsize{this, "maxSize", 50000};
-    IntegerProperty m_maxsizeSP{this, "maxSizeSP", 5000};
+    IntegerProperty m_maxsize{this, "maxSize", 10000};
+    IntegerProperty m_maxsizeSP{this, "maxSizeSP", 4096};
     IntegerProperty m_maxOneSize{this, "maxSeedsForSpacePoint", 5};
     FloatProperty m_etamax{this, "etaMax", 2.7};
     FloatProperty m_r1minv{this, "minVRadius1", 0.};
@@ -215,7 +215,7 @@ namespace ITk
     FloatProperty m_drmaxPPP{this, "maxdRadiusPPP", 120.};
     FloatProperty m_zmaxPPP{this, "maxZPPP", 2700.};
     FloatProperty m_drminSSS{this, "mindRadiusSSS", 20.};
-    FloatProperty m_drmaxSSS{this, "maxdRadiusSSS", 3000.};
+    FloatProperty m_drmaxSSS{this, "maxdRadiusSSS", 300.};
     FloatProperty m_zmaxSSS{this, "maxZSSS", 2700.};
     FloatProperty m_dImpactCutSlopeUnconfirmedSSS{this, "dImpactCutSlopeUnconfirmedSSS", 1.0};
     FloatProperty m_dImpactCutSlopeUnconfirmedPPP{this, "dImpactCutSlopeUnconfirmedPPP", 0.};
@@ -266,7 +266,7 @@ namespace ITk
     float m_dzdrmax0{0.};
     float m_ipt{0.};
     float m_ipt2{0.};
-    float m_COF{0.};
+    float m_COF{134 * .05 * 9};
     float m_dzMaxFast   {200.};
     float m_R2MaxFast   {2500.};        
     float m_rmaxPPP     {140.};   

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 /**
  * @file PixelDigitization/FEI3SimTool.h
@@ -27,10 +27,13 @@ private:
   FEI3SimTool();
 
   int relativeBunch2009(const double threshold, const double intimethreshold, const SiTotalCharge& totalCharge,
+                        const PixelModuleData* moduleData,
                         CLHEP::HepRandomEngine* rndmEngine) const;
   int relativeBunch2015(const SiTotalCharge& totalCharge, int barrel_ec, int layer_disk, int moduleID,
+                        const PixelModuleData* moduleData,
                         CLHEP::HepRandomEngine* rndmEngine) const;
   int relativeBunch2018(const SiTotalCharge& totalCharge, int barrel_ec, int layer_disk, int moduleID,
+                        const PixelModuleData* moduleData,
                         CLHEP::HepRandomEngine* rndmEngine) const;
 };
 

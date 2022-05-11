@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -10,10 +10,8 @@
 #define MUONCONDSVC_MUONALIGNMENTERRORDBALG_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ICondSvc.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
-//#include "Gaudi/Property.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "MuonCondAlg/MuonAlignmentErrorData.h"
 
@@ -30,7 +28,6 @@ private:
                                                             "Key of input muon alignment error condition data"};
     SG::WriteCondHandleKey<MuonAlignmentErrorData> m_writeKey{this, "WriteKey", "MuonAlignmentErrorData",
                                                               "Key of output muon alignment error condition data"};
-    ServiceHandle<ICondSvc> m_condSvc;
 };
 
 #endif

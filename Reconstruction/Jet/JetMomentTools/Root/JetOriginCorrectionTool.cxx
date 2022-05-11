@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetOriginCorrectionTool.cxx
@@ -55,7 +55,7 @@ StatusCode JetOriginCorrectionTool::decorate(const xAOD::JetContainer& jetCont) 
   SG::WriteDecorHandle<xAOD::JetContainer, ElementLink<xAOD::VertexContainer>> originVertexHandle(m_originVertexKey);
 
   // static accessor for PV index access
-  static SG::AuxElement::ConstAccessor<int> PVIndexAccessor("PVIndex");
+  static const SG::AuxElement::ConstAccessor<int> PVIndexAccessor("PVIndex");
 
 
 

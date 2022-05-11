@@ -21,6 +21,7 @@ else()
 endif()
 
 # External dependencies:
+find_package( Boost )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO )
 find_package( GTest )
 
@@ -28,8 +29,8 @@ find_package( GTest )
 atlas_add_library( METUtilitiesLib
    METUtilities/*.h Root/*.cxx
    PUBLIC_HEADERS METUtilities
-   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}  ${GTEST_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma xAODJet xAODMissingET
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}  ${GTEST_INCLUDE_DIRS}
+   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools xAODEgamma xAODJet xAODMissingET
    xAODMuon xAODTau xAODTracking InDetTrackSelectionToolLib PATInterfaces
    EgammaAnalysisInterfacesLib MuonAnalysisInterfacesLib JetCalibToolsLib ElectronPhotonFourMomentumCorrectionLib tauRecToolsLib
    METInterface AsgDataHandlesLib

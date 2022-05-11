@@ -68,14 +68,23 @@ namespace MuonGM {
         sTGC_Technology *t = (sTGC_Technology *)ds.GetTechnology(name);
         thickness = t->Thickness();
         double gasTck = t->gasThickness;
-        double pcbTck = t->pcbThickness;
+        // Defining PCB thickness based on quadruplet type
+        bool isQS1 = (m_component->subType == "QS1P" || m_component->subType == "QS1C");
+        bool isQL1 = (m_component->subType == "QL1P" || m_component->subType == "QL1C");
+        double pcbTck = (isQS1 || isQL1) ? t->pcbThickness150 : t->pcbThickness200;
+        // Resolves backward compatibility issues where pcbTck150 and pcbTck200
+        // Are not defined in previous XML versions
+        if(pcbTck == 0)
+          pcbTck = t->pcbThickness;
+
+        double coverTck = t->coverThickness;
         double f4 = stgc_descr->ylFrame();
         double f5 = stgc_descr->ysFrame();
         double f6 = stgc_descr->xFrame();
 
         // Evaluate honeycomb thickness
         double chamberTck = gasTck + pcbTck; // Note: pcbTck is the xml value and is the combined thickness of 2 pcbs.
-        double honeycombTck = (thickness - 4 * chamberTck) / 5;
+        double honeycombTck = (thickness - 4 * chamberTck - 2 * coverTck) / 5;
         double pcbActualTck = pcbTck / 2;
 
         minimalgeo = t->geoLevel;
@@ -128,7 +137,7 @@ namespace MuonGM {
             double newXPos;
             double pcbpos;
             if (i == 0)
-                newXPos = newpos + chamberTck / 2 + honeycombTck;
+                newXPos = newpos + chamberTck / 2 + honeycombTck + coverTck;
             else
                 newXPos = newpos + chamberTck + honeycombTck;
 

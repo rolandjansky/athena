@@ -26,6 +26,7 @@ namespace LVL1 {
     constexpr static int jFEX_wide_algoSpace_width = 45;
     constexpr static int jFEX_thin_algoSpace_width = 24;
     constexpr static int jFEX_algoSpace_height = 32; 
+    constexpr static int jFEX_FCAL_start = 700000; 
  
 //Array breakdown of jFEX_wide_algoSpace_width matric to indicate different eta and phi regions
 
@@ -110,6 +111,18 @@ namespace LVL1 {
       static const int jTE_Et_upperBit  = 16;
       static const int jTE_Et_lowerBit  = 1; 
       static const int jTE_Sat_lowerBit = 0; 
+      
+    // jFEX SRJet Et Calibration (Calculated by performancy group, Elena Michelle Villhauer's QT)
+    constexpr static int SRJ_Calib_params[6][9] =
+    {   //<20  <30  <40  <50  <65  <80 <110 <150 <inf  GeV
+        { 320, 278, 250, 237, 220, 209, 200, 185, 170 },// jFEX 0  FCal  
+        { 376, 328, 297, 278, 261, 250, 232, 220, 200 },// jFEX 1  Central  
+        { 320, 284, 261, 250, 237, 224, 213, 200, 185 },// jFEX 2  Central   
+        { 320, 284, 266, 246, 237, 220, 213, 200, 182 },// jFEX 3  Central  
+        { 376, 328, 297, 278, 261, 246, 237, 224, 200 },// jFEX 4  Central  
+        { 320, 278, 250, 237, 220, 209, 200, 185, 170 } // jFEX 5  FCal 
+    }; 
+
   
 
    //define constants needed by gFEX Jet algorithm
@@ -128,12 +141,9 @@ namespace LVL1 {
     constexpr static int gJetTOBfib = 4;
     constexpr static int BTOBFIB = 6;
     constexpr static bool ENABLE_PUC = true;
+    constexpr static bool APPLY_TRUNC = false;
     //define constants needed by gFEX JwoJ algorithm
-    constexpr static unsigned int aFPGA_A = 48;
-    constexpr static unsigned int bFPGA_A = 48;
-    constexpr static unsigned int aFPGA_B = 52;
-    constexpr static unsigned int bFPGA_B = 52;
-    constexpr static int gblockThreshold = 125;//*200 MeV = 25 GeV
+    constexpr static bool ENABLE_JWOJ_C = false;
 
 
   };

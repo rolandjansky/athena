@@ -18,7 +18,7 @@
 #include "MuonDQAUtils/MuonCosmicSetup.h"
 #include "MuonDQAUtils/MuonDQAHistMap.h" 
  
-#include "RpcRawDataMonitoring/RpcLv1RawDataEfficiency.h"
+#include "RpcLv1RawDataEfficiency.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 
 #include "MuonPrepRawData/MuonPrepDataContainer.h"

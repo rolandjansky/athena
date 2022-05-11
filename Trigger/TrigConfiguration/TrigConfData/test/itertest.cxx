@@ -11,7 +11,6 @@ public:
   TestCollection(const vector<vector<int>> & vi) :
     m_data(vi)
   {}
-  ~TestCollection() {}
 
   using const_iterator = TrigConf::ConstIter< vector<vector<int>>, vector<int> >;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #pragma once
@@ -30,16 +30,12 @@ public:
   NominalAlignmentCondAlg(const std::string &name, ISvcLocator *pSvcLocator);
   virtual ~NominalAlignmentCondAlg();
 
-  virtual bool isClonable() const override { return true; }
-
   virtual StatusCode initialize() override;
   virtual StatusCode execute() override;
-  virtual StatusCode finalize() override;
 
 private:
   SG::WriteCondHandleKey<ActsGeometryContext> m_wchk{
       this, "ActsAlignmentKey", "ActsAlignment", "cond handle key"};
 
-  ServiceHandle<ICondSvc> m_cs;
   ServiceHandle<IActsTrackingGeometrySvc> m_trackingGeometrySvc;
 };

@@ -356,7 +356,8 @@ StatusCode LArDigitMonAlg::fillHistograms(const EventContext& ctx) const
          weight_o=100./128;
          crate_o=crate;
          chan_o=channel;
-         fill(m_tools[m_histoGroups.at(subdet).at(spart)],slot_o,ft_o,weight_o,crate_o,chan_o);
+         weight = 1.;
+         fill(m_tools[m_histoGroups.at(subdet).at(spart)],slot_o,ft_o,weight,weight_o,crate_o,chan_o);
       }
     }
     
@@ -368,14 +369,16 @@ StatusCode LArDigitMonAlg::fillHistograms(const EventContext& ctx) const
           weight_s=100./128;
           crate_s=crate;
           chan_s=channel;
-          fill(m_tools[m_histoGroups.at(subdet).at(spart)],slot_s,ft_s,weight_s,crate_s,chan_s);
+          weight = 1.;
+          fill(m_tools[m_histoGroups.at(subdet).at(spart)],slot_s,ft_s,weight,weight_s,crate_s,chan_s);
        } else {
           slot_sl = thisSlot;
           ft_sl = feedthrough;
           weight_sl=100./128;
           crate_sl=crate;
           chan_sl=channel;
-          fill(m_tools[m_histoGroups.at(subdet).at(spart)],slot_sl,ft_sl,weight_sl,crate_sl,chan_sl);
+          weight = 1.;
+          fill(m_tools[m_histoGroups.at(subdet).at(spart)],slot_sl,ft_sl,weight,weight_sl,crate_sl,chan_sl);
        }
     } 
     /** monitoring cells containing one sample==0.*/
@@ -387,7 +390,8 @@ StatusCode LArDigitMonAlg::fillHistograms(const EventContext& ctx) const
        weight_n=100./128;
        crate_n=crate;
        chan_n=channel;
-       fill(m_tools[m_histoGroups.at(subdet).at(spart)],slot_n,ft_n,weight_n,crate_n,chan_n);
+       weight = 1.;
+       fill(m_tools[m_histoGroups.at(subdet).at(spart)],slot_n,ft_n,weight,weight_n,crate_n,chan_n);
     }
     
   }/** End of loop on LArDigit*/

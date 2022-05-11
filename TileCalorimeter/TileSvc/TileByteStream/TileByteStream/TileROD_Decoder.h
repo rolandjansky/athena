@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEBYTESTREAM_TILEROD_DECODER_H
@@ -491,7 +491,7 @@ class TileROD_Decoder: public AthAlgTool {
     TileRawChannel2Bytes m_rc2bytes;
     TileDigits2Bytes m_d2Bytes;
 
-    const TileHWID* m_tileHWID;
+    const TileHWID* m_tileHWID = nullptr;
 
     Gaudi::Property<bool> m_useFrag0{this, "useFrag0", true, "Use frag0"};
     Gaudi::Property<bool> m_useFrag1{this, "useFrag1", true, "Use frag1"};
@@ -516,6 +516,9 @@ class TileROD_Decoder: public AthAlgTool {
 
     Gaudi::Property<unsigned int> m_fullTileRODs{this, "fullTileMode", 320000,
         "Run from which to take the cabling (for the moment, either 320000 - full 2017 mode (default) - or 0 - 2016 mode)"};
+
+   Gaudi::Property<std::vector<int>> m_demoFragIDs{this,
+         "DemoFragIDs", {}, "List of Tile frag IDs with new electronics (demonstrator)"};
 
     Gaudi::Property<bool> m_verbose{this, "VerboseOutput", false, "Print extra information"};
     Gaudi::Property<bool> m_calibrateEnergy{this, "calibrateEnergy", true, "Convert ADC counts to pCb for RawChannels"};
@@ -565,7 +568,7 @@ class TileROD_Decoder: public AthAlgTool {
     // Map from frag id to MBTS idx
     std::map<unsigned int, unsigned int> m_mapMBTS;
     // index of the MBTS channel
-    int m_MBTS_channel;
+    int m_MBTS_channel = 0;
 
     mutable std::atomic<int> m_WarningCounter;
     mutable std::atomic<int> m_ErrorCounter;
@@ -580,6 +583,9 @@ class TileROD_Decoder: public AthAlgTool {
     unsigned int m_maxChannels;
     bool m_checkMaskedDrawers;
     int m_runPeriod;
+
+    std::vector<int> m_demoChanLB;
+    std::vector<int> m_demoChanEB;
 
     const uint32_t * get_data(const ROBData * rob) const {
       const uint32_t * p;
@@ -815,7 +821,10 @@ void TileROD_Decoder::make_copy(uint32_t bsflags,
   v.setFragSampleBit(rawchannelMetaData[4][0]);
   v.setFragSamplePar(rawchannelMetaData[4][1]);
   v.setFragFEChipMask(rawchannelMetaData[5][0]);
-  v.setFragRODChipMask(rawchannelMetaData[5][1]);
+  if (std::binary_search(m_demoFragIDs.begin(), m_demoFragIDs.end(), v.identify()))
+    v.setFragRODChipMask(rawchannelMetaData[5][0]);
+  else
+    v.setFragRODChipMask(rawchannelMetaData[5][1]);
 }
 
 inline
@@ -1096,6 +1105,11 @@ void TileROD_Decoder::fillCollection(const ROBData * rob,
               rChType = (TileFragHash::TYPE) AlgoType;
 
               rChUnit = (TileRawChannelUnit::UNIT) (unit); // Offline units in simulated data
+
+              if (!m_demoFragIDs.empty()) {
+                const_cast<Gaudi::Property<std::vector<int>> &> ( m_demoFragIDs ) = {}; // No demonstator cabling in MC
+                ATH_MSG_INFO("Disable channel remapping for demonstrator in MC");
+              }
             }
 
             unpack_frag4(version, sizeOverhead, unit, rawchannelMetaData, p, pChannel);

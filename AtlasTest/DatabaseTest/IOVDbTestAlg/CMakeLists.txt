@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( IOVDbTestAlg )
@@ -25,11 +25,7 @@ function (iovdbtestalg_run_test testName jo)
                   LOG_SELECT_PATTERN "^IOVDbTestAlg"
                   PROPERTIES TIMEOUT 300
                   ENVIRONMENT "POOL_OUTMSG_LEVEL=4"
-                  )
-  if( ARG_DEPENDS )
-    set_tests_properties( IOVDbTestAlg_${testName}_ctest
-                          PROPERTIES DEPENDS IOVDbTestAlg_${ARG_DEPENDS}_ctest )
-  endif()
+                  DEPENDS ${ARG_DEPENDS} )
 endfunction (iovdbtestalg_run_test)
 
 # Write out some simple objects and register them in IOVDb - COOL version:
@@ -73,7 +69,3 @@ iovdbtestalg_run_test( IOVDbTestAlgWriteCoolNoReg IOVDbTestAlgWriteCoolNoReg
 # Read back objects via IOVDB
 iovdbtestalg_run_test( IOVDbTestAlgReadCoolAfterTwoStep IOVDbTestAlgReadCoolAfterTwoStep
                        DEPENDS IOVDbTestAlgWriteCoolNoReg )
-
-# Check of online mode updates
-iovdbtestalg_run_test( HotSwapTEST dummy
-                       DEPENDS IOVDbTestAlgReadCoolAfterTwoStep )

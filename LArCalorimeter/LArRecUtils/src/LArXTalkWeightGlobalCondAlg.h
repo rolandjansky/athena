@@ -10,7 +10,6 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "StoreGate/CondHandleKeyArray.h"
-#include "GaudiKernel/ICondSvc.h"
 #include "LArRecConditions/LArXTalkWeightGlobal.h"
 #include "LArRecConditions/LArXTalkWeight.h"
 

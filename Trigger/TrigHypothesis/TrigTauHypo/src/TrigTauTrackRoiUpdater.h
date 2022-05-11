@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGTAUHYPO_TrigTauTrackRoiUpdater_H
@@ -33,8 +33,7 @@ class TrigTauTrackRoiUpdater : public AthReentrantAlgorithm {
   Gaudi::Property< float > m_phiHalfWidth {this,"phiHalfWidth",0.4,"phi Half width for FTF Iso"};
   Gaudi::Property< int > m_nHitPix {this,"nHitPix",2,"at least n hits in pixels on lead track"};
   Gaudi::Property< int > m_nSiHoles {this,"nSiHoles",2,"maximum number of Si holes on lead track"};
-  Gaudi::Property< bool > m_useBDT {this,"useBDT",false,"flag to determine whether the 1st stage of the FTF chooses the track with the highest BDT score"};
-  Gaudi::Property< std::string > m_BDTweights {this,"BDTweights","TrigTauRec/00-11-02/FTF_tauCore_BDT_v0.root","String with the path to the BDT file"};
+  Gaudi::Property< std::string > m_BDTweights {this,"BDTweights","","path to BDT file, when tauIso ROI is defined by highest-BDT-score tauCore track (empty string means BDT is not used)"};
 
   std::unique_ptr<tauRecTools::BDTHelper> m_reader;
 

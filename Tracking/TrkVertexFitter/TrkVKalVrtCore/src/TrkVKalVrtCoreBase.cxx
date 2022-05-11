@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
@@ -14,9 +14,9 @@
 
 namespace Trk {
 
-  VKalVrtControlBase::VKalVrtControlBase(const baseMagFld* baseFld,   const addrMagHandler addrFld, 
+  VKalVrtControlBase::VKalVrtControlBase(baseMagFld* baseFld,   const addrMagHandler addrFld, 
                                          const basePropagator* baseP, const addrPropagator addrP,
-                                         const IVKalState* istate): 
+                                         IVKalState* istate): 
        vk_objMagFld(baseFld),
        vk_funcMagFld(addrFld),
        vk_objProp(baseP), 
@@ -24,18 +24,21 @@ namespace Trk {
        vk_istate(istate)
   {}
 
-  VKalVrtControl::VKalVrtControl(const VKalVrtControlBase & base): VKalVrtControlBase(base), vk_forcft() { 
-    m_fullCovariance=nullptr;
-    m_vrtMassTot=-1.;
-    m_vrtMassError=-1.;
-    m_cascadeEvent=nullptr;
+  VKalVrtControl::VKalVrtControl(const VKalVrtControlBase & base)
+    : VKalVrtControlBase(base),
+      m_vrtMassTot(-1),
+      m_vrtMassError(-1),
+      m_cascadeEvent(nullptr),
+      vk_forcft()
+  { 
   }
-  VKalVrtControl::VKalVrtControl(const VKalVrtControl & src) : VKalVrtControlBase(src) { 
-    m_fullCovariance=nullptr; 
-    vk_forcft=src.vk_forcft;
-    m_vrtMassTot=src.m_vrtMassTot;
-    m_vrtMassError=src.m_vrtMassError;
-    m_cascadeEvent=src.m_cascadeEvent;
+  VKalVrtControl::VKalVrtControl(const VKalVrtControl & src)
+    : VKalVrtControlBase(src),
+      m_vrtMassTot(src.m_vrtMassTot),
+      m_vrtMassError(src.m_vrtMassError),
+      m_cascadeEvent(src.m_cascadeEvent),
+      vk_forcft(src.vk_forcft)
+  { 
   }
 
   VKTrack::VKTrack(long int iniId, double Perigee[], double Covariance[], VKVertex * vk, double m):

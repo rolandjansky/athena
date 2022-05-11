@@ -154,26 +154,34 @@ StatusCode TruthResetAlg::execute() {
       continue; // skip particles created by the simulation
     }
     std::unique_ptr<HepMC::GenParticle> copyOfGenParticle = std::make_unique<HepMC::GenParticle>(*currentParticle);
-    if ( currentParticle == inputEvent.beam_particles().first ) beam1 = copyOfGenParticle.get();
-    if ( currentParticle == inputEvent.beam_particles().second ) beam2 = copyOfGenParticle.get();
+    const bool isBeamParticle1(currentParticle == inputEvent.beam_particles().first);
+    const bool isBeamParticle2(currentParticle == inputEvent.beam_particles().second);
     // There may (will) be particles which had end vertices added by
     // the simulation (inputEvent). Those vertices will not be copied
     // to the outputEvent, so we should not try to use them here.
     const bool shouldAddProdVertex(currentParticle->production_vertex() && inputEvtVtxToOutputEvtVtx[ currentParticle->production_vertex() ]);
     const bool shouldAddEndVertex(currentParticle->end_vertex() && inputEvtVtxToOutputEvtVtx[ currentParticle->end_vertex() ]);
-    if ( shouldAddProdVertex || shouldAddEndVertex ) {
+    if ( isBeamParticle1 || isBeamParticle2 || shouldAddProdVertex || shouldAddEndVertex ) {
       HepMC::GenParticle* particleCopy = copyOfGenParticle.release();
-      if ( shouldAddEndVertex  ) {
-        inputEvtVtxToOutputEvtVtx[ currentParticle->end_vertex() ]->
-          add_particle_in(particleCopy);
+      if ( isBeamParticle1 ) {
+        beam1 = particleCopy;
       }
-      if ( shouldAddProdVertex ) {
-        inputEvtVtxToOutputEvtVtx[ currentParticle->production_vertex() ]->
-          add_particle_out(particleCopy);
+      if ( isBeamParticle2 ) {
+        beam2 = particleCopy;
       }
-    }
-    else {
-      ATH_MSG_WARNING ( "Found GenParticle with no production or end vertex! \n" << *currentParticle);
+      if ( shouldAddProdVertex || shouldAddEndVertex ) {
+        if ( shouldAddEndVertex  ) {
+          inputEvtVtxToOutputEvtVtx[ currentParticle->end_vertex() ]->
+            add_particle_in(particleCopy);
+        }
+        if ( shouldAddProdVertex ) {
+          inputEvtVtxToOutputEvtVtx[ currentParticle->production_vertex() ]->
+            add_particle_out(particleCopy);
+        }
+      }
+      else {
+        ATH_MSG_WARNING ( "Found GenParticle with no production or end vertex! \n" << *currentParticle);
+      }
     }
   }
   outputEvent->set_beam_particles( beam1, beam2 );

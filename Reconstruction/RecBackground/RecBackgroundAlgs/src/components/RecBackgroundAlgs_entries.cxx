@@ -1,6 +1,6 @@
-#include "RecBackgroundAlgs/BackgroundWordFiller.h"
-#include "RecBackgroundAlgs/BackgroundWordTest.h"
-#include "RecBackgroundAlgs/BeamBackgroundFiller.h"
+#include "../BackgroundWordFiller.h"
+#include "../BackgroundWordTest.h"
+#include "../BeamBackgroundFiller.h"
 
 DECLARE_COMPONENT( BackgroundWordFiller )
 DECLARE_COMPONENT( BackgroundWordTest )

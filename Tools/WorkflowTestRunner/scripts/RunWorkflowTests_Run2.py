@@ -35,8 +35,10 @@ def main():
         if setup.parallel_execution:
             log.error("Parallel execution not supported for pile-up workflow")
             exit(1)
-        tests_to_run.append(PileUpTest("d1730", run, WorkflowType.PileUpPresampling, ["HITtoRDO"], setup, options.extra_args))
-        tests_to_run.append(QTest("q444", run, WorkflowType.MCPileUpReco, ["RAWtoESD", "ESDtoAOD"], setup, options.extra_args))
+        if not options.workflow or options.workflow is WorkflowType.PileUpPresampling:
+            tests_to_run.append(PileUpTest("d1730", run, WorkflowType.PileUpPresampling, ["HITtoRDO"], setup, options.extra_args))
+        if not options.workflow or options.workflow is WorkflowType.MCPileUpReco:
+            tests_to_run.append(QTest("q444", run, WorkflowType.MCPileUpReco, ["RAWtoESD", "ESDtoAOD"], setup, options.extra_args))
     else:
         if not options.workflow or options.workflow is WorkflowType.MCReco:
             if "--CA" in options.extra_args:

@@ -52,9 +52,27 @@ class ExtrapolationCache;
 /**
    @class STEP_Propagator
 
-   STEP_Propagator is an algorithm for track parameters propagation through a
-   magnetic field, including material effects, with or without jacobian of transformation.
-   This algorithm contains three steps:
+   STEP (Simultaneous Track and Error Propagation ) 
+   is an algorithm for track parameters propagation through
+   magnetic field.
+
+   The algorithm can produce the Jacobian that transports the covariance matrix
+   from one set of track parameters at the initial surface to another set of 
+   track parameters at the destination surface. This is useful for Chi2 
+   fitting.
+
+   One can choose to perform the transport of the parameters only and omit the transport 
+   of the associated covariances (propagateParameters).
+
+   The implementation performs the propagation in global coordinates and uses
+   Jacobian matrices (see RungeKuttaUtils) for the transformations between the 
+   global frame and local surface-attached coordinate systems.
+
+   The STEP_Propagator includes material effects in the
+   equation of motion and applies corrections to the covariance matrices 
+   continuously during the parameter transport.  It is designed for the 
+   propagation  of a particle going through a dense block of material 
+   (e.g a muon transversing the calorimeter). 
 
    1.The first step of the algorithm is track parameters transformation from
    local presentation for given start surface to global Runge Kutta coordinates.
@@ -116,19 +134,20 @@ class ExtrapolationCache;
    CM  - charge/momentum            = local CM
 
    The Runge-Kutta method:
+
    The equations of motion are solved using an embedded pair of Runge-Kutta formulas.
    This method, Runge-Kutta-Fehlberg, calculates a number of points along the step and
    adds them up in different ways to get two different solutions, of different order, for the
-integration. The higher order solution is used for the propagation and the lower order solution for
-error control. The difference between these solutions is used to estimate the quality of the
-integration (propagation), and to calculate the step size for the next step. If the quality is below
-a given tolerance then the step is rejected and repeated with a shorter step length. This propagator
-uses the TP43 (Tsitouras-Papakostas 4th and 3rd order) Runge-Kutta pair.
+   integration. The higher order solution is used for the propagation and the lower order solution for
+   error control. The difference between these solutions is used to estimate the quality of the
+   integration (propagation), and to calculate the step size for the next step. If the quality is below
+   a given tolerance then the step is rejected and repeated with a shorter step length. This propagator
+   uses the TP43 (Tsitouras-Papakostas 4th and 3rd order) Runge-Kutta pair.
 
    The step size algoritm by L.P.Endresen and J.Myrheim was choosen for its low step rejection and
-effective step size calculation. The low step rejection is achieved by letting the step size
-oscillate around the optimal value instead of repeating steps every time they fall below the
-tolerance level.
+   effective step size calculation. The low step rejection is achieved by letting the step size
+   oscillate around the optimal value instead of repeating steps every time they fall below the
+   tolerance level.
 
    Units are mm, MeV and kiloGauss.
 
@@ -143,10 +162,11 @@ class STEP_Propagator final
   // Public methods:
   /////////////////////////////////////////////////////////////////////////////////
 public:
-  STEP_Propagator(const std::string&, const std::string&, const IInterface*);
 
   using IPropagator::propagate;
-  using IPropagator::propagateT;
+  
+  STEP_Propagator(const std::string&, const std::string&, const IInterface*);
+
   virtual ~STEP_Propagator();
 
   /** AlgTool initailize method.*/
@@ -155,25 +175,14 @@ public:
   /** AlgTool finalize method */
   virtual StatusCode finalize() override final;
 
-  /** Main propagation method for ParametersBase. Use StraightLinePropagator for neutrals */
-  /*
-    const Trk::ParametersBase*
-    propagate (const Trk::ParametersBase&          trackParameters,
-    const Trk::Surface&                 targetSurface,
-    Trk::PropDirection            propagationDirection,
-    Trk::BoundaryCheck            boundaryCheck,
-    const      MagneticFieldProperties& magneticFieldProperties,
-    ParticleHypothesis       particle,
-    bool                     returnCurv=false) const;
-
-  */
-
-  /** Main propagation method NeutralParameters. Use StraightLinePropagator for neutrals*/
-  virtual std::unique_ptr<Trk::NeutralParameters> propagate(const Trk::NeutralParameters&,
-                                                            const Trk::Surface&,
-                                                            Trk::PropDirection,
-                                                            const Trk::BoundaryCheck&,
-                                                            bool rC = false) const override final;
+  /** Main propagation method NeutralParameters.
+   * It is not implemented for STEP propagator.*/
+  virtual std::unique_ptr<Trk::NeutralParameters> propagate(
+    const Trk::NeutralParameters&,
+    const Trk::Surface&,
+    Trk::PropDirection,
+    const Trk::BoundaryCheck&,
+    bool rC = false) const override final;
 
   /** Propagate parameters and covariance without returning the Jacobian */
   virtual std::unique_ptr<Trk::TrackParameters> propagate(
@@ -201,7 +210,8 @@ public:
     bool returnCurv = false,
     const Trk::TrackingVolume* tVol = nullptr) const override final;
 
-  /** Propagate parameters and covariance with search of closest surface */
+  /** Propagate parameters and covariance with search of closest surface 
+   * time included*/
   virtual std::unique_ptr<Trk::TrackParameters> propagateT(
     const EventContext& ctx,
     const Trk::TrackParameters& trackParameters,
@@ -216,7 +226,8 @@ public:
     const Trk::TrackingVolume* tVol,
     std::vector<Trk::HitInfo>*& hitVector) const override final;
 
-  /** Propagate parameters and covariance with search of closest surface and material collection */
+  /** Propagate parameters and covariance with search of closest surface and
+   * material collection */
   virtual std::unique_ptr<Trk::TrackParameters> propagateM(
     const EventContext& ctx,
     const Trk::TrackParameters& trackParameters,
@@ -226,15 +237,16 @@ public:
     ParticleHypothesis particle,
     std::vector<unsigned int>& solutions,
     std::vector<const Trk::TrackStateOnSurface*>*& matstates,
-    std::vector<std::pair<std::unique_ptr<Trk::TrackParameters>, int>>* intersections,
+    std::vector<std::pair<std::unique_ptr<Trk::TrackParameters>, int>>*
+      intersections,
     double& path,
     bool usePathLimit = false,
     bool returnCurv = false,
     const Trk::TrackingVolume* tVol = nullptr,
     Trk::ExtrapolationCache* = nullptr) const override final;
 
-  /** Propagate parameters and covariance, and return the Jacobian. WARNING: Multiple Scattering is
-   * not included in the Jacobian! */
+  /** Propagate parameters and covariance, and return the Jacobian. WARNING:
+   * Multiple Scattering is not included in the Jacobian! */
   virtual std::unique_ptr<Trk::TrackParameters> propagate(
     const EventContext& ctx,
     const Trk::TrackParameters& trackParameters,
@@ -260,8 +272,8 @@ public:
     bool returnCurv = false,
     const Trk::TrackingVolume* tVol = nullptr) const override final;
 
-  /** Propagate parameters and return Jacobian. WARNING: Multiple Scattering is not included in the
-   * Jacobian! */
+  /** Propagate parameters and return Jacobian. WARNING: Multiple Scattering is
+   * not included in the Jacobian! */
   virtual std::unique_ptr<Trk::TrackParameters> propagateParameters(
     const EventContext& ctx,
     const Trk::TrackParameters& trackParameters,
@@ -294,14 +306,15 @@ public:
     ParticleHypothesis particle) const override final;
 
   /** Return a list of positions along the track */
-  virtual void globalPositions(const EventContext& ctx,
-                               std::list<Amg::Vector3D>& positionsList,
-                               const TrackParameters& trackParameters,
-                               const MagneticFieldProperties& magneticFieldProperties,
-                               const CylinderBounds& cylinderBounds,
-                               double maxStepSize,
-                               ParticleHypothesis particle,
-                               const Trk::TrackingVolume* tVol = 0) const override final;
+  virtual void globalPositions(
+    const EventContext& ctx,
+    std::list<Amg::Vector3D>& positionsList,
+    const TrackParameters& trackParameters,
+    const MagneticFieldProperties& magneticFieldProperties,
+    const CylinderBounds& cylinderBounds,
+    double maxStepSize,
+    ParticleHypothesis particle,
+    const Trk::TrackingVolume* tVol = 0) const override final;
 
   /////////////////////////////////////////////////////////////////////////////////
   // Private methods:
@@ -459,8 +472,8 @@ private:
                               AmgSymMatrix(5) * measurementCovariance) const;
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // Multiple scattering and straggling contributionto the covariance matrix in curvilinear
-  // representation
+  // Multiple scattering and straggling contributionto the covariance matrix in
+  // curvilinear representation
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
   void covarianceContribution(Cache& cache,
                               const Trk::TrackParameters* trackParameters,
@@ -480,11 +493,14 @@ private:
   // update material effects   // to follow change of material
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  void updateMaterialEffects(Cache& cache, double p, double sinTh, double path) const;
+  void updateMaterialEffects(Cache& cache,
+                             double p,
+                             double sinTh,
+                             double path) const;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // Calculate energy loss in MeV/mm. The radiative effects are scaled by m_radiationScale (1=mean,
-  // 0.5=mean(log10), 0.1=mpv)
+  // Calculate energy loss in MeV/mm. The radiative effects are scaled by
+  // m_radiationScale (1=mean, 0.5=mean(log10), 0.1=mpv)
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   double dEds(Cache& cache, double p) const;
 
@@ -504,7 +520,7 @@ private:
   void getField(Cache& cache, const double*, double*) const;
   void getFieldGradient(Cache& cache, const double*, double*, double*) const;
 
-  double m_tolerance;        //!< Error tolerance. Low tolerance gives high accuracy
+  double m_tolerance; //!< Error tolerance. Low tolerance gives high accuracy
   bool m_materialEffects;    //!< Switch material effects on or off
   bool m_includeBgradients;  //!< Include B-gradients in the error propagation
   bool m_includeGgradient;   //!< Include g-gradient in the error propagation
@@ -554,7 +570,10 @@ STEP_Propagator::getField(Cache& cache, const double* R, double* H) const
 }
 
 inline void
-STEP_Propagator::getFieldGradient(Cache& cache, const double* R, double* H, double* dH) const
+STEP_Propagator::getFieldGradient(Cache& cache,
+                                  const double* R,
+                                  double* H,
+                                  double* dH) const
 {
   if (cache.m_solenoid) {
     cache.m_fieldCache.getFieldZR(R, H, dH);

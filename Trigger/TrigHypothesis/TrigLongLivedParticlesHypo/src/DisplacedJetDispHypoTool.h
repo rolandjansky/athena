@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGT2DJTRIG_DISP_HYPOTOOL_H
 #define TRIGT2DJTRIG_DISP_HYPOTOOL_H
@@ -13,6 +13,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #include "xAODJet/Jet.h"
 #include "AthContainers/AuxElement.h"
 #include "AthenaMonitoringKernel/Monitored.h"
+#include "DisplacedJetBeamspotInfo.h"
 
 class DisplacedJetDispHypoTool : virtual public ::AthAlgTool
 {
@@ -31,6 +32,9 @@ public:
       const xAOD::Jet* jet;
       const xAOD::TrackParticleContainer* lrt_tracks;
       const xAOD::Vertex* primary_vertex;
+      const xAOD::TrigComposite* counts;
+      xAOD::TrigComposite* info;
+      DisplacedJetBeamspotInfo& beamspot;
     };
 
     StatusCode decide( Info& info ) const;
@@ -45,15 +49,17 @@ public:
     Gaudi::Property<float> m_d0sigcut{this, "d0sigcut",{25.0}, "Maximum value for z0*sin(theta) [mm]"};
 
 
-    Gaudi::Property<int> m_maxprompt_h{this, "max_prompt_trk_h",{4}, "Max number of prompt tracks in a jet"};
-    Gaudi::Property<int> m_mindisp_h{this, "min_disp_trk_h",{4}, "Min number of disp tracks in a jet"};
-    Gaudi::Property<float> m_nother_frac_h{this, "nother_frac_h",{0.5}, "nother frac"};
+    Gaudi::Property<int> m_maxprompt_c2{this, "max_prompt_trk_c2",{4}, "Max number of prompt tracks in a jet"};
+    Gaudi::Property<int> m_mindisp_c2{this, "min_disp_trk_c2",{4}, "Min number of disp tracks in a jet"};
+    Gaudi::Property<float> m_nother_frac_c2{this, "nother_frac_c2",{0.5}, "nother frac"};
 
-    Gaudi::Property<int> m_maxprompt_l{this, "max_prompt_trk_l",{4}, "Max number of prompt tracks in a jet"};
-    Gaudi::Property<int> m_mindisp_l{this, "min_disp_trk_l",{4}, "Min number of disp tracks in a jet"};
-    Gaudi::Property<float> m_nother_frac_l{this, "nother_frac_l",{0.5}, "nother frac"};
+    Gaudi::Property<int> m_maxprompt_c1{this, "max_prompt_trk_c1",{4}, "Max number of prompt tracks in a jet"};
+    Gaudi::Property<int> m_mindisp_c1{this, "min_disp_trk_c1",{4}, "Min number of disp tracks in a jet"};
+    Gaudi::Property<float> m_nother_frac_c1{this, "nother_frac_c1",{0.5}, "nother frac"};
     
     Gaudi::Property<std::string> m_cutname{this, "cut_name",{""}, "Name of cuts, used for decoration names"};
+
+    Gaudi::Property<bool> m_usebeamspot{this, "use_beamspot",{true}, "Use beamspot info"};
 
     ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
   };

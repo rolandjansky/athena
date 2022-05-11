@@ -8,7 +8,7 @@
 #include "eflowRec/eflowTrackClusterLink.h"
 #include "xAODCaloEvent/CaloCluster.h"
 
-void PFCalcRadialEnergyProfiles::calculate(const PFData& data){
+void PFCalcRadialEnergyProfiles::calculate(const PFData& data) const{
 
   ATH_MSG_DEBUG("Accessed radial energy profile function");
 
@@ -29,12 +29,11 @@ void PFCalcRadialEnergyProfiles::calculate(const PFData& data){
       for (auto thisEFlowTrackClusterLink : links) matchedClusters.push_back(thisEFlowTrackClusterLink->getCluster());
 
       std::vector<std::pair<xAOD::CaloCluster*, bool> > clusterSubtractionList;
-      for (auto thisEFlowRecCluster : matchedClusters) clusterSubtractionList.push_back(std::pair(thisEFlowRecCluster->getCluster(),false));
+      clusterSubtractionList.reserve(matchedClusters.size());
+for (auto thisEFlowRecCluster : matchedClusters) clusterSubtractionList.emplace_back(thisEFlowRecCluster->getCluster(),false);
 
       eflowCellList calorimeterCellList;
       eflowSubtract::Subtractor::makeOrderedCellList(efRecTrack->getTrackCaloPoints(),clusterSubtractionList,calorimeterCellList);
-      
-      eflowRingThicknesses ringThicknessGenerator;
       
       std::vector<int> layerToStoreVector;
       std::vector<float> radiusToStoreVector;
@@ -45,7 +44,7 @@ void PFCalcRadialEnergyProfiles::calculate(const PFData& data){
 	
       	eflowCaloENUM layer = (eflowCaloENUM)i;
       	ATH_MSG_DEBUG("layer is "<<layer);
-      	double ringThickness = ringThicknessGenerator.ringThickness((eflowCaloENUM)i);
+      	double ringThickness = eflowRingThicknesses::ringThickness((eflowCaloENUM)i);
       	ATH_MSG_DEBUG("ring thickness is "<<ringThickness);
 	
       	double eta_extr = calorimeterCellList.etaFF(layer);

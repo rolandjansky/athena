@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 #     Contains algs/tools used by Inner Detector Trigger
 
@@ -556,8 +556,8 @@ def siTrackMakerTool_builder( name, config, siDetElementsRoadMakerTool, trackFin
                          doHadCaloSeedSSS              = InDetFlags.doHadCaloSeededSSS(),             #FIXME: revisit  ATR-22756
                          phiWidth                      = trackingCuts.phiWidthBrem(),
                          etaWidth                      = trackingCuts.etaWidthBrem(),
-                         InputClusterContainerName     = InDetKeys.CaloClusterROIContainer(),         #FIXME: revisit  ATR-22756
-                         InputHadClusterContainerName  = InDetKeys.HadCaloClusterROIContainer(),      #FIXME: revisit  ATR-22756
+                         EMROIPhiRZContainer           = "InDetCaloClusterROIPhiRZ0GeV",
+                         HadROIPhiRZContainer          = "InDetHadCaloClusterROIPhiRZ",               #FIXME: revisit  ATR-22756
                          TrackPatternRecoInfo          = trackPatternRecoInfo,
                          UseAssociationTool            = usePrdAssociationTool)
 

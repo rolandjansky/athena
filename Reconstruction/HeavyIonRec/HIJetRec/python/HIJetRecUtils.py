@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from HIJetRec.HIJetRecFlags import HIJetFlags
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -309,8 +309,7 @@ def JetAlgFromTools(rtools, suffix="HI",persistify=True) :
 
     if len(HIJet_exe_tools)>0:
         jtm += JetToolRunner("jetrunconstit"+suffix,
-                            Tools=HIJet_exe_tools,
-                            Timer=jetFlags.timeJetToolRunner())
+                            Tools=HIJet_exe_tools)
         topsequence += JetAlgorithm("jetalgconstit"+suffix,
                                     Tools=[jtm.jetrunconstitHI])
 
@@ -326,8 +325,7 @@ def JetAlgFromTools(rtools, suffix="HI",persistify=True) :
         topsequence += getter
 
     runner=JetToolRunner("jetrun"+suffix,
-                         Tools=rtools,
-                         Timer=jetFlags.timeJetToolRunner())
+                         Tools=rtools)
     jtm.add(runner)
 
     theAlg=JetAlgorithm("jetalg"+suffix)

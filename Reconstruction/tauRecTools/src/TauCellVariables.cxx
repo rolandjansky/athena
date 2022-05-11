@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -67,9 +67,9 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) const {
       double cellET = cell->et();
       double cellEnergy = cell->energy();
       
-      const xAOD::Vertex* vertex = tauRecTools::getTauVertex(pTau, inTrigger());
-      if (m_doVertexCorrection && vertex) {
-        CaloVertexedCell vxCell (*cell, pTau.vertex()->position());
+      const xAOD::Vertex* vertex = pTau.vertex();
+      if (m_doVertexCorrection && vertex!=nullptr) {
+        CaloVertexedCell vxCell (*cell, vertex->position());
         cellPhi = vxCell.phi();
         cellEta = vxCell.eta();
         cellET = vxCell.et();

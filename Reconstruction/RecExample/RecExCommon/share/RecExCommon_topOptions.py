@@ -410,10 +410,6 @@ if rec.doTruth():
 from AthenaConfiguration.OldFlags2NewFlags import getNewConfigFlags
 ConfigFlags = getNewConfigFlags()
 
-# Apply additional changes to the ConfigFlags:
-if rec.doTrigger and globalflags.DataSource() == 'data' and globalflags.InputFormat == 'bytestream':
-    ConfigFlags.Trigger.readBS = True
-
 # For cosmics runs, we need to turn off doTIDE_Ambi to be consistent
 # with the settings in InDetJobProperties.py.
 # We used to do that there, but that doesn't work anymore
@@ -432,7 +428,11 @@ if recAlgs.doEFlow():
     if False == jobproperties.eflowRecFlags.usePFFlowElementAssoc:
         ConfigFlags.PF.useElPhotLinks = False
         ConfigFlags.PF.useMuLinks = False
-
+    elif not rec.doMuon:
+        ConfigFlags.PF.useMuLinks = False
+else:
+    ConfigFlags.Reco.EnablePFlow = False
+        
 HIDict = {}
 if rec.doHeavyIon():
     # This is copy from the old style to the new
@@ -535,7 +535,7 @@ if rec.readRDO():
 #
 # Write beamspot information into xAOD::EventInfo.
 #
-if globalflags.InputFormat.is_bytestream():
+if globalflags.InputFormat.is_bytestream() and not athenaCommonFlags.isOnline():
     topSequence += CfgMgr.xAODMaker__EventInfoBeamSpotDecoratorAlg()
     pass
 
@@ -570,15 +570,6 @@ if rec.doWriteBS():
     include( "ByteStreamCnvSvc/RDP_ByteStream_jobOptions.py" )
     pass
 
-pdr.flag_domain('tagraw')
-## add in RawInfoSummaryForTagWriter
-if rec.doESD() and not rec.readESD() and (rec.doBeamBackgroundFiller() or rec.doTagRawSummary()):
-    try:
-        include("EventTagRawAlgs/RawInfoSummaryForTagWriter_jobOptions.py")
-    except Exception:
-        logRecExCommon_topOptions.warning("Could not load RawInfoSummaryForTagWriter_joboptions !" )
-        pass
-    pass
 # write the background word into EventInfo (Jamie Boyd)
 # need to go here for ordering reasons...
 if rec.doESD() and not rec.readESD() and rec.doBeamBackgroundFiller():
@@ -889,7 +880,7 @@ if rec.doWriteESD():
                 raise Exception
             # Get an instance of the random number generator
             # The actual seeds are dummies since event reseeding is used
-            from AthenaServices.AthenaServicesConf import AtRanluxGenSvc
+            from RngComps.RngCompsConf import AtRanluxGenSvc
             if not hasattr(svcMgr,'DPDAtRanluxGenSvc'):
                 svcMgr += AtRanluxGenSvc( "DPDAtRanluxGenSvc",
                                           OutputLevel    = ERROR,
@@ -1020,7 +1011,7 @@ if rec.doDPD():
 
     # Get an instance of the random number generator
     # The actual seeds are dummies since event reseeding is used
-    from AthenaServices.AthenaServicesConf import AtRanluxGenSvc
+    from RngComps.RngCompsConf import AtRanluxGenSvc
     if not hasattr(svcMgr,'DPDAtRanluxGenSvc'):
         svcMgr += AtRanluxGenSvc( "DPDAtRanluxGenSvc",
                                   OutputLevel    = ERROR,
@@ -1066,9 +1057,7 @@ if rec.doDPD():
             logRecExCommon_topOptions.debug("Calling CreateCutFlowSvc")
             CreateCutFlowSvc( svcName="CutFlowSvc", seq=topSequence, addMetaDataToAllOutputFiles=True )
 
-            from PyUtils.MetaReaderPeeker import convert_metadata_items
-            #Explicitely add file metadata from input and from transient store
-            MSMgr.AddMetaDataItemToAllStreams(convert_metadata_items(layout='#join'))
+            #Explicitly add file metadata from the transient store
             MSMgr.AddMetaDataItemToAllStreams(dfMetadataItemList())
             pass
         pass
@@ -1100,6 +1089,8 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
                 addClusterToCaloCellAOD(egammaKeys.outputClusterKey())
                 addClusterToCaloCellAOD(egammaKeys.outputFwdClusterKey())
                 addClusterToCaloCellAOD(egammaKeys.outputEgammaLargeFWDClustersKey())
+                if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
+                    addClusterToCaloCellAOD('LRT'+egammaKeys.outputClusterKey())
                 if "itemList" in metadata:
                     if ('xAOD::CaloClusterContainer', egammaKeys.EgammaLargeClustersKey()) in metadata["itemList"]:
                         # check first for priority if both keys are in metadata
@@ -1184,8 +1175,8 @@ if rec.doWriteAOD():
             from ThinningUtils.ThinNegativeEnergyCaloClusters import ThinNegativeEnergyCaloClusters
             ThinNegativeEnergyCaloClusters()
         if rec.doCalo and AODFlags.ThinNegativeEnergyNeutralPFOs:
-            from ThinningUtils.ThinNegativeEnergyNeutralPFOs import ThinNegativeEnergyNeutralPFOs
-            ThinNegativeEnergyNeutralPFOs()
+            from ThinningUtils.ThinNegativeEnergyNeutralPFOCfg import ThinNegativeEnergyNeutralPFOCfg
+            CAtoGlobalWrapper(ThinNegativeEnergyNeutralPFOCfg, ConfigFlags , StreamName = "StreamAOD")
         from InDetRecExample.InDetJobProperties import InDetFlags
         if (AODFlags.ThinInDetForwardTrackParticles() and
             not (rec.readESD() and not objKeyStore.isInInput('xAOD::TrackParticleContainer',

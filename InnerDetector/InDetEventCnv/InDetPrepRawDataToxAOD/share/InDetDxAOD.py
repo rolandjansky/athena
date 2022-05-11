@@ -455,6 +455,8 @@ if not hasattr(svcMgr, 'DecisionSvc'):
         svcMgr += CfgMgr.DecisionSvc()
 svcMgr.DecisionSvc.CalcStats = True
 
+from RecExConfig.AutoConfiguration import IsInInputFile
+have_TRTPhase = ( InDetFlags.doTRTPhaseCalculation() and not jobproperties.Beam.beamType()=="collisions" ) or IsInInputFile('ComTime' , 'TRT_Phase' )
 
 from InDetRecExample import TrackingCommon
 # Add the TSOS augmentation tool to the derivation framework
@@ -465,6 +467,7 @@ DFTSOS = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFTrackStateO
                                                           StoreTRT   = dumpTrtInfo,
                                                           StoreSCT   = dumpSctInfo,
                                                           StorePixel = dumpPixInfo,
+                                                          AddExtraEventInfo = have_TRTPhase, # decorate EventInfo with TRTPhase
                                                           PixelMsosName = prefixName+"PixelMSOSs",
                                                           SctMsosName   = prefixName+"SCT_MSOSs",
                                                           TrtMsosName   = prefixName+"TRT_MSOSs",
@@ -479,6 +482,7 @@ DFTSOS_gsf = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFGSFTrac
                                                                StoreTRT   = dumpTrtInfo,
                                                                StoreSCT   = dumpSctInfo,
                                                                StorePixel = dumpPixInfo,
+                                                               AddExtraEventInfo = False, # only decorate once
                                                                PixelMsosName = prefixName+"PixelMSOSs_GSF",
                                                                SctMsosName   = prefixName+"SCT_MSOSs_GSF",
                                                                TrtMsosName   = prefixName+"TRT_MSOSs_GSF",

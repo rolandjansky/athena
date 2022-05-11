@@ -31,6 +31,8 @@ public:
 
   void fill(const xAOD::TruthParticle& truth, const bool isGood, float weight);
 private:
+  TEfficiency* m_efficiency_vs_pteta;
+
   TEfficiency* m_efficiency_vs_eta;
   TEfficiency* m_efficiency_vs_pt;
   TEfficiency* m_efficiency_vs_pt_low;

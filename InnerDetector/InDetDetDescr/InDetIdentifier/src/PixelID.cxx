@@ -18,36 +18,19 @@
 #include <iostream>
 
 
-
 PixelID::PixelID(void)
-  :
-  m_pixel_region_index(0),
-  m_INDET_INDEX(0),
-  m_PIXEL_INDEX(1),
-  m_BARREL_EC_INDEX(2),
-  m_LAYER_DISK_INDEX(3),
-  m_PHI_MODULE_INDEX(4),
-  m_ETA_MODULE_INDEX(5),
-  m_PHI_INDEX_INDEX(6),
-  m_ETA_INDEX_INDEX(7),
-  m_ETA_MODULE_OFFSET(999),
-  m_dict(nullptr),
-  m_wafer_hash_max(0),
-  m_pixel_hash_max(0) {
+{
   m_barrel_field.add_value(0);
   m_dbm_field.add_value(0); //DBM
 }
-
-PixelID::~PixelID(void)
-{}
 
 void
 PixelID::wafer_id_checks(int barrel_ec,int layer_disk,int phi_module,int eta_module) const {
 
   // Fill expanded id
   ExpandedIdentifier id;
-  id << indet_field_value() << pixel_field_value()
-     << barrel_ec << layer_disk << phi_module << eta_module;
+  id = m_baseExpandedIdentifier;
+  id << barrel_ec << layer_disk << phi_module << eta_module;
   if (!m_full_wafer_range.match(id)) {  // module range check is sufficient
     MsgStream log(m_msgSvc, "PixelID");
     if (m_msgSvc) log << MSG::ERROR << " PixelID::wafer_id result is NOT ok. ID, range "
@@ -63,8 +46,8 @@ PixelID::pixel_id_checks(int barrel_ec,int layer_disk,int phi_module,int eta_mod
   // Check that id is within allowed range
   // Fill expanded id
   ExpandedIdentifier id;
-  id << indet_field_value() << pixel_field_value()
-     << barrel_ec << layer_disk << phi_module << eta_module << phi_index << eta_index;
+  id = m_baseExpandedIdentifier;
+  id << barrel_ec << layer_disk << phi_module << eta_module << phi_index << eta_index;
   if (!m_full_pixel_range.match(id)) {
     MsgStream log(m_msgSvc, "PixelID");
     if (m_msgSvc) log << MSG::ERROR << " PixelID::pixel_id result is NOT ok. ID, range "
@@ -368,6 +351,14 @@ PixelID::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
   Range prefix;
   m_full_wafer_range = m_dict->build_multirange(region_id, prefix, "eta_module");
   m_full_pixel_range = m_dict->build_multirange(region_id, prefix);
+
+  // Set the base identifier for Pixel
+  m_baseIdentifier = ((Identifier::value_type) 0);
+  m_indet_impl.pack(indet_field_value(), m_baseIdentifier);
+  m_pixel_impl.pack(pixel_field_value(), m_baseIdentifier);
+
+  // Set the base expanded identifier for Pixel
+  m_baseExpandedIdentifier << indet_field_value() << pixel_field_value();
 
   // Setup the hash tables
   if (init_hashes()) return(1);
@@ -948,9 +939,8 @@ PixelID::get_expanded_id(const Identifier& id,
                          ExpandedIdentifier& exp_id,
                          const IdContext* context) const {
   exp_id.clear();
-  exp_id << indet_field_value()
-         << pixel_field_value()
-         << barrel_ec(id)
+  exp_id = m_baseExpandedIdentifier;
+  exp_id << barrel_ec(id)
          << layer_disk(id)
          << phi_module(id)
          << eta_module(id);

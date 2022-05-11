@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // METRecoTool.h 
@@ -23,6 +23,7 @@
 // FrameWork includes
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/AsgTool.h"
+#include "CxxUtils/checker_macros.h"
 #include "StoreGate/DataHandle.h"
 
 
@@ -54,7 +55,8 @@ namespace met{
    *  by the various tools scheduled by METRecoTool.
    *
    */
-  class METRecoTool
+  class ATLAS_NOT_THREAD_SAFE METRecoTool
+  //    ^ the (optional) use of TStopwatch makes this not thread-safe
     : public asg::AsgTool,
       virtual public IMETRecoTool
   { 
@@ -107,7 +109,7 @@ namespace met{
     // Monitor timing
     int m_timedetail;
 
-    mutable unsigned int m_nevt;
+    mutable std::atomic<unsigned int> m_nevt;
     mutable TStopwatch m_clock;
     mutable std::vector<TStopwatch> m_toolclocks;
   }; 

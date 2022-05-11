@@ -59,36 +59,28 @@ Trk::DiamondBounds::inside(const Amg::Vector2D& locpo, double tol1, double tol2)
 bool
 Trk::DiamondBounds::insideFull(const Amg::Vector2D& locpo, double tol1, double tol2) const
 {
-  // the cases:
-  // (0)
-  if (!m_boundValues[DiamondBounds::bv_halfY1] && !m_boundValues[DiamondBounds::bv_minHalfX])
-    return false;
-  // (1)
-  if (locpo[Trk::locY] < -2. * m_boundValues[DiamondBounds::bv_halfY1] - tol2)
-    return false;
-  if (locpo[Trk::locY] > 2. * m_boundValues[DiamondBounds::bv_halfY2] + tol2)
-    return false;
-  // (2)
-  if (fabs(locpo[Trk::locX]) > (m_boundValues[DiamondBounds::bv_medHalfX] + tol1))
-    return false;
-  // (3)
-  if (fabs(locpo[Trk::locX]) <
-      (fmin(m_boundValues[DiamondBounds::bv_minHalfX], m_boundValues[DiamondBounds::bv_maxHalfX]) - tol1))
-    return true;
-  // (4)
+  // validity check
+  if (!m_boundValues[DiamondBounds::bv_halfY1] && !m_boundValues[DiamondBounds::bv_minHalfX]) return false;
+
+  // quick False (radial direction)
+  if (locpo[Trk::locY] < -2. * m_boundValues[DiamondBounds::bv_halfY1] - tol2) return false;
+  if (locpo[Trk::locY] >  2. * m_boundValues[DiamondBounds::bv_halfY2] + tol2) return false;
+
+  double absX = std::abs(locpo[Trk::locX]);
+
+  // quick False (transverse directon)
+  if (absX > m_boundValues[DiamondBounds::bv_medHalfX] + tol1) return false;
+
+  // quick True
+  if (absX < std::min(m_boundValues[DiamondBounds::bv_minHalfX], m_boundValues[DiamondBounds::bv_maxHalfX]) + tol1) return true;
+
   /** use basic calculation of a straight line */
-  if (locpo[Trk::locY] < 0) {
-    double k = m_boundValues[DiamondBounds::bv_halfY1] > 0.
-                 ? (m_boundValues[DiamondBounds::bv_medHalfX] - m_boundValues[DiamondBounds::bv_minHalfX]) / 2 /
-                     m_boundValues[DiamondBounds::bv_halfY1]
-                 : 0.;
-    return (fabs(locpo[Trk::locX]) <= m_boundValues[DiamondBounds::bv_medHalfX] - k * fabs(locpo[Trk::locY]));
-  }
-    double k = m_boundValues[DiamondBounds::bv_halfY2] > 0.
-                 ? (m_boundValues[DiamondBounds::bv_medHalfX] - m_boundValues[DiamondBounds::bv_maxHalfX]) / 2 /
-                     m_boundValues[DiamondBounds::bv_halfY2]
-                 : 0.;
-    return (fabs(locpo[Trk::locX]) <= m_boundValues[DiamondBounds::bv_medHalfX] - k * fabs(locpo[Trk::locY]));
+  const double& halfBaseUp = locpo[Trk::locY] < 0 ? m_boundValues[DiamondBounds::bv_medHalfX] : m_boundValues[DiamondBounds::bv_maxHalfX];
+  const double& halfBaseLo = locpo[Trk::locY] < 0 ? m_boundValues[DiamondBounds::bv_minHalfX] : m_boundValues[DiamondBounds::bv_medHalfX];
+  const double& halfH      = locpo[Trk::locY] < 0 ? m_boundValues[DiamondBounds::bv_halfY1]   : m_boundValues[DiamondBounds::bv_halfY2];
+  double k = halfH ? 0.5*(halfBaseUp - halfBaseLo)/halfH : 0.;
+  double sign = (k < 0) ? -1. : 1.;   
+  return (absX - tol1 <= m_boundValues[DiamondBounds::bv_medHalfX] + k * (locpo[Trk::locY] + sign*tol2));
 
 }
 

@@ -33,7 +33,7 @@ namespace TrigConf {
    class L1PrescaleCondAlg : public AthReentrantAlgorithm {
    public:
       L1PrescaleCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
-      virtual ~L1PrescaleCondAlg() = default;
+      virtual ~L1PrescaleCondAlg() override = default;
 
       virtual StatusCode initialize() override;
       virtual StatusCode execute(const EventContext& ctx) const override;

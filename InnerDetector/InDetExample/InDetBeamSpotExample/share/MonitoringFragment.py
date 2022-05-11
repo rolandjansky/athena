@@ -47,16 +47,9 @@ if not jobConfig['doMonitoringGlobal']:
     if jobConfig['UseFilledBCIDsOnly']:
         printfunc ("This is AKMAKMAKM")
         # Selection on non-empty BCIDs
-        #include("AthenaMonitoring/FilledBunchFilterTool_jobOptions.py")
-
-        from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
-        bunchCrossingTool =  BunchCrossingTool("LHC")
          # This tool is throwing tons of warnings for no good reason, make it quieter.
-        bunchCrossingTool.OutputLevel=ERROR
         from AthenaMonitoring.AthenaMonitoringConf import DQFilledBunchFilterTool
         monFilledBunchFilterTool = DQFilledBunchFilterTool()
-        monFilledBunchFilterTool.bunchCrossingTool  = bunchCrossingTool
-        #ToolSvc += monFilledBunchFilterTool
         InDetGlobalBeamSpotMonTool.FilterTools += [monFilledBunchFilterTool]
 
 

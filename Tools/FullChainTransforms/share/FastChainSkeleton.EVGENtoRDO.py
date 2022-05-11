@@ -262,7 +262,7 @@ try:
     configureFlags = getattr(FlagSetters, ISF_Flags.Simulator.configFlagsMethodName(), None)
     if configureFlags is not None:
         configureFlags()
-    possibleSubDetectors=['pixel','SCT','TRT','BCM','Lucid','ZDC','ALFA','AFP','FwdRegion','LAr','HGTD','Tile','MDT','CSC','TGC','RPC','Micromegas','sTGC','Truth']
+    possibleSubDetectors=['pixel','SCT','TRT','BCM','Lucid','ZDC','ALFA','AFP','FwdRegion','LAr','HGTD','Tile','MDT','CSC','TGC','RPC','MM','sTGC','Truth']
     for subdet in possibleSubDetectors:
         simattr = subdet+"_on"
         simcheck = getattr(DetFlags.simulate, simattr, None)
@@ -295,7 +295,7 @@ DetFlags.DBM_setOff()
 # turn off DetFlags for muon detectors which are not part of the layout
 if not MuonGeometryFlags.hasCSC(): DetFlags.CSC_setOff()
 if not MuonGeometryFlags.hasSTGC(): DetFlags.sTGC_setOff()
-if not MuonGeometryFlags.hasMM(): DetFlags.Micromegas_setOff()
+if not MuonGeometryFlags.hasMM(): DetFlags.MM_setOff()
 
 #if simFlags.ForwardDetectors.statusOn:
 #    if DetFlags.geometry.FwdRegion_on():
@@ -315,13 +315,13 @@ DetFlags.digitize.ALFA_setOff()
 # (since DetFlags.digitize.all_setOn() is called a few lines above)
 if not MuonGeometryFlags.hasCSC(): DetFlags.digitize.CSC_setOff()
 if not MuonGeometryFlags.hasSTGC(): DetFlags.digitize.sTGC_setOff()
-if not MuonGeometryFlags.hasMM(): DetFlags.digitize.Micromegas_setOff()
+if not MuonGeometryFlags.hasMM(): DetFlags.digitize.MM_setOff()
 
 #set all detdescr on except fwd.
 #DetFlags.detdescr.all_setOn()
 #DetFlags.detdescr.LVL1_setOff()
 #DetFlags.detdescr.ZDC_setOff()
-#DetFlags.detdescr.Micromegas_setOff()
+#DetFlags.detdescr.MM_setOff()
 #DetFlags.detdescr.sTGC_setOff()
 #DetFlags.detdescr.Forward_setOff()
 #DetFlags.detdescr.Lucid_setOff()
@@ -749,8 +749,8 @@ if ISF_Flags.UsingGeant4():
 
     ## AtlasSimSkeleton._do_external
     from AthenaCommon.AppMgr import ToolSvc
-    from Geo2G4.Geo2G4Conf import Geo2G4Svc
-    geo2G4Svc = Geo2G4Svc()
+    from AthenaCommon import CfgMgr
+    geo2G4Svc = CfgMgr.Geo2G4Svc()
     theApp.CreateSvc += ["Geo2G4Svc"]
     ServiceMgr += geo2G4Svc
     ## Enable top transforms for the ATLAS geometry

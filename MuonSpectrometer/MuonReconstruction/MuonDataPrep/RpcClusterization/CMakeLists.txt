@@ -1,6 +1,4 @@
-################################################################################
-# Package: RpcClusterization
-################################################################################
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( RpcClusterization )
@@ -12,6 +10,5 @@ atlas_add_component( RpcClusterization
                      LINK_LIBRARIES AthenaBaseComps StoreGateLib Identifier EventPrimitives GaudiKernel MuonReadoutGeometry MuonDigitContainer MuonPrepRawData MuonIdHelpersLib )
 
 # Install files from the package:
-atlas_install_headers( RpcClusterization )
 atlas_install_joboptions( share/*.py )
 

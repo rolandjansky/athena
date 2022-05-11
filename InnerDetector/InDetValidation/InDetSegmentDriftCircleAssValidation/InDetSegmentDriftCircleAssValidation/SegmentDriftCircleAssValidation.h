@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SegmentDriftCircleAssValidation_H
@@ -78,7 +78,6 @@ namespace InDet {
       std::list<int>                                m_particles             ;
       std::multimap<int,int>                        m_allParticles          ;
       std::multimap<int,int>                        m_tracks                ;
-      std::multimap<const HepMC::GenParticle*, int> m_genPars               ;
       int                                           m_efficiency[5]{}         ;
 
       ///////////////////////////////////////////////////////////////////

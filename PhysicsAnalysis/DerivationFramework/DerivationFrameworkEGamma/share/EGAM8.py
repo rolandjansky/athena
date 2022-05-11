@@ -6,7 +6,8 @@
 #********************************************************************
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import buildFileName
-from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob
+from DerivationFrameworkCore.DerivationFrameworkMaster import (
+    DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob)
 from DerivationFrameworkPhys import PhysCommon
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkEGamma.EGAM8ExtraContent import *
@@ -24,11 +25,10 @@ RecomputeElectronSelectors = True
 
 
 #====================================================================
-# check if we run on data or MC (DataSource = geant4)
+# check if we run on data or MC
 #====================================================================
-from AthenaCommon.GlobalFlags import globalflags
-print("EGAM8 globalflags.DataSource(): ", globalflags.DataSource())
-if globalflags.DataSource()!='geant4':
+print("DerivationFrameworkIsMonteCarlo: ", DerivationFrameworkIsMonteCarlo)
+if not DerivationFrameworkIsMonteCarlo:
     ExtraContainersTrigger += ExtraContainersTriggerDataOnly
 
 
@@ -244,7 +244,7 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
 
 
 # Truth thinning
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo:
     truth_cond_WZH = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))" # W, Z and Higgs
     truth_cond_lep = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16))" # Leptons
     truth_cond_top = "((abs(TruthParticles.pdgId) ==  6))"                                     # Top quark
@@ -271,7 +271,7 @@ if globalflags.DataSource()=='geant4':
 expression = 'count(EGAM8_DiElectronMass > 50.0*GeV)>=1 || count(EGAM8_MuonElectronMass > 50.0*GeV)>=1'
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 EGAM8_SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM8_SkimmingTool",
-																  expression = expression)
+                                                                  expression = expression)
 ToolSvc += EGAM8_SkimmingTool
 print("EGAM8 skimming tool:", EGAM8_SkimmingTool)
 
@@ -294,8 +294,11 @@ EGAM8Sequence += CfgMgr.DerivationFramework__DerivationKernel("EGAM8Kernel",
 # JET/MET
 #====================================================================
 from DerivationFrameworkJetEtMiss.JetCommon import addDAODJets
-from JetRecConfig.StandardSmallRJets import AntiKt4Truth
-addDAODJets([AntiKt4Truth], EGAM8Sequence)
+from JetRecConfig.StandardSmallRJets import AntiKt4Truth, AntiKt4TruthDressedWZ
+jetList=[]
+if DerivationFrameworkIsMonteCarlo:
+    jetList += [AntiKt4Truth, AntiKt4TruthDressedWZ]
+addDAODJets(jetList, EGAM8Sequence)
 
 
 #========================================
@@ -325,6 +328,9 @@ EGAM8SlimmingHelper.SmartCollections = ["Electrons",
                                         "BTagging_AntiKt4EMPFlow",
                                         "InDetTrackParticles",
                                         "PrimaryVertices" ]
+if DerivationFrameworkIsMonteCarlo:
+    EGAM8SlimmingHelper.SmartCollections += ["AntiKt4TruthJets",
+                                             "AntiKt4TruthDressedWZJets"]
 
 # Add egamma trigger objects
 EGAM8SlimmingHelper.IncludeEGammaTriggerContent = True
@@ -336,7 +342,7 @@ EGAM8SlimmingHelper.ExtraVariables = ExtraContentAll
 EGAM8SlimmingHelper.AllVariables = ExtraContainersElectrons
 EGAM8SlimmingHelper.AllVariables += ExtraContainersTrigger
 
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo:
     EGAM8SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     EGAM8SlimmingHelper.AllVariables += ExtraContainersTruth
 else:

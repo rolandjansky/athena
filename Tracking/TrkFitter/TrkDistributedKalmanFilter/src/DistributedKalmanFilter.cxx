@@ -141,8 +141,7 @@ Trk::DistributedKalmanFilter::DistributedKalmanFilter(const std::string& t,
 }
 
 // destructor
-Trk::DistributedKalmanFilter::~DistributedKalmanFilter() {
-}
+Trk::DistributedKalmanFilter::~DistributedKalmanFilter() = default;
 
 // initialize
 StatusCode Trk::DistributedKalmanFilter::initialize() {
@@ -754,19 +753,19 @@ bool Trk::DistributedKalmanFilter::runForwardKalmanFilter(PVPNodes& pvpNodes,
   return OK;
 }
 
-void Trk::DistributedKalmanFilter::runSmoother(PVPTrackStates& pvpTrackStates) const {
+void Trk::DistributedKalmanFilter::runSmoother(PVPTrackStates& pvpTrackStates) {
   for (std::unique_ptr<TrkTrackState>& state : pvpTrackStates) {
     state->runSmoother();
   }
 }
 
-void Trk::DistributedKalmanFilter::calculateLRsolution(PVPNodes& pvpNodes) const {
+void Trk::DistributedKalmanFilter::calculateLRsolution(PVPNodes& pvpNodes) {
   for (std::unique_ptr<TrkBaseNode>& node : pvpNodes) {
     node->updateInternal();
   }
 }
 
-int Trk::DistributedKalmanFilter::findOutliers(PVPNodes& pvpNodes, double cut) const {
+int Trk::DistributedKalmanFilter::findOutliers(PVPNodes& pvpNodes, double cut) {
   double dchi2;
   int nOutl = 0;
 

@@ -20,7 +20,7 @@ namespace TrigConf
    public:
       ThresholdMonitor();
       ThresholdMonitor( const ThresholdMonitor& thr);
-      virtual ~ThresholdMonitor();
+      virtual ~ThresholdMonitor() override = default;
 
       // Accessors
    
@@ -49,7 +49,7 @@ namespace TrigConf
       void setThresholdEndBit( const int& bit) { m_ThresholdEndBit = bit; }
       void setThresholdActive( const bool& active) { m_ThresholdActive = active; }
 
-      virtual void print(const std::string& indent="", unsigned int detail=1) const;
+      virtual void print(const std::string& indent="", unsigned int detail=1) const override;
       virtual void writeXML(std::ostream & xmlfile, int indentLevel=0, int indentWidth=2) const;
 
    protected:

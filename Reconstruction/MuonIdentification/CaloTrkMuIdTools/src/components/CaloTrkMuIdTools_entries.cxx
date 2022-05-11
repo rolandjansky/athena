@@ -1,7 +1,7 @@
-#include "CaloTrkMuIdTools/CaloMuonLikelihoodTool.h"
-#include "CaloTrkMuIdTools/CaloMuonScoreTool.h"
-#include "CaloTrkMuIdTools/CaloMuonTag.h"
-#include "CaloTrkMuIdTools/TrackDepositInCaloTool.h"
+#include "../CaloMuonLikelihoodTool.h"
+#include "../CaloMuonScoreTool.h"
+#include "../CaloMuonTag.h"
+#include "../TrackDepositInCaloTool.h"
 
 DECLARE_COMPONENT(CaloMuonTag)
 DECLARE_COMPONENT(TrackDepositInCaloTool)

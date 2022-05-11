@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <sstream>
@@ -92,8 +92,8 @@ StatusCode BSFilter::execute()
   m_All++;
 
   // Get event information from EventContext
-  const EventContext ctx{Gaudi::Hive::currentContext()};
-  const EventIDBase evt{ctx.eventID()};
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  const EventIDBase& evt{ctx.eventID()};
 
   if (!m_l1ZB.empty()){
     const bool item_fired_after_veto = m_trigDecTool->isPassed(m_l1ZB);

@@ -1,7 +1,7 @@
 //dear emacs, this is -*-c++-*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArMCSymCondAlg.h"
@@ -13,16 +13,10 @@ StatusCode LArMCSymCondAlg::initialize() {
 
   ATH_MSG_DEBUG("initializing");
 
-  // CondSvc
-  ATH_CHECK( m_condSvc.retrieve() );
   // Read Handles
   ATH_CHECK( m_readKey.initialize() );
   ATH_CHECK( m_writeKey.initialize() );
-  // Register write handle
-  if (m_condSvc->regHandle(this, m_writeKey).isFailure()) {
-    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
+
   return StatusCode::SUCCESS;
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -35,11 +35,13 @@
 #include "TileConditions/TileCondToolNoiseSample.h"
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/TileCablingSvc.h"
+#include "TileConditions/TileSamplingFraction.h"
 
 // Atlas includes
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 // Gaudi includes
 #include "GaudiKernel/ToolHandle.h"
@@ -91,6 +93,12 @@ class TileHitToRawChannel: public AthAlgorithm {
     SG::WriteHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this,"TileRawChannelContainer",
                                                                          "TileRawChannelCnt",
                                                                          "Output Tile raw channel container key"};
+    /**
+     * @brief Name of TileSamplingFraction in condition store
+     */
+    SG::ReadCondHandleKey<TileSamplingFraction> m_samplingFractionKey{this,
+        "TileSamplingFraction", "TileSamplingFraction", "Input Tile sampling fraction"};
+
 
     std::string m_infoName;             //!< name of the TileInfo object
     double m_deltaT;                    //!< if true, keep only hits in deltaT range

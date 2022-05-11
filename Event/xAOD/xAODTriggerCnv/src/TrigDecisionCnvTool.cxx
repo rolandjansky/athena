@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -7,6 +7,8 @@
 #include "AthenaKernel/errorcheck.h"
 
 // Trigger include(s):
+#include "TrigDecisionInterface/GroupProperties.h"
+#include "TrigDecisionTool/ChainGroup.h"
 #include "TrigDecisionEvent/TrigDecision.h"
 #include "TrigConfHLTData/HLTChainList.h"
 
@@ -191,16 +193,17 @@ namespace xAODMaker {
             continue;
          }
 
+         // Create chain group (no regex parsing for speed)
+         const Trig::ChainGroup* group = m_tdt->getChainGroup( ( *chain_itr )->chain_name(),
+                                                               ::TrigDefs::Group::NoRegex );
          // Get the decision for the chain:
-         const uint32_t bits =
-            m_tdt->isPassedBits( ( *chain_itr )->chain_name() );
+         const uint32_t bits = m_tdt->isPassedBits(group);
 
          // Decide which level the chain is from:
          if( ( *chain_itr )->level_enum() == TrigConf::L2 ) {
             // Set the different decisions:
             CHECK( setBit( l2PassedPhysics, ( *chain_itr )->chain_counter(),
-                           m_tdt->isPassed( ( *chain_itr )->chain_name(),
-                                            TrigDefs::Physics ) ) );
+                           m_tdt->isPassed( group, TrigDefs::Physics ) ) );
             CHECK( setBit( l2PassedRaw, ( *chain_itr )->chain_counter(),
                            ( bits & TrigDefs::L2_passedRaw ) ) );
             CHECK( setBit( l2PassedThrough, ( *chain_itr )->chain_counter(),
@@ -214,8 +217,7 @@ namespace xAODMaker {
          else {
             // Set the different decisions:
             CHECK( setBit( efPassedPhysics, ( *chain_itr )->chain_counter(),
-                           m_tdt->isPassed( ( *chain_itr )->chain_name(),
-                                            TrigDefs::Physics ) ) );
+                           m_tdt->isPassed( group, TrigDefs::Physics ) ) );
             CHECK( setBit( efPassedRaw, ( *chain_itr )->chain_counter(),
                            ( bits & TrigDefs::EF_passedRaw ) ) );
             CHECK( setBit( efPassedThrough, ( *chain_itr )->chain_counter(),

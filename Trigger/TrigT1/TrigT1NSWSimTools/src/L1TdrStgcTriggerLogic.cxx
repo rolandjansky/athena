@@ -423,7 +423,7 @@ namespace NSWL1{
                          ATH_MSG_DEBUG("Inner SingleWedge trigger already combined, skipping");
                         continue;
                     }
-                    else if (it.is4outOf4Layers() && it.isInTransitionRegion()){
+                    else if ((it.is4outOf4Layers()||it.is3outOf4Layers()) && it.isInTransitionRegion()){
                         m_secTrigCand.emplace_back(it.setCombined());                
                     }
                 }
@@ -432,7 +432,7 @@ namespace NSWL1{
                          ATH_MSG_DEBUG("Outer SingleWedge trigger already combined, skipping");                        
                         continue;
                     }
-                    else if (ot.is4outOf4Layers() && ot.isInTransitionRegion()){
+                    else if ((ot.is4outOf4Layers()||ot.is3outOf4Layers()) && ot.isInTransitionRegion()){
                         m_secTrigCand.emplace_back(ot.setCombined());
                     }
                 }

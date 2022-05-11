@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -11,8 +11,8 @@
 #include "LArPedestalCompleteCnv.h"
 #include "LArCondTPCnv/LArPedestalSubsetCnv_p1.h"
 
-static LArPedestalSubsetCnv_p1   TPconverter1;
-static LArPedestalSubsetCnv_p2   TPconverter2;
+static const LArPedestalSubsetCnv_p1   TPconverter1;
+static const LArPedestalSubsetCnv_p2   TPconverter2;
 
 
 LArPedestalSubset_p2*
@@ -20,29 +20,29 @@ LArPedestalCompleteCnv::createPersistent (LArPedTransType* transObj)
 {
     MsgStream log(msgSvc(), "LArPedestalCompleteCnv" ); 
     //log << MSG::DEBUG << "LArPedestalComplete write" << endmsg;
-    return TPconverter2.createPersistent( transObj, log );
+    return TPconverter2.createPersistentConst( transObj, log );
 }
 
 LArConditionsSubset<LArPedestalP1>*
 LArPedestalCompleteCnv::createTransient ()
 {
-    static pool::Guid p2_guid("8BD3FE69-A3C4-418C-ACB9-E362CE524353");
-    static pool::Guid   p1_guid("E365F747-264B-4A0C-B80A-570DBE099881");
-    static pool::Guid   p0_guid("E17191DD-4C0A-4B1A-AE49-7D587C6BE3EE");
+    static const pool::Guid p2_guid("8BD3FE69-A3C4-418C-ACB9-E362CE524353");
+    static const pool::Guid   p1_guid("E365F747-264B-4A0C-B80A-570DBE099881");
+    static const pool::Guid   p0_guid("E17191DD-4C0A-4B1A-AE49-7D587C6BE3EE");
 
     if (compareClassGuid(p2_guid)) {
       // using unique_ptr ensures deletion of the persistent object
       std::unique_ptr< LArPedestalSubset_p2 > col_vect( poolReadObject< LArPedestalSubset_p2 >() );
       MsgStream log(msgSvc(), "LArPedestalCompleteCnv" ); 
       //log << MSG::INFO << "Reading LArPedestalSubset_p1" << endmsg; 
-      return TPconverter2.createTransient( col_vect.get(), log );
+      return TPconverter2.createTransientConst( col_vect.get(), log );
     }
     else if( compareClassGuid(p1_guid) ) {
         // using unique_ptr ensures deletion of the persistent object
         std::unique_ptr< LArPedestalSubset_p1 > col_vect( poolReadObject< LArPedestalSubset_p1 >() );
         MsgStream log(msgSvc(), "LArPedestalCompleteCnv" ); 
         //log << MSG::INFO << "Reading LArPedestalSubset_p1" << endmsg; 
-        return TPconverter1.createTransient( col_vect.get(), log );
+        return TPconverter1.createTransientConst( col_vect.get(), log );
     }
     else if( compareClassGuid(p0_guid) ) {
         // subset from before TP separation

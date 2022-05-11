@@ -11,8 +11,6 @@ namespace NSWL1 {
   {
   }
 
-  TriggerProcessorTool::~TriggerProcessorTool() { }
-
   StatusCode TriggerProcessorTool::initialize() {
 
     ATH_MSG_DEBUG("In initialize()");
@@ -20,11 +18,12 @@ namespace NSWL1 {
   }
 
   StatusCode TriggerProcessorTool::mergeRDO(const Muon::NSW_PadTriggerDataContainer* padTriggerContainer,
+                                            const Muon::NSW_TrigRawDataContainer* stripTriggerContainer,
                                             const Muon::NSW_TrigRawDataContainer* MMTriggerContainer,
                                             Muon::NSW_TrigRawDataContainer* trigRdoContainer) {
 
     ATH_MSG_DEBUG("Pad Trigger Container size: " << padTriggerContainer->size());
-    for ( const Muon::NSW_PadTriggerData* padTriggerData : *padTriggerContainer ) {
+    for ( const auto &padTriggerData : *padTriggerContainer ) {
       ATH_MSG_DEBUG("Pad Trigger data: " << *padTriggerData);
 
       char sectorSide = (padTriggerData->endcap() == Muon::NSW_PadTriggerData::Endcap::A) ? 'A' : 'C';
@@ -39,16 +38,22 @@ namespace NSWL1 {
         trigRawDataSegment->setRIndex(bandID);
         trigRawDataSegment->setPhiIndex(phiID);
 
-        // set STGC
-        trigRawDataSegment->setPhiRes(true);
+        trigRawDataSegment->setPhiRes(true); // set sTGC bit
+        trigRawDataSegment->setSpare(1);     // set spare bit to 1, to distinguish between strips (default, i.e. 0) and pads
         trigRawData->push_back(trigRawDataSegment);
       }
       trigRdoContainer->push_back(trigRawData);
     }
     ATH_MSG_DEBUG("After PadTrigger filling -> NSW Trigger RDO size: " << trigRdoContainer->size());
 
-    for (const auto rawData : *MMTriggerContainer) {
-      Muon::NSW_TrigRawData* trigRawData = new Muon::NSW_TrigRawData(*rawData);
+    for (const auto &rawData : *stripTriggerContainer) {
+      Muon::NSW_TrigRawData* trigRawData = new Muon::NSW_TrigRawData(*rawData, true);
+      trigRdoContainer->push_back(trigRawData);
+    }
+    ATH_MSG_DEBUG("After sTGC strip trigger filling -> NSW Trigger RDO size: " << trigRdoContainer->size());
+
+    for (const auto &rawData : *MMTriggerContainer) {
+      Muon::NSW_TrigRawData* trigRawData = new Muon::NSW_TrigRawData(*rawData, false);
       trigRdoContainer->push_back(trigRawData);
     }
     ATH_MSG_DEBUG("After MMTrigger filling -> NSW Trigger RDO size: " << trigRdoContainer->size());

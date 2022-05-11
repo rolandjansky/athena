@@ -84,7 +84,7 @@ StatusCode StripDigitizationTool::initialize() {
   ATH_MSG_DEBUG("Input objects in container : '" << m_inputObjectName << "'");
 
   // Initialize ReadHandleKey
-  ATH_CHECK(m_hitsContainerKey.initialize(!m_onlyUseContainerName));
+  ATH_CHECK(m_hitsContainerKey.initialize(true));
 
   // +++ Initialize WriteHandleKey
   ATH_CHECK(m_rdoContainerKey.initialize());

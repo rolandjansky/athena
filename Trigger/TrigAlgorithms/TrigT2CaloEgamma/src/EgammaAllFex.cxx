@@ -77,7 +77,7 @@ StatusCode EgammaAllFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 
     // TileCAL
           // Finished to access RegionSelector
-          TileCellCollection seltile;
+          std::vector<const TileCell*> seltile;
           ATH_CHECK(m_dataSvc->loadCollections(context, roi, seltile));
 
 

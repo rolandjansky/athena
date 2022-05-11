@@ -26,7 +26,7 @@
 #include <algorithm>
 
 
-/// Algorithm reconstructing protons from tracks
+/// Algorithm reconstructing vertices from protons
 class AFP_VertexRecoTool : public extends<AthAlgTool, IAFP_VertexRecoTool>
 {
 public:
@@ -49,7 +49,7 @@ private:
 
   /// @brief Array of *unique* write handle keys for vertex output container
   ///
-  /// Each write handle key has to be unique and in sync with m_recoToolsList. It's possible for several time reco algorithms contributing to the common container. Ideally, one should setup vertex reco containers (in AFP_VertexReco/AFP_VertexReco_joboption.py) and let the python script pick unique names.
+  /// Each write handle key has to be unique and in sync with m_recoToolsList. It's possible for several time reco algorithms contributing to the common container. Ideally, one should setup vertex reco containers (in AFP_VertexReco/AFP_VertexReco.py) and let the python script pick unique names.
   SG::WriteHandleKeyArray<xAOD::AFPVertexContainer> m_arrayOfWriteHandleKeys{this, "AFPVertexContainerList", {"AFPVertexContainer"}, "List of output containers"};
 
   // monitoring tool to be added soon

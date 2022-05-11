@@ -52,7 +52,7 @@ Trk::CylinderVolumeCreator::CylinderVolumeCreator(const std::string& t, const st
 
 // destructor
 Trk::CylinderVolumeCreator::~CylinderVolumeCreator()
-{}
+= default;
 
 
 // the interface methods
@@ -636,10 +636,10 @@ StatusCode Trk::CylinderVolumeCreator::interGlueTrackingVolume(Trk::TrackingVolu
     BinnedArraySpan<Trk::TrackingVolume const * const> volumes = tVolume.confinedVolumes()->arrayObjects();
 
     // the needed iterators
-    auto tVolIter = volumes.begin();
-    auto tVolFirst = volumes.begin();
-    auto tVolLast = volumes.end(); --tVolLast;
-    auto tVolEnd  = volumes.end();
+    const auto *tVolIter = volumes.begin();
+    const auto *tVolFirst = volumes.begin();
+    const auto *tVolLast = volumes.end(); --tVolLast;
+    const auto *tVolEnd  = volumes.end();
 
     // the glue volumes for the description
     std::vector<const Trk::TrackingVolume*> glueVolumesInnerTube;

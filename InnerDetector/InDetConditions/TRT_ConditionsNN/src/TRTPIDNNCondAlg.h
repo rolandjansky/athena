@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRTPIDNNCONDALG_H
@@ -9,7 +9,6 @@
 #include "StoreGate/WriteCondHandleKey.h"
 #include "TRT_ConditionsNN/TRTPIDNN.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "GaudiKernel/ICondSvc.h"
 #include "Gaudi/Property.h"
 
 /****************************************************************************************\
@@ -30,7 +29,6 @@ class TRTPIDNNCondAlg : public AthAlgorithm
   virtual StatusCode execute() override;
 
  private:
-  ServiceHandle<ICondSvc> m_condSvc;
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKey{this,"TRTPIDNNReadKey","/TRT/Calib/PID_NN","TRTPIDNN in-key"};
   SG::WriteCondHandleKey<InDet::TRTPIDNN> m_writeKey{this,"TRTPIDNNWriteKey","TRTPIDNN","TRTPIDNN out-key"};
 

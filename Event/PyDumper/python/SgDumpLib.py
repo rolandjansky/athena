@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # @file    PyDumper.SgDumpLib
 # @purpose API for the sg-dump script
@@ -118,6 +118,7 @@ def _gen_jobo(dct):
         from %(pyalg_pkg)s import %(pyalg_cls)s as pyalg
         job += pyalg('pyalg',
                      ofile='%(ofile-name)s',
+                     items='%(include)s',
                      exclude='%(exclude)s',
                      OutputLevel=Lvl.INFO)
         """) % dct
@@ -219,6 +220,7 @@ def _gen_jobo(dct):
         from %(pyalg_pkg)s import %(pyalg_cls)s as pyalg
         job += pyalg('pyalg',
                      ofile='%(ofile-name)s',
+                     items='%(include)s',
                      exclude='%(exclude)s',
                      OutputLevel=Lvl.INFO)
         """) % dct
@@ -369,6 +371,7 @@ def run_sg_dump(files, output,
                 dump_jobo=False,
                 use_recex_links=True,
                 pyalg_cls='PyDumper.PyComps:PySgDumper',
+                include='*',
                 exclude='',
                 file_type=None,
                 do_clean_up=False,
@@ -385,6 +388,7 @@ def run_sg_dump(files, output,
                  it)
      `use_recex_links` switch to run RecExCommon_links and thus a local db replica
      `pyalg_cls` the fully qualified name of the PyAthena.Alg class to process the file(s) content (PySgDumper or DataProxyLoader)
+     `include`: comma-separates list of type#key container names to dump.
      `exclude`: comma-separated list of glob patterns for keys/types to ignore.
      `file_type` the input file's type (RDO,BS,ESD,AOD,DPD or ANY)
      `do_clean_up` flag to enable the attempt at removing all the files sg-dump
@@ -443,6 +447,7 @@ def run_sg_dump(files, output,
         'input-files': files,
         'evts' :       nevts,
         'skip' :       skip,
+        'include' :    include,
         'exclude' :    exclude,
         'pyalg_pkg':   pyalg_pkg,
         'pyalg_cls':   pyalg_cls,
@@ -458,6 +463,7 @@ def run_sg_dump(files, output,
     msg.info('use recex links: %s', use_recex_links)
     msg.info('pyalg-class:     %s:%s', pyalg_pkg, pyalg_cls)
     msg.info('file_type:       %s', file_type)
+    msg.info('include:         %s', include)
     msg.info('exclude:         %s', exclude)
     msg.info('condtions_tag:   %s', conditions_tag)
     

@@ -3,6 +3,7 @@
 # art-description: Run digitization of an mc16d ttbar sample with 2016d geometry and conditions, 25ns pile-up in AthenaMP
 # art-include: master/Athena
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-athena-mt: 8
 # art-output: mc16d_ttbar.MP.RDO.pool.root
 
@@ -28,6 +29,7 @@ Digi_tf.py \
 --digiSteeringConf 'StandardSignalOnlyTruth' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' 'all:PyJobTransforms/HepMcParticleLinkVerbosity.py' \
 --preInclude 'all:Campaigns/MC16d.py' 'HITtoRDO:Campaigns/PileUpMC16d.py' \
+--postExec 'RDOMergeAthenaMP0:from IOVDbSvc.CondDB import conddb;conddb.addOverride("/TRT/Calib/PID_NN", "TRTCalibPID_NN_v1");conddb.addOverride("/TRT/Onl/Calib/PID_NN", "TRTCalibPID_NN_v1")' \
 --skipEvents 0
 
 rc=$?

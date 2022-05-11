@@ -22,20 +22,26 @@ def SpCountMonitoring():
 
     return monTool
 
-
+__MBTSXTitle="channel (0-15 A side, 16-31 C side)"
 def MbtsFexMonitoring():
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
     monTool = GenericMonitoringTool('MonTool')
     monTool.defineHistogram('triggerEnergies', path='EXPERT', type='TH1D', title='triggerEnergies',xbins=50, xmin=-5, xmax=45)
     monTool.defineHistogram('triggerTimes', path='EXPERT', type='TH1I', title='triggerTimes',xbins=100, xmin=-50, xmax=50)
-    monTool.defineHistogram('channelID, triggerEnergies', path='EXPERT', title='signal per channel;channel ID; energy[pC]', type='TH2F', xbins=32, xmin=-0.5, xmax=31.5, ybins=20, ymin=-5,ymax=45)
-    monTool.defineHistogram('channelID, triggerEnergies;triggerEnergies_vs_channelID_zoom', path='EXPERT', title='signal per channel;channel ID; energy[pC]', type='TH2F', xbins=32, xmin=-0.5, xmax=31.5, ybins=50, ymin=-2, ymax=3)
-    monTool.defineHistogram('channelID, triggerTimes', path='EXPERT', title='times per channel;channel ID; time[ns]', type='TH2F', xbins=32, xmin=-0.5, xmax=31.5, ybins=20, ymin=-50, ymax=50)
-    monTool.defineHistogram('channelID, triggerTimes;triggerTimes_vs_channelID_zoom', path='EXPERT', title='times per channel;channel ID; time[ns]', type='TH2F', xbins=32, xmin=-0.5, xmax=31.5, ybins=20, ymin=-5, ymax=5)
+    monTool.defineHistogram('channelID, triggerEnergies', path='EXPERT', title=f'signal per channel;{__MBTSXTitle}; energy[pC]', type='TH2F', xbins=32, xmin=-0.5, xmax=31.5, ybins=20, ymin=-5,ymax=45)
+    monTool.defineHistogram('channelID, triggerEnergies;triggerEnergies_vs_channelID_zoom', path='EXPERT', title=f'signal per channel;{__MBTSXTitle}; energy[pC]', type='TH2F', xbins=32, xmin=-0.5, xmax=31.5, ybins=50, ymin=-2, ymax=3)
+    monTool.defineHistogram('channelID, triggerTimes', path='EXPERT', title=f'times per channel;{__MBTSXTitle}; time[ns]', type='TH2F', xbins=32, xmin=-0.5, xmax=31.5, ybins=20, ymin=-50, ymax=50)
+    monTool.defineHistogram('channelID, triggerTimes;triggerTimes_vs_channelID_zoom', path='EXPERT', title=f'times per channel;{__MBTSXTitle}; time[ns]', type='TH2F', xbins=32, xmin=-0.5, xmax=31.5, ybins=20, ymin=-5, ymax=5)
     monTool.defineHistogram('timeDelta', path='EXPERT', type='TH1F', title='MBTS time delta;time[ns]', xbins=80, xmin=-40, xmax=40)
 
     return monTool
 
+def MbtsHypoToolMonitoring():
+    from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
+    monTool = GenericMonitoringTool('MonTool')
+    monTool.defineHistogram('Counts', path='EXPERT', title=f'MBTS counts per channel;{__MBTSXTitle};counts', type='TH1F', xbins=32, xmin=-0.5, xmax=31.5)
+    
+    return monTool
 
 def TrackCountMonitoring(hypoAlg):
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool

@@ -3,10 +3,14 @@
 */
 
 #include "ClusterMonitorAlgorithm.h"
+#include "AthenaKernel/Units.h"
+using Athena::Units::GeV;
 
 ClusterMonitorAlgorithm::ClusterMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
 :AthMonitorAlgorithm(name,pSvcLocator)
-{}
+{
+
+}
 
 
 ClusterMonitorAlgorithm::~ClusterMonitorAlgorithm() {}
@@ -14,12 +18,14 @@ ClusterMonitorAlgorithm::~ClusterMonitorAlgorithm() {}
 
 StatusCode ClusterMonitorAlgorithm::initialize() {
     using namespace Monitored;
-    // initialize superclass
-    ATH_CHECK( AthMonitorAlgorithm::initialize() );
     
     ATH_CHECK( m_CaloClusterContainerKey.initialize() );
-    return StatusCode::SUCCESS;
+    ATH_CHECK( m_EMClusterContainerKey.initialize() );
 
+    // initialize superclass
+    ATH_CHECK( AthMonitorAlgorithm::initialize() );
+
+    return StatusCode::SUCCESS;
 }
 
 
@@ -28,13 +34,20 @@ StatusCode ClusterMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 
     // Declare the quantities which should be monitored
     auto nClusters = Monitored::Scalar<float>("nClusters",0.0);
+    auto nEMClusters = Monitored::Scalar<float>("nEMClusters",0.0);
+
     auto eta = Monitored::Scalar<float>("clusterEta",0.0);
     auto phi = Monitored::Scalar<float>("clusterPhi",0.0);
     auto evt = Monitored::Scalar<int>("event num",0);
     auto run = Monitored::Scalar<int>("run",0);
     auto E   = Monitored::Scalar<float>("clusterE",0.0);
     auto ET  = Monitored::Scalar<float>("clusterET",1.0);
-    
+
+    auto emeta = Monitored::Scalar<float>("emclusterEta",0.0);
+    auto emphi = Monitored::Scalar<float>("emclusterPhi",0.0);
+    auto emE   = Monitored::Scalar<float>("emclusterE",0.0);
+    auto emET  = Monitored::Scalar<float>("emclusterET",1.0);
+
     auto nCells   = Monitored::Scalar<float>("nCells",0.0);
     auto nBadCells= Monitored::Scalar<float>("nBadCells",0.0);
     auto EBadCells= Monitored::Scalar<float>("EBadCells",0.0);
@@ -46,6 +59,16 @@ StatusCode ClusterMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     auto AveLARQ  = Monitored::Scalar<float>("AveLARQ",-999);
     auto AveTileQ = Monitored::Scalar<float>("AveTileQ",-999);
 
+    auto nCellsEM    = Monitored::Scalar<float>("nCellsEM",0.0);
+    auto nBadCellsEM = Monitored::Scalar<float>("nBadCellsEM",0.0);
+    auto EBadCellsEM = Monitored::Scalar<float>("EBadCellsEM",0.0);
+    auto emHotRat    = Monitored::Scalar<float>("emHotRat",-1.0);
+    auto emClusTime  = Monitored::Scalar<float>("emclusterTime",-999.0);
+    auto emIsolation = Monitored::Scalar<float>("emclusterIsol",-999);
+    auto emBadLARQFrac = Monitored::Scalar<float>("emBadLARQFrac",-999);
+    auto emEngPos    = Monitored::Scalar<float>("emEngPos",-999);
+    auto emAveLARQ   = Monitored::Scalar<float>("emAveLARQ",-999);
+
     // Declare cutmasks for high leading cell energy fraction
     auto HighHotRat = Monitored::Scalar<bool>("HighHotRat",false);
 
@@ -55,6 +78,10 @@ StatusCode ClusterMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     auto Threshold3 = Monitored::Scalar<bool>("Threshold3",false);
     auto Threshold4 = Monitored::Scalar<bool>("Threshold4",false);
 
+    auto EMThreshold1 = Monitored::Scalar<bool>("EMThreshold1",false);
+    auto EMThreshold2 = Monitored::Scalar<bool>("EMThreshold2",false);
+    auto EMThreshold3 = Monitored::Scalar<bool>("EMThreshold3",false);
+    auto EMThreshold4 = Monitored::Scalar<bool>("EMThreshold4",false);
     
     // Access the Clusters via StoreGate
     SG::ReadHandle<xAOD::CaloClusterContainer> clusters(m_CaloClusterContainerKey, ctx);
@@ -63,34 +90,44 @@ StatusCode ClusterMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       return StatusCode::FAILURE;
     }
 
+    // Access the egamma Clusters via StoreGate
+    SG::ReadHandle<xAOD::CaloClusterContainer> emclusters(m_EMClusterContainerKey, ctx);
+    if (! emclusters.isValid() ) {
+      ATH_MSG_ERROR("evtStore() does not contain CaloTopoCluster Collection with name "<< m_EMClusterContainerKey);
+      return StatusCode::FAILURE;
+    }
+
     // Set the values of the monitored variables for the event
     run = GetEventInfo(ctx)->runNumber();
     evt = GetEventInfo(ctx)->eventNumber();
 
     // Set monitored variables for this event
-    nClusters = clusters->size();
+    nClusters = clusters->size(); 
+    fill("ClusterMonitorAllClusters", nClusters); 
+    nEMClusters = emclusters->size(); 
+    fill("ClusterMonitorAllEMClusters", nEMClusters);
 
     for (const auto& cluster : *clusters) {
       eta = cluster->eta();
       phi = cluster->phi();
-      E   = cluster->e();
-      ET  = cluster->pt();
+      E   = cluster->e()/GeV;
+      ET  = cluster->pt()/GeV;
       // Access CaloTopoCluster moments
       nCells = cluster->numberCells();
       ClusTime = cluster->time();
 
       nBadCells = cluster->getMomentValue(xAOD::CaloCluster::N_BAD_CELLS); // return value probably 0 if moment does not exist
-      EBadCells = cluster->getMomentValue(xAOD::CaloCluster::ENG_BAD_CELLS); 
+      EBadCells = cluster->getMomentValue(xAOD::CaloCluster::ENG_BAD_CELLS)/GeV;
       HotRat    = cluster->getMomentValue(xAOD::CaloCluster::ENG_FRAC_MAX); // return value probably 999 if moment does not exist
       (HotRat > 0.9) ? HighHotRat=true : HighHotRat=false;
       Isolation = cluster->getMomentValue(xAOD::CaloCluster::ISOLATION);
       BadLARQFrac = cluster->getMomentValue(xAOD::CaloCluster::BADLARQ_FRAC);
-      EngPos    = cluster->getMomentValue(xAOD::CaloCluster::ENG_POS);
+      EngPos    = cluster->getMomentValue(xAOD::CaloCluster::ENG_POS)/GeV;
       AveLARQ   = cluster->getMomentValue(xAOD::CaloCluster::AVG_LAR_Q);
       AveTileQ  = cluster->getMomentValue(xAOD::CaloCluster::AVG_TILE_Q);
 
       // Fill. First argument is the tool name, all others are the variables to be saved.
-      fill("ClusterMonitorAllClusters", nClusters, eta, phi, E, ET);
+      fill("ClusterMonitorAllClusters", eta, phi, E, ET);
       fill("ClusterMonitorExpertPlots", nCells, ClusTime, nBadCells, EBadCells, HotRat, HighHotRat, Isolation, BadLARQFrac, EngPos, AveLARQ, AveTileQ, E, eta, phi);
 
       // cutmasks for cluster energy thresholds
@@ -107,11 +144,50 @@ StatusCode ClusterMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       }
       else {
         fill("ClusterMonitorCalBAR",eta,phi,E,Threshold1,Threshold2,Threshold3,Threshold4);
-      }      
-      
+      }
+    }
 
+    // Repeat for EM clusters - Set monitored variables for this event
+    for (const auto& emcluster : *emclusters) {
+      emeta = emcluster->eta();
+      emphi = emcluster->phi();
+      emE   = emcluster->e()/GeV;
+      emET  = emcluster->pt()/GeV;
+      // Access CaloTopoCluster moments
+      nCellsEM = emcluster->numberCells();
+      emClusTime = emcluster->time();
+
+      nBadCellsEM = emcluster->getMomentValue(xAOD::CaloCluster::N_BAD_CELLS); // return value probably 0 if moment does not exist
+      EBadCellsEM = emcluster->getMomentValue(xAOD::CaloCluster::ENG_BAD_CELLS)/GeV;
+      emHotRat    = emcluster->getMomentValue(xAOD::CaloCluster::ENG_FRAC_MAX); // return value probably 999 if moment does not exist
+      (emHotRat > 0.9) ? HighHotRat=true : HighHotRat=false;
+      emIsolation = emcluster->getMomentValue(xAOD::CaloCluster::ISOLATION);
+      emBadLARQFrac = emcluster->getMomentValue(xAOD::CaloCluster::BADLARQ_FRAC);
+      emEngPos    = emcluster->getMomentValue(xAOD::CaloCluster::ENG_POS)/GeV;
+      emAveLARQ   = emcluster->getMomentValue(xAOD::CaloCluster::AVG_LAR_Q);
+
+      // Fill. First argument is the tool name, all others are the variables to be saved.
+      fill("ClusterMonitorAllEMClusters", emeta, emphi, emE, emET);
+      fill("ClusterMonitorExpertPlotsEM", nCellsEM, emClusTime, nBadCellsEM, EBadCellsEM, emHotRat, HighHotRat, emIsolation, emBadLARQFrac, emEngPos, emAveLARQ, emE, emeta, emphi);
+
+      // cutmasks for cluster energy thresholds
+      EMThreshold1 = emE>m_EMlowEthresh;
+      EMThreshold2 = emE>m_EMmedEthresh;
+      EMThreshold3 = emE>m_EMmedhiEthresh;
+      EMThreshold4 = emE>m_EMhiEthresh;
+      // Plot occupancies and energies by calorimeter region
+      if (emeta > 1.4) {
+      	fill("ClusterMonitorEMECA",emeta,emphi,emE,EMThreshold1,EMThreshold2,EMThreshold3,EMThreshold4);
+      }
+      else if (emeta < -1.4) {
+        fill("ClusterMonitorEMECC",emeta,emphi,emE,EMThreshold1,EMThreshold2,EMThreshold3,EMThreshold4);
+      }
+      else {
+        fill("ClusterMonitorEMBAR",emeta,emphi,emE,EMThreshold1,EMThreshold2,EMThreshold3,EMThreshold4);
+      }
 
     }
+    
     return StatusCode::SUCCESS;
 }
 

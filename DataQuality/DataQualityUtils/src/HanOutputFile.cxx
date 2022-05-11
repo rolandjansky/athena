@@ -1524,6 +1524,13 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
     hasPlotted=false;
     auto myC = std::make_unique<TCanvas>( nameHis.c_str(), "myC", ww, wh );
     formatTEfficiency( myC.get(), e );
+    if (drawopt == "") {
+      if (e->GetDimension() == 1) {
+        drawopt = "AP";
+      } else {
+        drawopt = "COLZ";
+      }
+    }
     if(drawRefs){
       groupDir->cd((nameHis+"_/Results").c_str());
       gDirectory->GetObject("Reference;1",ref);
@@ -1571,7 +1578,7 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
         eRef->SetLineColor(local_color);          
 
         if (!hasPlotted) {
-           e->Draw((std::string("AP") + drawopt).c_str());
+           e->Draw(drawopt.c_str());
 	   hasPlotted=true;
 	}
         eRef->Draw("SAME");
@@ -1587,7 +1594,7 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
       legend->Draw();
     } else {
       myC->cd();
-      e->Draw((std::string("AP") + drawopt).c_str());
+      e->Draw(drawopt.c_str());
     }
     myC->cd();
     displayExtra(myC.get(),display);

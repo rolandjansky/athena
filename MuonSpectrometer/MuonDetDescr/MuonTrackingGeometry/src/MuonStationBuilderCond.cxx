@@ -285,7 +285,7 @@ Muon::MuonStationBuilderCond::buildDetachedTrackingVolumes(const EventContext& c
             }  // end new object
 
             // create station prototypes
-            const Trk::TrackingVolume* newTypeL = m_muonStationTypeBuilder->processNSW(muonMgr, sectorL);
+            Trk::TrackingVolume* newTypeL = m_muonStationTypeBuilder->processNSW(muonMgr, sectorL);
             // create layer representation
             std::pair<const Trk::Layer*, const std::vector<const Trk::Layer*>*> layerReprL =
                 m_muonStationTypeBuilder->createLayerRepresentation(newTypeL);
@@ -293,7 +293,7 @@ Muon::MuonStationBuilderCond::buildDetachedTrackingVolumes(const EventContext& c
             std::unique_ptr<const Trk::DetachedTrackingVolume> typeL{
                 newTypeL ? new Trk::DetachedTrackingVolume("NSWL", newTypeL, layerReprL.first, layerReprL.second) : nullptr};
             // objs.push_back(std::pair<const Trk::DetachedTrackingVolume*,std::vector<Amg::Transform3D> >(typeStat,vols[ish].second));
-            const Trk::TrackingVolume* newTypeS = m_muonStationTypeBuilder->processNSW(muonMgr, sectorS);
+            Trk::TrackingVolume* newTypeS = m_muonStationTypeBuilder->processNSW(muonMgr, sectorS);
             // create layer representation
             std::pair<const Trk::Layer*, const std::vector<const Trk::Layer*>*> layerReprS =
                 m_muonStationTypeBuilder->createLayerRepresentation(newTypeS);
@@ -771,7 +771,7 @@ std::vector<std::unique_ptr<Trk::DetachedTrackingVolume>> Muon::MuonStationBuild
 
                             if (envelope) {
                                 // ready to build the station prototype
-                                const Trk::TrackingVolume* newType = new Trk::TrackingVolume(
+                                Trk::TrackingVolume* newType = new Trk::TrackingVolume(
                                     *envelope, m_muonMaterial, nullptr, confinedVolumes,
                                     name);  // this pointer is passed to typeStat below, which in turn is kept in vector stations.                               
 
@@ -840,8 +840,12 @@ void Muon::MuonStationBuilderCond::identifyLayers(const Trk::DetachedTrackingVol
     
     if (m_idHelperSvc->hasCSC() && stationStr[0] == 'C') {
         const int cscEtaSt = eta - MuonGM::MuonDetectorManager::NCscStEtaOffset;    
-        const Identifier readout_id = muonMgr->cscIdHelper()->elementID(stationStr, cscEtaSt, phi+1, 1);
+        const Identifier readout_id = muonMgr->cscIdHelper()->channelID(stationStr, cscEtaSt, phi+1, 1, 1, 0, 1);
         const MuonGM::CscReadoutElement* cscRE = muonMgr->getCscReadoutElement(readout_id);
+        if (!cscRE){
+            const Identifier backup_id =  muonMgr->cscIdHelper()->channelID(stationStr, cscEtaSt, phi+1, 2, 1, 0, 1);
+            cscRE =  muonMgr->getCscReadoutElement(backup_id);
+        }
         if (cscRE) {
             for (int gasgap = 0; gasgap < cscRE->Ngasgaps(); gasgap++) {
                 Identifier idi = m_idHelperSvc->cscIdHelper().channelID(cscRE->identify(), cscRE->ChamberLayer(), gasgap + 1, 0, 1);
@@ -885,7 +889,7 @@ void Muon::MuonStationBuilderCond::identifyLayers(const Trk::DetachedTrackingVol
         const int stationEta = zi + (eta >= MuonGM::MuonDetectorManager::NTgcStEtaOffset);
         auto getReadout = [stationName, stationEta, muonMgr](int phi ) {
                 const int stationPhi  = phi + 1;
-                const Identifier id = muonMgr->tgcIdHelper()->elementID(stationName, stationEta, stationPhi,false) ;
+                const Identifier id = muonMgr->tgcIdHelper()->elementID(stationName, stationEta, stationPhi) ;
                 return muonMgr->getTgcReadoutElement(id);
         };
         const MuonGM::TgcReadoutElement* tgc = getReadout(phi - 1);
@@ -914,7 +918,7 @@ void Muon::MuonStationBuilderCond::identifyLayers(const Trk::DetachedTrackingVol
             int phiSt = tgc->getStationPhi();
 
             bool validId{false};
-            Identifier wireId = m_idHelperSvc->tgcIdHelper().channelID(stationStr, etaSt, phiSt, 1, 0, 1, true, &validId);
+            Identifier wireId = m_idHelperSvc->tgcIdHelper().channelID(stationStr, etaSt, phiSt, 1, 0, 1, validId);
             if (!validId) ATH_MSG_ERROR("invalid TGC channel:" << wireId);
             const Amg::Vector3D gp = tgc->channelPos(wireId);
             const Trk::TrackingVolume* assocVol = station->trackingVolume()->associatedSubVolume(gp);
@@ -922,7 +926,7 @@ void Muon::MuonStationBuilderCond::identifyLayers(const Trk::DetachedTrackingVol
             if (assocVol && assocVol->confinedLayers()) {
                 Trk::BinnedArraySpan<Trk::Layer const * const> layers = assocVol->confinedLayers()->arrayObjects();
                 for (unsigned int il = 0; il < layers.size(); il++) {
-                    wireId = m_idHelperSvc->tgcIdHelper().channelID(stationStr, etaSt, phiSt, il + 1, 0, 1, true, &validId);
+                    wireId = m_idHelperSvc->tgcIdHelper().channelID(stationStr, etaSt, phiSt, il + 1, 0, 1, validId);
                     if (!validId)
                         const_cast< Trk::Layer*>(layers[il])->setLayerType(1);
                     else {
@@ -1104,9 +1108,8 @@ void Muon::MuonStationBuilderCond::identifyPrototype(const Trk::TrackingVolume* 
                                 bool isValid = false;
                                 // the RpcIdHelper expects doubletR/doubletZ/doubletPhi to start at 1
                                 Identifier id = m_idHelperSvc->rpcIdHelper().channelID(
-                                    nameIndex, eta, phi, doubletR + 1, doubletZ + 1, doubletPhi + 1, 1, 1, 1, true, &isValid,
-                                    true);  // last 6 arguments are: int gasGap, int measuresPhi, int strip, bool check, bool* isValid, bool
-                                            // noPrint
+                                    nameIndex, eta, phi, doubletR + 1, doubletZ + 1, doubletPhi + 1, 1, 1, 1, isValid);  
+                                    /// last 4 arguments are: int gasGap, int measuresPhi, int strip,  bool& isValid
                                 if (!isValid) {
                                     ATH_MSG_DEBUG("Could not find valid Identifier for station="
                                                   << nameIndex << ", eta=" << eta << ", phi=" << phi << ", doubletR=" << doubletR + 1

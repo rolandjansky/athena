@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -217,7 +217,7 @@ public:
   // cppcheck-suppress objectIndex
   virtual bool badch2 (void) const   { return ((m_tileQual[3]&TileCell::MASK_BADCH) != 0); }
   /** @brief check if whole cell is bad (i.e. no energy measurement at all in this cell) */
-  virtual bool badcell (void) const   { return (badch1() & badch2()); }
+  virtual bool badcell (void) const   { return (badch1() && badch2()); }
 
   /** @brief get gain of first PMT */
   virtual int     gain1        (void)  const;

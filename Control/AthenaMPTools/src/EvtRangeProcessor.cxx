@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EvtRangeProcessor.h"
@@ -28,23 +28,11 @@
 
 #include "yampl/SocketFactory.h"
 
-#include <ctime>
-void getLocalTime(char * buffer)
-{
-  std::time_t rawtime;
-  std::tm* timeinfo;
-
-  std::time(&rawtime);
-  timeinfo = std::localtime(&rawtime);
-
-  std::strftime(buffer,80,"%Y-%m-%d %H:%M:%S",timeinfo);
-}
 
 EvtRangeProcessor::EvtRangeProcessor(const std::string& type
 				     , const std::string& name
 				     , const IInterface* parent)
   : AthenaMPToolBase(type,name,parent)
-  , m_isPileup(false)
   , m_rankId(-1)
   , m_nEventsBeforeFork(0)
   , m_activeWorkers(0)
@@ -60,7 +48,6 @@ EvtRangeProcessor::EvtRangeProcessor(const std::string& type
 {
   declareInterface<IAthenaMPTool>(this);
 
-  declareProperty("IsPileup",m_isPileup);
   declareProperty("EventsBeforeFork",m_nEventsBeforeFork);
   declareProperty("Channel2Scatterer", m_channel2Scatterer);
   declareProperty("Channel2EvtSel", m_channel2EvtSel);
@@ -76,24 +63,9 @@ EvtRangeProcessor::~EvtRangeProcessor()
 StatusCode EvtRangeProcessor::initialize()
 {
   ATH_MSG_DEBUG("In initialize");
-  if(m_isPileup) {
-    m_evtProcessor = ServiceHandle<IEventProcessor>("PileUpEventLoopMgr",name());
-    ATH_MSG_INFO("The job running in pileup mode");
-  }
-  else {
-    ATH_MSG_INFO("The job running in non-pileup mode");
-  }
 
-  StatusCode sc = AthenaMPToolBase::initialize();
-  if(!sc.isSuccess())
-    return sc;
-
-  sc = serviceLocator()->service(m_evtSelName,m_evtSeek);
-  if(sc.isFailure() || m_evtSeek==0) {
-    ATH_MSG_ERROR("Error retrieving IEvtSelectorSeek");
-    return StatusCode::FAILURE;
-  }
-  
+  ATH_CHECK(AthenaMPToolBase::initialize());
+  ATH_CHECK(serviceLocator()->service(m_evtSelName,m_evtSeek));
   ATH_CHECK(m_chronoStatSvc.retrieve());
   ATH_CHECK(m_incidentSvc.retrieve());
   
@@ -431,7 +403,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::bootstrap_
   // TODO: this "worker_" can be made configurable too
 
   if(mkdir(worker_rundir.string().c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH)==-1) {
-    ATH_MSG_ERROR("Unable to make worker run directory: " << worker_rundir.string() << ". " << strerror(errno));
+    ATH_MSG_ERROR("Unable to make worker run directory: " << worker_rundir.string() << ". " << fmterror(errno));
     return outwork;
   }
 
@@ -531,7 +503,8 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::exec_func(
   // Get the yampl connection channels
   yampl::ISocketFactory* socketFactory = new yampl::SocketFactory();
   std::string socket2ScattererName = m_channel2Scatterer.value() + std::string("_") + m_randStr;
-  yampl::ISocket* socket2Scatterer = socketFactory->createClientSocket(yampl::Channel(socket2ScattererName,yampl::LOCAL),yampl::MOVE_DATA);
+  std::string socketName = "";  // to avoid thread-checker warnings
+  yampl::ISocket* socket2Scatterer = socketFactory->createClientSocket(yampl::Channel(socket2ScattererName,yampl::LOCAL),yampl::MOVE_DATA,yampl::defaultDeallocator,socketName);
   ATH_MSG_INFO("Created CLIENT socket to the Scatterer: " << socket2ScattererName);
   std::ostringstream pidstr;
   pidstr << getpid();
@@ -548,7 +521,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::exec_func(
     // Get the response - list of tokens - from the scatterer. 
     // The format of the response: | ResponseSize | RangeID, | evtEvtRange[,evtToken] |
     char *responseBuffer(0);
-    ssize_t responseSize = socket2Scatterer->recv(responseBuffer);
+    ssize_t responseSize = socket2Scatterer->recv(responseBuffer, socketName);
     // If response size is 0 then break the loop
     if(responseSize==1) {
       ATH_MSG_INFO("Empty range received. Terminating the loop");
@@ -738,7 +711,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::fin_func()
   }
   else { 
     if(m_appMgr->finalize().isFailure()) {
-      ATH_MSG_WARNING("Unable to finalize AppMgr");
+      std::cout << "Unable to finalize AppMgr" << std::endl;
     }
   }
 

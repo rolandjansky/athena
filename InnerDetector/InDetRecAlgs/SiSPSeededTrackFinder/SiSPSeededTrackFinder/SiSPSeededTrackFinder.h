@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -19,7 +19,7 @@
 #include "InDetRecToolInterfaces/IInDetEtaDependentCutsSvc.h"
 #include "IRegionSelector/IRegSelTool.h"
 #include "StoreGate/DataHandle.h"
-#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
+#include "TrkCaloClusterROI/ROIPhiRZContainer.h"
 #include "TrkExInterfaces/IPatternParametersPropagator.h"
 #include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
@@ -106,7 +106,6 @@ namespace InDet {
     IntegerProperty m_histsize{this, "HistSize", 1400};
     IntegerProperty m_nvertex{this, "maxVertices", 4};
     DoubleProperty m_zcut{this, "Zcut", 350.};
-    DoubleProperty m_ClusterE{this, "CaloClusterE", 15000.};
     DoubleProperty m_deltaEta{this, "dEtaCaloRoI", .1};
     DoubleProperty m_deltaPhi{this, "dPhiCaloRoI", .25};
     DoubleProperty m_deltaZ{this, "dZCaloRoI", 300.};
@@ -126,7 +125,7 @@ namespace InDet {
     SG::ReadHandleKey<SpacePointContainer> m_SpacePointsSCTKey{this, "SpacePointsSCTName", "SCT_SpacePoints"};
     SG::ReadHandleKey<SpacePointContainer> m_SpacePointsPixelKey{this, "SpacePointsPixelName", "PixelSpacePoints"};
     SG::ReadHandleKey<Trk::PRDtoTrackMap> m_prdToTrackMap{this,"PRDtoTrackMap",""};
-    SG::ReadHandleKey<CaloClusterROI_Collection>  m_caloKey{this, "InputClusterContainerName", "InDetCaloClusterROIs", "Location of the optional Calo cluster seeds."};
+    SG::ReadHandleKey<ROIPhiRZContainer> m_caloClusterROIKey{this, "EMROIPhiRZContainer", "InDetCaloClusterROIPhiRZ15GeVUnordered", "Name of the calo cluster ROIs in Phi,R,Z parameterization"};
 
     SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey{this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot"};
 
@@ -187,7 +186,7 @@ namespace InDet {
     * A hit will never *reduce* the total score compared to having no hit at all. 
     * @param [in] track Track to evaluate the quality of 
     **/ 
-    double trackQuality(const Trk::Track* track) const;
+    static double trackQuality(const Trk::Track* track) ;
 
     /** \brief cleans up the collection of quality filtered tracks. 
     * 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -7,9 +7,6 @@ from JetTagTools.SVForIPToolConfig import SVForIPToolCfg
 from JetTagTools.IPDetailedTrackGradeFactoryConfig import IPDetailedTrackGradeFactoryCfg
 from JetTagTools.IPTrackSelectorConfig import IPTrackSelectorCfg
 from JetTagTools.NewLikelihoodToolConfig import NewLikelihoodToolCfg
-
-# import the IPTag configurable
-Analysis__IPTag=CompFactory.Analysis.IPTag
 
 def IP2DTagCfg( flags, name = 'IP2DTag', scheme = '', useBTagFlagsDefaults = True, FlipOption='STANDARD', **options ):
     """Sets up a IP2DTag tool and returns it.
@@ -109,6 +106,6 @@ def IP2DTagCfg( flags, name = 'IP2DTag', scheme = '', useBTagFlagsDefaults = Tru
 
 
 
-    acc.setPrivateTools(Analysis__IPTag( **options))
+    acc.setPrivateTools(CompFactory.Analysis.IPTag( **options))
 
     return acc

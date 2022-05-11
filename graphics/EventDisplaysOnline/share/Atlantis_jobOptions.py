@@ -111,30 +111,25 @@ theJetRecJetRetriever.OtherJetCollections = []
 #theMissingETRetriever.OtherMissingETCollections = []
 
 ## ================== Edit: 25-02-2015 by sjiggins - Do not limit additional Track Collection ========================                  
-include ( "JiveXML/DataTypes_Trig.py" ) # 25-02-2015 Change made by sjiggins to allow doTriggers to float
 #include ("xAODJiveXML/xAODJiveXML_DataTypes.py") # 04-04/15 by sjiggins
 #### jpthomas 4Jun15: Added correct muon track collection, but still also retrieve MS-only too:
 ToolSvc.TrackRetriever.OtherTrackCollections = ["CombinedMuonTracks","MuonSpectrometerTracks"] 
 ## ===================================================================================================================
 
-## ========================== Edit: Beam Splash reduction flags ====================================                      
-#topSequence.theEventData2XML.DataTypes.remove("JiveXML::SiSpacePointRetriever/SiSpacePointRetriever");       
-##topSequence.theEventData2XML.DataTypes.remove("JiveXML::SiClusterRetrieverSiClusterRetriever");
-##topSequence.theEventData2XML.DataTypes.remove("JiveXML::PixelClusterRetriever/PixelClusterRetriever"); #Solved by TrigJiveXML checkout
-#topSequence.theEventData2XML.DataTypes.remove("JiveXML::TRTRetriever/TRTRetriever");                              
-##topSequence.theEventData2XML.DataTypes.remove("JiveXML::TrigSiSpacePointRetrieverTrigSiSpacePointRetriever");  
-#topSequence.theEventData2XML.DataTypes.remove("JiveXML::SCTRDORetriever/SCTRDORetriever");                       
-#topSequence.theEventData2XML.DataTypes.remove("JiveXML::MdtPrepDataRetriever/MdtPrepDataRetriever");              
-
-#topSequence.CaloLArRetriever.LArlCellThreshold = 500.;
-#topSequence.CaloHECRetriever.HEClCellThreshold = 500.;                                                                    
-
+## ================= Edit: Beam Splash reduction flags (updated by lshi in 2022 beam splashes) =======================
+#theEventData2XML.DataTypes.remove("JiveXML::SiClusterRetriever/SiClusterRetriever");
+#theEventData2XML.DataTypes.remove("JiveXML::PixelClusterRetriever/PixelClusterRetriever");
+#theEventData2XML.DataTypes.remove("JiveXML::SCTRDORetriever/SCTRDORetriever");
+#
 #ToolSvc.CaloLArRetriever.LArlCellThreshold = 500.;
 #ToolSvc.CaloHECRetriever.HEClCellThreshold = 500.;
-
-
-#ToolSvc.TrackRetriever.OtherTrackCollections = [];                                   
-#ToolSvc.xAODTrackParticleRetriever.OtherTrackCollections = []                                                              
+#
+### more flags that were not used in 2022 beam splases
+##topSequence.theEventData2XML.DataTypes.remove("JiveXML::TRTRetriever/TRTRetriever");
+##topSequence.theEventData2XML.DataTypes.remove("JiveXML::TrigSiSpacePointRetrieverTrigSiSpacePointRetriever");
+##topSequence.theEventData2XML.DataTypes.remove("JiveXML::MdtPrepDataRetriever/MdtPrepDataRetriever");
+##ToolSvc.TrackRetriever.OtherTrackCollections = [];
+##ToolSvc.xAODTrackParticleRetriever.OtherTrackCollections = []
 ## ======================================================================================= 
 
 if rec.doHeavyIon:

@@ -20,6 +20,7 @@ thresholdsEF = {
     ('looseRNN', 80): TauCuts(3, 1, 80000.0, 1), 
     ('looseRNN', 160): TauCuts(3, 1, 160000.0, 1),
     ('looseRNN', 200): TauCuts(3, 1, 200000.0, 1),
+    ('mediumRNN', 0): TauCuts(3, 1, 0.0, 2),
     ('mediumRNN', 20): TauCuts(3, 1, 20000.0, 2),
     ('mediumRNN', 25): TauCuts(3, 1, 25000.0, 2),
     ('mediumRNN', 35): TauCuts(3, 1, 35000.0, 2),
@@ -48,6 +49,7 @@ thresholdsEF = {
     ('idperf',0)     : TauCuts(3,999, 0.,2),
     ('idperf',25)    : TauCuts(3,999,25000.,2),
     ('idperf',35)    : TauCuts(3,999,35000.,2),
+    ('idperf',80)    : TauCuts(3,999,80000.,2),
     ('idperf',160): TauCuts(3,999,160000.,2),    
     ('idperf',200): TauCuts(3,999,200000.,2)
     }    
@@ -115,7 +117,6 @@ def TrigEFTauMVHypoToolFromDict( chainDict ):
         currentHypo.method      = 1   
      
         if criteria in [ 'verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN' ]:
-            currentHypo.highptidthr = 280000.
             currentHypo.method      = 1
         elif 'idperf' in criteria: 
             currentHypo.AcceptAll = True

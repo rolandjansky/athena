@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGHLTJETHYPO_JETGROUPPRODUCT_H
@@ -7,11 +7,13 @@
 
 #include "./IJetGroupProduct.h"
 #include "./ProductGen.h"
+#include "./JetStreamer.h"
 #include "./DebugInfoCollector.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 #include <vector>
 
 using CondInd2JetGroupsInds = std::map<int, std::vector<std::size_t>>;
+using JetGroupInd2ElemInds = std::map<int, std::vector<std::size_t>>;
 
 typedef std::unique_ptr<ITrigJetHypoInfoCollector> Collector;
 
@@ -32,18 +34,27 @@ class JetGroupProduct: public IJetGroupProduct{
  public:
   JetGroupProduct(const std::vector<std::size_t>& siblings,
 		  const CondInd2JetGroupsInds& satisfiedBy,
-		  const std::vector<std::size_t>& condMult
-		  );
+		  const std::vector<std::size_t>& condMult,
+		  const JetGroupInd2ElemInds&);
 
-  virtual
-  std::vector<std::size_t> next(const Collector&) override;
+  virtual std::vector<std::size_t> next(const Collector&) override;
+  virtual bool valid() const override;
   
  private:
-  std::vector<std::vector<std::size_t>>  m_condIndices;
+
+  JetGroupInd2ElemInds m_jg2elemjgs;
+
   std::vector<bool>  m_jetMask;
   std::size_t  m_jetEnd{0};
-  ProductGen m_productGen;
+  // ProductGen m_productGen;
   std::vector<std::vector<std::size_t>> m_seenIndices;
+  std::unique_ptr<JetStreamer> m_jetstreamer{nullptr};
+  bool m_valid{false};
+
+  void init(const std::vector<std::size_t>& siblings,
+	    const CondInd2JetGroupsInds& satisfiedBy,
+	    const std::vector<std::size_t>& condMult
+	    );
 
 };
 

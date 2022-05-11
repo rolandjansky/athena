@@ -1,34 +1,38 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./JetGroupUnion.h"
 #include <set>
 #include <string>
+#include <algorithm>
 #include <sstream>
 
 
 JetGroupUnion::JetGroupUnion(const std::vector<std::size_t>& siblings,
-			     const CondInd2JetGroupsInds& satisfiedBy,
-			     const  JetGroupInd2ElemInds& jg2elemjgs,
-			     const Collector&) {
+			     const CondInd2JetGroupsInds& satisfiedBy) {
   
   // make a vector of the jet indices that satisfy the sibling Conditions
   // with no duplicates
 
-  std::set<std::size_t> j_elem_indices;
-  for(const auto& is : siblings) {
-    const auto& indices = satisfiedBy.at(is);
-    for (const auto& i : indices){
-      j_elem_indices.insert(jg2elemjgs.at(i).begin(),
-			    jg2elemjgs.at(i).end());
-    }
+  for (const auto& s :siblings){
+    m_jetIndices.insert(m_jetIndices.end(),
+			satisfiedBy.at(s).cbegin(),
+			satisfiedBy.at(s).cend()
+			);
   }
   
-  m_jetIndices.assign(j_elem_indices.begin(), j_elem_indices.end());
-  if (m_jetIndices.empty()) {m_done = true;}
+  std::sort(m_jetIndices.begin(),
+	    m_jetIndices.end());
+
+  auto iter = std::unique(m_jetIndices.begin(),
+			  m_jetIndices.end());
+					      
+  m_jetIndices.resize(iter-m_jetIndices.begin());
+  m_done = false;
 }
-  
+
+
 std::vector<std::size_t> JetGroupUnion::next(const Collector& collector){
   if(collector){
     std::stringstream sstr;
@@ -44,3 +48,5 @@ std::vector<std::size_t> JetGroupUnion::next(const Collector& collector){
   m_done = true;
   return m_jetIndices;
 }
+
+bool JetGroupUnion::valid() const {return true;}

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -11,7 +11,7 @@
 #include <utility>
 
 void RpcByteStreamErrorContainerCnv_p1::
-persToTrans( const Muon::RpcByteStreamErrorContainer_p1 *persObj, Muon::RpcByteStreamErrorContainer *transObj,MsgStream & log ) 
+persToTrans( const Muon::RpcByteStreamErrorContainer_p1 *persObj, Muon::RpcByteStreamErrorContainer *transObj,MsgStream & log ) const
 {
     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "RpcByteStreamErrorContainerCnv_p1::persToTrans" << endmsg;
     transObj->clear();
@@ -22,7 +22,7 @@ persToTrans( const Muon::RpcByteStreamErrorContainer_p1 *persObj, Muon::RpcByteS
 }
 
 void RpcByteStreamErrorContainerCnv_p1::
-transToPers( const Muon::RpcByteStreamErrorContainer *transObj, Muon::RpcByteStreamErrorContainer_p1 *persObj, MsgStream & log )
+transToPers( const Muon::RpcByteStreamErrorContainer *transObj, Muon::RpcByteStreamErrorContainer_p1 *persObj, MsgStream & log ) const
 {
     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "RpcByteStreamErrorContainerCnv_p1::transToPers" << endmsg;
     const DataVector<std::pair<IdentifierHash, int> >& errs =

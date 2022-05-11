@@ -282,6 +282,15 @@ namespace top {
 
     inline bool doLargeJetOverlapRemoval() const {return m_doLargeJetOverlapRemoval;}
 
+    // do electron-electron overlap removal
+    inline void setEleEleOverlapRemoval() {
+      if (!m_configFixed) {
+        m_doEleEleOverlapRemoval = true;
+      }
+    }
+
+    inline bool doEleEleOverlapRemoval() const {return m_doEleEleOverlapRemoval;}
+
     // In the *_Loose trees, lepton SFs are calculated considering
     // tight ID and isolation instead of loose
     // Only tight leptons are considered in the event SF calculation
@@ -709,6 +718,37 @@ namespace top {
       }
     }
 
+    inline virtual void electronEfficiencySystematicModelNToys(const int& s) {
+      if (!m_configFixed) {
+        m_electronEfficiencySystematicModelNToys = s;
+      }
+    }
+
+
+    inline virtual void electronEfficiencySystematicModelToySeed(const int& s) {
+      if (!m_configFixed) {
+        m_electronEfficiencySystematicModelToySeed = s;
+      }
+    }
+
+
+    inline virtual void electronEfficiencySystematicModelRecoSize(const int& s) {
+        m_electronEfficiencySystematicModelRecoSize = s;
+    }
+
+
+    inline virtual void electronEfficiencySystematicModelIdSize(const int& s) {
+        m_electronEfficiencySystematicModelIdSize = s;
+    }
+
+
+
+    inline virtual void electronEfficiencySystematicModelIsoSize(const int& s) {
+        m_electronEfficiencySystematicModelIsoSize = s;
+    }
+
+
+
     inline virtual void electronID(const std::string& s) {
       if (!m_configFixed) {
         m_electronID = s;
@@ -801,6 +841,28 @@ namespace top {
     inline virtual const std::string& electronEfficiencySystematicModelEtBinning() {
       return m_electronEfficiencySystematicModelEtBinning;
     }
+    inline virtual const int& electronEfficiencySystematicModelNToys() {
+      return m_electronEfficiencySystematicModelNToys;
+    }
+
+    inline virtual const int& electronEfficiencySystematicModelToySeed() {
+      return m_electronEfficiencySystematicModelToySeed;
+    }
+
+
+    inline virtual const int& electronEfficiencySystematicModelRecoSize() {
+      return m_electronEfficiencySystematicModelRecoSize;
+    }
+
+    inline virtual const int& electronEfficiencySystematicModelIdSize() {
+      return m_electronEfficiencySystematicModelIdSize;
+    }
+
+
+    inline virtual const int& electronEfficiencySystematicModelIsoSize() {
+      return m_electronEfficiencySystematicModelIsoSize;
+    }
+
     inline virtual const std::string& electronID()     const {return m_electronID;}
     inline virtual const std::string& electronIDLoose()  const {return m_electronIDLoose;}
     inline virtual bool electronVetoLArCrack() const {return m_electronVetoLArCrack;}
@@ -868,6 +930,13 @@ namespace top {
     inline virtual float fwdElectronMaxEtacut()       const {return m_fwdElectronMaxEtacut;}
     inline virtual int fwdElectronBCIDCleaningMinRun() const {return m_fwdElectronBCIDCleaningMinRun;}
     inline virtual int fwdElectronBCIDCleaningMaxRun() const {return m_fwdElectronBCIDCleaningMaxRun;}
+
+    const std::string electronIDSFFilePath() const
+    {return m_electronIDSFFile_path;}
+    bool printEIDFileWarning() const
+    {return m_eid_path_warning;}
+    void setPrintEIDFileWarning(bool flag)
+    {m_eid_path_warning = flag;}
 
     // Photon configuration
     inline virtual void photonPtcut(const float pt) {
@@ -942,6 +1011,12 @@ namespace top {
 	m_muonUseMVALowPt = UseMVALowPt;
       }
     }
+    
+    void muonUseLowPt(const bool& UseLowPt) {
+      if (!m_configFixed) {
+        m_muonUseLowPt = UseLowPt;
+      }
+    }
 
     void muonUse2stationMuonsHighPt(const bool& Use2stationMuonsHighPt) {
       if (!m_configFixed) {
@@ -952,6 +1027,12 @@ namespace top {
     void muonUseMVALowPtLoose(const bool& UseMVALowPtLoose) {
       if (!m_configFixed) {
 	m_muonUseMVALowPtLoose = UseMVALowPtLoose;
+      }
+    }
+    
+    void muonUseLowPtLoose(const bool& UseLowPtLoose) {
+      if (!m_configFixed) {
+        m_muonUseLowPtLoose = UseLowPtLoose;
       }
     }
 
@@ -1010,16 +1091,54 @@ namespace top {
     inline virtual const std::string& muonQuality() const {return m_muonQuality;}
     inline virtual const std::string& muonQualityLoose() const {return m_muonQualityLoose;}
     inline virtual bool muonUseMVALowPt() const {return m_muonUseMVALowPt;}
+    inline virtual bool muonUseLowPt() const {return m_muonUseLowPt;}
     inline virtual bool muonUse2stationMuonsHighPt() const {return m_muonUse2stationMuonsHighPt;}
     inline virtual bool muonUseMVALowPtLoose() const {return m_muonUseMVALowPtLoose;}
+    inline virtual bool muonUseLowPtLoose() const {return m_muonUseLowPtLoose;}
     inline virtual bool muonUse2stationMuonsHighPtLoose() const {return m_muonUse2stationMuonsHighPtLoose;}
     inline virtual const std::string& muonIsolation() const {return m_muonIsolation;}
     inline virtual const std::string& muonIsolationLoose() const {return m_muonIsolationLoose;}
     inline virtual const std::vector<std::string>& muonIsolationWPs() const {return m_muonIsolationWPs;}
     std::string const& muonIsolationSF() const {return m_muonIsolationSF;}
     std::string const& muonIsolationSFLoose() const {return m_muonIsolationSFLoose;}
+    std::string const& muonCalibMode() const {return m_muonCalibMode;}
     inline virtual bool muonMuonDoSmearing2stationHighPt() const {return m_muonMuonDoSmearing2stationHighPt;}
     inline virtual bool muonMuonDoExtraSmearingHighPt() const {return m_muonMuonDoExtraSmearingHighPt;}
+
+    inline virtual void muonBreakDownSystematics(const bool flag) {m_muonBreakDownSystematics = flag;}
+    inline virtual bool muonBreakDownSystematics() {return m_muonBreakDownSystematics;}
+
+    std::string const& muonSFCustomInputFolder() const {return m_muonSFCustomInputFolder;}
+    void muonSFCustomInputFolder(const std::string& s) {
+      if (!m_configFixed) {
+        m_muonSFCustomInputFolder = s;
+      }
+    } 
+    int muonForceYear() const {return m_muonForceYear;}
+    void muonForceYear(int s) {
+      if (!m_configFixed) {
+        m_muonForceYear = s;
+      }
+    }
+    std::string const& muonForcePeriod() const {return m_muonForcePeriod;}
+    void muonForcePeriod(const std::string& s) {
+      if (!m_configFixed) {
+        m_muonForcePeriod = s;
+      }
+    }
+    std::string const& muonForceTrigger() const {return m_muonForceTrigger;}
+    void muonForceTrigger(const std::string& s) {
+      if (!m_configFixed) {
+        m_muonForceTrigger = s;
+      }
+    }
+
+    std::string const& electronForceTrigger() const {return m_electronForceTrigger;}
+    void electronForceTrigger(const std::string& s) {
+      if (!m_configFixed) {
+        m_electronForceTrigger = s;
+      }
+    }
 
     // Soft Muon configuration
     inline virtual void softmuonPtcut(const float pt) {
@@ -1043,6 +1162,11 @@ namespace top {
     void softmuonUseMVALowPt(const bool UseMVALowPtSoftMuon) {
       if (!m_configFixed) {
         m_softmuonUseMVALowPt = UseMVALowPtSoftMuon;
+      }
+    }
+    void softmuonUseLowPt(const bool UseLowPtSoftMuon) {
+      if (!m_configFixed) {
+        m_softmuonUseLowPt = UseLowPtSoftMuon;
       }
     }
 
@@ -1080,6 +1204,7 @@ namespace top {
     inline virtual float softmuonEtacut() const {return m_softmuonEtacut;}
     inline virtual const std::string& softmuonQuality() const {return m_softmuonQuality;}
     inline virtual bool softmuonUseMVALowPt() const {return m_softmuonUseMVALowPt;}
+    inline virtual bool softmuonUseLowPt() const {return m_softmuonUseLowPt;}
     inline virtual float softmuonDRJetcut() const {return m_softmuonDRJetcut;}
     inline virtual bool softmuonDRJetcutUseRapidity() const {return m_softmuonDRJetcutUseRapidity;}
     inline virtual bool softmuonAdditionalTruthInfo() const { return m_softmuonAdditionalTruthInfo;}
@@ -1827,6 +1952,9 @@ namespace top {
 
     const std::vector<double>& PileUpCustomScaleFactors() {return m_pileup_reweighting.custom_SF;};
 
+    inline unsigned int forceRandomRunNumber() const {return m_forceRandomRunNumber;}
+    inline void setForceRandomRunNumber(const unsigned int randomRunNumber) {m_forceRandomRunNumber = randomRunNumber;}
+
     inline const std::string& muonTriggerSF() const {return m_muon_trigger_SF;}
 
     inline bool demandPriVtx() const {return m_demandPriVtx;}
@@ -2129,6 +2257,9 @@ namespace top {
     // (using whatever procedure is used in the official tools)
     bool m_doLargeJetOverlapRemoval;
 
+    // do electron-electron overlap removal
+    bool m_doEleEleOverlapRemoval;
+
     // Dumps the normal, non-"*_Loose" trees (on demand)
     bool m_doTightEvents;
     // Dumps the "*_Loose trees (on demand)
@@ -2244,6 +2375,11 @@ namespace top {
     // Electron configuration
     std::string m_egammaSystematicModel;
     std::string m_electronEfficiencySystematicModel;
+    int m_electronEfficiencySystematicModelNToys;
+    int m_electronEfficiencySystematicModelToySeed;
+    int m_electronEfficiencySystematicModelRecoSize;
+    int m_electronEfficiencySystematicModelIdSize;
+    int m_electronEfficiencySystematicModelIsoSize;
     std::string m_electronEfficiencySystematicModelEtaBinning;
     std::string m_electronEfficiencySystematicModelEtBinning;
     std::string m_electronID;
@@ -2265,6 +2401,10 @@ namespace top {
     bool m_useEgammaLeakageCorrection;
     bool m_enablePromptLeptonImprovedVetoStudies;
 
+    // experimental electronID map path
+    std::string m_electronIDSFFile_path = "Default";
+    bool m_eid_path_warning = false;
+
     //Fwd electron configuration
     float m_fwdElectronPtcut;
     float m_fwdElectronMinEtacut;
@@ -2279,9 +2419,11 @@ namespace top {
     float m_muonEtacut; // muon object selection (abs) eta cut
     std::string m_muonQuality; // muon quality used in object selection
     bool m_muonUseMVALowPt; //to turn on MVA for low-pT muons
+    bool m_muonUseLowPt; //helper variable to check if we're using the lowPt WP
     bool m_muonUse2stationMuonsHighPt; //to allow muon reco with 2-station
     std::string m_muonQualityLoose; // loose muon quality used in object selection
     bool m_muonUseMVALowPtLoose; //to turn on MVA for low-pT muons (loose tree)
+    bool m_muonUseLowPtLoose; //helper variable to check if we're using the lowPt WP
     bool m_muonUse2stationMuonsHighPtLoose; //to allow muon reco with 2-station (loose tree)
     // the isolation WP used for making selection decisions
     std::string m_muonIsolation;
@@ -2291,14 +2433,22 @@ namespace top {
     std::vector<std::string> m_muonIsolationWPs; // list of all WPs to store aux decorations for
     int m_muon_d0SigCut;
     float m_muon_delta_z0;
+    std::string m_muonCalibMode; // calibration mode for the muon calibration tool
     bool m_muonMuonDoSmearing2stationHighPt; //to turn on/off special correction for the reco with 2-station muons with missing inner MS station allowed for abs(eta)<1.3, only HighPt WP
     bool m_muonMuonDoExtraSmearingHighPt; //to turn on/off a special correction for the muon with high momenta.
+    bool m_muonBreakDownSystematics; //to turn on/off a more complex systematic model
+    std::string m_muonSFCustomInputFolder;
+    std::string m_muonForcePeriod;
+    int m_muonForceYear;
+    std::string m_muonForceTrigger;
+    std::string m_electronForceTrigger;
 
     //Soft muon configuration
     float m_softmuonPtcut; // soft muon object selection pT cut
     float m_softmuonEtacut; // soft muon object selection (abs) eta cut
     std::string m_softmuonQuality; // soft muon quality used in object selection
     bool m_softmuonUseMVALowPt; //to turn on MVA for low-pT muons
+    bool m_softmuonUseLowPt; //helper variable to check if we're using the lowPt WP
     float m_softmuonDRJetcut; // soft muon object selection DR wrt jets cut
     bool m_softmuonDRJetcutUseRapidity; // true -> use rapidity for DR(jet,mu) matching; false -> use pseudorapidity
     bool m_softmuonAdditionalTruthInfo; //additional info on the particle-level origin of the muon, see TopParticleLevel/TruthTools.h
@@ -2630,6 +2780,8 @@ namespace top {
     // Where the sum of event weights
     // before derivation framework is kept
     std::string m_sumOfEventWeightsMetaData;
+
+    unsigned int m_forceRandomRunNumber = 0;
 
     // Object Selector name
     std::string m_objectSelectionName;

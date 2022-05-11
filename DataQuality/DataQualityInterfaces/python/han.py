@@ -5,16 +5,20 @@ import ROOT
 import re
 import os
 import string
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple, Optional, Iterable
 import logging
 log = logging.getLogger('DataQualityInterfaces')
 
-def copyMetadata(newgroup, oldgroup, input=None):
+def copyMetadata(newgroup: dqi.HanConfigAssessor, oldgroup: dqi.HanConfigAssessor,
+                input: str=None, algrefname: str=None) -> None:
     """Copy the configuration of an old algorithm to a new one, but without the
     tree structure"""
     newgroup.SetAlgName(oldgroup.GetAlgName())
     newgroup.SetAlgLibName(oldgroup.GetAlgLibName())
-    newgroup.SetAlgRefName(oldgroup.GetAlgRefName())
+    if algrefname is None:
+        newgroup.SetAlgRefName(oldgroup.GetAlgRefName())
+    else:
+        newgroup.SetAlgRefName(algrefname)
     for par in oldgroup.GetAllAlgPars():
         newgroup.AddAlgPar(par)
     for lim in oldgroup.GetAllAlgLimits():
@@ -24,6 +28,14 @@ def copyMetadata(newgroup, oldgroup, input=None):
             ann.SetValue(input)
         newgroup.AddAnnotation(ann)
     newgroup.SetWeight(oldgroup.GetWeight())
+
+
+def count_slashes(itr: Iterable[Tuple[str, dqi.HanConfigGroup]]) -> Dict[int, List[Tuple[str, dqi.HanConfigGroup]]]:
+    from collections import defaultdict
+    rv = defaultdict(list)
+    for s, g in itr:
+        rv[s.count('/')].append((s,g))
+    return rv
 
 
 def Initialize( configName: str, inputFileName: str, prefix: str ) -> Optional[dqi.HanConfigGroup]:
@@ -46,10 +58,10 @@ def Initialize( configName: str, inputFileName: str, prefix: str ) -> Optional[d
 
     inputFile = ROOT.TFile.Open(inputFileName, 'READ')
 
-    return FixRegion(top_level, inputFile.Get(prefix))
+    return FixRegion(m_config, top_level, inputFile.Get(prefix))
 
 
-def FixRegion(top_level: dqi.HanConfigGroup, td: ROOT.TDirectory) -> dqi.HanConfigGroup:
+def FixRegion(config: ROOT.TDirectory, top_level: dqi.HanConfigGroup, td: ROOT.TDirectory) -> dqi.HanConfigGroup:
     """Main code to translate the configuration given by 'top_level' into the
     final configuration by expanding the regexes using the objects in 'td'"""
     log.info('Translating regexes...')
@@ -58,7 +70,7 @@ def FixRegion(top_level: dqi.HanConfigGroup, td: ROOT.TDirectory) -> dqi.HanConf
     mapping_regex = {}
     mapping_groups = {'top_level': top_level}
     mapping_assessors_final = {}
-    mapping_groups_final = {}
+    mapping_groups_final: Dict[str, dqi.HanConfigGroup] = {}
     iterate_hcfg(top_level, mapping, mapping_regex, mapping_groups)
     mapping_assessors_final.update(mapping)
     for path, g in mapping_groups.items():
@@ -72,10 +84,11 @@ def FixRegion(top_level: dqi.HanConfigGroup, td: ROOT.TDirectory) -> dqi.HanConf
     l = []
     iterate_objs(td, l, td.GetPath())
     for path, (a, p) in mapping_regex.items():
-        pre = re.compile(p + '$')
+        pre = re.compile(p)
         for h in l:
-            m = pre.match(h)
+            m = pre.fullmatch(h)
             if m:
+                log.debug(f'match {p} with {h}')
                 tokenized_path = path.split('/')
                 orig_fullpath = []
                 new_fullpath = []
@@ -83,20 +96,20 @@ def FixRegion(top_level: dqi.HanConfigGroup, td: ROOT.TDirectory) -> dqi.HanConf
                     formatted_tok = string.Template(tok).substitute(m.groupdict())
                     orig_fullpath.append(tok)
                     new_fullpath.append(formatted_tok)
-                    if formatted_tok != tok:
-                        orig = '/'.join(orig_fullpath)
-                        target = '/'.join(new_fullpath)
-                        log.debug(f'Need to adapt {mapping_groups[orig]} to {target}')
+                    orig = '/'.join(orig_fullpath)
+                    target = '/'.join(new_fullpath)
+                    if target not in mapping_groups_final:  # need to clone
+                        log.debug(f'Need to adapt {orig} to {target}')
                         if orig in mapping_groups_final:
                             log.debug(f'Deleting {orig}')
-                            del mapping_groups_final[orig]
-                        if target not in mapping_groups_final:
-                            newgroup = dqi.HanConfigGroup()
-                            newgroup.SetName(formatted_tok)
-                            newgroup.SetPathName(target)
-                            oldgroup = mapping_groups[orig]
-                            copyMetadata(newgroup, oldgroup)
-                            mapping_groups_final[target] = newgroup
+                            del mapping_groups_final[orig]                           
+                        newgroup = dqi.HanConfigGroup()
+                        newgroup.SetName(formatted_tok)
+                        newgroup.SetPathName(target)
+                        oldgroup = mapping_groups[orig]
+                        copyMetadata(newgroup, oldgroup)
+                        mapping_groups_final[target] = newgroup
+                       
                 tok = tokenized_path[-1]
                 orig_fullpath.append(tok)
                 hname = h.split('/')[-1]
@@ -106,10 +119,23 @@ def FixRegion(top_level: dqi.HanConfigGroup, td: ROOT.TDirectory) -> dqi.HanConf
                 new_fullpath.append(hname)
                 orig = '/'.join(orig_fullpath)
                 target = '/'.join(new_fullpath)
+                log.debug(f'Map from {orig} to {target}')
 
                 newass = dqi.HanConfigAssessor()
                 newass.SetName(h + hextra)
-                copyMetadata(newass, mapping_regex[orig][0], input=h)
+                algrefname = a.GetAlgRefName()
+                # patch up reference if it's embedded in a TMap
+                if a.GetAlgRefName() != "":
+                    ref = config.Get(a.GetAlgRefName())
+                    if not ref:
+                        log.error('Unable to find references for', orig)
+                    else:
+                        if isinstance(ref, ROOT.TMap):
+                            algrefnameptr = ref.GetValue(h)
+                            algrefname = algrefnameptr.GetString().Data() if algrefnameptr else ""
+                if algrefname and isinstance(config.Get(algrefname), ROOT.TMap):
+                    log.error(f'Reference for {newass} is somehow still a TMap')
+                copyMetadata(newass, mapping_regex[orig][0], input=h, algrefname=algrefname)
                 mapping_assessors_final[target] = (newass, newass.GetHistPath())
                 log.debug(f'change {orig} to {target}')
 
@@ -119,11 +145,17 @@ def FixRegion(top_level: dqi.HanConfigGroup, td: ROOT.TDirectory) -> dqi.HanConf
         try:
             mapping_groups_final[os.path.dirname(p)].AddAssessor(a)
         except Exception as e:
-            log.error(f'{e}: {p}, {a}, {a.GetName()}')
-    for p, g in reversed(list(mapping_groups_final.items())):
-        log.debug(f'Final additions for {p}, {g}, {g.GetPathName()} into {os.path.dirname(p)}')
-        if p != 'top_level':
-            mapping_groups_final[os.path.dirname(p)].AddGroup(g)
+            log.error(f'Unable to look up assessor parent directory. Full error follows\n{e}: path {p}, assessor {a}, assessor name {a.GetName()}')
+    # need to in reverse order of depth. First count number of slashes:
+    keydepths = count_slashes(mapping_groups_final.items())
+    for _, l in sorted(keydepths.items(), reverse=True):
+        for p, g in l:
+            log.debug(f'Final additions for {p}, {g}, {g.GetPathName()} into {os.path.dirname(p)}')
+            if p != 'top_level':
+                try:
+                    mapping_groups_final[os.path.dirname(p)].AddGroup(g)
+                except KeyError:
+                    log.error(f'Unable to attach group to parent. Details: group path {g.GetPathName()}, attempted parent is {os.path.dirname(p)}')
 
     return mapping_groups_final['top_level']
 

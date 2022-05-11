@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ActsGeometry/ActsATLASConverterTool.h"
@@ -17,7 +17,6 @@
 //#include "ActsGeometry/ActsExCellWriterSvc.h"
 #include "ActsGeometry/ActsMaterialTrackWriterSvc.h"
 
-//#include "ActsGeometry/GeomShiftCondAlg.h"
 #include "ActsGeometry/NominalAlignmentCondAlg.h"
 #include "ActsGeometry/ActsAlignmentCondAlg.h"
 #include "ActsGeometry/ActsTrackingGeometryTool.h"
@@ -42,7 +41,6 @@ DECLARE_COMPONENT( ActsMaterialTrackWriterSvc )
 DECLARE_COMPONENT( ActsMaterialStepConverterTool )
 DECLARE_COMPONENT( ActsMaterialJsonWriterTool )
 
-//DECLARE_COMPONENT( GeomShiftCondAlg )
 DECLARE_COMPONENT( NominalAlignmentCondAlg )
 DECLARE_COMPONENT( ActsTrackingGeometryTool )
 

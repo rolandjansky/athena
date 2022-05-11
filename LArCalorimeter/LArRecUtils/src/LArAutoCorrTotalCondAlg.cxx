@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArAutoCorrTotalCondAlg.h"
@@ -24,7 +24,7 @@ LArAutoCorrTotalCondAlg::LArAutoCorrTotalCondAlg(const std::string &name,
       m_LArfSamplObjKey("LArfSamplSym"),
       m_LArMinBiasObjKey("LArMinBiasSym"),
       m_LArAutoCorrTotalObjKey("LArAutoCorrTotal"),
-      m_condSvc("CondSvc", name), m_Nminbias(0), m_NoPile(false), m_isMC(true),
+      m_Nminbias(0), m_NoPile(false), m_isMC(true),
       m_isSuperCell(false), m_Nsamples(5),
       m_firstSample(0), m_deltaBunch(1) {
   declareProperty("LArADC2MeVObjKey", m_LArADC2MeVObjKey,
@@ -62,9 +62,6 @@ LArAutoCorrTotalCondAlg::~LArAutoCorrTotalCondAlg() {}
 StatusCode LArAutoCorrTotalCondAlg::initialize() {
   ATH_MSG_DEBUG("initialize " << name());
 
-  // CondSvc
-  ATH_CHECK(m_condSvc.retrieve());
-
   // ReadCondHandle initialization
   ATH_CHECK(m_LArShapeObjKey.initialize());
   ATH_CHECK(m_LArAutoCorrObjKey.initialize());
@@ -81,13 +78,6 @@ StatusCode LArAutoCorrTotalCondAlg::initialize() {
   ATH_CHECK(m_LArPedestalObjKey.initialize(!m_NoPile && !m_isMC));
   ATH_CHECK(m_LArfSamplObjKey.initialize(!m_NoPile));
   ATH_CHECK(m_LArMinBiasObjKey.initialize(!m_NoPile));
-
-  // WriteCondHandle initialization
-  if (m_condSvc->regHandle(this, m_LArAutoCorrTotalObjKey).isFailure()) {
-    ATH_MSG_ERROR("Unable to register WriteCondHandle "
-                  << m_LArAutoCorrTotalObjKey.fullKey() << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
 
   // Number of gains (does this have to be in initialize now b/c of AthenaMT?)
   if (m_isSuperCell) {

@@ -191,7 +191,7 @@ namespace top {
   bool ElectronLikelihood::passBLayerCuts(const xAOD::Electron& el) const {
 
     const xAOD::TrackParticle* t = el.trackParticle();
-    return ElectronSelectorHelpers::passBLayerRequirement(t);
+    return ElectronSelectorHelpers::passBLayerRequirement(*t);
   }
 
   bool ElectronLikelihood::passTTVACuts(const xAOD::Electron& el) const {

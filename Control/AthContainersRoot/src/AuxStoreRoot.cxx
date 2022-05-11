@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -20,7 +20,7 @@
 #include "TBranch.h"
 #include "TLeaf.h"
 #include "TClass.h"
-#include "RootUtils/TClassEditRootUtils.h"
+#include "TClassEdit.h"
 #include "TVirtualCollectionProxy.h"
 
 
@@ -93,9 +93,20 @@ const std::type_info* getElementType (TBranch* br,
     return dataTypeToTypeInfo (prox->GetType(), elementTypeName);
   }
   else if (strncmp (expectedClass->GetName(), "SG::PackedContainer<", 20) == 0){
-    TClassEdit::TSplitType split (expectedClass->GetName());
-    if (split.fElements.size() > 1) {
-      elementTypeName = split.fElements[1];
+    {
+      // Protect against data race inside TClassEdit.
+      // https://github.com/root-project/root/issues/10353
+      // Should be fixed in root 6.26.02.
+      R__WRITE_LOCKGUARD(ROOT::gCoreMutex);
+      TClassEdit::TSplitType split (expectedClass->GetName());
+      if (split.fElements.size() > 1) {
+        elementTypeName = split.fElements[1];
+      }
+      else {
+        elementTypeName.clear();
+      }
+    }
+    if (!elementTypeName.empty()) {
       RootUtils::Type typ (elementTypeName);
       return typ.getTypeInfo();
     }

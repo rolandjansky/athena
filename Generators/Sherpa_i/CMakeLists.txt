@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( Sherpa_i )
@@ -7,7 +7,11 @@ atlas_subdir( Sherpa_i )
 find_package( CLHEP )
 find_package( OpenLoops )
 find_package( Sherpa COMPONENTS SherpaTools SherpaInitialization )
+if (HEPMC3_USE)
 find_package( hepmc3 )
+else()
+find_package( HepMC )
+endif()
 
 # Remove the --as-needed linker flags:
 atlas_disable_as_needed()
@@ -28,7 +32,6 @@ atlas_add_component( Sherpa_i
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib ${SHERPA_LIBRARIES} GaudiKernel GeneratorModulesLib TruthUtils AthenaBaseComps AthenaKernel )
 
 # Install file(s) from the package.
-atlas_install_headers( Sherpa_i )
 atlas_install_joboptions( share/common/*.py )
 atlas_install_python_modules( python/sherpaTarCreator)
 atlas_install_scripts( python/*.py )

@@ -12,7 +12,7 @@
 // July 2006
 // ********************************************************************//
 
-#include "TileMonitoring/TileFatherMonTool.h"
+#include "TileFatherMonTool.h"
 
 #include "xAODEventInfo/EventInfo.h"
 

@@ -1,0 +1,10 @@
+#!/bin/bash
+#
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+#
+# Helper script for running protoc during the build process, in an environment
+# in which libprotobuf.so is not in (DY)LD_LIBRARY_PATH.
+#
+
+"@CMAKE_BINARY_DIR@@CMAKE_FILES_DIRECTORY@/atlas_build_run.sh" \
+   "@Protobuf_PROTOC_EXECUTABLE@" "$@"

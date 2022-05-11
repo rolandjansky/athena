@@ -1,0 +1,243 @@
+Package.UserCode     INFO Reading ./step3_01eta03_03phi05_fit.pmap
+Package.UserCode  VERBOSE ATLAS-P2-ITK-23-00-01
+Package.UserCode     INFO Allocating map for geometry ATLAS-P2-ITK-23-00-01 diskIndex size=8
+Package.UserCode  VERBOSE 8 logical_s1
+Package.UserCode  VERBOSE 5 pixel barrel 
+Package.UserCode  VERBOSE 95 pixel endcap+
+Package.UserCode  VERBOSE 95 pixel endcap- 
+Package.UserCode  VERBOSE 8 SCT barrel 
+Package.UserCode  VERBOSE 12 SCT endcap+
+Package.UserCode  VERBOSE 12 SCT endcap-
+Package.UserCode  VERBOSE region 0
+Package.UserCode    DEBUG seek() ended at:region 0
+Package.UserCode  VERBOSE pixel 0     -1    0	plane1  -1    plane2 0	phi 16	eta 44
+Package.UserCode  VERBOSE pixel 0     -1    1	plane1  -1    plane2 1	phi 20	eta 38
+Package.UserCode  VERBOSE pixel 0     -1    2	plane1  -1    plane2 2	phi 30	eta 44
+Package.UserCode  VERBOSE pixel 0     -1    3	plane1  -1    plane2 3	phi 40	eta 50
+Package.UserCode  VERBOSE pixel 0     -1    4	plane1  0     plane2 4	phi 50	eta 52
+Package.UserCode  VERBOSE pixel 1     0    0 plane1 -1     plane2 -1 phi 18  eta 1
+Package.UserCode  VERBOSE pixel 1     1    1 plane1 -1     plane2 -1 phi 18  eta 1
+Package.UserCode  VERBOSE pixel 1     2    2 plane1 -1     plane2 -1 phi 18  eta 1
+Package.UserCode  VERBOSE pixel 1     3    3 plane1 -1     plane2 -1 phi 18  eta 1
+Package.UserCode  VERBOSE pixel 1     4    4 plane1 -1     plane2 -1 phi 18  eta 1
+Package.UserCode  VERBOSE pixel 1     5    5 plane1 -1     plane2 -1 phi 18  eta 1
+Package.UserCode  VERBOSE pixel 1     6    6 plane1 -1     plane2 -1 phi 18  eta 1
+Package.UserCode  VERBOSE pixel 1     7    7 plane1 -1     plane2 -1 phi 18  eta 1
+Package.UserCode  VERBOSE pixel 1     8    8 plane1 -1     plane2 -1 phi 18  eta 1
+Package.UserCode  VERBOSE pixel 1     9    9 plane1 -1     plane2 -1 phi 18  eta 1
+Package.UserCode  VERBOSE pixel 1     10    10 plane1 -1     plane2 -1 phi 18  eta 1
+Package.UserCode  VERBOSE pixel 1     11    11 plane1 -1     plane2 -1 phi 18  eta 1
+Package.UserCode  VERBOSE pixel 1     12    12 plane1 -1     plane2 -1 phi 18  eta 1
+Package.UserCode  VERBOSE pixel 1     13    13 plane1 -1     plane2 -1 phi 18  eta 1
+Package.UserCode  VERBOSE pixel 1     14    14 plane1 -1     plane2 -1 phi 18  eta 1
+Package.UserCode  VERBOSE pixel 1     15    15 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 1     16    16 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 1     17    17 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 1     18    18 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 1     19    19 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 1     20    20 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 1     21    21 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 1     22    22 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 1     23    23 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 1     24    24 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 1     25    25 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 1     26    26 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 1     27    27 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 1     28    28 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 1     29    29 plane1 -1     plane2 -1 phi 30  eta 1
+Package.UserCode  VERBOSE pixel 1     30    30 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 1     31    31 plane1 -1     plane2 -1 phi 30  eta 1
+Package.UserCode  VERBOSE pixel 1     32    32 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 1     33    33 plane1 -1     plane2 -1 phi 30  eta 1
+Package.UserCode  VERBOSE pixel 1     34    34 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 1     35    35 plane1 -1     plane2 -1 phi 30  eta 1
+Package.UserCode  VERBOSE pixel 1     36    36 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 1     37    37 plane1 -1     plane2 -1 phi 30  eta 1
+Package.UserCode  VERBOSE pixel 1     38    38 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 1     39    39 plane1 -1     plane2 -1 phi 30  eta 1
+Package.UserCode  VERBOSE pixel 1     40    40 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 1     41    41 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 1     42    42 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 1     43    43 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 1     44    44 plane1 -1     plane2 -1 phi 32  eta 1
+Package.UserCode  VERBOSE pixel 1     45    45 plane1 -1     plane2 -1 phi 32  eta 1
+Package.UserCode  VERBOSE pixel 1     46    46 plane1 -1     plane2 -1 phi 32  eta 1
+Package.UserCode  VERBOSE pixel 1     47    47 plane1 -1     plane2 -1 phi 32  eta 1
+Package.UserCode  VERBOSE pixel 1     48    48 plane1 -1     plane2 -1 phi 32  eta 1
+Package.UserCode  VERBOSE pixel 1     49    49 plane1 -1     plane2 -1 phi 32  eta 1
+Package.UserCode  VERBOSE pixel 1     50    50 plane1 -1     plane2 -1 phi 32  eta 1
+Package.UserCode  VERBOSE pixel 1     51    51 plane1 -1     plane2 -1 phi 32  eta 1
+Package.UserCode  VERBOSE pixel 1     52    52 plane1 -1     plane2 -1 phi 32  eta 1
+Package.UserCode  VERBOSE pixel 1     53    53 plane1 -1     plane2 -1 phi 32  eta 1
+Package.UserCode  VERBOSE pixel 1     54    54 plane1 -1     plane2 -1 phi 32  eta 1
+Package.UserCode  VERBOSE pixel 1     55    55 plane1 -1     plane2 -1 phi 32  eta 1
+Package.UserCode  VERBOSE pixel 1     56    56 plane1 -1     plane2 -1 phi 32  eta 1
+Package.UserCode  VERBOSE pixel 1     57    57 plane1 -1     plane2 -1 phi 32  eta 1
+Package.UserCode  VERBOSE pixel 1     58    58 plane1 -1     plane2 -1 phi 32  eta 1
+Package.UserCode  VERBOSE pixel 1     59    59 plane1 -1     plane2 -1 phi 32  eta 1
+Package.UserCode  VERBOSE pixel 1     60    60 plane1 -1     plane2 -1 phi 32  eta 1
+Package.UserCode  VERBOSE pixel 1     61    61 plane1 -1     plane2 -1 phi 44  eta 1
+Package.UserCode  VERBOSE pixel 1     62    62 plane1 -1     plane2 -1 phi 44  eta 1
+Package.UserCode  VERBOSE pixel 1     63    63 plane1 -1     plane2 -1 phi 44  eta 1
+Package.UserCode  VERBOSE pixel 1     64    64 plane1 -1     plane2 -1 phi 44  eta 1
+Package.UserCode  VERBOSE pixel 1     65    65 plane1 -1     plane2 -1 phi 44  eta 1
+Package.UserCode  VERBOSE pixel 1     66    66 plane1 -1     plane2 -1 phi 44  eta 1
+Package.UserCode  VERBOSE pixel 1     67    67 plane1 -1     plane2 -1 phi 44  eta 1
+Package.UserCode  VERBOSE pixel 1     68    68 plane1 -1     plane2 -1 phi 44  eta 1
+Package.UserCode  VERBOSE pixel 1     69    69 plane1 -1     plane2 -1 phi 44  eta 1
+Package.UserCode  VERBOSE pixel 1     70    70 plane1 -1     plane2 -1 phi 44  eta 1
+Package.UserCode  VERBOSE pixel 1     71    71 plane1 -1     plane2 -1 phi 44  eta 1
+Package.UserCode  VERBOSE pixel 1     72    72 plane1 -1     plane2 -1 phi 44  eta 1
+Package.UserCode  VERBOSE pixel 1     73    73 plane1 -1     plane2 -1 phi 44  eta 1
+Package.UserCode  VERBOSE pixel 1     74    74 plane1 -1     plane2 -1 phi 44  eta 1
+Package.UserCode  VERBOSE pixel 1     75    75 plane1 -1     plane2 -1 phi 44  eta 1
+Package.UserCode  VERBOSE pixel 1     76    76 plane1 -1     plane2 -1 phi 44  eta 1
+Package.UserCode  VERBOSE pixel 1     77    77 plane1 -1     plane2 -1 phi 56  eta 1
+Package.UserCode  VERBOSE pixel 1     78    78 plane1 -1     plane2 -1 phi 56  eta 1
+Package.UserCode  VERBOSE pixel 1     79    79 plane1 -1     plane2 -1 phi 56  eta 1
+Package.UserCode  VERBOSE pixel 1     80    80 plane1 -1     plane2 -1 phi 56  eta 1
+Package.UserCode  VERBOSE pixel 1     81    81 plane1 -1     plane2 -1 phi 56  eta 1
+Package.UserCode  VERBOSE pixel 1     82    82 plane1 -1     plane2 -1 phi 56  eta 1
+Package.UserCode  VERBOSE pixel 1     83    83 plane1 -1     plane2 -1 phi 56  eta 1
+Package.UserCode  VERBOSE pixel 1     84    84 plane1 -1     plane2 -1 phi 56  eta 1
+Package.UserCode  VERBOSE pixel 1     85    85 plane1 -1     plane2 -1 phi 56  eta 1
+Package.UserCode  VERBOSE pixel 1     86    86 plane1 -1     plane2 -1 phi 52  eta 1
+Package.UserCode  VERBOSE pixel 1     87    87 plane1 -1     plane2 -1 phi 52  eta 1
+Package.UserCode  VERBOSE pixel 1     88    88 plane1 -1     plane2 -1 phi 52  eta 1
+Package.UserCode  VERBOSE pixel 1     89    89 plane1 -1     plane2 -1 phi 52  eta 1
+Package.UserCode  VERBOSE pixel 1     90    90 plane1 -1     plane2 -1 phi 52  eta 1
+Package.UserCode  VERBOSE pixel 1     91    91 plane1 -1     plane2 -1 phi 52  eta 1
+Package.UserCode  VERBOSE pixel 1     92    92 plane1 -1     plane2 -1 phi 52  eta 1
+Package.UserCode  VERBOSE pixel 1     93    93 plane1 -1     plane2 -1 phi 52  eta 1
+Package.UserCode  VERBOSE pixel 1     94    94 plane1 -1     plane2 -1 phi 52  eta 1
+Package.UserCode  VERBOSE pixel 2     0    0 plane1 -1     plane2 -1 phi 18  eta 1
+Package.UserCode  VERBOSE pixel 2     1    1 plane1 -1     plane2 -1 phi 18  eta 1
+Package.UserCode  VERBOSE pixel 2     2    2 plane1 -1     plane2 -1 phi 18  eta 1
+Package.UserCode  VERBOSE pixel 2     3    3 plane1 -1     plane2 -1 phi 18  eta 1
+Package.UserCode  VERBOSE pixel 2     4    4 plane1 -1     plane2 -1 phi 18  eta 1
+Package.UserCode  VERBOSE pixel 2     5    5 plane1 -1     plane2 -1 phi 18  eta 1
+Package.UserCode  VERBOSE pixel 2     6    6 plane1 -1     plane2 -1 phi 18  eta 1
+Package.UserCode  VERBOSE pixel 2     7    7 plane1 -1     plane2 -1 phi 18  eta 1
+Package.UserCode  VERBOSE pixel 2     8    8 plane1 -1     plane2 -1 phi 18  eta 1
+Package.UserCode  VERBOSE pixel 2     9    9 plane1 -1     plane2 -1 phi 18  eta 1
+Package.UserCode  VERBOSE pixel 2     10    10 plane1 -1     plane2 -1 phi 18  eta 1
+Package.UserCode  VERBOSE pixel 2     11    11 plane1 -1     plane2 -1 phi 18  eta 1
+Package.UserCode  VERBOSE pixel 2     12    12 plane1 -1     plane2 -1 phi 18  eta 1
+Package.UserCode  VERBOSE pixel 2     13    13 plane1 -1     plane2 -1 phi 18  eta 1
+Package.UserCode  VERBOSE pixel 2     14    14 plane1 -1     plane2 -1 phi 18  eta 1
+Package.UserCode  VERBOSE pixel 2     15    15 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 2     16    16 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 2     17    17 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 2     18    18 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 2     19    19 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 2     20    20 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 2     21    21 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 2     22    22 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 2     23    23 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 2     24    24 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 2     25    25 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 2     26    26 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 2     27    27 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 2     28    28 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 2     29    29 plane1 -1     plane2 -1 phi 30  eta 1
+Package.UserCode  VERBOSE pixel 2     30    30 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 2     31    31 plane1 -1     plane2 -1 phi 30  eta 1
+Package.UserCode  VERBOSE pixel 2     32    32 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 2     33    33 plane1 -1     plane2 -1 phi 30  eta 1
+Package.UserCode  VERBOSE pixel 2     34    34 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 2     35    35 plane1 -1     plane2 -1 phi 30  eta 1
+Package.UserCode  VERBOSE pixel 2     36    36 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 2     37    37 plane1 -1     plane2 -1 phi 30  eta 1
+Package.UserCode  VERBOSE pixel 2     38    38 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 2     39    39 plane1 -1     plane2 -1 phi 30  eta 1
+Package.UserCode  VERBOSE pixel 2     40    40 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 2     41    41 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 2     42    42 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 2     43    43 plane1 -1     plane2 -1 phi 20  eta 1
+Package.UserCode  VERBOSE pixel 2     44    44 plane1 -1     plane2 -1 phi 32  eta 1
+Package.UserCode  VERBOSE pixel 2     45    45 plane1 -1     plane2 -1 phi 32  eta 1
+Package.UserCode  VERBOSE pixel 2     46    46 plane1 -1     plane2 -1 phi 32  eta 1
+Package.UserCode  VERBOSE pixel 2     47    47 plane1 -1     plane2 -1 phi 32  eta 1
+Package.UserCode  VERBOSE pixel 2     48    48 plane1 -1     plane2 -1 phi 32  eta 1
+Package.UserCode  VERBOSE pixel 2     49    49 plane1 -1     plane2 -1 phi 32  eta 1
+Package.UserCode  VERBOSE pixel 2     50    50 plane1 -1     plane2 -1 phi 32  eta 1
+Package.UserCode  VERBOSE pixel 2     51    51 plane1 -1     plane2 -1 phi 32  eta 1
+Package.UserCode  VERBOSE pixel 2     52    52 plane1 -1     plane2 -1 phi 32  eta 1
+Package.UserCode  VERBOSE pixel 2     53    53 plane1 -1     plane2 -1 phi 32  eta 1
+Package.UserCode  VERBOSE pixel 2     54    54 plane1 -1     plane2 -1 phi 32  eta 1
+Package.UserCode  VERBOSE pixel 2     55    55 plane1 -1     plane2 -1 phi 32  eta 1
+Package.UserCode  VERBOSE pixel 2     56    56 plane1 -1     plane2 -1 phi 32  eta 1
+Package.UserCode  VERBOSE pixel 2     57    57 plane1 -1     plane2 -1 phi 32  eta 1
+Package.UserCode  VERBOSE pixel 2     58    58 plane1 -1     plane2 -1 phi 32  eta 1
+Package.UserCode  VERBOSE pixel 2     59    59 plane1 -1     plane2 -1 phi 32  eta 1
+Package.UserCode  VERBOSE pixel 2     60    60 plane1 -1     plane2 -1 phi 32  eta 1
+Package.UserCode  VERBOSE pixel 2     61    61 plane1 -1     plane2 -1 phi 44  eta 1
+Package.UserCode  VERBOSE pixel 2     62    62 plane1 -1     plane2 -1 phi 44  eta 1
+Package.UserCode  VERBOSE pixel 2     63    63 plane1 -1     plane2 -1 phi 44  eta 1
+Package.UserCode  VERBOSE pixel 2     64    64 plane1 -1     plane2 -1 phi 44  eta 1
+Package.UserCode  VERBOSE pixel 2     65    65 plane1 -1     plane2 -1 phi 44  eta 1
+Package.UserCode  VERBOSE pixel 2     66    66 plane1 -1     plane2 -1 phi 44  eta 1
+Package.UserCode  VERBOSE pixel 2     67    67 plane1 -1     plane2 -1 phi 44  eta 1
+Package.UserCode  VERBOSE pixel 2     68    68 plane1 -1     plane2 -1 phi 44  eta 1
+Package.UserCode  VERBOSE pixel 2     69    69 plane1 -1     plane2 -1 phi 44  eta 1
+Package.UserCode  VERBOSE pixel 2     70    70 plane1 -1     plane2 -1 phi 44  eta 1
+Package.UserCode  VERBOSE pixel 2     71    71 plane1 -1     plane2 -1 phi 44  eta 1
+Package.UserCode  VERBOSE pixel 2     72    72 plane1 -1     plane2 -1 phi 44  eta 1
+Package.UserCode  VERBOSE pixel 2     73    73 plane1 -1     plane2 -1 phi 44  eta 1
+Package.UserCode  VERBOSE pixel 2     74    74 plane1 -1     plane2 -1 phi 44  eta 1
+Package.UserCode  VERBOSE pixel 2     75    75 plane1 -1     plane2 -1 phi 44  eta 1
+Package.UserCode  VERBOSE pixel 2     76    76 plane1 -1     plane2 -1 phi 44  eta 1
+Package.UserCode  VERBOSE pixel 2     77    77 plane1 -1     plane2 -1 phi 56  eta 1
+Package.UserCode  VERBOSE pixel 2     78    78 plane1 -1     plane2 -1 phi 56  eta 1
+Package.UserCode  VERBOSE pixel 2     79    79 plane1 -1     plane2 -1 phi 56  eta 1
+Package.UserCode  VERBOSE pixel 2     80    80 plane1 -1     plane2 -1 phi 56  eta 1
+Package.UserCode  VERBOSE pixel 2     81    81 plane1 -1     plane2 -1 phi 56  eta 1
+Package.UserCode  VERBOSE pixel 2     82    82 plane1 -1     plane2 -1 phi 56  eta 1
+Package.UserCode  VERBOSE pixel 2     83    83 plane1 -1     plane2 -1 phi 56  eta 1
+Package.UserCode  VERBOSE pixel 2     84    84 plane1 -1     plane2 -1 phi 56  eta 1
+Package.UserCode  VERBOSE pixel 2     85    85 plane1 -1     plane2 -1 phi 56  eta 1
+Package.UserCode  VERBOSE pixel 2     86    86 plane1 -1     plane2 -1 phi 52  eta 1
+Package.UserCode  VERBOSE pixel 2     87    87 plane1 -1     plane2 -1 phi 52  eta 1
+Package.UserCode  VERBOSE pixel 2     88    88 plane1 -1     plane2 -1 phi 52  eta 1
+Package.UserCode  VERBOSE pixel 2     89    89 plane1 -1     plane2 -1 phi 52  eta 1
+Package.UserCode  VERBOSE pixel 2     90    90 plane1 -1     plane2 -1 phi 52  eta 1
+Package.UserCode  VERBOSE pixel 2     91    91 plane1 -1     plane2 -1 phi 52  eta 1
+Package.UserCode  VERBOSE pixel 2     92    92 plane1 -1     plane2 -1 phi 52  eta 1
+Package.UserCode  VERBOSE pixel 2     93    93 plane1 -1     plane2 -1 phi 52  eta 1
+Package.UserCode  VERBOSE pixel 2     94    94 plane1 -1     plane2 -1 phi 52  eta 1
+Package.UserCode  VERBOSE SCT   0     -1    0	stereo 0 plane1 1     plane2 5	phi 28	eta 112
+Package.UserCode  VERBOSE SCT   0     -1    1	stereo 1 plane1 -1    plane2 6	phi 28	eta 112
+Package.UserCode  VERBOSE SCT   0     -1    2	stereo 0 plane1 2     plane2 7	phi 40	eta 112
+Package.UserCode  VERBOSE SCT   0     -1    3	stereo 1 plane1 3     plane2 8	phi 40	eta 112
+Package.UserCode  VERBOSE SCT   0     -1    4	stereo 0 plane1 4     plane2 9	phi 56	eta 56
+Package.UserCode  VERBOSE SCT   0     -1    5	stereo 1 plane1 5     plane2 10	phi 56	eta 56
+Package.UserCode  VERBOSE SCT   0     -1    6	stereo 0 plane1 6     plane2 11	phi 72	eta 56
+Package.UserCode  VERBOSE SCT   0     -1    7	stereo 1 plane1 7     plane2 12	phi 72	eta 56
+Package.UserCode  VERBOSE SCT   1     0     0 stereo 0 plane1 -1     plane2 -1 phi 64  eta 6
+Package.UserCode  VERBOSE SCT   1     0     1 stereo 1 plane1 -1     plane2 -1 phi 64  eta 6
+Package.UserCode  VERBOSE SCT   1     1     2 stereo 0 plane1 -1     plane2 -1 phi 64  eta 6
+Package.UserCode  VERBOSE SCT   1     1     3 stereo 1 plane1 -1     plane2 -1 phi 64  eta 6
+Package.UserCode  VERBOSE SCT   1     2     4 stereo 0 plane1 -1     plane2 -1 phi 64  eta 6
+Package.UserCode  VERBOSE SCT   1     2     5 stereo 1 plane1 -1     plane2 -1 phi 64  eta 6
+Package.UserCode  VERBOSE SCT   1     3     6 stereo 0 plane1 -1     plane2 -1 phi 64  eta 6
+Package.UserCode  VERBOSE SCT   1     3     7 stereo 1 plane1 -1     plane2 -1 phi 64  eta 6
+Package.UserCode  VERBOSE SCT   1     4     8 stereo 0 plane1 -1     plane2 -1 phi 64  eta 6
+Package.UserCode  VERBOSE SCT   1     4     9 stereo 1 plane1 -1     plane2 -1 phi 64  eta 6
+Package.UserCode  VERBOSE SCT   1     5     10 stereo 0 plane1 -1     plane2 -1 phi 64  eta 6
+Package.UserCode  VERBOSE SCT   1     5     11 stereo 1 plane1 -1     plane2 -1 phi 64  eta 6
+Package.UserCode  VERBOSE SCT   2     0     0 stereo 0 plane1 -1     plane2 -1 phi 64  eta 6
+Package.UserCode  VERBOSE SCT   2     0     1 stereo 1 plane1 -1     plane2 -1 phi 64  eta 6
+Package.UserCode  VERBOSE SCT   2     1     2 stereo 0 plane1 -1     plane2 -1 phi 64  eta 6
+Package.UserCode  VERBOSE SCT   2     1     3 stereo 1 plane1 -1     plane2 -1 phi 64  eta 6
+Package.UserCode  VERBOSE SCT   2     2     4 stereo 0 plane1 -1     plane2 -1 phi 64  eta 6
+Package.UserCode  VERBOSE SCT   2     2     5 stereo 1 plane1 -1     plane2 -1 phi 64  eta 6
+Package.UserCode  VERBOSE SCT   2     3     6 stereo 0 plane1 -1     plane2 -1 phi 64  eta 6
+Package.UserCode  VERBOSE SCT   2     3     7 stereo 1 plane1 -1     plane2 -1 phi 64  eta 6
+Package.UserCode  VERBOSE SCT   2     4     8 stereo 0 plane1 -1     plane2 -1 phi 64  eta 6
+Package.UserCode  VERBOSE SCT   2     4     9 stereo 1 plane1 -1     plane2 -1 phi 64  eta 6
+Package.UserCode  VERBOSE SCT   2     5     10 stereo 0 plane1 -1     plane2 -1 phi 64  eta 6
+Package.UserCode  VERBOSE SCT   2     5     11 stereo 1 plane1 -1     plane2 -1 phi 64  eta 6
+Package.UserCode     INFO Using 8 logical layers and 9 coordinates
+Package.UserCode     INFO Reading ./test.gcon
+Package.UserCode     INFO Settings: m_ncoords=9 m_npars=5
+q/pt = 2.38188e-05 phi = -0.395319 d0 = 0.668694 z0 = 38.282 eta = 0.0686915 and chi2/ndf = 1483.8

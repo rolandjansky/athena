@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CLHEP/Random/RandGaussZiggurat.h"
@@ -59,11 +59,11 @@ bool TFCSSimpleLateralShapeParametrization::Initialize(const char* filepath, con
 {
     // input file with histogram to fit
     TFile *f = new TFile(filepath);
-    if (f == NULL) return false;
+    if (f == nullptr) return false;
 
     // histogram with hit pattern
     TH2D *inputShape = (TH2D*)f->Get(histname);
-    if (inputShape == NULL) return false;
+    if (inputShape == nullptr) return false;
 
     // Function to fit with
     double hiEdge  = inputShape->GetYaxis()->GetBinLowEdge( inputShape->GetNbinsY() );
@@ -124,7 +124,7 @@ bool TFCSSimpleLateralShapeParametrization::Initialize(const char* filepath, con
     return true;
 }
 
-void TFCSSimpleLateralShapeParametrization::getHitXY(CLHEP::HepRandomEngine *engine, double &x, double &y)
+void TFCSSimpleLateralShapeParametrization::getHitXY(CLHEP::HepRandomEngine *engine, double &x, double &y) const
 {
     x = CLHEP::RandGaussZiggurat::shoot(engine, 0, m_sigmaX);
     y = CLHEP::RandGaussZiggurat::shoot(engine, 0, m_sigmaY);

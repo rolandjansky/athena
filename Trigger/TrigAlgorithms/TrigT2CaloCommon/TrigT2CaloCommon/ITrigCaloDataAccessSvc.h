@@ -6,7 +6,7 @@
 
 #include "LArRawUtils/LArTT_Selector.h"
 #include "TrigT2CaloCommon/LArCellCont.h"
-#include "TileEvent/TileCellCollection.h"
+#include "TileEvent/TileCell.h"
 #include "IRegionSelector/IRoiDescriptor.h"
 #include "IRegionSelector/RegSelEnums.h"
 #include "CaloEvent/CaloCellContainer.h"
@@ -42,10 +42,10 @@ class ITrigCaloDataAccessSvc: virtual public IService {
 	/* *\/ */
 	virtual StatusCode loadCollections (const EventContext& context,
 					    const IRoiDescriptor& roi,
-	 				    TileCellCollection&) = 0;
+	 				    std::vector<const TileCell*>&) = 0;
 
   virtual StatusCode loadMBTS ( const EventContext& context,
-                                TileCellCollection& )=0;
+                                std::vector<const TileCell*>& )=0;
 
 
   /**
@@ -68,10 +68,10 @@ private :
 	// Dummy method just to help compilation
 	void comp (const EventContext& context) {
 	  LArTT_Selector<LArCellCont>::const_iterator l;
-	  TileCellCollection::const_iterator t;
+	  //TileCellCollection::const_iterator t;
 	  CaloCellContainer * cont=NULL;
 	  storeCells(context, l,l,cont);
-	  storeCells(context, t,t,cont);
+	  //storeCells(context, t,t,cont);
 	}
 protected:
 };

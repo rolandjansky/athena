@@ -27,7 +27,7 @@ namespace TrigConf {
    class ICTPConfigLoader : virtual public ILoader {
    public:
 
-      virtual ~ICTPConfigLoader() {};
+      virtual ~ICTPConfigLoader() override = default;
 
       virtual bool load( CTPConfig& data ) = 0;
    };

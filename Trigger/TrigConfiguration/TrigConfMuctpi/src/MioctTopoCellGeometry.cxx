@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfMuctpi/MioctROIGeometry.h"  // defines mioctIndent
@@ -8,19 +8,6 @@
 #include <iomanip>
 using namespace std;
 
-MioctTopoCellGeometry::MioctTopoCellGeometry() :
-   m_eta(0),
-  m_phi(0),
-  m_etacode(0),
-  m_phicode(0),
-  m_etamin(0),
-  m_etamax(0),
-  m_phimin(0),
-  m_phimax(0)
-{}
-  
-MioctTopoCellGeometry::~MioctTopoCellGeometry() {}
-  
 void
 MioctTopoCellGeometry::print(const std::string& indent, unsigned int /*detail*/) const {
    cout << indent << "MioctTopoCellGeometry: " << endl; 

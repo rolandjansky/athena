@@ -15,7 +15,7 @@
 // Athena include(s)
 #include "MuonPrepRawData/CscClusterStatus.h"
 #include "MuonPrepRawData/CscStripPrepDataCollection.h"
-#include "CscRawDataMonitoring/CscClusterValAlg.h"
+#include "CscClusterValAlg.h"
 
 // ROOT include(s)
 #include "TH1F.h"

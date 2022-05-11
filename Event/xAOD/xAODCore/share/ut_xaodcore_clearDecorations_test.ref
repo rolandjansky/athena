@@ -1,17 +1,17 @@
 Container contents at the start:
 
 SG::AuxElement
-   in container 0x7fff48c5a970
+   in container
    Variables:
     - type: int, 	name: "IntVar1", 	value: 0
     - type: float, 	name: "FloatVar1", 	value: 0
 SG::AuxElement
-   in container 0x7fff48c5a970
+   in container
    Variables:
     - type: int, 	name: "IntVar1", 	value: 1
     - type: float, 	name: "FloatVar1", 	value: 1
 SG::AuxElement
-   in container 0x7fff48c5a970
+   in container
    Variables:
     - type: int, 	name: "IntVar1", 	value: 2
     - type: float, 	name: "FloatVar1", 	value: 2
@@ -19,17 +19,17 @@ SG::AuxElement
 Container contents after clearDecorations():
 
 SG::AuxElement
-   in container 0x7fff48c5a970
+   in container
    Variables:
     - type: int, 	name: "IntVar1", 	value: 0
     - type: float, 	name: "FloatVar1", 	value: 0
 SG::AuxElement
-   in container 0x7fff48c5a970
+   in container
    Variables:
     - type: int, 	name: "IntVar1", 	value: 1
     - type: float, 	name: "FloatVar1", 	value: 1
 SG::AuxElement
-   in container 0x7fff48c5a970
+   in container
    Variables:
     - type: int, 	name: "IntVar1", 	value: 2
     - type: float, 	name: "FloatVar1", 	value: 2
@@ -37,21 +37,21 @@ SG::AuxElement
 Container contents after decoration:
 
 SG::AuxElement
-   in container 0x7fff48c5a970
+   in container
    Variables:
     - type: int, 	name: "IntVar1", 	value: 0
     - type: float, 	name: "FloatVar1", 	value: 0
     - type: int, 	name: "IntVar2", 	value: 2
     - type: float, 	name: "FloatVar2", 	value: 3.14159
 SG::AuxElement
-   in container 0x7fff48c5a970
+   in container
    Variables:
     - type: int, 	name: "IntVar1", 	value: 1
     - type: float, 	name: "FloatVar1", 	value: 1
     - type: int, 	name: "IntVar2", 	value: 2
     - type: float, 	name: "FloatVar2", 	value: 3.14159
 SG::AuxElement
-   in container 0x7fff48c5a970
+   in container
    Variables:
     - type: int, 	name: "IntVar1", 	value: 2
     - type: float, 	name: "FloatVar1", 	value: 2
@@ -61,17 +61,17 @@ SG::AuxElement
 Container contents after clearDecorations():
 
 SG::AuxElement
-   in container 0x7fff48c5a970
+   in container
    Variables:
     - type: int, 	name: "IntVar1", 	value: 0
     - type: float, 	name: "FloatVar1", 	value: 0
 SG::AuxElement
-   in container 0x7fff48c5a970
+   in container
    Variables:
     - type: int, 	name: "IntVar1", 	value: 1
     - type: float, 	name: "FloatVar1", 	value: 1
 SG::AuxElement
-   in container 0x7fff48c5a970
+   in container
    Variables:
     - type: int, 	name: "IntVar1", 	value: 2
     - type: float, 	name: "FloatVar1", 	value: 2

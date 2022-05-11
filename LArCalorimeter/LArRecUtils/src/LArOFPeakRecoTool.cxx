@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRecUtils/LArOFPeakRecoTool.h"
@@ -260,7 +260,7 @@ LArOFIterResults LArOFPeakRecoTool::peak(const std::vector<float>& samples, // r
     }
 
     // if we are within +-0.5*Dt of time bin, we have converged for sure
-    if (fabs(result.m_tau) <= (0.5*timeBinWidth)) { 
+    if (std::abs(result.m_tau) <= (0.5*timeBinWidth)) { 
       result.m_converged=true;
       delay = delayIdx*timeBinWidth;
       break;
@@ -269,7 +269,7 @@ LArOFIterResults LArOFPeakRecoTool::peak(const std::vector<float>& samples, // r
     if (kIter>=mynIter) { //Max. number of iterations reached
       delay = delayIdx*timeBinWidth;
       if (result.m_converged) {
-        if (fabs(tau_save) < fabs(result.m_tau)) {
+        if (std::abs(tau_save) < std::abs(result.m_tau)) {
             result.m_amplitude = amplitude_save;
             result.m_tau       = tau_save;
             kMax                 = kMax_save;
@@ -277,13 +277,13 @@ LArOFIterResults LArOFPeakRecoTool::peak(const std::vector<float>& samples, // r
             delayIdx             = delayIdx_save;
         }
       }
-      if (fabs(result.m_tau) <= timeBinWidth) result.m_converged=true;
+      if (std::abs(result.m_tau) <= timeBinWidth) result.m_converged=true;
       break;
     }
 
     // if we are within +-Dt of time bin, we consider that we have converged but we allow for one more
     // iteration to see if we can find a smaller tau, if not we keep the previous one
-    if (fabs(result.m_tau) <= timeBinWidth) {
+    if (std::abs(result.m_tau) <= timeBinWidth) {
        result.m_converged = true;
        mynIter = kIter+1;    // allow only for more iteration
        amplitude_save = result.m_amplitude;

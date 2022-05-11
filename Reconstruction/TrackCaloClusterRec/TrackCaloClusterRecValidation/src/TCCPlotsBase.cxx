@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TCCPlotsBase.h"
@@ -9,6 +9,8 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/IToolSvc.h"
+
+#include "AthenaKernel/getMessageSvc.h"
 
 // to retrieve HistogramDefinitionSvc
 #include "InDetPhysValMonitoring/HistogramDefinitionSvc.h"
@@ -34,7 +36,8 @@ namespace {
 }
 
 TCCPlotsBase::TCCPlotsBase(PlotBase* pParent, const std::string& folder):
-  PlotBase(pParent, folder), 
+  PlotBase(pParent, folder),
+  AthMessaging(Athena::getMessageSvc(), "TCCPlots"),
   m_folder(folder),
   m_histoDefSvc(nullptr) {}  
   

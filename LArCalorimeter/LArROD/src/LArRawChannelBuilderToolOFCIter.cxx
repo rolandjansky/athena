@@ -12,8 +12,8 @@
 #undef protected
 */
 
-#include "LArROD/LArRawChannelBuilderToolOFCIter.h"
-#include "LArROD/LArRawChannelBuilderDriver.h"
+#include "LArRawChannelBuilderToolOFCIter.h"
+#include "LArRawChannelBuilderDriver.h"
 #include "GaudiKernel/MsgStream.h"
 
 #include "LArRawEvent/LArDigit.h"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUFASTSTATIONFITTER_H
@@ -44,19 +44,23 @@ class MuFastStationFitter: public AthAlgTool
       StatusCode findSuperPointsSimple(const TrigRoiDescriptor* p_roids,
 				       const TrigL2MuonSA::MuonRoad& muonRoad,
 				       TrigL2MuonSA::TgcFitResult& tgcFitResult,
-				       std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns) const;
+				       std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns,
+				       TrigL2MuonSA::StgcHits& stgcHits,
+				       TrigL2MuonSA::MmHits& mmHits) const;
 
       StatusCode findSuperPoints(const TrigRoiDescriptor* p_roids,
                                  const TrigL2MuonSA::MuonRoad& muonRoad,
                                  TrigL2MuonSA::TgcFitResult& tgcFitResult,
-                                 std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns) const;
+                                 std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns,
+                                 TrigL2MuonSA::StgcHits& stgcHits,
+                                 TrigL2MuonSA::MmHits& mmHits) const;
 
       StatusCode superPointFitter(TrigL2MuonSA::TrackPattern& trackPattern) const;
 
       StatusCode superPointFitter(TrigL2MuonSA::TrackPattern& trackPattern,
                                   const TrigL2MuonSA::MuonRoad&  muonRoad) const;
 
-      StatusCode setMCFlag(BooleanProperty use_mcLUT);
+      StatusCode setMCFlag(const BooleanProperty& use_mcLUT);
 
    private:
 

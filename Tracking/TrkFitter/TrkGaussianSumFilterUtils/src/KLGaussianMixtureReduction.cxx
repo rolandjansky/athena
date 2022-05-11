@@ -90,7 +90,7 @@ extraElements16(const int32_t nn)
 /**
  * @brief given a number of components n
  * return the number pairwise distance
- * padding so as to be a multiple of 8
+ * padding so as to be a multiple of 16
  */
 #if (defined(__GNUC__) || defined(__clang__))
 [[gnu::always_inline]]
@@ -183,9 +183,8 @@ combine(GSFUtils::Component1D& ATH_RESTRICT updated,
  * @c minj is the index of the element we merged from (remove)
  * @c n is the components before the removal
  *
- * 1. We set the distances wrt to minj to a large value
- * 2. We swap the distances of the last element
- * with them. So they go to the end of the array
+ * We swap the distances wrt the last element
+ * with the ones wrt minj. So they go to the end of the array
  *
  * After this the remaining components are n-1
  * which we return
@@ -412,21 +411,17 @@ findMinimumIndex(const float* distancesIn, const int n)
   return minIndex;
 }
 
-} // anonymous namespace
-
-namespace GSFUtils {
-
 /**
  * Merge the componentsIn and return
  * which componets got merged.
  */
 #if HAVE_TARGET_CLONES
 #if defined(__x86_64__)
-[[gnu::target_clones("sse4.2", "default")]]
+[[gnu::target_clones("sse4.2,default")]]
 #endif // end of x86_64 versions
 #endif // HAVE_TARGET_CLONES
 MergeArray
-findMerges(const Component1DArray& componentsIn, const int8_t reducedSize)
+findMergesImpl(const Component1DArray& componentsIn, const int8_t reducedSize)
 {
 
   const int32_t n = componentsIn.numComponents;
@@ -480,10 +475,19 @@ findMerges(const Component1DArray& componentsIn, const int8_t reducedSize)
                                             minj,
                                             numberOfComponentsLeft);
 
-    // number of remaining distances dividable by 8
+    // number of remaining distances dividable by 16
     nn2 = numDistances16(numberOfComponentsLeft, distances.buffer());
   } // end of merge while
   return result;
 }
 
+} // anonymous namespace
+
+namespace GSFUtils {
+
+MergeArray
+findMerges(const Component1DArray& componentsIn, const int8_t reducedSize)
+{
+  return findMergesImpl(componentsIn, reducedSize);
+}
 } // end namespace GSFUtils

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -47,7 +47,7 @@ class CaloIdManager
 public:
 
     CaloIdManager(void);
-    ~CaloIdManager(void);
+    ~CaloIdManager(void) = default;
 
     ///  Access to IdHelper
     const CaloCell_ID*          getCaloCell_ID           (void) const;

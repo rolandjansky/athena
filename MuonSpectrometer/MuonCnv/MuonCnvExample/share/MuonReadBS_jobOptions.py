@@ -34,7 +34,7 @@ if MuonGeometryFlags.hasCSC():
 
 # ================= NSW ===========================
 if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
-    if DetFlags.readRDOBS.Micromegas_on() and muonRecFlags.makePRDs():
+    if DetFlags.readRDOBS.MM_on() and muonRecFlags.makePRDs():
         topSequence += getAlgorithm("MuonMmRawDataProvider")
 
     if DetFlags.readRDOBS.sTGC_on() and muonRecFlags.makePRDs():

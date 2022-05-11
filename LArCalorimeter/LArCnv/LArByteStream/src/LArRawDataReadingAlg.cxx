@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawDataReadingAlg.h"
@@ -84,24 +84,29 @@ StatusCode LArRawDataReadingAlg::execute(const EventContext& ctx) const {
 
   for (const uint32_t* robPtr : larRobs->second) {
     OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment rob(robPtr);
-    ATH_MSG_VERBOSE("Decoding ROB fragment 0x" << std::hex << rob.rob_source_id () << " with " << std::dec << rob.rod_fragment_size_word() << "ROB words");
+    ATH_MSG_VERBOSE("Decoding ROB fragment 0x" << std::hex << rob.rob_source_id () << " with " << std::dec << rob.rod_fragment_size_word() << " ROB words");
 
     if (rob.rod_fragment_size_word() <3) {
       if (m_failOnCorruption) {
         ATH_MSG_ERROR("Encountered corrupt ROD fragment, less than 3 words!");
 	return StatusCode::FAILURE;
       }else { 
-        // set corruption flag for this event
-        SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey, ctx);
-        if (!eventInfo->updateErrorState(xAOD::EventInfo::LAr,xAOD::EventInfo::Error)) {
-             ATH_MSG_WARNING( " cannot set error state for LAr "  );
-        } else {
-             ATH_MSG_WARNING( " error state for LAr data corruption set"  );
-        }
 	continue;
       }
+    } else if(rob.rob_source_id()& 0x1000 ){
+         //ATH_MSG_DEBUG(" skip Latome fragment with source ID "<< std::hex << rob.rob_source_id()
+         rodBlock=nullptr;
+         continue;
+    } else if(!(rob.rod_source_id()>>12& 0x0F) //0xnn0nnn must be
+             && !((rob.rod_source_id()>>20) == 4) ){ //0x4nnnnn must be
+     
+         ATH_MSG_WARNING("Found not LAr fragment " << " event: "<<ctx.eventID().event_number());
+         SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey, ctx);
+         ATH_MSG_WARNING("Rob source id.: 0x"<<  std::hex << rob.rob_source_id () <<std::dec  <<" ROD Source id: 0x"<<std::hex<<rob.rod_source_id()<<std::dec<<" Lvl1ID: "<<eventInfo->extendedLevel1ID());
+         continue;
     }
-    
+
+ 
      eformat::helper::Version ver(rob.rod_version());
     //(re-)init rodBlock only once per event or if (very unlikly or even impossible) some FEBs have a differnt firmware
     if (rodBlock==nullptr || rodMinorVersion !=ver.minor_version() || rodBlockType!=(rob.rod_detev_type()&0xff)) {
@@ -117,12 +122,19 @@ StatusCode LArRawDataReadingAlg::execute(const EventContext& ctx) const {
 	case 10: //Physics mode v5 16.06.2008 for LHC 
 	  rodBlock.reset(new LArRodBlockPhysicsV5);
 	  break;
-	default:
-	  ATH_MSG_WARNING("Found unsupported ROD Block version " << rodMinorVersion 
-			<< " of ROD block type " << rodBlockType);
-	  return m_failOnCorruption ? StatusCode::FAILURE : StatusCode::SUCCESS;
+	default: // Unknown version of rod block type 4 (Physics mode)
+	  if (m_failOnCorruption) {
+	    ATH_MSG_ERROR("Found unsupported ROD Block version " << rodMinorVersion 
+			  << " of ROD block type " << rodBlockType << ". ROD Source id: 0x" <<std::hex<<rob.rod_source_id());
+	    return StatusCode::FAILURE;
+	  }
+	  else {
+	    ATH_MSG_WARNING("Found unsupported ROD Block version " << rodMinorVersion 
+			    << " of ROD block type " << rodBlockType << ". ROD Source id: 0x" <<std::hex<<rob.rod_source_id());
+	    continue;
+	  }
 	}// end switch(rodMinorVersion)
-      }//end of rodBlockType==4
+      }//end rodBlockType==4 (physics mode)
       else if (rodBlockType==2) { //Transparent mode
 	switch(rodMinorVersion) {
            case 4:  
@@ -131,25 +143,47 @@ StatusCode LArRawDataReadingAlg::execute(const EventContext& ctx) const {
            case 12:
              rodBlock.reset(new LArRodBlockCalibrationV3);
              break;
-           default:  
-	     ATH_MSG_WARNING("Found unsupported ROD Block version " << rodMinorVersion 
-			<< " of ROD block type " << rodBlockType);
-	     return m_failOnCorruption ? StatusCode::FAILURE : StatusCode::SUCCESS;
-        }
-      } else {
-        if(rob.rob_source_id()& 0x1000 ){
-               ATH_MSG_DEBUG(" skip Latome fragment with source ID "<< std::hex << rob.rob_source_id());
-               rodBlock=nullptr;
-               continue;
-        } else {  
-	       ATH_MSG_ERROR("Found unsupported Rod block type " << rodBlockType);
-	       return m_failOnCorruption ? StatusCode::FAILURE : StatusCode::SUCCESS;
-        }
+	default:  //Unknown version of rod block type 2 (Transparent mode)
+	     if (m_failOnCorruption) {
+	       ATH_MSG_ERROR("Found unsupported ROD Block version " << rodMinorVersion 
+			     << " of ROD block type " << rodBlockType << ". ROD Source id: 0x" <<std::hex<<rob.rod_source_id());
+	       return StatusCode::FAILURE;
+	     }
+	     else {
+	       ATH_MSG_WARNING("Found unsupported ROD Block version " << rodMinorVersion 
+			       << " of ROD block type " << rodBlockType << ". ROD Source id: 0x" <<std::hex<<rob.rod_source_id());
+	       continue;
+	     }
+        } // end switch(rodMinorVersion)
+      }// end rodBlockType==2 (transparent mode)
+      else {
+	//Unknown rod block type if arriving here
+	if (m_failOnCorruption) {
+	  ATH_MSG_ERROR("Found unsupported ROD Block version " << rodMinorVersion 
+			<< " of ROD block type " << rodBlockType << ". ROD Source id: 0x" <<std::hex<<rob.rod_source_id());
+	  return StatusCode::FAILURE;
+	}
+	else {
+	  ATH_MSG_WARNING("Found unsupported ROD Block version " << rodMinorVersion 
+			  << " of ROD block type " << rodBlockType << ". ROD Source id: 0x" <<std::hex<<rob.rod_source_id());
+	  continue;
+	}
       }
     }//End if need to re-init RodBlock
 
     const uint32_t* pData=rob.rod_data();
     const uint32_t  nData=rob.rod_ndata();
+    if (nData==0) {
+      if (m_failOnCorruption) {
+	ATH_MSG_ERROR("ROD 0x"<<std::hex<<rob.rod_source_id() << std::dec << " reports data block size 0");
+	return StatusCode::FAILURE;
+      }
+      else {
+	ATH_MSG_WARNING("ROD 0x"<<std::hex<<rob.rod_source_id() << std::dec << " reports data block size 0");
+	continue; //Jump to next ROD
+      }
+    }
+
     if (!rodBlock->setFragment(pData,nData)) {
       ATH_MSG_ERROR("Failed to assign fragment pointer to LArRodBlockStructure");
       return StatusCode::FAILURE;
@@ -165,13 +199,6 @@ StatusCode LArRawDataReadingAlg::execute(const EventContext& ctx) const {
 	  ATH_MSG_ERROR("offline checksum = 0x" << MSG::hex << offsum << MSG::dec);
 	  return StatusCode::FAILURE;
         } else {
-           // set corruption flag for this event
-           SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey, ctx);
-           if (!eventInfo->updateErrorState(xAOD::EventInfo::LAr,xAOD::EventInfo::Error)) {
-             ATH_MSG_WARNING( " cannot set error state for LAr "  );
-           } else {
-             ATH_MSG_WARNING( " error state for LAr data corruption set"  );
-           }
 	   continue; //Jump to the next ROD-block
         }
       }
@@ -185,7 +212,8 @@ StatusCode LArRawDataReadingAlg::execute(const EventContext& ctx) const {
 	  ATH_MSG_ERROR("Invalid FEB identifer 0x" << std::hex << fId.get_identifier32().get_compact()); 
 	  return StatusCode::FAILURE;
         } else {
-	  continue;
+	  ATH_MSG_WARNING("Invalid FEB identifer 0x" << std::hex << fId.get_identifier32().get_compact()); 
+	  continue; //Jump to next FEB
         }
       }
       const int NthisFebChannel=m_onlineId->channelInSlotMax(fId);

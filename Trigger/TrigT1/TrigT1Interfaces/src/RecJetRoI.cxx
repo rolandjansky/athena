@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 /***************************************************************************
                          RecJetRoI.cxx  -  description
@@ -222,7 +222,7 @@ LVL1::RecJetRoI::constructRun3(const TrigConf::L1Menu * const l1menu)
       unsigned int etCut = std::round(jetThr->thrValue(ieta)); // threshold value in GeV (integer for legacy thr)
       unsigned int etCounts = jetThr->thrValueCounts(ieta);    // threshold counts (threshold value * emscale)
       TrigConf::JetWindowSize::Size window = (jetThr->window() == 8) ? TrigConf::JetWindowSize::LARGE : TrigConf::JetWindowSize::SMALL;
-      unsigned int roiET = (window == TrigConf::JetWindowSize::LARGE) ? etLarge() : etSmall();
+      unsigned int roiET = (window == TrigConf::JetWindowSize::LARGE) ? RecJetRoI::etLarge() : RecJetRoI::etSmall();
       bool eTPassed = (roiET > etCounts);
 
       if (eTPassed)

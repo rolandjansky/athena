@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //*********************************************************************
@@ -624,7 +624,7 @@ StatusCode tauMonTool::fillPhysicsHistograms(const xAOD::TauJet* tau)
 //--------------------------------------------------------------------------------
 // book hist methods
 //--------------------------------------------------------------------------------
-StatusCode tauMonTool::bookBasicPlots(s_basicPlots& someBasicPlots, MonGroup &aGroup, std::string prefix)
+StatusCode tauMonTool::bookBasicPlots(s_basicPlots& someBasicPlots, MonGroup &aGroup, const std::string& prefix)
 {
   ATH_MSG_INFO("StatusCode tauMonTool::bookBasicPlots, " << prefix);
 
@@ -652,7 +652,7 @@ StatusCode tauMonTool::bookBasicPlots(s_basicPlots& someBasicPlots, MonGroup &aG
   return StatusCode::SUCCESS;
 }
 
-StatusCode tauMonTool::bookHistos(s_mainFolder& mainFolder, std::string folderName, Interval_t interval)
+StatusCode tauMonTool::bookHistos(s_mainFolder& mainFolder, const std::string& folderName, Interval_t interval)
 {
   ATH_MSG_INFO("StatusCode tauMonTool::bookHistos, folderName = " << folderName);
 
@@ -873,7 +873,7 @@ StatusCode tauMonTool::bookSubStructureHistos( s_sbstrctFolder& folder,std::stri
 //--------------------------------------------------------------------------------
 // book and register a 1D histogram
 //--------------------------------------------------------------------------------
-StatusCode tauMonTool::Book1DHist (TH1 ** hist, MonGroup * monName, std::string  histName, std::string  histTitle, int NBins, double lowBin, double highBin)
+StatusCode tauMonTool::Book1DHist (TH1 ** hist, MonGroup * monName, const std::string&  histName, const std::string&  histTitle, int NBins, double lowBin, double highBin)
 {
   *hist = new TH1F( histName.c_str(), histTitle.c_str(), NBins, lowBin, highBin);
   StatusCode sc = monName->regHist( *hist);
@@ -889,7 +889,7 @@ StatusCode tauMonTool::Book1DHist (TH1 ** hist, MonGroup * monName, std::string 
 //--------------------------------------------------------------------------------
 // book and register a 2D histogram
 //--------------------------------------------------------------------------------
-StatusCode tauMonTool::Book2DHist (TH2 ** hist, MonGroup * monName, std::string  histName, std::string  histTitle, int NXBins, double lowXBin, double highXBin, int NYBins, double lowYBin, double highYBin)
+StatusCode tauMonTool::Book2DHist (TH2 ** hist, MonGroup * monName, const std::string&  histName, const std::string&  histTitle, int NXBins, double lowXBin, double highXBin, int NYBins, double lowYBin, double highYBin)
 {
   *hist = new TH2F( histName.c_str(), histTitle.c_str(), NXBins, lowXBin, highXBin, NYBins, lowYBin, highYBin);
   StatusCode sc = monName->regHist( *hist);

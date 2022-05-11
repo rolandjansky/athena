@@ -1,11 +1,13 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGT1RESULTBYTESTREAM_IL1TRIGGERBYTESTREAMTOOL_H
 #define TRIGT1RESULTBYTESTREAM_IL1TRIGGERBYTESTREAMTOOL_H
 
 #include "AthenaKernel/SlotSpecificObj.h"
 #include "ByteStreamData/RawEvent.h"
+#include "StoreGate/VarHandleKey.h"
+#include "StoreGate/VarHandleKeyArray.h"
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/EventContext.h"
 #include "eformat/Status.h"
@@ -17,7 +19,7 @@
 class IL1TriggerByteStreamTool : virtual public IAlgTool {
 public:
   DeclareInterfaceID(IL1TriggerByteStreamTool, 1, 0);
-  virtual ~IL1TriggerByteStreamTool() override {}
+  virtual ~IL1TriggerByteStreamTool() override = default;
 
   /**
    * @brief Convert BS -> xAOD
@@ -53,6 +55,28 @@ public:
   virtual const std::vector<uint32_t>& robIds() const = 0;
 
 protected:
+  /// Enum defining conversion mode
+  enum class ConversionMode {Undefined, Decoding /** = BS->xAOD */, Encoding /** = xAOD->BS */};
+  /// Helper to find out the conversion mode based on configured data handles
+  template<typename RHK, typename WHK>
+  inline ConversionMode getConversionMode(const RHK& readHandleKeys, const WHK& writeHandleKeys, MsgStream& msg) {
+    if (readHandleKeys.empty() and not writeHandleKeys.empty()) {
+      return ConversionMode::Decoding;
+    }
+    if (writeHandleKeys.empty() and not readHandleKeys.empty()) {
+      return ConversionMode::Encoding;
+    }
+    if constexpr (std::is_base_of_v<SG::VarHandleKeyArray, RHK>) {
+      msg << MSG::ERROR << "Exactly one of the read / write handle key arrays has to be set and the other has to"
+          << " be empty, but they have " << readHandleKeys.size() << " / " << writeHandleKeys.size() << " elements"
+          << endmsg;
+    } else if constexpr (std::is_base_of_v<SG::VarHandleKey, RHK>) {
+      msg << MSG::ERROR << "Exactly one of the read / write handle keys has to be set and the other has to"
+          << " be empty, but they are \"" << readHandleKeys.key() << "\" / \"" << writeHandleKeys.key() << "\""
+          << endmsg;
+    }
+    return ConversionMode::Undefined;
+  }
   /// Helper to clear the ByteStream data cache for a given event slot
   inline void clearCache(const EventContext& eventContext) {
     m_cache.get(eventContext)->clear();

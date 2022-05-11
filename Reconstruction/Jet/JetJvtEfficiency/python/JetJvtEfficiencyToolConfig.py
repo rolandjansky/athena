@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 ########################################################################
 #                                                                      #
@@ -8,6 +8,24 @@
 # Author: mswiatlo
 #                                                                      #
 ########################################################################
+
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
+
+def getJvtEffToolCfg(ConfigFlags, jetalg):
+  """Configure the JVT efficiency tool"""
+
+  acc = ComponentAccumulator()
+
+  configs = {"AntiKt4EMTopo": "JetJvtEfficiency/Moriond2018/JvtSFFile_EMTopoJets.root",
+             "AntiKt4EMPFlow": "JetJvtEfficiency/Moriond2018/JvtSFFile_EMPFlow.root"}
+
+  jvtefftool = CompFactory.CP.JetJvtEfficiency("JVTEff_{0}".format(jetalg))
+  jvtefftool.SFFile=configs[jetalg]
+
+  acc.setPrivateTools(jvtefftool)
+  return acc
+
 
 from AnaAlgorithm import Logging
 jetjvttoollog = Logging.logging.getLogger('JetJvtEfficiencyToolConfig')

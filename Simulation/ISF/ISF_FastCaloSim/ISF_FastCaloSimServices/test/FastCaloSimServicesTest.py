@@ -89,6 +89,10 @@ if __name__ == '__main__':
     acc.merge(JobOptsDumperCfg(ConfigFlags))
     acc.merge(TestMessageSvcCfg(ConfigFlags))
 
+    # Ignore checking compatibility of G4 simulation version and
+    # G4 version used to calculate Tile sampling fractions
+    acc.getCondAlgo("TileSamplingFractionCondAlg").G4Version = -1
+
     # Dump pickle
     with open("FCSServices_Config.pkl", "wb") as f:
         acc.store(f)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // PhotonVertexSelectionAlg.h
@@ -34,7 +34,7 @@ namespace CP {
     /// Default constructor:
     PhotonVertexSelectionAlg();
 
-    bool acceptPhoton(const xAOD::Photon& gam);
+    static bool acceptPhoton(const xAOD::Photon& gam);
 
   private:
 

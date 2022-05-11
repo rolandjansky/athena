@@ -20,7 +20,7 @@ CREATED:  22nd November, 2004
 #include "eflowRec/eflowEEtaBinnedParameters.h"
 #include "eflowRec/eflowRingSubtractionManager.h"
 
-eflowCaloObject::~eflowCaloObject() { }
+eflowCaloObject::~eflowCaloObject() = default;
 
 
  double eflowCaloObject::getExpectedEnergy() const {

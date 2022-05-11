@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // CoraCoolFolder.cxx
@@ -92,21 +92,9 @@ CoraCoolFolder::CoraCoolFolder(const std::string& coolfolder,
   }
 }
 
-namespace {
-int delPayload ATLAS_NOT_THREAD_SAFE (coral::AttributeList* buf)
-{
-  delete buf;
-  return 0;
-}
-}
 CoraCoolFolder::~CoraCoolFolder() {
-  // Suppress thread-safety checker warning.
-  // Ok here since the specification is not shared.
-  // FIXME: Attributes on lambdas don't work with gcc 8.3.
-  //        Does work with gcc 10.
-  //auto delPayload = [&] ATLAS_NOT_THREAD_SAFE () { delete m_payloadbuf; return 0; };
-  int dum [[maybe_unused]] ATLAS_THREAD_SAFE = delPayload(m_payloadbuf);
-
+  delete m_payloadbuf;
+  
   if (m_seqpk) delete m_seqpk;
   if (m_seqfk) delete m_seqfk;
 }
@@ -125,16 +113,16 @@ const cool::RecordSpecification
   return atrspec;
 }
 
-coral::AttributeList CoraCoolFolder::emptyAttrList ATLAS_NOT_THREAD_SAFE () const {
+coral::AttributeList CoraCoolFolder::emptyAttrList() const {
   // assemble and return an attributelist for use in constructing payloads
-  coral::AttributeList atrlist ATLAS_THREAD_SAFE;
+  coral::AttributeList atrlist;
   for (AttrItr itr=m_attrvec.begin();itr!=m_attrvec.end();++itr)
     atrlist.extend(itr->first,
      cool::StorageType::storageType(nameToCoolType(itr->second)).cppType());
   return atrlist;
 }
 
-int CoraCoolFolder::storeObject ATLAS_NOT_THREAD_SAFE (const cool::ValidityKey& since, 
+int CoraCoolFolder::storeObject (const cool::ValidityKey& since, 
 		   const cool::ValidityKey until,
 		   const_iterator begin,
 		   const_iterator end,
@@ -220,7 +208,7 @@ int CoraCoolFolder::storeObject ATLAS_NOT_THREAD_SAFE (const cool::ValidityKey& 
 
 // Actually ok, but marked as not thread-safe due to the copy
 // of the (non-shared) AttributeList.
-bool CoraCoolFolder::setupStorageBuffer ATLAS_NOT_THREAD_SAFE() {
+bool CoraCoolFolder::setupStorageBuffer() {
   // flush any existing data first to get clean state
   if (m_bulkactive) flushStorageBuffer();
   if (m_payloadbuf==0) {
@@ -302,7 +290,7 @@ void CoraCoolFolder::referenceObject(const cool::ValidityKey& since,
 			    userTagOnly);
 }
 
-void CoraCoolFolder::addPayload ATLAS_NOT_THREAD_SAFE (const_iterator begin, const_iterator end) { // Copies AttributeList, giving shared specification.
+void CoraCoolFolder::addPayload(const_iterator begin, const_iterator end) { // Copies AttributeList, giving shared specification.
   // add payload to the CORAL table, using existing FKs in data
   // but regenerating primary keys
 
@@ -440,7 +428,7 @@ bool CoraCoolFolder::decodeAttrSpec() {
     coral::ITable& table=m_proxy->nominalSchema().tableHandle(
 				       m_dbname+"_CORACOOLATTR");
     query=table.newQuery();
-    coral::AttributeList bindvar ATLAS_THREAD_SAFE; // Not shared, ok
+    coral::AttributeList bindvar;
     bindvar.extend<std::string>("SNAME");
     bindvar[0].data<std::string>()=m_tablename;
     query->setCondition("NAME=:SNAME",bindvar);

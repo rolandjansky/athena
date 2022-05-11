@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */ 
 
 #ifndef SCTSIPROPERTIESCONDALG
@@ -14,7 +14,6 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 
-#include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -39,7 +38,7 @@ class SCTSiPropertiesCondAlg : public AthReentrantAlgorithm
   SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_readKeyHV{this, "ReadKeyHV", "SCT_SiliconBiasVoltCondData", "Key of input bias voltage conditions folder"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
   SG::WriteCondHandleKey<InDet::SiliconPropertiesVector> m_writeKey{this, "WriteKey", "SCTSiliconPropertiesVector", "Key of output silicon properties conditions folder"};
-  ServiceHandle<ICondSvc> m_condSvc;
+
   ToolHandle<ISiliconConditionsTool> m_siCondTool{this, "SiConditionsTool", "SCT_SiliconConditionsTool", "SiConditionsTool to be used"};
   const SCT_ID* m_pHelper; //!< ID helper for SCT
 };

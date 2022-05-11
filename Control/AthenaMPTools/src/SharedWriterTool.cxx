@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SharedWriterTool.h"
@@ -34,29 +34,9 @@ StatusCode SharedWriterTool::initialize()
 {
   ATH_MSG_DEBUG("In initialize");
 
-  if( m_isPileup ) {
-    m_evtProcessor = ServiceHandle<IEventProcessor>("PileUpEventLoopMgr",name());
-    ATH_MSG_INFO("The job is running in pileup mode");
-  }
-  else {
-    ATH_MSG_INFO("The job is running in non-pileup mode");
-  }
+  ATH_CHECK(AthenaMPToolBase::initialize());
+  ATH_CHECK(serviceLocator()->service("AthenaPoolCnvSvc", m_cnvSvc));
 
-  StatusCode sc = AthenaMPToolBase::initialize();
-  if(!sc.isSuccess()) return sc;
-
-//FIXME: AthenaPool dependent for now
-  sc = serviceLocator()->service("AthenaPoolCnvSvc", m_cnvSvc);
-  if(sc.isFailure() || m_cnvSvc==0) {
-    ATH_MSG_ERROR("Error retrieving AthenaPoolCnvSvc");
-    return StatusCode::FAILURE;
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode SharedWriterTool::finalize()
-{
   return StatusCode::SUCCESS;
 }
 
@@ -206,7 +186,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedWriterTool::bootstrap_f
   writer_rundir /= boost::filesystem::path(m_subprocDirPrefix+workerIndex.str());
 
   if(mkdir(writer_rundir.string().c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH)==-1) {
-    ATH_MSG_ERROR("Unable to make writer run directory: " << writer_rundir.string() << ". " << strerror(errno));
+    ATH_MSG_ERROR("Unable to make writer run directory: " << writer_rundir.string() << ". " << fmterror(errno));
     return outwork;
   }
 
@@ -297,7 +277,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedWriterTool::exec_func()
   }
   else {
     if(m_appMgr->finalize().isFailure()) {
-      ATH_MSG_ERROR("Unable to finalize AppMgr");
+      std::cerr << "Unable to finalize AppMgr" << std::endl;
       all_ok=false;
     }
   }

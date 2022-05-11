@@ -73,6 +73,7 @@ namespace InDetDD {
       ///////////////////////////////////////////////////////////////////
       // Const methods:
       ///////////////////////////////////////////////////////////////////
+      double sinStripAngleReco(double phiCoord, double etaCoord) const;
 
       /** Returns distance to nearest detector active edge 
           +ve = inside

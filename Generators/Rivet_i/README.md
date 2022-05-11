@@ -75,6 +75,9 @@ svcMgr.EventSelector.InputCollections = [ 'EVNT.root' ]
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 
+from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
+job += xAODMaker__EventInfoCnvAlg()
+
 from Rivet_i.Rivet_iConf import Rivet_i
 rivet = Rivet_i()
 import os
@@ -154,6 +157,9 @@ svcMgr.EventSelector.InputCollections = evntfiles
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 
+from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
+job += xAODMaker__EventInfoCnvAlg()
+
 from Rivet_i.Rivet_iConf import Rivet_i
 
 rivet = Rivet_i()
@@ -180,6 +186,9 @@ import AthenaPoolCnvSvc.ReadAthenaPool
 
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
+
+from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
+job += xAODMaker__EventInfoCnvAlg()
 
 from Rivet_i.Rivet_iConf import Rivet_i
 rivet = Rivet_i()
@@ -295,6 +304,10 @@ you will have to set an enviroment variable as e.g.:
 ```
 export RIVET_ANALYSIS_PATH=$PWD
 ```
+
+It's worth reading the 
+[physics tips and pitfalls](https://gitlab.com/hepcedar/rivet/-/blob/release-3-1-x/doc/tutorials/tips-pitfalls.md)
+as well.
 
 ## How to compile
 

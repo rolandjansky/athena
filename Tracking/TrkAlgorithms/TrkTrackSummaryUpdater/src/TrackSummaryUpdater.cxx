@@ -5,7 +5,7 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "TrkPrepRawData/PrepRawData.h"
-#include "TrkTrackSummaryUpdater/TrackSummaryUpdater.h"
+#include "TrackSummaryUpdater.h"
 
 ///////////////////////////////////////////////////////////////////
 // Constructor

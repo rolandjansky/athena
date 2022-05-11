@@ -1,5 +1,5 @@
 #====================================================================
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #====================================================================
 # IDTIDE1.py
 # Contact: atlas-cp-tracking-denseenvironments@cern.ch
@@ -45,6 +45,14 @@ if 'DerivationFrameworkIsMonteCarlo' not in dir() :
   DerivationFrameworkIsMonteCarlo=( globalflags.DataSource=='geant4' )
 
 IsMonteCarlo=DerivationFrameworkIsMonteCarlo
+
+#====================================================================
+# Re-run jet reconstruction needed for preselection
+#====================================================================
+from JetRecConfig.StandardSmallRJets import AntiKt4EMTopo,AntiKt4EMPFlow
+jetList = [AntiKt4EMTopo,AntiKt4EMPFlow]
+from DerivationFrameworkJetEtMiss.JetCommon import addDAODJets
+addDAODJets(jetList,DerivationFrameworkJob)
 
 #====================================================================
 # SET UP STREAM  
@@ -142,6 +150,7 @@ DFTSOS = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFTrackStateO
                                                           IsSimulation = False,
                                                           DecorationPrefix = "",
                                                           StoreTRT   = idDxAOD_doTrt,
+                                                          AddExtraEventInfo = False,  # never decorate EventInfo with TRTPhase, doubt this is useful for IDTIDE
                                                           TRT_ToT_dEdx = TrackingCommon.getInDetTRT_dEdxTool() if idDxAOD_doTrt else "",
                                                           PRDtoTrackMap= "PRDtoTrackMap" + InDetKeys.UnslimmedTracks() if  jobproperties.PrimaryDPDFlags.WriteDAOD_IDTRKVALIDStream.get_Value() else "",
                                                           StoreSCT   = idDxAOD_doSct,
@@ -500,23 +509,15 @@ IDTIDE1Stream.AddItem("xAOD::MuonAuxContainer#MuonsAux.")
 IDTIDE1Stream.AddItem("xAOD::TauJetContainer#TauJets")
 IDTIDE1Stream.AddItem("xAOD::TauJetAuxContainer#TauJetsAux.-VertexedClusters.")
 IDTIDE1Stream.AddItem("xAOD::JetContainer#AntiKt4EMTopoJets")
-IDTIDE1Stream.AddItem("xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.")
+IDTIDE1Stream.AddItem("xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.-PseudoJet")
 IDTIDE1Stream.AddItem("xAOD::JetContainer#AntiKt4EMPFlowJets")
-IDTIDE1Stream.AddItem("xAOD::JetAuxContainer#AntiKt4EMPFlowJetsAux.")
+IDTIDE1Stream.AddItem("xAOD::JetAuxContainer#AntiKt4EMPFlowJetsAux.-PseudoJet")
 IDTIDE1Stream.AddItem("xAOD::JetContainer#AntiKt2PV0TrackJets")
-IDTIDE1Stream.AddItem("xAOD::JetAuxContainer#AntiKt2PV0TrackJetsAux.")
-#IDTIDE1Stream.AddItem("xAOD::JetContainer#AntiKt3PV0TrackJets")
-#IDTIDE1Stream.AddItem("xAOD::JetAuxContainer#AntiKt3PV0TrackJetsAux.")
-#IDTIDE1Stream.AddItem("xAOD::JetContainer#AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets")
-#IDTIDE1Stream.AddItem("xAOD::JetAuxContainer#AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsAux.")
+IDTIDE1Stream.AddItem("xAOD::JetAuxContainer#AntiKt2PV0TrackJetsAux.-PseudoJet")
 IDTIDE1Stream.AddItem("xAOD::BTaggingContainer#BTagging_AntiKt4EMTopo")
 IDTIDE1Stream.AddItem("xAOD::BTaggingAuxContainer#BTagging_AntiKt4EMTopoAux.")
 IDTIDE1Stream.AddItem("xAOD::BTaggingContainer#BTagging_AntiKt4EMPFlow")
 IDTIDE1Stream.AddItem("xAOD::BTaggingAuxContainer#BTagging_AntiKt4EMPFlowAux.")
-IDTIDE1Stream.AddItem("xAOD::BTaggingContainer#BTagging_AntiKt2Track")
-IDTIDE1Stream.AddItem("xAOD::BTaggingAuxContainer#BTagging_AntiKt2TrackAux.")
-#IDTIDE1Stream.AddItem("xAOD::BTaggingContainer#BTagging_AntiKt3Track")
-#IDTIDE1Stream.AddItem("xAOD::BTaggingAuxContainer#BTagging_AntiKt3TrackAux.")
 if IsMonteCarlo:
   IDTIDE1Stream.AddItem("xAOD::TruthParticleContainer#*")
   IDTIDE1Stream.AddItem("xAOD::TruthParticleAuxContainer#TruthParticlesAux.-caloExtension")
@@ -525,6 +526,6 @@ if IsMonteCarlo:
   IDTIDE1Stream.AddItem("xAOD::TruthEventContainer#*")
   IDTIDE1Stream.AddItem("xAOD::TruthEventAuxContainer#*")
   IDTIDE1Stream.AddItem("xAOD::JetContainer#AntiKt4TruthJets")
-  IDTIDE1Stream.AddItem("xAOD::JetAuxContainer#AntiKt4TruthJetsAux.")
+  IDTIDE1Stream.AddItem("xAOD::JetAuxContainer#AntiKt4TruthJetsAux.-PseudoJet")
 
 print(IDTIDE1Stream)

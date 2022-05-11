@@ -143,7 +143,7 @@ StatusCode MM_DigitizationTool::initialize() {
   }
 
   // Initialize ReadHandleKey
-  ATH_CHECK(m_hitsContainerKey.initialize(!m_onlyUseContainerName));
+  ATH_CHECK(m_hitsContainerKey.initialize(true));
 
   // Initialize the output WriteHandleKeys
   ATH_CHECK(m_outputDigitCollectionKey.initialize());
@@ -484,12 +484,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
   ATH_CHECK(sdoContainer.record(std::make_unique<MuonSimDataCollection>()));
   ATH_MSG_DEBUG ( "MmSDOCollection recorded in StoreGate." );
 
-  MMSimHitCollection* inputSimHitColl=nullptr;
-  
   IdentifierHash moduleHash=0;
-  
-  inputSimHitColl = new MMSimHitCollection("MicromegasSensitiveDetector");
-  ATH_CHECK( evtStore()->record(inputSimHitColl,"InputMicroMegasHits") );
   
   if( m_maskMultiplet == 3 ) {
     
@@ -606,18 +601,8 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       
       // For collection of inputs to throw back in SG
      
-      inputSimHitColl->Emplace(hitID,
-		       m_globalHitTime+m_eventTime,
-		       globalHitPosition,
-		       hit.particleEncoding(),
-		       hit.kineticEnergy(),
-		       hit.globalDirection(),
-		       hit.depositEnergy(),
-		       particleLink);
-      
       // remove hits in masked multiplet
       if( m_maskMultiplet == m_idHelperSvc->mmIdHelper().multilayer(layerID) ) continue;
-      
       
       //
       // Hit Information And Preparation
@@ -957,8 +942,11 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       // This block is purely validation
       for(size_t i = 0; i<tmpStripOutput.NumberOfStripsPos().size(); ++i){
         int tmpStripID = tmpStripOutput.NumberOfStripsPos().at(i);
-        bool isValid;
-        Identifier cr_id = m_idHelperSvc->mmIdHelper().channelID(stName, m_idHelperSvc->mmIdHelper().stationEta(layerID), m_idHelperSvc->mmIdHelper().stationPhi(layerID), m_idHelperSvc->mmIdHelper().multilayer(layerID), m_idHelperSvc->mmIdHelper().gasGap(layerID), tmpStripID, true, &isValid);
+        bool isValid{false};
+        Identifier cr_id = m_idHelperSvc->mmIdHelper().channelID(stName, m_idHelperSvc->mmIdHelper().stationEta(layerID), 
+                                                        m_idHelperSvc->mmIdHelper().stationPhi(layerID), 
+                                                        m_idHelperSvc->mmIdHelper().multilayer(layerID), 
+                                                        m_idHelperSvc->mmIdHelper().gasGap(layerID), tmpStripID, isValid);
         if (!isValid) {
           ATH_MSG_WARNING( "MicroMegas digitization: failed to create a valid ID for (chip response) strip n. " << tmpStripID << "; associated positions will be set to 0.0." );
         } else {

@@ -94,8 +94,8 @@ RoiDescriptor::RoiDescriptor(double etaMinus_, double etaPlus_,
   double phi_ = 0.5*(phiMinus_+phiPlus_);
   
   if ( phiMinus_>phiPlus_ ) phi_ += M_PI;
-  if ( phi_<-M_PI ) phi_ -= M_2PI;
-  if ( phi_>M_PI )  phi_ += M_2PI;
+  if ( phi_<-M_PI ) phi_ += M_2PI;
+  if ( phi_>M_PI )  phi_ -= M_2PI;
  
   construct( eta_, etaMinus_, etaPlus_, phi_, phiMinus_, phiPlus_, 0, -s_zedWidthDefault, s_zedWidthDefault );
 }

@@ -39,26 +39,21 @@ def getTrackSelAlg(trkOpt="default", trackSelOpt=False):
     trkSelAlg = None
 
     if not trackSelOpt:
-        # Get a InDetTrackSelectionTool, OVERWRITING the CutLevel for e.g. ghosts:
+        # track selection from trkOpt but OVERWRITING the CutLevel for e.g. ghosts (typically, only a pt>500MeV cut remains): 
         idtracksel = getIDTrackSelectionTool(trkOpt, CutLevel=trkProperties['GhostTrackCutLevel'])
-
-        trkSelAlg = CompFactory.JetTrackSelectionAlg( "trackselalg",
-                                                      TrackSelector = idtracksel,
-                                                      InputContainer = trkProperties["Tracks"],
-                                                      OutputContainer = trkProperties["JetTracks"],                              
-                                                    )
-                                                    
-        
+        outContainerKey = "JetTracks"
     else:
-        # Track-jet selection criteria
-        idtracksel = getIDTrackSelectionTool(trkOpt, CutLevel=trkProperties['trackSelOptions']['CutLevel'])
+        # Track-jet selection criteria, use the selection from trkOpt
+        idtracksel = getIDTrackSelectionTool(trkOpt)
+        outContainerKey = "JetTracksQualityCuts"
 
-        trkSelAlg = CompFactory.JetTrackSelectionAlg( "trackseljetalg",
-                                                      TrackSelector = idtracksel,
-                                                      InputContainer = trkProperties["Tracks"],
-                                                      OutputContainer = trkProperties["JetTracksQualityCuts"],
-                                                      DecorDeps = ["TTVA_AMVFWeights_forReco", "TTVA_AMVFVertices_forReco"] # Hardcoded for now... we might want to have this context-dependent ??
-                                                    )
+    # build the selection alg 
+    trkSelAlg = CompFactory.JetTrackSelectionAlg( f"trackselalg_qual{trackSelOpt}",
+                                                  TrackSelector = idtracksel,
+                                                  InputContainer = trkProperties["Tracks"],
+                                                  OutputContainer = trkProperties[outContainerKey],
+                                                  DecorDeps = ["TTVA_AMVFWeights_forReco", "TTVA_AMVFVertices_forReco"] # Hardcoded for now... we might want to have this context-dependent ??
+                                                 )
 
     return trkSelAlg
 
@@ -74,35 +69,68 @@ def getTrackSelTool(trkOpt=""):
 
     return jettrackselloose
 
-def getTrackVertexAssocTool(trkOpt="", theSequence=None, ttva_opts = { "WorkingPoint" : "Custom", "d0_cut" : 2.0, "dzSinTheta_cut" : 2.0 }):
-    if trkOpt: "_{}".format(trkOpt)
-    # Track-vertex association
-    # This is to be deprecated
-    # In fact can probably be switched already to match legacy master
-    # but for a future MR
+
+def getJetTrackVtxAlg( trkOpt,   algname="jetTVA", **ttva_overide):
+    """  theSequence and ttva_overide are options used in trigger  (HLT/Jet/JetTrackingConfig.py)"""
     from TrackVertexAssociationTool.getTTVAToolForReco import getTTVAToolForReco
     from JetRecConfig.StandardJetContext import jetContextDic
 
     trkProperties = jetContextDic[trkOpt]
-    
-    idtvassoc = getTTVAToolForReco(
-        "idloosetvassoc",
+
+    ttva_options = dict(
+        returnCompFactory = True,
+        addDecoAlg= isAthenaRelease(), # ?? it seems mandatory ??
         TrackContName = trkProperties["Tracks"],
         VertexContName = trkProperties["Vertices"],
-        returnCompFactory = True,
-        add2Seq=theSequence,
-        addDecoAlg= isAthenaRelease(), # ?? it seems mandatory ??
-        **ttva_opts
     )
+    # allow client to overide options : 
+    ttva_options.update(**ttva_overide)
+    
+    idtvassoc = getTTVAToolForReco( "jetTVatool", **ttva_options )
 
-    jettvassoc = CompFactory.TrackVertexAssociationTool(
-        "jettvassoc",
-        TrackParticleContainer  = trkProperties["Tracks"],
-        TrackVertexAssociation  = trkProperties["TVA"],
-        VertexContainer         = trkProperties["Vertices"],
-        TrackVertexAssoTool     = idtvassoc
-    )
-    return jettvassoc
+    alg = CompFactory.JetTrackVtxAssoAlg(algname,
+                                         TrackParticleContainer  = trkProperties["Tracks"],
+                                         TrackVertexAssociation  = trkProperties["TVA"],
+                                         VertexContainer         = trkProperties["Vertices"],
+                                         TrackVertexAssoTool     = idtvassoc                                         
+                                         )
+    return alg
+
+
+
+def getPV0TrackVertexAssocTool(trkOpt="", theSequence=None):
+    if trkOpt: "_{}".format(trkOpt)
+    from TrackVertexAssociationTool.getTTVAToolForReco import getTTVAToolForReco
+    from JetRecConfig.StandardJetContext import jetContextDic
+
+    trkProperties = jetContextDic[trkOpt]
+    tvatool = getTTVAToolForReco("trackjettvassoc",
+                                WorkingPoint = "Nonprompt_All_MaxWeight",
+                                TrackContName = trkProperties["JetTracksQualityCuts"],
+                                VertexContName = trkProperties["Vertices"],
+                                returnCompFactory = True,
+                                add2Seq = theSequence,
+                                addDecoAlg = isAthenaRelease(),
+                                )
+
+    jettvassoc = CompFactory.TrackVertexAssociationTool("trackjetTTVAtool",
+            TrackParticleContainer = trkProperties["JetTracksQualityCuts"],
+            TrackVertexAssociation = "PV0"+trkProperties["TVA"],
+            VertexContainer        = trkProperties["Vertices"],
+            TrackVertexAssoTool    = tvatool
+            )
+    return jettvassoc, tvatool
+
+def getPV0TrackSelAlg(tvaTool, trkOpt="default"):
+    from JetRecConfig.StandardJetContext import jetContextDic
+    trkProperties = jetContextDic[trkOpt]
+    pv0trackselalg = CompFactory.PV0TrackSelectionAlg("pv0tracksel_trackjet",
+            InputTrackContainer = trkProperties["JetTracksQualityCuts"],
+            VertexContainer = trkProperties["Vertices"],
+            OutputTrackContainer = "PV0"+trkProperties["JetTracks"],
+            TVATool = tvaTool,
+            )
+    return pv0trackselalg
 
 def getTrackUsedInFitTool(trkOpt=""):
     if trkOpt: "_{}".format(trkOpt)

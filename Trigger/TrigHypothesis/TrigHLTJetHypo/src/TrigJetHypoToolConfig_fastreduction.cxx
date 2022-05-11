@@ -30,7 +30,7 @@ TrigJetHypoToolConfig_fastreduction::~TrigJetHypoToolConfig_fastreduction(){
 }
 
 StatusCode TrigJetHypoToolConfig_fastreduction::initialize() {
-  ATH_MSG_INFO("initialising " << name());
+  ATH_MSG_DEBUG("initialising " << name());
 
   if(m_conditionMakers.size() != m_treeVec.size()){
     ATH_MSG_ERROR("No. of conditions mismatch with tree vector size");

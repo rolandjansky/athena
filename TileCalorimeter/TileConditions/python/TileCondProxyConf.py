@@ -54,6 +54,8 @@ def getTileCondProxy(technology, type, source, name, **kwargs):
             conddb.addFolderSplitMC(conn, folderstr, folderstr2, className = 'CondAttrListCollection')
         if tileCoolMgr.isOfflineOnly(source):
             conddb.addFolder(conn, folderstr, className = 'CondAttrListCollection')
+        if tileCoolMgr.isForceMC(source):
+            conddb.addFolder(conn, folderstr, className = 'CondAttrListCollection', forceMC=True)
         if tileCoolMgr.isSplitOnline(source):
             conddb.addFolderSplitOnline(conn, folderstr, folderstr2, className = 'CondAttrListCollection')
         if tileCoolMgr.isSqlite(source):

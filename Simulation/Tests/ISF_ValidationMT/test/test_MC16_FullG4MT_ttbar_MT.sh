@@ -3,6 +3,7 @@
 # art-description: Run FullG4MT simulation in AthenaMT with old and new style configuration, reading ttbar events, writing HITS, using MC16 geometry and conditions
 # art-include: master/Athena
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-output: log.*
 # art-output: test.*.HITS.pool.root
 # art-output: log.*
@@ -82,7 +83,7 @@ if [ $rc2 -eq 0 ]
 then
     ArtPackage=$1
     ArtJobName=$2
-    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --order-trees  --mode=semi-detailed --file=test.CG.HITS.pool.root
+    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --order-trees  --mode=semi-detailed --file=test.CG.HITS.pool.root --diff-root
     rc4=$?
     status=$rc4
 fi

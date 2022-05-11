@@ -1,24 +1,37 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PADTDSOFFLINETOOL_H
 #define PADTDSOFFLINETOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
-#include "Gaudi/Property.h"
-#include "MuonSimData/MuonSimData.h" // cannot fw declare typedef MuonSimData::Deposit
-
-#include "TrigT1NSWSimTools/IPadTdsTool.h"
-#include "PadTdsValidationTree.h"
-#include "MuonIdHelpers/IMuonIdHelperSvc.h"
-#include "GaudiKernel/IIncidentSvc.h"
 #include "AthenaKernel/IAthRNGSvc.h"
-
+#include "AthenaKernel/RNGWrapper.h"
+#include "CLHEP/Random/RandGauss.h"
+#include "Gaudi/Property.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/IIncidentSvc.h"
+#include "GaudiKernel/ITHistSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include "MuonDigitContainer/sTgcDigitContainer.h"
+#include "MuonDigitContainer/sTgcDigit.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MuonReadoutGeometry/sTgcReadoutElement.h"
+#include "MuonSimData/MuonSimData.h"
 #include "MuonSimData/MuonSimDataCollection.h"
+#include "TrigT1NSWSimTools/IPadTdsTool.h"
+#include "TrigT1NSWSimTools/PadOfflineData.h"
+#include "TrigT1NSWSimTools/tdr_compat_enum.h"
+#include "PadTdsValidationTree.h"
+
+#include "TTree.h"
+#include <functional>
+#include <algorithm>
+#include <map>
+#include <utility>
 
 class sTgcDigit;
 class TTree;
@@ -55,21 +68,26 @@ namespace NSWL1 {
     *
     *  @author Alessandro Di Mattia <dimattia@cern.ch>
     *
+    * ----------------------------------------------------------------------------------------
+    * 2022 Update: the internal cache has been removed for the code to deal with parallel
+    * processing (athenaMT) in Release 22. It has been replaced by an event-by-event cache,
+    * passed by reference throughout the workflow.
+    *
+    *  @modified by Francesco Giuseppe Gravili <francesco.giuseppe.gravili@cern.ch>
     *
     */
     class PadHits;
     class PadTrigger;
-    
+
     class PadTdsOfflineTool: virtual public IPadTdsTool,
                             public AthAlgTool,
                             public IIncidentListener {
 
     public:
-        enum cStatus {OK, FILL_ERROR, CLEARED};
         PadTdsOfflineTool(const std::string& type,
                         const std::string& name,
                         const IInterface* parent);
-        virtual ~PadTdsOfflineTool();
+        virtual ~PadTdsOfflineTool()=default;
         virtual StatusCode initialize() override;
         virtual void handle (const Incident& inc) override;
         virtual StatusCode gather_pad_data(std::vector<std::shared_ptr<PadData>>& pads, int side=-1, int sector=-1) override;
@@ -102,75 +120,51 @@ namespace NSWL1 {
 
     private:
         // methods implementing the internal data processing
-        cStatus fill_pad_cache();                               //!< loop over the digit container, apply the additional processing then fill the cache
-        void clear_cache();                                     //!< clear the pad hit cache deleting the PadData pointers
-
-        void fill_pad_validation_id();                          //!< fill the ntuple branch for the PadTdsOffline
+        StatusCode fill_pad_cache(std::vector< std::vector<std::shared_ptr<PadData>> > &pad_cache) const; //!< Apply the additional processing then fill the cache, locally
+        void fill_pad_validation_id(std::vector< std::vector<std::shared_ptr<PadData>> > &pad_cache); //!< Fill the ntuple branch for the PadTdsOffline
 
         double computeTof(const sTgcDigit* digit) const;        //!< compute the time of flight of particle giving the PAD hit
         double computeTimeJitter() const;                       //!< extract the time jitter t subtract from the PAD hit time
-        void   simulateDeadTime(std::vector<PadHits>& h) const; //!< simulate the dead time of the VMM
-        void printStgcGeometryFromAgdd() const; ///< test function to demonstrate the access to the AGDD parameters
-        bool get_truth_hits_this_pad(const Identifier &pad_id, std::vector<MuonSimData::Deposit> &deposits); // simhits for a given pad
-        /// get the output tree from the athena histogram service
-        StatusCode get_tree_from_histsvc(TTree*&);
-        /// whether it's a pad digit (based on 'channelType'
+        void simulateDeadTime(std::vector<PadHits>& h) const;   //!< simulate the dead time of the VMM
+        bool get_truth_hits_this_pad(const Identifier &pad_id, std::vector<MuonSimData::Deposit> &deposits) const;
         bool is_pad_digit(const sTgcDigit* digit) const;
         int cache_index(const sTgcDigit* digit) const;
-        /// apply time delay and determine BC tag for the hit according to the trigger capture window
-        /**
-        BC tag:  bit nr. 8 correspond to the current bunch for simulated events
-        */
-        bool determine_delay_and_bc(const sTgcDigit* digit, const int &pad_hit_number,
-                                    double &delayed_time, uint16_t &BCtag);
-        /// store the pads in the internal pad cache
-        void store_pads(const std::vector<PadHits> &pad_hits);
-        /// print digit info (debugging)
+        /*
+         * Apply time delay and determine BC tag for the hit according to the trigger capture window.
+         * BC tag:  bit nr. 8 correspond to the current bunch for simulated events
+         */
+        bool determine_delay_and_bc(const sTgcDigit* digit, const int &pad_hit_number, double &delayed_time, uint16_t &BCtag) const;
+        void store_pads(const std::vector<PadHits> &pad_hits, std::vector< std::vector<std::shared_ptr<PadData>> > &pad_cache) const; //!< Store pad data in the cache
         void print_digit(const sTgcDigit* digit) const;
 
-        /// print time for each pad (debugging)
-        void print_pad_time(const std::vector<PadHits> &pad_hits, const std::string &msg) const;
-        /// print all info stored in the pad chache (debugging)
-        void print_pad_cache() const;
-        
+        void print_pad_time(const std::vector<PadHits> &pad_hits) const; //!< Print time for each pad
+        void print_pad_cache(std::vector< std::vector<std::shared_ptr<PadData>> > &pad_cache) const; //!< Print all info stored in the pad cache
+
         // needed Servives, Tools and Helpers
-        ServiceHandle< IIncidentSvc >      m_incidentSvc;       //!< Athena/Gaudi incident Service
-	ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};     //!< Random number generator engine to use
+        ServiceHandle<IIncidentSvc> m_incidentSvc{this, "IncidentSvc", "IncidentSvc"};  //!< Athena/Gaudi incident Service
+        ServiceHandle<IAthRNGSvc>   m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};        //!< Random number generator engine to use
         ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
         const MuonGM::MuonDetectorManager* m_detManager;        //!< MuonDetectorManager
 
-        // hidden variables
-        std::vector< std::vector<std::shared_ptr<PadData>> > m_pad_cache;       //!< cache for the PAD hit data in the event (one per sector)
-        int     m_pad_cache_runNumber;                          //!< run number associated to the current PAD cache
-        int     m_pad_cache_eventNumber;                        //!< event number associated to the current PAD cache
-        cStatus m_pad_cache_status;                             //!< status of the current cache
-
-
         // properties: container and service names
-        StringProperty   m_rndmEngineName;                      //!< property, see @link PadTdsOfflineTool::PadTdsOfflineTool @endlink
+        Gaudi::Property<bool>         m_isMC          {this, "IsMC",            true,               "This is MC"};
+        Gaudi::Property<std::string>  m_rndmEngineName{this, "RndmEngineName", "PadTdsOfflineTool", "Name of the random engine"};
+        Gaudi::Property<bool>         m_doNtuple      {this, "DoNtuple",        false,              "Input PadTds branches into the analysis ntuple"};
+        Gaudi::Property<float>        m_vmmTimeOverThreshold{this, "VMM_TimeOverThreshold", 0.,  "Time to form a digital signal"};
+        Gaudi::Property<float>        m_vmmShapingTime      {this, "VMM_ShapingTime",       0.,  "Time from the leading edge of the signal and its peak"};
+        Gaudi::Property<float>        m_vmmDeadTime         {this, "VMM_DeadTime",          50., "VMM chip dead time to produce another signal on the same channel"};
+        Gaudi::Property<float>        m_triggerCaptureWindow{this, "TriggerCaptureWindow",  30., "Time window for valid hit coincidences"};
+        Gaudi::Property<float>        m_timeJitter          {this, "TimeJitter",            2.,  "Time jitter"};
 
-        // properties: configuration
-        FloatProperty    m_VMMTimeOverThreshold;                //!< property, see @link PadTdsOfflineTool::PadTdsOfflineTool @endlink
-        FloatProperty    m_VMMShapingTime;                      //!< property, see @link PadTdsOfflineTool::PadTdsOfflineTool @endlink
-        FloatProperty    m_VMMDeadTime;                         //!< property, see @link PadTdsOfflineTool::PadTdsOfflineTool @endlink
-        FloatProperty    m_triggerCaptureWindow;                //!< property, see @link PadTdsOfflineTool::PadTdsOfflineTool @endlink
-        FloatProperty    m_timeJitter;                          //!< property, see @link PadTdsOfflineTool::PadTdsOfflineTool @endlink
-
-        // properties: steering flags
-        BooleanProperty  m_applyTDS_TofSubtraction;             //!< property, see @link PadTdsOfflineTool::PadTdsOfflineTool @endlink
-        BooleanProperty  m_applyTDS_TimeJitterSubtraction;      //!< property, see @link PadTdsOfflineTool::PadTdsOfflineTool @endlink
-        BooleanProperty  m_applyVMM_ToT;                        //!< property, see @link PadTdsOfflineTool::PadTdsOfflineTool @endlink
-        BooleanProperty  m_applyVMM_ShapingTime;                //!< property, see @link PadTdsOfflineTool::PadTdsOfflineTool @endlink
-        BooleanProperty  m_applyVMM_DeadTime;                   //!< property, see @link PadTdsOfflineTool::PadTdsOfflineTool @endlink
-
-        BooleanProperty  m_doNtuple;                            //!< property, see @link PadTdsOfflineTool::PadTdsOfflineTool @endlink
+        Gaudi::Property<bool> m_applyTDS_TofSubtraction       {this, "ApplyTofSubtraction",        false, "Time of flight subtraction"};
+        Gaudi::Property<bool> m_applyTDS_TimeJitterSubtraction{this, "ApplyTimeJitterSubtraction", false, "Time jitter subtraction"};
+        Gaudi::Property<bool> m_applyVMM_ToT                  {this, "ApplyToT",                   false, "Time over threshold criteria"};
+        Gaudi::Property<bool> m_applyVMM_ShapingTime          {this, "ApplyVMMShapingTime",        false, "VMM Shaping time condition"};
+        Gaudi::Property<bool> m_applyVMM_DeadTime             {this, "ApplyVMMDeadTime",           false, "VMM Dead time condition"};
 
         PadTdsValidationTree m_validation_tree;
-
-	SG::ReadHandleKey<sTgcDigitContainer> m_sTgcDigitContainer = {this,"sTGC_DigitContainerName","sTGC_DIGITS","the name of the sTGC digit container"};
-	SG::ReadHandleKey<MuonSimDataCollection> m_sTgcSdoContainer = {this,"sTGC_SdoContainerName","sTGC_SDO","the name of the sTGC SDO container"};
+        SG::ReadHandleKey<sTgcDigitContainer> m_sTgcDigitContainer = {this,"sTGC_DigitContainerName","sTGC_DIGITS","the name of the sTGC digit container"};
+        SG::ReadHandleKey<MuonSimDataCollection> m_sTgcSdoContainer = {this,"sTGC_SdoContainerName","sTGC_SDO","the name of the sTGC SDO container"};
     };
-
 }
-
 #endif

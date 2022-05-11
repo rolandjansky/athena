@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /*******************************************************
@@ -16,7 +16,6 @@
 #include <cmath>
 #include <numeric>
 #include "RingerReFex.h"
-#include "TrigTimeAlgs/TrigTimer.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODTrigCalo/TrigEMClusterAuxContainer.h"
@@ -149,8 +148,8 @@ StatusCode RingerReFex::execute( xAOD::TrigEMCluster &emCluster,
   if ( m_useTile ){
 
     // Get all cells for the Tile calorimeter
-    TileCellCollection sel;
-    TileCellCollection::const_iterator it, itBegin, itEnd;
+    std::vector<const TileCell*> sel;
+    std::vector<const TileCell*>::const_iterator it, itBegin, itEnd;
  
     load_cells_time.start();
     if( m_dataSvc->loadCollections( context, roi, sel ).isFailure() ){

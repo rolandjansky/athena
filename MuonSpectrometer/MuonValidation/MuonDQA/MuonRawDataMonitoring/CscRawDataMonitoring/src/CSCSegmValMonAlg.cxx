@@ -3,7 +3,7 @@
 */
 #include "AthenaMonitoring/AthenaMonManager.h"
 
-#include "CscRawDataMonitoring/CSCSegmValMonAlg.h"
+#include "CSCSegmValMonAlg.h"
 
 #include "MuonPrepRawData/CscClusterStatus.h"
 #include "MuonPrepRawData/CscStripPrepDataCollection.h"

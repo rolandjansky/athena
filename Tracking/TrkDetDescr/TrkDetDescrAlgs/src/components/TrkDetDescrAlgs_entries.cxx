@@ -1,6 +1,6 @@
-#include "TrkDetDescrAlgs/MaterialMapping.h"
-#include "TrkDetDescrAlgs/MaterialManipulation.h"
-#include "TrkDetDescrAlgs/MaterialValidation.h"
+#include "../MaterialMapping.h"
+#include "../MaterialManipulation.h"
+#include "../MaterialValidation.h"
 
 using namespace Trk;
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 # Skeleton top job options for RDO merging
 #
@@ -118,8 +118,10 @@ include( "RecExCond/AllDet_detDescr.py" )
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Print()
 
-## TGCcablingServerSvc Hack
-import MuonCnvExample.MuonCablingConfig
+# muon ID
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperSvc
+ServiceMgr += Muon__MuonIdHelperSvc("MuonIdHelperSvc", HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=MuonGeometryFlags.hasSTGC(), HasMM=MuonGeometryFlags.hasMM())
 
 # PixelLorentzAngleSvc and SCTLorentzAngleSvc
 from InDetRecExample.InDetJobProperties import InDetFlags
@@ -186,7 +188,6 @@ MessageSvc.OutputLevel = INFO
 
 StreamRDO.ExtendProvenanceRecord = False
 
-ServiceMgr.AthenaPoolCnvSvc.MaxFileSizes = [ "15000000000" ]
 ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + outputFile + "'; COMPRESSION_ALGORITHM = '2'" ]
 ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + outputFile + "'; COMPRESSION_LEVEL = '1'" ]
 

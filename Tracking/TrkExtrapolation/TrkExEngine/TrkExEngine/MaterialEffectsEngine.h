@@ -20,7 +20,7 @@
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkNeutralParameters/NeutralParameters.h"
- 
+#include "CxxUtils/checker_macros.h"
 namespace Trk {
   
   class Layer;
@@ -35,7 +35,7 @@ namespace Trk {
   
       @author Andreas Salzburger -at - cern.ch 
   */
-  class MaterialEffectsEngine : public AthAlgTool, virtual public IMaterialEffectsEngine {
+  class ATLAS_NOT_THREAD_SAFE MaterialEffectsEngine : public AthAlgTool, virtual public IMaterialEffectsEngine {
     public:
 
       /** Constructor */

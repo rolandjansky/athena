@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -677,75 +677,3 @@ IOVDbMetaDataTool::overrideIOV (CondAttrListCollection*& coll) const
     return StatusCode::SUCCESS;
 }
 
-StatusCode IOVDbMetaDataTool::fillMetaCont(const std::string& sid
-					   , const IOVMetaDataContainer* iovCont)
-{
-  ATH_MSG_DEBUG("fillMetaCont for SID=" << sid 
-		<< " and folder name=" << iovCont->folderName());
- 
-  // Drop the leading 'FID:' from sid, if present
-  std::string keyInMetaCont = sid.compare(0,4,std::string("FID:")) ? sid : sid.substr(4);
-
-  IOVMetaDataContainer* copyCont = new IOVMetaDataContainer(*iovCont);
-  ATH_MSG_DEBUG("Created a copy container");
-  MetaCont<IOVMetaDataContainer>* pMetaCont = m_metaDataStore->tryRetrieve<MetaCont<IOVMetaDataContainer>>(iovCont->folderName());
-  if(pMetaCont) {
-    pMetaCont->insert(keyInMetaCont,copyCont);
-    ATH_MSG_DEBUG("New element added to an existing MetaCont in the store");
-  }
-  else {
-    std::unique_ptr<MetaCont<IOVMetaDataContainer>> pMetaContPtr = std::make_unique<MetaCont<IOVMetaDataContainer>>();
-    pMetaContPtr->insert(keyInMetaCont,copyCont);
-    ATH_MSG_DEBUG("Created new MetaCont, and added new element to it");
-
-    StatusCode sc = m_metaDataStore->record(std::move(pMetaContPtr),iovCont->folderName());
-    if(sc.isFailure()) {
-      ATH_MSG_FATAL("Failed to record MetaCont with key " << iovCont->folderName() << " into the store");
-      delete copyCont;
-      return sc;
-    }
-    ATH_MSG_DEBUG("New MetaCont recorded into the store");
-  } // pMetaCont == nullptr
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode IOVDbMetaDataTool::dumpMetaConts()
-{
-  if(msgLvl(MSG::DEBUG)) {
-    ATH_MSG_DEBUG("Begin dumping MetaCont<IOVMetaDataContainer> objects from MetaDataStore");
-    const std::vector<std::string>& keys = m_metaDataStore->keys<MetaCont<IOVMetaDataContainer>>();
-    if(keys.empty()) ATH_MSG_DEBUG(" ... NONE ...");
-    for(const auto& key : keys) {
-      const MetaCont<IOVMetaDataContainer>* metacont{nullptr};
-      if(m_metaDataStore->retrieve(metacont,key).isFailure()) {
-	ATH_MSG_FATAL("Failed to retrieve MetaCont<IOVMetaDataContainer> for key=" << key
-		      << " from the MetaDataStore");
-	return StatusCode::FAILURE;
-      }
-
-      ATH_MSG_DEBUG("... Dumping " << key);
-      std::ostringstream stream;
-
-      stream << "\nMetaCont :::::" << std::endl;
-      std::vector<SG::SourceID> sources = metacont->sources();
-      for(const auto& source : sources) {
-	IOVMetaDataContainer* ptr{nullptr};
-	if(metacont->find(source,ptr)) {
-	  stream << "SID : " << source << std::endl;
-	  stream << "OBJ :: " << std::endl;
-	  ptr->dump(stream);
-	}
-	else {
-	  ATH_MSG_FATAL("Failed to get IOVMetaDataContainer from MetaCont for the source " << source);
-	  return StatusCode::FAILURE;
-	}
-      }
-
-      ATH_MSG_DEBUG(stream.str());
-      ATH_MSG_DEBUG("... ... ...");
-    }
-    ATH_MSG_DEBUG("End dumping MetaCont<IOVMetaDataContainer> objects from MetaDataStore");
-  }
-  return StatusCode::SUCCESS;
-}

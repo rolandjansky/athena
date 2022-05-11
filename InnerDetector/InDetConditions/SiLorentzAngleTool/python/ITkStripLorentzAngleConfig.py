@@ -7,13 +7,18 @@ from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 from SCT_ConditionsTools.ITkStripConditionsToolsConfig import ITkStripSiliconConditionsCfg
 from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripReadoutGeometryCfg
 
+def ITkStripLorentzAngleToolCfg(flags, name="ITkStripLorentzAngleTool", **kwargs):
+    """Return a SiLorentzAngleTool configured for ITk Strip"""
+    acc = ITkStripLorentzAngleCondAlgCfg(flags)
+    #Update to ITkStrip eventually - tool assumes Pixel or SCT for the moment
+    kwargs.setdefault("DetectorName", "SCT")
+    kwargs.setdefault("SiLorentzAngleCondData", "SCTSiLorentzAngleCondData")
+    kwargs.setdefault("DetEleCollKey", "ITkStripDetectorElementCollection")
+    acc.setPrivateTools(CompFactory.SiLorentzAngleTool(name="ITkStripLorentzAngleTool", **kwargs))
+    return acc
 
-def ITkStripLorentzAngleCfg(flags, name="ITkStripSiLorentzAngleCondAlg",
-                            forceUseGeoModel=False, **kwargs):
-    """Return configured ComponentAccumulator and tool for SCT_LorentzAngle
-
-    SiConditionsTool and/or DCSConditionsTool may be provided in kwargs
-    """
+def ITkStripLorentzAngleCondAlgCfg(flags, name="ITkStripSiLorentzAngleCondAlg",
+                                   forceUseGeoModel=False, **kwargs):
     # Condition algorithm
     # construct with field services
     acc = MagneticFieldSvcCfg(flags)
@@ -38,12 +43,4 @@ def ITkStripLorentzAngleCfg(flags, name="ITkStripSiLorentzAngleCondAlg",
     #Specify correct DetElCollection for ITkStrip
     algkwargs["SCTDetEleCollKey"] = "ITkStripDetectorElementCollection"
     acc.addCondAlgo(CompFactory.SCTSiLorentzAngleCondAlg(name, **algkwargs))
-
-    # Condition tool
-    toolkwargs = {}
-    #Update ti ITkStrip eventually - tool assumes Pixel or SCT for the moment
-    toolkwargs["DetectorName"] = "SCT"
-    toolkwargs["DetEleCollKey"] = "ITkStripDetectorElementCollection"
-    toolkwargs["SiLorentzAngleCondData"] = "SCTSiLorentzAngleCondData"
-    acc.setPrivateTools(CompFactory.SiLorentzAngleTool(name="ITkStripLorentzAngleTool", **toolkwargs))
     return acc

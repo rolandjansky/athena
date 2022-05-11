@@ -13,9 +13,6 @@
 #include "AthenaKernel/errorcheck.h"
 #include "PathResolver/PathResolver.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
 #include "GaudiKernel/IAppMgrUI.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ITHistSvc.h"
@@ -53,6 +50,7 @@ Rivet_i::Rivet_i(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty("SkipWeights", m_skipweights=false);
   declareProperty("MatchWeights", m_matchWeights="");
   declareProperty("UnmatchWeights", m_unmatchWeights="");
+  declareProperty("NominalWeightName", m_nominalWeightName="");
   declareProperty("WeightCap", m_weightcap=-1.0);
 }
 
@@ -66,6 +64,7 @@ StatusCode Rivet_i::initialize() {
   ATH_MSG_DEBUG("Rivet_i initializing");
   ATH_MSG_INFO("Using Rivet version " << Rivet::version());
 
+  ATH_CHECK(m_evtInfoKey.initialize());
 
   // Set RIVET_ANALYSIS_PATH based on alg setup
 
@@ -124,6 +123,7 @@ StatusCode Rivet_i::initialize() {
   m_analysisHandler->skipMultiWeights(m_skipweights); //< Only run on the nominal weight
   m_analysisHandler->selectMultiWeights(m_matchWeights); //< Only run on a subset of the multi-weights
   m_analysisHandler->deselectMultiWeights(m_unmatchWeights); //< Veto a subset of the multi-weights
+  m_analysisHandler->setNominalWeightName(m_nominalWeightName);
   if (m_weightcap>0) m_analysisHandler->setWeightCap(m_weightcap);
 
   // Set Rivet native log level to match Athena
@@ -158,6 +158,8 @@ StatusCode Rivet_i::initialize() {
 StatusCode Rivet_i::execute() {
   ATH_MSG_DEBUG("Rivet_i execute");
 
+  const EventContext& ctx = getContext();
+
   // Get the event collection
   /// @todo Replace with new GenBase functionality
   const McEventCollection* eventCollection;
@@ -179,7 +181,7 @@ StatusCode Rivet_i::execute() {
   }
 
   // Modify the event units etc. if necessary
-  const HepMC::GenEvent* checkedEvent = checkEvent(event);
+  const HepMC::GenEvent* checkedEvent = checkEvent(event, ctx);
   // ATH_MSG_ALWAYS("CHK1 BEAM ENERGY = " << checkedEvent->beam_particles().first->momentum().e());
   // ATH_MSG_ALWAYS("CHK1 UNITS == MEV = " << std::boolalpha << (checkedEvent->momentum_unit() == HepMC::Units::MEV));
 
@@ -255,22 +257,27 @@ inline std::vector<std::string> split(const std::string& input, const std::strin
     return {first, last};
 }
 
-const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
+const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event, const EventContext& ctx) {
   std::vector<HepMC::GenParticlePtr> beams;
   HepMC::GenEvent* modEvent = new HepMC::GenEvent(*event);
 
   // overwrite the HEPMC dummy event number with the proper ATLAS event number
-  const DataHandle<EventInfo> eventInfo;
-  if (StatusCode::SUCCESS == evtStore()->retrieve(eventInfo)) {
-    uint64_t eventNumber = eventInfo->event_ID()->event_number();
-    modEvent->set_event_number((int)eventNumber);
-  }
+  SG::ReadHandle<xAOD::EventInfo> evtInfo(m_evtInfoKey, ctx);
+  modEvent->set_event_number(static_cast<int>(evtInfo->eventNumber()));
 
   // weight-name cleaning
 #ifdef HEPMC3
   std::shared_ptr<HepMC3::GenRunInfo> modRunInfo;
   if (event->run_info()) {
     modRunInfo = std::make_shared<HepMC3::GenRunInfo>(*(event->run_info().get()));
+    try {
+      event->weight_names();
+    }
+    catch (std::runtime_error &e) {
+      // most likely a HepMC2-style GenEvent
+      if (event->weights().size() != 1)  throw e;
+      modRunInfo->set_weight_names({"Default"});
+    }
   }
   else {
     ATH_MSG_DEBUG("No run info, event weights size is " << event->weights().size() );
@@ -356,6 +363,16 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
 #else
   modEvent->use_units(HepMC::Units::GEV, HepMC::Units::MM);
   if (modEvent->particles_size() == 1)  modEvent->set_beam_particles(*modEvent->particles_begin(), *modEvent->particles_begin());
+  if (modEvent->beam_particles().first->momentum().e() > 50000.0) {
+    for (HepMC::GenEvent::particle_iterator p = modEvent->particles_begin(); p != modEvent->particles_end(); ++p) {
+      const HepMC::FourVector fv((*p)->momentum().px() * 0.001,
+                                 (*p)->momentum().py() * 0.001,
+                                 (*p)->momentum().pz() * 0.001,
+                                 (*p)->momentum().e()  * 0.001);
+      (*p)->set_momentum(fv);
+      (*p)->set_generated_mass((*p)->generated_mass() * 0.001);
+    }
+  }
 #endif
 
   return modEvent;

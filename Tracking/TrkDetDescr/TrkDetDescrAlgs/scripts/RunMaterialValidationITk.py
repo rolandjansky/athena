@@ -39,9 +39,10 @@ if args.localgeo:
 print()
 
 ConfigFlags.Input.isMC             = True
+ConfigFlags.Input.Files = []
 
 if args.localgeo:
-  ConfigFlags.GeoModel.useLocalGeometry = True
+  ConfigFlags.ITk.Geometry.AllLocal = True
   
 from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
 detectors = args.detectors if 'detectors' in args and args.detectors else ['ITkPixel', 'ITkStrip', 'HGTD']

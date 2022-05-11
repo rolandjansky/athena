@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -84,7 +84,7 @@ HoleSearchValidation::HoleSearchValidation(const std::string& name, ISvcLocator*
   m_trackStats = std::vector< std::vector< unsigned int> >(0, std::vector< unsigned int>(0));
 }
 
-HoleSearchValidation::~HoleSearchValidation() {}
+HoleSearchValidation::~HoleSearchValidation() = default;
 
 StatusCode HoleSearchValidation::initialize() {
   ATH_MSG_INFO( "HoleSearchValidation initialize()" ) ;

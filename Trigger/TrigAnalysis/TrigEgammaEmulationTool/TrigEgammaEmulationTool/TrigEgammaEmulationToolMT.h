@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 
@@ -40,16 +40,16 @@ namespace Trig{
 class TrigData{
 
   public: 
-    TrigData( std::string );
+    TrigData( const std::string& );
     ~TrigData()=default;
 
     void clear();
     bool isValid() const;
   
 
-    bool isPassed( const xAOD::Photon *ph , std::string pidname ) const;
-    bool isPassed( const xAOD::Electron *el , float avgmu, std::string pidname ) const;
-    bool isPassed( const xAOD::TrigRingerRings *rings , float avgmu, std::string pidname ) const;
+    bool isPassed( const xAOD::Photon *ph , const std::string& pidname ) const;
+    bool isPassed( const xAOD::Electron *el , float avgmu, const std::string& pidname ) const;
+    bool isPassed( const xAOD::TrigRingerRings *rings , float avgmu, const std::string& pidname ) const;
 
     
 
@@ -105,7 +105,7 @@ class TrigEgammaEmulationToolMT: public asg::AsgTool
 
     StatusCode initialize();
 
-    asg::AcceptData emulate(const TrigCompositeUtils::Decision *dec, std::string trigger, bool &valid) const;
+    asg::AcceptData emulate(const TrigCompositeUtils::Decision *dec, const std::string& trigger, bool &valid) const;
     
     bool match( const TrigCompositeUtils::Decision *dec , Trig::TrigData &, unsigned int condition=TrigDefs::includeFailedDecisions ) const;
 

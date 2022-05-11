@@ -59,7 +59,7 @@ CaloClusterSnapshot::execute(const EventContext& ctx,
   
   SG::WriteHandle<xAOD::CaloClusterContainer>  outputColl(m_outputKey, ctx);
   
-  ATH_CHECK(CaloClusterStoreHelper::AddContainerWriteHandle(&(*evtStore()),outputColl,msg()));
+  ATH_CHECK(CaloClusterStoreHelper::AddContainerWriteHandle(outputColl));
   
   CaloClusterStoreHelper::copyContainer(clusColl,outputColl.ptr());
 

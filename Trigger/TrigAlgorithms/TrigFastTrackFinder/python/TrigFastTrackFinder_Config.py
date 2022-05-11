@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from TrigFastTrackFinder.TrigFastTrackFinderConf import TrigFastTrackFinder
 
@@ -320,8 +320,9 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         if config.doHitDV:
             self.doHitDV_Seeding = True
             self.RecJetRoI = "HLT_RecJETRoIs"
-            self.HitDVTrk  = "HLT_HitDVTrk" # not 'recordable' due to HLT truncation (ATR-23958)
-            self.HitDVSP   = "HLT_HitDVSP"  # not 'recordable' due to HLT truncation (ATR-23958)
+            self.HitDVSeed = "HLT_HitDVSeed" # not 'recordable' due to HLT truncation (ATR-23958)
+            self.HitDVTrk  = "HLT_HitDVTrk"  # not 'recordable' due to HLT truncation (ATR-23958)
+            self.HitDVSP   = "HLT_HitDVSP"   # not 'recordable' due to HLT truncation (ATR-23958)
 
         self.doDisappearingTrk = config.doDisappearingTrk
         if config.doDisappearingTrk:
@@ -436,9 +437,6 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
 
         if not config.doZFinderOnly:
 
-          TrackMaker_FTF.InputClusterContainerName = ""
-          TrackMaker_FTF.InputHadClusterContainerName = ""
-          
           from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigFastTrackSummaryTool
           self.TrackSummaryTool = InDetTrigFastTrackSummaryTool
 

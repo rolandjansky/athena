@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -71,7 +71,7 @@ ISF::DNNCaloSimSvc::DNNCaloSimSvc(const std::string& name, ISvcLocator* svc) :
 }
 
 ISF::DNNCaloSimSvc::~DNNCaloSimSvc()
-{}
+= default;
 
 /** framework methods */
 StatusCode ISF::DNNCaloSimSvc::initialize()
@@ -88,7 +88,7 @@ StatusCode ISF::DNNCaloSimSvc::initialize()
     }
   
   m_caloDetDescrManager  = CaloDetDescrManager::instance();
-  const FCALDetectorManager * fcalManager=NULL;
+  const FCALDetectorManager * fcalManager=nullptr;
   ATH_CHECK(detStore()->retrieve(fcalManager));
 
   const CaloIdManager* caloId_mgr = m_caloDetDescrManager->getCalo_Mgr();
@@ -270,7 +270,6 @@ StatusCode ISF::DNNCaloSimSvc::releaseEvent()
 }
 bool compCellsForDNNSortMirror(const CaloCell* a, const CaloCell* b)
 {
-  static CaloPhiRange range;
   CaloCell_ID::CaloSample aSampling = a->caloDDE()->getSampling();
   CaloCell_ID::CaloSample bSampling = b->caloDDE()->getSampling();
 
@@ -290,16 +289,11 @@ bool compCellsForDNNSortMirror(const CaloCell* a, const CaloCell* b)
   else if ((aEtaRaw) > (bEtaRaw))
     return true;
 
-  if (range.diff(aPhiRaw, bPhiRaw) > 0){
-    return false;
-  }
-
-  return true;
+  return CaloPhiRange::diff(aPhiRaw, bPhiRaw) <= 0;
 }
 
 bool compCellsForDNNSort(const CaloCell* a, const CaloCell* b)
 {
-  static CaloPhiRange range;
   CaloCell_ID::CaloSample aSampling = a->caloDDE()->getSampling();
   CaloCell_ID::CaloSample bSampling = b->caloDDE()->getSampling();
 
@@ -319,11 +313,7 @@ bool compCellsForDNNSort(const CaloCell* a, const CaloCell* b)
   else if ((aEtaRaw) > (bEtaRaw))
     return false;
 
-if (range.diff(aPhiRaw, bPhiRaw) > 0){
-    return false;
-  }
-  
-  return true;
+return CaloPhiRange::diff(aPhiRaw, bPhiRaw) <= 0;
 }
 
 /** Simulation Call */
@@ -380,7 +370,6 @@ StatusCode ISF::DNNCaloSimSvc::simulate(const ISF::ISFParticle& isfp, McEventCol
 // compute all the necessary inputs to the network
 StatusCode ISF::DNNCaloSimSvc::fillNetworkInputs(const ISF::ISFParticle& isfp, NetworkInputs & inputs, double & trueEnergy)
 {
-  static CaloPhiRange range;
   Amg::Vector3D particle_position =  isfp.position();  
   Amg::Vector3D particle_direction(isfp.momentum().x(),isfp.momentum().y(),isfp.momentum().z());
   
@@ -469,7 +458,7 @@ StatusCode ISF::DNNCaloSimSvc::fillNetworkInputs(const ISF::ISFParticle& isfp, N
   }
   // scale & centre
   riImpactEta = (riImpactEta - m_riImpactEtaMean)/m_riImpactEtaScale;
-  double riImpactPhi = (range.diff(phiExtrap, phiRawImpactCell) - m_riImpactPhiMean)/m_riImpactPhiScale;
+  double riImpactPhi = (CaloPhiRange::diff(phiExtrap, phiRawImpactCell) - m_riImpactPhiMean)/m_riImpactPhiScale;
 
 
   // fill randomize latent space
@@ -516,8 +505,6 @@ StatusCode ISF::DNNCaloSimSvc::fillWindowCells(const double etaExtrap,const doub
   //now find the cell it corresponds to  
   //FIXME this is barrel should also look in endcap 
   // (note that is really looking up eta, phi, not raw eta phi
-  static CaloPhiRange range;
-
   impactCellDDE=m_caloDetDescrManager->get_element(CaloCell_ID::EMB2,etaExtrap,phiExtrap);
   if (impactCellDDE==nullptr){
     ATH_MSG_WARNING("No cell found for this eta " << etaExtrap << " phi " << phiExtrap);
@@ -557,7 +544,7 @@ StatusCode ISF::DNNCaloSimSvc::fillWindowCells(const double etaExtrap,const doub
     eta_raw = theCell->caloDDE()->eta_raw();
     phi_raw = theCell->caloDDE()->phi_raw();
     if (( eta_raw < etaRawImpactCell + m_etaRawBackCut) && (eta_raw > etaRawImpactCell - m_etaRawBackCut)) {
-      if ((range.diff(phi_raw, phiRawImpactCell) < m_phiRawStripCut ) && (range.diff(phi_raw, phiRawImpactCell) > - m_phiRawStripCut) ) {
+      if ((CaloPhiRange::diff(phi_raw, phiRawImpactCell) < m_phiRawStripCut ) && (CaloPhiRange::diff(phi_raw, phiRawImpactCell) > - m_phiRawStripCut) ) {
 
       }
       else{
@@ -577,7 +564,7 @@ StatusCode ISF::DNNCaloSimSvc::fillWindowCells(const double etaExtrap,const doub
       }
     }
     else if(sampling == 2) {
-      if ((range.diff(phi_raw , phiRawImpactCell) < m_phiRawMiddleCut) && (range.diff(phi_raw, phiRawImpactCell) > - m_phiRawMiddleCut)) {
+      if ((CaloPhiRange::diff(phi_raw , phiRawImpactCell) < m_phiRawMiddleCut) && (CaloPhiRange::diff(phi_raw, phiRawImpactCell) > - m_phiRawMiddleCut)) {
 	       if ((eta_raw < etaRawImpactCell + m_etaRawMiddleCut) && (eta_raw > etaRawImpactCell - m_etaRawMiddleCut)) {
 	         nSqCuts ++;
 	         m_windowCells.push_back(theCell);
@@ -586,7 +573,7 @@ StatusCode ISF::DNNCaloSimSvc::fillWindowCells(const double etaExtrap,const doub
     }
 
     else if(sampling == 3){
-      if ((range.diff(phi_raw, phiRawImpactCell) <  m_phiRawMiddleCut) && (range.diff(phi_raw , phiRawImpactCell) > - m_phiRawMiddleCut )) {
+      if ((CaloPhiRange::diff(phi_raw, phiRawImpactCell) <  m_phiRawMiddleCut) && (CaloPhiRange::diff(phi_raw , phiRawImpactCell) > - m_phiRawMiddleCut )) {
       	nSqCuts ++;
       	m_windowCells.push_back(theCell);
       }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -39,7 +39,11 @@ namespace Ringer{
                             double mumax);
   
       ~MultiLayerPerceptron();
-  
+
+      // no copy
+      MultiLayerPerceptron(const MultiLayerPerceptron&) = delete;
+      MultiLayerPerceptron& operator=(const MultiLayerPerceptron&) = delete;
+
       Ringer::RnnOutInfo propagate(std::vector<float> &input) const;
   };
 

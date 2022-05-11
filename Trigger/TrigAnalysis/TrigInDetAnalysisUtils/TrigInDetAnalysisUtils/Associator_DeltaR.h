@@ -36,6 +36,8 @@ public:
   Associator_DeltaR(const std::string& name, double deltaR) : TrackAssociator(name), m_deltaR2(deltaR*deltaR) {} 
   
   ~Associator_DeltaR() { } 
+
+  virtual TrackAssociator* clone() override { return new Associator_DeltaR(*this); }
   
   virtual void match(const std::vector<TIDA::Track*>& referenceTracks, 
 		     const std::vector<TIDA::Track*>& testTracks) {

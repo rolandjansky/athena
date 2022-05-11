@@ -1,13 +1,14 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #Content included in addition to the Smart Slimming Content
 ExtraContentElectrons=["Electrons.topoetcone20.topoetcone30.topoetcone40.ptcone20.ptcone30.ptcone40.maxEcell_time.maxEcell_energy.maxEcell_gain.maxEcell_onlId.maxEcell_x.maxEcell_y.maxEcell_z"] + ["egammaClusters.PHI2CALOFRAME.ETA2CALOFRAME.phi_sampl"]
 
-ExtraContentPhotons=["Photons.topoetcone20.topoetcone30.topoetcone40.ptcone20.ptcone30.ptcone40.f3.f3core.maxEcell_time.maxEcell_energy.maxEcell_gain.maxEcell_onlId.maxEcell_x.maxEcell_y.maxEcell_z.neflowisol20.neflowisol30.neflowisol40.neflowisolCorrBitset.neflowisolcoreConeEnergyCorrection.core57cellsEnergyCorrection"]
+ExtraContentPhotons=["Photons.core57cellsEnergyCorrection.topoetcone20.topoetcone30.topoetcone40.ptcone20.ptcone30.ptcone40.f3.f3core.maxEcell_time.maxEcell_energy.maxEcell_gain.maxEcell_onlId.maxEcell_x.maxEcell_y.maxEcell_z"] + \
+    ["Photons.ptcone20_Nonprompt_All_MaxWeightTTVA_pt500.ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt1000.ptvarcone30_Nonprompt_All_MaxWeightTTVA_pt500"]
 
-ExtraContentVtx=["PrimaryVertices.x.y.z.covariance.trackWeights.vertexType.sumPt2.EGAM10_sumPt.EGAM10_sumPt2.EGAM10_pt.EGAM10_eta.EGAM10_phi"]
+ExtraContentVtx=["PrimaryVertices.covariance.trackWeights.sumPt2.EGAM10_sumPt.EGAM10_sumPt2.EGAM10_pt.EGAM10_eta.EGAM10_phi"]
 
-ExtraContentTrk=["InDetTrackParticles.definingParametersCovMatrixVec.theta.z0.d0.qOverP"]
+ExtraContentTrk=["InDetTrackParticles.TTVA_AMVFVertices.TTVA_AMVFWeights"]
 
 ExtraContentJets=[]
 #ExtraContentJets=["AntiKt4EMPFlowJets.EMFrac.Width.TrackWidthPt500.SumPtTrkPt1000.EnergyPerSampling.GhostTrack.DFCommonJets_jetClean_LooseBad.DFCommonJets_jetClean_TightBad.Timing.FracSamplingMax.FracSamplingMaxIndex.HECFrac.LArQuality.HECQuality.NegativeE.AverageLArQF"]
@@ -15,8 +16,6 @@ ExtraContentJets=[]
 ExtraContentEventShape=[
     "TopoClusterIsoCentralEventShape.Density",
     "TopoClusterIsoForwardEventShape.Density",
-    "NeutralParticleFlowIsoCentralEventShape.Density",
-    "NeutralParticleFlowIsoForwardEventShape.Density"
 ]
 
 ExtraContentAll=ExtraContentElectrons+ExtraContentPhotons+ExtraContentVtx+ExtraContentTrk+ExtraContentJets+ExtraContentEventShape
@@ -27,10 +26,10 @@ ExtraElectronsTruth=[".".join(["Electrons",
     "truthType", 
     "truthParticleLink", 
     "truthPdgId", 
-    "bkgTruthType", 
-    "bkgTruthOrigin", 
-    "bkgTruthParticleLink", 
-    "bkgMotherPdgId", 
+    "lastEgMotherTruthType",
+    "lastEgMotherTruthOrigin",
+    "lastEgMotherTruthParticleLink",
+    "lastEgMotherPdgId",
     "firstEgMotherTruthType", 
     "firstEgMotherTruthOrigin", 
     "firstEgMotherTruthParticleLink", 
@@ -53,13 +52,13 @@ ExtraContainers=["CaloCalTopoClusters"]
 ExtraContainersTruth=["TruthEvents",
                       "TruthParticles",
                       "TruthVertices",
-                      "AntiKt4TruthJets",
-                      "AntiKt4TruthWZJets",
                       "TruthMuons",
                       "TruthElectrons",
                       "TruthPhotons",
                       "TruthNeutrinos",
-                      "TruthTaus"]
+                      "TruthTaus",
+                      "AntiKt4TruthJets",
+                      "AntiKt4TruthDressedWZJets"]
 
 ExtraContainersTruthPhotons=["egammaTruthParticles"]
 

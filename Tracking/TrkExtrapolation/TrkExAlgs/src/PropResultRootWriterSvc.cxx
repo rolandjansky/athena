@@ -1,6 +1,6 @@
  
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkExAlgs/PropResultRootWriterSvc.h"
@@ -18,7 +18,7 @@ Trk::PropResultRootWriterSvc::PropResultRootWriterSvc( const std::string& name, 
   m_tree(nullptr) {
 }
 
-Trk::PropResultRootWriterSvc::~PropResultRootWriterSvc() {}
+Trk::PropResultRootWriterSvc::~PropResultRootWriterSvc() = default;
 
 StatusCode Trk::PropResultRootWriterSvc::initialize()
 {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRTStrawCondAlg.h"
@@ -8,7 +8,6 @@
 TRTStrawCondAlg::TRTStrawCondAlg(const std::string& name
 				 , ISvcLocator* pSvcLocator )
   : ::AthAlgorithm(name,pSvcLocator),
-    m_condSvc("CondSvc",name),
     m_strawStatus("TRT_StrawStatusSummaryTool",this)
 { declareProperty("TRTStrawStatusSummaryTool",m_strawStatus);
 }
@@ -16,26 +15,16 @@ TRTStrawCondAlg::~TRTStrawCondAlg(){}
 
 StatusCode TRTStrawCondAlg::initialize()
 {
-
-  // CondSvc
-  ATH_CHECK( m_condSvc.retrieve() );
-
   // Straw status
   ATH_CHECK ( m_strawStatus.retrieve() );
 
   // Read key
   ATH_CHECK( m_strawReadKey.initialize() );
 
-
   // Register write handle
   ATH_CHECK( m_strawWriteKey.initialize() );
 
-  if (m_condSvc->regHandle(this, m_strawWriteKey).isFailure()) {
-    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_strawWriteKey.fullKey() << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
-
-  // Initialize readCondHandle key                                                                                                                           
+  // Initialize readCondHandle key
   ATH_CHECK(m_trtDetEleContKey.initialize());
 
   // TRT ID helper

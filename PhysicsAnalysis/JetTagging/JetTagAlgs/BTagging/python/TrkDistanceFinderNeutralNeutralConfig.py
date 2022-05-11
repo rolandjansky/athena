@@ -1,9 +1,7 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-
-Trk__TrkDistanceFinderNeutralNeutral=CompFactory.Trk.TrkDistanceFinderNeutralNeutral
 
 def TrkDistanceFinderNeutralNeutralCfg(name, **options):
     """Sets up a TrkDistanceFinderNeutralNeutral tool and returns it.
@@ -15,6 +13,6 @@ def TrkDistanceFinderNeutralNeutralCfg(name, **options):
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     acc = ComponentAccumulator()
     options['name'] = name
-    acc.setPrivateTools(Trk__TrkDistanceFinderNeutralNeutral(**options))
+    acc.setPrivateTools(CompFactory.Trk.TrkDistanceFinderNeutralNeutral(**options))
 
     return acc

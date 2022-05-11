@@ -13,11 +13,8 @@
 
 #include "TrkSpacePoint/SpacePointOverlapCollection.h"
 // Constructor with parameters:
-SpacePointOverlapCollection::SpacePointOverlapCollection()
-
-{}
+SpacePointOverlapCollection::SpacePointOverlapCollection() = default;
 
 // Destructor:
-SpacePointOverlapCollection::~SpacePointOverlapCollection()
-{ }
+SpacePointOverlapCollection::~SpacePointOverlapCollection() = default;
 

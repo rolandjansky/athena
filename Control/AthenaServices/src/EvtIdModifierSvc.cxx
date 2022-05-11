@@ -300,9 +300,11 @@ EvtIdModifierSvc::modify_evtid(EventID*& evt_id, bool consume_stream)
       if (m_evtCounter > m_current.nevts) {
         // go to next n-uplet
         ++m_cursor;
+        ATH_MSG_DEBUG("Moved to next ntuplet");
         m_evtCounter = 1;
       }
     }
+    ATH_MSG_DEBUG("Event counter = " << m_evtCounter);
     if (m_current.mod_bit & SHIFT_RUNNBR) {
       evt_id->set_run_number(m_current.runnbr);
     }

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.Logging import logging
@@ -19,6 +19,24 @@ def createAndAddCondAlg(creator, the_name, **kwargs) :
     alg = creator(**kwargs)
     cond_seq += alg
     return alg
+
+def getCondAlg(the_name) :
+    from AthenaCommon.AlgSequence import AlgSequence
+    from AthenaCommon.AlgSequence import AthSequencer
+    cond_seq=AthSequencer("AthCondSeq")
+    for seq in [AlgSequence(),cond_seq] :
+        log.debug('createAndAddCondAlg match ?  %s == %s ? %s ', dir(seq), the_name, hasattr(seq,the_name) )
+        if hasattr(seq,the_name) :
+            if seq.getName() != "AthCondSeq" :
+                raise Exception('Algorithm already in a sequnece but not the conditions seqence')
+            return getattr(seq,the_name)
+    return None
+
+def addCondAlg(cond_alg) :
+    if cond_alg is not None :
+        from AthenaCommon.AlgSequence import AthSequencer
+        cond_seq=AthSequencer("AthCondSeq")
+        cond_seq += cond_alg
 
 def createAndAddEventAlg(creator, the_name, **kwargs) :
     from AthenaCommon.AlgSequence import AlgSequence
@@ -208,25 +226,6 @@ def getRIO_OnTrackErrorScalingCondAlg( **kwargs) :
                                                              ReadKey             = "/Indet/TrkErrorScaling",
                                                              ErrorScalingType    = error_scaling_type,
                                                              OutKeys             = error_scaling_outkey) )
-
-
-
-
-def getEventInfoKey() :
-    from AthenaCommon.DetFlags    import DetFlags
-
-    isData = (globalflags.DataSource == 'data')
-
-    eventInfoKey = "EventInfo"
-    if not isData:
-        eventInfoKey = "McEventInfo"
-    if globalflags.isOverlay() and isData :
-        if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.TRT_on():
-            from OverlayCommonAlgs.OverlayFlags import overlayFlags
-            eventInfoKey = (overlayFlags.dataStore() + '+' + eventInfoKey).replace("StoreGateSvc+","")
-        else :
-            eventInfoKey = "McEventInfo"
-    return eventInfoKey
 
 
 def getNeuralNetworkToHistoTool(**kwargs) :
@@ -677,44 +676,6 @@ def getInDetPatternUpdator(name='InDetPatternUpdator',**kwargs) :
     from TrkMeasurementUpdator_xk.TrkMeasurementUpdator_xkConf import Trk__KalmanUpdator_xk
     return Trk__KalmanUpdator_xk(name = the_name, **kwargs)
 
-
-@makePublicTool
-def getInDetGsfMeasurementUpdator(name='InDetGsfMeasurementUpdator', **kwargs) :
-    the_name = makeName( name, kwargs )
-    if 'Updator' not in kwargs  :
-        kwargs=setDefaults(kwargs, Updator = getInDetUpdator() )
-    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMeasurementUpdator
-    return Trk__GsfMeasurementUpdator( name = the_name, **kwargs )
-
-
-@makePublicTool
-def getInDetGsfMaterialUpdator(name='InDetGsfMaterialUpdator', **kwargs) :
-    the_name = makeName( name, kwargs)
-    if 'MaximumNumberOfComponents' not in kwargs :
-        kwargs=setDefaults(kwargs, MaximumNumberOfComponents = 12)
-
-    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolution
-    return Trk__GsfMaterialMixtureConvolution (name = the_name, **kwargs)
-
-
-@makePublicTool
-def getInDetGsfExtrapolator(name='InDetGsfExtrapolator', **kwargs) :
-    the_name = makeName(name,kwargs)
-    if 'Propagators' not in kwargs :
-        kwargs=setDefaults(kwargs, Propagators = [ getInDetPropagator() ] )
-
-    if 'Navigator' not in kwargs :
-        kwargs=setDefaults(kwargs, Navigator   =  getInDetNavigator() )
-
-    if 'GsfMaterialConvolution' not in kwargs :
-        kwargs=setDefaults(kwargs, GsfMaterialConvolution        = getInDetGsfMaterialUpdator())
-
-    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfExtrapolator
-    return Trk__GsfExtrapolator(name = the_name, **setDefaults(kwargs,
-                                                               SearchLevelClosestParameters  = 10,
-                                                               StickyConfiguration           = True,
-                                                               SurfaceBasedMaterialEffects   = False ))
-
 @makePublicTool
 def getTrkMaterialProviderTool(name='TrkMaterialProviderTool',**kwargs) :
     the_name = makeName(name,kwargs)
@@ -809,17 +770,64 @@ def getInDetPrdAssociationTool_setup(name='InDetPrdAssociationTool_setup',**kwar
     '''
     return getInDetPrdAssociationTool(name, **setDefaults(kwargs, SetupCorrect                   = True) )
 
-def getInDetPixelConditionsSummaryTool() :
+def getInDetPixelConditionsSummaryTool(name = "PixelConditionsSummaryTool",**kwargs) :
+    the_name = makeName( name, kwargs)
     from InDetRecExample.InDetJobProperties import InDetFlags
     from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
-    pixelConditionsSummaryToolSetup = PixelConditionsSummaryTool("PixelConditionsSummaryTool",
-                                                                 UseByteStreamFEI4=(globalflags.DataSource=='data'),
-                                                                 UseByteStreamFEI3=(globalflags.DataSource=='data'))
+    from RecExConfig.AutoConfiguration import IsInInputFile
+    has_bytestream_errors= globalflags.DataSource=='data' and (IsInInputFile('IDCInDetBSErrContainer','PixelByteStreamErrs')
+                                                               or globalflags.InputFormat() == 'bytestream' )
+
+    pixelConditionsSummaryToolSetup = PixelConditionsSummaryTool(the_name,
+                                                                 **setDefaults(kwargs,
+                                                                               UseByteStreamFEI4=has_bytestream_errors,
+                                                                               UseByteStreamFEI3=has_bytestream_errors) )
     if InDetFlags.usePixelDCS():
         pixelConditionsSummaryToolSetup.IsActiveStates = [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ]
         pixelConditionsSummaryToolSetup.IsActiveStatus = [ 'OK', 'WARNING', 'ERROR', 'FATAL' ]
 
     return pixelConditionsSummaryToolSetup
+
+def getInDetPixelConditionsSummaryToolActiveOnly(name = "PixelConditionsSummaryToolActiveOnly",**kwargs) :
+    return getInDetPixelConditionsSummaryTool(name, **setDefaults(kwargs, ActiveOnly = True))
+
+
+def getPixelConditionsSummaryToolNoByteStreamErrorsActiveOnly(name = "PixelConditionsSummaryToolNoByteStreamErrorsActiveOnly", **kwargs) :
+    return getInDetPixelConditionsSummaryTool(name, **setDefaults(kwargs,
+                                                                  ActiveOnly        = True,
+                                                                  UseByteStreamFEI4 = False,
+                                                                  UseByteStreamFEI3 = False,
+                                                                  UseByteStreamRD53 = False))
+
+def getPixelActiveDetectorElementStatusTool(name = "PixelActiveDetectorElementStatusTool",**kwargs) :
+    from PixelConditionsTools.PixelConditionsToolsConf import PixelActiveDetectorElementStatusTool
+    return PixelActiveDetectorElementStatusTool(name, **setDefaults(kwargs,
+                                                                    IsActiveStatus = [ 'OK', 'WARNING', 'ERROR', 'FATAL' ]) )
+
+def getPixelByteStreamErrorDetectorElementStatusTool(name = "PixelByteStreamErrorDetectorElementStatusTool",**kwargs) :
+    the_name = makeName( name, kwargs)
+    from RecExConfig.AutoConfiguration import IsInInputFile
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+
+    has_bytestream_errors= globalflags.DataSource=='data' \
+                           and not (globalflags.isOverlay() and  overlayFlags.isDataOverlay()) \
+                           and (IsInInputFile('IDCInDetBSErrContainer','PixelByteStreamErrs')
+                                              or globalflags.InputFormat() == 'bytestream' )
+    if has_bytestream_errors :
+        from PixelConditionsTools.PixelConditionsToolsConf import PixelByteStreamErrorDetectorElementStatusTool
+        return PixelByteStreamErrorDetectorElementStatusTool(the_name, **setDefaults(kwargs,
+                                                                                     PixelByteStreamErrs = "PixelByteStreamErrs",
+                                                                                     UseByteStreamFEI4   = True,
+                                                                                     UseByteStreamFEI3   = True,
+                                                                                     ActiveOnly          = False) )
+    else :
+        kwargs.pop("ActiveOnly",False)
+        from PixelConditionsTools.PixelConditionsToolsConf import PixelDetectorElementStatusCloneTool
+        return PixelDetectorElementStatusCloneTool(the_name,**kwargs)
+
+
+def getPixelByteStreamErrorDetectorElementStatusToolActiveOnly(name = "PixelByteStreamErrorDetectorElementStatusToolActiveOnly",**kwargs) :
+    return getPixelByteStreamErrorDetectorElementStatusTool(name, **setDefaults(kwargs, ActiveOnly = True) )
 
 @makePublicTool
 def getInDetTestPixelLayerTool(name = "InDetTestPixelLayerTool", **kwargs) :
@@ -831,11 +839,17 @@ def getInDetTestPixelLayerTool(name = "InDetTestPixelLayerTool", **kwargs) :
     kwargs = setDefaults( kwargs,
                           CheckActiveAreas = InDetFlags.checkDeadElementsOnTrack(),
                           CheckDeadRegions = InDetFlags.checkDeadElementsOnTrack(),
-                          CheckDisabledFEs = InDetFlags.checkDeadElementsOnTrack())
+                          CheckDisabledFEs = InDetFlags.checkDeadElementsOnTrack()
+                          ,PixelDetElStatus   = "PixelDetectorElementStatus"
+                          ,PixelReadoutManager = "PixelReadoutManager"
+                           )  # @TODO Should use method here
+
 
     from InDetTestPixelLayer.InDetTestPixelLayerConf import InDet__InDetTestPixelLayerTool
     return InDet__InDetTestPixelLayerTool(name = the_name, **kwargs)
 
+def getInDetTrigTestPixelLayerTool(name = "InDetTrigTestPixelLayerTool", **kwargs) :
+    return getInDetTestPixelLayerTool(name, **setDefaults( kwargs, PixelDetElStatus   = "") )
 
 # # set up the propagator for outside ID (A.S. needed as a fix for 14.5.0 )
 # @makePublicTool
@@ -898,10 +912,218 @@ def getInDetTrackToVertexTool(name='TrackToVertex', **kwargs) :
     from TrackToVertex.TrackToVertexConf import Reco__TrackToVertex
     return Reco__TrackToVertex(the_name,**kwargs)
 
+def getPixelDetectorElementStatusCondAlgActiveOnly(name = "PixelDetectorElementStatusCondAlgNoByteStreamErrorActiveOnly", **kwargs) :
+    '''
+    Condition alg to precompute the pixel detector element status.
+    this algo does not consider the DCS status (and the byte stream errors which are event data)
+    '''
+    the_name = makeName(name, kwargs)
+    cond_alg = getCondAlg(the_name)
+    if cond_alg is not None :
+        return cond_alg
+
+    if 'ConditionsSummaryTool' not in kwargs :
+       kwargs = setDefaults( kwargs, ConditionsSummaryTool   = getPixelConditionsSummaryToolNoByteStreamErrorsActiveOnly())
+    kwargs = setDefaults( kwargs, WriteKey = "PixelDetectorElementStatusNoByteStreamActiveOnly")
+
+    from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__SiDetectorElementStatusCondAlg
+    return InDet__SiDetectorElementStatusCondAlg(the_name, **kwargs)
+
+def getPixelDetectorElementStatusCondAlg(name = "PixelDetectorElementStatusCondAlgNoByteStreamError", **kwargs) :
+    '''
+    Condition alg to precompute the create pixel detector element status which includes the DCS status
+    this algo does not consider the byte stream errors which are event data
+    '''
+    the_name = makeName(name, kwargs)
+    cond_alg = getCondAlg(the_name)
+    if cond_alg is not None :
+        return cond_alg
+
+    addCondAlg( getPixelDetectorElementStatusCondAlgActiveOnly() )
+
+    if 'ConditionsSummaryTool' not in kwargs :
+       kwargs = setDefaults( kwargs, ConditionsSummaryTool = getPixelActiveDetectorElementStatusTool(PixelDetElStatusCondDataBaseKey="PixelDetectorElementStatusNoByteStreamActiveOnly"))
+    kwargs = setDefaults( kwargs, WriteKey = "PixelDetectorElementStatusNoByteStream")
+
+    from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__SiDetectorElementStatusCondAlg
+    return InDet__SiDetectorElementStatusCondAlg(the_name, **kwargs)
+
+def getPixelDetectorElementStatusAlg(name = "PixelDetectorElementStatusAlg", **kwargs) :
+    '''
+    Event alg which extends the pixel detector element status conditions data by the bytestream errors.
+    '''
+
+    the_name = makeName(name, kwargs)
+    active_only = kwargs.pop("ActiveOnly", False)
+    if 'ConditionsSummaryTool' not in kwargs and not active_only :
+        element_status_input=None
+        from InDetRecExample.InDetJobProperties import InDetFlags
+        if InDetFlags.usePixelDCS() :
+            addCondAlg( getPixelDetectorElementStatusCondAlg() )
+            element_status_input="PixelDetectorElementStatusNoByteStream"
+        else :
+            # without DCS PixelDetectorElementStatusNoByteStream and PixelDetectorElementStatusNoByteStreamActiveOnly
+            # are identically
+            addCondAlg( getPixelDetectorElementStatusCondAlgActiveOnly() )
+            element_status_input="PixelDetectorElementStatusNoByteStreamActiveOnly"
+        kwargs.setdefault("ConditionsSummaryTool",
+                          getPixelByteStreamErrorDetectorElementStatusTool( PixelDetElStatusCondDataBaseKey=element_status_input) )
+
+    elif 'ConditionsSummaryTool' not in kwargs and active_only :
+       addCondAlg( getPixelDetectorElementStatusCondAlgActiveOnly() )
+       kwargs.setdefault("ConditionsSummaryTool",
+                         getPixelByteStreamErrorDetectorElementStatusToolActiveOnly( PixelDetElStatusCondDataBaseKey="PixelDetectorElementStatusNoByteStreamActiveOnly"))
+
+    kwargs = setDefaults( kwargs, WriteKey = "PixelDetectorElementStatus")
+
+    from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__SiDetectorElementStatusAlg
+    return InDet__SiDetectorElementStatusAlg(the_name, **kwargs)
+
+def getPixelDetectorElementStatusAlgActiveOnly(name = "PixelDetectorElementStatusAlgActiveOnly", **kwargs) :
+    '''
+    Event alg which extends the pixel detector element status conditions data which does not consider the DCS status by the bytestream errors.
+    This alg however does only consider errors concerning the module activity, not general errors.
+    '''
+    return getPixelDetectorElementStatusAlg( name       = name,
+                                           WriteKey   = "PixelDetectorElementStatusActiveOnly",
+                                           ActiveOnly = True)
+
+
 # @TODO move configuration of InDetSCT_ConditionsSummaryTool to a function
+def_InDetSCT_ConditionsSummaryToolWithoutFlagged=None
+def getInDetSCT_ConditionsSummaryToolWithoutFlagged() :
+    return def_InDetSCT_ConditionsSummaryToolWithoutFlagged
+
 def_InDetSCT_ConditionsSummaryTool=None
 def getInDetSCT_ConditionsSummaryTool() :
     return def_InDetSCT_ConditionsSummaryTool
+
+def getInDetSCT_FlaggedConditionTool(name='InDetSCT_FlaggedConditionTool', **kwargs) :
+    the_name = makeName(name, kwargs)
+    kwargs = setDefaults(kwargs, SCT_FlaggedCondData = "SCT_FlaggedCondData" )
+
+    from SCT_ConditionsTools.SCT_ConditionsToolsConf import  SCT_FlaggedConditionTool
+    return SCT_FlaggedConditionTool(the_name, **kwargs)
+
+def getInDetSCT_DetectorElementStatusCondDataTool(name="InDetSCT_DetectorElementStatusCondDataTool", **kwargs) :
+    '''
+    Helper method to create from an existing InDetSCT_ConditionsSummaryTool
+    a new version without the flagged and bytestream error tools
+    '''
+    the_name = makeName(name, kwargs)
+    from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
+    tool_setup = SCT_ConditionsSummaryToolSetup(the_name)
+    tool_setup.setup()
+    the_summary_tool = tool_setup.getTool()
+
+    if "ConditionsTools" not in kwargs :
+        import re
+        pattern = re.compile(".*SCT_ByteStreamErrorsTool.*")
+        condTools = []
+        input_cond_tools = getInDetSCT_ConditionsSummaryToolWithoutFlagged().ConditionsTools
+        for condToolHandle in input_cond_tools:
+            condTool = condToolHandle
+            if condTool not in condTools:
+                if pattern.match(condTool.getFullName()) is None :
+                    condTools.append(condTool)
+        the_summary_tool.ConditionsTools = condTools
+    else :
+        the_summary_tool.ConditionsTools = kwargs.pop("ConditionsTools")
+    return the_summary_tool
+
+def getInDetSCT_DetectorElementStatusAddByteStreamErrorsTool(name ='InDetSCT_DetectorElementStatusAddByteStreamErrorsTool', **kwargs) :
+    the_name = makeName(name, kwargs)
+    from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConditionsSummaryTool
+    from SCT_ConditionsTools.SCT_ConditionsToolsHelper import getSCT_ByteStreamErrorsTool
+
+    if "ConditionsTools" not in kwargs :
+        from RecExConfig.AutoConfiguration import IsInInputFile
+        has_bytestream_errors= globalflags.DataSource=='data' \
+                               and (IsInInputFile('IDCInDetBSErrContainer','SCT_ByteStreamErrs')
+                                    or globalflags.InputFormat() == 'bytestream' )
+
+        kwargs = setDefaults(kwargs, ConditionsTools = [getSCT_ByteStreamErrorsTool()] if has_bytestream_errors else [])
+
+    kwargs = setDefaults(kwargs,
+                         SCTDetEleCollKey               = "SCT_DetectorElementCollection")
+
+    return SCT_ConditionsSummaryTool(the_name, **kwargs)
+
+# to be used by the SCTDetectorElementStatusAlgW algorithm to add the SCT_FlaggedCondData to the status info without this data
+def getInDetSCT_DetectorElementStatusAddFlaggedTool(name = 'InDetSCT_ConditionsSummaryToolAddFlagged', **kwargs) :
+    the_name = makeName(name, kwargs)
+    from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConditionsSummaryTool
+
+    if "ConditionsTools" not in kwargs :
+        kwargs = setDefaults(kwargs, ConditionsTools = [getInDetSCT_FlaggedConditionTool()])
+
+    # @RODO should make sure that conditions algorithm is configured
+    kwargs = setDefaults(kwargs,
+                         SCTDetEleCollKey               = "SCT_DetectorElementCollection",
+                         SCTDetElStatusEventDataBaseKey = "SCTDetectorElementStatusWithoutFlagged")
+    return SCT_ConditionsSummaryTool(the_name, **kwargs)
+
+def getInDetSCT_ConditionsSummaryToolClone(name = 'InDetSCT_ConditionsSummaryToolClone', **kwargs) :
+    the_name = makeName(name, kwargs)
+    from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConditionsSummaryTool
+
+    if "ConditionsTools" not in kwargs :
+        kwargs = setDefaults(kwargs, ConditionsTools = [])
+
+    # @RODO should make sure that conditions algorithm is configured
+    kwargs = setDefaults(kwargs,
+                         SCTDetEleCollKey               = "SCT_DetectorElementCollection")
+    return SCT_ConditionsSummaryTool(the_name, **kwargs)
+
+# SCTDetectorElementStatusAlg which creates the status data to be used in the SCT_Clusterization
+def getSCTDetectorElementStatusCondAlg(name="SCTDetectorElementStatusCondAlg",**kwargs) :
+    the_name = makeName(name, kwargs)
+    cond_alg = getCondAlg(the_name)
+    if cond_alg is not None :
+        return cond_alg
+
+    if 'ConditionsSummaryTool' not in kwargs :
+        kwargs = setDefaults( kwargs, ConditionsSummaryTool   = getInDetSCT_DetectorElementStatusCondDataTool() )
+    kwargs = setDefaults( kwargs, WriteKey = "SCTDetectorElementStatusCondData")
+
+    from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__SiDetectorElementStatusCondAlg
+    return InDet__SiDetectorElementStatusCondAlg(the_name, **kwargs)
+
+def getSCTDetectorElementStatusAlgWithoutFlagged(name="SCTDetectorElementStatusAlgWithoutFlagged",**kwargs) :
+    '''
+    Algorithm which just creates event data from conditions data.
+    '''
+    the_name = makeName(name, kwargs)
+    addCondAlg( getSCTDetectorElementStatusCondAlg() )
+
+    if 'ConditionsSummaryTool' not in kwargs :
+        kwargs = setDefaults( kwargs, ConditionsSummaryTool   = getInDetSCT_DetectorElementStatusAddByteStreamErrorsTool(
+                                                                  SCTDetElStatusCondDataBaseKey  = "SCTDetectorElementStatusCondData",
+                                                                  SCTDetElStatusEventDataBaseKey = ""))
+
+    kwargs = setDefaults( kwargs,
+                          WriteKey                      = "SCTDetectorElementStatusWithoutFlagged")
+
+    from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__SiDetectorElementStatusAlg
+    return InDet__SiDetectorElementStatusAlg(the_name, **kwargs)
+
+# SCTDetectorElementStatusAlg which creates the status data to be used everywhere but the SCT_Clusterization
+def getSCTDetectorElementStatusAlg(name = "SCTDetectorElementStatusAlg", **kwargs) :
+    the_name = makeName(name, kwargs)
+    createAndAddEventAlg( getSCTDetectorElementStatusAlgWithoutFlagged, "SCTDetectorElementStatusAlgWithoutFlagged" )
+
+    if 'ConditionsSummaryTool' not in kwargs :
+        kwargs = setDefaults( kwargs,
+                              ConditionsSummaryTool   = getInDetSCT_DetectorElementStatusAddFlaggedTool(
+                                                          SCTDetElStatusCondDataBaseKey  = "",
+                                                          SCTDetElStatusEventDataBaseKey = "SCTDetectorElementStatusWithoutFlagged"))
+
+    kwargs = setDefaults( kwargs,
+                          WriteKey                      = "SCTDetectorElementStatus")
+
+    from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__SiDetectorElementStatusAlg
+    return InDet__SiDetectorElementStatusAlg(the_name, **kwargs)
+
 
 @makePublicTool
 def getInDetBoundaryCheckTool(name="InDetBoundarySearchTool", **kwargs):
@@ -918,6 +1140,7 @@ def getInDetBoundaryCheckTool(name="InDetBoundarySearchTool", **kwargs):
         kwargs,
         UsePixel=DetFlags.haveRIO.pixel_on(),
         UseSCT=DetFlags.haveRIO.SCT_on(),
+        SCTDetElStatus="SCTDetectorElementStatus"
     )
 
     from InDetBoundaryCheckTool.InDetBoundaryCheckToolConf import InDet__InDetBoundaryCheckTool
@@ -964,8 +1187,17 @@ def getInDetRecTestBLayerTool(name='InDetRecTestBLayerTool', **kwargs) :
     if 'PixelSummaryTool' not in kwargs :
         kwargs = setDefaults( kwargs, PixelSummaryTool = getInDetPixelConditionsSummaryTool())
 
+    kwargs = setDefaults( kwargs
+                          ,PixelDetElStatus   = "PixelDetectorElementStatus"
+                          ,PixelReadoutManager = "PixelReadoutManager")
+
     from InDetTestBLayer.InDetTestBLayerConf import InDet__InDetTestBLayerTool
     return InDet__InDetTestBLayerTool(name=the_name, **kwargs)
+
+def getInDetTrigRecTestBLayerTool(name='InDetTrigRecTestBLayerTool', **kwargs) :
+    kwargs = setDefaults(kwargs,
+                         PixelDetElStatus = "")
+    return getInDetRecTestBLayerTool(name, **kwargs)
 
 @makePublicTool
 def getInDetTRTStrawStatusSummaryTool(name = "InDetTRT_StrawStatusSummaryTool", **kwargs) :
@@ -1313,17 +1545,6 @@ def getTRT_DetElementsRoadCondAlg(**kwargs):
     from TRT_DetElementsRoadTool_xk.TRT_DetElementsRoadTool_xkConf import InDet__TRT_DetElementsRoadCondAlg_xk
     return InDet__TRT_DetElementsRoadCondAlg_xk(the_name, **kwargs)
 
-def getInDetROIInfoVecCondAlg(name='InDetROIInfoVecCondAlg',**kwargs) :
-    the_name = makeName(name, kwargs)
-    from InDetRecExample.InDetKeys import InDetKeys
-    kwargs=setDefaults(kwargs,
-                       InputEmClusterContainerName = InDetKeys.CaloClusterROIContainer(),
-                       WriteKey                    = kwargs.get("namePrefix","")+"ROIInfoVec"+kwargs.get("nameSuffix",""),
-                       minPtEM                     = 5000.  # in MeV
-                       )
-    from InDetTrackScoringTools.InDetTrackScoringToolsConf import ROIInfoVecAlg
-    return ROIInfoVecAlg(the_name,**kwargs)
-
 @makePublicTool
 def getInDetAmbiScoringToolBase(name='InDetAmbiScoringTool', **kwargs) :
     NewTrackingCuts = kwargs.pop("NewTrackingCuts")
@@ -1332,8 +1553,7 @@ def getInDetAmbiScoringToolBase(name='InDetAmbiScoringTool', **kwargs) :
     from AthenaCommon.DetFlags              import DetFlags
     have_calo_rois = InDetFlags.doBremRecovery() and InDetFlags.doCaloSeededBrem() and DetFlags.detdescr.Calo_allOn()
     if have_calo_rois :
-        alg=createAndAddEventAlg(getInDetROIInfoVecCondAlg,"InDetROIInfoVecCondAlg")
-        kwargs=setDefaults(kwargs, CaloROIInfoName = alg.WriteKey )
+        kwargs=setDefaults(kwargs, EMROIPhiRZContainer = "InDetCaloClusterROIPhiRZ5GeV")
     if 'DriftCircleCutTool' not in kwargs :
         kwargs=setDefaults(kwargs,
                            DriftCircleCutTool      = getInDetTRTDriftCircleCutForPatternReco())
@@ -1383,8 +1603,8 @@ def getInDetNNScoringToolBase(name='InDetNNScoringTool', **kwargs) :
     from AthenaCommon.DetFlags              import DetFlags
     have_calo_rois = InDetFlags.doBremRecovery() and InDetFlags.doCaloSeededBrem() and DetFlags.detdescr.Calo_allOn()
     if have_calo_rois :
-        alg=createAndAddEventAlg(getInDetROIInfoVecCondAlg,"InDetROIInfoVecCondAlg")
-        kwargs=setDefaults(kwargs, CaloROIInfoName = alg.WriteKey )
+        kwargs=setDefaults(kwargs, EMROIPhiRZContainer = "InDetCaloClusterROIPhiRZ5GeV")
+
     if 'DriftCircleCutTool' not in kwargs :
         kwargs=setDefaults(kwargs,
                            DriftCircleCutTool      = getInDetTRTDriftCircleCutForPatternReco())
@@ -1447,9 +1667,6 @@ def getInDetTRT_SeededScoringTool(NewTrackingCuts, name='InDetTRT_SeededScoringT
 
 
 def getInDetExtenScoringTool(NewTrackingCuts,name='InDetExtenScoringTool', **kwargs) :
-    from InDetRecExample.InDetJobProperties import InDetFlags
-    if InDetFlags.trackFitterType() in ['KalmanFitter', 'KalmanDNAFitter', 'ReferenceKalmanFitter']:
-        kwargs=setDefaults(kwargs, minTRTPrecisionFraction = 0.2)
     return getInDetAmbiScoringTool(NewTrackingCuts,
                                    name,
                                    **setDefaults(kwargs,

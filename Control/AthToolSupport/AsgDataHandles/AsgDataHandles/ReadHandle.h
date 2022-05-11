@@ -59,6 +59,13 @@ public:
 
 
   /**
+   * @brief Constructor with full arguments.
+   * @param sgkey StoreGate key of the referenced object.
+   */
+  explicit ReadHandle(const std::string& sgkey);
+
+
+  /**
    * @brief Constructor from a ReadHandleKey.
    * @param key The key object holding the clid/key/store.
    *

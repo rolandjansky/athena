@@ -7,10 +7,10 @@ from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 def createTrigHitDVHypoAlg(name):
     # make the Hypo
     from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConf import (TrigHitDVHypoAlg)
-    
+
     # Setup the hypothesis algorithm
     theHitDVHypo = TrigHitDVHypoAlg(name)
-    
+
     from TrigEDMConfig.TriggerEDMRun3 import recordable
     theHitDVHypo.HitDV = recordable("HLT_HitDV")
 
@@ -21,35 +21,37 @@ def createTrigHitDVHypoAlg(name):
 
     # monioring
     monTool = GenericMonitoringTool("IM_MonTool"+name)
-    monTool.defineHistogram('jet_pt',        type='TH1F', path='EXPERT', title="p_{T}^{jet} [GeV];p_{T}^{jet} [GeV];Nevents", xbins=50, xmin=0, xmax=300) 
-    monTool.defineHistogram('jet_eta',       type='TH1F', path='EXPERT', title="#eta^{jet} (after p_{T}^{jet} cut);#eta^{jet};Nevents", xbins=50, xmin=-5.0, xmax=5.0)
+    monTool.defineHistogram('jet_pt',        type='TH1F', path='EXPERT', title="p_{T}^{jet} [GeV];p_{T}^{jet} [GeV];Nevents", xbins=50, xmin=0, xmax=200)
+    monTool.defineHistogram('jet_eta',       type='TH1F', path='EXPERT', title="#eta^{jet};#eta^{jet};Nevents", xbins=50, xmin=-5.0, xmax=5.0)
     #
-    monTool.defineHistogram('n_dvtrks',      type='TH1F', path='EXPERT', title="Nr of HitDVTrks;N HitDVTrks size;Nevents", xbins=50, xmin=0, xmax=1000) 
-    monTool.defineHistogram('n_dvsps',       type='TH1F', path='EXPERT', title="Nr of HitDVSPs;N HitDVSPs size;Nevents", xbins=50, xmin=0, xmax=110000) 
-    monTool.defineHistogram('n_jetseeds',    type='TH1F', path='EXPERT', title="Nr of Jet Seeds;N jet seeds;Nevents", xbins=50, xmin=0, xmax=100) 
-    monTool.defineHistogram('n_spseeds',     type='TH1F', path='EXPERT', title="Nr of Ly6/Ly7 SP-doublet Seeds;N sp seeds;Nevents", xbins=50, xmin=0, xmax=100) 
-    monTool.defineHistogram('average_mu',    type='TH1F', path='EXPERT', title="Average mu;Average mu;Nevents", xbins=100, xmin=0, xmax=100) 
+    monTool.defineHistogram('n_dvtrks',      type='TH1F', path='EXPERT', title="Nr of HitDVTrks;N HitDVTrks size;Nevents", xbins=50, xmin=0, xmax=1000)
+    monTool.defineHistogram('n_dvsps',       type='TH1F', path='EXPERT', title="Nr of HitDVSPs;N HitDVSPs size;Nevents", xbins=50, xmin=0, xmax=100000)
+    monTool.defineHistogram('n_jetseeds',    type='TH1F', path='EXPERT', title="Nr of Jet Seeds;N jet seeds;Nevents", xbins=25, xmin=0, xmax=25)
+    monTool.defineHistogram('n_jetseedsdel', type='TH1F', path='EXPERT', title="Nr of deleted jet seeds;N jet seeds;Nevents", xbins=25, xmin=0, xmax=25)
+    monTool.defineHistogram('n_spseeds',     type='TH1F', path='EXPERT', title="Nr of Ly6/Ly7 SP-doublet Seeds;N SP seeds;Nevents", xbins=25, xmin=0, xmax=25)
+    monTool.defineHistogram('n_spseedsdel',  type='TH1F', path='EXPERT', title="Nr of deleted Ly6/Ly7 SP-doublet seeds;N SP seeds;Nevents", xbins=25, xmin=0, xmax=25)
+    monTool.defineHistogram('average_mu',    type='TH1F', path='EXPERT', title="Average mu;Average mu;Nevents", xbins=50, xmin=0, xmax=100)
     #
-    monTool.defineHistogram('eta1_ly0_spfr', type='TH1F', path='EXPERT', title="Layer#0 hit fraction (|#eta|<1);Hit fraction;Nevents", xbins=50, xmin=0.0, xmax=1.0) 
-    monTool.defineHistogram('eta1_ly1_spfr', type='TH1F', path='EXPERT', title="Layer#1 hit fraction (|#eta|<1);Hit fraction;Nevents", xbins=50, xmin=0.0, xmax=1.0) 
-    monTool.defineHistogram('eta1_ly2_spfr', type='TH1F', path='EXPERT', title="Layer#2 hit fraction (|#eta|<1);Hit fraction;Nevents", xbins=50, xmin=0.0, xmax=1.0) 
-    monTool.defineHistogram('eta1_ly3_spfr', type='TH1F', path='EXPERT', title="Layer#3 hit fraction (|#eta|<1);Hit fraction;Nevents", xbins=50, xmin=0.0, xmax=1.0) 
-    monTool.defineHistogram('eta1_ly4_spfr', type='TH1F', path='EXPERT', title="Layer#4 hit fraction (|#eta|<1);Hit fraction;Nevents", xbins=50, xmin=0.0, xmax=1.0) 
-    monTool.defineHistogram('eta1_ly5_spfr', type='TH1F', path='EXPERT', title="Layer#5 hit fraction (|#eta|<1);Hit fraction;Nevents", xbins=50, xmin=0.0, xmax=1.0) 
-    monTool.defineHistogram('eta1_ly6_spfr', type='TH1F', path='EXPERT', title="Layer#6 hit fraction (|#eta|<1);Hit fraction;Nevents", xbins=50, xmin=0.0, xmax=1.0) 
-    monTool.defineHistogram('eta1_ly7_spfr', type='TH1F', path='EXPERT', title="Layer#7 hit fraction (|#eta|<1);Hit fraction;Nevents", xbins=50, xmin=0.0, xmax=1.0) 
-    monTool.defineHistogram('eta1_n_qtrk',   type='TH1F', path='EXPERT', title="Nr of quality tracks (|#eta|<1);Nr of quality tracks;Nevents", xbins=20, xmin=0, xmax=20) 
-    monTool.defineHistogram('eta1_bdtscore', type='TH1F', path='EXPERT', title="BDT score (|#eta|<1);BDT score;Nevents", xbins=50, xmin=-1.0, xmax=1.0) 
-    monTool.defineHistogram('1eta2_ly0_spfr', type='TH1F', path='EXPERT', title="Layer#0 hit fraction (1<|#eta|<2);Hit fraction;Nevents", xbins=50, xmin=0.0, xmax=1.0) 
-    monTool.defineHistogram('1eta2_ly1_spfr', type='TH1F', path='EXPERT', title="Layer#1 hit fraction (1<|#eta|<2);Hit fraction;Nevents", xbins=50, xmin=0.0, xmax=1.0) 
-    monTool.defineHistogram('1eta2_ly2_spfr', type='TH1F', path='EXPERT', title="Layer#2 hit fraction (1<|#eta|<2);Hit fraction;Nevents", xbins=50, xmin=0.0, xmax=1.0) 
-    monTool.defineHistogram('1eta2_ly3_spfr', type='TH1F', path='EXPERT', title="Layer#3 hit fraction (1<|#eta|<2);Hit fraction;Nevents", xbins=50, xmin=0.0, xmax=1.0) 
-    monTool.defineHistogram('1eta2_ly4_spfr', type='TH1F', path='EXPERT', title="Layer#4 hit fraction (1<|#eta|<2);Hit fraction;Nevents", xbins=50, xmin=0.0, xmax=1.0) 
-    monTool.defineHistogram('1eta2_ly5_spfr', type='TH1F', path='EXPERT', title="Layer#5 hit fraction (1<|#eta|<2);Hit fraction;Nevents", xbins=50, xmin=0.0, xmax=1.0) 
-    monTool.defineHistogram('1eta2_ly6_spfr', type='TH1F', path='EXPERT', title="Layer#6 hit fraction (1<|#eta|<2);Hit fraction;Nevents", xbins=50, xmin=0.0, xmax=1.0) 
-    monTool.defineHistogram('1eta2_ly7_spfr', type='TH1F', path='EXPERT', title="Layer#7 hit fraction (1<|#eta|<2);Hit fraction;Nevents", xbins=50, xmin=0.0, xmax=1.0) 
-    monTool.defineHistogram('1eta2_n_qtrk',   type='TH1F', path='EXPERT', title="Nr of quality tracks (1<|#eta|<2);Nr of quality tracks;Nevents", xbins=20, xmin=0, xmax=20) 
-    monTool.defineHistogram('1eta2_bdtscore', type='TH1F', path='EXPERT', title="BDT score (1<|#eta|<2);BDT score;Nevents", xbins=50, xmin=-1.0, xmax=1.0) 
+    monTool.defineHistogram('eta1_ly0_spfr', type='TH1F', path='EXPERT', title="Layer#0 hit fraction (|#eta|<1);Hit fraction;Nevents", xbins=50, xmin=0.0, xmax=1.0)
+    monTool.defineHistogram('eta1_ly1_spfr', type='TH1F', path='EXPERT', title="Layer#1 hit fraction (|#eta|<1);Hit fraction;Nevents", xbins=50, xmin=0.0, xmax=1.0)
+    monTool.defineHistogram('eta1_ly2_spfr', type='TH1F', path='EXPERT', title="Layer#2 hit fraction (|#eta|<1);Hit fraction;Nevents", xbins=50, xmin=0.0, xmax=1.0)
+    monTool.defineHistogram('eta1_ly3_spfr', type='TH1F', path='EXPERT', title="Layer#3 hit fraction (|#eta|<1);Hit fraction;Nevents", xbins=50, xmin=0.0, xmax=1.0)
+    monTool.defineHistogram('eta1_ly4_spfr', type='TH1F', path='EXPERT', title="Layer#4 hit fraction (|#eta|<1);Hit fraction;Nevents", xbins=50, xmin=0.0, xmax=1.0)
+    monTool.defineHistogram('eta1_ly5_spfr', type='TH1F', path='EXPERT', title="Layer#5 hit fraction (|#eta|<1);Hit fraction;Nevents", xbins=50, xmin=0.0, xmax=1.0)
+    monTool.defineHistogram('eta1_ly6_spfr', type='TH1F', path='EXPERT', title="Layer#6 hit fraction (|#eta|<1);Hit fraction;Nevents", xbins=50, xmin=0.0, xmax=1.0)
+    monTool.defineHistogram('eta1_ly7_spfr', type='TH1F', path='EXPERT', title="Layer#7 hit fraction (|#eta|<1);Hit fraction;Nevents", xbins=50, xmin=0.0, xmax=1.0)
+    monTool.defineHistogram('eta1_n_qtrk',   type='TH1F', path='EXPERT', title="Nr of quality tracks (|#eta|<1);Nr of quality tracks;Nevents", xbins=20, xmin=0, xmax=20)
+    monTool.defineHistogram('eta1_bdtscore', type='TH1F', path='EXPERT', title="BDT score (|#eta|<1);BDT score;Nevents", xbins=50, xmin=-1.0, xmax=1.0)
+    monTool.defineHistogram('1eta2_ly0_spfr', type='TH1F', path='EXPERT', title="Layer#0 hit fraction (1<|#eta|<2);Hit fraction;Nevents", xbins=50, xmin=0.0, xmax=1.0)
+    monTool.defineHistogram('1eta2_ly1_spfr', type='TH1F', path='EXPERT', title="Layer#1 hit fraction (1<|#eta|<2);Hit fraction;Nevents", xbins=50, xmin=0.0, xmax=1.0)
+    monTool.defineHistogram('1eta2_ly2_spfr', type='TH1F', path='EXPERT', title="Layer#2 hit fraction (1<|#eta|<2);Hit fraction;Nevents", xbins=50, xmin=0.0, xmax=1.0)
+    monTool.defineHistogram('1eta2_ly3_spfr', type='TH1F', path='EXPERT', title="Layer#3 hit fraction (1<|#eta|<2);Hit fraction;Nevents", xbins=50, xmin=0.0, xmax=1.0)
+    monTool.defineHistogram('1eta2_ly4_spfr', type='TH1F', path='EXPERT', title="Layer#4 hit fraction (1<|#eta|<2);Hit fraction;Nevents", xbins=50, xmin=0.0, xmax=1.0)
+    monTool.defineHistogram('1eta2_ly5_spfr', type='TH1F', path='EXPERT', title="Layer#5 hit fraction (1<|#eta|<2);Hit fraction;Nevents", xbins=50, xmin=0.0, xmax=1.0)
+    monTool.defineHistogram('1eta2_ly6_spfr', type='TH1F', path='EXPERT', title="Layer#6 hit fraction (1<|#eta|<2);Hit fraction;Nevents", xbins=50, xmin=0.0, xmax=1.0)
+    monTool.defineHistogram('1eta2_ly7_spfr', type='TH1F', path='EXPERT', title="Layer#7 hit fraction (1<|#eta|<2);Hit fraction;Nevents", xbins=50, xmin=0.0, xmax=1.0)
+    monTool.defineHistogram('1eta2_n_qtrk',   type='TH1F', path='EXPERT', title="Nr of quality tracks (1<|#eta|<2);Nr of quality tracks;Nevents", xbins=20, xmin=0, xmax=20)
+    monTool.defineHistogram('1eta2_bdtscore', type='TH1F', path='EXPERT', title="BDT score (1<|#eta|<2);BDT score;Nevents", xbins=50, xmin=-1.0, xmax=1.0)
 
     monTool.HistPath = 'HitDVHypoAlg'
     theHitDVHypo.MonTool = monTool
@@ -74,35 +76,40 @@ def TrigHitDVHypoToolFromDict( chainDict ):
     strThr = ""
 
     thresholds = [ float(THR) for THR in thresholds]
-    
+
     for THR in thresholds:
         strThr += str(THR)+", "
-        
+
     log.info("Threshold Values are: %s",strThr)
 
     tool.cutJetPtGeV = thresholds
 
     jetEta=[]
     doSPseed=[]
+    effBDT=[]
 
     for cpart in cparts:
         if cpart['IDinfo'] =="loose":
             log.info("Loose ID working point is set")
             jetEta.append(2.0)
             doSPseed.append(True)
+            effBDT.append(0.9)
         elif cpart['IDinfo'] =="tight":
             log.info("Tight ID working point is set")
             jetEta.append(1.0)
             doSPseed.append(False)
+            effBDT.append(0.75)
         else:
-            if cpart['IDinfo'] =="medium": 
+            if cpart['IDinfo'] =="medium":
                 log.info("Medium ID working point is set")
             else:
                 log.info("no working point specificed. setting medium working point")
             jetEta.append(2.0)
             doSPseed.append(False)
+            effBDT.append(0.75)
 
     tool.cutJetEta = jetEta
     tool.doSPseed  = doSPseed
+    tool.effBDT    = effBDT
 
     return tool

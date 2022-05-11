@@ -5,8 +5,6 @@
 
 """Convenience functions to manipulate Gaudi object properties."""
 
-from __future__ import print_function
-
 
 ### data ---------------------------------------------------------------------
 __version__ = '1.0.0'

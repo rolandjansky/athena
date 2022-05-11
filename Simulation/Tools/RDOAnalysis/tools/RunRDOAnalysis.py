@@ -1,13 +1,14 @@
 #!/usr/bin/env python
-"""Run HitAnalysis
+"""Run RDOAnalysis
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 import sys
 from argparse import ArgumentParser
 
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaConfiguration.Enums import ProductionStep
 
 # Set up logging and new style config
 Configurable.configurableRun3Behavior = True
@@ -23,6 +24,8 @@ parser.add_argument("-n", "--maxEvents", default=-1, type=int,
                     help="The number of events to run. -1 runs all events.")
 parser.add_argument("-i", "--input",
                     help="The input RDO file to use")
+parser.add_argument("-p", "--presampling",  default=False, action="store_true",
+                    help="Run on presampling RDO")
 args = parser.parse_args()
 
 
@@ -41,10 +44,12 @@ print()
 # Configure
 ConfigFlags.Input.Files = [args.input]
 if args.localgeo:
-    ConfigFlags.GeoModel.useLocalGeometry = True
+    ConfigFlags.ITk.Geometry.AllLocal = True
 if args.detectors:
     from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
     setupDetectorsFromList(ConfigFlags, args.detectors, toggle_geometry=True)
+if args.presampling:
+    ConfigFlags.Common.ProductionStep = ProductionStep.PileUpPresampling
 ConfigFlags.lock()
 
 # Construct our accumulator to run

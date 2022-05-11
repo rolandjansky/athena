@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-	Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+	Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // TrkObserverTool.h 
@@ -74,9 +74,9 @@ namespace Trk {
 
 			void newEvent(CacheEntry* ent) const;
 			void dumpTrackMap(const ObservedTrackMap* trk_map) const;
-			std::string dumpRejection(xAOD::RejectionStep rejectStep, xAOD::RejectionReason rejectReason) const;
-			int getNFinalTracks(const ObservedTrackMap* trk_map) const;
-			int getNObservedTracks(const ObservedTrackMap* trk_map) const;
+			static std::string dumpRejection(xAOD::RejectionStep rejectStep, xAOD::RejectionReason rejectReason) ;
+			static int getNFinalTracks(const ObservedTrackMap* trk_map) ;
+			static int getNObservedTracks(const ObservedTrackMap* trk_map) ;
 			static std::map<xAOD::RejectionStep, std::string> m_rejectStep_descriptions;
 			static std::map<xAOD::RejectionReason, std::string> m_rejectReason_descriptions;
 	}; 

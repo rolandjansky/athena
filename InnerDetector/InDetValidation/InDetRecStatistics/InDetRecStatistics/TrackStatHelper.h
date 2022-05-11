@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -152,8 +152,8 @@ namespace InDet {
 			       const SCT_ID *,
 			       const Trk::IExtendedTrackSummaryTool *,
 			       bool,
-			       unsigned int *,
-                               unsigned int *) const;
+			       const unsigned int *,
+                               const unsigned int *) const;
     /** Resets the track collection information, called in the constructor*/
     void     reset      ();
     /** Prints all of the statistics information,  calls printRegion, printTrackSummaryRegion, etc for detailed statistics*/

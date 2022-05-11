@@ -21,11 +21,20 @@ public:
     virtual StatusCode initialize() override;
     virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
 private:
-    Gaudi::Property<float> m_lowEthresh {this,"lowEthresh",5.0};
-    Gaudi::Property<float> m_medEthresh {this,"medEthresh",10.0};
-    Gaudi::Property<float> m_medhiEthresh {this,"medhiEthresh",15.0};
-    Gaudi::Property<float> m_hiEthresh {this,"hiEthresh",20.0};
+    Gaudi::Property<float> m_lowEthresh {this,"lowEthresh",10.0};
+    Gaudi::Property<float> m_medEthresh {this,"medEthresh",15.0};
+    Gaudi::Property<float> m_medhiEthresh {this,"medhiEthresh",25.0};
+    Gaudi::Property<float> m_hiEthresh {this,"hiEthresh",50.0};
 
-    SG::ReadHandleKey<xAOD::CaloClusterContainer> m_CaloClusterContainerKey {this, "CaloCalTopoClusters", "CaloCalTopoClusters"};
+    Gaudi::Property<float> m_EMlowEthresh {this,"EMlowEthresh",4.0};
+    Gaudi::Property<float> m_EMmedEthresh {this,"EMmedEthresh",10.0};
+    Gaudi::Property<float> m_EMmedhiEthresh {this,"EMmedhiEthresh",15.0};
+    Gaudi::Property<float> m_EMhiEthresh {this,"EMhiEthresh",25.0};
+
+    SG::ReadHandleKey<xAOD::CaloClusterContainer> m_CaloClusterContainerKey {this,"CaloTopoClusterContainer","CaloCalTopoClusters",
+        "Name of the CaloTopoClusters container"};
+    SG::ReadHandleKey<xAOD::CaloClusterContainer> m_EMClusterContainerKey {this,"EMTopoClusterContainer","egammaClusters",
+        "Name of the EM-only clusters container"};
+
 };
 #endif

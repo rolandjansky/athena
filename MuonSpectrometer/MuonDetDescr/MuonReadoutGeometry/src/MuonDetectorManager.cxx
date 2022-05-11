@@ -743,10 +743,10 @@ namespace MuonGM {
         }
 
 #ifndef SIMULATIONBASE
-        if (m_stgcIdHelper && m_mmIdHelper && !(m_NSWABLinesAsciiSideA.empty())) {
+        if (m_stgcIdHelper && m_mmIdHelper && !(m_NSWABLineAsciiPath.empty())) {
             ALineMapContainer writeALines;
             BLineMapContainer writeBLines;
-            MuonCalib::NSWCondUtils::setNSWABLinesFromAscii(m_NSWABLinesAsciiSideA, writeALines, writeBLines, m_stgcIdHelper, m_mmIdHelper);
+            MuonCalib::NSWCondUtils::setNSWABLinesFromAscii(m_NSWABLineAsciiPath, writeALines, writeBLines, m_stgcIdHelper, m_mmIdHelper);
             for (auto it = writeALines.cbegin(); it != writeALines.cend(); ++it) {
                 Identifier id = it->first;
                 ALinePar aline = it->second;
@@ -757,25 +757,6 @@ namespace MuonGM {
                 Identifier id = it->first;
                 BLinePar bline = it->second;
                 m_bLineContainer.emplace(id, std::move(bline));
-            }
-
-            if (!m_cscIdHelper && !(m_NSWABLinesAsciiSideC.empty())) {
-                ALineMapContainer writeALines;
-                BLineMapContainer writeBLines;
-                MuonCalib::NSWCondUtils::setNSWABLinesFromAscii(m_NSWABLinesAsciiSideC, writeALines, writeBLines, m_stgcIdHelper,
-                                                                m_mmIdHelper);
-
-                for (auto it = writeALines.cbegin(); it != writeALines.cend(); ++it) {
-                    Identifier id = it->first;
-                    ALinePar aline = it->second;
-                    m_aLineContainer.emplace(id, std::move(aline));
-                }
-
-                for (auto it = writeBLines.cbegin(); it != writeBLines.cend(); ++it) {
-                    Identifier id = it->first;
-                    BLinePar bline = it->second;
-                    m_bLineContainer.emplace(id, std::move(bline));
-                }
             }
         }
 #endif
@@ -803,7 +784,7 @@ namespace MuonGM {
         MsgStream log(Athena::getMessageSvc(), "MGM::MuonDetectorManager");
         if (alineData.empty()) {
             if (isData) {
-                log << MSG::WARNING << "Empty temporary A-line container - nothing to do here" << endmsg;
+                log << MSG::INFO << "Empty temporary A-line container - nothing to do here" << endmsg;
             } else {
                 log << MSG::DEBUG << "Got empty A-line container (expected for MC), not applying A-lines..." << endmsg;
             }
@@ -816,25 +797,84 @@ namespace MuonGM {
         unsigned int nUpdates = 0;
         for (const auto& [ALineId, ALine] : alineData) {
             nLines++;
-            std::string stType = "";
-            int jff = 0;
-            int jzz = 0;
-            int job = 0;
+            std::string stType{""};
+            int jff{0}, jzz{0}, job{0};
             ALine.getAmdbId(stType, jff, jzz, job);
+
             if (!ALine.isNew()) {
-                log << MSG::WARNING << "ALinePar with AmdbId " << stType << " " << jzz << " " << jff << " " << job
-                    << " is not new *** skipping" << endmsg;
+                log << MSG::WARNING << "ALinePar with AmdbId " << stType << " " << jzz << " " << jff << " " << job << " is not new *** skipping" << endmsg;
+                continue;
+            }            
+            
+            //if (log.level() <= MSG::DEBUG)
+                log << MSG::DEBUG << "ALinePar with AmdbId " << stType << " " << jzz << " " << jff << " " << job << " is new. ID = " << m_mdtIdHelper->show_to_string(ALineId) << endmsg;
+
+            //********************
+            // NSW Cases
+            //********************
+            
+            if (stType[0] == 'M' || stType[0] == 'S') {
+            
+                if (!nMMRE() || !nsTgcRE()) {
+                    log << MSG::WARNING << "Unable to set A-line; the manager does not contain NSW readout elements" << endmsg;
+                    continue;
+                }
+                            
+                if (!m_NSWABLineAsciiPath.empty()) {
+                    log << MSG::INFO << "NSW A-lines are already set via external ascii file " << m_NSWABLineAsciiPath << endmsg;
+                    continue;
+                }
+
+                if (stType[0] == 'M') {
+                    // Micromegas                        
+                    const int array_idx  = mmIdenToArrayIdx(ALineId);
+                    MMReadoutElement* RE = m_mmcArray[array_idx].get();
+
+                    if (!RE) {
+                        log << MSG::WARNING << "AlinePar with AmdbId " << stType << " " << jzz << " " << jff << " " << job << " *** No MM readout element found\n"
+                            << "PLEASE CHECK FOR possible MISMATCHES between alignment constants from COOL and Geometry Layout in use"
+                            << endmsg;
+                        return StatusCode::FAILURE;
+                    }
+                
+                    RE->setDelta(ALine);
+
+                } else if (stType[0] == 'S') {
+                    // sTGC
+                    const int array_idx    = stgcIdentToArrayIdx(ALineId);
+                    sTgcReadoutElement* RE = m_stgArray[array_idx].get();
+
+                    if (!RE) {
+                        log << MSG::WARNING << "AlinePar with AmdbId " << stType << " " << jzz << " " << jff << " " << job << " *** No sTGC readout element found\n"
+                            << "PLEASE CHECK FOR possible MISMATCHES between alignment constants from COOL and Geometry Layout in use"
+                            << endmsg;
+                        return StatusCode::FAILURE;
+                    }
+                
+                    RE->setDelta(ALine);
+                }
+
+                // record this A-line in the historical A-line container
+                auto [it, flag] = m_aLineContainer.insert_or_assign(ALineId, ALine);
+                if (log.level() <= MSG::DEBUG) {
+                    if (flag)
+                        log << MSG::DEBUG << "New A-line entry for Station " << stType << " at Jzz/Jff/Job " << jzz << "/" << jff << "/" << job << endmsg;
+                    else 
+                        log << MSG::DEBUG << "Updating existing A-line for Station " << stType << " at Jzz/Jff/Job " << jzz << "/" << jff << "/" << job << endmsg;
+                }
+                
                 continue;
             }
-            if (log.level() <= MSG::DEBUG)
-                log << MSG::DEBUG << "ALinePar with AmdbId " << stType << " " << jzz << " " << jff << " " << job
-                    << " is new ID = " << m_mdtIdHelper->show_to_string(ALineId) << endmsg;
+             
+
+            //********************
+            // Non-NSW Cases
+            //********************
 
             MuonStation* thisStation = getMuonStation(stType, jzz, jff);
             if (!thisStation) {
-                log << MSG::WARNING << "ALinePar with AmdbId " << stType << " " << jzz << " " << jff << " " << job
-                    << " *** No MuonStation found \n PLEASE CHECK FOR possible MISMATCHES between alignment constants from COOL and "
-                       "Geometry Layout in use"
+                log << MSG::WARNING << "ALinePar with AmdbId " << stType << " " << jzz << " " << jff << " " << job << "*** No MuonStation found\n"
+                    << "PLEASE CHECK FOR possible MISMATCHES between alignment constants from COOL and Geometry Layout in use"
                     << endmsg;
                 continue;
             }
@@ -937,14 +977,11 @@ namespace MuonGM {
 
         MsgStream log(Athena::getMessageSvc(), "MGM::MuonDetectorManager");
         log << MSG::INFO << "In updateDeformations()" << endmsg;
-        if (!applyMdtDeformations()) {
-            log << MSG::INFO << "Mdt deformations are not enabled - nothing to do here" << endmsg;
-            return StatusCode::SUCCESS;
-        }
-
+        if (!applyMdtDeformations()) log << MSG::INFO << "Mdt deformations are disabled; will only apply NSW deformations" << endmsg;
+        
         if (blineData.empty()) {
             if (isData) {
-                log << MSG::WARNING << "Empty temporary B-line container - nothing to do here" << endmsg;
+                log << MSG::INFO << "Empty temporary B-line container - nothing to do here" << endmsg;
             } else {
                 log << MSG::DEBUG << "Got empty B-line container (expected for MC), not applying B-lines..." << endmsg;
             }
@@ -957,10 +994,73 @@ namespace MuonGM {
         unsigned int nUpdates = 0;
         for (auto [BLineId, BLine] : blineData) {
             nLines++;
-            std::string stType = "";
-            int jff = 0;
-            int jzz = 0;
-            int job = 0;
+            std::string stType{""};
+            int jff{0}, jzz{0}, job{0};
+            BLine.getAmdbId(stType, jff, jzz, job);
+
+            //********************
+            // NSW Cases
+            //********************
+            
+            if (stType[0] == 'M' || stType[0] == 'S') {
+            
+                if (!nMMRE() || !nsTgcRE()) {
+                    log << MSG::WARNING << "Unable to set B-line; the manager does not contain NSW readout elements" << endmsg;
+                    continue;
+                }
+                            
+                if (!m_NSWABLineAsciiPath.empty()) {
+                    log << MSG::INFO << "NSW B-lines are already set via external ascii file " << m_NSWABLineAsciiPath << endmsg;
+                    continue;
+                }
+
+                if (stType[0] == 'M') {
+                    // Micromegas                        
+                    const int array_idx  = mmIdenToArrayIdx(BLineId);
+                    MMReadoutElement* RE = m_mmcArray[array_idx].get();
+
+                    if (!RE) {
+                        log << MSG::WARNING << "BlinePar with AmdbId " << stType << " " << jzz << " " << jff << " " << job << " *** No MM readout element found\n"
+                            << "PLEASE CHECK FOR possible MISMATCHES between alignment constants from COOL and Geometry Layout in use"
+                            << endmsg;
+                        return StatusCode::FAILURE;
+                    }
+                
+                    RE->setBLinePar(BLine);
+
+                } else if (stType[0] == 'S') {
+                    // sTGC
+                    const int array_idx    = stgcIdentToArrayIdx(BLineId);
+                    sTgcReadoutElement* RE = m_stgArray[array_idx].get();
+
+                    if (!RE) {
+                        log << MSG::WARNING << "BlinePar with AmdbId " << stType << " " << jzz << " " << jff << " " << job << " *** No sTGC readout element found\n"
+                            << "PLEASE CHECK FOR possible MISMATCHES between alignment constants from COOL and Geometry Layout in use"
+                            << endmsg;
+                        return StatusCode::FAILURE;
+                    }
+                
+                    RE->setBLinePar(BLine);
+                }
+
+                // record this B-line in the historical B-line container
+                auto [it, flag] = m_bLineContainer.insert_or_assign(BLineId, BLine);
+                if (log.level() <= MSG::DEBUG) {
+                    if (flag)
+                        log << MSG::DEBUG << "New B-line entry for Station " << stType << " at Jzz/Jff/Job " << jzz << "/" << jff << "/" << job << endmsg;
+                    else 
+                        log << MSG::DEBUG << "Updating existing B-line for Station " << stType << " at Jzz/Jff/Job " << jzz << "/" << jff << "/" << job << endmsg;
+                }
+                
+                continue;
+            }
+            
+            //********************
+            // MDT Cases
+            //********************    
+
+            if (!applyMdtDeformations()) continue; // nothing to more to do
+        
 #ifdef TESTBLINES
             BLine.setParameters(0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.);
 #endif
@@ -987,7 +1087,7 @@ namespace MuonGM {
                         << " tw=" << BLine.tw() << " pg=" << BLine.pg() << " tr=" << BLine.tr() << " eg=" << BLine.eg()
                         << " ep=" << BLine.ep() << " en=" << BLine.en() << ")" << endmsg;
             }
-            BLine.getAmdbId(stType, jff, jzz, job);
+
             if (stType.substr(0, 1) == "T" || stType.substr(0, 1) == "C" || (stType.substr(0, 3) == "BML" && std::abs(jzz) == 7)) {
                 if (log.level() <= MSG::DEBUG)
                     log << MSG::DEBUG << "BLinePar with AmdbId " << stType << " " << jzz << " " << jff << " " << job
@@ -1195,7 +1295,7 @@ namespace MuonGM {
 
         return StatusCode::SUCCESS;
     }
-    StatusCode MuonDetectorManager::updateAsBuiltParams(const MdtAsBuiltMapContainer& asbuiltData) {
+    StatusCode MuonDetectorManager::updateMdtAsBuiltParams(const MdtAsBuiltMapContainer& asbuiltData) {
         MsgStream log(Athena::getMessageSvc(), "MGM::MuonDetectorManager");
         if (asbuiltData.empty()) {
             log << MSG::WARNING << "Empty temporary As-Built container - nothing to do here" << endmsg;
@@ -1316,24 +1416,19 @@ namespace MuonGM {
         return &iter->second;
     }
 
-    void MuonDetectorManager::setMMAsBuiltCalculator(const std::string& jsonPath) {
+    void MuonDetectorManager::setMMAsBuiltCalculator(const NswAsBuiltDbData* nswAsBuiltData) {
 #ifndef SIMULATIONBASE
-        // for the moment we can only read as-built conditions from an external json file
         m_MMAsBuiltCalculator.reset();  // unset any previous instance
-        if (jsonPath.empty()) return;
-
-        std::ifstream json_in(jsonPath.c_str());
-        if (!json_in.is_open()) {
-            MsgStream log(Athena::getMessageSvc(), "MGM::MuonDetectorManager");
-            log << MSG::WARNING << "Unable to open Json file " << jsonPath << "for NswAsBuilt::StripCalculator" << endmsg;
-        }
-
         m_MMAsBuiltCalculator = std::make_unique<NswAsBuilt::StripCalculator>();
-        m_MMAsBuiltCalculator->parseJSON(json_in);
-        json_in.close();
+        std::string mmJson="";
+        if(!nswAsBuiltData->getMmData(mmJson)){
+           MsgStream log(Athena::getMessageSvc(), "MGM::MuonDetectorManager");
+           log << MSG::WARNING << " Cannot retrieve MM as-built conditions data from detector store!" << endmsg;
+        }
+        m_MMAsBuiltCalculator->parseJSON(mmJson);
 #else
         // just to silence the warning about an unused parameter
-        (void)jsonPath;
+        (void)nswAsBuiltData;
 #endif
     }
 
@@ -1486,8 +1581,7 @@ namespace MuonGM {
         return stationIndex;
     }
     
-    void MuonDetectorManager::setNSWABLinesAsciiSideA(const std::string& str) { m_NSWABLinesAsciiSideA = str; }
-    void MuonDetectorManager::setNSWABLinesAsciiSideC(const std::string& str) { m_NSWABLinesAsciiSideC = str; }
+    void MuonDetectorManager::setNSWABLineAsciiPath(const std::string& str) { m_NSWABLineAsciiPath = str; }
     void MuonDetectorManager::setCacheFillingFlag(int value) { m_cacheFillingFlag = value; }
     void MuonDetectorManager::setCachingFlag(int value) { m_cachingFlag = value; }
     void MuonDetectorManager::set_DBMuonVersion(const std::string& version) { m_DBMuonVersion = version; }

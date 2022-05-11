@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONIDHELPERSVC_H
@@ -189,14 +189,17 @@ namespace Muon {
         const ServiceHandle<StoreGateSvc> m_detStore;
 
         struct StationNameData {
-            std::string stationName;
-            bool isEndcap;
-            bool isSmall;
-            MuonStationIndex::ChIndex chIndex;
-            MuonStationIndex::StIndex stIndex;
+            std::string stationName{};
+            bool isEndcap{false};
+            bool isSmall{false};
+            MuonStationIndex::ChIndex chIndex{};
+            MuonStationIndex::StIndex stIndex{};
         };
         std::vector<StationNameData> m_stationNameData;
         std::vector<MuonStationIndex::TechnologyIndex> m_technologies;
+
+        int m_BIS_stat{-1};
+        std::set<Identifier> m_smdt_stat{};
     };
 
 }  // namespace Muon

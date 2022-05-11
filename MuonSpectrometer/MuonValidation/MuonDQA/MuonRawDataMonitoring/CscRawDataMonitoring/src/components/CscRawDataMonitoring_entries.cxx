@@ -1,11 +1,11 @@
-#include "CscRawDataMonitoring/CscRdoValAlg.h"
-#include "CscRawDataMonitoring/CscPrdValAlg.h"
-#include "CscRawDataMonitoring/CscClusterValAlg.h"
-#include "CscRawDataMonitoring/CSCSegmValAlg.h"
-#include "CscRawDataMonitoring/CscClusterValMonAlg.h"
-#include "CscRawDataMonitoring/CscPrdValMonAlg.h"
-#include "CscRawDataMonitoring/CSCSegmValMonAlg.h"
-#include "CscRawDataMonitoring/CscRdoValMonAlg.h"
+#include "../CscRdoValAlg.h"
+#include "../CscPrdValAlg.h"
+#include "../CscClusterValAlg.h"
+#include "../CSCSegmValAlg.h"
+#include "../CscClusterValMonAlg.h"
+#include "../CscPrdValMonAlg.h"
+#include "../CSCSegmValMonAlg.h"
+#include "../CscRdoValMonAlg.h"
 
   
 DECLARE_COMPONENT( CscRdoValAlg )

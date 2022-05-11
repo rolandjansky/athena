@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FastCaloSimGeometryHelper.h"
@@ -10,7 +10,7 @@
 using namespace std;
 
 /** Constructor **/
-FastCaloSimGeometryHelper::FastCaloSimGeometryHelper(const std::string& t, const std::string& n, const IInterface* p) : AthAlgTool(t,n,p), CaloGeometry(), m_caloMgr(0)
+FastCaloSimGeometryHelper::FastCaloSimGeometryHelper(const std::string& t, const std::string& n, const IInterface* p) : AthAlgTool(t,n,p), CaloGeometry(), m_caloMgr(nullptr)
 {
   declareInterface<IFastCaloSimGeometryHelper>(this);
 
@@ -18,8 +18,7 @@ FastCaloSimGeometryHelper::FastCaloSimGeometryHelper(const std::string& t, const
 }
 
 FastCaloSimGeometryHelper::~FastCaloSimGeometryHelper()
-{
-}
+= default;
 
 // Athena algtool's Hooks
 StatusCode FastCaloSimGeometryHelper::initialize()

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetTrackSelectorTool_InDetCosmicTrackSelectorTool_H
@@ -49,7 +49,7 @@ namespace InDet
 
   private:
 
-    int getNSiHits(const Trk::Track* track, bool top) const;
+    static int getNSiHits(const Trk::Track* track, bool top) ;
     bool decision(const Trk::TrackParameters* track, const Trk::Vertex* vertex, const Trk::ParticleHypothesis) const;
     double m_maxZ0; //!< Maximum z0 of tracks
     double m_maxD0; //!< Maximum d0 of tracks

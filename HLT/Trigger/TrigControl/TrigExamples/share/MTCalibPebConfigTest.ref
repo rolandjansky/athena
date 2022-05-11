@@ -16,11 +16,13 @@ Py:ComponentAccumulator    INFO          \__ DecisionSummaryMakerAlg/DecisionSum
 Py:ComponentAccumulator    INFO    \__ SGInputLoader/SGInputLoader (alg) 
 Py:ComponentAccumulator    INFO Condition Algorithms
 Py:ComponentAccumulator    INFO  \__ TrigConf__BunchGroupCondAlg (cond alg)
+Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
 Py:ComponentAccumulator    INFO  \__ HLTPrescaleCondAlg (cond alg)
 Py:ComponentAccumulator    INFO Services
-Py:ComponentAccumulator    INFO ['ByteStreamCnvSvc', 'ByteStreamInputSvc', 'EventSelectorByteStream', 'EventPersistencySvc', 'ByteStreamAddressProviderSvc', 'ProxyProviderSvc', 'LVL1ConfigSvc', 'HLTConfigSvc', 'ROBDataProviderSvc', 'HltEventLoopMgr']
+Py:ComponentAccumulator    INFO ['ByteStreamCnvSvc', 'ByteStreamInputSvc', 'EventSelectorByteStream', 'EventPersistencySvc', 'ByteStreamAddressProviderSvc', 'ProxyProviderSvc', 'LVL1ConfigSvc', 'HLTConfigSvc', 'IOVDbSvc', 'PoolSvc', 'CondSvc', 'DBReplicaSvc', 'TagInfoMgr', 'MetaDataStore', 'InputMetaDataStore', 'MetaDataSvc', 'AthenaPoolCnvSvc', 'ROBDataProviderSvc', 'HltEventLoopMgr']
 Py:ComponentAccumulator    INFO Public Tools
 Py:ComponentAccumulator    INFO [
+Py:ComponentAccumulator    INFO   IOVDbMetaDataTool/IOVDbMetaDataTool,
 Py:ComponentAccumulator    INFO ]
 Py:ComponentAccumulator    INFO Private Tools
 Py:ComponentAccumulator    INFO [

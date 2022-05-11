@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- C++ -*- 
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARFLATCONDITIONSALG_H
@@ -10,7 +10,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
-#include "GaudiKernel/ICondSvc.h"
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
@@ -26,8 +25,6 @@ class LArFlatConditionsAlg: public AthAlgorithm {
  private:
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKey{this,"ReadKey","","Key of the input CDO (AttrListCollection)"};
   SG::WriteCondHandleKey<T>  m_writeKey{this,"WriteKey","","Key of the output LArXYZFlat CDO"};
-  ServiceHandle<ICondSvc> m_condSvc{this,"CondSvc","CondSvc"};
-
 };
 
 #include "LArFlatConditionsAlg.icc"

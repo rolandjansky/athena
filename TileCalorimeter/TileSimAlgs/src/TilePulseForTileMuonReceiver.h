@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -45,12 +45,14 @@
 #include "TileConditions/TileCondToolNoiseSample.h"
 #include "TileConditions/ITileBadChanTool.h"
 #include "TileConditions/TileCablingSvc.h"
+#include "TileConditions/TileSamplingFraction.h"
 #include "TileRecUtils/TileRawChannelBuilderMF.h"
 
 // Atlas includes
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 // Gaudi includes
 #include "GaudiKernel/ToolHandle.h"
@@ -98,6 +100,12 @@ class TilePulseForTileMuonReceiver: public AthAlgorithm {
 
     SG::WriteHandleKey<TileRawChannelContainer> m_muRcvRawChannelContainerKey{this,
         "MuonReceiverRawChannelContainer", "MuRcvRawChCnt", "Output Tile muon receiver raw channel container key"};
+
+    /**
+     * @brief Name of TileSamplingFraction in condition store
+     */
+     SG::ReadCondHandleKey<TileSamplingFraction> m_samplingFractionKey{this,
+        "TileSamplingFraction", "TileSamplingFraction", "Input Tile sampling fraction"};
 
     /**
      * @brief Name of Tile cabling service

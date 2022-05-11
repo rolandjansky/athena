@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -23,7 +23,7 @@ namespace L1Topo {
   // assume the vectors are correctly ordered - no way to know what they mean nor what order they should be in
   // will read vector from left to right and pack word left to right, unusually.
   void Fibre::encode(){
-     m_word = static_cast<int>(L1Topo::BlockTypes::FIBRE) << 28;
+     m_word = static_cast<uint32_t>(L1Topo::BlockTypes::FIBRE) << 28;
      // assert(status.size()<=5);
      // assert(status.size()==count.size());
      for (unsigned int i=0; i<5 && i<m_status.size() && i<m_count.size(); ++i){

@@ -10,11 +10,11 @@ ATLAS_PROJECT_DIR=$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)
 ATLAS_EXT_PROJECT_NAME="AthenaExternals"
 ATLAS_BUILDTYPE="RelWithDebInfo"
 ATLAS_EXTRA_CMAKE_ARGS=(-DLCG_VERSION_NUMBER=101
-                        -DLCG_VERSION_POSTFIX="_ATLAS_14"
-                        -DATLAS_GAUDI_TAG="v36r4.000"
-                        -DATLAS_ACTS_TAG="v15.0.1"
+                        -DLCG_VERSION_POSTFIX="_ATLAS_20"
+                        -DATLAS_GAUDI_TAG="v36r5.001"
+                        -DATLAS_ACTS_TAG="v17.1.0"
                         -DATLAS_ONNXRUNTIME_USE_CUDA=FALSE
-                        -DATLAS_GEOMODEL_TAG="ad59da70"
+                        -DATLAS_GEOMODEL_TAG="4.2.8" 
                         -DATLAS_BUILD_CORAL=TRUE)
 ATLAS_EXTRA_MAKE_ARGS=()
 

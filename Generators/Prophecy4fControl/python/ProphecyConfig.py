@@ -1,24 +1,24 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 import os, subprocess, time
 from DecoratorFactory import decorate
 from AthenaCommon import Logging
-from PowhegControl import RepeatingTimer
+from PowhegControl.utility import HeartbeatTimer
 
 
 ## Base class for configurable objects in the jobOptions
 #
 #  All subprocesses inherit from this class
 class ProphecyConfig(object) :
-  ## Set up base directory and path to Prophecy
-  __base_directory = os.environ['PWD']
-  __prophecy_directory = os.environ['PROPHECYPATH']
+## Set up run directory and path to Prophecy
+  __run_directory = os.environ['PWD']
 
   ## Setup athena-compatible logger
   __logger = Logging.logging.getLogger('ProphecyControl')
 
   ## This must be defined by each derived class - don't change it in the jobOptions!
-  _prophecy_executable = __prophecy_directory + '/Prophecy4f'
+# For rel 21.6, no longer need to set explicit path because prophecy4f is in $PATH
+  _prophecy_executable = 'Prophecy4f'
 
   def __init__( self, runArgs=None, opts=None ) :
 
@@ -42,10 +42,6 @@ class ProphecyConfig(object) :
         self.nEvents = int( 1.1 * runArgs.maxEvents + 0.5 )
       if hasattr(runArgs,'randomSeed') :
         self.random_seed = runArgs.randomSeed
-      if hasattr(runArgs,'outputTXTFile') :
-        self.output_events_file_name = 'prophecy_'+runArgs.outputTXTFile.split('.tar.gz')[0]+'.events'
-      ## Set inputGeneratorFile to match output events file. Otherwise Generate_trf check will fail.
-      runArgs.inputGeneratorFile = self.output_events_file_name
 
       if 100 * self.nEvents > self.nEvents_weighted :
         self.logger.warning( 'There are {0} events requested with {1} weighted ones.'.format( self.nEvents, self.nEvents_weighted ) )
@@ -85,9 +81,11 @@ class ProphecyConfig(object) :
           self.__enable_reweighting = True
         output_line = '{0:<30}! {1}'.format( '{0}={1}'.format( name, value ), desc )
         f.write( '{0}\n'.format(output_line) )
+        self.logger.info( 'Wrote {0}'.format( output_line ) )
 
     ## Print final preparation message
     self.logger.info( 'Using executable: {0}'.format( self._prophecy_executable ) )
+    self.logger.info( 'Number of events and weight events: {0} {1}.'.format( self.nEvents, self.nEvents_weighted ) )
 
 
   ## Run normal event generation
@@ -97,8 +95,9 @@ class ProphecyConfig(object) :
     self.logger.info( 'Starting Prophecy LHEF event generation at {0}'.format( time.ctime( time_start ) ) )
 
     ## Setup heartbeat thread
-    heartbeat = RepeatingTimer( 600., lambda: self.emit_heartbeat( time.time() - time_start ) )
-    heartbeat.daemon = True # Allow program to exit if this is the only live thread
+    heartbeat = HeartbeatTimer(600., "{}/eventLoopHeartBeat.txt".format(self.__run_directory))
+    heartbeat.setName("heartbeat thread")
+    heartbeat.daemon = True  # Allow program to exit if this is the only live thread
     heartbeat.start()
 
     ## Remove any existing .lhe files to avoid repeated events
@@ -107,6 +106,12 @@ class ProphecyConfig(object) :
       os.remove( 'plot*.lhe plot*.ev*ts' )
     except OSError :
       pass
+
+    ## The following is only needed for newer installation of prophecy?? RDS 2019/07
+    ## Create dirs UNWEIGHTEDEVENTS and HISTUNWEIGHTED
+    if not os.path.exists('UNWEIGHTEDEVENTS'):
+      os.makedirs('UNWEIGHTEDEVENTS')
+      self.logger.info( 'Created directory UNWEIGHTEDEVENTS' )
 
     ## Initialise generation process tracker
     self.running_process = []
@@ -119,7 +124,7 @@ class ProphecyConfig(object) :
     ## Print timing information
     generation_end = time.time()
     elapsed_time = generation_end - time_start
-    self.logger.info( 'Running nominal Prophecy took {0} for {1} events => {2:6.3f} Hz'.format( RepeatingTimer.human_readable_time_interval(elapsed_time), self.nEvents, self.nEvents / elapsed_time ) )
+    self.logger.info( 'Running nominal Prophecy took {0} for {1} events => {2:6.3f} Hz'.format( HeartbeatTimer.readable_duration(elapsed_time), self.nEvents, self.nEvents / elapsed_time ) )
 
     self.logger.info( 'Removing Prophecy born LHE file' )
     try :
@@ -129,7 +134,7 @@ class ProphecyConfig(object) :
 
     ## Move output to correctly named file
     try :
-      os.rename( 'plot_unweighted.lhe', self.output_events_file_name )
+      os.rename( 'UNWEIGHTEDEVENTS/plot_unweighted.lhe', self.output_events_file_name )
       self.logger.info( 'Moved plot_unweighted.lhe to {0}'.format(self.output_events_file_name) )
     except OSError :
       self.logger.warning( 'No output LHEF file found! Probably because the Prophecy process was killed before finishing.' )
@@ -153,10 +158,9 @@ class ProphecyConfig(object) :
 
   ## Output a heartbeat message
   def emit_heartbeat(self, duration) :
-    message = 'Heartbeat: Prophecy generation has been running for {0} in total'.format( RepeatingTimer.human_readable_time_interval(duration) )
+    message = 'Heartbeat: Prophecy generation has been running for {0} in total'.format( RepeatingTimer.human_readable_time_interval(duration) ) # noqa: F821
     self.logger.info( message )
-    with open( '{0}/eventLoopHeartBeat.txt'.format( self.__base_directory ), 'w' ) as f : f.write( message )
-
+    with open( '{0}/eventLoopHeartBeat.txt'.format( self.__run_directory ), 'w' ) as f : f.write( message )
 
   ## Register non-configurable parameter
   def fix_parameter( self, parameter, value=None, desc='' ) :
@@ -193,10 +197,10 @@ class ProphecyConfig(object) :
          configurator.running_process.remove( process )
          configurator.logger.info( 'Prophecy finished - all done.' )
 
-  ## Get base directory
+  ## Get run directory
   @property
-  def base_directory(self) :
-    return self.__base_directory
+  def run_directory(self) :
+    return self.__run_directory
 
 
   ## Get dictionary of configurable parameters
@@ -222,6 +226,11 @@ class ProphecyConfig(object) :
   def output_events_file_name(self) :
     return self.__output_events_file_name
 
+  ## Set output file name
+  @output_events_file_name.setter
+  def output_events_file_name(self, value) :
+    self.__output_events_file_name = value
+
 
   ## Get Prophecy directory
   @property
@@ -238,5 +247,5 @@ class ProphecyConfig(object) :
   ## Get full path to runcard
   @property
   def run_card_path(self) :
-    return '{0}/prophecy.input'.format( self.base_directory )
+    return '{0}/prophecy.input'.format( self.run_directory )
 

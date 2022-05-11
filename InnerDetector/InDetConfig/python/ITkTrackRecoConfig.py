@@ -4,135 +4,6 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import Format
 
-##------------------------------------------------------------------------------
-def ITk_BCM_ZeroSuppressionCfg(flags, name="ITk_BCM_ZeroSuppression", **kwargs):
-    acc = ComponentAccumulator()
-    kwargs.setdefault("BcmContainerName", "BCM_RDOs")
-    algo = CompFactory.BCM_ZeroSuppression(name=name, **kwargs)
-    acc.addEventAlgo(algo, primary = True)
-    return acc
-
-##------------------------------------------------------------------------------
-def ITkPixelClusterizationCfg(flags, name = "ITkPixelClusterization", **kwargs) :
-    acc = ComponentAccumulator()
-    merged_pixels_tool = acc.popToolsAndMerge(ITkMergedPixelsToolCfg(flags, **kwargs))
-    ambi_finder = acc.popToolsAndMerge(ITkPixelGangedAmbiguitiesFinderCfg(flags, **kwargs))
-
-    kwargs.setdefault("clusteringTool", merged_pixels_tool)
-    kwargs.setdefault("gangedAmbiguitiesFinder", ambi_finder)
-    kwargs.setdefault("DataObjectName", "ITkPixelRDOs")
-    kwargs.setdefault("ClustersName", "ITkPixelClusters")
-    kwargs.setdefault("AmbiguitiesMap", "ITkPixelClusterAmbiguitiesMap")
-
-    acc.addEventAlgo(CompFactory.InDet.PixelClusterization(name=name, **kwargs))
-    return acc
-##------------------------------------------------------------------------------
-def ITkPixelClusterizationPUCfg(flags, name="ITkPixelClusterizationPU", **kwargs) :
-    kwargs.setdefault("DataObjectName", "ITkPixel_PU_RDOs")
-    kwargs.setdefault("ClustersName", "ITkPixelPUClusters")
-    kwargs.setdefault("AmbiguitiesMap", "ITkPixelClusterAmbiguitiesMapPU")
-    return ITkPixelClusterizationCfg(flags, name=name, **kwargs)
-
-##------------------------------------------------------------------------------
-##------------------------------------------------------------------------------
-
-def ITkStripClusterizationCfg(flags, name="ITkStripClusterization", **kwargs) :
-    acc = ComponentAccumulator()
-
-    # Need to get ITkStrip_ConditionsSummaryTool for e.g. ITkStripClusteringTool
-    from SCT_ConditionsTools.ITkStripConditionsToolsConfig import ITkStripConditionsSummaryToolCfg
-    ITkStripConditionsSummaryTool = acc.popToolsAndMerge(ITkStripConditionsSummaryToolCfg(flags))
-
-    from SiLorentzAngleTool.ITkStripLorentzAngleConfig import ITkStripLorentzAngleCfg
-    ITkStripLorentzAngleTool = acc.popToolsAndMerge( ITkStripLorentzAngleCfg(flags) )
-
-    #### Clustering tool ######
-    ITkClusterMakerTool = acc.popToolsAndMerge(ITkClusterMakerToolCfg(flags))
-    ITkStripClusteringTool = CompFactory.InDet.SCT_ClusteringTool( name           = "ITkStripClusteringTool",
-                                                                   globalPosAlg   = ITkClusterMakerTool,
-                                                                   conditionsTool = ITkStripConditionsSummaryTool,
-                                                                   LorentzAngleTool = ITkStripLorentzAngleTool,
-                                                                   useRowInformation = True,
-                                                                   SCTDetEleCollKey = "ITkStripDetectorElementCollection")
-
-    kwargs.setdefault("clusteringTool", ITkStripClusteringTool)
-    kwargs.setdefault("DataObjectName", 'ITkStripRDOs')
-    kwargs.setdefault("ClustersName", 'ITkStripClusters')
-    kwargs.setdefault("SCT_FlaggedCondData", "ITkStripFlaggedCondData")
-    kwargs.setdefault("conditionsTool", ITkStripConditionsSummaryTool)
-
-    acc.addEventAlgo( CompFactory.InDet.SCT_Clusterization(name=name, **kwargs))
-
-    return acc
-
-##------------------------------------------------------------------------------
-##------------------------------------------------------------------------------
-##------------------------------------------------------------------------------
-
-def ITkStripClusterizationPUCfg(flags, name="ITkStripClusterizationPU", **kwargs) :
-    kwargs.setdefault("DataObjectName", "ITkStrip_PU_RDOs" )
-    kwargs.setdefault("ClustersName", "ITkStrip_PU_Clusters")
-    return ITkStripClusterizationCfg(flags, name=name, **kwargs)
-
-##------------------------------------------------------------------------------
-def ITkPixelGangedAmbiguitiesFinderCfg(flags, **kwargs) :
-    acc = ComponentAccumulator()
-
-    from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelReadoutGeometryCfg
-    acc.merge(ITkPixelReadoutGeometryCfg(flags))
-
-    kwargs.setdefault("PixelDetEleCollKey", "ITkPixelDetectorElementCollection")
-
-    ITkPixelGangedAmbiguitiesFinder = CompFactory.InDet.PixelGangedAmbiguitiesFinder( name = "ITkPixelGangedAmbiguitiesFinder", **kwargs)
-    acc.setPrivateTools( ITkPixelGangedAmbiguitiesFinder )
-    return acc
-
-##------------------------------------------------------------------------------
-def ITkMergedPixelsToolCfg(flags, **kwargs) :
-      acc = ComponentAccumulator()
-      # --- now load the framework for the clustering
-      kwargs.setdefault("globalPosAlg", acc.popToolsAndMerge(ITkClusterMakerToolCfg(flags)))
-
-      # PixelClusteringToolBase uses PixelConditionsSummaryTool
-      from PixelConditionsTools.ITkPixelConditionsSummaryConfig import ITkPixelConditionsSummaryCfg
-      ITkPixelConditionsSummary = acc.popToolsAndMerge(ITkPixelConditionsSummaryCfg(flags))
-      kwargs.setdefault("PixelConditionsSummaryTool", ITkPixelConditionsSummary)
-
-      kwargs.setdefault("PixelDetEleCollKey","ITkPixelDetectorElementCollection")
-
-      ITkMergedPixelsTool = CompFactory.InDet.MergedPixelsTool(  name = "ITkMergedPixelsTool", **kwargs)
-      acc.setPrivateTools(ITkMergedPixelsTool)
-      return acc
-
-##------------------------------------------------------------------------------
-def ITkClusterMakerToolCfg(flags, name="ITkClusterMakerTool", **kwargs) :
-    acc = ComponentAccumulator()
-
-    from PixelConditionsAlgorithms.ITkPixelConditionsConfig import ITkPixelChargeCalibCondAlgCfg
-    from PixelReadoutGeometry.PixelReadoutGeometryConfig import ITkPixelReadoutManagerCfg
-    #ITkPixelCablingCondAlgCfg + ITkPixelReadoutSpeedAlgCfg needed?
-
-    # This directly needs the following Conditions data:
-    # PixelModuleData & PixelChargeCalibCondData
-    acc.merge(ITkPixelChargeCalibCondAlgCfg(flags))
-    acc.merge(ITkPixelReadoutManagerCfg(flags))
-
-    from SiLorentzAngleTool.ITkPixelLorentzAngleConfig import ITkPixelLorentzAngleCfg
-    ITkPixelLorentzAngleTool = acc.popToolsAndMerge(ITkPixelLorentzAngleCfg(flags))
-    from SiLorentzAngleTool.ITkStripLorentzAngleConfig import ITkStripLorentzAngleCfg
-    ITkStripLorentzAngleTool = acc.popToolsAndMerge(ITkStripLorentzAngleCfg(flags))
-
-    kwargs.setdefault("PixelChargeCalibCondData", "ITkPixelChargeCalibCondData")
-    kwargs.setdefault("PixelReadoutManager",acc.getService("ITkPixelReadoutManager"))
-    kwargs.setdefault("PixelLorentzAngleTool", ITkPixelLorentzAngleTool)
-    kwargs.setdefault("SCTLorentzAngleTool", ITkStripLorentzAngleTool)
-    kwargs.setdefault("PixelOfflineCalibData", "")
-
-    ITkClusterMakerTool = CompFactory.InDet.ClusterMakerTool(name = name, **kwargs)
-    acc.setPrivateTools(ITkClusterMakerTool)
-    return acc
-
-
 def ITkTrackParticleCreatorToolCfg(flags, name="ITkTrackParticleCreatorTool", **kwargs):
     result = ComponentAccumulator()
     if "TrackToVertex" not in kwargs:
@@ -170,7 +41,7 @@ def ITkTrackCollectionMergerAlgCfg(flags, name="ITkTrackCollectionMerger", Input
 
     kwargs.setdefault("TracksLocation", InputCombinedTracks)
     kwargs.setdefault("OutputTracksLocation", 'CombinedITkTracks')
-    from InDetConfig.ITkTrackingCommonConfig import ITkPRDtoTrackMapToolGangedPixelsCfg
+    from InDetConfig.InDetAssociationToolsConfig import ITkPRDtoTrackMapToolGangedPixelsCfg
     ITkPRDtoTrackMapToolGangedPixels = result.popToolsAndMerge(ITkPRDtoTrackMapToolGangedPixelsCfg(flags))
     kwargs.setdefault("AssociationTool", ITkPRDtoTrackMapToolGangedPixels)
     kwargs.setdefault("AssociationMapName", 'ITkPRDToTrackMapCombinedITkTracks')
@@ -245,7 +116,7 @@ def ITkTrackRecoCfg(flags):
         # TODO: ITk BS providers
         raise RuntimeError("BS imputs not supported")
 
-    from InDetConfig.ITkSiliconPreProcessing import ITkRecPreProcessingSiliconCfg
+    from InDetConfig.SiliconPreProcessing import ITkRecPreProcessingSiliconCfg
     result.merge(ITkRecPreProcessingSiliconCfg(flags))
 
     flags_set = CombinedTrackingPassFlagSets(flags)
@@ -299,9 +170,57 @@ def ITkTrackRecoCfg(flags):
         from InDetConfig.VertexFindingConfig import primaryVertexFindingCfg
         result.merge(primaryVertexFindingCfg(flags))
 
+    if flags.ITk.Tracking.writeExtendedPRDInfo:
+        from InDetConfig.InDetPrepRawDataToxAODConfig import ITkPixelPrepDataToxAODCfg, ITkStripPrepDataToxAODCfg
+        result.merge(ITkPixelPrepDataToxAODCfg(flags, ClusterSplitProbabilityName = ClusterSplitProbContainer))
+        result.merge(ITkStripPrepDataToxAODCfg(flags))
+
+        from DerivationFrameworkInDet.InDetToolsConfig import ITkTrackStateOnSurfaceDecoratorCfg
+        TrackStateOnSurfaceDecorator = result.getPrimaryAndMerge(ITkTrackStateOnSurfaceDecoratorCfg(flags, name="ITkTrackStateOnSurfaceDecorator"))
+        result.addEventAlgo(CompFactory.DerivationFramework.CommonAugmentation("ITkCommonKernel", AugmentationTools = [TrackStateOnSurfaceDecorator]))
+
+        if flags.Input.isMC:
+            from InDetPhysValMonitoring.InDetPhysValDecorationConfig import InDetPhysHitDecoratorAlgCfg
+            result.merge(InDetPhysHitDecoratorAlgCfg(flags))
+
+    # output
+    result.merge(ITkTrackRecoOutputCfg(flags))
+
+    return result
+
+def ITkTrackRecoOutputCfg(flags):
     from OutputStreamAthenaPool.OutputStreamConfig import addToESD,addToAOD
-    toAOD = ["xAOD::TrackParticleContainer#InDetTrackParticles", "xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux."]
+    toAOD = []
     toESD = []
+
+    # excluded track aux data
+    excludedAuxData = "-clusterAssociation.-TTVA_AMVFVertices_forReco.-TTVA_AMVFWeights_forReco"
+    # remove track decorations used internally by FTAG software
+    excludedAuxData += ('.-TrackCompatibility.-JetFitter_TrackCompatibility_antikt4emtopo.-JetFitter_TrackCompatibility_antikt4empflow'
+                        '.-btagIp_d0Uncertainty.-btagIp_z0SinThetaUncertainty.-btagIp_z0SinTheta.-btagIp_d0.-btagIp_trackMomentum.-btagIp_trackDisplacement'
+                        '.-VxTrackAtVertex')
+
+    # exclude IDTIDE/IDTRKVALID decorations
+    excludedAuxData += '.-TrkBLX.-TrkBLY.-TrkBLZ.-TrkIBLX.-TrkIBLY.-TrkIBLZ.-TrkL1X.-TrkL1Y.-TrkL1Z.-TrkL2X.-TrkL2Y.-TrkL2Z'
+    if not flags.ITk.Tracking.writeExtendedPRDInfo:
+        excludedAuxData += '.-msosLink'
+
+    toAOD += ["xAOD::TrackParticleContainer#InDetTrackParticles"]
+    toAOD += [f"xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux.{excludedAuxData}"]
+
+    if flags.ITk.Tracking.writeExtendedPRDInfo:
+        toAOD += [
+            "xAOD::TrackMeasurementValidationContainer#ITkPixelClusters",
+            "xAOD::TrackMeasurementValidationAuxContainer#ITkPixelClustersAux.",
+            "xAOD::TrackMeasurementValidationContainer#ITkStripClusters",
+            "xAOD::TrackMeasurementValidationAuxContainer#ITkStripClustersAux.",
+            "xAOD::TrackStateValidationContainer#ITkPixelMSOSs",
+            "xAOD::TrackStateValidationAuxContainer#ITkPixelMSOSsAux.",
+            "xAOD::TrackStateValidationContainer#ITkStripMSOSs",
+            "xAOD::TrackStateValidationAuxContainer#ITkStripMSOSsAux."
+        ]
+
+    result = ComponentAccumulator()
     result.merge(addToESD(flags, toAOD+toESD))
     result.merge(addToAOD(flags, toAOD))
     return result

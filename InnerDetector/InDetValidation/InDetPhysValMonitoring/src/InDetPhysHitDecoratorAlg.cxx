@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -57,27 +57,42 @@ InDetPhysHitDecoratorAlg::initialize() {
   if (not (m_holeSearchTool.empty())) {
     ATH_CHECK(m_holeSearchTool.retrieve());
   }
+  ATH_CHECK(m_lorentzAngleTool.retrieve());
 
   std::vector<std::string> float_decor_names(kNFloatDecorators);
   std::vector<std::string> int_decor_names(kNIntDecorators);
+  std::vector<std::string> uint64_decor_names(kNUInt64Decorators);
+
   int_decor_names[kDecorRegion]="measurement_region";
   int_decor_names[kDecorDet]="measurement_det";
   int_decor_names[kDecorILayer]="measurement_iLayer";
   int_decor_names[kDecorType]="measurement_type";
-
-  float_decor_names[kDecorResidualLocX]="hitResiduals_residualLocX";
-  float_decor_names[kDecorPullLocX]="hitResiduals_pullLocX";
-  float_decor_names[kDecorResidualLocY]="hitResiduals_residualLocY";
-  float_decor_names[kDecorPullLocY]="hitResiduals_pullLocY";
-
   int_decor_names[kDecorPhiWidth]="hitResiduals_phiWidth";
   int_decor_names[kDecorEtaWidth]="hitResiduals_etaWidth";
 
+  float_decor_names[kDecorResidualLocX]="hitResiduals_residualLocX";
+  float_decor_names[kDecorPullLocX]="hitResiduals_pullLocX";
+  float_decor_names[kDecorMeasLocX]="measurementLocX";
+  float_decor_names[kDecorTrkParamLocX]="trackParamLocX";
+  float_decor_names[kDecorMeasLocCovX]="measurementLocCovX";
+
+  float_decor_names[kDecorResidualLocY]="hitResiduals_residualLocY";
+  float_decor_names[kDecorPullLocY]="hitResiduals_pullLocY";
+  float_decor_names[kDecorMeasLocY]="measurementLocY";
+  float_decor_names[kDecorTrkParamLocY]="trackParamLocY";
+  float_decor_names[kDecorMeasLocCovY]="measurementLocCovY";
+
+  float_decor_names[kDecorAngle]="angle";
+  float_decor_names[kDecorEtaLoc]="etaloc";
+
+  uint64_decor_names[kDecorID]="surfaceID";
+
   ATH_CHECK( m_trkParticleName.initialize() );
   IDPVM::createDecoratorKeys(*this,m_trkParticleName,m_prefix,float_decor_names,m_floatDecor);
-
   IDPVM::createDecoratorKeys(*this,m_trkParticleName,m_prefix, int_decor_names, m_intDecor);
+  IDPVM::createDecoratorKeys(*this,m_trkParticleName,m_prefix, uint64_decor_names, m_uint64Decor);
   assert( m_intDecor.size() == kNIntDecorators);
+  assert( m_uint64Decor.size() == kNUInt64Decorators);
   assert( m_floatDecor.size() == kNFloatDecorators);
 
   // ID Helper
@@ -120,9 +135,11 @@ InDetPhysHitDecoratorAlg::execute(const EventContext &ctx) const {
     float_decor( IDPVM::createDecorators<xAOD::TrackParticleContainer, std::vector<float> >(m_floatDecor, ctx) );
   std::vector< SG::WriteDecorHandle<xAOD::TrackParticleContainer,std::vector<int> > >
     int_decor( IDPVM::createDecorators<xAOD::TrackParticleContainer,std::vector<int> >(m_intDecor, ctx) );
+  std::vector< SG::WriteDecorHandle<xAOD::TrackParticleContainer,std::vector<uint64_t> > >
+    uint64_decor( IDPVM::createDecorators<xAOD::TrackParticleContainer,std::vector<uint64_t> >(m_uint64Decor, ctx) );
 
   for (const xAOD::TrackParticle *trk_particle : *ptracks) {
-    if (not decorateTrack(*trk_particle, float_decor, int_decor) ) {
+    if (not decorateTrack(*trk_particle, float_decor, int_decor, uint64_decor) ) {
       ATH_MSG_ERROR("Could not decorate track");
       return StatusCode::FAILURE;
     }
@@ -132,12 +149,18 @@ InDetPhysHitDecoratorAlg::execute(const EventContext &ctx) const {
 
 bool
 InDetPhysHitDecoratorAlg::decorateTrack(const xAOD::TrackParticle &particle,
-                                         std::vector< SG::WriteDecorHandle<xAOD::TrackParticleContainer,std::vector<float> > > &float_decor,
-                                         std::vector< SG::WriteDecorHandle<xAOD::TrackParticleContainer,std::vector<int> > > &int_decor) const
+					std::vector< SG::WriteDecorHandle<xAOD::TrackParticleContainer,std::vector<float> > > &float_decor,
+					std::vector< SG::WriteDecorHandle<xAOD::TrackParticleContainer,std::vector<int> > > &int_decor,
+					std::vector< SG::WriteDecorHandle<xAOD::TrackParticleContainer,std::vector<uint64_t> > > &uint64_decor) const
 {
   int trackNumber(0);
 
-  using SingleResult_t = std::tuple<int, int, int, float, float, float, float, int, int, int>;
+  using SingleResult_t = std::tuple<int, int, int,
+				    float, float, float, float,
+				    int, int, int,
+				    float, float, float, float,
+				    float, float, float, float,
+				    uint64_t>;
   using TrackResult_t = std::vector<SingleResult_t>;
   const float invalidFloat(-1);
   // const float invalidDouble(std::numeric_limits<double>::quiet_NaN());
@@ -147,9 +170,13 @@ InDetPhysHitDecoratorAlg::decorateTrack(const xAOD::TrackParticle &particle,
   const int invalidLayer(-1);
   const int invalidWidth(-1);
   const int invalidMeasure(-1);
-  const SingleResult_t invalidResult = std::make_tuple(invalidDetector, invalidRegion, invalidLayer, invalidRes,
-                                                       invalidPull, invalidRes, invalidPull, invalidWidth, invalidWidth,
-                                                       invalidMeasure);
+  const uint64_t invalidID(0);
+  const SingleResult_t invalidResult = std::make_tuple(invalidDetector, invalidRegion, invalidLayer,
+						       invalidRes, invalidPull, invalidRes, invalidPull,
+						       invalidWidth, invalidWidth, invalidMeasure,
+						       invalidRes, invalidRes, invalidRes, invalidRes,
+						       invalidRes, invalidRes, invalidRes, invalidRes,
+						       invalidID);
   bool isUnbiased(true);
   // get element link to the original track
   const ElementLink< TrackCollection >& trackLink = particle.trackLink();// using xAODTracking-00-03-09, interface has
@@ -226,10 +253,12 @@ InDetPhysHitDecoratorAlg::decorateTrack(const xAOD::TrackParticle &particle,
           ATH_MSG_DEBUG("Could not identify surface");
           continue;
         }
+        uint64_t Surface_ID = surfaceID.get_compact();
         // Get residuals - old code, remains the same?
         // define residuals at -1 if no measurement (better way?)
-        float residualLocY(invalidFloat), pullLocY(invalidFloat);// -1 by default
-        float residualLocX = invalidFloat, pullLocX = invalidFloat; // what values?
+        float residualLocX(invalidFloat), pullLocX(invalidFloat), measurementLocX(invalidFloat), trackParamLocX(invalidFloat), measurementLocCovX(invalidFloat);
+        float residualLocY(invalidFloat), pullLocY(invalidFloat), measurementLocY(invalidFloat), trackParamLocY(invalidFloat), measurementLocCovY(invalidFloat);// -1 by default
+        float angle(0), etaloc(0);
         int phiWidth(-1);
         int etaWidth(-1);
         std::unique_ptr<const Trk::ResidualPull> residualPull(nullptr);
@@ -266,10 +295,18 @@ InDetPhysHitDecoratorAlg::decorateTrack(const xAOD::TrackParticle &particle,
           // around line 4058 in original code
           residualLocX = 1000. * residualPull->residual()[Trk::loc1]; // residuals in microns
           pullLocX = residualPull->pull()[Trk::loc1];
+          measurementLocX = hit->localParameters()[Trk::loc1];
+          trackParamLocX = trackParameters->parameters()[Trk::loc1];
+          measurementLocCovX = hit->localCovariance()(Trk::loc1,Trk::loc1);
+
           if (residualPull->dimension() > 1) {
             residualLocY = 1000. * residualPull->residual()[Trk::loc2];
             pullLocY = residualPull->pull()[Trk::loc2];
+            measurementLocY = hit->localParameters()[Trk::loc2];
+            trackParamLocY = trackParameters->parameters()[Trk::loc2];
+            measurementLocCovY = hit->localCovariance()(Trk::loc2,Trk::loc2);
           }
+
           // Unbiased residuals?!
           measureType = 4;
 
@@ -283,6 +320,40 @@ InDetPhysHitDecoratorAlg::decorateTrack(const xAOD::TrackParticle &particle,
                 InDet::SiWidth width = pCluster->width();
                 phiWidth = int(width.colRow().x());
                 etaWidth = int(width.colRow().y());
+
+		// get candidate track angle in module local frame
+		Amg::Vector3D my_track = trackParameters->momentum();
+		const InDetDD::SiDetectorElement* element = pCluster->detectorElement();
+		Amg::Vector3D my_normal = element->normal();
+		Amg::Vector3D my_phiax = element->phiAxis();
+		Amg::Vector3D my_etaax = element->etaAxis();
+		float trkphicomp = my_track.dot(my_phiax);
+		float trketacomp = my_track.dot(my_etaax);
+		float trknormcomp = my_track.dot(my_normal);
+		double bowphi = atan2(trkphicomp,trknormcomp);
+		double boweta = atan2(trketacomp,trknormcomp);
+
+		float tanl = m_lorentzAngleTool->getTanLorentzAngle(element->identifyHash());
+		int readoutside = element->design().readoutSide();
+
+		// map the angles of inward-going tracks onto [-PI/2, PI/2]
+		if(bowphi > M_PI/2) bowphi -= M_PI;
+		if(bowphi < -M_PI/2) bowphi += M_PI;
+		// finally, subtract the Lorentz angle effect
+		// the readoutside term is needed because of a bug in old
+		// geometry versions (CSC-01-* and CSC-02-*)
+		angle = atan(tan(bowphi)-readoutside*tanl);
+
+		double thetaloc=-999.;
+		if(boweta > -0.5*M_PI && boweta < M_PI/2.){
+		  thetaloc = M_PI/2.-boweta;
+		}else if(boweta > M_PI/2. && boweta < M_PI){
+		  thetaloc = 1.5*M_PI-boweta;
+		} else{ // 3rd quadrant
+		  thetaloc = -0.5*M_PI-boweta;
+		}
+		etaloc = -1*log(tan(thetaloc/2.));
+
               }
             }
             ATH_MSG_VERBOSE("hit and isUnbiased ok");
@@ -298,8 +369,14 @@ InDetPhysHitDecoratorAlg::decorateTrack(const xAOD::TrackParticle &particle,
           }
           --trackParametersCounter;
         }
-        thisResult = std::make_tuple(det, r, iLayer, residualLocX, pullLocX, residualLocY, pullLocY, phiWidth, etaWidth,
-                                     measureType);
+        thisResult = std::make_tuple(det, r, iLayer,
+                                     residualLocX, pullLocX, residualLocY, pullLocY,
+                                     phiWidth, etaWidth, measureType,
+                                     measurementLocX, measurementLocY,
+                                     trackParamLocX, trackParamLocY,
+                                     angle, etaloc,
+                                     measurementLocCovX, measurementLocCovY,
+                                     Surface_ID);
         result.push_back(thisResult);
       }// end of for loop*/
       ATH_MSG_DEBUG(
@@ -328,6 +405,25 @@ InDetPhysHitDecoratorAlg::decorateTrack(const xAOD::TrackParticle &particle,
         result_etaWidth.reserve(arraySize);
         std::vector<int> result_measureType;
         result_measureType.reserve(arraySize);
+        std::vector<float> result_measurementLocX;
+        result_measurementLocX.reserve(arraySize);
+        std::vector<float> result_measurementLocY;
+        result_measurementLocY.reserve(arraySize);
+        std::vector<float> result_trackParamLocX;
+        result_trackParamLocX.reserve(arraySize);
+        std::vector<float> result_trackParamLocY;
+        result_trackParamLocY.reserve(arraySize);
+        std::vector<float> result_angle;
+        result_angle.reserve(arraySize);
+        std::vector<float> result_etaloc;
+        result_etaloc.reserve(arraySize);
+        std::vector<float> result_measurementLocCovX;
+        result_measurementLocCovX.reserve(arraySize);
+        std::vector<float> result_measurementLocCovY;
+        result_measurementLocCovY.reserve(arraySize);
+        std::vector<uint64_t> result_surfaceID;
+        result_surfaceID.reserve(arraySize);
+
         for (const SingleResult_t& single_result : result) {
           result_det.push_back(std::get<0>(single_result));
           result_r.push_back(std::get<1>(single_result));
@@ -339,18 +435,41 @@ InDetPhysHitDecoratorAlg::decorateTrack(const xAOD::TrackParticle &particle,
           result_phiWidth.push_back(std::get<7>(single_result));
           result_etaWidth.push_back(std::get<8>(single_result));
           result_measureType.push_back(std::get<9>(single_result));
+          result_measurementLocX.push_back(std::get<10>(single_result));
+          result_measurementLocY.push_back(std::get<11>(single_result));
+          result_trackParamLocX.push_back(std::get<12>(single_result));
+          result_trackParamLocY.push_back(std::get<13>(single_result));
+          result_angle.push_back(std::get<14>(single_result));
+          result_etaloc.push_back(std::get<15>(single_result));
+          result_measurementLocCovX.push_back(std::get<16>(single_result));
+          result_measurementLocCovY.push_back(std::get<17>(single_result));
+          result_surfaceID.push_back(std::get<18>(single_result));
         }
-        int_decor[kDecorRegion](particle)=result_r;
+
+        int_decor[kDecorRegion](particle) = result_r;
         int_decor[kDecorDet](particle) = result_det;
         int_decor[kDecorILayer](particle) = result_iLayer;
-        //IDPVM::decorateOrRejectQuietly(particle,float_decor[kDecorResidualLocX],result_residualLocX);
-        float_decor[kDecorResidualLocX](particle) = result_residualLocX;
-        float_decor[kDecorResidualLocY](particle) = result_residualLocY;
-        float_decor[kDecorPullLocX](particle) = result_pullLocX;
-        float_decor[kDecorPullLocY](particle) = result_pullLocY;
         int_decor[kDecorPhiWidth](particle) = result_phiWidth;
         int_decor[kDecorEtaWidth](particle) = result_etaWidth;
         int_decor[kDecorType](particle) = result_measureType;
+
+        float_decor[kDecorResidualLocX](particle) = result_residualLocX;
+        float_decor[kDecorPullLocX](particle) = result_pullLocX;
+        float_decor[kDecorMeasLocX](particle) = result_measurementLocX;
+        float_decor[kDecorTrkParamLocX](particle) = result_trackParamLocX;
+        float_decor[kDecorMeasLocCovX](particle) = result_measurementLocCovX;
+
+        float_decor[kDecorResidualLocY](particle) = result_residualLocY;
+        float_decor[kDecorPullLocY](particle) = result_pullLocY;
+        float_decor[kDecorMeasLocY](particle) = result_measurementLocY;
+        float_decor[kDecorTrkParamLocY](particle) = result_trackParamLocY;
+        float_decor[kDecorMeasLocCovY](particle) = result_measurementLocCovY;
+
+        float_decor[kDecorAngle](particle) = result_angle;
+        float_decor[kDecorEtaLoc](particle) = result_etaloc;
+
+        uint64_decor[kDecorID](particle) = result_surfaceID;
+
         return true;
       }
     }

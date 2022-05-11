@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAMPTOOLS_SHAREDEVTQUEUEPROVIDER_H
@@ -21,9 +21,6 @@ class SharedEvtQueueProvider final : public AthenaMPToolBase
 
   virtual ~SharedEvtQueueProvider() override;
   
-  virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override;
-
   // _________IAthenaMPTool_________   
   virtual int makePool(int maxevt, int nprocs, const std::string& topdir) override;
   virtual StatusCode exec() override;
@@ -45,7 +42,6 @@ class SharedEvtQueueProvider final : public AthenaMPToolBase
   SharedEvtQueueProvider& operator= (const SharedEvtQueueProvider&);
 
   // Properties
-  bool m_isPileup;        // Are we doing pile-up digitization?
   int  m_nprocesses;      // We use this data member for adding negative numbers at the end of the event queue
                           // We cannot use m_nprocs for this purpose in order to avoid generating Output File Reports by Shared Queue Providers
   bool m_useSharedReader; // Are we doing the reading?

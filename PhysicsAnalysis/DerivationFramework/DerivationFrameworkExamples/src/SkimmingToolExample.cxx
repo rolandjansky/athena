@@ -23,7 +23,7 @@ DerivationFramework::SkimmingToolExample::SkimmingToolExample( const std::string
   m_npass(0),
   m_muonSGKey("Muons"),
   m_nMuons(2),
-  m_muonPtCut(10.0)
+  m_muonPtCut(10000.0)
   {
     declareInterface<DerivationFramework::ISkimmingTool>(this);
     declareProperty("MuonContainerKey", m_muonSGKey);

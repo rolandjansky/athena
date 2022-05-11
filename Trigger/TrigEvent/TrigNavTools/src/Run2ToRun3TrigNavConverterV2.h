@@ -87,7 +87,7 @@ private:
   Gaudi::Property<std::vector<std::string>> m_collectionsToSave{this, "Collections", {}};
   Gaudi::Property<std::vector<std::string>> m_roisToSave{this, "Rois", {}};
 
-  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_trigOutputNavKey{this, "OutputNavKey", "HLTNav_Summary"};
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_trigOutputNavKey{this, "OutputNavKey", "HLTNav_R2ToR3Summary"};
 
   StatusCode extractTECtoChainMapping(TEIdToChainsMap_t &allTES, TEIdToChainsMap_t &finalTEs) const;
   mutable std::mutex m_configUpdateMutex;

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef PIXELATHERRORMONTOOL_H
@@ -9,6 +9,7 @@
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "PixelConditionsData/PixelByteStreamErrors.h"
 #include "PixelReadoutGeometry/IPixelReadoutManager.h"
+#include "InDetByteStreamErrors/IDCInDetBSErrContainer.h"
 
 class PixelID;
 
@@ -31,6 +32,9 @@ static const int kNumErrorStatesFEI3 {
 };
 static const int kNumErrorStatesFEI4 {
   27
+};
+static const int kNumErrorStatesPerFE {
+  5
 };
 
 // error states = enumerators of PixelByteStreamErrors and FEI4 SR's we care about
@@ -120,14 +124,14 @@ static constexpr std::array<const char*, ErrorCategory::COUNT> error_names_cat_n
 
 static const int numErrorStatesLayer[PixLayers::COUNT] = {
   kNumErrorStatesFEI3, kNumErrorStatesFEI3, kNumErrorStatesFEI3, kNumErrorStatesFEI3,
-  kNumErrorStatesFEI3, kNumErrorStatesFEI4
+  kNumErrorStatesFEI3, kNumErrorStatesFEI4, kNumErrorStatesFEI4
 };
 static const int kNumErrorCatRODMods {
   ErrorCategoryRODMOD::COUNT
 };
 static const int numErrorCatRODModsLayer[PixLayers::COUNT] = {
   kNumErrorCatRODMods, kNumErrorCatRODMods, kNumErrorCatRODMods, kNumErrorCatRODMods,
-  kNumErrorCatRODMods, kNumErrorCatRODMods
+  kNumErrorCatRODMods, kNumErrorCatRODMods, kNumErrorCatRODMods
 };
 
 static const int nFEIBL2D {
@@ -150,23 +154,23 @@ public:
                           int (&nerrors_cat_rodmod)[ErrorCategoryRODMOD::COUNT][nFEIBL2D], int ife) const;
   void fillErrorCatRODmod(int servicecode, int payload,
                           int (&nerrors_cat_rodmod)[ErrorCategoryRODMOD::COUNT][nFEIBL2D], int ife) const;
+  bool isPerFEI3State(const std::string& state) const;
 private:
-  ServiceHandle<InDetDD::IPixelReadoutManager> m_pixelReadout
-  {
-    this, "PixelReadoutManager", "PixelReadoutManager", "Pixel readout manager"
-  };
+  SG::ReadHandleKey<IDCInDetBSErrContainer> m_idcErrContKey
+     {this, "PixelByteStreamErrs", "PixelByteStreamErrs", "PixelByteStreamErrs container key"};
+  Gaudi::Property<bool> m_useByteStreamFEI4
+     {this, "UseByteStreamFEI4", false, "Switch of the ByteStream error for FEI4"};
+  Gaudi::Property<bool> m_useByteStreamFEI3
+     {this, "UseByteStreamFEI3", false, "Switch of the ByteStream error for FEI3"};
+  Gaudi::Property<bool> m_useByteStreamRD53
+     {this, "UseByteStreamRD53", false, "Switch of the ByteStream error for RD53"};
 
-  ToolHandle<IInDetConditionsTool> m_pixelCondSummaryTool {
-    this, "PixelConditionsSummaryTool",
-    "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"
-  };
+  unsigned int  m_readoutTechnologyMask{};
+  bool m_doOnline{};
+  bool m_doLumiBlock{};
+  bool m_doLowOccupancy{};
+  bool m_doHighOccupancy{};
+  bool m_doHeavyIonMon{};
 
-  const PixelID* m_pixelid;
-
-  bool m_doOnline;
-  bool m_doLumiBlock;
-  bool m_doLowOccupancy;
-  bool m_doHighOccupancy;
-  bool m_doHeavyIonMon;
 };
 #endif

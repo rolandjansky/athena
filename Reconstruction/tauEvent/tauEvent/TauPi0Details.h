@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -98,7 +98,7 @@ namespace Analysis {
     /////////////////////////////////////////////
     private:
 
-    static std::string s_className;
+    static const std::string s_className;
 
     //TauPi0CandidateContainer m_pi0CandContainer;
 

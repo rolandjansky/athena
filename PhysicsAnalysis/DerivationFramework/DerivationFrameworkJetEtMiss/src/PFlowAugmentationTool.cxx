@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -22,7 +22,6 @@ namespace DerivationFramework {
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     declareProperty("Z0SinThetaCut", m_z0sinthcut = 2.0);
-    declareProperty("UseChargedWeights",m_useChargedWeights = true, "True if we make use of weighting scheme for charged PFO");
     declareProperty("WeightPFOTool", m_weightPFOTool );
   }
 

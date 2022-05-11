@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MMHitAnalysis.h"
@@ -264,7 +264,7 @@ StatusCode MMHitAnalysis::execute() {
   m_hits_x->clear();
 
   const DataHandle<MMSimHitCollection> p_collection;;
-  if ((evtStore()->retrieve(p_collection,"MicromegasSensitiveDetector"))==StatusCode::SUCCESS) {
+  if ((evtStore()->retrieve(p_collection,"MM_Hits"))==StatusCode::SUCCESS) {
     for (MMSimHitCollection::const_iterator i_hit = p_collection->begin(); i_hit != p_collection->end(); ++i_hit){
       
       Amg::Vector3D p = (*i_hit).globalPosition();

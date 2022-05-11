@@ -85,7 +85,7 @@ private:
   HGTD_DetectorFactory(HGTD_DetectorFactory &right);
   HGTD_DetectorFactory & operator=(HGTD_DetectorFactory &right);
 
-  void readDbParameters();
+  void initializeGeoParameters();
   GeoLogVol* buildEndcapLogicalVolume(bool isPositiveSide);
   GeoVPhysVol* build( const GeoLogVol* logicalEnvelope, bool bPos);
 

@@ -24,9 +24,9 @@
 """
 
 from TriggerMenuMT.HLT.Config.ControlFlow.HLTCFDot import stepCF_DataFlow_to_dot, stepCF_ControlFlow_to_dot, all_DataFlow_to_dot
-from TriggerMenuMT.HLT.Config.Validation.CFValidation import testHLTTree
-from TriggerMenuMT.HLT.Config.MenuComponents import CFSequence, RoRSequenceFilterNode, PassFilterNode
+from TriggerMenuMT.HLT.Config.ControlFlow.HLTCFComponents import CFSequence, RoRSequenceFilterNode, PassFilterNode
 from TriggerMenuMT.HLT.Config.ControlFlow.MenuComponentsNaming import CFNaming
+from TriggerMenuMT.HLT.Config.Validation.CFValidation import testHLTTree
 
 from AthenaCommon.CFElements import parOR, seqAND, getSequenceChildren, isSequence, compName, findSubSequence,findAlgorithm
 from AthenaCommon.AlgSequence import AlgSequence, dumpSequence
@@ -234,7 +234,7 @@ def makeHLTTree(flags, newJO=False, hltMenuConfig = None):
     hltFinalizeSeq += conf2toConfigurable(edmAlg)
 
     if flags.Trigger.doOnlineNavigationCompactification:
-        onlineSlimAlg = getTrigNavSlimmingMTOnlineConfig()
+        onlineSlimAlg = getTrigNavSlimmingMTOnlineConfig(flags)
         hltFinalizeSeq += conf2toConfigurable(onlineSlimAlg)
 
     hltEndSeq += hltFinalizeSeq
@@ -329,7 +329,7 @@ def sequenceScanner( HLTNode ):
     final_step=_mapSequencesInSteps(HLTNode, 0, childInView=False)
 
     for alg, steps in _seqMapInStep.items():
-        if 'PassSequence' in alg: # do not count PassSequences, which is used many times
+        if 'PassSequence' in alg or 'HLTCaloClusterMakerFSRecoSequence' or 'HLTCaloCellMakerFSRecoSequence' in alg: # do not count PassSequences, which is used many times. Harcoding HLTCaloClusterMakerFSRecoSequence and HLTCaloCellMakerFSRecoSequence when using FullScanTopoCluster building for photon triggers with RoI='' (also for Jets and MET) following discussion in ATR-24722. To be fixed
             continue
         # Sequences in views can be in multiple steps
         nonViewSteps = sum([0 if isInViews else 1 for (stepIndex,isInViews) in steps])

@@ -42,9 +42,9 @@ namespace LVL1 {
     return StatusCode::SUCCESS;
   }
   
-  void eFEXFillEDM::fillEmEDM(std::unique_ptr<xAOD::eFexEMRoIContainer> &container, uint8_t eFexNum, uint32_t tobWord)
+  void eFEXFillEDM::fillEmEDM(std::unique_ptr<xAOD::eFexEMRoIContainer> &container, uint8_t eFexNum, const eFEXegTOB& tobObject)
   {
-    uint32_t tobWord0 = tobWord;
+    uint32_t tobWord0 = tobObject.getTobword();
     // Only needed for xTOBs, which aren't filled yet
     // uint32_t tobWord1 = 0;
 
@@ -59,13 +59,20 @@ namespace LVL1 {
     
     myEmEDM->initialize(eFEX, shelf, tobWord0); 
 
+    myEmEDM->setRetaCore(tobObject.getRetaCore());
+    myEmEDM->setRetaEnv(tobObject.getRetaEnv());
+    myEmEDM->setRhadEM(tobObject.getRhadEM());
+    myEmEDM->setRhadHad(tobObject.getRhadHad());
+    myEmEDM->setWstotNumerator(tobObject.getWstotNum());
+    myEmEDM->setWstotDenominator(tobObject.getWstotDen());
+
     ATH_MSG_DEBUG(" setting eFEX Number:  " << +myEmEDM->eFexNumber() << " shelf: " << +myEmEDM->shelfNumber() << " et: " << myEmEDM->et() << " eta: " << myEmEDM->eta() <<  " phi: " << myEmEDM->phi() << " input eFexNum: " << +eFexNum << " TOB word: " << tobWord0 << MSG::dec );
 
   }
 
-  void eFEXFillEDM::fillTauEDM(std::unique_ptr<xAOD::eFexTauRoIContainer> &container, uint8_t eFexNum, uint32_t tobWord)
+  void eFEXFillEDM::fillTauEDM(std::unique_ptr<xAOD::eFexTauRoIContainer> &container, uint8_t eFexNum, const eFEXtauTOB& tobObject)
   {
-    uint32_t tobWord0 = tobWord;
+    uint32_t tobWord0 = tobObject.getTobword();
     // Only needed for xTOBs, which aren't filled yet
     //  uint32_t tobWord1 = 0;
 
@@ -78,6 +85,14 @@ namespace LVL1 {
     container->push_back(myTauEDM);
 
     myTauEDM->initialize(eFEX, shelf, tobWord0);
+    // There is some ambiguity in what 'numerator'/'denominator' mean in each of the tau isolation 
+    // variables rCore and rHad below, since in the more 'physical' definition, we would consider core/(core+env),
+    // whereas in the firmware we calculate core/env. Here, I store core->numerator, env->denominator. 
+    // Provided we remember this when using them, we can then calculate either the 'physical' or the 'firmware' values.
+    myTauEDM->setRCoreNumerator(tobObject.getRcoreCore());
+    myTauEDM->setRCoreDenominator(tobObject.getRcoreEnv());
+    myTauEDM->setRHadNumerator(tobObject.getRhadCore());
+    myTauEDM->setRHadDenominator(tobObject.getRhadEnv());
     ATH_MSG_DEBUG(" setting tau eFEX Number: " << +myTauEDM->eFexNumber() << " shelf: " << +myTauEDM->shelfNumber() << " et: " << myTauEDM->et() << " eta: " << myTauEDM->eta() << " phi: " << myTauEDM->phi() << " input eFexNum: " << +eFexNum << " TOB word: " << tobWord0 << MSG::dec);
 
   }

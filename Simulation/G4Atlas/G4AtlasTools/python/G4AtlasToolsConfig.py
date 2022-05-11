@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
 from AthenaCommon import CfgMgr
@@ -127,7 +127,7 @@ def generateMuonSensitiveDetectorList():
             if DetFlags.simulate.TGC_on() : SensitiveDetectorList += [ 'TGCSensitiveDetector' ]
             if MuonGeometryFlags.hasCSC() and DetFlags.simulate.CSC_on() : SensitiveDetectorList += [ 'CSCSensitiveDetector' ]
         if MuonGeometryFlags.hasSTGC() and DetFlags.simulate.sTGC_on() : SensitiveDetectorList += [ 'sTGCSensitiveDetector' ]
-        if MuonGeometryFlags.hasMM() and DetFlags.simulate.Micromegas_on() : SensitiveDetectorList += [ 'MicromegasSensitiveDetector' ]
+        if MuonGeometryFlags.hasMM() and DetFlags.simulate.MM_on() : SensitiveDetectorList += [ 'MicromegasSensitiveDetector' ]
     return SensitiveDetectorList
 
 def generateEnvelopeSensitiveDetectorList():

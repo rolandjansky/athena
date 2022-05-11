@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LEPTONCFEVALIDATIONPLOTS_H
@@ -18,7 +18,7 @@ class LeptonCFEValidationPlots : public PlotBase {
  public:
 
   /** Standard Constructor */
-  LeptonCFEValidationPlots(PlotBase* pParent,std::string sDir, std::string LeptonContainerName);
+  LeptonCFEValidationPlots(PlotBase* pParent,const std::string& sDir, const std::string& LeptonContainerName);
 
   /** fill the histograms up */
   void fill(const xAOD::Electron& el, const xAOD::EventInfo& eventInfo);

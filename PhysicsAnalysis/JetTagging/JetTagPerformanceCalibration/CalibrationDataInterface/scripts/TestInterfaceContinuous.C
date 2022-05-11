@@ -39,7 +39,7 @@ using std::endl;
 
 string myflav;
 struct calib{ 
-  Analysis::CalibrationDataInterfaceROOT* cal;
+  Analysis::CalibrationDataInterfaceROOT* cal{};
   std::string root;
   std::string tagger;
   std::string analysis;
@@ -70,7 +70,7 @@ void setAnalyses(std::vector <calib>& calib_list){
 }
 //--------------------------------------------//
 
-void  setBinning(std::vector<double>& bins,std::string flav){
+void  setBinning(std::vector<double>& bins,const std::string & flav){
 
   bins.clear();
   if (flav=="B"){
@@ -111,7 +111,7 @@ void  addToList(std::vector <calib>& calib_list, calib tmp){
   calib_list.push_back(tmp);
 }
 
-std::string createFile(std::string root, std::string tagger, std::string flav, std::string analysis){
+std::string createFile(const std::string & root, const std::string & tagger, const std::string & flav, const std::string & analysis){
   std::string file = root; file+=".env";
   std::ofstream fout(file.c_str());
   fout << "File: " << root <<endl;

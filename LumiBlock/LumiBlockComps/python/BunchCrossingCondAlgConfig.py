@@ -16,10 +16,10 @@ def BunchCrossingCondAlgCfg(configFlags):
         folder = "/Digitization/Parameters"
         Mode = 1
         from AthenaConfiguration.Enums import ProductionStep
-        if configFlags.Common.ProductionStep not in [ProductionStep.Digitization, ProductionStep.PileUpPresampling]:
+        if configFlags.Common.ProductionStep not in [ProductionStep.Digitization, ProductionStep.PileUpPresampling, ProductionStep.Overlay, ProductionStep.FastChain]:
             result.merge(addFolders(configFlags,folder,None,className="AthenaAttributeList",tag='HEAD'))
         else:
-            # Here we are in a digitization job, so the
+            # Here we are in a job which runs digitization, so the
             # /Digitization/Parameters metadata is not present in the
             # input file and will be created during the job
             pass

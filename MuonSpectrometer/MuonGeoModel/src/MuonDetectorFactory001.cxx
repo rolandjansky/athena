@@ -130,9 +130,7 @@ namespace MuonGM {
         m_manager->setCachingFlag(m_caching);
         m_manager->setCacheFillingFlag(m_cacheFillingFlag);
         m_manager->setControlAlinesFlag(m_controlAlines);
-        m_manager->setNSWABLinesAsciiSideA(m_NSWABLinesSideA);
-        m_manager->setNSWABLinesAsciiSideC(m_NSWABLinesSideC);
-        m_manager->setMMAsBuiltCalculator(m_MMAsBuiltJsonPath);
+        m_manager->setNSWABLineAsciiPath(m_NSWABLineAsciiPath);
         // set here the flag defining the geometry granularity
         // minimalgeo = 1 => The geo tree is built up to the Detector Level (Full PhysVol)
         //                     no internal structure of the Detector is built
@@ -140,6 +138,7 @@ namespace MuonGM {
         m_manager->setMinimalGeoFlag(m_minimalGeoFlag);
         m_manager->setMdtDeformationFlag(m_mdtDeformationFlag);
         m_manager->setMdtAsBuiltParamsFlag(m_mdtAsBuiltParaFlag);
+        m_manager->setNswAsBuiltParamsFlag(m_nswAsBuiltParaFlag);
 
         if (m_controlCscIntAlines == 0)
             m_manager->setApplyCscIntAlignment(false);

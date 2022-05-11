@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -42,8 +42,7 @@ def JetFitterNNToolCfg( name = 'JetFitterNNTool', scheme='', CombinedIPNN = Fals
         for option in defaults:
             options.setdefault(option, defaults[option])
 
-    Analysis__JetFitterNNTool=CompFactory.Analysis.JetFitterNNTool
-    acc.setPrivateTools(Analysis__JetFitterNNTool( **options))
+    acc.setPrivateTools(CompFactory.Analysis.JetFitterNNTool( **options))
  
     return acc
 

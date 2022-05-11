@@ -11,9 +11,6 @@ TrigConf::L1TopoOutput::L1TopoOutput(const boost::property_tree::ptree & data)
    : DataStructure(data)
 {}
 
-TrigConf::L1TopoOutput::~L1TopoOutput()
-{}
-
 const std::string &
 TrigConf::L1TopoOutput::algName() const
 {

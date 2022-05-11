@@ -1,36 +1,36 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "HGTD_GeoModelXml/HGTD_GmxInterface.h"
+#include "HGTD_GmxInterface.h"
 
-#include "HGTD_Identifier/HGTD_ID.h"
-#include "HGTD_ReadoutGeometry/HGTD_ModuleDesign.h"
-#include "HGTD_ReadoutGeometry/HGTD_DetectorElement.h"
-#include "ReadoutGeometryBase/SiCommonItems.h"
+#include <HGTD_Identifier/HGTD_ID.h>
+#include <HGTD_ReadoutGeometry/HGTD_DetectorElement.h>
+#include <HGTD_ReadoutGeometry/HGTD_ModuleDesign.h>
 
-#include "InDetSimEvent/SiHitIdHelper.h"
-#include "AthenaKernel/getMessageSvc.h"
+#include <AthenaKernel/getMessageSvc.h>
+#include <InDetSimEvent/SiHitIdHelper.h>
+#include <ReadoutGeometryBase/SiCommonItems.h>
 
 namespace
 {
 constexpr int HGTD_HitIndex{2};
 }
 
-HGTD_GmxInterface::HGTD_GmxInterface(HGTD_DetectorManager* detectorManager,
-                                     InDetDD::SiCommonItems* commonItems):
-    AthMessaging(Athena::getMessageSvc(), "HGTD_GmxInterface"),
-    m_detectorManager(detectorManager),
-    m_commonItems(commonItems) {
-
+HGTD_GmxInterface::HGTD_GmxInterface(HGTD_DetectorManager *detectorManager,
+                                     InDetDD::SiCommonItems *commonItems)
+    : AthMessaging(Athena::getMessageSvc(), "HGTD_GmxInterface"),
+      m_detectorManager(detectorManager),
+      m_commonItems(commonItems)
+{
 }
 
-int HGTD_GmxInterface::sensorId(std::map<std::string, int> &index) const {
-    //
+
+int HGTD_GmxInterface::sensorId(std::map<std::string, int> &index) const
+{
     // Return the Simulation HitID (nothing to do with "ATLAS Identifiers" aka "Offline Identifiers"
 
-  // Check if identifier is valid
-
+    // Check if identifier is valid
     const HGTD_ID* hgtdIdHelper = dynamic_cast<const HGTD_ID *> (m_commonItems->getIdHelper());
     Identifier id = hgtdIdHelper->wafer_id(index["hgtd_endcap"],
                                            index["hgtd_layer"],
@@ -38,26 +38,22 @@ int HGTD_GmxInterface::sensorId(std::map<std::string, int> &index) const {
                                            index["hgtd_eta_module"]);
     IdentifierHash hashId = hgtdIdHelper->wafer_hash(id);
     if (!hashId.is_valid()) {
-    ATH_MSG_WARNING("Invalid hash for Index list: " << index["hgtd_endcap"] << " " << index["hgtd_layer"] << " "
-                    << index["hgtd_phi_module"] << " " << index["hgtd_eta_module"]);
-    return -1;
+        ATH_MSG_WARNING("Invalid hash for Index list: " << index["hgtd_endcap"] << " " << index["hgtd_layer"] << " "
+                        << index["hgtd_phi_module"] << " " << index["hgtd_eta_module"]);
+        return -1;
     }
 
-    if (hashId.is_valid()){
+    if (hashId.is_valid()) {
         ATH_MSG_INFO("Valid hash for Index list: : " << index["hgtd_endcap"] << " " << index["hgtd_layer"] << " "
-                    << index["hgtd_phi_module"] << " " << index["hgtd_eta_module"]);}
-
-
-
+                    << index["hgtd_phi_module"] << " " << index["hgtd_eta_module"]);
+    }
 
     int hitIdOfWafer = SiHitIdHelper::GetHelper()->buildHitId(HGTD_HitIndex,
                                                               index["hgtd_endcap"],
                                                               index["hgtd_layer"],
                                                               index["hgtd_eta_module"],
                                                               index["hgtd_phi_module"],
-                                                               0); // side is just 0 for HGTD
-    
-    
+                                                              0); // side is just 0 for HGTD
 
     ATH_MSG_DEBUG("Index list: " << index["hgtd_endcap"] << " " << index["hgtd_layer"] << " "
                                  << index["hgtd_phi_module"] << " " << index["hgtd_eta_module"]);
@@ -69,9 +65,11 @@ int HGTD_GmxInterface::sensorId(std::map<std::string, int> &index) const {
     return hitIdOfWafer;
 }
 
-void HGTD_GmxInterface::addSensorType(const std::string& clas,
-                                      const std::string& typeName,
-                                      const std::map<std::string, std::string>& parameters) {
+
+void HGTD_GmxInterface::addSensorType(const std::string &clas,
+                                      const std::string &typeName,
+                                      const std::map<std::string, std::string> &parameters)
+{
     ATH_MSG_DEBUG("addSensorType called for class " << clas << ", typeName " << typeName);
 
     if (clas == "LGAD_module") {
@@ -83,10 +81,10 @@ void HGTD_GmxInterface::addSensorType(const std::string& clas,
     }
 }
 
+
 void HGTD_GmxInterface::makeLgadModule(const std::string &typeName,
                                        const std::map<std::string, std::string> &parameters)
 {
-
     double thickness{};
     double xPitch{};
     double yPitch{};
@@ -105,7 +103,6 @@ void HGTD_GmxInterface::makeLgadModule(const std::string &typeName,
     getParameter(typeName, parameters, "padColumns", padColumns);
     getParameter(typeName, parameters, "padRows", padRows);
 
-    
     std::shared_ptr<const InDetDD::PixelDiodeMatrix> normalCell = InDetDD::PixelDiodeMatrix::construct(xPitch, yPitch);
     std::shared_ptr<const InDetDD::PixelDiodeMatrix> singleRow  = InDetDD::PixelDiodeMatrix::construct(InDetDD::PixelDiodeMatrix::phiDir, 0,
                                                                           normalCell, padColumns, 0);
@@ -124,17 +121,18 @@ void HGTD_GmxInterface::makeLgadModule(const std::string &typeName,
 
 
    m_geometryMap[typeName] = design;
-
 }
 
-void HGTD_GmxInterface::addSensor(const std::string& typeName,
+
+void HGTD_GmxInterface::addSensor(const std::string &typeName,
                                   std::map<std::string, int> &index,
                                   int /* sensitiveId */,
-                                  GeoVFullPhysVol *fpv) {
+                                  GeoVFullPhysVol *fpv)
+{
     //
     // Get the ATLAS "Offline" wafer identifier
     //
-    const HGTD_ID* hgtdIdHelper = dynamic_cast<const HGTD_ID *> (m_commonItems->getIdHelper());
+    const HGTD_ID *hgtdIdHelper = dynamic_cast<const HGTD_ID *> (m_commonItems->getIdHelper());
     Identifier id = hgtdIdHelper->wafer_id(index["hgtd_endcap"],
                                            index["hgtd_layer"],
                                            index["hgtd_phi_module"],

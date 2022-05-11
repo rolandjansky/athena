@@ -1,12 +1,13 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
 @file PixelAthErrorMonAlgCfg.py
 @brief Configuration of Pixel Error Monitoring Histograms for Run 3
+@author Iskander Ibragimov
 '''
-from PixelMonitoring.PixelAthMonitoringBase import define2DProfHist
+from PixelMonitoring.PixelAthMonitoringBase import define2DProfHist, define2DProfPerFEHist
 from PixelMonitoring.PixelAthMonitoringBase import defineMapVsLumiLayers
 from PixelMonitoring.PixelAthMonitoringBase import define1DProfLumiLayers
 from PixelMonitoring.PixelAthMonitoringBase import layers, fei3layers, fei4layers
@@ -94,10 +95,15 @@ def PixelAthErrorMonAlgCfg(helper, alg, **kwargs):
         title          = "Errors_RODSync"
         define2DProfHist(helper, alg, histoGroupName, title, pathLowStat, type='TH2F', lifecycle='lowStat')
 
+    matches = ["SEU", "EOC", "Warning"]
     for state in ErrStateLabelsFEI3:
-        histoGroupName = state[0]+"Map"
-        title          = state[1]+" Errors per event per LB"
-        define2DProfHist(helper, alg, histoGroupName, title, pathExpert, type='TH2F', doWeight=True)
+        title          = state[1]+" Errors"
+        if any(st in state[0] for st in matches):
+            histoGroupName = state[0]+"FEMap"
+            define2DProfPerFEHist(helper, alg, histoGroupName, title, pathExpert, type='TH2F', doWeight=True)
+        else:
+            histoGroupName = state[0]+"Map"
+            define2DProfHist(helper, alg, histoGroupName, title, pathExpert, type='TH2F', doWeight=True)
         histoGroupName = state[0]+"PerLumi"
         title          = 'Average '+state[1]+" Errors per event per LB"
         yaxistext      = ';# errors/module/event'
@@ -105,7 +111,7 @@ def PixelAthErrorMonAlgCfg(helper, alg, **kwargs):
 
     for state in ErrStateLabelsFEI4:
         histoGroupName = state[0]+"Map"
-        title          = state[1]+" Errors per event per LB"
+        title          = state[1]+" Errors"
         define2DProfHist(helper, alg, histoGroupName, title, pathExpert, type='TH2F', doWeight=True)
         histoGroupName = state[0]+"PerLumi"
         title          = 'Average '+state[1]+" Errors per event per LB"

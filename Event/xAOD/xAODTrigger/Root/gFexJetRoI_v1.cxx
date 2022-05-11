@@ -16,9 +16,6 @@
 namespace xAOD {
 
   /// Constants used in converting to ATLAS units
-  const float gFexJetRoI_v1::s_gRhotobEtScale = 50.; //50 MeV is the energy resolution for large-R jets (gJets) TOBs
-  const float gFexJetRoI_v1::s_gJtobEtScale = 800.; //800 MeV is the energy resolution for small-R jets (gBlocks) TOBs
-  const float gFexJetRoI_v1::s_gLJtobEtScale = 1600.; //1600 MeV is the energy resolution for large-R jets (gJets) TOBs
   const float gFexJetRoI_v1::s_centralPhiWidth = (2*M_PI)/32; //In central region, gFex has 32 bins in phi
   const float gFexJetRoI_v1::s_forwardPhiWidth = (2*M_PI)/16; //In forward region, gFex has 16 bins in phi
   const std::vector<float> gFexJetRoI_v1::s_EtaEdge     = { -4.9, -4.45, -4.0, -3.5, -3.3, -3.1, 
@@ -41,11 +38,12 @@ namespace xAOD {
 
   }
 
-  void gFexJetRoI_v1::initialize( uint32_t word ) {
+  void gFexJetRoI_v1::initialize( uint32_t word, int tobEtScale ) {
 
     setWord( word );
+    setScale( tobEtScale );
     setgFexType(unpackType());
-    setTobEt( unpackEtIndex() );
+    setTobEt( unpackEt() );
     setEta( unpackEtaIndex() );
     setPhi( unpackPhiIndex() );
     setStatus( unpackStatus());
@@ -57,6 +55,8 @@ namespace xAOD {
   /// Raw data words
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexJetRoI_v1, uint32_t, word,
                                          setWord )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexJetRoI_v1, int, tobEtScale,
+                                         setScale )
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexJetRoI_v1, uint8_t, saturated,
                                          setSaturated )
 
@@ -66,7 +66,7 @@ namespace xAOD {
   /// Extracted from data words
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexJetRoI_v1, int, gFexType,
                                          setgFexType )
-  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexJetRoI_v1, uint16_t, tobEt,
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexJetRoI_v1, int16_t, gFexTobEt,
                                          setTobEt )
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( gFexJetRoI_v1, uint8_t, iEta,
                                          setEta )
@@ -131,10 +131,19 @@ namespace xAOD {
   }
     
 
-  // Raw ET on TOB scale (3200 MeV/count)
-  unsigned int gFexJetRoI_v1::unpackEtIndex() const {
+  // Raw ET on TOB scale 
+  int16_t gFexJetRoI_v1::unpackEt() const {
   // Data content = TOB
-    return (word() >> s_etBit) & s_etMask; 
+    int16_t energy = (word() >> s_etBit) & s_etMask; 
+    int SIGNMASK = 0x0800;
+    int EXTENDS =  0xF000;
+    if (gFexType() == gRho){
+      if( (SIGNMASK & energy ) ) {
+            energy = ( EXTENDS  | energy); 
+      }
+    }
+
+    return energy; 
   }
 
   // Return an eta index in the range 0-49
@@ -149,31 +158,11 @@ namespace xAOD {
   }
 
   // Methods that require combining results or applying scales
-
-  // ET on TOB scale
-  float gFexJetRoI_v1::etMin() const {
-    if (gFexType() == gRho){
-      return tobEt()*s_gRhotobEtScale;
-    }
-    else if ((gFexType() == gBlockLead) || (gFexType() == gBlockSub)){
-      return tobEt()*s_gJtobEtScale;
-    }
-    else {//if (gFexType() == gJet)
-      return tobEt()*s_gLJtobEtScale;
-    }
+  
+  float gFexJetRoI_v1::et() const {
+      return gFexTobEt()*tobEtScale();
   }
 
-  float gFexJetRoI_v1::etMax() const {
-    if (gFexType() == gRho){
-      return tobEt()*s_gRhotobEtScale + s_gRhotobEtScale;
-    }
-    else if ((gFexType() == gBlockLead) || (gFexType() == gBlockSub)){
-      return tobEt()*s_gJtobEtScale + s_gJtobEtScale;
-    }
-    else { //if (gFexType() == gJet)
-      return tobEt()*s_gLJtobEtScale + s_gLJtobEtScale;
-    }
-  }
 
   // Floating point coordinates. Return the center of Eta. 
   float gFexJetRoI_v1::eta() const {
@@ -200,13 +189,14 @@ namespace xAOD {
 
 
   // Floating point coordinates using gFex convention [0, 2pi].
+  // Returns the centre phi coordinate.
   float gFexJetRoI_v1::phi_gFex() const {
     float phi_out = -999;
     if (gFexType() != gRho){
-      if (( iEta() <= 6 ) || ( (iEta() >= 33) )){
+      if (( iEta() <= 3 ) || ( (iEta() >= 36) )){
         phi_out = (iPhi() * s_forwardPhiWidth) + (s_forwardPhiWidth/2);
       }
-      else if ( iEta() >6  && iEta() < 33 ){
+      else if ( iEta() > 3  && iEta() < 36 ){
         phi_out = (iPhi() * s_centralPhiWidth) + s_centralPhiWidth/2;
       } 
       else return -999; 
@@ -216,13 +206,14 @@ namespace xAOD {
 
 
   // Floating point coordinates using gFex convention [0, 2pi]. 
+  // Returns the low edge of the phi bin.
   float gFexJetRoI_v1::phiMin_gFex() const {
     float phi_out = -999;
     if (gFexType() != gRho){
-      if (( iEta() <= 6 ) || ( (iEta() >= 33) )){
+      if (( iEta() <= 3 ) || ( (iEta() >= 36) )){
         phi_out = iPhi() * s_forwardPhiWidth;
       }
-      else if ( iEta() > 6 && iEta() < 33 ){
+      else if ( iEta() > 3 && iEta() < 36 ){
         phi_out = iPhi() * s_centralPhiWidth;
       } 
       else return -999; 
@@ -231,13 +222,14 @@ namespace xAOD {
   }
 
   // Floating point coordinates using gFex convention [0, 2pi].
+  // Returns the high edge of the phi bin.
   float gFexJetRoI_v1::phiMax_gFex() const {
     float phi_out = -999;
     if (gFexType() != gRho){
-      if (( iEta() <= 6 ) || ( iEta() >= 33  )){//&& iEta() <= 37
+      if (( iEta() <= 3 ) || ( iEta() >= 36  )){//&& iEta() <= 37
         phi_out = iPhi() * s_forwardPhiWidth + s_forwardPhiWidth;
       }
-      else if ( iEta() > 6 && iEta() < 33 ){
+      else if ( iEta() > 3 && iEta() < 36 ){
         phi_out = iPhi() * s_centralPhiWidth + s_centralPhiWidth;
       } 
       else return -999; 
@@ -246,6 +238,7 @@ namespace xAOD {
   }
 
   // Floating point coordinates using ATLAS convention [-pi, pi]. 
+  // Returns the centre phi coordinate.
   float gFexJetRoI_v1::phi() const {
     float phi_out = -999;
     if (gFexType() != gRho){
@@ -255,7 +248,8 @@ namespace xAOD {
     return phi_out; 
   }
 
-  // Floating point coordinates using ATLAS convention [-pi, pi]. 
+  // Floating point coordinates using ATLAS convention [-pi, pi].
+  // Returns the high edge of the phi bin. 
   float gFexJetRoI_v1::phiMax() const {
     float phi_out = -999;
     if (gFexType() != gRho){
@@ -266,12 +260,28 @@ namespace xAOD {
   }
 
   // Floating point coordinates using ATLAS convention [-pi, pi]. 
+  // Returns the low edge of the phi bin.
   float gFexJetRoI_v1::phiMin() const {
     float phi_out = -999;
     if (gFexType() != gRho){
       if (phiMin_gFex() < M_PI) phi_out = phiMin_gFex();
       else phi_out = (phiMin_gFex() - 2*M_PI);
     }
+    return phi_out; 
+  }
+
+  // Returns phi index in the range used by L1Topo (0->127).
+  int gFexJetRoI_v1::iPhiTopo() const {
+    int phi_out = -999;
+    if (gFexType() != gRho){
+      if (( iEta() <= 3 ) || ( (iEta() >= 36) )){
+        phi_out = ( 8 * iPhi() ) + 4;
+      }
+      else if ( iEta() >3  && iEta() < 36 ){
+        phi_out = ( 4 * iPhi() ) + 2;
+      } 
+      else return -999; 
+    } 
     return phi_out; 
   }
 

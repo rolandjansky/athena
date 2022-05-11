@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */ 
 /**
  * @file PixelConditionsAlgorithms/PixelDCSCondStatusAlg.h
@@ -21,7 +21,6 @@
 
 #include "InDetIdentifier/PixelID.h"
 
-#include "GaudiKernel/ICondSvc.h"
 #include "Gaudi/Property.h"
 
 class PixelDCSCondStateAlg : public AthReentrantAlgorithm {  
@@ -34,8 +33,6 @@ class PixelDCSCondStateAlg : public AthReentrantAlgorithm {
 
   private:
     const PixelID* m_pixelID{nullptr};
-
-    ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 
     SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyState
     {this, "ReadKeyState", "",    "Key of input DCS state conditions folder"};

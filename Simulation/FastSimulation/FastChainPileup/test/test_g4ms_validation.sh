@@ -11,6 +11,7 @@
 # art-output: art_core*
 # art-output: dcube-*
 # art-html: dcube-g4msVsaf2
+# art-architecture: '#x86_64-intel'
 
 echo "ArtProcess: $ArtProcess"
 
@@ -76,7 +77,7 @@ case $ArtProcess in
         ntup_file=physval_g4ms_${ArtProcess}.root
 
         # Sim & Reco step
-        Sim_tf.py --conditionsTag 'default:OFLCOND-MC16-SDR-14' \
+        Sim_tf.py --conditionsTag 'default:OFLCOND-MC16-SDR-RUN2-09' \
                   --physicsList 'FTFP_BERT_ATL' --truthStrategy 'MC15aPlus' \
                   --simulator 'ATLFASTIIF_G4MS' \
                   --postInclude 'default:PyJobTransforms/UseFrontier.py' 'EVNTtoHITS:G4AtlasTests/postInclude.DCubeTest.py' \
@@ -92,11 +93,11 @@ case $ArtProcess in
         if [ $rc -eq 0 ]
         then
             Reco_tf.py --autoConfiguration 'everything' \
-                  --inputHITSFile=${hits_file} --conditionsTag 'default:OFLCOND-MC16-SDR-25' \
+                  --inputHITSFile=${hits_file} --conditionsTag 'default:OFLCOND-MC16-SDR-RUN2-09' \
                   --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
-                  --postExec "all:CfgMgr.MessageSvc().setError+=['HepMcParticleLink']" \
+                  --postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"];from IOVDbSvc.CondDB import conddb;conddb.addOverride("/TILE/OFL02/CALIB/SFR","TileOfl02CalibSfr-SIM-05")' \
                   --postInclude "default:PyJobTransforms/UseFrontier.py" \
-                  --preExec "all:rec.Commissioning.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True); from LArDigitization.LArDigitizationFlags import jobproperties;jobproperties.LArDigitizationFlags.useEmecIwHighGain.set_Value_and_Lock(False)" 'HITtoRDO:userRunLumiOverride={"run":310000,"lb":61,"starttstamp":1550003600,"mu":60.500};' "from InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags; InDetPhysValFlags.doValidateTightPrimaryTracks.set_Value_and_Lock(True);rec.doCalo=True;rec.doForwardDet=False; rec.doInDet=True;" 'RAWtoESD:from EventTagRawAlgs.EventTagRawAlgsConf import RawInfoSummaryForTagWriter;RawInfoSummaryForTagWriter.BCM_RDOKey=""' \
+                  --preExec "all:rec.Commissioning.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True); from LArDigitization.LArDigitizationFlags import jobproperties;jobproperties.LArDigitizationFlags.useEmecIwHighGain.set_Value_and_Lock(False)" 'HITtoRDO:userRunLumiOverride={"run":310000,"lb":61,"starttstamp":1550003600,"mu":60.500};' "from InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags; InDetPhysValFlags.doValidateTightPrimaryTracks.set_Value_and_Lock(True);rec.doCalo=True;rec.doForwardDet=False; rec.doInDet=True;" \
                   --outputAODFile=${aod_file} \
                   --ignoreErrors True \
                   --valid=True --validationFlags 'doInDet,doMET,doMuon,doZee,doJet' \

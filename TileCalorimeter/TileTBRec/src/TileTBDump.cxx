@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -2078,7 +2078,7 @@ int TileTBDump::tile_unpack_raw_comp(T_RodDataFrag* frag, T_TileRawComp* rawcomp
   int status = 0;
 
   int size = frag->size - m_sizeOverhead; // size of the data part in the fragment
-  int id = frag->id;
+  unsigned int id = frag->id;
   int frag1version = (id >> 31) & 0x1;
   int nbchanformat1 = (id >> 24) & 0x3F;
 

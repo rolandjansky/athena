@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@ Trk::LayerMaterialInspector::LayerMaterialInspector(const std::string& t, const 
 
 // destructor
 Trk::LayerMaterialInspector::~LayerMaterialInspector()
-{}
+= default;
 
 StatusCode Trk::LayerMaterialInspector::processNode(const Trk::TrackingVolume& , size_t) const
 {

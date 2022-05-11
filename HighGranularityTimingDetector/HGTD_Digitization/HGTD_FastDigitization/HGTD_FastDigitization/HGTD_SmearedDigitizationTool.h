@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  *
  * @file HGTD_FastDigitization/HGTD_SmearedDigitizationTool.h
  * @author Alexander Leopold <alexander.leopold@cern.ch>
@@ -73,7 +73,7 @@ private:
   StatusCode digitize(const EventContext& ctx);
 
   StatusCode fillMultiTruthCollection(PRD_MultiTruthCollection*, Cluster_t*,
-                                      TimedHitPtr<SiHit>);
+                                      TimedHitPtr<SiHit>, const EventContext&);
 
   StatusCode fillClusterContainer();
 

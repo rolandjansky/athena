@@ -1,6 +1,6 @@
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration 
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration 
 */
 #include "GeneratorFilters/TauFilter.h"
 #include "CLHEP/Vector/LorentzVector.h"
@@ -132,9 +132,8 @@ StatusCode TauFilter::filterEvent() {
   int ntauhad_tight = 0;
   double weight = 1;
 
-  McEventCollection::const_iterator itr;
-  for (itr = events_const()->begin(); itr!=events_const()->end(); ++itr) {
-    int eventNumber = (*itr)->event_number();
+  for (const HepMC::GenEvent* genEvt : *events_const()) {
+    int eventNumber = genEvt->event_number();
 
     if(m_filterEventNumber==1 && (eventNumber%2)==0) {
       setFilterPassed(false);
@@ -145,7 +144,6 @@ StatusCode TauFilter::filterEvent() {
       return StatusCode::SUCCESS;
     }
     
-    const HepMC::GenEvent* genEvt = (*itr);
     auto wgtsC = genEvt->weights();
     weight = wgtsC.size() > 0 ? wgtsC[0] : 1;
 

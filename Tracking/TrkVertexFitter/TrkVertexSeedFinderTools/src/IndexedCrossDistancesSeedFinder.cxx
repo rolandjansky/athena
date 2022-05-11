@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 //Author: Lianyou Shan <lianyou.shan@cern.ch>
 /*********************************************************************
@@ -45,8 +45,7 @@ namespace Trk
 
 
   IndexedCrossDistancesSeedFinder::~IndexedCrossDistancesSeedFinder()
-  {
-  }
+  = default;
 
 
   StatusCode IndexedCrossDistancesSeedFinder::initialize() 

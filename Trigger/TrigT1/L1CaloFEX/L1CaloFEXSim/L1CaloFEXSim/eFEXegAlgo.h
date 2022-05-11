@@ -44,7 +44,7 @@ namespace LVL1 {
     virtual ~eFEXegAlgo();
 
     virtual StatusCode safetyTest() override;
-    virtual void setup(int inputTable[3][3]) override; 
+    virtual void setup(int inputTable[3][3], int efex_id, int fpga_id, int central_eta) override; 
 
     virtual void getReta(std::vector<unsigned int> & ) override;
     virtual void getRhad(std::vector<unsigned int> & ) override;
@@ -63,6 +63,9 @@ namespace LVL1 {
     bool m_seed_UnD = false; 
     unsigned int m_seedID = 999;
     int m_eFEXegAlgoTowerID[3][3];
+    int m_efexid;
+    int m_fpgaid;
+    int m_central_eta;
     bool m_hasSeed;
 
     SG::ReadHandleKey<LVL1::eTowerContainer> m_eTowerContainerKey {this, "MyETowers", "eTowerContainer", "Input container for eTowers"};

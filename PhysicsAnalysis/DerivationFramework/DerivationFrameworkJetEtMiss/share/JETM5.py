@@ -3,10 +3,10 @@
 # reductionConf flag JETM5 in Reco_tf.py   
 #====================================================================
 
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
-from DerivationFrameworkJetEtMiss.JetCommon import *
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
-from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob, buildFileName
+from DerivationFrameworkJetEtMiss.JetCommon import addJetOutputs
+from DerivationFrameworkJetEtMiss.METCommon import addMETOutputs
+from DerivationFrameworkPhys import PhysCommon
 
 #====================================================================
 # SET UP STREAM   
@@ -117,21 +117,7 @@ jetm5Seq += CfgMgr.DerivationFramework__DerivationKernel(	name = "JETM5Kernel",
                                                                 SkimmingTools = [JETM5SkimmingTool],
                                                                 ThinningTools = thinningTools)
 
-#====================================================================
-# BTAGGING INFO FOR PFLOW JET
-#====================================================================
-from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
-FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'],Sequencer = jetm5Seq)
-
-# QGTaggerTool ###
-addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=jetm5Seq, algname="QGTaggerToolAlg")
-addQGTaggerTool(jetalg="AntiKt4EMPFlow", sequence=jetm5Seq, algname="QGTaggerToolAlg")
-
-# MVfJvt #
-applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=jetm5Seq, algname='JetForwardJvtToolBDTAlg')
-
-# PFlow fJvt #
-getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=jetm5Seq, algname='JetForwardPFlowJvtToolAlg',includePV=False)
+# PFlow fJvt#
 getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=jetm5Seq, algname='JetForwardPFlowJvtToolAlgNew',outLabel="fJvtWithPV",includePV=True)
 
 #====================================================================
@@ -139,26 +125,23 @@ getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=jetm5Seq, algname='JetForwardPFlow
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM5SlimmingHelper = SlimmingHelper("JETM5SlimmingHelper")
-JETM5SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJets",
+JETM5SlimmingHelper.SmartCollections = ["EventInfo",
+                                        "Electrons", "Photons", "Muons", "TauJets",
                                         "InDetTrackParticles", "PrimaryVertices",
-                                        "MET_Reference_AntiKt4EMTopo",
-                                        "MET_Reference_AntiKt4LCTopo",
-                                        "MET_Reference_AntiKt4EMPFlow",
-                                        "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets",
-                                        "AntiKt4EMPFlowJets_BTagging201810",
-                                        "AntiKt4EMPFlowJets_BTagging201903",
-                                        "AntiKt4EMTopoJets_BTagging201810",
-                                        "BTagging_AntiKt4EMPFlow_201810",
-                                        "BTagging_AntiKt4EMPFlow_201903",
-                                        "BTagging_AntiKt4EMTopo_201810"]
+                                        "MET_Baseline_AntiKt4EMTopo",
+                                        "MET_Baseline_AntiKt4EMPFlow",
+                                        "AntiKt4EMTopoJets","AntiKt4EMPFlowJets",
+                                        "BTagging_AntiKt4EMPFlow"]
+
 JETM5SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
                                     "MuonTruthParticles", "egammaTruthParticles",
                                     "TruthParticles", "TruthEvents", "TruthVertices",
                                     "MuonSegments",
-                                    "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
+                                    "Kt4EMTopoOriginEventShape","Kt4EMPFlowEventShape",
                                     ]
+
 JETM5SlimmingHelper.ExtraVariables = ["JetETMissNeutralParticleFlowObjects.m.mEM.pfo_TrackLinks.eflowRec_ISOLATION.pfo_ClusterLinks.eflowRec_TIMING.eflowRec_AVG_LAR_Q.eflowRec_EM_PROBABILITY.eflowRec_CENTER_LAMBDA.centerMag.pt.ptEM.phi.eta",
-"JetETMissChargedParticleFlowObjects.pt.eta.phi.m.eflowRec_tracksExpectedEnergyDeposit.pfo_vertex.charge.eflowRec_isInDenseEnvironment.pfo_TrackLinks.DFCommonPFlow_z0.DFCommonPFlow_vz.DFCommonPFlow_d0.DFCommonPFlow_theta.DFCommonPFlow_envWeight",]
+                                      "JetETMissChargedParticleFlowObjects.pt.eta.phi.m.eflowRec_tracksExpectedEnergyDeposit.pfo_vertex.charge.eflowRec_isInDenseEnvironment.pfo_TrackLinks.DFCommonPFlow_z0.DFCommonPFlow_vz.DFCommonPFlow_d0.DFCommonPFlow_theta.DFCommonPFlow_envWeight",]
 
 
 # Add QG tagger variables
@@ -180,6 +163,6 @@ for truthc in [
 # Add the jet containers to the stream
 addJetOutputs(JETM5SlimmingHelper,["SmallR"])
 # Add the MET containers to the stream
-addMETOutputs(JETM5SlimmingHelper,["Diagnostic","AntiKt4LCTopo","AntiKt4EMPFlow","Track"])
+addMETOutputs(JETM5SlimmingHelper,["Diagnostic","AntiKt4EMTopo","AntiKt4EMPFlow","Track"])
 
 JETM5SlimmingHelper.AppendContentToStream(JETM5Stream)

@@ -36,8 +36,8 @@ namespace TrigConf {
       /** Constructor */
       TrigDBLoader(const std::string & loaderName, const std::string & connection);
 
-      /** Destructor */
-      virtual ~TrigDBLoader();
+      /** Destructor - cannot be defined here because QueryDefinition is an incomplete type */
+      virtual ~TrigDBLoader() override;
 
       /**@brief access to TriggerDB schema version
          @return version of the DB schema (0 - no version, >0 - schema version)

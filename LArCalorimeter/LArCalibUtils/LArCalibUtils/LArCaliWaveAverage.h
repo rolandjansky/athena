@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -9,7 +9,6 @@
 #define LARCALIWAVEAVERAGE_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ICondSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "Identifier/HWIdentifier.h"
@@ -49,8 +48,6 @@ private:
   std::string m_groupingType;
   
   std::vector<unsigned> m_chids;
-
-  ServiceHandle<ICondSvc> m_condSvc;
 
   std::vector<HWIdentifier> SymmetricChannels(HWIdentifier ChID,std::vector<unsigned> ChannelsNotToUse, const LArOnOffIdMapping* cabling );
   LArCaliWave WaveAverage(std::vector<LArCaliWave> ToBeAveraged);

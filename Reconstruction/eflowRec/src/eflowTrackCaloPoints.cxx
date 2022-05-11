@@ -44,9 +44,7 @@ eflowTrackCaloPoints::eflowTrackCaloPoints(const std::map<eflowCalo::LAYER, cons
 
 }
 
-eflowTrackCaloPoints::~eflowTrackCaloPoints() {
-
-}
+eflowTrackCaloPoints::~eflowTrackCaloPoints() = default;
 
 void eflowTrackCaloPoints::setEtaPhi(eflowCalo::LAYER lay, const Amg::Vector3D& vec) {
   m_etaPhiPositions[lay] = (vec != m_nullVector) ? eflowEtaPhiPosition(vec.eta(), vec.phi())

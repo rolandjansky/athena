@@ -44,7 +44,7 @@ class chainString:
         if "extra=" in part:
             self.extra = part[6:]
     
-    stuff = [ self.extra, self.roi, self.vtx, self.element ]
+    stuff = [ self.roi, self.vtx, self.element, self.extra ]
 
     sum = self.head
 

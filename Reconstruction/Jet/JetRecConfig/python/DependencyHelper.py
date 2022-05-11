@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 
 Functions to solve dependencies of Jet reco components.
@@ -18,7 +18,7 @@ class _dummyJetDef:
         self._prereqOrder = [] 
 
 
-def solveDependencies( jetdef0 ):
+def solveDependencies( jetdef0, configFlags=None ):
     """ Retrieve reccursively all  dependencies described by str aliases (from modifiers, ghosts, etc..) within jetdef0.
     The aliases are converted in to proper config objects (like JetModifier, JetInputConstit,...) and are collected into
     a cloned version of jetdef0.
@@ -30,6 +30,10 @@ def solveDependencies( jetdef0 ):
     # # start with the inputdef, cloning it so we're not altering a private copy
     # jetdef.inputdef = jetdef.inputdef.clone()
     # 
+
+    if jetdef._cflags is None and configFlags is not None:
+        jetdef._cflags = configFlags
+
     solveConstitDependencies(jetdef.inputdef, jetdef, inplace=True)
 
     jetdef._prereqDic['input:'+jetdef.inputdef.name] = jetdef.inputdef

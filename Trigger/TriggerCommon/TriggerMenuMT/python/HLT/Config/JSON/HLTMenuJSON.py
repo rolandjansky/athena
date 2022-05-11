@@ -49,7 +49,7 @@ def __getFilterChains(filterAlg):
 
 def __isChainInFilter(chainName, filterAlg):
     for fChain in __getFilterChains(filterAlg):
-        if chainName in fChain:
+        if (fChain.startswith('leg') and chainName == fChain[7:]) or chainName == fChain:
             return True
     return False
 

@@ -26,6 +26,7 @@ class SCT_ID;
 class SCT_ChannelStatusAlg;
 
 namespace InDet {
+  class SiDetectorElementStatus;
 
   /// Interface for SCT clustering algorithms, taking input from RDOs
   class ISCT_ClusteringTool : virtual public IAlgTool 
@@ -39,29 +40,16 @@ namespace InDet {
     virtual ~ISCT_ClusteringTool() = default;
 
     /**
-     * Deprecated method: Clusterize a collection of SCT raw data objects
-     * Called from SCT_clusterization algorithm in InDetPrepRawDataFormation, 
-     * once per module
-     * @param[in] RDOs the raw data objects
-     * @param[in] idHelper the SCT helper class  
-     * @param[in] status  the class providing information on the channel status (good, masked, 
-     *            noisy, dead) for removal of bad channels from clustering 
-     * @param[in] flag to control if bad channel removal from clusters is done
-     */
-    virtual SCT_ClusterCollection* clusterize(const InDetRawDataCollection<SCT_RDORawData>& RDOs,
-                                              const SCT_ID& idHelper,
-                                              const SCT_ChannelStatusAlg* status,
-                                              const bool CTBBadChannels) const = 0;
-
-    /**
      * Clusterize a collection of SCT raw data objects
      * Called from SCT_clusterization algorithm in InDetPrepRawDataFormation, 
      * once per module
      * @param[in] rdoCollection the raw data objects
      * @param[in] idHelper the SCT helper class
+     * @param[in] sctDetElementStatus information the module, chip and strip status or nullptr
      */
     virtual SCT_ClusterCollection *clusterize(const InDetRawDataCollection<SCT_RDORawData>& rdoCollection,
-                                              const SCT_ID& idHelper) const = 0;
+                                              const SCT_ID& idHelper,
+                                              const InDet::SiDetectorElementStatus *sctDetElementStatus) const = 0;
   };
 }
 

@@ -1,4 +1,4 @@
-####  Load Tracking Tools
+#  Load Tracking Tools
 from AthenaCommon.GlobalFlags import globalflags
 # --- default is atlas geometry
 globalflags.DetGeo = 'atlas'
@@ -7,7 +7,7 @@ globalflags.DataSource = 'geant4'
 globalflags.InputFormat = 'pool'
 
 from AthenaCommon.AlgSequence import AlgSequence
-from AthenaCommon.AppMgr import ToolSvc,theApp,ServiceMgr
+from AthenaCommon.AppMgr import ToolSvc,theApp, ServiceMgr
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 from AthenaCommon.BeamFlags import jobproperties
 from InDetRecExample import TrackingCommon
@@ -136,130 +136,13 @@ ToolSvc += ElectronTrkExtrapolator
 
 ###############################################################################
 ###############################################################################
-#######                     GSF Realted Packaages                      ########
+#######                     GSF config                                 ########
 ###############################################################################
 ###############################################################################
-from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolution
-GsfMaterialUpdator = Trk__GsfMaterialMixtureConvolution (name = 'GsfMaterialUpdator',
-                                                         MaximumNumberOfComponents = 12)
-
-ToolSvc += GsfMaterialUpdator
-printfunc (GsfMaterialUpdator)
-
-from TrkMeasurementUpdator.TrkMeasurementUpdatorConf import Trk__KalmanUpdator as ConfiguredKalmanUpdator
-ElectronUpdator = ConfiguredKalmanUpdator('ElectronUpdator')
-ToolSvc += ElectronUpdator
-   
-from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMeasurementUpdator
-GsfMeasurementUpdator = Trk__GsfMeasurementUpdator( name    = 'GsfMeasurementUpdator',
-                                                  Updator = ElectronUpdator )
-ToolSvc += GsfMeasurementUpdator
-        
-
-
-from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfExtrapolator
-GsfExtrapolator = Trk__GsfExtrapolator(name                          = 'GsfExtrapolator',
-                                       Propagators                   = [ ElectronTrkPropagator ],
-                                       SearchLevelClosestParameters  = 10,
-                                       StickyConfiguration           = True,
-                                       Navigator                     = ElectronTrkNavigator,
-                                       GsfMaterialConvolution        = GsfMaterialUpdator,
-                                       SurfaceBasedMaterialEffects   = False )
-ToolSvc += GsfExtrapolator
-
-
-from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GaussianSumFitter
-GSFTrackFitter = Trk__GaussianSumFitter(name                    = 'GSFTrackFitter',
-                                          ToolForExtrapolation    = GsfExtrapolator,
-                                          MeasurementUpdatorType  = GsfMeasurementUpdator,
-                                          ToolForROTCreation      = ElectronRotCreator,
-                                          ReintegrateOutliers     = True,
-                                          MakePerigee             = True,
-                                          RefitOnMeasurementBase  = True,
-                                          DoHitSorting            = True,
-                                          OutputLevel = 3)
+import egammaRec.EMCommonRefitter
+GSFTrackFitter = egammaRec.EMCommonRefitter.getGSFTrackFitter(name = 'GSFTrackFitter')
 # --- end of fitter loading
 ToolSvc += GSFTrackFitter
-
-
-
-###############################################################################
-###############################################################################
-#######                     DNA Realted Packaages                      ########
-###############################################################################
-###############################################################################
-
-from InDetCompetingRIOsOnTrackTool.InDetCompetingRIOsOnTrackToolConf import InDet__CompetingPixelClustersOnTrackTool as IDCPCOTT
-ElectronCompetingPixelTool = IDCPCOTT(name='ElectronKalmanCompetingPixelClustersTool',
-                                WeightCutValueBarrel = 5.5,
-                                WeightCutValueEndCap = 5.5)
-ToolSvc+=ElectronCompetingPixelTool
-
-from InDetCompetingRIOsOnTrackTool.InDetCompetingRIOsOnTrackToolConf import InDet__CompetingSCT_ClustersOnTrackTool as IDCSCOTT
-ElectronCompetingSctTool = IDCSCOTT(name='ElectronKalmanCompetingSCT_ClustersTool',
-                              WeightCutValueBarrel = 5.5,
-                              WeightCutValueEndCap = 5.5)
-ToolSvc+=ElectronCompetingSctTool
-
-from TrkCompetingRIOsOnTrackTool.TrkCompetingRIOsOnTrackToolConf import Trk__CompetingRIOsOnTrackTool as CompRotTool
-ElectronKalmanCompetingROT_Tool = CompRotTool(name='ElectronKalmanCompetingRIOsTool',
-                                        ToolForCompPixelClusters = ElectronCompetingPixelTool,
-                                        ToolForCompSCT_Clusters = ElectronCompetingSctTool)
-ToolSvc += ElectronKalmanCompetingROT_Tool
-
-from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanPiecewiseAnnealingFilter as KPAF
-ElectronKalmanInternalDAF = KPAF(name = 'ElectronKalmanInternalDAF',
-                           CompetingRIOsOnTrackCreator = ElectronKalmanCompetingROT_Tool)
-ToolSvc += ElectronKalmanInternalDAF
-
-from TrkKalmanFitter.TrkKalmanFitterConf import Trk__MeasRecalibSteeringTool
-ElectronMeasRecalibST = Trk__MeasRecalibSteeringTool(name='ElectronMeasRecalibST')
-ToolSvc += ElectronMeasRecalibST
-
-from TrkDynamicNoiseAdjustor.TrkDynamicNoiseAdjustorConf import Trk__InDetDynamicNoiseAdjustment
-ElectronDNAdjustor = Trk__InDetDynamicNoiseAdjustment(name       = 'ElectronDNAdjustor')
-                                                #signifmin  = 0,
-                                                #lambdaxmin = 0)
-ToolSvc += ElectronDNAdjustor
-
-# Load Kalman Filter tools
-from TrkKalmanFitter.TrkKalmanFitterConf import Trk__ForwardKalmanFitter as PublicFKF
-ElectronFKF = PublicFKF(name                  = 'ElectronFKF',
-                  StateChi2PerNDFPreCut = 30.0)
-ToolSvc += ElectronFKF
-
-from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanSmoother as PublicBKS
-ElectronBKS = PublicBKS(name                        = 'ElectronBKS',
-                  InitialCovarianceSeedFactor = 200.)
-ToolSvc += ElectronBKS
-
-from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanOutlierLogic as PublicKOL
-ElectronKOL = PublicKOL(name               = 'ElectronKOL',
-                  TrackChi2PerNDFCut = 17.0,
-                  StateChi2PerNDFCut = 12.5,
-                  #BroadPixelClusterHandle = BroadPixelClusterOnTrackTool
-                  )
-ToolSvc += ElectronKOL
-
-from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanFitter as ConfiguredKalmanFitter
-DNATrackFitter = ConfiguredKalmanFitter(name                             = 'DNATrackFitter',
-                                        ExtrapolatorHandle             = ElectronTrkExtrapolator,
-                                        MeasurementUpdatorHandle       = ElectronUpdator,
-                                        ForwardKalmanFitterHandle      = ElectronFKF,
-                                        KalmanSmootherHandle           = ElectronBKS,
-                                        KalmanOutlierLogicHandle       = ElectronKOL,
-                                        DynamicNoiseAdjustorHandle     = ElectronDNAdjustor,
-                                        BrempointAnalyserHandle        = None,
-                                        AlignableSurfaceProviderHandle = None,
-                                        RIO_OnTrackCreatorHandle       = ElectronRotCreator,
-                                        #RecalibratorHandle             = ElectronMeasRecalibST,
-                                        RecalibratorHandle             = None,
-                                        InternalDAFHandle              = None#ElectronKalmanInternalDAF
-                                        )
-
-ToolSvc += DNATrackFitter
-
-
 
 ###############################################################################
 ###############################################################################
@@ -270,7 +153,7 @@ ToolSvc += DNATrackFitter
 from TrkGlobalChi2Fitter.TrkGlobalChi2FitterConf import Trk__GlobalChi2Fitter
 GX2TrackFitter = Trk__GlobalChi2Fitter(name                  = 'GX2TrackFitter',
                                          OutputLevel = 4, 
-																				 ExtrapolationTool     = ElectronTrkExtrapolator,
+                                         ExtrapolationTool     = ElectronTrkExtrapolator,
                                          NavigatorTool         = ElectronTrkNavigator,
                                          PropagatorTool        = ElectronTrkPropagator,
                                          RotCreatorTool        = ElectronRotCreator,

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMPARAMETRIZATION_CALOGEOMETRYLOOKUP_H
@@ -47,6 +47,14 @@ class CaloGeometryLookup {
     float minphi_raw() const {return m_minphi_raw;};
     float maxphi_raw() const {return m_maxphi_raw;};
 
+#ifdef USE_GPU
+    //the geometry for GPU EDM are constructed with following functions
+    float mineta_correction() const {return m_mineta_correction;};
+    float maxeta_correction() const {return m_maxeta_correction;};
+    float minphi_correction() const {return m_minphi_correction;};
+    float maxphi_correction() const {return m_maxphi_correction;};
+#endif
+
     float minx() const {return m_mineta;};
     float maxx() const {return m_maxeta;};
     float miny() const {return m_minphi;};
@@ -77,6 +85,14 @@ class CaloGeometryLookup {
 
     virtual const CaloDetDescrElement* getDDE(float eta,float phi,float* distance=0,int* steps=0);
 
+#ifdef USE_GPU
+    //used by FCS-GPU
+    float xy_grid_adjustment_factor() const {return m_xy_grid_adjustment_factor;};
+    float deta_double() const {return m_deta_double;};
+    float dphi_double() const {return m_dphi_double;};
+    const std::vector< std::vector< const CaloDetDescrElement* > > * cell_grid(){ return & m_cell_grid ; } ;
+#endif
+
   protected:
     float neta_double() {return (maxeta_raw()-mineta_raw())/deta().mean();};
     float nphi_double() {return (maxphi_raw()-minphi_raw())/dphi().mean();};
@@ -93,8 +109,8 @@ class CaloGeometryLookup {
 
     int raw_eta_position_to_index(float eta_raw) const {return TMath::Floor((eta_raw-mineta_raw())/m_deta_double);};
     int raw_phi_position_to_index(float phi_raw) const {return TMath::Floor((phi_raw-minphi_raw())/m_dphi_double);};
-    bool index_range_adjust(int& ieta,int& iphi);
-    float calculate_distance_eta_phi(const CaloDetDescrElement* DDE,float eta,float phi,float& dist_eta0,float& dist_phi0);
+    bool index_range_adjust(int& ieta,int& iphi) const;
+    float calculate_distance_eta_phi(const CaloDetDescrElement* DDE,float eta,float phi,float& dist_eta0,float& dist_phi0) const;
 
     int m_index;
     t_cellmap m_cells;

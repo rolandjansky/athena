@@ -43,7 +43,7 @@ class TrigEFTauMVHypoTool : public extends<AthAlgTool, ITrigEFTauMVHypoTool> {
   Gaudi::Property<int>  m_method{ this, "method", 0, "Select ID method" };
   Gaudi::Property<bool>  m_highpt{ this, "highpt", true , "Turn on/off high pt selection" };
   Gaudi::Property<double>  m_highpttrkthr{ this, "highpttrkthr", 200000. , "Track threshold for high pt taus" };
-  Gaudi::Property<double>  m_highptidthr{ this, "highptidthr", 330000., "pT threshold for loosening ID level cut" };
+  Gaudi::Property<double>  m_highptidthr{ this, "highptidthr", 280000., "pT threshold for loosening ID level cut" };
   Gaudi::Property<double>  m_highptjetthr{ this, "highptjetthr", 440000., "pT threshold for disabling ID level cut" };
 
   Gaudi::Property<bool>  m_applyIDon0p{ this, "applyIDon0p", true, "Apply Id on 0-prong taus" };

@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETREC_FASTJETINTERFACETOOL_H
@@ -369,23 +369,12 @@ protected:
 private:
 
   /*! @brief Reference for invalid @c fastjet tag */
-  static std::string m_invalidKeyReference;
-
-  /*! @brief Map of jet algorithm keywords and @c fastjet tags */
-  static FastJetInterface::algomap_t     s_knownAlgorithms;
-  /*! @brief Map of jet clustering strategy keywords and @c fastjet tags */
-  static FastJetInterface::strategymap_t s_knownStrategies;
-  /*! @brief Map of recombination scheme keywords and @c fastjet tags */
-  static FastJetInterface::schememap_t   s_knownRecombinationSchemes;
-  /*! @brief Map of split merge scale keywords and @c fastjet tags */
-  static FastJetInterface::splitMergeScaleMap_t s_knownSplitMergeScales;
-  /*! @brief Map of jet area keywords and @c fastjet tags */
-  static FastJetInterface::areamap_t     s_knownAreas;
+  static const std::string m_invalidKeyReference;
 
   /*! @brief Execution failure counter */
   unsigned int m_failedExecCtr;
   /*! @brief Execution failure counter reporting cut-off */
-  static unsigned int m_failedExecCtrMax;
+  static const unsigned int m_failedExecCtrMax;
 
   
 

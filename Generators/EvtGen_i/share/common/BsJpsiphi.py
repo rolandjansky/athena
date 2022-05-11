@@ -61,7 +61,7 @@ theApp.ExtSvc += ["AtRndmGenSvc"]
 #--------------------------------------------------------------
 # Following line introduced 18.April 2006 to allow AtRndmGenSvc. control EvtGen rndms
 # At the same time the EvtGenRandomSeed was commented 
-from AthenaServices.AthenaServicesConf import AtRndmGenSvc
+from RngComps.RngCompsConf import AtRndmGenSvc
 svcMgr += AtRndmGenSvc()
 svcMgr.AtRndmGenSvc.Seeds = ["PYTHIA 5489899 989240512", "PYTHIA_INIT 820021 2347532", "EVTGEN 4789899 821000366" ]
 # AtRndmGenSvc.ReadFromFile = true;

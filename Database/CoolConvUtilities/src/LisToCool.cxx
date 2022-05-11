@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // LisToCool.cxx
@@ -40,7 +40,7 @@ class LisToCool {
   int execute();
 
  private:
-  bool getLisDB(const std::string lisdbstr, ICondDBMgr*& dbPtr,
+  bool getLisDB(const std::string& lisdbstr, ICondDBMgr*& dbPtr,
                 ICondDBDataAccess*& dbAcc, ICondDBFolderMgr*& dbFold,
                 ICondDBTagMgr*& dbTag);
   static bool getCoolDB(const std::string& coolstr, cool::IDatabasePtr& dbPtr);

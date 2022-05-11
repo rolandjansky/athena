@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@ Trk::MaterialEffectsEngine::MaterialEffectsEngine(const std::string& t, const st
 
 // destructor
 Trk::MaterialEffectsEngine::~MaterialEffectsEngine()
-{}
+= default;
 
 
 // the interface method initialize

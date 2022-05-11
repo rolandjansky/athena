@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef VP1MCSYSTEM_H
@@ -13,6 +13,9 @@
 //  VP1 implementation: Thomas Kittelmann <Thomas.Kittelmann@cern.ch>  //
 //                                                                     //
 //  Initial VP1 version: May 2007                                      //
+//
+//  Major updates:
+//  - 2022/03, Riccardo Maria BIANCHI <riccardo.maria.bianchi@cern.ch> //
 //                                                                     //
 /////////////////////////////////////////////////////////////////////////
 
@@ -45,7 +48,7 @@ public:
 
 protected:
   class Imp;
-  Imp * d;
+  Imp * m_d;
 };
 
 #endif

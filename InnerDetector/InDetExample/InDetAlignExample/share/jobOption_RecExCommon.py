@@ -116,6 +116,20 @@ if not loadInDetRec_Options["useTRT"]:
   DetFlags.TRT_setOff()
   DetFlags.detdescr.TRT_setOn()
 
+DetFlags.pileup.ID_setOff()
+DetFlags.overlay.ID_setOff()
+DetFlags.digitize.ID_setOff()
+DetFlags.geometry.ID_setOff()
+DetFlags.pileup.ID_setOff()
+DetFlags.readRDOPool.ID_setOff()
+DetFlags.readRIOBS.ID_setOff()
+DetFlags.readRIOPool.ID_setOff()
+DetFlags.simulate.ID_setOff()
+DetFlags.simulateLVL1.ID_setOff()
+DetFlags.writeBS.ID_setOff()
+DetFlags.writeRDOPool.ID_setOff()
+DetFlags.writeRIOPool.ID_setOff()
+
 #--------------------------------------------------------------
 # Control
 #--------------------------------------------------------------

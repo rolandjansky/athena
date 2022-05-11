@@ -60,7 +60,7 @@ class LArCellCont : public std::vector<LArCellCollection*>
   *   @return @c const_iterator to a pointer to LArCellCollection.
   */
   const std::vector<LArCellCollection*>::const_iterator
-		find(const unsigned int& id) const ;
+		find(const unsigned int& id) ;
   /** @brief Each Collection contains data from 2 FEBs.
   *   @return for each collection the ID of the second FEB.
   */
@@ -105,7 +105,7 @@ private:
 	    Collection */
 	std::vector<HWIdentifier> m_second;
 	/** eventNumber of a given Collection */
-	mutable std::vector<unsigned int> m_eventNumber;
+	std::vector<unsigned int> m_eventNumber ;
 	/** this event number */
 	unsigned int m_event;
 	/** One needs to destroy the TT vectors */
@@ -114,7 +114,7 @@ private:
 	/** A tool to help mask cells */
 	//const ILArBadChannelMasker  *m_masker;
 	/** A tool to help mask febs */
-	const ILArBadFebMasker *m_badFebMasker;
+	const ILArBadFebMasker *m_badFebMasker = nullptr;
 	/** List of Missing ROBs to be disabled at the RS */
 	std::vector<uint32_t> m_MissingROBs;
 	/** hash references to BCID */

@@ -4,7 +4,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import LHCPeriod
 from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
-from JetTagTools.InDetEtaDependentCutsSvcConfig import IDEtaDependentCuts_SV1_SvcCfg
+from InDetConfig.InDetEtaDependentCutsConfig import IDEtaDependentCuts_SV1_SvcCfg
 
 
 def InDetVKalVxInJetToolCfg(ConfigFlags, name, MSV = False, useBTagFlagsDefaults = True, **options):
@@ -38,7 +38,7 @@ def InDetVKalVxInJetToolCfg(ConfigFlags, name, MSV = False, useBTagFlagsDefaults
         for option in defaults:
             options.setdefault(option, defaults[option])
 
-        if ConfigFlags.GeoModel.Run not in [LHCPeriod.Run1, LHCPeriod.Run2, LHCPeriod.Run3]:
+        if ConfigFlags.GeoModel.Run >= LHCPeriod.Run4:
             acc.merge(IDEtaDependentCuts_SV1_SvcCfg(ConfigFlags, name="IDEtaDepCutsSvc_" + name))
             options.setdefault("InDetEtaDependentCutsSvc", acc.getService("IDEtaDepCutsSvc_" + name))
             options.setdefault("useVertexCleaningPix", False) # Would use hardcoded InDet Pixel geometry

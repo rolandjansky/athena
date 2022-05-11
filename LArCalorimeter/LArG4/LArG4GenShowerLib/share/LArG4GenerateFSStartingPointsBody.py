@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ## Algorithm sequence
+from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
@@ -35,6 +36,7 @@ if len(options['physlist']) > 0 :
 ## AthenaCommon flags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.EvtMax = options['nevents']
+athenaCommonFlags.SkipEvents = options['skipevents']
 athenaCommonFlags.PoolHitsOutput.set_Off()
 
 ## Set the LAr parameterization
@@ -48,44 +50,29 @@ if options['input'] is not None:
 else:
     ## Use single particle generator
     import AthenaCommon.AtlasUnixGeneratorJob
-    spgorders = ['pdgcode: constant '+ options['pid'],
-                 'vertX: constant 0.0',
-                 'vertY: constant 0.0',
-                 'vertZ: constant 0.0',
-                 't: constant 0.0',
-                 'eta: flat ' + options['etaMin'] + ' ' + options['etaMax'],
-                 'phi: flat 0 6.28318',
-                 'e: flat ' + options['energyMin'] + ' ' + options['energyMax']]
+    import ParticleGun as PG
+    topSequence += PG.ParticleGun(randomSvcName=simFlags.RandomSvc.get_Value(), randomStream="SINGLE")
+    topSequence.ParticleGun.sampler.pid = int(options["pid"])
+
+    topSequence.ParticleGun.sampler.mom = PG.EEtaMPhiSampler(energy=[options['energyMin'],options['energyMax']], eta=[options['etaMin'],options['etaMax']])
+    evgenConfig.generators += ["ParticleGun"]
 
     athenaCommonFlags.PoolEvgenInput.set_Off()
-    from ParticleGenerator.ParticleGeneratorConf import ParticleGenerator
-    topSequence += ParticleGenerator()
-    topSequence.ParticleGenerator.orders = sorted(spgorders)
-"""
-    from AthenaServices.AthenaServicesConf import AtRanluxGenSvc
-    if not hasattr(ServiceMgr, 'AtRanluxGenSvc' ) :
-        ServiceMgr += AtRanluxGenSvc()
-    seed = "SINGLE "+str(randint(1,294967296))+" "+str(randint(1,294967296))
-    ServiceMgr.AtRanluxGenSvc.Seeds += [seed]
-"""
 
-# get service manager
-from AthenaCommon.AppMgr import ServiceMgr
-
-from LArG4FastSimSvc.LArG4FastSimSvcInit import LArG4FastSimSvcInit
-LArG4FastSimSvcInit()
-
-ServiceMgr.LArG4EMBFastSimSvc.GeneratedStartingPointsFile="EMB."+options['output']
-ServiceMgr.LArG4EMBFastSimSvc.GeneratedStartingPointsRatio=options['spratio']
-ServiceMgr.LArG4EMECFastSimSvc.GeneratedStartingPointsFile="EMEC."+options['output']
-ServiceMgr.LArG4EMECFastSimSvc.GeneratedStartingPointsRatio=options['spratio']
-ServiceMgr.LArG4FCALFastSimSvc.GeneratedStartingPointsFile="FCAL1."+options['output']
-ServiceMgr.LArG4FCALFastSimSvc.GeneratedStartingPointsRatio=options['spratio']
-ServiceMgr.LArG4FCAL2FastSimSvc.GeneratedStartingPointsFile="FCAL2."+options['output']
-ServiceMgr.LArG4FCAL2FastSimSvc.GeneratedStartingPointsRatio=options['spratio']
 
 include("G4AtlasApps/G4Atlas.flat.configuration.py")
 
 ## Populate alg sequence
 from AthenaCommon.CfgGetter import getAlgorithm
 topSequence += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
+topSequence.G4AtlasAlg.InputTruthCollection = "GEN_EVENT"
+
+ToolSvc.FastSimulationMasterTool.FastSimulations["EMBFastShower"].GeneratedStartingPointsFile  = "EMB."+options['output']
+ToolSvc.FastSimulationMasterTool.FastSimulations["EMBFastShower"].GeneratedStartingPointsRatio = options['spratio']
+ToolSvc.FastSimulationMasterTool.FastSimulations["EMECFastShower"].GeneratedStartingPointsFile ="EMEC."+options['output']
+ToolSvc.FastSimulationMasterTool.FastSimulations["EMECFastShower"].GeneratedStartingPointsRatio=options['spratio']
+ToolSvc.FastSimulationMasterTool.FastSimulations["FCALFastShower"].GeneratedStartingPointsFile ="FCAL1."+options['output']
+ToolSvc.FastSimulationMasterTool.FastSimulations["FCALFastShower"].GeneratedStartingPointsRatio=options['spratio']
+ToolSvc.FastSimulationMasterTool.FastSimulations["FCAL2FastShower"].GeneratedStartingPointsFile="FCAL2."+options['output']
+ToolSvc.FastSimulationMasterTool.FastSimulations["FCAL2FastShower"].GeneratedStartingPointsRatio=options['spratio']
+

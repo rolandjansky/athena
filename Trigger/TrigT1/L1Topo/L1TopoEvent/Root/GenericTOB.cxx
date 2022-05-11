@@ -39,7 +39,7 @@ TCS::GenericTOB::GenericTOB(const JetTOB & jet, JetTOB::JetSize jetSize) :
    , m_tobType(JET)
 {}
 
-// constructor from jtau
+// constructor from jFEX Tau
 TCS::GenericTOB::GenericTOB(const jTauTOB & tau) :
    BaseTOB(tau.roiWord(), tau.tobName())
    , m_Et(tau.Et())
@@ -48,10 +48,10 @@ TCS::GenericTOB::GenericTOB(const jTauTOB & tau) :
    , m_EtDouble(tau.EtDouble())
    , m_etaDouble(tau.etaDouble())
    , m_phiDouble(tau.phiDouble())
-   , m_tobType(JET)
+   , m_tobType(JTAU)
 {}
 
-// constructor from jEm
+// constructor from jFEX Em
 TCS::GenericTOB::GenericTOB(const jEmTOB & jem) :
    BaseTOB(jem.roiWord(), jem.tobName())
    , m_Et(jem.Et())
@@ -60,11 +60,11 @@ TCS::GenericTOB::GenericTOB(const jEmTOB & jem) :
    , m_EtDouble(jem.EtDouble())
    , m_etaDouble(jem.etaDouble())
    , m_phiDouble(jem.phiDouble())
-   , m_tobType(JET)
+   , m_tobType(JEM)
 {}
 
-// constructor from large R jet
-TCS::GenericTOB::GenericTOB(const jLargeRJetTOB & jet) :
+// constructor from jFEX LJet
+TCS::GenericTOB::GenericTOB(const jLJetTOB & jet) :
    BaseTOB(jet.roiWord(), jet.tobName())
    , m_Et(jet.Et())
    , m_eta(jet.eta())
@@ -72,11 +72,11 @@ TCS::GenericTOB::GenericTOB(const jLargeRJetTOB & jet) :
    , m_EtDouble(jet.EtDouble())
    , m_etaDouble(jet.etaDouble())
    , m_phiDouble(jet.phiDouble())
-   , m_tobType(JET)
+   , m_tobType(JLJET)
 {}
 
-// constructor from large R gjet
-TCS::GenericTOB::GenericTOB(const gLargeRJetTOB & jet) :
+// constructor from gFEX LJet
+TCS::GenericTOB::GenericTOB(const gLJetTOB & jet) :
    BaseTOB(jet.roiWord(), jet.tobName())
    , m_Et(jet.Et())
    , m_eta(jet.eta())
@@ -84,10 +84,10 @@ TCS::GenericTOB::GenericTOB(const gLargeRJetTOB & jet) :
    , m_EtDouble(jet.EtDouble())
    , m_etaDouble(jet.etaDouble())
    , m_phiDouble(jet.phiDouble())
-   , m_tobType(JET)
+   , m_tobType(GLJET)
 {}
 
-// constructor from small R jjet
+// constructor from jFEX Jet
 TCS::GenericTOB::GenericTOB(const jJetTOB & jet) :
    BaseTOB(jet.roiWord(), jet.tobName())
    , m_Et(jet.Et())
@@ -96,10 +96,10 @@ TCS::GenericTOB::GenericTOB(const jJetTOB & jet) :
    , m_EtDouble(jet.EtDouble())
    , m_etaDouble(jet.etaDouble())
    , m_phiDouble(jet.phiDouble())
-   , m_tobType(JET)
+   , m_tobType(JJET)
 {}
 
-// constructor from small R gjet
+// constructor from gFEX Jet
 TCS::GenericTOB::GenericTOB(const gJetTOB & jet) :
    BaseTOB(jet.roiWord(), jet.tobName())
    , m_Et(jet.Et())
@@ -108,7 +108,7 @@ TCS::GenericTOB::GenericTOB(const gJetTOB & jet) :
    , m_EtDouble(jet.EtDouble())
    , m_etaDouble(jet.etaDouble())
    , m_phiDouble(jet.phiDouble())
-   , m_tobType(JET)
+   , m_tobType(GJET)
 {}
 
 // constructor from cluster
@@ -123,7 +123,7 @@ TCS::GenericTOB::GenericTOB(const ClusterTOB & cluster) :
    , m_tobType(cluster.tobType())
 {}
 
-// constructor from eEm
+// constructor from eFEX Em
 TCS::GenericTOB::GenericTOB(const eEmTOB & eem) :
    BaseTOB(eem.roiWord(), eem.tobName())
    , m_Et(eem.Et())
@@ -135,10 +135,10 @@ TCS::GenericTOB::GenericTOB(const eEmTOB & eem) :
    , m_reta(eem.Reta())
    , m_rhad(eem.Rhad())
    , m_wstot(eem.Wstot())
-   , m_tobType(eem.tobType())
+   , m_tobType(EEM)
 {}
 
-// constructor from eTau
+// constructor from eFEX Tau
 TCS::GenericTOB::GenericTOB(const eTauTOB & etau) :
    BaseTOB(etau.roiWord(), etau.tobName())
    , m_Et(etau.Et())
@@ -147,7 +147,9 @@ TCS::GenericTOB::GenericTOB(const eTauTOB & etau) :
    , m_EtDouble(etau.EtDouble())
    , m_etaDouble(etau.etaDouble())
    , m_phiDouble(etau.phiDouble())
-   , m_tobType(etau.tobType())
+   , m_rCore(etau.rCore())
+   , m_rHad(etau.rHad())
+   , m_tobType(ETAU)
 {}
 
 // constructor from cTau
@@ -203,7 +205,7 @@ TCS::GenericTOB::GenericTOB(const MuonNextBCTOB & muonNextBC) :
    , m_tobType(MUONNEXTBC) 
 {}
 
-// constr from met
+// constructor from met
 TCS::GenericTOB::GenericTOB(const MetTOB & met) :
    BaseTOB(met.roiWord(), met.tobName())
    , m_Et(met.Et())
@@ -212,6 +214,47 @@ TCS::GenericTOB::GenericTOB(const MetTOB & met) :
    , m_tobType(MET)
 {}
 
+// constructor from jFEX XE
+TCS::GenericTOB::GenericTOB(const jXETOB & jxe) :
+   BaseTOB(jxe.roiWord(), jxe.tobName())
+   , m_Et(jxe.Et())
+   , m_Ex(jxe.Ex())
+   , m_Ey(jxe.Ey())
+   , m_Et2(jxe.Et2())
+   , m_EtDouble(jxe.EtDouble())
+   , m_ExDouble(jxe.ExDouble())
+   , m_EyDouble(jxe.EyDouble())
+   , m_tobType(jxe.tobType())
+{}
+
+// constructor from jFEX TE
+TCS::GenericTOB::GenericTOB(const jTETOB & jte) :
+   BaseTOB(jte.roiWord(), jte.tobName())
+   , m_sumEt(jte.sumEt())
+   , m_sumEtDouble(jte.sumEtDouble())
+   , m_tobType(jte.tobType())
+{}
+
+// constructor from gFEX XE
+TCS::GenericTOB::GenericTOB(const gXETOB & gxe) :
+   BaseTOB(gxe.roiWord(), gxe.tobName())
+   , m_Et(gxe.Et())
+   , m_Ex(gxe.Ex())
+   , m_Ey(gxe.Ey())
+   , m_Et2(gxe.Et2())
+   , m_EtDouble(gxe.EtDouble())
+   , m_ExDouble(gxe.ExDouble())
+   , m_EyDouble(gxe.EyDouble())
+   , m_tobType(gxe.tobType())
+{}
+
+// constructor from gFEX TE
+TCS::GenericTOB::GenericTOB(const gTETOB & gte) :
+   BaseTOB(gte.roiWord(), gte.tobName())
+   , m_sumEt(gte.sumEt())
+   , m_sumEtDouble(gte.sumEtDouble())
+   , m_tobType(gte.tobType())
+{}
 
 // destructor
 TCS::GenericTOB::~GenericTOB() = default;
@@ -228,5 +271,5 @@ TCS::GenericTOB::clearHeap() {
 }
 
 void TCS::GenericTOB::print(std::ostream &o) const {
-   o << "generic tob energy: " << Et() << ", eta: " << eta() << ", phi: " << phi();
+   o << "generic tob type: " << tobType() << ",  energy: " << Et() << ", sumEt(): " << sumEt() << ", eta: " << eta() << ", phi: " << phi();
 }

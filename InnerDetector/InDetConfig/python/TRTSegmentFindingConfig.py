@@ -3,6 +3,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.Enums import BeamType
 import InDetConfig.TrackingCommonConfig as TC
+import AthenaCommon.SystemOfUnits as Units
 
 def TRT_TrackSegmentsMaker_BarrelCosmicsCfg(flags, name='InDetTRTSegmentsMaker', **kwargs) :
     acc = ComponentAccumulator()
@@ -15,7 +16,8 @@ def TRT_TrackSegmentsMaker_BarrelCosmicsCfg(flags, name='InDetTRTSegmentsMaker',
     return acc
 
 def TRT_TrackSegmentsMaker_ATLxkCfg(flags, name = 'InDetTRT_SeedsMaker', extension = '', InputCollections = None, **kwargs):
-    acc = ComponentAccumulator()
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTAlignCondAlgCfg
+    acc = TRTAlignCondAlgCfg(flags)
     #
     # --- decide if use the association tool
     #
@@ -42,8 +44,8 @@ def TRT_TrackSegmentsMaker_ATLxkCfg(flags, name = 'InDetTRT_SeedsMaker', extensi
     #
     # --- offline version  of TRT segemnt making
     #
-    InDetPatternPropagator = acc.getPrimaryAndMerge(TC.InDetPatternPropagatorCfg())
-
+    from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
+    InDetPatternPropagator = acc.popToolsAndMerge(RungeKuttaPropagatorCfg(flags, name="InDetPatternPropagator"))
     InDetTRTExtensionTool = acc.popToolsAndMerge(TC.InDetTRT_ExtensionToolCfg(flags))
     acc.addPublicTool(InDetTRTExtensionTool)
 
@@ -62,7 +64,9 @@ def TRT_TrackSegmentsMaker_ATLxkCfg(flags, name = 'InDetTRT_SeedsMaker', extensi
     return acc
 
 def TRT_TrackSegmentsMakerCondAlg_ATLxkCfg(flags, name = 'InDetTRT_SeedsMakerCondAlg', extension = '', **kwargs):
-    acc = ComponentAccumulator()
+    from TRT_GeoModel.TRT_GeoModelConfig import TRT_ReadoutGeometryCfg
+    acc = TRT_ReadoutGeometryCfg(flags) # To produce TRT_DetElementContainer
+
     #
     # --- cut values
     #
@@ -73,8 +77,8 @@ def TRT_TrackSegmentsMakerCondAlg_ATLxkCfg(flags, name = 'InDetTRT_SeedsMakerCon
         # TRT-only/back-tracking segment finding
         pTmin = flags.InDet.Tracking.ActivePass.minSecondaryPt
 
-    InDetPatternPropagator = acc.getPrimaryAndMerge(TC.InDetPatternPropagatorCfg())
-
+    from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
+    InDetPatternPropagator = acc.popToolsAndMerge(RungeKuttaPropagatorCfg(flags, name="InDetPatternPropagator"))
     kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
     kwargs.setdefault("NumberMomentumChannel", flags.InDet.Tracking.ActivePass.TRTSegFinderPtBins)
     kwargs.setdefault("pTmin", pTmin)
@@ -110,17 +114,18 @@ def TRT_TrackSegmentsFinderCfg(flags, name = 'InDetTRT_TrackSegmentsFinder', ext
                                                                                             InputCollections = InputCollections))
         acc.addPublicTool(InDetTRT_TrackSegmentsMaker)
 
-        acc.merge(TRT_TrackSegmentsMakerCondAlg_ATLxkCfg(flags, 
-                                                         name = 'InDetTRT_SeedsMakerCondAlg'+ extension, 
-                                                         extension = extension))
+    acc.merge(TRT_TrackSegmentsMakerCondAlg_ATLxkCfg(flags,
+                                                     name = 'InDetTRT_SeedsMakerCondAlg'+ extension,
+                                                     extension = extension))
 
     kwargs.setdefault("SegmentsMakerTool", InDetTRT_TrackSegmentsMaker)
     kwargs.setdefault("SegmentsLocation", BarrelSegments)
 
     if flags.InDet.Tracking.ActivePass.RoISeededBackTracking:
-        from InDetConfig.InDetRecCaloSeededROISelectionConfig import CaloClusterROI_SelectorCfg
-        acc.merge(CaloClusterROI_SelectorCfg(flags))
+        from InDetConfig.InDetCaloClusterROISelectorConfig import CaloClusterROIPhiRZContainerMakerCfg
+        acc.merge(CaloClusterROIPhiRZContainerMakerCfg(flags))
         kwargs.setdefault("useCaloSeeds", True)
+        kwargs.setdefault("EMROIPhiRZContainer", "InDetCaloClusterROIPhiRZ%.0fGeVUnordered" % (flags.InDet.Tracking.ActivePass.minRoIClusterEt/Units.GeV))
 
     acc.addEventAlgo(CompFactory.InDet.TRT_TrackSegmentsFinder( name = name, **kwargs))
     return acc
@@ -165,10 +170,11 @@ def TRTSegmentFindingCfg(flags, extension = "", InputCollections = None, BarrelS
     prefix = 'InDetSegment'
     suffix = extension
     if usePrdAssociationTool:
-        acc.merge(TC.InDetTrackPRD_AssociationCfg(flags,
-                                                  name = prefix + 'TrackPRD_Association' + suffix,
-                                                  AssociationMapName = prefix + 'PRDtoTrackMap' + suffix,
-                                                  TracksName = list(InputCollections)))
+        from InDetConfig.InDetTrackPRD_AssociationConfig import InDetTrackPRD_AssociationCfg
+        acc.merge(InDetTrackPRD_AssociationCfg(flags,
+                                               name = prefix + 'TrackPRD_Association' + suffix,
+                                               AssociationMapName = prefix + 'PRDtoTrackMap' + suffix,
+                                               TracksName = list(InputCollections)))
     #
     # --- TRT track reconstruction
     #

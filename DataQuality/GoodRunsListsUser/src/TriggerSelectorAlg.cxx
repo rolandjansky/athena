@@ -3,7 +3,7 @@
 */
 
 
-#include "GoodRunsListsUser/TriggerSelectorAlg.h"
+#include "TriggerSelectorAlg.h"
 #include "GoodRunsLists/ITriggerRegistryTool.h"
 #include "GoodRunsLists/TMsgLogger.h"
 

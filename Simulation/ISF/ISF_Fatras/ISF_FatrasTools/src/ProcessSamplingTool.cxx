@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -65,7 +65,7 @@ iFatras::ProcessSamplingTool::ProcessSamplingTool( const std::string& t,
  *  ==> see headerfile
  *=======================================================================*/
 iFatras::ProcessSamplingTool::~ProcessSamplingTool()
-{}
+= default;
 
 /*=========================================================================
  *  DESCRIPTION OF FUNCTION:

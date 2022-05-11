@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // class header include
@@ -181,8 +181,14 @@ StatusCode ISF::FastCaloSimV2Tool::simulate(const ISF::ISFParticle& isfp, ISFPar
                                    isfp.nextGeoID(),  // inherits from the parent
                                    ISF::fKillsPrimary);
       m_truthRecordSvc->registerTruthIncident( truth, true );
-      for (auto secondary : *someSecondaries) {
-        secondaries.push_back(secondary);
+      for (auto *secondary : *someSecondaries) {
+        if (secondary->getTruthBinding()) {
+          secondaries.push_back(secondary);
+        }
+        else {
+          ATH_MSG_WARNING("Secondary particle created by PunchThroughTool not written out to truth.\n Parent (" << isfp << ")\n Secondary (" << *secondary <<")");
+          delete secondary;
+        }
       }
       delete someSecondaries;
     }

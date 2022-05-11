@@ -1,26 +1,18 @@
 #!/bin/sh
 
-# art-include: 21.2/AthDerivation
+# art-include: master/Athena
+# art-include: 22.0-mc20/Athena
 # art-description: DAOD building FTAG1 mc16
 # art-type: grid
 # art-output: *.pool.root
 # art-output: checkFile.txt
-# art-output: checkxAOD.txt
 
 set -e
 
-Reco_tf.py --inputAODFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.14795494._005958.pool.root.1 --outputDAODFile art.pool.root --reductionConf FTAG1 --maxEvents -1 --preExec 'rec.doApplyAODFix.set_Value_and_Lock(True);from BTagging.BTaggingFlags import BTaggingFlags;BTaggingFlags.CalibrationTag = "BTagCalibRUN12-08-49" ' 
+INPUT=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.merge.AOD.e5458_s3126_r9364_r9315/AOD.11182705._000001.pool.root.1
+
+Reco_tf.py --inputAODFile $INPUT --outputDAODFile art.pool.root --reductionConf FTAG1 --maxEvents 100 --preExec 'from AthenaCommon.DetFlags import DetFlags; DetFlags.detdescr.all_setOff(); DetFlags.BField_setOn(); DetFlags.digitize.all_setOff(); DetFlags.detdescr.Calo_setOn(); DetFlags.simulate.all_setOff(); DetFlags.pileup.all_setOff(); DetFlags.overlay.all_setOff();'
 
 echo "art-result: $? reco"
 
-DAODMerge_tf.py --inputDAOD_FTAG1File DAOD_FTAG1.art.pool.root --outputDAOD_FTAG1_MRGFile art_merged.pool.root
-
-echo "art-result: $? merge"
-
-checkFile.py DAOD_FTAG1.art.pool.root > checkFile.txt
-
-echo "art-result: $?  checkfile"
-
-checkxAOD.py DAOD_FTAG1.art.pool.root > checkxAOD.txt
-
-echo "art-result: $?  checkxAOD"
+checkFile.py art.pool.root > checkFile.txt

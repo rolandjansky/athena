@@ -1,23 +1,14 @@
 //Dear emacs, this is -*-c++-*- 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
 #include <string>
 #include <unistd.h>
-// Suppress a gcc8 warning from boost.
-// (Binaries apparently include boost with -I rather than -isystem.)
-// Fixed in boost 1.68 (see https://github.com/boostorg/mpl/issues/31)
-#ifdef __GNUC__
-# pragma GCC diagnostic push
-# pragma GCC diagnostic ignored "-Wparentheses"
-#endif
 #include "EventStorage/pickDataReader.h"
-#ifdef __GNUC__
-# pragma GCC diagnostic pop
-#endif
 #include "FileMetaData.h"
+#include "CxxUtils/checker_macros.h"
 
 class BSFilePeeker {
 
@@ -109,11 +100,11 @@ BSFilePeeker::BSFilePeeker(const std::string& fName) {
 }
 
 
-int main(int argc, char** argv) {
+int main ATLAS_NOT_THREAD_SAFE (int argc, char** argv) {
 
   bool verbose=false;
   bool kvDump=false;
-  char c;
+  int c;
 
   while ((c = getopt (argc, argv, "vk")) != -1) {
     switch (c) {

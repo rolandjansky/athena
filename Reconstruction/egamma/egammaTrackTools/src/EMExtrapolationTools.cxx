@@ -73,7 +73,7 @@ EMExtrapolationTools::EMExtrapolationTools(const std::string& type,
   declareInterface<IEMExtrapolationTools>(this);
 }
 
-EMExtrapolationTools::~EMExtrapolationTools() {}
+EMExtrapolationTools::~EMExtrapolationTools() = default;
 
 StatusCode
 EMExtrapolationTools::initialize()
@@ -204,6 +204,8 @@ EMExtrapolationTools::getMatchAtCalo(
 
   bool didExtension = false;
   CaloExtensionHelpers::EtaPhiPerLayerVector intersections;
+  intersections.reserve(samples.size());
+
   switch (extrapFrom) {
     case fromPerigeeRescaled: {
       Trk::Perigee trkPar = getRescaledPerigee(trkPB, cluster);
@@ -392,7 +394,7 @@ EMExtrapolationTools::getEtaPhiAtCalo(const EventContext& ctx,
   extension = m_ParticleCaloExtensionTool->caloExtension(
     ctx, *trkPar, Trk::alongMomentum, Trk::muon);
   if (!extension) {
-    ATH_MSG_WARNING("Could not create an extension from geEtaPhiAtCalo ");
+    ATH_MSG_WARNING("Could not create an extension from getEtaPhiAtCalo ");
     return false;
   }
   CaloExtensionHelpers::EtaPhiPerLayerVector intersections;

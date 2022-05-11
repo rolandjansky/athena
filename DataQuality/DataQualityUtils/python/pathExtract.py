@@ -15,17 +15,18 @@ def returnEosHistPath(run, stream, amiTag, tag="data16_13TeV"):
     path = '/eos/atlas/atlastier0/rucio/'+tag + \
         '/'+prefix[stream]+stream+'/00'+str(run)+'/'
     P = sp.Popen(['/usr/bin/eos', 'ls', path], stdout=sp.PIPE, stderr=sp.PIPE)
-    p = P.communicate()
-    listOfFiles = p[0].split('\n')
+    p = P.communicate()[0].decode("utf-8")
+    
+    listOfFiles = p.split('\n') #hi
     for iFile in listOfFiles:
         if ("HIST.%s" % (amiTag) in iFile):
-            path = '/eos/atlas/atlastier0/rucio/'+tag+'/' + \
-                prefix[stream]+stream+'/00'+str(run)+'/'+iFile
+            path = '/eos/atlas/atlastier0/rucio/'+str(tag)+'/' + \
+                   str(prefix[stream])+str(stream)+'/00'+str(run)+'/'+str(iFile)
             P = sp.Popen(['/usr/bin/eos', 'ls', path],
                          stdout=sp.PIPE, stderr=sp.PIPE)
-            p = P.communicate()
-            path = '/eos/atlas/atlastier0/rucio/'+tag+'/' + \
-                prefix[stream]+stream+'/00'+str(run)+'/'+iFile+'/'+p[0]
+            p = P.communicate()[0].decode("utf-8")
+            path = '/eos/atlas/atlastier0/rucio/'+str(tag)+'/' + \
+                   str(prefix[stream])+str(stream)+'/00'+str(run)+'/'+str(iFile)+'/'+p
             return path
 
     return "FILE NOT FOUND"
@@ -39,8 +40,8 @@ def returnEosHistPathLB(run, lb0, lb1, stream, amiTag, tag="data16_13TeV"):
     path = '/eos/atlas/atlastier0/tzero/prod/'+tag + \
         '/'+prefix[stream]+stream+'/00'+str(run)+'/'
     P = sp.Popen(['/usr/bin/eos', 'ls', path], stdout=sp.PIPE, stderr=sp.PIPE)
-    p = P.communicate()
-    listOfFiles = p[0].split('\n')
+    p = P.communicate()[0].decode("utf-8")
+    listOfFiles = p.split('\n')
 
     pathList = []
     for iFile in listOfFiles:
@@ -49,8 +50,8 @@ def returnEosHistPathLB(run, lb0, lb1, stream, amiTag, tag="data16_13TeV"):
                 prefix[stream]+stream+'/00'+str(run)+'/'+iFile
             P = sp.Popen(['/usr/bin/eos', 'ls', path],
                          stdout=sp.PIPE, stderr=sp.PIPE)
-            p = P.communicate()
-            listOfFiles2 = p[0].split('\n')
+            p = P.communicate()[0].decode("utf-8")
+            listOfFiles2 = p.split('\n')
             for iFile2 in listOfFiles2:
                 if ("data" in iFile2):
                     ilb = int((iFile2.split("_lb")[1]).split("._")[0])
@@ -79,7 +80,7 @@ def returnEosTagPath(run, stream, amiTag="f", tag="data16_13TeV"):
     P = sp.Popen(['/usr/bin/eos', 'ls', path], stdout=sp.PIPE, stderr=sp.PIPE)
     p = P.communicate()
     if p[1] == '':
-        files = p[0]
+        files = p[0].decode("utf-8")
         files = files.split('\n')
         for f in files:
             dotAmiTag = ".%s" % (amiTag)
@@ -94,7 +95,7 @@ def returnEosTagPath(run, stream, amiTag="f", tag="data16_13TeV"):
     P = sp.Popen(['/usr/bin/eos', 'ls', path], stdout=sp.PIPE, stderr=sp.PIPE)
     p = P.communicate()
     if p[1] == '':
-        files = p[0].split('\n')
+        files = p[0].decode("utf-8").split('\n')
         for iFile in files:
             if (len(iFile) > 0):
                 pathFile = path+iFile
@@ -114,7 +115,7 @@ def returnEosLArNoisePath(run, stream, amiTag="f", tag="data16_13TeV"):
     P = sp.Popen(['/usr/bin/eos', 'ls', path], stdout=sp.PIPE, stderr=sp.PIPE)
     p = P.communicate()
     if p[1] == '':
-        files = p[0]
+        files = p[0].decode("utf-8")
         files = files.split('\n')
         for f in files:
             dotAmiTag = ".%s" % (amiTag)
@@ -129,7 +130,7 @@ def returnEosLArNoisePath(run, stream, amiTag="f", tag="data16_13TeV"):
     P = sp.Popen(['/usr/bin/eos', 'ls', path], stdout=sp.PIPE, stderr=sp.PIPE)
     p = P.communicate()
     if p[1] == '':
-        files = p[0].split('\n')
+        files = p[0].decode("utf-8").split('\n')
         for iFile in files:
             if (len(iFile) > 0):
                 pathFile = path+iFile
@@ -149,7 +150,7 @@ def returnEosEsdPath(run, stream, amiTag="f", tag="data16_13TeV"):
     P = sp.Popen(['/usr/bin/eos', 'ls', path], stdout=sp.PIPE, stderr=sp.PIPE)
     p = P.communicate()
     if p[1] == '':
-        files = p[0]
+        files = p[0].decode("utf-8")
         files = files.split('\n')
         for f in files:
             dotAmiTag = ".%s" % (amiTag)
@@ -164,7 +165,7 @@ def returnEosEsdPath(run, stream, amiTag="f", tag="data16_13TeV"):
     P = sp.Popen(['/usr/bin/eos', 'ls', path], stdout=sp.PIPE, stderr=sp.PIPE)
     p = P.communicate()
     if p[1] == '':
-        files = p[0].split('\n')
+        files = p[0].decode("utf-8").split('\n')
         for iFile in files:
             if (len(iFile) > 0):
                 pathFile = path+iFile
@@ -181,7 +182,7 @@ def returnFilesPath(directory=".", filterName=""):
     p = P.communicate()
     found = False
     if p[1] == '':
-        files = p[0]
+        files = p[0].decode("utf-8")
         files = files.split('\n')
         for f in files:
             if filterName in f:

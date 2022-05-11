@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETPHYSVALMONITORING_InDetPhysHitDecoratorAlg_H
@@ -18,6 +18,7 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "StoreGate/WriteDecorHandle.h"
 #include "GaudiKernel/EventContext.h"
+#include "InDetCondTools/ISiLorentzAngleTool.h"
 
 class Identifier;
 class AtlasDetectorID;
@@ -30,8 +31,6 @@ namespace Trk {
   class ITrackHoleSearchTool;
   class IResidualPullCalculator;
 }
-
-
 
 // class to decorate xAOD::TruthParticles with additional information required by validation
 class InDetPhysHitDecoratorAlg: public AthReentrantAlgorithm {
@@ -55,12 +54,15 @@ private:
   bool
   decorateTrack(const xAOD::TrackParticle &particle,
                 std::vector< SG::WriteDecorHandle<xAOD::TrackParticleContainer,std::vector<float> > > &float_decor,
-                std::vector< SG::WriteDecorHandle<xAOD::TrackParticleContainer,std::vector<int> > > &int_decor) const;
+		  std::vector< SG::WriteDecorHandle<xAOD::TrackParticleContainer,std::vector<int> > > &int_decor,
+		  std::vector< SG::WriteDecorHandle<xAOD::TrackParticleContainer,std::vector<uint64_t> > > &uint64_decor) const;
 
   ToolHandle<Trk::ITrackHoleSearchTool>    m_holeSearchTool;
   ToolHandle<Trk::IUpdator>    m_updatorHandle; // !< Tool handle of updator for unbiased states
   ToolHandle<Trk::IResidualPullCalculator>  m_residualPullCalculator;   // !< The residual and pull calculator tool
                                                                         // handle
+  ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool", "Tool to retrieve Lorentz angle"};
+
   enum EIntDecorations {
     kDecorRegion,
     kDecorDet,
@@ -70,11 +72,23 @@ private:
     kDecorEtaWidth,
     kNIntDecorators
   };
+  enum EUInt64Decorations {
+    kDecorID,
+    kNUInt64Decorators
+  };
   enum EDecorations {
     kDecorResidualLocX,
     kDecorPullLocX,
+    kDecorMeasLocX,
+    kDecorTrkParamLocX,
+    kDecorMeasLocCovX,
     kDecorResidualLocY,
     kDecorPullLocY,
+    kDecorMeasLocY,
+    kDecorTrkParamLocY,
+    kDecorMeasLocCovY,
+    kDecorAngle,
+    kDecorEtaLoc,
     kNFloatDecorators
   };
   // need tracks particle key, to compose decoration keys
@@ -82,6 +96,7 @@ private:
     {this,"TrackParticleContainerName", "InDetTrackParticles",""};
 
   std::vector<SG::WriteDecorHandleKey<xAOD::TrackParticleContainer> >   m_intDecor;
+  std::vector<SG::WriteDecorHandleKey<xAOD::TrackParticleContainer> >   m_uint64Decor;
   std::vector<SG::WriteDecorHandleKey<xAOD::TrackParticleContainer> >   m_floatDecor;
 
   Gaudi::Property<std::string> m_prefix

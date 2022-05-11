@@ -153,6 +153,10 @@ def addDAODJets(jetlist,sequence):
     from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
+    from JetRecConfig.JetConfigFlags import jetInternalFlags
+    # This setting implies that jet components failing job condition (ex: truth-related calculation in data job) are automatically removed
+    jetInternalFlags.isRecoJob = True 
+
     for jd in jetlist:
         algs, jetdef_i = getJetAlgs(ConfigFlags, jd, True)
         algs = reOrderAlgs( [a for a in algs if a is not None])
@@ -162,132 +166,7 @@ def addDAODJets(jetlist,sequence):
             sequence += conf2toConfigurable(a)
 
 
-###################################################################
-# Jet decoration tools
-################################################################### 
-
-def addJetPtAssociation(jetalg, truthjetalg, sequence):
-
-    truthAssocAlgName = 'DFJetPtAssociationAlg_'+ truthjetalg + '_' + jetalg
-    if hasattr(sequence, truthAssocAlgName):
-        return
-    jetTruthAssocTool = CfgMgr.JetPtAssociationTool('DFJetPtAssociation_' + truthjetalg + '_' + jetalg,
-                                                    JetContainer = jetalg + 'Jets',
-                                                    MatchingJetContainer = truthjetalg,
-                                                    AssociationName = "GhostTruth")
-
-    dfjetlog.info('JetCommon: Adding JetPtAssociationTool for jet collection: '+jetalg+'Jets')
-    sequence += CfgMgr.JetDecorationAlg(truthAssocAlgName, JetContainer=jetalg+'Jets', Decorators=[jetTruthAssocTool])
-
-##################################################################
-
-def addJetTruthLabel(jetalg,labelname,sequence):
-    supportedLabelNames = ['R10TruthLabel_R21Consolidated','R10TruthLabel_R21Precision']
-    supportedTruthJets = ['AntiKt10Truth','AntiKt10TruthTrimmedPtFrac5SmallR20']
-    supportedRecoJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20','AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20','AntiKt10UFOCSSKTrimmedPtFrac5SmallR20','AntiKt10UFOCSSKSoftDropBeta100Zcut10','AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5','AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5Ninf','AntiKt10UFOCHSTrimmedPtFrac5SmallR20']
-    supportedJets = supportedRecoJets + supportedTruthJets
-    if jetalg not in supportedJets:
-        dfjetlog.warning('*** JetTruthLabeling augmentation requested for unsupported jet collection {}! ***'.format(jetalg))
-        return
-    elif labelname not in supportedLabelNames:
-        dfjetlog.warning('*** JetTruthLabeling augmentation requested for unsupported label definition {}! ***'.format(labelname))
-        return
-
-    truthLabelAlgName = 'DFJetTruthLabelAlg_' + jetalg + '_' + labelname
-    if hasattr(sequence, truthLabelAlgName):
-        return
-
-    isTruthJet = False
-    if jetalg in supportedTruthJets:
-        isTruthJet = True
-
-    jetTruthLabelTool = CfgMgr.JetTruthLabelingTool('DFJetTruthLabel_'+jetalg+'_'+labelname,
-                                                    IsTruthJetCollection = isTruthJet,
-                                                    TruthLabelName = labelname)
-    if not isTruthJet:
-        jetTruthLabelTool.RecoJetContainer = jetalg + 'Jets'
-    dfjetlog.info('JetCommon: Applying JetTruthLabel augmentation to jet collection: ' + jetalg + 'Jets' + ' using ' + labelname +' definition')
-    sequence += CfgMgr.JetDecorationAlg(truthLabelAlgName, JetContainer=jetalg+'Jets', Decorators=[jetTruthLabelTool])
-
 ##################################################################  
-
-def getPFlowfJVT(jetalg,sequence,primaryVertexCont="PrimaryVertices",overlapLabel="",outLabel="fJvt",includePV=False):
-    supportedJets = ['AntiKt4EMPFlow']
-    if jetalg not in supportedJets:
-        dfjetlog.error('*** PFlow fJvt augmentation requested for unsupported jet collection {}! ***'.format(jetalg))
-        return
-    
-    fJVTAlgName = "DFJetFJVTAlg_" + jetalg
-    if hasattr(sequence, fJVTAlgName):
-        return
-
-    # Calibration tool specific for pFlow fJVT: without GSC and smearing
-    jetCalibrationTool = CfgMgr.JetCalibrationTool('DFJetFJVT_' + jetalg + '_CalibTool',
-                                                    JetCollection = 'AntiKt4EMPFlow',
-                                                    ConfigFile = "JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config",
-                                                    CalibSequence = "JetArea_Residual_EtaJES",
-                                                    CalibArea = "00-04-82",
-                                                    RhoKey = 'Kt4EMPFlowEventShape',
-                                                    IsData = False)
-
-    wPFOTool = CfgMgr.CP__WeightPFOTool("DFJetFJVT_" + jetalg + "_wPFO")
-
-    from JetRecConfig.StandardSmallRJets import AntiKt4EMPFlow
-    from JetRecConfig.StandardJetContext import jetContextDic
-
-    fJVTTool = CfgMgr.JetForwardPFlowJvtTool('DFJetFJVT_' + jetalg,
-                                                verticesName = primaryVertexCont,
-                                                JetContainer = jetalg+"Jets",
-                                                ### CHRIS - FIX ####
-                                                TrackVertexAssociation = jetContextDic[AntiKt4EMPFlow.context]["TVA"],
-                                                WeightPFOTool = wPFOTool,
-                                                JetCalibrationTool = jetCalibrationTool,
-                                                FEName = 'CHSParticleFlowObjects',
-                                                ORName = overlapLabel,
-                                                FjvtRawName = 'DFCommonJets_' + outLabel,
-                                                includePV = includePV)
-
-    dfjetlog.info('JetCommon: Applying PFlow fJvt augmentation to jet collection: ' + jetalg + 'Jets')
-    sequence += CfgMgr.JetDecorationAlg(fJVTAlgName, JetContainer=jetalg+'Jets', Decorators=[fJVTTool])
-
-#################################################################
-### Schedule Q/G-tagging decorations ### QGTaggerTool ##### 
-#################################################################
-def addQGTaggerTool(jetalg, sequence, truthjetalg=None):
-
-    qgAlgName = 'DFQGTaggerAlg_' + jetalg
-    if hasattr(sequence, qgAlgName):
-        return
-
-    if truthjetalg is not None:
-        addJetPtAssociation(jetalg, truthjetalg, sequence)
-
-    trackselectiontool = CfgMgr.InDet__InDetTrackSelectionTool('DFQGTaggerTool_InDetTrackSelectionTool_' + jetalg, CutLevel = "Loose" )
-    trackvertexassoctool = CfgMgr.CP__TrackVertexAssociationTool('DFQGTaggerTool_InDetTrackVertexAssosciationTool_' + jetalg, WorkingPoint = "Loose")
-    qgTool = CfgMgr.JetQGTaggerVariableTool('DFQGTaggerTool_' + jetalg,
-                                            JetContainer=jetalg + 'Jets',
-                                            VertexContainer='PrimaryVertices',
-                                            TVATool=trackvertexassoctool,
-                                            TrkSelTool=trackselectiontool)
-
-    dfjetlog.info('JetCommon: Adding QGTaggerTool for jet collection: '+jetalg)
-    sequence += CfgMgr.JetDecorationAlg(qgAlgName, JetContainer=jetalg+'Jets', Decorators=[qgTool])
-
-##################################################################
-def addVRTrackJetMoments(jetalg, sequence=DerivationFrameworkJob):
-
-    VRvarAlgName = 'DFVRJetOverlapDecorator_' + jetalg
-
-    if hasattr(sequence, VRvarAlgName):
-        return
-
-    vrODT = CfgMgr.FlavorTagDiscriminants__VRJetOverlapDecoratorTool("VRJetOverlapDecoratorTool")
-
-    dfjetlog.info('JetCommon: Adding VRJetOverlapDecoratorTool for jet collection: '+jetalg)
-    sequence += CfgMgr.JetDecorationAlg(VRvarAlgName, JetContainer=jetalg+'Jets', Decorators=[vrODT])
-
-
-##################################################################
 
 def addPassJvtForCleaning(sequence=DerivationFrameworkJob):
     from JetJvtEfficiency.JetJvtEfficiencyToolConfig import getJvtEffTool
@@ -314,20 +193,29 @@ def addSidebandEventShape(sequence=DerivationFrameworkJob):
     from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-    constit_algs = getInputAlgs(cst.EMPFlow, configFlags=ConfigFlags)
+    constit_algs = getInputAlgs(cst.GPFlow, configFlags=ConfigFlags)
     constit_algs = reOrderAlgs( [a for a in constit_algs if a is not None])
 
     for a in constit_algs:
         if not hasattr(sequence,a.getName()):
             sequence += conf2toConfigurable(a)
 
-    constitPJAlg = getConstitPJGAlg(cst.EMPFlow, suffix='EMPFlowPUSB')
+    constitPJAlg = getConstitPJGAlg(cst.GPFlow, suffix='PUSB')
     if not hasattr(sequence,constitPJAlg.getName()):
         sequence += conf2toConfigurable(constitPJAlg)
 
-    eventshapealg = buildEventShapeAlg(cst.EMPFlow, '', suffix = 'EMPFlowPUSB' )
+    eventshapealg = buildEventShapeAlg(cst.GPFlow, '', suffix = 'PUSB' )
     if not hasattr(sequence, eventshapealg.getName()):
         sequence += conf2toConfigurable(eventshapealg)
+
+    #New "sideband" definition when using CHS based on TTVA
+    constitNeutralPJAlg = getConstitPJGAlg(cst.GPFlow, suffix='Neut')
+    if not hasattr(sequence,constitNeutralPJAlg.getName()):
+        sequence += conf2toConfigurable(constitNeutralPJAlg)
+
+    neutraleventshapealg = buildEventShapeAlg(cst.GPFlow, '', suffix = 'Neut' )
+    if not hasattr(sequence, neutraleventshapealg.getName()):
+        sequence += conf2toConfigurable(neutraleventshapealg)
 
 
 ##################################################################

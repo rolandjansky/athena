@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <sys/time.h>
@@ -12,13 +12,13 @@
 
 #include "TestTools/initGaudi.h"
 
-
 #include "TrigNavigation/TypeMaps.h"
 #include "TrigNavigation/TriggerElement.h"
 #include "TrigNavigation/Navigation.h"
-#include "TrigNavigation/RoICacheHelper.h"
 #include "TrigNavigation/TrigFeatureLink.h"
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // testing code
 
 
 // tests hack

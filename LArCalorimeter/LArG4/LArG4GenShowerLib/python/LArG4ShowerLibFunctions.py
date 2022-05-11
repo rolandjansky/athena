@@ -135,7 +135,7 @@ class TestShowerLib() :
         return True
     def writeToFile(self,filename) :
         from ROOT import TFile,TTree,TParameter
-        from ROOT import gROOT, AddressOf
+        from ROOT import gROOT, addressof
         gROOT.ProcessLine(
             "struct MyMetaStruct {\
             Char_t   detector[40];\
@@ -175,23 +175,23 @@ class TestShowerLib() :
         mmstruct.phys = "%s" % (str(self.phys))
         mmstruct.comment = "%s" % (str(self.comment))
 
-        meta.Branch("detector",AddressOf(mmstruct,"detector"),"detector/C")
-        meta.Branch("particle",AddressOf(mmstruct,"particle"),"particle/I")
-        meta.Branch("release",AddressOf(mmstruct,"release"),"release/C")
-        meta.Branch("geometry",AddressOf(mmstruct,"geometry"),"geometry/C")
-        meta.Branch("geantVersion",AddressOf(mmstruct,"geant"),"geantVersion/C")
-        meta.Branch("physicsList",AddressOf(mmstruct,"phys"),"physicsList/C")
-        meta.Branch("comment",AddressOf(mmstruct,"comment"),"physicsList/C")
+        meta.Branch("detector",addressof(mmstruct,"detector"),"detector/C")
+        meta.Branch("particle",addressof(mmstruct,"particle"),"particle/I")
+        meta.Branch("release",addressof(mmstruct,"release"),"release/C")
+        meta.Branch("geometry",addressof(mmstruct,"geometry"),"geometry/C")
+        meta.Branch("geantVersion",addressof(mmstruct,"geant"),"geantVersion/C")
+        meta.Branch("physicsList",addressof(mmstruct,"phys"),"physicsList/C")
+        meta.Branch("comment",addressof(mmstruct,"comment"),"physicsList/C")
 
         meta.Fill()
 
         mstruct = MyStruct()
 
-        libr.Branch("x",AddressOf(mstruct,"x"),"x/F")
-        libr.Branch("y",AddressOf(mstruct,"y"),"y/F")
-        libr.Branch("z",AddressOf(mstruct,"z"),"z/F")
-        libr.Branch("e",AddressOf(mstruct,"e"),"e/F")
-        libr.Branch("time",AddressOf(mstruct,"time"),"time/F")
+        libr.Branch("x",addressof(mstruct,"x"),"x/F")
+        libr.Branch("y",addressof(mstruct,"y"),"y/F")
+        libr.Branch("z",addressof(mstruct,"z"),"z/F")
+        libr.Branch("e",addressof(mstruct,"e"),"e/F")
+        libr.Branch("time",addressof(mstruct,"time"),"time/F")
 
         for storedShower in self.library :
             mstruct.x = storedShower.vertex.x
@@ -387,7 +387,7 @@ class EtaEnergyShowerLib() :
         return True
     def writeToFile(self,filename) :
         from ROOT import TFile,TTree,TParameter
-        from ROOT import gROOT, AddressOf
+        from ROOT import gROOT, addressof
         gROOT.ProcessLine(
             "struct MyMetaStruct {\
             Char_t   detector[40];\
@@ -427,28 +427,27 @@ class EtaEnergyShowerLib() :
         mmstruct.phys = "%s" % (str(self.phys))
         mmstruct.comment = "%s" % (str(self.comment))
 
-        meta.Branch("detector",AddressOf(mmstruct,"detector"),"detector/C")
-        meta.Branch("particle",AddressOf(mmstruct,"particle"),"particle/I")
-        meta.Branch("release",AddressOf(mmstruct,"release"),"release/C")
-        meta.Branch("geometry",AddressOf(mmstruct,"geometry"),"geometry/C")
-        meta.Branch("geantVersion",AddressOf(mmstruct,"geant"),"geantVersion/C")
-        meta.Branch("physicsList",AddressOf(mmstruct,"phys"),"physicsList/C")
-        meta.Branch("comment",AddressOf(mmstruct,"comment"),"physicsList/C")
+        meta.Branch("detector",addressof(mmstruct,"detector"),"detector/C")
+        meta.Branch("particle",addressof(mmstruct,"particle"),"particle/I")
+        meta.Branch("release",addressof(mmstruct,"release"),"release/C")
+        meta.Branch("geometry",addressof(mmstruct,"geometry"),"geometry/C")
+        meta.Branch("geantVersion",addressof(mmstruct,"geant"),"geantVersion/C")
+        meta.Branch("physicsList",addressof(mmstruct,"phys"),"physicsList/C")
+        meta.Branch("comment",addressof(mmstruct,"comment"),"physicsList/C")
 
         meta.Fill()
 
         mstruct = MyStruct()
 
-        libr.Branch("x",AddressOf(mstruct,"x"),"x/F")
-        libr.Branch("y",AddressOf(mstruct,"y"),"y/F")
-        libr.Branch("z",AddressOf(mstruct,"z"),"z/F")
-        libr.Branch("e",AddressOf(mstruct,"e"),"e/F")
-        libr.Branch("time",AddressOf(mstruct,"time"),"time/F")
+        libr.Branch("x",addressof(mstruct,"x"),"x/F")
+        libr.Branch("y",addressof(mstruct,"y"),"y/F")
+        libr.Branch("z",addressof(mstruct,"z"),"z/F")
+        libr.Branch("e",addressof(mstruct,"e"),"e/F")
+        libr.Branch("time",addressof(mstruct,"time"),"time/F")
 
         etas = self.library.keys()
-        etas.sort()
 
-        for eta in etas :
+        for eta in sorted(etas) :
             mstruct.x = len(self.library[eta])
             mstruct.y = eta
             mstruct.z = self.mineta
@@ -478,8 +477,7 @@ class EtaEnergyShowerLib() :
         print (self.release, self.geometry, self.geant, self.phys)
         print (self.comment)
         ebins = [1,2,5,10,20,50,100,200,500,1000]
-        etas = self.library.keys()
-        etas.sort()
+        etas = sorted(self.library.keys())
         print ("Number of etabins:",str(len(etas)))
         print ("MinEta:",self.mineta,"MaxEta:",self.maxeta)
         fstot = 0
@@ -718,7 +716,7 @@ class FCALDistShowerLib() :
         return True
     def writeToFile(self,filename) :
         from ROOT import TFile,TTree,TParameter
-        from ROOT import gROOT, AddressOf
+        from ROOT import gROOT, addressof
         gROOT.ProcessLine(
             "struct MyMetaStruct {\
             Char_t   detector[40];\
@@ -758,23 +756,23 @@ class FCALDistShowerLib() :
         mmstruct.phys = "%s" % (str(self.phys))
         mmstruct.comment = "%s" % (str(self.comment))
 
-        meta.Branch("detector",AddressOf(mmstruct,"detector"),"detector/C")
-        meta.Branch("particle",AddressOf(mmstruct,"particle"),"particle/I")
-        meta.Branch("release",AddressOf(mmstruct,"release"),"release/C")
-        meta.Branch("geometry",AddressOf(mmstruct,"geometry"),"geometry/C")
-        meta.Branch("geantVersion",AddressOf(mmstruct,"geant"),"geantVersion/C")
-        meta.Branch("physicsList",AddressOf(mmstruct,"phys"),"physicsList/C")
-        meta.Branch("comment",AddressOf(mmstruct,"comment"),"physicsList/C")
+        meta.Branch("detector",addressof(mmstruct,"detector"),"detector/C")
+        meta.Branch("particle",addressof(mmstruct,"particle"),"particle/I")
+        meta.Branch("release",addressof(mmstruct,"release"),"release/C")
+        meta.Branch("geometry",addressof(mmstruct,"geometry"),"geometry/C")
+        meta.Branch("geantVersion",addressof(mmstruct,"geant"),"geantVersion/C")
+        meta.Branch("physicsList",addressof(mmstruct,"phys"),"physicsList/C")
+        meta.Branch("comment",addressof(mmstruct,"comment"),"physicsList/C")
 
         meta.Fill()
 
         mstruct = MyStruct()
 
-        libr.Branch("x",AddressOf(mstruct,"x"),"x/F")
-        libr.Branch("y",AddressOf(mstruct,"y"),"y/F")
-        libr.Branch("z",AddressOf(mstruct,"z"),"z/F")
-        libr.Branch("e",AddressOf(mstruct,"e"),"e/F")
-        libr.Branch("time",AddressOf(mstruct,"time"),"time/F")
+        libr.Branch("x",addressof(mstruct,"x"),"x/F")
+        libr.Branch("y",addressof(mstruct,"y"),"y/F")
+        libr.Branch("z",addressof(mstruct,"z"),"z/F")
+        libr.Branch("e",addressof(mstruct,"e"),"e/F")
+        libr.Branch("time",addressof(mstruct,"time"),"time/F")
 
         mstruct.x = self.xrod_cent
         mstruct.y = self.yrod_cent
@@ -783,8 +781,7 @@ class FCALDistShowerLib() :
         mstruct.time = 0
         libr.Fill()
 
-        dists = self.library.keys()
-        dists.sort()
+        dists = sorted(self.library.keys())
 
         for dist in dists :
             mstruct.x = len(self.library[dist])
@@ -817,8 +814,7 @@ class FCALDistShowerLib() :
         print ("xrodcent:",self.xrod_cent,"yrodcent:",self.yrod_cent,"step:",self.step)
         print (self.comment)
         ebins = [1,2,5,10,20,50,100,200,500,1000]
-        dists = self.library.keys()
-        dists.sort()
+        dists = sorted(self.library.keys())
         print ("Number of etabins:",str(len(dists)))
         fstot = 0
         for dist in dists :
@@ -1101,7 +1097,7 @@ class FCALDistEtaShowerLib() :
         return True
     def writeToFile(self,filename) :
         from ROOT import TFile,TTree,TParameter
-        from ROOT import gROOT, AddressOf
+        from ROOT import gROOT, addressof
         gROOT.ProcessLine(
             "struct MyMetaStruct {\
             Char_t   detector[40];\
@@ -1141,26 +1137,25 @@ class FCALDistEtaShowerLib() :
         mmstruct.phys = "%s" % (str(self.phys))
         mmstruct.comment = "%s" % (str(self.comment))
 
-        meta.Branch("detector",AddressOf(mmstruct,"detector"),"detector/C")
-        meta.Branch("particle",AddressOf(mmstruct,"particle"),"particle/I")
-        meta.Branch("release",AddressOf(mmstruct,"release"),"release/C")
-        meta.Branch("geometry",AddressOf(mmstruct,"geometry"),"geometry/C")
-        meta.Branch("geantVersion",AddressOf(mmstruct,"geant"),"geantVersion/C")
-        meta.Branch("physicsList",AddressOf(mmstruct,"phys"),"physicsList/C")
-        meta.Branch("comment",AddressOf(mmstruct,"comment"),"physicsList/C")
+        meta.Branch("detector",addressof(mmstruct,"detector"),"detector/C")
+        meta.Branch("particle",addressof(mmstruct,"particle"),"particle/I")
+        meta.Branch("release",addressof(mmstruct,"release"),"release/C")
+        meta.Branch("geometry",addressof(mmstruct,"geometry"),"geometry/C")
+        meta.Branch("geantVersion",addressof(mmstruct,"geant"),"geantVersion/C")
+        meta.Branch("physicsList",addressof(mmstruct,"phys"),"physicsList/C")
+        meta.Branch("comment",addressof(mmstruct,"comment"),"physicsList/C")
 
         meta.Fill()
 
         mstruct = MyStruct()
 
-        libr.Branch("x",AddressOf(mstruct,"x"),"x/F")
-        libr.Branch("y",AddressOf(mstruct,"y"),"y/F")
-        libr.Branch("z",AddressOf(mstruct,"z"),"z/F")
-        libr.Branch("e",AddressOf(mstruct,"e"),"e/F")
-        libr.Branch("time",AddressOf(mstruct,"time"),"time/F")
+        libr.Branch("x",addressof(mstruct,"x"),"x/F")
+        libr.Branch("y",addressof(mstruct,"y"),"y/F")
+        libr.Branch("z",addressof(mstruct,"z"),"z/F")
+        libr.Branch("e",addressof(mstruct,"e"),"e/F")
+        libr.Branch("time",addressof(mstruct,"time"),"time/F")
 
-        etas = self.library.keys()
-        etas.sort()
+        etas = sorted(self.library.keys())
 
         mstruct.x = self.xrod_cent
         mstruct.y = self.yrod_cent
@@ -1170,8 +1165,7 @@ class FCALDistEtaShowerLib() :
         libr.Fill()
 
         for eta in etas :
-            dists = self.library[eta].keys()
-            dists.sort()
+            dists = sorted(self.library[eta].keys())
             mstruct.x = len(self.library[eta])
             mstruct.y = eta
             mstruct.z = 0
@@ -1209,8 +1203,7 @@ class FCALDistEtaShowerLib() :
         print ("xrodcent:",self.xrod_cent,"yrodcent:",self.yrod_cent,"step:",self.step)
         print (self.comment)
         ebins = [1,2,5,10,20,50,100,200,500,1000]
-        etas = self.library.keys()
-        etas.sort()
+        etas = sorted(self.library.keys())
         print ("Number of etabins:",str(len(etas)))
         fstot = 0
         for etabin in self.library.values():
@@ -1225,8 +1218,7 @@ class FCALDistEtaShowerLib() :
         print (infostr)
         print ("-"*(13+len(ebins)*8)) #horizontal line
         for eta in etas :
-            dists = self.library[eta].keys()
-            dists.sort()
+            dists = sorted(self.library[eta].keys())
             for distlow,disthigh in zip(dists,(dists[1:] + [4.5])) : #looping over eta bins
                 prevebin = 0
                 erec = {}

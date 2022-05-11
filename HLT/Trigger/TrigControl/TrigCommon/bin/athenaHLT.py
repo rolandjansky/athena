@@ -39,7 +39,7 @@ import sys
 import os
 import argparse
 import ast
-import collections
+import collections.abc
 from datetime import datetime as dt
 import six
 
@@ -113,11 +113,16 @@ def check_args(parser, args):
    if args.perfmon and args.oh_monitoring and args.nprocs>1:
       parser.error("--perfmon cannot be used with --oh-monitoring and --nprocs > 1")
 
+   if not args.file and not args.dump_config_exit:
+      parser.error("--file is required unless using --dump-config-exit")
+
 def update_pcommands(args, cdict):
    """Apply modifications to pre/postcommands"""
 
-   cdict['trigger']['precommand'].append('_run_number=%d' % args.run_number)
-   cdict['trigger']['precommand'].append('_lb_number=%d' % args.lb_number)
+   if args.run_number is not None:
+      cdict['trigger']['precommand'].append('_run_number=%d' % args.run_number)
+   if args.lb_number is not None:
+      cdict['trigger']['precommand'].append('_lb_number=%d' % args.lb_number)
 
    if args.perfmon:
       cdict['trigger']['precommand'].insert(0, "include('TrigCommon/PerfMon.py')")
@@ -136,14 +141,14 @@ def update_run_params(args):
    if (args.run_number and not args.lb_number) or (not args.run_number and args.lb_number):
       log.error("Both or neither of the options -R (--run-number) and -L (--lb-number) have to be specified")
 
-   if args.run_number is None:
+   if args.run_number is None and args.file:
       from eformat import EventStorage
       dr = EventStorage.pickDataReader(args.file[0])
       args.run_number = dr.runNumber()
       args.lb_number = dr.lumiblockNumber()
 
    sor_params = None
-   if args.sor_time is None or args.detector_mask is None:
+   if (args.sor_time is None or args.detector_mask is None) and args.run_number is not None:
       sor_params = AthHLT.get_sor_params(args.run_number)
       log.debug('SOR parameters: %s', sor_params)
       if sor_params is None:
@@ -151,10 +156,10 @@ def update_run_params(args):
                    "remaining run parameters, e.g.: --sor-time=now --detector-mask=all", args.run_number)
          sys.exit(1)
 
-   if args.sor_time is None:
+   if args.sor_time is None and sor_params is not None:
       args.sor_time = arg_sor_time(str(sor_params['SORTime']))
 
-   if args.detector_mask is None:
+   if args.detector_mask is None and sor_params is not None:
       dmask = sor_params['DetectorMask']
       if args.run_number < AthHLT.CondDB._run2:
          dmask = hex(dmask)
@@ -211,19 +216,22 @@ def HLTMPPy_cfgdict(args):
    if args.script_after_fork:
       cdict['HLTMPPU']['scriptAfterFork'] = args.script_after_fork
 
-   cdict['datasource'] = {
-      'module': 'dffileds',
-      'dslibrary': 'DFDcmEmuBackend',
-      'compressionFormat': 'ZLIB',
-      'compressionLevel': 2,
-      'file': args.file,
-      'loopFiles': args.loop_files,
-      'numEvents': args.number_of_events,
-      'outFile': args.save_output,
-      'preload': False,
-      'extraL1Robs': args.extra_l1r_robs,
-      'skipEvents': args.skip_events
-   }
+   if args.file:
+      cdict['datasource'] = {
+         'module': 'dffileds',
+         'dslibrary': 'DFDcmEmuBackend',
+         'compressionFormat': 'ZLIB',
+         'compressionLevel': 2,
+         'file': args.file,
+         'loopFiles': args.loop_files,
+         'numEvents': args.number_of_events,
+         'outFile': args.save_output,
+         'preload': False,
+         'extraL1Robs': args.extra_l1r_robs,
+         'skipEvents': args.skip_events
+      }
+   else:
+      cdict['datasource'] = {'module': 'dcmds'}
 
    cdict['global'] = {
       'date': args.sor_time,
@@ -239,6 +247,13 @@ def HLTMPPy_cfgdict(args):
       'schema_files': ['Larg.LArNoiseBurstCandidates.is.schema.xml'],
       'with_infrastructure': args.oh_monitoring
    }
+
+   if not args.file:
+      cdict['global']['trigger_type'] = ''
+      cdict['global']['detector_mask'] = 'f'*32
+      cdict['global']['beam_type'] = 0
+      cdict['global']['beam_energy'] = 0
+      cdict['global']['T0_project_tag'] = ''
 
    if args.oh_monitoring:
       cdict['monitoring'] = {
@@ -333,7 +348,7 @@ def main():
    g.add_argument('--help', '-h', nargs='?', choices=['all'], action=MyHelp, help='show help')
 
    g = parser.add_argument_group('Input/Output')
-   g.add_argument('--file', '--filesInput', '-f', action='append', required=True, help='input RAW file')
+   g.add_argument('--file', '--filesInput', '-f', action='append', help='input RAW file')
    g.add_argument('--save-output', '-o', metavar='FILE', help='output file name')
    g.add_argument('--number-of-events', '--evtMax', '-n', metavar='N', type=int, default=-1, help='processes N events (<=0 means all)')
    g.add_argument('--skip-events', '--skipEvents', '-k', metavar='N', type=int, default=0, help='skip N first events')

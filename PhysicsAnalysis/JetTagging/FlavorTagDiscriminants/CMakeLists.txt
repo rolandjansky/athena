@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 # This package is a collection of 'duel-use' tools to calculate
 # high-level flavor tagging discriminants. Because it should work both
@@ -43,7 +43,20 @@ atlas_add_library( FlavorTagDiscriminants
   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS} ${ONNXRUNTIME_INCLUDE_DIRS}
   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} PathResolver
-  LINK_LIBRARIES ${Boost_LIBRARIES} ${LWTNN_LIBRARIES} ${ONNXRUNTIME_LIBRARIES} AsgTools AthContainers AthLinks JetInterface xAODBTagging xAODEventInfo xAODJet xAODMuon xAODTracking )
+  LINK_LIBRARIES ${Boost_LIBRARIES} ${LWTNN_LIBRARIES} ${ONNXRUNTIME_LIBRARIES} 
+    AsgTools
+    AthContainers
+    AthLinks
+    JetInterface
+    xAODBTagging
+    xAODEventInfo
+    xAODJet
+    xAODTracking
+    InDetTrackSystematicsToolsLib
+    xAODMuon
+    xAODEgamma
+    ElectronPhotonSelectorToolsLib
+  )
 
 
 if (NOT XAOD_STANDALONE)
@@ -56,6 +69,8 @@ if (NOT XAOD_STANDALONE)
     src/BTaggingBuilderAlg.cxx
     src/PoorMansIpAugmenterAlg.cxx
     src/JetTagConditionalDecoratorAlg.cxx
+    src/TrackLeptonDecoratorAlg.cxx
+    src/TrackTruthDecoratorAlg.cxx
     src/components/FlavorTagDiscriminants_entries.cxx
     LINK_LIBRARIES FlavorTagDiscriminants
     )
@@ -67,3 +82,9 @@ atlas_add_dictionary( FlavorTagDiscriminantsDict
    LINK_LIBRARIES FlavorTagDiscriminants )
 
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
+
+# add onnx metadata executable
+atlas_add_executable( get-onnx-metadata
+                      util/get-onnx-metadata.cxx
+                      INCLUDE_DIRS ${ONNXRUNTIME_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${ONNXRUNTIME_LIBRARIES} )

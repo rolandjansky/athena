@@ -199,6 +199,8 @@ if not jobConfig['hasSCT']:
     DetFlags.SCT_setOff()
     DetFlags.detdescr.SCT_setOn()
 
+DetFlags.detdescr.pixel_setOn()
+DetFlags.detdescr.SCT_setOn() 
 DetFlags.TRT_setOff()
 #DetFlags.detdescr.TRT_setOn()
 # --- printout
@@ -228,6 +230,7 @@ InDetFlags.doLargeD0 = False
 InDetFlags.doR3LargeD0 = False
 InDetFlags.doLowPtLargeD0 = False
 InDetFlags.doCaloSeededAmbi = False
+
 
 if jobConfig['doRobustReco']:
     try:

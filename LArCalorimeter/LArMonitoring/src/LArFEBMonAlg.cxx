@@ -328,15 +328,11 @@ StatusCode LArFEBMonAlg::fillHistograms(const EventContext& ctx) const {
   auto evtrej = Monitored::Scalar<int>("EvtRej",-1);
   float evt_yield=-1;
   auto evtyield = Monitored::Scalar<float>("EvtRejYield",-1);
-  auto evtyield1D = Monitored::Scalar<float>("EvtRejYield1D",-1);
-  auto evtoneyield = Monitored::Scalar<float>("EvtOneYield",-1);
   auto evtyieldout = Monitored::Scalar<float>("EvtRejYieldOut",-1);
   if (febInErrorTree.size()>=1 || newHighWaterMarkNFebBlocksTotal || nbOfFeb < m_nbOfFebBlocksTotal ){
-    evtrej=1; evt_yield = 100.; evtoneyield =100.;
+    evtrej=1; evt_yield = 100.;
     if (febInErrorTree.size()>=4) evtrej=2;
-  } else{
-     evtoneyield=0.;
-  }
+  } 
 
   if (thisEvent->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error || nbOfFeb != m_nbOfFebBlocksTotal || nbOfFeb < m_nFEBnominal){ // Event in error (whatever is the cause)
     if (thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::DATACORRUPTED) || nbOfFeb != m_nbOfFebBlocksTotal){ // Event corrupted (>=1/4 FEBs in error)
@@ -351,15 +347,14 @@ StatusCode LArFEBMonAlg::fillHistograms(const EventContext& ctx) const {
     }
     if (thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::DATACORRUPTEDVETO)) evtrej=4;
     if (thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::NOISEBURSTVETO)) evtrej=5;
-    evtyield1D=evt_yield;
   } else{ // The event is NOT in error. Fill per LB TProfile
-    evtrej=6; evt_yield = 0.; evtyield1D=100; evtyieldout=0.;
+    evtrej=6; evt_yield = 0.; evtyieldout=0.;
   }
   evtyield=evt_yield;
   auto evSize = Monitored::Scalar<float>("LArEvSize",larEventSize/262144);
   auto sweet2 = Monitored::Scalar<int>("NbOfSweet2",totNbOfSweet2);
   auto lb0 = Monitored::Scalar<int>("LB0",lumi_block); //to avoid 'NbOfEventsVSLB' being filled multiple times
-  fill(m_monGroupName,evtrej,evtyieldout,evtyield,evtyield1D,evtoneyield,evSize, sweet2, lb0);
+  fill(m_monGroupName,evtrej,evtyieldout,evtyield,evSize, sweet2, lb0);
   evtrej=7;
   fill(m_monGroupName,evtrej);
   if(environment() == Environment_t::online) {
@@ -424,8 +419,10 @@ StatusCode LArFEBMonAlg::fillHistograms(const EventContext& ctx) const {
 // ********************************************************************
 void LArFEBMonAlg::fillErrorsSummary(unsigned int partitNb_2,int ft,int slot,uint16_t error, bool lar_inerror, std::bitset<13> &rejectionBits, bool &currentFebStatus, bool &eventRejected) const
 {  
+
   if (m_badFebs.count(std::make_pair(slot,ft)) != 0) return;
-  
+
+
   auto part = Monitored::Scalar<int>("part",partitNb_2);
   auto ferror = Monitored::Scalar<int>("febError",-1);
   if ( error & (1<<0) ){

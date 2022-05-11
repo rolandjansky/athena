@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file CaloRec/ToolConstantsCondAlg.h
@@ -10,8 +10,6 @@
 
 
 #include "ToolConstantsCondAlg.h"
-#include "GaudiKernel/ICondSvc.h"
-#include "GaudiKernel/ServiceHandle.h"
 
 
 /**
@@ -33,10 +31,6 @@ StatusCode ToolConstantsCondAlg::initialize()
   }
 
   ATH_CHECK( m_toolConstantsKey.initialize() );
-
-  ServiceHandle<ICondSvc> condSvc ("CondSvc", name());
-  ATH_CHECK( condSvc.retrieve() );
-  ATH_CHECK( condSvc->regHandle (this, m_toolConstantsKey) );
 
   return StatusCode::SUCCESS;
 }

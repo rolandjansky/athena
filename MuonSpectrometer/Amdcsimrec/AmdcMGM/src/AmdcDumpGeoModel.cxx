@@ -284,7 +284,7 @@ void AmdcDumpGeoModel::LoopMdtElements(std::ofstream& OutFile) {
                 for (int dbr_index = 0; dbr_index < MuonGM::MuonDetectorManager::NMdtMultilayer; ++dbr_index) {                    
                     const int ml = dbr_index + 1;
                     bool isValid{false};
-                    const Identifier readout_id = m_idHelperSvc->mdtIdHelper().channelID(stName, stEta, stPhi, ml, 1, 1, true, &isValid);
+                    const Identifier readout_id = m_idHelperSvc->mdtIdHelper().channelID(stName, stEta, stPhi, ml, 1, 1, isValid);
                     if (!isValid) {
                         ATH_MSG_DEBUG(__FILE__<<":"<<__LINE__<<" Failed to construct a valid Mdt identifier for " << sname_index << "," << seta_index << ","
                                                                                           << sphi_index << "," << dbr_index);
@@ -636,9 +636,8 @@ void AmdcDumpGeoModel::LoopRpcElements(std::ofstream& OutFile) {
                         int stationName = p_MuonDetectorManager->rpcStationName(sname_index);
                         bool isValid = false;
                         Identifier id = m_idHelperSvc->rpcIdHelper().channelID(
-                            stationName, seta_index, sphi_index, dbr_index, dbz_index, 1, 1, 1, 1, true,
-                            &isValid);  // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool*
-                                        // isValid
+                            stationName, seta_index, sphi_index, dbr_index, dbz_index, 1, 1, 1, 1, isValid);  
+                            // last 4 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool& isValid
                         if (!isValid) continue;
                         const MuonGM::RpcReadoutElement* pReadoutElement = p_MuonDetectorManager->getRpcReadoutElement(id);
                         if (pReadoutElement == nullptr) continue;
@@ -814,7 +813,7 @@ void AmdcDumpGeoModel::LoopTgcElements(std::ofstream& OutFile) {
                 const int zi = seta_index - MuonGM::MuonDetectorManager::NTgcStEtaOffset;
                 const int stationEta = zi + (seta_index >= MuonGM::MuonDetectorManager::NTgcStEtaOffset);
                 bool isValid{false};
-                const Identifier readout_id = m_idHelperSvc->tgcIdHelper().elementID(stationName, stationEta, stationPhi, true, &isValid);
+                const Identifier readout_id = m_idHelperSvc->tgcIdHelper().elementID(stationName, stationEta, stationPhi, isValid);
                 if (!isValid) {
                     ATH_MSG_DEBUG(__FILE__":"<<__LINE__<<" Failed to construct a valid Tgc identifier from " << sname_index << "," << seta_index << ","
                                                                                        << sphi_index);
@@ -1038,7 +1037,7 @@ void AmdcDumpGeoModel::LoopCscElements(std::ofstream& OutFile) {
                     const int stMl = ml + 1;
                     bool isValid{false};
                     const Identifier readout_id =
-                        m_idHelperSvc->cscIdHelper().channelID(stName, stEta, stPhi, stMl, 0, 0, 1, true, &isValid);
+                        m_idHelperSvc->cscIdHelper().channelID(stName, stEta, stPhi, stMl, 0, 0, 1, isValid);
                     if (!isValid) {
                         ATH_MSG_DEBUG(__FILE__":"<<__LINE__<<" Failed to construct a valid Csc identifier from " << sname_index << "," << seta_index << ","
                                                                                            << sphi_index << "," << ml);

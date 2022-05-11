@@ -134,7 +134,7 @@ void initializeDeadStrawsList(){
   return;
 }
 
-void simpleAnalysis(std::string filename) {
+void simpleAnalysis(const std::string & filename) {
   // input format of straws.RUNNUMBER.txt: 	
   // bec, phi, strawID, # hits, # track hits, # HT hits, # HT track hits, # holes, # holes with hit (hit not assigned to track)
   std::cout<<"simpleAnalysis: reading file "<< filename<<std::endl;
@@ -331,7 +331,7 @@ void printAthenaBoardsOnly( int run ) { // print athena format
   
 }
 
-void reportResults(std::string filename, int run ) {
+void reportResults(const std::string & filename, int run ) {
   // creates TRT_StrawStatusReport.txt
   // this file used to make histograms via TRT_StrawStatusReport.C
 

@@ -28,6 +28,9 @@
 #include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 #endif
 
+#include "CxxUtils/checker_macros.h"
+
+
 namespace Trk {
 
   class IPropagationEngine;
@@ -40,7 +43,7 @@ namespace Trk {
     
       @author Andreas.Salzburger -at- cern.ch
     */    
-  class StaticNavigationEngine : public AthAlgTool, virtual public INavigationEngine {
+  class ATLAS_NOT_THREAD_SAFE StaticNavigationEngine : public AthAlgTool, virtual public INavigationEngine {
 
       public:
         /** Constructor */
@@ -118,7 +121,6 @@ namespace Trk {
         ToolHandle<IPropagationEngine>     m_propagationEngine{this, "PropagationEngine", "Trk::PropagationEngine/AtlasStaticPropagation"};        //!< the used propagation engine
         ToolHandle<IMaterialEffectsEngine> m_materialEffectsEngine{this, "MaterialEffectsEngine", "Trk::MaterialEffectsEngine/AtlasStaticNavigationMaterialEffects"};    //!< the material effects updated
 
-        mutable const TrackingGeometry*                      m_trackingGeometry = nullptr;          //!< the tracking geometry owned by the navigator
         std::string                                          m_trackingGeometryName;      //!< Name of the TrackingGeometry as given in Detector Store
             
     };

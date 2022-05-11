@@ -1,6 +1,6 @@
 //Dear emacs, this is -*-c++-*-
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -31,9 +31,10 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "StoreGate/CondHandleKeyArray.h"
-#include "GaudiKernel/ICondSvc.h"
 
 #include "LArHVScaleCorrTool.h"
+
+#include <atomic>
 
 // forward declaration
 class CondAttrListCollection;
@@ -89,13 +90,11 @@ private:
   Gaudi::Property<bool> m_undoOnlineHVCorr{this,"UndoOnlineHVCorr",true,"Undo the HVCorr done online"};
   Gaudi::Property<bool> m_useCurrentEMB{this,"UseCurrentsInHVEM",false,"Use currents in EMB as well"};
   Gaudi::Property<bool> m_useCurrentFCAL1{this,"UseCurrentsInHVFCAL1",false,"Use currents in FCAL1 as well"};
-  Gaudi::Property<bool> m_useCurrentOthers{this,"UseCurrentsInHVOthers", "Use currents in other partitions as well"};
+  Gaudi::Property<bool> m_useCurrentOthers{this,"UseCurrentsInHVOthers", false, "Use currents in other partitions as well"};
   bool m_doR = true; //will be set depending on the above properties
 
   Gaudi::Property<bool> m_doAffected{this,"doAffected",true,"create affected region info"};
   Gaudi::Property<bool> m_doAffectedHV{this,"doAffectedHV",true,"include HV non nominal regions info"};
-
-  ServiceHandle<ICondSvc> m_condSvc{this,"CondSvc","CondSvc"};
 
   Gaudi::Property<std::vector<std::string> > m_fixHVStrings{this,"fixHVCorr"};
 
@@ -187,6 +186,9 @@ private:
 
   float HV_nominal(const char *identification,const float eta) const;
   std::vector<int> returnProblem(const float eta, const float phi, const float delta_eta, const float delta_phi);
+
+
+  mutable std::atomic<unsigned> m_nPathologies{0};
 
 };
 

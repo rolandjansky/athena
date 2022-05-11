@@ -19,26 +19,16 @@ StatusCode PFMomentCalculatorTool::initialize(){
   ATH_CHECK(m_clusterCollectionTool.retrieve());
 
   /* Retrieve the cluster moments maker */
-  if ( m_clusterMomentsMaker.retrieve().isFailure() ) {
-    ATH_MSG_WARNING("Cannot find CaloClusterMomentsMaker Tool");
-    return StatusCode::SUCCESS;
-  }
+  ATH_CHECK(m_clusterMomentsMaker.retrieve());
  
   /* Retrieve the cluster calib hit moments maker */
-  if (m_useCalibHitTruth){
-    if ( m_clusterCalibHitMomentsMaker2.retrieve().isFailure() ) {
-      ATH_MSG_WARNING("Cannot find CaloCalibClusterMomentsMaker2 Tool");
-      return StatusCode::SUCCESS;
-    }
-  }
-  else {
-    m_clusterCalibHitMomentsMaker2.disable();
-  }
+  if (m_useCalibHitTruth) ATH_CHECK(m_clusterCalibHitMomentsMaker2.retrieve());
+  else m_clusterCalibHitMomentsMaker2.disable();
  
   return StatusCode::SUCCESS;
 }
 
-void PFMomentCalculatorTool::execute(const eflowCaloObjectContainer& theEflowCaloObjectContainer) {
+StatusCode PFMomentCalculatorTool::execute(const eflowCaloObjectContainer& theEflowCaloObjectContainer) {
 
   /* Collect all the clusters in a temporary container (with VIEW_ELEMENTS!) */
   bool useNonModifiedClusters = true;
@@ -50,13 +40,13 @@ void PFMomentCalculatorTool::execute(const eflowCaloObjectContainer& theEflowCal
   for (auto cluster : *tempClusterContainer) CaloClusterKineHelper::calculateKine(cluster, true, true);
 
   /* Remake the cluster moments */
-  if (m_clusterMomentsMaker->execute(tempClusterContainer.get()).isFailure()) ATH_MSG_WARNING("Could not execute ClusterMomentsMaker");
+  ATH_CHECK(m_clusterMomentsMaker->execute(tempClusterContainer.get()));
 
   if (m_useCalibHitTruth){
-    if (m_clusterCalibHitMomentsMaker2->execute(tempClusterContainer.get()).isFailure()) ATH_MSG_WARNING("Could not execute CaloCalibClusterMomentsMaker2");
+    ATH_CHECK(m_clusterCalibHitMomentsMaker2->execute(tempClusterContainer.get()));
   }
 
-  
+  return StatusCode::SUCCESS;
 }
 
 StatusCode PFMomentCalculatorTool::finalize(){ return StatusCode::SUCCESS; }

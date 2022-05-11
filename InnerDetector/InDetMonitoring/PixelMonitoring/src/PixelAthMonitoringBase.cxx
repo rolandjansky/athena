@@ -1,7 +1,11 @@
 /*
    Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
-
+/**
+ * @file PixelAthHitMonAlg.cxx
+ * @brief Helper functions to fill different types of pixel histograms
+ * @author Iskander Ibragimov
+ **/
 #include "PixelAthMonitoringBase.h"
 
 
@@ -96,6 +100,18 @@ void PixelAthMonitoringBase::VecAccumulator2DMap::add(const int layer, const Ide
   m_em[layer].push_back(em);
 }
 
+StatusCode PixelAthMonitoringBase::initialize() {
+   ATH_CHECK( AthMonitorAlgorithm::initialize() );
+   ATH_CHECK( m_pixelCondSummaryTool.retrieve( DisableTool{ !m_pixelDetElStatus.empty() && !m_pixelDetElStatusActiveOnly.empty() && !VALIDATE_STATUS_ARRAY_ACTIVATED} ) );
+   if (m_pixelDetElStatus.empty() || m_pixelDetElStatusActiveOnly.empty() || VALIDATE_STATUS_ARRAY_ACTIVATED) {
+      ATH_CHECK( m_pixelReadout.retrieve() );
+   }
+   ATH_CHECK(detStore()->retrieve(m_pixelid, "PixelID"));
+   ATH_CHECK( m_pixelDetElStatus.initialize( !m_pixelDetElStatus.empty()) );
+   ATH_CHECK( m_pixelDetElStatusActiveOnly.initialize( !m_pixelDetElStatusActiveOnly.empty()) );
+   return StatusCode::SUCCESS;
+}
+
 //////////////////////////////////////////////
 ///
 /// take VecAccumulator2DMap and fill the corresponding group
@@ -108,12 +124,12 @@ void PixelAthMonitoringBase::fill2DProfLayerAccum(const VecAccumulator2DMap& acc
     auto pm = Monitored::Collection(accumulator.m_prof2Dname + "_pm", accumulator.m_pm.at(layer));
     auto val = Monitored::Collection(accumulator.m_prof2Dname + "_val", accumulator.m_val.at(layer));
     auto em = Monitored::Collection(accumulator.m_prof2Dname + "_em", accumulator.m_em.at(layer));
-    fill(pixLayersLabel[layer], pm, em, val);
+    fill(pixBaseLayersLabel[layer], pm, em, val);
   }
 }
 
 ///
-/// filling 1DProf per-lumi per-layer histograms ["ECA","ECC","BLayer","Layer1","Layer2","IBL"]
+/// filling 1DProf per-lumi per-layer histograms ["ECA","ECC","BLayer","Layer1","Layer2","IBL","IBL2D","IBL3D"]
 ///
 void PixelAthMonitoringBase::fill1DProfLumiLayers(const std::string& prof1Dname, int lumiblock, float* values,
                                                   int nlayers) const {
@@ -136,7 +152,7 @@ void PixelAthMonitoringBase::fill1DProfLumiLayers(const std::string& prof1Dname,
 //////////////////////////////////////////////
 
 ///
-/// filling 2DProf per-lumi per-layer histograms ["ECA","ECC","BLayer","Layer1","Layer2","IBL"]
+/// filling 2DProf per-lumi per-layer histograms ["ECA","ECC","BLayer","Layer1","Layer2","IBL2D","IBL3D"]
 ///
 void PixelAthMonitoringBase::fill2DProfLumiLayers(const std::string& prof2Dname, int lumiblock,
                                                   float(*values)[PixLayers::COUNT], const int* nCategories) const {
@@ -278,9 +294,9 @@ int PixelAthMonitoringBase::getPixLayersID(int ec, int ld) const {
     layer = PixLayers::kECC;
   } else if (ec == 0) {
     if (ld == 0) layer = PixLayers::kIBL;
-    if (ld == 1) layer = PixLayers::kB0;
-    if (ld == 2) layer = PixLayers::kB1;
-    if (ld == 3) layer = PixLayers::kB2;
+    if (ld == 1) layer = PixLayers::kBLayer;
+    if (ld == 2) layer = PixLayers::kLayer1;
+    if (ld == 3) layer = PixLayers::kLayer2;
   }
   return layer;
 }
@@ -294,6 +310,24 @@ bool PixelAthMonitoringBase::isIBL2D(int hashID) const {
     { 
       int module = (hashID-156) % 20;
       if (module>3 && module<16)
+	{ 
+	  result = true;
+	}
+    }
+  return result;
+}
+
+//////////////////////////////////////////////
+
+///
+/// helper function to check if module is IBL 3D based on pixel hash ID
+///
+bool PixelAthMonitoringBase::isIBL3D(int hashID) const {
+  bool result(false);
+  if ( hashID>=156 && hashID<=435 ) // IBL
+    { 
+      int module = (hashID-156) % 20;
+      if (module<4 || module>15)
 	{ 
 	  result = true;
 	}
@@ -322,21 +356,21 @@ int PixelAthMonitoringBase::getNumberOfFEs(int pixlayer, int etaMod) const {
 ///
 /// helper function to get eta phi coordinates of per-layer arrays
 ///
-void PixelAthMonitoringBase::getPhiEtaMod(const PixelID* pid, Identifier& id, int& phiMod, int& etaMod,
+void PixelAthMonitoringBase::getPhiEtaMod(Identifier& id, int& phiMod, int& etaMod,
                                           bool& copyFE) const {
-  phiMod = pid->phi_module(id);
+  phiMod = m_pixelid->phi_module(id);
 
-  int layerDisk = pid->layer_disk(id);
+  int layerDisk = m_pixelid->layer_disk(id);
   etaMod = layerDisk;
   copyFE = false;
-  if (pid->barrel_ec(id) == 0) {
-    etaMod = pid->eta_module(id);
+  if (m_pixelid->barrel_ec(id) == 0) {
+    etaMod = m_pixelid->eta_module(id);
     if (layerDisk == 0) {
       if (etaMod < -6) {
         etaMod = etaMod - 6;
       } else if (etaMod > -7 && etaMod < 6) {
         int feid = 0;
-        if (pid->eta_index(id) >= 80) feid = 1;
+        if (m_pixelid->eta_index(id) >= 80) feid = 1;
         etaMod = 2 * etaMod + feid;
         copyFE = true;
       } else {
@@ -398,61 +432,6 @@ bool PixelAthMonitoringBase::isClusterOnTrack(Identifier id, std::vector<std::pa
     cosalpha = (*it).second;
   }
   return onTrack;
-}
-
-//////////////////////////////////////////////
-
-///
-/// get IBL FE indices (module index and FE number) from track eta and phi
-///
-
-std::pair<int, int> PixelAthMonitoringBase::getIBLFEIdxsfromTrackEtaPhi(float eta, float phi) const {
-  float abseta = std::abs(eta);
-  int eta_idx(0);
-  int iFE(0);
-
-  for (unsigned int i = 0; i < iblFEetaEdges.size(); ++i) {
-    if (abseta < iblFEetaEdges[i]) {
-      if (i<12)
-	{
-	  eta_idx = i/2+1;
-	  iFE = i%2;
-	}
-      else
-	{
-	  eta_idx = i-5;
-	  iFE=0;
-	}
-      break;
-    }
-  }
-
-  if (eta_idx == 0) return std::make_pair(-1,-1);
-
-  if (eta<0) {
-    if (eta_idx<7) { // swap FE (0,1) indices
-      iFE-=1;
-      iFE=std::abs(iFE);
-    }
-    // adjust index for negative-eta side
-    eta_idx-=1;
-    eta_idx*=-1;
-  }
-
-  int phi_idx(0), phi_idxUp(0);
-  auto phiLoEdge = std::upper_bound(iblFEphiLoEdges.begin(), iblFEphiLoEdges.end(), phi);
-  if (phiLoEdge == iblFEphiLoEdges.end()) phi_idx=0;
-  else phi_idx = std::distance(iblFEphiLoEdges.begin(), phiLoEdge);
-  auto phiUpEdge = std::upper_bound(iblFEphiUpEdges.begin(), iblFEphiUpEdges.end(), phi);
-  if (phiUpEdge == iblFEphiUpEdges.end()) phi_idxUp=0;
-  else phi_idxUp = std::distance(iblFEphiUpEdges.begin(), phiUpEdge);
-  if (phi_idx!=phi_idxUp) return std::make_pair(-1,-1); // suppress overlaps
-
-  if (phi>=0.0865 && phi<2.7793) phi_idx-=7;
-  else phi_idx+=7;
-
-  int indexModule = phi_idx*20 + eta_idx + 145;
-  return std::make_pair(indexModule, iFE);
 }
 
 //////////////////////////////////////////////

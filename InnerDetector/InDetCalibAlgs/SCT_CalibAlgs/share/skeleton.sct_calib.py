@@ -667,5 +667,5 @@ theApp.EvtMax                      = EvtMax
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
 #--------------------------------------------------------------
 ServiceMgr.MessageSvc.OutputLevel = WARNING
-ServiceMgr.MessageSvc.debugLimit  = 1000
-ServiceMgr.MessageSvc.infoLimit   = 2000000
+ServiceMgr.MessageSvc.debugLimit  = 10000
+ServiceMgr.MessageSvc.infoLimit   = 10000

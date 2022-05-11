@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DerivationFrameworkTop/TopHeavyFlavorFilterAugmentation.h"
@@ -65,7 +65,7 @@ StatusCode TopHeavyFlavorFilterAugmentation::addBranches() const{
   int flavortype=m_filterTool->filterFlag();
 
 
-  static SG::AuxElement::Decorator<int> decoration("TopHeavyFlavorFilterFlag");
+  static const SG::AuxElement::Decorator<int> decoration("TopHeavyFlavorFilterFlag");
 
   decoration(*eventInfo) = flavortype;
 

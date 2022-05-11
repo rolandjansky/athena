@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Json2Cool.h"
@@ -9,6 +9,7 @@
 #include "CoolKernel/Record.h"
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
+#include "CxxUtils/checker_macros.h"
 #include "boost/regex.hpp"
 #include <stdexcept>
 #include <iostream>
@@ -141,7 +142,9 @@ Json2Cool::Json2Cool(std::istream & stream, BasicFolder & b):m_basicFolder(b){
       const auto & v = it.value();
       ++it;
       try{
-        auto & att=const_cast<coral::Attribute&>(a.attributeList()[i]);
+        // cool::Record does not provide non-const access to AttributeList.
+        // But this is safe because we are filling a local instance.
+        auto & att ATLAS_THREAD_SAFE = const_cast<coral::Attribute&>(a.attributeList()[i]);
         if (v.is_null()){
           att.setNull();
           continue;

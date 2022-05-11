@@ -37,7 +37,8 @@ if hasattr(ServiceMgr, "EMECNegBackOuterBarretteCalculator"):
 
 ### LAr Sampling Fraction Overrides
 from IOVDbSvc.CondDB import conddb
-conddb.addOverride("/LAR/ElecCalibMC/fSampl","LARElecCalibMCfSampl-G4106-v1-FTFP_BERT_BIRK")
+#conddb.addOverride("/LAR/ElecCalibMC/fSampl","LARElecCalibMCfSampl-IOVDEP-02") this one contains these new valies starting from IOV 330000 0
+conddb.addOverride("/LAR/ElecCalibMC/fSampl","LARElecCalibMCfSampl-G4106-22056-v2") # Same sampling fractions for all IoVs
 
 ### Tile - Birks' law variation
 import AthenaCommon.SystemOfUnits as Units
@@ -48,5 +49,6 @@ if hasattr(ServiceMgr, "TileGeoG4SDCalc"):
     ServiceMgr.TileGeoG4SDCalc.birk2 = 0.0
 
 ### Tile Sampling Fraction Overrides
-if 'tileInfoConfigurator' in dir():
-    tileInfoConfigurator.EmScaleA=33.432914
+from IOVDbSvc.CondDB import conddb
+conddb.addOverride("/TILE/OFL02/CALIB/SFR","TileOfl02CalibSfr-SIM-04") # G4 10.6-based eta-dependent sampling fractions including Birks' constant tuning starting from IOV 330000 0
+#conddb.addOverride("/TILE/OFL02/CALIB/SFR","TileOfl02CalibSfr-SIM-XX") # As TileOfl02CalibSfr-SIM-04 but for all IoVs.

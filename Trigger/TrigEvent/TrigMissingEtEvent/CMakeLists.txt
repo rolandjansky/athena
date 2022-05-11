@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigMissingEtEvent )
@@ -9,7 +9,7 @@ atlas_add_library( TrigMissingEtEvent
                    src/components/*.cxx
                    PUBLIC_HEADERS TrigMissingEtEvent
                    PRIVATE_LINK_LIBRARIES TrigNavigationLib xAODTrigMissingET
-                   LINK_LIBRARIES AthContainers AthenaKernel GaudiKernel TrigSerializeCnvSvcLib )
+                   LINK_LIBRARIES AthContainers AthenaKernel GaudiKernel TrigSerializeCnvSvcLib CxxUtils )
 
 
 atlas_add_sercnv_library( TrigMissingEtEventSerCnv

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 include.block ('EventOverlayJobTransforms/SignalOutputItemList_jobOptions.py')
 
@@ -56,7 +56,7 @@ if DetFlags.overlay.Truth_on():
     if DetFlags.overlay.sTGC_on():
         signalStream.ItemList += [ 'MuonSimDataCollection#' + overlayFlags.sigPrefix() + 'sTGC_SDO' ]
 
-    if DetFlags.overlay.Micromegas_on():
+    if DetFlags.overlay.MM_on():
         signalStream.ItemList += [ 'MuonSimDataCollection#' + overlayFlags.sigPrefix() + 'MM_SDO' ]
 
 if DetFlags.overlay.BCM_on():
@@ -86,7 +86,7 @@ if DetFlags.overlay.TGC_on():
 if DetFlags.overlay.sTGC_on():
     signalStream.ItemList += [ 'Muon::STGC_RawDataContainer#' + overlayFlags.sigPrefix() + 'sTGCRDO' ]
 
-if DetFlags.overlay.Micromegas_on():
+if DetFlags.overlay.MM_on():
     signalStream.ItemList += [ 'Muon::MM_RawDataContainer#' + overlayFlags.sigPrefix() + 'MMRDO' ]
 
 # Temporary to ensure the output is stored

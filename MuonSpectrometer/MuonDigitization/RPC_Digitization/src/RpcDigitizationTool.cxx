@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -144,7 +144,7 @@ StatusCode RpcDigitizationTool::initialize() {
     ATH_MSG_DEBUG("Input objects in container : '" << m_inputHitCollectionName << "'");
 
     // Initialize ReadHandleKey
-    ATH_CHECK(m_hitsContainerKey.initialize(!m_onlyUseContainerName));
+    ATH_CHECK(m_hitsContainerKey.initialize(true));
 
     // initialize the output WriteHandleKeys
     ATH_CHECK(m_outputDigitCollectionKey.initialize());
@@ -322,7 +322,7 @@ StatusCode RpcDigitizationTool::processBunchXing(int bunchXing, SubEventIterator
     TimedHitCollList::iterator endColl(hitCollList.end());
 
     // Iterating over the list of collections
-    for (; iColl != endColl; iColl++) {
+    for (; iColl != endColl; ++iColl) {
         RPCSimHitCollection* hitCollPtr = new RPCSimHitCollection(*iColl->second);
         PileUpTimeEventIndex timeIndex(iColl->first);
 
@@ -645,7 +645,7 @@ StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigit
 
                 // pack propagation time along strip, bunch time and local hit position
                 long long int packedMCword = PackMCTruth(proptime, bunchTime, pos.y(), pos.z());
-
+                //cppcheck-suppress invalidPointerCast
                 double* b = reinterpret_cast<double*>(&packedMCword);
 
                 //////////////////////////////////////////////////////////////////////////////////
@@ -1813,7 +1813,7 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const EventContext& ctx, con
 
     // Efficiency correction factor for fractional-charged particles(added by Quanyin Li: quli@cern.ch)
     // link to truth particles and calculate the charge and betagamma
-    const HepMC::GenParticle* genparticle = trkParticle.cptr();
+    HepMC::ConstGenParticlePtr genparticle = trkParticle.cptr();
     if (genparticle) {
         const int particlePdgId = genparticle->pdg_id();
         // only apply efficiency correction to fractional-charged particles based on pdgId betagamma
@@ -1830,7 +1830,7 @@ StatusCode RpcDigitizationTool::DetectionEfficiency(const EventContext& ctx, con
     float I1 = PhiAndEtaEff + OnlyEtaEff;
     float ITot = PhiAndEtaEff + OnlyEtaEff + OnlyPhiEff;
 
-    float GapEff = PhiAndEtaEff + OnlyEtaEff + OnlyPhiEff;
+    float GapEff = ITot ;
     float PhiEff = PhiAndEtaEff + OnlyPhiEff;
     float EtaEff = PhiAndEtaEff + OnlyEtaEff;
 
@@ -2323,8 +2323,8 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB(const EventContext& ctx) 
                                 bool isValid = false;
                                 Identifier rpcId =
                                     m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi, 1, 1, 1,
-                                                          true, &isValid);  // last 5 arguments are: int doubletPhi, int gasGap, int
-                                                                            // measuresPhi, int strip, bool check, bool* isValid
+                                                                 isValid);  // last 5 arguments are: int doubletPhi, int gasGap, int
+                                                                            // measuresPhi, int strip, bool& isValid
                                 if (!isValid) continue;
                                 const RpcReadoutElement* rpc = m_GMmgr->getRpcReadoutElement(rpcId);
 
@@ -2380,8 +2380,8 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB(const EventContext& ctx) 
                                     FracCS2Phi = readCdo->getFracClusterSize2Map().find(atlasIdPhi)->second;
                                 FracCStailPhi = 1. - FracCS1Phi - FracCS2Phi;
 
-                                if ((ProjectedTracksEta >= m_CutProjectedTracks) && (ProjectedTracksEta < 10000000) &&
-                                    (ProjectedTracksEta >= m_CutProjectedTracks) && (efficiencyEta > 0) && (efficiencyEta <= 1) &&
+                                if ((ProjectedTracksEta >= m_CutProjectedTracks) && (ProjectedTracksEta < 10000000) 
+                                     && (efficiencyEta > 0) && (efficiencyEta <= 1) &&
                                     (efficiencygapEta > 0) && (efficiencygapEta <= 1) && (efficiencyPhi > 0) && (efficiencyPhi <= 1)) {
                                     if (stationEta >= 0) {
                                         COOLDB_PhiAndEtaEff_A[indexSName] =
@@ -2634,8 +2634,8 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB(const EventContext& ctx) 
                                     bool isValid = false;
                                     Identifier rpcId =
                                         m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi, 1, 1, 1,
-                                                              true, &isValid);  // last 5 arguments are: int doubletPhi, int gasGap, int
-                                                                                // measuresPhi, int strip, bool check, bool* isValid
+                                                                    isValid);  // last 5 arguments are: int doubletPhi, int gasGap, int
+                                                                                // measuresPhi, int strip, bool& isValid
                                     if (!isValid) continue;
                                     const RpcReadoutElement* rpc = m_GMmgr->getRpcReadoutElement(rpcId);
                                     if (!rpc) continue;
@@ -2711,8 +2711,8 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB(const EventContext& ctx) 
                                     bool isValid = false;
                                     Identifier rpcId =
                                         m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi, 1, 1, 1,
-                                                              true, &isValid);  // last 5 arguments are: int doubletPhi, int gasGap, int
-                                                                                // measuresPhi, int strip, bool check, bool* isValid
+                                                              isValid);  // last 5 arguments are: int doubletPhi, int gasGap, int
+                                                                                // measuresPhi, int strip, bool& isValid
                                     if (!isValid) continue;
                                     const RpcReadoutElement* rpc = m_GMmgr->getRpcReadoutElement(rpcId);
                                     if (!rpc) continue;
@@ -2818,9 +2818,9 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB(const EventContext& ctx) 
                                     for (int strip = 1; strip != 81; strip++) {
                                         bool isValid = false;
                                         Identifier rpcId = m_idHelper->channelID(
-                                            stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi, 1, 1, 1, true,
-                                            &isValid);  // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip,
-                                                        // bool check, bool* isValid
+                                            stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi, 1, 1, 1, 
+                                            isValid);  // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip,
+                                                        // bool& isValid
                                         if (!isValid) continue;
                                         const RpcReadoutElement* rpc = m_GMmgr->getRpcReadoutElement(rpcId);
                                         if (!rpc) continue;
@@ -2850,7 +2850,7 @@ double time_correction(double x, double y, double z) {
     double speed_of_light = 299.792458;                   // mm/ns
     return sqrt(x * x + y * y + z * z) / speed_of_light;  // FIXME use CLHEP::c_light
 }
-double RpcDigitizationTool::FCPEfficiency(const HepMC::GenParticle* genParticle) {
+double RpcDigitizationTool::FCPEfficiency(HepMC::ConstGenParticlePtr genParticle) {
     double qcharge = 1.;
     double qbetagamma = -1.;
     const int particlePdgId = genParticle->pdg_id();

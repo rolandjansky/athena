@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModelTest/MuonHitRelocation.h"
@@ -402,7 +402,7 @@ StatusCode MuonHitRelocation::execute() {
         m_stmuonHelper = sTgcHitIdHelper::GetHelper();
 
         const DataHandle<sTGCSimHitCollection> stgc_collection;
-        if (evtStore()->retrieve(stgc_collection, "sTGCSensitiveDetector") == StatusCode::SUCCESS) {
+        if (evtStore()->retrieve(stgc_collection, "sTGC_Hits") == StatusCode::SUCCESS) {
             ATH_MSG_VERBOSE("sTGC Muon hit Collection sTGC hit found with size = " << stgc_collection->size());
             for (sTGCSimHitConstIterator i_hit = stgc_collection->begin(); i_hit != stgc_collection->end(); ++i_hit) {
                 GeosTGCHit ghit(*i_hit);
@@ -466,7 +466,7 @@ StatusCode MuonHitRelocation::execute() {
         m_mmmuonHelper = MicromegasHitIdHelper::GetHelper();
 
         const DataHandle<MMSimHitCollection> mm_collection;
-        if (evtStore()->retrieve(mm_collection, "MicromegasSensitiveDetector") == StatusCode::SUCCESS) {
+        if (evtStore()->retrieve(mm_collection, "MM_Hits") == StatusCode::SUCCESS) {
             ATH_MSG_VERBOSE("MM Muon hit Collection (Micromegas) found with size = " << mm_collection->size());
             for (MMSimHitConstIterator i_hit = mm_collection->begin(); i_hit != mm_collection->end(); ++i_hit) {
                 GeoMMHit ghit(*i_hit);

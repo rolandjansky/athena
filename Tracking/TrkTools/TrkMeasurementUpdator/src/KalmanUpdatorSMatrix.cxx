@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -41,7 +41,7 @@ Trk::KalmanUpdatorSMatrix::KalmanUpdatorSMatrix(const std::string& t,const std::
 
 // destructor
 Trk::KalmanUpdatorSMatrix::~KalmanUpdatorSMatrix()
-{}
+= default;
 
 // initialize
 StatusCode Trk::KalmanUpdatorSMatrix::initialize()

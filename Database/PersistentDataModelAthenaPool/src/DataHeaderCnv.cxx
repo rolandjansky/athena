@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file DataHeaderCnv.cxx
@@ -287,7 +287,6 @@ std::unique_ptr<DataHeader_p5> DataHeaderCnv::poolReadObject_p5()
          m_dhInForm5.reset( reinterpret_cast<DataHeaderForm_p5*>(voidPtr2) );
          m_dhFormMdx = header->dhFormMdx();
       }
-      header->setDhForm( m_dhInForm5.get() );
    }
    return header;
 }
@@ -372,7 +371,7 @@ DataHeader* DataHeaderCnv::createTransient() {
          return dh;
       } else if (this->compareClassGuid( p5_guid )) {
          std::unique_ptr<DataHeader_p5> obj_p5( poolReadObject_p5() );
-         return m_tpInConverter_p5.createTransient( obj_p5.get() );
+         return m_tpInConverter_p5.createTransient( *obj_p5, *m_dhInForm5 ).release();
       } else if (this->compareClassGuid( p4_guid )) {
          std::unique_ptr<DataHeader_p4> obj_p4(this->poolReadObject<DataHeader_p4>());
          DataHeaderCnv_p4 tPconverter_p4;

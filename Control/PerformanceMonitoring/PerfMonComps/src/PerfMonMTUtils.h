@@ -9,6 +9,10 @@
 #ifndef PERFMONCOMPS_PERFMONMTUTILS_H
 #define PERFMONCOMPS_PERFMONMTUTILS_H
 
+// Thread-safety-checker
+#include "CxxUtils/checker_macros.h"
+ATLAS_CHECK_FILE_THREAD_SAFETY;
+
 // PerfMon includes
 #include "SemiDetMisc.h"   // borrow from existing code
 #include "PerfMonEvent/mallinfo.h"
@@ -300,13 +304,9 @@ namespace PMonMT {
  * Thread specific CPU time measurement in ms
  */
 inline double PMonMT::get_thread_cpu_time() {
-  // Get the thread clock id
-  clockid_t thread_cid;
-  pthread_getcpuclockid(pthread_self(), &thread_cid);
-
   // Get the thread specific CPU time
   struct timespec ctime;
-  clock_gettime(thread_cid, &ctime);
+  clock_gettime(CLOCK_THREAD_CPUTIME_ID, &ctime);
 
   // Return the measurement in ms
   return static_cast<double>(ctime.tv_sec * 1.e3 + ctime.tv_nsec * 1.e-6);

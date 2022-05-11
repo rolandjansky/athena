@@ -62,13 +62,12 @@ namespace MuonGM {
         inline void setCacheFillingFlag(int value);
         inline void setMdtDeformationFlag(int mdtDeformationFlag);
         inline void setMdtAsBuiltParaFlag(int mdtAsBuiltParaFlag);
+        inline void setNswAsBuiltParaFlag(int nswAsBuiltParaFlag);
         inline void setFineClashFixingFlag(int value);
         inline void hasCSC(bool value);
         inline void hasSTgc(bool value);
         inline void hasMM(bool value);
-        inline void setABLinesAsciiSideA(const std::string &);
-        inline void setABLinesAsciiSideC(const std::string &);
-        inline void setMMAsBuiltJsonPath(const std::string &);
+        inline void setNSWABLineAsciiPath(const std::string &);
 
       private:
 
@@ -98,15 +97,14 @@ namespace MuonGM {
         int m_cacheFillingFlag{0};
         int m_mdtDeformationFlag{0};
         int m_mdtAsBuiltParaFlag = 0;
+        int m_nswAsBuiltParaFlag = 0;
         bool m_dumpMemoryBreakDown{false};
         int m_enableFineClashFixing{0};
         bool m_hasCSC{true};
         bool m_hasSTgc{true};
         bool m_hasMM{true};
 
-        std::string m_NSWABLinesSideA{};
-        std::string m_NSWABLinesSideC{};
-        std::string m_MMAsBuiltJsonPath{};
+        std::string m_NSWABLineAsciiPath{};
 
         std::vector<std::string> m_selectedStations;
         std::vector<int> m_selectedStEta;
@@ -151,14 +149,13 @@ namespace MuonGM {
     void MuonDetectorFactory001::setCacheFillingFlag(int value) { m_cacheFillingFlag = value; }
     void MuonDetectorFactory001::setMdtDeformationFlag(int value) { m_mdtDeformationFlag = value; }
     void MuonDetectorFactory001::setMdtAsBuiltParaFlag(int value) { m_mdtAsBuiltParaFlag = value; }
+    void MuonDetectorFactory001::setNswAsBuiltParaFlag(int value) { m_nswAsBuiltParaFlag = value; }
     void MuonDetectorFactory001::setDumpMemoryBreakDown(bool value) { m_dumpMemoryBreakDown = value; }
     void MuonDetectorFactory001::setFineClashFixingFlag(int value) { m_enableFineClashFixing = value; }
     void MuonDetectorFactory001::hasCSC(bool value) { m_hasCSC = value; }
     void MuonDetectorFactory001::hasSTgc(bool value) { m_hasSTgc = value; }
     void MuonDetectorFactory001::hasMM(bool value) { m_hasMM = value; }
-    void MuonDetectorFactory001::setABLinesAsciiSideA(const std::string &str) { m_NSWABLinesSideA = str; }
-    void MuonDetectorFactory001::setABLinesAsciiSideC(const std::string &str) { m_NSWABLinesSideC = str; }
-    void MuonDetectorFactory001::setMMAsBuiltJsonPath(const std::string &str) { m_MMAsBuiltJsonPath = str; }
+    void MuonDetectorFactory001::setNSWABLineAsciiPath(const std::string &str) { m_NSWABLineAsciiPath = str; }
 } // namespace MuonGM
 
 #endif

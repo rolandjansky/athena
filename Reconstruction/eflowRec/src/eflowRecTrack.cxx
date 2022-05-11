@@ -76,7 +76,7 @@ eflowRecTrack& eflowRecTrack::operator = (const eflowRecTrack& originalEflowRecT
   }//if not assigning to self, then we have copied the data to the new object
 }
 
-eflowRecTrack::~eflowRecTrack() {}
+eflowRecTrack::~eflowRecTrack() = default;
 
 void eflowRecTrack::setCaloDepthArray(const double* depthArray) {
   m_caloDepthArray.assign(depthArray, depthArray + eflowDepthCalculator::NDepth() + 1);

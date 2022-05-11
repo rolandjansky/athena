@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILERECUTILS_TILECELLBUILDERFROMHIT_H
@@ -32,6 +32,7 @@
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/TileCondToolTiming.h"
 #include "TileConditions/TileCablingSvc.h"
+#include "TileConditions/TileSamplingFraction.h"
 
 // Calo includes
 #include "CaloInterface/ICaloCellMakerTool.h"
@@ -46,6 +47,7 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "AthenaKernel/IAthRNGSvc.h"
 
 // Gaudi includes
@@ -62,7 +64,6 @@
 class TileID;
 class TileTBID;
 class TileHWID;
-class TileInfo;
 class TileCell;
 class MbtsDetDescrManager;
 class TileDetDescrManager;
@@ -120,6 +121,11 @@ class TileCellBuilderFromHit
     SG::WriteHandleKey<TileCellContainer> m_E4prContainerKey{this, "E4prContainer", 
                                                              "E4prContainer",
                                                              "Output Tile E4 prime container key"};
+    /**
+     * @brief Name of TileSamplingFraction in condition store
+     */
+    SG::ReadCondHandleKey<TileSamplingFraction> m_samplingFractionKey{this,
+        "TileSamplingFraction", "TileSamplingFraction", "Input Tile sampling fraction"};
 
 
     std::string m_infoName;
@@ -134,11 +140,10 @@ class TileCellBuilderFromHit
     bool m_maskBadChannels;      //!< if true=> bad channels are masked
     float m_noiseSigma;          //!< cell electronic noise if CaloNoise is switched off 
 
-    const TileID* m_tileID;   //!< Pointer to TileID
-    const TileTBID* m_tileTBID; //!< Pointer to TileTBID
-    const TileHWID* m_tileHWID; //!< Pointer to TileHWID
-    const TileInfo* m_tileInfo; //!< Pointer to TileInfo
-    const TileCablingService* m_cabling; //!< Pointer to TileCabling
+    const TileID* m_tileID{nullptr};   //!< Pointer to TileID
+    const TileTBID* m_tileTBID{nullptr}; //!< Pointer to TileTBID
+    const TileHWID* m_tileHWID{nullptr}; //!< Pointer to TileHWID
+    const TileCablingService* m_cabling{nullptr}; //!< Pointer to TileCabling
 
     ServiceHandle<IAthRNGSvc> m_rndmSvc  //!< Random number service to use
       { this, "RndmSvc", "AthRNGSvc", "Random Number Service used in TileCellBuildetFromHit" };
@@ -156,8 +161,8 @@ class TileCellBuilderFromHit
         "TileCablingSvc", "TileCablingSvc", "The Tile cabling service"};
 
 
-    const TileDetDescrManager* m_tileMgr; //!< Pointer to TileDetDescrManager
-    const MbtsDetDescrManager* m_mbtsMgr; //!< Pointer to MbtsDetDescrManager
+    const TileDetDescrManager* m_tileMgr{nullptr}; //!< Pointer to TileDetDescrManager
+    const MbtsDetDescrManager* m_mbtsMgr{nullptr}; //!< Pointer to MbtsDetDescrManager
 
     TileFragHash::TYPE m_RChType;        //!< Type of TileRawChannels (Fit, OF2, etc.)
     //unsigned int m_bsflags;              //!< other flags stored in TileRawChannelContainer
@@ -180,7 +185,8 @@ class TileCellBuilderFromHit
                const ITERATOR & end,
                COLLECTION * coll,
                TileCellContainer* MBTSCells,
-               TileCellContainer* E4prCells) const;
+               TileCellContainer* E4prCells,
+               const TileSamplingFraction* samplingFraction) const;
                
 
     /** method to check if channels are good or bad. Puts zero if both channels are bad

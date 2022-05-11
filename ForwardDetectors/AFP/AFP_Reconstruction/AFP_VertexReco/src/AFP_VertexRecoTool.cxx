@@ -22,7 +22,7 @@ StatusCode AFP_VertexRecoTool::initialize()
   // vertex reconstruction tools
   if(m_recoToolsList.empty())
   {
-    ATH_MSG_ERROR("No vertex reconstruction tools set, check settings in AFP_VertexReco/AFP_VertexReco_joboption.py. Aborting.");
+    ATH_MSG_ERROR("No vertex reconstruction tools set, check settings in AFP_VertexReco/AFP_VertexReco.py. Aborting.");
     return StatusCode::FAILURE;
   }
   else
@@ -34,7 +34,7 @@ StatusCode AFP_VertexRecoTool::initialize()
   // output containers for the vertex reconstruction tools
   if(m_arrayOfWriteHandleKeys.empty())
   {
-    ATH_MSG_ERROR("No output vertex containers provided, check settings in AFP_VertexReco/AFP_VertexReco_joboption.py. Aborting.");
+    ATH_MSG_ERROR("No output vertex containers provided, check settings in AFP_VertexReco/AFP_VertexReco.py. Aborting.");
     return StatusCode::FAILURE;
   }
   else
@@ -59,10 +59,10 @@ StatusCode AFP_VertexRecoTool::initialize()
   listOfWHKeys.erase(std::unique(listOfWHKeys.begin(),listOfWHKeys.end()), listOfWHKeys.end());
   if(listOfWHKeys.size() != all_WHkeys)
   {
-    ATH_MSG_ERROR("It seems write handle keys do not have unique values, check settings in AFP_VertexReco/AFP_VertexReco_joboption.py. Aborting.");
+    ATH_MSG_ERROR("It seems write handle keys do not have unique values, check settings in AFP_VertexReco/AFP_VertexReco.py. Aborting.");
     return StatusCode::FAILURE;
   }
-  // get names from proton reco tools
+  // get names from vertex reco tools
   std::vector<std::string> listOfOutputContainers;
   for(const auto &recoTool : m_recoToolsList)
   {
@@ -72,7 +72,7 @@ StatusCode AFP_VertexRecoTool::initialize()
   // remove duplicities, they are allowed
   std::sort(listOfOutputContainers.begin(), listOfOutputContainers.end());
   listOfOutputContainers.erase(std::unique(listOfOutputContainers.begin(),listOfOutputContainers.end()), listOfOutputContainers.end());
-  // write handle keys and names from proton reco tools should have the same size
+  // write handle keys and names from vertex reco tools should have the same size
   if(listOfWHKeys.size() != listOfOutputContainers.size())
   {
     ATH_MSG_ERROR("There is different number of unique write handle keys ("<<listOfWHKeys.size()<<") and unique output containers ("<<listOfOutputContainers.size()<<"). Aborting");
@@ -84,7 +84,7 @@ StatusCode AFP_VertexRecoTool::initialize()
   {
     if(std::find(listOfWHKeys.begin(),listOfWHKeys.end(),trkOutCont) == listOfWHKeys.end())
     {
-      ATH_MSG_ERROR("Cannot find proton reconstruction output container "<<trkOutCont<<" in write handle keys. Aborting");
+      ATH_MSG_ERROR("Cannot find vertex reconstruction output container "<<trkOutCont<<" in write handle keys. Aborting");
       doAbort=true;
     }
   }
@@ -117,7 +117,7 @@ StatusCode AFP_VertexRecoTool::execute(const EventContext& ctx) const
 
   for(const auto &whk : m_arrayOfWriteHandleKeys)
   {
-    // reconstruct protons
+    // reconstruct vertices
     auto afpVertex=std::make_unique<xAOD::AFPVertexContainer>();
     auto afpVertexAux=std::make_unique<xAOD::AFPVertexAuxContainer>();
     afpVertex->setStore(afpVertexAux.get());
@@ -128,11 +128,11 @@ StatusCode AFP_VertexRecoTool::execute(const EventContext& ctx) const
 
       if( recoTool->doVertexReco(afpVertex, ctx).isFailure() )
       {
-        ATH_MSG_WARNING ("Failed to reconstruct protons with algorithm = "<<recoTool->name());
+        ATH_MSG_WARNING ("Failed to reconstruct vertices with algorithm = "<<recoTool->name());
       }
     }
     
-    ATH_MSG_DEBUG("write handle key "<<whk<<", have "<<afpVertex->size()<<" reconstructed protons");
+    ATH_MSG_DEBUG("write handle key "<<whk<<", have "<<afpVertex->size()<<" reconstructed vertices");
         
 
     SG::WriteHandle<xAOD::AFPVertexContainer> vertexContainer(whk, ctx);

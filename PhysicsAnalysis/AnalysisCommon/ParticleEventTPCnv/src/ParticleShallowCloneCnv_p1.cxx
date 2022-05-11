@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ParticleShallowCloneCnv_p1.cxx 
@@ -44,7 +44,7 @@ void ParticleShallowCloneCnv_p1::persToTrans( const ParticleShallowClone_p1* per
 
   // convert the 4Momentum part
   s_momCnv.persToTrans( &pers->m_momentum,
-                        const_cast<P4PxPyPzE*>(&trans->momentumBase()),
+                        trans,
                         msg );
   
   // Convert the ElementLink to the master particle

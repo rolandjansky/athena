@@ -65,7 +65,14 @@ void PixelClusterOnTrackCnv_p2::transToPers( const InDet::PixelClusterOnTrack *t
   persObj->m_isFake              = transObj->isFake();
   persObj->m_energyLoss          = transObj->energyLoss();
 
-  static const SG::InitializedReadHandleKey<InDet::PixelClusterContainer> pixelClusContName ("PixelClusters");
+  //3 scenarios here
+  //1: standard running, the EL has only the cached object and the EventCnvSuperTool track overlay flag is false
+  //2: running reco on the overlay RDO file to build the tracks for track overlay, where the EL has only the cached object but the EventCnvSuperTool track overlay flag is true
+  //3: the overlay step, in which the EventCnvSuperTool track overlay flag is false but the EL should have the correct dataID stored
+  std::string clusContName="PixelClusters";
+  if(transObj->prepRawDataLink().dataID()!="") clusContName=transObj->prepRawDataLink().dataID();
+  else if(m_eventCnvTool->doTrackOverlay()) clusContName="Bkg_PixelClusters";
+  static const SG::InitializedReadHandleKey<InDet::PixelClusterContainer> pixelClusContName (clusContName.c_str());
   ElementLink<InDet::PixelClusterContainer>::index_type hashAndIndex{0};
   bool isFound{m_eventCnvTool->getHashAndIndex<InDet::PixelClusterContainer, InDet::PixelClusterOnTrack>(transObj, pixelClusContName, hashAndIndex)};
   persObj->m_prdLink.m_contName = (isFound ? pixelClusContName.key() : "");

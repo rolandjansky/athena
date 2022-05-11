@@ -39,23 +39,25 @@ struct micromegas_t {
 
 class MMT_Road : public AthMessaging {
   public:
-    MMT_Road(const char sector, const MuonGM::MuonDetectorManager* detManager, const micromegas_t mm, int xthr, int uvthr, int iroadx, int iroadu = -1, int iroadv = -1);
-    ~MMT_Road();
+    MMT_Road(const char sector, const MuonGM::MuonDetectorManager* detManager, const micromegas_t &mm, int xthr, int uvthr, int iroadx, int iroadu = -1, int iroadv = -1);
+    ~MMT_Road()=default;
 
     void addHits(std::vector<std::shared_ptr<MMT_Hit> > &hits);
-    double avgSofX();
-    double avgSofUV(const int uv1, const int uv2);
-    double avgZofUV(const int uv1, const int uv2);
-    bool checkCoincidences(const int &bcwind);
-    bool containsNeighbors(const MMT_Hit &hit);
+    double avgSofX() const;
+    double avgSofUV(const int uv1, const int uv2) const;
+    double avgZofUV(const int uv1, const int uv2) const;
+    bool checkCoincidences(const int &bcwind) const;
+    bool containsNeighbors(const MMT_Hit &hit) const;
     unsigned int countHits() const { return m_road_hits.size(); }
-    unsigned int countRealHits();
-    unsigned int countUVHits(bool flag);
-    unsigned int countXHits(bool flag);
-    bool evaluateLowRes();
-    bool horizontalCheck();
+    unsigned int countRealHits() const;
+    unsigned int countUVHits(bool flag) const;
+    unsigned int countXHits(bool flag) const;
+    bool evaluateLowRes() const;
+    bool horizontalCheck() const;
     void incrementAge(const int &bcwind);
     double getB() const { return m_B; }
+    double getPitch() const { return m_pitch; }
+    const ROOT::Math::XYZVector& getPlaneCoordinate(const unsigned int index) const { return m_planeCoordinates.at(index); }
     int getRoadSize() const { return m_roadSize; }
     int getRoadSizeUpX() const { return m_roadSizeUpX; }
     int getRoadSizeDownX() const { return m_roadSizeDownX; }
@@ -69,11 +71,10 @@ class MMT_Road : public AthMessaging {
     int iRoadx() const { return m_iroadx; }
     int iRoadu() const { return m_iroadu; }
     int iRoadv() const { return m_iroadv; }
-    bool matureCheck(const int &bcwind);
-    double mxl();
+    bool matureCheck(const int &bcwind) const;
+    double mxl() const;
     void reset();
-    bool stereoCheck();
-    micromegas_t getMM() const { return m_micromegas; }
+    bool stereoCheck() const;
 
   private:
     const MuonGM::MuonDetectorManager* m_detManager{};        //!< MuonDetectorManager
@@ -83,13 +84,13 @@ class MMT_Road : public AthMessaging {
     int m_iroadx;
     int m_iroadu;
     int m_iroadv;
-    micromegas_t m_micromega;
     char m_sector;
     int m_xthr, m_uvthr;
     int m_roadSize, m_roadSizeUpX, m_roadSizeDownX, m_roadSizeUpUV, m_roadSizeDownUV;
+    double m_pitch, m_innerRadiusEta1, m_innerRadiusEta2;
     bool m_trig;
+    std::vector<ROOT::Math::XYZVector> m_planeCoordinates;
 
-    micromegas_t m_micromegas;
     std::vector<MMT_Hit> m_road_hits;
 };
 #endif

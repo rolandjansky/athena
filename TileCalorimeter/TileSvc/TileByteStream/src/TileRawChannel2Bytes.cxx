@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileByteStream/TileRawChannel2Bytes.h" 
@@ -10,9 +10,9 @@
 int TileRawChannel2Bytes::getBytes(const TileFastRawChannel* rc, int gain, std::vector<short>& v) {
   // pack raw data into 16bit integers
 
-  int a = lround(rc->amplitude() * AMPLITUDE_FACTOR);
-  int t = lround(rc->time() * TIME_FACTOR);
-  int q = lround(rc->quality() * QUALITY_FACTOR);
+  int a = std::lround(rc->amplitude() * AMPLITUDE_FACTOR);
+  int t = std::lround(rc->time() * TIME_FACTOR);
+  int q = std::lround(rc->quality() * QUALITY_FACTOR);
 
   short w1 = std::min(abs(a), amplitude_range());
   if (a < 0) w1 |= AMPLITUDE_SIGN;

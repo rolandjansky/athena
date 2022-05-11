@@ -25,7 +25,11 @@ namespace Muon
       const std::vector <Muon::nsw::NSWElink *> &get_elinks () const {return m_elinks;};
       const std::vector <Muon::nsw::VMMChannel *> &get_channels () const {return m_channels;};
 
+      bool has_error () {return m_has_error;};
+
      private:
+      bool m_has_error;
+
       std::vector <Muon::nsw::NSWElink *> m_elinks;
       std::vector <Muon::nsw::VMMChannel *> m_channels;
     };

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -21,10 +21,8 @@ Trk::SubtractedCylinderSurface::SubtractedCylinderSurface()
 
 // copy constructor
 Trk::SubtractedCylinderSurface::SubtractedCylinderSurface(const SubtractedCylinderSurface& psf)
-  : Trk::CylinderSurface(psf)
-  , m_subtrVol(psf.m_subtrVol)
-  , m_shared(psf.m_shared)
-{}
+   
+= default;
 
 // copy constructor with shift
 Trk::SubtractedCylinderSurface::SubtractedCylinderSurface(const SubtractedCylinderSurface& psf,
@@ -44,7 +42,7 @@ Trk::SubtractedCylinderSurface::SubtractedCylinderSurface(const Trk::CylinderSur
 {}
 
 // destructor (will call destructor from base class which deletes objects)
-Trk::SubtractedCylinderSurface::~SubtractedCylinderSurface() {}
+Trk::SubtractedCylinderSurface::~SubtractedCylinderSurface() = default;
 
 Trk::SubtractedCylinderSurface&
 Trk::SubtractedCylinderSurface::operator=(const Trk::SubtractedCylinderSurface& psf)

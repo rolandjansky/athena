@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // csc_cosmic_cluster.cxx
@@ -20,10 +20,11 @@
 #include <sstream>
 #include <map>
 #include <vector>
+
 #include "TTree.h"
 #include "TTreeIndex.h"
-#include "CscClusterPerformance/SimposAccessor.h"
-#include "CscClusterPerformance/ClusterAccessor.h"
+#include "SimposAccessor.h"
+#include "ClusterAccessor.h"
 #include <cmath>
 
 // To build a exe that only generates the ROOTT interface classes.
@@ -326,5 +327,5 @@ int main(int narg, char* argv[]) {
 
 // Build the skeleton functions.
 #define ClusterAccessor_cxx
-#include "CscClusterPerformance/ClusterAccessor.h"
+#include "ClusterAccessor.h"
 void ClusterAccessor::Loop() { }

@@ -16,9 +16,6 @@ TrigConf::HLTMonitoring::HLTMonitoring(const boost::property_tree::ptree & data)
    load();
 }
 
-TrigConf::HLTMonitoring::~HLTMonitoring()
-{}
-
 void
 TrigConf::HLTMonitoring::load()
 {

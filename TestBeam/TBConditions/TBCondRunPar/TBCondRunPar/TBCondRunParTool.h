@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBCONDRUNPAR_TBCONDRUNPARTOOL_H
@@ -15,7 +15,6 @@
 #include <string>
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/DataHandle.h"
 
 class EventInfo;
 
@@ -39,29 +38,29 @@ class TBCondRunParTool: public AthAlgTool {
   std::string& file_tag();
   std::string& time_SOR();
   // utility functions
-  StatusCode getTable(const std::string table,const int irow,
+  StatusCode getTable(const std::string& table,const int irow,
                 const void* tblptr,
 		int& ncol,int& nrow, std::vector<std::string>& names,
 		std::vector<std::string>& rows) const;
   StatusCode extractVal(   
-    const std::vector<std::string> names, const std::vector<std::string> rows,
-    const std::string name,int& ival) const;
+    const std::vector<std::string>& names, const std::vector<std::string>& rows,
+    const std::string& name,int& ival) const;
   StatusCode extractVal(   
-    const std::vector<std::string> names, const std::vector<std::string> rows,
-    const std::string name,float& fval) const;
+    const std::vector<std::string>& names, const std::vector<std::string>& rows,
+    const std::string& name,float& fval) const;
   StatusCode extractVal(   
-    const std::vector<std::string> names, const std::vector<std::string> rows,
-    const std::string name,std::string& sval) const;
-  void printTable(const std::vector<std::string> names, 
-		  const std::vector<std::string> rows) const;
-  StatusCode getVal(const std::string folder, const unsigned int chnum, float& fval);
+    const std::vector<std::string>& names, const std::vector<std::string>& rows,
+    const std::string& name,std::string& sval) const;
+  void printTable(const std::vector<std::string>& names, 
+		  const std::vector<std::string>& rows) const;
+  StatusCode getVal(const std::string& folder, const unsigned int chnum, float& fval);
 
  private:
   bool checkcache();
   bool extractCool(const int run);
-  bool extractCoolTest(std::string folder, int run) const;
+  bool extractCoolTest(const std::string& folder, int run) const;
 
-  const DataHandle<EventInfo> m_eventinfo;
+  const EventInfo* m_eventinfo = nullptr;
   int m_crun;
   int m_cevent;
   std::string m_runpfolder;

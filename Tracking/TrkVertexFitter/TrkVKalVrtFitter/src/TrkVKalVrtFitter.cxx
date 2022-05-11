@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -711,7 +711,7 @@ xAOD::Vertex * TrkVKalVrtFitter::makeXAODVertex( int Neutrals,
         const Amg::Vector3D& Vertex, const std::vector<double> & fitErrorMatrix,
 	const std::vector<double> & Chi2PerTrk,  const std::vector< std::vector<double> >& TrkAtVrt,
                                                  double Chi2,
-                                                 const State& state) const
+                                                 State& state) const
 {
     long int NTrk = state.m_FitStatus;
     long int Ndf = VKalGetNDOF(state)+state.m_planeCnstNDOF;

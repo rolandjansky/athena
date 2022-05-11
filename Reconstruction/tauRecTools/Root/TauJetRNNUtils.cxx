@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "tauRecTools/TauJetRNNUtils.h"
 #include "tauRecTools/HelperFunctions.h"
-
+#include <algorithm>
 #define GeV 1000
 
 namespace TauJetRNNUtils {
@@ -77,95 +77,106 @@ bool VarCalc::compute(const std::string &name, const xAOD::TauJet &tau,
     return success;
 }
 
-void VarCalc::insert(const std::string &name, ScalarCalc func) {
+void VarCalc::insert(const std::string &name, ScalarCalc func, const std::vector<std::string>& scalar_vars) {
+    if (std::find(scalar_vars.begin(), scalar_vars.end(), name) == scalar_vars.end()) {
+      return;
+    }
     if (!func) {
         throw std::invalid_argument("Nullptr passed to VarCalc::insert");
     }
     m_scalar_map[name] = func;
 }
 
-void VarCalc::insert(const std::string &name, TrackCalc func) {
+void VarCalc::insert(const std::string &name, TrackCalc func, const std::vector<std::string>& track_vars) {
+    if (std::find(track_vars.begin(), track_vars.end(), name) == track_vars.end()) {
+      return;
+    }
     if (!func) {
         throw std::invalid_argument("Nullptr passed to VarCalc::insert");
     }
     m_track_map[name] = func;
 }
 
-void VarCalc::insert(const std::string &name, ClusterCalc func) {
+void VarCalc::insert(const std::string &name, ClusterCalc func, const std::vector<std::string>& cluster_vars) {
+    if (std::find(cluster_vars.begin(), cluster_vars.end(), name) == cluster_vars.end()) {
+      return;
+    }
     if (!func) {
         throw std::invalid_argument("Nullptr passed to VarCalc::insert");
     }
     m_cluster_map[name] = func;
 }
 
-std::unique_ptr<VarCalc> get_default_calculator() {
+std::unique_ptr<VarCalc> get_calculator(const std::vector<std::string>& scalar_vars,
+					const std::vector<std::string>& track_vars,
+					const std::vector<std::string>& cluster_vars) {
     auto calc = std::make_unique<VarCalc>();
 
     // Scalar variable calculator functions
-    calc->insert("centFrac", Variables::centFrac);
-    calc->insert("etOverPtLeadTrk", Variables::etOverPtLeadTrk);
-    calc->insert("innerTrkAvgDist", Variables::innerTrkAvgDist);
-    calc->insert("absipSigLeadTrk", Variables::absipSigLeadTrk);
-    calc->insert("SumPtTrkFrac", Variables::SumPtTrkFrac);
-    calc->insert("EMPOverTrkSysP", Variables::EMPOverTrkSysP);
-    calc->insert("ptRatioEflowApprox", Variables::ptRatioEflowApprox);
-    calc->insert("mEflowApprox", Variables::mEflowApprox);
-    calc->insert("dRmax", Variables::dRmax);
-    calc->insert("trFlightPathSig", Variables::trFlightPathSig);
-    calc->insert("massTrkSys", Variables::massTrkSys);
-    calc->insert("pt", Variables::pt);
-    calc->insert("pt_tau_log", Variables::pt_tau_log);
-    calc->insert("ptDetectorAxis", Variables::ptDetectorAxis);
-    calc->insert("ptIntermediateAxis", Variables::ptIntermediateAxis);
+    calc->insert("centFrac", Variables::centFrac, scalar_vars);
+    calc->insert("etOverPtLeadTrk", Variables::etOverPtLeadTrk, scalar_vars);
+    calc->insert("innerTrkAvgDist", Variables::innerTrkAvgDist, scalar_vars);
+    calc->insert("absipSigLeadTrk", Variables::absipSigLeadTrk, scalar_vars);
+    calc->insert("SumPtTrkFrac", Variables::SumPtTrkFrac, scalar_vars);
+    calc->insert("EMPOverTrkSysP", Variables::EMPOverTrkSysP, scalar_vars);
+    calc->insert("ptRatioEflowApprox", Variables::ptRatioEflowApprox, scalar_vars);
+    calc->insert("mEflowApprox", Variables::mEflowApprox, scalar_vars);
+    calc->insert("dRmax", Variables::dRmax, scalar_vars);
+    calc->insert("trFlightPathSig", Variables::trFlightPathSig, scalar_vars);
+    calc->insert("massTrkSys", Variables::massTrkSys, scalar_vars);
+    calc->insert("pt", Variables::pt, scalar_vars);
+    calc->insert("pt_tau_log", Variables::pt_tau_log, scalar_vars);
+    calc->insert("ptDetectorAxis", Variables::ptDetectorAxis, scalar_vars);
+    calc->insert("ptIntermediateAxis", Variables::ptIntermediateAxis, scalar_vars);
     //---added for the eVeto
-    calc->insert("ptJetSeed_log",              Variables::ptJetSeed_log  );
-    calc->insert("absleadTrackEta",            Variables::absleadTrackEta  );
-    calc->insert("leadTrackDeltaEta",          Variables::leadTrackDeltaEta);
-    calc->insert("leadTrackDeltaPhi",          Variables::leadTrackDeltaPhi);
-    calc->insert("leadTrackProbNNorHT",        Variables::leadTrackProbNNorHT);
-    calc->insert("EMFracFixed",                Variables::EMFracFixed      );
-    calc->insert("etHotShotWinOverPtLeadTrk",  Variables::etHotShotWinOverPtLeadTrk);
-    calc->insert("hadLeakFracFixed",           Variables::hadLeakFracFixed);
-    calc->insert("PSFrac",                     Variables::PSFrac);
-    calc->insert("ClustersMeanCenterLambda",   Variables::ClustersMeanCenterLambda  );
-    calc->insert("ClustersMeanFirstEngDens",   Variables::ClustersMeanFirstEngDens  );
-    calc->insert("ClustersMeanPresamplerFrac", Variables::ClustersMeanPresamplerFrac);
+    calc->insert("ptJetSeed_log",              Variables::ptJetSeed_log, scalar_vars);
+    calc->insert("absleadTrackEta",            Variables::absleadTrackEta, scalar_vars);
+    calc->insert("leadTrackDeltaEta",          Variables::leadTrackDeltaEta, scalar_vars);
+    calc->insert("leadTrackDeltaPhi",          Variables::leadTrackDeltaPhi, scalar_vars);
+    calc->insert("leadTrackProbNNorHT",        Variables::leadTrackProbNNorHT, scalar_vars);
+    calc->insert("EMFracFixed",                Variables::EMFracFixed, scalar_vars);
+    calc->insert("etHotShotWinOverPtLeadTrk",  Variables::etHotShotWinOverPtLeadTrk, scalar_vars);
+    calc->insert("hadLeakFracFixed",           Variables::hadLeakFracFixed, scalar_vars);
+    calc->insert("PSFrac",                     Variables::PSFrac, scalar_vars);
+    calc->insert("ClustersMeanCenterLambda",   Variables::ClustersMeanCenterLambda, scalar_vars);
+    calc->insert("ClustersMeanFirstEngDens",   Variables::ClustersMeanFirstEngDens, scalar_vars);
+    calc->insert("ClustersMeanPresamplerFrac", Variables::ClustersMeanPresamplerFrac, scalar_vars);
 
     // Track variable calculator functions
-    calc->insert("pt_log", Variables::Track::pt_log);
-    calc->insert("pt_tau_log", Variables::Track::pt_tau_log);
-    calc->insert("pt_jetseed_log", Variables::Track::pt_jetseed_log);
-    calc->insert("d0_abs_log", Variables::Track::d0_abs_log);
-    calc->insert("z0sinThetaTJVA_abs_log", Variables::Track::z0sinThetaTJVA_abs_log);
-    calc->insert("z0sinthetaTJVA", Variables::Track::z0sinthetaTJVA);
-    calc->insert("z0sinthetaSigTJVA", Variables::Track::z0sinthetaSigTJVA);
-    calc->insert("d0TJVA", Variables::Track::d0TJVA);
-    calc->insert("d0SigTJVA", Variables::Track::d0SigTJVA);
-    calc->insert("dEta", Variables::Track::dEta);
-    calc->insert("dPhi", Variables::Track::dPhi);
-    calc->insert("nInnermostPixelHits", Variables::Track::nInnermostPixelHits);
-    calc->insert("nPixelHits", Variables::Track::nPixelHits);
-    calc->insert("nSCTHits", Variables::Track::nSCTHits);
-    calc->insert("nIBLHitsAndExp", Variables::Track::nIBLHitsAndExp);
-    calc->insert("nPixelHitsPlusDeadSensors", Variables::Track::nPixelHitsPlusDeadSensors);
-    calc->insert("nSCTHitsPlusDeadSensors", Variables::Track::nSCTHitsPlusDeadSensors);
-    calc->insert("eProbabilityHT", Variables::Track::eProbabilityHT);
-    calc->insert("eProbabilityNN", Variables::Track::eProbabilityNN);
-    calc->insert("eProbabilityNNorHT", Variables::Track::eProbabilityNNorHT);
+    calc->insert("pt_log", Variables::Track::pt_log, track_vars);
+    calc->insert("pt_tau_log", Variables::Track::pt_tau_log, track_vars);
+    calc->insert("pt_jetseed_log", Variables::Track::pt_jetseed_log, track_vars);
+    calc->insert("d0_abs_log", Variables::Track::d0_abs_log, track_vars);
+    calc->insert("z0sinThetaTJVA_abs_log", Variables::Track::z0sinThetaTJVA_abs_log, track_vars);
+    calc->insert("z0sinthetaTJVA", Variables::Track::z0sinthetaTJVA, track_vars);
+    calc->insert("z0sinthetaSigTJVA", Variables::Track::z0sinthetaSigTJVA, track_vars);
+    calc->insert("d0TJVA", Variables::Track::d0TJVA, track_vars);
+    calc->insert("d0SigTJVA", Variables::Track::d0SigTJVA, track_vars);
+    calc->insert("dEta", Variables::Track::dEta, track_vars);
+    calc->insert("dPhi", Variables::Track::dPhi, track_vars);
+    calc->insert("nInnermostPixelHits", Variables::Track::nInnermostPixelHits, track_vars);
+    calc->insert("nPixelHits", Variables::Track::nPixelHits, track_vars);
+    calc->insert("nSCTHits", Variables::Track::nSCTHits, track_vars);
+    calc->insert("nIBLHitsAndExp", Variables::Track::nIBLHitsAndExp, track_vars);
+    calc->insert("nPixelHitsPlusDeadSensors", Variables::Track::nPixelHitsPlusDeadSensors, track_vars);
+    calc->insert("nSCTHitsPlusDeadSensors", Variables::Track::nSCTHitsPlusDeadSensors, track_vars);
+    calc->insert("eProbabilityHT", Variables::Track::eProbabilityHT, track_vars);
+    calc->insert("eProbabilityNN", Variables::Track::eProbabilityNN, track_vars);
+    calc->insert("eProbabilityNNorHT", Variables::Track::eProbabilityNNorHT, track_vars);
 
     // Cluster variable calculator functions
-    calc->insert("et_log", Variables::Cluster::et_log);
-    calc->insert("pt_tau_log", Variables::Cluster::pt_tau_log);
-    calc->insert("pt_jetseed_log", Variables::Cluster::pt_jetseed_log);
-    calc->insert("dEta", Variables::Cluster::dEta);
-    calc->insert("dPhi", Variables::Cluster::dPhi);
-    calc->insert("SECOND_R", Variables::Cluster::SECOND_R);
-    calc->insert("SECOND_LAMBDA", Variables::Cluster::SECOND_LAMBDA);
-    calc->insert("CENTER_LAMBDA", Variables::Cluster::CENTER_LAMBDA);
+    calc->insert("et_log", Variables::Cluster::et_log, cluster_vars);
+    calc->insert("pt_tau_log", Variables::Cluster::pt_tau_log, cluster_vars);
+    calc->insert("pt_jetseed_log", Variables::Cluster::pt_jetseed_log, cluster_vars);
+    calc->insert("dEta", Variables::Cluster::dEta, cluster_vars);
+    calc->insert("dPhi", Variables::Cluster::dPhi, cluster_vars);
+    calc->insert("SECOND_R", Variables::Cluster::SECOND_R, cluster_vars);
+    calc->insert("SECOND_LAMBDA", Variables::Cluster::SECOND_LAMBDA, cluster_vars);
+    calc->insert("CENTER_LAMBDA", Variables::Cluster::CENTER_LAMBDA, cluster_vars);
     //---added for the eVeto
-    calc->insert("SECOND_LAMBDAOverClustersMeanSecondLambda", Variables::Cluster::SECOND_LAMBDAOverClustersMeanSecondLambda);
-    calc->insert("CENTER_LAMBDAOverClustersMeanCenterLambda", Variables::Cluster::CENTER_LAMBDAOverClustersMeanCenterLambda);
-    calc->insert("FirstEngDensOverClustersMeanFirstEngDens" , Variables::Cluster::FirstEngDensOverClustersMeanFirstEngDens);
+    calc->insert("SECOND_LAMBDAOverClustersMeanSecondLambda", Variables::Cluster::SECOND_LAMBDAOverClustersMeanSecondLambda, cluster_vars);
+    calc->insert("CENTER_LAMBDAOverClustersMeanCenterLambda", Variables::Cluster::CENTER_LAMBDAOverClustersMeanCenterLambda, cluster_vars);
+    calc->insert("FirstEngDensOverClustersMeanFirstEngDens" , Variables::Cluster::FirstEngDensOverClustersMeanFirstEngDens, cluster_vars);
 
     return calc;
 }
@@ -297,36 +308,23 @@ bool leadTrackDeltaPhi(const xAOD::TauJet &tau, double &out){
 }
 
 bool leadTrackProbNNorHT(const xAOD::TauJet &tau, double &out){
-  // Track variables
-  auto tracks       = tau.allTracks();
+  auto tracks = tau.allTracks();
 
   // Sort tracks in descending pt order
-  auto cmp_pt = [](const xAOD::TauTrack *lhs, const xAOD::TauTrack *rhs) {
-    return lhs->pt() > rhs->pt();
-  };
-  std::sort(tracks.begin(), tracks.end(), cmp_pt);
+  if (!tracks.empty()) {
+    auto cmp_pt = [](const xAOD::TauTrack *lhs, const xAOD::TauTrack *rhs) {
+      return lhs->pt() > rhs->pt();
+    };
+    std::sort(tracks.begin(), tracks.end(), cmp_pt);
 
-  // Filter tracks
-  std::vector<const xAOD::TauTrack *> tracks_filtered;
-  for (auto tautrack : tracks) {
-    // skip tau tracks with invalid link to ID track
-    static const SG::AuxElement::ConstAccessor< xAOD::TauTrack::TrackParticleLinks_t > trackAcc( "trackLinks" );
-    if (!(trackAcc(*tautrack)[0])) {
-      //ATH_MSG_WARNING("Skipping track with invalid element link");
-      continue;
-    }
-    tracks_filtered.push_back(tautrack);
-  }
-
-  const xAOD::TauTrack*      tauLeadTrack(0);
-  if (tracks_filtered.size()>0){
-    tauLeadTrack = tracks_filtered.at(0);
-    float eProbabilityHT = tauLeadTrack->track()->summaryValue(eProbabilityHT, xAOD::eProbabilityHT);
-    static const SG::AuxElement::ConstAccessor<float> acc_eProbabilityNN("eProbabilityNN");
+    const xAOD::TauTrack* tauLeadTrack = tracks.at(0);
     const xAOD::TrackParticle* xTrackParticle = tauLeadTrack->track();
+    float eProbabilityHT = xTrackParticle->summaryValue(eProbabilityHT, xAOD::eProbabilityHT);
+    static const SG::AuxElement::ConstAccessor<float> acc_eProbabilityNN("eProbabilityNN");
     float eProbabilityNN = acc_eProbabilityNN(*xTrackParticle);
     out = (tauLeadTrack->pt()>2000.) ? eProbabilityNN : eProbabilityHT;
-  }else {
+  }
+  else {
     out = 0.;
   }
   return true;

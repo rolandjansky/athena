@@ -45,13 +45,12 @@ bool CompoundCondition::isSatisfied(const HypoJetVector& ips,
     ss0 << "CompoundCondition: (" << address << ") " 
         << " pass: "  << std::boolalpha << pass << '\n';
 
+    std::stringstream ss1;
     for(const auto& ip : ips){
       auto j_addr = static_cast<const void*>(ip.get());
-      std::stringstream ss1;
       ss1 <<  "     jet : ("<< j_addr << ")\n";
-    
-      collector->collect(ss0.str(), ss1.str());
     }
+    collector->collect(ss0.str(), ss1.str());
   }
   return pass;
 }

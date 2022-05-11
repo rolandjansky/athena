@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthExThinning )
@@ -52,6 +52,5 @@ atlas_add_test( test_thinning
 atlas_add_test( test_pythinning
                 SCRIPT test/test_pythinning.sh
                 PROPERTIES TIMEOUT 900
-                LOG_IGNORE_PATTERN ":::running" )
-set_tests_properties( AthExThinning_test_pythinning_ctest
-                      PROPERTIES DEPENDS AthExThinning_test_thinning_ctest )
+                LOG_IGNORE_PATTERN ":::running"
+                DEPENDS test_thinning )

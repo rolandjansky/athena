@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FastCaloSim/BasicCellBuilderTool.h"
@@ -20,7 +20,7 @@ BasicCellBuilderTool::BasicCellBuilderTool(
                                            const std::string& name,
                                            const IInterface* parent)
   :base_class(type, name, parent),
-   m_caloCID(0)
+   m_caloCID(nullptr)
 {
   declareProperty("phi0_em",m_phi0_em);
   declareProperty("phi0_had",m_phi0_had);
@@ -354,8 +354,8 @@ void BasicCellBuilderTool::init_all_maps(const CaloDetDescrManager* caloDDM)
 
         }
 
-        curmap=0;
-        curmap2=0;
+        curmap=nullptr;
+        curmap2=nullptr;
         if(calo==CaloCell_ID::LAREM)   {
           curmap=&m_em_map;
           if(fabs(theDDE->eta())<2.9 && m_em_fine_map.neta()>0) curmap2=&m_em_fine_map;
@@ -388,7 +388,7 @@ void BasicCellBuilderTool::init_all_maps(const CaloDetDescrManager* caloDDM)
     }
   }
   for(int side=0;side<=1;++side) for(int sample=CaloCell_ID_FCS::FirstSample;sample<CaloCell_ID_FCS::MaxSample;++sample) {
-      if(rz_map_n[side][sample].size()>0) {
+      if(!rz_map_n[side][sample].empty()) {
         for(FSmap< double , int    >::iterator iter=rz_map_n[side][sample].begin();iter!=rz_map_n[side][sample].end();++iter) {
           double eta_raw=iter->first;
           if(iter->second<1) {
@@ -895,7 +895,7 @@ void BasicCellBuilderTool::addCell(CaloCellContainer * theCellContainer, int eta
 
   for(cellinfo_vec::vec::iterator iter=iterbeg;iter<iterend;++iter) {
     const CaloDetDescrElement* theDDE=(iter->first);
-    if (theDDE!=0)
+    if (theDDE!=nullptr)
       {
         CaloCell* theCaloCell;
 

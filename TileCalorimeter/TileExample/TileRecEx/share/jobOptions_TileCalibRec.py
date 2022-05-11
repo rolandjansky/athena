@@ -210,8 +210,10 @@ else:
                 Year = 2019
             elif RunNumber < 387000:
                 Year = 2020
-            else:
+            elif RunNumber < 408800:
                 Year = 2021
+            else:
+                Year = 2022
 
 
             if 'RunStream' in dir():
@@ -369,7 +371,7 @@ if not 'TileL1CaloRun' in dir():
 TileLasPulse = TileLasRun
 TileCisPulse = (TileCisRun or TileMonoRun or TileRampRun or TileL1CaloRun)
 
-if not (TilePhysRun or TileL1CaloRun) and EvtMinNotSet in dir():
+if not (TilePhysRun or TileL1CaloRun) and 'EvtMinNotSet' in dir():
     EvtMin = 1
 
 if not 'TilePhysTiming' in dir():
@@ -612,6 +614,9 @@ if not 'doTileTMDBDigitsMon' in dir():
 if not 'doTileTMDBRawChannelMon' in dir():
     doTileTMDBRawChannelMon = useTMDB and doTileTMDBRawChannel
 
+if not 'doTileTMDBMon' in dir():
+    doTileTMDBMon = useTMDB
+
 # check if we need to create TileCells
 if not 'doCaloCell' in dir():
     if (doD3PD or doCaloNtuple or doCreatePool or doEventDisplay or doAtlantis or (doTileMon and (TilePhysRun or doTileCellNoiseMon))):
@@ -694,9 +699,13 @@ projectName = FileNameVec[0].split('/').pop().split('.')[0]
 rec.projectName = projectName
 rec.RunNumber = int(RunNumber)
 
+if not 'RUN3' in dir():
+    RUN3 = False
 if not 'RUN2' in dir(): 
     RUN2 = False
 if globalflags.DataSource() == 'data':
+    if RunNumber >= 411938:
+        RUN3 = True
     if Year > 2014 or RunNumber > 232000 or projectName.startswith("data15_") or RUN2:
         RUN2 = True
     else: 
@@ -723,7 +732,9 @@ if ReadPool:
     svcMgr.EventSelector.InputCollections = FileNameVec
     # Set Geometry version
     if not 'DetDescrVersion' in dir():
-        if RUN2:
+        if RUN3:
+            DetDescrVersion = 'ATLAS-R3S-2021-02-00-00'
+        elif RUN2:
             DetDescrVersion = 'ATLAS-R2-2016-01-00-01'
         else:
             DetDescrVersion = 'ATLAS-R1-2012-02-00-00'
@@ -732,18 +743,23 @@ else:
     svcMgr.EventSelector.Input = FileNameVec
     # Set Global tag for IOVDbSvc
     if not 'CondDbTag' in dir():
-        if RUN2:
-            if 'UPD4' in dir() and UPD4: CondDbTag = 'CONDBR2-BLKPA-2018-16'
+        if RUN3:
+            if 'UPD4' in dir() and UPD4: CondDbTag = 'CONDBR2-BLKPA-RUN2-09'
+            else:                        CondDbTag = 'CONDBR2-ES1PA-2022-01'
+        elif RUN2:
+            if 'UPD4' in dir() and UPD4: CondDbTag = 'CONDBR2-BLKPA-2018-13'
             else:                        CondDbTag = 'CONDBR2-ES1PA-2018-05'
         else:
             if 'UPD4' in dir() and UPD4 and RunNumber > 141066: CondDbTag = 'COMCOND-BLKPA-RUN1-06'
             else:                                               CondDbTag = 'COMCOND-ES1PA-006-05'
 
-    jobproperties.Global.ConditionsTag = CondDbTag        
+    jobproperties.Global.ConditionsTag = CondDbTag
     conddb.setGlobalTag(CondDbTag)
     # Set Geometry version
     if not 'DetDescrVersion' in dir():
-        if RUN2:
+        if RUN3:
+            DetDescrVersion = 'ATLAS-R3S-2021-02-00-00'
+        elif RUN2:
             DetDescrVersion = 'ATLAS-R2-2016-01-00-01'
         else:
             DetDescrVersion = 'ATLAS-R1-2012-02-00-00'
@@ -859,6 +875,14 @@ tileDigitsContainer = ''
 if not ReadPool:
     include( "ByteStreamCnvSvcBase/BSAddProvSvc_RDO_jobOptions.py" )
     include( "TileRec/TileRec_jobOptions.py" )
+
+    tileRawChannelBuilderFitFilter = theTileRawChannelGetter.TileRawChannelBuilderFitFilter()
+    tileRawChannelBuilderFitFilterCool = theTileRawChannelGetter.TileRawChannelBuilderFitFilterCool()
+    tileRawChannelBuilderMF = theTileRawChannelGetter.TileRawChannelBuilderMF()
+    tileRawChannelBuilderOF1 = theTileRawChannelGetter.TileRawChannelBuilderOF1()
+    tileRawChannelBuilderOpt2Filter = theTileRawChannelGetter.TileRawChannelBuilderOpt2Filter()
+    tileRawChannelBuilderOptATLAS = theTileRawChannelGetter.TileRawChannelBuilderOptATLAS()
+    tileRawChannelBuilderWienerFilter = theTileRawChannelGetter.TileRawChannelBuilderWienerFilter()
 
     from TileByteStream.TileByteStreamConf import TileROD_Decoder
     ToolSvc += TileROD_Decoder()
@@ -1115,7 +1139,7 @@ if doD3PD:
                 alg += CaloInfoD3PDObject (**_args(0, 'CaloInfo',kw, sgkey='AllCaloNewReco', prefix='calo_'))
                 alg += MBTSD3PDObject (**_args(1, 'MBTS', kw, prefix='mbts_', sgkey='MBTSContainerNewReco'))
 
-#                if RUN2:
+#                if RUN2 and not RUN3:
 #                    alg += MBTSD3PDObject (**_args(1, 'MBTS', kw, prefix = 'e4pr_', sgkey = 'E4prContainerNewReco'))
 
             else:
@@ -1128,7 +1152,7 @@ if doD3PD:
                     alg += MBTSD3PDObject (**_args(1, 'MBTS', kw, prefix = 'mbts_', sgkey = 'MBTSContainerHG'))
                     alg += MBTSD3PDObject (**_args(1, 'MBTS', kw, prefix = 'mbtsLG_', sgkey = 'MBTSContainerLG'))
 
-                    if RUN2:
+                    if RUN2 and not RUN3:
                         alg += MBTSD3PDObject (**_args(1, 'MBTS', kw, prefix = 'e4pr_', sgkey = 'E4prContainerHG', MBTS_SaveEtaPhiInfo = False))
                         alg += MBTSD3PDObject (**_args(1, 'MBTS', kw, prefix = 'e4prLG_', sgkey = 'E4prContainerLG', MBTS_SaveEtaPhiInfo = False))
                 else:
@@ -1139,7 +1163,7 @@ if doD3PD:
 
                     alg += MBTSD3PDObject (**_args(1, 'MBTS', kw, prefix = 'mbts_', sgkey = 'MBTSContainer'))
 
-                    if RUN2:
+                    if RUN2 and not RUN3:
                         alg += MBTSD3PDObject (**_args(1, 'MBTS', kw, prefix = 'e4pr_', sgkey = 'E4prContainer', MBTS_SaveEtaPhiInfo = False))
 
         if doCaloTopoCluster:
@@ -1180,6 +1204,9 @@ if doTileNtuple:
     # create TileCal standalone ntuple
     include( "TileRec/TileNtuple_jobOptions.py" )
 
+    # CompressionSettings: algorithm * 100 + level
+    TileNtuple.CompressionSettings = 204
+
     if 'ReadAOD' in dir() and ReadAOD:
         TileNtuple.TileDigitsContainerFlt = ""
 
@@ -1219,7 +1246,13 @@ if doTileNtuple:
         TileNtuple.TileDigitsContainer = "" # do not save various error bits
 
     if 'doTileNtupleReduced' in dir() and doTileNtupleReduced:
-        TileNtuple.TileRawChannelContainerDsp = ""
+        if 'ReadAOD' in dir() and ReadAOD:
+            TileNtuple.TileRawChannelContainerDsp = ""
+        elif ('ReadESD' in dir() and ReadESD):
+            TileNtuple.TileRawChannelContainerDsp = "TileRawChannelFlt"
+        else:
+            TileNtuple.TileRawChannelContainerDsp = "TileRawChannelCnt"
+        TileNtuple.Reduced = True
         TileNtuple.TileRawChannelContainer = ""
 
     if ReadPool:
@@ -1233,23 +1266,71 @@ if doTileNtuple:
 
     TileNtuple.CheckDCS = TileUseDCS
 
-    dqStatus.TileBeamElemContainer   = getattr (TileNtuple,
-                                                'TileBeamElemContainer',
-                                                TileNtuple.getDefaultProperty('TileBeamElemContainer'))
-    dqStatus.TileDigitsContainer     = getattr (TileNtuple,
-                                                'TileDigitsContainer',
-                                                TileNtuple.getDefaultProperty('TileDigitsContainer'))
-    dqStatus.TileRawChannelContainer = getattr (TileNtuple,
-                                                'TileRawChannelContainerDsp',
-                                                TileNtuple.getDefaultProperty('TileRawChannelContainerDsp'))
+
+    beamElemContainer   = getattr (TileNtuple,
+                                   'TileBeamElemContainer',
+                                   TileNtuple.getDefaultProperty('TileBeamElemContainer'))
+    if str(beamElemContainer):
+        dqStatus.TileBeamElemContainer = beamElemContainer
+
+    digitsContainer     = getattr (TileNtuple,
+                                   'TileDigitsContainer',
+                                    TileNtuple.getDefaultProperty('TileDigitsContainer'))
+    if str(digitsContainer):
+        dqStatus.TileDigitsContainer = digitsContainer
+
+    rawChannelContainer = getattr (TileNtuple,
+                                   'TileRawChannelContainerDsp',
+                                   TileNtuple.getDefaultProperty('TileRawChannelContainerDsp'))
+    if str(rawChannelContainer):
+        dqStatus.TileRawChannelContainer = rawChannelContainer
 
 if doTileMon:
+
     # Monitoring historgrams
     if not hasattr(svcMgr,"THistSvc"):
         from GaudiSvc.GaudiSvcConf import THistSvc
         svcMgr+=THistSvc()
     datafile = '%(dir)s/tilemon_%(RunNum).f_%(Version)s.root' %  {'dir': OutputDirectory, 'RunNum': RunNumber, 'Version': Version }
     svcMgr.THistSvc.Output += [ "Tile DATAFILE='" + datafile + "' OPT=\'RECREATE\' " ]
+
+    if doTileTMDBMon:
+        from AthenaCommon.Resilience import treatException
+        try:
+            from AthenaCommon.Configurable import Configurable
+            Configurable.configurableRun3Behavior=1
+            from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
+            from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
+            runTypes = {0 : 'PHY', 1 : 'PHY', 2 : 'LAS', 4 : 'PHY', 8 : 'CIS'}
+            runTypeName = runTypes[jobproperties.TileRecFlags.TileRunType()]
+
+            ConfigFlags.Input.Files = FileNameVec
+            ConfigFlags.GeoModel.AtlasVersion = DetDescrVersion
+            ConfigFlags.IOVDb.GlobalTag = CondDbTag
+            ConfigFlags.Output.HISTFileName = datafile
+            ConfigFlags.DQ.useTrigger = False
+            ConfigFlags.DQ.enableLumiAccess = False
+            ConfigFlags.Tile.RunType = runTypeName
+            ConfigFlags.lock()
+
+            from TileMonitoring.TileTMDBMonitorAlgorithm import TileTMDBMonitoringConfig
+            ca=TileTMDBMonitoringConfig(ConfigFlags)
+
+            alg = ca.getEventAlgo('TileTMDBMonAlg')
+            for tool in alg.GMTools:
+                tool.Histograms = [h.replace('OFFLINE','ONLINE') for h in tool.Histograms]
+
+            ca.getSequence('AthMonSeq_TileTMDBMonitoring').name = "TopAlg"
+            for el in ca._allSequences:
+                el.name = "TopAlg"
+                appendCAtoAthena(ca)
+
+        except Exception:
+            treatException("Could not translate TileTMDBMonitoringConfig to old cfg")
+        finally:
+            Configurable.configurableRun3Behavior=0
+        pass
 
     if (TileMonoRun):
         runType = 9
@@ -1287,6 +1368,7 @@ if doTileMon:
         b2d = TilePedRun
         theTileDigitsMon = TileDigitsMonTool ( name            ="TileDigitsMon", 
                                                histoPathBase   = "/Tile/Digits",
+                                               bookAllDrawers  = True,
                                                book2D          = b2d,
                                                runType         = runType,
                                                FragIDsToIgnoreDMUErrors = TileFragIDsToIgnoreDMUErrors,
@@ -1303,12 +1385,11 @@ if doTileMon:
         b2d = TileCisRun or TileRampRun
         theTileRawChannelMon = TileRawChannelMonTool ( name            ="TileRawChannelMon", 
                                                        histoPathBase   = "/Tile/RawChannel",
+                                                       bookAllDrawers  = True,
                                                        book2D          = b2d,
                                                        PlotDSP         = useRODReco,
                                                        FragIDsToIgnoreDMUErrors = TileFragIDsToIgnoreDMUErrors,
                                                        runType         = runType )
-
-        TileMon.AthenaMonTools += [ theTileRawChannelMon ]
 
         theTileRawChannelMon.TileRawChannelContainer = "TileRawChannelCnt"; # default for simulation
 
@@ -1339,8 +1420,9 @@ if doTileMon:
         if TileLasRun:
             theTileRawChannelMon.overlaphists = True
 
-        #theTileRawChannelMon.MinAmpForCorrectedTime = 0.1
+        theTileRawChannelMon.MinAmpForCorrectedTime = 0.1
 
+        TileMon.AthenaMonTools += [ theTileRawChannelMon ]
         printfunc (theTileRawChannelMon)
 
     if doTileMonDQ:
@@ -1758,8 +1840,11 @@ if not ReadPool:
     if OutputLevel < 2:
         #svcMgr.ByteStreamInputSvc.DumpFlag = True
         ToolSvc.TileROD_Decoder.VerboseOutput = True
+    if OutputLevel > 3:
+        ToolSvc.TileROD_Decoder.OutputLevel = 3
 
-printfunc (topSequence)
+if OutputLevel < 2:
+    printfunc (topSequence)
 
 svcMgr.MessageSvc.OutputLevel = OutputLevel
 svcMgr.EventSelector.SkipEvents = EvtMin

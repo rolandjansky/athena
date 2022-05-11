@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name.
 atlas_subdir( TrkVKalVrtFitter )
@@ -31,4 +31,4 @@ atlas_install_joboptions( share/*.py )
 atlas_add_test( TrkVKalVrtFitter_test
    SCRIPT athena.py TrkVKalVrtFitter/TrkVKalVrtFitter_test.py
    PROPERTIES TIMEOUT 300
-   LOG_IGNORE_PATTERN " INFO |WARNING |found service|Adding private|^ +[+]|HepPDT Version|frontier.c" )
+   LOG_IGNORE_PATTERN " INFO |WARNING |^\\|-|found service|Adding private|^ +[+]|HepPDT Version|frontier.c" )

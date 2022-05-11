@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
 
 
@@ -21,10 +21,6 @@ StatusCode Trk::TrackingGeometryCondAlg::initialize()
 
   // Write Handle
   ATH_CHECK(m_trackingGeometryWriteKey.initialize());
-  // CondSvc
-  ATH_CHECK(m_condSvc.retrieve());
-  // Register write handle
-  ATH_CHECK(m_condSvc->regHandle(this, m_trackingGeometryWriteKey));
   // Retrieve tools
   ATH_CHECK(m_trackingGeometryBuilder.retrieve());
   if (m_geometryProcessors.retrieve().isFailure()){
@@ -64,7 +60,8 @@ StatusCode Trk::TrackingGeometryCondAlg::execute(){
                       << (*gpIter));
     }
   }
+  if (m_dumpGeo) trackingGeometry->dump(msgStream(), "TrackingGeometryCondAlg");
   ATH_CHECK(writeHandle.record(trackingGeometryPair.first, trackingGeometry));
-
+  
   return StatusCode::SUCCESS;
 }

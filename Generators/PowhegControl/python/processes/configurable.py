@@ -59,11 +59,11 @@ class Configurable(object):
 
         @param keyword  Powheg keyword that gets written to the runcard.
         """
-        return filter(lambda p: p.keyword == keyword, self.parameters)
+        return [p for p in self.parameters if p.keyword == keyword]
 
     def parameters_by_name(self, name):
         """! Retrieve all parameters that use a given name.
 
         @param name        Configurable parameter name exposed to the user.
         """
-        return filter(lambda p: p.name == name, self.parameters)
+        return [p for p in self.parameters if p.name == name]

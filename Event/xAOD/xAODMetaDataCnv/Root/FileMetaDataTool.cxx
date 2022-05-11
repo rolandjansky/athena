@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s):
@@ -19,7 +19,7 @@ namespace xAODMaker {
 FileMetaDataTool::FileMetaDataTool(const std::string& name)
     : asg::AsgMetadataTool(name) {
        declareProperty( "Keys", m_keys = {},
-             "List of keys to propogate from input to output - all if empty "
+             "(optional) List of keys to copy. Copy all keys if empty "
              "(default: empty)");
 #ifndef XAOD_STANDALONE
       declareInterface< ::IMetaDataTool >(this);
@@ -42,15 +42,34 @@ StatusCode
       std::lock_guard lock(m_toolMutex);
 
       // get the keys for all metadata in input
-      if (m_keys.empty()) {
-         inputMetaStore()->keys<xAOD::FileMetaData>(m_keys);
+      std::vector<std::string> keys = m_keys;
+      if (keys.empty()) {
+         inputMetaStore()->keys<xAOD::FileMetaData>(keys);
+      } else {
+        // remove keys not in the InputMetaDataStore
+        keys.erase(
+            std::remove_if(
+                keys.begin(), keys.end(),
+                [this](std::string& key) {
+                  return !inputMetaStore()->contains<xAOD::FileMetaData>(key);
+                }),
+            keys.end());
       }
+
+      // If the input file doesn't have any event format metadata,
+      // then finish right away:
+      if (keys.empty()) return StatusCode::SUCCESS;
 
       // Now copy all object to MetaDataStore
-      for(const std::string& key : m_keys) {
+      for(const std::string& key : keys) {
+#ifdef XAOD_STANDALONE
          ASG_CHECK(copy(key));
+#else
+         for(const std::string& stream_key : m_metaDataSvc->getPerStreamKeysFor(key) ) {
+            ASG_CHECK( copy(stream_key) );
+         }
+#endif  // XAOD_STANDALONE
       }
-
       return StatusCode::SUCCESS;
     }
 

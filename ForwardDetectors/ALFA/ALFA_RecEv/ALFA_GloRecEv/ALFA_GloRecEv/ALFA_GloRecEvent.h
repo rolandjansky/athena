@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ALFA_GloRecEvent_h
@@ -51,16 +51,16 @@ class ALFA_GloRecEvent {
                     float y,
                     float x_slope,
                     float y_slope,
-                    ALFA_LocRecCorrEvent * near_hit,
-                    ALFA_LocRecCorrEvent * far_hit);
+                    const ALFA_LocRecCorrEvent * near_hit,
+                    const ALFA_LocRecCorrEvent * far_hit);
 
   inline int   getArmNum()    const { return m_arm;}
   inline float getXposition() const { return m_x;}
   inline float getYposition() const { return m_y;}
   inline float getXslope() const {return m_x_slope;}
   inline float getYslope() const {return m_y_slope;}
-  inline ALFA_LocRecCorrEvent * getNearLocRecCorr() const {return m_near_LocRecCorr;}
-  inline ALFA_LocRecCorrEvent * getFarLocRecCorr() const {return m_far_LocRecCorr;}
+  inline const ALFA_LocRecCorrEvent * getNearLocRecCorr() const {return m_near_LocRecCorr;}
+  inline const ALFA_LocRecCorrEvent * getFarLocRecCorr() const {return m_far_LocRecCorr;}
   
  private: 
   int   m_arm;
@@ -68,8 +68,8 @@ class ALFA_GloRecEvent {
   float m_y;
   float m_x_slope;
   float m_y_slope;
-  ALFA_LocRecCorrEvent * m_near_LocRecCorr;
-  ALFA_LocRecCorrEvent * m_far_LocRecCorr;
+  const ALFA_LocRecCorrEvent * m_near_LocRecCorr;
+  const ALFA_LocRecCorrEvent * m_far_LocRecCorr;
 
 };
 

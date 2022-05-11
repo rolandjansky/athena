@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -14,8 +14,6 @@
 #include "StoreGateExample_ClassDEF.h" /*the CLIDs for the containers*/
 
 #include "GaudiKernel/ISvcLocator.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "AthContainers/DataVector.h"
 
 #include "StoreGate/SGIterator.h"
@@ -51,6 +49,8 @@ StatusCode ReadData::initialize(){
 
   ATH_CHECK( m_dobj3.assign (m_DataProducer) );
   ATH_CHECK( m_dobj3.initialize() );
+  
+  ATH_CHECK( m_eventInfo.initialize() );
   return sc;
 }
 
@@ -167,9 +167,9 @@ StatusCode ReadData::execute() {
   } else {
     ATH_MSG_INFO ("Retrieved DataVector of MyContObj using a const pointer");
   }
-  for (it=list->begin(); it!=list->end(); it++) {
-    float time = (*it)->time();
-    int ID     = (*it)->id();
+  for (const MyContObj* obj : *list) {
+    float time = obj->time();
+    int ID     = obj->id();
     
     ATH_MSG_INFO ("Time: " << time << "  ID: " << ID);
   }
@@ -295,13 +295,10 @@ StatusCode ReadData::execute() {
   /////////////////////////////////////////////////////////////////////
   // Part 4: Get the event header, print out event and run number
 
-  int event, run;
-  
-  const EventInfo* evt;
-  if (StatusCode::SUCCESS == evtStore()->retrieve(evt))
-  {
-    event = evt->event_ID()->event_number();
-    run = evt->event_ID()->run_number();
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfo);
+  if(eventInfo.isValid()) {
+    int event = eventInfo->eventNumber();
+    int run = eventInfo->runNumber();
     ATH_MSG_INFO (" EventInfo : " 
 		  << " event: " << event 
 		  << " run: " << run);

@@ -2,6 +2,7 @@
 #
 # art-description: Run digitization of an MC20 ttbar sample with 2018 geometry and conditions, without pile-up using AthenaMT
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-athena-mt: 8
 # art-include: 22.0-mc20/Athena
 # art-include: master/Athena

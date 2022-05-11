@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MMHITSTRUTHRELINK_H
@@ -20,8 +20,8 @@ public:
   virtual StatusCode execute(const EventContext &ctx) const override;
 
 private:
-  SG::ReadHandleKey<MMSimHitCollection> m_inputHitsKey {this, "InputHits", "MicromegasSensitiveDetectorOLD", "Input MM hits name"};
-  SG::WriteHandleKey<MMSimHitCollection> m_outputHitsKey {this, "OutputHits", "MicromegasSensitiveDetector", "Output MM hits name"};
+  SG::ReadHandleKey<MMSimHitCollection> m_inputHitsKey {this, "InputHits", "MM_HitsOLD", "Input MM hits name"};
+  SG::WriteHandleKey<MMSimHitCollection> m_outputHitsKey {this, "OutputHits", "MM_Hits", "Output MM hits name"};
 };
 
 #endif

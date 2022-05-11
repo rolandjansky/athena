@@ -1,7 +1,7 @@
 // -*- C++ -*-
 #ifndef TRIGT1CALOCALIBCONDITIONS_L1CALORUNPARAMETERSCONTAINER_H
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #define TRIGT1CALOCALIBCONDITIONS_L1CALORUNPARAMETERSCONTAINER_H
 
@@ -12,6 +12,7 @@
 #include "GaudiKernel/DataObject.h"
 #include "TrigT1CaloCalibConditions/AbstractL1CaloPersistentCondition.h"
 #include "TrigT1CaloCalibConditions/L1CaloCoolChannelId.h"
+#include "TrigT1CaloCalibConditions/L1CaloRunParameters.h"
 
 class CondAttrListCollection;
 class L1CaloRunParameters;
@@ -32,7 +33,7 @@ public:
 
   // interface of AbstractL1CaloPersistentCondition
   using AbstractL1CaloPersistentCondition::makeTransient;
-  virtual void makeTransient(const std::map<std::string, CondAttrListCollection*>&);
+  virtual void makeTransient(const std::map<std::string, const CondAttrListCollection*>&);
   virtual DataObject* makePersistent() const;
   virtual std::vector<std::string> coolInputKeys() const { return {m_coolFolderKey}; }
   virtual std::string coolOutputKey() const { return m_coolFolderKey; }
@@ -58,6 +59,6 @@ private:
   std::string m_coolFolderKey = "/TRIGGER/L1Calo/V1/Conditions/RunParameters";
 };
 
-CLASS_DEF( L1CaloRunParametersContainer, 1236303918, 1 )
-
+#include "AthenaKernel/CondCont.h"
+CONDCONT_DEF( L1CaloRunParametersContainer,  1258804674);
 #endif // TRIGT1CALOCALIBCONDITIONS_L1CALORUNPARAMETERSCONTAINER_H

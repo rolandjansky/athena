@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "METUtilities/METSystematicsTool.h"
@@ -39,7 +39,6 @@ namespace met {
   m_jet_systRpt_pt_eta(nullptr),
   m_h_calosyst_scale(nullptr),
   m_h_calosyst_reso (nullptr),
-  m_rand(0),
   m_units(-1),
   m_VertexContKey(""),
   m_TruthContKey(""),
@@ -118,7 +117,8 @@ namespace met {
     ATH_CHECK( m_EventInfoKey.initialize() );
 
 
-    const char lastchar = m_configPrefix.back();
+    const auto lastchar = m_configPrefix.back();
+    //cppcheck-suppress invalidFunctionArgStr
     if(std::strncmp(&lastchar,"/",1)!=0) {
       m_configPrefix.append("/");
     }
@@ -440,7 +440,7 @@ namespace met {
       int    const mubin                                     = m_shiftpara_pthard_njet_mu->GetZaxis()->FindBin(eInfo.actualInteractionsPerCrossing() );
       double const ptHardShift                               = m_shiftpara_pthard_njet_mu->GetBinContent(phbin,jetbin,mubin);
 
-      double const randGaus = m_rand.Gaus(0.,1.);
+      double const randGaus = getTLSRandomGen()->Gaus(0.,1.);
 
       ATH_MSG_DEBUG("About to apply systematic " << appliedSystematicsString() );
 
@@ -670,7 +670,7 @@ namespace met {
 					   softTerms.mpy * softTerms.mpy );
 
 
-    double const rand  = gRandom->Gaus(0.,1.);
+    double const rand  = getTLSRandomGen()->Gaus(0.,1.);
     double const shift = softTermsMet<1e-9 ? 0. : rand*smearedSigma / softTermsMet;
 
     ATH_MSG_VERBOSE("caloSyst_reso: shift = " << shift);
@@ -909,9 +909,18 @@ namespace met {
     return NPV;
   }
 
+  TRandom3* METSystematicsTool::getTLSRandomGen() const {
+    TRandom3* random = m_rand_tls.get();
+    if (!random) {
+      random = new TRandom3();
+      m_rand_tls.reset(random);
+    }
+    return random;
+  }
+
   void METSystematicsTool::setRandomSeed(int seed) const {
     ATH_MSG_VERBOSE(__PRETTY_FUNCTION__);
-    m_rand.SetSeed(seed);
+    getTLSRandomGen()->SetSeed(seed);
   }
 }
 

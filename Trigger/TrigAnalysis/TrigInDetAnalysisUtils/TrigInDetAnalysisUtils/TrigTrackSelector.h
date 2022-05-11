@@ -5,7 +5,7 @@
  **     @author  mark sutton
  **     @date    Fri 11 Jan 2019 07:06:39 CET 
  **
- **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  **/
 
 
@@ -72,15 +72,21 @@ public:
   /// For the IBL it should be 32 mm, but this was kept as 47 mm for consistency 
   /// of the definition. this should be changed to 32 mm for Run 3
 
-  TrigTrackSelector( TrackFilter* selector, double radius=47, int selectPdgId=0, int selectParentPdgId=0 );
+  TrigTrackSelector( TrackFilter* selector ) : TrigTrackSelector( selector, default_radius(), 0, 0 ) { } 
+
+  TrigTrackSelector( TrackFilter* selector, double radius ) : TrigTrackSelector( selector, radius, 0, 0 ) { } 
+
+  TrigTrackSelector( TrackFilter* selector, int selectPdgId, int selectParentPdgId ) : TrigTrackSelector( selector, default_radius(), selectPdgId, selectParentPdgId ) { } 
+
+  TrigTrackSelector( TrackFilter* selector, double radius, int selectPdgId, int selectParentPdgId );
 
   template<typename T>
-  TrigTrackSelector( T& tm,  TrackFilter* selector, double radius=47, int selectPdgId=0, int selectParentPdgId=0 ) : 
+  TrigTrackSelector( T& tm,  TrackFilter* selector, double radius=default_radius(), int selectPdgId=0, int selectParentPdgId=0 ) : 
     TrigTrackSelector( tm.begin(), tm.end(), selector, radius, selectPdgId, selectParentPdgId ) { 
   }
 
   template<typename T>
-  TrigTrackSelector( T tbegin, T tend,  TrackFilter* selector, double radius=47, int selectPdgId=0, int selectParentPdgId=0 ) : 
+  TrigTrackSelector( T tbegin, T tend,  TrackFilter* selector, double radius=default_radius(), int selectPdgId=0, int selectParentPdgId=0 ) : 
     TrigTrackSelector( selector, radius, selectPdgId, selectParentPdgId ) { 
     selectTracks( tbegin, tend );
   }
@@ -88,6 +94,7 @@ public:
 
   ~TrigTrackSelector() { clear(); }
 
+  virtual TrackSelector* clone() override { return new TrigTrackSelector(*this); }
 
   void setBeamline( double x, double y, double z=0) { m_xBeam = x; m_yBeam = y; m_zBeam=z; }
 
@@ -97,7 +104,7 @@ public:
 
   void correctTracks(bool b=true) { m_correctTrkTracks = b; } 
 
-  virtual void clear() { for ( size_t i=m_tracks.size() ; i-- ; ) delete m_tracks[i]; m_tracks.clear(); }   
+  virtual void clear() override { for ( size_t i=m_tracks.size() ; i-- ; ) delete m_tracks[i]; m_tracks.clear(); }   
 
 
   bool selectTrack( const TrigInDetTrack* track, const TrigInDetTrackTruthMap* truthMap=0 );
@@ -170,8 +177,20 @@ public:
 			  double  theta, double  phi );
 
   
-  //private:
-  const xAOD::TruthParticle* fromParent( const int pdg_id,  const xAOD::TruthParticle *p) const;
+protected:
+
+  /// recursive functions to identify whether a particle comes from some 
+  /// particle of a specific PDG ID, or some numb er of specified PDG IDs.
+  /// finds an appropriate ancestor and returns the pointer to it, 
+  /// otherwise it just returns a nullptr 
+
+  const xAOD::TruthParticle* fromAncestor( const int pdg_id,  const xAOD::TruthParticle *p) const;
+
+  const xAOD::TruthParticle* fromAncestor( const std::vector<int>& ids,  const xAOD::TruthParticle *p) const;
+
+public:
+
+  static double default_radius() { return s_default_radius; }
 
 private:
 
@@ -187,6 +206,8 @@ private:
 
   int m_selectPdgId;
   int m_selectParentPdgId;
+
+  static const double s_default_radius;
 
 };
 

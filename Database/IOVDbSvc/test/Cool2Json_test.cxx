@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 // @file Cool2Json_test.cxx
 // Cool2Json test executable, in Boost test framework
@@ -104,7 +104,6 @@ struct IOVDbParserFixture{
 
 BOOST_FIXTURE_TEST_SUITE(Cool2JsonTestSetup , GaudiKernelFixture)
   BOOST_AUTO_TEST_CASE( SanityCheck ){
-    BOOST_TEST(gaudiIsInitialised);
     BOOST_TEST(svcLoc!=nullptr);
   }
   //pre-requisites

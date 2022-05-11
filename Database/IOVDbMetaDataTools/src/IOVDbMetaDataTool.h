@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IOVDBMETADATATOOLS_IOVDBMETADATATOOL_H
@@ -109,13 +109,6 @@ private:
     /// internal attributes
     StatusCode  modifyPayload (const std::string& folderName, 
                                CondAttrListCollection*& payload) const;
-
-    /// Add input objects to MetaCont
-    StatusCode fillMetaCont(const std::string& sid
-			    , const IOVMetaDataContainer* iovCont);
-
-    /// Dump the contents of MetaCont<IOVMetaDataContainer> objects in MetaDataStore
-    StatusCode dumpMetaConts();
 
     /// Handles to the meta data stores
     typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;

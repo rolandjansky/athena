@@ -180,17 +180,31 @@ Found 3 proxies for ClassID 8000 (MyDataObj):
 Found 1 proxy for ClassID 9967 (DataVector<MyContObj>): 
  flags: (  valid,   locked,  reset) --- data: 0x17cfb650 --- key: 
 Found 1 proxy for ClassID 9983 (std::vector< ElementLink<MapStringFloat> >): 
- flags: (  valid,   locked,  reset) --- data: 0x17e883c0 --- key: 
+ flags: (  valid,   locked,  reset) --- data: 0x17e88140 --- key: 
 Found 1 proxy for ClassID 9984 (std::list< ElementLink< std::vector<float> > >): 
- flags: (  valid,   locked,  reset) --- data: 0x17e63810 --- key: WriteData
+ flags: (  valid,   locked,  reset) --- data: 0x17e88190 --- key: WriteData
 Found 1 proxy for ClassID 33347479 (SG::AuxVectorBase): 
  flags: (  valid,   locked,  reset) --- data: 0x17cfb650 --- key: 
+Found 1 proxy for ClassID 38853911 (xAOD::EventAuxInfo):
+ flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: EventInfoAux.
+Found 1 proxy for ClassID 45903698 (xAOD::EventInfo):
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventInfo
 Found 1 proxy for ClassID 55596997 (EventContext): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x17e88190 --- key: EventContext
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x17e63ea0 --- key: EventContext
+Found 1 proxy for ClassID 55879233 (SG::IAuxStoreIO):
+ flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: EventInfoAux.
+Found 1 proxy for ClassID 178378299 (SG::IAuxStore):
+ flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: EventInfoAux.
+Found 1 proxy for ClassID 187169987 (SG::IConstAuxStore):
+ flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: EventInfoAux.
 Found 1 proxy for ClassID 193758082 (std::map<std::string,float>): 
- flags: (  valid,   locked,  reset) --- data: 0x17e88320 --- key: 
+ flags: (  valid,   locked,  reset) --- data: 0x17e639f0 --- key: 
 Found 1 proxy for ClassID 202242136 (std::vector<float>): 
  flags: (  valid,   locked,  reset) --- data: 0x17e639a0 --- key: 
+Found 1 proxy for ClassID 225182422 (SG::AuxElement):
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventInfo
+Found 1 proxy for ClassID 226113180 (xAOD::AuxInfoBase):
+ flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: EventInfoAux.
 <<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
 [m
 ReadData             INFO in execute()[m
@@ -272,17 +286,31 @@ Found 3 proxies for ClassID 8000 (MyDataObj):
 Found 1 proxy for ClassID 9967 (DataVector<MyContObj>): 
  flags: (  valid,   locked,  reset) --- data: 0x17cfb650 --- key: 
 Found 1 proxy for ClassID 9983 (std::vector< ElementLink<MapStringFloat> >): 
- flags: (  valid,   locked,  reset) --- data: 0x17e639f0 --- key: 
+ flags: (  valid,   locked,  reset) --- data: 0x17e88140 --- key: 
 Found 1 proxy for ClassID 9984 (std::list< ElementLink< std::vector<float> > >): 
- flags: (  valid,   locked,  reset) --- data: 0x17e88140 --- key: WriteData
+ flags: (  valid,   locked,  reset) --- data: 0x17e88190 --- key: WriteData
 Found 1 proxy for ClassID 33347479 (SG::AuxVectorBase): 
  flags: (  valid,   locked,  reset) --- data: 0x17cfb650 --- key: 
+Found 1 proxy for ClassID 38853911 (xAOD::EventAuxInfo):
+ flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: EventInfoAux.
+Found 1 proxy for ClassID 45903698 (xAOD::EventInfo):
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventInfo
 Found 1 proxy for ClassID 55596997 (EventContext): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x17e63810 --- key: EventContext
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x17e63ea0 --- key: EventContext
+Found 1 proxy for ClassID 55879233 (SG::IAuxStoreIO):
+ flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: EventInfoAux.
+Found 1 proxy for ClassID 178378299 (SG::IAuxStore):
+ flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: EventInfoAux.
+Found 1 proxy for ClassID 187169987 (SG::IConstAuxStore):
+ flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: EventInfoAux.
 Found 1 proxy for ClassID 193758082 (std::map<std::string,float>): 
- flags: (  valid,   locked,  reset) --- data: 0x17e88460 --- key: 
+ flags: (  valid,   locked,  reset) --- data: 0x17e639f0 --- key: 
 Found 1 proxy for ClassID 202242136 (std::vector<float>): 
  flags: (  valid,   locked,  reset) --- data: 0x17e639a0 --- key: 
+Found 1 proxy for ClassID 225182422 (SG::AuxElement):
+ flags: (INVALID,   locked,  reset) --- data:          0 --- key: EventInfo
+Found 1 proxy for ClassID 226113180 (xAOD::AuxInfoBase):
+ flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: EventInfoAux.
 <<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
 [m
 ReadData             INFO in execute()[m

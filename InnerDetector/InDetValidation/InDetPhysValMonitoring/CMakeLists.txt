@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( InDetPhysValMonitoring )
@@ -24,7 +24,6 @@ atlas_add_component( InDetPhysValMonitoring
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py share/*.txt )
 atlas_install_runtime( share/*.xml share/*.xsd)
-atlas_install_runtime( test/InDetPhysValMonitoring_TestConfiguration.xml )
 atlas_install_runtime( scripts/*.py )
 
 # build postprocessing program 

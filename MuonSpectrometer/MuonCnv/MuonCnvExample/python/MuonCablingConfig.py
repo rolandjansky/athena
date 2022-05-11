@@ -48,21 +48,26 @@ if DetFlags.readRDOBS.RPC_on() or DetFlags.readRDOPool.RPC_on() or DetFlags.read
     rpcTrigEta="/RPC/TRIGGER/CM_THR_ETA"
     rpcTrigPhi="/RPC/TRIGGER/CM_THR_PHI"
 
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    if ConfigFlags.Trigger.enableL1MuonPhase1 and ConfigFlags.Trigger.doLVL1:
-        # Run3 trigger roads are not avaialble in the global tag yet (OFLCOND-MC16-SDR-RUN3-01)
-        # Relevant folder tags are set for now, until new global tag (RUN3-02) becomes avaialble
-        rpcTrigEta="/RPC/TRIGGER/CM_THR_ETA <tag>RPCTriggerCMThrEta_RUN12_MC16_04</tag> <forceRunNumber>330000</forceRunNumber>"
-        rpcTrigPhi="/RPC/TRIGGER/CM_THR_PHI <tag>RPCTriggerCMThrPhi_RUN12_MC16_04</tag> <forceRunNumber>330000</forceRunNumber>"
-        from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
-        if isMC and MuonGeometryFlags.hasSTGC(): # Run3-geometry
-            rpcCabMap="/RPC/CABLING/MAP_SCHEMA <tag>RPCCablingMapSchema_2015-2018Run3-4</tag> <forceRunNumber>330000</forceRunNumber>"
-            rpcCabMapCorr="/RPC/CABLING/MAP_SCHEMA_CORR <tag>RPCCablingMapSchemaCorr_2015-2018Run3-4</tag> <forceRunNumber>330000</forceRunNumber>"
+    # This block with conditions override is only used in Trigger and Reco, and only needed until mid-May 2022.
+    # See ATR-25059 for discussion. To avoid this ConfigFlags based block being executed in Digitization,
+    # skip this if the DetFlags digitization flag for Muons is set.
+    if not DetFlags.digitize.Muon_on():
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        if ConfigFlags.Trigger.enableL1MuonPhase1 and ConfigFlags.Trigger.doLVL1:
+            # Run3 trigger roads are not avaialble in the global tag yet (OFLCOND-MC16-SDR-RUN3-01)
+            # Relevant folder tags are set for now, until new global tag (RUN3-02) becomes avaialble
+            rpcTrigEta="/RPC/TRIGGER/CM_THR_ETA <tag>RPCTriggerCMThrEta_RUN12_MC16_04</tag> <forceRunNumber>330000</forceRunNumber>"
+            rpcTrigPhi="/RPC/TRIGGER/CM_THR_PHI <tag>RPCTriggerCMThrPhi_RUN12_MC16_04</tag> <forceRunNumber>330000</forceRunNumber>"
+            from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+            if isMC and MuonGeometryFlags.hasSTGC(): # Run3-geometry
+                rpcCabMap="/RPC/CABLING/MAP_SCHEMA <tag>RPCCablingMapSchema_2015-2018Run3-4</tag> <forceRunNumber>330000</forceRunNumber>"
+                rpcCabMapCorr="/RPC/CABLING/MAP_SCHEMA_CORR <tag>RPCCablingMapSchemaCorr_2015-2018Run3-4</tag> <forceRunNumber>330000</forceRunNumber>"
 
     from IOVDbSvc.CondDB import conddb
     conddb.addFolder(rpcDbName,rpcCabMap,className='CondAttrListCollection')
     conddb.addFolder(rpcDbName,rpcCabMapCorr,className='CondAttrListCollection')
-    if not isMC and ConfigFlags.Trigger.doLVL1:
+    # Same protection of digitization as above, ATR-25059
+    if not DetFlags.digitize.Muon_on() and not isMC and ConfigFlags.Trigger.doLVL1:
         # RPC trigger roads in the online database are not up-to-dated
         # Use offline database for now
         # Will switch to online database once online database has been updated (ATR-23465)
@@ -120,11 +125,11 @@ if DetFlags.readRDOBS.MDT_on() or DetFlags.readRDOPool.MDT_on()  or DetFlags.rea
       if globalflags.DataSource()=='data': 
           conddb.addFolder("MDT","/MDT/CABLING/MAP_SCHEMA",className='CondAttrListCollection') 
           conddb.addFolder("MDT","/MDT/CABLING/MEZZANINE_SCHEMA",className='CondAttrListCollection') 
-          MuonMDT_CablingAlg.MapFolders = "/MDT/CABLING/MAP_SCHEMA" 
-          MuonMDT_CablingAlg.MezzanineFolders    = "/MDT/CABLING/MEZZANINE_SCHEMA" 
+          condSequence.MuonMDT_CablingAlg.MapFolders = "/MDT/CABLING/MAP_SCHEMA" 
+          condSequence.MuonMDT_CablingAlg.MezzanineFolders    = "/MDT/CABLING/MEZZANINE_SCHEMA" 
       else: 
           conddb.addFolder("MDT_OFL","/MDT/Ofl/CABLING/MAP_SCHEMA",className='CondAttrListCollection') 
           conddb.addFolder("MDT_OFL","/MDT/Ofl/CABLING/MEZZANINE_SCHEMA",className='CondAttrListCollection')    
-          MuonMDT_CablingAlg.MapFolders = "/MDT/Ofl/CABLING/MAP_SCHEMA" 
-          MuonMDT_CablingAlg.MezzanineFolders    = "/MDT/Ofl/CABLING/MEZZANINE_SCHEMA"
+          condSequence.MuonMDT_CablingAlg.MapFolders = "/MDT/Ofl/CABLING/MAP_SCHEMA" 
+          condSequence.MuonMDT_CablingAlg.MezzanineFolders    = "/MDT/Ofl/CABLING/MEZZANINE_SCHEMA"
        

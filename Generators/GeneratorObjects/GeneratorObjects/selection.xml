@@ -21,8 +21,8 @@
   </class>
   <class name="HepMC::Polarization" />
   <class name="HepMcParticleLink" >
-   <field name="m_ptrs" transient="true" />
-   <field name="m_have_particle" transient="true" />
+   <field name="m_store" transient="true" />
+   <field name="m_ptr" transient="true" />
   </class>
   <class name="HepMcParticleLink::ExtendedBarCode" />
   <class name="std::vector<HepMcParticleLink>" />
@@ -30,8 +30,6 @@
   <class name="HepMC::GenEvent::particle_const_iterator"/>
   <class name="HepMC::GenEvent::vertex_iterator"/>
   <class name="HepMC::GenEvent::particle_iterator"/>
-  <class name="std::iterator<std::forward_iterator_tag,HepMC::GenVertex*,int,HepMC::GenVertex**,HepMC::GenVertex*&amp;>"/>
-  <class name="std::iterator<std::forward_iterator_tag,HepMC::GenParticle*,int,HepMC::GenParticle**,HepMC::GenParticle*&amp;>"/>
   <class name="std::_Rb_tree_const_iterator<HepMC::GenParticle*>"/>
 
   <class name="HepMC::FourVector"/>

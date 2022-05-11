@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelRadSimFluenceMapAlg.h"
@@ -42,7 +42,8 @@ StatusCode PixelRadSimFluenceMapAlg::execute(const EventContext& ctx) const {
 
   EventIDRange rangeW{start, stop};
 
-  SG::ReadCondHandle<PixelModuleData>moduleData(m_moduleDataKey, ctx);
+  SG::ReadCondHandle<PixelModuleData> moduleDataHandle(m_moduleDataKey, ctx);
+  const PixelModuleData *moduleData = *moduleDataHandle;
 
   // mapping files for radiation damage simulation
   writeFluenceCdo -> setFluenceLayer(moduleData->getFluenceLayer());

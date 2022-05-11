@@ -397,8 +397,9 @@ StatusCode Pythia8B_i::fillEvt(HepMC::GenEvent *evt){
 #ifdef HEPMC3
     if (!evt->run_info()) evt->set_run_info(m_runinfo);
     evt->set_units(HepMC3::Units::MEV, HepMC3::Units::MM);
-#endif
+
     evt->weights().push_back(m_pythia->info.weight());
+#endif
 
 //uncomment to list HepMC events
 //#ifdef HEPMC3

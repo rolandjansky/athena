@@ -1,7 +1,7 @@
 // Hi Emacs ! this is  -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -53,10 +53,6 @@ class TrigCaloTowerMaker : public AthAlgorithm {
   /** Pointers for offline tower maker tools */
   std::vector<CaloTowerBuilderToolBase*> m_towerMakerPointers;
 
-  /** Pointers to timers */
-  //  TrigTimer* m_totalTimer;
-  //TrigTimer* m_towerContTimer;
- 
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_inputRoiKey{ this,
       "RoIs",         // property name
       "rois",                                                  // default value of StoreGate key

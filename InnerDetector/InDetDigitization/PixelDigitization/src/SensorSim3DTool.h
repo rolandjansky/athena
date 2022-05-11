@@ -42,7 +42,8 @@ public:
   StatusCode printProbMap(const std::string&) const;
 
   double getMobility(double electricField, bool isHoleBit);
-  std::vector<double> getDriftTime(bool isHoleBit, size_t number);
+  std::vector<double> getDriftTime(bool isHoleBit, size_t number,
+                                   CLHEP::HepRandomEngine* rndmEngine);
 
 private:
   SensorSim3DTool();

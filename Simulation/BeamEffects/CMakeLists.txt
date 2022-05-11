@@ -15,7 +15,7 @@ include_directories(SYSTEM ${EIGEN_INCLUDE_DIRS})
 atlas_add_test( BeamEffectsAlg_test
                 SOURCES src/*.cxx test/BeamEffectsAlg_test.cxx
                 INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}  ${GTEST_INCLUDE_DIRS} #${GMOCK_INCLUDE_DIRS}
-                LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib GaudiKernel TestTools AthenaBaseComps StoreGateLib EventInfo GeneratorObjects HepMC_InterfacesLib BeamSpotConditionsData ${GTEST_LIBRARIES} #${GMOCK_LIBRARIES}
+                LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib GaudiKernel TestTools AthenaBaseComps StoreGateLib xAODEventInfo GeneratorObjects HepMC_InterfacesLib BeamSpotConditionsData ${GTEST_LIBRARIES} #${GMOCK_LIBRARIES}
                 )
 
 #Added test of new component accumulator syntax
@@ -27,7 +27,7 @@ atlas_add_component( BeamEffects
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib GaudiKernel AthenaBaseComps HepMC_InterfacesLib StoreGateLib EventInfo GeneratorObjects BeamSpotConditionsData )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib GaudiKernel AthenaBaseComps HepMC_InterfacesLib StoreGateLib xAODEventInfo GeneratorObjects BeamSpotConditionsData )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

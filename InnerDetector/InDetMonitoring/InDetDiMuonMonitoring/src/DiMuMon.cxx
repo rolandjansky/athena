@@ -537,7 +537,7 @@ void DiMuMon::iterativeGausFit (TH2F* hin, std::vector<TH1F*> hout, int mode){
 
 	m.setBins(5000);
 	RooFFTConvPdf bxc("bxc", "BW (X) CB", m, bw, cb) ;
-	bxc.fitTo(*data, RooFit::PrintLevel(-1), RooFit::FitOptions("QN"), RooFit::PrintEvalErrors(-1),"Q");
+	bxc.fitTo(*data, RooFit::PrintLevel(-1), RooFit::PrintEvalErrors(-1),"Q");
 	RooPlot* frame = m.frame();
 	data->plotOn(frame, RooFit::MarkerSize(0.9));
 	bxc.paramOn(frame,  RooFit::Format("NELU", RooFit::AutoPrecision(2)), RooFit::Layout(0.1,0.4,0.9));

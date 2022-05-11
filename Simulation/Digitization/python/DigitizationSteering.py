@@ -24,9 +24,10 @@ from PixelDigitization.ITkPixelDigitizationConfig import ITkPixelDigitizationCfg
 from PixelDigitization.PixelDigitizationConfigNew import PixelDigitizationCfg
 from SCT_Digitization.SCT_DigitizationConfigNew import SCT_DigitizationCfg
 from StripDigitization.StripDigitizationConfig import ITkStripDigitizationCfg
+from HGTD_Digitization.HGTD_DigitizationConfig import HGTD_DigitizationCfg
 from TileSimAlgs.TileDigitizationConfig import TileDigitizationCfg, TileTriggerDigitizationCfg
 from TRT_Digitization.TRT_DigitizationConfigNew import TRT_DigitizationCfg
-from Digitization.PileUpUtils import pileupInputCollections
+from RunDependentSimComps.PileUpUtils import pileupInputCollections
 
 from AthenaCommon.Logging import logging
 logDigiSteering = logging.getLogger('DigitizationSteering')
@@ -70,7 +71,11 @@ def DigitizationMainContentCfg(flags):
             from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
             acc.merge(EventInfoCnvAlgCfg(flags,
                                         inputKey="McEventInfo",
-                                        outputKey="EventInfo"))
+                                        outputKey="HITs_EventInfo"))
+
+        from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoUpdateFromContextAlgCfg
+        acc.merge(EventInfoUpdateFromContextAlgCfg(flags))
+
         # Decorate pile-up values
         from Digitization.PileUpConfigNew import NoPileUpMuWriterCfg
         acc.merge(NoPileUpMuWriterCfg(flags))
@@ -121,6 +126,10 @@ def DigitizationMainContentCfg(flags):
         acc.merge(ITkPixelDigitizationCfg(flags))
     if flags.Detector.EnableITkStrip:
         acc.merge(ITkStripDigitizationCfg(flags))
+
+    # HGTD
+    if flags.Detector.EnableHGTD:
+        acc.merge(HGTD_DigitizationCfg(flags))
 
     # Calorimeter
     if flags.Detector.EnableLAr:

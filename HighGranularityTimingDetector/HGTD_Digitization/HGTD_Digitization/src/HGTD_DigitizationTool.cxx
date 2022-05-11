@@ -11,7 +11,7 @@
  * @brief
  */
 
-#include "HGTD_Digitization/HGTD_DigitizationTool.h"
+#include "HGTD_DigitizationTool.h"
 
 #include "AthenaKernel/RNGWrapper.h"
 #include "HGTD_Identifier/HGTD_ID.h"
@@ -32,13 +32,13 @@ StatusCode HGTD_DigitizationTool::initialize() {
 
   ATH_CHECK(detStore()->retrieve(m_id_helper, "HGTD_ID"));
 
-  ATH_CHECK(m_merge_svc.retrieve());
+  if (m_onlyUseContainerName) {
+    ATH_CHECK(m_merge_svc.retrieve());
+  }
 
   ATH_CHECK(m_rndm_svc.retrieve());
 
   ATH_CHECK(m_hgtd_surf_charge_gen.retrieve());
-  m_hgtd_surf_charge_gen->setIntegratedLuminosity(m_integrated_luminosity);
-  m_hgtd_surf_charge_gen->setSmearingTime(m_smear_meantime);
 
   ATH_CHECK(m_hgtd_front_end_tool.retrieve());
 
@@ -54,7 +54,10 @@ StatusCode HGTD_DigitizationTool::initialize() {
   ATH_MSG_DEBUG("Input objects in container : '" << m_inputObjectName << "'");
 
   // Initialize ReadHandleKey
-  ATH_CHECK(m_hitsContainerKey.initialize(!m_onlyUseContainerName));
+  ATH_CHECK(m_hitsContainerKey.initialize(true));
+  ATH_CHECK(m_HGTDDetEleCollKey.initialize());
+  ATH_CHECK(m_output_rdo_cont_key.initialize());
+  ATH_CHECK(m_output_sdo_coll_key.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -272,14 +275,12 @@ StatusCode HGTD_DigitizationTool::digitizeHitsPerDetectorElement(const EventCont
 
       const TimedHitPtr<SiHit> &current_hit = *coll_itr;
 
-      // skip hits that are far away in time
-      if (std::abs(current_hit->meanTime()) >
-          m_active_time_window * CLHEP::ns) {
-        continue;
-      }
-
       // use the surface charge generator to produce the charged diode
       // and add it to the charged diode collection
+      // 
+      // hits that are too far away in time to be captured by the ASICs
+      // are handled internally by the surface charge generator
+      // 
       m_hgtd_surf_charge_gen->createSurfaceChargesFromHit(
           current_hit, charged_diode_coll.get(), det_elem, rndmEngine, ctx);
 

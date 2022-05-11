@@ -12,7 +12,7 @@ namespace TrigConf {
 
    class IBunchGroupLoader : virtual public ILoader {
    public:
-      virtual ~IBunchGroupLoader() {};
+      virtual ~IBunchGroupLoader() override = default;
       virtual bool load( BunchGroup& data ) = 0;
    };
 

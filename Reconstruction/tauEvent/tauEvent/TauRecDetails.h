@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///@file TauRecDetails.h  DEPRECATED DO NOT USE 
@@ -13,7 +13,6 @@
 ///@author Lukasz Janyst
 ///@author Michael Heldmann
 ///
-/// $Id: TauRecDetails.h,v 1.13 2009-01-17 01:34:16 tburgess Exp $
 
 #ifndef TAU_REC_DETAILS_ANALYSIS_H
 #define TAU_REC_DETAILS_ANALYSIS_H
@@ -240,7 +239,7 @@ namespace Analysis
         const ElementLinkVector<Rec::TrackParticleContainer>& looseTracks() const;
 
         private:
-        static std::string s_className;
+        static const std::string s_className;
 
         ElementLinkVector<Rec::TrackParticleContainer> m_looseTracks;
 

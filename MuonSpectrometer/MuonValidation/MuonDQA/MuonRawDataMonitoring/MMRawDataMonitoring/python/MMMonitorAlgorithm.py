@@ -1,9 +1,9 @@
 #
-#Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.ComponentFactory import CompFactory
-from .MMMonUtils import getMMLabel, getMMLabelY
+from MMRawDataMonitoring.MMMonUtils import getMMLabel, getMMLabelY
 
 def MMMonitoringConfig(inputFlags):
     '''Function to configures some algorithms in the monitoring system.'''
@@ -29,80 +29,52 @@ def MMMonitoringConfig(inputFlags):
     mmMonAlg = helper.addAlgorithm(CompFactory.MMRawDataMonAlg,'MMMonAlg')
     mmMonAlg.DoMMESD = True    
     mmMonAlg.do_stereoCorrection=False
+    mmMonAlg.cut_pt = 20000
 
     mmGroup = helper.addGroup(mmMonAlg,'mmMonitor','Muon/MuonRawDataMonitoring/MM/')
     
     # Configure histograms
 
     # Overview histograms
-    mmGroup.defineHistogram('residual;Residuals',  type='TH1F',  title='Residuals;res[mm];Number of Entries',
-                        path='Overview',   xbins=200, xmin=-10, xmax=10.
-    )
-
-
-    mmGroup.defineHistogram('residual,eta_trk;Res_vs_eta', type='TH2F', title="Res vs Eta;Res;Eta;", path='Overview',xbins=100, xmin=-10, xmax=10., ybins=100, ymin=-3.,ymax=3.)
-    mmGroup.defineHistogram('residual,phi_trk;Res_vs_phi', type='TH2F', title="Res vs Eta;Res;Phi;", path='Overview',xbins=100, xmin=-10, xmax=10., ybins=16, ymin=-3.14,ymax=3.14)
-    mmGroup.defineHistogram('residual,stPhi_mon;Res_vs_stPhi', type='TH2F', title="Res vs Eta;Res;stPhi;", path='Overview',xbins=100, xmin=-10, xmax=10., ybins=16, ymin=0,ymax=16)
-    
-    mmGroup.defineHistogram('charge_all;Charge',  type='TH1F',
-                            title='Charge;Charge[fC];Number of Entries',
-                        path='Overview',   xbins=120, xmin=0., xmax=1200.
-                       )
-
-    mmGroup.defineHistogram('x_mon,y_mon;Posy_vs_Posx', type='TH2F', title="Posy vs Posx;MM-GlobalX [mm];MM-GlobalY [mm];", path='Overview',xbins=500, xmin=-5000, xmax=5000., ybins=500, ymin=-5000.,ymax=5000.)
-    
-    mmGroup.defineHistogram('R_mon,z_mon;Posz_vs_R', type='TH2F', title="Posz vs R;MM-GlobalR [mm];MM-GlobalZ [mm];", path='Overview',xbins=500, xmin=0, xmax=5000., ybins=1000, ymin=-8000 ,ymax=8000)
-    
-    mmGroup.defineHistogram('numberofstrips_percluster;Number_of_strips_percluster',  type='TH1F',
-                        title='Number of strips per cluster;Number of strips;Number of Entries',
-                            path='Overview',   xbins=20, xmin=0., xmax=20.)
-    
-    mmGroup.defineHistogram('mu_TPC_angle;uTPC_angle',  type='TH1F',
-                            title='#mu TPC angle;#mu TPC angle [degrees];Number of Entries',
-                            path='Overview',   xbins=2000, xmin=-100, xmax=100)
-
-    mmGroup.defineHistogram('mu_TPC_chi2;uTPC_chi2',  type='TH1F',
-                        title='#mu TPC #chi2; #mu TPC #chi2;Number of Entries',
-                        path='Overview',   xbins=100, xmin=0., xmax=1.)
-
-    mmGroup.defineHistogram('time_all;Time',  type='TH1F',
-                        title='Time;Time[ns];Number of Entries',
-                        path='Overview',   xbins=1000, xmin=0., xmax=10000.)
-
-    mmGroup.defineHistogram('statEta_strip,strip_number;Strip_Numbers_vs_StationEta',    type='TH2F',
-                            title='Strip Numbers vs Station Eta;; Strip Numbers;',
-                            path='Overview',   xbins=5, xmin=-2, xmax=3., xlabels=['#eta-2','#eta-1','','#eta1','#eta2'], ybins=5120, ymin=0., ymax=5120.)
-
+    mmGroup.defineHistogram('residual;Residuals',  type='TH1F',  title='Residuals; res[mm]; Number of Entries', path='Overview', xbins=200, xmin=-10, xmax=10., opt='kAlwaysCreate')
+    mmGroup.defineHistogram('residual,eta_trk;Res_vs_eta', type='TH2F', title="Residuals vs Eta; Residuals [mm]; Eta;", path='Overview',xbins=100, xmin=-10, xmax=10., ybins=100, ymin=-3.,ymax=3., opt='kAlwaysCreate')
+    mmGroup.defineHistogram('residual,phi_trk;Res_vs_phi', type='TH2F', title="Residuals vs Eta; Residuals [mm]; Phi;", path='Overview',xbins=100, xmin=-10, xmax=10., ybins=16, ymin=-3.14,ymax=3.14, opt='kAlwaysCreate')
+    mmGroup.defineHistogram('residual,stPhi_mon;Res_vs_stPhi', type='TH2F', title="Residuals vs station Phi; Res; stPhi;", path='Overview', xbins=100, xmin=-10, xmax=10., ybins=16, ymin=1,ymax=17, opt='kAlwaysCreate')
+    mmGroup.defineHistogram('charge_all;Charge', type='TH1F', title='Charge; Charge[fC]; Number of Entries', path='Overview', xbins=120, xmin=0., xmax=1200., opt='kAlwaysCreate')
+    mmGroup.defineHistogram('x_mon, y_mon;Posy_vs_Posx', type='TH2F', title="Posy vs Posx; MM-GlobalX [mm]; MM-GlobalY [mm];", path='Overview', xbins=500, xmin=-5000, xmax=5000., ybins=500, ymin=-5000., ymax=5000., opt='kAlwaysCreate')
+    mmGroup.defineHistogram('R_mon, z_mon;Posz_vs_R', type='TH2F', title="Posz vs R; MM-GlobalR [mm]; MM-GlobalZ [mm];", path='Overview', xbins=500, xmin=0, xmax=5000., ybins=1000, ymin=-8000 ,ymax=8000, opt='kAlwaysCreate')
+    mmGroup.defineHistogram('numberofstrips_percluster;Nstrips_percluster',  type='TH1F', title='Number of strips per cluster; Number of strips; Number of Entries', path='Overview', xbins=20, xmin=0., xmax=20., opt='kAlwaysCreate')
+    mmGroup.defineHistogram('mu_TPC_angle;uTPC_angle', type='TH1F', title='#mu TPC angle; #mu TPC angle [degrees]; Number of Entries', path='Overview',   xbins=2000, xmin=-100, xmax=100, opt='kAlwaysCreate')
+    mmGroup.defineHistogram('mu_TPC_chi2;uTPC_chi2',  type='TH1F', title='#mu TPC #chi2; #mu TPC #chi2; Number of Entries', path='Overview', xbins=100, xmin=0., xmax=1., opt='kAlwaysCreate')
+    mmGroup.defineHistogram('strip_times;strip_time',  type='TH1F', title='strip time; time [ns]; Number of Entries', path='Overview',   xbins=200, xmin=0., xmax=200., opt='kAlwaysCreate')
+    mmGroup.defineHistogram('cluster_times;cluster_time',  type='TH1F', title='cluster time; time [ns]; Number of Entries', path='Overview',   xbins=200, xmin=0., xmax=200., opt='kAlwaysCreate')
+    mmGroup.defineHistogram('statEta_strip, strip_number;Strip_Number_vs_StationEta', type='TH2F', title='Strip Numbers vs Station Eta; ; Strip Number;', path='Overview', xbins=5, xmin=-2, xmax=3., xlabels=['#eta-2','#eta-1','','#eta1','#eta2'], ybins=5120, ymin=0., ymax=5120., opt='kAlwaysCreate')
+    mmGroup.defineHistogram('nstrips_ontrack;Nstrips_percluster_ontrack', type='TH1F', title='Number of strips per cluster on track; Number of strips; Number of Entries', path='Overview', xbins=20, xmin=0., xmax=20., opt='kAlwaysCreate')
+    mmGroup.defineHistogram('charge_ontrack;Charge_ontrack', type='TH1F', title='Charge on track; Charge [fC]; Number of Entries', path='Overview', xbins=120, xmin=0, xmax=1200., opt='kAlwaysCreate')
+    mmGroup.defineHistogram('strip_time_on_track', type='TH1F', title='strip time on track; time [ns]; Number of Entries', path='Overview', xbins=200, xmin=0., xmax=200., opt='kAlwaysCreate')
+    mmGroup.defineHistogram('cluster_time_on_track', type='TH1F', title='cluster time on track; time [ns]; Number of Entries', path='Overview', xbins=200, xmin=0, xmax=200., opt='kAlwaysCreate')
     thisLabelx,thisLabely=getMMLabel("x_lab_occ_etaminus1","y_lab_occ_etaminus1")
-
-    mmGroup.defineHistogram('sector_CSide_eta1,stationPhi_CSide_eta1;Occupancy_CSide_eta1_PCB', type='TH2F', title='Occupancy CSide eta1 PCB; ; Sector;', path='Occupancy', xbins=40, xmin=0, xmax=40., ybins=16, ymin=1, ymax=17,xlabels=thisLabelx)
-
-    mmGroup.defineHistogram('sector_CSide_eta1_ontrack,stationPhi_CSide_eta1_ontrack;Occupancy_CSide_eta1_PCB_ontrack', type='TH2F', title='Occupancy CSide eta1 PCB ontrack; ; Sector ;', path='Occupancy_ontrack', xbins=40, xmin=0, xmax=40., ybins=16, ymin=1, ymax=17,xlabels=thisLabelx)
-
+    mmGroup.defineHistogram('sector_CSide_eta1,stationPhi_CSide_eta1;Occupancy_CSide_eta1_PCB', type='TH2F', title='Occupancy EC eta1; ; Sector;', path='Occupancy', xbins=40, xmin=0, xmax=40., ybins=16, ymin=1, ymax=17, xlabels=thisLabelx, opt='kAlwaysCreate')
+    mmGroup.defineHistogram('sector_CSide_eta1_ontrack,stationPhi_CSide_eta1_ontrack;Occupancy_CSide_eta1_PCB_ontrack', type='TH2F', title='Occupancy EC eta1 ontrack; ;Sector ;', path='Occupancy_ontrack', xbins=40, xmin=0, xmax=40., ybins=16, ymin=1, ymax=17, xlabels=thisLabelx, opt='kAlwaysCreate')
     thisLabelx1,thisLabely1=getMMLabel("x_lab_occ_etaminus2","y_lab_occ_etaminus2")
-
-    mmGroup.defineHistogram('sector_CSide_eta2,stationPhi_CSide_eta2;Occupancy_CSide_eta2_PCB', type='TH2F', title='Occupancy CSide eta2 PCB; ; Sector ;', path='Occupancy', xbins=24, xmin=0, xmax=24., ybins=16, ymin=1, ymax=17,xlabels=thisLabelx1)
-
-    mmGroup.defineHistogram('sector_CSide_eta2_ontrack,stationPhi_CSide_eta2_ontrack;Occupancy_CSide_eta2_PCB_ontrack', type='TH2F', title='Occupancy CSide eta2 PCB ontrack; ; Sector;', path='Occupancy_ontrack', xbins=24, xmin=0, xmax=24., ybins=16, ymin=1, ymax=17,xlabels=thisLabelx1)
-
+    mmGroup.defineHistogram('sector_CSide_eta2,stationPhi_CSide_eta2;Occupancy_CSide_eta2_PCB', type='TH2F', title='Occupancy EC eta2; ;Sector;', path='Occupancy', xbins=24, xmin=0, xmax=24., ybins=16, ymin=1, ymax=17, xlabels=thisLabelx1, opt='kAlwaysCreate')
+    mmGroup.defineHistogram('sector_CSide_eta2_ontrack,stationPhi_CSide_eta2_ontrack;Occupancy_CSide_eta2_PCB_ontrack', type='TH2F', title='Occupancy EC eta2 ontrack; ;Sector;', path='Occupancy_ontrack', xbins=24, xmin=0, xmax=24., ybins=16, ymin=1, ymax=17, xlabels=thisLabelx1, opt='kAlwaysCreate')
     thisLabelx2,thisLabely2=getMMLabel("x_lab_occ_eta1","y_lab_occ_eta1")
-
-    mmGroup.defineHistogram('sector_ASide_eta1,stationPhi_ASide_eta1;Occupancy_ASide_eta1_PCB', type='TH2F', title='Occupancy ASide eta1 PCB; ; Sector;', path='Occupancy', xbins=40, xmin=0, xmax=40., ybins=16, ymin=1, ymax=17,xlabels=thisLabelx2)
-
-    mmGroup.defineHistogram('sector_ASide_eta1_ontrack,stationPhi_ASide_eta1_ontrack;Occupancy_ASide_eta1_PCB_ontrack', type='TH2F', title='Occupancy ASide eta1 PCB ontrack; ; Sector;', path='Occupancy_ontrack', xbins=40, xmin=0, xmax=40., ybins=16, ymin=1, ymax=17,xlabels=thisLabelx2)
-
+    mmGroup.defineHistogram('sector_ASide_eta1,stationPhi_ASide_eta1;Occupancy_ASide_eta1_PCB', type='TH2F', title='Occupancy EA eta1; ;Sector;', path='Occupancy', xbins=40, xmin=0, xmax=40., ybins=16, ymin=1, ymax=17, xlabels=thisLabelx2, opt='kAlwaysCreate')
+    mmGroup.defineHistogram('sector_ASide_eta1_ontrack,stationPhi_ASide_eta1_ontrack;Occupancy_ASide_eta1_PCB_ontrack', type='TH2F', title='Occupancy EA eta1 ontrack; ;Sector;', path='Occupancy_ontrack', xbins=40, xmin=0, xmax=40., ybins=16, ymin=1, ymax=17, xlabels=thisLabelx2, opt='kAlwaysCreate')
     thisLabelx3,thisLabely3=getMMLabel("x_lab_occ_eta2","y_lab_occ_eta2")
+    mmGroup.defineHistogram('sector_ASide_eta2,stationPhi_ASide_eta2;Occupancy_ASide_eta2_PCB', type='TH2F', title='Occupancy EA eta2; ;Sector;', path='Occupancy', xbins=24, xmin=0, xmax=24., ybins=16, ymin=1, ymax=17, xlabels=thisLabelx3, opt='kAlwaysCreate')
+    mmGroup.defineHistogram('sector_ASide_eta2_ontrack,stationPhi_ASide_eta2_ontrack;Occupancy_ASide_eta2_PCB_ontrack', type='TH2F', title='Occupancy EA eta2  ontrack; ;Sector;', path='Occupancy_ontrack', xbins=24, xmin=0, xmax=24., ybins=16, ymin=1, ymax=17, xlabels=thisLabelx3, opt='kAlwaysCreate')
 
-    mmGroup.defineHistogram('sector_ASide_eta2,stationPhi_ASide_eta2;Occupancy_ASide_eta2_PCB', type='TH2F', title='Occupancy ASide eta2 PCB; ; Sector;', path='Occupancy', xbins=24, xmin=0, xmax=24., ybins=16, ymin=1, ymax=17,xlabels=thisLabelx3)
-
-    mmGroup.defineHistogram('sector_ASide_eta2_ontrack,stationPhi_ASide_eta2_ontrack;Occupancy_ASide_eta2_PCB_ontrack', type='TH2F', title='Occupancy ASide eta2 PCB ontrack; Gap; Sector;', path='Occupancy_ontrack', xbins=24, xmin=0, xmax=24., ybins=16, ymin=1, ymax=17,xlabels=thisLabelx3)
-
+    mmGroup.defineHistogram('sector_CSide_eta1_onseg, stationPhi_CSide_eta1_onseg;Occupancy_CSide_eta1_PCB_onseg', type='TH2F', title='Occupancy EC eta1 onseg; ;Sector ;', path='Segments/Occupancy', xbins=40, xmin=0, xmax=40., ybins=16, ymin=1, ymax=17, xlabels=thisLabelx, opt='kAlwaysCreate')
+    mmGroup.defineHistogram('sector_CSide_eta2_onseg, stationPhi_CSide_eta2_onseg;Occupancy_CSide_eta2_PCB_onseg', type='TH2F', title='Occupancy EC eta2 onseg; ;Sector ;', path='Segments/Occupancy', xbins=40, xmin=0, xmax=24., ybins=16, ymin=1, ymax=17, xlabels=thisLabelx1, opt='kAlwaysCreate')
+    mmGroup.defineHistogram('sector_ASide_eta1_onseg, stationPhi_ASide_eta1_onseg;Occupancy_ASide_eta1_PCB_onseg', type='TH2F', title='Occupancy EA eta1 onseg; ;Sector ;', path='Segments/Occupancy', xbins=40, xmin=0, xmax=40., ybins=16, ymin=1, ymax=17, xlabels=thisLabelx2, opt='kAlwaysCreate')
+    mmGroup.defineHistogram('sector_ASide_eta2_onseg, stationPhi_ASide_eta2_onseg;Occupancy_ASide_eta2_PCB_onseg', type='TH2F', title='Occupancy EA eta2 onseg; ;Sector ;', path='Segments/Occupancy', xbins=40, xmin=0, xmax=24., ybins=16, ymin=1, ymax=17, xlabels=thisLabelx3, opt='kAlwaysCreate')
 
     side = ["CSide","ASide"]
-    sector = ["MMS","MML"]
     etasector  = ["1","2"]
     for iside in side:
-
+        
         if iside=="ASide":
             thisLabelx11,thisLabely11=getMMLabel("x_lab_occ_ASide","y_lab_occ_ASide")
         if iside=="CSide":
@@ -112,57 +84,99 @@ def MMMonitoringConfig(inputFlags):
         mmSideGroup=helper.addGroup(mmMonAlg, MM_SideGroup, "Muon/MuonRawDataMonitoring/MM/"+iside)
         
         # Histograms for each sector
-        phimax=8
+        phimax=16
         multipletmin=1
         multipletmax=2
-        for isector in sector:
-            for phi in range(1, phimax+1):
-                phi16=0
-                if (isector=="MMS"):
-                    phi16=2*phi-1
-                elif (isector=="MML"):
-                    phi16=2*phi
+        for eta in etasector:
+            maxpcb=5
+            if(eta == "2"):
+                maxpcb=3
+            for multi in range(multipletmin, multipletmax+1):
+                for gas_gap in range(1,5):
+                    #efficiency per pcb
+                    title_allphi_eff=f'Efficiency_per_PCB_Eta{eta}_{iside}_allphi_multiplet{multi}_gas_gap{gas_gap}; pcb; Efficiency Eta{eta}'
+                    var_pcb_allphi=f'hitcut,pcb_eta{eta}_allphi_{iside}_multiplet{multi}_gas_gap{gas_gap}'
+                    mmSideGroup.defineHistogram(var_pcb_allphi, type='TEfficiency', title=title_allphi_eff, path='Efficiency', xbins=maxpcb, xmin=0, xmax=maxpcb, opt='kAlwaysCreate') 
+        for phi in range(1, phimax+1):
+            title_MMSummary=f'Number of strips per cluster E{iside} stPhi {phi}; ; Strip Number'
+            var=f'sector_strip_{iside}_phi{phi},strip_number_{iside}_phi{phi};Strip_number_pergap_{iside}_stPhi{phi}'
+            mmSideGroup.defineHistogram(var, type='TH2F', title=title_MMSummary, path='Number_of_strips_percluster_perPhiSector', xbins=16, xmin=0, xmax=16, xlabels=thisLabelx11, ybins=5120, ymin=0., ymax=5120., opt='kAlwaysCreate')
+            thisLabely=getMMLabelY("y_lab_occ_lb")
+            mmSideGroup.defineHistogram(f'lb_mon,sector_lb_{iside}_phi{phi};Occupancy_lb_{iside}_phi{phi}', type='TH2F', title=f'Occupancy wrt lb sector {phi}; LB; PCB', path='Occupancy',  xbins=100, xmin=-0.5, xmax=99.5, opt='kAddBinsDynamically,kAlwaysCreate', ybins=64, ymin=0., ymax=64, ylabels=thisLabely)
+            mmSideGroup.defineHistogram(f'lb_ontrack,sector_lb_{iside}_phi{phi}_ontrack;Occupancy_lb_{iside}_phi{phi}_ontrack', type='TH2F', title=f'Occupancy wrt lb sector {phi} ontrack ; LB; PCB', path='Occupancy',  xbins=100, xmin=-0.5, xmax=99.5, opt='kAddBinsDynamically,kAlwaysCreate', ybins=64, ymin=0., ymax=64, ylabels=thisLabely)
+            mmSideGroup.defineHistogram('lb_onseg,sector_lb_'+iside+'_phi'+str(phi)+"_onseg"+';Occupancy_lb_'+iside+'_phi'+str(phi)+"_onseg", type='TH2F', title="Occupancy wrt lb sector"+str(phi)+" onSegms"+"; LB; PCB", path='Segments/Occupancy',  xbins=100, xmin=-0.5, xmax=99.5, opt='kAddBinsDynamically,kAlwaysCreate', ybins=64, ymin=0., ymax=64, ylabels=thisLabely)
 
 
-                title_MMSummary="Number of strips per cluster,"+iside+" "+isector+" stPhi "+str(phi)   
-                var="sector_strip_"+iside+"_"+isector+"_phi"+str(phi)+",strip_number_"+iside+"_"+isector+"_phi"+str(phi)+";Strip_number_pergap_"+iside+"_"+isector+"stPhi"+str(phi)
-                mmSideGroup.defineHistogram(var, type='TH2F', title=title_MMSummary+"; ;Strip Number",      
-                                            path='Number_of_strips_percluster_perPhiSector',   xbins=16, xmin=0, xmax=16, xlabels=thisLabelx11, ybins=5120, ymin=0., ymax=5120.)
-                thisLabely=getMMLabelY("y_lab_occ_lb")
-                mmSideGroup.defineHistogram('lb_mon,sector_lb_'+iside+'_phi'+str(phi16)+';Occupancy_lb_'+iside+'_phi'+str(phi16), type='TH2F', title="Occupancy wrt lb per PCB; LB; ", path='Occupancy',  xbins=100, xmin=-0.5, xmax=99.5, opt='kAddBinsDynamically',  ybins=64, ymin=0., ymax=64,  ylabels=thisLabely)
+            for eta in etasector:
+                maxpcb=5
+                if(eta == "2"):
+                    maxpcb=3
+                for multi in range(multipletmin, multipletmax+1):
+                    for gas_gap in range(1,5):
+                        #efficiency per pcb      
+                        title_eff=f'Efficiency_per_PCB_Eta{eta}_{iside}_phi{phi-1}_multiplet{multi}_gas_gap{gas_gap}; pcb; Efficiency Eta{eta}'
+                        var_pcb=f'hitcut,pcb_eta{eta}_{iside}_phi{phi-1}_multiplet{multi}_gas_gap{gas_gap}'
+                        mmSideGroup.defineHistogram(var_pcb, type='TEfficiency', title=title_eff, path='Efficiency', xbins=maxpcb, xmin=0, xmax=maxpcb, opt='kAlwaysCreate')
+                        title_MMSummary_charge=f'Charge {iside} stPhi{phi} stEta{eta} multiplet{multi} gap{gas_gap}; Charge [fC]; Number of Entries'
+                        var1=f'charge_{iside}_sectorphi{phi}_stationEta{eta}_multiplet{multi}_gas_gap{gas_gap};Charge_{iside}_stPhi{phi}_stEta{eta}_multiplet{multi}_gap{gas_gap}'
+                        mmSideGroup.defineHistogram(var1, type='TH1F', title=title_MMSummary_charge, path='Charge_perLayer', xbins=120, xmin=0., xmax=1200., opt='kAlwaysCreate')
+                        title_MMSummary_angle=f'uTPC angle {iside} stPhi{phi} stEta{eta} multiplet{multi} gap{gas_gap}; #muTPC angle [degrees];Number of Entries'
+                        var3=f'mu_TPC_angle_{iside}_sectorphi{phi}_stationEta{eta}_multiplet{multi}_gas_gap{gas_gap};uTPCangle_{iside}_stPhi{phi}_stEta{eta}_multiplet{multi}_gap{gas_gap}'
+                        mmSideGroup.defineHistogram(var3, type='TH1F', title=title_MMSummary_angle, path='uTPC_angle_perLayer', xbins=2000, xmin=-100, xmax=100, opt='kAlwaysCreate')
+                        
+                        var_residual=f'residuals_{iside}_phi{phi}_stationEta{eta}_multiplet{multi}_gas_gap{gas_gap}'
+                        title_residual =f'residuals{iside} stPhi{phi} stEta{eta} multiplet{multi} gap{gas_gap}; res [mm]; Number of Entries'
+                        mmSideGroup.defineHistogram(var_residual, type='TH1F', title=title_residual, path='Residuals', xbins=200, xmin=-10, xmax=10, opt='kAlwaysCreate')
 
-                for eta in etasector:
-                    maxpcb=5
-                    if(eta == "2"):
-                        maxpcb=3
-                    for multi in range(multipletmin, multipletmax+1):
-                        for gas_gap in range(1,5):
-                            #efficiency per pcb      
-                            title_eff="Efficiency_per_PCB"+"Eta"+str(eta)+"_"+iside+"_phi"+str(phi16-1)+"_multiplet"+str(multi)+"_gas_gap"+str(gas_gap)
-                            var_pcb="hitcut,pcb_eta"+str(eta)+"_"+iside+"_phi"+str(phi16-1)+"_multiplet"+str(multi)+"_gas_gap"+str(gas_gap)
-                            title_allphi_eff="Efficiency_per_PCB"+"Eta"+str(eta)+"_"+iside+"_allphi"+"_multiplet"+str(multi)+"_gas_gap"+str(gas_gap)
-                            var_pcb_allphi="hitcut,pcb_eta"+str(eta)+"_allphi_"+iside+"_multiplet"+str(multi)+"_gas_gap"+str(gas_gap)
+                        var_clus_size=f'pcb_mon_{iside}_phi{phi}_eta{eta}_ml{multi}_gap{gas_gap},cluster_size_{iside}_phi{phi}_eta{eta}_ml{multi}_gap{gas_gap};Cluster_size_vs_PCB_{iside}_eta{eta}_phi{phi}_ml{multi}_gap{gas_gap}'
+                        title_cl_size=f'Cluster size {iside} eta{eta} phi{phi} mult{multi} gasgap{gas_gap}; PCB; cluster size'
+                        mmSideGroup.defineHistogram(var_clus_size, type='TH2F', title=title_cl_size, path="Cluster_size_perPCB", xbins=maxpcb, xmin=1, xmax=maxpcb+1, ybins=20, ymin=0, ymax=20, opt='kAlwaysCreate')
 
-                            mmSideGroup.defineHistogram(var_pcb,  type='TEfficiency', title=title_eff+"; pcb ;Efficiency Eta1",path='Efficiency',    xbins=maxpcb, xmin=0, xmax=maxpcb)
-                            mmSideGroup.defineHistogram(var_pcb_allphi,  type='TEfficiency', title=title_allphi_eff+"; pcb ;Efficiency Eta1",path='Efficiency',    xbins=maxpcb, xmin=0, xmax=maxpcb) 
-                            # Histograms for each layer
-                            title_MMSummary_charge="Charge "+iside+" "+isector+" stPhi"+str(phi)+" stEta"+str(eta)+" multiplet"+str(multi)+" gap"+str(gas_gap)
-                            var1="charge_"+iside+"_sector_"+isector+"_phi"+str(phi)+"_stationEta"+str(eta)+"_multiplet"+str(multi)+"_gas_gap"+str(gas_gap)+";Charge_"+iside+"_"+isector+"_stPhi"+str(phi)+"_stEta"+str(eta)+"_multiplet"+str(multi)+"_gap"+str(gas_gap)
-                            mmSideGroup.defineHistogram(var1,  type='TH1F', title=title_MMSummary_charge+';Charge [fC];Number of Entries',path='Charge_perLayer',   xbins=120, xmin=0., xmax=1200.)
-                            title_MMSummary_angle="uTPC angle "+iside+" "+isector+" stPhi"+str(phi)+" stEta"+str(eta)+" multiplet"+str(multi)+" gap"+str(gas_gap)
-                            var3="mu_TPC_angle_"+iside+"_sector_"+isector+"_phi"+str(phi)+"_stationEta"+str(eta)+"_multiplet"+str(multi)+"_gas_gap"+str(gas_gap)+";uTPCangle_"+iside+"_"+isector+"_stPhi"+str(phi)+"_stEta"+str(eta)+"_multiplet"+str(multi)+"_gap"+str(gas_gap)
-                            mmSideGroup.defineHistogram(var3,  type='TH1F', title=title_MMSummary_angle+"; #muTPC angle [degrees];Number of Entries",path='uTPC_angle_perLayer',    xbins=2000, xmin=-100, xmax=100)
-                            
-                            var_residual="residuals_"+iside+"_phi"+str(phi)+"_stationEta"+str(eta)+"_multiplet"+str(multi)+"_gas_gap"+str(gas_gap)
-                            title_residual = "residuals "+iside+" "+isector+" stPhi"+str(phi)+" stEta"+str(eta)+" multiplet"+str(multi)+" gap"+str(gas_gap)
-                            mmSideGroup.defineHistogram(var_residual,  type='TH1F', title=title_residual+"; res [mm];Number of Entries",path='Residuals',    xbins=200, xmin=-10, xmax=10)
+                        var_strip_time=f'pcb_mon_{iside}_phi{phi}_eta{eta}_ml{multi}_gap{gas_gap},strp_time_{iside}_phi{phi}_eta{eta}_ml{multi}_gap{gas_gap};Strip_time_vs_PCB_{iside}_eta{eta}_phi{phi}_ml{multi}_gap{gas_gap}'
+                        var_clus_time=f'pcb_mon_{iside}_phi{phi}_eta{eta}_ml{multi}_gap{gas_gap},cluster_time_{iside}_phi{phi}_eta{eta}_ml{multi}_gap{gas_gap};Cluster_time_vs_PCB_{iside}_eta{eta}_phi{phi}_ml{multi}_gap{gas_gap}'
+                        title_strp_time=f'Strip time {iside} eta{eta} phi{phi} mult{multi} gasgap{gas_gap}; PCB; strip time [ns]'
+                        title_clus_time=f'Cluster time {iside} eta{eta} phi{phi} mult{multi} gasgap{gas_gap}; PCB; cluster time [ns]'
+                        mmSideGroup.defineHistogram(var_strip_time, type='TH2F', title=title_strp_time, path='Strip_time_perPCB', xbins=maxpcb, xmin=1, xmax=maxpcb+1, ybins=200, ymin=0, ymax=200, opt='kAlwaysCreate')
+                        mmSideGroup.defineHistogram(var_clus_time, type='TH2F', title=title_clus_time, path='Cluster_time_perPCB', xbins=maxpcb, xmin=1, xmax=maxpcb+1, ybins=200, ymin=0, ymax=200, opt='kAlwaysCreate')
+
+                        var_charge_perPCB=f'pcb_mon_{iside}_phi{phi}_eta{eta}_ml{multi}_gap{gas_gap},charge_perPCB_{iside}_phi{phi}_eta{eta}_ml{multi}_gap{gas_gap};Charge_vs_PCB_{iside}_eta{eta}_phi{phi}_ml{multi}_gap{gas_gap}'
+                        title_charge_perPCB=f'Charge {iside} eta{eta} phi{phi} mult{multi} gasgap{gas_gap}; PCB; charge [fC]'
+                        mmSideGroup.defineHistogram(var_charge_perPCB, type='TH2F', title=title_charge_perPCB, path='Charge_perPCB', xbins=maxpcb, xmin=1, xmax=maxpcb+1, ybins=120, ymin=0, ymax=1200, opt='kAlwaysCreate')
+
+                        var_clus_size_ontrack=f'pcb_mon_ontrack_{iside}_phi{phi}_eta{eta}_ml{multi}_gap{gas_gap},cluster_size_ontrack_{iside}_phi{phi}_eta{eta}_ml{multi}_gap{gas_gap};Cluster_size_vs_PCB_ontrack_{iside}_eta{eta}_phi{phi}_ml{multi}_gap{gas_gap}'
+                        title_clus_size_ontrack=f'Cluster size {iside} eta{eta} phi{phi} mult{multi} gasgap{gas_gap} on track; PCB; cluster size'
+                        mmSideGroup.defineHistogram(var_clus_size_ontrack, type='TH2F', title=title_clus_size_ontrack, path='Cluster_size_ontrack', xbins=maxpcb, xmin=1, xmax=maxpcb+1, ybins=20, ymin=0, ymax=20, opt='kAlwaysCreate')
+
+                        var_strip_time_ontrack=f'pcb_mon_ontrack_{iside}_phi{phi}_eta{eta}_ml{multi}_gap{gas_gap},strp_time_ontrack_{iside}_phi{phi}_eta{eta}_ml{multi}_gap{gas_gap};Strip_time_ontrack_vs_PCB_{iside}_eta{eta}_phi{phi}_ml{multi}_gap{gas_gap}'
+                        var_clus_time_ontrack=f'pcb_mon_ontrack_{iside}_phi{phi}_eta{eta}_ml{multi}_gap{gas_gap},cluster_time_ontrack_{iside}_phi{phi}_eta{eta}_ml{multi}_gap{gas_gap};Cluster_time_ontrack_vs_PCB_{iside}_eta{eta}_phi{phi}_ml{multi}_gap{gas_gap}'
+                        title_strp_time_ontrack=f'Strip time {iside} eta{eta} phi{phi} mult{multi} gasgap{gas_gap} on track; PCB; strip time [ns]'
+                        title_clus_time_ontrack=f'Cluster time {iside} eta{eta} phi{phi} mult{multi} gasgap{gas_gap} on track; PCB; cluster time [ns]'
+                        mmSideGroup.defineHistogram(var_strip_time_ontrack, type='TH2F', title=title_strp_time_ontrack, path='Strip_time_ontrack', xbins=maxpcb, xmin=1, xmax=maxpcb+1, ybins=200, ymin=0, ymax=200, opt='kAlwaysCreate')
+                        mmSideGroup.defineHistogram(var_clus_time_ontrack, type='TH2F', title=title_clus_time_ontrack, path='Cluster_time_ontrack', xbins=maxpcb, xmin=1, xmax=maxpcb+1, ybins=200, ymin=0, ymax=200, opt='kAlwaysCreate')
+
+                        var_charge_perPCB_ontrack=f'pcb_mon_ontrack_{iside}_phi{phi}_eta{eta}_ml{multi}_gap{gas_gap},charge_perPCB_ontrack_{iside}_phi{phi}_eta{eta}_ml{multi}_gap{gas_gap};Charge_vs_PCB_ontrack_{iside}_eta{eta}_phi{phi}_ml{multi}_gap{gas_gap}'
+                        title_charge_perPCB_ontrack=f'Charge {iside} eta{eta} phi{phi} mult{multi} gasgap{gas_gap} on track; PCB; charge [fC]'
+                        mmSideGroup.defineHistogram(var_charge_perPCB_ontrack, type='TH2F', title=title_charge_perPCB_ontrack, path='Charge_ontrack', xbins=maxpcb, xmin=1, xmax=maxpcb+1, ybins=120, ymin=0, ymax=1200, opt='kAlwaysCreate')
+
+                        var_clus_size_onseg=f'pcb_mon_clu_onseg_{iside}_phi{phi}_eta{eta}_ml{multi}_gap{gas_gap},cluster_size_onseg_{iside}_phi{phi}_eta{eta}_ml{multi}_gap{gas_gap};Cluster_size_vs_PCB_onseg_{iside}_eta{eta}_phi{phi}_ml{multi}_gap{gas_gap}'
+                        title_clus_size_onseg=f'Cluster size {iside} eta{eta} phi{phi} mult{multi} gasgap{gas_gap} on segms; PCB; cluster size'
+                        mmSideGroup.defineHistogram(var_clus_size_onseg, type='TH2F', title=title_clus_size_onseg, path='Segments/Cluster_size_onseg', xbins=maxpcb, xmin=1, xmax=maxpcb+1, ybins=20, ymin=0, ymax=20, opt='kAlwaysCreate')
+                        var_strip_time_onseg=f'pcb_mon_onseg_{iside}_phi{phi}_eta{eta}_ml{multi}_gap{gas_gap},strp_time_onseg_{iside}_phi{phi}_eta{eta}_ml{multi}_gap{gas_gap};Strip_time_onseg_vs_PCB_{iside}_eta{eta}_phi{phi}_ml{multi}_gap{gas_gap}'
+                        title_strp_time_onseg=f'Strip time {iside} eta{eta} phi{phi} mult{multi} gasgap{gas_gap} on segms; PCB; strip time [ns]'
+                        mmSideGroup.defineHistogram(var_strip_time_onseg, type='TH2F', title=title_strp_time_onseg, path='Segments/Strip_time_onseg', xbins=maxpcb, xmin=1, xmax=maxpcb+1, ybins=200, ymin=0, ymax=200, opt='kAlwaysCreate')
+                        title_clus_time_onseg=f'Cluster time {iside} eta{eta} phi{phi} mult{multi} gasgap{gas_gap} on segms; PCB; cluster time [ns]'
+                        var_clus_time_onseg=f'pcb_mon_clu_onseg_{iside}_phi{phi}_eta{eta}_ml{multi}_gap{gas_gap},cluster_time_onseg_{iside}_phi{phi}_eta{eta}_ml{multi}_gap{gas_gap};Cluster_time_onseg_vs_PCB_{iside}_eta{eta}_phi{phi}_ml{multi}_gap{gas_gap}'
+                        mmSideGroup.defineHistogram(var_clus_time_onseg, type='TH2F', title=title_clus_time_onseg, path='Segments/Cluster_time_onseg', xbins=maxpcb, xmin=1, xmax=maxpcb+1, ybins=200, ymin=0, ymax=200, opt='kAlwaysCreate')
+                        var_charge_perPCB_onseg=f'pcb_mon_clu_onseg_{iside}_phi{phi}_eta{eta}_ml{multi}_gap{gas_gap},charge_perPCB_onseg_{iside}_phi{phi}_eta{eta}_ml{multi}_gap{gas_gap};Charge_vs_PCB_onseg_{iside}_eta{eta}_phi{phi}_ml{multi}_gap{gas_gap}'
+                        title_charge_perPCB_onseg=f'Charge {iside} eta{eta} phi{phi} mult{multi} gasgap{gas_gap} on seg; PCB; charge [fC]'
+                        mmSideGroup.defineHistogram(var_charge_perPCB_onseg, type='TH2F', title=title_charge_perPCB_onseg, path='Segments/Charge_onseg', xbins=maxpcb, xmin=1, xmax=maxpcb+1, ybins=120, ymin=0, ymax=1200, opt='kAlwaysCreate')
+
 
         for gas1 in range(1, 5):
             for multi1 in range(1, 3):
-                title_ontrack="Posy vs Posx "+iside+" multiplet"+str(multi1)+" gap"+str(gas1)+" ontrack"
-                var_ontrack="x_"+iside+"_multiplet"+str(multi1)+"_gas_gap_"+str(gas1)+"_ontrack,y_"+iside+"_multiplet"+str(multi1)+"_gas_gap_"+str(gas1)+"_ontrack;Posy_vs_Posx_"+iside+"_multiplet"+str(multi1)+"_gas_gap_"+str(gas1)+"_ontrack"
-                mmSideGroup.defineHistogram(var_ontrack, type='TH2F', title=title_ontrack+";MM-GlobalX [mm];MM-GlobalY [mm];", path='PosY_vs_Posx_perLayer_ontrack',xbins=500, xmin=-5000, xmax=5000., ybins=500, ymin=-5000.,ymax=5000.)
-
+                title_ontrack=f'Posy vs Posx E{iside} multiplet{multi1} gap{gas1} ontrack; MM-GlobalX [mm]; MM-GlobalY [mm]'
+                var_ontrack=f'x_{iside}_multiplet{multi1}_gas_gap_{gas1}_ontrack,y_{iside}_multiplet{multi1}_gas_gap_{gas1}_ontrack;Posy_vs_Posx_{iside}_multiplet{multi1}_gas_gap_{gas1}_ontrack'
+                mmSideGroup.defineHistogram(var_ontrack, type='TH2F', title=title_ontrack, path='PosY_vs_Posx_perLayer_ontrack',xbins=500, xmin=-5000, xmax=5000., ybins=500, ymin=-5000.,ymax=5000., opt='kAlwaysCreate')
 
     acc = helper.result()
     result.merge(acc)
@@ -177,14 +191,14 @@ if __name__=='__main__':
     
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ConfigFlags.Input.Files =['/afs/cern.ch/user/b/bigliett/myeos/DQ/group.det-muon.DiMuonGenerator_EtaGtr_1p2_Pt10to100.ESD.Run3_2NSW_250322_reco_n270322_EXT0/group.det-muon.28531270.EXT0._000004.ESD.pool.root']
 
-    ConfigFlags.Input.Files =['/afs/cern.ch/user/b/bigliett/myeos/DQ/group.det-muon.ParticleGun_DiMu_Pt10to100.ESD.Run3_2NSW_160122a_reco_22050_EXT0/group.det-muon.27853056.EXT0._000001.ESD.pool.root','/afs/cern.ch/user/b/bigliett/myeos/DQ/group.det-muon.ParticleGun_DiMu_Pt10to100.ESD.Run3_2NSW_160122a_reco_22050_EXT0/group.det-muon.27853056.EXT0._000002.ESD.pool.root','/afs/cern.ch/user/b/bigliett/myeos/DQ/group.det-muon.ParticleGun_DiMu_Pt10to100.ESD.Run3_2NSW_160122a_reco_22050_EXT0/group.det-muon.27853056.EXT0._000003.ESD.pool.root','/afs/cern.ch/user/b/bigliett/myeos/DQ/group.det-muon.ParticleGun_DiMu_Pt10to100.ESD.Run3_2NSW_160122a_reco_22050_EXT0/group.det-muon.27853056.EXT0._000004.ESD.pool.root','/afs/cern.ch/user/b/bigliett/myeos/DQ/group.det-muon.ParticleGun_DiMu_Pt10to100.ESD.Run3_2NSW_160122a_reco_22050_EXT0/group.det-muon.27853056.EXT0._000005.ESD.pool.root','/afs/cern.ch/user/b/bigliett/myeos/DQ/group.det-muon.ParticleGun_DiMu_Pt10to100.ESD.Run3_2NSW_160122a_reco_22050_EXT0/group.det-muon.27853056.EXT0._000006.ESD.pool.root','/afs/cern.ch/user/b/bigliett/myeos/DQ/group.det-muon.ParticleGun_DiMu_Pt10to100.ESD.Run3_2NSW_160122a_reco_22050_EXT0/group.det-muon.27853056.EXT0._000007.ESD.pool.root','/afs/cern.ch/user/b/bigliett/myeos/DQ/group.det-muon.ParticleGun_DiMu_Pt10to100.ESD.Run3_2NSW_160122a_reco_22050_EXT0/group.det-muon.27853056.EXT0._000008.ESD.pool.root','/afs/cern.ch/user/b/bigliett/myeos/DQ/group.det-muon.ParticleGun_DiMu_Pt10to100.ESD.Run3_2NSW_160122a_reco_22050_EXT0/group.det-muon.27853056.EXT0._000009.ESD.pool.root']                           
 
     #from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
     ConfigFlags.Output.HISTFileName = 'monitor.root'
 
     ConfigFlags.Detector.GeometryMM=True
-    ConfigFlags.Muon.doMicromegas = True
+    ConfigFlags.Muon.doMMs = True
     ConfigFlags.DQ.useTrigger=False
 
     ConfigFlags.lock()
@@ -198,6 +212,6 @@ if __name__=='__main__':
     mmMonitorAcc  =  MMMonitoringConfig(ConfigFlags)
     mmMonitorAcc.OutputLevel=DEBUG
     cfg.merge(mmMonitorAcc)
-    #cfg.printConfig(withDetails=True, summariseProps = True)  
+    #cfg.printConfig(withDetails=True, summariseProps = True)
     # number of events selected in the ESD
-    cfg.run(1000)
+    cfg.run(5000)

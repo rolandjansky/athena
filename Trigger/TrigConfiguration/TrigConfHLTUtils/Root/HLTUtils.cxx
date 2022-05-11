@@ -3,89 +3,81 @@
 */
 
 #include <iostream>
-#include <set>
-#include <map>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <algorithm>
 #include <iterator>
-#include <vector>
 #include <fstream>
 
 #include "TrigConfHLTUtils/HLTUtils.h"
-#include "CxxUtils/checker_macros.h"
 
 using namespace TrigConf;
 
-std::string HLTUtils::s_newCategory ATLAS_THREAD_SAFE = std::string("##NewCategory");
-HLTUtils::CategoryMap_t HLTUtils::s_allHashesByCategory ATLAS_THREAD_SAFE = HLTUtils::CategoryMap_t();
 
-namespace HashChecking {
-  //
-  // \brief Function to check for hash collisions. To minimize the chance of collision,
-  // the hash can additionally be assigned to a category. 
-  // Thread-safe implementation. 
-  // \param hash The hash of the string
-  // \param s The string
-  // \param category The category this string is placed under
-  // \throws std::domain_error Upon a hash-collision within a category
-  void checkGeneratedHash(HLTHash hash, const std::string& s, const std::string& category)
+// \brief Function to check for hash collisions. To minimize the chance of collision,
+// the hash can additionally be assigned to a category.
+// Thread-safe implementation.
+// \param hash The hash of the string
+// \param s The string
+// \param category The category this string is placed under
+// \throws std::domain_error Upon a hash-collision within a category
+void HLTUtils::checkGeneratedHash(HLTHash hash, const std::string& s, const std::string& category)
+{
+
+  // Attempt a read-only check.
+  // This is the most common use-case and it avoids locking.
+  // Hence it is suitable for many threads to use at once.
   {
-
-    // Attempt a read-only check. 
-    // This is the most common use-case and it avoids locking.
-    // Hence it is suitable for many threads to use at once.
-    {
-      HLTUtils::CategoryMap_t::const_accessor cacc_category;
-      const bool categoryExists = HLTUtils::s_allHashesByCategory.find(cacc_category, category);
-      if (categoryExists) {
-        HLTUtils::HashMap_t::const_accessor cacc_hash;
-        const bool hashExists = cacc_category->second.find(cacc_hash, hash);
-        if (hashExists) {
-          if (s != cacc_hash->second) {
-            // Stored string disagrees with test string for given hash. Flag a hash collision!
-            std::stringstream ss;
-            ss << "Hashes the same for category: " << category
-               << " and elements "<< cacc_hash->second << " " << s;
-            throw std::domain_error( ss.str() );
-          } else {
-            // Stored hash's string in agreement with test string. No collisions. Finished.
-            return;
-          }
+    HLTUtils::CategoryMap_t::const_accessor cacc_category;
+    const bool categoryExists = HLTUtils::s_allHashesByCategory.find(cacc_category, category);
+    if (categoryExists) {
+      HLTUtils::HashMap_t::const_accessor cacc_hash;
+      const bool hashExists = cacc_category->second.find(cacc_hash, hash);
+      if (hashExists) {
+        if (s != cacc_hash->second) {
+          // Stored string disagrees with test string for given hash. Flag a hash collision!
+          std::stringstream ss;
+          ss << "Hashes the same for category: " << category
+             << " and elements "<< cacc_hash->second << " " << s;
+          throw std::domain_error( ss.str() );
+        } else {
+          // Stored hash's string in agreement with test string. No collisions. Finished.
+          return;
         }
       }
     }
+  }
 
-    // If we failed to find either the category-map itself, or the hash within its category-map,
-    // then we need to obtain exclusive mutable access to add the category and/or hash.
-    // This is rarer, and will temporarily block other threads trying to read from within the respective hash-buckets.
-    // The difference is the use of accessor rather than const_accessor and insert() instead of find()   
-    //
-    // We don't mind if this is a new category or an existing one (we ignore return boolean from s_allHashesByCategory.insert)
-    // We use the default constructor in the case that the category-map is newly created.
-    HLTUtils::CategoryMap_t::accessor acc_category;
-    HLTUtils::s_allHashesByCategory.insert(acc_category, category);
-    HLTUtils::HashMap_t::accessor acc_hash;
-    const bool newEntryInMap = acc_category->second.insert(acc_hash, hash);
-    if (newEntryInMap) {
-      // We are the first thread to write this hash into this category (as expected). Set the payload value
-      acc_hash->second = s;
-    } else {
-      // Rarer, but possible that two-or-more threads are all trying to concurrently insert the same hash into the same category.
-      // Getting here means that we weren't the first thread.
-      // While this does mean that the other thread did the job for us, we must check once again that what this other thread inserted
-      // doesn't collide with what this thread wanted to insert.
-      if (s != acc_hash->second) {
-        // Stored string disagrees with test string for given hash. Flag a hash collision!
-        std::stringstream ss;
-        ss << "Hashes the same for category: " << category
-           << " and elements "<< acc_hash->second << " " << s;
-        throw std::domain_error( ss.str() );
-      }
+  // If we failed to find either the category-map itself, or the hash within its category-map,
+  // then we need to obtain exclusive mutable access to add the category and/or hash.
+  // This is rarer, and will temporarily block other threads trying to read from within the respective hash-buckets.
+  // The difference is the use of accessor rather than const_accessor and insert() instead of find()
+  //
+  // We don't mind if this is a new category or an existing one (we ignore return boolean from s_allHashesByCategory.insert)
+  // We use the default constructor in the case that the category-map is newly created.
+  HLTUtils::CategoryMap_t::accessor acc_category;
+  HLTUtils::s_allHashesByCategory.insert(acc_category, category);
+  HLTUtils::HashMap_t::accessor acc_hash;
+  const bool newEntryInMap = acc_category->second.insert(acc_hash, hash);
+  if (newEntryInMap) {
+    // We are the first thread to write this hash into this category (as expected). Set the payload value
+    acc_hash->second = s;
+  } else {
+    // Rarer, but possible that two-or-more threads are all trying to concurrently insert the same hash into the same category.
+    // Getting here means that we weren't the first thread.
+    // While this does mean that the other thread did the job for us, we must check once again that what this other thread inserted
+    // doesn't collide with what this thread wanted to insert.
+    if (s != acc_hash->second) {
+      // Stored string disagrees with test string for given hash. Flag a hash collision!
+      std::stringstream ss;
+      ss << "Hashes the same for category: " << category
+         << " and elements "<< acc_hash->second << " " << s;
+      throw std::domain_error( ss.str() );
     }
   }
 }
+
 
 
 HLTHash HLTUtils::string2hash( const std::string& s, const std::string& category )
@@ -104,7 +96,7 @@ HLTHash HLTUtils::string2hash( const std::string& s, const std::string& category
     hash ^= ( hash >> 5) + s[i] + ( hash << 7 );
 
     
-  HashChecking::checkGeneratedHash(hash, s, category);
+  checkGeneratedHash(hash, s, category);
 
   return hash;
 }

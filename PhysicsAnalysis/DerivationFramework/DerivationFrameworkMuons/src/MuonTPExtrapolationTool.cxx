@@ -31,7 +31,6 @@ StatusCode MuonTPExtrapolationTool::initialize() {
         m_ext_eta_key = (m_decor_muons ? m_muon_key.key() : m_id_trk_key.key()) + ".EtaTriggerPivot";
         m_ext_phi_key = (m_decor_muons ? m_muon_key.key() : m_id_trk_key.key()) + ".PhiTriggerPivot";
         m_ext_stat_key = (m_decor_muons ? m_muon_key.key() : m_id_trk_key.key()) + ".DecoratedPivotEtaPhi";
-       
     }
     ATH_CHECK(m_ext_eta_key.initialize(m_run_extrapolation));
     ATH_CHECK(m_ext_phi_key.initialize(m_run_extrapolation));

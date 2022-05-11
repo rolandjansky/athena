@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file CaloIdentifier/src/LArHEC_Base_ID.cxx
@@ -926,10 +926,10 @@ int   LArHEC_Base_ID::get_prevInEta(const LArHEC_region* hecRegion, const unsign
       unsigned int maxHashMinus = prevHecRegion->hashMax();
       float phiMargin = 0.25*std::min(gPhi,gPhiMinus);
       float rPhi = (index-minHash)*gPhi+hecRegion->phiMin();
-      int nPhiMinusFirst = int(floor((rPhi     -prevHecRegion->phiMin())
+      int nPhiMinusFirst = int(std::floor((rPhi     -prevHecRegion->phiMin())
 				     /gPhiMinus+phiMargin))
 	+maxHashMinus-nPhiMinus;
-      int nPhiMinusNext  = int(floor((rPhi+gPhi-prevHecRegion->phiMin())
+      int nPhiMinusNext  = int(std::floor((rPhi+gPhi-prevHecRegion->phiMin())
 				     /gPhiMinus+phiMargin))
 	+maxHashMinus-nPhiMinus;
       if ( nPhiMinusNext == nPhiMinusFirst ) nPhiMinusNext++;
@@ -976,9 +976,9 @@ int   LArHEC_Base_ID::get_nextInEta(const LArHEC_region* hecRegion, const unsign
       unsigned int minHashPlus = nextHecRegion->hashMin();
       float phiMargin = 0.25*std::min(gPhi,gPhiPlus);
       float rPhi = (index+nPhi-maxHash)*gPhi+hecRegion->phiMin();
-      int nPhiPlusFirst = int(floor((rPhi     -nextHecRegion->phiMin())
+      int nPhiPlusFirst = int(std::floor((rPhi     -nextHecRegion->phiMin())
 				    /gPhiPlus+phiMargin))+minHashPlus;
-      int nPhiPlusNext  = int(floor((rPhi+gPhi-nextHecRegion->phiMin())
+      int nPhiPlusNext  = int(std::floor((rPhi+gPhi-nextHecRegion->phiMin())
 				    /gPhiPlus+phiMargin))+minHashPlus;
       if ( nPhiPlusNext == nPhiPlusFirst ) nPhiPlusNext++;
 
@@ -1039,9 +1039,9 @@ int   LArHEC_Base_ID::get_prevInSamp(const LArHEC_region* hecRegion, const unsig
 	float phiMargin = 0.25*std::min(gPhi,gPhiMinus);
 	// phi 'coordinate' in initial region
 	float rPhi = ((index-minHash)%nPhi)*gPhi+hecRegion->phiMin();
-	int nPhiMinusFirst = int(floor((rPhi     -prevHecRegion->phiMin())
+	int nPhiMinusFirst = int(std::floor((rPhi     -prevHecRegion->phiMin())
 				       /gPhiMinus+phiMargin));
-	int nPhiMinusNext  = int(floor((rPhi+gPhi-prevHecRegion->phiMin())
+	int nPhiMinusNext  = int(std::floor((rPhi+gPhi-prevHecRegion->phiMin())
 				       /gPhiMinus+phiMargin));
 	if ( nPhiMinusNext == nPhiMinusFirst ) nPhiMinusNext++;
 	// eta coordinate in initial region
@@ -1091,9 +1091,9 @@ int   LArHEC_Base_ID::get_nextInSamp(const LArHEC_region* hecRegion, const unsig
 	float phiMargin = 0.25*std::min(gPhi,gPhiPlus);
 	// phi 'coordinate' in initial region
 	float rPhi = ((index-minHash)%nPhi)*gPhi+hecRegion->phiMin();
-	int nPhiPlusFirst = int(floor((rPhi     -nextHecRegion->phiMin())
+	int nPhiPlusFirst = int(std::floor((rPhi     -nextHecRegion->phiMin())
 				      /gPhiPlus+phiMargin));
-	int nPhiPlusNext  = int(floor((rPhi+gPhi-nextHecRegion->phiMin())
+	int nPhiPlusNext  = int(std::floor((rPhi+gPhi-nextHecRegion->phiMin())
 				      /gPhiPlus+phiMargin));
 	if ( nPhiPlusNext == nPhiPlusFirst ) nPhiPlusNext++;
 

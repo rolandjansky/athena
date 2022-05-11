@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CondAlgY.h"
@@ -24,28 +24,14 @@ CondAlgY::~CondAlgY() {}
 StatusCode CondAlgY::initialize() {
   ATH_MSG_DEBUG("initialize " << name());
 
-  if (m_cds.retrieve().isFailure()) {
-    ATH_MSG_ERROR("unable to retrieve ASCIICondDbSvc");
-  }
+  ATH_CHECK( m_cds.retrieve() );
 
   m_wch1.setDbKey(m_dbk1);
   m_wch2.setDbKey(m_dbk2);
 
-  if (m_wch1.initialize().isFailure()) {
-    ATH_MSG_ERROR("unable to initialize WriteHandleKey with key" << m_wch1.key() );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_wch1.initialize() );
+  ATH_CHECK( m_wch2.initialize() );
 
-  if (m_wch2.initialize().isFailure()) {
-    ATH_MSG_ERROR("unable to initialize WriteCondHandle with key" << m_wch2.key() );
-    return StatusCode::FAILURE;
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode CondAlgY::finalize() {
-  ATH_MSG_DEBUG("finalize " << name());
   return StatusCode::SUCCESS;
 }
 

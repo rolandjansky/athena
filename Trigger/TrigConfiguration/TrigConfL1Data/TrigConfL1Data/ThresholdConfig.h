@@ -21,7 +21,7 @@ namespace TrigConf {
       typedef std::map< L1DataDef::TriggerType, thrVec_t> thrVecMap_t;
 
       ThresholdConfig();
-      ~ThresholdConfig();// = default;
+      virtual ~ThresholdConfig() override;
 
       ThresholdConfig(const ThresholdConfig &) = delete;
       ThresholdConfig & operator=(const ThresholdConfig&) = delete;
@@ -66,7 +66,7 @@ namespace TrigConf {
 
       bool addTriggerThreshold(TriggerThreshold* value); // add according to type
 
-      virtual void print(const std::string& indent="", unsigned int detail=1) const;
+      virtual void print(const std::string& indent="", unsigned int detail=1) const override;
 
       void printTriggerThresholdVector(const std::string& indent="") const;
 

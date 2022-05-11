@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -444,7 +444,18 @@ template <class STORABLE>
 inline
 bool ElementLink<STORABLE>::isValid() const
 {
-  return (0 != cptr());
+  // This used to just call cptr(), but that was leading to dangling-pointer
+  // warnings with gcc12 when we were returning ElementLink's by value,
+  // as in ElementLinkVector.  Doing it like this allows us to save
+  // a little work, anyway.
+  if (this->hasCachedElement()) return true;
+
+  const STORABLE* ptr = this->getDataPtr();
+  if (ptr && IndexingPolicy::isValid(this->storedIndex())) {
+    this->setCachedElement (IndexingPolicy::lookup(this->storedIndex(), *ptr));
+    return true;
+  }
+  return false;
 }
 
 

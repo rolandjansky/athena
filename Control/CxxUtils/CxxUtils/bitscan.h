@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -136,7 +136,7 @@ namespace CxxUtils {
   // Use the target attribute and function multiversioning to use
   // this instruction if it is in fact available.
   // clang has intrinsics for popcount but not target_clones. 
-  __attribute__ ((target_clones ("popcnt,default")))
+  [[gnu::target_clones("popcnt,default")]]
 #endif
   inline unsigned count_ones(unsigned x) {
 #if HAVE_BITCOUNT_INTRINSICS
@@ -147,7 +147,7 @@ namespace CxxUtils {
   }
 
 #if defined(__x86_64__) && HAVE_TARGET_CLONES
-  __attribute__ ((target_clones ("popcnt,default")))
+  [[gnu::target_clones("popcnt,default")]]
 #endif
   inline unsigned count_ones(unsigned long x) {
 #if HAVE_BITCOUNT_INTRINSICS
@@ -159,7 +159,7 @@ namespace CxxUtils {
 
 
 #if defined(__x86_64__) && HAVE_TARGET_CLONES
-  __attribute__ ((target_clones ("popcnt,default")))
+  [[gnu::target_clones("popcnt,default")]]
 #endif
   inline unsigned count_ones(unsigned long long x) {
 #if HAVE_BITCOUNT_INTRINSICS

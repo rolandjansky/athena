@@ -1,8 +1,9 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */ 
 
 #include "./HLTPrescaleCondAlg.h"
+#include "./TrigConfMD5.h"
 #include "TrigConfIO/TrigDBHLTPrescalesSetLoader.h"
 #include "TrigConfIO/JsonFileLoader.h"
 #include "TrigConfInterfaces/IJobOptionsSvc.h"
@@ -25,6 +26,8 @@ TrigConf::HLTPrescaleCondAlg::createFromFile( const std::string & filename ) con
    psLoader.setLevel(TrigConf::MSGTC::WARNING); 
    ATH_MSG_DEBUG( "Going to load prescales" );
    if( psLoader.loadFile( filename, *pss) ) {
+      const uint32_t psk = m_psk == 0 ? TrigConf::truncatedHash(*pss) : m_psk.value();
+      pss->setPSK(psk);
       ATH_MSG_INFO( "HLT prescales set successfully loaded from file " << filename );
    } else {
       pss = nullptr;
@@ -98,7 +101,6 @@ TrigConf::HLTPrescaleCondAlg::initialize() {
          ATH_MSG_ERROR( "Failed loading HLT prescales set from the file " << m_filename );
          return StatusCode::FAILURE;
       }
-      pss->setPSK(m_psk);
       m_pssMap.insert(std::make_pair(0u, std::move(pss)));
 
    } else if( m_psk != 0u ) {

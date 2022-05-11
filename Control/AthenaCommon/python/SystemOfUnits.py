@@ -47,8 +47,6 @@
 # 01.03.01   parsec    
 # -----
 
-from __future__ import print_function
-
 # 
 # Length [L]
 #

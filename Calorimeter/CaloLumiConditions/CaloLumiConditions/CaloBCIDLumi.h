@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file CaloLumiConditions/CaloBCIDLumi.h
@@ -88,7 +88,7 @@ private:
 
 
   /// Pointer to the luminosity data for BCID 0 (after initial padding).
-  const float* m_lumi;
+  const float* m_lumi = nullptr;
 
 
   /// Associated coefficients conditions object.

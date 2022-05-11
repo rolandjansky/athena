@@ -36,7 +36,7 @@ namespace GSFConstants {
  * error (GSF code throws an exception).
  *
  * Furthermore, the  number of coefficients is also
- * constrained in configuration.
+ * fixed and checked during configuration.
  *
  * So here is a list of these constants all in one
  * place.
@@ -46,9 +46,11 @@ namespace GSFConstants {
 /// state description.
 constexpr int8_t maxNumberofStateComponents = 12;
 /// Maximum number of Gaussian components for the
-/// Bethe Heitler description
-constexpr int8_t maxNumberofBHComponents = 6;
-/// Polynomail coefficients , order is this -1
+/// material effects description
+constexpr int8_t maxNumberofMatComponents = 6;
+/// Number of coefficients for the polynomials,
+/// parametrizing the mean,variace, weights of the
+/// Gaussian components describing the material effects.
 constexpr int8_t polynomialCoefficients = 6;
 
 /**
@@ -57,7 +59,7 @@ constexpr int8_t polynomialCoefficients = 6;
  * we try to have the maximum practical precision for the GSF.
  */
 constexpr int8_t maxComponentsAfterConvolution =
-  maxNumberofBHComponents * maxNumberofStateComponents;
+  maxNumberofMatComponents * maxNumberofStateComponents;
 
 /**
  * @brief Alignment used  for SIMD operations

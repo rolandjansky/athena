@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Gaudi/Athena include(s):
@@ -46,53 +46,41 @@ namespace xAODMaker {
    /// Hard-coded location of the beam position information
    static const std::string INDET_BEAMPOS = "/Indet/Beampos";
 
-   /// Hard-coded location of the luminosity information
-   static const std::string LUMI_FOLDER_RUN11 = "/TRIGGER/OFLLUMI/LBLESTOFL";
-   static const std::string LUMI_FOLDER_RUN12 = "/TRIGGER/LUMI/LBLESTONL";
-   static const std::string LUMI_FOLDER_RUN21 = "/TRIGGER/OFLLUMI/OflPrefLumi";
-   static const std::string LUMI_FOLDER_RUN22 = "/TRIGGER/LUMI/OnlPrefLumi";
 
    EventInfoCnvTool::EventInfoCnvTool( const std::string& type,
                                        const std::string& name,
                                        const IInterface* parent )
-      : AthAlgTool( type, name, parent ),
-        m_beamCondSvcAvailable( false ),
-        m_disableBeamSpot( false ) {
-
+      : AthAlgTool( type, name, parent )
+   {
       // Declare the interface(s) provided by the tool:
       declareInterface< IEventInfoCnvTool >( this );
-#if !defined(XAOD_ANALYSIS) && !defined(SIMULATIONBASE) && !defined(GENERATIONBASE)
-      // Declare the tool's properties:
-      declareProperty( "DisableBeamSpot", m_disableBeamSpot );
-#endif // not XAOD_ANALYSIS or SIMULATIONBASE or GENERATIONBASE
    }
 
-   StatusCode EventInfoCnvTool::initialize() {
+   StatusCode EventInfoCnvTool::initialize()
+   {
 
-#if !defined(XAOD_ANALYSIS) && !defined(SIMULATIONBASE) && !defined(GENERATIONBASE)
+#if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE)
       // Check if the beam position will be available or not:
       if( detStore()->contains< AthenaAttributeList >( INDET_BEAMPOS ) ) {
-         m_beamCondSvcAvailable = true;
+         m_beamSpotInformationAvailable = true;
       } else {
          // This is normal in some cases, but tell the user anyway
-         ATH_MSG_INFO( "Beam conditions service not available" );
+         ATH_MSG_INFO( "Beam spot information not available" );
          ATH_MSG_INFO( "Will not fill beam spot information into "
                        "xAOD::EventInfo" );
-         m_beamCondSvcAvailable = false;
+         m_beamSpotInformationAvailable = false;
       }
       if(m_disableBeamSpot){
-         ATH_MSG_WARNING( "Beam conditions service manually disabled on EventInfo object" );
-         m_beamCondSvcAvailable = false;
+         ATH_MSG_WARNING( "Beam spot information manually disabled on EventInfo object" );
+         m_beamSpotInformationAvailable = false;
       }
 
-      // Try to access the beam conditions service:
-      ATH_CHECK(m_beamSpotKey.initialize(m_beamCondSvcAvailable));
+      ATH_CHECK(m_beamSpotKey.initialize(m_beamSpotInformationAvailable));
+#endif // not XAOD_ANALYSIS or GENERATIONBASE
 
+#if !defined(XAOD_ANALYSIS) && !defined(SIMULATIONBASE) && !defined(GENERATIONBASE)
       CHECK( m_lumiDataKey.initialize (SG::AllowEmpty) );
-#else
-      //do nothing, lumi and beam conditions not available
-
-#endif // not XAOD_ANALYSIS or SIMULATIONBASE or GENERATIONBASE
+#endif // not XAOD_ANALYSIS or GENERATIONBASE
 
       // Return gracefully:
       return StatusCode::SUCCESS;
@@ -114,7 +102,7 @@ namespace xAODMaker {
                                          xAOD::EventInfo* xaod,
                                          bool pileUpInfo,
                                          bool copyPileUpLinks,
-                                         const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
+                                         [[maybe_unused]] const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
    {
 
       if( ! aod ) {
@@ -137,6 +125,7 @@ namespace xAODMaker {
       }
 
       // Copy the event type properties:
+      std::vector< float > eventWeights;
       if( aod->event_type() ) {
          EventType::NameTagPairVec detDescrTags;
          aod->event_type()->get_detdescr_tags( detDescrTags );
@@ -156,13 +145,11 @@ namespace xAODMaker {
          if( xaod->eventType( xAOD::EventInfo::IS_SIMULATION ) ) {
             xaod->setMCChannelNumber( aod->event_type()->mc_channel_number() );
             xaod->setMCEventNumber( aod->event_type()->mc_event_number() );
-            std::vector< float >
-               eventWeights( aod->event_type()->n_mc_event_weights(), 0.0 );
+            eventWeights.resize( aod->event_type()->n_mc_event_weights(), 0.0 );
             for( unsigned int i = 0; i < aod->event_type()->n_mc_event_weights();
                  ++i ) {
                eventWeights[ i ] = aod->event_type()->mc_event_weight( i );
             }
-            xaod->setMCEventWeights( eventWeights );
          }
       }
 
@@ -299,9 +286,9 @@ namespace xAODMaker {
          xaod->setSubEvents( subEvents );
       }
 
-#if !defined(XAOD_ANALYSIS) && !defined(SIMULATIONBASE) && !defined(GENERATIONBASE)
+#if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE)
       // Fill the beam spot variables if the necessary service is available:
-      if( m_beamCondSvcAvailable && ( ! pileUpInfo ) ) {
+      if( m_beamSpotInformationAvailable && ( ! pileUpInfo ) ) {
          SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
          xaod->setBeamPos( beamSpotHandle->beamPos()[ Amg::x ],
                            beamSpotHandle->beamPos()[ Amg::y ],
@@ -314,12 +301,19 @@ namespace xAODMaker {
          xaod->setBeamTiltYZ( beamSpotHandle->beamTilt( 1 ) );
          xaod->setBeamStatus( beamSpotHandle->beamStatus() );
       }
-#else
-      (void)ctx; // silence "unused" compiler warnings
-#endif // not XAOD_ANALYSIS or SIMULATIONBASE or GENERATIONBASE
+#endif // not XAOD_ANALYSIS or GENERATIONBASE
+
+      if (!eventWeights.empty()) {
+        if (xaod->getStore()) {
+          // Ensure that this gets added as a decoration.
+          xaod->getStore()->lock();
+        }
+        static const xAOD::EventInfo::Decorator<std::vector<float> > ew ("mcEventWeights");
+        ew (*xaod) = std::move (eventWeights);
+      }
 
       // Finish with some printout:
-      ATH_MSG_VERBOSE( "Finished conversion" << *xaod );
+      ATH_MSG_DEBUG( "Finished conversion EventInfo="<<aod<<" xAOD::EventInfo="<<xaod<<" content=" << *xaod );
 
       // Return gracefully:
       return StatusCode::SUCCESS;

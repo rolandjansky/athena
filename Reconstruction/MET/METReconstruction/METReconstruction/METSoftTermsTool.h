@@ -76,8 +76,9 @@ namespace met{
     // Cluster selection
     bool m_cl_vetoNegE;
     bool m_cl_onlyNegE;
-    SG::ReadHandleKey<xAOD::CaloClusterContainer>  m_caloClusterKey{""};
-    SG::ReadHandleKey<xAOD::TrackParticleContainer>  m_trackParticleKey{""};
+    SG::ReadHandleKey<xAOD::CaloClusterContainer>  m_caloClusterKey{this, "CaloClusterKey", "", "Input calo cluster container name (not to be configured manually)"};
+    SG::ReadHandleKey<xAOD::TrackParticleContainer>  m_trackParticleKey{this, "TrackKey", "", "Input track container name (not to be configured manually)"};
+
 
   }; 
 

@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PrintHelpers.cxx 780624 2016-10-26 22:41:13Z ssnyder $
 
 // System include(s):
 #include <cstdint>
@@ -70,11 +69,11 @@ std::ostream& operator<< ( std::ostream& out, const SG::AuxElement& obj ) {
    out << "SG::AuxElement\n";
    out << "   ";
    if( obj.usingStandaloneStore() ) {
-      out << "using standalone store " << obj.getConstStore() << "\n";
+      out << "using standalone store\n";
    } else if( obj.usingPrivateStore() ) {
-      out << "using private store " << obj.getConstStore() << "\n";
+      out << "using private store\n";
    } else if( obj.container() ) {
-      out << "in container " << obj.container() << "\n";
+      out << "in container\n";
    } else {
       // If there's no auxiliary store, bail now:
       out << "standalone object, without auxiliary store";

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARGEOH62004ALGS_MODULESCONSTRUCTIONH62004_H
@@ -41,12 +41,15 @@ namespace LArGeo {
 
 	   const LArGeoTB2004Options      *m_Options;
 
-           static float s_dX[NUM_LEAK], s_dY[NUM_LEAK], s_dZ[NUM_LEAK];
-           static float s_shiftX[NUM_LEAK], s_shiftY[NUM_LEAK], s_shiftZ[NUM_LEAK];
-           static float s_angleX[NUM_LEAK], s_angleY[NUM_LEAK], s_angleZ[NUM_LEAK];
+           struct LeakGeom {
+             LeakGeom();
+             float m_dX[NUM_LEAK],     m_dY[NUM_LEAK],     m_dZ[NUM_LEAK];
+             float m_shiftX[NUM_LEAK], m_shiftY[NUM_LEAK], m_shiftZ[NUM_LEAK];
+             float m_angleX[NUM_LEAK], m_angleY[NUM_LEAK], m_angleZ[NUM_LEAK];
+           };
+           static const LeakGeom s_leakGeom;
 
            int m_fcalVisLimit;
-
 };
 
 }

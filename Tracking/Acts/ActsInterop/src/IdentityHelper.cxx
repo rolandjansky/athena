@@ -8,21 +8,29 @@
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 
-
+#include <stdexcept>
 IdentityHelper::IdentityHelper(const InDetDD::SiDetectorElement *elem)
   : m_elem(elem)
-{}
+{
+  if ( m_elem->isPixel() ) {
+    m_helper = static_cast<const PixelID*>(m_elem->getIdHelper());
+  } else if ( m_elem->isSCT()) {
+    m_helper = static_cast<const SCT_ID*>(m_elem->getIdHelper());
+  } else {
+    throw std::invalid_argument("ActsInterop IdentityHelper can only bes ued fro SCT & Pixel det elements");
+  }
+}
   
 
 const PixelID* 
 IdentityHelper::getPixelIDHelper() const 
 {
-  return dynamic_cast<const PixelID*>(m_elem->getIdHelper());
+  return std::get<const PixelID*>(m_helper);
 }
 const SCT_ID* 
 IdentityHelper::getSCTIDHelper() const
 {
-  return dynamic_cast<const SCT_ID*>(m_elem->getIdHelper());
+  return std::get<const SCT_ID*>(m_helper);
 }
 
 int 

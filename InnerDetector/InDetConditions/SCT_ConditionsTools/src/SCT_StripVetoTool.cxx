@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -71,6 +71,12 @@ bool
 SCT_StripVetoTool::isGood(const IdentifierHash& hashId, const EventContext& /*ctx*/) const {
   return isGood(hashId);
 }
+
+// @TODO consider vetoed strips below.
+void
+SCT_StripVetoTool::getDetectorElementStatus([[maybe_unused]] const EventContext& ctx, [[maybe_unused]] InDet::SiDetectorElementStatus &element_status, [[maybe_unused]] EventIDRange &the_range) const  { }
+
+
 
 StatusCode 
 SCT_StripVetoTool::fillData() {

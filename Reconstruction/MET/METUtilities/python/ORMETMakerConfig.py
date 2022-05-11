@@ -18,6 +18,7 @@ def getMETMakerAlg(suffix,jetSelection="Tier0",jetColl="",doRetrieveORconstit=Fa
 
     muonSel = CompFactory.getComp("CP::MuonSelectionTool")("MuonSelectionTool_METMakerAlg",
                                            MuQuality=muonID, # Medium
+                                           TurnOffMomCorr= True,                                           
                                            MaxEta=2.4)
 
     elecSelLH = CompFactory.AsgElectronLikelihoodTool("EleSelLikelihood_METMakerAlg",

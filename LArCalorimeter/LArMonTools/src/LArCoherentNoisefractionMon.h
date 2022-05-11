@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -68,8 +68,8 @@ protected:
 private:
   
   /**correlation histograms*/
-  int m_Nchan; 
-  double m_chan_low,m_chan_up;
+  int m_Nchan = 0; 
+  double m_chan_low = 0.0,m_chan_up = 0.0;
   std::string  m_hist_name;
   std::string m_hist_title;
 
@@ -108,9 +108,9 @@ private:
   std::string m_LArDigitContainerKey;
   
   /** Private members*/
-  int m_evtId;
+  int m_evtId = 0;
   std::vector<std::string> m_triggers;
-  int m_evtCounter;
+  int m_evtCounter = 0;
   
   /** Declare methods used*/
   void fillInCNF();

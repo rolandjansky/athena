@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkNeuralNetworkUtils/NeuralNetworkToHistoTool.h"
@@ -24,7 +24,7 @@ NeuralNetworkToHistoTool::NeuralNetworkToHistoTool(const std::string& name,
 }
 
 NeuralNetworkToHistoTool::~NeuralNetworkToHistoTool()
-{}
+= default;
 
 StatusCode NeuralNetworkToHistoTool::initialize() {
 
@@ -43,21 +43,21 @@ std::vector<TH1*> NeuralNetworkToHistoTool
 ::fromTrainedNetworkToHisto(TTrainedNetwork* trainedNetwork) 
 {
   NetworkToHistoTool tool; 
-  return tool.fromTrainedNetworkToHisto(trainedNetwork); 
+  return NetworkToHistoTool::fromTrainedNetworkToHisto(trainedNetwork); 
 }
 
 TTrainedNetwork* NeuralNetworkToHistoTool
 ::fromHistoToTrainedNetwork(const std::vector<TH1*> & inputHistos) 
 {
   NetworkToHistoTool tool; 
-  return tool.fromHistoToTrainedNetwork(inputHistos); 
+  return NetworkToHistoTool::fromHistoToTrainedNetwork(inputHistos); 
 }
 
 TTrainedNetwork* NeuralNetworkToHistoTool
 ::fromHistoToTrainedNetwork(const std::vector<const TH1*> & inputHistos) 
 {
   NetworkToHistoTool tool; 
-  return tool.fromHistoToTrainedNetwork(inputHistos); 
+  return NetworkToHistoTool::fromHistoToTrainedNetwork(inputHistos); 
 }
 
 std::map<std::string,TH1*> NeuralNetworkToHistoTool

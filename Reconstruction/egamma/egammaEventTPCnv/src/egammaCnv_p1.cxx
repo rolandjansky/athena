@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // egammaCnv_p1.cxx 
@@ -89,10 +89,6 @@ void egammaCnv_p1::persToTrans( const egamma_p1* pers,
   }
   //Clearing Rings ElementLink:
   trans->resetRings(); 
-
-//   msg << MSG::DEBUG << "Loaded egamma from persistent state [OK]"
-//       << endmsg;
-  return;
 }
 
 void egammaCnv_p1::transToPers( const egamma* /*trans*/, 
@@ -101,5 +97,4 @@ void egammaCnv_p1::transToPers( const egamma* /*trans*/,
 {
 
   throw GaudiException("Deprecated method, we have evolved to use egamma_p2.Please migrate to use egammaCnv_p2::transToPers","egammaCnv_p1::transToPers", StatusCode::FAILURE);
-  return;
 }

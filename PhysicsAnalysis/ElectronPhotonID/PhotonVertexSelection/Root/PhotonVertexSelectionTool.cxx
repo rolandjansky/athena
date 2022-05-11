@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local includes
@@ -65,9 +65,7 @@ namespace CP {
 
   //____________________________________________________________________________
   PhotonVertexSelectionTool::~PhotonVertexSelectionTool()
-  {
-
-  }
+  = default;
 
   //____________________________________________________________________________
   StatusCode PhotonVertexSelectionTool::initialize()
@@ -90,9 +88,9 @@ namespace CP {
                                            "logSumpt := log10(PrimaryVerticesAuxDyn.sumPt)"                            , 
                                            "logSumpt2 := log10(PrimaryVerticesAuxDyn.sumPt2)" }; 
  
-    auto mva1 = new TMVA::Reader(var_names, "!Silent:Color");
+    auto *mva1 = new TMVA::Reader(var_names, "!Silent:Color");
     mva1->BookMVA    ("MLP method"                                                                , m_configFileCase1 );
-    m_mva1 = std::unique_ptr<TMVA::Reader>( std::move(mva1) );
+    m_mva1 = std::unique_ptr<TMVA::Reader>( mva1 );
     
     auto mva2 = std::make_unique<TMVA::Reader>(var_names, "!Silent:Color");
     mva2->BookMVA    ("MLP method"                                                                , m_configFileCase2);
@@ -306,7 +304,7 @@ namespace CP {
       prime_vertex = xAOD::PVHelpers::getHardestVertex(&*vertices);
       fail = FailType::NoGdCandidate;
       vertexMLP.clear();
-      vertexMLP.push_back(std::make_pair(xAOD::PVHelpers::getHardestVertex(&*vertices), 20.));    
+      vertexMLP.emplace_back(xAOD::PVHelpers::getHardestVertex(&*vertices), 20.);    
     }
     
     ATH_MSG_VERBOSE("getVertex case "<< (int)vtxCase << " exit code "<< (int)fail);

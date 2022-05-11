@@ -47,7 +47,7 @@ namespace xAODMaker {
     TrigPassBitsCollection::const_iterator it = aod->begin();
     TrigPassBitsCollection::const_iterator it_end = aod->end();
     // here we just create container with empty xAOD TrigPassBits, of the same size as the AOD equivalent container
-    // the actual bit setting is made by Trigger/TrigEvent/TrigBSExtraction in TrigHLTtoxAODConversion::execute()
+    // the actual bit setting is made by Trigger/TrigEvent/TrigBSExtraction
     // by StatusCode TrigBStoxAODTool::setTrigPassBits(HLT::Navigation* nav);
     // thus we are sure that after rewiring the navigation the new trigpassbits are in the proper place
     for( ; it!=it_end; ++it) { 

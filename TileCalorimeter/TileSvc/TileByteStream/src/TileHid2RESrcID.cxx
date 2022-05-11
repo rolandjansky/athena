@@ -154,13 +154,6 @@ void TileHid2RESrcID::setROD2ROBmap(const std::vector<std::string> & ROD2ROB,
     uint32_t frag = strtol(ROD2ROB[i-1].data(),NULL,0);
     uint32_t rob = strtol(ROD2ROB[i].data(),NULL,0) & 0xFFFFFF;
     if ( frag < 0x1000 ) { 
-      if ( rob < 0x500000 ) {
-        log << MSG::ERROR << "You are using obsolete mapping" << endmsg;
-        log << MSG::ERROR << "Please, upgrade it to event format V3" << endmsg;
-        assert(0);
-        log << MSG::ERROR << "TileHid2RESrcID:: mapping frag 0x"<< MSG::hex 
-            << frag << " to ROB 0x" << rob << MSG::dec << endmsg;
-      }
       // this is actually remapping for fragments inside ROB, bypassing ROD ID
       m_frag2ROD[frag] = rob;
       log << MSG::INFO << "TileHid2RESrcID:: mapping frag 0x"<< MSG::hex 
@@ -203,7 +196,12 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
     event->child(fpdet, idet);
     const eformat::ROBFragment<const uint32_t*> robf(fpdet);
 
-        uint32_t ROBid = robf.source_id();
+    uint32_t ROBid = robf.source_id();
+
+    const auto ROBSubDetID = eformat::helper::SourceIdentifier(ROBid).subdetector_id();
+    const auto ROBSubDetGroup = eformat::helper::SourceIdentifier(ROBid).subdetector_group();
+    if (ROBSubDetGroup == eformat::SubDetectorGroup::TILECAL ||
+        ROBSubDetID == eformat::SubDetector::TDAQ_BEAM_CRATE || ROBSubDetID == 0) { // SubDetID=00 used in testbeam
 
         unsigned int source_id   = robf.rod_source_id();
         eformat::helper::SourceIdentifier id = eformat::helper::SourceIdentifier(source_id);
@@ -330,6 +328,7 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
             break;
           }
         }
+    }
   }
   if (!cisparFound) {
     if (lascisROB) {

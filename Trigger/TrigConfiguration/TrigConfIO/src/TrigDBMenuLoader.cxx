@@ -86,6 +86,7 @@ TrigConf::TrigDBMenuLoader::TrigDBMenuLoader(const std::string & connection) :
 }
 
 
+// Destructor defined here because QueryDefinition is an incomplete type in the header
 TrigConf::TrigDBMenuLoader::~TrigDBMenuLoader() = default;
 
 bool

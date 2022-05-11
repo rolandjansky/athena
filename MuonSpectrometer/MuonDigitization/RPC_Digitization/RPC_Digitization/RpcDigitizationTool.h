@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RPC_DIGITIZATIONTOOL_H
@@ -150,7 +150,7 @@ private:
     /** Evaluate detection efficiency */
     StatusCode DetectionEfficiency(const EventContext& ctx, const Identifier& ideta, const Identifier& idphi, bool& undefinedPhiStripStatus,
                                    CLHEP::HepRandomEngine* rndmEngine, const HepMcParticleLink& trkParticle);
-    double FCPEfficiency(const HepMC::GenParticle* genParticle);
+    double FCPEfficiency(HepMC::ConstGenParticlePtr genParticle);
     /** */
     int ClusterSizeEvaluation(const EventContext& ctx, const Identifier& id, float xstripnorm, CLHEP::HepRandomEngine* rndmEngine);
     /** CoolDB */

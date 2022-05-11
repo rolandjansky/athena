@@ -314,7 +314,7 @@ float TrigComboHypoTool::compute(const std::pair<KineInfo,KineInfo>& kinepair, C
       }
     case ComboHypoVars::DPHI:
       {
-        value = xAOD::P4Helpers::deltaPhi(phi1,phi2);
+        value = std::fabs(xAOD::P4Helpers::deltaPhi(phi1,phi2));
         break;
       }
     case ComboHypoVars::INVM:

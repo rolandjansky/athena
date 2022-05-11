@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -122,7 +122,7 @@ TRT_DriftFunctionTool::TRT_DriftFunctionTool(const std::string& type,
 
 //
 // Destructor--------------------------------------------------
-TRT_DriftFunctionTool::~TRT_DriftFunctionTool(){}
+TRT_DriftFunctionTool::~TRT_DriftFunctionTool()= default;
 
 //
 // Initialize--------------------------------------------------
@@ -511,7 +511,6 @@ void TRT_DriftFunctionTool::setupRtRelationData()
   }
     
   m_error = 0.136;
-  return;
 }
 //
 // Initialise R-t relation for MC --------------------------------------------

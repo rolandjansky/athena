@@ -55,7 +55,7 @@ def readJO(options):
     #some input variables which effect genSeq.Sherpa_i.Parameters
     global runArgs
     global pdfgridpath
-    runArgs = dotdict({"jobConfig":["Run.dat"]})
+    runArgs = dotdict({"jobConfig":["Run.dat"],"ecmEnergy":1000.*float(options.ecm[0])})
     pdfgridpath = "todo"
 
     #some dummy variables

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
@@ -20,7 +20,7 @@ def applyPFOAugmentation(sequence=DerivationFrameworkJob):
         if hasattr(ToolSvc,"PFlowAugmentationTool"):
             pfoaugtool = getattr(ToolSvc,"PFlowAugmentationTool")
         else:
-            weightpfotool = CfgMgr.CP__WeightPFOTool("PFAugmentationWeightTool",DoEoverPWeight=False)
+            weightpfotool = CfgMgr.CP__WeightPFOTool("PFAugmentationWeightTool",DoEoverPWeight=True)
             ToolSvc += weightpfotool
             pfoaugtool = CfgMgr.DerivationFramework__PFlowAugmentationTool("PFlowAugmentationTool",
                                                                            WeightPFOTool=weightpfotool)

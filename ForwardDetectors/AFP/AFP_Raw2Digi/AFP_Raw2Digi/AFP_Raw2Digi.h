@@ -30,7 +30,7 @@ public:
   virtual StatusCode finalize();
 
 private:
-  ToolHandle<IAFP_Raw2DigiTool> m_DigiTool;
+  ToolHandle<IAFP_Raw2DigiTool> m_DigiTool{this, "AFP_Raw2DigiTool", "AFP_Raw2DigiTool", "Tool to translate RawData to xAOD"};
 };
 
 #endif //> !RAW2DIGI_RAW2DIGI_H

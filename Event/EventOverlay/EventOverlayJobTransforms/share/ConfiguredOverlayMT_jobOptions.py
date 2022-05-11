@@ -71,9 +71,11 @@ else:
 
 # Properly generate event context
 if nThreads > 0:
-    EventLoop = Service("AthenaHiveEventLoopMgr")
+    from AthenaServices.AthenaServicesConf import AthenaHiveEventLoopMgr
+    EventLoop = AthenaHiveEventLoopMgr()
 else:
-    EventLoop = Service("AthenaEventLoopMgr")
+    from AthenaServices.AthenaServicesConf import AthenaEventLoopMgr
+    EventLoop = AthenaEventLoopMgr()
 EventLoop.RequireInputAttributeList = True
 EventLoop.UseSecondaryEventNumber = True
 svcMgr += EventLoop

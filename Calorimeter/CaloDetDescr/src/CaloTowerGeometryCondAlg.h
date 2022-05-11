@@ -1,5 +1,5 @@
 //Dear emacs, this is -*-c++-*-
-//Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+//Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 #ifndef CALODETDESC_CALOTOWERGEOMETRYCONDALG_H
 #define CALODETDESC_CALOTOWERGEOMETRYCONDALG_H
@@ -7,7 +7,6 @@
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
-#include "GaudiKernel/ICondSvc.h"
 #include "CaloDetDescr/CaloTowerGeometry.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 
@@ -27,8 +26,6 @@ class CaloTowerGeometryCondAlg : public AthReentrantAlgorithm {
 
   SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey{this,"CaloDetDescrManager", "CaloDetDescrManager"}; 
   SG::WriteCondHandleKey<CaloTowerGeometry> m_outputKey{this,"OutputKey","CaloTowerGeometry"};
-
-  ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 
   //Properties:
   Gaudi::Property<unsigned> m_towerEtaBins{this,"TowerEtaBins",100,"Number of pseudorapidity bins in tower grid"};

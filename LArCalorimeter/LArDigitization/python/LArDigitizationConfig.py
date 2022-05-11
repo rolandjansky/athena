@@ -113,10 +113,6 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
     if isOverlay() and globalflags.DataSource() == 'geant4':
           kwargs.setdefault('isMcOverlay',True)
 
-    from LArROD.LArRODFlags import larRODFlags
-    kwargs.setdefault('Nsamples', larRODFlags.nSamples() )
-    kwargs.setdefault('firstSample', larRODFlags.firstSample() )
-
     if isOverlay() :
         if overlayFlags.isOverlayMT():
             kwargs.setdefault("OnlyUseContainerName", False)
@@ -231,6 +227,6 @@ def getLArHitEMapToDigitAlg(name="LArHitEMapToDigitAlgDefault", **kwargs):
 
     return CfgMgr.LArHitEMapToDigitAlg(name, **kwargs)
 
-def getLArDigitMaker(name="digitmaker1" , **kwargs):
+def getLArHitEMapMaker(name="digitmaker1" , **kwargs):
     kwargs.setdefault('LArPileUpTool', 'LArPileUpTool')
-    return CfgMgr.LArDigitMaker(name, **kwargs)
+    return CfgMgr.LArHitEMapMaker(name, **kwargs)

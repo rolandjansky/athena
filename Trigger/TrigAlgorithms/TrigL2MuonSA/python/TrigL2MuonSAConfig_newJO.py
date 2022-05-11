@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 #  This file configs the L2MuonSA reco alg in the newJO way, 
 #      but now is located here temporarily until newJO migrations are done in all trigger signatures.
@@ -222,7 +222,6 @@ def muFastSteeringCfg( flags, roisKey, setup="" ):
                                 DoCalibrationStream    = False,
                                 USE_ROIBASEDACCESS_CSC = True,
                                 RpcErrToDebugStream    = True,
-                                Timing                 = False,
                                 topoRoad=True,
                                 dEtasurrRoI = 0.14,
                                 dPhisurrRoI = 0.14,
@@ -235,6 +234,10 @@ def muFastSteeringCfg( flags, roisKey, setup="" ):
     muFastAlg.BackExtrapolator = TrigMuonBackExtrapolator( name        = "MisalignedBackExtrapolator",
                                                            Aligned     = False,
                                                            DataSet     = False )
+
+    # set the flag whether to use NSW or not
+    muFastAlg.USE_STGC = True
+    muFastAlg.USE_MM = True
 
     muFastAlg.UseEndcapInnerFromBarrel = True
 

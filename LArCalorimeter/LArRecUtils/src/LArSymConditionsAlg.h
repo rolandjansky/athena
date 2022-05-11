@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- C++ -*- 
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARSYMCONDITIONSALG_H
@@ -10,7 +10,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
-#include "GaudiKernel/ICondSvc.h"
 #include "LArRawConditions/LArMCSym.h"
 
 
@@ -31,8 +30,6 @@ class LArSymConditionsAlg: public AthAlgorithm {
   SG::ReadCondHandleKey<LArMCSym> m_mcSymKey{this,"LArMCSym","LArMCSym","Key of the LArMCSym symmetry table CDO"};
   SG::ReadCondHandleKey<MC_t> m_readKey{this,"ReadKey","LArRampMC","Key of LArXYZMC input CDO"}; 
   SG::WriteCondHandleKey<SYM_t>  m_writeKey{this,"WriteKey","RampSym","Key of LArXYZSym output CDO"};
-  ServiceHandle<ICondSvc> m_condSvc{this,"CondSvc","CondSvc"};
-
 };
 
 #include "LArSymConditionsAlg.icc"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -19,7 +19,7 @@ namespace InDet{
   
   double InDetSVWithMuonTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
                                           const std::vector<double>& SecVrtErr, double& Signif)
-  const
+  
   {
     double distx =  PrimVrt.x()- SecVrt.x();
     double disty =  PrimVrt.y()- SecVrt.y();
@@ -52,7 +52,7 @@ namespace InDet{
 
 
   double InDetSVWithMuonTool::ConeDist(const AmgVector(5) & VectPerig, const TLorentzVector & Dir)
-  const
+  
   {
   	double  etaTr = -std::log(std::tan(VectPerig[3]*0.5));
 	  double  etaJet = Dir.PseudoRapidity();
@@ -65,7 +65,7 @@ namespace InDet{
 
 
    int InDetSVWithMuonTool::FindMaxAfterFirst( std::vector<double>& Chi2PerTrk)
-   const
+   
    { 
       double Chi2Ref=0.;
       int Position=1;
@@ -81,7 +81,7 @@ namespace InDet{
 //  Function returns a transverse momentum of track w/r some direction
 //
   double InDetSVWithMuonTool::pTvsDir(const Amg::Vector3D &Dir, const std::vector< double >& InpTrk) 
-  const
+  
   {
      double Norm=std::sqrt(Dir.x()*Dir.x() + Dir.y()*Dir.y() + Dir.z()*Dir.z());
      double sx=Dir.x()/Norm; 
@@ -131,7 +131,7 @@ namespace InDet{
   }
 
   TLorentzVector InDetSVWithMuonTool::TotalMom(const std::vector<const xAOD::TrackParticle*>& InpTrk) 
-  const
+  
   {
      TLorentzVector sum(0.,0.,0.,0.); 
      for (int i = 0; i < (int)InpTrk.size(); ++i) {

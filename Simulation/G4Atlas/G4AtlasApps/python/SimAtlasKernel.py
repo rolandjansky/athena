@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 """
 Main configuration module for the full ATLAS simulations
@@ -49,7 +49,7 @@ class AtlasSimSkeleton(SimSkeleton):
         from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
         if not MuonGeometryFlags.hasCSC(): DetFlags.CSC_setOff()
         if not MuonGeometryFlags.hasSTGC(): DetFlags.sTGC_setOff()
-        if not MuonGeometryFlags.hasMM(): DetFlags.Micromegas_setOff()
+        if not MuonGeometryFlags.hasMM(): DetFlags.MM_setOff()
 
         ## Switch off tasks
         DetFlags.pileup.all_setOff()

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -80,7 +80,8 @@ namespace InDet {
     // N.B.: This method is called from the clusterization method of the base class
     PixelClusterCollection* doClusterization(const InDetRawDataCollection<PixelRDORawData>& RDOs,
 					     const PixelID& pixelID,
-					     const InDetDD::SiDetectorElement* element) const override;
+					     const InDetDD::SiDetectorElement* element,
+                                             const InDet::SiDetectorElementStatus *pixelDetElStatus) const override;
 
     // Once the lists of RDOs which makes up the clusters have been found by the
     // clusterize() method, this method is called for each of these lists.
@@ -120,10 +121,10 @@ namespace InDet {
                           const std::vector<network>& connections,    
                           std::vector<rowcolID>& collectionID) const;
                           
-    bool checkDuplication(const PixelID& pixelID,
+    static bool checkDuplication(const PixelID& pixelID,
                           const Identifier& rdoID, 
                           const int& lvl1, 
-                          std::vector<rowcolID>& collectionID) const;
+                          std::vector<rowcolID>& collectionID) ;
                        
 
     BooleanProperty m_checkDuplicatedRDO{this, "CheckDuplicatedRDO", false, "Check duplicated RDOs using isDuplicated method"};

@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
-# art-description: test for job configuration ttFC_fastSim_fulldigi _ttFC_reco_noSplit_noPseudoT_fastSim_fullDigi
-# art-type: grid
-# art-include: master/Athena
+# art-description: test for job configuration ttFC_fastSim_fulldigi _ttFC_reco_noSplit_noPseudoT_fastSim_fullDigi (was for grid, master/Athena)
 # art-output: config.txt
 # art-output: RAWtoESD_config.txt
 # art-output: *.root
@@ -20,11 +18,10 @@ ntupFile="physval-noSplit_noPseudoT_fastSim_fullDigi.root"
 FastChain_tf.py --maxEvents 500 \
     --skipEvents 0 \
     --geometryVersion ATLAS-R2-2015-03-01-00 \
-    --conditionsTag OFLCOND-RUN12-SDR-31 \
+    --conditionsTag OFLCOND-MC16-SDR-RUN2-09 \
     --inputRDOFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/RecoInputRefs/RDO_pileup_fastsim_fulldigi.pool.root' \
     --outputAODFile ${aodFile} \
-    --steering 'doRDO_TRIG' \
-    --athenaopts "all:--threads=1" \
+    --preExec "all:rec.doTrigger.set_Value_and_Lock(False)" \
     --postExec 'RAWtoESD:from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("RAWtoESD_config.txt")' \
     --imf False
 rc2=$?

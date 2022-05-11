@@ -1,5 +1,5 @@
 /*                                                                                                                      
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration                                               
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigThresholdDecisionTool.h"
@@ -362,7 +362,7 @@ namespace LVL1
     }
   }
 
-  std::vector<std::string> TrigThresholdDecisionTool::parseString(std::string str, std::string sep) const
+  std::vector<std::string> TrigThresholdDecisionTool::parseString(const std::string& str, const std::string& sep) const
   {
     std::vector<std::string> parsed;
     int pos = 0;

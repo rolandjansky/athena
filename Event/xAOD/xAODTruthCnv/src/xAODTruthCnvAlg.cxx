@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaKernel/errorcheck.h"
@@ -297,11 +297,11 @@ namespace xAODMaker {
 	  // If signal process vertex is a disconnected vertex (no incoming/outgoing particles), add it manually
 	  VertexMap vertexMap;
 	  VertexMap::iterator mapItr;
-	  vector<HepMC::GenVertexPtr> vertices;
+	  vector<HepMC::ConstGenVertexPtr> vertices;
                 
 	  // Check signal process vertex
 	  // If this is a disconnected vertex, add it manually or won't be added from the loop over particles below.
-	   auto disconnectedSignalProcessVtx = HepMC::signal_process_vertex((HepMC::GenEvent*)genEvt); // Get the signal process vertex
+	   auto disconnectedSignalProcessVtx = HepMC::signal_process_vertex(genEvt); // Get the signal process vertex
 	  if (disconnectedSignalProcessVtx) {
 #ifdef HEPMC3
 	    if (disconnectedSignalProcessVtx->particles_in().size() == 0 &&
@@ -318,17 +318,30 @@ namespace xAODMaker {
 	  }
                 
 	  // Get the beam particles
-	  pair<HepMC::GenParticlePtr,HepMC::GenParticlePtr> beamParticles;
+	  pair<HepMC::ConstGenParticlePtr,HepMC::ConstGenParticlePtr> beamParticles;
 	  bool genEvt_valid_beam_particles=false;
 #ifdef HEPMC3
-	  auto beamParticles_vec = ((HepMC::GenEvent*)genEvt)->beams();
+	  auto beamParticles_vec = genEvt->beams();
 	  genEvt_valid_beam_particles=(beamParticles_vec.size()>1);
 	  if (genEvt_valid_beam_particles){beamParticles.first=beamParticles_vec[0]; beamParticles.second=beamParticles_vec[1]; }
 #else	  
           genEvt_valid_beam_particles=genEvt->valid_beam_particles();
 	  if ( genEvt_valid_beam_particles ) beamParticles = genEvt->beam_particles();
 #endif 
-	  for (auto  part: *((HepMC::GenEvent*)genEvt)) {
+
+#ifdef HEPMC3
+          // We want to process particles in barcode order, so need to
+          // explicitly sort them.
+          std::vector<HepMC::ConstGenParticlePtr> parts = genEvt->particles();
+          std::sort (parts.begin(), parts.end(),
+                     [] (const HepMC::ConstGenParticlePtr& a,
+                         const HepMC::ConstGenParticlePtr& b)
+                     { return HepMC::barcode(a) < HepMC::barcode(b); });
+          for (auto part: parts)
+#else
+          for (auto part: *genEvt)
+#endif
+          {
 	    // (a) create TruthParticle
 	    xAOD::TruthParticle* xTruthParticle = new xAOD::TruthParticle();
 	    xTruthParticleContainer->push_back( xTruthParticle );
@@ -351,7 +364,10 @@ namespace xAODMaker {
 	    }
 	    // (d) Particle's production vertex
 	    auto productionVertex = part->production_vertex();
-	    if (productionVertex) {
+            // Skip the dummy vertex that HepMC3 adds
+            // Can distinguish it from real vertices because it has
+            // a null event pointer.
+	    if (productionVertex && productionVertex->parent_event() != nullptr) {
 	      VertexParticles& parts = vertexMap[productionVertex];
 	      if (parts.incoming.empty() && parts.outgoing.empty())
 		vertices.push_back (productionVertex);
@@ -461,7 +477,12 @@ namespace xAODMaker {
 
     // A helper to set up a TruthVertex (without filling the ELs)
     void xAODTruthCnvAlg::fillVertex(xAOD::TruthVertex* tv, HepMC::ConstGenVertexPtr gv) {
+        // id was renamed to status in HepMC3.
+#ifdef HEPMC3
+        tv->setId(gv->status());
+#else
         tv->setId(gv->id());
+#endif
         tv->setBarcode(HepMC::barcode(gv));
         tv->setX(gv->position().x());
         tv->setY(gv->position().y());

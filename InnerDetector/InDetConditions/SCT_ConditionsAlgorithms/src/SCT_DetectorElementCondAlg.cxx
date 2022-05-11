@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_DetectorElementCondAlg.h"
@@ -30,10 +30,7 @@ StatusCode SCT_DetectorElementCondAlg::initialize()
 
   // Write Handle
   ATH_CHECK(m_writeKey.initialize());
-  // CondSvc
-  ATH_CHECK(m_condSvc.retrieve());
-  // Register write handle
-  ATH_CHECK(m_condSvc->regHandle(this, m_writeKey));
+
   ATH_CHECK(detStore()->retrieve(m_detManager, m_detManagerName));
 
   // used only if they exist

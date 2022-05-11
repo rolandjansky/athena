@@ -9,7 +9,7 @@
 //   see MdtRawDataMonAlg.cxx
 ///////////////////////////////////////////////////////////////////////////
 
-#include "MdtRawDataMonitoring/MdtRawDataMonAlg.h"
+#include "MdtRawDataMonAlg.h"
 #include "MuonDQAUtils/MuonChamberNameConverter.h"
 #include <TError.h>
 #include <string>

@@ -6,11 +6,11 @@
 
 #include <MuonIdHelpers/MdtIdHelper.h>  /// maxNTubesPerLayer
 #include <TString.h>                    // for Form
-
 #include <algorithm>
 #include <iostream>
-
 #include "TrkDriftCircleMath/SortDcsByY.h"
+#include <AthenaKernel/getMessageSvc.h>
+#include <MuonReadoutGeometry/MdtReadoutElement.h>
 
 namespace {
     constexpr int maxNTubesPerLayer = MdtIdHelper::maxNTubesPerLayer;
@@ -19,10 +19,13 @@ namespace TrkDriftCircleMath {
 
     MdtChamberGeometry::MdtChamberGeometry() { init(); }
 
-    MdtChamberGeometry::MdtChamberGeometry(MdtStationId id, unsigned int nml, unsigned int nlay, unsigned int ntubesml0,
+    MdtChamberGeometry::MdtChamberGeometry(const Identifier& id, const Muon::IMuonIdHelperSvc* idHelperSvc, unsigned int nml, unsigned int nlay, unsigned int ntubesml0,
                                            unsigned int ntubesml1, const LocVec2D& tube0ml0, const LocVec2D& tube0ml1, double tubeDist,
                                            double tubeStage, double layDist, double stationTheta) :
         m_id{id} {
+
+        m_sMdt = idHelperSvc->issMdt(id);
+        m_isBarrel = idHelperSvc->mdtIdHelper().isBarrel(id);
         init();
         setGeometry(nml, nlay, ntubesml0, ntubesml1, tube0ml0, tube0ml1, tubeDist, tubeStage, layDist, stationTheta);
     }
@@ -42,7 +45,6 @@ namespace TrkDriftCircleMath {
         m_firstTube[0] = tube0ml0;
         m_firstTube[1] = tube0ml1;
 
-        m_allTubes.clear();
         if (m_nml < 1 || m_nml > 2)
             throw std::runtime_error(
                 Form("File: %s, Line: %d\nMdtChamberGeometry::setGeometry() - got called with nml=%d which is definitely out of range",
@@ -61,20 +63,12 @@ namespace TrkDriftCircleMath {
                 "File: %s, Line: %d\nMdtChamberGeometry::setGeometry() - got called with ntubesml1=%d which is definitely out of range",
                 __FILE__, __LINE__, ntubesml1));
 
-        // create vector with all tubes in chamber
-        for (unsigned int ml = 0; ml < m_nml; ++ml) {
-            if (!m_wasInit[ml]) continue;
-            for (unsigned int lay = 0; lay < m_nlay; ++lay) {
-                for (unsigned int tube = 0; tube < m_ntubesml[ml]; ++tube) { m_allTubes.emplace_back(tubePosition(ml, lay, tube)); }
-            }
-        }
-
         m_stationTheta = stationTheta;
     }
 
     void MdtChamberGeometry::init() {
         m_validGeometry = true;
-        if (m_id.isSmallMdt()) {
+        if (m_sMdt) {
             m_tubeDist = 15.10;
             m_tubeRad = 7.1;
             m_layDist = 13.085;
@@ -95,23 +89,25 @@ namespace TrkDriftCircleMath {
     bool MdtChamberGeometry::validId(unsigned int ml, unsigned int lay, unsigned int tube) const {
         if (!m_validGeometry) return false;
         if (ml > 1) {
-            std::cout << " ERROR wrong index: ml " << ml << " max " << m_nml << std::endl;
-            print();
+            MsgStream msg{Athena::getMessageSvc(), "MdtChamberGeometry::validId"};
+            msg <<MSG::ERROR << " Wrong index: ml " << ml << " max " << m_nml << endmsg;
+            print(msg);
+           
             return false;
         } else if (lay > m_nlay) {
-            std::cout << " ERROR wrong index: lay " << lay << " max " << m_nlay << std::endl;
-            print();
+            MsgStream msg{Athena::getMessageSvc(), "MdtChamberGeometry::validId"};
+            msg <<MSG::ERROR <<" Wrong index: lay " << lay << " max " << m_nlay << endmsg;
+            print(msg);
             return false;
         } else if (tube > m_ntubesml[ml]) {
-            std::cout << " ERROR wrong index: tube " << tube << " max " << m_ntubesml[ml] << std::endl;
-            print();
+            MsgStream msg{Athena::getMessageSvc(), "MdtChamberGeometry::validId"};            
+            msg << " wrong index: tube " << tube << " max " << m_ntubesml[ml] << endmsg;
+            print(msg);
             return false;
         }
         return true;
     }
-
-    const std::vector<LocVec2D>& MdtChamberGeometry::allTubes() const { return m_allTubes; }
-
+    
     void MdtChamberGeometry::tubesPassedByLine(const Line& line, int inMultilayer, DCVec& crossedTubes) const {
         crossedTubes.reserve(50);
         ResidualWithLine resLine{line};
@@ -147,7 +143,7 @@ namespace TrkDriftCircleMath {
                         } else {
                             // if this is a chamber with only the second ml, set the ml index accordingly
                             unsigned int actualMl = m_isSecondMultiLayer ? 1 : ml;
-                            crossedTubes.emplace_back(lp, m_tubeRad, res, DriftCircle::EmptyTube, MdtId(m_id.isBarrel(), actualMl, lay, i),
+                            crossedTubes.emplace_back(lp, m_tubeRad, res, DriftCircle::EmptyTube, MdtId(m_isBarrel, actualMl, lay, i),
                                                       0);
                         }
                     }
@@ -162,7 +158,7 @@ namespace TrkDriftCircleMath {
                         }
                     } else {
                         unsigned int actualMl = m_isSecondMultiLayer ? 1 : ml;
-                        crossedTubes.emplace_back(lp, m_tubeRad, res, DriftCircle::EmptyTube, MdtId(m_id.isBarrel(), actualMl, lay, i), 0);
+                        crossedTubes.emplace_back(lp, m_tubeRad, res, DriftCircle::EmptyTube, MdtId(m_isBarrel, actualMl, lay, i), 0);
                     }
                 }
             }
@@ -179,14 +175,13 @@ namespace TrkDriftCircleMath {
         std::stable_sort(crossedTubes.begin(), crossedTubes.end(), SortDcsByY());
         return crossedTubes;
     }
-    void MdtChamberGeometry::print() const {
-        std::cout << " MdtChamberGeometry " << m_id << std::endl;
-        std::cout << "  nml " << m_nml << " nlay " << m_nlay << " ntube1 " << m_ntubesml[0] << " ntube2 " << m_ntubesml[1] << std::endl;
-        std::cout << " pos ml1 " << m_firstTube[0] << "  ml2 " << m_firstTube[1] << std::endl;
-        std::cout << " tubeDist " << m_tubeDist << " tubeStage " << m_tubeStage << " layDist " << m_layDist << " tubeRad " << m_tubeRad
-                  << std::endl;
+    void MdtChamberGeometry::print(MsgStream& msg) const {
+        msg << MSG::ALWAYS << " MdtChamberGeometry " << m_id <<std::endl
+            << "  nml " << m_nml << " nlay " << m_nlay << " ntube1 " << m_ntubesml[0] << " ntube2 " << m_ntubesml[1] << std::endl
+            << " pos ml1 " << m_firstTube[0] << "  ml2 " << m_firstTube[1] << std::endl
+            << " tubeDist " << m_tubeDist << " tubeStage " << m_tubeStage << " layDist " << m_layDist << " tubeRad " << m_tubeRad
+                  << endmsg;
     }
-
     LocVec2D MdtChamberGeometry::tubePosition(unsigned int ml, unsigned int lay, unsigned int tube) const {
         if (!validId(ml, lay, tube)) {
             throw std::runtime_error(Form("%s:%d -- Invalid combination of multilayer ml: %u, layer: %u and tube: %d given: ", __FILE__,

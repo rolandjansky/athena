@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -54,8 +54,8 @@ namespace Trk {
 
     ~VxClusteringTable();
   
-    VxClusteringTable(const VxClusteringTable& ); 
-    VxClusteringTable &operator= (const VxClusteringTable &);  
+    VxClusteringTable(const VxClusteringTable& ) = default;
+    VxClusteringTable &operator= (const VxClusteringTable &) = default;
 
   /**
    * Set compatibility of a new pair of tracks

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -24,14 +24,14 @@ namespace Analysis
 
   // --- lookup strings for backward compatibility  ---
 
-  const char* JetFitterGenericTagInfo::N_VTX = "nVTX"; 
-  const char* JetFitterGenericTagInfo::N_SINGLE_TRACKS = "nSingleTracks"; 
-  const char* JetFitterGenericTagInfo::N_TRACKS_AT_VTX = "nTracksAtVtx"; 
-  const char* JetFitterGenericTagInfo::MASS = "mass"; 
-  const char* JetFitterGenericTagInfo::ENERGY_FRACTION =  "energyFraction"; 
-  const char* JetFitterGenericTagInfo::SIGNIFICANCE_3D = "significance3d"; 
-  const char* JetFitterGenericTagInfo::DELTA_ETA = "deltaeta"; 
-  const char* JetFitterGenericTagInfo::DELTA_PHI = "deltaphi"; 
+  const char* const JetFitterGenericTagInfo::N_VTX = "nVTX";
+  const char* const JetFitterGenericTagInfo::N_SINGLE_TRACKS = "nSingleTracks";
+  const char* const JetFitterGenericTagInfo::N_TRACKS_AT_VTX = "nTracksAtVtx";
+  const char* const JetFitterGenericTagInfo::MASS = "mass";
+  const char* const JetFitterGenericTagInfo::ENERGY_FRACTION =  "energyFraction";
+  const char* const JetFitterGenericTagInfo::SIGNIFICANCE_3D = "significance3d";
+  const char* const JetFitterGenericTagInfo::DELTA_ETA = "deltaeta";
+  const char* const JetFitterGenericTagInfo::DELTA_PHI = "deltaphi";
 
   /** Default constructor */
   JetFitterGenericTagInfo::JetFitterGenericTagInfo() : BaseTagInfo()

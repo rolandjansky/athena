@@ -30,7 +30,6 @@ class PadTdsValidationTree {
 
 public:
     PadTdsValidationTree();
-    static std::string treename_from_algoname(const std::string &algoname);
     /// initialize the output containers and the tree
     /**
        The tree should be provided by the THistSvc from Athena.

@@ -120,7 +120,7 @@ InDetIterativeSecVtxFinderTool::InDetIterativeSecVtxFinderTool(const std::string
 }
 
 InDetIterativeSecVtxFinderTool::~InDetIterativeSecVtxFinderTool()
-{}
+= default;
 
 void InDetIterativeSecVtxFinderTool::setPriVtxPosition( double vx, double vy, double vz )
 { 
@@ -1436,7 +1436,7 @@ double InDetIterativeSecVtxFinderTool::MomentumDirection( int opt, const Amg::Ve
 }
 **/
 
-double InDetIterativeSecVtxFinderTool::VrtVrtDist( xAOD::Vertex * v1, xAOD::Vertex * v2 ) const
+double InDetIterativeSecVtxFinderTool::VrtVrtDist( xAOD::Vertex * v1, xAOD::Vertex * v2 ) 
 {
   double dist = 50 ;
 
@@ -1673,8 +1673,6 @@ void InDetIterativeSecVtxFinderTool::FillXcheckdefauls()
 {      
   m_seedac->push_back( 0 ) ;
   m_nperiseed->push_back( 0 ) ;
-
-  return ;
 }
 
 StatusCode InDetIterativeSecVtxFinderTool::initialize()
@@ -1938,7 +1936,6 @@ void InDetIterativeSecVtxFinderTool::printParameterSettings()
 void InDetIterativeSecVtxFinderTool::SGError(const std::string& errService)
 {
   ATH_MSG_FATAL( errService << " not found. Exiting !" );
-    return;
 }
 
 double InDetIterativeSecVtxFinderTool::compatibility(const Trk::TrackParameters & measPerigee,

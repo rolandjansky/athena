@@ -139,8 +139,8 @@ namespace Pythia8 {
 private:
   
     // Options and Histograms.
-    bool  m_doTopRecoil, m_useOldDipole, m_doList, m_recoilDeadCone;
-    Hist *m_wtCorr;
+    bool  m_doTopRecoil{}, m_useOldDipole{}, m_doList{}, m_recoilDeadCone{};
+    Hist *m_wtCorr{};
 
   };
 

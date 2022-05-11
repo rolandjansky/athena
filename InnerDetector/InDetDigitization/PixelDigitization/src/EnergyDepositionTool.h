@@ -70,7 +70,7 @@ private:
     nullptr
   };
 
-  std::vector<BichselData> m_BichselData;      // vector to store Bichsel Data. Each entry is for one particle type
+   std::vector<BichselData> m_bichselData;      // vector to store Bichsel Data. Each entry is for one particle type
 
   Gaudi::Property<int> m_numberOfSteps
   {

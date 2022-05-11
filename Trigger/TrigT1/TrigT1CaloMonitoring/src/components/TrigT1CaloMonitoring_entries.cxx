@@ -4,6 +4,8 @@
 #include "../PprMonitorAlgorithm.h"
 #include "../JepJemMonitorAlgorithm.h"
 #include "../JepCmxMonitorAlgorithm.h"
+#include "../OverviewMonitorAlgorithm.h"
+#include "../L1CaloLegacyEDMMonitorAlgorithm.h"
 
 // Run 2
 #include "../CPMon.h"
@@ -29,6 +31,8 @@ DECLARE_COMPONENT( CpmSimMonitorAlgorithm )
 DECLARE_COMPONENT( PprMonitorAlgorithm )
 DECLARE_COMPONENT( JepJemMonitorAlgorithm )
 DECLARE_COMPONENT( JepCmxMonitorAlgorithm )
+DECLARE_COMPONENT( OverviewMonitorAlgorithm )
+DECLARE_COMPONENT( L1CaloLegacyEDMMonitorAlgorithm )
 
 // Run 2
 DECLARE_COMPONENT( LVL1::OverviewMon )

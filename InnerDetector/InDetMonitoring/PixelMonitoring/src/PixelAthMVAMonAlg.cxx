@@ -1,53 +1,52 @@
 /*
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
+/**
+ * @file PixelAthMVAMonAlg.cxx
+ * @brief Collects reconstructed event information to evaluate per-module (or per-FE for IBL) classifier
+ * @author Iskander Ibragimov
+ **/
 #include "PixelAthMVAMonAlg.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetRIO_OnTrack/SiClusterOnTrack.h"
+#include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
 #include "TrkSurfaces/CylinderSurface.h"
+#include "TTree.h"
+#include "TFile.h"
 
 PixelAthMVAMonAlg::PixelAthMVAMonAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthMonitorAlgorithm(name, pSvcLocator),
   m_holeSearchTool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool", this),
   m_trackSelTool("InDet::InDetTrackSelectionTool/TrackSelectionTool", this),
   m_trkextrapolator("Trk::Extrapolator/InDetExtrapolator"),
-  m_atlasid(nullptr),
-  m_pixelid(nullptr)
+  m_atlasid(nullptr)
 {
   declareProperty("HoleSearchTool", m_holeSearchTool);
   declareProperty("TrackSelectionTool", m_trackSelTool);
   declareProperty("Extrapolator", m_trkextrapolator);
-  declareProperty("calibFolder", m_calibFolder = "mva01022022");
+  declareProperty("calibFolder", m_calibFolder = "20220503");
   declareProperty("dumpTree", m_dumpTree = false);
 }
 
-
 PixelAthMVAMonAlg::~PixelAthMVAMonAlg() {}
 
-
 StatusCode PixelAthMVAMonAlg::initialize() {
-
+  ATH_CHECK( PixelAthMonitoringBase::initialize());
   ATH_CHECK( detStore()->retrieve(m_atlasid, "AtlasID") );
-  ATH_CHECK( detStore()->retrieve(m_pixelid, "PixelID") );
-  ATH_CHECK( m_pixelCondSummaryTool.retrieve() );
-  ATH_CHECK( m_pixelReadout.retrieve() );
   ATH_CHECK( m_pixelRDOName.initialize() );
   if ( !m_holeSearchTool.empty() ) ATH_CHECK( m_holeSearchTool.retrieve() );
   if ( !m_trackSelTool.empty() ) ATH_CHECK( m_trackSelTool.retrieve() );
-  if (!m_trkextrapolator.empty()) ATH_CHECK(m_trkextrapolator.retrieve());
-
+  if ( !m_trkextrapolator.empty() ) ATH_CHECK( m_trkextrapolator.retrieve() );
   ATH_CHECK( m_tracksKey.initialize() );
   ATH_CHECK( m_clustersKey.initialize() );
   
-  for (int ii = 0; ii < PixLayers::COUNT; ++ii) {
+  for (int ii = 0; ii < PixLayers::NBASELAYERS; ++ii) {
 
     std::string partitionLabel("Disks");
-    if (ii>1) partitionLabel = pixLayersLabel[ii];
+    if (ii>=PixLayers::kBLayer) partitionLabel = pixBaseLayersLabel[ii];
 
     //    std::string fullPathToTrainingFile = partitionLabel + "_training.root"; //TEST
     std::string fullPathToTrainingFile = PathResolverFindCalibFile("PixelDQMonitoring/" + m_calibFolder + "/" + partitionLabel + "_training.root");
@@ -61,7 +60,7 @@ StatusCode PixelAthMVAMonAlg::initialize() {
     m_classBDT.emplace( std::make_pair(partitionLabel, std::make_unique<MVAUtils::BDT>( trainingWeights.get())) );
   }
 
-  return AthMonitorAlgorithm::initialize();
+  return StatusCode::SUCCESS;
 }
 
 
@@ -78,6 +77,8 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
   //
   // fill status vector from conditions summary
   //
+  SG::ReadHandle<InDet::SiDetectorElementStatus> pixel_status = getPixelDetElStatus(m_pixelDetElStatus, ctx);
+  SG::ReadHandle<InDet::SiDetectorElementStatus> pixel_active = getPixelDetElStatus(m_pixelDetElStatusActiveOnly, ctx);
   std::vector<float> status(MAXHASH*2);
 
   PixelID::const_id_iterator idIt = m_pixelid->wafer_begin();
@@ -97,9 +98,12 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
 	for (int iFE=0; iFE<nFE; iFE++) {
 	  Identifier pixID = m_pixelReadout->getPixelIdfromHash(modHash, iFE, 1, 1);
 	  if (pixID.is_valid()) {
-	    if (m_pixelCondSummaryTool->isActive(modHash, pixID) == true) 
+	    auto [is_active,is_good] = isChipGood( !m_pixelDetElStatusActiveOnly.empty() ? pixel_active.cptr() : nullptr,
+						    !m_pixelDetElStatus.empty() ? pixel_status.cptr() : nullptr,
+						    modHash, iFE);
+	    if (is_active)
 	      {
-		if (m_pixelCondSummaryTool->isGood(modHash, pixID) == true) status[modHash+MAXHASH*iFE] = 0;
+		if (is_good) status[modHash+MAXHASH*iFE] = 0;
 		else status[modHash+MAXHASH*iFE] = 1;
 	      } 
 	    else status[modHash+MAXHASH*iFE] = 2;
@@ -110,16 +114,16 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
       {
 	// per module for the old pixel layers
 	//
-	if (m_pixelCondSummaryTool->isActive(modHash) == true) 
+	bool is_active = isActive( !m_pixelDetElStatusActiveOnly.empty() ? pixel_active.cptr() :  nullptr, modHash);
+	bool is_good   = isGood( !m_pixelDetElStatus.empty() ? pixel_status.cptr() :  nullptr, modHash);
+	if (is_active)
 	  {
-	    if (m_pixelCondSummaryTool->isGood(modHash) == true) status[modHash] = 0;
+	    if (is_good) status[modHash] = 0;
 	    else status[modHash] = 1;
 	  } 
 	else status[modHash] = 2;
       }
   }
-
-
   //
   // input data from tracks
   //
@@ -138,11 +142,12 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
   std::vector<float> holes(MAXHASH*2);
   std::vector<float> outliers(MAXHASH*2);
   std::vector<float> measurements(MAXHASH*2);
-
-  TrackCollection::const_iterator itrack = tracks->begin();
-  TrackCollection::const_iterator itrack_end = tracks->end();
-  for (; itrack != itrack_end; ++itrack) {
-    if ((*itrack) == nullptr || (*itrack)->perigeeParameters() == nullptr || (*itrack)->trackSummary() == nullptr || (*itrack)->trackSummary()->get(Trk::numberOfPixelHits) == 0) {
+  std::vector<float> trkalpha(MAXHASH*2);
+  std::vector<float> trkchi2byndf(MAXHASH*2);
+  std::vector<float> trknpixdead(MAXHASH*2);
+  std::vector<float> trknblayerhits(MAXHASH*2);
+  for (auto track: *tracks) {
+    if (track == nullptr || track->perigeeParameters() == nullptr || track->trackSummary() == nullptr || track->trackSummary()->get(Trk::numberOfPixelHits) == 0) {
       ATH_MSG_DEBUG("Pixel MVAMon: Track either invalid or it does not contain pixel hits, continuing...");
       continue;
     }
@@ -150,13 +155,22 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
     int nPixelHits = 0;
     bool hasIBLTSOS(false);
 
-    bool passJOTrkCut = static_cast<bool>( m_trackSelTool->accept(**itrack) );
+    bool passJOTrkCut = static_cast<bool>( m_trackSelTool->accept(*track) );
     if (!passJOTrkCut) continue;
-
-    const Trk::Track* trackWithHoles( (*itrack) );
+    float trkfitndf = track->fitQuality()->numberDoF();
+    float trkfitchi2byndf = track->fitQuality()->chiSquared();
+    if (trkfitndf != 0) trkfitchi2byndf /= trkfitndf;
+    else continue; 
+    float npixdead   = track->trackSummary()->get(Trk::numberOfPixelDeadSensors);
+    float nblayerhits(0);
+    if (track->trackSummary()->get( Trk::expectNextToInnermostPixelLayerHit )) {
+      nblayerhits=track->trackSummary()->get(Trk::numberOfNextToInnermostPixelLayerHits);
+    }
+    
+    const Trk::Track* trackWithHoles( track );
     std::unique_ptr<const Trk::Track> trackWithHolesUnique = nullptr;
-    if ( (*itrack)->trackSummary()->get(Trk::numberOfPixelHoles) > 0 ) {
-      trackWithHolesUnique.reset( m_holeSearchTool->getTrackWithHoles(**itrack) );
+    if ( track->trackSummary()->get(Trk::numberOfPixelHoles) > 0 ) {
+      trackWithHolesUnique.reset( m_holeSearchTool->getTrackWithHoles(*track) );
       trackWithHoles = trackWithHolesUnique.get();
     }
     const DataVector<const Trk::TrackStateOnSurface> *trackStates = trackWithHoles->trackStateOnSurfaces();
@@ -197,21 +211,24 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
       int indexModule = static_cast<int>( m_pixelid->wafer_hash(surfaceID) ); // [0,2047]
 
       const InDetDD::SiDetectorElement *sde = dynamic_cast<const InDetDD::SiDetectorElement *>(trkParameters->associatedSurface().associatedDetectorElement());
+      const Trk::AtaPlane *trackAtPlane = dynamic_cast<const Trk::AtaPlane *>(trkParameters);
       const InDetDD::SiLocalPosition& trkLocalPos = trkParameters->localPosition();
       Identifier locPosID;
+      int iFE(0);
+      bool goodPixelMeasurement(false);
 
       if (trackStateOnSurface->type(Trk::TrackStateOnSurface::Outlier)) 
 	{
 	  if ( isIBL2D(indexModule) ) 
 	    { 
-	      const InDet::SiClusterOnTrack *siclus = dynamic_cast<const InDet::SiClusterOnTrack *>(mesBase);
-	      if ( mesBase && siclus) { 
-		locPosID = siclus->identify();
+	      const InDet::PixelClusterOnTrack *pixClus = dynamic_cast<const InDet::PixelClusterOnTrack *>(mesBase);
+	      if ( mesBase && pixClus) { 
+		locPosID = pixClus->identify();
 		if ( !(locPosID.is_valid()) ) {
 		  ATH_MSG_WARNING("Pixel MVAMon: got invalid track local position on surface for an outlier.");
 		  continue;
 		}
-		int iFE = m_pixelReadout->getFE(locPosID, locPosID);
+		iFE = m_pixelReadout->getFE(locPosID, locPosID);
 		outliers[indexModule+MAXHASH*iFE]   += 1;
 	      }
 	    } 
@@ -229,7 +246,7 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
 		ATH_MSG_WARNING("Pixel MVAMon: got invalid track local position on surface for a hole.");
 		continue;
 	      }
-	      int iFE = m_pixelReadout->getFE(locPosID, locPosID);
+	      iFE = m_pixelReadout->getFE(locPosID, locPosID);
 	      holes[indexModule+MAXHASH*iFE]        += 1;
 	    }
 	  else 
@@ -242,51 +259,52 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
 	  // making sure we get raw pixel clusters data
 	  //
 	  if (not mesBase) continue;
-	  const InDetDD::SiDetectorElement *sde  = dynamic_cast<const InDetDD::SiDetectorElement *>(mesBase->associatedSurface().associatedDetectorElement());
-	  const InDet::SiClusterOnTrack    *clus = dynamic_cast<const InDet::SiClusterOnTrack *>(mesBase);
-	  if (!sde || !clus) continue;
-	  const InDet::SiCluster    *RawDataClus = dynamic_cast<const InDet::SiCluster *>(clus->prepRawData());
-	  if (!RawDataClus || !RawDataClus->detectorElement()->isPixel()) continue;
+	  sde  = dynamic_cast<const InDetDD::SiDetectorElement *>(mesBase->associatedSurface().associatedDetectorElement());
+	  const InDet::PixelClusterOnTrack *pixClus = dynamic_cast<const InDet::PixelClusterOnTrack *>(mesBase);
+	  if (!sde || !pixClus) continue;
+	  const InDet::PixelCluster *rawPixClus = pixClus->prepRawData();
+	  if (!rawPixClus) continue;
+
 	  nPixelHits++;
-
-	  if ( isIBL2D(indexModule) ) 
-	    { 
-	      locPosID = clus->identify();
-	      if ( !(locPosID.is_valid()) ) {
-		ATH_MSG_WARNING("Pixel MVAMon: got invalid cluster on track ID.");
-		continue;
-	      }
-	      int iFE = m_pixelReadout->getFE(locPosID, locPosID);
-	      measurements[indexModule+MAXHASH*iFE] += 1;
-	    }
-	  else 
-	    {
-	      measurements[indexModule]             += 1;
-	    }
-
-	  const Trk::AtaPlane      *trackAtPlane = dynamic_cast<const Trk::AtaPlane *>(trkParameters);
-	  if (trackAtPlane) {
-	    Amg::Vector3D normal  = sde->normal();
-	    Amg::Vector3D trackp  = trackAtPlane->momentum();
-	    double trackpnormcomp = trackp.dot(normal);
-	    double trackp_mag     = trackp.mag();
-	    double cosalpha       = 0.;
-	    if (trackp_mag != 0) cosalpha = std::abs(trackpnormcomp / trackp_mag);
-	    ClusterIDs.emplace_back(clus->identify(), cosalpha);
+	  goodPixelMeasurement = true;
+	  locPosID = pixClus->identify();
+	  if ( !(locPosID.is_valid()) ) {
+	    ATH_MSG_WARNING("Pixel MVAMon: got invalid cluster on track ID.");
+	    continue;
 	  }
-	}
+	  if ( isIBL2D(indexModule) ) iFE = m_pixelReadout->getFE(locPosID, locPosID);
+	  measurements[indexModule+MAXHASH*iFE] += 1;
+	} 
+      else continue;
+
+      if (trackAtPlane) {
+	Amg::Vector3D normal  = sde->normal();
+	Amg::Vector3D trackp  = trackAtPlane->momentum();
+	double trackpnormcomp = trackp.dot(normal);
+	double trackp_mag     = trackp.mag();
+	double alpha          = 0.5 * M_PI;
+	if (trackp_mag != 0) alpha = std::acos(std::abs(trackpnormcomp / trackp_mag));
+
+	trkalpha[indexModule+MAXHASH*iFE] += alpha;
+
+	if (goodPixelMeasurement) ClusterIDs.emplace_back(locPosID, alpha);
+      }
+      trkchi2byndf[indexModule+MAXHASH*iFE]   += trkfitchi2byndf;
+      trknpixdead[indexModule+MAXHASH*iFE]    += npixdead;
+      trknblayerhits[indexModule+MAXHASH*iFE] += nblayerhits;
     } // end of TSOS loop
     eventHasPixHits = eventHasPixHits || (nPixelHits > 0);
 
-    if (!hasIBLTSOS && 	(*itrack)->trackSummary()->get(Trk::expectInnermostPixelLayerHit) && (*itrack)->trackSummary()->get(Trk::numberOfPixelHoles)==0 )
+    if (!hasIBLTSOS && 	track->trackSummary()->get(Trk::expectInnermostPixelLayerHit) && track->trackSummary()->get(Trk::numberOfPixelHoles)==0 )
       {
-	const Trk::Perigee *perigee = (*itrack)->perigeeParameters();
+	const Trk::Perigee *perigee = track->perigeeParameters();
 	Amg::Transform3D transSurf;
 	transSurf.setIdentity();
 	const Trk::CylinderSurface BiggerThanIBLSurface(transSurf, 40.0, 400.0);
 	std::vector<std::unique_ptr<Trk::TrackParameters> > iblTrkParameters = 
 	  m_trkextrapolator->extrapolateStepwise(ctx, *perigee, BiggerThanIBLSurface, Trk::alongMomentum, false);
 	Identifier sensorPosID, chipPosID;
+	double alpha = 0.5 * M_PI;
 	bool foundIBLElem(false); //more than one IBL element possible, only the last one is considered
 
 	for (auto& tp: iblTrkParameters) {
@@ -306,6 +324,9 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
 	    ATH_MSG_DEBUG("Pixel MVAMon: got invalid track local position on surface for an expected IBL hit.");
 	    continue;
 	  } else foundIBLElem=true;
+	  double trackpnormcomp = tp->momentum().dot(tp->associatedSurface().normal());
+	  double trackp_mag     = tp->momentum().mag();
+	  if (trackp_mag != 0) alpha = std::acos(std::abs(trackpnormcomp / trackp_mag));
 	}
 	if (!foundIBLElem) {
 	  ATH_MSG_DEBUG("Pixel MVAMon: couldn't find IBL pos ID: "<< sensorPosID);
@@ -313,7 +334,11 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
 	}
 	int indexModule = static_cast<int>( m_pixelid->wafer_hash(sensorPosID) );
 	int iFE = m_pixelReadout->getFE(chipPosID, chipPosID);
-	holes[indexModule+MAXHASH*iFE] += 1;
+	holes[indexModule+MAXHASH*iFE]          += 1;
+	trkalpha[indexModule+MAXHASH*iFE]       += alpha;
+	trkchi2byndf[indexModule+MAXHASH*iFE]   += trkfitchi2byndf;
+	trknpixdead[indexModule+MAXHASH*iFE]    += npixdead;
+	trknblayerhits[indexModule+MAXHASH*iFE] += nblayerhits;
       }
   } // end of track loop
 
@@ -327,25 +352,25 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
       return left.first < right.first;
     });
 
-  std::vector<float> holesf(MAXHASH*2);
-  std::vector<float> outliersf(MAXHASH*2);
+  std::vector<float> misshitsf(MAXHASH*2);
   float alltrackinfo;
   for (int ih=0; ih<MAXHASH; ++ih) {
     alltrackinfo = holes[ih] + outliers[ih] + measurements[ih]; 
     if (alltrackinfo) {
-      holesf[ih]    = holes[ih]/alltrackinfo;
-      outliersf[ih] = outliers[ih]/alltrackinfo;
-    } else {
-      holesf[ih]    = 1.0;
+      misshitsf[ih]      = (holes[ih]+outliers[ih])/alltrackinfo;
+      trkalpha[ih]       = trkalpha[ih]/alltrackinfo;
+      trkchi2byndf[ih]   = trkchi2byndf[ih]/alltrackinfo;
+      trknpixdead[ih]    = trknpixdead[ih]/alltrackinfo;
+      trknblayerhits[ih] = trknblayerhits[ih]/alltrackinfo;
     }
-
     if ( isIBL2D(ih) ) {
       alltrackinfo = holes[ih+MAXHASH]+outliers[ih+MAXHASH]+measurements[ih+MAXHASH];
       if (alltrackinfo) {
-	holesf[ih+MAXHASH]    = holes[ih+MAXHASH]/alltrackinfo;
-	outliersf[ih+MAXHASH] = outliers[ih+MAXHASH]/alltrackinfo;
-      } else {
-	holesf[ih+MAXHASH]    = 1.0;
+	misshitsf[ih+MAXHASH]      = (holes[ih+MAXHASH]+outliers[ih+MAXHASH])/alltrackinfo;
+	trkalpha[ih+MAXHASH]       = trkalpha[ih+MAXHASH]/alltrackinfo;
+	trkchi2byndf[ih+MAXHASH]   = trkchi2byndf[ih+MAXHASH]/alltrackinfo;
+	trknpixdead[ih+MAXHASH]    = trknpixdead[ih+MAXHASH]/alltrackinfo;
+	trknblayerhits[ih+MAXHASH] = trknblayerhits[ih+MAXHASH]/alltrackinfo;
       }
     }
   }
@@ -369,7 +394,6 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
 
   std::vector<float> clsontrktot(MAXHASH*2); 
   std::vector<float> clsofftrktot(MAXHASH*2);
-  std::vector<float> clscosalpha(MAXHASH*2);
 
   auto pixel_clcontainer = SG::makeHandle(m_clustersKey, ctx);
 
@@ -409,14 +433,13 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
       clsall[idxCluster] += 1;
 
       const InDet::PixelCluster& cluster = *p_clus;
-      double cosalpha(0.);
-      if ( isClusterOnTrack(clusID, ClusterIDs, cosalpha) ) {
+      double alpha = 0.5 * M_PI;
+      if ( isClusterOnTrack(clusID, ClusterIDs, alpha) ) {
 	clsontrk[idxCluster]        += 1;
 	clsontrksize[idxCluster]    += cluster.rdoList().size();
 	clsontrkrowsize[idxCluster] += cluster.width().colRow().x();
 	clsontrkcolsize[idxCluster] += cluster.width().colRow().y();
 	clsontrktot[idxCluster]     += cluster.totalToT();
-	clscosalpha[idxCluster]     += cosalpha;
       } else {
 	clsofftrk[idxCluster]       += 1;
 	clsofftrksize[idxCluster]   += cluster.rdoList().size();
@@ -438,7 +461,6 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
       clsontrkrowsize[ih]/= clsontrk[ih];
       clsontrkcolsize[ih]/= clsontrk[ih];
       clsontrktot[ih]    /= clsontrk[ih];
-      clscosalpha[ih]    /= clsontrk[ih];
     }
     if (clsofftrk[ih]) {
       clsofftrksize[ih]   /= clsofftrk[ih];
@@ -456,7 +478,6 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
 	clsontrkrowsize[ih+MAXHASH]/= clsontrk[ih+MAXHASH];
 	clsontrkcolsize[ih+MAXHASH]/= clsontrk[ih+MAXHASH];
 	clsontrktot[ih+MAXHASH]    /= clsontrk[ih+MAXHASH];
-	clscosalpha[ih+MAXHASH]    /= clsontrk[ih+MAXHASH];
       }
       if (clsofftrk[ih+MAXHASH]) {
 	clsofftrksize[ih+MAXHASH]   /= clsofftrk[ih+MAXHASH];
@@ -487,10 +508,8 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
 	{ 
 	  module = (ih-156) % 20;
 	  nFE = 2;
-	  if (module<3 || module>16) continue; //3D's out acceptance
-	  else if (module==3 || module==16) { //3D's in
-	    nFE = 1;
-	  } else mod_eta = module-9.5;
+	  if (module<4 || module>15) continue; //3D's are out of acceptance
+	  else mod_eta = module-9.5;
 	}
       else if (ih>=436 && ih<=721 ) //BLayer
 	{
@@ -519,7 +538,7 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
       int pixlayer = getPixLayersID(m_pixelid->barrel_ec(waferID), m_pixelid->layer_disk(waferID) );
       if (pixlayer == 99) continue;
       std::string partitionLabel("Disks");
-      if (pixlayer>=PixLayers::kB0) partitionLabel = pixLayersLabel[pixlayer];
+      if (pixlayer>=PixLayers::kBLayer) partitionLabel = pixBaseLayersLabel[pixlayer];
       
       for (int iFE=0; iFE<nFE; iFE++) {
 	Identifier pixID = waferID;
@@ -529,21 +548,27 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
 	    ATH_MSG_ERROR("Pixel MVAMon: got invalid pixID " << pixID);
 	    continue;
 	  }
-	  if (nFE == 1) el_eta = 12;
-	  else {
-	    el_eta = mod_eta*2 + iFE;
-	    if (mod_eta > 0) el_eta-=1.0;
-	    el_eta = std::abs(el_eta);
-	  }
+	  el_eta = mod_eta*2 + iFE;
+	  if (mod_eta > 0) el_eta-=1.0;
+	  el_eta = std::abs(el_eta);
 	}
 	
 	int idx = ih+MAXHASH*iFE;
+	if ( status[idx]==2 ) BDT_Weights.add(pixlayer, pixID, m_pixelid, 0);
+	if ( status[idx]!=0 || (measurements[idx]+holes[idx]+outliers[idx]==0) ) continue;
 	
-	if ( status[idx]!=0 || clsall[idx]==0 || (measurements[idx]+holes[idx]+outliers[idx]==0) ) continue;
-	
-	std::vector<float> bdtVars = { el_eta, holesf[idx], clsontrkf[idx], clsontrkrowsize[idx],
-				       clsontrkcolsize[idx], clsofftrkrowsize[idx], clsofftrkcolsize[idx],
-				       clscosalpha[idx], clsontrktot[idx], clsofftrktot[idx] };
+	std::vector<float> bdtVars;
+	if (pixlayer == PixLayers::kIBL) {
+	  bdtVars = { el_eta, misshitsf[idx], clsontrkf[idx], clsontrkrowsize[idx],
+		      clsontrkcolsize[idx], clsofftrkrowsize[idx], clsofftrkcolsize[idx],
+		      clsontrktot[idx], clsofftrktot[idx], trkalpha[idx],
+		      trkchi2byndf[idx], trknpixdead[idx], trknblayerhits[idx] };
+	} else {
+	  bdtVars = { el_eta, misshitsf[idx], clsontrkf[idx], clsontrkrowsize[idx],
+		      clsontrkcolsize[idx], clsofftrkrowsize[idx], clsofftrkcolsize[idx],
+		      clsontrktot[idx], clsofftrktot[idx], trkalpha[idx],
+		      trkchi2byndf[idx], trknpixdead[idx] };
+	}
 	bdtweights[idx] = m_classBDT.at(partitionLabel)->GetClassification(bdtVars);
 	BDT_Weights.add(pixlayer, pixID, m_pixelid, bdtweights[idx]);
       }
@@ -553,8 +578,6 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
   if (m_dumpTree) {
     auto mvaGroup = getGroup("MVA");
     auto mon_status_vec           = Monitored::Collection("status_vec", status); 
-    auto mon_hf_vec               = Monitored::Collection("holesf_vec", holesf);
-    auto mon_of_vec               = Monitored::Collection("outliersf_vec", outliersf);
     auto mon_h_vec                = Monitored::Collection("holes_vec", holes);
     auto mon_o_vec                = Monitored::Collection("outliers_vec", outliers);
     auto mon_m_vec                = Monitored::Collection("meas_vec", measurements);
@@ -573,15 +596,19 @@ StatusCode PixelAthMVAMonAlg::fillHistograms( const EventContext& ctx ) const {
     
     auto mon_clsontrktot_vec      = Monitored::Collection("clsontrktot_vec", clsontrktot);
     auto mon_clsofftrktot_vec     = Monitored::Collection("clsofftrktot_vec", clsofftrktot);
-    auto mon_clscosalpha_vec      = Monitored::Collection("clscosalpha_vec", clscosalpha);
-    
+    auto mon_trkalpha_vec         = Monitored::Collection("trkalpha_vec", trkalpha);
+    auto mon_trkchi2byndf_vec     = Monitored::Collection("trkchi2byndf_vec", trkchi2byndf);
+    auto mon_trknpixdead_vec      = Monitored::Collection("trknpixdead_vec", trknpixdead);
+    auto mon_trknblayerhits_vec   = Monitored::Collection("trknblayerhits_vec", trknblayerhits);
+
     auto mon_mva_vec              = Monitored::Collection("mva_vec", bdtweights);
 
-    fill( mvaGroup, lbval, mon_status_vec, mon_hf_vec, mon_of_vec, mon_h_vec, mon_o_vec, mon_m_vec,
+    fill( mvaGroup, lbval, mon_status_vec, mon_h_vec, mon_o_vec, mon_m_vec,
 	  mon_clsontrkf_vec, mon_clsontrk_vec, mon_clsofftrk_vec, mon_clsall_vec,
 	  mon_clsontrksize_vec, mon_clsontrkrowsize_vec, mon_clsontrkcolsize_vec,
 	  mon_clsofftrksize_vec, mon_clsofftrkrowsize_vec, mon_clsofftrkcolsize_vec,
-	  mon_clsontrktot_vec, mon_clsofftrktot_vec, mon_clscosalpha_vec, mon_mva_vec );
+	  mon_clsontrktot_vec, mon_clsofftrktot_vec, mon_trkalpha_vec, mon_trkchi2byndf_vec,
+	  mon_trknpixdead_vec, mon_trknblayerhits_vec, mon_mva_vec );
   }
 
   return StatusCode::SUCCESS;

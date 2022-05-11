@@ -5,8 +5,8 @@ include.block( "TrigT1CaloCalibTools/DecorateL1CaloTriggerTowers_prodJobOFragmen
 # This is included in Calorimeter/CaloRec/share/CaloRec_jobOptions.py
 # This way it's run whenever the CaloRec is run
 
-include("TrigT1CaloCalibConditions/L1CaloCalibConditions_jobOptions.py")
-
+#Apparently the following line is not needed:
+#include("TrigT1CaloCalibConditions/L1CaloCalibConditionsTier0Run2_jobOptions.py")
 triggerTowerTools = CfgMgr.LVL1__L1CaloxAODOfflineTriggerTowerTools( "LVL1__L1CaloxAODOfflineTriggerTowerTools" )
 # decorate L1Calo Trigger Towers
 topSequence += CfgMgr.LVL1__L1CaloTriggerTowerDecoratorAlg( TriggerTowerTools = triggerTowerTools )

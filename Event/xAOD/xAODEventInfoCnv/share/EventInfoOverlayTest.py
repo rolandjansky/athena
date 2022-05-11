@@ -54,8 +54,8 @@ conddb.setGlobalTag("OFLCOND-SDR-BS7T-04-00")
 #--------------------------------------------------------------
 # Input options
 #--------------------------------------------------------------
-svcMgr.EventSelector.InputCollections = [ "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/22.0/v4/RDO.merged-pileup-MT.100events.pool.root" ]
-svcMgr.SecondaryEventSelector.InputCollections  = [ "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/TestCase_xAODEventInfo.root" ]
+svcMgr.EventSelector.InputCollections = [ "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayTests/PresampledPileUp/22.0/Run2/large/mc20_13TeV.900149.PG_single_nu_Pt50.digit.RDO.e8307_s3482_s3136_d1715/RDO.26811908._031801.pool.root.1" ]
+svcMgr.SecondaryEventSelector.InputCollections  = [ "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayTests/Special/TestCase_xAODEventInfo.root" ]
 
 #--------------------------------------------------------------
 # Remapping Service
@@ -92,9 +92,11 @@ topSequence += EventInfoOverlay
 from AthenaCommon.ConcurrencyFlags import jobproperties as jp
 nThreads = jp.ConcurrencyFlags.NumThreads()
 if nThreads > 0:
-    EventLoop = Service("AthenaHiveEventLoopMgr")
+    from AthenaServices.AthenaServicesConf import AthenaHiveEventLoopMgr
+    EventLoop = AthenaHiveEventLoopMgr()
 else:
-    EventLoop = Service("AthenaEventLoopMgr")
+    from AthenaServices.AthenaServicesConf import AthenaEventLoopMgr
+    EventLoop = AthenaEventLoopMgr()
 EventLoop.RequireInputAttributeList = True
 EventLoop.UseSecondaryEventNumber = True
 svcMgr += EventLoop

@@ -529,12 +529,12 @@ uint32_t jFEXFPGA::formSmallRJetTOB(int &iphi, int &ieta) {
     int Sat = 0; //  1 bit for saturation. Set to 1 when jet energy is saturated
 
     if(m_jfexid > 0 && m_jfexid < 5) {
-        et = m_jFEXSmallRJetAlgoTool->getSmallClusterET();
+        et = Get_calibrated_SRj_ET(m_jFEXSmallRJetAlgoTool->getSmallClusterET(),m_jfexid);
         eta = ieta -8;
         phi = iphi -8;
     }
     else if(m_jfexid == 5) {
-        et = m_SRJetET;
+        et = Get_calibrated_SRj_ET(m_SRJetET,m_jfexid); 
         eta = ieta -8;
         if(ieta < FEXAlgoSpaceDefs::jFEX_algoSpace_A_EMIE_eta) { // ieta lower than EMIE stats -> belong to EMB
             phi = iphi-8;
@@ -547,7 +547,7 @@ uint32_t jFEXFPGA::formSmallRJetTOB(int &iphi, int &ieta) {
         }
     }
     else if(m_jfexid == 0) {
-        et = m_SRJetET;   
+        et = Get_calibrated_SRj_ET(m_SRJetET,m_jfexid); 
         eta = 36 - ieta;
         
         if(ieta < FEXAlgoSpaceDefs::jFEX_algoSpace_C_FCAL_end_eta) { // ieta lower than FCal ends -> FCAL
@@ -875,6 +875,27 @@ int jFEXFPGA::getTTowerET_SG(unsigned int TTID) {
     return tmpTower->getTotalET();
 }
 
+int jFEXFPGA::Get_calibrated_SRj_ET(int Energy, int jfex){
+    
+    int Et_edge[8] = {20,30,40,50,65,80,110,150};
+    int et_range = -1;
+    
+    //checking upper threshold for SRjet energy
+    for(int i=0;i<8; i++){
+        if(Energy < Et_edge[i] * 1e3){
+            et_range = i;
+            break;
+        }
+    }
+    
+    //the last threshold is inf therefore, if non of the other thresholds is satisfied, the calibration parameter is set to the maximum
+    if(et_range<0){
+        et_range = 8;
+    }
+    
+    int et = (Energy * FEXAlgoSpaceDefs::SRJ_Calib_params[jfex][et_range]) >> 7;
+    return et;
+}
 
 
 

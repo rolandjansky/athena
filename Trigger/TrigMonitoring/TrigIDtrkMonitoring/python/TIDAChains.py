@@ -15,7 +15,7 @@ import re
 # matching the pattern, then recreate the full analysis string using all the
 # matched chains - can take an individual analysis pattern, or a list of them
 
-def getchains( analyses ):
+def getchains( analyses, monlevel=None ):
 
     if isinstance( analyses, list ):
         a = analyses
@@ -28,7 +28,7 @@ def getchains( analyses ):
         if ":" in analysis:
         
             parts   = analysis.split( ":", 1 )    
-            cchains = getconfiguredchains( parts[0] )
+            cchains = getconfiguredchains( parts[0], monlevel )
 
             for c in cchains:
                 if parts[1] is not None: 
@@ -43,19 +43,25 @@ def getchains( analyses ):
 
 
 
+
+def getconfiguredchains( regex, monlevel=None ):
+    if monlevel is None:
+        return _getconfiguredchains( regex )
+    else:
+        return _getmonchains( regex, monlevel )
+
+
+
 # cached full chain list
 
 _chains = None
 
-def getconfiguredchains( regex ):
-
-#   print ("getconfiguredchains: ", regex )
+def _getconfiguredchains( regex ):
 
     global _chains
 
-#   from datetime import datetime
-  
     if _chains is None :
+#       from datetime import datetime
 #       print( datetime.now(), "getting trigger configuration" )
 
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -75,5 +81,48 @@ def getconfiguredchains( regex ):
 
     return chains
 
+
+
+
+def _getmonchains( regex, monlevel=None ):
+
+    chains = []
+
+    if monlevel is None: 
+        return chains
+
+    parts = monlevel.split( ":", 1 )    
+
+    if parts[0] is None:
+        return chains
+
+    if parts[1] is None:
+        return chains
+
+    sig    = parts[0]
+    levels = parts[1].split(":")
+
+    _monchains = None
+
+    if _monchains is None :
+
+#       from datetime import datetime
+#       print( datetime.now(), "getting trigger configuration" )
+
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
+        from TrigConfigSvc.TriggerConfigAccess import getHLTMonitoringAccess
+        moniAccess = getHLTMonitoringAccess(ConfigFlags)
+        _monchains = moniAccess.monitoredChains( signatures=sig, monLevels=levels )
+
+#       print( datetime.now(), "configured chains: ", len(_monchains) )
+
+    for c in _monchains:
+        chain = re.findall( regex, c )
+        for a in chain:
+            if a is not None and c == a :
+                chains.append( a )
+
+    return chains
 
 

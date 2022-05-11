@@ -223,7 +223,9 @@ StatusCode AFPSiDBasicKalmanTool::reconstructTracks(std::unique_ptr<xAOD::AFPTra
   auto trkNClusters = Monitored::Collection("TrkNClusters",*outputContainer, &xAOD::AFPTrack::nClusters);
   auto trkNHoles    = Monitored::Collection("TrkNHoles",   *outputContainer, &xAOD::AFPTrack::nHoles);
   auto trkChi2      = Monitored::Collection("TrkChi2",     *outputContainer, &xAOD::AFPTrack::chi2);
-  Monitored::Group(m_monTool, trkStationID, trkXLocal, trkYLocal, trkZLocal, trkXSlope, trkYSlope, trkNClusters, trkNHoles, trkChi2);
+  int statID = m_stationID;
+  auto trkMask    = Monitored::Collection("TrkMask",*outputContainer, [statID](const xAOD::AFPTrack* t){return t->stationID()==statID;});
+  Monitored::Group(m_monTool, trkStationID, trkXLocal, trkYLocal, trkZLocal, trkXSlope, trkYSlope, trkNClusters, trkNHoles, trkChi2, trkMask);
   
   return StatusCode::SUCCESS;
 }

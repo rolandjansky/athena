@@ -73,10 +73,10 @@ def defineMenu():
         # single jet
         'L1_J12','L1_J15','L1_J20','L1_J25', 'L1_J30', 'L1_J40', 'L1_J50' ,'L1_J75','L1_J85', 'L1_J100',
         'L1_J20p31ETA49', 'L1_J30p31ETA49', 'L1_J50p31ETA49', 'L1_J75p31ETA49', 'L1_J15p31ETA49',
-        'L1_J12_EMPTY','L1_J12_FIRSTEMPTY', 'L1_J12_UNPAIRED_ISO', 'L1_J12_UNPAIRED_NONISO', 'L1_J12_ABORTGAPNOTCALIB',
+        'L1_J12_EMPTY','L1_J12_FIRSTEMPTY', 'L1_J12_UNPAIRED_ISO', 'L1_J12_UNPAIRED_NONISO',
         'L1_J15p31ETA49_UNPAIRED_ISO',
         'L1_J30_EMPTY', 'L1_J30_FIRSTEMPTY', 'L1_J30p31ETA49_EMPTY', 'L1_J30p31ETA49_UNPAIRED_ISO', 'L1_J30p31ETA49_UNPAIRED_NONISO',
-        'L1_J50_UNPAIRED_ISO', 'L1_J50_UNPAIRED_NONISO', 'L1_J50_ABORTGAPNOTCALIB',         
+        'L1_J50_UNPAIRED_ISO', 'L1_J50_UNPAIRED_NONISO',
         'L1_J100_FIRSTEMPTY',
         'L1_J12_BGRP12',
         'L1_J400', 'L1_J400_LAR',
@@ -113,8 +113,10 @@ def defineMenu():
 
                 
         # RNDM
-        'L1_RD0_FILLED', 'L1_RD0_UNPAIRED_ISO',  'L1_RD0_EMPTY', 'L1_RD0_ABORTGAPNOTCALIB',
-        'L1_RD0_FIRSTEMPTY', 'L1_RD0_BGRP11', 'L1_RD0_BGRP7',
+        'L1_RD0_FILLED', 'L1_RD0_UNPAIRED_ISO',  'L1_RD0_EMPTY',
+        'L1_RD0_FIRSTEMPTY', 'L1_RD0_BGRP11',
+        'L1_RD0_BGRP7',
+        'L1_RD0_FIRSTINTRAIN',
         'L1_RD1_EMPTY',
         'L1_RD2_EMPTY',
         'L1_RD2_FILLED',
@@ -150,16 +152,25 @@ def defineMenu():
         # BPTX
         
         # BCM
-        'L1_BCM_AC_CA_BGRP12', 'L1_BCM_Wide_EMPTY', 'L1_BCM_Wide_UNPAIRED_ISO', 'L1_BCM_Wide_UNPAIRED_NONISO',
-        'L1_BCM_AC_UNPAIRED_ISO', 'L1_BCM_CA_UNPAIRED_ISO',
-        'L1_BCM_AC_UNPAIRED_NONISO', 'L1_BCM_CA_UNPAIRED_NONISO',
-        'L1_BCM_AC_ABORTGAPNOTCALIB', 'L1_BCM_CA_ABORTGAPNOTCALIB', 'L1_BCM_Wide_ABORTGAPNOTCALIB',
-        'L1_BCM_AC_CALIB', 'L1_BCM_CA_CALIB','L1_BCM_Wide_CALIB',
-        'L1_BCM_AC_UNPAIREDB1', 'L1_BCM_CA_UNPAIREDB2',
+        'L1_BCM_Wide_BGRP12', 'L1_BCM_AC_CA_BGRP12', 'L1_BCM_Wide_EMPTY', 'L1_BCM_Wide_UNPAIRED_ISO', 'L1_BCM_Wide_UNPAIRED_NONISO',
+        'L1_BCM_AC_UNPAIRED_ISO','L1_BCM_CA_UNPAIRED_ISO',
+        'L1_BCM_AC_UNPAIRED_NONISO','L1_BCM_CA_UNPAIRED_NONISO',
+        'L1_BCM_Wide_CALIB',
         'L1_J12_UNPAIREDB1', 'L1_J12_UNPAIREDB2',
+        'L1_BCM_2A_EMPTY', 'L1_BCM_2C_EMPTY',
+        'L1_BCM_2A_UNPAIRED_ISO', 'L1_BCM_2C_UNPAIRED_ISO', 'L1_BCM_2A_UNPAIRED_NONISO', 'L1_BCM_2C_UNPAIRED_NONISO',
+        'L1_BCM_2A_FIRSTINTRAIN', 'L1_BCM_2C_FIRSTINTRAIN',
+        # Expected to be needed later after commissioning of the BCM_2A,2C items in other BCIDs
+        # 'L1_BCM_2A_UNPAIREDB1', 'L1_BCM_2A_UNPAIREDB2',
+        # 'L1_BCM_2C_UNPAIREDB1', 'L1_BCM_2C_UNPAIREDB2',
+        # 'L1_BCM_2A_CALIB', 'L1_BCM_2C_CALIB',
+
 
         # AFP
-        'L1_EM7_AFP_A_OR_C', 'L1_EM7_AFP_A_AND_C', 'L1_MU5VF_AFP_A_OR_C', 'L1_MU5VF_AFP_A_AND_C',
+        'L1_EM7_AFP_A_OR_C', 'L1_EM7_AFP_A_AND_C',
+        'L1_MU5VF_AFP_A_OR_C', 'L1_MU5VF_AFP_A_AND_C',
+        'L1_eEM9_AFP_A_OR_C','L1_eEM9_AFP_A_AND_C',
+
         'L1_AFP_A_OR_C_J12', 'L1_AFP_A_AND_C_J12',
         'L1_AFP_A_OR_C_jJ20', 'L1_AFP_A_AND_C_jJ20',
         'L1_AFP_A_OR_C_jJ30', 'L1_AFP_A_AND_C_jJ30',
@@ -186,6 +197,7 @@ def defineMenu():
         # MBTS (ATR-24701)
         'L1_MBTS_1', 'L1_MBTS_1_1',  'L1_MBTS_2',
         'L1_MBTS_1_EMPTY', 'L1_MBTS_1_1_EMPTY', 'L1_MBTS_2_EMPTY',
+        #'L1_MBTS_1_UNPAIRED', 'L1_MBTS_2_UNPAIRED',
         'L1_MBTS_1_UNPAIRED_ISO', 'L1_MBTS_1_1_UNPAIRED_ISO', 'L1_MBTS_2_UNPAIRED_ISO',
         'L1_MBTS_A', 'L1_MBTS_C',
  
@@ -209,12 +221,12 @@ def defineMenu():
         'L1_MBTS_1_A_ALFA_C', 'L1_MBTS_1_C_ALFA_A', 'L1_EM3_ALFA_ANY', 'L1_J12_ALFA_ANY', 'L1_MU3V_ALFA_ANY', 'L1_TE5_ALFA_ANY',  
         'L1_MU3V_ALFA_EINE', 'L1_EM3_ALFA_EINE','L1_2EM3_ALFA_EINE', 'L1_J12_ALFA_EINE', 'L1_TE5_ALFA_EINE',
 
-        'L1_TE5', # also for HMT triggers
+        'L1_TE3', 'L1_TE5', 'L1_TE10', 'L1_TE40'# also for HMT triggers
         ]
 
 
 
-# Run this file as python python/l1menu/Menu_MC_pp_v7.py to print out available IDs
+# Run this file as python python/L1/Menu_MC_HI_run3_v1.py to print out available IDs
 # CTP IDs 509-511 are reserved for CALREQ
     
     L1MenuFlags.CtpIdMap = {

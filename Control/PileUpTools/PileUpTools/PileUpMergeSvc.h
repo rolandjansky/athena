@@ -117,8 +117,8 @@ public:
   virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
 
   /// get EventInfo from SG, by default using p_overStore
-  const xAOD::EventInfo* getPileUpEvent( StoreGateSvc* sg = nullptr,
-                                         const std::string& einame = "OverlayEvent" ) const;
+  const xAOD::EventInfo* getPileUpEvent( StoreGateSvc* sg,
+                                         const std::string& einame ) const;
 
 private:
   ServiceHandle<StoreGateSvc> p_overStore;      ///< overlaid SG (default)
@@ -180,6 +180,9 @@ private:
   BooleanProperty m_returnTimedData; 
 
   bool doRefresh(const Range& r, int iXing);
+
+  //Default name for EventInfo
+  std::string m_EventInfoKeyName;
 
   /// property: Handle to the EventInfo -> xAOD::EventInfo converter tool
   ToolHandle< xAODMaker::IEventInfoCnvTool > m_xAODCnvTool;

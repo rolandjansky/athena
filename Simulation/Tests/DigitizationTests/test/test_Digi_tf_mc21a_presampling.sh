@@ -2,6 +2,7 @@
 #
 # art-description: Run a digitization example to compare configuration between ConfGetter and the new ComponentAccumulator approach.
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-include: master/Athena
 # art-output: mc21a_presampling.CG.RDO.pool.root
 # art-output: mc21a_presampling.CA.RDO.pool.root
@@ -29,9 +30,9 @@ Digi_tf.py \
 --inputLowPtMinbiasHitsFile ${LowPtMinbiasHitsFiles} \
 --jobNumber 568 \
 --maxEvents ${Events} \
---outputRDOFile ${DigiOutFileNameCG} \
+--outputRDOFile ${DigiOutFileNameCA} \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
---preInclude 'HITtoRDO:Campaigns/PileUpPresamplingMC21a.py' \
+--preInclude 'HITtoRDO:Campaigns/PileUpPresamplingMC21aSingleBeamspot.py' \
 --skipEvents 0 \
 --athenaopts '"--config-only=DigiPUConfigCG.pkl"'
 
@@ -50,7 +51,7 @@ Digi_tf.py \
 --outputRDOFile ${DigiOutFileNameCG} \
 --postExec 'HITtoRDO:job+=CfgMgr.JobOptsDumperAlg(FileName="DigiPUConfigCG.txt")' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
---preInclude 'HITtoRDO:Campaigns/PileUpPresamplingMC21a.py' \
+--preInclude 'HITtoRDO:Campaigns/PileUpPresamplingMC21aSingleBeamspot.py' \
 --skipEvents 0
 
 rc=$?
@@ -76,7 +77,7 @@ then
     --maxEvents ${Events} \
     --outputRDOFile ${DigiOutFileNameCA} \
     --postInclude 'PyJobTransforms.UseFrontier' 'HITtoRDO:Digitization.DigitizationSteering.DigitizationTestingPostInclude' \
-    --preInclude 'HITtoRDO:Campaigns.MC21a' \
+    --preInclude 'HITtoRDO:Campaigns.MC21aSingleBeamspot' \
     --skipEvents 0
 
     rc2=$?
@@ -107,7 +108,7 @@ then
     rc4=$?
     status=$rc4
 fi
-echo "art-result: $rc1 OLDvsFixedRef"
+echo "art-result: $rc4 OLDvsFixedRef"
 
 rc5=-9999
 if [[ $rc -eq 0 ]]

@@ -313,7 +313,7 @@ class SimLayout(JobProperty):
 
     statusOn = True
     allowedTypes = ['str']
-    StoredValue = 'ATLAS-R2-2015-03-01-00'
+    StoredValue = 'ATLAS-R2-2016-01-00-01'
     allowedValues = [
                      'ATLAS-R1-2010-02-00-00', # Used in MC14a
                      'ATLAS-R1-2011-02-00-00', # Used in MC14a
@@ -325,7 +325,8 @@ class SimLayout(JobProperty):
                      'ATLAS-R2-2016-00-00-00', # Testing for MC16
                      'ATLAS-R2-2016-01-00-01', # Final (?) MC16
                      'ATLAS-R2-2016-01-02-01', # Run2 Best Knowledge
-                     'ATLAS-R3S-2021-02-00-00', # Testing for MC21
+                     'ATLAS-R3S-2021-02-00-00', # MC21 CP tuning samples (obsolete, incorrect BIS78 positions)
+                     'ATLAS-R3S-2021-03-00-00', # Testing for MC21
                      'ATLAS-P2-ITK-03-00-00',  # Phase 2 upgrade testing
                      'ctbh8_combined',
                      'ctbh8_photon',
@@ -641,6 +642,91 @@ class RunDict(JobProperty):
                        'Returning run number -1.', a_job )
         return -1
 
+class RunAndLumiOverrideList(JobProperty):
+    """This is used to pass a list of dictionaries of the form
+    {'run':152166, 'lb':202, 'starttstamp':1269948352889940910, 'evts':1, 'mu':0.005}
+    to the EvtIdModifierSvc.
+    Once it is a locked property, it can be used to configure the services.
+    """
+    statusOn=False
+    allowedTypes=['list']
+    StoredValue=[]
+    def __setattr__(self, name, n_value):
+        KeysRequired=('run','lb','starttstamp','evts')
+        if name=='StoredValue' and not(self._locked):
+            def noEventsInLumiBlock(element):
+                return element['evts'] == 0
+
+            for element in n_value:
+                if not type(element) == dict :
+                    raise ValueError( ' %s is not the expected type (dict) for an element of RunAndLumiOverrideList' % (element.__str__()) )
+                if not set(element) >= set(KeysRequired):
+                    raise ValueError( 'Not all required keys for RunAndLumiOverrideList (%s) were found in %s' % (KeysRequired.__repr__(), element.__repr__()) )
+                if noEventsInLumiBlock(element):
+                    _sflog.warning('Found lumiblock with no events!  This lumiblock will not be used:\n (' + element.__str__() + ')' )
+            n_value = [x for x in n_value if not noEventsInLumiBlock(x)]
+        JobProperty.__setattr__(self, name, n_value)
+    def getEvtsMax(self): #todo -- check if locked first?
+        """Get the total number of events requested by this fragment of the task"""
+        pDicts = self.get_Value()
+        return sum(element['evts'] for element in pDicts)#py24
+    def getMinMaxRunNumbers(self):
+        """Get a pair (firstrun,lastrun + 1) for setting ranges in IOVMetaData """
+        pDicts = self.get_Value()
+        allruns = [element['run'] for element in pDicts]
+        mini = min(allruns) + 0
+        maxi = max(allruns) + 1
+        return (mini,maxi)
+    def getFirstLumiBlock(self, run):
+        pDicts = self.get_Value()
+        allLBs = [1]
+        for el in pDicts:
+            if el["run"] == run:
+                allLBs += [el["lb"]]
+        return min(allLBs) + 0
+    def SetEvtIDModifierSvcProps(self,eventIdModSvc):
+        """Check that status is on, and locked, and then configure the eventIdModSvc
+        """
+        if not(self._locked):
+            raise RuntimeError( 'You cannot configure the EvtIdModifierSvc with an unlocked JobProperty.' )
+        pDicts = self.get_Value()
+        #clear svc properties?
+        for el in pDicts:
+            if 'evt_nbr' in el:
+                eventIdModSvc.add_modifier(run_nbr=el['run'], lbk_nbr=el['lb'], time_stamp=el['starttstamp'], nevts=el['evts'], evt_nbr=el['evt_nbr'])
+            else:
+                eventIdModSvc.add_modifier(run_nbr=el['run'], lbk_nbr=el['lb'], time_stamp=el['starttstamp'], nevts=el['evts'])
+        return
+    def Print(self):
+        """Print the contents of the RunAndLumiOverrideList
+        """
+        _sflog.info( 'setting Simulation data run,lb info:' )
+        for d in self.get_Value(): _sflog.info('\t %s', str(d))
+        return
+    def print_JobProperty(self,mode='minimal'):
+        """ Prints the information of the JobProperty
+        """
+        Indent=''
+        obj_p=object.__getattribute__(self, 'StoredValue')
+        if self.statusOn:
+            obj_ps=obj_p
+        else:
+            obj_ps=None
+        for i in range(self._context_name.count('.')-2):
+            Indent+='-'
+        if self.is_locked():
+            Indent+='x'
+        else:
+            Indent+='-'
+        if mode=='minimal':
+            import pprint
+            self._log.info(" %s-> %s = %s ",Indent,
+                           self._context_name,pprint.pformat(str(obj_ps)) )
+        elif(mode=='print_v'):
+            return JobProperty.print_JobProperty(self, mode)
+        else:
+            JobProperty.print_JobProperty(self, mode)
+#
 class DoLArBirk(JobProperty):
     """
     Sets the Birk Law option for LAr.

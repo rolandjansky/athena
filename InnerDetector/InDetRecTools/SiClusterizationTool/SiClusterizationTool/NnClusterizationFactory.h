@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
  #ifndef SICLUSTERIZATIONTOOL_NnClusterizationFactory_C
@@ -158,7 +158,7 @@ namespace InDet {
                                                 std::vector<Amg::MatrixX> & errors) const;
 
     // For error formatting in lwtnn cases
-    double correctedRMSX(double posPixels) const;
+    static double correctedRMSX(double posPixels) ;
 
     double correctedRMSY(double posPixels, std::vector<float>& pitches) const; 
 

@@ -73,7 +73,15 @@ namespace Pythia8{
   public:
     SettableTopColourReconnection() :  SettableColourReconnectionBase(),
                                       m_modeIn("TopReconnection:Mode", 0),
-                                      m_strengthIn("TopReconnection:Strength", 1){}
+                                      m_strengthIn("TopReconnection:Strength", 1){
+      std::cout << "**********************************************************" << std::endl;
+      std::cout << "*                                                        *" << std::endl;
+      std::cout << "*               Using TopReconUserHooks                  *" << std::endl;
+      std::cout << "*       See first ATHENA implementation study here:      *" << std::endl;
+      std::cout << "*      https://its.cern.ch/jira/browse/ATLMCPROD-9367    *" << std::endl;
+      std::cout << "*                                                        *" << std::endl;
+      std::cout << "**********************************************************" << std::endl;
+  }
     
   protected:
     
@@ -94,4 +102,4 @@ namespace Pythia8{
 }
 
 Pythia8_UserHooks::UserHooksFactory::Creator<Pythia8::SettableMBColourReconnection> settableMBColourReconnectionCreator("MBReconUserHooks_Unvalidated");
-Pythia8_UserHooks::UserHooksFactory::Creator<Pythia8::SettableTopColourReconnection> settableTopColourReconnectionCreator("TopReconUserHooks_Unvalidated");
+Pythia8_UserHooks::UserHooksFactory::Creator<Pythia8::SettableTopColourReconnection> settableTopColourReconnectionCreator("TopReconUserHooks");

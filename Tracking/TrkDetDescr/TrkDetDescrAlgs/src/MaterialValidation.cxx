@@ -9,7 +9,7 @@
 // Amg
 #include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
 // Trk
-#include "TrkDetDescrAlgs/MaterialValidation.h"
+#include "MaterialValidation.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometry/Layer.h"
 #include "TrkGeometry/LayerMaterialProperties.h"
@@ -166,8 +166,8 @@ Trk::PositionAtBoundary Trk::MaterialValidation::collectMaterialAndExit(const Tr
         if (layerArray) {
            // display output
            Trk::BinnedArraySpan<Trk::Layer const * const> layers = layerArray->arrayObjects();
-           auto layIter  = layers.begin();
-           auto layIterE = layers.end();    
+           const auto *layIter  = layers.begin();
+           const auto *layIterE = layers.end();    
            for ( ; layIter != layIterE; ++layIter){
                if ( (*layIter)->layerMaterialProperties() ){
                      Trk::Intersection lsIntersection = (*layIter)->surfaceRepresentation().straightLineIntersection(position, direction, true, true);

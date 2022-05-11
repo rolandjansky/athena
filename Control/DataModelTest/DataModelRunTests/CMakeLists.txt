@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( DataModelRunTests )
@@ -27,11 +27,7 @@ function (datamodel_run_test testName)
                   PROPERTIES TIMEOUT 300
                   LOG_IGNORE_PATTERN "has different type than the branch|no dictionary for class|^StorageSvc +INFO|Cache alignment|Unable to locate catalog|IOVDbSvc[0-9 ]+INFO|Invalid ./TagInfo${ARG_EXTRA_IGNORE}|The database does not exist|IDatabaseSvc::openDatabase.*=>"
                   ENVIRONMENT "ATLAS_REFERENCE_TAG=DataModelRunTests/DataModelRunTestsReference-01-00-03"
-                   )
-  if( ARG_DEPENDS )
-    set_tests_properties( DataModelRunTests_${testName}_ctest
-                          PROPERTIES DEPENDS DataModelRunTests_${ARG_DEPENDS}_ctest )
-  endif()
+                  DEPENDS ${ARG_DEPENDS} )
 endfunction (datamodel_run_test)
 
 datamodel_run_test (DataModelTestWrite)

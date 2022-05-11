@@ -67,10 +67,7 @@ class EventFormatMetaDataTool : public virtual ::IMetaDataTool, public ::AthAlgT
 
  private:
   /// Function collecting the event format metadata from the input file
-  StatusCode collectMetaData(std::unique_ptr< xAOD::EventFormat >&);
-
-  /// Function writing out the collected metadata
-  StatusCode writeMetaData(std::unique_ptr< xAOD::EventFormat >&);
+  StatusCode collectMetaData();
 
   /// Connection to the input metadata store
   ServiceHandle< ::StoreGateSvc > m_inputMetaStore{this, "InputMetaStore",
@@ -80,14 +77,9 @@ class EventFormatMetaDataTool : public virtual ::IMetaDataTool, public ::AthAlgT
   ServiceHandle< IMetaDataSvc > m_outputMetaStore{this, "MetaDataSvc",
     "MetaDataSvc", name()};
 
-  /// The key of the trigger menu in the input file
-  Gaudi::Property< std::string > m_inputKey{this, "InputKey", "",
-    "optionally specify the key of the xAOD::EventFormat in the input."};
-
-  /// The key of the trigger menu for the output file
-  Gaudi::Property< std::string > m_outputKey{this, "OutputKey",
-    "EventFormat", "Specifies the key of the xAOD::EventFormat object in "
-        "the MetaDataStore, default: EventFormat"};
+  /// (optional) list of keys to copy, all if empty, default: empty
+  Gaudi::Property<std::vector<std::string> > m_keys{ this, "Keys", {},
+      "(optional) list of keys to copy, all if empty. default: empty"};
 
   /// MetaDataStop need to wait for ongoing writes
   std::mutex m_outputMutex;

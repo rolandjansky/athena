@@ -62,6 +62,11 @@ simFlags.EventFilter.set_On()
 #callbacks.use_simplerunge_stepper()
 #callbacks.use_verbose_tracking()
 
+from G4AtlasApps.G4Atlas_Metadata import checkForContainerInInput
+if not checkForContainerInInput("xAOD::EventInfo"):
+    # If xAOD::EventInfo is not present in the input file then it should be created
+    topSeq += CfgMgr.xAODMaker__EventInfoCnvAlg()
+
 include("G4AtlasApps/G4Atlas.flat.configuration.py")
 
 from AthenaCommon.CfgGetter import getAlgorithm

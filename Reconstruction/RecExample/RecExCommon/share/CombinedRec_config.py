@@ -92,11 +92,11 @@ if rec.doESD() and recAlgs.doTrackParticleCellAssociation() and DetFlags.ID_on()
 # functionality : energy flow
 #
 pdr.flag_domain('eflow')
-if recAlgs.doEFlow() and (rec.readESD() or (DetFlags.haveRIO.ID_on() and DetFlags.haveRIO.Calo_allOn() and rec.doMuonCombined())):
+if recAlgs.doEFlow() and (rec.readESD() or (DetFlags.haveRIO.ID_on() and DetFlags.haveRIO.Calo_allOn())):
     try:        
         from eflowRec.PFRun3Config import PFCfg
         CAtoGlobalWrapper(PFCfg, ConfigFlags)
-        from eflowRec import ScheduleCHSPFlowMods
+        #from eflowRec import ScheduleCHSPFlowMods
     except Exception:
         treatException("Could not set up EFlow. Switched off !")
         recAlgs.doEFlow=False
@@ -127,12 +127,10 @@ pdr.flag_domain('egmiso')
 if (rec.doESD() and (rec.doMuonCombined() or rec.doEgamma()) and
     (jobproperties.CaloRecFlags.doCaloTopoCluster() or
      objKeyStore.isInInput ('xAOD::ParticleContainer', 'CaloCalTopoClusters'))):
-    try:
-        from IsolationAlgs.IsoGetter import isoGetter
-        isoGetter()
-    except Exception:
-        treatException("Could not set up isolation. Switched off !")
 
+    from IsolationAlgs.IsolationSteeringConfig import IsolationSteeringCfg
+    CAtoGlobalWrapper(IsolationSteeringCfg, ConfigFlags)
+    
 if jetOK and recAlgs.doMuonSpShower() and DetFlags.detdescr.Muon_on() and DetFlags.haveRIO.Calo_on() :
     try:
         include("MuonSpShowerBuilderAlgs/MuonSpShowerBuilder_jobOptions.py")

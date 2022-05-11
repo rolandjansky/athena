@@ -1,6 +1,6 @@
 //Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //#include "TileCalibCondAlg.h"
@@ -11,8 +11,7 @@
 
 template<class T>
 TileCalibCondAlg<T>::TileCalibCondAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
-  m_condSvc("CondSvc", name)
+  AthAlgorithm(name, pSvcLocator)
 {
 
 }
@@ -24,17 +23,8 @@ TileCalibCondAlg<T>::~TileCalibCondAlg() {
 template<class T>
 StatusCode TileCalibCondAlg<T>::initialize() {
 
-  // CondSvc
-  ATH_CHECK( m_condSvc.retrieve() );
-
   ATH_CHECK( m_conditionsProxy.retrieve() );
   ATH_CHECK( m_calibDataKey.initialize() );
-
-  // Register write handle
-  if (m_condSvc->regHandle(this, m_calibDataKey).isFailure()) {
-    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_calibDataKey.fullKey() << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
 
   return StatusCode::SUCCESS;
 }

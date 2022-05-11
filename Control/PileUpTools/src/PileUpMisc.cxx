@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PileUpTools/PileUpMisc.h"
@@ -14,13 +14,16 @@
 #include "PileUpTools/IBeamIntensity.h"
 
 
-void addSubEvent( xAOD::EventInfo* targetEv,
+xAOD::EventInfo* addSubEvent( xAOD::EventInfo* targetEv,
                   const xAOD::EventInfo::SubEvent& subev,
                   xAOD::EventInfoContainer* eiContainer,
-                  const std::string& eiContKey )
+                  const std::string& eiContKey,
+                  StoreGateSvc* subev_store )
 {
    // add a EI copy to the EI container
-   eiContainer->push_back( new xAOD::EventInfo( * subev.ptr() ) );
+   xAOD::EventInfo* newEv;
+   eiContainer->push_back( newEv=new xAOD::EventInfo( * subev.ptr() ) );
+   if(newEv->evtStore()==nullptr && subev_store!=nullptr) newEv->setEvtStore(subev_store);
          
    // link to the fresh EI added to the container:
    ElementLink< xAOD::EventInfoContainer > eilink( eiContKey, eiContainer->size()-1, targetEv->evtStore() );
@@ -31,18 +34,23 @@ void addSubEvent( xAOD::EventInfo* targetEv,
    for( const auto& se: subev.ptr()->subEvents() ) {
       addSubEvent( targetEv, se, eiContainer, eiContKey );
    }
+   
+   return newEv;
 }
 
 
-void addSubEvent( xAOD::EventInfo* targetEv,
+xAOD::EventInfo* addSubEvent( xAOD::EventInfo* targetEv,
                   const xAOD::EventInfo* ev2add,
                   int16_t subev_time,
                   xAOD::EventInfo::PileUpType subev_type,
                   xAOD::EventInfoContainer* eiContainer,
-                  const std::string& eiContKey )
+                  const std::string& eiContKey,
+                  StoreGateSvc* ev2add_store )
 {
    // add a EI copy to the EI container
-   eiContainer->push_back( new xAOD::EventInfo( *ev2add ) );
+   xAOD::EventInfo* newEv;
+   eiContainer->push_back( newEv=new xAOD::EventInfo( *ev2add ) );
+   if(newEv->evtStore()==nullptr && ev2add_store!=nullptr) newEv->setEvtStore(ev2add_store);
          
    // link to the fresh EI added to the container:
    ElementLink< xAOD::EventInfoContainer > eilink( eiContKey, eiContainer->size()-1, targetEv->evtStore() );
@@ -53,5 +61,7 @@ void addSubEvent( xAOD::EventInfo* targetEv,
    for( const auto& subev: ev2add->subEvents() ) {
       addSubEvent( targetEv, subev, eiContainer, eiContKey );
    }
+
+   return newEv;
 }
 

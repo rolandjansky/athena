@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -31,18 +31,15 @@ namespace G4UA
   // FIXME: Why implement run action if empty?
   void EnergyLossRecorder::BeginOfRunAction(const G4Run*)
   {
-    return;
-  }
+     }
 
   void EnergyLossRecorder::EndOfRunAction(const G4Run*)
   {
-    return;
-  }
+     }
 
   void EnergyLossRecorder::BeginOfEventAction(const G4Event*)
   {
-    return;
-  }
+     }
 
   void EnergyLossRecorder::EndOfEventAction(const G4Event*)
   {
@@ -52,8 +49,7 @@ namespace G4UA
       m_config.pmWriter->finalizeTrack();
     }
     m_entries = 0;
-    return;
-  }
+ }
 
   void EnergyLossRecorder::UserSteppingAction(const G4Step* aStep)
   {

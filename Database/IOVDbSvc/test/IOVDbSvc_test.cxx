@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -39,18 +39,23 @@ void test1 (IIOVDbSvc& iovdbsvc)
   IOVRange range;
   std::string tag;
   std::unique_ptr<IOpaqueAddress> addr;
+
+  // cppcheck-suppress assertWithSideEffect
   assert( iovdbsvc.getRange (1238547719, "/key1", IOVTime (10, 15),
                              range, tag, addr).isSuccess() );
   assert (std::string(range) == "{[10,10] - [10,20]}");
 
+  // cppcheck-suppress assertWithSideEffect
   assert( iovdbsvc.getRange (1238547719, "/key1", IOVTime (10, 35),
                              range, tag, addr).isSuccess() );
   assert (std::string(range) == "{[10,30] - [2147483647,4294967295]}");
 
+  // cppcheck-suppress assertWithSideEffect
   assert( iovdbsvc.getRange (1238547719, "/key2", IOVTime (20, 15),
                              range, tag, addr).isSuccess() );
   assert (std::string(range) == "{[20,10] - [20,16]}");
 
+  // cppcheck-suppress assertWithSideEffect
   assert( iovdbsvc.getRange (1238547719, "/key2", IOVTime (20, 35),
                              range, tag, addr).isSuccess() );
   assert (std::string(range) == "{[20,30] - [20,36]}");
@@ -101,6 +106,8 @@ int main()
 
   IAddressProvider* iovdbsvc_ap =  dynamic_cast<IAddressProvider*> (iovdbsvc.get());
   IAddressProvider::tadList tlist;
+
+  // cppcheck-suppress assertWithSideEffect
   assert( iovdbsvc_ap->preLoadAddresses (StoreID::DETECTOR_STORE, tlist).isSuccess() );
 
   test1 (*iovdbsvc);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PANTAUALGS_TOOL_HELPERFUNCTIONS
@@ -35,12 +35,12 @@ namespace PanTau {
 
 	virtual ~HelperFunctions () {};
         
-        TauConstituent* getNeutralConstWithLargestAngle(TLorentzVector                 charged, 
-                                                        std::vector<PanTau::TauConstituent*>    neutral);
+        TauConstituent* getNeutralConstWithLargestAngle(const TLorentzVector& charged, 
+                                                        const std::vector<PanTau::TauConstituent*>& neutral);
         
         virtual std::string convertNumberToString(double x) const;
         
-        virtual int getBinIndex(std::vector<double> binEdges, double value) const;
+        virtual int getBinIndex(const std::vector<double>& binEdges, double value) const;
         
         virtual double stddev(double sumOfSquares, double sumOfValues, int numConsts) const;
         virtual double deltaRprime(const TVector3& vec1, const TVector3& vec2) const;

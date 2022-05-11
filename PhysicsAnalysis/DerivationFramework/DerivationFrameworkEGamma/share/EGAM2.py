@@ -9,7 +9,7 @@ from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 from DerivationFrameworkJetEtMiss.JetCommon import addDAODJets
-from JetRecConfig.StandardSmallRJets import AntiKt4Truth
+from JetRecConfig.StandardSmallRJets import AntiKt4Truth, AntiKt4TruthDressedWZ
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import (
     DerivationFramework__DerivationKernel)
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import (
@@ -23,7 +23,6 @@ from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import (
     getClusterEnergyPerLayerDecorator, getClusterEnergyPerLayerDecorations)
 from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import (
     DerivationFramework__EGInvariantMassTool)
-from AthenaCommon.GlobalFlags import globalflags
 from DerivationFrameworkCore.DerivationFrameworkMaster import buildFileName
 from DerivationFrameworkCore.DerivationFrameworkMaster import (
     DerivationFrameworkIsMonteCarlo, DerivationFrameworkJob)
@@ -46,7 +45,7 @@ RecomputeElectronSelectors = True
 # ====================================================================
 # check if we run on data or MC
 # ====================================================================
-print("EGAM2 globalflags.DataSource(): ", globalflags.DataSource())
+print("DerivationFrameworkIsMonteCarlo: ", DerivationFrameworkIsMonteCarlo)
 
 
 # ====================================================================
@@ -337,7 +336,10 @@ EGAM2Sequence += CfgMgr.DerivationFramework__DerivationKernel(
 # ====================================================================
 # JET/MET
 # ====================================================================
-addDAODJets([AntiKt4Truth], EGAM2Sequence)
+jetList=[]
+if DerivationFrameworkIsMonteCarlo:
+    jetList += [AntiKt4Truth, AntiKt4TruthDressedWZ]
+addDAODJets(jetList, EGAM2Sequence)
 
 
 # ====================================================================
@@ -354,6 +356,9 @@ EGAM2SlimmingHelper.SmartCollections = ["Electrons",
                                         "InDetTrackParticles",
                                         "PrimaryVertices"]
 # muons, tau, MET, b-tagging could be switched off if not needed and use too much space
+if DerivationFrameworkIsMonteCarlo:
+    EGAM2SlimmingHelper.SmartCollections += ["AntiKt4TruthJets",
+                                             "AntiKt4TruthDressedWZJets"]
 
 # Add egamma trigger objects
 EGAM2SlimmingHelper.IncludeEGammaTriggerContent = True
@@ -363,7 +368,7 @@ EGAM2SlimmingHelper.ExtraVariables = ExtraContentAll
 EGAM2SlimmingHelper.AllVariables = ExtraContainersElectrons
 EGAM2SlimmingHelper.AllVariables += ExtraContainersTrigger
 
-if globalflags.DataSource() == 'geant4':
+if DerivationFrameworkIsMonteCarlo:
     EGAM2SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     EGAM2SlimmingHelper.AllVariables += ExtraContainersTruth
 else:

@@ -27,7 +27,7 @@ namespace TrigConf {
    class IThresholdConfigLoader : virtual public ILoader {
    public:
 
-      virtual ~IThresholdConfigLoader() {};
+      virtual ~IThresholdConfigLoader() override = default;
 
       virtual bool load( ThresholdConfig& data ) = 0;
    };

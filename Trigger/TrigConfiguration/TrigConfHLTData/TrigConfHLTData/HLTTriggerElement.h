@@ -53,7 +53,7 @@ namespace TrigConf {
       HLTTriggerElement( const std::pair<unsigned int, std::string>& p);
 
       /**@brief destructor*/
-      virtual ~HLTTriggerElement();
+      virtual ~HLTTriggerElement() override = default;
 
       // getters
       unsigned int hashId() const { return m_hashId; }
@@ -65,7 +65,7 @@ namespace TrigConf {
 
 
       /**@brief print method*/
-      virtual void print(const std::string& indent="", unsigned int detail=1) const;
+      virtual void print(const std::string& indent="", unsigned int detail=1) const override;
       virtual void writeXML(std::ofstream & xmlfile);
 
       void setL2(bool on=true) { set(); if(on) m_level |= 0x1; else m_level &= 0x2; }

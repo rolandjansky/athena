@@ -549,15 +549,15 @@ def makeEGammaDFCommon():
         EGAugmentationTools.append(TruthEgptIsolationTool)
 
         # Compute the truth-particle-level energy density in the central eta region
-        from EventShapeTools.EventDensityConfig import (
-            configEventDensityTool, EventDensityAthAlg)
+        from EventShapeTools.EventDensityConfig import configEventDensityTool
+        from AthenaConfiguration.ComponentFactory import CompFactory
 
-        # Schedule PseudoJetTruth
         from JetRecConfig.JetRecConfig import getInputAlgs,getConstitPJGAlg,reOrderAlgs
         from JetRecConfig.StandardJetConstits import stdConstitDic as cst
         from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
+        # Schedule PseudoJetTruth
         constit_algs = getInputAlgs(cst.Truth, configFlags=ConfigFlags)
         constit_algs = reOrderAlgs( [a for a in constit_algs if a is not None])
 
@@ -569,7 +569,7 @@ def makeEGammaDFCommon():
         if not hasattr(DerivationFrameworkJob,constitPJAlg.getName()):
             DerivationFrameworkJob += conf2toConfigurable(constitPJAlg)
 
-        tc = configEventDensityTool("EDTruthCentralTool", cst.Truth.label,
+        tc = configEventDensityTool("EDTruthCentralTool", cst.Truth,
                                     0.5,
                                     AbsRapidityMin=0.0,
                                     AbsRapidityMax=1.5,
@@ -579,7 +579,7 @@ def makeEGammaDFCommon():
         ToolSvc += tc
 
         # Compute the truth-particle-level energy density in the forward eta region
-        tf = configEventDensityTool("EDTruthForwardTool", cst.Truth.label,
+        tf = configEventDensityTool("EDTruthForwardTool", cst.Truth,
                                     0.5,
                                     AbsRapidityMin=1.5,
                                     AbsRapidityMax=3.0,
@@ -588,8 +588,8 @@ def makeEGammaDFCommon():
                                     )
         ToolSvc += tf
 
-        DerivationFrameworkJob += EventDensityAthAlg("EDTruthCentralAlg", EventDensityTool=tc)
-        DerivationFrameworkJob += EventDensityAthAlg("EDTruthForwardAlg", EventDensityTool=tf)
+        DerivationFrameworkJob += CompFactory.EventDensityAthAlg("EDTruthCentralAlg", EventDensityTool=tc)
+        DerivationFrameworkJob += CompFactory.EventDensityAthAlg("EDTruthForwardAlg", EventDensityTool=tf)
 
     # =======================================
     # CREATE THE DERIVATION KERNEL ALGORITHM

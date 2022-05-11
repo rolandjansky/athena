@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration.
  *
- * @file HGTD_Digitization/HGTD_SurfaceChargesGenerator.h
+ * @file HGTD_SurfaceChargesGenerator.h
  *
  * @author Tao Wang <tao.wang@cern.ch>
  * @author Alexander Leopold <alexander.leopold@cern.ch>
@@ -12,11 +12,12 @@
  *
  */
 
-#include "HGTD_Digitization/HGTD_SurfaceChargesGenerator.h"
+#include "HGTD_SurfaceChargesGenerator.h"
 
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Units/SystemOfUnits.h"
+#include "GaudiKernel/PhysicalConstants.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "ReadoutGeometryBase/DetectorDesign.h"
 #include "ReadoutGeometryBase/SiLocalPosition.h"
@@ -34,19 +35,34 @@ StatusCode HGTD_SurfaceChargesGenerator::initialize() {
   m_small_step_length.setValue(m_small_step_length.value() * CLHEP::micrometer);
 
   ATH_CHECK(m_hgtd_timing_resolution_tool.retrieve());
-  ATH_CHECK(m_hgtd_timing_resolution_tool->setIntegratedLuminosity(m_integrated_luminosity));
 
   return StatusCode::SUCCESS;
 }
 
 void HGTD_SurfaceChargesGenerator::createSurfaceChargesFromHit(
-    const TimedHitPtr<SiHit> &timed_hit_ptr,
-    SiChargedDiodeCollection *diode_coll,
-    const InDetDD::SolidStateDetectorElementBase *element,
-    CLHEP::HepRandomEngine *rndm_engine,
+    const TimedHitPtr<SiHit>& timed_hit_ptr,
+    SiChargedDiodeCollection* diode_coll,
+    const InDetDD::SolidStateDetectorElementBase* element,
+    CLHEP::HepRandomEngine* rndm_engine,
     const EventContext& ctx) const {
 
-  const SiHit &hit = *timed_hit_ptr;
+  const SiHit& hit = *timed_hit_ptr;
+
+  float time_of_flight = timed_hit_ptr.eventTime() + hit.meanTime();
+
+  //NB this "expected time" will change once we need to follow the beamspot!!
+  float tof_expected = element->center().norm() / Gaudi::Units::c_light;
+
+  ATH_MSG_DEBUG("event time = " << timed_hit_ptr.eventTime() << ", mean time ="
+                                << hit.meanTime() << ", tof =" << time_of_flight
+                                << ", tof exp =" << tof_expected);
+
+  // the ALTIROC ASIC has an active window of 2.5ns around the expected TOA, all
+  // hits outside that window are ignored (modulo some early hits with large
+  // TOT that spill over). So ignore hits outside of this time window
+  if (std::abs(time_of_flight - tof_expected) > m_active_time_window) {
+    return;
+  }
 
   // check the status of truth information for this SiHit
   // some Truth information is cut for pile up events
@@ -84,8 +100,8 @@ void HGTD_SurfaceChargesGenerator::createSurfaceChargesFromHit(
   CLHEP::Hep3Vector direction = end_pos - start_pos;
   float deposit_length = direction.mag();
   int n_steps = deposit_length / m_small_step_length + 1;
-  //the start and end pos can sit at the same position. Resizing the zero-length
-  //Hep3Vector would cause an error, so this we protect agains
+  // the start and end pos can sit at the same position. Resizing the
+  // zero-length Hep3Vector would cause an error, so this we protect against
   if (deposit_length > 1.e-10) {
     direction.setMag(deposit_length / static_cast<float>(n_steps));
   }
@@ -102,10 +118,9 @@ void HGTD_SurfaceChargesGenerator::createSurfaceChargesFromHit(
                 << timed_hit_ptr.eventTime() << ", " << hit.meanTime() << ", "
                 << tot_eloss << ", " << element_r);
 
-  float time_of_flight = timed_hit_ptr.eventTime() + hit.meanTime();
   if (m_smear_meantime) {
-    // Smearing based on radius and luminosity, and substract the time shift due
-    // to pulse leading edge (0.4 ns)
+    // Smearing based on radius and luminosity, and substract the time shift
+    // due to pulse leading edge (0.4 ns)
     time_of_flight = m_hgtd_timing_resolution_tool->calculateTime(
                          time_of_flight, tot_eloss, element_r, rndm_engine) -
                      0.4;

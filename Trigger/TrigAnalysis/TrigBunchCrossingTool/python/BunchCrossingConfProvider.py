@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 
 ## @package BunchCrossingConfProvider
@@ -35,34 +35,22 @@ def BunchCrossingConfProvider( type = "" ):
             from TrigBunchCrossingTool.BunchCrossingTool import TrigConfBunchCrossingTool
             return TrigConfBunchCrossingTool()
         elif type == "LHC":
-            __logger.info( "Forcing the usage of LHCBunchCrossingTool" )
-            from TrigBunchCrossingTool.BunchCrossingTool import LHCBunchCrossingTool
-            return LHCBunchCrossingTool()
+            __logger.error( "The LHCBunchCrossingTool is no longer supported" )
+            return None
         elif type == "MC":
-            from TrigBunchCrossingTool.BunchCrossingTool import MCBunchCrossingTool
-            __logger.info( "Forcing the usage of MCBunchCrossingTool" )
-            return MCBunchCrossingTool()
+            __logger.info( "The MCBunchCrossingTool is no longer supported" )
+            return None
         else:
             __logger.warning( "Type = " + type + " not recognized" )
             __logger.warning( "Will select tool type based on global flags" )
 
     # Decide which tool to use based on the global flags:
     from AthenaCommon.GlobalFlags import globalflags
-    if globalflags.isOverlay():
-        __logger.info( "Selecting LHCBunchCrossingTool for overlay job" )
-        from TrigBunchCrossingTool.BunchCrossingTool import LHCBunchCrossingTool
-        return LHCBunchCrossingTool()
     if globalflags.DataSource() == "data":
         from RecExConfig.RecFlags import rec
         if rec.doTrigger():
             from TrigBunchCrossingTool.BunchCrossingTool import TrigConfBunchCrossingTool
             __logger.info( "Selecting TrigConfBunchCrossingTool for this job" )
             return TrigConfBunchCrossingTool()
-        else:
-            __logger.info( "Trigger turned off, selecting LHCBunchCrossingTool for this job" )
-            from TrigBunchCrossingTool.BunchCrossingTool import LHCBunchCrossingTool
-            return LHCBunchCrossingTool()
-    else:
-        __logger.info( "Selecting MCBunchCrossingTool for this job" )
-        from TrigBunchCrossingTool.BunchCrossingTool import MCBunchCrossingTool
-        return MCBunchCrossingTool()
+
+    return None

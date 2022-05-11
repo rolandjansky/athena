@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsCPContent = [
 "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
@@ -8,6 +8,7 @@ AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsCPContent = [
 "AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsAux.GhostBHadronsFinalCount",
 "AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsAux.R10TruthLabel_R21Consolidated.R10TruthLabel_R21Precision",
 "AntiKt10LCTopoJets",
-"AntiKt10LCTopoJetsAux.GhostAntiKtVR30Rmax4Rmin02PV0TrackJet.NumTrkPt500",
-"AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.eta.phi.m.ECF1.ECF2.ECF3.Tau2_wta.Tau3_wta.Qw.GhostBHadronsFinalCount",
+"AntiKt10LCTopoJetsAux.GhostAntiKtVR30Rmax4Rmin02PV0TrackJets.NumTrkPt500",
+"AntiKt10TruthTrimmedPtFrac5SmallR20Jets",
+"AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux.D2.Tau1_wta.Tau2_wta.Tau3_wta.GhostBHadronsFinalCount",
 ]

@@ -2,7 +2,7 @@
 
 #include "eflowRec/eflowCaloObject.h"
 
-void PFTrackFiller::fillTracksToRecover(PFData &data) const
+void PFTrackFiller::fillTracksToRecover(PFData &data) 
 {
   
   for (auto thisEflowCaloObject : *data.caloObjects){
@@ -52,7 +52,7 @@ void PFTrackFiller::fillTracksToRecover(PFData &data) const
 
 }
 
-void PFTrackFiller::fillTracksToConsider(PFData &data, eflowRecTrackContainer &recTrackContainer) const
+void PFTrackFiller::fillTracksToConsider(PFData &data, eflowRecTrackContainer &recTrackContainer) 
 {
   for (unsigned int count = 0; count < recTrackContainer.size(); count++) data.tracks.push_back(recTrackContainer[count]);
 }

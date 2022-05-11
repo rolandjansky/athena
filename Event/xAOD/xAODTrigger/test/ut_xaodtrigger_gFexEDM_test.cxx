@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -17,6 +17,7 @@
 #include "xAODTrigger/versions/gFexGlobalRoIAuxContainer_v1.h"
 #include "xAODTrigger/gFexGlobalRoIAuxContainer.h"
 #include "xAODTrigger/gFexGlobalRoIContainer.h"
+#include "TestTools/FLOATassert.h"
 
 /// Helper macro for testing the code
 #define SIMPLE_ASSERT( EXP )                                   \
@@ -44,7 +45,8 @@ void testgFexJetRoI() {
 
    std::cout << "Initializing test object: jet TOB" << std::endl;
    uint32_t word = 205353989;
-   obj->initialize(word);
+   int scale = 200.;
+   obj->initialize(word, scale);
 
    SIMPLE_ASSERT( obj->isgRho() == 0 );
    SIMPLE_ASSERT( obj->isgBlockLead() == 0 );
@@ -52,12 +54,12 @@ void testgFexJetRoI() {
    SIMPLE_ASSERT( obj->isgJet() == 1 );
    SIMPLE_ASSERT( obj->gFexType() == 3 );
    
-   SIMPLE_ASSERT( obj->etMin() == 5510400 );
-   SIMPLE_ASSERT( obj->etMax() == 5512000 );
+
+   SIMPLE_ASSERT( obj->et() == 688800 );
    SIMPLE_ASSERT( obj->eta() == static_cast<float>(-3.4) );
    SIMPLE_ASSERT( obj->etaMin() == static_cast<float>(-3.5) );
    SIMPLE_ASSERT( obj->etaMax() == static_cast<float>(-3.3) );
-   SIMPLE_ASSERT( obj->phi_gFex() == static_cast<float>(3*(2*M_PI/16)+(2*M_PI/(16*2))) );
+   SIMPLE_ASSERT( Athena_test::isEqual (obj->phi_gFex(), static_cast<float>(3*(2*M_PI/16)+(2*M_PI/(16*2))) ));
    SIMPLE_ASSERT( obj->phiMin_gFex() == static_cast<float>(3*(2*M_PI/16)) );
    SIMPLE_ASSERT( obj->phiMax_gFex() == static_cast<float>(3*(2*M_PI/16)+(2*M_PI/16)) );
 
@@ -79,16 +81,19 @@ void testgFexGlobalRoI() {
 
    std::cout << "Initializing test object: global TOB" << std::endl;
    uint32_t word = 192035055;
-   obj->initialize(word);
-
+   int scale1 = 200.;
+   int scale2 = 800.;
+   obj->initialize(word, scale1, scale2);
+   
+   
    SIMPLE_ASSERT( obj->isgScalar() == 0 );
    SIMPLE_ASSERT( obj->isgMET() == 1 );
    SIMPLE_ASSERT( obj->isgMHT() == 0 );
    SIMPLE_ASSERT( obj->isgMST() == 0 );
    SIMPLE_ASSERT( obj->globalType() == 2 );
-
-   SIMPLE_ASSERT( obj->METquantityOne() == 1461600 );
-   SIMPLE_ASSERT( obj->METquantityTwo() == 1829600 );
+   
+   SIMPLE_ASSERT( obj->METquantityOne() == 365400 );
+   SIMPLE_ASSERT( obj->METquantityTwo() == -1447200 );
    SIMPLE_ASSERT( obj->SumEt() == -999 );
 
    std::cout << "Test global TOB completed!" << std::endl;

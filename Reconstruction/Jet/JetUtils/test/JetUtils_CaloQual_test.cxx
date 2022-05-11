@@ -1,8 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
+#include "CxxUtils/checker_macros.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
 #include "JetUtils/JetCaloQualityUtils.h"
@@ -35,7 +36,7 @@ struct CalcTester {
 using namespace jet;
 
 
-int main() {
+int main ATLAS_NOT_THREAD_SAFE () {
 
 #ifndef XAOD_STANDALONE
   // *********************** init in Athena

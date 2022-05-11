@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -32,10 +32,7 @@ namespace InDet {
   /////////////////////////////////////////////////////////////////////////////////
   
   TRT_DriftCirclesSeed& TRT_DriftCirclesSeed::operator = (const TRT_DriftCirclesSeed& Se) 
-  {
-    m_driftcircles = Se.m_driftcircles;
-    return *this;
-  }
+  = default;
 
   ///////////////////////////////////////////////////////////////////
   // Dumps relevant information into the MsgStream

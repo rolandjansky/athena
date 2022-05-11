@@ -121,16 +121,12 @@ class PixelConditionsServicesSetup:
     #########################
     # Deadmap Setup (RUN-3) #
     #########################
-    if not (conddb.folderRequested("/PIXEL/PixelModuleFeMask") or conddb.folderRequested("/PIXEL/Onl/PixelModuleFeMask")):
-      if not athenaCommonFlags.isOnline():
-        conddb.addFolder("PIXEL_OFL", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
-
     if not hasattr(condSeq, "PixelDeadMapCondAlg"):
+      conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixelModuleFeMask", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
+
       from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
       alg = PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
       if not self.usePixMap:
-        alg.ReadKey = ''
-      if athenaCommonFlags.isOnline():
         alg.ReadKey = ''
       condSeq += alg
 
@@ -219,7 +215,7 @@ class PixelConditionsServicesSetup:
         conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection")
       if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
-        condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
+        condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib" if commonGeoFlags.Run() == "RUN2" else "")
 
     #####################
     # Cabling map Setup #
@@ -640,6 +636,10 @@ class TRTConditionsServicesSetup:
     # Straw status tool (now private, cannot be passed by name)
     from InDetTrigRecExample.InDetTrigCommonTools import InDetTrigTRTStrawStatusSummaryTool
     
+    # straw status  algorithm
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTStrawStatusCondAlg
+    TRTStrawStatusCondAlg = TRTStrawStatusCondAlg(name = "TRTStrawStatusCondAlg")
+
     # Alive straws algorithm
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTStrawCondAlg
     TRTStrawCondAlg = TRTStrawCondAlg(name = "TRTStrawCondAlg",
@@ -660,6 +660,9 @@ class TRTConditionsServicesSetup:
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
 
+    # Condition algorithms for straw status
+    if not hasattr(condSeq, "TRTStrawStatusCondAlg"):
+        condSeq += TRTStrawStatusCondAlg
     # Condition algorithms for straw conditions
     if not hasattr(condSeq, "TRTStrawCondAlg"):
         condSeq += TRTStrawCondAlg

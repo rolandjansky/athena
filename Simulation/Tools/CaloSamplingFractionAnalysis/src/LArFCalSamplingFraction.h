@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LAR_FCAL_SAMPLING_FRACTION_H
@@ -19,8 +19,9 @@
 #include "LArSimEvent/LArHitContainer.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
-
+#include "xAODEventInfo/EventInfo.h"
 
 class JetCollection;
 class ISvcLocator;
@@ -65,6 +66,8 @@ private:
     StatusCode addEventInfo();
 
 private:
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfoKey", "EventInfo"};
+
     SG::ReadCondHandleKey<CaloDetDescrManager> m_caloMgrKey { this
 	, "CaloDetDescrManager"
 	, "CaloDetDescrManager"

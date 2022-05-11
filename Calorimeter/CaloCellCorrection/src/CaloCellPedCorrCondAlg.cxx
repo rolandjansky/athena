@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloCellPedCorrCondAlg.h"
@@ -13,12 +13,6 @@ StatusCode CaloCellPedCorrCondAlg::initialize() {
   ATH_CHECK(m_pedShiftFolder.initialize());
   ATH_CHECK(m_lumiFolderName.initialize(m_lumi0<0));
   ATH_CHECK(m_pedShiftKey.initialize());
-  ATH_CHECK(m_condSvc.retrieve());
-
-  if (m_condSvc->regHandle(this, m_pedShiftKey).isFailure()) {
-    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_pedShiftKey.fullKey() << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
 
   return StatusCode::SUCCESS;
 }

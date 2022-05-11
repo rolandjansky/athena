@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FileSchedulingTool.h"
@@ -28,11 +28,9 @@ FileSchedulingTool::FileSchedulingTool(const std::string& type
   , m_debug(false)
   , m_sharedRankQueue(0)
   , m_sharedFinQueue(0)
-  , m_isPileup(false)
 {
   declareInterface<IAthenaMPTool>(this);
 
-  declareProperty("IsPileup",m_isPileup);
   declareProperty("Debug", m_debug);
 
   m_subprocDirPrefix = "worker_";
@@ -40,20 +38,6 @@ FileSchedulingTool::FileSchedulingTool(const std::string& type
 
 FileSchedulingTool::~FileSchedulingTool()
 {
-}
-
-StatusCode FileSchedulingTool::initialize()
-{
-  ATH_MSG_DEBUG("In initialize");
-  if(m_isPileup) {
-    m_evtProcessor = ServiceHandle<IEventProcessor>("PileUpEventLoopMgr",name());
-    ATH_MSG_INFO("The job running in pileup mode");
-  }
-  else {
-    ATH_MSG_INFO("The job running in non-pileup mode");
-  }
-  
-  return AthenaMPToolBase::initialize();
 }
 
 StatusCode FileSchedulingTool::finalize()
@@ -181,7 +165,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> FileSchedulingTool::bootstrap
   // TODO: this "worker_" can be made configurable too
 
   if(mkdir(worker_rundir.string().c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH)==-1) {
-    ATH_MSG_ERROR("Unable to make worker run directory: " << worker_rundir.string() << ". " << strerror(errno));
+    ATH_MSG_ERROR("Unable to make worker run directory: " << worker_rundir.string() << ". " << fmterror(errno));
     return outwork;
   }
 
@@ -339,7 +323,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> FileSchedulingTool::exec_func
   }
   else { 
     if(m_appMgr->finalize().isFailure()) {
-      ATH_MSG_ERROR("Unable to finalize AppMgr");
+      std::cerr << "Unable to finalize AppMgr" << std::endl;
       all_ok=false;
     }
   }

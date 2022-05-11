@@ -60,7 +60,7 @@ eflowRecCluster& eflowRecCluster::operator=(const eflowRecCluster& originalEflow
   }//if not assigning to self, then we have copied the data to the new object
 }
 
-eflowRecCluster::~eflowRecCluster() { }
+eflowRecCluster::~eflowRecCluster() = default;
 
 bool eflowRecCluster::isEOverPFail(bool consistencySigmaCut, bool useGoldenMode) {
 

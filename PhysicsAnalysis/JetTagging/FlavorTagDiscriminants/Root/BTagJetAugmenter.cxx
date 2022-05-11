@@ -70,6 +70,7 @@ BTagJetAugmenter::BTagJetAugmenter(std::string associator, FlavorTagDiscriminant
   m_pt_uncalib("pt_btagJes"),
   m_eta_uncalib("eta_btagJes"),
   m_abs_eta_uncalib("absEta_btagJes"),
+  m_scalarSumTrackPt("scalarSumTrackPt"),
   m_ip2d_weightBOfTracks(ip2(f) + "_weightBofTracks"),
   m_ip2d_nTrks(ip2(f) + "_nTrks"),
   m_ip2d_pu(ip2(f) + "_pu"),
@@ -130,6 +131,7 @@ std::set<std::string> BTagJetAugmenter::getDecoratorKeys() const {
         m_pt_uncalib.auxid(),
         m_eta_uncalib.auxid(),
         m_abs_eta_uncalib.auxid(),
+        m_scalarSumTrackPt.auxid(),
         m_ip2d_nTrks.auxid(),
         m_ip2d_isDefaults.auxid(),
         m_ip2d_cu.auxid(),
@@ -309,6 +311,7 @@ void BTagJetAugmenter::augment(const xAOD::BTagging &btag) const {
 
   unsigned track_number = 0;
   double track_E_total = 0;
+  float track_pt_total = 0;
   double min_track_flightDirRelEta = NAN;
   double max_track_flightDirRelEta = NAN;
   double track_flightDirRelEta_total = 0;
@@ -334,11 +337,13 @@ void BTagJetAugmenter::augment(const xAOD::BTagging &btag) const {
     rc &= track_particle.summaryValue(n_sct_hits, xAOD::numberOfSCTHits);
     if (!rc) throw std::runtime_error(
       "track summary values are missing, can't compute b-tagging variables");
-    if (n_pixel_hits + n_sct_hits < 2) continue;
 
+    // compute scalar track pt sum with all tracks, ignoring the requirement on pixel and SCT hits
+    track_pt_total += track_particle.pt();
+
+    if (n_pixel_hits + n_sct_hits < 2) continue;
     track_number++;
     track_E_total += track_particle.e();
-
 
     double track_flightDirRelEta = NAN;
     if (!std::isnan(jf_phi)) {
@@ -377,7 +382,7 @@ void BTagJetAugmenter::augment(const xAOD::BTagging &btag) const {
       }
     }
   }
-
+  m_scalarSumTrackPt(btag) = track_pt_total;
   m_secondaryVtx_nTrks(btag) = secondaryVtx_track_number;
 
   // Here begins a few blocks where the decoration depends on the

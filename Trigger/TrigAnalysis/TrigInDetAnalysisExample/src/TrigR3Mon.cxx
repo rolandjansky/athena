@@ -13,7 +13,7 @@
 
 #include "TrigInDetAnalysisUtils/Filters.h"
 #include "TrigInDetAnalysisUtils/Filter_Track.h"
-#include "TrigInDetAnalysisUtils/TagNProbe.h"
+#include "TrigInDetAnalysisUtils/TagNProbe2.h"
 
 // #include "AthenaMonitoring/AthenaMonManager.h"
 // #include "AthenaMonitoring/ManagedMonitorToolTest.h"
@@ -25,7 +25,7 @@
 
 
 TrigR3Mon::TrigR3Mon( const std::string & name, ISvcLocator* pSvcLocator) 
-  :  AthAlgorithm(name, pSvcLocator), 
+  :  AthMonitorAlgorithm(name, pSvcLocator), 
      m_tdt("Trig::TrigDecisionTool/TrigDecisionTool"),
      m_roiInfo(false),
      m_buildNtuple(false),
@@ -88,7 +88,8 @@ TrigR3Mon::TrigR3Mon( const std::string & name, ISvcLocator* pSvcLocator)
 
   declareProperty( "AnalysisConfig", m_analysis_config = "Ntuple");
 
-  declareProperty( "SelectTruthPdgId", m_selectTruthPdgId = 0 );
+  declareProperty( "SelectTruthPdgId",       m_selectTruthPdgId = 0 );
+  declareProperty( "SelectParentTruthPdgId", m_selectParentTruthPdgId = 0 );
 
   declareProperty( "InitialisePerRun", m_initialisePerRun = false );
   declareProperty( "KeepAllEvents",    m_keepAllEvents = false );
@@ -146,7 +147,8 @@ StatusCode TrigR3Mon::initialize() {
 
   msg(MSG::DEBUG) << " -----  exit init() ----- " << endmsg;
 
-  return bookHistograms();
+  ATH_CHECK(bookHistograms());
+  return AthMonitorAlgorithm::initialize();
 
 }
 
@@ -158,25 +160,23 @@ StatusCode TrigR3Mon::bookHistograms() {
   msg(MSG::INFO) << "TrigR3Mon::book() " << gDirectory->GetName() << endmsg;
 
   /// create sequences if need be ...
-  
+
   // track filters
-  // reference (offline) tracks...
+  // reference tracks (offline or truth) ...
   TrackFilter* filterRef = new Filter_Track( m_etaCutOffline,    m_d0CutOffline,   0, m_z0CutOffline,  m_pTCutOffline,
 					     m_pixHitsOffline,   m_sctHitsOffline, m_siHitsOffline, m_blayerHitsOffline,  
 					     m_strawHitsOffline, m_trtHitsOffline, 0, 
 					     m_pixHolesOffline, m_sctHolesOffline, m_siHolesOffline );
   
-  // test (trigger) tracks...
+  // test (trigger) tracks..
   //  TrackFilter* filterTest = new Filter_Track( m_etaCut, m_d0Cut, m_z0Cut, m_pTCut, -1, -1, -1, -1,  -2, -2 );
   TrackFilter* filterTest = new Filter_AcceptAll();
   
-
   // keep track of the filters so they can be cleaned up at the end
   m_filters.push_back(filterRef);
   m_filters.push_back(filterTest);
   // m_filters.push_back(filterTest_TRT);
 
-  
   // track associators
   TrackAssociator*  dR_matcher = new Associator_BestDeltaRMatcher("EBdeltaR", m_matchR); // this needs to be set correctly
   
@@ -253,10 +253,10 @@ StatusCode TrigR3Mon::bookHistograms() {
 	std::string selectChain = "";
 	
 	if ( chainName.tail()!="" )    selectChain += ":key="+chainName.tail();
-	if ( chainName.element()!="" ) selectChain += ":te="+chainName.element();
 	if ( chainName.roi()!="" )     selectChain += ":roi="+chainName.roi();
 	if ( chainName.vtx()!="" )     selectChain += ":vtx="+chainName.vtx();
 	
+	if ( chainName.element()!="" ) selectChain += ":te="+chainName.element();
 	if ( chainName.extra()!="" )   selectChain += ":ex="+chainName.extra();
 	if ( !chainName.passed() )     selectChain += ";DTE";
 
@@ -285,8 +285,7 @@ StatusCode TrigR3Mon::bookHistograms() {
 	
 	/// for the Run 3 python config based, shoud return one-and-only one chains per item
 
-	msg(MSG::INFO) << "checking chain: " << chainName.head() << endmsg;
-
+	ATH_MSG_DEBUG( "checking chain: " + chainName.head() );
 	
 	if ( selectChain=="" ) { 
 	  msg(MSG::WARNING) << "^[[91;1m" << "No chain matched\tchain input " << chainName.head() << "  :  " << chainName.tail() << "^[[m"<< endmsg;
@@ -297,17 +296,17 @@ StatusCode TrigR3Mon::bookHistograms() {
 	std::string mchain = selectChain; //chainName.head();
 
 	if ( chainName.tail()!="" )     mchain += "/"+chainName.tail();
-	if ( chainName.extra()!="" )    mchain += "_"+chainName.extra();
 	if ( chainName.roi()!="" )      mchain += "_"+chainName.roi();
 	if ( chainName.vtx()!="" )      mchain += "_"+chainName.vtx();
 	if ( chainName.element()!="" )  mchain += "_"+chainName.element();
+	if ( chainName.extra()!="" )    mchain += "_"+chainName.extra();
 	if ( !chainName.passed() )      mchain += "_DTE";
 	
 	if ( chainName.tail()!="" )    selectChain += ":key="+chainName.tail();
-	if ( chainName.extra()!="" )   selectChain += ":extra="+chainName.extra();
 	if ( chainName.roi()!="" )     selectChain += ":roi="+chainName.roi();
 	if ( chainName.vtx()!="" )     selectChain += ":vtx="+chainName.vtx();
 	if ( chainName.element()!="" ) selectChain += ":te="+chainName.element();
+	if ( chainName.extra()!="" )   selectChain += ":extra="+chainName.extra();
 	if ( !chainName.passed() )     selectChain += ":DTE";
 	  
 	if ( chainName.postcount() )   selectChain += ":post:"+chainName.post();
@@ -332,6 +331,8 @@ StatusCode TrigR3Mon::bookHistograms() {
 	    if (   shifter_ftf>=shifterChains || 
 		   ( shifter_ftf<shifterChains && chainName.vtx()!="" && chainName.vtx()==lastvtx ) ) {  
 	      msg(MSG::DEBUG) << "^[[91;1m" << "Matching chain " << selectChain << " excluded - Shifter chain already definied^[[m" << endmsg;
+	      /// pre and postfix operators generate the same code with optimisation
+	      toolitr++;
 	      continue;
 	    }
 	    shifter_ftf++;
@@ -342,6 +343,7 @@ StatusCode TrigR3Mon::bookHistograms() {
 	    shifter_efid++;
 	    if ( shifter_efid>shifterChains ) {
 	      msg(MSG::DEBUG) << "^[[91;1m" << "Matching chain " << selectChain << " excluded - Shifter chain already definied^[[m" << endmsg;
+	      toolitr++;
 	      continue;
 	    }
 	  }
@@ -350,6 +352,7 @@ StatusCode TrigR3Mon::bookHistograms() {
 	    shifter_efid_run1++;
 	    if ( shifter_efid_run1>shifterChains ) {
 	      msg(MSG::DEBUG) << "^[[91;1m" << "Matching chain " << selectChain << " excluded - Shifter chain already definied^[[m" << endmsg;
+	      toolitr++;
 	      continue;
 	    }
 	  }
@@ -360,10 +363,6 @@ StatusCode TrigR3Mon::bookHistograms() {
 	  monTools.push_back( &(*toolitr) );
 	}
 	
-	//  	  msg(MSG::DEBUG) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << "^[[m" << endmsg;
-	
-	//	  std::cout << "^[[91;1m" << "Matching chain " << selectChains[iselected] << "^[[m" << std::endl;;
-	  
       }
      
       
@@ -381,7 +380,7 @@ StatusCode TrigR3Mon::bookHistograms() {
 
       ChainString probe = m_chainNames[i] ;
 
-      TagNProbe* tnp = 0;
+      TagNProbe2* tnp = 0;
 
       if ( probe.extra().find("probe")!=std::string::npos ) {
 
@@ -399,9 +398,13 @@ StatusCode TrigR3Mon::bookHistograms() {
 	  std::string tag_key = tag.extra().erase( tag.extra().find("tag"), 3 ) ;
 
 	  if ( tag_key != probe_key ) continue;
+	  
+	  double massMin = 40;
+	  double massMax = 150;
 
-	  // if matching tag found then initialise tag and probe object and store tag and probe chains in there                                                                                               
-	  tnp = new TagNProbe() ;
+	  if ( m_mcTruth ) tnp = new TagNProbe2( "Truth",   massMin, massMax );
+	  else             tnp = new TagNProbe2( "Offline", massMin, massMax );
+
 	  tnp->tag(tag) ;
 	  tnp->probe(probe) ;
 	  
@@ -417,7 +420,7 @@ StatusCode TrigR3Mon::bookHistograms() {
 
       if ( m_tdt->getNavigationFormat() != "TriggerElement" ) { 
 
-	msg(MSG::INFO)  << "configure analysis: " << m_chainNames[i] << endmsg; 
+        ATH_MSG_INFO( "configure analysis: " + m_chainNames[i] );
 
 	AnalysisConfigR3_Tier0* analysis = new AnalysisConfigR3_Tier0( m_sliceTag, // m_chainNames[i],
 								       m_chainNames[i], "", "",
@@ -433,41 +436,46 @@ StatusCode TrigR3Mon::bookHistograms() {
 	analysis->containTracks(m_containTracks);
 
 	analysis->set_monTool( monTools[i] );
+	analysis->initialise();
+
+	if ( m_mcTruth ) { 
+	    analysis->setPdgID( m_selectTruthPdgId );
+	    analysis->setParentPdgID( m_selectParentTruthPdgId );	    
+
+	    analysis->setMCTruthRef( true );
+	    analysis->setOfflineRef( false );
+	}
 
 	m_sequences.push_back( analysis );
 
-      }
-
-
-      std::string highestPT_str = "";
-      std::string vtxindex_str  = "";
-
-      if ( m_useHighestPT ) { 
-	highestPT_str = ": using highest PT only";
-	m_sequences.back()->setUseHighestPT(true);
-      }
-      else m_sequences.back()->setUseHighestPT(false); /// not needed now, but can't do any harm
-
-      if ( !(m_vtxIndex<0) )  {
-	vtxindex_str = ": searching for vertex index ";
-	m_sequences.back()->setVtxIndex(m_vtxIndex);
-      }
+      	std::string highestPT_str = "";
+	std::string vtxindex_str  = "";
 	
-      msg(MSG::DEBUG)   << " ----- creating analysis " << m_sequences.back()->name() << " : " << m_chainNames[i] << highestPT_str << vtxindex_str << " -----" << endmsg;
+	if ( m_useHighestPT ) { 
+	  highestPT_str = ": using highest PT only";
+	  m_sequences.back()->setUseHighestPT(true);
+	}
+	else m_sequences.back()->setUseHighestPT(false); /// not needed now, but can't do any harm
 	
-      m_sequences.back()->releaseData(m_releaseMetaData);
-
-      /// don't filter cosmic chains on Roi
-      /// - could be done with a global job option, but then if configuring some cosmic chains,
-      ///   and non cosmic chains, then all would be tarred with the same brush  
-      if ( m_chainNames[i].find("cosmic")!=std::string::npos || 
-	   m_chainNames[i].find("Cosmic")!=std::string::npos )  m_sequences.back()->setFilterOnRoi(false);
-
+	if ( !(m_vtxIndex<0) )  {
+	  vtxindex_str = ": searching for vertex index ";
+	  m_sequences.back()->setVtxIndex(m_vtxIndex);
+	}	
+	
+	m_sequences.back()->releaseData(m_releaseMetaData);
+	
+	/// don't filter cosmic chains on Roi
+	/// - could be done with a global job option, but then if configuring some cosmic chains,
+	///   and non cosmic chains, then all would be tarred with the same brush  
+	if ( m_chainNames[i].find("cosmic")!=std::string::npos || 
+	     m_chainNames[i].find("Cosmic")!=std::string::npos )  m_sequences.back()->setFilterOnRoi(false);
+	
+	ATH_MSG_DEBUG( " ----- creating analysis " + m_sequences.back()->name() + " : " + m_chainNames[i] + " " + highestPT_str + " " + vtxindex_str + " -----" );
+	
+      }
     }
   }
       
-  
-
   //  std::cout << "TrigR3Mon: sequences: " << m_sequences.size() << std::endl;
   
   //  if ( m_sequences.size() == 0 ) std::exit(0);
@@ -495,7 +503,8 @@ StatusCode TrigR3Mon::bookHistograms() {
 
 
 
-StatusCode TrigR3Mon::execute() {
+//StatusCode TrigR3Mon::execute() {
+StatusCode TrigR3Mon::fillHistograms(const EventContext &/*context*/) const {
 
   if(msg().level() <= MSG::DEBUG) {
     msg(MSG::DEBUG) << " ----- enter fill() ----- " << endmsg;

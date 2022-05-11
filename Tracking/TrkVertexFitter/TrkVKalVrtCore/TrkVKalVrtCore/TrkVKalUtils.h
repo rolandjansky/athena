@@ -1,11 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _TrkVKalVrtCore_TrkVKalUtils_H
-#define _TrkVKalVrtCore_TrkVKalUtils_H
+#ifndef TRKVKALVRTCORE_TRKVKALUTILS_H
+#define TRKVKALVRTCORE_TRKVKALUTILS_H
+#include "boost/core/noinit_adaptor.hpp"
 #include <math.h>
 #include <algorithm>
+#include <vector>
 
 namespace Trk {
 
@@ -41,6 +43,11 @@ namespace Trk {
       return value;
    }
 
+
+   /// A variant on std::vector which leaves its contents uninitialized
+   /// by default.
+   template <class T>
+   using noinit_vector = std::vector<T, boost::noinit_adaptor<std::allocator<T> > >;
 
 
 } /* End namespace */

@@ -37,7 +37,7 @@ namespace TrigConf {
 
    public:
       /**@brief destructor*/
-      virtual ~IILVL1ConfigSvc(){}
+      virtual ~IILVL1ConfigSvc() = default;
 
       /**@brief Provides the LVL1 trigger menu*/
       virtual const CTPConfig* ctpConfig() const = 0;

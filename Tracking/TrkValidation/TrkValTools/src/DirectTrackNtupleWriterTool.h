@@ -66,12 +66,6 @@ public:
     /** fill AND write ntuple data of a given track particle */
     virtual StatusCode writeTrackParticleData ( const Trk::TrackParticleBase& ) const;
 
-    /** fill AND write ntuple data of a given proto-trajectory (function used for fitter validation) */
-    virtual StatusCode writeProtoTrajectoryData (
-        const Trk::ProtoTrajectory&,
-        const int iterationIndex,
-        const Trk::Perigee*,
-        const unsigned int fitStatCode ) const;
     
 private:
     /** write the filled data into the ntuple */

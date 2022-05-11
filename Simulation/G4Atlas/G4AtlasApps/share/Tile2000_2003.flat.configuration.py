@@ -67,8 +67,8 @@ jobproperties.lock_JobProperties()
 
 ## Tile2000_2003._do_external
 from AthenaCommon.AppMgr import ServiceMgr
-from Geo2G4.Geo2G4Conf import Geo2G4Svc
-Geo2G4Svc=Geo2G4Svc()
+import AthenaCommon.CfgMgr as CfgMgr
+Geo2G4Svc = CfgMgr.Geo2G4Svc()
 theApp.CreateSvc += [ "Geo2G4Svc" ]
 ServiceMgr +=Geo2G4Svc
 Geo2G4Svc.GetTopTransform = False

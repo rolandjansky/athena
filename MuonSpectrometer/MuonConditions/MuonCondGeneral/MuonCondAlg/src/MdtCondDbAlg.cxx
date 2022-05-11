@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondAlg/MdtCondDbAlg.h"
@@ -9,7 +9,7 @@
 using readOutPair = CondAttrListCollection::ChanAttrListPair;
 // constructor
 MdtCondDbAlg::MdtCondDbAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-    AthReentrantAlgorithm(name, pSvcLocator), m_condSvc("CondSvc", name), m_condMapTool("MDT_MapConversion") {
+    AthReentrantAlgorithm(name, pSvcLocator), m_condMapTool("MDT_MapConversion") {
     declareProperty("MDT_MapConversion", m_condMapTool);
 
     declareProperty("isOnline", m_isOnline);
@@ -21,7 +21,7 @@ MdtCondDbAlg::MdtCondDbAlg(const std::string& name, ISvcLocator* pSvcLocator) :
 // Initialize
 StatusCode MdtCondDbAlg::initialize() {
     ATH_MSG_DEBUG("initializing " << name());
-    ATH_CHECK(m_condSvc.retrieve());
+
     ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_writeKey.initialize());
     ATH_CHECK(m_readKey_folder_da_pshv.initialize(!m_readKey_folder_da_pshv.empty() && m_isData && m_isRun1));
@@ -37,11 +37,6 @@ StatusCode MdtCondDbAlg::initialize() {
     // so don't declare a dependencies on them.
     ATH_CHECK(m_readKey_folder_mc_deadElements.initialize(false /*!m_readKey_folder_mc_deadElements.empty() && !m_isData*/));
     ATH_CHECK(m_readKey_folder_mc_deadTubes.initialize(false /*!m_readKey_folder_mc_deadTubes.empty() && !m_isData*/));
-
-    if (m_condSvc->regHandle(this, m_writeKey).isFailure()) {
-        ATH_MSG_FATAL("Unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
-        return StatusCode::FAILURE;
-    }
 
     return StatusCode::SUCCESS;
 }
@@ -111,11 +106,11 @@ StatusCode MdtCondDbAlg::loadDataPsHv(writeHandle_t& wh, MdtCondDbData* writeCdo
 
         if (atr.size() == 1) {
             hv_name = *(static_cast<const std::string*>((atr["fsm_currentState"]).addressOfData()));
-            char delimiter = ' ';
+            constexpr char delimiter = ' ';
             auto tokens = MuonCalib::MdtStringUtils::tokenize(hv_name, delimiter);
 
             std::string thename;
-            char delimiter2 = '_';
+            constexpr char delimiter2 = '_';
             auto tokens2 = MuonCalib::MdtStringUtils::tokenize(hv_payload, delimiter2);
 
             if (tokens[0] != "ON" && tokens[0] != "STANDBY" && tokens[0] != "UNKNOWN") {
@@ -190,7 +185,7 @@ StatusCode MdtCondDbAlg::loadDataPsHv(writeHandle_t& wh, MdtCondDbData* writeCdo
 
         if (atr_v0.size() == 1) {
             setPointsV0_name = *(static_cast<const float*>((atr_v0["readBackSettings_v0"]).addressOfData()));
-            char delimiter2 = '_';
+            constexpr char delimiter2 = '_';
             auto tokens2 = MuonCalib::MdtStringUtils::tokenize(setPointsV0_payload, delimiter2);
 
             int multilayer = MuonCalib::MdtStringUtils::atoi(tokens2[3]);
@@ -216,7 +211,7 @@ StatusCode MdtCondDbAlg::loadDataPsHv(writeHandle_t& wh, MdtCondDbData* writeCdo
         if (atr_v1.size() == 1) {
             setPointsV1_name = *(static_cast<const float*>((atr_v1["readBackSettings_v1"]).addressOfData()));
 
-            char delimiter2 = '_';
+            constexpr char delimiter2 = '_';
             auto tokens2= MuonCalib::MdtStringUtils::tokenize(setPointsV1_payload, delimiter2);
 
             int multilayer = MuonCalib::MdtStringUtils::atoi(tokens2[3]);
@@ -270,9 +265,9 @@ StatusCode MdtCondDbAlg::loadDataPsLv(writeHandle_t& wh, MdtCondDbData* writeCdo
 
         if (!atr.size()) { continue; }
         hv_name = *(static_cast<const std::string*>((atr["fsm_currentState"]).addressOfData()));
-        char delimiter = ' ';
+        constexpr char delimiter = ' ';
         auto tokens = MuonCalib::MdtStringUtils::tokenize(hv_name, delimiter);
-        char delimiter2 = '_';
+        constexpr char delimiter2 = '_';
         auto tokens2 = MuonCalib::MdtStringUtils::tokenize(hv_payload, delimiter2);
 
         if (tokens[0] != "ON") {
@@ -316,7 +311,7 @@ StatusCode MdtCondDbAlg::loadDataHv(writeHandle_t& wh, MdtCondDbData* writeCdo, 
         hv_v1_ml2 = *(static_cast<const float*>((atr["v1set_ML2"]).addressOfData()));
 
         std::string thename;
-        char delimiter2 = '_';
+        constexpr char delimiter2 = '_';
         auto tokens2 = MuonCalib::MdtStringUtils::tokenize(hv_payload, delimiter2);
 
         if (hv_name_ml1 != "ON" && hv_name_ml1 != "STANDBY" && hv_name_ml1 != "UNKNOWN") {
@@ -398,14 +393,17 @@ StatusCode MdtCondDbAlg::loadDataLv(writeHandle_t& wh, MdtCondDbData* writeCdo, 
     for (const readOutPair& itr : *readCdo) {
         unsigned int chanNum = itr.first;
         const coral::AttributeList& atr = itr.second;
-        std::string hv_name;
         const std::string& hv_payload = readCdo->chanName(chanNum);
-
         if (!atr.size()) { continue; }
-        hv_name = *(static_cast<const std::string*>((atr["fsmCurrentState_LV"]).addressOfData()));
-        char delimiter = ' ';
+        std::string hv_name = *static_cast<const std::string*>((atr["fsmCurrentState_LV"]).addressOfData());
+        if (hv_name.empty() || hv_payload.empty()){
+            ATH_MSG_WARNING("The read data with chanNum "<<chanNum<<", hv_payload: "<<hv_payload<<", hv_name: "<<hv_name<<". Does not have any fsmCurrentState_LV attribute. "
+                            <<"May be this is related to ATLASRECTS-6920 / ATLASRECTS-6879. Skip it");
+            continue;
+        }
+        constexpr char delimiter = ' ';
         auto tokens = MuonCalib::MdtStringUtils::tokenize(hv_name, delimiter);
-        char delimiter2 = '_';
+        constexpr char delimiter2 = '_';
         auto tokens2 = MuonCalib::MdtStringUtils::tokenize(hv_payload, delimiter2);
 
         if (tokens[0] != "ON") {
@@ -436,7 +434,7 @@ StatusCode MdtCondDbAlg::loadDroppedChambers(writeHandle_t& wh, MdtCondDbData* w
         std::string chamber_dropped;
         chamber_dropped = *(static_cast<const std::string*>((atr["Chambers_disabled"]).addressOfData()));
 
-        char delimiter = ' ';
+        constexpr char delimiter = ' ';
         auto tokens = MuonCalib::MdtStringUtils::tokenize(chamber_dropped, delimiter);
         for (unsigned int i = 0; i < tokens.size(); i++) {
             if (tokens[i] != "0") {
@@ -472,7 +470,7 @@ StatusCode MdtCondDbAlg::loadMcDeadElements(writeHandle_t& wh, MdtCondDbData* wr
         list_tube = *(static_cast<const std::string*>((atr["Dead_tube"]).addressOfData()));
 
         std::string thename;
-        char delimiter = ' ';
+        constexpr char delimiter = ' ';
         Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name);
         auto tokens = MuonCalib::MdtStringUtils::tokenize(list_tube, delimiter);
         auto tokens_mlayer = MuonCalib::MdtStringUtils::tokenize(list_mlayer, delimiter);
@@ -544,7 +542,7 @@ StatusCode MdtCondDbAlg::loadMcDeadTubes(writeHandle_t& wh, MdtCondDbData* write
         chamber_name = *(static_cast<const std::string*>((atr["Chamber_Name"]).addressOfData()));
 
         std::string thename;
-        char delimiter = ' ';
+        constexpr char delimiter = ' ';
         auto tokens = MuonCalib::MdtStringUtils::tokenize(dead_tube, delimiter);
         Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name);
 
@@ -588,9 +586,9 @@ StatusCode MdtCondDbAlg::loadMcNoisyChannels(writeHandle_t& wh, MdtCondDbData* w
 
         if (atr.size()) {
             hv_name = *(static_cast<const std::string*>((atr["fsm_currentState"]).addressOfData()));
-            char delimiter = ' ';
+            constexpr char delimiter = ' ';
             auto tokens = MuonCalib::MdtStringUtils::tokenize(hv_name, delimiter);
-            char delimiter2 = '_';
+            constexpr char delimiter2 = '_';
             auto tokens2 = MuonCalib::MdtStringUtils::tokenize(hv_payload, delimiter2);
 
             if (tokens[0] != "ON") {

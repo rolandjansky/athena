@@ -11,6 +11,9 @@
 // STL includes
 #include <string>
 
+// xAOD
+#include "xAODForward/AFPTrackContainer.h"
+
 /**
  * @class TrigAFPSidHypoMonitoringAlg
  * @brief Monitors performance of AF SID reco and related hypo
@@ -26,6 +29,10 @@ public:
 
 private:
   Gaudi::Property<std::vector<std::string>> m_chains {this, "Chains", {}, "Chains to monitor"};
+
+  SG::ReadHandleKey< xAOD::AFPTrackContainer > m_AFPtrackKey {this, "AFPTrackContainerKey", "HLT_AFPTrackContainer", "xAOD AFP track collection"};
+  SG::ReadHandleKey< xAOD::AFPTrackContainer > m_AFPtrackOffKey {this, "AFPTrackContainerOfflineKey", "AFPTrackContainer", "xAOD AFP track collection offline"};
+
 };
 
 #endif // TRIGMINBIASMONITORING_TRIGAFPSIDHYPOMONITORINGALG_H

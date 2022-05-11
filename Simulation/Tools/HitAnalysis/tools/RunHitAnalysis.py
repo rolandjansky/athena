@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Run HitAnalysis
 
-Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 import sys
 from argparse import ArgumentParser
@@ -43,7 +43,7 @@ from AthenaConfiguration.Enums import ProductionStep
 ConfigFlags.Common.ProductionStep = ProductionStep.Simulation
 ConfigFlags.Input.Files = [args.input]
 if args.localgeo:
-    ConfigFlags.GeoModel.useLocalGeometry = True
+    ConfigFlags.ITk.Geometry.AllLocal = True
 if args.detectors:
     from AthenaConfiguration.DetectorConfigFlags import setupDetectorsFromList
     setupDetectorsFromList(ConfigFlags, args.detectors, toggle_geometry=True)

@@ -57,6 +57,7 @@ bool BuildNSWReadoutGeometry::BuildReadoutGeometry(MuonGM::MuonDetectorManager* 
                 re->fillCache();
                 mgr->addMMReadoutElement(re, re->identify());
                 re->setDelta(mgr);
+                re->setBLinePar(mgr);
             } else if (chTag.substr(0, 3) == "sTG") {
                 sTgcReadoutElement* re = new sTgcReadoutElement((GeoVFullPhysVol*)vol, stName, etaIndex, phiIndex, mLayer, false, mgr);
                 std::string myVolName = (chTag.substr(0, 8)).c_str();
@@ -64,6 +65,7 @@ bool BuildNSWReadoutGeometry::BuildReadoutGeometry(MuonGM::MuonDetectorManager* 
                 re->fillCache();
                 mgr->addsTgcReadoutElement(re, re->identify());
                 re->setDelta(mgr);
+                re->setBLinePar(mgr);
             }
         }
     }

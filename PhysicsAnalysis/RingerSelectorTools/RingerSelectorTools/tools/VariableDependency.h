@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: VariableDependency.h 704615 2015-10-29 18:50:12Z wsfreund $
 #ifndef  RINGERSELECTORTOOLS_TOOLS_VARIABLEDEPENDENCY_H
 #define  RINGERSELECTORTOOLS_TOOLS_VARIABLEDEPENDENCY_H
 
@@ -93,12 +92,7 @@ class VariableDependency /*: virtual public IVariableDependency*/
     /**
      * Ctor for independent
      **/
-    VariableDependency()
-      : m_etaDependency(EtaDependency::EtaIndependent),
-        m_etDependency(EtDependency::EtIndependent),
-        m_etaMin(0), m_etaMax(0),
-        m_etMin(0), m_etMax(0),
-        m_type{""}{;}
+    VariableDependency() = default;
 
     /**
      * Ctor for eta dependent case
@@ -106,36 +100,30 @@ class VariableDependency /*: virtual public IVariableDependency*/
     VariableDependency(const float etaMin, const float etaMax,
         EtaDependency etaDependency)
       : m_etaDependency(etaDependency),
-        m_etDependency(EtDependency::EtIndependent),
         m_etaMin(etaMin),
-        m_etaMax(etaMax),
-        m_etMin(0),
-        m_etMax(0),
-        m_type{""}{;}
+        m_etaMax(etaMax)
+        {}
 
     /**
      * Ctor for et dependent case
      **/
     VariableDependency(const float etMin, const float etMax,
         EtDependency etDependency)
-      : m_etaDependency(EtaDependency::EtaIndependent),
-        m_etDependency(etDependency),
+      : m_etDependency(etDependency),
         m_etMin(etMin),
-        m_etMax(etMax),
-        m_type{""}{;}
+        m_etMax(etMax)
+        {}
 
     /**
      * Ctor for et/eta dependent case
      **/
     VariableDependency(const float etaMin, const float etaMax,
         const float etMin, const float etMax)
-      : m_etaDependency(EtaDependency::EtaDependent),
-        m_etDependency(EtDependency::EtDependent),
-        m_etaMin(etaMin),
+      : m_etaMin(etaMin),
         m_etaMax(etaMax),
         m_etMin(etMin),
-        m_etMax(etMax),
-        m_type{""}{;}
+        m_etMax(etMax)
+        {}
 
     /**
      * Check if depVar is within this procedure range
@@ -209,7 +197,7 @@ class VariableDependency /*: virtual public IVariableDependency*/
      *
      * This is not a virtual method.
      **/
-    const char* type() const;
+    std::string type() const;
 
     /**
      * Read variable dependency from directory
@@ -234,19 +222,15 @@ class VariableDependency /*: virtual public IVariableDependency*/
   private:
 
     /// Whether there is eta dependency
-    EtaDependency m_etaDependency;
+    EtaDependency m_etaDependency{EtaDependency::EtaIndependent};
     /// Whether there is et dependency
-    EtDependency m_etDependency;
+    EtDependency m_etDependency{EtDependency::EtIndependent};
 
     /// Eta bounded region where RingerProcedure may be applied
-    float m_etaMin, m_etaMax;
+    float m_etaMin{0}, m_etaMax{0};
 
     /// Et bounded region where RingerProcedure may be applied
-    float m_etMin, m_etMax;
-
-    /// The string holder for type:
-    mutable std::string m_type;
-
+    float m_etMin{0}, m_etMax{0};
 };
 
 } // namespace Ringer

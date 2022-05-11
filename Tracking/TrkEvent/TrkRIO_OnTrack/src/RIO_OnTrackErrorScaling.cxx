@@ -3,9 +3,9 @@
 */
 #include "TrkRIO_OnTrack/RIO_OnTrackErrorScaling.h"
 
-RIO_OnTrackErrorScaling::RIO_OnTrackErrorScaling() {}
+RIO_OnTrackErrorScaling::RIO_OnTrackErrorScaling() = default;
 
-RIO_OnTrackErrorScaling::~RIO_OnTrackErrorScaling() {}
+RIO_OnTrackErrorScaling::~RIO_OnTrackErrorScaling() = default;
 
 CLID RIO_OnTrackErrorScaling::clid() const {
   return ClassID_traits<RIO_OnTrackErrorScaling>::ID();

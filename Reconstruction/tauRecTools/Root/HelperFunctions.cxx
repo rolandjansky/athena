@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "tauRecTools/HelperFunctions.h"
@@ -26,27 +26,6 @@ const xAOD::Vertex* tauRecTools::getJetVertex(const xAOD::Jet& jet) {
   }
 
   return jetVertex;
-}
-
-
-
-const xAOD::Vertex* tauRecTools::getTauVertex(const xAOD::TauJet& tau, bool inTrigger) {
-  using namespace tauRecTools::msgHelperFunction;
-  
-  const xAOD::Vertex* tauVertex = nullptr;
-  if (tau.vertexLink().isValid()) {
-    tauVertex = tau.vertex();
-  }
-  else if (! inTrigger) {
-    if (! tau.jetLink().isValid()) {
-      ANA_MSG_WARNING("Link to seed jet is not valid !");
-      return nullptr;
-    } 
-    const xAOD::Jet* seedJet = tau.jet();
-    tauVertex = tauRecTools::getJetVertex(*seedJet);
-  }
-
-  return tauVertex;
 }
 
 

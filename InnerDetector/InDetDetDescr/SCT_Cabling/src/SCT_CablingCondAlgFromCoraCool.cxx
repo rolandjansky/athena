@@ -201,16 +201,8 @@ SCT_CablingCondAlgFromCoraCool::initialize() {
   ATH_CHECK(m_readKeyMur.initialize());
   ATH_CHECK(m_readKeyGeo.initialize());
 
-  // CondSvc
-  ATH_CHECK(m_condSvc.retrieve());
-
   // Write Cond Handle
   ATH_CHECK(m_writeKey.initialize());
-  // Register write handle
-  if (m_condSvc->regHandle(this, m_writeKey).isFailure()) {
-    ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
 
   return StatusCode::SUCCESS;
 }

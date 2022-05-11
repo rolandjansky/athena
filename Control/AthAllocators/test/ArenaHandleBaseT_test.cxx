@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ArenaHandleBaseT_test.cxx 470529 2011-11-24 23:54:22Z ssnyder $
 /**
  * @file AthAllocators/test/ArenaHandleBaseT_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -48,9 +46,14 @@ public:
   class const_iterator;
 
   class iterator
-    : public std::iterator<std::forward_iterator_tag, Payload>
   {
   public:
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = Payload;
+    using difference_type = std::ptrdiff_t;
+    using pointer = value_type*;
+    using reference = value_type&;
+
     iterator (std::vector<Payload>::iterator it)
       : m_it (std::move(it)) {}
     reference operator*() const { return *m_it; }
@@ -65,9 +68,14 @@ public:
   };
 
   class const_iterator
-    : public std::iterator<std::forward_iterator_tag, const Payload>
   {
   public:
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = const Payload;
+    using difference_type = std::ptrdiff_t;
+    using pointer = value_type*;
+    using reference = value_type&;
+
     const_iterator (std::vector<Payload>::const_iterator it)
       : m_it (std::move(it)) {}
     const_iterator (TestAlloc::iterator it)

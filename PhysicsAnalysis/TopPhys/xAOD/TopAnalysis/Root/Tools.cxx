@@ -370,8 +370,12 @@ namespace top {
       if (isMC) {
         if (simFlavour == "FullG4") {
           config->setIsAFII(false);
+        } else if (simFlavour == "FullG4_QS") {
+          config->setIsAFII(false);
         } else if (simFlavour == "ATLFASTII") {
           config->setIsAFII(true);
+        } else if (simFlavour == "ATLFAST3_QS") {
+          config->setIsAFII(false);
         } else {
           ATH_MSG_ERROR("Unsupported simFlavour detected in xAOD::FileMetaData: " << simFlavour);
           throw std::runtime_error("Unsupported simFlavour detected, exiting");

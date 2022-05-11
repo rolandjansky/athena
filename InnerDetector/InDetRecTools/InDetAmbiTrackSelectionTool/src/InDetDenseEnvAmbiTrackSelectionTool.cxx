@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,8 +15,6 @@
 #include "InDetIdentifier/SiliconID.h"
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetPrepRawData/SCT_Cluster.h"
-#include "TrkCaloClusterROI/CaloClusterROI.h"
-#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
 #include "TrkDetElementBase/TrkDetElementBase.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkPrepRawData/PrepRawData.h"
@@ -76,44 +74,15 @@ StatusCode InDet::InDetDenseEnvAmbiTrackSelectionTool::initialize()
   return StatusCode::SUCCESS;
 }
 
+StatusCode InDet::InDetDenseEnvAmbiTrackSelectionTool::finalize() {
+  return StatusCode::SUCCESS;
+}
+
 
 // @TODO move cluster "map" creation to separate algorithm
-void InDet::InDetDenseEnvAmbiTrackSelectionTool::newEvent(CacheEntry* ent) const
+void InDet::InDetDenseEnvAmbiTrackSelectionTool::newEvent(CacheEntry* ) const
 {
-  // Reload ROI's
-  if (m_useHClusSeed) {
-    ent->m_hadF.clear();
-    ent->m_hadE.clear();
-    ent->m_hadR.clear();
-    ent->m_hadZ.clear();
-
-    SG::ReadHandle<CaloClusterROI_Collection> calo(m_inputHadClusterContainerName);
-    for ( const auto *const ccROI : *calo) {
-      ent->m_hadF.push_back( ccROI->globalPosition().phi() );
-      ent->m_hadE.push_back( ccROI->globalPosition().eta() );
-      ent->m_hadR.push_back( ccROI->globalPosition().perp() );
-      ent->m_hadZ.push_back( ccROI->globalPosition().z() );
-    }
-  }
-
-  // Reload ROI's
-  if (m_useEmClusSeed) {
-    ent->m_emF.clear();
-    ent->m_emE.clear();
-    ent->m_emR.clear();
-    ent->m_emZ.clear();
-
-    SG::ReadHandle<CaloClusterROI_Collection> calo(m_inputEmClusterContainerName);
-    for ( const Trk::CaloClusterROI* ccROI : *calo) {
-      if ( ccROI->energy() * std::sin(ccROI->globalPosition().theta()) < m_minPtEm){
-        continue;
-      }
-      ent->m_emF.push_back( ccROI->globalPosition().phi() );
-      ent->m_emE.push_back( ccROI->globalPosition().eta() );
-      ent->m_emR.push_back( ccROI->globalPosition().perp() );
-      ent->m_emZ.push_back( ccROI->globalPosition().z() );
-    }
-  }
+   return;
 }
 
 
@@ -126,16 +95,7 @@ std::tuple<Trk::Track*,bool> InDet::InDetDenseEnvAmbiTrackSelectionTool::getClea
                                                                                             int subtrackId) const
 {
 
-  // Test to see if we have a new event
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
-  std::lock_guard<std::mutex> lock{m_mutex};
-  CacheEntry* ent{m_cache.get(ctx)};
-  if (ent->m_evt!=ctx.evt()) { // New event in this slot
-    //Fill ROI's
-    newEvent(ent);
-
-    ent->m_evt = ctx.evt();
-  }
+  CacheEntry  cache;
   
   // compute the number of shared hits from the number of max shared modules
   // reset every track as could be changed for tracks within an ROI
@@ -143,10 +103,10 @@ std::tuple<Trk::Track*,bool> InDet::InDetDenseEnvAmbiTrackSelectionTool::getClea
   double trackEta = ptrTrack->trackParameters()->front()->eta();
   int maxSharedModules = m_etaDependentCutsSvc.name().empty() ?
     int(m_maxSharedModules) : m_etaDependentCutsSvc->getMaxSharedAtEta(trackEta);
-  ent->m_maxSharedModules = 2*maxSharedModules+1; // see header for meaning
-  ent->m_minNotShared = m_etaDependentCutsSvc.name().empty() ?
+  cache.m_maxSharedModules = 2*maxSharedModules+1; // see header for meaning
+  cache.m_minNotShared = m_etaDependentCutsSvc.name().empty() ?
     int(m_minNotSharedHits) : m_etaDependentCutsSvc->getMinSiNotSharedAtEta(trackEta);
-  ent->m_minSiHits = m_etaDependentCutsSvc.name().empty() ?
+  cache.m_minSiHits = m_etaDependentCutsSvc.name().empty() ?
     int(m_minSiHitsToAllowSplitting) : m_etaDependentCutsSvc->getMinSiHitsAtEta(trackEta);
 
   // cut on TRT hits, might use eta dependent cuts here
@@ -176,7 +136,7 @@ std::tuple<Trk::Track*,bool> InDet::InDetDenseEnvAmbiTrackSelectionTool::getClea
   //Decide which hits to keep
   //This is a major function which checks the usage of each hit on the candidate track
   ATH_MSG_DEBUG ("decideWhichHitsToKeep");
-  decideWhichHitsToKeep( ptrTrack,  score,  splitProbContainer, prd_to_track_map, trackHitDetails, tsosDetails, ent, trackId );
+  decideWhichHitsToKeep( ptrTrack,  score,  splitProbContainer, prd_to_track_map, trackHitDetails, tsosDetails, &cache, trackId );
   
   ATH_MSG_DEBUG ("decideWhichHitsToKeep" << trackHitDetails.m_trkCouldBeAccepted );
   
@@ -217,7 +177,7 @@ std::tuple<Trk::Track*,bool> InDet::InDetDenseEnvAmbiTrackSelectionTool::getClea
       m_observerTool->rejectTrack(trackId, xAOD::RejectionStep::getCleanedOutTrack, xAOD::RejectionReason::notEnoughTRTHits);
     }
   }
-  if( trackHitDetails.totalUniqueSiHits() < ent->m_minNotShared ) {
+  if( trackHitDetails.totalUniqueSiHits() < cache.m_minNotShared ) {
     passBasicCuts = false;
     if (m_observerTool.isEnabled()) {
       m_observerTool->rejectTrack(trackId, xAOD::RejectionStep::getCleanedOutTrack, xAOD::RejectionReason::notEnoughUniqueSiHits);
@@ -256,7 +216,7 @@ std::tuple<Trk::Track*,bool> InDet::InDetDenseEnvAmbiTrackSelectionTool::getClea
 
   // set 2 bools for criteria placed on tracks with shared hits each criteria
   // 1/2 - too many shared modules?
-  bool passSharedModulesCut( trackHitDetails.m_numWeightedShared < ent->m_maxSharedModules );
+  bool passSharedModulesCut( trackHitDetails.m_numWeightedShared < cache.m_maxSharedModules );
 
   // 2/2 - good quality?
   // Note, all tracks with a score of 0 are already removed
@@ -409,7 +369,7 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::checkOtherTracksValidity(TSoS_D
     Trk::PRDtoTrackMap &prd_to_track_map,
     int& maxiShared, 
     int& maxOtherNPixel, 
-    bool& maxOtherHasIBL, 
+    bool& maxOtherHasIBL,
     CacheEntry* ent) const
 {
 
@@ -709,8 +669,7 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::fillTrackDetails(const Trk::Tra
     tsosDetails.m_type[index] = SharedHit;
   } // End loop over TSOS's
   
-  return;
-}
+  }
 
 //==========================================================================================
 //
@@ -731,7 +690,7 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
 
   // Does this track fall into an hadronic ROI?
   trackHitDetails.m_passHadronicROI = false;
-  if( m_useHClusSeed && inHadronicROI(ptrTrack, ent) ) {
+  if( m_useHClusSeed && inHadronicROI(ptrTrack) ) {
     trackHitDetails.m_passHadronicROI = true;
   }
  
@@ -1016,7 +975,7 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
   trackHitDetails.m_passConversionSel = false; // make sure off to start
   if (m_doPairSelection && !tsosDetails.m_overlappingTracks.empty()) {
     trackHitDetails.m_passConversionSel = performConversionCheck(ptrTrack, 
-        prd_to_track_map, trackHitDetails, tsosDetails, ent);
+        prd_to_track_map, trackHitDetails, tsosDetails);
   }
   //------------------------------------------------------------------//
 
@@ -1029,7 +988,7 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
   if (m_useHClusSeed && !trackHitDetails.m_passConversionSel && trackHitDetails.m_passHadronicROI && 
     m_doPairSelection && !tsosDetails.m_overlappingTracks.empty()) {
     trackHitDetails.m_passConversionSel = performHadDecayCheck(ptrTrack, 
-        prd_to_track_map, trackHitDetails, tsosDetails, ent);
+        prd_to_track_map, trackHitDetails, tsosDetails);
   }
   
   //------------------------------------------------------------------//
@@ -1257,8 +1216,7 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
                                           trackHitDetails.m_numWeightedShared);
   }
 
-  return;
-} // decideWhichHitsToKeep 
+  } // decideWhichHitsToKeep 
 
 //==========================================================================================
 
@@ -1266,8 +1224,7 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
 bool InDet::InDetDenseEnvAmbiTrackSelectionTool::performConversionCheck(const Trk::Track* ptrTrack,
     Trk::PRDtoTrackMap &prd_to_track_map,
     TrackHitDetails& trackHitDetails,
-    TSoS_Details& tsosDetails,
-    CacheEntry* ent) const
+    TSoS_Details& tsosDetails) const
 {
   ATH_MSG_DEBUG(" Conversion Check ");
 
@@ -1310,7 +1267,7 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::performConversionCheck(const Tr
     }
     //Check if it is in a ROI, if requested
     if(m_useEmClusSeed) {
-      if(!isEmCaloCompatible( *tpPair.first, ent )) { return false; }
+       if(!isEmCaloCompatible( *tpPair.first )) { return false; }
     }
     ATH_MSG_DEBUG ("Possible photon conversion");
   }
@@ -1319,7 +1276,7 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::performConversionCheck(const Tr
   // Main point is to not kill the pattern track
   else if ( trackHitDetails.m_isPatternTrack ) {
     if(m_useEmClusSeed && tpPair.second ) {
-      if(!isEmCaloCompatible( *tpPair.second, ent )) { return false; }
+       if(!isEmCaloCompatible( *tpPair.second )) { return false; }
     }
     ATH_MSG_DEBUG ("Possible photon conversion - for pattern track");
   }
@@ -1348,8 +1305,7 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::performConversionCheck(const Tr
 bool InDet::InDetDenseEnvAmbiTrackSelectionTool::performHadDecayCheck(const Trk::Track* ptrTrack,
     Trk::PRDtoTrackMap &prd_to_track_map,
     TrackHitDetails& trackHitDetails,
-    TSoS_Details& tsosDetails,
-    CacheEntry* ent) const
+    TSoS_Details& tsosDetails) const
 {
   ATH_MSG_DEBUG(" Hadron decay Check ");
 
@@ -1392,14 +1348,14 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::performHadDecayCheck(const Trk:
     }
     //Check if it is in a ROI, if requested
     if(m_useHClusSeed) {
-      if(!isHadCaloCompatible( *tpPair.first, ent )) { return false; }
+       if(!isHadCaloCompatible( *tpPair.first )) { return false; }
     }
     ATH_MSG_DEBUG ("Possible boosted decay");
   }
   // for pattern tracks, cannot get the track parameters at a hit position
   else if ( trackHitDetails.m_isPatternTrack ) {
     if(m_useHClusSeed && tpPair.second ) {
-      if(!isHadCaloCompatible( *tpPair.second, ent )) { return false; }
+       if(!isHadCaloCompatible( *tpPair.second )) { return false; }
     }
     ATH_MSG_DEBUG ("Possible boosted decay - for pattern track");
   }
@@ -1534,88 +1490,36 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::setPixelClusterSplitInformation
 
 
 //==========================================================================================
-bool InDet::InDetDenseEnvAmbiTrackSelectionTool::inHadronicROI(const Trk::Track* ptrTrack,
-    CacheEntry* ent) const 
+bool InDet::InDetDenseEnvAmbiTrackSelectionTool::inHadronicROI(const Trk::Track* ptrTrack) const 
 {
 
   if (  !ptrTrack->trackParameters()->front() ){ return false; }
   // above pT for ROI?
   if (  ptrTrack->trackParameters()->front()->pT() < m_minPtBjetROI ) { return false; }
 
-  return isHadCaloCompatible(*ptrTrack->trackParameters()->front(), ent);
-}
-//==========================================================================================
-bool InDet::InDetDenseEnvAmbiTrackSelectionTool::isHadCaloCompatible(const Trk::TrackParameters& Tp, CacheEntry* ent) const
-{
-  constexpr double pi = M_PI;
-  constexpr double pi2 = 2.*M_PI;
-
-  if (ent->m_hadF.empty()) return false;
-
-  auto f = ent->m_hadF.begin(), fe = ent->m_hadF.end();
-  auto e = ent->m_hadE.begin();
-  auto r = ent->m_hadR.begin();
-  auto z = ent->m_hadZ.begin();
-
-  double F = Tp.momentum().phi();
-  double E = Tp.eta();
-
-  for (; f!=fe; ++f) {
-    double df = std::abs(F-(*f));
-    if (df > pi        ) df = std::abs(pi2-df);
-    if (df < m_phiWidth) {
-      //Correct eta of cluster to take into account the z postion of the track
-      double newZ   = *z - Tp.position().z();
-      double newEta =  std::atanh( newZ / std::sqrt( (*r) * (*r) + newZ*newZ ) );
- 
-      double de = std::abs(E-newEta);
-      if (de < m_etaWidth) return true;
-
-    }
-    ++e;
-    ++r;
-    ++z;
-  }
-  return false;
+  return isHadCaloCompatible(*ptrTrack->trackParameters()->front());
 }
 
+bool InDet::InDetDenseEnvAmbiTrackSelectionTool::isHadCaloCompatible(const Trk::TrackParameters& Tp) const
+{
+  SG::ReadHandle<ROIPhiRZContainer> calo(m_inputHadClusterContainerName);
+  if (!calo.isValid()) {
+     ATH_MSG_ERROR("Failed to get Had Calo cluster collection " << m_inputHadClusterContainerName );
+     return false;
+  }
+
+  return calo->hasMatchingROI(Tp.momentum().phi(), Tp.eta(), 0. /* ignore r of Tp*/, Tp.position().z(), m_phiWidth, m_etaWidth);
+}
 
 //==========================================================================================
-bool InDet::InDetDenseEnvAmbiTrackSelectionTool::isEmCaloCompatible(const Trk::TrackParameters& Tp, CacheEntry* ent) const
+bool InDet::InDetDenseEnvAmbiTrackSelectionTool::isEmCaloCompatible(const Trk::TrackParameters& Tp) const
 {
-
-  constexpr double pi = M_PI;
-  constexpr double pi2 = 2.*M_PI;
-
-  if (ent->m_emF.empty()) return false;
-
-  auto f = ent->m_emF.begin(), fe = ent->m_emF.end();
-  auto e = ent->m_emE.begin();
-  auto r = ent->m_emR.begin();
-  auto z = ent->m_emZ.begin();
-
-  double F = Tp.momentum().phi();
-  double E = Tp.momentum().eta();
-  double R = Tp.position().perp();
-  double Z = Tp.position().z();
-
-  for (; f!=fe; ++f) {
-    double df = std::abs(F-(*f));
-    if (df > pi        ) df = std::abs(pi2-df);
-    if (df < m_phiWidthEm) {
-      //Correct eta of cluster to take into account the z postion of the track
-      double newZ   = *z - Z;
-      double newR   = *r - R;
-      double newEta =  std::atanh( newZ / std::sqrt( newR*newR + newZ*newZ ) );
-      double de = std::abs(E-newEta);
-       
-      if (de < m_etaWidthEm) return true;
-    }
-    ++e;
-    ++r;
-    ++z;
+  SG::ReadHandle<ROIPhiRZContainer> calo(m_inputEmClusterContainerName);
+  if (!calo.isValid())  {
+     ATH_MSG_ERROR("Failed to get EM cluster container " << m_inputEmClusterContainerName);
+     return false;
   }
-  return false;
+  return calo->hasMatchingROI(Tp.momentum().phi(), Tp.momentum().eta(), Tp.position().perp(), Tp.position().z(), m_phiWidthEm, m_etaWidthEm);
 }
 
 
@@ -1738,64 +1642,56 @@ inline bool InDet::InDetDenseEnvAmbiTrackSelectionTool::isMultiPartClus(float sp
 //
 //============================================================================================
 inline void InDet::InDetDenseEnvAmbiTrackSelectionTool::rejectHitOverUse(TrackHitDetails& trackHitDetails, 
-    TSoS_Details& tsosDetails, int index) const {
+    TSoS_Details& tsosDetails, int index) {
   trackHitDetails.m_trkCouldBeAccepted = false; // we have to remove at least one PRD
   tsosDetails.m_type[index] = RejectedHitOverUse;
-  return;
 }
 inline void InDet::InDetDenseEnvAmbiTrackSelectionTool::rejectHit(TrackHitDetails& trackHitDetails, 
-    TSoS_Details& tsosDetails, int index) const {
+    TSoS_Details& tsosDetails, int index) {
   trackHitDetails.m_trkCouldBeAccepted = false; // we have to remove at least one PRD
   tsosDetails.m_type[index] = RejectedHit;
-  return;
 }
 // used after counters have been set
 inline void InDet::InDetDenseEnvAmbiTrackSelectionTool::rejectSharedHit(TrackHitDetails& trackHitDetails, 
-    TSoS_Details& tsosDetails, int index) const {
+    TSoS_Details& tsosDetails, int index) {
   rejectHit(trackHitDetails, tsosDetails, index); // reject
   decreaseSharedHitCounters( trackHitDetails, 
       (tsosDetails.m_detType[index]%10 == 1), 
       (tsosDetails.m_detType[index]%10 == 2) );
-  return;
 }
 // used after counters have been set
 inline void InDet::InDetDenseEnvAmbiTrackSelectionTool::rejectSharedHitInvalid(TrackHitDetails& trackHitDetails, 
-    TSoS_Details& tsosDetails, int index) const {
+    TSoS_Details& tsosDetails, int index) {
   trackHitDetails.m_trkCouldBeAccepted = false;
   tsosDetails.m_type[index] = RejectedHitInvalid; // do not use rejectHit function since use this flag
   decreaseSharedHitCounters( trackHitDetails, 
       (tsosDetails.m_detType[index]%10 == 1), 
       (tsosDetails.m_detType[index]%10 == 2) );
-  return;
 }
 // used after counters have been set
 inline void InDet::InDetDenseEnvAmbiTrackSelectionTool::sharedToSplitPix(TrackHitDetails& trackHitDetails, 
-    TSoS_Details& tsosDetails, int index) const {
+    TSoS_Details& tsosDetails, int index) {
   // from shared
   decreaseSharedHitCounters( trackHitDetails, true, false ); // isPix=true
   // to split
   tsosDetails.m_type[index] = SplitSharedHit;
   trackHitDetails.m_numSplitSharedPix++;
-  return;
 }
 inline void InDet::InDetDenseEnvAmbiTrackSelectionTool::addSharedHit(TrackHitDetails& trackHitDetails, 
-    TSoS_Details& tsosDetails, int index) const {
+    TSoS_Details& tsosDetails, int index) {
   tsosDetails.m_type[index] = SharedHit;
   increaseSharedHitCounters( trackHitDetails, (tsosDetails.m_detType[index]%10 == 1), (tsosDetails.m_detType[index]%10 == 2) );
-  return;
 }
-inline void InDet::InDetDenseEnvAmbiTrackSelectionTool::increaseSharedHitCounters(TrackHitDetails& trackHitDetails, bool isPix, bool isSCT) const {
+inline void InDet::InDetDenseEnvAmbiTrackSelectionTool::increaseSharedHitCounters(TrackHitDetails& trackHitDetails, bool isPix, bool isSCT) {
   trackHitDetails.m_numShared++; // increase counter 
   trackHitDetails.m_numWeightedShared += (isPix ? 2 : 1); // increase counter
   // protect from TRT hits (needed?)
   if( isSCT ) { trackHitDetails.m_numSCT_Shared++; }
-  return;
-}
-inline void InDet::InDetDenseEnvAmbiTrackSelectionTool::decreaseSharedHitCounters(TrackHitDetails& trackHitDetails, bool isPix, bool isSCT) const {
+  }
+inline void InDet::InDetDenseEnvAmbiTrackSelectionTool::decreaseSharedHitCounters(TrackHitDetails& trackHitDetails, bool isPix, bool isSCT) {
   trackHitDetails.m_numShared--; // decrease counter
   trackHitDetails.m_numWeightedShared -= (isPix ? 2 : 1); // increase counter
   // protect from TRT hits (needed?)
   if( isSCT ) { trackHitDetails.m_numSCT_Shared--; }
-  return;
-}
+  }
 //============================================================================================

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthenaPoolMultiTest )
@@ -26,24 +26,24 @@ atlas_add_test( AthenaPoolMultiTestBuildInput
 atlas_add_test( AthenaPoolMultiTestEventSplit
                 SCRIPT athena.py AthenaPoolMultiTest/EventSplit_jo.py
                 LOG_SELECT_PATTERN "Splitter|Triggered|EventInfoTag|Stream|Coll|Others|Bad"
-                PROPERTIES DEPENDS AthenaPoolMultiTest_AthenaPoolMultiTestBuildInput_ctest
+                DEPENDS AthenaPoolMultiTestBuildInput
                 PROPERTIES TIMEOUT 600 )
 
 atlas_add_test( AthenaPoolMultiTestEventSplitDecision
                 SCRIPT athena.py AthenaPoolMultiTest/EventSplitDecision_jo.py
                 LOG_SELECT_PATTERN "Splitter|Triggered|EventInfoTag|Stream|Coll|Others|Bad"
-                PROPERTIES DEPENDS AthenaPoolMultiTest_AthenaPoolMultiTestBuildInput_ctest
+                DEPENDS AthenaPoolMultiTestBuildInput
                 PROPERTIES TIMEOUT 600 )
 
 atlas_add_test( AthenaPoolMultiTestEventNoSplit
                 SCRIPT athena.py AthenaPoolMultiTest/EventNoSplit_jo.py
                 LOG_SELECT_PATTERN "Splitter|Triggered|EventInfoTag|Stream|Coll|Others|Bad"
-                PROPERTIES DEPENDS AthenaPoolMultiTest_AthenaPoolMultiTestBuildInput_ctest
+                DEPENDS AthenaPoolMultiTestBuildInput
                 PROPERTIES TIMEOUT 600 )
 
 atlas_add_test( AthenaPoolMultiTestPropagate
                 SCRIPT athena.py AthenaPoolMultiTest/DecisionPropagation_jo.py
                 LOG_SELECT_PATTERN "Splitter|Triggered|EventInfoTag|Stream|Coll|Others|Bad"
-                PROPERTIES DEPENDS AthenaPoolMultiTest_AthenaPoolMultiTestEventSplitDecision_ctest
+                DEPENDS AthenaPoolMultiTestEventSplitDecision
                 PROPERTIES TIMEOUT 600 )
 

@@ -29,7 +29,7 @@ JetFitterV0FinderTool::JetFitterV0FinderTool(const std::string &t, const std::st
   
 }
 
-JetFitterV0FinderTool::~JetFitterV0FinderTool() {}
+JetFitterV0FinderTool::~JetFitterV0FinderTool() = default;
 
 
 StatusCode JetFitterV0FinderTool::initialize() {

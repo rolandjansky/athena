@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -53,8 +53,10 @@ def getInputDirectory(run, stream=None, project=None, suffix=None, year=None):
             year = 2019
         elif run < 386367:
             year = 2020
-        else:
+        elif run < 408800:
             year = 2021
+        else:
+            year = 2022
 
     if stream:
         if not project:
@@ -137,24 +139,45 @@ def findFiles(run, path=None, filter='.', stream=None, project=None, suffix=None
     return fullNames
 
 
+def findFilesFromAgruments(args):
+    """
+    Function to find Tile Calorimeter input data files (calibrations, ...) from arguments
+    Arguments:
+       args   -- arguments prepared by argument parser
+    """
+    files = findFiles(run=args.run, path=args.inputDirectory, filter=args.filter, stream=args.stream,
+                      project=args.project, suffix=args.suffix, year=args.year, skipBadFiles=args.skipBadFiles)
+    return files
+
+
+def getArgumentParser(**kwargs):
+    """
+    Function to construct and return argument parser
+    """
+
+    import argparse
+    parser= argparse.ArgumentParser('Script to find Tile Calorimeter input data files: calibrations, ...', **kwargs)
+    files = parser.add_argument_group('Tile find input files')
+    files.add_argument("-r", "--run", type=int, default=None, help="Run number")
+    files.add_argument("--inputDirectory", type=str, default=None, help="Input directory")
+    files.add_argument("-s", "--stream", type=str, default=None, help="Run stream")
+    files.add_argument("-p", "--project", type=str, default=None, help="Data project")
+    files.add_argument("-f", "--filter", type=str, default=".", help="Data file filter")
+    files.add_argument("--suffix", type=str, default=None, help="Directory suffix")
+    files.add_argument("--skipBadFiles", type=bool, default=True, help="Skip bad data files?")
+    files.add_argument("-y", "--year", type=int, default=None, help="Year, data taken in")
+
+    return parser
+
+
 if __name__=='__main__':
 
     log = logging.getLogger( 'TileInputFiles' )
 
-    import argparse
-    parser= argparse.ArgumentParser('Script to find Tile Calorimeter input data files: calibrations, ...')
-    parser.add_argument("-r", "--run", type=int, default=None, help="Run number")
-    parser.add_argument("-d", "--directory", type=str, default=None, help="Input directory")
-    parser.add_argument("-s", "--stream", type=str, default=None, help="Run stream")
-    parser.add_argument("-p", "--project", type=str, default=None, help="Data project")
-    parser.add_argument("-f", "--filter", type=str, default=".", help="Data file filter")
-    parser.add_argument("--suffix", type=str, default=None, help="Directory suffix")
-    parser.add_argument("--skipBadFiles", type=bool, default=True, help="Skip bad data files?")
-    parser.add_argument("-y", "--year", type=int, default=None, help="Year, data taken in")
+    parser = getArgumentParser()
     args = parser.parse_args()
 
-    files = findFiles(run=args.run, path=args.directory, filter=args.filter, stream=args.stream,
-                      project=args.project, suffix=args.suffix, year=args.year, skipBadFiles=args.skipBadFiles)
+    files = findFilesFromAgruments(args)
 
     log.info('Input files: %s', files)
     if not files:

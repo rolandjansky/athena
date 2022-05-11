@@ -11,7 +11,7 @@ from AthenaCommon.Logging import logging
 #
 # Returns a single alg with no dependencies, no need to make this function return a ComponentAccumulator.
 #
-def getTrigNavSlimmingMTOnlineConfig():
+def getTrigNavSlimmingMTOnlineConfig(ConfigFlags):
   onlineSlim = CompFactory.TrigNavSlimmingMTAlg('TrigNavSlimmingMTAlg_Online')
   onlineSlim.TrigDecisionTool = "" # We do NOT filter on chains online, no additional tools/services required.
   onlineSlim.OutputCollection = "HLTNav_Summary_OnlineSlimmed"
@@ -21,6 +21,7 @@ def getTrigNavSlimmingMTOnlineConfig():
   onlineSlim.EdgesToDrop = []
   onlineSlim.NodesToDrop = []
   onlineSlim.ChainsFilter = []
+  onlineSlim.RuntimeValidation = ConfigFlags.Trigger.doRuntimeNaviVal
   return onlineSlim
 
 #
@@ -91,6 +92,19 @@ def AddRun3TrigNavSlimmingCollectionsToEDM(stream):
   stream.AddItem("xAOD::TrigMissingETAuxContainer#HLTNav_RepackedFeatures_METAux.")
   #
   stream.AddItem("TrigRoiDescriptorCollection#HLTNav_RepackedROIs")
+
+# Same as the above but adds the branches to the slimming helper. 
+# This is the component accumulator version
+def AddRun3TrigNavSlimmingCollectionsToSlimmingHelper(slimmingHelper):
+  slimmingHelper.AppendToDictionary = {'HLTNav_Summary_DAODSlimmed':'xAOD::TrigCompositeContainer','HLTNav_Summary_DAODSlimmedAux':'xAOD::TrigCompositeAuxContainer',
+                                       'HLTNav_RepackedFeatures_Particle':'xAOD::ParticleContainer','HLTNav_RepackedFeatures_ParticleAux':'xAOD::ParticleAuxContainer',
+                                       'HLTNav_RepackedFeatures_MET':'xAOD::TrigMissingETContainer','HLTNav_RepackedFeatures_METAux':'xAOD::TrigMissingETAuxContainer',
+                                       'HLTNav_RepackedROIs':'TrigRoiDescriptorCollection'}
+
+  slimmingHelper.AllVariables += ['HLTNav_Summary_DAODSlimmed',
+                                  'HLTNav_RepackedFeatures_Particle',
+                                  'HLTNav_RepackedFeatures_MET',
+                                  'HLTNav_RepackedROIs']
 
 #
 # Return an ComponentAccumulator which configures trigger navigation slimming during 

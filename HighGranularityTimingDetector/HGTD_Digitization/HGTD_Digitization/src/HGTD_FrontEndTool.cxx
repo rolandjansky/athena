@@ -8,7 +8,7 @@
  * @date September, 2021
  */
 
-#include "HGTD_Digitization/HGTD_FrontEndTool.h"
+#include "HGTD_FrontEndTool.h"
 
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "CLHEP/Random/RandFlat.h"

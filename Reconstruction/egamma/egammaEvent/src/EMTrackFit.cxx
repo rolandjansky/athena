@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
  /********************************************************************
@@ -44,8 +44,7 @@ EMTrackFit::EMTrackFit()
 
 // destructor
 EMTrackFit::~EMTrackFit()
-{
-}
+= default;
 
 // interfaces
 const std::string EMTrackFit::s_className = ClassName<EMTrackFit>::name();
@@ -62,7 +61,7 @@ double EMTrackFit::parameter(egammaParameters::ParamDef key) const
     return (double) intParameter(key);
   }
 
-  typedef std::pair<egammaParameters::ParamDef,double> elParams;
+  using elParams = std::pair<egammaParameters::ParamDef, double>;
 
   double result = egammaParameters::EgParamUndefined;
   std::vector<elParams>::const_iterator p = m_parameters.begin();

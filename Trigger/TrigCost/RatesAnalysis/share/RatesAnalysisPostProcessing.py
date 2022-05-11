@@ -36,7 +36,12 @@ def main():
   parser.add_argument('--outputJSONFile', default='rates.json', 
                       help='JSON file of rates for use with the RuleBook')
   parser.add_argument('--userDetails',
-                      help='User supplied metadata string giving any extra details about this run.')                      
+                      help='User supplied metadata string giving any extra details about this run.')    
+  parser.add_argument('--jira', 
+                      help='Related jira ticket number')
+  parser.add_argument('--amiTag', 
+                      help='AMI tag used for data reprocessing')   
+               
   args = parser.parse_args()
   log = logging.getLogger('RatesPostProcessing')
 
@@ -52,6 +57,8 @@ def main():
   metadata['normalisation'] = normHist.GetBinContent(1)
   metadata['n_evts'] = normHist.GetBinContent(2)
   metadata['details'] = args.userDetails
+  metadata['JIRA'] = args.jira
+  metadata['amiTag'] = args.amiTag
 
   HLTGlobalGroup = getGlobalGroup(inputFile, 'RATE_GLOBAL_HLT')
   L1GlobalGroup = getGlobalGroup(inputFile, 'RATE_GLOBAL_L1')

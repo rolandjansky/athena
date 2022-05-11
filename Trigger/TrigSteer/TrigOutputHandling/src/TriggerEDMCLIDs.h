@@ -31,5 +31,6 @@ CLASS_DEF( std::vector<ElementLink<xAOD::JetContainer>>, 1210667800, 1 )
 CLASS_DEF( std::vector<std::vector<ElementLink<xAOD::VertexContainer>>>, 1164463855, 1 )
 CLASS_DEF( std::vector<std::vector<ElementLink<xAOD::BTagVertexContainer>>>, 1289535397, 1 )
 CLASS_DEF( std::vector<ElementLink<xAOD::jFexTauRoIContainer>>, 1334654121, 1 )
+CLASS_DEF( std::vector<std::vector<ElementLink<xAOD::IParticleContainer>>>, 95910623, 1 )
 
 #endif //> !TRIGOUTPUTHANDLING_TRIGGEREDMCLIDS_H

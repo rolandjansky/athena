@@ -1,15 +1,13 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaKernel/errorcheck.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 #include "xAODForward/ALFAData.h"
 #include "xAODForward/ALFADataContainer.h"
 #include "xAODForward/ALFADataAuxContainer.h"
-#include "ALFA_CLinkAlg/ALFA_CLinkAlg.h"
+#include "ALFA_CLinkAlg.h"
 
 using namespace std;
 
@@ -207,9 +205,6 @@ StatusCode ALFA_CLinkAlg::AddCOOLFolderCallback(const string& Folder)
 //StatusCode ALFA_CLinkAlg::COOLUpdate(IOVSVC_CALLBACK_ARGS_P(/*I*/, keys))
 StatusCode ALFA_CLinkAlg::COOLUpdate(IOVSVC_CALLBACK_ARGS_K(keys))
 {
-	const EventInfo* pEvInfo;
-	CHECK(evtStore()->retrieve(pEvInfo));
-
 	list<string>::const_iterator iter;
 
 	for(iter=keys.begin();iter!=keys.end();iter++){

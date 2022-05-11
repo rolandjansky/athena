@@ -1,7 +1,11 @@
 /*
    Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
  */
-
+/**
+ * @file PixelAthClusterMonAlg.cxx
+ * @brief Reads Pixel reconstructed information (custers and tracks) and fills it into histograms 
+ * @author Iskander Ibragimov
+ **/
 #include "PixelAthClusterMonAlg.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 //for Amg::error helper function:
@@ -13,15 +17,12 @@
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 
 
-
-
-
 PixelAthClusterMonAlg::PixelAthClusterMonAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthMonitorAlgorithm(name, pSvcLocator),
   m_holeSearchTool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool", this),
   m_trackSelTool("InDet::InDetTrackSelectionTool/TrackSelectionTool", this),
-  m_atlasid(nullptr),
-  m_pixelid(nullptr) {
+  m_atlasid(nullptr)
+{
   //jo flags go here, keys and some tools -> in class
   declareProperty("HoleSearchTool", m_holeSearchTool);
   declareProperty("TrackSelectionTool", m_trackSelTool); //needed for cfg in python jo
@@ -38,16 +39,14 @@ PixelAthClusterMonAlg::~PixelAthClusterMonAlg() {}
 
 
 StatusCode PixelAthClusterMonAlg::initialize() {
+  ATH_CHECK( PixelAthMonitoringBase::initialize());
   ATH_CHECK(detStore()->retrieve(m_atlasid, "AtlasID"));
-  ATH_CHECK(detStore()->retrieve(m_pixelid, "PixelID"));
-  ATH_CHECK(m_pixelCondSummaryTool.retrieve());
-  ATH_CHECK(m_pixelReadout.retrieve());
   if (!m_holeSearchTool.empty()) ATH_CHECK(m_holeSearchTool.retrieve());
   if (!m_trackSelTool.empty()) ATH_CHECK(m_trackSelTool.retrieve());
 
   ATH_CHECK(m_tracksKey.initialize());
   ATH_CHECK(m_clustersKey.initialize());
-  return AthMonitorAlgorithm::initialize();
+  return StatusCode::SUCCESS;
 }
 
 StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const {
@@ -68,6 +67,9 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
   float nDisabledMod[PixLayers::COUNT] = {
     0.
   };
+  float nBadAndDisabledMod[PixLayers::COUNT] = {
+    0.
+  };
   int phiMod(-99);
   int etaMod(-99);
   bool copyFEval(false);
@@ -76,20 +78,25 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
 
   VecAccumulator2DMap Map_Of_FEs_Status("MapOfFEsStatus");
 
+  SG::ReadHandle<InDet::SiDetectorElementStatus> pixel_active = getPixelDetElStatus(m_pixelDetElStatusActiveOnly,ctx);
+  SG::ReadHandle<InDet::SiDetectorElementStatus> pixel_status = getPixelDetElStatus(m_pixelDetElStatus,ctx);
   for (auto idIt = m_pixelid->wafer_begin(); idIt != m_pixelid->wafer_end(); ++idIt) {
     Identifier waferID = *idIt;
     IdentifierHash id_hash = m_pixelid->wafer_hash(waferID);
 
     int pixlayer = getPixLayersID(m_pixelid->barrel_ec(waferID), m_pixelid->layer_disk(waferID));
     if (pixlayer == 99) continue;
+    getPhiEtaMod(waferID, phiMod, etaMod, copyFEval);
 
-    // read https://twiki.cern.ch/twiki/bin/view/AtlasComputing/MultiThreadingConditionsAccess
-    if (m_pixelCondSummaryTool->isActive(id_hash) == true && m_pixelCondSummaryTool->isGood(id_hash) == true) {
+    bool is_active = isActive( !m_pixelDetElStatusActiveOnly.empty() ? pixel_active.cptr() :  nullptr,  id_hash);
+    if (is_active && isGood( !m_pixelDetElStatus.empty() ? pixel_status.cptr() :  nullptr,  id_hash) ) {
       index = 0;
-    } else if (m_pixelCondSummaryTool->isActive(id_hash) == false) {
+    } else if (!is_active) {
       index = 2;  // inactive or bad modules
-      nDisabledMod[pixlayer]++;
-      getPhiEtaMod(m_pixelid, waferID, phiMod, etaMod, copyFEval);
+      if (pixlayer == PixLayers::kIBL) {
+	int iblsublayer = (m_pixelid->eta_module(waferID) > -7 && m_pixelid->eta_module(waferID) < 6) ? PixLayers::kIBL2D : PixLayers::kIBL3D;
+	nDisabledMod[iblsublayer] += inv_nmod_per_layer[iblsublayer];
+      } else nDisabledMod[pixlayer] += inv_nmod_per_layer[pixlayer];
       switch (pixlayer) {
       case PixLayers::kECA:
         clusPerEventArray.DA[phiMod][etaMod] = -1;
@@ -99,15 +106,15 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
         clusPerEventArray.DC[phiMod][etaMod] = -1;
         break;
 
-      case PixLayers::kB0:
+      case PixLayers::kBLayer:
         clusPerEventArray.B0[phiMod][etaMod] = -1;
         break;
 
-      case PixLayers::kB1:
+      case PixLayers::kLayer1:
         clusPerEventArray.B1[phiMod][etaMod] = -1;
         break;
 
-      case PixLayers::kB2:
+      case PixLayers::kLayer2:
         clusPerEventArray.B2[phiMod][etaMod] = -1;
         break;
 
@@ -118,7 +125,10 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
       }
     } else {
       index = 1;  // bad but active modules
-      nBadMod[pixlayer] += inv_nmod_per_layer[pixlayer];
+      if (pixlayer == PixLayers::kIBL) {
+	int iblsublayer = (m_pixelid->eta_module(waferID) > -7 && m_pixelid->eta_module(waferID) < 6) ? PixLayers::kIBL2D : PixLayers::kIBL3D;
+	nBadMod[iblsublayer] += inv_nmod_per_layer[iblsublayer];
+      } else nBadMod[pixlayer] += inv_nmod_per_layer[pixlayer];
     }
 
     Map_Of_Modules_Status.add(pixlayer, waferID, m_pixelid, index);
@@ -130,13 +140,15 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
     if (m_doFEPlots) {
       int nFE = getNumberOfFEs(pixlayer, m_pixelid->eta_module(waferID));
       for (int iFE = 0; iFE < nFE; iFE++) {
-        Identifier pixelID = m_pixelReadout->getPixelIdfromHash(id_hash, iFE, 1, 1);
-        if (pixelID.is_valid()) {
-          if (m_pixelCondSummaryTool->isActive(id_hash,
-                                               pixelID) == true &&
-              m_pixelCondSummaryTool->isGood(id_hash, pixelID) == true) {
+         Identifier pixelID = m_pixelReadout->getPixelIdfromHash(id_hash, iFE, 1, 1);
+         if (pixelID.is_valid()) {
+            auto [is_active,is_good ] =isChipGood( !m_pixelDetElStatusActiveOnly.empty() ? pixel_active.cptr() : nullptr,
+                                                   !m_pixelDetElStatus.empty() ? pixel_status.cptr() : nullptr,
+                                                   id_hash,
+                                                   iFE);
+            if (is_active && is_good) {
             index = 0;  // active and good FE
-          } else if (m_pixelCondSummaryTool->isActive(id_hash, pixelID) == false) {
+          } else if (!is_active) {
             index = 2;  // inactive or bad FE
           } else {
             index = 1;  // active and bad FE
@@ -154,6 +166,9 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
   fill2DProfLayerAccum(Map_Of_Modules_Status);
   fill1DProfLumiLayers("BadModulesPerLumi", lb, nBadMod);
   fill1DProfLumiLayers("DisabledModulesPerLumi", lb, nDisabledMod);
+
+  for (unsigned int ii = 0; ii < PixLayers::COUNT; ii++) nBadAndDisabledMod[ii] = nBadMod[ii]+nDisabledMod[ii];
+  fill1DProfLumiLayers("BadAndDisabledModulesPerLumi", lb, nBadAndDisabledMod);
 
   if (m_doFEPlots) fill2DProfLayerAccum(Map_Of_FEs_Status);
 
@@ -196,31 +211,28 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
 
   auto lbval = Monitored::Scalar<int>("pixclusmontool_lb", lb);
 
-  TrackCollection::const_iterator itrack = tracks->begin();
-  TrackCollection::const_iterator itrack_end = tracks->end();
-  for (; itrack != itrack_end; ++itrack) {
-    if ((*itrack) == nullptr || (*itrack)->perigeeParameters() == nullptr || (*itrack)->trackSummary() == nullptr ||
-        (*itrack)->trackSummary()->get(Trk::numberOfPixelHits) == 0) {
+  for (auto track: *tracks) {
+    if (track == nullptr || track->perigeeParameters() == nullptr || track->trackSummary() == nullptr ||
+        track->trackSummary()->get(Trk::numberOfPixelHits) == 0) {
       ATH_MSG_DEBUG("PixelMonitoring: Track either invalid or it does not contain pixel hits, continuing...");
       continue;
     }
 
     int nPixelHits = 0;
-    const Trk::Perigee* measPerigee = static_cast<const Trk::Perigee*>((*itrack)->perigeeParameters());
-    bool passJOTrkTightCut = static_cast<bool>(m_trackSelTool->accept(**itrack));
+    const Trk::Perigee* measPerigee = static_cast<const Trk::Perigee*>(track->perigeeParameters());
+    bool passJOTrkTightCut = static_cast<bool>(m_trackSelTool->accept(*track));
     bool pass1hole1GeVptTightCut = (passJOTrkTightCut && (measPerigee->pT() / 1000.0 > 1.0));  // misshit ratios
     bool pass1hole5GeVptTightCut = (passJOTrkTightCut && (measPerigee->pT() / 1000.0 > 5.0));  // eff vs lumi
 
-    const Trk::Track* trackWithHoles((*itrack));
+    const Trk::Track* trackWithHoles(track);
     std::unique_ptr<const Trk::Track> trackWithHolesUnique = nullptr;
-    if ((*itrack)->trackSummary()->get(Trk::numberOfPixelHoles) > 0) {
-      trackWithHolesUnique.reset(m_holeSearchTool->getTrackWithHoles(**itrack));
+    if (track->trackSummary()->get(Trk::numberOfPixelHoles) > 0) {
+      trackWithHolesUnique.reset(m_holeSearchTool->getTrackWithHoles(*track));
       trackWithHoles = trackWithHolesUnique.get();
     }
     const DataVector<const Trk::TrackStateOnSurface>* trackStates = trackWithHoles->trackStateOnSurfaces();
-    for (DataVector<const Trk::TrackStateOnSurface>::const_iterator trackStateOnSurfaceIterator = trackStates->begin();
-         trackStateOnSurfaceIterator != trackStates->end(); ++trackStateOnSurfaceIterator) {
-      const Trk::MeasurementBase* mesBase = (*trackStateOnSurfaceIterator)->measurementOnTrack();
+    for (auto trackStateOnSurface: *trackStates) {
+      const Trk::MeasurementBase* mesBase = trackStateOnSurface->measurementOnTrack();
 
       const Trk::RIO_OnTrack* RIOOnTrack = nullptr;
       if (mesBase && mesBase->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
@@ -231,7 +243,7 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
                                                                                            // but not hits, holes,
                                                                                            // outliers
 
-      const Trk::TrackParameters* trkParameters = (*trackStateOnSurfaceIterator)->trackParameters();
+      const Trk::TrackParameters* trkParameters = trackStateOnSurface->trackParameters();
       Identifier surfaceID;
       if (mesBase && mesBase->associatedSurface().associatedDetectorElement()) {
         surfaceID = mesBase->associatedSurface().associatedDetectorElement()->identify();
@@ -255,7 +267,7 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
       const InDetDD::SiLocalPosition trkLocalPos = trkParameters->localPosition();
       Identifier locPosID;
 
-      if ((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Outlier)) 
+      if (trackStateOnSurface->type(Trk::TrackStateOnSurface::Outlier)) 
 	{
 	  nOutlier = 1.0;
 	  const InDet::SiClusterOnTrack *siclus = dynamic_cast<const InDet::SiClusterOnTrack *>(mesBase);
@@ -270,9 +282,8 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
 	      TSOS_Outlier_FE.add(pixlayer, locPosID, m_pixelid, m_pixelReadout->getFE(locPosID, locPosID), 1.0);
 	    }
 	  }
-	  if (pass1hole5GeVptTightCut) fill(pixLayersLabel[pixlayer], efflb, effval);
 	} 
-      else if ((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Hole)) 
+      else if (trackStateOnSurface->type(Trk::TrackStateOnSurface::Hole)) 
 	{
 	  nHole = 1.0;
 	  locPosID = sde->identifierOfPosition(trkLocalPos);
@@ -284,9 +295,8 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
 	  if (!m_doOnline) {
 	    TSOS_Hole_FE.add(pixlayer, locPosID, m_pixelid, m_pixelReadout->getFE(locPosID, locPosID), 1.0);
 	  }
-	  if (pass1hole5GeVptTightCut) fill(pixLayersLabel[pixlayer], efflb, effval);
 	} 
-      else if ((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement)) 
+      else if (trackStateOnSurface->type(Trk::TrackStateOnSurface::Measurement)) 
 	{
 	  if (not mesBase) continue;
 	  const InDetDD::SiDetectorElement* side =
@@ -307,10 +317,7 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
 	  if (!m_doOnline) {
 	    TSOS_Measurement_FE.add(pixlayer, locPosID, m_pixelid, m_pixelReadout->getFE(locPosID, locPosID), 1.0);
 	  }
-
 	  effval = 1.;
-	  if (pass1hole5GeVptTightCut) fill(pixLayersLabel[pixlayer], efflb, effval);
-
 
 	  const Trk::AtaPlane* trackAtPlane = dynamic_cast<const Trk::AtaPlane*>(trkParameters);
 	  if (trackAtPlane) {
@@ -349,7 +356,15 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
 	    ClusterIDs.emplace_back(clus->identify(), cosalpha);
 	  }
 	} // end of measurement case
+      else continue;
 
+      if (pass1hole5GeVptTightCut) {
+	if (pixlayer == PixLayers::kIBL) {
+	  int iblsublayer = (m_pixelid->eta_module(surfaceID) > -7 && m_pixelid->eta_module(surfaceID) < 6) ? PixLayers::kIBL2D : PixLayers::kIBL3D;
+	  fill(pixLayersLabel[iblsublayer], efflb, effval);
+	} else fill(pixLayersLabel[pixlayer], efflb, effval);
+      }
+      
       if (pass1hole1GeVptTightCut && locPosID.is_valid()) {
         HolesRatio.add(pixlayer, locPosID, m_pixelid, nHole);
         MissHitsRatio.add(pixlayer, locPosID, m_pixelid, nOutlier + nHole);
@@ -361,8 +376,8 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
     auto nphwgt = Monitored::Scalar<float>("npixhits_per_track_wgt", 1.0);
     fill(trackGroup, lbval, nph, nphwgt);
 
-    int trkfitndf = (*itrack)->fitQuality()->numberDoF();
-    double trkfitchi2 = (*itrack)->fitQuality()->chiSquared();
+    int trkfitndf = track->fitQuality()->numberDoF();
+    double trkfitchi2 = track->fitQuality()->chiSquared();
     if (trkfitndf != 0) {
       auto trkChiN = Monitored::Scalar<float>("fit_chi2byndf", trkfitchi2 / trkfitndf);
       fill(trackGroup, trkChiN);
@@ -449,12 +464,8 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
   };
 
   Identifier clusID;
-  InDet::PixelClusterContainer::const_iterator colNext = pixel_clcontainer->begin();
-  InDet::PixelClusterContainer::const_iterator lastCol = pixel_clcontainer->end();
-  DataVector<InDet::PixelCluster>::const_iterator p_clus;
-
-  for (; colNext != lastCol; ++colNext) {
-    const InDet::PixelClusterCollection* ClusterCollection(*colNext);
+  for (auto colNext: *pixel_clcontainer) {
+    const InDet::PixelClusterCollection* ClusterCollection(colNext);
     if (!ClusterCollection) {
       ATH_MSG_DEBUG("Pixel Monitoring: Pixel Cluster container is empty.");
       auto dataread_err = Monitored::Scalar<int>("clsdataread_err", DataReadErrors::CollectionInvalid);
@@ -462,26 +473,29 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
       continue;
     }
 
-    for (p_clus = ClusterCollection->begin(); p_clus != ClusterCollection->end(); ++p_clus) {
-      clusID = (*p_clus)->identify();
+    for (auto p_clus: *ClusterCollection) {
+      clusID = p_clus->identify();
       int pixlayer = getPixLayersID(m_pixelid->barrel_ec(clusID), m_pixelid->layer_disk(clusID));
       if (pixlayer == 99) continue;
+      getPhiEtaMod(clusID, phiMod, etaMod, copyFEval);
 
-      const InDet::PixelCluster& cluster = **p_clus;
-
+      const InDet::PixelCluster& cluster = *p_clus;
       nclusters++;
-      nclusters_mod[pixlayer]++;
 
       // begin timing histos
       //
       auto clLVL1A = Monitored::Scalar<float>("Cluster_LVL1A_lvl1a", cluster.LVL1A());
       fill(clusterGroup, clLVL1A);
       Cluster_LVL1A_Mod.add(pixlayer, clusID, m_pixelid, cluster.LVL1A() + 0.00001);
-      if (cluster.rdoList().size() >
-          1) Cluster_LVL1A_SizeCut.add(pixlayer, clusID, m_pixelid, cluster.LVL1A() + 0.00001);
-      if (cluster.totalToT() > clusterToTMinCut[pixlayer]) fill("ClusterLVL1AToTCut_" + pixLayersLabel[pixlayer],
-                                                                clLVL1A);
-
+      if (cluster.rdoList().size() > 1) Cluster_LVL1A_SizeCut.add(pixlayer, clusID, m_pixelid, cluster.LVL1A() + 0.00001);
+      if (pixlayer == PixLayers::kIBL) {
+	int iblsublayer = (m_pixelid->eta_module(clusID) > -7 && m_pixelid->eta_module(clusID) < 6) ? PixLayers::kIBL2D : PixLayers::kIBL3D;
+	if (cluster.totalToT() > clusterToTMinCut[iblsublayer]) fill("ClusterLVL1AToTCut_" + pixLayersLabel[iblsublayer], clLVL1A);
+	nclusters_mod[iblsublayer]++;
+      } else {
+	if (cluster.totalToT() > clusterToTMinCut[pixlayer]) fill("ClusterLVL1AToTCut_" + pixLayersLabel[pixlayer], clLVL1A);
+	nclusters_mod[pixlayer]++;
+      }
       //
       // end timing histos
       // begin cluster rate
@@ -501,8 +515,6 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
       double cosalpha(0.);
       if (isClusterOnTrack(clusID, ClusterIDs, cosalpha)) {
         nclusters_ontrack++;
-        nclusters_ontrack_mod[pixlayer]++;
-        getPhiEtaMod(m_pixelid, clusID, phiMod, etaMod, copyFEval);
         switch (pixlayer) {
         case PixLayers::kECA:
           clusPerEventArray.DA[phiMod][etaMod]++;
@@ -512,15 +524,15 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
           clusPerEventArray.DC[phiMod][etaMod]++;
           break;
 
-        case PixLayers::kB0:
+        case PixLayers::kBLayer:
           clusPerEventArray.B0[phiMod][etaMod]++;
           break;
 
-        case PixLayers::kB1:
+        case PixLayers::kLayer1:
           clusPerEventArray.B1[phiMod][etaMod]++;
           break;
 
-        case PixLayers::kB2:
+        case PixLayers::kLayer2:
           clusPerEventArray.B2[phiMod][etaMod]++;
           break;
 
@@ -535,15 +547,15 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
         Cluster_LVL1A_Mod_OnTrack.add(pixlayer, clusID, m_pixelid, cluster.LVL1A() + 0.00001);
         if (cluster.rdoList().size() > 1) Cluster_LVL1A_SizeCut_OnTrack.add(pixlayer, clusID, m_pixelid,
             cluster.LVL1A() + 0.00001);
-        if (cluster.totalToT() > clusterToTMinCut[pixlayer]) fill("ClusterLVL1AToTCutOnTrack_" + pixLayersLabel[pixlayer], clLVL1A);
         //
         // end timing histos
         // begin cluster sizes
         //
         auto clSize = Monitored::Scalar<float>("ClusterSizeOnTrack_clsize", cluster.rdoList().size());
-        auto etaModule = Monitored::Scalar<float>("ClusterSizeOnTrack_em", m_pixelid->eta_module(clusID));
-        if (abs(m_pixelid->barrel_ec(clusID)) != 0) etaModule = m_pixelid->layer_disk(clusID) + 1;
-        fill("ClusterGroupsizeVsEtaOnTrack_" + pixLayersLabel[pixlayer], etaModule, clSize);
+        auto clSizeEtaModule = Monitored::Scalar<float>("ClusterSizeOnTrack_em", m_pixelid->eta_module(clusID));
+        if (abs(m_pixelid->barrel_ec(clusID)) != 0) clSizeEtaModule = m_pixelid->layer_disk(clusID) + 1;
+        fill("ClusterGroupsizeVsEtaOnTrack_" + pixBaseLayersLabel[pixlayer], clSizeEtaModule, clSize);
+
         Cluster_Size_Map_OnTrack.add(pixlayer, clusID, m_pixelid, cluster.rdoList().size());
         //
         // end cluster sizes
@@ -561,19 +573,26 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
         if (cluster.rdoList().size() > 1) Clus_Occ_SizeCut_OnTrack.add(pixlayer, clusID, m_pixelid);
         //
         // end cluster occupancy
-        // begin cluster ToT and charge
+        // begin cluster ToT, 1D timing, charge
         //
-        auto clToTcosAlpha = Monitored::Scalar<float>("ClusterToTxCosAlphaOnTrack_val", cluster.totalToT() * cosalpha);
+	if (pixlayer == PixLayers::kIBL)
+	  {
+	    pixlayer = (m_pixelid->eta_module(clusID) > -7 && m_pixelid->eta_module(clusID) < 6) ? PixLayers::kIBL2D : PixLayers::kIBL3D;
+	  }
+	if (cluster.totalToT() > clusterToTMinCut[pixlayer]) fill("ClusterLVL1AToTCutOnTrack_" + pixLayersLabel[pixlayer], clLVL1A);
+
+	auto clToTcosAlpha = Monitored::Scalar<float>("ClusterToTxCosAlphaOnTrack_val", cluster.totalToT() * cosalpha);
         fill(pixLayersLabel[pixlayer], clToTcosAlphaLB, clToTcosAlpha);
 
         if (!m_doOnline) {
           auto clQcosAlpha = Monitored::Scalar<float>("ClusterQxCosAlphaOnTrack_val", cluster.totalCharge() * cosalpha);
           fill(pixLayersLabel[pixlayer], clQcosAlpha);
         }
+        nclusters_ontrack_mod[pixlayer]++;
         //
-        // end cluster ToT and charge
-      }
-    }
+        // end cluster ToT, 1D timing, charge
+      } // end on track
+    }   // end cluster collection 
   }
   fill2DProfLayerAccum(Cluster_LVL1A_Mod);
   fill2DProfLayerAccum(Cluster_LVL1A_SizeCut);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 /*
    Tool to match a track to a Primary Vertex obtained with other leptons/tracks
@@ -67,7 +67,7 @@ TrkToLeptonPVTool::TrkToLeptonPVTool(const std::string& type,
      TPC.reserve( 1 );
      TPC.push_back(new (std::nothrow) xAOD::TrackParticle(*trk));
      if(!TPC[0])return std::unique_ptr<xAOD::Vertex>(nullptr);
-     EventContext ctx = Gaudi::Hive::currentContext();
+     const EventContext& ctx = Gaudi::Hive::currentContext();
      const float mvx= (eventINFO) ? eventINFO->beamPosX() : 0.;
      const float mvy= (eventINFO) ? eventINFO->beamPosY() : 0.;
      const float mvz= (trk->isAvailable<float>("vz")) ? trk->vz() : 0.;
@@ -81,7 +81,7 @@ TrkToLeptonPVTool::TrkToLeptonPVTool(const std::string& type,
    std::unique_ptr<xAOD::Vertex>TrkToLeptonPVTool::npartVertex( const std::vector<const xAOD::TrackParticle*> & particles,
                                                                       const xAOD::EventInfo * eventINFO) const
    {
-     if(particles.size()<1) return std::unique_ptr<xAOD::Vertex>(nullptr);
+     if(particles.empty()) return std::unique_ptr<xAOD::Vertex>(nullptr);
 
      std::vector<const xAOD::TrackParticle*> tmpp(particles);
      std::sort(tmpp.begin(),tmpp.end());
@@ -133,7 +133,7 @@ TrkToLeptonPVTool::TrkToLeptonPVTool(const std::string& type,
                                 <<","<<BEAM.covariance()[3]<<","<<BEAM.covariance()[4]<<","<<BEAM.covariance()[5]);
      ATH_MSG_DEBUG("BEAM  tiltX,Y="<<beamtiltX<<","<<beamtiltY);
 
-     EventContext ctx = Gaudi::Hive::currentContext();
+     const EventContext& ctx = Gaudi::Hive::currentContext();
 
      if(fullxAOD){
        //---If beam is tilted -> make pre-fit and translate beam constraint to pre-fitted position

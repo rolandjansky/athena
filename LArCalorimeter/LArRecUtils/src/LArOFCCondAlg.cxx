@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
    */
 
 #include <cmath>
@@ -28,7 +28,7 @@ LArOFCCondAlg::LArOFCCondAlg(const std::string &name,
     m_LArPedestalObjKey("LArPedestal"),
     m_LArAutoCorrTotalObjKey("LArAutoCorrTotal"),
     m_LArOFCObjKey("LArOFC"),
-    m_condSvc("CondSvc", name), m_Nminbias(0), m_isMC(true),
+    m_Nminbias(0), m_isMC(true),
     m_isSuperCell(false), m_firstSample(0), 
     m_useHighestGainAutoCorr(false), m_Dump(false) {
         declareProperty("LArOnOffIdMappingObjKey", m_LArOnOffIdMappingObjKey,
@@ -58,9 +58,6 @@ LArOFCCondAlg::~LArOFCCondAlg() {}
 StatusCode LArOFCCondAlg::initialize() {
     ATH_MSG_DEBUG("initialize " << name());
 
-    // CondSvc
-    ATH_CHECK(m_condSvc.retrieve());
-
     // ReadCondHandle initialization
     ATH_CHECK(m_LArShapeObjKey.initialize());
 
@@ -72,13 +69,6 @@ StatusCode LArOFCCondAlg::initialize() {
 
     ATH_CHECK(m_LArNoiseObjKey.initialize(m_isMC));
     ATH_CHECK(m_LArPedestalObjKey.initialize(!m_isMC));
-
-    // WriteCondHandle initialization
-    if (m_condSvc->regHandle(this, m_LArOFCObjKey).isFailure()) {
-        ATH_MSG_ERROR("Unable to register WriteCondHandle "
-                << m_LArOFCObjKey.fullKey() << " with CondSvc");
-        return StatusCode::FAILURE;
-    }
 
     // Number of gains (does this have to be in initialize now b/c of AthenaMT?)
     // Copied from LArADC2MeVCondAlg.cxx

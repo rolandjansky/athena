@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 '''@file TRTMonitoringRun3ESD_Alg.py
 @author N. Belyaev
@@ -18,8 +18,10 @@ def TRTMonitoringRun3ESD_AlgConfig(inputFlags):
     helper = AthMonitorCfgHelper(inputFlags, 'TRTMonitoringCfg')
 
     from AthenaConfiguration.ComponentFactory import CompFactory
+    have_trt_phase = inputFlags.InDet.doTRTPhase  or 'TRT_Phase' in inputFlags.Input.Collections
     algTRTMonitoringRun3ESD = helper.addAlgorithm(CompFactory.TRTMonitoringRun3ESD_Alg,
-                                               'AlgTRTMonitoringRun3')
+                                                  'AlgTRTMonitoringRun3',
+                                                  ComTimeObjectName = 'TRT_Phase' if have_trt_phase else '')
 
     # trigger flag
     if not inputFlags.DQ.triggerDataAvailable:

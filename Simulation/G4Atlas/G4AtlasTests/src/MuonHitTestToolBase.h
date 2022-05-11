@@ -1,15 +1,18 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef G4AT_MuonHitTestToolBase_h
-#define G4AT_MuonHitTestToolBase_h
+#ifndef G4ATLASTESTS_MUONHITTESTTOOLBASE_H
+#define G4ATLASTESTS_MUONHITTESTTOOLBASE_H
 
 #include "SimTestToolBase.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "Identifier/Identifier.h"
 #include "HitManagement/HitIdHelper.h"
+
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 
 namespace MuonGM {
   class MuonDetectorManager;
@@ -21,7 +24,7 @@ public:
   MuonHitTestToolBase(const std::string& type, const std::string& name, const IInterface* parent);
 
 
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 
 protected:
   StatusCode executeCheckEventInfo();
@@ -33,6 +36,9 @@ protected:
 protected:
   std::string m_detname;
   const MuonGM::MuonDetectorManager* m_pMuonMgr;
+
+  /// SG key for Event Info
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfo", "EventInfo", "EventInfo name"};
 
   /// MDT barrel eta cut, applicable to the MDT 2D cross section plot
   double m_BarrelEtaCut;

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """ToolFactory to instantiate  TrigEMBremCollectionBuilder
 with default configuration"""
@@ -14,10 +14,6 @@ from egammaTools.egammaExtrapolators import egammaExtrapolator
 # default configuration of the EMBremCollectionBuilder
 from InDetRecExample.InDetJobProperties import InDetFlags
 from RecExConfig.RecFlags import rec
-
-from TriggerMenuMT.HLT.Egamma.TrigEgammaKeys import getTrigEgammaKeys
-TrigEgammaKeys = getTrigEgammaKeys('_GSF')
-
 
 
 log = logging.getLogger(__name__)
@@ -59,7 +55,7 @@ class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
                 GSFPixelConditionsSummaryTool.IsActiveStatus = [
                     'OK', 'WARNING', 'ERROR', 'FATAL']
 
-            GSFBuildTestBLayerTool = TrackingCommon.getInDetRecTestBLayerTool(
+            GSFBuildTestBLayerTool = TrackingCommon.getInDetTrigRecTestBLayerTool(
                 name="GSFBuildTestBLayerTool",
                 PixelSummaryTool=GSFPixelConditionsSummaryTool,
                 Extrapolator=GSFBuildInDetExtrapolator,
@@ -118,14 +114,12 @@ class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
                 InDetSummaryHelperTool=GSFBuildTrackSummaryHelperTool,
                 doSharedHits=False,
                 doHolesInDet=False,
+                AddExpectedHits=True,
                 TRT_ElectronPidTool=GSFBuildTRT_ElectronPidTool,
-                PixelToTPIDTool=GSFBuildPixelToTPIDTool,
-                private=True)
+                PixelToTPIDTool=GSFBuildPixelToTPIDTool)
         )
-
         #
         #  Track Particle Creator tool (private not in ToolSvc)
-        #  But needs a public extrapolator
         #
         from TrkParticleCreator.TrkParticleCreatorConf import (
             Trk__TrackParticleCreatorTool)
@@ -133,7 +127,7 @@ class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
         GSFBuildInDetParticleCreatorTool = Trk__TrackParticleCreatorTool(
             name="GSFBuildInDetParticleCreatorTool",
             KeepParameters=True,
-            TrackSummaryTool="")
+            TrackSummaryTool=GSFBuildInDetTrigTrackSummaryTool)
         #
         #  Track slimming (private not in ToolSvc)
         #
@@ -149,19 +143,21 @@ class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
         self.TrackRefitTool = GSFRefitterTool
         self.TrackParticleCreatorTool = GSFBuildInDetParticleCreatorTool
         self.TrackSlimmingTool = GSFBuildInDetTrkSlimmingTool
-        self.TrackSummaryTool = GSFBuildInDetTrigTrackSummaryTool
-
 
 
 """ This is an instance of GSF fitter tool will be used on track particles """
-TrigEMBremCollectionBuilder = AlgFactory(TrigEgammaBremCollectionBuilder,
-    doAdd = False,
-    name='TrigEMBremCollectionBuilder',
-    TrackParticleContainerName          = TrigEgammaKeys.precisionTrackingContainer,
-    SelectedTrackParticleContainerName  = TrigEgammaKeys.precisionTrackingContainer,
-    OutputTrkPartContainerName          = TrigEgammaKeys.precisionElectronTrackParticleContainerGSF,
-    OutputTrackContainerName            = TrigEgammaKeys.precisionElectronTrkCollectionGSF,
-    DoTruth=rec.doTruth(),
-    usePixel=DetFlags.haveRIO.pixel_on(),
-    useSCT=DetFlags.haveRIO.SCT_on()
-    )
+
+def TrigEMBremCollectionBuilderCfg(variant, TrigEgammaKeys):
+    TrigEMBremCollectionBuilder = AlgFactory(TrigEgammaBremCollectionBuilder,
+        doAdd = False,
+        name='TrigEMBremCollectionBuilder'+variant,
+        TrackParticleContainerName          = TrigEgammaKeys.precisionTrackingContainer,
+        SelectedTrackParticleContainerName  = TrigEgammaKeys.precisionTrackingContainer,
+        OutputTrkPartContainerName          = TrigEgammaKeys.precisionElectronTrackParticleContainerGSF,
+        OutputTrackContainerName            = TrigEgammaKeys.precisionElectronTrkCollectionGSF,
+        DoTruth=rec.doTruth(),
+        usePixel=DetFlags.haveRIO.pixel_on(),
+        useSCT=DetFlags.haveRIO.SCT_on()
+     )
+    
+    return TrigEMBremCollectionBuilder()

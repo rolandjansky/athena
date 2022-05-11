@@ -22,7 +22,7 @@ void CompressedLayerMaterialCnv_p1::persToTrans( const Trk::CompressedLayerMater
 
   // create the persistent material properties
   // pointer to converter (will be auto-retrieved)
-  ITPConverterFor<Trk::MaterialProperties> *materialCnv = 0;
+  ITPConverterFor<Trk::MaterialProperties> *materialCnv = nullptr;
   Trk::MaterialPropertiesVector mvec;
   mvec.reserve (persObj->materialVector.size());
   for (const TPObjRef& ref : persObj->materialVector)
@@ -48,7 +48,7 @@ void CompressedLayerMaterialCnv_p1::transToPers( const Trk::CompressedLayerMater
     
     // create the persistent material properties
     // pointer to converter (will be auto-retrieved)
-    ITPConverterFor<Trk::MaterialProperties> *materialCnv = 0;
+    ITPConverterFor<Trk::MaterialProperties> *materialCnv = nullptr;
     const Trk::MaterialPropertiesVector& fullMaterial = transObj->fullMaterial();
     size_t sz = fullMaterial.size();
     persObj->materialVector = std::vector< TPObjRef >(sz, TPObjRef());

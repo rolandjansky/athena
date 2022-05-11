@@ -1,23 +1,16 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// TruthSvc.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 // class header
 #include "TruthSvc.h"
 // other ISF_HepMC includes
-#include "ISF_HepMC_Interfaces/ITruthStrategy.h"
 // ISF includes
 #include "ISF_Event/ITruthIncident.h"
 // Framework
 #include "GaudiKernel/ISvcLocator.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/SystemOfUnits.h"
-// Barcode
-#include "BarcodeInterfaces/IBarcodeSvc.h"
 //
 #include "TruthUtils/HepMCHelpers.h" // for MC::findChildren(...)
 // HepMC includes
@@ -39,35 +32,10 @@
 /** Constructor **/
 ISF::TruthSvc::TruthSvc(const std::string& name,ISvcLocator* svc) :
   base_class(name,svc),
-  m_barcodeSvc("BarcodeSvc",name),
-  m_truthStrategies(this),
   m_geoStrategies(),
-  m_numStrategies(),
-  m_skipIfNoChildren(true),
-  m_skipIfNoParentBarcode(true),
-  m_ignoreUndefinedBarcodes(false),
-  m_passWholeVertex(true),
-  m_forceEndVtxRegionsVec(),
-  m_forceEndVtx(),
-  m_quasiStableParticlesIncluded(false)
+  m_numStrategies()
 {
-  // the barcode service (used to compute Vertex Barcodes)
-  declareProperty("BarcodeSvc",                        m_barcodeSvc              );
-  // MCTruth writing strategies
-  declareProperty("SkipIfNoChildren",                  m_skipIfNoChildren        );
-  declareProperty("SkipIfNoParentBarcode",             m_skipIfNoParentBarcode   );
-  declareProperty("IgnoreUndefinedBarcodes",           m_ignoreUndefinedBarcodes );
-  declareProperty("PassWholeVertices",                 m_passWholeVertex         );
-  declareProperty("TruthStrategies",                   m_truthStrategies);
-  // attach end-vertex if parent particle dies for the different AtlasDetDescr regions
-  declareProperty("ForceEndVtxInRegions",              m_forceEndVtxRegionsVec );
-
-  declareProperty("QuasiStableParticlesIncluded",      m_quasiStableParticlesIncluded);
 }
-
-ISF::TruthSvc::~TruthSvc()
-{}
-
 
 /** framework methods */
 StatusCode ISF::TruthSvc::initialize()

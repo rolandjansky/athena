@@ -15,11 +15,6 @@ ExtraElectronsTruth=[
     ]
 
 ExtraContentMuons=[
-#    "Muons.DFCommonGoodMuon",
-#    "Muons.DFCommonMuonsLoose",
-#    "Muons.DFCommonMuonsMedium",
-#    "Muons.DFCommonMuonsTight",
-    "Muons.DFCommonMuonsPreselection",
     "Muons.ptcone20",
     "Muons.ptcone30",
     "Muons.ptcone40",
@@ -78,20 +73,13 @@ ExtraContentAllTruth=ExtraElectronsTruth+ExtraMuonsTruth+ExtraPhotonsTruth
 ExtraContainersTruth=["TruthEvents", 
                       "TruthParticles",
                       "TruthVertices",
-                      "AntiKt4TruthJets",
                       "egammaTruthParticles",
                       "MuonTruthParticles"
-                      #,"BTagging_AntiKt4TruthWZ"
-                      #,"AntiKt4TruthWZJets"
                       ]
 
 ExtraContainersPhotons=["Photons",
                         "GSFTrackParticles",
-                        "egammaClusters",
-                        "NewSwPhotons", # only if DoCellReweighting is ON                        
-                        "MaxVarSwPhotons", # if variations are ON
-                        "MinVarSwPhotons"  # if variations are ON
-                        ]
+                        "egammaClusters"]
 
 # for trigger studies and for trigger matching
 ExtraContainersTrigger=[

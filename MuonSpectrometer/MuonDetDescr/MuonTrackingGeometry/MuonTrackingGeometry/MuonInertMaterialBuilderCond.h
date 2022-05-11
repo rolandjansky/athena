@@ -90,8 +90,8 @@ namespace Muon {
         void printInfo(const GeoVPhysVol* pv) const;
         void printChildren(const GeoVPhysVol* pv) const;
         /** Simplification of GeoModel object + envelope */
-        const Trk::TrackingVolume* simplifyShape(
-            const Trk::TrackingVolume* tr, bool blend,
+        Trk::TrackingVolume* simplifyShape(
+            Trk::TrackingVolume* tr, bool blend,
             std::vector<std::vector<std::pair<std::unique_ptr<const Trk::Volume>, float> > >* constituentsVector) const;
         /** Envelope creation & material fraction calculation */
         const Trk::Volume* createEnvelope(const Amg::Transform3D& transf,

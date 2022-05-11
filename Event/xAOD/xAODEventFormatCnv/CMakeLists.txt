@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name.
 atlas_subdir( xAODEventFormatCnv )
@@ -23,7 +23,7 @@ atlas_add_library( xAODEventFormatCnvTestLib
 atlas_add_component( xAODEventFormatCnvTest
   src/test/*.h src/test/ACreatorAlg.cxx src/test/EventFormatPrinterAlg.cxx
   LINK_LIBRARIES GaudiKernel AthenaKernel AthenaBaseComps StoreGateLib
-  xAODEventFormat xAODEventFormatCnvTestLib )
+  xAODEventFormat xAODEventFormatCnvTestLib xAODMetaData )
 
 atlas_add_poolcnv_library( xAODEventFormatCnvTestAthenaPoolCnv
   src/test/cnv/*.h src/test/cnv/*.cxx
@@ -57,6 +57,9 @@ atlas_add_dictionary( xAODEventFormatCnvTestDict
 # Install files from the package.
 atlas_install_joboptions( share/*.py )
 
+# Install python modules for CA
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
+
 # Test(s) in the package.
 atlas_add_test( Write
   SCRIPT athena.py --threads=8 xAODEventFormatCnv/EventFormatWriteTestJobOptions.py
@@ -65,14 +68,14 @@ atlas_add_test( Write
 atlas_add_test( Read
   SCRIPT athena.py --threads=8 xAODEventFormatCnv/EventFormatReadTestJobOptions.py
   POST_EXEC_SCRIPT nopost.sh
-  PROPERTIES DEPENDS "xAODEventFormatCnv_Write_ctest" )
+  DEPENDS Write )
 
 atlas_add_test( ReadWrite
   SCRIPT athena.py --threads=8 xAODEventFormatCnv/EventFormatReadWriteJobOptions.py
   POST_EXEC_SCRIPT nopost.sh
-  PROPERTIES DEPENDS "xAODEventFormatCnv_Write_ctest" )
+  DEPENDS Write )
 
 atlas_add_test( Content
   SCRIPT test/TestEventFormatContent.py readWriteTestStream0.pool.root EventFormat
   POST_EXEC_SCRIPT nopost.sh
-  PROPERTIES DEPENDS "xAODEventFormatCnv_ReadWrite_ctest" )
+  DEPENDS ReadWrite )

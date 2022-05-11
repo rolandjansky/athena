@@ -1,5 +1,6 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 
+from .afp import AFP
 from .csc import CSC
 from .lar import LAr
 from .lucid import Lucid
@@ -18,7 +19,7 @@ from .magnets import Magnets
 from .global_system import Global
 from .trig import Trigger
 
-ALL_SYSTEMS = [CSC, LAr, Lucid, MDT, Pixels, RPC, SCT, TDQ, Tile, TGC, TRT,  IDBS, Magnets, Global, Trigger]
+ALL_SYSTEMS = [AFP, CSC, LAr, Lucid, MDT, Pixels, RPC, SCT, TDQ, Tile, TGC, TRT,  IDBS, Magnets, Global, Trigger]
 SYS_NAMES = ", ".join(map(lambda x: x.__name__, ALL_SYSTEMS))
 
 SYSTEM_MAP = dict((x.__name__, x) for x in ALL_SYSTEMS)

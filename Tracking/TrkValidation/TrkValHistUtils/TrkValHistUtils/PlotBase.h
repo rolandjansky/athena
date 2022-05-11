@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // -------------------------------------------------------------
@@ -78,6 +78,8 @@ public:
   TProfile2D * BookTProfile2D(const std::string &name, const std::string &labels, const int nBinsX, double* binsX, const int nBinsY, double* binsY, bool prependDir=true, bool useRMS=false);
   /// Book a (1-D) TEfficiency histogram
   TEfficiency * BookTEfficiency(const std::string &name, const std::string & labels, const int nBinsX, const float xlo, const float xhi, const bool prependDir = true);
+  /// Book a (2-D) TEfficiency histogram
+  TEfficiency * BookTEfficiency(const std::string &name, const std::string & labels, const int nBinsX, const float xlo, const float xhi, const int nBinsy, const float ylo, const float yhi, const bool prependDir = true);
   ///@}
   /// Book a TTree
   TTree* BookTree(const std::string & name, bool prependDir = true);
@@ -87,7 +89,7 @@ public:
 private:
   virtual void initializePlots(){;}
   virtual void finalizePlots(){;}
-  std::string constructPrefix(std::string dir, bool prependDir);
+  static std::string constructPrefix(std::string dir, bool prependDir);
 
 protected:
   std::vector<PlotBase*> m_vSubNodes;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModel/MuonDetectorCondAlg.h"
@@ -14,13 +14,11 @@
 
 #include <fstream>
 
-MuonDetectorCondAlg::MuonDetectorCondAlg(const std::string &name, ISvcLocator *pSvcLocator) : AthAlgorithm(name, pSvcLocator), m_condSvc{"CondSvc", name} 
+MuonDetectorCondAlg::MuonDetectorCondAlg(const std::string &name, ISvcLocator *pSvcLocator) : AthAlgorithm(name, pSvcLocator)
 { }
 
 StatusCode MuonDetectorCondAlg::initialize() {
     ATH_MSG_DEBUG("Initializing ...");
-
-    ATH_CHECK(m_condSvc.retrieve());
 
     // Retrieve the MuonDetectorManager from the detector store to get
     // the applyCscIntAlignment() and applyMdtAsBuiltParams() flags
@@ -39,17 +37,14 @@ StatusCode MuonDetectorCondAlg::initialize() {
     ATH_CHECK(m_readALineKey.initialize());
     ATH_CHECK(m_readBLineKey.initialize());
     ATH_CHECK(m_readILineKey.initialize(MuonDetMgrDS->applyCscIntAlignment()));
-    ATH_CHECK(m_readAsBuiltKey.initialize(MuonDetMgrDS->applyMdtAsBuiltParams()));
+    ATH_CHECK(m_readMdtAsBuiltKey.initialize(MuonDetMgrDS->applyMdtAsBuiltParams()));
+    ATH_CHECK(m_readNswAsBuiltKey.initialize(MuonDetMgrDS->applyNswAsBuiltParams()));
 
     // Write Handles
     // std::string ThisKey = "MuonDetectorManager";
     // std::size_t pos = name().find("MuonDetectorCondAlg");
     // m_writeDetectorManagerKey = ThisKey + name().substr (pos);
     ATH_CHECK(m_writeDetectorManagerKey.initialize());
-    if (m_condSvc->regHandle(this, m_writeDetectorManagerKey).isFailure()) {
-        ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeDetectorManagerKey.fullKey() << " with CondSvc");
-        return StatusCode::FAILURE;
-    }
 
     return StatusCode::SUCCESS;
 }
@@ -110,14 +105,27 @@ StatusCode MuonDetectorCondAlg::execute() {
     // Update MdtAsBuiltMapContainer if requested BEFORE updating ALINES and BLINES
     // =======================
     if (MuonMgrData->applyMdtAsBuiltParams()) {
-        SG::ReadCondHandle<MdtAsBuiltMapContainer> readAsBuiltHandle{m_readAsBuiltKey};
-        const MdtAsBuiltMapContainer *readAsBuiltCdo{*readAsBuiltHandle};
-        writeHandle.addDependency(readAsBuiltHandle);
+        SG::ReadCondHandle<MdtAsBuiltMapContainer> readMdtAsBuiltHandle{m_readMdtAsBuiltKey};
+        const MdtAsBuiltMapContainer *readMdtAsBuiltCdo{*readMdtAsBuiltHandle};
+        writeHandle.addDependency(readMdtAsBuiltHandle);
 
-        if (MuonMgrData->updateAsBuiltParams(*readAsBuiltCdo).isFailure())
+        if (MuonMgrData->updateMdtAsBuiltParams(*readMdtAsBuiltCdo).isFailure())
             ATH_MSG_ERROR("Unable to update MDT AsBuilt parameters");
         else
             ATH_MSG_DEBUG("update MDT AsBuilt parameters DONE");
+    }
+
+    // =======================
+    // Set NSW as-built geometry if requested
+    // =======================
+    if (MuonMgrData->applyNswAsBuiltParams()) {
+        SG::ReadCondHandle<NswAsBuiltDbData> readNswAsBuilt{m_readNswAsBuiltKey};
+        if(!readNswAsBuilt.isValid())
+          ATH_MSG_ERROR("Cannot find conditions data container for NSW as-built!");
+        else
+            ATH_MSG_DEBUG("Retrieved conditions data container for NSW as-built");
+        const NswAsBuiltDbData* nswAsBuiltData = readNswAsBuilt.cptr();
+        MuonMgrData->setMMAsBuiltCalculator(nswAsBuiltData);
     }
 
     // =======================

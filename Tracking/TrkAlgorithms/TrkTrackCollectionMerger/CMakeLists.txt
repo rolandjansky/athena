@@ -12,7 +12,7 @@ atlas_add_library( TrkTrackCollectionMergerLib
                    src/*.cxx
                    test/PutTrackCollectionsInSG.cxx
                    PUBLIC_HEADERS TrkTrackCollectionMerger
-                   LINK_LIBRARIES AthenaBaseComps GaudiKernel StoreGateLib TrkTrack TrkEventUtils TrkToolInterfaces
+                   LINK_LIBRARIES AthenaBaseComps GaudiKernel StoreGateLib TrkTrack TrkEventUtils TrkToolInterfaces InDetPrepRawData
                    PRIVATE_LINK_LIBRARIES TrkPrepRawData )
 
 atlas_add_component( TrkTrackCollectionMerger

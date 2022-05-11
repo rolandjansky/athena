@@ -43,27 +43,29 @@
  * particle
  * - OutputTrackContainerName (default=GSFTracks): refitted slimmed tracks
  *
- * Only selected tracks with a minimum number of Si-hits (minNoSiHits) are
- * refitted. The refitted tracks, and the one that have not been refitted, are
- * saved in the output containers.
+ * Only tracks with a minimum number of Si-hits (minNoSiHits) are
+ * refitted. The refitted Trk::Tracks, and "copies" of the selected but not
+ * refitted Trk:;Tracks (i.e TRT alone), are saved in the output containers.
  *
  * The GSF refitting can be done only when the full xAOD::Track is available
- * (e.g. not in standard AOD).
+ * (e.g. not in standard AOD). The refitting is delegated to a tool implementing
+ * the IegammaTrkRefitterTool interface, configured with the TrackRefitTool
+ * property (by default ElectronRefitterTool).
  *
- * The refitting is delegated to a tool implementing the IegammaTrkRefitterTool
- * interface, configured with the TrackRefitTool property (by default
- * ElectronRefitterTool). The summary of the refitted tracks (which are new
- * track objects) are updated with the a tool implementing the ITrackSummaryTool
- * interface, configured with the TrackSummaryTool property (by default
- * InDetTrackSummaryTool). The update is done for Pixel and SCT quanties
- * according to the property usePixel and useSCT (by default false).
- * The track particles are created from the xAOD::Track after refitting with a
- * tool implementing the Trk::ITrackParticleCreatorTool interface configured
- * with the property TrackParticleCreatorTool (by default
- * TrackParticleCreatorTool). Truth informations are copied from the original
- * xAOD::TrackParticle. The refitted tracks are saved after slimming with a tool
- * implementing the Trk::ITrackSlimmingTool interface, configurable with the
- * TrackSlimmingTool property (by default TrkTrackSlimmingTool).
+ *
+ * The final track particles are created from  the Trk::Tracks (refitted or
+ * copied) with a tool implementing the Trk::ITrackParticleCreatorTool interface
+ * configured with the property TrackParticleCreatorTool (by default
+ * TrackParticleCreatorTool).
+ * During the above summary creation we prefer to avoid the so called
+ * hole-search so we copy over this information for Pixel, SCT, TRT
+ * according to the property usePixel, useSCT, useTRT.
+ *
+ * Truth information is copied from the original
+ * xAOD::TrackParticle. The Trk::Tracks (refitted or copied) are saved after
+ * slimming with a tool implementing the Trk::ITrackSlimmingTool interface,
+ * configurable with the TrackSlimmingTool property (by default
+ * TrkTrackSlimmingTool).
  */
 class EMBremCollectionBuilder : public AthReentrantAlgorithm
 {
@@ -75,7 +77,9 @@ public:
   virtual StatusCode finalize() override final;
   virtual StatusCode execute(const EventContext& ctx) const override final;
 
-  /** Helper struct to store the track particle and the original index in the
+  /** Helper struct to store the
+   * Trk::Track corresponding to a TrackParticle
+   * and the index of the Track Particle in the original
    * container. **/
   struct TrackWithIndex
   {
@@ -108,26 +112,31 @@ private:
     std::vector<TrackWithIndex>& trtAlone,
     TrackCollection* finalTracks,
     xAOD::TrackParticleContainer* finalTrkPartContainer,
-    const xAOD::TrackParticleContainer* AllTracks) const;
+    const xAOD::TrackParticleContainer* inputTrkPartContainer) const;
 
-  StatusCode createNew(const EventContext& ctx,
-                       TrackWithIndex& Info,
-                       TrackCollection* finalTracks,
-                       xAOD::TrackParticleContainer* finalTrkPartContainer,
-                       const xAOD::TrackParticleContainer* AllTracks) const;
+  StatusCode createNew(
+    const EventContext& ctx,
+    TrackWithIndex& Info,
+    TrackCollection* finalTracks,
+    xAOD::TrackParticleContainer* finalTrkPartContainer,
+    const xAOD::TrackParticleContainer* inputTrkPartContainer,
+    bool isRefitted) const;
 
-  void updateGSFTrack(const EventContext& ctx,
-                      const TrackWithIndex& Info,
-                      const xAOD::TrackParticleContainer* AllTracks) const;
+  void copyOverInfo(xAOD::TrackParticle& created,
+                    const xAOD::TrackParticle& original,
+                    bool isRefitted) const;
 
   /** @brief Option to do truth*/
   Gaudi::Property<bool> m_doTruth{ this, "DoTruth", false, "do truth" };
 
-  /** @brief Option to do SCT holes estimation*/
-  Gaudi::Property<bool> m_doSCT{ this, "useSCT", false, "do SCT" };
+  /** @brief Option to copy SCT holes estimation*/
+  Gaudi::Property<bool> m_doSCT{ this, "useSCT", true, "do SCT" };
 
-  /** @brief Option to do pixel holes estimation*/
-  Gaudi::Property<bool> m_doPix{ this, "usePixel", false, "do Pix" };
+  /** @brief Option to copy pixel holes estimation*/
+  Gaudi::Property<bool> m_doPix{ this, "usePixel", true, "do Pix" };
+
+  /** @brief Option to copy TRT holes estimation*/
+  Gaudi::Property<bool> m_doTRT{ this, "useTRT", true, "do TRT" };
 
   /** @brief Option to do pixel holes estimation*/
   Gaudi::Property<bool> m_doSlimTrkTracks{ this,
@@ -161,12 +170,6 @@ private:
                                                   "TrackSlimmingTool",
                                                   "TrkTrackSlimmingTool",
                                                   "Track slimming tool" };
-
-  /** @brief Tool for Track summary  */
-  ToolHandle<Trk::ITrackSummaryTool> m_summaryTool{ this,
-                                                    "TrackSummaryTool",
-                                                    "InDetTrackSummaryTool",
-                                                    "Track summary tool" };
 
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleContainerKey{
     this,

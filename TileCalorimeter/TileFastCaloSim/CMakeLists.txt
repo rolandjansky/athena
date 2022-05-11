@@ -11,7 +11,7 @@ atlas_add_component( TileFastCaloSim
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloEvent CaloIdentifier AthenaBaseComps AthenaKernel EventContainers GaudiKernel GeoModelInterfaces ISF_FastCaloSimEvent TileConditionsLib TileDetDescr TileGeoModelLib TileG4InterfacesLib TileSimEvent )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloEvent CaloIdentifier AthenaBaseComps AthenaKernel EventContainers GaudiKernel GeoModelInterfaces ISF_FastCaloSimEvent TileConditionsLib TileDetDescr TileGeoModelLib TileSimEvent AtlasGeant4Lib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

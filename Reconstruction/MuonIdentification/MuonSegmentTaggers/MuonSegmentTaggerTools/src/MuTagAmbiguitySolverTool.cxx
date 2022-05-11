@@ -227,7 +227,7 @@ std::vector<MuonCombined::MuonSegmentInfo> MuTagAmbiguitySolverTool::solveAmbigu
     mtosOutput.reserve(mtos.size());
 
     for (unsigned int ns1 = 0; ns1 < mtos.size(); ns1++) {
-        if (mtos[ns1].nsegments > 0) { mtosOutput.push_back(mtos[ns1]); }
+        if (mtos[ns1].nsegments > 0) { mtosOutput.push_back(std::move(mtos[ns1])); }
     }
 
     ATH_MSG_DEBUG("mtos size after all cuts " << mtos.size());

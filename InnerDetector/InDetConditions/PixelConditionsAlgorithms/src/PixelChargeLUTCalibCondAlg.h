@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */ 
 /**
  * @file PixelConditionsAlgorithms/PixelChargeLUTCalibCondAlg.h
@@ -23,7 +23,6 @@
 
 #include "InDetIdentifier/PixelID.h"
 
-#include "GaudiKernel/ICondSvc.h"
 #include "Gaudi/Property.h"
 
 class PixelChargeLUTCalibCondAlg : public AthReentrantAlgorithm {
@@ -47,8 +46,6 @@ class PixelChargeLUTCalibCondAlg : public AthReentrantAlgorithm {
 
     SG::WriteCondHandleKey<PixelChargeCalibCondData> m_writeKey
     {this, "WriteKey", "PixelChargeCalibCondData", "Output charge caliblation data"};
-
-    ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 };
 
 #endif

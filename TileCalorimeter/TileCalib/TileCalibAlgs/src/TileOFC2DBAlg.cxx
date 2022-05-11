@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //=== IOVDbTest includes
@@ -16,7 +16,7 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 //=== Tile includes
-#include "TileCalibAlgs/TileOFC2DBAlg.h"
+#include "TileOFC2DBAlg.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileCalibBlobObjs/TileCalibDrawerOfc.h"
 #include "TileCalibBlobObjs/TileCalibDrawerCmt.h"
@@ -25,7 +25,7 @@
 
 TileOFC2DBAlg::TileOFC2DBAlg(const std::string& name, ISvcLocator* pSvcLocator)
     : AthAlgorithm(name, pSvcLocator)
-  , m_regSvc(0)
+  , m_regSvc(nullptr)
 
 {
   declareProperty("OF2",                m_of2            = true,"true => OF2, false => OF1");
@@ -69,7 +69,7 @@ StatusCode TileOFC2DBAlg::initialize() {
   std::map<std::string, unsigned int> roses = { {"AUX", 0}, {"LBA", 1}, {"LBC", 2}, {"EBA", 3}, {"EBC", 4} };
 
   msg(MSG::INFO) << "OFC will be stored in DB for the following modules:";
-  for (std::string module : m_modules) {
+  for (const std::string& module : m_modules) {
     msg(MSG::INFO) << " " << module;
     m_drawerIdxs.push_back( TileCalibUtils::getDrawerIdx(roses[module.substr(0, 3)], std::stoi(module.substr(3, 2)) - 1) );
   }
@@ -377,10 +377,10 @@ StatusCode TileOFC2DBAlg::registerCondObjects() {
   for (std::set<std::string>::const_iterator iFolder = m_folders.begin();
       iFolder != m_folders.end(); ++iFolder) {
 
-    const CondAttrListCollection* attrListColl = 0;
+    const CondAttrListCollection* attrListColl = nullptr;
     CHECK( detStore()->retrieve(attrListColl, *iFolder) );
 
-    if (0 == attrListColl) {
+    if (nullptr == attrListColl) {
       ATH_MSG_ERROR( "Has not retrieved AttributeListCollection (ptr is 0) from " << *iFolder );
       return (StatusCode::FAILURE);
     } else {
@@ -418,7 +418,7 @@ StatusCode TileOFC2DBAlg::printCondObjects() {
 
     ATH_MSG_DEBUG( "The blob name is: " << blobName );
 
-    const CondAttrListCollection* attrListColl(0);
+    const CondAttrListCollection* attrListColl(nullptr);
     CHECK( detStore()->retrieve(attrListColl, *iFolder) );
 
     if (!attrListColl) {
@@ -477,7 +477,7 @@ StatusCode TileOFC2DBAlg::printCondObjects() {
 
       //=== print the comment
       std::string comment = cmt->getFullComment();
-      if (!comment.size()) {
+      if (comment.empty()) {
         comment = generalComment;
       }
       ATH_MSG_DEBUG( "Comment: " << comment );

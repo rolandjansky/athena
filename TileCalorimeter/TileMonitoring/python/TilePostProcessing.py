@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -26,10 +26,19 @@ def getProfile2D_RMS(inputs, title, name):
 
     fullTitle = str(inputProfile.GetTitle()).split(':')[0] + ': ' + title
 
-    outputHistogram = inputProfile.ProjectionXY(fullName,"C=E")
+    nBinsX = inputProfile.GetNbinsX()
+    nBinsY = inputProfile.GetNbinsY()
+
+    outputHistogram = inputProfile.Clone()
+    outputHistogram.Reset()
     outputHistogram.SetTitle(fullTitle)
-    inputProfile.GetXaxis().Copy(outputHistogram.GetXaxis())
-    inputProfile.GetYaxis().Copy(outputHistogram.GetYaxis())
+    outputHistogram.SetName(fullName)
+    for binX in range(0, nBinsX + 1):
+         for binY in range(0, nBinsY + 1):
+             rms = inputProfile.GetBinError(binX, binY)
+             if rms != 0:
+                 outputHistogram.SetBinContent(binX, binY, rms)
+                 outputHistogram.SetBinEntries(inputProfile.GetBin(binX, binY), 1)
 
     return [outputHistogram]
 
@@ -545,7 +554,7 @@ if __name__== '__main__':
             physPostProcess = (['histgrinder', inputPath, outputPath,
                                  '--inmodule', 'DQOnlinePostprocessing.atlas_oh.OHInputModule',
                                  '--outmodule', 'DQOnlinePostprocessing.atlas_oh.OHOutputModule',
-                                 '-c'] + physConfigurations)
+                                 '--prefix', '/', '-c'] + physConfigurations)
 
             subprocess.run(physPostProcess)
 
@@ -563,6 +572,6 @@ if __name__== '__main__':
             noisePostProcess = (['histgrinder', inputPath, outputPath,
                                  '--inmodule', 'DQOnlinePostprocessing.atlas_oh.OHInputModule',
                                  '--outmodule', 'DQOnlinePostprocessing.atlas_oh.OHOutputModule',
-                                 '-c'] + noiseConfigurations)
+                                 '--prefix', '/', '-c'] + noiseConfigurations)
 
             subprocess.run(noisePostProcess)

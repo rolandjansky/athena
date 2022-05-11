@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -15,11 +15,11 @@ const JetKeyConstants::key_t JetKeyConstants::AssoCat = "JetAssociations";
 const JetKeyConstants::key_t JetKeyConstants::TagCat = "JetTags";
 const JetKeyConstants::key_t JetKeyConstants::InfoCat = "JetInfo";
 
-JetKeyDescriptorInstance                        JetKeyDescriptorInstance::s_instance;
-size_t                                          JetKeyDescriptorInstance::m_invalid  = size_t(-1);
-std::string                                     JetKeyDescriptorInstance::m_notFound = "unknown";
-std::vector<JetKeyDescriptorInstance::key_t>    JetKeyDescriptorInstance::m_invalidKeys;
-bool                                            JetKeyDescriptorInstance::m_persistified = false;
+JetKeyDescriptorInstance                              JetKeyDescriptorInstance::s_instance;
+const size_t                                          JetKeyDescriptorInstance::m_invalid  = size_t(-1);
+const std::string                                     JetKeyDescriptorInstance::m_notFound = "unknown";
+const std::vector<JetKeyDescriptorInstance::key_t>    JetKeyDescriptorInstance::m_invalidKeys;
+const bool                                            JetKeyDescriptorInstance::m_persistified = false;
 
 JetKeyDescriptorInstance::JetKeyDescriptorInstance(bool create) : m_Stores(0)
 {

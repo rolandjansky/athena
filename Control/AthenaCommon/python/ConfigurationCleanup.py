@@ -7,7 +7,6 @@
 # being used, only call this function after initialize(). Part of this code has
 # been experimentally defined, and so it does not cover all situations.
 
-from __future__ import print_function
 from functools import reduce
 
 doCleanse = False

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 """
 # JetInputConfig: A helper module providing function to setup algorithms
 # in charge of preparing input sources to jets (ex: EventDensity algo, track
@@ -9,6 +9,7 @@
 
 
 from AthenaConfiguration.ComponentFactory import CompFactory
+from EventShapeTools.EventDensityConfig import configEventDensityTool, getEventShapeName
 
 def _buildJetAlgForInput(suffix, tools ):
     jetalg = CompFactory.JetAlgorithm("jetalg_"+suffix,
@@ -17,19 +18,11 @@ def _buildJetAlgForInput(suffix, tools ):
     return jetalg
 
 def buildJetTrackUsedInFitDeco( parentjetdef, inputspec ):
-    from JetRecTools import JetRecToolsConfig
-    # Jet track used-in-fit decoration
-    return _buildJetAlgForInput("JetUsedInFitDeco",
-                                tools = [ JetRecToolsConfig.getTrackUsedInFitTool(parentjetdef.context) ]
-    )
+    from InDetUsedInVertexFitTrackDecorator.UsedInVertexFitTrackDecoratorCfg import getUsedInVertexFitTrackDecoratorAlg
+    from JetRecConfig.StandardJetContext import jetContextDic
+    trkProperties = jetContextDic[parentjetdef.context]
 
-def buildJetTrackVertexAssoc( parentjetdef, inputspec ):
-    from JetRecTools import JetRecToolsConfig
-    # Jet track TTVA
-    return _buildJetAlgForInput("JetTVA",
-                                tools = [ JetRecToolsConfig.getTrackVertexAssocTool(parentjetdef.context) ]
-    )
-    
+    return getUsedInVertexFitTrackDecoratorAlg(trackCont=trkProperties["Tracks"] , vtxCont= trkProperties["Vertices"])
 
     
 def buildJetInputTruth(parentjetdef, truthmod):
@@ -49,11 +42,11 @@ def buildLabelledTruth(parentjetdef, truthmod):
 def buildPV0TrackSel(parentjetdef, spec):
     from JetRecConfig.StandardJetContext import jetContextDic
     from TrackVertexAssociationTool.getTTVAToolForReco import getTTVAToolForReco
-    from JetRecConfig.JetRecConfig import isAthenaRelease
+    
     trkOptions = jetContextDic[parentjetdef.context]
     tvaTool = getTTVAToolForReco("trackjetTVAtool", 
                                  returnCompFactory = True,
-                                 addDecoAlg = isAthenaRelease(),
+                                 addDecoAlg = False ,# not needed : UsedInFit decorations are part of other prerequisites  
                                  WorkingPoint = "Nonprompt_All_MaxWeight",
                                  TrackContName = trkOptions['JetTracksQualityCuts'],
                                  VertexContName = trkOptions['Vertices'],
@@ -67,45 +60,38 @@ def buildPV0TrackSel(parentjetdef, spec):
     return alg
 
 
+def buildPFlowSel(parentjetdef, spec):
+    return  CompFactory.JetPFlowSelectionAlg( "pflowselalg",
+                                              electronID = "LHMedium",
+                                              ChargedPFlowInputContainer  = "JetETMissChargedParticleFlowObjects",
+                                              NeutralPFlowInputContainer  = "JetETMissNeutralParticleFlowObjects",
+                                              ChargedPFlowOutputContainer = "GlobalChargedParticleFlowObjects",
+                                              NeutralPFlowOutputContainer = "GlobalNeutralParticleFlowObjects"
+                                             )
+
 ########################################################################
-def getEventShapeName( jetDefOrLabel, inputspec):
-    """ Get the name of the event shape container for a given event shape alg """
-
-    from .JetDefinition import JetDefinition
-    nameprefix = inputspec or ""
-    if isinstance(jetDefOrLabel, JetDefinition):
-        label = jetDefOrLabel.inputdef.label
-    else:
-        label = jetDefOrLabel.replace('_','')
-    return nameprefix+"Kt4"+label+"EventShape"
-
 
 def buildEventShapeAlg(jetOrConstitdef, inputspec, voronoiRf = 0.9, radius = 0.4, suffix = None ):
     """Function producing an EventShapeAlg to calculate
      median energy density for pileup correction"""
 
-    from .JetDefinition import JetInputConstit
-    
-    if isinstance(jetOrConstitdef, JetInputConstit):
-        label = jetOrConstitdef.label + '' if suffix is None else f'_{suffix}'
-    else:
-        label = jetOrConstitdef.inputdef.label + '' if suffix is None else f'_{suffix}'
+    from .JetRecConfig import getPJContName
 
-    rhokey = getEventShapeName(label, inputspec)
-    nameprefix = inputspec or ""
-    rhotoolname = "EventDensity_"+nameprefix+"Kt4"+label
     
-    rhotool = CompFactory.EventDensityTool(
-        rhotoolname,
-        InputContainer = "PseudoJet"+label, # same as in PseudoJet algs
-        OutputContainer = rhokey,
+    pjContName = getPJContName(jetOrConstitdef,suffix)
+    nameprefix = inputspec or ""
+    
+    rhotool = configEventDensityTool(
+        f"EventDensity_{nameprefix}Kt4{pjContName}",
+        jetOrConstitdef,
+        InputContainer = pjContName, 
+        OutputContainer = getEventShapeName(jetOrConstitdef, nameprefix=inputspec, suffix=suffix, radius=radius),
         JetRadius = radius,
-        UseFourMomArea = True,
         VoronoiRfact = voronoiRf,
-        JetAlgorithm = "Kt",)
+        )
     
     eventshapealg = CompFactory.EventDensityAthAlg(
-        "{0}{1}Alg".format(nameprefix,rhotoolname),
+        f"EventDensity_{nameprefix}Kt4{pjContName}Alg",
         EventDensityTool = rhotool )
 
     return eventshapealg

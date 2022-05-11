@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTools/CaloAffectedTool.h" 
@@ -19,8 +19,7 @@ CaloAffectedTool::CaloAffectedTool (const std::string& type,
                                                                                 
 //-----------------------------------------------------------------
 
-CaloAffectedTool::~CaloAffectedTool() {
-}
+CaloAffectedTool::~CaloAffectedTool() = default;
 
 
 //-------------------------------------------------------------------

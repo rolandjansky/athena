@@ -1,7 +1,7 @@
 //dear emacs, this is -*-c++-*-
 
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArLATOMEMappingAlg.h"
@@ -17,16 +17,10 @@ StatusCode LArLATOMEMappingAlg::initialize() {
 
   ATH_MSG_DEBUG("initializing");
 
-  // CondSvc
-  ATH_CHECK( m_condSvc.retrieve() );
   // Read Handles
   ATH_CHECK( m_readKey.initialize() );
   ATH_CHECK( m_writeKey.initialize() );
-  // Register write handle
-  if (m_condSvc->regHandle(this, m_writeKey).isFailure()) {
-    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
-    return StatusCode::FAILURE;
-  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -76,7 +70,7 @@ StatusCode LArLATOMEMappingAlg::execute() {
     latomeMap->m_sourceID.resize(nLatome);
     for (unsigned i=0;i<nLatome;++i) {
       const unsigned sid=pblobsourceId[i];
-      ATH_MSG_INFO("Latome SID: "<<sid);
+      ATH_MSG_DEBUG("Latome SID: "<<sid);
       latomeMap->m_sourceID[i]=sid;
       latomeMap->m_onlineID[i].resize(N_LATOME_CHANNELS);
       for (unsigned j=0;j<N_LATOME_CHANNELS ;++j) {

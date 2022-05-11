@@ -19,6 +19,9 @@ if DetFlags.detdescr.Muon_on() and (rec.doWriteAOD() or rec.doWriteESD()):
    if MuonGeometryFlags.hasMM() or MuonGeometryFlags.hasSTGC():
       MuonAODList+=[ "xAOD::TrackParticleContainer#EMEO_MuonSpectrometerTrackParticles" ]
       MuonAODList+=[ "xAOD::TrackParticleAuxContainer#EMEO_MuonSpectrometerTrackParticlesAux." ]
+
+   MuonAODList+=[ "xAOD::MuonSegmentContainer#xAODNSWSegments" ]
+   MuonAODList+=[ "xAOD::MuonSegmentAuxContainer#xAODNSWSegmentsAux." ]
       
    # TrackParticles 
    MuonAODList+=[ "xAOD::TrackParticleContainer#MuonSpectrometerTrackParticles" ]

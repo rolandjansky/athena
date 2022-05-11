@@ -74,7 +74,6 @@ bool
 Trk::TrapezoidBounds::insideFull(const Amg::Vector2D& locpo, double tol1, double tol2) const
 {
   // the cases:
-  // the cases:
   double fabsX = fabs(locpo[Trk::locX]);
   double fabsY = fabs(locpo[Trk::locY]);
   // (1) a fast FALSE
@@ -84,7 +83,7 @@ Trk::TrapezoidBounds::insideFull(const Amg::Vector2D& locpo, double tol1, double
   if (fabsX > (m_boundValues[TrapezoidBounds::bv_maxHalfX] + tol1))
     return false;
   // (3) a fast TRUE
-  if (fabsX < (m_boundValues[TrapezoidBounds::bv_minHalfX] - tol1))
+  if (fabsX < (m_boundValues[TrapezoidBounds::bv_minHalfX] + tol1))
     return true;
   // (4) particular case - a rectangle
   if (m_boundValues[TrapezoidBounds::bv_maxHalfX] == m_boundValues[TrapezoidBounds::bv_minHalfX])

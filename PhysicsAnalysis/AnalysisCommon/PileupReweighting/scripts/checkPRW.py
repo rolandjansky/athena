@@ -29,11 +29,11 @@ def main():
       import pyAMI.atlas.api as atlasAPI
       import pyAMI.client
     except ImportError:
-      print "Could not import pyAMI ... please do: lsetup pyAMI"
-      print "Also ensure you have a valid certificate (voms-proxy-init -voms atlas)"
+      print("Could not import pyAMI ... please do: lsetup pyAMI")
+      print("Also ensure you have a valid certificate (voms-proxy-init -voms atlas)")
       return 1
 
-    client = pyAMI.client.Client('atlas')
+    client = pyAMI.client.Client(['atlas', 'atlas-replica'])
     atlasAPI.init()
 
     #read datasets into list
@@ -42,7 +42,7 @@ def main():
       with open(txtFile) as f: datasets += f.read().splitlines()
 
     
-    print "Determining provenances of %d datasets ..." % len(datasets)
+    print("Determining provenances of %d datasets ..." % len(datasets))
     
     aodDatasets=dict()
     for dataset in datasets:
@@ -51,52 +51,60 @@ def main():
       dataset = dataset.rsplit(":")[-1].strip()
       if len(dataset)==0: continue
 
-      print "Doing %s" % dataset
-      prov = atlasAPI.get_dataset_prov(client, dataset )
-      if 'node' not in prov:
-        print "ERROR: Could not determine provenance of %s, skipping!" % dataset
-        continue
-
+      print("Doing %s" % dataset)
       theParent=""
-      singleTagName=""
-      for ds in prov['node']:
-        if ds[u'dataType']!=u'AOD': continue
-        dsName = ds[u'logicalDatasetName']
-        if 'recon.AOD' not in ds[u'logicalDatasetName']: continue
-        etags = re.findall('e[0-9]+_', dsName)
-        stags = re.findall('s[0-9]+_', dsName)
-        if len(etags) == 2 or len(stags) == 2:
-          if len(etags) == 2:
-            print "INFO: Found a double e-tag container %s!" % dsName
-            dsName = dsName.replace(etags[1], "")
-          if len(stags) == 2:
-            print "INFO: Found a double s-tag container %s!" % dsName
-            dsName = dsName.replace(stags[1], "")
-          singleTagName = dsName
-          continue
-        theParent = str(dsName)
-        theParentSize = int(ds[u'events'])
-        break
+      if ".DAOD_PHYS." in dataset:
+          print("INFO: Assuming %s is unskimmed because it is DAOD_PHYS" % dataset)
+          theParent = dataset
+          theParentSize = int(atlasAPI.list_datasets(client, theParent,fields='ldn,events')[0][u'events'])
+      else:
+          prov = atlasAPI.get_dataset_prov(client, dataset )
+          if 'node' not in prov:
+              print("ERROR: Could not determine provenance of %s, skipping!" % dataset)
+              continue
+          singleTagName=""
+          for ds in prov['node']:
+            if ds[u'dataType']!=u'AOD': continue
+            dsName = ds[u'logicalDatasetName']
+            if 'recon.AOD' not in ds[u'logicalDatasetName']: continue
+            etags = re.findall('e[0-9]+_', dsName)
+            stags = re.findall('s[0-9]+_', dsName)
+            if len(etags) == 2 or len(stags) == 2:
+                if len(etags) == 2:
+                    print("INFO: Found a double e-tag container %s!" % dsName)
+                    dsName = dsName.replace(etags[1], "")
+                if len(stags) == 2:
+                    print("INFO: Found a double s-tag container %s!" % dsName)
+                    dsName = dsName.replace(stags[1], "")
+                singleTagName = dsName
+                continue
+            theParent = str(dsName)
+            theParentSize = int(ds[u'events'])
+            break
 
-      if theParent == "":
-        if singleTagName == "":
-          print "ERROR: No single-tag name available for %s, skipping!" % dataset
-          continue
-        else:
-          print "INFO: Trying with single-tag containers manually %s!" % singleTagName
-          try:
-            prov = atlasAPI.get_dataset_prov(client, singleTagName)
-          except pyAMI.exception.Error:
-            print "ERROR: Could not determine provenance of %s, skipping!" % dataset
-            continue
-          if 'node' in prov:
-            for ds in prov['node']:
-              if ds[u'logicalDatasetName'] == singleTagName:
-                theParent = singleTagName
-                theParentSize = int(ds[u'events'])
-          else:
-            print "ERROR: key 'node' not found for %s, skipping!" % dataset
-            continue
+          if theParent == "":
+            if singleTagName == "":
+                print("ERROR: No single-tag name available for %s, skipping!" % dataset)
+                continue
+            else:
+                print("INFO: Trying with single-tag containers manually %s!" % singleTagName)
+                try:
+                    prov = atlasAPI.get_dataset_prov(client, singleTagName)
+                except pyAMI.exception.Error:
+                    print("ERROR: Could not determine provenance of %s, skipping!" % dataset)
+                    continue
+                if 'node' in prov:
+                    for ds in prov['node']:
+                        if ds[u'logicalDatasetName'] == singleTagName:
+                            theParent = singleTagName
+                            theParentSize = int(ds[u'events'])
+                else:
+                    print("ERROR: key 'node' not found for %s, skipping!" % dataset)
+                    continue
+
+          if theParent=="":
+              print("ERROR: Could not determine provenance of %s, skipping!" % dataset)
+              continue
 
       #extract the dsid ...
       theParent = theParent.split(".")[1]
@@ -116,7 +124,7 @@ def main():
     #list of known period numbers
     periodNumbers = out.GetPeriodNumbers()
     
-    for dsid,nevents in aodDatasets.iteritems():
+    for dsid,nevents in aodDatasets.items():
       #get the sum of weights from the tool
       
       total=0;
@@ -126,12 +134,12 @@ def main():
         if hist: total += hist.GetEntries()
       
       if total==nevents:
-        print "channel %s is ok" % dsid
+        print("channel %s is ok" % dsid)
       elif total<nevents:
-        print "channel %s is incomplete (missing %d events from config files)" % (dsid,nevents-total)
+        print("channel %s is incomplete (missing %d events from config files)" % (dsid,nevents-total))
         out.RemoveChannel(int(dsid))
       elif total>nevents:
-        print "channel %s is suspect! (config files have additional %d events)" % (dsid,total-nevents)
+        print("channel %s is suspect! (config files have additional %d events)" % (dsid,total-nevents))
         if not args.outputSuspect:
           out.RemoveChannel(int(dsid))
       

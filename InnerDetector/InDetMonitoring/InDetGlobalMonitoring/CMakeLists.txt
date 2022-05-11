@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
+
 ################################################################################
 # Package: InDetGlobalMonitoring
 ################################################################################
@@ -15,7 +17,7 @@ atlas_add_component( InDetGlobalMonitoring
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} GaudiKernel
    CommissionEvent AthenaBaseComps AthenaMonitoringLib AtlasDetDescr
-   IdDictDetDescr Identifier EventInfo EventPrimitives xAODJet xAODTracking
+   IdDictDetDescr Identifier EventInfo xAODEventInfo EventPrimitives xAODJet xAODTracking
    GeneratorObjects InDetIdentifier InDetReadoutGeometry PixelReadoutGeometryLib InDetBCM_RawData
    InDetRawData InDetPrepRawData InDetRIO_OnTrack InDetByteStreamErrors LWHists TrkSurfaces
    TrkEventPrimitives TrkMeasurementBase TrkParameters TrkParticleBase TrkTrack

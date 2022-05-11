@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkRIO_OnTrack/RIO_OnTrackErrorScaling.h"
@@ -71,9 +71,9 @@ StatusCode RIO_OnTrackErrorScalingDbOverrideCondAlg::initialize() {
 namespace {
   EventIDBase timestamp (int t)
   {
-    return EventIDBase (EventIDBase::UNDEFNUM,  // run
+    return {EventIDBase::UNDEFNUM,  // run
                         EventIDBase::UNDEFEVT,  // event
-                        t);
+                        static_cast<EventIDBase::number_type>(t)};
   }
 
   EventIDBase infiniteIOVEend() {

@@ -1,4 +1,4 @@
-#include "TGCTriggerCondSvc/TGCTriggerCondAlg.h"
+#include "../TGCTriggerCondAlg.h"
 
 DECLARE_COMPONENT( TGCTriggerCondAlg )
 

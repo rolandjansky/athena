@@ -1,4 +1,4 @@
-#include "MdtVsTgcRawDataMonitoring/MdtVsTgcRawDataValAlg.h"
+#include "../MdtVsTgcRawDataValAlg.h"
  
 DECLARE_COMPONENT( MdtVsTgcRawDataValAlg )
 

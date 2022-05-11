@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigDecisionTool_ChainGroupFunctions_h
@@ -18,22 +18,29 @@
  ***********************************************************************************/
 #include <string>
 #include <vector>
-#include<boost/algorithm/string.hpp>
+#include <boost/algorithm/string.hpp>
 
-#include "TrigDecisionTool/ChainGroup.h"
-#include "TrigDecisionTool/CacheGlobalMemory.h"
+#include "TrigDecisionInterface/GroupProperties.h"
 
 namespace Trig {
+
+  class ChainGroup;
+  class CacheGlobalMemory;
 
   class ChainGroupFunctions
     {
     public:
       // constructors, destructor
-      ChainGroupFunctions();
-      virtual ~ChainGroupFunctions();
-      
-      const Trig::ChainGroup* getChainGroup(const std::vector< std::string >& patterns) const; //!< @see CacheGlobalMemory
-      const Trig::ChainGroup* getChainGroup(const std::string& pattern) const;                 //!< @see CacheGlobalMemory
+      ChainGroupFunctions() = default;
+      virtual ~ChainGroupFunctions() = default;
+
+      /// Create/get chain group (@see CacheGlobalMemory)
+      const Trig::ChainGroup* getChainGroup(const std::vector< std::string >& patterns,
+                                            TrigDefs::Group props = TrigDefs::Group::Default) const;
+
+      /// Create/get chain group (@see CacheGlobalMemory)
+      const Trig::ChainGroup* getChainGroup(const std::string& pattern,
+                                            TrigDefs::Group props = TrigDefs::Group::Default) const;
 
     protected:
 
@@ -41,7 +48,8 @@ namespace Trig {
 
     private:
 
-      virtual Trig::CacheGlobalMemory* cgm() const =0; 
+      virtual Trig::CacheGlobalMemory* cgm() = 0;
+      virtual const Trig::CacheGlobalMemory* cgm() const = 0;
       
     };
 }

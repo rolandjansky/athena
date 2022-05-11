@@ -9,7 +9,7 @@
 // +==========================================================================+
 //
 
-#include "LArDigitization/LArPileUpTool.h"
+#include "LArPileUpTool.h"
 
 #include "LArDigitization/LArHitEMap.h"
 
@@ -175,19 +175,6 @@ StatusCode LArPileUpTool::initialize()
 
   ATH_CHECK(m_rndmGenSvc.retrieve());
 
-  if (m_NSamples>32) {
-     ATH_MSG_WARNING(" Cannot do more than 32 samples:  NSamples reset to 32 ");
-     m_NSamples=32;
-  }
-// working arrays to store rndm numbers,samples
-  m_Samples.resize(m_NSamples);
-  if(m_doDigiTruth) {
-    m_Samples_DigiHSTruth.resize(m_NSamples);
-  }
-
-  m_Noise.resize(m_NSamples);
-
-
 // register data handle for conditions data
 
   ATH_CHECK(m_xtalkKey.initialize() );
@@ -196,17 +183,6 @@ StatusCode LArPileUpTool::initialize()
 
   ATH_CHECK(m_hitMapKey.initialize());
   ATH_CHECK(m_hitMapKey_DigiHSTruth.initialize(m_doDigiTruth));
-
-  // decide sample to use for gain selection
-  //   It is sample 2 (starting from 0) by default when we start from beginning of pulse shape
-  //   Then shift by firstSample
-  //    Note: this logic could be improved by looking at the true maximum of the full pulse shape instead, right now we
-  //     implicitely assume that all MC 32-samples pulse shape have always the max at sample 2......
-  m_sampleGainChoice = 2 - m_firstSample;
-  if (m_sampleGainChoice<0) m_sampleGainChoice=0;
-
-  //
-  // ..... get OFC pointer for overlay case
 
   ATH_MSG_DEBUG("Initialization completed successfully");
 

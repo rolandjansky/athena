@@ -23,15 +23,7 @@ LArCond2NtupleBase::LArCond2NtupleBase(const std::string& name, ISvcLocator* pSv
   , m_onlineId(nullptr)
   , m_caloId(nullptr)
   , m_FEBTempTool("LArFEBTempTool")
-  , m_isSC(false)
 {
-  declareProperty("AddBadChannelInfo",m_addBC=true);
-  declareProperty("AddFEBTempInfo",m_addFEBTemp=false);
-  declareProperty("isSC",m_isSC);
-  declareProperty("isFlat", m_isFlat=false);
-  declareProperty("OffId", m_OffId=false);
-  declareProperty("AddHash",m_addHash=true);
-  declareProperty("RealGeometry",m_realgeom=false);
 }
 
 LArCond2NtupleBase::~LArCond2NtupleBase() {
@@ -135,9 +127,9 @@ StatusCode LArCond2NtupleBase::initialize() {
   ATH_CHECK( m_BCKey.initialize() );
   /// do we need both of them at some point when data has both SC and cells?
   ATH_CHECK( m_cablingSCKey.initialize(m_isSC) );
-  ATH_CHECK( m_calibMapSCKey.initialize(m_isSC) );
+  ATH_CHECK( m_calibMapSCKey.initialize(m_addCalib && m_isSC) );
   ATH_CHECK( m_cablingKey.initialize(!m_isSC) );
-  ATH_CHECK( m_calibMapKey.initialize(!m_isSC) );
+  ATH_CHECK( m_calibMapKey.initialize(m_addCalib && !m_isSC) );
 
   //Online-identifier variables
   sc=nt->addItem("channelId",m_onlChanId,0x38000000,0x3A000000);
@@ -146,48 +138,53 @@ StatusCode LArCond2NtupleBase::initialize() {
     return StatusCode::FAILURE;
   }
 
-  sc=nt->addItem("barrel_ec",m_barrel_ec,0,1);
-  if (sc!=StatusCode::SUCCESS) {
-    ATH_MSG_ERROR( "addItem 'barrel_ec' failed" );
-    return StatusCode::FAILURE;
-  }
+  if(m_expandId) {
 
-  sc=nt->addItem("pos_neg",m_pos_neg,0,1);
-  if (sc!=StatusCode::SUCCESS) {
-    ATH_MSG_ERROR( "addItem 'pos_neg' failed" );
-    return StatusCode::FAILURE;
-   }
+    sc=nt->addItem("barrel_ec",m_barrel_ec,0,1);
+    if (sc!=StatusCode::SUCCESS) {
+      ATH_MSG_ERROR( "addItem 'barrel_ec' failed" );
+      return StatusCode::FAILURE;
+    }
+ 
+    sc=nt->addItem("pos_neg",m_pos_neg,0,1);
+    if (sc!=StatusCode::SUCCESS) {
+      ATH_MSG_ERROR( "addItem 'pos_neg' failed" );
+      return StatusCode::FAILURE;
+     }
+ 
+    sc=nt->addItem("FT",m_FT,0,32);
+    if (sc!=StatusCode::SUCCESS) {
+      ATH_MSG_ERROR( "addItem 'FT' failed" );
+      return StatusCode::FAILURE;
+    }
+ 
+    sc=nt->addItem("slot",m_slot,1,15);
+    if (sc!=StatusCode::SUCCESS) {
+      ATH_MSG_ERROR( "addItem 'slot' failed" );
+      return StatusCode::FAILURE;
+     }
+ 
+    sc=nt->addItem("channel",m_channel,0,127);
+    if (sc!=StatusCode::SUCCESS){
+      ATH_MSG_ERROR( "addItem 'channel' failed" );
+      return StatusCode::FAILURE;
+    }
+  }//m_expandId
 
-  sc=nt->addItem("FT",m_FT,0,32);
-  if (sc!=StatusCode::SUCCESS) {
-    ATH_MSG_ERROR( "addItem 'FT' failed" );
-    return StatusCode::FAILURE;
-  }
-
-  sc=nt->addItem("slot",m_slot,1,15);
-  if (sc!=StatusCode::SUCCESS) {
-    ATH_MSG_ERROR( "addItem 'slot' failed" );
-    return StatusCode::FAILURE;
-   }
-
-  sc=nt->addItem("channel",m_channel,0,127);
-  if (sc!=StatusCode::SUCCESS){
-    ATH_MSG_ERROR( "addItem 'channel' failed" );
-    return StatusCode::FAILURE;
-  }
-
-  sc=nt->addItem("calibLine",m_calibLine,0,127);
-  if (sc!=StatusCode::SUCCESS) {
-    ATH_MSG_ERROR( "addItem 'calibLine' failed" );
-    return StatusCode::FAILURE;
-  }
-  
-
-  sc=nt->addItem("isConnected",m_isConnected,0,1);
-  if (sc!=StatusCode::SUCCESS) {
-    ATH_MSG_ERROR( "addItem 'isConnected' failed" );
-    return StatusCode::FAILURE;
-  }
+  if(m_addCalib) {
+    sc=nt->addItem("calibLine",m_calibLine,0,127);
+    if (sc!=StatusCode::SUCCESS) {
+      ATH_MSG_ERROR( "addItem 'calibLine' failed" );
+      return StatusCode::FAILURE;
+    }
+    
+ 
+    sc=nt->addItem("isConnected",m_isConnected,0,1);
+    if (sc!=StatusCode::SUCCESS) {
+      ATH_MSG_ERROR( "addItem 'isConnected' failed" );
+      return StatusCode::FAILURE;
+    }
+  }//m_addCalib
 
   
   if (m_addHash) {
@@ -210,7 +207,7 @@ StatusCode LArCond2NtupleBase::initialize() {
 	return StatusCode::FAILURE;
       }
     }
-  }//end-if addHash
+  }//m_addHash
 
 
   //Offline-identifier variables
@@ -261,7 +258,7 @@ StatusCode LArCond2NtupleBase::initialize() {
       return StatusCode::FAILURE;
       
     }
-  } // m_OffId
+  }// m_OffId
 
   if (m_addBC) {
     sc=nt->addItem("badChan",m_badChanWord);
@@ -290,29 +287,33 @@ StatusCode LArCond2NtupleBase::initialize() {
 
 bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
 
-  ATH_MSG_DEBUG("Starting fillFromIdentifier");
+ ATH_MSG_DEBUG("Starting fillFromIdentifier");
  const LArBadChannelCont *bcCont = nullptr;
  if ( m_addBC ) {
- SG::ReadCondHandle<LArBadChannelCont> readHandle{m_BCKey};
- bcCont =*readHandle;
- if( !bcCont) {
-     ATH_MSG_WARNING( "Do not have Bad chan container " << m_BCKey.key() );
-     return false;
+   SG::ReadCondHandle<LArBadChannelCont> readHandle{m_BCKey};
+   bcCont =*readHandle;
+   if( !bcCont) {
+       ATH_MSG_WARNING( "Do not have Bad chan container " << m_BCKey.key() );
+       return false;
+   }
  }
- }
+
  const LArCalibLineMapping *clCont=0;
- if(m_isSC){
-   SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_calibMapSCKey};
-   clCont={*clHdl};
+ if(m_addCalib) {
+   if(m_isSC){
+     SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_calibMapSCKey};
+     clCont={*clHdl};
+   }
+   else{
+     SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_calibMapKey};
+     clCont={*clHdl};
+   }
+   if(!clCont) {
+       ATH_MSG_WARNING( "Do not have calib line mapping !!!" );
+       return false;
+   }
  }
- else{
-   SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_calibMapKey};
-   clCont={*clHdl};
- }
- if(!clCont) {
-     ATH_MSG_WARNING( "Do not have calib line mapping !!!" );
-     return false;
- }
+
  const LArOnOffIdMapping* cabling=0;
  if(m_isSC){
    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingSCKey};
@@ -330,20 +331,24 @@ bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
 
  m_onlChanId = hwid.get_identifier32().get_compact();
  
- m_barrel_ec = m_onlineId->barrel_ec(hwid);
- m_pos_neg   = m_onlineId->pos_neg(hwid);
- m_FT        = m_onlineId->feedthrough(hwid);
- m_slot      = m_onlineId->slot(hwid);
- m_channel   = m_onlineId->channel(hwid);
+ if(m_expandId) {
+    m_barrel_ec = m_onlineId->barrel_ec(hwid);
+    m_pos_neg   = m_onlineId->pos_neg(hwid);
+    m_FT        = m_onlineId->feedthrough(hwid);
+    m_slot      = m_onlineId->slot(hwid);
+    m_channel   = m_onlineId->channel(hwid);
+ }
 
  if (m_addHash) {
    m_chanHash=m_onlineId->channel_Hash(hwid);
    m_febHash=m_onlineId->feb_Hash(m_onlineId->feb_Id(hwid));
  }
 
- m_calibLine=NOT_VALID;
- const std::vector<HWIdentifier>& calibLineV=clCont->calibSlotLine(hwid);
- if(calibLineV.size()) m_calibLine = m_onlineId->channel(calibLineV[0]);
+ if(m_addCalib) {
+   m_calibLine=NOT_VALID;
+   const std::vector<HWIdentifier>& calibLineV=clCont->calibSlotLine(hwid);
+   if(calibLineV.size()) m_calibLine = m_onlineId->channel(calibLineV[0]);
+ }
  
 
  if ( m_OffId ) {
@@ -360,10 +365,11 @@ bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
   m_oflChanId=NOT_VALID;
   if (m_addHash) m_oflHash=NOT_VALID;
  }
+
  if (m_addBC) m_badChanWord=0;
  bool connected=false;
  
-  const CaloDetDescrManager_Base* dd_man = nullptr;
+ const CaloDetDescrManager_Base* dd_man = nullptr;
  if (m_realgeom) {
    if(m_isSC) {
      SG::ReadCondHandle<CaloSuperCellDetDescrManager> caloSuperCellMgrHandle{m_caloSuperCellMgrKey};
@@ -374,6 +380,7 @@ bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
      dd_man = *caloMgrHandle;
    }
  }
+
  try {
    if (cabling->isOnlineConnected(hwid)) {
      Identifier id=cabling->cnvToIdentifier(hwid);
@@ -432,7 +439,7 @@ bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
      }
  }
 
- m_isConnected = (long)connected;
+ if(m_addCalib) m_isConnected = (long)connected;
 
  return connected;
 }

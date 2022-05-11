@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 ///@file Tau1P3PDetails.h DEPRECATED DO NOT USE 
@@ -16,7 +16,6 @@
 ///
 /// Created 2007-01-17
 ///
-/// $Id: Tau1P3PDetails.h,v 1.15 2009-01-17 01:34:16 tburgess Exp $
 
 #ifndef TAU1P3P_DETAILS_ANALYSIS_H
 #define TAU1P3P_DETAILS_ANALYSIS_H
@@ -304,7 +303,7 @@ namespace Analysis
         //-----------------------------------------------------------------
         // Identification variables variables
         //-----------------------------------------------------------------
-        static std::string s_className;
+        static const std::string s_className;
         int    m_numStripCells;
         double m_stripWidth2;
         double m_emRadius;

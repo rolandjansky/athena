@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -16,7 +16,6 @@
 #include "TrkDetDescrInterfaces/IGeometryBuilderCond.h"
 #include "TrkDetDescrInterfaces/IGeometryProcessor.h"
 
-#include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 
 namespace Trk{
@@ -26,8 +25,7 @@ public:
   TrackingGeometryCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~TrackingGeometryCondAlg() override = default;
   virtual StatusCode initialize() override final;
-  virtual StatusCode execute() override final;
-  virtual StatusCode finalize() override final {return StatusCode::SUCCESS;}
+  virtual StatusCode execute() override final; 
 
 private:
 
@@ -38,7 +36,6 @@ private:
     "AtlasTrackingGeometry",
     "Key of output of TrackingGeometry for ID"
   };
-  ServiceHandle<ICondSvc> m_condSvc{ this, "CondSvc", "CondSvc" };
   ToolHandle<Trk::IGeometryBuilderCond> m_trackingGeometryBuilder{
     this,
     "GeometryBuilder",
@@ -46,6 +43,7 @@ private:
   };
   ToolHandleArray<Trk::IGeometryProcessor>
     m_geometryProcessors{ this, "GeometryProcessors", {}, "" };
+  Gaudi::Property<bool> m_dumpGeo{this, "DumpGeo", false, "Dumps the Tracking geometry for debugging purposes"};
 };
 }
 #endif //TRACKINGGEOMETRYCONDALG_H

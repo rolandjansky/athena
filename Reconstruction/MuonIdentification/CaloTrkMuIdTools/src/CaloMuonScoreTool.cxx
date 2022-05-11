@@ -2,7 +2,7 @@
   Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CaloTrkMuIdTools/CaloMuonScoreTool.h"
+#include "CaloMuonScoreTool.h"
 
 #include <cmath>
 #include <iostream>

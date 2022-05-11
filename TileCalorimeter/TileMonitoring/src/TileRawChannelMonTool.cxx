@@ -12,7 +12,7 @@
 //
 // ********************************************************************
 
-#include "TileMonitoring/TileRawChannelMonTool.h"
+#include "TileRawChannelMonTool.h"
 
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileConditions/TileCondToolEmscale.h"
@@ -109,6 +109,10 @@ StatusCode TileRawChannelMonTool::initialize()
 
   CHECK( detStore()->retrieve(m_tileInfo, m_infoName) );
   if (m_tileInfo->ADCmax() == 4095) m_is12bit = true;
+
+  m_dac2Charge[0] = 100.* 2.0 * 4.096 / double(m_tileInfo->ADCmax()); // 100 pF * 2 for legacy or 200 pF for demonstrator
+  m_dac2Charge[1] = 5.2 * 2.0 * 4.096 / double(m_tileInfo->ADCmax()); // use the same number 5.2 pF as in TileCisDefaultCalibTool
+  m_dac2Charge[2] = 5.2 * 4.096 / double(m_tileInfo->ADCmax()); // effective value of small capacitor is twice smaller for demonstrator
   
   CHECK( m_DQstatusKey.initialize() );
 
@@ -233,6 +237,8 @@ void TileRawChannelMonTool::bookHists(int ros, int drawer)
           float HighY_low2D[4] = { 1025., 60.3125, 32.0, 32.0 };
           float LowY_hi2D[4] = { static_cast<float>(-25. * factor_adc), static_cast<float>(-25. * factor_adc), -64.0, -64.0 };
           float HighY_hi2D[4] = { static_cast<float>(1025. * factor_adc), static_cast<float>(1025. * factor_adc), 32.0, 32.0 };
+          float LowY_hi2D_pC[4] = { static_cast<float>(-.391 * factor_adc), static_cast<float>(-.391 * factor_adc), -64.0, -64.0 };
+          float HighY_hi2D_pC[4] = { static_cast<float>(16.02 * factor_adc), static_cast<float>(16.02 * factor_adc), 32.0, 32.0 };
 
           for (int type = 0; type < 4; type++) {
 
@@ -250,12 +256,20 @@ void TileRawChannelMonTool::bookHists(int ros, int drawer)
                     book2S(subDir, histName, histTitle, 51, LowX_low2D[type], HighX_low2D[type], 160, LowY_low2D[type], HighY_low2D[type]));
                 break;
               case 1: // high gain
-                m_data->m_hist2[ros][drawer][ch][gn & 1].push_back(
-                    book2S(subDir, histName, histTitle, 51, LowX_hi2D[type], HighX_hi2D[type], 160, LowY_hi2D[type], HighY_hi2D[type]));
+                if (m_calibUnit == TileRawChannelUnit::CesiumPicoCoulombs)
+                  m_data->m_hist2[ros][drawer][ch][gn & 1].push_back(
+                      book2S(subDir, histName, histTitle, 51, LowX_hi2D[type], HighX_hi2D[type], 160, LowY_hi2D_pC[type], HighY_hi2D_pC[type]));
+                else
+                  m_data->m_hist2[ros][drawer][ch][gn & 1].push_back(
+                      book2S(subDir, histName, histTitle, 51, LowX_hi2D[type], HighX_hi2D[type], 160, LowY_hi2D[type], HighY_hi2D[type]));
                 break;
               default: // single gain mode
-                m_data->m_hist2[ros][drawer][ch][gn & 1].push_back(
-                    book2S(subDir, histName, histTitle, 51, LowX_hi2D[type], HighX_hi2D[type], 160, LowY_hi2D[type], HighY_hi2D[type]));
+                if (m_calibUnit == TileRawChannelUnit::CesiumPicoCoulombs)
+                  m_data->m_hist2[ros][drawer][ch][gn & 1].push_back(
+                      book2S(subDir, histName, histTitle, 51, LowX_hi2D[type], HighX_hi2D[type], 160, LowY_hi2D_pC[type], HighY_hi2D_pC[type]));
+                else
+                  m_data->m_hist2[ros][drawer][ch][gn & 1].push_back(
+                      book2S(subDir, histName, histTitle, 51, LowX_hi2D[type], HighX_hi2D[type], 160, LowY_hi2D[type], HighY_hi2D[type]));
             }
           } //loop over type hist
         } // if(book2D)
@@ -499,7 +513,7 @@ void TileRawChannelMonTool::bookDsp(int ros, int drawer)
           }
       }
 
-    } //end for over gains	
+    } //end for over gains
   } // end for over chans
 }
 
@@ -587,6 +601,24 @@ StatusCode TileRawChannelMonTool::fillHists()
 
     for (; collItr != lastColl; ++collItr) {
 
+      int cap = (m_cispar[7] > 10) ? 0 : 1; // 100 pF or 5 pF
+      int cap_index = cap;
+
+      double hg_small_charge = 1.;  // ignore charges below 1 pC in HG
+      double lg_small_charge = (cap) ? 10. : 15.; // ignore charges below 10 pC for small cap and below 15 pC for big cap in LG
+      double hg_charge_cut = 11.5;  // ignore charges above 11.5 pC in HG (full range is 12.5 pC)
+      double lg_charge_cut = 750.;  // ignore charges above 750. pC in LG (full range is 800. pC)
+
+      int fragId = (*collItr)->identify();
+      bool demonstrator = (std::binary_search(m_fragIDsDemonstrators.begin(), m_fragIDsDemonstrators.end(), fragId));
+      if (demonstrator) {
+        hg_small_charge *= 2.;
+        hg_charge_cut *= 2;
+        cap_index *= 2;
+      }
+      double charge = (m_cispar[6] < 1024) ? m_cispar[6] * m_dac2Charge[cap_index] : 0;
+      double timeInj = m_cispar[5] * 0.104;
+
       TileRawChannelCollection::const_iterator chItr = (*collItr)->begin();
       TileRawChannelCollection::const_iterator lastCh = (*collItr)->end();
 
@@ -595,6 +627,7 @@ StatusCode TileRawChannelMonTool::fillHists()
         HWIdentifier adc_id = (*chItr)->adc_HWID();
         int ros = m_tileHWID->ros(adc_id);
         int drawer = m_tileHWID->drawer(adc_id);
+        unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
 
         if (m_data->m_hist1[ros][drawer][0][0].size() == 0) {
           //        m_bigain = (dqStatus->calibMode() == 1); // true if bi-gain run
@@ -613,11 +646,8 @@ StatusCode TileRawChannelMonTool::fillHists()
           unsigned int chan = m_tileHWID->channel(adc_id);
           int adc = m_tileHWID->adc(adc_id);
           int gain = (m_bigain) ? adc : 0; // ignore gain in monogain run
-          unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
 
           if ((m_cispar[8] == 0) /* || ( m_cispar[8] == abs(m_cabling->channel2hole(ros,chan)) )*/) { // channel is fired
-
-            int cap = (m_cispar[7] > 10) ? 0 : 1; // 100 pF or 5 pF
 
             double amp = rch->amplitude();
             if (RChUnit != m_calibUnit) {
@@ -655,41 +685,29 @@ StatusCode TileRawChannelMonTool::fillHists()
             if (!m_corrup[ros][drawer][gain][chan / 3]) {
               if ((m_runType == CisRun) || (m_runType == CisRamp)) {
                 if (k == 0) {	//Lukas
-                  double charge = 0.;
-                  if (m_cispar[6] < 1024) charge = m_cispar[6] * m_cispar[7] * (2. * 4.096 / 1023.);
-                  double timeInj = m_cispar[5] * 0.104;
 
                   if (m_book2D) {
                     m_data->m_hist2[ros][drawer][chan][gain][cap]->Fill(charge, amp);
                   }
 
-                  if (charge > 1.0) { //! ignore first step with charge ~0.5 pCb
-                    //! apply default ADC->pCb const to get ratio around 1
-                    // why ? double ratio = amp * ( (gain == 0) ? 800. : 12.5) / 1023.0 / charge;
+                  // avoid small signals and overflows in both gains
+                  if ( ( (adc == 1) && (charge < hg_charge_cut) && (charge > hg_small_charge) ) ||
+                       ( (adc == 0) && (charge < lg_charge_cut) && (charge > lg_small_charge) ) ) {
+
                     double ratio = amp / charge;
-                    //! shift upper half back by 25 ns to get one straight line instead of /|/
-                    //if (m_cispar[5]>=140) timeInj -= 25.0;
 
-                    if ((adc == 1 && charge > 11.5) || // 11.5 is safe upper limit
-                        (adc == 0 && cap == 0 && charge < 15.0) || (adc == 0 && cap == 1 && charge < 10.0) || (timeInj > -10.5 && timeInj < -9.5)) {
-                      //! do nothing in case of overflow in high gain
-                      //! do nothing in case of small signals in low gain
-                      //! do nothing for timeinj near the time slice change
-                    } else {
-
-                      m_data->m_hist1[ros][drawer][chan][gain][0 + cap]->Fill(ratio);
-                      m_data->m_hist1[ros][drawer][chan][gain][2 + cap]->Fill(time);
-                      if (m_book2D) {
-                        m_data->m_hist2[ros][drawer][chan][gain][cap + 2]->Fill(timeInj, time);
-                      }
-
-                      /*TimeCov[ros][drawer][chan][gain][cap][0] += timeInj;
-                       TimeCov[ros][drawer][chan][gain][cap][1] += timeInj*timeInj;
-                       TimeCov[ros][drawer][chan][gain][cap][2] += time;
-                       TimeCov[ros][drawer][chan][gain][cap][3] += time*time;
-                       TimeCov[ros][drawer][chan][gain][cap][4] += timeInj*time;*/
-                      ++m_data->m_timeCov[ros][drawer][chan][gain][cap][5];
+                    m_data->m_hist1[ros][drawer][chan][gain][0 + cap]->Fill(ratio);
+                    m_data->m_hist1[ros][drawer][chan][gain][2 + cap]->Fill(time);
+                    if (m_book2D) {
+                      m_data->m_hist2[ros][drawer][chan][gain][cap + 2]->Fill(timeInj, time);
                     }
+
+                    /*TimeCov[ros][drawer][chan][gain][cap][0] += timeInj;
+                      TimeCov[ros][drawer][chan][gain][cap][1] += timeInj*timeInj;
+                      TimeCov[ros][drawer][chan][gain][cap][2] += time;
+                      TimeCov[ros][drawer][chan][gain][cap][3] += time*time;
+                      TimeCov[ros][drawer][chan][gain][cap][4] += timeInj*time;*/
+                    ++m_data->m_timeCov[ros][drawer][chan][gain][cap][5];
                   }
                 }		  //if k==0 //Lukas
               } else { // not CisRun

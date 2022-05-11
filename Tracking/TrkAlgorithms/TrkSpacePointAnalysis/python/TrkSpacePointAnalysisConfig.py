@@ -22,6 +22,7 @@ def ITkPixelSpacePointAnalysisCfg(flags, name="ITkPixelSpacePointAnalysis", **kw
     kwargs.setdefault("HistPath", f"/{name}/")
     kwargs.setdefault("InputKey", "ITkPixelSpacePoints")
     kwargs.setdefault("UsePixel", True)
+    kwargs.setdefault("UseOverlap", False)
 
     result.addEventAlgo(CompFactory.SpacePointAnalysis(name, **kwargs))
     return result
@@ -37,6 +38,9 @@ def ITkStripSpacePointAnalysisCfg(flags, name="ITkStripSpacePointAnalysis", **kw
     kwargs.setdefault("HistPath", f"/{name}/")
     kwargs.setdefault("InputKey", "ITkStripSpacePoints")
     kwargs.setdefault("UsePixel", False)
+    kwargs.setdefault("InputOverlapKey", "ITkOverlapSpacePoints")
+    kwargs.setdefault("UsePixel", False)
+    kwargs.setdefault("UseOverlap", True)
 
     result.addEventAlgo(CompFactory.SpacePointAnalysis(name, **kwargs))
     return result

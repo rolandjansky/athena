@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PanTauAlgs/Tool_TauConstituentSelector.h"
@@ -53,8 +53,8 @@ StatusCode PanTau::Tool_TauConstituentSelector::initialize() {
 
 double PanTau::Tool_TauConstituentSelector::getEtCut(double eta, PanTau::TauConstituent::Type constituentType) const {
     
-  for(unsigned int iEtaBin=0; iEtaBin<m_BinEdges_Eta.size()-1; iEtaBin++) {
-    if(m_BinEdges_Eta[iEtaBin] <= eta && eta < m_BinEdges_Eta[iEtaBin+1]) {
+  for (unsigned int iEtaBin=0; iEtaBin<m_BinEdges_Eta.size()-1; iEtaBin++) {
+    if (m_BinEdges_Eta[iEtaBin] <= eta && eta < m_BinEdges_Eta[iEtaBin+1]) {
       switch(constituentType) {
       case PanTau::TauConstituent::t_Charged:  return m_Selection_Charged_EtaBinned_EtCut[iEtaBin];
       case PanTau::TauConstituent::t_Neutral:  return m_Selection_Neutral_EtaBinned_EtCut[iEtaBin];
@@ -78,17 +78,17 @@ double PanTau::Tool_TauConstituentSelector::getEtCut(double eta, PanTau::TauCons
  * Function to further select PFOs of the various categories (basically apply additional ET cuts): 
  * 
  */
-StatusCode PanTau::Tool_TauConstituentSelector::SelectTauConstituents(std::vector<TauConstituent*> inputList,
+StatusCode PanTau::Tool_TauConstituentSelector::SelectTauConstituents(const std::vector<TauConstituent*>& inputList,
 								      std::vector<TauConstituent*>& outputList) const {    
   unsigned int nConst = inputList.size();
 
-  for(unsigned int iConst=0; iConst<nConst; iConst++) {
+  for (unsigned int iConst=0; iConst<nConst; iConst++) {
 
     PanTau::TauConstituent* curConstituent = inputList[iConst];
         
     //general preselection:
     double curEta = std::abs( curConstituent->p4().Eta() );
-    if(curEta > m_MaxEta) {
+    if (curEta > m_MaxEta) {
       ATH_MSG_DEBUG("\tNot using constituent with eta of " << curEta);
       continue;
     }
@@ -96,11 +96,11 @@ StatusCode PanTau::Tool_TauConstituentSelector::SelectTauConstituents(std::vecto
     bool passesSelection = false;
 
     // check if constituent is charged:
-    if(curConstituent->isOfType(PanTau::TauConstituent::t_Charged) == true) {
+    if (curConstituent->isOfType(PanTau::TauConstituent::t_Charged)) {
       passesSelection = passesSelection_ChargedConstituent(curConstituent);
             
       // check if constituent is neutral, assign correctly pi0neut and neut flags:
-    } else if(curConstituent->isOfType(PanTau::TauConstituent::t_Neutral) == true) {
+    } else if (curConstituent->isOfType(PanTau::TauConstituent::t_Neutral)) {
       passesSelection = passesSelection_NeutralConstituent(curConstituent);
             
       //special treatment for the testing neutral flags
@@ -108,20 +108,20 @@ StatusCode PanTau::Tool_TauConstituentSelector::SelectTauConstituents(std::vecto
       //  => need that the constituent is in the seed for calculating test variables, but need it to NOT be tagged as neutral
       //  => remove the neutral-tag and check if it passes NeutLowA
       //-> repeat those steps for NeutLowB
-      if(passesSelection == false) {
+      if (!passesSelection) {
 	curConstituent->removeTypeFlag(PanTau::TauConstituent::t_Neutral);
 	curConstituent->removeTypeFlag(PanTau::TauConstituent::t_Pi0Neut);
 	passesSelection = passesSelection_NeutLowAConstituent(curConstituent);
-	if(passesSelection == false) {
+	if (!passesSelection) {
 	  curConstituent->removeTypeFlag(PanTau::TauConstituent::t_NeutLowA);
 	  passesSelection = passesSelection_NeutLowBConstituent(curConstituent);
 	}
       }            
       // apply further selection to constituent in isolation cone:
-    } else if(curConstituent->isOfType(PanTau::TauConstituent::t_OutChrg) == true) {
+    } else if (curConstituent->isOfType(PanTau::TauConstituent::t_OutChrg)) {
       passesSelection = passesSelection_OutChrgConstituent(curConstituent);
             
-    } else if(curConstituent->isOfType(PanTau::TauConstituent::t_OutNeut) == true) {
+    } else if (curConstituent->isOfType(PanTau::TauConstituent::t_OutNeut)) {
       passesSelection = passesSelection_OutNeutConstituent(curConstituent);
             
     } else {
@@ -130,7 +130,7 @@ StatusCode PanTau::Tool_TauConstituentSelector::SelectTauConstituents(std::vecto
       passesSelection = false;
     }
         
-    if(passesSelection == false) continue;
+    if (!passesSelection) continue;
         
     outputList.push_back(inputList[iConst]);
   }
@@ -147,7 +147,7 @@ bool PanTau::Tool_TauConstituentSelector::passesSelection_NeutralConstituent(Pan
   double cut_MinEt    = getEtCut(std::abs(curEta), PanTau::TauConstituent::t_Neutral);
   double curEt        = tlv_Constituent.Et();
 
-  if(curEt < cut_MinEt) {
+  if (curEt < cut_MinEt) {
     ATH_MSG_DEBUG("\tNot using constituent at eta " << curEta << " with et of " << curEt);
     return false;
   }
@@ -163,7 +163,7 @@ bool PanTau::Tool_TauConstituentSelector::passesSelection_Pi0NeutConstituent(Pan
   double curEta       = tlv_Constituent.Eta();
   double cut_MinEt    = getEtCut(std::abs(curEta), PanTau::TauConstituent::t_Pi0Neut);
   double curEt        = tlv_Constituent.Et();
-  if(curEt < cut_MinEt) {
+  if (curEt < cut_MinEt) {
     ATH_MSG_DEBUG("\tNot using constituent at eta " << curEta << " with et of " << curEt);
     return false;
   }
@@ -185,7 +185,7 @@ bool PanTau::Tool_TauConstituentSelector::passesSelection_OutNeutConstituent(Tau
   double cut_MinEt = getEtCut(std::abs(curEta), PanTau::TauConstituent::t_OutNeut);
   double curEt     = tlv_Constituent.Et();
     
-  if(curEt < cut_MinEt) return false;
+  if (curEt < cut_MinEt) return false;
   return true;
 }
 
@@ -203,7 +203,7 @@ bool PanTau::Tool_TauConstituentSelector::passesSelection_NeutLowAConstituent(Ta
   double cut_MinEt = getEtCut(std::abs(curEta), PanTau::TauConstituent::t_NeutLowA);
   double curEt     = tlv_Constituent.Pt();
     
-  if(curEt < cut_MinEt) return false;
+  if (curEt < cut_MinEt) return false;
   return true;
 }
 
@@ -215,6 +215,6 @@ bool PanTau::Tool_TauConstituentSelector::passesSelection_NeutLowBConstituent(Ta
   double cut_MinEt = getEtCut(std::abs(curEta), PanTau::TauConstituent::t_NeutLowB);
   double curEt     = tlv_Constituent.Pt();
     
-  if(curEt < cut_MinEt) return false;
+  if (curEt < cut_MinEt) return false;
   return true;
 }

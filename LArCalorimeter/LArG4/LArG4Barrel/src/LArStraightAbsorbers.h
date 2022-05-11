@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARG4BARREL_LArStraightAbsorbers_H
@@ -30,7 +30,7 @@ public:
   double Cosu(int stackid, int cellid) const;
   double Sinu(int stackid, int cellid) const;
 protected:
-  LArStraightAbsorbers(std::string strDetector="") ;
+  LArStraightAbsorbers(const std::string& strDetector="") ;
 };
 
 #endif // LARG4BARREL_LArStraightAbsorbers_H

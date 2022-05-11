@@ -26,3 +26,6 @@ atlas_add_test( JetStandarCSSKConfig
    SCRIPT test_StandardJets.py "-j cssk -n 0"
    POST_EXEC_SCRIPT nopost.sh )
  
+atlas_add_test( JetStandarDerivConfig
+   SCRIPT test_StandardJets.py "-j deriv -n 0"
+   POST_EXEC_SCRIPT nopost.sh )

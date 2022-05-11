@@ -26,6 +26,8 @@
 #include "xAODForward/AFPSiHitsClusterContainer.h"
 
 #include "AFP_SiClusterTools/AFPSiClusterBasicObj.h"
+#include "AFP_DBTools/SiLocAlignData.h"
+#include "AFP_DBTools/SiGlobAlignData.h"
 
 /// Interface for tools that translate pixels columns and rows to local position in station and saves output in xAOD format.
 class IAFPSiRowColToLocalCSTool : virtual public ::IAlgTool
@@ -45,7 +47,7 @@ class IAFPSiRowColToLocalCSTool : virtual public ::IAlgTool
    * 
    * @return xAOD cluster object with local coordinates which is added to the xAODContainer
    */
-  virtual xAOD::AFPSiHitsCluster* newXAODLocal (const int stationID, const int layerID, const AFPSiClusterBasicObj& cluster, std::unique_ptr<xAOD::AFPSiHitsClusterContainer>& xAODContainer) const = 0;
+  virtual xAOD::AFPSiHitsCluster* newXAODLocal (const int stationID, const int layerID, const AFP::SiLocAlignData& LA, const AFP::SiGlobAlignData& GA, const AFPSiClusterBasicObj& cluster, std::unique_ptr<xAOD::AFPSiHitsClusterContainer>& xAODContainer) const = 0;
 
 }; 
 

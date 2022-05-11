@@ -2,6 +2,7 @@
 #
 # art-description: Run MC20e pile-up pre-mixing with 2018 geometry and conditions, 25ns pile-up, MT output containers
 # art-type: grid
+# art-architecture:  '#x86_64-intel'
 # art-athena-mt: 8
 # art-include: 22.0-mc20/Athena
 # art-include: master/Athena

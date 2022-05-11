@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ================================================
@@ -72,7 +72,7 @@ namespace {
   constexpr static int SATURATIONVALUE = 255;
 
   // keep these local to this compilation unit
-  xAOD::TriggerTower::Decorator<int> firDecorator("fir");  
+  static const xAOD::TriggerTower::Decorator<int> firDecorator("fir");
 } // namespace
 
 namespace LVL1 {
@@ -162,12 +162,12 @@ namespace LVL1 {
   {
     ATH_MSG_DEBUG("Initialising");
 
-    CHECK(detStore()->retrieve(m_caloId));
-    CHECK(m_mappingTool.retrieve());
-    CHECK(m_TTtool.retrieve());
-    CHECK(m_rngSvc.retrieve());
-    CHECK(m_condSvc.retrieve());
-    CHECK(m_bstowertool.retrieve());
+    ATH_CHECK(detStore()->retrieve(m_caloId));
+    ATH_CHECK(m_mappingTool.retrieve());
+    ATH_CHECK(m_TTtool.retrieve());
+    ATH_CHECK(m_rngSvc.retrieve());
+    ATH_CHECK(m_condSvc.retrieve());
+    ATH_CHECK(m_bstowertool.retrieve());
 
     m_rndmADCs = m_rngSvc->getEngine(this, m_digiEngine);
     if(!m_rndmADCs) {
@@ -177,7 +177,7 @@ namespace LVL1 {
 
     // Listen for BeginRun
     ServiceHandle<IIncidentSvc> incSvc("IncidentSvc",name());
-    CHECK(incSvc.retrieve());
+    ATH_CHECK(incSvc.retrieve());
     incSvc->addListener(this, "BeginRun");
 
     // reserve enough storage for the amps
@@ -334,11 +334,11 @@ namespace LVL1 {
     switch(m_cellType) {
     case TRIGGERTOWERS:
       ATH_MSG_VERBOSE("Looking for TriggerTower input");
-      CHECK(getTriggerTowers());
+      ATH_CHECK(getTriggerTowers());
       break;
     case TTL1:
       ATH_MSG_VERBOSE("Looking for calo towers");
-      CHECK(getCaloTowers());
+      ATH_CHECK(getCaloTowers());
       digitize(ctx); // digitisation
       break;
     default:
@@ -347,18 +347,18 @@ namespace LVL1 {
     
     SG::ReadHandle<xAOD::EventInfo> evt(m_xaodevtKey, ctx);
     SG::ReadDecorHandle<xAOD::EventInfo,float> muDecor(m_actMuKey, ctx);
-    CHECK(evt.isValid());
-    CHECK(muDecor.isPresent());
+    ATH_CHECK(evt.isValid());
+    ATH_CHECK(muDecor.isPresent());
     const float mu = muDecor(0);
 
-    CHECK(preProcess(evt->bcid(), mu)); // FIR, BCID etc
+    ATH_CHECK(preProcess(evt->bcid(), mu)); // FIR, BCID etc
 
     if (m_doOverlay) {         
-      CHECK( addOverlay(evt->bcid(), mu) );
+      ATH_CHECK( addOverlay(evt->bcid(), mu) );
     }
 
     // store them thar trigger towers
-    CHECK(store());
+    ATH_CHECK(store());
 
     return StatusCode::SUCCESS;
   }
@@ -392,7 +392,7 @@ namespace LVL1 {
     xAOD::TriggerTowerContainer* overlayDataTTs = new xAOD::TriggerTowerContainer();
     xAOD::TriggerTowerAuxContainer overlayDataTTsAux;
     overlayDataTTs->setStore( &overlayDataTTsAux );
-    CHECK( m_bstowertool->loadTriggerTowers(*overlayDataTTs) ); // use L1Calo tool to fill xAOD::TriggerTowerContainer from BS
+    ATH_CHECK( m_bstowertool->loadTriggerTowers(*overlayDataTTs) ); // use L1Calo tool to fill xAOD::TriggerTowerContainer from BS
 
     // put the overlay data TTs into a map 
     std::unordered_map<uint32_t,xAOD::TriggerTower*> overlayMap;
@@ -429,7 +429,7 @@ namespace LVL1 {
       Itr match = overlayMap.find( tt->coolId() );
       if (match != overlayMap.end()) {
         
-        CHECK( addOverlay(bcid,mu,tt,(*match).second) );
+        ATH_CHECK( addOverlay(bcid,mu,tt,(*match).second) );
         
         // Let the overlay TT know that it has been used
         (*match).second->auxdecor<char>(decor_name) = decor_ttUsedInOverlay;
@@ -489,13 +489,13 @@ namespace LVL1 {
     
     // Get LUT input
     std::vector<int> sigLutIn,ovLutIn;
-    CHECK( preProcessTower_getLutIn(bcid,mu,sigTT,sigDB,sigDigits,sigLutIn) );
-    CHECK( preProcessTower_getLutIn(bcid,mu,ovTT,ovDB,normOverlayDigits,ovLutIn) );
+    ATH_CHECK( preProcessTower_getLutIn(bcid,mu,sigTT,sigDB,sigDigits,sigLutIn) );
+    ATH_CHECK( preProcessTower_getLutIn(bcid,mu,ovTT,ovDB,normOverlayDigits,ovLutIn) );
        
     // LUT ouput
     std::vector<int> lutOut_cp,lutOut_jep;
-    CHECK( calcLutOutCP(sigLutIn,sigDB,ovLutIn,ovDB,lutOut_cp) );
-    CHECK( calcLutOutJEP(sigLutIn,sigDB,ovLutIn,ovDB,lutOut_jep) );
+    ATH_CHECK( calcLutOutCP(sigLutIn,sigDB,ovLutIn,ovDB,lutOut_cp) );
+    ATH_CHECK( calcLutOutJEP(sigLutIn,sigDB,ovLutIn,ovDB,lutOut_jep) );
     
     // Not doing BCID yet.. can be added at a later date
     
@@ -676,7 +676,7 @@ namespace LVL1 {
   {
     // Loop over all existing towers and simulate preprocessor functions
     for(auto tower : *m_xaodTowers) {
-      CHECK(preProcessTower(bcid,mu,tower));
+      ATH_CHECK(preProcessTower(bcid,mu,tower));
     }
     return StatusCode::SUCCESS;
   }
@@ -915,11 +915,11 @@ namespace LVL1 {
 
     if (m_cellType == TRIGGERTOWERS) {
       SG::WriteHandle<xAOD::TriggerTowerContainer> output(m_outputLocationRerun);
-      CHECK(output.record(std::move(m_xaodTowers), std::move(m_xaodTowersAux)));
+      ATH_CHECK(output.record(std::move(m_xaodTowers), std::move(m_xaodTowersAux)));
     }
     else if (m_cellType == TTL1) {
       SG::WriteHandle<xAOD::TriggerTowerContainer> output(m_outputLocation);
-      CHECK(output.record(std::move(m_xaodTowers), std::move(m_xaodTowersAux)));
+      ATH_CHECK(output.record(std::move(m_xaodTowers), std::move(m_xaodTowersAux)));
     }
 
     return StatusCode::SUCCESS;
@@ -932,7 +932,7 @@ namespace LVL1 {
   {
     ATH_MSG_INFO("Retrieve input TriggerTowers " << m_inputTTLocation.key());
     SG::ReadHandle<xAOD::TriggerTowerContainer> inputTTs(m_inputTTLocation);
-    CHECK(inputTTs.isValid());
+    ATH_CHECK(inputTTs.isValid());
     ATH_MSG_INFO("Found " << inputTTs->size() << " input TriggerTowers");
 
     for(const xAOD::TriggerTower* tower : *inputTTs) {

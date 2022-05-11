@@ -8,7 +8,6 @@
 
 #+ External/AtlasPyFwdBwdPorts
 #+ ForwardDetectors/ZDC/ZdcNtuple
-#+ PhysicsAnalysis/AnalysisCommon/FakeBkgTools
 #+ PhysicsAnalysis/BPhys/BPhysTools
 #+ PhysicsAnalysis/DerivationFramework/DerivationFrameworkAnalysisTests
 #+ Trigger/TriggerSimulation/TrigBtagEmulationTool
@@ -55,6 +54,7 @@
 + MuonSpectrometer/MuonStationIndex
 + PhysicsAnalysis/Algorithms/.*
 + PhysicsAnalysis/AnalysisCommon/AssociationUtils
++ PhysicsAnalysis/AnalysisCommon/FakeBkgTools
 + PhysicsAnalysis/AnalysisCommon/AnalysisUtils
 + PhysicsAnalysis/AnalysisCommon/CutBookkeeperUtils
 + PhysicsAnalysis/AnalysisCommon/FsrUtils
