@@ -91,13 +91,13 @@ private:
   AE::Decorator<float> m_secondaryVtx_min_trk_flightDirRelEta;
   AE::Decorator<float> m_secondaryVtx_max_trk_flightDirRelEta;
   AE::Decorator<float> m_secondaryVtx_avg_trk_flightDirRelEta;
-  AE::Decorator<float> m_min_trk_flightDirRelEta;
-  AE::Decorator<float> m_max_trk_flightDirRelEta;
-  AE::Decorator<float> m_avg_trk_flightDirRelEta;
-
   // Add new variable
   AE::Decorator<float> m_DMeson_m;
   AE::Decorator<char> m_DMeson_isDefaults;
+
+  AE::Decorator<float> m_min_trk_flightDirRelEta;
+  AE::Decorator<float> m_max_trk_flightDirRelEta;
+  AE::Decorator<float> m_avg_trk_flightDirRelEta;
 
   AE::ConstAccessor<char> m_rnnip_pbIsValid;
   AE::Decorator<char> m_rnnip_isDefaults;
