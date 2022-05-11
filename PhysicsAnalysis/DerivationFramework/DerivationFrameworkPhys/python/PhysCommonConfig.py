@@ -54,11 +54,10 @@ def PhysCommonAugmentationsCfg(ConfigFlags,**kwargs):
 
 
 
-    # InDet, Muon, Egamma and jet common augmentations
+    # InDet, Muon, Egamma common augmentations
     from DerivationFrameworkInDet.InDetCommonConfig import InDetCommonCfg
     from DerivationFrameworkMuons.MuonsCommonConfig import MuonsCommonCfg
     from DerivationFrameworkEGamma.EGammaCommonConfig import EGammaCommonCfg
-    from DerivationFrameworkJetEtMiss.JetCommonConfig import JetCommonCfg
     # TODO: need to find the new flags equivalent for the missing settings below, then we can
     # drop these kwargs and do everything via the ConfigFlags
     acc.merge(InDetCommonCfg(ConfigFlags,
@@ -70,7 +69,11 @@ def PhysCommonAugmentationsCfg(ConfigFlags,**kwargs):
                              MergeLRT = False)) 
     acc.merge(MuonsCommonCfg(ConfigFlags))
     acc.merge(EGammaCommonCfg(ConfigFlags))
+    # Jets and flavour tagging
+    from DerivationFrameworkJetEtMiss.JetCommonConfig import JetCommonCfg
+    from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollectionsCfg
     acc.merge(JetCommonCfg(ConfigFlags))
+    acc.merge(FtagJetCollectionsCfg(ConfigFlags,['AntiKt4EMPFlowJets','AntiKtVR30Rmax4Rmin02TrackJets']))
     # Trigger matching
     from DerivationFrameworkPhys.TriggerMatchingCommonConfig import TriggerMatchingCommonRun2Cfg
     from DerivationFrameworkPhys.TriggerMatchingCommonConfig import TriggerMatchingCommonRun3Cfg
@@ -100,7 +103,6 @@ def PhysCommonAugmentationsCfg(ConfigFlags,**kwargs):
                                                DRThreshold = 0.2))
 
     # Tau...
-    # Flavour tagging...
 
     return acc
 

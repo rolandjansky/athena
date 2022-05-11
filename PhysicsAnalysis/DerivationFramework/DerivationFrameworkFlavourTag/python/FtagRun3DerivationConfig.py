@@ -121,6 +121,41 @@ def FtagJetCollections(jetcols, seq, pvCols=[], OutputLevel=WARNING):
     # acc._sequence = []
     # appendCAtoAthena(acc)
 
+# Full component accumulator version of the above 
+def FtagJetCollectionsCfg(cfgFlags, jetcols, pvCols=[]):
+    """Config for flvaour tagging in DAODs"""
+
+    if len(pvCols) != len(jetcols):
+        if pvCols:
+            raise ValueError('PV collection length is not the same as Jets')
+        pvCols=['PrimaryVertices']*len(jetcols)
+
+
+    acc = ComponentAccumulator()
+
+    from JetTagCalibration.JetTagCalibConfig import JetTagCalibCfg
+    acc.merge(JetTagCalibCfg(cfgFlags))
+
+    if 'AntiKt4EMTopoJets' in jetcols:
+        acc.merge(
+            RenameInputContainerEmTopoHacksCfg('oldAODVersion')
+        )
+
+    if 'AntiKt4EMPFlowJets' in jetcols and cfgFlags.BTagging.Trackless:
+        acc.merge(
+            RenameInputContainerEmPflowHacksCfg('tracklessAODVersion')
+        )
+
+    for jetcol,pvCol in zip(jetcols, pvCols):
+        acc.merge(getFtagComponent(
+            cfgFlags,
+            jetcol,
+            pvCol,
+        ))
+
+    return(acc)    
+
+
 
 # this returns a component accumulator, which is merged across jet
 # collections in FtagJetCollections above
