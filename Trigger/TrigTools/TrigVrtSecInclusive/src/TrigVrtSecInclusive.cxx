@@ -599,16 +599,17 @@ StatusCode TrigVrtSecInclusive::findDiTrackVertex
          wrkprm.isPassMMV = true;
          if (m_doMaterialMapVeto) {
             if (wrkvrt.vertex.perp() > 150) {
-               wrkprm.isPassMMV = ( m_materialMapOuter->GetBinContent(m_materialMapOuter->FindBin( wrkvrt.vertex.perp(), wrkvrt.vertex.phi(), wrkvrt.vertex.z() ) ) == 0);
+               wrkprm.isPassMMV = ( m_materialMapOuter->GetBinContent(m_materialMapOuter->FindFixBin( wrkvrt.vertex.perp(), wrkvrt.vertex.phi(), wrkvrt.vertex.z() ) ) == 0);
             }
             else {
+               const TMatrixT<double>& mmm = *m_materialMapMatrix;
                for (int i=0;i<5;i++){
-                  if (wrkvrt.vertex.perp() < (*m_materialMapMatrix)[i][0]) {
-                     float test_x = wrkvrt.vertex.x() + (*m_materialMapMatrix)[i][1];
-                     float test_y = wrkvrt.vertex.y() + (*m_materialMapMatrix)[i][2];
-                     double calc_phi = std::fmod( TMath::ATan2(test_y,test_x),TMath::Pi()/(*m_materialMapMatrix)[i][3] );
-                     if (calc_phi <0) calc_phi = calc_phi + TMath::Pi()/(*m_materialMapMatrix)[i][3];
-                     wrkprm.isPassMMV = ( m_materialMapInner->GetBinContent(m_materialMapInner->FindBin(sqrt(test_x*test_x + test_y*test_y), calc_phi, wrkvrt.vertex.z() ) ) == 0);
+                  if (wrkvrt.vertex.perp() < mmm[i][0]) {
+                     float test_x = wrkvrt.vertex.x() + mmm[i][1];
+                     float test_y = wrkvrt.vertex.y() + mmm[i][2];
+                     double calc_phi = std::fmod( TMath::ATan2(test_y,test_x),TMath::Pi()/mmm[i][3] );
+                     if (calc_phi <0) calc_phi = calc_phi + TMath::Pi()/mmm[i][3];
+                     wrkprm.isPassMMV = ( m_materialMapInner->GetBinContent(m_materialMapInner->FindFixBin(sqrt(test_x*test_x + test_y*test_y), calc_phi, wrkvrt.vertex.z() ) ) == 0);
                   }
                }
             }
