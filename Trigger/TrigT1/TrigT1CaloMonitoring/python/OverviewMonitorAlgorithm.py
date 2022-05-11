@@ -42,7 +42,7 @@ def OverviewMonitoringConfig(inputFlags):
     # global overview
     trigPath = 'Overview/Errors/'
     NumberOfGlobalErrors=15
-    globalStatus_labels = [
+    globalStatus_xlabels = [
         "PPMDataStatus",
         "PPMDataError",
         "SubStatus",
@@ -58,12 +58,22 @@ def OverviewMonitoringConfig(inputFlags):
         "RODMissing",
         "ROBStatus",
         "Unpacking"]
+
+    globalStatus_ylabels = []
+    for crate in range(14):
+        cr = crate
+        if cr >= 12:
+            cr -= 12
+        if cr >= 8:
+            cr -= 8
+        type = "PP " if (crate < 8) else "CP " if (crate < 12) else "JEP "
+        globalStatus_ylabels.append(type)
     
     myGroup.defineHistogram('globalOverviewX,globalOverviewY;l1calo_2d_GlobalOverview',title='L1Calo Global Error Overview;;',
                             type='TH2I',
                             path=trigPath,
                             xbins=NumberOfGlobalErrors,xmin=0.,xmax=NumberOfGlobalErrors,
-                            ybins=14,ymin=0.,ymax=14, xlabels=globalStatus_labels,
+                            ybins=14,ymin=0.,ymax=14, xlabels=globalStatus_xlabels, ylabels=globalStatus_ylabels,
                             duration='' if isOnline else 'lb',
                             opt='kAlwaysCreate')
 
@@ -73,7 +83,7 @@ def OverviewMonitoringConfig(inputFlags):
                                 type='TH2I',
                                 path=trigPath,
                                 xbins=NumberOfGlobalErrors,xmin=0.,xmax=NumberOfGlobalErrors,
-                                ybins=14,ymin=0.,ymax=14, xlabels=globalStatus_labels,
+                                ybins=14,ymin=0.,ymax=14, xlabels=globalStatus_xlabels, ylabels=globalStatus_ylabels,
                                 opt='kLBNHistoryDepth=10,kAlwaysCreate')
 
 
