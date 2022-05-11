@@ -148,7 +148,7 @@ def MDT_HitsTruthRelinkCfg(flags, **kwargs):
 def MM_HitsTruthRelinkCfg(flags, **kwargs):
     acc = ComponentAccumulator()
 
-    acc.merge(InputRenameCfg("MMSimHitCollection", "MM_Hits", "MM_Hits_OLD"))
+    acc.merge(InputRenameCfg("MMSimHitCollection", "MM_Hits", "MM_HitsOLD"))
 
     kwargs.setdefault("InputHits", "MM_HitsOLD")
     kwargs.setdefault("OutputHits", "MM_Hits")
