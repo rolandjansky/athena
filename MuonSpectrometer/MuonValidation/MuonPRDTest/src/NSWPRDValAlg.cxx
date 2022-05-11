@@ -162,7 +162,6 @@ StatusCode NSWPRDValAlg::execute() {
         }
     }
     for (std::unique_ptr<ValAlgVariables>& tester : m_testers) {
-        if (msgLevel(MSG::DEBUG)) { tester->msg(MSG::DEBUG) << " fill variables" << endmsg; }
         ATH_CHECK(tester->fillVariables(muonDetMgr));
     }
 
