@@ -671,37 +671,6 @@ def removeComponentFailingConditions(jetdef, configflags=None, raiseOnFailure=Tr
     ## do not raise an exceptin immediately. Instead collect all failure
     ## then report all of them, then raise
 
-    fullname = jetdef.fullname()
-    
-    # define a helper function returning a filtered list of components.
-    def filterList(inList, compType):
-        nOut=0
-        outList=[]
-        basekey= compType+':' if compType!="" else ""
-        # loop over components in the list to be filtered
-        for comp in inList:
-            fullkey = basekey+comp
-            cInstance = jetdef._prereqDic[fullkey]
-            ok, reason = isComponentPassingConditions(cInstance, jetdef._cflags, jetdef._prereqDic)
-            if not ok :
-                if raiseOnFailure:
-                    raise Exception("JetDefinition {} can NOT be scheduled. Failure  of {} {}  reason={}".format(
-                        jetdef, compType, comp, reason) )
-                
-                nOut+=1
-                jetlog.info(f"{fullname} : removing {compType}  {comp}  reason={reason}")
-                if fullkey in jetdef._prereqOrder:
-                    jetdef._prereqOrder.remove(fullkey)
-                if compType=='ghost':
-                    removeFromList(jetdef._prereqOrder, 'input:'+comp)
-                    removeFromList(jetdef._prereqOrder, 'extinput:'+comp)
-            else:
-                outList.append(comp)
-        jetlog.info(" *** Number of {} filtered components = {}  final  list={}".format(compType, nOut, outList) )
-            
-        return outList
-    # ---------
-
     # ---------
     # first check if the input can be obtained. If not return.
     ok,reason = isComponentPassingConditions( jetdef.inputdef, jetdef._cflags, jetdef._prereqDic)
@@ -713,54 +682,61 @@ def removeComponentFailingConditions(jetdef, configflags=None, raiseOnFailure=Tr
 
     if isinstance( jetdef.inputdef, JetInputConstitSeq):
         # remove ConstitModifiers failing conditions.
-        jetdef.inputdef.modifiers = filterList( jetdef.inputdef.modifiers, 'cmod' )
+        jetdef.inputdef.modifiers = filterJetDefList(jetdef, jetdef.inputdef.modifiers, 'cmod', raiseOnFailure, jetdef._cflags)
         
             
     
     # call the helper function to perform filtering :
-    jetdef.ghostdefs = filterList( jetdef.ghostdefs, "ghost")
-    jetdef.modifiers = filterList( jetdef.modifiers, "mod")
+    jetdef.ghostdefs = filterJetDefList(jetdef, jetdef.ghostdefs, "ghost", raiseOnFailure, jetdef._cflags)
+    jetdef.modifiers = filterJetDefList(jetdef, jetdef.modifiers, "mod", raiseOnFailure, jetdef._cflags)
     # finally filter all possible intermediate dependency :
-    filterList( list(jetdef._prereqOrder), "")
+    filterJetDefList(jetdef, list(jetdef._prereqOrder), "", raiseOnFailure, jetdef._cflags)
     return True
 
 
 
 def removeGroomModifFailingConditions(groomdef, configflags, raiseOnFailure=True):
 
-    mods_filtered = []
+    groomdef.modifiers = filterJetDefList(groomdef, groomdef.modifiers, "mod", raiseOnFailure, configflags)
+    filterJetDefList(groomdef, list(groomdef._prereqOrder), "", raiseOnFailure, configflags)
 
-    for mod in groomdef.modifiers:
-        fullkey = 'mod:'+mod
-        cInstance = groomdef._prereqDic[fullkey]
-        ok, reason = isComponentPassingConditions(cInstance, configflags, groomdef._prereqDic)
 
+
+# define a helper function to filter components from jet definition
+def filterJetDefList(jetdef, inList, compType, raiseOnFailure, configFlags):
+
+    nOut=0
+    outList=[]
+    basekey= compType+':' if compType!="" else ""
+
+    fullname = jetdef.fullname()
+
+    # loop over components in the list to be filtered
+    for comp in inList:
+        fullkey = basekey+comp
+        cInstance = jetdef._prereqDic[fullkey]
+        ok, reason = isComponentPassingConditions(cInstance, configFlags, jetdef._prereqDic)
         if not ok :
             if raiseOnFailure:
-                raise Exception("JetGrooming {} can NOT be scheduled. Failure  of {} {}  reason={}".format(
-                groomdef, 'mod', mod, reason) )
+                raise Exception("JetDefinition {} can NOT be scheduled. Failure  of {} {}  reason={}".format(
+                    jetdef, compType, comp, reason) )
 
-            jetlog.info(f"{groomdef.fullname()} : removing modifier {mod}  reason={reason}")
-
-            if fullkey in groomdef._prereqOrder:
-                groomdef._prereqOrder.remove(fullkey)
+            nOut+=1
+            jetlog.info(f"{fullname} : removing {compType}  {comp}  reason={reason}")
+            if fullkey in jetdef._prereqOrder:
+                jetdef._prereqOrder.remove(fullkey)
+            if compType=='ghost':
+                removeFromList(jetdef._prereqOrder, 'input:'+comp)
+                removeFromList(jetdef._prereqOrder, 'extinput:'+comp)
         else:
-            mods_filtered.append(mod)
+            outList.append(comp)
 
-    groomdef.modifiers = mods_filtered
+    jetlog.info(" *** Number of {} filtered components = {}  final  list={}".format(compType, nOut, outList) )
 
-    for prereq in groomdef._prereqDic:
-        cInstance = groomdef._prereqDic[prereq]
-        ok, reason = isComponentPassingConditions(cInstance, configflags, groomdef._prereqDic)
+    return outList
 
-        if not ok :
-            if raiseOnFailure:
-                raise Exception("JetGrooming {} can NOT be scheduled. Failure  of {} {}  reason={}".format(
-                    groomdef, 'prereq', prereq, reason) )
 
-                jetlog.info(f"{groomdef.fullname()} : removing prerequisite {prereq}  reason={reason}")
 
-            removeFromList(groomdef._prereqOrder, prereq)
 
 def isComponentPassingConditions(component, configflags, prereqDic):
     """Test if component is compatible with configflags.
@@ -778,9 +754,6 @@ def isComponentPassingConditions(component, configflags, prereqDic):
     return ok, reason
     
     
-
-
-
 
 
 def isAthenaRelease():
