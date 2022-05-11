@@ -232,21 +232,17 @@ namespace MuonCombined {
                 }
             }
         }
-        // get segments
-        using SegLink_t = ElementLink<Trk::SegmentCollection>;
 
-        std::vector<SegLink_t> segLinks;
+        std::vector<const Muon::MuonSegment*> segLinks;
         for (const Muon::MuonLayerIntersection& layer : candidate.layerIntersections) {
-            segments->push_back(new Muon::MuonSegment(*layer.segment));
-            SegLink_t sLink(*segments, segments->size() - 1);
-            segLinks.push_back(std::move(sLink));
+            std::unique_ptr<Muon::MuonSegment> copy = std::make_unique<Muon::MuonSegment>(*layer.segment);
+            segLinks.push_back(copy.get());
+            segments->push_back(std::move(copy));
         }
         /// Sort the segments here
 
-        std::sort(segLinks.begin(), segLinks.end(), [this](const SegLink_t& a, const SegLink_t& b) -> bool {
+        std::sort(segLinks.begin(), segLinks.end(), [this](const Muon::MuonSegment* seg_a, const Muon::MuonSegment* seg_b) -> bool {
             using chamIdx = Muon::MuonStationIndex::ChIndex;
-            const Muon::MuonSegment* seg_a = dynamic_cast<const Muon::MuonSegment*>(*a);
-            const Muon::MuonSegment* seg_b = dynamic_cast<const Muon::MuonSegment*>(*b);
             chamIdx ch_a = m_idHelperSvc->chamberIndex(m_edmHelperSvc->chamberId(*seg_a));
             chamIdx ch_b = m_idHelperSvc->chamberIndex(m_edmHelperSvc->chamberId(*seg_b));
             Muon::MuonStationIndex::StIndex st_a = Muon::MuonStationIndex::toStationIndex(ch_a);
@@ -260,8 +256,7 @@ namespace MuonCombined {
 
         if (msgLevel(MSG::DEBUG)) {
             std::stringstream sstr;
-            for (const SegLink_t& seg : segLinks) {
-                const Muon::MuonSegment* muo_seg = dynamic_cast<const Muon::MuonSegment*>(*seg);
+            for (const Muon::MuonSegment* muo_seg : segLinks) {
                 auto chIdx = m_idHelperSvc->chamberIndex(m_edmHelperSvc->chamberId(*muo_seg));
                 auto thIdx = m_idHelperSvc->technologyIndex(m_edmHelperSvc->chamberId(*muo_seg));
                 sstr << Muon::MuonStationIndex::chName(chIdx) << "  (" << Muon::MuonStationIndex::technologyName(thIdx) << "), ";

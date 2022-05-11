@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDEVENT_MUONCANDIDATE_H
@@ -15,6 +15,9 @@
 
 namespace Trk {
     class Track;
+}
+namespace Muon {
+    class MuonSegment;
 }
 
 namespace MuonCombined {
@@ -65,9 +68,9 @@ namespace MuonCombined {
         bool isCommissioning() const;
 
         /** set the vector of associated segments to the candidate **/
-        void setSegments(std::vector<ElementLink<xAOD::MuonSegmentContainer>>&& segments);
+        void setSegments(std::vector<const Muon::MuonSegment*>&& segments);
         /** returns the vector of associated muon segments **/
-        const std::vector<ElementLink<xAOD::MuonSegmentContainer>>& getSegments() const;
+        const std::vector<const Muon::MuonSegment*>& getSegments() const;
 
     private:
         /** element link to spectrometer track */
@@ -84,7 +87,7 @@ namespace MuonCombined {
         bool m_isCommissioning{false};
 
         /** Segments associated with the candidate **/
-        std::vector<ElementLink<xAOD::MuonSegmentContainer>> m_assoc_segments;
+        std::vector<const Muon::MuonSegment*> m_assoc_segments;
 
         /// Index of the MSOE track in the output container
         size_t m_extContIdx{0};

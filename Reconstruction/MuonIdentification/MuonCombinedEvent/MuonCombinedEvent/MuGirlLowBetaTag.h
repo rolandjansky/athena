@@ -50,6 +50,7 @@ namespace MuonCombined {
 
         /** access segments */
         const std::vector<ElementLink<Trk::SegmentCollection> >& segments() const;
+        std::vector<const Muon::MuonSegment*> associatedSegments() const override;
 
         /* stau Dressing */
         void setMuBeta(float muBeta);
@@ -80,46 +81,23 @@ namespace MuonCombined {
         MuGirlLowBetaTag& operator=(const MuGirlLowBetaTag&) = delete;
 
         /** data content */
-        ElementLink<TrackCollection> m_combLink;
-        ElementLink<TrackCollection> m_meLink;
-        std::vector<ElementLink<Trk::SegmentCollection> > m_segments;  /// list of segments
+        ElementLink<TrackCollection> m_combLink{};
+        ElementLink<TrackCollection> m_meLink{};
+        std::vector<ElementLink<Trk::SegmentCollection> > m_segments{};  /// list of segments
 
         // dressing
-        float m_muBeta;
-        MuGirlNS::CandidateSummary* m_stauSummary;
-        MuGirlNS::StauExtras* m_stauExtras;
-        MuGirlNS::RHExtras* m_rhExtras;
+        float m_muBeta{-9999.};
+        std::unique_ptr<MuGirlNS::CandidateSummary> m_stauSummary{};
+        std::unique_ptr<MuGirlNS::StauExtras> m_stauExtras{};
+        std::unique_ptr<MuGirlNS::RHExtras> m_rhExtras{};
     };
     inline bool operator<(const MuGirlLowBetaTag& t1, const MuGirlLowBetaTag& t2) {
-        const Trk::FitQuality* t1FQ = (t1.combinedTrack() != nullptr) ? t1.combinedTrack()->fitQuality() : 0;
-        const Trk::FitQuality* t2FQ = (t2.combinedTrack() != nullptr) ? t2.combinedTrack()->fitQuality() : 0;
-        if (t1FQ != NULL && t2FQ != NULL) { return t1FQ->chiSquared() < t2FQ->chiSquared(); }
+        const Trk::FitQuality* t1FQ = t1.combinedTrack() ? t1.combinedTrack()->fitQuality() : nullptr;
+        const Trk::FitQuality* t2FQ = t2.combinedTrack() ? t2.combinedTrack()->fitQuality() : nullptr;
+        if (t1FQ && t2FQ) { return t1FQ->chiSquared() < t2FQ->chiSquared(); }
         return t1.segments().size() < t2.segments().size();
     }
 
-    inline const Trk::Track* MuGirlLowBetaTag::combinedTrack() const { return m_combLink.isValid() ? *m_combLink : nullptr; }
-
-    inline const Trk::Track* MuGirlLowBetaTag::updatedExtrapolatedTrack() const { return m_meLink.isValid() ? *m_meLink : nullptr; }
-
-    inline void MuGirlLowBetaTag::setUpdatedExtrapolatedTrack(ElementLink<TrackCollection> meLink) { m_meLink = meLink; }
-
-    inline const std::vector<ElementLink<Trk::SegmentCollection> >& MuGirlLowBetaTag::segments() const { return m_segments; }
-
-    inline const Trk::Track* MuGirlLowBetaTag::primaryTrack() const { return combinedTrack(); }
-
-    // stau dressing
-    inline void MuGirlLowBetaTag::setMuBeta(float muBeta) { m_muBeta = muBeta; }
-    inline float MuGirlLowBetaTag::getMuBeta() { return m_muBeta; }
-
-    inline void MuGirlLowBetaTag::setStauSummary(MuGirlNS::CandidateSummary* stauSummary) { m_stauSummary = stauSummary; }
-    inline MuGirlNS::CandidateSummary* MuGirlLowBetaTag::getStauSummary() { return m_stauSummary; }
-
-    inline void MuGirlLowBetaTag::setStauExtras(MuGirlNS::StauExtras* stauExtras) { m_stauExtras = stauExtras; }
-    inline MuGirlNS::StauExtras* MuGirlLowBetaTag::getStauExtras() { return m_stauExtras; }
-    inline const MuGirlNS::StauExtras* MuGirlLowBetaTag::getStauExtras() const { return m_stauExtras; }
-
-    inline void MuGirlLowBetaTag::setRHExtras(MuGirlNS::RHExtras* rhExtras) { m_rhExtras = rhExtras; }
-    inline MuGirlNS::RHExtras* MuGirlLowBetaTag::getRHExtras() { return m_rhExtras; }
 }  // namespace MuonCombined
 
 #endif

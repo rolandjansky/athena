@@ -47,11 +47,8 @@ namespace MuonCombined {
         StatusCode finalize() override;
 
         /**IMuonSegmentTagTool interface: build muons from ID and MuonSegments */
-        void tag(const EventContext& ctx, const InDetCandidateCollection& inDetCandidates, const xAOD::MuonSegmentContainer& segments,
-                 InDetCandidateToTagMap* tagMap) const override;
         void tag(const EventContext& ctx, const InDetCandidateCollection& inDetCandidates,
-                 const std::vector<const Muon::MuonSegment*>& segments, SegmentMap* segmentToxAODSegmentMap,
-                 InDetCandidateToTagMap* tagMap) const override;
+                 const std::vector<const Muon::MuonSegment*>& segments, InDetCandidateToTagMap* tagMap) const override;
 
     private:
         void printTable(const std::vector<std::string>& didEx, const std::vector<std::string>& segStation,

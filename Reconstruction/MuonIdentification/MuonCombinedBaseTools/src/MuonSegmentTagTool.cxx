@@ -84,30 +84,8 @@ namespace MuonCombined {
         }
         return StatusCode::SUCCESS;
     }
-
     void MuonSegmentTagTool::tag(const EventContext& ctx, const InDetCandidateCollection& inDetCandidates,
-                                 const xAOD::MuonSegmentContainer& xaodSegments, InDetCandidateToTagMap* tagMap) const {
-        // loop over segments are extract MuonSegments + create links between segments and xAOD segments
-        std::map<const Muon::MuonSegment*, ElementLink<xAOD::MuonSegmentContainer>> segmentToxAODSegmentMap;
-        std::vector<const Muon::MuonSegment*> segments;
-        segments.reserve(xaodSegments.size());
-        unsigned int index = 0;
-        for (auto it = xaodSegments.begin(); it != xaodSegments.end(); ++it, ++index) {
-            if (!(*it)->muonSegment().isValid()) continue;
-            const Muon::MuonSegment* mseg = dynamic_cast<const Muon::MuonSegment*>(*(*it)->muonSegment());
-            ElementLink<xAOD::MuonSegmentContainer> link(xaodSegments, index);
-            link.toPersistent();
-            if (mseg) {
-                segments.push_back(mseg);
-                segmentToxAODSegmentMap[mseg] = std::move(link);
-            }
-        }
-        tag(ctx, inDetCandidates, segments, &segmentToxAODSegmentMap, tagMap);
-    }
-    // todo: fix segmentToxAODSegmentMap
-    void MuonSegmentTagTool::tag(const EventContext& ctx, const InDetCandidateCollection& inDetCandidates,
-                                 const std::vector<const Muon::MuonSegment*>& segments, SegmentMap* segmentToxAODSegmentMap,
-                                 InDetCandidateToTagMap* tagMap) const {
+                                 const std::vector<const Muon::MuonSegment*>& segments, InDetCandidateToTagMap* tagMap) const {
         if (inDetCandidates.empty()) return;
 
         std::vector<const Muon::MuonSegment*> FilteredSegmentCollection = getCandidateSegments(segments);
@@ -371,7 +349,6 @@ namespace MuonCombined {
 
                         MuonCombined::MuonSegmentInfo info =
                             m_MuTagMatchingTool->muTagSegmentInfo(ctx, track.track(), *seg_ptr, atSegSurface);
-                        if (segmentToxAODSegmentMap) info.link = (*segmentToxAODSegmentMap)[seg_ptr];
                         isMatched = m_MuTagMatchingTool->matchSegmentPosition(info, trkEtaInfo);
                         if (!isMatched) {
                             if (m_doTable) {

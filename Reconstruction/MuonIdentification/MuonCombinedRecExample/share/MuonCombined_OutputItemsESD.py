@@ -8,6 +8,13 @@ from MuonCombinedRecExample.MuonCombinedAlgs import GetCombinedTrackParticles
 MuonCombinedESDList = []
 
 if DetFlags.detdescr.Muon_on():
+   
+  if muonCombinedRecFlags.saveUnassocSegments():
+      MuonCombinedESDList+=[ "Trk::SegmentCollection#UnAssocMuonSegments"]
+      
+  if muonCombinedRecFlags.doMuGirlLowBeta() and muonCombinedRecFlags.doMuGirl():
+      MuonCombinedESDList+=[ "Trk::SegmentCollection#TrkStauSegments"]
+  MuonCombinedESDList+=["Trk::SegmentCollection#TrackMuonSegments"]
   if muonRecFlags.doStandalone():    
     # ========================Muons===============================================
     cmb_trk_container = GetCombinedTrackParticles()[1] 

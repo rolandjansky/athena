@@ -281,28 +281,18 @@ def MuonCreatorToolCfg(flags, name="MuonCreatorTool", **kwargs):
     result.merge(acc)
 
     from MuonConfig.MuonRecToolsConfig import MuonAmbiProcessorCfg
-    acc = MuonAmbiProcessorCfg(flags)
-    kwargs.setdefault("AmbiguityProcessor", acc.popPrivateTools())
-    result.merge(acc)
-
+    kwargs.setdefault("AmbiguityProcessor", result.popToolsAndMerge(MuonAmbiProcessorCfg(flags)))
+  
     from TrkConfig.TrkExRungeKuttaPropagatorConfig import RungeKuttaPropagatorCfg
     kwargs.setdefault("Propagator", result.popToolsAndMerge(
         RungeKuttaPropagatorCfg(flags)))
     kwargs.setdefault("MuonDressingTool", result.popToolsAndMerge(
         MuonDressingToolCfg(flags)))
-    # Not explicitly setting up MomentumBalanceTool nor ScatteringAngleTool
-    kwargs.setdefault("MuonSegmentConverterTool", result.popToolsAndMerge(
-        MuonSegmentConverterToolCfg(flags)))
+    # Not explicitly setting up MomentumBalanceTool nor ScatteringAngleTool   
     # Not explicitly setting up MeanMDTdADCTool (but probably should FIXME)
 
     kwargs.setdefault("CaloMaterialProvider", result.popToolsAndMerge(
         MuonMaterialProviderToolCfg(flags)))
-
-    track_segment_association_tool = CompFactory.MuonCombined.TrackSegmentAssociationTool(
-        MuonEDMPrinterTool=muon_edm_printer)
-    kwargs.setdefault("TrackSegmentAssociationTool",
-                      track_segment_association_tool)
-    result.addPublicTool(track_segment_association_tool)
 
     kwargs.setdefault("TrackQuery",   result.popToolsAndMerge(
         MuonTrackQueryCfg(flags)))
@@ -318,8 +308,7 @@ def MuonCreatorToolCfg(flags, name="MuonCreatorTool", **kwargs):
 
     if flags.Muon.MuonTrigger:
         kwargs.setdefault("MuonSelectionTool", "")
-        kwargs.setdefault("UseCaloCells", False)
-        kwargs.setdefault("TrackSegmentAssociationTool", "")
+        kwargs.setdefault("UseCaloCells", False)       
 
     # This tool needs MuonScatteringAngleSignificanceTool... which in turn needs TrackingVolumeSvc.
     # FIXME - probably this should be someplace central.

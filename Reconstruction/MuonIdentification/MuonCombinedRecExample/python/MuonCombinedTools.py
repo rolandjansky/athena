@@ -110,7 +110,6 @@ def MuonCreatorTool(name="MuonCreatorTool",**kwargs):
     if ConfigFlags.Muon.MuonTrigger:
         kwargs.setdefault("MuonSelectionTool", "")
         kwargs.setdefault("UseCaloCells", False)
-        kwargs.setdefault("TrackSegmentAssociationTool", "")
     else:
         kwargs.setdefault("MomentumBalanceTool", getPublicTool("MuonMomentumBalanceSignificanceTool"))
         kwargs.setdefault("ScatteringAngleTool", getPublicTool("MuonScatteringAngleSignificanceTool"))
@@ -148,7 +147,7 @@ def MuonCandidateTool(name="MuonCandidateTool",**kwargs):
         kwargs.setdefault("TrackSegmentAssociationTool", "" )
     else:
         kwargs.setdefault("TrackBuilder", getPublicTool("CombinedMuonTrackBuilder"))
-        kwargs.setdefault("SegmentContainer", "xaodMuonSegments")
+        kwargs.setdefault("SegmentContainer", "TrackMuonSegments")
   
     return CfgMgr.MuonCombined__MuonCandidateTool(name,**kwargs)
 

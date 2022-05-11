@@ -68,13 +68,7 @@ namespace MuonCombined {
         ATH_CHECK(m_particleCreator.retrieve());
         ATH_CHECK(m_ambiguityProcessor.retrieve());
         ATH_CHECK(m_muonDressingTool.retrieve());
-        ATH_CHECK(m_muonSegmentConverterTool.retrieve());
         ATH_CHECK(m_caloMgrKey.initialize());
-
-        if (!m_trackSegmentAssociationTool.empty())
-            ATH_CHECK(m_trackSegmentAssociationTool.retrieve());
-        else
-            m_trackSegmentAssociationTool.disable();
         ATH_CHECK(m_trackQuery.retrieve());
         if (!m_momentumBalanceTool.empty())
             ATH_CHECK(m_momentumBalanceTool.retrieve());
@@ -197,7 +191,7 @@ namespace MuonCombined {
             return nullptr;
         }
 
-        if (!dressMuon(*muon, outputData.xaodSegmentContainer)) {
+        if (!dressMuon(*muon)) {
             ATH_MSG_WARNING("Failed to dress muon");
             outputData.muonContainer->pop_back();
             return nullptr;
@@ -234,8 +228,8 @@ namespace MuonCombined {
         addCaloTag(muon, nullptr);
         addCombinedFit(ctx, muon, nullptr, outputData);
         addStatisticalCombination(ctx, muon, nullptr, nullptr, outputData);
-        addMuGirl(muon, nullptr, outputData);
-        addSegmentTag(muon, nullptr, outputData);
+        addMuGirl(ctx, muon, nullptr, outputData);
+        addSegmentTag(ctx, muon, nullptr, outputData);
 
         /// Unspoiled CSC hits
         acc_nUnspoiledCscHits(muon) = 0;
@@ -303,7 +297,7 @@ namespace MuonCombined {
                             xAOD::SlowMuon* slowMuon = new xAOD::SlowMuon();
                             outputData.slowMuonContainer->push_back(slowMuon);
 
-                            addMuGirlLowBeta(*muon, muGirlLowBetaTag, slowMuon,
+                            addMuGirlLowBeta(ctx, *muon, muGirlLowBetaTag, slowMuon,
                                              outputData);  // CHECK to see what variables are created here.
 
                             ATH_MSG_DEBUG("slowMuon muonContainer size " << outputData.muonContainer->size());
@@ -341,7 +335,7 @@ namespace MuonCombined {
                     const MuGirlTag* muGirlTag = dynamic_cast<const MuGirlTag*>(tag);
 
                     addCombinedFit(ctx, *muon, cbFitTag, outputData);
-                    addMuGirl(*muon, muGirlTag, outputData);
+                    addMuGirl(ctx, *muon, muGirlTag, outputData);
                     addStatisticalCombination(ctx, *muon, candidate.first, stacoTag, outputData);
                     if (!(cbFitTag || stacoTag || muGirlTag)) { ATH_MSG_WARNING("Unknown combined tag "); }
 
@@ -349,8 +343,8 @@ namespace MuonCombined {
                     const SegmentTag* segTag = dynamic_cast<const SegmentTag*>(tag);
                     const MuGirlTag* muGirlTag = dynamic_cast<const MuGirlTag*>(tag);
 
-                    addSegmentTag(*muon, segTag, outputData);
-                    addMuGirl(*muon, muGirlTag, outputData);
+                    addSegmentTag(ctx, *muon, segTag, outputData);
+                    addMuGirl(ctx, *muon, muGirlTag, outputData);
 
                     if (!(segTag || muGirlTag)) { ATH_MSG_WARNING("Unknown segment-tagged tag "); }
                 } else if (type == xAOD::Muon::CaloTagged) {
@@ -363,7 +357,7 @@ namespace MuonCombined {
             }
         }  // m_buildStauContainer
 
-        if (!dressMuon(*muon, outputData.xaodSegmentContainer)) {
+        if (!dressMuon(*muon)) {
             ATH_MSG_WARNING("Failed to dress muon");
             outputData.muonContainer->pop_back();
             // if we are dealing with staus, also need to remove the slowMuon
@@ -510,7 +504,7 @@ namespace MuonCombined {
         ATH_MSG_DEBUG("Done adding Combined Fit Muon  " << tag->author() << " type " << tag->type());
     }
 
-    void MuonCreatorTool::addMuGirlLowBeta(xAOD::Muon& muon, const MuGirlLowBetaTag* tag, xAOD::SlowMuon* slowMuon,
+    void MuonCreatorTool::addMuGirlLowBeta(const EventContext& ctx, xAOD::Muon& muon, const MuGirlLowBetaTag* tag, xAOD::SlowMuon* slowMuon,
                                            OutputData& outputData) const {
         if (!tag) {
             // init variables if necessary.
@@ -531,16 +525,17 @@ namespace MuonCombined {
             slowMuon->setRpcInfo(stauExtras->rpcBetaAvg, stauExtras->rpcBetaRms, stauExtras->rpcBetaChi2, stauExtras->rpcBetaDof);
             slowMuon->setMdtInfo(stauExtras->mdtBetaAvg, stauExtras->mdtBetaRms, stauExtras->mdtBetaChi2, stauExtras->mdtBetaDof);
             slowMuon->setCaloInfo(stauExtras->caloBetaAvg, stauExtras->caloBetaRms, stauExtras->caloBetaChi2, stauExtras->caloBetaDof);
-            std::vector<uint8_t> eTechVec;
-            std::vector<unsigned int> idVec;
-            std::vector<float> mToFVec;
-            std::vector<float> xVec;
-            std::vector<float> yVec;
-            std::vector<float> zVec;
-            std::vector<float> eVec;
-            std::vector<float> errorVec;
-            std::vector<float> shiftVec;
-            std::vector<float> propagationTimeVec;
+            std::vector<uint8_t>& eTechVec = slowMuon->auxdata<std::vector<uint8_t>>("hitTechnology");
+            std::vector<unsigned int>& idVec = slowMuon->auxdata<std::vector<unsigned int>>("hitIdentifier");
+            std::vector<float>& mToFVec = slowMuon->auxdata<std::vector<float>>("hitTOF");
+            std::vector<float>& xVec = slowMuon->auxdata<std::vector<float>>("hitPositionX");
+            std::vector<float>& yVec = slowMuon->auxdata<std::vector<float>>("hitPositionY");
+            std::vector<float>& zVec = slowMuon->auxdata<std::vector<float>>("hitPositionZ");
+            std::vector<float>& eVec = slowMuon->auxdata<std::vector<float>>("hitEnergy");
+
+            std::vector<float>& errorVec = slowMuon->auxdata<std::vector<float>>("hitError");
+            std::vector<float>& shiftVec = slowMuon->auxdata<std::vector<float>>("hitShift");
+            std::vector<float>& propagationTimeVec = slowMuon->auxdata<std::vector<float>>("hitPropagationTime");
 
             for (const auto& hit : stauExtras->hits) {
                 eTechVec.push_back(hit.eTech);
@@ -554,16 +549,6 @@ namespace MuonCombined {
                 shiftVec.push_back(hit.shift);
                 propagationTimeVec.push_back(hit.propagationTime);
             }
-            slowMuon->auxdata<std::vector<uint8_t>>("hitTechnology") = eTechVec;
-            slowMuon->auxdata<std::vector<unsigned int>>("hitIdentifier") = idVec;
-            slowMuon->auxdata<std::vector<float>>("hitTOF") = mToFVec;
-            slowMuon->auxdata<std::vector<float>>("hitPositionX") = xVec;
-            slowMuon->auxdata<std::vector<float>>("hitPositionY") = yVec;
-            slowMuon->auxdata<std::vector<float>>("hitPositionZ") = zVec;
-            slowMuon->auxdata<std::vector<float>>("hitEnergy") = eVec;
-            slowMuon->auxdata<std::vector<float>>("hitError") = errorVec;
-            slowMuon->auxdata<std::vector<float>>("hitShift") = shiftVec;
-            slowMuon->auxdata<std::vector<float>>("hitPropagationTime") = propagationTimeVec;
         }
 
         if (!muon.combinedTrackParticleLink().isValid() && tag->combinedTrack()) {
@@ -574,7 +559,6 @@ namespace MuonCombined {
                     tag->combinedTrackLink(), *outputData.combinedTrackParticleContainer, outputData.combinedTrackCollection);
 
                 if (link.isValid()) {
-                    // link.toPersistent();
                     ATH_MSG_DEBUG("Adding MuGirlLowBeta: pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi());
                     muon.setTrackParticleLink(xAOD::Muon::CombinedTrackParticle, link);
                 } else
@@ -584,13 +568,10 @@ namespace MuonCombined {
 
         if (outputData.xaodSegmentContainer) {
             ATH_MSG_DEBUG("Adding MuGirlLowBeta muonSegmentColection");
-
             std::vector<ElementLink<xAOD::MuonSegmentContainer>> segments;
-            for (const auto& seglink : tag->segments()) {
-                ElementLink<xAOD::MuonSegmentContainer> link =
-                    createMuonSegmentElementLink(seglink, *outputData.xaodSegmentContainer, outputData.muonSegmentCollection);
+            for (const ElementLink<Trk::SegmentCollection>& seglink : tag->segments()) {
+                ElementLink<xAOD::MuonSegmentContainer> link{*outputData.xaodSegmentContainer, seglink.index(), ctx};
                 if (link.isValid()) {
-                    // link.toPersistent();
                     segments.push_back(link);
                     ATH_MSG_DEBUG("Adding MuGirlLowBeta: xaod::MuonSegment px " << (*link)->px() << " py " << (*link)->py() << " pz "
                                                                                 << (*link)->pz());
@@ -601,7 +582,7 @@ namespace MuonCombined {
         }
     }
 
-    void MuonCreatorTool::addMuGirl(xAOD::Muon& muon, const MuGirlTag* tag, OutputData& outputData) const {
+    void MuonCreatorTool::addMuGirl(const EventContext& ctx, xAOD::Muon& muon, const MuGirlTag* tag, OutputData& outputData) const {
         if (!tag) {
             // init variables if necessary.
             return;
@@ -641,9 +622,8 @@ namespace MuonCombined {
                 ATH_MSG_DEBUG("Adding MuGirl muonSegmentCollection");
 
                 std::vector<ElementLink<xAOD::MuonSegmentContainer>> segments;
-                for (const auto& segLink : tag->segments()) {
-                    ElementLink<xAOD::MuonSegmentContainer> link =
-                        createMuonSegmentElementLink(segLink, *outputData.xaodSegmentContainer, outputData.muonSegmentCollection);
+                for (const Muon::MuonSegment* segLink : tag->associatedSegments()) {
+                    ElementLink<xAOD::MuonSegmentContainer> link = createMuonSegmentElementLink(ctx, segLink, outputData);
                     if (link.isValid()) {
                         segments.push_back(link);
                         ATH_MSG_DEBUG("Adding MuGirl: xaod::MuonSegment px " << (*link)->px() << " py " << (*link)->py() << " pz "
@@ -657,7 +637,7 @@ namespace MuonCombined {
         ATH_MSG_DEBUG("Done Adding MuGirl Muon  " << tag->author() << " type " << tag->type());
     }
 
-    void MuonCreatorTool::addSegmentTag(xAOD::Muon& muon, const SegmentTag* tag, OutputData& outputData) const {
+    void MuonCreatorTool::addSegmentTag(const EventContext& ctx, xAOD::Muon& muon, const SegmentTag* tag, OutputData& outputData) const {
         if (!tag) {
             // init variables if necessary.
             muon.setParameter(-1.f, xAOD::Muon::segmentDeltaEta);
@@ -671,26 +651,24 @@ namespace MuonCombined {
         std::vector<ElementLink<xAOD::MuonSegmentContainer>> segments;
         bool foundseg = false;
         for (const auto& info : tag->segmentsInfo()) {
-            if (info.link.isValid()) {
-                // this is a bit tricky, as we have here a link to an xAOD segment in the old container
-                // but the new container should have the segments in the same order, plus the MuGirl ones tacked on the end
-                // so we should be able to just make a new link here
-                // note that this only applies to segment-tagged muons, others get their associated segments elsewhere
-                if (muon.author() == xAOD::Muon::MuTagIMO) {
-                    ElementLink<xAOD::MuonSegmentContainer> seglink(*outputData.xaodSegmentContainer, info.link.index());
-                    segments.push_back(seglink);
-                }
-                if (!foundseg) {  // add parameters for the first segment
-                    muon.setParameter(static_cast<float>(info.dtheta), xAOD::Muon::segmentDeltaEta);
-                    muon.setParameter(static_cast<float>(info.dphi), xAOD::Muon::segmentDeltaPhi);
-                    muon.setParameter(
-                        static_cast<float>(info.segment->fitQuality()->chiSquared() / info.segment->fitQuality()->numberDoF()),
-                        xAOD::Muon::segmentChi2OverDoF);
-                    foundseg = true;
-                } else if (muon.author() != xAOD::Muon::MuTagIMO)
-                    break;  // for non-segment-tagged muons, we only need to set the above
-                            // parameters
+            // this is a bit tricky, as we have here a link to an xAOD segment in the old container
+            // but the new container should have the segments in the same order, plus the MuGirl ones tacked on the end
+            // so we should be able to just make a new link here
+            // note that this only applies to segment-tagged muons, others get their associated segments elsewhere
+            if (muon.author() == xAOD::Muon::MuTagIMO) {
+                ElementLink<xAOD::MuonSegmentContainer> seglink = createMuonSegmentElementLink(ctx, info.segment, outputData);
+                if (seglink.isValid()) segments.push_back(seglink);
             }
+
+            if (!foundseg) {  // add parameters for the first segment
+                muon.setParameter(static_cast<float>(info.dtheta), xAOD::Muon::segmentDeltaEta);
+                muon.setParameter(static_cast<float>(info.dphi), xAOD::Muon::segmentDeltaPhi);
+                muon.setParameter(static_cast<float>(info.segment->fitQuality()->chiSquared() / info.segment->fitQuality()->numberDoF()),
+                                  xAOD::Muon::segmentChi2OverDoF);
+                foundseg = true;
+            } else if (muon.author() != xAOD::Muon::MuTagIMO)
+                break;  // for non-segment-tagged muons, we only need to set the above
+                        // parameters
         }
         if (muon.author() == xAOD::Muon::MuTagIMO) muon.setMuonSegmentLinks(segments);  // set the associated segments
     }
@@ -755,32 +733,19 @@ namespace MuonCombined {
         return ElementLink<xAOD::TrackParticleContainer>();
     }
 
-    ElementLink<xAOD::MuonSegmentContainer> MuonCreatorTool::createMuonSegmentElementLink(
-        const ElementLink<Trk::SegmentCollection>& segLink, xAOD::MuonSegmentContainer& xaodSegmentContainer,
-        Trk::SegmentCollection* muonSegmentCollection) const {
-        const xAOD::MuonSegment* ms = nullptr;
-        if (muonSegmentCollection) {
+    ElementLink<xAOD::MuonSegmentContainer> MuonCreatorTool::createMuonSegmentElementLink(const EventContext& ctx,
+                                                                                          const Muon::MuonSegment* trkSeg,
+                                                                                          const OutputData& outData) const {
+        if (outData.xaodSegmentContainer && outData.tagToSegmentAssocMap) {
             // if a muon segment collection is provided, duplicate the segment and
             // create a link to that
-            const Muon::MuonSegment* oldSeg = dynamic_cast<const Muon::MuonSegment*>(*segLink);
-            muonSegmentCollection->push_back(new Muon::MuonSegment(*oldSeg));
-
-            ElementLink<Trk::SegmentCollection> link(*muonSegmentCollection, muonSegmentCollection->size() - 1);
-            if (link.isValid()) {
-                link.toPersistent();
-                ms = m_muonSegmentConverterTool->convert(link, &xaodSegmentContainer);
-            } else
-                ATH_MSG_WARNING("new Segment Collection link invalid");
-        }
-        if (!ms) {
-            // create muon segments without a link to the original
-            const Muon::MuonSegment* seg = dynamic_cast<const Muon::MuonSegment*>(*segLink);
-            ms = m_muonSegmentConverterTool->convert(*seg, &xaodSegmentContainer);
-        }
-        if (ms) {
-            ElementLink<xAOD::MuonSegmentContainer> link(xaodSegmentContainer, xaodSegmentContainer.size() - 1);
-            link.toPersistent();
-            return link;
+            unsigned int link = outData.tagToSegmentAssocMap->linkIndex(trkSeg);
+            if (link >= outData.xaodSegmentContainer->size()) {
+                ATH_MSG_WARNING("Failed to retrieve a proper link for segment " << m_printer->print(*trkSeg));
+                return {};
+            }
+            ElementLink<xAOD::MuonSegmentContainer> eleLink{*outData.xaodSegmentContainer, link, ctx};
+            return eleLink;
         }
         return ElementLink<xAOD::MuonSegmentContainer>();
     }
@@ -1175,7 +1140,7 @@ namespace MuonCombined {
         return newtrack;
     }
 
-    bool MuonCreatorTool::dressMuon(xAOD::Muon& muon, const xAOD::MuonSegmentContainer* segments) const {
+    bool MuonCreatorTool::dressMuon(xAOD::Muon& muon) const {
         if (!muon.primaryTrackParticleLink().isValid()) {
             ATH_MSG_DEBUG("No primary track particle set, deleting muon");
             return false;
@@ -1189,7 +1154,7 @@ namespace MuonCombined {
         } else {
             ATH_MSG_WARNING("MuonCreatorTool::dressMuon - trying to set qOverP, but value from muon.primaryTrackParticle ["
                             << muon.primaryTrackParticleLink().dataID()
-                            << "] is zero. Setting charge=0.0. The eta/phi of the muon is: " << muon.eta() << "/" << muon.phi());
+                            << "] is zero. Setting charge=0.0. The eta/phi of the muon is: " << muon.eta() << " / " << muon.phi());
             muon.setCharge(0.0);
         }
 
@@ -1245,21 +1210,8 @@ namespace MuonCombined {
                 ATH_MSG_VERBOSE("Couldn't find matching track which might have energy loss.");
             }
         }
-
-        addSegmentsOnTrack(muon, segments);
         return true;
     }
-    void MuonCreatorTool::addSegmentsOnTrack(xAOD::Muon& muon, const xAOD::MuonSegmentContainer* segments) const {
-        /// Segments are associated with the muon if the author is MuTagIMO / MuGirl
-        if (!m_trackSegmentAssociationTool.empty() && !muon.nMuonSegments()) {
-            std::vector<ElementLink<xAOD::MuonSegmentContainer>> associatedSegments;
-            if (m_trackSegmentAssociationTool->associatedSegments(muon, segments, associatedSegments)) {
-                muon.setMuonSegmentLinks(associatedSegments);
-            }
-        }
-        if (!muon.nMuonSegments() || muon.isAuthor(xAOD::Muon::Author::MuTagIMO) || muon.muonType() != xAOD::Muon::Combined) return;
-    }
-
     void MuonCreatorTool::addEnergyLossToMuon(xAOD::Muon& muon) const {
         if (!muon.inDetTrackParticleLink().isValid()) {
             ATH_MSG_WARNING("Missing ID track particle link in addEnergyLossToMuon!");

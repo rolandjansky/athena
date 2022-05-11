@@ -1,13 +1,14 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IRECIMuonTrackToSegmentAssociationTool_H
 #define IRECIMuonTrackToSegmentAssociationTool_H
 
 #include "GaudiKernel/IAlgTool.h"
-#include "xAODMuon/Muon.h"
-#include "xAODMuon/MuonSegmentContainer.h"
+#include "MuonSegment/MuonSegment.h"
+#include "TrkSegment/SegmentCollection.h"
+#include "TrkTrack/Track.h"
 
 namespace MuonCombined {
 
@@ -24,11 +25,8 @@ namespace MuonCombined {
         }
 
         /**IMuonSegmentTagTool interface: build muons from ID and MuonSegments */
-        virtual bool associatedSegments(const Trk::Track& track, const xAOD::MuonSegmentContainer* segments,
-                                        std::vector<ElementLink<xAOD::MuonSegmentContainer> >& assocSegmentVec) const = 0;
-
-        virtual bool associatedSegments(const xAOD::Muon& muon, const xAOD::MuonSegmentContainer* segments,
-                                        std::vector<ElementLink<xAOD::MuonSegmentContainer> >& assocSegmentVec) const = 0;
+        virtual bool associatedSegments(const Trk::Track& track, const Trk::SegmentCollection* segments,
+                                        std::vector<const Muon::MuonSegment*>& assocSegmentVec) const = 0;
     };
 
 }  // namespace MuonCombined

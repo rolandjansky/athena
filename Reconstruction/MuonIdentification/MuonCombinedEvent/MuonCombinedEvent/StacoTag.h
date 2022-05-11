@@ -54,6 +54,9 @@ namespace MuonCombined {
         /** Returns whether the muon belongs to the commissioning chain **/
         bool isCommissioning() const override;
 
+        /** access to associated segments, empty vector if non available */
+        std::vector<const Muon::MuonSegment*> associatedSegments() const override;
+
     private:
         /** block copy and assignment */
         StacoTag(const StacoTag&) = delete;

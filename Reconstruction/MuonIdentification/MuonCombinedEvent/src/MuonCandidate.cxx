@@ -1,9 +1,10 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCombinedEvent/MuonCandidate.h"
 
+#include "MuonSegment/MuonSegment.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/Track.h"
 
@@ -59,10 +60,8 @@ namespace MuonCombined {
     void MuonCandidate::setCommissioning(bool b) { m_isCommissioning = b; }
     bool MuonCandidate::isCommissioning() const { return m_isCommissioning; }
 
-    void MuonCandidate::setSegments(std::vector<ElementLink<xAOD::MuonSegmentContainer>>&& segments) {
-        m_assoc_segments = std::move(segments);
-    }
-    const std::vector<ElementLink<xAOD::MuonSegmentContainer>>& MuonCandidate::getSegments() const { return m_assoc_segments; }
+    void MuonCandidate::setSegments(std::vector<const Muon::MuonSegment*>&& segments) { m_assoc_segments = std::move(segments); }
+    const std::vector<const Muon::MuonSegment*>& MuonCandidate::getSegments() const { return m_assoc_segments; }
     const ElementLink<xAOD::TrackParticleContainer>& MuonCandidate::extrapolatedParticleLink() const { return m_extrapolatedParticleLink; }
 
 }  // namespace MuonCombined

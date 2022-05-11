@@ -9,20 +9,16 @@ from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 MuonAODList = []
 
 if DetFlags.detdescr.Muon_on() and (rec.doWriteAOD() or rec.doWriteESD()):
-   
-   # Segments 
-   MuonAODList+=[ "xAOD::MuonSegmentContainer#MuonSegments" ]
-   MuonAODList+=[ "xAOD::MuonSegmentAuxContainer#MuonSegmentsAux." ]
-
-   MuonAODList+=[ "xAOD::MuonSegmentContainer#NCB_MuonSegments" ]
-   MuonAODList+=[ "xAOD::MuonSegmentAuxContainer#NCB_MuonSegmentsAux." ]
+  
    if MuonGeometryFlags.hasMM() or MuonGeometryFlags.hasSTGC():
       MuonAODList+=[ "xAOD::TrackParticleContainer#EMEO_MuonSpectrometerTrackParticles" ]
       MuonAODList+=[ "xAOD::TrackParticleAuxContainer#EMEO_MuonSpectrometerTrackParticlesAux." ]
-
-   MuonAODList+=[ "xAOD::MuonSegmentContainer#xAODNSWSegments" ]
-   MuonAODList+=[ "xAOD::MuonSegmentAuxContainer#xAODNSWSegmentsAux." ]
-      
+      MuonAODList+=[ "xAOD::MuonSegmentContainer#xAODNSWSegments" ]
+      MuonAODList+=[ "xAOD::MuonSegmentAuxContainer#xAODNSWSegmentsAux." ]
+   else:
+      MuonAODList+=[ "xAOD::MuonSegmentContainer#NCB_MuonSegments" ]
+      MuonAODList+=[ "xAOD::MuonSegmentAuxContainer#NCB_MuonSegmentsAux." ]
+   
    # TrackParticles 
    MuonAODList+=[ "xAOD::TrackParticleContainer#MuonSpectrometerTrackParticles" ]
    MuonAODList+=[ "xAOD::TrackParticleAuxContainer#MuonSpectrometerTrackParticlesAux." ]
@@ -87,14 +83,12 @@ if DetFlags.detdescr.Muon_on() and rec.doWriteESD():
    MuonESDList+=["Muon::RpcCoinDataContainer#RPC_triggerHits"]
    MuonESDList+=["RpcSectorLogicContainer#RPC_SECTORLOGIC"]
 
-   # Segments
-   MuonESDList+=["Trk::SegmentCollection#TrackMuonSegments"]
-   MuonESDList+=["Trk::SegmentCollection#NCB_TrackMuonSegments"]
-
    # Tracks
    MuonESDList+=["TrackCollection#MuonSpectrometerTracks"] 
    if MuonGeometryFlags.hasSTGC() or MuonGeometryFlags.hasMM():
-      MuonESDList+=["TrackCollection#EMEO_MuonSpectrometerTracks"] 
+      MuonESDList+=["TrackCollection#EMEO_MuonSpectrometerTracks"]
+   else:
+      MuonESDList+=["Trk::SegmentCollection#NCB_TrackMuonSegments"]
       
 
    # Truth

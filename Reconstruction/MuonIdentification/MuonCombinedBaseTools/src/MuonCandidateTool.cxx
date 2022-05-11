@@ -148,9 +148,9 @@ namespace MuonCombined {
         ATH_MSG_DEBUG("Finished ambiguity solving: " << extrapTracks->size() << " track(s) in -> " << resolvedTracks->size()
                                                      << " track(s) out");
 
-        const xAOD::MuonSegmentContainer* segments{nullptr};
+        const Trk::SegmentCollection* segments{nullptr};
         if (!m_segmentKey.empty()) {
-            SG::ReadHandle<xAOD::MuonSegmentContainer> readHandle{m_segmentKey, ctx};
+            SG::ReadHandle<Trk::SegmentCollection> readHandle{m_segmentKey, ctx};
             if (!readHandle.isValid()) {
                 ATH_MSG_WARNING("Failed to retrieve the segment container " << m_segmentKey.fullKey());
             } else
@@ -181,7 +181,7 @@ namespace MuonCombined {
             muon_candidate->setCommissioning(m_commissioning);
             /// Last but not least set the segments
             if (segments) {
-                std::vector<ElementLink<xAOD::MuonSegmentContainer>> assoc_segs;
+                std::vector<const Muon::MuonSegment*> assoc_segs;
                 m_trackSegmentAssociationTool->associatedSegments(*muon_candidate->primaryTrack(), segments, assoc_segs);
                 muon_candidate->setSegments(std::move(assoc_segs));
             }

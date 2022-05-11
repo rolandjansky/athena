@@ -2161,6 +2161,8 @@ PrimaryVerticesAuxDyn.sumPt2
 RunNumber
 SlowMuons
 SlowMuonsAux.
+StauSegments
+StauSegmentsAux.
 Staus
 StausAux.
 StreamAOD
@@ -2348,6 +2350,16 @@ TruthParticlesAuxDyn.polarizationPhi
 TruthParticlesAuxDyn.polarizationTheta
 TruthVertices
 TruthVerticesAux.
+UnAssocMuonSegments
+UnAssocMuonSegmentsAux.
+UnAssocMuonSegmentsAuxDyn.N_MicromegaEtaHits
+UnAssocMuonSegmentsAuxDyn.N_MicromegaStereoHits
+UnAssocMuonSegmentsAuxDyn.N_StgcEtaHits
+UnAssocMuonSegmentsAuxDyn.N_StgcPhiHits
+UnAssocMuonSegmentsAuxDyn.clusterTime
+UnAssocMuonSegmentsAuxDyn.clusterTimeError
+UnAssocMuonSegmentsAuxDyn.clusterTimeValid
+UnAssocMuonSegmentsAuxDyn.muonSegment
 _Digitization_Parameters
 _Generation_Parameters
 _Simulation_Parameters

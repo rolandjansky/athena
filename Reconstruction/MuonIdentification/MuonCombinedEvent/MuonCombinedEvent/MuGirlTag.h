@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDEVENT_MUGIRLTAG_H
@@ -11,7 +11,6 @@
 
 namespace Trk {
     class Track;
-
 }
 
 namespace Muon {
@@ -25,11 +24,11 @@ namespace MuonCombined {
     public:
         /** Constructor a link to a combined track and a list of segment ElementLinks as input
          */
-        MuGirlTag(const ElementLink<TrackCollection>& comblink, const std::vector<ElementLink<Trk::SegmentCollection> >& segLinks);
+        MuGirlTag(const ElementLink<TrackCollection>& comblink, const std::vector<const Muon::MuonSegment*>& segLinks);
 
         /** Constructor taking a list of segments
          */
-        MuGirlTag(const std::vector<ElementLink<Trk::SegmentCollection> >& segLinks);
+        MuGirlTag(const std::vector<const Muon::MuonSegment*>& segLinks);
 
         /** destructor */
         ~MuGirlTag();
@@ -49,8 +48,7 @@ namespace MuonCombined {
         /** set update extrapolated track*/
         void setUpdatedExtrapolatedTrack(ElementLink<TrackCollection> melink);
 
-        /** access segment ElementLinks */
-        const std::vector<ElementLink<Trk::SegmentCollection> >& segments() const;
+        std::vector<const Muon::MuonSegment*> associatedSegments() const override;
 
         /** name string */
         std::string name() const override;
@@ -72,9 +70,9 @@ namespace MuonCombined {
         MuGirlTag& operator=(const MuGirlTag&) = delete;
 
         /** data content */
-        ElementLink<TrackCollection> m_combLink;
-        ElementLink<TrackCollection> m_meLink;
-        std::vector<ElementLink<Trk::SegmentCollection> > m_segments;  /// list of segments
+        ElementLink<TrackCollection> m_combLink{};
+        ElementLink<TrackCollection> m_meLink{};
+        std::vector<const Muon::MuonSegment*> m_segments{};  /// list of segments
 
         bool m_isCommissioning{false};
     };

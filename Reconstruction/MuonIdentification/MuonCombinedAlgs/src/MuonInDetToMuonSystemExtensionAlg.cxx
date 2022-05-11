@@ -257,18 +257,12 @@ StatusCode MuonInDetToMuonSystemExtensionAlg::findHitSectors(const EventContext&
     return StatusCode::SUCCESS;
 }
 StatusCode MuonInDetToMuonSystemExtensionAlg::findSegments(const EventContext& ctx, InDetCandidateCache& output_cache) const {
-    SG::ReadHandle<xAOD::MuonSegmentContainer> segmentContainer{m_segmentKey, ctx};
+    SG::ReadHandle<Trk::SegmentCollection> segmentContainer{m_segmentKey, ctx};
     if (!segmentContainer.isValid()) {
         ATH_MSG_FATAL("Failed to retrieve the Muon segment container " << m_segmentKey.fullKey());
         return StatusCode::FAILURE;
     }
-    for (const xAOD::MuonSegment* segment : *segmentContainer) {
-        if (!segment->muonSegment().isValid()) {
-            ATH_MSG_WARNING("Failured in the segment association");
-            continue;
-        }
-        /// Retrieve the Trk segment
-        const Trk::Segment* trk_segment = *segment->muonSegment();
+    for (const Trk::Segment* trk_segment : *segmentContainer) {
         // Which in reality is a Muon segment
         const Muon::MuonSegment* muon_segment = dynamic_cast<const Muon::MuonSegment*>(trk_segment);
         if (!muon_segment) {

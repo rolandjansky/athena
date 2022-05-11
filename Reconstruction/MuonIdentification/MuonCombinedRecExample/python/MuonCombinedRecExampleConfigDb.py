@@ -146,5 +146,7 @@ addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedTool_EMEO", "MuonC
 
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedMuonCandidateAlg_EMEO","MuonCombinedMuonCandidateAlg_EMEO")
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedAlg_EMEO","MuonCombinedAlg_EMEO")
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonSegContainerMergerAlg","MuonSegContainerMergerAlg")
+
 
 

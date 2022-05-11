@@ -28,7 +28,7 @@ namespace MuonCombined {
     const MuonCandidate& StacoTag::muonCandidate() const { return *m_muonCandidate; }
     double StacoTag::matchChi2() const { return m_chi2; }
     const Trk::Track* StacoTag::primaryTrack() const { return muonCandidate().primaryTrack(); }
-
+    std::vector<const Muon::MuonSegment*> StacoTag::associatedSegments() const { return muonCandidate().getSegments(); }
     bool operator<(const StacoTag& t1, const StacoTag& t2) { return t1.matchChi2() < t2.matchChi2(); }
 
 }  // namespace MuonCombined

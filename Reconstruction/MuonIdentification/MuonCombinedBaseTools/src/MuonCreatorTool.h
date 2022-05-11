@@ -46,7 +46,6 @@
 #include "xAODMuon/SlowMuon.h"
 #include "xAODMuon/SlowMuonContainer.h"
 #include "xAODMuonCnv/IMuonDressingTool.h"
-#include "xAODMuonCnv/IMuonSegmentConverterTool.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
@@ -89,11 +88,12 @@ namespace MuonCombined {
 
         void addCombinedFit(const EventContext& ctx, xAOD::Muon& muon, const CombinedFitTag* tag, OutputData& outputData) const;
 
-        void addMuGirl(xAOD::Muon& muon, const MuGirlTag* tag, OutputData& outputData) const;
+        void addMuGirl(const EventContext& ctx, xAOD::Muon& muon, const MuGirlTag* tag, OutputData& outputData) const;
 
-        void addMuGirlLowBeta(xAOD::Muon& muon, const MuGirlLowBetaTag* tag, xAOD::SlowMuon* slowMuon, OutputData& outputData) const;
+        void addMuGirlLowBeta(const EventContext& ctx, xAOD::Muon& muon, const MuGirlLowBetaTag* tag, xAOD::SlowMuon* slowMuon,
+                              OutputData& outputData) const;
 
-        void addSegmentTag(xAOD::Muon& muon, const SegmentTag* tag, OutputData& outputData) const;
+        void addSegmentTag(const EventContext& ctx, xAOD::Muon& muon, const SegmentTag* tag, OutputData& outputData) const;
         void addCaloTag(xAOD::Muon& muon, const CaloTag* tag) const;
 
         /** add muon candidate info to a muon, if an updateExtrapolatedTrack is
@@ -112,9 +112,8 @@ namespace MuonCombined {
                                                                                  xAOD::TrackParticleContainer& trackParticleContainer,
                                                                                  TrackCollection* trackCollection = 0) const;
 
-        ElementLink<xAOD::MuonSegmentContainer> createMuonSegmentElementLink(const ElementLink<Trk::SegmentCollection>& segLink,
-                                                                             xAOD::MuonSegmentContainer& xaodSegments,
-                                                                             Trk::SegmentCollection* muonSegmentCollection = 0) const;
+        ElementLink<xAOD::MuonSegmentContainer> createMuonSegmentElementLink(const EventContext& ctx, const Muon::MuonSegment* segLink,
+                                                                             const OutputData& outData) const;
 
     private:
         void resolveOverlaps(const EventContext& ctx, const MuonCandidateCollection* muonCandidates,
@@ -128,7 +127,7 @@ namespace MuonCombined {
                                                      const Trk::Track& indetTrack) const;
         void setMuonHitCounts(xAOD::Muon& muon) const;
 
-        bool dressMuon(xAOD::Muon& muon, const xAOD::MuonSegmentContainer* segments) const;
+        bool dressMuon(xAOD::Muon& muon) const;
 
         void addEnergyLossToMuon(xAOD::Muon& muon) const;
 
@@ -138,8 +137,6 @@ namespace MuonCombined {
 
         void collectCells(const EventContext& ctx, xAOD::Muon& muon, xAOD::CaloClusterContainer* clusterContainer,
                           const Trk::CaloExtension* inputCaloExt = nullptr) const;
-
-        void addSegmentsOnTrack(xAOD::Muon& muon, const xAOD::MuonSegmentContainer* segments) const;
 
         ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
         ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc{this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
@@ -162,15 +159,11 @@ namespace MuonCombined {
                                                                                 "Rec::MuonScatteringAngleSignificanceTool/"
                                                                                 "MuonScatteringAngleSignificanceTool"};
         ToolHandle<CP::IMuonSelectionTool> m_selectorTool{this, "MuonSelectionTool", "CP::MuonSelectionTool/MuonSelectionTool"};
-        ToolHandle<xAODMaker::IMuonSegmentConverterTool> m_muonSegmentConverterTool{
-            this, "MuonSegmentConverterTool", "Muon::MuonSegmentConverterTool/MuonSegmentConverterTool"};
+
         ToolHandle<Rec::IMuonMeanMDTdADCFiller> m_meanMDTdADCTool{this, "MeanMDTdADCTool",
                                                                   "Rec::MuonMeanMDTdADCFillerTool/MuonMeanMDTdADCFillerTool"};
         ToolHandle<Trk::ITrkMaterialProviderTool> m_caloMaterialProvider{this, "CaloMaterialProvider",
                                                                          "Trk::TrkMaterialProviderTool/TrkMaterialProviderTool"};
-
-        PublicToolHandle<MuonCombined::IMuonTrackToSegmentAssociationTool> m_trackSegmentAssociationTool{
-            this, "TrackSegmentAssociationTool", "MuonCombined::TrackSegmentAssociationTool/TrackSegmentAssociationTool"};
 
         ToolHandle<Rec::IMuonTrackQuery> m_trackQuery{this, "TrackQuery", "Rec::MuonTrackQuery/MuonTrackQuery"};
         ToolHandle<Trk::IExtendedTrackSummaryTool> m_trackSummaryTool{this, "TrackSummaryTool", "MuonTrackSummaryTool"};

@@ -36,7 +36,7 @@ StatusCode Muon::MuonAmbiTrackSelectionTool::initialize() {
 std::tuple<Trk::Track *, bool> Muon::MuonAmbiTrackSelectionTool::getCleanedOutTrack(
     const Trk::Track *track, const Trk::TrackScore /*score*/, Trk::ClusterSplitProbabilityContainer & /*splitProbContainer*/,
     Trk::PRDtoTrackMap &prd_to_track_map, int trackId /*= -1*/, int subtrackId /*= -1*/) const {
-    unsigned int numshared{0}, numhits{0};
+    unsigned int numshared{0}, numhits{0}, numPhiHits{0};
 
     if (!track) {
         return std::make_tuple(nullptr, false);  // "reject" invalid input track
@@ -47,10 +47,11 @@ std::tuple<Trk::Track *, bool> Muon::MuonAmbiTrackSelectionTool::getCleanedOutTr
 
     std::map<Muon::MuonStationIndex::StIndex, int> sharedPrecisionPerLayer;
     std::map<Muon::MuonStationIndex::StIndex, int> precisionPerLayer;
-    auto is_shared = [&sharedPrecisionPerLayer, &precisionPerLayer, this, &numshared, &numhits,
-                      &prd_to_track_map](const Trk::RIO_OnTrack *rot) {
+    auto is_shared = [&sharedPrecisionPerLayer, &precisionPerLayer, this, &numshared, &numhits, &prd_to_track_map,
+                      &numPhiHits](const Trk::RIO_OnTrack *rot) {
         if (!rot || !rot->prepRawData()) return;
         const Identifier rot_id = rot->prepRawData()->identify();
+        numPhiHits += m_idHelperSvc->isMuon(rot_id) && m_idHelperSvc->measuresPhi(rot_id);
         if (!(m_idHelperSvc->isMdt(rot_id) || m_idHelperSvc->isMM(rot_id) || m_idHelperSvc->issTgc(rot_id) ||
               (m_idHelperSvc->isCsc(rot_id) && !m_idHelperSvc->measuresPhi(rot_id)))) {
             ATH_MSG_VERBOSE("Measurement " << m_printer->print(*rot) << " is not a precision one");
@@ -88,8 +89,11 @@ std::tuple<Trk::Track *, bool> Muon::MuonAmbiTrackSelectionTool::getCleanedOutTr
             is_shared(rot);
         }
     }
-    if (numhits == 0) {
-        ATH_MSG_WARNING("Got track without Muon hits " << m_printer->print(*track));
+    if (!numhits) {
+        /// Do not trigger the warning if the segment consists purely of phi hits
+        if (!numPhiHits)
+            ATH_MSG_WARNING("Got track without Muon hits " << m_printer->print(*track) << std::endl
+                                                           << m_printer->printMeasurements(*track));
         return std::make_tuple(nullptr, false);  // reject input track
     }
     const double overlapFraction = (double)numshared / (double)numhits;

@@ -28,19 +28,14 @@ MuonCreatorAlg::MuonCreatorAlg(const std::string& name, ISvcLocator* pSvcLocator
 
 StatusCode MuonCreatorAlg::initialize() {
     ATH_CHECK(m_muonCreatorTool.retrieve());
-    if (m_copySegs)
-        ATH_CHECK(m_muonSegmentConverterTool.retrieve());
-    else
-        m_muonSegmentConverterTool.disable();
     ATH_CHECK(m_muonCollectionName.initialize());
     ATH_CHECK(m_slowMuonCollectionName.initialize(m_buildSlowMuon));
     ATH_CHECK(m_indetCandidateCollectionName.initialize(!m_doSA));
     ATH_CHECK(m_muonCandidateKeys.initialize(!m_buildSlowMuon));
     // Can't use a flag in intialize for an array of keys
     if (!m_doSA) ATH_CHECK(m_tagMaps.initialize());
-    ATH_CHECK(m_inputSegContainerName.initialize(m_copySegs));
-    ATH_CHECK(m_segContainerName.initialize());
-    ATH_CHECK(m_segTrkContainerName.initialize());
+    ATH_CHECK(m_segContainerName.initialize(!m_segContainerName.empty()));
+    ATH_CHECK(m_segAssocMapKey.initialize(!m_segAssocMapKey.empty()));
     m_combinedTrkCollectionName = m_combinedCollectionName.key() + "Tracks";
     m_combinedCollectionName = m_combinedCollectionName.key() + "TrackParticles";
     ATH_CHECK(m_combinedCollectionName.initialize());
@@ -59,8 +54,6 @@ StatusCode MuonCreatorAlg::initialize() {
 
     if (not m_monTool.name().empty()) { ATH_CHECK(m_monTool.retrieve()); }
     ATH_MSG_INFO("MuonCreatorAlg has been setup  successfully");
-    ATH_MSG_INFO("    *** SegmentTrackContainer:            " << m_segTrkContainerName);
-    ATH_MSG_INFO("    *** SegmentContainer:                 " << m_segContainerName);
     ATH_MSG_INFO("    *** CombinedTrackContainer:           " << m_combinedTrkCollectionName);
     ATH_MSG_INFO("    *** xAOD::CombinedTrackContainer:     " << m_combinedCollectionName);
 
@@ -80,7 +73,7 @@ StatusCode MuonCreatorAlg::execute(const EventContext& ctx) const {
     }
 
     // Create the xAOD container and its auxiliary store:
-    SG::WriteHandle<xAOD::MuonContainer> wh_muons(m_muonCollectionName, ctx);
+    SG::WriteHandle<xAOD::MuonContainer> wh_muons{m_muonCollectionName, ctx};
     ATH_CHECK(wh_muons.record(std::make_unique<xAOD::MuonContainer>(), std::make_unique<xAOD::MuonAuxContainer>()));
     ATH_MSG_DEBUG("Recorded Muons with key: " << m_muonCollectionName.key());
     MuonCombined::IMuonCreatorTool::OutputData output(*(wh_muons.ptr()));
@@ -111,35 +104,13 @@ StatusCode MuonCreatorAlg::execute(const EventContext& ctx) const {
     output.msOnlyExtrapolatedTrackCollection = wh_msextrtrk.ptr();
 
     // segments
-    SG::WriteHandle<xAOD::MuonSegmentContainer> wh_segment(m_segContainerName, ctx);
-    ATH_CHECK(wh_segment.record(std::make_unique<xAOD::MuonSegmentContainer>(), std::make_unique<xAOD::MuonSegmentAuxContainer>()));
-    output.xaodSegmentContainer = wh_segment.ptr();
-    SG::WriteHandle<Trk::SegmentCollection> wh_segmentTrk(m_segTrkContainerName, ctx);
-    ATH_CHECK(wh_segmentTrk.record(std::make_unique<Trk::SegmentCollection>()));
-    output.muonSegmentCollection = wh_segmentTrk.ptr();
-    if (m_copySegs) {
-        // now copy the input segments to the final container
-        SG::ReadHandle<Trk::SegmentCollection> inputSegs(m_inputSegContainerName, ctx);
-        if (inputSegs.isValid()) {
-            for (const Trk::Segment* seg : *inputSegs) {
-                // have to cast because the collection stores Trk::Segments
-                const Muon::MuonSegment* muonSegment = dynamic_cast<const Muon::MuonSegment*>(seg);
-                if (muonSegment) wh_segmentTrk->push_back(new Muon::MuonSegment(*muonSegment));
-            }
-        }
-        // now convert
-        unsigned int index = 0;
-        for (const Trk::Segment* seg : *wh_segmentTrk) {
-            // have to cast because the collection stores Trk::Segments
-            const Muon::MuonSegment* muonSegment = dynamic_cast<const Muon::MuonSegment*>(seg);
-            if (!muonSegment) {
-                ++index;
-                continue;
-            }
-            ElementLink<Trk::SegmentCollection> link(*wh_segmentTrk, index);
-            ++index;
-            m_muonSegmentConverterTool->convert(link, wh_segment.ptr());
-        }
+    if (!m_segContainerName.empty()) {
+        SG::ReadHandle<xAOD::MuonSegmentContainer> rh_segment(m_segContainerName, ctx);
+        output.xaodSegmentContainer = rh_segment.ptr();
+    }
+    if (!m_segAssocMapKey.empty()) {
+        SG::ReadHandle<MuonCombined::MuonTagToSegMap> rh_segAssocMap(m_segAssocMapKey, ctx);
+        output.tagToSegmentAssocMap = rh_segAssocMap.ptr();
     }
 
     // calo clusters

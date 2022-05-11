@@ -47,7 +47,7 @@ namespace MuonCombined {
         SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey{this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot"};
 
         /// Retrieve the segment container to perform the segment association offline
-        SG::ReadHandleKey<xAOD::MuonSegmentContainer> m_segmentKey{this, "SegmentContainer", ""};
+        SG::ReadHandleKey<Trk::SegmentCollection> m_segmentKey{this, "SegmentContainer", ""};
         PublicToolHandle<MuonCombined::IMuonTrackToSegmentAssociationTool> m_trackSegmentAssociationTool{
             this, "TrackSegmentAssociationTool", "MuonCombined::TrackSegmentAssociationTool/TrackSegmentAssociationTool"};
 

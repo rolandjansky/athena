@@ -31,9 +31,6 @@ namespace MuonCombined {
         /** track extrapolated to the segment */
         std::shared_ptr<const Trk::TrackParameters> trackAtSegment{nullptr};
 
-        /** element link to xAOD segment */
-        ElementLink<xAOD::MuonSegmentContainer> link;
-
         /** global theta direction track - segment in bending plane */
         double dtheta{-9999.};
 

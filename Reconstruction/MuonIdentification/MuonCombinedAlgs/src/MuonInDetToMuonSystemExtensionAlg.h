@@ -51,8 +51,8 @@ private:
     SG::ReadHandleKey<Muon::HoughDataPerSectorVec> m_houghDataPerSectorVecKey{this, "LayerHoughKey", "HoughDataPerSectorVec",
                                                                               "HoughDataPerSectorVec key"};
     /// Let's exploit the segments to get rid of as much tracks as possible
-    SG::ReadHandleKey<xAOD::MuonSegmentContainer> m_segmentKey{this, "MuonSegmentLocation", "xaodMuonSegments",
-                                                               "name of muon segment container"};
+    SG::ReadHandleKey<Trk::SegmentCollection> m_segmentKey{this, "MuonSegmentLocation", "TrackMuonSegments",
+                                                           "name of muon segment container"};
 
     PublicToolHandle<Muon::IMuonSegmentSelectionTool> m_segmentSelector{this, "MuonSegmentSelectionTool",
                                                                         "Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool"};
