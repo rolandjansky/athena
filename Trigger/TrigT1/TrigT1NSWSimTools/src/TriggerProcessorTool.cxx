@@ -20,7 +20,7 @@ namespace NSWL1 {
   StatusCode TriggerProcessorTool::mergeRDO(const Muon::NSW_PadTriggerDataContainer* padTriggerContainer,
                                             const Muon::NSW_TrigRawDataContainer* stripTriggerContainer,
                                             const Muon::NSW_TrigRawDataContainer* MMTriggerContainer,
-                                            Muon::NSW_TrigRawDataContainer* trigRdoContainer) {
+                                            Muon::NSW_TrigRawDataContainer* trigRdoContainer) const {
     ATH_MSG_DEBUG("------------- TriggerProcessorTool::mergeRDO ---------------------");
     ATH_MSG_DEBUG("Pad Trigger Container size: " << padTriggerContainer->size());
     for ( const auto &padTriggerData : *padTriggerContainer ) {
