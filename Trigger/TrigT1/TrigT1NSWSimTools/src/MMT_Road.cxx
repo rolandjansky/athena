@@ -28,7 +28,7 @@ MMT_Road::MMT_Road(const char sector, const MuonGM::MuonDetectorManager* detMana
 }
 
 void MMT_Road::addHits(std::vector<std::shared_ptr<MMT_Hit> > &hits) {
-  for (auto hit_i : hits) {
+  for (const auto &hit_i : hits) {
     int bo = hit_i->getPlane();
     bool has_hit = false;
     if( this->containsNeighbors(*hit_i) ) {
