@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 //*************************************************************
@@ -30,6 +30,7 @@
 #include <map>
 #include <string>
 
+#include "AthenaBaseComps/AthMessaging.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "xAODTrigL1Calo/TriggerTower.h"
@@ -46,11 +47,6 @@ class TProfile2D_LW;
 class EventInfo;
 class ITHistSvc;
 class ManagedMonitorToolBase;
-namespace Athena {
-class MsgStreamMember;
-}
-
-
 
 namespace LVL1 {
 class IL1TriggerTowerTool;
@@ -86,7 +82,7 @@ enum CalLayerEnum
     undef
 };
 
-class L1CaloPprPlotManager
+class L1CaloPprPlotManager : public AthMessaging
 {
 protected:
     // constructor for offline monitoring
@@ -169,7 +165,6 @@ protected:
 
     const EventInfo* m_eventInfo;
     ITHistSvc* m_histoSvc;
-    Athena::MsgStreamMember* m_log;
     ManagedMonitorToolBase* m_monObj;
 
     // basic path for ppr monitoring histograms
