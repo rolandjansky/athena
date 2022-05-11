@@ -23,7 +23,7 @@ def CaloCellMakerCfg(configFlags):
     cellMakerTools=[larCellBuilder,tileCellBuilder,cellFinalizer]+larCellCorrectors
 
     #Add corrections tools that are not LAr or Tile specific:
-    if configFlags.Calo.Cell.doPileupOffsetBCIDCorr or configFlags.Cell.doPedestalCorr:
+    if configFlags.Calo.Cell.doPileupOffsetBCIDCorr or configFlags.Calo.Cell.doPedestalCorr:
         theCaloCellPedestalCorr=CaloCellPedestalCorrCfg(configFlags)
         cellMakerTools.append(result.popToolsAndMerge(theCaloCellPedestalCorr))
 

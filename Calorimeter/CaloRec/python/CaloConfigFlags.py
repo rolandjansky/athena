@@ -12,7 +12,7 @@ def createCaloConfigFlags():
     #CaloCell flags     
     ccf.addFlag("Calo.Cell.doPileupOffsetBCIDCorr", True)  
     ccf.addFlag("Calo.Cell.doDeadCellCorr", True)
-    ccf.addFlag("Calo.Cell.doPedestaCorr", lambda prevFlags: not prevFlags.Input.isMC)
+    ccf.addFlag("Calo.Cell.doPedestalCorr", lambda prevFlags: not prevFlags.Input.isMC)
     ccf.addFlag("Calo.Cell.doEnergyCorr",lambda prevFlags: not prevFlags.Input.isMC and not prevFlags.Common.isOnline)
     ccf.addFlag("Calo.Cell.doTimeCorr", lambda prevFlags: not prevFlags.Input.isMC and not prevFlags.Common.isOnline)
 
