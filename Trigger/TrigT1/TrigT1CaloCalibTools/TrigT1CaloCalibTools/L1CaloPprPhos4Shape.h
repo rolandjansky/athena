@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************
@@ -78,13 +78,12 @@
 #include "TF1.h"
 #include "TH1.h"
 
-// Get the message service and StoreGate
-#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
 #include "TrigT1CaloCalibConditions/L1CaloCoolChannelId.h"
 #include "TrigT1CaloCalibConditions/ChanCalibErrorCode.h"
 
-class L1CaloPprPhos4Shape {
+class L1CaloPprPhos4Shape : public AthMessaging {
 
 public:
    L1CaloPprPhos4Shape(const L1CaloCoolChannelId& coolId);
@@ -171,8 +170,6 @@ private:
    L1CaloPprPhos4Shape();
    L1CaloPprPhos4Shape(const L1CaloPprPhos4Shape& rhs);
    void operator=(const L1CaloPprPhos4Shape& rhs);
-
-   Athena::MsgStreamMember* m_log;
 
    unsigned int m_minSignalHeight;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************
@@ -62,11 +62,12 @@
 #include <sstream>
 #include <fstream>
 
-#include "TrigT1CaloCalibTools/L1CaloPprPhos4Shape.h"
-
-#include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "CxxUtils/checker_macros.h"
+
+#include "TrigT1CaloCalibTools/L1CaloPprPhos4Shape.h"
+#include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
 
 class TTree;
 class TFile;
@@ -75,10 +76,9 @@ class TH1F;
 class TH2F;
 class TCanvas;
 
-class MsgStreamMember;
 class L1CaloCoolChannelId;
 
-class L1CaloPprPhos4ShapeCollection{
+class L1CaloPprPhos4ShapeCollection : public AthMessaging {
 public:
    L1CaloPprPhos4ShapeCollection();
    ~L1CaloPprPhos4ShapeCollection();
@@ -154,8 +154,6 @@ private:
    
    bool m_isTileRun;
    bool m_isLArRun;
-   
-   Athena::MsgStreamMember* m_log;
    
    unsigned int m_minSignalHeight;
    std::string m_timingRegime;

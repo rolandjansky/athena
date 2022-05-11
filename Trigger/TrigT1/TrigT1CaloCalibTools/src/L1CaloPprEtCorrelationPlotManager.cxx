@@ -7,7 +7,6 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
-#include "AthenaKernel/MsgStreamMember.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "StoreGate/StoreGateSvc.h"
 
@@ -77,7 +76,7 @@ StatusCode L1CaloPprEtCorrelationPlotManager::getCaloCells()
       
         sc = m_storeGate->retrieve(caloCellContainer, m_caloCellContainerName);
 	if ( sc.isFailure() || !caloCellContainer) {
-	    *m_log<<MSG::WARNING<<"Could not retrieve calo cell container" << endmsg;
+        ATH_MSG_WARNING("Could not retrieve calo cell container");
 	}
 	else {
 	    m_ttToolOffline->caloCells(caloCellContainer);
@@ -88,7 +87,7 @@ StatusCode L1CaloPprEtCorrelationPlotManager::getCaloCells()
 
         sc = m_caloTool->loadCaloCells();
 	if ( sc.isFailure() ) {
-	    *m_log<<MSG::WARNING<<"Could not load CaloCells" << endmsg;
+	    ATH_MSG_WARNING("Could not load CaloCells");
         }
 
     }
@@ -155,13 +154,13 @@ void L1CaloPprEtCorrelationPlotManager::loadTools()
     if (m_isOnline) {
         sc = m_caloTool.retrieve();
 	if ( sc.isFailure()) {
-	    *m_log<<MSG::WARNING<<"Unable to locate tool L1CaloMonitoringCaloTool" << endmsg;
+	    ATH_MSG_WARNING("Unable to locate tool L1CaloMonitoringCaloTool");
 	}
     }
     else {
         sc = m_storeGate.retrieve();
 	if ( sc.isFailure()) {
-	    *m_log<<MSG::WARNING<<"Unable to retrieve store gate" << endmsg;
+	    ATH_MSG_WARNING("Unable to retrieve store gate");
 	}
     }
     

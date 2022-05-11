@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -7,7 +7,6 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/MsgStream.h"
 
-#include "AthenaKernel/MsgStreamMember.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
@@ -46,6 +45,7 @@ L1CaloPprPlotManager::L1CaloPprPlotManager(ITHistSvc* histSvc,
         const std::string& monitoringTitle,
         const std::string& monitoringDimension,
         bool doRunHistograms):
+    AthMessaging(Athena::getMessageSvc(), Form("L1CaloPpr%sPlotManager", m_monitoringPath.data())),
     m_histTool("LVL1::TrigT1CaloLWHistogramTool/TrigT1CaloLWHistogramTool"),
     m_ttToolOffline(ttTool_offline),
     m_eventInfo(0),
@@ -83,7 +83,6 @@ L1CaloPprPlotManager::L1CaloPprPlotManager(ITHistSvc* histSvc,
     m_currentRunNo(0),
     m_lastRunNo(0)
 {
-    m_log = new Athena::MsgStreamMember(Athena::Options::Eager, Form("L1CaloPpr%sPlotManager", m_monitoringPath.data()));
 }
 
 // --------------------------------------------------------------------------
@@ -98,6 +97,7 @@ L1CaloPprPlotManager::L1CaloPprPlotManager(ManagedMonitorToolBase* aMonObj,
         const std::string& monitoringName,
         const std::string& monitoringTitle,
         const std::string& monitoringDimension):
+    AthMessaging(Athena::getMessageSvc(), Form("L1CaloPpr%sPlotManager", m_monitoringPath.data())),
     m_histTool("LVL1::TrigT1CaloLWHistogramTool/TrigT1CaloLWHistogramTool"),
     m_ttToolOnline(ttTool_online),
     m_eventInfo(0),
@@ -135,7 +135,6 @@ L1CaloPprPlotManager::L1CaloPprPlotManager(ManagedMonitorToolBase* aMonObj,
     m_currentRunNo(0),
     m_lastRunNo(0)
 {
-    m_log = new Athena::MsgStreamMember(Athena::Options::Eager, Form("L1CaloPpr%sPlotManager", m_monitoringPath.data()));
     TH1::AddDirectory(0);
 }
 
@@ -143,7 +142,6 @@ L1CaloPprPlotManager::L1CaloPprPlotManager(ManagedMonitorToolBase* aMonObj,
 
 L1CaloPprPlotManager::~L1CaloPprPlotManager()
 {
-    delete m_log;
 }
 
 // --------------------------------------------------------------------------
@@ -168,10 +166,10 @@ void L1CaloPprPlotManager::Analyze(const EventInfo* evtInfo, const xAOD::Trigger
         {
 
             StatusCode sc =  this->MakeSummary();
-            if (sc.isFailure()) {*m_log << MSG::FATAL << "Could not make Summary" << endmsg;}
+            if (sc.isFailure()) {ATH_MSG_FATAL("Could not make Summary");}
 
             sc = this->bookRunHistograms();
-            if (sc.isFailure()) {*m_log << MSG::FATAL << "Could not book Run Histograms" << endmsg;}
+            if (sc.isFailure()) {ATH_MSG_FATAL("Could not book Run Histograms");}
         }
     }
     if (m_isOnline && this->isNewRun())
@@ -221,8 +219,8 @@ StatusCode L1CaloPprPlotManager::bookRunHistograms()
     m_p_offline_em_valueVsRunNumber->Sumw2();
     sc = m_histoSvc->regHist(Form("/AANT/ADC/%s/ppm_em_1d_profile_adc_%sVsRunNumber", m_monitoringPath.data(), m_monitoringName.data()),
                              m_p_offline_em_valueVsRunNumber);
-    if (sc.isFailure()) {*m_log << MSG::ERROR << "could not register histogram: " << m_p_offline_em_valueVsRunNumber->GetName() << endmsg;}
-    else {*m_log << MSG::INFO << Form("EM%s VS RUN NO HISTOGRAM booked", m_monitoringName.data()) << endmsg;}
+    if (sc.isFailure()) {ATH_MSG_ERROR("could not register histogram: " << m_p_offline_em_valueVsRunNumber->GetName());}
+    else {ATH_MSG_INFO(Form("EM%s VS RUN NO HISTOGRAM booked", m_monitoringName.data()));}
 
     m_p_offline_had_valueVsRunNumber = new TProfile(Form("ppm_had_1d_profile_adc_%sVsRunNumber", m_monitoringName.data()),
             Form("%s Vs Run No: Had TriggerTower; Run No; %s %s",
@@ -235,8 +233,8 @@ StatusCode L1CaloPprPlotManager::bookRunHistograms()
     m_p_offline_had_valueVsRunNumber->Sumw2();
     sc = m_histoSvc->regHist(Form("/AANT/ADC/%s/ppm_had_1d_profile_adc_%sVsRunNumber", m_monitoringPath.data(), m_monitoringName.data()),
                              m_p_offline_had_valueVsRunNumber);
-    if (sc.isFailure()) {*m_log << MSG::ERROR << "could not register histogram: " << m_p_offline_had_valueVsRunNumber->GetName() << endmsg;}
-    else {*m_log << MSG::INFO << Form("HAD%s VS RUN NO HISTOGRAM booked", m_monitoringName.data()) << endmsg;}
+    if (sc.isFailure()) {ATH_MSG_ERROR("could not register histogram: " << m_p_offline_had_valueVsRunNumber->GetName());}
+    else {ATH_MSG_INFO(Form("HAD%s VS RUN NO HISTOGRAM booked", m_monitoringName.data()));}
 
     m_p_offline_em_valueVsLumi = new TProfile(Form("ppm_em_1d_profile_adc_%sVsLumi", m_monitoringName.data()),
             Form("Profile Histogram of %s vs Luminosity Block: Em TriggerTower; LumiBlock; %s %s",
@@ -252,7 +250,7 @@ StatusCode L1CaloPprPlotManager::bookRunHistograms()
                                   m_monitoringName.data()),
                              m_p_offline_em_valueVsLumi);
     m_p_offline_em_valueVsLumi->Sumw2();
-    if (sc.isFailure()) {*m_log << MSG::ERROR << "could not register histogram: " << m_p_offline_em_valueVsLumi->GetName() << endmsg;}
+    if (sc.isFailure()) {ATH_MSG_ERROR("could not register histogram: " << m_p_offline_em_valueVsLumi->GetName());}
 
     m_p_offline_had_valueVsLumi = new TProfile(Form("ppm_had_1d_profile_adc_%sVsLumi", m_monitoringName.data()),
             Form("Profile Histogram of %s vs Luminosity Block: Had TriggerTower; LumiBlock; %s %s",
@@ -268,7 +266,7 @@ StatusCode L1CaloPprPlotManager::bookRunHistograms()
                                   m_monitoringName.data()),
                              m_p_offline_had_valueVsLumi);
     m_p_offline_had_valueVsLumi->Sumw2();
-    if (sc.isFailure()) {*m_log << MSG::ERROR << "could not register histogram: " << m_p_offline_had_valueVsLumi->GetName() << endmsg;}
+    if (sc.isFailure()) {ATH_MSG_ERROR("could not register histogram: " << m_p_offline_had_valueVsLumi->GetName());}
 
     //Eta Phi Maps
     m_p_online_em_etaPhiValue    = m_histTool->bookProfilePPMEmEtaVsPhi(Form("ppm_em_2d_profile_etaPhi_adc_%s", m_monitoringName.data()),
@@ -602,7 +600,7 @@ void L1CaloPprPlotManager::fillPartitionOfflineHistos(const xAOD::TriggerTower* 
                                             detectorRegionString.data(),
                                             m_monitoringName.data()),
                                             aProfileHist);
-        if ( sc.isFailure() ) { *m_log << MSG::ERROR << "could not register histogram: " << aProfileHist->GetName() << endmsg; }
+        if ( sc.isFailure() ) { ATH_MSG_ERROR("could not register histogram: " << aProfileHist->GetName()); }
 
         aProfileHist->Fill(m_lumiNo, value);
         m_map_offline_partitionProfile_ValueVsLumi.insert( std::pair<CaloDivisionEnum, TProfile*> (detectorRegion, aProfileHist) );
@@ -669,7 +667,7 @@ void L1CaloPprPlotManager::fillDifferentialOfflineHistos(const xAOD::TriggerTowe
                                             coolId,
                                             m_monitoringName.data()),
                                             aProfileHist);
-        if ( sc.isFailure() ) { *m_log << MSG::ERROR << "could not register histogram: " << aProfileHist->GetName() << endmsg; }
+        if ( sc.isFailure() ) { ATH_MSG_ERROR("could not register histogram: " << aProfileHist->GetName()); }
 
         aProfileHist->Fill(m_lumiNo, value);
         m_map_offline_coolIDProfile_ValueVsLumi.insert( std::pair<unsigned int, TProfile*> (coolId, aProfileHist) );
@@ -688,20 +686,20 @@ StatusCode L1CaloPprPlotManager::MakeSummary()
     StatusCode sc;
     if ( !m_isOnline && m_doRunHistograms )
     {
-        *m_log << MSG::INFO << "MakeSummary for " << m_monitoringName.data() << " plots" << endmsg;
+        ATH_MSG_INFO("MakeSummary for " << m_monitoringName.data() << " plots");
         sc =  m_histoSvc->regHist(Form("/AANT/ADC/%s/run#%d/ppm_em_2d_profile_etaPhi_adc_%s",
                                        m_monitoringPath.data(),
                                        m_currentRunNo,
                                        m_monitoringName.data()),
                                   this->ConvertToOfflineHist(m_p_online_em_etaPhiValue, 20));
-        if (sc.isFailure()) {*m_log << "could not register histogram: " << m_p_online_em_etaPhiValue->GetName() << endmsg;}
+        if (sc.isFailure()) {ATH_MSG_ERROR("could not register histogram: " << m_p_online_em_etaPhiValue->GetName());}
 
         sc = m_histoSvc->regHist(Form("/AANT/ADC/%s/run#%d/ppm_had_2d_profile_etaPhi_adc_%s",
                                       m_monitoringPath.data(),
                                       m_currentRunNo,
                                       m_monitoringName.data()),
                                  this->ConvertToOfflineHist(m_p_online_had_etaPhiValue, 20));
-        if (sc.isFailure()) {*m_log << "could not register histogram: " << m_p_online_had_etaPhiValue->GetName() << endmsg;}
+        if (sc.isFailure()) {ATH_MSG_ERROR("could not register histogram: " << m_p_online_had_etaPhiValue->GetName());}
     }
     return sc;
 }
@@ -731,7 +729,7 @@ TProfile2D* L1CaloPprPlotManager::ConvertToOfflineHist(TProfile2D_LW* hist, unsi
     temp->SetMaximum(temp->GetMaximum());
     temp->SetMinimum(temp->GetMinimum());
     temp->SetContour(binContours);
-    *m_log << MSG::INFO << "ConvertToOfflineHist for " << temp->GetName() << endmsg;
+    ATH_MSG_INFO("ConvertToOfflineHist for " << temp->GetName());
     return (TProfile2D*)temp->Clone();
 }
 
