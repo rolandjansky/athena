@@ -23,9 +23,8 @@ PixelAthClusterMonAlg::PixelAthClusterMonAlg(const std::string& name, ISvcLocato
   m_trackSelTool("InDet::InDetTrackSelectionTool/TrackSelectionTool", this),
   m_atlasid(nullptr)
 {
-  //jo flags go here, keys and some tools -> in class
   declareProperty("HoleSearchTool", m_holeSearchTool);
-  declareProperty("TrackSelectionTool", m_trackSelTool); //needed for cfg in python jo
+  declareProperty("TrackSelectionTool", m_trackSelTool);
 
   declareProperty("doOnline", m_doOnline = false);
   declareProperty("doLumiBlock", m_doLumiBlock = false);
@@ -135,8 +134,6 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
 
     // Per FE Status
     //
-
-    // code requires testing w/ different pixel conditions - could cause segfault!
     if (m_doFEPlots) {
       int nFE = getNumberOfFEs(pixlayer, m_pixelid->eta_module(waferID));
       for (int iFE = 0; iFE < nFE; iFE++) {
@@ -406,13 +403,9 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
     return left.first < right.first;
   });
 
-
-  // Filling per-event histograms
-  //
   auto nTrks = Monitored::Scalar<int>("ntrks_per_event", ntracksPerEvent);
   fill(trackGroup, lbval, nTrks);
 
-  //m_npixhits_per_track_lastXlb-> // m_npixhits_per_track_lumi TH2F vs lumi
   //*******************************************************************************
   //**************************** End of filling Track Histograms ******************
   //*******************************************************************************
@@ -637,8 +630,7 @@ StatusCode PixelAthClusterMonAlg::fillHistograms(const EventContext& ctx) const 
   fillFromArrays("ClusterOccupancyPP0OnTrack", clusPerEventArray);
 
   if (ntracksPerEvent > 0) {
-    for (unsigned int ii = 0; ii < PixLayers::COUNT; ii++) nclusters_ontrack_mod[ii] /= ntracksPerEvent; // keep as in
-                                                                                                         // Run 1,2
+    for (unsigned int ii = 0; ii < PixLayers::COUNT; ii++) nclusters_ontrack_mod[ii] /= ntracksPerEvent;
     fill1DProfLumiLayers("NumClustersPerTrackPerLumi", lb, nclusters_ontrack_mod);
   }
   //

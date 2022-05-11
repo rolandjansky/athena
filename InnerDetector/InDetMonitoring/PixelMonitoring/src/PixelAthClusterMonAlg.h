@@ -42,7 +42,7 @@ private:
   ToolHandle<Trk::ITrackHoleSearchTool> m_holeSearchTool;
   ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelTool;
 
-  const AtlasDetectorID* m_atlasid {};  //tracks only
+  const AtlasDetectorID* m_atlasid {};
 
   SG::ReadHandleKey<InDet::PixelClusterContainer> m_clustersKey {
     this, "ClusterName", "PixelClusters", "pixel cluster data key"

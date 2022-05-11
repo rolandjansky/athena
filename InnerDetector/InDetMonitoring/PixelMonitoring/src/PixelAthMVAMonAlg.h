@@ -49,7 +49,7 @@ class PixelAthMVAMonAlg : public PixelAthMonitoringBase {
   ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelTool;
   ToolHandle<Trk::IExtrapolator> m_trkextrapolator;
 
-  const AtlasDetectorID* m_atlasid{};  //tracks only
+  const AtlasDetectorID* m_atlasid{};
 
   SG::ReadHandleKey<PixelRDO_Container> m_pixelRDOName{this, "RDOName", "PixelRDOs", "rdo data key"};
   SG::ReadHandleKey<InDet::PixelClusterContainer> m_clustersKey{this, "ClusterName", "PixelClusters", "pixel cluster data key" };
