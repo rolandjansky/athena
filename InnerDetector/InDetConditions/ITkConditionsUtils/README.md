@@ -14,5 +14,5 @@ ITkPixelChargeCalibration.py
 
 To test this with Athena run with the following `preExec`:
 ```
---preExec 'ConfigFlags.ITk.Conditions.PixelChargeCalibTag = "PixelChargeCalib-RUN4-00"; ConfigFlags.ITk.Conditions.PixelChargeCalibFile = "ITkPixelChargeCalib.db"'
+--preExec 'ConfigFlags.ITk.Conditions.PixelChargeCalibTag = "ChargeCalib-MC21-01"; ConfigFlags.ITk.Conditions.PixelChargeCalibFile = "ITkPixelChargeCalib.db"'
 ```
