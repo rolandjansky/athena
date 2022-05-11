@@ -94,7 +94,7 @@ unsigned int TSU::Kinematics::calcDeltaEtaBW(const TCS::GenericTOB* tob1, const 
   return deta;
 }
 
-unsigned long long TSU::Kinematics::calcInvMassBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2){
+unsigned int TSU::Kinematics::calcInvMassBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2){
 
   auto bit_cosheta = TSU::L1TopoDataTypes<25,10>(TSU::Hyperbolic::Cosh.at(std::abs(tob1->eta() - tob2->eta())));
   //In case of EM objects / jets / taus the phi angle goes between 0 and 128 while muons are between -128 and 128, applying a shift to keep delta-phi in the allowed range. 
@@ -110,8 +110,13 @@ unsigned long long TSU::Kinematics::calcInvMassBW(const TCS::GenericTOB* tob1, c
   TSU::L1TopoDataTypes<15,0> bit_Et1(tob1->Et());
   TSU::L1TopoDataTypes<15,0> bit_Et2(tob2->Et());
   auto bit_invmass2 = bit_Et1*bit_Et2*(bit_cosheta - bit_cosphi)*2;
-  
-  return static_cast<unsigned long long>(bit_invmass2) ;
+
+  auto u_invmass2 = static_cast<unsigned long long>(bit_invmass2);
+
+  if (u_invmass2 > std::numeric_limits<int>::max())
+    {return std::numeric_limits<int>::max();}
+  else
+    {return u_invmass2;}
 }
 
 unsigned int TSU::Kinematics::calcTMassBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
