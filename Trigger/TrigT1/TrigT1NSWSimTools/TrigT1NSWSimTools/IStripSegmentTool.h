@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISTRIPSEGMENTTOOL_H
@@ -32,15 +32,12 @@ namespace NSWL1 {
   public:
     virtual ~IStripSegmentTool() {}
 
-    virtual StatusCode find_segments( std::vector< std::unique_ptr<StripClusterData> >& clusters,const std::unique_ptr<Muon::NSW_TrigRawDataContainer>& rdo_container) = 0;
-    
+    virtual StatusCode find_segments( std::vector< std::unique_ptr<StripClusterData> >& clusters,const std::unique_ptr<Muon::NSW_TrigRawDataContainer>& rdo_container) const = 0;
+
     static const InterfaceID& interfaceID() {
         static const InterfaceID IID_IStripSegmentTool("NSWL1::IStripSegmentTool", 1 ,0);
         return IID_IStripSegmentTool;
     }
-
   };
-
 }
-
 #endif

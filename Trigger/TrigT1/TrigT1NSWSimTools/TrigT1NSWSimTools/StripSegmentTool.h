@@ -42,9 +42,6 @@
 #include <utility>
 #include <cmath>
 
-class IIncidentSvc;
-class TTree;
-
 // namespace for the NSW LVL1 related classes
 namespace NSWL1 {
 
@@ -71,7 +68,8 @@ namespace NSWL1 {
     virtual ~StripSegmentTool()=default;
     virtual StatusCode initialize() override;
     virtual void handle (const Incident& inc) override;
-    virtual StatusCode find_segments( std::vector< std::unique_ptr<StripClusterData> >& ,const std::unique_ptr<Muon::NSW_TrigRawDataContainer>& ) override;
+    virtual StatusCode find_segments( std::vector< std::unique_ptr<StripClusterData> >& ,const std::unique_ptr<Muon::NSW_TrigRawDataContainer>& ) const override;
+    StatusCode FetchDetectorEnvelope(std::pair<float, float> &rbounds, std::pair<float, float> &etabounds, std::pair<float, float> &zbounds) const;
 
   private:
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
@@ -109,12 +107,8 @@ namespace NSWL1 {
     std::vector<float> *m_seg_global_y;
     std::vector<float> *m_seg_global_z;
 
-    StatusCode FetchDetectorEnvelope();
-    uint8_t findRIdx(const float&) const;
+    uint8_t findRIdx(const float& val, const std::pair<float, float> &rbounds, const std::pair<float, float> &etabounds) const;
     uint8_t findDtheta(const float&) const;
-    std::pair<float,float> m_zbounds;
-    std::pair<float,float> m_etabounds;
-    std::pair<float,float> m_rbounds;
   };  // end of StripSegmentTool class
 } // namespace NSWL1
 #endif
