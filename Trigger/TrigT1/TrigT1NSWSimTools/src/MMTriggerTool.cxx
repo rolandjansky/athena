@@ -79,7 +79,7 @@ namespace NSWL1 {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode MMTriggerTool::runTrigger(Muon::NSW_TrigRawDataContainer* rdo, const bool do_MMDiamonds) {
+  StatusCode MMTriggerTool::runTrigger(Muon::NSW_TrigRawDataContainer* rdo, const bool do_MMDiamonds) const {
     const auto& ctx = Gaudi::Hive::currentContext();
     int event = ctx.eventID().event_number();
     ATH_MSG_DEBUG("********************************************************* EVENT NUMBER = " << event);
@@ -121,8 +121,9 @@ namespace NSWL1 {
       ATH_MSG_ERROR("Cannot retrieve MmDigitContainer");
       return StatusCode::FAILURE;
     }
-    ATH_CHECK( load.getMMDigitsInfo( ptrMcEventCollection, ptrMuonEntryLayer, readMmDigitContainer.cptr(), entries, Hits_Data_Set_Time, Event_Info, pars) );
-    if (m_doNtuple) this->fillNtuple(load);
+    histogramDigitVariables histDigVars;
+    ATH_CHECK( load.getMMDigitsInfo( ptrMcEventCollection, ptrMuonEntryLayer, readMmDigitContainer.cptr(), entries, Hits_Data_Set_Time, Event_Info, pars, histDigVars) );
+    if (m_doNtuple) this->fillNtuple(histDigVars);
 
     if (entries.empty()) {
       ATH_MSG_WARNING("No digits available for processing, exiting");
@@ -273,7 +274,7 @@ namespace NSWL1 {
                       if (m_doNtuple) m_trigger_diamond_TP_phi_id->push_back(phi_id);
 
                       // R-id
-                      double extrapolatedR = slope.mx*7824.46; // The Z plane is a fixed value, taken from SL-TP documentation
+                      double extrapolatedR = 7824.46*std::abs(std::tan(slope.theta)); // The Z plane is a fixed value, taken from SL-TP documentation
                       uint8_t R_id = 0;
                       if (extrapolatedR > m_rMax || extrapolatedR < m_rMin) trigRawDataSegment->setRIndex(R_id);
                       else {
@@ -291,12 +292,12 @@ namespace NSWL1 {
 
                       // DeltaTheta-id
                       uint8_t dTheta_id = 0;
-                      if (slope.dtheta*M_PI/180.0 > m_dThetaMax || slope.dtheta*M_PI/180.0 < m_dThetaMin) trigRawDataSegment->setDeltaTheta(dTheta_id);
+                      if (slope.dtheta > m_dThetaMax || slope.dtheta < m_dThetaMin) trigRawDataSegment->setDeltaTheta(dTheta_id);
                       else {
                         uint8_t ndTheta = (1<<m_dThetaBits) -1;
                         float dThetaSteps = (m_dThetaMax - m_dThetaMin)/ndTheta;
                         for (uint8_t k=0; k<ndTheta; k++) {
-                          if ((slope.dtheta*M_PI/180.0) < (m_dThetaMin+k*dThetaSteps)) {
+                          if ((slope.dtheta) < (m_dThetaMin+k*dThetaSteps)) {
                             dTheta_id = k;
                             break;
                           }

@@ -338,20 +338,21 @@ namespace NSWL1 {
       m_NSWMM_dig_stripGposY->clear();
       m_NSWMM_dig_stripGposZ->clear();
     }
-    void MMTriggerTool::fillNtuple(const MMLoadVariables& loadedVariables){
+    void MMTriggerTool::fillNtuple(const histogramDigitVariables& histDigVars) const {
 
-      *m_NSWMM_dig_stationEta  = loadedVariables.histVars.NSWMM_dig_stationEta;
-      *m_NSWMM_dig_stationPhi  = loadedVariables.histVars.NSWMM_dig_stationPhi;
-      *m_NSWMM_dig_multiplet   = loadedVariables.histVars.NSWMM_dig_multiplet;
-      *m_NSWMM_dig_gas_gap     = loadedVariables.histVars.NSWMM_dig_gas_gap;
-      *m_NSWMM_dig_channel     = loadedVariables.histVars.NSWMM_dig_channel;
-      *m_NSWMM_dig_time          = loadedVariables.histVars.NSWMM_dig_time;
-      *m_NSWMM_dig_charge        = loadedVariables.histVars.NSWMM_dig_charge;
-      *m_NSWMM_dig_stripPosition = loadedVariables.histVars.NSWMM_dig_stripPosition;
-      *m_NSWMM_dig_stripLposX    = loadedVariables.histVars.NSWMM_dig_stripLposX;
-      *m_NSWMM_dig_stripLposY    = loadedVariables.histVars.NSWMM_dig_stripLposY;
-      *m_NSWMM_dig_stripGposX    = loadedVariables.histVars.NSWMM_dig_stripGposX;
-      *m_NSWMM_dig_stripGposY    = loadedVariables.histVars.NSWMM_dig_stripGposY;
-      *m_NSWMM_dig_stripGposZ    = loadedVariables.histVars.NSWMM_dig_stripGposZ;
+      *m_NSWMM_dig_stationName = histDigVars.NSWMM_dig_stationName;
+      *m_NSWMM_dig_stationEta  = histDigVars.NSWMM_dig_stationEta;
+      *m_NSWMM_dig_stationPhi  = histDigVars.NSWMM_dig_stationPhi;
+      *m_NSWMM_dig_multiplet   = histDigVars.NSWMM_dig_multiplet;
+      *m_NSWMM_dig_gas_gap     = histDigVars.NSWMM_dig_gas_gap;
+      *m_NSWMM_dig_channel     = histDigVars.NSWMM_dig_channel;
+      *m_NSWMM_dig_time          = histDigVars.NSWMM_dig_time;
+      *m_NSWMM_dig_charge        = histDigVars.NSWMM_dig_charge;
+      *m_NSWMM_dig_stripPosition = histDigVars.NSWMM_dig_stripPosition;
+      *m_NSWMM_dig_stripLposX    = histDigVars.NSWMM_dig_stripLposX;
+      *m_NSWMM_dig_stripLposY    = histDigVars.NSWMM_dig_stripLposY;
+      *m_NSWMM_dig_stripGposX    = histDigVars.NSWMM_dig_stripGposX;
+      *m_NSWMM_dig_stripGposY    = histDigVars.NSWMM_dig_stripGposY;
+      *m_NSWMM_dig_stripGposZ    = histDigVars.NSWMM_dig_stripGposZ;
     }
 }//end namespace

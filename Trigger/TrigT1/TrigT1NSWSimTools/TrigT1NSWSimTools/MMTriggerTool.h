@@ -54,7 +54,7 @@ namespace NSWL1 {
 
     virtual void handle (const Incident& inc);
 
-    StatusCode runTrigger(Muon::NSW_TrigRawDataContainer* rdo, const bool do_MMDiamonds);
+    StatusCode runTrigger(Muon::NSW_TrigRawDataContainer* rdo, const bool do_MMDiamonds) const;
 
   private:
 
@@ -97,9 +97,9 @@ namespace NSWL1 {
     const MmIdHelper*                  m_MmIdHelper;        //!< MM offline Id helper
 
     //Histogram
-    StatusCode book_branches();                             //!< book the branches
-    void clear_ntuple_variables();                          //!< clear the variables used in the analysis ntuple
-    void fillNtuple(const MMLoadVariables& loadedVariables);
+    StatusCode book_branches();                       //!< book the branches
+    void clear_ntuple_variables();                    //!< clear the variables used in the analysis ntuple
+    void fillNtuple(const histogramDigitVariables& histDigVars) const;
 
     TTree* m_tree;                                          //!< ntuple for analysis
     std::vector<unsigned int>* m_trigger_diamond_ntrig;
@@ -200,7 +200,5 @@ namespace NSWL1 {
     std::vector< std::vector<double> > *m_NSWMM_dig_stripGposY;
     std::vector< std::vector<double> > *m_NSWMM_dig_stripGposZ;
   };  // end of MMTriggerTool class
-
 } // namespace NSWL1
-
 #endif
