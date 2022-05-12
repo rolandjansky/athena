@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4USERACTIONS_G4UA_G4SIMTIMER_H
 #define G4USERACTIONS_G4UA_G4SIMTIMER_H
 
 // Infrastructure includes
-#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
 // Geant4 includes
 #include "G4Timer.hh"
@@ -36,9 +36,8 @@ namespace G4UA
   /// @todo TODO: Enable the run timer using a run-action (now possible).
   ///
   /// @author Steve Farrell <Steven.Farrell>
-  /// @author ???
   ///
-  class G4SimTimer : public G4UserEventAction
+  class G4SimTimer : public G4UserEventAction, public AthMessaging
   {
 
     public:
@@ -79,12 +78,6 @@ namespace G4UA
       { return m_results; }
 
     private:
-
-      /// Log a message using the Athena controlled logging system
-      MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-
-      /// Private message stream member
-      mutable Athena::MsgStreamMember m_msg;
 
       /// My private instance of an event timer.
       G4Timer m_eventTimer;

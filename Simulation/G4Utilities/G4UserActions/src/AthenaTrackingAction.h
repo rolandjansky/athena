@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4AtlasAlg_AthenaTrackingAction_H
 #define G4AtlasAlg_AthenaTrackingAction_H
 
-#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
 #include "G4UserTrackingAction.hh"
 
@@ -15,7 +15,7 @@ namespace G4UA
   /// @class AthenaTrackingAction
   /// @brief User action for pre/post tracking truth handling.
   ///
-  class AthenaTrackingAction : public G4UserTrackingAction
+  class AthenaTrackingAction : public G4UserTrackingAction, public AthMessaging
   {
 
     public:
@@ -36,11 +36,6 @@ namespace G4UA
       virtual void PostUserTrackingAction(const G4Track*) override final;
 
     private:
-
-      /// Log a message using the Athena controlled logging system
-      MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-      bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
-      mutable Athena::MsgStreamMember m_msg;
 
       /// The saving level for secondaries.
       int m_secondarySavingLevel;
