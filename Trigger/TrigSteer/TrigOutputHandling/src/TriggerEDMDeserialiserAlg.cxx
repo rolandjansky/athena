@@ -111,7 +111,7 @@ namespace  {
       }
 
       if ( level >= kError && location && strstr(location, "TClass::Load")) {
-        std::cout << "TriggerEDMDeserialiserAlg: buff dump\n";
+        std::cout << "TriggerEDMDeserialiserAlg: buff dump; start " << m_start << "\n";
         CxxUtils::hexdump (std::cout, m_buf, m_bufsize);
         std::cout << "TriggerEDMDeserialiserAlg: payload dump\n";
         CxxUtils::hexdump (std::cout, m_payload->data(), m_payload->size() * sizeof(Payload::value_type));
@@ -120,14 +120,16 @@ namespace  {
       return true;  // call default handlers
     }
 
-    handleError (const char* buf, size_t bufsize, const Payload* payload)
-      : m_buf (buf), m_bufsize (bufsize), m_payload (payload)
+    handleError (const char* buf, size_t bufsize, const Payload* payload,
+                 const void* start)
+      : m_buf (buf), m_bufsize (bufsize), m_payload (payload), m_start(start)
     {
     }
 
     const char* m_buf;
     size_t m_bufsize;
     const Payload* m_payload;
+    const void* m_start;
   };
 
 }
@@ -291,7 +293,7 @@ StatusCode TriggerEDMDeserialiserAlg::deserialise( const Payload* dataptr ) cons
     void* obj{ nullptr };
     {
       // Temporary error handler to debug ATR-25049
-      RootUtils::WithRootErrorHandler hand( handleError(buff.get(), usedBytes, dataptr) );
+      RootUtils::WithRootErrorHandler hand( handleError(buff.get(), usedBytes, dataptr, &*start) );
       obj = m_serializerSvc->deserialize( buff.get(), usedBytes, classDesc );
     }
 
