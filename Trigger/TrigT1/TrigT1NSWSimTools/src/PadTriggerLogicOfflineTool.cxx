@@ -241,7 +241,7 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const SectorTriggerCandida
     const float xcntr=coordinate<0>(trgCntr);
     const float ycntr=coordinate<1>(trgCntr);
     const float zcntr=innertrg.pads().at(0)->m_cornerXyz[1][2];
-    TVector3 trigVector(xcntr,ycntr,zcntr);
+    ROOT::Math::XYZVector trigVector(xcntr,ycntr,zcntr);
     const float etaTrig=trigVector.Eta();
     const float phiTrig=trigVector.Phi();
     pt.m_eta    = etaTrig;
@@ -262,7 +262,7 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const SectorTriggerCandida
     Amg::Vector2D local_trgCoordinateOnAxis(0,yloc_trg);
     Amg::Vector3D global_trgCoordinateProjectedOnAxis;
     surf.localToGlobal(local_trgCoordinateOnAxis, Amg::Vector3D(),global_trgCoordinateProjectedOnAxis);
-    TVector3 trgVectorProjectedOnAxis(global_trgCoordinateProjectedOnAxis.x(),global_trgCoordinateProjectedOnAxis.y(),global_trgCoordinateProjectedOnAxis.z());
+    ROOT::Math::XYZVector trgVectorProjectedOnAxis(global_trgCoordinateProjectedOnAxis.x(),global_trgCoordinateProjectedOnAxis.y(),global_trgCoordinateProjectedOnAxis.z());
     float etaProjected=trgVectorProjectedOnAxis.Eta();
     int secType=pad0->sectorType();
     int matchedBandId=ROI2BandId(fabs(etaProjected),secType);
@@ -339,10 +339,10 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const SectorTriggerCandida
             //Find the radial boundaries of the band within the sector axis
             float Rmin=std::abs(padZ*std::tan(2*std::atan(-1*std::exp(pt.m_etamax))) );
             float Rmax=std::abs(padZ*std::tan(2*std::atan(-1*std::exp(pt.m_etamin))) );
-            float xmin=Rmin*cos(Phi);
-            float ymin=Rmin*sin(Phi);
-            float xmax=Rmax*cos(Phi);
-            float ymax=Rmax*sin(Phi);
+            float xmin=Rmin*std::cos(Phi);
+            float ymin=Rmin*std::sin(Phi);
+            float xmax=Rmax*std::cos(Phi);
+            float ymax=Rmax*std::sin(Phi);
 
             Amg::Vector3D global_trgMinOnAxis(xmin,ymin,padZ);
             Amg::Vector3D global_trgMaxOnAxis(xmax,ymax,padZ);
