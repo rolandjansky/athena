@@ -21,5 +21,5 @@ def getTrigCosmicInDetTracking(flags):
     verifier.DataObjects += [('TrigRoiDescriptorCollection', 'StoreGateSvc+InputRoI')]
 
     from TrigInDetConfig.EFIDTracking import makeInDetPatternRecognition
-    efidAlgs,_ = makeInDetPatternRecognition(idTrigConfig, verifier='VDVCosmicsIDTracking')
-    return   dataPrepInputMaker, [verifier] + dataPrepAlgs + efidAlgs
+    efidAlgs, verifierForEF = makeInDetPatternRecognition(idTrigConfig, verifier='VDVCosmicsIDTracking')
+    return   dataPrepInputMaker, [verifier,verifierForEF] + dataPrepAlgs + efidAlgs
