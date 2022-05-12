@@ -21,6 +21,7 @@ def VrtSecInclusiveSequence(ConfigFlags):
 
     from TrigVrtSecInclusive.TrigVrtSecInclusiveConfig import TrigVrtSecInclusiveCfg
     theVSI = TrigVrtSecInclusiveCfg("TrigVrtSecInclusive", fscfg.tracks_FTF(), lrtcfg.tracks_FTF(), fscfg.vertex, "HLT_TrigVSIVertex", "HLT_TrigVSITrkPair")
+    theVSI.recordTrkPair = False
     vtx_reco_algs = [theVSI]
 
     TrkSeq = parOR("UncTrkrecoSeqVSI", [im_alg, ft_reco_algs, vtx_reco_algs])

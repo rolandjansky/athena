@@ -247,7 +247,9 @@ StatusCode TrigVrtSecInclusive::execute(const EventContext& ctx) const
    timerWriteVertices.start();
 
    ATH_CHECK( fillVtxContainer( theXAODContainers,        v_wrkvrt,         v_selectedTracks ) );
-   ATH_CHECK( fillVtxContainer( theXAODTrkPairContainers, v_diTrkVertices,  v_selectedTracks ) );
+   if (m_recordTrkPair) {
+      ATH_CHECK( fillVtxContainer( theXAODTrkPairContainers, v_diTrkVertices,  v_selectedTracks ) );
+   }
 
    // record AOD object
    ATH_MSG_DEBUG( header << "Record vertices into container." );

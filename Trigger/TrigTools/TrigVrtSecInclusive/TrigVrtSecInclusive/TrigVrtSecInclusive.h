@@ -50,6 +50,8 @@ private:
    // Properties
    Gaudi::Property<int> m_vtxAlgorithm{this,  "vtxAlgorithm", 0,  "Vertexing algorithm. 0 : TrigVSI algorithm, 1 : Offline VSI like algorithm"};
 
+   Gaudi::Property<bool> m_recordTrkPair  {this, "recordTrkPair", false, "Output EDM : Flag for record TrkPair vertices"};
+
    Gaudi::Property<int> m_cutPixelHits  {this, "CutPixelHits",  0,  "Track selection : Hit requirements"};
    Gaudi::Property<int> m_cutSctHits    {this, "CutSctHits",    2,  "Track selection : Hit requirements"};
    Gaudi::Property<int> m_cutSharedHits {this, "CutSharedHits", 99, "Track selection : Hit requirements"};
