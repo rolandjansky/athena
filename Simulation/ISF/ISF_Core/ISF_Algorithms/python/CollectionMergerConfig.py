@@ -82,7 +82,7 @@ def ISFCollectionMergerCfg(flags,name="ISF_CollectionMerger", **kwargs):
     if flags.Detector.EnableTGC:
         kwargs.setdefault( "OutputTGCHits",             hardscatterSG+"TGC_Hits"            )
     if flags.Detector.EnablesTGC:
-        kwargs.setdefault( "OutptsTGCHits",             hardscatterSG+"sTGC_Hits"           )
+        kwargs.setdefault( "OutputsTGCHits",            hardscatterSG+"sTGC_Hits"           )
     if flags.Detector.EnableMM:
         kwargs.setdefault( "OutputMMHits",              hardscatterSG+"MM_Hits"             )
     return CompFactory.ISF.CollectionMerger(name, **kwargs)
