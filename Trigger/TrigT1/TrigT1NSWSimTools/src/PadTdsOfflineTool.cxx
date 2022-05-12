@@ -105,7 +105,7 @@ namespace NSWL1 {
         return globalPos;
     }
     //------------------------------------------------------------------------------
-    void PadTdsOfflineTool::fill_pad_validation_id(std::vector< std::vector<std::shared_ptr<PadData>> > &pad_cache) {
+    void PadTdsOfflineTool::fill_pad_validation_id(std::vector< std::vector<std::shared_ptr<PadData>> > &pad_cache) const {
         float bin_offset = +0.; // used to center the bin on the value of the Pad Id
         for (const std::vector<std::shared_ptr<PadData>>& pad : pad_cache) {
             m_validation_tree.fill_num_pad_hits(pad.size());
@@ -147,7 +147,7 @@ namespace NSWL1 {
         }
     }
     //------------------------------------------------------------------------------
-    StatusCode PadTdsOfflineTool::gather_pad_data(std::vector<std::shared_ptr<PadData>>& pads, int side, int sector) {
+    StatusCode PadTdsOfflineTool::gather_pad_data(std::vector<std::shared_ptr<PadData>>& pads, int side, int sector) const {
         ATH_MSG_DEBUG( "gather_pad_data: start gathering the PAD hits for side " << side << ", sector " << sector );
         // check side and sector parameters
         if ( side <-1 || side >1 ) {

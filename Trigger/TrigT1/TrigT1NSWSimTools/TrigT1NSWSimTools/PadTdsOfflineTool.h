@@ -90,7 +90,7 @@ namespace NSWL1 {
         virtual ~PadTdsOfflineTool()=default;
         virtual StatusCode initialize() override;
         virtual void handle (const Incident& inc) override;
-        virtual StatusCode gather_pad_data(std::vector<std::shared_ptr<PadData>>& pads, int side=-1, int sector=-1) override;
+        virtual StatusCode gather_pad_data(std::vector<std::shared_ptr<PadData>>& pads, int side=-1, int sector=-1) const override;
 
     public:
         /** @name Sector indices
@@ -121,7 +121,7 @@ namespace NSWL1 {
     private:
         // methods implementing the internal data processing
         StatusCode fill_pad_cache(std::vector< std::vector<std::shared_ptr<PadData>> > &pad_cache) const; //!< Apply the additional processing then fill the cache, locally
-        void fill_pad_validation_id(std::vector< std::vector<std::shared_ptr<PadData>> > &pad_cache); //!< Fill the ntuple branch for the PadTdsOffline
+        void fill_pad_validation_id(std::vector< std::vector<std::shared_ptr<PadData>> > &pad_cache) const; //!< Fill the ntuple branch for the PadTdsOffline
 
         double computeTof(const sTgcDigit* digit) const;        //!< compute the time of flight of particle giving the PAD hit
         double computeTimeJitter() const;                       //!< extract the time jitter t subtract from the PAD hit time
