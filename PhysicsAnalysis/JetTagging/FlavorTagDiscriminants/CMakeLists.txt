@@ -39,6 +39,7 @@ atlas_add_library( FlavorTagDiscriminants
   Root/HbbGraphConfig.cxx
   Root/VRJetOverlapDecorator.cxx
   Root/FTagDataDependencyNames.cxx
+  Root/TrackClassifier.cxx
   PUBLIC_HEADERS FlavorTagDiscriminants
   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS} ${ONNXRUNTIME_INCLUDE_DIRS}
