@@ -419,7 +419,7 @@ AllowedTopos_Bphysics = [
     'BsmumuPhi','BpmumuKp','BcmumuPi','BdmumuKst','LbPqKm','BcmumuDsloose','BcmumuDploose','BcmumuD0Xloose','BcmumuDstarloose',
     'BpmuD0X','BdmuDpX','BdmuDstarX','BsmuDsX','LbmuLcX',
     # topoExtras
-    'Lxy0','noos','nocut'
+    'Lxy0','noos','nocut','lowpt'
     #########Remove until here############
 
 ]
@@ -427,7 +427,7 @@ AllowedTopos_Bphysics_topoVariant = [
     'BsmumuPhi','BpmumuKp','BcmumuPi','BdmumuKst','LbPqKm','BcmumuDsloose','BcmumuDploose','BcmumuD0Xloose','BcmumuDstarloose',
     'BpmuD0X','BdmuDpX','BdmuDstarX','BsmuDsX','LbmuLcX'
 ]
-AllowedTopos_Bphysics_topoExtra = ['Lxy0','noos','nocut']
+AllowedTopos_Bphysics_topoExtra = ['Lxy0','noos','nocut','lowpt']
 AllAllowedTopos_Bphysics = AllowedTopos_Bphysics_topoVariant+AllowedTopos_Bphysics_topoExtra+AllowedTopos_Bphysics
 
 # ---- Bphysics Dictionary of all allowed Values ----

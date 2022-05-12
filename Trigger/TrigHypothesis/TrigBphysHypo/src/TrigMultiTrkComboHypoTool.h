@@ -44,10 +44,12 @@ class TrigMultiTrkComboHypoTool: public ComboHypoToolBase {
   int totalCharge(const xAOD::TrigBphys*) const;
   bool isInMassRange(double mass) const;
   bool passedDeltaRcut(const xAOD::TrigBphys*) const;
+  bool passedPtCut(const xAOD::TrigBphys*) const;
   inline bool passedChi2Cut(int chi2) const { return (m_chi2 < 0. || chi2 < m_chi2); }
   inline bool passedChargeCut(int charge) const { return (m_totalCharge < 0 || std::abs(charge) == m_totalCharge); }
 
   Gaudi::Property<unsigned int> m_nTrk {this, "nTrk", 2, "number of tracks in the vertex"};
+  Gaudi::Property<std::vector<double>> m_trkPt {this, "trackPtThresholds", {-1., 3000.}, "minimum track transverse momenta (as they appear in TrigBphys)"};
   Gaudi::Property<int> m_totalCharge {this, "totalCharge", 0, "magnitude of the total charge to accept, negative is none" };
   Gaudi::Property<std::pair<double, double>> m_massRange {this, "massRange", {-99., -9.}, "range for the fitted mass, no selection applied if negative"};
   Gaudi::Property<float> m_chi2 {this, "chi2", -99. , "Chi2 cut for vertex (0 < chi2 < cut), no selection applied if negative" };
