@@ -1,6 +1,6 @@
 // this file is -*- C++ -*-
 /*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef JETCALIBTOOLS_PURESIDUAL3DCORRECTION_H
 #define JETCALIBTOOLS_PURESIDUAL3DCORRECTION_H
@@ -21,6 +21,7 @@
 #include "TAxis.h"
 #include <stdio.h>
 #include <vector>
+#include <utility>
 
 namespace PUCorrection {
   
@@ -60,7 +61,7 @@ namespace PUCorrection {
     /// IMPORTANT : the pt must be given in GeV 
     float correction3D(float pt, float eta , float mu, int NPV) const {
       pt = pt < 1 ? 1 : pt;
-      int muNPVbin = m_ref3DHisto->FindBin(mu, NPV);
+      int muNPVbin = std::as_const(m_ref3DHisto)->FindBin(mu, NPV);
       int etaBin = m_etaBins->FindFixBin(std::abs(eta)) - 1;
       float t0 = m_3Dp0_vs_muNPV[ etaBin ]->GetBinContent(muNPVbin);
       if(t0 <= -999.9) {
