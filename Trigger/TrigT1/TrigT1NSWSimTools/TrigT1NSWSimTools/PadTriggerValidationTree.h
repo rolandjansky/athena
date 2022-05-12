@@ -11,6 +11,7 @@
 #include "TrigT1NSWSimTools/TriggerTypes.h"
 #include "TTree.h"
 
+#include "CxxUtils/checker_macros.h"
 #include <string>
 #include <utility> // pair
 #include <vector>
@@ -43,12 +44,12 @@ class PadTriggerValidationTree {
     bool init_tree(TTree *tree);
     void reset_ntuple_variables(); ///< clear all vectors of internal containers
     void clear_ntuple_variables(); ///< set to 0 all pointers of internal containers
-    void fill_num_pad_triggers(size_t num);                                  ///< store the number of pad triggers per event
+    void fill_num_pad_triggers(size_t num) const;                                  ///< store the number of pad triggers per event
     void fill_pad_trigger_basics(const std::vector<std::unique_ptr<PadTrigger>> &triggers) const;  ///< store basic information about the pad triggers
 
   private:
     TTree* m_tree;                                          ///< ntuple for analysis
-    int m_nPadTriggers;           ///< number of triggers per event
+    mutable int m_nPadTriggers ATLAS_THREAD_SAFE;           ///< number of triggers per event
     std::vector<unsigned int>* m_padTriggerBCID;      ///< BCID of the pad trigger
     std::vector<int>*          m_padTriggerModuleIDinner;
     std::vector<int>*          m_padTriggerModuleIDouter;
