@@ -287,6 +287,13 @@ def createTriggerFlags():
     # enables or disables the addition of VR track jet reconstruction sequence
     flags.addFlag("Trigger.Jet.doVRJets", False)
 
+    def __httFlags():
+        """Additional function delays import"""
+        from TrigHTTConfTools.HTTConfigFlags import createHTTConfigFlags
+        return createHTTConfigFlags()
+    flags.addFlagsCategory("Trigger.HTT", __httFlags, prefix=True )
+
+
     return flags
 
     
