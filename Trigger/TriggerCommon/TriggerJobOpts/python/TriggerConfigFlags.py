@@ -297,15 +297,15 @@ if __name__ == "__main__":
         def test_recoFlags(self):
             """Check if offline reco flags can be added to trigger"""
             from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
-            flags.Trigger.Offline.Muon.doMDTs=False
-            flags.Muon.doMDTs=True
-            self.assertEqual(flags.Trigger.Offline.Muon.doMDTs, False, " dependent flag setting does not work")
-            self.assertEqual(flags.Muon.doMDTs, True, " dependent flag setting does not work")
+            flags.Trigger.Offline.Tau.doTauRec=False
+            flags.Tau.doTauRec=True
+            self.assertEqual(flags.Trigger.Offline.Tau.doTauRec, False, " dependent flag setting does not work")
+            self.assertEqual(flags.Tau.doTauRec, True, " dependent flag setting does not work")
 
-            newflags = flags.cloneAndReplace('Muon', 'Trigger.Offline.Muon')
+            newflags = flags.cloneAndReplace('Tau', 'Trigger.Offline.Tau')
 
-            self.assertEqual(flags.Muon.doMDTs, True, " dependent flag setting does not work")
-            self.assertEqual(newflags.Muon.doMDTs, False, " dependent flag setting does not work")
+            self.assertEqual(flags.Tau.doTauRec, True, " dependent flag setting does not work")
+            self.assertEqual(newflags.Tau.doTauRec, False, " dependent flag setting does not work")
             newflags.dump()
 
     unittest.main()
