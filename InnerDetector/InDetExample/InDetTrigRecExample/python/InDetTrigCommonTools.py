@@ -19,8 +19,4 @@ from AthenaCommon.GlobalFlags import globalflags
 # Straw status DB Tool
 from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
 InDetTrigTRTStrawStatusSummaryTool = TRT_StrawStatusSummaryTool(name = "InDetTrigTRTStrawStatusSummaryTool",
-                                                                optimizeCondAccess = False,
                                                                 isGEANT4 = (globalflags.DataSource == 'geant4'))
-
-
-

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file TRT_StrawNeighbourSvc.cxx
@@ -25,7 +25,6 @@
 
 #include "TRT_ConditionsData/StrawStatusMultChanContainer.h"
 #include "TRT_ConditionsData/ExpandedIdentifier.h"
-#include "TRT_ConditionsData/TRTStrawStatusData.h"
 #include "TRT_ConditionsData/StrawStatusContainer.h"
 
 //Geometry db

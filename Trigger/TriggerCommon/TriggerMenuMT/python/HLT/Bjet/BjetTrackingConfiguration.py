@@ -31,15 +31,7 @@ def getSecondStageBjetTracking( inputRoI, inputVertex, inputJets ):
 
     # Precision Tracking
     from TrigInDetConfig.InDetTrigPrecisionTracking import makeInDetTrigPrecisionTracking
-    import AthenaCommon.CfgMgr as CfgMgr
-    PTBjetViewVerifier = CfgMgr.AthViews__ViewDataVerifier("PTBjetViewVerifier")
-    PTBjetViewVerifier.DataObjects = [('TRTStrawStatusData' , 'StoreGateSvc+StrawStatusData'),
-                                      ('TRTStrawStatusData' , 'StoreGateSvc+StrawStatusPermanentData'),
-                                      ]
-
-
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetTrigPrecisionTracking( config = IDTrigConfig, rois=inputRoI)
-    
-    algSequence.append( seqAND("PrecisionTrackingSequence",[PTBjetViewVerifier]+PTAlgs) )
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetTrigPrecisionTracking( config = IDTrigConfig, rois=inputRoI )
+    algSequence.append( seqAND("PrecisionTrackingSequence",PTAlgs) )
 
     return [ algSequence, PTTrackParticles ]

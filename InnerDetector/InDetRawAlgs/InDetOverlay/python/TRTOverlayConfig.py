@@ -36,13 +36,11 @@ def TRTOverlayAlgCfg(flags, name="TRTOverlay", **kwargs):
     kwargs.setdefault("TRT_HT_OccupancyCorrectionBarrelNoE", 0.060)
     kwargs.setdefault("TRT_HT_OccupancyCorrectionEndcapNoE", 0.050)
 
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConfig import TRTStrawStatusCondAlgCfg
+    acc.merge(TRTStrawStatusCondAlgCfg(flags))
+
     from InDetConfig.TRT_ElectronPidToolsConfig import TRT_OverlayLocalOccupancyCfg
     kwargs.setdefault("TRT_LocalOccupancyTool", acc.popToolsAndMerge(TRT_OverlayLocalOccupancyCfg(flags)))
-
-    from TRT_ConditionsServices.TRT_ConditionsServicesConfig import TRT_StrawStatusSummaryToolCfg
-    StrawStatusTool = acc.popToolsAndMerge(TRT_StrawStatusSummaryToolCfg(flags))
-    acc.addPublicTool(StrawStatusTool)  # public as it is has many clients to save some memory
-    kwargs.setdefault("TRTStrawSummaryTool", StrawStatusTool)
 
     from RngComps.RandomServices import AthRNGSvcCfg
     kwargs.setdefault("RndmSvc", acc.getPrimaryAndMerge(AthRNGSvcCfg(flags)).name)

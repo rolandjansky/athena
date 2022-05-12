@@ -1,5 +1,7 @@
 <lcgdict>
-<class name="TRTStrawStatusData" id="BA31F478-CBCB-4F6D-8F45-7D347261215D" />
+<class name="TRTCond::StrawStatusData" id="BA31F478-CBCB-4F6D-8F45-7D347261215D" />
+<class name="TRTCond::StrawStatusSummary" id="44058CE7-DE02-410F-A18C-8F37DDF14CCA" />
+
 <class name="std::less<Identifier>" />
 <class name="std::binary_function<Identifier,Identifier,bool>" />
 <class name="FloatArrayStore" id="37D741BF-3CA2-48D2-A4D9-F415CB862969" />

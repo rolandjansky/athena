@@ -23,14 +23,13 @@
 #include "InDetIdentifier/TRT_ID.h"
 
 #include "TRT_ConditionsData/StrawStatusMultChanContainer.h"
-#include "TRT_ConditionsData/TRTStrawStatusData.h"
 
 #include "CxxUtils/checker_macros.h"
 
 class ATLAS_NOT_THREAD_SAFE TRT_StrawStatusSummaryTool: // This class uses thread-unsafe DataHandle (m_strawstatusHTG4).
 // If bare pointer is used, GeoModelSvc.TRT_DetectorTool.TRT_StrawStatusSummaryTool
 // cannot retrieve folder 'SimStatusHTKey':/TRT/Cond/StatusHT
-  public extends<AthAlgTool, ITRT_StrawStatusSummaryTool>, virtual public IIncidentListener
+  public extends<AthAlgTool, ITRT_StrawStatusSummaryTool>
 {  
  public:
   typedef TRTCond::StrawStatusMultChanContainer StrawStatusContainer;
@@ -78,27 +77,14 @@ class ATLAS_NOT_THREAD_SAFE TRT_StrawStatusSummaryTool: // This class uses threa
 
 
  private:
-  virtual void handle( const Incident& inc ) override;
-  
-  
   const TRT_ID* m_trtId=nullptr;
 
   ServiceHandle<ICondSvc> m_condSvc;
-
-  Gaudi::Property<bool> m_optimizeCondAccess {this, "optimizeCondAccess", false};
-
-  //  ReadHandle  keys - original set
+  //  ReadHandle  keys
   SG::ReadCondHandleKey<StrawStatusContainer> m_statReadKey{this,"StatReadKeyName","/TRT/Cond/Status","StrawStatus in-key"};
   SG::ReadCondHandleKey<StrawStatusContainer> m_permReadKey{this,"PermReadKeyName","/TRT/Cond/StatusPermanent","StrawStatusPermanent in-key"};
-  
-  //ReadHandle keys if precomputed  TRTStrawStatusData is to be used
-  SG::ReadHandleKey<TRTStrawStatusData> m_statReadDataKey{this,"StatReadDataKeyName","StrawStatusData","StrawStatus in-key"};
-  SG::ReadHandleKey<TRTStrawStatusData> m_permReadDataKey{this,"PermReadDataKeyName","StrawStatusPermanentData","StrawStatusPermanent in-key"};
-  const TRTStrawStatusData* p_statData{nullptr};
-  const TRTStrawStatusData* p_statPermData{nullptr};
-  
   SG::ReadCondHandleKey<StrawStatusContainer> m_statHTReadKey{this,"StatHTReadKeyName","/TRT/Cond/StatusHT","StrawStatusHT in-key"};
-  
+
   // Used in simulation (GEANT4) jobs
   Gaudi::Property<bool> m_isGEANT4 {this,"isGEANT4",true};
   Gaudi::Property<std::string> m_par_strawstatusHTcontainerkey{this, "SimStatusHTKey","/TRT/Cond/StatusHT"};

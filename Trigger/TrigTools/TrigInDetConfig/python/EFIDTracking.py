@@ -68,11 +68,7 @@ def get_idtrig_view_verifier(name):
      topSequence.SGInputLoader.Load += [( 'PixelRDO_Container' , InDetKeys.PixelRDOs() ),
                                         ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() ),
                                         ]
-   #needed iff a common setup for xAOD conversion
-   viewDataVerifier.DataObjects +=  [('TRTStrawStatusData' , 'StoreGateSvc+StrawStatusData'),
-                                     ('TRTStrawStatusData' , 'StoreGateSvc+StrawStatusPermanentData')
-                                     ]
-  
+
    return viewDataVerifier
 
 

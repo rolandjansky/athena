@@ -17,8 +17,7 @@ from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
 from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
 InDetTRT_LocalOccupancy = InDet__TRT_LocalOccupancy( name = "InDet_TRT_LocalOccupancy",
                                                      isTrigger = False,
-                                                     TRTCalDbTool = InDetTRTCalDbTool,
-                                                     TRTStrawStatusSummaryTool = InDetTRTStrawStatusSummaryTool )
+                                                     TRTCalDbTool = InDetTRTCalDbTool)
 ToolSvc += InDetTRT_LocalOccupancy
 
 from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import TRT_ToT_dEdx
