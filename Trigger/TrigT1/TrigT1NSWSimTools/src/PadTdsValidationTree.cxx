@@ -1,15 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1NSWSimTools/PadTdsValidationTree.h"
-
-#include "TrigT1NSWSimTools/PadOfflineData.h"
-
-#include "GaudiKernel/ITHistSvc.h"
-
-#include "TTree.h"
-
 
 namespace NSWL1{
     //------------------------------------------------------------------------------
@@ -96,7 +89,6 @@ namespace NSWL1{
             m_tree->Branch("offlineIdPadPhiIdConverted",  &m_offlineIdPadPhiConverted);
             m_tree->Branch("padEtaIdFromOldSimu",         &m_padEtaIdFromOldSimu);
             m_tree->Branch("padPhiIdFromOldSimu",         &m_padPhiIdFromOldSimu);
-    /**/
             success = true;
         }
         return success;
