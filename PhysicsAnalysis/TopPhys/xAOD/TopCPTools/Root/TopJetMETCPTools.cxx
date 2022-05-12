@@ -29,6 +29,8 @@
 // MET include(s):
 #include "METUtilities/METMaker.h"
 #include "METUtilities/METSystematicsTool.h"
+#include "METUtilities/METSignificance.h"
+#include "METInterface/IMETSignificance.h"
 
 namespace top {
   JetMETCPTools::JetMETCPTools(const std::string& name) :
@@ -100,6 +102,7 @@ namespace top {
 
     declareProperty("met_maker", m_met_maker);
     declareProperty("met_systematics", m_met_systematics);
+    declareProperty("metSignif", m_metSignif);
   }
 
   StatusCode JetMETCPTools::initialize() {
@@ -666,6 +669,37 @@ namespace top {
       top::check(metSyst->setProperty("ConfigSoftCaloFile", ""), "Failed to set property");
       top::check(metSyst->initialize(), "Failed to initialize");
       m_met_systematics = metSyst;
+    }
+    // MET significance tool
+    if (asg::ToolStore::contains<IMETSignificance>("metSignificance")) {
+      m_metSignif = asg::ToolStore::get<IMETSignificance>("metSignificance");
+    } else {
+      met::METSignificance* metSignificance = new met::METSignificance("metSignificance");
+      met::SoftTermParams softTerm;
+      if (m_config->METSignifSoftTermParam().compare("Random")==0) {
+        softTerm = met::Random;
+      } else if (m_config->METSignifSoftTermParam().compare("PthardParam")==0) {
+        softTerm = met::PthardParam;
+      } else if (m_config->METSignifSoftTermParam().compare("TSTParam")==0) {
+        softTerm = met::TSTParam;
+      } else {
+        ATH_MSG_ERROR("top::JetMETCPTools: Unkown SoftTermParam for MetSignificance");
+        // TODO actually throw some error here, though we should not get here since config restricts this to one of the three options above
+      }
+      top::check(metSignificance->setProperty("SoftTermParam", softTerm),   "Failed to set MetSignificance::SoftTermParam!");
+      top::check(metSignificance->setProperty("DoPhiReso",     true),                   "Failed to set MetSignificance::DoPhiReso!");
+      top::check(metSignificance->setProperty("IsDataJet",     false),                  "Failed to set MetSignificance::IsDataJet!");
+      top::check(metSignificance->setProperty("IsAFII",        m_config->isAFII()), "Failed to set MetSignificance::IsAFII!");
+      //chopping off the "Jets" part from the jet container name for correct initialization of the METSigTool.
+      std::string jetCollectionName = m_config->sgKeyJets();
+      std::string deleteString = "Jets";
+      std::string::size_type index = jetCollectionName.find(deleteString);
+      if(index != std::string::npos) jetCollectionName.erase(index, (jetCollectionName.length() - index));
+      top::check(metSignificance->setProperty("JetCollection", jetCollectionName),       "Failed to set MetSignificance::JetCollection!");
+      //disable TreatPUJets when using EMTopoJets and fjvt not active
+      top::check(metSignificance->setProperty("TreatPUJets",(jetCollectionName != "AntiKt4EMTopo") || (m_config->doForwardJVTinMET()) ),"Failed to set MetSignificance::TreatPUJets!");
+      top::check(metSignificance->initialize(), "Failed to initialize METSignificanceTool");
+      m_metSignif = metSignificance;
     }
 
     return StatusCode::SUCCESS;
