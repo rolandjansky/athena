@@ -337,8 +337,8 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const SectorTriggerCandida
             float Phi=p->stationPhiAngle();
 
             //Find the radial boundaries of the band within the sector axis
-            float Rmin=fabs(padZ*tan(2*atan(-1*exp(pt.m_etamax))) );
-            float Rmax=fabs(padZ*tan(2*atan(-1*exp(pt.m_etamin))) );
+            float Rmin=std::abs(padZ*std::tan(2*std::atan(-1*std::exp(pt.m_etamax))) );
+            float Rmax=std::abs(padZ*std::tan(2*std::atan(-1*std::exp(pt.m_etamin))) );
             float xmin=Rmin*cos(Phi);
             float ymin=Rmin*sin(Phi);
             float xmax=Rmax*cos(Phi);
