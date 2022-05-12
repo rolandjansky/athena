@@ -136,4 +136,12 @@ struct GasGapData
 
 };
 
+//================================================================================================
+struct RpcElements
+{
+  RpcElements();
+
+  std::map<int, int> Elements;
+};
+
 #endif

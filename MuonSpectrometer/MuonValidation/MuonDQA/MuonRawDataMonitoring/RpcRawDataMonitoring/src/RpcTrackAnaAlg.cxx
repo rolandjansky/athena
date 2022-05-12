@@ -12,8 +12,16 @@
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonReadoutGeometry/RpcDetectorElement.h"
 
+// XML
+#include "libxml/parser.h"
+#include "libxml/tree.h"
+#include "libxml/xmlversion.h"
+#include "libxml/xmlstring.h"
+#include "libxml/xmlstring.h"
+
 // Local
 #include "RpcTrackAnaAlg.h"
+// #include "Element.xml"
 
 //================================================================================================
 RpcTrackAnaAlg::RpcTrackAnaAlg (const std::string& name, ISvcLocator *pSvcLocator):
@@ -42,6 +50,8 @@ StatusCode RpcTrackAnaAlg::initialize ()
   ATH_CHECK( m_rpcPrdKey.initialize() );
 
   ATH_CHECK( initRpcPanel() );
+  ATH_CHECK( Testxml() );
+  
   ATH_CHECK( initTrigTag() );
 
   ATH_MSG_INFO(" initialize extrapolator ");
@@ -63,6 +73,14 @@ StatusCode RpcTrackAnaAlg::initRpcPanel()
   int  nValidPanel = 0;
   ATH_MSG_INFO( "MuonGM::MuonDetectorManager::RpcDetElMaxHash= "<<MuonGM::MuonDetectorManager::RpcDetElMaxHash );
   const RpcIdHelper& rpcIdHelper = m_idHelperSvc->rpcIdHelper();
+
+  std::unique_ptr<RpcElements> elments = std::make_unique<RpcElements>();
+
+  std::map<int, int>::iterator ele_it = elments->Elements.begin();
+  for(;ele_it!=elments->Elements.end();ele_it++){
+    ATH_MSG_INFO( " Test element index = "<< ele_it->first );
+  }
+
 
   m_StationNames[BI] = {};
   m_StationNames[BM1] = {2, 3, 8, 53}; // doubletR = 1
@@ -127,11 +145,16 @@ StatusCode RpcTrackAnaAlg::initRpcPanel()
           std::shared_ptr<RpcPanel> rpcPanel_phi = std::make_shared<RpcPanel>(*m_idHelperSvc, readoutEl, doubletZ, doubletPhi, gasgap, 1, panelIn);
 
           if(rpcPanel_eta->panel_valid) {
+            ATH_MSG_INFO( " Panel  stationName:"<<rpcPanel_eta->stationName << " stationEta:"<< rpcPanel_eta->stationEta << " stationPhi:"<<rpcPanel_eta->stationPhi<<" doubletR:"<<rpcPanel_eta->doubletR<<"doubletZ:"<< rpcPanel_eta->doubletZ<< " doubletPhi:"<< rpcPanel_eta->doubletPhi << " gasGap:" << rpcPanel_eta->gasGap<< " measPhi:" << rpcPanel_eta->measPhi );
+
+
             m_rpcPanelMap.insert(std::map<Identifier, std::shared_ptr<RpcPanel>>::value_type(rpcPanel_eta->panelId, rpcPanel_eta));
             nValidPanel ++;
           }
 
           if(rpcPanel_phi->panel_valid) {
+            ATH_MSG_INFO( " Panel  stationName:"<<rpcPanel_phi->stationName << " stationEta:"<< rpcPanel_phi->stationEta << " stationPhi:"<<rpcPanel_phi->stationPhi<<" doubletR:"<<rpcPanel_phi->doubletR<<"doubletZ:"<< rpcPanel_phi->doubletZ<< " doubletPhi:"<< rpcPanel_phi->doubletPhi << " gasGap:" << rpcPanel_phi->gasGap<< " measPhi:" << rpcPanel_phi->measPhi );
+            
             m_rpcPanelMap.insert(std::map<Identifier, std::shared_ptr<RpcPanel>>::value_type(rpcPanel_phi->panelId, rpcPanel_phi));
             nValidPanel ++;
           }
@@ -142,10 +165,68 @@ StatusCode RpcTrackAnaAlg::initRpcPanel()
     }
   }
 
+
   ATH_MSG_INFO( "nValidPanel = "<<nValidPanel );
 
   return StatusCode::SUCCESS;
 }
+
+//========================================================================================================
+StatusCode RpcTrackAnaAlg::Testxml()
+{
+
+  //
+  // Parse the file and get the DOM 
+  //
+  xmlDocPtr doc = xmlReadFile(m_elementsFileName.c_str(), NULL, 0);
+  
+  if(doc == NULL) {
+    ATH_MSG_ERROR("ParseXml - failed to parse file: " << element_xml << endl;)
+    return StatusCode::FAILURE;
+  }
+
+  //
+  //Get the root element node 
+  //
+  xmlNodePtr root_element = xmlDocGetRootElement(doc);
+
+  if(root_element == NULL || !(root_element->name)) {
+    ATH_MSG_ERROR("ParseXml - null root element pointer or missing name");
+    xmlFreeDoc(doc);
+    return StatusCode::FAILURE;
+  }
+
+  // 
+  // Get each node
+  // 
+  xmlNodePtr element = root_element->children;
+
+  while (element != NULL){
+
+    // 
+    // Get properties
+    // 
+    xmlAttrPtr attrPtr = element->properties;
+    // std::map<std::string, int> e_properties;
+    // m_rpcPanelMap.insert(std::map<Identifier, std::shared_ptr<RpcPanel>>::value_type(rpcPanel_eta->panelId, rpcPanel_eta));
+
+    while (attrPtr != NULL){
+      std::stringstream atr_text, atr_name;
+
+      atr_text << xmlNodeGetContent(element->children);
+      atr_name << element->name;
+
+      ATH_MSG_INFO("atr_text = "<< atr_text << ", atr_name = "<< atr_name);
+
+      attrPtr = attrPtr->next;
+    }
+
+    element = element->next;
+  }
+
+  return StatusCode::SUCCESS;
+}
+
 
 //========================================================================================================
 StatusCode RpcTrackAnaAlg::initTrigTag()

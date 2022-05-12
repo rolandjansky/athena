@@ -361,3 +361,11 @@ void GasGapData::computeTrackDistanceToGasGap(ExResult &result, const Trk::Track
 				                              result.minTrackGasGapDPhi*result.minTrackGasGapDPhi);
 }
 
+
+//========================================================================================================
+// struct RpcElements
+//========================================================================================================
+RpcElements::RpcElements()
+{
+  Elements[1] = 1;
+}

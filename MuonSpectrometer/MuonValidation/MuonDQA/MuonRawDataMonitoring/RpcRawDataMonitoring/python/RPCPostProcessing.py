@@ -55,8 +55,8 @@ def getPanelsPropertiesFromHist(hists):
     else:
       missVarPanels.append(i_panel)
 
-  print("getPanelsPropertiesFromHist::there is %d panels missinng properties!!!", len(missVarPanels))
-  print("getPanelsPropertiesFromHist::finds %d panels !!!", len(Dic_panels))
+  print("getPanelsPropertiesFromHist::there is %d panels missinng properties!!!" %len(missVarPanels))
+  print("getPanelsPropertiesFromHist::finds %d panels !!!" %len(Dic_panels))
 
   return Dic_panels
 
@@ -264,8 +264,16 @@ def make_detection_eff(inputs):
   list_hist1D_panels               = draw_eff.GetHist1D_yPanels(config)
     # "detEff_per_panel_(eta|phi|etaAndPhi)View",
 
+  list_histos = list_summary_allSectorsAndLayers+list_hist2d_EtaPhi_allLayer+list_hist1D_secLayer+list_hist1D_panels+list_summary_eachSectorsAndLayers
+  print ("Len(list_summary_allSectorsAndLayers) = ", len(list_summary_allSectorsAndLayers))
+  print ("Len(list_hist2d_EtaPhi_allLayer) = ", len(list_hist2d_EtaPhi_allLayer))
+  print ("Len(list_hist1D_secLayer) = ", len(list_hist1D_secLayer))
+  print ("Len(list_hist1D_panels) = ", len(list_hist1D_panels))
+  print ("Len(list_summary_eachSectorsAndLayers) = ", len(list_summary_eachSectorsAndLayers))
+  print ("Len(histos) = ", len(list_histos))
 
-  return list_summary_allSectorsAndLayers+list_hist2d_EtaPhi_allLayer+list_hist1D_secLayer+list_hist1D_panels+list_summary_eachSectorsAndLayers
+  # return list_summary_allSectorsAndLayers+list_hist2d_EtaPhi_allLayer+list_hist1D_secLayer+list_hist1D_panels+list_summary_eachSectorsAndLayers
+  return list_histos
 
 #############################################################################
 def make_hitFrac(inputs):
@@ -315,7 +323,8 @@ def make_hitFrac(inputs):
 
 #############################################################################
 def printHistNames():
-  inputfileName = "/home/ssu/DQ_area/run/RPCMonitoringOutput_1000.root" # 1000 event
+  # inputfileName = "/home/ssu/DQ_area/run/RPCMonitoringOutput_1000.root" # 1000 event
+  inputfileName = "/home/ssu/testarea/DQFramework/run/data18_13TeV.00358615.100Evt.root" # 20 event
 
   # make_hit_rate
   # inputHistNames = ['run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_stationName_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_stationEta_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_stationPhi_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_doubletR_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_doubletZ_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_doubletPhi_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_gasgap_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_measPhi_vs_panelIndex', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/NPRDHit_Panels_All', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/evtLB', 'run_358615/Muon/MuonRawDataMonitoring/RPC/RpcOccupancy/Run']
