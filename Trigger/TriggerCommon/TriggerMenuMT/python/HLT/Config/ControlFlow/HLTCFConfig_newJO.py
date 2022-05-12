@@ -423,8 +423,8 @@ def generateDecisionTree(flags, chains):
 
                 needCombo = False
                 for sequenceCounter, sequence in enumerate(step.sequences):
-                    #log.debug("Sequence %d: IM=%s, Hypo=%s", sequenceCounter, sequence.ca.inputMaker().name,  sequence.ca.hypo().name)
                     if not isinstance(sequence, EmptyMenuSequence): # not an empty sequence
+                        log.debug("Sequence %d: IM=%s, Hypo=%s, comboReco=%s", sequenceCounter, sequence.ca.inputMaker().name,  sequence.ca.hypo().name, comboRecoSeq.name)
                         connectIMAndHypo(sequence.ca.inputMaker(), sequence.ca.hypo()) # setup basic CF                        
                         acc.merge( sequence.ca, sequenceName=comboRecoSeq.name)
                         log.debug("MERGE: sequence %s, sequenceName=%s", sequence, comboRecoSeq.name)
@@ -567,7 +567,8 @@ def generateDecisionTree(flags, chains):
 
     validateDataFlowConnections()
 
-    printChainsConfig()
+    if log.getEffectiveLevel() <= logging.DEBUG:
+        printChainsConfig()
     return acc
 
 

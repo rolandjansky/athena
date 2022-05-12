@@ -41,7 +41,6 @@ def setupMenu():
          # Test T&P dimuon
         ChainProp(name='HLT_mu24_mu6_L1MU14FCH', l1SeedThresholds=['MU14FCH','MU3V'], groups=MultiMuonGroup),
         ChainProp(name='HLT_mu24_mu6_probe_L1MU14FCH', l1SeedThresholds=['MU14FCH','PROBEMU3V'], groups=MultiMuonGroup),
-
     ]
     chains["bphysics"] = [
 #        ChainProp(name='HLT_2mu4_bJpsimumu_L12MU3V', groups=BphysicsGroup),
@@ -109,24 +108,38 @@ if __name__ == "__main__":
     from AthenaConfiguration.AccumulatorCache import AccumulatorDecorator
     from AthenaCommon.Logging import logging
     log = logging.getLogger(__name__)
-    
-    
 
+    
+    
     acc = ComponentAccumulator()
     
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.Trigger.generateMenuDiagnostics = True
     log.info(" Running Dev_pp_run3_newJO")
 
+    ConfigFlags.addFlag("Trigger.enabledSignatures",[])  
+    ConfigFlags.addFlag("Trigger.disabledSignatures",[]) 
+    ConfigFlags.addFlag("Trigger.selectChains",[])       
+    ConfigFlags.addFlag("Trigger.disableChains",[]) 
+
+
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.Trigger.triggerMenuSetup="Dev_pp_run3_v1"
+    # this is to force Run3-data processing
+    ConfigFlags.Trigger.EDMVersion=3
     ConfigFlags.lock()
     ConfigFlags.dump()
 
-    from TriggerMenuMT.HLT.Config.GenerateMenuMT_newJO import generateMenu
-    menu = generateMenu( ConfigFlags)
+    from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
+    acc.merge(L1ConfigSvcCfg(ConfigFlags))
 
+    # import this if want to run LoadAndGenerateMenu, which loads a test NewJO menu, which is not Dev
+    #from TriggerMenuMT.HLT.Config.GenerateMenuMT_newJO import LoadAndGenerateMenu as generateHLTMenu
+    from TriggerMenuMT.HLT.Config.GenerateMenuMT_newJO import generateMenuMT as generateHLTMenu
+
+    
+    menu = generateHLTMenu( ConfigFlags)
     acc.merge(menu)
 
     acc.printConfig()

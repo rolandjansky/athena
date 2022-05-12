@@ -30,6 +30,7 @@ import pprint
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
+
 def fakeHypoAlgCfg(flags, name="FakeHypoForMuon"):
     HLTTest__TestHypoAlg=CompFactory.HLTTest.TestHypoAlg
     return HLTTest__TestHypoAlg( name, Input="" )
@@ -240,6 +241,12 @@ def _muFastStepSeq(flags):
 
     return (selAcc , l2muFastSequence)
 
+def muFastSequence(flags, is_probe_leg=False): 
+    muonflags = flags.cloneAndReplace('Muon', 'Trigger.Offline.SA.Muon')
+    selAcc , l2muFastSequence =  _muFastStepSeq(muonflags)
+    return l2muFastSequence
+
+
 def muFastStep(flags, chainDict):
 
     selAcc , l2muFastSequence = _muFastStepSeq(flags)
@@ -271,6 +278,11 @@ def _muCombStepSeq(flags):
                                       HypoToolGen = TrigmuCombHypoToolFromDict)
 
     return (selAccL2CB , l2muCombSequence)
+
+def muCombSequence(flags, is_probe_leg=False):
+    muonflagsCB = flags.cloneAndReplace('Muon', 'Trigger.Offline.Muon').cloneAndReplace('MuonCombined', 'Trigger.Offline.Combined.MuonCombined')    
+    selAccL2CB , l2muCombSequence = _muCombStepSeq(muonflagsCB)
+    return l2muCombSequence
 
 def muCombStep(flags, chainDict):
 
@@ -323,6 +335,11 @@ def _muEFSAStepSeq(flags, name='RoI'):
                                     HypoToolGen = TrigMuonEFMSonlyHypoToolFromDict)
 
     return (selAccMS , efmuMSSequence)
+
+def muEFSASequence(flags, is_probe_leg=False):
+    muonflags = flags.cloneAndReplace('Muon', 'Trigger.Offline.SA.Muon')
+    selAccMS , efmuMSSequence = _muEFSAStepSeq(muonflags, 'RoI')
+    return efmuMSSequence
 
 def muEFSAStep(flags, chainDict, name='RoI'):
 
@@ -418,6 +435,11 @@ def _muEFCBStepSeq(flags, name='RoI'):
    
     return (selAccEFCB , efmuCBSequence)
 
+def muEFCBSequence(flags, is_probe_leg=False):
+    muonflagsCB = flags.cloneAndReplace('Muon', 'Trigger.Offline.Muon').cloneAndReplace('MuonCombined', 'Trigger.Offline.Combined.MuonCombined')
+    selAccEFCB , efmuCBSequence = _muEFCBStepSeq(muonflagsCB, name='RoI')
+    return efmuCBSequence
+
 def muEFCBStep(flags, chainDict, name='RoI'):
 
     selAccEFCB , efmuCBSequence = _muEFCBStepSeq(flags, name)
@@ -494,5 +516,7 @@ def generateChains( flags, chainDict ):
                 chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ muFastStep(muonflags, chainDict), muCombStep(muonflagsCB, chainDict), muEFSAStep(muonflags, chainDict), muEFCBStep(muonflagsCB, chainDict), muEFIsoStep(muonflagsCB, chainDict) ] )
             else:
                 chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ muFastStep(muonflags, chainDict), muCombStep(muonflagsCB, chainDict), muEFSAStep(muonflags, chainDict), muEFCBStep(muonflagsCB, chainDict) ] )
+    
+    log.info('Steps for %s are %s', chain.name, chain.steps)
     return chain
 
