@@ -1,12 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/ServicesTrackerBuilder.h"
 #include "InDetServMatGeoModel/ServicesTracker.h"
 #include "InDetServMatGeoModel/InDetServMatGeometryManager.h"
 
-#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
+
 #include <string>
 
 #include <iostream>  // for DEBUG only
@@ -14,12 +16,11 @@ using namespace std;
 
 ServicesTracker* ServicesTrackerBuilder::buildGeometry(const InDetServMatGeometryManager& geoMgr) const
 {
-
-  Athena::MsgStreamMember msg(Athena::Options::Eager,"ServiceTrackerBuilder");
+  MsgStream msg(Athena::getMessageSvc(), "ServiceTrackerBuilder");
   
-  msg<< MSG::INFO << "Entering ServicesTrackerBuilder::buildGeometry" <<endmsg;
+  msg << MSG::INFO << "Entering ServicesTrackerBuilder::buildGeometry" <<endmsg;
 
-  ServicesTracker* tracker = new ServicesTracker(msg);
+  ServicesTracker* tracker = new ServicesTracker;
   msg << MSG::INFO << "Created new ServicesTracker()" << endmsg;
 
   std::string suffix;

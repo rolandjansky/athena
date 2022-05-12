@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETSERVMATGEOMODEL_ENDPLATEFACTORYFS_H
 #define INDETSERVMATGEOMODEL_ENDPLATEFACTORYFS_H
 
-#include "AthenaKernel/MsgStreamMember.h"
-#include "CxxUtils/checker_macros.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 class StoreGateSvc;
@@ -15,7 +14,7 @@ class IRDBAccessSvc;
 
 
 // End plate factory for Frozen Showers (FS)
-class EndPlateFactoryFS {
+class EndPlateFactoryFS : public AthMessaging {
 
  public:
   
@@ -29,9 +28,7 @@ class EndPlateFactoryFS {
   // Creation of geometry:
   void create(GeoPhysVol *motherP, GeoPhysVol *motherM);
 
-  MsgStream& msg (MSG::Level lvl) { return m_msg << lvl; }
-
- private:  
+ private:
   
   // Illegal operations:
   const EndPlateFactoryFS & operator=(const EndPlateFactoryFS &right);
@@ -40,7 +37,6 @@ class EndPlateFactoryFS {
   // private data
   StoreGateSvc                   *m_detStore;
   ServiceHandle<IRDBAccessSvc>    m_rdbAccess;
-  Athena::MsgStreamMember m_msg;
 };
 
 #endif 

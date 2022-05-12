@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2022 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ServicesTracker_H
@@ -8,7 +8,7 @@
 //#include "InDetServMatGeoModel/ServicesLayer.h"
 #include "InDetServMatGeoModel/DetType.h"
 #include "InDetServMatGeoModel/ServiceMaterial.h"
-#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
 #include <vector>
 #include <map>
@@ -18,11 +18,11 @@ class ServiceVolume;
 class ServicesLayer;
 class InDetServMatGeometryManager;
 
-class ServicesTracker {
+class ServicesTracker : public AthMessaging {
 public:
 
   /// Construct an empty tracker, to be filled by Builder
-  ServicesTracker(const Athena::MsgStreamMember&);
+  ServicesTracker();
   ~ServicesTracker();
 
   // Construct somehow (for testing)
@@ -74,14 +74,6 @@ private:
 
   void add( std::map<std::string, double>& res, const std::string& name, double len);
   void addEosMaterial( const ServiceVolume& vol, std::vector<ServiceMaterial>& result);
-  
-  Athena::MsgStreamMember m_msg;
-  // the message stream (same for all derived classes)
-  MsgStream& msg (MSG::Level lvl) { return m_msg << lvl; }
-  Athena::MsgStreamMember& msgStream() {return m_msg;}
-  //Declaring the Method providing Verbosity Level
-  bool msgLvl (MSG::Level lvl) { return m_msg.get().level() <= lvl; }
-
 };
 
 #endif 
